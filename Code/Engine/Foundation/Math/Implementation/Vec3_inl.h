@@ -1,11 +1,11 @@
 #pragma once
 
 template <typename Type>
-EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
+W_FORCE_INLINE WVec3Template<Type>::WVec3Template()
 {
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::NaN<Type>();
+  const Type TypeNaN = WMath::NaN<Type>();
   x = TypeNaN;
   y = TypeNaN;
   z = TypeNaN;
@@ -13,7 +13,7 @@ EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type x, Type y, Type z)
+W_ALWAYS_INLINE WVec3Template<Type>::WVec3Template(Type x, Type y, Type z)
   : x(x)
   , y(y)
   , z(z)
@@ -21,7 +21,7 @@ EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type x, Type y, Type z)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type v)
+W_ALWAYS_INLINE WVec3Template<Type>::WVec3Template(Type v)
   : x(v)
   , y(v)
   , z(v)
@@ -29,7 +29,7 @@ EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type v)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type xyz)
+W_ALWAYS_INLINE void WVec3Template<Type>::Set(Type xyz)
 {
   x = xyz;
   y = xyz;
@@ -37,7 +37,7 @@ EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type xyz)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type inX, Type inY, Type inZ)
+W_ALWAYS_INLINE void WVec3Template<Type>::Set(Type inX, Type inY, Type inZ)
 {
   x = inX;
   y = inY;
@@ -45,49 +45,49 @@ EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type inX, Type inY, Type inZ)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec3Template<Type>::SetZero()
+W_ALWAYS_INLINE void WVec3Template<Type>::SetZero()
 {
   x = y = z = 0;
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
+W_IMPLEMENT_IF_FLOAT_TYPE W_ALWAYS_INLINE Type WVec3Template<Type>::GetLength() const
 {
-  return (ezMath::Sqrt(GetLengthSquared()));
+  return (WMath::Sqrt(GetLengthSquared()));
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetDistanceTo(const ezVec3Template<Type>& rhs) const
+W_IMPLEMENT_IF_FLOAT_TYPE W_ALWAYS_INLINE Type WVec3Template<Type>::GetDistanceTo(const WVec3Template<Type>& rhs) const
 {
   return (*this - rhs).GetLength();
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetSquaredDistanceTo(const ezVec3Template<Type>& rhs) const
+W_IMPLEMENT_IF_FLOAT_TYPE W_ALWAYS_INLINE Type WVec3Template<Type>::GetSquaredDistanceTo(const WVec3Template<Type>& rhs) const
 {
   return (*this - rhs).GetLengthSquared();
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
+W_IMPLEMENT_IF_FLOAT_TYPE WResult WVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = WMath::DefaultEpsilon<Type>() */)
 {
-  if (NormalizeIfNotZero(ezVec3Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
-    return EZ_FAILURE;
+  if (NormalizeIfNotZero(WVec3Template<Type>::MakeZero(), fEpsilon) == W_FAILURE)
+    return W_FAILURE;
 
   *this *= fNewLength;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename Type>
-EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthSquared() const
+W_FORCE_INLINE Type WVec3Template<Type>::GetLengthSquared() const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
   return (x * x + y * y + z * z);
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthAndNormalize()
+W_IMPLEMENT_IF_FLOAT_TYPE W_FORCE_INLINE Type WVec3Template<Type>::GetLengthAndNormalize()
 {
   const Type fLength = GetLength();
   *this /= fLength;
@@ -95,119 +95,119 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthA
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::GetNormalized() const
+W_IMPLEMENT_IF_FLOAT_TYPE W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::GetNormalized() const
 {
   const Type fLen = GetLength();
 
-  const Type fLengthInv = ezMath::Invert(fLen);
-  return ezVec3Template<Type>(x * fLengthInv, y * fLengthInv, z * fLengthInv);
+  const Type fLengthInv = WMath::Invert(fLen);
+  return WVec3Template<Type>(x * fLengthInv, y * fLengthInv, z * fLengthInv);
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE void ezVec3Template<Type>::Normalize()
+W_IMPLEMENT_IF_FLOAT_TYPE W_ALWAYS_INLINE void WVec3Template<Type>::Normalize()
 {
   *this /= GetLength();
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::NormalizeIfNotZero(const ezVec3Template<Type>& vFallback, Type fEpsilon)
+W_IMPLEMENT_IF_FLOAT_TYPE WResult WVec3Template<Type>::NormalizeIfNotZero(const WVec3Template<Type>& vFallback, Type fEpsilon)
 {
-  EZ_NAN_ASSERT(&vFallback);
+  W_NAN_ASSERT(&vFallback);
 
   const Type fLength = GetLength();
 
-  if (!ezMath::IsFinite(fLength) || ezMath::IsZero(fLength, fEpsilon))
+  if (!WMath::IsFinite(fLength) || WMath::IsZero(fLength, fEpsilon))
   {
     *this = vFallback;
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   *this /= fLength;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 /*! \note Normalization, especially with SSE is not very precise. So this function checks whether the (squared)
   length is between a lower and upper limit.
 */
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
+W_IMPLEMENT_IF_FLOAT_TYPE W_FORCE_INLINE bool WVec3Template<Type>::IsNormalized(Type fEpsilon /* = WMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLength();
-  return ezMath::IsEqual<Type>(t, (Type)1, fEpsilon);
+  return WMath::IsEqual<Type>(t, (Type)1, fEpsilon);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE bool ezVec3Template<Type>::IsZero() const
+W_FORCE_INLINE bool WVec3Template<Type>::IsZero() const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
   return ((x == 0.0f) && (y == 0.0f) && (z == 0.0f));
 }
 
 template <typename Type>
-bool ezVec3Template<Type>::IsZero(Type fEpsilon) const
+bool WVec3Template<Type>::IsZero(Type fEpsilon) const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
-  return (ezMath::IsZero(x, fEpsilon) && ezMath::IsZero(y, fEpsilon) && ezMath::IsZero(z, fEpsilon));
+  return (WMath::IsZero(x, fEpsilon) && WMath::IsZero(y, fEpsilon) && WMath::IsZero(z, fEpsilon));
 }
 
 template <typename Type>
-bool ezVec3Template<Type>::IsNaN() const
+bool WVec3Template<Type>::IsNaN() const
 {
-  if (ezMath::IsNaN(x))
+  if (WMath::IsNaN(x))
     return true;
-  if (ezMath::IsNaN(y))
+  if (WMath::IsNaN(y))
     return true;
-  if (ezMath::IsNaN(z))
+  if (WMath::IsNaN(z))
     return true;
 
   return false;
 }
 
 template <typename Type>
-bool ezVec3Template<Type>::IsValid() const
+bool WVec3Template<Type>::IsValid() const
 {
-  if (!ezMath::IsFinite(x))
+  if (!WMath::IsFinite(x))
     return false;
-  if (!ezMath::IsFinite(y))
+  if (!WMath::IsFinite(y))
     return false;
-  if (!ezMath::IsFinite(z))
+  if (!WMath::IsFinite(z))
     return false;
 
   return true;
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::operator-() const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::operator-() const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
-  return ezVec3Template<Type>(-x, -y, -z);
+  return WVec3Template<Type>(-x, -y, -z);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator+=(const ezVec3Template<Type>& rhs)
+W_FORCE_INLINE void WVec3Template<Type>::operator+=(const WVec3Template<Type>& rhs)
 {
   x += rhs.x;
   y += rhs.y;
   z += rhs.z;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator-=(const ezVec3Template<Type>& rhs)
+W_FORCE_INLINE void WVec3Template<Type>::operator-=(const WVec3Template<Type>& rhs)
 {
   x -= rhs.x;
   y -= rhs.y;
   z -= rhs.z;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator*=(const ezVec3Template& rhs)
+W_FORCE_INLINE void WVec3Template<Type>::operator*=(const WVec3Template& rhs)
 {
   /// \test this is new
 
@@ -215,11 +215,11 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator*=(const ezVec3Template& rhs)
   y *= rhs.y;
   z *= rhs.z;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(const ezVec3Template& rhs)
+W_FORCE_INLINE void WVec3Template<Type>::operator/=(const WVec3Template& rhs)
 {
   /// \test this is new
 
@@ -227,25 +227,25 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(const ezVec3Template& rhs)
   y /= rhs.y;
   z /= rhs.z;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator*=(Type f)
+W_FORCE_INLINE void WVec3Template<Type>::operator*=(Type f)
 {
   x *= f;
   y *= f;
   z *= f;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
+W_FORCE_INLINE void WVec3Template<Type>::operator/=(Type f)
 {
   if constexpr (std::is_floating_point_v<Type>)
   {
-    const Type f_inv = ezMath::Invert(f);
+    const Type f_inv = WMath::Invert(f);
     x *= f_inv;
     y *= f_inv;
     z *= f_inv;
@@ -258,11 +258,11 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
   }
 
   // if this assert fires, you might have tried to normalize a zero-length vector
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+W_IMPLEMENT_IF_FLOAT_TYPE WResult WVec3Template<Type>::CalculateNormal(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2, const WVec3Template<Type>& v3)
 {
   *this = (v3 - v2).CrossRH(v1 - v2);
   return NormalizeIfNotZero();
@@ -270,12 +270,12 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::CalculateNormal(const 
 
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeOrthogonalVector(const ezVec3Template<Type>& vDirection, const ezVec3Template<Type>& vBasis1, const ezVec3Template<Type>& vBasis2)
+W_IMPLEMENT_IF_FLOAT_TYPE WVec3Template<Type> WVec3Template<Type>::MakeOrthogonalVector(const WVec3Template<Type>& vDirection, const WVec3Template<Type>& vBasis1, const WVec3Template<Type>& vBasis2)
 {
-  EZ_ASSERT_DEBUG(vDirection.IsNormalized() && vBasis1.IsNormalized() && vBasis2.IsNormalized(), "All input vectors must be normalized.");
+  W_ASSERT_DEBUG(vDirection.IsNormalized() && vBasis1.IsNormalized() && vBasis2.IsNormalized(), "All input vectors must be normalized.");
 
   // do the cross product with the basis that is less similar to the direction
-  if (ezMath::Abs(vDirection.Dot(vBasis1)) < ezMath::Abs(vDirection.Dot(vBasis2)))
+  if (WMath::Abs(vDirection.Dot(vBasis1)) < WMath::Abs(vDirection.Dot(vBasis2)))
   {
     return vDirection.CrossRH(vBasis1);
   }
@@ -286,70 +286,70 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeOrthog
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
+W_IMPLEMENT_IF_FLOAT_TYPE void WVec3Template<Type>::MakeOrthogonalTo(const WVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
+  W_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", WArgF(vNormal.GetLength(), 3));
 
-  ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
+  WVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
   *this = vOrtho.CrossRH(vNormal);
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
+W_IMPLEMENT_IF_FLOAT_TYPE const WVec3Template<Type> WVec3Template<Type>::GetOrthogonalVector() const
 {
-  EZ_ASSERT_DEBUG(!IsZero(ezMath::SmallEpsilon<Type>()), "The vector must not be zero to be able to compute an orthogonal vector.");
+  W_ASSERT_DEBUG(!IsZero(WMath::SmallEpsilon<Type>()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
-  Type fDot = ezMath::Abs(this->Dot(ezVec3Template<Type>(0, 1, 0)));
+  Type fDot = WMath::Abs(this->Dot(WVec3Template<Type>(0, 1, 0)));
   if (fDot < 0.999f)
-    return this->CrossRH(ezVec3Template<Type>(0, 1, 0));
+    return this->CrossRH(WVec3Template<Type>(0, 1, 0));
 
-  return this->CrossRH(ezVec3Template<Type>(1, 0, 0));
+  return this->CrossRH(WVec3Template<Type>(1, 0, 0));
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const
+W_IMPLEMENT_IF_FLOAT_TYPE const WVec3Template<Type> WVec3Template<Type>::GetReflectedVector(const WVec3Template<Type>& vNormal) const
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
+  W_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
   return ((*this) - ((Type)2 * this->Dot(vNormal) * vNormal));
 }
 
 template <typename Type>
-EZ_FORCE_INLINE Type ezVec3Template<Type>::Dot(const ezVec3Template<Type>& rhs) const
+W_FORCE_INLINE Type WVec3Template<Type>::Dot(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
   return ((x * rhs.x) + (y * rhs.y) + (z * rhs.z));
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Type>& rhs) const
+const WVec3Template<Type> WVec3Template<Type>::CrossRH(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
+  return WVec3Template<Type>(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
 }
 
 template <typename Type>
-ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
+WAngleTemplate<Type> WVec3Template<Type>::GetAngleBetween(const WVec3Template<Type>& rhs) const
 {
-  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
-  EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized. Length is: {}", rhs.GetLength());
+  W_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
+  W_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized. Length is: {}", rhs.GetLength());
 
-  return ezMath::ACos<Type>(static_cast<Type>(ezMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
+  return WMath::ACos<Type>(static_cast<Type>(WMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
 }
 
 template <typename Type>
-ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const
+WAngleTemplate<Type> WVec3Template<Type>::GetAngleBetween(const WVec3Template<Type>& vForward, const WVec3Template<Type>& vUp) const
 {
-  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
-  EZ_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
-  EZ_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
+  W_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
+  W_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
+  W_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
 
-  const ezVec3Template<Type> vRight = vForward.CrossRH(vUp).GetNormalized();
-  const ezAngleTemplate<Type> shortAngle = GetAngleBetween(vForward);
+  const WVec3Template<Type> vRight = vForward.CrossRH(vUp).GetNormalized();
+  const WAngleTemplate<Type> shortAngle = GetAngleBetween(vForward);
 
   if (this->Dot(vRight) < 0) // more than 90 degrees away from it
   {
@@ -360,145 +360,145 @@ ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMin(const ezVec3Template<Type>& rhs) const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::CompMin(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(ezMath::Min(x, rhs.x), ezMath::Min(y, rhs.y), ezMath::Min(z, rhs.z));
+  return WVec3Template<Type>(WMath::Min(x, rhs.x), WMath::Min(y, rhs.y), WMath::Min(z, rhs.z));
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMax(const ezVec3Template<Type>& rhs) const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::CompMax(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y), ezMath::Max(z, rhs.z));
+  return WVec3Template<Type>(WMath::Max(x, rhs.x), WMath::Max(y, rhs.y), WMath::Max(z, rhs.z));
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompClamp(const ezVec3Template& vLow, const ezVec3Template& vHigh) const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::CompClamp(const WVec3Template& vLow, const WVec3Template& vHigh) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&vLow);
-  EZ_NAN_ASSERT(&vHigh);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&vLow);
+  W_NAN_ASSERT(&vHigh);
 
-  return ezVec3Template<Type>(ezMath::Clamp(x, vLow.x, vHigh.x), ezMath::Clamp(y, vLow.y, vHigh.y), ezMath::Clamp(z, vLow.z, vHigh.z));
+  return WVec3Template<Type>(WMath::Clamp(x, vLow.x, vHigh.x), WMath::Clamp(y, vLow.y, vHigh.y), WMath::Clamp(z, vLow.z, vHigh.z));
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMul(const ezVec3Template<Type>& rhs) const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::CompMul(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(x * rhs.x, y * rhs.y, z * rhs.z);
+  return WVec3Template<Type>(x * rhs.x, y * rhs.y, z * rhs.z);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompDiv(const ezVec3Template<Type>& rhs) const
+W_FORCE_INLINE const WVec3Template<Type> WVec3Template<Type>::CompDiv(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(x / rhs.x, y / rhs.y, z / rhs.z);
+  return WVec3Template<Type>(x / rhs.x, y / rhs.y, z / rhs.z);
 }
 
 template <typename Type>
-inline const ezVec3Template<Type> ezVec3Template<Type>::Abs() const
+inline const WVec3Template<Type> WVec3Template<Type>::Abs() const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
-  return ezVec3Template<Type>(ezMath::Abs(x), ezMath::Abs(y), ezMath::Abs(z));
+  return WVec3Template<Type>(WMath::Abs(x), WMath::Abs(y), WMath::Abs(z));
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator+(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+W_FORCE_INLINE const WVec3Template<Type> operator+(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2)
 {
-  EZ_NAN_ASSERT(&v1);
-  EZ_NAN_ASSERT(&v2);
+  W_NAN_ASSERT(&v1);
+  W_NAN_ASSERT(&v2);
 
-  return ezVec3Template<Type>(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+  return WVec3Template<Type>(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator-(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+W_FORCE_INLINE const WVec3Template<Type> operator-(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2)
 {
-  EZ_NAN_ASSERT(&v1);
-  EZ_NAN_ASSERT(&v2);
+  W_NAN_ASSERT(&v1);
+  W_NAN_ASSERT(&v2);
 
-  return ezVec3Template<Type>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+  return WVec3Template<Type>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator*(Type f, const ezVec3Template<Type>& v)
+W_FORCE_INLINE const WVec3Template<Type> operator*(Type f, const WVec3Template<Type>& v)
 {
-  EZ_NAN_ASSERT(&v);
+  W_NAN_ASSERT(&v);
 
-  return ezVec3Template<Type>(v.x * f, v.y * f, v.z * f);
+  return WVec3Template<Type>(v.x * f, v.y * f, v.z * f);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator*(const ezVec3Template<Type>& v, Type f)
+W_FORCE_INLINE const WVec3Template<Type> operator*(const WVec3Template<Type>& v, Type f)
 {
-  EZ_NAN_ASSERT(&v);
+  W_NAN_ASSERT(&v);
 
-  return ezVec3Template<Type>(v.x * f, v.y * f, v.z * f);
+  return WVec3Template<Type>(v.x * f, v.y * f, v.z * f);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator/(const ezVec3Template<Type>& v, Type f)
+W_FORCE_INLINE const WVec3Template<Type> operator/(const WVec3Template<Type>& v, Type f)
 {
-  EZ_NAN_ASSERT(&v);
+  W_NAN_ASSERT(&v);
 
   if constexpr (std::is_floating_point_v<Type>)
   {
     // multiplication is much faster than division
-    const Type f_inv = ezMath::Invert(f);
-    return ezVec3Template<Type>(v.x * f_inv, v.y * f_inv, v.z * f_inv);
+    const Type f_inv = WMath::Invert(f);
+    return WVec3Template<Type>(v.x * f_inv, v.y * f_inv, v.z * f_inv);
   }
   else
   {
-    return ezVec3Template<Type>(v.x / f, v.y / f, v.z / f);
+    return WVec3Template<Type>(v.x / f, v.y / f, v.z / f);
   }
 }
 
 template <typename Type>
-bool ezVec3Template<Type>::IsIdentical(const ezVec3Template<Type>& rhs) const
+bool WVec3Template<Type>::IsIdentical(const WVec3Template<Type>& rhs) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
   return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 }
 
 template <typename Type>
-bool ezVec3Template<Type>::IsEqual(const ezVec3Template<Type>& rhs, Type fEpsilon) const
+bool WVec3Template<Type>::IsEqual(const WVec3Template<Type>& rhs, Type fEpsilon) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && ezMath::IsEqual(y, rhs.y, fEpsilon) && ezMath::IsEqual(z, rhs.z, fEpsilon));
+  return (WMath::IsEqual(x, rhs.x, fEpsilon) && WMath::IsEqual(y, rhs.y, fEpsilon) && WMath::IsEqual(z, rhs.z, fEpsilon));
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator==(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+W_ALWAYS_INLINE bool operator==(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2)
 {
   return v1.IsIdentical(v2);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator!=(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+W_ALWAYS_INLINE bool operator!=(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2)
 {
   return !v1.IsIdentical(v2);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE bool operator<(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+W_FORCE_INLINE bool operator<(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2)
 {
-  EZ_NAN_ASSERT(&v1);
-  EZ_NAN_ASSERT(&v2);
+  W_NAN_ASSERT(&v1);
+  W_NAN_ASSERT(&v2);
 
   if (v1.x < v2.x)
     return true;
@@ -513,9 +513,9 @@ EZ_FORCE_INLINE bool operator<(const ezVec3Template<Type>& v1, const ezVec3Templ
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
+W_IMPLEMENT_IF_FLOAT_TYPE const WVec3Template<Type> WVec3Template<Type>::GetRefractedVector(const WVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
+  W_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
   const Type n = fRefIndex1 / fRefIndex2;
   const Type cosI = this->Dot(vNormal);
@@ -525,5 +525,5 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetR
   if (sinT2 > 1.0f)
     return (*this);
 
-  return ((n * (*this)) - (n + ezMath::Sqrt(1.0f - sinT2)) * vNormal);
+  return ((n * (*this)) - (n + WMath::Sqrt(1.0f - sinT2)) * vNormal);
 }

@@ -7,51 +7,51 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleEmitterFactory;
-class ezParticleBehaviorFactory;
-class ezParticleInitializerFactory;
-class ezParticleTypeFactory;
-class ezParticleFinalizerFactory;
+class WParticleEmitterFactory;
+class WParticleBehaviorFactory;
+class WParticleInitializerFactory;
+class WParticleTypeFactory;
+class WParticleFinalizerFactory;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor final : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleSystemDescriptor final : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleSystemDescriptor, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleSystemDescriptor, WReflectedClass);
 
 public:
-  ezParticleSystemDescriptor();
-  ~ezParticleSystemDescriptor();
+  WParticleSystemDescriptor();
+  ~WParticleSystemDescriptor();
 
   //////////////////////////////////////////////////////////////////////////
   /// Properties
 
-  const ezHybridArray<ezParticleEmitterFactory*, 1>& GetEmitterFactories() const { return m_EmitterFactories; }
+  const WHybridArray<WParticleEmitterFactory*, 1>& GetEmitterFactories() const { return m_EmitterFactories; }
 
-  void AddInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.PushBack(pFactory); }
-  void RemoveInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleInitializerFactory*, 4>& GetInitializerFactories() const { return m_InitializerFactories; }
+  void AddInitializerFactory(WParticleInitializerFactory* pFactory) { m_InitializerFactories.PushBack(pFactory); }
+  void RemoveInitializerFactory(WParticleInitializerFactory* pFactory) { m_InitializerFactories.RemoveAndCopy(pFactory); }
+  const WHybridArray<WParticleInitializerFactory*, 4>& GetInitializerFactories() const { return m_InitializerFactories; }
 
-  void AddBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.PushBack(pFactory); }
-  void RemoveBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleBehaviorFactory*, 4>& GetBehaviorFactories() const { return m_BehaviorFactories; }
+  void AddBehaviorFactory(WParticleBehaviorFactory* pFactory) { m_BehaviorFactories.PushBack(pFactory); }
+  void RemoveBehaviorFactory(WParticleBehaviorFactory* pFactory) { m_BehaviorFactories.RemoveAndCopy(pFactory); }
+  const WHybridArray<WParticleBehaviorFactory*, 4>& GetBehaviorFactories() const { return m_BehaviorFactories; }
 
-  void AddTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.PushBack(pFactory); }
-  void RemoveTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleTypeFactory*, 2>& GetTypeFactories() const { return m_TypeFactories; }
+  void AddTypeFactory(WParticleTypeFactory* pFactory) { m_TypeFactories.PushBack(pFactory); }
+  void RemoveTypeFactory(WParticleTypeFactory* pFactory) { m_TypeFactories.RemoveAndCopy(pFactory); }
+  const WHybridArray<WParticleTypeFactory*, 2>& GetTypeFactories() const { return m_TypeFactories; }
 
-  const ezHybridArray<ezParticleFinalizerFactory*, 2>& GetFinalizerFactories() const { return m_FinalizerFactories; }
+  const WHybridArray<WParticleFinalizerFactory*, 2>& GetFinalizerFactories() const { return m_FinalizerFactories; }
 
-  ezTime GetAvgLifetime() const;
+  WTime GetAvgLifetime() const;
 
   bool m_bVisible;
 
-  ezVarianceTypeTime m_LifeTime;
-  ezString m_sOnDeathEvent;
-  ezString m_sLifeScaleParameter;
+  WVarianceTypeTime m_LifeTime;
+  WString m_sOnDeathEvent;
+  WString m_sLifeScaleParameter;
 
   //////////////////////////////////////////////////////////////////////////
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor);
 
 private:
   void ClearEmitters();
@@ -61,10 +61,10 @@ private:
   void ClearFinalizers();
   void SetupDefaultProcessors();
 
-  ezString m_sName;
-  ezHybridArray<ezParticleEmitterFactory*, 1> m_EmitterFactories;
-  ezHybridArray<ezParticleInitializerFactory*, 4> m_InitializerFactories;
-  ezHybridArray<ezParticleBehaviorFactory*, 4> m_BehaviorFactories;
-  ezHybridArray<ezParticleFinalizerFactory*, 2> m_FinalizerFactories;
-  ezHybridArray<ezParticleTypeFactory*, 2> m_TypeFactories;
+  WString m_sName;
+  WHybridArray<WParticleEmitterFactory*, 1> m_EmitterFactories;
+  WHybridArray<WParticleInitializerFactory*, 4> m_InitializerFactories;
+  WHybridArray<WParticleBehaviorFactory*, 4> m_BehaviorFactories;
+  WHybridArray<WParticleFinalizerFactory*, 2> m_FinalizerFactories;
+  WHybridArray<WParticleTypeFactory*, 2> m_TypeFactories;
 };

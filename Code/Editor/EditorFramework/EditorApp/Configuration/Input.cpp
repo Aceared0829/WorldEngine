@@ -5,24 +5,24 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& ref_slotList) const
+void WQtEditorApp::GetKnownInputSlots(WDynamicArray<WString>& ref_slotList) const
 {
-  if (ref_slotList.IndexOf("") == ezInvalidIndex)
+  if (ref_slotList.IndexOf("") == WInvalidIndex)
     ref_slotList.PushBack("");
 
-  ezStringBuilder sFile;
-  ezDynamicArray<ezStringView> Lines;
+  WStringBuilder sFile;
+  WDynamicArray<WStringView> Lines;
 
-  ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  WStringBuilder sSearchDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSearchDir.AppendPath("InputSlots/*.txt");
 
-  ezFileSystemIterator it;
-  for (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
+  WFileSystemIterator it;
+  for (it.StartSearch(sSearchDir, WFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
   {
     sFile = it.GetCurrentPath();
     sFile.AppendPath(it.GetStats().m_sName);
 
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sFile).Succeeded())
     {
       sFile.ReadAll(reader);
@@ -30,12 +30,12 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& ref_slotList) c
       Lines.Clear();
       sFile.Split(false, Lines, "\n", "\r");
 
-      ezString sSlot;
-      for (ezUInt32 s = 0; s < Lines.GetCount(); ++s)
+      WString sSlot;
+      for (WUInt32 s = 0; s < Lines.GetCount(); ++s)
       {
         sSlot = Lines[s];
 
-        if (ref_slotList.IndexOf(sSlot) == ezInvalidIndex)
+        if (ref_slotList.IndexOf(sSlot) == WInvalidIndex)
           ref_slotList.PushBack(sSlot);
       }
     }

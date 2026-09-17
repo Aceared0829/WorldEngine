@@ -3,10 +3,10 @@
 #include <TerrainPlugin/Components/TerrainBrushBaseComponent.h>
 
 /// Brush modes available on a 3D (volumetric) terrain brush.
-struct EZ_TERRAINPLUGIN_DLL ezTerrainModifyMode3D
+struct W_TERRAINPLUGIN_DLL WTerrainModifyMode3D
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Carve = 3,
     Add = 4,
@@ -14,9 +14,9 @@ struct EZ_TERRAINPLUGIN_DLL ezTerrainModifyMode3D
     Default = Carve,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainModifyMode3D);
+W_DECLARE_REFLECTABLE_TYPE(W_TERRAINPLUGIN_DLL, WTerrainModifyMode3D);
 
-using ezTerrainBrush3DComponentManager = ezComponentManager<class ezTerrainBrush3DComponent, ezBlockStorageType::Compact>;
+using WTerrainBrush3DComponentManager = WComponentManager<class WTerrainBrush3DComponent, WBlockStorageType::Compact>;
 
 /// 3D (volumetric) terrain brush.
 ///
@@ -26,28 +26,28 @@ using ezTerrainBrush3DComponentManager = ezComponentManager<class ezTerrainBrush
 /// Setting HalfSizeYTop=0 and HalfSizeYBottom to a positive value with a non-zero InnerRadius
 /// produces an arch cross-section suitable for natural tunnels with flat floors.
 ///
-/// If an ezSplineComponent exists on the same game object the brush stamps along the spline instead of
+/// If an WSplineComponent exists on the same game object the brush stamps along the spline instead of
 /// acting as a single point.
-class EZ_TERRAINPLUGIN_DLL ezTerrainBrush3DComponent : public ezTerrainBrushBaseComponent
+class W_TERRAINPLUGIN_DLL WTerrainBrush3DComponent : public WTerrainBrushBaseComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezTerrainBrush3DComponent, ezTerrainBrushBaseComponent, ezTerrainBrush3DComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WTerrainBrush3DComponent, WTerrainBrushBaseComponent, WTerrainBrush3DComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTerrainBrush3DComponent
+  // WTerrainBrush3DComponent
 
 public:
-  ezTerrainBrush3DComponent();
-  ~ezTerrainBrush3DComponent();
+  WTerrainBrush3DComponent();
+  ~WTerrainBrush3DComponent();
 
-  void SetModifyMode(ezEnum<ezTerrainModifyMode3D> mode);                      //< [ property ]
-  ezEnum<ezTerrainModifyMode3D> GetModifyMode() const { return m_ModifyMode; } //< [ property ]
+  void SetModifyMode(WEnum<WTerrainModifyMode3D> mode);                      //< [ property ]
+  WEnum<WTerrainModifyMode3D> GetModifyMode() const { return m_ModifyMode; } //< [ property ]
 
   void SetHalfSizeYBottom(float fSize);                                        //< [ property ]
   float GetHalfSizeYBottom() const { return m_fHalfSizeYBottom; }              //< [ property ]
@@ -60,9 +60,9 @@ public:
   float GetHalfSizeZ() const { return m_fHalfSizeZ; }       //< [ property ]
 
 protected:
-  virtual void FillBrushSpecificProperties(ezTerrainData_Brush& brush, float fHalfSizeX) override;
+  virtual void FillBrushSpecificProperties(WTerrainData_Brush& brush, float fHalfSizeX) override;
 
-  ezEnum<ezTerrainModifyMode3D> m_ModifyMode;
+  WEnum<WTerrainModifyMode3D> m_ModifyMode;
   float m_fHalfSizeYBottom = 0.0f;
   float m_fHalfSizeYTop = 0.0f;
   float m_fHalfSizeZ = 0.0f;

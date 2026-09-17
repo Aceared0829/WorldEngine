@@ -7,55 +7,55 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezStageSpaceComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WStageSpaceComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("StageSpace", ezXRStageSpace, GetStageSpace, SetStageSpace)->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezXRStageSpace::Enum::Standing)),
+    W_ENUM_ACCESSOR_PROPERTY("StageSpace", WXRStageSpace, GetStageSpace, SetStageSpace)->AddAttributes(new WDefaultValueAttribute((WInt32)WXRStageSpace::Enum::Standing)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("XR"),
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
+    new WCategoryAttribute("XR"),
+    new WInDevelopmentAttribute(WInDevelopmentAttribute::Phase::Beta),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezStageSpaceComponent::ezStageSpaceComponent() = default;
-ezStageSpaceComponent::~ezStageSpaceComponent() = default;
+WStageSpaceComponent::WStageSpaceComponent() = default;
+WStageSpaceComponent::~WStageSpaceComponent() = default;
 
-ezEnum<ezXRStageSpace> ezStageSpaceComponent::GetStageSpace() const
+WEnum<WXRStageSpace> WStageSpaceComponent::GetStageSpace() const
 {
   return m_Space;
 }
 
-void ezStageSpaceComponent::SetStageSpace(ezEnum<ezXRStageSpace> space)
+void WStageSpaceComponent::SetStageSpace(WEnum<WXRStageSpace> space)
 {
   m_Space = space;
 }
 
-void ezStageSpaceComponent::SerializeComponent(ezWorldWriter& stream) const
+void WStageSpaceComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  WStreamWriter& s = stream.GetStream();
 
   s << m_Space;
 }
 
-void ezStageSpaceComponent::DeserializeComponent(ezWorldReader& stream)
+void WStageSpaceComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = stream.GetStream();
 
   s >> m_Space;
 }
 
-void ezStageSpaceComponent::OnActivated() {}
+void WStageSpaceComponent::OnActivated() {}
 
-void ezStageSpaceComponent::OnDeactivated() {}
+void WStageSpaceComponent::OnDeactivated() {}
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_StageSpaceComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_StageSpaceComponent);

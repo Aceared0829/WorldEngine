@@ -7,8 +7,8 @@ namespace
 {
   struct OperandChainIndices
   {
-    ezUInt8 m_uiLeftOperand;
-    ezUInt8 m_uiRightOperand;
+    WUInt8 m_uiLeftOperand;
+    WUInt8 m_uiRightOperand;
   };
 
   struct MultiplicationChain
@@ -36,33 +36,33 @@ namespace
     {OperandChainIndices{0, 0}, {1, 1}, {2, 2}, {3, 3}},         // 16
   };
 
-  static ezExpression::StreamDesc CreateScalarizedStreamDesc(const ezExpression::StreamDesc& desc, ezEnum<ezExpressionAST::VectorComponent> component)
+  static WExpression::StreamDesc CreateScalarizedStreamDesc(const WExpression::StreamDesc& desc, WEnum<WExpressionAST::VectorComponent> component)
   {
-    ezStringBuilder sNewName = desc.m_sName.GetView();
-    sNewName.Append(".", ezExpressionAST::VectorComponent::GetName(component));
+    WStringBuilder sNewName = desc.m_sName.GetView();
+    sNewName.Append(".", WExpressionAST::VectorComponent::GetName(component));
 
-    ezExpression::StreamDesc newDesc;
+    WExpression::StreamDesc newDesc;
     newDesc.m_sName.Assign(sNewName);
-    newDesc.m_DataType = static_cast<ezProcessingStream::DataType>((ezUInt32)desc.m_DataType & ~3u);
+    newDesc.m_DataType = static_cast<WProcessingStream::DataType>((WUInt32)desc.m_DataType & ~3u);
 
     return newDesc;
   }
 
 } // namespace
 
-ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
+WExpressionAST::Node* WExpressionAST::TypeDeductionAndConversion(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
   const DataType::Enum returnType = pNode->m_ReturnType;
 
   if (returnType == DataType::Unknown)
   {
-    ezLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
+    WLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
     return nullptr;
   }
 
   auto children = GetChildren(pNode);
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
     auto& pChildNode = children[i];
     if (pChildNode == nullptr)
@@ -75,9 +75,9 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
     if (expectedChildDataType != DataType::Unknown && pChildNode->m_ReturnType != expectedChildDataType)
     {
       const auto childRegisterType = DataType::GetRegisterType(pChildNode->m_ReturnType);
-      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType);
+      const WUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType);
       const auto expectedRegisterType = DataType::GetRegisterType(expectedChildDataType);
-      const ezUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
+      const WUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
 
       if (childRegisterType != expectedRegisterType)
       {
@@ -86,11 +86,11 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
 
       if (childElementCount == 1 && expectedElementCount > 1)
       {
-        pChildNode = CreateConstructorCall(expectedChildDataType, ezMakeArrayPtr(&pChildNode, 1));
+        pChildNode = CreateConstructorCall(expectedChildDataType, WMakeArrayPtr(&pChildNode, 1));
       }
       else if (childElementCount < expectedElementCount)
       {
-        ezLog::Error("Cannot implicitly convert '{}' to '{}'", DataType::GetName(pChildNode->m_ReturnType), DataType::GetName(expectedChildDataType));
+        WLog::Error("Cannot implicitly convert '{}' to '{}'", DataType::GetName(pChildNode->m_ReturnType), DataType::GetName(expectedChildDataType));
         return nullptr;
       }
     }
@@ -99,11 +99,11 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
+WExpressionAST::Node* WExpressionAST::ReplaceVectorInstructions(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
   const DataType::Enum returnType = pNode->m_ReturnType;
-  const ezUInt32 uiNumInputElements = pNode->m_uiNumInputElements;
+  const WUInt32 uiNumInputElements = pNode->m_uiNumInputElements;
 
   if (nodeType == NodeType::Length)
   {
@@ -115,7 +115,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
     auto pLength = ReplaceVectorInstructions(CreateUnaryOperator(NodeType::Length, pUnaryNode->m_pOperand));
-    return CreateBinaryOperator(NodeType::Divide, pUnaryNode->m_pOperand, CreateConstructorCall(returnType, ezMakeArrayPtr(&pLength, 1)));
+    return CreateBinaryOperator(NodeType::Divide, pUnaryNode->m_pOperand, CreateConstructorCall(returnType, WMakeArrayPtr(&pLength, 1)));
   }
   else if (nodeType == NodeType::All || nodeType == NodeType::Any)
   {
@@ -126,7 +126,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
     auto pX = CreateSwizzle(VectorComponent::X, pUnaryNode->m_pOperand);
     Node* pResult = pX;
 
-    for (ezUInt32 i = 1; i < uiNumInputElements; ++i)
+    for (WUInt32 i = 1; i < uiNumInputElements; ++i)
     {
       auto pI = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pUnaryNode->m_pOperand);
       pResult = CreateBinaryOperator(nodeType == NodeType::All ? NodeType::LogicalAnd : NodeType::LogicalOr, pResult, pI);
@@ -141,7 +141,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
     auto pBx = CreateSwizzle(VectorComponent::X, pBinaryNode->m_pRightOperand);
     auto pResult = CreateBinaryOperator(NodeType::Multiply, pAx, pBx);
 
-    for (ezUInt32 i = 1; i < uiNumInputElements; ++i)
+    for (WUInt32 i = 1; i < uiNumInputElements; ++i)
     {
       auto pAi = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pBinaryNode->m_pLeftOperand);
       auto pBi = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pBinaryNode->m_pRightOperand);
@@ -154,7 +154,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
   {
     if (uiNumInputElements != 3)
     {
-      ezLog::Error("Cross product is only defined for vec3");
+      WLog::Error("Cross product is only defined for vec3");
       return nullptr;
     }
 
@@ -163,10 +163,10 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
     auto pB = pBinaryNode->m_pRightOperand;
 
     // a.yzx * b.zxy - a.zxy * b.yzx
-    ezEnum<VectorComponent> yzx[] = {VectorComponent::Y, VectorComponent::Z, VectorComponent::X};
-    ezEnum<VectorComponent> zxy[] = {VectorComponent::Z, VectorComponent::X, VectorComponent::Y};
-    auto pMul0 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(ezMakeArrayPtr(yzx), pA), CreateSwizzle(ezMakeArrayPtr(zxy), pB));
-    auto pMul1 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(ezMakeArrayPtr(zxy), pA), CreateSwizzle(ezMakeArrayPtr(yzx), pB));
+    WEnum<VectorComponent> yzx[] = {VectorComponent::Y, VectorComponent::Z, VectorComponent::X};
+    WEnum<VectorComponent> zxy[] = {VectorComponent::Z, VectorComponent::X, VectorComponent::Y};
+    auto pMul0 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(WMakeArrayPtr(yzx), pA), CreateSwizzle(WMakeArrayPtr(zxy), pB));
+    auto pMul1 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(WMakeArrayPtr(zxy), pA), CreateSwizzle(WMakeArrayPtr(yzx), pB));
     return CreateBinaryOperator(NodeType::Subtract, pMul0, pMul1);
   }
   else if (nodeType == NodeType::Reflect)
@@ -179,14 +179,14 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
     auto pDot = ReplaceVectorInstructions(CreateBinaryOperator(NodeType::Dot, pA, pN));
     auto pTwo = CreateConstant(2, DataType::FromRegisterType(DataType::GetRegisterType(returnType)));
     Node* pMul = CreateBinaryOperator(NodeType::Multiply, pDot, pTwo);
-    pMul = CreateBinaryOperator(NodeType::Multiply, pN, CreateConstructorCall(returnType, ezMakeArrayPtr(&pMul, 1)));
+    pMul = CreateBinaryOperator(NodeType::Multiply, pN, CreateConstructorCall(returnType, WMakeArrayPtr(&pMul, 1)));
     return CreateBinaryOperator(NodeType::Subtract, pA, pMul);
   }
 
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
+WExpressionAST::Node* WExpressionAST::ScalarizeVectorInstructions(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
 
@@ -195,7 +195,7 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
     auto pSwizzleNode = static_cast<Swizzle*>(pNode);
     if (pSwizzleNode->m_NumComponents == 1)
     {
-      ezEnum<VectorComponent> component = pSwizzleNode->m_Components[0];
+      WEnum<VectorComponent> component = pSwizzleNode->m_Components[0];
       Node* pChildNode = pSwizzleNode->m_pExpression;
       NodeType::Enum childNodeType = pChildNode->m_Type;
       DataType::Enum childReturnTypeSingleElement = DataType::FromRegisterType(DataType::GetRegisterType(pChildNode->m_ReturnType));
@@ -203,22 +203,22 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
       if (NodeType::IsConstant(childNodeType))
       {
         auto pConstantNode = static_cast<const Constant*>(pChildNode);
-        const ezUInt32 uiNumConstantElements = DataType::GetElementCount(pConstantNode->m_ReturnType);
-        if (static_cast<ezUInt32>(component) >= uiNumConstantElements)
+        const WUInt32 uiNumConstantElements = DataType::GetElementCount(pConstantNode->m_ReturnType);
+        if (static_cast<WUInt32>(component) >= uiNumConstantElements)
         {
-          ezLog::Error("Invalid subscript .{} for constant of type '{}'", VectorComponent::GetName(component), DataType::GetName(pConstantNode->m_ReturnType));
+          WLog::Error("Invalid subscript .{} for constant of type '{}'", VectorComponent::GetName(component), DataType::GetName(pConstantNode->m_ReturnType));
           return nullptr;
         }
 
-        ezVariant newValue = pConstantNode->m_Value[component];
+        WVariant newValue = pConstantNode->m_Value[component];
         return CreateConstant(newValue, childReturnTypeSingleElement);
       }
       else if (NodeType::IsSwizzle(childNodeType))
       {
         auto pChildSwizzleNode = static_cast<Swizzle*>(pChildNode);
-        if (static_cast<ezUInt32>(component) >= pChildSwizzleNode->m_NumComponents)
+        if (static_cast<WUInt32>(component) >= pChildSwizzleNode->m_NumComponents)
         {
-          ezLog::Error("Invalid Swizzle");
+          WLog::Error("Invalid Swizzle");
           return nullptr;
         }
         return ScalarizeVectorInstructions(CreateSwizzle(pChildSwizzleNode->m_Components[component], pChildSwizzleNode->m_pExpression));
@@ -226,10 +226,10 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
       else if (NodeType::IsInput(childNodeType))
       {
         auto pInput = static_cast<const Input*>(pChildNode);
-        const ezUInt32 uiNumInputElements = DataType::GetElementCount(pInput->m_ReturnType);
-        if (static_cast<ezUInt32>(component) >= uiNumInputElements)
+        const WUInt32 uiNumInputElements = DataType::GetElementCount(pInput->m_ReturnType);
+        if (static_cast<WUInt32>(component) >= uiNumInputElements)
         {
-          ezLog::Error("Invalid subscript .{} for input '{}' of type '{}'", VectorComponent::GetName(component), pInput->m_Desc.m_sName, DataType::GetName(pInput->m_ReturnType));
+          WLog::Error("Invalid subscript .{} for input '{}' of type '{}'", VectorComponent::GetName(component), pInput->m_Desc.m_sName, DataType::GetName(pInput->m_ReturnType));
           return nullptr;
         }
         return CreateInput(CreateScalarizedStreamDesc(pInput->m_Desc, component));
@@ -242,7 +242,7 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
       }
 
       auto innerChildren = GetChildren(pChildNode);
-      ezSmallArray<Node*, 8> newSwizzleNodes;
+      WSmallArray<Node*, 8> newSwizzleNodes;
       for (auto pInnerChildNode : innerChildren)
       {
         newSwizzleNodes.PushBack(CreateSwizzle(component, pInnerChildNode));
@@ -266,11 +266,11 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
         return CreateFunctionCall(*pFunctionCall->m_Descs[pFunctionCall->m_uiOverloadIndex], std::move(newSwizzleNodes));
       }
 
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
     else
     {
-      ezLog::Error("Failed to scalarize AST");
+      WLog::Error("Failed to scalarize AST");
       return nullptr;
     }
   }
@@ -278,7 +278,7 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNode)
+WExpressionAST::Node* WExpressionAST::ReplaceUnsupportedInstructions(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
   const DataType::Enum returnType = pNode->m_ReturnType;
@@ -312,14 +312,14 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
     auto pValue = pUnaryNode->m_pOperand;
-    auto pMultiplier = CreateConstant(ezAngle::RadToDegMultiplier(), returnType);
+    auto pMultiplier = CreateConstant(WAngle::RadToDegMultiplier(), returnType);
     return CreateBinaryOperator(NodeType::Multiply, pValue, pMultiplier);
   }
   else if (nodeType == NodeType::DegToRad)
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
     auto pValue = pUnaryNode->m_pOperand;
-    auto pMultiplier = CreateConstant(ezAngle::DegToRadMultiplier(), returnType);
+    auto pMultiplier = CreateConstant(WAngle::DegToRadMultiplier(), returnType);
     return CreateBinaryOperator(NodeType::Multiply, pValue, pMultiplier);
   }
   else if (nodeType == NodeType::Frac)
@@ -356,7 +356,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
       }
       else
       {
-        auto pFactor = CreateConstant(1.0f / ezMath::Log2(fBaseValue));
+        auto pFactor = CreateConstant(1.0f / WMath::Log2(fBaseValue));
         return CreateBinaryOperator(NodeType::Multiply, pLog2Value, pFactor);
       }
     }
@@ -390,14 +390,14 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
         return pBase;
       }
 
-      const bool isWholeNumber = fExpValue == ezMath::Trunc(fExpValue);
-      if (isWholeNumber && fExpValue > 1 && fExpValue < EZ_ARRAY_SIZE(s_MultiplicationChains))
+      const bool isWholeNumber = fExpValue == WMath::Trunc(fExpValue);
+      if (isWholeNumber && fExpValue > 1 && fExpValue < W_ARRAY_SIZE(s_MultiplicationChains))
       {
-        ezTempHybridArray<Node*, 8> multiplierStack;
+        WTempHybridArray<Node*, 8> multiplierStack;
         multiplierStack.PushBack(pBase);
 
-        const auto& chain = s_MultiplicationChains[(ezUInt32)fExpValue].m_Chain;
-        ezUInt32 uiIndex = 0;
+        const auto& chain = s_MultiplicationChains[(WUInt32)fExpValue].m_Chain;
+        WUInt32 uiIndex = 0;
         do
         {
           auto& operandIndices = chain[uiIndex];
@@ -499,7 +499,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
     auto pConstructorCallNode = static_cast<const ConstructorCall*>(pNode);
     if (pConstructorCallNode->m_Arguments.GetCount() > 1)
     {
-      ezLog::Error("Constructor of type '{}' has too many arguments", DataType::GetName(returnType));
+      WLog::Error("Constructor of type '{}' has too many arguments", DataType::GetName(returnType));
       return nullptr;
     }
 
@@ -509,7 +509,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
+WExpressionAST::Node* WExpressionAST::FoldConstants(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
   const DataType::Enum returnType = pNode->m_ReturnType;
@@ -534,7 +534,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::LogicalNot:
             return CreateConstant(!bValue, returnType);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -547,17 +547,17 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::Negate:
             return CreateConstant(-iValue, returnType);
           case NodeType::Absolute:
-            return CreateConstant(ezMath::Abs(iValue), returnType);
+            return CreateConstant(WMath::Abs(iValue), returnType);
           case NodeType::Saturate:
-            return CreateConstant(ezMath::Saturate(iValue), returnType);
+            return CreateConstant(WMath::Saturate(iValue), returnType);
           case NodeType::Log2:
-            return CreateConstant(ezMath::Log2i(iValue), returnType);
+            return CreateConstant(WMath::Log2i(iValue), returnType);
           case NodeType::Pow2:
-            return CreateConstant(ezMath::Pow2(iValue), returnType);
+            return CreateConstant(WMath::Pow2(iValue), returnType);
           case NodeType::BitwiseNot:
             return CreateConstant(~iValue, returnType);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -570,49 +570,49 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::Negate:
             return CreateConstant(-fValue);
           case NodeType::Absolute:
-            return CreateConstant(ezMath::Abs(fValue));
+            return CreateConstant(WMath::Abs(fValue));
           case NodeType::Saturate:
-            return CreateConstant(ezMath::Saturate(fValue));
+            return CreateConstant(WMath::Saturate(fValue));
           case NodeType::Sqrt:
-            return CreateConstant(ezMath::Sqrt(fValue));
+            return CreateConstant(WMath::Sqrt(fValue));
           case NodeType::Exp:
-            return CreateConstant(ezMath::Exp(fValue));
+            return CreateConstant(WMath::Exp(fValue));
           case NodeType::Ln:
-            return CreateConstant(ezMath::Ln(fValue));
+            return CreateConstant(WMath::Ln(fValue));
           case NodeType::Log2:
-            return CreateConstant(ezMath::Log2(fValue));
+            return CreateConstant(WMath::Log2(fValue));
           case NodeType::Log10:
-            return CreateConstant(ezMath::Log10(fValue));
+            return CreateConstant(WMath::Log10(fValue));
           case NodeType::Pow2:
-            return CreateConstant(ezMath::Pow2(fValue));
+            return CreateConstant(WMath::Pow2(fValue));
           case NodeType::Sin:
-            return CreateConstant(ezMath::Sin(ezAngle::MakeFromRadian(fValue)));
+            return CreateConstant(WMath::Sin(WAngle::MakeFromRadian(fValue)));
           case NodeType::Cos:
-            return CreateConstant(ezMath::Cos(ezAngle::MakeFromRadian(fValue)));
+            return CreateConstant(WMath::Cos(WAngle::MakeFromRadian(fValue)));
           case NodeType::Tan:
-            return CreateConstant(ezMath::Tan(ezAngle::MakeFromRadian(fValue)));
+            return CreateConstant(WMath::Tan(WAngle::MakeFromRadian(fValue)));
           case NodeType::ASin:
-            return CreateConstant(ezMath::ASin(fValue).GetRadian());
+            return CreateConstant(WMath::ASin(fValue).GetRadian());
           case NodeType::ACos:
-            return CreateConstant(ezMath::ACos(fValue).GetRadian());
+            return CreateConstant(WMath::ACos(fValue).GetRadian());
           case NodeType::ATan:
-            return CreateConstant(ezMath::ATan(fValue).GetRadian());
+            return CreateConstant(WMath::ATan(fValue).GetRadian());
           case NodeType::RadToDeg:
-            return CreateConstant(ezAngle::RadToDeg(fValue));
+            return CreateConstant(WAngle::RadToDeg(fValue));
           case NodeType::DegToRad:
-            return CreateConstant(ezAngle::DegToRad(fValue));
+            return CreateConstant(WAngle::DegToRad(fValue));
           case NodeType::Round:
-            return CreateConstant(ezMath::Round(fValue));
+            return CreateConstant(WMath::Round(fValue));
           case NodeType::Floor:
-            return CreateConstant(ezMath::Floor(fValue));
+            return CreateConstant(WMath::Floor(fValue));
           case NodeType::Ceil:
-            return CreateConstant(ezMath::Ceil(fValue));
+            return CreateConstant(WMath::Ceil(fValue));
           case NodeType::Trunc:
-            return CreateConstant(ezMath::Trunc(fValue));
+            return CreateConstant(WMath::Trunc(fValue));
           case NodeType::Frac:
-            return CreateConstant(ezMath::Fraction(fValue));
+            return CreateConstant(WMath::Fraction(fValue));
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -645,7 +645,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::LogicalOr:
             return CreateConstant(bLeftValue || bRightValue, returnType);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -667,11 +667,11 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::Modulo:
             return CreateConstant(iLeftValue % iRightValue, returnType);
           case NodeType::Pow:
-            return CreateConstant(ezMath::Pow(iLeftValue, iRightValue), returnType);
+            return CreateConstant(WMath::Pow(iLeftValue, iRightValue), returnType);
           case NodeType::Min:
-            return CreateConstant(ezMath::Min(iLeftValue, iRightValue), returnType);
+            return CreateConstant(WMath::Min(iLeftValue, iRightValue), returnType);
           case NodeType::Max:
-            return CreateConstant(ezMath::Max(iLeftValue, iRightValue), returnType);
+            return CreateConstant(WMath::Max(iLeftValue, iRightValue), returnType);
           case NodeType::BitshiftLeft:
             return CreateConstant(iLeftValue << iRightValue, returnType);
           case NodeType::BitshiftRight:
@@ -695,7 +695,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::GreaterEqual:
             return CreateConstant(iLeftValue >= iRightValue, returnType);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -715,15 +715,15 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::Divide:
             return CreateConstant(fLeftValue / fRightValue, returnType);
           case NodeType::Modulo:
-            return CreateConstant(ezMath::Mod(fLeftValue, fRightValue), returnType);
+            return CreateConstant(WMath::Mod(fLeftValue, fRightValue), returnType);
           case NodeType::Log:
-            return CreateConstant(ezMath::Log(fLeftValue, fRightValue), returnType);
+            return CreateConstant(WMath::Log(fLeftValue, fRightValue), returnType);
           case NodeType::Pow:
-            return CreateConstant(ezMath::Pow(fLeftValue, fRightValue), returnType);
+            return CreateConstant(WMath::Pow(fLeftValue, fRightValue), returnType);
           case NodeType::Min:
-            return CreateConstant(ezMath::Min(fLeftValue, fRightValue), returnType);
+            return CreateConstant(WMath::Min(fLeftValue, fRightValue), returnType);
           case NodeType::Max:
-            return CreateConstant(ezMath::Max(fLeftValue, fRightValue), returnType);
+            return CreateConstant(WMath::Max(fLeftValue, fRightValue), returnType);
           case NodeType::Equal:
             return CreateConstant(fLeftValue == fRightValue, returnType);
           case NodeType::NotEqual:
@@ -737,7 +737,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::GreaterEqual:
             return CreateConstant(fLeftValue >= fRightValue, returnType);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -771,7 +771,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
             }
             return CreateBinaryOperator(NodeType::LogicalOr, pOperand, pConstant);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -830,7 +830,7 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::GreaterEqual:
             return CreateBinaryOperator(NodeType::LessEqual, pOperand, pConstant);
           default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            W_ASSERT_NOT_IMPLEMENTED;
             return pNode;
         }
       }
@@ -870,9 +870,9 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
         {
           return pOperand;
         }
-        else if (nodeType == NodeType::Divide && ezMath::IsPowerOf2(iRightValue))
+        else if (nodeType == NodeType::Divide && WMath::IsPowerOf2(iRightValue))
         {
-          auto pShiftValue = CreateConstant(ezMath::Log2i(iRightValue), returnType);
+          auto pShiftValue = CreateConstant(WMath::Log2i(iRightValue), returnType);
           auto pDivision = CreateBinaryOperator(NodeType::BitshiftRight, CreateUnaryOperator(NodeType::Absolute, pOperand), pShiftValue);
           auto pZero = CreateConstant(0, returnType);
           auto pGreaterZero = CreateBinaryOperator(NodeType::Greater, pOperand, pZero);
@@ -936,14 +936,14 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
       return pNode;
     }
 
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return pNode;
   }
 
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::CommonSubexpressionElimination(Node* pNode)
+WExpressionAST::Node* WExpressionAST::CommonSubexpressionElimination(Node* pNode)
 {
   UpdateHash(pNode);
 
@@ -961,13 +961,13 @@ ezExpressionAST::Node* ezExpressionAST::CommonSubexpressionElimination(Node* pNo
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
+WExpressionAST::Node* WExpressionAST::Validate(Node* pNode)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
 
   if (pNode->m_ReturnType == DataType::Unknown)
   {
-    ezLog::Error("Unresolved return type on '{}'", NodeType::GetName(nodeType));
+    WLog::Error("Unresolved return type on '{}'", NodeType::GetName(nodeType));
     return nullptr;
   }
 
@@ -975,7 +975,7 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
   {
     if (pNode->m_uiOverloadIndex == 0xFF)
     {
-      ezLog::Error("Unresolved overload on '{}'", NodeType::GetName(nodeType));
+      WLog::Error("Unresolved overload on '{}'", NodeType::GetName(nodeType));
       return nullptr;
     }
   }
@@ -984,7 +984,7 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
     auto pConstantNode = static_cast<Constant*>(pNode);
     if (pConstantNode->m_Value.IsValid() == false)
     {
-      ezLog::Error("Invalid constant value");
+      WLog::Error("Invalid constant value");
       return nullptr;
     }
   }
@@ -992,7 +992,7 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
   {
     if (pNode->m_uiOverloadIndex == 0xFF)
     {
-      ezLog::Error("Unresolved function overload on");
+      WLog::Error("Unresolved function overload on");
       return nullptr;
     }
 
@@ -1000,20 +1000,20 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
     auto pDesc = pFunctionCall->m_Descs[pNode->m_uiOverloadIndex];
     if (pFunctionCall->m_Arguments.GetCount() < pDesc->m_uiNumRequiredInputs)
     {
-      ezLog::Error("Not enough arguments for function '{}'", pDesc->m_sName);
+      WLog::Error("Not enough arguments for function '{}'", pDesc->m_sName);
       return nullptr;
     }
   }
 
   auto children = GetChildren(pNode);
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
     auto& pChildNode = children[i];
     DataType::Enum expectedChildDataType = GetExpectedChildDataType(pNode, i);
 
     if (expectedChildDataType != DataType::Unknown && pChildNode->m_ReturnType != expectedChildDataType)
     {
-      ezLog::Error("Invalid data type for argument {} on '{}'. Expected {} got {}", i, NodeType::GetName(nodeType), DataType::GetName(expectedChildDataType), DataType::GetName(pChildNode->m_ReturnType));
+      WLog::Error("Invalid data type for argument {} on '{}'. Expected {} got {}", i, NodeType::GetName(nodeType), DataType::GetName(expectedChildDataType), DataType::GetName(pChildNode->m_ReturnType));
       return nullptr;
     }
   }
@@ -1021,47 +1021,47 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
   return pNode;
 }
 
-ezResult ezExpressionAST::ScalarizeInputs()
+WResult WExpressionAST::ScalarizeInputs()
 {
-  for (ezUInt32 uiInputIndex = 0; uiInputIndex < m_InputNodes.GetCount(); ++uiInputIndex)
+  for (WUInt32 uiInputIndex = 0; uiInputIndex < m_InputNodes.GetCount(); ++uiInputIndex)
   {
     const auto pInput = m_InputNodes[uiInputIndex];
     if (pInput == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezUInt32 uiNumElements = pInput->m_uiNumInputElements;
+    const WUInt32 uiNumElements = pInput->m_uiNumInputElements;
     if (uiNumElements > 1)
     {
       m_InputNodes.RemoveAtAndCopy(uiInputIndex);
 
-      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      for (WUInt32 i = 0; i < uiNumElements; ++i)
       {
-        ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
+        WEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
         auto pNewInput = CreateInput(CreateScalarizedStreamDesc(pInput->m_Desc, component));
         m_InputNodes.InsertAt(uiInputIndex + i, pNewInput);
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezExpressionAST::ScalarizeOutputs()
+WResult WExpressionAST::ScalarizeOutputs()
 {
-  for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < m_OutputNodes.GetCount(); ++uiOutputIndex)
+  for (WUInt32 uiOutputIndex = 0; uiOutputIndex < m_OutputNodes.GetCount(); ++uiOutputIndex)
   {
     const auto pOutput = m_OutputNodes[uiOutputIndex];
     if (pOutput == nullptr || pOutput->m_pExpression == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezUInt32 uiNumElements = pOutput->m_uiNumInputElements;
+    const WUInt32 uiNumElements = pOutput->m_uiNumInputElements;
     if (uiNumElements > 1)
     {
       m_OutputNodes.RemoveAtAndCopy(uiOutputIndex);
 
-      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      for (WUInt32 i = 0; i < uiNumElements; ++i)
       {
-        ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
+        WEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
         auto pSwizzle = CreateSwizzle(component, pOutput->m_pExpression);
         auto pNewOutput = CreateOutput(CreateScalarizedStreamDesc(pOutput->m_Desc, component), pSwizzle);
         m_OutputNodes.InsertAt(uiOutputIndex + i, pNewOutput);
@@ -1069,5 +1069,5 @@ ezResult ezExpressionAST::ScalarizeOutputs()
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

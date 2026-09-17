@@ -4,16 +4,16 @@
 #include <Core/World/WorldModule.h>
 #include <RendererCore/Declarations.h>
 
-using ezProbeTreeSectorResourceHandle = ezTypedResourceHandle<class ezProbeTreeSectorResource>;
+using WProbeTreeSectorResourceHandle = WTypedResourceHandle<class WProbeTreeSectorResource>;
 
-class EZ_RENDERERCORE_DLL ezBakedProbesWorldModule : public ezWorldModule
+class W_RENDERERCORE_DLL WBakedProbesWorldModule : public WWorldModule
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezBakedProbesWorldModule, ezWorldModule);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WBakedProbesWorldModule, WWorldModule);
 
 public:
-  ezBakedProbesWorldModule(ezWorld* pWorld);
-  ~ezBakedProbesWorldModule();
+  WBakedProbesWorldModule(WWorld* pWorld);
+  ~WBakedProbesWorldModule();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -22,19 +22,19 @@ public:
 
   struct ProbeIndexData
   {
-    static constexpr ezUInt32 NumProbes = 8;
-    ezUInt32 m_probeIndices[NumProbes];
+    static constexpr WUInt32 NumProbes = 8;
+    WUInt32 m_probeIndices[NumProbes];
     float m_probeWeights[NumProbes];
   };
 
-  ezResult GetProbeIndexData(const ezVec3& vGlobalPosition, const ezVec3& vNormal, ProbeIndexData& out_probeIndexData) const;
+  WResult GetProbeIndexData(const WVec3& vGlobalPosition, const WVec3& vNormal, ProbeIndexData& out_probeIndexData) const;
 
-  ezAmbientCube<float> GetSkyVisibility(const ProbeIndexData& indexData) const;
+  WAmbientCube<float> GetSkyVisibility(const ProbeIndexData& indexData) const;
 
 private:
-  friend class ezBakedProbesComponent;
+  friend class WBakedProbesComponent;
 
-  void SetProbeTreeResourcePrefix(const ezHashedString& prefix);
+  void SetProbeTreeResourcePrefix(const WHashedString& prefix);
 
-  ezProbeTreeSectorResourceHandle m_hProbeTree;
+  WProbeTreeSectorResourceHandle m_hProbeTree;
 };

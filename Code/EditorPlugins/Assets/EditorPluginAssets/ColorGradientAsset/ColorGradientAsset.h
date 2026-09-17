@@ -3,30 +3,30 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <Foundation/Tracks/ColorGradient.h>
 
-class ezColorGradientAssetData : public ezReflectedClass
+class WColorGradientAssetData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientAssetData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WColorGradientAssetData, WReflectedClass);
 
 public:
-  ezColorGradient m_Gradient;
+  WColorGradient m_Gradient;
 
-  /// Fills out the ezColorGradient structure with an exact copy of the data in the asset.
+  /// Fills out the WColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
-  void FillGradientData(ezColorGradient& out_result) const;
-  ezColor Evaluate(ezInt64 iTick) const;
+  void FillGradientData(WColorGradient& out_result) const;
+  WColor Evaluate(WInt64 iTick) const;
 };
 
-class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradientAssetData>
+class WColorGradientAssetDocument : public WSimpleAssetDocument<WColorGradientAssetData>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientAssetDocument, ezSimpleAssetDocument<ezColorGradientAssetData>);
+  W_ADD_DYNAMIC_REFLECTION(WColorGradientAssetDocument, WSimpleAssetDocument<WColorGradientAssetData>);
 
 public:
-  ezColorGradientAssetDocument(ezStringView sDocumentPath);
+  WColorGradientAssetDocument(WStringView sDocumentPath);
 
-  void WriteResource(ezStreamWriter& inout_stream) const;
+  void WriteResource(WStreamWriter& inout_stream) const;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };

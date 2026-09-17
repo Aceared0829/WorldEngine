@@ -4,14 +4,14 @@
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 #include <RendererFoundation/Shader/Types.h>
 
-ezUInt32 ezShaderConstant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3, sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
-  sizeof(ezUInt32) * 3, sizeof(ezUInt32) * 4, sizeof(ezShaderMat3), sizeof(ezMat4), sizeof(ezShaderTransform), sizeof(ezShaderBool)};
+WUInt32 WShaderConstant::s_TypeSize[(WUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3, sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(WUInt32) * 1, sizeof(WUInt32) * 2,
+  sizeof(WUInt32) * 3, sizeof(WUInt32) * 4, sizeof(WShaderMat3), sizeof(WMat4), sizeof(WShaderTransform), sizeof(WShaderBool)};
 
-void ezShaderConstant::CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pValue) const
+void WShaderConstant::CopyDataFromVariant(WUInt8* pDest, const WVariant* pValue) const
 {
-  EZ_ASSERT_DEV(m_uiArrayElements == 1, "Array constants are not supported");
+  W_ASSERT_DEV(m_uiArrayElements == 1, "Array constants are not supported");
 
-  ezResult conversionResult = EZ_FAILURE;
+  WResult conversionResult = W_FAILURE;
 
   if (pValue != nullptr)
   {
@@ -21,65 +21,65 @@ void ezShaderConstant::CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pVal
         *reinterpret_cast<float*>(pDest) = pValue->ConvertTo<float>(&conversionResult);
         break;
       case Type::Float2:
-        *reinterpret_cast<ezVec2*>(pDest) = pValue->Get<ezVec2>();
+        *reinterpret_cast<WVec2*>(pDest) = pValue->Get<WVec2>();
         return;
       case Type::Float3:
-        *reinterpret_cast<ezVec3*>(pDest) = pValue->Get<ezVec3>();
+        *reinterpret_cast<WVec3*>(pDest) = pValue->Get<WVec3>();
         return;
       case Type::Float4:
-        if (pValue->GetType() == ezVariant::Type::Color || pValue->GetType() == ezVariant::Type::ColorGamma)
+        if (pValue->GetType() == WVariant::Type::Color || pValue->GetType() == WVariant::Type::ColorGamma)
         {
-          const ezColor tmp = pValue->ConvertTo<ezColor>();
-          *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&tmp);
+          const WColor tmp = pValue->ConvertTo<WColor>();
+          *reinterpret_cast<WVec4*>(pDest) = *reinterpret_cast<const WVec4*>(&tmp);
         }
         else
         {
-          *reinterpret_cast<ezVec4*>(pDest) = pValue->Get<ezVec4>();
+          *reinterpret_cast<WVec4*>(pDest) = pValue->Get<WVec4>();
         }
         return;
 
       case Type::Int1:
-        *reinterpret_cast<ezInt32*>(pDest) = pValue->ConvertTo<ezInt32>(&conversionResult);
+        *reinterpret_cast<WInt32*>(pDest) = pValue->ConvertTo<WInt32>(&conversionResult);
         break;
       case Type::Int2:
-        *reinterpret_cast<ezVec2I32*>(pDest) = pValue->Get<ezVec2I32>();
+        *reinterpret_cast<WVec2I32*>(pDest) = pValue->Get<WVec2I32>();
         return;
       case Type::Int3:
-        *reinterpret_cast<ezVec3I32*>(pDest) = pValue->Get<ezVec3I32>();
+        *reinterpret_cast<WVec3I32*>(pDest) = pValue->Get<WVec3I32>();
         return;
       case Type::Int4:
-        *reinterpret_cast<ezVec4I32*>(pDest) = pValue->Get<ezVec4I32>();
+        *reinterpret_cast<WVec4I32*>(pDest) = pValue->Get<WVec4I32>();
         return;
 
       case Type::UInt1:
-        *reinterpret_cast<ezUInt32*>(pDest) = pValue->ConvertTo<ezUInt32>(&conversionResult);
+        *reinterpret_cast<WUInt32*>(pDest) = pValue->ConvertTo<WUInt32>(&conversionResult);
         break;
       case Type::UInt2:
-        *reinterpret_cast<ezVec2U32*>(pDest) = pValue->Get<ezVec2U32>();
+        *reinterpret_cast<WVec2U32*>(pDest) = pValue->Get<WVec2U32>();
         return;
       case Type::UInt3:
-        *reinterpret_cast<ezVec3U32*>(pDest) = pValue->Get<ezVec3U32>();
+        *reinterpret_cast<WVec3U32*>(pDest) = pValue->Get<WVec3U32>();
         return;
       case Type::UInt4:
-        *reinterpret_cast<ezVec4U32*>(pDest) = pValue->Get<ezVec4U32>();
+        *reinterpret_cast<WVec4U32*>(pDest) = pValue->Get<WVec4U32>();
         return;
 
       case Type::Mat3x3:
-        *reinterpret_cast<ezShaderMat3*>(pDest) = pValue->Get<ezMat3>();
+        *reinterpret_cast<WShaderMat3*>(pDest) = pValue->Get<WMat3>();
         return;
       case Type::Mat4x4:
-        *reinterpret_cast<ezMat4*>(pDest) = pValue->Get<ezMat4>();
+        *reinterpret_cast<WMat4*>(pDest) = pValue->Get<WMat4>();
         return;
       case Type::Transform:
-        *reinterpret_cast<ezShaderTransform*>(pDest) = pValue->Get<ezTransform>();
+        *reinterpret_cast<WShaderTransform*>(pDest) = pValue->Get<WTransform>();
         return;
 
       case Type::Bool:
-        *reinterpret_cast<ezShaderBool*>(pDest) = pValue->ConvertTo<bool>(&conversionResult);
+        *reinterpret_cast<WShaderBool*>(pDest) = pValue->ConvertTo<bool>(&conversionResult);
         break;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
@@ -88,15 +88,15 @@ void ezShaderConstant::CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pVal
     return;
   }
 
-  // ezLog::Error("Constant '{0}' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName);
-  const ezUInt32 uiSize = s_TypeSize[m_Type];
-  ezMemoryUtils::ZeroFill(pDest, uiSize);
+  // WLog::Error("Constant '{0}' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName);
+  const WUInt32 uiSize = s_TypeSize[m_Type];
+  WMemoryUtils::ZeroFill(pDest, uiSize);
 }
 
-ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName)
+WResult WShaderResourceBinding::CreateMergedShaderResourceBinding(const WArrayPtr<WArrayPtr<const WShaderResourceBinding>>& resourcesPerStage, WDynamicArray<WShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName)
 {
-  ezUInt32 uiSize = 0;
-  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  WUInt32 uiSize = 0;
+  for (WUInt32 stage = WGALShaderStage::VertexShader; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     uiSize += resourcesPerStage[stage].GetCount();
   }
@@ -104,38 +104,38 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
   out_bindings.Clear();
   out_bindings.Reserve(uiSize);
 
-  auto EqualBindings = [](const ezShaderResourceBinding& a, const ezShaderResourceBinding& b) -> bool
+  auto EqualBindings = [](const WShaderResourceBinding& a, const WShaderResourceBinding& b) -> bool
   {
     return a.m_sName == b.m_sName && a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iBindGroup == b.m_iBindGroup && a.m_iSlot == b.m_iSlot;
   };
 
-  auto AddOrExtendBinding = [&](ezGALShaderStage::Enum stage, ezUInt32 uiStartIndex, const ezShaderResourceBinding& add)
+  auto AddOrExtendBinding = [&](WGALShaderStage::Enum stage, WUInt32 uiStartIndex, const WShaderResourceBinding& add)
   {
-    for (ezUInt32 i = uiStartIndex + 1; i < out_bindings.GetCount(); i++)
+    for (WUInt32 i = uiStartIndex + 1; i < out_bindings.GetCount(); i++)
     {
       if (EqualBindings(out_bindings[i], add))
       {
-        out_bindings[i].m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage(stage);
+        out_bindings[i].m_Stages |= WGALShaderStageFlags::MakeFromShaderStage(stage);
         return;
       }
     }
-    ezShaderResourceBinding& newBinding = out_bindings.ExpandAndGetRef();
+    WShaderResourceBinding& newBinding = out_bindings.ExpandAndGetRef();
     newBinding = add;
-    newBinding.m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage(stage);
+    newBinding.m_Stages |= WGALShaderStageFlags::MakeFromShaderStage(stage);
   };
 
-  ezMap<ezHashedString, ezUInt32> nameToIndex;
-  ezMap<ezHashedString, ezUInt32> samplerToIndex;
-  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  WMap<WHashedString, WUInt32> nameToIndex;
+  WMap<WHashedString, WUInt32> samplerToIndex;
+  for (WUInt32 stage = WGALShaderStage::VertexShader; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
-    for (const ezShaderResourceBinding& res : resourcesPerStage[stage])
+    for (const WShaderResourceBinding& res : resourcesPerStage[stage])
     {
-      ezHashedString sName = res.m_sName;
+      WHashedString sName = res.m_sName;
 
-      ezUInt32 uiIndex = ezInvalidIndex;
-      if (res.m_ResourceType == ezGALShaderResourceType::Sampler)
+      WUInt32 uiIndex = WInvalidIndex;
+      if (res.m_ResourceType == WGALShaderResourceType::Sampler)
       {
-        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See ezBindGroupBuilder::BindTexture for binding code. For now, we allow this collision, but it will probably bite us later on.
+        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See WBindGroupBuilder::BindTexture for binding code. For now, we allow this collision, but it will probably bite us later on.
         samplerToIndex.TryGetValue(res.m_sName, uiIndex);
       }
       else
@@ -143,29 +143,29 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
         nameToIndex.TryGetValue(res.m_sName, uiIndex);
       }
 
-      if (uiIndex != ezInvalidIndex)
+      if (uiIndex != WInvalidIndex)
       {
-        ezShaderResourceBinding& current = out_bindings[uiIndex];
+        WShaderResourceBinding& current = out_bindings[uiIndex];
         if (!EqualBindings(current, res))
         {
           if (bAllowMultipleBindingPerName)
           {
-            AddOrExtendBinding((ezGALShaderStage::Enum)stage, uiIndex, res);
+            AddOrExtendBinding((WGALShaderStage::Enum)stage, uiIndex, res);
             continue;
           }
           // #TODO_SHADER better error reporting.
-          ezLog::Error("A shared shader resource '{}' has a mismatching signatures between stages", sName);
-          return EZ_FAILURE;
+          WLog::Error("A shared shader resource '{}' has a mismatching signatures between stages", sName);
+          return W_FAILURE;
         }
 
-        current.m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
+        current.m_Stages |= WGALShaderStageFlags::MakeFromShaderStage((WGALShaderStage::Enum)stage);
       }
       else
       {
-        ezShaderResourceBinding& newBinding = out_bindings.ExpandAndGetRef();
+        WShaderResourceBinding& newBinding = out_bindings.ExpandAndGetRef();
         newBinding = res;
-        newBinding.m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
-        if (res.m_ResourceType == ezGALShaderResourceType::Sampler)
+        newBinding.m_Stages |= WGALShaderStageFlags::MakeFromShaderStage((WGALShaderStage::Enum)stage);
+        if (res.m_ResourceType == WGALShaderResourceType::Sampler)
         {
           samplerToIndex[res.m_sName] = out_bindings.GetCount() - 1;
         }
@@ -176,33 +176,33 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
       }
     }
   }
-  out_bindings.Sort([](const ezShaderResourceBinding& lhs, const ezShaderResourceBinding& rhs)
+  out_bindings.Sort([](const WShaderResourceBinding& lhs, const WShaderResourceBinding& rhs)
     {
     if (lhs.m_iBindGroup != rhs.m_iBindGroup)
       return lhs.m_iBindGroup < rhs.m_iBindGroup;
 
     return lhs.m_iSlot < rhs.m_iSlot; });
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezGALShaderByteCode::ezGALShaderByteCode() = default;
+WGALShaderByteCode::WGALShaderByteCode() = default;
 
-ezGALShaderByteCode::~ezGALShaderByteCode() = default;
+WGALShaderByteCode::~WGALShaderByteCode() = default;
 
-bool ezShaderConstantBufferLayout::operator==(const ezShaderConstantBufferLayout& rhs) const
+bool WShaderConstantBufferLayout::operator==(const WShaderConstantBufferLayout& rhs) const
 {
   if (m_uiTotalSize != rhs.m_uiTotalSize || m_Constants.GetCount() != rhs.m_Constants.GetCount())
     return false;
 
-  const ezUInt32 uiCount = m_Constants.GetCount();
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  const WUInt32 uiCount = m_Constants.GetCount();
+  for (WUInt32 i = 0; i < uiCount; ++i)
   {
-    const ezShaderConstant& a = m_Constants[i];
-    const ezShaderConstant& b = rhs.m_Constants[i];
+    const WShaderConstant& a = m_Constants[i];
+    const WShaderConstant& b = rhs.m_Constants[i];
 
     // Some platforms return bool or uint1 for a bool type in a shader.
-    ezEnum<ezShaderConstant::Type> aType = a.m_Type == ezShaderConstant::Type::Bool ? ezEnum<ezShaderConstant::Type>(ezShaderConstant::Type::UInt1) : a.m_Type;
-    ezEnum<ezShaderConstant::Type> bType = b.m_Type == ezShaderConstant::Type::Bool ? ezEnum<ezShaderConstant::Type>(ezShaderConstant::Type::UInt1) : b.m_Type;
+    WEnum<WShaderConstant::Type> aType = a.m_Type == WShaderConstant::Type::Bool ? WEnum<WShaderConstant::Type>(WShaderConstant::Type::UInt1) : a.m_Type;
+    WEnum<WShaderConstant::Type> bType = b.m_Type == WShaderConstant::Type::Bool ? WEnum<WShaderConstant::Type>(WShaderConstant::Type::UInt1) : b.m_Type;
 
     if (a.m_sName != b.m_sName || aType != bType || a.m_uiArrayElements != b.m_uiArrayElements || a.m_uiOffset != b.m_uiOffset)
       return false;

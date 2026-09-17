@@ -3,15 +3,15 @@
 #include <EditorPluginAssets/Util/AssetUtils.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMaterialResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezMaterialResourceSlot>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WMaterialResourceSlot, WNoBase, 1, WRTTIDefaultAllocator<WMaterialResourceSlot>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("Highlight", m_bHighlight)->AddAttributes(new ezTemporaryAttribute()),
+    W_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("Highlight", m_bHighlight)->AddAttributes(new WTemporaryAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on

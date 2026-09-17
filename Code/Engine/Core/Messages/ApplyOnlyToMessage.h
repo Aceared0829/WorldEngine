@@ -7,9 +7,9 @@
 ///
 /// This message carries a game object handle to specify which object should be affected
 /// by a particular operation, allowing selective application of effects or behaviors.
-struct EZ_CORE_DLL ezMsgOnlyApplyToObject : public ezMessage
+struct W_CORE_DLL WMsgOnlyApplyToObject : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgOnlyApplyToObject, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgOnlyApplyToObject, WMessage);
 
-  ezGameObjectHandle m_hObject;
+  WGameObjectHandle m_hObject;
 };

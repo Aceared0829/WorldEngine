@@ -4,17 +4,17 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclaration : public ezGALObject<ezGALVertexDeclarationCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALVertexDeclaration : public WGALObject<WGALVertexDeclarationCreationDescription>
 {
 public:
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
-  ezGALVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description);
+  WGALVertexDeclaration(const WGALVertexDeclarationCreationDescription& Description);
 
-  virtual ~ezGALVertexDeclaration();
+  virtual ~WGALVertexDeclaration();
 };

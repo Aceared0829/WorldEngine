@@ -13,41 +13,41 @@
 
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezBeamComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WBeamComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TargetObject", DummyGetter, SetTargetObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("UVUnitsPerWorldUnit", GetUVUnitsPerWorldUnit, SetUVUnitsPerWorldUnit)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, ezVariant())),
+    W_ACCESSOR_PROPERTY("TargetObject", DummyGetter, SetTargetObject)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new WDefaultValueAttribute(WColor::White)),
+    W_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new WDefaultValueAttribute(0.1f), new WClampValueAttribute(0.001f, WVariant()), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("UVUnitsPerWorldUnit", GetUVUnitsPerWorldUnit, SetUVUnitsPerWorldUnit)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new WCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBeamComponent::ezBeamComponent() = default;
-ezBeamComponent::~ezBeamComponent() = default;
+WBeamComponent::WBeamComponent() = default;
+WBeamComponent::~WBeamComponent() = default;
 
-void ezBeamComponent::Update()
+void WBeamComponent::Update()
 {
-  ezGameObject* pTargetObject = nullptr;
+  WGameObject* pTargetObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pTargetObject))
   {
-    ezVec3 currentOwnerPosition = GetOwner()->GetGlobalPosition();
-    ezVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
+    WVec3 currentOwnerPosition = GetOwner()->GetGlobalPosition();
+    WVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
 
     if (!pTargetObject->IsActive())
     {
@@ -79,7 +79,7 @@ void ezBeamComponent::Update()
   }
 }
 
-void ezBeamComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WBeamComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -92,7 +92,7 @@ void ezBeamComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_Color;
 }
 
-void ezBeamComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WBeamComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
@@ -105,39 +105,39 @@ void ezBeamComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_Color;
 }
 
-ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WBeamComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  ezGameObject* pTargetObject = nullptr;
+  WGameObject* pTargetObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pTargetObject))
   {
-    const ezVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
-    const ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(currentTargetPosition);
+    const WVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
+    const WVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(currentTargetPosition);
 
-    ezVec3 pts[] = {ezVec3::MakeZero(), targetPositionInOwnerSpace};
+    WVec3 pts[] = {WVec3::MakeZero(), targetPositionInOwnerSpace};
 
-    ezBoundingBox box = ezBoundingBox::MakeFromPoints(pts, 2);
+    WBoundingBox box = WBoundingBox::MakeFromPoints(pts, 2);
     const float fHalfWidth = m_fWidth * 0.5f;
-    box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
-    box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);
-    ref_bounds = ezBoundingBoxSphere::MakeFromBox(box);
+    box.m_vMin -= WVec3(0, fHalfWidth, fHalfWidth);
+    box.m_vMax += WVec3(0, fHalfWidth, fHalfWidth);
+    ref_bounds = WBoundingBoxSphere::MakeFromBox(box);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-void ezBeamComponent::OnActivated()
+void WBeamComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   ReinitMeshes();
 }
 
-void ezBeamComponent::OnDeactivated()
+void WBeamComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
@@ -145,7 +145,7 @@ void ezBeamComponent::OnDeactivated()
   Cleanup();
 }
 
-void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WBeamComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid() || !m_hMaterial.IsValid())
     return;
@@ -154,16 +154,16 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const bool bDynamic = true;
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
-  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  WMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(GetOwner());
   pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
   pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
-  ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
+  WRenderData::Category category = WMaterialResource::GetRenderDataCategory(m_hMaterial);
 
-  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, category, WRenderData::Caching::Never);
 }
 
-void ezBeamComponent::SetTargetObject(const char* szReference)
+void WBeamComponent::SetTargetObject(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -175,7 +175,7 @@ void ezBeamComponent::SetTargetObject(const char* szReference)
   ReinitMeshes();
 }
 
-void ezBeamComponent::SetWidth(float fWidth)
+void WBeamComponent::SetWidth(float fWidth)
 {
   if (fWidth <= 0.0f)
     return;
@@ -185,12 +185,12 @@ void ezBeamComponent::SetWidth(float fWidth)
   ReinitMeshes();
 }
 
-float ezBeamComponent::GetWidth() const
+float WBeamComponent::GetWidth() const
 {
   return m_fWidth;
 }
 
-void ezBeamComponent::SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit)
+void WBeamComponent::SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit)
 {
   if (fUVUnitsPerWorldUnit <= 0.0f)
     return;
@@ -200,29 +200,29 @@ void ezBeamComponent::SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit)
   ReinitMeshes();
 }
 
-float ezBeamComponent::GetUVUnitsPerWorldUnit() const
+float WBeamComponent::GetUVUnitsPerWorldUnit() const
 {
   return m_fUVUnitsPerWorldUnit;
 }
 
-ezMaterialResourceHandle ezBeamComponent::GetMaterial() const
+WMaterialResourceHandle WBeamComponent::GetMaterial() const
 {
   return m_hMaterial;
 }
 
-void ezBeamComponent::CreateMeshes()
+void WBeamComponent::CreateMeshes()
 {
-  ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(m_vLastTargetPosition);
+  WVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(m_vLastTargetPosition);
 
   if (targetPositionInOwnerSpace.IsZero(0.01f))
     return;
 
   // Create the beam mesh name, it expresses the beam in local space with it's width
   // this way multiple beams in a corridor can share the same mesh for example.
-  ezStringBuilder meshName;
-  meshName.SetFormat("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezBinMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
+  WStringBuilder meshName;
+  meshName.SetFormat("WBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.WBinMesh", m_fWidth, WArgF(targetPositionInOwnerSpace.x, 2), WArgF(targetPositionInOwnerSpace.y, 2), WArgF(targetPositionInOwnerSpace.z, 2));
 
-  m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
+  m_hMesh = WResourceManager::GetExistingResource<WMeshResource>(meshName);
 
   // We build a cross mesh, thus we need the following vectors, x is the origin and we need to construct
   // the star points.
@@ -232,16 +232,16 @@ void ezBeamComponent::CreateMeshes()
   //      x
   //
   //  4        2
-  ezVec3 crossVector1 = (0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
+  WVec3 crossVector1 = (0.5f * WVec3::MakeAxisY() + 0.5f * WVec3::MakeAxisZ());
   crossVector1.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector2 = (0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
+  WVec3 crossVector2 = (0.5f * WVec3::MakeAxisY() - 0.5f * WVec3::MakeAxisZ());
   crossVector2.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector3 = (-0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
+  WVec3 crossVector3 = (-0.5f * WVec3::MakeAxisY() + 0.5f * WVec3::MakeAxisZ());
   crossVector3.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector4 = (-0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
+  WVec3 crossVector4 = (-0.5f * WVec3::MakeAxisY() - 0.5f * WVec3::MakeAxisZ());
   crossVector4.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
@@ -251,54 +251,54 @@ void ezBeamComponent::CreateMeshes()
   // Build mesh if no existing one is found
   if (!m_hMesh.IsValid())
   {
-    ezGeometry g;
+    WGeometry g;
 
     // Quad 1
     {
-      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector1, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector4, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      WUInt32 index0 = g.AddVertex(WVec3::MakeZero() + crossVector1, WVec3::MakeAxisX(), WVec2(0, 0), WColor::White);
+      WUInt32 index1 = g.AddVertex(WVec3::MakeZero() + crossVector4, WVec3::MakeAxisX(), WVec2(0, 1), WColor::White);
+      WUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, WVec3::MakeAxisX(), WVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), WColor::White);
+      WUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, WVec3::MakeAxisX(), WVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), WColor::White);
 
-      ezUInt32 indices[] = {index0, index2, index3, index1};
-      g.AddPolygon(ezArrayPtr(indices), false);
-      g.AddPolygon(ezArrayPtr(indices), true);
+      WUInt32 indices[] = {index0, index2, index3, index1};
+      g.AddPolygon(WArrayPtr(indices), false);
+      g.AddPolygon(WArrayPtr(indices), true);
     }
 
     // Quad 2
     {
-      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector2, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector3, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      WUInt32 index0 = g.AddVertex(WVec3::MakeZero() + crossVector2, WVec3::MakeAxisX(), WVec2(0, 0), WColor::White);
+      WUInt32 index1 = g.AddVertex(WVec3::MakeZero() + crossVector3, WVec3::MakeAxisX(), WVec2(0, 1), WColor::White);
+      WUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, WVec3::MakeAxisX(), WVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), WColor::White);
+      WUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, WVec3::MakeAxisX(), WVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), WColor::White);
 
-      ezUInt32 indices[] = {index0, index2, index3, index1};
-      g.AddPolygon(ezArrayPtr(indices), false);
-      g.AddPolygon(ezArrayPtr(indices), true);
+      WUInt32 indices[] = {index0, index2, index3, index1};
+      g.AddPolygon(WArrayPtr(indices), false);
+      g.AddPolygon(WArrayPtr(indices), true);
     }
 
     g.ComputeTangents();
 
-    ezMeshResourceDescriptor desc;
+    WMeshResourceDescriptor desc;
     BuildMeshResourceFromGeometry(g, desc);
 
-    m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(meshName, std::move(desc));
+    m_hMesh = WResourceManager::CreateResource<WMeshResource>(meshName, std::move(desc));
   }
 }
 
-void ezBeamComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const
+void WBeamComponent::BuildMeshResourceFromGeometry(WGeometry& Geometry, WMeshResourceDescriptor& MeshDesc) const
 {
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
   MeshBufferDesc.AddCommonStreams();
-  MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, ezGALPrimitiveTopology::Triangles);
+  MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, WGALPrimitiveTopology::Triangles);
 
   MeshDesc.AddSubMesh(MeshBufferDesc.GetPrimitiveCount(), 0, 0);
 
   MeshDesc.ComputeBounds();
 }
 
-void ezBeamComponent::ReinitMeshes()
+void WBeamComponent::ReinitMeshes()
 {
   Cleanup();
 
@@ -309,10 +309,10 @@ void ezBeamComponent::ReinitMeshes()
   }
 }
 
-void ezBeamComponent::Cleanup()
+void WBeamComponent::Cleanup()
 {
   m_hMesh.Invalidate();
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BeamComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BeamComponent);

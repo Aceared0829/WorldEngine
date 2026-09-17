@@ -3,10 +3,10 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Document/Document.h>
 
-EZ_IMPLEMENT_SINGLETON(ezManipulatorManager);
+W_IMPLEMENT_SINGLETON(WManipulatorManager);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager"
@@ -14,35 +14,35 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezManipulatorManager);
+    W_DEFAULT_NEW(WManipulatorManager);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    if (ezManipulatorManager::GetSingleton())
+    if (WManipulatorManager::GetSingleton())
     {
-      auto ptr = ezManipulatorManager::GetSingleton();
-      EZ_DEFAULT_DELETE(ptr);
+      auto ptr = WManipulatorManager::GetSingleton();
+      W_DEFAULT_DELETE(ptr);
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezManipulatorManager::ezManipulatorManager()
+WManipulatorManager::WManipulatorManager()
   : m_SingletonRegistrar(this)
 {
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::PhantomTypeManagerEventHandler, this));
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WManipulatorManager::PhantomTypeManagerEventHandler, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WManipulatorManager::DocumentManagerEventHandler, this));
 }
 
-ezManipulatorManager::~ezManipulatorManager()
+WManipulatorManager::~WManipulatorManager()
 {
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::PhantomTypeManagerEventHandler, this));
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WManipulatorManager::PhantomTypeManagerEventHandler, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WManipulatorManager::DocumentManagerEventHandler, this));
 }
 
-const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_pSelection) const
+const WManipulatorAttribute* WManipulatorManager::GetActiveManipulator(const WDocument* pDoc, const WHybridArray<WPropertySelection, 8>*& out_pSelection) const
 {
   out_pSelection = nullptr;
   auto it = m_ActiveManipulator.Find(pDoc);
@@ -57,7 +57,7 @@ const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const e
   return nullptr;
 }
 
-void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection, bool bUnhide)
+void WManipulatorManager::InternalSetActiveManipulator(const WDocument* pDoc, const WManipulatorAttribute* pManipulator, const WArrayPtr<WPropertySelection>& selection, bool bUnhide)
 {
   bool existed = false;
   auto it = m_ActiveManipulator.FindOrAdd(pDoc, &existed);
@@ -67,8 +67,8 @@ void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, 
 
   if (!existed)
   {
-    pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
-    pDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::SelectionEventHandler, this));
+    pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WManipulatorManager::StructureEventHandler, this));
+    pDoc->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WManipulatorManager::SelectionEventHandler, this));
   }
 
   auto& data = m_ActiveManipulator[pDoc];
@@ -78,7 +78,7 @@ void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, 
     data.m_bHideManipulators = false;
   }
 
-  ezManipulatorManagerEvent e;
+  WManipulatorManagerEvent e;
   e.m_bHideManipulators = data.m_bHideManipulators;
   e.m_pDocument = pDoc;
   e.m_pManipulator = pManipulator;
@@ -88,19 +88,19 @@ void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, 
 }
 
 
-void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection)
+void WManipulatorManager::SetActiveManipulator(const WDocument* pDoc, const WManipulatorAttribute* pManipulator, const WArrayPtr<WPropertySelection>& selection)
 {
   InternalSetActiveManipulator(pDoc, pManipulator, selection, true);
 }
 
-void ezManipulatorManager::ClearActiveManipulator(const ezDocument* pDoc)
+void WManipulatorManager::ClearActiveManipulator(const WDocument* pDoc)
 {
-  ezTempHybridArray<ezPropertySelection, 8> clearSel;
+  WTempHybridArray<WPropertySelection, 8> clearSel;
 
   InternalSetActiveManipulator(pDoc, nullptr, clearSel, false);
 }
 
-void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bHide)
+void WManipulatorManager::HideActiveManipulator(const WDocument* pDoc, bool bHide)
 {
   auto it = m_ActiveManipulator.Find(pDoc);
 
@@ -110,7 +110,7 @@ void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bH
 
     if (bHide)
     {
-      ezTempHybridArray<ezPropertySelection, 8> clearSel;
+      WTempHybridArray<WPropertySelection, 8> clearSel;
       InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
     }
     else
@@ -120,7 +120,7 @@ void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bH
   }
 }
 
-void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
+void WManipulatorManager::ToggleHideActiveManipulator(const WDocument* pDoc)
 {
   auto it = m_ActiveManipulator.Find(pDoc);
 
@@ -130,7 +130,7 @@ void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
 
     if (it.Value().m_bHideManipulators)
     {
-      ezTempHybridArray<ezPropertySelection, 8> clearSel;
+      WTempHybridArray<WPropertySelection, 8> clearSel;
       InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
     }
     else
@@ -140,31 +140,31 @@ void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
   }
 }
 
-void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
+void WManipulatorManager::CycleActiveManipulator(const WDocument* pDoc)
 {
-  const ezDocumentObject* pCurrentObject = pDoc->GetSelectionManager()->GetCurrentObject();
+  const WDocumentObject* pCurrentObject = pDoc->GetSelectionManager()->GetCurrentObject();
   if (pCurrentObject == nullptr)
     return;
 
-  EZ_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != ezManipulatorSearchStrategy::None,
+  W_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != WManipulatorSearchStrategy::None,
     "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
 
   // Collect available manipulator attributes from the last selected object (or its children).
-  // Deduplicates by type + primary property so that e.g. multiple ezSplineNodeComponent children
-  // that share the same ezSplineManipulatorAttribute only contribute one entry.
-  ezTempHybridArray<const ezManipulatorAttribute*, 8> available;
+  // Deduplicates by type + primary property so that e.g. multiple WSplineNodeComponent children
+  // that share the same WSplineManipulatorAttribute only contribute one entry.
+  WTempHybridArray<const WManipulatorAttribute*, 8> available;
 
-  auto collectManipulators = [&](const ezDocumentObject* pObj)
+  auto collectManipulators = [&](const WDocumentObject* pObj)
   {
     // Walk the full type hierarchy so attributes on base classes are included.
-    for (const ezRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
+    for (const WRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
     {
       for (const auto* pAttr : pRtti->GetAttributes())
       {
-        if (!pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
+        if (!pAttr->GetDynamicRTTI()->IsDerivedFrom<WManipulatorAttribute>())
           continue;
 
-        const ezManipulatorAttribute* pManipAttr = static_cast<const ezManipulatorAttribute*>(pAttr);
+        const WManipulatorAttribute* pManipAttr = static_cast<const WManipulatorAttribute*>(pAttr);
 
         // Skip duplicates (same type and primary property)
         bool bAlreadyAdded = false;
@@ -183,55 +183,55 @@ void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
     }
   };
 
-  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::SelectedObject)
   {
     collectManipulators(pCurrentObject);
   }
-  else if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  else if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::ChildrenOfSelectedObject)
   {
     for (const auto* pChild : pCurrentObject->GetChildren())
       collectManipulators(pChild);
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   if (available.IsEmpty())
     return;
 
   // Find the index of the currently active manipulator
-  const ezHybridArray<ezPropertySelection, 8>* pSel = nullptr;
-  const ezManipulatorAttribute* pActive = GetActiveManipulator(pDoc, pSel);
+  const WHybridArray<WPropertySelection, 8>* pSel = nullptr;
+  const WManipulatorAttribute* pActive = GetActiveManipulator(pDoc, pSel);
 
-  ezInt32 iCurrentIndex = -1;
+  WInt32 iCurrentIndex = -1;
   if (pActive != nullptr)
   {
-    for (ezUInt32 i = 0; i < available.GetCount(); ++i)
+    for (WUInt32 i = 0; i < available.GetCount(); ++i)
     {
       if (available[i]->GetDynamicRTTI() == pActive->GetDynamicRTTI() &&
           available[i]->m_sProperty1 == pActive->m_sProperty1)
       {
-        iCurrentIndex = static_cast<ezInt32>(i);
+        iCurrentIndex = static_cast<WInt32>(i);
         break;
       }
     }
   }
 
   // If the last (or only) manipulator is currently active, clear and stop
-  if (iCurrentIndex >= static_cast<ezInt32>(available.GetCount()) - 1)
+  if (iCurrentIndex >= static_cast<WInt32>(available.GetCount()) - 1)
   {
     ClearActiveManipulator(pDoc);
     return;
   }
 
-  const ezManipulatorAttribute* pNext = available[iCurrentIndex + 1];
+  const WManipulatorAttribute* pNext = available[iCurrentIndex + 1];
 
   // Build a selection for pNext by searching through the current editor selection
-  ezTempHybridArray<ezPropertySelection, 8> newSelection;
+  WTempHybridArray<WPropertySelection, 8> newSelection;
   const auto& selection = pDoc->GetSelectionManager()->GetSelection();
 
-  auto matchesNext = [&](const ezManipulatorAttribute* pManip) -> bool
+  auto matchesNext = [&](const WManipulatorAttribute* pManip) -> bool
   {
     return pManip->GetDynamicRTTI() == pNext->GetDynamicRTTI() &&
            pManip->m_sProperty1 == pNext->m_sProperty1 && pManip->m_sProperty2 == pNext->m_sProperty2 &&
@@ -240,20 +240,20 @@ void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
   };
 
   // Returns true if pObj (or any of its base types) has a manipulator attribute matching pNext.
-  auto hasMatchingManipulator = [&](const ezDocumentObject* pObj) -> bool
+  auto hasMatchingManipulator = [&](const WDocumentObject* pObj) -> bool
   {
-    for (const ezRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
+    for (const WRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
     {
       for (const auto* pAttr : pRtti->GetAttributes())
       {
-        if (pAttr->IsInstanceOf(pNext->GetDynamicRTTI()) && matchesNext(static_cast<const ezManipulatorAttribute*>(pAttr)))
+        if (pAttr->IsInstanceOf(pNext->GetDynamicRTTI()) && matchesNext(static_cast<const WManipulatorAttribute*>(pAttr)))
           return true;
       }
     }
     return false;
   };
 
-  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::SelectedObject)
   {
     for (const auto* pObj : selection)
     {
@@ -261,7 +261,7 @@ void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
         newSelection.ExpandAndGetRef().m_pObject = pObj;
     }
   }
-  else if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  else if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::ChildrenOfSelectedObject)
   {
     for (const auto* pObj : selection)
     {
@@ -277,15 +277,15 @@ void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   InternalSetActiveManipulator(pDoc, pNext, newSelection, true);
 }
 
-void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WManipulatorManager::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
   {
     auto pDoc = e.m_pObject->GetDocumentObjectManager()->GetDocument();
     auto it = m_ActiveManipulator.Find(pDoc);
@@ -304,7 +304,7 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
     }
   }
 
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeReset)
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::BeforeReset)
   {
     auto pDoc = e.m_pDocument;
     auto it = m_ActiveManipulator.Find(pDoc);
@@ -320,12 +320,12 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
   }
 }
 
-void ezManipulatorManager::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WManipulatorManager::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   TransferToCurrentSelection(e.m_pDocument->GetMainDocument());
 }
 
-void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
+void WManipulatorManager::TransferToCurrentSelection(const WDocument* pDoc)
 {
   auto& data = m_ActiveManipulator[pDoc];
   auto pAttribute = data.m_pAttribute;
@@ -336,15 +336,15 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
   if (data.m_bHideManipulators)
     return;
 
-  ezTempHybridArray<ezPropertySelection, 8> newSelection;
+  WTempHybridArray<WPropertySelection, 8> newSelection;
 
   const auto& selection = pDoc->GetSelectionManager()->GetSelection();
 
-  EZ_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != ezManipulatorSearchStrategy::None, "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
+  W_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != WManipulatorSearchStrategy::None, "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
 
-  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::SelectedObject)
   {
-    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+    for (WUInt32 i = 0; i < selection.GetCount(); ++i)
     {
       const auto& OtherAttributes = selection[i]->GetTypeAccessor().GetType()->GetAttributes();
 
@@ -352,7 +352,7 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
       {
         if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
         {
-          auto pOtherManip = static_cast<const ezManipulatorAttribute*>(pOtherAttr);
+          auto pOtherManip = static_cast<const WManipulatorAttribute*>(pOtherAttr);
 
           if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
               pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
@@ -366,9 +366,9 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
     }
   }
 
-  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  if (pDoc->GetManipulatorSearchStrategy() == WManipulatorSearchStrategy::ChildrenOfSelectedObject)
   {
-    for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+    for (WUInt32 i = 0; i < selection.GetCount(); ++i)
     {
       const auto& children = selection[i]->GetChildren();
 
@@ -380,7 +380,7 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
         {
           if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
           {
-            auto pOtherManip = static_cast<const ezManipulatorAttribute*>(pOtherAttr);
+            auto pOtherManip = static_cast<const WManipulatorAttribute*>(pOtherAttr);
 
             if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
                 pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
@@ -398,9 +398,9 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
   InternalSetActiveManipulator(pDoc, pAttribute, newSelection, false);
 }
 
-void ezManipulatorManager::PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e)
+void WManipulatorManager::PhantomTypeManagerEventHandler(const WPhantomRttiManagerEvent& e)
 {
-  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged || e.m_Type == ezPhantomRttiManagerEvent::Type::TypeRemoved)
+  if (e.m_Type == WPhantomRttiManagerEvent::Type::TypeChanged || e.m_Type == WPhantomRttiManagerEvent::Type::TypeRemoved)
   {
     for (auto it = m_ActiveManipulator.GetIterator(); it.IsValid(); ++it)
     {
@@ -409,14 +409,14 @@ void ezManipulatorManager::PhantomTypeManagerEventHandler(const ezPhantomRttiMan
   }
 }
 
-void ezManipulatorManager::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
+void WManipulatorManager::DocumentManagerEventHandler(const WDocumentManager::Event& e)
 {
-  if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
+  if (e.m_Type == WDocumentManager::Event::Type::DocumentClosing)
   {
     ClearActiveManipulator(e.m_pDocument);
 
-    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
-    e.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::SelectionEventHandler, this));
+    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WManipulatorManager::StructureEventHandler, this));
+    e.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WManipulatorManager::SelectionEventHandler, this));
 
     m_ActiveManipulator.Remove(e.m_pDocument);
   }

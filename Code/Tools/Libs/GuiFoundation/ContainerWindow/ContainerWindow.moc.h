@@ -10,10 +10,10 @@
 #include <QSet>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezDocumentManager;
-class ezDocument;
-class ezQtApplicationPanel;
-struct ezDocumentTypeDescriptor;
+class WDocumentManager;
+class WDocument;
+class WQtApplicationPanel;
+struct WDocumentTypeDescriptor;
 class QLabel;
 
 namespace ads
@@ -24,26 +24,26 @@ namespace ads
 } // namespace ads
 
 /// Container window that hosts documents and applications panels.
-class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
+class W_GUIFOUNDATION_DLL WQtContainerWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
   /// Constructor.
-  ezQtContainerWindow();
-  ~ezQtContainerWindow();
+  WQtContainerWindow();
+  ~WQtContainerWindow();
 
-  static ezQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }
+  static WQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }
 
-  void AddDocumentWindow(ezQtDocumentWindow* pDocWindow);
-  void DocumentWindowRenamed(ezQtDocumentWindow* pDocWindow);
-  void AddApplicationPanel(ezQtApplicationPanel* pPanel);
+  void AddDocumentWindow(WQtDocumentWindow* pDocWindow);
+  void DocumentWindowRenamed(WQtDocumentWindow* pDocWindow);
+  void AddApplicationPanel(WQtApplicationPanel* pPanel);
 
   ads::CDockManager* GetDockManager() { return m_pDockManager; }
 
-  static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
+  static WResult EnsureVisibleAnyContainer(WDocument* pDocument);
 
-  void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows);
+  void GetDocumentWindows(WHybridArray<WQtDocumentWindow*, 16>& ref_windows);
 
   struct DocumentWindowState
   {
@@ -52,22 +52,22 @@ public:
 
   /// Saves the current state (floating/docked) of all document windows.
   /// Call before restoring a layout.
-  void SaveDocumentWindowStates(ezMap<ads::CDockWidget*, DocumentWindowState>& out_states);
+  void SaveDocumentWindowStates(WMap<ads::CDockWidget*, DocumentWindowState>& out_states);
 
   /// Restores document windows to their previous states after a layout change.
   /// Call after restoring a layout.
-  void RestoreDocumentWindowStates(const ezMap<ads::CDockWidget*, DocumentWindowState>& states);
+  void RestoreDocumentWindowStates(const WMap<ads::CDockWidget*, DocumentWindowState>& states);
 
 protected:
   virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
 private:
-  friend class ezQtDocumentWindow;
-  friend class ezQtApplicationPanel;
+  friend class WQtDocumentWindow;
+  friend class WQtApplicationPanel;
 
-  ezResult EnsureVisible(ezQtDocumentWindow* pDocWindow);
-  ezResult EnsureVisible(ezDocument* pDocument);
-  ezResult EnsureVisible(ezQtApplicationPanel* pPanel);
+  WResult EnsureVisible(WQtDocumentWindow* pDocWindow);
+  WResult EnsureVisible(WDocument* pDocument);
+  WResult EnsureVisible(WQtApplicationPanel* pPanel);
 
 private Q_SLOTS:
   void SlotDocumentTabCloseRequested();
@@ -79,26 +79,26 @@ private Q_SLOTS:
 private:
   void UpdateWindowTitle();
 
-  void RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow);
-  void RemoveApplicationPanel(ezQtApplicationPanel* pPanel);
+  void RemoveDocumentWindow(WQtDocumentWindow* pDocWindow);
+  void RemoveApplicationPanel(WQtApplicationPanel* pPanel);
 
-  void UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow);
+  void UpdateWindowDecoration(WQtDocumentWindow* pDocWindow);
 
-  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
-  void ProjectEventHandler(const ezToolsProjectEvent& e);
-  void UIServicesEventHandler(const ezQtUiServices::Event& e);
+  void DocumentWindowEventHandler(const WQtDocumentWindowEvent& e);
+  void ProjectEventHandler(const WToolsProjectEvent& e);
+  void UIServicesEventHandler(const WQtUiServices::Event& e);
 
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
   ads::CDockManager* m_pDockManager = nullptr;
   QLabel* m_pStatusBarLabel;
-  ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
-  ezDynamicArray<ads::CDockWidget*> m_DocumentDocks;
+  WDynamicArray<WQtDocumentWindow*> m_DocumentWindows;
+  WDynamicArray<ads::CDockWidget*> m_DocumentDocks;
 
-  ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
+  WDynamicArray<WQtApplicationPanel*> m_ApplicationPanels;
   QSet<QString> m_DockNames;
 
-  static ezQtContainerWindow* s_pContainerWindow;
+  static WQtContainerWindow* s_pContainerWindow;
   static bool s_bForceClose;
 };

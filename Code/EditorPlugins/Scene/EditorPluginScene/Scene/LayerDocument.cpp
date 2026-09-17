@@ -5,24 +5,24 @@
 #include <SharedPluginScene/Common/Messages.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLayerDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLayerDocument::ezLayerDocument(ezStringView sDocumentPath, ezScene2Document* pParentScene)
-  : ezSceneDocument(sDocumentPath, ezSceneDocument::DocumentType::Layer)
+WLayerDocument::WLayerDocument(WStringView sDocumentPath, WScene2Document* pParentScene)
+  : WSceneDocument(sDocumentPath, WSceneDocument::DocumentType::Layer)
 {
   m_pHostDocument = pParentScene;
 }
 
-ezLayerDocument::~ezLayerDocument() = default;
+WLayerDocument::~WLayerDocument() = default;
 
-void ezLayerDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WLayerDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 }
 
-ezVariant ezLayerDocument::GetCreateEngineMetaData() const
+WVariant WLayerDocument::GetCreateEngineMetaData() const
 {
   return m_pHostDocument->GetGuid();
 }

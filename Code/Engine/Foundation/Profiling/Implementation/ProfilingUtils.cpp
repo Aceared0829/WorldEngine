@@ -6,71 +6,71 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 
-ezResult ezProfilingUtils::SaveProfilingCapture(ezStringView sCapturePath)
+WResult WProfilingUtils::SaveProfilingCapture(WStringView sCapturePath)
 {
-  ezFileWriter fileWriter;
-  if (fileWriter.Open(sCapturePath) == EZ_SUCCESS)
+  WFileWriter fileWriter;
+  if (fileWriter.Open(sCapturePath) == W_SUCCESS)
   {
-    ezProfilingSystem::ProfilingData profilingData;
-    ezProfilingSystem::Capture(profilingData);
-    // Set sort index to ezInvalidIndex so that the runtime process is always at the bottom and editor is always on top when opening the trace.
-    profilingData.m_uiProcessSortIndex = ezInvalidIndex;
+    WProfilingSystem::ProfilingData profilingData;
+    WProfilingSystem::Capture(profilingData);
+    // Set sort index to WInvalidIndex so that the runtime process is always at the bottom and editor is always on top when opening the trace.
+    profilingData.m_uiProcessSortIndex = WInvalidIndex;
     if (profilingData.Write(fileWriter).Failed())
     {
-      ezLog::Error("Failed to write profiling capture: {0}.", sCapturePath);
-      return EZ_FAILURE;
+      WLog::Error("Failed to write profiling capture: {0}.", sCapturePath);
+      return W_FAILURE;
     }
 
-    ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+    WLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
   }
   else
   {
-    ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-    return EZ_FAILURE;
+    WLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+    return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProfilingUtils::MergeProfilingCaptures(ezStringView sCapturePath1, ezStringView sCapturePath2, ezStringView sMergedCapturePath)
+WResult WProfilingUtils::MergeProfilingCaptures(WStringView sCapturePath1, WStringView sCapturePath2, WStringView sMergedCapturePath)
 {
-  ezString sFirstProfilingJson;
+  WString sFirstProfilingJson;
   {
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sCapturePath1).Failed())
     {
-      ezLog::Error("Failed to read first profiling capture to be merged: {}.", sCapturePath1);
-      return EZ_FAILURE;
+      WLog::Error("Failed to read first profiling capture to be merged: {}.", sCapturePath1);
+      return W_FAILURE;
     }
     sFirstProfilingJson.ReadAll(reader);
   }
-  ezString sSecondProfilingJson;
+  WString sSecondProfilingJson;
   {
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sCapturePath2).Failed())
     {
-      ezLog::Error("Failed to read second profiling capture to be merged: {}.", sCapturePath2);
-      return EZ_FAILURE;
+      WLog::Error("Failed to read second profiling capture to be merged: {}.", sCapturePath2);
+      return W_FAILURE;
     }
     sSecondProfilingJson.ReadAll(reader);
   }
 
-  ezStringBuilder sMergedProfilingJson;
+  WStringBuilder sMergedProfilingJson;
   {
     // Just glue the array together
     sMergedProfilingJson.Reserve(sFirstProfilingJson.GetElementCount() + 1 + sSecondProfilingJson.GetElementCount());
     const char* szEndArray = sFirstProfilingJson.FindLastSubString("]");
-    sMergedProfilingJson.Append(ezStringView(sFirstProfilingJson.GetData(), static_cast<ezUInt32>(szEndArray - sFirstProfilingJson.GetData())));
+    sMergedProfilingJson.Append(WStringView(sFirstProfilingJson.GetData(), static_cast<WUInt32>(szEndArray - sFirstProfilingJson.GetData())));
     sMergedProfilingJson.Append(",");
     const char* szStartArray = sSecondProfilingJson.FindSubString("[") + 1;
-    sMergedProfilingJson.Append(ezStringView(szStartArray, static_cast<ezUInt32>(sSecondProfilingJson.GetElementCount() - (szStartArray - sSecondProfilingJson.GetData()))));
+    sMergedProfilingJson.Append(WStringView(szStartArray, static_cast<WUInt32>(sSecondProfilingJson.GetElementCount() - (szStartArray - sSecondProfilingJson.GetData()))));
   }
 
-  ezFileWriter fileWriter;
+  WFileWriter fileWriter;
   if (fileWriter.Open(sMergedCapturePath).Failed() || fileWriter.WriteBytes(sMergedProfilingJson.GetData(), sMergedProfilingJson.GetElementCount()).Failed())
   {
-    ezLog::Error("Failed to write merged profiling capture: {}.", sMergedCapturePath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to write merged profiling capture: {}.", sMergedCapturePath);
+    return W_FAILURE;
   }
-  ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-  return EZ_SUCCESS;
+  WLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+  return W_SUCCESS;
 }

@@ -1,14 +1,14 @@
 #pragma once
 
-#define PLATFORM_DX11 EZ_OFF
+#define PLATFORM_DX11 W_OFF
 
 #if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
 
 #  undef PLATFORM_SHADER
-#  define PLATFORM_SHADER EZ_ON
+#  define PLATFORM_SHADER W_ON
 
 #  undef PLATFORM_DX11
-#  define PLATFORM_DX11 EZ_ON
+#  define PLATFORM_DX11 W_ON
 
 // DX11 does not support push constants, so we just emulate them via a normal constant buffer.
 #  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name BIND_GROUP(BG_DRAW_CALL)
@@ -19,24 +19,24 @@
 #  define END_MATERIAL_CONSTANTS ;
 #  define GetMaterialData(x) x
 
-#  define SUPPORTS_TEXEL_BUFFER EZ_ON
-#  define SUPPORTS_MSAA_ARRAYS EZ_ON
+#  define SUPPORTS_TEXEL_BUFFER W_ON
+#  define SUPPORTS_MSAA_ARRAYS W_ON
 
-#  define EZ_IMAGE_FORMAT(fmt)
+#  define W_IMAGE_FORMAT(fmt)
 
-float ezEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
+float WEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   return EvaluateAttributeAtSample(Attribute, SampleIndex);
 }
-float2 ezEvaluateAttributeAtSample(float2 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float2 WEvaluateAttributeAtSample(float2 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   return EvaluateAttributeAtSample(Attribute, SampleIndex);
 }
-float3 ezEvaluateAttributeAtSample(float3 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float3 WEvaluateAttributeAtSample(float3 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   return EvaluateAttributeAtSample(Attribute, SampleIndex);
 }
-float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumMsaaSamples)
+float4 WEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   return EvaluateAttributeAtSample(Attribute, SampleIndex);
 }
@@ -58,7 +58,7 @@ float4 select(bool4 condition, float4 yes, float4 no)
   return float4(condition.x ? yes.x : no.x, condition.y ? yes.y : no.y, condition.z ? yes.z : no.z, condition.w ? yes.w : no.w);
 }
 
-float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+float4 WSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
 {
   return DepthTexture.SampleLevel(DepthSampler, float3(SamplePos, ArrayIndex), MipLevel);
 }

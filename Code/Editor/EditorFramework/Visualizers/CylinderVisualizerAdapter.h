@@ -4,13 +4,13 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezCylinderVisualizerAdapter : public ezVisualizerAdapter
+class WCylinderVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezCylinderVisualizerAdapter();
-  ~ezCylinderVisualizerAdapter();
+  WCylinderVisualizerAdapter();
+  ~WCylinderVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -20,9 +20,9 @@ protected:
 
   float m_fRadius;
   float m_fHeight;
-  ezVec3 m_vPositionOffset;
-  ezBitflags<ezVisualizerAnchor> m_Anchor;
-  ezBasisAxis::Enum m_Axis;
+  WVec3 m_vPositionOffset;
+  WBitflags<WVisualizerAnchor> m_Anchor;
+  WBasisAxis::Enum m_Axis;
 
-  ezEngineGizmoHandle m_hCylinder;
+  WEngineGizmoHandle m_hCylinder;
 };

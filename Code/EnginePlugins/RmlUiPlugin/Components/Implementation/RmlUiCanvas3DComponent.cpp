@@ -18,45 +18,45 @@
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-static ezAtomicInteger32 s_RmlResourceCounter;
+static WAtomicInteger32 s_RmlResourceCounter;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WRmlUiCanvas3DComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("ProxyMesh", GetProxyMesh, SetProxyMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezDefaultValueAttribute("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("MaterialIndex", GetMaterialIndex, SetMaterialIndex)->AddAttributes(new ezDefaultValueAttribute(0)),
-    EZ_ACCESSOR_PROPERTY("TextureSlotName", GetTextureSlotName, SetTextureSlotName)->AddAttributes(new ezDefaultValueAttribute("BaseTexture")),
-    EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),
-    EZ_ACCESSOR_PROPERTY("DpiScale", GetDpiScale, SetDpiScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("ClearStaleInput", GetClearStaleInput, SetClearStaleInput)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("IsInteractive", IsInteractive, SetInteractive)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_RESOURCE_ACCESSOR_PROPERTY("ProxyMesh", GetProxyMesh, SetProxyMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
+    W_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WDefaultValueAttribute("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("MaterialIndex", GetMaterialIndex, SetMaterialIndex)->AddAttributes(new WDefaultValueAttribute(0)),
+    W_ACCESSOR_PROPERTY("TextureSlotName", GetTextureSlotName, SetTextureSlotName)->AddAttributes(new WDefaultValueAttribute("BaseTexture")),
+    W_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new WSuffixAttribute("px"), new WDefaultValueAttribute(WVec2U32(512, 512)), new WClampValueAttribute(WVec2U32(0), WVec2U32(4096))),
+    W_ACCESSOR_PROPERTY("DpiScale", GetDpiScale, SetDpiScale)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("ClearStaleInput", GetClearStaleInput, SetClearStaleInput)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("IsInteractive", IsInteractive, SetInteractive)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Input/RmlUi"),
+    new WCategoryAttribute("Input/RmlUi"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezRmlUiCanvas3DComponent::ezRmlUiCanvas3DComponent()
+WRmlUiCanvas3DComponent::WRmlUiCanvas3DComponent()
 {
-  m_vSize = ezVec2U32(512, 512);
+  m_vSize = WVec2U32(512, 512);
 }
 
-ezRmlUiCanvas3DComponent::~ezRmlUiCanvas3DComponent() = default;
-ezRmlUiCanvas3DComponent& ezRmlUiCanvas3DComponent::operator=(ezRmlUiCanvas3DComponent&& rhs) = default;
+WRmlUiCanvas3DComponent::~WRmlUiCanvas3DComponent() = default;
+WRmlUiCanvas3DComponent& WRmlUiCanvas3DComponent::operator=(WRmlUiCanvas3DComponent&& rhs) = default;
 
-void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WRmlUiCanvas3DComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hBaseMaterial;
   s << m_uiMaterialIndex;
@@ -68,11 +68,11 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_hProxyMesh;
 }
 
-void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WRmlUiCanvas3DComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hBaseMaterial;
   s >> m_uiMaterialIndex;
@@ -88,7 +88,7 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezRmlUiCanvas3DComponent::OnActivated()
+void WRmlUiCanvas3DComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -102,31 +102,31 @@ void ezRmlUiCanvas3DComponent::OnActivated()
   if (!m_hBaseMaterial.IsValid())
   {
     // use the "Fullbright" material as a fallback
-    m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }");
+    m_hBaseMaterial = WResourceManager::LoadResource<WMaterialResource>("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }");
   }
 
   Update();
 
   if (m_hMaterial.IsValid())
   {
-    ezMsgSetMeshMaterial msg;
+    WMsgSetMeshMaterial msg;
     msg.m_hMaterial = m_hMaterial;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
 
-    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
+    GetOwner()->PostMessageRecursive(msg, WTime::MakeZero());
   }
 }
 
-void ezRmlUiCanvas3DComponent::OnDeactivated()
+void WRmlUiCanvas3DComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   if (m_hMaterial.IsValid())
   {
-    ezMsgSetMeshMaterial msg;
+    WMsgSetMeshMaterial msg;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
 
-    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
+    GetOwner()->PostMessageRecursive(msg, WTime::MakeZero());
   }
 
   m_iInputAge = -1;
@@ -135,7 +135,7 @@ void ezRmlUiCanvas3DComponent::OnDeactivated()
   m_hCachedCpuMesh.Invalidate();
 }
 
-void ezRmlUiCanvas3DComponent::Update()
+void WRmlUiCanvas3DComponent::Update()
 {
   if (m_pContext == nullptr)
     return;
@@ -145,8 +145,8 @@ void ezRmlUiCanvas3DComponent::Update()
     m_iInputAge += 1;
     if (m_iInputAge > 3)
     {
-      m_InputProvider.Update(ezRmlUiInputSnapshot::MakeEmpty());
-      m_bNeedsUpdate |= m_pContext->UpdateInput(ezVec2::MakeZero(), m_InputProvider);
+      m_InputProvider.Update(WRmlUiInputSnapshot::MakeEmpty());
+      m_bNeedsUpdate |= m_pContext->UpdateInput(WVec2::MakeZero(), m_InputProvider);
       m_iInputAge = -1;
     }
   }
@@ -156,7 +156,7 @@ void ezRmlUiCanvas3DComponent::Update()
   SUPER::Update();
 }
 
-bool ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input)
+bool WRmlUiCanvas3DComponent::ReceiveInput(const WVec2& vMousePosInsideCanvas, WRmlUiInputSnapshot input)
 {
   if (IsInteractive() && SUPER::ReceiveInput(vMousePosInsideCanvas, input))
   {
@@ -166,14 +166,14 @@ bool ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePosInsideCanvas,
   return false;
 }
 
-bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input)
+bool WRmlUiCanvas3DComponent::RaycastInput(const WVec3& vRayOrigin, const WVec3& vRayDir, WRmlUiInputSnapshot input)
 {
   if (m_pContext == nullptr || !IsInteractive())
     return false;
 
   if (!m_hCachedCpuMesh.IsValid())
   {
-    ezMeshResourceHandle hMesh = m_hProxyMesh;
+    WMeshResourceHandle hMesh = m_hProxyMesh;
 
     if (m_hProxyMesh.IsValid())
     {
@@ -181,7 +181,7 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
     }
     else
     {
-      ezMeshComponent* pMeshComponent = nullptr;
+      WMeshComponent* pMeshComponent = nullptr;
       if (GetOwner()->TryGetComponentOfBaseType(pMeshComponent))
       {
         hMesh = pMeshComponent->GetMesh();
@@ -190,52 +190,52 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
 
     if (!hMesh.IsValid())
     {
-      ezLog::Error("ezRmlUiCanvas3DComponent '{0}' has no mesh to raycast against.", GetOwner()->GetName());
+      WLog::Error("WRmlUiCanvas3DComponent '{0}' has no mesh to raycast against.", GetOwner()->GetName());
       SetInteractive(false); // deactivate, to prevent repeated errors
       return false;
     }
 
-    m_hCachedCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
+    m_hCachedCpuMesh = WResourceManager::LoadResource<WCpuMeshResource>(hMesh.GetResourceID());
   }
 
-  ezResourceLock<ezCpuMeshResource> pMesh(m_hCachedCpuMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+  WResourceLock<WCpuMeshResource> pMesh(m_hCachedCpuMesh, WResourceAcquireMode::AllowLoadingFallback);
+  if (pMesh.GetAcquireResult() == WResourceAcquireResult::LoadingFallback)
   {
     // not yet loaded, skip a frame
     return false;
   }
 
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
   {
-    ezLog::Error("ezRmlUiCanvas3DComponent '{0}' failed to get CPU mesh for raycast.", GetOwner()->GetName());
+    WLog::Error("WRmlUiCanvas3DComponent '{0}' failed to get CPU mesh for raycast.", GetOwner()->GetName());
     SetInteractive(false); // deactivate, to prevent repeated errors
     return false;
   }
 
-  const ezTransform tOwner = GetOwner()->GetGlobalTransform();
+  const WTransform tOwner = GetOwner()->GetGlobalTransform();
 
-  if (ezMath::IsZero(tOwner.GetMaxScale(), 0.001f))
+  if (WMath::IsZero(tOwner.GetMaxScale(), 0.001f))
   {
     // object was scaled to zero
     return false;
   }
 
-  const ezTransform worldToLocal = tOwner.GetInverse();
-  const ezVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
-  const ezVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
+  const WTransform worldToLocal = tOwner.GetInverse();
+  const WVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
+  const WVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
 
-  const ezMeshResourceDescriptor& desc = pMesh->GetDescriptor();
-  for (ezUInt32 uiSubMeshIndex = 0; uiSubMeshIndex < desc.GetSubMeshes().GetCount(); ++uiSubMeshIndex)
+  const WMeshResourceDescriptor& desc = pMesh->GetDescriptor();
+  for (WUInt32 uiSubMeshIndex = 0; uiSubMeshIndex < desc.GetSubMeshes().GetCount(); ++uiSubMeshIndex)
   {
-    const ezMeshResourceDescriptor::SubMesh& submesh = desc.GetSubMeshes()[uiSubMeshIndex];
+    const WMeshResourceDescriptor::SubMesh& submesh = desc.GetSubMeshes()[uiSubMeshIndex];
     if (submesh.m_uiMaterialIndex != m_uiMaterialIndex)
       continue;
 
-    ezVec2 vTexCoords;
+    WVec2 vTexCoords;
     if (!RaycastMeshTexCoords(pMesh.GetPointer(), uiSubMeshIndex, vRayOriginMeshSpace, vRayDirMeshSpace, vTexCoords))
       continue;
 
-    ezVec2 vCursorPos;
+    WVec2 vCursorPos;
     vCursorPos.x = static_cast<float>(m_vSize.x) * vTexCoords.x;
     vCursorPos.y = static_cast<float>(m_vSize.y) * vTexCoords.y;
 
@@ -247,47 +247,47 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   return false;
 }
 
-bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMesh, ezUInt32 uiSubMeshIndex, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float FEpsilon)
+bool WRmlUiCanvas3DComponent::RaycastMeshTexCoords(const WCpuMeshResource* pMesh, WUInt32 uiSubMeshIndex, const WVec3& vRayOrigin, const WVec3& vRayDir, WVec2& out_vTexCoords, float FEpsilon)
 {
-  const ezMeshBufferResourceDescriptor& mesh = pMesh->GetDescriptor().MeshBufferDesc();
+  const WMeshBufferResourceDescriptor& mesh = pMesh->GetDescriptor().MeshBufferDesc();
 
-  if (mesh.GetTopology() != ezGALPrimitiveTopology::Triangles)
+  if (mesh.GetTopology() != WGALPrimitiveTopology::Triangles)
   {
-    ezLog::Warning("Topology '{}' is not supported for raycasting.", mesh.GetTopology());
+    WLog::Warning("Topology '{}' is not supported for raycasting.", mesh.GetTopology());
     return false;
   }
 
-  const ezUInt16* pIndexBuffer = reinterpret_cast<const ezUInt16*>(mesh.GetIndexBufferData().GetPtr());
-  ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
+  const WUInt16* pIndexBuffer = reinterpret_cast<const WUInt16*>(mesh.GetIndexBufferData().GetPtr());
+  WUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
   if (mesh.Uses32BitIndices())
   {
-    ezLog::Warning("Meshes with 32 bit indices are not supported for raycasting.");
+    WLog::Warning("Meshes with 32 bit indices are not supported for raycasting.");
     return false;
   }
 
-  ezMeshResourceDescriptor::SubMesh submesh = pMesh->GetDescriptor().GetSubMeshes()[uiSubMeshIndex];
-  ezUInt32 uiFirstIndex = submesh.m_uiFirstPrimitive * 3;
-  ezUInt32 uiLastIndex = uiFirstIndex + submesh.m_uiPrimitiveCount * 3;
-  EZ_ASSERT_DEV(uiLastIndex <= uiNumIndices, "something is wrong");
+  WMeshResourceDescriptor::SubMesh submesh = pMesh->GetDescriptor().GetSubMeshes()[uiSubMeshIndex];
+  WUInt32 uiFirstIndex = submesh.m_uiFirstPrimitive * 3;
+  WUInt32 uiLastIndex = uiFirstIndex + submesh.m_uiPrimitiveCount * 3;
+  W_ASSERT_DEV(uiLastIndex <= uiNumIndices, "something is wrong");
 
   float fClosestDist = 1e20f;
-  ezUInt16 uiClosestIndex0 = 0, uiClosestIndex1 = 0, uiClosestIndex2 = 0;
-  ezVec3 vClosestPos;
+  WUInt16 uiClosestIndex0 = 0, uiClosestIndex1 = 0, uiClosestIndex2 = 0;
+  WVec3 vClosestPos;
 
-  for (ezUInt32 i = uiFirstIndex; i + 2 < uiLastIndex; i += 3)
+  for (WUInt32 i = uiFirstIndex; i + 2 < uiLastIndex; i += 3)
   {
-    ezUInt16 uiIndex0 = pIndexBuffer[i];
-    ezUInt16 uiIndex1 = pIndexBuffer[i + 1];
-    ezUInt16 uiIndex2 = pIndexBuffer[i + 2];
+    WUInt16 uiIndex0 = pIndexBuffer[i];
+    WUInt16 uiIndex1 = pIndexBuffer[i + 1];
+    WUInt16 uiIndex2 = pIndexBuffer[i + 2];
 
-    ezVec3 vVertex0 = mesh.GetPosition(uiIndex0);
-    ezVec3 vVertex1 = mesh.GetPosition(uiIndex1);
-    ezVec3 vVertex2 = mesh.GetPosition(uiIndex2);
+    WVec3 vVertex0 = mesh.GetPosition(uiIndex0);
+    WVec3 vVertex1 = mesh.GetPosition(uiIndex1);
+    WVec3 vVertex2 = mesh.GetPosition(uiIndex2);
 
     float fDist;
-    ezVec3 vPos;
+    WVec3 vPos;
 
-    bool bHit = ezIntersectionUtils::RayTriangleIntersectionCullBackface(vRayOrigin, vRayDir, vVertex0, vVertex1, vVertex2, vPos, &fDist, nullptr);
+    bool bHit = WIntersectionUtils::RayTriangleIntersectionCullBackface(vRayOrigin, vRayDir, vVertex0, vVertex1, vVertex2, vPos, &fDist, nullptr);
     if (!bHit || fDist > fClosestDist)
       continue;
 
@@ -300,12 +300,12 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
 
   if (fClosestDist < 1e20f)
   {
-    out_vTexCoords = ezVec2::MakeZero();
+    out_vTexCoords = WVec2::MakeZero();
     out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex0) * vClosestPos.x;
     out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex1) * vClosestPos.y;
     out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex2) * vClosestPos.z;
-    out_vTexCoords.x = ezMath::Fraction(ezMath::Abs(out_vTexCoords.x));
-    out_vTexCoords.y = ezMath::Fraction(ezMath::Abs(out_vTexCoords.y));
+    out_vTexCoords.x = WMath::Fraction(WMath::Abs(out_vTexCoords.x));
+    out_vTexCoords.y = WMath::Fraction(WMath::Abs(out_vTexCoords.y));
 
     return true;
   }
@@ -313,7 +313,7 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
   return false;
 }
 
-void ezRmlUiCanvas3DComponent::SetBaseMaterial(const ezMaterialResourceHandle& hMaterial)
+void WRmlUiCanvas3DComponent::SetBaseMaterial(const WMaterialResourceHandle& hMaterial)
 {
   if (hMaterial == m_hBaseMaterial)
     return;
@@ -322,28 +322,28 @@ void ezRmlUiCanvas3DComponent::SetBaseMaterial(const ezMaterialResourceHandle& h
   m_hMaterial.Invalidate();
 }
 
-void ezRmlUiCanvas3DComponent::SetMaterialIndex(ezUInt32 uiMaterialIndex)
+void WRmlUiCanvas3DComponent::SetMaterialIndex(WUInt32 uiMaterialIndex)
 {
   if (uiMaterialIndex == m_uiMaterialIndex)
     return;
 
-  const ezUInt32 uiPrevIndex = m_uiMaterialIndex;
+  const WUInt32 uiPrevIndex = m_uiMaterialIndex;
   m_uiMaterialIndex = uiMaterialIndex;
 
   if (m_hMaterial.IsValid() && IsActiveAndInitialized())
   {
-    ezMsgSetMeshMaterial msg;
+    WMsgSetMeshMaterial msg;
 
     msg.m_uiMaterialSlot = uiPrevIndex;
-    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
+    GetOwner()->PostMessageRecursive(msg, WTime::MakeZero());
 
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
     msg.m_hMaterial = m_hMaterial;
-    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
+    GetOwner()->PostMessageRecursive(msg, WTime::MakeZero());
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetTextureSlotName(ezStringView sName)
+void WRmlUiCanvas3DComponent::SetTextureSlotName(WStringView sName)
 {
   if (m_sTextureSlotName != sName)
   {
@@ -352,12 +352,12 @@ void ezRmlUiCanvas3DComponent::SetTextureSlotName(ezStringView sName)
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
+void WRmlUiCanvas3DComponent::SetTextureSize(const WVec2U32& vSize)
 {
   if (m_vSize != vSize)
   {
-    m_vSize.x = ezMath::Min(vSize.x, 4096u);
-    m_vSize.y = ezMath::Min(vSize.y, 4096u);
+    m_vSize.x = WMath::Min(vSize.x, 4096u);
+    m_vSize.y = WMath::Min(vSize.y, 4096u);
 
     if (m_pContext != nullptr)
     {
@@ -369,7 +369,7 @@ void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetDpiScale(float fDpiScale)
+void WRmlUiCanvas3DComponent::SetDpiScale(float fDpiScale)
 {
   fDpiScale = fDpiScale > 0.0f ? fDpiScale : 1.0f;
 
@@ -385,31 +385,31 @@ void ezRmlUiCanvas3DComponent::SetDpiScale(float fDpiScale)
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetClearStaleInput(bool bClearStaleInput)
+void WRmlUiCanvas3DComponent::SetClearStaleInput(bool bClearStaleInput)
 {
   m_bClearStaleInput = bClearStaleInput;
 }
 
-void ezRmlUiCanvas3DComponent::SetInteractive(bool bIsInteractive)
+void WRmlUiCanvas3DComponent::SetInteractive(bool bIsInteractive)
 {
   m_bIsInteractive = bIsInteractive;
 }
 
-void ezRmlUiCanvas3DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WRmlUiCanvas3DComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (m_pContext != nullptr && m_hTexture.IsValid())
   {
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WTexture2DResource> pTexture(m_hTexture, WResourceAcquireMode::BlockTillLoaded);
     // The texture is also used in shadow maps as we don't know what the depth shader compiler is culling or what the material is using the texture for.
-    ezRenderWorld::AddViewDependency(*msg.m_pView, pTexture->GetGALTexture(), ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
-    if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+    WRenderWorld::AddViewDependency(*msg.m_pView, pTexture->GetGALTexture(), WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
+    if (msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::EditorView)
       return;
 
-    ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, pTexture->GetGALTexture());
+    WRmlUi::GetSingleton()->ExtractContext(*m_pContext, pTexture->GetGALTexture());
   }
 }
 
-void ezRmlUiCanvas3DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
+void WRmlUiCanvas3DComponent::OnMsgReload(WMsgRmlUiReload& msg)
 {
   SUPER::OnMsgReload(msg);
 
@@ -417,7 +417,7 @@ void ezRmlUiCanvas3DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
   m_hTexture.Invalidate();
 }
 
-bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
+bool WRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
 {
   if (m_vSize.x == 0 || m_vSize.y == 0 || !m_hBaseMaterial.IsValid() || m_sTextureSlotName.IsEmpty())
     return false;
@@ -428,29 +428,29 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
   {
     bNeedsUpdate = true;
 
-    ezTexture2DResourceDescriptor desc;
+    WTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = m_vSize.x;
     desc.m_DescGAL.m_uiHeight = m_vSize.y;
-    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_DescGAL.m_Format = WGALResourceFormat::RGBAUByteNormalized;
     desc.m_DescGAL.m_ResourceAccess.m_bImmutable = false;
-    desc.m_SamplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
-    desc.m_SamplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
-    desc.m_SamplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
-    desc.m_SamplerDesc.m_BorderColor = ezColor::MakeZero();
-    desc.m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-    desc.m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    desc.m_SamplerDesc.m_AddressU = WImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_AddressV = WImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_AddressW = WImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_BorderColor = WColor::MakeZero();
+    desc.m_SamplerDesc.m_MinFilter = WGALTextureFilterMode::Anisotropic;
+    desc.m_SamplerDesc.m_MagFilter = WGALTextureFilterMode::Anisotropic;
     desc.m_SamplerDesc.m_uiMaxAnisotropy = 8;
 
-    if (ezMath::IsPowerOf2(m_vSize.x) && ezMath::IsPowerOf2(m_vSize.y))
+    if (WMath::IsPowerOf2(m_vSize.x) && WMath::IsPowerOf2(m_vSize.y))
     {
-      desc.m_DescGAL.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(m_vSize.x), ezMath::Log2i(m_vSize.y)) - 2;
-      desc.m_DescGAL.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+      desc.m_DescGAL.m_uiMipLevelCount = WMath::Max(WMath::Log2i(m_vSize.x), WMath::Log2i(m_vSize.y)) - 2;
+      desc.m_DescGAL.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget);
     }
 
-    ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Texture";
+    WStringBuilder resourceName = "RmlUiCanvas3DComponent_Texture";
     resourceName.AppendFormat("_{0}", s_RmlResourceCounter.Increment());
 
-    m_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(resourceName, std::move(desc));
+    m_hTexture = WResourceManager::CreateResource<WTexture2DResource>(resourceName, std::move(desc));
 
     m_pContext->SetSize(m_vSize);
     m_pContext->SetDpiScale(m_fDpiScale);
@@ -462,24 +462,24 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
   {
     bNeedsUpdate = true;
 
-    ezMaterialResourceDescriptor desc;
+    WMaterialResourceDescriptor desc;
     desc.m_hBaseMaterial = m_hBaseMaterial;
     auto& tb = desc.m_Texture2DBindings.ExpandAndGetRef();
     tb.m_Name = m_sTextureSlotName;
     tb.m_Value = m_hTexture;
 
-    ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Material";
+    WStringBuilder resourceName = "RmlUiCanvas3DComponent_Material";
     resourceName.AppendFormat("_{0}", s_RmlResourceCounter.Increment());
 
-    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(resourceName, std::move(desc));
+    m_hMaterial = WResourceManager::CreateResource<WMaterialResource>(resourceName, std::move(desc));
 
-    ezMsgSetMeshMaterial msg;
+    WMsgSetMeshMaterial msg;
     msg.m_hMaterial = m_hMaterial;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
-    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
+    GetOwner()->PostMessageRecursive(msg, WTime::MakeZero());
   }
 
   return bNeedsUpdate;
 }
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas3DComponent);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas3DComponent);

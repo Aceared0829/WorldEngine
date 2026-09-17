@@ -4,7 +4,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class EZ_EDITORPLUGINAI_DLL ezAiActions
+class W_EDITORPLUGINAI_DLL WAiActions
 {
 public:
   static void RegisterActions();
@@ -12,13 +12,13 @@ public:
 
   static void MapMenuActions();
 
-  static ezActionDescriptorHandle s_hCategoryAi;
-  static ezActionDescriptorHandle s_hProjectSettings;
+  static WActionDescriptorHandle s_hCategoryAi;
+  static WActionDescriptorHandle s_hProjectSettings;
 };
 
-class EZ_EDITORPLUGINAI_DLL ezAiAction : public ezButtonAction
+class W_EDITORPLUGINAI_DLL WAiAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAiAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WAiAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -26,10 +26,10 @@ public:
     ProjectSettings,
   };
 
-  ezAiAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezAiAction();
+  WAiAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WAiAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ActionType m_Type;

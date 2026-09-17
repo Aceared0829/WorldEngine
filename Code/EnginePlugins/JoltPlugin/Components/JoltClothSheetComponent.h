@@ -5,42 +5,42 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
+using WDynamicMeshBufferResourceHandle = WTypedResourceHandle<class WDynamicMeshBufferResource>;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_JOLTPLUGIN_DLL ezJoltClothSheetComponentManager : public ezComponentManager<class ezJoltClothSheetComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltClothSheetComponentManager : public WComponentManager<class WJoltClothSheetComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltClothSheetComponentManager(ezWorld* pWorld);
-  ~ezJoltClothSheetComponentManager();
+  WJoltClothSheetComponentManager(WWorld* pWorld);
+  ~WJoltClothSheetComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  ezUInt64 m_uiLastJoltUpdateCounter = 0;
-  void UpdatePreAsync(const ezWorldModule::UpdateContext& context);
-  void UpdatePostAsync(const ezWorldModule::UpdateContext& context);
+  WUInt64 m_uiLastJoltUpdateCounter = 0;
+  void UpdatePreAsync(const WWorldModule::UpdateContext& context);
+  void UpdatePostAsync(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Flags for how a piece of cloth should be simulated.
-struct EZ_JOLTPLUGIN_DLL ezJoltClothSheetFlags
+struct W_JOLTPLUGIN_DLL WJoltClothSheetFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
-    FixedCornerTopLeft = EZ_BIT(0),     ///< This corner can't move.
-    FixedCornerTopRight = EZ_BIT(1),    ///< This corner can't move.
-    FixedCornerBottomRight = EZ_BIT(2), ///< This corner can't move.
-    FixedCornerBottomLeft = EZ_BIT(3),  ///< This corner can't move.
-    FixedEdgeTop = EZ_BIT(4),           ///< This entire edge can't move.
-    FixedEdgeRight = EZ_BIT(5),         ///< This entire edge can't move.
-    FixedEdgeBottom = EZ_BIT(6),        ///< This entire edge can't move.
-    FixedEdgeLeft = EZ_BIT(7),          ///< This entire edge can't move.
+    FixedCornerTopLeft = W_BIT(0),     ///< This corner can't move.
+    FixedCornerTopRight = W_BIT(1),    ///< This corner can't move.
+    FixedCornerBottomRight = W_BIT(2), ///< This corner can't move.
+    FixedCornerBottomLeft = W_BIT(3),  ///< This corner can't move.
+    FixedEdgeTop = W_BIT(4),           ///< This entire edge can't move.
+    FixedEdgeRight = W_BIT(5),         ///< This entire edge can't move.
+    FixedEdgeBottom = W_BIT(6),        ///< This entire edge can't move.
+    FixedEdgeLeft = W_BIT(7),          ///< This entire edge can't move.
 
     Default = FixedEdgeTop
   };
@@ -58,7 +58,7 @@ struct EZ_JOLTPLUGIN_DLL ezJoltClothSheetFlags
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltClothSheetFlags);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltClothSheetFlags);
 
 /// Simulates a rectangular piece of cloth.
 ///
@@ -66,16 +66,16 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltClothSheetFlags);
 /// The component samples the wind simulation and applies wind forces to the cloth.
 ///
 /// Cloth sheets can be used as decorative elements like flags that blow in the wind.
-class EZ_JOLTPLUGIN_DLL ezJoltClothSheetComponent : public ezRenderComponent
+class W_JOLTPLUGIN_DLL WJoltClothSheetComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltClothSheetComponent, ezRenderComponent, ezJoltClothSheetComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltClothSheetComponent, WRenderComponent, WJoltClothSheetComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -83,24 +83,24 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltClothSheetComponent
+  // WJoltClothSheetComponent
 
 public:
-  ezJoltClothSheetComponent();
-  ~ezJoltClothSheetComponent();
+  WJoltClothSheetComponent();
+  ~WJoltClothSheetComponent();
 
   /// Sets the world-space size of the cloth.
-  void SetSize(ezVec2 vVal);                 // [ property ]
-  ezVec2 GetSize() const { return m_vSize; } // [ property ]
+  void SetSize(WVec2 vVal);                 // [ property ]
+  WVec2 GetSize() const { return m_vSize; } // [ property ]
 
   /// Sets of how many pieces the cloth is made up.
   ///
@@ -108,11 +108,11 @@ public:
   /// A size of 32x32 is already quite performance intensive. Use as few segments as possible.
   /// For many cases 8x8 or 12x12 should already be good enough.
   /// Also the more segments there are, the more the cloth will sag.
-  void SetSegments(ezVec2U32 vVal);                     // [ property ]
-  ezVec2U32 GetSegments() const { return m_vNumVertices; } // [ property ]
+  void SetSegments(WVec2U32 vVal);                     // [ property ]
+  WVec2U32 GetSegments() const { return m_vNumVertices; } // [ property ]
 
-  /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  /// The collision layer determines with which other actors this actor collides. \see WJoltActorComponent
+  WUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   /// Adjusts how strongly gravity affects the soft body.
   float m_fGravityFactor = 1.0f; // [ property ]
@@ -127,13 +127,13 @@ public:
   float m_fThickness = 0.05f; // [ property ]
 
   /// Tint color for the cloth material.
-  ezColor m_Color = ezColor::White; // [ property ]
+  WColor m_Color = WColor::White; // [ property ]
 
   /// Sets where the cloth is attached to the world.
-  void SetFlags(ezBitflags<ezJoltClothSheetFlags> flags);                // [ property ]
-  ezBitflags<ezJoltClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
+  void SetFlags(WBitflags<WJoltClothSheetFlags> flags);                // [ property ]
+  WBitflags<WJoltClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
 
-  ezMaterialResourceHandle m_hMaterial;                                  // [ property ]
+  WMaterialResourceHandle m_hMaterial;                                  // [ property ]
 
 private:
   void UpdatePreAsync();
@@ -144,20 +144,20 @@ private:
   void SetupCloth();
   void RemoveBody();
 
-  ezVec2 m_vSize = ezVec2(1.0f, 1.0f);
-  ezVec2 m_vTextureScale = ezVec2(1.0f);
-  ezVec2U32 m_vNumVertices = ezVec2U32(16, 16);
-  ezBitflags<ezJoltClothSheetFlags> m_Flags;
-  mutable ezRenderData::Category m_RenderDataCategory;
-  ezUInt8 m_uiSleepCounter = 0;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
+  WVec2 m_vSize = WVec2(1.0f, 1.0f);
+  WVec2 m_vTextureScale = WVec2(1.0f);
+  WVec2U32 m_vNumVertices = WVec2U32(16, 16);
+  WBitflags<WJoltClothSheetFlags> m_Flags;
+  mutable WRenderData::Category m_RenderDataCategory;
+  WUInt8 m_uiSleepCounter = 0;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
+  WUInt32 m_uiJoltBodyID = WInvalidIndex;
 
-  ezBoundingSphere m_BSphere;
-  ezTransform m_BodyGlobalTransform = ezTransform::MakeIdentity();
+  WBoundingSphere m_BSphere;
+  WTransform m_BodyGlobalTransform = WTransform::MakeIdentity();
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 
-  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
+  WDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };

@@ -7,71 +7,71 @@
 #include <Foundation/Math/Plane.h>
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingSphereTemplate<Type>& sphere) const
+W_ALWAYS_INLINE bool WBoundingBoxTemplate<Type>::Contains(const WBoundingSphereTemplate<Type>& sphere) const
 {
   return Contains(sphere.GetBoundingBox());
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingSphereTemplate<Type>& sphere) const
+W_ALWAYS_INLINE bool WBoundingBoxTemplate<Type>::Overlaps(const WBoundingSphereTemplate<Type>& sphere) const
 {
   // check whether the closest point between box and sphere is inside the sphere (it is definitely inside the box)
   return sphere.Contains(GetClampedPoint(sphere.m_vCenter));
 }
 
 template <typename Type>
-inline Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingSphereTemplate<Type>& sphere) const
+inline Type WBoundingBoxTemplate<Type>::GetDistanceTo(const WBoundingSphereTemplate<Type>& sphere) const
 {
   return (GetClampedPoint(sphere.m_vCenter) - sphere.m_vCenter).GetLength() - sphere.m_fRadius;
 }
 
 template <typename Type>
-inline const ezBoundingSphereTemplate<Type> ezBoundingBoxTemplate<Type>::GetBoundingSphere() const
+inline const WBoundingSphereTemplate<Type> WBoundingBoxTemplate<Type>::GetBoundingSphere() const
 {
-  return ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
+  return WBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate<Type>& rhs)
+void WBoundingSphereTemplate<Type>::ExpandToInclude(const WBoundingBoxTemplate<Type>& rhs)
 {
   // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
-  const ezVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
-  const ezVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
+  const WVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
+  const WVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
 
   // compute the absolute distance to each AABB extremum, per axis
-  const ezVec3Template<Type> vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
-  const ezVec3Template<Type> vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
+  const WVec3Template<Type> vDiffMaxAbs(WMath::Abs(vDiffMax.x), WMath::Abs(vDiffMax.y), WMath::Abs(vDiffMax.z));
+  const WVec3Template<Type> vDiffMinAbs(WMath::Abs(vDiffMin.x), WMath::Abs(vDiffMin.y), WMath::Abs(vDiffMin.z));
 
   // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
-  const ezVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+  const WVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
 
   const Type fDistSQR = vMostDistantPoint.GetLengthSquared();
 
-  if (ezMath::Square(m_fRadius) < fDistSQR)
-    m_fRadius = ezMath::Sqrt(fDistSQR);
+  if (WMath::Square(m_fRadius) < fDistSQR)
+    m_fRadius = WMath::Sqrt(fDistSQR);
 }
 
 template <typename Type>
-Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<Type>& rhs) const
+Type WBoundingSphereTemplate<Type>::GetDistanceTo(const WBoundingBoxTemplate<Type>& rhs) const
 {
-  const ezVec3Template<Type> vPointOnBox = rhs.GetClampedPoint(m_vCenter);
+  const WVec3Template<Type> vPointOnBox = rhs.GetClampedPoint(m_vCenter);
 
   return GetDistanceTo(vPointOnBox);
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Contains(const ezBoundingBoxTemplate<Type>& rhs) const
+bool WBoundingSphereTemplate<Type>::Contains(const WBoundingBoxTemplate<Type>& rhs) const
 {
   // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
-  const ezVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
-  const ezVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
+  const WVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
+  const WVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
 
   // compute the absolute distance to each AABB extremum, per axis
-  const ezVec3Template<Type> vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
-  const ezVec3Template<Type> vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
+  const WVec3Template<Type> vDiffMaxAbs(WMath::Abs(vDiffMax.x), WMath::Abs(vDiffMax.y), WMath::Abs(vDiffMax.z));
+  const WVec3Template<Type> vDiffMinAbs(WMath::Abs(vDiffMin.x), WMath::Abs(vDiffMin.y), WMath::Abs(vDiffMin.z));
 
   // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
-  const ezVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+  const WVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
 
   // if the squared length of that point is still smaller than the sphere radius, it is inside the sphere
   // and thus the whole AABB is inside the sphere
@@ -79,37 +79,37 @@ bool ezBoundingSphereTemplate<Type>::Contains(const ezBoundingBoxTemplate<Type>&
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rhs) const
+bool WBoundingSphereTemplate<Type>::Overlaps(const WBoundingBoxTemplate<Type>& rhs) const
 {
   return Contains(rhs.GetClampedPoint(m_vCenter));
 }
 
 template <typename Type>
-const ezBoundingBoxTemplate<Type> ezBoundingSphereTemplate<Type>::GetBoundingBox() const
+const WBoundingBoxTemplate<Type> WBoundingSphereTemplate<Type>::GetBoundingBox() const
 {
-  return ezBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - ezVec3Template<Type>(m_fRadius), m_vCenter + ezVec3Template<Type>(m_fRadius));
+  return WBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - WVec3Template<Type>(m_fRadius), m_vCenter + WVec3Template<Type>(m_fRadius));
 }
 
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingSphereTemplate<Type>& sphere) const
+WPositionOnPlane::Enum WPlaneTemplate<Type>::GetObjectPosition(const WBoundingSphereTemplate<Type>& sphere) const
 {
   const Type fDist = GetDistanceTo(sphere.m_vCenter);
 
   if (fDist >= sphere.m_fRadius)
-    return ezPositionOnPlane::Front;
+    return WPositionOnPlane::Front;
 
   if (-fDist >= sphere.m_fRadius)
-    return ezPositionOnPlane::Back;
+    return WPositionOnPlane::Back;
 
-  return ezPositionOnPlane::Spanning;
+  return WPositionOnPlane::Spanning;
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingBoxTemplate<Type>& box) const
+WPositionOnPlane::Enum WPlaneTemplate<Type>::GetObjectPosition(const WBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vPos = box.m_vMin;
-  ezVec3Template<Type> vNeg = box.m_vMax;
+  WVec3Template<Type> vPos = box.m_vMin;
+  WVec3Template<Type> vNeg = box.m_vMax;
 
   if (m_vNormal.x >= (Type)0)
   {
@@ -130,18 +130,18 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
   }
 
   if (GetDistanceTo(vPos) <= (Type)0)
-    return ezPositionOnPlane::Back;
+    return WPositionOnPlane::Back;
 
   if (GetDistanceTo(vNeg) >= (Type)0)
-    return ezPositionOnPlane::Front;
+    return WPositionOnPlane::Front;
 
-  return ezPositionOnPlane::Spanning;
+  return WPositionOnPlane::Spanning;
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const
+Type WPlaneTemplate<Type>::GetMinimumDistanceTo(const WBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vNeg = box.m_vMax;
+  WVec3Template<Type> vNeg = box.m_vMax;
 
   if (m_vNormal.x >= (Type)0)
   {
@@ -162,9 +162,9 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezBoundingBoxTemplate<Typ
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const
+Type WPlaneTemplate<Type>::GetMaximumDistanceTo(const WBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vPos = box.m_vMin;
+  WVec3Template<Type> vPos = box.m_vMin;
 
   if (m_vNormal.x >= (Type)0)
   {
@@ -186,12 +186,12 @@ Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Typ
 
 
 template <typename Type>
-ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle)
+WMat3Template<Type> WMat3Template<Type>::MakeAxisRotation(const WVec3Template<Type>& vAxis, WAngleTemplate<Type> angle)
 {
-  EZ_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
+  W_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
 
-  const Type cos = ezMath::Cos(angle);
-  const Type sin = ezMath::Sin(angle);
+  const Type cos = WMath::Cos(angle);
+  const Type sin = WMath::Sin(angle);
   const Type oneminuscos = (Type)1 - cos;
 
   const Type xy = vAxis.x * vAxis.y;
@@ -206,7 +206,7 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
-  ezMat3Template<Type> res;
+  WMat3Template<Type> res;
 
   // Column 1
   res.Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
@@ -227,18 +227,18 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template
 }
 
 template <typename Type>
-ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
+WResult WMat3Template<Type>::Invert(Type fEpsilon)
 {
   const Type fDet = Element(0, 0) * (Element(2, 2) * Element(1, 1) - Element(1, 2) * Element(2, 1)) -
                     Element(0, 1) * (Element(2, 2) * Element(1, 0) - Element(1, 2) * Element(2, 0)) +
                     Element(0, 2) * (Element(2, 1) * Element(1, 0) - Element(1, 1) * Element(2, 0));
 
-  if (ezMath::IsZero(fDet, fEpsilon))
-    return EZ_FAILURE;
+  if (WMath::IsZero(fDet, fEpsilon))
+    return W_FAILURE;
 
   const Type fOneDivDet = (Type)1 / fDet;
 
-  ezMat3Template<Type> Inverse;
+  WMat3Template<Type> Inverse;
 
   Inverse.Element(0, 0) = (Element(2, 2) * Element(1, 1) - Element(1, 2) * Element(2, 1));
   Inverse.Element(0, 1) = -(Element(2, 2) * Element(0, 1) - Element(0, 2) * Element(2, 1));
@@ -253,16 +253,16 @@ ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
   Inverse.Element(2, 2) = (Element(1, 1) * Element(0, 0) - Element(0, 1) * Element(1, 0));
 
   *this = Inverse * fOneDivDet;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename Type>
-ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle)
+WMat4Template<Type> WMat4Template<Type>::MakeAxisRotation(const WVec3Template<Type>& vAxis, WAngleTemplate<Type> angle)
 {
-  EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
+  W_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
 
-  const Type cos = ezMath::Cos(angle);
-  const Type sin = ezMath::Sin(angle);
+  const Type cos = WMath::Cos(angle);
+  const Type sin = WMath::Sin(angle);
   const Type oneminuscos = (Type)1 - cos;
 
   const Type xy = vAxis.x * vAxis.y;
@@ -277,7 +277,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
-  ezMat4Template<Type> res;
+  WMat4Template<Type> res;
 
   // Column 1
   res.Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
@@ -307,18 +307,18 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template
 }
 
 template <typename Type>
-ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
+WResult WMat4Template<Type>::Invert(Type fEpsilon)
 {
-  ezMat4Template<Type> Inverse;
+  WMat4Template<Type> Inverse;
 
   const Type fDet = GetDeterminantOf4x4Matrix(*this);
 
-  if (ezMath::IsZero(fDet, fEpsilon))
-    return EZ_FAILURE;
+  if (WMath::IsZero(fDet, fEpsilon))
+    return W_FAILURE;
 
-  Type fOneDivDet = ezMath::Invert(fDet);
+  Type fOneDivDet = WMath::Invert(fDet);
 
-  for (ezInt32 i = 0; i < 4; ++i)
+  for (WInt32 i = 0; i < 4; ++i)
   {
 
     Inverse.Element(i, 0) = GetDeterminantOf3x3SubMatrix(*this, i, 0) * fOneDivDet;
@@ -331,31 +331,31 @@ ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
   }
 
   *this = Inverse;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // static
 template <typename T>
-bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b)
+bool WComparisonOperator::Compare(WComparisonOperator::Enum cmp, const T& a, const T& b)
 {
   switch (cmp)
   {
-    case ezComparisonOperator::Equal:
+    case WComparisonOperator::Equal:
       return a == b;
-    case ezComparisonOperator::NotEqual:
+    case WComparisonOperator::NotEqual:
       return !(a == b);
-    case ezComparisonOperator::Less:
+    case WComparisonOperator::Less:
       return a < b;
-    case ezComparisonOperator::LessEqual:
+    case WComparisonOperator::LessEqual:
       return !(b < a);
-    case ezComparisonOperator::Greater:
+    case WComparisonOperator::Greater:
       return b < a;
-    case ezComparisonOperator::GreaterEqual:
+    case WComparisonOperator::GreaterEqual:
       return !(a < b);
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return false;

@@ -6,48 +6,48 @@
 
 namespace
 {
-  using Id = ezGenericId<32, 16>;
-  using st = ezConstructionCounter;
+  using Id = WGenericId<32, 16>;
+  using st = WConstructionCounter;
 
   struct TestObject
   {
     int x;
-    ezString s;
+    WString s;
   };
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
+W_CREATE_SIMPLE_TEST(Containers, IdTable)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-    ezIdTable<Id, ezInt32> table;
+    WIdTable<Id, WInt32> table;
 
-    EZ_TEST_BOOL(table.GetCount() == 0);
-    EZ_TEST_BOOL(table.GetCapacity() == 0);
-    EZ_TEST_BOOL(table.IsEmpty());
+    W_TEST_BOOL(table.GetCount() == 0);
+    W_TEST_BOOL(table.GetCapacity() == 0);
+    W_TEST_BOOL(table.IsEmpty());
 
-    ezUInt32 counter = 0;
-    for (ezIdTable<Id, ezInt32>::ConstIterator it = table.GetIterator(); it.IsValid(); ++it)
+    WUInt32 counter = 0;
+    for (WIdTable<Id, WInt32>::ConstIterator it = table.GetIterator(); it.IsValid(); ++it)
     {
       ++counter;
     }
-    EZ_TEST_INT(counter, 0);
+    W_TEST_INT(counter, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    W_TEST_BOOL(st::HasAllDestructed());
     {
-      ezIdTable<Id, st> table1;
+      WIdTable<Id, st> table1;
 
-      for (ezInt32 i = 0; i < 200; ++i)
+      for (WInt32 i = 0; i < 200; ++i)
       {
         table1.Insert(st(i));
       }
 
-      EZ_TEST_BOOL(table1.Remove(Id(0, 1)));
+      W_TEST_BOOL(table1.Remove(Id(0, 1)));
 
-      for (ezInt32 i = 0; i < 99; ++i)
+      for (WInt32 i = 0; i < 99; ++i)
       {
         Id id;
         id.m_Generation = 1;
@@ -57,70 +57,70 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
           id.m_InstanceIndex = rand() % 200;
         } while (!table1.Contains(id));
 
-        EZ_TEST_BOOL(table1.Remove(id));
+        W_TEST_BOOL(table1.Remove(id));
       }
 
-      ezIdTable<Id, st> table2;
+      WIdTable<Id, st> table2;
       table2 = table1;
-      ezIdTable<Id, st> table3(table1);
+      WIdTable<Id, st> table3(table1);
 
-      EZ_TEST_BOOL(table2.IsFreelistValid());
-      EZ_TEST_BOOL(table3.IsFreelistValid());
+      W_TEST_BOOL(table2.IsFreelistValid());
+      W_TEST_BOOL(table3.IsFreelistValid());
 
-      EZ_TEST_INT(table1.GetCount(), 100);
-      EZ_TEST_INT(table2.GetCount(), 100);
-      EZ_TEST_INT(table3.GetCount(), 100);
+      W_TEST_INT(table1.GetCount(), 100);
+      W_TEST_INT(table2.GetCount(), 100);
+      W_TEST_INT(table3.GetCount(), 100);
 
-      EZ_TEST_BOOL(table1.GetCapacity() >= 100);
-      EZ_TEST_BOOL(table2.GetCapacity() >= 100);
-      EZ_TEST_BOOL(table3.GetCapacity() >= 100);
+      W_TEST_BOOL(table1.GetCapacity() >= 100);
+      W_TEST_BOOL(table2.GetCapacity() >= 100);
+      W_TEST_BOOL(table3.GetCapacity() >= 100);
 
-      ezUInt32 uiCounter = 0;
-      for (ezIdTable<Id, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+      WUInt32 uiCounter = 0;
+      for (WIdTable<Id, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
       {
         st value;
 
-        EZ_TEST_BOOL(table2.TryGetValue(it.Id(), value));
-        EZ_TEST_BOOL(it.Value() == value);
+        W_TEST_BOOL(table2.TryGetValue(it.Id(), value));
+        W_TEST_BOOL(it.Value() == value);
 
-        EZ_TEST_BOOL(table3.TryGetValue(it.Id(), value));
-        EZ_TEST_BOOL(it.Value() == value);
+        W_TEST_BOOL(table3.TryGetValue(it.Id(), value));
+        W_TEST_BOOL(it.Value() == value);
 
         ++uiCounter;
       }
-      EZ_TEST_INT(uiCounter, table1.GetCount());
+      W_TEST_INT(uiCounter, table1.GetCount());
 
-      for (ezIdTable<Id, st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
+      for (WIdTable<Id, st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
       {
         it.Value() = st(42);
       }
 
-      for (ezIdTable<Id, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+      for (WIdTable<Id, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
       {
         st value;
 
-        EZ_TEST_BOOL(table1.TryGetValue(it.Id(), value));
-        EZ_TEST_BOOL(it.Value() == value);
-        EZ_TEST_BOOL(value.m_iData == 42);
+        W_TEST_BOOL(table1.TryGetValue(it.Id(), value));
+        W_TEST_BOOL(it.Value() == value);
+        W_TEST_BOOL(value.m_iData == 42);
       }
     }
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    W_TEST_BOOL(st::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify 0 is never valid")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Verify 0 is never valid")
   {
-    ezIdTable<Id, TestObject> table;
+    WIdTable<Id, TestObject> table;
 
-    ezUInt32 count1 = 0, count2 = 0;
+    WUInt32 count1 = 0, count2 = 0;
 
     TestObject x = {11, "Test"};
 
     while (true)
     {
       Id id = table.Insert(x);
-      EZ_TEST_BOOL(id.m_Generation != 0);
+      W_TEST_BOOL(id.m_Generation != 0);
 
-      EZ_TEST_BOOL(table.Remove(id));
+      W_TEST_BOOL(table.Remove(id));
 
       if (id.m_Generation > 1) // until all elements in generation 1 have been used up
         break;
@@ -128,14 +128,14 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       ++count1;
     }
 
-    EZ_TEST_BOOL(!table.Contains(Id(0, 0)));
+    W_TEST_BOOL(!table.Contains(Id(0, 0)));
 
     while (true)
     {
       Id id = table.Insert(x);
-      EZ_TEST_BOOL(id.m_Generation != 0);
+      W_TEST_BOOL(id.m_Generation != 0);
 
-      EZ_TEST_BOOL(table.Remove(id));
+      W_TEST_BOOL(table.Remove(id));
 
       if (id.m_Generation == 1) // wrap around
         break;
@@ -143,66 +143,66 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       ++count2;
     }
 
-    EZ_TEST_BOOL(!table.Contains(Id(0, 0)));
+    W_TEST_BOOL(!table.Contains(Id(0, 0)));
 
-    EZ_TEST_INT(count1, 32);
-    EZ_TEST_INT(count2, 2097087);
+    W_TEST_INT(count1, 32);
+    W_TEST_INT(count2, 2097087);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/Remove")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Insert/Remove")
   {
-    ezIdTable<Id, TestObject> table;
+    WIdTable<Id, TestObject> table;
 
     for (int i = 0; i < 100; i++)
     {
       TestObject x = {rand(), "Test"};
       Id id = table.Insert(x);
-      EZ_TEST_INT(id.m_InstanceIndex, i);
-      EZ_TEST_INT(id.m_Generation, 1);
+      W_TEST_INT(id.m_InstanceIndex, i);
+      W_TEST_INT(id.m_Generation, 1);
 
-      EZ_TEST_BOOL(table.Contains(id));
+      W_TEST_BOOL(table.Contains(id));
 
       TestObject y = table[id];
-      EZ_TEST_INT(x.x, y.x);
-      EZ_TEST_BOOL(x.s == y.s);
+      W_TEST_INT(x.x, y.x);
+      W_TEST_BOOL(x.s == y.s);
     }
-    EZ_TEST_INT(table.GetCount(), 100);
-    ezUInt32 uiCapacity = table.GetCapacity();
+    W_TEST_INT(table.GetCount(), 100);
+    WUInt32 uiCapacity = table.GetCapacity();
     Id ids[10] = {Id(13, 1), Id(0, 1), Id(16, 1), Id(34, 1), Id(56, 1), Id(57, 1), Id(79, 1), Id(85, 1), Id(91, 1), Id(97, 1)};
 
 
     for (int i = 0; i < 10; i++)
     {
       bool res = table.Remove(ids[i]);
-      EZ_TEST_BOOL(res);
-      EZ_TEST_BOOL(!table.Contains(ids[i]));
+      W_TEST_BOOL(res);
+      W_TEST_BOOL(!table.Contains(ids[i]));
     }
-    EZ_TEST_INT(table.GetCount(), 90);
-    EZ_TEST_INT_MSG(table.GetCapacity(), uiCapacity, "Removing items should not decrease capacity");
+    W_TEST_INT(table.GetCount(), 90);
+    W_TEST_INT_MSG(table.GetCapacity(), uiCapacity, "Removing items should not decrease capacity");
     for (int i = 0; i < 40; i++)
     {
       TestObject x = {1000, "Bla. This is a very long string which does not fit into 32 byte and will cause memory allocations."};
       Id newId = table.Insert(x);
 
-      EZ_TEST_BOOL(table.Contains(newId));
+      W_TEST_BOOL(table.Contains(newId));
 
       TestObject y = table[newId];
-      EZ_TEST_INT(x.x, y.x);
-      EZ_TEST_BOOL(x.s == y.s);
+      W_TEST_INT(x.x, y.x);
+      W_TEST_BOOL(x.s == y.s);
 
       TestObject* pObj;
-      EZ_TEST_BOOL(table.TryGetValue(newId, pObj));
-      EZ_TEST_BOOL(pObj->s == x.s);
+      W_TEST_BOOL(table.TryGetValue(newId, pObj));
+      W_TEST_BOOL(pObj->s == x.s);
     }
-    EZ_TEST_INT(table.GetCount(), 130);
+    W_TEST_INT(table.GetCount(), 130);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Crash test")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Crash test")
   {
-    ezIdTable<Id, TestObject> table;
-    ezDynamicArray<Id> ids;
+    WIdTable<Id, TestObject> table;
+    WDynamicArray<Id> ids;
 
-    for (ezUInt32 i = 0; i < 100000; ++i)
+    for (WUInt32 i = 0; i < 100000; ++i)
     {
       int action = rand() % 2;
       if (action == 0)
@@ -214,76 +214,76 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       {
         if (ids.GetCount() > 0)
         {
-          ezUInt32 index = rand() % ids.GetCount();
-          EZ_TEST_BOOL(table.Remove(ids[index]));
+          WUInt32 index = rand() % ids.GetCount();
+          W_TEST_BOOL(table.Remove(ids[index]));
           ids.RemoveAtAndSwap(index);
         }
       }
 
-      EZ_TEST_BOOL(table.IsFreelistValid());
+      W_TEST_BOOL(table.IsFreelistValid());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    W_TEST_BOOL(st::HasAllDestructed());
 
-    ezIdTable<Id, st> m1;
+    WIdTable<Id, st> m1;
     Id id0 = m1.Insert(st(1));
-    EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+    W_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
     Id id1 = m1.Insert(st(3));
-    EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+    W_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
     m1[id0] = st(2);
-    EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+    W_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
     m1.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 2));
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    W_TEST_BOOL(st::HasDone(0, 2));
+    W_TEST_BOOL(st::HasAllDestructed());
 
-    EZ_TEST_BOOL(!m1.Contains(id0));
-    EZ_TEST_BOOL(!m1.Contains(id1));
-    EZ_TEST_BOOL(m1.IsFreelistValid());
+    W_TEST_BOOL(!m1.Contains(id0));
+    W_TEST_BOOL(!m1.Contains(id1));
+    W_TEST_BOOL(m1.IsFreelistValid());
   }
 
-  /*EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
+  /*W_TEST_BLOCK(WTestBlock::Enabled, "Remove/Compact")
   {
-    ezIdTable<Id, st> a;
+    WIdTable<Id, st> a;
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (WInt32 i = 0; i < 1000; ++i)
     {
       a.Insert(i);
-      EZ_TEST_INT(a.GetCount(), i + 1);
+      W_TEST_INT(a.GetCount(), i + 1);
     }
 
     a.Compact();
-    EZ_TEST_BOOL(a.IsFreelistValid());
+    W_TEST_BOOL(a.IsFreelistValid());
 
     {
-      ezUInt32 i = 0;
-      for (ezIdTable<Id, st>::Iterator it = a.GetIterator(); it.IsValid(); ++it)
+      WUInt32 i = 0;
+      for (WIdTable<Id, st>::Iterator it = a.GetIterator(); it.IsValid(); ++it)
       {
-        EZ_TEST_INT(a[it.Id()].m_iData, i);
+        W_TEST_INT(a[it.Id()].m_iData, i);
         ++i;
       }
     }
 
-    for (ezInt32 i = 500; i < 1000; ++i)
+    for (WInt32 i = 500; i < 1000; ++i)
     {
       st oldValue;
-      EZ_TEST_BOOL(a.Remove(Id(i, 0), &oldValue));
-      EZ_TEST_INT(oldValue.m_iData, i);
+      W_TEST_BOOL(a.Remove(Id(i, 0), &oldValue));
+      W_TEST_INT(oldValue.m_iData, i);
     }
 
     a.Compact();
-    EZ_TEST_BOOL(a.IsFreelistValid());
+    W_TEST_BOOL(a.IsFreelistValid());
 
     {
-      ezUInt32 i = 0;
-      for (ezIdTable<Id, st>::Iterator it = a.GetIterator(); it.IsValid(); ++it)
+      WUInt32 i = 0;
+      for (WIdTable<Id, st>::Iterator it = a.GetIterator(); it.IsValid(); ++it)
       {
-        EZ_TEST_INT(a[it.Id()].m_iData, i);
+        W_TEST_INT(a[it.Id()].m_iData, i);
         ++i;
       }
     }

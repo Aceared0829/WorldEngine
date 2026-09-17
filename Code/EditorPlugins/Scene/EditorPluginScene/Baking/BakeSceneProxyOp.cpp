@@ -4,29 +4,29 @@
 #include <EditorPluginScene/Baking/BakeSceneProxyOp.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy_BakeScene, 1, ezRTTIDefaultAllocator<ezLongOpProxy_BakeScene>);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpProxy_BakeScene, 1, WRTTIDefaultAllocator<WLongOpProxy_BakeScene>);
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLongOpProxy_BakeScene::InitializeRegistered(const ezUuid& documentGuid, const ezUuid& componentGuid)
+void WLongOpProxy_BakeScene::InitializeRegistered(const WUuid& documentGuid, const WUuid& componentGuid)
 {
   m_DocumentGuid = documentGuid;
   m_ComponentGuid = componentGuid;
 }
 
-void ezLongOpProxy_BakeScene::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& ref_description)
+void WLongOpProxy_BakeScene::GetReplicationInfo(WStringBuilder& out_sReplicationOpType, WStreamWriter& ref_description)
 {
-  out_sReplicationOpType = "ezLongOpWorker_BakeScene";
+  out_sReplicationOpType = "WLongOpWorker_BakeScene";
 
-  ezStringBuilder sOutputPath;
+  WStringBuilder sOutputPath;
   sOutputPath.SetFormat(":project/AssetCache/Generated/{0}", m_ComponentGuid);
   ref_description << sOutputPath;
 }
 
-void ezLongOpProxy_BakeScene::Finalize(ezResult result, const ezDataBuffer& resultData)
+void WLongOpProxy_BakeScene::Finalize(WResult result, const WDataBuffer& resultData)
 {
   if (result.Succeeded())
   {
-    ezQtEditorApp::GetSingleton()->ReloadEngineResources();
+    WQtEditorApp::GetSingleton()->ReloadEngineResources();
   }
 }

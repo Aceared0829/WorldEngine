@@ -7,59 +7,59 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_FadeOut>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_FadeOut, 1, WRTTIDefaultAllocator<WParticleBehaviorFactory_FadeOut>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("StartAlpha", m_fStartAlpha)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Exponent", m_fExponent)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("StartAlpha", m_fStartAlpha)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Exponent", m_fExponent)->AddAttributes(new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehavior_FadeOut>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_FadeOut, 1, WRTTIDefaultAllocator<WParticleBehavior_FadeOut>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_FadeOut::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_FadeOut::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_FadeOut>();
+  return WGetStaticRTTI<WParticleBehavior_FadeOut>();
 }
 
-void ezParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_FadeOut* pBehavior = static_cast<ezParticleBehavior_FadeOut*>(pObject);
+  WParticleBehavior_FadeOut* pBehavior = static_cast<WParticleBehavior_FadeOut*>(pObject);
 
   pBehavior->m_fStartAlpha = m_fStartAlpha;
   pBehavior->m_fExponent = m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_FadeOut::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
   inout_stream << uiVersion;
 
   inout_stream << m_fStartAlpha;
   inout_stream << m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_FadeOut::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   inout_stream >> m_fStartAlpha;
   inout_stream >> m_fExponent;
 }
 
-void ezParticleBehavior_FadeOut::CreateRequiredStreams()
+void WParticleBehavior_FadeOut::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+  CreateStream("Color", WProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_FadeOut::Process(WUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
   {
@@ -70,10 +70,10 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
     return;
   }
 
-  EZ_PROFILE_SCOPE("PFX: Fade Out");
+  W_PROFILE_SCOPE("PFX: Fade Out");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  WProcessingStreamIterator<WColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles
   itLifeTime.Advance(m_uiFirstToUpdate);
@@ -84,7 +84,7 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
     while (!itLifeTime.HasReachedEnd())
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
-      itColor.Current().a = m_fStartAlpha * ezMath::Pow(fLifeTimeFraction, m_fExponent);
+      itColor.Current().a = m_fStartAlpha * WMath::Pow(fLifeTimeFraction, m_fExponent);
 
       // skip the next n items
       // this is to reduce the number of particles that need to be fully evaluated
@@ -98,7 +98,7 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
     while (!itLifeTime.HasReachedEnd())
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
-      itColor.Current().a = ezMath::Min(1.0f, m_fStartAlpha * ezMath::Pow(fLifeTimeFraction, m_fExponent));
+      itColor.Current().a = WMath::Min(1.0f, m_fStartAlpha * WMath::Pow(fLifeTimeFraction, m_fExponent));
 
       // skip the next n items
       // this is to reduce the number of particles that need to be fully evaluated
@@ -123,4 +123,4 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_FadeOut);

@@ -1,0 +1,909 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{11281838771480088251,5140108322494537448}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
+		u4 %Hash{13107563746746489338}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{17374589031583292623,5460030219854842637}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+		}
+		VarArray %References
+		{
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+		}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17374589031583292623,5460030219854842637}}
+	s %t{"WExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{10570694347893343889,5929297249518336218}}
+			Uuid{u4{3190661721076758419,13378021374403751679}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10570694347893343889,5929297249518336218}}
+	s %t{"WExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6028114371457389670,12069024740909059150}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		s %DefaultValue{""}
+		s %Name{"ExternalReference"}
+		s %Type{"WConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{12294760741468013226,7108342241896676989}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6028114371457389670,12069024740909059150}}
+	s %t{"WGameObjectReferenceAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{3190661721076758419,13378021374403751679}}
+	s %t{"WExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12294760741468013226,7108342241896676989}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Color %DefaultValue{f{0x86C54A3F,0x0000803F,0x0DB4EE3A,0x0000803F}}
+		s %Name{"LineColor"}
+		s %Type{"WColor"}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{8234004360656017833,4693989548361422723}}
+	s %t{"WLineToComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x8DB7E63C,0x10F42F3F,0xD4C0403F,0x0000803F}}
+		s %Target{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3567832658698696064,4742520576252908399}}
+	s %t{"WExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"ExternalReference"}
+		Uuid %Object{u4{8234004360656017833,4693989548361422723}}
+		s %PropertyPath{"Target"}
+	}
+}
+o
+{
+	Uuid %id{u4{7465913591154746541,5142066539600346306}}
+	s %t{"WJoltDistanceConstraintComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %BreakForce{0}
+		f %BreakTorque{0}
+		s %ChildActor{"{ 66bcb5ce-bf94-4c0f-85a0-9fd4bc354130 }"}
+		s %ChildActorAnchor{""}
+		f %Damping{0x0000003F}
+		f %Frequency{0x00000040}
+		f %MaxDistance{0x0000403F}
+		f %MinDistance{0}
+		b %PairCollision{1}
+		s %ParentActor{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16093142599071565979,5200821555133332599}}
+	s %t{"WJoltShapeSphereComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %Radius{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{2736738146889274813,5247487786011576273}}
+	s %t{"WMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+		}
+		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16943813195621469864,5366311223445487455}}
+	s %t{"WExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"LineColor"}
+		Uuid %Object{u4{14096793959569441183,5598680826661992097}}
+		s %PropertyPath{"Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{2956283533912735620,5430479881159414142}}
+	s %t{"WExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"LineColor"}
+		Uuid %Object{u4{8234004360656017833,4693989548361422723}}
+		s %PropertyPath{"Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{3477119472444088453,5480809915632891342}}
+	s %t{"WGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2736738146889274813,5247487786011576273}}
+			Uuid{u4{8234004360656017833,4693989548361422723}}
+			Uuid{u4{16093142599071565979,5200821555133332599}}
+			Uuid{u4{8674416327998754183,5624721828506464201}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0xF204353F,0xF30435B3,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000003F}
+		s %Mode{"WObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{14096793959569441183,5598680826661992097}}
+	s %t{"WLineToComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x86C54A3F,0x0000803F,0x0DB4EE3A,0x0000803F}}
+		s %Target{"{ 66bcb5ce-bf94-4c0f-85a0-9fd4bc354130 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8674416327998754183,5624721828506464201}}
+	s %t{"WJoltDynamicActorComponent"}
+	u3 %v{8}
+	p
+	{
+		b %Active{1}
+		b %AllowSleeping{1}
+		f %AngularDamping{0xCDCC4C3E}
+		f %BuoyancyFactor{0xCDCC8C3F}
+		Vec3 %CenterOfMass{f{0,0,0}}
+		u1 %CollisionLayer{0}
+		b %ContinuousCollisionDetection{0}
+		b %CustomCenterOfMass{0}
+		f %Density{0x0000C842}
+		f %GravityFactor{0x0000803F}
+		b %Kinematic{0}
+		f %LinearDamping{0xCDCC4C3E}
+		f %Mass{0}
+		s %OnContact{""}
+		b %StartAsleep{0}
+		s %Surface{""}
+		u1 %WeightCategory{15}
+		f %WeightScale{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{17062817605893470143,5628789993934965755}}
+	s %t{"WGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{3477119472444088453,5480809915632891342}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{14096793959569441183,5598680826661992097}}
+			Uuid{u4{7465913591154746541,5142066539600346306}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"WObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11571490284687791275,5742264544185891050}}
+	s %t{"WPrefabDocumentSettings"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ExposedProperties
+		{
+			Uuid{u4{3567832658698696064,4742520576252908399}}
+			Uuid{u4{16943813195621469864,5366311223445487455}}
+			Uuid{u4{2956283533912735620,5430479881159414142}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WSceneDocumentRoot"}
+	u3 %v{2}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17062817605893470143,5628789993934965755}}
+		}
+		Uuid %Settings{u4{11571490284687791275,5742264544185891050}}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8963828211989796836,429565058857181774}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1729749055164645796,4053257172044786503}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Color"}
+		s %Type{"WColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{18145823255500990886,658922949661762930}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6914292285925798136,1108246313736053318}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4689567355159375507,1211190332374721684}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltConstraintComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11638255232360359673,3108610646416571142}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"WExposedSceneProperty"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14332645745114734426,3197497487504472660}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WSceneDocumentSettingsBase"}
+		s %PluginName{"WEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"WPrefabDocumentSettings"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14633628111157529947,3328384510238863063}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WMeshComponentBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WMeshComponent"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1729749055164645796,4053257172044786503}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{9961774395771418566,4505774164784375063}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WJoltConstraintComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltDistanceConstraintComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11949321329899225443,6280821367752645242}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltShapeComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18327411855245510474,6668321287849544166}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Bitflags|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WVisualizerAnchor"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WMeshComponentBase"}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{2208369192415382143,6906888135645689853}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11726345163173979790,14037420484870253533}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::Const"}
+		s %Name{"Target"}
+		s %Type{"WConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{13649880205026559927,7297274558339895637}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WGameObject"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WBitflagsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6833120855194064360,7616979191365721209}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WJoltActorComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltDynamicActorComponent"}
+		u3 %TypeVersion{8}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3251891958765718680,9159887340540620231}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WDocumentRoot"}
+		s %PluginName{"WEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"WSceneDocumentRoot"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14543630447052729839,9459039542380974471}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WObjectMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{455663516835322266,10016785433957589977}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"WSceneDocumentSettingsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1437521466418797355,11653301487602574059}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WJoltShapeComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltShapeSphereComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16777871838542487558,12116962178824346014}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WRenderComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6839391121561780669,12349512622905798822}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WComponent"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WJoltActorComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8017781100722957058,13414194423667156699}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{7934818497254718629,15473303203448325923}}
+		}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WComponent"}
+		s %PluginName{"WGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{2208369192415382143,6906888135645689853}}
+			Uuid{u4{8963828211989796836,429565058857181774}}
+		}
+		s %TypeName{"WLineToComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11726345163173979790,14037420484870253533}}
+	s %t{"WGameObjectReferenceAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7934818497254718629,15473303203448325923}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Utilities/Debug"}
+	}
+}
+o
+{
+	Uuid %id{u4{18075037991921780250,16373560435556338007}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15796815132701145913,16426079668733115146}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WSphereManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14207082430471941233,17000358661146427261}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WSphereVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13959370910449580650,17446532125027196114}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Bitflags|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WBitflagsBase"}
+		s %PluginName{"WEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"WOnJoltContact"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QAbstractItemModel>
 #  include <QColor>
@@ -8,21 +8,21 @@
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
 #  include <TestFramework/TestFrameworkDLL.h>
 
-class ezQtTestFramework;
+class WQtTestFramework;
 
-/// Helper class that stores the test hierarchy used in ezQtTestModel.
-class ezQtTestModelEntry
+/// Helper class that stores the test hierarchy used in WQtTestModel.
+class WQtTestModelEntry
 {
 public:
-  ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1);
-  ~ezQtTestModelEntry();
+  WQtTestModelEntry(const WTestFrameworkResult* pResult, WInt32 iTestIndex = -1, WInt32 iSubTestIndex = -1);
+  ~WQtTestModelEntry();
 
 private:
-  ezQtTestModelEntry(ezQtTestModelEntry&);
-  void operator=(ezQtTestModelEntry&);
+  WQtTestModelEntry(WQtTestModelEntry&);
+  void operator=(WQtTestModelEntry&);
 
 public:
-  enum ezTestModelEntryType
+  enum WTestModelEntryType
   {
     RootNode,
     TestNode,
@@ -30,37 +30,37 @@ public:
   };
 
   void ClearEntries();
-  ezUInt32 GetNumSubEntries() const;
-  ezQtTestModelEntry* GetSubEntry(ezUInt32 uiIndex) const;
-  void AddSubEntry(ezQtTestModelEntry* pEntry);
-  ezQtTestModelEntry* GetParentEntry() const { return m_pParentEntry; }
-  ezUInt32 GetIndexInParent() const { return m_uiIndexInParent; }
-  ezTestModelEntryType GetNodeType() const;
-  const ezTestResultData* GetTestResult() const;
-  ezInt32 GetTestIndex() const { return m_iTestIndex; }
-  ezInt32 GetSubTestIndex() const { return m_iSubTestIndex; }
+  WUInt32 GetNumSubEntries() const;
+  WQtTestModelEntry* GetSubEntry(WUInt32 uiIndex) const;
+  void AddSubEntry(WQtTestModelEntry* pEntry);
+  WQtTestModelEntry* GetParentEntry() const { return m_pParentEntry; }
+  WUInt32 GetIndexInParent() const { return m_uiIndexInParent; }
+  WTestModelEntryType GetNodeType() const;
+  const WTestResultData* GetTestResult() const;
+  WInt32 GetTestIndex() const { return m_iTestIndex; }
+  WInt32 GetSubTestIndex() const { return m_iSubTestIndex; }
 
 private:
-  const ezTestFrameworkResult* m_pResult;
-  ezInt32 m_iTestIndex;
-  ezInt32 m_iSubTestIndex;
+  const WTestFrameworkResult* m_pResult;
+  WInt32 m_iTestIndex;
+  WInt32 m_iSubTestIndex;
 
-  ezQtTestModelEntry* m_pParentEntry = nullptr;
-  ezUInt32 m_uiIndexInParent = 0;
-  std::deque<ezQtTestModelEntry*> m_SubEntries;
+  WQtTestModelEntry* m_pParentEntry = nullptr;
+  WUInt32 m_uiIndexInParent = 0;
+  std::deque<WQtTestModelEntry*> m_SubEntries;
 };
 
 /// A Model that lists all unit tests and sub-tests in a tree.
-class EZ_TEST_DLL ezQtTestModel : public QAbstractItemModel
+class W_TEST_DLL WQtTestModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework);
-  virtual ~ezQtTestModel();
+  WQtTestModel(QObject* pParent, WQtTestFramework* pTestFramework);
+  virtual ~WQtTestModel();
 
   void Reset();
   void InvalidateAll();
-  void TestDataChanged(ezInt32 iTestIndex, ezInt32 iSubTestIndex);
+  void TestDataChanged(WInt32 iTestIndex, WInt32 iSubTestIndex);
 
   struct UserRoles
   {
@@ -99,9 +99,9 @@ public Q_SLOTS:
   void UpdateModel();
 
 private:
-  ezQtTestFramework* m_pTestFramework;
-  ezTestFrameworkResult* m_pResult;
-  ezQtTestModelEntry m_Root;
+  WQtTestFramework* m_pTestFramework;
+  WTestFrameworkResult* m_pResult;
+  WQtTestModelEntry m_Root;
   QColor m_SucessColor;
   QColor m_FailedColor;
   QColor m_CustomStatusColor;

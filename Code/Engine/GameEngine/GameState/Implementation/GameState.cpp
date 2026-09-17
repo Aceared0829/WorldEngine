@@ -26,32 +26,32 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
-ezCommandLineOptionPath opt_Window("GameState", "-wnd", "Path to the window configuration file to use.", "");
+WCommandLineOptionPath opt_Window("GameState", "-wnd", "Path to the window configuration file to use.", "");
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameState, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
+W_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
-ezGameState* ezGameState::s_pActiveGameState = nullptr;
+WGameState* WGameState::s_pActiveGameState = nullptr;
 
-ezGameState::ezGameState()
+WGameState::WGameState()
 {
   // initialize camera to default values
-  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
-  m_MainCamera.LookAt(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  m_MainCamera.SetCameraMode(WCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
+  m_MainCamera.LookAt(WVec3::MakeZero(), WVec3(1, 0, 0), WVec3(0, 0, 1));
 }
 
-ezGameState::~ezGameState() = default;
+WGameState::~WGameState() = default;
 
-ezGameState* ezGameState::GetActiveGameState()
+WGameState* WGameState::GetActiveGameState()
 {
   return s_pActiveGameState;
 }
 
-void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WGameState::OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   s_pActiveGameState = this;
 
@@ -64,8 +64,8 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
   }
   else
   {
-    ezString sSceneFile;
-    ezString sPreloadCollection;
+    WString sSceneFile;
+    WString sPreloadCollection;
     GetStartupOptions(sSceneFile, sPreloadCollection);
 
     if (!sSceneFile.IsEmpty())
@@ -75,53 +75,53 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
   }
 }
 
-void ezGameState::OnDeactivation()
+void WGameState::OnDeactivation()
 {
   CancelBackgroundSceneLoading();
 
   if (m_bXREnabled)
   {
     m_bXREnabled = false;
-    ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
-    ezWindowManager::GetSingleton()->CloseAll(pXRInterface); // maybe do this inside Deinitialize ?
+    WXRInterface* pXRInterface = WSingletonRegistry::GetSingletonInstance<WXRInterface>();
+    WWindowManager::GetSingleton()->CloseAll(pXRInterface); // maybe do this inside Deinitialize ?
     pXRInterface->Deinitialize();
 
     m_pDummyXR = nullptr;
   }
 
-  ezRenderWorld::DeleteView(m_hMainView);
+  WRenderWorld::DeleteView(m_hMainView);
 
   s_pActiveGameState = nullptr;
 }
 
-void ezGameState::AddMainViewsToRender()
+void WGameState::AddMainViewsToRender()
 {
   if (!m_hMainView.IsInvalidated())
   {
-    ezRenderWorld::AddMainView(m_hMainView);
+    WRenderWorld::AddMainView(m_hMainView);
   }
 }
 
-void ezGameState::RequestQuit(ezStringView sRequestedBy)
+void WGameState::RequestQuit(WStringView sRequestedBy)
 {
   m_bStateWantsToQuit = true;
 }
 
-bool ezGameState::WasQuitRequested() const
+bool WGameState::WasQuitRequested() const
 {
   return m_bStateWantsToQuit;
 }
 
 
-void ezGameState::ProcessInput()
+void WGameState::ProcessInput()
 {
   UpdateBackgroundSceneLoading();
 }
 
-ezView* ezGameState::GetMainView()
+WView* WGameState::GetMainView()
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hMainView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hMainView, pView))
   {
     return pView;
   }
@@ -129,7 +129,7 @@ ezView* ezGameState::GetMainView()
   return nullptr;
 }
 
-bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
+bool WGameState::IsLoadingSceneInBackground(float* out_pProgress) const
 {
   if (out_pProgress)
   {
@@ -140,9 +140,9 @@ bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
       *out_pProgress = m_pBackgroundSceneLoad->GetLoadingProgress();
 
       auto state = m_pBackgroundSceneLoad->GetLoadingState();
-      if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
+      if (state != WSceneLoadUtility::LoadingState::FinishedSuccessfully)
       {
-        *out_pProgress = ezMath::Min(*out_pProgress, 0.99f);
+        *out_pProgress = WMath::Min(*out_pProgress, 0.99f);
       }
     }
   }
@@ -150,48 +150,48 @@ bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
   return m_pBackgroundSceneLoad != nullptr;
 }
 
-bool ezGameState::IsInLoadingScreen() const
+bool WGameState::IsInLoadingScreen() const
 {
   return m_pMainWorld == m_pLoadingScreenWorld;
 }
 
-ezRegisteredWndHandle ezGameState::CreateXRWindow()
+WRegisteredWndHandle WGameState::CreateXRWindow()
 {
-  EZ_LOG_BLOCK("CreateXRActor");
+  W_LOG_BLOCK("CreateXRActor");
   // Init XR
-  const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
+  const WXRConfig* pConfig = WGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<WXRConfig>();
   if (!pConfig)
     return {};
 
   if (!pConfig->m_bEnableXR)
     return {};
 
-  ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
+  WXRInterface* pXRInterface = WSingletonRegistry::GetSingletonInstance<WXRInterface>();
   if (!pXRInterface)
   {
-    ezLog::Warning("No ezXRInterface interface found. Please load a XR plugin to enable XR. Loading dummyXR interface.");
-    m_pDummyXR = EZ_DEFAULT_NEW(ezDummyXR);
-    pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
-    EZ_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the ezXRInterface.");
+    WLog::Warning("No WXRInterface interface found. Please load a XR plugin to enable XR. Loading dummyXR interface.");
+    m_pDummyXR = W_DEFAULT_NEW(WDummyXR);
+    pXRInterface = WSingletonRegistry::GetSingletonInstance<WXRInterface>();
+    W_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the WXRInterface.");
   }
 
   if (pXRInterface->Initialize().Failed())
   {
-    ezLog::Error("ezXRInterface could not be initialized. See log for details.");
+    WLog::Error("WXRInterface could not be initialized. See log for details.");
     {
       return {};
     }
   }
   m_bXREnabled = true;
 
-  ezUniquePtr<ezWindow> pMainWindow;
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput;
+  WUniquePtr<WWindow> pMainWindow;
+  WUniquePtr<WWindowOutputTargetGAL> pOutput;
 
   if (pXRInterface->SupportsCompanionView())
   {
     // XR Window with added companion window (allows keyboard / mouse input).
     pMainWindow = CreateMainWindow();
-    EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
+    W_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override WGameState::CreateActors().");
     pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
     ConfigureMainWindowInputDevices(pMainWindow.Borrow());
     CreateMainView();
@@ -204,120 +204,120 @@ ezRegisteredWndHandle ezGameState::CreateXRWindow()
     SetupMainView({}, {});
   }
 
-  ezView* pView = nullptr;
-  EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
-  return pXRInterface->CreateXRWindow(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
+  WView* pView = nullptr;
+  W_VERIFY(WRenderWorld::TryGetView(m_hMainView, pView), "");
+  return pXRInterface->CreateXRWindow(pView, WGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
 }
 
-void ezGameState::CreateWindows()
+void WGameState::CreateWindows()
 {
-  EZ_LOG_BLOCK("CreateActors");
-  ezRegisteredWndHandle windowId = CreateXRWindow();
+  W_LOG_BLOCK("CreateActors");
+  WRegisteredWndHandle windowId = CreateXRWindow();
   if (!windowId.IsInvalidated())
     return;
 
-  ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
-  EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
+  WUniquePtr<WWindow> pMainWindow = CreateMainWindow();
+  W_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override WGameState::CreateActors().");
+  WUniquePtr<WWindowOutputTargetGAL> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
   ConfigureMainWindowInputDevices(pMainWindow.Borrow());
   CreateMainView();
   SetupMainView(pOutput->m_hSwapChain, pMainWindow->GetClientAreaSize());
 
 
   // Default flat window
-  auto pWinMan = ezWindowManager::GetSingleton();
-  ezRegisteredWndHandle id = pWinMan->Register("Game", this, std::move(pMainWindow));
+  auto pWinMan = WWindowManager::GetSingleton();
+  WRegisteredWndHandle id = pWinMan->Register("Game", this, std::move(pMainWindow));
   pWinMan->SetOutputTarget(id, std::move(pOutput));
 }
 
-void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}
+void WGameState::ConfigureMainWindowInputDevices(WWindow* pWindow) {}
 
-void ezGameState::ConfigureInputActions()
+void WGameState::ConfigureInputActions()
 {
-  if (auto pApp = ezGameApplication::GetGameApplicationInstance())
+  if (auto pApp = WGameApplication::GetGameApplicationInstance())
   {
     // In shipping builds none of the developer shortcuts (F1 console, F5 stats, ESC to quit, ...) are registered,
     // since a finished game shouldn't react to those keys at all.
     //
     // If you want a different split than "everything in development builds, nothing in shipping builds",
-    // override this function in your own game state and call ezGameApplication::RegisterGameApplicationInputActions()
+    // override this function in your own game state and call WGameApplication::RegisterGameApplicationInputActions()
     // with the exact flags that you need.
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pApp->RegisterGameApplicationInputActions(ezGameApplicationInputFlags::All);
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+    pApp->RegisterGameApplicationInputActions(WGameApplicationInputFlags::All);
 #else
-    pApp->RegisterGameApplicationInputActions(ezGameApplicationInputFlags::Regular);
+    pApp->RegisterGameApplicationInputActions(WGameApplicationInputFlags::Regular);
 #endif
   }
 }
 
-void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize)
+void WGameState::SetupMainView(WGALSwapChainHandle hSwapChain, WSizeU32 viewportSize)
 {
   // Render the custom mouse cursor (if one is set) into the same swap-chain as the main view.
   // Done here, rather than in CreateWindows(), so that it also follows swap-chain re-creation.
-  if (auto pCursorRenderer = ezMouseCursorRenderer::GetSingleton())
+  if (auto pCursorRenderer = WMouseCursorRenderer::GetSingleton())
   {
     pCursorRenderer->SetSwapChain(hSwapChain);
   }
 
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
+  WView* pView = nullptr;
+  if (!WRenderWorld::TryGetView(m_hMainView, pView))
   {
-    ezLog::Error("Main view is invalid, SetupMainView canceled.");
+    WLog::Error("Main view is invalid, SetupMainView canceled.");
     return;
   }
 
   if (m_bXREnabled)
   {
-    const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
+    const WXRConfig* pConfig = WGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<WXRConfig>();
 
-    auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
+    auto renderPipeline = WResourceManager::LoadResource<WRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
     pView->SetRenderPipelineResource(renderPipeline);
-    // Render target setup is done by ezXRInterface::CreateActor
+    // Render target setup is done by WXRInterface::CreateActor
   }
   else
   {
     // Render target setup
     {
-      const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
-      auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
+      const auto* pConfig = WGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<WRenderPipelineProfileConfig>();
+      auto renderPipeline = WResourceManager::LoadResource<WRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
       pView->SetRenderPipelineResource(renderPipeline);
       pView->SetSwapChain(hSwapChain);
-      pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)viewportSize.width, (float)viewportSize.height));
+      pView->SetViewport(WRectFloat(0.0f, 0.0f, (float)viewportSize.width, (float)viewportSize.height));
       pView->ForceUpdate();
     }
   }
 }
 
-ezView* ezGameState::CreateMainView()
+WView* WGameState::CreateMainView()
 {
-  EZ_ASSERT_DEV(m_hMainView.IsInvalidated(), "CreateMainView was already called.");
+  W_ASSERT_DEV(m_hMainView.IsInvalidated(), "CreateMainView was already called.");
 
-  EZ_LOG_BLOCK("CreateMainView");
-  ezView* pView = nullptr;
-  m_hMainView = ezRenderWorld::CreateView("MainView", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::MainView);
+  W_LOG_BLOCK("CreateMainView");
+  WView* pView = nullptr;
+  m_hMainView = WRenderWorld::CreateView("MainView", pView);
+  pView->SetCameraUsageHint(WCameraUsageHint::MainView);
   pView->SetWorld(m_pMainWorld);
   pView->SetCamera(&m_MainCamera);
-  ezRenderWorld::AddMainView(m_hMainView);
+  WRenderWorld::AddMainView(m_hMainView);
 
-  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+  const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
   // exclude all editor objects from rendering in proper game views
   pView->m_ExcludeTags.Set(tagEditor);
   return pView;
 }
 
-ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
+WResult WGameState::SpawnPlayer(WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   if (m_pMainWorld == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+  W_LOCK(m_pMainWorld->GetWriteMarker());
 
-  ezPlayerStartPointComponentManager* pMan = m_pMainWorld->GetComponentManager<ezPlayerStartPointComponentManager>();
+  WPlayerStartPointComponentManager* pMan = m_pMainWorld->GetComponentManager<WPlayerStartPointComponentManager>();
   if (pMan == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezPlayerStartPointComponent* pBestComp = nullptr;
+  WPlayerStartPointComponent* pBestComp = nullptr;
 
   for (auto it = pMan->GetComponents(); it.IsValid(); ++it)
   {
@@ -344,12 +344,12 @@ ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform
 
   if (pBestComp)
   {
-    ezResourceLock<ezPrefabResource> pPrefab(pBestComp->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WPrefabResource> pPrefab(pBestComp->GetPlayerPrefab(), WResourceAcquireMode::BlockTillLoaded);
 
-    if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+    if (pPrefab.GetAcquireResult() == WResourceAcquireResult::Final)
     {
-      const ezUInt16 uiTeamID = pBestComp->GetOwner()->GetTeamID();
-      ezTransform startPos = ezTransform::MakeGlobalTransform(pBestComp->GetOwner()->GetGlobalTransform(), startPositionOffset);
+      const WUInt16 uiTeamID = pBestComp->GetOwner()->GetTeamID();
+      WTransform startPos = WTransform::MakeGlobalTransform(pBestComp->GetOwner()->GetGlobalTransform(), startPositionOffset);
 
       if (sStartPosition.IsEqual_NoCase("GlobalOverride"))
       {
@@ -358,29 +358,29 @@ ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform
 
       startPos.m_vScale.Set(1.0f);
 
-      ezPrefabInstantiationOptions options;
+      WPrefabInstantiationOptions options;
       options.m_pOverrideTeamID = &uiTeamID;
 
       pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(pBestComp->m_Parameters));
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WGameState::ChangeMainWorld(WWorld* pNewMainWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   if (m_pMainWorld == pNewMainWorld)
     return;
 
-  ezWorld* pPrevWorld = m_pMainWorld;
+  WWorld* pPrevWorld = m_pMainWorld;
 
   m_pMainWorld = pNewMainWorld;
 
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hMainView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hMainView, pView))
   {
     pView->SetWorld(m_pMainWorld);
   }
@@ -391,7 +391,7 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPos
   ConfigureMainCamera();
 }
 
-void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WGameState::OnChangedMainWorld(WWorld* pPrevWorld, WWorld* pNewWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   if (pNewWorld != m_pLoadingScreenWorld)
   {
@@ -402,37 +402,37 @@ void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ez
   }
 }
 
-void ezGameState::ConfigureMainCamera()
+void WGameState::ConfigureMainCamera()
 {
-  if (m_MainCamera.GetCameraMode() == ezCameraMode::Stereo)
+  if (m_MainCamera.GetCameraMode() == WCameraMode::Stereo)
   {
     // if the camera is already set to be in 'Stereo' mode, its parameters are set from the outside
     return;
   }
 
 
-  if (const ezWorld* pConstWorld = m_pMainWorld)
+  if (const WWorld* pConstWorld = m_pMainWorld)
   {
-    EZ_LOCK(pConstWorld->GetReadMarker());
+    W_LOCK(pConstWorld->GetReadMarker());
 
-    const ezCameraComponentManager* pManager = pConstWorld->GetComponentManager<ezCameraComponentManager>();
+    const WCameraComponentManager* pManager = pConstWorld->GetComponentManager<WCameraComponentManager>();
     if (pManager != nullptr)
     {
       for (auto itComp = pManager->GetComponents(); itComp.IsValid(); itComp.Next())
       {
-        const ezCameraComponent* pComp = itComp;
+        const WCameraComponent* pComp = itComp;
 
-        if (pComp->IsActive() && pComp->GetUsageHint() == ezCameraUsageHint::MainView)
+        if (pComp->IsActive() && pComp->GetUsageHint() == WCameraUsageHint::MainView)
         {
-          ezVec3 vCameraPos = pComp->GetOwner()->GetGlobalPosition();
+          WVec3 vCameraPos = pComp->GetOwner()->GetGlobalPosition();
 
-          ezCoordinateSystem coordSys;
+          WCoordinateSystem coordSys;
           coordSys.m_vForwardDir = pComp->GetOwner()->GetGlobalDirForwards();
           coordSys.m_vRightDir = pComp->GetOwner()->GetGlobalDirRight();
           coordSys.m_vUpDir = pComp->GetOwner()->GetGlobalDirUp();
 
           // update the camera position
-          // camera options (FOV etc) are already set by ezCameraComponentManager on demand
+          // camera options (FOV etc) are already set by WCameraComponentManager on demand
           m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
           return;
         }
@@ -441,78 +441,78 @@ void ezGameState::ConfigureMainCamera()
   }
 }
 
-ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
+WUniquePtr<WWindow> WGameState::CreateMainWindow()
 {
   if (false)
   {
-    ezTempHybridArray<ezScreenInfo, 2> screens;
-    ezScreen::EnumerateScreens(screens).IgnoreResult();
-    ezScreen::PrintScreenInfo(screens);
+    WTempHybridArray<WScreenInfo, 2> screens;
+    WScreen::EnumerateScreens(screens).IgnoreResult();
+    WScreen::PrintScreenInfo(screens);
   }
 
-  ezStringBuilder sWndCfg = opt_Window.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  WStringBuilder sWndCfg = opt_Window.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
-  if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
+  if (!sWndCfg.IsEmpty() && !WFileSystem::ExistsFile(sWndCfg))
   {
-    ezLog::Dev("Window Config file does not exist: '{0}'", sWndCfg);
+    WLog::Dev("Window Config file does not exist: '{0}'", sWndCfg);
     sWndCfg.Clear();
   }
 
   if (sWndCfg.IsEmpty())
   {
-    const ezStringView sCfgAppData = ":appdata/RuntimeConfigs/Window.ddl";
-    const ezStringView sCfgProject = ":project/RuntimeConfigs/Window.ddl";
+    const WStringView sCfgAppData = ":appdata/RuntimeConfigs/Window.ddl";
+    const WStringView sCfgProject = ":project/RuntimeConfigs/Window.ddl";
 
-    if (ezFileSystem::ExistsFile(sCfgAppData))
+    if (WFileSystem::ExistsFile(sCfgAppData))
       sWndCfg = sCfgAppData;
     else
       sWndCfg = sCfgProject;
   }
 
-  ezWindowCreationDesc wndDesc;
+  WWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
   wndDesc.AdjustWindowSizeAndPosition().IgnoreResult();
 
-  ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
+  WUniquePtr<WWindow> pWindow = W_DEFAULT_NEW(WWindow);
   pWindow->Initialize(wndDesc).AssertSuccess("Window creation failed");
 
-  pWindow->WindowEvents().AddEventHandler(ezMakeDelegate(&ezGameState::OnWindowEvent, this));
+  pWindow->WindowEvents().AddEventHandler(WMakeDelegate(&WGameState::OnWindowEvent, this));
 
-  if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
+  if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
   {
-    pInput->SetMouseSpeed(ezVec2(0.02f));
+    pInput->SetMouseSpeed(WVec2(0.02f));
   }
 
   return pWindow;
 }
 
-ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
+WUniquePtr<WWindowOutputTargetGAL> WGameState::CreateMainOutputTarget(WWindow* pMainWindow)
 {
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+  WUniquePtr<WWindowOutputTargetGAL> pOutput = W_DEFAULT_NEW(WWindowOutputTargetGAL, [this](WGALSwapChainHandle hSwapChain, WSizeU32 size)
     { SetupMainView(hSwapChain, size); });
 
-  ezGALWindowSwapChainCreationDescription desc;
+  WGALWindowSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;
-  desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  desc.m_BackBufferFormat = WGALResourceFormat::RGBAUByteNormalizedsRGB;
 
   pOutput->CreateSwapchain(desc);
 
   return pOutput;
 }
 
-void ezGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
+void WGameState::GetStartupOptions(WString& out_sScene, WString& out_sPreloadCollection)
 {
-  out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  out_sScene = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
 
-  ezStringBuilder sPreloadCollection = out_sScene;
-  sPreloadCollection.ChangeFileExtension("ezBinCollection");
-  if (ezFileSystem::ExistsFile(sPreloadCollection))
+  WStringBuilder sPreloadCollection = out_sScene;
+  sPreloadCollection.ChangeFileExtension("WBinCollection");
+  if (WFileSystem::ExistsFile(sPreloadCollection))
   {
     out_sPreloadCollection = sPreloadCollection;
   }
 }
 
-void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WGameState::LoadScene(WStringView sSceneFile, WStringView sPreloadCollection, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   m_sTargetSceneSpawnPoint = sStartPosition;
   m_TargetSceneSpawnOffset = startPositionOffset;
@@ -521,29 +521,29 @@ void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollec
   m_bTransitionWhenReady = true;
 
   auto state = m_pBackgroundSceneLoad->GetLoadingState();
-  EZ_ASSERT_DEBUG(state != ezSceneLoadUtility::LoadingState::FinishedAndRetrieved, "Scene already loaded and retrieved.");
+  W_ASSERT_DEBUG(state != WSceneLoadUtility::LoadingState::FinishedAndRetrieved, "Scene already loaded and retrieved.");
 
-  if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
+  if (state != WSceneLoadUtility::LoadingState::FinishedSuccessfully)
   {
     // switch to loading screen only if we can't immediately switch to the target scene
     SwitchToLoadingScreen(sSceneFile);
   }
 }
 
-void ezGameState::SwitchToLoadingScreen(ezStringView sTargetSceneFile)
+void WGameState::SwitchToLoadingScreen(WStringView sTargetSceneFile)
 {
   m_pLoadingScreenWorld = CreateLoadingScreenWorld(sTargetSceneFile);
 
-  ChangeMainWorld(m_pLoadingScreenWorld.Borrow(), {}, ezTransform::MakeIdentity());
+  ChangeMainWorld(m_pLoadingScreenWorld.Borrow(), {}, WTransform::MakeIdentity());
 }
 
-ezUniquePtr<ezWorld> ezGameState::CreateLoadingScreenWorld(ezStringView sTargetSceneFile)
+WUniquePtr<WWorld> WGameState::CreateLoadingScreenWorld(WStringView sTargetSceneFile)
 {
-  ezWorldDesc desc("LoadingScreen");
-  return EZ_DEFAULT_NEW(ezWorld, desc);
+  WWorldDesc desc("LoadingScreen");
+  return W_DEFAULT_NEW(WWorld, desc);
 }
 
-void ezGameState::StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection)
+void WGameState::StartBackgroundSceneLoading(WStringView sSceneFile, WStringView sPreloadCollection)
 {
   m_bTransitionWhenReady = false;
 
@@ -555,11 +555,11 @@ void ezGameState::StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringV
 
   CancelBackgroundSceneLoading();
 
-  m_pBackgroundSceneLoad = EZ_DEFAULT_NEW(ezSceneLoadUtility);
+  m_pBackgroundSceneLoad = W_DEFAULT_NEW(WSceneLoadUtility);
   m_pBackgroundSceneLoad->StartSceneLoading(sSceneFile, sPreloadCollection);
 }
 
-void ezGameState::CancelBackgroundSceneLoading()
+void WGameState::CancelBackgroundSceneLoading()
 {
   if (m_pBackgroundSceneLoad)
   {
@@ -568,23 +568,23 @@ void ezGameState::CancelBackgroundSceneLoading()
   }
 }
 
-void ezGameState::UpdateBackgroundSceneLoading()
+void WGameState::UpdateBackgroundSceneLoading()
 {
   if (m_pBackgroundSceneLoad)
   {
-    ezSceneLoadUtility::LoadingState state = m_pBackgroundSceneLoad->GetLoadingState();
+    WSceneLoadUtility::LoadingState state = m_pBackgroundSceneLoad->GetLoadingState();
 
     switch (state)
     {
-      case ezSceneLoadUtility::LoadingState::FinishedAndRetrieved:
+      case WSceneLoadUtility::LoadingState::FinishedAndRetrieved:
         return;
 
-      case ezSceneLoadUtility::LoadingState::NotStarted:
-      case ezSceneLoadUtility::LoadingState::Ongoing:
+      case WSceneLoadUtility::LoadingState::NotStarted:
+      case WSceneLoadUtility::LoadingState::Ongoing:
         m_pBackgroundSceneLoad->TickSceneLoading();
         break;
 
-      case ezSceneLoadUtility::LoadingState::FinishedSuccessfully:
+      case WSceneLoadUtility::LoadingState::FinishedSuccessfully:
         if (m_bTransitionWhenReady)
         {
           OnBackgroundSceneLoadingFinished(m_pBackgroundSceneLoad->RetrieveLoadedScene());
@@ -592,7 +592,7 @@ void ezGameState::UpdateBackgroundSceneLoading()
         }
         break;
 
-      case ezSceneLoadUtility::LoadingState::Failed:
+      case WSceneLoadUtility::LoadingState::Failed:
         OnBackgroundSceneLoadingFailed(m_pBackgroundSceneLoad->GetLoadingFailureReason());
         m_pBackgroundSceneLoad.Clear();
         break;
@@ -600,29 +600,29 @@ void ezGameState::UpdateBackgroundSceneLoading()
   }
 }
 
-void ezGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld)
+void WGameState::OnBackgroundSceneLoadingFinished(WUniquePtr<WWorld>&& pWorld)
 {
-  ezLog::Success("Finished loading scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
+  WLog::Success("Finished loading scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 
   m_pLoadedWorld = std::move(pWorld);
   ChangeMainWorld(m_pLoadedWorld.Borrow(), m_sTargetSceneSpawnPoint, m_TargetSceneSpawnOffset);
   m_sTargetSceneSpawnPoint.Clear();
-  m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
+  m_TargetSceneSpawnOffset = WTransform::MakeIdentity();
 }
 
-void ezGameState::OnBackgroundSceneLoadingFailed(ezStringView sReason)
+void WGameState::OnBackgroundSceneLoadingFailed(WStringView sReason)
 {
-  ezLog::Error("Scene loading failed: {}", sReason);
+  WLog::Error("Scene loading failed: {}", sReason);
 }
 
-void ezGameState::OnBackgroundSceneLoadingCanceled()
+void WGameState::OnBackgroundSceneLoadingCanceled()
 {
-  ezLog::Dev("Canceled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
+  WLog::Dev("Canceled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 }
 
-void ezGameState::OnWindowEvent(const ezWindowEvent& e)
+void WGameState::OnWindowEvent(const WWindowEvent& e)
 {
-  if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+  if (e.m_Type == WWindowEvent::Type::CloseButtonClicked)
   {
     // forward the close button click to the game state
     RequestQuit("window");

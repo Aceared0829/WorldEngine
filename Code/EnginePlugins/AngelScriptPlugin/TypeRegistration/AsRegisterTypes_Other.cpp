@@ -8,31 +8,31 @@
 #include <Foundation/Time/Clock.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezRTTI
+// WRTTI
 //////////////////////////////////////////////////////////////////////////
 
-const ezRTTI* ezRTTI_GetType(ezStringView sName)
+const WRTTI* WRTTI_GetType(WStringView sName)
 {
-  return ezRTTI::FindTypeByName(sName);
+  return WRTTI::FindTypeByName(sName);
 }
 
-void ezAngelScriptEngineSingleton::Register_RTTI()
+void WAngelScriptEngineSingleton::Register_RTTI()
 {
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezRTTI");
+    m_pEngine->SetDefaultNamespace("WRTTI");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("const ezRTTI@ GetType(ezStringView)", asFUNCTION(ezRTTI_GetType), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("const WRTTI@ GetType(WStringView)", asFUNCTION(WRTTI_GetType), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezTime
+// WTime
 //////////////////////////////////////////////////////////////////////////
 
-static int ezTime_opCmp(const ezTime& lhs, const ezTime& rhs)
+static int WTime_opCmp(const WTime& lhs, const WTime& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -42,411 +42,411 @@ static int ezTime_opCmp(const ezTime& lhs, const ezTime& rhs)
   return 0;
 }
 
-void ezAngelScriptEngineSingleton::Register_Time()
+void WAngelScriptEngineSingleton::Register_Time()
 {
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezTime");
+    m_pEngine->SetDefaultNamespace("WTime");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Now()", asFUNCTION(ezTime::Now), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Now()", asFUNCTION(WTime::Now), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromNanoseconds(double fNanoSeconds)", asFUNCTION(ezTime::MakeFromNanoseconds), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Nanoseconds(double fNanoSeconds)", asFUNCTION(ezTime::Nanoseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromNanoseconds(double fNanoSeconds)", asFUNCTION(WTime::MakeFromNanoseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Nanoseconds(double fNanoSeconds)", asFUNCTION(WTime::Nanoseconds), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromMicroseconds(double fMicroSeconds)", asFUNCTION(ezTime::MakeFromMicroseconds), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Microseconds(double fMicroSeconds)", asFUNCTION(ezTime::Microseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromMicroseconds(double fMicroSeconds)", asFUNCTION(WTime::MakeFromMicroseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Microseconds(double fMicroSeconds)", asFUNCTION(WTime::Microseconds), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromMilliseconds(double fMilliSeconds)", asFUNCTION(ezTime::MakeFromMilliseconds), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Milliseconds(double fMilliSeconds)", asFUNCTION(ezTime::Milliseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromMilliseconds(double fMilliSeconds)", asFUNCTION(WTime::MakeFromMilliseconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Milliseconds(double fMilliSeconds)", asFUNCTION(WTime::Milliseconds), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromSeconds(double fSeconds)", asFUNCTION(ezTime::MakeFromSeconds), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Seconds(double fSeconds)", asFUNCTION(ezTime::Seconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromSeconds(double fSeconds)", asFUNCTION(WTime::MakeFromSeconds), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Seconds(double fSeconds)", asFUNCTION(WTime::Seconds), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromMinutes(double fMinutes)", asFUNCTION(ezTime::MakeFromMinutes), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Minutes(double fMinutes)", asFUNCTION(ezTime::Minutes), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromMinutes(double fMinutes)", asFUNCTION(WTime::MakeFromMinutes), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Minutes(double fMinutes)", asFUNCTION(WTime::Minutes), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeFromHours(double fHours)", asFUNCTION(ezTime::MakeFromHours), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime Hours(double fHours)", asFUNCTION(ezTime::Hours), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeFromHours(double fHours)", asFUNCTION(WTime::MakeFromHours), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime Hours(double fHours)", asFUNCTION(WTime::Hours), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTime MakeZero()", asFUNCTION(ezTime::MakeZero), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTime MakeZero()", asFUNCTION(WTime::MakeZero), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool IsZero() const", asMETHOD(ezTime, IsZero), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool IsNegative() const", asMETHOD(ezTime, IsNegative), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool IsPositive() const", asMETHOD(ezTime, IsPositive), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool IsZeroOrNegative() const", asMETHOD(ezTime, IsZeroOrNegative), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool IsZeroOrPositive() const", asMETHOD(ezTime, IsZeroOrPositive), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool IsZero() const", asMETHOD(WTime, IsZero), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool IsNegative() const", asMETHOD(WTime, IsNegative), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool IsPositive() const", asMETHOD(WTime, IsPositive), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool IsZeroOrNegative() const", asMETHOD(WTime, IsZeroOrNegative), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool IsZeroOrPositive() const", asMETHOD(WTime, IsZeroOrPositive), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "float AsFloatInSeconds() const", asMETHOD(ezTime, AsFloatInSeconds), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetNanoseconds() const", asMETHOD(ezTime, GetNanoseconds), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetMicroseconds() const", asMETHOD(ezTime, GetMicroseconds), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetMilliseconds() const", asMETHOD(ezTime, GetMilliseconds), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetSeconds() const", asMETHOD(ezTime, GetSeconds), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetMinutes() const", asMETHOD(ezTime, GetMinutes), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "double GetHours() const", asMETHOD(ezTime, GetHours), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "float AsFloatInSeconds() const", asMETHOD(WTime, AsFloatInSeconds), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetNanoseconds() const", asMETHOD(WTime, GetNanoseconds), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetMicroseconds() const", asMETHOD(WTime, GetMicroseconds), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetMilliseconds() const", asMETHOD(WTime, GetMilliseconds), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetSeconds() const", asMETHOD(WTime, GetSeconds), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetMinutes() const", asMETHOD(WTime, GetMinutes), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "double GetHours() const", asMETHOD(WTime, GetHours), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "void opSubAssign(const ezTime& in)", asMETHOD(ezTime, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "void opAddAssign(const ezTime& in)", asMETHOD(ezTime, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "void opMulAssign(double)", asMETHOD(ezTime, operator*=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "void opDivAssign(double)", asMETHOD(ezTime, operator/=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "void opSubAssign(const WTime& in)", asMETHOD(WTime, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "void opAddAssign(const WTime& in)", asMETHOD(WTime, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "void opMulAssign(double)", asMETHOD(WTime, operator*=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "void opDivAssign(double)", asMETHOD(WTime, operator/=), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opSub(const ezTime& in) const", asMETHODPR(ezTime, operator-, (const ezTime&) const, ezTime), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opAdd(const ezTime& in) const", asMETHODPR(ezTime, operator+, (const ezTime&) const, ezTime), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opNeg() const", asMETHODPR(ezTime, operator-, () const, ezTime), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opSub(const WTime& in) const", asMETHODPR(WTime, operator-, (const WTime&) const, WTime), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opAdd(const WTime& in) const", asMETHODPR(WTime, operator+, (const WTime&) const, WTime), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opNeg() const", asMETHODPR(WTime, operator-, () const, WTime), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "int opCmp(const ezTime& in) const", asFUNCTIONPR(ezTime_opCmp, (const ezTime&, const ezTime&), int), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool opEquals(const ezTime& in) const", asMETHODPR(ezTime, operator==, (const ezTime&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "int opCmp(const WTime& in) const", asFUNCTIONPR(WTime_opCmp, (const WTime&, const WTime&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "bool opEquals(const WTime& in) const", asMETHODPR(WTime, operator==, (const WTime&) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(double) const", asFUNCTIONPR(operator*, (const ezTime&, double), ezTime), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul_r(double) const", asFUNCTIONPR(operator*, (double, const ezTime&), ezTime), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(const ezTime& in) const", asFUNCTIONPR(operator*, (const ezTime&, const ezTime&), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opMul(double) const", asFUNCTIONPR(operator*, (const WTime&, double), WTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opMul_r(double) const", asFUNCTIONPR(operator*, (double, const WTime&), WTime), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opMul(const WTime& in) const", asFUNCTIONPR(operator*, (const WTime&, const WTime&), WTime), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(double) const", asFUNCTIONPR(operator/, (const ezTime&, double), ezTime), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv_r(double) const", asFUNCTIONPR(operator/, (double, const ezTime&), ezTime), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(const ezTime& in) const", asFUNCTIONPR(operator/, (const ezTime&, const ezTime&), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opDiv(double) const", asFUNCTIONPR(operator/, (const WTime&, double), WTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opDiv_r(double) const", asFUNCTIONPR(operator/, (double, const WTime&), WTime), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTime", "WTime opDiv(const WTime& in) const", asFUNCTIONPR(operator/, (const WTime&, const WTime&), WTime), asCALL_CDECL_OBJFIRST));
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezClock
+// WClock
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Clock()
+void WAngelScriptEngineSingleton::Register_Clock()
 {
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "void SetPaused(bool)", asMETHOD(ezClock, SetPaused), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "bool GetPaused() const", asMETHOD(ezClock, GetPaused), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "void SetPaused(bool)", asMETHOD(WClock, SetPaused), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "bool GetPaused() const", asMETHOD(WClock, GetPaused), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "ezTime GetTimeDiff() const", asMETHOD(ezClock, GetTimeDiff), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "WTime GetTimeDiff() const", asMETHOD(WClock, GetTimeDiff), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "void SetSpeed(double)", asMETHOD(ezClock, SetSpeed), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "double GetSpeed() const", asMETHOD(ezClock, GetSpeed), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "void SetSpeed(double)", asMETHOD(WClock, SetSpeed), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "double GetSpeed() const", asMETHOD(WClock, GetSpeed), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "ezTime GetAccumulatedTime() const", asMETHOD(ezClock, GetAccumulatedTime), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WClock", "WTime GetAccumulatedTime() const", asMETHOD(WClock, GetAccumulatedTime), asCALL_THISCALL));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezRandom
+// WRandom
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Random()
+void WAngelScriptEngineSingleton::Register_Random()
 {
   // Methods
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "uint32 UInt()", asMETHOD(ezRandom, UInt), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "uint32 UIntInRange(uint32 uiRange)", asMETHOD(ezRandom, UIntInRange), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "uint32 UInt32Index(ezUInt32 uiArraySize, ezUInt32 uiFallbackValue = 0xFFFFFFFF)", asMETHOD(ezRandom, UInt32Index), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "uint16 UInt16Index(ezUInt16 uiArraySize, ezUInt16 uiFallbackValue = 0xFFFF)", asMETHOD(ezRandom, UInt16Index), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "int32 IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue)", asMETHOD(ezRandom, IntMinMax), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "bool Bool()", asMETHOD(ezRandom, Bool), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "double DoubleZeroToOneExclusive()", asMETHOD(ezRandom, DoubleZeroToOneExclusive), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "double DoubleZeroToOneInclusive()", asMETHOD(ezRandom, DoubleZeroToOneInclusive), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "double DoubleMinMax(double fMinValue, double fMaxValue)", asMETHOD(ezRandom, DoubleMinMax), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "double DoubleVariance(double fValue, double fVariance)", asMETHOD(ezRandom, DoubleVariance), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "double DoubleVarianceAroundZero(double fAbsMaxValue)", asMETHOD(ezRandom, DoubleVarianceAroundZero), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "float FloatZeroToOneExclusive()", asMETHOD(ezRandom, FloatZeroToOneExclusive), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "float FloatZeroToOneInclusive()", asMETHOD(ezRandom, FloatZeroToOneInclusive), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "float FloatMinMax(float fMinValue, float fMaxValue)", asMETHOD(ezRandom, FloatMinMax), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "float FloatVariance(float fValue, float fVariance)", asMETHOD(ezRandom, FloatVariance), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezRandom", "float FloatVarianceAroundZero(float fAbsMaxValue)", asMETHOD(ezRandom, FloatVarianceAroundZero), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "uint32 UInt()", asMETHOD(WRandom, UInt), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "uint32 UIntInRange(uint32 uiRange)", asMETHOD(WRandom, UIntInRange), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "uint32 UInt32Index(WUInt32 uiArraySize, WUInt32 uiFallbackValue = 0xFFFFFFFF)", asMETHOD(WRandom, UInt32Index), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "uint16 UInt16Index(WUInt16 uiArraySize, WUInt16 uiFallbackValue = 0xFFFF)", asMETHOD(WRandom, UInt16Index), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "int32 IntMinMax(WInt32 iMinValue, WInt32 iMaxValue)", asMETHOD(WRandom, IntMinMax), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "bool Bool()", asMETHOD(WRandom, Bool), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "double DoubleZeroToOneExclusive()", asMETHOD(WRandom, DoubleZeroToOneExclusive), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "double DoubleZeroToOneInclusive()", asMETHOD(WRandom, DoubleZeroToOneInclusive), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "double DoubleMinMax(double fMinValue, double fMaxValue)", asMETHOD(WRandom, DoubleMinMax), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "double DoubleVariance(double fValue, double fVariance)", asMETHOD(WRandom, DoubleVariance), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "double DoubleVarianceAroundZero(double fAbsMaxValue)", asMETHOD(WRandom, DoubleVarianceAroundZero), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "float FloatZeroToOneExclusive()", asMETHOD(WRandom, FloatZeroToOneExclusive), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "float FloatZeroToOneInclusive()", asMETHOD(WRandom, FloatZeroToOneInclusive), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "float FloatMinMax(float fMinValue, float fMaxValue)", asMETHOD(WRandom, FloatMinMax), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "float FloatVariance(float fValue, float fVariance)", asMETHOD(WRandom, FloatVariance), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WRandom", "float FloatVarianceAroundZero(float fAbsMaxValue)", asMETHOD(WRandom, FloatVarianceAroundZero), asCALL_THISCALL));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezColor
+// WColor
 //////////////////////////////////////////////////////////////////////////
 
-static void ezColor_ConstructRGBA(void* pMemory, float r, float g, float b, float a)
+static void WColor_ConstructRGBA(void* pMemory, float r, float g, float b, float a)
 {
-  new (pMemory) ezColor(r, g, b, a);
+  new (pMemory) WColor(r, g, b, a);
 }
 
-static void ezColor_ConstructGamma(void* pMemory, const ezColorGammaUB& col)
+static void WColor_ConstructGamma(void* pMemory, const WColorGammaUB& col)
 {
-  new (pMemory) ezColor(col);
+  new (pMemory) WColor(col);
 }
 
-void ezAngelScriptEngineSingleton::Register_Color()
+void WAngelScriptEngineSingleton::Register_Color()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColor", "float r", asOFFSET(ezColor, r)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColor", "float g", asOFFSET(ezColor, g)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColor", "float b", asOFFSET(ezColor, b)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColor", "float a", asOFFSET(ezColor, a)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColor", "float r", asOFFSET(WColor, r)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColor", "float g", asOFFSET(WColor, g)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColor", "float b", asOFFSET(WColor, b)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColor", "float a", asOFFSET(WColor, a)));
 
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezColor");
+    m_pEngine->SetDefaultNamespace("WColor");
 
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor AliceBlue", (void*)&ezColor::AliceBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor AntiqueWhite", (void*)&ezColor::AntiqueWhite));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Aqua", (void*)&ezColor::Aqua));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Aquamarine", (void*)&ezColor::Aquamarine));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Azure", (void*)&ezColor::Azure));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Beige", (void*)&ezColor::Beige));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Bisque", (void*)&ezColor::Bisque));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Black", (void*)&ezColor::Black));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor BlanchedAlmond", (void*)&ezColor::BlanchedAlmond));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Blue", (void*)&ezColor::Blue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor BlueViolet", (void*)&ezColor::BlueViolet));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Brown", (void*)&ezColor::Brown));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor BurlyWood", (void*)&ezColor::BurlyWood));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor CadetBlue", (void*)&ezColor::CadetBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Chartreuse", (void*)&ezColor::Chartreuse));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Chocolate", (void*)&ezColor::Chocolate));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Coral", (void*)&ezColor::Coral));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor CornflowerBlue", (void*)&ezColor::CornflowerBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Cornsilk", (void*)&ezColor::Cornsilk));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Crimson", (void*)&ezColor::Crimson));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Cyan", (void*)&ezColor::Cyan));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkBlue", (void*)&ezColor::DarkBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkCyan", (void*)&ezColor::DarkCyan));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkGoldenRod", (void*)&ezColor::DarkGoldenRod));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkGray", (void*)&ezColor::DarkGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkGrey", (void*)&ezColor::DarkGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkGreen", (void*)&ezColor::DarkGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkKhaki", (void*)&ezColor::DarkKhaki));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkMagenta", (void*)&ezColor::DarkMagenta));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkOliveGreen", (void*)&ezColor::DarkOliveGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkOrange", (void*)&ezColor::DarkOrange));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkOrchid", (void*)&ezColor::DarkOrchid));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkRed", (void*)&ezColor::DarkRed));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkSalmon", (void*)&ezColor::DarkSalmon));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkSeaGreen", (void*)&ezColor::DarkSeaGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkSlateBlue", (void*)&ezColor::DarkSlateBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkSlateGray", (void*)&ezColor::DarkSlateGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkSlateGrey", (void*)&ezColor::DarkSlateGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkTurquoise", (void*)&ezColor::DarkTurquoise));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DarkViolet", (void*)&ezColor::DarkViolet));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DeepPink", (void*)&ezColor::DeepPink));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DeepSkyBlue", (void*)&ezColor::DeepSkyBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DimGray", (void*)&ezColor::DimGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DimGrey", (void*)&ezColor::DimGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor DodgerBlue", (void*)&ezColor::DodgerBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor FireBrick", (void*)&ezColor::FireBrick));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor FloralWhite", (void*)&ezColor::FloralWhite));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor ForestGreen", (void*)&ezColor::ForestGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Fuchsia", (void*)&ezColor::Fuchsia));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Gainsboro", (void*)&ezColor::Gainsboro));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor GhostWhite", (void*)&ezColor::GhostWhite));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Gold", (void*)&ezColor::Gold));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor GoldenRod", (void*)&ezColor::GoldenRod));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Gray", (void*)&ezColor::Gray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Grey", (void*)&ezColor::Grey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Green", (void*)&ezColor::Green));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor GreenYellow", (void*)&ezColor::GreenYellow));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor HoneyDew", (void*)&ezColor::HoneyDew));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor HotPink", (void*)&ezColor::HotPink));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor IndianRed", (void*)&ezColor::IndianRed));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Indigo", (void*)&ezColor::Indigo));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Ivory", (void*)&ezColor::Ivory));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Khaki", (void*)&ezColor::Khaki));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Lavender", (void*)&ezColor::Lavender));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LavenderBlush", (void*)&ezColor::LavenderBlush));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LawnGreen", (void*)&ezColor::LawnGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LemonChiffon", (void*)&ezColor::LemonChiffon));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightBlue", (void*)&ezColor::LightBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightCoral", (void*)&ezColor::LightCoral));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightCyan", (void*)&ezColor::LightCyan));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightGoldenRodYellow", (void*)&ezColor::LightGoldenRodYellow));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightGray", (void*)&ezColor::LightGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightGrey", (void*)&ezColor::LightGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightGreen", (void*)&ezColor::LightGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightPink", (void*)&ezColor::LightPink));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSalmon", (void*)&ezColor::LightSalmon));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSeaGreen", (void*)&ezColor::LightSeaGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSkyBlue", (void*)&ezColor::LightSkyBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSlateGray", (void*)&ezColor::LightSlateGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSlateGrey", (void*)&ezColor::LightSlateGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightSteelBlue", (void*)&ezColor::LightSteelBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LightYellow", (void*)&ezColor::LightYellow));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Lime", (void*)&ezColor::Lime));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor LimeGreen", (void*)&ezColor::LimeGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Linen", (void*)&ezColor::Linen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Magenta", (void*)&ezColor::Magenta));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Maroon", (void*)&ezColor::Maroon));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumAquaMarine", (void*)&ezColor::MediumAquaMarine));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumBlue", (void*)&ezColor::MediumBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumOrchid", (void*)&ezColor::MediumOrchid));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumPurple", (void*)&ezColor::MediumPurple));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumSeaGreen", (void*)&ezColor::MediumSeaGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumSlateBlue", (void*)&ezColor::MediumSlateBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumSpringGreen", (void*)&ezColor::MediumSpringGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumTurquoise", (void*)&ezColor::MediumTurquoise));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MediumVioletRed", (void*)&ezColor::MediumVioletRed));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MidnightBlue", (void*)&ezColor::MidnightBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MintCream", (void*)&ezColor::MintCream));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor MistyRose", (void*)&ezColor::MistyRose));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Moccasin", (void*)&ezColor::Moccasin));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor NavajoWhite", (void*)&ezColor::NavajoWhite));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Navy", (void*)&ezColor::Navy));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor OldLace", (void*)&ezColor::OldLace));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Olive", (void*)&ezColor::Olive));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor OliveDrab", (void*)&ezColor::OliveDrab));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Orange", (void*)&ezColor::Orange));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor OrangeRed", (void*)&ezColor::OrangeRed));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Orchid", (void*)&ezColor::Orchid));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PaleGoldenRod", (void*)&ezColor::PaleGoldenRod));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PaleGreen", (void*)&ezColor::PaleGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PaleTurquoise", (void*)&ezColor::PaleTurquoise));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PaleVioletRed", (void*)&ezColor::PaleVioletRed));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PapayaWhip", (void*)&ezColor::PapayaWhip));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PeachPuff", (void*)&ezColor::PeachPuff));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Peru", (void*)&ezColor::Peru));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Pink", (void*)&ezColor::Pink));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Plum", (void*)&ezColor::Plum));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor PowderBlue", (void*)&ezColor::PowderBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Purple", (void*)&ezColor::Purple));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor RebeccaPurple", (void*)&ezColor::RebeccaPurple));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Red", (void*)&ezColor::Red));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor RosyBrown", (void*)&ezColor::RosyBrown));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor RoyalBlue", (void*)&ezColor::RoyalBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SaddleBrown", (void*)&ezColor::SaddleBrown));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Salmon", (void*)&ezColor::Salmon));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SandyBrown", (void*)&ezColor::SandyBrown));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SeaGreen", (void*)&ezColor::SeaGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SeaShell", (void*)&ezColor::SeaShell));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Sienna", (void*)&ezColor::Sienna));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Silver", (void*)&ezColor::Silver));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SkyBlue", (void*)&ezColor::SkyBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SlateBlue", (void*)&ezColor::SlateBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SlateGray", (void*)&ezColor::SlateGray));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SlateGrey", (void*)&ezColor::SlateGrey));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Snow", (void*)&ezColor::Snow));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SpringGreen", (void*)&ezColor::SpringGreen));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor SteelBlue", (void*)&ezColor::SteelBlue));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Tan", (void*)&ezColor::Tan));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Teal", (void*)&ezColor::Teal));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Thistle", (void*)&ezColor::Thistle));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Tomato", (void*)&ezColor::Tomato));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Turquoise", (void*)&ezColor::Turquoise));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Violet", (void*)&ezColor::Violet));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Wheat", (void*)&ezColor::Wheat));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor White", (void*)&ezColor::White));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor WhiteSmoke", (void*)&ezColor::WhiteSmoke));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor Yellow", (void*)&ezColor::Yellow));
-    AS_CHECK(m_pEngine->RegisterGlobalProperty("const ezColor YellowGreen", (void*)&ezColor::YellowGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor AliceBlue", (void*)&WColor::AliceBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor AntiqueWhite", (void*)&WColor::AntiqueWhite));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Aqua", (void*)&WColor::Aqua));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Aquamarine", (void*)&WColor::Aquamarine));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Azure", (void*)&WColor::Azure));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Beige", (void*)&WColor::Beige));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Bisque", (void*)&WColor::Bisque));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Black", (void*)&WColor::Black));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor BlanchedAlmond", (void*)&WColor::BlanchedAlmond));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Blue", (void*)&WColor::Blue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor BlueViolet", (void*)&WColor::BlueViolet));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Brown", (void*)&WColor::Brown));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor BurlyWood", (void*)&WColor::BurlyWood));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor CadetBlue", (void*)&WColor::CadetBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Chartreuse", (void*)&WColor::Chartreuse));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Chocolate", (void*)&WColor::Chocolate));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Coral", (void*)&WColor::Coral));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor CornflowerBlue", (void*)&WColor::CornflowerBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Cornsilk", (void*)&WColor::Cornsilk));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Crimson", (void*)&WColor::Crimson));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Cyan", (void*)&WColor::Cyan));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkBlue", (void*)&WColor::DarkBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkCyan", (void*)&WColor::DarkCyan));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkGoldenRod", (void*)&WColor::DarkGoldenRod));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkGray", (void*)&WColor::DarkGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkGrey", (void*)&WColor::DarkGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkGreen", (void*)&WColor::DarkGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkKhaki", (void*)&WColor::DarkKhaki));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkMagenta", (void*)&WColor::DarkMagenta));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkOliveGreen", (void*)&WColor::DarkOliveGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkOrange", (void*)&WColor::DarkOrange));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkOrchid", (void*)&WColor::DarkOrchid));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkRed", (void*)&WColor::DarkRed));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkSalmon", (void*)&WColor::DarkSalmon));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkSeaGreen", (void*)&WColor::DarkSeaGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkSlateBlue", (void*)&WColor::DarkSlateBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkSlateGray", (void*)&WColor::DarkSlateGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkSlateGrey", (void*)&WColor::DarkSlateGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkTurquoise", (void*)&WColor::DarkTurquoise));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DarkViolet", (void*)&WColor::DarkViolet));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DeepPink", (void*)&WColor::DeepPink));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DeepSkyBlue", (void*)&WColor::DeepSkyBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DimGray", (void*)&WColor::DimGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DimGrey", (void*)&WColor::DimGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor DodgerBlue", (void*)&WColor::DodgerBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor FireBrick", (void*)&WColor::FireBrick));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor FloralWhite", (void*)&WColor::FloralWhite));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor ForestGreen", (void*)&WColor::ForestGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Fuchsia", (void*)&WColor::Fuchsia));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Gainsboro", (void*)&WColor::Gainsboro));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor GhostWhite", (void*)&WColor::GhostWhite));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Gold", (void*)&WColor::Gold));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor GoldenRod", (void*)&WColor::GoldenRod));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Gray", (void*)&WColor::Gray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Grey", (void*)&WColor::Grey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Green", (void*)&WColor::Green));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor GreenYellow", (void*)&WColor::GreenYellow));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor HoneyDew", (void*)&WColor::HoneyDew));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor HotPink", (void*)&WColor::HotPink));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor IndianRed", (void*)&WColor::IndianRed));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Indigo", (void*)&WColor::Indigo));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Ivory", (void*)&WColor::Ivory));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Khaki", (void*)&WColor::Khaki));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Lavender", (void*)&WColor::Lavender));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LavenderBlush", (void*)&WColor::LavenderBlush));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LawnGreen", (void*)&WColor::LawnGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LemonChiffon", (void*)&WColor::LemonChiffon));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightBlue", (void*)&WColor::LightBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightCoral", (void*)&WColor::LightCoral));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightCyan", (void*)&WColor::LightCyan));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightGoldenRodYellow", (void*)&WColor::LightGoldenRodYellow));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightGray", (void*)&WColor::LightGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightGrey", (void*)&WColor::LightGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightGreen", (void*)&WColor::LightGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightPink", (void*)&WColor::LightPink));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSalmon", (void*)&WColor::LightSalmon));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSeaGreen", (void*)&WColor::LightSeaGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSkyBlue", (void*)&WColor::LightSkyBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSlateGray", (void*)&WColor::LightSlateGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSlateGrey", (void*)&WColor::LightSlateGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightSteelBlue", (void*)&WColor::LightSteelBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LightYellow", (void*)&WColor::LightYellow));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Lime", (void*)&WColor::Lime));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor LimeGreen", (void*)&WColor::LimeGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Linen", (void*)&WColor::Linen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Magenta", (void*)&WColor::Magenta));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Maroon", (void*)&WColor::Maroon));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumAquaMarine", (void*)&WColor::MediumAquaMarine));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumBlue", (void*)&WColor::MediumBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumOrchid", (void*)&WColor::MediumOrchid));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumPurple", (void*)&WColor::MediumPurple));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumSeaGreen", (void*)&WColor::MediumSeaGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumSlateBlue", (void*)&WColor::MediumSlateBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumSpringGreen", (void*)&WColor::MediumSpringGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumTurquoise", (void*)&WColor::MediumTurquoise));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MediumVioletRed", (void*)&WColor::MediumVioletRed));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MidnightBlue", (void*)&WColor::MidnightBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MintCream", (void*)&WColor::MintCream));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor MistyRose", (void*)&WColor::MistyRose));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Moccasin", (void*)&WColor::Moccasin));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor NavajoWhite", (void*)&WColor::NavajoWhite));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Navy", (void*)&WColor::Navy));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor OldLace", (void*)&WColor::OldLace));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Olive", (void*)&WColor::Olive));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor OliveDrab", (void*)&WColor::OliveDrab));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Orange", (void*)&WColor::Orange));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor OrangeRed", (void*)&WColor::OrangeRed));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Orchid", (void*)&WColor::Orchid));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PaleGoldenRod", (void*)&WColor::PaleGoldenRod));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PaleGreen", (void*)&WColor::PaleGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PaleTurquoise", (void*)&WColor::PaleTurquoise));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PaleVioletRed", (void*)&WColor::PaleVioletRed));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PapayaWhip", (void*)&WColor::PapayaWhip));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PeachPuff", (void*)&WColor::PeachPuff));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Peru", (void*)&WColor::Peru));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Pink", (void*)&WColor::Pink));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Plum", (void*)&WColor::Plum));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor PowderBlue", (void*)&WColor::PowderBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Purple", (void*)&WColor::Purple));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor RebeccaPurple", (void*)&WColor::RebeccaPurple));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Red", (void*)&WColor::Red));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor RosyBrown", (void*)&WColor::RosyBrown));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor RoyalBlue", (void*)&WColor::RoyalBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SaddleBrown", (void*)&WColor::SaddleBrown));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Salmon", (void*)&WColor::Salmon));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SandyBrown", (void*)&WColor::SandyBrown));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SeaGreen", (void*)&WColor::SeaGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SeaShell", (void*)&WColor::SeaShell));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Sienna", (void*)&WColor::Sienna));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Silver", (void*)&WColor::Silver));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SkyBlue", (void*)&WColor::SkyBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SlateBlue", (void*)&WColor::SlateBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SlateGray", (void*)&WColor::SlateGray));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SlateGrey", (void*)&WColor::SlateGrey));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Snow", (void*)&WColor::Snow));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SpringGreen", (void*)&WColor::SpringGreen));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor SteelBlue", (void*)&WColor::SteelBlue));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Tan", (void*)&WColor::Tan));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Teal", (void*)&WColor::Teal));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Thistle", (void*)&WColor::Thistle));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Tomato", (void*)&WColor::Tomato));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Turquoise", (void*)&WColor::Turquoise));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Violet", (void*)&WColor::Violet));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Wheat", (void*)&WColor::Wheat));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor White", (void*)&WColor::White));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor WhiteSmoke", (void*)&WColor::WhiteSmoke));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor Yellow", (void*)&WColor::Yellow));
+    AS_CHECK(m_pEngine->RegisterGlobalProperty("const WColor YellowGreen", (void*)&WColor::YellowGreen));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor MakeNaN()", asFUNCTION(ezColor::MakeNaN), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor MakeZero()", asFUNCTION(ezColor::MakeZero), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor MakeRGBA(float r, float g, float b, float a)", asFUNCTION(ezColor::MakeRGBA), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor MakeFromKelvin(ezUInt32 uiKelvin)", asFUNCTION(ezColor::MakeFromKelvin), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor MakeHSV(float fHue, float fSat, float fVal)", asFUNCTION(ezColor::MakeHSV), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor MakeNaN()", asFUNCTION(WColor::MakeNaN), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor MakeZero()", asFUNCTION(WColor::MakeZero), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor MakeRGBA(float r, float g, float b, float a)", asFUNCTION(WColor::MakeRGBA), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor MakeFromKelvin(WUInt32 uiKelvin)", asFUNCTION(WColor::MakeFromKelvin), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor MakeHSV(float fHue, float fSat, float fVal)", asFUNCTION(WColor::MakeHSV), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 
   // Constructors
   {
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezColor", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a = 1.0f)", asFUNCTION(ezColor_ConstructRGBA), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezColor", asBEHAVE_CONSTRUCT, "void f(const ezColorGammaUB& in)", asFUNCTION(ezColor_ConstructGamma), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WColor", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a = 1.0f)", asFUNCTION(WColor_ConstructRGBA), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WColor", asBEHAVE_CONSTRUCT, "void f(const WColorGammaUB& in)", asFUNCTION(WColor_ConstructGamma), asCALL_CDECL_OBJFIRST));
   }
 
   // Operators
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opAssign(const ezColorGammaUB& in)", asMETHODPR(ezColor, operator=, (const ezColorGammaUB&), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opAddAssign(const ezColor& in)", asMETHODPR(ezColor, operator+=, (const ezColor&), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opSubAssign(const ezColor& in)", asMETHODPR(ezColor, operator-=, (const ezColor&), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opMulAssign(const ezColor& in)", asMETHODPR(ezColor, operator*=, (const ezColor&), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opMulAssign(float)", asMETHODPR(ezColor, operator*=, (float), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opDivAssign(float)", asMETHODPR(ezColor, operator/=, (float), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void opMulAssign(const ezMat4& in)", asMETHODPR(ezColor, operator*=, (const ezMat4&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opAssign(const WColorGammaUB& in)", asMETHODPR(WColor, operator=, (const WColorGammaUB&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opAddAssign(const WColor& in)", asMETHODPR(WColor, operator+=, (const WColor&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opSubAssign(const WColor& in)", asMETHODPR(WColor, operator-=, (const WColor&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opMulAssign(const WColor& in)", asMETHODPR(WColor, operator*=, (const WColor&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opMulAssign(float)", asMETHODPR(WColor, operator*=, (float), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opDivAssign(float)", asMETHODPR(WColor, operator/=, (float), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void opMulAssign(const WMat4& in)", asMETHODPR(WColor, operator*=, (const WMat4&), void), asCALL_THISCALL));
 
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opAdd(const ezColor& in) const", asFUNCTIONPR(operator+, (const ezColor&, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opSub(const ezColor& in) const", asFUNCTIONPR(operator-, (const ezColor&, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul(const ezColor& in) const", asFUNCTIONPR(operator*, (const ezColor&, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opAdd(const WColor& in) const", asFUNCTIONPR(operator+, (const WColor&, const WColor&), const WColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opSub(const WColor& in) const", asFUNCTIONPR(operator-, (const WColor&, const WColor&), const WColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opMul(const WColor& in) const", asFUNCTIONPR(operator*, (const WColor&, const WColor&), const WColor), asCALL_CDECL_OBJFIRST));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul(float) const", asFUNCTIONPR(operator*, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(float) const", asFUNCTIONPR(operator*, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opDiv(float) const", asFUNCTIONPR(operator/, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(const ezMat4& in) const", asFUNCTIONPR(operator*, (const ezMat4&, const ezColor&), const ezColor), asCALL_CDECL_OBJLAST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opMul(float) const", asFUNCTIONPR(operator*, (const WColor&, float), const WColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opMul_r(float) const", asFUNCTIONPR(operator*, (const WColor&, float), const WColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opDiv(float) const", asFUNCTIONPR(operator/, (const WColor&, float), const WColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor opMul_r(const WMat4& in) const", asFUNCTIONPR(operator*, (const WMat4&, const WColor&), const WColor), asCALL_CDECL_OBJLAST));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool opEquals(const ezColor& in) const", asFUNCTIONPR(operator==, (const ezColor&, const ezColor&), bool), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool opEquals(const WColor& in) const", asFUNCTIONPR(operator==, (const WColor&, const WColor&), bool), asCALL_CDECL_OBJFIRST));
   }
 
   // Methods
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void SetRGB(float r, float g, float b)", asMETHOD(ezColor, SetRGB), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void SetRGBA(float r, float g, float b, float a = 1.0f)", asMETHOD(ezColor, SetRGBA), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void GetHSV(float& out fHue, float& out fSaturation, float& out fValue) const", asMETHOD(ezColor, GetHSV), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezVec4 GetAsVec4() const", asMETHOD(ezColor, GetAsVec4), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsNormalized() const", asMETHOD(ezColor, IsNormalized), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "float CalcAverageRGB() const", asMETHOD(ezColor, CalcAverageRGB), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "float GetSaturation() const", asMETHOD(ezColor, GetSaturation), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "float GetLuminance() const", asMETHOD(ezColor, GetLuminance), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor GetInvertedColor() const", asMETHOD(ezColor, GetInvertedColor), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor GetComplementaryColor() const", asMETHOD(ezColor, GetComplementaryColor), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void ScaleRGB(float)", asMETHOD(ezColor, ScaleRGB), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void ScaleRGBA(float)", asMETHOD(ezColor, ScaleRGBA), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "float ComputeHdrMultiplier() const", asMETHOD(ezColor, ComputeHdrMultiplier), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "float ComputeHdrExposureValue() const", asMETHOD(ezColor, ComputeHdrExposureValue), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void ApplyHdrExposureValue(float fExposure)", asMETHOD(ezColor, ApplyHdrExposureValue), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "void NormalizeToLdrRange()", asMETHOD(ezColor, NormalizeToLdrRange), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor GetDarker(float fFactor = 2.0f) const", asMETHOD(ezColor, GetDarker), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsNaN() const", asMETHOD(ezColor, IsNaN), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsValid() const", asMETHOD(ezColor, IsValid), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsIdenticalRGB(const ezColor& in) const", asMETHOD(ezColor, IsIdenticalRGB), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsIdenticalRGBA(const ezColor& in) const", asMETHOD(ezColor, IsIdenticalRGBA), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsEqualRGB(const ezColor& in, float fEpsilon) const", asMETHOD(ezColor, IsEqualRGB), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool IsEqualRGBA(const ezColor& in, float fEpsilon) const", asMETHOD(ezColor, IsEqualRGBA), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor WithAlpha(float fAlpha) const", asMETHOD(ezColor, WithAlpha), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void SetRGB(float r, float g, float b)", asMETHOD(WColor, SetRGB), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void SetRGBA(float r, float g, float b, float a = 1.0f)", asMETHOD(WColor, SetRGBA), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void GetHSV(float& out fHue, float& out fSaturation, float& out fValue) const", asMETHOD(WColor, GetHSV), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WVec4 GetAsVec4() const", asMETHOD(WColor, GetAsVec4), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsNormalized() const", asMETHOD(WColor, IsNormalized), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "float CalcAverageRGB() const", asMETHOD(WColor, CalcAverageRGB), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "float GetSaturation() const", asMETHOD(WColor, GetSaturation), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "float GetLuminance() const", asMETHOD(WColor, GetLuminance), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor GetInvertedColor() const", asMETHOD(WColor, GetInvertedColor), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor GetComplementaryColor() const", asMETHOD(WColor, GetComplementaryColor), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void ScaleRGB(float)", asMETHOD(WColor, ScaleRGB), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void ScaleRGBA(float)", asMETHOD(WColor, ScaleRGBA), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "float ComputeHdrMultiplier() const", asMETHOD(WColor, ComputeHdrMultiplier), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "float ComputeHdrExposureValue() const", asMETHOD(WColor, ComputeHdrExposureValue), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void ApplyHdrExposureValue(float fExposure)", asMETHOD(WColor, ApplyHdrExposureValue), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "void NormalizeToLdrRange()", asMETHOD(WColor, NormalizeToLdrRange), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor GetDarker(float fFactor = 2.0f) const", asMETHOD(WColor, GetDarker), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsNaN() const", asMETHOD(WColor, IsNaN), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsValid() const", asMETHOD(WColor, IsValid), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsIdenticalRGB(const WColor& in) const", asMETHOD(WColor, IsIdenticalRGB), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsIdenticalRGBA(const WColor& in) const", asMETHOD(WColor, IsIdenticalRGBA), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsEqualRGB(const WColor& in, float fEpsilon) const", asMETHOD(WColor, IsEqualRGB), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "bool IsEqualRGBA(const WColor& in, float fEpsilon) const", asMETHOD(WColor, IsEqualRGBA), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColor", "WColor WithAlpha(float fAlpha) const", asMETHOD(WColor, WithAlpha), asCALL_THISCALL));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezColorGammaUB
+// WColorGammaUB
 //////////////////////////////////////////////////////////////////////////
 
-void ezColorGamma_ConstructRGBA(void* pMemory, ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a)
+void WColorGamma_ConstructRGBA(void* pMemory, WUInt8 r, WUInt8 g, WUInt8 b, WUInt8 a)
 {
-  new (pMemory) ezColorGammaUB(r, g, b, a);
+  new (pMemory) WColorGammaUB(r, g, b, a);
 }
 
-void ezColorGamma_ConstructColor(void* pMemory, const ezColor& col)
+void WColorGamma_ConstructColor(void* pMemory, const WColor& col)
 {
-  new (pMemory) ezColorGammaUB(col);
+  new (pMemory) WColorGammaUB(col);
 }
 
-void ezAngelScriptEngineSingleton::Register_ColorGammaUB()
+void WAngelScriptEngineSingleton::Register_ColorGammaUB()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColorGammaUB", "uint8 r", asOFFSET(ezColorGammaUB, r)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColorGammaUB", "uint8 g", asOFFSET(ezColorGammaUB, g)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColorGammaUB", "uint8 b", asOFFSET(ezColorGammaUB, b)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezColorGammaUB", "uint8 a", asOFFSET(ezColorGammaUB, a)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColorGammaUB", "uint8 r", asOFFSET(WColorGammaUB, r)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColorGammaUB", "uint8 g", asOFFSET(WColorGammaUB, g)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColorGammaUB", "uint8 b", asOFFSET(WColorGammaUB, b)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WColorGammaUB", "uint8 a", asOFFSET(WColorGammaUB, a)));
 
   // Constructors
   {
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezColorGammaUB", asBEHAVE_CONSTRUCT, "void f(uint8 r, uint8 g, uint8 b, uint8 a = 255)", asFUNCTION(ezColorGamma_ConstructRGBA), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezColorGammaUB", asBEHAVE_CONSTRUCT, "void f(const ezColor& in)", asFUNCTION(ezColorGamma_ConstructColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WColorGammaUB", asBEHAVE_CONSTRUCT, "void f(uint8 r, uint8 g, uint8 b, uint8 a = 255)", asFUNCTION(WColorGamma_ConstructRGBA), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WColorGammaUB", asBEHAVE_CONSTRUCT, "void f(const WColor& in)", asFUNCTION(WColorGamma_ConstructColor), asCALL_CDECL_OBJFIRST));
   }
 
   // Operators
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColorGammaUB", "void opAssign(const ezColor& in)", asMETHODPR(ezColorGammaUB, operator=, (const ezColor&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColorGammaUB", "void opAssign(const WColor& in)", asMETHODPR(WColorGammaUB, operator=, (const WColor&), void), asCALL_THISCALL));
   }
 
   // Methods
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColorGammaUB", "ezColor ToLinearFloat() const", asMETHOD(ezColorGammaUB, ToLinearFloat), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WColorGammaUB", "WColor ToLinearFloat() const", asMETHOD(WColorGammaUB, ToLinearFloat), asCALL_THISCALL));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezSpatial
+// WSpatial
 //////////////////////////////////////////////////////////////////////////
 
-void ezSpatial_FindObjectsInSphere(ezStringView sCategory, const ezVec3& vCenter, float fRadius, asIScriptFunction* pCallback)
+void WSpatial_FindObjectsInSphere(WStringView sCategory, const WVec3& vCenter, float fRadius, asIScriptFunction* pCallback)
 {
-  ezWorld* pWorld = ezAngelScriptUtils::GetThreadLocalWorld();
+  WWorld* pWorld = WAngelScriptUtils::GetThreadLocalWorld();
 
-  auto category = ezSpatialData::FindCategory(sCategory);
-  if (category != ezInvalidSpatialDataCategory)
+  auto category = WSpatialData::FindCategory(sCategory);
+  if (category != WInvalidSpatialDataCategory)
   {
-    ezSpatialSystem::QueryParams params;
+    WSpatialSystem::QueryParams params;
     params.m_uiCategoryBitmask = category.GetBitmask();
 
-    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [pCallback](ezGameObject* go) -> ezVisitorExecution::Enum
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(WBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [pCallback](WGameObject* go) -> WVisitorExecution::Enum
       {
         asIScriptContext* pCtx = asGetActiveContext();
         pCtx->PushState();
@@ -455,7 +455,7 @@ void ezSpatial_FindObjectsInSphere(ezStringView sCategory, const ezVec3& vCenter
         pCtx->SetArgObject(0, go);
         pCtx->Execute();
 
-        const ezVisitorExecution::Enum res = (pCtx->GetReturnByte() != 0) ? ezVisitorExecution::Continue : ezVisitorExecution::Stop;
+        const WVisitorExecution::Enum res = (pCtx->GetReturnByte() != 0) ? WVisitorExecution::Continue : WVisitorExecution::Stop;
 
         pCtx->PopState();
 
@@ -468,13 +468,13 @@ void ezSpatial_FindObjectsInSphere(ezStringView sCategory, const ezVec3& vCenter
   pCallback->Release();
 }
 
-void ezAngelScriptEngineSingleton::Register_Spatial()
+void WAngelScriptEngineSingleton::Register_Spatial()
 {
-  AS_CHECK(m_pEngine->RegisterFuncdef("bool ReportObjectCB(ezGameObject@)"));
+  AS_CHECK(m_pEngine->RegisterFuncdef("bool ReportObjectCB(WGameObject@)"));
 
-  m_pEngine->SetDefaultNamespace("ezSpatial");
+  m_pEngine->SetDefaultNamespace("WSpatial");
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("void FindObjectsInSphere(ezStringView sCategory, const ezVec3& in vCenter, float fRadius, ReportObjectCB@ callback)", asFUNCTION(ezSpatial_FindObjectsInSphere), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("void FindObjectsInSphere(WStringView sCategory, const WVec3& in vCenter, float fRadius, ReportObjectCB@ callback)", asFUNCTION(WSpatial_FindObjectsInSphere), asCALL_CDECL));
 
   m_pEngine->SetDefaultNamespace("");
 }

@@ -7,15 +7,15 @@
 #include <Inspector/ui_ReflectionWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtReflectionWidget : public ads::CDockWidget, public Ui_ReflectionWidget
+class WQtReflectionWidget : public ads::CDockWidget, public Ui_ReflectionWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtReflectionWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtReflectionWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtReflectionWidget* s_pWidget;
+  static WQtReflectionWidget* s_pWidget;
 
 private Q_SLOTS:
 
@@ -27,9 +27,9 @@ public:
 private:
   struct PropertyData
   {
-    ezString m_sType;
-    ezString m_sPropertyName;
-    ezInt8 m_iCategory;
+    WString m_sType;
+    WString m_sPropertyName;
+    WInt8 m_iCategory;
   };
 
   struct TypeData
@@ -38,14 +38,14 @@ private:
 
     QTreeWidgetItem* m_pTreeItem;
 
-    ezUInt32 m_uiSize;
-    ezString m_sParentType;
-    ezString m_sPlugin;
+    WUInt32 m_uiSize;
+    WString m_sParentType;
+    WString m_sPlugin;
 
-    ezHybridArray<PropertyData, 16> m_Properties;
+    WHybridArray<PropertyData, 16> m_Properties;
   };
 
   bool UpdateTree();
 
-  ezMap<ezString, TypeData> m_Types;
+  WMap<WString, TypeData> m_Types;
 };

@@ -4,7 +4,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <QToolButton>
 
-class EZ_GUIFOUNDATION_DLL ezQtElementGroupButton : public QToolButton
+class W_GUIFOUNDATION_DLL WQtElementGroupButton : public QToolButton
 {
   Q_OBJECT
 public:
@@ -16,11 +16,11 @@ public:
     Help,
   };
 
-  explicit ezQtElementGroupButton(QWidget* pParent, ElementAction action, ezQtPropertyWidget* pGroupWidget);
+  explicit WQtElementGroupButton(QWidget* pParent, ElementAction action, WQtPropertyWidget* pGroupWidget);
   ElementAction GetAction() const { return m_Action; }
-  ezQtPropertyWidget* GetGroupWidget() const { return m_pGroupWidget; }
+  WQtPropertyWidget* GetGroupWidget() const { return m_pGroupWidget; }
 
 private:
   ElementAction m_Action;
-  ezQtPropertyWidget* m_pGroupWidget;
+  WQtPropertyWidget* m_pGroupWidget;
 };

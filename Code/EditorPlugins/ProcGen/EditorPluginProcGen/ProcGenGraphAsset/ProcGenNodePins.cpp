@@ -4,12 +4,12 @@
 #include <Foundation/Reflection/Reflection.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenNodePin, ezNoBase, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WProcGenNodePin, WNoBase, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenNodeInputPin, ezProcGenNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WProcGenNodeInputPin, WProcGenNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenNodeOutputPin, ezProcGenNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WProcGenNodeOutputPin, WProcGenNodePin, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on

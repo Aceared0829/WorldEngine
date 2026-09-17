@@ -8,39 +8,39 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
-struct ezRenderWorldRenderEvent;
-class ezAbstractObjectNode;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
+struct WRenderWorldRenderEvent;
+class WAbstractObjectNode;
 
-class EZ_RENDERERCORE_DLL ezBakedProbesComponentManager : public ezSettingsComponentManager<class ezBakedProbesComponent>
+class W_RENDERERCORE_DLL WBakedProbesComponentManager : public WSettingsComponentManager<class WBakedProbesComponent>
 {
 public:
-  ezBakedProbesComponentManager(ezWorld* pWorld);
-  ~ezBakedProbesComponentManager();
+  WBakedProbesComponentManager(WWorld* pWorld);
+  ~WBakedProbesComponentManager();
 
   virtual void Initialize() override;
 
-  ezMeshResourceHandle m_hDebugSphere;
-  ezMaterialResourceHandle m_hDebugMaterial;
+  WMeshResourceHandle m_hDebugSphere;
+  WMaterialResourceHandle m_hDebugMaterial;
 
 private:
-  void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
+  void RenderDebug(const WWorldModule::UpdateContext& updateContext);
   void CreateDebugResources();
 };
 
-class EZ_RENDERERCORE_DLL ezBakedProbesComponent : public ezSettingsComponent
+class W_RENDERERCORE_DLL WBakedProbesComponent : public WSettingsComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezBakedProbesComponent, ezSettingsComponent, ezBakedProbesComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WBakedProbesComponent, WSettingsComponent, WBakedProbesComponentManager);
 
 public:
-  ezBakedProbesComponent();
-  ~ezBakedProbesComponent();
+  WBakedProbesComponent();
+  ~WBakedProbesComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  ezBakingSettings m_Settings;                                      // [ property ]
+  WBakingSettings m_Settings;                                      // [ property ]
 
   void SetShowDebugOverlay(bool bShow);                             // [ property ]
   bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; }  // [ property ]
@@ -51,30 +51,30 @@ public:
   void SetUseTestPosition(bool bUse);                               // [ property ]
   bool GetUseTestPosition() const { return m_bUseTestPosition; }    // [ property ]
 
-  void SetTestPosition(const ezVec3& vPos);                         // [ property ]
-  const ezVec3& GetTestPosition() const { return m_vTestPosition; } // [ property ]
+  void SetTestPosition(const WVec3& vPos);                         // [ property ]
+  const WVec3& GetTestPosition() const { return m_vTestPosition; } // [ property ]
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg);
+  void OnExtractRenderData(WMsgExtractRenderData& ref_msg) const;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 private:
   void RenderDebugOverlay();
-  void OnObjectCreated(const ezAbstractObjectNode& node);
+  void OnObjectCreated(const WAbstractObjectNode& node);
 
-  ezHashedString m_sProbeTreeResourcePrefix;
+  WHashedString m_sProbeTreeResourcePrefix;
 
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;
   bool m_bUseTestPosition = false;
-  ezVec3 m_vTestPosition = ezVec3::MakeZero();
+  WVec3 m_vTestPosition = WVec3::MakeZero();
 
   struct RenderDebugViewTask;
-  ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
+  WSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
 
-  ezGALTextureHandle m_hDebugViewTexture;
+  WGALTextureHandle m_hDebugViewTexture;
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

@@ -1,21 +1,21 @@
 #pragma once
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <CoreFoundation/CoreFoundation.h>
 
 /// Helper class to release references of core foundation objects correctly.
 template <typename T>
-class ezScopedCFRef
+class WScopedCFRef
 {
 public:
-  ezScopedCFRef(T Ref)
+  WScopedCFRef(T Ref)
     : m_Ref(Ref)
   {
   }
 
-  ~ezScopedCFRef()
+  ~WScopedCFRef()
   {
     CFRelease(m_Ref);
   }

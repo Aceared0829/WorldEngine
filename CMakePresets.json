@@ -13,8 +13,8 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
-        "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
+        "W_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "W_COMPILE_ENGINE_AS_DLL" : "ON"
       },
       "environment": {}
     },
@@ -25,8 +25,8 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
-        "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
+        "W_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "W_COMPILE_ENGINE_AS_DLL" : "ON"
       },
       "environment": {}
     },
@@ -36,11 +36,11 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
-        "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
+        "W_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
+        "W_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "W_COMPILE_ENGINE_AS_DLL" : "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
-        "EZ_BUILD_OPENXR": "ON"
+        "W_BUILD_OPENXR": "ON"
       },
       "environment": {
         "VK_LAYER_PATH" : "${sourceDir}/Workspace/shared/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
@@ -71,8 +71,8 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_SAMPLES" : "ON",
-        "EZ_ENABLE_QT_SUPPORT" : "OFF",
+        "W_BUILD_SAMPLES" : "ON",
+        "W_ENABLE_QT_SUPPORT" : "OFF",
         "ANDROID_PLATFORM" : "29",
         "CMAKE_TOOLCHAIN_FILE" : "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake"
       },
@@ -192,12 +192,12 @@
       "inherits":["linux-clang-base"],
       "hidden": true,
       "cacheVariables": {
-        "EZ_ENABLE_QT_SUPPORT": "OFF",
-        "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "OFF",
-        "EZ_3RDPARTY_ASSIMP_SUPPORT": "OFF",
-        "EZ_3RDPARTY_BC7ENC_RDO_SUPPORT": "OFF",
+        "W_ENABLE_QT_SUPPORT": "OFF",
+        "W_EXPERIMENTAL_EDITOR_ON_LINUX": "OFF",
+        "W_3RDPARTY_ASSIMP_SUPPORT": "OFF",
+        "W_3RDPARTY_BC7ENC_RDO_SUPPORT": "OFF",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/Code/BuildSystem/CMake/toolchain-steamrt.cmake",
-        "EZ_FMOD_SDK_LOCATION": "${sourceDir}/Code/ThirdParty/fmod/linux"
+        "W_FMOD_SDK_LOCATION": "${sourceDir}/Code/ThirdParty/fmod/linux"
       }
     },
     {

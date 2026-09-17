@@ -12,8 +12,8 @@
 /// Afterwards faces can be sorted by material and tangents and bi-tangents can be computed.
 ///
 /// All shared information (positions, normals, texcoords) is stored using indices, so the information what is shared
-/// is preserved in the ezOBJLoader object. For upload into a GPU the vertex information must be duplicated manually.
-class EZ_UTILITIES_DLL ezOBJLoader
+/// is preserved in the WOBJLoader object. For upload into a GPU the vertex information must be duplicated manually.
+class W_UTILITIES_DLL WOBJLoader
 {
 public:
   /// Stores the information for a vertex in a face.
@@ -21,9 +21,9 @@ public:
   {
     FaceVertex();
 
-    ezUInt32 m_uiPositionID; ///< Index into the m_Positions array
-    ezUInt32 m_uiNormalID;   ///< Index into the m_Normals array
-    ezUInt32 m_uiTexCoordID; ///< Index into the m_TexCoords array
+    WUInt32 m_uiPositionID; ///< Index into the m_Positions array
+    WUInt32 m_uiNormalID;   ///< Index into the m_Normals array
+    WUInt32 m_uiTexCoordID; ///< Index into the m_TexCoords array
   };
 
   /// Holds the information about one Material.
@@ -33,10 +33,10 @@ public:
   struct Material
   {
     /// The path to the diffuse texture of this material.
-    ezString m_sDiffuseTexture;
+    WString m_sDiffuseTexture;
 
     /// The ID of this material.
-    ezUInt32 m_uiMaterialID;
+    WUInt32 m_uiMaterialID;
   };
 
   /// Holds all data about one face (ie. polygon, not only triangles).
@@ -45,21 +45,21 @@ public:
     Face();
 
     /// The ID of the material, that this face uses.
-    ezUInt32 m_uiMaterialID;
+    WUInt32 m_uiMaterialID;
 
     /// The face-normal, automatically computed
-    ezVec3 m_vNormal;
+    WVec3 m_vNormal;
 
     // These are only calculated on demand (through ComputeTangentSpaceVectors) and only if texture-coordinates are available.
     // Useful, when doing normal-mapping in tangent-space.
-    ezVec3 m_vTangent;
-    ezVec3 m_vBiTangent;
+    WVec3 m_vTangent;
+    WVec3 m_vBiTangent;
 
     /// All vertices of the face.
-    ezHybridArray<FaceVertex, 4> m_Vertices;
+    WHybridArray<FaceVertex, 4> m_Vertices;
 
     /// Less-than operator is needed for sorting faces by material.
-    EZ_ALWAYS_INLINE bool operator<(const Face& rhs) const { return (m_uiMaterialID < rhs.m_uiMaterialID); }
+    W_ALWAYS_INLINE bool operator<(const Face& rhs) const { return (m_uiMaterialID < rhs.m_uiMaterialID); }
   };
 
   /// Clears all data. Call this before LoadOBJ() / LoadMTL(), if you want to reuse the loader object to load another OBJ file,
@@ -80,22 +80,22 @@ public:
 
   /// Loads an OBJ file into this object. Adds all information to the existing data, so multiple OBJ files can be merged.
   ///
-  /// Returns EZ_FAILURE if the given file could not be found.
-  ezResult LoadOBJ(const char* szFile, bool bIgnoreMaterials = false);
+  /// Returns W_FAILURE if the given file could not be found.
+  WResult LoadOBJ(const char* szFile, bool bIgnoreMaterials = false);
 
   /// Loads and MTL file for material information.
   ///
   /// You can load multiple MTL files to merge them into one object. You can load an MTL file before or after loading OBJ files
   /// the missing information will be filled out whenever it is available.
   ///
-  /// Returns EZ_FAILURE when the given file could not be found.
-  ezResult LoadMTL(const char* szFile, const char* szMaterialBasePath = "");
+  /// Returns W_FAILURE when the given file could not be found.
+  WResult LoadMTL(const char* szFile, const char* szMaterialBasePath = "");
 
 
-  ezMap<ezString, Material> m_Materials;
+  WMap<WString, Material> m_Materials;
 
-  ezDeque<ezVec3> m_Positions;
-  ezDeque<ezVec3> m_Normals;
-  ezDeque<ezVec3> m_TexCoords;
-  ezDeque<Face> m_Faces;
+  WDeque<WVec3> m_Positions;
+  WDeque<WVec3> m_Normals;
+  WDeque<WVec3> m_TexCoords;
+  WDeque<Face> m_Faces;
 };

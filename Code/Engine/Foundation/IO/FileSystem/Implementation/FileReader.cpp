@@ -2,17 +2,17 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 64*/,
-  ezFileShareMode::Enum fileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
+WResult WFileReader::Open(WStringView sFile, WUInt32 uiCacheSize /*= 1024 * 64*/,
+  WFileShareMode::Enum fileShareMode /*= WFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
 {
-  EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", sFile);
+  W_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", sFile);
 
-  uiCacheSize = ezMath::Min<ezUInt32>(uiCacheSize, 1024 * 1024 * 32);
+  uiCacheSize = WMath::Min<WUInt32>(uiCacheSize, 1024 * 1024 * 32);
 
   m_pDataDirReader = GetFileReader(sFile, fileShareMode, bAllowFileEvents);
 
   if (!m_pDataDirReader)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Cache.SetCountUninitialized(uiCacheSize);
 
@@ -20,10 +20,10 @@ ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 
   m_uiBytesCached = 0;
   m_bEOF = false;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezFileReader::Close()
+void WFileReader::Close()
 {
   if (m_pDataDirReader)
     m_pDataDirReader->Close();
@@ -32,26 +32,26 @@ void ezFileReader::Close()
   m_bEOF = true;
 }
 
-ezUInt64 ezFileReader::SkipBytes(ezUInt64 uiBytesToSkip)
+WUInt64 WFileReader::SkipBytes(WUInt64 uiBytesToSkip)
 {
-  EZ_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
+  W_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
   if (m_bEOF)
     return 0;
 
-  ezUInt64 uiSkipPosition = 0; // how much was skipped, yet
+  WUInt64 uiSkipPosition = 0; // how much was skipped, yet
 
   // if any data is still in the cache, skip that first
   {
-    const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
-    const ezUInt64 uiBytesSkippedFromCache = ezMath::Min(uiCachedBytesLeft, uiBytesToSkip);
+    const WUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
+    const WUInt64 uiBytesSkippedFromCache = WMath::Min(uiCachedBytesLeft, uiBytesToSkip);
     uiSkipPosition += uiBytesSkippedFromCache;
     m_uiCacheReadPosition += uiBytesSkippedFromCache;
     uiBytesToSkip -= uiBytesSkippedFromCache;
   }
 
   // skip bytes on disk
-  const ezUInt64 uiBytesMeantToSkipFromDisk = uiBytesToSkip;
-  const ezUInt64 uiBytesSkippedFromDisk = m_pDataDirReader->Skip(uiBytesToSkip);
+  const WUInt64 uiBytesMeantToSkipFromDisk = uiBytesToSkip;
+  const WUInt64 uiBytesSkippedFromDisk = m_pDataDirReader->Skip(uiBytesToSkip);
   uiSkipPosition += uiBytesSkippedFromDisk;
   uiBytesToSkip -= uiBytesSkippedFromDisk;
 
@@ -66,29 +66,29 @@ ezUInt64 ezFileReader::SkipBytes(ezUInt64 uiBytesToSkip)
   return uiSkipPosition;
 }
 
-ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+WUInt64 WFileReader::ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead)
 {
-  EZ_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
+  W_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
   if (m_bEOF)
     return 0;
 
-  ezUInt64 uiBufferPosition = 0; // how much was read, yet
-  ezUInt8* pBuffer = (ezUInt8*)pReadBuffer;
+  WUInt64 uiBufferPosition = 0; // how much was read, yet
+  WUInt8* pBuffer = (WUInt8*)pReadBuffer;
 
   if (uiBytesToRead > m_Cache.GetCount())
   {
     // if any data is still in the cache, use that first
-    const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
+    const WUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
     if (uiCachedBytesLeft > 0)
     {
-      ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiCachedBytesLeft);
+      WMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(WUInt32)m_uiCacheReadPosition], (WUInt32)uiCachedBytesLeft);
       uiBufferPosition += uiCachedBytesLeft;
       m_uiCacheReadPosition += uiCachedBytesLeft;
       uiBytesToRead -= uiCachedBytesLeft;
     }
 
     // read remaining data from disk
-    ezUInt64 uiBytesReadFromDisk = 0;
+    WUInt64 uiBytesReadFromDisk = 0;
     if (uiBytesToRead > 0)
     {
       uiBytesReadFromDisk = m_pDataDirReader->Read(&pBuffer[uiBufferPosition], uiBytesToRead);
@@ -107,9 +107,9 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
     while (uiBytesToRead > 0)
     {
       // determine the chunk size to read
-      ezUInt64 uiChunkSize = uiBytesToRead;
+      WUInt64 uiChunkSize = uiBytesToRead;
 
-      const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
+      const WUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
       if (uiCachedBytesLeft < uiBytesToRead)
       {
         uiChunkSize = uiCachedBytesLeft;
@@ -119,7 +119,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
       // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
       if (uiChunkSize > 0)
       {
-        ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiChunkSize);
+        WMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(WUInt32)m_uiCacheReadPosition], (WUInt32)uiChunkSize);
 
         // store how much was read and how much is still left to read
         uiBufferPosition += uiChunkSize;

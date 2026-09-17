@@ -2,12 +2,12 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-class ezDecalComponentDragDropHandler : public ezComponentDragDropHandler
+class WDecalComponentDragDropHandler : public WComponentDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalComponentDragDropHandler, ezComponentDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WDecalComponentDragDropHandler, WComponentDragDropHandler);
 
 public:
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
 
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
 };

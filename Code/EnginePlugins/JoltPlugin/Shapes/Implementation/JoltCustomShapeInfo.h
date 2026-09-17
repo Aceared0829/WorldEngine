@@ -2,21 +2,21 @@
 
 #include <Jolt/Physics/Collision/Shape/DecoratedShape.h>
 
-class ezJoltCustomShapeInfo : public JPH::DecoratedShape
+class WJoltCustomShapeInfo : public JPH::DecoratedShape
 {
 public:
-  ezJoltCustomShapeInfo()
+  WJoltCustomShapeInfo()
     : DecoratedShape(JPH::EShapeSubType::User1)
   {
   }
 
-  ezJoltCustomShapeInfo(const Shape* pInInnerShape)
+  WJoltCustomShapeInfo(const Shape* pInInnerShape)
     : DecoratedShape(JPH::EShapeSubType::User1, pInInnerShape)
   {
   }
 
   float m_fDensity = 1.0f;
-  ezHybridArray<JPH::RefConst<JPH::PhysicsMaterial>, 1> m_CustomMaterials;
+  WHybridArray<JPH::RefConst<JPH::PhysicsMaterial>, 1> m_CustomMaterials;
 
   virtual const JPH::PhysicsMaterial* GetMaterial(const JPH::SubShapeID& subShapeID) const override;
   virtual JPH::uint64 GetSubShapeUserData(const JPH::SubShapeID& subShapeID) const override;

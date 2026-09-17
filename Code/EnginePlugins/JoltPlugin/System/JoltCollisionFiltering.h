@@ -8,14 +8,14 @@
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-class ezCollisionFilterConfig;
+class WCollisionFilterConfig;
 
 namespace JPH
 {
-  using ObjectLayer = ezUInt16;
+  using ObjectLayer = WUInt16;
 } // namespace JPH
 
-enum class ezJoltBroadphaseLayer : ezUInt8
+enum class WJoltBroadphaseLayer : WUInt8
 {
   Static,
   Dynamic,
@@ -30,21 +30,21 @@ enum class ezJoltBroadphaseLayer : ezUInt8
   ENUM_COUNT
 };
 
-namespace ezJoltCollisionFiltering
+namespace WJoltCollisionFiltering
 {
   /// Constructs the JPH::ObjectLayer value from the desired collision group index and the broadphase into which the object shall be sorted
-  EZ_JOLTPLUGIN_DLL JPH::ObjectLayer ConstructObjectLayer(ezUInt8 uiCollisionGroup, ezJoltBroadphaseLayer broadphase);
+  W_JOLTPLUGIN_DLL JPH::ObjectLayer ConstructObjectLayer(WUInt8 uiCollisionGroup, WJoltBroadphaseLayer broadphase);
 
   /// Returns the (hard-coded) collision mask that determines which other broad-phases to collide with.
-  EZ_JOLTPLUGIN_DLL ezUInt32 GetBroadphaseCollisionMask(ezJoltBroadphaseLayer broadphase);
+  W_JOLTPLUGIN_DLL WUInt32 GetBroadphaseCollisionMask(WJoltBroadphaseLayer broadphase);
 
-}; // namespace ezJoltCollisionFiltering
+}; // namespace WJoltCollisionFiltering
 
 
-class EZ_JOLTPLUGIN_DLL ezJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
+class W_JOLTPLUGIN_DLL WJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
 {
 public:
-  virtual ezUInt32 GetNumBroadPhaseLayers() const override;
+  virtual WUInt32 GetNumBroadPhaseLayers() const override;
 
   virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override;
 
@@ -53,28 +53,28 @@ public:
 #endif
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltBroadPhaseLayerFilter final : public JPH::BroadPhaseLayerFilter
+class W_JOLTPLUGIN_DLL WJoltBroadPhaseLayerFilter final : public JPH::BroadPhaseLayerFilter
 {
 public:
-  ezJoltBroadPhaseLayerFilter(ezBitflags<ezPhysicsShapeType> shapeTypes)
+  WJoltBroadPhaseLayerFilter(WBitflags<WPhysicsShapeType> shapeTypes)
   {
     m_uiCollisionMask = shapeTypes.GetValue();
   }
 
-  ezUInt32 m_uiCollisionMask = 0;
+  WUInt32 m_uiCollisionMask = 0;
 
   virtual bool ShouldCollide(JPH::BroadPhaseLayer inLayer) const override
   {
-    return (EZ_BIT(static_cast<ezUInt8>(inLayer)) & m_uiCollisionMask) != 0;
+    return (W_BIT(static_cast<WUInt8>(inLayer)) & m_uiCollisionMask) != 0;
   }
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltObjectLayerFilter final : public JPH::ObjectLayerFilter
+class W_JOLTPLUGIN_DLL WJoltObjectLayerFilter final : public JPH::ObjectLayerFilter
 {
 public:
-  ezUInt32 m_uiCollisionLayer = 0;
+  WUInt32 m_uiCollisionLayer = 0;
 
-  ezJoltObjectLayerFilter(ezUInt32 uiCollisionLayer)
+  WJoltObjectLayerFilter(WUInt32 uiCollisionLayer)
     : m_uiCollisionLayer(uiCollisionLayer)
   {
   }
@@ -82,35 +82,35 @@ public:
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltObjectVsBroadPhaseLayerFilter final : public JPH::ObjectVsBroadPhaseLayerFilter
+class W_JOLTPLUGIN_DLL WJoltObjectVsBroadPhaseLayerFilter final : public JPH::ObjectVsBroadPhaseLayerFilter
 {
 public:
-  ezJoltObjectVsBroadPhaseLayerFilter() = default;
+  WJoltObjectVsBroadPhaseLayerFilter() = default;
 
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override;
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltObjectLayerPairFilter final : public JPH::ObjectLayerPairFilter
+class W_JOLTPLUGIN_DLL WJoltObjectLayerPairFilter final : public JPH::ObjectLayerPairFilter
 {
 public:
-  ezJoltObjectLayerPairFilter() = default;
+  WJoltObjectLayerPairFilter() = default;
 
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::ObjectLayer inLayer2) const override;
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltBodyFilter final : public JPH::BodyFilter
+class W_JOLTPLUGIN_DLL WJoltBodyFilter final : public JPH::BodyFilter
 {
 public:
-  ezUInt32 m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
+  WUInt32 m_uiObjectFilterIDToIgnore = WInvalidIndex - 1;
 
-  ezJoltBodyFilter(ezUInt32 uiBodyFilterIdToIgnore = ezInvalidIndex - 1)
+  WJoltBodyFilter(WUInt32 uiBodyFilterIdToIgnore = WInvalidIndex - 1)
     : m_uiObjectFilterIDToIgnore(uiBodyFilterIdToIgnore)
   {
   }
 
   void ClearFilter()
   {
-    m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
+    m_uiObjectFilterIDToIgnore = WInvalidIndex - 1;
   }
 
   virtual bool ShouldCollideLocked(const JPH::Body& body) const override

@@ -8,42 +8,42 @@
 /// This node allows defining custom mathematical operations using expressions like "a * 2 + b".
 /// Supports standard math operations and functions. Useful for computing blend weights, animation speeds,
 /// or other derived values without creating dedicated nodes.
-class EZ_RENDERERCORE_DLL ezMathExpressionAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WMathExpressionAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMathExpressionAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WMathExpressionAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogicAndAnimNode
+  // WLogicAndAnimNode
 
 public:
-  ezMathExpressionAnimNode();
-  ~ezMathExpressionAnimNode();
+  WMathExpressionAnimNode();
+  ~WMathExpressionAnimNode();
 
-  void SetExpression(ezString sExpr);
-  ezString GetExpression() const;
+  void SetExpression(WString sExpr);
+  WString GetExpression() const;
 
 private:
-  ezAnimGraphNumberInputPin m_ValueAPin;  // [ property ]
-  ezAnimGraphNumberInputPin m_ValueBPin;  // [ property ]
-  ezAnimGraphNumberInputPin m_ValueCPin;  // [ property ]
-  ezAnimGraphNumberInputPin m_ValueDPin;  // [ property ]
-  ezAnimGraphNumberOutputPin m_ResultPin; // [ property ]
+  WAnimGraphNumberInputPin m_ValueAPin;  // [ property ]
+  WAnimGraphNumberInputPin m_ValueBPin;  // [ property ]
+  WAnimGraphNumberInputPin m_ValueCPin;  // [ property ]
+  WAnimGraphNumberInputPin m_ValueDPin;  // [ property ]
+  WAnimGraphNumberOutputPin m_ResultPin; // [ property ]
 
-  ezString m_sExpression;
+  WString m_sExpression;
 
   struct InstanceData
   {
-    ezMathExpression m_mExpression;
+    WMathExpression m_mExpression;
   };
 };
 
@@ -55,31 +55,31 @@ private:
 ///
 /// This node performs comparisons (less than, greater than, equal) and outputs the result as booleans.
 /// Useful for condition checks in state machines or for controlling animation blending based on thresholds.
-class EZ_RENDERERCORE_DLL ezCompareNumberAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WCompareNumberAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCompareNumberAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WCompareNumberAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCompareNumberAnimNode
+  // WCompareNumberAnimNode
 
 public:
   double m_fReferenceValue = 0.0f;           // [ property ]
-  ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
+  WEnum<WComparisonOperator> m_Comparison; // [ property ]
 
 private:
-  ezAnimGraphNumberInputPin m_InNumber;      // [ property ]
-  ezAnimGraphNumberInputPin m_InReference;   // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;      // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse;     // [ property ]
+  WAnimGraphNumberInputPin m_InNumber;      // [ property ]
+  WAnimGraphNumberInputPin m_InReference;   // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsTrue;      // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsFalse;     // [ property ]
 };
 
 
@@ -87,66 +87,66 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezBoolToNumberAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WBoolToNumberAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBoolToNumberAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WBoolToNumberAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezBoolToNumberAnimNode
+  // WBoolToNumberAnimNode
 
 public:
-  ezBoolToNumberAnimNode();
-  ~ezBoolToNumberAnimNode();
+  WBoolToNumberAnimNode();
+  ~WBoolToNumberAnimNode();
 
   double m_fFalseValue = 0.0f;
   double m_fTrueValue = 1.0f;
 
 private:
-  ezAnimGraphBoolInputPin m_InValue;      // [ property ]
-  ezAnimGraphNumberOutputPin m_OutNumber; // [ property ]
+  WAnimGraphBoolInputPin m_InValue;      // [ property ]
+  WAnimGraphNumberOutputPin m_OutNumber; // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezBoolToTriggerAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WBoolToTriggerAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBoolToTriggerAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WBoolToTriggerAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezBoolToNumberAnimNode
+  // WBoolToNumberAnimNode
 
 public:
-  ezBoolToTriggerAnimNode();
-  ~ezBoolToTriggerAnimNode();
+  WBoolToTriggerAnimNode();
+  ~WBoolToTriggerAnimNode();
 
 private:
-  ezAnimGraphBoolInputPin m_InValue;        // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
+  WAnimGraphBoolInputPin m_InValue;        // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
 
   struct InstanceData
   {
-    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+    WInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
   };
 };

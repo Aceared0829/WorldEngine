@@ -5,39 +5,39 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINASSETS_DLL ezMeshContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WMeshContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WMeshContext, WEngineProcessDocumentContext);
 
 public:
-  ezMeshContext();
+  WMeshContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
+  const WMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
   bool m_bDisplayGrid = true;
 
   /// Human-readable display name for each material slot, updated whenever materials are set.
-  ezHybridArray<ezString, 16> m_SlotNames;
+  WHybridArray<WString, 16> m_SlotNames;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
-  void OnResourceEvent(const ezResourceEvent& e);
+  void QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg);
+  void OnResourceEvent(const WResourceEvent& e);
 
-  ezGameObject* m_pMeshObject;
-  ezMeshResourceHandle m_hMesh;
+  WGameObject* m_pMeshObject;
+  WMeshResourceHandle m_hMesh;
 
-  ezAtomicBool m_bBoundsDirty = false;
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_MeshResourceEventSubscriber;
+  WAtomicBool m_bBoundsDirty = false;
+  WEvent<const WResourceEvent&, WMutex>::Unsubscriber m_MeshResourceEventSubscriber;
 };

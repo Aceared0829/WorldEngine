@@ -3,17 +3,17 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Renderer.h>
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderer : public ezRenderer
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGizmoRenderer : public WRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoRenderer, ezRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WGizmoRenderer, WRenderer);
 
 public:
-  ezGizmoRenderer();
-  ~ezGizmoRenderer();
+  WGizmoRenderer();
+  ~WGizmoRenderer();
 
-  // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  // WRenderer implementation
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
+  virtual void RenderBatch(const WRenderViewContext& renderContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
   static float s_fGizmoScale;
 };

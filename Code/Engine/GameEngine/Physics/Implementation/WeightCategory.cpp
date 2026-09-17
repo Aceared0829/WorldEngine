@@ -4,14 +4,14 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Physics/WeightCategory.h>
 
-ezWeightCategoryConfig::ezWeightCategoryConfig() = default;
-ezWeightCategoryConfig::~ezWeightCategoryConfig() = default;
+WWeightCategoryConfig::WWeightCategoryConfig() = default;
+WWeightCategoryConfig::~WWeightCategoryConfig() = default;
 
-ezUInt8 ezWeightCategoryConfig::FindByName(ezTempHashedString sName) const
+WUInt8 WWeightCategoryConfig::FindByName(WTempHashedString sName) const
 {
   m_Categories.Sort();
 
-  for (ezUInt32 idx = 0; idx < m_Categories.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < m_Categories.GetCount(); ++idx)
   {
     const auto& item = m_Categories.GetValue(idx);
     if (item.m_sName == sName)
@@ -23,10 +23,10 @@ ezUInt8 ezWeightCategoryConfig::FindByName(ezTempHashedString sName) const
   return InvalidKey;
 }
 
-ezUInt8 ezWeightCategoryConfig::GetFreeKey() const
+WUInt8 WWeightCategoryConfig::GetFreeKey() const
 {
   m_Categories.Sort();
-  for (ezUInt8 idx = FirstValidKey; idx < 250; ++idx)
+  for (WUInt8 idx = FirstValidKey; idx < 250; ++idx)
   {
     if (!m_Categories.Contains(idx))
       return idx;
@@ -35,39 +35,39 @@ ezUInt8 ezWeightCategoryConfig::GetFreeKey() const
   return InvalidKey;
 }
 
-ezResult ezWeightCategoryConfig::Save(ezStringView sFile /*= s_sConfigFile*/) const
+WResult WWeightCategoryConfig::Save(WStringView sFile /*= s_sConfigFile*/) const
 {
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   Save(file);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezWeightCategoryConfig::Load(ezStringView sFile /*= s_sConfigFile*/)
+WResult WWeightCategoryConfig::Load(WStringView sFile /*= s_sConfigFile*/)
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   Load(file);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWeightCategoryConfig::Save(ezStreamWriter& inout_stream) const
+void WWeightCategoryConfig::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
 
   inout_stream << uiVersion;
 
   m_Categories.Sort();
-  const ezUInt16 uiNumCats = m_Categories.GetCount();
+  const WUInt16 uiNumCats = m_Categories.GetCount();
 
   inout_stream << uiNumCats;
 
-  for (ezUInt32 i = 0; i < uiNumCats; ++i)
+  for (WUInt32 i = 0; i < uiNumCats; ++i)
   {
     const auto& cat = m_Categories.GetPair(i);
 
@@ -78,23 +78,23 @@ void ezWeightCategoryConfig::Save(ezStreamWriter& inout_stream) const
   }
 }
 
-void ezWeightCategoryConfig::Load(ezStreamReader& inout_stream)
+void WWeightCategoryConfig::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= 1, "Invalid version '{0}' for ezWeightCategoryConfig file", uiVersion);
+  W_ASSERT_DEV(uiVersion <= 1, "Invalid version '{0}' for WWeightCategoryConfig file", uiVersion);
 
-  ezUInt16 uiNumCats = 0;
+  WUInt16 uiNumCats = 0;
   inout_stream >> uiNumCats;
 
   m_Categories.Clear();
   m_Categories.Reserve(uiNumCats);
 
-  for (ezUInt32 i = 0; i < uiNumCats; ++i)
+  for (WUInt32 i = 0; i < uiNumCats; ++i)
   {
-    ezUInt8 idx = 0;
+    WUInt8 idx = 0;
     inout_stream >> idx;
 
     auto& item = m_Categories[idx];
@@ -107,23 +107,23 @@ void ezWeightCategoryConfig::Load(ezStreamReader& inout_stream)
   m_Categories.Sort();
 }
 
-float ezWeightCategoryConfig::GetMassForWeightCategory(ezUInt8 uiWeightCategory, float fDefaultMass, float fCustomMass, float fWeightScale, float fMinMass, float fMaxMass) const
+float WWeightCategoryConfig::GetMassForWeightCategory(WUInt8 uiWeightCategory, float fDefaultMass, float fCustomMass, float fWeightScale, float fMinMass, float fMaxMass) const
 {
-  if (uiWeightCategory == ezWeightCategoryConfig::DefaultValueKey)
+  if (uiWeightCategory == WWeightCategoryConfig::DefaultValueKey)
     return fDefaultMass;
 
-  if (uiWeightCategory == ezWeightCategoryConfig::CustomMassKey)
+  if (uiWeightCategory == WWeightCategoryConfig::CustomMassKey)
     return fCustomMass;
 
-  if (uiWeightCategory == ezWeightCategoryConfig::CustomDensityKey)
+  if (uiWeightCategory == WWeightCategoryConfig::CustomDensityKey)
     return 0.0f; // use zero mass, to calculate it from density instead
 
   auto& cat = m_Categories;
-  ezUInt32 idx = cat.Find(uiWeightCategory);
+  WUInt32 idx = cat.Find(uiWeightCategory);
 
-  if (idx != ezInvalidIndex)
+  if (idx != WInvalidIndex)
   {
-    return ezMath::Clamp(cat.GetValue(idx).m_fMass * fWeightScale, fMinMass, fMaxMass);
+    return WMath::Clamp(cat.GetValue(idx).m_fMass * fWeightScale, fMinMass, fMaxMass);
   }
 
   return fDefaultMass;

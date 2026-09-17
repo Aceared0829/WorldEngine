@@ -4,20 +4,20 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 
-EZ_IMPLEMENT_SINGLETON(ezLongOpControllerManager);
+W_IMPLEMENT_SINGLETON(WLongOpControllerManager);
 
-ezLongOpControllerManager::ezLongOpControllerManager()
+WLongOpControllerManager::WLongOpControllerManager()
   : m_SingletonRegistrar(this)
 {
 }
 
-ezLongOpControllerManager::~ezLongOpControllerManager() = default;
+WLongOpControllerManager::~WLongOpControllerManager() = default;
 
-void ezLongOpControllerManager::ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e)
+void WLongOpControllerManager::ProcessCommunicationChannelEventHandler(const WProcessCommunicationChannel::Event& e)
 {
-  if (auto pMsg = ezDynamicCast<const ezLongOpProgressMsg*>(e.m_pMessage))
+  if (auto pMsg = WDynamicCast<const WLongOpProgressMsg*>(e.m_pMessage))
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (auto pOpInfo = GetOperation(pMsg->m_OperationGuid))
     {
@@ -29,17 +29,17 @@ void ezLongOpControllerManager::ProcessCommunicationChannelEventHandler(const ez
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezLongOpResultMsg*>(e.m_pMessage))
+  if (auto pMsg = WDynamicCast<const WLongOpResultMsg*>(e.m_pMessage))
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (auto pOpInfo = GetOperation(pMsg->m_OperationGuid))
     {
       pOpInfo->m_bIsRunning = false;
-      pOpInfo->m_StartOrDuration = ezTime::Now() - pOpInfo->m_StartOrDuration;
+      pOpInfo->m_StartOrDuration = WTime::Now() - pOpInfo->m_StartOrDuration;
       pOpInfo->m_fCompletion = 0.0f;
 
-      pOpInfo->m_pProxyOp->Finalize(pMsg->m_bSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg->m_ResultData);
+      pOpInfo->m_pProxyOp->Finalize(pMsg->m_bSuccess ? W_SUCCESS : W_FAILURE, pMsg->m_ResultData);
 
       // TODO: show success/failure in UI
       BroadcastProgress(*pOpInfo);
@@ -47,16 +47,16 @@ void ezLongOpControllerManager::ProcessCommunicationChannelEventHandler(const ez
   }
 }
 
-void ezLongOpControllerManager::StartOperation(ezUuid opGuid)
+void WLongOpControllerManager::StartOperation(WUuid opGuid)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto pOpInfo = GetOperation(opGuid);
 
   if (pOpInfo == nullptr || pOpInfo->m_bIsRunning)
     return;
 
-  pOpInfo->m_StartOrDuration = ezTime::Now();
+  pOpInfo->m_StartOrDuration = WTime::Now();
   pOpInfo->m_bIsRunning = true;
 
   ReplicateToWorkerProcess(*pOpInfo);
@@ -64,9 +64,9 @@ void ezLongOpControllerManager::StartOperation(ezUuid opGuid)
   BroadcastProgress(*pOpInfo);
 }
 
-void ezLongOpControllerManager::CancelOperation(ezUuid opGuid)
+void WLongOpControllerManager::CancelOperation(WUuid opGuid)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto pOpInfo = GetOperation(opGuid);
 
@@ -74,17 +74,17 @@ void ezLongOpControllerManager::CancelOperation(ezUuid opGuid)
     return;
 
   // send a cancel message to the processor
-  ezLongOpResultMsg msg;
+  WLongOpResultMsg msg;
   msg.m_OperationGuid = opGuid;
   msg.m_bSuccess = false;
   m_pCommunicationChannel->SendMessage(&msg);
 }
 
-void ezLongOpControllerManager::RemoveOperation(ezUuid opGuid)
+void WLongOpControllerManager::RemoveOperation(WUuid opGuid)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < m_ProxyOps.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ProxyOps.GetCount(); ++i)
   {
     if (m_ProxyOps[i]->m_OperationGuid == opGuid)
     {
@@ -92,8 +92,8 @@ void ezLongOpControllerManager::RemoveOperation(ezUuid opGuid)
 
       // broadcast the removal to the UI
       {
-        ezLongOpControllerEvent e;
-        e.m_Type = ezLongOpControllerEvent::Type::OpRemoved;
+        WLongOpControllerEvent e;
+        e.m_Type = WLongOpControllerEvent::Type::OpRemoved;
         e.m_OperationGuid = opGuid;
 
         m_Events.Broadcast(e);
@@ -104,35 +104,35 @@ void ezLongOpControllerManager::RemoveOperation(ezUuid opGuid)
   }
 }
 
-void ezLongOpControllerManager::RegisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType)
+void WLongOpControllerManager::RegisterLongOp(const WUuid& documentGuid, const WUuid& componentGuid, const char* szLongOpType)
 {
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(szLongOpType);
+  const WRTTI* pRtti = WRTTI::FindTypeByName(szLongOpType);
   if (pRtti == nullptr)
   {
-    ezLog::Error("Can't register long op of unknown type '{}'", szLongOpType);
+    WLog::Error("Can't register long op of unknown type '{}'", szLongOpType);
     return;
   }
 
   auto& opInfoPtr = m_ProxyOps.ExpandAndGetRef();
-  opInfoPtr = EZ_DEFAULT_NEW(ProxyOpInfo);
+  opInfoPtr = W_DEFAULT_NEW(ProxyOpInfo);
 
   auto& opInfo = *opInfoPtr;
   opInfo.m_DocumentGuid = documentGuid;
   opInfo.m_ComponentGuid = componentGuid;
-  opInfo.m_OperationGuid = ezUuid::MakeUuid();
+  opInfo.m_OperationGuid = WUuid::MakeUuid();
 
-  opInfo.m_pProxyOp = pRtti->GetAllocator()->Allocate<ezLongOpProxy>();
+  opInfo.m_pProxyOp = pRtti->GetAllocator()->Allocate<WLongOpProxy>();
   opInfo.m_pProxyOp->InitializeRegistered(documentGuid, componentGuid);
 
-  ezLongOpControllerEvent e;
-  e.m_Type = ezLongOpControllerEvent::Type::OpAdded;
+  WLongOpControllerEvent e;
+  e.m_Type = WLongOpControllerEvent::Type::OpAdded;
   e.m_OperationGuid = opInfo.m_OperationGuid;
   m_Events.Broadcast(e);
 }
 
-void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType)
+void WLongOpControllerManager::UnregisterLongOp(const WUuid& documentGuid, const WUuid& componentGuid, const char* szLongOpType)
 {
-  for (ezUInt32 i = 0; i < m_ProxyOps.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ProxyOps.GetCount(); ++i)
   {
     auto& opInfoPtr = m_ProxyOps[i];
 
@@ -145,9 +145,9 @@ void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, con
   }
 }
 
-ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(const ezUuid& opGuid)
+WLongOpControllerManager::ProxyOpInfo* WLongOpControllerManager::GetOperation(const WUuid& opGuid)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto& opInfoPtr : m_ProxyOps)
   {
@@ -158,10 +158,10 @@ ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(
   return nullptr;
 }
 
-void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& documentGuid)
+void WLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const WUuid& documentGuid)
 {
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     for (auto& opInfoPtr : m_ProxyOps)
     {
@@ -177,11 +177,11 @@ void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& d
     m_pCommunicationChannel->ProcessMessages();
 
     {
-      EZ_LOCK(m_Mutex);
+      W_LOCK(m_Mutex);
 
-      for (ezUInt32 i0 = m_ProxyOps.GetCount(); i0 > 0; --i0)
+      for (WUInt32 i0 = m_ProxyOps.GetCount(); i0 > 0; --i0)
       {
-        const ezUInt32 i = i0 - 1;
+        const WUInt32 i = i0 - 1;
 
         auto& op = m_ProxyOps[i];
         if (op->m_DocumentGuid == documentGuid)
@@ -192,8 +192,8 @@ void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& d
             break;
           }
 
-          ezLongOpControllerEvent e;
-          e.m_Type = ezLongOpControllerEvent::Type::OpRemoved;
+          WLongOpControllerEvent e;
+          e.m_Type = WLongOpControllerEvent::Type::OpRemoved;
           e.m_OperationGuid = m_ProxyOps[i]->m_OperationGuid;
 
           m_ProxyOps.RemoveAtAndCopy(i);
@@ -205,23 +205,23 @@ void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& d
 
     if (bOperationsStillActive)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(100));
     }
   }
 }
 
-void ezLongOpControllerManager::ReplicateToWorkerProcess(ProxyOpInfo& opInfo)
+void WLongOpControllerManager::ReplicateToWorkerProcess(ProxyOpInfo& opInfo)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   // send the replication message
   {
-    ezLongOpReplicationMsg msg;
+    WLongOpReplicationMsg msg;
 
-    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_ReplicationData);
-    ezMemoryStreamWriter writer(&storage);
+    WMemoryStreamContainerWrapperStorage<WDataBuffer> storage(&msg.m_ReplicationData);
+    WMemoryStreamWriter writer(&storage);
 
-    ezStringBuilder replType;
+    WStringBuilder replType;
     opInfo.m_pProxyOp->GetReplicationInfo(replType, writer);
 
     msg.m_sReplicationType = replType;
@@ -232,42 +232,42 @@ void ezLongOpControllerManager::ReplicateToWorkerProcess(ProxyOpInfo& opInfo)
   }
 }
 
-void ezLongOpControllerManager::BroadcastProgress(ProxyOpInfo& opInfo)
+void WLongOpControllerManager::BroadcastProgress(ProxyOpInfo& opInfo)
 {
   // as controller, broadcast progress to the UI
-  ezLongOpControllerEvent e;
-  e.m_Type = ezLongOpControllerEvent::Type::OpProgress;
+  WLongOpControllerEvent e;
+  e.m_Type = WLongOpControllerEvent::Type::OpProgress;
   e.m_OperationGuid = opInfo.m_OperationGuid;
   m_Events.Broadcast(e);
 }
 
 
-// void ezLongOpManager::AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid)
+// void WLongOpManager::AddLongOperation(WUniquePtr<WLongOp>&& pOperation, const WUuid& documentGuid)
 //{
-//  EZ_LOCK(m_Mutex);
+//  W_LOCK(m_Mutex);
 //
 //  auto& opInfoPtr = m_Operations.ExpandAndGetRef();
-//  opInfoPtr = EZ_DEFAULT_NEW(LongOpInfo);
+//  opInfoPtr = W_DEFAULT_NEW(LongOpInfo);
 //
 //  auto& opInfo = *opInfoPtr;
 //  opInfo.m_pOperation = std::move(pOperation);
 //  opInfo.m_OperationGuid.CreateNewUuid();
 //  opInfo.m_DocumentGuid = documentGuid;
-//  opInfo.m_StartOrDuration = ezTime::Now();
+//  opInfo.m_StartOrDuration = WTime::Now();
 //  opInfo.m_Progress.m_pUserData = opInfo.m_pOperation.Borrow();
 //  opInfo.m_Progress.m_Events.AddEventHandler(
-//    ezMakeDelegate(&ezLongOpManager::ProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
+//    WMakeDelegate(&WLongOpManager::ProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
 //
-//  ezLongOp* pNewOp = opInfo.m_pOperation.Borrow();
+//  WLongOp* pNewOp = opInfo.m_pOperation.Borrow();
 //
-//  if (m_Mode == Mode::Processor || ezDynamicCast<ezLongOpProxy*>(pNewOp) != nullptr)
+//  if (m_Mode == Mode::Processor || WDynamicCast<WLongOpProxy*>(pNewOp) != nullptr)
 //  {
-//    ezStringBuilder replType;
+//    WStringBuilder replType;
 //
-//    ezLongOpReplicationMsg msg;
+//    WLongOpReplicationMsg msg;
 //
-//    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_ReplicationData);
-//    ezMemoryStreamWriter writer(&storage);
+//    WMemoryStreamContainerWrapperStorage<WDataBuffer> storage(&msg.m_ReplicationData);
+//    WMemoryStreamWriter writer(&storage);
 //
 //    pNewOp->GetReplicationInfo(replType, writer);
 //
@@ -282,8 +282,8 @@ void ezLongOpControllerManager::BroadcastProgress(ProxyOpInfo& opInfo)
 //  LaunchWorkerOperation(opInfo);
 //
 //  {
-//    ezLongOpManagerEvent e;
-//    e.m_Type = ezLongOpManagerEvent::Type::OpAdded;
+//    WLongOpManagerEvent e;
+//    e.m_Type = WLongOpManagerEvent::Type::OpAdded;
 //    e.m_uiOperationIndex = m_Operations.GetCount() - 1;
 //    m_Events.Broadcast(e);
 //  }

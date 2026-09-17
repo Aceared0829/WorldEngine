@@ -8,46 +8,46 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezLUTAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLUTAssetDocumentManager, 1, WRTTIDefaultAllocator<WLUTAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
+WLUTAssetDocumentManager::WLUTAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezLUTAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WLUTAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // LUT asset source files
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("LUT", "cube");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("LUT", "cube");
 
   m_DocTypeDesc.m_sDocumentTypeName = "LUT";
-  m_DocTypeDesc.m_sFileExtension = "ezLUTAsset";
+  m_DocTypeDesc.m_sFileExtension = "WLUTAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.svg";
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLUTAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WLUTAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinLUT";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinLUT";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::None;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_3D");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.svg"));
 
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.svg"));
+  // WQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
-ezLUTAssetDocumentManager::~ezLUTAssetDocumentManager()
+WLUTAssetDocumentManager::~WLUTAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLUTAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WLUTAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WLUTAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezLUTAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WLUTAssetDocument>())
       {
-        new ezQtLUTAssetDocumentWindow(static_cast<ezLUTAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtLUTAssetDocumentWindow(static_cast<WLUTAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -57,14 +57,14 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
   }
 }
 
-void ezLUTAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WLUTAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(sPath);
+  WLUTAssetDocument* pDoc = new WLUTAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 
-void ezLUTAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WLUTAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

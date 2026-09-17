@@ -4,41 +4,41 @@
 
 struct CreatorFuncInfo
 {
-  ezGALDeviceFactory::CreatorFunc m_Func;
-  ezString m_sShaderModel;
-  ezString m_sShaderCompiler;
+  WGALDeviceFactory::CreatorFunc m_Func;
+  WString m_sShaderModel;
+  WString m_sShaderCompiler;
 };
 
-static ezHashTable<ezString, CreatorFuncInfo> s_CreatorFuncs;
+static WHashTable<WString, CreatorFuncInfo> s_CreatorFuncs;
 
-CreatorFuncInfo* GetCreatorFuncInfo(ezStringView sRendererName)
+CreatorFuncInfo* GetCreatorFuncInfo(WStringView sRendererName)
 {
   auto pFuncInfo = s_CreatorFuncs.GetValue(sRendererName);
   if (pFuncInfo == nullptr)
   {
-    ezStringBuilder sPluginName = "ezRenderer";
+    WStringBuilder sPluginName = "WRenderer";
     sPluginName.Append(sRendererName);
 
-    EZ_VERIFY(ezPlugin::LoadPlugin(sPluginName).Succeeded(), "Renderer plugin '{}' not found", sPluginName);
+    W_VERIFY(WPlugin::LoadPlugin(sPluginName).Succeeded(), "Renderer plugin '{}' not found", sPluginName);
 
     pFuncInfo = s_CreatorFuncs.GetValue(sRendererName);
-    EZ_ASSERT_DEV(pFuncInfo != nullptr, "Renderer '{}' is not registered", sRendererName);
+    W_ASSERT_DEV(pFuncInfo != nullptr, "Renderer '{}' is not registered", sRendererName);
   }
 
   return pFuncInfo;
 }
 
-ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(ezStringView sRendererName, ezAllocator* pAllocator, const ezGALDeviceCreationDescription& desc)
+WInternal::NewInstance<WGALDevice> WGALDeviceFactory::CreateDevice(WStringView sRendererName, WAllocator* pAllocator, const WGALDeviceCreationDescription& desc)
 {
   if (auto pFuncInfo = GetCreatorFuncInfo(sRendererName))
   {
     return pFuncInfo->m_Func(pAllocator, desc);
   }
 
-  return ezInternal::NewInstance<ezGALDevice>(nullptr, pAllocator);
+  return WInternal::NewInstance<WGALDevice>(nullptr, pAllocator);
 }
 
-void ezGALDeviceFactory::GetShaderModelAndCompiler(ezStringView sRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler)
+void WGALDeviceFactory::GetShaderModelAndCompiler(WStringView sRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler)
 {
   if (auto pFuncInfo = GetCreatorFuncInfo(sRendererName))
   {
@@ -47,17 +47,17 @@ void ezGALDeviceFactory::GetShaderModelAndCompiler(ezStringView sRendererName, c
   }
 }
 
-void ezGALDeviceFactory::RegisterCreatorFunc(const char* szRendererName, const CreatorFunc& func, const char* szShaderModel, const char* szShaderCompiler)
+void WGALDeviceFactory::RegisterCreatorFunc(const char* szRendererName, const CreatorFunc& func, const char* szShaderModel, const char* szShaderCompiler)
 {
   CreatorFuncInfo funcInfo;
   funcInfo.m_Func = func;
   funcInfo.m_sShaderModel = szShaderModel;
   funcInfo.m_sShaderCompiler = szShaderCompiler;
 
-  EZ_VERIFY(s_CreatorFuncs.Insert(szRendererName, funcInfo) == false, "Creator func already registered");
+  W_VERIFY(s_CreatorFuncs.Insert(szRendererName, funcInfo) == false, "Creator func already registered");
 }
 
-void ezGALDeviceFactory::UnregisterCreatorFunc(const char* szRendererName)
+void WGALDeviceFactory::UnregisterCreatorFunc(const char* szRendererName)
 {
-  EZ_VERIFY(s_CreatorFuncs.Remove(szRendererName), "Creator func not registered");
+  W_VERIFY(s_CreatorFuncs.Remove(szRendererName), "Creator func not registered");
 }

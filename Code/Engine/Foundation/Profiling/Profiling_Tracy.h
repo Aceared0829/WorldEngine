@@ -1,70 +1,70 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/HashedString.h>
 
-#if EZ_ENABLED(EZ_USE_PROFILING) && TRACY_ENABLE && !EZ_DOCS
+#if W_ENABLED(W_USE_PROFILING) && TRACY_ENABLE && !W_DOCS
 
 #  include <tracy/tracy/Tracy.hpp>
 
-EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const char* szString)
+W_ALWAYS_INLINE WUInt32 __tracyEzStringLength(const char* szString)
 {
-  return ezStringUtils::GetStringElementCount(szString);
+  return WStringUtils::GetStringElementCount(szString);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(ezStringView sString)
-{
-  return sString.GetElementCount();
-}
-
-EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezString& sString)
+W_ALWAYS_INLINE WUInt32 __tracyEzStringLength(WStringView sString)
 {
   return sString.GetElementCount();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezStringBuilder& sString)
+W_ALWAYS_INLINE WUInt32 __tracyEzStringLength(const WString& sString)
 {
   return sString.GetElementCount();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezHashedString& sString)
+W_ALWAYS_INLINE WUInt32 __tracyEzStringLength(const WStringBuilder& sString)
+{
+  return sString.GetElementCount();
+}
+
+W_ALWAYS_INLINE WUInt32 __tracyEzStringLength(const WHashedString& sString)
 {
   return sString.GetView().GetElementCount();
 }
 
-EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezString& sString)
+W_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const WString& sString)
 {
   return sString.GetData();
 }
 
-EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezStringBuilder& sString)
+W_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const WStringBuilder& sString)
 {
   return sString.GetData();
 }
 
-EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezHashedString& sString)
+W_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const WHashedString& sString)
 {
   return sString.GetData();
 }
 
-EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezStringView& sString)
+W_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const WStringView& sString)
 {
   // can just return the string views start pointer, because this is used together with __tracyEzStringLength
   return sString.GetStartPointer();
 }
 
-EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const char* szString)
+W_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const char* szString)
 {
   return szString;
 }
 
-constexpr ezUInt32 __tracyCol(ezUInt8 r, ezUInt8 g, ezUInt8 b)
+constexpr WUInt32 __tracyCol(WUInt8 r, WUInt8 g, WUInt8 b)
 {
-  return 0xFF000000 | static_cast<ezUInt32>(r) << 16 | static_cast<ezUInt32>(g) << 8 | static_cast<ezUInt32>(b);
+  return 0xFF000000 | static_cast<WUInt32>(r) << 16 | static_cast<WUInt32>(g) << 8 | static_cast<WUInt32>(b);
 }
 
-constexpr ezUInt32 __tracyEzZoneColor(ezUInt64 uiHash)
+constexpr WUInt32 __tracyEzZoneColor(WUInt64 uiHash)
 {
-  // same a ezColorScheme::s_Colors
-  constexpr ezUInt32 colors[128] = {
+  // same a WColorScheme::s_Colors
+  constexpr WUInt32 colors[128] = {
     __tracyCol(201, 42, 42),
     __tracyCol(224, 49, 49),
     __tracyCol(240, 62, 62),
@@ -196,38 +196,38 @@ constexpr ezUInt32 __tracyEzZoneColor(ezUInt64 uiHash)
   };
   // clang-format on
 
-  return colors[uiHash % EZ_ARRAY_SIZE(colors)];
+  return colors[uiHash % W_ARRAY_SIZE(colors)];
 }
 
-/// Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
-#  define EZ_TRACY_PROFILE_SCOPE(ScopeName)                                            \
+/// Similar to W_PROFILE_SCOPE, but only forwards to Tracy
+#  define W_TRACY_PROFILE_SCOPE(ScopeName)                                            \
     ZoneScoped;                                                                        \
     ZoneName(__tracyEzStringToConstChar(ScopeName), __tracyEzStringLength(ScopeName)); \
-    ZoneColor(__tracyEzZoneColor(ezHashingUtils::StringHash(ScopeName)))
+    ZoneColor(__tracyEzZoneColor(WHashingUtils::StringHash(ScopeName)))
 
-// Override the standard EZ profiling macros and inject Tracy profiling scopes
+// Override the standard W profiling macros and inject Tracy profiling scopes
 
-#  undef EZ_PROFILE_SCOPE
-#  define EZ_PROFILE_SCOPE(ScopeName)                                                                                    \
-    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero()); \
-    EZ_TRACY_PROFILE_SCOPE(ScopeName)
+#  undef W_PROFILE_SCOPE
+#  define W_PROFILE_SCOPE(ScopeName)                                                                                    \
+    WProfilingScope W_PP_CONCAT(_WProfilingScope, W_SOURCE_LINE)(ScopeName, W_SOURCE_FUNCTION, WTime::MakeZero()); \
+    W_TRACY_PROFILE_SCOPE(ScopeName)
 
-#  undef EZ_PROFILE_SCOPE_WITH_TIMEOUT
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)                                                   \
-    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout); \
-    EZ_TRACY_PROFILE_SCOPE(ScopeName);
+#  undef W_PROFILE_SCOPE_WITH_TIMEOUT
+#  define W_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)                                                   \
+    WProfilingScope W_PP_CONCAT(_WProfilingScope, W_SOURCE_LINE)(ScopeName, W_SOURCE_FUNCTION, Timeout); \
+    W_TRACY_PROFILE_SCOPE(ScopeName);
 
-#  undef EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                               \
-    ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION); \
-    EZ_TRACY_PROFILE_SCOPE(ListName);
+#  undef W_PROFILE_LIST_SCOPE
+#  define W_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                               \
+    WProfilingListScope W_PP_CONCAT(_WProfilingScope, W_SOURCE_LINE)(ListName, FirstSectionName, W_SOURCE_FUNCTION); \
+    W_TRACY_PROFILE_SCOPE(ListName);
 
-#  undef EZ_PROFILER_FRAME_MARKER
-#  define EZ_PROFILER_FRAME_MARKER() FrameMark
+#  undef W_PROFILER_FRAME_MARKER
+#  define W_PROFILER_FRAME_MARKER() FrameMark
 
 #else
 
-/// Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
-#  define EZ_TRACY_PROFILE_SCOPE(ScopeName)
+/// Similar to W_PROFILE_SCOPE, but only forwards to Tracy
+#  define W_TRACY_PROFILE_SCOPE(ScopeName)
 
 #endif

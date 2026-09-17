@@ -3,12 +3,12 @@
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-const ezActionDescriptor* ezActionDescriptorHandle::GetDescriptor() const
+const WActionDescriptor* WActionDescriptorHandle::GetDescriptor() const
 {
-  return ezActionManager::GetActionDescriptor(*this);
+  return WActionManager::GetActionDescriptor(*this);
 }
 
-ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
+WActionDescriptor::WActionDescriptor(WActionType::Enum type, WActionScope::Enum scope, const char* szName, const char* szCategoryPath,
   const char* szShortcut, CreateActionFunc createAction, DeleteActionFunc deleteAction)
   : m_Type(type)
   , m_Scope(scope)
@@ -21,9 +21,9 @@ ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::E
 {
 }
 
-ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
+WAction* WActionDescriptor::CreateAction(const WActionContext& context) const
 {
-  EZ_ASSERT_DEV(!m_Handle.IsInvalidated(), "Handle invalid!");
+  W_ASSERT_DEV(!m_Handle.IsInvalidated(), "Handle invalid!");
   auto pAction = m_CreateAction(context);
   pAction->m_hDescriptorHandle = m_Handle;
 
@@ -31,20 +31,20 @@ ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
   return pAction;
 }
 
-void ezActionDescriptor::DeleteAction(ezAction* pAction) const
+void WActionDescriptor::DeleteAction(WAction* pAction) const
 {
   m_CreatedActions.RemoveAndSwap(pAction);
 
   if (m_DeleteAction == nullptr)
   {
-    EZ_DEFAULT_DELETE(pAction);
+    W_DEFAULT_DELETE(pAction);
   }
   else
     m_DeleteAction(pAction);
 }
 
 
-void ezActionDescriptor::UpdateExistingActions()
+void WActionDescriptor::UpdateExistingActions()
 {
   for (auto pAction : m_CreatedActions)
   {
@@ -52,10 +52,10 @@ void ezActionDescriptor::UpdateExistingActions()
   }
 }
 
-void ezAction::TriggerUpdate()
+void WAction::TriggerUpdate()
 {
   m_StatusUpdateEvent.Broadcast(this);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;

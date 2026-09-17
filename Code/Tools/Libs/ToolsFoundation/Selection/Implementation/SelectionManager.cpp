@@ -4,24 +4,24 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 
-ezSelectionManager::ezSelectionManager(const ezDocumentObjectManager* pObjectManager)
+WSelectionManager::WSelectionManager(const WDocumentObjectManager* pObjectManager)
 {
-  auto pStorage = EZ_DEFAULT_NEW(Storage);
+  auto pStorage = W_DEFAULT_NEW(Storage);
   pStorage->m_pObjectManager = pObjectManager;
   SwapStorage(pStorage);
 }
 
-ezSelectionManager::~ezSelectionManager()
+WSelectionManager::~WSelectionManager()
 {
   m_ObjectStructureUnsubscriber.Unsubscribe();
   m_EventsUnsubscriber.Unsubscribe();
 }
 
-void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
+void WSelectionManager::TreeEventHandler(const WDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
       RemoveObject(e.m_pObject, true);
       break;
     default:
@@ -29,7 +29,7 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& 
   }
 }
 
-bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pObject)
+bool WSelectionManager::RecursiveRemoveFromSelection(const WDocumentObject* pObject)
 {
   auto it = m_pSelectionStorage->m_SelectionSet.Find(pObject->GetGuid());
 
@@ -41,38 +41,38 @@ bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pO
     bRemoved = true;
   }
 
-  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  for (const WDocumentObject* pChild : pObject->GetChildren())
   {
     bRemoved = bRemoved || RecursiveRemoveFromSelection(pChild);
   }
   return bRemoved;
 }
 
-void ezSelectionManager::Clear()
+void WSelectionManager::Clear()
 {
   if (!m_pSelectionStorage->m_SelectionList.IsEmpty() || !m_pSelectionStorage->m_SelectionSet.IsEmpty())
   {
     m_pSelectionStorage->m_SelectionList.Clear();
     m_pSelectionStorage->m_SelectionSet.Clear();
 
-    ezSelectionManagerEvent e;
+    WSelectionManagerEvent e;
     e.m_pDocument = GetDocument();
     e.m_pObject = nullptr;
-    e.m_Type = ezSelectionManagerEvent::Type::SelectionCleared;
+    e.m_Type = WSelectionManagerEvent::Type::SelectionCleared;
 
     m_pSelectionStorage->m_Events.Broadcast(e);
   }
 }
 
-void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
+void WSelectionManager::AddObject(const WDocumentObject* pObject)
 {
-  EZ_ASSERT_DEBUG(pObject, "Object must be valid");
+  W_ASSERT_DEBUG(pObject, "Object must be valid");
 
   if (IsSelected(pObject))
     return;
 
-  EZ_ASSERT_DEV(pObject->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
-  ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(pObject);
+  W_ASSERT_DEV(pObject->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
+  WStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(pObject);
   if (res.LogFailure())
   {
     return;
@@ -81,15 +81,15 @@ void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
   m_pSelectionStorage->m_SelectionList.PushBack(pObject);
   m_pSelectionStorage->m_SelectionSet.Insert(pObject->GetGuid());
 
-  ezSelectionManagerEvent e;
+  WSelectionManagerEvent e;
   e.m_pDocument = GetDocument();
   e.m_pObject = pObject;
-  e.m_Type = ezSelectionManagerEvent::Type::ObjectAdded;
+  e.m_Type = WSelectionManagerEvent::Type::ObjectAdded;
 
   m_pSelectionStorage->m_Events.Broadcast(e);
 }
 
-void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRecurseChildren)
+void WSelectionManager::RemoveObject(const WDocumentObject* pObject, bool bRecurseChildren)
 {
   if (bRecurseChildren)
   {
@@ -97,10 +97,10 @@ void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRec
     // SelectionSet instead of multiple ObjectRemoved messages.
     if (RecursiveRemoveFromSelection(pObject))
     {
-      ezSelectionManagerEvent e;
+      WSelectionManagerEvent e;
       e.m_pDocument = GetDocument();
       e.m_pObject = nullptr;
-      e.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
+      e.m_Type = WSelectionManagerEvent::Type::SelectionSet;
       m_pSelectionStorage->m_Events.Broadcast(e);
     }
   }
@@ -114,23 +114,23 @@ void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRec
     m_pSelectionStorage->m_SelectionSet.Remove(it);
     m_pSelectionStorage->m_SelectionList.RemoveAndCopy(pObject);
 
-    ezSelectionManagerEvent e;
+    WSelectionManagerEvent e;
     e.m_pDocument = GetDocument();
     e.m_pObject = pObject;
-    e.m_Type = ezSelectionManagerEvent::Type::ObjectRemoved;
+    e.m_Type = WSelectionManagerEvent::Type::ObjectRemoved;
 
     m_pSelectionStorage->m_Events.Broadcast(e);
   }
 }
 
-void ezSelectionManager::SetSelection(const ezDocumentObject* pSingleObject)
+void WSelectionManager::SetSelection(const WDocumentObject* pSingleObject)
 {
-  ezDeque<const ezDocumentObject*> objs;
+  WDeque<const WDocumentObject*> objs;
   objs.PushBack(pSingleObject);
   SetSelection(objs);
 }
 
-void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
+void WSelectionManager::SetSelection(const WDeque<const WDocumentObject*>& selection)
 {
   if (selection.IsEmpty())
   {
@@ -146,13 +146,13 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
 
   m_pSelectionStorage->m_SelectionList.Reserve(selection.GetCount());
 
-  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+  for (WUInt32 i = 0; i < selection.GetCount(); ++i)
   {
     // actually == nullptr should never happen, unless we have an error somewhere else
     if (selection[i] != nullptr)
     {
-      EZ_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
-      ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(selection[i]);
+      W_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
+      WStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(selection[i]);
       if (res.LogFailure())
       {
         continue;
@@ -168,22 +168,22 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
 
   {
     // Sync selection model.
-    ezSelectionManagerEvent e;
+    WSelectionManagerEvent e;
     e.m_pDocument = GetDocument();
     e.m_pObject = nullptr;
-    e.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
+    e.m_Type = WSelectionManagerEvent::Type::SelectionSet;
     m_pSelectionStorage->m_Events.Broadcast(e);
   }
 }
 
-void ezSelectionManager::RefreshSelection()
+void WSelectionManager::RefreshSelection()
 {
-  ezDeque<const ezDocumentObject*> selection = m_pSelectionStorage->m_SelectionList;
+  WDeque<const WDocumentObject*> selection = m_pSelectionStorage->m_SelectionList;
   Clear();
   SetSelection(selection);
 }
 
-void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
+void WSelectionManager::ToggleObject(const WDocumentObject* pObject)
 {
   if (IsSelected(pObject))
     RemoveObject(pObject);
@@ -191,7 +191,7 @@ void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
     AddObject(pObject);
 }
 
-void ezSelectionManager::SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection)
+void WSelectionManager::SetRuntimeOverrideSelection(const WDeque<const WDocumentObject*>& selection)
 {
   if (m_RuntimeOverrideSelection == selection)
     return;
@@ -199,7 +199,7 @@ void ezSelectionManager::SetRuntimeOverrideSelection(const ezDeque<const ezDocum
   m_RuntimeOverrideSelection.Clear();
   m_RuntimeOverrideSelection.Reserve(selection.GetCount());
 
-  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+  for (WUInt32 i = 0; i < selection.GetCount(); ++i)
   {
     // actually == nullptr should never happen, unless we have an error somewhere else
     if (selection[i] != nullptr)
@@ -212,27 +212,27 @@ void ezSelectionManager::SetRuntimeOverrideSelection(const ezDeque<const ezDocum
   }
 
   {
-    ezSelectionManagerEvent e;
+    WSelectionManagerEvent e;
     e.m_pDocument = GetDocument();
     e.m_pObject = nullptr;
-    e.m_Type = ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection;
+    e.m_Type = WSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection;
     m_pSelectionStorage->m_Events.Broadcast(e);
   }
 }
 
-const ezDocumentObject* ezSelectionManager::GetCurrentObject() const
+const WDocumentObject* WSelectionManager::GetCurrentObject() const
 {
   return m_pSelectionStorage->m_SelectionList.IsEmpty() ? nullptr : m_pSelectionStorage->m_SelectionList.PeekBack();
 }
 
-bool ezSelectionManager::IsSelected(const ezDocumentObject* pObject) const
+bool WSelectionManager::IsSelected(const WDocumentObject* pObject) const
 {
   return m_pSelectionStorage->m_SelectionSet.Find(pObject->GetGuid()).IsValid();
 }
 
-bool ezSelectionManager::IsParentSelected(const ezDocumentObject* pObject) const
+bool WSelectionManager::IsParentSelected(const WDocumentObject* pObject) const
 {
-  const ezDocumentObject* pParent = pObject->GetParent();
+  const WDocumentObject* pParent = pObject->GetParent();
 
   while (pParent != nullptr)
   {
@@ -245,14 +245,14 @@ bool ezSelectionManager::IsParentSelected(const ezDocumentObject* pObject) const
   return false;
 }
 
-const ezDocument* ezSelectionManager::GetDocument() const
+const WDocument* WSelectionManager::GetDocument() const
 {
   return m_pSelectionStorage->m_pObjectManager->GetDocument();
 }
 
-ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezSharedPtr<ezSelectionManager::Storage> pNewStorage)
+WSharedPtr<WSelectionManager::Storage> WSelectionManager::SwapStorage(WSharedPtr<WSelectionManager::Storage> pNewStorage)
 {
-  EZ_ASSERT_ALWAYS(pNewStorage != nullptr, "Need a valid history storage object");
+  W_ASSERT_ALWAYS(pNewStorage != nullptr, "Need a valid history storage object");
 
   auto retVal = m_pSelectionStorage;
 
@@ -261,23 +261,23 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
 
   m_pSelectionStorage = pNewStorage;
 
-  m_pSelectionStorage->m_pObjectManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this), m_ObjectStructureUnsubscriber);
-  m_pSelectionStorage->m_Events.AddEventHandler([this](const ezSelectionManagerEvent& e)
+  m_pSelectionStorage->m_pObjectManager->m_StructureEvents.AddEventHandler(WMakeDelegate(&WSelectionManager::TreeEventHandler, this), m_ObjectStructureUnsubscriber);
+  m_pSelectionStorage->m_Events.AddEventHandler([this](const WSelectionManagerEvent& e)
     { m_Events.Broadcast(e); },
     m_EventsUnsubscriber);
 
   return retVal;
 }
 
-struct ezObjectHierarchyComparor
+struct WObjectHierarchyComparor
 {
-  using Tree = ezHybridArray<const ezDocumentObject*, 4>;
+  using Tree = WHybridArray<const WDocumentObject*, 4>;
 
-  ezObjectHierarchyComparor(ezArrayPtr<ezSelectionEntry> items)
+  WObjectHierarchyComparor(WArrayPtr<WSelectionEntry> items)
   {
-    for (const ezSelectionEntry& e : items)
+    for (const WSelectionEntry& e : items)
     {
-      const ezDocumentObject* pObject = e.m_pObject;
+      const WDocumentObject* pObject = e.m_pObject;
 
       Tree& tree = lookup[pObject];
       while (pObject)
@@ -289,37 +289,37 @@ struct ezObjectHierarchyComparor
     }
   }
 
-  EZ_ALWAYS_INLINE bool Less(const ezSelectionEntry& lhs, const ezSelectionEntry& rhs) const
+  W_ALWAYS_INLINE bool Less(const WSelectionEntry& lhs, const WSelectionEntry& rhs) const
   {
     const Tree& A = *lookup.GetValue(lhs.m_pObject);
     const Tree& B = *lookup.GetValue(rhs.m_pObject);
 
-    const ezUInt32 minSize = ezMath::Min(A.GetCount(), B.GetCount());
-    for (ezUInt32 i = 0; i < minSize; i++)
+    const WUInt32 minSize = WMath::Min(A.GetCount(), B.GetCount());
+    for (WUInt32 i = 0; i < minSize; i++)
     {
       // The first element in the loop should always be the root so there is not risk that there is no common parent.
       if (A[i] != B[i])
       {
         // These elements are the first different ones so they share the same parent.
         // We just assume that the hierarchy is integer-based for now.
-        return A[i]->GetPropertyIndex().ConvertTo<ezUInt32>() < B[i]->GetPropertyIndex().ConvertTo<ezUInt32>();
+        return A[i]->GetPropertyIndex().ConvertTo<WUInt32>() < B[i]->GetPropertyIndex().ConvertTo<WUInt32>();
       }
     }
 
     return A.GetCount() < B.GetCount();
   }
 
-  EZ_ALWAYS_INLINE bool Equal(const ezSelectionEntry& lhs, const ezSelectionEntry& rhs) const { return lhs.m_pObject == rhs.m_pObject; }
+  W_ALWAYS_INLINE bool Equal(const WSelectionEntry& lhs, const WSelectionEntry& rhs) const { return lhs.m_pObject == rhs.m_pObject; }
 
-  ezMap<const ezDocumentObject*, Tree> lookup;
+  WMap<const WDocumentObject*, Tree> lookup;
 };
 
-void ezSelectionManager::GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const
+void WSelectionManager::GetTopLevelSelection(WDynamicArray<WSelectionEntry>& out_entries) const
 {
   out_entries.Clear();
   out_entries.Reserve(m_pSelectionStorage->m_SelectionList.GetCount());
 
-  ezUInt32 order = 0;
+  WUInt32 order = 0;
 
   for (const auto* pObj : m_pSelectionStorage->m_SelectionList)
   {
@@ -331,16 +331,16 @@ void ezSelectionManager::GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& 
     }
   }
 
-  ezObjectHierarchyComparor c(out_entries);
+  WObjectHierarchyComparor c(out_entries);
   out_entries.Sort(c);
 }
 
-void ezSelectionManager::GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const
+void WSelectionManager::GetTopLevelSelectionOfType(const WRTTI* pBase, WDynamicArray<WSelectionEntry>& out_entries) const
 {
   out_entries.Clear();
   out_entries.Reserve(m_pSelectionStorage->m_SelectionList.GetCount());
 
-  ezUInt32 order = 0;
+  WUInt32 order = 0;
 
   for (const auto* pObj : m_pSelectionStorage->m_SelectionList)
   {
@@ -355,6 +355,6 @@ void ezSelectionManager::GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynam
     }
   }
 
-  ezObjectHierarchyComparor c(out_entries);
+  WObjectHierarchyComparor c(out_entries);
   out_entries.Sort(c);
 }

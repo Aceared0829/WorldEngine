@@ -6,51 +6,51 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLineToComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
     // BEGIN-DOCS-CODE-SNIPPET: object-reference-property
-    EZ_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    W_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid)->AddAttributes(new WGameObjectReferenceAttribute()),
     // END-DOCS-CODE-SNIPPET
-    EZ_MEMBER_PROPERTY("Color", m_LineColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
+    W_MEMBER_PROPERTY("Color", m_LineColor)->AddAttributes(new WDefaultValueAttribute(WColor::Orange)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities/Debug"),
+    new WCategoryAttribute("Utilities/Debug"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLineToComponent::ezLineToComponent() = default;
-ezLineToComponent::~ezLineToComponent() = default;
+WLineToComponent::WLineToComponent() = default;
+WLineToComponent::~WLineToComponent() = default;
 
-void ezLineToComponent::Update()
+void WLineToComponent::Update()
 {
   if (m_hTargetObject.IsInvalidated())
     return;
 
-  ezGameObject* pTarget = nullptr;
+  WGameObject* pTarget = nullptr;
   if (!GetWorld()->TryGetObject(m_hTargetObject, pTarget))
   {
     m_hTargetObject.Invalidate();
     return;
   }
 
-  ezTempHybridArray<ezDebugRendererLine, 1> lines;
+  WTempHybridArray<WDebugRendererLine, 1> lines;
 
   auto& line = lines.ExpandAndGetRef();
   line.m_start = GetOwner()->GetGlobalPosition();
   line.m_end = pTarget->GetGlobalPosition();
 
-  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker());
-  ezDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor);
+  WDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker());
+  WDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor);
 }
 
-void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLineToComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -59,10 +59,10 @@ void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_LineColor;
 }
 
-void ezLineToComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLineToComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -70,13 +70,13 @@ void ezLineToComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_LineColor;
 }
 
-void ezLineToComponent::SetLineToTarget(const ezGameObjectHandle& hTargetObject)
+void WLineToComponent::SetLineToTarget(const WGameObjectHandle& hTargetObject)
 {
   m_hTargetObject = hTargetObject;
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: object-reference-funcs
-void ezLineToComponent::SetLineToTargetGuid(const char* szTargetGuid)
+void WLineToComponent::SetLineToTargetGuid(const char* szTargetGuid)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -87,7 +87,7 @@ void ezLineToComponent::SetLineToTargetGuid(const char* szTargetGuid)
   }
 }
 
-const char* ezLineToComponent::GetLineToTargetGuid() const
+const char* WLineToComponent::GetLineToTargetGuid() const
 {
   // this function is never called
   return nullptr;
@@ -95,4 +95,4 @@ const char* ezLineToComponent::GetLineToTargetGuid() const
 // END-DOCS-CODE-SNIPPET
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Debugging_Implementation_LineToComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Debugging_Implementation_LineToComponent);

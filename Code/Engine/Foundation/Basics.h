@@ -1,11 +1,11 @@
 #pragma once
 
-#define EZ_INCLUDING_BASICS_H
+#define W_INCLUDING_BASICS_H
 
 // Very basic Preprocessor defines
 #include <Foundation/Basics/PreprocessorUtils.h>
 
-// Set all feature #defines to EZ_OFF
+// Set all feature #defines to W_OFF
 #include <Foundation/Basics/AllDefinesOff.h>
 
 // General detection of the OS and hardware
@@ -18,17 +18,17 @@
 #include <Foundation/UserConfig.h>
 
 // Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#    define EZ_FOUNDATION_DLL EZ_DECL_EXPORT
-#    define EZ_FOUNDATION_DLL_FRIEND EZ_DECL_EXPORT_FRIEND
+#    define W_FOUNDATION_DLL W_DECL_EXPORT
+#    define W_FOUNDATION_DLL_FRIEND W_DECL_EXPORT_FRIEND
 #  else
-#    define EZ_FOUNDATION_DLL EZ_DECL_IMPORT
-#    define EZ_FOUNDATION_DLL_FRIEND EZ_DECL_IMPORT_FRIEND
+#    define W_FOUNDATION_DLL W_DECL_IMPORT
+#    define W_FOUNDATION_DLL_FRIEND W_DECL_IMPORT_FRIEND
 #  endif
 #else
-#  define EZ_FOUNDATION_DLL
-#  define EZ_FOUNDATION_DLL_FRIEND
+#  define W_FOUNDATION_DLL
+#  define W_FOUNDATION_DLL_FRIEND
 #endif
 
 #include <Foundation/FoundationInternal.h>
@@ -57,11 +57,11 @@
 #include <Foundation/Strings/FormatString.h>
 
 
-class EZ_FOUNDATION_DLL ezFoundation
+class W_FOUNDATION_DLL WFoundation
 {
 public:
   /// The default allocator can be used for any kind of allocation if no alignment is required
-  EZ_ALWAYS_INLINE static ezAllocator* GetDefaultAllocator()
+  W_ALWAYS_INLINE static WAllocator* GetDefaultAllocator()
   {
     if (s_bIsInitialized)
       return s_pDefaultAllocator;
@@ -70,26 +70,26 @@ public:
   }
 
   /// The aligned allocator should be used for all allocations which need alignment
-  EZ_ALWAYS_INLINE static ezAllocator* GetAlignedAllocator()
+  W_ALWAYS_INLINE static WAllocator* GetAlignedAllocator()
   {
-    EZ_ASSERT_ALWAYS(s_pAlignedAllocator != nullptr,
-      "ezFoundation must have been initialized before this function can be called."
+    W_ASSERT_ALWAYS(s_pAlignedAllocator != nullptr,
+      "WFoundation must have been initialized before this function can be called."
       "This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator."
-      "Check out the documentation for 'ezStaticsAllocatorWrapper' for more information about this issue.");
+      "Check out the documentation for 'WStaticsAllocatorWrapper' for more information about this issue.");
     return s_pAlignedAllocator;
   }
 
   /// Returns the allocator that is used by global data and static members before the default allocator is created.
-  static ezAllocator* GetStaticsAllocator();
+  static WAllocator* GetStaticsAllocator();
 
 private:
-  friend class ezStartup;
-  friend struct ezStaticsAllocatorWrapper;
+  friend class WStartup;
+  friend struct WStaticsAllocatorWrapper;
 
   static void Initialize();
   static bool s_bIsInitialized;
-  static ezAllocator* s_pDefaultAllocator;
-  static ezAllocator* s_pAlignedAllocator;
+  static WAllocator* s_pDefaultAllocator;
+  static WAllocator* s_pAlignedAllocator;
 };
 
-#undef EZ_INCLUDING_BASICS_H
+#undef W_INCLUDING_BASICS_H

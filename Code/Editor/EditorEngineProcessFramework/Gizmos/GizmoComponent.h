@@ -3,50 +3,50 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderData : public ezMeshRenderData
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGizmoRenderData : public WMeshRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoRenderData, ezMeshRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WGizmoRenderData, WMeshRenderData);
 
 public:
-  ezTransform m_GlobalTransform;
-  ezColor m_GizmoColor;
-  ezUInt32 m_uiUniqueID;
+  WTransform m_GlobalTransform;
+  WColor m_GizmoColor;
+  WUInt32 m_uiUniqueID;
   bool m_bIsPickable;
 };
 
-class ezGizmoComponent;
-class ezGizmoComponentManager : public ezComponentManager<ezGizmoComponent, ezBlockStorageType::FreeList>
+class WGizmoComponent;
+class WGizmoComponentManager : public WComponentManager<WGizmoComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezGizmoComponentManager(ezWorld* pWorld);
+  WGizmoComponentManager(WWorld* pWorld);
 
-  ezUInt32 m_uiHighlightID = 0;
+  WUInt32 m_uiHighlightID = 0;
 };
 
 /// Used by the editor to render gizmo meshes.
 ///
 /// Gizmos use special shaders to have constant screen-space size and swap geometry towards the viewer,
 /// so their culling is non-trivial. This component takes care of that and of the highlight color.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshComponent
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGizmoComponent : public WMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezGizmoComponent, ezMeshComponent, ezGizmoComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WGizmoComponent, WMeshComponent, WGizmoComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMeshComponentBase
+  // WMeshComponentBase
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const override;
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  virtual WMeshRenderData* CreateRenderData(const WRenderDataManager* pRenderDataManager) const override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg) override;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGizmoComponent
+  // WGizmoComponent
 
 public:
-  ezGizmoComponent();
-  ~ezGizmoComponent();
+  WGizmoComponent();
+  ~WGizmoComponent();
 
-  ezColor m_GizmoColor = ezColor::White;
+  WColor m_GizmoColor = WColor::White;
   bool m_bIsPickable = true;
-  ezDynamicArray<ezVec3> m_Lines;
+  WDynamicArray<WVec3> m_Lines;
 };

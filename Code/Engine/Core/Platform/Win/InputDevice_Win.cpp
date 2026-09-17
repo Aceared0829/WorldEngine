@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Core/Input/InputManager.h>
 #  include <Core/Platform/Win/InputDevice_Platform.h>
@@ -11,15 +11,15 @@
 #  include <Foundation/Threading/ThreadUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard_Win, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDeviceMouseKeyboard_Win, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 #  define WM_USER_UPDATE_CURSOR (WM_USER + 1)
 
-ezInputDeviceMouseKeyboard_Win* ezInputDeviceMouseKeyboard_Win::s_pGlobalInputHandler = nullptr;
+WInputDeviceMouseKeyboard_Win* WInputDeviceMouseKeyboard_Win::s_pGlobalInputHandler = nullptr;
 
-ezInputDeviceMouseKeyboard_Win::ezInputDeviceMouseKeyboard_Win(ezMinWindows::HWND hWnd)
+WInputDeviceMouseKeyboard_Win::WInputDeviceMouseKeyboard_Win(WMinWindows::HWND hWnd)
 {
   m_hWnd = hWnd;
 
@@ -29,10 +29,10 @@ ezInputDeviceMouseKeyboard_Win::ezInputDeviceMouseKeyboard_Win(ezMinWindows::HWN
     s_pGlobalInputHandler = this;
   }
 
-  m_DoubleClickTime = ezTime::MakeFromMilliseconds(GetDoubleClickTime());
+  m_DoubleClickTime = WTime::MakeFromMilliseconds(GetDoubleClickTime());
 }
 
-ezInputDeviceMouseKeyboard_Win::~ezInputDeviceMouseKeyboard_Win()
+WInputDeviceMouseKeyboard_Win::~WInputDeviceMouseKeyboard_Win()
 {
   if (!m_bShowMouseCursorEffective)
   {
@@ -42,11 +42,11 @@ ezInputDeviceMouseKeyboard_Win::~ezInputDeviceMouseKeyboard_Win()
   if (s_pGlobalInputHandler == this)
   {
     s_pGlobalInputHandler = nullptr;
-    ezLog::Dev("Global mouse/keyboard input handler destroyed.");
+    WLog::Dev("Global mouse/keyboard input handler destroyed.");
   }
 }
 
-void ezInputDeviceMouseKeyboard_Win::RegisterRawInput()
+void WInputDeviceMouseKeyboard_Win::RegisterRawInput()
 {
   RAWINPUTDEVICE Rid[2];
 
@@ -64,15 +64,15 @@ void ezInputDeviceMouseKeyboard_Win::RegisterRawInput()
 
   if (RegisterRawInputDevices(&Rid[0], (UINT)2, sizeof(RAWINPUTDEVICE)) == FALSE)
   {
-    ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
+    WLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
   }
   else
   {
-    ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
+    WLog::Success("Initialized RawInput for Mouse and Keyboard input.");
   }
 }
 
-void ezInputDeviceMouseKeyboard_Win::InitializeDevice()
+void WInputDeviceMouseKeyboard_Win::InitializeDevice()
 {
   if (s_pGlobalInputHandler == this)
   {
@@ -80,11 +80,11 @@ void ezInputDeviceMouseKeyboard_Win::InitializeDevice()
   }
   else
   {
-    ezLog::Dev("Window doesn't handle global mouse/keyboard input.");
+    WLog::Dev("Window doesn't handle global mouse/keyboard input.");
   }
 }
 
-void ezInputDeviceMouseKeyboard_Win::SetDisableOSHotkeys(bool bDisable)
+void WInputDeviceMouseKeyboard_Win::SetDisableOSHotkeys(bool bDisable)
 {
   if (m_bDisableOSHotkeys != bDisable)
   {
@@ -97,215 +97,215 @@ void ezInputDeviceMouseKeyboard_Win::SetDisableOSHotkeys(bool bDisable)
   }
 }
 
-void ezInputDeviceMouseKeyboard_Win::RegisterInputSlots()
+void WInputDeviceMouseKeyboard_Win::RegisterInputSlots()
 {
-  RegisterInputSlot(ezInputSlot_KeyLeft, "Left", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyRight, "Right", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyUp, "Up", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyDown, "Down", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyLeft, "Left", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyRight, "Right", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyUp, "Up", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyDown, "Down", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyEscape, "Escape", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeySpace, "Space", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyBackspace, "Backspace", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyReturn, "Return", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyTab, "Tab", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyEscape, "Escape", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeySpace, "Space", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyBackspace, "Backspace", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyReturn, "Return", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyTab, "Tab", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyLeftShift, "Left Shift", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyRightShift, "Right Shift", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyLeftShift, "Left Shift", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyRightShift, "Right Shift", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyLeftCtrl, "Left Ctrl", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyRightCtrl, "Right Ctrl", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyLeftCtrl, "Left Ctrl", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyRightCtrl, "Right Ctrl", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyLeftAlt, "Left Alt", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyRightAlt, "Right Alt", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyLeftAlt, "Left Alt", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyRightAlt, "Right Alt", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyLeftWin, "Left Win", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyRightWin, "Right Win", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyLeftWin, "Left Win", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyRightWin, "Right Win", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyBracketOpen, "[", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyBracketClose, "]", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyBracketOpen, "[", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyBracketClose, "]", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeySemicolon, ";", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyApostrophe, "'", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeySlash, "/", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyEquals, "=", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyTilde, "~", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyHyphen, "-", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyComma, ",", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPeriod, ".", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyBackslash, "\\", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPipe, "|", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeySemicolon, ";", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyApostrophe, "'", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeySlash, "/", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyEquals, "=", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyTilde, "~", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyHyphen, "-", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyComma, ",", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPeriod, ".", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyBackslash, "\\", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPipe, "|", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_Key1, "1", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key2, "2", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key3, "3", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key4, "4", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key5, "5", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key6, "6", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key7, "7", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key8, "8", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key9, "9", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_Key0, "0", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key1, "1", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key2, "2", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key3, "3", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key4, "4", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key5, "5", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key6, "6", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key7, "7", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key8, "8", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key9, "9", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_Key0, "0", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyNumpad1, "Numpad 1", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad2, "Numpad 2", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad3, "Numpad 3", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad4, "Numpad 4", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad5, "Numpad 5", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad6, "Numpad 6", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad7, "Numpad 7", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad8, "Numpad 8", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad9, "Numpad 9", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpad0, "Numpad 0", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad1, "Numpad 1", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad2, "Numpad 2", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad3, "Numpad 3", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad4, "Numpad 4", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad5, "Numpad 5", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad6, "Numpad 6", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad7, "Numpad 7", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad8, "Numpad 8", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad9, "Numpad 9", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpad0, "Numpad 0", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyA, "A", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyB, "B", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyC, "C", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyD, "D", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyE, "E", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF, "F", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyG, "G", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyH, "H", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyI, "I", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyJ, "J", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyK, "K", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyL, "L", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyM, "M", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyN, "N", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyO, "O", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyP, "P", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyQ, "Q", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyR, "R", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyS, "S", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyT, "T", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyU, "U", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyV, "V", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyW, "W", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyX, "X", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyY, "Y", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyZ, "Z", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyA, "A", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyB, "B", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyC, "C", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyD, "D", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyE, "E", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF, "F", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyG, "G", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyH, "H", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyI, "I", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyJ, "J", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyK, "K", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyL, "L", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyM, "M", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyN, "N", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyO, "O", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyP, "P", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyQ, "Q", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyR, "R", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyS, "S", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyT, "T", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyU, "U", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyV, "V", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyW, "W", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyX, "X", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyY, "Y", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyZ, "Z", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyF1, "F1", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF2, "F2", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF3, "F3", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF4, "F4", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF5, "F5", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF6, "F6", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF7, "F7", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF8, "F8", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF9, "F9", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF10, "F10", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF11, "F11", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyF12, "F12", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF1, "F1", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF2, "F2", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF3, "F3", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF4, "F4", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF5, "F5", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF6, "F6", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF7, "F7", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF8, "F8", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF9, "F9", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF10, "F10", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF11, "F11", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyF12, "F12", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyHome, "Home", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyEnd, "End", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyDelete, "Delete", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyInsert, "Insert", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPageUp, "Page Up", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPageDown, "Page Down", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyHome, "Home", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyEnd, "End", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyDelete, "Delete", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyInsert, "Insert", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPageUp, "Page Up", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPageDown, "Page Down", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyNumLock, "Numlock", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadPlus, "Numpad +", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadMinus, "Numpad -", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadStar, "Numpad *", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadSlash, "Numpad /", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadPeriod, "Numpad .", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNumpadEnter, "Enter", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumLock, "Numlock", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadPlus, "Numpad +", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadMinus, "Numpad -", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadStar, "Numpad *", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadSlash, "Numpad /", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadPeriod, "Numpad .", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNumpadEnter, "Enter", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyCapsLock, "Capslock", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPrint, "Print", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyScroll, "Scroll", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPause, "Pause", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyApps, "Application", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyCapsLock, "Capslock", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPrint, "Print", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyScroll, "Scroll", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPause, "Pause", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyApps, "Application", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_KeyPrevTrack, "Previous Track", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyNextTrack, "Next Track", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyPlayPause, "Play / Pause", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyStop, "Stop", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyVolumeUp, "Volume Up", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyVolumeDown, "Volume Down", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_KeyMute, "Mute", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPrevTrack, "Previous Track", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyNextTrack, "Next Track", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyPlayPause, "Play / Pause", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyStop, "Stop", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyVolumeUp, "Volume Up", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyVolumeDown, "Volume Down", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_KeyMute, "Mute", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_MouseWheelUp, "Mousewheel Up", ezInputSlotFlags::IsMouseWheel);
-  RegisterInputSlot(ezInputSlot_MouseWheelDown, "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
+  RegisterInputSlot(WInputSlot_MouseWheelUp, "Mousewheel Up", WInputSlotFlags::IsMouseWheel);
+  RegisterInputSlot(WInputSlot_MouseWheelDown, "Mousewheel Down", WInputSlotFlags::IsMouseWheel);
 
-  RegisterInputSlot(ezInputSlot_MouseMoveNegX, "Mouse Move Left", ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosX, "Mouse Move Right", ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMoveNegY, "Mouse Move Down", ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosY, "Mouse Move Up", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(WInputSlot_MouseMoveNegX, "Mouse Move Left", WInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(WInputSlot_MouseMovePosX, "Mouse Move Right", WInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(WInputSlot_MouseMoveNegY, "Mouse Move Down", WInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(WInputSlot_MouseMovePosY, "Mouse Move Up", WInputSlotFlags::IsMouseAxisMove);
 
-  RegisterInputSlot(ezInputSlot_MouseButton0, "Mousebutton 0", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_MouseButton1, "Mousebutton 1", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_MouseButton2, "Mousebutton 2", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_MouseButton3, "Mousebutton 3", ezInputSlotFlags::IsButton);
-  RegisterInputSlot(ezInputSlot_MouseButton4, "Mousebutton 4", ezInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_MouseButton0, "Mousebutton 0", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_MouseButton1, "Mousebutton 1", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_MouseButton2, "Mousebutton 2", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_MouseButton3, "Mousebutton 3", WInputSlotFlags::IsButton);
+  RegisterInputSlot(WInputSlot_MouseButton4, "Mousebutton 4", WInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
-  RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
-  RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(WInputSlot_MouseDblClick0, "Left Double Click", WInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(WInputSlot_MouseDblClick1, "Right Double Click", WInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(WInputSlot_MouseDblClick2, "Middle Double Click", WInputSlotFlags::IsDoubleClick);
 
-  RegisterInputSlot(ezInputSlot_MousePositionX, "Mouse Position X", ezInputSlotFlags::IsMouseAxisPosition);
-  RegisterInputSlot(ezInputSlot_MousePositionY, "Mouse Position Y", ezInputSlotFlags::IsMouseAxisPosition);
+  RegisterInputSlot(WInputSlot_MousePositionX, "Mouse Position X", WInputSlotFlags::IsMouseAxisPosition);
+  RegisterInputSlot(WInputSlot_MousePositionY, "Mouse Position Y", WInputSlotFlags::IsMouseAxisPosition);
 
 
-  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 0", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 0 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 0 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint0, "Touchpoint 0", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint0_PositionX, "Touchpoint 0 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint0_PositionY, "Touchpoint 0 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint1, "Touchpoint 1", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint1_PositionX, "Touchpoint 1 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint1_PositionY, "Touchpoint 1 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint2, "Touchpoint 2", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint2_PositionX, "Touchpoint 2 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint2_PositionY, "Touchpoint 2 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint3, "Touchpoint 3", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint3_PositionX, "Touchpoint 3 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint3_PositionY, "Touchpoint 3 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint4, "Touchpoint 4", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint4_PositionX, "Touchpoint 4 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint4_PositionY, "Touchpoint 4 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint5, "Touchpoint 5", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint5_PositionX, "Touchpoint 5 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint5_PositionY, "Touchpoint 5 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint6, "Touchpoint 6", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint6_PositionX, "Touchpoint 6 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint6_PositionY, "Touchpoint 6 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint7, "Touchpoint 7", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint7_PositionX, "Touchpoint 7 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint7_PositionY, "Touchpoint 7 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint8, "Touchpoint 8", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint8_PositionX, "Touchpoint 8 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint8_PositionY, "Touchpoint 8 Position Y", WInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint9, "Touchpoint 9", WInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(WInputSlot_TouchPoint9_PositionX, "Touchpoint 9 Position X", WInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(WInputSlot_TouchPoint9_PositionY, "Touchpoint 9 Position Y", WInputSlotFlags::IsTouchPosition);
 }
 
-void ezInputDeviceMouseKeyboard_Win::ResetInputSlotValues()
+void WInputDeviceMouseKeyboard_Win::ResetInputSlotValues()
 {
-  m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
-  m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
-  m_InputSlotValues[ezInputSlot_MouseMoveNegX] = 0;
-  m_InputSlotValues[ezInputSlot_MouseMovePosX] = 0;
-  m_InputSlotValues[ezInputSlot_MouseMoveNegY] = 0;
-  m_InputSlotValues[ezInputSlot_MouseMovePosY] = 0;
-  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 0;
-  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 0;
-  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
+  m_InputSlotValues[WInputSlot_MouseWheelUp] = 0;
+  m_InputSlotValues[WInputSlot_MouseWheelDown] = 0;
+  m_InputSlotValues[WInputSlot_MouseMoveNegX] = 0;
+  m_InputSlotValues[WInputSlot_MouseMovePosX] = 0;
+  m_InputSlotValues[WInputSlot_MouseMoveNegY] = 0;
+  m_InputSlotValues[WInputSlot_MouseMovePosY] = 0;
+  m_InputSlotValues[WInputSlot_MouseDblClick0] = 0;
+  m_InputSlotValues[WInputSlot_MouseDblClick1] = 0;
+  m_InputSlotValues[WInputSlot_MouseDblClick2] = 0;
 }
 
-void ezInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
+void WInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
 {
-  const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
+  const char* slotDown[5] = {WInputSlot_MouseButton0, WInputSlot_MouseButton1, WInputSlot_MouseButton2, WInputSlot_MouseButton3, WInputSlot_MouseButton4};
 
   // don't read uninitialized values
   if (!m_InputSlotValues.Contains(slotDown[4]))
@@ -345,14 +345,14 @@ void ezInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
   SUPER::UpdateInputSlotValues();
 }
 
-void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode)
+void WInputDeviceMouseKeyboard_Win::ApplyClipRect(WMouseCursorClipMode::Enum mode)
 {
   if (!m_bApplyClipRect)
     return;
 
   m_bApplyClipRect = false;
 
-  if (mode == ezMouseCursorClipMode::NoClip)
+  if (mode == WMouseCursorClipMode::NoClip)
   {
     ClipCursor(nullptr);
     return;
@@ -361,15 +361,15 @@ void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum m
   RECT r;
   {
     RECT area;
-    GetClientRect(ezMinWindows::ToNative(m_hWnd), &area);
+    GetClientRect(WMinWindows::ToNative(m_hWnd), &area);
     POINT p0, p1;
     p0.x = 0;
     p0.y = 0;
     p1.x = area.right;
     p1.y = area.bottom;
 
-    ClientToScreen(ezMinWindows::ToNative(m_hWnd), &p0);
-    ClientToScreen(ezMinWindows::ToNative(m_hWnd), &p1);
+    ClientToScreen(WMinWindows::ToNative(m_hWnd), &p0);
+    ClientToScreen(WMinWindows::ToNative(m_hWnd), &p1);
 
     r.top = p0.y;
     r.left = p0.x;
@@ -377,7 +377,7 @@ void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum m
     r.bottom = p1.y;
   }
 
-  if (mode == ezMouseCursorClipMode::ClipToPosition)
+  if (mode == WMouseCursorClipMode::ClipToPosition)
   {
     POINT mp;
     if (GetCursorPos(&mp))
@@ -396,25 +396,25 @@ void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum m
   ClipCursor(&r);
 }
 
-void ezInputDeviceMouseKeyboard_Win::ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void WInputDeviceMouseKeyboard_Win::ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode)
 {
-  m_bApplyClipRect = mode != ezMouseCursorClipMode::NoClip;
+  m_bApplyClipRect = mode != WMouseCursorClipMode::NoClip;
 
-  if (mode == ezMouseCursorClipMode::NoClip)
+  if (mode == WMouseCursorClipMode::NoClip)
     ClipCursor(nullptr);
 }
 
 // WM_INPUT mouse clicks do not work in some VMs.
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
-#  define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
+#  define W_MOUSEBUTTON_COMPATIBILTY_MODE W_ON
 
-void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void WInputDeviceMouseKeyboard_Win::WindowMessage(WMinWindows::UINT msg, WMinWindows::WPARAM wparam, WMinWindows::LPARAM lparam)
 {
-#  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
-  static ezInt32 s_iMouseCaptureCount = 0;
+#  if W_ENABLED(W_MOUSEBUTTON_COMPATIBILTY_MODE)
+  static WInt32 s_iMouseCaptureCount = 0;
 #  endif
 
-  if (m_bFirstWndMsg && m_ClipModeEffective != ezMouseCursorClipMode::NoClip)
+  if (m_bFirstWndMsg && m_ClipModeEffective != WMouseCursorClipMode::NoClip)
   {
     // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
 
@@ -422,8 +422,8 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     ApplyClipRect(m_ClipModeEffective);
 
     RECT r;
-    GetWindowRect(ezMinWindows::ToNative(m_hWnd), &r);
-    SetCursorPos(ezMath::Lerp(r.left, r.right, 0.5f), ezMath::Lerp(r.bottom, r.top, 0.5f));
+    GetWindowRect(WMinWindows::ToNative(m_hWnd), &r);
+    SetCursorPos(WMath::Lerp(r.left, r.right, 0.5f), WMath::Lerp(r.bottom, r.top, 0.5f));
   }
 
   switch (msg)
@@ -433,12 +433,12 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       // The mousewheel does not work with rawinput over touchpads (at least not all)
       // So we handle that one individually
 
-      const ezInt32 iRotated = (ezInt16)HIWORD(wparam);
+      const WInt32 iRotated = (WInt16)HIWORD(wparam);
 
       if (iRotated > 0)
-        m_InputSlotValues[ezInputSlot_MouseWheelUp] = iRotated / 120.0f;
+        m_InputSlotValues[WInputSlot_MouseWheelUp] = iRotated / 120.0f;
       else
-        m_InputSlotValues[ezInputSlot_MouseWheelDown] = iRotated / -120.0f;
+        m_InputSlotValues[WInputSlot_MouseWheelDown] = iRotated / -120.0f;
 
       break;
     }
@@ -446,10 +446,10 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(ezMinWindows::ToNative(m_hWnd), &area);
+      GetClientRect(WMinWindows::ToNative(m_hWnd), &area);
 
-      const ezUInt32 uiResX = area.right - area.left;
-      const ezUInt32 uiResY = area.bottom - area.top;
+      const WUInt32 uiResX = area.right - area.left;
+      const WUInt32 uiResY = area.bottom - area.top;
 
       const float fPosX = (float)((short)LOWORD(lparam));
       const float fPosY = (float)((short)HIWORD(lparam));
@@ -463,11 +463,11 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
         // only the 'main' window (the first one created) provides its mouse coordinates as the 'global' ones
         // if you have multiple windows and want window specific mouse pointer handling,
         // you need to ask the window specific input device, for its GetLocalMouseCoordinates() and IsMouseOver()
-        m_InputSlotValues[ezInputSlot_MousePositionX] = m_vLocalMouseCoordinates.x;
-        m_InputSlotValues[ezInputSlot_MousePositionY] = m_vLocalMouseCoordinates.y;
+        m_InputSlotValues[WInputSlot_MousePositionX] = m_vLocalMouseCoordinates.x;
+        m_InputSlotValues[WInputSlot_MousePositionY] = m_vLocalMouseCoordinates.y;
       }
 
-      if (m_ClipModeEffective == ezMouseCursorClipMode::ClipToPosition || m_ClipModeEffective == ezMouseCursorClipMode::ClipToWindowImmediate)
+      if (m_ClipModeEffective == WMouseCursorClipMode::ClipToPosition || m_ClipModeEffective == WMouseCursorClipMode::ClipToWindowImmediate)
       {
         ApplyClipRect(m_ClipModeEffective);
       }
@@ -490,7 +490,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
     case WM_CHAR:
     {
-      ezUInt32 uiCharacter = (wchar_t)wparam;
+      WUInt32 uiCharacter = (wchar_t)wparam;
       if (uiCharacter == 13) // turn '\r' into '\n'
       {
         uiCharacter = '\n';
@@ -504,22 +504,22 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       // this would add lag and hide single clicks when the user double clicks
       // therefore it is not used
       // case WM_LBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
+      //  m_InputSlotValues[WInputSlot_MouseDblClick0] = 1.0f;
       //  return;
       // case WM_RBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
+      //  m_InputSlotValues[WInputSlot_MouseDblClick1] = 1.0f;
       //  return;
       // case WM_MBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
+      //  m_InputSlotValues[WInputSlot_MouseDblClick2] = 1.0f;
       //  return;
 
-#  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+#  if W_ENABLED(W_MOUSEBUTTON_COMPATIBILTY_MODE)
 
     case WM_LBUTTONDOWN:
       m_uiMouseButtonReceivedDown[0]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(m_hWnd));
+        SetCapture(WMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
 
@@ -541,7 +541,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       m_uiMouseButtonReceivedDown[1]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(m_hWnd));
+        SetCapture(WMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -562,7 +562,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       m_uiMouseButtonReceivedDown[2]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(m_hWnd));
+        SetCapture(WMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -585,7 +585,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
         m_uiMouseButtonReceivedDown[4]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(m_hWnd));
+        SetCapture(WMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -620,14 +620,14 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
     case WM_INPUT:
     {
-      ezUInt32 uiSize = 0;
+      WUInt32 uiSize = 0;
 
       GetRawInputData((HRAWINPUT)lparam, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER));
 
       if (uiSize == 0)
         return;
 
-      ezTempHybridArray<ezUInt8, sizeof(RAWINPUT)> InputData;
+      WTempHybridArray<WUInt8, sizeof(RAWINPUT)> InputData;
       InputData.SetCountUninitialized(uiSize);
 
       if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, &InputData[0], &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
@@ -647,7 +647,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
         static bool bWasStupidLeftShift = false;
 
-        const ezUInt8 uiScanCode = static_cast<ezUInt8>(raw->data.keyboard.MakeCode);
+        const WUInt8 uiScanCode = static_cast<WUInt8>(raw->data.keyboard.MakeCode);
         const bool bIsExtended = (raw->data.keyboard.Flags & RI_KEY_E0) != 0;
 
         if (uiScanCode == 42 && bIsExtended) // 42 has to be special I guess
@@ -656,13 +656,13 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
           return;
         }
 
-        ezStringView sInputSlotName = ezInputManager::ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
+        WStringView sInputSlotName = WInputManager::ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
 
         // On Windows this only happens with the Pause key, but it will actually send the 'Right Ctrl' key value
         // so we need to fix this manually
         if (raw->data.keyboard.Flags & RI_KEY_E1)
         {
-          sInputSlotName = ezInputSlot_KeyPause;
+          sInputSlotName = WInputSlot_KeyPause;
           bIgnoreNext = true;
         }
 
@@ -670,8 +670,8 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
         // we ignore the first stupid shift key entirely and then modify the following Numpad* key
         // Note that the 'stupid shift' is sent along with several other keys as well (e.g. left/right/up/down arrows)
         // in these cases we can ignore them entirely, as the following key will have an unambiguous key code
-        if (sInputSlotName == ezInputSlot_KeyNumpadStar && bWasStupidLeftShift)
-          sInputSlotName = ezInputSlot_KeyPrint;
+        if (sInputSlotName == WInputSlot_KeyNumpadStar && bWasStupidLeftShift)
+          sInputSlotName = WInputSlot_KeyPrint;
 
         bWasStupidLeftShift = false;
 
@@ -679,24 +679,24 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
         m_InputSlotValues[sInputSlotName] = bPressed ? 1.0f : 0.0f;
 
-        if ((m_InputSlotValues[ezInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyLeftAlt] > 0.1f) &&
-            (m_InputSlotValues[ezInputSlot_KeyNumpadEnter] > 0.1f))
+        if ((m_InputSlotValues[WInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[WInputSlot_KeyLeftAlt] > 0.1f) &&
+            (m_InputSlotValues[WInputSlot_KeyNumpadEnter] > 0.1f))
         {
           switch (GetClipMouseCursor())
           {
-            case ezMouseCursorClipMode::NoClip:
-              SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
+            case WMouseCursorClipMode::NoClip:
+              SetClipMouseCursor(WMouseCursorClipMode::ClipToWindow);
               break;
 
             default:
-              SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+              SetClipMouseCursor(WMouseCursorClipMode::NoClip);
               break;
           }
         }
       }
       else if (raw->header.dwType == RIM_TYPEMOUSE)
       {
-        const ezUInt32 uiButtons = raw->data.mouse.usButtonFlags;
+        const WUInt32 uiButtons = raw->data.mouse.usButtonFlags;
 
         // "absolute" positions are only reported by devices such as Pens
         // if at all, we should handle them as touch points, not as mouse positions
@@ -708,13 +708,13 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
           // however, they can be extremely sensitive especially on high DPI mice
           // so we scale the value down by a constant factor, so that they are closer to what we get in other implementations
           // were we have to use absolute mouse coordinate differences
-          m_InputSlotValues[ezInputSlot_MouseMoveNegX] +=
+          m_InputSlotValues[WInputSlot_MouseMoveNegX] +=
             ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x * fMouseScale;
-          m_InputSlotValues[ezInputSlot_MouseMovePosX] +=
+          m_InputSlotValues[WInputSlot_MouseMovePosX] +=
             ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x * fMouseScale;
-          m_InputSlotValues[ezInputSlot_MouseMoveNegY] +=
+          m_InputSlotValues[WInputSlot_MouseMoveNegY] +=
             ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y * fMouseScale;
-          m_InputSlotValues[ezInputSlot_MouseMovePosY] +=
+          m_InputSlotValues[WInputSlot_MouseMovePosY] +=
             ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y * fMouseScale;
 
 // Mouse input does not always work via WM_INPUT
@@ -722,11 +722,11 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 // therefore in 'compatibility mode' it is just queried via standard WM_LBUTTONDOWN etc.
 // to get 'high performance' mouse clicks, this code would work fine though
 // but I doubt it makes much difference in latency
-#  if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
-          for (ezInt32 mb = 0; mb < 5; ++mb)
+#  if W_DISABLED(W_MOUSEBUTTON_COMPATIBILTY_MODE)
+          for (WInt32 mb = 0; mb < 5; ++mb)
           {
             char szTemp[32];
-            ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
+            WStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
               m_InputSlotValues[szTemp] = 1.0f;
@@ -743,21 +743,21 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
             // if this flag is set, we are getting mouse input through a remote desktop session
             // and that means we will not get any relative mouse move events, so we need to emulate them
 
-            static const ezInt32 iVirtualDesktopW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-            static const ezInt32 iVirtualDesktopH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+            static const WInt32 iVirtualDesktopW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            static const WInt32 iVirtualDesktopH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-            static ezVec2 vLastPos(ezMath::MaxValue<float>());
-            const ezVec2 vNewPos(
+            static WVec2 vLastPos(WMath::MaxValue<float>());
+            const WVec2 vNewPos(
               (raw->data.mouse.lLastX / 65535.0f) * iVirtualDesktopW, (raw->data.mouse.lLastY / 65535.0f) * iVirtualDesktopH);
 
-            if (vLastPos.x != ezMath::MaxValue<float>())
+            if (vLastPos.x != WMath::MaxValue<float>())
             {
-              const ezVec2 vDiff = vNewPos - vLastPos;
+              const WVec2 vDiff = vNewPos - vLastPos;
 
-              m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float)-vDiff.x : 0.0f) * GetMouseSpeed().x;
-              m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)vDiff.x : 0.0f) * GetMouseSpeed().x;
-              m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float)-vDiff.y : 0.0f) * GetMouseSpeed().y;
-              m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
+              m_InputSlotValues[WInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float)-vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[WInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[WInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float)-vDiff.y : 0.0f) * GetMouseSpeed().y;
+              m_InputSlotValues[WInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
             }
 
             vLastPos = vNewPos;
@@ -766,9 +766,9 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
           {
             static int iTouchPoint = 0;
 
-            ezStringView sSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
-            ezStringView sSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
-            ezStringView sSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
+            WStringView sSlot = WInputManager::GetInputSlotTouchPoint(iTouchPoint);
+            WStringView sSlotX = WInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
+            WStringView sSlotY = WInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
 
             m_InputSlotValues[sSlotX] = (raw->data.mouse.lLastX / 65535.0f);
             m_InputSlotValues[sSlotY] = (raw->data.mouse.lLastY / 65535.0f);
@@ -786,8 +786,8 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
         }
         else
         {
-          ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1),
-            (ezUInt32)raw->data.mouse.usFlags);
+          WLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", WArgF(raw->data.mouse.lLastX, 1), WArgF(raw->data.mouse.lLastY, 1),
+            (WUInt32)raw->data.mouse.usFlags);
         }
       }
     }
@@ -797,184 +797,184 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
 static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szInputSlot)
 {
-  const ezUInt32 uiKeyCode = (iScanCode << 16) | (bExtended ? (1 << 24) : 0);
+  const WUInt32 uiKeyCode = (iScanCode << 16) | (bExtended ? (1 << 24) : 0);
 
   wchar_t szKeyName[32] = {0};
   GetKeyNameTextW(uiKeyCode, szKeyName, 30);
 
-  ezStringUtf8 sName(szKeyName);
+  WStringUtf8 sName(szKeyName);
 
-  ezLog::Dev("Translated '{0}' to '{1}'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
+  WLog::Dev("Translated '{0}' to '{1}'", WInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
 
-  ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
+  WInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
 }
 
-void ezInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames()
+void WInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames()
 {
-  EZ_LOG_BLOCK("ezInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames");
+  W_LOG_BLOCK("WInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames");
 
-  SetKeyNameForScanCode(1, false, ezInputSlot_KeyEscape);
-  SetKeyNameForScanCode(2, false, ezInputSlot_Key1);
-  SetKeyNameForScanCode(3, false, ezInputSlot_Key2);
-  SetKeyNameForScanCode(4, false, ezInputSlot_Key3);
-  SetKeyNameForScanCode(5, false, ezInputSlot_Key4);
-  SetKeyNameForScanCode(6, false, ezInputSlot_Key5);
-  SetKeyNameForScanCode(7, false, ezInputSlot_Key6);
-  SetKeyNameForScanCode(8, false, ezInputSlot_Key7);
-  SetKeyNameForScanCode(9, false, ezInputSlot_Key8);
-  SetKeyNameForScanCode(10, false, ezInputSlot_Key9);
-  SetKeyNameForScanCode(11, false, ezInputSlot_Key0);
+  SetKeyNameForScanCode(1, false, WInputSlot_KeyEscape);
+  SetKeyNameForScanCode(2, false, WInputSlot_Key1);
+  SetKeyNameForScanCode(3, false, WInputSlot_Key2);
+  SetKeyNameForScanCode(4, false, WInputSlot_Key3);
+  SetKeyNameForScanCode(5, false, WInputSlot_Key4);
+  SetKeyNameForScanCode(6, false, WInputSlot_Key5);
+  SetKeyNameForScanCode(7, false, WInputSlot_Key6);
+  SetKeyNameForScanCode(8, false, WInputSlot_Key7);
+  SetKeyNameForScanCode(9, false, WInputSlot_Key8);
+  SetKeyNameForScanCode(10, false, WInputSlot_Key9);
+  SetKeyNameForScanCode(11, false, WInputSlot_Key0);
 
-  SetKeyNameForScanCode(12, false, ezInputSlot_KeyHyphen);
-  SetKeyNameForScanCode(13, false, ezInputSlot_KeyEquals);
-  SetKeyNameForScanCode(14, false, ezInputSlot_KeyBackspace);
+  SetKeyNameForScanCode(12, false, WInputSlot_KeyHyphen);
+  SetKeyNameForScanCode(13, false, WInputSlot_KeyEquals);
+  SetKeyNameForScanCode(14, false, WInputSlot_KeyBackspace);
 
-  SetKeyNameForScanCode(15, false, ezInputSlot_KeyTab);
-  SetKeyNameForScanCode(16, false, ezInputSlot_KeyQ);
-  SetKeyNameForScanCode(17, false, ezInputSlot_KeyW);
-  SetKeyNameForScanCode(18, false, ezInputSlot_KeyE);
-  SetKeyNameForScanCode(19, false, ezInputSlot_KeyR);
-  SetKeyNameForScanCode(20, false, ezInputSlot_KeyT);
-  SetKeyNameForScanCode(21, false, ezInputSlot_KeyY);
-  SetKeyNameForScanCode(22, false, ezInputSlot_KeyU);
-  SetKeyNameForScanCode(23, false, ezInputSlot_KeyI);
-  SetKeyNameForScanCode(24, false, ezInputSlot_KeyO);
-  SetKeyNameForScanCode(25, false, ezInputSlot_KeyP);
-  SetKeyNameForScanCode(26, false, ezInputSlot_KeyBracketOpen);
-  SetKeyNameForScanCode(27, false, ezInputSlot_KeyBracketClose);
-  SetKeyNameForScanCode(28, false, ezInputSlot_KeyReturn);
+  SetKeyNameForScanCode(15, false, WInputSlot_KeyTab);
+  SetKeyNameForScanCode(16, false, WInputSlot_KeyQ);
+  SetKeyNameForScanCode(17, false, WInputSlot_KeyW);
+  SetKeyNameForScanCode(18, false, WInputSlot_KeyE);
+  SetKeyNameForScanCode(19, false, WInputSlot_KeyR);
+  SetKeyNameForScanCode(20, false, WInputSlot_KeyT);
+  SetKeyNameForScanCode(21, false, WInputSlot_KeyY);
+  SetKeyNameForScanCode(22, false, WInputSlot_KeyU);
+  SetKeyNameForScanCode(23, false, WInputSlot_KeyI);
+  SetKeyNameForScanCode(24, false, WInputSlot_KeyO);
+  SetKeyNameForScanCode(25, false, WInputSlot_KeyP);
+  SetKeyNameForScanCode(26, false, WInputSlot_KeyBracketOpen);
+  SetKeyNameForScanCode(27, false, WInputSlot_KeyBracketClose);
+  SetKeyNameForScanCode(28, false, WInputSlot_KeyReturn);
 
-  SetKeyNameForScanCode(29, false, ezInputSlot_KeyLeftCtrl);
-  SetKeyNameForScanCode(30, false, ezInputSlot_KeyA);
-  SetKeyNameForScanCode(31, false, ezInputSlot_KeyS);
-  SetKeyNameForScanCode(32, false, ezInputSlot_KeyD);
-  SetKeyNameForScanCode(33, false, ezInputSlot_KeyF);
-  SetKeyNameForScanCode(34, false, ezInputSlot_KeyG);
-  SetKeyNameForScanCode(35, false, ezInputSlot_KeyH);
-  SetKeyNameForScanCode(36, false, ezInputSlot_KeyJ);
-  SetKeyNameForScanCode(37, false, ezInputSlot_KeyK);
-  SetKeyNameForScanCode(38, false, ezInputSlot_KeyL);
-  SetKeyNameForScanCode(39, false, ezInputSlot_KeySemicolon);
-  SetKeyNameForScanCode(40, false, ezInputSlot_KeyApostrophe);
+  SetKeyNameForScanCode(29, false, WInputSlot_KeyLeftCtrl);
+  SetKeyNameForScanCode(30, false, WInputSlot_KeyA);
+  SetKeyNameForScanCode(31, false, WInputSlot_KeyS);
+  SetKeyNameForScanCode(32, false, WInputSlot_KeyD);
+  SetKeyNameForScanCode(33, false, WInputSlot_KeyF);
+  SetKeyNameForScanCode(34, false, WInputSlot_KeyG);
+  SetKeyNameForScanCode(35, false, WInputSlot_KeyH);
+  SetKeyNameForScanCode(36, false, WInputSlot_KeyJ);
+  SetKeyNameForScanCode(37, false, WInputSlot_KeyK);
+  SetKeyNameForScanCode(38, false, WInputSlot_KeyL);
+  SetKeyNameForScanCode(39, false, WInputSlot_KeySemicolon);
+  SetKeyNameForScanCode(40, false, WInputSlot_KeyApostrophe);
 
-  SetKeyNameForScanCode(41, false, ezInputSlot_KeyTilde);
-  SetKeyNameForScanCode(42, false, ezInputSlot_KeyLeftShift);
-  SetKeyNameForScanCode(43, false, ezInputSlot_KeyBackslash);
+  SetKeyNameForScanCode(41, false, WInputSlot_KeyTilde);
+  SetKeyNameForScanCode(42, false, WInputSlot_KeyLeftShift);
+  SetKeyNameForScanCode(43, false, WInputSlot_KeyBackslash);
 
-  SetKeyNameForScanCode(44, false, ezInputSlot_KeyZ);
-  SetKeyNameForScanCode(45, false, ezInputSlot_KeyX);
-  SetKeyNameForScanCode(46, false, ezInputSlot_KeyC);
-  SetKeyNameForScanCode(47, false, ezInputSlot_KeyV);
-  SetKeyNameForScanCode(48, false, ezInputSlot_KeyB);
-  SetKeyNameForScanCode(49, false, ezInputSlot_KeyN);
-  SetKeyNameForScanCode(50, false, ezInputSlot_KeyM);
-  SetKeyNameForScanCode(51, false, ezInputSlot_KeyComma);
-  SetKeyNameForScanCode(52, false, ezInputSlot_KeyPeriod);
-  SetKeyNameForScanCode(53, false, ezInputSlot_KeySlash);
-  SetKeyNameForScanCode(54, false, ezInputSlot_KeyRightShift);
+  SetKeyNameForScanCode(44, false, WInputSlot_KeyZ);
+  SetKeyNameForScanCode(45, false, WInputSlot_KeyX);
+  SetKeyNameForScanCode(46, false, WInputSlot_KeyC);
+  SetKeyNameForScanCode(47, false, WInputSlot_KeyV);
+  SetKeyNameForScanCode(48, false, WInputSlot_KeyB);
+  SetKeyNameForScanCode(49, false, WInputSlot_KeyN);
+  SetKeyNameForScanCode(50, false, WInputSlot_KeyM);
+  SetKeyNameForScanCode(51, false, WInputSlot_KeyComma);
+  SetKeyNameForScanCode(52, false, WInputSlot_KeyPeriod);
+  SetKeyNameForScanCode(53, false, WInputSlot_KeySlash);
+  SetKeyNameForScanCode(54, false, WInputSlot_KeyRightShift);
 
-  SetKeyNameForScanCode(55, false, ezInputSlot_KeyNumpadStar); // Overlaps with Print
+  SetKeyNameForScanCode(55, false, WInputSlot_KeyNumpadStar); // Overlaps with Print
 
-  SetKeyNameForScanCode(56, false, ezInputSlot_KeyLeftAlt);
-  SetKeyNameForScanCode(57, false, ezInputSlot_KeySpace);
-  SetKeyNameForScanCode(58, false, ezInputSlot_KeyCapsLock);
+  SetKeyNameForScanCode(56, false, WInputSlot_KeyLeftAlt);
+  SetKeyNameForScanCode(57, false, WInputSlot_KeySpace);
+  SetKeyNameForScanCode(58, false, WInputSlot_KeyCapsLock);
 
-  SetKeyNameForScanCode(59, false, ezInputSlot_KeyF1);
-  SetKeyNameForScanCode(60, false, ezInputSlot_KeyF2);
-  SetKeyNameForScanCode(61, false, ezInputSlot_KeyF3);
-  SetKeyNameForScanCode(62, false, ezInputSlot_KeyF4);
-  SetKeyNameForScanCode(63, false, ezInputSlot_KeyF5);
-  SetKeyNameForScanCode(64, false, ezInputSlot_KeyF6);
-  SetKeyNameForScanCode(65, false, ezInputSlot_KeyF7);
-  SetKeyNameForScanCode(66, false, ezInputSlot_KeyF8);
-  SetKeyNameForScanCode(67, false, ezInputSlot_KeyF9);
-  SetKeyNameForScanCode(68, false, ezInputSlot_KeyF10);
+  SetKeyNameForScanCode(59, false, WInputSlot_KeyF1);
+  SetKeyNameForScanCode(60, false, WInputSlot_KeyF2);
+  SetKeyNameForScanCode(61, false, WInputSlot_KeyF3);
+  SetKeyNameForScanCode(62, false, WInputSlot_KeyF4);
+  SetKeyNameForScanCode(63, false, WInputSlot_KeyF5);
+  SetKeyNameForScanCode(64, false, WInputSlot_KeyF6);
+  SetKeyNameForScanCode(65, false, WInputSlot_KeyF7);
+  SetKeyNameForScanCode(66, false, WInputSlot_KeyF8);
+  SetKeyNameForScanCode(67, false, WInputSlot_KeyF9);
+  SetKeyNameForScanCode(68, false, WInputSlot_KeyF10);
 
-  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock);       // Prints 'Pause' if it is not 'extended'
-  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll);       // This overlaps with Pause
+  SetKeyNameForScanCode(69, true, WInputSlot_KeyNumLock);       // Prints 'Pause' if it is not 'extended'
+  SetKeyNameForScanCode(70, false, WInputSlot_KeyScroll);       // This overlaps with Pause
 
-  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7);      // This overlaps with Home
-  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8);      // This overlaps with Arrow Up
-  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9);      // This overlaps with Page Up
-  SetKeyNameForScanCode(74, false, ezInputSlot_KeyNumpadMinus);
+  SetKeyNameForScanCode(71, false, WInputSlot_KeyNumpad7);      // This overlaps with Home
+  SetKeyNameForScanCode(72, false, WInputSlot_KeyNumpad8);      // This overlaps with Arrow Up
+  SetKeyNameForScanCode(73, false, WInputSlot_KeyNumpad9);      // This overlaps with Page Up
+  SetKeyNameForScanCode(74, false, WInputSlot_KeyNumpadMinus);
 
-  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4);      // This overlaps with Arrow Left
-  SetKeyNameForScanCode(76, false, ezInputSlot_KeyNumpad5);
-  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6);      // This overlaps with Arrow Right
-  SetKeyNameForScanCode(78, false, ezInputSlot_KeyNumpadPlus);
+  SetKeyNameForScanCode(75, false, WInputSlot_KeyNumpad4);      // This overlaps with Arrow Left
+  SetKeyNameForScanCode(76, false, WInputSlot_KeyNumpad5);
+  SetKeyNameForScanCode(77, false, WInputSlot_KeyNumpad6);      // This overlaps with Arrow Right
+  SetKeyNameForScanCode(78, false, WInputSlot_KeyNumpadPlus);
 
-  SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1);      // This overlaps with End
-  SetKeyNameForScanCode(80, false, ezInputSlot_KeyNumpad2);      // This overlaps with Arrow Down
-  SetKeyNameForScanCode(81, false, ezInputSlot_KeyNumpad3);      // This overlaps with Page Down
-  SetKeyNameForScanCode(82, false, ezInputSlot_KeyNumpad0);      // This overlaps with Insert
-  SetKeyNameForScanCode(83, false, ezInputSlot_KeyNumpadPeriod); // This overlaps with Insert
+  SetKeyNameForScanCode(79, false, WInputSlot_KeyNumpad1);      // This overlaps with End
+  SetKeyNameForScanCode(80, false, WInputSlot_KeyNumpad2);      // This overlaps with Arrow Down
+  SetKeyNameForScanCode(81, false, WInputSlot_KeyNumpad3);      // This overlaps with Page Down
+  SetKeyNameForScanCode(82, false, WInputSlot_KeyNumpad0);      // This overlaps with Insert
+  SetKeyNameForScanCode(83, false, WInputSlot_KeyNumpadPeriod); // This overlaps with Insert
 
-  SetKeyNameForScanCode(86, false, ezInputSlot_KeyPipe);
+  SetKeyNameForScanCode(86, false, WInputSlot_KeyPipe);
 
   SetKeyNameForScanCode(87, false, "keyboard_f11");
   SetKeyNameForScanCode(88, false, "keyboard_f12");
 
-  SetKeyNameForScanCode(91, true, ezInputSlot_KeyLeftWin);  // Prints '' if it is not 'extended'
-  SetKeyNameForScanCode(92, true, ezInputSlot_KeyRightWin); // Prints '' if it is not 'extended'
-  SetKeyNameForScanCode(93, true, ezInputSlot_KeyApps);     // Prints '' if it is not 'extended'
+  SetKeyNameForScanCode(91, true, WInputSlot_KeyLeftWin);  // Prints '' if it is not 'extended'
+  SetKeyNameForScanCode(92, true, WInputSlot_KeyRightWin); // Prints '' if it is not 'extended'
+  SetKeyNameForScanCode(93, true, WInputSlot_KeyApps);     // Prints '' if it is not 'extended'
 
   // 'Extended' keys
-  SetKeyNameForScanCode(28, true, ezInputSlot_KeyNumpadEnter);
-  SetKeyNameForScanCode(29, true, ezInputSlot_KeyRightCtrl);
-  SetKeyNameForScanCode(53, true, ezInputSlot_KeyNumpadSlash);
-  SetKeyNameForScanCode(55, true, ezInputSlot_KeyPrint);
-  SetKeyNameForScanCode(56, true, ezInputSlot_KeyRightAlt);
-  SetKeyNameForScanCode(70, true, ezInputSlot_KeyPause);
-  SetKeyNameForScanCode(71, true, ezInputSlot_KeyHome);
-  SetKeyNameForScanCode(72, true, ezInputSlot_KeyUp);
-  SetKeyNameForScanCode(73, true, ezInputSlot_KeyPageUp);
+  SetKeyNameForScanCode(28, true, WInputSlot_KeyNumpadEnter);
+  SetKeyNameForScanCode(29, true, WInputSlot_KeyRightCtrl);
+  SetKeyNameForScanCode(53, true, WInputSlot_KeyNumpadSlash);
+  SetKeyNameForScanCode(55, true, WInputSlot_KeyPrint);
+  SetKeyNameForScanCode(56, true, WInputSlot_KeyRightAlt);
+  SetKeyNameForScanCode(70, true, WInputSlot_KeyPause);
+  SetKeyNameForScanCode(71, true, WInputSlot_KeyHome);
+  SetKeyNameForScanCode(72, true, WInputSlot_KeyUp);
+  SetKeyNameForScanCode(73, true, WInputSlot_KeyPageUp);
 
-  SetKeyNameForScanCode(75, true, ezInputSlot_KeyLeft);
-  SetKeyNameForScanCode(77, true, ezInputSlot_KeyRight);
+  SetKeyNameForScanCode(75, true, WInputSlot_KeyLeft);
+  SetKeyNameForScanCode(77, true, WInputSlot_KeyRight);
 
-  SetKeyNameForScanCode(79, true, ezInputSlot_KeyEnd);
-  SetKeyNameForScanCode(80, true, ezInputSlot_KeyDown);
-  SetKeyNameForScanCode(81, true, ezInputSlot_KeyPageDown);
-  SetKeyNameForScanCode(82, true, ezInputSlot_KeyInsert);
-  SetKeyNameForScanCode(83, true, ezInputSlot_KeyDelete);
+  SetKeyNameForScanCode(79, true, WInputSlot_KeyEnd);
+  SetKeyNameForScanCode(80, true, WInputSlot_KeyDown);
+  SetKeyNameForScanCode(81, true, WInputSlot_KeyPageDown);
+  SetKeyNameForScanCode(82, true, WInputSlot_KeyInsert);
+  SetKeyNameForScanCode(83, true, WInputSlot_KeyDelete);
 }
 
-void ezInputDeviceMouseKeyboard_Win::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
+void WInputDeviceMouseKeyboard_Win::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
 {
-  EZ_IGNORE_UNUSED(bCustomCursorActive);
+  W_IGNORE_UNUSED(bCustomCursorActive);
 
   // note that ::ShowCursor() maintains an internal counter, rather than a boolean state,
   // so this may only ever be called when the state really changed, which the base class guarantees
 
-  if (ezThreadUtils::IsMainThread())
+  if (WThreadUtils::IsMainThread())
   {
     ShowCursor(bShow);
   }
   else
   {
-    PostMessageW(ezMinWindows::ToNative(m_hWnd), WM_USER_UPDATE_CURSOR, bShow ? 1 : 0, 0);
+    PostMessageW(WMinWindows::ToNative(m_hWnd), WM_USER_UPDATE_CURSOR, bShow ? 1 : 0, 0);
   }
 }
 
-ezUInt32 ezInputDeviceMouseKeyboard_Win::GetHardwareCursorSize() const
+WUInt32 WInputDeviceMouseKeyboard_Win::GetHardwareCursorSize() const
 {
   // SM_CXCURSOR reflects the user's 'mouse pointer size' accessibility setting.
   // Asking for the window's DPI on top of that gives the size in physical pixels, which is what a
   // custom cursor has to be rendered at to match the OS cursor on any monitor.
   if (m_hWnd != nullptr)
   {
-    const UINT uiDpi = GetDpiForWindow(ezMinWindows::ToNative(m_hWnd));
+    const UINT uiDpi = GetDpiForWindow(WMinWindows::ToNative(m_hWnd));
 
     if (uiDpi != 0)
     {
-      return (ezUInt32)GetSystemMetricsForDpi(SM_CXCURSOR, uiDpi);
+      return (WUInt32)GetSystemMetricsForDpi(SM_CXCURSOR, uiDpi);
     }
   }
 
-  return (ezUInt32)GetSystemMetrics(SM_CXCURSOR);
+  return (WUInt32)GetSystemMetrics(SM_CXCURSOR);
 }
 
-void ezInputDeviceMouseKeyboard_Win::OnFocusLost()
+void WInputDeviceMouseKeyboard_Win::OnFocusLost()
 {
   if (s_pMouseOver == this)
   {
@@ -982,7 +982,7 @@ void ezInputDeviceMouseKeyboard_Win::OnFocusLost()
   }
 
   m_bApplyClipRect = true;
-  ApplyClipRect(ezMouseCursorClipMode::NoClip);
+  ApplyClipRect(WMouseCursorClipMode::NoClip);
 
   auto it = m_InputSlotValues.GetIterator();
 
@@ -993,11 +993,11 @@ void ezInputDeviceMouseKeyboard_Win::OnFocusLost()
   }
 
 
-  const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
+  const char* slotDown[5] = {WInputSlot_MouseButton0, WInputSlot_MouseButton1, WInputSlot_MouseButton2, WInputSlot_MouseButton3, WInputSlot_MouseButton4};
 
-  static_assert(EZ_ARRAY_SIZE(m_uiMouseButtonReceivedDown) == EZ_ARRAY_SIZE(slotDown));
+  static_assert(W_ARRAY_SIZE(m_uiMouseButtonReceivedDown) == W_ARRAY_SIZE(slotDown));
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(m_uiMouseButtonReceivedDown); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(m_uiMouseButtonReceivedDown); ++i)
   {
     m_uiMouseButtonReceivedDown[i] = 0;
     m_uiMouseButtonReceivedUp[i] = 0;
@@ -1009,4 +1009,4 @@ void ezInputDeviceMouseKeyboard_Win::OnFocusLost()
 #endif
 
 
-EZ_STATICLINK_FILE(Core, Core_Platform_Win_InputDevice_Win);
+W_STATICLINK_FILE(Core, Core_Platform_Win_InputDevice_Win);

@@ -5,92 +5,92 @@
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/Formats/StbImageFileFormats.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
+#include <Texture/WTexFormat/WTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataResource, 1, ezRTTIDefaultAllocator<ezImageDataResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WImageDataResource, 1, WRTTIDefaultAllocator<WImageDataResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezImageDataResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WImageDataResource);
 // clang-format on
 
-ezImageDataResource::ezImageDataResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WImageDataResource::WImageDataResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezImageDataResource::~ezImageDataResource() = default;
+WImageDataResource::~WImageDataResource() = default;
 
-ezResourceLoadDesc ezImageDataResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WImageDataResource::UnloadData(Unload WhatToUnload)
 {
   m_pDescriptor.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WImageDataResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezImageDataResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WImageDataResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezImageDataResourceDescriptor desc;
+  WImageDataResourceDescriptor desc;
 
-  if (sAbsFilePath.HasExtension("ezBinImageData"))
+  if (sAbsFilePath.HasExtension("WBinImageData"))
   {
-    ezAssetFileHeader AssetHash;
+    WAssetFileHeader AssetHash;
     if (AssetHash.Read(*Stream).Failed())
     {
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
     }
 
-    ezUInt8 uiVersion = 0;
-    ezUInt8 uiDataFormat = 0;
+    WUInt8 uiVersion = 0;
+    WUInt8 uiDataFormat = 0;
 
     *Stream >> uiVersion;
     *Stream >> uiDataFormat;
 
     if (uiVersion != 1 || uiDataFormat != 1)
     {
-      ezLog::Error("Unsupported ezImageData file format or version");
+      WLog::Error("Unsupported WImageData file format or version");
 
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
     }
 
-    ezStbImageFileFormats fmt;
+    WStbImageFileFormats fmt;
     if (fmt.ReadImage(*Stream, desc.m_Image, "png").Failed())
     {
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
     }
   }
   else
   {
-    ezStringBuilder ext;
+    WStringBuilder ext;
     ext = sAbsFilePath.GetFileExtension();
 
-    if (ezImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ext).Failed())
+    if (WImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ext).Failed())
     {
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
     }
   }
@@ -98,13 +98,13 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
 
   CreateResource(std::move(desc));
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezImageDataResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WImageDataResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezImageDataResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WImageDataResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
   if (m_pDescriptor)
@@ -113,38 +113,38 @@ void ezImageDataResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   }
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WImageDataResource, WImageDataResourceDescriptor)
 {
-  m_pDescriptor = EZ_DEFAULT_NEW(ezImageDataResourceDescriptor);
+  m_pDescriptor = W_DEFAULT_NEW(WImageDataResourceDescriptor);
 
   *m_pDescriptor = std::move(descriptor);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
-  if (m_pDescriptor->m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+  if (m_pDescriptor->m_Image.Convert(WImageFormat::R32G32B32A32_FLOAT).Failed())
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
   }
 
   return res;
 }
 
-// ezResult ezImageDataResourceDescriptor::Serialize(ezStreamWriter& stream) const
+// WResult WImageDataResourceDescriptor::Serialize(WStreamWriter& stream) const
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, "png"));
+//  W_SUCCEED_OR_RETURN(WImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, "png"));
 //
-//  return EZ_SUCCESS;
+//  return W_SUCCESS;
 //}
 //
-// ezResult ezImageDataResourceDescriptor::Deserialize(ezStreamReader& stream)
+// WResult WImageDataResourceDescriptor::Deserialize(WStreamReader& stream)
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, "png"));
+//  W_SUCCEED_OR_RETURN(WImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, "png"));
 //
-//  return EZ_SUCCESS;
+//  return W_SUCCESS;
 //}
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_ImageDataResource);
+W_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_ImageDataResource);

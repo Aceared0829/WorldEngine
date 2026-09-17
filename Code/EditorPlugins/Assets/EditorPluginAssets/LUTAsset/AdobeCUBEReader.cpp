@@ -10,39 +10,39 @@
 
 namespace
 {
-  bool GetVec3FromLine(ezArrayPtr<const ezToken*> line, ezUInt32 uiSkip, ezVec3& ref_vOut)
+  bool GetVec3FromLine(WArrayPtr<const WToken*> line, WUInt32 uiSkip, WVec3& ref_vOut)
   {
     if (line.GetCount() < (uiSkip + 3 + 2))
     {
       return false;
     }
 
-    if ((line[uiSkip + 0]->m_iType != ezTokenType::Float && line[uiSkip + 0]->m_iType != ezTokenType::Integer) ||
-        line[uiSkip + 1]->m_iType != ezTokenType::Whitespace ||
-        (line[uiSkip + 2]->m_iType != ezTokenType::Float && line[uiSkip + 2]->m_iType != ezTokenType::Integer) ||
-        line[uiSkip + 3]->m_iType != ezTokenType::Whitespace ||
-        (line[uiSkip + 4]->m_iType != ezTokenType::Float && line[uiSkip + 4]->m_iType != ezTokenType::Integer))
+    if ((line[uiSkip + 0]->m_iType != WTokenType::Float && line[uiSkip + 0]->m_iType != WTokenType::Integer) ||
+        line[uiSkip + 1]->m_iType != WTokenType::Whitespace ||
+        (line[uiSkip + 2]->m_iType != WTokenType::Float && line[uiSkip + 2]->m_iType != WTokenType::Integer) ||
+        line[uiSkip + 3]->m_iType != WTokenType::Whitespace ||
+        (line[uiSkip + 4]->m_iType != WTokenType::Float && line[uiSkip + 4]->m_iType != WTokenType::Integer))
     {
       return false;
     }
 
     double res = 0;
-    ezString sVal = line[uiSkip + 0]->m_DataView;
+    WString sVal = line[uiSkip + 0]->m_DataView;
 
-    if (ezConversionUtils::StringToFloat(sVal, res).Failed())
+    if (WConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
     ref_vOut.x = static_cast<float>(res);
 
     sVal = line[uiSkip + 2]->m_DataView;
-    if (ezConversionUtils::StringToFloat(sVal, res).Failed())
+    if (WConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
     ref_vOut.y = static_cast<float>(res);
 
 
     sVal = line[uiSkip + 4]->m_DataView;
-    if (ezConversionUtils::StringToFloat(sVal, res).Failed())
+    if (WConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
     ref_vOut.z = static_cast<float>(res);
@@ -51,41 +51,41 @@ namespace
   }
 } // namespace
 
-ezAdobeCUBEReader::ezAdobeCUBEReader() = default;
-ezAdobeCUBEReader::~ezAdobeCUBEReader() = default;
+WAdobeCUBEReader::WAdobeCUBEReader() = default;
+WAdobeCUBEReader::~WAdobeCUBEReader() = default;
 
-ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterface* pLog /*= nullptr*/)
+WStatus WAdobeCUBEReader::ParseFile(WStreamReader& inout_stream, WLogInterface* pLog /*= nullptr*/)
 {
-  ezString sContent;
+  WString sContent;
   sContent.ReadAll(inout_stream);
 
-  ezTokenizer tokenizer;
+  WTokenizer tokenizer;
   tokenizer.SetTreatHashSignAsLineComment(true);
 
   tokenizer.Tokenize(
-    ezArrayPtr<const ezUInt8>((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), pLog ? pLog : ezLog::GetThreadLocalLogSystem());
+    WArrayPtr<const WUInt8>((const WUInt8*)sContent.GetData(), sContent.GetElementCount()), pLog ? pLog : WLog::GetThreadLocalLogSystem());
 
 
   auto tokens = tokenizer.GetTokens();
 
-  ezTempHybridArray<const ezToken*, 32> line;
-  ezUInt32 firstToken = 0;
+  WTempHybridArray<const WToken*, 32> line;
+  WUInt32 firstToken = 0;
 
   while (tokenizer.GetNextLine(firstToken, line).Succeeded())
   {
-    if (line[0]->m_iType == ezTokenType::LineComment || line[0]->m_iType == ezTokenType::Newline)
+    if (line[0]->m_iType == WTokenType::LineComment || line[0]->m_iType == WTokenType::Newline)
       continue;
 
     if (line[0]->m_DataView == "TITLE")
     {
       if (line.GetCount() < 3)
       {
-        return ezStatus(ezFmt("LUT file has invalid TITLE line."));
+        return WStatus(WFmt("LUT file has invalid TITLE line."));
       }
 
-      if (line[1]->m_iType != ezTokenType::Whitespace && line[2]->m_iType != ezTokenType::String1)
+      if (line[1]->m_iType != WTokenType::Whitespace && line[2]->m_iType != WTokenType::String1)
       {
-        return ezStatus(ezFmt("LUT file has invalid TITLE line, expected TITLE<whitespace>\"<string>\"."));
+        return WStatus(WFmt("LUT file has invalid TITLE line, expected TITLE<whitespace>\"<string>\"."));
       }
 
       m_sTitle = line[2]->m_DataView;
@@ -96,7 +96,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
     {
       if (!::GetVec3FromLine(line, 2, m_vDomainMin))
       {
-        return ezStatus(ezFmt("LUT file has invalid DOMAIN_MIN line."));
+        return WStatus(WFmt("LUT file has invalid DOMAIN_MIN line."));
       }
 
       continue;
@@ -105,41 +105,41 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
     {
       if (!::GetVec3FromLine(line, 2, m_vDomainMax))
       {
-        return ezStatus(ezFmt("LUT file has invalid DOMAIN_MAX line."));
+        return WStatus(WFmt("LUT file has invalid DOMAIN_MAX line."));
       }
 
       continue;
     }
     else if (line[0]->m_DataView == "LUT_1D_SIZE")
     {
-      return ezStatus(ezFmt("LUT file specifies a 1D LUT which is currently not implemented."));
+      return WStatus(WFmt("LUT file specifies a 1D LUT which is currently not implemented."));
     }
     else if (line[0]->m_DataView == "LUT_3D_SIZE")
     {
       if (m_uiLUTSize > 0)
       {
-        return ezStatus(ezFmt("LUT file has more than one LUT_3D_SIZE entry. Aborting parse."));
+        return WStatus(WFmt("LUT file has more than one LUT_3D_SIZE entry. Aborting parse."));
       }
 
       if (line.GetCount() < 3)
       {
-        return ezStatus(ezFmt("LUT file has invalid LUT_3D_SIZE line."));
+        return WStatus(WFmt("LUT file has invalid LUT_3D_SIZE line."));
       }
 
-      if (line[1]->m_iType != ezTokenType::Whitespace && line[2]->m_iType != ezTokenType::Integer)
+      if (line[1]->m_iType != WTokenType::Whitespace && line[2]->m_iType != WTokenType::Integer)
       {
-        return ezStatus(ezFmt("LUT file has invalid LUT_3D_SIZE line, expected LUT_3D_SIZE<whitespace><N>."));
+        return WStatus(WFmt("LUT file has invalid LUT_3D_SIZE line, expected LUT_3D_SIZE<whitespace><N>."));
       }
 
-      const ezString sVal = line[2]->m_DataView;
-      if (ezConversionUtils::StringToUInt(sVal, m_uiLUTSize).Failed())
+      const WString sVal = line[2]->m_DataView;
+      if (WConversionUtils::StringToUInt(sVal, m_uiLUTSize).Failed())
       {
-        return ezStatus(ezFmt("LUT file has invalid LUT_3D_SIZE line, couldn't parse LUT size as ezUInt32."));
+        return WStatus(WFmt("LUT file has invalid LUT_3D_SIZE line, couldn't parse LUT size as WUInt32."));
       }
 
       if (m_uiLUTSize < 2 || m_uiLUTSize > 256)
       {
-        return ezStatus(ezFmt("LUT file has invalid LUT_3D_SIZE size, got {0} - but must be in range 2, 256.", m_uiLUTSize));
+        return WStatus(WFmt("LUT file has invalid LUT_3D_SIZE size, got {0} - but must be in range 2, 256.", m_uiLUTSize));
       }
 
       m_LUTValues.Reserve(m_uiLUTSize * m_uiLUTSize * m_uiLUTSize);
@@ -147,17 +147,17 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
       continue;
     }
 
-    if (line[0]->m_iType == ezTokenType::Float || line[0]->m_iType == ezTokenType::Integer)
+    if (line[0]->m_iType == WTokenType::Float || line[0]->m_iType == WTokenType::Integer)
     {
       if (m_uiLUTSize == 0)
       {
-        return ezStatus(ezFmt("LUT data before LUT size was specified."));
+        return WStatus(WFmt("LUT data before LUT size was specified."));
       }
 
-      ezVec3 lineValues;
+      WVec3 lineValues;
       if (!::GetVec3FromLine(line, 0, lineValues))
       {
-        return ezStatus(ezFmt("LUT data couldn't be read."));
+        return WStatus(WFmt("LUT data couldn't be read."));
       }
 
       m_LUTValues.PushBack(lineValues);
@@ -166,44 +166,44 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
 
   if (m_vDomainMin.x > m_vDomainMax.x || m_vDomainMin.y > m_vDomainMax.y || m_vDomainMin.z > m_vDomainMax.z)
   {
-    return ezStatus("LUT file has invalid domain min/max values.");
+    return WStatus("LUT file has invalid domain min/max values.");
   }
 
   if (m_LUTValues.GetCount() != (m_uiLUTSize * m_uiLUTSize * m_uiLUTSize))
   {
-    return ezStatus(ezFmt("LUT data incomplete, read {0} values but expected {1} values given a LUT size of {2}.", m_LUTValues.GetCount(),
+    return WStatus(WFmt("LUT data incomplete, read {0} values but expected {1} values given a LUT size of {2}.", m_LUTValues.GetCount(),
       (m_uiLUTSize * m_uiLUTSize * m_uiLUTSize), m_uiLUTSize));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezVec3 ezAdobeCUBEReader::GetDomainMin() const
+WVec3 WAdobeCUBEReader::GetDomainMin() const
 {
   return m_vDomainMin;
 }
 
-ezVec3 ezAdobeCUBEReader::GetDomainMax() const
+WVec3 WAdobeCUBEReader::GetDomainMax() const
 {
   return m_vDomainMax;
 }
 
-ezUInt32 ezAdobeCUBEReader::GetLUTSize() const
+WUInt32 WAdobeCUBEReader::GetLUTSize() const
 {
   return m_uiLUTSize;
 }
 
-const ezString& ezAdobeCUBEReader::GetTitle() const
+const WString& WAdobeCUBEReader::GetTitle() const
 {
   return m_sTitle;
 }
 
-ezVec3 ezAdobeCUBEReader::GetLUTEntry(ezUInt32 r, ezUInt32 g, ezUInt32 b) const
+WVec3 WAdobeCUBEReader::GetLUTEntry(WUInt32 r, WUInt32 g, WUInt32 b) const
 {
   return m_LUTValues[GetLUTIndex(r, g, b)];
 }
 
-ezUInt32 ezAdobeCUBEReader::GetLUTIndex(ezUInt32 r, ezUInt32 g, ezUInt32 b) const
+WUInt32 WAdobeCUBEReader::GetLUTIndex(WUInt32 r, WUInt32 g, WUInt32 b) const
 {
   return b * m_uiLUTSize * m_uiLUTSize + g * m_uiLUTSize + r;
 }

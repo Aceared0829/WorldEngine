@@ -1,8 +1,8 @@
 #pragma once
 
-EZ_ALWAYS_INLINE void ezSimdMat4d::Transpose()
+W_ALWAYS_INLINE void WSimdMat4d::Transpose()
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#if W_SSE_LEVEL >= W_SSE_AVX
     _MM_TRANSPOSE4_PD_AVX(
     m_col0.m_v, 
     m_col1.m_v, 

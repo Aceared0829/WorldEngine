@@ -1,9 +1,9 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
-EZ_STATICLINK_LIBRARY(RendererVulkan)
+W_STATICLINK_LIBRARY(RendererVulkan)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(RendererVulkan_Device_Implementation_DeviceVulkan);
+  W_STATICLINK_REFERENCE(RendererVulkan_Device_Implementation_DeviceVulkan);
 }

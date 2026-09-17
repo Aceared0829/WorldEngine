@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Platform/Win/DosDevicePath_Win.h>
@@ -16,12 +16,12 @@
 #  include <tchar.h>
 #  include <werapi.h>
 
-ezCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
+WCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
 
 using MINIDUMPWRITEDUMP = BOOL(WINAPI*)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType,
   PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
-ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt32 uiProcessID)
+WMinWindows::HANDLE WMiniDumpUtils::GetProcessHandleWithNecessaryRights(WUInt32 uiProcessID)
 {
   // try to get more than we need
   HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, uiProcessID);
@@ -41,46 +41,46 @@ ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt
   return hProcess;
 }
 
-ezStatus ezMiniDumpUtils::WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo, WDumpType dumpTypeOverride)
 {
   HMODULE hDLL = ::LoadLibraryA("dbghelp.dll");
 
   if (hDLL == nullptr)
   {
-    return ezStatus("dbghelp.dll could not be loaded.");
+    return WStatus("dbghelp.dll could not be loaded.");
   }
 
   MINIDUMPWRITEDUMP MiniDumpWriteDumpFunc = (MINIDUMPWRITEDUMP)::GetProcAddress(hDLL, "MiniDumpWriteDump");
 
   if (MiniDumpWriteDumpFunc == nullptr)
   {
-    return ezStatus("'MiniDumpWriteDump' function address could not be resolved.");
+    return WStatus("'MiniDumpWriteDump' function address could not be resolved.");
   }
 
-  ezUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData |
+  WUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData |
                       MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo;
 
-  if ((opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always) && dumpTypeOverride == ezDumpType::Auto) || dumpTypeOverride == ezDumpType::MiniDumpWithFullMemory)
+  if ((opt_FullCrashDumps.GetOptionValue(WCommandLineOption::LogMode::Always) && dumpTypeOverride == WDumpType::Auto) || dumpTypeOverride == WDumpType::MiniDumpWithFullMemory)
   {
     dumpType |= MiniDumpWithFullMemory;
   }
 
   // make sure the target folder exists
   {
-    ezStringBuilder folder = sDumpFile;
+    WStringBuilder folder = sDumpFile;
     folder.PathParentDirectory();
-    if (ezOSFile::CreateDirectoryStructure(folder).Failed())
-      return ezStatus("Failed to create output directory structure.");
+    if (WOSFile::CreateDirectoryStructure(folder).Failed())
+      return WStatus("Failed to create output directory structure.");
   }
 
-  HANDLE hFile = CreateFileW(ezDosDevicePath(sDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE hFile = CreateFileW(WDosDevicePath(sDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    return ezStatus(ezFmt("Creating dump file '{}' failed (Error: '{}').", sDumpFile, ezArgErrorCode(GetLastError())));
+    return WStatus(WFmt("Creating dump file '{}' failed (Error: '{}').", sDumpFile, WArgErrorCode(GetLastError())));
   }
 
-  EZ_SCOPE_EXIT(CloseHandle(hFile););
+  W_SCOPE_EXIT(CloseHandle(hFile););
 
   MINIDUMP_EXCEPTION_INFORMATION exceptionParam;
   exceptionParam.ThreadId = GetCurrentThreadId(); // only valid for WriteOwnProcessMiniDump()
@@ -90,64 +90,64 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 
   if (MiniDumpWriteDumpFunc(
         hProcess, uiProcessID, hFile, (MINIDUMP_TYPE)dumpType, pExceptionInfo != nullptr ? &exceptionParam : nullptr, nullptr, nullptr) == FALSE)
   {
-    return ezStatus(ezFmt("Writing dump file failed: '{}'.", ezArgErrorCode(GetLastError())));
+    return WStatus(WFmt("Writing dump file failed: '{}'.", WArgErrorCode(GetLastError())));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteOwnProcessMiniDump(WStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo, WDumpType dumpTypeOverride)
 {
   return WriteProcessMiniDump(sDumpFile, GetCurrentProcessId(), GetCurrentProcess(), pExceptionInfo, dumpTypeOverride);
 }
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteExternalProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WMinWindows::HANDLE hProcess, WDumpType dumpTypeOverride)
 {
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
 }
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteExternalProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WDumpType dumpTypeOverride)
 {
-  HANDLE hProcess = ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(uiProcessID);
+  HANDLE hProcess = WMiniDumpUtils::GetProcessHandleWithNecessaryRights(uiProcessID);
 
   if (hProcess == nullptr)
   {
-    return ezStatus("Cannot access process for mini-dump writing (PID invalid or not enough rights).");
+    return WStatus("Cannot access process for mini-dump writing (PID invalid or not enough rights).");
   }
 
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
 }
 
-ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::LaunchMiniDumpTool(WStringView sDumpFile, WDumpType dumpTypeOverride)
 {
-  ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
-  sDumpToolPath.AppendPath("ezMiniDumpTool.exe");
+  WStringBuilder sDumpToolPath = WOSFile::GetApplicationDirectory();
+  sDumpToolPath.AppendPath("WMiniDumpTool.exe");
   sDumpToolPath.MakeCleanPath();
 
-  if (!ezOSFile::ExistsFile(sDumpToolPath))
-    return ezStatus(ezFmt("ezMiniDumpTool.exe not found in '{}'", sDumpToolPath));
+  if (!WOSFile::ExistsFile(sDumpToolPath))
+    return WStatus(WFmt("WMiniDumpTool.exe not found in '{}'", sDumpToolPath));
 
-  ezProcessOptions procOpt;
+  WProcessOptions procOpt;
   procOpt.m_sProcess = sDumpToolPath;
   procOpt.m_Arguments.PushBack("-PID");
-  procOpt.AddArgument("{}", ezProcess::GetCurrentProcessID());
+  procOpt.AddArgument("{}", WProcess::GetCurrentProcessID());
   procOpt.m_Arguments.PushBack("-f");
   procOpt.m_Arguments.PushBack(sDumpFile);
 
-  if ((opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always) && dumpTypeOverride == ezDumpType::Auto) || dumpTypeOverride == ezDumpType::MiniDumpWithFullMemory)
+  if ((opt_FullCrashDumps.GetOptionValue(WCommandLineOption::LogMode::Always) && dumpTypeOverride == WDumpType::Auto) || dumpTypeOverride == WDumpType::MiniDumpWithFullMemory)
   {
     // forward the '-fullcrashdumps' command line argument
     procOpt.AddArgument("-fullcrashdumps");
   }
 
-  ezProcessGroup proc;
+  WProcessGroup proc;
   if (proc.Launch(procOpt).Failed())
-    return ezStatus(ezFmt("Failed to launch '{}'", sDumpToolPath));
+    return WStatus(WFmt("Failed to launch '{}'", sDumpToolPath));
 
   if (proc.WaitToFinish().Failed())
-    return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
+    return WStatus("Waiting for WMiniDumpTool to finish failed.");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

@@ -1,0 +1,314 @@
+﻿# Editor
+
+Editor.OpenDashboard;Show Dash&board...
+Project.Open;Open Project...
+Project.Create;Create Project...
+Editor.LaunchFileserve;Launch Fileserve...;Launches the WFileServe application.
+G.Inspector;Launch Inspector
+Editor.LaunchInspectorPlayer;For &WPlayer (Port 1040);Launches WInspector and connects to the WPlayer telemetry port (1040).
+Editor.LaunchInspectorEditorEngine;For &Editor Engine (Port 1050);Launches WInspector and connects to the Editor Engine process telemetry port (1050).
+Editor.LaunchTracy;Launch Tracy...;Launches the Tracy profiler application.
+Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
+Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
+Editor.Preferences;Preferences...;Opens the preferences dialog
+Editor.SaveProfiling;Save Editor Profiling Data;Saves profiling information about editor performance to file. See log for details.
+Editor.OpenVsCode;Open in Visual Studio Code
+Editor.DocsAndCommunity;Docs and Community...
+
+
+# Panels
+
+Panel.AssetBrowser;Asset Browser
+Panel.Log;Log
+Panel.AssetCurator;Asset Curator
+Panel.CVar;CVars
+Panel.LongOps;Background Operations
+Panel.AssetCheck;Check Assets
+
+# Property Widget
+CONTAINER_AddEntry;{0}: Add Entry
+POINTERWIDGET_Create;Create
+
+# Menus
+
+G.Project;&Project
+G.File;&File
+G.Edit;E&dit
+G.Panels;P&anels
+G.Scene;&Scene
+G.Asset;&Asset
+G.Tools;&Tools
+G.View;&View
+G.Help;&Help
+G.Project.Settings;Project Settings
+G.Plugins.Settings;Plugin Settings
+
+
+Panels.All;Show Panels
+
+# Engine
+
+Engine.ReloadResources;Reload Resources;Reloads resources, such as textures, if they have changed on disk.
+Engine.ReloadEngine;Reload Engine;Shuts down the engine process and restarts it. Makes it possible to reload custom DLLs.
+Engine.Tags;Tags...;Opens the tags configuration dialog
+
+# Project
+
+Project.ImportAsset;Import &Assets...
+Project.RecentDocuments.Menu;&Recently Opened
+Project.Close;Close Project
+G.Project.Cpp;C++ Project
+Project.SetupCppProject;&Setup C++ Plugin...
+Project.OpenCppProject;&Open in IDE
+Project.CompileCppProject;&Compile Plugin
+Project.RegenerateCppSolution;&Regenerate C++ Project
+Project.ExportProject;&Export Project...
+Project.PluginSelection;Plugin Selection...
+Project.DataDirectories;D&ata Directories...
+Project.InputConfig;&Input Configuration...
+Project.WindowConfig;&Window Configuration...
+Project.AssetProfiles;Asset Profiles...
+Project.ClearAssetCaches;Clear Asset Caches...
+
+# Document
+
+Document.Create;&Create...
+Document.Open;&Open...
+Document.Save;&Save
+Document.SaveAll;Save All
+Document.SaveAs;Save &As...
+Document.Close;Close
+Document.CloseAll;Close All
+Document.CloseAllButThis;Close All But This
+Document.OpenContainingFolder;Open in Explorer
+Document.CopyDocumentPath;Copy Path;Stores the absolute path of the document in the clipboard.
+Document.MoveWindow;Move to Container Window
+Document.NewWindow;New Container Window
+Document.Undo;Undo
+Document.Redo;Redo
+
+# Help
+
+Help.CheckForUpdates;Check for Updates...
+Help.ReportProblem;Report a Problem...
+Help.AskQuestion;Ask a Question...
+
+# Assets
+
+Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
+Asset.WriteDependencyDGML;Write Dependency DGML...;Creates a DGML file containing all transform and thumbnail dependencies this asset transitively depends on
+Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
+Asset.ResaveAll;Resave All Assets;Opens every document and saves it. Used to get all documents to the latest version.
+Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
+Asset.WriteLookupTable;Write Lookup Table
+Asset.Help;Open Asset Documentation;Open online documentation for this asset type
+Asset.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
+Asset.SelectInAssetBrowser;Select in Asset Browser
+AssetCurator.OpenDocument;Open Document
+AssetCurator.SelectInAssetBrowser;Select in Asset Browser
+Asset.CameraMode;Camera Mode
+
+# Prefabs
+
+Prefabs.Menu;Prefabs
+Prefabs.UpdateAll;Update Prefabs
+Prefabs.Create;Create Prefab...
+Prefabs.Revert;Revert Prefab
+Prefabs.OpenDocument;Edit Prefab...;Opens the prefab template in a separate window for editing
+Prefabs.Unlink;Unlink from Template;The prefab instance is turned into a regular object with no connection to the original prefab
+Prefabs.ConvertToEngine;Convert to Engine Prefab
+Prefabs.ConvertToEditor;Convert to Editor Prefab
+AssetBrowser.AssetMenu;Asset;Operations for the type of the selected asset
+
+Meshes.CreateLods;Create LODs...;Creates simplified LOD mesh assets next to this mesh, using the same import settings
+Meshes.CreateLodsDocument;Create LODs...;Creates simplified LOD mesh assets next to this mesh, using the same import settings
+
+Prefabs.CreateFromMesh;Create Prefab...;Creates a prefab that displays this mesh
+Prefabs.CreateFromMeshDocument;Create Prefab...;Creates a prefab that displays this mesh
+
+# View
+
+View.RenderMode;Render Mode
+View.RenderPerspective;Perspective
+View.CameraUsageHint;Camera Usage Hint
+View.RenderPipeline;Render Pipeline
+View.ActivateRemoteProcess;Activate Remote Process
+View.LinkDeviceCamera;Link Camera on Remote Process
+View.LightMenu;Light Settings
+View.SkyBox;Enable Sky Box
+View.SkyLight;Enable Sky Light
+View.SkyLightCubeMap;Select Sky Light CubeMap...
+View.SkyLightIntensity;Sky Light Intensity
+View.DirectionalLight;Enable Directional Light
+View.DirLightAngle;Directional Light Angle
+View.DirectionalLightShadows;Directional Light Shadows
+View.DirLightIntensity;Directional Light Intensity
+View.Fog;Enable Fog
+View.SetAsDefault;Set As Default...
+
+WViewRenderMode::None;Default
+WViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
+WViewRenderMode::TexCoordsUV1;Texture Coordinates (UV1)
+WViewRenderMode::DiffuseColorRange;Diffuse Color Range Check
+WViewRenderMode::Occlusion;Ambient Occlusion
+WViewRenderMode::StaticVsDynamic;Static vs. Dynamic
+
+# Common
+
+Common.Pause;Pause
+Common.Restart;Restart
+Common.Loop;Loop
+Common.Grid;Grid
+Common.Visualizers;Visualizers
+Common.Speed.Menu;Speed
+Common.Speed.01;10%
+Common.Speed.025;25%
+Common.Speed.05;50%
+Common.Speed.1;100%
+Common.Speed.15;150%
+Common.Speed.2;200%
+Common.Speed.3;300%
+Common.Speed.4;400%
+Common.Speed.5;500%
+Common.Speed.10;1000%
+
+# Selection
+
+Selection.Copy;Copy
+Selection.Paste;Paste
+Selection.PasteAsChild;Paste as Child;Pastes the copied objects as child nodes of the selected object.
+Selection.PasteAtOriginalLocation;Paste at Original Location;Pastes the copied objects at their original location.
+Selection.Delete;Delete
+Selection.ShowInScenegraph;Show in Scenegraph
+Selection.FocusSingleView;Focus on Selection
+Selection.FocusAllViews;Focus All Views on Selection
+Selection.GroupItems;Group
+Selection.HideItems;Hide Selected
+Selection.HideUnselectedItems;Hide Unselected
+Selection.ShowHidden;Show Hidden Objects
+Selection.CreateEmptyChildObject;Create Empty Child Object
+Selection.CreateEmptyObjectAtPosition;Create Object Here
+Selection.DuplicateSpecial;Duplicate...
+Selection.DeltaTransform;Delta Transform...
+Selection.Attach;Attach to This
+Selection.Detach;Detach
+Selection.CopyReference;Copy Object Reference
+Selection.SelectParent;Select Parent Object
+Selection.SetActiveParent;Set Active Parent
+Selection.ClearActiveParent;Clear Active Parent
+Selection.UndoSelection;Undo Selection Change;Reverts the last change to the object selection.
+
+# Profile Configs
+
+WRenderPipelineProfileConfig;Render Pipelines
+WTextureAssetProfileConfig;Texture Assets
+WCoreRenderProfileConfig;Rendering Options
+
+# Gizmo
+
+G.Gizmos;Edit Mode
+Gizmo.Translation.Snap.Dropdown;Position Snapping;Position Snapping: Hold SHIFT while dragging gizmo for no snapping.
+Gizmo.Rotation.Snap.Dropdown;Rotation Snapping;Rotation Snapping: Hold SHIFT while dragging gizmo for no snapping.
+Gizmo.Scale.Snap.Dropdown;Scale Snapping;Scale Snapping: Hold SHIFT while dragging gizmo for no snapping.
+Gizmo.Mode.Select;Select
+Gizmo.Mode.Translate;Translate
+Gizmo.Mode.Rotate;Rotate
+Gizmo.Mode.Scale;Scale
+Gizmo.Mode.DragToPosition;Drag To Position
+Gizmo.Mode.GreyBoxing;Grey-Boxing
+Gizmo.TransformSpace;Transform in World Space
+Gizmo.MoveParentOnly;Transform Parent Only
+Gizmo.Rotation.Snap.0_Degree;No Rotation Snap
+Gizmo.Rotation.Snap.1_Degree;1 Degree
+Gizmo.Rotation.Snap.5_Degree;5 Degree
+Gizmo.Rotation.Snap.10_Degree;10 Degree
+Gizmo.Rotation.Snap.15_Degree;15 Degree
+Gizmo.Rotation.Snap.30_Degree;30 Degree
+Gizmo.Rotation.Snap.22_5_Degree;22.5 Degree
+Gizmo.Rotation.Snap.45_Degree;45 Degree
+Gizmo.Rotation.Snap.90_Degree;90 Degree
+Gizmo.Scale.Snap.0;No Scale Snap
+Gizmo.Scale.Snap.4;4
+Gizmo.Scale.Snap.2;2
+Gizmo.Scale.Snap.1;1
+Gizmo.Scale.Snap.0_5;0.5
+Gizmo.Scale.Snap.0_25;0.25
+Gizmo.Scale.Snap.0_125;0.125
+Gizmo.Translate.Snap.Menu;Position Snap
+Gizmo.Translate.Snap.PivotToGrid;Snap Pivot To Grid
+Gizmo.Translate.Snap.ObjectsToGrid;Snap Each Object To Grid
+Gizmo.Translate.Snap.0;No Position Snap
+Gizmo.Translate.Snap.10;10m
+Gizmo.Translate.Snap.8;8 m
+Gizmo.Translate.Snap.5;5 m
+Gizmo.Translate.Snap.4;4 m
+Gizmo.Translate.Snap.2;2 m
+Gizmo.Translate.Snap.1;1 m
+Gizmo.Translate.Snap.0_5;50 cm
+Gizmo.Translate.Snap.0_25;25 cm
+Gizmo.Translate.Snap.0_2;20 cm
+Gizmo.Translate.Snap.0_125;12.5 cm
+Gizmo.Translate.Snap.0_1;10 cm
+Gizmo.Translate.Snap.0_05;5 cm
+Gizmo.Translate.Snap.0_01;1 cm
+Gizmo.SnapSettings;Snap Settings
+
+# GameObjectContext
+
+GameObjectContext.PickContextScene;Pick Context Scene...
+GameObjectContext.PickContextObject;Use Object as Context
+GameObjectContext.ClearContextObject;Clear Context Object
+
+WSceneViewPerspective::Orthogonal_Front;Ortho Front
+WSceneViewPerspective::Orthogonal_Right;Ortho Right
+WSceneViewPerspective::Orthogonal_Top;Ortho Top
+WSceneViewPerspective::Perspective;Perspective
+
+# VariantType
+
+WVariantType::Bool;Bool
+WVariantType::Int8;Int8
+WVariantType::UInt8;UInt8
+WVariantType::Int16;Int16
+WVariantType::UInt16;UInt16
+WVariantType::Int32;Int32
+WVariantType::UInt32;UInt32
+WVariantType::Int64;Int64
+WVariantType::UInt64;UInt64
+WVariantType::Float;Float
+WVariantType::Double;Double
+WVariantType::Color;Color
+WVariantType::Vector2;Vector2
+WVariantType::Vector3;Vector3
+WVariantType::Vector4;Vector4
+WVariantType::Vector2I;Vector2I
+WVariantType::Vector3I;Vector3I
+WVariantType::Vector4I;Vector4I
+WVariantType::Vector2U;Vector2U
+WVariantType::Vector3U;Vector3U
+WVariantType::Vector4U;Vector4U
+WVariantType::Quaternion;Quaternion
+WVariantType::Matrix3;Matrix3
+WVariantType::Matrix4;Matrix4
+WVariantType::Transform;Transform
+WVariantType::String;String
+WVariantType::StringView;StringView
+WVariantType::DataBuffer;DataBuffer
+WVariantType::Time;Time
+WVariantType::Uuid;Uuid
+WVariantType::Angle;Angle
+WVariantType::ColorGamma;ColorGamma
+
+# Compiler Preferences
+
+WCppProject::CppIDE;C++ IDE
+WCompilerPreferences::CppCompiler;C++ Compiler
+
+
+# Window Layouts
+WindowLayout;Editor Layout
+Layout.DefaultPinned;Default (Pinned)
+Layout.DefaultUnpinned;Default (Unpinned)
+Layout.AbBottom;Asset Browser at Bottom
+Layout.SaveLayout;Save Layout
+Layout.LoadLayout;Load Layout

@@ -18,93 +18,93 @@
 #include <Texture/Image/ImageUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpEngineAppTool, 1, ezRTTIDefaultAllocator<ezMcpEngineAppTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpEngineAppTool, 1, WRTTIDefaultAllocator<WMcpEngineAppTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   /// Collects the registered windows, so that an index means the same thing in app_info and in
   /// app_screenshot.
-  void GetWindows(ezDynamicArray<ezRegisteredWndHandle>& out_windows)
+  void GetWindows(WDynamicArray<WRegisteredWndHandle>& out_windows)
   {
-    if (ezWindowManager* pMan = ezWindowManager::GetSingleton())
+    if (WWindowManager* pMan = WWindowManager::GetSingleton())
     {
       pMan->GetRegistered(out_windows);
     }
   }
 
-  /// Writes an image to an absolute path, without going through the ezFileSystem.
+  /// Writes an image to an absolute path, without going through the WFileSystem.
   ///
-  /// ezImageView::SaveTo() uses ezFileWriter, which only reaches paths inside a writable data
+  /// WImageView::SaveTo() uses WFileWriter, which only reaches paths inside a writable data
   /// directory - and the whole point of the path this tool returns is that the caller picked it, so it
-  /// is usually somewhere else entirely. ezGameApplicationBase::StoreScreenshot() is no use either: it
+  /// is usually somewhere else entirely. WGameApplicationBase::StoreScreenshot() is no use either: it
   /// writes into ':appdata/Screenshots' under a generated name, on a worker task, so there is no path
   /// to report back and no moment at which the file is known to exist.
-  ezResult WriteImageToAbsolutePath(const ezImageView& image, ezStringView sAbsolutePath)
+  WResult WriteImageToAbsolutePath(const WImageView& image, WStringView sAbsolutePath)
   {
-    const ezStringView sExtension = ezPathUtils::GetFileExtension(sAbsolutePath);
-    const ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(sExtension);
+    const WStringView sExtension = WPathUtils::GetFileExtension(sAbsolutePath);
+    const WImageFileFormat* pFormat = WImageFileFormat::GetWriterFormat(sExtension);
 
     if (pFormat == nullptr)
     {
-      ezLog::Error("No image file format is available to write '{}'.", sAbsolutePath);
-      return EZ_FAILURE;
+      WLog::Error("No image file format is available to write '{}'.", sAbsolutePath);
+      return W_FAILURE;
     }
 
-    // Encoded into memory first, because ezOSFile is not an ezStreamWriter and the format writers only
+    // Encoded into memory first, because WOSFile is not an WStreamWriter and the format writers only
     // take one of those. A failed encode then also leaves no half-written file behind.
-    ezDefaultMemoryStreamStorage storage;
-    ezMemoryStreamWriter memoryWriter(&storage);
+    WDefaultMemoryStreamStorage storage;
+    WMemoryStreamWriter memoryWriter(&storage);
 
     if (pFormat->WriteImage(memoryWriter, image, sExtension).Failed())
     {
-      ezLog::Error("Could not encode the image as '{}'.", sExtension);
-      return EZ_FAILURE;
+      WLog::Error("Could not encode the image as '{}'.", sExtension);
+      return W_FAILURE;
     }
 
-    ezStringBuilder sFolder = sAbsolutePath;
+    WStringBuilder sFolder = sAbsolutePath;
     sFolder.PathParentDirectory();
 
-    if (!sFolder.IsEmpty() && ezOSFile::CreateDirectoryStructure(sFolder).Failed())
+    if (!sFolder.IsEmpty() && WOSFile::CreateDirectoryStructure(sFolder).Failed())
     {
-      ezLog::Error("Could not create the folder for '{}'.", sAbsolutePath);
-      return EZ_FAILURE;
+      WLog::Error("Could not create the folder for '{}'.", sAbsolutePath);
+      return W_FAILURE;
     }
 
-    ezOSFile file;
-    if (file.Open(sAbsolutePath, ezFileOpenMode::Write).Failed())
+    WOSFile file;
+    if (file.Open(sAbsolutePath, WFileOpenMode::Write).Failed())
     {
-      ezLog::Error("Could not open '{}' for writing.", sAbsolutePath);
-      return EZ_FAILURE;
+      WLog::Error("Could not open '{}' for writing.", sAbsolutePath);
+      return W_FAILURE;
     }
 
-    ezMemoryStreamReader memoryReader(&storage);
-    ezHybridArray<ezUInt8, 4096> chunk;
+    WMemoryStreamReader memoryReader(&storage);
+    WHybridArray<WUInt8, 4096> chunk;
     chunk.SetCountUninitialized(4096);
 
-    while (const ezUInt64 uiRead = memoryReader.ReadBytes(chunk.GetData(), chunk.GetCount()))
+    while (const WUInt64 uiRead = memoryReader.ReadBytes(chunk.GetData(), chunk.GetCount()))
     {
       if (file.Write(chunk.GetData(), uiRead).Failed())
       {
-        ezLog::Error("Could not write '{}'.", sAbsolutePath);
-        return EZ_FAILURE;
+        WLog::Error("Could not write '{}'.", sAbsolutePath);
+        return W_FAILURE;
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 } // namespace
 
-ezStringView ezMcpEngineAppTool::GetBuildTimestamp() const
+WStringView WMcpEngineAppTool::GetBuildTimestamp() const
 {
   // this plugin's own timestamp, not the Mcp library's - the tool list comes from here
   return __DATE__ " " __TIME__;
 }
 
-ezStringView ezMcpEngineAppTool::GetRelaunchHint() const
+WStringView WMcpEngineAppTool::GetRelaunchHint() const
 {
-  return "To start a game again afterwards, run ezPlayer with "
+  return "To start a game again afterwards, run WPlayer with "
          "'-project <path-to-project-folder> -scene <path-to-binary-scene> -mcpport <port>'. It serves MCP at "
          "http://127.0.0.1:<port>/mcp once the scene is loaded, which takes a few seconds - poll the port rather than "
          "assuming a delay. Without '-mcpport' no server is started at all, which is the default. "
@@ -112,38 +112,38 @@ ezStringView ezMcpEngineAppTool::GetRelaunchHint() const
          "editor's play-the-game session, and starting another one is done through the editor.";
 }
 
-void ezMcpEngineAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
+void WMcpEngineAppTool::AddHostInfo(WMcpJsonWriter& ref_writer)
 {
   // Which of the two hosts this is. They answer the same tools but are not interchangeable: one is
   // launched directly and free-runs, the other is a child of the editor and only renders when asked.
-  ref_writer.AddVariableString("host", ezApplication::GetApplicationInstance()->GetApplicationName());
+  ref_writer.AddVariableString("host", WApplication::GetApplicationInstance()->GetApplicationName());
 
-  ref_writer.AddVariableUInt64("frameCount", ezMcpEngineHost::GetFrameCount());
+  ref_writer.AddVariableUInt64("frameCount", WMcpEngineHost::GetFrameCount());
 
   // Where this process writes its log. Worth reporting for the same reason as in the editor: a crash
   // takes the server with it, and the file is what is left to read afterwards.
-  ezStringBuilder sAbsLogFile;
-  if (ezFileSystem::ResolvePath(":appdata/Log.htm", &sAbsLogFile, nullptr).Succeeded())
+  WStringBuilder sAbsLogFile;
+  if (WFileSystem::ResolvePath(":appdata/Log.htm", &sAbsLogFile, nullptr).Succeeded())
   {
     ref_writer.AddVariableString("logFileFolder", sAbsLogFile.GetFileDirectory());
   }
 
   // The windows app_screenshot can capture, by the index it takes.
-  ezHybridArray<ezRegisteredWndHandle, 4> windows;
+  WHybridArray<WRegisteredWndHandle, 4> windows;
   GetWindows(windows);
 
-  ezWindowManager* pMan = ezWindowManager::GetSingleton();
+  WWindowManager* pMan = WWindowManager::GetSingleton();
 
   ref_writer.BeginArray("windows");
-  for (ezUInt32 i = 0; i < windows.GetCount(); ++i)
+  for (WUInt32 i = 0; i < windows.GetCount(); ++i)
   {
     ref_writer.BeginObject();
     ref_writer.AddVariableUInt32("index", i);
     ref_writer.AddVariableString("name", pMan->GetName(windows[i]));
 
-    if (const ezWindowBase* pWindow = pMan->GetWindow(windows[i]))
+    if (const WWindowBase* pWindow = pMan->GetWindow(windows[i]))
     {
-      const ezSizeU32 size = pWindow->GetClientAreaSize();
+      const WSizeU32 size = pWindow->GetClientAreaSize();
       ref_writer.AddVariableUInt32("width", size.width);
       ref_writer.AddVariableUInt32("height", size.height);
     }
@@ -155,20 +155,20 @@ void ezMcpEngineAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
   ref_writer.EndArray();
 }
 
-void ezMcpEngineAppTool::RequestQuit(bool bDiscardChanges)
+void WMcpEngineAppTool::RequestQuit(bool bDiscardChanges)
 {
-  EZ_IGNORE_UNUSED(bDiscardChanges);
+  W_IGNORE_UNUSED(bDiscardChanges);
 
   // Deferred to the end of the frame, because the response has not reached the socket yet.
-  ezMcpEngineHost::RequestQuit();
+  WMcpEngineHost::RequestQuit();
 }
 
-void ezMcpEngineAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpEngineAppTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   SUPER::GetSupportedTools(out_tools);
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "app_screenshot";
     desc.m_sDescription =
       "Captures what the game is currently rendering, writes it to an image file and returns the absolute path to it. "
@@ -187,7 +187,7 @@ void ezMcpEngineAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_to
   }
 }
 
-void ezMcpEngineAppTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpEngineAppTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "app_screenshot")
   {
@@ -198,16 +198,16 @@ void ezMcpEngineAppTool::Execute(ezStringView sToolName, const ezVariantDictiona
   SUPER::Execute(sToolName, arguments, out_result);
 }
 
-ezMcpEngineAppTool::~ezMcpEngineAppTool()
+WMcpEngineAppTool::~WMcpEngineAppTool()
 {
   OnDeactivate();
 }
 
-void ezMcpEngineAppTool::OnDeactivate()
+void WMcpEngineAppTool::OnDeactivate()
 {
   if (m_FrameSubscription != 0)
   {
-    if (ezGameApplicationBase* pApp = ezGameApplicationBase::GetGameApplicationBaseInstance())
+    if (WGameApplicationBase* pApp = WGameApplicationBase::GetGameApplicationBaseInstance())
     {
       pApp->m_ExecutionEvents.RemoveEventHandler(m_FrameSubscription);
     }
@@ -216,22 +216,22 @@ void ezMcpEngineAppTool::OnDeactivate()
   }
 }
 
-void ezMcpEngineAppTool::ExecutionEventHandler(const ezGameApplicationExecutionEvent& e)
+void WMcpEngineAppTool::ExecutionEventHandler(const WGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type != ezGameApplicationExecutionEvent::Type::BeforePresent)
+  if (e.m_Type != WGameApplicationExecutionEvent::Type::BeforePresent)
     return;
 
   if (m_State != CaptureState::Pending)
     return;
 
-  ezHybridArray<ezRegisteredWndHandle, 4> windows;
+  WHybridArray<WRegisteredWndHandle, 4> windows;
   GetWindows(windows);
 
-  ezWindowOutputTargetBase* pOutputTarget = nullptr;
+  WWindowOutputTargetBase* pOutputTarget = nullptr;
 
-  if (m_iCaptureWindow < static_cast<ezInt32>(windows.GetCount()))
+  if (m_iCaptureWindow < static_cast<WInt32>(windows.GetCount()))
   {
-    pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(windows[m_iCaptureWindow]);
+    pOutputTarget = WWindowManager::GetSingleton()->GetOutputTarget(windows[m_iCaptureWindow]);
   }
 
   if (pOutputTarget == nullptr)
@@ -242,15 +242,15 @@ void ezMcpEngineAppTool::ExecutionEventHandler(const ezGameApplicationExecutionE
     return;
   }
 
-  const ezEnum<ezCaptureImageResult> res = pOutputTarget->WaitCaptureImage(m_CapturedImage);
+  const WEnum<WCaptureImageResult> res = pOutputTarget->WaitCaptureImage(m_CapturedImage);
 
-  if (res == ezCaptureImageResult::Ready)
+  if (res == WCaptureImageResult::Ready)
   {
     m_State = CaptureState::Ready;
     return;
   }
 
-  if (res == ezCaptureImageResult::NotStarted)
+  if (res == WCaptureImageResult::NotStarted)
   {
     // Accepted and then dropped - the swap chain's back buffer was not usable when the renderer got to
     // it. Not a timing problem, so waiting longer would not help.
@@ -261,9 +261,9 @@ void ezMcpEngineAppTool::ExecutionEventHandler(const ezGameApplicationExecutionE
   }
 }
 
-void ezMcpEngineAppTool::ExecuteScreenshot(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpEngineAppTool::ExecuteScreenshot(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  // Re-entered once per frame while the capture is in flight - see ezMcpToolResult::m_bNotFinished. The
+  // Re-entered once per frame while the capture is in flight - see WMcpToolResult::m_bNotFinished. The
   // arguments are the same every time, so they are only read on the first pass.
   if (m_State == CaptureState::Idle)
   {
@@ -288,7 +288,7 @@ void ezMcpEngineAppTool::ExecuteScreenshot(const ezVariantDictionary& arguments,
     return;
   }
 
-  if (ezTime::Now() - m_CaptureStarted < s_CaptureTimeout)
+  if (WTime::Now() - m_CaptureStarted < s_CaptureTimeout)
   {
     out_result.m_bNotFinished = true;
     return;
@@ -301,141 +301,141 @@ void ezMcpEngineAppTool::ExecuteScreenshot(const ezVariantDictionary& arguments,
                       "that is minimised does the same thing.");
 }
 
-ezResult ezMcpEngineAppTool::BeginScreenshot(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+WResult WMcpEngineAppTool::BeginScreenshot(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezHybridArray<ezRegisteredWndHandle, 4> windows;
+  WHybridArray<WRegisteredWndHandle, 4> windows;
   GetWindows(windows);
 
   if (windows.IsEmpty())
   {
     out_result.SetError("This process has no window registered, so there is nothing to capture. That is normal for a "
                         "process that was started without a graphics device.");
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezWindowManager* pWinMan = ezWindowManager::GetSingleton();
+  WWindowManager* pWinMan = WWindowManager::GetSingleton();
 
-  ezInt32 iWindow = 0;
+  WInt32 iWindow = 0;
 
-  const ezStringBuilder sWantedName = ezMcpJson::GetString(arguments, "windowName");
+  const WStringBuilder sWantedName = WMcpJson::GetString(arguments, "windowName");
 
   if (!sWantedName.IsEmpty())
   {
     iWindow = -1;
 
-    for (ezUInt32 i = 0; i < windows.GetCount(); ++i)
+    for (WUInt32 i = 0; i < windows.GetCount(); ++i)
     {
       // Substring, so that a document guid alone finds 'EditorView { guid }'.
       if (pWinMan->GetName(windows[i]).FindSubString_NoCase(sWantedName) != nullptr)
       {
-        iWindow = static_cast<ezInt32>(i);
+        iWindow = static_cast<WInt32>(i);
         break;
       }
     }
 
     if (iWindow < 0)
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("No window's name contains '{}'. This process has {}; see 'windows' in app_info for their names.",
         sWantedName, windows.GetCount());
       out_result.SetError(sError);
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
   else
   {
-    iWindow = static_cast<ezInt32>(ezMcpJson::GetInt(arguments, "window", 0));
+    iWindow = static_cast<WInt32>(WMcpJson::GetInt(arguments, "window", 0));
 
-    if (iWindow < 0 || iWindow >= static_cast<ezInt32>(windows.GetCount()))
+    if (iWindow < 0 || iWindow >= static_cast<WInt32>(windows.GetCount()))
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("There is no window {}. This process has {}; see 'windows' in app_info.", iWindow, windows.GetCount());
       out_result.SetError(sError);
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  ezWindowOutputTargetBase* pOutputTarget = pWinMan->GetOutputTarget(windows[iWindow]);
+  WWindowOutputTargetBase* pOutputTarget = pWinMan->GetOutputTarget(windows[iWindow]);
 
   if (pOutputTarget == nullptr)
   {
     out_result.SetError("That window has no output target, so nothing is rendered into it and there is nothing to capture.");
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezStringBuilder sPath = ezMcpJson::GetString(arguments, "path");
+  WStringBuilder sPath = WMcpJson::GetString(arguments, "path");
 
   if (sPath.IsEmpty())
   {
     // Into the temp folder, and named by frame, so that repeated calls do not overwrite each other and
     // an agent can compare two frames without having to invent file names.
-    sPath = ezOSFile::GetTempDataFolder("Screenshots");
-    sPath.AppendFormat("/{}_{}.png", ezProcess::GetCurrentProcessID(), ezMcpEngineHost::GetFrameCount());
+    sPath = WOSFile::GetTempDataFolder("Screenshots");
+    sPath.AppendFormat("/{}_{}.png", WProcess::GetCurrentProcessID(), WMcpEngineHost::GetFrameCount());
   }
 
   sPath.MakeCleanPath();
 
-  if (!ezPathUtils::IsAbsolutePath(sPath))
+  if (!WPathUtils::IsAbsolutePath(sPath))
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("'{}' is not an absolute path. The file is written straight to disk rather than into a data "
                      "directory, so there is nothing for a relative path to be relative to.",
       sPath);
     out_result.SetError(sError);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // Subscribed lazily rather than in OnActivate(): the providers are created when the plugin loads, and
-  // there is no ezGameApplicationBase yet at that point.
+  // there is no WGameApplicationBase yet at that point.
   if (m_FrameSubscription == 0)
   {
-    ezGameApplicationBase* pApp = ezGameApplicationBase::GetGameApplicationBaseInstance();
+    WGameApplicationBase* pApp = WGameApplicationBase::GetGameApplicationBaseInstance();
 
     if (pApp == nullptr)
     {
       out_result.SetError("There is no game application, so there is no frame loop to complete a capture.");
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-    m_FrameSubscription = pApp->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezMcpEngineAppTool::ExecutionEventHandler, this));
+    m_FrameSubscription = pApp->m_ExecutionEvents.AddEventHandler(WMakeDelegate(&WMcpEngineAppTool::ExecutionEventHandler, this));
   }
 
   if (pOutputTarget->StartCaptureImage().Failed())
   {
     out_result.SetError("Could not start the capture. Another one may still be in flight - try again in a moment.");
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_State = CaptureState::Pending;
   m_sCapturePath = sPath;
   m_iCaptureWindow = iWindow;
   m_sCaptureWindowName = pWinMan->GetName(windows[iWindow]);
-  m_uiCaptureMaxWidth = static_cast<ezUInt32>(ezMath::Max<ezInt64>(0, ezMcpJson::GetInt(arguments, "maxWidth", 1280)));
-  m_CaptureStarted = ezTime::Now();
+  m_uiCaptureMaxWidth = static_cast<WUInt32>(WMath::Max<WInt64>(0, WMcpJson::GetInt(arguments, "maxWidth", 1280)));
+  m_CaptureStarted = WTime::Now();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMcpEngineAppTool::FinishScreenshot(ezMcpToolResult& out_result)
+void WMcpEngineAppTool::FinishScreenshot(WMcpToolResult& out_result)
 {
-  ezImage image;
+  WImage image;
   image.ResetAndMove(std::move(m_CapturedImage));
 
   // Downscaled before encoding rather than after: a full resolution PNG is several megabytes and the
   // detail is not what the image is being looked at for.
   if (m_uiCaptureMaxWidth > 0 && image.GetWidth() > m_uiCaptureMaxWidth)
   {
-    const ezUInt32 uiHeight = ezMath::Max(1u, (image.GetHeight() * m_uiCaptureMaxWidth) / image.GetWidth());
+    const WUInt32 uiHeight = WMath::Max(1u, (image.GetHeight() * m_uiCaptureMaxWidth) / image.GetWidth());
 
-    ezImage scaled;
-    if (ezImageUtils::Scale(image, scaled, m_uiCaptureMaxWidth, uiHeight).Succeeded())
+    WImage scaled;
+    if (WImageUtils::Scale(image, scaled, m_uiCaptureMaxWidth, uiHeight).Succeeded())
     {
       image.ResetAndMove(std::move(scaled));
     }
   }
 
   // get rid of the alpha channel, which a back buffer carries and a viewer does not want
-  if (image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB).Failed())
+  if (image.Convert(WImageFormat::R8G8B8_UNORM_SRGB).Failed())
   {
     out_result.SetError("Could not convert the screenshot to RGB8.");
     return;
@@ -443,7 +443,7 @@ void ezMcpEngineAppTool::FinishScreenshot(ezMcpToolResult& out_result)
 
   if (WriteImageToAbsolutePath(image, m_sCapturePath).Failed())
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("Could not write the screenshot to '{}'. See log_read for the reason - a bad extension and a "
                      "folder that cannot be created both end up here.",
       m_sCapturePath);
@@ -451,12 +451,12 @@ void ezMcpEngineAppTool::FinishScreenshot(ezMcpToolResult& out_result)
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableString("path", m_sCapturePath);
   writer.AddVariableUInt32("width", image.GetWidth());
   writer.AddVariableUInt32("height", image.GetHeight());
-  writer.AddVariableUInt64("frame", ezMcpEngineHost::GetFrameCount());
+  writer.AddVariableUInt64("frame", WMcpEngineHost::GetFrameCount());
 
   writer.AddVariableInt32("window", m_iCaptureWindow);
   writer.AddVariableString("windowName", m_sCaptureWindowName);

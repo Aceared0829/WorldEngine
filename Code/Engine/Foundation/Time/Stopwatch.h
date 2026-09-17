@@ -4,11 +4,11 @@
 #include <Foundation/Time/Time.h>
 
 /// A helper class to time the execution of code or other actions.
-class EZ_FOUNDATION_DLL ezStopwatch
+class W_FOUNDATION_DLL WStopwatch
 {
 public:
   /// The constructor will automatically start the stopwatch.
-  ezStopwatch(); // [tested]
+  WStopwatch(); // [tested]
 
   /// Stops the stopwatch and resets the running total to zero. Afterwards a new time measure can be started using Resume().
   void StopAndReset();
@@ -29,7 +29,7 @@ public:
   ///
   /// The running total can be frozen by calling Pause(), which allows to read the result back at a later point in time.
   /// It can be reset to zero using StopAndReset().
-  ezTime GetRunningTotal() const; // [tested]
+  WTime GetRunningTotal() const; // [tested]
 
   /// This function returns the time that has passed since the last call to Checkpoint() or since the construction of the object.
   ///
@@ -38,11 +38,11 @@ public:
   ///
   /// \note Checkpoint() is not affected by calls to Pause(), Resume() or StopAndReset(). It always returns the time difference to the
   /// last call to Checkpoint().
-  ezTime Checkpoint(); // [tested]
+  WTime Checkpoint(); // [tested]
 
 private:
   bool m_bRunning;
-  mutable ezTime m_LastUpdate;
-  ezTime m_LastCheckpoint;
-  mutable ezTime m_TotalDuration;
+  mutable WTime m_LastUpdate;
+  WTime m_LastCheckpoint;
+  mutable WTime m_TotalDuration;
 };

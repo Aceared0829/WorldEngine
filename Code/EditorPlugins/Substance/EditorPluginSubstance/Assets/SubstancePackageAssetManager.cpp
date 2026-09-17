@@ -6,54 +6,54 @@
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSubstancePackageAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubstancePackageAssetDocumentManager, 1, WRTTIDefaultAllocator<WSubstancePackageAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSubstancePackageAssetDocumentManager::ezSubstancePackageAssetDocumentManager()
+WSubstancePackageAssetDocumentManager::WSubstancePackageAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSubstancePackageAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WSubstancePackageAssetDocumentManager::OnDocumentManagerEvent, this));
 
   {
     m_PackageTypeDesc.m_sDocumentTypeName = "Substance Package";
-    m_PackageTypeDesc.m_sFileExtension = "ezSubstancePackageAsset";
+    m_PackageTypeDesc.m_sFileExtension = "WSubstancePackageAsset";
     m_PackageTypeDesc.m_sIcon = ":/AssetIcons/SubstanceDesigner.svg";
     m_PackageTypeDesc.m_sAssetCategory = "Rendering";
-    m_PackageTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSubstancePackageAssetDocument>();
+    m_PackageTypeDesc.m_pDocumentType = WGetStaticRTTI<WSubstancePackageAssetDocument>();
     m_PackageTypeDesc.m_pManager = this;
     m_PackageTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Substance_Package");
 
-    m_PackageTypeDesc.m_sResourceFileExtension = "ezBinSubstancePackage";
-    m_PackageTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform;
+    m_PackageTypeDesc.m_sResourceFileExtension = "WBinSubstancePackage";
+    m_PackageTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform;
 
-    ezQtImageCache::GetSingleton()->RegisterTypeImage("Substance Package", QPixmap(":/AssetIcons/SubstanceDesigner.svg"));
+    WQtImageCache::GetSingleton()->RegisterTypeImage("Substance Package", QPixmap(":/AssetIcons/SubstanceDesigner.svg"));
   }
 
   {
     m_TextureTypeDesc.m_bCanCreate = false;
     m_TextureTypeDesc.m_sDocumentTypeName = "Substance Texture";
-    m_TextureTypeDesc.m_sFileExtension = "ezSubstanceTextureAsset";
+    m_TextureTypeDesc.m_sFileExtension = "WSubstanceTextureAsset";
     m_TextureTypeDesc.m_sIcon = ":/AssetIcons/SubstanceDesigner.svg";
     m_TextureTypeDesc.m_sAssetCategory = "Rendering";
     m_TextureTypeDesc.m_pManager = this;
     m_TextureTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D");
 
-    m_TextureTypeDesc.m_sResourceFileExtension = "ezBinTexture2D";
-    m_TextureTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+    m_TextureTypeDesc.m_sResourceFileExtension = "WBinTexture2D";
+    m_TextureTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoThumbnailOnTransform;
   }
 }
 
-ezSubstancePackageAssetDocumentManager::~ezSubstancePackageAssetDocumentManager()
+WSubstancePackageAssetDocumentManager::~WSubstancePackageAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSubstancePackageAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WSubstancePackageAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezSubstancePackageAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const
+void WSubstancePackageAssetDocumentManager::FillOutSubAssetList(const WAssetDocumentInfo& assetInfo, WDynamicArray<WSubAssetData>& out_subAssets) const
 {
-  auto pMetaData = assetInfo.GetMetaInfo<ezSubstancePackageAssetMetaData>();
+  auto pMetaData = assetInfo.GetMetaInfo<WSubstancePackageAssetMetaData>();
   if (pMetaData == nullptr)
     return;
 
-  for (ezUInt32 i = 0; i < pMetaData->m_OutputUuids.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pMetaData->m_OutputUuids.GetCount(); ++i)
   {
     auto& subAsset = out_subAssets.ExpandAndGetRef();
     subAsset.m_Guid = pMetaData->m_OutputUuids[i];
@@ -62,28 +62,28 @@ void ezSubstancePackageAssetDocumentManager::FillOutSubAssetList(const ezAssetDo
   }
 }
 
-ezString ezSubstancePackageAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
+WString WSubstancePackageAssetDocumentManager::GetAssetTableEntry(const WSubAsset* pSubAsset, WStringView sDataDirectory, const WPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
     return SUPER::GetAssetTableEntry(pSubAsset, sDataDirectory, pAssetProfile);
   }
 
-  ezStringBuilder sTargetFile = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath().GetFileDirectory();
+  WStringBuilder sTargetFile = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath().GetFileDirectory();
   sTargetFile.Append(pSubAsset->m_Data.m_sName);
 
   return GetRelativeOutputFileName(&m_TextureTypeDesc, sDataDirectory, sTargetFile, "", pAssetProfile);
 }
 
-void ezSubstancePackageAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WSubstancePackageAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSubstancePackageAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSubstancePackageAssetDocument>())
       {
-        new ezQtSubstancePackageAssetWindow(static_cast<ezSubstancePackageAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtSubstancePackageAssetWindow(static_cast<WSubstancePackageAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -93,12 +93,12 @@ void ezSubstancePackageAssetDocumentManager::OnDocumentManagerEvent(const ezDocu
   }
 }
 
-void ezSubstancePackageAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WSubstancePackageAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSubstancePackageAssetDocument(sPath);
+  out_pDocument = new WSubstancePackageAssetDocument(sPath);
 }
 
-void ezSubstancePackageAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WSubstancePackageAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_PackageTypeDesc);
   inout_DocumentTypes.PushBack(&m_TextureTypeDesc);

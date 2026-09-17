@@ -4,20 +4,20 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/Resource.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALResource<ezGALBufferCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALBuffer : public WGALResource<WGALBufferCreationDescription>
 {
 public:
-  EZ_ALWAYS_INLINE ezUInt32 GetSize() const;
-  EZ_ALWAYS_INLINE ezGALBufferRange ClampRange(ezGALBufferRange range) const;
+  W_ALWAYS_INLINE WUInt32 GetSize() const;
+  W_ALWAYS_INLINE WGALBufferRange ClampRange(WGALBufferRange range) const;
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  ezGALBuffer(const ezGALBufferCreationDescription& Description);
-  virtual ~ezGALBuffer();
+  WGALBuffer(const WGALBufferCreationDescription& Description);
+  virtual ~WGALBuffer();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<const WUInt8> pInitialData) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 };
 
 #include <RendererFoundation/Resources/Implementation/Buffer_inl.h>

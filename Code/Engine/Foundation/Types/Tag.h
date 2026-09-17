@@ -3,39 +3,39 @@
 
 #include <Foundation/Strings/HashedString.h>
 
-using ezTagSetBlockStorage = ezUInt64;
+using WTagSetBlockStorage = WUInt64;
 
 /// The tag class stores the necessary lookup information for a single tag which can be used in conjunction with the tag set.
 ///
 /// A tag is the storage for a small amount of lookup information for a single tag. Instances
-/// of ezTag can be used in checks with the tag set. Note that fetching information for the tag needs to access
+/// of WTag can be used in checks with the tag set. Note that fetching information for the tag needs to access
 /// the global tag registry which involves a mutex lock. It is thus
 /// recommended to fetch tag instances early and reuse them for the actual tests and to avoid querying the tag registry
 /// all the time (e.g. due to tag instances being kept on the stack).
-class EZ_FOUNDATION_DLL ezTag
+class W_FOUNDATION_DLL WTag
 {
 public:
-  EZ_ALWAYS_INLINE ezTag();
+  W_ALWAYS_INLINE WTag();
 
-  EZ_ALWAYS_INLINE bool operator==(const ezTag& rhs) const; // [tested]
+  W_ALWAYS_INLINE bool operator==(const WTag& rhs) const; // [tested]
 
-  EZ_ALWAYS_INLINE bool operator!=(const ezTag& rhs) const; // [tested]
+  W_ALWAYS_INLINE bool operator!=(const WTag& rhs) const; // [tested]
 
-  EZ_ALWAYS_INLINE bool operator<(const ezTag& rhs) const;
+  W_ALWAYS_INLINE bool operator<(const WTag& rhs) const;
 
-  EZ_ALWAYS_INLINE const ezString& GetTagString() const; // [tested]
+  W_ALWAYS_INLINE const WString& GetTagString() const; // [tested]
 
-  EZ_ALWAYS_INLINE bool IsValid() const;                 // [tested]
+  W_ALWAYS_INLINE bool IsValid() const;                 // [tested]
 
 private:
   template <typename BlockStorageAllocator>
-  friend class ezTagSetTemplate;
-  friend class ezTagRegistry;
+  friend class WTagSetTemplate;
+  friend class WTagRegistry;
 
-  ezHashedString m_sTagString;
+  WHashedString m_sTagString;
 
-  ezUInt32 m_uiBitIndex = 0xFFFFFFFEu;
-  ezUInt32 m_uiBlockIndex = 0xFFFFFFFEu;
+  WUInt32 m_uiBitIndex = 0xFFFFFFFEu;
+  WUInt32 m_uiBlockIndex = 0xFFFFFFFEu;
 };
 
 #include <Foundation/Types/TagSet.h>

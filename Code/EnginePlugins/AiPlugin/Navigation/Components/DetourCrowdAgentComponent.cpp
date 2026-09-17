@@ -11,53 +11,53 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarBool cvar_DetourCrowdVisAgents("DetourCrowd.Debug.VisAgents", false, ezCVarFlags::Default, "Draws DetourCrowd agents, if any");
-ezCVarBool cvar_DetourCrowdVisCorners("DetourCrowd.Debug.VisCorners", false, ezCVarFlags::Default, "Draws next few path corners of the DetourCrowd agents");
-ezCVarBool cvar_DetourCrowdVisDestination("DetourCrowd.Debug.VisDestination", false, ezCVarFlags::Default, "Draws destination points of the DetourCrowd agents");
+WCVarBool cvar_DetourCrowdVisAgents("DetourCrowd.Debug.VisAgents", false, WCVarFlags::Default, "Draws DetourCrowd agents, if any");
+WCVarBool cvar_DetourCrowdVisCorners("DetourCrowd.Debug.VisCorners", false, WCVarFlags::Default, "Draws next few path corners of the DetourCrowd agents");
+WCVarBool cvar_DetourCrowdVisDestination("DetourCrowd.Debug.VisDestination", false, WCVarFlags::Default, "Draws destination points of the DetourCrowd agents");
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDetourCrowdAgentRotationMode, 1)
-  EZ_ENUM_CONSTANTS(ezDetourCrowdAgentRotationMode::LookAtNextPathCorner, ezDetourCrowdAgentRotationMode::MatchVelocityDirection)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WDetourCrowdAgentRotationMode, 1)
+  W_ENUM_CONSTANTS(WDetourCrowdAgentRotationMode::LookAtNextPathCorner, WDetourCrowdAgentRotationMode::MatchVelocityDirection)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WDetourCrowdAgentComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI/Navigation"),
+    new WCategoryAttribute("AI/Navigation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("NavmeshConfig", m_sNavmeshConfig)->AddAttributes(new ezDynamicStringEnumAttribute("AiNavmeshConfig")),
-    EZ_MEMBER_PROPERTY("Radius",m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.3f),new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Height",m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.8f),new ezClampValueAttribute(0.01f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f),new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f),new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(0.3f),new ezClampValueAttribute(0.001f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)),new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ENUM_MEMBER_PROPERTY("RotationMode",ezDetourCrowdAgentRotationMode,m_RotationMode),
-    EZ_MEMBER_PROPERTY("Pushiness",m_fPushiness)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.0f, ezVariant())),
+    W_MEMBER_PROPERTY("NavmeshConfig", m_sNavmeshConfig)->AddAttributes(new WDynamicStringEnumAttribute("AiNavmeshConfig")),
+    W_MEMBER_PROPERTY("Radius",m_fRadius)->AddAttributes(new WDefaultValueAttribute(0.3f),new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Height",m_fHeight)->AddAttributes(new WDefaultValueAttribute(1.8f),new WClampValueAttribute(0.01f, WVariant())),
+    W_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new WDefaultValueAttribute(3.5f),new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new WDefaultValueAttribute(10.0f),new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new WDefaultValueAttribute(0.3f),new WClampValueAttribute(0.001f, WVariant())),
+    W_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(360.0f)),new WClampValueAttribute(0.0f, WVariant())),
+    W_ENUM_MEMBER_PROPERTY("RotationMode",WDetourCrowdAgentRotationMode,m_RotationMode),
+    W_MEMBER_PROPERTY("Pushiness",m_fPushiness)->AddAttributes(new WDefaultValueAttribute(1.0f),new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination", In, "AllowPartialPaths"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
-    EZ_SCRIPT_FUNCTION_PROPERTY(HasDestination),
+    W_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination", In, "AllowPartialPaths"),
+    W_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
+    W_SCRIPT_FUNCTION_PROPERTY(HasDestination),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezDetourCrowdAgentComponent::ezDetourCrowdAgentComponent()
+WDetourCrowdAgentComponent::WDetourCrowdAgentComponent()
 {
   m_uiHasDestinationBit = 0;
   m_uiDestinationChangedBit = 0;
@@ -66,12 +66,12 @@ ezDetourCrowdAgentComponent::ezDetourCrowdAgentComponent()
   m_uiAllowPartialPathBit = 0;
 }
 
-ezDetourCrowdAgentComponent::~ezDetourCrowdAgentComponent() = default;
+WDetourCrowdAgentComponent::~WDetourCrowdAgentComponent() = default;
 
-void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) const
+void WDetourCrowdAgentComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  WStreamWriter& s = stream.GetStream();
 
   s << m_sNavmeshConfig;
   s << m_fRadius;
@@ -84,11 +84,11 @@ void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fPushiness;
 }
 
-void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
+void WDetourCrowdAgentComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = stream.GetStream();
 
   s >> m_sNavmeshConfig;
   s >> m_fRadius;
@@ -101,36 +101,36 @@ void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fPushiness;
 }
 
-void ezDetourCrowdAgentComponent::SetRadius(float fRadius)
+void WDetourCrowdAgentComponent::SetRadius(float fRadius)
 {
-  m_fRadius = ezMath::Max(fRadius, 0.0f);
+  m_fRadius = WMath::Max(fRadius, 0.0f);
   m_uiParamsChangedBit = 1;
 }
 
-void ezDetourCrowdAgentComponent::SetHeight(float fHeight)
+void WDetourCrowdAgentComponent::SetHeight(float fHeight)
 {
-  m_fHeight = ezMath::Max(fHeight, 0.01f);
+  m_fHeight = WMath::Max(fHeight, 0.01f);
   m_uiParamsChangedBit = 1;
 }
 
-void ezDetourCrowdAgentComponent::SetMaxSpeed(float fMaxSpeed)
+void WDetourCrowdAgentComponent::SetMaxSpeed(float fMaxSpeed)
 {
-  m_fMaxSpeed = ezMath::Max(fMaxSpeed, 0.0f);
+  m_fMaxSpeed = WMath::Max(fMaxSpeed, 0.0f);
   m_uiParamsChangedBit = 1;
 }
 
-void ezDetourCrowdAgentComponent::SetMaxAcceleration(float fMaxAcceleration)
+void WDetourCrowdAgentComponent::SetMaxAcceleration(float fMaxAcceleration)
 {
-  m_fMaxAcceleration = ezMath::Max(fMaxAcceleration, 0.0f);
+  m_fMaxAcceleration = WMath::Max(fMaxAcceleration, 0.0f);
   m_uiParamsChangedBit = 1;
 }
 
-void ezDetourCrowdAgentComponent::SetStoppingDistance(float fStoppingDistance)
+void WDetourCrowdAgentComponent::SetStoppingDistance(float fStoppingDistance)
 {
-  m_fStoppingDistance = ezMath::Max(fStoppingDistance, 0.001f);
+  m_fStoppingDistance = WMath::Max(fStoppingDistance, 0.001f);
 }
 
-void ezDetourCrowdAgentComponent::SetMaxAngularSpeed(ezAngle maxAngularSpeed)
+void WDetourCrowdAgentComponent::SetMaxAngularSpeed(WAngle maxAngularSpeed)
 {
   if (maxAngularSpeed.GetRadian() < 0.0f)
     maxAngularSpeed.SetRadian(0.0f);
@@ -138,15 +138,15 @@ void ezDetourCrowdAgentComponent::SetMaxAngularSpeed(ezAngle maxAngularSpeed)
   m_MaxAngularSpeed = maxAngularSpeed;
 }
 
-void ezDetourCrowdAgentComponent::SetPushiness(float fPushiness)
+void WDetourCrowdAgentComponent::SetPushiness(float fPushiness)
 {
-  m_fPushiness = ezMath::Max(fPushiness, 0.0f);
+  m_fPushiness = WMath::Max(fPushiness, 0.0f);
   m_uiParamsChangedBit = 1;
 }
 
-void ezDetourCrowdAgentComponent::SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath)
+void WDetourCrowdAgentComponent::SetDestination(const WVec3& vGlobalPos, bool bAllowPartialPath)
 {
-  auto* pNavMeshModule = GetWorld()->GetOrCreateModule<ezAiNavMeshWorldModule>();
+  auto* pNavMeshModule = GetWorld()->GetOrCreateModule<WAiNavMeshWorldModule>();
   auto* pNavMesh = pNavMeshModule->GetNavMesh(m_sNavmeshConfig);
 
   if (pNavMesh)
@@ -157,20 +157,20 @@ void ezDetourCrowdAgentComponent::SetDestination(const ezVec3& vGlobalPos, bool 
     m_uiDestinationChangedBit = 1;
     m_uiHasDestinationBit = 1;
 
-    ezRectFloat r = ezRectFloat::MakeInvalid();
+    WRectFloat r = WRectFloat::MakeInvalid();
     r.ExpandToInclude(GetOwner()->GetGlobalPosition().GetAsVec2());
     r.ExpandToInclude(vGlobalPos.GetAsVec2());
-    r.Grow(ezAiNavigation::c_fPathSearchBoundary);
+    r.Grow(WAiNavigation::c_fPathSearchBoundary);
 
     pNavMesh->RequestSector(r.GetCenter(), r.GetHalfExtents());
   }
   else
   {
-    ezLog::Error("NavMesh '{}' does not exist (referenced by '{}')", m_sNavmeshConfig, GetOwner()->GetName());
+    WLog::Error("NavMesh '{}' does not exist (referenced by '{}')", m_sNavmeshConfig, GetOwner()->GetName());
   }
 }
 
-void ezDetourCrowdAgentComponent::CancelNavigation()
+void WDetourCrowdAgentComponent::CancelNavigation()
 {
   m_uiDestinationChangedBit = m_uiHasDestinationBit;
   m_uiHasDestinationBit = 0;
@@ -182,73 +182,73 @@ void ezDetourCrowdAgentComponent::CancelNavigation()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezDetourCrowdAgentComponentManager::ezDetourCrowdAgentComponentManager(ezWorld* pWorld)
+WDetourCrowdAgentComponentManager::WDetourCrowdAgentComponentManager(WWorld* pWorld)
   : SUPER(pWorld)
 {
 }
-ezDetourCrowdAgentComponentManager::~ezDetourCrowdAgentComponentManager() = default;
+WDetourCrowdAgentComponentManager::~WDetourCrowdAgentComponentManager() = default;
 
-void ezDetourCrowdAgentComponentManager::Initialize()
+void WDetourCrowdAgentComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdAgentComponentManager::AsyncUpdate, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WDetourCrowdAgentComponentManager::AsyncUpdate, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdAgentComponentManager::SyncTransforms, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WDetourCrowdAgentComponentManager::SyncTransforms, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(desc);
   }
 }
 
-void ezDetourCrowdAgentComponentManager::FillDtCrowdAgentParams(const ezDetourCrowdAgentComponent* pAgent, dtCrowdAgentParams& out_params)
+void WDetourCrowdAgentComponentManager::FillDtCrowdAgentParams(const WDetourCrowdAgentComponent* pAgent, dtCrowdAgentParams& out_params)
 {
   out_params.radius = pAgent->GetRadius();
   out_params.height = pAgent->GetHeight();
   out_params.maxAcceleration = pAgent->GetMaxAcceleration();
   out_params.maxSpeed = pAgent->GetMaxSpeed();
-  out_params.collisionQueryRange = ezMath::Max(1.2f, 12.0f * out_params.radius);
-  out_params.pathOptimizationRange = ezMath::Max(3.0f, 30.0f * out_params.radius);
+  out_params.collisionQueryRange = WMath::Max(1.2f, 12.0f * out_params.radius);
+  out_params.pathOptimizationRange = WMath::Max(3.0f, 30.0f * out_params.radius);
   out_params.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE | DT_CROWD_SEPARATION;
   out_params.obstacleAvoidanceType = 3;
   out_params.separationWeight = pAgent->GetPushiness();
   out_params.userData = reinterpret_cast<void*>(static_cast<std::uintptr_t>(pAgent->m_uiUniqueAgentId));
 }
 
-dtCrowdAgent* ezDetourCrowdAgentComponentManager::TryGetValidDtAgent(dtCrowd* pDtCrowd, const ezDetourCrowdAgentComponent* pAgent)
+dtCrowdAgent* WDetourCrowdAgentComponentManager::TryGetValidDtAgent(dtCrowd* pDtCrowd, const WDetourCrowdAgentComponent* pAgent)
 {
   dtCrowdAgent* pDtAgent = pAgent->m_uiAgentId ? pDtCrowd->getEditableAgent(static_cast<int>(pAgent->m_uiAgentId - 1)) : nullptr;
 
-  if (pDtAgent && pDtAgent->active && static_cast<ezUInt32>(reinterpret_cast<std::uintptr_t>(pDtAgent->params.userData)) == pAgent->m_uiUniqueAgentId)
+  if (pDtAgent && pDtAgent->active && static_cast<WUInt32>(reinterpret_cast<std::uintptr_t>(pDtAgent->params.userData)) == pAgent->m_uiUniqueAgentId)
     return pDtAgent;
 
   return nullptr;
 }
 
-void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
+void WDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
 {
-  auto* pNavMeshModule = GetWorld()->GetModuleReadOnly<ezAiNavMeshWorldModule>();
+  auto* pNavMeshModule = GetWorld()->GetModuleReadOnly<WAiNavMeshWorldModule>();
   if (!pNavMeshModule)
     return;
 
   // For each dtCrowd, check if the underlying navmesh has changed
   for (auto pair : m_CrowdPerNavMesh)
   {
-    const ezAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(pair.key);
+    const WAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(pair.key);
     if (!pNavMesh)
       continue;
 
     if (pNavMesh->GetDetourNavMesh() != pair.value->getNavMeshQuery()->getAttachedNavMesh())
     {
-      const ezInt32 iMaxAgents = 128;
+      const WInt32 iMaxAgents = 128;
       const float fMaxAgentRadius = pNavMesh->GetConfig().m_fAgentRadius;
 
       pair.value->init(iMaxAgents, fMaxAgentRadius, const_cast<dtNavMesh*>(pNavMesh->GetDetourNavMesh()));
@@ -257,7 +257,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
 
   for (auto it = this->m_ComponentStorage.GetIterator(ctx.m_uiFirstComponentIndex, ctx.m_uiComponentCount); it.IsValid(); ++it)
   {
-    ezDetourCrowdAgentComponent* pAgent = it;
+    WDetourCrowdAgentComponent* pAgent = it;
 
     if (pAgent->IsActiveAndSimulating())
     {
@@ -269,17 +269,17 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
       }
       else
       {
-        ezUInt32 uiCrowdIdx = m_CrowdPerNavMesh.Find(pAgent->m_sNavmeshConfig);
-        if (uiCrowdIdx != ezInvalidIndex)
+        WUInt32 uiCrowdIdx = m_CrowdPerNavMesh.Find(pAgent->m_sNavmeshConfig);
+        if (uiCrowdIdx != WInvalidIndex)
         {
           pDtCrowd = m_CrowdPerNavMesh.GetValue(uiCrowdIdx);
           pAgent->m_uiCrowdId = uiCrowdIdx + 1;
         }
-        else if (const ezAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(pAgent->m_sNavmeshConfig))
+        else if (const WAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(pAgent->m_sNavmeshConfig))
         {
           pDtCrowd = dtAllocCrowd();
 
-          const ezInt32 iMaxAgents = 128;
+          const WInt32 iMaxAgents = 128;
           const float fMaxAgentRadius = pNavMesh->GetConfig().m_fAgentRadius;
 
           pDtCrowd->init(iMaxAgents, fMaxAgentRadius, const_cast<dtNavMesh*>(pNavMesh->GetDetourNavMesh()));
@@ -293,7 +293,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         continue;
       }
 
-      ezInt32 iAgentId = static_cast<ezInt32>(pAgent->m_uiAgentId - 1);
+      WInt32 iAgentId = static_cast<WInt32>(pAgent->m_uiAgentId - 1);
       dtCrowdAgent* pDtAgent = TryGetValidDtAgent(pDtCrowd, pAgent);
 
       // If an agent was created out of navmesh, which is entirely possible because we create navmesh on demand,
@@ -305,7 +305,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         pAgent->m_uiHasDestinationBit = 0;
       }
 
-      // If ezAgent doesn't have a corresponding dtAgent, create one
+      // If WAgent doesn't have a corresponding dtAgent, create one
       if (!pDtAgent)
       {
         pAgent->m_uiUniqueAgentId = ++m_uiNextUniqueId;
@@ -313,11 +313,11 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         dtCrowdAgentParams dtParams{};
         FillDtCrowdAgentParams(pAgent, dtParams);
 
-        iAgentId = pDtCrowd->addAgent(ezRcPos(pAgent->GetOwner()->GetGlobalPosition()), &dtParams);
+        iAgentId = pDtCrowd->addAgent(WRcPos(pAgent->GetOwner()->GetGlobalPosition()), &dtParams);
 
         if (iAgentId == -1)
         {
-          ezLog::Warning("Couldn't create DetourCrowd agent for '{0}'. The component will be disabled.", pAgent->GetOwner()->GetName());
+          WLog::Warning("Couldn't create DetourCrowd agent for '{0}'. The component will be disabled.", pAgent->GetOwner()->GetName());
           pAgent->m_uiAgentId = 0;
           pAgent->SetActiveFlag(false);
           continue;
@@ -329,7 +329,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         pAgent->m_uiParamsChangedBit = 0;
       }
 
-      // Update dtAgent's parameters if any of the ezAgent's properties (Height, Radius, etc) changed
+      // Update dtAgent's parameters if any of the WAgent's properties (Height, Radius, etc) changed
       if (pAgent->m_uiParamsChangedBit)
       {
         pAgent->m_uiParamsChangedBit = 0;
@@ -348,18 +348,18 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         {
           float vNavPos[3];
           dtPolyRef navPolyRef = 0;
-          ezVec3 vQueryHalfExtents = ezVec3(1, 1, 2);
+          WVec3 vQueryHalfExtents = WVec3(1, 1, 2);
 
           // Grow search extents until a polygon is found, up to 3 attempts.
           for (int iTry = 0; iTry < 3 && navPolyRef == 0; ++iTry, vQueryHalfExtents *= 2.0f)
           {
-            pDtCrowd->getNavMeshQuery()->findNearestPoly(ezRcPos(pAgent->m_vDestination), ezRcPos(vQueryHalfExtents), pDtCrowd->getFilter(0), &navPolyRef, vNavPos);
+            pDtCrowd->getNavMeshQuery()->findNearestPoly(WRcPos(pAgent->m_vDestination), WRcPos(vQueryHalfExtents), pDtCrowd->getFilter(0), &navPolyRef, vNavPos);
           }
 
           if (navPolyRef != 0)
           {
             pDtCrowd->requestMoveTarget(iAgentId, navPolyRef, vNavPos);
-            pAgent->m_vActualDestination = ezRcPos(pDtAgent->targetPos);
+            pAgent->m_vActualDestination = WRcPos(pDtAgent->targetPos);
           }
           else
           {
@@ -378,10 +378,10 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
       // Check if we've reached the destination
       if (pAgent->m_uiHasDestinationBit)
       {
-        ezVec3 vTargetPos = ezRcPos(pDtAgent->targetPos);
+        WVec3 vTargetPos = WRcPos(pDtAgent->targetPos);
         if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_VALID)
-          vTargetPos = ezRcPos(pDtAgent->corridor.getTarget());
-        const float fDistSquared = vTargetPos.GetSquaredDistanceTo(ezRcPos(pDtAgent->npos));
+          vTargetPos = WRcPos(pDtAgent->corridor.getTarget());
+        const float fDistSquared = vTargetPos.GetSquaredDistanceTo(WRcPos(pDtAgent->npos));
 
         if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED)
         {
@@ -399,7 +399,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
     }
     else if (pAgent->m_uiCrowdId && pAgent->m_uiAgentId)
     {
-      // If ezAgent is inactive, but still has a corresponding dtAgent, destroy the dtAgent
+      // If WAgent is inactive, but still has a corresponding dtAgent, destroy the dtAgent
 
       dtCrowd* pDtCrowd = m_CrowdPerNavMesh.GetValue(pAgent->m_uiCrowdId - 1);
       dtCrowdAgent* pDtAgent = TryGetValidDtAgent(pDtCrowd, pAgent);
@@ -421,14 +421,14 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
   }
 }
 
-void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx)
+void WDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx)
 {
   const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
   // Sync each agent's position with corresponding dtAgent
   for (auto it = this->m_ComponentStorage.GetIterator(ctx.m_uiFirstComponentIndex, ctx.m_uiComponentCount); it.IsValid(); ++it)
   {
-    ezDetourCrowdAgentComponent* pAgent = it;
+    WDetourCrowdAgentComponent* pAgent = it;
 
     if (pAgent->IsActiveAndSimulating() && pAgent->m_uiCrowdId)
     {
@@ -437,21 +437,21 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
 
       if (pDtAgent)
       {
-        const ezVec3 vPosition = ezRcPos(pDtAgent->npos);
-        const ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
+        const WVec3 vPosition = WRcPos(pDtAgent->npos);
+        const WVec3 vVelocity = WRcPos(pDtAgent->vel);
 
-        ezVec3 vLookDir = pAgent->GetOwner()->GetGlobalDirForwards();
+        WVec3 vLookDir = pAgent->GetOwner()->GetGlobalDirForwards();
         vLookDir.z = 0;
         vLookDir.Normalize();
 
-        ezVec3 vTargetDir = vVelocity;
+        WVec3 vTargetDir = vVelocity;
         vTargetDir.z = 0;
         vTargetDir.NormalizeIfNotZero(vLookDir).IgnoreResult();
 
-        if (pAgent->m_RotationMode == ezDetourCrowdAgentRotationMode::LookAtNextPathCorner && pDtAgent->ncorners > 0)
+        if (pAgent->m_RotationMode == WDetourCrowdAgentRotationMode::LookAtNextPathCorner && pDtAgent->ncorners > 0)
         {
-          ezVec3 vNextCorner = ezRcPos(pDtAgent->cornerVerts);
-          ezVec3 vDiff = vNextCorner - vPosition;
+          WVec3 vNextCorner = WRcPos(pDtAgent->cornerVerts);
+          WVec3 vDiff = vNextCorner - vPosition;
           vDiff.z = 0;
 
           if (vDiff.GetLengthSquared() > 0.001f)
@@ -460,7 +460,7 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           }
           else if (pDtAgent->ncorners > 1)
           {
-            vNextCorner = ezRcPos(pDtAgent->cornerVerts + 3);
+            vNextCorner = WRcPos(pDtAgent->cornerVerts + 3);
             vDiff = vNextCorner - vPosition;
             vDiff.z = 0;
             if (vDiff.GetLengthSquared() > 0.001f)
@@ -471,15 +471,15 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
         }
 
         const float maxTurnAngle = fDeltaTime * pAgent->m_MaxAngularSpeed.GetRadian();
-        float turnAngle = vLookDir.GetAngleBetween(vTargetDir, ezVec3::MakeAxisZ()).GetRadian();
-        turnAngle = ezMath::Sign(turnAngle) * ezMath::Min(ezMath::Abs(turnAngle), maxTurnAngle);
+        float turnAngle = vLookDir.GetAngleBetween(vTargetDir, WVec3::MakeAxisZ()).GetRadian();
+        turnAngle = WMath::Sign(turnAngle) * WMath::Min(WMath::Abs(turnAngle), maxTurnAngle);
 
-        const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromRadian(turnAngle));
-        const ezVec3 vNewLookDir = qRot * pAgent->GetOwner()->GetGlobalDirForwards();
+        const WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromRadian(turnAngle));
+        const WVec3 vNewLookDir = qRot * pAgent->GetOwner()->GetGlobalDirForwards();
 
-        ezTransform transform = pAgent->GetOwner()->GetGlobalTransform();
+        WTransform transform = pAgent->GetOwner()->GetGlobalTransform();
         transform.m_vPosition = vPosition;
-        transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vNewLookDir);
+        transform.m_qRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), vNewLookDir);
         pAgent->GetOwner()->SetGlobalTransform(transform);
 
         pAgent->m_vVelocity = vVelocity;
@@ -488,13 +488,13 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
       // Draw destination
       if (cvar_DetourCrowdVisDestination && pAgent->HasDestination())
       {
-        ezDebugRendererLine line{};
+        WDebugRendererLine line{};
         line.m_start = pAgent->GetOwner()->GetGlobalPosition();
         line.m_end = pAgent->m_vActualDestination;
 
-        ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(&line, 1), ezColor::DarkSalmon, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
+        WDebugRenderer::DrawLines(GetWorld(), WArrayPtr(&line, 1), WColor::DarkSalmon, WTransform::Make(WVec3(0.0f, 0.0f, 0.1f)));
 
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::DarkSalmon, ezTransform::Make(pAgent->m_vActualDestination));
+        WDebugRenderer::DrawLineSphere(GetWorld(), WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 0.2f), WColor::DarkSalmon, WTransform::Make(pAgent->m_vActualDestination));
       }
     }
   }
@@ -504,7 +504,7 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
   {
     for (auto pair : m_CrowdPerNavMesh)
     {
-      const ezInt32 iNumAgents = pair.value->getAgentCount();
+      const WInt32 iNumAgents = pair.value->getAgentCount();
       for (int i = 0; i < iNumAgents; ++i)
       {
         const dtCrowdAgent* pDtAgent = pair.value->getAgent(i);
@@ -513,37 +513,37 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           const float fHeight = pDtAgent->params.height;
           const float fRadius = pDtAgent->params.radius;
 
-          ezTransform transform(ezRcPos(pDtAgent->npos));
+          WTransform transform(WRcPos(pDtAgent->npos));
           transform.m_vPosition.z += fHeight * 0.5f;
 
           // Draw agent cylinder
-          ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, transform);
+          WDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, WColor::BlueViolet, transform);
 
           // Draw velocity arrow
-          ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
+          WVec3 vVelocity = WRcPos(pDtAgent->vel);
           vVelocity.z = 0;
           if (!vVelocity.IsZero())
           {
             vVelocity.Normalize();
-            transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
-            ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, transform);
+            transform.m_qRotation = WQuat::MakeShortestRotation(WVec3(1, 0, 0), vVelocity);
+            WDebugRenderer::DrawArrow(GetWorld(), 1.0f, WColor::BlueViolet, transform);
           }
 
           // Draw path corners
           if (cvar_DetourCrowdVisCorners.GetValue() && pDtAgent->ncorners > 0)
           {
-            ezDebugRendererLine lines[DT_CROWDAGENT_MAX_CORNERS];
+            WDebugRendererLine lines[DT_CROWDAGENT_MAX_CORNERS];
 
-            lines[0].m_start = ezRcPos(pDtAgent->npos);
-            lines[0].m_end = ezRcPos(pDtAgent->cornerVerts);
+            lines[0].m_start = WRcPos(pDtAgent->npos);
+            lines[0].m_end = WRcPos(pDtAgent->cornerVerts);
 
             for (int i = 0; i < pDtAgent->ncorners - 1; ++i)
             {
-              lines[i].m_start = ezRcPos(pDtAgent->cornerVerts + 3 * i);
-              lines[i].m_end = ezRcPos(pDtAgent->cornerVerts + 3 * i + 3);
+              lines[i].m_start = WRcPos(pDtAgent->cornerVerts + 3 * i);
+              lines[i].m_end = WRcPos(pDtAgent->cornerVerts + 3 * i + 3);
             }
 
-            ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(lines, pDtAgent->ncorners), ezColor::Cyan, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
+            WDebugRenderer::DrawLines(GetWorld(), WArrayPtr(lines, pDtAgent->ncorners), WColor::Cyan, WTransform::Make(WVec3(0.0f, 0.0f, 0.1f)));
           }
         }
       }
@@ -552,4 +552,4 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
 }
 
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_DetourCrowdAgentComponent);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_DetourCrowdAgentComponent);

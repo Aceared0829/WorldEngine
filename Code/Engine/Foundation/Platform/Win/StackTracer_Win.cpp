@@ -1,15 +1,15 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/System/StackTracer.h>
 
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_MSVC(4091)
+W_WARNING_PUSH()
+W_WARNING_DISABLE_MSVC(4091)
 
 #  include <DbgHelp.h>
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
@@ -56,17 +56,17 @@ namespace
 
     StackTracerImplementation()
     {
-      ezMemoryUtils::ZeroFill(this, 1);
+      WMemoryUtils::ZeroFill(this, 1);
 
       kernel32Dll = LoadLibraryW(L"kernel32.dll");
-      EZ_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
+      W_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
       if (kernel32Dll != nullptr)
       {
         captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll, "RtlCaptureStackBackTrace");
       }
 
       dbgHelpDll = LoadLibraryW(L"dbghelp.dll");
-      EZ_ASSERT_DEV(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
+      W_ASSERT_DEV(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
       if (dbgHelpDll != nullptr)
       {
         symSetSearchPath = (SymSetSearchPathFunc)GetProcAddress(dbgHelpDll, "SymSetSearchPathW");
@@ -104,16 +104,16 @@ namespace
   {
     if (s_pImplementation == nullptr)
     {
-      alignas(alignof(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
+      alignas(alignof(StackTracerImplementation)) static WUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
-      EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
+      W_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
     }
   }
 
   static bool SymbolInitializeImpl()
   {
     // initializing symbol loading easily fails if any other code already did this before
-    // so when using EZ together with for example a third party library that also records stack traces, just calling SymInitialize will fail
+    // so when using W together with for example a third party library that also records stack traces, just calling SymInitialize will fail
     // and we don't get any callstacks
     // the multi-step approach below has worked in known problematic scenarios, but no guarantee that there isn't a better "right way" to do it
 
@@ -149,20 +149,20 @@ namespace
 
     if (!SymbolInitializeImpl())
     {
-      ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+      WLog::Error("StackTracer could not initialize symbols. Error-Code {0}", WArgErrorCode(::GetLastError()));
       return;
     }
 
     // we want to search for the PDBs in the same directory where the EXE is located, no matter what the current working directory is
-    if (!(*s_pImplementation->symSetSearchPath)(GetCurrentProcess(), ezStringWChar(ezOSFile::GetApplicationDirectory())))
+    if (!(*s_pImplementation->symSetSearchPath)(GetCurrentProcess(), WStringWChar(WOSFile::GetApplicationDirectory())))
     {
-      ezLog::Error("StackTracer could not set symbol search path. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+      WLog::Error("StackTracer could not set symbol search path. Error-Code {0}", WArgErrorCode(::GetLastError()));
       return;
     }
   }
 } // namespace
 
-void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
+void WStackTracer::OnPluginEvent(const WPluginEvent& e)
 {
   Initialize();
 
@@ -172,25 +172,25 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
   // Can't get dbghelp functions to work correctly. SymLoadModuleEx will fail on every dll after the first call.
   // However, SymInitialize works to load dynamic dlls if we postpone it until all dlls are loaded.
   // So we defer init until the first DLL is un-loaded or the first callstack is to be resolved.
-  if (e.m_EventType == ezPluginEvent::BeforeUnloading)
+  if (e.m_EventType == WPluginEvent::BeforeUnloading)
   {
     SymbolInitialize();
   }
 
-  if (false) // e.m_EventType == ezPluginEvent::AfterLoading)
+  if (false) // e.m_EventType == WPluginEvent::AfterLoading)
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     char buffer[1024];
-    strcpy_s(buffer, ezOSFile::GetApplicationDirectory().GetStartPointer());
+    strcpy_s(buffer, WOSFile::GetApplicationDirectory().GetStartPointer());
     strcat_s(buffer, e.m_sPluginBinary.GetData(tmp));
     strcat_s(buffer, ".dll");
 
     wchar_t szPluginPath[1024];
-    mbstowcs(szPluginPath, buffer, EZ_ARRAY_SIZE(szPluginPath));
+    mbstowcs(szPluginPath, buffer, W_ARRAY_SIZE(szPluginPath));
 
     wchar_t szPluginName[256];
-    mbstowcs(szPluginName, e.m_sPluginBinary.GetData(tmp), EZ_ARRAY_SIZE(szPluginName));
+    mbstowcs(szPluginName, e.m_sPluginBinary.GetData(tmp), W_ARRAY_SIZE(szPluginName));
 
     HANDLE currentProcess = GetCurrentProcess();
 
@@ -200,14 +200,14 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
       DWORD err = GetLastError();
       if (err != ERROR_SUCCESS)
       {
-        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_sPluginBinary, ezArgErrorCode(err));
+        WLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_sPluginBinary, WArgErrorCode(err));
       }
 
       return;
     }
 
     IMAGEHLP_MODULEW64 moduleInfo;
-    ezMemoryUtils::ZeroFill(&moduleInfo, 1);
+    WMemoryUtils::ZeroFill(&moduleInfo, 1);
     moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
 
     if (!(*s_pImplementation->getModuleInfo)(currentProcess, moduleAddress, &moduleInfo))
@@ -219,8 +219,8 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      ezStringUtils::snprintf(errStr, 1024, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
-      ezLog::Print(errStr);
+      WStringUtils::snprintf(errStr, 1024, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
+      WLog::Print(errStr);
 
       LocalFree(lpMsgBuf);
     }
@@ -228,7 +228,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
 }
 
 // static
-ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pContext)
+WUInt32 WStackTracer::GetStackTrace(WArrayPtr<void*>& ref_trace, void* pContext)
 {
   Initialize();
 
@@ -289,7 +289,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pConte
 #    error Unsupported platform
 #  endif
 
-    for (ezInt32 i = 0; i < (ezInt32)ref_trace.GetCount(); i++)
+    for (WInt32 i = 0; i < (WInt32)ref_trace.GetCount(); i++)
     {
       if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(), &frame, &context, NULL,
             s_pImplementation->getFunctionTableAccess, s_pImplementation->getModuleBase, NULL))
@@ -299,25 +299,25 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pConte
       else
       {
         // skip the last three stack-frames since they are useless
-        return ezMath::Max(i - 4, 0);
+        return WMath::Max(i - 4, 0);
       }
     }
   }
   else if (s_pImplementation->captureStackBackTrace != nullptr)
   {
-    const ezUInt32 uiSkip = 1;
-    const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, ref_trace.GetCount());
-    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, ref_trace.GetPtr(), nullptr);
+    const WUInt32 uiSkip = 1;
+    const WUInt32 uiMaxNumTrace = WMath::Min(62U, ref_trace.GetCount());
+    WInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, ref_trace.GetPtr(), nullptr);
 
     // skip the last three stack-frames since they are useless
-    return ezMath::Max(iNumTraces - 3, 0);
+    return WMath::Max(iNumTraces - 3, 0);
   }
 
   return 0;
 }
 
 // static
-void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc)
+void WStackTracer::ResolveStackTrace(const WArrayPtr<void*>& trace, PrintFunc printFunc)
 {
   Initialize();
   SymbolInitialize();
@@ -327,15 +327,15 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
     alignas(_SYMBOL_INFOW) char buffer[1024];
     HANDLE currentProcess = GetCurrentProcess();
 
-    const ezUInt32 uiNumTraceEntries = trace.GetCount();
-    for (ezUInt32 i = 0; i < uiNumTraceEntries; i++)
+    const WUInt32 uiNumTraceEntries = trace.GetCount();
+    for (WUInt32 i = 0; i < uiNumTraceEntries; i++)
     {
       DWORD64 pSymbolAddress = reinterpret_cast<UINT_PTR>(trace[i]);
 
       _SYMBOL_INFOW& symbolInfo = *(_SYMBOL_INFOW*)buffer;
-      ezMemoryUtils::ZeroFill(&symbolInfo, 1);
+      WMemoryUtils::ZeroFill(&symbolInfo, 1);
       symbolInfo.SizeOfStruct = sizeof(_SYMBOL_INFOW);
-      symbolInfo.MaxNameLen = (EZ_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
+      symbolInfo.MaxNameLen = (W_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
 
       DWORD64 displacement = 0;
       BOOL result = (*s_pImplementation->symbolFromAddress)(currentProcess, pSymbolAddress, &displacement, &symbolInfo);
@@ -353,7 +353,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       swprintf_s(str, L"%s(%u):'%s'\n", lineInfo.FileName, lineInfo.LineNumber, symbolInfo.Name);
 
       char finalStr[1024];
-      wcstombs(finalStr, str, EZ_ARRAY_SIZE(finalStr));
+      wcstombs(finalStr, str, W_ARRAY_SIZE(finalStr));
 
       printFunc(finalStr);
     }

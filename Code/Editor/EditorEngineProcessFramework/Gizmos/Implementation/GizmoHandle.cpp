@@ -6,44 +6,44 @@
 #include <Utilities/FileFormats/OBJLoader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGizmoHandle, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Visible", m_bVisible),
-    EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
+    W_MEMBER_PROPERTY("Visible", m_bVisible),
+    W_MEMBER_PROPERTY("Transformation", m_Transformation),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<ezEngineGizmoHandle>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEngineGizmoHandle, 1, WRTTIDefaultAllocator<WEngineGizmoHandle>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
-    EZ_MEMBER_PROPERTY("HandleMesh", m_sGizmoHandleMesh),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
-    EZ_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
-    EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
-    EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
-    EZ_MEMBER_PROPERTY("Pickable", m_bIsPickable),
-    EZ_MEMBER_PROPERTY("FaceCam", m_bFaceCamera),
-    EZ_ARRAY_MEMBER_PROPERTY("Lines", m_Lines),
+    W_MEMBER_PROPERTY("HandleType", m_iHandleType),
+    W_MEMBER_PROPERTY("HandleMesh", m_sGizmoHandleMesh),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
+    W_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
+    W_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
+    W_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
+    W_MEMBER_PROPERTY("Pickable", m_bIsPickable),
+    W_MEMBER_PROPERTY("FaceCam", m_bFaceCamera),
+    W_ARRAY_MEMBER_PROPERTY("Lines", m_Lines),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGizmoHandle::ezGizmoHandle()
+WGizmoHandle::WGizmoHandle()
 {
   m_Transformation.SetIdentity();
   m_Transformation.m_vScale.SetZero(); // make sure it is different from anything valid
 }
 
-void ezGizmoHandle::SetVisible(bool bVisible)
+void WGizmoHandle::SetVisible(bool bVisible)
 {
   if (bVisible != m_bVisible)
   {
@@ -52,7 +52,7 @@ void ezGizmoHandle::SetVisible(bool bVisible)
   }
 }
 
-void ezGizmoHandle::SetTransformation(const ezTransform& m)
+void WGizmoHandle::SetTransformation(const WTransform& m)
 {
   if (m_Transformation != m)
   {
@@ -62,31 +62,31 @@ void ezGizmoHandle::SetTransformation(const ezTransform& m)
   }
 }
 
-void ezGizmoHandle::SetTransformation(const ezMat4& m)
+void WGizmoHandle::SetTransformation(const WMat4& m)
 {
-  ezTransform t = ezTransform::MakeFromMat4(m);
+  WTransform t = WTransform::MakeFromMat4(m);
   SetTransformation(t);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(ezGeometry& inout_geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
+static WMeshBufferResourceHandle CreateMeshBufferResource(WGeometry& inout_geom, const char* szResourceName, const char* szDescription, WGALPrimitiveTopology::Enum topology)
 {
   inout_geom.ComputeFaceNormals();
   inout_geom.ComputeSmoothVertexNormals();
 
-  ezMeshBufferResourceDescriptor desc;
+  WMeshBufferResourceDescriptor desc;
   desc.AddCommonStreams();
-  desc.AddStream(ezMeshVertexStreamType::Color0);
+  desc.AddStream(WMeshVertexStreamType::Color0);
   desc.AllocateStreamsFromGeometry(inout_geom, topology);
   desc.ComputeBounds();
 
-  return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szDescription);
+  return WResourceManager::CreateResource<WMeshBufferResource>(szResourceName, std::move(desc), szDescription);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferArrow()
+static WMeshBufferResourceHandle CreateMeshBufferArrow()
 {
   const char* szResourceName = "{B9DC6776-38D8-4C1F-994F-225E69E71283}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -94,23 +94,23 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   const float fThickness = 0.02f;
   const float fLength = 1.0f;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddCylinderOnePiece(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, 16, opt);
 
-  opt.m_Transform.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
+  opt.m_Transform.SetTranslationVector(WVec3(fLength * 0.5f, 0, 0));
   geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, opt);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferPiston()
+static WMeshBufferResourceHandle CreateMeshBufferPiston()
 {
   const char* szResourceName = "{E2B59B8F-8F61-48C0-AE37-CF31107BA2CE}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -118,23 +118,23 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   const float fThickness = 0.02f;
   const float fLength = 1.0f;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddCylinderOnePiece(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, 16, opt);
 
-  opt.m_Transform.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
-  geom.AddBox(ezVec3(fThickness * 5.0f), false, opt);
+  opt.m_Transform.SetTranslationVector(WVec3(fLength * 0.5f, 0, 0));
+  geom.AddBox(WVec3(fThickness * 5.0f), false, opt);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
+static WMeshBufferResourceHandle CreateMeshBufferHalfPiston()
 {
   const char* szResourceName = "{BA17D025-B280-4940-8DFD-5486B0E4B41B}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -142,24 +142,24 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
   const float fThickness = 0.04f;
   const float fLength = 1.0f;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
-  opt.m_Transform.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
+  opt.m_Transform.SetTranslationVector(WVec3(fLength * 0.5f, 0, 0));
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddCylinderOnePiece(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, 16, opt);
 
-  opt.m_Transform.SetTranslationVector(ezVec3(fLength, 0, 0));
-  geom.AddBox(ezVec3(fThickness * 5.0f), false, opt);
+  opt.m_Transform.SetTranslationVector(WVec3(fLength, 0, 0));
+  geom.AddBox(WVec3(fThickness * 5.0f), false, opt);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfPiston", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfPiston", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferRect()
+static WMeshBufferResourceHandle CreateMeshBufferRect()
 {
   const char* szResourceName = "{75597E89-CDEE-4C90-A377-9441F64B9DB2}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -167,46 +167,46 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   // weird size because of translate gizmo, should be fixed through scaling there instead
   const float fLength = 2.0f / 3.0f;
 
-  ezGeometry geom;
-  geom.AddRect(ezVec2(fLength));
+  WGeometry geom;
+  geom.AddRect(WVec2(fLength));
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferLineRect()
+static WMeshBufferResourceHandle CreateMeshBufferLineRect()
 {
   const char* szResourceName = "{A1EA52B0-DA73-4176-B50D-3470DDB053F8}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezMat4 m;
+  WMat4 m;
   m.SetIdentity();
 
-  ezGeometry geom;
+  WGeometry geom;
 
-  const ezVec2 halfSize(1.0f);
+  const WVec2 halfSize(1.0f);
 
-  geom.AddVertex(m, ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1));
-  geom.AddVertex(m, ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0));
-  geom.AddVertex(m, ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0));
-  geom.AddVertex(m, ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1));
+  geom.AddVertex(m, WVec3(-halfSize.x, -halfSize.y, 0), WVec3(0, 0, 1), WVec2(0, 1));
+  geom.AddVertex(m, WVec3(halfSize.x, -halfSize.y, 0), WVec3(0, 0, 1), WVec2(0, 0));
+  geom.AddVertex(m, WVec3(halfSize.x, halfSize.y, 0), WVec3(0, 0, 1), WVec2(1, 0));
+  geom.AddVertex(m, WVec3(-halfSize.x, halfSize.y, 0), WVec3(0, 0, 1), WVec2(1, 1));
 
   geom.AddLine(0, 1);
   geom.AddLine(1, 2);
   geom.AddLine(2, 3);
   geom.AddLine(3, 0);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineRect", ezGALPrimitiveTopology::Lines);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineRect", WGALPrimitiveTopology::Lines);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferRing()
+static WMeshBufferResourceHandle CreateMeshBufferRing()
 {
   const char* szResourceName = "{EA8677E3-F623-4FD8-BFAB-349CE1BEB3CA}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -214,301 +214,301 @@ static ezMeshBufferResourceHandle CreateMeshBufferRing()
   const float fInnerRadius = 1.3f;
   const float fOuterRadius = fInnerRadius + 0.1f;
 
-  ezMat4 m;
+  WMat4 m;
   m.SetIdentity();
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8, false);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferBox()
+static WMeshBufferResourceHandle CreateMeshBufferBox()
 {
   const char* szResourceName = "{F14D4CD3-8F21-442B-B07F-3567DBD58A3F}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
-  geom.AddBox(ezVec3(1.0f), false);
+  WGeometry geom;
+  geom.AddBox(WVec3(1.0f), false);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferLineBox()
+static WMeshBufferResourceHandle CreateMeshBufferLineBox()
 {
   const char* szResourceName = "{55DF000E-EE88-4BDC-8A7B-FA496941064E}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
-  geom.AddLineBox(ezVec3(1.0f));
+  WGeometry geom;
+  geom.AddLineBox(WVec3(1.0f));
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineBox", ezGALPrimitiveTopology::Lines);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineBox", WGALPrimitiveTopology::Lines);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferSphere()
+static WMeshBufferResourceHandle CreateMeshBufferSphere()
 {
   const char* szResourceName = "{A88779B0-4728-4411-A9D7-532AFE6F4704}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddGeodesicSphere(1.0f, 2);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
+static WMeshBufferResourceHandle CreateMeshBufferCylinderZ()
 {
   const char* szResourceName = "{3BBE2251-0DE4-4B71-979E-A407D8F5CB59}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddCylinderOnePiece(1.0f, 1.0f, 0.5f, 0.5f, 16);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferLineCylinderZ()
+static WMeshBufferResourceHandle CreateMeshBufferLineCylinderZ()
 {
   const char* szResourceName = "{6978C491-0E1B-4471-A2A1-0CBEFFEBDAC5}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddLineCylinder(1.0f, 1.0f, 0.5f, 0.5f, 16);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineCylinderZ", ezGALPrimitiveTopology::Lines);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineCylinderZ", WGALPrimitiveTopology::Lines);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
+static WMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
 {
   const char* szResourceName = "{05BDED8B-96C1-4F2E-8F1B-5C07B3C28D22}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddHalfSphere(1.0f, 16, 8, false);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
+static WMeshBufferResourceHandle CreateMeshBufferBoxFaces()
 {
   const char* szResourceName = "{BD925A8E-480D-41A6-8F62-0AC5F72DA4F6}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry geom;
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0, 0, 0.5f));
+  WGeometry geom;
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4::MakeTranslation(WVec3(0, 0, 0.5f));
 
-  geom.AddRect(ezVec2(0.5f), 1, 1, opt);
+  geom.AddRect(WVec2(0.5f), 1, 1, opt);
 
-  opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(180.0));
-  opt.m_Transform.SetTranslationVector(ezVec3(0, 0, -0.5f));
-  geom.AddRect(ezVec2(0.5f), 1, 1, opt);
+  opt.m_Transform = WMat4::MakeRotationY(WAngle::MakeFromDegree(180.0));
+  opt.m_Transform.SetTranslationVector(WVec3(0, 0, -0.5f));
+  geom.AddRect(WVec2(0.5f), 1, 1, opt);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
+static WMeshBufferResourceHandle CreateMeshBufferBoxEdges()
 {
   const char* szResourceName = "{FE700F28-514E-4193-A0F6-4351E0BAC222}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezMat4 rot;
+  WMat4 rot;
 
-  ezGeometry geom;
-  ezGeometry::GeoOptions opt;
+  WGeometry geom;
+  WGeometry::GeoOptions opt;
 
-  for (ezUInt32 i = 0; i < 4; ++i)
+  for (WUInt32 i = 0; i < 4; ++i)
   {
-    rot = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90.0f * i));
+    rot = WMat4::MakeRotationY(WAngle::MakeFromDegree(90.0f * i));
 
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, 0, 0.5f));
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(0.5f - 0.125f, 0, 0.5f));
     opt.m_Transform = rot * opt.m_Transform;
-    geom.AddRect(ezVec2(0.25f, 0.5f), 1, 1, opt);
+    geom.AddRect(WVec2(0.25f, 0.5f), 1, 1, opt);
 
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, 0, 0.5f));
-    geom.AddRect(ezVec2(0.25f, 0.5f), 1, 1, opt);
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(-0.5f + 0.125f, 0, 0.5f));
+    geom.AddRect(WVec2(0.25f, 0.5f), 1, 1, opt);
   }
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
+static WMeshBufferResourceHandle CreateMeshBufferBoxCorners()
 {
   const char* szResourceName = "{FBDB6A82-D4B0-447F-815B-228D340451CB}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezMat4 rot[6];
+  WMat4 rot[6];
   rot[0].SetIdentity();
-  rot[1] = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
-  rot[2] = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(180));
-  rot[3] = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(270));
-  rot[4] = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
-  rot[5] = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
+  rot[1] = WMat4::MakeRotationX(WAngle::MakeFromDegree(90));
+  rot[2] = WMat4::MakeRotationX(WAngle::MakeFromDegree(180));
+  rot[3] = WMat4::MakeRotationX(WAngle::MakeFromDegree(270));
+  rot[4] = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
+  rot[5] = WMat4::MakeRotationY(WAngle::MakeFromDegree(-90));
 
-  ezGeometry geom;
-  ezGeometry::GeoOptions opt;
+  WGeometry geom;
+  WGeometry::GeoOptions opt;
 
-  for (ezUInt32 i = 0; i < 6; ++i)
+  for (WUInt32 i = 0; i < 6; ++i)
   {
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, 0.5f - 0.125f, 0.5f));
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(0.5f - 0.125f, 0.5f - 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(WVec2(0.25f, 0.25f), 1, 1, opt);
 
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, -0.5f + 0.125f, 0.5f));
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(0.5f - 0.125f, -0.5f + 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(WVec2(0.25f, 0.25f), 1, 1, opt);
 
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, 0.5f - 0.125f, 0.5f));
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(-0.5f + 0.125f, 0.5f - 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(WVec2(0.25f, 0.25f), 1, 1, opt);
 
-    opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, -0.5f + 0.125f, 0.5f));
+    opt.m_Transform = WMat4::MakeTranslation(WVec3(-0.5f + 0.125f, -0.5f + 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(WVec2(0.25f, 0.25f), 1, 1, opt);
   }
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferCone()
+static WMeshBufferResourceHandle CreateMeshBufferCone()
 {
   const char* szResourceName = "{BED97C9E-4E7A-486C-9372-1FB1A5FAE786}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(270.0f));
-  opt.m_Transform.SetTranslationVector(ezVec3(1.0f, 0, 0));
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4::MakeRotationY(WAngle::MakeFromDegree(270.0f));
+  opt.m_Transform.SetTranslationVector(WVec3(1.0f, 0, 0));
 
-  ezGeometry geom;
+  WGeometry geom;
   geom.AddCone(1.0f, 1.0f, false, 16, opt);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cone", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cone", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
+static WMeshBufferResourceHandle CreateMeshBufferFrustum()
 {
   const char* szResourceName = "{61A7BE38-797D-4BFC-AED6-33CE4F4C6FF6}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezMat4 m;
+  WMat4 m;
   m.SetIdentity();
 
-  ezGeometry geom;
+  WGeometry geom;
 
-  geom.AddVertex(m, ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(0, 0, 0), WVec3(0, 0, 1));
 
-  geom.AddVertex(m, ezVec3(1.0f, -1.0f, 1.0f), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(1.0f, 1.0f, 1.0f), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(1.0f, -1.0f, -1.0f), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(1.0f, 1.0f, -1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(1.0f, -1.0f, 1.0f), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(1.0f, 1.0f, 1.0f), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(1.0f, -1.0f, -1.0f), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(1.0f, 1.0f, -1.0f), WVec3(0, 0, 1));
 
   geom.AddLine(0, 1);
   geom.AddLine(0, 2);
   geom.AddLine(0, 3);
   geom.AddLine(0, 4);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", WGALPrimitiveTopology::Lines);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferCross()
+static WMeshBufferResourceHandle CreateMeshBufferCross()
 {
   const char* szResourceName = "{3D2A1B4C-8F5E-4D7A-B963-2C1E4F0A8B7D}";
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezMat4 m;
+  WMat4 m;
   m.SetIdentity();
 
-  ezGeometry geom;
+  WGeometry geom;
 
   // X axis
-  geom.AddVertex(m, ezVec3(-1.0f, 0, 0), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(1.0f, 0, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(-1.0f, 0, 0), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(1.0f, 0, 0), WVec3(0, 0, 1));
   // Y axis
-  geom.AddVertex(m, ezVec3(0, -1.0f, 0), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(0, 1.0f, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(0, -1.0f, 0), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(0, 1.0f, 0), WVec3(0, 0, 1));
   // Z axis
-  geom.AddVertex(m, ezVec3(0, 0, -1.0f), ezVec3(0, 0, 1));
-  geom.AddVertex(m, ezVec3(0, 0, 1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(0, 0, -1.0f), WVec3(0, 0, 1));
+  geom.AddVertex(m, WVec3(0, 0, 1.0f), WVec3(0, 0, 1));
 
   geom.AddLine(0, 1);
   geom.AddLine(2, 3);
   geom.AddLine(4, 5);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cross", ezGALPrimitiveTopology::Lines);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cross", WGALPrimitiveTopology::Lines);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
+static WMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
 {
   const char* szResourceName = szFile;
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+  WMeshBufferResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezOBJLoader obj;
+  WOBJLoader obj;
   obj.LoadOBJ(szFile, true).AssertSuccess("Couldn't load gizmo model '{}'", szFile);
 
-  ezMat4 m;
+  WMat4 m;
   m.SetIdentity();
 
-  ezGeometry geom;
-  for (ezUInt32 v = 0; v < obj.m_Positions.GetCount(); ++v)
+  WGeometry geom;
+  for (WUInt32 v = 0; v < obj.m_Positions.GetCount(); ++v)
   {
-    geom.AddVertex(obj.m_Positions[v], ezVec3::MakeZero(), ezVec2::MakeZero(), ezColor::White);
+    geom.AddVertex(obj.m_Positions[v], WVec3::MakeZero(), WVec2::MakeZero(), WColor::White);
   }
 
-  ezStaticArray<ezUInt32, 3> triangle;
+  WStaticArray<WUInt32, 3> triangle;
   triangle.SetCount(3);
-  for (ezUInt32 f = 0; f < obj.m_Faces.GetCount(); ++f)
+  for (WUInt32 f = 0; f < obj.m_Faces.GetCount(); ++f)
   {
     triangle[0] = obj.m_Faces[f].m_Vertices[0].m_uiPositionID;
     triangle[1] = obj.m_Faces[f].m_Vertices[1].m_uiPositionID;
@@ -517,32 +517,32 @@ static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
     geom.AddPolygon(triangle, false);
   }
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_FromFile", ezGALPrimitiveTopology::Triangles);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_FromFile", WGALPrimitiveTopology::Triangles);
 }
 
-static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
+static WMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, WMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
-  const ezStringBuilder sIdentifier(szMeshResourceName, "-with-", szMaterial);
+  const WStringBuilder sIdentifier(szMeshResourceName, "-with-", szMaterial);
 
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sIdentifier);
+  WMeshResourceHandle hMesh = WResourceManager::GetExistingResource<WMeshResource>(sIdentifier);
 
   if (hMesh.IsValid())
     return hMesh;
 
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+  WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-  ezMeshResourceDescriptor md;
+  WMeshResourceDescriptor md;
   md.UseExistingMeshBuffer(hMeshBuffer);
   md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
   md.SetMaterial(0, szMaterial);
   md.ComputeBounds();
 
-  return ezResourceManager::GetOrCreateResource<ezMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
+  return WResourceManager::GetOrCreateResource<WMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
 }
 
-ezEngineGizmoHandle::ezEngineGizmoHandle() = default;
+WEngineGizmoHandle::WEngineGizmoHandle() = default;
 
-ezEngineGizmoHandle::~ezEngineGizmoHandle()
+WEngineGizmoHandle::~WEngineGizmoHandle()
 {
   if (m_hGameObject.IsInvalidated())
     return;
@@ -550,7 +550,7 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags, const char* szCustomMesh)
+void WEngineGizmoHandle::ConfigureHandle(WGizmo* pParentGizmo, WEngineGizmoHandleType type, const WColor& col, WBitflags<WGizmoFlags> flags, const char* szCustomMesh)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -558,202 +558,202 @@ void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHa
   m_sGizmoHandleMesh = szCustomMesh;
   m_Color = col;
 
-  m_bConstantSize = flags.IsSet(ezGizmoFlags::ConstantSize);
-  m_bAlwaysOnTop = flags.IsSet(ezGizmoFlags::OnTop);
-  m_bVisualizer = flags.IsSet(ezGizmoFlags::Visualizer);
-  m_bShowInOrtho = flags.IsSet(ezGizmoFlags::ShowInOrtho);
-  m_bIsPickable = flags.IsSet(ezGizmoFlags::Pickable);
-  m_bFaceCamera = flags.IsSet(ezGizmoFlags::FaceCamera);
+  m_bConstantSize = flags.IsSet(WGizmoFlags::ConstantSize);
+  m_bAlwaysOnTop = flags.IsSet(WGizmoFlags::OnTop);
+  m_bVisualizer = flags.IsSet(WGizmoFlags::Visualizer);
+  m_bShowInOrtho = flags.IsSet(WGizmoFlags::ShowInOrtho);
+  m_bIsPickable = flags.IsSet(WGizmoFlags::Pickable);
+  m_bFaceCamera = flags.IsSet(WGizmoFlags::FaceCamera);
 }
 
-bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
+bool WEngineGizmoHandle::SetupForEngine(WWorld* pWorld, WUInt32 uiNextComponentPickingID)
 {
   m_pWorld = pWorld;
 
   if (!m_hGameObject.IsInvalidated())
     return false;
 
-  ezMeshBufferResourceHandle hMeshBuffer;
+  WMeshBufferResourceHandle hMeshBuffer;
   const char* szMeshGuid = "";
 
   switch (m_iHandleType)
   {
-    case ezEngineGizmoHandleType::Arrow:
+    case WEngineGizmoHandleType::Arrow:
     {
       hMeshBuffer = CreateMeshBufferArrow();
       szMeshGuid = "{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}";
     }
     break;
-    case ezEngineGizmoHandleType::Rect:
+    case WEngineGizmoHandleType::Rect:
     {
       hMeshBuffer = CreateMeshBufferRect();
       szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
     }
     break;
-    case ezEngineGizmoHandleType::LineRect:
+    case WEngineGizmoHandleType::LineRect:
     {
       hMeshBuffer = CreateMeshBufferLineRect();
       szMeshGuid = "{96129543-897C-4DEE-922D-931BC91C5725}";
     }
     break;
-    case ezEngineGizmoHandleType::Ring:
+    case WEngineGizmoHandleType::Ring:
     {
       hMeshBuffer = CreateMeshBufferRing();
       szMeshGuid = "{629AD0C6-C81B-4850-A5BC-41494DC0BF95}";
     }
     break;
-    case ezEngineGizmoHandleType::Box:
+    case WEngineGizmoHandleType::Box:
     {
       hMeshBuffer = CreateMeshBufferBox();
       szMeshGuid = "{13A59253-4A98-4638-8B94-5AA370E929A7}";
     }
     break;
-    case ezEngineGizmoHandleType::Piston:
+    case WEngineGizmoHandleType::Piston:
     {
       hMeshBuffer = CreateMeshBufferPiston();
       szMeshGuid = "{44A4FE37-6AE3-44C1-897D-E8B95AE53EF6}";
     }
     break;
-    case ezEngineGizmoHandleType::HalfPiston:
+    case WEngineGizmoHandleType::HalfPiston:
     {
       hMeshBuffer = CreateMeshBufferHalfPiston();
       szMeshGuid = "{64A45DD0-D7F9-4D1D-9F68-782FA3274200}";
     }
     break;
-    case ezEngineGizmoHandleType::Sphere:
+    case WEngineGizmoHandleType::Sphere:
     {
       hMeshBuffer = CreateMeshBufferSphere();
       szMeshGuid = "{FC322E80-5EB0-452F-9D8E-9E65FCFDA652}";
     }
     break;
-    case ezEngineGizmoHandleType::CylinderZ:
+    case WEngineGizmoHandleType::CylinderZ:
     {
       hMeshBuffer = CreateMeshBufferCylinderZ();
       szMeshGuid = "{893384EA-2F43-4265-AF75-662E2C81C167}";
     }
     break;
-    case ezEngineGizmoHandleType::LineCylinderZ:
+    case WEngineGizmoHandleType::LineCylinderZ:
     {
       hMeshBuffer = CreateMeshBufferLineCylinderZ();
       szMeshGuid = "{F2131237-9D5D-4067-AF66-A5C9180BDF39}";
     }
     break;
-    case ezEngineGizmoHandleType::HalfSphereZ:
+    case WEngineGizmoHandleType::HalfSphereZ:
     {
       hMeshBuffer = CreateMeshBufferHalfSphereZ();
       szMeshGuid = "{0FC9B680-7B6B-40B6-97BD-CBFFA47F0EFF}";
     }
     break;
-    case ezEngineGizmoHandleType::BoxCorners:
+    case WEngineGizmoHandleType::BoxCorners:
     {
       hMeshBuffer = CreateMeshBufferBoxCorners();
       szMeshGuid = "{89CCC389-11D5-43F4-9C18-C634EE3154B9}";
     }
     break;
-    case ezEngineGizmoHandleType::BoxEdges:
+    case WEngineGizmoHandleType::BoxEdges:
     {
       hMeshBuffer = CreateMeshBufferBoxEdges();
       szMeshGuid = "{21508253-2E74-44CE-9399-523214BE7C3D}";
     }
     break;
-    case ezEngineGizmoHandleType::BoxFaces:
+    case WEngineGizmoHandleType::BoxFaces:
     {
       hMeshBuffer = CreateMeshBufferBoxFaces();
       szMeshGuid = "{FD1A3C29-F8F0-42B0-BBB0-D0A2B28A65A0}";
     }
     break;
-    case ezEngineGizmoHandleType::LineBox:
+    case WEngineGizmoHandleType::LineBox:
     {
       hMeshBuffer = CreateMeshBufferLineBox();
       szMeshGuid = "{4B136D72-BF43-4C4B-96D7-51C5028A7006}";
     }
     break;
-    case ezEngineGizmoHandleType::Cone:
+    case WEngineGizmoHandleType::Cone:
     {
       hMeshBuffer = CreateMeshBufferCone();
       szMeshGuid = "{9A48962D-127A-445C-899A-A054D6AD8A9A}";
     }
     break;
-    case ezEngineGizmoHandleType::Frustum:
+    case WEngineGizmoHandleType::Frustum:
     {
       szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
       hMeshBuffer = CreateMeshBufferFrustum();
     }
     break;
-    case ezEngineGizmoHandleType::Cross:
+    case WEngineGizmoHandleType::Cross:
     {
       hMeshBuffer = CreateMeshBufferCross();
       szMeshGuid = "{1A3B5C7D-9E2F-4A6B-8C0D-E1F2A3B4C5D6}";
     }
     break;
-    case ezEngineGizmoHandleType::FromFile:
+    case WEngineGizmoHandleType::FromFile:
     {
       szMeshGuid = m_sGizmoHandleMesh;
       hMeshBuffer = CreateMeshBufferFromFile(m_sGizmoHandleMesh);
     }
     break;
 
-    case ezEngineGizmoHandleType::CustomLines:
-      // no mesh needed, OnMsgExtractRenderData in ezGizmoComponent handles this case
+    case WEngineGizmoHandleType::CustomLines:
+      // no mesh needed, OnMsgExtractRenderData in WGizmoComponent handles this case
       break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  ezStringBuilder sName;
+  WStringBuilder sName;
   sName.SetFormat("Gizmo{0}", m_iHandleType);
 
-  ezGameObjectDesc god;
+  WGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.m_vPosition;
   god.m_LocalRotation = m_Transformation.m_qRotation;
   god.m_LocalScaling = m_Transformation.m_vScale;
   god.m_sName.Assign(sName.GetData());
   god.m_bDynamic = true;
 
-  ezGameObject* pObject;
+  WGameObject* pObject;
   m_hGameObject = pWorld->CreateObject(god, pObject);
 
   if (!m_bShowInOrtho)
   {
-    const ezTag& tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
+    const WTag& tagNoOrtho = WTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
     pObject->SetTag(tagNoOrtho);
   }
 
   {
-    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
     pObject->SetTag(tagEditor);
   }
 
-  ezGizmoComponent::CreateComponent(pObject, m_pGizmoComponent);
+  WGizmoComponent::CreateComponent(pObject, m_pGizmoComponent);
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
   m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
 
   if (hMeshBuffer.IsValid())
   {
-    ezMeshResourceHandle hMesh;
+    WMeshResourceHandle hMesh;
 
     if (m_bVisualizer)
     {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/Visualizer.ezMaterial");
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/Visualizer.WMaterial");
     }
     else if (m_bConstantSize)
     {
       if (m_bFaceCamera)
       {
-        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSizeCamFacing.ezMaterial");
+        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSizeCamFacing.WMaterial");
       }
       else
       {
-        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
+        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.WMaterial");
       }
     }
     else
     {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.ezMaterial");
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.WMaterial");
     }
 
     m_pGizmoComponent->SetMesh(hMesh);
@@ -762,12 +762,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   return true;
 }
 
-void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
+void WEngineGizmoHandle::UpdateForEngine(WWorld* pWorld)
 {
   if (m_hGameObject.IsInvalidated())
     return;
 
-  ezGameObject* pObject;
+  WGameObject* pObject;
   if (!pWorld->TryGetObject(m_hGameObject, pObject))
     return;
 
@@ -780,13 +780,13 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   m_pGizmoComponent->m_Lines = m_Lines;
 }
 
-void ezEngineGizmoHandle::SetColor(const ezColor& col)
+void WEngineGizmoHandle::SetColor(const WColor& col)
 {
   m_Color = col;
   SetModified();
 }
 
-void ezEngineGizmoHandle::SetLines(ezArrayPtr<const ezVec3> lines)
+void WEngineGizmoHandle::SetLines(WArrayPtr<const WVec3> lines)
 {
   m_Lines = lines;
   SetModified();

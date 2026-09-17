@@ -9,43 +9,43 @@
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
-struct ezGameObjectContextEvent;
-class ezPropertyAnimObjectAccessor;
-class ezPropertyAnimAssetDocument;
-struct ezCommandHistoryEvent;
+struct WGameObjectContextEvent;
+class WPropertyAnimObjectAccessor;
+class WPropertyAnimAssetDocument;
+struct WCommandHistoryEvent;
 
-class ezPropertyAnimationTrack : public ezReflectedClass
+class WPropertyAnimationTrack : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrack, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAnimationTrack, WReflectedClass);
 
 public:
-  ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
-  ezString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
-  ezString m_sPropertyPath;
-  ezEnum<ezPropertyAnimTarget> m_Target;
+  WString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
+  WString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
+  WString m_sPropertyPath;
+  WEnum<WPropertyAnimTarget> m_Target;
 
-  ezSingleCurveData m_FloatCurve;
-  ezColorGradientAssetData m_ColorGradient;
+  WSingleCurveData m_FloatCurve;
+  WColorGradientAssetData m_ColorGradient;
 };
 
-class ezPropertyAnimationTrackGroup : public ezReflectedClass
+class WPropertyAnimationTrackGroup : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrackGroup, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAnimationTrackGroup, WReflectedClass);
 
 public:
-  ezPropertyAnimationTrackGroup() = default;
-  ezPropertyAnimationTrackGroup(const ezPropertyAnimationTrackGroup&) = delete;
-  ezPropertyAnimationTrackGroup& operator=(const ezPropertyAnimationTrackGroup& rhs) = delete;
-  ~ezPropertyAnimationTrackGroup();
+  WPropertyAnimationTrackGroup() = default;
+  WPropertyAnimationTrackGroup(const WPropertyAnimationTrackGroup&) = delete;
+  WPropertyAnimationTrackGroup& operator=(const WPropertyAnimationTrackGroup& rhs) = delete;
+  ~WPropertyAnimationTrackGroup();
 
-  ezUInt32 m_uiFramesPerSecond = 60;
-  ezUInt64 m_uiCurveDuration = 480;
-  ezEnum<ezPropertyAnimMode> m_Mode;
-  ezDynamicArray<ezPropertyAnimationTrack*> m_Tracks;
-  ezEventTrackData m_EventTrack;
+  WUInt32 m_uiFramesPerSecond = 60;
+  WUInt64 m_uiCurveDuration = 480;
+  WEnum<WPropertyAnimMode> m_Mode;
+  WDynamicArray<WPropertyAnimationTrack*> m_Tracks;
+  WEventTrackData m_EventTrack;
 };
 
-struct ezPropertyAnimAssetDocumentEvent
+struct WPropertyAnimAssetDocumentEvent
 {
   enum class Type
   {
@@ -54,28 +54,28 @@ struct ezPropertyAnimAssetDocumentEvent
     PlaybackChanged,
   };
 
-  const ezPropertyAnimAssetDocument* m_pDocument;
+  const WPropertyAnimAssetDocument* m_pDocument;
   Type m_Type;
 };
 
-class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>
+class WPropertyAnimAssetDocument : public WSimpleAssetDocument<WPropertyAnimationTrackGroup, WGameObjectContextDocument>
 {
-  using BaseClass = ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>;
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, BaseClass);
+  using BaseClass = WSimpleAssetDocument<WPropertyAnimationTrackGroup, WGameObjectContextDocument>;
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAnimAssetDocument, BaseClass);
 
 public:
-  ezPropertyAnimAssetDocument(ezStringView sDocumentPath);
-  ~ezPropertyAnimAssetDocument();
+  WPropertyAnimAssetDocument(WStringView sDocumentPath);
+  ~WPropertyAnimAssetDocument();
 
-  void SetAnimationDurationTicks(ezUInt64 uiNumTicks);
-  ezUInt64 GetAnimationDurationTicks() const;
-  ezTime GetAnimationDurationTime() const;
+  void SetAnimationDurationTicks(WUInt64 uiNumTicks);
+  WUInt64 GetAnimationDurationTicks() const;
+  WTime GetAnimationDurationTime() const;
   void AdjustDuration();
 
-  bool SetScrubberPosition(ezUInt64 uiTick);
-  ezUInt64 GetScrubberPosition() const { return m_uiScrubberTickPos; }
+  bool SetScrubberPosition(WUInt64 uiTick);
+  WUInt64 GetScrubberPosition() const { return m_uiScrubberTickPos; }
 
-  ezEvent<const ezPropertyAnimAssetDocumentEvent&> m_PropertyAnimEvents;
+  WEvent<const WPropertyAnimAssetDocumentEvent&> m_PropertyAnimEvents;
 
   void SetPlayAnimation(bool bPlay);
   bool GetPlayAnimation() const { return m_bPlayAnimation; }
@@ -83,75 +83,75 @@ public:
   bool GetRepeatAnimation() const { return m_bRepeatAnimation; }
   void ExecuteAnimationPlaybackStep();
 
-  const ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid) const;
-  ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid);
+  const WPropertyAnimationTrack* GetTrack(const WUuid& trackGuid) const;
+  WPropertyAnimationTrack* GetTrack(const WUuid& trackGuid);
 
-  ezStatus CanAnimate(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  WStatus CanAnimate(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target) const;
 
-  ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
-  ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
+  WUuid FindTrack(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target) const;
+  WUuid CreateTrack(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target);
 
-  ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 iTickX);
-  ezUuid InsertCurveCpAt(const ezUuid& trackGuid, ezInt64 iTickX, double fNewPosY);
+  WUuid FindCurveCp(const WUuid& trackGuid, WInt64 iTickX);
+  WUuid InsertCurveCpAt(const WUuid& trackGuid, WInt64 iTickX, double fNewPosY);
 
-  ezUuid FindGradientColorCp(const ezUuid& trackGuid, ezInt64 iTickX);
-  ezUuid InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 iTickX, const ezColorGammaUB& color);
+  WUuid FindGradientColorCp(const WUuid& trackGuid, WInt64 iTickX);
+  WUuid InsertGradientColorCpAt(const WUuid& trackGuid, WInt64 iTickX, const WColorGammaUB& color);
 
-  ezUuid FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 iTickX);
-  ezUuid InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 iTickX, ezUInt8 uiAlpha);
+  WUuid FindGradientAlphaCp(const WUuid& trackGuid, WInt64 iTickX);
+  WUuid InsertGradientAlphaCpAt(const WUuid& trackGuid, WInt64 iTickX, WUInt8 uiAlpha);
 
-  ezUuid FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 iTickX);
-  ezUuid InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 iTickX, float fIntensity);
+  WUuid FindGradientIntensityCp(const WUuid& trackGuid, WInt64 iTickX);
+  WUuid InsertGradientIntensityCpAt(const WUuid& trackGuid, WInt64 iTickX, float fIntensity);
 
-  ezUuid InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue);
+  WUuid InsertEventTrackCpAt(WInt64 iTickX, const char* szValue);
 
-  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
+  virtual WManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
   {
-    return ezManipulatorSearchStrategy::ChildrenOfSelectedObject;
+    return WManipulatorSearchStrategy::ChildrenOfSelectedObject;
   }
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
 private:
-  void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);
-  void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void GameObjectContextEventHandler(const WGameObjectContextEvent& e);
+  void TreeStructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 
   struct PropertyValue
   {
-    ezVariant m_InitialValue;
-    ezHybridArray<ezUuid, 3> m_Tracks;
+    WVariant m_InitialValue;
+    WHybridArray<WUuid, 3> m_Tracks;
   };
   struct PropertyKeyHash
   {
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezPropertyReference& key)
+    W_ALWAYS_INLINE static WUInt32 Hash(const WPropertyReference& key)
     {
-      return ezHashingUtils::xxHash32(&key.m_Object, sizeof(ezUuid)) + ezHashingUtils::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*)) +
-             (ezUInt32)key.m_Index.ComputeHash();
+      return WHashingUtils::xxHash32(&key.m_Object, sizeof(WUuid)) + WHashingUtils::xxHash32(&key.m_pProperty, sizeof(const WAbstractProperty*)) +
+             (WUInt32)key.m_Index.ComputeHash();
     }
 
-    EZ_ALWAYS_INLINE static bool Equal(const ezPropertyReference& a, const ezPropertyReference& b)
+    W_ALWAYS_INLINE static bool Equal(const WPropertyReference& a, const WPropertyReference& b)
     {
       return a.m_Object == b.m_Object && a.m_pProperty == b.m_pProperty && a.m_Index == b.m_Index;
     }
   };
 
   void RebuildMapping();
-  void RemoveTrack(const ezUuid& track);
-  void AddTrack(const ezUuid& track);
-  ezStatus FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezDynamicArray<ezPropertyReference>& keys) const;
-  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
+  void RemoveTrack(const WUuid& track);
+  void AddTrack(const WUuid& track);
+  WStatus FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, WDynamicArray<WPropertyReference>& keys) const;
+  void GenerateTrackInfo(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WStringBuilder& sObjectSearchSequence, WStringBuilder& sComponentType, WStringBuilder& sPropertyPath) const;
   void ApplyAnimation();
-  void ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value);
+  void ApplyAnimation(const WPropertyReference& key, const PropertyValue& value);
 
-  ezHashTable<ezPropertyReference, PropertyValue, PropertyKeyHash> m_PropertyTable;
-  ezHashTable<ezUuid, ezHybridArray<ezPropertyReference, 1>> m_TrackTable;
+  WHashTable<WPropertyReference, PropertyValue, PropertyKeyHash> m_PropertyTable;
+  WHashTable<WUuid, WHybridArray<WPropertyReference, 1>> m_TrackTable;
 
   bool m_bPlayAnimation = false;
   bool m_bRepeatAnimation = false;
-  ezTime m_LastFrameTime;
-  ezUInt64 m_uiScrubberTickPos = 0;
+  WTime m_LastFrameTime;
+  WUInt64 m_uiScrubberTickPos = 0;
 };

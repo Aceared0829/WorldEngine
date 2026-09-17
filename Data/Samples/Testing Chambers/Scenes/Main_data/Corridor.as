@@ -1,17 +1,17 @@
 #include "../../Features/RenderToTexture/Monitor_data/Monitor.as"
 
-class Corridor : ezAngelScriptClass
+class Corridor : WAngelScriptClass
 {
     private int monitor1State = 0;
 
-    void OnMsgGenericEvent(ezMsgGenericEvent@ msg)
+    void OnMsgGenericEvent(WMsgGenericEvent@ msg)
     {
         if (msg.Message == "SecretDoorButton")
         {
-            ezGameObject@ door;
+            WGameObject@ door;
             if (GetWorld().TryGetObjectWithGlobalKey("SecretDoor", door))
             {
-                ezSliderComponent@ slider;
+                WSliderComponent@ slider;
                 if (door.TryGetComponentOfBaseType(@slider) && !slider.Running)
                 {
                     // slider direction toggles automatically, just need to set the running state again
@@ -22,21 +22,21 @@ class Corridor : ezAngelScriptClass
 
         if (msg.Message == "MoveA" || msg.Message == "MoveB")
         {
-            ezGameObject@ obj;
+            WGameObject@ obj;
             if (GetWorld().TryGetObjectWithGlobalKey("Obj", @obj))
             {
-                ezMoveToComponent@ move;
+                WMoveToComponent@ move;
                 if (obj.TryGetComponentOfBaseType(@move))
                 {
                     move.Running = true;
 
                     if (msg.Message == "MoveA")
                     {
-                        move.SetTargetPosition(ezVec3(10, -1, 1.5));
+                        move.SetTargetPosition(WVec3(10, -1, 1.5));
                     }
                     else
                     {
-                        move.SetTargetPosition(ezVec3(10, 3, 1.5));
+                        move.SetTargetPosition(WVec3(10, 3, 1.5));
                     }
                 }
             }
@@ -67,7 +67,7 @@ class Corridor : ezAngelScriptClass
                     break;
             }
 
-            ezGameObject@ mon;
+            WGameObject@ mon;
             if (GetWorld().TryGetObjectWithGlobalKey("Monitor1", mon))
             {
                 mon.SendMessageRecursive(monMsg);

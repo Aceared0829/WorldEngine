@@ -7,13 +7,13 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
-ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtSurfaceAssetDocumentWindow::WQtSurfaceAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "SurfaceAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -22,8 +22,8 @@ ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocu
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "SurfaceAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -33,12 +33,12 @@ ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocu
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SurfaceAssetDockWidget");
     pPropertyPanel->setWindowTitle("Surface Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -46,7 +46,7 @@ ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocu
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);

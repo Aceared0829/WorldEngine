@@ -1,7 +1,7 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 
 #  include <algorithm>
 #  include <cassert>
@@ -351,7 +351,7 @@ void Rasterizer::clear()
 
 bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needsClipping)
 {
-  // Frustum culling is not necessary, because EZ only calls this functions for objects that are definitely inside the frustum
+  // Frustum culling is not necessary, because W only calls this functions for objects that are definitely inside the frustum
   //
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);

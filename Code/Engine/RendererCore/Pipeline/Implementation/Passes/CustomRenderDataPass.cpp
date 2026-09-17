@@ -8,36 +8,36 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomRenderDataPass, 1, ezRTTIDefaultAllocator<ezCustomRenderDataPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomRenderDataPass, 1, WRTTIDefaultAllocator<WCustomRenderDataPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("RenderDataCategory", m_sRenderDataCategoryName),
-    EZ_ENUM_MEMBER_PROPERTY("SortingFunction", ezRenderSortingFunctions, m_SortingFunction),
+    W_MEMBER_PROPERTY("Color", m_PinColor),
+    W_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    W_MEMBER_PROPERTY("RenderDataCategory", m_sRenderDataCategoryName),
+    W_ENUM_MEMBER_PROPERTY("SortingFunction", WRenderSortingFunctions, m_SortingFunction),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering")
+    new WCategoryAttribute("Rendering")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCustomRenderDataPass::ezCustomRenderDataPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WCustomRenderDataPass::WCustomRenderDataPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezCustomRenderDataPass::~ezCustomRenderDataPass() = default;
+WCustomRenderDataPass::~WCustomRenderDataPass() = default;
 
-ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WCustomRenderDataPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
 
   if (!hColor.IsInvalidated())
     outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
@@ -56,9 +56,9 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
     DeclareRendererDependenciesForCategory(m_RenderDataCategory, ref_graph, pass);
 
   pass.SetExecuteCallback(
-    [=](const ezRenderGraphContext& ctx)
+    [=](const WRenderGraphContext& ctx)
     {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
       if (!m_RenderDataCategory.IsValid())
         return;
 
@@ -70,32 +70,32 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
     });
   // END-DOCS-CODE-SNIPPET
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCustomRenderDataPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WCustomRenderDataPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_sRenderDataCategoryName;
   inout_stream << m_SortingFunction;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCustomRenderDataPass::Deserialize(ezStreamReader& inout_stream)
+WResult WCustomRenderDataPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sRenderDataCategoryName;
   inout_stream >> m_SortingFunction;
 
   if (m_sRenderDataCategoryName.IsEmpty() == false)
   {
-    m_RenderDataCategory = ezRenderData::RegisterCategory(m_sRenderDataCategoryName, ezRenderSortingFunctions::GetFunction(m_SortingFunction));
+    m_RenderDataCategory = WRenderData::RegisterCategory(m_sRenderDataCategoryName, WRenderSortingFunctions::GetFunction(m_SortingFunction));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_CustomRenderDataPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_CustomRenderDataPass);

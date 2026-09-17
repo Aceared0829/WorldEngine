@@ -4,69 +4,69 @@
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeVisualizerAdapter::ezConeVisualizerAdapter() = default;
+WConeVisualizerAdapter::WConeVisualizerAdapter() = default;
 
-ezConeVisualizerAdapter::~ezConeVisualizerAdapter() = default;
+WConeVisualizerAdapter::~WConeVisualizerAdapter() = default;
 
-void ezConeVisualizerAdapter::Finalize()
+void WConeVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
+  const WConeVisualizerAttribute* pAttr = static_cast<const WConeVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Cone, pAttr->m_Color, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezConeVisualizerAdapter::Update()
+void WConeVisualizerAdapter::Update()
 {
-  const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WConeVisualizerAttribute* pAttr = static_cast<const WConeVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezConeVisualizerAttribute 'angle'");
-    m_fAngleScale = ezMath::Tan(value.ConvertTo<ezAngle>() * 0.5f);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WAngle>(), "Invalid property bound to WConeVisualizerAttribute 'angle'");
+    m_fAngleScale = WMath::Tan(value.ConvertTo<WAngle>() * 0.5f);
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezConeVisualizerAttribute 'color'");
-    m_hGizmo.SetColor(value.ConvertTo<ezColor>());
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WConeVisualizerAttribute 'color'");
+    m_hGizmo.SetColor(value.ConvertTo<WColor>());
   }
 
   m_fFinalScale = pAttr->m_fScale;
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezConeVisualizerAttribute 'radius'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WConeVisualizerAttribute 'radius'");
     m_fFinalScale *= value.ConvertTo<float>();
   }
 
   m_hGizmo.SetVisible(m_bVisualizerIsVisible && m_fAngleScale != 0.0f && m_fFinalScale != 0.0f);
 }
 
-void ezConeVisualizerAdapter::UpdateGizmoTransform()
+void WConeVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
+  const WConeVisualizerAttribute* pAttr = static_cast<const WConeVisualizerAttribute*>(m_pVisualizerAttr);
 
-  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(pAttr->m_Axis);
+  const WQuat axisRotation = WBasisAxis::GetBasisRotation_PosX(pAttr->m_Axis);
 
-  ezTransform t = GetObjectTransform();
-  t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
+  WTransform t = GetObjectTransform();
+  t.m_vScale = t.m_vScale.CompMul(WVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
   t.m_qRotation = axisRotation * t.m_qRotation;
   m_hGizmo.SetTransformation(t);
 }

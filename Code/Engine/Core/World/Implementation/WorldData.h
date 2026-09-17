@@ -12,47 +12,47 @@
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
 
-namespace ezInternal
+namespace WInternal
 {
-  class EZ_CORE_DLL WorldData
+  class W_CORE_DLL WorldData
   {
   private:
-    friend class ::ezWorld;
-    friend class ::ezComponentManagerBase;
+    friend class ::WWorld;
+    friend class ::WComponentManagerBase;
 
-    WorldData(ezWorldDesc& desc);
+    WorldData(WWorldDesc& desc);
     ~WorldData();
 
     void Clear();
 
-    ezHashedString m_sName;
-    mutable ezProxyAllocator m_Allocator;
-    ezLocalAllocatorWrapper m_AllocatorWrapper;
-    ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
-    ezDoubleBufferedLinearAllocator m_LinearAllocator;
+    WHashedString m_sName;
+    mutable WProxyAllocator m_Allocator;
+    WLocalAllocatorWrapper m_AllocatorWrapper;
+    WInternal::WorldLargeBlockAllocator m_BlockAllocator;
+    WDoubleBufferedLinearAllocator m_LinearAllocator;
 
     enum
     {
-      GAME_OBJECTS_PER_BLOCK = ezDataBlock<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY,
-      TRANSFORMATION_DATA_PER_BLOCK = ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY
+      GAME_OBJECTS_PER_BLOCK = WDataBlock<WGameObject, WInternal::DEFAULT_BLOCK_SIZE>::CAPACITY,
+      TRANSFORMATION_DATA_PER_BLOCK = WDataBlock<WGameObject::TransformationData, WInternal::DEFAULT_BLOCK_SIZE>::CAPACITY
     };
 
     // object storage
-    using ObjectStorage = ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact>;
-    ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
+    using ObjectStorage = WBlockStorage<WGameObject, WInternal::DEFAULT_BLOCK_SIZE, WBlockStorageType::Compact>;
+    WIdTable<WGameObjectId, WGameObject*, WLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
-    ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
-    ezEvent<const ezGameObject*> m_ObjectDeletionEvent;
+    WSet<WGameObject*, WCompareHelper<WGameObject*>, WLocalAllocatorWrapper> m_DeadObjects;
+    WEvent<const WGameObject*> m_ObjectDeletionEvent;
 
   public:
-    class EZ_CORE_DLL ConstObjectIterator
+    class W_CORE_DLL ConstObjectIterator
     {
     public:
-      const ezGameObject& operator*() const;
-      const ezGameObject* operator->() const;
+      const WGameObject& operator*() const;
+      const WGameObject* operator->() const;
 
-      operator const ezGameObject*() const;
+      operator const WGameObject*() const;
 
       /// Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
@@ -64,20 +64,20 @@ namespace ezInternal
       void operator++();
 
     private:
-      friend class ::ezWorld;
+      friend class ::WWorld;
 
       ConstObjectIterator(ObjectStorage::ConstIterator iterator);
 
       ObjectStorage::ConstIterator m_Iterator;
     };
 
-    class EZ_CORE_DLL ObjectIterator
+    class W_CORE_DLL ObjectIterator
     {
     public:
-      ezGameObject& operator*();
-      ezGameObject* operator->();
+      WGameObject& operator*();
+      WGameObject* operator->();
 
-      operator ezGameObject*();
+      operator WGameObject*();
 
       /// Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
@@ -89,7 +89,7 @@ namespace ezInternal
       void operator++();
 
     private:
-      friend class ::ezWorld;
+      friend class ::WWorld;
 
       ObjectIterator(ObjectStorage::Iterator iterator);
 
@@ -100,10 +100,10 @@ namespace ezInternal
     // hierarchy structures
     struct Hierarchy
     {
-      using DataBlock = ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE>;
-      using DataBlockArray = ezDynamicArray<DataBlock>;
+      using DataBlock = WDataBlock<WGameObject::TransformationData, WInternal::DEFAULT_BLOCK_SIZE>;
+      using DataBlockArray = WDynamicArray<DataBlock>;
 
-      ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;
+      WHybridArray<DataBlockArray*, 8, WLocalAllocatorWrapper> m_Data;
     };
 
     struct HierarchyType
@@ -120,159 +120,159 @@ namespace ezInternal
 
     static HierarchyType::Enum GetHierarchyType(bool bDynamic);
 
-    ezGameObject::TransformationData* CreateTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel);
+    WGameObject::TransformationData* CreateTransformationData(bool bDynamic, WUInt32 uiHierarchyLevel);
 
-    void DeleteTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel, ezGameObject::TransformationData* pData);
+    void DeleteTransformationData(bool bDynamic, WUInt32 uiHierarchyLevel, WGameObject::TransformationData* pData);
 
     template <typename VISITOR>
-    static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    static WVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
     template <typename VISITOR>
-    ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    WVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
-    using VisitorFunc = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
+    using VisitorFunc = WDelegate<WVisitorExecution::Enum(WGameObject*)>;
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
-    static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
+    static WVisitorExecution::Enum TraverseObjectDepthFirst(WGameObject* pObject, VisitorFunc& func);
 
-    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
-    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
+    static void UpdateGlobalTransform(WGameObject::TransformationData* pData, WUInt32 uiUpdateCounter);
+    static void UpdateGlobalTransformWithParent(WGameObject::TransformationData* pData, WUInt32 uiUpdateCounter);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(WGameObject::TransformationData* pData, WUInt32 uiUpdateCounter, WSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(WGameObject::TransformationData* pData, WUInt32 uiUpdateCounter, WSpatialSystem& spatialSystem);
 
     void UpdateGlobalTransforms();
 
-    void ResourceEventHandler(const ezResourceEvent& e);
+    void ResourceEventHandler(const WResourceEvent& e);
 
     // game object lookups
-    ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
-    ezHashTable<ezUInt64, ezHashedString, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
+    WHashTable<WUInt64, WGameObjectId, WHashHelper<WUInt64>, WLocalAllocatorWrapper> m_GlobalKeyToIdTable;
+    WHashTable<WUInt64, WHashedString, WHashHelper<WUInt64>, WLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
     // modules
-    ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_Modules;
-    ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_ModulesToStartSimulation;
+    WDynamicArray<WWorldModule*, WLocalAllocatorWrapper> m_Modules;
+    WDynamicArray<WWorldModule*, WLocalAllocatorWrapper> m_ModulesToStartSimulation;
 
     // component management
-    ezSet<ezComponent*, ezCompareHelper<ezComponent*>, ezLocalAllocatorWrapper> m_DeadComponents;
+    WSet<WComponent*, WCompareHelper<WComponent*>, WLocalAllocatorWrapper> m_DeadComponents;
 
     struct InitBatch
     {
-      InitBatch(ezAllocator* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame);
+      InitBatch(WAllocator* pAllocator, WStringView sName, bool bMustFinishWithinOneFrame);
 
-      ezHashedString m_sName;
+      WHashedString m_sName;
       bool m_bMustFinishWithinOneFrame = true;
       bool m_bIsReady = false;
 
-      ezUInt32 m_uiNextComponentToInitialize = 0;
-      ezUInt32 m_uiNextComponentToStartSimulation = 0;
-      ezDynamicArray<ezComponentHandle> m_ComponentsToInitialize;
-      ezDynamicArray<ezComponentHandle> m_ComponentsToStartSimulation;
+      WUInt32 m_uiNextComponentToInitialize = 0;
+      WUInt32 m_uiNextComponentToStartSimulation = 0;
+      WDynamicArray<WComponentHandle> m_ComponentsToInitialize;
+      WDynamicArray<WComponentHandle> m_ComponentsToStartSimulation;
     };
 
-    ezTime m_MaxInitializationTimePerFrame;
-    ezIdTable<ezComponentInitBatchId, ezUniquePtr<InitBatch>, ezLocalAllocatorWrapper> m_InitBatches;
+    WTime m_MaxInitializationTimePerFrame;
+    WIdTable<WComponentInitBatchId, WUniquePtr<InitBatch>, WLocalAllocatorWrapper> m_InitBatches;
     InitBatch* m_pDefaultInitBatch = nullptr;
     InitBatch* m_pCurrentInitBatch = nullptr;
 
     struct RegisteredUpdateFunction
     {
-      ezWorldModule::UpdateFunction m_Function;
-      ezHashedString m_sFunctionName;
+      WWorldModule::UpdateFunction m_Function;
+      WHashedString m_sFunctionName;
       float m_fPriority;
-      ezUInt16 m_uiAsyncPhaseBatchSize;
+      WUInt16 m_uiAsyncPhaseBatchSize;
       bool m_bOnlyUpdateWhenSimulating;
 
-      void FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc);
+      void FillFromDesc(const WWorldModule::UpdateFunctionDesc& desc);
       bool operator<(const RegisteredUpdateFunction& other) const;
     };
 
-    struct UpdateTask final : public ezTask
+    struct UpdateTask final : public WTask
     {
       virtual void Execute() override;
 
-      ezWorldModule::UpdateFunction m_Function;
-      ezUInt32 m_uiStartIndex;
-      ezUInt32 m_uiCount;
+      WWorldModule::UpdateFunction m_Function;
+      WUInt32 m_uiStartIndex;
+      WUInt32 m_uiCount;
     };
 
-    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldUpdatePhase::COUNT];
-    ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
-    ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToDeregister;
+    WDynamicArray<RegisteredUpdateFunction, WLocalAllocatorWrapper> m_UpdateFunctions[WWorldUpdatePhase::COUNT];
+    WDynamicArray<WWorldModule::UpdateFunctionDesc, WLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
+    WDynamicArray<WWorldModule::UpdateFunctionDesc, WLocalAllocatorWrapper> m_UpdateFunctionsToDeregister;
 
-    ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;
+    WDynamicArray<WSharedPtr<UpdateTask>, WLocalAllocatorWrapper> m_UpdateTasks;
 
-    ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-    ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
-    ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;
-    ezSharedPtr<ezBlackboard> m_pBlackboard;
+    WUniquePtr<WSpatialSystem> m_pSpatialSystem;
+    WSharedPtr<WCoordinateSystemProvider> m_pCoordinateSystemProvider;
+    WUniquePtr<WTimeStepSmoothing> m_pTimeStepSmoothing;
+    WSharedPtr<WBlackboard> m_pBlackboard;
 
-    ezClock m_Clock;
-    ezRandom m_Random;
+    WClock m_Clock;
+    WRandom m_Random;
 
     struct QueuedMsg
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
-      EZ_ALWAYS_INLINE QueuedMsg()
+      W_ALWAYS_INLINE QueuedMsg()
         : m_uiReceiverData(0)
       {
       }
 
-      ezMessage* m_pMessage = nullptr;
-      mutable ezUInt64 m_uiMessageHash = 0;
+      WMessage* m_pMessage = nullptr;
+      mutable WUInt64 m_uiMessageHash = 0;
 
       union
       {
         struct
         {
-          ezUInt64 m_uiReceiverObjectOrComponent : 62;
-          ezUInt64 m_uiReceiverIsComponent : 1;
-          ezUInt64 m_uiRecursive : 1;
+          WUInt64 m_uiReceiverObjectOrComponent : 62;
+          WUInt64 m_uiReceiverIsComponent : 1;
+          WUInt64 m_uiRecursive : 1;
         };
 
-        ezUInt64 m_uiReceiverData;
+        WUInt64 m_uiReceiverData;
       };
 
-      ezTime m_Due;
+      WTime m_Due;
     };
 
-    using MessageQueue = ezDeque<QueuedMsg, ezLocalAllocatorWrapper>;
-    mutable ezMutex m_MessageQueueMutex[ezObjectMsgQueueType::COUNT];
-    mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
-    mutable MessageQueue m_MessageProcessingQueues[ezObjectMsgQueueType::COUNT];
-    mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
-    ezTime m_MessageTime; // Used to determine when delayed messages are due. Advanced with the world clock when the simulation is running, otherwise the global clock is used.
+    using MessageQueue = WDeque<QueuedMsg, WLocalAllocatorWrapper>;
+    mutable WMutex m_MessageQueueMutex[WObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_MessageQueues[WObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_MessageProcessingQueues[WObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_TimedMessageQueues[WObjectMsgQueueType::COUNT];
+    WTime m_MessageTime; // Used to determine when delayed messages are due. Advanced with the world clock when the simulation is running, otherwise the global clock is used.
 
-    ezThreadID m_WriteThreadID;
-    ezInt32 m_iWriteCounter = 0;
-    mutable ezAtomicInteger32 m_iReadCounter;
+    WThreadID m_WriteThreadID;
+    WInt32 m_iWriteCounter = 0;
+    mutable WAtomicInteger32 m_iReadCounter;
 
-    ezUInt32 m_uiUpdateCounter = 0;
+    WUInt32 m_uiUpdateCounter = 0;
     bool m_bSimulateWorld = true;
     bool m_bReportErrorWhenStaticObjectMoves = true;
 
-    /// Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
-    ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, ezStringView)> m_GameObjectReferenceResolver;
+    /// Maps some data (given as void*) to an WGameObjectHandle. Only available in special situations (e.g. editor use cases).
+    WDelegate<WGameObjectHandle(const void*, WComponentHandle, WStringView)> m_GameObjectReferenceResolver;
 
     struct ResourceReloadContext
     {
-      ezWorld* m_pWorld = nullptr;
-      ezComponent* m_pComponent = nullptr;
+      WWorld* m_pWorld = nullptr;
+      WComponent* m_pComponent = nullptr;
       void* m_pUserData = nullptr;
     };
 
-    using ResourceReloadFunc = ezDelegate<void(ResourceReloadContext&)>;
+    using ResourceReloadFunc = WDelegate<void(ResourceReloadContext&)>;
 
     struct ResourceReloadFunctionData
     {
-      ezComponentHandle m_hComponent;
+      WComponentHandle m_hComponent;
       void* m_pUserData = nullptr;
       ResourceReloadFunc m_Func;
     };
 
-    using ReloadFunctionList = ezHybridArray<ResourceReloadFunctionData, 8>;
-    ezHashTable<ezTypelessResourceHandle, ReloadFunctionList> m_ReloadFunctions;
-    ezHashSet<ezTypelessResourceHandle> m_NeedReload;
+    using ReloadFunctionList = WHybridArray<ResourceReloadFunctionData, 8>;
+    WHashTable<WTypelessResourceHandle, ReloadFunctionList> m_ReloadFunctions;
+    WHashSet<WTypelessResourceHandle> m_NeedReload;
     ReloadFunctionList m_TempReloadFunctions;
 
   public:
@@ -283,7 +283,7 @@ namespace ezInternal
       void Unlock();
 
     private:
-      friend class ::ezInternal::WorldData;
+      friend class ::WInternal::WorldData;
 
       ReadMarker(const WorldData& data);
       const WorldData& m_Data;
@@ -296,7 +296,7 @@ namespace ezInternal
       void Unlock();
 
     private:
-      friend class ::ezInternal::WorldData;
+      friend class ::WInternal::WorldData;
 
       WriteMarker(WorldData& data);
       WorldData& m_Data;
@@ -309,10 +309,10 @@ namespace ezInternal
     void* m_pUserData = nullptr;
 
     /// Protects m_BoundsUpdateQueue for concurrent access during the async update phase.
-    ezMutex m_BoundsUpdateMutex;
+    WMutex m_BoundsUpdateMutex;
     /// Game objects whose local bounds need to be recomputed at the end of the current update phase.
-    ezDynamicArray<ezGameObjectHandle> m_BoundsUpdateQueue;
+    WDynamicArray<WGameObjectHandle> m_BoundsUpdateQueue;
   };
-} // namespace ezInternal
+} // namespace WInternal
 
 #include <Core/World/Implementation/WorldData_inl.h>

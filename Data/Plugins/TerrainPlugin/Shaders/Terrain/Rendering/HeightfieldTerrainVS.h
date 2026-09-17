@@ -216,7 +216,7 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const float zOffset = -GET_PUSH_CONSTANT(HeightfieldRenderConstants, SkirtDepth) * skirtFalloff;
 
   // Apply the object-to-world transform so the patch respects rotation and scale.
-  const ezPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(HeightfieldRenderConstants, InstanceDataOffset)];
+  const WPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(HeightfieldRenderConstants, InstanceDataOffset)];
   const float4x4 objectToWorld = TransformToMatrix(instanceData.ObjectToWorld);
   const float3x3 objectToWorldNormal = TransformToRotation(instanceData.ObjectToWorldNormal);
 

@@ -5,62 +5,62 @@
 #include <GameEngine/Animation/SliderComponent.h>
 
 float CalculateAcceleratedMovement(
-  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& ref_timeSinceStartInSec);
+  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, WTime& ref_timeSinceStartInSec);
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WSliderComponent, 3, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveZ)),
-    EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("Axis", WBasisAxis, m_Axis)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::PositiveZ)),
+    W_MEMBER_PROPERTY("Distance", m_fDistanceToTravel)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new WClampValueAttribute(WTime::MakeZero(), WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute("Axis", 1.0, ezColor::MediumPurple, nullptr, "Distance")
+    new WDirectionVisualizerAttribute("Axis", 1.0, WColor::MediumPurple, nullptr, "Distance")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSliderComponent::ezSliderComponent() = default;
-ezSliderComponent::~ezSliderComponent() = default;
+WSliderComponent::WSliderComponent() = default;
+WSliderComponent::~WSliderComponent() = default;
 
-void ezSliderComponent::Update()
+void WSliderComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::CurrentlyRunning))
+  if (m_Flags.IsAnySet(WTransformComponentFlags::CurrentlyRunning))
   {
-    ezVec3 vAxis;
+    WVec3 vAxis;
 
     switch (m_Axis)
     {
-      case ezBasisAxis::PositiveX:
+      case WBasisAxis::PositiveX:
         vAxis.Set(1, 0, 0);
         break;
-      case ezBasisAxis::PositiveY:
+      case WBasisAxis::PositiveY:
         vAxis.Set(0, 1, 0);
         break;
-      case ezBasisAxis::PositiveZ:
+      case WBasisAxis::PositiveZ:
         vAxis.Set(0, 0, 1);
         break;
-      case ezBasisAxis::NegativeX:
+      case WBasisAxis::NegativeX:
         vAxis.Set(-1, 0, 0);
         break;
-      case ezBasisAxis::NegativeY:
+      case WBasisAxis::NegativeY:
         vAxis.Set(0, -1, 0);
         break;
-      case ezBasisAxis::NegativeZ:
+      case WBasisAxis::NegativeZ:
         vAxis.Set(0, 0, -1);
         break;
     }
 
-    if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
+    if (m_Flags.IsAnySet(WTransformComponentFlags::AnimationReversed))
       m_AnimationTime -= GetWorld()->GetClock().GetTimeDiff();
     else
       m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
@@ -73,16 +73,16 @@ void ezSliderComponent::Update()
 
     m_fLastDistance = fNewDistance;
 
-    if (!m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
+    if (!m_Flags.IsAnySet(WTransformComponentFlags::AnimationReversed))
     {
       if (fNewDistance >= m_fDistanceToTravel)
       {
-        if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnEnd))
+        if (!m_Flags.IsSet(WTransformComponentFlags::AutoReturnEnd))
         {
-          m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
+          m_Flags.Remove(WTransformComponentFlags::CurrentlyRunning);
         }
 
-        m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
+        m_Flags.Add(WTransformComponentFlags::AnimationReversed);
 
         // if (PrepareEvent("ANIMATOR_OnReachEnd"))
         // RaiseEvent();
@@ -92,12 +92,12 @@ void ezSliderComponent::Update()
     {
       if (fNewDistance <= 0.0f)
       {
-        if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnStart))
+        if (!m_Flags.IsSet(WTransformComponentFlags::AutoReturnStart))
         {
-          m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
+          m_Flags.Remove(WTransformComponentFlags::CurrentlyRunning);
         }
 
-        m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
+        m_Flags.Remove(WTransformComponentFlags::AnimationReversed);
 
         // if (PrepareEvent("ANIMATOR_OnReachStart"))
         // RaiseEvent();
@@ -106,7 +106,7 @@ void ezSliderComponent::Update()
   }
 }
 
-void ezSliderComponent::OnSimulationStarted()
+void WSliderComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
@@ -115,11 +115,11 @@ void ezSliderComponent::OnSimulationStarted()
 
   if (m_RandomStart.IsPositive())
   {
-    m_AnimationTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_RandomStart.GetSeconds()));
+    m_AnimationTime = WTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_RandomStart.GetSeconds()));
   }
 }
 
-void ezSliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSliderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -134,10 +134,10 @@ void ezSliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 }
 
 
-void ezSliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSliderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -159,22 +159,22 @@ void ezSliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSliderComponentPatch_1_2 : public ezGraphPatch
+class WSliderComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezSliderComponentPatch_1_2()
-    : ezGraphPatch("ezSliderComponent", 2)
+  WSliderComponentPatch_1_2()
+    : WGraphPatch("WSliderComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Base class
-    ref_context.PatchBaseClass("ezTransformComponent", 2, true);
+    ref_context.PatchBaseClass("WTransformComponent", 2, true);
   }
 };
 
-ezSliderComponentPatch_1_2 g_ezSliderComponentPatch_1_2;
+WSliderComponentPatch_1_2 g_WSliderComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SliderComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SliderComponent);

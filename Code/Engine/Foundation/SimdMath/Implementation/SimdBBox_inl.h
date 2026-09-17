@@ -2,203 +2,203 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 
-EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox() = default;
+W_ALWAYS_INLINE WSimdBBox::WSimdBBox() = default;
 
-EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
+W_ALWAYS_INLINE WSimdBBox::WSimdBBox(const WSimdVec4f& vMin, const WSimdVec4f& vMax)
   : m_Min(vMin)
   , m_Max(vMax)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeZero()
+W_ALWAYS_INLINE WSimdBBox WSimdBBox::MakeZero()
 {
-  return ezSimdBBox(ezSimdVec4f::MakeZero(), ezSimdVec4f::MakeZero());
+  return WSimdBBox(WSimdVec4f::MakeZero(), WSimdVec4f::MakeZero());
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeInvalid()
+W_ALWAYS_INLINE WSimdBBox WSimdBBox::MakeInvalid()
 {
-  return ezSimdBBox(ezSimdVec4f(ezMath::MaxValue<float>()), ezSimdVec4f(-ezMath::MaxValue<float>()));
+  return WSimdBBox(WSimdVec4f(WMath::MaxValue<float>()), WSimdVec4f(-WMath::MaxValue<float>()));
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromCenterAndHalfExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vHalfExtents)
+W_ALWAYS_INLINE WSimdBBox WSimdBBox::MakeFromCenterAndHalfExtents(const WSimdVec4f& vCenter, const WSimdVec4f& vHalfExtents)
 {
-  return ezSimdBBox(vCenter - vHalfExtents, vCenter + vHalfExtents);
+  return WSimdBBox(vCenter - vHalfExtents, vCenter + vHalfExtents);
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromMinMax(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
+W_ALWAYS_INLINE WSimdBBox WSimdBBox::MakeFromMinMax(const WSimdVec4f& vMin, const WSimdVec4f& vMax)
 {
-  return ezSimdBBox(vMin, vMax);
+  return WSimdBBox(vMin, vMax);
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /*= sizeof(ezSimdVec4f)*/)
+W_ALWAYS_INLINE WSimdBBox WSimdBBox::MakeFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride /*= sizeof(WSimdVec4f)*/)
 {
-  ezSimdBBox box = ezSimdBBox::MakeInvalid();
+  WSimdBBox box = WSimdBBox::MakeInvalid();
   box.ExpandToInclude(pPoints, uiNumPoints, uiStride);
   return box;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::SetInvalid()
+W_ALWAYS_INLINE void WSimdBBox::SetInvalid()
 {
-  m_Min.Set(ezMath::MaxValue<float>());
-  m_Max.Set(-ezMath::MaxValue<float>());
+  m_Min.Set(WMath::MaxValue<float>());
+  m_Max.Set(-WMath::MaxValue<float>());
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::SetCenterAndHalfExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vHalfExtents)
+W_ALWAYS_INLINE void WSimdBBox::SetCenterAndHalfExtents(const WSimdVec4f& vCenter, const WSimdVec4f& vHalfExtents)
 {
   m_Min = vCenter - vHalfExtents;
   m_Max = vCenter + vHalfExtents;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
+W_ALWAYS_INLINE void WSimdBBox::SetFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride)
 {
   *this = MakeInvalid();
   ExpandToInclude(pPoints, uiNumPoints, uiStride);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::IsValid() const
+W_ALWAYS_INLINE bool WSimdBBox::IsValid() const
 {
   return m_Min.IsValid<3>() && m_Max.IsValid<3>() && (m_Min <= m_Max).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::IsNaN() const
+W_ALWAYS_INLINE bool WSimdBBox::IsNaN() const
 {
   return m_Min.IsNaN<3>() || m_Max.IsNaN<3>();
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdBBox::GetCenter() const
+W_ALWAYS_INLINE WSimdVec4f WSimdBBox::GetCenter() const
 {
-  return (m_Min + m_Max) * ezSimdFloat(0.5f);
+  return (m_Min + m_Max) * WSimdFloat(0.5f);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdBBox::GetExtents() const
+W_ALWAYS_INLINE WSimdVec4f WSimdBBox::GetExtents() const
 {
   return m_Max - m_Min;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdBBox::GetHalfExtents() const
+W_ALWAYS_INLINE WSimdVec4f WSimdBBox::GetHalfExtents() const
 {
-  return (m_Max - m_Min) * ezSimdFloat(0.5f);
+  return (m_Max - m_Min) * WSimdFloat(0.5f);
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::ExpandToInclude(const ezSimdVec4f& vPoint)
+W_ALWAYS_INLINE void WSimdBBox::ExpandToInclude(const WSimdVec4f& vPoint)
 {
   m_Min = m_Min.CompMin(vPoint);
   m_Max = m_Max.CompMax(vPoint);
 }
 
-inline void ezSimdBBox::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
+inline void WSimdBBox::ExpandToInclude(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride)
 {
-  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezSimdVec4f), "Data may not overlap.");
+  W_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  W_ASSERT_DEBUG(uiStride >= sizeof(WSimdVec4f), "Data may not overlap.");
 
-  const ezSimdVec4f* pCur = pPoints;
+  const WSimdVec4f* pCur = pPoints;
 
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  for (WUInt32 i = 0; i < uiNumPoints; ++i)
   {
     ExpandToInclude(*pCur);
 
-    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
+    pCur = WMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::ExpandToInclude(const ezSimdBBox& rhs)
+W_ALWAYS_INLINE void WSimdBBox::ExpandToInclude(const WSimdBBox& rhs)
 {
   m_Min = m_Min.CompMin(rhs.m_Min);
   m_Max = m_Max.CompMax(rhs.m_Max);
 }
 
-inline void ezSimdBBox::ExpandToCube()
+inline void WSimdBBox::ExpandToCube()
 {
-  const ezSimdVec4f center = GetCenter();
-  const ezSimdVec4f halfExtents = center - m_Min;
+  const WSimdVec4f center = GetCenter();
+  const WSimdVec4f halfExtents = center - m_Min;
 
-  *this = ezSimdBBox::MakeFromCenterAndHalfExtents(center, ezSimdVec4f(halfExtents.HorizontalMax<3>()));
+  *this = WSimdBBox::MakeFromCenterAndHalfExtents(center, WSimdVec4f(halfExtents.HorizontalMax<3>()));
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::Contains(const ezSimdVec4f& vPoint) const
+W_ALWAYS_INLINE bool WSimdBBox::Contains(const WSimdVec4f& vPoint) const
 {
   return ((vPoint >= m_Min) && (vPoint <= m_Max)).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::Contains(const ezSimdBBox& rhs) const
+W_ALWAYS_INLINE bool WSimdBBox::Contains(const WSimdBBox& rhs) const
 {
   return Contains(rhs.m_Min) && Contains(rhs.m_Max);
 }
 
-inline bool ezSimdBBox::Contains(const ezSimdBSphere& rhs) const
+inline bool WSimdBBox::Contains(const WSimdBSphere& rhs) const
 {
-  const ezSimdBBox otherBox = ezSimdBBox::MakeFromCenterAndHalfExtents(rhs.GetCenter(), ezSimdVec4f(rhs.GetRadius()));
+  const WSimdBBox otherBox = WSimdBBox::MakeFromCenterAndHalfExtents(rhs.GetCenter(), WSimdVec4f(rhs.GetRadius()));
 
   return Contains(otherBox);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::Overlaps(const ezSimdBBox& rhs) const
+W_ALWAYS_INLINE bool WSimdBBox::Overlaps(const WSimdBBox& rhs) const
 {
   return ((m_Max > rhs.m_Min) && (m_Min < rhs.m_Max)).AllSet<3>();
 }
 
-inline bool ezSimdBBox::Overlaps(const ezSimdBSphere& rhs) const
+inline bool WSimdBBox::Overlaps(const WSimdBSphere& rhs) const
 {
   // check whether the closest point between box and sphere is inside the sphere (it is definitely inside the box)
   return rhs.Contains(GetClampedPoint(rhs.GetCenter()));
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::Grow(const ezSimdVec4f& vDiff)
+W_ALWAYS_INLINE void WSimdBBox::Grow(const WSimdVec4f& vDiff)
 {
   m_Max += vDiff;
   m_Min -= vDiff;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::Translate(const ezSimdVec4f& vDiff)
+W_ALWAYS_INLINE void WSimdBBox::Translate(const WSimdVec4f& vDiff)
 {
   m_Min += vDiff;
   m_Max += vDiff;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::Transform(const ezSimdTransform& t)
+W_ALWAYS_INLINE void WSimdBBox::Transform(const WSimdTransform& t)
 {
   Transform(t.GetAsMat4());
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBox::Transform(const ezSimdMat4f& mMat)
+W_ALWAYS_INLINE void WSimdBBox::Transform(const WSimdMat4f& mMat)
 {
-  const ezSimdVec4f center = GetCenter();
-  const ezSimdVec4f halfExtents = center - m_Min;
+  const WSimdVec4f center = GetCenter();
+  const WSimdVec4f halfExtents = center - m_Min;
 
-  const ezSimdVec4f newCenter = mMat.TransformPosition(center);
+  const WSimdVec4f newCenter = mMat.TransformPosition(center);
 
-  ezSimdVec4f newHalfExtents = mMat.m_col0.Abs() * halfExtents.x();
+  WSimdVec4f newHalfExtents = mMat.m_col0.Abs() * halfExtents.x();
   newHalfExtents += mMat.m_col1.Abs() * halfExtents.y();
   newHalfExtents += mMat.m_col2.Abs() * halfExtents.z();
 
-  *this = ezSimdBBox::MakeFromCenterAndHalfExtents(newCenter, newHalfExtents);
+  *this = WSimdBBox::MakeFromCenterAndHalfExtents(newCenter, newHalfExtents);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdBBox::GetClampedPoint(const ezSimdVec4f& vPoint) const
+W_ALWAYS_INLINE WSimdVec4f WSimdBBox::GetClampedPoint(const WSimdVec4f& vPoint) const
 {
   return vPoint.CompMin(m_Max).CompMax(m_Min);
 }
 
-inline ezSimdFloat ezSimdBBox::GetDistanceSquaredTo(const ezSimdVec4f& vPoint) const
+inline WSimdFloat WSimdBBox::GetDistanceSquaredTo(const WSimdVec4f& vPoint) const
 {
-  const ezSimdVec4f vClamped = GetClampedPoint(vPoint);
+  const WSimdVec4f vClamped = GetClampedPoint(vPoint);
 
   return (vPoint - vClamped).GetLengthSquared<3>();
 }
 
-inline ezSimdFloat ezSimdBBox::GetDistanceTo(const ezSimdVec4f& vPoint) const
+inline WSimdFloat WSimdBBox::GetDistanceTo(const WSimdVec4f& vPoint) const
 {
-  const ezSimdVec4f vClamped = GetClampedPoint(vPoint);
+  const WSimdVec4f vClamped = GetClampedPoint(vPoint);
 
   return (vPoint - vClamped).GetLength<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::operator==(const ezSimdBBox& rhs) const
+W_ALWAYS_INLINE bool WSimdBBox::operator==(const WSimdBBox& rhs) const
 {
   return ((m_Min == rhs.m_Min) && (m_Max == rhs.m_Max)).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBox::operator!=(const ezSimdBBox& rhs) const
+W_ALWAYS_INLINE bool WSimdBBox::operator!=(const WSimdBBox& rhs) const
 {
   return ((m_Min != rhs.m_Min) || (m_Max != rhs.m_Max)).AnySet<3>();
 }

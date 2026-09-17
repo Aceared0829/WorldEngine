@@ -4,14 +4,14 @@
 #include <EditorPluginScene/ui_DeltaTransformDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezSceneDocument;
+class WSceneDocument;
 
-class ezQtDeltaTransformDlg : public ezQtDialog, public Ui_DeltaTransformDlg
+class WQtDeltaTransformDlg : public WQtDialog, public Ui_DeltaTransformDlg
 {
   Q_OBJECT
 
 public:
-  ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* pSceneDoc);
+  WQtDeltaTransformDlg(QWidget* pParent, WSceneDocument* pSceneDoc);
 
   enum Mode
   {
@@ -56,18 +56,18 @@ private:
 
   static Mode s_Mode;
   static Space s_Space;
-  static ezVec3 s_vTranslate;
-  static ezVec3 s_vTranslateDeviation;
-  static ezVec3 s_vScale;
-  static ezVec3 s_vScaleDeviation;
+  static WVec3 s_vTranslate;
+  static WVec3 s_vTranslateDeviation;
+  static WVec3 s_vScale;
+  static WVec3 s_vScaleDeviation;
   static float s_fUniformScale;
   static float s_fUniformScaleDeviation;
-  static ezVec3 s_vRotate;
-  static ezVec3 s_vRotateRandom;
-  static ezVec3 s_vRotateDeviation;
+  static WVec3 s_vRotate;
+  static WVec3 s_vRotateRandom;
+  static WVec3 s_vRotateDeviation;
   static float s_fNaturalDeviationZ;
   static bool s_bUseCurrentSnapSettings;
 
-  ezUInt32 m_uiActionsApplied = 0;
-  ezSceneDocument* m_pSceneDocument = nullptr;
+  WUInt32 m_uiActionsApplied = 0;
+  WSceneDocument* m_pSceneDocument = nullptr;
 };

@@ -6,93 +6,93 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDecalContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalContext, 1, WRTTIDefaultAllocator<WDecalContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Decal"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Decal"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalContext::ezDecalContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WDecalContext::WDecalContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezDecalContext::OnInitialize()
+void WDecalContext::OnInitialize()
 {
   const char* szMeshName = "DefaultDecalPreviewMesh";
-  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = WResourceManager::GetExistingResource<WMeshResource>(szMeshName);
 
   if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultDecalPreviewMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+    WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szMeshBufferName);
 
     if (!hMeshBuffer.IsValid())
     {
       // Build geometry
-      ezGeometry geom;
-      ezGeometry::GeoOptions opt;
+      WGeometry geom;
+      WGeometry::GeoOptions opt;
 
-      geom.AddBox(ezVec3(0.5f, 1.0f, 1.0f), true);
+      geom.AddBox(WVec3(0.5f, 1.0f, 1.0f), true);
 
-      ezMat4 t, r;
-      t = ezMat4::MakeTranslation(ezVec3(0, 1.5f, 0));
-      r = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+      WMat4 t, r;
+      t = WMat4::MakeTranslation(WVec3(0, 1.5f, 0));
+      r = WMat4::MakeRotationZ(WAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddStackedSphere(0.5f, 64, 64, opt);
 
-      t.SetTranslationVector(ezVec3(0, -1.5f, 0));
-      r = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
+      t.SetTranslationVector(WVec3(0, -1.5f, 0));
+      r = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddTorus(0.1f, 0.5f, 32, 64, true, opt);
 
       geom.ComputeTangents();
 
-      ezMeshBufferResourceDescriptor desc;
+      WMeshBufferResourceDescriptor desc;
       desc.AddCommonStreams();
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+      WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-      ezMeshResourceDescriptor md;
+      WMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "Materials/Common/TestBricks.ezMaterial");
+      md.SetMaterial(0, "Materials/Common/TestBricks.WMaterial");
       md.ComputeBounds();
 
-      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = WResourceManager::GetOrCreateResource<WMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezGameObject* pObj;
+  WGameObjectDesc obj;
+  WGameObject* pObj;
 
   // Preview Mesh that the decals get projected onto
   {
     obj.m_sName.Assign("DecalPreview");
     pWorld->CreateObject(obj, pObj);
 
-    ezMeshComponent* pMesh;
-    ezMeshComponent::CreateComponent(pObj, pMesh);
+    WMeshComponent* pMesh;
+    WMeshComponent::CreateComponent(pObj, pMesh);
     pMesh->SetMesh(m_hPreviewMeshResource);
   }
 
   // decals
   {
-    ezStringBuilder sDecalGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sDecalGuid);
+    WStringBuilder sDecalGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sDecalGuid);
 
     // box
     {
@@ -100,8 +100,8 @@ void ezDecalContext::OnInitialize()
       obj.m_LocalPosition.Set(-0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
@@ -111,8 +111,8 @@ void ezDecalContext::OnInitialize()
       obj.m_LocalPosition.Set(-0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
@@ -122,8 +122,8 @@ void ezDecalContext::OnInitialize()
       obj.m_LocalPosition.Set(-0.5f, 1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
@@ -131,50 +131,50 @@ void ezDecalContext::OnInitialize()
     // box
     {
       obj.m_sName.Assign("Decal4");
-      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), WAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetExtents(ezVec3(2));
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
+      pDecal->SetExtents(WVec3(2));
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // torus
     {
       obj.m_sName.Assign("Decal5");
-      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), WAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetExtents(ezVec3(2));
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
+      pDecal->SetExtents(WVec3(2));
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // sphere
     {
       obj.m_sName.Assign("Decal6");
-      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), WAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.5f, 1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
-      ezDecalComponent* pDecal;
-      ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetExtents(ezVec3(2));
+      WDecalComponent* pDecal;
+      WDecalComponent::CreateComponent(pObj, pDecal);
+      pDecal->SetExtents(WVec3(2));
       pDecal->DecalFile_Insert(0, sDecalGuid);
     }
   }
 }
 
-ezEngineProcessViewContext* ezDecalContext::CreateViewContext()
+WEngineProcessViewContext* WDecalContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezDecalViewContext, this);
+  return W_DEFAULT_NEW(WDecalViewContext, this);
 }
 
-void ezDecalContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WDecalContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }

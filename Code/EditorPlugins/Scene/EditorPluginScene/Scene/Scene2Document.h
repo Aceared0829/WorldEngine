@@ -6,46 +6,46 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-class ezScene2Document;
+class WScene2Document;
 
-class ezSceneLayerBase : public ezReflectedClass
+class WSceneLayerBase : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneLayerBase, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSceneLayerBase, WReflectedClass);
 
 public:
-  ezSceneLayerBase();
-  ~ezSceneLayerBase();
+  WSceneLayerBase();
+  ~WSceneLayerBase();
 
 public:
-  mutable ezScene2Document* m_pDocument = nullptr;
+  mutable WScene2Document* m_pDocument = nullptr;
 };
 
-class ezSceneLayer : public ezSceneLayerBase
+class WSceneLayer : public WSceneLayerBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneLayer, ezSceneLayerBase);
+  W_ADD_DYNAMIC_REFLECTION(WSceneLayer, WSceneLayerBase);
 
 public:
-  ezSceneLayer();
-  ~ezSceneLayer();
+  WSceneLayer();
+  ~WSceneLayer();
 
 public:
-  ezUuid m_Layer;
+  WUuid m_Layer;
 };
 
-class ezSceneDocumentSettings : public ezSceneDocumentSettingsBase
+class WSceneDocumentSettings : public WSceneDocumentSettingsBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettings, ezSceneDocumentSettingsBase);
+  W_ADD_DYNAMIC_REFLECTION(WSceneDocumentSettings, WSceneDocumentSettingsBase);
 
 public:
-  ezSceneDocumentSettings();
-  ~ezSceneDocumentSettings();
+  WSceneDocumentSettings();
+  ~WSceneDocumentSettings();
 
 public:
-  ezDynamicArray<ezSceneLayerBase*> m_Layers;
-  mutable ezScene2Document* m_pDocument = nullptr;
+  WDynamicArray<WSceneLayerBase*> m_Layers;
+  mutable WScene2Document* m_pDocument = nullptr;
 };
 
-struct ezScene2LayerEvent
+struct WScene2LayerEvent
 {
   enum class Type
   {
@@ -60,54 +60,54 @@ struct ezScene2LayerEvent
   };
 
   Type m_Type;
-  ezUuid m_layerGuid;
+  WUuid m_layerGuid;
 };
 
-class EZ_EDITORPLUGINSCENE_DLL ezScene2Document : public ezSceneDocument
+class W_EDITORPLUGINSCENE_DLL WScene2Document : public WSceneDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScene2Document, ezSceneDocument);
+  W_ADD_DYNAMIC_REFLECTION(WScene2Document, WSceneDocument);
 
 public:
-  ezScene2Document(ezStringView sDocumentPath);
-  ~ezScene2Document();
+  WScene2Document(WStringView sDocumentPath);
+  ~WScene2Document();
 
   /// \name Scene Data Accessors
   ///@{
 
-  const ezDocumentObjectManager* GetSceneObjectManager() const { return m_pSceneObjectManager.Borrow(); }
-  ezDocumentObjectManager* GetSceneObjectManager() { return m_pSceneObjectManager.Borrow(); }
-  ezSelectionManager* GetSceneSelectionManager() const { return m_pSceneSelectionManager.Borrow(); }
-  ezCommandHistory* GetSceneCommandHistory() const { return m_pSceneCommandHistory.Borrow(); }
-  ezObjectAccessorBase* GetSceneObjectAccessor() const { return m_pSceneObjectAccessor.Borrow(); }
-  const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() const { return m_pSceneDocumentObjectMetaData.Borrow(); }
-  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() { return m_pSceneDocumentObjectMetaData.Borrow(); }
-  const ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() const { return m_pSceneGameObjectMetaData.Borrow(); }
-  ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() { return m_pSceneGameObjectMetaData.Borrow(); }
+  const WDocumentObjectManager* GetSceneObjectManager() const { return m_pSceneObjectManager.Borrow(); }
+  WDocumentObjectManager* GetSceneObjectManager() { return m_pSceneObjectManager.Borrow(); }
+  WSelectionManager* GetSceneSelectionManager() const { return m_pSceneSelectionManager.Borrow(); }
+  WCommandHistory* GetSceneCommandHistory() const { return m_pSceneCommandHistory.Borrow(); }
+  WObjectAccessorBase* GetSceneObjectAccessor() const { return m_pSceneObjectAccessor.Borrow(); }
+  const WObjectMetaData<WUuid, WDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() const { return m_pSceneDocumentObjectMetaData.Borrow(); }
+  WObjectMetaData<WUuid, WDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() { return m_pSceneDocumentObjectMetaData.Borrow(); }
+  const WObjectMetaData<WUuid, WGameObjectMetaData>* GetSceneGameObjectMetaData() const { return m_pSceneGameObjectMetaData.Borrow(); }
+  WObjectMetaData<WUuid, WGameObjectMetaData>* GetSceneGameObjectMetaData() { return m_pSceneGameObjectMetaData.Borrow(); }
 
   ///@}
   /// \name Layer Functions
   ///@{
 
-  ezSelectionManager* GetLayerSelectionManager() const { return m_pLayerSelection.Borrow(); }
+  WSelectionManager* GetLayerSelectionManager() const { return m_pLayerSelection.Borrow(); }
 
-  ezStatus CreateLayer(const char* szName, ezUuid& out_layerGuid);
-  ezStatus DeleteLayer(const ezUuid& layerGuid);
+  WStatus CreateLayer(const char* szName, WUuid& out_layerGuid);
+  WStatus DeleteLayer(const WUuid& layerGuid);
 
-  const ezUuid& GetActiveLayer() const;
-  ezStatus SetActiveLayer(const ezUuid& layerGuid);
+  const WUuid& GetActiveLayer() const;
+  WStatus SetActiveLayer(const WUuid& layerGuid);
 
-  bool IsLayerLoaded(const ezUuid& layerGuid) const;
-  ezStatus SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded);
-  void GetAllLayers(ezDynamicArray<ezUuid>& out_layerGuids);
-  void GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_layers) const;
+  bool IsLayerLoaded(const WUuid& layerGuid) const;
+  WStatus SetLayerLoaded(const WUuid& layerGuid, bool bLoaded);
+  void GetAllLayers(WDynamicArray<WUuid>& out_layerGuids);
+  void GetLoadedLayers(WDynamicArray<WSceneDocument*>& out_layers) const;
 
-  bool IsLayerVisible(const ezUuid& layerGuid) const;
-  ezStatus SetLayerVisible(const ezUuid& layerGuid, bool bVisible);
+  bool IsLayerVisible(const WUuid& layerGuid) const;
+  WStatus SetLayerVisible(const WUuid& layerGuid, bool bVisible);
 
-  const ezDocumentObject* GetLayerObject(const ezUuid& layerGuid) const;
-  ezSceneDocument* GetLayerDocument(const ezUuid& layerGuid) const;
+  const WDocumentObject* GetLayerObject(const WUuid& layerGuid) const;
+  WSceneDocument* GetLayerDocument(const WUuid& layerGuid) const;
 
-  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() override;
+  virtual WGameObjectDocument* GetRedirectedGameObjectDoc() override;
 
   bool IsAnyLayerModified() const;
 
@@ -120,14 +120,14 @@ public:
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void InitializeAfterLoadingAndSaving() override;
-  virtual const ezDocumentObject* GetSettingsObject() const override;
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual const WDocumentObject* GetSettingsObject() const override;
+  virtual void HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg) override;
   virtual void SyncAllChildOrders() override;
-  virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
+  virtual WTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
   virtual void SendGameWorldToEngine() override;
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& assetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 
   ///@}
   /// \name Selection Specific Functions
@@ -140,50 +140,50 @@ public:
 
 
 public:
-  mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;
+  mutable WEvent<const WScene2LayerEvent&> m_LayerEvents;
 
 private:
-  void LayerSelectionEventHandler(const ezSelectionManagerEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  void HandleObjectStateFromEngineMsg2(const ezPushObjectStateMsgToEditor* pMsg);
+  void LayerSelectionEventHandler(const WSelectionManagerEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void CommandHistoryEventHandler(const WCommandHistoryEvent& e);
+  void DocumentManagerEventHandler(const WDocumentManager::Event& e);
+  void HandleObjectStateFromEngineMsg2(const WPushObjectStateMsgToEditor* pMsg);
 
   void UpdateLayers();
   void SendLayerVisibility();
-  void LayerAdded(const ezUuid& layerGuid, const ezUuid& layerObjectGuid);
-  void LayerRemoved(const ezUuid& layerGuid);
+  void LayerAdded(const WUuid& layerGuid, const WUuid& layerObjectGuid);
+  void LayerRemoved(const WUuid& layerGuid);
 
 private:
-  friend class ezSceneLayer;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventSubscriber;
-  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_LayerSelectionEventSubscriber;
-  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_CommandHistoryEventSubscriber;
-  ezCopyOnBroadcastEvent<const ezDocumentManager::Event&>::Unsubscriber m_DocumentManagerEventSubscriber;
+  friend class WSceneLayer;
+  WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventSubscriber;
+  WCopyOnBroadcastEvent<const WSelectionManagerEvent&>::Unsubscriber m_LayerSelectionEventSubscriber;
+  WEvent<const WCommandHistoryEvent&, WMutex>::Unsubscriber m_CommandHistoryEventSubscriber;
+  WCopyOnBroadcastEvent<const WDocumentManager::Event&>::Unsubscriber m_DocumentManagerEventSubscriber;
 
-  // This is used for a flattened list of the ezSceneDocumentSettings hierarchy
+  // This is used for a flattened list of the WSceneDocumentSettings hierarchy
   struct LayerInfo
   {
-    ezSceneDocument* m_pLayer = nullptr;
-    ezUuid m_objectGuid;
+    WSceneDocument* m_pLayer = nullptr;
+    WUuid m_objectGuid;
     bool m_bVisible = true;
   };
 
   // Scene document cache
-  ezUniquePtr<ezDocumentObjectManager> m_pSceneObjectManager;
-  mutable ezUniquePtr<ezCommandHistory> m_pSceneCommandHistory;
-  mutable ezUniquePtr<ezSelectionManager> m_pSceneSelectionManager;
-  mutable ezUniquePtr<ezObjectCommandAccessor> m_pSceneObjectAccessor;
-  ezUniquePtr<ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>> m_pSceneDocumentObjectMetaData;
-  ezUniquePtr<ezObjectMetaData<ezUuid, ezGameObjectMetaData>> m_pSceneGameObjectMetaData;
+  WUniquePtr<WDocumentObjectManager> m_pSceneObjectManager;
+  mutable WUniquePtr<WCommandHistory> m_pSceneCommandHistory;
+  mutable WUniquePtr<WSelectionManager> m_pSceneSelectionManager;
+  mutable WUniquePtr<WObjectCommandAccessor> m_pSceneObjectAccessor;
+  WUniquePtr<WObjectMetaData<WUuid, WDocumentObjectMetaData>> m_pSceneDocumentObjectMetaData;
+  WUniquePtr<WObjectMetaData<WUuid, WGameObjectMetaData>> m_pSceneGameObjectMetaData;
 
   // Layer state
-  mutable ezUniquePtr<ezSelectionManager> m_pLayerSelection;
-  ezUuid m_ActiveLayerGuid;
-  ezHashTable<ezUuid, LayerInfo> m_Layers;
+  mutable WUniquePtr<WSelectionManager> m_pLayerSelection;
+  WUuid m_ActiveLayerGuid;
+  WHashTable<WUuid, LayerInfo> m_Layers;
   bool m_bSwitchLayerToSelection = true;
 
-  void ActiveLayerGameObjectEventHandler(const ezGameObjectEvent& e);
+  void ActiveLayerGameObjectEventHandler(const WGameObjectEvent& e);
 
-  ezEvent<const ezGameObjectEvent&>::Unsubscriber m_ActiveLayerGoEvUnsubscriber;
+  WEvent<const WGameObjectEvent&>::Unsubscriber m_ActiveLayerGoEvUnsubscriber;
 };

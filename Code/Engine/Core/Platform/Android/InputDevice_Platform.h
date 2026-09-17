@@ -2,17 +2,17 @@
 
 #include <Core/Input/InputDevice.h>
 
-struct ezAndroidInputEvent;
+struct WAndroidInputEvent;
 struct AInputEvent;
 
 /// Android standard input device.
-class EZ_CORE_DLL ezInputDevice_Android : public ezInputDevice
+class W_CORE_DLL WInputDevice_Android : public WInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice_Android, ezInputDevice);
+  W_ADD_DYNAMIC_REFLECTION(WInputDevice_Android, WInputDevice);
 
 public:
-  ezInputDevice_Android();
-  ~ezInputDevice_Android();
+  WInputDevice_Android();
+  ~WInputDevice_Android();
 
 private:
   virtual void InitializeDevice() override;
@@ -21,11 +21,11 @@ private:
   virtual void UpdateInputSlotValues() override;
 
 private:
-  void AndroidInputEventHandler(ezAndroidInputEvent& event);
-  void AndroidAppCommandEventHandler(ezInt32 iCmd);
+  void AndroidInputEventHandler(WAndroidInputEvent& event);
+  void AndroidAppCommandEventHandler(WInt32 iCmd);
   bool AndroidHandleInput(AInputEvent* pEvent);
 
 private:
-  ezInt32 m_iResolutionX = 0;
-  ezInt32 m_iResolutionY = 0;
+  WInt32 m_iResolutionX = 0;
+  WInt32 m_iResolutionY = 0;
 };

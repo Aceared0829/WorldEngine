@@ -4,18 +4,18 @@
 #include <Foundation/Time/Time.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 
-class ezSkeletonResource;
-class ezGameObject;
-class ezAnimGraphInstance;
-class ezAnimController;
-class ezStreamWriter;
-class ezStreamReader;
-struct ezAnimGraphPinDataLocalTransforms;
-struct ezAnimGraphPinDataBoneWeights;
-class ezAnimationClipResource;
-struct ezInstanceDataDesc;
+class WSkeletonResource;
+class WGameObject;
+class WAnimGraphInstance;
+class WAnimController;
+class WStreamWriter;
+class WStreamReader;
+struct WAnimGraphPinDataLocalTransforms;
+struct WAnimGraphPinDataBoneWeights;
+class WAnimationClipResource;
+struct WInstanceDataDesc;
 
-using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
+using WAnimationClipResourceHandle = WTypedResourceHandle<class WAnimationClipResource>;
 
 namespace ozz
 {
@@ -25,7 +25,7 @@ namespace ozz
   }
 } // namespace ozz
 
-/// Base class for all nodes in an ezAnimGraph
+/// Base class for all nodes in an WAnimGraph
 ///
 /// Animation graph nodes implement different operations in the animation system such as sampling clips,
 /// blending poses, logic operations, or even outputting debug information.
@@ -36,37 +36,37 @@ namespace ozz
 /// - Optional per-instance state data (playback time, blend weights, etc.)
 ///
 /// Nodes that need to store state across frames (like playback time or transition progress) should use
-/// the instance data pattern. This allows one graph definition (ezAnimGraph) to be shared by many
-/// runtime instances (ezAnimGraphInstance), where each instance has its own state data.
+/// the instance data pattern. This allows one graph definition (WAnimGraph) to be shared by many
+/// runtime instances (WAnimGraphInstance), where each instance has its own state data.
 ///
-/// The same ezAnimGraph can be used by hundreds of characters, each with their own
-/// ezAnimGraphInstance and instance data. The graph definition (nodes, connections, pins) is shared
+/// The same WAnimGraph can be used by hundreds of characters, each with their own
+/// WAnimGraphInstance and instance data. The graph definition (nodes, connections, pins) is shared
 /// to minimize memory overhead.
-class EZ_RENDERERCORE_DLL ezAnimGraphNode : public ezReflectedClass
+class W_RENDERERCORE_DLL WAnimGraphNode : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNode, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphNode, WReflectedClass);
 
 public:
-  ezAnimGraphNode();
-  virtual ~ezAnimGraphNode();
+  WAnimGraphNode();
+  virtual ~WAnimGraphNode();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
   const char* GetCustomNodeTitle() const { return m_sCustomNodeTitle.GetString(); }
   void SetCustomNodeTitle(const char* szSz) { m_sCustomNodeTitle.Assign(szSz); }
 
 protected:
-  friend class ezAnimGraphInstance;
-  friend class ezAnimGraph;
-  friend class ezAnimGraphResource;
+  friend class WAnimGraphInstance;
+  friend class WAnimGraph;
+  friend class WAnimGraphResource;
 
-  ezHashedString m_sCustomNodeTitle;
-  ezUInt32 m_uiInstanceDataOffset = ezInvalidIndex;
+  WHashedString m_sCustomNodeTitle;
+  WUInt32 m_uiInstanceDataOffset = WInvalidIndex;
 
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
+  virtual WResult SerializeNode(WStreamWriter& stream) const = 0;
+  virtual WResult DeserializeNode(WStreamReader& stream) = 0;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const = 0;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const { return false; }
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const = 0;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const { return false; }
 };

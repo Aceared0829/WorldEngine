@@ -4,50 +4,50 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/CapsuleGizmo.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleGizmo, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCapsuleGizmo, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezCapsuleGizmo::ezCapsuleGizmo()
+WCapsuleGizmo::WCapsuleGizmo()
 {
   m_fLength = 1.0f;
   m_fRadius = 0.25f;
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_hRadius.ConfigureHandle(this, ezEngineGizmoHandleType::CylinderZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
-  m_hLengthTop.ConfigureHandle(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
-  m_hLengthBottom.ConfigureHandle(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+  m_hRadius.ConfigureHandle(this, WEngineGizmoHandleType::CylinderZ, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
+  m_hLengthTop.ConfigureHandle(this, WEngineGizmoHandleType::HalfSphereZ, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
+  m_hLengthBottom.ConfigureHandle(this, WEngineGizmoHandleType::HalfSphereZ, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::MakeIdentity());
+  SetTransformation(WTransform::MakeIdentity());
 }
 
-void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void WCapsuleGizmo::OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hLengthTop);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hLengthBottom);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hRadius);
 }
 
-void ezCapsuleGizmo::OnVisibleChanged(bool bVisible)
+void WCapsuleGizmo::OnVisibleChanged(bool bVisible)
 {
   m_hLengthTop.SetVisible(bVisible);
   m_hLengthBottom.SetVisible(bVisible);
   m_hRadius.SetVisible(bVisible);
 }
 
-void ezCapsuleGizmo::OnTransformationChanged(const ezTransform& transform)
+void WCapsuleGizmo::OnTransformationChanged(const WTransform& transform)
 {
   {
-    ezTransform mScaleCylinder;
+    WTransform mScaleCylinder;
     mScaleCylinder.SetIdentity();
-    mScaleCylinder.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fLength);
+    mScaleCylinder.m_vScale = WVec3(m_fRadius, m_fRadius, m_fLength);
 
     m_hRadius.SetTransformation(transform * mScaleCylinder);
   }
 
   {
-    ezTransform mScaleSpheres;
+    WTransform mScaleSpheres;
     mScaleSpheres.SetIdentity();
     mScaleSpheres.m_vScale.Set(m_fRadius);
     mScaleSpheres.m_vPosition.Set(0, 0, m_fLength * 0.5f);
@@ -55,7 +55,7 @@ void ezCapsuleGizmo::OnTransformationChanged(const ezTransform& transform)
   }
 
   {
-    ezTransform mScaleSpheres;
+    WTransform mScaleSpheres;
     mScaleSpheres.SetIdentity();
     mScaleSpheres.m_vScale.Set(m_fRadius, -m_fRadius, -m_fRadius);
     mScaleSpheres.m_vPosition.Set(0, 0, -m_fLength * 0.5f);
@@ -63,14 +63,14 @@ void ezCapsuleGizmo::OnTransformationChanged(const ezTransform& transform)
   }
 }
 
-void ezCapsuleGizmo::DoFocusLost(bool bCancel)
+void WCapsuleGizmo::DoFocusLost(bool bCancel)
 {
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? WGizmoEvent::Type::CancelInteractions : WGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_hLengthTop.SetVisible(true);
@@ -80,15 +80,15 @@ void ezCapsuleGizmo::DoFocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInput ezCapsuleGizmo::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WCapsuleGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   if (e->modifiers() != 0 && e->modifiers() != Qt::KeyboardModifier::ShiftModifier) // allow shift for toggling snapping
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_hRadius)
   {
@@ -99,56 +99,56 @@ ezEditorInput ezCapsuleGizmo::DoMousePressEvent(QMouseEvent* e)
     m_ManipulateMode = ManipulateMode::Length;
   }
   else
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_LastInteraction = ezTime::Now();
+  m_LastInteraction = WTime::Now();
 
-  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(WEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
+  ev.m_Type = WGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezCapsuleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WCapsuleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezCapsuleGizmo::DoMouseMoveEvent(QMouseEvent* e)
+WEditorInput WCapsuleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
-    return ezEditorInput::WasExclusivelyHandled;
+  if (tNow - m_LastInteraction < WTime::MakeFromSeconds(1.0 / 25.0))
+    return WEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
   QPoint mousePosition = e->globalPosition().toPoint();
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(mousePosition.x(), mousePosition.y());
-  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
+  const WVec2I32 vNewMousePos = WVec2I32(mousePosition.x(), mousePosition.y());
+  const WVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vLastMousePos = UpdateMouseMode(e);
 
@@ -159,28 +159,28 @@ ezEditorInput ezCapsuleGizmo::DoMouseMoveEvent(QMouseEvent* e)
     m_fRadius += vDiff.x * fSpeed;
     m_fRadius -= vDiff.y * fSpeed;
 
-    m_fRadius = ezMath::Max(0.0f, m_fRadius);
+    m_fRadius = WMath::Max(0.0f, m_fRadius);
   }
   else
   {
     m_fLength += vDiff.x * fSpeed;
     m_fLength -= vDiff.y * fSpeed;
 
-    m_fLength = ezMath::Max(0.0f, m_fLength);
+    m_fLength = WMath::Max(0.0f, m_fLength);
   }
 
   // update the scale
   OnTransformationChanged(GetTransformation());
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
+  ev.m_Type = WGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-void ezCapsuleGizmo::SetLength(float fRadius)
+void WCapsuleGizmo::SetLength(float fRadius)
 {
   m_fLength = fRadius;
 
@@ -188,7 +188,7 @@ void ezCapsuleGizmo::SetLength(float fRadius)
   OnTransformationChanged(GetTransformation());
 }
 
-void ezCapsuleGizmo::SetRadius(float fRadius)
+void WCapsuleGizmo::SetRadius(float fRadius)
 {
   m_fRadius = fRadius;
 

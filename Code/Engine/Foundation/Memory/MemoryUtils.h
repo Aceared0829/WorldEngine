@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <cstdint> // for uintptr_t
 
-enum ezConstructionMode
+enum WConstructionMode
 {
   ConstructAll = 0,     /// < default initialize all types, including std::is_trivial types
   SkipTrivialTypes = 1, ///< If the given type to construct is trivial, nothing will be done
@@ -22,7 +22,7 @@ enum ezConstructionMode
 ///   Construct: Constructing assumes that the destination does not contain a valid object.
 ///   Overlapped: The source and destination range may overlap for the operation to be performed.
 ///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
-class ezMemoryUtils
+class WMemoryUtils
 {
 public:
   using ConstructorFunction = void (*)(void* pDestination);
@@ -31,12 +31,12 @@ public:
 
   /// Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
-  /// The ezConstructionMode template argument determines whether trivial types will be skipped.
-  template <ezConstructionMode mode, typename T>
+  /// The WConstructionMode template argument determines whether trivial types will be skipped.
+  template <WConstructionMode mode, typename T>
   static void Construct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
-  template <ezConstructionMode mode, typename T>
+  template <WConstructionMode mode, typename T>
   static ConstructorFunction MakeConstructorFunction(); // [tested]
 
   /// Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
@@ -135,22 +135,22 @@ public:
 
   /// Fills every byte of the provided buffer with the given value
   template <typename T>
-  static void PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount = 1); // [tested]
+  static void PatternFill(T* pDestination, WUInt8 uiBytePattern, size_t uiCount = 1); // [tested]
 
   /// Overload to prevent confusing calling this on a single object or a static array of objects. Use PatternFillArray() instead.
   template <typename T, size_t N>
-  static void PatternFill(T (&destination)[N], ezUInt8 uiBytePattern) = delete;
+  static void PatternFill(T (&destination)[N], WUInt8 uiBytePattern) = delete;
 
   /// Fills every byte of the provided buffer with the given value
   template <typename T, size_t N>
-  static void PatternFillArray(T (&destination)[N], ezUInt8 uiBytePattern); // [tested]
+  static void PatternFillArray(T (&destination)[N], WUInt8 uiBytePattern); // [tested]
 
   /// Compares two buffers of raw memory byte wise.
   template <typename T>
-  static ezInt32 Compare(const T* a, const T* b, size_t uiCount = 1); // [tested]
+  static WInt32 Compare(const T* a, const T* b, size_t uiCount = 1); // [tested]
 
   /// Compares exactly \a uiNumBytesToCompare from \a a and \a b, independent of the involved types and their sizes.
-  static ezInt32 RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare);
+  static WInt32 RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare);
 
   /// Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a T.
   ///

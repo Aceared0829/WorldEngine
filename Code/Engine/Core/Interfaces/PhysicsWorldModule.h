@@ -9,69 +9,69 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
 
-struct ezGameObjectHandle;
-struct ezSkeletonResourceDescriptor;
+struct WGameObjectHandle;
+struct WSkeletonResourceDescriptor;
 
 /// Interface for physics world modules that provide physics simulation and queries.
 ///
 /// Physics world modules implement physics functionality for a world, including
 /// collision detection, raycasting, and shape queries. Different physics engines
 /// can provide their own implementations of this interface.
-class EZ_CORE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
+class W_CORE_DLL WPhysicsWorldModuleInterface : public WWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPhysicsWorldModuleInterface, ezWorldModule);
+  W_ADD_DYNAMIC_REFLECTION(WPhysicsWorldModuleInterface, WWorldModule);
 
 protected:
-  ezPhysicsWorldModuleInterface(ezWorld* pWorld)
-    : ezWorldModule(pWorld)
+  WPhysicsWorldModuleInterface(WWorld* pWorld)
+    : WWorldModule(pWorld)
   {
   }
 
 public:
   /// Searches for a collision layer with the given name and returns its index.
   ///
-  /// Returns ezInvalidIndex if no such collision layer exists.
-  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
+  /// Returns WInvalidIndex if no such collision layer exists.
+  virtual WUInt32 GetCollisionLayerByName(WStringView sName) const = 0;
 
   /// Searches for a weight category with the given name and returns its key.
   ///
-  /// Returns ezWeightCategoryConfig::InvalidKey if no such category exists.
-  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const = 0;
+  /// Returns WWeightCategoryConfig::InvalidKey if no such category exists.
+  virtual WUInt8 GetWeightCategoryByName(WStringView sName) const = 0;
 
   /// Searches for an impulse type with the given name and returns its key.
   ///
-  /// Returns ezImpulseTypeConfig::InvalidKey if no such category exists.
-  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const = 0;
+  /// Returns WImpulseTypeConfig::InvalidKey if no such category exists.
+  virtual WUInt8 GetImpulseTypeByName(WStringView sName) const = 0;
 
-  virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool Raycast(WPhysicsCastResult& out_result, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool RaycastAll(WPhysicsCastResultArray& out_results, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual bool SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestSphere(WPhysicsCastResult& out_result, float fSphereRadius, const WVec3& vStart, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, const ezVec3& vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestBox(WPhysicsCastResult& out_result, const WVec3& vBoxExtents, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestCapsule(WPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestCylinder(ezPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestCylinder(WPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WVec3& vDir, float fDistance, const WPhysicsQueryParameters& params, WPhysicsHitCollection collection = WPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool OverlapTestSphere(float fSphereRadius, const WVec3& vPosition, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual bool OverlapTestBox(const ezVec3& vBoxExtents, const ezVec3& vPosition, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool OverlapTestBox(const WVec3& vBoxExtents, const WVec3& vPosition, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
+  virtual void QueryShapesInSphere(WPhysicsOverlapResultArray& out_results, float fSphereRadius, const WVec3& vPosition, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual void QueryShapesInBox(WPhysicsOverlapResultArray& out_results, const WVec3& vBoxExtents, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual void QueryShapesInCapsule(WPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual void QueryShapesInCylinder(ezPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual void QueryShapesInCylinder(WPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const WTransform& transform, const WPhysicsQueryParameters& params) const = 0;
 
-  virtual ezVec3 GetGravity() const = 0;
+  virtual WVec3 GetGravity() const = 0;
 
   //////////////////////////////////////////////////////////////////////////
   // ABSTRACTION HELPERS
@@ -81,38 +81,38 @@ public:
   // Add functions on demand.
 
   /// Adds a static actor with a box shape to pOwner.
-  virtual void AddStaticCollisionBox(ezGameObject* pOwner, ezVec3 vBoxSize)
+  virtual void AddStaticCollisionBox(WGameObject* pOwner, WVec3 vBoxSize)
   {
-    EZ_IGNORE_UNUSED(pOwner);
-    EZ_IGNORE_UNUSED(vBoxSize);
+    W_IGNORE_UNUSED(pOwner);
+    W_IGNORE_UNUSED(vBoxSize);
   }
 
   /// Data for creating a heightfield collider.
   struct HeightfieldColliderData
   {
-    ezVec2 m_vHalfExtents;
-    ezUInt32 m_uiResolution = 64;
+    WVec2 m_vHalfExtents;
+    WUInt32 m_uiResolution = 64;
 
     /// Height samples in row-major order, m_uiResolution * m_uiResolution entries.
-    ezDynamicArray<float> m_Heights;
+    WDynamicArray<float> m_Heights;
 
     /// Per-cell material indices (one per quad, (m_uiResolution-1)^2 entries). Indexes into m_Surfaces.
-    ezDynamicArray<ezUInt8> m_MaterialIndices;
-    ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
+    WDynamicArray<WUInt8> m_MaterialIndices;
+    WDynamicArray<WSurfaceResourceHandle> m_Surfaces;
 
-    ezUInt8 m_uiCollisionLayer = 0;
+    WUInt8 m_uiCollisionLayer = 0;
   };
 
   /// Tries to create a heightfield collider on pOwner by reusing a shape previously cached under sIdentifier.
   ///
   /// Removes any existing heightfield collider component from pOwner first.
-  /// Returns EZ_FAILURE if no shape with that identifier is cached; the caller should then
+  /// Returns W_FAILURE if no shape with that identifier is cached; the caller should then
   /// call CreateHeightfieldCollider() with the full data.
-  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier)
+  virtual WResult TrySetHeightfieldCollider(WGameObject* pOwner, WStringView sIdentifier)
   {
-    EZ_IGNORE_UNUSED(pOwner);
-    EZ_IGNORE_UNUSED(sIdentifier);
-    return EZ_FAILURE;
+    W_IGNORE_UNUSED(pOwner);
+    W_IGNORE_UNUSED(sIdentifier);
+    return W_FAILURE;
   }
 
   /// Creates a heightfield collider on pOwner from the given height data and caches the resulting shape under sIdentifier.
@@ -120,24 +120,24 @@ public:
   /// Removes any existing heightfield collider component from pOwner first.
   /// If a non-empty sIdentifier is supplied, the shape is stored so that future calls to
   /// TrySetHeightfieldCollider() with the same identifier can skip the data rebuild.
-  virtual void CreateHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, const HeightfieldColliderData& data)
+  virtual void CreateHeightfieldCollider(WGameObject* pOwner, WStringView sIdentifier, const HeightfieldColliderData& data)
   {
-    EZ_IGNORE_UNUSED(pOwner);
-    EZ_IGNORE_UNUSED(sIdentifier);
-    EZ_IGNORE_UNUSED(data);
+    W_IGNORE_UNUSED(pOwner);
+    W_IGNORE_UNUSED(sIdentifier);
+    W_IGNORE_UNUSED(data);
   }
 
   /// Removes the heightfield collider component from pOwner, if present.
   ///
   /// Decrements the reference count of the cached shape. If the count reaches zero, the cached shape is evicted.
-  virtual void RemoveHeightfieldCollider(ezGameObject* pOwner) { EZ_IGNORE_UNUSED(pOwner); }
+  virtual void RemoveHeightfieldCollider(WGameObject* pOwner) { W_IGNORE_UNUSED(pOwner); }
 
   struct JointConfig
   {
-    ezGameObjectHandle m_hActorA;
-    ezGameObjectHandle m_hActorB;
-    ezTransform m_LocalFrameA = ezTransform::MakeIdentity();
-    ezTransform m_LocalFrameB = ezTransform::MakeIdentity();
+    WGameObjectHandle m_hActorA;
+    WGameObjectHandle m_hActorB;
+    WTransform m_LocalFrameA = WTransform::MakeIdentity();
+    WTransform m_LocalFrameB = WTransform::MakeIdentity();
   };
 
   struct FixedJointConfig : JointConfig
@@ -145,51 +145,51 @@ public:
   };
 
   /// Adds a fixed joint to pOwner.
-  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg)
+  virtual void AddFixedJointComponent(WGameObject* pOwner, const WPhysicsWorldModuleInterface::FixedJointConfig& cfg)
   {
-    EZ_IGNORE_UNUSED(pOwner);
-    EZ_IGNORE_UNUSED(cfg);
+    W_IGNORE_UNUSED(pOwner);
+    W_IGNORE_UNUSED(cfg);
   }
 
   /// Gets world space bounds of a physics object if its shape type is included in shapeTypes and its collision layer interacts with uiCollisionLayer.
-  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
+  virtual WBoundingBoxSphere GetWorldSpaceBounds(WGameObject* pOwner, WUInt32 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
   {
-    EZ_IGNORE_UNUSED(pOwner);
-    EZ_IGNORE_UNUSED(uiCollisionLayer);
-    EZ_IGNORE_UNUSED(shapeTypes);
-    EZ_IGNORE_UNUSED(bIncludeChildObjects);
-    return ezBoundingBoxSphere::MakeInvalid();
+    W_IGNORE_UNUSED(pOwner);
+    W_IGNORE_UNUSED(uiCollisionLayer);
+    W_IGNORE_UNUSED(shapeTypes);
+    W_IGNORE_UNUSED(bIncludeChildObjects);
+    return WBoundingBoxSphere::MakeInvalid();
   }
 };
 
 /// Used to apply a physical impulse on the object
-struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
+struct W_CORE_DLL WMsgPhysicsAddImpulse : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddImpulse, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgPhysicsAddImpulse, WMessage);
 
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vImpulse;
-  ezUInt8 m_uiImpulseType = 0;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
+  WVec3 m_vGlobalPosition;
+  WVec3 m_vImpulse;
+  WUInt8 m_uiImpulseType = 0;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
 
   // Physics-engine specific information, may be available or not.
   void* m_pInternalPhysicsShape = nullptr;
   void* m_pInternalPhysicsActor = nullptr;
 };
 
-struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezMessage
+struct W_CORE_DLL WMsgPhysicsJointBroke : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgPhysicsJointBroke, WMessage);
 
-  ezGameObjectHandle m_hJointObject;
+  WGameObjectHandle m_hJointObject;
 };
 
-/// Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
-struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
+/// Sent by components such as WJoltGrabObjectComponent to indicate that the object has been grabbed or released.
+struct W_CORE_DLL WMsgObjectGrabbed : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgObjectGrabbed, WMessage);
 
-  ezGameObjectHandle m_hGrabbedBy;
+  WGameObjectHandle m_hGrabbedBy;
   bool m_bGotGrabbed = true;
 };
 
@@ -202,80 +202,80 @@ struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
 ///
 /// Actors that can't be simulated ignore this message. In particular a static actor that only has a concave
 /// (triangle mesh) collider can't become dynamic and stays as it is.
-struct EZ_CORE_DLL ezMsgPhysicsMakeTemporarilyDynamic : public ezMessage
+struct W_CORE_DLL WMsgPhysicsMakeTemporarilyDynamic : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsMakeTemporarilyDynamic, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgPhysicsMakeTemporarilyDynamic, WMessage);
 };
 
-/// Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
-struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
+/// Send this to components such as WJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
+struct W_CORE_DLL WMsgReleaseObjectGrab : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgReleaseObjectGrab, WMessage);
 
-  ezGameObjectHandle m_hGrabbedObjectToRelease;
+  WGameObjectHandle m_hGrabbedObjectToRelease;
 };
 
 /// Can be sent by character controllers to inform objects when a CC pushes into them.
 ///
 /// Whether this message is sent, depends on the character controller implementation.
 /// This is mainly meant for less important interactions, like breaking decorative things.
-struct EZ_CORE_DLL ezMsgPhysicCharacterContact : public ezMessage
+struct W_CORE_DLL WMsgPhysicCharacterContact : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicCharacterContact, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgPhysicCharacterContact, WMessage);
 
-  ezComponentHandle m_hCharacter;
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vNormal;
-  ezVec3 m_vCharacterVelocity;
+  WComponentHandle m_hCharacter;
+  WVec3 m_vGlobalPosition;
+  WVec3 m_vNormal;
+  WVec3 m_vCharacterVelocity;
   float m_fImpact;
 };
 
-/// Sent to physics components that have contact reporting enabled (see ezOnJoltContact::SendContactMsg).
+/// Sent to physics components that have contact reporting enabled (see WOnJoltContact::SendContactMsg).
 ///
 /// Only sent for certain physics object combinations, e.g. debris doesn't trigger this.
 /// The reported contact position and normal is an average of the contact manifold.
 /// This is mainly meant for less important interactions, like breaking decorative things.
-struct EZ_CORE_DLL ezMsgPhysicContact : public ezMessage
+struct W_CORE_DLL WMsgPhysicContact : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicContact, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgPhysicContact, WMessage);
 
-  ezGameObjectHandle m_hOtherObject;
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vNormal;
+  WGameObjectHandle m_hOtherObject;
+  WVec3 m_vGlobalPosition;
+  WVec3 m_vNormal;
   float m_fImpactSqr;
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_CORE_DLL ezSmcTriangle
+struct W_CORE_DLL WSmcTriangle
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezUInt32 m_uiVertexIndices[3];
+  WUInt32 m_uiVertexIndices[3];
 };
 
-struct EZ_CORE_DLL ezSmcSubMesh
+struct W_CORE_DLL WSmcSubMesh
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezUInt32 m_uiFirstTriangle = 0;
-  ezUInt32 m_uiNumTriangles = 0;
-  ezUInt16 m_uiSurfaceIndex = 0;
+  WUInt32 m_uiFirstTriangle = 0;
+  WUInt32 m_uiNumTriangles = 0;
+  WUInt16 m_uiSurfaceIndex = 0;
 };
 
-struct EZ_CORE_DLL ezSmcDescription
+struct W_CORE_DLL WSmcDescription
 {
-  ezDeque<ezVec3> m_Vertices;
-  ezDeque<ezSmcTriangle> m_Triangles;
-  ezDeque<ezSmcSubMesh> m_SubMeshes;
-  ezDeque<ezString> m_Surfaces;
+  WDeque<WVec3> m_Vertices;
+  WDeque<WSmcTriangle> m_Triangles;
+  WDeque<WSmcSubMesh> m_SubMeshes;
+  WDeque<WString> m_Surfaces;
 };
 
-struct EZ_CORE_DLL ezMsgBuildStaticMesh : public ezMessage
+struct W_CORE_DLL WMsgBuildStaticMesh : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgBuildStaticMesh, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgBuildStaticMesh, WMessage);
 
   /// Append data to this description to add meshes to the automatic static mesh generation
-  ezSmcDescription* m_pStaticMeshDescription = nullptr;
+  WSmcDescription* m_pStaticMeshDescription = nullptr;
 };

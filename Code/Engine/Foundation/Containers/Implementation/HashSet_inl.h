@@ -1,19 +1,19 @@
 
 /// Value used by containers for indices to indicate an invalid index.
-#ifndef ezInvalidIndex
-#  define ezInvalidIndex 0xFFFFFFFF
+#ifndef WInvalidIndex
+#  define WInvalidIndex 0xFFFFFFFF
 #endif
 
 // ***** Const Iterator *****
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet)
+WHashSetBase<K, H>::ConstIterator::ConstIterator(const WHashSetBase<K, H>& hashSet)
   : m_pHashSet(&hashSet)
 {
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
+void WHashSetBase<K, H>::ConstIterator::SetToBegin()
 {
   if (m_pHashSet->IsEmpty())
   {
@@ -27,32 +27,32 @@ void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 }
 
 template <typename K, typename H>
-inline void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
+inline void WHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
   m_uiCurrentCount = m_pHashSet->m_uiCount;
   m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::IsValid() const
+W_ALWAYS_INLINE bool WHashSetBase<K, H>::ConstIterator::IsValid() const
 {
   return m_uiCurrentCount < m_pHashSet->m_uiCount;
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typename ezHashSetBase<K, H>::ConstIterator& rhs) const
+W_ALWAYS_INLINE bool WHashSetBase<K, H>::ConstIterator::operator==(const typename WHashSetBase<K, H>::ConstIterator& rhs) const
 {
   return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_pHashSet->m_pEntries == rhs.m_pHashSet->m_pEntries;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE const K& ezHashSetBase<K, H>::ConstIterator::Key() const
+W_FORCE_INLINE const K& WHashSetBase<K, H>::ConstIterator::Key() const
 {
   return m_pHashSet->m_pEntries[m_uiCurrentIndex];
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::ConstIterator::Next()
+void WHashSetBase<K, H>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
   if (m_uiCurrentCount == m_pHashSet->m_uiCount)
@@ -72,16 +72,16 @@ void ezHashSetBase<K, H>::ConstIterator::Next()
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE void ezHashSetBase<K, H>::ConstIterator::operator++()
+W_ALWAYS_INLINE void WHashSetBase<K, H>::ConstIterator::operator++()
 {
   Next();
 }
 
 
-// ***** ezHashSetBase *****
+// ***** WHashSetBase *****
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(ezAllocator* pAllocator)
+WHashSetBase<K, H>::WHashSetBase(WAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -91,7 +91,7 @@ ezHashSetBase<K, H>::ezHashSetBase(ezAllocator* pAllocator)
 }
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocator* pAllocator)
+WHashSetBase<K, H>::WHashSetBase(const WHashSetBase<K, H>& other, WAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -103,7 +103,7 @@ ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocator
 }
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(ezHashSetBase<K, H>&& other, ezAllocator* pAllocator)
+WHashSetBase<K, H>::WHashSetBase(WHashSetBase<K, H>&& other, WAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -115,22 +115,22 @@ ezHashSetBase<K, H>::ezHashSetBase(ezHashSetBase<K, H>&& other, ezAllocator* pAl
 }
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::~ezHashSetBase()
+WHashSetBase<K, H>::~WHashSetBase()
 {
   Clear();
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+  W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+  W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
   m_uiCapacity = 0;
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::operator=(const ezHashSetBase<K, H>& rhs)
+void WHashSetBase<K, H>::operator=(const WHashSetBase<K, H>& rhs)
 {
   Clear();
   Reserve(rhs.GetCount());
 
-  ezUInt32 uiCopied = 0;
-  for (ezUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
+  WUInt32 uiCopied = 0;
+  for (WUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
   {
     if (rhs.IsValidEntry(i))
     {
@@ -141,7 +141,7 @@ void ezHashSetBase<K, H>::operator=(const ezHashSetBase<K, H>& rhs)
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::operator=(ezHashSetBase<K, H>&& rhs)
+void WHashSetBase<K, H>::operator=(WHashSetBase<K, H>&& rhs)
 {
   // Clear any existing data (calls destructors if necessary)
   Clear();
@@ -150,8 +150,8 @@ void ezHashSetBase<K, H>::operator=(ezHashSetBase<K, H>&& rhs)
   {
     Reserve(rhs.m_uiCapacity);
 
-    ezUInt32 uiCopied = 0;
-    for (ezUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
+    WUInt32 uiCopied = 0;
+    for (WUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
     {
       if (rhs.IsValidEntry(i))
       {
@@ -164,8 +164,8 @@ void ezHashSetBase<K, H>::operator=(ezHashSetBase<K, H>&& rhs)
   }
   else
   {
-    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
-    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+    W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+    W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
 
     // Move all data over.
     m_pEntries = rhs.m_pEntries;
@@ -182,13 +182,13 @@ void ezHashSetBase<K, H>::operator=(ezHashSetBase<K, H>&& rhs)
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::operator==(const ezHashSetBase<K, H>& rhs) const
+bool WHashSetBase<K, H>::operator==(const WHashSetBase<K, H>& rhs) const
 {
   if (m_uiCount != rhs.m_uiCount)
     return false;
 
-  ezUInt32 uiCompared = 0;
-  for (ezUInt32 i = 0; uiCompared < m_uiCount; ++i)
+  WUInt32 uiCompared = 0;
+  for (WUInt32 i = 0; uiCompared < m_uiCount; ++i)
   {
     if (IsValidEntry(i))
     {
@@ -203,83 +203,83 @@ bool ezHashSetBase<K, H>::operator==(const ezHashSetBase<K, H>& rhs) const
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Reserve(ezUInt32 uiCapacity)
+void WHashSetBase<K, H>::Reserve(WUInt32 uiCapacity)
 {
-  const ezUInt64 uiCap64 = static_cast<ezUInt64>(uiCapacity);
-  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3);                  // ensure a maximum load of 60%
+  const WUInt64 uiCap64 = static_cast<WUInt64>(uiCapacity);
+  WUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3);                  // ensure a maximum load of 60%
 
-  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0x80000000llu); // the largest power-of-two in 32 bit
+  uiNewCapacity64 = WMath::Min<WUInt64>(uiNewCapacity64, 0x80000000llu); // the largest power-of-two in 32 bit
 
-  ezUInt32 uiNewCapacity32 = static_cast<ezUInt32>(uiNewCapacity64 & 0xFFFFFFFF);
-  EZ_ASSERT_DEBUG(uiCapacity <= uiNewCapacity32, "ezHashSet/Map do not support more than 2 billion entries.");
+  WUInt32 uiNewCapacity32 = static_cast<WUInt32>(uiNewCapacity64 & 0xFFFFFFFF);
+  W_ASSERT_DEBUG(uiCapacity <= uiNewCapacity32, "WHashSet/Map do not support more than 2 billion entries.");
 
   if (m_uiCapacity >= uiNewCapacity32)
     return;
 
-  uiNewCapacity32 = ezMath::Max<ezUInt32>(ezMath::PowerOfTwo_Ceil(uiNewCapacity32), CAPACITY_ALIGNMENT);
+  uiNewCapacity32 = WMath::Max<WUInt32>(WMath::PowerOfTwo_Ceil(uiNewCapacity32), CAPACITY_ALIGNMENT);
   SetCapacity(uiNewCapacity32);
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Compact()
+void WHashSetBase<K, H>::Compact()
 {
   if (IsEmpty())
   {
     // completely deallocate all data, if the table is empty.
-    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
-    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+    W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+    W_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
     m_uiCapacity = 0;
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+    const WUInt32 uiNewCapacity = (m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE ezUInt32 ezHashSetBase<K, H>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WHashSetBase<K, H>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::IsEmpty() const
+W_ALWAYS_INLINE bool WHashSetBase<K, H>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Clear()
+void WHashSetBase<K, H>::Clear()
 {
-  for (ezUInt32 i = 0; i < m_uiCapacity; ++i)
+  for (WUInt32 i = 0; i < m_uiCapacity; ++i)
   {
     if (IsValidEntry(i))
     {
-      ezMemoryUtils::Destruct(&m_pEntries[i], 1);
+      WMemoryUtils::Destruct(&m_pEntries[i], 1);
     }
   }
 
-  ezMemoryUtils::ZeroFill(m_pEntryFlags, GetFlagsCapacity());
+  WMemoryUtils::ZeroFill(m_pEntryFlags, GetFlagsCapacity());
   m_uiCount = 0;
 }
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
+bool WHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 {
   Reserve(m_uiCount + 1);
 
-  ezUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
-  ezUInt32 uiDeletedIndex = ezInvalidIndex;
+  WUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
+  WUInt32 uiDeletedIndex = WInvalidIndex;
 
-  ezUInt32 uiCounter = 0;
+  WUInt32 uiCounter = 0;
   while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
   {
     if (IsDeletedEntry(uiIndex))
     {
-      if (uiDeletedIndex == ezInvalidIndex)
+      if (uiDeletedIndex == WInvalidIndex)
         uiDeletedIndex = uiIndex;
     }
     else if (H::Equal(m_pEntries[uiIndex], key))
@@ -294,10 +294,10 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
   }
 
   // new entry
-  uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
+  uiIndex = uiDeletedIndex != WInvalidIndex ? uiDeletedIndex : uiIndex;
 
   // Constructions might either be a move or a copy.
-  ezMemoryUtils::CopyOrMoveConstruct(&m_pEntries[uiIndex], std::forward<CompatibleKeyType>(key));
+  WMemoryUtils::CopyOrMoveConstruct(&m_pEntries[uiIndex], std::forward<CompatibleKeyType>(key));
 
   MarkEntryAsValid(uiIndex);
   ++m_uiCount;
@@ -307,10 +307,10 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-bool ezHashSetBase<K, H>::Remove(const CompatibleKeyType& key)
+bool WHashSetBase<K, H>::Remove(const CompatibleKeyType& key)
 {
-  ezUInt32 uiIndex = FindEntry(key);
-  if (uiIndex != ezInvalidIndex)
+  WUInt32 uiIndex = FindEntry(key);
+  if (uiIndex != WInvalidIndex)
   {
     RemoveInternal(uiIndex);
     return true;
@@ -320,10 +320,10 @@ bool ezHashSetBase<K, H>::Remove(const CompatibleKeyType& key)
 }
 
 template <typename K, typename H>
-typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Remove(const typename ezHashSetBase<K, H>::ConstIterator& pos)
+typename WHashSetBase<K, H>::ConstIterator WHashSetBase<K, H>::Remove(const typename WHashSetBase<K, H>::ConstIterator& pos)
 {
   ConstIterator it = pos;
-  ezUInt32 uiIndex = pos.m_uiCurrentIndex;
+  WUInt32 uiIndex = pos.m_uiCurrentIndex;
   ++it;
   --it.m_uiCurrentCount;
   RemoveInternal(uiIndex);
@@ -331,11 +331,11 @@ typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Remove(const ty
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
+void WHashSetBase<K, H>::RemoveInternal(WUInt32 uiIndex)
 {
-  ezMemoryUtils::Destruct(&m_pEntries[uiIndex], 1);
+  WMemoryUtils::Destruct(&m_pEntries[uiIndex], 1);
 
-  ezUInt32 uiNextIndex = uiIndex + 1;
+  WUInt32 uiNextIndex = uiIndex + 1;
   if (uiNextIndex == m_uiCapacity)
     uiNextIndex = 0;
 
@@ -346,7 +346,7 @@ void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
     MarkEntryAsFree(uiIndex);
 
     // run backwards and free all deleted entries in this chain
-    ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
+    WUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
     --uiPrevIndex;
 
     while (IsDeletedEntry(uiPrevIndex))
@@ -368,17 +368,17 @@ void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const CompatibleKeyType& key) const
+W_FORCE_INLINE bool WHashSetBase<K, H>::Contains(const CompatibleKeyType& key) const
 {
-  return FindEntry(key) != ezInvalidIndex;
+  return FindEntry(key) != WInvalidIndex;
 }
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Find(const CompatibleKeyType& key) const
+W_FORCE_INLINE typename WHashSetBase<K, H>::ConstIterator WHashSetBase<K, H>::Find(const CompatibleKeyType& key) const
 {
-  ezUInt32 uiIndex = FindEntry(key);
-  if (uiIndex == ezInvalidIndex)
+  WUInt32 uiIndex = FindEntry(key);
+  if (uiIndex == WInvalidIndex)
   {
     return GetEndIterator();
   }
@@ -391,7 +391,7 @@ EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>:
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::ContainsSet(const ezHashSetBase<K, H>& operand) const
+bool WHashSetBase<K, H>::ContainsSet(const WHashSetBase<K, H>& operand) const
 {
   for (const K& key : operand)
   {
@@ -403,7 +403,7 @@ bool ezHashSetBase<K, H>::ContainsSet(const ezHashSetBase<K, H>& operand) const
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Union(const ezHashSetBase<K, H>& operand)
+void WHashSetBase<K, H>::Union(const WHashSetBase<K, H>& operand)
 {
   Reserve(GetCount() + operand.GetCount());
   for (const auto& key : operand)
@@ -413,7 +413,7 @@ void ezHashSetBase<K, H>::Union(const ezHashSetBase<K, H>& operand)
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Difference(const ezHashSetBase<K, H>& operand)
+void WHashSetBase<K, H>::Difference(const WHashSetBase<K, H>& operand)
 {
   for (const auto& key : operand)
   {
@@ -422,7 +422,7 @@ void ezHashSetBase<K, H>::Difference(const ezHashSetBase<K, H>& operand)
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::Intersection(const ezHashSetBase<K, H>& operand)
+void WHashSetBase<K, H>::Intersection(const WHashSetBase<K, H>& operand)
 {
   for (auto it = GetIterator(); it.IsValid();)
   {
@@ -434,7 +434,7 @@ void ezHashSetBase<K, H>::Intersection(const ezHashSetBase<K, H>& operand)
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::GetIterator() const
+W_FORCE_INLINE typename WHashSetBase<K, H>::ConstIterator WHashSetBase<K, H>::GetIterator() const
 {
   ConstIterator iterator(*this);
   iterator.SetToBegin();
@@ -442,7 +442,7 @@ EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>:
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::GetEndIterator() const
+W_FORCE_INLINE typename WHashSetBase<K, H>::ConstIterator WHashSetBase<K, H>::GetEndIterator() const
 {
   ConstIterator iterator(*this);
   iterator.SetToEnd();
@@ -450,62 +450,62 @@ EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>:
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE ezAllocator* ezHashSetBase<K, H>::GetAllocator() const
+W_ALWAYS_INLINE WAllocator* WHashSetBase<K, H>::GetAllocator() const
 {
   return m_pAllocator;
 }
 
 template <typename K, typename H>
-ezUInt64 ezHashSetBase<K, H>::GetHeapMemoryUsage() const
+WUInt64 WHashSetBase<K, H>::GetHeapMemoryUsage() const
 {
-  return ((ezUInt64)m_uiCapacity * sizeof(K)) + (sizeof(ezUInt32) * (ezUInt64)GetFlagsCapacity());
+  return ((WUInt64)m_uiCapacity * sizeof(K)) + (sizeof(WUInt32) * (WUInt64)GetFlagsCapacity());
 }
 
 // private methods
 template <typename K, typename H>
-void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
+void WHashSetBase<K, H>::SetCapacity(WUInt32 uiCapacity)
 {
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
-  const ezUInt32 uiOldCapacity = m_uiCapacity;
+  W_ASSERT_DEBUG(WMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
+  const WUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 
   K* pOldEntries = m_pEntries;
-  ezUInt32* pOldEntryFlags = m_pEntryFlags;
+  WUInt32* pOldEntryFlags = m_pEntryFlags;
 
-  m_pEntries = EZ_NEW_RAW_BUFFER(m_pAllocator, K, m_uiCapacity);
-  m_pEntryFlags = EZ_NEW_RAW_BUFFER(m_pAllocator, ezUInt32, GetFlagsCapacity());
-  ezMemoryUtils::ZeroFill(m_pEntryFlags, GetFlagsCapacity());
+  m_pEntries = W_NEW_RAW_BUFFER(m_pAllocator, K, m_uiCapacity);
+  m_pEntryFlags = W_NEW_RAW_BUFFER(m_pAllocator, WUInt32, GetFlagsCapacity());
+  WMemoryUtils::ZeroFill(m_pEntryFlags, GetFlagsCapacity());
 
   m_uiCount = 0;
-  for (ezUInt32 i = 0; i < uiOldCapacity; ++i)
+  for (WUInt32 i = 0; i < uiOldCapacity; ++i)
   {
     if (GetFlags(pOldEntryFlags, i) == VALID_ENTRY)
     {
-      EZ_VERIFY(!Insert(std::move(pOldEntries[i])), "Implementation error");
+      W_VERIFY(!Insert(std::move(pOldEntries[i])), "Implementation error");
 
-      ezMemoryUtils::Destruct(&pOldEntries[i], 1);
+      WMemoryUtils::Destruct(&pOldEntries[i], 1);
     }
   }
 
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, pOldEntries);
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, pOldEntryFlags);
+  W_DELETE_RAW_BUFFER(m_pAllocator, pOldEntries);
+  W_DELETE_RAW_BUFFER(m_pAllocator, pOldEntryFlags);
 }
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::FindEntry(const CompatibleKeyType& key) const
+W_FORCE_INLINE WUInt32 WHashSetBase<K, H>::FindEntry(const CompatibleKeyType& key) const
 {
   return FindEntry(H::Hash(key), key);
 }
 
 template <typename K, typename H>
 template <typename CompatibleKeyType>
-inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const
+inline WUInt32 WHashSetBase<K, H>::FindEntry(WUInt32 uiHash, const CompatibleKeyType& key) const
 {
   if (m_uiCapacity > 0)
   {
-    ezUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
-    ezUInt32 uiCounter = 0;
+    WUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
+    WUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {
       if (IsValidEntry(uiIndex) && H::Equal(m_pEntries[uiIndex], key))
@@ -519,15 +519,15 @@ inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const Compatible
     }
   }
   // not found
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
-#define EZ_HASHSET_USE_BITFLAGS EZ_ON
+#define W_HASHSET_USE_BITFLAGS W_ON
 
 template <typename K, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::GetFlagsCapacity() const
+W_FORCE_INLINE WUInt32 WHashSetBase<K, H>::GetFlagsCapacity() const
 {
-#if EZ_ENABLED(EZ_HASHSET_USE_BITFLAGS)
+#if W_ENABLED(W_HASHSET_USE_BITFLAGS)
   return (m_uiCapacity + 15) / 16;
 #else
   return m_uiCapacity;
@@ -535,11 +535,11 @@ EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::GetFlagsCapacity() const
 }
 
 template <typename K, typename H>
-ezUInt32 ezHashSetBase<K, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
+WUInt32 WHashSetBase<K, H>::GetFlags(WUInt32* pFlags, WUInt32 uiEntryIndex) const
 {
-#if EZ_ENABLED(EZ_HASHSET_USE_BITFLAGS)
-  const ezUInt32 uiIndex = uiEntryIndex / 16;
-  const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+#if W_ENABLED(W_HASHSET_USE_BITFLAGS)
+  const WUInt32 uiIndex = uiEntryIndex / 16;
+  const WUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
   return (pFlags[uiIndex] >> uiSubIndex) & FLAGS_MASK;
 #else
   return pFlags[uiEntryIndex] & FLAGS_MASK;
@@ -547,124 +547,124 @@ ezUInt32 ezHashSetBase<K, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) 
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
+void WHashSetBase<K, H>::SetFlags(WUInt32 uiEntryIndex, WUInt32 uiFlags)
 {
-#if EZ_ENABLED(EZ_HASHSET_USE_BITFLAGS)
-  const ezUInt32 uiIndex = uiEntryIndex / 16;
-  const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-  EZ_ASSERT_DEBUG(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+#if W_ENABLED(W_HASHSET_USE_BITFLAGS)
+  const WUInt32 uiIndex = uiEntryIndex / 16;
+  const WUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+  W_ASSERT_DEBUG(uiIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
   m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
 #else
-  EZ_ASSERT_DEBUG(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
+  W_ASSERT_DEBUG(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiEntryIndex] = uiFlags;
 #endif
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsFreeEntry(ezUInt32 uiEntryIndex) const
+W_FORCE_INLINE bool WHashSetBase<K, H>::IsFreeEntry(WUInt32 uiEntryIndex) const
 {
   return GetFlags(m_pEntryFlags, uiEntryIndex) == FREE_ENTRY;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsValidEntry(ezUInt32 uiEntryIndex) const
+W_FORCE_INLINE bool WHashSetBase<K, H>::IsValidEntry(WUInt32 uiEntryIndex) const
 {
-  EZ_ASSERT_DEBUG(uiEntryIndex < m_uiCapacity, "Out of bounds access");
+  W_ASSERT_DEBUG(uiEntryIndex < m_uiCapacity, "Out of bounds access");
   return GetFlags(m_pEntryFlags, uiEntryIndex) == VALID_ENTRY;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsDeletedEntry(ezUInt32 uiEntryIndex) const
+W_FORCE_INLINE bool WHashSetBase<K, H>::IsDeletedEntry(WUInt32 uiEntryIndex) const
 {
   return GetFlags(m_pEntryFlags, uiEntryIndex) == DELETED_ENTRY;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE void ezHashSetBase<K, H>::MarkEntryAsFree(ezUInt32 uiEntryIndex)
+W_FORCE_INLINE void WHashSetBase<K, H>::MarkEntryAsFree(WUInt32 uiEntryIndex)
 {
   SetFlags(uiEntryIndex, FREE_ENTRY);
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE void ezHashSetBase<K, H>::MarkEntryAsValid(ezUInt32 uiEntryIndex)
+W_FORCE_INLINE void WHashSetBase<K, H>::MarkEntryAsValid(WUInt32 uiEntryIndex)
 {
   SetFlags(uiEntryIndex, VALID_ENTRY);
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE void ezHashSetBase<K, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
+W_FORCE_INLINE void WHashSetBase<K, H>::MarkEntryAsDeleted(WUInt32 uiEntryIndex)
 {
   SetFlags(uiEntryIndex, DELETED_ENTRY);
 }
 
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet()
-  : ezHashSetBase<K, H>(A::GetAllocator())
+WHashSet<K, H, A>::WHashSet()
+  : WHashSetBase<K, H>(A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezAllocator* pAllocator)
-  : ezHashSetBase<K, H>(pAllocator)
+WHashSet<K, H, A>::WHashSet(WAllocator* pAllocator)
+  : WHashSetBase<K, H>(pAllocator)
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(const ezHashSet<K, H, A>& other)
-  : ezHashSetBase<K, H>(other, A::GetAllocator())
+WHashSet<K, H, A>::WHashSet(const WHashSet<K, H, A>& other)
+  : WHashSetBase<K, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(const ezHashSetBase<K, H>& other)
-  : ezHashSetBase<K, H>(other, A::GetAllocator())
+WHashSet<K, H, A>::WHashSet(const WHashSetBase<K, H>& other)
+  : WHashSetBase<K, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezHashSet<K, H, A>&& other)
-  : ezHashSetBase<K, H>(std::move(other), other.GetAllocator())
+WHashSet<K, H, A>::WHashSet(WHashSet<K, H, A>&& other)
+  : WHashSetBase<K, H>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezHashSetBase<K, H>&& other)
-  : ezHashSetBase<K, H>(std::move(other), other.GetAllocator())
+WHashSet<K, H, A>::WHashSet(WHashSetBase<K, H>&& other)
+  : WHashSetBase<K, H>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-void ezHashSet<K, H, A>::operator=(const ezHashSet<K, H, A>& rhs)
+void WHashSet<K, H, A>::operator=(const WHashSet<K, H, A>& rhs)
 {
-  ezHashSetBase<K, H>::operator=(rhs);
+  WHashSetBase<K, H>::operator=(rhs);
 }
 
 template <typename K, typename H, typename A>
-void ezHashSet<K, H, A>::operator=(const ezHashSetBase<K, H>& rhs)
+void WHashSet<K, H, A>::operator=(const WHashSetBase<K, H>& rhs)
 {
-  ezHashSetBase<K, H>::operator=(rhs);
+  WHashSetBase<K, H>::operator=(rhs);
 }
 
 template <typename K, typename H, typename A>
-void ezHashSet<K, H, A>::operator=(ezHashSet<K, H, A>&& rhs)
+void WHashSet<K, H, A>::operator=(WHashSet<K, H, A>&& rhs)
 {
-  ezHashSetBase<K, H>::operator=(std::move(rhs));
+  WHashSetBase<K, H>::operator=(std::move(rhs));
 }
 
 template <typename K, typename H, typename A>
-void ezHashSet<K, H, A>::operator=(ezHashSetBase<K, H>&& rhs)
+void WHashSet<K, H, A>::operator=(WHashSetBase<K, H>&& rhs)
 {
-  ezHashSetBase<K, H>::operator=(std::move(rhs));
+  WHashSetBase<K, H>::operator=(std::move(rhs));
 }
 
 template <typename KeyType, typename Hasher>
-void ezHashSetBase<KeyType, Hasher>::Swap(ezHashSetBase<KeyType, Hasher>& other)
+void WHashSetBase<KeyType, Hasher>::Swap(WHashSetBase<KeyType, Hasher>& other)
 {
-  ezMath::Swap(this->m_pEntries, other.m_pEntries);
-  ezMath::Swap(this->m_pEntryFlags, other.m_pEntryFlags);
-  ezMath::Swap(this->m_uiCount, other.m_uiCount);
-  ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
-  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
+  WMath::Swap(this->m_pEntries, other.m_pEntries);
+  WMath::Swap(this->m_pEntryFlags, other.m_pEntryFlags);
+  WMath::Swap(this->m_uiCount, other.m_uiCount);
+  WMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
+  WMath::Swap(this->m_pAllocator, other.m_pAllocator);
 }

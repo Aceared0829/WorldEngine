@@ -3,34 +3,34 @@
 #include <Core/ResourceManager/Resource.h>
 #include <ProcGenPlugin/Declarations.h>
 
-using ezProcGenGraphResourceHandle = ezTypedResourceHandle<class ezProcGenGraphResource>;
+using WProcGenGraphResourceHandle = WTypedResourceHandle<class WProcGenGraphResource>;
 
-struct EZ_PROCGENPLUGIN_DLL ezProcGenGraphResourceDescriptor
+struct W_PROCGENPLUGIN_DLL WProcGenGraphResourceDescriptor
 {
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_PROCGENPLUGIN_DLL ezProcGenGraphResource : public ezResource
+class W_PROCGENPLUGIN_DLL WProcGenGraphResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezProcGenGraphResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WProcGenGraphResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WProcGenGraphResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WProcGenGraphResource, WProcGenGraphResourceDescriptor);
 
 public:
-  ezProcGenGraphResource();
-  ~ezProcGenGraphResource();
+  WProcGenGraphResource();
+  ~WProcGenGraphResource();
 
-  const ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>>& GetPlacementOutputs() const;
-  const ezDynamicArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>>& GetVertexColorOutputs() const;
+  const WDynamicArray<WSharedPtr<const WProcGenInternal::PlacementOutput>>& GetPlacementOutputs() const;
+  const WDynamicArray<WSharedPtr<const WProcGenInternal::VertexColorOutput>>& GetVertexColorOutputs() const;
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>> m_PlacementOutputs;
-  ezDynamicArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>> m_VertexColorOutputs;
+  WDynamicArray<WSharedPtr<const WProcGenInternal::PlacementOutput>> m_PlacementOutputs;
+  WDynamicArray<WSharedPtr<const WProcGenInternal::VertexColorOutput>> m_VertexColorOutputs;
 
-  ezSharedPtr<ezProcGenInternal::GraphSharedDataBase> m_pSharedData;
+  WSharedPtr<WProcGenInternal::GraphSharedDataBase> m_pSharedData;
 };

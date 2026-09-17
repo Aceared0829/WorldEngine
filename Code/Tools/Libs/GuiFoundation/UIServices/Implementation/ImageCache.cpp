@@ -7,27 +7,27 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
-static ezQtImageCache* g_pImageCacheSingleton = nullptr;
+static WQtImageCache* g_pImageCacheSingleton = nullptr;
 
-EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
+W_IMPLEMENT_SINGLETON(WQtImageCache);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtImageCache)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtImageCache)
 
 ON_CORESYSTEMS_STARTUP
 {
-  g_pImageCacheSingleton = EZ_DEFAULT_NEW(ezQtImageCache);
+  g_pImageCacheSingleton = W_DEFAULT_NEW(WQtImageCache);
 }
 
 ON_CORESYSTEMS_SHUTDOWN
 {
-  EZ_DEFAULT_DELETE(g_pImageCacheSingleton);
+  W_DEFAULT_DELETE(g_pImageCacheSingleton);
 }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezQtImageCache::ezQtImageCache()
+WQtImageCache::WQtImageCache()
   : m_SingletonRegistrar(this)
 {
   m_bCacheEnabled = true;
@@ -39,12 +39,12 @@ ezQtImageCache::ezQtImageCache()
   m_uiCurImageID = 1;
 }
 
-void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
+void WQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
 {
   delete m_pImageLoading;
-  if (ezStringUtils::EndsWith(szLoading, ".svg"))
+  if (WStringUtils::EndsWith(szLoading, ".svg"))
   {
-    m_pImageLoading = new QPixmap(ezSvgThumbnailToPixmap(szLoading));
+    m_pImageLoading = new QPixmap(WSvgThumbnailToPixmap(szLoading));
   }
   else
   {
@@ -52,9 +52,9 @@ void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnav
   }
 
   delete m_pImageUnavailable;
-  if (ezStringUtils::EndsWith(szUnavailable, ".svg"))
+  if (WStringUtils::EndsWith(szUnavailable, ".svg"))
   {
-    m_pImageUnavailable = new QPixmap(ezSvgThumbnailToPixmap(szUnavailable));
+    m_pImageUnavailable = new QPixmap(WSvgThumbnailToPixmap(szUnavailable));
   }
   else
   {
@@ -62,28 +62,28 @@ void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnav
   }
 }
 
-void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
+void WQtImageCache::InvalidateCache(const char* szAbsolutePath)
 {
-  ezStringBuilder sCleanPath = szAbsolutePath;
+  WStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
 
   const QString sPath = QString::fromUtf8(sCleanPath.GetData());
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto e = m_ImageCache.Find(sPath);
 
   if (!e.IsValid())
     return;
 
-  ezUInt32 id = e.Value().m_uiImageID;
+  WUInt32 id = e.Value().m_uiImageID;
   m_ImageCache.Remove(e);
 
   Q_EMIT g_pImageCacheSingleton->ImageInvalidated(sPath, id);
 }
 
-const QPixmap* ezQtImageCache::QueryPixmap(
-  const char* szAbsolutePath, QModelIndex index, QVariant userData1, QVariant userData2, ezUInt32* out_pImageID)
+const QPixmap* WQtImageCache::QueryPixmap(
+  const char* szAbsolutePath, QModelIndex index, QVariant userData1, QVariant userData2, WUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -91,12 +91,12 @@ const QPixmap* ezQtImageCache::QueryPixmap(
   if (m_pImageLoading == nullptr)
     SetFallbackImages(":/GuiFoundation/ThumbnailLoading.svg", ":/GuiFoundation/ThumbnailUnavailable.svg");
 
-  ezStringBuilder sCleanPath = szAbsolutePath;
+  WStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
 
   const QString sPath = QString::fromUtf8(sCleanPath.GetData());
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   CleanupCache();
 
@@ -107,7 +107,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(
     if (out_pImageID)
       *out_pImageID = itEntry.Value().m_uiImageID;
 
-    itEntry.Value().m_LastAccess = ezTime::Now();
+    itEntry.Value().m_LastAccess = WTime::Now();
     return &itEntry.Value().m_Pixmap;
   }
 
@@ -115,7 +115,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(
   if (!m_bCacheEnabled)
     return m_pImageLoading;
 
-  ezHashedString sHashed;
+  WHashedString sHashed;
   sHashed.Assign(sCleanPath.GetData());
 
   Request r;
@@ -133,8 +133,8 @@ const QPixmap* ezQtImageCache::QueryPixmap(
 }
 
 
-const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/,
-  QVariant userData1 /*= QVariant()*/, QVariant userData2 /*= QVariant()*/, ezUInt32* out_pImageID /*= nullptr*/)
+const QPixmap* WQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/,
+  QVariant userData1 /*= QVariant()*/, QVariant userData2 /*= QVariant()*/, WUInt32* out_pImageID /*= nullptr*/)
 {
   const QPixmap* pTypeImage = QueryTypeImage(szType);
 
@@ -144,9 +144,9 @@ const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char
   return QueryPixmap(szAbsolutePath, index, userData1, userData2, out_pImageID);
 }
 
-void ezQtImageCache::RunLoadingTask()
+void WQtImageCache::RunLoadingTask()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   // if someone is already working
   if (m_bTaskRunning)
@@ -183,12 +183,12 @@ void ezQtImageCache::RunLoadingTask()
   // if we fall through, the queue is now empty
 }
 
-void ezQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
+void WQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
 {
   bool bTaskRunning = false;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     bTaskRunning = m_bTaskRunning;
 
@@ -203,29 +203,29 @@ void ezQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
   while (bTaskRunning)
   {
     {
-      EZ_LOCK(m_Mutex);
+      W_LOCK(m_Mutex);
       bTaskRunning = m_bTaskRunning;
     }
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(100));
   }
 }
 
-void ezQtImageCache::EnableRequestProcessing()
+void WQtImageCache::EnableRequestProcessing()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   m_bCacheEnabled = true;
   RunLoadingTask();
 }
 
 
-void ezQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
+void WQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
 {
   m_TypeImages[QString::fromUtf8(szType)] = pixmap;
 }
 
-const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
+const QPixmap* WQtImageCache::QueryTypeImage(const char* szType) const
 {
   auto it = m_TypeImages.Find(QString::fromUtf8(szType));
 
@@ -235,19 +235,19 @@ const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
   return nullptr;
 }
 
-void ezQtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void WQtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   Q_EMIT ImageLoaded(sPath, index, UserData1, UserData2);
 }
 
-void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void WQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   QImage Image;
   const bool bImageAvailable = Image.load(sPath);
 
-  ezQtImageCache* pCache = ezQtImageCache::GetSingleton();
+  WQtImageCache* pCache = WQtImageCache::GetSingleton();
 
-  EZ_LOCK(pCache->m_Mutex);
+  W_LOCK(pCache->m_Mutex);
 
   // remove the task from the queue
   {
@@ -268,16 +268,16 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
   auto& entry = pCache->m_ImageCache[sPath];
   entry.m_uiImageID = ++pCache->m_uiCurImageID;
 
-  pCache->m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
+  pCache->m_iCurrentMemoryUsage -= WMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   if (bImageAvailable)
     entry.m_Pixmap = QPixmap::fromImage(Image);
   else if (pCache->m_pImageUnavailable)
     entry.m_Pixmap = *pCache->m_pImageUnavailable;
 
-  entry.m_LastAccess = ezTime::Now();
+  entry.m_LastAccess = WTime::Now();
 
-  pCache->m_iCurrentMemoryUsage += ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
+  pCache->m_iCurrentMemoryUsage += WMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   // send event that something has been loaded
   g_pImageCacheSingleton->EmitLoadedSignal(sPath, index, UserData1, UserData2);
@@ -286,25 +286,25 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
   pCache->RunLoadingTask();
 }
 
-void ezQtImageCache::CleanupCache()
+void WQtImageCache::CleanupCache()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (m_iCurrentMemoryUsage < m_iMemoryUsageThreshold)
     return;
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
   // do not clean up too often
-  if (tNow - m_LastCleanupTime < ezTime::MakeFromSeconds(10))
+  if (tNow - m_LastCleanupTime < WTime::MakeFromSeconds(10))
     return;
 
   m_LastCleanupTime = tNow;
 
   // purge everything older than 5 minutes, then 4 minutes, ...
-  for (ezInt32 i = 5; i > 2; --i)
+  for (WInt32 i = 5; i > 2; --i)
   {
-    const ezTime tPurgeThreshold = ezTime::MakeFromSeconds(60) * i;
+    const WTime tPurgeThreshold = WTime::MakeFromSeconds(60) * i;
 
     // purge images that have not been accessed in a longer time
     for (auto it = m_ImageCache.GetIterator(); it.IsValid();)
@@ -313,7 +313,7 @@ void ezQtImageCache::CleanupCache()
       {
         // this image has not been accessed in a while, get rid of it
 
-        m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(it.Value().m_Pixmap.width(), it.Value().m_Pixmap.height(), 4);
+        m_iCurrentMemoryUsage -= WMath::SafeMultiply64(it.Value().m_Pixmap.width(), it.Value().m_Pixmap.height(), 4);
 
         it = m_ImageCache.Remove(it);
 

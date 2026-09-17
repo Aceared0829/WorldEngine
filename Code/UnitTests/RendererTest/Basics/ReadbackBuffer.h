@@ -12,9 +12,9 @@
 /// Finally the original an re-uploaded texture is rendered to the screen and the result is again compared to a reference image.
 ///
 /// The subtest list is dynamic, only formats that support render and sample are tested.
-class ezRendererTestReadbackBuffer : public ezGraphicsTest
+class WRendererTestReadbackBuffer : public WGraphicsTest
 {
-  using SUPER = ezGraphicsTest;
+  using SUPER = WGraphicsTest;
 
 public:
   virtual const char* GetTestName() const override { return "Readback Buffer"; }
@@ -31,18 +31,18 @@ private:
 
   virtual void SetupSubTests() override;
 
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-  ezTestAppRun ReadbackBuffer(ezUInt32 uiInvocationCount);
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
+  WTestAppRun ReadbackBuffer(WUInt32 uiInvocationCount);
 
 private:
-  ezShaderResourceHandle m_hComputeShader;
+  WShaderResourceHandle m_hComputeShader;
 
-  ezDynamicArray<ezUInt8> m_BufferData;
-  ezGALBufferHandle m_hBufferReadback;
+  WDynamicArray<WUInt8> m_BufferData;
+  WGALBufferHandle m_hBufferReadback;
   bool m_bReadbackInProgress = true;
-  ezGALReadbackBufferHelper m_Readback;
+  WGALReadbackBufferHelper m_Readback;
 };

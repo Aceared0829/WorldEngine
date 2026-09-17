@@ -4,15 +4,15 @@
 
 /// Simple pool for semaphores
 ///
-/// Do not call ReclaimSemaphore manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the semaphore once it is no longer in use.
+/// Do not call ReclaimSemaphore manually, instead call WGALDeviceVulkan::ReclaimLater which will make sure to reclaim the semaphore once it is no longer in use.
 /// Usage:
 /// \code{.cpp}
-///   vk::Semaphore s = ezSemaphorePoolVulkan::RequestSemaphore();
+///   vk::Semaphore s = WSemaphorePoolVulkan::RequestSemaphore();
 ///   ...
-///   ezGALDeviceVulkan* pDevice = ...;
+///   WGALDeviceVulkan* pDevice = ...;
 ///   pDevice->ReclaimLater(s);
 /// \endcode
-class EZ_RENDERERVULKAN_DLL ezSemaphorePoolVulkan
+class W_RENDERERVULKAN_DLL WSemaphorePoolVulkan
 {
 public:
   static void Initialize(vk::Device device);
@@ -22,6 +22,6 @@ public:
   static void ReclaimSemaphore(vk::Semaphore& ref_semaphore);
 
 private:
-  static ezHybridArray<vk::Semaphore, 4> s_Semaphores;
+  static WHybridArray<vk::Semaphore, 4> s_Semaphores;
   static vk::Device s_Device;
 };

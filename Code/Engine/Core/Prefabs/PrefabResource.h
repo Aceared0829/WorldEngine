@@ -5,35 +5,35 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/PropertyPath.h>
 
-using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
+using WPrefabResourceHandle = WTypedResourceHandle<class WPrefabResource>;
 
-struct EZ_CORE_DLL ezPrefabResourceDescriptor
+struct W_CORE_DLL WPrefabResourceDescriptor
 {
 };
 
-struct EZ_CORE_DLL ezExposedPrefabParameterDesc
+struct W_CORE_DLL WExposedPrefabParameterDesc
 {
-  ezHashedString m_sExposeName;
-  ezUInt32 m_uiWorldReaderChildObject : 1; // 0 -> use root object array, 1 -> use child object array
-  ezUInt32 m_uiWorldReaderObjectIndex : 31;
-  ezHashedString m_sComponentType;         // ezRTTI type name to identify which component is meant, empty string -> affects game object
-  ezHashedString m_sProperty;              // which property to override
-  ezPropertyPath m_CachedPropertyPath;     // cached ezPropertyPath to apply a value to the specified property
+  WHashedString m_sExposeName;
+  WUInt32 m_uiWorldReaderChildObject : 1; // 0 -> use root object array, 1 -> use child object array
+  WUInt32 m_uiWorldReaderObjectIndex : 31;
+  WHashedString m_sComponentType;         // WRTTI type name to identify which component is meant, empty string -> affects game object
+  WHashedString m_sProperty;              // which property to override
+  WPropertyPath m_CachedPropertyPath;     // cached WPropertyPath to apply a value to the specified property
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
 };
 
-class EZ_CORE_DLL ezPrefabResource : public ezResource
+class W_CORE_DLL WPrefabResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezPrefabResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WPrefabResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WPrefabResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WPrefabResource, WPrefabResourceDescriptor);
 
 public:
-  ezPrefabResource();
+  WPrefabResource();
 
-  enum class InstantiateResult : ezUInt8
+  enum class InstantiateResult : WUInt8
   {
     Success,
     NotYetLoaded,
@@ -41,21 +41,21 @@ public:
   };
 
   /// Helper function to instantiate a prefab without having to deal with resource acquisition.
-  static ezPrefabResource::InstantiateResult InstantiatePrefab(const ezPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options = {}, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
+  static WPrefabResource::InstantiateResult InstantiatePrefab(const WPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, WWorld& ref_world, const WTransform& rootTransform, WPrefabInstantiationOptions options = {}, const WArrayMap<WHashedString, WVariant>* pExposedParamValues = nullptr);
 
   /// Creates an instance of this prefab in the given world.
-  void InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
+  void InstantiatePrefab(WWorld& ref_world, const WTransform& rootTransform, WPrefabInstantiationOptions options, const WArrayMap<WHashedString, WVariant>* pExposedParamValues = nullptr);
 
-  void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const;
+  void ApplyExposedParameterValues(const WArrayMap<WHashedString, WVariant>* pExposedParamValues, const WDynamicArray<WGameObject*>& createdChildObjects, const WDynamicArray<WGameObject*>& createdRootObjects) const;
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezUInt32 FindFirstParamWithName(ezUInt64 uiNameHash) const;
+  WUInt32 FindFirstParamWithName(WUInt64 uiNameHash) const;
 
-  ezWorldReader m_WorldReader;
-  ezDynamicArray<ezExposedPrefabParameterDesc> m_PrefabParamDescs;
+  WWorldReader m_WorldReader;
+  WDynamicArray<WExposedPrefabParameterDesc> m_PrefabParamDescs;
 };

@@ -7,35 +7,35 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 class QWidget;
-class ezActionMap;
+class WActionMap;
 class QAction;
-class ezQtProxy;
+class WQtProxy;
 class QMenu;
 
-class EZ_GUIFOUNDATION_DLL ezQtToolBarActionMapView : public QToolBar
+class W_GUIFOUNDATION_DLL WQtToolBarActionMapView : public QToolBar
 {
   Q_OBJECT
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezQtToolBarActionMapView);
+  W_DISALLOW_COPY_AND_ASSIGN(WQtToolBarActionMapView);
 
 public:
-  explicit ezQtToolBarActionMapView(QString sTitle, QWidget* pParent);
-  ~ezQtToolBarActionMapView();
+  explicit WQtToolBarActionMapView(QString sTitle, QWidget* pParent);
+  ~WQtToolBarActionMapView();
 
-  void SetActionContext(const ezActionContext& context);
+  void SetActionContext(const WActionContext& context);
 
   virtual void setVisible(bool bVisible) override;
 
 private:
-  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void TreeEventHandler(const WDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 
   void ClearView();
   void CreateView();
-  void CreateView(const ezActionMap::TreeNode* pRoot);
+  void CreateView(const WActionMap::TreeNode* pRoot);
 
 private:
-  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;
+  WHashTable<WUuid, QSharedPointer<WQtProxy>> m_Proxies;
 
-  ezActionContext m_Context;
-  ezActionMap* m_pActionMap;
+  WActionContext m_Context;
+  WActionMap* m_pActionMap;
 };

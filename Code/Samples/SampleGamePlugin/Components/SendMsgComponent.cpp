@@ -10,33 +10,33 @@
 #include <SampleGamePlugin/Messages/Messages.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(SendMsgComponent, 1, ezComponentMode::Static /* this component does not move the owner node */)
+W_BEGIN_COMPONENT_TYPE(SendMsgComponent, 1, WComponentMode::Static /* this component does not move the owner node */)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Strings", m_TextArray)
+    W_ARRAY_MEMBER_PROPERTY("Strings", m_TextArray)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGamePlugin"),
+    new WCategoryAttribute("SampleGamePlugin"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnSendText)
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnSendText)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
 SendMsgComponent::SendMsgComponent() = default;
 SendMsgComponent::~SendMsgComponent() = default;
 
-void SendMsgComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void SendMsgComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -44,7 +44,7 @@ void SendMsgComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s.WriteArray(m_TextArray).IgnoreResult();
 }
 
-void SendMsgComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void SendMsgComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -52,19 +52,19 @@ void SendMsgComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s.ReadArray(m_TextArray).IgnoreResult();
 }
 
-static ezHashedString s_sSendNextString = ezMakeHashedString("SendNextString");
+static WHashedString s_sSendNextString = WMakeHashedString("SendNextString");
 
 void SendMsgComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   // start sending strings shortly
-  ezMsgComponentInternalTrigger msg;
+  WMsgComponentInternalTrigger msg;
   msg.m_sMessage = s_sSendNextString;
-  PostMessage(msg, ezTime::MakeFromMilliseconds(100));
+  PostMessage(msg, WTime::MakeFromMilliseconds(100));
 }
 
-void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
+void SendMsgComponent::OnSendText(WMsgComponentInternalTrigger& msg)
 {
   // Note: We don't need to take care to stop when the component gets deactivated
   // because messages are only delivered to active components.
@@ -78,14 +78,14 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
   {
     if (!m_TextArray.IsEmpty())
     {
-      const ezUInt32 idx = m_uiNextString % m_TextArray.GetCount();
+      const WUInt32 idx = m_uiNextString % m_TextArray.GetCount();
 
       // send the message to all components on this node and all child nodes
 
-      ezGameObject* pGameObject = GetOwner();
+      WGameObject* pGameObject = GetOwner();
 
       // BEGIN-DOCS-CODE-SNIPPET: message-send-direct
-      ezMsgSetText textMsg;
+      WMsgSetText textMsg;
       textMsg.m_sText = m_TextArray[idx];
       pGameObject->SendMessageRecursive(textMsg);
       // END-DOCS-CODE-SNIPPET
@@ -95,6 +95,6 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
 
 
     // send the next string in a second
-    PostMessage(msg, ezTime::MakeFromSeconds(2));
+    PostMessage(msg, WTime::MakeFromSeconds(2));
   }
 }

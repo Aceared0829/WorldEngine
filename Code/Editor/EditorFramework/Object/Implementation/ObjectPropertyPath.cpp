@@ -5,25 +5,25 @@
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 
-ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
-  ezStringBuilder& ref_sObjectSearchSequence, ezStringBuilder& ref_sComponentType, ezStringBuilder& ref_sPropertyPath)
+WStatus WObjectPropertyPath::CreatePath(const WObjectPropertyPathContext& context, const WPropertyReference& prop,
+  WStringBuilder& ref_sObjectSearchSequence, WStringBuilder& ref_sComponentType, WStringBuilder& ref_sPropertyPath)
 {
-  EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
-  const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
+  W_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
+  const WRTTI* pObjType = WGetStaticRTTI<WGameObject>();
 
-  const ezAbstractProperty* pName = pObjType->FindPropertyByName("Name");
-  const ezDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);
+  const WAbstractProperty* pName = pObjType->FindPropertyByName("Name");
+  const WDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);
   if (!pObject || !prop.m_pProperty)
-    return ezStatus(EZ_FAILURE);
+    return WStatus(W_FAILURE);
 
   {
     // Build property part of the path from the next parent node / component.
     pObject = FindParentNodeComponent(pObject);
     if (!pObject)
-      return ezStatus("No parent node or component found.");
-    ezObjectPropertyPathContext context2 = context;
+      return WStatus("No parent node or component found.");
+    WObjectPropertyPathContext context2 = context;
     context2.m_pContextObject = pObject;
-    ezStatus res = CreatePropertyPath(context2, prop, ref_sPropertyPath);
+    WStatus res = CreatePropertyPath(context2, prop, ref_sPropertyPath);
     if (res.Failed())
       return res;
   }
@@ -31,7 +31,7 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
   {
     // Component part
     ref_sComponentType.Clear();
-    if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
+    if (pObject->GetType()->IsDerivedFrom(WGetStaticRTTI<WComponent>()))
     {
       ref_sComponentType = pObject->GetType()->GetTypeName();
       pObject = pObject->GetParent();
@@ -46,12 +46,12 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
       ref_sObjectSearchSequence.Clear();
       ref_sComponentType.Clear();
       ref_sPropertyPath.Clear();
-      return ezStatus("Property is not under the given context object, no path exists.");
+      return WStatus("Property is not under the given context object, no path exists.");
     }
 
-    if (pObject->GetType() == ezGetStaticRTTI<ezGameObject>())
+    if (pObject->GetType() == WGetStaticRTTI<WGameObject>())
     {
-      ezString sName = context.m_pAccessor->Get<ezString>(pObject, pName);
+      WString sName = context.m_pAccessor->Get<WString>(pObject, pName);
       if (!sName.IsEmpty())
       {
         if (!ref_sObjectSearchSequence.IsEmpty())
@@ -64,68 +64,68 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
       ref_sObjectSearchSequence.Clear();
       ref_sComponentType.Clear();
       ref_sPropertyPath.Clear();
-      return ezStatus(ezFmt("Only ezGameObject objects should be found in the hierarchy, found '{0}' instead.", pObject->GetType()->GetTypeName()));
+      return WStatus(WFmt("Only WGameObject objects should be found in the hierarchy, found '{0}' instead.", pObject->GetType()->GetTypeName()));
     }
 
     pObject = pObject->GetParent();
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezObjectPropertyPath::CreatePropertyPath(
-  const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath)
+WStatus WObjectPropertyPath::CreatePropertyPath(
+  const WObjectPropertyPathContext& context, const WPropertyReference& prop, WStringBuilder& out_sPropertyPath)
 {
-  EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
-  const ezDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);
+  W_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
+  const WDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);
   if (!pObject || !prop.m_pProperty)
-    return ezStatus(EZ_FAILURE);
+    return WStatus(W_FAILURE);
 
   out_sPropertyPath.Clear();
-  ezStatus res = PrependProperty(pObject, prop.m_pProperty, prop.m_Index, out_sPropertyPath);
+  WStatus res = PrependProperty(pObject, prop.m_pProperty, prop.m_Index, out_sPropertyPath);
   if (res.Failed())
     return res;
 
   while (pObject != context.m_pContextObject)
   {
-    ezStatus result = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
+    WStatus result = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
     if (result.Failed())
       return result;
 
     pObject = pObject->GetParent();
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezObjectPropertyPath::AppendSubIndices(ezStringBuilder& ref_sPropertyPath, ezArrayPtr<ezVariant> indices)
+void WObjectPropertyPath::AppendSubIndices(WStringBuilder& ref_sPropertyPath, WArrayPtr<WVariant> indices)
 {
-  for (ezUInt32 i = 0; i < indices.GetCount(); ++i)
+  for (WUInt32 i = 0; i < indices.GetCount(); ++i)
   {
     ref_sPropertyPath.AppendFormat("[{0}]", indices[i]);
   }
 }
 
-ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& ref_keys,
+WStatus WObjectPropertyPath::ResolvePath(const WObjectPropertyPathContext& context, WDynamicArray<WPropertyReference>& ref_keys,
   const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {
-  EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
+  W_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   ref_keys.Clear();
-  const ezDocumentObject* pContext = context.m_pContextObject;
-  ezDocumentObjectVisitor visitor(context.m_pAccessor->GetObjectManager(), "Children", context.m_sRootProperty);
-  ezTempHybridArray<const ezDocumentObject*, 8> input;
+  const WDocumentObject* pContext = context.m_pContextObject;
+  WDocumentObjectVisitor visitor(context.m_pAccessor->GetObjectManager(), "Children", context.m_sRootProperty);
+  WTempHybridArray<const WDocumentObject*, 8> input;
   input.PushBack(pContext);
-  ezTempHybridArray<const ezDocumentObject*, 8> output;
+  WTempHybridArray<const WDocumentObject*, 8> output;
 
   // Find objects that match the search path
-  ezStringBuilder sObjectSearchSequence = szObjectSearchSequence;
-  ezTempHybridArray<ezStringView, 4> names;
+  WStringBuilder sObjectSearchSequence = szObjectSearchSequence;
+  WTempHybridArray<WStringView, 4> names;
   sObjectSearchSequence.Split(false, names, "/");
-  for (const ezStringView& sName : names)
+  for (const WStringView& sName : names)
   {
-    for (const ezDocumentObject* pObj : input)
+    for (const WDocumentObject* pObj : input)
     {
-      visitor.Visit(pObj, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
+      visitor.Visit(pObj, false, [&output, &sName](const WDocumentObject* pObject) -> bool
         {
-          const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
+          const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<WString>();
           if (sObjectName == sName)
           {
             output.PushBack(pObject);
@@ -139,26 +139,26 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   }
 
   if (input.IsEmpty())
-    return ezStatus(ezFmt("ObjectSearchSequence: '{}' could not be resolved", szObjectSearchSequence));
+    return WStatus(WFmt("ObjectSearchSequence: '{}' could not be resolved", szObjectSearchSequence));
 
   // Test found objects for component
-  for (const ezDocumentObject* pObject : input)
+  for (const WDocumentObject* pObject : input)
   {
     // Could also be the root object in which case we found nothing.
-    if (pObject->GetType() == ezGetStaticRTTI<ezGameObject>())
+    if (pObject->GetType() == WGetStaticRTTI<WGameObject>())
     {
-      if (ezStringUtils::IsNullOrEmpty(szComponentType))
+      if (WStringUtils::IsNullOrEmpty(szComponentType))
       {
         // We are animating the game object directly
         output.PushBack(pObject);
       }
       else
       {
-        const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
-        for (ezInt32 i = 0; i < iComponents; i++)
+        const WInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
+        for (WInt32 i = 0; i < iComponents; i++)
         {
-          ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
-          auto pChild = context.m_pAccessor->GetObjectManager()->GetObject(value.Get<ezUuid>());
+          WVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
+          auto pChild = context.m_pAccessor->GetObjectManager()->GetObject(value.Get<WUuid>());
           if (pChild->GetType()->GetTypeName() == szComponentType)
           {
             output.PushBack(pChild);
@@ -172,16 +172,16 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   input.Swap(output);
 
   if (input.IsEmpty())
-    return ezStatus(ezFmt("Component '{}' not found on the search path '{}'", szComponentType, szObjectSearchSequence));
+    return WStatus(WFmt("Component '{}' not found on the search path '{}'", szComponentType, szObjectSearchSequence));
 
-  ezStatus lastError = ezResult(EZ_FAILURE);
+  WStatus lastError = WResult(W_FAILURE);
   // Test found objects / components for property
-  for (const ezDocumentObject* pObject : input)
+  for (const WDocumentObject* pObject : input)
   {
-    ezObjectPropertyPathContext context2 = context;
+    WObjectPropertyPathContext context2 = context;
     context2.m_pContextObject = pObject;
-    ezPropertyReference key;
-    ezStatus res = ResolvePropertyPath(context2, szPropertyPath, key);
+    WPropertyReference key;
+    WStatus res = ResolvePropertyPath(context2, szPropertyPath, key);
     if (res.Succeeded())
     {
       ref_keys.PushBack(key);
@@ -195,31 +195,31 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   return lastError;
 }
 
-ezStatus ezObjectPropertyPath::ResolvePropertyPath(
-  const ezObjectPropertyPathContext& context, const char* szPropertyPath, ezPropertyReference& out_key)
+WStatus WObjectPropertyPath::ResolvePropertyPath(
+  const WObjectPropertyPathContext& context, const char* szPropertyPath, WPropertyReference& out_key)
 {
-  EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && szPropertyPath != nullptr, "All context fields must be valid.");
-  const ezDocumentObject* pObject = context.m_pContextObject;
-  ezStringBuilder sPath = szPropertyPath;
-  ezTempHybridArray<ezStringView, 3> parts;
+  W_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && szPropertyPath != nullptr, "All context fields must be valid.");
+  const WDocumentObject* pObject = context.m_pContextObject;
+  WStringBuilder sPath = szPropertyPath;
+  WTempHybridArray<WStringView, 3> parts;
   sPath.Split(false, parts, "/");
-  for (ezUInt32 i = 0; i < parts.GetCount(); i++)
+  for (WUInt32 i = 0; i < parts.GetCount(); i++)
   {
-    ezStringBuilder sPart = parts[i];
-    ezTempHybridArray<ezStringBuilder, 2> parts2;
+    WStringBuilder sPart = parts[i];
+    WTempHybridArray<WStringBuilder, 2> parts2;
     sPart.Split(false, parts2, "[", "]");
     if (parts2.GetCount() == 0 || parts2.GetCount() > 2)
     {
-      return ezStatus(ezFmt("Malformed property path part: {0}", sPart));
+      return WStatus(WFmt("Malformed property path part: {0}", sPart));
     }
-    const ezAbstractProperty* pProperty = pObject->GetType()->FindPropertyByName(parts2[0]);
+    const WAbstractProperty* pProperty = pObject->GetType()->FindPropertyByName(parts2[0]);
     if (!pProperty)
-      return ezStatus(ezFmt("Property not found: {0}", parts2[0]));
-    ezVariant index;
+      return WStatus(WFmt("Property not found: {0}", parts2[0]));
+    WVariant index;
     if (parts2.GetCount() == 2)
     {
-      ezInt32 iIndex = 0;
-      if (ezConversionUtils::StringToInt(parts2[1], iIndex).Succeeded())
+      WInt32 iIndex = 0;
+      if (WConversionUtils::StringToInt(parts2[1], iIndex).Succeeded())
       {
         index = iIndex; // Array index
       }
@@ -229,15 +229,15 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
       }
     }
 
-    ezVariant value;
-    ezStatus res(EZ_SUCCESS);
+    WVariant value;
+    WStatus res(W_SUCCESS);
 
-    if (const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>())
+    if (const WExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<WExposedParametersAttribute>())
     {
-      const ezAbstractProperty* pParameterSourceProp = pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-      EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(),
+      const WAbstractProperty* pParameterSourceProp = pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+      W_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(),
         pObject->GetType()->GetTypeName());
-      ezExposedParameterCommandAccessor proxy(context.m_pAccessor, pProperty, pParameterSourceProp);
+      WExposedParameterCommandAccessor proxy(context.m_pAccessor, pProperty, pParameterSourceProp);
       res = proxy.GetValue(pObject, pProperty, value, index);
     }
     else
@@ -253,39 +253,39 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
       out_key.m_Object = pObject->GetGuid();
       out_key.m_pProperty = pProperty;
       out_key.m_Index = index;
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
     else
     {
-      if (value.IsA<ezUuid>())
+      if (value.IsA<WUuid>())
       {
-        ezUuid id = value.Get<ezUuid>();
+        WUuid id = value.Get<WUuid>();
         pObject = context.m_pAccessor->GetObjectManager()->GetObject(id);
       }
       else
       {
-        return ezStatus(ezFmt("Property '{0}' of type '{1}' is not an object and can't be traversed further.", pProperty->GetPropertyName(),
+        return WStatus(WFmt("Property '{0}' of type '{1}' is not an object and can't be traversed further.", pProperty->GetPropertyName(),
           pProperty->GetSpecificType()->GetTypeName()));
       }
     }
   }
-  return ezStatus(EZ_FAILURE);
+  return WStatus(W_FAILURE);
 }
 
-ezStatus ezObjectPropertyPath::PrependProperty(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezStringBuilder& out_sPropertyPath)
+WStatus WObjectPropertyPath::PrependProperty(
+  const WDocumentObject* pObject, const WAbstractProperty* pProperty, WVariant index, WStringBuilder& out_sPropertyPath)
 {
   switch (pProperty->GetCategory())
   {
-    case ezPropertyCategory::Enum::Member:
+    case WPropertyCategory::Enum::Member:
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
       out_sPropertyPath.Prepend(pProperty->GetPropertyName());
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
-    case ezPropertyCategory::Enum::Array:
-    case ezPropertyCategory::Enum::Map:
+    case WPropertyCategory::Enum::Array:
+    case WPropertyCategory::Enum::Map:
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
@@ -293,19 +293,19 @@ ezStatus ezObjectPropertyPath::PrependProperty(
         out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
       else
         out_sPropertyPath.PrependFormat("{0}", pProperty->GetPropertyName());
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
     default:
-      return ezStatus(ezFmt(
+      return WStatus(WFmt(
         "The property '{0}' of category '{1}' which is not supported in property paths", pProperty->GetPropertyName(), pProperty->GetCategory()));
   }
 }
 
-const ezDocumentObject* ezObjectPropertyPath::FindParentNodeComponent(const ezDocumentObject* pObject)
+const WDocumentObject* WObjectPropertyPath::FindParentNodeComponent(const WDocumentObject* pObject)
 {
-  const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
-  const ezRTTI* pCompType = ezGetStaticRTTI<ezComponent>();
-  const ezDocumentObject* pObj = pObject;
+  const WRTTI* pObjType = WGetStaticRTTI<WGameObject>();
+  const WRTTI* pCompType = WGetStaticRTTI<WComponent>();
+  const WDocumentObject* pObj = pObject;
   while (pObj != nullptr)
   {
     if (pObj->GetType() == pObjType)

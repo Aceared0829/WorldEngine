@@ -3,22 +3,22 @@
 #include <Core/Console/CommandInterpreter.h>
 #include <Core/Console/ConsoleFunction.h>
 
-const ezString ezCommandInterpreter::GetValueAsString(ezCVar* pCVar)
+const WString WCommandInterpreter::GetValueAsString(WCVar* pCVar)
 {
-  ezStringBuilder s = "undefined";
+  WStringBuilder s = "undefined";
 
   switch (pCVar->GetType())
   {
-    case ezCVarType::Int:
+    case WCVarType::Int:
     {
-      ezCVarInt* pInt = static_cast<ezCVarInt*>(pCVar);
+      WCVarInt* pInt = static_cast<WCVarInt*>(pCVar);
       s.SetFormat("{0}", pInt->GetValue());
     }
     break;
 
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
     {
-      ezCVarBool* pBool = static_cast<ezCVarBool*>(pCVar);
+      WCVarBool* pBool = static_cast<WCVarBool*>(pCVar);
       if (pBool->GetValue() == true)
         s = "true";
       else
@@ -26,40 +26,40 @@ const ezString ezCommandInterpreter::GetValueAsString(ezCVar* pCVar)
     }
     break;
 
-    case ezCVarType::String:
+    case WCVarType::String:
     {
-      ezCVarString* pString = static_cast<ezCVarString*>(pCVar);
+      WCVarString* pString = static_cast<WCVarString*>(pCVar);
       s.SetFormat("\"{0}\"", pString->GetValue());
     }
     break;
 
-    case ezCVarType::Float:
+    case WCVarType::Float:
     {
-      ezCVarFloat* pFloat = static_cast<ezCVarFloat*>(pCVar);
-      s.SetFormat("{0}", ezArgF(pFloat->GetValue(), 3));
+      WCVarFloat* pFloat = static_cast<WCVarFloat*>(pCVar);
+      s.SetFormat("{0}", WArgF(pFloat->GetValue(), 3));
     }
     break;
 
-    case ezCVarType::ENUM_COUNT:
+    case WCVarType::ENUM_COUNT:
       break;
   }
 
   return s.GetData();
 }
 
-ezString ezCommandInterpreter::GetFullInfoAsString(ezCVar* pCVar)
+WString WCommandInterpreter::GetFullInfoAsString(WCVar* pCVar)
 {
-  ezStringBuilder s = GetValueAsString(pCVar);
+  WStringBuilder s = GetValueAsString(pCVar);
 
-  const bool bAnyFlags = pCVar->GetFlags().IsAnySet(ezCVarFlags::Save | ezCVarFlags::ShowRequiresRestartMsg);
+  const bool bAnyFlags = pCVar->GetFlags().IsAnySet(WCVarFlags::Save | WCVarFlags::ShowRequiresRestartMsg);
 
   if (bAnyFlags)
     s.Append(" [ ");
 
-  if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+  if (pCVar->GetFlags().IsAnySet(WCVarFlags::Save))
     s.Append("SAVE ");
 
-  if (pCVar->GetFlags().IsAnySet(ezCVarFlags::ShowRequiresRestartMsg))
+  if (pCVar->GetFlags().IsAnySet(WCVarFlags::ShowRequiresRestartMsg))
     s.Append("RESTART ");
 
   if (bAnyFlags)
@@ -67,29 +67,29 @@ ezString ezCommandInterpreter::GetFullInfoAsString(ezCVar* pCVar)
 
   return s;
 }
-void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezConsoleString::Type type /*= ezCommandOutputLine::Type::Default*/)
+void WCommandInterpreterState::AddOutputLine(const WFormatString& text, WConsoleString::Type type /*= WCommandOutputLine::Type::Default*/)
 {
   auto& line = m_sOutput.ExpandAndGetRef();
   line.m_Type = type;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   line.m_sText = text.GetText(tmp);
 }
 
-void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
+void WCommandInterpreter::FindPossibleCVars(WStringView sVariable, WDeque<WString>& inout_autoCompleteOptions, WDeque<WConsoleString>& inout_autoCompleteDescriptions)
 {
-  ezStringBuilder sText;
+  WStringBuilder sText;
 
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
+  WCVar* pCVar = WCVar::GetFirstInstance();
   while (pCVar)
   {
     if (pCVar->GetName().StartsWith_NoCase(sVariable))
     {
       sText.SetFormat("    {0} = {1}", pCVar->GetName(), GetFullInfoAsString(pCVar));
 
-      ezConsoleString cs;
+      WConsoleString cs;
       cs.m_sText = sText;
-      cs.m_Type = ezConsoleString::Type::VarName;
+      cs.m_Type = WConsoleString::Type::VarName;
       inout_autoCompleteDescriptions.PushBack(cs);
 
       inout_autoCompleteOptions.PushBack(pCVar->GetName());
@@ -99,20 +99,20 @@ void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezS
   }
 }
 
-void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
+void WCommandInterpreter::FindPossibleFunctions(WStringView sVariable, WDeque<WString>& inout_autoCompleteOptions, WDeque<WConsoleString>& inout_autoCompleteDescriptions)
 {
-  ezStringBuilder sText;
+  WStringBuilder sText;
 
-  ezConsoleFunctionBase* pFunc = ezConsoleFunctionBase::GetFirstInstance();
+  WConsoleFunctionBase* pFunc = WConsoleFunctionBase::GetFirstInstance();
   while (pFunc)
   {
     if (pFunc->GetName().StartsWith_NoCase(sVariable))
     {
       sText.SetFormat("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
 
-      ezConsoleString cs;
+      WConsoleString cs;
       cs.m_sText = sText;
-      cs.m_Type = ezConsoleString::Type::FuncName;
+      cs.m_Type = WConsoleString::Type::FuncName;
       inout_autoCompleteDescriptions.PushBack(cs);
 
       inout_autoCompleteOptions.PushBack(pFunc->GetName());
@@ -122,12 +122,12 @@ void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque
   }
 }
 
-const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& strings)
+const WString WCommandInterpreter::FindCommonString(const WDeque<WString>& strings)
 {
-  ezStringBuilder sCommon;
-  ezUInt32 c;
+  WStringBuilder sCommon;
+  WUInt32 c;
 
-  ezUInt32 uiPos = 0;
+  WUInt32 uiPos = 0;
   auto it1 = strings[0].GetIteratorFront();
   while (it1.IsValid())
   {
@@ -152,25 +152,25 @@ const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& s
   return sCommon;
 }
 
-void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
+void WCommandInterpreter::AutoComplete(WCommandInterpreterState& inout_state)
 {
-  ezString sVarName = inout_state.m_sInput;
+  WString sVarName = inout_state.m_sInput;
 
   auto it = rbegin(inout_state.m_sInput);
 
   // dots are allowed in CVar names
-  while (it.IsValid() && (it.GetCharacter() == '.' || !ezStringUtils::IsIdentifierDelimiter_C_Code(*it)))
+  while (it.IsValid() && (it.GetCharacter() == '.' || !WStringUtils::IsIdentifierDelimiter_C_Code(*it)))
     ++it;
 
   const char* szLastWordDelimiter = nullptr;
-  if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(*it) && it.GetCharacter() != '.')
+  if (it.IsValid() && WStringUtils::IsIdentifierDelimiter_C_Code(*it) && it.GetCharacter() != '.')
     szLastWordDelimiter = it.GetData();
 
   if (szLastWordDelimiter != nullptr)
     sVarName = szLastWordDelimiter + 1;
 
-  ezDeque<ezString> AutoCompleteOptions;
-  ezDeque<ezConsoleString> AutoCompleteDescriptions;
+  WDeque<WString> AutoCompleteOptions;
+  WDeque<WConsoleString> AutoCompleteDescriptions;
 
   FindPossibleCVars(sVarName.GetData(), AutoCompleteOptions, AutoCompleteDescriptions);
   FindPossibleFunctions(sVarName.GetData(), AutoCompleteOptions, AutoCompleteDescriptions);
@@ -181,7 +181,7 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
 
     inout_state.AddOutputLine("");
 
-    for (ezUInt32 i = 0; i < AutoCompleteDescriptions.GetCount(); i++)
+    for (WUInt32 i = 0; i < AutoCompleteDescriptions.GetCount(); i++)
     {
       inout_state.AddOutputLine(AutoCompleteDescriptions[i].m_sText.GetData(), AutoCompleteDescriptions[i].m_Type);
     }
@@ -192,7 +192,7 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
   if (AutoCompleteOptions.GetCount() > 0)
   {
     if (szLastWordDelimiter != nullptr)
-      inout_state.m_sInput = ezStringView(inout_state.m_sInput.GetData(), szLastWordDelimiter + 1);
+      inout_state.m_sInput = WStringView(inout_state.m_sInput.GetData(), szLastWordDelimiter + 1);
     else
       inout_state.m_sInput.Clear();
 

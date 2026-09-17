@@ -5,14 +5,14 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public ezQtDialog, public Ui_ezQtRemoteConnectionDlg
+class W_EDITORFRAMEWORK_DLL WQtRemoteConnectionDlg : public WQtDialog, public Ui_WQtRemoteConnectionDlg
 {
 public:
   Q_OBJECT
 
   struct Address
   {
-    ezUInt8 part[4];
+    WUInt8 part[4];
 
     Address();
     void operator=(const Address& rhs);
@@ -21,8 +21,8 @@ public:
   };
 
 public:
-  ezQtRemoteConnectionDlg(QWidget* pParent);
-  ~ezQtRemoteConnectionDlg();
+  WQtRemoteConnectionDlg(QWidget* pParent);
+  ~WQtRemoteConnectionDlg();
 
   Address m_UsedAddress;
   Address m_UsedFsAddress;

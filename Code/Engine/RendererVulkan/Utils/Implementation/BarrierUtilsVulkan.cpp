@@ -14,12 +14,12 @@ namespace
   // ============================================================================================
   // Helpers shared between Synchronization2 and Vulkan 1.1 code paths.
   // ============================================================================================
-  vk::PipelineStageFlags2 GetUnsupportedStages2(const ezGALDeviceVulkan& device)
+  vk::PipelineStageFlags2 GetUnsupportedStages2(const WGALDeviceVulkan& device)
   {
     return static_cast<vk::PipelineStageFlags2>(static_cast<VkPipelineStageFlags>(device.GetUnsupportedStages()));
   }
 
-  vk::ImageSubresourceRange CreateSubresourceRange(const ezGALTextureVulkan& texture, const ezGALTextureBarrier& barrier)
+  vk::ImageSubresourceRange CreateSubresourceRange(const WGALTextureVulkan& texture, const WGALTextureBarrier& barrier)
   {
     if (barrier.m_bAllSubresources)
       return texture.GetFullRange();
@@ -33,7 +33,7 @@ namespace
     return subresourceRange;
   }
 
-  vk::ImageSubresourceRange CreateSubresourceRange(const ezTextureBarrierVulkan& barrier)
+  vk::ImageSubresourceRange CreateSubresourceRange(const WTextureBarrierVulkan& barrier)
   {
     vk::ImageSubresourceRange subresourceRange;
     subresourceRange.aspectMask = barrier.m_AspectMask;
@@ -62,46 +62,46 @@ namespace
 
   namespace Sync2
   {
-    vk::PipelineStageFlags2 GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages)
+    vk::PipelineStageFlags2 GetPipelineStages(WBitflags<WGALShaderStageFlags> stages)
     {
       vk::PipelineStageFlags2 res;
-      if (stages.IsSet(ezGALShaderStageFlags::VertexShader))
+      if (stages.IsSet(WGALShaderStageFlags::VertexShader))
         res |= vk::PipelineStageFlagBits2::eVertexShader;
-      if (stages.IsSet(ezGALShaderStageFlags::HullShader))
+      if (stages.IsSet(WGALShaderStageFlags::HullShader))
         res |= vk::PipelineStageFlagBits2::eTessellationControlShader;
-      if (stages.IsSet(ezGALShaderStageFlags::DomainShader))
+      if (stages.IsSet(WGALShaderStageFlags::DomainShader))
         res |= vk::PipelineStageFlagBits2::eTessellationEvaluationShader;
-      if (stages.IsSet(ezGALShaderStageFlags::GeometryShader))
+      if (stages.IsSet(WGALShaderStageFlags::GeometryShader))
         res |= vk::PipelineStageFlagBits2::eGeometryShader;
-      if (stages.IsSet(ezGALShaderStageFlags::PixelShader))
+      if (stages.IsSet(WGALShaderStageFlags::PixelShader))
         res |= vk::PipelineStageFlagBits2::eFragmentShader;
-      if (stages.IsSet(ezGALShaderStageFlags::ComputeShader))
+      if (stages.IsSet(WGALShaderStageFlags::ComputeShader))
         res |= vk::PipelineStageFlagBits2::eComputeShader;
       return res;
     }
 
     void ResolveBarrierSync(
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags2 unsupportedStages,
       vk::PipelineStageFlags2& out_srcStages,
       vk::PipelineStageFlags2& out_dstStages,
       vk::AccessFlags2& out_srcAccess,
       vk::AccessFlags2& out_dstAccess)
     {
-      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
-      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
+      WConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
+      WConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
 
-      if (!stagesBefore.IsSet(ezGALShaderStageFlags::Auto))
+      if (!stagesBefore.IsSet(WGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags2 explicitStages = GetPipelineStages(stagesBefore);
         if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & out_srcStages) == explicitStages)
           out_srcStages = explicitStages;
       }
 
-      if (!stagesAfter.IsSet(ezGALShaderStageFlags::Auto))
+      if (!stagesAfter.IsSet(WGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags2 explicitStages = GetPipelineStages(stagesAfter);
         if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & out_dstStages) == explicitStages)
@@ -115,10 +115,10 @@ namespace
     vk::ImageMemoryBarrier2 MakeImageBarrier(
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags2 unsupportedStages,
       bool bDiscard = false)
     {
@@ -127,8 +127,8 @@ namespace
       ResolveBarrierSync(stateBefore, stateAfter, stagesBefore, stagesAfter, unsupportedStages,
         vkBarrier.srcStageMask, vkBarrier.dstStageMask, vkBarrier.srcAccessMask, vkBarrier.dstAccessMask);
 
-      vkBarrier.oldLayout = bDiscard ? vk::ImageLayout::eUndefined : ezConversionUtilsVulkan::GetTextureLayout(stateBefore);
-      vkBarrier.newLayout = ezConversionUtilsVulkan::GetTextureLayout(stateAfter);
+      vkBarrier.oldLayout = bDiscard ? vk::ImageLayout::eUndefined : WConversionUtilsVulkan::GetTextureLayout(stateBefore);
+      vkBarrier.newLayout = WConversionUtilsVulkan::GetTextureLayout(stateAfter);
       vkBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       vkBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       vkBarrier.image = image;
@@ -139,10 +139,10 @@ namespace
 
     vk::BufferMemoryBarrier2 MakeBufferBarrier(
       vk::Buffer buffer,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags2 unsupportedStages)
     {
       vk::BufferMemoryBarrier2 vkBarrier;
@@ -159,7 +159,7 @@ namespace
       return vkBarrier;
     }
 
-    void SubmitImageBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const vk::ImageMemoryBarrier2> barriers)
+    void SubmitImageBarriers(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const vk::ImageMemoryBarrier2> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -167,7 +167,7 @@ namespace
 #ifdef VK_LOG_LAYOUT_CHANGES
       for (const vk::ImageMemoryBarrier2& b : barriers)
       {
-        ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
+        WLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", WArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), WArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
       }
 #endif
 
@@ -177,7 +177,7 @@ namespace
       ref_commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
     }
 
-    void SubmitBufferBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const vk::BufferMemoryBarrier2> barriers)
+    void SubmitBufferBarriers(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const vk::BufferMemoryBarrier2> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -188,15 +188,15 @@ namespace
       ref_commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
+    void TextureBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WGALTextureBarrier> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::ImageMemoryBarrier2, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags2 unsupportedStages = GetUnsupportedStages2(device);
 
-      for (const ezGALTextureBarrier& barrier : barriers)
+      for (const WGALTextureBarrier& barrier : barriers)
       {
-        const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(device.GetTexture(barrier.m_hTexture)->GetParentResource());
+        const WGALTextureVulkan* pTexture = static_cast<const WGALTextureVulkan*>(device.GetTexture(barrier.m_hTexture)->GetParentResource());
         if (pTexture == nullptr)
           continue;
 
@@ -214,13 +214,13 @@ namespace
       SubmitImageBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
+    void TextureBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WTextureBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::ImageMemoryBarrier2, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags2 unsupportedStages = GetUnsupportedStages2(device);
 
-      for (const ezTextureBarrierVulkan& barrier : barriers)
+      for (const WTextureBarrierVulkan& barrier : barriers)
       {
         if (!barrier.m_Image)
           continue;
@@ -239,15 +239,15 @@ namespace
       SubmitImageBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
+    void BufferBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WGALBufferBarrier> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::BufferMemoryBarrier2, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags2 unsupportedStages = GetUnsupportedStages2(device);
 
-      for (const ezGALBufferBarrier& barrier : barriers)
+      for (const WGALBufferBarrier& barrier : barriers)
       {
-        const ezGALBufferVulkan* pBuffer = static_cast<const ezGALBufferVulkan*>(device.GetBuffer(barrier.m_hBuffer));
+        const WGALBufferVulkan* pBuffer = static_cast<const WGALBufferVulkan*>(device.GetBuffer(barrier.m_hBuffer));
         if (pBuffer == nullptr)
           continue;
 
@@ -263,13 +263,13 @@ namespace
       SubmitBufferBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
+    void BufferBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WBufferBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::BufferMemoryBarrier2, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags2 unsupportedStages = GetUnsupportedStages2(device);
 
-      for (const ezBufferBarrierVulkan& barrier : barriers)
+      for (const WBufferBarrierVulkan& barrier : barriers)
       {
         if (!barrier.m_Buffer)
           continue;
@@ -287,30 +287,30 @@ namespace
     }
 
     void TextureBarrier(
-      const ezGALDeviceVulkan& device,
+      const WGALDeviceVulkan& device,
       vk::CommandBuffer& ref_commandBuffer,
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter)
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter)
     {
       const vk::ImageMemoryBarrier2 vkBarrier = MakeImageBarrier(image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter, GetUnsupportedStages2(device));
-      SubmitImageBarriers(device, ref_commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitImageBarriers(device, ref_commandBuffer, WMakeArrayPtr(&vkBarrier, 1));
     }
 
     void BufferBarrier(
-      const ezGALDeviceVulkan& device,
+      const WGALDeviceVulkan& device,
       vk::CommandBuffer& ref_commandBuffer,
       vk::Buffer buffer,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter)
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter)
     {
       const vk::BufferMemoryBarrier2 vkBarrier = MakeBufferBarrier(buffer, stateBefore, stateAfter, stagesBefore, stagesAfter, GetUnsupportedStages2(device));
-      SubmitBufferBarriers(device, ref_commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitBufferBarriers(device, ref_commandBuffer, WMakeArrayPtr(&vkBarrier, 1));
     }
   } // namespace Sync2
 
@@ -324,46 +324,46 @@ namespace
 
   namespace Sync1
   {
-    vk::PipelineStageFlags GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages)
+    vk::PipelineStageFlags GetPipelineStages(WBitflags<WGALShaderStageFlags> stages)
     {
       vk::PipelineStageFlags res;
-      if (stages.IsSet(ezGALShaderStageFlags::VertexShader))
+      if (stages.IsSet(WGALShaderStageFlags::VertexShader))
         res |= vk::PipelineStageFlagBits::eVertexShader;
-      if (stages.IsSet(ezGALShaderStageFlags::HullShader))
+      if (stages.IsSet(WGALShaderStageFlags::HullShader))
         res |= vk::PipelineStageFlagBits::eTessellationControlShader;
-      if (stages.IsSet(ezGALShaderStageFlags::DomainShader))
+      if (stages.IsSet(WGALShaderStageFlags::DomainShader))
         res |= vk::PipelineStageFlagBits::eTessellationEvaluationShader;
-      if (stages.IsSet(ezGALShaderStageFlags::GeometryShader))
+      if (stages.IsSet(WGALShaderStageFlags::GeometryShader))
         res |= vk::PipelineStageFlagBits::eGeometryShader;
-      if (stages.IsSet(ezGALShaderStageFlags::PixelShader))
+      if (stages.IsSet(WGALShaderStageFlags::PixelShader))
         res |= vk::PipelineStageFlagBits::eFragmentShader;
-      if (stages.IsSet(ezGALShaderStageFlags::ComputeShader))
+      if (stages.IsSet(WGALShaderStageFlags::ComputeShader))
         res |= vk::PipelineStageFlagBits::eComputeShader;
       return res;
     }
 
     void ResolveBarrierSync(
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags unsupportedStages,
       vk::PipelineStageFlags& out_srcStages,
       vk::PipelineStageFlags& out_dstStages,
       vk::AccessFlags& out_srcAccess,
       vk::AccessFlags& out_dstAccess)
     {
-      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
-      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
+      WConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
+      WConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
 
-      if (!stagesBefore.IsSet(ezGALShaderStageFlags::Auto))
+      if (!stagesBefore.IsSet(WGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags explicitStages = GetPipelineStages(stagesBefore);
         if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & out_srcStages) == explicitStages)
           out_srcStages = explicitStages;
       }
 
-      if (!stagesAfter.IsSet(ezGALShaderStageFlags::Auto))
+      if (!stagesAfter.IsSet(WGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags explicitStages = GetPipelineStages(stagesAfter);
         if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & out_dstStages) == explicitStages)
@@ -383,10 +383,10 @@ namespace
     vk::ImageMemoryBarrier MakeImageBarrier(
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags unsupportedStages,
       vk::PipelineStageFlags& inout_srcStages,
       vk::PipelineStageFlags& inout_dstStages,
@@ -402,8 +402,8 @@ namespace
       inout_srcStages |= srcStages;
       inout_dstStages |= dstStages;
 
-      vkBarrier.oldLayout = bDiscard ? vk::ImageLayout::eUndefined : ezConversionUtilsVulkan::GetTextureLayout(stateBefore);
-      vkBarrier.newLayout = ezConversionUtilsVulkan::GetTextureLayout(stateAfter);
+      vkBarrier.oldLayout = bDiscard ? vk::ImageLayout::eUndefined : WConversionUtilsVulkan::GetTextureLayout(stateBefore);
+      vkBarrier.newLayout = WConversionUtilsVulkan::GetTextureLayout(stateAfter);
       vkBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       vkBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       vkBarrier.image = image;
@@ -414,10 +414,10 @@ namespace
 
     vk::BufferMemoryBarrier MakeBufferBarrier(
       vk::Buffer buffer,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter,
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter,
       vk::PipelineStageFlags unsupportedStages,
       vk::PipelineStageFlags& inout_srcStages,
       vk::PipelineStageFlags& inout_dstStages)
@@ -445,7 +445,7 @@ namespace
       vk::CommandBuffer& ref_commandBuffer,
       vk::PipelineStageFlags srcStages,
       vk::PipelineStageFlags dstStages,
-      ezArrayPtr<const vk::ImageMemoryBarrier> barriers)
+      WArrayPtr<const vk::ImageMemoryBarrier> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -453,7 +453,7 @@ namespace
 #ifdef VK_LOG_LAYOUT_CHANGES
       for (const vk::ImageMemoryBarrier& b : barriers)
       {
-        ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
+        WLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", WArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), WArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
       }
 #endif
 
@@ -467,7 +467,7 @@ namespace
       vk::CommandBuffer& ref_commandBuffer,
       vk::PipelineStageFlags srcStages,
       vk::PipelineStageFlags dstStages,
-      ezArrayPtr<const vk::BufferMemoryBarrier> barriers)
+      WArrayPtr<const vk::BufferMemoryBarrier> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -478,17 +478,17 @@ namespace
         0, nullptr);
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
+    void TextureBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WGALTextureBarrier> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::ImageMemoryBarrier, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags unsupportedStages = device.GetUnsupportedStages();
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
 
-      for (const ezGALTextureBarrier& barrier : barriers)
+      for (const WGALTextureBarrier& barrier : barriers)
       {
-        const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(device.GetTexture(barrier.m_hTexture)->GetParentResource());
+        const WGALTextureVulkan* pTexture = static_cast<const WGALTextureVulkan*>(device.GetTexture(barrier.m_hTexture)->GetParentResource());
         if (pTexture == nullptr)
           continue;
 
@@ -508,15 +508,15 @@ namespace
       SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
+    void TextureBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WTextureBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::ImageMemoryBarrier, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags unsupportedStages = device.GetUnsupportedStages();
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
 
-      for (const ezTextureBarrierVulkan& barrier : barriers)
+      for (const WTextureBarrierVulkan& barrier : barriers)
       {
         if (!barrier.m_Image)
           continue;
@@ -537,17 +537,17 @@ namespace
       SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
+    void BufferBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WGALBufferBarrier> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::BufferMemoryBarrier, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags unsupportedStages = device.GetUnsupportedStages();
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
 
-      for (const ezGALBufferBarrier& barrier : barriers)
+      for (const WGALBufferBarrier& barrier : barriers)
       {
-        const ezGALBufferVulkan* pBuffer = static_cast<const ezGALBufferVulkan*>(device.GetBuffer(barrier.m_hBuffer));
+        const WGALBufferVulkan* pBuffer = static_cast<const WGALBufferVulkan*>(device.GetBuffer(barrier.m_hBuffer));
         if (pBuffer == nullptr)
           continue;
 
@@ -565,15 +565,15 @@ namespace
       SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
+    void BufferBarrier(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, WArrayPtr<const WBufferBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
+      WHybridArray<vk::BufferMemoryBarrier, 16, WTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       const vk::PipelineStageFlags unsupportedStages = device.GetUnsupportedStages();
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
 
-      for (const ezBufferBarrierVulkan& barrier : barriers)
+      for (const WBufferBarrierVulkan& barrier : barriers)
       {
         if (!barrier.m_Buffer)
           continue;
@@ -593,45 +593,45 @@ namespace
     }
 
     void TextureBarrier(
-      const ezGALDeviceVulkan& device,
+      const WGALDeviceVulkan& device,
       vk::CommandBuffer& ref_commandBuffer,
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter)
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter)
     {
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
       const vk::ImageMemoryBarrier vkBarrier = MakeImageBarrier(image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter, device.GetUnsupportedStages(), srcStages, dstStages);
-      SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, WMakeArrayPtr(&vkBarrier, 1));
     }
 
     void BufferBarrier(
-      const ezGALDeviceVulkan& device,
+      const WGALDeviceVulkan& device,
       vk::CommandBuffer& ref_commandBuffer,
       vk::Buffer buffer,
-      ezBitflags<ezGALResourceState> stateBefore,
-      ezBitflags<ezGALResourceState> stateAfter,
-      ezBitflags<ezGALShaderStageFlags> stagesBefore,
-      ezBitflags<ezGALShaderStageFlags> stagesAfter)
+      WBitflags<WGALResourceState> stateBefore,
+      WBitflags<WGALResourceState> stateAfter,
+      WBitflags<WGALShaderStageFlags> stagesBefore,
+      WBitflags<WGALShaderStageFlags> stagesAfter)
     {
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
       const vk::BufferMemoryBarrier vkBarrier = MakeBufferBarrier(buffer, stateBefore, stateAfter, stagesBefore, stagesAfter, device.GetUnsupportedStages(), srcStages, dstStages);
-      SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, WMakeArrayPtr(&vkBarrier, 1));
     }
   } // namespace Sync1
 } // namespace
 
-ezBarrierUtilsVulkan::ezBarrierUtilsVulkan(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer)
+WBarrierUtilsVulkan::WBarrierUtilsVulkan(const WGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer)
   : m_Device(device)
   , m_CommandBuffer(ref_commandBuffer)
 {
 }
 
-void ezBarrierUtilsVulkan::TextureBarrier(ezArrayPtr<const ezGALTextureBarrier> barriers)
+void WBarrierUtilsVulkan::TextureBarrier(WArrayPtr<const WGALTextureBarrier> barriers)
 {
   if (barriers.IsEmpty())
     return;
@@ -642,7 +642,7 @@ void ezBarrierUtilsVulkan::TextureBarrier(ezArrayPtr<const ezGALTextureBarrier> 
     Sync1::TextureBarrier(m_Device, m_CommandBuffer, barriers);
 }
 
-void ezBarrierUtilsVulkan::TextureBarrier(ezArrayPtr<const ezTextureBarrierVulkan> barriers)
+void WBarrierUtilsVulkan::TextureBarrier(WArrayPtr<const WTextureBarrierVulkan> barriers)
 {
   if (barriers.IsEmpty())
     return;
@@ -653,7 +653,7 @@ void ezBarrierUtilsVulkan::TextureBarrier(ezArrayPtr<const ezTextureBarrierVulka
     Sync1::TextureBarrier(m_Device, m_CommandBuffer, barriers);
 }
 
-void ezBarrierUtilsVulkan::BufferBarrier(ezArrayPtr<const ezGALBufferBarrier> barriers)
+void WBarrierUtilsVulkan::BufferBarrier(WArrayPtr<const WGALBufferBarrier> barriers)
 {
   if (barriers.IsEmpty())
     return;
@@ -664,7 +664,7 @@ void ezBarrierUtilsVulkan::BufferBarrier(ezArrayPtr<const ezGALBufferBarrier> ba
     Sync1::BufferBarrier(m_Device, m_CommandBuffer, barriers);
 }
 
-void ezBarrierUtilsVulkan::BufferBarrier(ezArrayPtr<const ezBufferBarrierVulkan> barriers)
+void WBarrierUtilsVulkan::BufferBarrier(WArrayPtr<const WBufferBarrierVulkan> barriers)
 {
   if (barriers.IsEmpty())
     return;
@@ -675,26 +675,26 @@ void ezBarrierUtilsVulkan::BufferBarrier(ezArrayPtr<const ezBufferBarrierVulkan>
     Sync1::BufferBarrier(m_Device, m_CommandBuffer, barriers);
 }
 
-void ezBarrierUtilsVulkan::TextureBarrier(
-  ezGALTextureHandle hTexture,
-  ezBitflags<ezGALResourceState> stateBefore,
-  ezBitflags<ezGALResourceState> stateAfter,
-  ezBitflags<ezGALShaderStageFlags> stagesBefore,
-  ezBitflags<ezGALShaderStageFlags> stagesAfter)
+void WBarrierUtilsVulkan::TextureBarrier(
+  WGALTextureHandle hTexture,
+  WBitflags<WGALResourceState> stateBefore,
+  WBitflags<WGALResourceState> stateAfter,
+  WBitflags<WGALShaderStageFlags> stagesBefore,
+  WBitflags<WGALShaderStageFlags> stagesAfter)
 {
-  const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(m_Device.GetTexture(hTexture)->GetParentResource());
-  EZ_ASSERT_DEV(pTexture != nullptr, "Invalid texture handle.");
+  const WGALTextureVulkan* pTexture = static_cast<const WGALTextureVulkan*>(m_Device.GetTexture(hTexture)->GetParentResource());
+  W_ASSERT_DEV(pTexture != nullptr, "Invalid texture handle.");
 
   TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(), stateBefore, stateAfter, stagesBefore, stagesAfter);
 }
 
-void ezBarrierUtilsVulkan::TextureBarrier(
+void WBarrierUtilsVulkan::TextureBarrier(
   vk::Image image,
   const vk::ImageSubresourceRange& subresourceRange,
-  ezBitflags<ezGALResourceState> stateBefore,
-  ezBitflags<ezGALResourceState> stateAfter,
-  ezBitflags<ezGALShaderStageFlags> stagesBefore,
-  ezBitflags<ezGALShaderStageFlags> stagesAfter)
+  WBitflags<WGALResourceState> stateBefore,
+  WBitflags<WGALResourceState> stateAfter,
+  WBitflags<WGALShaderStageFlags> stagesBefore,
+  WBitflags<WGALShaderStageFlags> stagesAfter)
 {
   if (m_Device.GetExtensions().m_bSynchronization2)
     Sync2::TextureBarrier(m_Device, m_CommandBuffer, image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter);
@@ -702,25 +702,25 @@ void ezBarrierUtilsVulkan::TextureBarrier(
     Sync1::TextureBarrier(m_Device, m_CommandBuffer, image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter);
 }
 
-void ezBarrierUtilsVulkan::BufferBarrier(
-  ezGALBufferHandle hBuffer,
-  ezBitflags<ezGALResourceState> stateBefore,
-  ezBitflags<ezGALResourceState> stateAfter,
-  ezBitflags<ezGALShaderStageFlags> stagesBefore,
-  ezBitflags<ezGALShaderStageFlags> stagesAfter)
+void WBarrierUtilsVulkan::BufferBarrier(
+  WGALBufferHandle hBuffer,
+  WBitflags<WGALResourceState> stateBefore,
+  WBitflags<WGALResourceState> stateAfter,
+  WBitflags<WGALShaderStageFlags> stagesBefore,
+  WBitflags<WGALShaderStageFlags> stagesAfter)
 {
-  const ezGALBufferVulkan* pBuffer = static_cast<const ezGALBufferVulkan*>(m_Device.GetBuffer(hBuffer));
-  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle.");
+  const WGALBufferVulkan* pBuffer = static_cast<const WGALBufferVulkan*>(m_Device.GetBuffer(hBuffer));
+  W_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle.");
 
   BufferBarrier(pBuffer->GetVkBuffer(), stateBefore, stateAfter, stagesBefore, stagesAfter);
 }
 
-void ezBarrierUtilsVulkan::BufferBarrier(
+void WBarrierUtilsVulkan::BufferBarrier(
   vk::Buffer buffer,
-  ezBitflags<ezGALResourceState> stateBefore,
-  ezBitflags<ezGALResourceState> stateAfter,
-  ezBitflags<ezGALShaderStageFlags> stagesBefore,
-  ezBitflags<ezGALShaderStageFlags> stagesAfter)
+  WBitflags<WGALResourceState> stateBefore,
+  WBitflags<WGALResourceState> stateAfter,
+  WBitflags<WGALShaderStageFlags> stagesBefore,
+  WBitflags<WGALShaderStageFlags> stagesAfter)
 {
   if (m_Device.GetExtensions().m_bSynchronization2)
     Sync2::BufferBarrier(m_Device, m_CommandBuffer, buffer, stateBefore, stateAfter, stagesBefore, stagesAfter);

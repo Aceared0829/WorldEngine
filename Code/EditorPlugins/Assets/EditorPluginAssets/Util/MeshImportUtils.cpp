@@ -12,155 +12,155 @@
 #include <ModelImporter2/Importer/Importer.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-namespace ezMeshImportUtils
+namespace WMeshImportUtils
 {
-  void FillFileFilter(ezDynamicArray<ezString>& out_list, ezStringView sSeparated)
+  void FillFileFilter(WDynamicArray<WString>& out_list, WStringView sSeparated)
   {
     sSeparated.Split(false, out_list, ";", "*", ".");
   }
 
-  static ezStringView TextureSemanticToString(ezModelImporter2::TextureSemantic semantic)
+  static WStringView TextureSemanticToString(WModelImporter2::TextureSemantic semantic)
   {
     switch (semantic)
     {
-      case ezModelImporter2::TextureSemantic::DiffuseMap:
+      case WModelImporter2::TextureSemantic::DiffuseMap:
         return "diffuse";
-      case ezModelImporter2::TextureSemantic::DiffuseAlphaMap:
+      case WModelImporter2::TextureSemantic::DiffuseAlphaMap:
         return "diffuse+alpha";
-      case ezModelImporter2::TextureSemantic::OcclusionMap:
+      case WModelImporter2::TextureSemantic::OcclusionMap:
         return "occlusion";
-      case ezModelImporter2::TextureSemantic::RoughnessMap:
+      case WModelImporter2::TextureSemantic::RoughnessMap:
         return "roughness";
-      case ezModelImporter2::TextureSemantic::MetallicMap:
+      case WModelImporter2::TextureSemantic::MetallicMap:
         return "metallic";
-      case ezModelImporter2::TextureSemantic::OrmMap:
+      case WModelImporter2::TextureSemantic::OrmMap:
         return "ORM";
-      case ezModelImporter2::TextureSemantic::DisplacementMap:
+      case WModelImporter2::TextureSemantic::DisplacementMap:
         return "displacement";
-      case ezModelImporter2::TextureSemantic::NormalMap:
+      case WModelImporter2::TextureSemantic::NormalMap:
         return "normal";
-      case ezModelImporter2::TextureSemantic::EmissiveMap:
+      case WModelImporter2::TextureSemantic::EmissiveMap:
         return "emissive";
       default:
         return "unknown";
     }
   }
 
-  ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, ezStringView sTexturePath, ezModelImporter2::TextureSemantic hint, bool bTextureClamp, const ezModelImporter2::Importer* pImporter)
+  WString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, WStringView sTexturePath, WModelImporter2::TextureSemantic hint, bool bTextureClamp, const WModelImporter2::Importer* pImporter)
   {
-    if (!ezUnicodeUtils::IsValidUtf8(sTexturePath.GetStartPointer(), sTexturePath.GetEndPointer()))
+    if (!WUnicodeUtils::IsValidUtf8(sTexturePath.GetStartPointer(), sTexturePath.GetEndPointer()))
     {
-      ezLog::Error("Texture to resolve is not a valid UTF-8 string.");
-      return ezString();
+      WLog::Error("Texture to resolve is not a valid UTF-8 string.");
+      return WString();
     }
 
-    ezTempHybridArray<ezString, 16> allowedExtensions;
-    FillFileFilter(allowedExtensions, ezFileBrowserAttribute::ImagesLdrAndHdr);
+    WTempHybridArray<WString, 16> allowedExtensions;
+    FillFileFilter(allowedExtensions, WFileBrowserAttribute::ImagesLdrAndHdr);
 
-    ezStringBuilder sFinalTextureName;
-    ezPathUtils::MakeValidFilename(sTexturePath.GetFileName(), '_', sFinalTextureName);
+    WStringBuilder sFinalTextureName;
+    WPathUtils::MakeValidFilename(sTexturePath.GetFileName(), '_', sFinalTextureName);
 
-    ezStringBuilder relTexturePath = szImportSourceFolder;
+    WStringBuilder relTexturePath = szImportSourceFolder;
     relTexturePath.AppendPath(sFinalTextureName);
 
     if (auto itTex = pImporter->m_OutputTextures.Find(sTexturePath); itTex.IsValid())
     {
       if (itTex.Value().m_RawData.IsEmpty() || !allowedExtensions.Contains(itTex.Value().m_sFileFormatExtension))
       {
-        ezLog::Error("Mesh uses embedded texture of unsupported type ('{}').", itTex.Value().m_sFileFormatExtension);
-        return ezString();
+        WLog::Error("Mesh uses embedded texture of unsupported type ('{}').", itTex.Value().m_sFileFormatExtension);
+        return WString();
       }
 
       itTex.Value().GenerateFileName(sFinalTextureName);
 
-      ezStringBuilder sEmbededFile;
+      WStringBuilder sEmbededFile;
       sEmbededFile = szImportTargetFolder;
       sEmbededFile.AppendPath(sFinalTextureName);
 
       relTexturePath = sEmbededFile;
     }
 
-    ezStringBuilder newAssetPathAbs = szImportTargetFolder;
+    WStringBuilder newAssetPathAbs = szImportTargetFolder;
     newAssetPathAbs.AppendPath(sFinalTextureName);
-    newAssetPathAbs.ChangeFileExtension("ezTextureAsset");
+    newAssetPathAbs.ChangeFileExtension("WTextureAsset");
 
-    if (auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newAssetPathAbs))
+    if (auto textureAssetInfo = WAssetCurator::GetSingleton()->FindSubAsset(newAssetPathAbs))
     {
       // Try to resolve.
 
-      ezStringBuilder guidString;
-      return ezConversionUtils::ToString(textureAssetInfo->m_Data.m_Guid, guidString);
+      WStringBuilder guidString;
+      return WConversionUtils::ToString(textureAssetInfo->m_Data.m_Guid, guidString);
     }
     else
     {
       // Import otherwise
 
-      ezTextureAssetDocument* textureDocument = ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newAssetPathAbs, ezDocumentFlags::None));
+      WTextureAssetDocument* textureDocument = WDynamicCast<WTextureAssetDocument*>(WQtEditorApp::GetSingleton()->CreateDocument(newAssetPathAbs, WDocumentFlags::None));
       if (!textureDocument)
       {
-        ezLog::Error("Failed to create new texture asset '{0}'", sTexturePath);
+        WLog::Error("Failed to create new texture asset '{0}'", sTexturePath);
         return sFinalTextureName;
       }
 
-      ezObjectAccessorBase* pAccessor = textureDocument->GetObjectAccessor();
+      WObjectAccessorBase* pAccessor = textureDocument->GetObjectAccessor();
       pAccessor->StartTransaction("Import Texture");
-      ezDocumentObject* pTextureAsset = textureDocument->GetPropertyObject();
+      WDocumentObject* pTextureAsset = textureDocument->GetPropertyObject();
 
-      ezStringBuilder sOriginalReference = szImportSourceFolder;
+      WStringBuilder sOriginalReference = szImportSourceFolder;
       sOriginalReference.AppendPath(sTexturePath);
       sOriginalReference.MakeCleanPath();
 
-      if (ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).Failed())
+      if (WAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).Failed())
       {
         relTexturePath = sOriginalReference;
-        ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relTexturePath);
+        WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relTexturePath);
 
-        ezLog::Warning("Could not find the {} texture '{}' referenced by the mesh, in any of the supported image formats. The texture asset is created pointing at '{}', which does not exist, so it has to be corrected manually.", TextureSemanticToString(hint), sTexturePath, relTexturePath);
+        WLog::Warning("Could not find the {} texture '{}' referenced by the mesh, in any of the supported image formats. The texture asset is created pointing at '{}', which does not exist, so it has to be corrected manually.", TextureSemanticToString(hint), sTexturePath, relTexturePath);
       }
 
       pAccessor->SetValueByName(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
-      ezEnum<ezTexture2DChannelMappingEnum> channelMapping;
+      WEnum<WTexture2DChannelMappingEnum> channelMapping;
 
       // Try to map usage.
-      ezEnum<ezTexConvUsage> usage;
+      WEnum<WTexConvUsage> usage;
       switch (hint)
       {
-        case ezModelImporter2::TextureSemantic::DiffuseMap:
-          usage = ezTexConvUsage::Color;
+        case WModelImporter2::TextureSemantic::DiffuseMap:
+          usage = WTexConvUsage::Color;
           break;
 
-        case ezModelImporter2::TextureSemantic::DiffuseAlphaMap:
-          usage = ezTexConvUsage::Color;
-          channelMapping = ezTexture2DChannelMappingEnum::RGBA1;
+        case WModelImporter2::TextureSemantic::DiffuseAlphaMap:
+          usage = WTexConvUsage::Color;
+          channelMapping = WTexture2DChannelMappingEnum::RGBA1;
           break;
-        case ezModelImporter2::TextureSemantic::OcclusionMap: // Making wild guesses here.
-        case ezModelImporter2::TextureSemantic::EmissiveMap:
-          usage = ezTexConvUsage::Color;
-          break;
-
-        case ezModelImporter2::TextureSemantic::RoughnessMap:
-        case ezModelImporter2::TextureSemantic::MetallicMap:
-          channelMapping = ezTexture2DChannelMappingEnum::R1;
-          usage = ezTexConvUsage::Linear;
+        case WModelImporter2::TextureSemantic::OcclusionMap: // Making wild guesses here.
+        case WModelImporter2::TextureSemantic::EmissiveMap:
+          usage = WTexConvUsage::Color;
           break;
 
-        case ezModelImporter2::TextureSemantic::OrmMap:
-          channelMapping = ezTexture2DChannelMappingEnum::RGB1;
-          usage = ezTexConvUsage::Linear;
+        case WModelImporter2::TextureSemantic::RoughnessMap:
+        case WModelImporter2::TextureSemantic::MetallicMap:
+          channelMapping = WTexture2DChannelMappingEnum::R1;
+          usage = WTexConvUsage::Linear;
           break;
 
-        case ezModelImporter2::TextureSemantic::NormalMap:
-          usage = ezTexConvUsage::NormalMap;
+        case WModelImporter2::TextureSemantic::OrmMap:
+          channelMapping = WTexture2DChannelMappingEnum::RGB1;
+          usage = WTexConvUsage::Linear;
           break;
 
-        case ezModelImporter2::TextureSemantic::DisplacementMap:
-          usage = ezTexConvUsage::Linear;
-          channelMapping = ezTexture2DChannelMappingEnum::R1;
+        case WModelImporter2::TextureSemantic::NormalMap:
+          usage = WTexConvUsage::NormalMap;
+          break;
+
+        case WModelImporter2::TextureSemantic::DisplacementMap:
+          usage = WTexConvUsage::Linear;
+          channelMapping = WTexture2DChannelMappingEnum::R1;
           break;
 
         default:
-          usage = ezTexConvUsage::Auto;
+          usage = WTexConvUsage::Auto;
       }
 
       pAccessor->SetValueByName(pTextureAsset, "Usage", usage.GetValue()).LogFailure();
@@ -168,29 +168,29 @@ namespace ezMeshImportUtils
 
       if (bTextureClamp)
       {
-        pAccessor->SetValueByName(pTextureAsset, "AddressModeU", (int)ezImageAddressMode::Clamp).LogFailure();
-        pAccessor->SetValueByName(pTextureAsset, "AddressModeV", (int)ezImageAddressMode::Clamp).LogFailure();
-        pAccessor->SetValueByName(pTextureAsset, "AddressModeW", (int)ezImageAddressMode::Clamp).LogFailure();
+        pAccessor->SetValueByName(pTextureAsset, "AddressModeU", (int)WImageAddressMode::Clamp).LogFailure();
+        pAccessor->SetValueByName(pTextureAsset, "AddressModeV", (int)WImageAddressMode::Clamp).LogFailure();
+        pAccessor->SetValueByName(pTextureAsset, "AddressModeW", (int)WImageAddressMode::Clamp).LogFailure();
       }
 
       pAccessor->FinishTransaction();
       textureDocument->SaveDocument().LogFailure();
 
-      ezStringBuilder guid;
-      ezConversionUtils::ToString(textureDocument->GetGuid(), guid);
+      WStringBuilder guid;
+      WConversionUtils::ToString(textureDocument->GetGuid(), guid);
       textureDocument->GetDocumentManager()->CloseDocument(textureDocument);
 
-      ezLog::Success("Imported texture: '{}'", newAssetPathAbs);
+      WLog::Success("Imported texture: '{}'", newAssetPathAbs);
 
       return guid;
     }
   };
 
-  void SetMeshAssetMaterialSlots(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, const ezModelImporter2::Importer* pImporter)
+  void SetMeshAssetMaterialSlots(WDynamicArray<WMaterialResourceSlot>& inout_materialSlots, const WModelImporter2::Importer* pImporter)
   {
     const auto& opt = pImporter->GetImportOptions();
 
-    const ezUInt32 uiNumSubmeshes = opt.m_pMeshOutput->GetSubMeshes().GetCount();
+    const WUInt32 uiNumSubmeshes = opt.m_pMeshOutput->GetSubMeshes().GetCount();
 
     inout_materialSlots.SetCount(uiNumSubmeshes);
 
@@ -203,62 +203,62 @@ namespace ezMeshImportUtils
     }
   }
 
-  void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezArrayPtr<ezMaterialResourceSlot>& materialSlots)
+  void CopyMeshAssetMaterialSlotToResource(WMeshResourceDescriptor& ref_desc, const WArrayPtr<WMaterialResourceSlot>& materialSlots)
   {
-    for (ezUInt32 i = 0; i < materialSlots.GetCount(); ++i)
+    for (WUInt32 i = 0; i < materialSlots.GetCount(); ++i)
     {
       ref_desc.SetMaterial(i, materialSlots[i].m_sResource);
     }
   }
 
-  void RecordMeshTransformInfo(ezAssetInfoFile& ref_info, const ezMeshResourceDescriptor& desc)
+  void RecordMeshTransformInfo(WAssetInfoFile& ref_info, const WMeshResourceDescriptor& desc)
   {
     const auto& mbd = desc.MeshBufferDesc();
 
-    ref_info.SetValue(ezAssetInfoFile::Keys::NumVertices, mbd.GetVertexCount());
-    ref_info.SetValue(ezAssetInfoFile::Keys::NumTriangles, mbd.GetPrimitiveCount());
-    ref_info.SetValue(ezAssetInfoFile::Keys::NumSubMeshes, desc.GetSubMeshes().GetCount());
+    ref_info.SetValue(WAssetInfoFile::Keys::NumVertices, mbd.GetVertexCount());
+    ref_info.SetValue(WAssetInfoFile::Keys::NumTriangles, mbd.GetPrimitiveCount());
+    ref_info.SetValue(WAssetInfoFile::Keys::NumSubMeshes, desc.GetSubMeshes().GetCount());
 
-    const ezBoundingBoxSphere& bounds = desc.GetBounds();
+    const WBoundingBoxSphere& bounds = desc.GetBounds();
 
     if (bounds.IsValid())
     {
-      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsCenter, bounds.m_vCenter);
-      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsHalfExtents, bounds.m_vBoxHalfExtents);
-      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsRadius, bounds.m_fSphereRadius);
+      ref_info.SetValue(WAssetInfoFile::Keys::BoundsCenter, bounds.m_vCenter);
+      ref_info.SetValue(WAssetInfoFile::Keys::BoundsHalfExtents, bounds.m_vBoxHalfExtents);
+      ref_info.SetValue(WAssetInfoFile::Keys::BoundsRadius, bounds.m_fSphereRadius);
     }
   }
 
-  void RecordAvailableMeshes(ezAssetInfoFile& ref_info, const ezModelImporter2::Importer* pImporter)
+  void RecordAvailableMeshes(WAssetInfoFile& ref_info, const WModelImporter2::Importer* pImporter)
   {
     if (pImporter == nullptr || pImporter->m_OutputMeshNames.IsEmpty())
       return;
 
-    ezVariantArray meshNames;
+    WVariantArray meshNames;
     meshNames.Reserve(pImporter->m_OutputMeshNames.GetCount());
 
     for (const auto& sName : pImporter->m_OutputMeshNames)
     {
-      meshNames.PushBack(ezVariant(sName));
+      meshNames.PushBack(WVariant(sName));
     }
 
-    ref_info.SetValue(ezAssetInfoFile::Keys::AvailableMeshes, ezVariant(meshNames));
+    ref_info.SetValue(WAssetInfoFile::Keys::AvailableMeshes, WVariant(meshNames));
   }
 
-  static void ImportMeshAssetMaterialProperties(ezMaterialAssetDocument* pMaterialDoc, const ezModelImporter2::OutputMaterial& material, const char* szImportSourceFolder, const char* szImportTargetFolder, const ezModelImporter2::Importer* pImporter)
+  static void ImportMeshAssetMaterialProperties(WMaterialAssetDocument* pMaterialDoc, const WModelImporter2::OutputMaterial& material, const char* szImportSourceFolder, const char* szImportTargetFolder, const WModelImporter2::Importer* pImporter)
   {
-    ezStringBuilder materialName = ezPathUtils::GetFileName(pMaterialDoc->GetDocumentPath());
+    WStringBuilder materialName = WPathUtils::GetFileName(pMaterialDoc->GetDocumentPath());
 
-    EZ_LOG_BLOCK("Apply Material Settings", materialName.GetData());
+    W_LOG_BLOCK("Apply Material Settings", materialName.GetData());
 
-    ezObjectAccessorBase* pAccessor = pMaterialDoc->GetObjectAccessor();
+    WObjectAccessorBase* pAccessor = pMaterialDoc->GetObjectAccessor();
     pAccessor->StartTransaction("Apply Material Settings");
-    ezDocumentObject* pMaterialAsset = pMaterialDoc->GetPropertyObject();
+    WDocumentObject* pMaterialAsset = pMaterialDoc->GetPropertyObject();
 
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     // Set base material.
-    ezStatus res = pAccessor->SetValueByName(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
+    WStatus res = pAccessor->SetValueByName(pMaterialAsset, "BaseMaterial", WConversionUtils::ToString(WMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
     res.LogFailure();
     if (res.Failed())
     {
@@ -267,26 +267,26 @@ namespace ezMeshImportUtils
     }
 
     // From now on we're setting shader properties.
-    ezDocumentObject* pMaterialProperties = pMaterialDoc->GetShaderPropertyObject();
+    WDocumentObject* pMaterialProperties = pMaterialDoc->GetShaderPropertyObject();
 
-    ezVariant propertyValue;
+    WVariant propertyValue;
 
-    ezString textureAo, textureRoughness, textureMetallic;
-    material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::OcclusionMap, textureAo);
-    material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::RoughnessMap, textureRoughness);
-    material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::MetallicMap, textureMetallic);
+    WString textureAo, textureRoughness, textureMetallic;
+    material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::OcclusionMap, textureAo);
+    material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::RoughnessMap, textureRoughness);
+    material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::MetallicMap, textureMetallic);
 
     const bool bHasOrmTexture = !textureRoughness.IsEmpty() && ((textureAo == textureRoughness) || (textureMetallic == textureRoughness));
 
 
     // Set base texture.
     {
-      ezString textureDiffuse;
+      WString textureDiffuse;
 
-      if (material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::DiffuseMap, textureDiffuse))
+      if (material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::DiffuseMap, textureDiffuse))
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseBaseTexture", true).LogFailure();
-        pAccessor->SetValueByName(pMaterialProperties, "BaseTexture", ezVariant(ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureDiffuse, ezModelImporter2::TextureSemantic::DiffuseMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "BaseTexture", WVariant(WMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureDiffuse, WModelImporter2::TextureSemantic::DiffuseMap, false, pImporter))).LogFailure();
       }
       else
       {
@@ -296,23 +296,23 @@ namespace ezMeshImportUtils
 
     // Set Normal Texture / Roughness Texture
     {
-      ezString textureNormal;
+      WString textureNormal;
 
-      if (!material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::NormalMap, textureNormal))
+      if (!material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::NormalMap, textureNormal))
       {
         // Due to the lack of options in stuff like obj files, people stuff normals into the bump slot.
-        material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::DisplacementMap, textureNormal);
+        material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::DisplacementMap, textureNormal);
       }
 
       if (!textureNormal.IsEmpty())
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseNormalTexture", true).LogFailure();
 
-        pAccessor->SetValueByName(pMaterialProperties, "NormalTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureNormal, ezModelImporter2::TextureSemantic::NormalMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "NormalTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureNormal, WModelImporter2::TextureSemantic::NormalMap, false, pImporter))).LogFailure();
       }
       else
       {
-        pAccessor->SetValueByName(pMaterialProperties, "NormalTexture", ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap(), tmp).GetData()).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "NormalTexture", WConversionUtils::ToString(WMaterialAssetDocument::GetNeutralNormalMap(), tmp).GetData()).LogFailure();
       }
     }
 
@@ -322,7 +322,7 @@ namespace ezMeshImportUtils
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseRoughnessTexture", true).LogFailure();
 
-        pAccessor->SetValueByName(pMaterialProperties, "RoughnessTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, ezModelImporter2::TextureSemantic::RoughnessMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "RoughnessTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, WModelImporter2::TextureSemantic::RoughnessMap, false, pImporter))).LogFailure();
       }
       else
       {
@@ -336,49 +336,49 @@ namespace ezMeshImportUtils
       if (!textureMetallic.IsEmpty())
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseMetallicTexture", true).LogFailure();
-        pAccessor->SetValueByName(pMaterialProperties, "MetallicTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureMetallic, ezModelImporter2::TextureSemantic::MetallicMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "MetallicTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureMetallic, WModelImporter2::TextureSemantic::MetallicMap, false, pImporter))).LogFailure();
       }
     }
 
     // Set emissive texture
     {
-      ezString textureEmissive;
+      WString textureEmissive;
 
-      if (material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::EmissiveMap, textureEmissive))
+      if (material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::EmissiveMap, textureEmissive))
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseEmissiveTexture", true).LogFailure();
-        pAccessor->SetValueByName(pMaterialProperties, "EmissiveTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureEmissive, ezModelImporter2::TextureSemantic::EmissiveMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "EmissiveTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureEmissive, WModelImporter2::TextureSemantic::EmissiveMap, false, pImporter))).LogFailure();
       }
     }
 
     // Set AO texture
     if (!bHasOrmTexture)
     {
-      ezString textureAo;
+      WString textureAo;
 
-      if (material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::OcclusionMap, textureAo))
+      if (material.m_TextureReferences.TryGetValue(WModelImporter2::TextureSemantic::OcclusionMap, textureAo))
       {
         pAccessor->SetValueByName(pMaterialProperties, "UseOcclusionTexture", true).LogFailure();
-        pAccessor->SetValueByName(pMaterialProperties, "OcclusionTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureAo, ezModelImporter2::TextureSemantic::OcclusionMap, false, pImporter))).LogFailure();
+        pAccessor->SetValueByName(pMaterialProperties, "OcclusionTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureAo, WModelImporter2::TextureSemantic::OcclusionMap, false, pImporter))).LogFailure();
       }
     }
 
     // TODO: ambient occlusion texture
 
     // Set base color property
-    if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::DiffuseColor, propertyValue) && propertyValue.IsA<ezColor>())
+    if (material.m_Properties.TryGetValue(WModelImporter2::PropertySemantic::DiffuseColor, propertyValue) && propertyValue.IsA<WColor>())
     {
       pAccessor->SetValueByName(pMaterialProperties, "BaseColor", propertyValue).LogFailure();
     }
 
     // Set emissive color property
-    if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::EmissiveColor, propertyValue) && propertyValue.IsA<ezColor>())
+    if (material.m_Properties.TryGetValue(WModelImporter2::PropertySemantic::EmissiveColor, propertyValue) && propertyValue.IsA<WColor>())
     {
       pAccessor->SetValueByName(pMaterialProperties, "EmissiveColor", propertyValue).LogFailure();
     }
 
     // Set two-sided property
-    if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::TwosidedValue, propertyValue) && propertyValue.IsNumber())
+    if (material.m_Properties.TryGetValue(WModelImporter2::PropertySemantic::TwosidedValue, propertyValue) && propertyValue.IsNumber())
     {
       // Do NOT set this. A lot of assets from Blender have this set incorrectly and it is not a good idea to set this automatically.
       // Force the user to change this when needed.
@@ -386,7 +386,7 @@ namespace ezMeshImportUtils
     }
 
     // Set metallic property
-    if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::MetallicValue, propertyValue) && propertyValue.IsNumber())
+    if (material.m_Properties.TryGetValue(WModelImporter2::PropertySemantic::MetallicValue, propertyValue) && propertyValue.IsNumber())
     {
       float value = propertyValue.ConvertTo<float>();
 
@@ -400,7 +400,7 @@ namespace ezMeshImportUtils
     }
 
     // Set roughness property
-    if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::RoughnessValue, propertyValue) && propertyValue.IsNumber())
+    if (material.m_Properties.TryGetValue(WModelImporter2::PropertySemantic::RoughnessValue, propertyValue) && propertyValue.IsNumber())
     {
       float value = propertyValue.ConvertTo<float>();
 
@@ -408,8 +408,8 @@ namespace ezMeshImportUtils
       if (value > 1.0f)
         value /= 255.0f;
 
-      value = ezMath::Clamp(value, 0.0f, 1.0f);
-      value = ezMath::Lerp(0.4f, 1.0f, value);
+      value = WMath::Clamp(value, 0.0f, 1.0f);
+      value = WMath::Lerp(0.4f, 1.0f, value);
 
       // the extracted roughness value is really just a guess to get started
 
@@ -430,7 +430,7 @@ namespace ezMeshImportUtils
       pAccessor->SetValueByName(pMaterialProperties, "RoughnessValue", 1.0f).LogFailure();
       pAccessor->SetValueByName(pMaterialProperties, "MetallicValue", 0.0f).LogFailure();
 
-      pAccessor->SetValueByName(pMaterialProperties, "OrmTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, ezModelImporter2::TextureSemantic::OrmMap, false, pImporter))).LogFailure();
+      pAccessor->SetValueByName(pMaterialProperties, "OrmTexture", WVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, WModelImporter2::TextureSemantic::OrmMap, false, pImporter))).LogFailure();
     }
 
     // Todo:
@@ -440,10 +440,10 @@ namespace ezMeshImportUtils
     pAccessor->FinishTransaction();
   }
 
-  static bool SearchForFile(ezStringView sTargetFolder, ezStringView sFilename, ezStringBuilder& out_sFullpath)
+  static bool SearchForFile(WStringView sTargetFolder, WStringView sFilename, WStringBuilder& out_sFullpath)
   {
-    ezFileSystemIterator it;
-    for (it.StartSearch(sTargetFolder, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+    WFileSystemIterator it;
+    for (it.StartSearch(sTargetFolder, WFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
     {
       if (it.GetStats().m_sName == sFilename)
       {
@@ -455,11 +455,11 @@ namespace ezMeshImportUtils
     return false;
   }
 
-  void ImportMeshAssetMaterials(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter)
+  void ImportMeshAssetMaterials(WDynamicArray<WMaterialResourceSlot>& inout_materialSlots, WStringView sDocumentDirectory, const WModelImporter2::Importer* pImporter)
   {
-    EZ_PROFILE_SCOPE("ImportMeshAssetMaterials");
+    W_PROFILE_SCOPE("ImportMeshAssetMaterials");
 
-    ezStringBuilder targetDirectory = sDocumentDirectory;
+    WStringBuilder targetDirectory = sDocumentDirectory;
 
     if (targetDirectory.HasAnyExtension())
     {
@@ -467,51 +467,51 @@ namespace ezMeshImportUtils
       targetDirectory.Append("_data/");
     }
 
-    const ezStringBuilder sourceDirectory = ezPathUtils::GetFileDirectory(pImporter->GetImportOptions().m_sSourceFile);
+    const WStringBuilder sourceDirectory = WPathUtils::GetFileDirectory(pImporter->GetImportOptions().m_sSourceFile);
 
-    ezStringBuilder tmp, fullName;
-    ezStringBuilder newResourcePathAbs;
+    WStringBuilder tmp, fullName;
+    WStringBuilder newResourcePathAbs;
 
-    const ezUInt32 uiNumSubmeshes = inout_materialSlots.GetCount();
+    const WUInt32 uiNumSubmeshes = inout_materialSlots.GetCount();
 
     if (uiNumSubmeshes == 0)
       return;
 
-    ezProgressRange range("Importing Materials", uiNumSubmeshes, false);
+    WProgressRange range("Importing Materials", uiNumSubmeshes, false);
 
-    ezHashTable<const ezModelImporter2::OutputMaterial*, ezString> importMatToGuid;
+    WHashTable<const WModelImporter2::OutputMaterial*, WString> importMatToGuid;
 
-    ezTempHybridArray<ezDocument*, 32> pendingSaveTasks;
+    WTempHybridArray<WDocument*, 32> pendingSaveTasks;
 
     auto WaitForPendingTasks = [&pendingSaveTasks]()
     {
-      EZ_PROFILE_SCOPE("WaitForPendingTasks");
-      for (ezDocument* pDoc : pendingSaveTasks)
+      W_PROFILE_SCOPE("WaitForPendingTasks");
+      for (WDocument* pDoc : pendingSaveTasks)
       {
         pDoc->GetDocumentManager()->CloseDocument(pDoc);
       }
       pendingSaveTasks.Clear();
     };
 
-    ezTempHybridArray<ezString, 16> allowedExtensions;
-    FillFileFilter(allowedExtensions, ezFileBrowserAttribute::ImagesLdrAndHdr);
+    WTempHybridArray<WString, 16> allowedExtensions;
+    FillFileFilter(allowedExtensions, WFileBrowserAttribute::ImagesLdrAndHdr);
 
     for (const auto& itTex : pImporter->m_OutputTextures)
     {
       if (itTex.Value().m_RawData.IsEmpty() || !allowedExtensions.Contains(itTex.Value().m_sFileFormatExtension))
       {
-        ezLog::Error("Mesh uses embedded texture of unsupported type ('{}').", itTex.Value().m_sFileFormatExtension);
+        WLog::Error("Mesh uses embedded texture of unsupported type ('{}').", itTex.Value().m_sFileFormatExtension);
         continue;
       }
 
-      ezStringBuilder sFinalTextureName;
+      WStringBuilder sFinalTextureName;
       itTex.Value().GenerateFileName(sFinalTextureName);
 
-      ezStringBuilder sEmbededFile;
+      WStringBuilder sEmbededFile;
       sEmbededFile = targetDirectory;
       sEmbededFile.AppendPath(sFinalTextureName);
 
-      ezDeferredFileWriter out;
+      WDeferredFileWriter out;
       out.SetOutput(sEmbededFile, true);
       out.WriteBytes(itTex.Value().m_RawData.GetPtr(), itTex.Value().m_RawData.GetCount()).AssertSuccess();
       out.Close().IgnoreResult();
@@ -522,25 +522,25 @@ namespace ezMeshImportUtils
       if (impMaterial.m_iReferencedByMesh < 0)
         continue;
 
-      const ezUInt32 subMeshIdx = impMaterial.m_iReferencedByMesh;
+      const WUInt32 subMeshIdx = impMaterial.m_iReferencedByMesh;
 
       range.BeginNextStep(impMaterial.m_sName);
 
       // Didn't find currently set resource, create new imported material.
-      if (!ezAssetCurator::GetSingleton()->FindSubAsset(inout_materialSlots[subMeshIdx].m_sResource))
+      if (!WAssetCurator::GetSingleton()->FindSubAsset(inout_materialSlots[subMeshIdx].m_sResource))
       {
         // Check first if we already imported this material.
         if (importMatToGuid.TryGetValue(&impMaterial, inout_materialSlots[subMeshIdx].m_sResource))
           continue;
 
         // search for the file recursively
-        fullName.Set(impMaterial.m_sName, ".ezMaterialAsset");
+        fullName.Set(impMaterial.m_sName, ".WMaterialAsset");
         if (SearchForFile(targetDirectory, fullName, newResourcePathAbs))
         {
           // Does the generated path already exist? Use it.
-          if (const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs))
+          if (const auto assetInfo = WAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs))
           {
-            inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
+            inout_materialSlots[subMeshIdx].m_sResource = WConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
             continue;
           }
         }
@@ -548,17 +548,17 @@ namespace ezMeshImportUtils
         // Put the new asset in the data folder.
         newResourcePathAbs = targetDirectory;
         newResourcePathAbs.AppendPath(impMaterial.m_sName);
-        newResourcePathAbs.Append(".ezMaterialAsset");
+        newResourcePathAbs.Append(".WMaterialAsset");
 
-        ezMaterialAssetDocument* pMaterialDoc = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
+        WMaterialAssetDocument* pMaterialDoc = WDynamicCast<WMaterialAssetDocument*>(WQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, WDocumentFlags::AsyncSave));
         if (!pMaterialDoc)
         {
-          ezLog::Error("Failed to create new material '{0}'", impMaterial.m_sName);
+          WLog::Error("Failed to create new material '{0}'", impMaterial.m_sName);
           continue;
         }
 
         ImportMeshAssetMaterialProperties(pMaterialDoc, impMaterial, sourceDirectory, targetDirectory, pImporter);
-        inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(pMaterialDoc->GetGuid(), tmp);
+        inout_materialSlots[subMeshIdx].m_sResource = WConversionUtils::ToString(pMaterialDoc->GetGuid(), tmp);
 
         pMaterialDoc->SaveDocumentAsync({});
         pendingSaveTasks.PushBack(pMaterialDoc);
@@ -567,7 +567,7 @@ namespace ezMeshImportUtils
         if (pendingSaveTasks.GetCount() >= 16)
           WaitForPendingTasks();
 
-        ezLog::Success("Imported material: '{}'", newResourcePathAbs);
+        WLog::Success("Imported material: '{}'", newResourcePathAbs);
       }
 
       // If we have a material now, fill the mapping.
@@ -582,44 +582,44 @@ namespace ezMeshImportUtils
     WaitForPendingTasks();
   }
 
-  void AddGltfBufferDependencies(ezStringView sMeshFile, ezSet<ezString>& inout_dependencies)
+  void AddGltfBufferDependencies(WStringView sMeshFile, WSet<WString>& inout_dependencies)
   {
     if (!sMeshFile.HasExtension("gltf"))
       return;
 
-    ezStringBuilder sAbsFilePath = sMeshFile;
+    WStringBuilder sAbsFilePath = sMeshFile;
 
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilePath))
+    if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilePath))
       return;
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sAbsFilePath).Failed())
       return;
 
-    ezJSONReader json;
+    WJSONReader json;
     if (json.Parse(file).Failed())
       return;
 
-    const ezVariantDictionary& root = json.GetTopLevelObject();
-    const ezVariant* pBuffers = root.GetValue("buffers");
-    if (pBuffers == nullptr || !pBuffers->IsA<ezVariantArray>())
+    const WVariantDictionary& root = json.GetTopLevelObject();
+    const WVariant* pBuffers = root.GetValue("buffers");
+    if (pBuffers == nullptr || !pBuffers->IsA<WVariantArray>())
       return;
 
-    const ezVariantArray& buffers = pBuffers->Get<ezVariantArray>();
-    ezStringBuilder sBufferPath;
-    ezStringBuilder sBufferDir = sAbsFilePath.GetFileDirectory();
+    const WVariantArray& buffers = pBuffers->Get<WVariantArray>();
+    WStringBuilder sBufferPath;
+    WStringBuilder sBufferDir = sAbsFilePath.GetFileDirectory();
 
-    for (const ezVariant& buffer : buffers)
+    for (const WVariant& buffer : buffers)
     {
-      if (!buffer.IsA<ezVariantDictionary>())
+      if (!buffer.IsA<WVariantDictionary>())
         continue;
 
-      const ezVariantDictionary& bufferDict = buffer.Get<ezVariantDictionary>();
-      const ezVariant* pUri = bufferDict.GetValue("uri");
-      if (pUri == nullptr || !pUri->IsA<ezString>())
+      const WVariantDictionary& bufferDict = buffer.Get<WVariantDictionary>();
+      const WVariant* pUri = bufferDict.GetValue("uri");
+      if (pUri == nullptr || !pUri->IsA<WString>())
         continue;
 
-      const ezString& sUri = pUri->Get<ezString>();
+      const WString& sUri = pUri->Get<WString>();
 
       // Skip data URIs (embedded binary data)
       if (sUri.StartsWith("data:"))
@@ -630,15 +630,15 @@ namespace ezMeshImportUtils
       sBufferPath.AppendPath(sUri);
       sBufferPath.MakeCleanPath();
 
-      if (!ezOSFile::ExistsFile(sBufferPath))
+      if (!WOSFile::ExistsFile(sBufferPath))
         continue;
 
       // Convert to data directory relative path
-      if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sBufferPath))
+      if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sBufferPath))
       {
         inout_dependencies.Insert(sBufferPath);
       }
     }
   }
 
-} // namespace ezMeshImportUtils
+} // namespace WMeshImportUtils

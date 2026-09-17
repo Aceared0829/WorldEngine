@@ -6,49 +6,49 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeBase, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVarianceTypeBase, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Variance", m_fVariance)
+    W_MEMBER_PROPERTY("Variance", m_fVariance)
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeFloat, ezVarianceTypeBase, 1, ezRTTIDefaultAllocator<ezVarianceTypeFloat>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVarianceTypeFloat, WVarianceTypeBase, 1, WRTTIDefaultAllocator<WVarianceTypeFloat>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value)
+    W_MEMBER_PROPERTY("Value", m_Value)
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeTime, ezVarianceTypeBase, 1, ezRTTIDefaultAllocator<ezVarianceTypeTime>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVarianceTypeTime, WVarianceTypeBase, 1, WRTTIDefaultAllocator<WVarianceTypeTime>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value)
+    W_MEMBER_PROPERTY("Value", m_Value)
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeAngle, ezVarianceTypeBase, 1, ezRTTIDefaultAllocator<ezVarianceTypeAngle>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVarianceTypeAngle, WVarianceTypeBase, 1, WRTTIDefaultAllocator<WVarianceTypeAngle>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value)
+    W_MEMBER_PROPERTY("Value", m_Value)
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezVarianceTypeFloat);
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezVarianceTypeTime);
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezVarianceTypeAngle);
+W_DEFINE_CUSTOM_VARIANT_TYPE(WVarianceTypeFloat);
+W_DEFINE_CUSTOM_VARIANT_TYPE(WVarianceTypeTime);
+W_DEFINE_CUSTOM_VARIANT_TYPE(WVarianceTypeAngle);
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VarianceTypes);
+W_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VarianceTypes);

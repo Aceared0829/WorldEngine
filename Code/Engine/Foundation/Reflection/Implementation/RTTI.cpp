@@ -7,32 +7,32 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HashTable.h>
 
-struct ezTypeData
+struct WTypeData
 {
-  ezMutex m_Mutex;
-  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticsAllocatorWrapper> m_TypeNameHashToType;
-  ezDynamicArray<ezRTTI*> m_AllTypes;
+  WMutex m_Mutex;
+  WHashTable<WUInt64, WRTTI*, WHashHelper<WUInt64>, WStaticsAllocatorWrapper> m_TypeNameHashToType;
+  WDynamicArray<WRTTI*> m_AllTypes;
 
   bool m_bIterating = false;
 };
 
-ezTypeData* GetTypeData()
+WTypeData* GetTypeData()
 {
-  // Prevent static initialization hazard between first ezRTTI instance
+  // Prevent static initialization hazard between first WRTTI instance
   // and type data and also make sure it is sufficiently sized before first use.
-  auto CreateData = []() -> ezTypeData*
+  auto CreateData = []() -> WTypeData*
   {
-    ezTypeData* pData = new ezTypeData();
+    WTypeData* pData = new WTypeData();
     pData->m_TypeNameHashToType.Reserve(512);
     pData->m_AllTypes.Reserve(512);
     return pData;
   };
-  static ezTypeData* pData = CreateData();
+  static WTypeData* pData = CreateData();
   return pData;
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
   //BEGIN_SUBSYSTEM_DEPENDENCIES
   //  "FileSystem"
@@ -40,22 +40,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::Events().AddEventHandler(ezRTTI::PluginEventHandler);
-    ezRTTI::AssignPlugin("Static");
+    WPlugin::Events().AddEventHandler(WRTTI::PluginEventHandler);
+    WRTTI::AssignPlugin("Static");
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::Events().RemoveEventHandler(ezRTTI::PluginEventHandler);
+    WPlugin::Events().RemoveEventHandler(WRTTI::PluginEventHandler);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-  ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
-  ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
-  const ezRTTI* (*fnVerifyParent)())
+WRTTI::WRTTI(WStringView sName, const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType,
+  WBitflags<WTypeFlags> flags, WRTTIAllocator* pAllocator, WArrayPtr<const WAbstractProperty*> properties, WArrayPtr<const WAbstractFunctionProperty*> functions,
+  WArrayPtr<const WPropertyAttribute*> attributes, WArrayPtr<WAbstractMessageHandler*> messageHandlers, WArrayPtr<WMessageSenderInfo> messageSenders,
+  const WRTTI* (*fnVerifyParent)())
   : m_sTypeName(sName)
   , m_Properties(properties)
   , m_Functions(functions)
@@ -74,7 +74,7 @@ ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   // However, I don't know where we could do these debug checks where they are guaranteed to be executed.
   // For now they are executed here and one might also do that in e.g. the game application
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     VerifyCorrectness();
 #endif
   }
@@ -85,74 +85,74 @@ ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   }
 }
 
-ezRTTI::~ezRTTI()
+WRTTI::~WRTTI()
 {
   if (!m_sTypeName.IsEmpty())
   {
     UnregisterType();
   }
 
-  // To ensure unloading plugins does not leak any heap allocated attributes etc, we need to properly clean up the RTTI members. The assumption is that anything that is deleted here was created using global 'new' when declaring the reflection information inside EZ_BEGIN_PROPERTIES etc. Thus, any derived ezRTTI class must make sure these arrays are cleared out before this destructor is called.
+  // To ensure unloading plugins does not leak any heap allocated attributes etc, we need to properly clean up the RTTI members. The assumption is that anything that is deleted here was created using global 'new' when declaring the reflection information inside W_BEGIN_PROPERTIES etc. Thus, any derived WRTTI class must make sure these arrays are cleared out before this destructor is called.
   if (m_sPluginName != "Static")
   {
     // We only delete plugin types. For statically created types we can't ensure a proper destruction order so it's better to just leak the data and the the OS clean it up.
     for (auto pProp : m_Properties)
     {
-      auto pPropNonConst = const_cast<ezAbstractProperty*>(pProp);
+      auto pPropNonConst = const_cast<WAbstractProperty*>(pProp);
       delete pPropNonConst;
     }
     for (auto pFunc : m_Functions)
     {
-      auto pFuncNonConst = const_cast<ezAbstractFunctionProperty*>(pFunc);
+      auto pFuncNonConst = const_cast<WAbstractFunctionProperty*>(pFunc);
       delete pFuncNonConst;
     }
     for (auto pAttrib : m_Attributes)
     {
-      auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
+      auto pAttribNonConst = const_cast<WPropertyAttribute*>(pAttrib);
       delete pAttribNonConst;
     }
   }
 }
 
-void ezRTTI::GatherDynamicMessageHandlers()
+void WRTTI::GatherDynamicMessageHandlers()
 {
   // This cannot be done in the constructor, because the parent types are not guaranteed to be initialized at that point
 
-  if (m_uiMsgIdOffset != ezSmallInvalidIndex)
+  if (m_uiMsgIdOffset != WSmallInvalidIndex)
     return;
 
   m_uiMsgIdOffset = 0;
 
-  ezUInt16 uiMinMsgId = ezSmallInvalidIndex;
-  ezUInt16 uiMaxMsgId = 0;
+  WUInt16 uiMinMsgId = WSmallInvalidIndex;
+  WUInt16 uiMaxMsgId = 0;
 
-  const ezRTTI* pInstance = this;
+  const WRTTI* pInstance = this;
   while (pInstance != nullptr)
   {
-    for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
     {
-      ezUInt16 id = pInstance->m_MessageHandlers[i]->GetMessageId();
-      uiMinMsgId = ezMath::Min(uiMinMsgId, id);
-      uiMaxMsgId = ezMath::Max(uiMaxMsgId, id);
+      WUInt16 id = pInstance->m_MessageHandlers[i]->GetMessageId();
+      uiMinMsgId = WMath::Min(uiMinMsgId, id);
+      uiMaxMsgId = WMath::Max(uiMaxMsgId, id);
     }
 
     pInstance = pInstance->m_pParentType;
   }
 
-  if (uiMinMsgId != ezSmallInvalidIndex)
+  if (uiMinMsgId != WSmallInvalidIndex)
   {
     m_uiMsgIdOffset = uiMinMsgId;
-    ezUInt16 uiNeededCapacity = uiMaxMsgId - uiMinMsgId + 1;
+    WUInt16 uiNeededCapacity = uiMaxMsgId - uiMinMsgId + 1;
 
     m_DynamicMessageHandlers.SetCount(uiNeededCapacity);
 
     pInstance = this;
     while (pInstance != nullptr)
     {
-      for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
+      for (WUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
       {
-        ezAbstractMessageHandler* pHandler = pInstance->m_MessageHandlers[i];
-        ezUInt16 uiIndex = pHandler->GetMessageId() - m_uiMsgIdOffset;
+        WAbstractMessageHandler* pHandler = pInstance->m_MessageHandlers[i];
+        WUInt16 uiIndex = pHandler->GetMessageId() - m_uiMsgIdOffset;
 
         // this check ensures that handlers in base classes do not override the derived handlers
         if (m_DynamicMessageHandlers[uiIndex] == nullptr)
@@ -166,39 +166,39 @@ void ezRTTI::GatherDynamicMessageHandlers()
   }
 }
 
-void ezRTTI::SetupParentHierarchy()
+void WRTTI::SetupParentHierarchy()
 {
   m_ParentHierarchy.Clear();
 
-  for (const ezRTTI* rtti = this; rtti != nullptr; rtti = rtti->m_pParentType)
+  for (const WRTTI* rtti = this; rtti != nullptr; rtti = rtti->m_pParentType)
   {
     m_ParentHierarchy.PushBack(rtti);
   }
 }
 
-void ezRTTI::VerifyCorrectness() const
+void WRTTI::VerifyCorrectness() const
 {
   if (m_VerifyParent != nullptr)
   {
-    EZ_ASSERT_DEV(m_VerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
+    W_ASSERT_DEV(m_VerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
       m_sTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null",
       (m_VerifyParent() != nullptr) ? m_VerifyParent()->GetTypeName() : "null");
   }
 
   {
-    ezSet<ezStringView> Known;
+    WSet<WStringView> Known;
 
-    const ezRTTI* pInstance = this;
+    const WRTTI* pInstance = this;
 
     while (pInstance != nullptr)
     {
-      for (ezUInt32 i = 0; i < pInstance->m_Properties.GetCount(); ++i)
+      for (WUInt32 i = 0; i < pInstance->m_Properties.GetCount(); ++i)
       {
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
-        EZ_IGNORE_UNUSED(bNewProperty);
-        EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_sTypeName,
+        W_IGNORE_UNUSED(bNewProperty);
+        W_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_sTypeName,
           pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
 
@@ -207,22 +207,22 @@ void ezRTTI::VerifyCorrectness() const
   }
 
   {
-    for (const ezAbstractProperty* pFunc : m_Functions)
+    for (const WAbstractProperty* pFunc : m_Functions)
     {
-      EZ_IGNORE_UNUSED(pFunc);
-      EZ_ASSERT_DEV(pFunc->GetCategory() == ezPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
+      W_IGNORE_UNUSED(pFunc);
+      W_ASSERT_DEV(pFunc->GetCategory() == WPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
     }
   }
 }
 
-void ezRTTI::VerifyCorrectnessForAllTypes()
+void WRTTI::VerifyCorrectnessForAllTypes()
 {
-  ezRTTI::ForEachType([](const ezRTTI* pRtti)
+  WRTTI::ForEachType([](const WRTTI* pRtti)
     { pRtti->VerifyCorrectness(); });
 }
 
 
-void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags)
+void WRTTI::UpdateType(const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType, WBitflags<WTypeFlags> flags)
 {
   m_pParentType = pParentType;
   m_uiVariantType = uiVariantType;
@@ -232,25 +232,25 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
   m_ParentHierarchy.Clear();
 }
 
-void ezRTTI::RegisterType()
+void WRTTI::RegisterType()
 {
-  m_uiTypeNameHash = ezHashingUtils::StringHash(m_sTypeName);
+  m_uiTypeNameHash = WHashingUtils::StringHash(m_sTypeName);
 
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
   pData->m_TypeNameHashToType.Insert(m_uiTypeNameHash, this);
 
   m_uiTypeIndex = pData->m_AllTypes.GetCount();
   pData->m_AllTypes.PushBack(this);
 }
 
-void ezRTTI::UnregisterType()
+void WRTTI::UnregisterType()
 {
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
   pData->m_TypeNameHashToType.Remove(m_uiTypeNameHash);
 
-  EZ_ASSERT_DEV(pData->m_bIterating == false, "Unregistering types while iterating over types might cause unexpected behavior");
+  W_ASSERT_DEV(pData->m_bIterating == false, "Unregistering types while iterating over types might cause unexpected behavior");
   pData->m_AllTypes.RemoveAtAndSwap(m_uiTypeIndex);
   if (m_uiTypeIndex != pData->m_AllTypes.GetCount())
   {
@@ -258,7 +258,7 @@ void ezRTTI::UnregisterType()
   }
 }
 
-void ezRTTI::GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const
+void WRTTI::GetAllProperties(WDynamicArray<const WAbstractProperty*>& out_properties) const
 {
   out_properties.Clear();
 
@@ -268,40 +268,40 @@ void ezRTTI::GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_pro
   out_properties.PushBackRange(GetProperties());
 }
 
-const ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
+const WRTTI* WRTTI::FindTypeByName(WStringView sName)
 {
-  ezUInt64 uiNameHash = ezHashingUtils::StringHash(sName);
+  WUInt64 uiNameHash = WHashingUtils::StringHash(sName);
 
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
-  ezRTTI* pType = nullptr;
+  WRTTI* pType = nullptr;
   pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pType);
   return pType;
 }
 
-const ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
+const WRTTI* WRTTI::FindTypeByNameHash(WUInt64 uiNameHash)
 {
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
-  ezRTTI* pType = nullptr;
+  WRTTI* pType = nullptr;
   pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pType);
   return pType;
 }
 
-const ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
+const WRTTI* WRTTI::FindTypeByNameHash32(WUInt32 uiNameHash)
 {
-  return FindTypeIf([=](const ezRTTI* pRtti)
-    { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
+  return FindTypeIf([=](const WRTTI* pRtti)
+    { return (WHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
 }
 
-const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
+const WRTTI* WRTTI::FindTypeIf(PredicateFunc func)
 {
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
-  for (const ezRTTI* pRtti : pData->m_AllTypes)
+  for (const WRTTI* pRtti : pData->m_AllTypes)
   {
     if (func(pRtti))
     {
@@ -312,13 +312,13 @@ const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
   return nullptr;
 }
 
-const ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bSearchBaseTypes /* = true */) const
+const WAbstractProperty* WRTTI::FindPropertyByName(WStringView sName, bool bSearchBaseTypes /* = true */) const
 {
-  const ezRTTI* pInstance = this;
+  const WRTTI* pInstance = this;
 
   do
   {
-    for (ezUInt32 p = 0; p < pInstance->m_Properties.GetCount(); ++p)
+    for (WUInt32 p = 0; p < pInstance->m_Properties.GetCount(); ++p)
     {
       if (pInstance->m_Properties[p]->GetPropertyName() == sName)
       {
@@ -335,18 +335,18 @@ const ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bS
   return nullptr;
 }
 
-bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
+bool WRTTI::DispatchMessage(void* pInstance, WMessage& ref_msg) const
 {
-  EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+  W_ASSERT_DEBUG(m_uiMsgIdOffset != WSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
                                                           "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                          "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+                                                          "you may have forgotten to instantiate an WPlugin object inside your plugin DLL.");
 
-  const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
+  const WUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
   {
-    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
+    WAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
     if (pHandler != nullptr)
     {
       (*pHandler)(pInstance, ref_msg);
@@ -357,18 +357,18 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
   return false;
 }
 
-bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
+bool WRTTI::DispatchMessage(const void* pInstance, WMessage& ref_msg) const
 {
-  EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+  W_ASSERT_DEBUG(m_uiMsgIdOffset != WSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
                                                           "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                          "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+                                                          "you may have forgotten to instantiate an WPlugin object inside your plugin DLL.");
 
-  const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
+  const WUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
   {
-    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
+    WAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
     if (pHandler != nullptr && pHandler->IsConst())
     {
       (*pHandler)(pInstance, ref_msg);
@@ -379,20 +379,20 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
   return false;
 }
 
-void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
+void WRTTI::ForEachType(VisitorFunc func, WBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
 {
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
   pData->m_bIterating = true;
   // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
-  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
   {
     auto pRtti = pData->m_AllTypes.GetData()[i];
     if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
       continue;
 
-    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(WTypeFlags::Abstract))
       continue;
 
     func(pRtti);
@@ -400,14 +400,14 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
   pData->m_bIterating = false;
 }
 
-void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
+void WRTTI::ForEachDerivedType(const WRTTI* pBaseType, VisitorFunc func, WBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
 {
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
   pData->m_bIterating = true;
   // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
-  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
   {
     auto pRtti = pData->m_AllTypes.GetData()[i];
     if (!pRtti->IsDerivedFrom(pBaseType))
@@ -416,7 +416,7 @@ void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBit
     if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
       continue;
 
-    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(WTypeFlags::Abstract))
       continue;
 
     func(pRtti);
@@ -424,14 +424,14 @@ void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBit
   pData->m_bIterating = false;
 }
 
-void ezRTTI::AssignPlugin(ezStringView sPluginName)
+void WRTTI::AssignPlugin(WStringView sPluginName)
 {
-  // assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet
+  // assigns the given plugin name to every WRTTI instance that has no plugin assigned yet
 
   auto pData = GetTypeData();
-  EZ_LOCK(pData->m_Mutex);
+  W_LOCK(pData->m_Mutex);
 
-  for (ezRTTI* pRtti : pData->m_AllTypes)
+  for (WRTTI* pRtti : pData->m_AllTypes)
   {
     if (pRtti->m_sPluginName.IsEmpty())
     {
@@ -444,22 +444,22 @@ void ezRTTI::AssignPlugin(ezStringView sPluginName)
   }
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
 
-static bool IsValidIdentifierName(ezStringView sIdentifier)
+static bool IsValidIdentifierName(WStringView sIdentifier)
 {
   // empty strings are not valid
   if (sIdentifier.IsEmpty())
     return false;
 
   // digits are not allowed as the first character
-  ezUInt32 uiChar = sIdentifier.GetCharacter();
+  WUInt32 uiChar = sIdentifier.GetCharacter();
   if (uiChar >= '0' && uiChar <= '9')
     return false;
 
   for (auto it = sIdentifier.GetIteratorFront(); it.IsValid(); ++it)
   {
-    const ezUInt32 c = it.GetCharacter();
+    const WUInt32 c = it.GetCharacter();
 
     if (c >= 'a' && c <= 'z')
       continue;
@@ -480,87 +480,87 @@ static bool IsValidIdentifierName(ezStringView sIdentifier)
 
 #endif
 
-void ezRTTI::SanityCheckType(ezRTTI* pType)
+void WRTTI::SanityCheckType(WRTTI* pType)
 {
-  EZ_ASSERT_DEV(pType->GetTypeFlags().IsSet(ezTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) +
-                    pType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags) + pType->GetTypeFlags().IsSet(ezTypeFlags::Class) ==
+  W_ASSERT_DEV(pType->GetTypeFlags().IsSet(WTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(WTypeFlags::IsEnum) +
+                    pType->GetTypeFlags().IsSet(WTypeFlags::Bitflags) + pType->GetTypeFlags().IsSet(WTypeFlags::Class) ==
                   1,
     "Types are mutually exclusive!");
 
   for (auto pProp : pType->m_Properties)
   {
-    const ezRTTI* pSpecificType = pProp->GetSpecificType();
+    const WRTTI* pSpecificType = pProp->GetSpecificType();
 
-    EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
+    W_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
 
-    if (pProp->GetCategory() != ezPropertyCategory::Function)
+    if (pProp->GetCategory() != WPropertyCategory::Function)
     {
-      EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum) +
-                        pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Class) <=
+      W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::StandardType) + pProp->GetFlags().IsSet(WPropertyFlags::IsEnum) +
+                        pProp->GetFlags().IsSet(WPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(WPropertyFlags::Class) <=
                       1,
         "Types are mutually exclusive!");
     }
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Constant:
+      case WPropertyCategory::Constant:
       {
-        EZ_IGNORE_UNUSED(pSpecificType);
-        EZ_ASSERT_DEV(pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Only standard type constants are supported!");
+        W_IGNORE_UNUSED(pSpecificType);
+        W_ASSERT_DEV(pSpecificType->GetTypeFlags().IsSet(WTypeFlags::StandardType), "Only standard type constants are supported!");
       }
       break;
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType),
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::StandardType),
           "Property-Type missmatch!");
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum),
-          "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_ENUM_MEMBER_PROPERTY / "
-          "EZ_ENUM_ACCESSOR_PROPERTY for property.");
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags),
-          "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_BITFLAGS_MEMBER_PROPERTY / "
-          "EZ_BITFLAGS_ACCESSOR_PROPERTY for property.");
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
-          "If ezPropertyFlags::Class is set, the property type must be ezTypeFlags::Class and vise versa.");
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::IsEnum) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::IsEnum),
+          "Property-Type missmatch! Use W_BEGIN_STATIC_REFLECTED_ENUM for type and W_ENUM_MEMBER_PROPERTY / "
+          "W_ENUM_ACCESSOR_PROPERTY for property.");
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::Bitflags) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::Bitflags),
+          "Property-Type missmatch! Use W_BEGIN_STATIC_REFLECTED_ENUM for type and W_BITFLAGS_MEMBER_PROPERTY / "
+          "W_BITFLAGS_ACCESSOR_PROPERTY for property.");
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::Class),
+          "If WPropertyFlags::Class is set, the property type must be WTypeFlags::Class and vise versa.");
       }
       break;
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType),
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::StandardType),
           "Property-Type missmatch!");
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
-          "If ezPropertyFlags::Class is set, the property type must be ezTypeFlags::Class and vise versa.");
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(WTypeFlags::Class),
+          "If WPropertyFlags::Class is set, the property type must be WTypeFlags::Class and vise versa.");
       }
       break;
-      case ezPropertyCategory::Function:
-        EZ_REPORT_FAILURE("Functions need to be put into the EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block.");
+      case WPropertyCategory::Function:
+        W_REPORT_FAILURE("Functions need to be put into the W_BEGIN_FUNCTIONS / W_END_FUNCTIONS; block.");
         break;
     }
   }
 }
 
-void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
+void WRTTI::PluginEventHandler(const WPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPluginEvent::BeforeLoading:
+    case WPluginEvent::BeforeLoading:
     {
-      // before a new plugin is loaded, make sure all current ezRTTI instances
+      // before a new plugin is loaded, make sure all current WRTTI instances
       // are assigned to the proper plugin
       // all not-yet assigned rtti instances cannot be in any plugin, so assign them to the 'static' plugin
       AssignPlugin("Static");
     }
     break;
 
-    case ezPluginEvent::AfterLoadingBeforeInit:
+    case WPluginEvent::AfterLoadingBeforeInit:
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new rtti instances and assign them to that new plugin
       AssignPlugin(EventData.m_sPluginBinary);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      ezRTTI::VerifyCorrectnessForAllTypes();
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+      WRTTI::VerifyCorrectnessForAllTypes();
 #endif
     }
     break;
@@ -570,7 +570,7 @@ void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-ezRTTIAllocator::~ezRTTIAllocator() = default;
+WRTTIAllocator::~WRTTIAllocator() = default;
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_RTTI);
+W_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_RTTI);

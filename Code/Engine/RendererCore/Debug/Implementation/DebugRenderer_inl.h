@@ -1,13 +1,13 @@
 
-EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine() = default;
+W_ALWAYS_INLINE WDebugRendererLine::WDebugRendererLine() = default;
 
-EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd)
+W_ALWAYS_INLINE WDebugRendererLine::WDebugRendererLine(const WVec3& vStart, const WVec3& vEnd)
   : m_start(vStart)
   , m_end(vEnd)
 {
 }
 
-EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
+W_ALWAYS_INLINE WDebugRendererLine::WDebugRendererLine(const WVec3& vStart, const WVec3& vEnd, const WColor& color)
   : m_start(vStart)
   , m_end(vEnd)
   , m_startColor(color)
@@ -17,9 +17,9 @@ EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine(const ezVec3& vStart, 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezDebugRendererTriangle::ezDebugRendererTriangle() = default;
+W_ALWAYS_INLINE WDebugRendererTriangle::WDebugRendererTriangle() = default;
 
-EZ_ALWAYS_INLINE ezDebugRendererTriangle::ezDebugRendererTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2)
+W_ALWAYS_INLINE WDebugRendererTriangle::WDebugRendererTriangle(const WVec3& v0, const WVec3& v1, const WVec3& v2)
 
 {
   m_position[0] = v0;

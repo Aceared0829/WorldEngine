@@ -8,44 +8,44 @@
 #include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypeVersionInfo>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTypeVersionInfo, WNoBase, 1, WRTTIDefaultAllocator<WTypeVersionInfo>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TypeName", GetTypeName, SetTypeName),
-    EZ_ACCESSOR_PROPERTY("ParentTypeName", GetParentTypeName, SetParentTypeName),
-    EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
+    W_ACCESSOR_PROPERTY("TypeName", GetTypeName, SetTypeName),
+    W_ACCESSOR_PROPERTY("ParentTypeName", GetParentTypeName, SetParentTypeName),
+    W_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-const char* ezTypeVersionInfo::GetTypeName() const
+const char* WTypeVersionInfo::GetTypeName() const
 {
   return m_sTypeName.GetData();
 }
 
-void ezTypeVersionInfo::SetTypeName(const char* szName)
+void WTypeVersionInfo::SetTypeName(const char* szName)
 {
   m_sTypeName.Assign(szName);
 }
 
-const char* ezTypeVersionInfo::GetParentTypeName() const
+const char* WTypeVersionInfo::GetParentTypeName() const
 {
   return m_sParentTypeName.GetData();
 }
 
-void ezTypeVersionInfo::SetParentTypeName(const char* szName)
+void WTypeVersionInfo::SetParentTypeName(const char* szName)
 {
   m_sParentTypeName.Assign(szName);
 }
 
-void ezGraphPatchContext::PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch)
+void WGraphPatchContext::PatchBaseClass(const char* szType, WUInt32 uiTypeVersion, bool bForcePatch)
 {
-  ezHashedString sType;
+  WHashedString sType;
   sType.Assign(szType);
-  for (ezUInt32 uiBaseClassIndex = m_uiBaseClassIndex; uiBaseClassIndex < m_BaseClasses.GetCount(); ++uiBaseClassIndex)
+  for (WUInt32 uiBaseClassIndex = m_uiBaseClassIndex; uiBaseClassIndex < m_BaseClasses.GetCount(); ++uiBaseClassIndex)
   {
     if (m_BaseClasses[uiBaseClassIndex].m_sType == sType)
     {
@@ -53,29 +53,29 @@ void ezGraphPatchContext::PatchBaseClass(const char* szType, ezUInt32 uiTypeVers
       return;
     }
   }
-  EZ_REPORT_FAILURE("Base class of name '{0}' not found in parent types of '{1}'", sType.GetData(), m_pNode->GetType());
+  W_REPORT_FAILURE("Base class of name '{0}' not found in parent types of '{1}'", sType.GetData(), m_pNode->GetType());
 }
 
-void ezGraphPatchContext::RenameClass(const char* szTypeName)
+void WGraphPatchContext::RenameClass(const char* szTypeName)
 {
   m_pNode->SetType(m_pGraph->RegisterString(szTypeName));
   m_BaseClasses[m_uiBaseClassIndex].m_sType.Assign(szTypeName);
 }
 
 
-void ezGraphPatchContext::RenameClass(const char* szTypeName, ezUInt32 uiVersion)
+void WGraphPatchContext::RenameClass(const char* szTypeName, WUInt32 uiVersion)
 {
   m_pNode->SetType(m_pGraph->RegisterString(szTypeName));
   m_BaseClasses[m_uiBaseClassIndex].m_sType.Assign(szTypeName);
   // After a Patch is applied, the version is always increased. So if we want to change the version we need to reduce it by one so that in the next patch loop the requested version is not skipped.
-  EZ_ASSERT_DEV(uiVersion > 0, "Cannot change the version of a class to 0, target version must be at least 1.");
+  W_ASSERT_DEV(uiVersion > 0, "Cannot change the version of a class to 0, target version must be at least 1.");
   m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = uiVersion - 1;
 }
 
-void ezGraphPatchContext::ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses)
+void WGraphPatchContext::ChangeBaseClass(WArrayPtr<WVersionKey> baseClasses)
 {
   m_BaseClasses.SetCount(m_uiBaseClassIndex + 1 + baseClasses.GetCount());
-  for (ezUInt32 i = 0; i < baseClasses.GetCount(); i++)
+  for (WUInt32 i = 0; i < baseClasses.GetCount(); i++)
   {
     m_BaseClasses[m_uiBaseClassIndex + 1 + i] = baseClasses[i];
   }
@@ -83,36 +83,36 @@ void ezGraphPatchContext::ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezGraphPatchContext::ezGraphPatchContext(ezGraphVersioning* pParent, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+WGraphPatchContext::WGraphPatchContext(WGraphVersioning* pParent, WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph)
 {
-  EZ_PROFILE_SCOPE("ezGraphPatchContext");
+  W_PROFILE_SCOPE("WGraphPatchContext");
   m_pParent = pParent;
   m_pGraph = pGraph;
   if (pTypesGraph)
   {
-    ezRttiConverterContext context;
-    ezRttiConverterReader rttiConverter(pTypesGraph, &context);
-    ezString sDescTypeName = "ezReflectedTypeDescriptor";
+    WRttiConverterContext context;
+    WRttiConverterReader rttiConverter(pTypesGraph, &context);
+    WString sDescTypeName = "WReflectedTypeDescriptor";
     auto& nodes = pTypesGraph->GetAllNodes();
     m_TypeToInfo.Reserve(nodes.GetCount());
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Value()->GetType() == sDescTypeName)
       {
-        ezTypeVersionInfo info;
-        rttiConverter.ApplyPropertiesToObject(it.Value(), ezGetStaticRTTI<ezTypeVersionInfo>(), &info);
+        WTypeVersionInfo info;
+        rttiConverter.ApplyPropertiesToObject(it.Value(), WGetStaticRTTI<WTypeVersionInfo>(), &info);
         m_TypeToInfo.Insert(info.m_sTypeName, info);
       }
     }
   }
 }
 
-void ezGraphPatchContext::Patch(ezAbstractObjectNode* pNode)
+void WGraphPatchContext::Patch(WAbstractObjectNode* pNode)
 {
   m_pNode = pNode;
   // Build version hierarchy.
   m_BaseClasses.Clear();
-  ezVersionKey key;
+  WVersionKey key;
   key.m_sType.Assign(m_pNode->GetType());
   key.m_uiTypeVersion = m_pNode->GetTypeVersion();
 
@@ -122,25 +122,25 @@ void ezGraphPatchContext::Patch(ezAbstractObjectNode* pNode)
   // Patch
   for (m_uiBaseClassIndex = 0; m_uiBaseClassIndex < m_BaseClasses.GetCount(); ++m_uiBaseClassIndex)
   {
-    const ezUInt32 uiMaxVersion = m_pParent->GetMaxPatchVersion(m_BaseClasses[m_uiBaseClassIndex].m_sType);
+    const WUInt32 uiMaxVersion = m_pParent->GetMaxPatchVersion(m_BaseClasses[m_uiBaseClassIndex].m_sType);
     Patch(m_uiBaseClassIndex, uiMaxVersion, false);
   }
   m_pNode->SetTypeVersion(m_BaseClasses[0].m_uiTypeVersion);
 }
 
 
-void ezGraphPatchContext::Patch(ezUInt32 uiBaseClassIndex, ezUInt32 uiTypeVersion, bool bForcePatch)
+void WGraphPatchContext::Patch(WUInt32 uiBaseClassIndex, WUInt32 uiTypeVersion, bool bForcePatch)
 {
   if (bForcePatch)
   {
-    m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = ezMath::Min(m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion, uiTypeVersion - 1);
+    m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = WMath::Min(m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion, uiTypeVersion - 1);
   }
   while (m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion < uiTypeVersion)
   {
     // Don't move this out of the loop, needed to support renaming a class which will change the key.
-    ezVersionKey key = m_BaseClasses[uiBaseClassIndex];
+    WVersionKey key = m_BaseClasses[uiBaseClassIndex];
     key.m_uiTypeVersion += 1;
-    const ezGraphPatch* pPatch = nullptr;
+    const WGraphPatch* pPatch = nullptr;
     if (m_pParent->m_NodePatches.TryGetValue(key, pPatch))
     {
       pPatch->Patch(*this, m_pGraph, m_pNode);
@@ -152,17 +152,17 @@ void ezGraphPatchContext::Patch(ezUInt32 uiBaseClassIndex, ezUInt32 uiTypeVersio
   }
 }
 
-void ezGraphPatchContext::UpdateBaseClasses()
+void WGraphPatchContext::UpdateBaseClasses()
 {
   for (;;)
   {
-    ezHashedString sParentType;
-    if (ezTypeVersionInfo* pInfo = m_TypeToInfo.GetValue(m_BaseClasses.PeekBack().m_sType))
+    WHashedString sParentType;
+    if (WTypeVersionInfo* pInfo = m_TypeToInfo.GetValue(m_BaseClasses.PeekBack().m_sType))
     {
       m_BaseClasses.PeekBack().m_uiTypeVersion = pInfo->m_uiTypeVersion;
       sParentType = pInfo->m_sParentTypeName;
     }
-    else if (const ezRTTI* pType = ezRTTI::FindTypeByName(m_BaseClasses.PeekBack().m_sType.GetData()))
+    else if (const WRTTI* pType = WRTTI::FindTypeByName(m_BaseClasses.PeekBack().m_sType.GetData()))
     {
       m_BaseClasses.PeekBack().m_uiTypeVersion = pType->GetTypeVersion();
       if (pType->GetParentType())
@@ -170,18 +170,18 @@ void ezGraphPatchContext::UpdateBaseClasses()
         sParentType.Assign(pType->GetParentType()->GetTypeName());
       }
       else
-        sParentType = ezHashedString();
+        sParentType = WHashedString();
     }
     else
     {
-      ezLog::Error("Can't patch base class, parent type of '{0}' unknown.", m_BaseClasses.PeekBack().m_sType.GetData());
+      WLog::Error("Can't patch base class, parent type of '{0}' unknown.", m_BaseClasses.PeekBack().m_sType.GetData());
       break;
     }
 
     if (sParentType.IsEmpty())
       break;
 
-    ezVersionKey key;
+    WVersionKey key;
     key.m_sType = std::move(sParentType);
     key.m_uiTypeVersion = 0;
     m_BaseClasses.PushBack(key);
@@ -190,10 +190,10 @@ void ezGraphPatchContext::UpdateBaseClasses()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_SINGLETON(ezGraphVersioning);
+W_IMPLEMENT_SINGLETON(WGraphVersioning);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, GraphVersioning)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, GraphVersioning)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Reflection"
@@ -201,37 +201,37 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, GraphVersioning)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezGraphVersioning);
+    W_DEFAULT_NEW(WGraphVersioning);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezGraphVersioning* pDummy = ezGraphVersioning::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WGraphVersioning* pDummy = WGraphVersioning::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezGraphVersioning::ezGraphVersioning()
+WGraphVersioning::WGraphVersioning()
   : m_SingletonRegistrar(this)
 {
-  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
+  WPlugin::Events().AddEventHandler(WMakeDelegate(&WGraphVersioning::PluginEventHandler, this));
 
   UpdatePatches();
 }
 
-ezGraphVersioning::~ezGraphVersioning()
+WGraphVersioning::~WGraphVersioning()
 {
-  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
+  WPlugin::Events().RemoveEventHandler(WMakeDelegate(&WGraphVersioning::PluginEventHandler, this));
 }
 
-void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+void WGraphVersioning::PatchGraph(WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph)
 {
-  EZ_PROFILE_SCOPE("PatchGraph");
+  W_PROFILE_SCOPE("PatchGraph");
 
-  ezGraphPatchContext context(this, pGraph, pTypesGraph);
-  for (const ezGraphPatch* pPatch : m_GraphPatches)
+  WGraphPatchContext context(this, pGraph, pTypesGraph);
+  for (const WGraphPatch* pPatch : m_GraphPatches)
   {
     pPatch->Patch(context, pGraph, nullptr);
   }
@@ -239,17 +239,17 @@ void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObje
   auto& nodes = pGraph->GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
-    ezAbstractObjectNode* pNode = it.Value();
+    WAbstractObjectNode* pNode = it.Value();
     context.Patch(pNode);
   }
 }
 
-void ezGraphVersioning::PluginEventHandler(const ezPluginEvent& EventData)
+void WGraphVersioning::PluginEventHandler(const WPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPluginEvent::AfterLoadingBeforeInit:
-    case ezPluginEvent::AfterUnloading:
+    case WPluginEvent::AfterLoadingBeforeInit:
+    case WPluginEvent::AfterUnloading:
       UpdatePatches();
       break;
     default:
@@ -257,28 +257,28 @@ void ezGraphVersioning::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-void ezGraphVersioning::UpdatePatches()
+void WGraphVersioning::UpdatePatches()
 {
   m_GraphPatches.Clear();
   m_NodePatches.Clear();
   m_MaxPatchVersion.Clear();
 
-  ezVersionKey key;
-  ezGraphPatch* pInstance = ezGraphPatch::GetFirstInstance();
+  WVersionKey key;
+  WGraphPatch* pInstance = WGraphPatch::GetFirstInstance();
 
   while (pInstance)
   {
     switch (pInstance->GetPatchType())
     {
-      case ezGraphPatch::PatchType::NodePatch:
+      case WGraphPatch::PatchType::NodePatch:
       {
         key.m_sType.Assign(pInstance->GetType());
         key.m_uiTypeVersion = pInstance->GetTypeVersion();
         m_NodePatches.Insert(key, pInstance);
 
-        if (ezUInt32* pMax = m_MaxPatchVersion.GetValue(key.m_sType))
+        if (WUInt32* pMax = m_MaxPatchVersion.GetValue(key.m_sType))
         {
-          *pMax = ezMath::Max(*pMax, key.m_uiTypeVersion);
+          *pMax = WMath::Max(*pMax, key.m_uiTypeVersion);
         }
         else
         {
@@ -286,7 +286,7 @@ void ezGraphVersioning::UpdatePatches()
         }
       }
       break;
-      case ezGraphPatch::PatchType::GraphPatch:
+      case WGraphPatch::PatchType::GraphPatch:
       {
         m_GraphPatches.PushBack(pInstance);
       }
@@ -295,17 +295,17 @@ void ezGraphVersioning::UpdatePatches()
     pInstance = pInstance->GetNextInstance();
   }
 
-  m_GraphPatches.Sort([](const ezGraphPatch* a, const ezGraphPatch* b) -> bool
+  m_GraphPatches.Sort([](const WGraphPatch* a, const WGraphPatch* b) -> bool
     { return a->GetTypeVersion() < b->GetTypeVersion(); });
 }
 
-ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) const
+WUInt32 WGraphVersioning::GetMaxPatchVersion(const WHashedString& sType) const
 {
-  if (const ezUInt32* pMax = m_MaxPatchVersion.GetValue(sType))
+  if (const WUInt32* pMax = m_MaxPatchVersion.GetValue(sType))
   {
     return *pMax;
   }
   return 0;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphVersioning);
+W_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphVersioning);

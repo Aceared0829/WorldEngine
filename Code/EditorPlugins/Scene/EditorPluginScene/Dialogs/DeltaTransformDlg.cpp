@@ -6,34 +6,34 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Math/Random.h>
 
-ezQtDeltaTransformDlg::Mode ezQtDeltaTransformDlg::s_Mode = ezQtDeltaTransformDlg::Mode::Translate;
-ezQtDeltaTransformDlg::Space ezQtDeltaTransformDlg::s_Space = ezQtDeltaTransformDlg::Space::World;
-ezVec3 ezQtDeltaTransformDlg::s_vTranslate(0.0f);
-ezVec3 ezQtDeltaTransformDlg::s_vTranslateDeviation(0.0f);
+WQtDeltaTransformDlg::Mode WQtDeltaTransformDlg::s_Mode = WQtDeltaTransformDlg::Mode::Translate;
+WQtDeltaTransformDlg::Space WQtDeltaTransformDlg::s_Space = WQtDeltaTransformDlg::Space::World;
+WVec3 WQtDeltaTransformDlg::s_vTranslate(0.0f);
+WVec3 WQtDeltaTransformDlg::s_vTranslateDeviation(0.0f);
 
-ezVec3 ezQtDeltaTransformDlg::s_vScale(1.0f);
-ezVec3 ezQtDeltaTransformDlg::s_vScaleDeviation(1.0f);
+WVec3 WQtDeltaTransformDlg::s_vScale(1.0f);
+WVec3 WQtDeltaTransformDlg::s_vScaleDeviation(1.0f);
 
-float ezQtDeltaTransformDlg::s_fUniformScale = 1.0f;
-float ezQtDeltaTransformDlg::s_fUniformScaleDeviation = 1.0f;
+float WQtDeltaTransformDlg::s_fUniformScale = 1.0f;
+float WQtDeltaTransformDlg::s_fUniformScaleDeviation = 1.0f;
 
-ezVec3 ezQtDeltaTransformDlg::s_vRotate(0.0f);
-ezVec3 ezQtDeltaTransformDlg::s_vRotateRandom(180.0f);
-ezVec3 ezQtDeltaTransformDlg::s_vRotateDeviation(180.0f);
+WVec3 WQtDeltaTransformDlg::s_vRotate(0.0f);
+WVec3 WQtDeltaTransformDlg::s_vRotateRandom(180.0f);
+WVec3 WQtDeltaTransformDlg::s_vRotateDeviation(180.0f);
 
-float ezQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
+float WQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
 
-bool ezQtDeltaTransformDlg::s_bUseCurrentSnapSettings = false;
+bool WQtDeltaTransformDlg::s_bUseCurrentSnapSettings = false;
 
-ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* pSceneDoc)
-  : ezQtDialog(pParent)
+WQtDeltaTransformDlg::WQtDeltaTransformDlg(QWidget* pParent, WSceneDocument* pSceneDoc)
+  : WQtDialog(pParent)
 {
   m_pSceneDocument = pSceneDoc;
 
   setupUi(this);
 
   {
-    ezQtScopedBlockSignals _1(ComboMode);
+    WQtScopedBlockSignals _1(ComboMode);
 
     ComboMode->clear();
     ComboMode->addItem("Translate");
@@ -61,7 +61,7 @@ ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* 
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
-void ezQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
+void WQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
 {
   QueryUI();
 
@@ -70,127 +70,127 @@ void ezQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
   UpdateUI();
 }
 
-void ezQtDeltaTransformDlg::on_ComboSpace_currentIndexChanged(int index)
+void WQtDeltaTransformDlg::on_ComboSpace_currentIndexChanged(int index)
 {
   s_Space = (Space)index;
 }
 
-void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
+void WQtDeltaTransformDlg::on_ButtonApply_clicked()
 {
-  ezStringBuilder sAction;
+  WStringBuilder sAction;
 
   // early out when nothing is to do
   switch (s_Mode)
   {
     case Mode::Translate:
-      if (s_vTranslate == ezVec3(0.0f))
+      if (s_vTranslate == WVec3(0.0f))
         return;
 
-      sAction.SetFormat("Translate: {0} | {1} | {2}", ezArgF(s_vTranslate.x, 2), ezArgF(s_vTranslate.y, 2), ezArgF(s_vTranslate.z, 2));
+      sAction.SetFormat("Translate: {0} | {1} | {2}", WArgF(s_vTranslate.x, 2), WArgF(s_vTranslate.y, 2), WArgF(s_vTranslate.z, 2));
       break;
 
     case Mode::TranslateDeviation:
-      if (s_vTranslateDeviation == ezVec3(0.0f))
+      if (s_vTranslateDeviation == WVec3(0.0f))
         return;
 
-      sAction.SetFormat("Translate (deviation): {0} | {1} | {2}", ezArgF(s_vTranslateDeviation.x, 2), ezArgF(s_vTranslateDeviation.y, 2),
-        ezArgF(s_vTranslateDeviation.z, 2));
+      sAction.SetFormat("Translate (deviation): {0} | {1} | {2}", WArgF(s_vTranslateDeviation.x, 2), WArgF(s_vTranslateDeviation.y, 2),
+        WArgF(s_vTranslateDeviation.z, 2));
       break;
 
     case Mode::RotateX:
       if (s_vRotate.x == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate X: {0}", ezArgF(s_vRotate.x, 1));
+      sAction.SetFormat("Rotate X: {0}", WArgF(s_vRotate.x, 1));
       break;
 
     case Mode::RotateXRandom:
       if (s_vRotateRandom.x == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate X (random): {0}", ezArgF(s_vRotateRandom.x, 1));
+      sAction.SetFormat("Rotate X (random): {0}", WArgF(s_vRotateRandom.x, 1));
       break;
 
     case Mode::RotateXDeviation:
       if (s_vRotateDeviation.x == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate X (deviation): {0}", ezArgF(s_vRotateDeviation.x, 1));
+      sAction.SetFormat("Rotate X (deviation): {0}", WArgF(s_vRotateDeviation.x, 1));
       break;
 
     case Mode::RotateY:
       if (s_vRotate.y == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Y: {0}", ezArgF(s_vRotate.y, 1));
+      sAction.SetFormat("Rotate Y: {0}", WArgF(s_vRotate.y, 1));
       break;
 
     case Mode::RotateYRandom:
       if (s_vRotateRandom.y == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Y (random): {0}", ezArgF(s_vRotateRandom.y, 1));
+      sAction.SetFormat("Rotate Y (random): {0}", WArgF(s_vRotateRandom.y, 1));
       break;
 
     case Mode::RotateYDeviation:
       if (s_vRotateDeviation.y == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Y (deviation): {0}", ezArgF(s_vRotateDeviation.y, 1));
+      sAction.SetFormat("Rotate Y (deviation): {0}", WArgF(s_vRotateDeviation.y, 1));
       break;
 
     case Mode::RotateZ:
       if (s_vRotate.z == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Z: {0}", ezArgF(s_vRotate.z, 1));
+      sAction.SetFormat("Rotate Z: {0}", WArgF(s_vRotate.z, 1));
       break;
 
     case Mode::RotateZRandom:
       if (s_vRotateRandom.z == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Z (random): {0}", ezArgF(s_vRotateRandom.z, 1));
+      sAction.SetFormat("Rotate Z (random): {0}", WArgF(s_vRotateRandom.z, 1));
       break;
 
     case Mode::RotateZDeviation:
       if (s_vRotateDeviation.z == 0.0f)
         return;
 
-      sAction.SetFormat("Rotate Z (deviation): {0}", ezArgF(s_vRotateDeviation.z, 1));
+      sAction.SetFormat("Rotate Z (deviation): {0}", WArgF(s_vRotateDeviation.z, 1));
       break;
 
     case Mode::Scale:
-      if (s_vScale == ezVec3(1.0f))
+      if (s_vScale == WVec3(1.0f))
         return;
 
-      sAction.SetFormat("Scale: {0} | {1} | {2}", ezArgF(s_vScale.x, 2), ezArgF(s_vScale.y, 2), ezArgF(s_vScale.z, 2));
+      sAction.SetFormat("Scale: {0} | {1} | {2}", WArgF(s_vScale.x, 2), WArgF(s_vScale.y, 2), WArgF(s_vScale.z, 2));
       break;
 
     case Mode::ScaleDeviation:
-      if (s_vScaleDeviation == ezVec3(1.0f))
+      if (s_vScaleDeviation == WVec3(1.0f))
         return;
 
       sAction.SetFormat(
-        "Scale (deviation): {0} | {1} | {2}", ezArgF(s_vScaleDeviation.x, 2), ezArgF(s_vScaleDeviation.y, 2), ezArgF(s_vScaleDeviation.z, 2));
+        "Scale (deviation): {0} | {1} | {2}", WArgF(s_vScaleDeviation.x, 2), WArgF(s_vScaleDeviation.y, 2), WArgF(s_vScaleDeviation.z, 2));
       break;
 
     case Mode::UniformScale:
       if (s_fUniformScale == 1.0f)
         return;
 
-      sAction.SetFormat("Scale: {0}", ezArgF(s_fUniformScale, 2));
+      sAction.SetFormat("Scale: {0}", WArgF(s_fUniformScale, 2));
       break;
 
     case Mode::UniformScaleDeviation:
       if (s_fUniformScaleDeviation == 1.0f)
         return;
 
-      sAction.SetFormat("Scale (deviation): {0}", ezArgF(s_fUniformScaleDeviation, 2));
+      sAction.SetFormat("Scale (deviation): {0}", WArgF(s_fUniformScaleDeviation, 2));
       break;
 
     case Mode::NaturalDeviationZ:
-      sAction.SetFormat("Natural Deviation Z: {0}", ezArgF(s_fNaturalDeviationZ, 1));
+      sAction.SetFormat("Natural Deviation Z: {0}", WArgF(s_fNaturalDeviationZ, 1));
       break;
   }
 
@@ -198,9 +198,9 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   auto history = m_pSceneDocument->GetCommandHistory();
   auto selman = m_pSceneDocument->GetSelectionManager();
 
-  ezTempHybridArray<ezSelectionEntry, 64> selection;
+  WTempHybridArray<WSelectionEntry, 64> selection;
   selman->GetTopLevelSelection(selection);
-  const ezDocumentObject* pCurObj = selman->GetCurrentObject();
+  const WDocumentObject* pCurObj = selman->GetCurrentObject();
 
   if (selection.IsEmpty() || pCurObj == nullptr)
     return;
@@ -210,7 +210,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   if (s_Mode == Mode::NaturalDeviationZ)
     space = Space::LocalEach;
 
-  ezTransform tReference = m_pSceneDocument->GetGlobalTransform(pCurObj);
+  WTransform tReference = m_pSceneDocument->GetGlobalTransform(pCurObj);
 
   if (space == Space::World)
   {
@@ -220,69 +220,69 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
   history->StartTransaction(sAction.GetData());
 
-  ezRandom rng;
+  WRandom rng;
   rng.InitializeFromCurrentTime();
 
-  for (const ezSelectionEntry& entry : selection)
+  for (const WSelectionEntry& entry : selection)
   {
-    if (!entry.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    if (!entry.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
       continue;
 
-    ezVec3 vTranslate = s_vTranslate;
-    ezVec3 vRotate = s_vRotate;
-    ezVec3 vScale = s_vScale;
+    WVec3 vTranslate = s_vTranslate;
+    WVec3 vRotate = s_vRotate;
+    WVec3 vScale = s_vScale;
     float fUniformScale = s_fUniformScale;
 
 
     switch (s_Mode)
     {
-      case ezQtDeltaTransformDlg::TranslateDeviation:
+      case WQtDeltaTransformDlg::TranslateDeviation:
       {
-        ezVec3 vAbsTranslate = s_vTranslateDeviation.Abs();
+        WVec3 vAbsTranslate = s_vTranslateDeviation.Abs();
         vTranslate.x = rng.DoubleVarianceAroundZero(vAbsTranslate.x);
         vTranslate.y = rng.DoubleVarianceAroundZero(vAbsTranslate.y);
         vTranslate.z = rng.DoubleVarianceAroundZero(vAbsTranslate.z);
         break;
       }
 
-      case ezQtDeltaTransformDlg::RotateXRandom:
+      case WQtDeltaTransformDlg::RotateXRandom:
         vRotate.x = rng.DoubleMinMax(-s_vRotateRandom.Abs().x, +s_vRotateRandom.Abs().x);
         break;
 
-      case ezQtDeltaTransformDlg::RotateXDeviation:
+      case WQtDeltaTransformDlg::RotateXDeviation:
         vRotate.x = rng.DoubleVarianceAroundZero(s_vRotateDeviation.Abs().x);
         break;
 
-      case ezQtDeltaTransformDlg::RotateYRandom:
+      case WQtDeltaTransformDlg::RotateYRandom:
         vRotate.y = rng.DoubleMinMax(-s_vRotateRandom.Abs().y, +s_vRotateRandom.Abs().y);
         break;
 
-      case ezQtDeltaTransformDlg::RotateYDeviation:
+      case WQtDeltaTransformDlg::RotateYDeviation:
         vRotate.y = rng.DoubleVarianceAroundZero(s_vRotateDeviation.Abs().y);
         break;
 
-      case ezQtDeltaTransformDlg::RotateZRandom:
+      case WQtDeltaTransformDlg::RotateZRandom:
         vRotate.z = rng.DoubleMinMax(-s_vRotateRandom.Abs().z, +s_vRotateRandom.Abs().z);
         break;
 
-      case ezQtDeltaTransformDlg::RotateZDeviation:
+      case WQtDeltaTransformDlg::RotateZDeviation:
         vRotate.z = rng.DoubleVarianceAroundZero(s_vRotateDeviation.Abs().z);
         break;
 
-      case ezQtDeltaTransformDlg::ScaleDeviation:
+      case WQtDeltaTransformDlg::ScaleDeviation:
       {
-        const ezVec3 vScaleMin = s_vScaleDeviation.CompMin(ezVec3(1.0f).CompDiv(s_vScaleDeviation));
-        const ezVec3 vScaleMax = s_vScaleDeviation.CompMax(ezVec3(1.0f).CompDiv(s_vScaleDeviation));
+        const WVec3 vScaleMin = s_vScaleDeviation.CompMin(WVec3(1.0f).CompDiv(s_vScaleDeviation));
+        const WVec3 vScaleMax = s_vScaleDeviation.CompMax(WVec3(1.0f).CompDiv(s_vScaleDeviation));
         vScale.x = rng.DoubleVariance((vScaleMax.x - vScaleMin.x) * 0.5, 1.0) + vScaleMin.x;
         vScale.y = rng.DoubleVariance((vScaleMax.y - vScaleMin.y) * 0.5, 1.0) + vScaleMin.y;
         vScale.z = rng.DoubleVariance((vScaleMax.z - vScaleMin.z) * 0.5, 1.0) + vScaleMin.z;
         break;
       }
 
-      case ezQtDeltaTransformDlg::UniformScaleDeviation:
+      case WQtDeltaTransformDlg::UniformScaleDeviation:
       {
-        const float fUniScaleMin = ezMath::Min(1.0f / s_fUniformScaleDeviation, s_fUniformScaleDeviation);
-        const float fUniScaleMax = ezMath::Max(1.0f / s_fUniformScaleDeviation, s_fUniformScaleDeviation);
+        const float fUniScaleMin = WMath::Min(1.0f / s_fUniformScaleDeviation, s_fUniformScaleDeviation);
+        const float fUniScaleMax = WMath::Max(1.0f / s_fUniformScaleDeviation, s_fUniformScaleDeviation);
         fUniformScale = rng.DoubleVariance((fUniScaleMax - fUniScaleMin) * 0.5, 1.0) + fUniScaleMin;
         break;
       }
@@ -291,18 +291,18 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         break;
     }
 
-    ezAngle angleX = ezAngle::MakeFromDegree(vRotate.x);
-    ezAngle angleY = ezAngle::MakeFromDegree(vRotate.y);
-    ezAngle angleZ = ezAngle::MakeFromDegree(vRotate.z);
+    WAngle angleX = WAngle::MakeFromDegree(vRotate.x);
+    WAngle angleY = WAngle::MakeFromDegree(vRotate.y);
+    WAngle angleZ = WAngle::MakeFromDegree(vRotate.z);
 
     if (s_bUseCurrentSnapSettings)
     {
-      ezSnapProvider::SnapTranslation(vTranslate);
-      ezSnapProvider::SnapRotation(angleX);
-      ezSnapProvider::SnapRotation(angleY);
-      ezSnapProvider::SnapRotation(angleZ);
-      ezSnapProvider::SnapScale(vScale);
-      ezSnapProvider::SnapScale(fUniformScale);
+      WSnapProvider::SnapTranslation(vTranslate);
+      WSnapProvider::SnapRotation(angleX);
+      WSnapProvider::SnapRotation(angleY);
+      WSnapProvider::SnapRotation(angleZ);
+      WSnapProvider::SnapScale(vScale);
+      WSnapProvider::SnapScale(fUniformScale);
     }
 
     if (space == Space::LocalEach)
@@ -310,9 +310,9 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       tReference = m_pSceneDocument->GetGlobalTransform(entry.m_pObject);
     }
 
-    ezTransform trans = m_pSceneDocument->GetGlobalTransform(entry.m_pObject);
-    ezTransform localTrans = tReference.GetInverse() * trans;
-    ezQuat qRot;
+    WTransform trans = m_pSceneDocument->GetGlobalTransform(entry.m_pObject);
+    WTransform localTrans = tReference.GetInverse() * trans;
+    WQuat qRot;
 
     switch (s_Mode)
     {
@@ -325,7 +325,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateX:
       case Mode::RotateXRandom:
       case Mode::RotateXDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), angleX);
+        qRot = WQuat::MakeFromAxisAndAngle(WVec3(1, 0, 0), angleX);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -336,7 +336,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateY:
       case Mode::RotateYRandom:
       case Mode::RotateYDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), angleY);
+        qRot = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), angleY);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -347,7 +347,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateZ:
       case Mode::RotateZRandom:
       case Mode::RotateZDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), angleZ);
+        qRot = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), angleZ);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -370,18 +370,18 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
       case Mode::NaturalDeviationZ:
       {
-        const ezAngle randomRotationZ = ezAngle::MakeFromDegree(rng.DoubleMinMax(0, 360));
+        const WAngle randomRotationZ = WAngle::MakeFromDegree(rng.DoubleMinMax(0, 360));
 
-        ezQuat qDeviation;
+        WQuat qDeviation;
         qDeviation.SetIdentity();
 
         if (s_fNaturalDeviationZ > 0.0f)
         {
-          const ezVec3 vDeviationAxis = ezVec3::MakeRandomDeviationZ(rng, ezAngle::MakeFromDegree(s_fNaturalDeviationZ));
-          qDeviation = ezQuat::MakeShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
+          const WVec3 vDeviationAxis = WVec3::MakeRandomDeviationZ(rng, WAngle::MakeFromDegree(s_fNaturalDeviationZ));
+          qDeviation = WQuat::MakeShortestRotation(WVec3(0, 0, 1), vDeviationAxis);
         }
 
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), randomRotationZ);
+        qRot = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), randomRotationZ);
         localTrans.m_qRotation = qDeviation * qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qDeviation * qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -402,7 +402,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
-void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
+void WQtDeltaTransformDlg::on_ButtonUndo_clicked()
 {
   auto history = m_pSceneDocument->GetCommandHistory();
 
@@ -415,7 +415,7 @@ void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
-void ezQtDeltaTransformDlg::QueryUI()
+void WQtDeltaTransformDlg::QueryUI()
 {
   switch (s_Mode)
   {
@@ -447,53 +447,53 @@ void ezQtDeltaTransformDlg::QueryUI()
       s_fUniformScale = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::TranslateDeviation:
+    case WQtDeltaTransformDlg::TranslateDeviation:
       s_vTranslateDeviation.x = (float)Value1->value();
       s_vTranslateDeviation.y = (float)Value2->value();
       s_vTranslateDeviation.z = (float)Value3->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateXRandom:
+    case WQtDeltaTransformDlg::RotateXRandom:
       s_vRotateRandom.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateXDeviation:
+    case WQtDeltaTransformDlg::RotateXDeviation:
       s_vRotateDeviation.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateYRandom:
+    case WQtDeltaTransformDlg::RotateYRandom:
       s_vRotateRandom.y = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateYDeviation:
+    case WQtDeltaTransformDlg::RotateYDeviation:
       s_vRotateDeviation.y = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateZRandom:
+    case WQtDeltaTransformDlg::RotateZRandom:
       s_vRotateRandom.z = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateZDeviation:
+    case WQtDeltaTransformDlg::RotateZDeviation:
       s_vRotateDeviation.y = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::ScaleDeviation:
+    case WQtDeltaTransformDlg::ScaleDeviation:
       s_vScaleDeviation.x = (float)Value1->value();
       s_vScaleDeviation.y = (float)Value2->value();
       s_vScaleDeviation.z = (float)Value3->value();
       break;
 
-    case ezQtDeltaTransformDlg::UniformScaleDeviation:
+    case WQtDeltaTransformDlg::UniformScaleDeviation:
       s_fUniformScaleDeviation = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::NaturalDeviationZ:
+    case WQtDeltaTransformDlg::NaturalDeviationZ:
       s_fNaturalDeviationZ = (float)Value1->value();
       break;
   }
 }
 
-void ezQtDeltaTransformDlg::UpdateUI()
+void WQtDeltaTransformDlg::UpdateUI()
 {
   ComboSpace->setVisible(true);
   Value1->setVisible(true);
@@ -664,7 +664,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
   }
 }
 
-void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
+void WQtDeltaTransformDlg::on_Value1_valueChanged(double value)
 {
   switch (s_Mode)
   {
@@ -692,43 +692,43 @@ void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
       s_fUniformScale = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::TranslateDeviation:
+    case WQtDeltaTransformDlg::TranslateDeviation:
       s_vTranslateDeviation.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateXRandom:
+    case WQtDeltaTransformDlg::RotateXRandom:
       s_vRotateRandom.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateXDeviation:
+    case WQtDeltaTransformDlg::RotateXDeviation:
       s_vRotateDeviation.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateYRandom:
+    case WQtDeltaTransformDlg::RotateYRandom:
       s_vRotateRandom.y = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateYDeviation:
+    case WQtDeltaTransformDlg::RotateYDeviation:
       s_vRotateDeviation.y = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateZRandom:
+    case WQtDeltaTransformDlg::RotateZRandom:
       s_vRotateRandom.z = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::RotateZDeviation:
+    case WQtDeltaTransformDlg::RotateZDeviation:
       s_vRotateDeviation.z = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::ScaleDeviation:
+    case WQtDeltaTransformDlg::ScaleDeviation:
       s_vScaleDeviation.x = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::UniformScaleDeviation:
+    case WQtDeltaTransformDlg::UniformScaleDeviation:
       s_fUniformScaleDeviation = (float)Value1->value();
       break;
 
-    case ezQtDeltaTransformDlg::NaturalDeviationZ:
+    case WQtDeltaTransformDlg::NaturalDeviationZ:
       s_fNaturalDeviationZ = (float)Value1->value();
       break;
 
@@ -737,7 +737,7 @@ void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
   }
 }
 
-void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
+void WQtDeltaTransformDlg::on_Value2_valueChanged(double value)
 {
   switch (s_Mode)
   {
@@ -762,7 +762,7 @@ void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
   }
 }
 
-void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
+void WQtDeltaTransformDlg::on_Value3_valueChanged(double value)
 {
   switch (s_Mode)
   {
@@ -787,7 +787,7 @@ void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
   }
 }
 
-void ezQtDeltaTransformDlg::on_CheckBoxSnapping_stateChanged(int state)
+void WQtDeltaTransformDlg::on_CheckBoxSnapping_stateChanged(int state)
 {
   s_bUseCurrentSnapSettings = (state != 0);
 }

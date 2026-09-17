@@ -1,6 +1,6 @@
-# ezEngine
+# WorldEngine
 
-ezEngine is an open-source C++ game engine. It uses CMake for builds and supports Windows (Visual Studio) and Linux (GCC/Clang).
+WorldEngine is an open-source C++ game engine. It uses CMake for builds and supports Windows (Visual Studio) and Linux (GCC/Clang).
 
 ## Project Layout
 

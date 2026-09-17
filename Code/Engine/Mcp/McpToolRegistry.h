@@ -14,13 +14,13 @@
 ///
 /// \param execute Runs the tool. Call it exactly once - skipping it answers the client with an empty
 ///        result, calling it twice runs the tool twice.
-using ezMcpExecuteWrapper = ezDelegate<void(ezStringView sToolName, ezMcpToolResult& ref_result, ezDelegate<void()> execute)>;
+using WMcpExecuteWrapper = WDelegate<void(WStringView sToolName, WMcpToolResult& ref_result, WDelegate<void()> execute)>;
 
-/// Owns one instance of every ezMcpToolProvider and routes calls to them.
+/// Owns one instance of every WMcpToolProvider and routes calls to them.
 ///
 /// The registry is filled through reflection, so a provider in another plugin needs no registration
 /// call - it only has to exist.
-class EZ_MCP_DLL ezMcpToolRegistry
+class W_MCP_DLL WMcpToolRegistry
 {
 public:
   /// Instantiates every provider type that isn't known yet.
@@ -29,7 +29,7 @@ public:
   /// that owns the server and would otherwise never be picked up.
   ///
   /// Provider types that cannot be allocated are skipped, which is what makes an abstract provider base
-  /// usable: a tool that exists in several hosts declares the shared half with ezRTTINoAllocator and
+  /// usable: a tool that exists in several hosts declares the shared half with WRTTINoAllocator and
   /// each host derives the concrete type that is actually instantiated here.
   static void UpdateProviders();
 
@@ -44,22 +44,22 @@ public:
   /// while its own code is still mapped. Does nothing if no such provider exists, so it is safe to call
   /// when the registry was never filled. UpdateProviders() instantiates the type again if the plugin is
   /// loaded once more.
-  static void RemoveProvider(const ezRTTI* pProviderType);
+  static void RemoveProvider(const WRTTI* pProviderType);
 
   /// All tools of all providers, in registration order.
-  static const ezDynamicArray<ezMcpToolDesc>& GetTools() { return s_Tools; }
+  static const WDynamicArray<WMcpToolDesc>& GetTools() { return s_Tools; }
 
   /// Installs the host's wrapper around every tool call. Pass an invalid delegate to remove it.
-  static void SetExecuteWrapper(ezMcpExecuteWrapper wrapper) { s_ExecuteWrapper = wrapper; }
+  static void SetExecuteWrapper(WMcpExecuteWrapper wrapper) { s_ExecuteWrapper = wrapper; }
 
   /// Runs a tool. Fails only if no tool of that name exists - a tool that ran but didn't like
   /// its arguments reports that through out_result instead.
-  static ezResult Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  static WResult Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result);
 
 private:
-  static ezSet<const ezRTTI*> s_KnownTypes;
-  static ezDynamicArray<ezMcpToolProvider*> s_Providers;
-  static ezDynamicArray<ezMcpToolDesc> s_Tools;
-  static ezMap<ezString, ezMcpToolProvider*> s_ToolLookup;
-  static ezMcpExecuteWrapper s_ExecuteWrapper;
+  static WSet<const WRTTI*> s_KnownTypes;
+  static WDynamicArray<WMcpToolProvider*> s_Providers;
+  static WDynamicArray<WMcpToolDesc> s_Tools;
+  static WMap<WString, WMcpToolProvider*> s_ToolLookup;
+  static WMcpExecuteWrapper s_ExecuteWrapper;
 };

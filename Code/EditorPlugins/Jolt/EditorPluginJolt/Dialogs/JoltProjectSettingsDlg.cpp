@@ -9,8 +9,8 @@ void UpdateCollisionLayerDynamicEnumValues();
 void UpdateWeightCategoryDynamicEnumValues();
 void UpdateImpulseTypeDynamicEnumValues();
 
-ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(const ezVariant& startup, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtJoltProjectSettingsDlg::WQtJoltProjectSettingsDlg(const WVariant& startup, QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -34,7 +34,7 @@ ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(const ezVariant& startup,
 
   if (startup.IsValid())
   {
-    const ezString sStartup = startup.ConvertTo<ezString>();
+    const WString sStartup = startup.ConvertTo<WString>();
     if (sStartup == "CollisionLayers")
     {
       Tabs->setCurrentIndex(0);
@@ -50,19 +50,19 @@ ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(const ezVariant& startup,
   }
 }
 
-void ezQtJoltProjectSettingsDlg::EnsureConfigFileExists()
+void WQtJoltProjectSettingsDlg::EnsureConfigFileExists()
 {
   EnsureFilterConfigFileExists();
   EnsureWeightsConfigFileExists();
   EnsureImpulseConfigFileExists();
 }
 
-void ezQtJoltProjectSettingsDlg::EnsureFilterConfigFileExists()
+void WQtJoltProjectSettingsDlg::EnsureFilterConfigFileExists()
 {
-  if (ezFileSystem::ExistsFile(ezCollisionFilterConfig::s_sConfigFile))
+  if (WFileSystem::ExistsFile(WCollisionFilterConfig::s_sConfigFile))
     return;
 
-  ezCollisionFilterConfig cfg;
+  WCollisionFilterConfig cfg;
 
   cfg.SetGroupName(0, "Default");
   cfg.SetGroupName(1, "Transparent");
@@ -131,21 +131,21 @@ void ezQtJoltProjectSettingsDlg::EnsureFilterConfigFileExists()
   cfg.Save().IgnoreResult();
 }
 
-void ezQtJoltProjectSettingsDlg::SetupFilterTable()
+void WQtJoltProjectSettingsDlg::SetupFilterTable()
 {
-  ezQtScopedBlockSignals s1(FilterTable);
-  ezQtScopedUpdatesDisabled s2(FilterTable);
+  WQtScopedBlockSignals s1(FilterTable);
+  WQtScopedUpdatesDisabled s2(FilterTable);
 
-  const ezUInt32 uiLayers = m_Config.GetNumNamedGroups();
+  const WUInt32 uiLayers = m_Config.GetNumNamedGroups();
 
   FilterTable->setRowCount(uiLayers);
   FilterTable->setColumnCount(uiLayers);
   FilterTable->horizontalHeader()->setHighlightSections(false);
 
   QStringList headers;
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  for (ezUInt32 r = 0; r < uiLayers; ++r)
+  for (WUInt32 r = 0; r < uiLayers; ++r)
   {
     m_IndexRemap[r] = m_Config.GetNamedGroupIndex(r);
 
@@ -155,16 +155,16 @@ void ezQtJoltProjectSettingsDlg::SetupFilterTable()
   FilterTable->setVerticalHeaderLabels(headers);
   FilterTable->setHorizontalHeaderLabels(headers);
 
-  for (ezUInt32 r = 0; r < uiLayers; ++r)
+  for (WUInt32 r = 0; r < uiLayers; ++r)
   {
-    for (ezUInt32 c = 0; c < uiLayers; ++c)
+    for (WUInt32 c = 0; c < uiLayers; ++c)
     {
       QCheckBox* pCheck = new QCheckBox();
       pCheck->setText(QString());
       pCheck->setChecked(m_Config.IsCollisionEnabled(m_IndexRemap[r], m_IndexRemap[c]));
       pCheck->setProperty("column", c);
       pCheck->setProperty("row", r);
-      connect(pCheck, &QCheckBox::clicked, this, &ezQtJoltProjectSettingsDlg::onCheckBoxClicked);
+      connect(pCheck, &QCheckBox::clicked, this, &WQtJoltProjectSettingsDlg::onCheckBoxClicked);
 
       QWidget* pWidget = new QWidget();
       QHBoxLayout* pLayout = new QHBoxLayout(pWidget);
@@ -178,74 +178,74 @@ void ezQtJoltProjectSettingsDlg::SetupFilterTable()
   }
 }
 
-ezResult ezQtJoltProjectSettingsDlg::Save()
+WResult WQtJoltProjectSettingsDlg::Save()
 {
   if (m_Config.Save().Failed())
   {
-    ezStringBuilder sError;
-    sError.SetFormat("Failed to save the Collision Layer file\n'{0}'", ezCollisionFilterConfig::s_sConfigFile);
+    WStringBuilder sError;
+    sError.SetFormat("Failed to save the Collision Layer file\n'{0}'", WCollisionFilterConfig::s_sConfigFile);
 
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
+    WQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   UpdateCollisionLayerDynamicEnumValues();
 
   if (m_WeightConfig.Save().Failed())
   {
-    ezStringBuilder sError;
-    sError.SetFormat("Failed to save the Weight Categories file\n'{0}'", ezWeightCategoryConfig::s_sConfigFile);
+    WStringBuilder sError;
+    sError.SetFormat("Failed to save the Weight Categories file\n'{0}'", WWeightCategoryConfig::s_sConfigFile);
 
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
+    WQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   UpdateWeightCategoryDynamicEnumValues();
 
   if (m_ImpulseConfig.Save().Failed())
   {
-    ezStringBuilder sError;
-    sError.SetFormat("Failed to save the Force Categories file\n'{0}'", ezImpulseTypeConfig::s_sConfigFile);
+    WStringBuilder sError;
+    sError.SetFormat("Failed to save the Force Categories file\n'{0}'", WImpulseTypeConfig::s_sConfigFile);
 
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
+    WQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   UpdateImpulseTypeDynamicEnumValues();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezQtJoltProjectSettingsDlg::Load()
+WResult WQtJoltProjectSettingsDlg::Load()
 {
-  EZ_SUCCEED_OR_RETURN(m_Config.Load());
-  EZ_SUCCEED_OR_RETURN(m_WeightConfig.Load());
-  EZ_SUCCEED_OR_RETURN(m_ImpulseConfig.Load());
+  W_SUCCEED_OR_RETURN(m_Config.Load());
+  W_SUCCEED_OR_RETURN(m_WeightConfig.Load());
+  W_SUCCEED_OR_RETURN(m_ImpulseConfig.Load());
 
   m_ConfigReset = m_Config;
   m_WeightConfigReset = m_WeightConfig;
   m_ImpulseConfigReset = m_ImpulseConfig;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-static void AddWeightCfg(ezWeightCategoryConfig& ref_cfg, ezStringView sName, float fMass, ezStringView sDesc)
+static void AddWeightCfg(WWeightCategoryConfig& ref_cfg, WStringView sName, float fMass, WStringView sDesc)
 {
-  ezUInt8 idx = ref_cfg.GetFreeKey();
+  WUInt8 idx = ref_cfg.GetFreeKey();
   auto& e = ref_cfg.m_Categories[idx];
   e.m_sName.Assign(sName);
   e.m_fMass = fMass;
   e.m_sDescription = sDesc;
 }
 
-void ezQtJoltProjectSettingsDlg::EnsureWeightsConfigFileExists()
+void WQtJoltProjectSettingsDlg::EnsureWeightsConfigFileExists()
 {
-  if (ezFileSystem::ExistsFile(ezWeightCategoryConfig::s_sConfigFile))
+  if (WFileSystem::ExistsFile(WWeightCategoryConfig::s_sConfigFile))
     return;
 
-  ezWeightCategoryConfig cfg;
+  WWeightCategoryConfig cfg;
   AddWeightCfg(cfg, "Barrel", 35.0f, "");
   AddWeightCfg(cfg, "Car", 500.0f, "");
   AddWeightCfg(cfg, "Chair", 10.0f, "");
@@ -267,21 +267,21 @@ void ezQtJoltProjectSettingsDlg::EnsureWeightsConfigFileExists()
   cfg.Save().IgnoreResult();
 }
 
-static void AddForceCfg(ezImpulseTypeConfig& ref_cfg, ezStringView sName, float fForce, ezStringView sDesc)
+static void AddForceCfg(WImpulseTypeConfig& ref_cfg, WStringView sName, float fForce, WStringView sDesc)
 {
-  ezUInt8 idx = ref_cfg.GetFreeKey();
+  WUInt8 idx = ref_cfg.GetFreeKey();
   auto& e = ref_cfg.m_Types[idx];
   e.m_sName.Assign(sName);
   e.m_fDefaultValue = fForce;
   e.m_sDescription = sDesc;
 }
 
-void ezQtJoltProjectSettingsDlg::EnsureImpulseConfigFileExists()
+void WQtJoltProjectSettingsDlg::EnsureImpulseConfigFileExists()
 {
-  if (ezFileSystem::ExistsFile(ezImpulseTypeConfig::s_sConfigFile))
+  if (WFileSystem::ExistsFile(WImpulseTypeConfig::s_sConfigFile))
     return;
 
-  ezImpulseTypeConfig cfg;
+  WImpulseTypeConfig cfg;
   AddForceCfg(cfg, "Projectile - Light", 10.0f, "");
   AddForceCfg(cfg, "Projectile - Medium", 40.0f, "");
   AddForceCfg(cfg, "Projectile - Heavy", 150.0f, "");
@@ -295,12 +295,12 @@ void ezQtJoltProjectSettingsDlg::EnsureImpulseConfigFileExists()
   cfg.Save().IgnoreResult();
 }
 
-void ezQtJoltProjectSettingsDlg::onCheckBoxClicked(bool checked)
+void WQtJoltProjectSettingsDlg::onCheckBoxClicked(bool checked)
 {
   QCheckBox* pCheck = qobject_cast<QCheckBox*>(sender());
 
-  const ezInt32 c = pCheck->property("column").toInt();
-  const ezInt32 r = pCheck->property("row").toInt();
+  const WInt32 c = pCheck->property("column").toInt();
+  const WInt32 r = pCheck->property("row").toInt();
 
   m_Config.EnableCollision(m_IndexRemap[c], m_IndexRemap[r], pCheck->isChecked());
 
@@ -311,7 +311,7 @@ void ezQtJoltProjectSettingsDlg::onCheckBoxClicked(bool checked)
   }
 }
 
-void ezQtJoltProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
+void WQtJoltProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
 {
   if (pButton == DefaultButtons->button(QDialogButtonBox::Ok))
   {
@@ -340,13 +340,13 @@ void ezQtJoltProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pBut
   }
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
 {
-  const ezUInt32 uiNewIdx = m_Config.FindUnnamedGroup();
+  const WUInt32 uiNewIdx = m_Config.FindUnnamedGroup();
 
-  if (uiNewIdx == ezInvalidIndex)
+  if (uiNewIdx == WInvalidIndex)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
     return;
   }
 
@@ -358,9 +358,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
     if (!ok)
       return;
 
-    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != ezInvalidIndex)
+    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != WInvalidIndex)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 
@@ -371,14 +371,14 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
   SetupFilterTable();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
 {
   const auto sel = FilterTable->selectionModel()->selectedRows();
 
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
   const int iRow = sel[0].row();
@@ -390,7 +390,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
   FilterTable->clearSelection();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
 {
   const auto sel = FilterTable->selectionModel()->selectedRows();
 
@@ -398,7 +398,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
     return;
 
   const int iGroupIdx = m_IndexRemap[sel[0].row()];
-  const ezString sOldName = m_Config.GetGroupName(iGroupIdx);
+  const WString sOldName = m_Config.GetGroupName(iGroupIdx);
 
   m_Config.SetGroupName(iGroupIdx, "");
 
@@ -413,9 +413,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
       return;
     }
 
-    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != ezInvalidIndex)
+    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != WInvalidIndex)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("A collision layer with that name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("A collision layer with that name already exists.");
       continue;
     }
 
@@ -426,14 +426,14 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
   }
 }
 
-void ezQtJoltProjectSettingsDlg::on_FilterTable_itemSelectionChanged()
+void WQtJoltProjectSettingsDlg::on_FilterTable_itemSelectionChanged()
 {
   const auto sel = FilterTable->selectionModel()->selectedRows();
   ButtonRemoveLayer->setEnabled(!sel.isEmpty());
   ButtonRenameLayer->setEnabled(!sel.isEmpty());
 }
 
-void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
+void WQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
 {
   OverridesTable->clear();
 
@@ -448,9 +448,9 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
   ButtonRenameImpulse->setEnabled(true);
   ButtonRemoveImpulse->setEnabled(true);
 
-  const ezHashedString sImpulse = m_RowToImpulse[sel[0].row()];
-  const ezUInt8 uiImpulseKey = m_ImpulseConfig.FindByName(sImpulse);
-  if (uiImpulseKey == ezImpulseTypeConfig::InvalidKey)
+  const WHashedString sImpulse = m_RowToImpulse[sel[0].row()];
+  const WUInt8 uiImpulseKey = m_ImpulseConfig.FindByName(sImpulse);
+  if (uiImpulseKey == WImpulseTypeConfig::InvalidKey)
     return;
 
   const auto& type = m_ImpulseConfig.m_Types[uiImpulseKey];
@@ -459,12 +459,12 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
   OverridesTable->setHorizontalHeaderLabels({"Mass Category", "Override Impulse"});
   OverridesTable->setRowCount(m_WeightConfig.m_Categories.GetCount());
 
-  for (ezUInt32 idx = 0; idx < m_WeightConfig.m_Categories.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < m_WeightConfig.m_Categories.GetCount(); ++idx)
   {
-    const ezUInt8 uiWeightKey = m_WeightConfig.m_Categories.GetKey(idx);
+    const WUInt8 uiWeightKey = m_WeightConfig.m_Categories.GetKey(idx);
     const auto& weight = m_WeightConfig.m_Categories.GetValue(idx);
 
-    OverridesTable->setItem(idx, 0, new QTableWidgetItem(ezMakeQString(weight.m_sName)));
+    OverridesTable->setItem(idx, 0, new QTableWidgetItem(WMakeQString(weight.m_sName)));
 
     const bool bOverride = type.m_WeightOverrides.Contains(uiWeightKey);
 
@@ -473,23 +473,23 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
     pCheck->setProperty("ImpulseKey", uiImpulseKey);
     pCheck->setProperty("WeightKey", uiWeightKey);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    connect(pCheck, &QCheckBox::checkStateChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
+    connect(pCheck, &QCheckBox::checkStateChanged, this, &WQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
 #else
-    EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
-    EZ_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
-    connect(pCheck, &QCheckBox::stateChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
-    EZ_WARNING_POP()
+    W_WARNING_PUSH()
+    W_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
+    W_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+    connect(pCheck, &QCheckBox::stateChanged, this, &WQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
+    W_WARNING_POP()
 #endif
 
-    ezQtDoubleSpinBox* pNumber = new ezQtDoubleSpinBox(nullptr);
+    WQtDoubleSpinBox* pNumber = new WQtDoubleSpinBox(nullptr);
     pNumber->setProperty("ImpulseKey", uiImpulseKey);
     pNumber->setProperty("WeightKey", uiWeightKey);
     pNumber->setMinimum(0);
     pNumber->setMaximum(10000);
     pNumber->setDecimals(1);
     pNumber->setEnabled(bOverride);
-    connect(pNumber, &ezQtDoubleSpinBox::valueChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideValue);
+    connect(pNumber, &WQtDoubleSpinBox::valueChanged, this, &WQtJoltProjectSettingsDlg::onImpulseOverrideValue);
 
     if (bOverride)
     {
@@ -510,7 +510,7 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
   OverridesTable->resizeColumnToContents(0);
 }
 
-void ezQtJoltProjectSettingsDlg::on_WeightsTable_itemSelectionChanged()
+void WQtJoltProjectSettingsDlg::on_WeightsTable_itemSelectionChanged()
 {
   const QModelIndexList sel = WeightsTable->selectionModel()->selectedRows();
   if (sel.isEmpty())
@@ -524,14 +524,14 @@ void ezQtJoltProjectSettingsDlg::on_WeightsTable_itemSelectionChanged()
   ButtonRemoveCategory->setEnabled(true);
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonAddCategory_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonAddCategory_clicked()
 {
-  ezHashedString name;
+  WHashedString name;
 
-  const ezUInt8 uiFreeKey = m_WeightConfig.GetFreeKey();
-  if (uiFreeKey == ezWeightCategoryConfig::InvalidKey)
+  const WUInt8 uiFreeKey = m_WeightConfig.GetFreeKey();
+  if (uiFreeKey == WWeightCategoryConfig::InvalidKey)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("You managed to create too many categories.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("You managed to create too many categories.");
     return;
   }
 
@@ -543,9 +543,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddCategory_clicked()
     if (!ok)
       return;
 
-    if (m_WeightConfig.FindByName(ezTempHashedString(result.toUtf8().data())) != ezWeightCategoryConfig::InvalidKey)
+    if (m_WeightConfig.FindByName(WTempHashedString(result.toUtf8().data())) != WWeightCategoryConfig::InvalidKey)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("A weight category with that name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("A weight category with that name already exists.");
       continue;
     }
 
@@ -556,35 +556,35 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddCategory_clicked()
   SetupWeightTable();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRemoveCategory_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRemoveCategory_clicked()
 {
   const auto sel = WeightsTable->selectionModel()->selectedIndexes();
 
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected category?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected category?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
-  const ezUInt32 uiRow = sel[0].row();
+  const WUInt32 uiRow = sel[0].row();
 
-  const ezUInt8 idx = m_WeightConfig.FindByName(m_RowToWeight[uiRow]);
+  const WUInt8 idx = m_WeightConfig.FindByName(m_RowToWeight[uiRow]);
   m_WeightConfig.m_Categories.RemoveAndCopy(idx);
 
   SetupWeightTable();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRenameCategory_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRenameCategory_clicked()
 {
   const auto sel = WeightsTable->selectionModel()->selectedRows();
 
   if (sel.isEmpty())
     return;
 
-  const ezHashedString sOldCatName = m_RowToWeight[sel[0].row()];
-  const ezUInt8 uiCatIdx = m_WeightConfig.FindByName(sOldCatName);
+  const WHashedString sOldCatName = m_RowToWeight[sel[0].row()];
+  const WUInt8 uiCatIdx = m_WeightConfig.FindByName(sOldCatName);
 
-  if (uiCatIdx == ezWeightCategoryConfig::InvalidKey)
+  if (uiCatIdx == WWeightCategoryConfig::InvalidKey)
     return;
 
   m_WeightConfig.m_Categories[uiCatIdx].m_sName.Assign("-tmp-");
@@ -600,9 +600,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameCategory_clicked()
       return;
     }
 
-    if (m_WeightConfig.FindByName(ezTempHashedString(result.toUtf8().data())) != ezWeightCategoryConfig::InvalidKey)
+    if (m_WeightConfig.FindByName(WTempHashedString(result.toUtf8().data())) != WWeightCategoryConfig::InvalidKey)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("A weight category with that name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("A weight category with that name already exists.");
       continue;
     }
 
@@ -612,14 +612,14 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameCategory_clicked()
   }
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonAddImpulse_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonAddImpulse_clicked()
 {
-  ezHashedString name;
+  WHashedString name;
 
-  const ezUInt8 uiFreeKey = m_ImpulseConfig.GetFreeKey();
-  if (uiFreeKey == ezImpulseTypeConfig::InvalidKey)
+  const WUInt8 uiFreeKey = m_ImpulseConfig.GetFreeKey();
+  if (uiFreeKey == WImpulseTypeConfig::InvalidKey)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("You managed to create too many impulse types.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("You managed to create too many impulse types.");
     return;
   }
 
@@ -631,9 +631,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddImpulse_clicked()
     if (!ok)
       return;
 
-    if (m_ImpulseConfig.FindByName(ezTempHashedString(result.toUtf8().data())) != ezImpulseTypeConfig::InvalidKey)
+    if (m_ImpulseConfig.FindByName(WTempHashedString(result.toUtf8().data())) != WImpulseTypeConfig::InvalidKey)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("An impulse type with that name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("An impulse type with that name already exists.");
       continue;
     }
 
@@ -644,35 +644,35 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddImpulse_clicked()
   SetupImpulseTable();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRemoveImpulse_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRemoveImpulse_clicked()
 {
   const auto sel = ImpulsesTable->selectionModel()->selectedIndexes();
 
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected impulse type?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected impulse type?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
-  const ezUInt32 uiRow = sel[0].row();
+  const WUInt32 uiRow = sel[0].row();
 
-  const ezUInt8 idx = m_ImpulseConfig.FindByName(m_RowToImpulse[uiRow]);
+  const WUInt8 idx = m_ImpulseConfig.FindByName(m_RowToImpulse[uiRow]);
   m_ImpulseConfig.m_Types.RemoveAndCopy(idx);
 
   SetupImpulseTable();
 }
 
-void ezQtJoltProjectSettingsDlg::on_ButtonRenameImpulse_clicked()
+void WQtJoltProjectSettingsDlg::on_ButtonRenameImpulse_clicked()
 {
   const auto sel = ImpulsesTable->selectionModel()->selectedRows();
 
   if (sel.isEmpty())
     return;
 
-  const ezHashedString sOldCatName = m_RowToImpulse[sel[0].row()];
-  const ezUInt8 uiCatIdx = m_ImpulseConfig.FindByName(sOldCatName);
+  const WHashedString sOldCatName = m_RowToImpulse[sel[0].row()];
+  const WUInt8 uiCatIdx = m_ImpulseConfig.FindByName(sOldCatName);
 
-  if (uiCatIdx == ezImpulseTypeConfig::InvalidKey)
+  if (uiCatIdx == WImpulseTypeConfig::InvalidKey)
     return;
 
   m_ImpulseConfig.m_Types[uiCatIdx].m_sName.Assign("-tmp-");
@@ -688,9 +688,9 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameImpulse_clicked()
       return;
     }
 
-    if (m_ImpulseConfig.FindByName(ezTempHashedString(result.toUtf8().data())) != ezImpulseTypeConfig::InvalidKey)
+    if (m_ImpulseConfig.FindByName(WTempHashedString(result.toUtf8().data())) != WImpulseTypeConfig::InvalidKey)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("An impulse type with that name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("An impulse type with that name already exists.");
       continue;
     }
 
@@ -700,17 +700,17 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameImpulse_clicked()
   }
 }
 
-void ezQtJoltProjectSettingsDlg::SetupWeightTable()
+void WQtJoltProjectSettingsDlg::SetupWeightTable()
 {
-  ezQtScopedBlockSignals s1(WeightsTable);
-  ezQtScopedUpdatesDisabled s2(WeightsTable);
+  WQtScopedBlockSignals s1(WeightsTable);
+  WQtScopedUpdatesDisabled s2(WeightsTable);
 
-  ezMap<ezString, ezWeightCategory, ezCompareString_NoCase> sorted;
+  WMap<WString, WWeightCategory, WCompareString_NoCase> sorted;
 
   m_WeightConfig.m_Categories.Sort();
-  const ezUInt32 uiRows = m_WeightConfig.m_Categories.GetCount();
+  const WUInt32 uiRows = m_WeightConfig.m_Categories.GetCount();
 
-  for (ezUInt32 r = 0; r < uiRows; ++r)
+  for (WUInt32 r = 0; r < uiRows; ++r)
   {
     const auto& cat = m_WeightConfig.m_Categories.GetPair(r);
     sorted[cat.value.m_sName.GetString()] = cat.value;
@@ -723,21 +723,21 @@ void ezQtJoltProjectSettingsDlg::SetupWeightTable()
 
   m_RowToWeight.SetCount(uiRows);
 
-  ezUInt32 uiRow = 0;
+  WUInt32 uiRow = 0;
   for (const auto cat : sorted)
   {
     m_RowToWeight[uiRow].Assign(cat.Key());
 
-    WeightsTable->setItem(uiRow, 0, new QTableWidgetItem(ezMakeQString(cat.Key())));
+    WeightsTable->setItem(uiRow, 0, new QTableWidgetItem(WMakeQString(cat.Key())));
 
-    ezQtDoubleSpinBox* pNumber = new ezQtDoubleSpinBox(nullptr);
+    WQtDoubleSpinBox* pNumber = new WQtDoubleSpinBox(nullptr);
     pNumber->setMinimum(1.0);
     pNumber->setMaximum(1000);
     pNumber->setDecimals(1);
     pNumber->setValue(cat.Value().m_fMass);
 
-    pNumber->setProperty("category", ezMakeQString(cat.Key()));
-    connect(pNumber, &ezQtDoubleSpinBox::valueChanged, this, &ezQtJoltProjectSettingsDlg::onWeightChanged);
+    pNumber->setProperty("category", WMakeQString(cat.Key()));
+    connect(pNumber, &WQtDoubleSpinBox::valueChanged, this, &WQtJoltProjectSettingsDlg::onWeightChanged);
 
     QWidget* pWidget = new QWidget();
     QHBoxLayout* pLayout = new QHBoxLayout(pWidget);
@@ -749,9 +749,9 @@ void ezQtJoltProjectSettingsDlg::SetupWeightTable()
     WeightsTable->setCellWidget(uiRow, 1, pWidget);
 
     QLineEdit* pDesc = new QLineEdit();
-    pDesc->setText(ezMakeQString(cat.Value().m_sDescription));
-    pDesc->setProperty("category", ezMakeQString(cat.Key()));
-    connect(pDesc, &QLineEdit::textChanged, this, &ezQtJoltProjectSettingsDlg::onWeightDescChanged);
+    pDesc->setText(WMakeQString(cat.Value().m_sDescription));
+    pDesc->setProperty("category", WMakeQString(cat.Key()));
+    connect(pDesc, &QLineEdit::textChanged, this, &WQtJoltProjectSettingsDlg::onWeightDescChanged);
 
     WeightsTable->setCellWidget(uiRow, 2, pDesc);
 
@@ -761,19 +761,19 @@ void ezQtJoltProjectSettingsDlg::SetupWeightTable()
   WeightsTable->resizeColumnToContents(1);
 }
 
-void ezQtJoltProjectSettingsDlg::SetupImpulseTable()
+void WQtJoltProjectSettingsDlg::SetupImpulseTable()
 {
   OverridesTable->clear();
 
-  ezQtScopedBlockSignals s1(ImpulsesTable);
-  ezQtScopedUpdatesDisabled s2(ImpulsesTable);
+  WQtScopedBlockSignals s1(ImpulsesTable);
+  WQtScopedUpdatesDisabled s2(ImpulsesTable);
 
-  ezMap<ezString, ezImpulseType, ezCompareString_NoCase> sorted;
+  WMap<WString, WImpulseType, WCompareString_NoCase> sorted;
 
   m_ImpulseConfig.m_Types.Sort();
-  const ezUInt32 uiRows = m_ImpulseConfig.m_Types.GetCount();
+  const WUInt32 uiRows = m_ImpulseConfig.m_Types.GetCount();
 
-  for (ezUInt32 r = 0; r < uiRows; ++r)
+  for (WUInt32 r = 0; r < uiRows; ++r)
   {
     const auto& cat = m_ImpulseConfig.m_Types.GetPair(r);
     sorted[cat.value.m_sName.GetString()] = cat.value;
@@ -786,21 +786,21 @@ void ezQtJoltProjectSettingsDlg::SetupImpulseTable()
 
   m_RowToImpulse.SetCount(uiRows);
 
-  ezUInt32 uiRow = 0;
+  WUInt32 uiRow = 0;
   for (const auto cat : sorted)
   {
     m_RowToImpulse[uiRow].Assign(cat.Key());
 
-    ImpulsesTable->setItem(uiRow, 0, new QTableWidgetItem(ezMakeQString(cat.Key())));
+    ImpulsesTable->setItem(uiRow, 0, new QTableWidgetItem(WMakeQString(cat.Key())));
 
-    ezQtDoubleSpinBox* pNumber = new ezQtDoubleSpinBox(nullptr);
+    WQtDoubleSpinBox* pNumber = new WQtDoubleSpinBox(nullptr);
     pNumber->setMinimum(0);
     pNumber->setMaximum(10000);
     pNumber->setDecimals(1);
     pNumber->setValue(cat.Value().m_fDefaultValue);
 
-    pNumber->setProperty("impulse", ezMakeQString(cat.Key()));
-    connect(pNumber, &ezQtDoubleSpinBox::valueChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseChanged);
+    pNumber->setProperty("impulse", WMakeQString(cat.Key()));
+    connect(pNumber, &WQtDoubleSpinBox::valueChanged, this, &WQtJoltProjectSettingsDlg::onImpulseChanged);
 
     QWidget* pWidget = new QWidget();
     QHBoxLayout* pLayout = new QHBoxLayout(pWidget);
@@ -812,9 +812,9 @@ void ezQtJoltProjectSettingsDlg::SetupImpulseTable()
     ImpulsesTable->setCellWidget(uiRow, 1, pWidget);
 
     QLineEdit* pDesc = new QLineEdit();
-    pDesc->setText(ezMakeQString(cat.Value().m_sDescription));
-    pDesc->setProperty("impulse", ezMakeQString(cat.Key()));
-    connect(pDesc, &QLineEdit::textChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseDescChanged);
+    pDesc->setText(WMakeQString(cat.Value().m_sDescription));
+    pDesc->setProperty("impulse", WMakeQString(cat.Key()));
+    connect(pDesc, &QLineEdit::textChanged, this, &WQtJoltProjectSettingsDlg::onImpulseDescChanged);
 
     ImpulsesTable->setCellWidget(uiRow, 2, pDesc);
 
@@ -824,52 +824,52 @@ void ezQtJoltProjectSettingsDlg::SetupImpulseTable()
   ImpulsesTable->resizeColumnToContents(1);
 }
 
-void ezQtJoltProjectSettingsDlg::onWeightChanged(double value)
+void WQtJoltProjectSettingsDlg::onWeightChanged(double value)
 {
-  ezQtDoubleSpinBox* pNumber = qobject_cast<ezQtDoubleSpinBox*>(sender());
+  WQtDoubleSpinBox* pNumber = qobject_cast<WQtDoubleSpinBox*>(sender());
 
-  const ezString sCat = pNumber->property("category").toString().toUtf8().data();
-  const ezUInt8 idx = m_WeightConfig.FindByName(ezTempHashedString(sCat));
+  const WString sCat = pNumber->property("category").toString().toUtf8().data();
+  const WUInt8 idx = m_WeightConfig.FindByName(WTempHashedString(sCat));
 
   m_WeightConfig.m_Categories[idx].m_fMass = static_cast<float>(value);
 }
 
-void ezQtJoltProjectSettingsDlg::onWeightDescChanged(const QString& txt)
+void WQtJoltProjectSettingsDlg::onWeightDescChanged(const QString& txt)
 {
   QLineEdit* pEdit = qobject_cast<QLineEdit*>(sender());
 
-  const ezString sCat = pEdit->property("category").toString().toUtf8().data();
-  const ezUInt8 idx = m_WeightConfig.FindByName(ezTempHashedString(sCat));
+  const WString sCat = pEdit->property("category").toString().toUtf8().data();
+  const WUInt8 idx = m_WeightConfig.FindByName(WTempHashedString(sCat));
 
   m_WeightConfig.m_Categories[idx].m_sDescription = txt.toUtf8().data();
 }
 
-void ezQtJoltProjectSettingsDlg::onImpulseChanged(double value)
+void WQtJoltProjectSettingsDlg::onImpulseChanged(double value)
 {
-  ezQtDoubleSpinBox* pNumber = qobject_cast<ezQtDoubleSpinBox*>(sender());
+  WQtDoubleSpinBox* pNumber = qobject_cast<WQtDoubleSpinBox*>(sender());
 
-  const ezString sCat = pNumber->property("impulse").toString().toUtf8().data();
-  const ezUInt8 idx = m_ImpulseConfig.FindByName(ezTempHashedString(sCat));
+  const WString sCat = pNumber->property("impulse").toString().toUtf8().data();
+  const WUInt8 idx = m_ImpulseConfig.FindByName(WTempHashedString(sCat));
 
   m_ImpulseConfig.m_Types[idx].m_fDefaultValue = static_cast<float>(value);
 }
 
-void ezQtJoltProjectSettingsDlg::onImpulseDescChanged(const QString& txt)
+void WQtJoltProjectSettingsDlg::onImpulseDescChanged(const QString& txt)
 {
   QLineEdit* pEdit = qobject_cast<QLineEdit*>(sender());
 
-  const ezString sCat = pEdit->property("impulse").toString().toUtf8().data();
-  const ezUInt8 idx = m_ImpulseConfig.FindByName(ezTempHashedString(sCat));
+  const WString sCat = pEdit->property("impulse").toString().toUtf8().data();
+  const WUInt8 idx = m_ImpulseConfig.FindByName(WTempHashedString(sCat));
 
   m_ImpulseConfig.m_Types[idx].m_sDescription = txt.toUtf8().data();
 }
 
-void ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked(int)
+void WQtJoltProjectSettingsDlg::onImpulseOverrideChecked(int)
 {
   QCheckBox* pCheck = qobject_cast<QCheckBox*>(sender());
 
-  const ezUInt32 uiImpulseKey = pCheck->property("ImpulseKey").toUInt();
-  const ezUInt32 uiWeightKey = pCheck->property("WeightKey").toUInt();
+  const WUInt32 uiImpulseKey = pCheck->property("ImpulseKey").toUInt();
+  const WUInt32 uiWeightKey = pCheck->property("WeightKey").toUInt();
 
   const bool bOverride = pCheck->isChecked();
 
@@ -881,7 +881,7 @@ void ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked(int)
   QLayout* pLayout = pCheck->parentWidget()->layout();
   for (int i = 0; i < pLayout->count(); ++i)
   {
-    if (ezQtDoubleSpinBox* pSpin = qobject_cast<ezQtDoubleSpinBox*>(pLayout->itemAt(i)->widget()))
+    if (WQtDoubleSpinBox* pSpin = qobject_cast<WQtDoubleSpinBox*>(pLayout->itemAt(i)->widget()))
     {
       pSpin->setEnabled(bOverride);
 
@@ -893,10 +893,10 @@ void ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked(int)
   }
 }
 
-void ezQtJoltProjectSettingsDlg::onImpulseOverrideValue(double fValue)
+void WQtJoltProjectSettingsDlg::onImpulseOverrideValue(double fValue)
 {
-  const ezUInt32 uiImpulseKey = sender()->property("ImpulseKey").toUInt();
-  const ezUInt32 uiWeightKey = sender()->property("WeightKey").toUInt();
+  const WUInt32 uiImpulseKey = sender()->property("ImpulseKey").toUInt();
+  const WUInt32 uiWeightKey = sender()->property("WeightKey").toUInt();
 
   m_ImpulseConfig.m_Types[uiImpulseKey].m_WeightOverrides[uiWeightKey] = (float)fValue;
 }

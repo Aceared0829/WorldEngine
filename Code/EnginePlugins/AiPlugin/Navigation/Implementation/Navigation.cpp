@@ -5,22 +5,22 @@
 #include <Recast.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQueryFilter, ezRcPos position, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
+WResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQueryFilter, WRcPos position, dtPolyRef& out_polyRef, WVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
 {
-  ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
+  WVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
 
-  ezRcPos resultPos;
+  WRcPos resultPos;
   if (dtStatusFailed(ref_query.findNearestPoly(position, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (out_polyRef == 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (!ezMath::IsEqual(position.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
-      !ezMath::IsEqual(position.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
-      !ezMath::IsEqual(position.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))
+  if (!WMath::IsEqual(position.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
+      !WMath::IsEqual(position.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
+      !WMath::IsEqual(position.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (out_pAdjustedPosition != nullptr)
@@ -28,14 +28,14 @@ ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQuer
     *out_pAdjustedPosition = resultPos;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezAiNavigation::ezAiNavigation()
+WAiNavigation::WAiNavigation()
 {
   m_uiCurrentPositionChangedBit = 0;
   m_uiTargetPositionChangedBit = 0;
@@ -45,9 +45,9 @@ ezAiNavigation::ezAiNavigation()
   m_PathCorridor.init(MaxPathNodes);
 }
 
-ezAiNavigation::~ezAiNavigation() = default;
+WAiNavigation::~WAiNavigation() = default;
 
-void ezAiNavigation::Update()
+void WAiNavigation::Update()
 {
   if (m_pNavmesh == nullptr || m_pFilter == nullptr)
     return;
@@ -81,7 +81,7 @@ void ezAiNavigation::Update()
           m_State = State::StartNewSearch;
         break;
 
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+        W_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     if (m_State == State::StartNewSearch)
@@ -97,7 +97,7 @@ void ezAiNavigation::Update()
   {
     // make sure the system creates the necessary sectors at some point
     {
-      ezRectFloat r = ezRectFloat::MakeInvalid();
+      WRectFloat r = WRectFloat::MakeInvalid();
       r.ExpandToInclude(m_vCurrentPosition.GetAsVec2());
       r.Grow(c_fPathSearchBoundary);
       if (!m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents()))
@@ -112,19 +112,19 @@ void ezAiNavigation::Update()
 
     const dtPolyRef firstPoly = m_PathCorridor.getFirstPoly();
 
-    if (!m_PathCorridor.movePosition(ezRcPos(m_vCurrentPosition), &m_Query, m_pFilter))
+    if (!m_PathCorridor.movePosition(WRcPos(m_vCurrentPosition), &m_Query, m_pFilter))
     {
-      EZ_REPORT_FAILURE("Steered into invalid position."); // not sure under which conditions this can happen
+      W_REPORT_FAILURE("Steered into invalid position."); // not sure under which conditions this can happen
       CancelNavigation();
       m_State = State::StartNewSearch;
       return;
     }
 
-    ezVec3 resPos = ezRcPos(m_PathCorridor.getPos());
+    WVec3 resPos = WRcPos(m_PathCorridor.getPos());
     if (!resPos.GetAsVec2().IsEqual(m_vCurrentPosition.GetAsVec2(), 0.2f))
     {
       const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
-      const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
+      const WVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
       dtPolyRef startRef;
       if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
@@ -157,7 +157,7 @@ void ezAiNavigation::Update()
   {
     // make sure the system creates the necessary sectors at some point
     {
-      ezRectFloat r = ezRectFloat::MakeInvalid();
+      WRectFloat r = WRectFloat::MakeInvalid();
       r.ExpandToInclude(m_vTargetPosition.GetAsVec2());
       r.Grow(c_fPathSearchBoundary);
       if (!m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents()))
@@ -173,19 +173,19 @@ void ezAiNavigation::Update()
 
     const dtPolyRef lastPoly = m_PathCorridor.getLastPoly();
 
-    if (!m_PathCorridor.moveTargetPosition(ezRcPos(m_vTargetPosition), &m_Query, m_pFilter))
+    if (!m_PathCorridor.moveTargetPosition(WRcPos(m_vTargetPosition), &m_Query, m_pFilter))
     {
-      ezLog::Error("Target position not reachable anymore.");
+      WLog::Error("Target position not reachable anymore.");
       CancelNavigation();
       m_State = State::StartNewSearch;
       return;
     }
 
-    ezVec3 resPos = ezRcPos(m_PathCorridor.getTarget());
+    WVec3 resPos = WRcPos(m_PathCorridor.getTarget());
     if (!resPos.GetAsVec2().IsEqual(m_vTargetPosition.GetAsVec2(), 0.2f))
     {
       const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
-      const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
+      const WVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
       dtPolyRef endRef;
       if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vTargetPosition + vPosOffset, endRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
@@ -221,14 +221,14 @@ void ezAiNavigation::Update()
   }
 }
 
-void ezAiNavigation::CancelNavigation()
+void WAiNavigation::CancelNavigation()
 {
   m_PathCorridor.clear();
   m_uiTargetPositionChangedBit = 0; // don't start another path search
   m_State = State::Idle;
 }
 
-void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
+void WAiNavigation::SetCurrentPosition(const WVec3& vPosition)
 {
   if (m_vCurrentPosition == vPosition)
     return;
@@ -237,13 +237,13 @@ void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
   m_uiCurrentPositionChangedBit = 1;
 }
 
-void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound /*= false*/)
+void WAiNavigation::SetTargetPosition(const WVec3& vPosition, bool bOptimizeWhenFound /*= false*/)
 {
   if (m_vTargetPosition != vPosition)
   {
     // A genuinely new target starts a fresh progress budget for the partial-path auto-repath guard. Guarded by
     // the comparison so that callers re-setting the same target every frame don't keep resetting the guard.
-    m_fLastRepathStartDistToTarget = ezMath::HighValue<float>();
+    m_fLastRepathStartDistToTarget = WMath::HighValue<float>();
   }
 
   m_vTargetPosition = vPosition;
@@ -255,12 +255,12 @@ void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWh
   }
 }
 
-const ezVec3& ezAiNavigation::GetTargetPosition() const
+const WVec3& WAiNavigation::GetTargetPosition() const
 {
   return m_vTargetPosition;
 }
 
-void ezAiNavigation::SetNavmesh(ezAiNavMesh* pNavmesh)
+void WAiNavigation::SetNavmesh(WAiNavMesh* pNavmesh)
 {
   if (m_pNavmesh == pNavmesh)
     return;
@@ -269,7 +269,7 @@ void ezAiNavigation::SetNavmesh(ezAiNavMesh* pNavmesh)
   m_uiReinitQueryBit = 1;
 }
 
-void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
+void WAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
 {
   if (m_pFilter == &filter)
     return;
@@ -277,20 +277,20 @@ void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
   m_pFilter = &filter;
 }
 
-void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const
+void WAiNavigation::ComputeAllWaypoints(WDynamicArray<WVec3>& out_waypoints) const
 {
   out_waypoints.Clear();
 
   if (m_PathCorridor.getPathCount() == 0)
     return;
 
-  ezUInt8 cornerFlags[MaxPathNodes];
+  WUInt8 cornerFlags[MaxPathNodes];
   dtPolyRef cornerPolys[MaxPathNodes];
-  ezRcPos straightPath[MaxPathNodes];
+  WRcPos straightPath[MaxPathNodes];
 
   const int straightLen = m_PathCorridor.findCorners(straightPath[0], cornerFlags, cornerPolys, MaxPathNodes, &m_Query);
 
-  out_waypoints.SetCountUninitialized((ezUInt32)straightLen);
+  out_waypoints.SetCountUninitialized((WUInt32)straightLen);
 
   for (int i = 0; i < straightLen; ++i)
   {
@@ -298,7 +298,7 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) 
   }
 }
 
-void ezAiNavigation::OptimizeCurrentPath()
+void WAiNavigation::OptimizeCurrentPath()
 {
   if (m_pNavmesh == nullptr || m_pFilter == nullptr)
     return;
@@ -311,9 +311,9 @@ void ezAiNavigation::OptimizeCurrentPath()
   m_uiOptimizeTopologyCounter = 0;
 
   // string-pull the corridor toward the farthest currently visible corner
-  ezUInt8 cornerFlags[MaxPathNodes];
+  WUInt8 cornerFlags[MaxPathNodes];
   dtPolyRef cornerPolys[MaxPathNodes];
-  ezRcPos straightPath[MaxPathNodes];
+  WRcPos straightPath[MaxPathNodes];
 
   const int straightLen = m_PathCorridor.findCorners(straightPath[0], cornerFlags, cornerPolys, MaxPathNodes, &m_Query);
 
@@ -324,18 +324,18 @@ void ezAiNavigation::OptimizeCurrentPath()
   }
 }
 
-bool ezAiNavigation::IsPointInPathCorridor(const ezVec3& vPosition, float fHeightTolerance) const
+bool WAiNavigation::IsPointInPathCorridor(const WVec3& vPosition, float fHeightTolerance) const
 {
-  const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
+  const WUInt32 uiCorrLen = m_PathCorridor.getPathCount();
   if (uiCorrLen == 0)
     return false;
 
   const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
-  const ezRcPos rcPos(vPosition);
+  const WRcPos rcPos(vPosition);
 
-  for (ezUInt32 c = 0; c < uiCorrLen; ++c)
+  for (WUInt32 c = 0; c < uiCorrLen; ++c)
   {
-    ezRcPos closest;
+    WRcPos closest;
     bool bPosOverPoly = false;
 
     // closestPointOnPoly reports whether the point is directly over this polygon;
@@ -345,8 +345,8 @@ bool ezAiNavigation::IsPointInPathCorridor(const ezVec3& vPosition, float fHeigh
 
     if (bPosOverPoly)
     {
-      const ezVec3 vClosest(closest);
-      if (ezMath::Abs(vClosest.z - vPosition.z) <= fHeightTolerance)
+      const WVec3 vClosest(closest);
+      if (WMath::Abs(vClosest.z - vPosition.z) <= fHeightTolerance)
         return true;
     }
   }
@@ -354,11 +354,11 @@ bool ezAiNavigation::IsPointInPathCorridor(const ezVec3& vPosition, float fHeigh
   return false;
 }
 
-bool ezAiNavigation::UpdatePathSearch()
+bool WAiNavigation::UpdatePathSearch()
 {
   if (m_State == State::StartNewSearch)
   {
-    ezRectFloat r = ezRectFloat::MakeInvalid();
+    WRectFloat r = WRectFloat::MakeInvalid();
     r.ExpandToInclude(m_vCurrentPosition.GetAsVec2());
     r.ExpandToInclude(m_vTargetPosition.GetAsVec2());
     r.Grow(c_fPathSearchBoundary);
@@ -372,7 +372,7 @@ bool ezAiNavigation::UpdatePathSearch()
     m_uiCurrentPositionChangedBit = 0;
 
     const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
-    const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
+    const WVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
     dtPolyRef startRef;
     if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
@@ -390,10 +390,10 @@ bool ezAiNavigation::UpdatePathSearch()
     }
 
     m_vPathSearchTargetPos = m_vTargetPosition;
-    if (dtStatusFailed(m_Query.initSlicedFindPath(startRef, m_PathSearchTargetPoly, ezRcPos(m_vCurrentPosition), ezRcPos(m_vTargetPosition), m_pFilter)))
+    if (dtStatusFailed(m_Query.initSlicedFindPath(startRef, m_PathSearchTargetPoly, WRcPos(m_vCurrentPosition), WRcPos(m_vTargetPosition), m_pFilter)))
     {
       m_State = State::NoPathFound;
-      EZ_REPORT_FAILURE("Detour: initSlicedFindPath failed.");
+      W_REPORT_FAILURE("Detour: initSlicedFindPath failed.");
       return false;
     }
 
@@ -419,19 +419,19 @@ bool ezAiNavigation::UpdatePathSearch()
       return false;
     }
 
-    ezInt32 iPathCorridorLength = 0;
+    WInt32 iPathCorridorLength = 0;
     dtPolyRef resultPolys[MaxPathNodes];
 
     const dtStatus finalizeStatus = m_Query.finalizeSlicedFindPath(resultPolys, &iPathCorridorLength, (int)MaxPathNodes);
     if (dtStatusFailed(finalizeStatus))
     {
       m_State = State::NoPathFound;
-      EZ_REPORT_FAILURE("Detour: finalizeSlicedFindPath failed.");
+      W_REPORT_FAILURE("Detour: finalizeSlicedFindPath failed.");
       return false;
     }
 
     // reduce to actual length
-    EZ_ASSERT_DEV(iPathCorridorLength >= 1, "Expected path corridor to have at least length 1");
+    W_ASSERT_DEV(iPathCorridorLength >= 1, "Expected path corridor to have at least length 1");
 
     if (resultPolys[iPathCorridorLength - 1] != m_PathSearchTargetPoly)
     {
@@ -454,8 +454,8 @@ bool ezAiNavigation::UpdatePathSearch()
     // the target position here may already differ from the target position when the search was started
     // so we need to use m_vPathSearchTargetPos
     // the final target position will be updated in the next Update()
-    m_PathCorridor.reset(resultPolys[0], ezRcPos(m_vCurrentPosition));
-    m_PathCorridor.setCorridor(ezRcPos(m_vPathSearchTargetPos), resultPolys, (ezUInt32)iPathCorridorLength);
+    m_PathCorridor.reset(resultPolys[0], WRcPos(m_vCurrentPosition));
+    m_PathCorridor.setCorridor(WRcPos(m_vPathSearchTargetPos), resultPolys, (WUInt32)iPathCorridorLength);
 
     m_uiOptimizeTopologyCounter = 0;
     m_uiOptimizeVisibilityCounter = 0;
@@ -475,7 +475,7 @@ bool ezAiNavigation::UpdatePathSearch()
   // Replan if path has become invalid due to navmesh modifications
   if (m_State == State::FullPathFound || m_State == State::PartialPathSearchLimited || m_State == State::PartialPathUnreachable)
   {
-    constexpr ezInt32 PathLookahead = 10;
+    constexpr WInt32 PathLookahead = 10;
 
     dtPolyRef currentPoly = m_PathCorridor.getFirstPoly();
     if (!m_Query.isValidPolyRef(currentPoly, m_pFilter) || !m_Query.isValidPolyRef(m_PathSearchTargetPoly, m_pFilter) || !m_PathCorridor.isValid(PathLookahead, &m_Query, m_pFilter))
@@ -496,7 +496,7 @@ bool ezAiNavigation::UpdatePathSearch()
   // merely shifts sideways (e.g. along the rim of a chasm) cannot cause an endless back-and-forth.
   if (m_State == State::PartialPathSearchLimited)
   {
-    const ezUInt32 uiRemaining = m_PathCorridor.getPathCount();
+    const WUInt32 uiRemaining = m_PathCorridor.getPathCount();
 
     const bool bFewPolysLeft = uiRemaining <= c_uiRepathMinPolysRemaining;
     const bool bHalfConsumed = m_uiPartialCorridorInitialLength > 0 &&
@@ -517,16 +517,16 @@ bool ezAiNavigation::UpdatePathSearch()
   return true;
 }
 
-void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context, ezColor tilesColor, float fPolyRenderOffsetZ)
+void WAiNavigation::DebugDrawPathCorridor(const WDebugRendererContext& context, WColor tilesColor, float fPolyRenderOffsetZ)
 {
-  const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
+  const WUInt32 uiCorrLen = m_PathCorridor.getPathCount();
   const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
 
-  ezTempHybridArray<ezDebugRendererTriangle, 64> tris;
+  WTempHybridArray<WDebugRendererTriangle, 64> tris;
 
   const auto pNavmesh = m_Query.getAttachedNavMesh();
 
-  for (ezUInt32 c = 0; c < uiCorrLen; ++c)
+  for (WUInt32 c = 0; c < uiCorrLen; ++c)
   {
     dtPolyRef poly = pCorrArr[c];
 
@@ -534,17 +534,17 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
     const dtPoly* pPoly;
     pNavmesh->getTileAndPolyByRef(poly, &pTile, &pPoly);
 
-    for (ezUInt32 i = 2; i < pPoly->vertCount; ++i)
+    for (WUInt32 i = 2; i < pPoly->vertCount; ++i)
     {
-      ezRcPos rcPos[3];
+      WRcPos rcPos[3];
       rcPos[0] = &(pTile->verts[pPoly->verts[0] * 3]);
       rcPos[1] = &(pTile->verts[pPoly->verts[i - 1] * 3]);
       rcPos[2] = &(pTile->verts[pPoly->verts[i] * 3]);
 
       auto& tri = tris.ExpandAndGetRef();
-      tri.m_position[0] = ezVec3(rcPos[0]);
-      tri.m_position[2] = ezVec3(rcPos[1]);
-      tri.m_position[1] = ezVec3(rcPos[2]);
+      tri.m_position[0] = WVec3(rcPos[0]);
+      tri.m_position[2] = WVec3(rcPos[1]);
+      tri.m_position[1] = WVec3(rcPos[2]);
 
       tri.m_position[0].z += fPolyRenderOffsetZ;
       tri.m_position[1].z += fPolyRenderOffsetZ;
@@ -552,23 +552,23 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
     }
   }
 
-  ezDebugRenderer::DrawSolidTriangles(context, tris, tilesColor);
+  WDebugRenderer::DrawSolidTriangles(context, tris, tilesColor);
 }
 
-void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ)
+void WAiNavigation::DebugDrawPathLine(const WDebugRendererContext& context, WColor straightLineColor, float fLineRenderOffsetZ)
 {
-  ezTempHybridArray<ezDebugRendererLine, 64> lines;
-  ezTempHybridArray<ezVec3, 64> waypoints;
+  WTempHybridArray<WDebugRendererLine, 64> lines;
+  WTempHybridArray<WVec3, 64> waypoints;
   ComputeAllWaypoints(waypoints);
 
   if (!waypoints.IsEmpty())
   {
-    ezVec3 vStart = m_vCurrentPosition;
+    WVec3 vStart = m_vCurrentPosition;
     vStart.z += fLineRenderOffsetZ;
 
-    for (ezUInt32 i = 0; i < waypoints.GetCount(); ++i)
+    for (WUInt32 i = 0; i < waypoints.GetCount(); ++i)
     {
-      ezVec3 vthis = waypoints[i];
+      WVec3 vthis = waypoints[i];
       vthis.z += fLineRenderOffsetZ;
 
       auto& line = lines.ExpandAndGetRef();
@@ -577,12 +577,12 @@ void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ez
       vStart = vthis;
     }
 
-    ezDebugRenderer::DrawLinesOccluded(context, lines, straightLineColor.GetDarker());
-    ezDebugRenderer::DrawLines(context, lines, straightLineColor);
+    WDebugRenderer::DrawLinesOccluded(context, lines, straightLineColor.GetDarker());
+    WDebugRenderer::DrawLines(context, lines, straightLineColor);
   }
 }
 
-float ezAiNavigation::GetCurrentElevation() const
+float WAiNavigation::GetCurrentElevation() const
 {
   if (m_PathCorridor.getPathCount() > 0)
   {
@@ -594,18 +594,18 @@ float ezAiNavigation::GetCurrentElevation() const
   return m_vCurrentPosition.z;
 }
 
-void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead)
+void WAiNavigation::ComputeSteeringInfo(WAiSteeringInfo& out_info, const WVec2& vForwardDir, float fMaxLookAhead)
 {
   out_info.m_vNextWaypoint = m_vCurrentPosition;
 
   if (m_PathCorridor.getPathCount() <= 0)
     return;
 
-  static constexpr ezUInt32 MaxTempNodes = 8;
+  static constexpr WUInt32 MaxTempNodes = 8;
 
-  ezUInt8 cornerFlags[MaxTempNodes];
+  WUInt8 cornerFlags[MaxTempNodes];
   dtPolyRef cornerPolys[MaxTempNodes];
-  ezRcPos straightPath[MaxTempNodes];
+  WRcPos straightPath[MaxTempNodes];
 
   const bool bOptimize = m_uiOptimizeVisibilityCounter++ > 30;
 
@@ -622,18 +622,18 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec
   float fDistToPt = 0;
 
   out_info.m_fDistanceToWaypoint = 0;
-  out_info.m_fArrivalDistance = ezMath::HighValue<float>();
+  out_info.m_fArrivalDistance = WMath::HighValue<float>();
   out_info.m_vNextWaypoint = m_vCurrentPosition;
   out_info.m_vDirectionTowardsWaypoint = vForwardDir;
-  out_info.m_AbsRotationTowardsWaypoint = ezAngle::MakeZero();
-  out_info.m_MaxAbsRotationAfterWaypoint = ezAngle::MakeZero();
-  // out_info.m_fWaypointCorridorWidth = ezMath::HighValue<float>();
+  out_info.m_AbsRotationTowardsWaypoint = WAngle::MakeZero();
+  out_info.m_MaxAbsRotationAfterWaypoint = WAngle::MakeZero();
+  // out_info.m_fWaypointCorridorWidth = WMath::HighValue<float>();
 
-  ezVec3 vPrevPos = m_vCurrentPosition;
+  WVec3 vPrevPos = m_vCurrentPosition;
 
   for (int idx = 0; idx < straightLen; ++idx)
   {
-    fDistToPt += (ezVec3(straightPath[idx]) - vPrevPos).GetLength();
+    fDistToPt += (WVec3(straightPath[idx]) - vPrevPos).GetLength();
     vPrevPos = straightPath[idx];
 
     if (cornerFlags[idx] & dtStraightPathFlags::DT_STRAIGHTPATH_END)
@@ -656,47 +656,47 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec
 
     if (bFoundWaypoint && fDistToPt < fMaxLookAhead)
     {
-      const ezVec3 vNextPt = straightPath[idx];
-      ezVec2 vNextDir = (vNextPt - out_info.m_vNextWaypoint).GetAsVec2();
-      if (vNextDir.NormalizeIfNotZero(ezVec2::MakeZero()).Succeeded())
+      const WVec3 vNextPt = straightPath[idx];
+      WVec2 vNextDir = (vNextPt - out_info.m_vNextWaypoint).GetAsVec2();
+      if (vNextDir.NormalizeIfNotZero(WVec2::MakeZero()).Succeeded())
       {
-        ezAngle absDir = vNextDir.GetAngleBetween(out_info.m_vDirectionTowardsWaypoint);
-        out_info.m_MaxAbsRotationAfterWaypoint = ezMath::Max(absDir, out_info.m_MaxAbsRotationAfterWaypoint);
+        WAngle absDir = vNextDir.GetAngleBetween(out_info.m_vDirectionTowardsWaypoint);
+        out_info.m_MaxAbsRotationAfterWaypoint = WMath::Max(absDir, out_info.m_MaxAbsRotationAfterWaypoint);
       }
     }
   }
 }
 
-void ezAiNavigation::DebugDrawState(const ezDebugRendererContext& context, const ezVec3& vPosition) const
+void WAiNavigation::DebugDrawState(const WDebugRendererContext& context, const WVec3& vPosition) const
 {
   switch (m_State)
   {
-    case ezAiNavigation::State::Idle:
-      ezDebugRenderer::Draw3DText(context, "Idle", vPosition, ezColor::Grey);
+    case WAiNavigation::State::Idle:
+      WDebugRenderer::Draw3DText(context, "Idle", vPosition, WColor::Grey);
       break;
-    case ezAiNavigation::State::StartNewSearch:
-      ezDebugRenderer::Draw3DText(context, "Starting Search...", vPosition, ezColor::Yellow);
+    case WAiNavigation::State::StartNewSearch:
+      WDebugRenderer::Draw3DText(context, "Starting Search...", vPosition, WColor::Yellow);
       break;
-    case ezAiNavigation::State::InvalidCurrentPosition:
-      ezDebugRenderer::Draw3DText(context, "Invalid Start Position", vPosition, ezColor::Black);
+    case WAiNavigation::State::InvalidCurrentPosition:
+      WDebugRenderer::Draw3DText(context, "Invalid Start Position", vPosition, WColor::Black);
       break;
-    case ezAiNavigation::State::InvalidTargetPosition:
-      ezDebugRenderer::Draw3DText(context, "Invalid Target Position", vPosition, ezColor::IndianRed);
+    case WAiNavigation::State::InvalidTargetPosition:
+      WDebugRenderer::Draw3DText(context, "Invalid Target Position", vPosition, WColor::IndianRed);
       break;
-    case ezAiNavigation::State::NoPathFound:
-      ezDebugRenderer::Draw3DText(context, "No Path Found", vPosition, ezColor::White);
+    case WAiNavigation::State::NoPathFound:
+      WDebugRenderer::Draw3DText(context, "No Path Found", vPosition, WColor::White);
       break;
-    case ezAiNavigation::State::PartialPathSearchLimited:
-      ezDebugRenderer::Draw3DText(context, "Partial Path (search limited)", vPosition, ezColor::Turquoise);
+    case WAiNavigation::State::PartialPathSearchLimited:
+      WDebugRenderer::Draw3DText(context, "Partial Path (search limited)", vPosition, WColor::Turquoise);
       break;
-    case ezAiNavigation::State::PartialPathUnreachable:
-      ezDebugRenderer::Draw3DText(context, "Partial Path (target unreachable)", vPosition, ezColor::Orange);
+    case WAiNavigation::State::PartialPathUnreachable:
+      WDebugRenderer::Draw3DText(context, "Partial Path (target unreachable)", vPosition, WColor::Orange);
       break;
-    case ezAiNavigation::State::FullPathFound:
-      ezDebugRenderer::Draw3DText(context, "Full Path Found", vPosition, ezColor::LawnGreen);
+    case WAiNavigation::State::FullPathFound:
+      WDebugRenderer::Draw3DText(context, "Full Path Found", vPosition, WColor::LawnGreen);
       break;
-    case ezAiNavigation::State::Searching:
-      ezDebugRenderer::Draw3DText(context, "Searching...", vPosition, ezColor::Yellow);
+    case WAiNavigation::State::Searching:
+      WDebugRenderer::Draw3DText(context, "Searching...", vPosition, WColor::Yellow);
       break;
   }
 }

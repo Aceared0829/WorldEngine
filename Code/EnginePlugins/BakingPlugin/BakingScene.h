@@ -9,58 +9,58 @@
 #include <RendererCore/BakedProbes/BakingInterface.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
-class ezWorld;
-class ezProgress;
-class ezTracerInterface;
+class WWorld;
+class WProgress;
+class WTracerInterface;
 
-class EZ_BAKINGPLUGIN_DLL ezBakingScene
+class W_BAKINGPLUGIN_DLL WBakingScene
 {
 public:
-  ezResult Extract();
+  WResult Extract();
 
-  ezResult Bake(const ezStringView& sOutputPath, ezProgress& progress);
+  WResult Bake(const WStringView& sOutputPath, WProgress& progress);
 
-  ezResult RenderDebugView(const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels,
-    ezProgress& progress) const;
+  WResult RenderDebugView(const WMat4& InverseViewProjection, WUInt32 uiWidth, WUInt32 uiHeight, WDynamicArray<WColorGammaUB>& out_Pixels,
+    WProgress& progress) const;
 
 public:
-  const ezWorldGeoExtractionUtil::MeshObjectList& GetMeshObjects() const { return m_MeshObjects; }
-  const ezBoundingBox& GetBoundingBox() const { return m_BoundingBox; }
+  const WWorldGeoExtractionUtil::MeshObjectList& GetMeshObjects() const { return m_MeshObjects; }
+  const WBoundingBox& GetBoundingBox() const { return m_BoundingBox; }
 
   bool IsBaked() const { return m_bIsBaked; }
 
 private:
-  friend class ezBaking;
-  friend class ezMemoryUtils;
+  friend class WBaking;
+  friend class WMemoryUtils;
 
-  ezBakingScene();
-  ~ezBakingScene();
+  WBakingScene();
+  ~WBakingScene();
 
-  ezBakingSettings m_Settings;
-  ezDynamicArray<ezBakingInternal::Volume, ezAlignedAllocatorWrapper> m_Volumes;
-  ezWorldGeoExtractionUtil::MeshObjectList m_MeshObjects;
-  ezBoundingBox m_BoundingBox;
+  WBakingSettings m_Settings;
+  WDynamicArray<WBakingInternal::Volume, WAlignedAllocatorWrapper> m_Volumes;
+  WWorldGeoExtractionUtil::MeshObjectList m_MeshObjects;
+  WBoundingBox m_BoundingBox;
 
-  ezUInt32 m_uiWorldIndex = ezInvalidIndex;
-  ezUniquePtr<ezTracerInterface> m_pTracer;
+  WUInt32 m_uiWorldIndex = WInvalidIndex;
+  WUniquePtr<WTracerInterface> m_pTracer;
 
   bool m_bIsBaked = false;
 };
 
-class EZ_BAKINGPLUGIN_DLL ezBaking : public ezBakingInterface
+class W_BAKINGPLUGIN_DLL WBaking : public WBakingInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezBaking, ezBakingInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(WBaking, WBakingInterface);
 
 public:
-  ezBaking();
+  WBaking();
 
   void Startup();
   void Shutdown();
 
-  ezBakingScene* GetOrCreateScene(const ezWorld& world);
-  ezBakingScene* GetScene(const ezWorld& world);
-  const ezBakingScene* GetScene(const ezWorld& world) const;
+  WBakingScene* GetOrCreateScene(const WWorld& world);
+  WBakingScene* GetScene(const WWorld& world);
+  const WBakingScene* GetScene(const WWorld& world) const;
 
-  // ezBakingInterface
-  virtual ezResult RenderDebugView(const ezWorld& world, const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels, ezProgress& progress) const override;
+  // WBakingInterface
+  virtual WResult RenderDebugView(const WWorld& world, const WMat4& InverseViewProjection, WUInt32 uiWidth, WUInt32 uiHeight, WDynamicArray<WColorGammaUB>& out_Pixels, WProgress& progress) const override;
 };

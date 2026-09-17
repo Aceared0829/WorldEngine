@@ -8,43 +8,43 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
-class ezRenderGraph;
+class WRenderGraph;
 
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
-using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
+using WShaderResourceHandle = WTypedResourceHandle<class WShaderResource>;
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
-  struct GeometryId : public ezGenericId<24, 8>
+  struct GeometryId : public WGenericId<24, 8>
   {
-    using ezGenericId::ezGenericId;
+    using WGenericId::WGenericId;
 
-    static GeometryId FromRml(Rml::CompiledGeometryHandle hGeometry) { return GeometryId(static_cast<ezUInt32>(hGeometry)); }
+    static GeometryId FromRml(Rml::CompiledGeometryHandle hGeometry) { return GeometryId(static_cast<WUInt32>(hGeometry)); }
 
     Rml::CompiledGeometryHandle ToRml() const { return m_Data; }
   };
 
-  struct TextureId : public ezGenericId<24, 8>
+  struct TextureId : public WGenericId<24, 8>
   {
-    using ezGenericId::ezGenericId;
+    using WGenericId::WGenericId;
 
-    static TextureId FromRml(Rml::TextureHandle hTexture) { return TextureId(static_cast<ezUInt32>(hTexture)); }
+    static TextureId FromRml(Rml::TextureHandle hTexture) { return TextureId(static_cast<WUInt32>(hTexture)); }
 
     Rml::TextureHandle ToRml() const { return m_Data; }
   };
 
-  struct ShaderId : public ezGenericId<24, 8>
+  struct ShaderId : public WGenericId<24, 8>
   {
-    using ezGenericId::ezGenericId;
+    using WGenericId::WGenericId;
 
-    static ShaderId FromRml(Rml::CompiledShaderHandle hShader) { return ShaderId(static_cast<ezUInt32>(hShader)); }
+    static ShaderId FromRml(Rml::CompiledShaderHandle hShader) { return ShaderId(static_cast<WUInt32>(hShader)); }
 
     Rml::CompiledShaderHandle ToRml() const { return m_Data; }
   };
 
   struct ShaderType
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -99,64 +99,64 @@ namespace ezRmlUiInternal
     virtual void RenderShader(Rml::CompiledShaderHandle hShader, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture) override;
     virtual void ReleaseShader(Rml::CompiledShaderHandle hShader) override;
 
-    // EZ specific functions
-    void BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture);
+    // W specific functions
+    void BeginExtraction(const WHashedString& sName, WGALTextureHandle hTargetTexture);
     void EndExtraction();
 
   private:
-    void GALEventHandler(const ezGALDeviceEvent& e);
+    void GALEventHandler(const WGALDeviceEvent& e);
     void BeginFrame();
     void EndFrame();
     void FreeReleasedGeometry(GeometryId id);
 
     void FillRenderCommand(CommandRenderGeometry& out_cmd, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture);
-    ezUniquePtr<CommandBuffer> AllocateCommandBuffer();
-    void FreeCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
-    void SubmitCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
+    WUniquePtr<CommandBuffer> AllocateCommandBuffer();
+    void FreeCommandBuffer(WUniquePtr<CommandBuffer>&& pBuffer);
+    void SubmitCommandBuffer(WUniquePtr<CommandBuffer>&& pBuffer);
 
-    ezIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
+    WIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
 
     struct ReleasedGeometry
     {
-      ezUInt64 m_uiFrame;
+      WUInt64 m_uiFrame;
       GeometryId m_Id;
     };
 
-    ezMutex m_ReleasedCompiledGeometryMutex;
-    ezDeque<ReleasedGeometry> m_ReleasedCompiledGeometry;
+    WMutex m_ReleasedCompiledGeometryMutex;
+    WDeque<ReleasedGeometry> m_ReleasedCompiledGeometry;
 
     struct TextureInfo
     {
-      ezTexture2DResourceHandle m_hTexture;
+      WTexture2DResourceHandle m_hTexture;
       bool m_bHasPremultipliedAlpha = false;
     };
 
-    ezIdTable<TextureId, TextureInfo> m_Textures;
-    ezTexture2DResourceHandle m_hNoiseTexture;
-    ezTexture2DResourceHandle m_hFallbackTexture;
+    WIdTable<TextureId, TextureInfo> m_Textures;
+    WTexture2DResourceHandle m_hNoiseTexture;
+    WTexture2DResourceHandle m_hFallbackTexture;
 
     struct ShaderInfo
     {
-      ezShaderResourceHandle m_hShader;
-      ezGALBufferHandle m_hAdditionalConstantBuffer;
-      ezEnum<ShaderType> m_Type;
+      WShaderResourceHandle m_hShader;
+      WGALBufferHandle m_hAdditionalConstantBuffer;
+      WEnum<ShaderType> m_Type;
     };
 
-    ezIdTable<ShaderId, ShaderInfo> m_Shaders;
+    WIdTable<ShaderId, ShaderInfo> m_Shaders;
 
-    ezMat4 m_mProjection = ezMat4::MakeIdentity();
-    ezMat4 m_mTransform = ezMat4::MakeIdentity();
+    WMat4 m_mProjection = WMat4::MakeIdentity();
+    WMat4 m_mTransform = WMat4::MakeIdentity();
     bool m_bUseStencilTest = false;
 
-    ezDynamicArray<ezUniquePtr<CommandBuffer>> m_FreeCommandBuffers;
-    ezDynamicArray<ezUniquePtr<CommandBuffer>> m_SubmittedCommandBuffers[2];
+    WDynamicArray<WUniquePtr<CommandBuffer>> m_FreeCommandBuffers;
+    WDynamicArray<WUniquePtr<CommandBuffer>> m_SubmittedCommandBuffers[2];
 
-    ezUniquePtr<CommandBuffer> m_pCurrentCommandBuffer;
+    WUniquePtr<CommandBuffer> m_pCurrentCommandBuffer;
 
-    ezShaderResourceHandle m_hMainShader;
-    ezConstantBufferStorageHandle m_hMainConstantBuffer;
-    ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
+    WShaderResourceHandle m_hMainShader;
+    WConstantBufferStorageHandle m_hMainConstantBuffer;
+    WSmallArray<WGALVertexAttribute, 3> m_VertexAttributes;
 
-    ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+    WSharedPtr<WRenderGraph> m_pRenderGraph;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

@@ -4,24 +4,24 @@
 
 #include <Foundation/Types/Bitflags.h>
 
-class ezComponent;
-class ezJoltDynamicActorComponent;
-class ezJoltStaticActorComponent;
-class ezJoltTriggerComponent;
-class ezJoltCharacterControllerComponent;
-class ezJoltShapeComponent;
-class ezJoltQueryShapeActorComponent;
-class ezJoltRagdollComponent;
-class ezJoltRopeComponent;
-class ezJoltActorComponent;
-class ezJoltClothSheetComponent;
-class ezJoltBreakableSlabComponent;
-class ezJoltHeightfieldColliderComponent;
+class WComponent;
+class WJoltDynamicActorComponent;
+class WJoltStaticActorComponent;
+class WJoltTriggerComponent;
+class WJoltCharacterControllerComponent;
+class WJoltShapeComponent;
+class WJoltQueryShapeActorComponent;
+class WJoltRagdollComponent;
+class WJoltRopeComponent;
+class WJoltActorComponent;
+class WJoltClothSheetComponent;
+class WJoltBreakableSlabComponent;
+class WJoltHeightfieldColliderComponent;
 
-class ezJoltUserData
+class WJoltUserData
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   enum class Type
   {
@@ -39,141 +39,141 @@ public:
     HeightfieldColliderComponent,
   };
 
-  ezJoltUserData() = default;
-  ~ezJoltUserData() = default;
+  WJoltUserData() = default;
+  ~WJoltUserData() = default;
 
-  EZ_ALWAYS_INLINE void Init(ezJoltDynamicActorComponent* pObject, ezBitflags<ezOnJoltContact> contactFlags)
+  W_ALWAYS_INLINE void Init(WJoltDynamicActorComponent* pObject, WBitflags<WOnJoltContact> contactFlags)
   {
     m_Type = Type::DynamicActorComponent;
     m_pObject = pObject;
     m_OnContact = contactFlags;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltStaticActorComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltStaticActorComponent* pObject)
   {
     m_Type = Type::StaticActorComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltTriggerComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltTriggerComponent* pObject)
   {
     m_Type = Type::TriggerComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltCharacterControllerComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltCharacterControllerComponent* pObject)
   {
     m_Type = Type::CharacterComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltShapeComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltShapeComponent* pObject)
   {
     m_Type = Type::ShapeComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltQueryShapeActorComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltQueryShapeActorComponent* pObject)
   {
     m_Type = Type::QueryShapeActorComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltRagdollComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltRagdollComponent* pObject)
   {
     m_Type = Type::RagdollComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltRopeComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltRopeComponent* pObject)
   {
     m_Type = Type::RopeComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltClothSheetComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltClothSheetComponent* pObject)
   {
     m_Type = Type::ClothSheetComponent;
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltBreakableSlabComponent* pObject, ezBitflags<ezOnJoltContact> contactFlags)
+  W_ALWAYS_INLINE void Init(WJoltBreakableSlabComponent* pObject, WBitflags<WOnJoltContact> contactFlags)
   {
     m_Type = Type::BreakableSlabComponent;
     m_pObject = pObject;
     m_OnContact = contactFlags;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezJoltHeightfieldColliderComponent* pObject)
+  W_ALWAYS_INLINE void Init(WJoltHeightfieldColliderComponent* pObject)
   {
     m_Type = Type::HeightfieldColliderComponent;
     m_pObject = pObject;
   }
 
-  EZ_FORCE_INLINE void Invalidate()
+  W_FORCE_INLINE void Invalidate()
   {
     m_Type = Type::Invalid;
     m_pObject = nullptr;
   }
 
-  EZ_FORCE_INLINE static Type GetType(const void* pUserData)
+  W_FORCE_INLINE static Type GetType(const void* pUserData)
   {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    const WJoltUserData* pJoltUserData = static_cast<const WJoltUserData*>(pUserData);
     if (pJoltUserData == nullptr)
       return Type::Invalid;
 
     return pJoltUserData->m_Type;
   }
 
-  EZ_FORCE_INLINE void* GetObject() const
+  W_FORCE_INLINE void* GetObject() const
   {
     return m_pObject;
   }
 
-  EZ_FORCE_INLINE static ezComponent* GetComponent(const void* pUserData)
+  W_FORCE_INLINE static WComponent* GetComponent(const void* pUserData)
   {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    const WJoltUserData* pJoltUserData = static_cast<const WJoltUserData*>(pUserData);
     if (pJoltUserData == nullptr || pJoltUserData->m_Type == Type::Invalid)
     {
       return nullptr;
     }
 
-    return static_cast<ezComponent*>(pJoltUserData->m_pObject);
+    return static_cast<WComponent*>(pJoltUserData->m_pObject);
   }
 
-  EZ_FORCE_INLINE static ezJoltDynamicActorComponent* GetDynamicActorComponent(const void* pUserData)
+  W_FORCE_INLINE static WJoltDynamicActorComponent* GetDynamicActorComponent(const void* pUserData)
   {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    const WJoltUserData* pJoltUserData = static_cast<const WJoltUserData*>(pUserData);
     if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::DynamicActorComponent)
     {
-      return static_cast<ezJoltDynamicActorComponent*>(pJoltUserData->m_pObject);
+      return static_cast<WJoltDynamicActorComponent*>(pJoltUserData->m_pObject);
     }
 
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static ezJoltTriggerComponent* GetTriggerComponent(const void* pUserData)
+  W_FORCE_INLINE static WJoltTriggerComponent* GetTriggerComponent(const void* pUserData)
   {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    const WJoltUserData* pJoltUserData = static_cast<const WJoltUserData*>(pUserData);
     if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::TriggerComponent)
     {
-      return static_cast<ezJoltTriggerComponent*>(pJoltUserData->m_pObject);
+      return static_cast<WJoltTriggerComponent*>(pJoltUserData->m_pObject);
     }
 
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static ezBitflags<ezOnJoltContact> GetContactFlags(const void* pUserData)
+  W_FORCE_INLINE static WBitflags<WOnJoltContact> GetContactFlags(const void* pUserData)
   {
-    if (const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData))
+    if (const WJoltUserData* pJoltUserData = static_cast<const WJoltUserData*>(pUserData))
     {
       return pJoltUserData->m_OnContact;
     }
 
-    return ezOnJoltContact::None;
+    return WOnJoltContact::None;
   }
 
-  EZ_FORCE_INLINE ezBitflags<ezOnJoltContact> GetContactFlags() const
+  W_FORCE_INLINE WBitflags<WOnJoltContact> GetContactFlags() const
   {
     return m_OnContact;
   }
@@ -181,5 +181,5 @@ public:
 private:
   Type m_Type = Type::Invalid;
   void* m_pObject = nullptr;
-  ezBitflags<ezOnJoltContact> m_OnContact;
+  WBitflags<WOnJoltContact> m_OnContact;
 };

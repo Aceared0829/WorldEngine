@@ -11,29 +11,29 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomRotationSpeed>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializerFactory_RandomRotationSpeed, 2, WRTTIDefaultAllocator<WParticleInitializerFactory_RandomRotationSpeed>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RandomStartAngle", m_bRandomStartAngle),
-    EZ_MEMBER_PROPERTY("DegreesPerSecond", m_RotationSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezVariant())),
+    W_MEMBER_PROPERTY("RandomStartAngle", m_bRandomStartAngle),
+    W_MEMBER_PROPERTY("DegreesPerSecond", m_RotationSpeed)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(90)), new WClampValueAttribute(WAngle::MakeFromDegree(0), WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomRotationSpeed, 1, ezRTTIDefaultAllocator<ezParticleInitializer_RandomRotationSpeed>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializer_RandomRotationSpeed, 1, WRTTIDefaultAllocator<WParticleInitializer_RandomRotationSpeed>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleInitializerFactory_RandomRotationSpeed::GetInitializerType() const
+const WRTTI* WParticleInitializerFactory_RandomRotationSpeed::GetInitializerType() const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_RandomRotationSpeed>();
+  return WGetStaticRTTI<WParticleInitializer_RandomRotationSpeed>();
 }
 
-void ezParticleInitializerFactory_RandomRotationSpeed::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
+void WParticleInitializerFactory_RandomRotationSpeed::CopyInitializerProperties(WParticleInitializer* pInitializer0, bool bFirstTime) const
 {
-  ezParticleInitializer_RandomRotationSpeed* pInitializer = static_cast<ezParticleInitializer_RandomRotationSpeed*>(pInitializer0);
+  WParticleInitializer_RandomRotationSpeed* pInitializer = static_cast<WParticleInitializer_RandomRotationSpeed*>(pInitializer0);
 
   pInitializer->m_RotationSpeed = m_RotationSpeed;
   pInitializer->m_bRandomStartAngle = m_bRandomStartAngle;
@@ -50,9 +50,9 @@ enum class InitializerRandomRotationVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& inout_stream) const
+void WParticleInitializerFactory_RandomRotationSpeed::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)InitializerRandomRotationVersion::Version_Current;
+  const WUInt8 uiVersion = (int)InitializerRandomRotationVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_RotationSpeed.m_Value;
@@ -62,9 +62,9 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& inou
   inout_stream << m_bRandomStartAngle;
 }
 
-void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleInitializerFactory_RandomRotationSpeed::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   inout_stream >> m_RotationSpeed.m_Value;
@@ -77,24 +77,24 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& inou
 }
 
 
-void ezParticleInitializer_RandomRotationSpeed::CreateRequiredStreams()
+void WParticleInitializer_RandomRotationSpeed::CreateRequiredStreams()
 {
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, true);
-  CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, true);
+  CreateStream("RotationSpeed", WProcessingStream::DataType::Half, &m_pStreamRotationSpeed, true);
+  CreateStream("RotationOffset", WProcessingStream::DataType::Half, &m_pStreamRotationOffset, true);
 }
 
-void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleInitializer_RandomRotationSpeed::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Random Rotation");
+  W_PROFILE_SCOPE("PFX: Random Rotation");
 
-  ezFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<ezFloat16>();
+  WFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<WFloat16>();
 
   // speed
-  if (m_RotationSpeed.m_Value != ezAngle::MakeFromRadian(0))
+  if (m_RotationSpeed.m_Value != WAngle::MakeFromRadian(0))
   {
-    ezRandom& rng = GetRNG();
+    WRandom& rng = GetRNG();
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const float value = (float)rng.DoubleVariance(m_RotationSpeed.m_Value.GetRadian(), m_RotationSpeed.m_fVariance);
 
@@ -104,7 +104,7 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
   }
   else
   {
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pSpeed[i] = 0;
     }
@@ -113,20 +113,20 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
   // offset
   if (m_bRandomStartAngle)
   {
-    ezFloat16* pOffset = m_pStreamRotationOffset->GetWritableData<ezFloat16>();
+    WFloat16* pOffset = m_pStreamRotationOffset->GetWritableData<WFloat16>();
 
-    ezRandom& rng = GetRNG();
+    WRandom& rng = GetRNG();
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pOffset[i] = (float)rng.DoubleMinMax(-ezMath::Pi<double>(), +ezMath::Pi<double>());
+      pOffset[i] = (float)rng.DoubleMinMax(-WMath::Pi<double>(), +WMath::Pi<double>());
     }
   }
   else
   {
-    ezFloat16* pOffset = m_pStreamRotationOffset->GetWritableData<ezFloat16>();
+    WFloat16* pOffset = m_pStreamRotationOffset->GetWritableData<WFloat16>();
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pOffset[i] = 0;
     }
@@ -135,20 +135,20 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_RandomRotationSpeed_1_2 : public ezGraphPatch
+class WParticleInitializerFactory_RandomRotationSpeed_1_2 : public WGraphPatch
 {
 public:
-  ezParticleInitializerFactory_RandomRotationSpeed_1_2()
-    : ezGraphPatch("ezParticleInitializerFactory_RandomRotationSpeed", 2)
+  WParticleInitializerFactory_RandomRotationSpeed_1_2()
+    : WGraphPatch("WParticleInitializerFactory_RandomRotationSpeed", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("DegreesPerSecond").IgnoreResult();
   }
 };
 
-ezParticleInitializerFactory_RandomRotationSpeed_1_2 g_ezParticleInitializerFactory_RandomRotationSpeed_1_2;
+WParticleInitializerFactory_RandomRotationSpeed_1_2 g_WParticleInitializerFactory_RandomRotationSpeed_1_2;
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);

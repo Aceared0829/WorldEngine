@@ -5,23 +5,23 @@
 #include <Core/World/World.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-struct ezMsgComponentInternalTrigger;
+struct WMsgComponentInternalTrigger;
 
 // This component manager does literally nothing, meaning the managed components do not need to be update, at all
 // BEGIN-DOCS-CODE-SNIPPET: component-manager-trivial
-using SendMsgComponentManager = ezComponentManager<class SendMsgComponent, ezBlockStorageType::Compact>;
+using SendMsgComponentManager = WComponentManager<class SendMsgComponent, WBlockStorageType::Compact>;
 // END-DOCS-CODE-SNIPPET
 
-class EZ_SAMPLEGAMEPLUGIN_DLL SendMsgComponent : public ezComponent
+class W_SAMPLEGAMEPLUGIN_DLL SendMsgComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(SendMsgComponent, ezComponent, SendMsgComponentManager);
+  W_DECLARE_COMPONENT_TYPE(SendMsgComponent, WComponent, SendMsgComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -34,9 +34,9 @@ public:
   ~SendMsgComponent();
 
 private:
-  ezDynamicArray<ezString> m_TextArray;                // [ property ]
+  WDynamicArray<WString> m_TextArray;                // [ property ]
 
-  void OnSendText(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
+  void OnSendText(WMsgComponentInternalTrigger& msg); // [ msg handler ]
 
-  ezUInt32 m_uiNextString = 0;
+  WUInt32 m_uiNextString = 0;
 };

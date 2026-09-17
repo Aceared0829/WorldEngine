@@ -10,108 +10,108 @@
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphPin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualGraphPin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezVisualGraphObjectManager Internal
+// WVisualGraphObjectManager Internal
 ////////////////////////////////////////////////////////////////////////
 
 struct DocumentNodeManager_NodeMetaData
 {
-  ezVec2 m_Pos = ezVec2::MakeZero();
+  WVec2 m_Pos = WVec2::MakeZero();
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_NodeMetaData);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, DocumentNodeManager_NodeMetaData);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(DocumentNodeManager_NodeMetaData, ezNoBase, 1, ezRTTIDefaultAllocator<DocumentNodeManager_NodeMetaData>)
+W_BEGIN_STATIC_REFLECTED_TYPE(DocumentNodeManager_NodeMetaData, WNoBase, 1, WRTTIDefaultAllocator<DocumentNodeManager_NodeMetaData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Node::Pos", m_Pos),
+    W_MEMBER_PROPERTY("Node::Pos", m_Pos),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 struct DocumentNodeManager_ConnectionMetaData
 {
-  ezUuid m_Source;
-  ezUuid m_Target;
-  ezString m_SourcePin;
-  ezString m_TargetPin;
+  WUuid m_Source;
+  WUuid m_Target;
+  WString m_SourcePin;
+  WString m_TargetPin;
 
   bool IsValid() const { return m_Source.IsValid() && m_Target.IsValid(); }
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_ConnectionMetaData);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, DocumentNodeManager_ConnectionMetaData);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(DocumentNodeManager_ConnectionMetaData, ezNoBase, 1, ezRTTIDefaultAllocator<DocumentNodeManager_ConnectionMetaData>)
+W_BEGIN_STATIC_REFLECTED_TYPE(DocumentNodeManager_ConnectionMetaData, WNoBase, 1, WRTTIDefaultAllocator<DocumentNodeManager_ConnectionMetaData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Connection::Source", m_Source),
-    EZ_MEMBER_PROPERTY("Connection::Target", m_Target),
-    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),    
-    EZ_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
+    W_MEMBER_PROPERTY("Connection::Source", m_Source),
+    W_MEMBER_PROPERTY("Connection::Target", m_Target),
+    W_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),
+    W_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-class DocumentNodeManager_DefaultConnection : public ezReflectedClass
+class DocumentNodeManager_DefaultConnection : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(DocumentNodeManager_DefaultConnection, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(DocumentNodeManager_DefaultConnection, WReflectedClass);
 };
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DocumentNodeManager_DefaultConnection, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(DocumentNodeManager_DefaultConnection, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezDocumentObject_ConnectionBase
+// WDocumentObject_ConnectionBase
 ////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObject_ConnectionBase, 1, ezRTTIDefaultAllocator<ezDocumentObject_ConnectionBase>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentObject_ConnectionBase, 1, WRTTIDefaultAllocator<WDocumentObject_ConnectionBase>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Source", m_Source)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("Target", m_Target)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("Source", m_Source)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("Target", m_Target)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("SourcePin", m_SourcePin)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("TargetPin", m_TargetPin)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezVisualGraphObjectManager
+// WVisualGraphObjectManager
 ////////////////////////////////////////////////////////////////////////
 
-ezVisualGraphObjectManager::ezVisualGraphObjectManager()
+WVisualGraphObjectManager::WVisualGraphObjectManager()
 {
-  m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::ObjectHandler, this));
-  m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::StructureEventHandler, this));
-  m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::PropertyEventsHandler, this));
+  m_ObjectEvents.AddEventHandler(WMakeDelegate(&WVisualGraphObjectManager::ObjectHandler, this));
+  m_StructureEvents.AddEventHandler(WMakeDelegate(&WVisualGraphObjectManager::StructureEventHandler, this));
+  m_PropertyEvents.AddEventHandler(WMakeDelegate(&WVisualGraphObjectManager::PropertyEventsHandler, this));
 }
 
-ezVisualGraphObjectManager::~ezVisualGraphObjectManager()
+WVisualGraphObjectManager::~WVisualGraphObjectManager()
 {
-  m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::ObjectHandler, this));
-  m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::StructureEventHandler, this));
-  m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualGraphObjectManager::PropertyEventsHandler, this));
+  m_ObjectEvents.RemoveEventHandler(WMakeDelegate(&WVisualGraphObjectManager::ObjectHandler, this));
+  m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WVisualGraphObjectManager::StructureEventHandler, this));
+  m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WVisualGraphObjectManager::PropertyEventsHandler, this));
 }
 
-void ezVisualGraphObjectManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
+void WVisualGraphObjectManager::GetNodeCreationTemplates(WDynamicArray<WVisualGraphNodeDesc>& out_templates) const
 {
-  ezTempHybridArray<const ezRTTI*, 32> types;
+  WTempHybridArray<const WRTTI*, 32> types;
   GetCreateableTypes(types);
 
   for (auto pType : types)
@@ -121,39 +121,39 @@ void ezVisualGraphObjectManager::GetNodeCreationTemplates(ezDynamicArray<ezVisua
   }
 }
 
-const ezRTTI* ezVisualGraphObjectManager::GetConnectionType() const
+const WRTTI* WVisualGraphObjectManager::GetConnectionType() const
 {
-  return ezGetStaticRTTI<ezDocumentObject_ConnectionBase>();
+  return WGetStaticRTTI<WDocumentObject_ConnectionBase>();
 }
 
-ezVec2 ezVisualGraphObjectManager::GetNodePos(const ezDocumentObject* pObject) const
+WVec2 WVisualGraphObjectManager::GetNodePos(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get pos of objects that aren't nodes!");
+  W_ASSERT_DEV(it.IsValid(), "Can't get pos of objects that aren't nodes!");
   return it.Value().m_vPos;
 }
 
-const ezVisualGraphConnection& ezVisualGraphObjectManager::GetConnection(const ezDocumentObject* pObject) const
+const WVisualGraphConnection& WVisualGraphObjectManager::GetConnection(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToConnection.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get connection for objects that aren't connections!");
+  W_ASSERT_DEV(it.IsValid(), "Can't get connection for objects that aren't connections!");
   return *it.Value();
 }
 
-const ezVisualGraphConnection* ezVisualGraphObjectManager::GetConnectionIfExists(const ezDocumentObject* pObject) const
+const WVisualGraphConnection* WVisualGraphObjectManager::GetConnectionIfExists(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToConnection.Find(pObject->GetGuid());
   return it.IsValid() ? it.Value().Borrow() : nullptr;
 }
 
-const ezVisualGraphPin* ezVisualGraphObjectManager::GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
+const WVisualGraphPin* WVisualGraphObjectManager::GetInputPinByName(const WDocumentObject* pObject, WStringView sName) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
+  W_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Inputs)
   {
     if (pPin->GetName() == sName)
@@ -162,11 +162,11 @@ const ezVisualGraphPin* ezVisualGraphObjectManager::GetInputPinByName(const ezDo
   return nullptr;
 }
 
-const ezVisualGraphPin* ezVisualGraphObjectManager::GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
+const WVisualGraphPin* WVisualGraphObjectManager::GetOutputPinByName(const WDocumentObject* pObject, WStringView sName) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
+  W_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Outputs)
   {
     if (pPin->GetName() == sName)
@@ -175,25 +175,25 @@ const ezVisualGraphPin* ezVisualGraphObjectManager::GetOutputPinByName(const ezD
   return nullptr;
 }
 
-ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> ezVisualGraphObjectManager::GetInputPins(const ezDocumentObject* pObject) const
+WArrayPtr<const WUniquePtr<const WVisualGraphPin>> WVisualGraphObjectManager::GetInputPins(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
-  return ezMakeArrayPtr((ezUniquePtr<const ezVisualGraphPin>*)it.Value().m_Inputs.GetData(), it.Value().m_Inputs.GetCount());
+  W_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
+  return WMakeArrayPtr((WUniquePtr<const WVisualGraphPin>*)it.Value().m_Inputs.GetData(), it.Value().m_Inputs.GetCount());
 }
 
-ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> ezVisualGraphObjectManager::GetOutputPins(const ezDocumentObject* pObject) const
+WArrayPtr<const WUniquePtr<const WVisualGraphPin>> WVisualGraphObjectManager::GetOutputPins(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
-  return ezMakeArrayPtr((ezUniquePtr<const ezVisualGraphPin>*)it.Value().m_Outputs.GetData(), it.Value().m_Outputs.GetCount());
+  W_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
+  return WMakeArrayPtr((WUniquePtr<const WVisualGraphPin>*)it.Value().m_Outputs.GetData(), it.Value().m_Outputs.GetCount());
 }
 
-bool ezVisualGraphObjectManager::IsNode(const ezDocumentObject* pObject) const
+bool WVisualGraphObjectManager::IsNode(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   if (pObject == nullptr)
     return false;
   if (pObject == GetRootObject())
@@ -202,9 +202,9 @@ bool ezVisualGraphObjectManager::IsNode(const ezDocumentObject* pObject) const
   return InternalIsNode(pObject);
 }
 
-bool ezVisualGraphObjectManager::IsConnection(const ezDocumentObject* pObject) const
+bool WVisualGraphObjectManager::IsConnection(const WDocumentObject* pObject) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   if (pObject == nullptr)
     return false;
   if (pObject == GetRootObject())
@@ -213,15 +213,15 @@ bool ezVisualGraphObjectManager::IsConnection(const ezDocumentObject* pObject) c
   return InternalIsConnection(pObject);
 }
 
-bool ezVisualGraphObjectManager::IsComment(const ezDocumentObject* pObject) const
+bool WVisualGraphObjectManager::IsComment(const WDocumentObject* pObject) const
 {
   if (pObject == nullptr)
     return false;
 
-  return pObject->GetType()->IsDerivedFrom<ezVisualGraphComment>();
+  return pObject->GetType()->IsDerivedFrom<WVisualGraphComment>();
 }
 
-bool ezVisualGraphObjectManager::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool WVisualGraphObjectManager::IsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const
 {
   if (IsNode(pObject) == false)
     return false;
@@ -232,7 +232,7 @@ bool ezVisualGraphObjectManager::IsDynamicPinProperty(const ezDocumentObject* pO
   return InternalIsDynamicPinProperty(pObject, pProp);
 }
 
-ezArrayPtr<const ezVisualGraphConnection* const> ezVisualGraphObjectManager::GetConnections(const ezVisualGraphPin& pin) const
+WArrayPtr<const WVisualGraphConnection* const> WVisualGraphObjectManager::GetConnections(const WVisualGraphPin& pin) const
 {
   auto it = m_Connections.Find(&pin);
   if (it.IsValid())
@@ -240,16 +240,16 @@ ezArrayPtr<const ezVisualGraphConnection* const> ezVisualGraphObjectManager::Get
     return it.Value();
   }
 
-  return ezArrayPtr<const ezVisualGraphConnection* const>();
+  return WArrayPtr<const WVisualGraphConnection* const>();
 }
 
-bool ezVisualGraphObjectManager::HasConnections(const ezVisualGraphPin& pin) const
+bool WVisualGraphObjectManager::HasConnections(const WVisualGraphPin& pin) const
 {
   auto it = m_Connections.Find(&pin);
   return it.IsValid() && it.Value().IsEmpty() == false;
 }
 
-bool ezVisualGraphObjectManager::IsConnected(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const
+bool WVisualGraphObjectManager::IsConnected(const WVisualGraphPin& source, const WVisualGraphPin& target) const
 {
   auto it = m_Connections.Find(&source);
   if (it.IsValid())
@@ -264,120 +264,120 @@ bool ezVisualGraphObjectManager::IsConnected(const ezVisualGraphPin& source, con
   return false;
 }
 
-ezStatus ezVisualGraphObjectManager::CanConnect(const ezRTTI* pObjectType, const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
+WStatus WVisualGraphObjectManager::CanConnect(const WRTTI* pObjectType, const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const
 {
   out_result = CanConnectResult::ConnectNever;
 
   if (pObjectType == nullptr || pObjectType->IsDerivedFrom(GetConnectionType()) == false)
-    return ezStatus("Invalid connection object type");
+    return WStatus("Invalid connection object type");
 
-  if (source.m_Type != ezVisualGraphPin::Type::Output)
-    return ezStatus("Source pin is not an output pin.");
-  if (target.m_Type != ezVisualGraphPin::Type::Input)
-    return ezStatus("Target pin is not an input pin.");
+  if (source.m_Type != WVisualGraphPin::Type::Output)
+    return WStatus("Source pin is not an output pin.");
+  if (target.m_Type != WVisualGraphPin::Type::Input)
+    return WStatus("Target pin is not an input pin.");
 
   if (source.m_pParent == target.m_pParent)
-    return ezStatus("Nodes cannot be connect with themselves.");
+    return WStatus("Nodes cannot be connect with themselves.");
 
   if (IsConnected(source, target))
-    return ezStatus("Pins already connected.");
+    return WStatus("Pins already connected.");
 
   return InternalCanConnect(source, target, out_result);
 }
 
-ezStatus ezVisualGraphObjectManager::CanDisconnect(const ezVisualGraphConnection* pConnection) const
+WStatus WVisualGraphObjectManager::CanDisconnect(const WVisualGraphConnection* pConnection) const
 {
   if (pConnection == nullptr)
-    return ezStatus("Invalid connection");
+    return WStatus("Invalid connection");
 
   return InternalCanDisconnect(pConnection->GetSourcePin(), pConnection->GetTargetPin());
 }
 
-ezStatus ezVisualGraphObjectManager::CanDisconnect(const ezDocumentObject* pObject) const
+WStatus WVisualGraphObjectManager::CanDisconnect(const WDocumentObject* pObject) const
 {
   if (!IsConnection(pObject))
-    return ezStatus("Invalid connection object");
+    return WStatus("Invalid connection object");
 
-  const ezVisualGraphConnection& connection = GetConnection(pObject);
+  const WVisualGraphConnection& connection = GetConnection(pObject);
   return InternalCanDisconnect(connection.GetSourcePin(), connection.GetTargetPin());
 }
 
-ezStatus ezVisualGraphObjectManager::CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const
+WStatus WVisualGraphObjectManager::CanMoveNode(const WDocumentObject* pObject, const WVec2& vPos) const
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  W_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   if (!IsNode(pObject) && !IsComment(pObject))
-    return ezStatus("The given object is not a node!");
+    return WStatus("The given object is not a node!");
 
   return InternalCanMoveNode(pObject, vPos);
 }
 
-void ezVisualGraphObjectManager::Connect(const ezDocumentObject* pObject, const ezVisualGraphPin& source, const ezVisualGraphPin& target)
+void WVisualGraphObjectManager::Connect(const WDocumentObject* pObject, const WVisualGraphPin& source, const WVisualGraphPin& target)
 {
-  ezVisualGraphObjectManager::CanConnectResult res = CanConnectResult::ConnectNever;
-  EZ_IGNORE_UNUSED(res);
-  EZ_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).Succeeded(), "Connect: Sanity check failed!");
+  WVisualGraphObjectManager::CanConnectResult res = CanConnectResult::ConnectNever;
+  W_IGNORE_UNUSED(res);
+  W_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).Succeeded(), "Connect: Sanity check failed!");
 
-  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Source") == source.GetParent()->GetGuid(), "Property should have been set at this point already");
-  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Target") == target.GetParent()->GetGuid(), "Property should have been set at this point already");
-  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("SourcePin") == source.GetName(), "Property should have been set at this point already");
-  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("TargetPin") == target.GetName(), "Property should have been set at this point already");
+  W_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Source") == source.GetParent()->GetGuid(), "Property should have been set at this point already");
+  W_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Target") == target.GetParent()->GetGuid(), "Property should have been set at this point already");
+  W_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("SourcePin") == source.GetName(), "Property should have been set at this point already");
+  W_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("TargetPin") == target.GetName(), "Property should have been set at this point already");
 
-  auto pConnection = EZ_DEFAULT_NEW(ezVisualGraphConnection, source, target, pObject);
+  auto pConnection = W_DEFAULT_NEW(WVisualGraphConnection, source, target, pObject);
   m_ObjectToConnection.Insert(pObject->GetGuid(), pConnection);
 
   m_Connections[&source].PushBack(pConnection);
   m_Connections[&target].PushBack(pConnection);
 
   {
-    ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::AfterPinsConnected, pObject);
+    WVisualGraphObjectManagerEvent e(WVisualGraphObjectManagerEvent::Type::AfterPinsConnected, pObject);
     m_NodeEvents.Broadcast(e);
   }
 }
 
-void ezVisualGraphObjectManager::Disconnect(const ezDocumentObject* pObject)
+void WVisualGraphObjectManager::Disconnect(const WDocumentObject* pObject)
 {
   auto it = m_ObjectToConnection.Find(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
-  EZ_ASSERT_DEBUG(CanDisconnect(pObject).Succeeded(), "Disconnect: Sanity check failed!");
+  W_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
+  W_ASSERT_DEBUG(CanDisconnect(pObject).Succeeded(), "Disconnect: Sanity check failed!");
 
   {
-    ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected, pObject);
+    WVisualGraphObjectManagerEvent e(WVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected, pObject);
     m_NodeEvents.Broadcast(e);
   }
 
   auto& pConnection = it.Value();
-  const ezVisualGraphPin& source = pConnection->GetSourcePin();
-  const ezVisualGraphPin& target = pConnection->GetTargetPin();
+  const WVisualGraphPin& source = pConnection->GetSourcePin();
+  const WVisualGraphPin& target = pConnection->GetTargetPin();
   m_Connections[&source].RemoveAndCopy(pConnection.Borrow());
   m_Connections[&target].RemoveAndCopy(pConnection.Borrow());
 
   m_ObjectToConnection.Remove(it);
 }
 
-void ezVisualGraphObjectManager::MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos)
+void WVisualGraphObjectManager::MoveNode(const WDocumentObject* pObject, const WVec2& vPos)
 {
-  EZ_ASSERT_DEBUG(CanMoveNode(pObject, vPos).Succeeded(), "MoveNode: Sanity check failed!");
+  W_ASSERT_DEBUG(CanMoveNode(pObject, vPos).Succeeded(), "MoveNode: Sanity check failed!");
 
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(it.IsValid(), "Moveable node does not exist, CanMoveNode impl invalid!");
+  W_ASSERT_DEBUG(it.IsValid(), "Moveable node does not exist, CanMoveNode impl invalid!");
   it.Value().m_vPos = vPos;
 
-  ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::NodeMoved, pObject);
+  WVisualGraphObjectManagerEvent e(WVisualGraphObjectManagerEvent::Type::NodeMoved, pObject);
   m_NodeEvents.Broadcast(e);
 }
 
-void ezVisualGraphObjectManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& ref_graph) const
+void WVisualGraphObjectManager::AttachMetaDataBeforeSaving(WAbstractObjectGraph& ref_graph) const
 {
-  auto pNodeMetaDataType = ezGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
-  auto pConnectionMetaDataType = ezGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
+  auto pNodeMetaDataType = WGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
+  auto pConnectionMetaDataType = WGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
 
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
+  WRttiConverterContext context;
+  WRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
 
   for (auto it = ref_graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
   {
     auto* pAbstractObject = it.Value();
-    const ezUuid& guid = pAbstractObject->GetGuid();
+    const WUuid& guid = pAbstractObject->GetGuid();
 
     {
       auto it2 = m_ObjectToNode.Find(guid);
@@ -393,21 +393,21 @@ void ezVisualGraphObjectManager::AttachMetaDataBeforeSaving(ezAbstractObjectGrap
   }
 }
 
-void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
+void WVisualGraphObjectManager::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
-  auto pNodeMetaDataType = ezGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
-  auto pConnectionMetaDataType = ezGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
+  auto pNodeMetaDataType = WGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
+  auto pConnectionMetaDataType = WGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
 
-  ezRttiConverterContext context;
-  ezRttiConverterReader rttiConverter(&graph, &context);
+  WRttiConverterContext context;
+  WRttiConverterReader rttiConverter(&graph, &context);
 
   // Ensure that all nodes have their pins created
   for (auto it : graph.GetAllNodes())
   {
     auto pAbstractObject = it.Value();
-    ezDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
+    WDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
     if (pObject != nullptr && IsNode(pObject))
     {
       auto& nodeInternal = m_ObjectToNode[pObject->GetGuid()];
@@ -421,7 +421,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
   for (auto it : graph.GetAllNodes())
   {
     auto pAbstractObject = it.Value();
-    ezDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
+    WDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
     if (pObject == nullptr)
       continue;
 
@@ -434,7 +434,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
       {
         if (bUndoable)
         {
-          ezMoveNodeCommand move;
+          WMoveNodeCommand move;
           move.m_Object = pObject->GetGuid();
           move.m_NewPos = nodeMetaData.m_Pos;
           history->AddCommand(move).LogFailure();
@@ -445,23 +445,23 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
         }
       }
 
-      EZ_ASSERT_DEV(pAbstractObject->FindProperty("Node::Connections") == nullptr, "Old file format detected that is not supported anymore. Re-save the document with a previous version of ez. ({})", GetDocument()->GetDocumentPath());
+      W_ASSERT_DEV(pAbstractObject->FindProperty("Node::Connections") == nullptr, "Old file format detected that is not supported anymore. Re-save the document with a previous version of W. ({})", GetDocument()->GetDocumentPath());
     }
     else if (IsConnection(pObject))
     {
-      ezVariant sourceVar = pObject->GetTypeAccessor().GetValue("Source");
-      ezVariant targetVar = pObject->GetTypeAccessor().GetValue("Target");
-      ezVariant sourcePinVar = pObject->GetTypeAccessor().GetValue("SourcePin");
-      ezVariant targetPinVar = pObject->GetTypeAccessor().GetValue("TargetPin");
-      EZ_ASSERT_DEV(sourceVar.IsA<ezUuid>() && targetVar.IsA<ezUuid>() && sourcePinVar.IsA<ezString>() && targetPinVar.IsA<ezString>(), "Invalid connection object");
+      WVariant sourceVar = pObject->GetTypeAccessor().GetValue("Source");
+      WVariant targetVar = pObject->GetTypeAccessor().GetValue("Target");
+      WVariant sourcePinVar = pObject->GetTypeAccessor().GetValue("SourcePin");
+      WVariant targetPinVar = pObject->GetTypeAccessor().GetValue("TargetPin");
+      W_ASSERT_DEV(sourceVar.IsA<WUuid>() && targetVar.IsA<WUuid>() && sourcePinVar.IsA<WString>() && targetPinVar.IsA<WString>(), "Invalid connection object");
 
-      ezUuid source = sourceVar.Get<ezUuid>();
-      ezUuid target = targetVar.Get<ezUuid>();
-      ezStringView sourcePin = sourcePinVar.Get<ezString>();
-      ezStringView targetPin = targetPinVar.Get<ezString>();
+      WUuid source = sourceVar.Get<WUuid>();
+      WUuid target = targetVar.Get<WUuid>();
+      WStringView sourcePin = sourcePinVar.Get<WString>();
+      WStringView targetPin = targetPinVar.Get<WString>();
 
-      const ezVisualGraphPin* pSourcePin = nullptr;
-      const ezVisualGraphPin* pTargetPin = nullptr;
+      const WVisualGraphPin* pSourcePin = nullptr;
+      const WVisualGraphPin* pTargetPin = nullptr;
       if (ResolveConnection(source, target, sourcePin, targetPin, pSourcePin, pTargetPin).Failed())
       {
         // Try to restore from metadata
@@ -485,7 +485,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
       {
         if (bUndoable)
         {
-          ezConnectNodePinsCommand cmd;
+          WConnectNodePinsCommand cmd;
           cmd.m_ConnectionObject = pObject->GetGuid();
           cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
           cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
@@ -500,9 +500,9 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
       }
       else
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("Connection from pin '{}' to pin '{}' could not be restored because a pin no longer exists. The connection has been removed.",
-          sourcePinVar.Get<ezString>(), targetPinVar.Get<ezString>());
+          sourcePinVar.Get<WString>(), targetPinVar.Get<WString>());
         GetDocument()->AddLoadingError(sError);
         RemoveObject(pObject);
         DestroyObject(pObject);
@@ -516,18 +516,18 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
       if (connectionMetaData.IsValid() == false)
         continue;
 
-      const ezVisualGraphPin* pSourcePin = nullptr;
-      const ezVisualGraphPin* pTargetPin = nullptr;
+      const WVisualGraphPin* pSourcePin = nullptr;
+      const WVisualGraphPin* pTargetPin = nullptr;
       if (ResolveConnection(connectionMetaData.m_Source, connectionMetaData.m_Target, connectionMetaData.m_SourcePin, connectionMetaData.m_TargetPin, pSourcePin, pTargetPin).Succeeded())
       {
-        ezDocumentObject* pNewConnectionObject = CreateObject(GetConnectionType());
+        WDocumentObject* pNewConnectionObject = CreateObject(GetConnectionType());
         pNewConnectionObject->GetTypeAccessor().SetValue("Source", connectionMetaData.m_Source);
         pNewConnectionObject->GetTypeAccessor().SetValue("Target", connectionMetaData.m_Target);
         pNewConnectionObject->GetTypeAccessor().SetValue("SourcePin", connectionMetaData.m_SourcePin);
         pNewConnectionObject->GetTypeAccessor().SetValue("TargetPin", connectionMetaData.m_TargetPin);
         AddObject(pNewConnectionObject, nullptr, "", -1);
 
-        EZ_ASSERT_DEV(bUndoable == false, "This code path should only be taken by document loading code");
+        W_ASSERT_DEV(bUndoable == false, "This code path should only be taken by document loading code");
         Connect(pNewConnectionObject, *pSourcePin, *pTargetPin);
       }
 
@@ -537,7 +537,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
   }
 }
 
-void ezVisualGraphObjectManager::GetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+void WVisualGraphObjectManager::GetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const
 {
   if (IsNode(pObject) || IsComment(pObject))
   {
@@ -546,28 +546,28 @@ void ezVisualGraphObjectManager::GetMetaDataHash(const ezDocumentObject* pObject
   }
   else if (IsConnection(pObject))
   {
-    const ezVisualGraphConnection& connection = GetConnection(pObject);
-    const ezVisualGraphPin& sourcePin = connection.GetSourcePin();
-    const ezVisualGraphPin& targetPin = connection.GetTargetPin();
+    const WVisualGraphConnection& connection = GetConnection(pObject);
+    const WVisualGraphPin& sourcePin = connection.GetSourcePin();
+    const WVisualGraphPin& targetPin = connection.GetTargetPin();
 
-    inout_uiHash = ezHashingUtils::xxHash64(&sourcePin.GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-    inout_uiHash = ezHashingUtils::xxHash64(&targetPin.GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-    inout_uiHash = ezHashingUtils::xxHash64String(sourcePin.GetName(), inout_uiHash);
-    inout_uiHash = ezHashingUtils::xxHash64String(targetPin.GetName(), inout_uiHash);
+    inout_uiHash = WHashingUtils::xxHash64(&sourcePin.GetParent()->GetGuid(), sizeof(WUuid), inout_uiHash);
+    inout_uiHash = WHashingUtils::xxHash64(&targetPin.GetParent()->GetGuid(), sizeof(WUuid), inout_uiHash);
+    inout_uiHash = WHashingUtils::xxHash64String(sourcePin.GetName(), inout_uiHash);
+    inout_uiHash = WHashingUtils::xxHash64String(targetPin.GetName(), inout_uiHash);
   }
 }
 
-bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph) const
+bool WVisualGraphObjectManager::CopySelectedObjects(WAbstractObjectGraph& out_objectGraph) const
 {
   const auto& selection = GetDocument()->GetSelectionManager()->GetSelection();
 
   if (selection.IsEmpty())
     return false;
 
-  ezDocumentObjectConverterWriter writer(&out_objectGraph, this);
+  WDocumentObjectConverterWriter writer(&out_objectGraph, this);
 
-  ezHashSet<const ezDocumentObject*> copiedNodes;
-  for (const ezDocumentObject* pObject : selection)
+  WHashSet<const WDocumentObject*> copiedNodes;
+  for (const WDocumentObject* pObject : selection)
   {
     // Only add nodes here, connections are then collected below to ensure
     // that we always include only valid connections within the copied subgraph no matter if they are selected or not.
@@ -579,8 +579,8 @@ bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_
     }
   }
 
-  ezHashSet<const ezDocumentObject*> copiedConnections;
-  for (const ezDocumentObject* pNodeObject : selection)
+  WHashSet<const WDocumentObject*> copiedConnections;
+  for (const WDocumentObject* pNodeObject : selection)
   {
     if (!IsNode(pNodeObject) && !IsComment(pNodeObject))
       continue;
@@ -589,11 +589,11 @@ bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_
     for (auto& pSourcePin : outputs)
     {
       auto connections = GetConnections(*pSourcePin);
-      for (const ezVisualGraphConnection* pConnection : connections)
+      for (const WVisualGraphConnection* pConnection : connections)
       {
-        const ezDocumentObject* pConnectionObject = pConnection->GetParent();
+        const WDocumentObject* pConnectionObject = pConnection->GetParent();
 
-        EZ_ASSERT_DEV(pSourcePin == &pConnection->GetSourcePin(), "");
+        W_ASSERT_DEV(pSourcePin == &pConnection->GetSourcePin(), "");
         if (copiedConnections.Contains(pConnectionObject) == false && copiedNodes.Contains(pConnection->GetTargetPin().GetParent()))
         {
           writer.AddObjectToGraph(pConnectionObject, "root");
@@ -608,10 +608,10 @@ bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_
   return true;
 }
 
-bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& vPickedPosition, bool bAllowPickedPosition)
+bool WVisualGraphObjectManager::PasteObjects(const WArrayPtr<WDocument::PasteInfo>& info, const WAbstractObjectGraph& objectGraph, const WVec2& vPickedPosition, bool bAllowPickedPosition)
 {
   bool bAddedAll = true;
-  ezDeque<const ezDocumentObject*> AddedObjects;
+  WDeque<const WDocumentObject*> AddedObjects;
 
   for (const auto& pi : info)
   {
@@ -631,11 +631,11 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
 
   if (!AddedObjects.IsEmpty() && bAllowPickedPosition)
   {
-    ezCommandHistory* history = GetDocument()->GetCommandHistory();
+    WCommandHistory* history = GetDocument()->GetCommandHistory();
 
-    ezVec2 vAvgPos(0);
-    ezUInt32 nodeCount = 0;
-    for (const ezDocumentObject* pObject : AddedObjects)
+    WVec2 vAvgPos(0);
+    WUInt32 nodeCount = 0;
+    for (const WDocumentObject* pObject : AddedObjects)
     {
       if (IsNode(pObject) || IsComment(pObject))
       {
@@ -645,13 +645,13 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
     }
 
     vAvgPos /= (float)nodeCount;
-    const ezVec2 vMoveNode = -vAvgPos + vPickedPosition;
+    const WVec2 vMoveNode = -vAvgPos + vPickedPosition;
 
-    for (const ezDocumentObject* pObject : AddedObjects)
+    for (const WDocumentObject* pObject : AddedObjects)
     {
       if (IsNode(pObject) || IsComment(pObject))
       {
-        ezMoveNodeCommand move;
+        WMoveNodeCommand move;
         move.m_Object = pObject->GetGuid();
         move.m_NewPos = GetNodePos(pObject) + vMoveNode;
         history->AddCommand(move).LogFailure();
@@ -660,7 +660,7 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
 
     if (!bAddedAll)
     {
-      ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
+      WLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
     }
   }
 
@@ -668,7 +668,7 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
   return true;
 }
 
-bool ezVisualGraphObjectManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const
+bool WVisualGraphObjectManager::CanReachNode(const WDocumentObject* pSource, const WDocumentObject* pTarget, WSet<const WDocumentObject*>& Visited) const
 {
   if (pSource == pTarget)
     return true;
@@ -682,7 +682,7 @@ bool ezVisualGraphObjectManager::CanReachNode(const ezDocumentObject* pSource, c
   for (auto& pSourcePin : outputs)
   {
     auto connections = GetConnections(*pSourcePin);
-    for (const ezVisualGraphConnection* pConnection : connections)
+    for (const WVisualGraphConnection* pConnection : connections)
     {
       if (CanReachNode(pConnection->GetTargetPin().GetParent(), pTarget, Visited))
         return true;
@@ -693,104 +693,104 @@ bool ezVisualGraphObjectManager::CanReachNode(const ezDocumentObject* pSource, c
 }
 
 
-bool ezVisualGraphObjectManager::WouldConnectionCreateCircle(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const
+bool WVisualGraphObjectManager::WouldConnectionCreateCircle(const WVisualGraphPin& source, const WVisualGraphPin& target) const
 {
-  const ezDocumentObject* pSourceNode = source.GetParent();
-  const ezDocumentObject* pTargetNode = target.GetParent();
-  ezSet<const ezDocumentObject*> Visited;
+  const WDocumentObject* pSourceNode = source.GetParent();
+  const WDocumentObject* pTargetNode = target.GetParent();
+  WSet<const WDocumentObject*> Visited;
 
   return CanReachNode(pTargetNode, pSourceNode, Visited);
 }
 
-ezResult ezVisualGraphObjectManager::ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezVisualGraphPin*& out_pSourcePin, const ezVisualGraphPin*& out_pTargetPin) const
+WResult WVisualGraphObjectManager::ResolveConnection(const WUuid& sourceObject, const WUuid& targetObject, WStringView sourcePin, WStringView targetPin, const WVisualGraphPin*& out_pSourcePin, const WVisualGraphPin*& out_pTargetPin) const
 {
-  const ezDocumentObject* pSource = GetObject(sourceObject);
-  const ezDocumentObject* pTarget = GetObject(targetObject);
+  const WDocumentObject* pSource = GetObject(sourceObject);
+  const WDocumentObject* pTarget = GetObject(targetObject);
   if (pSource == nullptr || pTarget == nullptr)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  const ezVisualGraphPin* pSourcePin = GetOutputPinByName(pSource, sourcePin);
+  const WVisualGraphPin* pSourcePin = GetOutputPinByName(pSource, sourcePin);
   if (pSourcePin == nullptr)
   {
-    ezLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", sourcePin, pSource->GetType()->GetTypeName());
-    return EZ_FAILURE;
+    WLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", sourcePin, pSource->GetType()->GetTypeName());
+    return W_FAILURE;
   }
 
-  const ezVisualGraphPin* pTargetPin = GetInputPinByName(pTarget, targetPin);
+  const WVisualGraphPin* pTargetPin = GetInputPinByName(pTarget, targetPin);
   if (pTargetPin == nullptr)
   {
-    ezLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", targetPin, pTarget->GetType()->GetTypeName());
-    return EZ_FAILURE;
+    WLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", targetPin, pTarget->GetType()->GetTypeName());
+    return W_FAILURE;
   }
 
   out_pSourcePin = pSourcePin;
   out_pTargetPin = pTargetPin;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezVisualGraphObjectManager::GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const
+void WVisualGraphObjectManager::GetDynamicPinNames(const WDocumentObject* pObject, WStringView sPropertyName, WStringView sPinName, WDynamicArray<WString>& out_Names) const
 {
   out_Names.Clear();
 
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
   if (pProp == nullptr)
   {
-    ezLog::Warning("Property '{0}' not found in type '{1}'", sPropertyName, pObject->GetType()->GetTypeName());
+    WLog::Warning("Property '{0}' not found in type '{1}'", sPropertyName, pObject->GetType()->GetTypeName());
     return;
   }
 
-  ezStringBuilder sTemp;
-  ezVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
+  WStringBuilder sTemp;
+  WVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
 
-  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  if (pProp->GetCategory() == WPropertyCategory::Member)
   {
-    if (value.CanConvertTo<ezUInt32>())
+    if (value.CanConvertTo<WUInt32>())
     {
-      ezUInt32 uiCount = value.ConvertTo<ezUInt32>();
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      WUInt32 uiCount = value.ConvertTo<WUInt32>();
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
       }
     }
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Array)
+  else if (pProp->GetCategory() == WPropertyCategory::Array)
   {
-    auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
+    auto pArrayProp = static_cast<const WAbstractArrayProperty*>(pProp);
 
-    auto& a = value.Get<ezVariantArray>();
-    const ezUInt32 uiCount = a.GetCount();
+    auto& a = value.Get<WVariantArray>();
+    const WUInt32 uiCount = a.GetCount();
 
     auto variantType = pArrayProp->GetSpecificType()->GetVariantType();
-    if (variantType >= ezVariantType::Int8 && variantType <= ezVariantType::UInt64)
+    if (variantType >= WVariantType::Int8 && variantType <= WVariantType::UInt64)
     {
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         sTemp.SetFormat("{}", a[i]);
         out_Names.PushBack(sTemp);
       }
     }
-    else if (variantType == ezVariantType::String || variantType == ezVariantType::HashedString)
+    else if (variantType == WVariantType::String || variantType == WVariantType::HashedString)
     {
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
-        out_Names.PushBack(a[i].ConvertTo<ezString>());
+        out_Names.PushBack(a[i].ConvertTo<WString>());
       }
     }
-    else if (pArrayProp->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class))
+    else if (pArrayProp->GetSpecificType()->GetTypeFlags().IsSet(WTypeFlags::Class))
     {
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
-        auto pInnerObject = GetObject(a[i].Get<ezUuid>());
+        auto pInnerObject = GetObject(a[i].Get<WUuid>());
         if (pInnerObject == nullptr)
           continue;
 
-        ezVariant nameVar = pInnerObject->GetTypeAccessor().GetValue("Name");
+        WVariant nameVar = pInnerObject->GetTypeAccessor().GetValue("Name");
         if (nameVar.IsString() || nameVar.IsHashedString())
         {
-          out_Names.PushBack(nameVar.ConvertTo<ezString>());
+          out_Names.PushBack(nameVar.ConvertTo<WString>());
         }
         else
         {
@@ -801,7 +801,7 @@ void ezVisualGraphObjectManager::GetDynamicPinNames(const ezDocumentObject* pObj
     }
     else
     {
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
@@ -810,7 +810,7 @@ void ezVisualGraphObjectManager::GetDynamicPinNames(const ezDocumentObject* pObj
   }
 }
 
-bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject)
+bool WVisualGraphObjectManager::TryRecreatePins(const WDocumentObject* pObject)
 {
   if (!IsNode(pObject))
     return false;
@@ -821,7 +821,7 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
   {
     if (HasConnections(*pPin))
     {
-      ezLog::Error("Can't re-create pins if they are still connected");
+      WLog::Error("Can't re-create pins if they are still connected");
       return false;
     }
   }
@@ -830,13 +830,13 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
   {
     if (HasConnections(*pPin))
     {
-      ezLog::Error("Can't re-create pins if they are still connected");
+      WLog::Error("Can't re-create pins if they are still connected");
       return false;
     }
   }
 
   {
-    ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::BeforePinsChanged, pObject);
+    WVisualGraphObjectManagerEvent e(WVisualGraphObjectManagerEvent::Type::BeforePinsChanged, pObject);
     m_NodeEvents.Broadcast(e);
   }
 
@@ -845,39 +845,39 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
   InternalCreatePins(pObject, nodeInternal);
 
   {
-    ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::AfterPinsChanged, pObject);
+    WVisualGraphObjectManagerEvent e(WVisualGraphObjectManagerEvent::Type::AfterPinsChanged, pObject);
     m_NodeEvents.Broadcast(e);
   }
 
   return true;
 }
 
-bool ezVisualGraphObjectManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WVisualGraphObjectManager::InternalIsNode(const WDocumentObject* pObject) const
 {
   return true;
 }
 
-bool ezVisualGraphObjectManager::InternalIsConnection(const ezDocumentObject* pObject) const
+bool WVisualGraphObjectManager::InternalIsConnection(const WDocumentObject* pObject) const
 {
   auto pType = pObject->GetTypeAccessor().GetType();
   return pType->IsDerivedFrom(GetConnectionType());
 }
 
-ezStatus ezVisualGraphObjectManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const
+WStatus WVisualGraphObjectManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNtoN;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezVisualGraphObjectManager::ObjectHandler(const ezDocumentObjectEvent& e)
+void WVisualGraphObjectManager::ObjectHandler(const WDocumentObjectEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectEvent::Type::AfterObjectCreated:
+    case WDocumentObjectEvent::Type::AfterObjectCreated:
     {
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
-        EZ_ASSERT_DEBUG(!m_ObjectToNode.Contains(e.m_pObject->GetGuid()), "Sanity check failed!");
+        W_ASSERT_DEBUG(!m_ObjectToNode.Contains(e.m_pObject->GetGuid()), "Sanity check failed!");
         m_ObjectToNode[e.m_pObject->GetGuid()] = NodeInternal();
       }
       else if (IsConnection(e.m_pObject))
@@ -886,12 +886,12 @@ void ezVisualGraphObjectManager::ObjectHandler(const ezDocumentObjectEvent& e)
       }
     }
     break;
-    case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
+    case WDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         auto it = m_ObjectToNode.Find(e.m_pObject->GetGuid());
-        EZ_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
+        W_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
 
         m_ObjectToNode.Remove(it);
       }
@@ -902,24 +902,24 @@ void ezVisualGraphObjectManager::ObjectHandler(const ezDocumentObjectEvent& e)
     }
     break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED
+      W_ASSERT_NOT_IMPLEMENTED
   }
 }
 
-void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WVisualGraphObjectManager::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+    case WDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
       if (IsNode(e.m_pObject))
       {
-        ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::BeforeNodeAdded, e.m_pObject);
+        WVisualGraphObjectManagerEvent e2(WVisualGraphObjectManagerEvent::Type::BeforeNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
     }
     break;
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
       if (IsNode(e.m_pObject))
       {
@@ -933,7 +933,7 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
 
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
-        ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded, e.m_pObject);
+        WVisualGraphObjectManagerEvent e2(WVisualGraphObjectManagerEvent::Type::AfterNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
       else
@@ -942,20 +942,20 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
       }
     }
     break;
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
-        ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved, e.m_pObject);
+        WVisualGraphObjectManagerEvent e2(WVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
     }
     break;
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     {
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
-        ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::AfterNodeRemoved, e.m_pObject);
+        WVisualGraphObjectManagerEvent e2(WVisualGraphObjectManagerEvent::Type::AfterNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
       else
@@ -970,25 +970,25 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
   }
 }
 
-void ezVisualGraphObjectManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
+void WVisualGraphObjectManager::PropertyEventsHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (e.m_pObject == nullptr)
     return;
 
   HandlePotentialDynamicPinPropertyChanged(e.m_pObject, e.m_sProperty);
 
-  if (const ezDocumentObject* pParent = e.m_pObject->GetParent())
+  if (const WDocumentObject* pParent = e.m_pObject->GetParent())
   {
     HandlePotentialDynamicPinPropertyChanged(pParent, e.m_pObject->GetParentProperty());
   }
 }
 
-void ezVisualGraphObjectManager::HandlePotentialDynamicPinPropertyChanged(const ezDocumentObject* pObject, ezStringView sPropertyName)
+void WVisualGraphObjectManager::HandlePotentialDynamicPinPropertyChanged(const WDocumentObject* pObject, WStringView sPropertyName)
 {
   if (pObject == nullptr)
     return;
 
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
+  const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
   if (pProp == nullptr)
     return;
 

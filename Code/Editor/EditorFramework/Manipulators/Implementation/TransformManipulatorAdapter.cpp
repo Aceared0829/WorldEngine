@@ -4,38 +4,38 @@
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() = default;
+WTransformManipulatorAdapter::WTransformManipulatorAdapter() = default;
 
-ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() = default;
+WTransformManipulatorAdapter::~WTransformManipulatorAdapter() = default;
 
-void ezTransformManipulatorAdapter::Finalize()
+void WTransformManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
 
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_TranslateGizmo.SetTransformation(GetObjectTransform());
   m_RotateGizmo.SetTransformation(GetObjectTransform());
   m_ScaleGizmo.SetTransformation(GetObjectTransform());
 
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  const WTransformManipulatorAttribute* pAttr = static_cast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetTranslateProperty().IsEmpty())
   {
-    m_bHideTranslate = GetProperty(pAttr->GetTranslateProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+    m_bHideTranslate = GetProperty(pAttr->GetTranslateProperty())->GetFlags().IsSet(WPropertyFlags::ReadOnly);
   }
 
   if (!pAttr->GetRotateProperty().IsEmpty())
   {
-    m_bHideRotate = GetProperty(pAttr->GetRotateProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+    m_bHideRotate = GetProperty(pAttr->GetRotateProperty())->GetFlags().IsSet(WPropertyFlags::ReadOnly);
   }
 
   if (!pAttr->GetScaleProperty().IsEmpty())
   {
-    m_bHideScale = GetProperty(pAttr->GetScaleProperty())->GetFlags().IsSet(ezPropertyFlags::ReadOnly);
+    m_bHideScale = GetProperty(pAttr->GetScaleProperty())->GetFlags().IsSet(WPropertyFlags::ReadOnly);
   }
 
   m_TranslateGizmo.SetOwner(pEngineWindow, nullptr);
@@ -45,43 +45,43 @@ void ezTransformManipulatorAdapter::Finalize()
   m_ScaleGizmo.SetOwner(pEngineWindow, nullptr);
   m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);
 
-  m_TranslateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTransformManipulatorAdapter::GizmoEventHandler, this));
-  m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTransformManipulatorAdapter::GizmoEventHandler, this));
-  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTransformManipulatorAdapter::GizmoEventHandler, this));
+  m_TranslateGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTransformManipulatorAdapter::GizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTransformManipulatorAdapter::GizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTransformManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezTransformManipulatorAdapter::Update()
+void WTransformManipulatorAdapter::Update()
 {
   UpdateGizmoTransform();
 }
 
-void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void WTransformManipulatorAdapter::GizmoEventHandler(const WGizmoEvent& e)
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  const WTransformManipulatorAttribute* pAttr = static_cast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       m_vOldScale = GetScale();
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
       if (e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_RotateGizmo || e.m_pGizmo == &m_ScaleGizmo)
       {
-        const ezTransform tParent = GetObjectTransform();
-        const ezTransform tGlobal = static_cast<const ezGizmo*>(e.m_pGizmo)->GetTransformation();
-        ezTransform tLocal;
-        tLocal = ezTransform::MakeLocalTransform(tParent, tGlobal);
+        const WTransform tParent = GetObjectTransform();
+        const WTransform tGlobal = static_cast<const WGizmo*>(e.m_pGizmo)->GetTransformation();
+        WTransform tLocal;
+        tLocal = WTransform::MakeLocalTransform(tParent, tGlobal);
         if (e.m_pGizmo == &m_TranslateGizmo)
         {
           ChangeProperties(pAttr->GetTranslateProperty(), tLocal.m_vPosition);
@@ -92,7 +92,7 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
         }
         else if (e.m_pGizmo == &m_ScaleGizmo)
         {
-          ezVec3 vNewScale = m_vOldScale.CompMul(m_ScaleGizmo.GetScalingResult());
+          WVec3 vNewScale = m_vOldScale.CompMul(m_ScaleGizmo.GetScalingResult());
           ChangeProperties(pAttr->GetScaleProperty(), vNewScale);
         }
       }
@@ -102,87 +102,87 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 }
 
 
-void ezTransformManipulatorAdapter::UpdateGizmoTransform()
+void WTransformManipulatorAdapter::UpdateGizmoTransform()
 {
   m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideTranslate);
   m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideRotate);
   m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);
 
-  const ezVec3 vPos = GetTranslation();
-  const ezQuat vRot = GetRotation();
-  const ezVec3 vScale = GetScale();
+  const WVec3 vPos = GetTranslation();
+  const WQuat vRot = GetRotation();
+  const WVec3 vScale = GetScale();
 
-  const ezTransform tParent = GetObjectTransform();
-  ezTransform tLocal;
+  const WTransform tParent = GetObjectTransform();
+  WTransform tLocal;
   tLocal.m_vPosition = vPos;
   tLocal.m_qRotation = vRot;
   tLocal.m_vScale = vScale;
-  ezTransform tGlobal;
-  tGlobal = ezTransform::MakeGlobalTransform(tParent, tLocal);
+  WTransform tGlobal;
+  tGlobal = WTransform::MakeGlobalTransform(tParent, tLocal);
   // Let's not apply scaling to the gizmos.
-  tGlobal.m_vScale = ezVec3(1, 1, 1);
+  tGlobal.m_vScale = WVec3(1, 1, 1);
 
   m_TranslateGizmo.SetTransformation(tGlobal);
   m_RotateGizmo.SetTransformation(tGlobal);
   m_ScaleGizmo.SetTransformation(tGlobal);
 }
 
-ezVec3 ezTransformManipulatorAdapter::GetTranslation()
+WVec3 WTransformManipulatorAdapter::GetTranslation()
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  const WTransformManipulatorAttribute* pAttr = static_cast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetTranslateProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-    return pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetTranslateProperty()));
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    return pObjectAccessor->Get<WVec3>(m_pObject, GetProperty(pAttr->GetTranslateProperty()));
   }
 
-  return ezVec3(0);
+  return WVec3(0);
 }
 
-ezQuat ezTransformManipulatorAdapter::GetRotation()
+WQuat WTransformManipulatorAdapter::GetRotation()
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  const WTransformManipulatorAttribute* pAttr = static_cast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetRotateProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-    return pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotateProperty()));
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    return pObjectAccessor->Get<WQuat>(m_pObject, GetProperty(pAttr->GetRotateProperty()));
   }
 
-  return ezQuat::MakeIdentity();
+  return WQuat::MakeIdentity();
 }
 
-ezVec3 ezTransformManipulatorAdapter::GetScale()
+WVec3 WTransformManipulatorAdapter::GetScale()
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
+  const WTransformManipulatorAttribute* pAttr = static_cast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetScaleProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-    return pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetScaleProperty()));
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    return pObjectAccessor->Get<WVec3>(m_pObject, GetProperty(pAttr->GetScaleProperty()));
   }
 
-  return ezVec3(1);
+  return WVec3(1);
 }
 
-ezTransform ezTransformManipulatorAdapter::GetOffsetTransform() const
+WTransform WTransformManipulatorAdapter::GetOffsetTransform() const
 {
-  ezTransform offset;
+  WTransform offset;
   offset.SetIdentity();
 
-  if (const ezTransformManipulatorAttribute* pAttr = ezDynamicCast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr))
+  if (const WTransformManipulatorAttribute* pAttr = WDynamicCast<const WTransformManipulatorAttribute*>(m_pManipulatorAttr))
   {
     if (!pAttr->GetGetOffsetTranslationProperty().IsEmpty())
     {
-      ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-      offset.m_vPosition = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetGetOffsetTranslationProperty()));
+      WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+      offset.m_vPosition = pObjectAccessor->Get<WVec3>(m_pObject, GetProperty(pAttr->GetGetOffsetTranslationProperty()));
     }
 
     if (!pAttr->GetGetOffsetRotationProperty().IsEmpty())
     {
-      ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-      offset.m_qRotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetGetOffsetRotationProperty()));
+      WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+      offset.m_qRotation = pObjectAccessor->Get<WQuat>(m_pObject, GetProperty(pAttr->GetGetOffsetRotationProperty()));
     }
   }
 

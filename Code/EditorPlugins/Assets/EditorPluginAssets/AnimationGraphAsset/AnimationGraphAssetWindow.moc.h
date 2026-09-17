@@ -4,22 +4,22 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtAnimationGraphAssetScene;
-class ezQtVisualGraphView;
+class WQtAnimationGraphAssetScene;
+class WQtVisualGraphView;
 
-class ezQtAnimationGraphAssetDocumentWindow : public ezQtDocumentWindow
+class WQtAnimationGraphAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtAnimationGraphAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtAnimationGraphAssetDocumentWindow();
+  WQtAnimationGraphAssetDocumentWindow(WDocument* pDocument);
+  ~WQtAnimationGraphAssetDocumentWindow();
 
 private Q_SLOTS:
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
-  ezQtAnimationGraphAssetScene* m_pScene;
-  ezQtVisualGraphView* m_pView;
+  WQtAnimationGraphAssetScene* m_pScene;
+  WQtVisualGraphView* m_pView;
 };

@@ -8,31 +8,31 @@
 #include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezSkeletonContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonContext, 1, WRTTIDefaultAllocator<WSkeletonContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Skeleton"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Skeleton"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSkeletonContext::ezSkeletonContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WSkeletonContext::WSkeletonContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
+void WSkeletonContext::HandleMessage(const WEditorEngineDocumentMsg* pDocMsg)
 {
-  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEngine*>(pDocMsg))
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
@@ -44,9 +44,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "HighlightBones")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->SetBonesToHighlight(pMsg->m_sPayload);
@@ -54,9 +54,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "RenderBones")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeBones = pMsg->m_PayloadValue.Get<bool>();
@@ -65,7 +65,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       // resend the pose every frame (this config message is send every frame)
       // this ensures that changing any of the visualization states in the skeleton component displays correctly
       // a bit hacky and should be cleaned up, but this way the skeleton component doesn't need to keep a copy of the last pose (maybe it should)
-      ezSkeletonPoseComponent* pPoseSkeleton;
+      WSkeletonPoseComponent* pPoseSkeleton;
       if (m_pWorld->TryGetComponent(m_hPoseComponent, pPoseSkeleton))
       {
         pPoseSkeleton->ResendPose();
@@ -73,9 +73,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "RenderColliders")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeColliders = pMsg->m_PayloadValue.Get<bool>();
@@ -83,9 +83,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "RenderJoints")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeJoints = pMsg->m_PayloadValue.Get<bool>();
@@ -93,9 +93,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "RenderSwingLimits")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeSwingLimits = pMsg->m_PayloadValue.Get<bool>();
@@ -103,9 +103,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
     else if (pMsg->m_sWhatToDo == "RenderTwistLimits")
     {
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton = nullptr;
+      WSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeTwistLimits = pMsg->m_PayloadValue.Get<bool>();
@@ -116,9 +116,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       m_sAnimatedMeshToUse = pMsg->m_sPayload;
 
       auto pWorld = m_pWorld;
-      EZ_LOCK(pWorld->GetWriteMarker());
+      W_LOCK(pWorld->GetWriteMarker());
 
-      ezAnimatedMeshComponent* pAnimMesh;
+      WAnimatedMeshComponent* pAnimMesh;
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
       {
         m_hAnimMeshComponent.Invalidate();
@@ -127,9 +127,9 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 
       if (!m_sAnimatedMeshToUse.IsEmpty())
       {
-        ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/SkeletonPreviewMesh.ezMaterial");
+        WMaterialResourceHandle hMat = WResourceManager::LoadResource<WMaterialResource>("Editor/Materials/SkeletonPreviewMesh.WMaterial");
 
-        m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+        m_hAnimMeshComponent = WAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
         pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
 
         for (int i = 0; i < 10; ++i)
@@ -140,17 +140,17 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
+  WEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
-void ezSkeletonContext::OnInitialize()
+void WSkeletonContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezSkeletonComponent* pVisSkeleton;
-  ezSkeletonPoseComponent* pPoseSkeleton;
+  WGameObjectDesc obj;
+  WSkeletonComponent* pVisSkeleton;
+  WSkeletonPoseComponent* pPoseSkeleton;
 
   // Preview Mesh
   {
@@ -158,47 +158,47 @@ void ezSkeletonContext::OnInitialize()
     obj.m_bDynamic = true;
     pWorld->CreateObject(obj, m_pGameObject);
 
-    m_hSkeletonComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
-    ezStringBuilder sSkeletonGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
-    m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
+    m_hSkeletonComponent = WSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
+    WStringBuilder sSkeletonGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
+    m_hSkeleton = WResourceManager::LoadResource<WSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(m_hSkeleton);
     pVisSkeleton->m_bVisualizeColliders = true;
 
-    m_hPoseComponent = ezSkeletonPoseComponent::CreateComponent(m_pGameObject, pPoseSkeleton);
+    m_hPoseComponent = WSkeletonPoseComponent::CreateComponent(m_pGameObject, pPoseSkeleton);
     pPoseSkeleton->SetSkeleton(m_hSkeleton);
-    pPoseSkeleton->SetPoseMode(ezSkeletonPoseMode::RestPose);
+    pPoseSkeleton->SetPoseMode(WSkeletonPoseMode::RestPose);
   }
 }
 
-ezEngineProcessViewContext* ezSkeletonContext::CreateViewContext()
+WEngineProcessViewContext* WSkeletonContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezSkeletonViewContext, this);
+  return W_DEFAULT_NEW(WSkeletonViewContext, this);
 }
 
-void ezSkeletonContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WSkeletonContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezSkeletonContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WSkeletonContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezSkeletonViewContext* pMeshViewContext = static_cast<ezSkeletonViewContext*>(pThumbnailViewContext);
+  WSkeletonViewContext* pMeshViewContext = static_cast<WSkeletonViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WSkeletonContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_pGameObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pGameObject->UpdateLocalBounds();
     m_pGameObject->UpdateGlobalTransformAndBounds();
@@ -208,9 +208,9 @@ void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg
       bounds.ExpandToInclude(b);
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;

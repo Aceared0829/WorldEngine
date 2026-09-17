@@ -4,11 +4,11 @@
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-ezResult ezTexConvProcessor::Assemble3DTexture(ezImage& dst) const
+WResult WTexConvProcessor::Assemble3DTexture(WImage& dst) const
 {
-  EZ_PROFILE_SCOPE("Assemble3DTexture");
+  W_PROFILE_SCOPE("Assemble3DTexture");
 
   const auto& images = m_Descriptor.m_InputImages;
 
-  return ezImageUtils::CreateVolumeTextureFromSingleFile(dst, images[0]);
+  return WImageUtils::CreateVolumeTextureFromSingleFile(dst, images[0]);
 }

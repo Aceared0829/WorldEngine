@@ -2,12 +2,12 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-class ezSoundEventComponentDragDropHandler : public ezComponentDragDropHandler
+class WSoundEventComponentDragDropHandler : public WComponentDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSoundEventComponentDragDropHandler, ezComponentDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WSoundEventComponentDragDropHandler, WComponentDragDropHandler);
 
 public:
-  float CanHandle(const ezDragDropInfo* pInfo) const override;
+  float CanHandle(const WDragDropInfo* pInfo) const override;
 
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
 };

@@ -5,43 +5,43 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMaterialAssetDocumentManager, 1, WRTTIDefaultAllocator<WMaterialAssetDocumentManager>)
   ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-const char* const ezMaterialAssetDocumentManager::s_szShaderOutputTag = "VISUAL_SHADER";
+const char* const WMaterialAssetDocumentManager::s_szShaderOutputTag = "VISUAL_SHADER";
 
-ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
+WMaterialAssetDocumentManager::WMaterialAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Material", "ezMaterial");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Material", "WMaterial");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Material";
-  m_DocTypeDesc.m_sFileExtension = "ezMaterialAsset";
+  m_DocTypeDesc.m_sFileExtension = "WMaterialAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Material.svg";
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WMaterialAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Material");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinMaterial";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinMaterial";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail | WAssetDocumentFlags::AutoTransformOnSave;
 }
 
-ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
+WMaterialAssetDocumentManager::~WMaterialAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+WString WMaterialAssetDocumentManager::GetRelativeOutputFileName(const WAssetDocumentTypeDescriptor* pTypeDescriptor, WStringView sDataDirectory, WStringView sDocumentPath, WStringView sOutputTag, const WPlatformProfile* pAssetProfile) const
 {
   if (sOutputTag.IsEqual(s_szShaderOutputTag))
   {
-    ezStringBuilder sRelativePath(sDocumentPath);
+    WStringBuilder sRelativePath(sDocumentPath);
     sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
-    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "autogen.ezShader", false);
+    WAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "autogen.WShader", false);
     return sRelativePath;
   }
 
@@ -49,16 +49,16 @@ ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const ezAsset
 }
 
 
-bool ezMaterialAssetDocumentManager::IsOutputUpToDate(ezStringView sDocumentPath, ezStringView sOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool WMaterialAssetDocumentManager::IsOutputUpToDate(WStringView sDocumentPath, WStringView sOutputTag, WUInt64 uiHash, const WAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   if (sOutputTag.IsEqual(s_szShaderOutputTag))
   {
-    const ezString sTargetFile = GetAbsoluteOutputFileName(pTypeDescriptor, sDocumentPath, sOutputTag);
+    const WString sTargetFile = GetAbsoluteOutputFileName(pTypeDescriptor, sDocumentPath, sOutputTag);
 
-    ezStringBuilder sExpectedHeader;
+    WStringBuilder sExpectedHeader;
     sExpectedHeader.SetFormat("//{0}|{1}\n", uiHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion());
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sTargetFile, 256).Failed())
       return false;
 
@@ -66,17 +66,17 @@ bool ezMaterialAssetDocumentManager::IsOutputUpToDate(ezStringView sDocumentPath
     if (file.GetFileSize() < sExpectedHeader.GetElementCount())
       return false;
 
-    ezUInt8 Temp[256] = {0};
-    const ezUInt32 uiRead = (ezUInt32)file.ReadBytes(Temp, sExpectedHeader.GetElementCount());
-    ezStringBuilder sFileHeader = ezStringView((const char*)&Temp[0], (const char*)&Temp[uiRead]);
+    WUInt8 Temp[256] = {0};
+    const WUInt32 uiRead = (WUInt32)file.ReadBytes(Temp, sExpectedHeader.GetElementCount());
+    WStringBuilder sFileHeader = WStringView((const char*)&Temp[0], (const char*)&Temp[uiRead]);
 
     return sFileHeader.IsEqual(sExpectedHeader);
   }
 
-  return ezAssetDocumentManager::IsOutputUpToDate(sDocumentPath, sOutputTag, uiHash, pTypeDescriptor);
+  return WAssetDocumentManager::IsOutputUpToDate(sDocumentPath, sOutputTag, uiHash, pTypeDescriptor);
 }
 
-ezStringView ezMaterialAssetDocumentManager::GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+WStringView WMaterialAssetDocumentManager::GetOutputDocumentType(const WAssetDocumentTypeDescriptor* pTypeDesc, WStringView sOutputTag, const WPlatformProfile* pAssetProfile) const
 {
   if (sOutputTag == s_szShaderOutputTag)
   {
@@ -85,15 +85,15 @@ ezStringView ezMaterialAssetDocumentManager::GetOutputDocumentType(const ezAsset
   return SUPER::GetOutputDocumentType(pTypeDesc, sOutputTag, pAssetProfile);
 }
 
-void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WMaterialAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WMaterialAssetDocument>())
       {
-        new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument)); // NOLINT: not a memory leak
+        new WQtMaterialAssetDocumentWindow(static_cast<WMaterialAssetDocument*>(e.m_pDocument)); // NOLINT: not a memory leak
       }
     }
     break;
@@ -103,12 +103,12 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-void ezMaterialAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WMaterialAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezMaterialAssetDocument(sPath);
+  out_pDocument = new WMaterialAssetDocument(sPath);
 }
 
-void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

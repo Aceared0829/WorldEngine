@@ -6,35 +6,35 @@
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezSelectionContext;
+class WQtOrbitCamViewWidget;
+class WSelectionContext;
 
-class ezQtSkeletonAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtSkeletonAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument);
-  ~ezQtSkeletonAssetDocumentWindow();
+  WQtSkeletonAssetDocumentWindow(WSkeletonAssetDocument* pDocument);
+  ~WQtSkeletonAssetDocumentWindow();
 
-  ezSkeletonAssetDocument* GetSkeletonDocument();
+  WSkeletonAssetDocument* GetSkeletonDocument();
 
 protected:
   virtual void InternalRedraw() override;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose = 0);
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
-  void SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e);
+  void QueryObjectBBox(WInt32 iPurpose = 0);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
+  void SkeletonAssetEventHandler(const WSkeletonAssetEvent& e);
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void CommandEventHandler(const ezCommandHistoryEvent&);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void CommandEventHandler(const WCommandHistoryEvent&);
 
   void SendLiveResourcePreview();
   void RestoreResource();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget = nullptr;
 };

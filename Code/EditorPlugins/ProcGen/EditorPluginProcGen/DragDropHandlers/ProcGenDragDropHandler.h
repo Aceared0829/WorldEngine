@@ -3,12 +3,12 @@
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorPluginProcGen/EditorPluginProcGenDLL.h>
 
-class EZ_EDITORPLUGINPROCGEN_DLL ezProcPlacementComponentDragDropHandler : public ezComponentDragDropHandler
+class W_EDITORPLUGINPROCGEN_DLL WProcPlacementComponentDragDropHandler : public WComponentDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcPlacementComponentDragDropHandler, ezComponentDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WProcPlacementComponentDragDropHandler, WComponentDragDropHandler);
 
 public:
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
 
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
 };

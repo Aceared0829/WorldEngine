@@ -8,26 +8,26 @@
 #include <Foundation/Types/RefCounted.h>
 #include <ozz/base/maths/soa_transform.h>
 
-class ezAnimGraphInstance;
-class ezAnimController;
-class ezStreamWriter;
-class ezStreamReader;
-struct ezAnimGraphPinDataBoneWeights;
-struct ezAnimGraphPinDataLocalTransforms;
-struct ezAnimGraphPinDataModelTransforms;
+class WAnimGraphInstance;
+class WAnimController;
+class WStreamWriter;
+class WStreamReader;
+struct WAnimGraphPinDataBoneWeights;
+struct WAnimGraphPinDataLocalTransforms;
+struct WAnimGraphPinDataModelTransforms;
 
 /// Shared bone weight mask used to control which bones are affected by animations.
 ///
 /// Bone weights are globally shared across all characters to save memory. Created via
-/// ezAnimController::CreateBoneWeights() with a unique name for caching.
-struct ezAnimGraphSharedBoneWeights : public ezRefCounted
+/// WAnimController::CreateBoneWeights() with a unique name for caching.
+struct WAnimGraphSharedBoneWeights : public WRefCounted
 {
-  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_Weights;
+  WDynamicArray<ozz::math::SimdFloat4, WAlignedAllocatorWrapper> m_Weights;
 };
 
-using ezAnimPoseGeneratorLocalPoseID = ezUInt32;
-using ezAnimPoseGeneratorModelPoseID = ezUInt32;
-using ezAnimPoseGeneratorCommandID = ezUInt32;
+using WAnimPoseGeneratorLocalPoseID = WUInt32;
+using WAnimPoseGeneratorModelPoseID = WUInt32;
+using WAnimPoseGeneratorCommandID = WUInt32;
 
 /// Base class for all animation graph pins, representing typed connections between nodes.
 ///
@@ -53,12 +53,12 @@ using ezAnimPoseGeneratorCommandID = ezUInt32;
 /// - **BoneWeights**: Masks controlling which bones are affected by animations
 /// - **LocalPose**: Bone transforms in local space (parent-relative)
 /// - **ModelPose**: Bone transforms in model space (skeleton root-relative)
-class EZ_RENDERERCORE_DLL ezAnimGraphPin : public ezReflectedClass
+class W_RENDERERCORE_DLL WAnimGraphPin : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphPin, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphPin, WReflectedClass);
 
 public:
-  enum Type : ezUInt8
+  enum Type : WUInt8
   {
     Invalid,
     Trigger,     ///< One-shot events that occur for a single frame
@@ -80,30 +80,30 @@ public:
     return m_iPinIndex != -1;
   }
 
-  virtual ezAnimGraphPin::Type GetPinType() const = 0;
+  virtual WAnimGraphPin::Type GetPinType() const = 0;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
 protected:
-  friend class ezAnimGraph;
+  friend class WAnimGraph;
 
-  ezInt16 m_iPinIndex = -1;       ///< Index into the instance's pin state array, -1 if unconnected
-  ezUInt8 m_uiNumConnections = 0; ///< Number of connections to this pin
+  WInt16 m_iPinIndex = -1;       ///< Index into the instance's pin state array, -1 if unconnected
+  WUInt8 m_uiNumConnections = 0; ///< Number of connections to this pin
 };
 
 /// Base class for input pins that receive data from connected output pins.
-class EZ_RENDERERCORE_DLL ezAnimGraphInputPin : public ezAnimGraphPin
+class W_RENDERERCORE_DLL WAnimGraphInputPin : public WAnimGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphInputPin, ezAnimGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphInputPin, WAnimGraphPin);
 
 public:
 };
 
 /// Base class for output pins that send data to connected input pins.
-class EZ_RENDERERCORE_DLL ezAnimGraphOutputPin : public ezAnimGraphPin
+class W_RENDERERCORE_DLL WAnimGraphOutputPin : public WAnimGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphOutputPin, ezAnimGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphOutputPin, WAnimGraphPin);
 
 public:
 };
@@ -114,37 +114,37 @@ public:
 ///
 /// Triggers are one-shot events that are active for a single frame. Common uses include signaling
 /// animation completion, state transitions, or specific animation events.
-class EZ_RENDERERCORE_DLL ezAnimGraphTriggerInputPin : public ezAnimGraphInputPin
+class W_RENDERERCORE_DLL WAnimGraphTriggerInputPin : public WAnimGraphInputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphTriggerInputPin, ezAnimGraphInputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphTriggerInputPin, WAnimGraphInputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Trigger; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Trigger; }
 
   /// Returns whether at least one connected output pin triggered this frame.
-  bool IsTriggered(ezAnimGraphInstance& ref_graph) const;
+  bool IsTriggered(WAnimGraphInstance& ref_graph) const;
 
   /// Returns whether all connected output pins triggered this frame.
   ///
   /// Useful for nodes that need all inputs to be ready before proceeding.
-  bool AreAllTriggered(ezAnimGraphInstance& ref_graph) const;
+  bool AreAllTriggered(WAnimGraphInstance& ref_graph) const;
 };
 
 /// Output pin for sending trigger events.
 ///
 /// Trigger pins send one-shot events that last for a single frame.
-class EZ_RENDERERCORE_DLL ezAnimGraphTriggerOutputPin : public ezAnimGraphOutputPin
+class W_RENDERERCORE_DLL WAnimGraphTriggerOutputPin : public WAnimGraphOutputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphTriggerOutputPin, ezAnimGraphOutputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphTriggerOutputPin, WAnimGraphOutputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Trigger; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Trigger; }
 
   /// Sets this output pin to the triggered state for this frame.
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
   /// when a pin should be set to the triggered state, but then it must be called every frame.
-  void SetTriggered(ezAnimGraphInstance& ref_graph) const;
+  void SetTriggered(WAnimGraphInstance& ref_graph) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -153,28 +153,28 @@ public:
 ///
 /// Number pins carry double-precision floating-point values used for blend weights, animation speeds,
 /// parameters, and other numerical data.
-class EZ_RENDERERCORE_DLL ezAnimGraphNumberInputPin : public ezAnimGraphInputPin
+class W_RENDERERCORE_DLL WAnimGraphNumberInputPin : public WAnimGraphInputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberInputPin, ezAnimGraphInputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphNumberInputPin, WAnimGraphInputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Number; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Number; }
 
   /// Retrieves the number value from connected output pins.
   ///
   /// Returns fFallback if the pin is not connected.
-  double GetNumber(ezAnimGraphInstance& ref_graph, double fFallback = 0.0) const;
+  double GetNumber(WAnimGraphInstance& ref_graph, double fFallback = 0.0) const;
 };
 
 /// Output pin for sending number values.
-class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputPin
+class W_RENDERERCORE_DLL WAnimGraphNumberOutputPin : public WAnimGraphOutputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberOutputPin, ezAnimGraphOutputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphNumberOutputPin, WAnimGraphOutputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Number; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Number; }
 
-  void SetNumber(ezAnimGraphInstance& ref_graph, double value) const;
+  void SetNumber(WAnimGraphInstance& ref_graph, double value) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -182,28 +182,28 @@ public:
 /// Input pin for receiving boolean values.
 ///
 /// Bool pins carry true/false values used for conditions, flags, and logical operations.
-class EZ_RENDERERCORE_DLL ezAnimGraphBoolInputPin : public ezAnimGraphInputPin
+class W_RENDERERCORE_DLL WAnimGraphBoolInputPin : public WAnimGraphInputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoolInputPin, ezAnimGraphInputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphBoolInputPin, WAnimGraphInputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Bool; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Bool; }
 
   /// Retrieves the boolean value from connected output pins.
   ///
   /// Returns bFallback if the pin is not connected.
-  bool GetBool(ezAnimGraphInstance& ref_graph, bool bFallback = false) const;
+  bool GetBool(WAnimGraphInstance& ref_graph, bool bFallback = false) const;
 };
 
 /// Output pin for sending boolean values.
-class EZ_RENDERERCORE_DLL ezAnimGraphBoolOutputPin : public ezAnimGraphOutputPin
+class W_RENDERERCORE_DLL WAnimGraphBoolOutputPin : public WAnimGraphOutputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoolOutputPin, ezAnimGraphOutputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphBoolOutputPin, WAnimGraphOutputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Bool; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::Bool; }
 
-  void SetBool(ezAnimGraphInstance& ref_graph, bool bValue) const;
+  void SetBool(WAnimGraphInstance& ref_graph, bool bValue) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,25 +212,25 @@ public:
 ///
 /// Bone weight pins carry masks that control which bones are affected by animations, enabling
 /// partial skeleton animations (e.g., upper body only, lower body only).
-class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsInputPin : public ezAnimGraphInputPin
+class W_RENDERERCORE_DLL WAnimGraphBoneWeightsInputPin : public WAnimGraphInputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoneWeightsInputPin, ezAnimGraphInputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphBoneWeightsInputPin, WAnimGraphInputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::BoneWeights; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::BoneWeights; }
 
-  ezAnimGraphPinDataBoneWeights* GetWeights(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const;
+  WAnimGraphPinDataBoneWeights* GetWeights(WAnimController& ref_controller, WAnimGraphInstance& ref_graph) const;
 };
 
 /// Output pin for sending bone weight masks.
-class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsOutputPin : public ezAnimGraphOutputPin
+class W_RENDERERCORE_DLL WAnimGraphBoneWeightsOutputPin : public WAnimGraphOutputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoneWeightsOutputPin, ezAnimGraphOutputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphBoneWeightsOutputPin, WAnimGraphOutputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::BoneWeights; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::BoneWeights; }
 
-  void SetWeights(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights) const;
+  void SetWeights(WAnimGraphInstance& ref_graph, WAnimGraphPinDataBoneWeights* pWeights) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,23 +239,23 @@ public:
 ///
 /// Local pose pins carry bone transforms in local space (relative to parent bone). This is the
 /// output of animation sampling and blending before forward kinematics is applied.
-class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseInputPin : public ezAnimGraphInputPin
+class W_RENDERERCORE_DLL WAnimGraphLocalPoseInputPin : public WAnimGraphInputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseInputPin, ezAnimGraphInputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphLocalPoseInputPin, WAnimGraphInputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::LocalPose; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::LocalPose; }
 
-  ezAnimGraphPinDataLocalTransforms* GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const;
+  WAnimGraphPinDataLocalTransforms* GetPose(WAnimController& ref_controller, WAnimGraphInstance& ref_graph) const;
 };
 
 /// Output pin for sending local poses.
-class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutputPin
+class W_RENDERERCORE_DLL WAnimGraphLocalPoseOutputPin : public WAnimGraphOutputPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseOutputPin, ezAnimGraphOutputPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimGraphLocalPoseOutputPin, WAnimGraphOutputPin);
 
 public:
-  virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::LocalPose; }
+  virtual WAnimGraphPin::Type GetPinType() const override { return WAnimGraphPin::LocalPose; }
 
-  void SetPose(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose) const;
+  void SetPose(WAnimGraphInstance& ref_graph, WAnimGraphPinDataLocalTransforms* pPose) const;
 };

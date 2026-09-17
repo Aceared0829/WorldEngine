@@ -4,51 +4,51 @@
 #include <RendererVulkan/Pools/DescriptorWritePoolVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 
-ezGALBindGroupVulkan::ezGALBindGroupVulkan(const ezGALBindGroupCreationDescription& Description)
-  : ezGALBindGroup(Description)
+WGALBindGroupVulkan::WGALBindGroupVulkan(const WGALBindGroupCreationDescription& Description)
+  : WGALBindGroup(Description)
 {
 }
 
-ezGALBindGroupVulkan::~ezGALBindGroupVulkan() = default;
+WGALBindGroupVulkan::~WGALBindGroupVulkan() = default;
 
-ezResult ezGALBindGroupVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALBindGroupVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
-  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(pDeviceVulkan->GetBindGroupLayout(m_Description.m_hBindGroupLayout));
+  WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
+  const WGALBindGroupLayoutVulkan* pLayout = static_cast<const WGALBindGroupLayoutVulkan*>(pDeviceVulkan->GetBindGroupLayout(m_Description.m_hBindGroupLayout));
   if (pLayout == nullptr)
   {
-    ezLog::Error("Invalid bind group layout handle passed into bind group");
-    return EZ_FAILURE;
+    WLog::Error("Invalid bind group layout handle passed into bind group");
+    return W_FAILURE;
   }
 
   m_DescriptorSet = pLayout->GetDescriptorSetPool()->CreateDescriptorSet(m_Description.m_hBindGroupLayout, m_Allocation);
   pDeviceVulkan->GetDescriptorWritePool().WriteDescriptor(m_DescriptorSet, m_Description, m_Offsets);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALBindGroupVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALBindGroupVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
   Invalidate(pDevice);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALBindGroupVulkan::Invalidate(ezGALDevice* pDevice)
+void WGALBindGroupVulkan::Invalidate(WGALDevice* pDevice)
 {
   if (m_DescriptorSet != nullptr)
   {
-    ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
-    const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(pDeviceVulkan->GetBindGroupLayout(m_Description.m_hBindGroupLayout));
+    WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
+    const WGALBindGroupLayoutVulkan* pLayout = static_cast<const WGALBindGroupLayoutVulkan*>(pDeviceVulkan->GetBindGroupLayout(m_Description.m_hBindGroupLayout));
     pDeviceVulkan->ReclaimLater(m_DescriptorSet, pLayout->GetDescriptorSetPool(), m_Allocation.m_uiPoolIndex);
     m_DescriptorSet = nullptr;
     m_Allocation = {};
   }
 }
 
-bool ezGALBindGroupVulkan::IsInvalidated() const
+bool WGALBindGroupVulkan::IsInvalidated() const
 {
   return m_DescriptorSet == nullptr;
 }
 
-void ezGALBindGroupVulkan::SetDebugNamePlatform(const char* szName) const
+void WGALBindGroupVulkan::SetDebugNamePlatform(const char* szName) const
 {
 }

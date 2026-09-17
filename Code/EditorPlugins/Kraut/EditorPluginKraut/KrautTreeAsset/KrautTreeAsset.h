@@ -5,15 +5,15 @@
 #include <EditorPluginKraut/Actions/KrautActions.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 
-struct ezKrautTreeResourceDescriptor;
-struct ezKrautGeneratorResourceDescriptor;
+struct WKrautTreeResourceDescriptor;
+struct WKrautGeneratorResourceDescriptor;
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
-  enum class TextureSemantic : ezInt8;
+  enum class TextureSemantic : WInt8;
 }
 
-struct ezKrautTreeAssetEvent
+struct WKrautTreeAssetEvent
 {
   enum class Type
   {
@@ -24,48 +24,48 @@ struct ezKrautTreeAssetEvent
   Type m_Type;
 };
 
-class ezKrautTreeAssetDocument : public ezSimpleAssetDocument<ezKrautTreeAssetProperties>
+class WKrautTreeAssetDocument : public WSimpleAssetDocument<WKrautTreeAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetDocument, ezSimpleAssetDocument<ezKrautTreeAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WKrautTreeAssetDocument, WSimpleAssetDocument<WKrautTreeAssetProperties>);
 
 public:
-  ezKrautTreeAssetDocument(ezStringView sDocumentPath);
+  WKrautTreeAssetDocument(WStringView sDocumentPath);
 
-  ezStatus WriteKrautAsset(ezStreamWriter& ref_stream) const;
+  WStatus WriteKrautAsset(WStreamWriter& ref_stream) const;
 
-  ezKrautWindStrength::Enum GetWindStrength() const { return m_WindStrength; }
-  void SetWindStrength(ezKrautWindStrength::Enum strength);
+  WKrautWindStrength::Enum GetWindStrength() const { return m_WindStrength; }
+  void SetWindStrength(WKrautWindStrength::Enum strength);
 
   bool GetShowFrondsLeaves() const { return m_bShowFrondsLeaves; }
   void SetShowFrondsLeaves(bool bShow);
 
-  ezEvent<const ezKrautTreeAssetEvent&> m_Events;
+  WEvent<const WKrautTreeAssetEvent&> m_Events;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, const ezKrautGeneratorResourceDescriptor& desc);
+  void SyncBackAssetProperties(WKrautTreeAssetProperties*& pProp, const WKrautGeneratorResourceDescriptor& desc);
 
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
 private:
-  ezKrautWindStrength::Enum m_WindStrength = ezKrautWindStrength::Light;
+  WKrautWindStrength::Enum m_WindStrength = WKrautWindStrength::Light;
   bool m_bShowFrondsLeaves = true;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 
-class ezKrautTreeAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WKrautTreeAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WKrautTreeAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezKrautTreeAssetDocumentGenerator();
-  ~ezKrautTreeAssetDocumentGenerator();
+  WKrautTreeAssetDocumentGenerator();
+  ~WKrautTreeAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezKrautTreeAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "KrautTrees"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WKrautTreeAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "KrautTrees"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

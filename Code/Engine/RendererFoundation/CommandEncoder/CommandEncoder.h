@@ -7,54 +7,54 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
-#define EZ_BARRIER_VALIDATION EZ_COMPILE_FOR_DEBUG
+#define W_BARRIER_VALIDATION W_COMPILE_FOR_DEBUG
 
-#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+#if W_ENABLED(W_BARRIER_VALIDATION)
 #  include <RendererFoundation/Shader/BindGroup.h>
 #  include <RendererFoundation/Utils/ResourceStateTracker.h>
 #endif
 
-struct ezGALRenderingSetup;
-struct ezGALDeviceEvent;
-class ezGALShader;
-struct ezGALBindGroupCreationDescription;
+struct WGALRenderingSetup;
+struct WGALDeviceEvent;
+class WGALShader;
+struct WGALBindGroupCreationDescription;
 
-struct ezTextureValidationError : public ezHashableStruct<ezTextureValidationError>
+struct WTextureValidationError : public WHashableStruct<WTextureValidationError>
 {
-  ezUInt32 m_uiBindGroup = 0;
-  ezHashedString m_sBinding;
-  ezGALTextureHandle m_hTexture;
-  ezBitflags<ezGALResourceState> m_expectedState;
-  ezBitflags<ezGALShaderStageFlags> m_expectedStages;
-  ezGALTextureSubresource m_failedSubResource;
-  ezBitflags<ezGALResourceState> m_actualState;
-  ezBitflags<ezGALShaderStageFlags> m_actualStages;
+  WUInt32 m_uiBindGroup = 0;
+  WHashedString m_sBinding;
+  WGALTextureHandle m_hTexture;
+  WBitflags<WGALResourceState> m_expectedState;
+  WBitflags<WGALShaderStageFlags> m_expectedStages;
+  WGALTextureSubresource m_failedSubResource;
+  WBitflags<WGALResourceState> m_actualState;
+  WBitflags<WGALShaderStageFlags> m_actualStages;
 };
 
-struct ezBufferValidationError : public ezHashableStruct<ezBufferValidationError>
+struct WBufferValidationError : public WHashableStruct<WBufferValidationError>
 {
-  ezUInt32 m_uiBindGroup = 0;
-  ezHashedString m_sBinding;
-  ezGALBufferHandle m_hBuffer;
-  ezBitflags<ezGALResourceState> m_expectedState;
-  ezBitflags<ezGALShaderStageFlags> m_expectedStages;
-  ezBitflags<ezGALResourceState> m_actualState;
-  ezBitflags<ezGALShaderStageFlags> m_actualStages;
+  WUInt32 m_uiBindGroup = 0;
+  WHashedString m_sBinding;
+  WGALBufferHandle m_hBuffer;
+  WBitflags<WGALResourceState> m_expectedState;
+  WBitflags<WGALShaderStageFlags> m_expectedStages;
+  WBitflags<WGALResourceState> m_actualState;
+  WBitflags<WGALShaderStageFlags> m_actualStages;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
+class W_RENDERERFOUNDATION_DLL WGALCommandEncoder
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezGALCommandEncoder);
+  W_DISALLOW_COPY_AND_ASSIGN(WGALCommandEncoder);
 
 public:
-  ezGALCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl);
-  virtual ~ezGALCommandEncoder();
+  WGALCommandEncoder(WGALDevice& ref_device, WGALCommandEncoderCommonPlatformInterface& ref_commonImpl);
+  virtual ~WGALCommandEncoder();
 
   // State setting functions
 
-  /// Sets a bind group to the given bind group index. Preferably, bindGroup should be created via ezBindGroupBuilder::CreateBindGroup.
+  /// Sets a bind group to the given bind group index. Preferably, bindGroup should be created via WBindGroupBuilder::CreateBindGroup.
   ///
-  /// This function binds a collection of resources (buffers, textures, samplers) to a specific bind group index. In debug builds, it performs extensive validation of each ezGALBindGroupItem against the layout's ezShaderResourceBinding to ensure:
+  /// This function binds a collection of resources (buffers, textures, samplers) to a specific bind group index. In debug builds, it performs extensive validation of each WGALBindGroupItem against the layout's WShaderResourceBinding to ensure:
   ///
   /// **General Validation:**
   /// - Bind group layout matches the number of provided items
@@ -76,76 +76,76 @@ public:
   /// - Make sure no proxy texture is present
   ///
   /// **Resource State Validation:**
-  /// - Constant buffer bindings must be in ezGALResourceState::ConstantBuffer
-  /// - SRV texture and buffer bindings must be in ezGALResourceState::ShaderResource, except depth textures which must be in ezGALResourceState::DepthStencilRead
-  /// - UAV texture and buffer bindings must be in ezGALResourceState::UnorderedAccess
+  /// - Constant buffer bindings must be in WGALResourceState::ConstantBuffer
+  /// - SRV texture and buffer bindings must be in WGALResourceState::ShaderResource, except depth textures which must be in WGALResourceState::DepthStencilRead
+  /// - UAV texture and buffer bindings must be in WGALResourceState::UnorderedAccess
   ///
   /// \param uiBindGroup The bind group set index to set
   /// \param bindGroup Description containing the layout and resource items to bind
-  void SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
+  void SetBindGroup(WUInt32 uiBindGroup, const WGALBindGroupCreationDescription& bindGroup);
 
   /// Sets a bind group resource to the given bind group index.
   /// As there are two functions to set bind groups (this one and the overload for transient bind groups) the last call takes precedence if both functions are called for the same index.
   /// Resources in hBindGroup must be in the states required by their shader binding when the bind group is used by a draw or dispatch call.
   /// \param uiBindGroup The bind group set index to set
   /// \param hBindGroup Handle to the bind group that is to be used.
-  void SetBindGroup(ezUInt32 uiBindGroup, ezGALBindGroupHandle hBindGroup);
+  void SetBindGroup(WUInt32 uiBindGroup, WGALBindGroupHandle hBindGroup);
 
-  void SetPushConstants(ezArrayPtr<const ezUInt8> data);
+  void SetPushConstants(WArrayPtr<const WUInt8> data);
 
   // GPU -> CPU query functions
 
   /// Inserts a timestamp.
-  /// \return A handle to be passed into ezGALDevice::GetTimestampResult.
-  ezGALTimestampHandle InsertTimestamp();
+  /// \return A handle to be passed into WGALDevice::GetTimestampResult.
+  WGALTimestampHandle InsertTimestamp();
 
   /// Starts an occlusion query.
   /// This function must be called within a render scope and EndOcclusionQuery must be called within the same scope. Only one occlusion query can be active at any given time.
   /// \param type The type of the occlusion query.
   /// \return A handle to be passed into EndOcclusionQuery.
   /// \sa EndOcclusionQuery
-  ezGALOcclusionHandle BeginOcclusionQuery(ezEnum<ezGALQueryType> type);
+  WGALOcclusionHandle BeginOcclusionQuery(WEnum<WGALQueryType> type);
 
   /// Ends an occlusion query.
-  /// The given handle must afterwards be passed into the ezGALDevice::GetOcclusionQueryResult function, which needs to be repeated every frame until results are ready.
+  /// The given handle must afterwards be passed into the WGALDevice::GetOcclusionQueryResult function, which needs to be repeated every frame until results are ready.
   /// \param hOcclusion Value returned by the previous call to BeginOcclusionQuery.
-  /// \sa ezGALDevice::GetOcclusionQueryResult
-  void EndOcclusionQuery(ezGALOcclusionHandle hOcclusion);
+  /// \sa WGALDevice::GetOcclusionQueryResult
+  void EndOcclusionQuery(WGALOcclusionHandle hOcclusion);
 
   /// Inserts a fence.
-  /// You need to flush commands to the GPU in order to be able to wait for a fence by either ending a frame or calling `ezCommandEncoder::Flush` explicitly.
-  /// \return A handle to be passed into ezGALDevice::GetFenceResult.
-  /// \sa ezGALDevice::GetFenceResult
-  ezGALFenceHandle InsertFence();
+  /// You need to flush commands to the GPU in order to be able to wait for a fence by either ending a frame or calling `WCommandEncoder::Flush` explicitly.
+  /// \return A handle to be passed into WGALDevice::GetFenceResult.
+  /// \sa WGALDevice::GetFenceResult
+  WGALFenceHandle InsertFence();
 
   // Update functions
 
-  /// hDest must be in ezGALResourceState::CopyDestination. hSource must be in ezGALResourceState::CopySource.
-  void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
+  /// hDest must be in WGALResourceState::CopyDestination. hSource must be in WGALResourceState::CopySource.
+  void CopyBuffer(WGALBufferHandle hDest, WGALBufferHandle hSource);
 
-  /// hDest must be in ezGALResourceState::CopyDestination. hSource must be in ezGALResourceState::CopySource.
-  void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
+  /// hDest must be in WGALResourceState::CopyDestination. hSource must be in WGALResourceState::CopySource.
+  void CopyBufferRegion(WGALBufferHandle hDest, WUInt32 uiDestOffset, WGALBufferHandle hSource, WUInt32 uiSourceOffset, WUInt32 uiByteCount);
 
   /// Updates a buffer region. TransientConstantBuffer is only allowed on transient constant buffers. AheadOfTime means the update happens before the encoder commands are executed. No state prerequisites are required.
-  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::TransientConstantBuffer);
+  void UpdateBuffer(WGALBufferHandle hDest, WUInt32 uiDestOffset, WArrayPtr<const WUInt8> sourceData, WGALUpdateMode::Enum updateMode = WGALUpdateMode::TransientConstantBuffer);
 
-  /// hDest must be in ezGALResourceState::CopyDestination. hSource must be in ezGALResourceState::CopySource.
-  void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
+  /// hDest must be in WGALResourceState::CopyDestination. hSource must be in WGALResourceState::CopySource.
+  void CopyTexture(WGALTextureHandle hDest, WGALTextureHandle hSource);
 
-  /// destinationSubResource of hDest must be in ezGALResourceState::CopyDestination. sourceSubResource of hSource must be in ezGALResourceState::CopySource.
-  void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box);
+  /// destinationSubResource of hDest must be in WGALResourceState::CopyDestination. sourceSubResource of hSource must be in WGALResourceState::CopySource.
+  void CopyTextureRegion(WGALTextureHandle hDest, const WGALTextureSubresource& destinationSubResource, const WVec3U32& vDestinationPoint, WGALTextureHandle hSource, const WGALTextureSubresource& sourceSubResource, const WBoundingBoxu32& box);
 
   /// Updates a texture region. Similar to UpdateBuffer with AheadOfTime. No state prerequisites are required.
-  void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData);
+  void UpdateTexture(WGALTextureHandle hDest, const WGALTextureSubresource& destinationSubResource, const WBoundingBoxu32& destinationBox, const WGALSystemMemoryDescription& sourceData);
 
-  /// destinationSubResource of hDest must be in ezGALResourceState::ResolveDestination. sourceSubResource of hSource must be in ezGALResourceState::ResolveSource.
-  void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource);
+  /// destinationSubResource of hDest must be in WGALResourceState::ResolveDestination. sourceSubResource of hSource must be in WGALResourceState::ResolveSource.
+  void ResolveTexture(WGALTextureHandle hDest, const WGALTextureSubresource& destinationSubResource, WGALTextureHandle hSource, const WGALTextureSubresource& sourceSubResource);
 
-  /// hSource must be in ezGALResourceState::CopySource.
-  void ReadbackTexture(ezGALReadbackTextureHandle hDestination, ezGALTextureHandle hSource);
+  /// hSource must be in WGALResourceState::CopySource.
+  void ReadbackTexture(WGALReadbackTextureHandle hDestination, WGALTextureHandle hSource);
 
-  /// hSource must be in ezGALResourceState::CopySource.
-  void ReadbackBuffer(ezGALReadbackBufferHandle hDestination, ezGALBufferHandle hSource);
+  /// hSource must be in WGALResourceState::CopySource.
+  void ReadbackBuffer(WGALReadbackBufferHandle hDestination, WGALBufferHandle hSource);
 
   // Barriers
 
@@ -154,35 +154,35 @@ public:
   /// All barriers in a single call are batched into one API-level barrier command.
   /// Must be called outside of rendering and compute scopes.
   /// Each texture must currently be in the barrier's m_StateBefore state.
-  void TextureBarrier(ezArrayPtr<const ezGALTextureBarrier> barriers);
+  void TextureBarrier(WArrayPtr<const WGALTextureBarrier> barriers);
 
   /// Inserts a single texture barrier for a layout/state transition.
   /// Must be called outside of rendering and compute scopes.
   /// hTexture must currently be in stateBefore.
   void TextureBarrier(
-    ezGALTextureHandle hTexture,
-    ezGALTextureRange range = {},
-    ezBitflags<ezGALResourceState> stateBefore = ezGALResourceState::Default,
-    ezBitflags<ezGALResourceState> stateAfter = ezGALResourceState::Default,
-    ezBitflags<ezGALShaderStageFlags> stagesBefore = ezGALShaderStageFlags::Auto,
-    ezBitflags<ezGALShaderStageFlags> stagesAfter = ezGALShaderStageFlags::Auto);
+    WGALTextureHandle hTexture,
+    WGALTextureRange range = {},
+    WBitflags<WGALResourceState> stateBefore = WGALResourceState::Default,
+    WBitflags<WGALResourceState> stateAfter = WGALResourceState::Default,
+    WBitflags<WGALShaderStageFlags> stagesBefore = WGALShaderStageFlags::Auto,
+    WBitflags<WGALShaderStageFlags> stagesAfter = WGALShaderStageFlags::Auto);
 
   /// Inserts resource barriers for buffer state transitions.
   ///
   /// All barriers in a single call are batched into one API-level barrier command.
   /// Must be called outside of rendering and compute scopes.
   /// Each buffer must currently be in the barrier's m_StateBefore state.
-  void BufferBarrier(ezArrayPtr<const ezGALBufferBarrier> barriers);
+  void BufferBarrier(WArrayPtr<const WGALBufferBarrier> barriers);
 
   /// Inserts a single buffer barrier for a state transition.
   /// Must be called outside of rendering and compute scopes.
   /// hBuffer must currently be in stateBefore.
   void BufferBarrier(
-    ezGALBufferHandle hBuffer,
-    ezBitflags<ezGALResourceState> stateBefore = ezGALResourceState::Default,
-    ezBitflags<ezGALResourceState> stateAfter = ezGALResourceState::Default,
-    ezBitflags<ezGALShaderStageFlags> stagesBefore = ezGALShaderStageFlags::Auto,
-    ezBitflags<ezGALShaderStageFlags> stagesAfter = ezGALShaderStageFlags::Auto);
+    WGALBufferHandle hBuffer,
+    WBitflags<WGALResourceState> stateBefore = WGALResourceState::Default,
+    WBitflags<WGALResourceState> stateAfter = WGALResourceState::Default,
+    WBitflags<WGALShaderStageFlags> stagesBefore = WGALShaderStageFlags::Auto,
+    WBitflags<WGALShaderStageFlags> stagesAfter = WGALShaderStageFlags::Auto);
 
   // Misc
 
@@ -201,14 +201,14 @@ public:
   void BeginCompute(const char* szName = "");
   void EndCompute();
 
-  ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ);
-  /// hIndirectArgumentBuffer must be in ezGALResourceState::DrawIndirect.
-  ezResult DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  WResult Dispatch(WUInt32 uiThreadGroupCountX, WUInt32 uiThreadGroupCountY, WUInt32 uiThreadGroupCountZ);
+  /// hIndirectArgumentBuffer must be in WGALResourceState::DrawIndirect.
+  WResult DispatchIndirect(WGALBufferHandle hIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes);
 
   // Draw functions
 
-  /// Color targets in renderingSetup must be in ezGALResourceState::RenderTarget. The depth target must be in ezGALResourceState::DepthStencilRead or ezGALResourceState::DepthStencilWrite depending on the render target view.
-  void BeginRendering(const ezGALRenderingSetup& renderingSetup, const char* szName = "");
+  /// Color targets in renderingSetup must be in WGALResourceState::RenderTarget. The depth target must be in WGALResourceState::DepthStencilRead or WGALResourceState::DepthStencilWrite depending on the render target view.
+  void BeginRendering(const WGALRenderingSetup& renderingSetup, const char* szName = "");
   void EndRendering();
   bool IsInRenderingScope() const;
 
@@ -216,72 +216,72 @@ public:
   ///
   /// \param uiRenderTargetClearMask
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
-  void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+  void Clear(const WColor& clearColor, WUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, WUInt8 uiStencilClear = 0x0u);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer.
-  ezResult Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer.
+  WResult Draw(WUInt32 uiVertexCount, WUInt32 uiStartVertex);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer. The bound index buffer must be in ezGALResourceState::IndexBuffer.
-  ezResult DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer. The bound index buffer must be in WGALResourceState::IndexBuffer.
+  WResult DrawIndexed(WUInt32 uiIndexCount, WUInt32 uiStartIndex);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer. The bound index buffer must be in ezGALResourceState::IndexBuffer.
-  ezResult DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer. The bound index buffer must be in WGALResourceState::IndexBuffer.
+  WResult DrawIndexedInstanced(WUInt32 uiIndexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartIndex);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer. The bound index buffer must be in ezGALResourceState::IndexBuffer. hIndirectArgumentBuffer must be in ezGALResourceState::DrawIndirect.
-  ezResult DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer. The bound index buffer must be in WGALResourceState::IndexBuffer. hIndirectArgumentBuffer must be in WGALResourceState::DrawIndirect.
+  WResult DrawIndexedInstancedIndirect(WGALBufferHandle hIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer.
-  ezResult DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer.
+  WResult DrawInstanced(WUInt32 uiVertexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartVertex);
 
-  /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer. hIndirectArgumentBuffer must be in ezGALResourceState::DrawIndirect.
-  ezResult DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  /// Bound vertex buffers must be in WGALResourceState::VertexBuffer. hIndirectArgumentBuffer must be in WGALResourceState::DrawIndirect.
+  WResult DrawInstancedIndirect(WGALBufferHandle hIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes);
 
   // State Functions
-  /// hIndexBuffer must be invalidated or in ezGALResourceState::IndexBuffer.
-  void SetIndexBuffer(ezGALBufferHandle hIndexBuffer);
+  /// hIndexBuffer must be invalidated or in WGALResourceState::IndexBuffer.
+  void SetIndexBuffer(WGALBufferHandle hIndexBuffer);
 
-  /// hVertexBuffer must be invalidated or in ezGALResourceState::VertexBuffer.
-  void SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer, ezUInt32 uiOffset = 0);
+  /// hVertexBuffer must be invalidated or in WGALResourceState::VertexBuffer.
+  void SetVertexBuffer(WUInt32 uiSlot, WGALBufferHandle hVertexBuffer, WUInt32 uiOffset = 0);
 
-  void SetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline);
-  void SetComputePipeline(ezGALComputePipelineHandle hComputePipeline);
+  void SetGraphicsPipeline(WGALGraphicsPipelineHandle hGraphicsPipeline);
+  void SetComputePipeline(WGALComputePipelineHandle hComputePipeline);
 
   // Dynamic State functions
-  void SetViewport(const ezRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
-  void SetScissorRect(const ezRectU32& rect);
-  void SetStencilReference(ezUInt8 uiStencilRefValue);
+  void SetViewport(const WRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
+  void SetScissorRect(const WRectU32& rect);
+  void SetStencilReference(WUInt8 uiStencilRefValue);
 
   // Internal
-  EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
+  W_ALWAYS_INLINE WGALDevice& GetDevice() { return m_Device; }
   // Don't use light hearted ;)
   void InvalidateState();
 
-  const ezGALCommandEncoderStats& GetStats() const { return m_Stats; }
+  const WGALCommandEncoderStats& GetStats() const { return m_Stats; }
   void ResetStats();
 
 public:
   /// Fired when a texture barrier validation error is detected.
-  static ezEvent<const ezTextureValidationError&> s_TextureBarrierValidationFailed;
+  static WEvent<const WTextureValidationError&> s_TextureBarrierValidationFailed;
   /// Fired when a buffer barrier validation error is detected.
-  static ezEvent<const ezBufferValidationError&> s_BufferBarrierValidationFailed;
+  static WEvent<const WBufferValidationError&> s_BufferBarrierValidationFailed;
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  void GALStaticDeviceEventHandler(const ezGALDeviceEvent& e);
+  void GALStaticDeviceEventHandler(const WGALDeviceEvent& e);
 
   void AssertRenderingThread()
   {
-    EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
+    W_ASSERT_DEV(WThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
   }
 
   void AssertOutsideRenderingScope()
   {
-    EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render, "This function can only be executed outside a render scope.");
+    W_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render, "This function can only be executed outside a render scope.");
   }
 
 private:
-  friend class ezMemoryUtils;
+  friend class WMemoryUtils;
 
   enum class CommandEncoderType
   {
@@ -294,57 +294,57 @@ private:
   bool m_bMarker = false;
 
   // Parent Device
-  ezGALDevice& m_Device;
-  ezGALCommandEncoderRenderState m_State;
-  ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
-  ezGALCommandEncoderStats m_Stats;
+  WGALDevice& m_Device;
+  WGALCommandEncoderRenderState m_State;
+  WGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
+  WGALCommandEncoderStats m_Stats;
 
-  ezGALOcclusionHandle m_hPendingOcclusionQuery = {};
+  WGALOcclusionHandle m_hPendingOcclusionQuery = {};
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   // This code ensures in debug build that a buffer is not updated twice per frame in the same location
   struct BufferRange
   {
-    inline bool overlapRange(ezUInt32 uiOffset, ezUInt32 uiLength) const
+    inline bool overlapRange(WUInt32 uiOffset, WUInt32 uiLength) const
     {
       return !(m_uiOffset > (uiOffset + uiLength - 1) || (m_uiOffset + m_uiLength - 1) < uiOffset);
     }
-    ezUInt32 m_uiOffset = 0;
-    ezUInt32 m_uiLength = 0;
-    EZ_DECLARE_POD_TYPE();
+    WUInt32 m_uiOffset = 0;
+    WUInt32 m_uiLength = 0;
+    W_DECLARE_POD_TYPE();
   };
-  ezMap<ezGALBufferHandle, ezHybridArray<BufferRange, 1>> m_BufferUpdates;
+  WMap<WGALBufferHandle, WHybridArray<BufferRange, 1>> m_BufferUpdates;
 #endif
 
   // Barrier validation
-#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
-  ezResult ValidateBindGroupResourceStates(const ezGALShader* pShader);
-  ezResult ValidateBindGroupItemResourceState(ezUInt32 uiBindGroup, const ezShaderResourceBinding& binding, const ezGALBindGroupItem& item);
-  ezResult ValidateTextureState(ezGALTextureHandle hTexture, ezGALTextureRange range, ezBitflags<ezGALResourceState> expectedState, ezBitflags<ezGALShaderStageFlags> expectedStages, ezUInt32 uiBindGroup = 0, const ezHashedString& sBinding = ezHashedString());
-  ezResult ValidateBufferState(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> expectedState, ezBitflags<ezGALShaderStageFlags> expectedStages, ezUInt32 uiBindGroup = 0, const ezHashedString& sBinding = ezHashedString());
-  ezResult ValidateVertexBufferState();
-  ezResult ValidateIndexBufferState();
-  ezResult ValidateGraphicsPipelineResources();
-  ezResult ValidateComputePipelineResources();
-  void ValidateTextureBarriers(ezArrayPtr<const ezGALTextureBarrier> barriers);
-  void ValidateBufferBarriers(ezArrayPtr<const ezGALBufferBarrier> barriers);
-  void ValidateRenderTargetStates(const ezGALRenderingSetup& renderingSetup);
+#if W_ENABLED(W_BARRIER_VALIDATION)
+  WResult ValidateBindGroupResourceStates(const WGALShader* pShader);
+  WResult ValidateBindGroupItemResourceState(WUInt32 uiBindGroup, const WShaderResourceBinding& binding, const WGALBindGroupItem& item);
+  WResult ValidateTextureState(WGALTextureHandle hTexture, WGALTextureRange range, WBitflags<WGALResourceState> expectedState, WBitflags<WGALShaderStageFlags> expectedStages, WUInt32 uiBindGroup = 0, const WHashedString& sBinding = WHashedString());
+  WResult ValidateBufferState(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> expectedState, WBitflags<WGALShaderStageFlags> expectedStages, WUInt32 uiBindGroup = 0, const WHashedString& sBinding = WHashedString());
+  WResult ValidateVertexBufferState();
+  WResult ValidateIndexBufferState();
+  WResult ValidateGraphicsPipelineResources();
+  WResult ValidateComputePipelineResources();
+  void ValidateTextureBarriers(WArrayPtr<const WGALTextureBarrier> barriers);
+  void ValidateBufferBarriers(WArrayPtr<const WGALBufferBarrier> barriers);
+  void ValidateRenderTargetStates(const WGALRenderingSetup& renderingSetup);
 
-  ezGALResourceStateTracker m_ResourceStateTracker;
-  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
-  ezUInt8 m_uiBindGroupsMask = 0;
+  WGALResourceStateTracker m_ResourceStateTracker;
+  WGALBindGroupCreationDescription m_BindGroups[W_GAL_MAX_BIND_GROUPS];
+  WUInt8 m_uiBindGroupsMask = 0;
   bool m_bVertexBufferStatesDirty = true;
   bool m_bIndexBufferStateDirty = true;
 
   struct ValidationHash
   {
-    static ezUInt32 Hash(const ezTextureValidationError& a);
-    static bool Equal(const ezTextureValidationError& a, const ezTextureValidationError& b);
+    static WUInt32 Hash(const WTextureValidationError& a);
+    static bool Equal(const WTextureValidationError& a, const WTextureValidationError& b);
 
-    static ezUInt32 Hash(const ezBufferValidationError& a);
-    static bool Equal(const ezBufferValidationError& a, const ezBufferValidationError& b);
+    static WUInt32 Hash(const WBufferValidationError& a);
+    static bool Equal(const WBufferValidationError& a, const WBufferValidationError& b);
   };
-  ezHashSet<ezTextureValidationError, ValidationHash> m_TextureErrors;
-  ezHashSet<ezBufferValidationError, ValidationHash> m_BufferErrors;
+  WHashSet<WTextureValidationError, ValidationHash> m_TextureErrors;
+  WHashSet<WBufferValidationError, ValidationHash> m_BufferErrors;
 #endif
 };

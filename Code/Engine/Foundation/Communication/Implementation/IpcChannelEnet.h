@@ -5,14 +5,14 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-class ezRemoteInterface;
-class ezRemoteMessage;
+class WRemoteInterface;
+class WRemoteMessage;
 
-class EZ_FOUNDATION_DLL ezIpcChannelEnet : public ezIpcChannel
+class W_FOUNDATION_DLL WIpcChannelEnet : public WIpcChannel
 {
 public:
-  ezIpcChannelEnet(ezStringView sAddress, Mode::Enum mode);
-  ~ezIpcChannelEnet();
+  WIpcChannelEnet(WStringView sAddress, Mode::Enum mode);
+  ~WIpcChannelEnet();
 
 protected:
   virtual void InternalConnect() override;
@@ -21,12 +21,12 @@ protected:
   virtual bool NeedWakeup() const override;
   virtual bool RequiresRegularTick() override { return true; }
   virtual void Tick() override;
-  void NetworkMessageHandler(ezRemoteMessage& msg);
-  void EnetEventHandler(const ezRemoteEvent& e);
+  void NetworkMessageHandler(WRemoteMessage& msg);
+  void EnetEventHandler(const WRemoteEvent& e);
 
-  ezString m_sAddress;
-  ezTime m_LastConnectAttempt = ezTime::MakeZero();
-  ezUniquePtr<ezRemoteInterface> m_pNetwork;
+  WString m_sAddress;
+  WTime m_LastConnectAttempt = WTime::MakeZero();
+  WUniquePtr<WRemoteInterface> m_pNetwork;
 };
 
 #endif

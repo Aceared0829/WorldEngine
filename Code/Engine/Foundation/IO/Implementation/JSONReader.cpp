@@ -3,12 +3,12 @@
 #include <Foundation/IO/JSONReader.h>
 
 
-ezJSONReader::ezJSONReader()
+WJSONReader::WJSONReader()
 {
   m_bParsingError = false;
 }
 
-ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLineOffset)
+WResult WJSONReader::Parse(WStreamReader& ref_inputStream, WUInt32 uiFirstLineOffset)
 {
   m_bParsingError = false;
   m_Stack.Clear();
@@ -25,7 +25,7 @@ ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLi
     m_Stack.Clear();
     m_Stack.PushBack(Element());
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // make sure there is one top level element
@@ -35,57 +35,57 @@ ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLi
     e.m_Mode = ElementType::None;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezJSONReader::OnVariable(ezStringView sVarName)
+bool WJSONReader::OnVariable(WStringView sVarName)
 {
   m_sLastName = sVarName;
 
   return true;
 }
 
-void ezJSONReader::OnReadValue(ezStringView sValue)
+void WJSONReader::OnReadValue(WStringView sValue)
 {
   if (m_Stack.PeekBack().m_Mode == ElementType::Array)
-    m_Stack.PeekBack().m_Array.PushBack(std::move(ezString(sValue)));
+    m_Stack.PeekBack().m_Array.PushBack(std::move(WString(sValue)));
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = std::move(ezString(sValue));
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = std::move(WString(sValue));
 
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnReadValue(double fValue)
+void WJSONReader::OnReadValue(double fValue)
 {
   if (m_Stack.PeekBack().m_Mode == ElementType::Array)
-    m_Stack.PeekBack().m_Array.PushBack(ezVariant(fValue));
+    m_Stack.PeekBack().m_Array.PushBack(WVariant(fValue));
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(fValue);
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = WVariant(fValue);
 
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnReadValue(bool bValue)
+void WJSONReader::OnReadValue(bool bValue)
 {
   if (m_Stack.PeekBack().m_Mode == ElementType::Array)
-    m_Stack.PeekBack().m_Array.PushBack(ezVariant(bValue));
+    m_Stack.PeekBack().m_Array.PushBack(WVariant(bValue));
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(bValue);
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = WVariant(bValue);
 
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnReadValueNULL()
+void WJSONReader::OnReadValueNULL()
 {
   if (m_Stack.PeekBack().m_Mode == ElementType::Array)
-    m_Stack.PeekBack().m_Array.PushBack(ezVariant());
+    m_Stack.PeekBack().m_Array.PushBack(WVariant());
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant();
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = WVariant();
 
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnBeginObject()
+void WJSONReader::OnBeginObject()
 {
   m_Stack.PushBack(Element());
   m_Stack.PeekBack().m_Mode = ElementType::Dictionary;
@@ -94,7 +94,7 @@ void ezJSONReader::OnBeginObject()
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnEndObject()
+void WJSONReader::OnEndObject()
 {
   Element& Child = m_Stack[m_Stack.GetCount() - 1];
 
@@ -119,7 +119,7 @@ void ezJSONReader::OnEndObject()
   }
 }
 
-void ezJSONReader::OnBeginArray()
+void WJSONReader::OnBeginArray()
 {
   m_Stack.PushBack(Element());
   m_Stack.PeekBack().m_Mode = ElementType::Array;
@@ -128,7 +128,7 @@ void ezJSONReader::OnBeginArray()
   m_sLastName.Clear();
 }
 
-void ezJSONReader::OnEndArray()
+void WJSONReader::OnEndArray()
 {
   Element& Child = m_Stack[m_Stack.GetCount() - 1];
 
@@ -153,12 +153,12 @@ void ezJSONReader::OnEndArray()
   }
 }
 
-void ezJSONReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+void WJSONReader::OnParsingError(WStringView sMessage, bool bFatal, WUInt32 uiLine, WUInt32 uiColumn)
 {
-  EZ_IGNORE_UNUSED(sMessage);
-  EZ_IGNORE_UNUSED(bFatal);
-  EZ_IGNORE_UNUSED(uiLine);
-  EZ_IGNORE_UNUSED(uiColumn);
+  W_IGNORE_UNUSED(sMessage);
+  W_IGNORE_UNUSED(bFatal);
+  W_IGNORE_UNUSED(uiLine);
+  W_IGNORE_UNUSED(uiColumn);
 
   m_bParsingError = true;
 }

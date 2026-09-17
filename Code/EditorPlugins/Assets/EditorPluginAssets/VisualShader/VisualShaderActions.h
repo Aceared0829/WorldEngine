@@ -3,28 +3,28 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
-class ezVisualShaderActions
+class WVisualShaderActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hVisualShaderCategory;
-  static ezActionDescriptorHandle s_hCleanGraph;
+  static WActionDescriptorHandle s_hVisualShaderCategory;
+  static WActionDescriptorHandle s_hCleanGraph;
 };
 
-class ezVisualShaderAction : public ezButtonAction
+class WVisualShaderAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WVisualShaderAction, WButtonAction);
 
 public:
-  ezVisualShaderAction(const ezActionContext& context, const char* szName);
-  ~ezVisualShaderAction();
+  WVisualShaderAction(const WActionContext& context, const char* szName);
+  ~WVisualShaderAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 };

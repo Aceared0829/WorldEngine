@@ -24,7 +24,7 @@ struct LineInstruction
   UINT1(LineSweepOutputBufferOffset); // Index of the first output sample this line should write to.
 };
 
-CONSTANT_BUFFER(ezLSAOConstants, 3)
+CONSTANT_BUFFER(WLSAOConstants, 3)
 {
   DirectionInfo Directions[NUM_SWEEP_DIRECTIONS_PER_FRAME];
   UINT1(LineToLinePixelOffset);

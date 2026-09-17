@@ -1,5 +1,5 @@
 
-vk::ShaderModule ezGALShaderVulkan::GetShader(ezGALShaderStage::Enum stage) const
+vk::ShaderModule WGALShaderVulkan::GetShader(WGALShaderStage::Enum stage) const
 {
   return m_Shaders[stage];
 }

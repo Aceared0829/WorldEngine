@@ -6,97 +6,97 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColor),
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormal),
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorORM),
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormalORM),
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorEmissive)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WDecalMode, 1)
+  W_ENUM_CONSTANT(WDecalMode::BaseColor),
+  W_ENUM_CONSTANT(WDecalMode::BaseColorNormal),
+  W_ENUM_CONSTANT(WDecalMode::BaseColorORM),
+  W_ENUM_CONSTANT(WDecalMode::BaseColorNormalORM),
+  W_ENUM_CONSTANT(WDecalMode::BaseColorEmissive)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 4, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalAssetProperties, 4, WRTTIDefaultAllocator<WDecalAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
-    EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
-    EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
-    EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("NumVariationsX", m_uiNumVariationsX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
-    EZ_MEMBER_PROPERTY("NumVariationsY", m_uiNumVariationsY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    W_ENUM_MEMBER_PROPERTY("Mode", WDecalMode, m_Mode),
+    W_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
+    W_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new WFileBrowserAttribute("Select Alpha Mask", WFileBrowserAttribute::ImagesLdrOnly)),
+    W_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new WFileBrowserAttribute("Select Base Color Map", WFileBrowserAttribute::ImagesLdrOnly)),
+    W_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new WFileBrowserAttribute("Select Normal Map", WFileBrowserAttribute::ImagesLdrOnly), new WDefaultValueAttribute(WStringView("Textures/NeutralNormal.tga"))), // wrap in WStringView to prevent a memory leak report
+    W_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new WFileBrowserAttribute("Select ORM Map", WFileBrowserAttribute::ImagesLdrOnly)),
+    W_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new WFileBrowserAttribute("Select Emissive Map", WFileBrowserAttribute::ImagesLdrOnly)),
+    W_MEMBER_PROPERTY("NumVariationsX", m_uiNumVariationsX)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(1, 16)),
+    W_MEMBER_PROPERTY("NumVariationsY", m_uiNumVariationsY)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(1, 16)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetProperties::ezDecalAssetProperties() = default;
+WDecalAssetProperties::WDecalAssetProperties() = default;
 
-void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WDecalAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezDecalAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WDecalAssetProperties>())
   {
-    ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt64>();
+    WInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("Mode").ConvertTo<WInt64>();
 
     auto& props = *e.m_pPropertyStates;
 
-    props["Normal"].m_Visibility = ezPropertyUiState::Invisible;
-    props["ORM"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Emissive"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Normal"].m_Visibility = WPropertyUiState::Invisible;
+    props["ORM"].m_Visibility = WPropertyUiState::Invisible;
+    props["Emissive"].m_Visibility = WPropertyUiState::Invisible;
 
-    if (mode == ezDecalMode::BaseColorNormal)
+    if (mode == WDecalMode::BaseColorNormal)
     {
-      props["Normal"].m_Visibility = ezPropertyUiState::Default;
+      props["Normal"].m_Visibility = WPropertyUiState::Default;
     }
-    else if (mode == ezDecalMode::BaseColorORM)
+    else if (mode == WDecalMode::BaseColorORM)
     {
-      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+      props["ORM"].m_Visibility = WPropertyUiState::Default;
     }
-    else if (mode == ezDecalMode::BaseColorNormalORM)
+    else if (mode == WDecalMode::BaseColorNormalORM)
     {
-      props["Normal"].m_Visibility = ezPropertyUiState::Default;
-      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+      props["Normal"].m_Visibility = WPropertyUiState::Default;
+      props["ORM"].m_Visibility = WPropertyUiState::Default;
     }
-    else if (mode == ezDecalMode::BaseColorEmissive)
+    else if (mode == WDecalMode::BaseColorEmissive)
     {
-      props["Emissive"].m_Visibility = ezPropertyUiState::Default;
+      props["Emissive"].m_Visibility = WPropertyUiState::Default;
     }
   }
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 6, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalAssetDocument, 6, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetDocument::ezDecalAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezDecalAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WDecalAssetDocument::WDecalAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WDecalAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WDecalAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
+  return static_cast<WDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
 
-ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
+WTransformStatus WDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
 {
-  const ezDecalAssetProperties* pProp = GetProperties();
+  const WDecalAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
 
-  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
+  const WStringBuilder sThumbnail = GetThumbnailFilePath();
 
   arguments << "-usage";
   arguments << "Color";
 
   {
     // Thumbnail
-    const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sDir));
+    const WStringBuilder sDir = sThumbnail.GetFileDirectory();
+    W_SUCCEED_OR_RETURN(WOSFile::CreateDirectoryStructure(sDir));
 
     arguments << "-thumbnailOut";
     arguments << QString::fromUtf8(sThumbnail.GetData());
@@ -109,30 +109,30 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
   {
     // only show the first variation, otherwise the thumbnail would show the entire grid
     arguments << "-gridX";
-    arguments << QString::number(ezMath::Max<ezUInt8>(1, pProp->m_uiNumVariationsX));
+    arguments << QString::number(WMath::Max<WUInt8>(1, pProp->m_uiNumVariationsX));
 
     arguments << "-gridY";
-    arguments << QString::number(ezMath::Max<ezUInt8>(1, pProp->m_uiNumVariationsY));
+    arguments << QString::number(WMath::Max<WUInt8>(1, pProp->m_uiNumVariationsY));
   }
 
   {
-    ezQtEditorApp* pEditorApp = ezQtEditorApp::GetSingleton();
+    WQtEditorApp* pEditorApp = WQtEditorApp::GetSingleton();
 
-    ezStringBuilder sAbsBaseColor = pProp->m_sBaseColor;
+    WStringBuilder sAbsBaseColor = pProp->m_sBaseColor;
     if (!sAbsBaseColor.IsEmpty() && !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsBaseColor))
     {
-      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsBaseColor));
+      return WStatus(WFmt("Failed to make path absolute: '{}'", sAbsBaseColor));
     }
 
-    ezStringBuilder sAbsAlphaMask = pProp->m_sAlphaMask;
+    WStringBuilder sAbsAlphaMask = pProp->m_sAlphaMask;
     if (!sAbsAlphaMask.IsEmpty() && !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsAlphaMask))
     {
-      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsAlphaMask));
+      return WStatus(WFmt("Failed to make path absolute: '{}'", sAbsAlphaMask));
     }
 
     if (sAbsBaseColor.IsEmpty() && sAbsAlphaMask.IsEmpty())
     {
-      return ezStatus("Decal has neither a base color nor an alpha mask texture");
+      return WStatus("Decal has neither a base color nor an alpha mask texture");
     }
 
     if (sAbsBaseColor.IsEmpty())
@@ -171,11 +171,11 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  W_SUCCEED_OR_RETURN(WQtEditorApp::GetSingleton()->ExecuteTool("WTexConv", arguments, 180, WLog::GetThreadLocalLogSystem()));
 
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
-    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
+    WUInt64 uiThumbnailHash = WAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
+    W_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
     thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
@@ -183,16 +183,16 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
     InvalidateAssetThumbnail();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WDecalAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
+WDecalAssetDocumentGenerator::WDecalAssetDocumentGenerator()
 {
   AddSupportedFileType("tga");
   AddSupportedFileType("dds");
@@ -201,43 +201,43 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
   AddSupportedFileType("png");
 }
 
-ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() = default;
+WDecalAssetDocumentGenerator::~WDecalAssetDocumentGenerator() = default;
 
-void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WDecalAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  const ezStringBuilder baseFilename = sAbsInputFile.GetFileName();
+  const WStringBuilder baseFilename = sAbsInputFile.GetFileName();
 
   const bool isDecal = (baseFilename.FindSubString_NoCase("decal") != nullptr);
 
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = isDecal ? WAssetDocGeneratorPriority::HighPriority : WAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
     info.m_sIcon = ":/AssetIcons/Decal.svg";
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WDecalAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  WDocument* pDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
   if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
+    return WStatus("Could not create target document");
 
   out_generatedDocuments.PushBack(pDoc);
 
-  ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(pDoc);
+  WDecalAssetDocument* pAssetDoc = WDynamicCast<WDecalAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("BaseColor", sInputFileRel.GetView());
 
-  ezLog::Success("Imported decal: '{}'", sOutFile);
+  WLog::Success("Imported decal: '{}'", sOutFile);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

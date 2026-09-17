@@ -7,23 +7,23 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Time/Clock.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   double SystemInterface::GetElapsedTime()
   {
-    return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds();
+    return WClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds();
   }
 
   int SystemInterface::TranslateString(Rml::String& out_sTranslated, const Rml::String& sInput)
   {
-    ezStringView sTrimmedInput = ezRmlUiConversionUtils::ToStringView(sInput);
+    WStringView sTrimmedInput = WRmlUiConversionUtils::ToStringView(sInput);
     sTrimmedInput.Trim(" \t\r\n");
     if (sTrimmedInput.IsEmpty() == false)
     {
-      ezStringView sTranslated = ezTranslate(sTrimmedInput);
+      WStringView sTranslated = WTranslate(sTrimmedInput);
       if (sTranslated != sTrimmedInput)
       {
-        out_sTranslated = ezRmlUiConversionUtils::ToString(sTranslated);
+        out_sTranslated = WRmlUiConversionUtils::ToString(sTranslated);
         return 1;
       }
     }
@@ -34,9 +34,9 @@ namespace ezRmlUiInternal
 
   void SystemInterface::JoinPath(Rml::String& out_sTranslatedPath, const Rml::String& sDocumentPath, const Rml::String& sPath)
   {
-    if (ezFileSystem::ExistsFile(ezRmlUiConversionUtils::ToStringView(sPath)))
+    if (WFileSystem::ExistsFile(WRmlUiConversionUtils::ToStringView(sPath)))
     {
-      // path is already a valid path for ez file system so don't join with document path
+      // path is already a valid path for W file system so don't join with document path
       out_sTranslatedPath = sPath;
       return;
     }
@@ -49,24 +49,24 @@ namespace ezRmlUiInternal
     switch (type)
     {
       case Rml::Log::LT_ERROR:
-        ezLog::Error("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+        WLog::Error("{}", WRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_ASSERT:
-        ezLog::Error("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+        WLog::Error("{}", WRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_WARNING:
-        ezLog::Warning("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+        WLog::Warning("{}", WRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_ALWAYS:
       case Rml::Log::LT_INFO:
-        ezLog::Info("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+        WLog::Info("{}", WRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_DEBUG:
-        ezLog::Debug("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+        WLog::Debug("{}", WRmlUiConversionUtils::ToStringView(sMessage));
         break;
       default:
         break;
@@ -75,4 +75,4 @@ namespace ezRmlUiInternal
     return true;
   }
 
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

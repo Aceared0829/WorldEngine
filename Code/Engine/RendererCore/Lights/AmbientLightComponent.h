@@ -4,20 +4,20 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
-using ezAmbientLightComponentManager = ezSettingsComponentManager<class ezAmbientLightComponent>;
+using WAmbientLightComponentManager = WSettingsComponentManager<class WAmbientLightComponent>;
 
-class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezComponent
+class W_RENDERERCORE_DLL WAmbientLightComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAmbientLightComponent, ezComponent, ezAmbientLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAmbientLightComponent, WComponent, WAmbientLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Deinitialize() override;
@@ -26,26 +26,26 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAmbientLightComponent
+  // WAmbientLightComponent
 
 public:
-  ezAmbientLightComponent();
-  ~ezAmbientLightComponent();
+  WAmbientLightComponent();
+  ~WAmbientLightComponent();
 
-  void SetTopColor(ezColorGammaUB color);    // [ property ]
-  ezColorGammaUB GetTopColor() const;        // [ property ]
+  void SetTopColor(WColorGammaUB color);    // [ property ]
+  WColorGammaUB GetTopColor() const;        // [ property ]
 
-  void SetBottomColor(ezColorGammaUB color); // [ property ]
-  ezColorGammaUB GetBottomColor() const;     // [ property ]
+  void SetBottomColor(WColorGammaUB color); // [ property ]
+  WColorGammaUB GetBottomColor() const;     // [ property ]
 
   void SetIntensity(float fIntensity);       // [ property ]
   float GetIntensity() const;                // [ property ]
 
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
   void UpdateSkyIrradiance();
 
-  ezColorGammaUB m_TopColor = ezColor(0.2f, 0.2f, 0.3f);
-  ezColorGammaUB m_BottomColor = ezColor(0.1f, 0.1f, 0.15f);
+  WColorGammaUB m_TopColor = WColor(0.2f, 0.2f, 0.3f);
+  WColorGammaUB m_BottomColor = WColor(0.1f, 0.1f, 0.15f);
   float m_fIntensity = 1.0f;
 };

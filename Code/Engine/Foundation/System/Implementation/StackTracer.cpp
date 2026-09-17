@@ -4,7 +4,7 @@
 #include <Foundation/System/StackTracer.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Time"
@@ -12,26 +12,26 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::Events().AddEventHandler(ezStackTracer::OnPluginEvent);
+    WPlugin::Events().AddEventHandler(WStackTracer::OnPluginEvent);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::Events().RemoveEventHandler(ezStackTracer::OnPluginEvent);
+    WPlugin::Events().RemoveEventHandler(WStackTracer::OnPluginEvent);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezStackTracer::PrintStackTrace(const ezArrayPtr<void*>& trace, ezStackTracer::PrintFunc printFunc)
+void WStackTracer::PrintStackTrace(const WArrayPtr<void*>& trace, WStackTracer::PrintFunc printFunc)
 {
   char buffer[32];
-  const ezUInt32 uiNumTraceEntries = trace.GetCount();
-  for (ezUInt32 i = 0; i < uiNumTraceEntries; i++)
+  const WUInt32 uiNumTraceEntries = trace.GetCount();
+  for (WUInt32 i = 0; i < uiNumTraceEntries; i++)
   {
-    ezStringUtils::snprintf(buffer, EZ_ARRAY_SIZE(buffer), "%s%p", i == 0 ? "" : "|", trace[i]);
+    WStringUtils::snprintf(buffer, W_ARRAY_SIZE(buffer), "%s%p", i == 0 ? "" : "|", trace[i]);
     printFunc(buffer);
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_StackTracer);
+W_STATICLINK_FILE(Foundation, Foundation_System_Implementation_StackTracer);

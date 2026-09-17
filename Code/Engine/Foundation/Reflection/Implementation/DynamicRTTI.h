@@ -8,49 +8,49 @@
 ///
 /// This macro must be placed in the class declaration of every type that needs dynamic reflection.
 /// It adds the necessary infrastructure for runtime type identification, including static RTTI
-/// storage and helper typedefs. The class must derive from ezReflectedClass (directly or indirectly)
+/// storage and helper typedefs. The class must derive from WReflectedClass (directly or indirectly)
 /// to provide the virtual GetDynamicRTTI() method.
 ///
-/// Unlike EZ_ADD_DYNAMIC_REFLECTION, this variant does not automatically implement GetDynamicRTTI(),
+/// Unlike W_ADD_DYNAMIC_REFLECTION, this variant does not automatically implement GetDynamicRTTI(),
 /// allowing for custom implementations or abstract base classes.
-#define EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE) \
-  EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                         \
+#define W_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE) \
+  W_ALLOW_PRIVATE_PROPERTIES(SELF);                         \
                                                              \
 public:                                                      \
   using OWNTYPE = SELF;                                      \
   using SUPER = BASE_TYPE;                                   \
-  EZ_ALWAYS_INLINE static const ezRTTI* GetStaticRTTI()      \
+  W_ALWAYS_INLINE static const WRTTI* GetStaticRTTI()      \
   {                                                          \
     return &SELF::s_RTTI;                                    \
   }                                                          \
                                                              \
 private:                                                     \
-  static ezRTTI s_RTTI;                                      \
-  EZ_REFLECTION_DEBUG_CODE
+  static WRTTI s_RTTI;                                      \
+  W_REFLECTION_DEBUG_CODE
 
 
-#define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)      \
-  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)  \
+#define W_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)      \
+  W_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)  \
 public:                                                 \
-  virtual const ezRTTI* GetDynamicRTTI() const override \
+  virtual const WRTTI* GetDynamicRTTI() const override \
   {                                                     \
     return &SELF::s_RTTI;                               \
   }
 
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && W_ENABLED(W_COMPILER_MSVC)
 
-#  define EZ_REFLECTION_DEBUG_CODE                       \
-    static const ezRTTI* ReflectionDebug_GetParentType() \
+#  define W_REFLECTION_DEBUG_CODE                       \
+    static const WRTTI* ReflectionDebug_GetParentType() \
     {                                                    \
       return __super::GetStaticRTTI();                   \
     }
 
-#  define EZ_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
+#  define W_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
 
 #else
-#  define EZ_REFLECTION_DEBUG_CODE /*empty*/
-#  define EZ_REFLECTION_DEBUG_GETPARENTFUNC nullptr
+#  define W_REFLECTION_DEBUG_CODE /*empty*/
+#  define W_REFLECTION_DEBUG_GETPARENTFUNC nullptr
 #endif
 
 
@@ -58,36 +58,36 @@ public:                                                 \
 ///
 /// This macro starts the definition of the static RTTI object for a type, enabling
 /// runtime type information, property access, and dynamic instantiation. Must be
-/// paired with EZ_END_DYNAMIC_REFLECTED_TYPE in the implementation file.
+/// paired with W_END_DYNAMIC_REFLECTED_TYPE in the implementation file.
 ///
 /// \param Type
-///   The type being reflected. Must have used EZ_ADD_DYNAMIC_REFLECTION in its declaration.
+///   The type being reflected. Must have used W_ADD_DYNAMIC_REFLECTION in its declaration.
 /// \param Version
 ///   Version number for serialization compatibility. Increment when changing reflection data.
 /// \param AllocatorType
 ///   Controls dynamic instantiation capability:
-///   - ezRTTINoAllocator: Type cannot be instantiated dynamically (abstract/interface types)
-///   - ezRTTIDefaultAllocator<Type>: Standard heap allocation for concrete types
+///   - WRTTINoAllocator: Type cannot be instantiated dynamically (abstract/interface types)
+///   - WRTTIDefaultAllocator<Type>: Standard heap allocation for concrete types
 ///   - Custom allocator: Specialized allocation strategy for pool/stack allocated types
-#define EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType) \
-  EZ_RTTIINFO_DECL(Type, Type::SUPER, Version)                        \
-  ezRTTI Type::s_RTTI = GetRTTI((Type*)0);                            \
-  EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, Type::SUPER, AllocatorType)
+#define W_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType) \
+  W_RTTIINFO_DECL(Type, Type::SUPER, Version)                        \
+  WRTTI Type::s_RTTI = GetRTTI((Type*)0);                            \
+  W_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, Type::SUPER, AllocatorType)
 
-/// Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
-#define EZ_END_DYNAMIC_REFLECTED_TYPE                                                                                                \
-  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),              \
-    ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, \
-    EZ_REFLECTION_DEBUG_GETPARENTFUNC);                                                                                              \
+/// Ends the reflection code block that was opened with W_BEGIN_DYNAMIC_REFLECTED_TYPE.
+#define W_END_DYNAMIC_REFLECTED_TYPE                                                                                                \
+  return WRTTI(GetTypeName((OwnType*)0), WGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),              \
+    WVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, \
+    W_REFLECTION_DEBUG_GETPARENTFUNC);                                                                                              \
   }
 
-/// Same as EZ_BEGIN_DYNAMIC_REFLECTED_TYPE but forces the type to be treated as abstract by reflection even though
+/// Same as W_BEGIN_DYNAMIC_REFLECTED_TYPE but forces the type to be treated as abstract by reflection even though
 /// it might not be abstract from a C++ perspective.
-#define EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(Type, Version)     \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, ezRTTINoAllocator) \
-    flags.Add(ezTypeFlags::Abstract);
+#define W_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(Type, Version)     \
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, WRTTINoAllocator) \
+    flags.Add(WTypeFlags::Abstract);
 
-#define EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
+#define W_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE W_END_DYNAMIC_REFLECTED_TYPE
 
 /// Base class for all types that support dynamic reflection and runtime type identification.
 ///
@@ -99,25 +99,25 @@ public:                                                 \
 /// - Virtual GetDynamicRTTI() for runtime type identification
 /// - IsInstanceOf() for type checking and inheritance queries
 /// - Foundation for property access, serialization, and other reflection features
-class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
+class W_FOUNDATION_DLL WReflectedClass : public WNoBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(ezReflectedClass, ezNoBase);
+  W_ADD_DYNAMIC_REFLECTION_NO_GETTER(WReflectedClass, WNoBase);
 
 public:
-  virtual const ezRTTI* GetDynamicRTTI() const { return &ezReflectedClass::s_RTTI; }
+  virtual const WRTTI* GetDynamicRTTI() const { return &WReflectedClass::s_RTTI; }
 
 public:
-  EZ_ALWAYS_INLINE ezReflectedClass() = default;
-  EZ_ALWAYS_INLINE virtual ~ezReflectedClass() = default;
+  W_ALWAYS_INLINE WReflectedClass() = default;
+  W_ALWAYS_INLINE virtual ~WReflectedClass() = default;
 
   /// Returns whether the type of this instance is of the given type or derived from it.
-  bool IsInstanceOf(const ezRTTI* pType) const;
+  bool IsInstanceOf(const WRTTI* pType) const;
 
   /// Returns whether the type of this instance is of the given type or derived from it.
   template <typename T>
-  EZ_ALWAYS_INLINE bool IsInstanceOf() const
+  W_ALWAYS_INLINE bool IsInstanceOf() const
   {
-    const ezRTTI* pType = ezGetStaticRTTI<T>();
+    const WRTTI* pType = WGetStaticRTTI<T>();
     return IsInstanceOf(pType);
   }
 };

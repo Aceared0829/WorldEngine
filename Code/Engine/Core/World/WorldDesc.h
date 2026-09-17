@@ -10,23 +10,23 @@
 #include <Core/World/SpatialSystem.h>
 
 /// Describes the initial state of a world.
-struct ezWorldDesc
+struct WWorldDesc
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezWorldDesc(ezStringView sWorldName) { m_sName.Assign(sWorldName); }
+  WWorldDesc(WStringView sWorldName) { m_sName.Assign(sWorldName); }
 
-  ezHashedString m_sName;                                                         ///< Name of the world for identification
-  ezUInt64 m_uiRandomNumberGeneratorSeed = 0;                                     ///< Seed for the world's random number generator (0 = use current time)
+  WHashedString m_sName;                                                         ///< Name of the world for identification
+  WUInt64 m_uiRandomNumberGeneratorSeed = 0;                                     ///< Seed for the world's random number generator (0 = use current time)
 
-  ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;                                  ///< Custom spatial system to use for this world
+  WUniquePtr<WSpatialSystem> m_pSpatialSystem;                                  ///< Custom spatial system to use for this world
   bool m_bAutoCreateSpatialSystem = true;                                         ///< Automatically create a default spatial system if none is set
 
   bool m_bReportErrorWhenStaticObjectMoves = true;                                ///< Whether to log errors when objects marked as static change position
 
-  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;            ///< Optional provider for position-dependent coordinate systems
-  ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;                          ///< Custom time step smoothing (if nullptr, ezDefaultTimeStepSmoothing will be used)
-  ezSharedPtr<ezBlackboard> m_pBlackboard;                                        ///< Custom blackboard to use for this world (if nullptr, a new blackboard will be created)
+  WSharedPtr<WCoordinateSystemProvider> m_pCoordinateSystemProvider;            ///< Optional provider for position-dependent coordinate systems
+  WUniquePtr<WTimeStepSmoothing> m_pTimeStepSmoothing;                          ///< Custom time step smoothing (if nullptr, WDefaultTimeStepSmoothing will be used)
+  WSharedPtr<WBlackboard> m_pBlackboard;                                        ///< Custom blackboard to use for this world (if nullptr, a new blackboard will be created)
 
-  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::MakeFromHours(10000); ///< Maximum time to spend on component initialization per frame
+  WTime m_MaxComponentInitializationTimePerFrame = WTime::MakeFromHours(10000); ///< Maximum time to spend on component initialization per frame
 };

@@ -6,27 +6,27 @@
 #include <RendererFoundation/Resources/BufferPool.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleRenderer, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleRenderer, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleRenderer::TempSystemCB::TempSystemCB(ezRenderContext* pRenderContext)
+WParticleRenderer::TempSystemCB::TempSystemCB(WRenderContext* pRenderContext)
 {
   // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
-  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
+  m_hConstantBuffer = WRenderContext::CreateConstantBufferStorage(m_pConstants);
 
-  ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-  bindGroupMaterial.BindBuffer("ezParticleSystemConstants", m_hConstantBuffer);
+  WBindGroupBuilder& bindGroupMaterial = WRenderContext::GetDefaultInstance()->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
+  bindGroupMaterial.BindBuffer("WParticleSystemConstants", m_hConstantBuffer);
 }
 
-ezParticleRenderer::TempSystemCB::~TempSystemCB()
+WParticleRenderer::TempSystemCB::~TempSystemCB()
 {
-  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality, float fGeometryProximityFadeOut, float fCameraProximityFadeOut, ezUInt8 uiTextureAtlasOrientation)
+void WParticleRenderer::TempSystemCB::SetGenericData(const WTransform& objectTransform, WTime effectLifeTime, WUInt8 uiNumVariationsX, WUInt8 uiNumVariationsY, WUInt8 uiNumFlipbookAnimsX, WUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality, float fGeometryProximityFadeOut, float fCameraProximityFadeOut, WUInt8 uiTextureAtlasOrientation)
 {
-  ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
+  WParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
   cb.TextureAtlasVariationFramesX = uiNumVariationsX;
   cb.TextureAtlasVariationFramesY = uiNumVariationsY;
@@ -41,24 +41,24 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectT
 }
 
 
-void ezParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints)
+void WParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, WInt32 iNumUsedTrailPoints)
 {
-  ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
+  WParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.SnapshotFraction = fSnapshotFraction;
   cb.NumUsedTrailPoints = iNumUsedTrailPoints;
 }
 
-ezParticleRenderer::ezParticleRenderer() = default;
-ezParticleRenderer::~ezParticleRenderer() = default;
+WParticleRenderer::WParticleRenderer() = default;
+WParticleRenderer::~WParticleRenderer() = default;
 
-void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
+void WParticleRenderer::CreateParticleDataBuffer(WGALBufferPool& inout_Buffer, WUInt32 uiDataTypeSize, WUInt32 uiNumParticlesPerBatch)
 {
   if (!inout_Buffer.IsInitialized())
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiDataTypeSize;
     desc.m_uiTotalSize = uiNumParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     inout_Buffer.Initialize(desc, "ParticleRenderer - StructuredBuffer");
@@ -66,7 +66,7 @@ void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer,
 }
 
 
-void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer)
+void WParticleRenderer::DestroyParticleDataBuffer(WGALBufferPool& inout_Buffer)
 {
   if (inout_Buffer.IsInitialized())
   {
@@ -74,14 +74,14 @@ void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer
   }
 }
 
-void ezParticleRenderer::BindParticleShader(ezRenderContext* pRenderContext, const char* szShader) const
+void WParticleRenderer::BindParticleShader(WRenderContext* pRenderContext, const char* szShader) const
 {
   if (!m_hShader.IsValid())
   {
-    // m_hShader = ezResourceManager::LoadResource<ezShaderResource>(szShader);
+    // m_hShader = WResourceManager::LoadResource<WShaderResource>(szShader);
   }
 
   pRenderContext->BindShader(m_hShader);
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Renderer_ParticleRenderer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Renderer_ParticleRenderer);

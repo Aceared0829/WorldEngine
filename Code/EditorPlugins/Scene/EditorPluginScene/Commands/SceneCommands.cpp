@@ -7,35 +7,35 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDuplicateObjectsCommand, 1, WRTTIDefaultAllocator<WDuplicateObjectsCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GraphText", m_sGraphTextFormat),
-    EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
-    EZ_MEMBER_PROPERTY("NumCopies", m_uiNumberOfCopies),
-    EZ_MEMBER_PROPERTY("Translate", m_vAccumulativeTranslation),
-    EZ_MEMBER_PROPERTY("Rotate", m_vAccumulativeRotation),
-    EZ_MEMBER_PROPERTY("RandomRotation", m_vRandomRotation),
-    EZ_MEMBER_PROPERTY("RandomTranslation", m_vRandomTranslation),
-    EZ_MEMBER_PROPERTY("Group", m_bGroupDuplicates),
-    EZ_MEMBER_PROPERTY("RevolveAxis", m_iRevolveAxis),
-    EZ_MEMBER_PROPERTY("RevoleStartAngle", m_RevolveStartAngle),
-    EZ_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
-    EZ_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
-    EZ_MEMBER_PROPERTY("InsertIndex", m_iInsertIndex),
+    W_MEMBER_PROPERTY("GraphText", m_sGraphTextFormat),
+    W_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
+    W_MEMBER_PROPERTY("NumCopies", m_uiNumberOfCopies),
+    W_MEMBER_PROPERTY("Translate", m_vAccumulativeTranslation),
+    W_MEMBER_PROPERTY("Rotate", m_vAccumulativeRotation),
+    W_MEMBER_PROPERTY("RandomRotation", m_vRandomRotation),
+    W_MEMBER_PROPERTY("RandomTranslation", m_vRandomTranslation),
+    W_MEMBER_PROPERTY("Group", m_bGroupDuplicates),
+    W_MEMBER_PROPERTY("RevolveAxis", m_iRevolveAxis),
+    W_MEMBER_PROPERTY("RevoleStartAngle", m_RevolveStartAngle),
+    W_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
+    W_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
+    W_MEMBER_PROPERTY("InsertIndex", m_iInsertIndex),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezDuplicateObjectsCommand
+// WDuplicateObjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezDuplicateObjectsCommand::ezDuplicateObjectsCommand()
+WDuplicateObjectsCommand::WDuplicateObjectsCommand()
 {
   m_uiNumberOfCopies = 0;
   m_vAccumulativeTranslation.SetZero();
@@ -47,20 +47,20 @@ ezDuplicateObjectsCommand::ezDuplicateObjectsCommand()
   m_bGroupDuplicates = false;
 }
 
-ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
+WStatus WDuplicateObjectsCommand::DoInternal(bool bRedo)
 {
-  ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
+  WSceneDocument* pDocument = static_cast<WSceneDocument*>(GetDocument());
 
   if (!bRedo)
   {
-    EZ_ASSERT_DEV(!m_bGroupDuplicates, "Not yet implemented");
+    W_ASSERT_DEV(!m_bGroupDuplicates, "Not yet implemented");
 
-    ezAbstractObjectGraph graph;
+    WAbstractObjectGraph graph;
     DeserializeGraph(graph);
 
     if (m_uiNumberOfCopies == 0)
     {
-      ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+      WTempHybridArray<WDocument::PasteInfo, 16> ToBePasted;
       CreateOneDuplicate(graph, ToBePasted);
     }
     else
@@ -68,31 +68,31 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
       // store original selection
       m_OriginalSelection = m_pDocument->GetSelectionManager()->GetSelection();
 
-      ezTempHybridArray<ezTempHybridArray<ezDocument::PasteInfo, 16>, 8> ToBePasted;
+      WTempHybridArray<WTempHybridArray<WDocument::PasteInfo, 16>, 8> ToBePasted;
       ToBePasted.SetCount(m_uiNumberOfCopies);
 
-      for (ezUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
+      for (WUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
       {
         CreateOneDuplicate(graph, ToBePasted[copies]);
       }
 
-      ezRandomGauss rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ;
+      WRandomGauss rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ;
 
       if (m_vRandomRotation.x > 0)
-        rngRotX.Initialize((ezUInt64)ezTime::Now().GetNanoseconds(), (ezUInt32)(m_vRandomRotation.x));
+        rngRotX.Initialize((WUInt64)WTime::Now().GetNanoseconds(), (WUInt32)(m_vRandomRotation.x));
       if (m_vRandomRotation.y > 0)
-        rngRotY.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 1, (ezUInt32)(m_vRandomRotation.y));
+        rngRotY.Initialize((WUInt64)WTime::Now().GetNanoseconds() + 1, (WUInt32)(m_vRandomRotation.y));
       if (m_vRandomRotation.z > 0)
-        rngRotZ.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 2, (ezUInt32)(m_vRandomRotation.z));
+        rngRotZ.Initialize((WUInt64)WTime::Now().GetNanoseconds() + 2, (WUInt32)(m_vRandomRotation.z));
 
       if (m_vRandomTranslation.x > 0)
-        rngTransX.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 3, (ezUInt32)(m_vRandomTranslation.x * 100));
+        rngTransX.Initialize((WUInt64)WTime::Now().GetNanoseconds() + 3, (WUInt32)(m_vRandomTranslation.x * 100));
       if (m_vRandomTranslation.y > 0)
-        rngTransY.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 4, (ezUInt32)(m_vRandomTranslation.y * 100));
+        rngTransY.Initialize((WUInt64)WTime::Now().GetNanoseconds() + 4, (WUInt32)(m_vRandomTranslation.y * 100));
       if (m_vRandomTranslation.z > 0)
-        rngTransZ.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 5, (ezUInt32)(m_vRandomTranslation.z * 100));
+        rngTransZ.Initialize((WUInt64)WTime::Now().GetNanoseconds() + 5, (WUInt32)(m_vRandomTranslation.z * 100));
 
-      for (ezUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
+      for (WUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
       {
         AdjustObjectPositions(ToBePasted[copies], copies, rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ);
       }
@@ -100,7 +100,7 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
 
     if (m_DuplicatedObjects.IsEmpty())
-      return ezStatus("Paste Objects: nothing was pasted!");
+      return WStatus("Paste Objects: nothing was pasted!");
   }
   else
   {
@@ -113,10 +113,10 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
   SetAsSelection();
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezDuplicateObjectsCommand::SetAsSelection()
+void WDuplicateObjectsCommand::SetAsSelection()
 {
   if (!m_DuplicatedObjects.IsEmpty())
   {
@@ -125,7 +125,7 @@ void ezDuplicateObjectsCommand::SetAsSelection()
 
     auto pSelMan = m_pDocument->GetSelectionManager();
 
-    ezDeque<const ezDocumentObject*> NewSelection = m_OriginalSelection;
+    WDeque<const WDocumentObject*> NewSelection = m_OriginalSelection;
 
     for (const DuplicatedObject& pi : m_DuplicatedObjects)
     {
@@ -136,43 +136,43 @@ void ezDuplicateObjectsCommand::SetAsSelection()
   }
 }
 
-void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
+void WDuplicateObjectsCommand::DeserializeGraph(WAbstractObjectGraph& graph)
 {
-  ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-  ezAbstractGraphDdlSerializer::Read(memoryReader, &graph).IgnoreResult();
+  WRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
+  WAbstractGraphDdlSerializer::Read(memoryReader, &graph).IgnoreResult();
 }
 
-void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph, ezDynamicArray<ezDocument::PasteInfo>& out_toBePasted)
+void WDuplicateObjectsCommand::CreateOneDuplicate(WAbstractObjectGraph& graph, WDynamicArray<WDocument::PasteInfo>& out_toBePasted)
 {
-  ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
+  WSceneDocument* pDocument = static_cast<WSceneDocument*>(GetDocument());
 
   // Remap
-  const ezUuid seed = ezUuid::MakeUuid();
+  const WUuid seed = WUuid::MakeUuid();
   graph.ReMapNodeGuids(seed);
 
-  ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+  WDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateOnly);
 
 
-  ezStringBuilder sParentGuids = m_sParentNodes;
-  ezStringBuilder sNextParentGuid;
+  WStringBuilder sParentGuids = m_sParentNodes;
+  WStringBuilder sNextParentGuid;
 
-  ezMap<ezUuid, ezUuid> ParentGuids;
+  WMap<WUuid, WUuid> ParentGuids;
 
   while (!sParentGuids.IsEmpty())
   {
     sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
     sParentGuids.Shrink(41, 0);
 
-    ezUuid guidObj = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
+    WUuid guidObj = WConversionUtils::ConvertStringToUuid(sNextParentGuid);
     guidObj.CombineWithSeed(seed);
 
     sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
     sParentGuids.Shrink(41, 0);
 
-    ParentGuids[guidObj] = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
+    ParentGuids[guidObj] = WConversionUtils::ConvertStringToUuid(sNextParentGuid);
   }
 
-  ezTempHybridArray<ezUInt32, 32> selectionOrder;
+  WTempHybridArray<WUInt32, 32> selectionOrder;
 
   auto& nodes = graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
@@ -191,7 +191,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 
         if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
         {
-          selectionOrder.PeekBack() = pProperty->m_Value.ConvertTo<ezUInt32>();
+          selectionOrder.PeekBack() = pProperty->m_Value.ConvertTo<WUInt32>();
         }
 
         auto& ref = out_toBePasted.ExpandAndGetRef();
@@ -200,7 +200,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
         if (m_uiNumberOfCopies == 0 && m_iInsertIndex >= 0)
           ref.m_Index = m_iInsertIndex;
 
-        const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
+        const WUuid guidParent = ParentGuids[pNode->GetGuid()];
 
         if (guidParent.IsValid())
           ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
@@ -210,7 +210,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 
   if (pDocument->DuplicateSelectedObjects(out_toBePasted, graph, false))
   {
-    for (ezUInt32 i = 0; i < out_toBePasted.GetCount(); ++i)
+    for (WUInt32 i = 0; i < out_toBePasted.GetCount(); ++i)
     {
       const auto& item = out_toBePasted[i];
       auto& po = m_DuplicatedObjects.ExpandAndGetRef();
@@ -234,14 +234,14 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 }
 
 
-void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
+void WDuplicateObjectsCommand::AdjustObjectPositions(const WArrayPtr<WDocument::PasteInfo>& duplicates, WUInt32 uiNumDuplicate, WRandomGauss& rngRotX, WRandomGauss& rngRotY, WRandomGauss& rngRotZ, WRandomGauss& rngTransX, WRandomGauss& rngTransY, WRandomGauss& rngTransZ)
 {
-  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
+  WSceneDocument* pScene = static_cast<WSceneDocument*>(m_pDocument);
 
   const float fStep = uiNumDuplicate;
 
-  ezVec3 vRandT(0.0f);
-  ezVec3 vRandR(0.0f);
+  WVec3 vRandT(0.0f);
+  WVec3 vRandR(0.0f);
 
   if (m_vRandomRotation.x != 0)
     vRandR.x = rngRotX.SignedValue();
@@ -257,12 +257,12 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocumen
   if (m_vRandomTranslation.z != 0)
     vRandT.z = rngTransZ.SignedValue() / 100.0f;
 
-  ezVec3 vPosOffset(0.0f);
+  WVec3 vPosOffset(0.0f);
 
-  if (m_iRevolveAxis > 0 && m_fRevolveRadius != 0.0f && m_RevolveAngleStep != ezAngle())
+  if (m_iRevolveAxis > 0 && m_fRevolveRadius != 0.0f && m_RevolveAngleStep != WAngle())
   {
-    ezVec3 vRevolveAxis(0.0f);
-    ezAngle revolve = m_RevolveStartAngle;
+    WVec3 vRevolveAxis(0.0f);
+    WAngle revolve = m_RevolveStartAngle;
 
     switch (m_iRevolveAxis)
     {
@@ -282,16 +282,16 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocumen
 
     revolve += fStep * m_RevolveAngleStep;
 
-    ezMat3 mRevolve = ezMat3::MakeAxisRotation(vRevolveAxis, revolve);
+    WMat3 mRevolve = WMat3::MakeAxisRotation(vRevolveAxis, revolve);
 
     vPosOffset = mRevolve * vPosOffset;
   }
 
-  ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
+  WQuat qRot = WQuat::MakeFromEulerAngles(WAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), WAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), WAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
   for (const auto& pi : duplicates)
   {
-    ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
+    WTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
 
     tGlobal.m_vScale.Set(1.0f);
     tGlobal.m_vPosition += vPosOffset + (1.0f + fStep) * m_vAccumulativeTranslation + vRandT;
@@ -304,22 +304,22 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocumen
   }
 }
 
-ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
+WStatus WDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
-  ezDocument* pDocument = GetDocument();
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  WDocument* pDocument = GetDocument();
 
   for (auto& po : m_DuplicatedObjects)
   {
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezDuplicateObjectsCommand::CleanupInternal(CommandState state)
+void WDuplicateObjectsCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {

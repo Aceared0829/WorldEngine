@@ -7,7 +7,7 @@
 //  License: $(WEB www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
 //  Authors: $(WEB digitalmars.com, Walter Bright), Jonathan M Davis, and Kenji Hara
 //  Source: $(PHOBOSSRC std/_uni.d)
-ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 uiWc)
+WUInt32 WStringUtils::ToUpperChar(WUInt32 uiWc)
 {
   if (uiWc >= 'a' && uiWc <= 'z')
   {
@@ -87,7 +87,7 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 uiWc)
 //  License: $(WEB www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
 //  Authors: $(WEB digitalmars.com, Walter Bright), Jonathan M Davis, and Kenji Hara
 //  Source: $(PHOBOSSRC std/_uni.d)
-ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 uiWc)
+WUInt32 WStringUtils::ToLowerChar(WUInt32 uiWc)
 {
   if (uiWc >= 'A' && uiWc <= 'Z')
   {
@@ -155,44 +155,44 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 uiWc)
 }
 
 
-ezUInt32 ezStringUtils::ToUpperString(char* pString, const char* pStringEnd)
+WUInt32 WStringUtils::ToUpperString(char* pString, const char* pStringEnd)
 {
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
   while ((pReadStart < pStringEnd) && (*pReadStart != '\0'))
   {
-    const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
-    const ezUInt32 uiCharUpper = ezStringUtils::ToUpperChar(uiChar);
+    const WUInt32 uiChar = WUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
+    const WUInt32 uiCharUpper = WStringUtils::ToUpperChar(uiChar);
     pWriteStart = utf8::unchecked::utf32to8(&uiCharUpper, &uiCharUpper + 1, pWriteStart);
   }
 
   *pWriteStart = '\0';
 
-  const ezUInt32 uiNewStringLength = (ezUInt32)(pWriteStart - pString);
+  const WUInt32 uiNewStringLength = (WUInt32)(pWriteStart - pString);
   return uiNewStringLength;
 }
 
-ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
+WUInt32 WStringUtils::ToLowerString(char* pString, const char* pStringEnd)
 {
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
   while ((pReadStart < pStringEnd) && (*pReadStart != '\0'))
   {
-    const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
-    const ezUInt32 uiCharUpper = ezStringUtils::ToLowerChar(uiChar);
+    const WUInt32 uiChar = WUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
+    const WUInt32 uiCharUpper = WStringUtils::ToLowerChar(uiChar);
     pWriteStart = utf8::unchecked::utf32to8(&uiCharUpper, &uiCharUpper + 1, pWriteStart);
   }
 
   *pWriteStart = '\0';
 
-  const ezUInt32 uiNewStringLength = (ezUInt32)(pWriteStart - pString);
+  const WUInt32 uiNewStringLength = (WUInt32)(pWriteStart - pString);
   return uiNewStringLength;
 }
 
 // Macro to Handle nullptr-pointer strings
-#define EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)                  \
+#define W_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)                  \
   if (szString1 == szString2)                                     /* Handles the case that both are nullptr and that both are actually the same string */ \
   {                                                                                                                                                       \
     if ((szString1 == nullptr) || (szString1End == szString2End)) /* if both are nullptr, ignore the end pointer, otherwise the strings                   \
@@ -214,11 +214,11 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
       return (ret_str1_larger);                                                                                                                           \
   }
 
-#define ToSignedInt(c) ((ezInt32)((unsigned char)c))
+#define ToSignedInt(c) ((WInt32)((unsigned char)c))
 
-ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
+WInt32 WStringUtils::Compare(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
 {
-  EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
+  W_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
   while ((pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
@@ -245,20 +245,20 @@ ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const
   }
 }
 
-ezInt32 ezStringUtils::CompareN(
-  const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
+WInt32 WStringUtils::CompareN(
+  const char* pString1, const char* pString2, WUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
 {
   if (uiCharsToCompare == 0)
     return 0;
 
-  EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
+  W_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
   while ((uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     if (*pString1 != *pString2)
       return ToSignedInt(*pString1) - ToSignedInt(*pString2);
 
-    if (!ezUnicodeUtils::IsUtf8ContinuationByte(*pString1))
+    if (!WUnicodeUtils::IsUtf8ContinuationByte(*pString1))
       --uiCharsToCompare;
 
     ++pString1;
@@ -284,17 +284,17 @@ ezInt32 ezStringUtils::CompareN(
   }
 }
 
-ezInt32 ezStringUtils::Compare_NoCase(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
+WInt32 WStringUtils::Compare_NoCase(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
 {
-  EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
+  W_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
   while ((pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     // utf8::next will already advance the iterators
-    const ezUInt32 uiChar1 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString1);
-    const ezUInt32 uiChar2 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString2);
+    const WUInt32 uiChar1 = WUnicodeUtils::DecodeUtf8ToUtf32(pString1);
+    const WUInt32 uiChar2 = WUnicodeUtils::DecodeUtf8ToUtf32(pString2);
 
-    const ezInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
+    const WInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
 
     if (iComparison != 0)
       return iComparison;
@@ -318,21 +318,21 @@ ezInt32 ezStringUtils::Compare_NoCase(const char* pString1, const char* pString2
   }
 }
 
-ezInt32 ezStringUtils::CompareN_NoCase(
-  const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
+WInt32 WStringUtils::CompareN_NoCase(
+  const char* pString1, const char* pString2, WUInt32 uiCharsToCompare, const char* pString1End, const char* pString2End)
 {
   if (uiCharsToCompare == 0)
     return 0;
 
-  EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
+  W_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
   while ((uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     // utf8::next will already advance the iterators
-    const ezUInt32 uiChar1 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString1);
-    const ezUInt32 uiChar2 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString2);
+    const WUInt32 uiChar1 = WUnicodeUtils::DecodeUtf8ToUtf32(pString1);
+    const WUInt32 uiChar2 = WUnicodeUtils::DecodeUtf8ToUtf32(pString2);
 
-    const ezInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
+    const WInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
 
     if (iComparison != 0)
       return iComparison;
@@ -360,9 +360,9 @@ ezInt32 ezStringUtils::CompareN_NoCase(
   }
 }
 
-ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd)
+WUInt32 WStringUtils::Copy(char* szDest, WUInt32 uiDstSize, const char* szSource, const char* pSourceEnd)
 {
-  EZ_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
+  W_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
 
   if (IsNullOrEmpty(szSource))
   {
@@ -370,8 +370,8 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
     return 0;
   }
 
-  ezUInt32 uiSourceLen = static_cast<ezUInt32>((pSourceEnd == ezUnicodeUtils::GetMaxStringEnd<char>()) ? strlen(szSource) : pSourceEnd - szSource);
-  ezUInt32 uiBytesToCopy = ezMath::Min(uiDstSize - 1, uiSourceLen);
+  WUInt32 uiSourceLen = static_cast<WUInt32>((pSourceEnd == WUnicodeUtils::GetMaxStringEnd<char>()) ? strlen(szSource) : pSourceEnd - szSource);
+  WUInt32 uiBytesToCopy = WMath::Min(uiDstSize - 1, uiSourceLen);
 
   // simply copy all bytes
   memmove(szDest, szSource, uiBytesToCopy);
@@ -379,17 +379,17 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
   char* szLastCharacterPos = szDest + uiBytesToCopy;
 
 // Check if we just copied half a UTF-8 character
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (uiBytesToCopy > 0)
   {
     char* szUtf8StartByte = szLastCharacterPos - 1;
-    while (!ezUnicodeUtils::IsUtf8StartByte(*szUtf8StartByte) && szUtf8StartByte > szDest)
+    while (!WUnicodeUtils::IsUtf8StartByte(*szUtf8StartByte) && szUtf8StartByte > szDest)
     {
       szUtf8StartByte--;
     }
     std::ptrdiff_t isLength = szLastCharacterPos - szUtf8StartByte;
-    std::ptrdiff_t expectedLength = ezUnicodeUtils::GetUtf8SequenceLength(*szUtf8StartByte);
-    EZ_ASSERT_DEBUG(isLength == expectedLength, "The destination buffer was too small, so a utf-8 byte sequence got cut off. This function "
+    std::ptrdiff_t expectedLength = WUnicodeUtils::GetUtf8SequenceLength(*szUtf8StartByte);
+    W_ASSERT_DEBUG(isLength == expectedLength, "The destination buffer was too small, so a utf-8 byte sequence got cut off. This function "
                                                 "is not designed to copy into buffers that are too small.");
   }
 #endif
@@ -400,9 +400,9 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
   return uiBytesToCopy;
 }
 
-ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy, const char* pSourceEnd)
+WUInt32 WStringUtils::CopyN(char* szDest, WUInt32 uiDstSize, const char* szSource, WUInt32 uiCharsToCopy, const char* pSourceEnd)
 {
-  EZ_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
+  W_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
 
   if (IsNullOrEmpty(szSource))
   {
@@ -414,7 +414,7 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
 
   char* szLastCharacterPos = szDest;
 
-  ezInt32 iCharsCopied = -1;
+  WInt32 iCharsCopied = -1;
 
   while (uiDstSize > 0)
   {
@@ -424,7 +424,7 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
       break;
     }
 
-    if (!ezUnicodeUtils::IsUtf8ContinuationByte(*szSource))
+    if (!WUnicodeUtils::IsUtf8ContinuationByte(*szSource))
     {
       // if this is not a continuation byte, we have copied another character into the output buffer
       ++iCharsCopied;
@@ -448,10 +448,10 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
   // this will actually overwrite the last byte that we wrote into the output buffer
   *szLastCharacterPos = '\0';
 
-  return (ezUInt32)(szLastCharacterPos - szStartPos);
+  return (WUInt32)(szLastCharacterPos - szStartPos);
 }
 
-bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
+bool WStringUtils::StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
 {
   if (IsNullOrEmpty(szStartsWith, szStartsWithEnd))
     return true;
@@ -475,7 +475,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
-bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
+bool WStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
 {
   if (IsNullOrEmpty(szStartsWith, szStartsWithEnd))
     return true;
@@ -488,26 +488,26 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
     if (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd)
       return true;
 
-    if (ezStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
+    if (WStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
       return false;
 
-    ezUnicodeUtils::MoveToNextUtf8(szString, pStringEnd).AssertSuccess();
-    ezUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szString, pStringEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd).AssertSuccess();
   }
 
   // if both are equally long, this comparison will return true
   return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
-bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
+bool WStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
 {
   if (IsNullOrEmpty(szEndsWith, szEndsWithEnd))
     return true;
   if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
-  const ezUInt32 uiLength1 = ezStringUtils::GetStringElementCount(szString, pStringEnd);
-  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
+  const WUInt32 uiLength1 = WStringUtils::GetStringElementCount(szString, pStringEnd);
+  const WUInt32 uiLength2 = WStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
 
   if (uiLength1 < uiLength2)
     return false;
@@ -515,15 +515,15 @@ bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const
   return IsEqual(&szString[uiLength1 - uiLength2], szEndsWith, pStringEnd, szEndsWithEnd);
 }
 
-bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
+bool WStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
 {
   if (IsNullOrEmpty(szEndsWith, szEndsWithEnd))
     return true;
   if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
-  const ezUInt32 uiLength1 = ezStringUtils::GetStringElementCount(szString, pStringEnd);
-  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
+  const WUInt32 uiLength1 = WStringUtils::GetStringElementCount(szString, pStringEnd);
+  const WUInt32 uiLength2 = WStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
 
   const char* pCur1 = szString + uiLength1;   // points to \0
   const char* pCur2 = szEndsWith + uiLength2; // points to \0
@@ -535,10 +535,10 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
       return true;
 
     // move to the previous character
-    ezUnicodeUtils::MoveToPriorUtf8(pCur1, szString).AssertSuccess();
-    ezUnicodeUtils::MoveToPriorUtf8(pCur2, szEndsWith).AssertSuccess();
+    WUnicodeUtils::MoveToPriorUtf8(pCur1, szString).AssertSuccess();
+    WUnicodeUtils::MoveToPriorUtf8(pCur2, szEndsWith).AssertSuccess();
 
-    if (ezStringUtils::CompareChars_NoCase(pCur1, pCur2) != 0)
+    if (WStringUtils::CompareChars_NoCase(pCur1, pCur2) != 0)
       return false;
   }
 
@@ -548,7 +548,7 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
   return (pCur2 <= szEndsWith);
 }
 
-const char* ezStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
+const char* WStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -558,16 +558,16 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
 
   while ((pCurPos < pSourceEnd) && (*pCurPos != '\0'))
   {
-    if (ezStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
+    if (WStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
   }
 
   return nullptr;
 }
 
-const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
+const char* WStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -577,17 +577,17 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
 
   while ((pCurPos < pSourceEnd) && (*pCurPos != '\0'))
   {
-    if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
+    if (WStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
   }
 
   return nullptr;
 }
 
 
-const char* ezStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
+const char* WStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -595,34 +595,34 @@ const char* ezStringUtils::FindLastSubString(const char* szSource, const char* s
 
   // get the last element (actually the \0 terminator)
   if (szStartSearchAt == nullptr)
-    szStartSearchAt = szSource + ezStringUtils::GetStringElementCount(szSource, pSourceEnd);
+    szStartSearchAt = szSource + WStringUtils::GetStringElementCount(szSource, pSourceEnd);
 
   // while we haven't reached the stars .. erm, start
   while (szStartSearchAt > szSource)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
+    WUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
 
-    if (ezStringUtils::StartsWith(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
+    if (WStringUtils::StartsWith(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
   }
 
   return nullptr;
 }
 
-const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
+const char* WStringUtils::FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
     return nullptr;
 
   if (szStartSearchAt == nullptr)
-    szStartSearchAt = szSource + ezStringUtils::GetStringElementCount(szSource, pSourceEnd);
+    szStartSearchAt = szSource + WStringUtils::GetStringElementCount(szSource, pSourceEnd);
 
   while (szStartSearchAt > szSource)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
+    WUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
 
-    if (ezStringUtils::StartsWith_NoCase(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
+    if (WStringUtils::StartsWith_NoCase(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
   }
 
@@ -630,13 +630,13 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 }
 
 
-const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
+const char* WStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, W_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szString)) || (IsNullOrEmpty(szSearchFor)))
     return nullptr;
 
-  const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
+  const WUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
 
   const char* pPrevPos = nullptr;
   const char* pCurPos = szString;
@@ -647,26 +647,26 @@ const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSea
     {
       if (((szString == pCurPos) ||                                                                          // the start of the string is always a word delimiter
             (isDelimiterCB(
-              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                                 // make sure the character before this substring is a word delimiter
+              WUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                                 // make sure the character before this substring is a word delimiter
           ((pCurPos + uiSearchedWordLength >= pStringEnd) ||                                                 // the end of the string is also always a delimiter
-            (isDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */)))) // and the character after it, as well
+            (isDelimiterCB(WUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */)))) // and the character after it, as well
         return pCurPos;
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
   }
 
   return nullptr;
 }
 
-const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
+const char* WStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, W_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szString)) || (IsNullOrEmpty(szSearchFor)))
     return nullptr;
 
-  const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
+  const WUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
 
   const char* pPrevPos = nullptr;
   const char* pCurPos = szString;
@@ -677,22 +677,22 @@ const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char
     {
       if (((szString == pCurPos) ||                                                                       // the start of the string is always a word delimiter
             (isDelimiterCB(
-              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                              // make sure the character before this substring is a word delimiter
-          (isDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */))) // and the character after it, as well
+              WUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                              // make sure the character before this substring is a word delimiter
+          (isDelimiterCB(WUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */))) // and the character after it, as well
         return pCurPos;
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
   }
 
   return nullptr;
 }
 
-ezResult ezStringUtils::FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt /*= nullptr*/)
+WResult WStringUtils::FindUIntAtTheEnd(const char* szString, WUInt32& out_uiValue, WUInt32* pStringLengthBeforeUInt /*= nullptr*/)
 {
-  if (ezStringUtils::IsNullOrEmpty(szString))
-    return EZ_FAILURE;
+  if (WStringUtils::IsNullOrEmpty(szString))
+    return W_FAILURE;
 
   const char* szWork = szString;
   const char* szNumberStart = nullptr;
@@ -718,30 +718,30 @@ ezResult ezStringUtils::FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiV
 
   if (szNumberStart != nullptr)
   {
-    ezInt64 iResult = 0;
-    if (ezConversionUtils::StringToInt64(szNumberStart, iResult).Failed() || iResult < 0 || iResult > 0xFFFFFFFFu)
+    WInt64 iResult = 0;
+    if (WConversionUtils::StringToInt64(szNumberStart, iResult).Failed() || iResult < 0 || iResult > 0xFFFFFFFFu)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-    out_uiValue = static_cast<ezUInt32>(iResult);
+    out_uiValue = static_cast<WUInt32>(iResult);
 
     if (pStringLengthBeforeUInt != nullptr)
     {
-      *pStringLengthBeforeUInt = static_cast<ezUInt32>(szNumberStart - szString);
+      *pStringLengthBeforeUInt = static_cast<WUInt32>(szNumberStart - szString);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 }
 
-ezUInt32 ezStringUtils::CalculateLineNumber(const char* szString, const char* szOffset, const char* pStringEnd /*= ezUnicodeUtils::GetMaxStringEnd<char>()*/)
+WUInt32 WStringUtils::CalculateLineNumber(const char* szString, const char* szOffset, const char* pStringEnd /*= WUnicodeUtils::GetMaxStringEnd<char>()*/)
 {
-  ezUInt32 uiLine = 0;
+  WUInt32 uiLine = 0;
 
   while ((szString < pStringEnd) && (*szString != '\0'))
   {
@@ -759,46 +759,46 @@ ezUInt32 ezStringUtils::CalculateLineNumber(const char* szString, const char* sz
   return uiLine;
 }
 
-const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER skipCharacterCB, bool bAlwaysSkipFirst)
+const char* WStringUtils::SkipCharacters(const char* szString, W_CHARACTER_FILTER skipCharacterCB, bool bAlwaysSkipFirst)
 {
-  EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");
+  W_ASSERT_DEBUG(szString != nullptr, "Invalid string");
 
   while (*szString != '\0')
   {
-    if (!bAlwaysSkipFirst && !skipCharacterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+    if (!bAlwaysSkipFirst && !skipCharacterCB(WUnicodeUtils::ConvertUtf8ToUtf32(szString)))
       break;
 
     bAlwaysSkipFirst = false;
 
-    ezUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
   }
 
   return szString;
 }
 
-const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER isDelimiterCB, bool bAlwaysSkipFirst)
+const char* WStringUtils::FindWordEnd(const char* szString, W_CHARACTER_FILTER isDelimiterCB, bool bAlwaysSkipFirst)
 {
-  EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");
+  W_ASSERT_DEBUG(szString != nullptr, "Invalid string");
 
   while (*szString != '\0')
   {
-    if (!bAlwaysSkipFirst && isDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+    if (!bAlwaysSkipFirst && isDelimiterCB(WUnicodeUtils::ConvertUtf8ToUtf32(szString)))
       break;
 
     bAlwaysSkipFirst = false;
-    ezUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
   }
 
   return szString;
 }
 
-void ezStringUtils::Trim(const char*& ref_pString, const char*& ref_pStringEnd, const char* szTrimCharsStart, const char* szTrimCharsEnd)
+void WStringUtils::Trim(const char*& ref_pString, const char*& ref_pStringEnd, const char* szTrimCharsStart, const char* szTrimCharsEnd)
 {
   bool bTrimmed = false;
   UpdateStringEnd(ref_pString, ref_pStringEnd);
-  ezStringView view(ref_pString, ref_pStringEnd);
-  ezStringView trimFront(szTrimCharsStart);
-  ezStringView trimEnd(szTrimCharsEnd);
+  WStringView view(ref_pString, ref_pStringEnd);
+  WStringView trimFront(szTrimCharsStart);
+  WStringView trimEnd(szTrimCharsEnd);
 
   // Trim start
   auto itStart = begin(view);
@@ -808,7 +808,7 @@ void ezStringUtils::Trim(const char*& ref_pString, const char*& ref_pStringEnd, 
   do
   {
     bTrimmed = false;
-    for (ezUInt32 needle : trimFront)
+    for (WUInt32 needle : trimFront)
     {
       while (itStart.GetCharacter() == needle)
       {
@@ -828,7 +828,7 @@ void ezStringUtils::Trim(const char*& ref_pString, const char*& ref_pStringEnd, 
   do
   {
     bTrimmed = false;
-    for (ezUInt32 needle : trimEnd)
+    for (WUInt32 needle : trimEnd)
     {
       while (itEnd.GetCharacter() == needle)
       {
@@ -841,13 +841,13 @@ void ezStringUtils::Trim(const char*& ref_pString, const char*& ref_pStringEnd, 
 }
 
 
-bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
+bool WStringUtils::IsWhiteSpace(WUInt32 c)
 {
   // ASCII range of useless characters (32 is actually SPACE)
   return (c >= 1 && c <= 32);
 }
 
-bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
+bool WStringUtils::IsWordDelimiter_English(WUInt32 uiChar)
 {
   if ((uiChar >= 'a') && (uiChar <= 'z'))
     return false;
@@ -863,7 +863,7 @@ bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
   return true;
 }
 
-bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
+bool WStringUtils::IsIdentifierDelimiter_C_Code(WUInt32 uiChar)
 {
   if ((uiChar >= 'a') && (uiChar <= 'z'))
     return false;
@@ -877,12 +877,12 @@ bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
   return true;
 }
 
-bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStringEnd /*= ezMaxStringEnd*/)
+bool WStringUtils::IsValidIdentifierName(const char* pString, const char* pStringEnd /*= WMaxStringEnd*/)
 {
   if (IsNullOrEmpty(pString, pStringEnd))
     return false;
 
-  ezUInt32 cur = ezUnicodeUtils::ConvertUtf8ToUtf32(pString);
+  WUInt32 cur = WUnicodeUtils::ConvertUtf8ToUtf32(pString);
 
   // digits are not allowed as the first character
   if ((cur >= '0') && (cur <= '9'))
@@ -890,9 +890,9 @@ bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStri
 
   while ((pString < pStringEnd) && (*pString != '\0'))
   {
-    cur = ezUnicodeUtils::DecodeUtf8ToUtf32(pString);
+    cur = WUnicodeUtils::DecodeUtf8ToUtf32(pString);
 
-    if (ezStringUtils::IsIdentifierDelimiter_C_Code(cur))
+    if (WStringUtils::IsIdentifierDelimiter_C_Code(cur))
       return false;
   }
 

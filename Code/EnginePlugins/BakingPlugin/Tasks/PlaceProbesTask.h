@@ -3,30 +3,30 @@
 #include <BakingPlugin/Declarations.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-struct ezBakingSettings;
+struct WBakingSettings;
 
-namespace ezBakingInternal
+namespace WBakingInternal
 {
-  class EZ_BAKINGPLUGIN_DLL PlaceProbesTask : public ezTask
+  class W_BAKINGPLUGIN_DLL PlaceProbesTask : public WTask
   {
   public:
-    PlaceProbesTask(const ezBakingSettings& settings, const ezBoundingBox& bounds, ezArrayPtr<const Volume> volumes);
+    PlaceProbesTask(const WBakingSettings& settings, const WBoundingBox& bounds, WArrayPtr<const Volume> volumes);
     ~PlaceProbesTask();
 
     virtual void Execute() override;
 
-    ezArrayPtr<const ezVec3> GetProbePositions() const { return m_ProbePositions; }
-    const ezVec3& GetGridOrigin() const { return m_vGridOrigin; }
-    const ezVec3U32& GetProbeCount() const { return m_vProbeCount; }
+    WArrayPtr<const WVec3> GetProbePositions() const { return m_ProbePositions; }
+    const WVec3& GetGridOrigin() const { return m_vGridOrigin; }
+    const WVec3U32& GetProbeCount() const { return m_vProbeCount; }
 
   private:
-    const ezBakingSettings& m_Settings;
+    const WBakingSettings& m_Settings;
 
-    ezBoundingBox m_Bounds;
-    ezArrayPtr<const Volume> m_Volumes;
+    WBoundingBox m_Bounds;
+    WArrayPtr<const Volume> m_Volumes;
 
-    ezVec3 m_vGridOrigin = ezVec3::MakeZero();
-    ezVec3U32 m_vProbeCount = ezVec3U32::MakeZero();
-    ezDynamicArray<ezVec3> m_ProbePositions;
+    WVec3 m_vGridOrigin = WVec3::MakeZero();
+    WVec3U32 m_vProbeCount = WVec3U32::MakeZero();
+    WDynamicArray<WVec3> m_ProbePositions;
   };
-} // namespace ezBakingInternal
+} // namespace WBakingInternal

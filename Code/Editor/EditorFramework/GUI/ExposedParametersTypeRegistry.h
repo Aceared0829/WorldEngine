@@ -7,27 +7,27 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Timestamp.h>
 
-struct ezPhantomRttiManagerEvent;
-class ezExposedParameters;
-struct ezAssetCuratorEvent;
+struct WPhantomRttiManagerEvent;
+class WExposedParameters;
+struct WAssetCuratorEvent;
 
-/// Lazily converts ezExposedParameters into phantom types.
+/// Lazily converts WExposedParameters into phantom types.
 /// Call GetExposedParametersType to create a type for a sub-asset ID.
-class ezExposedParametersTypeRegistry
+class WExposedParametersTypeRegistry
 {
-  EZ_DECLARE_SINGLETON(ezExposedParametersTypeRegistry);
+  W_DECLARE_SINGLETON(WExposedParametersTypeRegistry);
 
 public:
-  ezExposedParametersTypeRegistry();
-  ~ezExposedParametersTypeRegistry();
+  WExposedParametersTypeRegistry();
+  ~WExposedParametersTypeRegistry();
   /// Returns null if the curator can find the asset or if the asset
-  /// does not have any ezExposedParameters meta data.
-  const ezRTTI* GetExposedParametersType(const char* szResource);
+  /// does not have any WExposedParameters meta data.
+  const WRTTI* GetExposedParametersType(const char* szResource);
   /// All exposed parameter types derive from this.
-  const ezRTTI* GetExposedParametersBaseType() const { return m_pBaseType; }
+  const WRTTI* GetExposedParametersBaseType() const { return m_pBaseType; }
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, ExposedParametersTypeRegistry);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, ExposedParametersTypeRegistry);
 
   struct ParamData
   {
@@ -35,15 +35,15 @@ private:
 
       = default;
 
-    ezUuid m_SubAssetGuid;
+    WUuid m_SubAssetGuid;
     bool m_bUpToDate = true;
-    const ezRTTI* m_pType = nullptr;
+    const WRTTI* m_pType = nullptr;
   };
-  void UpdateExposedParametersType(ParamData& data, const ezExposedParameters& params);
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
-  void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
+  void UpdateExposedParametersType(ParamData& data, const WExposedParameters& params);
+  void AssetCuratorEventHandler(const WAssetCuratorEvent& e);
+  void PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e);
 
-  ezMap<ezUuid, ParamData> m_ShaderTypes;
-  const ezRTTI* m_pBaseType;
+  WMap<WUuid, ParamData> m_ShaderTypes;
+  const WRTTI* m_pBaseType;
   ParamData* m_pAboutToBeRegistered = nullptr;
 };

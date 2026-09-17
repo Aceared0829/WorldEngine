@@ -4,115 +4,115 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezRawMemoryStreamReader;
+class WRawMemoryStreamReader;
 
-/// Compression modes for ezArchive file entries
-enum class ezArchiveCompressionMode : ezUInt8
+/// Compression modes for WArchive file entries
+enum class WArchiveCompressionMode : WUInt8
 {
   Uncompressed,
   Compressed_zstd,
   Compressed_zip,
 };
 
-/// Data for a single file entry in an ezArchive file
-class EZ_FOUNDATION_DLL ezArchiveEntry
+/// Data for a single file entry in an WArchive file
+class W_FOUNDATION_DLL WArchiveEntry
 {
 public:
-  ezUInt64 m_uiDataStartOffset = 0;      ///< Byte offset for where the file's (compressed) data stream starts in the ezArchive
-  ezUInt64 m_uiUncompressedDataSize = 0; ///< Size of the original uncompressed data.
-  ezUInt64 m_uiStoredDataSize = 0;       ///< The amount of (compressed) bytes actually stored in the ezArchive.
-  ezUInt32 m_uiPathStringOffset = 0;     ///< Byte offset into ezArchiveTOC::m_AllPathStrings where the path string for this entry resides.
-  ezArchiveCompressionMode m_CompressionMode = ezArchiveCompressionMode::Uncompressed;
+  WUInt64 m_uiDataStartOffset = 0;      ///< Byte offset for where the file's (compressed) data stream starts in the WArchive
+  WUInt64 m_uiUncompressedDataSize = 0; ///< Size of the original uncompressed data.
+  WUInt64 m_uiStoredDataSize = 0;       ///< The amount of (compressed) bytes actually stored in the WArchive.
+  WUInt32 m_uiPathStringOffset = 0;     ///< Byte offset into WArchiveTOC::m_AllPathStrings where the path string for this entry resides.
+  WArchiveCompressionMode m_CompressionMode = WArchiveCompressionMode::Uncompressed;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
 /// Helper class to store a hashed string for quick lookup in the archive TOC
 ///
 /// Stores a hash of the lower case string for quick comparison.
-/// Additionally stores an offset into the ezArchiveTOC::m_AllPathStrings array for final validation, to prevent hash collisions.
-/// The proper string lookup with hash collision check only works together with ezArchiveLookupString, which has the necessary context
-/// to index the ezArchiveTOC::m_AllPathStrings array.
-class EZ_FOUNDATION_DLL ezArchiveStoredString
+/// Additionally stores an offset into the WArchiveTOC::m_AllPathStrings array for final validation, to prevent hash collisions.
+/// The proper string lookup with hash collision check only works together with WArchiveLookupString, which has the necessary context
+/// to index the WArchiveTOC::m_AllPathStrings array.
+class W_FOUNDATION_DLL WArchiveStoredString
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezArchiveStoredString() = default;
+  WArchiveStoredString() = default;
 
-  ezArchiveStoredString(ezUInt64 uiLowerCaseHash, ezUInt32 uiSrcStringOffset)
-    : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
+  WArchiveStoredString(WUInt64 uiLowerCaseHash, WUInt32 uiSrcStringOffset)
+    : m_uiLowerCaseHash(WHashingUtils::StringHashTo32(uiLowerCaseHash))
     , m_uiSrcStringOffset(uiSrcStringOffset)
   {
   }
 
-  ezUInt32 m_uiLowerCaseHash;
-  ezUInt32 m_uiSrcStringOffset;
+  WUInt32 m_uiLowerCaseHash;
+  WUInt32 m_uiSrcStringOffset;
 };
 
-void operator<<(ezStreamWriter& inout_stream, const ezArchiveStoredString& value);
-void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value);
+void operator<<(WStreamWriter& inout_stream, const WArchiveStoredString& value);
+void operator>>(WStreamReader& inout_stream, WArchiveStoredString& value);
 
-/// Helper class for looking up path strings in ezArchiveTOC::FindEntry()
+/// Helper class for looking up path strings in WArchiveTOC::FindEntry()
 ///
-/// Only works together with ezArchiveStoredString.
-class ezArchiveLookupString
+/// Only works together with WArchiveStoredString.
+class WArchiveLookupString
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezArchiveLookupString);
+  W_DISALLOW_COPY_AND_ASSIGN(WArchiveLookupString);
 
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, ezStringView sString, const ezDynamicArray<ezUInt8>& archiveAllPathStrings)
-    : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
+  WArchiveLookupString(WUInt64 uiLowerCaseHash, WStringView sString, const WDynamicArray<WUInt8>& archiveAllPathStrings)
+    : m_uiLowerCaseHash(WHashingUtils::StringHashTo32(uiLowerCaseHash))
     , m_sString(sString)
     , m_ArchiveAllPathStrings(archiveAllPathStrings)
   {
   }
 
-  ezUInt32 m_uiLowerCaseHash;
-  ezStringView m_sString;
-  const ezDynamicArray<ezUInt8>& m_ArchiveAllPathStrings;
+  WUInt32 m_uiLowerCaseHash;
+  WStringView m_sString;
+  const WDynamicArray<WUInt8>& m_ArchiveAllPathStrings;
 };
 
-/// Functions to enable ezHashTable to 1) store ezArchiveStoredString and 2) lookup strings efficiently with a ezArchiveLookupString
+/// Functions to enable WHashTable to 1) store WArchiveStoredString and 2) lookup strings efficiently with a WArchiveLookupString
 template <>
-struct ezHashHelper<ezArchiveStoredString>
+struct WHashHelper<WArchiveStoredString>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezArchiveStoredString& hs) { return hs.m_uiLowerCaseHash; }
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezArchiveLookupString& hs) { return hs.m_uiLowerCaseHash; }
+  W_ALWAYS_INLINE static WUInt32 Hash(const WArchiveStoredString& hs) { return hs.m_uiLowerCaseHash; }
+  W_ALWAYS_INLINE static WUInt32 Hash(const WArchiveLookupString& hs) { return hs.m_uiLowerCaseHash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezArchiveStoredString& a, const ezArchiveStoredString& b) { return a.m_uiSrcStringOffset == b.m_uiSrcStringOffset; }
+  W_ALWAYS_INLINE static bool Equal(const WArchiveStoredString& a, const WArchiveStoredString& b) { return a.m_uiSrcStringOffset == b.m_uiSrcStringOffset; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezArchiveStoredString& a, const ezArchiveLookupString& b)
+  W_ALWAYS_INLINE static bool Equal(const WArchiveStoredString& a, const WArchiveLookupString& b)
   {
-    // in case that we want to lookup a string using a ezArchiveLookupString, we validate
+    // in case that we want to lookup a string using a WArchiveLookupString, we validate
     // that the stored string is actually equal to the lookup string, to enable handling of hash collisions
     return b.m_sString.IsEqual_NoCase(reinterpret_cast<const char*>(&b.m_ArchiveAllPathStrings[a.m_uiSrcStringOffset]));
   }
 };
 
-/// Table-of-contents for an ezArchive file
-class EZ_FOUNDATION_DLL ezArchiveTOC
+/// Table-of-contents for an WArchive file
+class W_FOUNDATION_DLL WArchiveTOC
 {
 public:
-  /// all files stored in the ezArchive
-  ezDynamicArray<ezArchiveEntry> m_Entries;
+  /// all files stored in the WArchive
+  WDynamicArray<WArchiveEntry> m_Entries;
   /// allows to map a hashed string to the index of the file entry for the file path
-  ezHashTable<ezArchiveStoredString, ezUInt32> m_PathToEntryIndex;
+  WHashTable<WArchiveStoredString, WUInt32> m_PathToEntryIndex;
   /// one large array holding all path strings for the file entries, to reduce allocations
-  ezDynamicArray<ezUInt8> m_AllPathStrings;
+  WDynamicArray<WUInt8> m_AllPathStrings;
 
-  /// Returns the entry index for the given file or ezInvalidIndex, if not found.
-  ezUInt32 FindEntry(ezStringView sFile) const;
+  /// Returns the entry index for the given file or WInvalidIndex, if not found.
+  WUInt32 FindEntry(WStringView sFile) const;
 
-  ezUInt32 AddPathString(ezStringView sPathString);
+  WUInt32 AddPathString(WStringView sPathString);
 
   void RebuildPathToEntryHashes();
 
-  ezStringView GetEntryPathString(ezUInt32 uiEntryIdx) const;
+  WStringView GetEntryPathString(WUInt32 uiEntryIdx) const;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchiveVersion);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream, WUInt8 uiArchiveVersion);
 };

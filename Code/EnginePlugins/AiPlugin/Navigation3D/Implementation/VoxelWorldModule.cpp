@@ -9,35 +9,35 @@
 #include <Foundation/Configuration/CVar.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarBool cvar_VoxelGridVisualize("AI.VoxelGrid.Visualize", false, ezCVarFlags::None, "Visualize the voxel grid. Use AI.VoxelGrid.Visualize=true in the console to enable.");
+WCVarBool cvar_VoxelGridVisualize("AI.VoxelGrid.Visualize", false, WCVarFlags::None, "Visualize the voxel grid. Use AI.VoxelGrid.Visualize=true in the console to enable.");
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezAiVoxelWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAiVoxelWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_WORLD_MODULE(WAiVoxelWorldModule);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAiVoxelWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAiVoxelWorldModule::ezAiVoxelWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WAiVoxelWorldModule::WAiVoxelWorldModule(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
 }
 
-ezAiVoxelWorldModule::~ezAiVoxelWorldModule() = default;
+WAiVoxelWorldModule::~WAiVoxelWorldModule() = default;
 
-void ezAiVoxelWorldModule::Initialize()
+void WAiVoxelWorldModule::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAiVoxelWorldModule::Update, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto updateDesc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WAiVoxelWorldModule::Update, this);
+    updateDesc.m_Phase = WWorldUpdatePhase::PostTransform;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(updateDesc);
   }
 }
 
-void ezAiVoxelWorldModule::Update(const UpdateContext& ctxt)
+void WAiVoxelWorldModule::Update(const UpdateContext& ctxt)
 {
   if (m_uiUpdateDelay > 0)
   {
@@ -45,7 +45,7 @@ void ezAiVoxelWorldModule::Update(const UpdateContext& ctxt)
     return;
   }
 
-  auto* pGridManager = GetWorld()->GetComponentManager<ezAiVoxelGridComponentManager>();
+  auto* pGridManager = GetWorld()->GetComponentManager<WAiVoxelGridComponentManager>();
   if (pGridManager == nullptr)
     return;
 
@@ -60,34 +60,34 @@ void ezAiVoxelWorldModule::Update(const UpdateContext& ctxt)
   {
     if (it->m_bVisualize || cvar_VoxelGridVisualize)
     {
-      const ezVoxelGrid& grid = it->GetStaticVoxelGrid();
-      grid.DebugDraw(GetWorld(), ezColor::LimeGreen.WithAlpha(0.1f));
+      const WVoxelGrid& grid = it->GetStaticVoxelGrid();
+      grid.DebugDraw(GetWorld(), WColor::LimeGreen.WithAlpha(0.1f));
 
-      const ezVec3U32 dim = grid.GetDimensions();
-      const ezUInt64 uiMemUsage = grid.GetHeapMemoryUsage();
+      const WVec3U32 dim = grid.GetDimensions();
+      const WUInt64 uiMemUsage = grid.GetHeapMemoryUsage();
 
-      ezDebugRenderer::Draw3DText(GetWorld(), ezFmt("Voxel Grid\nCells: {} x {} x {}\nMemory: {}", dim.x, dim.y, dim.z, ezArgFileSize(uiMemUsage)), grid.GetCenter(), ezColor::White);
+      WDebugRenderer::Draw3DText(GetWorld(), WFmt("Voxel Grid\nCells: {} x {} x {}\nMemory: {}", dim.x, dim.y, dim.z, WArgFileSize(uiMemUsage)), grid.GetCenter(), WColor::White);
     }
   }
 }
 
-void ezAiVoxelWorldModule::FindGridsInBox(const ezBoundingBox& box, ezDynamicArray<ezAiVoxelGridComponent*>& out_grids) const
+void WAiVoxelWorldModule::FindGridsInBox(const WBoundingBox& box, WDynamicArray<WAiVoxelGridComponent*>& out_grids) const
 {
   out_grids.Clear();
 
-  const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
+  const WSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
   if (pSpatialSystem == nullptr)
     return;
 
-  ezSpatialSystem::QueryParams queryParams;
-  queryParams.m_uiCategoryBitmask = ezAiVoxelGridComponent::SpatialDataCategory.GetBitmask();
+  WSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = WAiVoxelGridComponent::SpatialDataCategory.GetBitmask();
 
-  ezDynamicArray<ezGameObject*> objects;
+  WDynamicArray<WGameObject*> objects;
   pSpatialSystem->FindObjectsInBox(box, queryParams, objects);
 
-  for (ezGameObject* pObject : objects)
+  for (WGameObject* pObject : objects)
   {
-    ezAiVoxelGridComponent* pGridComponent = nullptr;
+    WAiVoxelGridComponent* pGridComponent = nullptr;
     if (pObject->TryGetComponentOfBaseType(pGridComponent))
     {
       out_grids.PushBack(pGridComponent);
@@ -96,4 +96,4 @@ void ezAiVoxelWorldModule::FindGridsInBox(const ezBoundingBox& box, ezDynamicArr
 }
 
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelWorldModule);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelWorldModule);

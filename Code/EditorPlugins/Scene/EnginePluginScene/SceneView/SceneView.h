@@ -4,47 +4,47 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezView;
-class ezViewRedrawMsgToEngine;
-class ezEngineProcessDocumentContext;
-class ezEditorEngineDocumentMsg;
-class ezEditorRenderPass;
-class ezSelectedObjectsExtractorBase;
-class ezSceneContext;
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
-class ezViewMarqueePickingMsgToEngine;
+class WView;
+class WViewRedrawMsgToEngine;
+class WEngineProcessDocumentContext;
+class WEditorEngineDocumentMsg;
+class WEditorRenderPass;
+class WSelectedObjectsExtractorBase;
+class WSceneContext;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
+class WViewMarqueePickingMsgToEngine;
 
 struct ObjectData
 {
-  ezMat4 m_ModelView;
+  WMat4 m_ModelView;
   float m_PickingID[4];
 };
 
-class ezSceneViewContext : public ezEngineProcessViewContext
+class WSceneViewContext : public WEngineProcessViewContext
 {
 public:
-  ezSceneViewContext(ezSceneContext* pSceneContext);
-  ~ezSceneViewContext();
+  WSceneViewContext(WSceneContext* pSceneContext);
+  ~WSceneViewContext();
 
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
-  virtual void SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight) override;
+  virtual void HandleViewMessage(const WEditorEngineViewMsg* pMsg) override;
+  virtual void SetupRenderTarget(WGALSwapChainHandle hSwapChain, const WGALRenderTargets* pRenderTargets, WUInt16 uiWidth, WUInt16 uiHeight) override;
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
-  void SetInvisibleLayerTags(const ezArrayPtr<ezTag> removeTags, const ezArrayPtr<ezTag> addTags);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
+  void SetInvisibleLayerTags(const WArrayPtr<WTag> removeTags, const WArrayPtr<WTag> addTags);
 
 protected:
   virtual void Redraw(bool bRenderEditorGizmos) override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
-  virtual void SetViewProperties(ezView* pView) override;
-  virtual ezViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
+  virtual void SetViewProperties(WView* pView) override;
+  virtual WViewHandle CreateView() override;
 
-  void PickObjectAt(ezUInt16 x, ezUInt16 y);
-  void MarqueePickObjects(const ezViewMarqueePickingMsgToEngine* pMsg);
+  void PickObjectAt(WUInt16 x, WUInt16 y);
+  void MarqueePickObjects(const WViewMarqueePickingMsgToEngine* pMsg);
 
 private:
-  ezSceneContext* m_pSceneContext;
+  WSceneContext* m_pSceneContext;
 
   bool m_bUpdatePickingData;
 
-  ezCamera m_CullingCamera;
+  WCamera m_CullingCamera;
 };

@@ -3,213 +3,213 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Strings/String.h>
 
-static ezString GetString(const char* szSz)
+static WString GetString(const char* szSz)
 {
-  ezString s;
+  WString s;
   s = szSz;
   return s;
 }
 
-static ezStringBuilder GetStringBuilder(const char* szSz)
+static WStringBuilder GetStringBuilder(const char* szSz)
 {
-  ezStringBuilder s;
+  WStringBuilder s;
 
-  for (ezUInt32 i = 0; i < 10; ++i)
+  for (WUInt32 i = 0; i < 10; ++i)
     s.Append(szSz);
 
   return s;
 }
 
-EZ_CREATE_SIMPLE_TEST(Strings, String)
+W_CREATE_SIMPLE_TEST(Strings, String)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-    ezString s1;
-    EZ_TEST_BOOL(s1 == "");
+    WString s1;
+    W_TEST_BOOL(s1 == "");
 
-    ezString s2("abc");
-    EZ_TEST_BOOL(s2 == "abc");
+    WString s2("abc");
+    W_TEST_BOOL(s2 == "abc");
 
-    ezString s3(s2);
-    EZ_TEST_BOOL(s2 == s3);
-    EZ_TEST_BOOL(s3 == "abc");
+    WString s3(s2);
+    W_TEST_BOOL(s2 == s3);
+    W_TEST_BOOL(s3 == "abc");
 
-    ezString s4(L"abc");
-    EZ_TEST_BOOL(s4 == "abc");
+    WString s4(L"abc");
+    W_TEST_BOOL(s4 == "abc");
 
-    ezStringView it = s4.GetFirst(2);
-    ezString s5(it);
-    EZ_TEST_BOOL(s5 == "ab");
+    WStringView it = s4.GetFirst(2);
+    WString s5(it);
+    W_TEST_BOOL(s5 == "ab");
 
-    ezStringBuilder strB("wobwob");
-    ezString s6(strB);
-    EZ_TEST_BOOL(s6 == "wobwob");
+    WStringBuilder strB("wobwob");
+    WString s6(strB);
+    W_TEST_BOOL(s6 == "wobwob");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator=")
   {
-    ezString s2;
+    WString s2;
     s2 = "abc";
-    EZ_TEST_BOOL(s2 == "abc");
+    W_TEST_BOOL(s2 == "abc");
 
-    ezString s3;
+    WString s3;
     s3 = s2;
-    EZ_TEST_BOOL(s2 == s3);
-    EZ_TEST_BOOL(s3 == "abc");
+    W_TEST_BOOL(s2 == s3);
+    W_TEST_BOOL(s3 == "abc");
 
-    ezString s4;
+    WString s4;
     s4 = L"abc";
-    EZ_TEST_BOOL(s4 == "abc");
+    W_TEST_BOOL(s4 == "abc");
 
-    ezString s5(L"abcdefghijklm");
-    ezStringView it(s5.GetData() + 2, s5.GetData() + 10);
-    ezString s5b = it;
-    EZ_TEST_STRING(s5b, "cdefghij");
+    WString s5(L"abcdefghijklm");
+    WStringView it(s5.GetData() + 2, s5.GetData() + 10);
+    WString s5b = it;
+    W_TEST_STRING(s5b, "cdefghij");
 
-    ezString s6(L"aölsdföasld");
-    ezStringBuilder strB("wobwob");
+    WString s6(L"aölsdföasld");
+    WStringBuilder strB("wobwob");
     s6 = strB;
-    EZ_TEST_BOOL(s6 == "wobwob");
+    W_TEST_BOOL(s6 == "wobwob");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "convert to ezStringView")
+  W_TEST_BLOCK(WTestBlock::Enabled, "convert to WStringView")
   {
-    ezString s(L"aölsdföasld");
-    ezStringBuilder tmp;
+    WString s(L"aölsdföasld");
+    WStringBuilder tmp;
 
-    ezStringView sv = s;
+    WStringView sv = s;
 
-    EZ_TEST_STRING(sv.GetData(tmp), ezStringUtf8(L"aölsdföasld").GetData());
-    EZ_TEST_BOOL(sv == ezStringUtf8(L"aölsdföasld").GetData());
+    W_TEST_STRING(sv.GetData(tmp), WStringUtf8(L"aölsdföasld").GetData());
+    W_TEST_BOOL(sv == WStringUtf8(L"aölsdföasld").GetData());
 
     s = "abcdef";
 
-    EZ_TEST_STRING(sv.GetStartPointer(), "abcdef");
-    EZ_TEST_BOOL(sv == "abcdef");
+    W_TEST_STRING(sv.GetStartPointer(), "abcdef");
+    W_TEST_BOOL(sv == "abcdef");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move constructor / operator")
   {
-    ezString s1(GetString("move me"));
-    EZ_TEST_STRING(s1.GetData(), "move me");
+    WString s1(GetString("move me"));
+    W_TEST_STRING(s1.GetData(), "move me");
 
     s1 = GetString("move move move move move move move move ");
-    EZ_TEST_STRING(s1.GetData(), "move move move move move move move move ");
+    W_TEST_STRING(s1.GetData(), "move move move move move move move move ");
 
-    ezString s2(GetString("move move move move move move move move "));
-    EZ_TEST_STRING(s2.GetData(), "move move move move move move move move ");
+    WString s2(GetString("move move move move move move move move "));
+    W_TEST_STRING(s2.GetData(), "move move move move move move move move ");
 
     s2 = GetString("move me");
-    EZ_TEST_STRING(s2.GetData(), "move me");
+    W_TEST_STRING(s2.GetData(), "move me");
 
     s1 = s2;
-    EZ_TEST_STRING(s1.GetData(), "move me");
+    W_TEST_STRING(s1.GetData(), "move me");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator (StringBuilder)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move constructor / operator (StringBuilder)")
   {
-    const ezString s1(GetStringBuilder("move me"));
-    const ezString s2(GetStringBuilder("move move move move move move move move "));
+    const WString s1(GetStringBuilder("move me"));
+    const WString s2(GetStringBuilder("move move move move move move move move "));
 
-    ezString s3(GetStringBuilder("move me"));
-    EZ_TEST_BOOL(s3 == s1);
+    WString s3(GetStringBuilder("move me"));
+    W_TEST_BOOL(s3 == s1);
 
     s3 = GetStringBuilder("move move move move move move move move ");
-    EZ_TEST_BOOL(s3 == s2);
+    W_TEST_BOOL(s3 == s2);
 
-    ezString s4(GetStringBuilder("move move move move move move move move "));
-    EZ_TEST_BOOL(s4 == s2);
+    WString s4(GetStringBuilder("move move move move move move move move "));
+    W_TEST_BOOL(s4 == s2);
 
     s4 = GetStringBuilder("move me");
-    EZ_TEST_BOOL(s4 == s1);
+    W_TEST_BOOL(s4 == s1);
 
     s3 = s4;
-    EZ_TEST_BOOL(s3 == s1);
+    W_TEST_BOOL(s3 == s1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear")
   {
-    ezString s("abcdef");
-    EZ_TEST_BOOL(s == "abcdef");
+    WString s("abcdef");
+    W_TEST_BOOL(s == "abcdef");
 
     s.Clear();
-    EZ_TEST_BOOL(s.IsEmpty());
-    EZ_TEST_BOOL(s == "");
-    EZ_TEST_BOOL(s == nullptr);
+    W_TEST_BOOL(s.IsEmpty());
+    W_TEST_BOOL(s == "");
+    W_TEST_BOOL(s == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetData")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetData")
   {
     const char* sz = "abcdef";
 
-    ezString s(sz);
-    EZ_TEST_BOOL(s.GetData() != sz); // it should NOT be the exact same string
+    WString s(sz);
+    W_TEST_BOOL(s.GetData() != sz); // it should NOT be the exact same string
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount / GetCharacterCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetElementCount / GetCharacterCount")
   {
-    ezString s(L"abcäöü€");
+    WString s(L"abcäöü€");
 
-    EZ_TEST_INT(s.GetElementCount(), 12);
-    EZ_TEST_INT(s.GetCharacterCount(), 7);
+    W_TEST_INT(s.GetElementCount(), 12);
+    W_TEST_INT(s.GetCharacterCount(), 7);
 
     s = "testtest";
-    EZ_TEST_INT(s.GetElementCount(), 8);
-    EZ_TEST_INT(s.GetCharacterCount(), 8);
+    W_TEST_INT(s.GetElementCount(), 8);
+    W_TEST_INT(s.GetCharacterCount(), 8);
 
     s.Clear();
 
-    EZ_TEST_INT(s.GetElementCount(), 0);
-    EZ_TEST_INT(s.GetCharacterCount(), 0);
+    W_TEST_INT(s.GetElementCount(), 0);
+    W_TEST_INT(s.GetCharacterCount(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ezStringView")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Convert to WStringView")
   {
-    ezString s(L"abcäöü€def");
+    WString s(L"abcäöü€def");
 
-    ezStringView view = s;
-    EZ_TEST_BOOL(view.StartsWith("abc"));
-    EZ_TEST_BOOL(view.EndsWith("def"));
+    WStringView view = s;
+    W_TEST_BOOL(view.StartsWith("abc"));
+    W_TEST_BOOL(view.EndsWith("def"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetSubString")
   {
-    ezString s(L"abcäöü€def");
-    ezStringUtf8 s8(L"äöü€");
+    WString s(L"abcäöü€def");
+    WStringUtf8 s8(L"äöü€");
 
-    ezStringView it = s.GetSubString(3, 4);
-    EZ_TEST_BOOL(it == s8.GetData());
+    WStringView it = s.GetSubString(3, 4);
+    W_TEST_BOOL(it == s8.GetData());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFirst")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFirst")
   {
-    ezString s(L"abcäöü€def");
+    WString s(L"abcäöü€def");
 
-    EZ_TEST_BOOL(s.GetFirst(3) == "abc");
+    W_TEST_BOOL(s.GetFirst(3) == "abc");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLast")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetLast")
   {
-    ezString s(L"abcäöü€def");
+    WString s(L"abcäöü€def");
 
-    EZ_TEST_BOOL(s.GetLast(3) == "def");
+    W_TEST_BOOL(s.GetLast(3) == "def");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ReadAll")
   {
-    ezDefaultMemoryStreamStorage StreamStorage;
+    WDefaultMemoryStreamStorage StreamStorage;
 
-    ezMemoryStreamWriter MemoryWriter(&StreamStorage);
-    ezMemoryStreamReader MemoryReader(&StreamStorage);
+    WMemoryStreamWriter MemoryWriter(&StreamStorage);
+    WMemoryStreamReader MemoryReader(&StreamStorage);
 
     const char* szText =
       "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
-    MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText)).IgnoreResult();
+    MemoryWriter.WriteBytes(szText, WStringUtils::GetStringElementCount(szText)).IgnoreResult();
 
-    ezString s;
+    WString s;
     s.ReadAll(MemoryReader);
 
-    EZ_TEST_BOOL(s == szText);
+    W_TEST_BOOL(s == szText);
   }
 }

@@ -7,14 +7,14 @@
 
 namespace HashTableTestDetail
 {
-  using st = ezConstructionCounter;
+  using st = WConstructionCounter;
 
   struct Collision
   {
-    ezUInt32 hash;
+    WUInt32 hash;
     int key;
 
-    inline Collision(ezUInt32 uiHash, int iKey)
+    inline Collision(WUInt32 uiHash, int iKey)
     {
       this->hash = uiHash;
       this->key = iKey;
@@ -22,13 +22,13 @@ namespace HashTableTestDetail
 
     inline bool operator==(const Collision& other) const { return key == other.key; }
 
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
   };
 
   class OnlyMovable
   {
   public:
-    OnlyMovable(ezUInt32 uiHash)
+    OnlyMovable(WUInt32 uiHash)
       : hash(uiHash)
 
     {
@@ -45,7 +45,7 @@ namespace HashTableTestDetail
     bool operator==(const OnlyMovable& other) const { return hash == other.hash; }
 
     int m_NumTimesMoved = 0;
-    ezUInt32 hash;
+    WUInt32 hash;
 
   private:
     OnlyMovable(const OnlyMovable&);
@@ -54,159 +54,159 @@ namespace HashTableTestDetail
 } // namespace HashTableTestDetail
 
 template <>
-struct ezHashHelper<HashTableTestDetail::Collision>
+struct WHashHelper<HashTableTestDetail::Collision>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::Collision& value) { return value.hash; }
+  W_ALWAYS_INLINE static WUInt32 Hash(const HashTableTestDetail::Collision& value) { return value.hash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b) { return a == b; }
 };
 
 template <>
-struct ezHashHelper<HashTableTestDetail::OnlyMovable>
+struct WHashHelper<HashTableTestDetail::OnlyMovable>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::OnlyMovable& value) { return value.hash; }
+  W_ALWAYS_INLINE static WUInt32 Hash(const HashTableTestDetail::OnlyMovable& value) { return value.hash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::OnlyMovable& a, const HashTableTestDetail::OnlyMovable& b)
+  W_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::OnlyMovable& a, const HashTableTestDetail::OnlyMovable& b)
   {
     return a.hash == b.hash;
   }
 };
 
-EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
+W_CREATE_SIMPLE_TEST(Containers, HashTable)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-    ezHashTable<ezInt32, HashTableTestDetail::st> table1;
+    WHashTable<WInt32, HashTableTestDetail::st> table1;
 
-    EZ_TEST_BOOL(table1.GetCount() == 0);
-    EZ_TEST_BOOL(table1.IsEmpty());
+    W_TEST_BOOL(table1.GetCount() == 0);
+    W_TEST_BOOL(table1.IsEmpty());
 
-    ezUInt32 counter = 0;
-    for (ezHashTable<ezInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+    WUInt32 counter = 0;
+    for (WHashTable<WInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
       ++counter;
     }
-    EZ_TEST_INT(counter, 0);
+    W_TEST_INT(counter, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
   {
-    ezHashTable<ezInt32, HashTableTestDetail::st> table1;
+    WHashTable<WInt32, HashTableTestDetail::st> table1;
 
-    for (ezInt32 i = 0; i < 64; ++i)
+    for (WInt32 i = 0; i < 64; ++i)
     {
-      ezInt32 key;
+      WInt32 key;
 
       do
       {
         key = rand() % 100000;
       } while (table1.Contains(key));
 
-      table1.Insert(key, ezConstructionCounter(i));
+      table1.Insert(key, WConstructionCounter(i));
     }
 
     // insert an element at the very end
-    table1.Insert(47, ezConstructionCounter(64));
+    table1.Insert(47, WConstructionCounter(64));
 
-    ezHashTable<ezInt32, HashTableTestDetail::st> table2;
+    WHashTable<WInt32, HashTableTestDetail::st> table2;
     table2 = table1;
-    ezHashTable<ezInt32, HashTableTestDetail::st> table3(table1);
+    WHashTable<WInt32, HashTableTestDetail::st> table3(table1);
 
-    EZ_TEST_INT(table1.GetCount(), 65);
-    EZ_TEST_INT(table2.GetCount(), 65);
-    EZ_TEST_INT(table3.GetCount(), 65);
+    W_TEST_INT(table1.GetCount(), 65);
+    W_TEST_INT(table2.GetCount(), 65);
+    W_TEST_INT(table3.GetCount(), 65);
 
-    ezUInt32 uiCounter = 0;
-    for (ezHashTable<ezInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+    WUInt32 uiCounter = 0;
+    for (WHashTable<WInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
-      ezConstructionCounter value;
+      WConstructionCounter value;
 
-      EZ_TEST_BOOL(table2.TryGetValue(it.Key(), value));
-      EZ_TEST_BOOL(it.Value() == value);
-      EZ_TEST_BOOL(*table2.GetValue(it.Key()) == it.Value());
+      W_TEST_BOOL(table2.TryGetValue(it.Key(), value));
+      W_TEST_BOOL(it.Value() == value);
+      W_TEST_BOOL(*table2.GetValue(it.Key()) == it.Value());
 
-      EZ_TEST_BOOL(table3.TryGetValue(it.Key(), value));
-      EZ_TEST_BOOL(it.Value() == value);
-      EZ_TEST_BOOL(*table3.GetValue(it.Key()) == it.Value());
+      W_TEST_BOOL(table3.TryGetValue(it.Key(), value));
+      W_TEST_BOOL(it.Value() == value);
+      W_TEST_BOOL(*table3.GetValue(it.Key()) == it.Value());
 
       ++uiCounter;
     }
-    EZ_TEST_INT(uiCounter, table1.GetCount());
+    W_TEST_INT(uiCounter, table1.GetCount());
 
-    for (ezHashTable<ezInt32, HashTableTestDetail::st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
+    for (WHashTable<WInt32, HashTableTestDetail::st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
       it.Value() = HashTableTestDetail::st(42);
     }
 
-    for (ezHashTable<ezInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+    for (WHashTable<WInt32, HashTableTestDetail::st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
-      ezConstructionCounter value;
+      WConstructionCounter value;
 
-      EZ_TEST_BOOL(table1.TryGetValue(it.Key(), value));
-      EZ_TEST_BOOL(it.Value() == value);
-      EZ_TEST_BOOL(value.m_iData == 42);
+      W_TEST_BOOL(table1.TryGetValue(it.Key(), value));
+      W_TEST_BOOL(it.Value() == value);
+      W_TEST_BOOL(value.m_iData == 42);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Copy Constructor/Assignment")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move Copy Constructor/Assignment")
   {
-    ezHashTable<ezInt32, HashTableTestDetail::st> table1;
-    for (ezInt32 i = 0; i < 64; ++i)
+    WHashTable<WInt32, HashTableTestDetail::st> table1;
+    for (WInt32 i = 0; i < 64; ++i)
     {
-      table1.Insert(i, ezConstructionCounter(i));
+      table1.Insert(i, WConstructionCounter(i));
     }
 
-    ezUInt64 memoryUsage = table1.GetHeapMemoryUsage();
+    WUInt64 memoryUsage = table1.GetHeapMemoryUsage();
 
-    ezHashTable<ezInt32, HashTableTestDetail::st> table2;
+    WHashTable<WInt32, HashTableTestDetail::st> table2;
     table2 = std::move(table1);
 
-    EZ_TEST_INT(table1.GetCount(), 0);
-    EZ_TEST_INT(table1.GetHeapMemoryUsage(), 0);
-    EZ_TEST_INT(table2.GetCount(), 64);
-    EZ_TEST_INT(table2.GetHeapMemoryUsage(), memoryUsage);
+    W_TEST_INT(table1.GetCount(), 0);
+    W_TEST_INT(table1.GetHeapMemoryUsage(), 0);
+    W_TEST_INT(table2.GetCount(), 64);
+    W_TEST_INT(table2.GetHeapMemoryUsage(), memoryUsage);
 
-    ezHashTable<ezInt32, HashTableTestDetail::st> table3(std::move(table2));
+    WHashTable<WInt32, HashTableTestDetail::st> table3(std::move(table2));
 
-    EZ_TEST_INT(table2.GetCount(), 0);
-    EZ_TEST_INT(table2.GetHeapMemoryUsage(), 0);
-    EZ_TEST_INT(table3.GetCount(), 64);
-    EZ_TEST_INT(table3.GetHeapMemoryUsage(), memoryUsage);
+    W_TEST_INT(table2.GetCount(), 0);
+    W_TEST_INT(table2.GetHeapMemoryUsage(), 0);
+    W_TEST_INT(table3.GetCount(), 64);
+    W_TEST_INT(table3.GetHeapMemoryUsage(), memoryUsage);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Insert")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move Insert")
   {
     HashTableTestDetail::OnlyMovable noCopyObject(42);
 
     {
-      ezHashTable<HashTableTestDetail::OnlyMovable, int> noCopyKey;
+      WHashTable<HashTableTestDetail::OnlyMovable, int> noCopyKey;
       // noCopyKey.Insert(noCopyObject, 10); // Should not compile
       noCopyKey.Insert(std::move(noCopyObject), 10);
-      EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 1);
-      EZ_TEST_BOOL(noCopyKey.Contains(noCopyObject));
+      W_TEST_INT(noCopyObject.m_NumTimesMoved, 1);
+      W_TEST_BOOL(noCopyKey.Contains(noCopyObject));
     }
 
     {
-      ezHashTable<int, HashTableTestDetail::OnlyMovable> noCopyValue;
+      WHashTable<int, HashTableTestDetail::OnlyMovable> noCopyValue;
       // noCopyValue.Insert(10, noCopyObject); // Should not compile
       noCopyValue.Insert(10, std::move(noCopyObject));
-      EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 2);
-      EZ_TEST_BOOL(noCopyValue.Contains(10));
+      W_TEST_INT(noCopyObject.m_NumTimesMoved, 2);
+      W_TEST_BOOL(noCopyValue.Contains(10));
     }
 
     {
-      ezHashTable<HashTableTestDetail::OnlyMovable, HashTableTestDetail::OnlyMovable> noCopyAnything;
+      WHashTable<HashTableTestDetail::OnlyMovable, HashTableTestDetail::OnlyMovable> noCopyAnything;
       // noCopyAnything.Insert(10, noCopyObject); // Should not compile
       // noCopyAnything.Insert(noCopyObject, 10); // Should not compile
       noCopyAnything.Insert(std::move(noCopyObject), std::move(noCopyObject));
-      EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 4);
-      EZ_TEST_BOOL(noCopyAnything.Contains(noCopyObject));
+      W_TEST_INT(noCopyObject.m_NumTimesMoved, 4);
+      W_TEST_BOOL(noCopyAnything.Contains(noCopyObject));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Collision Tests")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Collision Tests")
   {
-    ezHashTable<HashTableTestDetail::Collision, int> map2;
+    WHashTable<HashTableTestDetail::Collision, int> map2;
 
     map2[HashTableTestDetail::Collision(0, 0)] = 0;
     map2[HashTableTestDetail::Collision(1, 1)] = 1;
@@ -215,288 +215,288 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     map2[HashTableTestDetail::Collision(1, 4)] = 4;
     map2[HashTableTestDetail::Collision(0, 5)] = 5;
 
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 0)] == 0);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 1)] == 1);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 0)] == 0);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 1)] == 1);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
 
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 0)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 1)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 0)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 1)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
 
-    EZ_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(0, 0)));
-    EZ_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(1, 1)));
+    W_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(0, 0)));
+    W_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(1, 1)));
 
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
 
-    EZ_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(0, 0)));
-    EZ_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(1, 1)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
+    W_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(0, 0)));
+    W_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(1, 1)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
 
     map2[HashTableTestDetail::Collision(0, 6)] = 6;
     map2[HashTableTestDetail::Collision(1, 7)] = 7;
 
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 6)] == 6);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 7)] == 7);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 4)] == 4);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 6)] == 6);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 7)] == 7);
 
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 6)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 7)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 4)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 6)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 7)));
 
-    EZ_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(0, 6)));
+    W_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(1, 4)));
+    W_TEST_BOOL(map2.Remove(HashTableTestDetail::Collision(0, 6)));
 
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 7)] == 7);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 2);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 3);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 5);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 7)] == 7);
 
-    EZ_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(1, 4)));
-    EZ_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(0, 6)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
-    EZ_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 7)));
+    W_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(1, 4)));
+    W_TEST_BOOL(!map2.Contains(HashTableTestDetail::Collision(0, 6)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 2)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 3)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(0, 5)));
+    W_TEST_BOOL(map2.Contains(HashTableTestDetail::Collision(1, 7)));
 
     map2[HashTableTestDetail::Collision(0, 2)] = 3;
     map2[HashTableTestDetail::Collision(0, 5)] = 6;
     map2[HashTableTestDetail::Collision(1, 3)] = 4;
 
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 3);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 6);
-    EZ_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 4);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 2)] == 3);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(0, 5)] == 6);
+    W_TEST_BOOL(map2[HashTableTestDetail::Collision(1, 3)] == 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear")
   {
-    EZ_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
+    W_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
 
     {
-      ezHashTable<ezUInt32, HashTableTestDetail::st> m1;
+      WHashTable<WUInt32, HashTableTestDetail::st> m1;
       m1[0] = HashTableTestDetail::st(1);
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
       m1[1] = HashTableTestDetail::st(3);
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // for inserting new elements 2 temporary is created (and destroyed)
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // for inserting new elements 2 temporary is created (and destroyed)
 
       m1[0] = HashTableTestDetail::st(2);
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(0, 2));
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(0, 2));
+      W_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
     }
 
     {
-      ezHashTable<HashTableTestDetail::st, ezUInt32> m1;
+      WHashTable<HashTableTestDetail::st, WUInt32> m1;
       m1[HashTableTestDetail::st(0)] = 1;
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // one temporary
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // one temporary
 
       m1[HashTableTestDetail::st(1)] = 3;
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // one temporary
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(2, 1)); // one temporary
 
       m1[HashTableTestDetail::st(0)] = 2;
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasDone(0, 2));
-      EZ_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
+      W_TEST_BOOL(HashTableTestDetail::st::HasDone(0, 2));
+      W_TEST_BOOL(HashTableTestDetail::st::HasAllDestructed());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/TryGetValue/GetValue")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Insert/TryGetValue/GetValue")
   {
-    ezHashTable<ezInt32, HashTableTestDetail::st> a1;
+    WHashTable<WInt32, HashTableTestDetail::st> a1;
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(!a1.Insert(i, i - 20));
+      W_TEST_BOOL(!a1.Insert(i, i - 20));
     }
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
     {
       HashTableTestDetail::st oldValue;
-      EZ_TEST_BOOL(a1.Insert(i, i, &oldValue));
-      EZ_TEST_INT(oldValue.m_iData, i - 20);
+      W_TEST_BOOL(a1.Insert(i, i, &oldValue));
+      W_TEST_INT(oldValue.m_iData, i - 20);
     }
 
     HashTableTestDetail::st value;
-    EZ_TEST_BOOL(a1.TryGetValue(9, value));
-    EZ_TEST_INT(value.m_iData, 9);
-    EZ_TEST_INT(a1.GetValue(9)->m_iData, 9);
+    W_TEST_BOOL(a1.TryGetValue(9, value));
+    W_TEST_INT(value.m_iData, 9);
+    W_TEST_INT(a1.GetValue(9)->m_iData, 9);
 
-    EZ_TEST_BOOL(!a1.TryGetValue(11, value));
-    EZ_TEST_INT(value.m_iData, 9);
-    EZ_TEST_BOOL(a1.GetValue(11) == nullptr);
+    W_TEST_BOOL(!a1.TryGetValue(11, value));
+    W_TEST_INT(value.m_iData, 9);
+    W_TEST_BOOL(a1.GetValue(11) == nullptr);
 
     HashTableTestDetail::st* pValue;
-    EZ_TEST_BOOL(a1.TryGetValue(9, pValue));
-    EZ_TEST_INT(pValue->m_iData, 9);
+    W_TEST_BOOL(a1.TryGetValue(9, pValue));
+    W_TEST_INT(pValue->m_iData, 9);
 
     pValue->m_iData = 20;
-    EZ_TEST_INT(a1[9].m_iData, 20);
+    W_TEST_INT(a1[9].m_iData, 20);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Remove/Compact")
   {
-    ezHashTable<ezInt32, HashTableTestDetail::st> a;
+    WHashTable<WInt32, HashTableTestDetail::st> a;
 
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (WInt32 i = 0; i < 1000; ++i)
     {
       a.Insert(i, i);
-      EZ_TEST_INT(a.GetCount(), i + 1);
+      W_TEST_INT(a.GetCount(), i + 1);
     }
 
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() >= 1000 * (sizeof(ezInt32) + sizeof(HashTableTestDetail::st)));
+    W_TEST_BOOL(a.GetHeapMemoryUsage() >= 1000 * (sizeof(WInt32) + sizeof(HashTableTestDetail::st)));
 
     a.Compact();
 
-    for (ezInt32 i = 0; i < 1000; ++i)
-      EZ_TEST_INT(a[i].m_iData, i);
+    for (WInt32 i = 0; i < 1000; ++i)
+      W_TEST_INT(a[i].m_iData, i);
 
 
-    for (ezInt32 i = 0; i < 250; ++i)
+    for (WInt32 i = 0; i < 250; ++i)
     {
       HashTableTestDetail::st oldValue;
-      EZ_TEST_BOOL(a.Remove(i, &oldValue));
-      EZ_TEST_INT(oldValue.m_iData, i);
+      W_TEST_BOOL(a.Remove(i, &oldValue));
+      W_TEST_INT(oldValue.m_iData, i);
     }
-    EZ_TEST_INT(a.GetCount(), 750);
+    W_TEST_INT(a.GetCount(), 750);
 
-    for (ezHashTable<ezInt32, HashTableTestDetail::st>::Iterator it = a.GetIterator(); it.IsValid();)
+    for (WHashTable<WInt32, HashTableTestDetail::st>::Iterator it = a.GetIterator(); it.IsValid();)
     {
       if (it.Key() < 500)
         it = a.Remove(it);
       else
         ++it;
     }
-    EZ_TEST_INT(a.GetCount(), 500);
+    W_TEST_INT(a.GetCount(), 500);
     a.Compact();
 
-    for (ezInt32 i = 500; i < 1000; ++i)
-      EZ_TEST_INT(a[i].m_iData, i);
+    for (WInt32 i = 500; i < 1000; ++i)
+      W_TEST_INT(a[i].m_iData, i);
 
     a.Clear();
     a.Compact();
 
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator[]")
   {
-    ezHashTable<ezInt32, ezInt32> a;
+    WHashTable<WInt32, WInt32> a;
 
     a.Insert(4, 20);
     a[2] = 30;
 
-    EZ_TEST_INT(a[4], 20);
-    EZ_TEST_INT(a[2], 30);
-    EZ_TEST_INT(a[1], 0); // new values are default constructed
+    W_TEST_INT(a[4], 20);
+    W_TEST_INT(a[2], 30);
+    W_TEST_INT(a[1], 0); // new values are default constructed
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator==/!=")
   {
-    ezStaticArray<ezInt32, 64> keys[2];
+    WStaticArray<WInt32, 64> keys[2];
 
-    for (ezUInt32 i = 0; i < 64; ++i)
+    for (WUInt32 i = 0; i < 64; ++i)
     {
       keys[0].PushBack(rand());
     }
 
     keys[1] = keys[0];
 
-    ezHashTable<ezInt32, HashTableTestDetail::st> t[2];
+    WHashTable<WInt32, HashTableTestDetail::st> t[2];
 
-    for (ezUInt32 i = 0; i < 2; ++i)
+    for (WUInt32 i = 0; i < 2; ++i)
     {
       while (!keys[i].IsEmpty())
       {
-        const ezUInt32 uiIndex = rand() % keys[i].GetCount();
-        const ezInt32 key = keys[i][uiIndex];
+        const WUInt32 uiIndex = rand() % keys[i].GetCount();
+        const WInt32 key = keys[i][uiIndex];
         t[i].Insert(key, HashTableTestDetail::st(key * 3456));
 
         keys[i].RemoveAtAndSwap(uiIndex);
       }
     }
 
-    EZ_TEST_BOOL(t[0] == t[1]);
+    W_TEST_BOOL(t[0] == t[1]);
 
     t[0].Insert(32, HashTableTestDetail::st(64));
-    EZ_TEST_BOOL(t[0] != t[1]);
+    W_TEST_BOOL(t[0] != t[1]);
 
     t[1].Insert(32, HashTableTestDetail::st(47));
-    EZ_TEST_BOOL(t[0] != t[1]);
+    W_TEST_BOOL(t[0] != t[1]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompatibleKeyType")
   {
-    ezProxyAllocator testAllocator("Test", ezFoundation::GetDefaultAllocator());
-    ezLocalAllocatorWrapper allocWrapper(&testAllocator);
-    using TestString = ezHybridString<32, ezLocalAllocatorWrapper>;
+    WProxyAllocator testAllocator("Test", WFoundation::GetDefaultAllocator());
+    WLocalAllocatorWrapper allocWrapper(&testAllocator);
+    using TestString = WHybridString<32, WLocalAllocatorWrapper>;
 
-    ezHashTable<TestString, int> stringTable;
+    WHashTable<TestString, int> stringTable;
     const char* szChar = "VeryLongStringDefinitelyMoreThan32Chars1111elf!!!!";
     const char* szString = "AnotherVeryLongStringThisTimeUsedForStringView!!!!";
-    ezStringView sView(szString);
-    ezStringBuilder sBuilder("BuilderAlsoNeedsToBeAVeryLongStringToTriggerAllocation");
-    ezString sString("String");
-    EZ_TEST_BOOL(!stringTable.Insert(szChar, 1));
-    EZ_TEST_BOOL(!stringTable.Insert(sView, 2));
-    EZ_TEST_BOOL(!stringTable.Insert(sBuilder, 3));
-    EZ_TEST_BOOL(!stringTable.Insert(sString, 4));
-    EZ_TEST_BOOL(stringTable.Insert(szString, 2));
+    WStringView sView(szString);
+    WStringBuilder sBuilder("BuilderAlsoNeedsToBeAVeryLongStringToTriggerAllocation");
+    WString sString("String");
+    W_TEST_BOOL(!stringTable.Insert(szChar, 1));
+    W_TEST_BOOL(!stringTable.Insert(sView, 2));
+    W_TEST_BOOL(!stringTable.Insert(sBuilder, 3));
+    W_TEST_BOOL(!stringTable.Insert(sString, 4));
+    W_TEST_BOOL(stringTable.Insert(szString, 2));
 
-    ezUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
+    WUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
 
-    EZ_TEST_BOOL(stringTable.Contains(szChar));
-    EZ_TEST_BOOL(stringTable.Contains(sView));
-    EZ_TEST_BOOL(stringTable.Contains(sBuilder));
-    EZ_TEST_BOOL(stringTable.Contains(sString));
+    W_TEST_BOOL(stringTable.Contains(szChar));
+    W_TEST_BOOL(stringTable.Contains(sView));
+    W_TEST_BOOL(stringTable.Contains(sBuilder));
+    W_TEST_BOOL(stringTable.Contains(sString));
 
-    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+    W_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
 
-    EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
-    EZ_TEST_INT(*stringTable.GetValue(sView), 2);
-    EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
-    EZ_TEST_INT(*stringTable.GetValue(sString), 4);
+    W_TEST_INT(*stringTable.GetValue(szChar), 1);
+    W_TEST_INT(*stringTable.GetValue(sView), 2);
+    W_TEST_INT(*stringTable.GetValue(sBuilder), 3);
+    W_TEST_INT(*stringTable.GetValue(sString), 4);
 
-    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+    W_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
 
-    EZ_TEST_BOOL(stringTable.Remove(szChar));
-    EZ_TEST_BOOL(stringTable.Remove(sView));
-    EZ_TEST_BOOL(stringTable.Remove(sBuilder));
-    EZ_TEST_BOOL(stringTable.Remove(sString));
+    W_TEST_BOOL(stringTable.Remove(szChar));
+    W_TEST_BOOL(stringTable.Remove(sView));
+    W_TEST_BOOL(stringTable.Remove(sBuilder));
+    W_TEST_BOOL(stringTable.Remove(sString));
 
-    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+    W_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Swap")
   {
-    ezStringBuilder tmp;
-    ezHashTable<ezString, ezInt32> map1;
-    ezHashTable<ezString, ezInt32> map2;
+    WStringBuilder tmp;
+    WHashTable<WString, WInt32> map1;
+    WHashTable<WString, WInt32> map2;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       tmp.SetFormat("stuff{}bla", i);
       map1[tmp] = i;
@@ -507,97 +507,97 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     map1.Swap(map2);
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       tmp.SetFormat("stuff{}bla", i);
-      EZ_TEST_BOOL(map2.Contains(tmp));
-      EZ_TEST_INT(map2[tmp], i);
+      W_TEST_BOOL(map2.Contains(tmp));
+      W_TEST_INT(map2[tmp], i);
 
       tmp.SetFormat("{0}{0}{0}", i);
-      EZ_TEST_BOOL(map1.Contains(tmp));
-      EZ_TEST_INT(map1[tmp], i);
+      W_TEST_BOOL(map1.Contains(tmp));
+      W_TEST_INT(map1[tmp], i);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "foreach")
+  W_TEST_BLOCK(WTestBlock::Enabled, "foreach")
   {
-    ezStringBuilder tmp;
-    ezHashTable<ezString, ezInt32> map;
-    ezHashTable<ezString, ezInt32> map2;
+    WStringBuilder tmp;
+    WHashTable<WString, WInt32> map;
+    WHashTable<WString, WInt32> map2;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       tmp.SetFormat("stuff{}bla", i);
       map[tmp] = i;
     }
 
-    EZ_TEST_INT(map.GetCount(), 1000);
+    W_TEST_INT(map.GetCount(), 1000);
 
     map2 = map;
-    EZ_TEST_INT(map2.GetCount(), map.GetCount());
+    W_TEST_INT(map2.GetCount(), map.GetCount());
 
-    for (ezHashTable<ezString, ezInt32>::Iterator it = begin(map); it != end(map); ++it)
+    for (WHashTable<WString, WInt32>::Iterator it = begin(map); it != end(map); ++it)
     {
-      const ezString& k = it.Key();
-      ezInt32 v = it.Value();
+      const WString& k = it.Key();
+      WInt32 v = it.Value();
 
       map2.Remove(k);
     }
 
-    EZ_TEST_BOOL(map2.IsEmpty());
+    W_TEST_BOOL(map2.IsEmpty());
     map2 = map;
 
     for (auto it : map)
     {
-      const ezString& k = it.Key();
-      ezInt32 v = it.Value();
+      const WString& k = it.Key();
+      WInt32 v = it.Value();
 
       map2.Remove(k);
     }
 
-    EZ_TEST_BOOL(map2.IsEmpty());
+    W_TEST_BOOL(map2.IsEmpty());
     map2 = map;
 
     // just check that this compiles
-    for (auto it : static_cast<const ezHashTable<ezString, ezInt32>&>(map))
+    for (auto it : static_cast<const WHashTable<WString, WInt32>&>(map))
     {
-      const ezString& k = it.Key();
-      ezInt32 v = it.Value();
+      const WString& k = it.Key();
+      WInt32 v = it.Value();
 
       map2.Remove(k);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Find")
   {
-    ezStringBuilder tmp;
-    ezHashTable<ezString, ezInt32> map;
+    WStringBuilder tmp;
+    WHashTable<WString, WInt32> map;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       tmp.SetFormat("stuff{}bla", i);
       map[tmp] = i;
     }
 
-    for (ezInt32 i = map.GetCount() - 1; i > 0; --i)
+    for (WInt32 i = map.GetCount() - 1; i > 0; --i)
     {
       tmp.SetFormat("stuff{}bla", i);
 
       auto it = map.Find(tmp);
-      auto cit = static_cast<const ezHashTable<ezString, ezInt32>&>(map).Find(tmp);
+      auto cit = static_cast<const WHashTable<WString, WInt32>&>(map).Find(tmp);
 
-      EZ_TEST_STRING(it.Key(), tmp);
-      EZ_TEST_INT(it.Value(), i);
+      W_TEST_STRING(it.Key(), tmp);
+      W_TEST_INT(it.Value(), i);
 
-      EZ_TEST_STRING(cit.Key(), tmp);
-      EZ_TEST_INT(cit.Value(), i);
+      W_TEST_STRING(cit.Key(), tmp);
+      W_TEST_INT(cit.Value(), i);
 
       int allowedIterations = map.GetCount();
       for (auto it2 = it; it2.IsValid(); ++it2)
       {
         // just test that iteration is possible and terminates correctly
         --allowedIterations;
-        EZ_TEST_BOOL(allowedIterations >= 0);
+        W_TEST_BOOL(allowedIterations >= 0);
       }
 
       allowedIterations = map.GetCount();
@@ -605,42 +605,42 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       {
         // just test that iteration is possible and terminates correctly
         --allowedIterations;
-        EZ_TEST_BOOL(allowedIterations >= 0);
+        W_TEST_BOOL(allowedIterations >= 0);
       }
 
       map.Remove(it);
     }
   }
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Find")
   {
-    ezStringBuilder tmp;
-    ezHashTable<ezString, ezInt32> map;
+    WStringBuilder tmp;
+    WHashTable<WString, WInt32> map;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       tmp.SetFormat("stuff{}bla", i);
       map[tmp] = i;
     }
 
-    for (ezInt32 i = map.GetCount() - 1; i > 0; --i)
+    for (WInt32 i = map.GetCount() - 1; i > 0; --i)
     {
       tmp.SetFormat("stuff{}bla", i);
 
       auto it = map.Find(tmp);
-      auto cit = static_cast<const ezHashTable<ezString, ezInt32>&>(map).Find(tmp);
+      auto cit = static_cast<const WHashTable<WString, WInt32>&>(map).Find(tmp);
 
-      EZ_TEST_STRING(it.Key(), tmp);
-      EZ_TEST_INT(it.Value(), i);
+      W_TEST_STRING(it.Key(), tmp);
+      W_TEST_INT(it.Value(), i);
 
-      EZ_TEST_STRING(cit.Key(), tmp);
-      EZ_TEST_INT(cit.Value(), i);
+      W_TEST_STRING(cit.Key(), tmp);
+      W_TEST_INT(cit.Value(), i);
 
       int allowedIterations = map.GetCount();
       for (auto it2 = it; it2.IsValid(); ++it2)
       {
         // just test that iteration is possible and terminates correctly
         --allowedIterations;
-        EZ_TEST_BOOL(allowedIterations >= 0);
+        W_TEST_BOOL(allowedIterations >= 0);
       }
 
       allowedIterations = map.GetCount();
@@ -648,7 +648,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       {
         // just test that iteration is possible and terminates correctly
         --allowedIterations;
-        EZ_TEST_BOOL(allowedIterations >= 0);
+        W_TEST_BOOL(allowedIterations >= 0);
       }
 
       map.Remove(it);

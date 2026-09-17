@@ -5,15 +5,15 @@
 
 ///\todo optimize
 
-ezResult ezSimdMat4f::Invert(const ezSimdFloat& fEpsilon)
+WResult WSimdMat4f::Invert(const WSimdFloat& fEpsilon)
 {
-  ezMat4 tmp;
-  GetAsArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+  WMat4 tmp;
+  GetAsArray(tmp.m_fElementsCM, WMatrixLayout::ColumnMajor);
 
   if (tmp.Invert(fEpsilon).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  *this = ezSimdMat4f::MakeFromColumnMajorArray(tmp.m_fElementsCM);
+  *this = WSimdMat4f::MakeFromColumnMajorArray(tmp.m_fElementsCM);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

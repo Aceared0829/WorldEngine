@@ -1,11 +1,11 @@
 
-static vk::CullModeFlagBits GALCullModeToVulkan[ezGALCullMode::ENUM_COUNT] =
+static vk::CullModeFlagBits GALCullModeToVulkan[WGALCullMode::ENUM_COUNT] =
   {
     vk::CullModeFlagBits::eNone,
     vk::CullModeFlagBits::eFront,
     vk::CullModeFlagBits::eBack};
 
-static const vk::SamplerAddressMode GALTextureAddressModeToVulkan[ezImageAddressMode::ENUM_COUNT] =
+static const vk::SamplerAddressMode GALTextureAddressModeToVulkan[WImageAddressMode::ENUM_COUNT] =
   {
     vk::SamplerAddressMode::eRepeat,
     vk::SamplerAddressMode::eClampToEdge,
@@ -13,7 +13,7 @@ static const vk::SamplerAddressMode GALTextureAddressModeToVulkan[ezImageAddress
     vk::SamplerAddressMode::eMirroredRepeat,
 };
 
-static const vk::CompareOp GALCompareFuncToVulkan[ezGALCompareFunc::ENUM_COUNT] =
+static const vk::CompareOp GALCompareFuncToVulkan[WGALCompareFunc::ENUM_COUNT] =
   {
     vk::CompareOp::eNever,
     vk::CompareOp::eLess,

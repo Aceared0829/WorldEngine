@@ -4,7 +4,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezResetTransformComponentManager = ezComponentManager<class ezResetTransformComponent, ezBlockStorageType::Compact>;
+using WResetTransformComponentManager = WComponentManager<class WResetTransformComponent, WBlockStorageType::Compact>;
 
 /// This component sets the local transform of its owner to known values when the simulation starts.
 ///
@@ -15,30 +15,30 @@ using ezResetTransformComponentManager = ezComponentManager<class ezResetTransfo
 /// This component helps with that, by reseting the local transform of its owner to such a fixed location once.
 ///
 /// After that, it does nothing else, until it gets deactivated and reactivated again.
-class EZ_GAMEENGINE_DLL ezResetTransformComponent : public ezComponent
+class W_GAMEENGINE_DLL WResetTransformComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezResetTransformComponent, ezComponent, ezResetTransformComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WResetTransformComponent, WComponent, WResetTransformComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezResetTransformComponent
+  // WResetTransformComponent
 
 public:
-  ezResetTransformComponent();
-  ~ezResetTransformComponent();
+  WResetTransformComponent();
+  ~WResetTransformComponent();
 
-  ezVec3 m_vLocalPosition = ezVec3::MakeZero();
-  ezQuat m_qLocalRotation = ezQuat::MakeIdentity();
-  ezVec3 m_vLocalScaling = ezVec3(1, 1, 1);
+  WVec3 m_vLocalPosition = WVec3::MakeZero();
+  WQuat m_qLocalRotation = WQuat::MakeIdentity();
+  WVec3 m_vLocalScaling = WVec3(1, 1, 1);
   float m_fLocalUniformScaling = 1.0f;
 
   bool m_bResetLocalPositionX = true;

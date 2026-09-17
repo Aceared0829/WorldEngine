@@ -6,28 +6,28 @@
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-class ezOpenDdlReaderElement;
+class WOpenDdlReaderElement;
 
 /// Descriptor for a visual shader node pin.
 ///
 /// Defines the properties of an input or output pin on a shader node, including its data type,
 /// default value, shader code generation, and visual appearance.
-struct ezVisualShaderPinDescriptor
+struct WVisualShaderPinDescriptor
 {
-  ezString m_sName;
-  const ezRTTI* m_pDataType = nullptr;
-  ezReflectedPropertyDescriptor m_PropertyDesc;
-  ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
+  WString m_sName;
+  const WRTTI* m_pDataType = nullptr;
+  WReflectedPropertyDescriptor m_PropertyDesc;
+  WColorGammaUB m_Color = WColorScheme::DarkUI(WColorScheme::Gray);
   bool m_bExposeAsProperty = false;
-  ezString m_sDefaultValue;
-  ezDynamicArray<ezString> m_sDefinesWhenUsingDefaultValue;
-  ezString m_sShaderCodeInline;
-  ezString m_sTooltip;
+  WString m_sDefaultValue;
+  WDynamicArray<WString> m_sDefinesWhenUsingDefaultValue;
+  WString m_sShaderCodeInline;
+  WString m_sTooltip;
 };
 
-struct ezVisualShaderNodeType
+struct WVisualShaderNodeType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -46,65 +46,65 @@ struct ezVisualShaderNodeType
 /// Contains all information needed to create and compile a visual shader node, including
 /// its pins, properties, shader code fragments, and compilation settings.
 /// Node types are typically loaded from configuration files at startup.
-struct ezVisualShaderNodeDescriptor
+struct WVisualShaderNodeDescriptor
 {
-  ezEnum<ezVisualShaderNodeType> m_NodeType;
-  ezString m_sCfgFile; ///< from which config file this node type was loaded
-  ezString m_sName;
-  ezString m_sTitle;
-  ezString m_sDocs;
-  ezHashedString m_sCategory;
-  ezString m_sCheckPermutations;
-  ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
-  ezString m_sShaderCodePixelDefines;
-  ezString m_sShaderCodePixelIncludes;
-  ezString m_sShaderCodePixelSamplers;
-  ezString m_sShaderCodePixelConstants;
-  ezString m_sShaderCodePixelBody;
-  ezString m_sShaderCodePermutations;
-  ezString m_sShaderCodeMaterialParams;
-  ezString m_sShaderCodeMaterialConstants;
-  ezString m_sShaderCodeMaterialCB;
-  ezString m_sShaderCodeRenderState;
-  ezString m_sShaderCodeMaterialConfig;
-  ezString m_sShaderCodeShaderShared;
-  ezString m_sShaderCodeVertexDefines;
-  ezString m_sShaderCodeVertexIncludes;
-  ezString m_sShaderCodeVertexBody;
+  WEnum<WVisualShaderNodeType> m_NodeType;
+  WString m_sCfgFile; ///< from which config file this node type was loaded
+  WString m_sName;
+  WString m_sTitle;
+  WString m_sDocs;
+  WHashedString m_sCategory;
+  WString m_sCheckPermutations;
+  WColorGammaUB m_Color = WColorScheme::DarkUI(WColorScheme::Gray);
+  WString m_sShaderCodePixelDefines;
+  WString m_sShaderCodePixelIncludes;
+  WString m_sShaderCodePixelSamplers;
+  WString m_sShaderCodePixelConstants;
+  WString m_sShaderCodePixelBody;
+  WString m_sShaderCodePermutations;
+  WString m_sShaderCodeMaterialParams;
+  WString m_sShaderCodeMaterialConstants;
+  WString m_sShaderCodeMaterialCB;
+  WString m_sShaderCodeRenderState;
+  WString m_sShaderCodeMaterialConfig;
+  WString m_sShaderCodeShaderShared;
+  WString m_sShaderCodeVertexDefines;
+  WString m_sShaderCodeVertexIncludes;
+  WString m_sShaderCodeVertexBody;
 
-  ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
-  ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;
-  ezHybridArray<ezReflectedPropertyDescriptor, 4> m_Properties;
-  ezHybridArray<ezInt8, 4> m_UniquePropertyValueGroups; // no property in the same group may share the same value, -1 for disabled
+  WHybridArray<WVisualShaderPinDescriptor, 4> m_InputPins;
+  WHybridArray<WVisualShaderPinDescriptor, 4> m_OutputPins;
+  WHybridArray<WReflectedPropertyDescriptor, 4> m_Properties;
+  WHybridArray<WInt8, 4> m_UniquePropertyValueGroups; // no property in the same group may share the same value, -1 for disabled
 };
 
 /// Registry for all available visual shader node types.
 ///
 /// Loads node type definitions from configuration files and provides access to node descriptors.
 /// Node types can be dynamically reloaded during development for rapid iteration.
-class ezVisualShaderTypeRegistry
+class WVisualShaderTypeRegistry
 {
-  EZ_DECLARE_SINGLETON(ezVisualShaderTypeRegistry);
+  W_DECLARE_SINGLETON(WVisualShaderTypeRegistry);
 
 public:
-  ezVisualShaderTypeRegistry();
-  ~ezVisualShaderTypeRegistry();
+  WVisualShaderTypeRegistry();
+  ~WVisualShaderTypeRegistry();
 
-  const ezVisualShaderNodeDescriptor* GetDescriptorForType(const ezRTTI* pRtti) const;
+  const WVisualShaderNodeDescriptor* GetDescriptorForType(const WRTTI* pRtti) const;
 
-  const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
+  const WRTTI* GetNodeBaseType() const { return m_pBaseType; }
 
-  const ezRTTI* GetPinSamplerType() const { return m_pSamplerPinType; }
+  const WRTTI* GetPinSamplerType() const { return m_pSamplerPinType; }
 
   void UpdateNodeData();
 
-  void UpdateNodeData(ezStringView sCfgFileRelative);
+  void UpdateNodeData(WStringView sCfgFileRelative);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
 
-  void EditorEventHandler(const ezEditorAppEvent& e);
-  void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void EditorEventHandler(const WEditorAppEvent& e);
+  void ProjectEventHandler(const WToolsProjectEvent& e);
   void LoadNodeData();
 
   /// Loads the nodes that the open project ships in its own data directories.
@@ -116,20 +116,20 @@ private:
   /// Unregisters everything LoadProjectNodeData() added, so the next project starts clean.
   void UnloadProjectNodeData();
 
-  const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
+  const WRTTI* GenerateTypeFromDesc(const WVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile, bool bProjectNode);
 
-  void ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezDynamicArray<ezVisualShaderPinDescriptor>& pinArray, bool bOutput);
-  void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
-  void ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
+  void ExtractNodePins(const WOpenDdlReaderElement* pNode, const char* szPinType, WDynamicArray<WVisualShaderPinDescriptor>& pinArray, bool bOutput);
+  void ExtractNodeProperties(const WOpenDdlReaderElement* pNode, WVisualShaderNodeDescriptor& nd);
+  void ExtractNodeConfig(const WOpenDdlReaderElement* pNode, WVisualShaderNodeDescriptor& nd);
 
 
-  ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;
+  WMap<const WRTTI*, WVisualShaderNodeDescriptor> m_NodeDescriptors;
 
   /// The types that came from the open project's data directories, so that they can be removed again
   /// when the project is closed. The editor's own node types stay for the whole session.
-  ezDynamicArray<const ezRTTI*> m_ProjectNodeTypes;
+  WDynamicArray<const WRTTI*> m_ProjectNodeTypes;
 
-  const ezRTTI* m_pBaseType;
-  const ezRTTI* m_pSamplerPinType;
+  const WRTTI* m_pBaseType;
+  const WRTTI* m_pSamplerPinType;
 };

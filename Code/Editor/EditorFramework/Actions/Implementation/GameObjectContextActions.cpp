@@ -5,60 +5,60 @@
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Document/GameObjectContextDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectContextAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezGameObjectContextActions::s_hCategory;
-ezActionDescriptorHandle ezGameObjectContextActions::s_hPickContextScene;
-ezActionDescriptorHandle ezGameObjectContextActions::s_hPickContextObject;
-ezActionDescriptorHandle ezGameObjectContextActions::s_hClearContextObject;
+WActionDescriptorHandle WGameObjectContextActions::s_hCategory;
+WActionDescriptorHandle WGameObjectContextActions::s_hPickContextScene;
+WActionDescriptorHandle WGameObjectContextActions::s_hPickContextObject;
+WActionDescriptorHandle WGameObjectContextActions::s_hClearContextObject;
 
-void ezGameObjectContextActions::RegisterActions()
+void WGameObjectContextActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("GameObjectContextCategory");
-  s_hPickContextScene = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextScene", ezActionScope::Window, "Game Object Context", "",
-    ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextScene);
-  s_hPickContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextObject", ezActionScope::Window, "Game Object Context", "",
-    ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextObject);
-  s_hClearContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", ezActionScope::Window, "Game Object Context", "",
-    ezGameObjectContextAction, ezGameObjectContextAction::ActionType::ClearContextObject);
+  s_hCategory = W_REGISTER_CATEGORY("GameObjectContextCategory");
+  s_hPickContextScene = W_REGISTER_ACTION_1("GameObjectContext.PickContextScene", WActionScope::Window, "Game Object Context", "",
+    WGameObjectContextAction, WGameObjectContextAction::ActionType::PickContextScene);
+  s_hPickContextObject = W_REGISTER_ACTION_1("GameObjectContext.PickContextObject", WActionScope::Window, "Game Object Context", "",
+    WGameObjectContextAction, WGameObjectContextAction::ActionType::PickContextObject);
+  s_hClearContextObject = W_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", WActionScope::Window, "Game Object Context", "",
+    WGameObjectContextAction, WGameObjectContextAction::ActionType::ClearContextObject);
 }
 
 
-void ezGameObjectContextActions::UnregisterActions()
+void WGameObjectContextActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hPickContextScene);
-  ezActionManager::UnregisterAction(s_hPickContextObject);
-  ezActionManager::UnregisterAction(s_hClearContextObject);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hPickContextScene);
+  WActionManager::UnregisterAction(s_hPickContextObject);
+  WActionManager::UnregisterAction(s_hClearContextObject);
 }
 
-void ezGameObjectContextActions::MapToolbarActions(ezStringView sMapping)
+void WGameObjectContextActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 10.0f);
 
-  const ezStringView szSubPath = "GameObjectContextCategory";
+  const WStringView szSubPath = "GameObjectContextCategory";
   pMap->MapAction(s_hPickContextScene, szSubPath, 1.0f);
 }
 
 
-void ezGameObjectContextActions::MapContextMenuActions(ezStringView sMapping)
+void WGameObjectContextActions::MapContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 10.0f);
 
-  const ezStringView szSubPath = "GameObjectContextCategory";
+  const WStringView szSubPath = "GameObjectContextCategory";
   pMap->MapAction(s_hPickContextObject, szSubPath, 1.0f);
   pMap->MapAction(s_hClearContextObject, szSubPath, 2.0f);
 }
 
-ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& context, const char* szName, ezGameObjectContextAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WGameObjectContextAction::WGameObjectContextAction(const WActionContext& context, const char* szName, WGameObjectContextAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -77,29 +77,29 @@ ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& cont
       break;
   }
 
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectContextAction::SelectionEventHandler, this));
   Update();
 }
 
-ezGameObjectContextAction::~ezGameObjectContextAction()
+WGameObjectContextAction::~WGameObjectContextAction()
 {
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WGameObjectContextAction::SelectionEventHandler, this));
 }
 
-void ezGameObjectContextAction::Execute(const ezVariant& value)
+void WGameObjectContextAction::Execute(const WVariant& value)
 {
-  ezGameObjectContextDocument* pDocument = static_cast<ezGameObjectContextDocument*>(GetContext().m_pDocument);
-  ezUuid document = pDocument->GetContextDocumentGuid();
+  WGameObjectContextDocument* pDocument = static_cast<WGameObjectContextDocument*>(GetContext().m_pDocument);
+  WUuid document = pDocument->GetContextDocumentGuid();
   switch (m_Type)
   {
     case ActionType::PickContextScene:
     {
-      ezQtAssetBrowserDlg dlg(GetContext().m_pWindow, document, "Scene;Prefab");
+      WQtAssetBrowserDlg dlg(GetContext().m_pWindow, document, "Scene;Prefab");
       if (dlg.exec() == 0)
         return;
 
       document = dlg.GetSelectedAssetGuid();
-      pDocument->SetContext(document, ezUuid()).LogFailure();
+      pDocument->SetContext(document, WUuid()).LogFailure();
       return;
     }
     case ActionType::PickContextObject:
@@ -107,7 +107,7 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
       const auto& selection = pDocument->GetSelectionManager()->GetSelection();
       if (selection.GetCount() == 1)
       {
-        if (selection[0]->GetType() == ezGetStaticRTTI<ezGameObject>())
+        if (selection[0]->GetType() == WGetStaticRTTI<WGameObject>())
         {
           pDocument->SetContext(document, selection[0]->GetGuid()).LogFailure();
         }
@@ -116,27 +116,27 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
       return;
     case ActionType::ClearContextObject:
     {
-      pDocument->SetContext(document, ezUuid()).LogFailure();
+      pDocument->SetContext(document, WUuid()).LogFailure();
     }
       return;
   }
 }
 
-void ezGameObjectContextAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WGameObjectContextAction::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   Update();
 }
 
-void ezGameObjectContextAction::Update()
+void WGameObjectContextAction::Update()
 {
-  ezGameObjectContextDocument* pDocument = static_cast<ezGameObjectContextDocument*>(GetContext().m_pDocument);
+  WGameObjectContextDocument* pDocument = static_cast<WGameObjectContextDocument*>(GetContext().m_pDocument);
 
   switch (m_Type)
   {
     case ActionType::PickContextObject:
     {
       const auto& selection = pDocument->GetSelectionManager()->GetSelection();
-      bool bIsSingleGameObject = selection.GetCount() == 1 && selection[0]->GetType() == ezGetStaticRTTI<ezGameObject>();
+      bool bIsSingleGameObject = selection.GetCount() == 1 && selection[0]->GetType() == WGetStaticRTTI<WGameObject>();
       SetEnabled(bIsSingleGameObject);
     }
 

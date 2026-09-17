@@ -4,20 +4,20 @@
 #include <RendererDX11/Pools/FencePoolDX11.h>
 #include <d3d11.h>
 
-ezHybridArray<ID3D11Query*, 4> ezFencePoolDX11::s_Fences;
-ezGALDeviceDX11* ezFencePoolDX11::s_pDevice;
+WHybridArray<ID3D11Query*, 4> WFencePoolDX11::s_Fences;
+WGALDeviceDX11* WFencePoolDX11::s_pDevice;
 
 
-void ezFencePoolDX11::Initialize(ezGALDeviceDX11* pDevice)
+void WFencePoolDX11::Initialize(WGALDeviceDX11* pDevice)
 {
   s_pDevice = pDevice;
 }
 
-void ezFencePoolDX11::DeInitialize()
+void WFencePoolDX11::DeInitialize()
 {
   for (ID3D11Query* pQuery : s_Fences)
   {
-    EZ_GAL_DX11_RELEASE(pQuery);
+    W_GAL_DX11_RELEASE(pQuery);
   }
   s_Fences.Clear();
   s_Fences.Compact();
@@ -25,9 +25,9 @@ void ezFencePoolDX11::DeInitialize()
   s_pDevice = nullptr;
 }
 
-ID3D11Query* ezFencePoolDX11::RequestFence()
+ID3D11Query* WFencePoolDX11::RequestFence()
 {
-  EZ_ASSERT_DEBUG(s_pDevice, "ezFencePoolDX11::Initialize not called");
+  W_ASSERT_DEBUG(s_pDevice, "WFencePoolDX11::Initialize not called");
   if (!s_Fences.IsEmpty())
   {
     ID3D11Query* pFence = s_Fences.PeekBack();
@@ -43,113 +43,113 @@ ID3D11Query* ezFencePoolDX11::RequestFence()
     HRESULT res = s_pDevice->GetDXDevice()->CreateQuery(&QueryDesc, &pFence);
     if (!SUCCEEDED(res))
     {
-      EZ_REPORT_FAILURE("Failed to create fence: {}", ezArgErrorCode(res));
+      W_REPORT_FAILURE("Failed to create fence: {}", WArgErrorCode(res));
     }
     return pFence;
   }
 }
 
-void ezFencePoolDX11::ReclaimFence(ID3D11Query*& ref_pFence)
+void WFencePoolDX11::ReclaimFence(ID3D11Query*& ref_pFence)
 {
   if (ref_pFence)
   {
-    EZ_ASSERT_DEBUG(s_pDevice, "ezFencePoolDX11::Initialize not called");
+    W_ASSERT_DEBUG(s_pDevice, "WFencePoolDX11::Initialize not called");
     s_Fences.PushBack(ref_pFence);
   }
   ref_pFence = nullptr;
 }
 
-void ezFencePoolDX11::InsertFence(ID3D11Query* pFence)
+void WFencePoolDX11::InsertFence(ID3D11Query* pFence)
 {
   s_pDevice->GetDXImmediateContext()->End(pFence);
 }
 
-ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ezTime timeout)
+WEnum<WGALAsyncResult> WFencePoolDX11::GetFenceResult(ID3D11Query* pFence, WTime timeout)
 {
-  const ezTime start = ezTime::Now();
+  const WTime start = WTime::Now();
 
   do
   {
     BOOL data = FALSE;
     if (s_pDevice->GetDXImmediateContext()->GetData(pFence, &data, sizeof(data), 0) == S_OK)
     {
-      EZ_ASSERT_DEV(data != FALSE, "Implementation error");
-      return ezGALAsyncResult::Ready;
+      W_ASSERT_DEV(data != FALSE, "Implementation error");
+      return WGALAsyncResult::Ready;
     }
-    ezThreadUtils::YieldTimeSlice();
-  } while ((ezTime::Now() - start) < timeout);
+    WThreadUtils::YieldTimeSlice();
+  } while ((WTime::Now() - start) < timeout);
 
-  return ezGALAsyncResult::Pending;
+  return WGALAsyncResult::Pending;
 }
 
 
-ezFenceQueueDX11::ezFenceQueueDX11(ezAllocator* pAllocator)
+WFenceQueueDX11::WFenceQueueDX11(WAllocator* pAllocator)
   : m_PendingFences(pAllocator)
 {
 }
 
-ezFenceQueueDX11::~ezFenceQueueDX11()
+WFenceQueueDX11::~WFenceQueueDX11()
 {
   while (!m_PendingFences.IsEmpty())
   {
-    WaitForNextFence(ezTime::MakeFromHours(1));
+    WaitForNextFence(WTime::MakeFromHours(1));
   }
 }
 
-ezGALFenceHandle ezFenceQueueDX11::GetCurrentFenceHandle()
+WGALFenceHandle WFenceQueueDX11::GetCurrentFenceHandle()
 {
   return m_uiCurrentFenceCounter;
 }
 
-ezGALFenceHandle ezFenceQueueDX11::SubmitCurrentFence()
+WGALFenceHandle WFenceQueueDX11::SubmitCurrentFence()
 {
   FlushReadyFences();
-  ID3D11Query* pFence = ezFencePoolDX11::RequestFence();
-  ezFencePoolDX11::InsertFence(pFence);
+  ID3D11Query* pFence = WFencePoolDX11::RequestFence();
+  WFencePoolDX11::InsertFence(pFence);
 
   m_PendingFences.PushBack({pFence, m_uiCurrentFenceCounter});
-  ezGALFenceHandle hCurrent = m_uiCurrentFenceCounter;
+  WGALFenceHandle hCurrent = m_uiCurrentFenceCounter;
   m_uiCurrentFenceCounter++;
   return hCurrent;
 }
 
-void ezFenceQueueDX11::FlushReadyFences()
+void WFenceQueueDX11::FlushReadyFences()
 {
   while (!m_PendingFences.IsEmpty())
   {
-    if (WaitForNextFence() == ezGALAsyncResult::Pending)
+    if (WaitForNextFence() == WGALAsyncResult::Pending)
       return;
   }
 }
 
-ezEnum<ezGALAsyncResult> ezFenceQueueDX11::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout /*= ezTime::MakeZero()*/)
+WEnum<WGALAsyncResult> WFenceQueueDX11::GetFenceResult(WGALFenceHandle hFence, WTime timeout /*= WTime::MakeZero()*/)
 {
   if (hFence <= m_uiReachedFenceCounter)
-    return ezGALAsyncResult::Ready;
+    return WGALAsyncResult::Ready;
 
-  EZ_ASSERT_DEBUG(hFence <= m_uiCurrentFenceCounter, "Invalid fence handle");
+  W_ASSERT_DEBUG(hFence <= m_uiCurrentFenceCounter, "Invalid fence handle");
 
   while (!m_PendingFences.IsEmpty() && m_PendingFences[0].m_hFence <= hFence)
   {
-    const ezTime start = ezTime::Now();
-    ezEnum<ezGALAsyncResult> res = WaitForNextFence(timeout);
-    if (res == ezGALAsyncResult::Pending)
-      return ezGALAsyncResult::Pending;
+    const WTime start = WTime::Now();
+    WEnum<WGALAsyncResult> res = WaitForNextFence(timeout);
+    if (res == WGALAsyncResult::Pending)
+      return WGALAsyncResult::Pending;
 
-    const ezTime end = ezTime::Now();
+    const WTime end = WTime::Now();
     timeout -= (end - start);
   }
 
-  return hFence <= m_uiReachedFenceCounter ? ezGALAsyncResult::Ready : ezGALAsyncResult::Pending;
+  return hFence <= m_uiReachedFenceCounter ? WGALAsyncResult::Ready : WGALAsyncResult::Pending;
 }
 
-ezEnum<ezGALAsyncResult> ezFenceQueueDX11::WaitForNextFence(ezTime timeout /*= ezTime::MakeZero()*/)
+WEnum<WGALAsyncResult> WFenceQueueDX11::WaitForNextFence(WTime timeout /*= WTime::MakeZero()*/)
 {
-  ezEnum<ezGALAsyncResult> fenceStatus = ezFencePoolDX11::GetFenceResult(m_PendingFences[0].m_pFence, timeout);
-  if (fenceStatus == ezGALAsyncResult::Ready)
+  WEnum<WGALAsyncResult> fenceStatus = WFencePoolDX11::GetFenceResult(m_PendingFences[0].m_pFence, timeout);
+  if (fenceStatus == WGALAsyncResult::Ready)
   {
     m_uiReachedFenceCounter = m_PendingFences[0].m_hFence;
-    ezFencePoolDX11::ReclaimFence(m_PendingFences[0].m_pFence);
+    WFencePoolDX11::ReclaimFence(m_PendingFences[0].m_pFence);
     m_PendingFences.PopFront();
     return fenceStatus;
   }

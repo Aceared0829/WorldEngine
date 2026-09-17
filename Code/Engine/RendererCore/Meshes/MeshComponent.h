@@ -2,23 +2,23 @@
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-struct ezMsgExtractGeometry;
-using ezMeshComponentManager = ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact>;
+struct WMsgExtractGeometry;
+using WMeshComponentManager = WComponentManager<class WMeshComponent, WBlockStorageType::Compact>;
 
 /// Renders a single instance of a static mesh.
 ///
 /// This is the main component to use for rendering regular meshes.
-class EZ_RENDERERCORE_DLL ezMeshComponent : public ezMeshComponentBase
+class W_RENDERERCORE_DLL WMeshComponent : public WMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezMeshComponentBase, ezMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMeshComponent, WMeshComponentBase, WMeshComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMeshComponent
+  // WMeshComponent
 
 public:
-  ezMeshComponent();
-  ~ezMeshComponent();
+  WMeshComponent();
+  ~WMeshComponent();
 
   /// Extracts the render geometry for export etc.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
+  void OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 };

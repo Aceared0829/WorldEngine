@@ -9,16 +9,16 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
-ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtBlackboardTemplateAssetDocumentWindow::WQtBlackboardTemplateAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "BlackboardTemplateAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -27,8 +27,8 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "BlackboardTemplateAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -38,12 +38,12 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("BlackboardTemplateAssetDockWidget");
     pPropertyPanel->setWindowTitle("BlackboardTemplate Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -51,7 +51,7 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -65,67 +65,67 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
   FinishWindowCreation();
 }
 
-ezQtBlackboardTemplateAssetDocumentWindow::~ezQtBlackboardTemplateAssetDocumentWindow()
+WQtBlackboardTemplateAssetDocumentWindow::~WQtBlackboardTemplateAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
 
-void ezQtBlackboardTemplateAssetDocumentWindow::UpdatePreview()
+void WQtBlackboardTemplateAssetDocumentWindow::UpdatePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  auto pDocument = static_cast<ezBlackboardTemplateAssetDocument*>(GetDocument());
+  auto pDocument = static_cast<WBlackboardTemplateAssetDocument*>(GetDocument());
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "BlackboardTemplate";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
-  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezBlackboardTemplate");
+  WStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WBlackboardTemplate");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDocument->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
-  if (pDocument->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
+  if (pDocument->WriteAsset(memoryWriter, WAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
   {
-    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+    msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
-void ezQtBlackboardTemplateAssetDocumentWindow::RestoreResource()
+void WQtBlackboardTemplateAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "BlackboardTemplate";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved)
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::AfterObjectRemoved)
   {
     UpdatePreview();
   }

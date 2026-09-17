@@ -5,45 +5,45 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Reflection/Reflection.h>
 
-struct ezHMDInfo
+struct WHMDInfo
 {
-  ezString m_sDeviceName;
-  ezString m_sDeviceDriver;
-  ezSizeU32 m_vEyeRenderTargetSize;
+  WString m_sDeviceName;
+  WString m_sDeviceDriver;
+  WSizeU32 m_vEyeRenderTargetSize;
 };
 
 /// Defines the stage space used for the XR experience.
 ///
-/// This value is set by the ezStageSpaceComponent singleton and
+/// This value is set by the WStageSpaceComponent singleton and
 /// has to be taken into account by the XR implementation.
-struct ezXRStageSpace
+struct WXRStageSpace
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Seated,   ///< Tracking poses will be relative to a seated head position
     Standing, ///< Tracking poses will be relative to the center of the stage space at ground level.
     Default = Standing,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRStageSpace);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WXRStageSpace);
 
-struct ezXRTransformSpace
+struct WXRTransformSpace
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
-    Local,  ///< Sets the local transform to the pose in stage space. Use if owner is direct child of ezStageSpaceComponent.
+    Local,  ///< Sets the local transform to the pose in stage space. Use if owner is direct child of WStageSpaceComponent.
     Global, ///< Uses the global transform of the device in world space.
     Default = Local,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRTransformSpace);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WXRTransformSpace);
 
-struct ezXRDeviceType
+struct WXRDeviceType
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     HMD,
     LeftController,
@@ -67,54 +67,54 @@ struct ezXRDeviceType
     Default = HMD,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRDeviceType);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WXRDeviceType);
 
-using ezXRDeviceID = ezInt8;
+using WXRDeviceID = WInt8;
 
 /// A device's pose state.
 ///
 /// All values are relative to the stage space of the device,
-/// which is controlled by the ezStageSpaceComponent singleton and
+/// which is controlled by the WStageSpaceComponent singleton and
 /// has to be taken into account by the XR implementation.
-struct EZ_GAMEENGINE_DLL ezXRDeviceState
+struct W_GAMEENGINE_DLL WXRDeviceState
 {
-  ezXRDeviceState();
+  WXRDeviceState();
 
-  ezVec3 m_vGripPosition;
-  ezQuat m_qGripRotation;
+  WVec3 m_vGripPosition;
+  WQuat m_qGripRotation;
 
-  ezVec3 m_vAimPosition;
-  ezQuat m_qAimRotation;
+  WVec3 m_vAimPosition;
+  WQuat m_qAimRotation;
 
-  ezEnum<ezXRDeviceType> m_Type;
+  WEnum<WXRDeviceType> m_Type;
   bool m_bGripPoseIsValid = false;
   bool m_bAimPoseIsValid = false;
   bool m_bDeviceIsConnected = false;
 };
 
 /// Defines features the given device supports.
-struct ezXRDeviceFeatures
+struct WXRDeviceFeatures
 {
-  using StorageType = ezUInt32;
-  enum Enum : ezUInt32
+  using StorageType = WUInt32;
+  enum Enum : WUInt32
   {
     None = 0,
-    Trigger = EZ_BIT(0),                   ///< Float input. Analog trigger value 0-1.
-    Select = EZ_BIT(1),                    ///< Bool input. Trigger fully pressed.
-    Menu = EZ_BIT(2),                      ///< Bool input. Menu/Start button.
-    Squeeze = EZ_BIT(3),                   ///< Float input. Analog squeeze/grip value 0-1.
-    PrimaryAnalogStick = EZ_BIT(4),        ///< 2D axis input. Thumbstick/joystick.
-    PrimaryAnalogStickClick = EZ_BIT(5),   ///< Bool input. Thumbstick pressed.
-    PrimaryAnalogStickTouch = EZ_BIT(6),   ///< Bool input. Thumbstick touched.
-    SecondaryAnalogStick = EZ_BIT(7),      ///< 2D axis input. Trackpad or secondary joystick.
-    SecondaryAnalogStickClick = EZ_BIT(8), ///< Bool input. Trackpad/secondary joystick pressed.
-    SecondaryAnalogStickTouch = EZ_BIT(9), ///< Bool input. Trackpad/secondary joystick touched.
-    PrimaryButton = EZ_BIT(10),            ///< Bool input. Primary face button (X/A).
-    PrimaryButtonTouch = EZ_BIT(11),       ///< Bool input. Primary face button touched.
-    SecondaryButton = EZ_BIT(12),          ///< Bool input. Secondary face button (Y/B).
-    SecondaryButtonTouch = EZ_BIT(13),     ///< Bool input. Secondary face button touched.
-    GripPose = EZ_BIT(14),                 ///< 3D Pose input. Grip/hand position.
-    AimPose = EZ_BIT(15),                  ///< 3D Pose input. Aim/pointer direction.
+    Trigger = W_BIT(0),                   ///< Float input. Analog trigger value 0-1.
+    Select = W_BIT(1),                    ///< Bool input. Trigger fully pressed.
+    Menu = W_BIT(2),                      ///< Bool input. Menu/Start button.
+    Squeeze = W_BIT(3),                   ///< Float input. Analog squeeze/grip value 0-1.
+    PrimaryAnalogStick = W_BIT(4),        ///< 2D axis input. Thumbstick/joystick.
+    PrimaryAnalogStickClick = W_BIT(5),   ///< Bool input. Thumbstick pressed.
+    PrimaryAnalogStickTouch = W_BIT(6),   ///< Bool input. Thumbstick touched.
+    SecondaryAnalogStick = W_BIT(7),      ///< 2D axis input. Trackpad or secondary joystick.
+    SecondaryAnalogStickClick = W_BIT(8), ///< Bool input. Trackpad/secondary joystick pressed.
+    SecondaryAnalogStickTouch = W_BIT(9), ///< Bool input. Trackpad/secondary joystick touched.
+    PrimaryButton = W_BIT(10),            ///< Bool input. Primary face button (X/A).
+    PrimaryButtonTouch = W_BIT(11),       ///< Bool input. Primary face button touched.
+    SecondaryButton = W_BIT(12),          ///< Bool input. Secondary face button (Y/B).
+    SecondaryButtonTouch = W_BIT(13),     ///< Bool input. Secondary face button touched.
+    GripPose = W_BIT(14),                 ///< 3D Pose input. Grip/hand position.
+    AimPose = W_BIT(15),                  ///< 3D Pose input. Aim/pointer direction.
     Default = None
   };
 
@@ -138,19 +138,19 @@ struct ezXRDeviceFeatures
     StorageType AimPose : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezXRDeviceFeatures);
+W_DECLARE_FLAGS_OPERATORS(WXRDeviceFeatures);
 
 
-struct ezXRDeviceEventData
+struct WXRDeviceEventData
 {
-  enum class Type : ezUInt8
+  enum class Type : WUInt8
   {
     DeviceAdded,
     DeviceRemoved,
   };
 
   Type m_Type;
-  ezXRDeviceID uiDeviceID = 0;
+  WXRDeviceID uiDeviceID = 0;
 };
 
-using ezXRDeviceEvent = ezEvent<const ezXRDeviceEventData&>;
+using WXRDeviceEvent = WEvent<const WXRDeviceEventData&>;

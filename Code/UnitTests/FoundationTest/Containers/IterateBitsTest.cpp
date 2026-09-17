@@ -7,121 +7,121 @@ namespace
   template <typename T>
   void TestEmptyIntegerBitValues()
   {
-    ezUInt32 uiNextBit = 1;
-    for (auto bit : ezIterateBitValues(static_cast<T>(0)))
+    WUInt32 uiNextBit = 1;
+    for (auto bit : WIterateBitValues(static_cast<T>(0)))
     {
-      EZ_TEST_BOOL_MSG(false, "No bit should be present");
+      W_TEST_BOOL_MSG(false, "No bit should be present");
     }
   }
 
   template <typename T>
   void TestFullIntegerBitValues()
   {
-    constexpr ezUInt64 uiBitCount = sizeof(T) * 8;
-    ezUInt64 uiNextBit = 1;
-    ezUInt64 uiCount = 0;
-    for (auto bit : ezIterateBitValues(ezMath::MaxValue<T>()))
+    constexpr WUInt64 uiBitCount = sizeof(T) * 8;
+    WUInt64 uiNextBit = 1;
+    WUInt64 uiCount = 0;
+    for (auto bit : WIterateBitValues(WMath::MaxValue<T>()))
     {
-      EZ_TEST_INT(bit, uiNextBit);
+      W_TEST_INT(bit, uiNextBit);
       uiNextBit *= 2;
       uiCount++;
     }
-    EZ_TEST_INT(uiBitCount, uiCount);
+    W_TEST_INT(uiBitCount, uiCount);
   }
 
   template <typename T>
   void TestEmptyIntegerBitIndices()
   {
-    ezUInt32 uiNextBit = 1;
-    for (auto bit : ezIterateBitIndices(static_cast<T>(0)))
+    WUInt32 uiNextBit = 1;
+    for (auto bit : WIterateBitIndices(static_cast<T>(0)))
     {
-      EZ_TEST_BOOL_MSG(false, "No bit should be present");
+      W_TEST_BOOL_MSG(false, "No bit should be present");
     }
   }
 
   template <typename T>
   void TestFullIntegerBitIndices()
   {
-    constexpr ezUInt64 uiBitCount = sizeof(T) * 8;
-    ezUInt64 uiNextBitIndex = 0;
-    for (auto bit : ezIterateBitIndices(ezMath::MaxValue<T>()))
+    constexpr WUInt64 uiBitCount = sizeof(T) * 8;
+    WUInt64 uiNextBitIndex = 0;
+    for (auto bit : WIterateBitIndices(WMath::MaxValue<T>()))
     {
-      EZ_TEST_INT(bit, uiNextBitIndex);
+      W_TEST_INT(bit, uiNextBitIndex);
       ++uiNextBitIndex;
     }
-    EZ_TEST_INT(uiBitCount, uiNextBitIndex);
+    W_TEST_INT(uiBitCount, uiNextBitIndex);
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Containers, IterateBits)
+W_CREATE_SIMPLE_TEST(Containers, IterateBits)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezIterateBitValues")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WIterateBitValues")
   {
     {
       // Empty set
-      TestEmptyIntegerBitValues<ezUInt8>();
-      TestEmptyIntegerBitValues<ezUInt16>();
-      TestEmptyIntegerBitValues<ezUInt32>();
-      TestEmptyIntegerBitValues<ezUInt64>();
+      TestEmptyIntegerBitValues<WUInt8>();
+      TestEmptyIntegerBitValues<WUInt16>();
+      TestEmptyIntegerBitValues<WUInt32>();
+      TestEmptyIntegerBitValues<WUInt64>();
     }
 
     {
       // Full sets
-      TestFullIntegerBitValues<ezUInt8>();
-      TestFullIntegerBitValues<ezUInt16>();
-      TestFullIntegerBitValues<ezUInt32>();
-      TestFullIntegerBitValues<ezUInt64>();
+      TestFullIntegerBitValues<WUInt8>();
+      TestFullIntegerBitValues<WUInt16>();
+      TestFullIntegerBitValues<WUInt32>();
+      TestFullIntegerBitValues<WUInt64>();
     }
 
     {
       // Some bits set
-      ezUInt64 uiBitMask = 0b1101;
-      ezTempHybridArray<ezUInt64, 3> bits;
+      WUInt64 uiBitMask = 0b1101;
+      WTempHybridArray<WUInt64, 3> bits;
       bits.PushBack(0b0001);
       bits.PushBack(0b0100);
       bits.PushBack(0b1000);
 
-      for (ezUInt64 bit : ezIterateBitValues(uiBitMask))
+      for (WUInt64 bit : WIterateBitValues(uiBitMask))
       {
-        EZ_TEST_INT(bit, bits[0]);
+        W_TEST_INT(bit, bits[0]);
         bits.RemoveAtAndCopy(0);
       }
-      EZ_TEST_BOOL(bits.IsEmpty());
+      W_TEST_BOOL(bits.IsEmpty());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezIterateBitIndices")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WIterateBitIndices")
   {
     {
       // Empty set
-      TestEmptyIntegerBitIndices<ezUInt8>();
-      TestEmptyIntegerBitIndices<ezUInt16>();
-      TestEmptyIntegerBitIndices<ezUInt32>();
-      TestEmptyIntegerBitIndices<ezUInt64>();
+      TestEmptyIntegerBitIndices<WUInt8>();
+      TestEmptyIntegerBitIndices<WUInt16>();
+      TestEmptyIntegerBitIndices<WUInt32>();
+      TestEmptyIntegerBitIndices<WUInt64>();
     }
 
     {
       // Full sets
-      TestFullIntegerBitIndices<ezUInt8>();
-      TestFullIntegerBitIndices<ezUInt16>();
-      TestFullIntegerBitIndices<ezUInt32>();
-      TestFullIntegerBitIndices<ezUInt64>();
+      TestFullIntegerBitIndices<WUInt8>();
+      TestFullIntegerBitIndices<WUInt16>();
+      TestFullIntegerBitIndices<WUInt32>();
+      TestFullIntegerBitIndices<WUInt64>();
     }
 
     {
       // Some bits set
-      ezUInt64 uiBitMask = 0b1101;
-      ezTempHybridArray<ezUInt64, 3> bits;
+      WUInt64 uiBitMask = 0b1101;
+      WTempHybridArray<WUInt64, 3> bits;
       bits.PushBack(0);
       bits.PushBack(2);
       bits.PushBack(3);
 
-      for (ezUInt64 bit : ezIterateBitIndices(uiBitMask))
+      for (WUInt64 bit : WIterateBitIndices(uiBitMask))
       {
-        EZ_TEST_INT(bit, bits[0]);
+        W_TEST_INT(bit, bits[0]);
         bits.RemoveAtAndCopy(0);
       }
-      EZ_TEST_BOOL(bits.IsEmpty());
+      W_TEST_BOOL(bits.IsEmpty());
     }
   }
 }

@@ -1,15 +1,15 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Threading/Thread.h>
 
-// Thread entry point used to launch ezRunnable instances
-DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
+// Thread entry point used to launch WRunnable instances
+DWORD __stdcall WThreadClassEntryPoint(LPVOID pThreadParameter)
 {
-  EZ_ASSERT_RELEASE(pThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
+  W_ASSERT_RELEASE(pThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
 
-  ezThread* pThread = reinterpret_cast<ezThread*>(pThreadParameter);
+  WThread* pThread = reinterpret_cast<WThread*>(pThreadParameter);
 
   return RunThread(pThread);
 }

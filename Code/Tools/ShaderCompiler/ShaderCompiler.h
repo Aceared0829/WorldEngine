@@ -3,29 +3,29 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
-class ezShaderCompilerApplication : public ezGameApplication
+class WShaderCompilerApplication : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
-  ezShaderCompilerApplication();
+  WShaderCompilerApplication();
 
   virtual void Run() override;
 
 private:
   void PrintConfig();
-  ezResult CompileShader(ezStringView sShaderFile);
-  ezResult ExtractPermutationVarValues(ezStringView sShaderFile);
+  WResult CompileShader(WStringView sShaderFile);
+  WResult ExtractPermutationVarValues(WStringView sShaderFile);
 
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void Init_LoadProjectPlugins() override {}
   virtual void Init_SetupDefaultResources() override {}
   virtual void Init_ConfigureTags() override {}
   virtual bool Run_ProcessApplicationInput() override { return true; }
 
-  ezPermutationGenerator m_PermutationGenerator;
-  ezString m_sPlatforms;
-  ezString m_sShaderFiles;
-  ezMap<ezString, ezHybridArray<ezString, 4>> m_FixedPermVars;
+  WPermutationGenerator m_PermutationGenerator;
+  WString m_sPlatforms;
+  WString m_sShaderFiles;
+  WMap<WString, WHybridArray<WString, 4>> m_FixedPermVars;
 };

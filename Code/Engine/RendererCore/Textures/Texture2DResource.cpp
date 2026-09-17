@@ -9,37 +9,37 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Image.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
+#include <Texture/WTexFormat/WTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTexture2DResource, 1, WRTTIDefaultAllocator<WTexture2DResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCVarInt cvar_RenderingOffscreenTargetResolution1("Rendering.Offscreen.TargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
-ezCVarInt cvar_RenderingOffscreenTargetResolution2("Rendering.Offscreen.TargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
+WCVarInt cvar_RenderingOffscreenTargetResolution1("Rendering.Offscreen.TargetResolution1", 256, WCVarFlags::Default, "Configurable render target resolution");
+WCVarInt cvar_RenderingOffscreenTargetResolution2("Rendering.Offscreen.TargetResolution2", 512, WCVarFlags::Default, "Configurable render target resolution");
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WTexture2DResource);
 
-ezTexture2DResource::ezTexture2DResource()
-  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+WTexture2DResource::WTexture2DResource()
+  : WResource(DoUpdate::OnGraphicsResourceThreads, WTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
-ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThread)
-  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+WTexture2DResource::WTexture2DResource(WResource::DoUpdate ResourceUpdateThread)
+  : WResource(ResourceUpdateThread, WTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
-ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WTexture2DResource::UnloadData(Unload WhatToUnload)
 {
   if (m_uiLoadedTextures > 0)
   {
-    for (ezInt32 r = 0; r < 2; ++r)
+    for (WInt32 r = 0; r < 2; ++r)
     {
       --m_uiLoadedTextures;
 
-      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
+      WGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
 
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -50,22 +50,22 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
+    WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
   }
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
   res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
-  res.m_State = m_uiLoadedTextures == 0 ? ezResourceState::Unloaded : ezResourceState::Loaded;
+  res.m_State = m_uiLoadedTextures == 0 ? WResourceState::Unloaded : WResourceState::Loaded;
   return res;
 }
 
-void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-  ezUInt32& out_uiMemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& ref_initData)
+void WTexture2DResource::FillOutDescriptor(WTexture2DResourceDescriptor& ref_td, const WImage* pImage, bool bSRGB, WUInt32 uiNumMipLevels,
+  WUInt32& out_uiMemoryUsed, WHybridArray<WGALSystemMemoryDescription, 32>& ref_initData)
 {
-  const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
+  const WUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
-  const ezGALResourceFormat::Enum format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
+  const WGALResourceFormat::Enum format = WTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
 
   ref_td.m_DescGAL.m_Format = format;
   ref_td.m_DescGAL.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
@@ -75,95 +75,95 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
   ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
   ref_td.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
 
-  if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+  if (WImageFormat::GetType(pImage->GetImageFormat()) == WImageFormatType::BLOCK_COMPRESSED)
   {
-    ref_td.m_DescGAL.m_uiWidth = ezMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
-    ref_td.m_DescGAL.m_uiHeight = ezMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
+    ref_td.m_DescGAL.m_uiWidth = WMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
+    ref_td.m_DescGAL.m_uiHeight = WMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
   }
 
   if (ref_td.m_DescGAL.m_uiDepth > 1)
-    ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+    ref_td.m_DescGAL.m_Type = WGALTextureType::Texture3D;
 
   if (pImage->GetNumFaces() == 6)
-    ref_td.m_DescGAL.m_Type = ezGALTextureType::TextureCube;
+    ref_td.m_DescGAL.m_Type = WGALTextureType::TextureCube;
 
   if (ref_td.m_DescGAL.m_uiArraySize > 1)
   {
-    if (ref_td.m_DescGAL.m_Type == ezGALTextureType::TextureCube)
+    if (ref_td.m_DescGAL.m_Type == WGALTextureType::TextureCube)
     {
-      ref_td.m_DescGAL.m_Type = ezGALTextureType::TextureCubeArray;
+      ref_td.m_DescGAL.m_Type = WGALTextureType::TextureCubeArray;
     }
-    else if (ref_td.m_DescGAL.m_Type == ezGALTextureType::Texture2D)
+    else if (ref_td.m_DescGAL.m_Type == WGALTextureType::Texture2D)
     {
-      ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture2DArray;
+      ref_td.m_DescGAL.m_Type = WGALTextureType::Texture2DArray;
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces");
+  W_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces");
 
   out_uiMemoryUsed = 0;
 
   ref_initData.Clear();
 
-  for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
+  for (WUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {
-    for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
+    for (WUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
     {
-      for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
+      for (WUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
       {
-        ezGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
+        WGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
 
         id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
 
-        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+        if (WImageFormat::GetType(pImage->GetImageFormat()) == WImageFormatType::BLOCK_COMPRESSED)
         {
-          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
+          const WUInt32 uiMemPitchFactor = WGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
 
-          id.m_uiRowPitch = ezMath::RoundUp(pImage->GetWidth(mip), 4) * uiMemPitchFactor;
+          id.m_uiRowPitch = WMath::RoundUp(pImage->GetWidth(mip), 4) * uiMemPitchFactor;
         }
         else
         {
-          id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
+          id.m_uiRowPitch = static_cast<WUInt32>(pImage->GetRowPitch(mip));
         }
 
-        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
-        id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
+        W_ASSERT_DEV(pImage->GetDepthPitch(mip) < WMath::MaxValue<WUInt32>(), "Depth pitch exceeds WGAL limits.");
+        id.m_uiSlicePitch = static_cast<WUInt32>(pImage->GetDepthPitch(mip));
 
         out_uiMemoryUsed += id.m_uiSlicePitch;
       }
     }
   }
 
-  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(ref_initData);
+  const WArrayPtr<WGALSystemMemoryDescription> InitDataPtr(ref_initData);
 
   ref_td.m_InitialContent = InitDataPtr;
 }
 
 
-ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WTexture2DResource::UpdateContent(WStreamReader* Stream)
 {
   if (Stream == nullptr)
   {
-    ezResourceLoadDesc res;
+    WResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
 
     return res;
   }
 
-  ezTexture2DResourceDescriptor td;
-  ezImage* pImage = nullptr;
+  WTexture2DResourceDescriptor td;
+  WImage* pImage = nullptr;
   bool bIsFallback = false;
-  ezTexFormat texFormat;
+  WTexFormat texFormat;
 
   // load image data
   {
-    Stream->ReadBytes(&pImage, sizeof(ezImage*));
+    Stream->ReadBytes(&pImage, sizeof(WImage*));
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
 
@@ -173,12 +173,12 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   }
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
-  EZ_ASSERT_DEV(!bIsRenderTarget, "Render targets are not supported by regular 2D texture resources");
+  W_ASSERT_DEV(!bIsRenderTarget, "Render targets are not supported by regular 2D texture resources");
 
   {
 
-    const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
-    ezUInt32 uiUploadNumMipLevels = 0;
+    const WUInt32 uiNumMipmapsLowRes = WTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : WMath::Min(pImage->GetNumMipLevels(), 6U);
+    WUInt32 uiUploadNumMipLevels = 0;
     bool bCouldLoadMore = false;
 
     if (bIsFallback)
@@ -194,11 +194,11 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
         // ignore this texture entirely, if we already have low res data
         // but assume we could load a higher resolution version
         bCouldLoadMore = true;
-        ezLog::Debug("Ignoring fallback texture data, low-res resource data is already loaded.");
+        WLog::Debug("Ignoring fallback texture data, low-res resource data is already loaded.");
       }
       else
       {
-        ezLog::Debug("Ignoring fallback texture data, resource is already fully loaded.");
+        WLog::Debug("Ignoring fallback texture data, resource is already fully loaded.");
       }
     }
     else
@@ -215,48 +215,48 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
       else
       {
         // ignore the texture, if we already have fully loaded data
-        ezLog::Debug("Ignoring texture data, resource is already fully loaded.");
+        WLog::Debug("Ignoring texture data, resource is already fully loaded.");
       }
     }
 
     if (uiUploadNumMipLevels > 0)
     {
-      EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
+      W_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
 
-      ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
+      WTempHybridArray<WGALSystemMemoryDescription, 32> initData;
       FillOutDescriptor(td, pImage, texFormat.m_bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
-      ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
+      WTextureUtils::ConfigureSampler(static_cast<WTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
       // ignore its return value here, we build our own
       CreateResource(std::move(td));
     }
 
     {
-      ezResourceLoadDesc res;
+      WResourceLoadDesc res;
       res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
       res.m_uiQualityLevelsLoadable = bCouldLoadMore ? 1 : 0;
-      res.m_State = ezResourceState::Loaded;
+      res.m_State = WResourceState::Loaded;
 
       return res;
     }
   }
 }
 
-void ezTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezTexture2DResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WTexture2DResource);
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WTexture2DResource, WTexture2DResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
+  WResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;
   ret.m_uiQualityLevelsLoadable = descriptor.m_uiQualityLevelsLoadable;
-  ret.m_State = ezResourceState::Loaded;
+  ret.m_State = WResourceState::Loaded;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   m_Type = descriptor.m_DescGAL.m_Type;
   m_Format = descriptor.m_DescGAL.m_Format;
@@ -264,9 +264,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescrip
   m_uiHeight = descriptor.m_DescGAL.m_uiHeight;
 
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
-  EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+  W_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
-  ezStringBuilder name;
+  WStringBuilder name;
   name.SetFormat("{} ([{}] - {}x{})", GetResourceIdOrDescription(), m_uiLoadedTextures, m_uiWidth, m_uiHeight);
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(name);
 
@@ -276,7 +276,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescrip
   }
 
   m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
-  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+  W_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
 
   ++m_uiLoadedTextures;
 
@@ -293,10 +293,10 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescrip
 // TODO (resources): move into separate file
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderToTexture2DResource, 1, ezRTTIDefaultAllocator<ezRenderToTexture2DResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderToTexture2DResource, 1, WRTTIDefaultAllocator<WRenderToTexture2DResource>);
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ResourceManager" 
@@ -304,40 +304,40 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
 
   ON_CORESYSTEMS_STARTUP 
   {
-    ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezBinRenderTarget");
+    WResourceManager::RegisterResourceOverrideType(WGetStaticRTTI<WRenderToTexture2DResource>(), [](const WStringBuilder& sResourceID) -> bool  {
+        return sResourceID.HasExtension(".WBinRenderTarget");
       });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::UnregisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>());
+    WResourceManager::UnregisterResourceOverrideType(WGetStaticRTTI<WRenderToTexture2DResource>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRenderToTexture2DResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WRenderToTexture2DResource);
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderToTexture2DResource, ezRenderToTexture2DResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WRenderToTexture2DResource, WRenderToTexture2DResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
+  WResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;
   ret.m_uiQualityLevelsLoadable = 0;
-  ret.m_State = ezResourceState::Loaded;
+  ret.m_State = WResourceState::Loaded;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  m_Type = ezGALTextureType::Texture2D;
+  m_Type = WGALTextureType::Texture2D;
   m_Format = descriptor.m_Format;
   m_uiWidth = descriptor.m_uiWidth;
   m_uiHeight = descriptor.m_uiHeight;
 
-  ezGALTextureCreationDescription descGAL;
+  WGALTextureCreationDescription descGAL;
   descGAL.SetAsRenderTarget(m_uiWidth, m_uiHeight, m_Format, descriptor.m_SampleCount);
 
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descGAL, descriptor.m_InitialContent);
-  EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture data could not be uploaded to the GPU");
+  W_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture data could not be uploaded to the GPU");
 
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
@@ -347,20 +347,20 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderToTexture2DResource, ezRenderToTexture2
   }
 
   m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
-  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+  W_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
 
   ++m_uiLoadedTextures;
 
   return ret;
 }
 
-ezResourceLoadDesc ezRenderToTexture2DResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WRenderToTexture2DResource::UnloadData(Unload WhatToUnload)
 {
-  for (ezInt32 r = 0; r < 2; ++r)
+  for (WInt32 r = 0; r < 2; ++r)
   {
     if (!m_hGALTexture[r].IsInvalidated())
     {
-      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[r]);
+      WGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[r]);
       m_hGALTexture[r].Invalidate();
     }
 
@@ -371,66 +371,66 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UnloadData(Unload WhatToUnload)
 
   if (!m_hSamplerState.IsInvalidated())
   {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
+    WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
     m_hSamplerState.Invalidate();
   }
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
   res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
   return res;
 }
 
-ezGALRenderTargetViewHandle ezRenderToTexture2DResource::GetRenderTargetView() const
+WGALRenderTargetViewHandle WRenderToTexture2DResource::GetRenderTargetView() const
 {
-  return ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hGALTexture[0]);
+  return WGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hGALTexture[0]);
 }
 
-void ezRenderToTexture2DResource::AddRenderView(ezViewHandle hView)
+void WRenderToTexture2DResource::AddRenderView(WViewHandle hView)
 {
   m_RenderViews.PushBack(hView);
 }
 
-void ezRenderToTexture2DResource::RemoveRenderView(ezViewHandle hView)
+void WRenderToTexture2DResource::RemoveRenderView(WViewHandle hView)
 {
   m_RenderViews.RemoveAndSwap(hView);
 }
 
-const ezDynamicArray<ezViewHandle>& ezRenderToTexture2DResource::GetAllRenderViews() const
+const WDynamicArray<WViewHandle>& WRenderToTexture2DResource::GetAllRenderViews() const
 {
   return m_RenderViews;
 }
 
-static ezUInt16 GetNextBestResolution(float fRes)
+static WUInt16 GetNextBestResolution(float fRes)
 {
-  fRes = ezMath::Clamp(fRes, 8.0f, 4096.0f);
+  fRes = WMath::Clamp(fRes, 8.0f, 4096.0f);
 
-  int mulEight = (int)ezMath::Floor((fRes + 7.9f) / 8.0f);
+  int mulEight = (int)WMath::Floor((fRes + 7.9f) / 8.0f);
 
-  return static_cast<ezUInt16>(mulEight * 8);
+  return static_cast<WUInt16>(mulEight * 8);
 }
 
-ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WRenderToTexture2DResource::UpdateContent(WStreamReader* Stream)
 {
   if (Stream == nullptr)
   {
-    ezResourceLoadDesc res;
+    WResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
 
     return res;
   }
 
-  ezRenderToTexture2DResourceDescriptor td;
-  ezImage* pImage = nullptr;
+  WRenderToTexture2DResourceDescriptor td;
+  WImage* pImage = nullptr;
   bool bIsFallback = false;
-  ezTexFormat texFormat;
+  WTexFormat texFormat;
 
   // load image data
   {
-    Stream->ReadBytes(&pImage, sizeof(ezImage*));
+    Stream->ReadBytes(&pImage, sizeof(WImage*));
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
 
@@ -441,10 +441,10 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
 
-  EZ_ASSERT_DEV(bIsRenderTarget, "Trying to create a RenderToTexture resource from data that is not set up as a render-target");
+  W_ASSERT_DEV(bIsRenderTarget, "Trying to create a RenderToTexture resource from data that is not set up as a render-target");
 
   {
-    EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
+    W_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
 
     if (texFormat.m_iRenderTargetResolutionX == -1)
     {
@@ -460,33 +460,33 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
       }
       else
       {
-        EZ_REPORT_FAILURE(
+        W_REPORT_FAILURE(
           "Invalid render target configuration: {0} x {1}", texFormat.m_iRenderTargetResolutionX, texFormat.m_iRenderTargetResolutionY);
       }
     }
 
-    td.m_Format = static_cast<ezGALResourceFormat::Enum>(texFormat.m_GalRenderTargetFormat);
+    td.m_Format = static_cast<WGALResourceFormat::Enum>(texFormat.m_GalRenderTargetFormat);
     td.m_uiWidth = texFormat.m_iRenderTargetResolutionX;
     td.m_uiHeight = texFormat.m_iRenderTargetResolutionY;
 
-    ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
+    WTextureUtils::ConfigureSampler(static_cast<WTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
     m_uiLoadedTextures = 0;
 
     CreateResource(std::move(td));
   }
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezRenderToTexture2DResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WRenderToTexture2DResource);
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);

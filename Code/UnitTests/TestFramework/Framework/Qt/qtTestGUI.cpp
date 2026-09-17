@@ -1,6 +1,6 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QtWidgets>
 
@@ -12,10 +12,10 @@
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestGUI public functions
+// WQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
+WQtTestGUI::WQtTestGUI(WQtTestFramework& ref_testFramework)
   : QMainWindow()
   , m_pTestFramework(&ref_testFramework)
 {
@@ -23,8 +23,8 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   this->setWindowTitle(ref_testFramework.GetTestName());
 
   QCoreApplication::setOrganizationDomain("www.ezengine.net");
-  QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName("ezTestFramework");
+  QCoreApplication::setOrganizationName("WorldEngine Project");
+  QCoreApplication::setApplicationName("WTestFramework");
   QCoreApplication::setApplicationVersion("1.0.0");
 
   // Status Bar
@@ -36,11 +36,11 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
 
 
   // Model
-  m_pModel = new ezQtTestModel(this, m_pTestFramework);
+  m_pModel = new WQtTestModel(this, m_pTestFramework);
   testTreeView->setModel(m_pModel);
 
   // Delegate
-  m_pDelegate = new ezQtTestDelegate(this);
+  m_pDelegate = new WQtTestDelegate(this);
 
   // View
   // testTreeView->expandAll();
@@ -52,7 +52,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   testTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
   // Message Log Dock
-  m_pMessageLogDock = new ezQtLogMessageDock(this, &m_pTestFramework->GetTestResult());
+  m_pMessageLogDock = new WQtLogMessageDock(this, &m_pTestFramework->GetTestResult());
   addDockWidget(Qt::RightDockWidgetArea, m_pMessageLogDock);
 
   // connect custom context menu
@@ -74,7 +74,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   LoadGUILayout();
 }
 
-ezQtTestGUI::~ezQtTestGUI()
+WQtTestGUI::~WQtTestGUI()
 {
   testTreeView->setModel(nullptr);
   testTreeView->setItemDelegate(nullptr);
@@ -84,7 +84,7 @@ ezQtTestGUI::~ezQtTestGUI()
   m_pDelegate = nullptr;
 }
 
-void ezQtTestGUI::closeEvent(QCloseEvent* e)
+void WQtTestGUI::closeEvent(QCloseEvent* e)
 {
   if (m_pTestFramework->GetTestsRunning())
   {
@@ -96,27 +96,27 @@ void ezQtTestGUI::closeEvent(QCloseEvent* e)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestGUI public slots
+// WQtTestGUI public slots
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
+void WQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
 {
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_AssertOnTestFail = bChecked ? AssertOnTestFail::AssertIfDebuggerAttached : AssertOnTestFail::DoNotAssert;
   m_pTestFramework->SetSettings(settings);
 }
 
-void ezQtTestGUI::on_actionDisableSuccessfulTests_triggered(bool bChecked)
+void WQtTestGUI::on_actionDisableSuccessfulTests_triggered(bool bChecked)
 {
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bAutoDisableSuccessfulTests = bChecked;
   m_pTestFramework->SetSettings(settings);
 }
 
-void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
+void WQtTestGUI::on_actionSaveTestSettingsAs_triggered()
 {
-  ezStringBuilder tmp;
-  ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
+  WStringBuilder tmp;
+  WStringView defaultDir = WPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
   QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
 
   QString sAllFilters;
@@ -136,10 +136,10 @@ void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
   }
 }
 
-void ezQtTestGUI::on_actionSaveTestOrderAs_triggered()
+void WQtTestGUI::on_actionSaveTestOrderAs_triggered()
 {
-  ezStringBuilder tmp;
-  ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
+  WStringBuilder tmp;
+  WStringView defaultDir = WPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
   QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
 
   QString sAllFilters;
@@ -159,7 +159,7 @@ void ezQtTestGUI::on_actionSaveTestOrderAs_triggered()
   }
 }
 
-void ezQtTestGUI::on_actionRunTests_triggered()
+void WQtTestGUI::on_actionRunTests_triggered()
 {
   // For some reason during tests 'run tests' is called again
   // while already running tests  so we early out here.
@@ -180,7 +180,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   // make sure we start with a clean state
   m_pTestFramework->ResetTests();
   m_pMessageLogDock->resetModel();
-  while (m_pTestFramework->RunTestExecutionLoop() == ezTestAppRun::Continue)
+  while (m_pTestFramework->RunTestExecutionLoop() == WTestAppRun::Continue)
   {
     UpdateButtonStates();
 
@@ -215,17 +215,17 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   }
 }
 
-void ezQtTestGUI::on_actionAbort_triggered()
+void WQtTestGUI::on_actionAbort_triggered()
 {
   m_bAbort = true;
 }
 
-void ezQtTestGUI::on_actionQuit_triggered()
+void WQtTestGUI::on_actionQuit_triggered()
 {
   close();
 }
 
-void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
+void WQtTestGUI::on_actionEnableOnlyThis_triggered()
 {
   QModelIndex CurrentIndex = testTreeView->currentIndex();
   if (!CurrentIndex.isValid())
@@ -246,13 +246,13 @@ void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
 }
 
 
-void ezQtTestGUI::on_actionEnableOnlyFailed_triggered()
+void WQtTestGUI::on_actionEnableOnlyFailed_triggered()
 {
   m_pTestFramework->SetAllFailedTestsEnabledStatus();
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
-void ezQtTestGUI::on_actionEnableAllChildren_triggered()
+void WQtTestGUI::on_actionEnableAllChildren_triggered()
 {
   QModelIndex CurrentIndex = testTreeView->currentIndex();
   if (!CurrentIndex.isValid())
@@ -266,29 +266,29 @@ void ezQtTestGUI::on_actionEnableAllChildren_triggered()
   }
 }
 
-void ezQtTestGUI::on_actionEnableAll_triggered()
+void WQtTestGUI::on_actionEnableAll_triggered()
 {
   m_pTestFramework->SetAllTestsEnabledStatus(true);
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
-void ezQtTestGUI::on_actionDisableAll_triggered()
+void WQtTestGUI::on_actionDisableAll_triggered()
 {
   m_pTestFramework->SetAllTestsEnabledStatus(false);
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
-void ezQtTestGUI::on_actionExpandAll_triggered()
+void WQtTestGUI::on_actionExpandAll_triggered()
 {
   testTreeView->expandAll();
 }
 
-void ezQtTestGUI::on_actionCollapseAll_triggered()
+void WQtTestGUI::on_actionCollapseAll_triggered()
 {
   testTreeView->collapseAll();
 }
 
-void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iSubTestIndex)
+void WQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iSubTestIndex)
 {
   m_pModel->TestDataChanged(iTestIndex, iSubTestIndex);
 
@@ -323,10 +323,10 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
 
 
   // Update status bar
-  const ezUInt32 uiTestCount = m_uiTestsEnabledCount;
-  const ezUInt32 uiFailed = m_pTestFramework->GetTestsFailedCount();
-  const ezUInt32 uiPassed = m_pTestFramework->GetTestsPassedCount();
-  const ezUInt32 uiErrors = m_pTestFramework->GetTotalErrorCount();
+  const WUInt32 uiTestCount = m_uiTestsEnabledCount;
+  const WUInt32 uiFailed = m_pTestFramework->GetTestsFailedCount();
+  const WUInt32 uiPassed = m_pTestFramework->GetTestsPassedCount();
+  const WUInt32 uiErrors = m_pTestFramework->GetTotalErrorCount();
   double fTestDurationInSeconds = m_pTestFramework->GetTotalTestDuration() / 1000.0;
 
   // Get the current test's sub-test completion ratio
@@ -334,7 +334,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   if (iTestIndex != -1 && iSubTestIndex != -1)
   {
     fSubTestPercentage =
-      (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed) /
+      (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), WTestResultQuery::Executed) /
       (float)m_uiSubTestsEnabledCount;
   }
 
@@ -350,7 +350,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   QApplication::processEvents();
 }
 
-void ezQtTestGUI::onTestTreeViewCustomContextMenuRequested(const QPoint& pnt)
+void WQtTestGUI::onTestTreeViewCustomContextMenuRequested(const QPoint& pnt)
 {
   QModelIndex CurrentIndex = testTreeView->currentIndex();
 
@@ -370,15 +370,15 @@ void ezQtTestGUI::onTestTreeViewCustomContextMenuRequested(const QPoint& pnt)
   ContextMenu.exec(testTreeView->viewport()->mapToGlobal(pnt));
 }
 
-void ezQtTestGUI::onSelectionModelCurrentRowChanged(const QModelIndex& index)
+void WQtTestGUI::onSelectionModelCurrentRowChanged(const QModelIndex& index)
 {
   if (!index.isValid())
   {
     m_pMessageLogDock->currentTestSelectionChanged(nullptr);
   }
 
-  const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)index.internalPointer();
-  const ezTestResultData* pTestResult = pEntry->GetTestResult();
+  const WQtTestModelEntry* pEntry = (WQtTestModelEntry*)index.internalPointer();
+  const WTestResultData* pTestResult = pEntry->GetTestResult();
 
   m_pMessageLogDock->currentTestSelectionChanged(pTestResult);
 }
@@ -389,26 +389,26 @@ void OpenInExplorer(const char* szPath)
 
   args << QDir::toNativeSeparators(szPath);
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   QProcess::startDetached("explorer", args);
-#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  elif W_ENABLED(W_PLATFORM_LINUX)
   QProcess::startDetached("xdg-open", args);
 #  else
-  EZ_ASSERT_NOT_IMPLEMENTED
+  W_ASSERT_NOT_IMPLEMENTED
 #  endif
 }
 
-void ezQtTestGUI::on_actionOpenTestDataFolder_triggered()
+void WQtTestGUI::on_actionOpenTestDataFolder_triggered()
 {
-  ezStringBuilder sDir;
-  if (ezFileSystem::ResolveSpecialDirectory(">sdk", sDir).Failed())
+  WStringBuilder sDir;
+  if (WFileSystem::ResolveSpecialDirectory(">sdk", sDir).Failed())
     return;
 
   sDir.AppendPath(m_pTestFramework->GetRelTestDataPath());
   OpenInExplorer(sDir);
 }
 
-void ezQtTestGUI::on_actionOpenOutputFolder_triggered()
+void WQtTestGUI::on_actionOpenOutputFolder_triggered()
 {
   m_pTestFramework->CreateOutputFolder();
   const char* szDir = m_pTestFramework->GetAbsOutputPath();
@@ -416,23 +416,23 @@ void ezQtTestGUI::on_actionOpenOutputFolder_triggered()
   OpenInExplorer(szDir);
 }
 
-void ezQtTestGUI::on_actionOpenHTMLFile_triggered()
+void WQtTestGUI::on_actionOpenHTMLFile_triggered()
 {
-  std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
+  std::string sOutputFile = std::string(WTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
 
   QDesktopServices::openUrl(QUrl::fromLocalFile(sOutputFile.c_str()));
 }
 
-void ezQtTestGUI::on_actionUpdateReferenceImages_triggered()
+void WQtTestGUI::on_actionUpdateReferenceImages_triggered()
 {
   m_pTestFramework->UpdateReferenceImages();
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestGUI private functions
+// WQtTestGUI private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtTestGUI::UpdateButtonStates()
+void WQtTestGUI::UpdateButtonStates()
 {
   bool bTestsRunning = m_pTestFramework->GetTestsRunning();
 
@@ -445,7 +445,7 @@ void ezQtTestGUI::UpdateButtonStates()
   actionRunTests->setEnabled(!bTestsRunning);
 }
 
-void ezQtTestGUI::SaveGUILayout()
+void WQtTestGUI::SaveGUILayout()
 {
   QSettings Settings;
 
@@ -464,7 +464,7 @@ void ezQtTestGUI::SaveGUILayout()
   Settings.endGroup();
 }
 
-void ezQtTestGUI::LoadGUILayout()
+void WQtTestGUI::LoadGUILayout()
 {
   QSettings Settings;
   Settings.beginGroup("MainWindow");
@@ -480,18 +480,18 @@ void ezQtTestGUI::LoadGUILayout()
   Settings.endGroup();
 }
 
-void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked)
+void WQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked)
 {
   m_pModel->setData(index, bChecked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
 
-  ezInt32 iChildren = m_pModel->rowCount(index);
-  for (ezInt32 i = 0; i < iChildren; ++i)
+  WInt32 iChildren = m_pModel->rowCount(index);
+  for (WInt32 i = 0; i < iChildren; ++i)
   {
     SetCheckStateRecursive(m_pModel->index(i, 0, index), bChecked);
   }
 }
 
-void ezQtTestGUI::EnableAllParents(const QModelIndex& index)
+void WQtTestGUI::EnableAllParents(const QModelIndex& index)
 {
   QModelIndex ParentIndex = m_pModel->parent(index);
   while (ParentIndex.isValid())
@@ -503,10 +503,10 @@ void ezQtTestGUI::EnableAllParents(const QModelIndex& index)
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestGUI public static functions
+// WQtTestGUI public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtTestGUI::SetDarkTheme()
+void WQtTestGUI::SetDarkTheme()
 {
   // return;
   QApplication::setStyle(QStyleFactory::create("fusion"));

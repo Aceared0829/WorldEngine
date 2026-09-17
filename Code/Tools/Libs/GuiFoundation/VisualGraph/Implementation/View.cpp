@@ -6,7 +6,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)
+WQtVisualGraphView::WQtVisualGraphView(QWidget* pParent)
   : QGraphicsView(pParent)
 
 {
@@ -19,9 +19,9 @@ ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)
   m_ViewScale = QPointF(1, 1);
 }
 
-ezQtVisualGraphView::~ezQtVisualGraphView() = default;
+WQtVisualGraphView::~WQtVisualGraphView() = default;
 
-void ezQtVisualGraphView::SetScene(ezQtVisualGraphScene* pScene)
+void WQtVisualGraphView::SetScene(WQtVisualGraphScene* pScene)
 {
   m_pScene = pScene;
   setScene(pScene);
@@ -33,12 +33,12 @@ void ezQtVisualGraphView::SetScene(ezQtVisualGraphScene* pScene)
   UpdateView();
 }
 
-ezQtVisualGraphScene* ezQtVisualGraphView::GetScene()
+WQtVisualGraphScene* WQtVisualGraphView::GetScene()
 {
   return m_pScene;
 }
 
-void ezQtVisualGraphView::FrameContent()
+void WQtVisualGraphView::FrameContent()
 {
   if (m_pScene == nullptr || width() == 0 || height() == 0)
     return;
@@ -58,7 +58,7 @@ void ezQtVisualGraphView::FrameContent()
   {
     for (QGraphicsItem* pItem : m_pScene->items())
     {
-      if (pItem->isVisible() && pItem->type() == ezQtVisualGraphScene::Node)
+      if (pItem->isVisible() && pItem->type() == WQtVisualGraphScene::Node)
         contentRect = contentRect.united(pItem->sceneBoundingRect());
     }
   }
@@ -73,7 +73,7 @@ void ezQtVisualGraphView::FrameContent()
   const double fScaleX = width() / contentRect.width();
   const double fScaleY = height() / contentRect.height();
   double fScale = qMin(fScaleX, fScaleY);
-  fScale = ezMath::Clamp(fScale, 0.01, 2.0);
+  fScale = WMath::Clamp(fScale, 0.01, 2.0);
 
   m_ViewScale = QPointF(fScale, fScale);
 
@@ -84,7 +84,7 @@ void ezQtVisualGraphView::FrameContent()
   UpdateView();
 }
 
-void ezQtVisualGraphView::mousePressEvent(QMouseEvent* event)
+void WQtVisualGraphView::mousePressEvent(QMouseEvent* event)
 {
   QGraphicsView::mousePressEvent(event);
 
@@ -101,7 +101,7 @@ void ezQtVisualGraphView::mousePressEvent(QMouseEvent* event)
   }
 }
 
-void ezQtVisualGraphView::mouseMoveEvent(QMouseEvent* event)
+void WQtVisualGraphView::mouseMoveEvent(QMouseEvent* event)
 {
   QGraphicsView::mouseMoveEvent(event);
 
@@ -119,7 +119,7 @@ void ezQtVisualGraphView::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
-void ezQtVisualGraphView::mouseReleaseEvent(QMouseEvent* event)
+void WQtVisualGraphView::mouseReleaseEvent(QMouseEvent* event)
 {
   if (event->button() == Qt::RightButton && m_bPanning)
   {
@@ -133,7 +133,7 @@ void ezQtVisualGraphView::mouseReleaseEvent(QMouseEvent* event)
   QGraphicsView::mouseReleaseEvent(event);
 }
 
-void ezQtVisualGraphView::wheelEvent(QWheelEvent* event)
+void WQtVisualGraphView::wheelEvent(QWheelEvent* event)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   QPointF centerA(event->position().x() / m_ViewScale.x(), event->position().y() / m_ViewScale.y());
@@ -149,8 +149,8 @@ void ezQtVisualGraphView::wheelEvent(QWheelEvent* event)
 #endif
 
   m_ViewScale *= fScale;
-  m_ViewScale.setX(ezMath::Clamp(m_ViewScale.x(), 0.01, 2.0));
-  m_ViewScale.setY(ezMath::Clamp(m_ViewScale.y(), 0.01, 2.0));
+  m_ViewScale.setX(WMath::Clamp(m_ViewScale.x(), 0.01, 2.0));
+  m_ViewScale.setY(WMath::Clamp(m_ViewScale.y(), 0.01, 2.0));
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   QPointF centerB(event->position().x() / m_ViewScale.x(), event->position().y() / m_ViewScale.y());
@@ -169,7 +169,7 @@ void ezQtVisualGraphView::wheelEvent(QWheelEvent* event)
   UpdateView();
 }
 
-void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
+void WQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
 {
   if (m_iPanCounter > 2)
   {
@@ -179,7 +179,7 @@ void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
   QGraphicsView::contextMenuEvent(event);
 }
 
-void ezQtVisualGraphView::keyPressEvent(QKeyEvent* event)
+void WQtVisualGraphView::keyPressEvent(QKeyEvent* event)
 {
   if (event->key() == Qt::Key_F && event->modifiers() == Qt::NoModifier)
   {
@@ -191,28 +191,28 @@ void ezQtVisualGraphView::keyPressEvent(QKeyEvent* event)
   QGraphicsView::keyPressEvent(event);
 }
 
-void ezQtVisualGraphView::resizeEvent(QResizeEvent* event)
+void WQtVisualGraphView::resizeEvent(QResizeEvent* event)
 {
   QGraphicsView::resizeEvent(event);
 
   UpdateView();
 }
 
-void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
+void WQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
 {
   if (m_bFrameOnNextDraw)
   {
     // Frame is deferred until drawBackground because SetScene() is called before the
     // widget has its final geometry, so width()/height() would be zero at that point.
     m_bFrameOnNextDraw = false;
-    QTimer::singleShot(10, this, &ezQtVisualGraphView::FrameContent);
+    QTimer::singleShot(10, this, &WQtVisualGraphView::FrameContent);
   }
 
   QGraphicsView::drawBackground(painter, r);
 
   if (m_ViewScale.manhattanLength() > 1.0)
   {
-    QPen pfine(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 0)), 1.0);
+    QPen pfine(WToQtColor(WColorScheme::GetColor(WColorScheme::Gray, 0)), 1.0);
 
     painter->setPen(pfine);
     DrawGrid(painter, 15);
@@ -222,36 +222,36 @@ void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
   {
     double scale = m_ViewScale.manhattanLength() < 0.25 ? 150.0 : 300.0;
 
-    QPen p(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 1)), 1.0);
+    QPen p(WToQtColor(WColorScheme::GetColor(WColorScheme::Gray, 1)), 1.0);
 
     painter->setPen(p);
     DrawGrid(painter, scale);
   }
 
   // Only force constant redraws when doing the debug animation.
-  if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtVisualGraphScene::ConnectionDecorationFlags::DrawDebugging))
+  if (GetScene()->GetConnectionDecorationFlags().IsSet(WQtVisualGraphScene::ConnectionDecorationFlags::DrawDebugging))
   {
     UpdateView();
   }
 }
 
-void ezQtVisualGraphView::UpdateView()
+void WQtVisualGraphView::UpdateView()
 {
   QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
   setSceneRect(sceneRect);
   fitInView(sceneRect, Qt::KeepAspectRatio);
 }
 
-void ezQtVisualGraphView::DrawGrid(QPainter* painter, const double gridStep)
+void WQtVisualGraphView::DrawGrid(QPainter* painter, const double gridStep)
 {
   const QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
   const QPointF topLeft = sceneRect.topLeft();
   const QPointF bottomRight = sceneRect.bottomRight();
 
-  const double left = ezMath::Floor(topLeft.x() / gridStep - 0.5);
-  const double right = ezMath::Floor(bottomRight.x() / gridStep + 1.0);
-  const double bottom = ezMath::Floor(topLeft.y() / gridStep - 0.5);
-  const double top = ezMath::Floor(bottomRight.y() / gridStep + 1.0);
+  const double left = WMath::Floor(topLeft.x() / gridStep - 0.5);
+  const double right = WMath::Floor(bottomRight.x() / gridStep + 1.0);
+  const double bottom = WMath::Floor(topLeft.y() / gridStep - 0.5);
+  const double top = WMath::Floor(bottomRight.y() / gridStep + 1.0);
 
   // vertical lines
   for (int xi = static_cast<int>(left); xi <= static_cast<int>(right); ++xi)

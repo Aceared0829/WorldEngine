@@ -4,36 +4,36 @@
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <RendererCore/Declarations.h>
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
 
 /// Descriptor for particle effect resources
 ///
 /// Contains the particle effect configuration data.
-struct EZ_PARTICLEPLUGIN_DLL ezParticleEffectResourceDescriptor
+struct W_PARTICLEPLUGIN_DLL WParticleEffectResourceDescriptor
 {
-  virtual void Save(ezStreamWriter& inout_stream) const;
-  virtual void Load(ezStreamReader& inout_stream);
+  virtual void Save(WStreamWriter& inout_stream) const;
+  virtual void Load(WStreamReader& inout_stream);
 
-  ezParticleEffectDescriptor m_Effect;
+  WParticleEffectDescriptor m_Effect;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectResource final : public ezResource
+class W_PARTICLEPLUGIN_DLL WParticleEffectResource final : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEffectResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezParticleEffectResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezParticleEffectResource, ezParticleEffectResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEffectResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WParticleEffectResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WParticleEffectResource, WParticleEffectResourceDescriptor);
 
 public:
-  ezParticleEffectResource();
-  ~ezParticleEffectResource();
+  WParticleEffectResource();
+  ~WParticleEffectResource();
 
-  const ezParticleEffectResourceDescriptor& GetDescriptor() { return m_Desc; }
+  const WParticleEffectResourceDescriptor& GetDescriptor() { return m_Desc; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezParticleEffectResourceDescriptor m_Desc;
+  WParticleEffectResourceDescriptor m_Desc;
 };

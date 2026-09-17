@@ -11,16 +11,16 @@
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 
 
-ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtCurve1DAssetDocumentWindow::WQtCurve1DAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "Curve1DAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -29,8 +29,8 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "Curve1DAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -41,7 +41,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   // Central Widget
   {
-    m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
+    m_pCurveEditor = new WQtCurve1DEditorWidget(this);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -49,37 +49,37 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(m_pCurveEditor);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pCentral->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("WQtDocumentPanel");
     pCentral->setWindowTitle("Curve");
     pCentral->setWidget(pWidget);
 
     m_pDockManager->setCentralWidget(pCentral);
   }
 
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtCurve1DAssetDocumentWindow::onInsertCpAt);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::InsertCpEvent, this, &WQtCurve1DAssetDocumentWindow::onInsertCpAt);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpMovedEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveCpMoved);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpDeletedEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentMovedEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentLinkEvent, this, &WQtCurve1DAssetDocumentWindow::onLinkCurveTangents);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpTangentModeEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged);
 
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndOperation);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
-  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginOperationEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveBeginOperation);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndOperationEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveEndOperation);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginCpChangesEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
+  connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndCpChangesEvent, this, &WQtCurve1DAssetDocumentWindow::onCurveEndCpChanges);
 
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
@@ -92,23 +92,23 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   UpdatePreview();
 }
 
-ezQtCurve1DAssetDocumentWindow::~ezQtCurve1DAssetDocumentWindow()
+WQtCurve1DAssetDocumentWindow::~WQtCurve1DAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation(QString name)
+void WQtCurve1DAssetDocumentWindow::onCurveBeginOperation(QString name)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands(name.toUtf8().data());
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
+void WQtCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -118,50 +118,50 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
   UpdatePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges(QString name)
+void WQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges(QString name)
 {
   GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
+void WQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
   UpdatePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double clickPosY)
+void WQtCurve1DAssetDocumentWindow::onInsertCpAt(WUInt32 uiCurveIdx, WInt64 tickX, double clickPosY)
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
-  ezCommandHistory* history = pDoc->GetCommandHistory();
+  WCommandHistory* history = pDoc->GetCommandHistory();
 
   if (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") == 0)
   {
     // no curves allocated yet, add one
 
-    ezAddObjectCommand cmdAddCurve;
+    WAddObjectCommand cmdAddCurve;
     cmdAddCurve.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmdAddCurve.m_NewObjectGuid = WUuid::MakeUuid();
     cmdAddCurve.m_sParentProperty = "Curves";
-    cmdAddCurve.m_pType = ezGetStaticRTTI<ezSingleCurveData>();
+    cmdAddCurve.m_pType = WGetStaticRTTI<WSingleCurveData>();
     cmdAddCurve.m_Index = -1;
 
     history->AddCommand(cmdAddCurve).AssertSuccess();
   }
 
-  const ezVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
+  const WVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
 
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
-  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  WAddObjectCommand cmdAdd;
+  cmdAdd.m_Parent = curveGuid.Get<WUuid>();
+  cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ControlPoints";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
+  cmdAdd.m_pType = WGetStaticRTTI<WCurveControlPointData>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
 
-  ezSetObjectPropertyCommand cmdSet;
+  WSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
@@ -173,28 +173,28 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
+  cmdSet.m_NewValue = WVec2(-0.1f, 0.0f);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "RightTangent";
-  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
+  cmdSet.m_NewValue = WVec2(+0.1f, 0.0f);
   history->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
+void WQtCurve1DAssetDocumentWindow::onCurveCpMoved(WUInt32 curveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY)
 {
-  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+  iTickX = WMath::Max<WInt64>(iTickX, 0);
 
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
@@ -205,85 +205,85 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
+void WQtCurve1DAssetDocumentWindow::onCurveCpDeleted(WUInt32 curveIdx, WUInt32 cpIdx)
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   if (!cpGuid.IsValid())
     return;
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void WQtCurve1DAssetDocumentWindow::onCurveTangentMoved(WUInt32 curveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   // clamp tangents to one side
   if (rightTangent)
-    newPosX = ezMath::Max(newPosX, 0.0f);
+    newPosX = WMath::Max(newPosX, 0.0f);
   else
-    newPosX = ezMath::Min(newPosX, 0.0f);
+    newPosX = WMath::Min(newPosX, 0.0f);
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
+  cmdSet.m_NewValue = WVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
+void WQtCurve1DAssetDocumentWindow::onLinkCurveTangents(WUInt32 curveIdx, WUInt32 cpIdx, bool bLink)
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdLink;
-  cmdLink.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdLink;
+  cmdLink.m_Object = cpGuid.Get<WUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
   GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
-    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx]->m_ControlPoints[cpIdx].m_LeftTangent;
-    const ezVec2 rightTangent(-leftTangent.x, -leftTangent.y);
+    const WVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx]->m_ControlPoints[cpIdx].m_LeftTangent;
+    const WVec2 rightTangent(-leftTangent.x, -leftTangent.y);
 
     onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
   }
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+void WQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(WUInt32 curveIdx, WUInt32 cpIdx, bool rightTangent, int mode)
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmd;
+  cmd.m_Object = cpGuid.Get<WUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
   GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
@@ -293,12 +293,12 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx
   {
     // generally works, but would need some work to make it perfect
 
-    ezCurve1D curve;
+    WCurve1D curve;
     pDoc->GetProperties()->m_Curves[curveIdx]->ConvertToRuntimeData(curve);
     curve.SortControlPoints();
     curve.ApplyTangentModes();
 
-    for (ezUInt32 i = 0; i < curve.GetNumControlPoints(); ++i)
+    for (WUInt32 i = 0; i < curve.GetNumControlPoints(); ++i)
     {
       const auto& cp = curve.GetControlPoint(i);
       if (cp.m_uiOriginalIndex == cpIdx)
@@ -314,9 +314,9 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx
   }
 }
 
-void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
+void WQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
-  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = static_cast<WCurve1DAssetDocument*>(GetDocument());
 
   m_pCurveEditor->SetCurveExtents(0, 0.1f, true, false);
   m_pCurveEditor->SetCurves(*pDoc->GetProperties());
@@ -324,19 +324,19 @@ void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
   SendLiveResourcePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtCurve1DAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtCurve1DAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterReset:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    case WDocumentObjectStructureEvent::Type::AfterReset:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       UpdatePreview();
       break;
 
@@ -345,47 +345,47 @@ void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjec
   }
 }
 
-void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
+void WQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Curve1D";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezCurve1DAssetDocument* pDoc = ezDynamicCast<ezCurve1DAssetDocument*>(GetDocument());
+  WCurve1DAssetDocument* pDoc = WDynamicCast<WCurve1DAssetDocument*>(GetDocument());
 
   // Write Path
-  ezStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezCurve1D");
+  WStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WCurve1D");
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+  msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtCurve1DAssetDocumentWindow::RestoreResource()
+void WQtCurve1DAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "Curve1D";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

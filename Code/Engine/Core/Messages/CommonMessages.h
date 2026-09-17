@@ -5,55 +5,55 @@
 #include <Foundation/Math/Color.h>
 
 /// Common message for components that can be toggled between playing and paused states
-struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
+struct W_CORE_DLL WMsgSetPlaying : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetPlaying, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetPlaying, WMessage);
 
   bool m_bPlay = true;
 };
 
 /// Common message for components that can or need to be canceled immediately
-struct EZ_CORE_DLL ezMsgInterruptPlaying : public ezMessage
+struct W_CORE_DLL WMsgInterruptPlaying : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgInterruptPlaying, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgInterruptPlaying, WMessage);
 };
 
 /// Basic message to set some generic parameter to a float value.
-struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
+struct W_CORE_DLL WMsgSetFloatParameter : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetFloatParameter, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetFloatParameter, WMessage);
 
-  ezString m_sParameterName;
+  WString m_sParameterName;
   float m_fValue = 0;
 };
 
 /// Basic message to set some generic parameter to a color value.
-struct EZ_CORE_DLL ezMsgSetColorParameter : public ezMessage
+struct W_CORE_DLL WMsgSetColorParameter : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetColorParameter, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetColorParameter, WMessage);
 
-  ezString m_sParameterName;
-  ezColor m_Value = ezColor::White;
+  WString m_sParameterName;
+  WColor m_Value = WColor::White;
 };
 
 /// For use in scripts to signal a custom event that some game event has occurred.
 ///
 /// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient
 /// information.
-struct EZ_CORE_DLL ezMsgGenericEvent : public ezMessage
+struct W_CORE_DLL WMsgGenericEvent : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericEvent, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgGenericEvent, WMessage);
 
   /// A custom string to identify the intent.
-  ezHashedString m_sMessage;
-  ezVariant m_Value;
+  WHashedString m_sMessage;
+  WVariant m_Value;
 };
 
 /// Sent when an animation reached its end (either forwards or backwards playing)
 ///
 /// This is sent regardless of whether the animation is played once, looped or back and forth,
 /// ie. it should be sent at each 'end' point, even when it then starts another cycle.
-struct EZ_CORE_DLL ezMsgAnimationReachedEnd : public ezMessage
+struct W_CORE_DLL WMsgAnimationReachedEnd : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationReachedEnd, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgAnimationReachedEnd, WMessage);
 };

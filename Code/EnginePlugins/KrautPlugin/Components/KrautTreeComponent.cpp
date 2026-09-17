@@ -18,41 +18,41 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezKrautTreeTypeBits, 1)
-  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::Trunk1, ezKrautTreeTypeBits::Trunk2, ezKrautTreeTypeBits::Trunk3)
-  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::MainBranches1, ezKrautTreeTypeBits::MainBranches2, ezKrautTreeTypeBits::MainBranches3)
-  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::SubBranches1, ezKrautTreeTypeBits::SubBranches2, ezKrautTreeTypeBits::SubBranches3)
-  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::Twigs1, ezKrautTreeTypeBits::Twigs2, ezKrautTreeTypeBits::Twigs3)
-EZ_END_STATIC_REFLECTED_BITFLAGS
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WKrautTreeTypeBits, 1)
+  W_BITFLAGS_CONSTANTS(WKrautTreeTypeBits::Trunk1, WKrautTreeTypeBits::Trunk2, WKrautTreeTypeBits::Trunk3)
+  W_BITFLAGS_CONSTANTS(WKrautTreeTypeBits::MainBranches1, WKrautTreeTypeBits::MainBranches2, WKrautTreeTypeBits::MainBranches3)
+  W_BITFLAGS_CONSTANTS(WKrautTreeTypeBits::SubBranches1, WKrautTreeTypeBits::SubBranches2, WKrautTreeTypeBits::SubBranches3)
+  W_BITFLAGS_CONSTANTS(WKrautTreeTypeBits::Twigs1, WKrautTreeTypeBits::Twigs2, WKrautTreeTypeBits::Twigs3)
+W_END_STATIC_REFLECTED_BITFLAGS
 
-EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WKrautTreeComponent, 3, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("KrautTree", GetKrautGeneratorResource, SetKrautGeneratorResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new ezDefaultValueAttribute(0xFFFF)),
+    W_RESOURCE_ACCESSOR_PROPERTY("KrautTree", GetKrautGeneratorResource, SetKrautGeneratorResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Kraut_Tree"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new WDefaultValueAttribute(0xFFFF)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
-    EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry),
+    W_MESSAGE_HANDLER(WMsgBuildStaticMesh, OnBuildStaticMesh),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Terrain"),
+    new WCategoryAttribute("Terrain"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezKrautTreeComponent::ezKrautTreeComponent() = default;
-ezKrautTreeComponent::~ezKrautTreeComponent() = default;
+WKrautTreeComponent::WKrautTreeComponent() = default;
+WKrautTreeComponent::~WKrautTreeComponent() = default;
 
-void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WKrautTreeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -63,10 +63,10 @@ void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_uiCustomRandomSeed;
 }
 
-void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WKrautTreeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -84,25 +84,25 @@ void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   if (uiVersion == 2)
   {
-    ezUInt16 m_uiDefaultVariationIndex;
+    WUInt16 m_uiDefaultVariationIndex;
     s >> m_uiDefaultVariationIndex;
   }
 
-  GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+  GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+WResult WKrautTreeComponent::GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg)
 {
   if (!m_hKrautTree.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::PointerOnly);
+  WResourceLock<WKrautTreeResource> pTree(m_hKrautTree, WResourceAcquireMode::PointerOnly);
   if (!pTree.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezBoundingBoxSphere treeBounds = pTree->GetDetails().m_Bounds;
+  const WBoundingBoxSphere treeBounds = pTree->GetDetails().m_Bounds;
   if (!treeBounds.IsValid())
-    return EZ_FAILURE; // base data not yet generated; re-trigger once available
+    return W_FAILURE; // base data not yet generated; re-trigger once available
 
   bounds = treeBounds;
 
@@ -111,10 +111,10 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
   bounds.m_fSphereRadius *= s_iLocalBoundsScale;
   bounds.m_vBoxHalfExtents *= (float)s_iLocalBoundsScale;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)
+void WKrautTreeComponent::SetVariationIndex(WUInt16 uiIndex)
 {
   if (m_uiVariationIndex == uiIndex)
     return;
@@ -123,16 +123,16 @@ void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)
 
   if (IsActiveAndInitialized() && m_hKrautGenerator.IsValid())
   {
-    GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
-ezUInt16 ezKrautTreeComponent::GetVariationIndex() const
+WUInt16 WKrautTreeComponent::GetVariationIndex() const
 {
   return m_uiVariationIndex;
 }
 
-void ezKrautTreeComponent::SetCustomRandomSeed(ezUInt16 uiSeed)
+void WKrautTreeComponent::SetCustomRandomSeed(WUInt16 uiSeed)
 {
   if (m_uiCustomRandomSeed == uiSeed)
     return;
@@ -141,16 +141,16 @@ void ezKrautTreeComponent::SetCustomRandomSeed(ezUInt16 uiSeed)
 
   if (IsActiveAndInitialized() && m_hKrautGenerator.IsValid())
   {
-    GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
-ezUInt16 ezKrautTreeComponent::GetCustomRandomSeed() const
+WUInt16 WKrautTreeComponent::GetCustomRandomSeed() const
 {
   return m_uiCustomRandomSeed;
 }
 
-void ezKrautTreeComponent::SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree)
+void WKrautTreeComponent::SetKrautGeneratorResource(const WKrautGeneratorResourceHandle& hTree)
 {
   if (m_hKrautGenerator == hTree)
     return;
@@ -159,11 +159,11 @@ void ezKrautTreeComponent::SetKrautGeneratorResource(const ezKrautGeneratorResou
 
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
-void ezKrautTreeComponent::OnActivated()
+void WKrautTreeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -173,45 +173,45 @@ void ezKrautTreeComponent::OnActivated()
 
   if (m_hKrautGenerator.IsValid())
   {
-    GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
-void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WKrautTreeComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hKrautTree.IsValid() || !m_hKrautGenerator.IsValid())
     return;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::PointerOnly);
+  WResourceLock<WKrautTreeResource> pTree(m_hKrautTree, WResourceAcquireMode::PointerOnly);
   if (!pTree.IsValid())
     return;
 
-  const ezGameObject* pOwner = GetOwner();
-  const ezTransform tOwner = pOwner->GetGlobalTransform();
-  const float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
+  const WGameObject* pOwner = GetOwner();
+  const WTransform tOwner = pOwner->GetGlobalTransform();
+  const float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * WSimdFloat(1.0f / 3.0f);
 
-  const ezVec3 vLodCamPos = msg.m_pView->GetLodCamera()->GetPosition();
-  const bool bIsShadowView = msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow;
+  const WVec3 vLodCamPos = msg.m_pView->GetLodCamera()->GetPosition();
+  const bool bIsShadowView = msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow;
   const float fDistanceSQR = (tOwner.m_vPosition - vLodCamPos).GetLengthSquared();
 
-  const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
+  const WUInt8 uiMaxLods = static_cast<WUInt8>(pTree->GetTreeLODs().GetCount());
 
   // Determine which single LOD to render
-  ezUInt8 uiActiveLod = uiMaxLods; // sentinel: no LOD selected yet
+  WUInt8 uiActiveLod = uiMaxLods; // sentinel: no LOD selected yet
 
   if (m_iLodOverride >= 0 && m_iLodOverride < uiMaxLods)
   {
-    uiActiveLod = static_cast<ezUInt8>(m_iLodOverride);
+    uiActiveLod = static_cast<WUInt8>(m_iLodOverride);
   }
   else
   {
     // Skip LOD0 (full-detail) in distance-based selection; it is only shown via override.
     // LODs 1..N are the runtime LODs.
-    for (ezUInt8 uiCurLod = 1; uiCurLod < uiMaxLods; ++uiCurLod)
+    for (WUInt8 uiCurLod = 1; uiCurLod < uiMaxLods; ++uiCurLod)
     {
       const auto& lodData = pTree->GetTreeLODs()[uiCurLod];
-      const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
-      const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
+      const float fMinDistSQR = WMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
+      const float fMaxDistSQR = WMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
 
       if (fDistanceSQR >= fMinDistSQR && fDistanceSQR < fMaxDistSQR)
       {
@@ -226,7 +226,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   // Request the LOD mesh — returns true if ready, false if still generating.
   {
-    ezResourceLock<ezKrautGeneratorResource> pGenerator(m_hKrautGenerator, ezResourceAcquireMode::PointerOnly);
+    WResourceLock<WKrautGeneratorResource> pGenerator(m_hKrautGenerator, WResourceAcquireMode::PointerOnly);
     if (!pGenerator.IsValid())
       return;
 
@@ -235,7 +235,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       // In runtime, fall back to a coarser LOD (higher index) that may already be ready,
       // rather than skipping rendering entirely for this frame.
       bool bFoundFallback = false;
-      for (ezUInt8 uiFallbackLod = uiActiveLod + 1; uiFallbackLod < uiMaxLods; ++uiFallbackLod)
+      for (WUInt8 uiFallbackLod = uiActiveLod + 1; uiFallbackLod < uiMaxLods; ++uiFallbackLod)
       {
         if (pGenerator->RequestLodMesh(m_hKrautTree, m_uiCurrentSeed, uiFallbackLod, false))
         {
@@ -250,70 +250,70 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     }
   }
 
-  m_iLastRenderedLod = static_cast<ezInt8>(uiActiveLod);
+  m_iLastRenderedLod = static_cast<WInt8>(uiActiveLod);
 
   const auto& lodData = pTree->GetTreeLODs()[uiActiveLod];
   if (!lodData.m_hMesh.IsValid())
     return;
 
-  if (bIsShadowView && lodData.m_LodType != ezKrautLodType::Mesh)
+  if (bIsShadowView && lodData.m_LodType != WKrautLodType::Mesh)
     return;
 
   // ignore scale, the shader expects the wind strength in the global 0-20 m/sec range
-  const ezVec3 vLocalWind = pOwner->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
+  const WVec3 vLocalWind = pOwner->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
 
   const bool bDynamic = true;
-  const ezColor color = ezColor(vLocalWind.x, vLocalWind.y, vLocalWind.z, vLocalWind.GetLength());
-  const ezVec4 customData = pTree->GetDetails().m_vLeafCenter.GetAsVec4(0.0f);
+  const WColor color = WColor(vLocalWind.x, vLocalWind.y, vLocalWind.z, vLocalWind.GetLength());
+  const WVec4 customData = pTree->GetDetails().m_vLeafCenter.GetAsVec4(0.0f);
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, tOwner, m_InstanceDataOffset, GetUniqueIdForRendering(), color, customData);
 
-  ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
-  ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials = lodData.m_Materials;
+  WResourceLock<WMeshResource> pMesh(lodData.m_hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WArrayPtr<const WMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
+  WArrayPtr<const WKrautTreeResourceDescriptor::MaterialData> materials = lodData.m_Materials;
 
-  for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
+  for (WUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
   {
-    const ezUInt32 uiMaterialIndex = subMeshes[subMeshIdx].m_uiMaterialIndex;
+    const WUInt32 uiMaterialIndex = subMeshes[subMeshIdx].m_uiMaterialIndex;
 
     if (uiMaterialIndex < materials.GetCount())
     {
       const auto& matInfo = materials[uiMaterialIndex];
 
-      if (matInfo.m_BranchType != ezKrautBranchType::None && m_bHideFrondsAndLeafs &&
-          (matInfo.m_MaterialType == ezKrautMaterialType::Frond || matInfo.m_MaterialType == ezKrautMaterialType::Leaf))
+      if (matInfo.m_BranchType != WKrautBranchType::None && m_bHideFrondsAndLeafs &&
+          (matInfo.m_MaterialType == WKrautMaterialType::Frond || matInfo.m_MaterialType == WKrautMaterialType::Leaf))
       {
         continue;
       }
     }
 
-    ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+    WMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+    WMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(pOwner);
     pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, lodData.m_hMesh, uiMaterialIndex, subMeshIdx);
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+    msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::LitOpaque, WRenderData::Caching::Never);
   }
 }
 
-ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const
+WResult WKrautTreeComponent::CreateGeometry(WGeometry& geo, WWorldGeoExtractionUtil::ExtractionMode mode) const
 {
   if (GetOwner()->IsDynamic())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // EnsureTreeIsGenerated(); // not const
 
   if (!m_hKrautTree.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WResourceLock<WKrautTreeResource> pTree(m_hKrautTree, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return EZ_FAILURE;
+  if (pTree.GetAcquireResult() != WResourceAcquireResult::Final)
+    return W_FAILURE;
 
   const auto& details = pTree->GetDetails();
 
-  if (mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+  if (mode == WWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
   {
     // TODO: support to load the actual tree mesh and return it
   }
@@ -323,12 +323,12 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     const float fMaxScale = GetOwner()->GetGlobalScalingSimd().HorizontalMax<3>();
 
     if (details.m_fStaticColliderRadius * fMaxScale <= 0.0f)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtents.z) * 0.9f;
 
     if (fHeightScale * fTreeHeight <= 0.0f)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // using a cone or even a cylinder with a thinner top results in the character controller getting stuck while sliding along the geometry
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
@@ -339,17 +339,17 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     geo.TriangulatePolygons();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezKrautTreeComponent::EnsureTreeIsGenerated()
+void WKrautTreeComponent::EnsureTreeIsGenerated()
 {
   if (!m_hKrautGenerator.IsValid())
     return;
 
-  ezResourceLock<ezKrautGeneratorResource> pResource(m_hKrautGenerator, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WResourceLock<WKrautGeneratorResource> pResource(m_hKrautGenerator, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pResource.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   auto pDesc = pResource->GetDescriptor();
@@ -357,21 +357,21 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
     return;
 
   // Compute the seed for this component instance
-  ezUInt32 uiSeed;
+  WUInt32 uiSeed;
   if (m_uiCustomRandomSeed != 0xFFFF)
   {
     uiSeed = m_uiCustomRandomSeed;
   }
   else
   {
-    const ezUInt16 uiIndex = (m_uiVariationIndex != 0xFFFF) ? m_uiVariationIndex : static_cast<ezUInt16>(GetOwner()->GetStableRandomSeed() & 0xFFFF);
+    const WUInt16 uiIndex = (m_uiVariationIndex != 0xFFFF) ? m_uiVariationIndex : static_cast<WUInt16>(GetOwner()->GetStableRandomSeed() & 0xFFFF);
     if (pDesc->m_GoodRandomSeeds.IsEmpty())
       uiSeed = uiIndex;
     else
       uiSeed = pDesc->m_GoodRandomSeeds[uiIndex % pDesc->m_GoodRandomSeeds.GetCount()];
   }
 
-  const ezKrautTreeResourceHandle hNewTree = pResource->GetOrCreateTreeResource(uiSeed);
+  const WKrautTreeResourceHandle hNewTree = pResource->GetOrCreateTreeResource(uiSeed);
 
   if (m_hKrautTree == hNewTree)
   {
@@ -384,7 +384,7 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   // tree before switching, so the old tree keeps rendering without flickering.
   if (m_iLastRenderedLod >= 0)
   {
-    const ezUInt32 uiRequiredLod = static_cast<ezUInt32>(m_iLastRenderedLod);
+    const WUInt32 uiRequiredLod = static_cast<WUInt32>(m_iLastRenderedLod);
 
     // Kick off (or force) generation of the required LOD on the new tree resource.
     pResource->RequestLodMesh(hNewTree, uiSeed, uiRequiredLod, m_bForceGenerateImmediate);
@@ -392,11 +392,11 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
     if (!m_bForceGenerateImmediate)
     {
       // Check whether the LOD is ready yet; if not, retry next frame so the old tree keeps rendering.
-      ezResourceLock<ezKrautTreeResource> pNewTree(hNewTree, ezResourceAcquireMode::PointerOnly);
+      WResourceLock<WKrautTreeResource> pNewTree(hNewTree, WResourceAcquireMode::PointerOnly);
       if (pNewTree.IsValid() && uiRequiredLod < pNewTree->GetTreeLODs().GetCount() &&
-          pNewTree->GetLodState(uiRequiredLod) != ezKrautLodState::Ready)
+          pNewTree->GetLodState(uiRequiredLod) != WKrautLodState::Ready)
       {
-        GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+        GetWorld()->GetOrCreateComponentManager<WKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
         return;
       }
     }
@@ -407,7 +407,7 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
     // No previously rendered LOD to wait for. Generate base data + the coarsest runtime LOD
     // synchronously so that bounds are valid within this same frame. This makes first-frame
     // rendering deterministic, which is required for image comparison tests.
-    constexpr ezUInt32 uiCoarsestRuntimeLod = 1;
+    constexpr WUInt32 uiCoarsestRuntimeLod = 1;
     pResource->RequestLodMesh(hNewTree, uiSeed, uiCoarsestRuntimeLod, true);
   }
 
@@ -416,21 +416,21 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   TriggerLocalBoundsUpdate();
 }
 
-void ezKrautTreeComponent::ComputeWind()
+void WKrautTreeComponent::ComputeWind()
 {
-  if (!IsActiveAndSimulating() || GetOwner()->GetVisibilityState() == ezVisibilityState::Invisible)
+  if (!IsActiveAndSimulating() || GetOwner()->GetVisibilityState() == WVisibilityState::Invisible)
     return;
 
-  const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>();
+  const WWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<WWindWorldModuleInterface>();
 
   if (!pWindInterface)
     return;
 
   auto pOwnder = GetOwner();
 
-  const ezVec3 vOwnerPos = pOwnder->GetGlobalPosition();
-  const ezVec3 vSampleWindPos = vOwnerPos + ezVec3(0, 0, 2);
-  const ezVec3 vWindForce = pWindInterface->GetWindAt(vSampleWindPos);
+  const WVec3 vOwnerPos = pOwnder->GetGlobalPosition();
+  const WVec3 vSampleWindPos = vOwnerPos + WVec3(0, 0, 2);
+  const WVec3 vWindForce = pWindInterface->GetWindAt(vSampleWindPos);
 
   const float realTimeStep = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
@@ -442,13 +442,13 @@ void ezKrautTreeComponent::ComputeWind()
     const float fSpringDamping = 0.5f;
     const float fTreeMass = 1.0f;
 
-    const ezVec3 vSpringForce = -(fSpringConstant * m_vWindSpringPos + fSpringDamping * m_vWindSpringVel);
+    const WVec3 vSpringForce = -(fSpringConstant * m_vWindSpringPos + fSpringDamping * m_vWindSpringVel);
 
-    const ezVec3 vTotalForce = vWindForce + vSpringForce;
+    const WVec3 vTotalForce = vWindForce + vSpringForce;
 
     // F = mass*acc
     // acc = F / mass
-    const ezVec3 vTreeAcceleration = vTotalForce / fTreeMass;
+    const WVec3 vTreeAcceleration = vTotalForce / fTreeMass;
 
     m_vWindSpringVel += vTreeAcceleration * realTimeStep * fOverallStrength;
     m_vWindSpringPos += m_vWindSpringVel * realTimeStep * fOverallStrength;
@@ -457,17 +457,17 @@ void ezKrautTreeComponent::ComputeWind()
   // debug draw wind vectors
   if (false)
   {
-    const ezVec3 offset = GetOwner()->GetGlobalPosition() + ezVec3(2, 0, 1);
+    const WVec3 offset = GetOwner()->GetGlobalPosition() + WVec3(2, 0, 1);
 
-    ezTempHybridArray<ezDebugRendererLine, 2> lines;
+    WTempHybridArray<WDebugRendererLine, 2> lines;
 
     // actual wind
     {
       auto& l = lines.ExpandAndGetRef();
       l.m_start = offset;
       l.m_end = offset + vWindForce;
-      l.m_startColor = ezColor::BlueViolet;
-      l.m_endColor = ezColor::PowderBlue;
+      l.m_startColor = WColor::BlueViolet;
+      l.m_endColor = WColor::PowderBlue;
     }
 
     // springy wind
@@ -475,8 +475,8 @@ void ezKrautTreeComponent::ComputeWind()
       auto& l = lines.ExpandAndGetRef();
       l.m_start = offset;
       l.m_end = offset + m_vWindSpringPos;
-      l.m_startColor = ezColor::BlueViolet;
-      l.m_endColor = ezColor::MediumVioletRed;
+      l.m_startColor = WColor::BlueViolet;
+      l.m_endColor = WColor::MediumVioletRed;
     }
 
     // springy wind 2
@@ -484,84 +484,84 @@ void ezKrautTreeComponent::ComputeWind()
       auto& l = lines.ExpandAndGetRef();
       l.m_start = offset;
       l.m_end = offset + m_vWindSpringPos;
-      l.m_startColor = ezColor::LightGoldenRodYellow;
-      l.m_endColor = ezColor::MediumVioletRed;
+      l.m_startColor = WColor::LightGoldenRodYellow;
+      l.m_endColor = WColor::MediumVioletRed;
     }
 
-    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
+    WDebugRenderer::DrawLines(GetWorld(), lines, WColor::White);
 
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     tmp.SetFormat("Wind: {}m/s", m_vWindSpringPos.GetLength());
 
-    ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue);
+    WDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + WVec3(0, 0, 1), WColor::DeepSkyBlue);
   }
 }
 
-void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
+void WKrautTreeComponent::OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const
 {
-  ezStringBuilder sResourceName;
+  WStringBuilder sResourceName;
   sResourceName.SetFormat("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
 
-  ezCpuMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  WCpuMeshResourceHandle hMesh = WResourceManager::GetExistingResource<WCpuMeshResource>(sResourceName);
   if (!hMesh.IsValid())
   {
-    ezGeometry geo;
+    WGeometry geo;
     if (CreateGeometry(geo, ref_msg.m_Mode).Failed())
       return;
 
-    ezMeshResourceDescriptor desc;
+    WMeshResourceDescriptor desc;
 
     desc.MeshBufferDesc().AddCommonStreams();
-    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geo, ezGALPrimitiveTopology::Triangles);
+    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geo, WGALPrimitiveTopology::Triangles);
 
     desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
 
     desc.ComputeBounds();
 
-    hMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+    hMesh = WResourceManager::GetOrCreateResource<WCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
   ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
-void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const
+void WKrautTreeComponent::OnBuildStaticMesh(WMsgBuildStaticMesh& ref_msg) const
 {
-  ezGeometry geo;
-  if (CreateGeometry(geo, ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh).Failed())
+  WGeometry geo;
+  if (CreateGeometry(geo, WWorldGeoExtractionUtil::ExtractionMode::CollisionMesh).Failed())
     return;
 
   auto& desc = *ref_msg.m_pStaticMeshDescription;
   auto& subMesh = ref_msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
 
   {
-    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    WResourceLock<WKrautTreeResource> pTree(m_hKrautTree, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-    if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+    if (pTree.GetAcquireResult() != WResourceAcquireResult::Final)
       return;
 
     const auto& details = pTree->GetDetails();
 
     if (!details.m_sSurfaceResource.IsEmpty())
     {
-      const ezUInt32 uiSurfIdx = desc.m_Surfaces.IndexOf(details.m_sSurfaceResource);
-      if (uiSurfIdx == ezInvalidIndex)
+      const WUInt32 uiSurfIdx = desc.m_Surfaces.IndexOf(details.m_sSurfaceResource);
+      if (uiSurfIdx == WInvalidIndex)
       {
-        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
+        subMesh.m_uiSurfaceIndex = static_cast<WUInt16>(desc.m_Surfaces.GetCount());
         desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
       }
       else
       {
-        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(uiSurfIdx);
+        subMesh.m_uiSurfaceIndex = static_cast<WUInt16>(uiSurfIdx);
       }
     }
   }
 
-  const ezTransform transform = GetOwner()->GetGlobalTransform();
+  const WTransform transform = GetOwner()->GetGlobalTransform();
 
   subMesh.m_uiFirstTriangle = desc.m_Triangles.GetCount();
   subMesh.m_uiNumTriangles = geo.GetPolygons().GetCount();
 
-  const ezUInt32 uiFirstVertex = desc.m_Vertices.GetCount();
+  const WUInt32 uiFirstVertex = desc.m_Vertices.GetCount();
 
   for (const auto& vtx : geo.GetVertices())
   {
@@ -579,50 +579,50 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) cons
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezKrautTreeComponentManager::Initialize()
+void WKrautTreeComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezKrautTreeComponentManager::Update, this);
-    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WKrautTreeComponentManager::Update, this);
+    desc.m_Phase = WWorldUpdatePhase::PreAsync;
 
     RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezKrautTreeComponentManager::UpdateWind, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WKrautTreeComponentManager::UpdateWind, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_uiAsyncPhaseBatchSize = 16;
 
     RegisterUpdateFunction(desc);
   }
 
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezKrautTreeComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WKrautTreeComponentManager::ResourceEventHandler, this));
 }
 
-void ezKrautTreeComponentManager::Deinitialize()
+void WKrautTreeComponentManager::Deinitialize()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezKrautTreeComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WKrautTreeComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }
 
-void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WKrautTreeComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  ezDeque<ezComponentHandle> requireUpdate;
+  WDeque<WComponentHandle> requireUpdate;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     requireUpdate.Swap(m_RequireUpdate);
   }
 
   for (const auto& hComp : requireUpdate)
   {
-    ezKrautTreeComponent* pComp = nullptr;
+    WKrautTreeComponent* pComp = nullptr;
     if (!TryGetComponent(hComp, pComp) || !pComp->IsActiveAndInitialized())
       continue;
 
@@ -630,10 +630,10 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
 
     // If the tree resource exists but bounds aren't valid yet (base data task still running),
     // re-enqueue so we trigger a bounds update as soon as the async task completes.
-    const ezKrautTreeResourceHandle& hTree = pComp->GetKrautTreeResource();
+    const WKrautTreeResourceHandle& hTree = pComp->GetKrautTreeResource();
     if (hTree.IsValid())
     {
-      ezResourceLock<ezKrautTreeResource> pTree(hTree, ezResourceAcquireMode::PointerOnly);
+      WResourceLock<WKrautTreeResource> pTree(hTree, WResourceAcquireMode::PointerOnly);
       if (pTree.IsValid())
       {
         if (!pTree->GetDetails().m_Bounds.IsValid())
@@ -645,36 +645,36 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
   }
 }
 
-void ezKrautTreeComponentManager::UpdateWind(const ezWorldModule::UpdateContext& context)
+void WKrautTreeComponentManager::UpdateWind(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
-    ezKrautTreeComponent* pComponent = it;
+    WKrautTreeComponent* pComponent = it;
     pComponent->ComputeWind();
   }
 }
 
-void ezKrautTreeComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
+void WKrautTreeComponentManager::EnqueueUpdate(WComponentHandle hComponent)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  if (m_RequireUpdate.IndexOf(hComponent) != ezInvalidIndex)
+  if (m_RequireUpdate.IndexOf(hComponent) != WInvalidIndex)
     return;
 
   m_RequireUpdate.PushBack(hComponent);
 }
 
-void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WKrautTreeComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezKrautGeneratorResource>())
+  if ((e.m_Type == WResourceEvent::Type::ResourceContentUnloading || e.m_Type == WResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WKrautGeneratorResource>())
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
-    ezKrautGeneratorResourceHandle hResource((ezKrautGeneratorResource*)(e.m_pResource));
+    WKrautGeneratorResourceHandle hResource((WKrautGeneratorResource*)(e.m_pResource));
 
     for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
     {
-      const ezKrautTreeComponent* pComponent = static_cast<ezKrautTreeComponent*>(it.Value());
+      const WKrautTreeComponent* pComponent = static_cast<WKrautTreeComponent*>(it.Value());
 
       if (pComponent->GetKrautGeneratorResource() == hResource)
       {
@@ -685,4 +685,4 @@ void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 }
 
 
-EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Components_KrautTreeComponent);
+W_STATICLINK_FILE(KrautPlugin, KrautPlugin_Components_KrautTreeComponent);

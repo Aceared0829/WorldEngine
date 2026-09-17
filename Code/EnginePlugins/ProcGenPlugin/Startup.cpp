@@ -5,7 +5,7 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -14,16 +14,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("ProcGen Graph", ezGetStaticRTTI<ezProcGenGraphResource>());
+    WResourceManager::RegisterResourceForAssetType("ProcGen Graph", WGetStaticRTTI<WProcGenGraphResource>());
 
-    ezProcGenGraphResourceDescriptor desc;
-    ezProcGenGraphResourceHandle hResource = ezResourceManager::CreateResource<ezProcGenGraphResource>("ProcGenGraphMissing", std::move(desc), "Fallback for missing ProcGen Graph Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezProcGenGraphResource>(hResource);
+    WProcGenGraphResourceDescriptor desc;
+    WProcGenGraphResourceHandle hResource = WResourceManager::CreateResource<WProcGenGraphResource>("ProcGenGraphMissing", std::move(desc), "Fallback for missing ProcGen Graph Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WProcGenGraphResource>(hResource);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezProcGenGraphResource::CleanupDynamicPluginReferences();
+    WProcGenGraphResource::CleanupDynamicPluginReferences();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -34,8 +34,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Startup);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Startup);

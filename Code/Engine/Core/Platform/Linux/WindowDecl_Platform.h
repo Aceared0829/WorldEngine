@@ -1,5 +1,5 @@
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#if W_ENABLED(W_SUPPORTS_GLFW)
 
 #  include <Core/Platform/GLFW/InputDevice_GLFW.h>
 
@@ -13,13 +13,13 @@ extern "C"
   typedef struct xcb_connection_t xcb_connection_t;
 }
 
-struct ezXcbWindowHandle
+struct WXcbWindowHandle
 {
   xcb_connection_t* m_pConnection;
-  ezUInt32 m_Window;
+  WUInt32 m_Window;
 };
 
-struct ezWindowHandle
+struct WWindowHandle
 {
   enum class Type
   {
@@ -32,10 +32,10 @@ struct ezWindowHandle
   union
   {
     GLFWwindow* glfwWindow;
-    ezXcbWindowHandle xcbWindow;
+    WXcbWindowHandle xcbWindow;
   };
 
-  bool operator==(ezWindowHandle& rhs)
+  bool operator==(WWindowHandle& rhs)
   {
     if (type != rhs.type)
       return false;
@@ -52,9 +52,9 @@ struct ezWindowHandle
   }
 };
 
-using ezWindowInternalHandle = ezWindowHandle;
+using WWindowInternalHandle = WWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE \
-    ezWindowHandle {}
+    WWindowHandle {}
 
 #  define INVALID_INTERNAL_WINDOW_HANDLE_VALUE INVALID_WINDOW_HANDLE_VALUE
 

@@ -4,25 +4,25 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-ezActionDescriptorHandle ezVisualShaderActions::s_hVisualShaderCategory;
-ezActionDescriptorHandle ezVisualShaderActions::s_hCleanGraph;
+WActionDescriptorHandle WVisualShaderActions::s_hVisualShaderCategory;
+WActionDescriptorHandle WVisualShaderActions::s_hCleanGraph;
 
-void ezVisualShaderActions::RegisterActions()
+void WVisualShaderActions::RegisterActions()
 {
-  s_hVisualShaderCategory = EZ_REGISTER_CATEGORY("VisualShaderCategory");
-  s_hCleanGraph = EZ_REGISTER_ACTION_0("VisualShader.CleanGraph", ezActionScope::Document, "Visual Shader", "", ezVisualShaderAction);
+  s_hVisualShaderCategory = W_REGISTER_CATEGORY("VisualShaderCategory");
+  s_hCleanGraph = W_REGISTER_ACTION_0("VisualShader.CleanGraph", WActionScope::Document, "Visual Shader", "", WVisualShaderAction);
 }
 
-void ezVisualShaderActions::UnregisterActions()
+void WVisualShaderActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hVisualShaderCategory);
-  ezActionManager::UnregisterAction(s_hCleanGraph);
+  WActionManager::UnregisterAction(s_hVisualShaderCategory);
+  WActionManager::UnregisterAction(s_hCleanGraph);
 }
 
-void ezVisualShaderActions::MapActions(ezStringView sMapping)
+void WVisualShaderActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   // Use a high sort key to place Visual Shader actions on the far right of the toolbar
   pMap->MapAction(s_hVisualShaderCategory, "", 1000.0f);
@@ -30,42 +30,42 @@ void ezVisualShaderActions::MapActions(ezStringView sMapping)
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualShaderAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVisualShaderAction::ezVisualShaderAction(const ezActionContext& context, const char* szName)
-  : ezButtonAction(context, szName, false, "")
+WVisualShaderAction::WVisualShaderAction(const WActionContext& context, const char* szName)
+  : WButtonAction(context, szName, false, "")
 {
   SetIconPath(":/EditorPluginAssets/Cleanup.svg");
 
   // Register to listen for property changes on the document
-  m_Context.m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualShaderAction::PropertyEventHandler, this));
+  m_Context.m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WVisualShaderAction::PropertyEventHandler, this));
 
   // Initialize visibility based on current shader mode
-  ezMaterialAssetDocument* pMaterial = static_cast<ezMaterialAssetDocument*>(m_Context.m_pDocument);
-  const bool bCustom = pMaterial->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  WMaterialAssetDocument* pMaterial = static_cast<WMaterialAssetDocument*>(m_Context.m_pDocument);
+  const bool bCustom = pMaterial->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<WInt64>() == WMaterialShaderMode::Custom;
   SetVisible(bCustom, false);
 }
 
-ezVisualShaderAction::~ezVisualShaderAction()
+WVisualShaderAction::~WVisualShaderAction()
 {
-  m_Context.m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualShaderAction::PropertyEventHandler, this));
+  m_Context.m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WVisualShaderAction::PropertyEventHandler, this));
 }
 
-void ezVisualShaderAction::Execute(const ezVariant& value)
+void WVisualShaderAction::Execute(const WVariant& value)
 {
-  ezMaterialAssetDocument* pMaterial = static_cast<ezMaterialAssetDocument*>(m_Context.m_pDocument);
+  WMaterialAssetDocument* pMaterial = static_cast<WMaterialAssetDocument*>(m_Context.m_pDocument);
   pMaterial->RemoveDisconnectedNodes();
 }
 
-void ezVisualShaderAction::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WVisualShaderAction::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
-  ezMaterialAssetDocument* pMaterial = static_cast<ezMaterialAssetDocument*>(m_Context.m_pDocument);
+  WMaterialAssetDocument* pMaterial = static_cast<WMaterialAssetDocument*>(m_Context.m_pDocument);
 
   // Only react to ShaderMode changes on the material property object
   if (e.m_pObject == pMaterial->GetPropertyObject() && e.m_sProperty == "ShaderMode")
   {
-    const bool bCustom = e.m_pObject->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+    const bool bCustom = e.m_pObject->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<WInt64>() == WMaterialShaderMode::Custom;
     SetVisible(bCustom);
   }
 }

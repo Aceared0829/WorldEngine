@@ -9,12 +9,12 @@
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
 
-ezRmlUiContext* RtsGameMode::SetUiActive(ezWorld* pWorld, ezTempHashedString sName, bool bActive)
+WRmlUiContext* RtsGameMode::SetUiActive(WWorld* pWorld, WTempHashedString sName, bool bActive)
 {
-  ezGameObject* pUIObject = nullptr;
+  WGameObject* pUIObject = nullptr;
   if (pWorld->TryGetObjectWithGlobalKey(sName, pUIObject))
   {
-    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    WRmlUiCanvas2DComponent* pUiComponent = nullptr;
     if (pUIObject->TryGetComponentOfBaseType(pUiComponent))
     {
       pUiComponent->SetActiveFlag(bActive);
@@ -26,7 +26,7 @@ ezRmlUiContext* RtsGameMode::SetUiActive(ezWorld* pWorld, ezTempHashedString sNa
   return nullptr;
 }
 
-void RtsGameMode::ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera)
+void RtsGameMode::ActivateMode(WWorld* pMainWorld, WViewHandle hView, WCamera* pMainCamera)
 {
   if (m_bFirstActivation)
   {
@@ -54,10 +54,10 @@ void RtsGameMode::ProcessInput(const RtsMouseInputState& mouseInput)
 {
   bool bUiWantsInput = false;
 
-  if (ezRmlUi::GetSingleton() != nullptr)
+  if (WRmlUi::GetSingleton() != nullptr)
   {
     // do not process input, when RmlUi already wants to work with it
-    bUiWantsInput = ezRmlUi::GetSingleton()->AnyContextWantsInput();
+    bUiWantsInput = WRmlUi::GetSingleton()->AnyContextWantsInput();
   }
 
   OnProcessInput(mouseInput, bUiWantsInput);
@@ -70,25 +70,25 @@ void RtsGameMode::BeforeWorldUpdate()
 
 void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
 {
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
+  WView* pView = nullptr;
+  if (!WRenderWorld::TryGetView(m_hMainView, pView))
     return;
 
   const auto vp = pView->GetViewport();
 
   float movePosX, moveNegX, movePosY, moveNegY, zoomIn, zoomOut;
-  ezInputManager::GetInputActionState("Game", "CamMovePosX", &movePosX);
-  ezInputManager::GetInputActionState("Game", "CamMoveNegX", &moveNegX);
-  ezInputManager::GetInputActionState("Game", "CamMovePosY", &movePosY);
-  ezInputManager::GetInputActionState("Game", "CamMoveNegY", &moveNegY);
-  ezInputManager::GetInputActionState("Game", "CamZoomIn", &zoomIn);
-  ezInputManager::GetInputActionState("Game", "CamZoomOut", &zoomOut);
+  WInputManager::GetInputActionState("Game", "CamMovePosX", &movePosX);
+  WInputManager::GetInputActionState("Game", "CamMoveNegX", &moveNegX);
+  WInputManager::GetInputActionState("Game", "CamMovePosY", &movePosY);
+  WInputManager::GetInputActionState("Game", "CamMoveNegY", &moveNegY);
+  WInputManager::GetInputActionState("Game", "CamZoomIn", &zoomIn);
+  WInputManager::GetInputActionState("Game", "CamZoomOut", &zoomOut);
 
   const float moveX = movePosX - moveNegX;
   const float moveY = movePosY - moveNegY;
   const float zoom = -zoomIn + zoomOut;
 
-  const bool bMoveCamera = MouseInput.m_RightClickState != ezKeyState::Up;
+  const bool bMoveCamera = MouseInput.m_RightClickState != WKeyState::Up;
 
   const float fDimY = m_pMainCamera->GetFovOrDim();
   const float fDimX = (fDimY / vp.height) * vp.width;
@@ -104,7 +104,7 @@ void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
 
     fZoom = m_pGameState->SetCameraZoom(fZoom);
 
-    ezVec3 pos = m_pMainCamera->GetCenterPosition();
+    WVec3 pos = m_pMainCamera->GetCenterPosition();
     pos.z = fZoom;
     m_pMainCamera->LookAt(pos, pos + m_pMainCamera->GetCenterDirForwards(), m_pMainCamera->GetCenterDirUp());
   }
@@ -120,44 +120,44 @@ void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
   }
 }
 
-bool RtsMouseInputState::HasMouseMoved(ezVec2U32 vStart, ezVec2U32 vNow)
+bool RtsMouseInputState::HasMouseMoved(WVec2U32 vStart, WVec2U32 vNow)
 {
-  const ezVec2 v1((float)vNow.x, (float)vNow.y);
-  const ezVec2 v2((float)vStart.x, (float)vStart.y);
+  const WVec2 v1((float)vNow.x, (float)vNow.y);
+  const WVec2 v2((float)vStart.x, (float)vStart.y);
 
   return (v1 - v2).GetLength() > 3.0f;
 }
 
-ezColor RtsGameMode::GetTeamColor(ezUInt16 uiTeam)
+WColor RtsGameMode::GetTeamColor(WUInt16 uiTeam)
 {
   switch (uiTeam)
   {
     case 0:
-      return ezColorGammaUB(255, 0, 0);
+      return WColorGammaUB(255, 0, 0);
     case 1:
-      return ezColorGammaUB(0, 255, 0);
+      return WColorGammaUB(0, 255, 0);
     case 2:
-      return ezColorGammaUB(0, 0, 255);
+      return WColorGammaUB(0, 0, 255);
     case 3:
-      return ezColorGammaUB(255, 255, 0);
+      return WColorGammaUB(255, 255, 0);
   }
 
-  return ezColor::White;
+  return WColor::White;
 }
 
 void RtsGameMode::SetupSelectModeUI()
 {
   if (m_hSelectModeUIComponent.IsInvalidated())
   {
-    ezGameObject* pSelectModeUIObject = nullptr;
-    if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("game-ui"), pSelectModeUIObject))
+    WGameObject* pSelectModeUIObject = nullptr;
+    if (!m_pMainWorld->TryGetObjectWithGlobalKey(WTempHashedString("game-ui"), pSelectModeUIObject))
       return;
 
-    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    WRmlUiCanvas2DComponent* pUiComponent = nullptr;
     if (!pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent))
       return;
 
-    ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
+    WRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
 
     pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e)
       {
@@ -184,7 +184,7 @@ void RtsGameMode::SetupSelectModeUI()
     m_hSelectModeUIComponent = pUiComponent->GetHandle();
   }
 
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  WRmlUiCanvas2DComponent* pUiComponent = nullptr;
   if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
   {
     const RtsActiveGameMode mode = RTSGameState::GetSingleton()->GetActiveGameMode();

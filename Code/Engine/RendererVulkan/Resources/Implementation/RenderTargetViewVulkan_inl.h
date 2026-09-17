@@ -1,16 +1,16 @@
 
 
-EZ_ALWAYS_INLINE vk::ImageView ezGALRenderTargetViewVulkan::GetImageView() const
+W_ALWAYS_INLINE vk::ImageView WGALRenderTargetViewVulkan::GetImageView() const
 {
   return m_ImageView;
 }
 
-EZ_ALWAYS_INLINE bool ezGALRenderTargetViewVulkan::IsFullRange() const
+W_ALWAYS_INLINE bool WGALRenderTargetViewVulkan::IsFullRange() const
 {
   return m_bBfullRange;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezGALRenderTargetViewVulkan::GetRange() const
+W_ALWAYS_INLINE vk::ImageSubresourceRange WGALRenderTargetViewVulkan::GetRange() const
 {
   return m_Range;
 }

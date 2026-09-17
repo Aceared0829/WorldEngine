@@ -5,11 +5,11 @@
 #include <Texture/TexConv/TexConvEnums.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
-struct ezTexture2DChannelMappingEnum
+struct WTexture2DChannelMappingEnum
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -37,16 +37,16 @@ struct ezTexture2DChannelMappingEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DChannelMappingEnum);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTexture2DChannelMappingEnum);
 
 /// Channel mapping for array textures.
 ///
-/// Unlike ezTexture2DChannelMappingEnum, these modes can't combine multiple input files,
+/// Unlike WTexture2DChannelMappingEnum, these modes can't combine multiple input files,
 /// since every input file becomes one slice of the array. They only select which channels
 /// of each input are written to the output.
-struct ezTextureArrayChannelMappingEnum
+struct WTextureArrayChannelMappingEnum
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -62,11 +62,11 @@ struct ezTextureArrayChannelMappingEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureArrayChannelMappingEnum);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTextureArrayChannelMappingEnum);
 
-struct ezTexture2DResolution
+struct WTexture2DResolution
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -83,11 +83,11 @@ struct ezTexture2DResolution
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DResolution);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTexture2DResolution);
 
-struct ezRenderTargetFormat
+struct WRenderTargetFormat
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -106,16 +106,16 @@ struct ezRenderTargetFormat
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRenderTargetFormat);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WRenderTargetFormat);
 
-class ezTextureAssetProperties : public ezReflectedClass
+class WTextureAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTextureAssetProperties, WReflectedClass);
 
 public:
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  const char* GetInputFile(ezInt32 iInput) const { return m_Input[iInput]; }
+  const char* GetInputFile(WInt32 iInput) const { return m_Input[iInput]; }
 
   void SetInputFile0(const char* szFile) { m_Input[0] = szFile; }
   const char* GetInputFile0() const { return m_Input[0]; }
@@ -126,12 +126,12 @@ public:
   void SetInputFile3(const char* szFile) { m_Input[3] = szFile; }
   const char* GetInputFile3() const { return m_Input[3]; }
 
-  ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
+  WString GetAbsoluteInputFilePath(WInt32 iInput) const;
 
-  ezTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
-  ezTextureArrayChannelMappingEnum::Enum GetArrayChannelMapping() const { return m_ArrayChannelMapping; }
+  WTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
+  WTextureArrayChannelMappingEnum::Enum GetArrayChannelMapping() const { return m_ArrayChannelMapping; }
 
-  ezInt32 GetNumInputFiles() const;
+  WInt32 GetNumInputFiles() const;
 
   bool m_bIsRenderTarget = false;
   bool m_bIsArrayTexture = false;
@@ -143,21 +143,21 @@ public:
   float m_fHdrExposureBias = 0;
   float m_fAlphaThreshold = 0.25f;
 
-  ezEnum<ezTextureFilterSetting> m_TextureFilter;
-  ezEnum<ezImageAddressMode> m_AddressModeU;
-  ezEnum<ezImageAddressMode> m_AddressModeV;
-  ezEnum<ezImageAddressMode> m_AddressModeW;
-  ezEnum<ezTexture2DResolution> m_Resolution;
-  ezEnum<ezTexConvUsage> m_TextureUsage;
-  ezEnum<ezRenderTargetFormat> m_RtFormat;
+  WEnum<WTextureFilterSetting> m_TextureFilter;
+  WEnum<WImageAddressMode> m_AddressModeU;
+  WEnum<WImageAddressMode> m_AddressModeV;
+  WEnum<WImageAddressMode> m_AddressModeW;
+  WEnum<WTexture2DResolution> m_Resolution;
+  WEnum<WTexConvUsage> m_TextureUsage;
+  WEnum<WRenderTargetFormat> m_RtFormat;
 
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
-  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
+  WEnum<WTexConvCompressionMode> m_CompressionMode;
+  WEnum<WTexConvMipmapMode> m_MipmapMode;
 
-  ezDynamicArray<ezString> m_ArraySlices;
+  WDynamicArray<WString> m_ArraySlices;
 
 private:
-  ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;
-  ezEnum<ezTextureArrayChannelMappingEnum> m_ArrayChannelMapping;
-  ezString m_Input[4];
+  WEnum<WTexture2DChannelMappingEnum> m_ChannelMapping;
+  WEnum<WTextureArrayChannelMappingEnum> m_ArrayChannelMapping;
+  WString m_Input[4];
 };

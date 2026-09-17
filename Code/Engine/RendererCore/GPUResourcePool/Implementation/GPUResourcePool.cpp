@@ -7,54 +7,54 @@
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 #  include <Foundation/Utilities/Stats.h>
 #endif
 
-ezGPUResourcePool* ezGPUResourcePool::s_pDefaultInstance = nullptr;
+WGPUResourcePool* WGPUResourcePool::s_pDefaultInstance = nullptr;
 
-ezGPUResourcePool::ezGPUResourcePool()
+WGPUResourcePool::WGPUResourcePool()
 {
-  m_pDevice = ezGALDevice::GetDefaultDevice();
+  m_pDevice = WGALDevice::GetDefaultDevice();
 
-  m_GALDeviceEventSubscriptionID = m_pDevice->s_Events.AddEventHandler(ezMakeDelegate(&ezGPUResourcePool::GALDeviceEventHandler, this));
+  m_GALDeviceEventSubscriptionID = m_pDevice->s_Events.AddEventHandler(WMakeDelegate(&WGPUResourcePool::GALDeviceEventHandler, this));
 }
 
-ezGPUResourcePool::~ezGPUResourcePool()
+WGPUResourcePool::~WGPUResourcePool()
 {
   m_pDevice->s_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
   if (!m_TexturesInUse.IsEmpty())
   {
-    ezLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
+    WLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
   }
 
   // Free remaining resources
   RunGC(0);
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreationDescription& textureDesc)
+WGALTextureHandle WGPUResourcePool::GetRenderTarget(const WGALTextureCreationDescription& textureDesc)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
-  if (!textureDesc.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::RenderTarget))
+  if (!textureDesc.m_TextureFlags.IsAnySet(WGALTextureUsageFlags::UnorderedAccess | WGALTextureUsageFlags::RenderTarget))
   {
-    ezLog::Error("Texture description for render target usage has not set the UAV or RenderTargetView flag!");
-    return ezGALTextureHandle();
+    WLog::Error("Texture description for render target usage has not set the UAV or RenderTargetView flag!");
+    return WGALTextureHandle();
   }
 
-  const ezUInt32 uiTextureDescHash = textureDesc.CalculateHash();
+  const WUInt32 uiTextureDescHash = textureDesc.CalculateHash();
 
   // Check if there is a fitting texture available
   auto it = m_AvailableTextures.Find(uiTextureDescHash);
   if (it.IsValid())
   {
-    ezDynamicArray<TextureHandleWithAge>& textures = it.Value();
+    WDynamicArray<TextureHandleWithAge>& textures = it.Value();
     if (!textures.IsEmpty())
     {
-      ezGALTextureHandle hTexture = textures.PeekBack().m_hTexture;
+      WGALTextureHandle hTexture = textures.PeekBack().m_hTexture;
       textures.PopBack();
 
-      EZ_ASSERT_DEV(m_pDevice->GetTexture(hTexture) != nullptr, "Invalid texture in resource pool");
+      W_ASSERT_DEV(m_pDevice->GetTexture(hTexture) != nullptr, "Invalid texture in resource pool");
 
       m_TexturesInUse.Insert(hTexture);
 
@@ -66,13 +66,13 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   // first since we need to allocate memory now
   CheckAndPotentiallyRunGC();
 
-  ezGALTextureHandle hNewTexture = m_pDevice->CreateTexture(textureDesc);
+  WGALTextureHandle hNewTexture = m_pDevice->CreateTexture(textureDesc);
 
   if (hNewTexture.IsInvalidated())
   {
-    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", textureDesc.m_uiWidth,
+    WLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", textureDesc.m_uiWidth,
       textureDesc.m_uiHeight, textureDesc.m_Format);
-    return ezGALTextureHandle();
+    return WGALTextureHandle();
   }
 
   // Also track the new created texture
@@ -86,31 +86,31 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceCount, ezGALTextureType::Enum textureType)
+WGALTextureHandle WGPUResourcePool::GetRenderTarget(WUInt32 uiWidth, WUInt32 uiHeight, WGALResourceFormat::Enum format, WGALMSAASampleCount::Enum sampleCount, WUInt32 uiSliceCount, WGALTextureType::Enum textureType)
 {
-  ezGALTextureCreationDescription TextureDesc;
-  TextureDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource;
+  WGALTextureCreationDescription TextureDesc;
+  TextureDesc.m_TextureFlags = WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::ShaderResource;
   TextureDesc.m_Format = format;
   TextureDesc.m_Type = textureType;
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
   TextureDesc.m_SampleCount = sampleCount;
   TextureDesc.m_uiArraySize = uiSliceCount;
-  TextureDesc.m_Type = ezGALTextureType::Texture2DArray;
+  TextureDesc.m_Type = WGALTextureType::Texture2DArray;
 
   return GetRenderTarget(TextureDesc);
 }
 
-void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
+void WGPUResourcePool::ReturnRenderTarget(WGALTextureHandle hRenderTarget)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
   // First check if this texture actually came from the pool
   if (!m_TexturesInUse.Contains(hRenderTarget))
   {
-    ezLog::Error("Returning a texture to the GPU resource pool which wasn't created by the pool is not valid!");
+    WLog::Error("Returning a texture to the GPU resource pool which wasn't created by the pool is not valid!");
     return;
   }
 
@@ -118,39 +118,39 @@ void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
 
   m_TexturesInUse.Remove(hRenderTarget);
 
-  if (const ezGALTexture* pTexture = m_pDevice->GetTexture(hRenderTarget))
+  if (const WGALTexture* pTexture = m_pDevice->GetTexture(hRenderTarget))
   {
-    const ezUInt32 uiTextureDescHash = pTexture->GetDescription().CalculateHash();
+    const WUInt32 uiTextureDescHash = pTexture->GetDescription().CalculateHash();
 
     auto it = m_AvailableTextures.Find(uiTextureDescHash);
     if (!it.IsValid())
     {
-      it = m_AvailableTextures.Insert(uiTextureDescHash, ezDynamicArray<TextureHandleWithAge>());
+      it = m_AvailableTextures.Insert(uiTextureDescHash, WDynamicArray<TextureHandleWithAge>());
     }
 
-    it.Value().PushBack({hRenderTarget, ezRenderWorld::GetFrameCounter()});
+    it.Value().PushBack({hRenderTarget, WRenderWorld::GetFrameCounter()});
   }
 }
 
-ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescription& bufferDesc)
+WGALBufferHandle WGPUResourcePool::GetBuffer(const WGALBufferCreationDescription& bufferDesc)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
-  EZ_ASSERT_DEBUG(bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient), "Resource pool buffers must be transient");
+  W_ASSERT_DEBUG(bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::Transient), "Resource pool buffers must be transient");
 
-  const ezUInt32 uiBufferDescHash = bufferDesc.CalculateHash();
+  const WUInt32 uiBufferDescHash = bufferDesc.CalculateHash();
 
   // Check if there is a fitting buffer available
   auto it = m_AvailableBuffers.Find(uiBufferDescHash);
   if (it.IsValid())
   {
-    ezDynamicArray<BufferHandleWithAge>& buffers = it.Value();
+    WDynamicArray<BufferHandleWithAge>& buffers = it.Value();
     if (!buffers.IsEmpty())
     {
-      ezGALBufferHandle hBuffer = buffers.PeekBack().m_hBuffer;
+      WGALBufferHandle hBuffer = buffers.PeekBack().m_hBuffer;
       buffers.PopBack();
 
-      EZ_ASSERT_DEV(m_pDevice->GetBuffer(hBuffer) != nullptr, "Invalid buffer in resource pool");
+      W_ASSERT_DEV(m_pDevice->GetBuffer(hBuffer) != nullptr, "Invalid buffer in resource pool");
 
       m_BuffersInUse.Insert(hBuffer);
 
@@ -162,12 +162,12 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
   // first since we need to allocate memory now
   CheckAndPotentiallyRunGC();
 
-  ezGALBufferHandle hNewBuffer = m_pDevice->CreateBuffer(bufferDesc);
+  WGALBufferHandle hNewBuffer = m_pDevice->CreateBuffer(bufferDesc);
 
   if (hNewBuffer.IsInvalidated())
   {
-    ezLog::Error("GPU resource pool couldn't create new buffer for given desc (size: {0})", bufferDesc.m_uiTotalSize);
-    return ezGALBufferHandle();
+    WLog::Error("GPU resource pool couldn't create new buffer for given desc (size: {0})", bufferDesc.m_uiTotalSize);
+    return WGALBufferHandle();
   }
 
   // Also track the new created buffer
@@ -181,16 +181,16 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
   return hNewBuffer;
 }
 
-void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
+void WGPUResourcePool::ReturnBuffer(WGALBufferHandle hBuffer)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
   // First check if this texture actually came from the pool
   if (!m_BuffersInUse.Contains(hBuffer))
   {
-    ezLog::Error("Returning a buffer to the GPU resource pool which wasn't created by the pool is not valid!");
+    WLog::Error("Returning a buffer to the GPU resource pool which wasn't created by the pool is not valid!");
     return;
   }
 
@@ -200,23 +200,23 @@ void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
   m_BuffersToBeReused.PushBack(hBuffer);
 }
 
-void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
+void WGPUResourcePool::RunGC(WUInt32 uiMinimumAge)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
-  EZ_PROFILE_SCOPE("RunGC");
-  ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  W_PROFILE_SCOPE("RunGC");
+  WUInt64 uiCurrentFrame = WRenderWorld::GetFrameCounter();
   // Destroy all available textures older than uiMinimumAge frames
   {
     for (auto it = m_AvailableTextures.GetIterator(); it.IsValid();)
     {
       auto& textures = it.Value();
-      for (ezInt32 i = (ezInt32)textures.GetCount() - 1; i >= 0; i--)
+      for (WInt32 i = (WInt32)textures.GetCount() - 1; i >= 0; i--)
       {
         TextureHandleWithAge& texture = textures[i];
         if (texture.m_uiLastUsed + uiMinimumAge <= uiCurrentFrame)
         {
-          if (const ezGALTexture* pTexture = m_pDevice->GetTexture(texture.m_hTexture))
+          if (const WGALTexture* pTexture = m_pDevice->GetTexture(texture.m_hTexture))
           {
             m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForTexture(pTexture->GetDescription());
           }
@@ -248,12 +248,12 @@ void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
     for (auto it = m_AvailableBuffers.GetIterator(); it.IsValid();)
     {
       auto& buffers = it.Value();
-      for (ezInt32 i = (ezInt32)buffers.GetCount() - 1; i >= 0; i--)
+      for (WInt32 i = (WInt32)buffers.GetCount() - 1; i >= 0; i--)
       {
         BufferHandleWithAge& buffer = buffers[i];
         if (buffer.m_uiLastUsed + uiMinimumAge <= uiCurrentFrame)
         {
-          if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(buffer.m_hBuffer))
+          if (const WGALBuffer* pBuffer = m_pDevice->GetBuffer(buffer.m_hBuffer))
           {
             m_uiCurrentlyAllocatedMemory -= m_pDevice->GetMemoryConsumptionForBuffer(pBuffer->GetDescription());
           }
@@ -287,19 +287,19 @@ void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
 
 
 
-ezGPUResourcePool* ezGPUResourcePool::GetDefaultInstance()
+WGPUResourcePool* WGPUResourcePool::GetDefaultInstance()
 {
   return s_pDefaultInstance;
 }
 
-void ezGPUResourcePool::SetDefaultInstance(ezGPUResourcePool* pDefaultInstance)
+void WGPUResourcePool::SetDefaultInstance(WGPUResourcePool* pDefaultInstance)
 {
-  EZ_DEFAULT_DELETE(s_pDefaultInstance);
+  W_DEFAULT_DELETE(s_pDefaultInstance);
   s_pDefaultInstance = pDefaultInstance;
 }
 
 
-void ezGPUResourcePool::CheckAndPotentiallyRunGC()
+void WGPUResourcePool::CheckAndPotentiallyRunGC()
 {
   if ((m_uiNumAllocationsSinceLastGC >= m_uiNumAllocationsThresholdForGC) || (m_uiCurrentlyAllocatedMemory >= m_uiMemoryThresholdForGC))
   {
@@ -308,31 +308,31 @@ void ezGPUResourcePool::CheckAndPotentiallyRunGC()
   }
 }
 
-void ezGPUResourcePool::UpdateMemoryStats() const
+void WGPUResourcePool::UpdateMemoryStats() const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   float fMegaBytes = float(m_uiCurrentlyAllocatedMemory) / (1024.0f * 1024.0f);
-  ezStats::SetStat("GPU Resource Pool/Memory Consumption (MB)", fMegaBytes);
+  WStats::SetStat("GPU Resource Pool/Memory Consumption (MB)", fMegaBytes);
 #endif
 }
 
-void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WGPUResourcePool::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
-  if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
+  if (e.m_Type == WGALDeviceEvent::AfterEndFrame)
   {
-    for (ezGALBufferHandle hBuffer : m_BuffersToBeReused)
+    for (WGALBufferHandle hBuffer : m_BuffersToBeReused)
     {
-      if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
+      if (const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
       {
-        const ezUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
+        const WUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
 
         auto it = m_AvailableBuffers.Find(uiBufferDescHash);
         if (!it.IsValid())
         {
-          it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
+          it = m_AvailableBuffers.Insert(uiBufferDescHash, WDynamicArray<BufferHandleWithAge>());
         }
 
-        it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
+        it.Value().PushBack({hBuffer, WRenderWorld::GetFrameCounter()});
       }
     }
     m_BuffersToBeReused.Clear();

@@ -4,13 +4,13 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezBoxVisualizerAdapter : public ezVisualizerAdapter
+class WBoxVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezBoxVisualizerAdapter();
-  ~ezBoxVisualizerAdapter();
+  WBoxVisualizerAdapter();
+  ~WBoxVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -18,9 +18,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezVec3 m_vScale;
-  ezVec3 m_vPositionOffset;
-  ezQuat m_qRotation;
-  ezBitflags<ezVisualizerAnchor> m_Anchor;
-  ezEngineGizmoHandle m_hGizmo;
+  WVec3 m_vScale;
+  WVec3 m_vPositionOffset;
+  WQuat m_qRotation;
+  WBitflags<WVisualizerAnchor> m_Anchor;
+  WEngineGizmoHandle m_hGizmo;
 };

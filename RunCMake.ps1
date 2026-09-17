@@ -18,11 +18,11 @@ function Show-RepositorySetupError {
     Write-Host ""
     Write-Host "ERROR: $ErrorReason" -ForegroundColor Red
     Write-Host ""
-    Write-Host "The ezEngine repository must be cloned using Git." -ForegroundColor Yellow
+    Write-Host "The WorldEngine repository must be cloned using Git." -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Please follow these steps:" -ForegroundColor Yellow
     Write-Host "  1. Install Git from: https://git-scm.com/downloads" -ForegroundColor White
-    Write-Host "  2. Clone the ezEngine repository using:" -ForegroundColor White
+    Write-Host "  2. Clone the WorldEngine repository using:" -ForegroundColor White
     Write-Host "     git clone https://github.com/ezEngine/ezEngine.git" -ForegroundColor White
     Write-Host ""
     Write-Host "Do NOT download the repository as a ZIP file from GitHub," -ForegroundColor Red
@@ -99,14 +99,14 @@ if ($Target -like "android*") {
 #region CMake
 $CMAKE_ARGS = @("-S", "$PSScriptRoot", "--preset", "$Target")
 if ($NoUnityBuild) {
-    $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF"
+    $CMAKE_ARGS += "-DW_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF"
 }
 else {
-    $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=ON"
+    $CMAKE_ARGS += "-DW_ENABLE_FOLDER_UNITY_FILES:BOOL=ON"
 }
 
 if ($SolutionName -ne "") {
-    $CMAKE_ARGS += "-DEZ_SOLUTION_NAME:STRING='${SolutionName}'"
+    $CMAKE_ARGS += "-DW_SOLUTION_NAME:STRING='${SolutionName}'"
 }
 
 Write-Host ""
@@ -116,8 +116,8 @@ if ($WorkspaceDir -ne "") {
     Write-Host "Using custom workspace directory: Workspace\$WorkspaceDir"
     $CMAKE_ARGS += "-B"
     $CMAKE_ARGS += "$PSScriptRoot\Workspace\$WorkspaceDir"
-    $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_DLL:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Bin"
-    $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_LIB:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Lib"
+    $CMAKE_ARGS += "-DW_OUTPUT_DIRECTORY_DLL:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Bin"
+    $CMAKE_ARGS += "-DW_OUTPUT_DIRECTORY_LIB:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Lib"
     Write-Host "Custom output directories: Workspace\$WorkspaceDir-output\"
 }
 

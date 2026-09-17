@@ -4,18 +4,18 @@
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
 
-#define EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN "ezStartup_StartupCoreSystems_Begin"
-#define EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END "ezStartup_StartupCoreSystems_End"
-#define EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN "ezStartup_ShutdownCoreSystems_Begin"
-#define EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END "ezStartup_ShutdownCoreSystems_End"
+#define W_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN "WStartup_StartupCoreSystems_Begin"
+#define W_GLOBALEVENT_STARTUP_CORESYSTEMS_END "WStartup_StartupCoreSystems_End"
+#define W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN "WStartup_ShutdownCoreSystems_Begin"
+#define W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END "WStartup_ShutdownCoreSystems_End"
 
-#define EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN "ezStartup_StartupHighLevelSystems_Begin"
-#define EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END "ezStartup_StartupHighLevelSystems_End"
-#define EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN "ezStartup_ShutdownHighLevelSystems_Begin"
-#define EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END "ezStartup_ShutdownHighLevelSystems_End"
+#define W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN "WStartup_StartupHighLevelSystems_Begin"
+#define W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END "WStartup_StartupHighLevelSystems_End"
+#define W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN "WStartup_ShutdownHighLevelSystems_Begin"
+#define W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END "WStartup_ShutdownHighLevelSystems_End"
 
-#define EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN "ezStartup_UnloadPlugin_Begin"
-#define EZ_GLOBALEVENT_UNLOAD_PLUGIN_END "ezStartup_UnloadPlugin_End"
+#define W_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN "WStartup_UnloadPlugin_Begin"
+#define W_GLOBALEVENT_UNLOAD_PLUGIN_END "WStartup_UnloadPlugin_End"
 
 /// The startup system makes sure to initialize and shut down all known subsystems in the proper order.
 ///
@@ -33,7 +33,7 @@
 /// A subsystem startup configuration for a static subsystem needs to be put in some cpp file of the subsystem and looks like this:
 ///
 /// // clang-format off
-/// EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
+/// W_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
 ///
 ///   BEGIN_SUBSYSTEM_DEPENDENCIES
 ///     "SomeOtherSubSystem",
@@ -43,37 +43,37 @@
 ///
 ///   ON_CORESYSTEMS_STARTUP
 ///   {
-///     ezExampleSubSystem::BasicStartup();
+///     WExampleSubSystem::BasicStartup();
 ///   }
 ///
 ///   ON_CORESYSTEMS_SHUTDOWN
 ///   {
-///     ezExampleSubSystem::BasicShutdown();
+///     WExampleSubSystem::BasicShutdown();
 ///   }
 ///
 ///   ON_HIGHLEVELSYSTEMS_STARTUP
 ///   {
-///     ezExampleSubSystem::EngineStartup();
+///     WExampleSubSystem::EngineStartup();
 ///   }
 ///
 ///   ON_HIGHLEVELSYSTEMS_SHUTDOWN
 ///   {
-///     ezExampleSubSystem::EngineShutdown();
+///     WExampleSubSystem::EngineShutdown();
 ///   }
 ///
-/// EZ_END_SUBSYSTEM_DECLARATION;
+/// W_END_SUBSYSTEM_DECLARATION;
 /// // clang-format on
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
-/// The next time any of the ezStartup functions are called (StartupCoreSystems, StartupHighLevelSystems) the subsystem will be initialized.
+/// The next time any of the WStartup functions are called (StartupCoreSystems, StartupHighLevelSystems) the subsystem will be initialized.
 ///
-/// If however your subsystem is implemented as a normal class, you need to derive from the base class 'ezSubSystem' and
-/// override the virtual functions. Then when you have an instance of that class and call ezStartup::StartupCore etc., that
+/// If however your subsystem is implemented as a normal class, you need to derive from the base class 'WSubSystem' and
+/// override the virtual functions. Then when you have an instance of that class and call WStartup::StartupCore etc., that
 /// instance will be properly initialized as well. However, you must ensure that the subsystem is properly shut down, before
 /// its instance is destroyed. Also you should never have two instances of the same subsystem.
 ///
 /// All startup / shutdown procedures broadcast global events before and after they execute.
-class EZ_FOUNDATION_DLL ezStartup
+class W_FOUNDATION_DLL WStartup
 {
 public:
   // 'Base Startup' happens even before 'Core Startup', but only really low level stuff should  be done there
@@ -88,9 +88,9 @@ public:
   /// This makes it possible for the startup functions to conditionally configure things.
   ///
   /// Strings that should be used for common things:
-  /// 'runtime' : For all applications that run the full engine, automatically added by ezGameApplication. Be aware that some tool applications have
+  /// 'runtime' : For all applications that run the full engine, automatically added by WGameApplication. Be aware that some tool applications have
   /// this set, even though they don't use graphical output. 'editor' : for all applications that run the editor framework, set on the Editor and the
-  /// EditorProcessor 'testframework' : for applications that execute the ezTestFramework 'tool' : for all stand-alone tool applications, set by the
+  /// EditorProcessor 'testframework' : for applications that execute the WTestFramework 'tool' : for all stand-alone tool applications, set by the
   /// editor, editorprocessor, fileserve, etc.
   static void AddApplicationTag(const char* szTag);
 
@@ -102,35 +102,35 @@ public:
   /// Run this, if you only require very low level systems to be initialized. Otherwise prefer StartupCore.
   /// There is NO ShutdownBaseSystems, everything that gets initialized during the 'Base Startup' should not need any deinitialization.
   /// This function is automatically called by StartupCore, if it hasn't been called before already.
-  static void StartupBaseSystems() { Startup(ezStartupStage::BaseSystems); }
+  static void StartupBaseSystems() { Startup(WStartupStage::BaseSystems); }
 
   /// Runs the 'core' startup sequence of all subsystems in the proper order.
   ///
   /// Run this BEFORE any window and graphics context have been created.
-  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN and EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END
-  static void StartupCoreSystems() { Startup(ezStartupStage::CoreSystems); }
+  /// Broadcasts the global event W_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN and W_GLOBALEVENT_STARTUP_CORESYSTEMS_END
+  static void StartupCoreSystems() { Startup(WStartupStage::CoreSystems); }
 
   /// Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
   /// Call this AFTER window and graphics context have been destroyed already, shortly before application exit.
   /// Makes sure that the 'high level' shutdown has been run first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END
-  static void ShutdownCoreSystems() { Shutdown(ezStartupStage::CoreSystems); }
+  /// Broadcasts the global event W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN and W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END
+  static void ShutdownCoreSystems() { Shutdown(WStartupStage::CoreSystems); }
 
   /// Runs the 'high level' startup sequence of all subsystems in the proper order.
   ///
   /// Run this AFTER a window and graphics context have been created, such that anything that depends on that
   /// can now do its initialization.
   /// Makes sure that the 'core' initialization has been run first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN and EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END
-  static void StartupHighLevelSystems() { Startup(ezStartupStage::HighLevelSystems); }
+  /// Broadcasts the global event W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN and W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END
+  static void StartupHighLevelSystems() { Startup(WStartupStage::HighLevelSystems); }
 
   /// Runs the 'high level' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
   /// Run this BEFORE the window and graphics context have been destroyed, such that code that requires those
   /// can do its deinitialization first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END
-  static void ShutdownHighLevelSystems() { Shutdown(ezStartupStage::HighLevelSystems); }
+  /// Broadcasts the global event W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN and W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END
+  static void ShutdownHighLevelSystems() { Shutdown(WStartupStage::HighLevelSystems); }
 
   /// Output info about all known subsystems via the logging system (can change when DLLs are loaded dynamically).
   static void PrintAllSubsystems();
@@ -144,20 +144,20 @@ private:
   /// Unloads all subsystems from the given plugin AND all subsystems that directly or indirectly depend on them.
   ///
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
-  /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event
+  /// Broadcasts the global event W_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and W_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event
   /// parameter.
-  static void UnloadPluginSubSystems(ezStringView sPluginName);
+  static void UnloadPluginSubSystems(WStringView sPluginName);
 
-  static void PluginEventHandler(const ezPluginEvent& EventData);
-  static void AssignSubSystemPlugin(ezStringView sPluginName);
+  static void PluginEventHandler(const WPluginEvent& EventData);
+  static void AssignSubSystemPlugin(WStringView sPluginName);
 
-  static void ComputeOrder(ezDeque<ezSubSystem*>& Order);
-  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, ezStringView sModule);
+  static void ComputeOrder(WDeque<WSubSystem*>& Order);
+  static bool HasDependencyOnPlugin(WSubSystem* pSubSystem, WStringView sModule);
 
-  static void Startup(ezStartupStage::Enum stage);
-  static void Shutdown(ezStartupStage::Enum stage);
+  static void Startup(WStartupStage::Enum stage);
+  static void Shutdown(WStartupStage::Enum stage);
 
   static bool s_bPrintAllSubSystems;
-  static ezStartupStage::Enum s_CurrentState;
-  static ezDynamicArray<const char*> s_ApplicationTags;
+  static WStartupStage::Enum s_CurrentState;
+  static WDynamicArray<const char*> s_ApplicationTags;
 };

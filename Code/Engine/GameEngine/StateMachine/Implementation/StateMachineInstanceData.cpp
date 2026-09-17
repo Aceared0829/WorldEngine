@@ -2,7 +2,7 @@
 
 #include <GameEngine/StateMachine/Implementation/StateMachineInstanceData.h>
 
-namespace ezStateMachineInternal
+namespace WStateMachineInternal
 {
 
-} // namespace ezStateMachineInternal
+} // namespace WStateMachineInternal

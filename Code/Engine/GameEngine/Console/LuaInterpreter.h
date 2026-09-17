@@ -5,12 +5,12 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-class EZ_GAMEENGINE_DLL ezCommandInterpreterLua : public ezCommandInterpreter
+class W_GAMEENGINE_DLL WCommandInterpreterLua : public WCommandInterpreter
 {
 public:
-  /// The default interpreter used by ezConsole. Uses Lua for parsing and execution.
+  /// The default interpreter used by WConsole. Uses Lua for parsing and execution.
   ///
-  /// The Lua interpreter can modify ezCVar variables and call ezConsoleFunction functions.
+  /// The Lua interpreter can modify WCVar variables and call WConsoleFunction functions.
   ///
   /// Typing 'some_bool_cvar =' is a short form for 'some_bool_cvar = not some_bool_cvar'
   /// which toggles the value of the boolean CVar variable.
@@ -27,8 +27,8 @@ public:
   /// Console functions are called simply by appending parentheses and (if required) parameters:
   /// SomeConsoleFunc(2, some_cvar)
   ///
-  /// If there is any kind of error (e.g. a Lua syntax error), the interpreter will return EZ_FAILURE;
-  virtual void Interpret(ezCommandInterpreterState& inout_state) override;
+  /// If there is any kind of error (e.g. a Lua syntax error), the interpreter will return W_FAILURE;
+  virtual void Interpret(WCommandInterpreterState& inout_state) override;
 };
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

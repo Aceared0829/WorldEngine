@@ -4,22 +4,22 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 
 class QHBoxLayout;
-class ezQtDynamicStringEnumMenuButton;
+class WQtDynamicStringEnumMenuButton;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDynamicStringEnumPropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtDynamicStringEnumPropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtDynamicStringEnumPropertyWidget();
+  WQtDynamicStringEnumPropertyWidget();
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
-  void SetNewValue(ezStringView sNewValue);
+  void SetNewValue(WStringView sNewValue);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDynamicStringEnumMenuButton* m_pButton = nullptr;
+  WQtDynamicStringEnumMenuButton* m_pButton = nullptr;
 };

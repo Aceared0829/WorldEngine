@@ -7,26 +7,26 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezTaskGroupID dependency,
-  ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
+WTaskGroupID WTaskSystem::StartSingleTask(const WSharedPtr<WTask>& pTask, WTaskPriority::Enum priority, WTaskGroupID dependency,
+  WOnTaskGroupFinishedCallback callback /*= WOnTaskGroupFinishedCallback()*/)
 {
-  ezTaskGroupID Group = CreateTaskGroup(priority, callback);
+  WTaskGroupID Group = CreateTaskGroup(priority, callback);
   AddTaskGroupDependency(Group, dependency);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
 }
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(
-  const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
+WTaskGroupID WTaskSystem::StartSingleTask(
+  const WSharedPtr<WTask>& pTask, WTaskPriority::Enum priority, WOnTaskGroupFinishedCallback callback /*= WOnTaskGroupFinishedCallback()*/)
 {
-  ezTaskGroupID Group = CreateTaskGroup(priority, callback);
+  WTaskGroupID Group = CreateTaskGroup(priority, callback);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
 }
 
-void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup)
+void WTaskSystem::TaskHasFinished(WSharedPtr<WTask>&& pTask, WTaskGroup* pGroup)
 {
   // call task finished callback and deallocate the task (if last reference)
   if (pTask && pTask->m_iRemainingRuns == 0)
@@ -45,12 +45,12 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
-    ezUInt32 groupCounter = 0;
+    WUInt32 groupCounter = 0;
     {
-      // see ezTaskGroup::WaitForFinish() for why we need this lock here
+      // see WTaskGroup::WaitForFinish() for why we need this lock here
       // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling
       // m_CondVarGroupFinished
-      EZ_LOCK(pGroup->m_CondVarGroupFinished);
+      W_LOCK(pGroup->m_CondVarGroupFinished);
 
       groupCounter = pGroup->m_uiGroupCounter;
 
@@ -59,12 +59,12 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
     }
 
     {
-      EZ_LOCK(s_TaskSystemMutex);
+      W_LOCK(s_TaskSystemMutex);
 
       // unless an outside reference is held onto a task, this will deallocate the tasks
       pGroup->m_Tasks.Clear();
 
-      for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
+      for (WUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
         DependencyHasFinished(pGroup->m_OthersDependingOnMe[dep].m_pTaskGroup);
       }
@@ -75,7 +75,7 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
 
     if (pGroup->m_OnFinishedCallback.IsValid())
     {
-      ezTaskGroupID id;
+      WTaskGroupID id;
       id.m_pTaskGroup = pGroup;
       id.m_uiGroupCounter = groupCounter;
       pGroup->m_OnFinishedCallback(id);
@@ -86,22 +86,22 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
-  const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
+WTaskSystem::TaskData WTaskSystem::GetNextTask(WTaskPriority::Enum FirstPriority, WTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+  const WTaskGroupID& WaitingForGroup, WAtomicInteger32* pWorkerState)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
-  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}",
+  W_ASSERT_DEV(FirstPriority >= WTaskPriority::EarlyThisFrame && LastPriority < WTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}",
     FirstPriority, LastPriority);
 
-  EZ_LOCK(s_TaskSystemMutex);
+  W_LOCK(s_TaskSystemMutex);
 
   // go through all the task lists that this thread is willing to work on
-  for (ezUInt32 prio = FirstPriority; prio <= (ezUInt32)LastPriority; ++prio)
+  for (WUInt32 prio = FirstPriority; prio <= (WUInt32)LastPriority; ++prio)
   {
     for (auto it = s_pState->m_Tasks[prio].GetIterator(); it.IsValid(); ++it)
     {
-      if (!bOnlyTasksThatNeverWait || (it->m_pTask->m_NestingMode == ezTaskNesting::Never) || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
+      if (!bOnlyTasksThatNeverWait || (it->m_pTask->m_NestingMode == WTaskNesting::Never) || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
       {
         TaskData td = *it;
 
@@ -113,29 +113,29 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 
   if (pWorkerState)
   {
-    EZ_VERIFY(pWorkerState->Set((int)ezTaskWorkerState::Idle) == (int)ezTaskWorkerState::Active, "Corrupt Worker State");
+    W_VERIFY(pWorkerState->Set((int)WTaskWorkerState::Idle) == (int)WTaskWorkerState::Active, "Corrupt Worker State");
   }
 
   return TaskData();
 }
 
-bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
-  const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
+bool WTaskSystem::ExecuteTask(WTaskPriority::Enum FirstPriority, WTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+  const WTaskGroupID& WaitingForGroup, WAtomicInteger32* pWorkerState)
 {
-  // const ezWorkerThreadType::Enum workerType = (tl_TaskWorkerInfo.m_WorkerType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks :
+  // const WWorkerThreadType::Enum workerType = (tl_TaskWorkerInfo.m_WorkerType == WWorkerThreadType::Unknown) ? WWorkerThreadType::ShortTasks :
   // tl_TaskWorkerInfo.m_WorkerType;
 
-  ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pWorkerState);
+  WTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pWorkerState);
 
   if (td.m_pTask == nullptr)
     return false;
 
-  if (bOnlyTasksThatNeverWait && td.m_pTask->m_NestingMode != ezTaskNesting::Never)
+  if (bOnlyTasksThatNeverWait && td.m_pTask->m_NestingMode != WTaskNesting::Never)
   {
-    EZ_ASSERT_DEV(td.m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup, "");
+    W_ASSERT_DEV(td.m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup, "");
   }
 
-  tl_TaskWorkerInfo.m_bAllowNestedTasks = td.m_pTask->m_NestingMode != ezTaskNesting::Never;
+  tl_TaskWorkerInfo.m_bAllowNestedTasks = td.m_pTask->m_NestingMode != WTaskNesting::Never;
   tl_TaskWorkerInfo.m_szTaskName = td.m_pTask->m_sTaskName;
   td.m_pTask->Run(td.m_uiInvocation);
   tl_TaskWorkerInfo.m_bAllowNestedTasks = true;
@@ -148,35 +148,35 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
 }
 
 
-ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum onTaskRunning)
+WResult WTaskSystem::CancelTask(const WSharedPtr<WTask>& pTask, WOnTaskRunning::Enum onTaskRunning)
 {
   if (pTask->IsTaskFinished())
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   // pTask may actually finish between here and the lock below
   // in that case we will return failure, as in we had to 'wait' for a task,
   // but it will be handled correctly
 
-  EZ_PROFILE_SCOPE("CancelTask");
+  W_PROFILE_SCOPE("CancelTask");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;
 
   {
-    EZ_LOCK(s_TaskSystemMutex);
+    W_LOCK(s_TaskSystemMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
     if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveAndSwap(pTask))
     {
       // we set the task to finished, even though it was not executed
       pTask->m_iRemainingRuns = 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     // check if the task has already been scheduled for execution
     // if so, remove it from the work queue
     {
-      for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
+      for (WUInt32 i = 0; i < WTaskPriority::ENUM_COUNT; ++i)
       {
         auto it = s_pState->m_Tasks[i].GetIterator();
 
@@ -191,7 +191,7 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
             TaskHasFinished(std::move(it->m_pTask), it->m_pBelongsToGroup);
 
             s_pState->m_Tasks[i].Remove(it);
-            return EZ_SUCCESS;
+            return W_SUCCESS;
           }
 
           ++it;
@@ -203,40 +203,40 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
   // if we made it here, the task was already running
   // thus we just wait for it to finish
 
-  if (onTaskRunning == ezOnTaskRunning::WaitTillFinished)
+  if (onTaskRunning == WOnTaskRunning::WaitTillFinished)
   {
     WaitForCondition([pTask]()
       { return pTask->IsTaskFinished(); });
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-bool ezTaskSystem::HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup)
+bool WTaskSystem::HelpExecutingTasks(const WTaskGroupID& WaitingForGroup)
 {
-  const bool bOnlyTasksThatNeverWait = tl_TaskWorkerInfo.m_WorkerType != ezWorkerThreadType::MainThread;
+  const bool bOnlyTasksThatNeverWait = tl_TaskWorkerInfo.m_WorkerType != WWorkerThreadType::MainThread;
 
-  ezTaskPriority::Enum FirstPriority;
-  ezTaskPriority::Enum LastPriority;
+  WTaskPriority::Enum FirstPriority;
+  WTaskPriority::Enum LastPriority;
   DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);
 
   return ExecuteTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, nullptr);
 }
 
-void ezTaskSystem::ReprioritizeFrameTasks()
+void WTaskSystem::ReprioritizeFrameTasks()
 {
   // There should usually be no 'this frame tasks' left at this time
   // however, while we waited to enter the lock, such tasks might have appeared
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
-  for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i <= (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
+  for (WUInt32 i = (WUInt32)WTaskPriority::ThisFrame; i <= (WUInt32)WTaskPriority::LateThisFrame; ++i)
   {
     auto it = s_pState->m_Tasks[i].GetIterator();
 
     // move all 'this frame' tasks into the 'early this frame' queue
     while (it.IsValid())
     {
-      s_pState->m_Tasks[ezTaskPriority::EarlyThisFrame].PushBack(*it);
+      s_pState->m_Tasks[WTaskPriority::EarlyThisFrame].PushBack(*it);
 
       ++it;
     }
@@ -245,7 +245,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
     s_pState->m_Tasks[i].Clear();
   }
 
-  for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i <= (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
+  for (WUInt32 i = (WUInt32)WTaskPriority::EarlyNextFrame; i <= (WUInt32)WTaskPriority::LateNextFrame; ++i)
   {
     auto it = s_pState->m_Tasks[i].GetIterator();
 
@@ -261,7 +261,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
     s_pState->m_Tasks[i].Clear();
   }
 
-  for (ezUInt32 i = (ezUInt32)ezTaskPriority::In2Frames; i <= (ezUInt32)ezTaskPriority::In9Frames; ++i)
+  for (WUInt32 i = (WUInt32)WTaskPriority::In2Frames; i <= (WUInt32)WTaskPriority::In9Frames; ++i)
   {
     auto it = s_pState->m_Tasks[i].GetIterator();
 
@@ -279,9 +279,9 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   }
 }
 
-void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
+void WTaskSystem::ExecuteSomeFrameTasks(WTime smoothFrameTime)
 {
-  EZ_PROFILE_SCOPE("ExecuteSomeFrameTasks");
+  W_PROFILE_SCOPE("ExecuteSomeFrameTasks");
 
   // 'SomeFrameMainThread' tasks are usually used to upload resources that have been loaded in the background
   // they do not need to be executed right away, but the earlier, the better
@@ -293,31 +293,31 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
   // however in such instances, the 'frame time threshold' will increase and thus the chance that we skip this entirely becomes lower over
   // time that guarantees some progress, even if the frame rate is constantly low
 
-  static ezTime s_FrameTimeThreshold = smoothFrameTime;
-  static ezTime s_LastExecution; // initializes to zero -> very large frame time difference at first
+  static WTime s_FrameTimeThreshold = smoothFrameTime;
+  static WTime s_LastExecution; // initializes to zero -> very large frame time difference at first
 
-  ezTime CurTime = ezTime::Now();
-  ezTime LastTime = s_LastExecution;
+  WTime CurTime = WTime::Now();
+  WTime LastTime = s_LastExecution;
   s_LastExecution = CurTime;
 
   // as long as we have a smooth frame rate, execute as many of these tasks, as possible
   while (CurTime - LastTime < smoothFrameTime)
   {
-    if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
+    if (!ExecuteTask(WTaskPriority::SomeFrameMainThread, WTaskPriority::SomeFrameMainThread, false, WTaskGroupID(), nullptr))
     {
       // nothing left to do, reset the threshold
       s_FrameTimeThreshold = smoothFrameTime;
       return;
     }
 
-    CurTime = ezTime::Now();
+    CurTime = WTime::Now();
   }
 
-  ezUInt32 uiNumTasksTodo = 0;
+  WUInt32 uiNumTasksTodo = 0;
 
   {
-    EZ_LOCK(s_TaskSystemMutex);
-    uiNumTasksTodo = s_pState->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
+    W_LOCK(s_TaskSystemMutex);
+    uiNumTasksTodo = s_pState->m_Tasks[WTaskPriority::SomeFrameMainThread].GetCount();
   }
 
   if (uiNumTasksTodo == 0)
@@ -327,7 +327,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
   {
     // don't reset the threshold, from now on we execute at least one task per frame
 
-    ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+    ExecuteTask(WTaskPriority::SomeFrameMainThread, WTaskPriority::SomeFrameMainThread, false, WTaskGroupID(), nullptr);
   }
   else
   {
@@ -338,39 +338,39 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
     // therefore at some point we will start executing these tasks, no matter how low the frame rate is
     //
     // this gives us some buffer to smooth out performance drops
-    s_FrameTimeThreshold += ezTime::MakeFromMilliseconds(0.2);
+    s_FrameTimeThreshold += WTime::MakeFromMilliseconds(0.2);
   }
 
   // if the queue is really full, we have to guarantee more progress
   {
     if (uiNumTasksTodo > 100)
-      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+      ExecuteTask(WTaskPriority::SomeFrameMainThread, WTaskPriority::SomeFrameMainThread, false, WTaskGroupID(), nullptr);
 
     if (uiNumTasksTodo > 75)
-      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+      ExecuteTask(WTaskPriority::SomeFrameMainThread, WTaskPriority::SomeFrameMainThread, false, WTaskGroupID(), nullptr);
 
     if (uiNumTasksTodo > 50)
-      ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
+      ExecuteTask(WTaskPriority::SomeFrameMainThread, WTaskPriority::SomeFrameMainThread, false, WTaskGroupID(), nullptr);
   }
 }
 
 
-void ezTaskSystem::FinishFrameTasks()
+void WTaskSystem::FinishFrameTasks()
 {
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
+  W_ASSERT_DEV(WThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
 
   // make sure all 'main thread' and 'short' tasks are either finished or being worked on by other threads already
   {
     while (true)
     {
       // Prefer to work on main-thread tasks
-      if (ExecuteTask(ezTaskPriority::ThisFrameMainThread, ezTaskPriority::ThisFrameMainThread, false, ezTaskGroupID(), nullptr))
+      if (ExecuteTask(WTaskPriority::ThisFrameMainThread, WTaskPriority::ThisFrameMainThread, false, WTaskGroupID(), nullptr))
       {
         continue;
       }
 
       // if there are none, help out with the other tasks for this frame
-      if (ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateThisFrame, false, ezTaskGroupID(), nullptr))
+      if (ExecuteTask(WTaskPriority::EarlyThisFrame, WTaskPriority::LateThisFrame, false, WTaskGroupID(), nullptr))
       {
         continue;
       }
@@ -382,7 +382,7 @@ void ezTaskSystem::FinishFrameTasks()
   // all the important tasks for this frame should be finished or worked on by now
   // so we can now re-prioritize the tasks for the next frame
   {
-    EZ_LOCK(s_TaskSystemMutex);
+    W_LOCK(s_TaskSystemMutex);
 
     ReprioritizeFrameTasks();
   }
@@ -391,21 +391,21 @@ void ezTaskSystem::FinishFrameTasks()
 
   // Update the thread utilization
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    const ezTime tNow = ezTime::Now();
-    static ezTime s_LastFrameUpdate = tNow;
-    const ezTime tDiff = tNow - s_LastFrameUpdate;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+    const WTime tNow = WTime::Now();
+    static WTime s_LastFrameUpdate = tNow;
+    const WTime tDiff = tNow - s_LastFrameUpdate;
 
     // prevent division by zero (inside ComputeThreadUtilization)
-    if (tDiff > ezTime::MakeFromSeconds(0.0))
+    if (tDiff > WTime::MakeFromSeconds(0.0))
     {
       s_LastFrameUpdate = tNow;
 
-      for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
+      for (WUInt32 type = 0; type < WWorkerThreadType::ENUM_COUNT; ++type)
       {
-        const ezUInt32 uiNumWorkers = s_pThreadState->m_iAllocatedWorkers[type];
+        const WUInt32 uiNumWorkers = s_pThreadState->m_iAllocatedWorkers[type];
 
-        for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
+        for (WUInt32 t = 0; t < uiNumWorkers; ++t)
         {
           s_pThreadState->m_Workers[type][t]->UpdateThreadUtilization(tDiff);
         }

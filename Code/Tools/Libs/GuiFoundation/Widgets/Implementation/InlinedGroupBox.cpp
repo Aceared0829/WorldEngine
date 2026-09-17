@@ -6,8 +6,8 @@
 #include <QPainter>
 #include <QStyleOptionToolButton>
 
-ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
-  : ezQtGroupBoxBase(pParent, false)
+WQtInlinedGroupBox::WQtInlinedGroupBox(QWidget* pParent)
+  : WQtGroupBoxBase(pParent, false)
 {
   QHBoxLayout* pRootLayout = new QHBoxLayout(this);
   pRootLayout->setContentsMargins(0, 1, 0, 1);
@@ -38,21 +38,21 @@ ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
   installEventFilter(this);
 }
 
-void ezQtInlinedGroupBox::SetTitle(ezStringView sTitle)
+void WQtInlinedGroupBox::SetTitle(WStringView sTitle)
 {
-  ezQtGroupBoxBase::SetTitle(sTitle);
+  WQtGroupBoxBase::SetTitle(sTitle);
   update();
 }
 
-void ezQtInlinedGroupBox::SetIcon(const QIcon& icon)
+void WQtInlinedGroupBox::SetIcon(const QIcon& icon)
 {
-  ezQtGroupBoxBase::SetIcon(icon);
+  WQtGroupBoxBase::SetIcon(icon);
   update();
 }
 
-void ezQtInlinedGroupBox::SetFillColor(const QColor& color)
+void WQtInlinedGroupBox::SetFillColor(const QColor& color)
 {
-  ezQtGroupBoxBase::SetFillColor(color);
+  WQtGroupBoxBase::SetFillColor(color);
   if (color.isValid())
     layout()->setContentsMargins(0, 1, 0, 1);
   else
@@ -60,24 +60,24 @@ void ezQtInlinedGroupBox::SetFillColor(const QColor& color)
   update();
 }
 
-void ezQtInlinedGroupBox::SetCollapseState(bool bCollapsed) {}
+void WQtInlinedGroupBox::SetCollapseState(bool bCollapsed) {}
 
-bool ezQtInlinedGroupBox::GetCollapseState() const
+bool WQtInlinedGroupBox::GetCollapseState() const
 {
   return false;
 }
 
-QWidget* ezQtInlinedGroupBox::GetContent()
+QWidget* WQtInlinedGroupBox::GetContent()
 {
   return m_pContent;
 }
 
-QWidget* ezQtInlinedGroupBox::GetHeader()
+QWidget* WQtInlinedGroupBox::GetHeader()
 {
   return m_pHeader;
 }
 
-void ezQtInlinedGroupBox::paintEvent(QPaintEvent* event)
+void WQtInlinedGroupBox::paintEvent(QPaintEvent* event)
 {
   const QPalette& pal = palette();
   QWidget::paintEvent(event);
@@ -99,7 +99,7 @@ void ezQtInlinedGroupBox::paintEvent(QPaintEvent* event)
   DrawHeader(p, wr.adjusted(Rounding, 0, 0, 0));
 }
 
-bool ezQtInlinedGroupBox::eventFilter(QObject* object, QEvent* event)
+bool WQtInlinedGroupBox::eventFilter(QObject* object, QEvent* event)
 {
   switch (event->type())
   {

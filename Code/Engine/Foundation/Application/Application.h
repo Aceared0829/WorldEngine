@@ -9,35 +9,35 @@
 
 #include <Foundation/Profiling/Profiling.h>
 
-class ezApplication;
+class WApplication;
 
 /// Platform independent run function for main loop based systems (e.g. Win32, ..)
 ///
-/// This is automatically called by EZ_APPLICATION_ENTRY_POINT().
+/// This is automatically called by W_APPLICATION_ENTRY_POINT().
 ///
-/// ezRun simply calls ezRun_Startup(), ezRun_MainLoop() and ezRun_Shutdown().
-EZ_FOUNDATION_DLL void ezRun(ezApplication* pApplicationInstance);
+/// WRun simply calls WRun_Startup(), WRun_MainLoop() and WRun_Shutdown().
+W_FOUNDATION_DLL void WRun(WApplication* pApplicationInstance);
 
-/// [internal] Called by ezRun()
-EZ_FOUNDATION_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
-/// [internal] Called by ezRun()
-EZ_FOUNDATION_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
-/// [internal] Called by ezRun()
-EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
+/// [internal] Called by WRun()
+W_FOUNDATION_DLL WResult WRun_Startup(WApplication* pApplicationInstance);
+/// [internal] Called by WRun()
+W_FOUNDATION_DLL void WRun_MainLoop(WApplication* pApplicationInstance);
+/// [internal] Called by WRun()
+W_FOUNDATION_DLL void WRun_Shutdown(WApplication* pApplicationInstance);
 
-/// Base class to be used by applications based on ezEngine.
+/// Base class to be used by applications based on WorldEngine.
 ///
 /// The platform abstraction layer will ensure that the correct functions are called independent of the basic main loop structure
-/// (traditional or event-based). Derive an application specific class from ezApplication and implement at least the abstract Run()
+/// (traditional or event-based). Derive an application specific class from WApplication and implement at least the abstract Run()
 /// function. Additional virtual functions allow to hook into specific events to run application specific code at the correct times.
 ///
-/// Finally pass the name of your derived class to the macro EZ_APPLICATION_ENTRY_POINT().
+/// Finally pass the name of your derived class to the macro W_APPLICATION_ENTRY_POINT().
 /// Those are used to abstract away the platform specific code to run an application.
 ///
 /// A simple example how to get started is as follows:
 ///
 /// \code{.cpp}
-///   class ezSampleApp : public ezApplication
+///   class WSampleApp : public WApplication
 ///   {
 ///   public:
 ///
@@ -59,59 +59,59 @@ EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///     }
 ///   };
 ///
-///   EZ_APPLICATION_ENTRY_POINT(ezSampleApp);
+///   W_APPLICATION_ENTRY_POINT(WSampleApp);
 /// \endcode
-class EZ_FOUNDATION_DLL ezApplication
+class W_FOUNDATION_DLL WApplication
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezApplication);
+  W_DISALLOW_COPY_AND_ASSIGN(WApplication);
 
 public:
   /// Constructor.
-  ezApplication(ezStringView sAppName);
+  WApplication(WStringView sAppName);
 
   /// Virtual destructor.
-  virtual ~ezApplication();
+  virtual ~WApplication();
 
   /// Changes the application name
-  void SetApplicationName(ezStringView sAppName);
+  void SetApplicationName(WStringView sAppName);
 
   /// Returns the application name
-  const ezString& GetApplicationName() const { return m_sAppName; }
+  const WString& GetApplicationName() const { return m_sAppName; }
 
   /// This function is called before any kind of engine initialization is done.
   ///
   /// Override this function to be able to configure subsystems, before they are initialized.
-  /// After this function returns, ezStartup::StartupCoreSystems() is automatically called.
+  /// After this function returns, WStartup::StartupCoreSystems() is automatically called.
   /// If you need to set up custom allocators, this is the place to do this.
-  virtual ezResult BeforeCoreSystemsStartup();
+  virtual WResult BeforeCoreSystemsStartup();
 
   /// This function is called after basic engine initialization has been done.
   ///
-  /// ezApplication will automatically call ezStartup::StartupCoreSystems() to initialize the application.
+  /// WApplication will automatically call WStartup::StartupCoreSystems() to initialize the application.
   /// This function can be overridden to do additional application specific initialization.
-  /// To startup entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
+  /// To startup entire subsystems, you should however use the features provided by WStartup and WSubSystem.
   virtual void AfterCoreSystemsStartup() {}
 
   /// This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
-  /// After this function call, ezApplication executes ezStartup::ShutdownHighLevelSystems().
+  /// After this function call, WApplication executes WStartup::ShutdownHighLevelSystems().
   ///
-  /// \note ezApplication does NOT call ezStartup::StartupHighLevelSystems() as it may be a window-less application.
-  /// This is left to ezGameApplicationBase to do. However, it does make sure to shut down the high-level systems,
+  /// \note WApplication does NOT call WStartup::StartupHighLevelSystems() as it may be a window-less application.
+  /// This is left to WGameApplicationBase to do. However, it does make sure to shut down the high-level systems,
   /// in case they were started.
   virtual void BeforeHighLevelSystemsShutdown() {}
 
-  /// Called after ezStartup::ShutdownHighLevelSystems() has been executed.
+  /// Called after WStartup::ShutdownHighLevelSystems() has been executed.
   virtual void AfterHighLevelSystemsShutdown() {}
 
   /// This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
   /// Override this function to do application specific deinitialization that still requires a running engine.
-  /// After this function returns ezStartup::ShutdownCoreSystems() is called and thus everything, including allocators, is shut down.
-  /// To shut down entire subsystems, you should, however, use the features provided by ezStartup and ezSubSystem.
+  /// After this function returns WStartup::ShutdownCoreSystems() is called and thus everything, including allocators, is shut down.
+  /// To shut down entire subsystems, you should, however, use the features provided by WStartup and WSubSystem.
   virtual void BeforeCoreSystemsShutdown() {}
 
-  /// This function is called after ezStartup::ShutdownCoreSystems() has been called.
+  /// This function is called after WStartup::ShutdownCoreSystems() has been called.
   ///
   /// It is unlikely that there is any kind of deinitialization left, that can still be run at this point.
   virtual void AfterCoreSystemsShutdown() {}
@@ -139,28 +139,28 @@ public:
   /// Sets the value that the application will return to the OS.
   /// You can call this function at any point during execution to update the return value of the application.
   /// Default is zero.
-  inline void SetReturnCode(ezInt32 iReturnCode) { m_iReturnCode = iReturnCode; }
+  inline void SetReturnCode(WInt32 iReturnCode) { m_iReturnCode = iReturnCode; }
 
   /// Returns the currently set value that the application will return to the OS.
-  inline ezInt32 GetReturnCode() const { return m_iReturnCode; }
+  inline WInt32 GetReturnCode() const { return m_iReturnCode; }
 
   /// If the return code is not zero, this function might be called to get a string to print the error code in human readable form.
   virtual const char* TranslateReturnCode() const { return ""; }
 
   /// Will set the command line arguments that were passed to the app by the OS.
-  /// This is automatically called by EZ_APPLICATION_ENTRY_POINT().
-  void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** pArguments);
+  /// This is automatically called by W_APPLICATION_ENTRY_POINT().
+  void SetCommandLineArguments(WUInt32 uiArgumentCount, const char** pArguments);
 
-  /// Returns the one instance of ezApplication that is available.
-  static ezApplication* GetApplicationInstance() { return s_pApplicationInstance; }
+  /// Returns the one instance of WApplication that is available.
+  static WApplication* GetApplicationInstance() { return s_pApplicationInstance; }
 
   /// Returns the number of command line arguments that were passed to the application.
   ///
   /// Note that the very first command line argument is typically the path to the application itself.
-  ezUInt32 GetArgumentCount() const { return m_uiArgumentCount; }
+  WUInt32 GetArgumentCount() const { return m_uiArgumentCount; }
 
   /// Returns one of the command line arguments that was passed to the application.
-  const char* GetArgument(ezUInt32 uiArgument) const;
+  const char* GetArgument(WUInt32 uiArgument) const;
 
   /// Returns the complete array of command line arguments that were passed to the application.
   const char** GetArgumentsArray() const { return m_pArguments; }
@@ -179,21 +179,21 @@ public:
   virtual bool ShouldApplicationQuit() const { return m_bQuitApplication; }
 
 private:
-  ezInt32 m_iReturnCode = 0;
+  WInt32 m_iReturnCode = 0;
 
-  ezUInt32 m_uiArgumentCount = 0;
+  WUInt32 m_uiArgumentCount = 0;
 
   const char** m_pArguments = nullptr;
 
   bool m_bQuitApplication = false;
   bool m_bReportMemoryLeaks = true;
 
-  ezString m_sAppName;
+  WString m_sAppName;
 
-  static ezApplication* s_pApplicationInstance;
+  static WApplication* s_pApplicationInstance;
 
-  friend EZ_FOUNDATION_DLL_FRIEND void ezRun(ezApplication* pApplicationInstance);
-  friend EZ_FOUNDATION_DLL_FRIEND ezResult ezRun_Startup(ezApplication* pApplicationInstance);
-  friend EZ_FOUNDATION_DLL_FRIEND void ezRun_MainLoop(ezApplication* pApplicationInstance);
-  friend EZ_FOUNDATION_DLL_FRIEND void ezRun_Shutdown(ezApplication* pApplicationInstance);
+  friend W_FOUNDATION_DLL_FRIEND void WRun(WApplication* pApplicationInstance);
+  friend W_FOUNDATION_DLL_FRIEND WResult WRun_Startup(WApplication* pApplicationInstance);
+  friend W_FOUNDATION_DLL_FRIEND void WRun_MainLoop(WApplication* pApplicationInstance);
+  friend W_FOUNDATION_DLL_FRIEND void WRun_Shutdown(WApplication* pApplicationInstance);
 };

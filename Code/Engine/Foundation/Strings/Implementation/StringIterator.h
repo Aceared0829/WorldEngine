@@ -1,26 +1,26 @@
 #pragma once
 
-#ifndef EZ_INCLUDING_BASICS_H
+#ifndef W_INCLUDING_BASICS_H
 #  error "Please don't include StringIterator.h directly, but instead include Foundation/Basics.h"
 #endif
 
 /// STL forward iterator used by all string classes. Iterates over unicode characters.
 ///  The iterator starts at the first character of the string and ends at the address beyond the last character of the string.
-struct ezStringIterator
+struct WStringIterator
 {
   using iterator_category = std::bidirectional_iterator_tag;
-  using value_type = ezUInt32;
+  using value_type = WUInt32;
   using difference_type = std::ptrdiff_t;
   using pointer = const char*;
-  using reference = ezUInt32;
+  using reference = WUInt32;
 
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Constructs an invalid iterator.
-  EZ_ALWAYS_INLINE ezStringIterator() = default; // [tested]
+  W_ALWAYS_INLINE WStringIterator() = default; // [tested]
 
   /// Constructs either a begin or end iterator for the given string.
-  EZ_FORCE_INLINE explicit ezStringIterator(const char* pStartPtr, const char* pEndPtr, const char* pCurPtr)
+  W_FORCE_INLINE explicit WStringIterator(const char* pStartPtr, const char* pEndPtr, const char* pCurPtr)
   {
     m_pStartPtr = pStartPtr;
     m_pEndPtr = pEndPtr;
@@ -28,74 +28,74 @@ struct ezStringIterator
   }
 
   /// Checks whether this iterator points to a valid element. Invalid iterators either point to m_pEndPtr or were never initialized.
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_pCurPtr != nullptr && m_pCurPtr != m_pEndPtr; } // [tested]
+  W_ALWAYS_INLINE bool IsValid() const { return m_pCurPtr != nullptr && m_pCurPtr != m_pEndPtr; } // [tested]
 
   /// Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pCurPtr) : ezUInt32(0); } // [tested]
+  W_ALWAYS_INLINE WUInt32 GetCharacter() const { return IsValid() ? WUnicodeUtils::ConvertUtf8ToUtf32(m_pCurPtr) : WUInt32(0); } // [tested]
 
   /// Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
+  W_ALWAYS_INLINE WUInt32 operator*() const { return GetCharacter(); } // [tested]
 
   /// Returns the address the iterator currently points to.
-  EZ_ALWAYS_INLINE const char* GetData() const { return m_pCurPtr; } // [tested]
+  W_ALWAYS_INLINE const char* GetData() const { return m_pCurPtr; } // [tested]
 
   /// Checks whether the two iterators point to the same element.
-  EZ_ALWAYS_INLINE bool operator==(const ezStringIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezStringIterator&);
+  W_ALWAYS_INLINE bool operator==(const WStringIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WStringIterator&);
 
   /// Advances the iterated to the next character, same as operator++, but returns how many bytes were consumed in the source string.
-  EZ_ALWAYS_INLINE ezUInt32 Advance()
+  W_ALWAYS_INLINE WUInt32 Advance()
   {
     const char* pPrevElement = m_pCurPtr;
 
     if (m_pCurPtr < m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
+      WUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
     }
 
-    return static_cast<ezUInt32>(m_pCurPtr - pPrevElement);
+    return static_cast<WUInt32>(m_pCurPtr - pPrevElement);
   }
 
   /// Move to the next Utf8 character
-  EZ_ALWAYS_INLINE ezStringIterator& operator++() // [tested]
+  W_ALWAYS_INLINE WStringIterator& operator++() // [tested]
   {
     if (m_pCurPtr < m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
+      WUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
     }
 
     return *this;
   }
 
   /// Move to the previous Utf8 character
-  EZ_ALWAYS_INLINE ezStringIterator& operator--() // [tested]
+  W_ALWAYS_INLINE WStringIterator& operator--() // [tested]
   {
     if (m_pStartPtr < m_pCurPtr)
     {
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
+      WUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     }
 
     return *this;
   }
 
   /// Move to the next Utf8 character
-  EZ_ALWAYS_INLINE ezStringIterator operator++(int) // [tested]
+  W_ALWAYS_INLINE WStringIterator operator++(int) // [tested]
   {
-    ezStringIterator tmp = *this;
+    WStringIterator tmp = *this;
     ++(*this);
     return tmp;
   }
 
   /// Move to the previous Utf8 character
-  EZ_ALWAYS_INLINE ezStringIterator operator--(int) // [tested]
+  W_ALWAYS_INLINE WStringIterator operator--(int) // [tested]
   {
-    ezStringIterator tmp = *this;
+    WStringIterator tmp = *this;
     --(*this);
     return tmp;
   }
 
   /// Advances the iterator forwards by d characters. Does not move it beyond the range's end.
-  EZ_FORCE_INLINE void operator+=(difference_type d) // [tested]
+  W_FORCE_INLINE void operator+=(difference_type d) // [tested]
   {
     while (d > 0)
     {
@@ -110,7 +110,7 @@ struct ezStringIterator
   }
 
   /// Moves the iterator backwards by d characters. Does not move it beyond the range's start.
-  EZ_FORCE_INLINE void operator-=(difference_type d) // [tested]
+  W_FORCE_INLINE void operator-=(difference_type d) // [tested]
   {
     while (d > 0)
     {
@@ -125,17 +125,17 @@ struct ezStringIterator
   }
 
   /// Returns an iterator that is advanced forwards by d characters.
-  EZ_ALWAYS_INLINE ezStringIterator operator+(difference_type d) const // [tested]
+  W_ALWAYS_INLINE WStringIterator operator+(difference_type d) const // [tested]
   {
-    ezStringIterator it = *this;
+    WStringIterator it = *this;
     it += d;
     return it;
   }
 
   /// Returns an iterator that is advanced backwards by d characters.
-  EZ_ALWAYS_INLINE ezStringIterator operator-(difference_type d) const // [tested]
+  W_ALWAYS_INLINE WStringIterator operator-(difference_type d) const // [tested]
   {
-    ezStringIterator it = *this;
+    WStringIterator it = *this;
     it -= d;
     return it;
   }
@@ -145,7 +145,7 @@ struct ezStringIterator
   /// Must be between the iterators start and end range.
   void SetCurrentPosition(const char* szCurPos)
   {
-    EZ_ASSERT_DEV((szCurPos >= m_pStartPtr) && (szCurPos <= m_pEndPtr), "New position must still be inside the iterator's range.");
+    W_ASSERT_DEV((szCurPos >= m_pStartPtr) && (szCurPos <= m_pEndPtr), "New position must still be inside the iterator's range.");
 
     m_pCurPtr = szCurPos;
   }
@@ -159,21 +159,21 @@ private:
 
 /// STL reverse iterator used by all string classes. Iterates over unicode characters.
 ///  The iterator starts at the last character of the string and ends at the address before the first character of the string.
-struct ezStringReverseIterator
+struct WStringReverseIterator
 {
   using iterator_category = std::bidirectional_iterator_tag;
-  using value_type = ezUInt32;
+  using value_type = WUInt32;
   using difference_type = std::ptrdiff_t;
   using pointer = const char*;
-  using reference = ezUInt32;
+  using reference = WUInt32;
 
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Constructs an invalid iterator.
-  EZ_ALWAYS_INLINE ezStringReverseIterator() = default; // [tested]
+  W_ALWAYS_INLINE WStringReverseIterator() = default; // [tested]
 
   /// Constructs either a rbegin or rend iterator for the given string.
-  EZ_FORCE_INLINE explicit ezStringReverseIterator(const char* pStartPtr, const char* pEndPtr, const char* pCurPtr) // [tested]
+  W_FORCE_INLINE explicit WStringReverseIterator(const char* pStartPtr, const char* pEndPtr, const char* pCurPtr) // [tested]
   {
     m_pStartPtr = pStartPtr;
     m_pEndPtr = pEndPtr;
@@ -185,31 +185,31 @@ struct ezStringReverseIterator
     }
     else if (m_pCurPtr == m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
+      WUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     }
   }
 
   /// Checks whether this iterator points to a valid element.
-  EZ_ALWAYS_INLINE bool IsValid() const { return (m_pCurPtr != nullptr); } // [tested]
+  W_ALWAYS_INLINE bool IsValid() const { return (m_pCurPtr != nullptr); } // [tested]
 
   /// Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pCurPtr) : ezUInt32(0); } // [tested]
+  W_ALWAYS_INLINE WUInt32 GetCharacter() const { return IsValid() ? WUnicodeUtils::ConvertUtf8ToUtf32(m_pCurPtr) : WUInt32(0); } // [tested]
 
   /// Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
+  W_ALWAYS_INLINE WUInt32 operator*() const { return GetCharacter(); } // [tested]
 
   /// Returns the address the iterator currently points to.
-  EZ_ALWAYS_INLINE const char* GetData() const { return m_pCurPtr; } // [tested]
+  W_ALWAYS_INLINE const char* GetData() const { return m_pCurPtr; } // [tested]
 
   /// Checks whether the two iterators point to the same element.
-  EZ_ALWAYS_INLINE bool operator==(const ezStringReverseIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezStringReverseIterator&);
+  W_ALWAYS_INLINE bool operator==(const WStringReverseIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WStringReverseIterator&);
 
   /// Move to the next Utf8 character
-  EZ_FORCE_INLINE ezStringReverseIterator& operator++() // [tested]
+  W_FORCE_INLINE WStringReverseIterator& operator++() // [tested]
   {
     if (m_pCurPtr != nullptr && m_pStartPtr < m_pCurPtr)
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
+      WUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     else
       m_pCurPtr = nullptr;
 
@@ -217,12 +217,12 @@ struct ezStringReverseIterator
   }
 
   /// Move to the previous Utf8 character
-  EZ_FORCE_INLINE ezStringReverseIterator& operator--() // [tested]
+  W_FORCE_INLINE WStringReverseIterator& operator--() // [tested]
   {
     if (m_pCurPtr != nullptr)
     {
       const char* szOldPos = m_pCurPtr;
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
+      WUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
 
       if (m_pCurPtr == m_pEndPtr)
         m_pCurPtr = szOldPos;
@@ -236,23 +236,23 @@ struct ezStringReverseIterator
   }
 
   /// Move to the next Utf8 character
-  EZ_ALWAYS_INLINE ezStringReverseIterator operator++(int) // [tested]
+  W_ALWAYS_INLINE WStringReverseIterator operator++(int) // [tested]
   {
-    ezStringReverseIterator tmp = *this;
+    WStringReverseIterator tmp = *this;
     ++(*this);
     return tmp;
   }
 
   /// Move to the previous Utf8 character
-  EZ_ALWAYS_INLINE ezStringReverseIterator operator--(int) // [tested]
+  W_ALWAYS_INLINE WStringReverseIterator operator--(int) // [tested]
   {
-    ezStringReverseIterator tmp = *this;
+    WStringReverseIterator tmp = *this;
     --(*this);
     return tmp;
   }
 
   /// Advances the iterator forwards by d characters. Does not move it beyond the range's end.
-  EZ_FORCE_INLINE void operator+=(difference_type d) // [tested]
+  W_FORCE_INLINE void operator+=(difference_type d) // [tested]
   {
     while (d > 0)
     {
@@ -267,7 +267,7 @@ struct ezStringReverseIterator
   }
 
   /// Moves the iterator backwards by d characters. Does not move it beyond the range's start.
-  EZ_FORCE_INLINE void operator-=(difference_type d) // [tested]
+  W_FORCE_INLINE void operator-=(difference_type d) // [tested]
   {
     while (d > 0)
     {
@@ -282,17 +282,17 @@ struct ezStringReverseIterator
   }
 
   /// Returns an iterator that is advanced forwards by d characters.
-  EZ_ALWAYS_INLINE ezStringReverseIterator operator+(difference_type d) const // [tested]
+  W_ALWAYS_INLINE WStringReverseIterator operator+(difference_type d) const // [tested]
   {
-    ezStringReverseIterator it = *this;
+    WStringReverseIterator it = *this;
     it += d;
     return it;
   }
 
   /// Returns an iterator that is advanced backwards by d characters.
-  EZ_ALWAYS_INLINE ezStringReverseIterator operator-(difference_type d) const // [tested]
+  W_ALWAYS_INLINE WStringReverseIterator operator-(difference_type d) const // [tested]
   {
-    ezStringReverseIterator it = *this;
+    WStringReverseIterator it = *this;
     it -= d;
     return it;
   }
@@ -300,9 +300,9 @@ struct ezStringReverseIterator
   /// Allows to set the 'current' iteration position to a different value.
   ///
   /// Must be between the iterators start and end range.
-  EZ_FORCE_INLINE void SetCurrentPosition(const char* szCurPos)
+  W_FORCE_INLINE void SetCurrentPosition(const char* szCurPos)
   {
-    EZ_ASSERT_DEV((szCurPos == nullptr) || ((szCurPos >= m_pStartPtr) && (szCurPos < m_pEndPtr)), "New position must still be inside the iterator's range.");
+    W_ASSERT_DEV((szCurPos == nullptr) || ((szCurPos >= m_pStartPtr) && (szCurPos < m_pEndPtr)), "New position must still be inside the iterator's range.");
 
     m_pCurPtr = szCurPos;
   }

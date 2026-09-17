@@ -2,45 +2,45 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezReadbackBufferLock
+class W_RENDERERFOUNDATION_DLL WReadbackBufferLock
 {
 public:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezReadbackBufferLock);
+  W_DISALLOW_COPY_AND_ASSIGN(WReadbackBufferLock);
 
-  ezReadbackBufferLock() = default;
-  ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_memory);
-  EZ_ALWAYS_INLINE ezReadbackBufferLock(ezReadbackBufferLock&& rhs) { *this = std::move(rhs); }
-  ~ezReadbackBufferLock();
+  WReadbackBufferLock() = default;
+  WReadbackBufferLock(WGALDevice* pDevice, const WGALReadbackBuffer* pBuffer, WArrayPtr<const WUInt8>& out_memory);
+  W_ALWAYS_INLINE WReadbackBufferLock(WReadbackBufferLock&& rhs) { *this = std::move(rhs); }
+  ~WReadbackBufferLock();
 
-  void operator=(ezReadbackBufferLock&& rhs);
+  void operator=(WReadbackBufferLock&& rhs);
 
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_pDevice != nullptr; }
-  EZ_ALWAYS_INLINE bool operator!() const { return m_pDevice == nullptr; }
-  EZ_ALWAYS_INLINE operator bool() const { return m_pDevice != nullptr; }
+  W_ALWAYS_INLINE bool IsValid() const { return m_pDevice != nullptr; }
+  W_ALWAYS_INLINE bool operator!() const { return m_pDevice == nullptr; }
+  W_ALWAYS_INLINE operator bool() const { return m_pDevice != nullptr; }
 
 private:
-  const ezGALDevice* m_pDevice = nullptr;
-  const ezGALReadbackBuffer* m_pBuffer = nullptr;
+  const WGALDevice* m_pDevice = nullptr;
+  const WGALReadbackBuffer* m_pBuffer = nullptr;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezReadbackTextureLock
+class W_RENDERERFOUNDATION_DLL WReadbackTextureLock
 {
 public:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezReadbackTextureLock);
+  W_DISALLOW_COPY_AND_ASSIGN(WReadbackTextureLock);
 
-  ezReadbackTextureLock() = default;
-  ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory);
-  EZ_ALWAYS_INLINE ezReadbackTextureLock(ezReadbackTextureLock&& rhs) { *this = std::move(rhs); }
-  ~ezReadbackTextureLock();
+  WReadbackTextureLock() = default;
+  WReadbackTextureLock(WGALDevice* pDevice, const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_memory);
+  W_ALWAYS_INLINE WReadbackTextureLock(WReadbackTextureLock&& rhs) { *this = std::move(rhs); }
+  ~WReadbackTextureLock();
 
-  void operator=(ezReadbackTextureLock&& rhs);
+  void operator=(WReadbackTextureLock&& rhs);
 
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_pDevice != nullptr; }
-  EZ_ALWAYS_INLINE bool operator!() const { return m_pDevice == nullptr; }
-  EZ_ALWAYS_INLINE operator bool() const { return m_pDevice != nullptr; }
+  W_ALWAYS_INLINE bool IsValid() const { return m_pDevice != nullptr; }
+  W_ALWAYS_INLINE bool operator!() const { return m_pDevice == nullptr; }
+  W_ALWAYS_INLINE operator bool() const { return m_pDevice != nullptr; }
 
 private:
-  const ezGALDevice* m_pDevice = nullptr;
-  const ezGALReadbackTexture* m_pTexture = nullptr;
-  ezArrayPtr<const ezGALTextureSubresource> m_SubResources;
+  const WGALDevice* m_pDevice = nullptr;
+  const WGALReadbackTexture* m_pTexture = nullptr;
+  WArrayPtr<const WGALTextureSubresource> m_SubResources;
 };

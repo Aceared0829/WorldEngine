@@ -9,29 +9,29 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
-#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+#if W_ENABLED(W_USE_LINUX_POSIX_EXTENSIONS)
 #  include <sys/prctl.h>
 #endif
 #include <sys/wait.h>
 #include <unistd.h>
 
-#ifndef _EZ_DEFINED_POLLFD_POD
-#  define _EZ_DEFINED_POLLFD_POD
-EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#ifndef _W_DEFINED_POLLFD_POD
+#  define _W_DEFINED_POLLFD_POD
+W_DEFINE_AS_POD_TYPE(struct pollfd);
 #endif
 
-class ezFd
+class WFd
 {
 public:
-  ezFd() = default;
-  ezFd(const ezFd&) = delete;
-  ezFd(ezFd&& other)
+  WFd() = default;
+  WFd(const WFd&) = delete;
+  WFd(WFd&& other)
   {
     m_fd = other.m_fd;
     other.m_fd = -1;
   }
 
-  ~ezFd()
+  ~WFd()
   {
     Close();
   }
@@ -50,8 +50,8 @@ public:
     return m_fd >= 0;
   }
 
-  void operator=(const ezFd&) = delete;
-  void operator=(ezFd&& other)
+  void operator=(const WFd&) = delete;
+  void operator=(WFd&& other)
   {
     Close();
     m_fd = other.m_fd;
@@ -73,10 +73,10 @@ public:
     return result;
   }
 
-  ezResult AddFlags(int addFlags)
+  WResult AddFlags(int addFlags)
   {
     if (m_fd < 0)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (addFlags & O_CLOEXEC)
     {
@@ -84,8 +84,8 @@ public:
       flags |= FD_CLOEXEC;
       if (fcntl(m_fd, F_SETFD, flags) != 0)
       {
-        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
-        return EZ_FAILURE;
+        WLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return W_FAILURE;
       }
       addFlags &= ~O_CLOEXEC;
     }
@@ -96,36 +96,36 @@ public:
       flags |= addFlags;
       if (fcntl(m_fd, F_SETFD, flags) != 0)
       {
-        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
-        return EZ_FAILURE;
+        WLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return W_FAILURE;
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult MakePipe(ezFd (&fds)[2], int flags = 0)
+  static WResult MakePipe(WFd (&fds)[2], int flags = 0)
   {
     fds[0].Close();
     fds[1].Close();
-#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+#if W_ENABLED(W_USE_LINUX_POSIX_EXTENSIONS)
     if (pipe2((int*)fds, flags) != 0)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 #else
     if (pipe((int*)fds) != 0)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
     if (flags != 0 && (fds[0].AddFlags(flags).Failed() || fds[1].AddFlags(flags).Failed()))
     {
       fds[0].Close();
       fds[1].Close();
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 #endif
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 private:
@@ -136,7 +136,7 @@ namespace
 {
   struct ProcessStartupError
   {
-    enum class Type : ezUInt32
+    enum class Type : WUInt32
     {
       FailedToChangeWorkingDirectory = 0,
       FailedToExecv = 1,
@@ -147,7 +147,7 @@ namespace
     int errorCode;
   };
 
-  static ezInt32 GetExitCodeFromWaitStatus(int childStatus)
+  static WInt32 GetExitCodeFromWaitStatus(int childStatus)
   {
     if (WIFEXITED(childStatus))
     {
@@ -174,8 +174,8 @@ namespace
   }
 } // namespace
 
-#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
-namespace ezInternal
+#if W_ENABLED(W_USE_LINUX_POSIX_EXTENSIONS)
+namespace WInternal
 {
   static thread_local bool s_bSetProcessParentDeathSignal = false;
 
@@ -190,13 +190,13 @@ namespace ezInternal
   {
     return s_bSetProcessParentDeathSignal;
   }
-} // namespace ezInternal
+} // namespace WInternal
 #endif
 
 
-struct ezProcessImpl
+struct WProcessImpl
 {
-  ~ezProcessImpl()
+  ~WProcessImpl()
   {
     StopStreamWatcher();
   }
@@ -207,21 +207,21 @@ struct ezProcessImpl
 
   struct StdStreamInfo
   {
-    ezFd fd;
-    ezDelegate<void(ezStringView)> callback;
+    WFd fd;
+    WDelegate<void(WStringView)> callback;
   };
-  ezHybridArray<StdStreamInfo, 2> m_streams;
-  ezDynamicArray<ezStringBuilder> m_overflowBuffers;
-  ezUniquePtr<ezOSThread> m_streamWatcherThread;
-  ezFd m_wakeupPipeReadEnd;
-  ezFd m_wakeupPipeWriteEnd;
+  WHybridArray<StdStreamInfo, 2> m_streams;
+  WDynamicArray<WStringBuilder> m_overflowBuffers;
+  WUniquePtr<WOSThread> m_streamWatcherThread;
+  WFd m_wakeupPipeReadEnd;
+  WFd m_wakeupPipeWriteEnd;
 
   static void* StreamWatcherThread(void* context)
   {
-    ezProcessImpl* self = reinterpret_cast<ezProcessImpl*>(context);
+    WProcessImpl* self = reinterpret_cast<WProcessImpl*>(context);
     char buffer[4096];
 
-    ezHybridArray<struct pollfd, 3> pollfds;
+    WHybridArray<struct pollfd, 3> pollfds;
 
     pollfds.PushBack({self->m_wakeupPipeReadEnd.Borrow(), POLLIN, 0});
     for (StdStreamInfo& stream : self->m_streams)
@@ -241,22 +241,22 @@ struct ezProcessImpl
           run = false;
         }
 
-        for (ezUInt32 i = 1; i < pollfds.GetCount(); ++i)
+        for (WUInt32 i = 1; i < pollfds.GetCount(); ++i)
         {
           if (pollfds[i].revents & POLLIN)
           {
-            ezStringBuilder& overflowBuffer = self->m_overflowBuffers[i - 1];
+            WStringBuilder& overflowBuffer = self->m_overflowBuffers[i - 1];
             StdStreamInfo& stream = self->m_streams[i - 1];
             while (true)
             {
-              ssize_t numBytes = read(stream.fd.Borrow(), buffer, EZ_ARRAY_SIZE(buffer));
+              ssize_t numBytes = read(stream.fd.Borrow(), buffer, W_ARRAY_SIZE(buffer));
               if (numBytes < 0)
               {
                 if (errno == EWOULDBLOCK)
                 {
                   break;
                 }
-                ezLog::Error("Process Posix read error on {}: {}", stream.fd.Borrow(), errno);
+                WLog::Error("Process Posix read error on {}: {}", stream.fd.Borrow(), errno);
                 return nullptr;
               }
 
@@ -264,18 +264,18 @@ struct ezProcessImpl
               const char* szEndPos = buffer + numBytes;
               while (szCurrentPos < szEndPos)
               {
-                const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
+                const char* szFound = WStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
                 if (szFound)
                 {
                   if (overflowBuffer.IsEmpty())
                   {
                     // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
-                    stream.callback(ezStringView(szCurrentPos, szFound + 1));
+                    stream.callback(WStringView(szCurrentPos, szFound + 1));
                   }
                   else
                   {
                     // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
-                    overflowBuffer.Append(ezStringView(szCurrentPos, szFound + 1));
+                    overflowBuffer.Append(WStringView(szCurrentPos, szFound + 1));
                     stream.callback(overflowBuffer);
                     overflowBuffer.Clear();
                   }
@@ -284,12 +284,12 @@ struct ezProcessImpl
                 else
                 {
                   // This is either the start or a middle segment of a line, append to overflow buffer.
-                  overflowBuffer.Append(ezStringView(szCurrentPos, szEndPos));
+                  overflowBuffer.Append(WStringView(szCurrentPos, szEndPos));
                   szCurrentPos = szEndPos;
                 }
               }
 
-              if (numBytes < EZ_ARRAY_SIZE(buffer))
+              if (numBytes < W_ARRAY_SIZE(buffer))
               {
                 break;
               }
@@ -300,14 +300,14 @@ struct ezProcessImpl
       }
       else if (result < 0)
       {
-        ezLog::Error("poll error {}", errno);
+        WLog::Error("poll error {}", errno);
         break;
       }
     }
 
-    for (ezUInt32 i = 0; i < self->m_streams.GetCount(); ++i)
+    for (WUInt32 i = 0; i < self->m_streams.GetCount(); ++i)
     {
-      ezStringBuilder& overflowBuffer = self->m_overflowBuffers[i];
+      WStringBuilder& overflowBuffer = self->m_overflowBuffers[i];
       if (!overflowBuffer.IsEmpty())
       {
         self->m_streams[i].callback(overflowBuffer);
@@ -320,13 +320,13 @@ struct ezProcessImpl
     return nullptr;
   }
 
-  ezResult StartStreamWatcher()
+  WResult StartStreamWatcher()
   {
-    ezFd wakeupPipe[2];
-    if (ezFd::MakePipe(wakeupPipe, O_NONBLOCK | O_CLOEXEC).Failed())
+    WFd wakeupPipe[2];
+    if (WFd::MakePipe(wakeupPipe, O_NONBLOCK | O_CLOEXEC).Failed())
     {
-      ezLog::Error("Failed to setup wakeup pipe {}", errno);
-      return EZ_FAILURE;
+      WLog::Error("Failed to setup wakeup pipe {}", errno);
+      return W_FAILURE;
     }
     else
     {
@@ -334,10 +334,10 @@ struct ezProcessImpl
       m_wakeupPipeWriteEnd = std::move(wakeupPipe[1]);
     }
 
-    m_streamWatcherThread = EZ_DEFAULT_NEW(ezOSThread, &StreamWatcherThread, this, "StdStrmWtch");
+    m_streamWatcherThread = W_DEFAULT_NEW(WOSThread, &StreamWatcherThread, this, "StdStrmWtch");
     m_streamWatcherThread->Start();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   void StopStreamWatcher()
@@ -345,7 +345,7 @@ struct ezProcessImpl
     if (m_streamWatcherThread)
     {
       char c = 0;
-      EZ_IGNORE_UNUSED(write(m_wakeupPipeWriteEnd.Borrow(), &c, 1));
+      W_IGNORE_UNUSED(write(m_wakeupPipeWriteEnd.Borrow(), &c, 1));
       m_streamWatcherThread->Join();
       m_streamWatcherThread = nullptr;
     }
@@ -353,31 +353,31 @@ struct ezProcessImpl
     m_wakeupPipeWriteEnd.Close();
   }
 
-  void AddStream(ezFd fd, const ezDelegate<void(ezStringView)>& callback)
+  void AddStream(WFd fd, const WDelegate<void(WStringView)>& callback)
   {
     m_streams.PushBack({std::move(fd), callback});
     m_overflowBuffers.SetCount(m_streams.GetCount());
   }
 
-  ezUInt32 GetNumStreams() const { return m_streams.GetCount(); }
+  WUInt32 GetNumStreams() const { return m_streams.GetCount(); }
 
-  static ezResult StartChildProcess(const ezProcessOptions& opt, pid_t& outPid, bool suspended, ezFd& outStdOutFd, ezFd& outStdErrFd)
+  static WResult StartChildProcess(const WProcessOptions& opt, pid_t& outPid, bool suspended, WFd& outStdOutFd, WFd& outStdErrFd)
   {
-    ezFd stdoutPipe[2];
-    ezFd stderrPipe[2];
-    ezFd startupErrorPipe[2];
+    WFd stdoutPipe[2];
+    WFd stderrPipe[2];
+    WFd startupErrorPipe[2];
 
-    ezStringBuilder executablePath = opt.m_sProcess;
-    ezFileStats stats;
+    WStringBuilder executablePath = opt.m_sProcess;
+    WFileStats stats;
     if (!opt.m_sProcess.IsAbsolutePath())
     {
-      executablePath = ezOSFile::GetCurrentWorkingDirectory();
+      executablePath = WOSFile::GetCurrentWorkingDirectory();
       executablePath.AppendPath(opt.m_sProcess);
     }
 
-    if (ezOSFile::GetFileStats(executablePath, stats).Failed() || stats.m_bIsDirectory)
+    if (WOSFile::GetFileStats(executablePath, stats).Failed() || stats.m_bIsDirectory)
     {
-      ezHybridArray<char, 512> confPath;
+      WHybridArray<char, 512> confPath;
       auto homePath = getenv("HOME");
       auto envPATH = getenv("PATH");
       if (envPATH == nullptr) // if no PATH environment variable is available, we need to fetch the system default;
@@ -400,8 +400,8 @@ struct ezProcessImpl
         envPATH = confPath.GetData();
       }
 
-      ezStringView path = envPATH;
-      ezHybridArray<ezStringView, 16> pathParts;
+      WStringView path = envPATH;
+      WHybridArray<WStringView, 16> pathParts;
       path.Split(false, pathParts, ":");
 
       for (auto& pathPart : pathParts)
@@ -418,7 +418,7 @@ struct ezProcessImpl
         }
         executablePath.AppendPath(pathPart);
         executablePath.AppendPath(opt.m_sProcess);
-        if (ezOSFile::GetFileStats(executablePath, stats).Succeeded() && !stats.m_bIsDirectory)
+        if (WOSFile::GetFileStats(executablePath, stats).Succeeded() && !stats.m_bIsDirectory)
         {
           break;
         }
@@ -428,47 +428,47 @@ struct ezProcessImpl
 
     if (executablePath.IsEmpty())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     if (opt.m_onStdOut.IsValid())
     {
-      if (ezFd::MakePipe(stdoutPipe).Failed())
+      if (WFd::MakePipe(stdoutPipe).Failed())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
       if (stdoutPipe[0].AddFlags(O_NONBLOCK).Failed())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
     if (opt.m_onStdError.IsValid())
     {
-      if (ezFd::MakePipe(stderrPipe).Failed())
+      if (WFd::MakePipe(stderrPipe).Failed())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
       if (stderrPipe[0].AddFlags(O_NONBLOCK).Failed())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
-    if (ezFd::MakePipe(startupErrorPipe, O_CLOEXEC).Failed())
+    if (WFd::MakePipe(startupErrorPipe, O_CLOEXEC).Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
-    const bool bSetParentDeathSignal = ezInternal::GetProcessLaunchParentDeathSignal();
+#if W_ENABLED(W_USE_LINUX_POSIX_EXTENSIONS)
+    const bool bSetParentDeathSignal = WInternal::GetProcessLaunchParentDeathSignal();
     const pid_t parentPid = getpid();
 #endif
 
-    ezHybridArray<char*, 9> args;
+    WHybridArray<char*, 9> args;
 
     args.PushBack(const_cast<char*>(executablePath.GetData()));
-    for (const ezString& arg : opt.m_Arguments)
+    for (const WString& arg : opt.m_Arguments)
     {
       args.PushBack(const_cast<char*>(arg.GetData()));
     }
@@ -477,19 +477,19 @@ struct ezProcessImpl
     pid_t childPid = fork();
     if (childPid < 0)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     if (childPid == 0) // We are the child
     {
       // DANGER! We are the child process and are now working on a shadow copy of the parent process including the state of all locks etc. This means that if we hit any locks, e.g. by allocating memory we will deadlock if at the point of fork the lock was held by a different thread. So between this line and the call to `execv` we must not make any allocations or access any high level code.
-#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+#if W_ENABLED(W_USE_LINUX_POSIX_EXTENSIONS)
       if (bSetParentDeathSignal)
       {
         if (prctl(PR_SET_PDEATHSIG, SIGKILL) != 0)
         {
           auto err = ProcessStartupError{ProcessStartupError::Type::FailedToSetParentDeathSignal, errno};
-          EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+          W_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
           startupErrorPipe[1].Close();
           _exit(-1);
         }
@@ -533,7 +533,7 @@ struct ezProcessImpl
       else
       {
         // TODO: Launch a x-terminal-emulator with the command and somehow redirect STDOUT, etc?
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
 
       if (opt.m_onStdOut.IsValid())
@@ -557,7 +557,7 @@ struct ezProcessImpl
         if (chdir(opt.m_sWorkingDirectory.GetData()) < 0)
         {
           auto err = ProcessStartupError{ProcessStartupError::Type::FailedToChangeWorkingDirectory, 0};
-          EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+          W_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
           startupErrorPipe[1].Close();
           _exit(-1);
         }
@@ -566,7 +566,7 @@ struct ezProcessImpl
       if (execv(executablePath, args.GetData()) < 0)
       {
         auto err = ProcessStartupError{ProcessStartupError::Type::FailedToExecv, errno};
-        EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+        W_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
         startupErrorPipe[1].Close();
         _exit(-1);
       }
@@ -586,20 +586,20 @@ struct ezProcessImpl
       // Case 2: errSize > 0 in which case there was an error before the pipe was closed normally.
       if (errSize > 0)
       {
-        EZ_ASSERT_DEV(errSize == sizeof(err), "Child process should have written a full ProcessStartupError struct");
+        W_ASSERT_DEV(errSize == sizeof(err), "Child process should have written a full ProcessStartupError struct");
         switch (err.type)
         {
           case ProcessStartupError::Type::FailedToChangeWorkingDirectory:
-            ezLog::Error("Failed to start process '{}' because the given working directory '{}' is invalid", opt.m_sProcess, opt.m_sWorkingDirectory);
+            WLog::Error("Failed to start process '{}' because the given working directory '{}' is invalid", opt.m_sProcess, opt.m_sWorkingDirectory);
             break;
           case ProcessStartupError::Type::FailedToExecv:
-            ezLog::Error("Failed to exec when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
+            WLog::Error("Failed to exec when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
             break;
           case ProcessStartupError::Type::FailedToSetParentDeathSignal:
-            ezLog::Error("Failed to configure parent death signal when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
+            WLog::Error("Failed to configure parent death signal when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
             break;
         }
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       outPid = childPid;
@@ -615,20 +615,20 @@ struct ezProcessImpl
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-ezProcess::ezProcess()
+WProcess::WProcess()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezProcessImpl);
+  m_pImpl = W_DEFAULT_NEW(WProcessImpl);
 }
 
-ezProcess::~ezProcess()
+WProcess::~WProcess()
 {
-  if (GetState() == ezProcessState::Running)
+  if (GetState() == WProcessState::Running)
   {
-    ezLog::Dev("Process still running - terminating '{}'", m_sProcess);
+    WLog::Dev("Process still running - terminating '{}'", m_sProcess);
 
     Terminate().IgnoreResult();
   }
@@ -638,17 +638,17 @@ ezProcess::~ezProcess()
   m_pImpl.Clear();
 }
 
-ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
+WResult WProcess::Execute(const WProcessOptions& opt, WInt32* out_iExitCode /*= nullptr*/)
 {
   pid_t childPid = 0;
-  ezFd stdoutFd;
-  ezFd stderrFd;
-  if (ezProcessImpl::StartChildProcess(opt, childPid, false, stdoutFd, stderrFd).Failed())
+  WFd stdoutFd;
+  WFd stderrFd;
+  if (WProcessImpl::StartChildProcess(opt, childPid, false, stdoutFd, stderrFd).Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezProcessImpl impl;
+  WProcessImpl impl;
   if (stdoutFd.IsValid())
   {
     impl.AddStream(std::move(stdoutFd), opt.m_onStdOut);
@@ -661,36 +661,36 @@ ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode 
 
   if (impl.GetNumStreams() > 0 && impl.StartStreamWatcher().Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   int childStatus = -1;
   pid_t waitedPid = WaitPidInterruptedRetry(childPid, &childStatus, 0);
   if (waitedPid < 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   if (out_iExitCode != nullptr)
   {
     *out_iExitCode = GetExitCodeFromWaitStatus(childStatus);
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezProcessLaunchFlags::None*/)
+WResult WProcess::Launch(const WProcessOptions& opt, WBitflags<WProcessLaunchFlags> launchFlags /*= WProcessLaunchFlags::None*/)
 {
-  EZ_ASSERT_DEV(m_pImpl->m_childPid == -1, "Can not reuse an instance of ezProcess");
+  W_ASSERT_DEV(m_pImpl->m_childPid == -1, "Can not reuse an instance of WProcess");
 
-  ezFd stdoutFd;
-  ezFd stderrFd;
+  WFd stdoutFd;
+  WFd stderrFd;
 
-  if (ezProcessImpl::StartChildProcess(opt, m_pImpl->m_childPid, launchFlags.IsSet(ezProcessLaunchFlags::Suspended), stdoutFd, stderrFd).Failed())
+  if (WProcessImpl::StartChildProcess(opt, m_pImpl->m_childPid, launchFlags.IsSet(WProcessLaunchFlags::Suspended), stdoutFd, stderrFd).Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_pImpl->m_exitCodeAvailable = false;
-  m_pImpl->m_processSuspended = launchFlags.IsSet(ezProcessLaunchFlags::Suspended);
+  m_pImpl->m_processSuspended = launchFlags.IsSet(WProcessLaunchFlags::Suspended);
 
   if (stdoutFd.IsValid())
   {
@@ -706,38 +706,38 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   {
     if (m_pImpl->StartStreamWatcher().Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  if (launchFlags.IsSet(ezProcessLaunchFlags::Detached))
+  if (launchFlags.IsSet(WProcessLaunchFlags::Detached))
   {
     Detach();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::ResumeSuspended()
+WResult WProcess::ResumeSuspended()
 {
   if (m_pImpl->m_childPid < 0 || !m_pImpl->m_processSuspended)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (kill(m_pImpl->m_childPid, SIGCONT) < 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   m_pImpl->m_processSuspended = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
+WResult WProcess::WaitToFinish(WTime timeout /*= WTime::MakeZero()*/)
 {
   if (m_pImpl->m_exitCodeAvailable)
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (timeout.IsZero())
@@ -751,51 +751,51 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 
       m_pImpl->StopStreamWatcher();
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
-    ezTime startWait = ezTime::Now();
+    WTime startWait = WTime::Now();
     while (true)
     {
-      const ezProcessState state = GetState();
+      const WProcessState state = GetState();
       switch (state)
       {
-        case ezProcessState::NotStarted:
-          return EZ_FAILURE;
-        case ezProcessState::Running:
+        case WProcessState::NotStarted:
+          return W_FAILURE;
+        case WProcessState::Running:
           break;
-        case ezProcessState::Finished:
-          return EZ_SUCCESS;
+        case WProcessState::Finished:
+          return W_SUCCESS;
       }
 
-      ezTime timeSpent = ezTime::Now() - startWait;
+      WTime timeSpent = WTime::Now() - startWait;
       if (timeSpent > timeout)
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
-      ezThreadUtils::Sleep(ezMath::Min(ezTime::MakeFromMilliseconds(100.0), timeout - timeSpent));
+      WThreadUtils::Sleep(WMath::Min(WTime::MakeFromMilliseconds(100.0), timeout - timeSpent));
     }
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::Terminate()
+WResult WProcess::Terminate()
 {
   if (m_pImpl->m_childPid == -1)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  EZ_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
+  W_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
 
   if (kill(m_pImpl->m_childPid, SIGKILL) < 0)
   {
     if (errno != ESRCH) // ESRCH = Process does not exist
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
@@ -804,26 +804,26 @@ ezResult ezProcess::Terminate()
   {
     if (errno != ECHILD) // ECHILD = Process is not a child of the calling process or was already waited for
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
   m_pImpl->m_exitCodeAvailable = true;
   m_iExitCode = -1;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezProcessState ezProcess::GetState() const
+WProcessState WProcess::GetState() const
 {
   if (m_pImpl->m_childPid == -1)
   {
-    return ezProcessState::NotStarted;
+    return WProcessState::NotStarted;
   }
 
   if (m_pImpl->m_exitCodeAvailable)
   {
-    return ezProcessState::Finished;
+    return WProcessState::Finished;
   }
 
   int childStatus = -1;
@@ -835,30 +835,30 @@ ezProcessState ezProcess::GetState() const
 
     m_pImpl->StopStreamWatcher();
 
-    return ezProcessState::Finished;
+    return WProcessState::Finished;
   }
 
-  return ezProcessState::Running;
+  return WProcessState::Running;
 }
 
-void ezProcess::Detach()
+void WProcess::Detach()
 {
   m_pImpl->m_childPid = -1;
 }
 
-ezOsProcessHandle ezProcess::GetProcessHandle() const
+WOsProcessHandle WProcess::GetProcessHandle() const
 {
-  EZ_ASSERT_DEV(false, "There is no process handle on posix");
+  W_ASSERT_DEV(false, "There is no process handle on posix");
   return nullptr;
 }
 
-ezOsProcessID ezProcess::GetProcessID() const
+WOsProcessID WProcess::GetProcessID() const
 {
-  EZ_ASSERT_DEV(m_pImpl->m_childPid != -1, "No ProcessID available");
+  W_ASSERT_DEV(m_pImpl->m_childPid != -1, "No ProcessID available");
   return m_pImpl->m_childPid;
 }
 
-ezOsProcessID ezProcess::GetCurrentProcessID()
+WOsProcessID WProcess::GetCurrentProcessID()
 {
   return getpid();
 }

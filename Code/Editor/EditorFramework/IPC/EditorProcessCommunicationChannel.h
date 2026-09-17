@@ -12,24 +12,24 @@ class QList;
 class QString;
 using QStringList = QList<QString>;
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorProcessCommunicationChannel : public ezProcessCommunicationChannel
+class W_EDITORFRAMEWORK_DLL WEditorProcessCommunicationChannel : public WProcessCommunicationChannel
 {
 public:
-  ezResult StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType = nullptr,
-    ezUInt32 uiMemSize = 1024 * 1024 * 10);
+  WResult StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const WRTTI* pFirstAllowedMessageType = nullptr,
+    WUInt32 uiMemSize = 1024 * 1024 * 10);
   bool IsClientAlive() const;
   void CloseConnection();
-  ezString GetStdoutContents();
-  ezOsProcessID GetProcessId() const;
+  WString GetStdoutContents();
+  WOsProcessID GetProcessId() const;
 
 private:
-  ezUniquePtr<ezProcessGroup> m_pClientProcessGroup;
+  WUniquePtr<WProcessGroup> m_pClientProcessGroup;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorProcessRemoteCommunicationChannel : public ezProcessCommunicationChannel
+class W_EDITORFRAMEWORK_DLL WEditorProcessRemoteCommunicationChannel : public WProcessCommunicationChannel
 {
 public:
-  ezResult ConnectToServer(const char* szAddress);
+  WResult ConnectToServer(const char* szAddress);
 
   bool IsConnected() const;
 

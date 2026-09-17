@@ -8,9 +8,9 @@
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
-EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
+W_IMPLEMENT_SINGLETON(WOpenXRHandTracking);
 
-bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
+bool WOpenXRHandTracking::IsHandTrackingSupported(WOpenXR* pOpenXR)
 {
   XrSystemHandTrackingPropertiesEXT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT};
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties};
@@ -22,11 +22,11 @@ bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
   return false;
 }
 
-ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
+WOpenXRHandTracking::WOpenXRHandTracking(WOpenXR* pOpenXR)
   : m_SingletonRegistrar(this)
   , m_pOpenXR(pOpenXR)
 {
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
     const XrHandEXT uiHand = uiSide == 0 ? XR_HAND_LEFT_EXT : XR_HAND_RIGHT_EXT;
     XrHandTrackerCreateInfoEXT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT};
@@ -37,15 +37,15 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     m_Locations[uiSide].next = &m_Velocities[uiSide];
     m_Locations[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Locations[uiSide].jointLocations = m_JointLocations[uiSide];
-    ezMemoryUtils::ZeroFill(&m_JointLocations[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
+    WMemoryUtils::ZeroFill(&m_JointLocations[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
 
     m_Velocities[uiSide].type = XR_TYPE_HAND_JOINT_VELOCITIES_EXT;
     m_Velocities[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Velocities[uiSide].jointVelocities = m_JointVelocities[uiSide];
-    ezMemoryUtils::ZeroFill(&m_JointVelocities[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
+    WMemoryUtils::ZeroFill(&m_JointVelocities[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
 
     m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_EXT + 1);
-    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+    for (WUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {
       m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
       m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
@@ -53,116 +53,116 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
   }
 
   // Map hand parts to hand joints
-  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_PALM_EXT);
-  m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Palm].PushBack(XR_HAND_JOINT_PALM_EXT);
+  m_HandParts[WXRHandPart::Palm].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Wrist].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Wrist].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_TIP_EXT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_DISTAL_EXT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_PROXIMAL_EXT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_METACARPAL_EXT);
-  m_HandParts[ezXRHandPart::Thumb].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_TIP_EXT);
+  m_HandParts[WXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_DISTAL_EXT);
+  m_HandParts[WXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_PROXIMAL_EXT);
+  m_HandParts[WXRHandPart::Thumb].PushBack(XR_HAND_JOINT_THUMB_METACARPAL_EXT);
+  m_HandParts[WXRHandPart::Thumb].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_TIP_EXT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_DISTAL_EXT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_PROXIMAL_EXT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_METACARPAL_EXT);
-  m_HandParts[ezXRHandPart::Index].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_TIP_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_DISTAL_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_PROXIMAL_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_INDEX_METACARPAL_EXT);
+  m_HandParts[WXRHandPart::Index].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_TIP_EXT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_DISTAL_EXT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_METACARPAL_EXT);
-  m_HandParts[ezXRHandPart::Middle].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_TIP_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_DISTAL_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_MIDDLE_METACARPAL_EXT);
+  m_HandParts[WXRHandPart::Middle].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_TIP_EXT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_DISTAL_EXT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_INTERMEDIATE_EXT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_PROXIMAL_EXT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_METACARPAL_EXT);
-  m_HandParts[ezXRHandPart::Ring].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_TIP_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_DISTAL_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_INTERMEDIATE_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_PROXIMAL_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_RING_METACARPAL_EXT);
+  m_HandParts[WXRHandPart::Ring].PushBack(XR_HAND_JOINT_WRIST_EXT);
 
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_TIP_EXT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_DISTAL_EXT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_PROXIMAL_EXT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_METACARPAL_EXT);
-  m_HandParts[ezXRHandPart::Little].PushBack(XR_HAND_JOINT_WRIST_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_TIP_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_DISTAL_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_PROXIMAL_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_LITTLE_METACARPAL_EXT);
+  m_HandParts[WXRHandPart::Little].PushBack(XR_HAND_JOINT_WRIST_EXT);
 }
 
-ezOpenXRHandTracking::~ezOpenXRHandTracking()
+WOpenXRHandTracking::~WOpenXRHandTracking()
 {
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
     XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrDestroyHandTrackerEXT(m_HandTracker[uiSide]));
   }
 }
 
-ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBoneTransforms(
-  ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space, ezDynamicArray<ezXRHandBone>& out_bones)
+WXRHandTrackingInterface::HandPartTrackingState WOpenXRHandTracking::TryGetBoneTransforms(
+  WEnum<WXRHand> hand, WEnum<WXRHandPart> handPart, WEnum<WXRTransformSpace> space, WDynamicArray<WXRHandBone>& out_bones)
 {
-  EZ_ASSERT_DEV(handPart <= ezXRHandPart::Little, "Invalid hand part.");
+  W_ASSERT_DEV(handPart <= WXRHandPart::Little, "Invalid hand part.");
   out_bones.Clear();
 
-  for (ezUInt32 uiJointIndex : m_HandParts[handPart])
+  for (WUInt32 uiJointIndex : m_HandParts[handPart])
   {
     const JointData& jointData = m_JointData[hand][uiJointIndex];
     if (!jointData.m_bValid)
-      return ezXRHandTrackingInterface::HandPartTrackingState::Untracked;
+      return WXRHandTrackingInterface::HandPartTrackingState::Untracked;
 
     out_bones.PushBack(jointData.m_Bone);
   }
 
-  if (space == ezXRTransformSpace::Global)
+  if (space == WXRTransformSpace::Global)
   {
-    ezWorld* pWorld = m_pOpenXR->GetWorld();
+    WWorld* pWorld = m_pOpenXR->GetWorld();
     if (!pWorld)
-      return ezXRHandTrackingInterface::HandPartTrackingState::NotSupported;
+      return WXRHandTrackingInterface::HandPartTrackingState::NotSupported;
 
-    if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+    if (const WStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<WStageSpaceComponentManager>())
     {
-      if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+      if (const WStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
       {
-        const ezTransform globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
-        for (ezXRHandBone& bone : out_bones)
+        const WTransform globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
+        for (WXRHandBone& bone : out_bones)
         {
-          ezTransform local = bone.m_Transform;
-          bone.m_Transform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
+          WTransform local = bone.m_Transform;
+          bone.m_Transform = WTransform::MakeGlobalTransform(globalStageTransform, local);
         }
       }
     }
   }
-  return ezXRHandTrackingInterface::HandPartTrackingState::Tracked;
+  return WXRHandTrackingInterface::HandPartTrackingState::Tracked;
 }
 
-void ezOpenXRHandTracking::UpdateJointTransforms()
+void WOpenXRHandTracking::UpdateJointTransforms()
 {
-  EZ_PROFILE_SCOPE("UpdateJointTransforms");
+  W_PROFILE_SCOPE("UpdateJointTransforms");
   const XrTime time = m_pOpenXR->m_FrameState.predictedDisplayTime;
   XrHandJointsLocateInfoEXT locateInfo{XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT};
   locateInfo.baseSpace = m_pOpenXR->GetBaseSpace();
   locateInfo.time = time;
 
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
-    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+    for (WUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {
       m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
       m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
     }
   }
 
-  for (ezUInt32 uiSide : {0, 1})
+  for (WUInt32 uiSide : {0, 1})
   {
     if (m_pOpenXR->m_Extensions.pfn_xrLocateHandJointsEXT(m_HandTracker[uiSide], &locateInfo, &m_Locations[uiSide]) != XrResult::XR_SUCCESS)
       m_Locations[uiSide].isActive = false;
 
     if (m_Locations[uiSide].isActive)
     {
-      for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+      for (WUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
       {
         const XrHandJointLocationEXT& spaceLocation = m_JointLocations[uiSide][i];
         if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
@@ -170,8 +170,8 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
         {
           m_JointData[uiSide][i].m_bValid = true;
           m_JointData[uiSide][i].m_Bone.m_fRadius = spaceLocation.radius;
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXRConversionUtils::ConvertPosition(spaceLocation.pose.position);
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXRConversionUtils::ConvertOrientation(spaceLocation.pose.orientation);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = WOpenXRConversionUtils::ConvertPosition(spaceLocation.pose.position);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = WOpenXRConversionUtils::ConvertOrientation(spaceLocation.pose.orientation);
         }
         else
         {
@@ -181,7 +181,7 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
     }
     else
     {
-      for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+      for (WUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
       {
         m_JointData[uiSide][i].m_bValid = false;
       }

@@ -11,47 +11,47 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimpleRenderPass, 1, WRTTIDefaultAllocator<WSimpleRenderPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
+    W_MEMBER_PROPERTY("Color", m_PinColor),
+    W_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    W_MEMBER_PROPERTY("Message", m_sMessage),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering")
+    new WCategoryAttribute("Rendering")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSimpleRenderPass::ezSimpleRenderPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WSimpleRenderPass::WSimpleRenderPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezSimpleRenderPass::~ezSimpleRenderPass() = default;
+WSimpleRenderPass::~WSimpleRenderPass() = default;
 
-ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WSimpleRenderPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  const WGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
 
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
 
   // If no color input, create from view's render target
   if (hColor.IsInvalidated())
   {
-    const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]);
+    const WGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]);
     if (pTexture)
     {
-      ezGALTextureCreationDescription desc = pTexture->GetDescription();
-      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
+      WGALTextureCreationDescription desc = pTexture->GetDescription();
+      desc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::ShaderResource);
       desc.m_ResourceAccess.m_bImmutable = true;
       desc.m_pExisitingNativeObject = nullptr;
       hColor = ref_graph.CreateTexture(desc);
@@ -62,7 +62,7 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   // If no depth input, create from view's depth target
   if (hDepthStencil.IsInvalidated())
   {
-    const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hDSTarget);
+    const WGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hDSTarget);
     if (pTexture)
     {
       hDepthStencil = ref_graph.CreateTexture(pTexture->GetDescription());
@@ -77,67 +77,67 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
     pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
 
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleTransparent, ref_graph, pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::GUI, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::SimpleTransparent, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::GUI, ref_graph, pass);
 
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     renderViewContext.UpdateViewport();
 
-    ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
-    if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
+    WTempHashedString sRenderPass("RENDER_PASS_FORWARD");
+    if (renderViewContext.m_pViewData->m_ViewRenderMode != WViewRenderMode::None)
     {
-      sRenderPass = ezViewRenderMode::GetPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
+      sRenderPass = WViewRenderMode::GetPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
     }
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
 
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::SimpleOpaque);
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::SimpleTransparent);
 
     if (!m_sMessage.IsEmpty())
     {
-      ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
+      WDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), WVec2I32(20, 20), WColor::OrangeRed);
     }
 
-    ezDebugRenderer::RenderWorldSpace(renderViewContext);
+    WDebugRenderer::RenderWorldSpace(renderViewContext);
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::SimpleForeground);
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::SimpleForeground);
 
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::GUI);
 
-    ezDebugRenderer::RenderScreenSpace(renderViewContext); });
+    WDebugRenderer::RenderScreenSpace(renderViewContext); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WSimpleRenderPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_sMessage;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
+WResult WSimpleRenderPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sMessage;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSimpleRenderPass::SetMessage(const char* szMessage)
+void WSimpleRenderPass::SetMessage(const char* szMessage)
 {
   m_sMessage = szMessage;
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);

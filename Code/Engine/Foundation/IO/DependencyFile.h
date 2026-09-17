@@ -8,38 +8,38 @@
 
 /// This class represents a set of files of which one wants to know when any one of them changes.
 ///
-/// ezDependencyFile stores a list of files that are the 'dependency set'. It can be serialized.
+/// WDependencyFile stores a list of files that are the 'dependency set'. It can be serialized.
 /// Through HasAnyFileChanged() one can detect whether any of the files has changed, since the last call to StoreCurrentTimeStamp().
 /// The time stamp that is retrieved through StoreCurrentTimeStamp() will also be serialized.
-class EZ_FOUNDATION_DLL ezDependencyFile
+class W_FOUNDATION_DLL WDependencyFile
 {
 public:
-  ezDependencyFile();
+  WDependencyFile();
 
   /// Clears all files that were added with AddFileDependency()
   void Clear();
 
   /// Adds one file as a dependency to the list
-  void AddFileDependency(ezStringView sFile);
+  void AddFileDependency(WStringView sFile);
 
   /// Allows read access to all currently stored file dependencies
-  const ezHybridArray<ezString, 16>& GetFileDependencies() const { return m_AssetTransformDependencies; }
+  const WHybridArray<WString, 16>& GetFileDependencies() const { return m_AssetTransformDependencies; }
 
   /// Writes the current state to a stream. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest
   /// file stamp
-  ezResult WriteDependencyFile(ezStreamWriter& inout_stream) const;
+  WResult WriteDependencyFile(WStreamWriter& inout_stream) const;
 
   /// Reads the state from a stream. Call HasAnyFileChanged() afterwards to determine whether anything has changed since when the data was
   /// serialized.
-  ezResult ReadDependencyFile(ezStreamReader& inout_stream);
+  WResult ReadDependencyFile(WStreamReader& inout_stream);
 
   /// Writes the current state to a file. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file
   /// stamp
-  ezResult WriteDependencyFile(ezStringView sFile) const;
+  WResult WriteDependencyFile(WStringView sFile) const;
 
   /// Reads the state from a file. Call HasAnyFileChanged() afterwards to determine whether anything has changed since when the data was
   /// serialized.
-  ezResult ReadDependencyFile(ezStringView sFile);
+  WResult ReadDependencyFile(WStringView sFile);
 
   /// Retrieves the current file time stamps from the filesystem and determines whether any file has changed since the last call to
   /// StoreCurrentTimeStamp() (or ReadDependencyFile())
@@ -50,18 +50,18 @@ public:
   void StoreCurrentTimeStamp();
 
 private:
-  static ezResult RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp& out_Result);
+  static WResult RetrieveFileTimeStamp(WStringView sFile, WTimestamp& out_Result);
 
-  ezHybridArray<ezString, 16> m_AssetTransformDependencies;
-  ezInt64 m_iMaxTimeStampStored = 0;
-  ezUInt64 m_uiSumTimeStampStored = 0;
+  WHybridArray<WString, 16> m_AssetTransformDependencies;
+  WInt64 m_iMaxTimeStampStored = 0;
+  WUInt64 m_uiSumTimeStampStored = 0;
 
   struct FileCheckCache
   {
-    ezTimestamp m_FileTimestamp;
-    ezTime m_LastCheck;
+    WTimestamp m_FileTimestamp;
+    WTime m_LastCheck;
   };
 
-  static ezMutex s_FileTimestampsLock;
-  static ezMap<ezString, FileCheckCache> s_FileTimestamps;
+  static WMutex s_FileTimestampsLock;
+  static WMap<WString, FileCheckCache> s_FileTimestamps;
 };

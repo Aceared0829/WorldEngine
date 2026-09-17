@@ -3,12 +3,12 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
 
-vk::DescriptorPool ezTransientDescriptorSetPoolVulkan::s_CurrentTransientPool;
-ezHybridArray<vk::DescriptorPool, 4> ezTransientDescriptorSetPoolVulkan::s_FreeTransientPools;
-vk::Device ezTransientDescriptorSetPoolVulkan::s_Device;
-ezHashTable<vk::DescriptorType, float> ezTransientDescriptorSetPoolVulkan::s_DescriptorWeights;
+vk::DescriptorPool WTransientDescriptorSetPoolVulkan::s_CurrentTransientPool;
+WHybridArray<vk::DescriptorPool, 4> WTransientDescriptorSetPoolVulkan::s_FreeTransientPools;
+vk::Device WTransientDescriptorSetPoolVulkan::s_Device;
+WHashTable<vk::DescriptorType, float> WTransientDescriptorSetPoolVulkan::s_DescriptorWeights;
 
-void ezTransientDescriptorSetPoolVulkan::Initialize(vk::Device device)
+void WTransientDescriptorSetPoolVulkan::Initialize(vk::Device device)
 {
   s_Device = device;
   s_DescriptorWeights[vk::DescriptorType::eSampler] = 0.5f;              // Image sampler.
@@ -19,12 +19,12 @@ void ezTransientDescriptorSetPoolVulkan::Initialize(vk::Device device)
   s_DescriptorWeights[vk::DescriptorType::eUniformTexelBuffer] = 0.5f;   // Read-only linear texel buffer with view.
   s_DescriptorWeights[vk::DescriptorType::eCombinedImageSampler] = 2.0f; // Read-only image view with image sampler.
 
-  // Not used by EZ so far.
+  // Not used by W so far.
   s_DescriptorWeights[vk::DescriptorType::eStorageTexelBuffer] = 0.5f;   // Read / write linear texel buffer with view.
   s_DescriptorWeights[vk::DescriptorType::eUniformBufferDynamic] = 1.0f; // Same as eUniformBuffer but allows updating the memory offset into the buffer dynamically.
   s_DescriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.
 
-  // Not supported by EZ so far.
+  // Not supported by W so far.
   s_DescriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f; // frame-buffer local read-only image view.
 
   s_DescriptorWeights[vk::DescriptorType::eInlineUniformBlock] = 0.0f;
@@ -33,7 +33,7 @@ void ezTransientDescriptorSetPoolVulkan::Initialize(vk::Device device)
   s_DescriptorWeights[vk::DescriptorType::eMutableVALVE] = 0.0f;
 }
 
-void ezTransientDescriptorSetPoolVulkan::DeInitialize()
+void WTransientDescriptorSetPoolVulkan::DeInitialize()
 {
   s_DescriptorWeights.Clear();
   s_DescriptorWeights.Compact();
@@ -54,12 +54,12 @@ void ezTransientDescriptorSetPoolVulkan::DeInitialize()
   s_Device = nullptr;
 }
 
-ezHashTable<vk::DescriptorType, float>& ezTransientDescriptorSetPoolVulkan::AccessDescriptorPoolWeights()
+WHashTable<vk::DescriptorType, float>& WTransientDescriptorSetPoolVulkan::AccessDescriptorPoolWeights()
 {
   return s_DescriptorWeights;
 }
 
-vk::DescriptorSet ezTransientDescriptorSetPoolVulkan::CreateTransientDescriptorSet(vk::DescriptorSetLayout layout)
+vk::DescriptorSet WTransientDescriptorSetPoolVulkan::CreateTransientDescriptorSet(vk::DescriptorSetLayout layout)
 {
   vk::DescriptorSet set;
   if (!s_CurrentTransientPool)
@@ -90,7 +90,7 @@ vk::DescriptorSet ezTransientDescriptorSetPoolVulkan::CreateTransientDescriptorS
 
   if (bPoolExhausted)
   {
-    ezGALDeviceVulkan* pDevice = static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice());
+    WGALDeviceVulkan* pDevice = static_cast<WGALDeviceVulkan*>(WGALDevice::GetDefaultDevice());
     pDevice->ReclaimLater(s_CurrentTransientPool);
     s_CurrentTransientPool = GetNewTransientPool();
     allocateInfo.descriptorPool = s_CurrentTransientPool;
@@ -100,26 +100,26 @@ vk::DescriptorSet ezTransientDescriptorSetPoolVulkan::CreateTransientDescriptorS
   return set;
 }
 
-void ezTransientDescriptorSetPoolVulkan::UpdateDescriptorSet(vk::DescriptorSet descriptorSet, ezArrayPtr<vk::WriteDescriptorSet> update)
+void WTransientDescriptorSetPoolVulkan::UpdateDescriptorSet(vk::DescriptorSet descriptorSet, WArrayPtr<vk::WriteDescriptorSet> update)
 {
   s_Device.updateDescriptorSets(update.GetCount(), update.GetPtr(), 0, nullptr);
 }
 
-void ezTransientDescriptorSetPoolVulkan::ReclaimPool(vk::DescriptorPool& ref_descriptorPool)
+void WTransientDescriptorSetPoolVulkan::ReclaimPool(vk::DescriptorPool& ref_descriptorPool)
 {
   s_Device.resetDescriptorPool(ref_descriptorPool);
   s_FreeTransientPools.PushBack(ref_descriptorPool);
 }
 
-vk::DescriptorPool ezTransientDescriptorSetPoolVulkan::GetNewTransientPool()
+vk::DescriptorPool WTransientDescriptorSetPoolVulkan::GetNewTransientPool()
 {
   if (s_FreeTransientPools.IsEmpty())
   {
-    ezHybridArray<vk::DescriptorPoolSize, 20> poolSizes;
+    WHybridArray<vk::DescriptorPoolSize, 20> poolSizes;
     for (auto weight : s_DescriptorWeights)
     {
-      if (static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize) > 0)
-        poolSizes.PushBack(vk::DescriptorPoolSize(weight.Key(), static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize)));
+      if (static_cast<WUInt32>(weight.Value() * s_uiPoolBaseSize) > 0)
+        poolSizes.PushBack(vk::DescriptorPoolSize(weight.Key(), static_cast<WUInt32>(weight.Value() * s_uiPoolBaseSize)));
     }
     vk::DescriptorPoolCreateInfo poolCreateInfo;
     poolCreateInfo.flags = {};

@@ -1,9 +1,9 @@
 #include <Foundation/Platform/PlatformDesc.h>
 
-ezPlatformDesc g_PlatformDescLinux("Linux", "Desktop");
+WPlatformDesc g_PlatformDescLinux("Linux", "Desktop");
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
-const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescLinux;
+const WPlatformDesc* WPlatformDesc::s_pThisPlatform = &g_PlatformDescLinux;
 
 #endif

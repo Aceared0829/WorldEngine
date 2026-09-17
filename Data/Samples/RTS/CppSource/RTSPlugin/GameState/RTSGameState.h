@@ -20,16 +20,16 @@ class RtsSettingsMenuMode;
 class RtsBattleMode;
 class RtsEditLevelMode;
 
-using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
+using WCollectionResourceHandle = WTypedResourceHandle<class WCollectionResource>;
 
-// the ezFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
-// but generally it's better to use ezGameState instead
-// using RTSGameStateBase = ezFallbackGameState;
-using RTSGameStateBase = ezGameState;
+// the WFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
+// but generally it's better to use WGameState instead
+// using RTSGameStateBase = WFallbackGameState;
+using RTSGameStateBase = WGameState;
 
 class RTSGameState : public RTSGameStateBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(RTSGameState, RTSGameStateBase);
+  W_ADD_DYNAMIC_REFLECTION(RTSGameState, RTSGameStateBase);
 
   static RTSGameState* s_pSingleton;
 
@@ -39,24 +39,24 @@ public:
 
   static RTSGameState* GetSingleton() { return s_pSingleton; }
 
-  virtual void RequestQuit(ezStringView sRequestedBy) override;
+  virtual void RequestQuit(WStringView sRequestedBy) override;
 
 protected:
   virtual void ConfigureMainCamera() override;
-  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
-  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection) override;
+  virtual void OnChangedMainWorld(WWorld* pPrevWorld, WWorld* pNewWorld, WStringView sStartPosition, const WTransform& startPositionOffset) override;
+  virtual void GetStartupOptions(WString& out_sScene, WString& out_sPreloadCollection) override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
+  virtual void OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
   void PreloadAssets();
 
-  ezCollectionResourceHandle m_hCollectionSpace;
-  ezCollectionResourceHandle m_hCollectionFederation;
-  ezCollectionResourceHandle m_hCollectionKlingons;
+  WCollectionResourceHandle m_hCollectionSpace;
+  WCollectionResourceHandle m_hCollectionFederation;
+  WCollectionResourceHandle m_hCollectionKlingons;
 
-  ezDeque<ezGameObjectHandle> m_SpawnedObjects;
+  WDeque<WGameObjectHandle> m_SpawnedObjects;
 
   //////////////////////////////////////////////////////////////////////////
   // Camera
@@ -84,15 +84,15 @@ private:
   RtsGameMode* m_pActiveGameMode = nullptr;
 
   // all the modes that the game has
-  ezUniquePtr<RtsMainMenuMode> m_pMainMenuMode;
-  ezUniquePtr<RtsSettingsMenuMode> m_pSettingsMenuMode;
-  ezUniquePtr<RtsBattleMode> m_pBattleMode;
-  ezUniquePtr<RtsEditLevelMode> m_pEditLevelMode;
+  WUniquePtr<RtsMainMenuMode> m_pMainMenuMode;
+  WUniquePtr<RtsSettingsMenuMode> m_pSettingsMenuMode;
+  WUniquePtr<RtsBattleMode> m_pBattleMode;
+  WUniquePtr<RtsEditLevelMode> m_pEditLevelMode;
 
   //////////////////////////////////////////////////////////////////////////
   // Input Handling
 private:
-  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow) override;
+  virtual void ConfigureMainWindowInputDevices(WWindow* pWindow) override;
   virtual void ConfigureInputActions() override;
   virtual void ProcessInput() override;
   void UpdateMousePosition();
@@ -100,34 +100,34 @@ private:
 
   RtsMouseInputState m_MouseInputState;
   float m_fCameraZoom = 10.0f;
-  ezTime m_CursorAnimation;
+  WTime m_CursorAnimation;
 
   //////////////////////////////////////////////////////////////////////////
   // Picking
 public:
-  ezResult PickGroundPlanePosition(ezVec3& out_vPositon) const;
-  ezGameObject* PickSelectableObject() const;
-  void InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const;
+  WResult PickGroundPlanePosition(WVec3& out_vPositon) const;
+  WGameObject* PickSelectableObject() const;
+  void InspectObjectsInArea(const WVec2& vPosition, float fRadius, WSpatialSystem::QueryCallback callback) const;
 
 private:
-  ezResult ComputePickingRay();
+  WResult ComputePickingRay();
 
-  ezVec3 m_vCurrentPickingRayStart;
-  ezVec3 m_vCurrentPickingRayDir;
+  WVec3 m_vCurrentPickingRayStart;
+  WVec3 m_vCurrentPickingRayDir;
 
   //////////////////////////////////////////////////////////////////////////
   // Spawning Objects
 public:
-  ezGameObject* SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
+  WGameObject* SpawnNamedObjectAt(const WTransform& transform, const char* szObjectName, WUInt16 uiTeamID);
 
   //////////////////////////////////////////////////////////////////////////
   // Units
 public:
-  ezGameObject* DetectHoveredSelectable();
+  WGameObject* DetectHoveredSelectable();
   void SelectUnits();
   void RenderUnitSelection() const;
-  void RenderUnitHealthbar(ezGameObject* pObject, float fSelectableRadius) const;
+  void RenderUnitHealthbar(WGameObject* pObject, float fSelectableRadius) const;
 
-  ezGameObjectHandle m_hHoveredSelectable;
-  ezObjectSelection m_SelectedUnits;
+  WGameObjectHandle m_hHoveredSelectable;
+  WObjectSelection m_SelectedUnits;
 };

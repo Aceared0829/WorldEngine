@@ -4,16 +4,16 @@
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-ezResult ezTexConvProcessor::AssembleCubemap(ezImage& dst) const
+WResult WTexConvProcessor::AssembleCubemap(WImage& dst) const
 {
-  EZ_PROFILE_SCOPE("AssembleCubemap");
+  W_PROFILE_SCOPE("AssembleCubemap");
 
   const auto& cm = m_Descriptor.m_ChannelMappings;
   const auto& images = m_Descriptor.m_InputImages;
 
   if (m_Descriptor.m_ChannelMappings.GetCount() == 6)
   {
-    ezImageView faces[6];
+    WImageView faces[6];
     faces[0] = images[cm[0].m_Channel[0].m_iInputImageIndex];
     faces[1] = images[cm[1].m_Channel[0].m_iInputImageIndex];
     faces[2] = images[cm[2].m_Channel[0].m_iInputImageIndex];
@@ -21,20 +21,20 @@ ezResult ezTexConvProcessor::AssembleCubemap(ezImage& dst) const
     faces[4] = images[cm[4].m_Channel[0].m_iInputImageIndex];
     faces[5] = images[cm[5].m_Channel[0].m_iInputImageIndex];
 
-    if (ezImageUtils::CreateCubemapFrom6Files(dst, faces).Failed())
+    if (WImageUtils::CreateCubemapFrom6Files(dst, faces).Failed())
     {
-      ezLog::Error("Failed to assemble cubemap from 6 images. Images must be square, with power-of-two resolutions.");
-      return EZ_FAILURE;
+      WLog::Error("Failed to assemble cubemap from 6 images. Images must be square, with power-of-two resolutions.");
+      return W_FAILURE;
     }
   }
   else
   {
-    if (ezImageUtils::CreateCubemapFromSingleFile(dst, images[0]).Failed())
+    if (WImageUtils::CreateCubemapFromSingleFile(dst, images[0]).Failed())
     {
-      ezLog::Error("Failed to assemble cubemap from single image.");
-      return EZ_FAILURE;
+      WLog::Error("Failed to assemble cubemap from single image.");
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

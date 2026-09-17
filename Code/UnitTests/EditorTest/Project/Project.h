@@ -4,10 +4,10 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezEditorTestProject : public ezEditorTest
+class WEditorTestProject : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -19,10 +19,10 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezTestAppRun CreateDocuments();
-  ezTestAppRun CreateCppSolution();
+  WTestAppRun CreateDocuments();
+  WTestAppRun CreateCppSolution();
 };

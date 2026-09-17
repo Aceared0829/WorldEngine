@@ -4,23 +4,23 @@
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Types/Variant.h>
 
-/// This JSON reader will read an entire JSON document into a hierarchical structure of ezVariants.
+/// This JSON reader will read an entire JSON document into a hierarchical structure of WVariants.
 ///
-/// The reader will parse the entire document and create a data structure of ezVariants, which can then be traversed easily.
+/// The reader will parse the entire document and create a data structure of WVariants, which can then be traversed easily.
 /// Note that this class is much less efficient at reading large JSON documents, as it will dynamically allocate and copy objects around
 /// quite a bit. For small to medium sized documents that might be good enough, for large files one should prefer to write a dedicated
-/// class derived from ezJSONParser.
-class EZ_FOUNDATION_DLL ezJSONReader : public ezJSONParser
+/// class derived from WJSONParser.
+class W_FOUNDATION_DLL WJSONReader : public WJSONParser
 {
 public:
-  enum class ElementType : ezInt8
+  enum class ElementType : WInt8
   {
     None,       ///< The JSON document is entirely empty (not even containing an empty object or array)
     Dictionary, ///< The top level element in the JSON document is an object
     Array,      ///< The top level element in the JSON document is an array
   };
 
-  ezJSONReader();
+  WJSONReader();
 
   /// Reads the entire stream and creates the internal data structure that represents the JSON document.
   ///
@@ -29,26 +29,26 @@ public:
   ///
   /// \param ref_input Stream containing the JSON document to parse
   /// \param uiFirstLineOffset Line number offset for error reporting (useful when JSON is embedded)
-  /// \return EZ_SUCCESS if parsing completed without errors, EZ_FAILURE if any parsing error occurred
+  /// \return W_SUCCESS if parsing completed without errors, W_FAILURE if any parsing error occurred
   ///
   /// \note After successful parsing, use GetTopLevelObject() or GetTopLevelArray() to access the data.
-  ezResult Parse(ezStreamReader& ref_input, ezUInt32 uiFirstLineOffset = 0);
+  WResult Parse(WStreamReader& ref_input, WUInt32 uiFirstLineOffset = 0);
 
   /// Returns the top-level object of the JSON document.
-  const ezVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
+  const WVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
 
   /// Returns the top-level array of the JSON document.
-  const ezVariantArray& GetTopLevelArray() const { return m_Stack.PeekBack().m_Array; }
+  const WVariantArray& GetTopLevelArray() const { return m_Stack.PeekBack().m_Array; }
 
   /// Returns whether the top level element is an array or an object.
   ElementType GetTopLevelElementType() const { return m_Stack.PeekBack().m_Mode; }
 
 private:
   /// This function can be overridden to skip certain variables, however the overriding function must still call this.
-  virtual bool OnVariable(ezStringView sVarName) override;
+  virtual bool OnVariable(WStringView sVarName) override;
 
   /// [internal] Do not override further.
-  virtual void OnReadValue(ezStringView sValue) override;
+  virtual void OnReadValue(WStringView sValue) override;
 
   /// [internal] Do not override further.
   virtual void OnReadValue(double fValue) override;
@@ -71,19 +71,19 @@ private:
   /// [internal] Do not override further.
   virtual void OnEndArray() override;
 
-  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
+  virtual void OnParsingError(WStringView sMessage, bool bFatal, WUInt32 uiLine, WUInt32 uiColumn) override;
 
 protected:
   struct Element
   {
-    ezString m_sName;
+    WString m_sName;
     ElementType m_Mode = ElementType::None;
-    ezVariantArray m_Array;
-    ezVariantDictionary m_Dictionary;
+    WVariantArray m_Array;
+    WVariantDictionary m_Dictionary;
   };
 
-  ezHybridArray<Element, 32> m_Stack;
+  WHybridArray<Element, 32> m_Stack;
 
   bool m_bParsingError = false;
-  ezString m_sLastName;
+  WString m_sLastName;
 };

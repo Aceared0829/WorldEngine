@@ -6,46 +6,46 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-using ezBeamComponentManager = ezComponentManagerSimple<class ezBeamComponent, ezComponentUpdateType::Always>;
+using WBeamComponentManager = WComponentManagerSimple<class WBeamComponent, WComponentUpdateType::Always>;
 
-struct ezMsgExtractRenderData;
-class ezGeometry;
-class ezMeshResourceDescriptor;
+struct WMsgExtractRenderData;
+class WGeometry;
+class WMeshResourceDescriptor;
 
 /// Renders a thick line from its own location to the position of another game object.
 ///
 /// This is meant for simple effects, like laser beams. The geometry is very low resolution and won't look good close up.
 /// When possible, use a highly emissive material without any pattern, where the bloom will hide the simple geometry.
 ///
-/// For doing dynamic laser beams, you can combine it with the ezRaycastComponent, which will move the target component.
-class EZ_RENDERERCORE_DLL ezBeamComponent : public ezRenderComponent
+/// For doing dynamic laser beams, you can combine it with the WRaycastComponent, which will move the target component.
+class W_RENDERERCORE_DLL WBeamComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezBeamComponent, ezRenderComponent, ezBeamComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WBeamComponent, WRenderComponent, WBeamComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezBeamComponent
+  // WBeamComponent
 
 public:
-  ezBeamComponent();
-  ~ezBeamComponent();
+  WBeamComponent();
+  ~WBeamComponent();
 
   /// Sets the GUID of the target object to which to draw the beam.
   void SetTargetObject(const char* szReference); // [ property ]
@@ -58,38 +58,38 @@ public:
   void SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit); // [ property ]
   float GetUVUnitsPerWorldUnit() const;                    // [ property ]
 
-  ezMaterialResourceHandle GetMaterial() const;
+  WMaterialResourceHandle GetMaterial() const;
 
   /// The object to which to draw the beam.
-  ezGameObjectHandle m_hTargetObject; // [ property ]
+  WGameObjectHandle m_hTargetObject; // [ property ]
 
   /// Optional color to tint the beam.
-  ezColor m_Color = ezColor::White; // [ property ]
+  WColor m_Color = WColor::White; // [ property ]
 
 protected:
   void Update();
 
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   float m_fWidth = 0.1f;               // [ property ]
   float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
 
   /// Which material asset to use for rendering the beam geometry.
-  ezMaterialResourceHandle m_hMaterial; // [ property ]
+  WMaterialResourceHandle m_hMaterial; // [ property ]
 
   const float m_fDistanceUpdateEpsilon = 0.02f;
 
-  ezMeshResourceHandle m_hMesh;
+  WMeshResourceHandle m_hMesh;
 
-  ezVec3 m_vLastOwnerPosition = ezVec3::MakeZero();
-  ezVec3 m_vLastTargetPosition = ezVec3::MakeZero();
+  WVec3 m_vLastOwnerPosition = WVec3::MakeZero();
+  WVec3 m_vLastTargetPosition = WVec3::MakeZero();
 
   void CreateMeshes();
-  void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const;
+  void BuildMeshResourceFromGeometry(WGeometry& Geometry, WMeshResourceDescriptor& MeshDesc) const;
   void ReinitMeshes();
   void Cleanup();
 
   const char* DummyGetter() const { return nullptr; }
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

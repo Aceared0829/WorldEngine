@@ -2,19 +2,19 @@
 
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTestDocumentObjectManager::ezTestDocumentObjectManager() = default;
-ezTestDocumentObjectManager::~ezTestDocumentObjectManager() = default;
+WTestDocumentObjectManager::WTestDocumentObjectManager() = default;
+WTestDocumentObjectManager::~WTestDocumentObjectManager() = default;
 
-ezTestDocument::ezTestDocument(ezStringView sDocumentPath, bool bUseIPCObjectMirror /*= false*/)
-  : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
+WTestDocument::WTestDocument(WStringView sDocumentPath, bool bUseIPCObjectMirror /*= false*/)
+  : WDocument(sDocumentPath, W_DEFAULT_NEW(WTestDocumentObjectManager))
   , m_bUseIPCObjectMirror(bUseIPCObjectMirror)
 {
 }
 
-ezTestDocument::~ezTestDocument()
+WTestDocument::~WTestDocument()
 {
   if (m_bUseIPCObjectMirror)
   {
@@ -23,7 +23,7 @@ ezTestDocument::~ezTestDocument()
   }
 }
 
-void ezTestDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WTestDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
@@ -35,27 +35,27 @@ void ezTestDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject* pObject)
+void WTestDocument::ApplyNativePropertyChangesToObjectManager(WDocumentObject* pObject)
 {
   // Create native object graph
-  ezAbstractObjectGraph graph;
-  ezAbstractObjectNode* pRootNode = nullptr;
+  WAbstractObjectGraph graph;
+  WAbstractObjectNode* pRootNode = nullptr;
   {
-    ezRttiConverterWriter rttiConverter(&graph, &m_Context, true, true);
+    WRttiConverterWriter rttiConverter(&graph, &m_Context, true, true);
     pRootNode = rttiConverter.AddObjectToGraph(pObject->GetType(), m_ObjectMirror.GetNativeObjectPointer(pObject), "Object");
   }
 
   // Create object manager graph
-  ezAbstractObjectGraph origGraph;
-  ezAbstractObjectNode* pOrigRootNode = nullptr;
+  WAbstractObjectGraph origGraph;
+  WAbstractObjectNode* pOrigRootNode = nullptr;
   {
-    ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager());
+    WDocumentObjectConverterWriter writer(&origGraph, GetObjectManager());
     pOrigRootNode = writer.AddObjectToGraph(pObject);
   }
 
   // Remap native guids so they match the object manager (stuff like embedded classes will not have a guid on the native side).
   graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
-  ezDeque<ezAbstractGraphDiffOperation> diffResult;
+  WDeque<WAbstractGraphDiffOperation> diffResult;
 
   graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
@@ -65,7 +65,7 @@ void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject*
 
   // Apply diff while object mirror is down.
   GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
-  ezDocumentObjectConverterReader::ApplyDiffToObject(GetObjectAccessor(), pObject, diffResult);
+  WDocumentObjectConverterReader::ApplyDiffToObject(GetObjectAccessor(), pObject, diffResult);
   GetObjectAccessor()->FinishTransaction();
 
   // Restart mirror from scratch.
@@ -74,7 +74,7 @@ void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject*
   m_ObjectMirror.SendDocument();
 }
 
-ezDocumentInfo* ezTestDocument::CreateDocumentInfo()
+WDocumentInfo* WTestDocument::CreateDocumentInfo()
 {
-  return EZ_DEFAULT_NEW(ezDocumentInfo);
+  return W_DEFAULT_NEW(WDocumentInfo);
 }

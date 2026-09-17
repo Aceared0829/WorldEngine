@@ -5,48 +5,48 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezSubstancePackageAssetDocument;
+class WQtOrbitCamViewWidget;
+class WSubstancePackageAssetDocument;
 
-class ezQtSubstancePackageAssetWindow : public ezQtEngineDocumentWindow
+class WQtSubstancePackageAssetWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtSubstancePackageAssetWindow(ezSubstancePackageAssetDocument* pDocument);
+  WQtSubstancePackageAssetWindow(WSubstancePackageAssetDocument* pDocument);
 
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSubstanceSelectOutputAction : public ezDynamicMenuAction
+class WSubstanceSelectOutputAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSubstanceSelectOutputAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WSubstanceSelectOutputAction, WDynamicMenuAction);
 
 public:
-  ezSubstanceSelectOutputAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  WSubstanceSelectOutputAction(const WActionContext& context, const char* szName, const char* szIconPath);
 
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSubstancePackageAssetActions
+class WSubstancePackageAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hSelectedOutput;
-  static ezActionDescriptorHandle s_hTextureChannelMode;
-  static ezActionDescriptorHandle s_hLodSlider;
+  static WActionDescriptorHandle s_hSelectedOutput;
+  static WActionDescriptorHandle s_hTextureChannelMode;
+  static WActionDescriptorHandle s_hLodSlider;
 };

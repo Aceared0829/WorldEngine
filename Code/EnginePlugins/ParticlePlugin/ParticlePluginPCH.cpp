@@ -8,147 +8,147 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Opaque),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Additive),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Blended),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedForeground),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedBackground),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleTypeRenderMode, 1)
+  W_ENUM_CONSTANT(WParticleTypeRenderMode::Opaque),
+  W_ENUM_CONSTANT(WParticleTypeRenderMode::Additive),
+  W_ENUM_CONSTANT(WParticleTypeRenderMode::Blended),
+  W_ENUM_CONSTANT(WParticleTypeRenderMode::BlendedForeground),
+  W_ENUM_CONSTANT(WParticleTypeRenderMode::BlendedBackground),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleLightingMode, 1)
-  EZ_ENUM_CONSTANT(ezParticleLightingMode::Fullbright),
-  EZ_ENUM_CONSTANT(ezParticleLightingMode::VertexLit),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleLightingMode, 1)
+  W_ENUM_CONSTANT(WParticleLightingMode::Fullbright),
+  W_ENUM_CONSTANT(WParticleLightingMode::VertexLit),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezEffectInvisibleUpdateRate, 1)
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::FullUpdate),
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Max20fps),
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Max10fps),
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Max5fps),
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Pause),
-  EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Discard),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WEffectInvisibleUpdateRate, 1)
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::FullUpdate),
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::Max20fps),
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::Max10fps),
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::Max5fps),
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::Pause),
+  W_ENUM_CONSTANT(WEffectInvisibleUpdateRate::Discard),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasType, 1)
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::None),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomVariations),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::FlipbookAnimation),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomYAnimatedX),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomXAnimatedY),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleTextureAtlasType, 1)
+  W_ENUM_CONSTANT(WParticleTextureAtlasType::None),
+  W_ENUM_CONSTANT(WParticleTextureAtlasType::RandomVariations),
+  W_ENUM_CONSTANT(WParticleTextureAtlasType::FlipbookAnimation),
+  W_ENUM_CONSTANT(WParticleTextureAtlasType::RandomYAnimatedX),
+  W_ENUM_CONSTANT(WParticleTextureAtlasType::RandomXAnimatedY),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasOrientation, 1)
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Up),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Right),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Down),
-  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Left),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleTextureAtlasOrientation, 1)
+  W_ENUM_CONSTANT(WParticleTextureAtlasOrientation::Up),
+  W_ENUM_CONSTANT(WParticleTextureAtlasOrientation::Right),
+  W_ENUM_CONSTANT(WParticleTextureAtlasOrientation::Down),
+  W_ENUM_CONSTANT(WParticleTextureAtlasOrientation::Left),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleColorGradientMode, 1)
-  EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Age),
-  EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Speed),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleColorGradientMode, 1)
+  W_ENUM_CONSTANT(WParticleColorGradientMode::Age),
+  W_ENUM_CONSTANT(WParticleColorGradientMode::Speed),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveSource, 1)
-  EZ_ENUM_CONSTANT(ezCurveSource::CustomCurve),
-  EZ_ENUM_CONSTANT(ezCurveSource::SharedCurve),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WCurveSource, 1)
+  W_ENUM_CONSTANT(WCurveSource::CustomCurve),
+  W_ENUM_CONSTANT(WCurveSource::SharedCurve),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGradientSource, 1)
-  EZ_ENUM_CONSTANT(ezGradientSource::CustomGradient),
-  EZ_ENUM_CONSTANT(ezGradientSource::SharedGradient),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGradientSource, 1)
+  W_ENUM_CONSTANT(WGradientSource::CustomGradient),
+  W_ENUM_CONSTANT(WGradientSource::SharedGradient),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleOutOfBoundsMode, 1)
-  EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Teleport),
-  EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Die),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleOutOfBoundsMode, 1)
+  W_ENUM_CONSTANT(WParticleOutOfBoundsMode::Teleport),
+  W_ENUM_CONSTANT(WParticleOutOfBoundsMode::Die),
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format on
 
-EZ_STATICLINK_LIBRARY(ParticlePlugin)
+W_STATICLINK_LIBRARY(ParticlePlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Attract);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Bounds);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_BoundsSphere);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_ColorGradient);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Expression);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Flies);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Gravity);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Move);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Opacity);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Raycast);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Turbulence);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Velocity);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Wind);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleAttractorComponent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleComponent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleFinisherComponent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectDescriptor);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectInstance);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Burst);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Continuous);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Distance);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_OnEvent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction_Effect);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction_Prefab);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_Age);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_ApplyVelocity);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_LastPosition);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_Volume);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_BoxPosition);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomColor);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomSize);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Module_ParticleModule);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Renderer_ParticleRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Resources_ParticleEffectResource);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Startup);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_DefaultParticleStreams);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_ParticleStream);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemDescriptor);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Effect_ParticleTypeEffect);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Light_ParticleTypeLight);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Mesh_ParticleTypeMesh);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_ParticleType);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Point_ParticleTypePoint);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Point_PointRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_ParticleTypeQuad);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_QuadParticleRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_ParticleTypeTrail);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_TrailRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleWorldModule);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Attract);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Bounds);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_BoundsSphere);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_ColorGradient);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Expression);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Flies);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Gravity);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Move);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Opacity);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Raycast);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Turbulence);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Velocity);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Wind);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleAttractorComponent);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleComponent);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleFinisherComponent);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectDescriptor);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectInstance);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Burst);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Continuous);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_Distance);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter_OnEvent);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction_Effect);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Events_ParticleEventReaction_Prefab);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_Age);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_ApplyVelocity);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_LastPosition);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Finalizer_ParticleFinalizer_Volume);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_BoxPosition);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomColor);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_RandomSize);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Module_ParticleModule);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Renderer_ParticleRenderer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Resources_ParticleEffectResource);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Startup);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Streams_DefaultParticleStreams);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Streams_ParticleStream);
+  W_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemDescriptor);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Effect_ParticleTypeEffect);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Light_ParticleTypeLight);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Mesh_ParticleTypeMesh);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_ParticleType);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Point_ParticleTypePoint);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Point_PointRenderer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_ParticleTypeQuad);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_QuadParticleRenderer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_ParticleTypeTrail);
+  W_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_TrailRenderer);
+  W_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleWorldModule);
 }

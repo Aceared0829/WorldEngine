@@ -1,60 +1,60 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u()
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u()
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   m_v = _mm_set1_epi32(0xCDCDCDCD);
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 uiXyzw)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WUInt32 uiXyzw)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_set1_epi32(uiXyzw);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_setr_epi32(x, y, z, w);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezInternal::QuadInt v)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WInternal::QuadInt v)
 {
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 uiXyzw)
+W_ALWAYS_INLINE void WSimdVec4u::Set(WUInt32 uiXyzw)
 {
   m_v = _mm_set1_epi32(uiXyzw);
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
+W_ALWAYS_INLINE void WSimdVec4u::Set(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w)
 {
   m_v = _mm_setr_epi32(x, y, z, w);
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
+W_ALWAYS_INLINE void WSimdVec4u::SetZero()
 {
   m_v = _mm_setzero_si128();
 }
 
 // needs to be implemented here because of include dependencies
-EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
+W_ALWAYS_INLINE WSimdVec4i::WSimdVec4i(const WSimdVec4u& u)
   : m_v(u.m_v)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(const ezSimdVec4i& i)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(const WSimdVec4i& i)
   : m_v(i.m_v)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4u::ToFloat() const
 {
   __m128 two16 = _mm_set1_ps((float)0x10000); // 2^16
   __m128i high = _mm_srli_epi32(m_v, 16);
@@ -66,7 +66,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::Truncate(const WSimdVec4f& f)
 {
   alignas(16) const float fmax[4] = {2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f};
   alignas(16) const float fmax_unsigned[4] = {4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f};
@@ -85,140 +85,140 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
 }
 
 template <int N>
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::GetComponent() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::GetComponent() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   return _mm_extract_epi32(m_v, N);
 #else
-  return ((ezUInt32*)&m_v)[N];
+  return ((WUInt32*)&m_v)[N];
   // return m_v.m128i_i32[N];
 #endif
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::x() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::x() const
 {
   return GetComponent<0>();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::y() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::y() const
 {
   return GetComponent<1>();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::z() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::z() const
 {
   return GetComponent<2>();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::w() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::w() const
 {
   return GetComponent<3>();
 }
 
-template <ezSwizzle::Enum s>
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
+template <WSwizzle::Enum s>
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::Get() const
 {
-  return _mm_shuffle_epi32(m_v, EZ_TO_SHUFFLE(s));
+  return _mm_shuffle_epi32(m_v, W_TO_SHUFFLE(s));
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator+(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator+(const WSimdVec4u& v) const
 {
   return _mm_add_epi32(m_v, v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator-(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator-(const WSimdVec4u& v) const
 {
   return _mm_sub_epi32(m_v, v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMul(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMul(const WSimdVec4u& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   return _mm_mullo_epi32(m_v, v.m_v);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED; // not sure whether this code works so better assert
+  W_ASSERT_NOT_IMPLEMENTED; // not sure whether this code works so better assert
   __m128i tmp1 = _mm_mul_epu32(m_v, v.m_v);
   __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(m_v, 4), _mm_srli_si128(v.m_v, 4));
-  return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, EZ_SHUFFLE(0, 2, 0, 0)), _mm_shuffle_epi32(tmp2, EZ_SHUFFLE(0, 2, 0, 0)));
+  return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, W_SHUFFLE(0, 2, 0, 0)), _mm_shuffle_epi32(tmp2, W_SHUFFLE(0, 2, 0, 0)));
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator|(const WSimdVec4u& v) const
 {
   return _mm_or_si128(m_v, v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator&(const WSimdVec4u& v) const
 {
   return _mm_and_si128(m_v, v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator^(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator^(const WSimdVec4u& v) const
 {
   return _mm_xor_si128(m_v, v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator~() const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator~() const
 {
   __m128i ones = _mm_cmpeq_epi8(_mm_setzero_si128(), _mm_setzero_si128());
   return _mm_xor_si128(ones, m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator<<(WUInt32 uiShift) const
 {
   return _mm_slli_epi32(m_v, uiShift);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator>>(WUInt32 uiShift) const
 {
   return _mm_srli_epi32(m_v, uiShift);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator+=(const WSimdVec4u& v)
 {
   m_v = _mm_add_epi32(m_v, v.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator-=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator-=(const WSimdVec4u& v)
 {
   m_v = _mm_sub_epi32(m_v, v.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator|=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator|=(const WSimdVec4u& v)
 {
   m_v = _mm_or_si128(m_v, v.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator&=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator&=(const WSimdVec4u& v)
 {
   m_v = _mm_and_si128(m_v, v.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator^=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator^=(const WSimdVec4u& v)
 {
   m_v = _mm_xor_si128(m_v, v.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator<<=(ezUInt32 uiShift)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator<<=(WUInt32 uiShift)
 {
   m_v = _mm_slli_epi32(m_v, uiShift);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator>>=(ezUInt32 uiShift)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator>>=(WUInt32 uiShift)
 {
   m_v = _mm_srli_epi32(m_v, uiShift);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMin(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMin(const WSimdVec4u& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   return _mm_min_epu32(m_v, v.m_v);
 #else
   __m128i mask = _mm_cmplt_epi32(m_v, v.m_v);
@@ -226,9 +226,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMin(const ezSimdVec4u& v) const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMax(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMax(const WSimdVec4u& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   return _mm_max_epu32(m_v, v.m_v);
 #else
   __m128i mask = _mm_cmpgt_epi32(m_v, v.m_v);
@@ -236,19 +236,19 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMax(const ezSimdVec4u& v) const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator==(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator==(const WSimdVec4u& v) const
 {
   return _mm_castsi128_ps(_mm_cmpeq_epi32(m_v, v.m_v));
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator!=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator!=(const WSimdVec4u& v) const
 {
   return !(*this == v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator<=(const WSimdVec4u& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   __m128i minValue = _mm_min_epu32(m_v, v.m_v);
   return _mm_castsi128_ps(_mm_cmpeq_epi32(minValue, m_v));
 #else
@@ -256,7 +256,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<=(const ezSimdVec4u& v) const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator<(const WSimdVec4u& v) const
 {
   __m128i signBit = _mm_set1_epi32(0x80000000);
   __m128i a = _mm_sub_epi32(m_v, signBit);
@@ -264,9 +264,9 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<(const ezSimdVec4u& v) const
   return _mm_castsi128_ps(_mm_cmplt_epi32(a, b));
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator>=(const WSimdVec4u& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
   __m128i maxValue = _mm_max_epu32(m_v, v.m_v);
   return _mm_castsi128_ps(_mm_cmpeq_epi32(maxValue, m_v));
 #else
@@ -274,7 +274,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>=(const ezSimdVec4u& v) const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator>(const WSimdVec4u& v) const
 {
   __m128i signBit = _mm_set1_epi32(0x80000000);
   __m128i a = _mm_sub_epi32(m_v, signBit);
@@ -283,14 +283,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::MakeZero()
 {
   return _mm_setzero_si128();
 }
 
 // not needed atm
 #if 0
-void ezSimdVec4u::Transpose(ezSimdVec4u& v0, ezSimdVec4u& v1, ezSimdVec4u& v2, ezSimdVec4u& v3)
+void WSimdVec4u::Transpose(WSimdVec4u& v0, WSimdVec4u& v1, WSimdVec4u& v2, WSimdVec4u& v3)
 {
   __m128i T0 = _mm_unpacklo_epi32(v0.m_v, v1.m_v);
   __m128i T1 = _mm_unpacklo_epi32(v2.m_v, v3.m_v);

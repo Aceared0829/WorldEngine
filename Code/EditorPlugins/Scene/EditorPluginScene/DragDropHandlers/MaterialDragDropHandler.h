@@ -2,19 +2,19 @@
 
 #include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 
-class ezMaterialDragDropHandler : public ezAssetDragDropHandler
+class WMaterialDragDropHandler : public WAssetDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialDragDropHandler, ezAssetDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialDragDropHandler, WAssetDragDropHandler);
 
 public:
 protected:
-  virtual void RequestConfiguration(ezDragDropConfig* pConfigToFillOut) override;
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
-  virtual void OnDragUpdate(const ezDragDropInfo* pInfo) override;
+  virtual void RequestConfiguration(WDragDropConfig* pConfigToFillOut) override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
+  virtual void OnDragUpdate(const WDragDropInfo* pInfo) override;
   virtual void OnDragCancel() override;
-  virtual void OnDrop(const ezDragDropInfo* pInfo) override;
+  virtual void OnDrop(const WDragDropInfo* pInfo) override;
 
-  ezUuid m_AppliedToComponent;
-  ezInt32 m_iAppliedToSlot;
+  WUuid m_AppliedToComponent;
+  WInt32 m_iAppliedToSlot;
 };

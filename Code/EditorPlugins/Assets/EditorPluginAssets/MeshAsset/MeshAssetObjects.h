@@ -6,11 +6,11 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
-struct ezMeshPrimitive
+struct WMeshPrimitive
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -30,55 +30,55 @@ struct ezMeshPrimitive
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WMeshPrimitive);
 
-class ezMeshAssetProperties : public ezReflectedClass
+class WMeshAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WMeshAssetProperties, WReflectedClass);
 
 public:
-  ezMeshAssetProperties();
-  ~ezMeshAssetProperties();
+  WMeshAssetProperties();
+  ~WMeshAssetProperties();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezString m_sMeshFile;
-  ezString m_sMeshIncludeTags;
-  ezString m_sMeshExcludeTags;
+  WString m_sMeshFile;
+  WString m_sMeshIncludeTags;
+  WString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
 
   float m_fRadius = 0.5f;
   float m_fRadius2 = 0.5f;
   float m_fHeight = 1.0f;
-  ezAngle m_Angle = ezAngle::MakeFromDegree(360.0f);
-  ezUInt16 m_uiDetail = 0;
-  ezUInt16 m_uiDetail2 = 0;
+  WAngle m_Angle = WAngle::MakeFromDegree(360.0f);
+  WUInt16 m_uiDetail = 0;
+  WUInt16 m_uiDetail2 = 0;
   bool m_bCap = true;
   bool m_bCap2 = true;
 
-  ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
-  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  WEnum<WMeshImportTransform> m_ImportTransform;
+  WEnum<WBasisAxis> m_RightDir = WBasisAxis::NegativeX;
+  WEnum<WBasisAxis> m_UpDir = WBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
-  ezVec3 m_vPositionOffset = ezVec3::MakeZero();
+  WVec3 m_vPositionOffset = WVec3::MakeZero();
 
-  ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
+  WMeshPrimitive::Enum m_PrimitiveType = WMeshPrimitive::Default;
 
   bool m_bRecalculateNormals = false;
   bool m_bRecalculateTangents = true;
   bool m_bImportMaterials = true;
 
   bool m_bHighPrecision = false;
-  ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
+  WEnum<WMeshVertexColorConversion> m_VertexColorConversion;
 
-  ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
+  WHybridArray<WMaterialResourceSlot, 8> m_Slots;
 
-  ezUInt32 m_uiVertices = 0;
-  ezUInt32 m_uiTriangles = 0;
+  WUInt32 m_uiVertices = 0;
+  WUInt32 m_uiTriangles = 0;
 
   bool m_bSimplifyMesh = false;
   float m_fNormalWeight = 0.5f;
   bool m_bAggressiveSimplification = false;
-  ezUInt8 m_uiMeshSimplification = 50;
-  ezUInt8 m_uiMaxSimplificationError = 5;
+  WUInt8 m_uiMeshSimplification = 50;
+  WUInt8 m_uiMaxSimplificationError = 5;
 };

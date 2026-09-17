@@ -7,9 +7,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
-ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;
+WQtLogDockWidget* WQtLogDockWidget::s_pWidget = nullptr;
 
-ezQtLogDockWidget::ezQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtLogDockWidget::WQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Log", pParent)
 {
   s_pWidget = this;
@@ -21,43 +21,43 @@ ezQtLogDockWidget::ezQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* p
   this->setWidget(LogWidget);
 }
 
-void ezQtLogDockWidget::ResetStats()
+void WQtLogDockWidget::ResetStats()
 {
   LogWidget->GetLog()->Clear();
 }
 
-void ezQtLogDockWidget::Log(const ezFormatString& text)
+void WQtLogDockWidget::Log(const WFormatString& text)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  ezLogEntry lm;
+  WLogEntry lm;
   lm.m_sMsg = text.GetText(tmp);
-  lm.m_Type = ezLogMsgType::InfoMsg;
+  lm.m_Type = WLogMsgType::InfoMsg;
   lm.m_uiIndentation = 0;
   LogWidget->GetLog()->AddLogMsg(lm);
 }
 
-void ezQtLogDockWidget::ProcessTelemetry(void* pUnuseed)
+void WQtLogDockWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage(' LOG', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage(' LOG', Msg) == W_SUCCESS)
   {
-    ezLogEntry lm;
-    ezInt8 iEventType = 0;
+    WLogEntry lm;
+    WInt8 iEventType = 0;
 
     Msg.GetReader() >> iEventType;
     Msg.GetReader() >> lm.m_uiIndentation;
     Msg.GetReader() >> lm.m_sTag;
     Msg.GetReader() >> lm.m_sMsg;
 
-    if (iEventType == ezLogMsgType::EndGroup)
+    if (iEventType == WLogMsgType::EndGroup)
       Msg.GetReader() >> lm.m_fSeconds;
 
-    lm.m_Type = (ezLogMsgType::Enum)iEventType;
+    lm.m_Type = (WLogMsgType::Enum)iEventType;
     s_pWidget->LogWidget->GetLog()->AddLogMsg(lm);
   }
 }

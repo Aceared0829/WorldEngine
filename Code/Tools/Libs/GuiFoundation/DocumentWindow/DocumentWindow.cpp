@@ -18,10 +18,10 @@
 #include <ads/DockManager.h>
 #include <ads/DockWidget.h>
 
-ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
-ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
+WEvent<const WQtDocumentWindowEvent&> WQtDocumentWindow::s_Events;
+WDynamicArray<WQtDocumentWindow*> WQtDocumentWindow::s_AllDocumentWindows;
 
-void ezQtDocumentWindow::Constructor()
+void WQtDocumentWindow::Constructor()
 {
   m_pDockManager = new ads::CDockManager(this);
 
@@ -29,7 +29,7 @@ void ezQtDocumentWindow::Constructor()
 
   // status bar
   {
-    connect(statusBar(), &QStatusBar::messageChanged, this, &ezQtDocumentWindow::OnStatusBarMessageChanged);
+    connect(statusBar(), &QStatusBar::messageChanged, this, &WQtDocumentWindow::OnStatusBarMessageChanged);
 
     m_pPermanentDocumentStatusText = new QLabel();
     statusBar()->addWidget(m_pPermanentDocumentStatusText, 1);
@@ -39,36 +39,36 @@ void ezQtDocumentWindow::Constructor()
     m_pPermanentGlobalStatusButton->setVisible(false);
     statusBar()->addPermanentWidget(m_pPermanentGlobalStatusButton, 0);
 
-    EZ_VERIFY(connect(m_pPermanentGlobalStatusButton, &QToolButton::clicked, this, &ezQtDocumentWindow::OnPermanentGlobalStatusClicked), "");
+    W_VERIFY(connect(m_pPermanentGlobalStatusButton, &QToolButton::clicked, this, &WQtDocumentWindow::OnPermanentGlobalStatusClicked), "");
   }
 
-  ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
+  WQtMenuBarActionMapView* pMenuBar = new WQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
-  ezToolsProject::SuggestContainerWindow(m_pDocument);
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WToolsProject::SuggestContainerWindow(m_pDocument);
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   pContainer->AddDocumentWindow(this);
 
-  ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
-  ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
+  WQtUiServices::s_Events.AddEventHandler(WMakeDelegate(&WQtDocumentWindow::UIServicesEventHandler, this));
+  WQtUiServices::s_TickEvent.AddEventHandler(WMakeDelegate(&WQtDocumentWindow::UIServicesTickEventHandler, this));
 
   // Automatically restore the saved nested layout for this document window type
   QMetaObject::invokeMethod(this, "SlotRestoreDocumentLayout", Qt::ConnectionType::QueuedConnection);
 }
 
-ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
+WQtDocumentWindow::WQtDocumentWindow(WDocument* pDocument)
 {
   m_pDocument = pDocument;
   m_sUniqueName = m_pDocument->GetDocumentPath();
   setObjectName(GetUniqueName());
 
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
-  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WQtDocumentWindow::DocumentManagerEventHandler, this));
+  pDocument->m_EventsOne.AddEventHandler(WMakeDelegate(&WQtDocumentWindow::DocumentEventHandler, this));
 
   Constructor();
 }
 
-ezQtDocumentWindow::ezQtDocumentWindow(const char* szUniqueName)
+WQtDocumentWindow::WQtDocumentWindow(const char* szUniqueName)
 {
   m_pDocument = nullptr;
   m_sUniqueName = szUniqueName;
@@ -78,21 +78,21 @@ ezQtDocumentWindow::ezQtDocumentWindow(const char* szUniqueName)
 }
 
 
-ezQtDocumentWindow::~ezQtDocumentWindow()
+WQtDocumentWindow::~WQtDocumentWindow()
 {
-  ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
-  ezQtUiServices::s_TickEvent.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
+  WQtUiServices::s_Events.RemoveEventHandler(WMakeDelegate(&WQtDocumentWindow::UIServicesEventHandler, this));
+  WQtUiServices::s_TickEvent.RemoveEventHandler(WMakeDelegate(&WQtDocumentWindow::UIServicesTickEventHandler, this));
 
   s_AllDocumentWindows.RemoveAndSwap(this);
 
   if (m_pDocument)
   {
-    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
-    ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
+    m_pDocument->m_EventsOne.RemoveEventHandler(WMakeDelegate(&WQtDocumentWindow::DocumentEventHandler, this));
+    WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WQtDocumentWindow::DocumentManagerEventHandler, this));
   }
 }
 
-void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
+void WQtDocumentWindow::SetVisibleInContainer(bool bVisible)
 {
   if (m_bIsVisibleInContainer == bVisible)
     return;
@@ -109,7 +109,7 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   }
 }
 
-void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
+void WQtDocumentWindow::SetTargetFramerate(WInt16 iTargetFPS)
 {
   if (m_iTargetFramerate == iTargetFPS)
     return;
@@ -120,14 +120,14 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
     TriggerRedraw();
 }
 
-void ezQtDocumentWindow::TriggerRedraw()
+void WQtDocumentWindow::TriggerRedraw()
 {
   m_bRedrawIsTriggered = true;
 }
 
-void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+void WQtDocumentWindow::UIServicesTickEventHandler(const WQtUiServices::TickEvent& e)
 {
-  // s_TickEvent is an ezCopyOnBroadcastEvent, so it iterates a snapshot of the handlers taken before the
+  // s_TickEvent is an WCopyOnBroadcastEvent, so it iterates a snapshot of the handlers taken before the
   // first one ran. A window that is destroyed from within a tick (closing a document ends in
   // 'delete this', and that can be reached from a tick handler) therefore stays in that snapshot for the
   // rest of the broadcast, and this would be called on freed memory. Only the static registry may be
@@ -142,34 +142,34 @@ void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEv
     if (m_bRedrawIsTriggered)
       return true;
 
-    const ezInt32 iSystemFramerate = static_cast<ezInt32>(ezMath::Round(e.m_fRefreshRate));
+    const WInt32 iSystemFramerate = static_cast<WInt32>(WMath::Round(e.m_fRefreshRate));
 
-    ezInt32 iTargetFramerate = m_iTargetFramerate;
+    WInt32 iTargetFramerate = m_iTargetFramerate;
     if (iTargetFramerate <= 0)
       iTargetFramerate = iSystemFramerate;
 
     // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
     if (QApplication::activeWindow() == nullptr)
-      iTargetFramerate = ezMath::Max(10, iTargetFramerate / 4);
+      iTargetFramerate = WMath::Max(10, iTargetFramerate / 4);
 
     // We do not hit the requested framerate directly if the system framerate can't be evenly divided. We will chose the next higher framerate.
     if (iTargetFramerate < iSystemFramerate)
     {
-      ezUInt32 mod = ezMath::Max(1u, (ezUInt32)ezMath::Floor(iSystemFramerate / (double)iTargetFramerate));
+      WUInt32 mod = WMath::Max(1u, (WUInt32)WMath::Floor(iSystemFramerate / (double)iTargetFramerate));
       if ((e.m_uiFrame % mod) != 0)
         return false;
     }
     return true;
   };
 
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  if (e.m_Type == WQtUiServices::TickEvent::Type::BeforeFrame)
   {
     if (ShouldRender())
     {
       e.m_uiFrameRequest++;
     }
   }
-  else if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame)
+  else if (e.m_Type == WQtUiServices::TickEvent::Type::StartFrame)
   {
     if (ShouldRender())
     {
@@ -178,13 +178,13 @@ void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEv
   }
 }
 
-void ezQtDocumentWindow::SlotRedraw()
+void WQtDocumentWindow::SlotRedraw()
 {
-  ezStringBuilder sFilename = ezPathUtils::GetFileName(this->GetUniqueName());
-  EZ_PROFILE_SCOPE(sFilename.GetData());
+  WStringBuilder sFilename = WPathUtils::GetFileName(this->GetUniqueName());
+  W_PROFILE_SCOPE(sFilename.GetData());
   {
-    ezQtDocumentWindowEvent e;
-    e.m_Type = ezQtDocumentWindowEvent::Type::BeforeRedraw;
+    WQtDocumentWindowEvent e;
+    e.m_Type = WQtDocumentWindowEvent::Type::BeforeRedraw;
     e.m_pWindow = this;
     s_Events.Broadcast(e, 1);
   }
@@ -199,35 +199,35 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bRedrawIsTriggered = false;
 }
 
-void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
+void WQtDocumentWindow::DocumentEventHandler(const WDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentEvent::Type::DocumentRenamed:
+    case WDocumentEvent::Type::DocumentRenamed:
     {
       m_sUniqueName = m_pDocument->GetDocumentPath();
       setObjectName(GetUniqueName());
-      ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+      WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
       pContainer->DocumentWindowRenamed(this);
 
       [[fallthrough]];
     }
-    case ezDocumentEvent::Type::ModifiedChanged:
+    case WDocumentEvent::Type::ModifiedChanged:
     {
-      ezQtDocumentWindowEvent dwe;
+      WQtDocumentWindowEvent dwe;
       dwe.m_pWindow = this;
-      dwe.m_Type = ezQtDocumentWindowEvent::Type::WindowDecorationChanged;
+      dwe.m_Type = WQtDocumentWindowEvent::Type::WindowDecorationChanged;
       s_Events.Broadcast(dwe);
     }
     break;
 
-    case ezDocumentEvent::Type::EnsureVisible:
+    case WDocumentEvent::Type::EnsureVisible:
     {
       EnsureVisible();
     }
     break;
 
-    case ezDocumentEvent::Type::DocumentStatusMsg:
+    case WDocumentEvent::Type::DocumentStatusMsg:
     {
       ShowTemporaryStatusBarMsg(e.m_sStatusMsg);
     }
@@ -238,11 +238,11 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
   }
 }
 
-void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
+void WQtDocumentWindow::DocumentManagerEventHandler(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentClosing:
+    case WDocumentManager::Event::Type::DocumentClosing:
     {
       if (e.m_pDocument == m_pDocument)
       {
@@ -257,15 +257,15 @@ void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Ev
   }
 }
 
-void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
+void WQtDocumentWindow::UIServicesEventHandler(const WQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezQtUiServices::Event::Type::ShowDocumentTemporaryStatusBarText:
-      ShowTemporaryStatusBarMsg(ezFmt(e.m_sText), e.m_Time);
+    case WQtUiServices::Event::Type::ShowDocumentTemporaryStatusBarText:
+      ShowTemporaryStatusBarMsg(WFmt(e.m_sText), e.m_Time);
       break;
 
-    case ezQtUiServices::Event::Type::ShowDocumentPermanentStatusBarText:
+    case WQtUiServices::Event::Type::ShowDocumentPermanentStatusBarText:
     {
       if (m_pPermanentGlobalStatusButton)
       {
@@ -273,16 +273,16 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 
         switch (e.m_TextType)
         {
-          case ezQtUiServices::Event::Info:
+          case WQtUiServices::Event::Info:
             m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.svg"));
             break;
 
-          case ezQtUiServices::Event::Warning:
+          case WQtUiServices::Event::Warning:
             pal.setColor(QPalette::WindowText, QColor(255, 100, 0));
             m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning.svg"));
             break;
 
-          case ezQtUiServices::Event::Error:
+          case WQtUiServices::Event::Error:
             pal.setColor(QPalette::WindowText, QColor(Qt::red));
             m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error.svg"));
             break;
@@ -300,9 +300,9 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
   }
 }
 
-ezString ezQtDocumentWindow::GetDisplayNameShort() const
+WString WQtDocumentWindow::GetDisplayNameShort() const
 {
-  ezStringBuilder s = GetDisplayName();
+  WStringBuilder s = GetDisplayName();
   s = s.GetFileName();
 
   if (m_pDocument && m_pDocument->IsModified())
@@ -311,7 +311,7 @@ ezString ezQtDocumentWindow::GetDisplayNameShort() const
   return s;
 }
 
-void ezQtDocumentWindow::showEvent(QShowEvent* event)
+void WQtDocumentWindow::showEvent(QShowEvent* event)
 {
   QMainWindow::showEvent(event);
   SetVisibleInContainer(true);
@@ -323,22 +323,22 @@ void ezQtDocumentWindow::showEvent(QShowEvent* event)
   }
 }
 
-void ezQtDocumentWindow::hideEvent(QHideEvent* event)
+void WQtDocumentWindow::hideEvent(QHideEvent* event)
 {
   QMainWindow::hideEvent(event);
   SetVisibleInContainer(false);
 }
 
-bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
+bool WQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
 {
   if (e->type() == QEvent::ShortcutOverride || e->type() == QEvent::KeyPress)
   {
-    // This filter is added by ezQtContainerWindow::AddDocumentWindow as that ones is the ony code path that can connect dock container to their content.
+    // This filter is added by WQtContainerWindow::AddDocumentWindow as that ones is the ony code path that can connect dock container to their content.
     // This filter is necessary as clicking any action in a menu bar sets the focus to the parent CDockWidget at which point further shortcuts would stop working.
     if (qobject_cast<ads::CDockWidget*>(obj))
     {
       QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
-      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
+      if (WQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
         return true;
     }
 
@@ -346,7 +346,7 @@ bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
     if (obj == centralWidget())
     {
       QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
-      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
+      if (WQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
         return true;
     }
   }
@@ -354,45 +354,45 @@ bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
   return false;
 }
 
-bool ezQtDocumentWindow::event(QEvent* event)
+bool WQtDocumentWindow::event(QEvent* event)
 {
   if (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, event->type() == QEvent::ShortcutOverride))
+    if (WQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, event->type() == QEvent::ShortcutOverride))
       return true;
   }
   return QMainWindow::event(event);
 }
 
-void ezQtDocumentWindow::FinishWindowCreation()
+void WQtDocumentWindow::FinishWindowCreation()
 {
   if (centralWidget())
     centralWidget()->installEventFilter(this);
 }
 
-ezStatus ezQtDocumentWindow::SaveDocument()
+WStatus WQtDocumentWindow::SaveDocument()
 {
   if (m_pDocument)
   {
     {
       if (m_pDocument->GetUnknownObjectTypeInstances() > 0)
       {
-        if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
+        if (WQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
                                                "document means those objects will get lost permanently.\n\nDo you really want to save this "
                                                "document?",
               QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
-          return ezStatus(EZ_SUCCESS); // failed successfully
+          return WStatus(W_SUCCESS); // failed successfully
       }
     }
 
-    ezStatus res = m_pDocument->SaveDocument();
+    WStatus res = m_pDocument->SaveDocument();
 
-    ezStringBuilder s, s2;
+    WStringBuilder s, s2;
     s.SetFormat("Failed to save document:\n'{0}'", m_pDocument->GetDocumentPath());
     s2.SetFormat("Successfully saved document:\n'{0}'", m_pDocument->GetDocumentPath());
 
-    ezQtUiServices::MessageBoxStatus(res, s, s2);
+    WQtUiServices::MessageBoxStatus(res, s, s2);
 
     if (res.Failed())
     {
@@ -403,17 +403,17 @@ ezStatus ezQtDocumentWindow::SaveDocument()
     ShowTemporaryStatusBarMsg("Document saved");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& msg, ezTime duration)
+void WQtDocumentWindow::ShowTemporaryStatusBarMsg(const WFormatString& msg, WTime duration)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   statusBar()->showMessage(QString::fromUtf8(msg.GetTextCStr(tmp)), (int)duration.GetMilliseconds());
 }
 
 
-void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& text)
+void WQtDocumentWindow::SetPermanentStatusBarMsg(const WFormatString& text)
 {
   if (!text.IsEmpty())
   {
@@ -421,21 +421,21 @@ void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& text)
     statusBar()->clearMessage();
   }
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetTextCStr(tmp)));
 }
 
-void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)
+void WQtDocumentWindow::CreateImageCapture(const char* szOutputPath)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-bool ezQtDocumentWindow::CanCloseWindow()
+bool WQtDocumentWindow::CanCloseWindow()
 {
   return InternalCanCloseWindow();
 }
 
-bool ezQtDocumentWindow::InternalCanCloseWindow()
+bool WQtDocumentWindow::InternalCanCloseWindow()
 {
   // I guess this is to remove the focus from other widgets like input boxes, such that they may modify the document.
   setFocus();
@@ -443,18 +443,18 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
   if (m_pDocument && m_pDocument->IsModified())
   {
-    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
+    QMessageBox::StandardButton res = WQtUiServices::MessageBoxQuestion("Save before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
 
     if (res == QMessageBox::StandardButton::Yes)
     {
-      ezStatus err = SaveDocument();
+      WStatus err = SaveDocument();
 
       if (err.Failed())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
+        WQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
         return false;
       }
     }
@@ -463,12 +463,12 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
   return true;
 }
 
-void ezQtDocumentWindow::CloseDocumentWindow()
+void WQtDocumentWindow::CloseDocumentWindow()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedDelete", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezQtDocumentWindow::SlotQueuedDelete()
+void WQtDocumentWindow::SlotQueuedDelete()
 {
   setFocus();
   clearFocus();
@@ -484,35 +484,35 @@ void ezQtDocumentWindow::SlotQueuedDelete()
   }
 }
 
-void ezQtDocumentWindow::OnPermanentGlobalStatusClicked(bool)
+void WQtDocumentWindow::OnPermanentGlobalStatusClicked(bool)
 {
-  ezQtUiServices::Event e;
-  e.m_Type = ezQtUiServices::Event::ClickedDocumentPermanentStatusBarText;
+  WQtUiServices::Event e;
+  e.m_Type = WQtUiServices::Event::ClickedDocumentPermanentStatusBarText;
 
-  ezQtUiServices::GetSingleton()->s_Events.Broadcast(e);
+  WQtUiServices::GetSingleton()->s_Events.Broadcast(e);
 }
 
-void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
+void WQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
 {
   QPalette pal = palette();
 
   if (sNewText.startsWith("Error:"))
   {
-    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red)));
+    pal.setColor(QPalette::WindowText, WToQtColor(WColorScheme::LightUI(WColorScheme::Red)));
   }
   else if (sNewText.startsWith("Warning:"))
   {
-    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Yellow)));
+    pal.setColor(QPalette::WindowText, WToQtColor(WColorScheme::LightUI(WColorScheme::Yellow)));
   }
   else if (sNewText.startsWith("Note:"))
   {
-    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue)));
+    pal.setColor(QPalette::WindowText, WToQtColor(WColorScheme::LightUI(WColorScheme::Blue)));
   }
 
   statusBar()->setPalette(pal);
 }
 
-void ezQtDocumentWindow::SlotRestoreDocumentLayout()
+void WQtDocumentWindow::SlotRestoreDocumentLayout()
 {
   if (m_pDockManager == nullptr)
     return;
@@ -533,7 +533,7 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
   // The actual capture of the baseline state is triggered from showEvent() once the window is visible and Qt has done its layout adjustments.
 }
 
-void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
+void WQtDocumentWindow::SlotCaptureInitialLayoutState()
 {
   if (m_pDockManager == nullptr || !m_InitialDocumentLayoutState.isEmpty())
     return;
@@ -546,7 +546,7 @@ void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
   m_InitialDocumentLayoutState = m_pDockManager->saveState();
 }
 
-void ezQtDocumentWindow::ShutdownDocumentWindow()
+void WQtDocumentWindow::ShutdownDocumentWindow()
 {
   // Auto-save the document layout if it changed
   if (m_pDockManager != nullptr && !m_InitialDocumentLayoutState.isEmpty())
@@ -567,29 +567,29 @@ void ezQtDocumentWindow::ShutdownDocumentWindow()
 
   InternalCloseDocumentWindow();
 
-  ezQtDocumentWindowEvent e;
+  WQtDocumentWindowEvent e;
   e.m_pWindow = this;
-  e.m_Type = ezQtDocumentWindowEvent::Type::WindowClosing;
+  e.m_Type = WQtDocumentWindowEvent::Type::WindowClosing;
   s_Events.Broadcast(e);
 
   InternalDeleteThis();
 
-  e.m_Type = ezQtDocumentWindowEvent::Type::WindowClosed;
+  e.m_Type = WQtDocumentWindowEvent::Type::WindowClosed;
   s_Events.Broadcast(e);
 }
 
-void ezQtDocumentWindow::InternalCloseDocumentWindow() {}
+void WQtDocumentWindow::InternalCloseDocumentWindow() {}
 
-void ezQtDocumentWindow::EnsureVisible()
+void WQtDocumentWindow::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 }
 
-void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& globalPos)
+void WQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& globalPos)
 {
-  ezQtMenuActionMapView menu(nullptr);
+  WQtMenuActionMapView menu(nullptr);
 
-  ezActionContext context;
+  WActionContext context;
   context.m_sMapping = "DocumentWindowTabMenu";
   context.m_pDocument = GetDocument();
   context.m_pWindow = this;
@@ -598,7 +598,7 @@ void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& globalPos)
   menu.exec(globalPos);
 }
 
-ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* pDocument)
+WQtDocumentWindow* WQtDocumentWindow::FindWindowByDocument(const WDocument* pDocument)
 {
   // Sub-documents never have a window, so go to the main document instead
   pDocument = pDocument->GetMainDocument();
@@ -612,15 +612,15 @@ ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* p
   return nullptr;
 }
 
-ezQtContainerWindow* ezQtDocumentWindow::GetContainerWindow() const
+WQtContainerWindow* WQtDocumentWindow::GetContainerWindow() const
 {
   return m_pContainerWindow;
 }
 
-ezString ezQtDocumentWindow::GetWindowIcon() const
+WString WQtDocumentWindow::GetWindowIcon() const
 {
   if (GetDocument() != nullptr)
     return GetDocument()->GetDocumentTypeDescriptor()->m_sIcon;
 
-  return ":/GuiFoundation/EZ-logo.svg";
+  return ":/GuiFoundation/W-logo.svg";
 }

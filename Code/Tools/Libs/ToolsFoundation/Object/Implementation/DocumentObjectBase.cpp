@@ -3,53 +3,53 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezIReflectedTypeAccessor& ezDocumentObject::GetTypeAccessor()
+WIReflectedTypeAccessor& WDocumentObject::GetTypeAccessor()
 {
-  const ezDocumentObject* pMe = this;
-  return const_cast<ezIReflectedTypeAccessor&>(pMe->GetTypeAccessor());
+  const WDocumentObject* pMe = this;
+  return const_cast<WIReflectedTypeAccessor&>(pMe->GetTypeAccessor());
 }
 
-ezUInt32 ezDocumentObject::GetChildIndex(const ezDocumentObject* pChild) const
+WUInt32 WDocumentObject::GetChildIndex(const WDocumentObject* pChild) const
 {
-  return m_Children.IndexOf(const_cast<ezDocumentObject*>(pChild));
+  return m_Children.IndexOf(const_cast<WDocumentObject*>(pChild));
 }
 
-void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index)
+void WDocumentObject::InsertSubObject(WDocumentObject* pObject, WStringView sProperty, const WVariant& index)
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "");
-  EZ_ASSERT_DEV(!sProperty.IsEmpty(), "Child objects must have a parent property to insert into");
-  ezIReflectedTypeAccessor& accessor = GetTypeAccessor();
+  W_ASSERT_DEV(pObject != nullptr, "");
+  W_ASSERT_DEV(!sProperty.IsEmpty(), "Child objects must have a parent property to insert into");
+  WIReflectedTypeAccessor& accessor = GetTypeAccessor();
 
-  const ezRTTI* pType = accessor.GetType();
+  const WRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(sProperty);
-  EZ_ASSERT_DEV(pProp && pProp->GetFlags().IsSet(ezPropertyFlags::Class) &&
-                  (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)),
+  W_ASSERT_DEV(pProp && pProp->GetFlags().IsSet(WPropertyFlags::Class) &&
+                  (!pProp->GetFlags().IsSet(WPropertyFlags::Pointer) || pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner)),
     "Only class type or pointer to class type that own the object can be inserted, everything else is handled by value.");
 
-  if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
+  if (pProp->GetCategory() == WPropertyCategory::Array || pProp->GetCategory() == WPropertyCategory::Set)
   {
-    if (!index.IsValid() || (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1))
+    if (!index.IsValid() || (index.CanConvertTo<WInt32>() && index.ConvertTo<WInt32>() == -1))
     {
-      ezVariant newIndex = accessor.GetCount(sProperty);
+      WVariant newIndex = accessor.GetCount(sProperty);
       bool bRes = accessor.InsertValue(sProperty, newIndex, pObject->GetGuid());
-      EZ_ASSERT_DEV(bRes, "");
+      W_ASSERT_DEV(bRes, "");
     }
     else
     {
       bool bRes = accessor.InsertValue(sProperty, index, pObject->GetGuid());
-      EZ_ASSERT_DEV(bRes, "");
+      W_ASSERT_DEV(bRes, "");
     }
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  else if (pProp->GetCategory() == WPropertyCategory::Map)
   {
-    EZ_ASSERT_DEV(index.IsA<ezString>(), "Map key must be a string.");
+    W_ASSERT_DEV(index.IsA<WString>(), "Map key must be a string.");
     bool bRes = accessor.InsertValue(sProperty, index, pObject->GetGuid());
-    EZ_ASSERT_DEV(bRes, "");
+    W_ASSERT_DEV(bRes, "");
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Member)
+  else if (pProp->GetCategory() == WPropertyCategory::Member)
   {
     bool bRes = accessor.SetValue(sProperty, pObject->GetGuid());
-    EZ_ASSERT_DEV(bRes, "");
+    W_ASSERT_DEV(bRes, "");
   }
 
   // Object patching
@@ -58,44 +58,44 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, ezStringView s
   m_Children.PushBack(pObject);
 }
 
-void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
+void WDocumentObject::RemoveSubObject(WDocumentObject* pObject)
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "");
-  EZ_ASSERT_DEV(!pObject->m_sParentProperty.IsEmpty(), "");
-  EZ_ASSERT_DEV(this == pObject->m_pParent, "");
-  ezIReflectedTypeAccessor& accessor = GetTypeAccessor();
+  W_ASSERT_DEV(pObject != nullptr, "");
+  W_ASSERT_DEV(!pObject->m_sParentProperty.IsEmpty(), "");
+  W_ASSERT_DEV(this == pObject->m_pParent, "");
+  WIReflectedTypeAccessor& accessor = GetTypeAccessor();
 
   // Property patching
-  const ezRTTI* pType = accessor.GetType();
+  const WRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
-  if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set ||
-      pProp->GetCategory() == ezPropertyCategory::Map)
+  if (pProp->GetCategory() == WPropertyCategory::Array || pProp->GetCategory() == WPropertyCategory::Set ||
+      pProp->GetCategory() == WPropertyCategory::Map)
   {
-    ezVariant index = accessor.GetPropertyChildIndex(pObject->m_sParentProperty, pObject->GetGuid());
+    WVariant index = accessor.GetPropertyChildIndex(pObject->m_sParentProperty, pObject->GetGuid());
     bool bRes = accessor.RemoveValue(pObject->m_sParentProperty, index);
-    EZ_ASSERT_DEV(bRes, "");
+    W_ASSERT_DEV(bRes, "");
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Member)
+  else if (pProp->GetCategory() == WPropertyCategory::Member)
   {
-    bool bRes = accessor.SetValue(pObject->m_sParentProperty, ezUuid());
-    EZ_ASSERT_DEV(bRes, "");
+    bool bRes = accessor.SetValue(pObject->m_sParentProperty, WUuid());
+    W_ASSERT_DEV(bRes, "");
   }
 
   m_Children.RemoveAndCopy(pObject);
   pObject->m_pParent = nullptr;
 }
 
-void ezDocumentObject::ComputeObjectHash(ezUInt64& ref_uiHash) const
+void WDocumentObject::ComputeObjectHash(WUInt64& ref_uiHash) const
 {
-  const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
+  const WIReflectedTypeAccessor& acc = GetTypeAccessor();
   auto pType = acc.GetType();
 
-  ref_uiHash = ezHashingUtils::xxHash64(&m_Guid, sizeof(ezUuid), ref_uiHash);
+  ref_uiHash = WHashingUtils::xxHash64(&m_Guid, sizeof(WUuid), ref_uiHash);
   HashPropertiesRecursive(acc, ref_uiHash, pType);
 }
 
 
-ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid)
+WDocumentObject* WDocumentObject::GetChild(const WUuid& guid)
 {
   for (auto* pChild : m_Children)
   {
@@ -106,7 +106,7 @@ ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid)
 }
 
 
-const ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid) const
+const WDocumentObject* WDocumentObject::GetChild(const WUuid& guid) const
 {
   for (auto* pChild : m_Children)
   {
@@ -116,28 +116,28 @@ const ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid) const
   return nullptr;
 }
 
-const ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
+const WAbstractProperty* WDocumentObject::GetParentPropertyType() const
 {
   if (!m_pParent)
     return nullptr;
-  const ezIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
-  const ezRTTI* pType = accessor.GetType();
+  const WIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
+  const WRTTI* pType = accessor.GetType();
   return pType->FindPropertyByName(m_sParentProperty);
 }
 
-ezVariant ezDocumentObject::GetPropertyIndex() const
+WVariant WDocumentObject::GetPropertyIndex() const
 {
   if (m_pParent == nullptr)
-    return ezVariant();
-  const ezIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
+    return WVariant();
+  const WIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
   return accessor.GetPropertyChildIndex(m_sParentProperty.GetData(), GetGuid());
 }
 
-bool ezDocumentObject::IsOnHeap() const
+bool WDocumentObject::IsOnHeap() const
 {
   /// \todo Christopher: This crashes when the pointer is nullptr, which appears to be possible
   /// It happened for me when duplicating (CTRL+D) 2 objects 2 times then moving them and finally undoing everything
-  EZ_ASSERT_DEV(m_pParent != nullptr,
+  W_ASSERT_DEV(m_pParent != nullptr,
     "Object being modified is not part of the document, e.g. may be in the undo stack instead. "
     "This could happen if within an undo / redo op some callback tries to create a new undo scope / update prefabs etc.");
 
@@ -145,52 +145,52 @@ bool ezDocumentObject::IsOnHeap() const
     return true;
 
   auto* pProp = GetParentPropertyType();
-  return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
+  return pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner);
 }
 
 
-void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType) const
+void WDocumentObject::HashPropertiesRecursive(const WIReflectedTypeAccessor& acc, WUInt64& uiHash, const WRTTI* pType) const
 {
   // Parse parent class
-  const ezRTTI* pParentType = pType->GetParentType();
+  const WRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
     HashPropertiesRecursive(acc, uiHash, pParentType);
 
   // Parse properties
-  ezUInt32 uiPropertyCount = pType->GetProperties().GetCount();
-  for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
+  WUInt32 uiPropertyCount = pType->GetProperties().GetCount();
+  for (WUInt32 i = 0; i < uiPropertyCount; ++i)
   {
-    const ezAbstractProperty* pProperty = pType->GetProperties()[i];
+    const WAbstractProperty* pProperty = pType->GetProperties()[i];
 
-    if (pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    if (pProperty->GetFlags().IsSet(WPropertyFlags::ReadOnly))
       continue;
-    if (pProperty->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pProperty->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
-    if (pProperty->GetCategory() == ezPropertyCategory::Member)
+    if (pProperty->GetCategory() == WPropertyCategory::Member)
     {
-      const ezVariant var = acc.GetValue(pProperty->GetPropertyName());
+      const WVariant var = acc.GetValue(pProperty->GetPropertyName());
       uiHash = var.ComputeHash(uiHash);
     }
-    else if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
+    else if (pProperty->GetCategory() == WPropertyCategory::Array || pProperty->GetCategory() == WPropertyCategory::Set)
     {
-      ezTempHybridArray<ezVariant, 16> keys;
+      WTempHybridArray<WVariant, 16> keys;
       acc.GetValues(pProperty->GetPropertyName(), keys);
-      for (const ezVariant& var : keys)
+      for (const WVariant& var : keys)
       {
         uiHash = var.ComputeHash(uiHash);
       }
     }
-    else if (pProperty->GetCategory() == ezPropertyCategory::Map)
+    else if (pProperty->GetCategory() == WPropertyCategory::Map)
     {
-      ezTempHybridArray<ezVariant, 16> keys;
+      WTempHybridArray<WVariant, 16> keys;
       acc.GetKeys(pProperty->GetPropertyName(), keys);
-      keys.Sort([](const ezVariant& a, const ezVariant& b)
-        { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
-      for (const ezVariant& key : keys)
+      keys.Sort([](const WVariant& a, const WVariant& b)
+        { return a.Get<WString>().Compare(b.Get<WString>()) < 0; });
+      for (const WVariant& key : keys)
       {
         uiHash = key.ComputeHash(uiHash);
-        ezVariant value = acc.GetValue(pProperty->GetPropertyName(), key);
+        WVariant value = acc.GetValue(pProperty->GetPropertyName(), key);
         uiHash = value.ComputeHash(uiHash);
       }
     }

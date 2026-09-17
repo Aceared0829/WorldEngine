@@ -5,20 +5,20 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
-ezFloat16::ezFloat16(float f)
+WFloat16::WFloat16(float f)
 {
   operator=(f);
 }
 
-void ezFloat16::operator=(float f)
+void WFloat16::operator=(float f)
 {
   // source: http://www.ogre3d.org/docs/api/html/OgreBitwise_8h_source.html
 
-  const ezUInt32 i = *reinterpret_cast<ezUInt32*>(&f);
+  const WUInt32 i = *reinterpret_cast<WUInt32*>(&f);
 
-  const ezUInt32 s = (i >> 16) & 0x00008000;
-  const ezInt32 e = ((i >> 23) & 0x000000ff) - (127 - 15);
-  ezUInt32 m = i & 0x007fffff;
+  const WUInt32 s = (i >> 16) & 0x00008000;
+  const WInt32 e = ((i >> 23) & 0x000000ff) - (127 - 15);
+  WUInt32 m = i & 0x007fffff;
 
   if (e <= 0)
   {
@@ -29,39 +29,39 @@ void ezFloat16::operator=(float f)
     }
     m = (m | 0x00800000) >> (1 - e);
 
-    m_uiData = static_cast<ezUInt16>(s | (m >> 13));
+    m_uiData = static_cast<WUInt16>(s | (m >> 13));
   }
   else if (e == 0xff - (127 - 15))
   {
     if (m == 0) // Inf
     {
-      m_uiData = static_cast<ezUInt16>(s | 0x7c00);
+      m_uiData = static_cast<WUInt16>(s | 0x7c00);
     }
     else // NAN
     {
       m >>= 13;
-      m_uiData = static_cast<ezUInt16>(s | 0x7c00 | m | (m == 0));
+      m_uiData = static_cast<WUInt16>(s | 0x7c00 | m | (m == 0));
     }
   }
   else
   {
     if (e > 30) // Overflow
     {
-      m_uiData = static_cast<ezUInt16>(s | 0x7c00);
+      m_uiData = static_cast<WUInt16>(s | 0x7c00);
       return;
     }
 
-    m_uiData = static_cast<ezUInt16>(s | (e << 10) | (m >> 13));
+    m_uiData = static_cast<WUInt16>(s | (e << 10) | (m >> 13));
   }
 }
 
-ezFloat16::operator float() const
+WFloat16::operator float() const
 {
-  const ezUInt32 s = (m_uiData >> 15) & 0x00000001;
-  ezUInt32 e = (m_uiData >> 10) & 0x0000001f;
-  ezUInt32 m = m_uiData & 0x000003ff;
+  const WUInt32 s = (m_uiData >> 15) & 0x00000001;
+  WUInt32 e = (m_uiData >> 10) & 0x0000001f;
+  WUInt32 m = m_uiData & 0x000003ff;
 
-  ezUInt32 uiResult;
+  WUInt32 uiResult;
 
   if (e == 0)
   {
@@ -106,49 +106,49 @@ ezFloat16::operator float() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec2::ezFloat16Vec2(const ezVec2& vVec)
+WFloat16Vec2::WFloat16Vec2(const WVec2& vVec)
 {
   operator=(vVec);
 }
 
-void ezFloat16Vec2::operator=(const ezVec2& vVec)
+void WFloat16Vec2::operator=(const WVec2& vVec)
 {
   x = vVec.x;
   y = vVec.y;
 }
 
-ezFloat16Vec2::operator ezVec2() const
+WFloat16Vec2::operator WVec2() const
 {
-  return ezVec2(x, y);
+  return WVec2(x, y);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec3::ezFloat16Vec3(const ezVec3& vVec)
+WFloat16Vec3::WFloat16Vec3(const WVec3& vVec)
 {
   operator=(vVec);
 }
 
-void ezFloat16Vec3::operator=(const ezVec3& vVec)
+void WFloat16Vec3::operator=(const WVec3& vVec)
 {
   x = vVec.x;
   y = vVec.y;
   z = vVec.z;
 }
 
-ezFloat16Vec3::operator ezVec3() const
+WFloat16Vec3::operator WVec3() const
 {
-  return ezVec3(x, y, z);
+  return WVec3(x, y, z);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec4::ezFloat16Vec4(const ezVec4& vVec)
+WFloat16Vec4::WFloat16Vec4(const WVec4& vVec)
 {
   operator=(vVec);
 }
 
-void ezFloat16Vec4::operator=(const ezVec4& vVec)
+void WFloat16Vec4::operator=(const WVec4& vVec)
 {
   x = vVec.x;
   y = vVec.y;
@@ -156,7 +156,7 @@ void ezFloat16Vec4::operator=(const ezVec4& vVec)
   w = vVec.w;
 }
 
-ezFloat16Vec4::operator ezVec4() const
+WFloat16Vec4::operator WVec4() const
 {
-  return ezVec4(x, y, z, w);
+  return WVec4(x, y, z, w);
 }

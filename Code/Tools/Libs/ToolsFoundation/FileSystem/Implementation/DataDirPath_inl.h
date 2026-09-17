@@ -1,59 +1,59 @@
 
 
-inline ezDataDirPath::ezDataDirPath() = default;
+inline WDataDirPath::WDataDirPath() = default;
 
-inline ezDataDirPath::ezDataDirPath(ezStringView sAbsPath, ezArrayPtr<ezString> dataDirRoots, ezUInt32 uiLastKnownDataDirIndex /*= 0*/)
+inline WDataDirPath::WDataDirPath(WStringView sAbsPath, WArrayPtr<WString> dataDirRoots, WUInt32 uiLastKnownDataDirIndex /*= 0*/)
 {
-  EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
-  ezStringBuilder sTmp = sAbsPath;
-  ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+  W_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
+  WStringBuilder sTmp = sAbsPath;
+  WPathUtils::NormalizeWindowsDriveLetter(sTmp);
   m_sAbsolutePath = sTmp;
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
-inline ezDataDirPath::ezDataDirPath(const ezStringBuilder& sAbsPath, ezArrayPtr<ezString> dataDirRoots, ezUInt32 uiLastKnownDataDirIndex /*= 0*/)
+inline WDataDirPath::WDataDirPath(const WStringBuilder& sAbsPath, WArrayPtr<WString> dataDirRoots, WUInt32 uiLastKnownDataDirIndex /*= 0*/)
 {
-  EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
-  ezStringBuilder sTmp = sAbsPath;
-  ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+  W_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
+  WStringBuilder sTmp = sAbsPath;
+  WPathUtils::NormalizeWindowsDriveLetter(sTmp);
   m_sAbsolutePath = sTmp;
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
-inline ezDataDirPath::ezDataDirPath(ezString&& sAbsPath, ezArrayPtr<ezString> dataDirRoots, ezUInt32 uiLastKnownDataDirIndex /*= 0*/)
+inline WDataDirPath::WDataDirPath(WString&& sAbsPath, WArrayPtr<WString> dataDirRoots, WUInt32 uiLastKnownDataDirIndex /*= 0*/)
 {
-  EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
+  W_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
   m_sAbsolutePath = std::move(sAbsPath);
   {
-    ezStringBuilder sTmp = m_sAbsolutePath;
-    ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+    WStringBuilder sTmp = m_sAbsolutePath;
+    WPathUtils::NormalizeWindowsDriveLetter(sTmp);
     if (sTmp != m_sAbsolutePath)
       m_sAbsolutePath = sTmp;
   }
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
-inline ezDataDirPath::operator ezStringView() const
+inline WDataDirPath::operator WStringView() const
 {
   return m_sAbsolutePath;
 }
 
-inline bool ezDataDirPath::operator==(ezStringView rhs) const
+inline bool WDataDirPath::operator==(WStringView rhs) const
 {
   return m_sAbsolutePath == rhs;
 }
 
-inline bool ezDataDirPath::operator!=(ezStringView rhs) const
+inline bool WDataDirPath::operator!=(WStringView rhs) const
 {
   return m_sAbsolutePath != rhs;
 }
 
-inline bool ezDataDirPath::IsValid() const
+inline bool WDataDirPath::IsValid() const
 {
   return m_uiDataDirParent != 0;
 }
 
-inline void ezDataDirPath::Clear()
+inline void WDataDirPath::Clear()
 {
   m_sAbsolutePath.Clear();
   m_uiDataDirParent = 0;
@@ -61,38 +61,38 @@ inline void ezDataDirPath::Clear()
   m_uiDataDirIndex = 0;
 }
 
-inline const ezString& ezDataDirPath::GetAbsolutePath() const
+inline const WString& WDataDirPath::GetAbsolutePath() const
 {
   return m_sAbsolutePath;
 }
 
-inline ezStringView ezDataDirPath::GetDataDirParentRelativePath() const
+inline WStringView WDataDirPath::GetDataDirParentRelativePath() const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
-  const ezUInt32 uiOffset = m_uiDataDirParent + 1;
-  return ezStringView(m_sAbsolutePath.GetData() + uiOffset, m_sAbsolutePath.GetElementCount() - uiOffset);
+  W_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
+  const WUInt32 uiOffset = m_uiDataDirParent + 1;
+  return WStringView(m_sAbsolutePath.GetData() + uiOffset, m_sAbsolutePath.GetElementCount() - uiOffset);
 }
 
-inline ezStringView ezDataDirPath::GetDataDirRelativePath() const
+inline WStringView WDataDirPath::GetDataDirRelativePath() const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
-  const ezUInt32 uiOffset = ezMath::Min(m_sAbsolutePath.GetElementCount(), m_uiDataDirParent + m_uiDataDirLength + 1u);
-  return ezStringView(m_sAbsolutePath.GetData() + uiOffset, m_sAbsolutePath.GetElementCount() - uiOffset);
+  W_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
+  const WUInt32 uiOffset = WMath::Min(m_sAbsolutePath.GetElementCount(), m_uiDataDirParent + m_uiDataDirLength + 1u);
+  return WStringView(m_sAbsolutePath.GetData() + uiOffset, m_sAbsolutePath.GetElementCount() - uiOffset);
 }
 
-inline ezStringView ezDataDirPath::GetDataDir() const
+inline WStringView WDataDirPath::GetDataDir() const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
-  return ezStringView(m_sAbsolutePath.GetData(), m_uiDataDirParent + m_uiDataDirLength);
+  W_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
+  return WStringView(m_sAbsolutePath.GetData(), m_uiDataDirParent + m_uiDataDirLength);
 }
 
-inline ezUInt8 ezDataDirPath::GetDataDirIndex() const
+inline WUInt8 WDataDirPath::GetDataDirIndex() const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
+  W_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
   return m_uiDataDirIndex;
 }
 
-inline ezStreamWriter& ezDataDirPath::Write(ezStreamWriter& inout_stream) const
+inline WStreamWriter& WDataDirPath::Write(WStreamWriter& inout_stream) const
 {
   inout_stream << m_sAbsolutePath;
   inout_stream << m_uiDataDirParent;
@@ -101,13 +101,13 @@ inline ezStreamWriter& ezDataDirPath::Write(ezStreamWriter& inout_stream) const
   return inout_stream;
 }
 
-inline ezStreamReader& ezDataDirPath::Read(ezStreamReader& inout_stream)
+inline WStreamReader& WDataDirPath::Read(WStreamReader& inout_stream)
 {
   inout_stream >> m_sAbsolutePath;
   {
     // Caches written before the drive letter was normalized can still hold the other spelling.
-    ezStringBuilder sTmp = m_sAbsolutePath;
-    ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+    WStringBuilder sTmp = m_sAbsolutePath;
+    WPathUtils::NormalizeWindowsDriveLetter(sTmp);
     if (sTmp != m_sAbsolutePath)
       m_sAbsolutePath = sTmp;
   }
@@ -117,7 +117,7 @@ inline ezStreamReader& ezDataDirPath::Read(ezStreamReader& inout_stream)
   return inout_stream;
 }
 
-bool ezCompareDataDirPath::Less(ezStringView lhs, ezStringView rhs)
+bool WCompareDataDirPath::Less(WStringView lhs, WStringView rhs)
 {
   int res = lhs.Compare_NoCase(rhs);
   if (res == 0)
@@ -128,17 +128,17 @@ bool ezCompareDataDirPath::Less(ezStringView lhs, ezStringView rhs)
   return res < 0;
 }
 
-bool ezCompareDataDirPath::Equal(ezStringView lhs, ezStringView rhs)
+bool WCompareDataDirPath::Equal(WStringView lhs, WStringView rhs)
 {
   return lhs.IsEqual(rhs);
 }
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezDataDirPath& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WDataDirPath& value)
 {
   return value.Write(inout_stream);
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezDataDirPath& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WDataDirPath& out_value)
 {
   return out_value.Read(inout_stream);
 }

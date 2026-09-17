@@ -2,7 +2,7 @@
 
 #include <Shaders/Common/ConstantBufferMacros.h>
 
-BEGIN_PUSH_CONSTANTS(ezRenderGraphPreviewConstants)
+BEGIN_PUSH_CONSTANTS(WRenderGraphPreviewConstants)
 {
   FLOAT4(UVTransform);
   FLOAT2(ValueRange);
@@ -11,4 +11,4 @@ BEGIN_PUSH_CONSTANTS(ezRenderGraphPreviewConstants)
   INT2(PixelPosition);
   INT1(HighlightPixel);
 }
-END_PUSH_CONSTANTS(ezRenderGraphPreviewConstants)
+END_PUSH_CONSTANTS(WRenderGraphPreviewConstants)

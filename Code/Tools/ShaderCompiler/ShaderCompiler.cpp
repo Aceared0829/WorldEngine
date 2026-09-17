@@ -9,29 +9,29 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ShaderCompiler/ShaderCompiler.h>
 
-ezCommandLineOptionString opt_Shader("_ShaderCompiler", "-shader", "\
+WCommandLineOptionString opt_Shader("_ShaderCompiler", "-shader", "\
 One or multiple paths to shader files or folders containing shaders.\n\
 Paths are separated with semicolons.\n\
 Paths may be absolute or relative to the -project directory.\n\
-If a path to a folder is specified, all .ezShader files in that folder are compiled.\n\
+If a path to a folder is specified, all .WShader files in that folder are compiled.\n\
 \n\
 This option has to be specified.",
   "");
 
-ezCommandLineOptionPath opt_Project("_ShaderCompiler", "-project", "\
+WCommandLineOptionPath opt_Project("_ShaderCompiler", "-project", "\
 Absolute path to the folder of the project, for which shaders should be compiled.",
   "");
 
-ezCommandLineOptionString opt_Platform("_ShaderCompiler", "-platform", "The name of the platform for which to compile the shaders.\n\
+WCommandLineOptionString opt_Platform("_ShaderCompiler", "-platform", "The name of the platform for which to compile the shaders.\n\
 Examples:\n\
   -platform DX11_SM50\n\
   -platform VULKAN\n\
   -platform ALL",
   "DX11_SM50");
 
-ezCommandLineOptionBool opt_IgnoreErrors("_ShaderCompiler", "-IgnoreErrors", "If set, a compile error won't stop other shaders from being compiled.", false);
+WCommandLineOptionBool opt_IgnoreErrors("_ShaderCompiler", "-IgnoreErrors", "If set, a compile error won't stop other shaders from being compiled.", false);
 
-ezCommandLineOptionDoc opt_Perm("_ShaderCompiler", "-perm", "<string list>", "List of permutation variables to set to fixed values.\n\
+WCommandLineOptionDoc opt_Perm("_ShaderCompiler", "-perm", "<string list>", "List of permutation variables to set to fixed values.\n\
 Spaces are used to separate multiple arguments, therefore each argument mustn't use spaces.\n\
 In the form of 'SOME_VAR=VALUE'\n\
 Examples:\n\
@@ -42,107 +42,107 @@ If a permutation variable is not set to a fixed value, all shader permutations f
 ",
   "");
 
-ezShaderCompilerApplication::ezShaderCompilerApplication()
-  : ezGameApplication("ezShaderCompiler", nullptr)
+WShaderCompilerApplication::WShaderCompilerApplication()
+  : WGameApplication("WShaderCompiler", nullptr)
 {
 }
 
-ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
+WResult WShaderCompilerApplication::BeforeCoreSystemsStartup()
 {
   {
-    ezStringBuilder cmdHelp;
-    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ShaderCompiler"))
+    WStringBuilder cmdHelp;
+    if (WCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, WCommandLineOption::LogAvailableModes::IfHelpRequested, "_ShaderCompiler"))
     {
-      ezLog::Print(cmdHelp);
-      return EZ_FAILURE;
+      WLog::Print(cmdHelp);
+      return W_FAILURE;
     }
   }
 
-  ezStartup::AddApplicationTag("tool");
-  ezStartup::AddApplicationTag("shadercompiler");
+  WStartup::AddApplicationTag("tool");
+  WStartup::AddApplicationTag("shadercompiler");
 
   // only print important messages
-  ezLog::SetDefaultLogLevel(ezLogMsgType::InfoMsg);
+  WLog::SetDefaultLogLevel(WLogMsgType::InfoMsg);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
+  W_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
-  auto cmd = ezCommandLineUtils::GetGlobalInstance();
+  auto cmd = WCommandLineUtils::GetGlobalInstance();
 
-  m_sShaderFiles = opt_Shader.GetOptionValue(ezCommandLineOption::LogMode::Always);
-  m_sAppProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
-  m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
-  opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
+  m_sShaderFiles = opt_Shader.GetOptionValue(WCommandLineOption::LogMode::Always);
+  m_sAppProjectPath = opt_Project.GetOptionValue(WCommandLineOption::LogMode::Always);
+  m_sPlatforms = opt_Platform.GetOptionValue(WCommandLineOption::LogMode::Always);
+  opt_IgnoreErrors.GetOptionValue(WCommandLineOption::LogMode::Always);
 
-  const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
+  const WUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
-  for (ezUInt32 pv = 0; pv < pvs; ++pv)
+  for (WUInt32 pv = 0; pv < pvs; ++pv)
   {
-    ezStringBuilder var = cmd->GetStringOption("-perm", pv);
+    WStringBuilder var = cmd->GetStringOption("-perm", pv);
 
     const char* szEqual = var.FindSubString("=");
 
     if (szEqual == nullptr)
     {
-      ezLog::Error("Permutation Variable declaration contains no equal sign: '{0}'", var);
+      WLog::Error("Permutation Variable declaration contains no equal sign: '{0}'", var);
       continue;
     }
 
-    ezStringBuilder val = szEqual + 1;
+    WStringBuilder val = szEqual + 1;
     var.SetSubString_FromTo(var.GetData(), szEqual);
 
     val.Trim(" \t");
     var.Trim(" \t");
 
-    ezLog::Dev("Fixed permutation variable: {0} = {1}", var, val);
+    WLog::Dev("Fixed permutation variable: {0} = {1}", var, val);
     m_FixedPermVars[var].PushBack(val);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezShaderCompilerApplication::AfterCoreSystemsStartup()
+void WShaderCompilerApplication::AfterCoreSystemsStartup()
 {
-  ezSystemInformation info = ezSystemInformation::Get();
-  const ezInt32 iCpuCores = info.GetCPUCoreCount();
-  ezTaskSystem::SetWorkerThreadCount(iCpuCores);
+  WSystemInformation info = WSystemInformation::Get();
+  const WInt32 iCpuCores = info.GetCPUCoreCount();
+  WTaskSystem::SetWorkerThreadCount(iCpuCores);
 
   ExecuteInitFunctions();
 
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 }
 
-ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
+WResult WShaderCompilerApplication::CompileShader(WStringView sShaderFile)
 {
-  EZ_PROFILE_SCOPE("ezShaderCompilerApplication::CompileShader");
-  EZ_LOG_BLOCK("Compiling Shader", sShaderFile);
+  W_PROFILE_SCOPE("WShaderCompilerApplication::CompileShader");
+  W_LOG_BLOCK("Compiling Shader", sShaderFile);
 
   if (ExtractPermutationVarValues(sShaderFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
 
-  const ezUInt32 uiMaxPerms = m_PermutationGenerator.GetPermutationCount();
+  const WUInt32 uiMaxPerms = m_PermutationGenerator.GetPermutationCount();
 
-  ezLog::Info("Shader has {0} permutations", uiMaxPerms);
+  WLog::Info("Shader has {0} permutations", uiMaxPerms);
 
   bool bContinue = true;
 
-  ezTaskSystem::ParallelForIndexed(0, uiMaxPerms, [&](ezUInt32 idx, ezUInt32 num)
+  WTaskSystem::ParallelForIndexed(0, uiMaxPerms, [&](WUInt32 idx, WUInt32 num)
     {
       if (!bContinue)
         return;
 
-      ezTempHybridArray<ezPermutationVar, 16> PermVars;
+      WTempHybridArray<WPermutationVar, 16> PermVars;
 
-      ezTokenizedFileCache fileCache;
-      for (ezUInt32 perm = idx; perm < num; ++perm)
+      WTokenizedFileCache fileCache;
+      for (WUInt32 perm = idx; perm < num; ++perm)
       {
-        EZ_PROFILE_SCOPE("CompilePermutation");
-        EZ_LOG_BLOCK("Compiling Permutation");
+        W_PROFILE_SCOPE("CompilePermutation");
+        W_LOG_BLOCK("Compiling Permutation");
 
         m_PermutationGenerator.GetPermutation(perm, PermVars);
-        ezShaderCompiler sc;
-        if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms, &fileCache).Failed())
+        WShaderCompiler sc;
+        if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, WLog::GetThreadLocalLogSystem(), m_sPlatforms, &fileCache).Failed())
         {
           bContinue = false;
           return;
@@ -153,44 +153,44 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 
   if (!bContinue)
   {
-    ezLog::Error("Failed to compile shader '{0}'", sShaderFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to compile shader '{0}'", sShaderFile);
+    return W_FAILURE;
   }
 
-  ezLog::Success("Compiled Shader '{0}'", sShaderFile);
-  return EZ_SUCCESS;
+  WLog::Success("Compiled Shader '{0}'", sShaderFile);
+  return W_SUCCESS;
 }
 
-ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView sShaderFile)
+WResult WShaderCompilerApplication::ExtractPermutationVarValues(WStringView sShaderFile)
 {
-  EZ_PROFILE_SCOPE("ezShaderCompilerApplication::ExtractPermutationVarValues");
+  W_PROFILE_SCOPE("WShaderCompilerApplication::ExtractPermutationVarValues");
 
   m_PermutationGenerator.Clear();
 
-  ezFileReader shaderFile;
+  WFileReader shaderFile;
   if (shaderFile.Open(sShaderFile).Failed())
   {
-    ezLog::Error("Could not open file '{0}'", sShaderFile);
-    return EZ_FAILURE;
+    WLog::Error("Could not open file '{0}'", sShaderFile);
+    return W_FAILURE;
   }
 
-  ezString sContent;
+  WString sContent;
   sContent.ReadAll(shaderFile);
 
-  ezShaderHelper::ezTextSectionizer Sections;
-  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
+  WShaderHelper::WTextSectionizer Sections;
+  WShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
-  ezTempHybridArray<ezHashedString, 16> permVars;
-  ezTempHybridArray<ezPermutationVar, 16> fixedPermVars;
-  ezUInt32 uiFirstLine = 0;
-  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ezShaderParser::ParsePermutationSection(sPermutations, permVars, fixedPermVars);
+  WTempHybridArray<WHashedString, 16> permVars;
+  WTempHybridArray<WPermutationVar, 16> fixedPermVars;
+  WUInt32 uiFirstLine = 0;
+  WStringView sPermutations = Sections.GetSectionContent(WShaderHelper::WShaderSections::PERMUTATIONS, uiFirstLine);
+  WShaderParser::ParsePermutationSection(sPermutations, permVars, fixedPermVars);
 
   {
-    EZ_LOG_BLOCK("Permutation Vars");
+    W_LOG_BLOCK("Permutation Vars");
     for (const auto& s : permVars)
     {
-      ezLog::Dev(s.GetData());
+      WLog::Dev(s.GetData());
     }
   }
 
@@ -198,8 +198,8 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
   {
     for (const auto& s : permVars)
     {
-      ezTempHybridArray<ezHashedString, 16> values;
-      ezShaderManager::GetPermutationValues(s, values);
+      WTempHybridArray<WHashedString, 16> values;
+      WShaderManager::GetPermutationValues(s, values);
 
       for (const auto& val : values)
       {
@@ -219,7 +219,7 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
   {
     for (auto it = m_FixedPermVars.GetIterator(); it.IsValid(); ++it)
     {
-      ezHashedString hsname, hsvalue;
+      WHashedString hsname, hsvalue;
       hsname.Assign(it.Key().GetData());
       m_PermutationGenerator.RemovePermutations(hsname);
 
@@ -232,41 +232,41 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezShaderCompilerApplication::PrintConfig()
+void WShaderCompilerApplication::PrintConfig()
 {
-  EZ_LOG_BLOCK("ShaderCompiler Config");
+  W_LOG_BLOCK("ShaderCompiler Config");
 
-  ezLog::Info("Project: '{0}'", m_sAppProjectPath);
-  ezLog::Info("Shader: '{0}'", m_sShaderFiles);
-  ezLog::Info("Platform: '{0}'", m_sPlatforms);
+  WLog::Info("Project: '{0}'", m_sAppProjectPath);
+  WLog::Info("Shader: '{0}'", m_sShaderFiles);
+  WLog::Info("Platform: '{0}'", m_sPlatforms);
 }
 
-void ezShaderCompilerApplication::Run()
+void WShaderCompilerApplication::Run()
 {
   PrintConfig();
 
-  EZ_LOG_BLOCK("Compile All Shaders");
+  W_LOG_BLOCK("Compile All Shaders");
 
-  ezDynamicArray<ezString> shadersToCompile;
+  WDynamicArray<WString> shadersToCompile;
 
-  ezStringBuilder files = m_sShaderFiles;
+  WStringBuilder files = m_sShaderFiles;
 
-  ezDynamicArray<ezStringView> allFiles;
+  WDynamicArray<WStringView> allFiles;
   // If not shader files are provided, compile all shaders of the project, i.e. all data directories.
   if (m_sShaderFiles.IsEmpty())
   {
-    ezStringBuilder sPath, sPath2;
-    for (ezUInt32 dirIdx = 0; dirIdx < ezFileSystem::GetNumDataDirectories(); ++dirIdx)
+    WStringBuilder sPath, sPath2;
+    for (WUInt32 dirIdx = 0; dirIdx < WFileSystem::GetNumDataDirectories(); ++dirIdx)
     {
-      sPath = ezFileSystem::GetDataDirectory(dirIdx)->GetDataDirectoryPath();
+      sPath = WFileSystem::GetDataDirectory(dirIdx)->GetDataDirectoryPath();
 
       if (sPath.IsEmpty())
         continue;
 
-      if (ezFileSystem::ResolveSpecialDirectory(sPath, sPath2).Failed())
+      if (WFileSystem::ResolveSpecialDirectory(sPath, sPath2).Failed())
         continue;
 
       files.AppendWithSeparator(";", sPath2);
@@ -275,12 +275,12 @@ void ezShaderCompilerApplication::Run()
 
   files.Split(false, allFiles, ";");
 
-  ezUInt32 uiErrors = 0;
-  for (const ezStringView& entry : allFiles)
+  WUInt32 uiErrors = 0;
+  for (const WStringView& entry : allFiles)
   {
-    ezStringBuilder fileOrFolder;
+    WStringBuilder fileOrFolder;
     // Relative paths are always relative to the project
-    if (ezPathUtils::IsRelativePath(entry))
+    if (WPathUtils::IsRelativePath(entry))
     {
       fileOrFolder = m_sAppProjectPath;
       fileOrFolder.AppendPath(entry);
@@ -290,51 +290,51 @@ void ezShaderCompilerApplication::Run()
       fileOrFolder = entry;
     }
 
-    ezFileStats stats;
-    if (ezOSFile::GetFileStats(fileOrFolder, stats).Failed())
+    WFileStats stats;
+    if (WOSFile::GetFileStats(fileOrFolder, stats).Failed())
     {
-      ezLog::Error("Couldn't find path '{0}'", fileOrFolder);
+      WLog::Error("Couldn't find path '{0}'", fileOrFolder);
       ++uiErrors;
       continue;
     }
 
-    ezStringBuilder relPath, absPath;
+    WStringBuilder relPath, absPath;
     if (stats.m_bIsDirectory)
     {
-      ezFileSystemIterator fsIt;
-      ezStringBuilder fullPath;
-      for (fsIt.StartSearch(fileOrFolder, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+      WFileSystemIterator fsIt;
+      WStringBuilder fullPath;
+      for (fsIt.StartSearch(fileOrFolder, WFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
       {
-        if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
+        if (WPathUtils::HasExtension(fsIt.GetStats().m_sName, "WShader"))
         {
           fsIt.GetStats().GetFullPath(fullPath);
-          if (ezFileSystem::ResolvePath(fullPath, &absPath, &relPath).Succeeded())
+          if (WFileSystem::ResolvePath(fullPath, &absPath, &relPath).Succeeded())
           {
             shadersToCompile.PushBack(relPath);
           }
           else
           {
-            ezLog::Error("Couldn't resolve path '{0}'", fullPath);
+            WLog::Error("Couldn't resolve path '{0}'", fullPath);
             ++uiErrors;
           }
         }
       }
     }
-    else if (ezFileSystem::ResolvePath(fileOrFolder, &absPath, &relPath).Succeeded())
+    else if (WFileSystem::ResolvePath(fileOrFolder, &absPath, &relPath).Succeeded())
     {
-      if (absPath.HasExtension("ezShader"))
+      if (absPath.HasExtension("WShader"))
       {
         shadersToCompile.PushBack(relPath);
       }
       else
       {
-        ezLog::Error("File '{0}' is not a shader", absPath);
+        WLog::Error("File '{0}' is not a shader", absPath);
         ++uiErrors;
       }
     }
     else
     {
-      ezLog::Error("Couldn't resolve path '{0}'", fileOrFolder);
+      WLog::Error("Couldn't resolve path '{0}'", fileOrFolder);
     }
   }
 
@@ -343,7 +343,7 @@ void ezShaderCompilerApplication::Run()
     if (CompileShader(shader).Failed())
     {
       ++uiErrors;
-      if (!opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Never))
+      if (!opt_IgnoreErrors.GetOptionValue(WCommandLineOption::LogMode::Never))
       {
         SetReturnCode(uiErrors);
         QuitApplication();
@@ -355,4 +355,4 @@ void ezShaderCompilerApplication::Run()
   QuitApplication();
 }
 
-EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);
+W_APPLICATION_ENTRY_POINT(WShaderCompilerApplication);

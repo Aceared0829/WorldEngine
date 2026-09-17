@@ -10,23 +10,23 @@
 /// as well as per-instance state (for their execution).
 ///
 /// This structure describes the type of instance data used by a such a resource (or a node inside it).
-/// Instance data is allocated through the ezInstanceDataAllocator.
+/// Instance data is allocated through the WInstanceDataAllocator.
 ///
 /// Use the templated Fill() method to fill the desc from a data type.
-struct EZ_FOUNDATION_DLL ezInstanceDataDesc
+struct W_FOUNDATION_DLL WInstanceDataDesc
 {
-  ezUInt32 m_uiTypeSize = 0;
-  ezUInt32 m_uiTypeAlignment = 0;
-  ezMemoryUtils::ConstructorFunction m_ConstructorFunction = nullptr;
-  ezMemoryUtils::DestructorFunction m_DestructorFunction = nullptr;
+  WUInt32 m_uiTypeSize = 0;
+  WUInt32 m_uiTypeAlignment = 0;
+  WMemoryUtils::ConstructorFunction m_ConstructorFunction = nullptr;
+  WMemoryUtils::DestructorFunction m_DestructorFunction = nullptr;
 
   template <typename T>
-  EZ_ALWAYS_INLINE void FillFromType()
+  W_ALWAYS_INLINE void FillFromType()
   {
     m_uiTypeSize = sizeof(T);
     m_uiTypeAlignment = alignof(T);
-    m_ConstructorFunction = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, T>();
-    m_DestructorFunction = ezMemoryUtils::MakeDestructorFunction<T>();
+    m_ConstructorFunction = WMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, T>();
+    m_DestructorFunction = WMemoryUtils::MakeDestructorFunction<T>();
   }
 };
 
@@ -42,37 +42,37 @@ struct EZ_FOUNDATION_DLL ezInstanceDataDesc
 /// 2. Call AllocateAndConstruct() to create initialized memory
 /// 3. Use GetInstanceData() to access individual data by offset
 /// 4. Call DestructAndDeallocate() when the instance is no longer needed
-class EZ_FOUNDATION_DLL ezInstanceDataAllocator
+class W_FOUNDATION_DLL WInstanceDataAllocator
 {
 public:
   /// Adds the given desc to internal list of data that needs to be allocated and returns the byte offset.
-  [[nodiscard]] ezUInt32 AddDesc(const ezInstanceDataDesc& desc);
+  [[nodiscard]] WUInt32 AddDesc(const WInstanceDataDesc& desc);
 
   /// Resets all internal state.
   void ClearDescs();
 
   /// Constructs the instance data objects, within the pre-allocated memory block.
-  void Construct(ezByteBlobPtr blobPtr) const;
+  void Construct(WByteBlobPtr blobPtr) const;
 
   /// Destructs the instance data objects.
-  void Destruct(ezByteBlobPtr blobPtr) const;
+  void Destruct(WByteBlobPtr blobPtr) const;
 
-  /// Allocates memory and constructs the instance data objects inside it. The returned ezBlob must be stored somewhere.
-  [[nodiscard]] ezBlob AllocateAndConstruct() const;
+  /// Allocates memory and constructs the instance data objects inside it. The returned WBlob must be stored somewhere.
+  [[nodiscard]] WBlob AllocateAndConstruct() const;
 
   /// Destructs and deallocates the instance data objects and the given memory block.
-  void DestructAndDeallocate(ezBlob& ref_blob) const;
+  void DestructAndDeallocate(WBlob& ref_blob) const;
 
   /// The total size in bytes taken up by all instance data objects that were added.
-  ezUInt32 GetTotalDataSize() const { return m_uiTotalDataSize; }
+  WUInt32 GetTotalDataSize() const { return m_uiTotalDataSize; }
 
   /// Retrieves a void pointer to the instance data within the given blob at the given offset, or nullptr if the offset is invalid.
-  EZ_ALWAYS_INLINE static void* GetInstanceData(const ezByteBlobPtr& blobPtr, ezUInt32 uiOffset)
+  W_ALWAYS_INLINE static void* GetInstanceData(const WByteBlobPtr& blobPtr, WUInt32 uiOffset)
   {
-    return (uiOffset != ezInvalidIndex) ? blobPtr.GetPtr() + uiOffset : nullptr;
+    return (uiOffset != WInvalidIndex) ? blobPtr.GetPtr() + uiOffset : nullptr;
   }
 
 private:
-  ezDynamicArray<ezInstanceDataDesc> m_Descs;
-  ezUInt32 m_uiTotalDataSize = 0;
+  WDynamicArray<WInstanceDataDesc> m_Descs;
+  WUInt32 m_uiTotalDataSize = 0;
 };

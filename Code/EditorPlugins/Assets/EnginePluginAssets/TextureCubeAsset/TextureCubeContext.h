@@ -8,34 +8,34 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINASSETS_DLL ezTextureCubeContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WTextureCubeContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WTextureCubeContext, WEngineProcessDocumentContext);
 
 public:
-  ezTextureCubeContext();
+  WTextureCubeContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  const ezTextureCubeResourceHandle& GetTexture() const { return m_hTexture; }
+  const WTextureCubeResourceHandle& GetTexture() const { return m_hTexture; }
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
 
 private:
-  void OnResourceEvent(const ezResourceEvent& e);
+  void OnResourceEvent(const WResourceEvent& e);
 
-  ezGameObjectHandle m_hPreviewObject;
-  ezComponentHandle m_hPreviewMesh2D;
-  ezMeshResourceHandle m_hPreviewMeshResource;
-  ezMaterialResourceHandle m_hMaterial;
-  ezTextureCubeResourceHandle m_hTexture;
+  WGameObjectHandle m_hPreviewObject;
+  WComponentHandle m_hPreviewMesh2D;
+  WMeshResourceHandle m_hPreviewMeshResource;
+  WMaterialResourceHandle m_hMaterial;
+  WTextureCubeResourceHandle m_hTexture;
 
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
+  WEvent<const WResourceEvent&, WMutex>::Unsubscriber m_TextureResourceEventSubscriber;
 };

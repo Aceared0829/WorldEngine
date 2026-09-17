@@ -3,25 +3,25 @@
 #include <Core/GameState/GameStateBase.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezForwardEventsToGameStateComponent, 1 /* version */, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WForwardEventsToGameStateComponent, 1 /* version */, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
+    new WCategoryAttribute("Logic"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezForwardEventsToGameStateComponent::ezForwardEventsToGameStateComponent() = default;
-ezForwardEventsToGameStateComponent::~ezForwardEventsToGameStateComponent() = default;
+WForwardEventsToGameStateComponent::WForwardEventsToGameStateComponent() = default;
+WForwardEventsToGameStateComponent::~WForwardEventsToGameStateComponent() = default;
 
-bool ezForwardEventsToGameStateComponent::HandlesMessage(const ezMessage& msg) const
+bool WForwardEventsToGameStateComponent::HandlesMessage(const WMessage& msg) const
 {
   // check whether there is any active game state
   // if so, test whether it would handle this type of message
-  if (ezGameStateBase* pGameState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (WGameStateBase* pGameState = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
     return pGameState->GetDynamicRTTI()->CanHandleMessage(msg.GetId());
   }
@@ -29,12 +29,12 @@ bool ezForwardEventsToGameStateComponent::HandlesMessage(const ezMessage& msg) c
   return false;
 }
 
-bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
+bool WForwardEventsToGameStateComponent::OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg)
 {
-  EZ_IGNORE_UNUSED(bWasPostedMsg);
+  W_IGNORE_UNUSED(bWasPostedMsg);
 
   // if we have an active game state, forward the message to it
-  if (ezGameStateBase* pGameState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (WGameStateBase* pGameState = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
     return pGameState->GetDynamicRTTI()->DispatchMessage(pGameState, msg);
   }
@@ -42,12 +42,12 @@ bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, boo
   return false;
 }
 
-bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
+bool WForwardEventsToGameStateComponent::OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg) const
 {
-  EZ_IGNORE_UNUSED(bWasPostedMsg);
+  W_IGNORE_UNUSED(bWasPostedMsg);
 
   // if we have an active game state, forward the message to it
-  if (const ezGameStateBase* pGameState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (const WGameStateBase* pGameState = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
     return pGameState->GetDynamicRTTI()->DispatchMessage(pGameState, msg);
   }
@@ -55,7 +55,7 @@ bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, boo
   return false;
 }
 
-void ezForwardEventsToGameStateComponent::Initialize()
+void WForwardEventsToGameStateComponent::Initialize()
 {
   SUPER::Initialize();
 
@@ -63,4 +63,4 @@ void ezForwardEventsToGameStateComponent::Initialize()
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_GameState_Implementation_ForwardEventsToGameStateComponent);
+W_STATICLINK_FILE(Core, Core_GameState_Implementation_ForwardEventsToGameStateComponent);

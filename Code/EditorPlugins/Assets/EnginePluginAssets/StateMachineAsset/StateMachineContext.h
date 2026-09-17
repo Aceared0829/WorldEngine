@@ -4,16 +4,16 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
-class EZ_ENGINEPLUGINASSETS_DLL ezStateMachineContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WStateMachineContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineContext, WEngineProcessDocumentContext);
 
 public:
-  ezStateMachineContext();
+  WStateMachineContext();
 
 protected:
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
 
-  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
+  virtual WStatus ExportDocument(const WExportDocumentMsgToEngine* pMsg) override;
 };

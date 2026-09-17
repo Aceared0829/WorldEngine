@@ -10,8 +10,8 @@ enum Columns
   ENUM_COUNT
 };
 
-ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& ref_allImports)
-  : ezQtDialog(pParent)
+WQtAssetImportDlg::WQtAssetImportDlg(QWidget* pParent, WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions>& ref_allImports)
+  : WQtDialog(pParent)
   , m_AllImports(ref_allImports)
 {
   setupUi(this);
@@ -26,9 +26,9 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetD
   table->setHorizontalHeaderLabels(headers);
 
   {
-    ezQtScopedBlockSignals _1(table);
+    WQtScopedBlockSignals _1(table);
 
-    for (ezUInt32 i = 0; i < m_AllImports.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_AllImports.GetCount(); ++i)
     {
       InitRow(i);
     }
@@ -38,9 +38,9 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetD
   table->horizontalHeader()->setSectionResizeMode(Columns::InputFile, QHeaderView::ResizeMode::Stretch);
 }
 
-ezQtAssetImportDlg::~ezQtAssetImportDlg() = default;
+WQtAssetImportDlg::~WQtAssetImportDlg() = default;
 
-void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
+void WQtAssetImportDlg::InitRow(WUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
   const auto& data2 = m_AllImports[uiRow];
@@ -51,18 +51,18 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   QComboBox* pCombo = new QComboBox();
   table->setCellWidget(uiRow, Columns::Method, pCombo);
 
-  pCombo->addItem(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/NoEntry.svg"), "No Import");
+  pCombo->addItem(WQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/NoEntry.svg"), "No Import");
   for (const auto& option : data2.m_ImportOptions)
   {
-    QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);
-    pCombo->addItem(icon, ezMakeQString(ezTranslate(option.m_sName)));
+    QIcon icon = WQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);
+    pCombo->addItem(icon, WMakeQString(WTranslate(option.m_sName)));
 
     // The lookup returns the key unchanged when there is no tooltip for it, so an untranslated mode
     // would otherwise get its own name as the tooltip.
-    const ezStringView sTooltip = ezTranslateTooltip(option.m_sName);
+    const WStringView sTooltip = WTranslateTooltip(option.m_sName);
     if (!sTooltip.IsEmpty() && sTooltip != option.m_sName)
     {
-      pCombo->setItemData(pCombo->count() - 1, ezMakeQString(sTooltip), Qt::ToolTipRole);
+      pCombo->setItemData(pCombo->count() - 1, WMakeQString(sTooltip), Qt::ToolTipRole);
     }
   }
 
@@ -71,24 +71,24 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   connect(pCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(SelectedOptionChanged(int)));
 }
 
-void ezQtAssetImportDlg::SelectedOptionChanged(int index)
+void WQtAssetImportDlg::SelectedOptionChanged(int index)
 {
   QComboBox* pCombo = qobject_cast<QComboBox*>(sender());
-  const ezUInt32 uiRow = pCombo->property("row").toInt();
+  const WUInt32 uiRow = pCombo->property("row").toInt();
 
   m_AllImports[uiRow].m_iSelectedOption = index - 1;
 }
 
-void ezQtAssetImportDlg::on_ButtonImport_clicked()
+void WQtAssetImportDlg::on_ButtonImport_clicked()
 {
-  EZ_LOG_BLOCK("Importing Assets");
+  W_LOG_BLOCK("Importing Assets");
 
   for (auto& data : m_AllImports)
   {
     if (data.m_iSelectedOption < 0)
       continue;
 
-    EZ_LOG_BLOCK("Asset Import", data.m_sInputFileRelative);
+    W_LOG_BLOCK("Asset Import", data.m_sInputFileRelative);
 
     const auto& option = data.m_ImportOptions[data.m_iSelectedOption];
 

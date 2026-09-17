@@ -7,19 +7,19 @@
 /// Render data is grouped into batches to minimize state changes during rendering.
 /// Each batch contains render data of the same type, sorted by a sorting key.
 /// Provides iterator access to iterate through the typed render data.
-class ezRenderDataBatch
+class WRenderDataBatch
 {
 private:
   struct SortableRenderData
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    const ezRenderData* m_pRenderData;
-    ezUInt64 m_uiSortingKey;
+    const WRenderData* m_pRenderData;
+    WUInt64 m_uiSortingKey;
   };
 
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Iterator for traversing typed render data within a batch.
   template <typename T>
@@ -40,7 +40,7 @@ public:
     void operator++();
 
   private:
-    friend class ezRenderDataBatch;
+    friend class WRenderDataBatch;
 
     Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd);
 
@@ -48,43 +48,43 @@ public:
     const SortableRenderData* m_pEnd;
   };
 
-  ezUInt32 GetDataCount() const;
+  WUInt32 GetDataCount() const;
 
   template <typename T>
   const T* GetFirstData() const;
 
   template <typename T>
-  Iterator<T> GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
+  Iterator<T> GetIterator(WUInt32 uiStartIndex = 0, WUInt32 uiCount = WInvalidIndex) const;
 
-  ezGALBufferHandle GetDataOffsetsBuffer() const;
-  ezUInt32 GetFirstDataOffsetIndex() const;
-  ezUInt32 GetInstanceCount() const;
+  WGALBufferHandle GetDataOffsetsBuffer() const;
+  WUInt32 GetFirstDataOffsetIndex() const;
+  WUInt32 GetInstanceCount() const;
 
 private:
-  friend class ezExtractedRenderData;
-  friend class ezRenderDataBatchList;
+  friend class WExtractedRenderData;
+  friend class WRenderDataBatchList;
 
-  ezArrayPtr<SortableRenderData> m_Data;
+  WArrayPtr<SortableRenderData> m_Data;
 
-  ezGALBufferHandle m_hDataOffsetsBuffer;
-  ezUInt32 m_uiFirstDataOffsetIndex = 0;
-  ezUInt32 m_uiInstanceCount = 0;
+  WGALBufferHandle m_hDataOffsetsBuffer;
+  WUInt32 m_uiFirstDataOffsetIndex = 0;
+  WUInt32 m_uiInstanceCount = 0;
 };
 
 /// Contains a list of render data batches for a specific render category.
 ///
 /// Used to access all batches that need to be rendered for a particular category.
-class ezRenderDataBatchList
+class WRenderDataBatchList
 {
 public:
-  ezUInt32 GetBatchCount() const;
+  WUInt32 GetBatchCount() const;
 
-  const ezRenderDataBatch& GetBatch(ezUInt32 uiIndex) const;
+  const WRenderDataBatch& GetBatch(WUInt32 uiIndex) const;
 
 private:
-  friend class ezExtractedRenderData;
+  friend class WExtractedRenderData;
 
-  ezArrayPtr<const ezRenderDataBatch> m_Batches;
+  WArrayPtr<const WRenderDataBatch> m_Batches;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderDataBatch_inl.h>

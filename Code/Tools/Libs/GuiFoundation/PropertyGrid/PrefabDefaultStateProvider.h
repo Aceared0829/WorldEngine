@@ -5,22 +5,22 @@
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 
 /// Default state provider that reflects the default state defined in the prefab template.
-class EZ_GUIFOUNDATION_DLL ezPrefabDefaultStateProvider : public ezDefaultStateProvider
+class W_GUIFOUNDATION_DLL WPrefabDefaultStateProvider : public WDefaultStateProvider
 {
 public:
-  static ezSharedPtr<ezDefaultStateProvider> CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  static WSharedPtr<WDefaultStateProvider> CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp);
 
-  ezPrefabDefaultStateProvider(const ezUuid& rootObjectGuid, const ezUuid& createFromPrefab, const ezUuid& prefabSeedGuid, ezInt32 iRootDepth);
-  virtual ezInt32 GetRootDepth() const override;
-  virtual ezColorGammaUB GetBackgroundColor() const override;
-  virtual ezString GetStateProviderName() const override { return "Prefab"; }
+  WPrefabDefaultStateProvider(const WUuid& rootObjectGuid, const WUuid& createFromPrefab, const WUuid& prefabSeedGuid, WInt32 iRootDepth);
+  virtual WInt32 GetRootDepth() const override;
+  virtual WColorGammaUB GetBackgroundColor() const override;
+  virtual WString GetStateProviderName() const override { return "Prefab"; }
 
-  virtual ezVariant GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff) override;
+  virtual WVariant GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff) override;
 
 private:
-  const ezUuid m_RootObjectGuid;
-  const ezUuid m_CreateFromPrefab;
-  const ezUuid m_PrefabSeedGuid;
-  ezInt32 m_iRootDepth = 0;
+  const WUuid m_RootObjectGuid;
+  const WUuid m_CreateFromPrefab;
+  const WUuid m_PrefabSeedGuid;
+  WInt32 m_iRootDepth = 0;
 };

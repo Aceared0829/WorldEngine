@@ -2,7 +2,7 @@
 #include <Foundation/System/Process.h>
 #include <future>
 
-struct ezPipeWin
+struct WPipeWin
 {
   HANDLE m_pipeRead = nullptr;
   HANDLE m_pipeWrite = nullptr;
@@ -25,11 +25,11 @@ struct ezPipeWin
 
     // Create a pipe for the child process.
     if (!CreatePipe(&m_pipeRead, &m_pipeWrite, &saAttr, 0))
-      ezLog::Error("ezPipeWin: CreatePipe failed");
+      WLog::Error("WPipeWin: CreatePipe failed");
 
     // Ensure the read handle to the pipe is not inherited.
     if (!SetHandleInformation(m_pipeRead, HANDLE_FLAG_INHERIT, 0))
-      ezLog::Error("Stdout SetHandleInformation");
+      WLog::Error("Stdout SetHandleInformation");
   }
 
   void Close()
@@ -48,17 +48,17 @@ struct ezPipeWin
     }
   }
 
-  static void ReportString(ezDelegate<void(ezStringView)> func, ezHybridArray<char, 256>& ref_temp)
+  static void ReportString(WDelegate<void(WStringView)> func, WHybridArray<char, 256>& ref_temp)
   {
-    ezStringBuilder result;
+    WStringBuilder result;
 
-    ezUnicodeUtils::RepairNonUtf8Text(ref_temp.GetData(), ref_temp.GetData() + ref_temp.GetCount(), result);
+    WUnicodeUtils::RepairNonUtf8Text(ref_temp.GetData(), ref_temp.GetData() + ref_temp.GetCount(), result);
     func(result);
   }
 
-  static void ReportString(ezDelegate<void(ezStringView)> func, const char* szStart, const char* szEnd)
+  static void ReportString(WDelegate<void(WStringView)> func, const char* szStart, const char* szEnd)
   {
-    ezHybridArray<char, 256> tmp;
+    WHybridArray<char, 256> tmp;
 
     while (szStart < szEnd)
     {
@@ -69,14 +69,14 @@ struct ezPipeWin
     ReportString(func, tmp);
   }
 
-  void StartRead(ezDelegate<void(ezStringView)>& ref_onStdOut)
+  void StartRead(WDelegate<void(WStringView)>& ref_onStdOut)
   {
     if (m_pipeWrite)
     {
       m_running = true;
       m_readThread = std::thread([&]()
         {
-          ezHybridArray<char, 256> overflowBuffer;
+          WHybridArray<char, 256> overflowBuffer;
 
           constexpr int BUFSIZE = 512;
           char chBuf[BUFSIZE];
@@ -98,10 +98,10 @@ struct ezPipeWin
 
             while (szCurrentPos < szEndPos)
             {
-              const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
+              const char* szFound = WStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
               if (!szFound)
               {
-                szFound = ezStringUtils::FindSubString(szCurrentPos, "\r", szEndPos);
+                szFound = WStringUtils::FindSubString(szCurrentPos, "\r", szEndPos);
               }
               if (szFound)
               {
@@ -146,15 +146,15 @@ struct ezPipeWin
   }
 };
 
-struct ezProcessImpl
+struct WProcessImpl
 {
-  ezOsProcessHandle m_ProcessHandle = nullptr;
-  ezOsProcessHandle m_MainThreadHandle = nullptr;
-  ezOsProcessID m_ProcessID = 0;
-  ezPipeWin m_pipeStdOut;
-  ezPipeWin m_pipeStdErr;
+  WOsProcessHandle m_ProcessHandle = nullptr;
+  WOsProcessHandle m_MainThreadHandle = nullptr;
+  WOsProcessID m_ProcessID = 0;
+  WPipeWin m_pipeStdOut;
+  WPipeWin m_pipeStdErr;
 
-  ~ezProcessImpl() { Close(); }
+  ~WProcessImpl() { Close(); }
 
   void Close()
   {
@@ -175,16 +175,16 @@ struct ezProcessImpl
   }
 };
 
-ezProcess::ezProcess()
+WProcess::WProcess()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezProcessImpl);
+  m_pImpl = W_DEFAULT_NEW(WProcessImpl);
 }
 
-ezProcess::~ezProcess()
+WProcess::~WProcess()
 {
-  if (GetState() == ezProcessState::Running)
+  if (GetState() == WProcessState::Running)
   {
-    ezLog::Dev("Process still running - terminating '{}'", m_sProcess);
+    WLog::Dev("Process still running - terminating '{}'", m_sProcess);
 
     Terminate().IgnoreResult();
   }
@@ -194,19 +194,19 @@ ezProcess::~ezProcess()
   m_pImpl.Clear();
 }
 
-ezOsProcessHandle ezProcess::GetProcessHandle() const
+WOsProcessHandle WProcess::GetProcessHandle() const
 {
   return m_pImpl->m_ProcessHandle;
 }
 
-ezOsProcessID ezProcess::GetProcessID() const
+WOsProcessID WProcess::GetProcessID() const
 {
   return m_pImpl->m_ProcessID;
 }
 
-ezOsProcessID ezProcess::GetCurrentProcessID()
+WOsProcessID WProcess::GetCurrentProcessID()
 {
-  const ezOsProcessID processID = GetCurrentProcessId();
+  const WOsProcessID processID = GetCurrentProcessId();
   return processID;
 }
 
@@ -271,12 +271,12 @@ static BOOL CreateProcessWithExplicitHandles(LPCWSTR pApplicationName, LPWSTR pC
   return fSuccess;
 }
 
-ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezAsyncProcessFlags::None*/)
+WResult WProcess::Launch(const WProcessOptions& opt, WBitflags<WProcessLaunchFlags> launchFlags /*= WAsyncProcessFlags::None*/)
 {
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessHandle == nullptr, "Cannot reuse an instance of ezProcess");
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessID == 0, "Cannot reuse an instance of ezProcess");
+  W_ASSERT_DEV(m_pImpl->m_ProcessHandle == nullptr, "Cannot reuse an instance of WProcess");
+  W_ASSERT_DEV(m_pImpl->m_ProcessID == 0, "Cannot reuse an instance of WProcess");
 
-  ezStringBuilder sProcess = opt.m_sProcess;
+  WStringBuilder sProcess = opt.m_sProcess;
   sProcess.MakeCleanPath();
   sProcess.ReplaceAll("/", "\\");
 
@@ -285,7 +285,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   m_OnStdError = opt.m_onStdError;
 
   STARTUPINFOW si;
-  ezMemoryUtils::ZeroFill(&si, 1);
+  WMemoryUtils::ZeroFill(&si, 1);
   si.cb = sizeof(si);
   si.dwFlags = STARTF_FORCEOFFFEEDBACK; // do not show a wait cursor while launching the process
 
@@ -293,7 +293,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   // but CreateProcess will still return success
   // therefore we must ensure to only pass non-null handles to inherit
   HANDLE HandlesToInherit[2];
-  ezUInt32 uiNumHandlesToInherit = 0;
+  WUInt32 uiNumHandlesToInherit = 0;
 
   if (m_OnStdOut.IsValid())
   {
@@ -316,10 +316,10 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   // si.dwFlags |= STARTF_USESHOWWINDOW;
 
   PROCESS_INFORMATION pi;
-  ezMemoryUtils::ZeroFill(&pi, 1);
+  WMemoryUtils::ZeroFill(&pi, 1);
 
 
-  ezStringBuilder sCmdLine;
+  WStringBuilder sCmdLine;
   BuildFullCommandLineString(opt, sProcess, sCmdLine);
 
   DWORD dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_UNICODE_ENVIRONMENT;
@@ -329,20 +329,20 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
     dwCreationFlags |= CREATE_NO_WINDOW;
   }
 
-  if (launchFlags.IsSet(ezProcessLaunchFlags::Suspended))
+  if (launchFlags.IsSet(WProcessLaunchFlags::Suspended))
   {
     dwCreationFlags |= CREATE_SUSPENDED;
   }
 
   // We pass nullptr as lpApplicationName as setting it would prevent OpenProcess to run system apps or apps in PATH.
   // Instead, the module name is pre-pended to lpCommandLine in BuildFullCommandLineString.
-  if (!CreateProcessWithExplicitHandles(nullptr, const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
+  if (!CreateProcessWithExplicitHandles(nullptr, const_cast<wchar_t*>(WStringWChar(sCmdLine).GetData()),
         nullptr,                                  // lpProcessAttributes
         nullptr,                                  // lpThreadAttributes
         uiNumHandlesToInherit > 0 ? TRUE : FALSE, // bInheritHandles
         dwCreationFlags,
         nullptr,                                  // lpEnvironment
-        opt.m_sWorkingDirectory.IsEmpty() ? nullptr : ezStringWChar(opt.m_sWorkingDirectory).GetData(),
+        opt.m_sWorkingDirectory.IsEmpty() ? nullptr : WStringWChar(opt.m_sWorkingDirectory).GetData(),
         &si,                                      // lpStartupInfo
         &pi,                                      // lpProcessInformation
         uiNumHandlesToInherit,                    // cHandlesToInherit
@@ -351,8 +351,8 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   {
     m_pImpl->m_pipeStdOut.Close();
     m_pImpl->m_pipeStdErr.Close();
-    ezLog::Error("Failed to launch '{} {}' - {}", sProcess, ezArgSensitive(sCmdLine, "CommandLine"), ezArgErrorCode(GetLastError()));
-    return EZ_FAILURE;
+    WLog::Error("Failed to launch '{} {}' - {}", sProcess, WArgSensitive(sCmdLine, "CommandLine"), WArgErrorCode(GetLastError()));
+    return W_FAILURE;
   }
   m_pImpl->m_pipeStdOut.StartRead(m_OnStdOut);
   m_pImpl->m_pipeStdErr.StartRead(m_OnStdError);
@@ -360,7 +360,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   m_pImpl->m_ProcessHandle = pi.hProcess;
   m_pImpl->m_ProcessID = pi.dwProcessId;
 
-  if (launchFlags.IsSet(ezProcessLaunchFlags::Suspended))
+  if (launchFlags.IsSet(WProcessLaunchFlags::Suspended))
   {
     // store the main thread handle for ResumeSuspended() later
     m_pImpl->m_MainThreadHandle = pi.hThread;
@@ -370,41 +370,41 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
     CloseHandle(pi.hThread);
   }
 
-  if (launchFlags.IsSet(ezProcessLaunchFlags::Detached))
+  if (launchFlags.IsSet(WProcessLaunchFlags::Detached))
   {
     Detach();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::ResumeSuspended()
+WResult WProcess::ResumeSuspended()
 {
   if (m_pImpl->m_ProcessHandle == nullptr || m_pImpl->m_MainThreadHandle == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const DWORD prevSuspendCount = ResumeThread(m_pImpl->m_MainThreadHandle);
   if (prevSuspendCount == -1)
   {
-    ezLog::Warning("ezProcess::ResumeSuspended: Unexpected ResumeThread result ({})", ezArgErrorCode(GetLastError()));
-    return EZ_FAILURE;
+    WLog::Warning("WProcess::ResumeSuspended: Unexpected ResumeThread result ({})", WArgErrorCode(GetLastError()));
+    return W_FAILURE;
   }
 
   // invalidate the thread handle, so that we cannot resume the process twice
   if (!CloseHandle(m_pImpl->m_MainThreadHandle))
   {
-    ezLog::Warning("ezProcess::ResumeSuspended: Failed to close handle");
+    WLog::Warning("WProcess::ResumeSuspended: Failed to close handle");
   }
 
   m_pImpl->m_MainThreadHandle = nullptr;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
+WResult WProcess::WaitToFinish(WTime timeout /*= WTime::MakeZero()*/)
 {
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessHandle != nullptr, "Launch a process before waiting on it");
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessID != 0, "Launch a process before waiting on it");
+  W_ASSERT_DEV(m_pImpl->m_ProcessHandle != nullptr, "Launch a process before waiting on it");
+  W_ASSERT_DEV(m_pImpl->m_ProcessID != 0, "Launch a process before waiting on it");
 
   DWORD dwTimeout = INFINITE;
 
@@ -418,13 +418,13 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
   if (res == WAIT_TIMEOUT)
   {
     // the process is not yet finished, the timeout was reached
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (res == WAIT_FAILED)
   {
-    ezLog::Error("Failed to wait for '{}' - {}", m_sProcess, ezArgErrorCode(GetLastError()));
-    return EZ_FAILURE;
+    WLog::Error("Failed to wait for '{}' - {}", m_sProcess, WArgErrorCode(GetLastError()));
+    return W_FAILURE;
   }
 
   // the process has finished
@@ -434,87 +434,87 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 
   GetExitCodeProcess(m_pImpl->m_ProcessHandle, reinterpret_cast<DWORD*>(&m_iExitCode));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_pExitCode /*= nullptr*/)
+WResult WProcess::Execute(const WProcessOptions& opt, WInt32* out_pExitCode /*= nullptr*/)
 {
-  ezProcess proc;
+  WProcess proc;
 
-  EZ_SUCCEED_OR_RETURN(proc.Launch(opt));
-  EZ_SUCCEED_OR_RETURN(proc.WaitToFinish());
+  W_SUCCEED_OR_RETURN(proc.Launch(opt));
+  W_SUCCEED_OR_RETURN(proc.WaitToFinish());
 
   if (out_pExitCode != nullptr)
   {
     *out_pExitCode = proc.GetExitCode();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcess::Terminate()
+WResult WProcess::Terminate()
 {
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessHandle != nullptr, "Launch a process before terminating it");
-  EZ_ASSERT_DEV(m_pImpl->m_ProcessID != 0, "Launch a process before terminating it");
+  W_ASSERT_DEV(m_pImpl->m_ProcessHandle != nullptr, "Launch a process before terminating it");
+  W_ASSERT_DEV(m_pImpl->m_ProcessID != 0, "Launch a process before terminating it");
 
   if (TerminateProcess(m_pImpl->m_ProcessHandle, 0xFFFFFFFF) == FALSE)
   {
     const DWORD err = GetLastError();
     if (err == ERROR_ACCESS_DENIED) // this means the process already terminated, so from our perspective the goal was achieved
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    ezLog::Error("Failed to terminate process '{}' - {}", m_sProcess, ezArgErrorCode(GetLastError()));
-    return EZ_FAILURE;
+    WLog::Error("Failed to terminate process '{}' - {}", m_sProcess, WArgErrorCode(GetLastError()));
+    return W_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(WaitToFinish());
+  W_SUCCEED_OR_RETURN(WaitToFinish());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezProcessState ezProcess::GetState() const
+WProcessState WProcess::GetState() const
 {
   if (m_pImpl->m_ProcessHandle == 0)
-    return ezProcessState::NotStarted;
+    return WProcessState::NotStarted;
 
   DWORD exitCode = 0;
   if (GetExitCodeProcess(m_pImpl->m_ProcessHandle, &exitCode) == FALSE)
   {
-    ezLog::Error("Failed to retrieve exit code for process '{}' - {}", m_sProcess, ezArgErrorCode(GetLastError()));
+    WLog::Error("Failed to retrieve exit code for process '{}' - {}", m_sProcess, WArgErrorCode(GetLastError()));
 
     // not sure what kind of errors can happen (probably access denied and such)
     // have to return something, so lets claim the process is finished
-    return ezProcessState::Finished;
+    return WProcessState::Finished;
   }
 
   if (exitCode == STILL_ACTIVE)
-    return ezProcessState::Running;
+    return WProcessState::Running;
 
   if (m_ProcessExited.IsZero())
   {
-    m_ProcessExited = ezTime::Now();
+    m_ProcessExited = WTime::Now();
   }
 
   // Do not consider a process finished if the pipe threads have not exited yet.
   if (m_pImpl->m_pipeStdOut.IsRunning() || m_pImpl->m_pipeStdErr.IsRunning())
   {
-    if (ezTime::Now() - m_ProcessExited < ezTime::MakeFromSeconds(2))
+    if (WTime::Now() - m_ProcessExited < WTime::MakeFromSeconds(2))
     {
-      return ezProcessState::Running;
+      return WProcessState::Running;
     }
 
     m_pImpl->m_pipeStdOut.Close();
     m_pImpl->m_pipeStdErr.Close();
   }
 
-  m_iExitCode = (ezInt32)exitCode;
-  return ezProcessState::Finished;
+  m_iExitCode = (WInt32)exitCode;
+  return WProcessState::Finished;
 }
 
-void ezProcess::Detach()
+void WProcess::Detach()
 {
-  // throw away the previous ezProcessImpl and create a blank one
-  m_pImpl = EZ_DEFAULT_NEW(ezProcessImpl);
+  // throw away the previous WProcessImpl and create a blank one
+  m_pImpl = W_DEFAULT_NEW(WProcessImpl);
 
   // reset the exit code to the default
   m_iExitCode = -0xFFFF;

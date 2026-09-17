@@ -7,24 +7,24 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezActionMapDescriptor, ezNoBase, 0, ezRTTINoAllocator);
-//  EZ_BEGIN_PROPERTIES
-//  EZ_END_PROPERTIES;
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WActionMapDescriptor, WNoBase, 0, WRTTINoAllocator);
+//  W_BEGIN_PROPERTIES
+//  W_END_PROPERTIES;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionMap public functions
+// WActionMap public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionMap::ezActionMap(ezStringView sParentMapping)
+WActionMap::WActionMap(WStringView sParentMapping)
 {
   m_sParentMapping = sParentMapping;
 }
 
-ezActionMap::~ezActionMap() = default;
+WActionMap::~WActionMap() = default;
 
-void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder)
+void WActionMap::MapAction(WActionDescriptorHandle hAction, WStringView sPath, WStringView sSubPath, float fOrder)
 {
   TempActionMapDescriptor& desc = m_TempActions.ExpandAndGetRef();
   desc.m_hAction = hAction;
@@ -34,7 +34,7 @@ void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath
   m_uiEditCounter++;
 }
 
-void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder)
+void WActionMap::MapAction(WActionDescriptorHandle hAction, WStringView sPath, float fOrder)
 {
   TempActionMapDescriptor& desc = m_TempActions.ExpandAndGetRef();
   desc.m_hAction = hAction;
@@ -43,7 +43,7 @@ void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath
   m_uiEditCounter++;
 }
 
-void ezActionMap::HideAction(ezActionDescriptorHandle hAction, ezStringView sPath)
+void WActionMap::HideAction(WActionDescriptorHandle hAction, WStringView sPath)
 {
   TempActionMapDescriptor& desc = m_TempHiddenActions.ExpandAndGetRef();
   desc.m_hAction = hAction;
@@ -51,9 +51,9 @@ void ezActionMap::HideAction(ezActionDescriptorHandle hAction, ezStringView sPat
   m_uiEditCounter++;
 }
 
-void ezActionMap::MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder)
+void WActionMap::MapActionInternal(WActionDescriptorHandle hAction, WStringView sPath, WStringView sSubPath, float fOrder)
 {
-  ezStringBuilder sFullPath = sPath;
+  WStringBuilder sFullPath = sPath;
 
   if (!sPath.IsEmpty() && sPath.FindSubString("/") == nullptr)
   {
@@ -68,39 +68,39 @@ void ezActionMap::MapActionInternal(ezActionDescriptorHandle hAction, ezStringVi
   MapActionInternal(hAction, sFullPath, fOrder);
 }
 
-void ezActionMap::MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder)
+void WActionMap::MapActionInternal(WActionDescriptorHandle hAction, WStringView sPath, float fOrder)
 {
-  ezStringBuilder sCleanPath = sPath;
+  WStringBuilder sCleanPath = sPath;
   sCleanPath.MakeCleanPath();
   sCleanPath.Trim("/");
-  ezActionMapDescriptor d;
+  WActionMapDescriptor d;
   d.m_hAction = hAction;
   d.m_sPath = sCleanPath;
   d.m_fOrder = fOrder;
 
   if (!d.m_sPath.IsEmpty() && d.m_sPath.FindSubString("/") == nullptr)
   {
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
     if (SearchPathForAction(d.m_sPath, sFullPath).Succeeded())
     {
       d.m_sPath = sFullPath;
     }
   }
 
-  EZ_VERIFY(MapActionInternal(d).IsValid(), "Mapping Failed");
+  W_VERIFY(MapActionInternal(d).IsValid(), "Mapping Failed");
 }
 
-ezUuid ezActionMap::MapActionInternal(const ezActionMapDescriptor& desc)
+WUuid WActionMap::MapActionInternal(const WActionMapDescriptor& desc)
 {
-  ezUuid ParentGUID;
+  WUuid ParentGUID;
   if (!FindObjectByPath(desc.m_sPath, ParentGUID))
   {
-    return ezUuid();
+    return WUuid();
   }
 
   auto it = m_Descriptors.Find(ParentGUID);
 
-  ezTreeNode<ezActionMapDescriptor>* pParent = nullptr;
+  WTreeNode<WActionMapDescriptor>* pParent = nullptr;
   if (it.IsValid())
   {
     pParent = it.Value();
@@ -112,32 +112,32 @@ ezUuid ezActionMap::MapActionInternal(const ezActionMapDescriptor& desc)
   }
   else
   {
-    const ezActionMapDescriptor* pDesc = GetDescriptor(pParent);
-    if (pDesc->m_hAction.GetDescriptor()->m_Type == ezActionType::Action)
+    const WActionMapDescriptor* pDesc = GetDescriptor(pParent);
+    if (pDesc->m_hAction.GetDescriptor()->m_Type == WActionType::Action)
     {
-      ezLog::Error("Can't map descriptor '{0}' as its parent is an action itself and thus can't have any children.",
+      WLog::Error("Can't map descriptor '{0}' as its parent is an action itself and thus can't have any children.",
         desc.m_hAction.GetDescriptor()->m_sActionName);
-      return ezUuid();
+      return WUuid();
     }
   }
 
   if (GetChildByName(pParent, desc.m_hAction.GetDescriptor()->m_sActionName) != nullptr)
   {
-    ezLog::Error("Can't map descriptor as its name is already present: {0}", desc.m_hAction.GetDescriptor()->m_sActionName);
-    return ezUuid();
+    WLog::Error("Can't map descriptor as its name is already present: {0}", desc.m_hAction.GetDescriptor()->m_sActionName);
+    return WUuid();
   }
 
-  ezInt32 iIndex = 0;
-  for (iIndex = 0; iIndex < (ezInt32)pParent->GetChildren().GetCount(); ++iIndex)
+  WInt32 iIndex = 0;
+  for (iIndex = 0; iIndex < (WInt32)pParent->GetChildren().GetCount(); ++iIndex)
   {
-    const ezTreeNode<ezActionMapDescriptor>* pChild = pParent->GetChildren()[iIndex];
-    const ezActionMapDescriptor* pDesc = GetDescriptor(pChild);
+    const WTreeNode<WActionMapDescriptor>* pChild = pParent->GetChildren()[iIndex];
+    const WActionMapDescriptor* pDesc = GetDescriptor(pChild);
 
     if (desc.m_fOrder < pDesc->m_fOrder)
       break;
   }
 
-  ezTreeNode<ezActionMapDescriptor>* pChild = pParent->InsertChild(desc, iIndex);
+  WTreeNode<WActionMapDescriptor>* pChild = pParent->InsertChild(desc, iIndex);
 
   m_Descriptors.Insert(pChild->GetGuid(), pChild);
 
@@ -145,34 +145,34 @@ ezUuid ezActionMap::MapActionInternal(const ezActionMapDescriptor& desc)
 }
 
 
-ezResult ezActionMap::UnmapActionInternal(const ezUuid& guid)
+WResult WActionMap::UnmapActionInternal(const WUuid& guid)
 {
   auto it = m_Descriptors.Find(guid);
   if (!it.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezTreeNode<ezActionMapDescriptor>* pNode = it.Value();
-  if (ezTreeNode<ezActionMapDescriptor>* pParent = pNode->GetParent())
+  WTreeNode<WActionMapDescriptor>* pNode = it.Value();
+  if (WTreeNode<WActionMapDescriptor>* pParent = pNode->GetParent())
   {
     pParent->RemoveChild(pNode->GetParentIndex());
   }
   m_Descriptors.Remove(it);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezActionMap::UnmapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath)
+WResult WActionMap::UnmapActionInternal(WActionDescriptorHandle hAction, WStringView sPath)
 {
-  ezStringBuilder sCleanPath = sPath;
+  WStringBuilder sCleanPath = sPath;
   sCleanPath.MakeCleanPath();
   sCleanPath.Trim("/");
-  ezActionMapDescriptor d;
+  WActionMapDescriptor d;
   d.m_hAction = hAction;
   d.m_sPath = sCleanPath;
   d.m_fOrder = 0.0f; // unused.
 
   if (!d.m_sPath.IsEmpty() && d.m_sPath.FindSubString("/") == nullptr)
   {
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
     if (SearchPathForAction(d.m_sPath, sFullPath).Succeeded())
     {
       d.m_sPath = sFullPath;
@@ -182,22 +182,22 @@ ezResult ezActionMap::UnmapActionInternal(ezActionDescriptorHandle hAction, ezSt
   return UnmapActionInternal(d);
 }
 
-ezResult ezActionMap::UnmapActionInternal(const ezActionMapDescriptor& desc)
+WResult WActionMap::UnmapActionInternal(const WActionMapDescriptor& desc)
 {
-  ezTreeNode<ezActionMapDescriptor>* pParent = nullptr;
+  WTreeNode<WActionMapDescriptor>* pParent = nullptr;
   if (desc.m_sPath.IsEmpty())
   {
     pParent = &m_Root;
   }
   else
   {
-    ezUuid ParentGUID;
+    WUuid ParentGUID;
     if (!FindObjectByPath(desc.m_sPath, ParentGUID))
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     auto it = m_Descriptors.Find(ParentGUID);
     if (!it.IsValid())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pParent = it.Value();
   }
@@ -206,21 +206,21 @@ ezResult ezActionMap::UnmapActionInternal(const ezActionMapDescriptor& desc)
   {
     return UnmapActionInternal(pChild->GetGuid());
   }
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-bool ezActionMap::FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const
+bool WActionMap::FindObjectByPath(WStringView sPath, WUuid& out_guid) const
 {
-  out_guid = ezUuid();
+  out_guid = WUuid();
   if (sPath.IsEmpty())
     return true;
 
-  ezStringBuilder sPathBuilder(sPath);
-  ezTempHybridArray<ezStringView, 8> parts;
+  WStringBuilder sPathBuilder(sPath);
+  WTempHybridArray<WStringView, 8> parts;
   sPathBuilder.Split(false, parts, "/");
 
-  const ezTreeNode<ezActionMapDescriptor>* pParent = &m_Root;
-  for (const ezStringView& name : parts)
+  const WTreeNode<WActionMapDescriptor>* pParent = &m_Root;
+  for (const WStringView& name : parts)
   {
     pParent = GetChildByName(pParent, name);
     if (pParent == nullptr)
@@ -231,21 +231,21 @@ bool ezActionMap::FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const
   return true;
 }
 
-ezResult ezActionMap::SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const
+WResult WActionMap::SearchPathForAction(WStringView sUniqueName, WStringBuilder& out_sPath) const
 {
   out_sPath.Clear();
 
   if (FindObjectPathByName(&m_Root, sUniqueName, out_sPath))
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-bool ezActionMap::FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const
+bool WActionMap::FindObjectPathByName(const WTreeNode<WActionMapDescriptor>* pObject, WStringView sName, WStringBuilder& out_sPath) const
 {
-  ezStringView sObjectName;
+  WStringView sObjectName;
 
   if (!pObject->m_Data.m_hAction.IsInvalidated())
   {
@@ -257,9 +257,9 @@ bool ezActionMap::FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* 
   if (sObjectName == sName)
     return true;
 
-  for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
+  for (const WTreeNode<WActionMapDescriptor>* pChild : pObject->GetChildren())
   {
-    const ezActionMapDescriptor& pDesc = pChild->m_Data;
+    const WActionMapDescriptor& pDesc = pChild->m_Data;
 
     if (FindObjectPathByName(pChild, sName, out_sPath))
       return true;
@@ -269,7 +269,7 @@ bool ezActionMap::FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* 
   return false;
 }
 
-const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezUuid& guid) const
+const WActionMapDescriptor* WActionMap::GetDescriptor(const WUuid& guid) const
 {
   auto it = m_Descriptors.Find(guid);
   if (!it.IsValid())
@@ -277,7 +277,7 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezUuid& guid) cons
   return GetDescriptor(it.Value());
 }
 
-const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const
+const WActionMapDescriptor* WActionMap::GetDescriptor(const WTreeNode<WActionMapDescriptor>* pObject) const
 {
   if (pObject == nullptr)
     return nullptr;
@@ -285,11 +285,11 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezTreeNode<ezActio
   return &pObject->m_Data;
 }
 
-const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const
+const WTreeNode<WActionMapDescriptor>* WActionMap::GetChildByName(const WTreeNode<WActionMapDescriptor>* pObject, WStringView sName) const
 {
-  for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
+  for (const WTreeNode<WActionMapDescriptor>* pChild : pObject->GetChildren())
   {
-    const ezActionMapDescriptor& pDesc = pChild->m_Data;
+    const WActionMapDescriptor& pDesc = pChild->m_Data;
     if (sName.IsEqual_NoCase(pDesc.m_hAction.GetDescriptor()->m_sActionName.GetData()))
     {
       return pChild;
@@ -298,17 +298,17 @@ const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTre
   return nullptr;
 }
 
-const ezActionMap::TreeNode* ezActionMap::BuildActionTree()
+const WActionMap::TreeNode* WActionMap::BuildActionTree()
 {
-  ezUInt32 uiCurrentTransitiveEditCounter = 0;
-  ezTempHybridArray<const ezActionMap*, 3> mappings;
+  WUInt32 uiCurrentTransitiveEditCounter = 0;
+  WTempHybridArray<const WActionMap*, 3> mappings;
   {
-    const ezActionMap* pCurrent = this;
+    const WActionMap* pCurrent = this;
     while (pCurrent)
     {
       uiCurrentTransitiveEditCounter += pCurrent->m_uiEditCounter;
       mappings.PushBack(pCurrent);
-      pCurrent = ezActionMapManager::GetActionMap(pCurrent->m_sParentMapping);
+      pCurrent = WActionMapManager::GetActionMap(pCurrent->m_sParentMapping);
     }
   }
 
@@ -321,9 +321,9 @@ const ezActionMap::TreeNode* ezActionMap::BuildActionTree()
   m_Root = TreeNode();
   m_Descriptors.Clear();
 
-  for (ezInt32 i = (ezInt32)mappings.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)mappings.GetCount() - 1; i >= 0; --i)
   {
-    const ezActionMap* pCurrent = mappings[i];
+    const WActionMap* pCurrent = mappings[i];
     for (const TempActionMapDescriptor& desc : pCurrent->m_TempActions)
     {
       if (desc.m_sSubPath.IsEmpty())
@@ -333,14 +333,14 @@ const ezActionMap::TreeNode* ezActionMap::BuildActionTree()
     }
   }
 
-  for (ezInt32 i = (ezInt32)mappings.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)mappings.GetCount() - 1; i >= 0; --i)
   {
-    const ezActionMap* pCurrent = mappings[i];
+    const WActionMap* pCurrent = mappings[i];
     for (const TempActionMapDescriptor& desc : pCurrent->m_TempHiddenActions)
     {
       if (UnmapActionInternal(desc.m_hAction, desc.m_sPath).Failed())
       {
-        ezLog::Warning("Failed to hide the action at path '{}' as it does not exist", desc.m_sPath);
+        WLog::Warning("Failed to hide the action at path '{}' as it does not exist", desc.m_sPath);
       }
     }
   }

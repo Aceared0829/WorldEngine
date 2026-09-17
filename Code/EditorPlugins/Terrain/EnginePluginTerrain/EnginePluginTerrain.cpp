@@ -1,10 +1,10 @@
 #include <EnginePluginTerrain/EnginePluginTerrainPCH.h>
 
-EZ_STATICLINK_LIBRARY(EnginePluginTerrain)
+W_STATICLINK_LIBRARY(EnginePluginTerrain)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainHeightfieldExportModifier);
-  EZ_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainVoxelExportModifier);
+  W_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainHeightfieldExportModifier);
+  W_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainVoxelExportModifier);
 }

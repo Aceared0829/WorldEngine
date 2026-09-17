@@ -6,34 +6,34 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <TerrainPlugin/Components/TerrainBrushAttributes.h>
 
-static void ezTerrainPatchComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+static void WTerrainPatchComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezTerrainPatchComponent");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WTerrainPatchComponent");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
-  const ezString sHeightImage = e.m_pObject->GetTypeAccessor().GetValue("HeightImage").ConvertTo<ezString>();
+  const WString sHeightImage = e.m_pObject->GetTypeAccessor().GetValue("HeightImage").ConvertTo<WString>();
   const bool bHasHeightImage = !sHeightImage.IsEmpty();
 
   auto& props = *e.m_pPropertyStates;
-  props["HeightImageOffset"].m_Visibility = bHasHeightImage ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["HeightImageSize"].m_Visibility = bHasHeightImage ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["HeightImageScale"].m_Visibility = bHasHeightImage ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["HeightImageOffset"].m_Visibility = bHasHeightImage ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["HeightImageSize"].m_Visibility = bHasHeightImage ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["HeightImageScale"].m_Visibility = bHasHeightImage ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTerrainBrush2DVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezTerrainBrush2DVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTerrainBrush3DVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezTerrainBrush3DVisualizerAdapter); });
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTerrainPatchComponent_PropertyMetaStateEventHandler);
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WTerrainBrush2DVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WTerrainBrush2DVisualizerAdapter); });
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WTerrainBrush3DVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WTerrainBrush3DVisualizerAdapter); });
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WTerrainPatchComponent_PropertyMetaStateEventHandler);
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezTerrainBrush2DVisualizerAttribute>());
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezTerrainBrush3DVisualizerAttribute>());
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTerrainPatchComponent_PropertyMetaStateEventHandler);
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WTerrainBrush2DVisualizerAttribute>());
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WTerrainBrush3DVisualizerAttribute>());
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WTerrainPatchComponent_PropertyMetaStateEventHandler);
 }

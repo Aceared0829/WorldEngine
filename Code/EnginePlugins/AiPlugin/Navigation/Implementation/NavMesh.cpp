@@ -4,10 +4,10 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRendererTriangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRendererLine>& out_lines);
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, WDynamicArray<WDebugRendererTriangle>& out_triangles, WArrayPtr<WColor> areaColors);
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, WDynamicArray<WDebugRendererLine>& out_lines);
 
-ezAiNavMeshSector::ezAiNavMeshSector()
+WAiNavMeshSector::WAiNavMeshSector()
 {
   m_FlagRequested = 0;
   m_FlagInvalidate = 0;
@@ -15,9 +15,9 @@ ezAiNavMeshSector::ezAiNavMeshSector()
   m_FlagUsable = 0;
 }
 
-ezAiNavMeshSector::~ezAiNavMeshSector() = default;
+WAiNavMeshSector::~WAiNavMeshSector() = default;
 
-ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
+WAiNavMesh::WAiNavMesh(const WAiNavmeshConfig& navmeshConfig)
 {
   m_uiNumSectorsX = navmeshConfig.m_uiNumSectorsX;
   m_uiNumSectorsY = navmeshConfig.m_uiNumSectorsY;
@@ -25,7 +25,7 @@ ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
   m_fInvSectorMetersXY = 1.0f / navmeshConfig.m_fSectorSize;
   m_NavmeshConfig = navmeshConfig;
 
-  m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
+  m_pNavMesh = W_DEFAULT_NEW(dtNavMesh);
 
   dtNavMeshParams np;
   np.tileWidth = navmeshConfig.m_fSectorSize;
@@ -39,12 +39,12 @@ ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
   m_pNavMesh->init(&np);
 }
 
-ezAiNavMesh::~ezAiNavMesh()
+WAiNavMesh::~WAiNavMesh()
 {
-  EZ_DEFAULT_DELETE(m_pNavMesh);
+  W_DEFAULT_DELETE(m_pNavMesh);
 }
 
-ezVec2I32 ezAiNavMesh::CalculateSectorCoord(float fPositionX, float fPositionY) const
+WVec2I32 WAiNavMesh::CalculateSectorCoord(float fPositionX, float fPositionY) const
 {
   fPositionX *= m_fInvSectorMetersXY;
   fPositionY *= m_fInvSectorMetersXY;
@@ -52,17 +52,17 @@ ezVec2I32 ezAiNavMesh::CalculateSectorCoord(float fPositionX, float fPositionY) 
   fPositionX += m_uiNumSectorsX * 0.5f;
   fPositionY += m_uiNumSectorsY * 0.5f;
 
-  return ezVec2I32((ezInt32)ezMath::Floor(fPositionX), (ezInt32)ezMath::Floor(fPositionY));
+  return WVec2I32((WInt32)WMath::Floor(fPositionX), (WInt32)WMath::Floor(fPositionY));
 }
 
-ezVec2I32 ezAiNavMesh::CalculateSectorCoord(SectorID sectorID) const
+WVec2I32 WAiNavMesh::CalculateSectorCoord(SectorID sectorID) const
 {
-  EZ_ASSERT_DEBUG(sectorID < m_uiNumSectorsX * m_uiNumSectorsY, "Invalid navmesh sector ID");
+  W_ASSERT_DEBUG(sectorID < m_uiNumSectorsX * m_uiNumSectorsY, "Invalid navmesh sector ID");
 
-  return ezVec2I32(sectorID % m_uiNumSectorsX, sectorID / m_uiNumSectorsX);
+  return WVec2I32(sectorID % m_uiNumSectorsX, sectorID / m_uiNumSectorsX);
 }
 
-const ezAiNavMeshSector* ezAiNavMesh::GetSector(SectorID sectorID) const
+const WAiNavMeshSector* WAiNavMesh::GetSector(SectorID sectorID) const
 {
   auto it = m_Sectors.Find(sectorID);
   if (it.IsValid())
@@ -71,7 +71,7 @@ const ezAiNavMeshSector* ezAiNavMesh::GetSector(SectorID sectorID) const
   return nullptr;
 }
 
-bool ezAiNavMesh::RequestSector(SectorID sectorID)
+bool WAiNavMesh::RequestSector(SectorID sectorID)
 {
   auto& sector = m_Sectors.FindOrAdd(sectorID).Value();
 
@@ -89,23 +89,23 @@ bool ezAiNavMesh::RequestSector(SectorID sectorID)
   return true;
 }
 
-bool ezAiNavMesh::RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents)
+bool WAiNavMesh::RequestSector(const WVec2& vCenter, const WVec2& vHalfExtents)
 {
-  ezVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
-  ezVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
+  WVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
+  WVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
 
-  coordMin.x = ezMath::Clamp<ezInt32>(coordMin.x, 0, m_uiNumSectorsX - 1);
-  coordMax.x = ezMath::Clamp<ezInt32>(coordMax.x, 0, m_uiNumSectorsX - 1);
-  coordMin.y = ezMath::Clamp<ezInt32>(coordMin.y, 0, m_uiNumSectorsY - 1);
-  coordMax.y = ezMath::Clamp<ezInt32>(coordMax.y, 0, m_uiNumSectorsY - 1);
+  coordMin.x = WMath::Clamp<WInt32>(coordMin.x, 0, m_uiNumSectorsX - 1);
+  coordMax.x = WMath::Clamp<WInt32>(coordMax.x, 0, m_uiNumSectorsX - 1);
+  coordMin.y = WMath::Clamp<WInt32>(coordMin.y, 0, m_uiNumSectorsY - 1);
+  coordMax.y = WMath::Clamp<WInt32>(coordMax.y, 0, m_uiNumSectorsY - 1);
 
   bool res = true;
 
-  for (ezInt32 y = coordMin.y; y <= coordMax.y; ++y)
+  for (WInt32 y = coordMin.y; y <= coordMax.y; ++y)
   {
-    for (ezInt32 x = coordMin.x; x <= coordMax.x; ++x)
+    for (WInt32 x = coordMin.x; x <= coordMax.x; ++x)
     {
-      if (!RequestSector(CalculateSectorID(ezVec2I32(x, y))))
+      if (!RequestSector(CalculateSectorID(WVec2I32(x, y))))
       {
         res = false;
       }
@@ -115,26 +115,26 @@ bool ezAiNavMesh::RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtent
   return res;
 }
 
-void ezAiNavMesh::InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible)
+void WAiNavMesh::InvalidateSector(const WVec2& vCenter, const WVec2& vHalfExtents, bool bRebuildAsSoonAsPossible)
 {
-  ezVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
-  ezVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
+  WVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
+  WVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
 
-  coordMin.x = ezMath::Clamp<ezInt32>(coordMin.x, 0, m_uiNumSectorsX - 1);
-  coordMax.x = ezMath::Clamp<ezInt32>(coordMax.x, 0, m_uiNumSectorsX - 1);
-  coordMin.y = ezMath::Clamp<ezInt32>(coordMin.y, 0, m_uiNumSectorsY - 1);
-  coordMax.y = ezMath::Clamp<ezInt32>(coordMax.y, 0, m_uiNumSectorsY - 1);
+  coordMin.x = WMath::Clamp<WInt32>(coordMin.x, 0, m_uiNumSectorsX - 1);
+  coordMax.x = WMath::Clamp<WInt32>(coordMax.x, 0, m_uiNumSectorsX - 1);
+  coordMin.y = WMath::Clamp<WInt32>(coordMin.y, 0, m_uiNumSectorsY - 1);
+  coordMax.y = WMath::Clamp<WInt32>(coordMax.y, 0, m_uiNumSectorsY - 1);
 
-  for (ezInt32 y = coordMin.y; y <= coordMax.y; ++y)
+  for (WInt32 y = coordMin.y; y <= coordMax.y; ++y)
   {
-    for (ezInt32 x = coordMin.x; x <= coordMax.x; ++x)
+    for (WInt32 x = coordMin.x; x <= coordMax.x; ++x)
     {
-      InvalidateSector(CalculateSectorID(ezVec2I32(x, y)), bRebuildAsSoonAsPossible);
+      InvalidateSector(CalculateSectorID(WVec2I32(x, y)), bRebuildAsSoonAsPossible);
     }
   }
 }
 
-void ezAiNavMesh::InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible)
+void WAiNavMesh::InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible)
 {
   auto it = m_Sectors.Find(sectorID);
   if (!it.IsValid())
@@ -157,9 +157,9 @@ void ezAiNavMesh::InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossi
   }
 }
 
-void ezAiNavMesh::FinalizeSectorUpdates()
+void WAiNavMesh::FinalizeSectorUpdates()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto sectorID : m_UpdatingSectors)
   {
@@ -167,7 +167,7 @@ void ezAiNavMesh::FinalizeSectorUpdates()
 
     auto& sector = m_Sectors[sectorID];
 
-    EZ_ASSERT_DEV(sector.m_FlagUpdateAvailable == 1, "Invalid sector update state");
+    W_ASSERT_DEV(sector.m_FlagUpdateAvailable == 1, "Invalid sector update state");
 
     if (!sector.m_NavmeshDataCur.IsEmpty())
     {
@@ -177,7 +177,7 @@ void ezAiNavMesh::FinalizeSectorUpdates()
 
       if (res != DT_SUCCESS)
       {
-        ezLog::Error("NavMesh removeTile error: {}", res);
+        WLog::Error("NavMesh removeTile error: {}", res);
       }
     }
 
@@ -191,17 +191,17 @@ void ezAiNavMesh::FinalizeSectorUpdates()
 
       if (res == DT_SUCCESS)
       {
-        ezLog::Success("Loaded navmesh tile {}|{}", coord.x, coord.y);
+        WLog::Success("Loaded navmesh tile {}|{}", coord.x, coord.y);
         sector.m_FlagUsable = 1;
       }
       else
       {
-        ezLog::Error("NavMesh addTile error: {}", res);
+        WLog::Error("NavMesh addTile error: {}", res);
       }
     }
     else
     {
-      ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
+      WLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
       sector.m_FlagUsable = 1;
     }
 
@@ -226,7 +226,7 @@ void ezAiNavMesh::FinalizeSectorUpdates()
 
       if (res != DT_SUCCESS)
       {
-        ezLog::Error("NavMesh removeTile error: {}", res);
+        WLog::Error("NavMesh removeTile error: {}", res);
       }
 
       sector.m_NavmeshDataCur.Clear();
@@ -242,31 +242,31 @@ void ezAiNavMesh::FinalizeSectorUpdates()
   m_UnloadingSectors.Clear();
 }
 
-ezAiNavMesh::SectorID ezAiNavMesh::RetrieveRequestedSector()
+WAiNavMesh::SectorID WAiNavMesh::RetrieveRequestedSector()
 {
   if (m_RequestedSectors.IsEmpty())
-    return ezInvalidIndex;
+    return WInvalidIndex;
 
-  ezAiNavMesh::SectorID id = m_RequestedSectors.PeekFront();
+  WAiNavMesh::SectorID id = m_RequestedSectors.PeekFront();
   m_RequestedSectors.PopFront();
 
   return id;
 }
 
-ezVec2 ezAiNavMesh::GetSectorPositionOffset(ezVec2I32 vCoord) const
+WVec2 WAiNavMesh::GetSectorPositionOffset(WVec2I32 vCoord) const
 {
-  return ezVec2((vCoord.x - m_uiNumSectorsX * 0.5f) * m_fSectorMetersXY, (vCoord.y - m_uiNumSectorsY * 0.5f) * m_fSectorMetersXY);
+  return WVec2((vCoord.x - m_uiNumSectorsX * 0.5f) * m_fSectorMetersXY, (vCoord.y - m_uiNumSectorsY * 0.5f) * m_fSectorMetersXY);
 }
 
-ezBoundingBox ezAiNavMesh::GetSectorBounds(ezVec2I32 vCoord, float fMinZ /*= 0.0f*/, float fMaxZ /*= 1.0f*/) const
+WBoundingBox WAiNavMesh::GetSectorBounds(WVec2I32 vCoord, float fMinZ /*= 0.0f*/, float fMaxZ /*= 1.0f*/) const
 {
-  const ezVec3 min = GetSectorPositionOffset(vCoord).GetAsVec3(fMinZ);
-  const ezVec3 max = min + ezVec3(m_fSectorMetersXY, m_fSectorMetersXY, fMaxZ - fMinZ);
+  const WVec3 min = GetSectorPositionOffset(vCoord).GetAsVec3(fMinZ);
+  const WVec3 max = min + WVec3(m_fSectorMetersXY, m_fSectorMetersXY, fMaxZ - fMinZ);
 
-  return ezBoundingBox::MakeFromMinMax(min, max);
+  return WBoundingBox::MakeFromMinMax(min, max);
 }
 
-void ezAiNavMesh::DebugDraw(ezDebugRendererContext context, const ezAiNavigationConfig& config)
+void WAiNavMesh::DebugDraw(WDebugRendererContext context, const WAiNavigationConfig& config)
 {
   const auto& dtm = *GetDetourNavMesh();
 
@@ -276,7 +276,7 @@ void ezAiNavMesh::DebugDraw(ezDebugRendererContext context, const ezAiNavigation
   }
 }
 
-void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavigationConfig& config, int iTileIdx)
+void WAiNavMesh::DebugDrawSector(WDebugRendererContext context, const WAiNavigationConfig& config, int iTileIdx)
 {
   const auto& mesh = *GetDetourNavMesh();
 
@@ -285,24 +285,24 @@ void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavi
   if (pTile == nullptr || pTile->header == nullptr)
     return;
 
-  ezColor areaColors[ezAiNumGroundTypes];
-  for (ezUInt32 i = 0; i < ezAiNumGroundTypes; ++i)
+  WColor areaColors[WAiNumGroundTypes];
+  for (WUInt32 i = 0; i < WAiNumGroundTypes; ++i)
   {
     areaColors[i] = config.m_GroundTypes[i].m_Color;
   }
 
   {
-    ezDynamicArray<ezDebugRendererTriangle> triangles;
+    WDynamicArray<WDebugRendererTriangle> triangles;
     triangles.Reserve(pTile->header->polyCount * 2);
 
     DrawMeshTilePolygons(*pTile, triangles, areaColors);
-    ezDebugRenderer::DrawSolidTriangles(context, triangles, ezColor::White);
+    WDebugRenderer::DrawSolidTriangles(context, triangles, WColor::White);
   }
 
   {
-    ezDynamicArray<ezDebugRendererLine> lines;
+    WDynamicArray<WDebugRendererLine> lines;
     lines.Reserve(pTile->header->polyCount * 10);
     DrawMeshTileEdges(*pTile, true, true, false, lines);
-    ezDebugRenderer::DrawLines(context, lines, ezColor::White);
+    WDebugRenderer::DrawLines(context, lines, WColor::White);
   }
 }

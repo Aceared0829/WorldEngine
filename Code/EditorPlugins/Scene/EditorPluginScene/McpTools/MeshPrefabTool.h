@@ -9,15 +9,15 @@
 /// a triangle mesh collider cannot be used for a dynamic actor, and without the Jolt plugin none of
 /// them exist. 'mesh_prefab_info' reports that for one mesh, 'mesh_prefab_create' then acts on it.
 /// Calling create directly is fine when the defaults are wanted.
-class ezMcpMeshPrefabTool : public ezMcpToolProvider
+class WMcpMeshPrefabTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpMeshPrefabTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpMeshPrefabTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteCreate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteCreate(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 };

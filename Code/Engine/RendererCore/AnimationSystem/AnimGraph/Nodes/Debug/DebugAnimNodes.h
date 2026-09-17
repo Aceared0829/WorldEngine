@@ -5,49 +5,49 @@
 /// Base class for logging nodes that output debugging information.
 ///
 /// This node logs text and number values to the console when triggered. Use derived classes
-/// (ezLogInfoAnimNode, ezLogErrorAnimNode) for different log levels. Useful for debugging animation
+/// (WLogInfoAnimNode, WLogErrorAnimNode) for different log levels. Useful for debugging animation
 /// state, tracking blend weights, or monitoring node execution.
-class EZ_RENDERERCORE_DLL ezLogAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLogAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogAnimNode
+  // WLogAnimNode
 
 protected:
-  ezString m_sText;                                        // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate;                 // [ property ]
-  ezUInt8 m_uiNumberCount = 1;                             // [ property ]
-  ezHybridArray<ezAnimGraphNumberInputPin, 2> m_InNumbers; // [ property ]
+  WString m_sText;                                        // [ property ]
+  WAnimGraphTriggerInputPin m_InActivate;                 // [ property ]
+  WUInt8 m_uiNumberCount = 1;                             // [ property ]
+  WHybridArray<WAnimGraphNumberInputPin, 2> m_InNumbers; // [ property ]
 };
 
 /// Logs informational messages to the console.
-class EZ_RENDERERCORE_DLL ezLogInfoAnimNode : public ezLogAnimNode
+class W_RENDERERCORE_DLL WLogInfoAnimNode : public WLogAnimNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogInfoAnimNode, ezLogAnimNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogInfoAnimNode, WLogAnimNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogAnimNode
+  // WLogAnimNode
 
 protected:
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 };
 
 /// Logs error messages to the console.
-class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
+class W_RENDERERCORE_DLL WLogErrorAnimNode : public WLogAnimNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogErrorAnimNode, ezLogAnimNode);
+  W_ADD_DYNAMIC_REFLECTION(WLogErrorAnimNode, WLogAnimNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLogAnimNode
+  // WLogAnimNode
 
 protected:
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 };

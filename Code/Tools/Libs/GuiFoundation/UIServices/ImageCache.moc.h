@@ -18,14 +18,14 @@
 ///
 /// When an image is not available right away, a fallback is returned and the requested image goes into a loading queue.
 /// When an image was finished loading, a signal is emitted to inform users to update their UI.
-class EZ_GUIFOUNDATION_DLL ezQtImageCache : public QObject
+class W_GUIFOUNDATION_DLL WQtImageCache : public QObject
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtImageCache);
+  W_DECLARE_SINGLETON(WQtImageCache);
 
 public:
-  ezQtImageCache();
+  WQtImageCache();
 
   /// Specifies which images to return when a requested image is currently not available (loading) or could not be found (unavailable).
   void SetFallbackImages(const char* szLoading, const char* szUnavailable);
@@ -37,19 +37,19 @@ public:
   /// Additionally an ImageID may be returned through \a out_pImageID. This can be used to identify an image when it is invalidated through the
   /// ImageInvalidated() signal.
   const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant userData1 = QVariant(),
-    QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+    QVariant userData2 = QVariant(), WUInt32* out_pImageID = nullptr);
 
   /// Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If
   /// yes, that is used instead of szAbsolutePath.
   const QPixmap* QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index = QModelIndex(),
-    QVariant userData1 = QVariant(), QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+    QVariant userData1 = QVariant(), QVariant userData2 = QVariant(), WUInt32* out_pImageID = nullptr);
 
   /// Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system
   /// to reload the latest image from disk.
   void InvalidateCache(const char* szAbsolutePath);
 
   /// When this threshold is reached, images that haven't been requested in a while are being evicted from the cache.
-  void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { m_iMemoryUsageThreshold = (ezInt64)uiMemoryThreshold; }
+  void SetMemoryUsageThreshold(WUInt64 uiMemoryThreshold) { m_iMemoryUsageThreshold = (WInt64)uiMemoryThreshold; }
 
   /// Called whenever the application should stop or pause further image loading, e.g. before shutdown or during project loading.
   void StopRequestProcessing(bool bPurgeExistingCache);
@@ -76,7 +76,7 @@ private:
 
   struct Request
   {
-    ezHashedString m_sPath;
+    WHashedString m_sPath;
     QModelIndex m_Index;
     QVariant m_UserData1;
     QVariant m_UserData2;
@@ -106,33 +106,33 @@ private:
     }
   };
 
-  mutable ezMutex m_Mutex;
-  ezSet<Request> m_Requests;
+  mutable WMutex m_Mutex;
+  WSet<Request> m_Requests;
   bool m_bCacheEnabled;
   bool m_bTaskRunning;
-  ezTime m_LastCleanupTime;
-  ezInt64 m_iMemoryUsageThreshold;
-  ezInt64 m_iCurrentMemoryUsage;
+  WTime m_LastCleanupTime;
+  WInt64 m_iMemoryUsageThreshold;
+  WInt64 m_iCurrentMemoryUsage;
   QPixmap* m_pImageLoading;
   QPixmap* m_pImageUnavailable;
-  ezUInt32 m_uiCurImageID;
+  WUInt32 m_uiCurImageID;
 
   struct CacheEntry
   {
     QPixmap m_Pixmap;
-    ezTime m_LastAccess;
-    ezUInt32 m_uiImageID;
+    WTime m_LastAccess;
+    WUInt32 m_uiImageID;
 
     CacheEntry() { m_uiImageID = 0xFFFFFFFF; }
   };
 
-  ezMap<QString, CacheEntry> m_ImageCache;
-  ezMap<QString, QPixmap> m_TypeImages;
+  WMap<QString, CacheEntry> m_ImageCache;
+  WMap<QString, QPixmap> m_TypeImages;
 };
 
-constexpr static ezUInt32 ezThumbnailSize = 256;
+constexpr static WUInt32 WThumbnailSize = 256;
 
-EZ_ALWAYS_INLINE QPixmap ezSvgThumbnailToPixmap(const char* szFilePath)
+W_ALWAYS_INLINE QPixmap WSvgThumbnailToPixmap(const char* szFilePath)
 {
-  return QIcon(szFilePath).pixmap(QSize(ezThumbnailSize, ezThumbnailSize));
+  return QIcon(szFilePath).pixmap(QSize(WThumbnailSize, WThumbnailSize));
 }

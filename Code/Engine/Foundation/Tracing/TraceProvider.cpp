@@ -2,4 +2,4 @@
 
 #include <Foundation/Tracing/TraceProvider.h>
 
-EZ_IMPLEMENT_TRACE_PROVIDER(g_ezTrace_Foundation, "ez_Foundation");
+W_IMPLEMENT_TRACE_PROVIDER(g_WTrace_Foundation, "W_Foundation");

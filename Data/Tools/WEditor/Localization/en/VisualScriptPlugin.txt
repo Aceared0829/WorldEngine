@@ -1,0 +1,52 @@
+# Asset Types
+
+VisualScriptClass;Visual Script Class;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-class-asset.html
+
+# UI
+
+# Properties
+
+WVisualScriptDataType::Bool;Bool
+WVisualScriptDataType::Byte;Byte
+WVisualScriptDataType::Int;Int
+WVisualScriptDataType::Int64;Int64
+WVisualScriptDataType::Float;Float
+WVisualScriptDataType::Double;Double
+WVisualScriptDataType::Color;Color
+WVisualScriptDataType::Vector2;Vector2
+WVisualScriptDataType::Vector3;Vector3
+WVisualScriptDataType::Vector4;Vector4
+WVisualScriptDataType::Quaternion;Quaternion
+WVisualScriptDataType::Transform;Transform
+WVisualScriptDataType::Time;Time
+WVisualScriptDataType::Angle;Angle
+WVisualScriptDataType::String;String
+WVisualScriptDataType::HashedString;HashedString
+WVisualScriptDataType::GameObject;GameObject
+WVisualScriptDataType::Component;Component
+WVisualScriptDataType::TypedPointer;TypedPointer
+WVisualScriptDataType::Variant;Variant
+WVisualScriptDataType::Array;Array
+WVisualScriptDataType::Map;Map
+
+WVisualScriptVariableType::Bool;Bool
+WVisualScriptVariableType::Byte;Byte
+WVisualScriptVariableType::Int;Int
+WVisualScriptVariableType::Int64;Int64
+WVisualScriptVariableType::Float;Float
+WVisualScriptVariableType::Double;Double
+WVisualScriptVariableType::Color;Color
+WVisualScriptVariableType::Vector2;Vector2
+WVisualScriptVariableType::Vector3;Vector3
+WVisualScriptVariableType::Vector4;Vector4
+WVisualScriptVariableType::Quaternion;Quaternion
+WVisualScriptVariableType::Transform;Transform
+WVisualScriptVariableType::Time;Time
+WVisualScriptVariableType::Angle;Angle
+WVisualScriptVariableType::String;String
+WVisualScriptVariableType::HashedString;HashedString
+WVisualScriptVariableType::GameObject;GameObject
+WVisualScriptVariableType::Component;Component
+WVisualScriptVariableType::TypedPointer;TypedPointer
+WVisualScriptVariableType::Variant;Variant
+WVisualScriptVariableType::Resource;Resource

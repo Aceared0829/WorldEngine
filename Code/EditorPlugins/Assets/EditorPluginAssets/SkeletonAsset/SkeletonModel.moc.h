@@ -4,17 +4,17 @@
 #include <QAbstractItemModel>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezSkeletonAssetDocument;
+class WSkeletonAssetDocument;
 
-class ezQtJointAdapter : public ezQtNamedAdapter
+class WQtJointAdapter : public WQtNamedAdapter
 {
   Q_OBJECT;
 
 public:
-  ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument);
-  ~ezQtJointAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
+  WQtJointAdapter(const WSkeletonAssetDocument* pDocument);
+  ~WQtJointAdapter();
+  virtual QVariant data(const WDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
 
 private:
-  const ezSkeletonAssetDocument* m_pDocument;
+  const WSkeletonAssetDocument* m_pDocument;
 };

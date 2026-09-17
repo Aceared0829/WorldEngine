@@ -9,16 +9,16 @@
 #include <QSlider>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
+WQtVarianceTypeWidget::WQtVarianceTypeWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
-  m_pValueWidget = new ezQtDoubleSpinBox(this);
+  m_pValueWidget = new WQtDoubleSpinBox(this);
   m_pValueWidget->installEventFilter(m_pValueWidget);
-  m_pValueWidget->setMinimum(-ezMath::Infinity<double>());
-  m_pValueWidget->setMaximum(ezMath::Infinity<double>());
+  m_pValueWidget->setMinimum(-WMath::Infinity<double>());
+  m_pValueWidget->setMaximum(WMath::Infinity<double>());
   m_pValueWidget->setSingleStep(0.1f);
   m_pValueWidget->setAccelerated(true);
   m_pValueWidget->setDecimals(3);
@@ -44,116 +44,116 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
   connect(m_pVarianceWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotVarianceChanged()));
 }
 
-void ezQtVarianceTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtVarianceTypeWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  ezQtStandardPropertyWidget::SetSelection(items);
-  EZ_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<ezVarianceTypeBase>(), "Selection does not match ezVarianceType.");
+  WQtStandardPropertyWidget::SetSelection(items);
+  W_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<WVarianceTypeBase>(), "Selection does not match WVarianceType.");
 }
 
-void ezQtVarianceTypeWidget::onBeginTemporary()
+void WQtVarianceTypeWidget::onBeginTemporary()
 {
   if (!m_bTemporaryCommand)
   {
-    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    Broadcast(WPropertyEvent::Type::BeginTemporary);
     m_bTemporaryCommand = true;
   }
 }
 
-void ezQtVarianceTypeWidget::onEndTemporary()
+void WQtVarianceTypeWidget::onEndTemporary()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezPropertyEvent::Type::EndTemporary);
+    Broadcast(WPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
 
-void ezQtVarianceTypeWidget::SlotValueChanged()
+void WQtVarianceTypeWidget::SlotValueChanged()
 {
   onBeginTemporary();
 
-  ezVariant value;
-  ezToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueProp->GetSpecificType()->GetVariantType(), value);
+  WVariant value;
+  WToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueProp->GetSpecificType()->GetVariantType(), value);
 
-  auto obj = m_OldValue.Get<ezTypedObject>();
-  void* pCopy = ezReflectionSerializer::Clone(obj.m_pObject, obj.m_pType);
-  ezReflectionUtils::SetMemberPropertyValue(m_pValueProp, pCopy, value);
-  ezVariant newValue;
+  auto obj = m_OldValue.Get<WTypedObject>();
+  void* pCopy = WReflectionSerializer::Clone(obj.m_pObject, obj.m_pType);
+  WReflectionUtils::SetMemberPropertyValue(m_pValueProp, pCopy, value);
+  WVariant newValue;
   newValue.MoveTypedObject(pCopy, obj.m_pType);
 
   BroadcastValueChanged(newValue);
 }
 
 
-void ezQtVarianceTypeWidget::SlotVarianceChanged()
+void WQtVarianceTypeWidget::SlotVarianceChanged()
 {
-  double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
+  double variance = WMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
 
-  ezVariant newValue = m_OldValue;
-  ezTypedPointer ptr = newValue.GetWriteAccess();
-  ezReflectionUtils::SetMemberPropertyValue(m_pVarianceProp, ptr.m_pObject, variance);
+  WVariant newValue = m_OldValue;
+  WTypedPointer ptr = newValue.GetWriteAccess();
+  WReflectionUtils::SetMemberPropertyValue(m_pVarianceProp, ptr.m_pObject, variance);
 
   BroadcastValueChanged(newValue);
 }
 
-void ezQtVarianceTypeWidget::OnInit()
+void WQtVarianceTypeWidget::OnInit()
 {
-  m_pValueProp = static_cast<const ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Value"));
-  m_pVarianceProp = static_cast<const ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Variance"));
+  m_pValueProp = static_cast<const WAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Value"));
+  m_pVarianceProp = static_cast<const WAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Variance"));
 
   // Property type adjustments
-  ezQtScopedBlockSignals bs(m_pValueWidget);
-  const ezRTTI* pValueType = m_pValueProp->GetSpecificType();
-  if (pValueType == ezGetStaticRTTI<ezTime>())
+  WQtScopedBlockSignals bs(m_pValueWidget);
+  const WRTTI* pValueType = m_pValueProp->GetSpecificType();
+  if (pValueType == WGetStaticRTTI<WTime>())
   {
     m_pValueWidget->setDisplaySuffix(" sec");
   }
-  else if (pValueType == ezGetStaticRTTI<ezAngle>())
+  else if (pValueType == WGetStaticRTTI<WAngle>())
   {
-    m_pValueWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
+    m_pValueWidget->setDisplaySuffix(WStringUtf8(L"\u00B0").GetData());
   }
 
   // Handle attributes
-  if (const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>())
+  if (const WSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<WSuffixAttribute>())
   {
     m_pValueWidget->setDisplaySuffix(pSuffix->GetSuffix());
   }
-  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
+  if (const WClampValueAttribute* pClamp = m_pProp->GetAttributeByType<WClampValueAttribute>())
   {
-    if (pClamp->GetMinValue().CanConvertTo<double>() || pClamp->GetMinValue().IsA<ezTime>() || pClamp->GetMinValue().IsA<ezAngle>())
+    if (pClamp->GetMinValue().CanConvertTo<double>() || pClamp->GetMinValue().IsA<WTime>() || pClamp->GetMinValue().IsA<WAngle>())
     {
       m_pValueWidget->setMinimum(pClamp->GetMinValue());
     }
-    else if (const ezRTTI* pType = pClamp->GetMinValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    else if (const WRTTI* pType = pClamp->GetMinValue().GetReflectedType(); pType && pType->IsDerivedFrom<WVarianceTypeBase>())
     {
       m_pValueWidget->setMinimum(pClamp->GetMinValue()["Value"]);
-      m_pVarianceWidget->setMinimum(static_cast<ezInt32>(pClamp->GetMinValue()["Variance"].ConvertTo<double>() * 100.0));
+      m_pVarianceWidget->setMinimum(static_cast<WInt32>(pClamp->GetMinValue()["Variance"].ConvertTo<double>() * 100.0));
     }
     if (pClamp->GetMaxValue().CanConvertTo<double>())
     {
       m_pValueWidget->setMaximum(pClamp->GetMaxValue());
     }
-    else if (const ezRTTI* pType = pClamp->GetMaxValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    else if (const WRTTI* pType = pClamp->GetMaxValue().GetReflectedType(); pType && pType->IsDerivedFrom<WVarianceTypeBase>())
     {
       m_pValueWidget->setMaximum(pClamp->GetMaxValue()["Value"]);
-      m_pVarianceWidget->setMaximum(static_cast<ezInt32>(pClamp->GetMaxValue()["Variance"].ConvertTo<double>() * 100.0));
+      m_pVarianceWidget->setMaximum(static_cast<WInt32>(pClamp->GetMaxValue()["Variance"].ConvertTo<double>() * 100.0));
     }
   }
-  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  if (const WDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<WDefaultValueAttribute>())
   {
-    if (pDefault->GetValue().CanConvertTo<double>() || pDefault->GetValue().IsA<ezTime>() || pDefault->GetValue().IsA<ezAngle>())
+    if (pDefault->GetValue().CanConvertTo<double>() || pDefault->GetValue().IsA<WTime>() || pDefault->GetValue().IsA<WAngle>())
     {
       m_pValueWidget->setDefaultValue(pDefault->GetValue());
     }
-    else if (const ezRTTI* pType = pDefault->GetValue().GetReflectedType(); pType && pType->IsDerivedFrom<ezVarianceTypeBase>())
+    else if (const WRTTI* pType = pDefault->GetValue().GetReflectedType(); pType && pType->IsDerivedFrom<WVarianceTypeBase>())
     {
       m_pValueWidget->setDefaultValue(pDefault->GetValue()["Value"]);
     }
   }
 }
 
-void ezQtVarianceTypeWidget::InternalSetValue(const ezVariant& value)
+void WQtVarianceTypeWidget::InternalSetValue(const WVariant& value)
 {
-  ezQtScopedBlockSignals bs(m_pValueWidget, m_pVarianceWidget);
+  WQtScopedBlockSignals bs(m_pValueWidget, m_pVarianceWidget);
   if (value.IsValid())
   {
     m_pValueWidget->setValue(value["Value"]);

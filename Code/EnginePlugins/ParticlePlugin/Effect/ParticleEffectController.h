@@ -3,16 +3,16 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectController
+class W_PARTICLEPLUGIN_DLL WParticleEffectController
 {
 public:
-  ezParticleEffectController();
-  ezParticleEffectController(const ezParticleEffectController& rhs);
-  void operator=(const ezParticleEffectController& rhs);
+  WParticleEffectController();
+  WParticleEffectController(const WParticleEffectController& rhs);
+  void operator=(const WParticleEffectController& rhs);
 
-  void Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed,
-    const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-    ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Create(const WParticleEffectResourceHandle& hEffectResource, WParticleWorldModule* pModule, WUInt64 uiRandomSeed,
+    const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/, WArrayPtr<WParticleEffectFloatParam> floatParams,
+    WArrayPtr<WParticleEffectColorParam> colorParams);
 
   bool IsValid() const;
   void Invalidate();
@@ -22,46 +22,46 @@ public:
 
   bool IsContinuousEffect() const { return GetInstance()->IsContinuous(); }
 
-  void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
+  void SetTransform(const WTransform& t, const WVec3& vParticleStartVelocity) const;
 
   void CombineSystemBoundingVolumes();
 
-  void Tick(const ezTime& diff) const;
+  void Tick(const WTime& diff) const;
 
-  void ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
+  void ExtractRenderData(WMsgExtractRenderData& ref_msg, const WTransform& systemTransform) const;
 
   void StopImmediate();
 
   /// Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
+  void GetBoundingVolume(WBoundingBoxSphere& ref_volume) const;
 
-  void UpdateWindSamples(ezTime diff);
-  void FindNearbyAttractors(ezTime diff);
+  void UpdateWindSamples(WTime diff);
+  void FindNearbyAttractors(WTime diff);
 
   /// Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();
 
-  ezUInt64 GetNumActiveParticles() const;
+  WUInt64 GetNumActiveParticles() const;
 
   /// \name Effect Parameters
   ///@{
 public:
   /// Passes an effect parameter on to the effect instance
-  void SetParameter(const ezTempHashedString& sName, float value);
+  void SetParameter(const WTempHashedString& sName, float value);
 
   /// Passes an effect parameter on to the effect instance
-  void SetParameter(const ezTempHashedString& sName, const ezColor& value);
+  void SetParameter(const WTempHashedString& sName, const WColor& value);
 
   ///@}
 
 private:
-  friend class ezParticleWorldModule;
+  friend class WParticleWorldModule;
 
-  ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);
-  ezParticleEffectInstance* GetInstance() const;
+  WParticleEffectController(WParticleWorldModule* pModule, WParticleEffectHandle hEffect);
+  WParticleEffectInstance* GetInstance() const;
 
   const void* m_pSharedInstanceOwner = nullptr;
-  ezParticleWorldModule* m_pModule = nullptr;
-  ezParticleEffectHandle m_hEffect;
+  WParticleWorldModule* m_pModule = nullptr;
+  WParticleEffectHandle m_hEffect;
 };

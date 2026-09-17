@@ -4,11 +4,11 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezPositionVisualizerAdapter : public ezVisualizerAdapter
+class W_EDITORFRAMEWORK_DLL WPositionVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezPositionVisualizerAdapter();
-  ~ezPositionVisualizerAdapter();
+  WPositionVisualizerAdapter();
+  ~WPositionVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -16,6 +16,6 @@ protected:
   virtual void UpdateGizmoTransform() override;
 
   float m_fScale = 0.1f;
-  ezVec3 m_vPosition;
-  ezEngineGizmoHandle m_hGizmo;
+  WVec3 m_vPosition;
+  WEngineGizmoHandle m_hGizmo;
 };

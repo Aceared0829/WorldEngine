@@ -5,376 +5,376 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
 
-bool ezTextureUtils::s_bForceFullQualityAlways = false;
+bool WTextureUtils::s_bForceFullQualityAlways = false;
 
 namespace
 {
-  ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
+  WUInt32 GetMipSize(WUInt32 uiSize, WUInt32 uiMipLevel)
   {
-    for (ezUInt32 i = 0; i < uiMipLevel; i++)
+    for (WUInt32 i = 0; i < uiMipLevel; i++)
     {
       uiSize = uiSize / 2;
     }
-    return ezMath::Max(1u, uiSize);
+    return WMath::Max(1u, uiSize);
   }
 } // namespace
 
-ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::Enum format, bool bSRGB)
+WGALResourceFormat::Enum WTextureUtils::ImageFormatToGalFormat(WImageFormat::Enum format, bool bSRGB)
 {
   switch (format)
   {
-    case ezImageFormat::R8G8B8A8_UNORM:
+    case WImageFormat::R8G8B8A8_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        return WGALResourceFormat::RGBAUByteNormalizedsRGB;
       else
-        return ezGALResourceFormat::RGBAUByteNormalized;
+        return WGALResourceFormat::RGBAUByteNormalized;
 
-      // case ezImageFormat::R8G8B8A8_TYPELESS:
-    case ezImageFormat::R8G8B8A8_UNORM_SRGB:
-      return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      // case WImageFormat::R8G8B8A8_TYPELESS:
+    case WImageFormat::R8G8B8A8_UNORM_SRGB:
+      return WGALResourceFormat::RGBAUByteNormalizedsRGB;
 
-    case ezImageFormat::R8G8B8A8_UINT:
-      return ezGALResourceFormat::RGBAUInt;
+    case WImageFormat::R8G8B8A8_UINT:
+      return WGALResourceFormat::RGBAUInt;
 
-    case ezImageFormat::R8G8B8A8_SNORM:
-      return ezGALResourceFormat::RGBAByteNormalized;
+    case WImageFormat::R8G8B8A8_SNORM:
+      return WGALResourceFormat::RGBAByteNormalized;
 
-    case ezImageFormat::R8G8B8A8_SINT:
-      return ezGALResourceFormat::RGBAInt;
+    case WImageFormat::R8G8B8A8_SINT:
+      return WGALResourceFormat::RGBAInt;
 
-    case ezImageFormat::B8G8R8A8_UNORM:
+    case WImageFormat::B8G8R8A8_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+        return WGALResourceFormat::BGRAUByteNormalizedsRGB;
       else
-        return ezGALResourceFormat::BGRAUByteNormalized;
+        return WGALResourceFormat::BGRAUByteNormalized;
 
-    case ezImageFormat::B8G8R8X8_UNORM:
+    case WImageFormat::B8G8R8X8_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+        return WGALResourceFormat::BGRAUByteNormalizedsRGB;
       else
-        return ezGALResourceFormat::BGRAUByteNormalized;
+        return WGALResourceFormat::BGRAUByteNormalized;
 
-      // case ezImageFormat::B8G8R8A8_TYPELESS:
-    case ezImageFormat::B8G8R8A8_UNORM_SRGB:
-      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      // case WImageFormat::B8G8R8A8_TYPELESS:
+    case WImageFormat::B8G8R8A8_UNORM_SRGB:
+      return WGALResourceFormat::BGRAUByteNormalizedsRGB;
 
-      // case ezImageFormat::B8G8R8X8_TYPELESS:
-    case ezImageFormat::B8G8R8X8_UNORM_SRGB:
-      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      // case WImageFormat::B8G8R8X8_TYPELESS:
+    case WImageFormat::B8G8R8X8_UNORM_SRGB:
+      return WGALResourceFormat::BGRAUByteNormalizedsRGB;
 
-      // case ezImageFormat::B8G8R8_UNORM:
+      // case WImageFormat::B8G8R8_UNORM:
 
-      // case ezImageFormat::BC1_TYPELESS:
-    case ezImageFormat::BC1_UNORM:
+      // case WImageFormat::BC1_TYPELESS:
+    case WImageFormat::BC1_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BC1sRGB;
+        return WGALResourceFormat::BC1sRGB;
       else
-        return ezGALResourceFormat::BC1;
+        return WGALResourceFormat::BC1;
 
-    case ezImageFormat::BC1_UNORM_SRGB:
-      return ezGALResourceFormat::BC1sRGB;
+    case WImageFormat::BC1_UNORM_SRGB:
+      return WGALResourceFormat::BC1sRGB;
 
-      // case ezImageFormat::BC2_TYPELESS:
-    case ezImageFormat::BC2_UNORM:
+      // case WImageFormat::BC2_TYPELESS:
+    case WImageFormat::BC2_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BC2sRGB;
+        return WGALResourceFormat::BC2sRGB;
       else
-        return ezGALResourceFormat::BC2;
+        return WGALResourceFormat::BC2;
 
-    case ezImageFormat::BC2_UNORM_SRGB:
-      return ezGALResourceFormat::BC2sRGB;
+    case WImageFormat::BC2_UNORM_SRGB:
+      return WGALResourceFormat::BC2sRGB;
 
-      // case ezImageFormat::BC3_TYPELESS:
-    case ezImageFormat::BC3_UNORM:
+      // case WImageFormat::BC3_TYPELESS:
+    case WImageFormat::BC3_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BC3sRGB;
+        return WGALResourceFormat::BC3sRGB;
       else
-        return ezGALResourceFormat::BC3;
+        return WGALResourceFormat::BC3;
 
-    case ezImageFormat::BC3_UNORM_SRGB:
-      return ezGALResourceFormat::BC3sRGB;
+    case WImageFormat::BC3_UNORM_SRGB:
+      return WGALResourceFormat::BC3sRGB;
 
-      // case ezImageFormat::BC4_TYPELESS:
-    case ezImageFormat::BC4_UNORM:
-      return ezGALResourceFormat::BC4UNormalized;
+      // case WImageFormat::BC4_TYPELESS:
+    case WImageFormat::BC4_UNORM:
+      return WGALResourceFormat::BC4UNormalized;
 
-    case ezImageFormat::BC4_SNORM:
-      return ezGALResourceFormat::BC4Normalized;
+    case WImageFormat::BC4_SNORM:
+      return WGALResourceFormat::BC4Normalized;
 
-      // case ezImageFormat::BC5_TYPELESS:
-    case ezImageFormat::BC5_UNORM:
-      return ezGALResourceFormat::BC5UNormalized;
+      // case WImageFormat::BC5_TYPELESS:
+    case WImageFormat::BC5_UNORM:
+      return WGALResourceFormat::BC5UNormalized;
 
-    case ezImageFormat::BC5_SNORM:
-      return ezGALResourceFormat::BC5Normalized;
+    case WImageFormat::BC5_SNORM:
+      return WGALResourceFormat::BC5Normalized;
 
-      // case ezImageFormat::BC6H_TYPELESS:
-    case ezImageFormat::BC6H_UF16:
-      return ezGALResourceFormat::BC6UFloat;
+      // case WImageFormat::BC6H_TYPELESS:
+    case WImageFormat::BC6H_UF16:
+      return WGALResourceFormat::BC6UFloat;
 
-    case ezImageFormat::BC6H_SF16:
-      return ezGALResourceFormat::BC6Float;
+    case WImageFormat::BC6H_SF16:
+      return WGALResourceFormat::BC6Float;
 
-      // case ezImageFormat::BC7_TYPELESS:
-    case ezImageFormat::BC7_UNORM:
+      // case WImageFormat::BC7_TYPELESS:
+    case WImageFormat::BC7_UNORM:
       if (bSRGB)
-        return ezGALResourceFormat::BC7UNormalizedsRGB;
+        return WGALResourceFormat::BC7UNormalizedsRGB;
       else
-        return ezGALResourceFormat::BC7UNormalized;
+        return WGALResourceFormat::BC7UNormalized;
 
-    case ezImageFormat::BC7_UNORM_SRGB:
-      return ezGALResourceFormat::BC7UNormalizedsRGB;
+    case WImageFormat::BC7_UNORM_SRGB:
+      return WGALResourceFormat::BC7UNormalizedsRGB;
 
-    case ezImageFormat::B5G6R5_UNORM:
-      return ezGALResourceFormat::B5G6R5UNormalized; /// \todo Not supported by some GPUs ?
+    case WImageFormat::B5G6R5_UNORM:
+      return WGALResourceFormat::B5G6R5UNormalized; /// \todo Not supported by some GPUs ?
 
-    case ezImageFormat::R16_FLOAT:
-      return ezGALResourceFormat::RHalf;
+    case WImageFormat::R16_FLOAT:
+      return WGALResourceFormat::RHalf;
 
-    case ezImageFormat::R32_FLOAT:
-      return ezGALResourceFormat::RFloat;
+    case WImageFormat::R32_FLOAT:
+      return WGALResourceFormat::RFloat;
 
-    case ezImageFormat::R16G16_FLOAT:
-      return ezGALResourceFormat::RGHalf;
+    case WImageFormat::R16G16_FLOAT:
+      return WGALResourceFormat::RGHalf;
 
-    case ezImageFormat::R32G32_FLOAT:
-      return ezGALResourceFormat::RGFloat;
+    case WImageFormat::R32G32_FLOAT:
+      return WGALResourceFormat::RGFloat;
 
-    case ezImageFormat::R32G32B32_FLOAT:
-      return ezGALResourceFormat::RGBFloat;
+    case WImageFormat::R32G32B32_FLOAT:
+      return WGALResourceFormat::RGBFloat;
 
-    case ezImageFormat::R16G16B16A16_FLOAT:
-      return ezGALResourceFormat::RGBAHalf;
+    case WImageFormat::R16G16B16A16_FLOAT:
+      return WGALResourceFormat::RGBAHalf;
 
-    case ezImageFormat::R32G32B32A32_FLOAT:
-      return ezGALResourceFormat::RGBAFloat;
+    case WImageFormat::R32G32B32A32_FLOAT:
+      return WGALResourceFormat::RGBAFloat;
 
-    case ezImageFormat::R16G16B16A16_UNORM:
-      return ezGALResourceFormat::RGBAUShortNormalized;
+    case WImageFormat::R16G16B16A16_UNORM:
+      return WGALResourceFormat::RGBAUShortNormalized;
 
-    case ezImageFormat::R8_UNORM:
-      return ezGALResourceFormat::RUByteNormalized;
+    case WImageFormat::R8_UNORM:
+      return WGALResourceFormat::RUByteNormalized;
 
-    case ezImageFormat::R8G8_UNORM:
-      return ezGALResourceFormat::RGUByteNormalized;
+    case WImageFormat::R8G8_UNORM:
+      return WGALResourceFormat::RGUByteNormalized;
 
-    case ezImageFormat::R16G16_UNORM:
-      return ezGALResourceFormat::RGUShortNormalized;
+    case WImageFormat::R16G16_UNORM:
+      return WGALResourceFormat::RGUShortNormalized;
 
-    case ezImageFormat::R11G11B10_FLOAT:
-      return ezGALResourceFormat::RG11B10Float;
+    case WImageFormat::R11G11B10_FLOAT:
+      return WGALResourceFormat::RG11B10Float;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
-  return ezGALResourceFormat::Invalid;
+  return WGALResourceFormat::Invalid;
 }
 
-ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::Enum format)
+WImageFormat::Enum WTextureUtils::GalFormatToImageFormat(WGALResourceFormat::Enum format)
 {
   switch (format)
   {
-    case ezGALResourceFormat::RGBAFloat:
-      return ezImageFormat::R32G32B32A32_FLOAT;
-    case ezGALResourceFormat::RGBAUInt:
-      return ezImageFormat::R32G32B32A32_UINT;
-    case ezGALResourceFormat::RGBAInt:
-      return ezImageFormat::R32G32B32A32_SINT;
-    case ezGALResourceFormat::RGBFloat:
-      return ezImageFormat::R32G32B32_FLOAT;
-    case ezGALResourceFormat::RGBUInt:
-      return ezImageFormat::R32G32B32_UINT;
-    case ezGALResourceFormat::RGBInt:
-      return ezImageFormat::R32G32B32_SINT;
-    case ezGALResourceFormat::B5G6R5UNormalized:
-      return ezImageFormat::B5G6R5_UNORM;
-    case ezGALResourceFormat::BGRAUByteNormalized:
-      return ezImageFormat::B8G8R8A8_UNORM;
-    case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
-      return ezImageFormat::B8G8R8A8_UNORM_SRGB;
-    case ezGALResourceFormat::RGBAHalf:
-      return ezImageFormat::R16G16B16A16_FLOAT;
-    case ezGALResourceFormat::RGBAUShort:
-      return ezImageFormat::R16G16B16A16_UINT;
-    case ezGALResourceFormat::RGBAUShortNormalized:
-      return ezImageFormat::R16G16B16A16_UNORM;
-    case ezGALResourceFormat::RGBAShort:
-      return ezImageFormat::R16G16B16A16_SINT;
-    case ezGALResourceFormat::RGBAShortNormalized:
-      return ezImageFormat::R16G16B16A16_SNORM;
-    case ezGALResourceFormat::RGFloat:
-      return ezImageFormat::R32G32_FLOAT;
-    case ezGALResourceFormat::RGUInt:
-      return ezImageFormat::R32G32_UINT;
-    case ezGALResourceFormat::RGInt:
-      return ezImageFormat::R32G32_SINT;
-    case ezGALResourceFormat::RG11B10Float:
-      return ezImageFormat::R11G11B10_FLOAT;
-    case ezGALResourceFormat::RGBAUByteNormalized:
-      return ezImageFormat::R8G8B8A8_UNORM;
-    case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
-      return ezImageFormat::R8G8B8A8_UNORM_SRGB;
-    case ezGALResourceFormat::RGBAUByte:
-      return ezImageFormat::R8G8B8A8_UINT;
-    case ezGALResourceFormat::RGBAByteNormalized:
-      return ezImageFormat::R8G8B8A8_SNORM;
-    case ezGALResourceFormat::RGBAByte:
-      return ezImageFormat::R8G8B8A8_SINT;
-    case ezGALResourceFormat::RGHalf:
-      return ezImageFormat::R16G16_FLOAT;
-    case ezGALResourceFormat::RGUShort:
-      return ezImageFormat::R16G16_UINT;
-    case ezGALResourceFormat::RGUShortNormalized:
-      return ezImageFormat::R16G16_UNORM;
-    case ezGALResourceFormat::RGShort:
-      return ezImageFormat::R16G16_SINT;
-    case ezGALResourceFormat::RGShortNormalized:
-      return ezImageFormat::R16G16_SNORM;
-    case ezGALResourceFormat::RGUByte:
-      return ezImageFormat::R8G8_UINT;
-    case ezGALResourceFormat::RGUByteNormalized:
-      return ezImageFormat::R8G8_UNORM;
-    case ezGALResourceFormat::RGByte:
-      return ezImageFormat::R8G8_SINT;
-    case ezGALResourceFormat::RGByteNormalized:
-      return ezImageFormat::R8G8_SNORM;
-    case ezGALResourceFormat::DFloat:
-      return ezImageFormat::R32_FLOAT;
-    case ezGALResourceFormat::RFloat:
-      return ezImageFormat::R32_FLOAT;
-    case ezGALResourceFormat::RUInt:
-      return ezImageFormat::R32_UINT;
-    case ezGALResourceFormat::RInt:
-      return ezImageFormat::R32_SINT;
-    case ezGALResourceFormat::RHalf:
-      return ezImageFormat::R16_FLOAT;
-    case ezGALResourceFormat::RUShort:
-      return ezImageFormat::R16_UINT;
-    case ezGALResourceFormat::RUShortNormalized:
-      return ezImageFormat::R16_UNORM;
-    case ezGALResourceFormat::RShort:
-      return ezImageFormat::R16_SINT;
-    case ezGALResourceFormat::RShortNormalized:
-      return ezImageFormat::R16_SNORM;
-    case ezGALResourceFormat::RUByte:
-      return ezImageFormat::R8_UINT;
-    case ezGALResourceFormat::RUByteNormalized:
-      return ezImageFormat::R8_UNORM;
-    case ezGALResourceFormat::RByte:
-      return ezImageFormat::R8_SINT;
-    case ezGALResourceFormat::RByteNormalized:
-      return ezImageFormat::R8_SNORM;
-    case ezGALResourceFormat::AUByteNormalized:
-      return ezImageFormat::R8_UNORM;
-    case ezGALResourceFormat::D16:
-      return ezImageFormat::R16_UINT;
-    case ezGALResourceFormat::BC1:
-      return ezImageFormat::BC1_UNORM;
-    case ezGALResourceFormat::BC1sRGB:
-      return ezImageFormat::BC1_UNORM_SRGB;
-    case ezGALResourceFormat::BC2:
-      return ezImageFormat::BC2_UNORM;
-    case ezGALResourceFormat::BC2sRGB:
-      return ezImageFormat::BC2_UNORM_SRGB;
-    case ezGALResourceFormat::BC3:
-      return ezImageFormat::BC3_UNORM;
-    case ezGALResourceFormat::BC3sRGB:
-      return ezImageFormat::BC3_UNORM_SRGB;
-    case ezGALResourceFormat::BC4UNormalized:
-      return ezImageFormat::BC4_UNORM;
-    case ezGALResourceFormat::BC4Normalized:
-      return ezImageFormat::BC4_SNORM;
-    case ezGALResourceFormat::BC5UNormalized:
-      return ezImageFormat::BC5_UNORM;
-    case ezGALResourceFormat::BC5Normalized:
-      return ezImageFormat::BC5_SNORM;
-    case ezGALResourceFormat::BC6UFloat:
-      return ezImageFormat::BC6H_UF16;
-    case ezGALResourceFormat::BC6Float:
-      return ezImageFormat::BC6H_SF16;
-    case ezGALResourceFormat::BC7UNormalized:
-      return ezImageFormat::BC7_UNORM;
-    case ezGALResourceFormat::BC7UNormalizedsRGB:
-      return ezImageFormat::BC7_UNORM_SRGB;
-    case ezGALResourceFormat::RGB10A2UInt:
-    case ezGALResourceFormat::RGB10A2UIntNormalized:
-    case ezGALResourceFormat::D24S8:
+    case WGALResourceFormat::RGBAFloat:
+      return WImageFormat::R32G32B32A32_FLOAT;
+    case WGALResourceFormat::RGBAUInt:
+      return WImageFormat::R32G32B32A32_UINT;
+    case WGALResourceFormat::RGBAInt:
+      return WImageFormat::R32G32B32A32_SINT;
+    case WGALResourceFormat::RGBFloat:
+      return WImageFormat::R32G32B32_FLOAT;
+    case WGALResourceFormat::RGBUInt:
+      return WImageFormat::R32G32B32_UINT;
+    case WGALResourceFormat::RGBInt:
+      return WImageFormat::R32G32B32_SINT;
+    case WGALResourceFormat::B5G6R5UNormalized:
+      return WImageFormat::B5G6R5_UNORM;
+    case WGALResourceFormat::BGRAUByteNormalized:
+      return WImageFormat::B8G8R8A8_UNORM;
+    case WGALResourceFormat::BGRAUByteNormalizedsRGB:
+      return WImageFormat::B8G8R8A8_UNORM_SRGB;
+    case WGALResourceFormat::RGBAHalf:
+      return WImageFormat::R16G16B16A16_FLOAT;
+    case WGALResourceFormat::RGBAUShort:
+      return WImageFormat::R16G16B16A16_UINT;
+    case WGALResourceFormat::RGBAUShortNormalized:
+      return WImageFormat::R16G16B16A16_UNORM;
+    case WGALResourceFormat::RGBAShort:
+      return WImageFormat::R16G16B16A16_SINT;
+    case WGALResourceFormat::RGBAShortNormalized:
+      return WImageFormat::R16G16B16A16_SNORM;
+    case WGALResourceFormat::RGFloat:
+      return WImageFormat::R32G32_FLOAT;
+    case WGALResourceFormat::RGUInt:
+      return WImageFormat::R32G32_UINT;
+    case WGALResourceFormat::RGInt:
+      return WImageFormat::R32G32_SINT;
+    case WGALResourceFormat::RG11B10Float:
+      return WImageFormat::R11G11B10_FLOAT;
+    case WGALResourceFormat::RGBAUByteNormalized:
+      return WImageFormat::R8G8B8A8_UNORM;
+    case WGALResourceFormat::RGBAUByteNormalizedsRGB:
+      return WImageFormat::R8G8B8A8_UNORM_SRGB;
+    case WGALResourceFormat::RGBAUByte:
+      return WImageFormat::R8G8B8A8_UINT;
+    case WGALResourceFormat::RGBAByteNormalized:
+      return WImageFormat::R8G8B8A8_SNORM;
+    case WGALResourceFormat::RGBAByte:
+      return WImageFormat::R8G8B8A8_SINT;
+    case WGALResourceFormat::RGHalf:
+      return WImageFormat::R16G16_FLOAT;
+    case WGALResourceFormat::RGUShort:
+      return WImageFormat::R16G16_UINT;
+    case WGALResourceFormat::RGUShortNormalized:
+      return WImageFormat::R16G16_UNORM;
+    case WGALResourceFormat::RGShort:
+      return WImageFormat::R16G16_SINT;
+    case WGALResourceFormat::RGShortNormalized:
+      return WImageFormat::R16G16_SNORM;
+    case WGALResourceFormat::RGUByte:
+      return WImageFormat::R8G8_UINT;
+    case WGALResourceFormat::RGUByteNormalized:
+      return WImageFormat::R8G8_UNORM;
+    case WGALResourceFormat::RGByte:
+      return WImageFormat::R8G8_SINT;
+    case WGALResourceFormat::RGByteNormalized:
+      return WImageFormat::R8G8_SNORM;
+    case WGALResourceFormat::DFloat:
+      return WImageFormat::R32_FLOAT;
+    case WGALResourceFormat::RFloat:
+      return WImageFormat::R32_FLOAT;
+    case WGALResourceFormat::RUInt:
+      return WImageFormat::R32_UINT;
+    case WGALResourceFormat::RInt:
+      return WImageFormat::R32_SINT;
+    case WGALResourceFormat::RHalf:
+      return WImageFormat::R16_FLOAT;
+    case WGALResourceFormat::RUShort:
+      return WImageFormat::R16_UINT;
+    case WGALResourceFormat::RUShortNormalized:
+      return WImageFormat::R16_UNORM;
+    case WGALResourceFormat::RShort:
+      return WImageFormat::R16_SINT;
+    case WGALResourceFormat::RShortNormalized:
+      return WImageFormat::R16_SNORM;
+    case WGALResourceFormat::RUByte:
+      return WImageFormat::R8_UINT;
+    case WGALResourceFormat::RUByteNormalized:
+      return WImageFormat::R8_UNORM;
+    case WGALResourceFormat::RByte:
+      return WImageFormat::R8_SINT;
+    case WGALResourceFormat::RByteNormalized:
+      return WImageFormat::R8_SNORM;
+    case WGALResourceFormat::AUByteNormalized:
+      return WImageFormat::R8_UNORM;
+    case WGALResourceFormat::D16:
+      return WImageFormat::R16_UINT;
+    case WGALResourceFormat::BC1:
+      return WImageFormat::BC1_UNORM;
+    case WGALResourceFormat::BC1sRGB:
+      return WImageFormat::BC1_UNORM_SRGB;
+    case WGALResourceFormat::BC2:
+      return WImageFormat::BC2_UNORM;
+    case WGALResourceFormat::BC2sRGB:
+      return WImageFormat::BC2_UNORM_SRGB;
+    case WGALResourceFormat::BC3:
+      return WImageFormat::BC3_UNORM;
+    case WGALResourceFormat::BC3sRGB:
+      return WImageFormat::BC3_UNORM_SRGB;
+    case WGALResourceFormat::BC4UNormalized:
+      return WImageFormat::BC4_UNORM;
+    case WGALResourceFormat::BC4Normalized:
+      return WImageFormat::BC4_SNORM;
+    case WGALResourceFormat::BC5UNormalized:
+      return WImageFormat::BC5_UNORM;
+    case WGALResourceFormat::BC5Normalized:
+      return WImageFormat::BC5_SNORM;
+    case WGALResourceFormat::BC6UFloat:
+      return WImageFormat::BC6H_UF16;
+    case WGALResourceFormat::BC6Float:
+      return WImageFormat::BC6H_SF16;
+    case WGALResourceFormat::BC7UNormalized:
+      return WImageFormat::BC7_UNORM;
+    case WGALResourceFormat::BC7UNormalizedsRGB:
+      return WImageFormat::BC7_UNORM_SRGB;
+    case WGALResourceFormat::RGB10A2UInt:
+    case WGALResourceFormat::RGB10A2UIntNormalized:
+    case WGALResourceFormat::D24S8:
     default:
     {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      ezStringBuilder sFormat;
-      EZ_ASSERT_DEBUG(ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sFormat, ezReflectionUtils::EnumConversionMode::ValueNameOnly), "Cannot convert GAL format '{}' to string", format);
-      EZ_ASSERT_DEBUG(false, "The GL format: '{}' does not have a matching image format.", sFormat);
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+      WStringBuilder sFormat;
+      W_ASSERT_DEBUG(WReflectionUtils::EnumerationToString(WGetStaticRTTI<WGALResourceFormat>(), format, sFormat, WReflectionUtils::EnumConversionMode::ValueNameOnly), "Cannot convert GAL format '{}' to string", format);
+      W_ASSERT_DEBUG(false, "The GL format: '{}' does not have a matching image format.", sFormat);
 #endif
     }
   }
-  return ezImageFormat::UNKNOWN;
+  return WImageFormat::UNKNOWN;
 }
 
-ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::Enum format, bool bRemoveSRGB)
+WImageFormat::Enum WTextureUtils::GalFormatToImageFormat(WGALResourceFormat::Enum format, bool bRemoveSRGB)
 {
-  ezImageFormat::Enum imageFormat = GalFormatToImageFormat(format);
+  WImageFormat::Enum imageFormat = GalFormatToImageFormat(format);
   if (bRemoveSRGB)
   {
-    imageFormat = ezImageFormat::AsLinear(imageFormat);
+    imageFormat = WImageFormat::AsLinear(imageFormat);
   }
   return imageFormat;
 }
 
-void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_sampler)
+void WTextureUtils::ConfigureSampler(WTextureFilterSetting::Enum filter, WGALSamplerStateCreationDescription& out_sampler)
 {
-  out_sampler.m_MinFilter = ezGALTextureFilterMode::Linear;
-  out_sampler.m_MagFilter = ezGALTextureFilterMode::Linear;
-  out_sampler.m_MipFilter = ezGALTextureFilterMode::Linear;
+  out_sampler.m_MinFilter = WGALTextureFilterMode::Linear;
+  out_sampler.m_MagFilter = WGALTextureFilterMode::Linear;
+  out_sampler.m_MipFilter = WGALTextureFilterMode::Linear;
   out_sampler.m_uiMaxAnisotropy = 1;
 
-  if (filter >= ezTextureFilterSetting::LowestQuality)
+  if (filter >= WTextureFilterSetting::LowestQuality)
   {
-    out_sampler.m_useTextureQualitySlot = static_cast<ezGALTextureQualitySlot::Enum>(filter - ezTextureFilterSetting::LowestQuality);
+    out_sampler.m_useTextureQualitySlot = static_cast<WGALTextureQualitySlot::Enum>(filter - WTextureFilterSetting::LowestQuality);
   }
   else
   {
-    out_sampler.m_useTextureQualitySlot = ezGALTextureQualitySlot::None;
+    out_sampler.m_useTextureQualitySlot = WGALTextureQualitySlot::None;
   }
 
   switch (filter)
   {
-    case ezTextureFilterSetting::FixedNearest:
-      out_sampler.m_MinFilter = ezGALTextureFilterMode::Point;
-      out_sampler.m_MagFilter = ezGALTextureFilterMode::Point;
-      out_sampler.m_MipFilter = ezGALTextureFilterMode::Point;
+    case WTextureFilterSetting::FixedNearest:
+      out_sampler.m_MinFilter = WGALTextureFilterMode::Point;
+      out_sampler.m_MagFilter = WGALTextureFilterMode::Point;
+      out_sampler.m_MipFilter = WGALTextureFilterMode::Point;
       break;
 
-    case ezTextureFilterSetting::FixedBilinear:
-      out_sampler.m_MipFilter = ezGALTextureFilterMode::Point;
+    case WTextureFilterSetting::FixedBilinear:
+      out_sampler.m_MipFilter = WGALTextureFilterMode::Point;
       break;
 
-    case ezTextureFilterSetting::FixedTrilinear:
+    case WTextureFilterSetting::FixedTrilinear:
       break;
 
-    case ezTextureFilterSetting::FixedAnisotropic2x:
-      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    case WTextureFilterSetting::FixedAnisotropic2x:
+      out_sampler.m_MinFilter = WGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = WGALTextureFilterMode::Anisotropic;
       out_sampler.m_uiMaxAnisotropy = 2;
       break;
 
-    case ezTextureFilterSetting::FixedAnisotropic4x:
-      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    case WTextureFilterSetting::FixedAnisotropic4x:
+      out_sampler.m_MinFilter = WGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = WGALTextureFilterMode::Anisotropic;
       out_sampler.m_uiMaxAnisotropy = 4;
       break;
 
-    case ezTextureFilterSetting::FixedAnisotropic8x:
-      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    case WTextureFilterSetting::FixedAnisotropic8x:
+      out_sampler.m_MinFilter = WGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = WGALTextureFilterMode::Anisotropic;
       out_sampler.m_uiMaxAnisotropy = 8;
       break;
 
-    case ezTextureFilterSetting::FixedAnisotropic16x:
-      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    case WTextureFilterSetting::FixedAnisotropic16x:
+      out_sampler.m_MinFilter = WGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = WGALTextureFilterMode::Anisotropic;
       out_sampler.m_uiMaxAnisotropy = 16;
       break;
 
@@ -383,17 +383,17 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
   }
 }
 
-void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& memory, ezImage& out_image, bool bRemoveSRGB)
+void WTextureUtils::CopySubResourceToImage(const WGALTextureCreationDescription& desc, const WGALTextureSubresource& subResource, const WGALSystemMemoryDescription& memory, WImage& out_image, bool bRemoveSRGB)
 {
-  ezImageHeader headerTemp;
-  headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
+  WImageHeader headerTemp;
+  headerTemp.SetImageFormat(WTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
   // GetWidth/Height assert that the requested mip level is within range, so the helper header must know the texture's full mip chain.
   headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
-  ezImageHeader header;
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
+  WImageHeader header;
+  header.SetImageFormat(WTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
@@ -402,36 +402,36 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
   if (header.GetRowPitch() == memory.m_uiRowPitch)
   {
     const void* pSource = memory.m_pData.GetPtr();
-    ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>();
-    ezUInt32 uiSize = static_cast<ezUInt32>(header.GetDepthPitch());
-    EZ_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
+    WUInt8* pDest = out_image.GetPixelPointer<WUInt8>();
+    WUInt32 uiSize = static_cast<WUInt32>(header.GetDepthPitch());
+    W_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
     memcpy(pDest, pSource, uiSize);
   }
   else
   {
     // Copy row by row
-    const ezUInt32 uiHeight = header.GetNumBlocksY();
-    const ezUInt32 uiRowSize = static_cast<ezUInt32>(header.GetRowPitch());
-    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    const WUInt32 uiHeight = header.GetNumBlocksY();
+    const WUInt32 uiRowSize = static_cast<WUInt32>(header.GetRowPitch());
+    for (WUInt32 y = 0; y < uiHeight; ++y)
     {
-      const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
-      ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
+      const void* pSource = WMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
+      WUInt8* pDest = out_image.GetPixelPointer<WUInt8>(0, 0, 0, 0, y);
       memcpy(pDest, pSource, uiRowSize);
     }
   }
 }
 
-ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& memory, ezImage& ref_tempImage, bool bRemoveSRGB)
+WImageView WTextureUtils::MakeImageViewFromSubResource(const WGALTextureCreationDescription& desc, const WGALTextureSubresource& subResource, const WGALSystemMemoryDescription& memory, WImage& ref_tempImage, bool bRemoveSRGB)
 {
-  ezImageView view;
-  ezImageHeader headerTemp;
-  headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
+  WImageView view;
+  WImageHeader headerTemp;
+  headerTemp.SetImageFormat(WTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
   headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
-  ezImageHeader header;
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
+  WImageHeader header;
+  header.SetImageFormat(WTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
@@ -447,29 +447,29 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   return view;
 }
 
-void ezTextureUtils::CopySubResourceToMemory(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& sourceMemory, ezArrayPtr<ezUInt8> targetData, ezUInt32 uiTargetRowPitch)
+void WTextureUtils::CopySubResourceToMemory(const WGALTextureCreationDescription& desc, const WGALTextureSubresource& subResource, const WGALSystemMemoryDescription& sourceMemory, WArrayPtr<WUInt8> targetData, WUInt32 uiTargetRowPitch)
 {
   if (sourceMemory.m_uiRowPitch == uiTargetRowPitch)
   {
-    const ezUInt32 uiMemorySize = ezGALResourceFormat::GetBitsPerElement(desc.m_Format) *
+    const WUInt32 uiMemorySize = WGALResourceFormat::GetBitsPerElement(desc.m_Format) *
                                   GetMipSize(desc.m_uiWidth, subResource.m_uiMipLevel) *
                                   GetMipSize(desc.m_uiHeight, subResource.m_uiMipLevel) / 8;
-    EZ_ASSERT_DEBUG(uiMemorySize <= sourceMemory.m_pData.GetCount(), "");
-    EZ_ASSERT_DEBUG(uiMemorySize <= targetData.GetCount(), "");
+    W_ASSERT_DEBUG(uiMemorySize <= sourceMemory.m_pData.GetCount(), "");
+    W_ASSERT_DEBUG(uiMemorySize <= targetData.GetCount(), "");
     memcpy(targetData.GetPtr(), sourceMemory.m_pData.GetPtr(), uiMemorySize);
   }
   else
   {
     // Copy row by row
-    const ezUInt32 uiHeight = GetMipSize(desc.m_uiHeight, subResource.m_uiMipLevel);
-    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    const WUInt32 uiHeight = GetMipSize(desc.m_uiHeight, subResource.m_uiMipLevel);
+    for (WUInt32 y = 0; y < uiHeight; ++y)
     {
-      const ezUInt8* pSource = ezMemoryUtils::AddByteOffset(sourceMemory.m_pData.GetPtr(), y * sourceMemory.m_uiRowPitch);
-      ezUInt8* pDest = ezMemoryUtils::AddByteOffset(targetData.GetPtr(), y * uiTargetRowPitch);
+      const WUInt8* pSource = WMemoryUtils::AddByteOffset(sourceMemory.m_pData.GetPtr(), y * sourceMemory.m_uiRowPitch);
+      WUInt8* pDest = WMemoryUtils::AddByteOffset(targetData.GetPtr(), y * uiTargetRowPitch);
 
-      const ezUInt32 uiCopySize = ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * GetMipSize(desc.m_uiWidth, subResource.m_uiMipLevel) / 8;
-      EZ_ASSERT_DEBUG(pDest + uiCopySize <= targetData.GetEndPtr(), "");
-      EZ_ASSERT_DEBUG(pSource + uiCopySize <= sourceMemory.m_pData.GetEndPtr(), "");
+      const WUInt32 uiCopySize = WGALResourceFormat::GetBitsPerElement(desc.m_Format) * GetMipSize(desc.m_uiWidth, subResource.m_uiMipLevel) / 8;
+      W_ASSERT_DEBUG(pDest + uiCopySize <= targetData.GetEndPtr(), "");
+      W_ASSERT_DEBUG(pSource + uiCopySize <= sourceMemory.m_pData.GetEndPtr(), "");
       memcpy(pDest, pSource, uiCopySize);
     }
   }

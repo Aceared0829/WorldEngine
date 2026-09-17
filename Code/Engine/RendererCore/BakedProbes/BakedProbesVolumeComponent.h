@@ -3,29 +3,29 @@
 #include <Core/World/World.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
-using ezBakedProbesVolumeComponentManager = ezComponentManager<class ezBakedProbesVolumeComponent, ezBlockStorageType::Compact>;
+using WBakedProbesVolumeComponentManager = WComponentManager<class WBakedProbesVolumeComponent, WBlockStorageType::Compact>;
 
-class EZ_RENDERERCORE_DLL ezBakedProbesVolumeComponent : public ezComponent
+class W_RENDERERCORE_DLL WBakedProbesVolumeComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezBakedProbesVolumeComponent, ezComponent, ezBakedProbesVolumeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WBakedProbesVolumeComponent, WComponent, WBakedProbesVolumeComponentManager);
 
 public:
-  ezBakedProbesVolumeComponent();
-  ~ezBakedProbesVolumeComponent();
+  WBakedProbesVolumeComponent();
+  ~WBakedProbesVolumeComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  const ezVec3& GetExtents() const { return m_vExtents; }
-  void SetExtents(const ezVec3& vExtents);
+  const WVec3& GetExtents() const { return m_vExtents; }
+  void SetExtents(const WVec3& vExtents);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
 
 private:
-  ezVec3 m_vExtents = ezVec3(10.0f);
+  WVec3 m_vExtents = WVec3(10.0f);
 };

@@ -5,14 +5,14 @@
 #include <Core/System/WindowManager.h>
 #include <Foundation/Configuration/Startup.h>
 
-EZ_IMPLEMENT_SINGLETON(ezWindowManager);
+W_IMPLEMENT_SINGLETON(WWindowManager);
 
 //////////////////////////////////////////////////////////////////////////
 
-static ezUniquePtr<ezWindowManager> s_pWindowManager;
+static WUniquePtr<WWindowManager> s_pWindowManager;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezWindowManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(Core, WWindowManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -20,7 +20,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezWindowManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    s_pWindowManager = EZ_DEFAULT_NEW(ezWindowManager);
+    s_pWindowManager = W_DEFAULT_NEW(WWindowManager);
   }
   ON_CORESYSTEMS_SHUTDOWN
   {
@@ -35,23 +35,23 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezWindowManager)
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowManager::ezWindowManager()
+WWindowManager::WWindowManager()
   : m_SingletonRegistrar(this)
 {
 }
 
-ezWindowManager::~ezWindowManager()
+WWindowManager::~WWindowManager()
 {
   CloseAll(nullptr);
 }
 
-void ezWindowManager::Update()
+void WWindowManager::Update()
 {
   for (auto it = m_Data.GetIterator(); it.IsValid(); ++it)
   {
@@ -59,14 +59,14 @@ void ezWindowManager::Update()
   }
 }
 
-void ezWindowManager::Close(ezRegisteredWndHandle hWindow)
+void WWindowManager::Close(WRegisteredWndHandle hWindow)
 {
-  ezUniquePtr<Data>* pDataPtr = nullptr;
+  WUniquePtr<Data>* pDataPtr = nullptr;
   if (!m_Data.TryGetValue(hWindow.GetInternalID(), pDataPtr))
     return;
 
   Data* pData = pDataPtr->Borrow();
-  EZ_ASSERT_DEV(pData != nullptr, "Invalid window data");
+  W_ASSERT_DEV(pData != nullptr, "Invalid window data");
 
   if (pData->m_OnDestroy.IsValid())
   {
@@ -89,30 +89,30 @@ void ezWindowManager::Close(ezRegisteredWndHandle hWindow)
   m_Data.Remove(hWindow.GetInternalID());
 }
 
-void ezWindowManager::CloseAll(const void* pCreatedBy)
+void WWindowManager::CloseAll(const void* pCreatedBy)
 {
-  ezDynamicArray<ezRegisteredWndHandle> toClose;
+  WDynamicArray<WRegisteredWndHandle> toClose;
 
   for (auto it = m_Data.GetIterator(); it.IsValid(); ++it)
   {
     if (pCreatedBy == nullptr || it.Value()->m_pCreatedBy == pCreatedBy)
     {
-      toClose.PushBack(ezRegisteredWndHandle(it.Id()));
+      toClose.PushBack(WRegisteredWndHandle(it.Id()));
     }
   }
 
-  for (const ezRegisteredWndHandle& hWindow : toClose)
+  for (const WRegisteredWndHandle& hWindow : toClose)
   {
     Close(hWindow);
   }
 }
 
-bool ezWindowManager::IsValid(ezRegisteredWndHandle hWindow) const
+bool WWindowManager::IsValid(WRegisteredWndHandle hWindow) const
 {
   return m_Data.Contains(hWindow.GetInternalID());
 }
 
-void ezWindowManager::GetRegistered(ezDynamicArray<ezRegisteredWndHandle>& out_windowHandles, const void* pCreatedBy /*= nullptr*/)
+void WWindowManager::GetRegistered(WDynamicArray<WRegisteredWndHandle>& out_windowHandles, const void* pCreatedBy /*= nullptr*/)
 {
   out_windowHandles.Clear();
 
@@ -120,51 +120,51 @@ void ezWindowManager::GetRegistered(ezDynamicArray<ezRegisteredWndHandle>& out_w
   {
     if (pCreatedBy == nullptr || it.Value()->m_pCreatedBy == pCreatedBy)
     {
-      out_windowHandles.PushBack(ezRegisteredWndHandle(it.Id()));
+      out_windowHandles.PushBack(WRegisteredWndHandle(it.Id()));
     }
   }
 }
 
-ezRegisteredWndHandle ezWindowManager::Register(ezStringView sName, const void* pCreatedBy, ezUniquePtr<ezWindowBase>&& pWindow)
+WRegisteredWndHandle WWindowManager::Register(WStringView sName, const void* pCreatedBy, WUniquePtr<WWindowBase>&& pWindow)
 {
-  EZ_ASSERT_ALWAYS(pCreatedBy != nullptr, "pCreatedBy is invalid");
-  EZ_ASSERT_ALWAYS(pWindow != nullptr, "pWindow is invalid");
+  W_ASSERT_ALWAYS(pCreatedBy != nullptr, "pCreatedBy is invalid");
+  W_ASSERT_ALWAYS(pWindow != nullptr, "pWindow is invalid");
 
-  ezUniquePtr<Data> pData = EZ_DEFAULT_NEW(Data);
+  WUniquePtr<Data> pData = W_DEFAULT_NEW(Data);
   pData->m_sName = sName;
   pData->m_pCreatedBy = pCreatedBy;
   pData->m_pWindow = std::move(pWindow);
 
-  return ezRegisteredWndHandle(m_Data.Insert(std::move(pData)));
+  return WRegisteredWndHandle(m_Data.Insert(std::move(pData)));
 }
 
-void ezWindowManager::SetOutputTarget(ezRegisteredWndHandle hWindow, ezUniquePtr<ezWindowOutputTargetBase>&& pOutputTarget)
+void WWindowManager::SetOutputTarget(WRegisteredWndHandle hWindow, WUniquePtr<WWindowOutputTargetBase>&& pOutputTarget)
 {
-  ezUniquePtr<Data>* pDataPtr = nullptr;
+  WUniquePtr<Data>* pDataPtr = nullptr;
   if (!m_Data.TryGetValue(hWindow.GetInternalID(), pDataPtr))
     return;
 
   (*pDataPtr)->m_pOutputTarget = std::move(pOutputTarget);
 }
 
-void ezWindowManager::SetDestroyCallback(ezRegisteredWndHandle hWindow, ezWindowDestroyFunc onDestroyCallback)
+void WWindowManager::SetDestroyCallback(WRegisteredWndHandle hWindow, WWindowDestroyFunc onDestroyCallback)
 {
-  ezUniquePtr<Data>* pDataPtr = nullptr;
+  WUniquePtr<Data>* pDataPtr = nullptr;
   if (!m_Data.TryGetValue(hWindow.GetInternalID(), pDataPtr))
     return;
 
   (*pDataPtr)->m_OnDestroy = onDestroyCallback;
 }
 
-ezStringView ezWindowManager::GetName(ezRegisteredWndHandle hWindow) const
+WStringView WWindowManager::GetName(WRegisteredWndHandle hWindow) const
 {
   if (!m_Data.Contains(hWindow.GetInternalID()))
-    return ezStringView();
+    return WStringView();
 
   return m_Data[hWindow.GetInternalID()]->m_sName;
 }
 
-ezWindowBase* ezWindowManager::GetWindow(ezRegisteredWndHandle hWindow) const
+WWindowBase* WWindowManager::GetWindow(WRegisteredWndHandle hWindow) const
 {
   if (!m_Data.Contains(hWindow.GetInternalID()))
     return nullptr;
@@ -172,7 +172,7 @@ ezWindowBase* ezWindowManager::GetWindow(ezRegisteredWndHandle hWindow) const
   return m_Data[hWindow.GetInternalID()]->m_pWindow.Borrow();
 }
 
-ezWindowOutputTargetBase* ezWindowManager::GetOutputTarget(ezRegisteredWndHandle hWindow) const
+WWindowOutputTargetBase* WWindowManager::GetOutputTarget(WRegisteredWndHandle hWindow) const
 {
   if (!m_Data.Contains(hWindow.GetInternalID()))
     return nullptr;
@@ -181,4 +181,4 @@ ezWindowOutputTargetBase* ezWindowManager::GetOutputTarget(ezRegisteredWndHandle
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_System_Implementation_WindowManager);
+W_STATICLINK_FILE(Core, Core_System_Implementation_WindowManager);

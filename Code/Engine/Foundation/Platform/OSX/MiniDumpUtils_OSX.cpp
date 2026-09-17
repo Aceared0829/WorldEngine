@@ -1,17 +1,17 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#if W_ENABLED(W_PLATFORM_OSX)
 
 #  include <Foundation/System/MiniDumpUtils.h>
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteExternalProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WDumpType dumpTypeOverride)
 {
-  return ezStatus("Not implemented on OSX");
+  return WStatus("Not implemented on OSX");
 }
 
-ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::LaunchMiniDumpTool(WStringView sDumpFile, WDumpType dumpTypeOverride)
 {
-  return ezStatus("Not implemented on OSX");
+  return WStatus("Not implemented on OSX");
 }
 
 #endif

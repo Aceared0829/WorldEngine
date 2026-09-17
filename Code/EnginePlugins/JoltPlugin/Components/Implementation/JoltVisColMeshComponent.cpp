@@ -9,31 +9,31 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltVisColMeshComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltVisColMeshComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("CollisionMesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
+    W_RESOURCE_ACCESSOR_PROPERTY("CollisionMesh", GetMesh, SetMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", WDependencyFlags::Package)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Misc"),
+    new WCategoryAttribute("Physics/Jolt/Misc"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltVisColMeshComponent::ezJoltVisColMeshComponent() = default;
-ezJoltVisColMeshComponent::~ezJoltVisColMeshComponent() = default;
+WJoltVisColMeshComponent::WJoltVisColMeshComponent() = default;
+WJoltVisColMeshComponent::~WJoltVisColMeshComponent() = default;
 
-void ezJoltVisColMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltVisColMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -43,49 +43,49 @@ void ezJoltVisColMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 }
 
 
-void ezJoltVisColMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltVisColMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
 
-  GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
+  GetWorld()->GetOrCreateComponentManager<WJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WJoltVisColMeshComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   // have to assume this isn't thread safe
   // CreateCollisionRenderMesh();
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
     ref_bounds = pMesh->GetBounds();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezJoltVisColMeshComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)
+void WJoltVisColMeshComponent::SetMesh(const WJoltMeshResourceHandle& hMesh)
 {
   if (m_hCollisionMesh != hMesh)
   {
     m_hCollisionMesh = hMesh;
     m_hMesh.Invalidate();
 
-    GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<WJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
-void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
+void WJoltVisColMeshComponent::CreateCollisionRenderMesh()
 {
   if (!m_hCollisionMesh.IsValid())
   {
-    ezJoltStaticActorComponent* pSibling = nullptr;
+    WJoltStaticActorComponent* pSibling = nullptr;
     if (GetOwner()->TryGetComponentOfBaseType(pSibling))
     {
       m_hCollisionMesh = pSibling->GetMesh();
@@ -94,7 +94,7 @@ void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
 
   if (!m_hCollisionMesh.IsValid())
   {
-    ezJoltShapeConvexHullComponent* pSibling = nullptr;
+    WJoltShapeConvexHullComponent* pSibling = nullptr;
     if (GetOwner()->TryGetComponentOfBaseType(pSibling))
     {
       m_hCollisionMesh = pSibling->GetMesh();
@@ -104,16 +104,16 @@ void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
   if (!m_hCollisionMesh.IsValid())
     return;
 
-  ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WJoltMeshResource> pMesh(m_hCollisionMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  if (pMesh.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+  if (pMesh.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
     return;
 
-  ezStringBuilder sColMeshName = pMesh->GetResourceID();
+  WStringBuilder sColMeshName = pMesh->GetResourceID();
   sColMeshName.AppendFormat("_{0}_JoltVisColMesh",
     pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
-  m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sColMeshName);
+  m_hMesh = WResourceManager::GetExistingResource<WMeshResource>(sColMeshName);
 
   if (m_hMesh.IsValid())
   {
@@ -121,44 +121,44 @@ void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
     return;
   }
 
-  ezCpuMeshResourceHandle hCpuMesh = pMesh->ConvertToCpuMesh();
+  WCpuMeshResourceHandle hCpuMesh = pMesh->ConvertToCpuMesh();
 
   if (!hCpuMesh.IsValid())
     return;
 
-  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WCpuMeshResource> pCpuMesh(hCpuMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  ezMeshResourceDescriptor md = pCpuMesh->GetDescriptor();
+  WMeshResourceDescriptor md = pCpuMesh->GetDescriptor();
 
   // replace all materials with the preview material
   // actually the existing materials here are the surfaces of the collision mesh
   // so this can't be used for rendering anyway
-  for (ezUInt32 i = 0; i < md.GetMaterials().GetCount(); ++i)
+  for (WUInt32 i = 0; i < md.GetMaterials().GetCount(); ++i)
   {
-    md.SetMaterial(i, "Materials/Common/ColMesh.ezMaterial");
+    md.SetMaterial(i, "Materials/Common/ColMesh.WMaterial");
   }
 
-  m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
+  m_hMesh = WResourceManager::GetOrCreateResource<WMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezJoltVisColMeshComponent::Initialize()
+void WJoltVisColMeshComponent::Initialize()
 {
   SUPER::Initialize();
 
-  GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
+  GetWorld()->GetOrCreateComponentManager<WJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-void ezJoltVisColMeshComponent::OnDeactivated()
+void WJoltVisColMeshComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }
 
-void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WJoltVisColMeshComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
@@ -166,53 +166,53 @@ void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
   const bool bDynamic = GetOwner()->IsDynamic();
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering());
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WArrayPtr<const WMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
-  for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
+  for (WUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+    const WUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+    WMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    WMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(GetOwner());
     pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::LitOpaque, WRenderData::Caching::IfStatic);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezJoltVisColMeshComponentManager::Initialize()
+void WJoltVisColMeshComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltVisColMeshComponentManager::Update, this);
-  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+  WWorldModule::UpdateFunctionDesc desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltVisColMeshComponentManager::Update, this);
+  desc.m_Phase = WWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezJoltVisColMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WJoltVisColMeshComponentManager::ResourceEventHandler, this));
 }
 
-void ezJoltVisColMeshComponentManager::Deinitialize()
+void WJoltVisColMeshComponentManager::Deinitialize()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezJoltVisColMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WJoltVisColMeshComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }
 
-void ezJoltVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WJoltVisColMeshComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  ezDeque<ezComponentHandle> requireUpdate;
+  WDeque<WComponentHandle> requireUpdate;
   m_RequireUpdate.Swap(requireUpdate);
 
   for (const auto& hComp : requireUpdate)
   {
-    ezJoltVisColMeshComponent* pComp = nullptr;
+    WJoltVisColMeshComponent* pComp = nullptr;
     if (!TryGetComponent(hComp, pComp))
       continue;
 
@@ -220,22 +220,22 @@ void ezJoltVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext
   }
 }
 
-void ezJoltVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
+void WJoltVisColMeshComponentManager::EnqueueUpdate(WComponentHandle hComponent)
 {
   m_RequireUpdate.PushBack(hComponent);
 }
 
-void ezJoltVisColMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WJoltVisColMeshComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezJoltMeshResource>())
+  if ((e.m_Type == WResourceEvent::Type::ResourceContentUnloading || e.m_Type == WResourceEvent::Type::ResourceContentUpdated) && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WJoltMeshResource>())
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
-    ezJoltMeshResourceHandle hResource((ezJoltMeshResource*)(e.m_pResource));
+    WJoltMeshResourceHandle hResource((WJoltMeshResource*)(e.m_pResource));
 
     for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
     {
-      const ezJoltVisColMeshComponent* pComponent = static_cast<ezJoltVisColMeshComponent*>(it.Value());
+      const WJoltVisColMeshComponent* pComponent = static_cast<WJoltVisColMeshComponent*>(it.Value());
 
       if (pComponent->GetMesh() == hResource)
       {
@@ -246,4 +246,4 @@ void ezJoltVisColMeshComponentManager::ResourceEventHandler(const ezResourceEven
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltVisColMeshComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltVisColMeshComponent);

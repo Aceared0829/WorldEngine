@@ -16,26 +16,26 @@
 // * Add max sound size, check whether MA adds FMOD-like attenuation models
 // * skip sounds that are too far away
 
-struct ezGameApplicationExecutionEvent;
+struct WGameApplicationExecutionEvent;
 
-struct ezMiniAudioSoundInstance
+struct WMiniAudioSoundInstance
 {
   ma_sound m_Sound;
   ma_decoder m_Decoder;
-  ezWorld* pWorld = nullptr;
-  ezComponentHandle m_hComponent;
-  ezUInt16 m_uiOwnIndex;
+  WWorld* pWorld = nullptr;
+  WComponentHandle m_hComponent;
+  WUInt16 m_uiOwnIndex;
   bool m_bInUse = false;
 };
 
 
-class EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSingleton : public ezSoundInterface
+class W_MINIAUDIOPLUGIN_DLL WMiniAudioSingleton : public WSoundInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezMiniAudioSingleton, ezSoundInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(WMiniAudioSingleton, WSoundInterface);
 
 public:
-  ezMiniAudioSingleton();
-  ~ezMiniAudioSingleton();
+  WMiniAudioSingleton();
+  ~WMiniAudioSingleton();
 
   void Startup();
   void Shutdown();
@@ -44,13 +44,13 @@ public:
 
   /// Can be called before startup to load the configuration from a different file.
   /// Otherwise will automatically be loaded at startup with the default path.
-  virtual void LoadConfiguration(ezStringView sFile) override;
+  virtual void LoadConfiguration(WStringView sFile) override;
 
   /// By default the integration will auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
-  virtual void SetOverridePlatform(ezStringView sPlatform) override;
+  virtual void SetOverridePlatform(WStringView sPlatform) override;
 
-  /// Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
+  /// Automatically called by the plugin every time WGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateSound() override;
 
   /// Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
@@ -69,58 +69,58 @@ public:
   /// Specifies the volume for a sound group.
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
-  virtual void SetSoundGroupVolume(ezStringView sGroupName, float fVolume) override;
-  virtual float GetSoundGroupVolume(ezStringView sGroupName) const override;
+  virtual void SetSoundGroupVolume(WStringView sGroupName, float fVolume) override;
+  virtual float GetSoundGroupVolume(WStringView sGroupName) const override;
 
   struct SoundGroup
   {
-    ezString m_sName;
+    WString m_sName;
     float m_fVolume = 1.0f;
-    ezUniquePtr<ma_sound_group> m_pGroup;
+    WUniquePtr<ma_sound_group> m_pGroup;
   };
 
-  SoundGroup& GetSoundGroup(ezStringView sGroupName);
+  SoundGroup& GetSoundGroup(WStringView sGroupName);
 
   /// Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
-  virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
-  virtual ezUInt8 GetNumListeners() override;
+  virtual void SetNumListeners(WUInt8 uiNumListeners) override;
+  virtual WUInt8 GetNumListeners() override;
 
-  static void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
+  static void GameApplicationEventHandler(const WGameApplicationExecutionEvent& e);
 
   virtual void SetListenerOverrideMode(bool bEnabled) override;
-  virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
-  ezVec3 GetListenerPosition() { return m_vListenerPosition; }
+  virtual void SetListener(WInt32 iIndex, const WVec3& vPosition, const WVec3& vForward, const WVec3& vUp, const WVec3& vVelocity) override;
+  WVec3 GetListenerPosition() { return m_vListenerPosition; }
 
-  virtual ezResult OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
+  virtual WResult OneShotSound(WWorld* pWorld, WStringView sResourceID, const WTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
 
-  ezMiniAudioSoundInstance* AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent, ma_sound_group* pGroup);
-  void FreeSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
-  void DetachSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
+  WMiniAudioSoundInstance* AllocateSoundInstance(const WDataBuffer& audioData, WWorld* pWorld, WComponentHandle hComponent, ma_sound_group* pGroup);
+  void FreeSoundInstance(WMiniAudioSoundInstance*& ref_pInstance);
+  void DetachSoundInstance(WMiniAudioSoundInstance*& ref_pInstance);
 
-  void DetachAndFadeOutSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance, ezTime fadeDuration);
+  void DetachAndFadeOutSoundInstance(WMiniAudioSoundInstance*& ref_pInstance, WTime fadeDuration);
 
-  void SoundEnded(ezMiniAudioSoundInstance* pInstance);
+  void SoundEnded(WMiniAudioSoundInstance* pInstance);
 
-  void StopWorldSounds(ezWorld* pWorld);
+  void StopWorldSounds(WWorld* pWorld);
 
 private:
   bool m_bInitialized = false;
   bool m_bListenerOverrideMode = false;
-  ezVec3 m_vListenerPosition;
+  WVec3 m_vListenerPosition;
 
   struct Data
   {
-    ezMutex m_Mutex;
+    WMutex m_Mutex;
 
     ma_engine m_Engine;
-    ezDeque<ezMiniAudioSoundInstance> m_SoundInstancesStorage;
-    ezDeque<ezUInt32> m_SoundInstanceFreeList;
+    WDeque<WMiniAudioSoundInstance> m_SoundInstancesStorage;
+    WDeque<WUInt32> m_SoundInstanceFreeList;
 
-    ezDeque<ezUInt32> m_FadingInstances;
-    ezDeque<ezUInt32> m_FinishedInstances;
+    WDeque<WUInt32> m_FadingInstances;
+    WDeque<WUInt32> m_FinishedInstances;
 
-    ezHybridArray<SoundGroup, 4> m_SoundGroups;
+    WHybridArray<SoundGroup, 4> m_SoundGroups;
   };
 
-  ezUniquePtr<Data> m_pData;
+  WUniquePtr<Data> m_pData;
 };

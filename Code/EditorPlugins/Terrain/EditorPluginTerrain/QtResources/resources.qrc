@@ -1,8 +1,8 @@
 <RCC>
   <qresource prefix="TypeIcons">
-    <file>ezTerrainPatchComponent.svg</file>
-    <file>ezTerrainBrush2DComponent.svg</file>
-    <file>ezTerrainBrush3DComponent.svg</file>
-    <file>ezTerrainVolumeComponent.svg</file>
+    <file>WTerrainPatchComponent.svg</file>
+    <file>WTerrainBrush2DComponent.svg</file>
+    <file>WTerrainBrush3DComponent.svg</file>
+    <file>WTerrainVolumeComponent.svg</file>
   </qresource>
 </RCC>

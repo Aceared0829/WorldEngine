@@ -14,20 +14,20 @@
 #  undef CopyFile
 #endif
 
-#if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
+#if W_DISABLED(W_USE_POSIX_FILE_API)
 
 #  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
-struct ezOSFileData
+struct WOSFileData
 {
-  ezOSFileData() { m_pFileHandle = EZ_WINDOWS_INVALID_HANDLE_VALUE; }
+  WOSFileData() { m_pFileHandle = W_WINDOWS_INVALID_HANDLE_VALUE; }
 
-  ezMinWindows::HANDLE m_pFileHandle;
+  WMinWindows::HANDLE m_pFileHandle;
 };
 
-struct ezFileIterationData
+struct WFileIterationData
 {
-  ezHybridArray<ezMinWindows::HANDLE, 16> m_Handles;
+  WHybridArray<WMinWindows::HANDLE, 16> m_Handles;
 };
 
 #endif

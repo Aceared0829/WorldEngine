@@ -4,89 +4,89 @@
 
 namespace
 {
-  class LogTestLogInterface : public ezLogInterface
+  class LogTestLogInterface : public WLogInterface
   {
   public:
-    virtual void HandleLogMessage(const ezLoggingEventData& le) override
+    virtual void HandleLogMessage(const WLoggingEventData& le) override
     {
       switch (le.m_EventType)
       {
-        case ezLogMsgType::Flush:
+        case WLogMsgType::Flush:
           m_Result.Append("[Flush]\n");
           return;
-        case ezLogMsgType::BeginGroup:
+        case WLogMsgType::BeginGroup:
           m_Result.Append(">", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::EndGroup:
+        case WLogMsgType::EndGroup:
           m_Result.Append("<", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::ErrorMsg:
+        case WLogMsgType::ErrorMsg:
           m_Result.Append("E:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::SeriousWarningMsg:
+        case WLogMsgType::SeriousWarningMsg:
           m_Result.Append("SW:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::WarningMsg:
+        case WLogMsgType::WarningMsg:
           m_Result.Append("W:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::SuccessMsg:
+        case WLogMsgType::SuccessMsg:
           m_Result.Append("S:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::InfoMsg:
+        case WLogMsgType::InfoMsg:
           m_Result.Append("I:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::DevMsg:
+        case WLogMsgType::DevMsg:
           m_Result.Append("E:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::DebugMsg:
+        case WLogMsgType::DebugMsg:
           m_Result.Append("D:", le.m_sTag, " ", le.m_sText, "\n");
           break;
 
         default:
-          EZ_REPORT_FAILURE("Invalid msg type");
+          W_REPORT_FAILURE("Invalid msg type");
           break;
       }
     }
 
-    ezStringBuilder m_Result;
+    WStringBuilder m_Result;
   };
 
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
+W_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
 {
-  ezCommandLineOptionDoc optDoc("__test", "-argDoc", "<doc>", "Doc argument", "no value");
+  WCommandLineOptionDoc optDoc("__test", "-argDoc", "<doc>", "Doc argument", "no value");
 
-  ezCommandLineOptionBool optBool1("__test", "-bool1", "bool argument 1", false);
-  ezCommandLineOptionBool optBool2("__test", "-bool2", "bool argument 2", true);
+  WCommandLineOptionBool optBool1("__test", "-bool1", "bool argument 1", false);
+  WCommandLineOptionBool optBool2("__test", "-bool2", "bool argument 2", true);
 
-  ezCommandLineOptionInt optInt1("__test", "-int1", "int argument 1", 1);
-  ezCommandLineOptionInt optInt2("__test", "-int2", "int argument 2", 0, 4, 8);
-  ezCommandLineOptionInt optInt3("__test", "-int3", "int argument 3", 6, -8, 8);
+  WCommandLineOptionInt optInt1("__test", "-int1", "int argument 1", 1);
+  WCommandLineOptionInt optInt2("__test", "-int2", "int argument 2", 0, 4, 8);
+  WCommandLineOptionInt optInt3("__test", "-int3", "int argument 3", 6, -8, 8);
 
-  ezCommandLineOptionFloat optFloat1("__test", "-float1", "float argument 1", 1);
-  ezCommandLineOptionFloat optFloat2("__test", "-float2", "float argument 2", 0, 4, 8);
-  ezCommandLineOptionFloat optFloat3("__test", "-float3", "float argument 3", 6, -8, 8);
+  WCommandLineOptionFloat optFloat1("__test", "-float1", "float argument 1", 1);
+  WCommandLineOptionFloat optFloat2("__test", "-float2", "float argument 2", 0, 4, 8);
+  WCommandLineOptionFloat optFloat3("__test", "-float3", "float argument 3", 6, -8, 8);
 
-  ezCommandLineOptionString optString1("__test", "-string1", "string argument 1", "default string");
+  WCommandLineOptionString optString1("__test", "-string1", "string argument 1", "default string");
 
-  ezCommandLineOptionPath optPath1("__test", "-path1", "path argument 1", "default path");
+  WCommandLineOptionPath optPath1("__test", "-path1", "path argument 1", "default path");
 
-  ezCommandLineOptionEnum optEnum1("__test", "-enum1", "enum argument 1", "A | B = 2 | C | D | E = 7", 3);
+  WCommandLineOptionEnum optEnum1("__test", "-enum1", "enum argument 1", "A | B = 2 | C | D | E = 7", 3);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionBool")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionBool")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
     cmd.InjectCustomArgument("-bool1");
     cmd.InjectCustomArgument("on");
 
-    EZ_TEST_BOOL(optBool1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd) == true);
-    EZ_TEST_BOOL(optBool2.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd) == true);
+    W_TEST_BOOL(optBool1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd) == true);
+    W_TEST_BOOL(optBool2.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd) == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionInt")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionInt")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
     cmd.InjectCustomArgument("-int1");
     cmd.InjectCustomArgument("3");
 
@@ -96,14 +96,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
     cmd.InjectCustomArgument("-int3");
     cmd.InjectCustomArgument("-2");
 
-    EZ_TEST_INT(optInt1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 3);
-    EZ_TEST_INT(optInt2.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 0);
-    EZ_TEST_INT(optInt3.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), -2);
+    W_TEST_INT(optInt1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 3);
+    W_TEST_INT(optInt2.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 0);
+    W_TEST_INT(optInt3.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), -2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionFloat")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionFloat")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
     cmd.InjectCustomArgument("-float1");
     cmd.InjectCustomArgument("3");
 
@@ -113,63 +113,63 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
     cmd.InjectCustomArgument("-float3");
     cmd.InjectCustomArgument("-2");
 
-    EZ_TEST_FLOAT(optFloat1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 3, 0.001f);
-    EZ_TEST_FLOAT(optFloat2.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 0, 0.001f);
-    EZ_TEST_FLOAT(optFloat3.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), -2, 0.001f);
+    W_TEST_FLOAT(optFloat1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 3, 0.001f);
+    W_TEST_FLOAT(optFloat2.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 0, 0.001f);
+    W_TEST_FLOAT(optFloat3.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), -2, 0.001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionString")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
     cmd.InjectCustomArgument("-string1");
     cmd.InjectCustomArgument("hello");
 
-    EZ_TEST_STRING(optString1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), "hello");
+    W_TEST_STRING(optString1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), "hello");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionPath")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionPath")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
     cmd.InjectCustomArgument("-path1");
     cmd.InjectCustomArgument("C:/test");
 
-    const ezString path = optPath1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd);
+    const WString path = optPath1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    EZ_TEST_STRING(path, "C:/test");
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    W_TEST_STRING(path, "C:/test");
 #else
-    EZ_TEST_BOOL(path.EndsWith("C:/test"));
+    W_TEST_BOOL(path.EndsWith("C:/test"));
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezCommandLineOptionEnum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WCommandLineOptionEnum")
   {
     {
-      ezCommandLineUtils cmd;
+      WCommandLineUtils cmd;
       cmd.InjectCustomArgument("-enum1");
       cmd.InjectCustomArgument("A");
 
-      EZ_TEST_INT(optEnum1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 0);
+      W_TEST_INT(optEnum1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 0);
     }
 
     {
-      ezCommandLineUtils cmd;
+      WCommandLineUtils cmd;
       cmd.InjectCustomArgument("-enum1");
       cmd.InjectCustomArgument("B");
 
-      EZ_TEST_INT(optEnum1.GetOptionValue(ezCommandLineOption::LogMode::Never, &cmd), 2);
+      W_TEST_INT(optEnum1.GetOptionValue(WCommandLineOption::LogMode::Never, &cmd), 2);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LogAvailableOptions")
+  W_TEST_BLOCK(WTestBlock::Enabled, "LogAvailableOptions")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
 
-    ezStringBuilder result;
+    WStringBuilder result;
 
-    EZ_TEST_BOOL(ezCommandLineOption::LogAvailableOptionsToBuffer(result, ezCommandLineOption::LogAvailableModes::Always, "__test", &cmd));
+    W_TEST_BOOL(WCommandLineOption::LogAvailableOptionsToBuffer(result, WCommandLineOption::LogAvailableModes::Always, "__test", &cmd));
 
-    EZ_TEST_STRING(result, "\
+    W_TEST_STRING(result, "\
 \n\
 -argDoc <doc> = no value\n\
     Doc argument\n\
@@ -211,33 +211,33 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineOptions)
 ");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsHelpRequested")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsHelpRequested")
   {
-    ezCommandLineUtils cmd;
+    WCommandLineUtils cmd;
 
-    EZ_TEST_BOOL(!ezCommandLineOption::IsHelpRequested(&cmd));
+    W_TEST_BOOL(!WCommandLineOption::IsHelpRequested(&cmd));
 
     cmd.InjectCustomArgument("-help");
 
-    EZ_TEST_BOOL(ezCommandLineOption::IsHelpRequested(&cmd));
+    W_TEST_BOOL(WCommandLineOption::IsHelpRequested(&cmd));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RequireOptions")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RequireOptions")
   {
-    ezCommandLineUtils cmd;
-    ezString missing;
+    WCommandLineUtils cmd;
+    WString missing;
 
-    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
-    EZ_TEST_STRING(missing, "-opt1");
+    W_TEST_BOOL(WCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
+    W_TEST_STRING(missing, "-opt1");
 
     cmd.InjectCustomArgument("-opt1");
 
-    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
-    EZ_TEST_STRING(missing, "-opt2");
+    W_TEST_BOOL(WCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Failed());
+    W_TEST_STRING(missing, "-opt2");
 
     cmd.InjectCustomArgument("-opt2");
 
-    EZ_TEST_BOOL(ezCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Succeeded());
-    EZ_TEST_STRING(missing, "");
+    W_TEST_BOOL(WCommandLineOption::RequireOptions("-opt1 ; -opt2", &missing, &cmd).Succeeded());
+    W_TEST_STRING(missing, "");
   }
 }

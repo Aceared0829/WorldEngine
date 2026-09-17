@@ -4,7 +4,7 @@
 
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCodeEditorPreferencesWidget : public ezQtPropertyTypeWidget
+class W_EDITORFRAMEWORK_DLL WQtCodeEditorPreferencesWidget : public WQtPropertyTypeWidget
 {
   Q_OBJECT;
 
@@ -12,10 +12,10 @@ private Q_SLOTS:
   void on_code_editor_changed(int index);
 
 public:
-  explicit ezQtCodeEditorPreferencesWidget();
-  virtual ~ezQtCodeEditorPreferencesWidget();
+  explicit WQtCodeEditorPreferencesWidget();
+  virtual ~WQtCodeEditorPreferencesWidget();
 
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
 
 protected:
   QComboBox* m_pCodeEditor;

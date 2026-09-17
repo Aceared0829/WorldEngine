@@ -1,19 +1,19 @@
-ez_cmake_init()
+W_cmake_init()
 
-ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
+W_requires(W_3RDPARTY_ADS_SUPPORT)
 
-ez_requires_qt()
+W_requires_qt()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+W_create_target(LIBRARY ${PROJECT_NAME} NO_W_PREFIX)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
+W_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
 
-if (EZ_COMPILE_ENGINE_AS_DLL)
+if (W_COMPILE_ENGINE_AS_DLL)
   target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
 else()
   target_compile_definitions(${PROJECT_NAME} PUBLIC ADS_STATIC)
@@ -41,13 +41,13 @@ set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/AutoHideSideBar.h
   ${CMAKE_CURRENT_SOURCE_DIR}/AutoHideDockContainer.h
   )
-ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
+W_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
 
-if(EZ_CMAKE_COMPILER_MSVC)
+if(W_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4458 /wd4456 /wd4702)
 endif()
 
-if(EZ_CMAKE_PLATFORM_LINUX)
+if(W_CMAKE_PLATFORM_LINUX)
   target_link_libraries(${PROJECT_NAME} PRIVATE xcb Qt6::GuiPrivate)
   target_compile_definitions(${PROJECT_NAME} PUBLIC Q_OS_LINUX)
 endif()

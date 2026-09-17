@@ -3,32 +3,32 @@
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRmlUiReload);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRmlUiReload, 1, ezRTTIDefaultAllocator<ezMsgRmlUiReload>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgRmlUiReload);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgRmlUiReload, 1, WRTTIDefaultAllocator<WMsgRmlUiReload>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript(),
+    new WExcludeFromScript(),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRmlUiEvent);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRmlUiEvent, 1, ezRTTIDefaultAllocator<ezMsgRmlUiEvent>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgRmlUiEvent);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgRmlUiEvent, 1, WRTTIDefaultAllocator<WMsgRmlUiEvent>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Identifier", m_sIdentifier),
-    EZ_MEMBER_PROPERTY("Type", m_sType),
+    W_MEMBER_PROPERTY("Identifier", m_sIdentifier),
+    W_MEMBER_PROPERTY("Type", m_sType),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiMessages);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiMessages);

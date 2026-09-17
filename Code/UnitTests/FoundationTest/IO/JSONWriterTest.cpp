@@ -7,116 +7,116 @@
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
 
-EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
+W_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Object")
   {
     StreamComparer sc("\"TestObject\" : {\n\
   \n\
 }");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject("TestObject");
     js.EndObject();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Anonymous Object")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Anonymous Object")
   {
     StreamComparer sc("{\n\
   \n\
 }");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
     js.EndObject();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableBool")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableBool")
   {
     StreamComparer sc("\"var1\" : true,\n\"var2\" : false");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableBool("var1", true);
     js.AddVariableBool("var2", false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableInt32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableInt32")
   {
     StreamComparer sc("\"var1\" : 23,\n\"var2\" : -42");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableInt32("var1", 23);
     js.AddVariableInt32("var2", -42);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUInt32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableUInt32")
   {
     StreamComparer sc("\"var1\" : 23,\n\"var2\" : 42");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableUInt32("var1", 23);
     js.AddVariableUInt32("var2", 42);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableInt64")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableInt64")
   {
     StreamComparer sc("\"var1\" : 23,\n\"var2\" : -42");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableInt64("var1", 23);
     js.AddVariableInt64("var2", -42);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUInt64")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableUInt64")
   {
     StreamComparer sc("\"var1\" : 23,\n\"var2\" : 42");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableUInt64("var1", 23);
     js.AddVariableUInt64("var2", 42);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableFloat")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableFloat")
   {
     StreamComparer sc("\"var1\" : -65.5,\n\"var2\" : 2621.25");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableFloat("var1", -65.5f);
     js.AddVariableFloat("var2", 2621.25f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableDouble")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableDouble")
   {
     StreamComparer sc("\"var1\" : -65.125,\n\"var2\" : 2621.0625");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableDouble("var1", -65.125f);
     js.AddVariableDouble("var2", 2621.0625f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableString")
   {
     StreamComparer sc("\"var1\" : \"bla\",\n\"var2\" : \"blub\",\n\"special\" : \"I\\\\m\\t\\\"s\\bec/al\\\" \\f\\n//\\\\\\r\"");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableString("var1", "bla");
@@ -125,181 +125,181 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableString("special", "I\\m\t\"s\bec/al\" \f\n//\\\r");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableNULL")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableNULL")
   {
     StreamComparer sc("\"var1\" : null");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableNULL("var1");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableTime")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableTime")
   {
     StreamComparer sc("\"var1\" : 0.5,\n\"var2\" : 2.25");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableTime("var1", ezTime::MakeFromSeconds(0.5));
-    js.AddVariableTime("var2", ezTime::MakeFromSeconds(2.25));
+    js.AddVariableTime("var1", WTime::MakeFromSeconds(0.5));
+    js.AddVariableTime("var2", WTime::MakeFromSeconds(2.25));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUuid")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableUuid")
   {
-    ezUuid guid;
-    ezUInt64 val[2];
+    WUuid guid;
+    WUInt64 val[2];
     val[0] = 0x1122334455667788;
     val[1] = 0x99AABBCCDDEEFF00;
-    ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, 2);
+    WMemoryUtils::Copy(reinterpret_cast<WUInt64*>(&guid), val, 2);
 
     StreamComparer sc("\"uuid_var\" : \"{ 55667788-3344-1122-00ff-eeddccbbaa99 }\"");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableUuid("uuid_var", guid);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableAngle")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableAngle")
   {
     StreamComparer sc("\"var1\" : 90,\n\"var2\" : 180");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     // vs2019 is so imprecise, that the degree->radian conversion introduces differences in the final output
-    js.AddVariableAngle("var1", ezAngle::MakeFromRadian(1.5707963267f));
-    js.AddVariableAngle("var2", ezAngle::MakeFromRadian(1.0f * ezMath::Pi<float>()));
+    js.AddVariableAngle("var1", WAngle::MakeFromRadian(1.5707963267f));
+    js.AddVariableAngle("var2", WAngle::MakeFromRadian(1.0f * WMath::Pi<float>()));
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableColor")
   {
     StreamComparer sc("\"var1\" : {\n  \"r\" : 1,\n  \"g\" : 2,\n  \"b\" : 3,\n  \"a\" : 4\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableColor("var1", ezColor(1, 2, 3, 4));
+    js.AddVariableColor("var1", WColor(1, 2, 3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColorGamma")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableColorGamma")
   {
     StreamComparer sc("\"var1\" : {\n  \"r\" : 1,\n  \"g\" : 2,\n  \"b\" : 3,\n  \"a\" : 4\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableColorGamma("var1", ezColorGammaUB(1, 2, 3, 4));
+    js.AddVariableColorGamma("var1", WColorGammaUB(1, 2, 3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec2")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec2("var1", ezVec2(1, 2));
+    js.AddVariableVec2("var1", WVec2(1, 2));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec3")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec3")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec3("var1", ezVec3(1, 2, 3));
+    js.AddVariableVec3("var1", WVec3(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec4")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec4("var1", ezVec4(1, 2, 3, 4));
+    js.AddVariableVec4("var1", WVec4(1, 2, 3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2I32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec2I32")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec2I32("var1", ezVec2I32(1, 2));
+    js.AddVariableVec2I32("var1", WVec2I32(1, 2));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec3I32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec3I32")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec3I32("var1", ezVec3I32(1, 2, 3));
+    js.AddVariableVec3I32("var1", WVec3I32(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4I32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVec4I32")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVec4I32("var1", ezVec4I32(1, 2, 3, 4));
+    js.AddVariableVec4I32("var1", WVec4I32(1, 2, 3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableDataBuffer")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableDataBuffer")
   {
     StreamComparer sc("\"var1\" : \"ff00da\"");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    ezDataBuffer db;
+    WDataBuffer db;
     db.PushBack(0xFF);
     db.PushBack(0x00);
     db.PushBack(0xDA);
     js.AddVariableDataBuffer("var1", db);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableQuat")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableQuat")
   {
     StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableQuat("var1", ezQuat(1, 2, 3, 4));
+    js.AddVariableQuat("var1", WQuat(1, 2, 3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat3")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableMat3")
   {
     StreamComparer sc("\"var1\" : [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableMat3("var1", ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    js.AddVariableMat3("var1", WMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat4")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableMat4")
   {
     StreamComparer sc("\"var1\" : [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableMat4("var1", ezMat4T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    js.AddVariableMat4("var1", WMat4T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVariant")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableVariant")
   {
     StreamComparer sc("\
 \"var1\" : 23,\n\
@@ -308,38 +308,38 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 \"var4\" : true,\n\
 \"var5\" : \"pups\"");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableVariant("var1", ezVariant(23));
-    js.AddVariableVariant("var2", ezVariant(42.5f));
-    js.AddVariableVariant("var3", ezVariant(21.25));
-    js.AddVariableVariant("var4", ezVariant(true));
-    js.AddVariableVariant("var5", ezVariant("pups"));
+    js.AddVariableVariant("var1", WVariant(23));
+    js.AddVariableVariant("var2", WVariant(42.5f));
+    js.AddVariableVariant("var3", WVariant(21.25));
+    js.AddVariableVariant("var4", WVariant(true));
+    js.AddVariableVariant("var5", WVariant("pups"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Control character escaping, exact output")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Control character escaping, exact output")
   {
     // Checked as text rather than by parsing, because what matters is the exact escape sequence, and
-    // because a string with an embedded zero does not survive being read back into an ezString.
+    // because a string with an embedded zero does not survive being read back into an WString.
     StreamComparer sc("\
 \"var1\" : \"a\\u0007b\",\n\
 \"var2\" : \"a\\u0000b\",\n\
 \"var3\" : \"\\\\\\u0001\"");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableString("var1", "a\x07"
                                  "b");
-    js.AddVariableString("var2", ezStringView("a\0b", 3));
+    js.AddVariableString("var2", WStringView("a\0b", 3));
 
     // The backslash is escaped once, by the pass that runs before this one - the \uXXXX sequence must
     // not be fed through it again.
     js.AddVariableString("var3", "\\\x01");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableRawJson")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddVariableRawJson")
   {
     StreamComparer sc("\
 {\n\
@@ -348,7 +348,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   \"array\" : [ 1, [2,3], \"four\" ]\n\
 }");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
@@ -369,7 +369,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.EndObject();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Arrays")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Arrays")
   {
     StreamComparer sc("\
 {\n\
@@ -379,7 +379,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   \"Nested\" : [ null, [ 1, 2, 3 ], [ 4, 5, 6 ], [  ], \"That was an empty array\" ]\n\
 }");
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
@@ -421,9 +421,9 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.EndObject();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Objects")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Complex Objects")
   {
-    ezStringUtf8 sExp(L"\
+    WStringUtf8 sExp(L"\
 {\n\
   \"String\" : \"testvälue\",\n\
   \"double\" : 43.56,\n\
@@ -448,15 +448,15 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
     StreamComparer sc(sExp.GetData());
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
 
-    js.AddVariableString("String", ezStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
+    js.AddVariableString("String", WStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
     js.AddVariableDouble("double", 43.56);
     js.AddVariableFloat("float", 64.72f);
-    js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true);            // Unicode / Utf-8 test (identifier)
+    js.AddVariableBool(WStringUtf8(L"bööl").GetData(), true);            // Unicode / Utf-8 test (identifier)
     js.AddVariableInt32("int", 23);
 
     js.BeginArray("myarray");
@@ -492,37 +492,37 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
+W_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
 {
-  // ~ezStandardJSONWriter asserts that everything that was begun was also ended. These are the two
+  // ~WStandardJSONWriter asserts that everything that was begun was also ended. These are the two
   // supported ways to stop writing part way through, which error paths need - without them the only
   // options are matching every Begin with an End on every path, or a dead process.
   //
   // Verified by parsing the result rather than by comparing text, because what matters is that the
   // output is valid JSON with the expected content, not how it is formatted.
-  auto WriteAndParse = [](ezDelegate<void(ezStandardJSONWriter&)> build, ezVariantDictionary& out_result) -> ezResult
+  auto WriteAndParse = [](WDelegate<void(WStandardJSONWriter&)> build, WVariantDictionary& out_result) -> WResult
   {
-    ezDefaultMemoryStreamStorage storage;
+    WDefaultMemoryStreamStorage storage;
 
     {
-      ezMemoryStreamWriter writer(&storage);
-      ezStandardJSONWriter js;
+      WMemoryStreamWriter writer(&storage);
+      WStandardJSONWriter js;
       js.SetOutputStream(&writer);
       build(js);
     } // the writer is destroyed here - that is what would assert without EndAll()/Abandon()
 
-    ezMemoryStreamReader reader(&storage);
-    ezJSONReader parser;
-    EZ_SUCCEED_OR_RETURN(parser.Parse(reader));
+    WMemoryStreamReader reader(&storage);
+    WJSONReader parser;
+    W_SUCCEED_OR_RETURN(parser.Parse(reader));
 
     out_result = parser.GetTopLevelObject();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll closes nested objects")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndAll closes nested objects")
   {
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
         js.BeginObject();
         js.BeginObject("outer");
@@ -533,23 +533,23 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
       result)
                    .Succeeded());
 
-    ezVariant outer;
-    EZ_TEST_BOOL(result.TryGetValue("outer", outer));
-    EZ_TEST_BOOL(outer.IsA<ezVariantDictionary>());
+    WVariant outer;
+    W_TEST_BOOL(result.TryGetValue("outer", outer));
+    W_TEST_BOOL(outer.IsA<WVariantDictionary>());
 
-    ezVariant inner;
-    EZ_TEST_BOOL(outer.Get<ezVariantDictionary>().TryGetValue("inner", inner));
-    EZ_TEST_BOOL(inner.IsA<ezVariantDictionary>());
+    WVariant inner;
+    W_TEST_BOOL(outer.Get<WVariantDictionary>().TryGetValue("inner", inner));
+    W_TEST_BOOL(inner.IsA<WVariantDictionary>());
 
-    ezVariant var;
-    EZ_TEST_BOOL(inner.Get<ezVariantDictionary>().TryGetValue("var", var));
-    EZ_TEST_INT(var.ConvertTo<ezInt32>(), 1);
+    WVariant var;
+    W_TEST_BOOL(inner.Get<WVariantDictionary>().TryGetValue("var", var));
+    W_TEST_INT(var.ConvertTo<WInt32>(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll closes an open array")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndAll closes an open array")
   {
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
         js.BeginObject();
         js.BeginArray("arr");
@@ -558,16 +558,16 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.EndAll(); }, result)
                    .Succeeded());
 
-    ezVariant arr;
-    EZ_TEST_BOOL(result.TryGetValue("arr", arr));
-    EZ_TEST_BOOL(arr.IsA<ezVariantArray>());
-    EZ_TEST_INT(arr.Get<ezVariantArray>().GetCount(), 2);
+    WVariant arr;
+    W_TEST_BOOL(result.TryGetValue("arr", arr));
+    W_TEST_BOOL(arr.IsA<WVariantArray>());
+    W_TEST_INT(arr.Get<WVariantArray>().GetCount(), 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll writes null for a variable that has no value")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndAll writes null for a variable that has no value")
   {
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
         js.BeginObject();
         js.BeginVariable("var"); // nothing written for it
@@ -575,13 +575,13 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
                    .Succeeded());
 
     // The member has to exist, because an object member without any value is not representable.
-    EZ_TEST_BOOL(result.Contains("var"));
+    W_TEST_BOOL(result.Contains("var"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll on a balanced stream changes nothing")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndAll on a balanced stream changes nothing")
   {
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
         js.BeginObject();
         js.AddVariableInt32("var", 42);
@@ -589,19 +589,19 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.EndAll(); }, result)
                    .Succeeded());
 
-    ezVariant var;
-    EZ_TEST_BOOL(result.TryGetValue("var", var));
-    EZ_TEST_INT(var.ConvertTo<ezInt32>(), 42);
+    WVariant var;
+    W_TEST_BOOL(result.TryGetValue("var", var));
+    W_TEST_INT(var.ConvertTo<WInt32>(), 42);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Abandon suppresses the destructor check")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Abandon suppresses the destructor check")
   {
     // The output is deliberately left incomplete and must not be used. The point is that destroying
     // the writer with containers still open does not assert.
-    ezDefaultMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
+    WDefaultMemoryStreamStorage storage;
+    WMemoryStreamWriter writer(&storage);
 
-    ezStandardJSONWriter js;
+    WStandardJSONWriter js;
     js.SetOutputStream(&writer);
 
     js.BeginObject();
@@ -610,15 +610,15 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
 
     js.Abandon();
 
-    EZ_TEST_BOOL(js.HadWriteError());
+    W_TEST_BOOL(js.HadWriteError());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Control characters are escaped as \\uXXXX")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Control characters are escaped as \\uXXXX")
   {
     // A raw control character in a JSON string is invalid and parsers reject the whole document. Log
     // text and user-entered strings contain them, so the writer has to escape them rather than hope.
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
         js.BeginObject();
         js.AddVariableString("bell", "a\x07"
@@ -631,68 +631,68 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.EndObject(); }, result)
                    .Succeeded());
 
-    ezVariant value;
+    WVariant value;
 
-    EZ_TEST_BOOL(result.TryGetValue("bell", value));
-    EZ_TEST_STRING(value.ConvertTo<ezString>(), "a\x07"
+    W_TEST_BOOL(result.TryGetValue("bell", value));
+    W_TEST_STRING(value.ConvertTo<WString>(), "a\x07"
                                                 "b");
 
-    EZ_TEST_BOOL(result.TryGetValue("named", value));
-    EZ_TEST_STRING(value.ConvertTo<ezString>(), "tab\there\nnewline");
+    W_TEST_BOOL(result.TryGetValue("named", value));
+    W_TEST_STRING(value.ConvertTo<WString>(), "tab\there\nnewline");
 
-    EZ_TEST_BOOL(result.TryGetValue("backslash", value));
-    EZ_TEST_STRING(value.ConvertTo<ezString>(), "a\\b\x01");
+    W_TEST_BOOL(result.TryGetValue("backslash", value));
+    W_TEST_STRING(value.ConvertTo<WString>(), "a\\b\x01");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteVariant covers standard types")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WriteVariant covers standard types")
   {
-    ezVariantDictionary result;
-    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+    WVariantDictionary result;
+    W_TEST_BOOL(WriteAndParse([](WStandardJSONWriter& js)
       {
-        ezHashedString sHashed;
+        WHashedString sHashed;
         sHashed.Assign("text");
 
         js.BeginObject();
-        js.AddVariableVariant("hashed", ezVariant(sHashed));
-        js.AddVariableVariant("tempHashed", ezVariant(ezTempHashedString("text")));
-        js.AddVariableVariant("vec2u", ezVariant(ezVec2U32(1, 2)));
-        js.AddVariableVariant("vec3u", ezVariant(ezVec3U32(1, 2, 3)));
-        js.AddVariableVariant("vec4u", ezVariant(ezVec4U32(1, 2, 3, 4)));
-        js.AddVariableVariant("transform", ezVariant(ezTransform(ezVec3(1, 2, 3))));
+        js.AddVariableVariant("hashed", WVariant(sHashed));
+        js.AddVariableVariant("tempHashed", WVariant(WTempHashedString("text")));
+        js.AddVariableVariant("vec2u", WVariant(WVec2U32(1, 2)));
+        js.AddVariableVariant("vec3u", WVariant(WVec3U32(1, 2, 3)));
+        js.AddVariableVariant("vec4u", WVariant(WVec4U32(1, 2, 3, 4)));
+        js.AddVariableVariant("transform", WVariant(WTransform(WVec3(1, 2, 3))));
         js.EndObject(); }, result)
                    .Succeeded());
 
-    ezVariant value;
+    WVariant value;
 
-    EZ_TEST_BOOL(result.TryGetValue("hashed", value));
-    EZ_TEST_STRING(value.ConvertTo<ezString>(), "text");
+    W_TEST_BOOL(result.TryGetValue("hashed", value));
+    W_TEST_STRING(value.ConvertTo<WString>(), "text");
 
-    // Only the hash survives - an ezTempHashedString does not keep the text it was built from. Compared
-    // as a double, because that is what the value came back through: ezJSONReader parses every number
+    // Only the hash survives - an WTempHashedString does not keep the text it was built from. Compared
+    // as a double, because that is what the value came back through: WJSONReader parses every number
     // into a double, so a 64 bit hash does not survive the round trip exactly. The writer is not what
     // loses it, and writing it as a string instead would make it indistinguishable from a real one.
-    EZ_TEST_BOOL(result.TryGetValue("tempHashed", value));
-    EZ_TEST_DOUBLE(value.ConvertTo<double>(), static_cast<double>(ezTempHashedString("text").GetHash()), 4096.0);
+    W_TEST_BOOL(result.TryGetValue("tempHashed", value));
+    W_TEST_DOUBLE(value.ConvertTo<double>(), static_cast<double>(WTempHashedString("text").GetHash()), 4096.0);
 
-    EZ_TEST_BOOL(result.TryGetValue("vec3u", value));
-    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
-    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("z")->ConvertTo<ezUInt32>(), 3);
+    W_TEST_BOOL(result.TryGetValue("vec3u", value));
+    W_TEST_BOOL(value.IsA<WVariantDictionary>());
+    W_TEST_INT(value.Get<WVariantDictionary>().GetValue("z")->ConvertTo<WUInt32>(), 3);
 
-    EZ_TEST_BOOL(result.TryGetValue("vec4u", value));
-    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
-    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("w")->ConvertTo<ezUInt32>(), 4);
+    W_TEST_BOOL(result.TryGetValue("vec4u", value));
+    W_TEST_BOOL(value.IsA<WVariantDictionary>());
+    W_TEST_INT(value.Get<WVariantDictionary>().GetValue("w")->ConvertTo<WUInt32>(), 4);
 
-    EZ_TEST_BOOL(result.TryGetValue("vec2u", value));
-    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
-    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("y")->ConvertTo<ezUInt32>(), 2);
+    W_TEST_BOOL(result.TryGetValue("vec2u", value));
+    W_TEST_BOOL(value.IsA<WVariantDictionary>());
+    W_TEST_INT(value.Get<WVariantDictionary>().GetValue("y")->ConvertTo<WUInt32>(), 2);
 
-    EZ_TEST_BOOL(result.TryGetValue("transform", value));
-    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
+    W_TEST_BOOL(result.TryGetValue("transform", value));
+    W_TEST_BOOL(value.IsA<WVariantDictionary>());
 
-    const ezVariantDictionary& transform = value.Get<ezVariantDictionary>();
-    EZ_TEST_BOOL(transform.Contains("position"));
-    EZ_TEST_BOOL(transform.Contains("rotation"));
-    EZ_TEST_BOOL(transform.Contains("scale"));
-    EZ_TEST_INT(transform.GetValue("position")->Get<ezVariantDictionary>().GetValue("x")->ConvertTo<ezInt32>(), 1);
+    const WVariantDictionary& transform = value.Get<WVariantDictionary>();
+    W_TEST_BOOL(transform.Contains("position"));
+    W_TEST_BOOL(transform.Contains("rotation"));
+    W_TEST_BOOL(transform.Contains("scale"));
+    W_TEST_INT(transform.GetValue("position")->Get<WVariantDictionary>().GetValue("x")->ConvertTo<WInt32>(), 1);
   }
 }

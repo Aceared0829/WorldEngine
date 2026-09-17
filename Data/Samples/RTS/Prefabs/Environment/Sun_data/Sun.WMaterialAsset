@@ -1,0 +1,2170 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{7620995397824001423,5349799445066999962}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Material"}
+		VarArray %Dependencies
+		{
+			s{":app/VisualShader/Inputs.ddl"}
+			s{":app/VisualShader/Math_Basic.ddl"}
+			s{":app/VisualShader/Math_Trigonometry.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
+			s{":app/VisualShader/Textures.ddl"}
+		}
+		Uuid %DocumentID{u4{7620995397824001423,5349799445066999962}}
+		u4 %Hash{5602799293241726800}
+		VarArray %MetaInfo{}
+		VarArray %Outputs
+		{
+			s{"VISUAL_SHADER"}
+		}
+		VarArray %PackageDeps
+		{
+			s{"{ 40de4c83-c72f-4be8-8c10-9cf6f780f723 }"}
+			s{"{ 62679f43-c2b8-4eed-8fc9-b79ea6f0fb19 }"}
+			s{"{ ef681deb-d047-488f-9197-58afd67c9800 }"}
+		}
+		VarArray %References
+		{
+			s{":app/VisualShader/Inputs.ddl"}
+			s{":app/VisualShader/Math_Basic.ddl"}
+			s{":app/VisualShader/Math_Trigonometry.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
+			s{":app/VisualShader/Textures.ddl"}
+			s{"{ 40de4c83-c72f-4be8-8c10-9cf6f780f723 }"}
+			s{"{ 62679f43-c2b8-4eed-8fc9-b79ea6f0fb19 }"}
+			s{"{ ef681deb-d047-488f-9197-58afd67c9800 }"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{10956960480897822025,2659065424543433491}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x8D4B2245,0x13493C44}}
+		f %a{0x0000A040}
+		f %b{0x0000A040}
+	}
+}
+o
+{
+	Uuid %id{u4{8156189542218038027,4456947199541210532}}
+	s %t{"AssetCache/Common/Prefabs/Environment/Sun_data/Sun.autogen.WShader"}
+	u3 %v{2}
+	p
+	{
+		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
+		s %CustomTexture{"{ 40de4c83-c72f-4be8-8c10-9cf6f780f723 }"}
+		f %MaskThreshold{0x0000803E}
+		s %Noise1{"{ ef681deb-d047-488f-9197-58afd67c9800 }"}
+		s %Noise2{"{ 62679f43-c2b8-4eed-8fc9-b79ea6f0fb19 }"}
+		s %Noise3{"{ 62679f43-c2b8-4eed-8fc9-b79ea6f0fb19 }"}
+		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
+		b %TWO_SIDED{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5523829917985734837,4612233979264950390}}
+	s %t{"ShaderNode::MaterialOutput"}
+	u3 %v{1}
+	p
+	{
+		b %ApplyDecals{1}
+		b %ApplyFog{1}
+		Vec3 %BaseColor{f{0x0000803F,0x0000803F,0x0000803F}}
+		Vec3 %Emissive{f{0,0,0}}
+		f %MaskThreshold{0x0000803E}
+		f %Metallic{0}
+		Vec2 %Node::Pos{f{0xE5917345,0xE7721C44}}
+		f %Occlusion{0x0000803F}
+		f %Opacity{0x0000803F}
+		f %Reflectance{0}
+		Vec4 %RefractionColor{f{0,0,0,0x0000803F}}
+		f %Roughness{0}
+		Vec3 %SubsurfaceColor{f{0,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{13405758110299594928,4641259964193851689}}
+	s %t{"ShaderNode::Add"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x46DA4445,0x600B3344}}
+		f %a{0}
+		f %b{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{10307994535211158188,4760007707387977561}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2884815937514208342,10177470964067036716}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{2024197163528181709,14660675474249370171}}
+		s %TargetPin{"UV"}
+	}
+}
+o
+{
+	Uuid %id{u4{2768357798777534395,4823911524439367703}}
+	s %t{"WMaterialAssetProperties"}
+	u3 %v{4}
+	p
+	{
+		s %AssetFilterTags{""}
+		s %BaseMaterial{""}
+		s %Shader{"{ 36cce89a-4e40-4a3e-8fb5-2fc2ef36c369 }"}
+		s %ShaderMode{"WMaterialShaderMode::Custom"}
+		Uuid %ShaderProperties{u4{8156189542218038027,4456947199541210532}}
+		s %Surface{""}
+	}
+}
+o
+{
+	Uuid %id{u4{10900406169349141413,4861314832855801546}}
+	s %t{"ShaderNode::Texture2D"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"CustomTexture"}
+		Vec2 %Node::Pos{f{0x9D304E45,0x34724244}}
+	}
+}
+o
+{
+	Uuid %id{u4{9697333254691625363,4894731204757381979}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{16084231609238185764,10961952470256073481}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{16200233602127451744,10280656906641603117}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{2444584486551093175,4974170875481555151}}
+	s %t{"ShaderNode::Pow"}
+	u3 %v{1}
+	p
+	{
+		f %Base{0x0000803F}
+		f %Exponent{0x00004040}
+		Vec2 %Node::Pos{f{0x30C93745,0x7C5B2044}}
+	}
+}
+o
+{
+	Uuid %id{u4{1390580261712897161,4976472095820112945}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{66844647241644944,5027769161324633588}}
+		s %SourcePin{"Red"}
+		Uuid %Target{u4{2235267494699151251,5513578842815283247}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{3294756573717885067,4978355415533087640}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{12298175603133369813,14880547000326570087}}
+		s %SourcePin{"UV"}
+		Uuid %Target{u4{2884815937514208342,10177470964067036716}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{2331069856024301225,4993933519178247895}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10900406169349141413,4861314832855801546}}
+		s %SourcePin{"RGBA"}
+		Uuid %Target{u4{5523829917985734837,4612233979264950390}}
+		s %TargetPin{"BaseColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{66844647241644944,5027769161324633588}}
+	s %t{"ShaderNode::Texture2D"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Noise1"}
+		Vec2 %Node::Pos{f{0xBB51BD44,0xCE11C143}}
+	}
+}
+o
+{
+	Uuid %id{u4{8878430865848660671,5027981056999368680}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{396155798551472306,5425639480846733752}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{5523829917985734837,4612233979264950390}}
+		s %TargetPin{"Emissive"}
+	}
+}
+o
+{
+	Uuid %id{u4{3276716784362958485,5035571593468225061}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{6241561801560546210,5271871044825063978}}
+		s %SourcePin{"UV"}
+		Uuid %Target{u4{66844647241644944,5027769161324633588}}
+		s %TargetPin{"UV"}
+	}
+}
+o
+{
+	Uuid %id{u4{494273815294764678,5043113297439582202}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{9487853269919055524,5740397998833056191}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{17966750064894260398,5223712022125914682}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{15579623011355058868,5077479493023092567}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2024197163528181709,14660675474249370171}}
+		s %SourcePin{"Blue"}
+		Uuid %Target{u4{14720471794154903244,15887128537292179495}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{11022912770224447373,5181830224383228080}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2235267494699151251,5513578842815283247}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{11762215129471707449,10399685495632939969}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{14098139611922914717,5207119786558671234}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{17966750064894260398,5223712022125914682}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{10956960480897822025,2659065424543433491}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{10835647626882961591,5222971829265593029}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13661935418216652333,9955370933290464073}}
+		s %SourcePin{"UV"}
+		Uuid %Target{u4{4248575752597490862,5252294897030930702}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{17966750064894260398,5223712022125914682}}
+	s %t{"ShaderNode::Add"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x48041A45,0x63A72D44}}
+		f %a{0}
+		f %b{0x00004040}
+	}
+}
+o
+{
+	Uuid %id{u4{4248575752597490862,5252294897030930702}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xB379B144,0xF7572B44}}
+		f %a{0x0000803F}
+		f %b{0x00004040}
+	}
+}
+o
+{
+	Uuid %id{u4{6241561801560546210,5271871044825063978}}
+	s %t{"ShaderNode::UVScroll"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x02169344,0xD955E943}}
+		Vec2 %Offset{f{0,0}}
+		Vec2 %Scale{f{0x0000803F,0x0000803F}}
+		Vec2 %Speed{f{0xCDCC4C3D,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{9644899597780581504,5372999771974556509}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10900406169349141413,4861314832855801546}}
+		s %SourcePin{"RGBA"}
+		Uuid %Target{u4{396155798551472306,5425639480846733752}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{8184431435568734873,5376905992263344653}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{15664057804964861627,5731417291837603831}}
+		s %SourcePin{"World"}
+		Uuid %Target{u4{9487853269919055524,5740397998833056191}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{16935824187423187091,5385898792841315215}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{11762215129471707449,10399685495632939969}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{2444584486551093175,4974170875481555151}}
+		s %TargetPin{"Base"}
+	}
+}
+o
+{
+	Uuid %id{u4{396155798551472306,5425639480846733752}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x03535F45,0xC4384844}}
+		f %a{0x0000803F}
+		f %b{0x0000C842}
+	}
+}
+o
+{
+	Uuid %id{u4{11661956813677645457,5432494419731223099}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{4248575752597490862,5252294897030930702}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{3387956978611464229,9735499407213264157}}
+		s %TargetPin{"UV"}
+	}
+}
+o
+{
+	Uuid %id{u4{9663884224744028065,5456395035450563106}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2444584486551093175,4974170875481555151}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{13405758110299594928,4641259964193851689}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{8542093244893389712,5456825699951990947}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{14720471794154903244,15887128537292179495}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{16200233602127451744,10280656906641603117}}
+		s %TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{6686855389696509332,5503301079012115891}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10956960480897822025,2659065424543433491}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{3617181545187662024,15749723899911617377}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{2235267494699151251,5513578842815283247}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xB1A6F044,0x2184EC43}}
+		f %a{0x0000803F}
+		f %b{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{5296986609061087672,5591744086666326696}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{16200233602127451744,10280656906641603117}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{3617181545187662024,15749723899911617377}}
+		s %TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{12230083489047686300,5673958388690293702}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13405758110299594928,4641259964193851689}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{10900406169349141413,4861314832855801546}}
+		s %TargetPin{"UV"}
+	}
+}
+o
+{
+	Uuid %id{u4{13055158844560638605,5687459678742381669}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{3387956978611464229,9735499407213264157}}
+		s %SourcePin{"Green"}
+		Uuid %Target{u4{16084231609238185764,10961952470256073481}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{15418082665568496563,5692477797757064294}}
+	s %t{"WDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{3617181545187662024,15749723899911617377}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{11762215129471707449,10399685495632939969}}
+		s %TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{15664057804964861627,5731417291837603831}}
+	s %t{"ShaderNode::Time"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x2E610645,0x6E171844}}
+	}
+}
+o
+{
+	Uuid %id{u4{9487853269919055524,5740397998833056191}}
+	s %t{"ShaderNode::Cosine"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x04641045,0x8DA42344}}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2768357798777534395,4823911524439367703}}
+			Uuid{u4{5523829917985734837,4612233979264950390}}
+			Uuid{u4{66844647241644944,5027769161324633588}}
+			Uuid{u4{3387956978611464229,9735499407213264157}}
+			Uuid{u4{13661935418216652333,9955370933290464073}}
+			Uuid{u4{4248575752597490862,5252294897030930702}}
+			Uuid{u4{2235267494699151251,5513578842815283247}}
+			Uuid{u4{16084231609238185764,10961952470256073481}}
+			Uuid{u4{2884815937514208342,10177470964067036716}}
+			Uuid{u4{16200233602127451744,10280656906641603117}}
+			Uuid{u4{2024197163528181709,14660675474249370171}}
+			Uuid{u4{12298175603133369813,14880547000326570087}}
+			Uuid{u4{14720471794154903244,15887128537292179495}}
+			Uuid{u4{2444584486551093175,4974170875481555151}}
+			Uuid{u4{6241561801560546210,5271871044825063978}}
+			Uuid{u4{11762215129471707449,10399685495632939969}}
+			Uuid{u4{3617181545187662024,15749723899911617377}}
+			Uuid{u4{9487853269919055524,5740397998833056191}}
+			Uuid{u4{15664057804964861627,5731417291837603831}}
+			Uuid{u4{17966750064894260398,5223712022125914682}}
+			Uuid{u4{10956960480897822025,2659065424543433491}}
+			Uuid{u4{10900406169349141413,4861314832855801546}}
+			Uuid{u4{13405758110299594928,4641259964193851689}}
+			Uuid{u4{396155798551472306,5425639480846733752}}
+			Uuid{u4{15418082665568496563,5692477797757064294}}
+			Uuid{u4{2331069856024301225,4993933519178247895}}
+			Uuid{u4{6686855389696509332,5503301079012115891}}
+			Uuid{u4{8878430865848660671,5027981056999368680}}
+			Uuid{u4{1390580261712897161,4976472095820112945}}
+			Uuid{u4{14098139611922914717,5207119786558671234}}
+			Uuid{u4{13055158844560638605,5687459678742381669}}
+			Uuid{u4{9697333254691625363,4894731204757381979}}
+			Uuid{u4{12230083489047686300,5673958388690293702}}
+			Uuid{u4{3276716784362958485,5035571593468225061}}
+			Uuid{u4{9644899597780581504,5372999771974556509}}
+			Uuid{u4{16935824187423187091,5385898792841315215}}
+			Uuid{u4{10307994535211158188,4760007707387977561}}
+			Uuid{u4{8542093244893389712,5456825699951990947}}
+			Uuid{u4{494273815294764678,5043113297439582202}}
+			Uuid{u4{8184431435568734873,5376905992263344653}}
+			Uuid{u4{11661956813677645457,5432494419731223099}}
+			Uuid{u4{10835647626882961591,5222971829265593029}}
+			Uuid{u4{9663884224744028065,5456395035450563106}}
+			Uuid{u4{11022912770224447373,5181830224383228080}}
+			Uuid{u4{3294756573717885067,4978355415533087640}}
+			Uuid{u4{15579623011355058868,5077479493023092567}}
+			Uuid{u4{5296986609061087672,5591744086666326696}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3387956978611464229,9735499407213264157}}
+	s %t{"ShaderNode::Texture2D"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Noise2"}
+		Vec2 %Node::Pos{f{0x9DD7CC44,0xAE262B44}}
+	}
+}
+o
+{
+	Uuid %id{u4{13661935418216652333,9955370933290464073}}
+	s %t{"ShaderNode::UV"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xFB41A344,0xD4392944}}
+	}
+}
+o
+{
+	Uuid %id{u4{2884815937514208342,10177470964067036716}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x557ECA44,0xB5686644}}
+		f %a{0x0000803F}
+		f %b{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{16200233602127451744,10280656906641603117}}
+	s %t{"ShaderNode::Add"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x4E810F45,0x09B14F44}}
+		f %a{0}
+		f %b{0}
+	}
+}
+o
+{
+	Uuid %id{u4{11762215129471707449,10399685495632939969}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x2F212945,0x92DC1844}}
+		f %a{0x0000803F}
+		f %b{0x3333333F}
+	}
+}
+o
+{
+	Uuid %id{u4{16084231609238185764,10961952470256073481}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x1CA8F544,0x66432844}}
+		f %a{0x0000803F}
+		f %b{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{2024197163528181709,14660675474249370171}}
+	s %t{"ShaderNode::Texture2D"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Noise3"}
+		Vec2 %Node::Pos{f{0x91A3E544,0x6C376644}}
+	}
+}
+o
+{
+	Uuid %id{u4{12298175603133369813,14880547000326570087}}
+	s %t{"ShaderNode::UV"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xEF0DBC44,0x924A6444}}
+	}
+}
+o
+{
+	Uuid %id{u4{3617181545187662024,15749723899911617377}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xF6622F45,0x0A274F44}}
+		f %a{0x0000A040}
+		f %b{0x3333333F}
+	}
+}
+o
+{
+	Uuid %id{u4{14720471794154903244,15887128537292179495}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x52600345,0x48196444}}
+		f %a{0x0000803F}
+		f %b{0xCDCCCC3D}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{7527227201946035921,196092692312352598}}
+	s %t{"WAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"WDependencyFlags::Package|WDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16750038900397148337,379807006974439459}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12424489507190665228,14388082733517571021}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Offset"}
+		s %Type{"WVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{13946902682655716367,389565871872510418}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WShaderTypeBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{1664739596446920377,10520279752876299358}}
+			Uuid{u4{10158148916847274752,4788982056855914746}}
+			Uuid{u4{6022773949449201655,10015943482786943883}}
+			Uuid{u4{7420597536970799850,12337169678596773803}}
+			Uuid{u4{11753445690972575510,15814416803008159852}}
+			Uuid{u4{5879046578542485000,7344537395424474678}}
+			Uuid{u4{17215276012492567011,1366708704623434446}}
+			Uuid{u4{13523958135839658042,8947853261558826306}}
+		}
+		s %TypeName{"AssetCache/Common/Prefabs/Environment/Sun_data/Sun.autogen.WShader"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{3170177439494702714,475745434308295261}}
+	s %t{"WAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"WDependencyFlags::Package|WDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12430046591532862393,1037504264535421647}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{10027618310338026228,10196059618807219006}}
+			Uuid{u4{5519880123121035950,4522607325628851605}}
+			Uuid{u4{16750038900397148337,379807006974439459}}
+		}
+		s %TypeName{"ShaderNode::UVScroll"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17215276012492567011,1366708704623434446}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{15346746760339606602,4514076887705737361}}
+			Uuid{u4{7527227201946035921,196092692312352598}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Noise2"}
+		s %Type{"WString"}
+	}
+}
+o
+{
+	Uuid %id{u4{14752411198798940932,1641452100720910059}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Value{0x000000000000D03F}
+	}
+}
+o
+{
+	Uuid %id{u4{11040065101175624628,1662539785884692449}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{2589033904860476140,2941600109649901427}}
+			Uuid{u4{16804715233058764794,16291563085247070494}}
+			Uuid{u4{18411837506060015951,13397631608945770603}}
+			Uuid{u4{8531456234757106898,9843359760009772741}}
+			Uuid{u4{10978509386339080603,6055180187630064684}}
+			Uuid{u4{2493142764329470971,4237250110264931902}}
+			Uuid{u4{11381554768749103056,5747586724112780390}}
+			Uuid{u4{15388913065968328453,11188089115316402371}}
+			Uuid{u4{13652862081152275637,1931931446829192038}}
+			Uuid{u4{4737060376990519197,5534452074735684677}}
+			Uuid{u4{17888293823252574217,5278584362329602531}}
+			Uuid{u4{5182949022402297138,11502908056830025687}}
+		}
+		s %TypeName{"ShaderNode::MaterialOutput"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18311245008988910186,1895067994934075466}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{773668148553828920,15966949596821666881}}
+			Uuid{u4{540429536914844576,8213819539779215949}}
+			Uuid{u4{15543418230834458689,5548684801941186544}}
+			Uuid{u4{16393153594407016602,3744118329769567614}}
+			Uuid{u4{7757084663128585029,8011669779036733373}}
+			Uuid{u4{5650026407490086663,5768478847879086899}}
+			Uuid{u4{3687164412847300807,16605290275319987562}}
+		}
+		s %TypeName{"BLEND_MODE"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2524718926845712419,1904526312384132727}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"WVisualShaderNodeBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13652862081152275637,1931931446829192038}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8648126710299805379,15926322808980556731}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Emissive"}
+		s %Type{"WVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{9182498974977327514,2041274447054354959}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{0}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"SHADING_MODE::SHADING_MODE_LIT"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{12835097668507006292,2489695188888823524}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"ShaderNode::UV"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2589033904860476140,2941600109649901427}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{107023027798387058,15125524156854853544}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"MaskThreshold"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{10546328178433928928,3538178021212683011}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		b %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16393153594407016602,3744118329769567614}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{2}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_DITHERED"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{11992629484154905888,3993029317059678037}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8877328514147020979,11814959309858965089}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"a"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{2493142764329470971,4237250110264931902}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12975893279928312590,7112828226212987324}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Reflectance"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{4085023801481947262,4424431816763648179}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{11463808758995417297,4463006767194330082}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{15346746760339606602,4514076887705737361}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{5519880123121035950,4522607325628851605}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{7451299540775361904,16371182990745737712}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Scale"}
+		s %Type{"WVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{10158148916847274752,4788982056855914746}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10972421269801436845,16924736318130858682}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::IsEnum"}
+		s %Name{"SHADING_MODE"}
+		s %Type{"SHADING_MODE"}
+	}
+}
+o
+{
+	Uuid %id{u4{8613031641217622880,4944460115272015607}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{6578081666434076975,4946780050709061779}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"CustomTexture"}
+	}
+}
+o
+{
+	Uuid %id{u4{17888293823252574217,5278584362329602531}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{13542406804441022416,9548951225033578222}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"RefractionColor"}
+		s %Type{"WVec4"}
+	}
+}
+o
+{
+	Uuid %id{u4{5318323995749771688,5488087044796430591}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{4737060376990519197,5534452074735684677}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12496807453269888305,16412205064812982056}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Occlusion"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{15543418230834458689,5548684801941186544}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{1}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{11381554768749103056,5747586724112780390}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1263665986699366714,7795821215980672176}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Roughness"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{5650026407490086663,5768478847879086899}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{4}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{17415482189154908205,5849837779780969603}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8613031641217622880,4944460115272015607}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Base"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{10978509386339080603,6055180187630064684}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11154057802738083180,8940345913792219569}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Metallic"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{168057228374501286,6251753556952912477}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{11695727463527673381,6549777581474058039}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{1155205217496153151,16062411953539633064}}
+			Uuid{u4{9182498974977327514,2041274447054354959}}
+			Uuid{u4{14201946371216656691,8983156218640221597}}
+		}
+		s %TypeName{"SHADING_MODE"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4067565067583183916,7064488807355752126}}
+	s %t{"WAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"WDependencyFlags::Package|WDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12975893279928312590,7112828226212987324}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{6369559113783200923,7215135703992379753}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{5879046578542485000,7344537395424474678}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{3392432406319713791,10178208862849508660}}
+			Uuid{u4{4067565067583183916,7064488807355752126}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Noise1"}
+		s %Type{"WString"}
+	}
+}
+o
+{
+	Uuid %id{u4{1263665986699366714,7795821215980672176}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{7757084663128585029,8011669779036733373}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{3}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{540429536914844576,8213819539779215949}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{0}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{12912798515863243025,8650032365487473910}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{262199108420592029,8750928967832450501}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{11154057802738083180,8940345913792219569}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{13523958135839658042,8947853261558826306}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4850567730256865090,18082817616660878024}}
+			Uuid{u4{3170177439494702714,475745434308295261}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Noise3"}
+		s %Type{"WString"}
+	}
+}
+o
+{
+	Uuid %id{u4{14201946371216656691,8983156218640221597}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{1}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"SHADING_MODE::SHADING_MODE_FULLBRIGHT"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{17717897218099796308,9033184167245688007}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Abstract"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"WShaderTypeBase"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{15795015933237580824,9427852000181046270}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{13290774453266493294,11587050219959107207}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"b"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{15456791007917526273,9548022408269633412}}
+	s %t{"WAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"WDependencyFlags::Package|WDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13542406804441022416,9548951225033578222}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec4 %Value{f{0,0,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{8531456234757106898,9843359760009772741}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4085023801481947262,4424431816763648179}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"BaseColor"}
+		s %Type{"WVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{6022773949449201655,10015943482786943883}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6369559113783200923,7215135703992379753}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"TWO_SIDED"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{3392432406319713791,10178208862849508660}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{10027618310338026228,10196059618807219006}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8084655849232539587,17779891222558290410}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Speed"}
+		s %Type{"WVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{1664739596446920377,10520279752876299358}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5318323995749771688,5488087044796430591}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::IsEnum"}
+		s %Name{"BLEND_MODE"}
+		s %Type{"BLEND_MODE"}
+	}
+}
+o
+{
+	Uuid %id{u4{14828465751607615123,10572350110998835850}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"ShaderNode::Time"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7429724612683441627,10745724059525854989}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{262199108420592029,8750928967832450501}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"a"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{7566946888615057369,10895726355449621559}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6578081666434076975,4946780050709061779}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Name"}
+		s %Type{"WString"}
+	}
+}
+o
+{
+	Uuid %id{u4{15388913065968328453,11188089115316402371}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6649753934969554305,13791166057793731169}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Opacity"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{5182949022402297138,11502908056830025687}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{168057228374501286,6251753556952912477}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"SubsurfaceColor"}
+		s %Type{"WVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{13290774453266493294,11587050219959107207}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{8877328514147020979,11814959309858965089}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{10097442269101671049,12017415575322047640}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12689300849278625136,16388205898017076391}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"b"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{7420597536970799850,12337169678596773803}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12912798515863243025,8650032365487473910}}
+			Uuid{u4{14752411198798940932,1641452100720910059}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"MaskThreshold"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{17977760936479973727,12451027233438553241}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11463808758995417297,4463006767194330082}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"Exponent"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{4440304378651420221,12575431605907932885}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{11992629484154905888,3993029317059678037}}
+			Uuid{u4{10097442269101671049,12017415575322047640}}
+		}
+		s %TypeName{"ShaderNode::Multiply"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12692264475183312263,12798347843692370109}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{7429724612683441627,10745724059525854989}}
+			Uuid{u4{15795015933237580824,9427852000181046270}}
+		}
+		s %TypeName{"ShaderNode::Add"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18411837506060015951,13397631608945770603}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2531204913114908651,14636118749865147444}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"ApplyDecals"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{6649753934969554305,13791166057793731169}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{12612048603081377189,14361989340880848437}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{16791703574769660465,14363006351160141769}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"ShaderNode::Cosine"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12424489507190665228,14388082733517571021}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Value{f{0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{2531204913114908651,14636118749865147444}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		b %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{107023027798387058,15125524156854853544}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803E}
+	}
+}
+o
+{
+	Uuid %id{u4{12465950896141984421,15760915466871037192}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{7566946888615057369,10895726355449621559}}
+		}
+		s %TypeName{"ShaderNode::Texture2D"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11753445690972575510,15814416803008159852}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12612048603081377189,14361989340880848437}}
+			Uuid{u4{15456791007917526273,9548022408269633412}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"CustomTexture"}
+		s %Type{"WString"}
+	}
+}
+o
+{
+	Uuid %id{u4{8648126710299805379,15926322808980556731}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{773668148553828920,15966949596821666881}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::Default"}
+		s %Type{"WUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{1155205217496153151,16062411953539633064}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"SHADING_MODE::Default"}
+		s %Type{"WUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{16804715233058764794,16291563085247070494}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10546328178433928928,3538178021212683011}}
+		}
+		s %Category{"WPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"WPropertyFlags::StandardType"}
+		s %Name{"ApplyFog"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{7451299540775361904,16371182990745737712}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Value{f{0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{12689300849278625136,16388205898017076391}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{12496807453269888305,16412205064812982056}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{3687164412847300807,16605290275319987562}}
+	s %t{"WReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Constant"}
+		i3 %ConstantValue{5}
+		s %Flags{"WPropertyFlags::StandardType|WPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
+		s %Type{"WInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{10972421269801436845,16924736318130858682}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentObject_ConnectionBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8721322561248882817,17579066505604714242}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WMaterialShaderMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8084655849232539587,17779891222558290410}}
+	s %t{"WDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Value{f{0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{16127214588373353935,17890054815026882002}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{17415482189154908205,5849837779780969603}}
+			Uuid{u4{17977760936479973727,12451027233438553241}}
+		}
+		s %TypeName{"ShaderNode::Pow"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4850567730256865090,18082817616660878024}}
+	s %t{"WCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{5030680158680079231,18410952876772242771}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WMaterialAssetProperties"}
+		u3 %TypeVersion{4}
+	}
+}
+}

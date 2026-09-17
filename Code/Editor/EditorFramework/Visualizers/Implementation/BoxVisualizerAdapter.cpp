@@ -4,104 +4,104 @@
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezBoxVisualizerAdapter::ezBoxVisualizerAdapter() = default;
-ezBoxVisualizerAdapter::~ezBoxVisualizerAdapter() = default;
+WBoxVisualizerAdapter::WBoxVisualizerAdapter() = default;
+WBoxVisualizerAdapter::~WBoxVisualizerAdapter() = default;
 
-void ezBoxVisualizerAdapter::Finalize()
+void WBoxVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
+  const WBoxVisualizerAttribute* pAttr = static_cast<const WBoxVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::LineBox, pAttr->m_Color, WGizmoFlags::Visualizer | WGizmoFlags::ShowInOrtho);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezBoxVisualizerAdapter::Update()
+void WBoxVisualizerAdapter::Update()
 {
-  const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WBoxVisualizerAttribute* pAttr = static_cast<const WBoxVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_vScale.Set(pAttr->m_fSizeScale);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    ezVariant val;
+    WVariant val;
     if (pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetSizeProperty()), val).Succeeded())
     {
       if (val.IsNumber())
       {
         m_vScale *= val.ConvertTo<float>();
       }
-      else if (val.CanConvertTo<ezVec3>())
+      else if (val.CanConvertTo<WVec3>())
       {
-        m_vScale *= val.ConvertTo<ezVec3>();
+        m_vScale *= val.ConvertTo<WVec3>();
       }
-      else if (val.CanConvertTo<ezVec2>())
+      else if (val.CanConvertTo<WVec2>())
       {
-        m_vScale *= val.ConvertTo<ezVec2>().GetAsVec3(1);
+        m_vScale *= val.ConvertTo<WVec2>().GetAsVec3(1);
       }
     }
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
-    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WBoxVisualizerAttribute 'color'");
+    m_hGizmo.SetColor(value.ConvertTo<WColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
 
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezBoxVisualizerAttribute 'offset'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WVec3>(), "Invalid property bound to WBoxVisualizerAttribute 'offset'");
 
     if (m_vPositionOffset.IsZero())
-      m_vPositionOffset = value.ConvertTo<ezVec3>();
+      m_vPositionOffset = value.ConvertTo<WVec3>();
     else
-      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
+      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<WVec3>());
   }
 
   m_qRotation.SetIdentity();
 
   if (!pAttr->GetRotationProperty().IsEmpty())
   {
-    m_qRotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
+    m_qRotation = pObjectAccessor->Get<WQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
   }
 
   m_Anchor = pAttr->m_Anchor;
 }
 
-void ezBoxVisualizerAdapter::UpdateGizmoTransform()
+void WBoxVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezTransform t;
+  WTransform t;
   t.m_vScale = m_vScale;
   t.m_vPosition = m_vPositionOffset;
   t.m_qRotation = m_qRotation;
 
-  ezVec3 vOffset = ezVec3::MakeZero();
+  WVec3 vOffset = WVec3::MakeZero();
 
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegX))
     vOffset.x += t.m_vScale.x * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosY))
     vOffset.y -= t.m_vScale.y * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegY))
     vOffset.y += t.m_vScale.y * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosZ))
     vOffset.z -= t.m_vScale.z * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegZ))
     vOffset.z += t.m_vScale.z * 0.5f;
 
   t.m_vPosition += vOffset;

@@ -12,11 +12,11 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
-static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
-static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
+static WFmodSoundBankResourceLoader s_SoundBankResourceLoader;
+static WFmodSoundEventResourceLoader s_SoundEventResourceLoader;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(FMOD, FmodPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(FMOD, FmodPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -33,95 +33,95 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FMOD, FmodPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(&s_SoundBankResourceLoader);
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(&s_SoundEventResourceLoader);
+    WResourceManager::SetResourceTypeLoader<WFmodSoundBankResource>(&s_SoundBankResourceLoader);
+    WResourceManager::SetResourceTypeLoader<WFmodSoundEventResource>(&s_SoundEventResourceLoader);
 
-    ezResourceManager::RegisterResourceForAssetType("Sound Bank", ezGetStaticRTTI<ezFmodSoundBankResource>());
-    ezResourceManager::RegisterResourceForAssetType("Sound Event", ezGetStaticRTTI<ezFmodSoundEventResource>());
+    WResourceManager::RegisterResourceForAssetType("Sound Bank", WGetStaticRTTI<WFmodSoundBankResource>());
+    WResourceManager::RegisterResourceForAssetType("Sound Event", WGetStaticRTTI<WFmodSoundEventResource>());
 
     {
-      ezFmodSoundEventResourceDescriptor desc;
-      ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", std::move(desc), "Fallback for missing sound event");
-      ezResourceManager::SetResourceTypeMissingFallback<ezFmodSoundEventResource>(hResource);
+      WFmodSoundEventResourceDescriptor desc;
+      WFmodSoundEventResourceHandle hResource = WResourceManager::CreateResource<WFmodSoundEventResource>("FmodEventMissing", std::move(desc), "Fallback for missing sound event");
+      WResourceManager::SetResourceTypeMissingFallback<WFmodSoundEventResource>(hResource);
     }
 
     {
-      ezFmodSoundBankResourceDescriptor desc;
-      ezFmodSoundBankResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundBankResource>("FmodBankMissing", std::move(desc), "Fallback for missing sound bank");
-      ezResourceManager::SetResourceTypeMissingFallback<ezFmodSoundBankResource>(hResource);
+      WFmodSoundBankResourceDescriptor desc;
+      WFmodSoundBankResourceHandle hResource = WResourceManager::CreateResource<WFmodSoundBankResource>("FmodBankMissing", std::move(desc), "Fallback for missing sound bank");
+      WResourceManager::SetResourceTypeMissingFallback<WFmodSoundBankResource>(hResource);
     }
 
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(&ezFmod::GameApplicationEventHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(&WFmod::GameApplicationEventHandler);
 
-    ezFmod::GetSingleton()->Startup();
+    WFmod::GetSingleton()->Startup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(&WFmod::GameApplicationEventHandler);
 
-    ezFmod::GetSingleton()->Shutdown();
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
+    WFmod::GetSingleton()->Shutdown();
+    WResourceManager::SetResourceTypeLoader<WFmodSoundBankResource>(nullptr);
+    WResourceManager::SetResourceTypeLoader<WFmodSoundEventResource>(nullptr);
 
-    ezFmodSoundEventResource::CleanupDynamicPluginReferences();
-    ezFmodSoundBankResource::CleanupDynamicPluginReferences();
+    WFmodSoundEventResource::CleanupDynamicPluginReferences();
+    WFmodSoundBankResource::CleanupDynamicPluginReferences();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezFmodConfiguration::Save(ezOpenDdlWriter& ref_ddl) const
+void WFmodConfiguration::Save(WOpenDdlWriter& ref_ddl) const
 {
-  ezOpenDdlUtils::StoreString(ref_ddl, m_sMasterSoundBank, "MasterBank");
-  ezOpenDdlUtils::StoreUInt16(ref_ddl, m_uiVirtualChannels, "VirtualChannels");
-  ezOpenDdlUtils::StoreUInt32(ref_ddl, m_uiSamplerRate, "SamplerRate");
+  WOpenDdlUtils::StoreString(ref_ddl, m_sMasterSoundBank, "MasterBank");
+  WOpenDdlUtils::StoreUInt16(ref_ddl, m_uiVirtualChannels, "VirtualChannels");
+  WOpenDdlUtils::StoreUInt32(ref_ddl, m_uiSamplerRate, "SamplerRate");
 
   switch (m_SpeakerMode)
   {
-    case ezFmodSpeakerMode::ModeStereo:
-      ezOpenDdlUtils::StoreString(ref_ddl, "Stereo", "Mode");
+    case WFmodSpeakerMode::ModeStereo:
+      WOpenDdlUtils::StoreString(ref_ddl, "Stereo", "Mode");
       break;
-    case ezFmodSpeakerMode::Mode5Point1:
-      ezOpenDdlUtils::StoreString(ref_ddl, "5.1", "Mode");
+    case WFmodSpeakerMode::Mode5Point1:
+      WOpenDdlUtils::StoreString(ref_ddl, "5.1", "Mode");
       break;
-    case ezFmodSpeakerMode::Mode7Point1:
-      ezOpenDdlUtils::StoreString(ref_ddl, "7.1", "Mode");
+    case WFmodSpeakerMode::Mode7Point1:
+      WOpenDdlUtils::StoreString(ref_ddl, "7.1", "Mode");
       break;
   }
 }
 
-void ezFmodConfiguration::Load(const ezOpenDdlReaderElement& ddl)
+void WFmodConfiguration::Load(const WOpenDdlReaderElement& ddl)
 {
-  if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::String, "MasterBank"))
+  if (const WOpenDdlReaderElement* pElement = ddl.FindChildOfType(WOpenDdlPrimitiveType::String, "MasterBank"))
   {
     m_sMasterSoundBank = pElement->GetPrimitivesString()[0];
   }
 
-  if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::UInt16, "VirtualChannels"))
+  if (const WOpenDdlReaderElement* pElement = ddl.FindChildOfType(WOpenDdlPrimitiveType::UInt16, "VirtualChannels"))
   {
     m_uiVirtualChannels = pElement->GetPrimitivesUInt16()[0];
   }
 
-  if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::UInt32, "SamplerRate"))
+  if (const WOpenDdlReaderElement* pElement = ddl.FindChildOfType(WOpenDdlPrimitiveType::UInt32, "SamplerRate"))
   {
     m_uiSamplerRate = pElement->GetPrimitivesUInt32()[0];
   }
 
-  if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::String, "Mode"))
+  if (const WOpenDdlReaderElement* pElement = ddl.FindChildOfType(WOpenDdlPrimitiveType::String, "Mode"))
   {
     auto mode = pElement->GetPrimitivesString()[0];
 
     if (mode == "Stereo")
-      m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
+      m_SpeakerMode = WFmodSpeakerMode::ModeStereo;
     else if (mode == "7.1")
-      m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
+      m_SpeakerMode = WFmodSpeakerMode::Mode7Point1;
     else
-      m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
+      m_SpeakerMode = WFmodSpeakerMode::Mode5Point1;
   }
 }
 
-bool ezFmodConfiguration::operator==(const ezFmodConfiguration& rhs) const
+bool WFmodConfiguration::operator==(const WFmodConfiguration& rhs) const
 {
   if (m_sMasterSoundBank != rhs.m_sMasterSoundBank)
     return false;
@@ -135,12 +135,12 @@ bool ezFmodConfiguration::operator==(const ezFmodConfiguration& rhs) const
   return true;
 }
 
-ezResult ezFmodAssetProfiles::Save(ezStringView sFile) const
+WResult WFmodAssetProfiles::Save(WStringView sFile) const
 {
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileWriter file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
   for (auto it = m_AssetProfiles.GetIterator(); it.IsValid(); ++it)
@@ -155,21 +155,21 @@ ezResult ezFmodAssetProfiles::Save(ezStringView sFile) const
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezFmodAssetProfiles::Load(ezStringView sFile)
+WResult WFmodAssetProfiles::Load(WStringView sFile)
 {
   m_AssetProfiles.Clear();
 
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlReader ddl;
-  EZ_SUCCEED_OR_RETURN(ddl.ParseDocument(file));
+  WOpenDdlReader ddl;
+  W_SUCCEED_OR_RETURN(ddl.ParseDocument(file));
 
-  const ezOpenDdlReaderElement* pRoot = ddl.GetRootElement();
-  const ezOpenDdlReaderElement* pChild = pRoot->GetFirstChild();
+  const WOpenDdlReaderElement* pRoot = ddl.GetRootElement();
+  const WOpenDdlReaderElement* pChild = pRoot->GetFirstChild();
 
   while (pChild)
   {
@@ -183,7 +183,7 @@ ezResult ezFmodAssetProfiles::Load(ezStringView sFile)
     pChild = pChild->GetSibling();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodStartup);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodStartup);

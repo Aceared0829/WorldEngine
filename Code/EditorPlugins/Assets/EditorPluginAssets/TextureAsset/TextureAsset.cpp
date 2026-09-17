@@ -6,166 +6,166 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 7, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureAssetDocument, 7, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
-    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+    W_ENUM_MEMBER_PROPERTY("ChannelMode", WTextureChannelMode, m_ChannelMode),
+    W_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::RGBA)->AddAttributes(new ezGroupAttribute("Multi", 0.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::RGB)->AddAttributes(new ezGroupAttribute("Multi", 1.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Red)->AddAttributes(new ezGroupAttribute("Single", 0.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Green)->AddAttributes(new ezGroupAttribute("Single", 1.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Blue)->AddAttributes(new ezGroupAttribute("Single", 2.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::CoverageRed)->AddAttributes(new ezGroupAttribute("Coverage", 0.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::CoverageAlpha)->AddAttributes(new ezGroupAttribute("Coverage", 1.0f)),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTextureChannelMode, 1)
+  W_ENUM_CONSTANT(WTextureChannelMode::RGBA)->AddAttributes(new WGroupAttribute("Multi", 0.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::RGB)->AddAttributes(new WGroupAttribute("Multi", 1.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::Red)->AddAttributes(new WGroupAttribute("Single", 0.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::Green)->AddAttributes(new WGroupAttribute("Single", 1.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::Blue)->AddAttributes(new WGroupAttribute("Single", 2.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::Alpha)->AddAttributes(new WGroupAttribute("Single", 3.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::CoverageRed)->AddAttributes(new WGroupAttribute("Coverage", 0.0f)),
+  W_ENUM_CONSTANT(WTextureChannelMode::CoverageAlpha)->AddAttributes(new WGroupAttribute("Coverage", 1.0f)),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezTextureAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
+WTextureAssetDocument::WTextureAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WTextureAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple)
 {
 }
 
-static const char* ToWrapMode(ezImageAddressMode::Enum mode)
+static const char* ToWrapMode(WImageAddressMode::Enum mode)
 {
   switch (mode)
   {
-    case ezImageAddressMode::Repeat:
+    case WImageAddressMode::Repeat:
       return "Repeat";
-    case ezImageAddressMode::Clamp:
+    case WImageAddressMode::Clamp:
       return "Clamp";
-    case ezImageAddressMode::ClampBorder:
+    case WImageAddressMode::ClampBorder:
       return "ClampBorder";
-    case ezImageAddressMode::Mirror:
+    case WImageAddressMode::Mirror:
       return "Mirror";
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return "";
   }
 }
 
-const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
+const char* ToFilterMode(WTextureFilterSetting::Enum mode)
 {
   switch (mode)
   {
-    case ezTextureFilterSetting::FixedNearest:
+    case WTextureFilterSetting::FixedNearest:
       return "Nearest";
-    case ezTextureFilterSetting::FixedBilinear:
+    case WTextureFilterSetting::FixedBilinear:
       return "Bilinear";
-    case ezTextureFilterSetting::FixedTrilinear:
+    case WTextureFilterSetting::FixedTrilinear:
       return "Trilinear";
-    case ezTextureFilterSetting::FixedAnisotropic2x:
+    case WTextureFilterSetting::FixedAnisotropic2x:
       return "Aniso2x";
-    case ezTextureFilterSetting::FixedAnisotropic4x:
+    case WTextureFilterSetting::FixedAnisotropic4x:
       return "Aniso4x";
-    case ezTextureFilterSetting::FixedAnisotropic8x:
+    case WTextureFilterSetting::FixedAnisotropic8x:
       return "Aniso8x";
-    case ezTextureFilterSetting::FixedAnisotropic16x:
+    case WTextureFilterSetting::FixedAnisotropic16x:
       return "Aniso16x";
-    case ezTextureFilterSetting::LowestQuality:
+    case WTextureFilterSetting::LowestQuality:
       return "Lowest";
-    case ezTextureFilterSetting::LowQuality:
+    case WTextureFilterSetting::LowQuality:
       return "Low";
-    case ezTextureFilterSetting::DefaultQuality:
+    case WTextureFilterSetting::DefaultQuality:
       return "Default";
-    case ezTextureFilterSetting::HighQuality:
+    case WTextureFilterSetting::HighQuality:
       return "High";
-    case ezTextureFilterSetting::HighestQuality:
+    case WTextureFilterSetting::HighestQuality:
       return "Highest";
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-const char* ToUsageMode(ezTexConvUsage::Enum mode)
+const char* ToUsageMode(WTexConvUsage::Enum mode)
 {
   switch (mode)
   {
-    case ezTexConvUsage::Auto:
+    case WTexConvUsage::Auto:
       return "Auto";
-    case ezTexConvUsage::Color:
+    case WTexConvUsage::Color:
       return "Color";
-    case ezTexConvUsage::Linear:
+    case WTexConvUsage::Linear:
       return "Linear";
-    case ezTexConvUsage::Hdr:
+    case WTexConvUsage::Hdr:
       return "Hdr";
-    case ezTexConvUsage::NormalMap:
+    case WTexConvUsage::NormalMap:
       return "NormalMap";
-    case ezTexConvUsage::NormalMap_Inverted:
+    case WTexConvUsage::NormalMap_Inverted:
       return "NormalMap_Inverted";
-    case ezTexConvUsage::BumpMap:
+    case WTexConvUsage::BumpMap:
       return "BumpMap";
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode)
+const char* ToMipmapMode(WTexConvMipmapMode::Enum mode)
 {
   switch (mode)
   {
-    case ezTexConvMipmapMode::None:
+    case WTexConvMipmapMode::None:
       return "None";
-    case ezTexConvMipmapMode::Linear:
+    case WTexConvMipmapMode::Linear:
       return "Linear";
-    case ezTexConvMipmapMode::Kaiser:
+    case WTexConvMipmapMode::Kaiser:
       return "Kaiser";
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode)
+const char* ToCompressionMode(WTexConvCompressionMode::Enum mode)
 {
   switch (mode)
   {
-    case ezTexConvCompressionMode::None:
+    case WTexConvCompressionMode::None:
       return "None";
-    case ezTexConvCompressionMode::Medium:
+    case WTexConvCompressionMode::Medium:
       return "Medium";
-    case ezTexConvCompressionMode::High:
+    case WTexConvCompressionMode::High:
       return "High";
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const ezTextureAssetProfileConfig* pAssetConfig)
+WStatus WTextureAssetDocument::RunTexConv(const char* szTargetFile, const WAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const WTextureAssetProfileConfig* pAssetConfig)
 {
-  const ezTextureAssetProperties* pProp = GetProperties();
+  const WTextureAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
-  ezStringBuilder temp;
+  WStringBuilder temp;
 
   // Asset Version
   {
     arguments << "-assetVersion";
-    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
+    arguments << WConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
   }
 
   // Asset Hash
   {
-    const ezUInt64 uiHash64 = AssetHeader.GetFileHash();
-    const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
-    const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
+    const WUInt64 uiHash64 = AssetHeader.GetFileHash();
+    const WUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
+    const WUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -176,17 +176,17 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   // TexConv writes this itself, because only it knows the resolution and format it chose.
   {
-    const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(szTargetFile);
+    const WStringBuilder sInfoFile = WAssetInfoFile::GetInfoFilePathForOutput(szTargetFile);
     arguments << "-assetInfoOut";
     arguments << sInfoFile.GetData();
   }
 
-  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
+  const WStringBuilder sThumbnail = GetThumbnailFilePath();
   if (bUpdateThumbnail)
   {
     // Thumbnail
-    const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
+    const WStringBuilder sDir = sThumbnail.GetFileDirectory();
+    WOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
     arguments << "-thumbnailRes";
     arguments << "256";
@@ -197,8 +197,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   // low resolution data
   {
-    ezStringBuilder lowResPath = szTargetFile;
-    ezStringBuilder name = lowResPath.GetFileName();
+    WStringBuilder lowResPath = szTargetFile;
+    WStringBuilder name = lowResPath.GetFileName();
     name.Append("-lowres");
     lowResPath.ChangeFileName(name);
 
@@ -234,14 +234,14 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   {
     arguments << "-mipsPreserveCoverage";
     arguments << "-mipsAlphaThreshold";
-    temp.SetFormat("{0}", ezArgF(pProp->m_fAlphaThreshold, 2));
+    temp.SetFormat("{0}", WArgF(pProp->m_fAlphaThreshold, 2));
     arguments << temp.GetData();
   }
 
-  if (pProp->m_TextureUsage == ezTexConvUsage::Hdr)
+  if (pProp->m_TextureUsage == WTexConvUsage::Hdr)
   {
     arguments << "-hdrExposure";
-    temp.SetFormat("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
+    temp.SetFormat("{0}", WArgF(pProp->m_fHdrExposureBias, 2));
     arguments << temp.GetData();
   }
 
@@ -256,15 +256,15 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   {
     arguments << "-type" << "Texture2DArray";
 
-    for (ezUInt32 i = 0; i < pProp->m_ArraySlices.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pProp->m_ArraySlices.GetCount(); ++i)
     {
       if (pProp->m_ArraySlices[i].IsEmpty())
         continue;
 
-      ezStringBuilder sAbsPath = pProp->m_ArraySlices[i];
+      WStringBuilder sAbsPath = pProp->m_ArraySlices[i];
       sAbsPath.MakeCleanPath();
       if (!sAbsPath.IsAbsolutePath())
-        ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+        WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
 
       temp.SetFormat("-in{0}", i);
       arguments << temp.GetData();
@@ -272,38 +272,38 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
       switch (pProp->GetArrayChannelMapping())
       {
-        case ezTextureArrayChannelMappingEnum::RGBA:
+        case WTextureArrayChannelMappingEnum::RGBA:
           temp.SetFormat("-rgba{0}", i);
           arguments << temp.GetData();
           temp.SetFormat("in{0}.rgba", i);
           arguments << temp.GetData();
           break;
 
-        case ezTextureArrayChannelMappingEnum::RGB:
+        case WTextureArrayChannelMappingEnum::RGB:
           temp.SetFormat("-rgb{0}", i);
           arguments << temp.GetData();
           temp.SetFormat("in{0}.rgb", i);
           arguments << temp.GetData();
           break;
 
-        case ezTextureArrayChannelMappingEnum::RG:
+        case WTextureArrayChannelMappingEnum::RG:
           temp.SetFormat("-rg{0}", i);
           arguments << temp.GetData();
           temp.SetFormat("in{0}.rg", i);
           arguments << temp.GetData();
           break;
 
-        case ezTextureArrayChannelMappingEnum::R_Red:
-        case ezTextureArrayChannelMappingEnum::R_Green:
-        case ezTextureArrayChannelMappingEnum::R_Blue:
-        case ezTextureArrayChannelMappingEnum::R_Alpha:
+        case WTextureArrayChannelMappingEnum::R_Red:
+        case WTextureArrayChannelMappingEnum::R_Green:
+        case WTextureArrayChannelMappingEnum::R_Blue:
+        case WTextureArrayChannelMappingEnum::R_Alpha:
         {
           const char* szChannel = "r";
-          if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Green)
+          if (pProp->GetArrayChannelMapping() == WTextureArrayChannelMappingEnum::R_Green)
             szChannel = "g";
-          else if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Blue)
+          else if (pProp->GetArrayChannelMapping() == WTextureArrayChannelMappingEnum::R_Blue)
             szChannel = "b";
-          else if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Alpha)
+          else if (pProp->GetArrayChannelMapping() == WTextureArrayChannelMappingEnum::R_Alpha)
             szChannel = "a";
 
           temp.SetFormat("-r{0}", i);
@@ -317,12 +317,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   }
   else
   {
-    const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
-    for (ezInt32 i = 0; i < iNumInputFiles; ++i)
+    const WInt32 iNumInputFiles = pProp->GetNumInputFiles();
+    for (WInt32 i = 0; i < iNumInputFiles; ++i)
     {
       temp.SetFormat("-in{0}", i);
 
-      if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
+      if (WStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
         break;
 
       arguments << temp.GetData();
@@ -331,28 +331,28 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
     switch (pProp->GetChannelMapping())
     {
-      case ezTexture2DChannelMappingEnum::R1:
+      case WTexture2DChannelMappingEnum::R1:
       {
         arguments << "-r";
         arguments << "in0.r"; // always linear
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::R1_ALPHA:
+      case WTexture2DChannelMappingEnum::R1_ALPHA:
       {
         arguments << "-r";
         arguments << "in0.a"; // always linear
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RG1:
+      case WTexture2DChannelMappingEnum::RG1:
       {
         arguments << "-rg";
         arguments << "in0.rg"; // always linear
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::R1_G2:
+      case WTexture2DChannelMappingEnum::R1_G2:
       {
         arguments << "-r";
         arguments << "in0.r";
@@ -361,14 +361,14 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGB1:
+      case WTexture2DChannelMappingEnum::RGB1:
       {
         arguments << "-rgb";
         arguments << "in0.rgb";
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
+      case WTexture2DChannelMappingEnum::RGB1_ABLACK:
       {
         arguments << "-rgb";
         arguments << "in0.rgb";
@@ -377,7 +377,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::R1_G2_B3:
+      case WTexture2DChannelMappingEnum::R1_G2_B3:
       {
         arguments << "-r";
         arguments << "in0.r";
@@ -388,14 +388,14 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGBA1:
+      case WTexture2DChannelMappingEnum::RGBA1:
       {
         arguments << "-rgba";
         arguments << "in0.rgba";
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGB1_A2:
+      case WTexture2DChannelMappingEnum::RGB1_A2:
       {
         arguments << "-rgb";
         arguments << "in0.rgb";
@@ -404,7 +404,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
+      case WTexture2DChannelMappingEnum::R1_G2_B3_A4:
       {
         arguments << "-r";
         arguments << "in0.r";
@@ -417,7 +417,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGBWHITE_A1:
+      case WTexture2DChannelMappingEnum::RGBWHITE_A1:
       {
         arguments << "-rgb";
         arguments << "white";
@@ -426,7 +426,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       }
       break;
 
-      case ezTexture2DChannelMappingEnum::RGBWHITE_R1:
+      case WTexture2DChannelMappingEnum::RGBWHITE_R1:
       {
         arguments << "-rgb";
         arguments << "white";
@@ -437,12 +437,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  W_SUCCEED_OR_RETURN(WQtEditorApp::GetSingleton()->ExecuteTool("WTexConv", arguments, 180, WLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
-    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
+    WUInt64 uiThumbnailHash = WAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
+    W_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
     thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
@@ -450,11 +450,11 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     InvalidateAssetThumbnail();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
-void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WTextureAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
@@ -465,7 +465,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   }
 
   // Always clean up any stale Input1-4 dependencies (may be present if the asset was previously non-array mode).
-  for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
+  for (WUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
     pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile(i));
   }
@@ -473,7 +473,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   if (GetProperties()->m_bIsArrayTexture)
   {
     // Register all array slices as transform dependencies (dynamic array, not auto-registered by the base class).
-    for (const ezString& sSlice : GetProperties()->m_ArraySlices)
+    for (const WString& sSlice : GetProperties()->m_ArraySlices)
     {
       if (!sSlice.IsEmpty())
       {
@@ -483,7 +483,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   }
 }
 
-void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
@@ -499,122 +499,122 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   if (sOutputTag.IsEqual("LOWRES"))
   {
     // no need to generate this file, it will be generated together with the main output
-    return ezTransformStatus();
+    return WTransformStatus();
   }
 
-  const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
+  const auto* pAssetConfig = pAssetProfile->GetTypeConfig<WTextureAssetProfileConfig>();
 
   const auto props = GetProperties();
 
   if (m_bIsRenderTarget)
   {
-    ezDeferredFileWriter file;
+    WDeferredFileWriter file;
     file.SetOutput(szTargetFile);
 
-    EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
+    W_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
-    // TODO: move this into a shared location, reuse in ezTexConv::WriteTexHeader
-    const ezUInt8 uiTexFileFormatVersion = 5;
+    // TODO: move this into a shared location, reuse in WTexConv::WriteTexHeader
+    const WUInt8 uiTexFileFormatVersion = 5;
     file << uiTexFileFormatVersion;
 
-    ezGALResourceFormat::Enum format = ezGALResourceFormat::Invalid;
+    WGALResourceFormat::Enum format = WGALResourceFormat::Invalid;
     bool bIsSRGB = false;
 
     switch (props->m_RtFormat)
     {
-      case ezRenderTargetFormat::RGBA8:
-        format = ezGALResourceFormat::RGBAUByteNormalized;
+      case WRenderTargetFormat::RGBA8:
+        format = WGALResourceFormat::RGBAUByteNormalized;
         break;
 
-      case ezRenderTargetFormat::RGBA8sRgb:
-        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      case WRenderTargetFormat::RGBA8sRgb:
+        format = WGALResourceFormat::RGBAUByteNormalizedsRGB;
         bIsSRGB = true;
         break;
 
-      case ezRenderTargetFormat::RGB10:
-        format = ezGALResourceFormat::RG11B10Float;
+      case WRenderTargetFormat::RGB10:
+        format = WGALResourceFormat::RG11B10Float;
         break;
 
-      case ezRenderTargetFormat::RGBA16:
-        format = ezGALResourceFormat::RGBAHalf;
+      case WRenderTargetFormat::RGBA16:
+        format = WGALResourceFormat::RGBAHalf;
         break;
 
-      case ezRenderTargetFormat::R8:
-        format = ezGALResourceFormat::RUByteNormalized;
+      case WRenderTargetFormat::R8:
+        format = WGALResourceFormat::RUByteNormalized;
         break;
 
-      case ezRenderTargetFormat::R16:
-        format = ezGALResourceFormat::RHalf;
+      case WRenderTargetFormat::R16:
+        format = WGALResourceFormat::RHalf;
         break;
 
-      case ezRenderTargetFormat::R32:
-        format = ezGALResourceFormat::RFloat;
+      case WRenderTargetFormat::R32:
+        format = WGALResourceFormat::RFloat;
         break;
 
-      case ezRenderTargetFormat::RG8:
-        format = ezGALResourceFormat::RGUByteNormalized;
+      case WRenderTargetFormat::RG8:
+        format = WGALResourceFormat::RGUByteNormalized;
         break;
 
-      case ezRenderTargetFormat::RG16:
-        format = ezGALResourceFormat::RGHalf;
+      case WRenderTargetFormat::RG16:
+        format = WGALResourceFormat::RGHalf;
         break;
 
-      case ezRenderTargetFormat::RG32:
-        format = ezGALResourceFormat::RGFloat;
+      case WRenderTargetFormat::RG32:
+        format = WGALResourceFormat::RGFloat;
         break;
 
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+        W_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     file << bIsSRGB;
-    file << (ezUInt8)props->m_AddressModeU;
-    file << (ezUInt8)props->m_AddressModeV;
-    file << (ezUInt8)props->m_AddressModeW;
-    file << (ezUInt8)props->m_TextureFilter;
+    file << (WUInt8)props->m_AddressModeU;
+    file << (WUInt8)props->m_AddressModeV;
+    file << (WUInt8)props->m_AddressModeW;
+    file << (WUInt8)props->m_TextureFilter;
 
-    ezInt16 resX = 0, resY = 0;
+    WInt16 resX = 0, resY = 0;
 
     switch (props->m_Resolution)
     {
-      case ezTexture2DResolution::Fixed64x64:
+      case WTexture2DResolution::Fixed64x64:
         resX = 64;
         resY = 64;
         break;
-      case ezTexture2DResolution::Fixed128x128:
+      case WTexture2DResolution::Fixed128x128:
         resX = 128;
         resY = 128;
         break;
-      case ezTexture2DResolution::Fixed256x256:
+      case WTexture2DResolution::Fixed256x256:
         resX = 256;
         resY = 256;
         break;
-      case ezTexture2DResolution::Fixed512x512:
+      case WTexture2DResolution::Fixed512x512:
         resX = 512;
         resY = 512;
         break;
-      case ezTexture2DResolution::Fixed1024x1024:
+      case WTexture2DResolution::Fixed1024x1024:
         resX = 1024;
         resY = 1024;
         break;
-      case ezTexture2DResolution::Fixed2048x2048:
+      case WTexture2DResolution::Fixed2048x2048:
         resX = 2048;
         resY = 2048;
         break;
-      case ezTexture2DResolution::CVarRtResolution1:
+      case WTexture2DResolution::CVarRtResolution1:
         resX = -1;
         resY = 1;
         break;
-      case ezTexture2DResolution::CVarRtResolution2:
+      case WTexture2DResolution::CVarRtResolution2:
         resX = -1;
         resY = 2;
         break;
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
     }
 
     file << resX;
@@ -624,25 +624,25 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
 
 
     if (file.Close().Failed())
-      return ezTransformStatus(ezFmt("Writing to target file failed: '{0}'", szTargetFile));
+      return WTransformStatus(WFmt("Writing to target file failed: '{0}'", szTargetFile));
 
-    return ezTransformStatus();
+    return WTransformStatus();
   }
   else
   {
-    const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
+    const bool bUpdateThumbnail = pAssetProfile == WAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
-    ezTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
+    WTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
 
-    ezFileStats stat;
-    if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+    WFileStats stat;
+    if (WOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
     {
       // if the file was touched, but nothing written to it, delete the file
       // might happen if TexConv crashed or had an error
-      ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
+      WOSFile::DeleteFile(szTargetFile).IgnoreResult();
 
       if (result.Succeeded())
-        result = ezTransformStatus("TexConv did not write an output file");
+        result = WTransformStatus("TexConv did not write an output file");
     }
 
     return result;
@@ -651,10 +651,10 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WTextureAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
+WTextureAssetDocumentGenerator::WTextureAssetDocumentGenerator()
 {
   AddSupportedFileType("tga");
   AddSupportedFileType("dds");
@@ -665,11 +665,11 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
   AddSupportedFileType("exr");
 }
 
-ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
+WTextureAssetDocumentGenerator::~WTextureAssetDocumentGenerator() = default;
 
-ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::DetermineTextureType(ezStringView sFile)
+WTextureAssetDocumentGenerator::TextureType WTextureAssetDocumentGenerator::DetermineTextureType(WStringView sFile)
 {
-  ezStringBuilder baseFilename = sFile.GetFileName();
+  WStringBuilder baseFilename = sFile.GetFileName();
 
   // gets rid of 1K, 2K, etc,
   while (baseFilename.TrimWordEnd("_") ||
@@ -740,13 +740,13 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
   return TextureType::Diffuse;
 }
 
-void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WTextureAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   if (sAbsInputFile.IsEmpty())
   {
     {
-      ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-      info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+      WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+      info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
       info2.m_sName = "TextureImport.Auto";
       info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
     }
@@ -756,8 +756,8 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile,
 
   const TextureType tt = DetermineTextureType(sAbsInputFile);
 
-  ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-  info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+  WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+  info.m_Priority = WAssetDocGeneratorPriority::DefaultPriority;
 
   // first add the default option
   switch (tt)
@@ -837,78 +837,78 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile,
 
   if (tt != TextureType::Diffuse)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Diffuse";
     info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
   }
 
   if (tt != TextureType::Linear)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Linear";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::NormalDX)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.NormalDX";
     info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
   }
 
   if (tt != TextureType::NormalGL)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.NormalGL";
     info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
   }
 
   if (tt != TextureType::Metalness)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Metalness";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Roughness)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Roughness";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Occlusion)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Occlusion";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::ORM)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.ORM";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Height)
   {
-    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info2.m_sName = "TextureImport.Height";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WTextureAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
   if (sMode == "TextureImport.Auto")
   {
@@ -949,74 +949,74 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
     }
   }
 
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  WDocument* pDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
   if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
+    return WStatus("Could not create target document");
 
   out_generatedDocuments.PushBack(pDoc);
 
-  ezTextureAssetDocument* pAssetDoc = ezDynamicCast<ezTextureAssetDocument*>(pDoc);
+  WTextureAssetDocument* pAssetDoc = WDynamicCast<WTextureAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezTextureAssetDocument");
+    return WStatus("Target document is not a valid WTextureAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", sInputFileRel.GetView());
-  accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
-  accessor.SetValue("Usage", (int)ezTexConvUsage::Linear);
+  accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::RGB1);
+  accessor.SetValue("Usage", (int)WTexConvUsage::Linear);
 
   if (sMode == "TextureImport.Diffuse")
   {
-    accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
+    accessor.SetValue("Usage", (int)WTexConvUsage::Color);
   }
   else if (sMode == "TextureImport.NormalDX")
   {
-    accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap);
+    accessor.SetValue("Usage", (int)WTexConvUsage::NormalMap);
   }
   else if (sMode == "TextureImport.NormalGL")
   {
-    accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap_Inverted);
+    accessor.SetValue("Usage", (int)WTexConvUsage::NormalMap_Inverted);
   }
   else if (sMode == "TextureImport.HDR")
   {
-    accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
+    accessor.SetValue("Usage", (int)WTexConvUsage::Hdr);
   }
   else if (sMode == "TextureImport.Linear")
   {
   }
   else if (sMode == "TextureImport.Occlusion")
   {
-    accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
-    accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowestQuality);
+    accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::R1);
+    accessor.SetValue("TextureFilter", (int)WTextureFilterSetting::LowestQuality);
   }
   else if (sMode == "TextureImport.Height")
   {
-    accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
-    accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
+    accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::R1);
+    accessor.SetValue("TextureFilter", (int)WTextureFilterSetting::LowQuality);
   }
   else if (sMode == "TextureImport.Roughness")
   {
-    accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
-    accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
+    accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::R1);
+    accessor.SetValue("TextureFilter", (int)WTextureFilterSetting::LowQuality);
   }
   else if (sMode == "TextureImport.Metalness")
   {
-    accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
-    accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
+    accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::R1);
+    accessor.SetValue("TextureFilter", (int)WTextureFilterSetting::LowQuality);
   }
   else if (sMode == "TextureImport.ORM")
   {
-    accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
-    accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
+    accessor.SetValue("ChannelMapping", (int)WTexture2DChannelMappingEnum::RGB1);
+    accessor.SetValue("TextureFilter", (int)WTextureFilterSetting::LowQuality);
   }
 
-  ezLog::Success("Imported texture: '{}'", sOutFile);
+  WLog::Success("Imported texture: '{}'", sOutFile);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

@@ -10,33 +10,33 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializerFactory_CylinderPosition, 2, WRTTIDefaultAllocator<WParticleInitializerFactory_CylinderPosition>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
-    EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
-    EZ_MEMBER_PROPERTY("Speed", m_Speed),
-    EZ_MEMBER_PROPERTY("ScaleRadiusParam", m_sScaleRadiusParameter),
-    EZ_MEMBER_PROPERTY("ScaleHeightParam", m_sScaleHeightParameter),
+    W_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
+    W_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
+    W_MEMBER_PROPERTY("Speed", m_Speed),
+    W_MEMBER_PROPERTY("ScaleRadiusParam", m_sScaleRadiusParameter),
+    W_MEMBER_PROPERTY("ScaleHeightParam", m_sScaleHeightParameter),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset")
+    new WCylinderVisualizerAttribute(WBasisAxis::PositiveZ, "Height", "Radius", WColor::MediumVioletRed, nullptr, WVisualizerAnchor::Center, WVec3(1.0f), "PositionOffset")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_CylinderPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_CylinderPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializer_CylinderPosition, 1, WRTTIDefaultAllocator<WParticleInitializer_CylinderPosition>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_CylinderPosition()
+WParticleInitializerFactory_CylinderPosition::WParticleInitializerFactory_CylinderPosition()
 {
   m_vPositionOffset.SetZero();
   m_fRadius = 0.25f;
@@ -45,51 +45,51 @@ ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_Cyli
   m_bSetVelocity = false;
 }
 
-const ezRTTI* ezParticleInitializerFactory_CylinderPosition::GetInitializerType() const
+const WRTTI* WParticleInitializerFactory_CylinderPosition::GetInitializerType() const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_CylinderPosition>();
+  return WGetStaticRTTI<WParticleInitializer_CylinderPosition>();
 }
 
-void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
+void WParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(WParticleInitializer* pInitializer0, bool bFirstTime) const
 {
-  ezParticleInitializer_CylinderPosition* pInitializer = static_cast<ezParticleInitializer_CylinderPosition*>(pInitializer0);
+  WParticleInitializer_CylinderPosition* pInitializer = static_cast<WParticleInitializer_CylinderPosition*>(pInitializer0);
 
-  const float fScaleRadius = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
-  const float fScaleHeight = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
+  const float fScaleRadius = pInitializer->GetOwnerEffect()->GetFloatParameter(WTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+  const float fScaleHeight = pInitializer->GetOwnerEffect()->GetFloatParameter(WTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
 
   pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius * fScaleRadius, 0.01f); // prevent 0 radius
-  pInitializer->m_fHeight = ezMath::Max(m_fHeight * fScaleHeight, 0.0f);
+  pInitializer->m_fRadius = WMath::Max(m_fRadius * fScaleRadius, 0.01f); // prevent 0 radius
+  pInitializer->m_fHeight = WMath::Max(m_fHeight * fScaleHeight, 0.0f);
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
   pInitializer->m_Speed = m_Speed;
 }
 
-float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+float WParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const
 {
-  const float fScaleRadius = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
-  const float fScaleHeight = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
+  const float fScaleRadius = pEffect->GetFloatParameter(WTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+  const float fScaleHeight = pEffect->GetFloatParameter(WTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
 
   if (m_bSpawnOnSurface)
   {
-    const float s0 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fHeight;
-    const float s1 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
-                     /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
+    const float s0 = /* 2.0f * WMath::Pi<float>() * m_fRadius **/ m_fRadius + /* 2.0f * WMath::Pi<float>() * m_fRadius **/ m_fHeight;
+    const float s1 = /* 2.0f * WMath::Pi<float>() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
+                     /*2.0f * WMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
 
     return s1 / s0;
   }
   else
   {
-    const float v0 = 1.0f /* ezMath::Pi<float>() * m_fRadius * m_fRadius*/;
-    const float v1 = 1.0f /* ezMath::Pi<float>() * m_fRadius * m_fRadius*/ * fScaleRadius * fScaleRadius;
+    const float v0 = 1.0f /* WMath::Pi<float>() * m_fRadius * m_fRadius*/;
+    const float v1 = 1.0f /* WMath::Pi<float>() * m_fRadius * m_fRadius*/ * fScaleRadius * fScaleRadius;
 
     return v1 / v0;
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& inout_stream) const
+void WParticleInitializerFactory_CylinderPosition::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const WUInt8 uiVersion = 3;
   inout_stream << uiVersion;
 
   inout_stream << m_fRadius;
@@ -107,9 +107,9 @@ void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& inout_s
   inout_stream << m_sScaleHeightParameter;
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleInitializerFactory_CylinderPosition::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   inout_stream >> m_fRadius;
@@ -131,49 +131,49 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& inout_s
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void WParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(WGetStaticRTTI<WParticleFinalizerFactory_ApplyVelocity>());
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
+void WParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, true);
 
   m_pStreamVelocity = nullptr;
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
+    CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
   }
 }
 
-void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleInitializer_CylinderPosition::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Cylinder Position");
+  W_PROFILE_SCOPE("PFX: Cylinder Position");
 
-  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const WVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
   const float fStartSpeed = startVel.GetLength();
-  const ezVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : ezVec3(0, 0, 1);
+  const WVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : WVec3(0, 0, 1);
 
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
+  WVec4* pPosition = m_pStreamPosition->GetWritableData<WVec4>();
+  WFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<WFloat16Vec4>() : nullptr;
 
-  ezRandom& rng = GetRNG();
+  WRandom& rng = GetRNG();
 
   const float fRadiusSqr = m_fRadius * m_fRadius;
   const float fHalfHeight = m_fHeight * 0.5f;
 
-  const ezTransform trans = GetOwnerSystem()->GetTransform();
+  const WTransform trans = GetOwnerSystem()->GetTransform();
 
-  for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+  for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos;
+    WVec3 pos;
     float len = 0.0f;
     pos.z = 0.0f;
 
@@ -186,7 +186,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     } while (len > fRadiusSqr ||
              len <= 0.000001f); // prevent spawning at the exact center (note: this has to be smaller than the minimum allowed radius sqr)
 
-    ezVec3 normalPos = pos;
+    WVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)
     {
@@ -207,11 +207,11 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     {
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-      const ezVec3 vel = startVel + trans.m_qRotation * normalPos * fSpeed;
+      const WVec3 vel = startVel + trans.m_qRotation * normalPos * fSpeed;
       const float fVelLength = vel.GetLength();
-      const ezVec3 velDir = fVelLength > 0.0f ? vel / fVelLength : ezVec3(0, 0, 1);
+      const WVec3 velDir = fVelLength > 0.0f ? vel / fVelLength : WVec3(0, 0, 1);
 
-      pVelocity[i] = ezVec4(velDir.x, velDir.y, velDir.z, fVelLength);
+      pVelocity[i] = WVec4(velDir.x, velDir.y, velDir.z, fVelLength);
     }
 
     pPosition[i] = (trans * pos).GetAsVec4(0);
@@ -220,20 +220,20 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_CylinderPosition_1_2 : public ezGraphPatch
+class WParticleInitializerFactory_CylinderPosition_1_2 : public WGraphPatch
 {
 public:
-  ezParticleInitializerFactory_CylinderPosition_1_2()
-    : ezGraphPatch("ezParticleInitializerFactory_CylinderPosition", 2)
+  WParticleInitializerFactory_CylinderPosition_1_2()
+    : WGraphPatch("WParticleInitializerFactory_CylinderPosition", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("Speed").IgnoreResult();
   }
 };
 
-ezParticleInitializerFactory_CylinderPosition_1_2 g_ezParticleInitializerFactory_CylinderPosition_1_2;
+WParticleInitializerFactory_CylinderPosition_1_2 g_WParticleInitializerFactory_CylinderPosition_1_2;
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);

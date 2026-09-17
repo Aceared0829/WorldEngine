@@ -2,41 +2,41 @@
 
 #include <Fileserve/Fileserve.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Application/Application.h>
 #  include <QTimer>
 
-void CreateFileserveMainWindow(ezApplication* pApp)
+void CreateFileserveMainWindow(WApplication* pApp)
 {
-  ezQtFileserveMainWnd* pMainWnd = new ezQtFileserveMainWnd(pApp);
+  WQtFileserveMainWnd* pMainWnd = new WQtFileserveMainWnd(pApp);
   pMainWnd->show();
 }
 
-ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* pParent)
+WQtFileserveMainWnd::WQtFileserveMainWnd(WApplication* pApp, QWidget* pParent)
   : QMainWindow(pParent)
   , m_pApp(pApp)
 {
   OnServerStopped();
 
-  m_pFileserveWidget = new ezQtFileserveWidget(this);
+  m_pFileserveWidget = new WQtFileserveWidget(this);
   QMainWindow::setCentralWidget(m_pFileserveWidget);
   resize(700, 650);
 
-  connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStarted, this, &ezQtFileserveMainWnd::OnServerStarted);
-  connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStopped, this, &ezQtFileserveMainWnd::OnServerStopped);
+  connect(m_pFileserveWidget, &WQtFileserveWidget::ServerStarted, this, &WQtFileserveMainWnd::OnServerStarted);
+  connect(m_pFileserveWidget, &WQtFileserveWidget::ServerStopped, this, &WQtFileserveMainWnd::OnServerStopped);
 
   show();
 
-  QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
+  QTimer::singleShot(0, this, &WQtFileserveMainWnd::UpdateNetworkSlot);
 
   setWindowIcon(m_pFileserveWidget->windowIcon());
 }
 
 
-void ezQtFileserveMainWnd::UpdateNetworkSlot()
+void WQtFileserveMainWnd::UpdateNetworkSlot()
 {
   m_pApp->Run();
 
@@ -46,20 +46,20 @@ void ezQtFileserveMainWnd::UpdateNetworkSlot()
   }
   else
   {
-    QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
+    QTimer::singleShot(0, this, &WQtFileserveMainWnd::UpdateNetworkSlot);
   }
 }
 
-void ezQtFileserveMainWnd::OnServerStarted(const QString& ip, ezUInt16 uiPort)
+void WQtFileserveMainWnd::OnServerStarted(const QString& ip, WUInt16 uiPort)
 {
-  QString title = QString("ezFileserve (Port %1)").arg(uiPort);
+  QString title = QString("WFileserve (Port %1)").arg(uiPort);
 
   setWindowTitle(title);
 }
 
-void ezQtFileserveMainWnd::OnServerStopped()
+void WQtFileserveMainWnd::OnServerStopped()
 {
-  setWindowTitle("ezFileserve (not running)");
+  setWindowTitle("WFileserve (not running)");
 }
 
 #endif

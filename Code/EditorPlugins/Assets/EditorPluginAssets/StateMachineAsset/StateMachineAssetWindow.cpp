@@ -11,14 +11,14 @@
 
 
 
-ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtStateMachineAssetDocumentWindow::WQtStateMachineAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "StateMachineAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -27,8 +27,8 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "StateMachineAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -39,13 +39,13 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
 
   // Central Widget
   {
-    m_pScene = new ezQtStateMachineAssetScene(this);
-    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+    m_pScene = new WQtStateMachineAssetScene(this);
+    m_pScene->InitScene(static_cast<const WVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pView = new ezQtVisualGraphView(this);
+    m_pView = new WQtVisualGraphView(this);
     m_pView->SetScene(m_pScene);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("StateMachineView");
     pCentral->setWindowTitle("State Machine");
     pCentral->setWidget(m_pView);
@@ -54,12 +54,12 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("StateMachineAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -67,7 +67,7 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -78,4 +78,4 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
   FinishWindowCreation();
 }
 
-ezQtStateMachineAssetDocumentWindow::~ezQtStateMachineAssetDocumentWindow() = default;
+WQtStateMachineAssetDocumentWindow::~WQtStateMachineAssetDocumentWindow() = default;

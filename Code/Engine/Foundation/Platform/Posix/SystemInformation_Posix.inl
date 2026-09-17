@@ -3,21 +3,21 @@
 #include <Foundation/IO/OSFile.h>
 #include <unistd.h>
 
-bool ezSystemInformation::IsDebuggerAttached()
+bool WSystemInformation::IsDebuggerAttached()
 {
-  ezOSFile status;
-  if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
+  WOSFile status;
+  if (status.Open("/proc/self/status", WFileOpenMode::Read).Failed())
   {
     return false;
   }
 
 
   char buffer[2048];
-  ezUInt64 numBytesRead = status.Read(buffer, EZ_ARRAY_SIZE(buffer));
+  WUInt64 numBytesRead = status.Read(buffer, W_ARRAY_SIZE(buffer));
   status.Close();
 
 
-  ezStringView contents(buffer, numBytesRead);
+  WStringView contents(buffer, numBytesRead);
   const char* tracerPid = contents.FindSubString("TracerPid:");
   if (tracerPid == nullptr)
   {
@@ -34,7 +34,7 @@ bool ezSystemInformation::IsDebuggerAttached()
   return *tracerPid == '0' ? false : true;
 }
 
-void ezSystemInformation::Initialize()
+void WSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)
     return;
@@ -44,14 +44,14 @@ void ezSystemInformation::Initialize()
   // Get system information via various APIs
   s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
 
-  ezUInt64 uiPageCount = sysconf(_SC_PHYS_PAGES);
-  ezUInt64 uiPageSize = sysconf(_SC_PAGE_SIZE);
+  WUInt64 uiPageCount = sysconf(_SC_PHYS_PAGES);
+  WUInt64 uiPageSize = sysconf(_SC_PAGE_SIZE);
 
   s_SystemInformation.m_uiInstalledMainMemory = uiPageCount * uiPageSize;
   s_SystemInformation.m_uiMemoryPageSize = uiPageSize;
 
   // Not correct for 32 bit process on 64 bit system
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#if W_ENABLED(W_PLATFORM_64BIT)
   s_SystemInformation.m_bB64BitOS = true;
 #else
   s_SystemInformation.m_bB64BitOS = false;
@@ -63,7 +63,7 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_szBuildConfiguration = "undefined";
 #endif
 
-  s_SystemInformation.m_szPlatformName = EZ_PLATFORM_NAME;
+  s_SystemInformation.m_szPlatformName = W_PLATFORM_NAME;
 
   //  Get host name
   if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)
@@ -74,18 +74,18 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_bIsInitialized = true;
 }
 
-ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
+WUInt64 WSystemInformation::GetAvailableMainMemory() const
 {
-  return static_cast<ezUInt64>(sysconf(_SC_AVPHYS_PAGES)) * static_cast<ezUInt64>(sysconf(_SC_PAGESIZE));
+  return static_cast<WUInt64>(sysconf(_SC_AVPHYS_PAGES)) * static_cast<WUInt64>(sysconf(_SC_PAGESIZE));
 }
 
-float ezSystemInformation::GetCPUUtilization() const
+float WSystemInformation::GetCPUUtilization() const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return 0.0f;
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#if W_ENABLED(W_PLATFORM_ARCH_X86)
 namespace cpu_x86
 {
 #  include <cpuid.h>

@@ -2,165 +2,165 @@
 
 #include <Foundation/SimdMath/SimdBSphere.h>
 
-EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
+W_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCenterAndRadius")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeFromCenterAndRadius")
   {
-    ezSimdBSphere s = ezSimdBSphere::MakeFromCenterAndRadius(ezSimdVec4f(1, 2, 3), 4);
+    WSimdBSphere s = WSimdBSphere::MakeFromCenterAndRadius(WSimdVec4f(1, 2, 3), 4);
 
-    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(1, 2, 3, 4)).AllSet());
+    W_TEST_BOOL((s.m_CenterAndRadius == WSimdVec4f(1, 2, 3, 4)).AllSet());
 
-    EZ_TEST_BOOL((s.GetCenter() == ezSimdVec4f(1, 2, 3)).AllSet<3>());
-    EZ_TEST_BOOL(s.GetRadius() == 4.0f);
+    W_TEST_BOOL((s.GetCenter() == WSimdVec4f(1, 2, 3)).AllSet<3>());
+    W_TEST_BOOL(s.GetRadius() == 4.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeInvalid / IsValid")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeInvalid / IsValid")
   {
-    ezSimdBSphere s(ezSimdVec4f(1, 2, 3), 4);
+    WSimdBSphere s(WSimdVec4f(1, 2, 3), 4);
 
-    EZ_TEST_BOOL(s.IsValid());
+    W_TEST_BOOL(s.IsValid());
 
-    s = ezSimdBSphere::MakeInvalid();
+    s = WSimdBSphere::MakeInvalid();
 
-    EZ_TEST_BOOL(!s.IsValid());
-    EZ_TEST_BOOL(!s.IsNaN());
+    W_TEST_BOOL(!s.IsValid());
+    W_TEST_BOOL(!s.IsNaN());
 
-    s = ezSimdBSphere(ezSimdVec4f(1, 2, 3), ezMath::NaN<float>());
-    EZ_TEST_BOOL(s.IsNaN());
+    s = WSimdBSphere(WSimdVec4f(1, 2, 3), WMath::NaN<float>());
+    W_TEST_BOOL(s.IsNaN());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExpandToInclude(Point)")
   {
-    ezSimdBSphere s(ezSimdVec4f::MakeZero(), 0.0f);
+    WSimdBSphere s(WSimdVec4f::MakeZero(), 0.0f);
 
-    s.ExpandToInclude(ezSimdVec4f(3, 0, 0));
+    s.ExpandToInclude(WSimdVec4f(3, 0, 0));
 
-    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(0, 0, 0, 3)).AllSet());
+    W_TEST_BOOL((s.m_CenterAndRadius == WSimdVec4f(0, 0, 0, 3)).AllSet());
 
-    s = ezSimdBSphere::MakeInvalid();
+    s = WSimdBSphere::MakeInvalid();
 
-    s.ExpandToInclude(ezSimdVec4f(0.25, 0, 0));
+    s.ExpandToInclude(WSimdVec4f(0.25, 0, 0));
 
-    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(0, 0, 0, 0.25)).AllSet());
+    W_TEST_BOOL((s.m_CenterAndRadius == WSimdVec4f(0, 0, 0, 0.25)).AllSet());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(array)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExpandToInclude(array)")
   {
-    ezSimdBSphere s(ezSimdVec4f(2, 2, 0), 0.0f);
+    WSimdBSphere s(WSimdVec4f(2, 2, 0), 0.0f);
 
-    ezSimdVec4f p[4] = {ezSimdVec4f(0, 2, 0), ezSimdVec4f(4, 2, 0), ezSimdVec4f(2, 0, 0), ezSimdVec4f(2, 4, 0)};
+    WSimdVec4f p[4] = {WSimdVec4f(0, 2, 0), WSimdVec4f(4, 2, 0), WSimdVec4f(2, 0, 0), WSimdVec4f(2, 4, 0)};
 
     s.ExpandToInclude(p, 4);
 
-    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(2, 2, 0, 2)).AllSet());
+    W_TEST_BOOL((s.m_CenterAndRadius == WSimdVec4f(2, 2, 0, 2)).AllSet());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (sphere)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExpandToInclude (sphere)")
   {
-    ezSimdBSphere s1(ezSimdVec4f(5, 0, 0), 1);
-    ezSimdBSphere s2(ezSimdVec4f(6, 0, 0), 1);
-    ezSimdBSphere s3(ezSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s1(WSimdVec4f(5, 0, 0), 1);
+    WSimdBSphere s2(WSimdVec4f(6, 0, 0), 1);
+    WSimdBSphere s3(WSimdVec4f(5, 0, 0), 2);
 
     s1.ExpandToInclude(s2);
-    EZ_TEST_BOOL((s1.m_CenterAndRadius == ezSimdVec4f(5, 0, 0, 2)).AllSet());
+    W_TEST_BOOL((s1.m_CenterAndRadius == WSimdVec4f(5, 0, 0, 2)).AllSet());
 
     s1.ExpandToInclude(s3);
-    EZ_TEST_BOOL((s1.m_CenterAndRadius == ezSimdVec4f(5, 0, 0, 2)).AllSet());
+    W_TEST_BOOL((s1.m_CenterAndRadius == WSimdVec4f(5, 0, 0, 2)).AllSet());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Transform")
   {
-    ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s(WSimdVec4f(5, 0, 0), 2);
 
-    ezSimdTransform t(ezSimdVec4f(4, 5, 6));
-    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
-    t.m_Scale = ezSimdVec4f(1, -2, -4);
+    WSimdTransform t(WSimdVec4f(4, 5, 6));
+    t.m_Rotation = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(90));
+    t.m_Scale = WSimdVec4f(1, -2, -4);
 
     s.Transform(t);
-    EZ_TEST_BOOL(s.m_CenterAndRadius.IsEqual(ezSimdVec4f(4, 10, 6, 8), ezSimdFloat(ezMath::SmallEpsilon<float>())).AllSet());
+    W_TEST_BOOL(s.m_CenterAndRadius.IsEqual(WSimdVec4f(4, 10, 6, 8), WSimdFloat(WMath::SmallEpsilon<float>())).AllSet());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetDistanceTo (point)")
   {
-    ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s(WSimdVec4f(5, 0, 0), 2);
 
-    EZ_TEST_BOOL(s.GetDistanceTo(ezSimdVec4f(5, 0, 0)) == -2.0f);
-    EZ_TEST_BOOL(s.GetDistanceTo(ezSimdVec4f(7, 0, 0)) == 0.0f);
-    EZ_TEST_BOOL(s.GetDistanceTo(ezSimdVec4f(9, 0, 0)) == 2.0f);
+    W_TEST_BOOL(s.GetDistanceTo(WSimdVec4f(5, 0, 0)) == -2.0f);
+    W_TEST_BOOL(s.GetDistanceTo(WSimdVec4f(7, 0, 0)) == 0.0f);
+    W_TEST_BOOL(s.GetDistanceTo(WSimdVec4f(9, 0, 0)) == 2.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (sphere)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetDistanceTo (sphere)")
   {
-    ezSimdBSphere s1(ezSimdVec4f(5, 0, 0), 2);
-    ezSimdBSphere s2(ezSimdVec4f(10, 0, 0), 3);
-    ezSimdBSphere s3(ezSimdVec4f(10, 0, 0), 1);
+    WSimdBSphere s1(WSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s2(WSimdVec4f(10, 0, 0), 3);
+    WSimdBSphere s3(WSimdVec4f(10, 0, 0), 1);
 
-    EZ_TEST_BOOL(s1.GetDistanceTo(s2) == 0.0f);
-    EZ_TEST_BOOL(s1.GetDistanceTo(s3) == 2.0f);
+    W_TEST_BOOL(s1.GetDistanceTo(s2) == 0.0f);
+    W_TEST_BOOL(s1.GetDistanceTo(s3) == 2.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (point)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Contains (point)")
   {
-    ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2.0f);
+    WSimdBSphere s(WSimdVec4f(5, 0, 0), 2.0f);
 
-    EZ_TEST_BOOL(s.Contains(ezSimdVec4f(3, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezSimdVec4f(5, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezSimdVec4f(6, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezSimdVec4f(7, 0, 0)));
+    W_TEST_BOOL(s.Contains(WSimdVec4f(3, 0, 0)));
+    W_TEST_BOOL(s.Contains(WSimdVec4f(5, 0, 0)));
+    W_TEST_BOOL(s.Contains(WSimdVec4f(6, 0, 0)));
+    W_TEST_BOOL(s.Contains(WSimdVec4f(7, 0, 0)));
 
-    EZ_TEST_BOOL(!s.Contains(ezSimdVec4f(2, 0, 0)));
-    EZ_TEST_BOOL(!s.Contains(ezSimdVec4f(8, 0, 0)));
+    W_TEST_BOOL(!s.Contains(WSimdVec4f(2, 0, 0)));
+    W_TEST_BOOL(!s.Contains(WSimdVec4f(8, 0, 0)));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (sphere)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Contains (sphere)")
   {
-    ezSimdBSphere s1(ezSimdVec4f(5, 0, 0), 2);
-    ezSimdBSphere s2(ezSimdVec4f(6, 0, 0), 1);
-    ezSimdBSphere s3(ezSimdVec4f(6, 0, 0), 2);
+    WSimdBSphere s1(WSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s2(WSimdVec4f(6, 0, 0), 1);
+    WSimdBSphere s3(WSimdVec4f(6, 0, 0), 2);
 
-    EZ_TEST_BOOL(s1.Contains(s1));
-    EZ_TEST_BOOL(s2.Contains(s2));
-    EZ_TEST_BOOL(s3.Contains(s3));
+    W_TEST_BOOL(s1.Contains(s1));
+    W_TEST_BOOL(s2.Contains(s2));
+    W_TEST_BOOL(s3.Contains(s3));
 
-    EZ_TEST_BOOL(s1.Contains(s2));
-    EZ_TEST_BOOL(!s1.Contains(s3));
+    W_TEST_BOOL(s1.Contains(s2));
+    W_TEST_BOOL(!s1.Contains(s3));
 
-    EZ_TEST_BOOL(!s2.Contains(s3));
-    EZ_TEST_BOOL(s3.Contains(s2));
+    W_TEST_BOOL(!s2.Contains(s3));
+    W_TEST_BOOL(s3.Contains(s2));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (sphere)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Overlaps (sphere)")
   {
-    ezSimdBSphere s1(ezSimdVec4f(5, 0, 0), 2);
-    ezSimdBSphere s2(ezSimdVec4f(6, 0, 0), 2);
-    ezSimdBSphere s3(ezSimdVec4f(8, 0, 0), 1);
+    WSimdBSphere s1(WSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s2(WSimdVec4f(6, 0, 0), 2);
+    WSimdBSphere s3(WSimdVec4f(8, 0, 0), 1);
 
-    EZ_TEST_BOOL(s1.Overlaps(s1));
-    EZ_TEST_BOOL(s2.Overlaps(s2));
-    EZ_TEST_BOOL(s3.Overlaps(s3));
+    W_TEST_BOOL(s1.Overlaps(s1));
+    W_TEST_BOOL(s2.Overlaps(s2));
+    W_TEST_BOOL(s3.Overlaps(s3));
 
-    EZ_TEST_BOOL(s1.Overlaps(s2));
-    EZ_TEST_BOOL(!s1.Overlaps(s3));
+    W_TEST_BOOL(s1.Overlaps(s2));
+    W_TEST_BOOL(!s1.Overlaps(s3));
 
-    EZ_TEST_BOOL(s2.Overlaps(s3));
-    EZ_TEST_BOOL(s3.Overlaps(s2));
+    W_TEST_BOOL(s2.Overlaps(s3));
+    W_TEST_BOOL(s3.Overlaps(s2));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetClampedPoint")
   {
-    ezSimdBSphere s(ezSimdVec4f(1, 2, 3), 2.0f);
+    WSimdBSphere s(WSimdVec4f(1, 2, 3), 2.0f);
 
-    EZ_TEST_BOOL(s.GetClampedPoint(ezSimdVec4f(2, 2, 3)).IsEqual(ezSimdVec4f(2, 2, 3), 0.001f).AllSet<3>());
-    EZ_TEST_BOOL(s.GetClampedPoint(ezSimdVec4f(5, 2, 3)).IsEqual(ezSimdVec4f(3, 2, 3), 0.001f).AllSet<3>());
-    EZ_TEST_BOOL(s.GetClampedPoint(ezSimdVec4f(1, 7, 3)).IsEqual(ezSimdVec4f(1, 4, 3), 0.001f).AllSet<3>());
+    W_TEST_BOOL(s.GetClampedPoint(WSimdVec4f(2, 2, 3)).IsEqual(WSimdVec4f(2, 2, 3), 0.001f).AllSet<3>());
+    W_TEST_BOOL(s.GetClampedPoint(WSimdVec4f(5, 2, 3)).IsEqual(WSimdVec4f(3, 2, 3), 0.001f).AllSet<3>());
+    W_TEST_BOOL(s.GetClampedPoint(WSimdVec4f(1, 7, 3)).IsEqual(WSimdVec4f(1, 4, 3), 0.001f).AllSet<3>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Comparison")
   {
-    ezSimdBSphere s1(ezSimdVec4f(5, 0, 0), 2);
-    ezSimdBSphere s2(ezSimdVec4f(6, 0, 0), 1);
+    WSimdBSphere s1(WSimdVec4f(5, 0, 0), 2);
+    WSimdBSphere s2(WSimdVec4f(6, 0, 0), 1);
 
-    EZ_TEST_BOOL(s1 == ezSimdBSphere(ezSimdVec4f(5, 0, 0), 2));
-    EZ_TEST_BOOL(s1 != s2);
+    W_TEST_BOOL(s1 == WSimdBSphere(WSimdVec4f(5, 0, 0), 2));
+    W_TEST_BOOL(s1 != s2);
   }
 }

@@ -3,10 +3,10 @@
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EnginePluginJolt/EnginePluginJoltDLL.h>
 
-class EZ_ENGINEPLUGINJOLT_DLL ezSceneExportModifier_JoltStaticMeshConversion : public ezSceneExportModifier
+class W_ENGINEPLUGINJOLT_DLL WSceneExportModifier_JoltStaticMeshConversion : public WSceneExportModifier
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_JoltStaticMeshConversion, ezSceneExportModifier);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier_JoltStaticMeshConversion, WSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) override;
 };

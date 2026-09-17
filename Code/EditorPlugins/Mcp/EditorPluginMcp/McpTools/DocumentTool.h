@@ -2,9 +2,9 @@
 
 #include <Mcp/McpTool.h>
 
-class ezDocument;
-class ezMcpJsonWriter;
-struct ezDocumentTypeDescriptor;
+class WDocument;
+class WMcpJsonWriter;
+struct WDocumentTypeDescriptor;
 
 /// Lists, opens, creates, saves, closes and focuses editor documents.
 ///
@@ -15,26 +15,26 @@ struct ezDocumentTypeDescriptor;
 /// The tools that change something are deliberately explicit about it: closing discards unsaved work
 /// unless told otherwise, and deleting rewrites other documents. Neither can ask, so both take the
 /// decision as an argument (see Status.md, 'A tool must never wait for a human').
-class ezMcpDocumentTool : public ezMcpToolProvider
+class WMcpDocumentTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpDocumentTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpDocumentTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteListTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteList(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteOpen(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteCreate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteSave(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteClose(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteFocus(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteDelete(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteListTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteList(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteOpen(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteCreate(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteSave(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteClose(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteFocus(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteDelete(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 
   /// Writes guid, path, type and modified state of one open document. Every tool here returns this
   /// for the document it acted on, so a caller never has to follow up with 'document_list' to learn
   /// the guid of something it just created.
-  static void WriteDocumentIdentity(ezMcpJsonWriter& ref_writer, const ezDocument& document);
+  static void WriteDocumentIdentity(WMcpJsonWriter& ref_writer, const WDocument& document);
 };

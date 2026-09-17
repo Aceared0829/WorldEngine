@@ -3,12 +3,12 @@
 #include <Foundation/Strings/String.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// How particles react when hitting a physics surface
-struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
+struct W_PARTICLEPLUGIN_DLL WParticleRaycastHitReaction
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -20,66 +20,66 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleRaycastHitReaction);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleRaycastHitReaction);
 
 /// Behavior that performs physics raycasts to detect collisions
 ///
 /// Raycasts from the particle's last position to its current position.
 /// On collision, particles can bounce, die, or stop.
 /// Optionally triggers an event on collision.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Raycast final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Raycast, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Raycast, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Raycast();
-  ~ezParticleBehaviorFactory_Raycast();
+  WParticleBehaviorFactory_Raycast();
+  ~WParticleBehaviorFactory_Raycast();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezEnum<ezParticleRaycastHitReaction> m_Reaction; ///< How particles react to collisions
-  ezUInt8 m_uiCollisionLayer = 0;                  ///< Physics collision layer to raycast against
-  ezString m_sOnCollideEvent;                      ///< Optional event name to raise on collision
+  WEnum<WParticleRaycastHitReaction> m_Reaction; ///< How particles react to collisions
+  WUInt8 m_uiCollisionLayer = 0;                  ///< Physics collision layer to raycast against
+  WString m_sOnCollideEvent;                      ///< Optional event name to raise on collision
   float m_fBounceFactor = 0.5f;                    ///< Velocity multiplier when bouncing (energy loss)
   float m_fSlideFactor = 0.5f;                     ///< How much particles slide along the surface
   float m_fSizeFactor = 0.1f;                      ///< Multiplier for particle size used in raycast length
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Raycast final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Raycast, WParticleBehavior);
 
 public:
-  ezParticleBehavior_Raycast();
+  WParticleBehavior_Raycast();
 
   virtual void CreateRequiredStreams() override;
   virtual void QueryOptionalStreams() override;
 
-  ezEnum<ezParticleRaycastHitReaction> m_Reaction;
-  ezUInt8 m_uiCollisionLayer = 0;
-  ezTempHashedString m_sOnCollideEvent;
+  WEnum<WParticleRaycastHitReaction> m_Reaction;
+  WUInt8 m_uiCollisionLayer = 0;
+  WTempHashedString m_sOnCollideEvent;
   float m_fBounceFactor = 0.5f;
   float m_fSlideFactor = 0.5f;
   float m_fSizeFactor = 0.1f;
 
 protected:
-  friend class ezParticleBehaviorFactory_Raycast;
+  friend class WParticleBehaviorFactory_Raycast;
 
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) override;
 
-  ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+  WPhysicsWorldModuleInterface* m_pPhysicsModule;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
-  const ezProcessingStream* m_pStreamSize = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamLastPosition = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
+  const WProcessingStream* m_pStreamSize = nullptr;
 };

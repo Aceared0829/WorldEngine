@@ -2,23 +2,23 @@
 
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 
-class ezDocument;
+class WDocument;
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetDragDropHandler : public ezDragDropHandler
+class W_EDITORFRAMEWORK_DLL WAssetDragDropHandler : public WDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDragDropHandler, ezDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WAssetDragDropHandler, WDragDropHandler);
 
 public:
 protected:
-  bool IsAssetType(const ezDragDropInfo* pInfo) const;
+  bool IsAssetType(const WDragDropInfo* pInfo) const;
 
-  ezString GetAssetGuidString(const ezDragDropInfo* pInfo) const;
+  WString GetAssetGuidString(const WDragDropInfo* pInfo) const;
 
-  ezUuid GetAssetGuid(const ezDragDropInfo* pInfo) const { return ezConversionUtils::ConvertStringToUuid(GetAssetGuidString(pInfo)); }
+  WUuid GetAssetGuid(const WDragDropInfo* pInfo) const { return WConversionUtils::ConvertStringToUuid(GetAssetGuidString(pInfo)); }
 
-  ezString GetAssetsDocumentTypeName(const ezUuid& assetTypeGuid) const;
+  WString GetAssetsDocumentTypeName(const WUuid& assetTypeGuid) const;
 
-  bool IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const;
+  bool IsSpecificAssetType(const WDragDropInfo* pInfo, const char* szType) const;
 
-  ezDocument* m_pDocument;
+  WDocument* m_pDocument;
 };

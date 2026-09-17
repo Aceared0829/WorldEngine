@@ -12,7 +12,7 @@ class PlasmaRifle : WeaponBaseClass
 
     void FireWeapon(MsgWeaponInteraction@ msg) override
     {
-        ezSpawnComponent@ spawn;
+        WSpawnComponent@ spawn;
         if (!GetOwner().FindChildByName("Spawn").TryGetComponentOfBaseType(@spawn))
             return;
 
@@ -21,7 +21,7 @@ class PlasmaRifle : WeaponBaseClass
 
         msg.weaponInfo.iAmmoInClip -= 1;
 
-        spawn.TriggerManualSpawn(true, ezVec3::MakeZero());
+        spawn.TriggerManualSpawn(true, WVec3::MakeZero());
 
         PlayShootSound();
     }

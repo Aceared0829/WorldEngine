@@ -6,27 +6,27 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezNavMeshObstacleComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WNavMeshObstacleComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(InvalidateSectors),
+    W_SCRIPT_FUNCTION_PROPERTY(InvalidateSectors),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI/Navigation"),
+    new WCategoryAttribute("AI/Navigation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezNavMeshObstacleComponent::ezNavMeshObstacleComponent() = default;
-ezNavMeshObstacleComponent::~ezNavMeshObstacleComponent() = default;
+WNavMeshObstacleComponent::WNavMeshObstacleComponent() = default;
+WNavMeshObstacleComponent::~WNavMeshObstacleComponent() = default;
 
-void ezNavMeshObstacleComponent::OnActivated()
+void WNavMeshObstacleComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -34,41 +34,41 @@ void ezNavMeshObstacleComponent::OnActivated()
     InvalidateSectors();
 }
 
-void ezNavMeshObstacleComponent::OnSimulationStarted()
+void WNavMeshObstacleComponent::OnSimulationStarted()
 {
-  ezComponent::OnSimulationStarted();
+  WComponent::OnSimulationStarted();
 
   InvalidateSectors();
 }
 
-void ezNavMeshObstacleComponent::OnDeactivated()
+void WNavMeshObstacleComponent::OnDeactivated()
 {
   InvalidateSectors();
 
   SUPER::OnDeactivated();
 }
 
-void ezNavMeshObstacleComponent::InvalidateSectors()
+void WNavMeshObstacleComponent::InvalidateSectors()
 {
   // TODO: dynamic obstacles not implemented yet
   if (GetOwner()->IsDynamic())
     return;
 
-  auto* pPhysics = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
+  auto* pPhysics = GetWorld()->GetModule<WPhysicsWorldModuleInterface>();
   if (pPhysics == nullptr)
     return;
 
-  auto* pNavMeshModule = GetWorld()->GetOrCreateModule<ezAiNavMeshWorldModule>();
+  auto* pNavMeshModule = GetWorld()->GetOrCreateModule<WAiNavMeshWorldModule>();
   if (pNavMeshModule == nullptr)
     return;
 
   for (const auto& navConfig : pNavMeshModule->GetConfig().m_NavmeshConfigs)
   {
-    ezAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(navConfig.m_sName);
-    ezUInt8 uiCollisionLayer = navConfig.m_uiCollisionLayer;
+    WAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(navConfig.m_sName);
+    WUInt8 uiCollisionLayer = navConfig.m_uiCollisionLayer;
 
-    // TODO: change to ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic when dynamic obstacles are supported
-    auto bounds = pPhysics->GetWorldSpaceBounds(GetOwner(), uiCollisionLayer, ezPhysicsShapeType::Static, true);
+    // TODO: change to WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic when dynamic obstacles are supported
+    auto bounds = pPhysics->GetWorldSpaceBounds(GetOwner(), uiCollisionLayer, WPhysicsShapeType::Static, true);
     if (bounds.IsValid())
     {
       pNavMesh->InvalidateSector(bounds.GetBox().GetCenter().GetAsVec2(), bounds.GetBox().GetHalfExtents().GetAsVec2(), false);
@@ -77,4 +77,4 @@ void ezNavMeshObstacleComponent::InvalidateSectors()
 }
 
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavMeshObstacleComponent);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavMeshObstacleComponent);

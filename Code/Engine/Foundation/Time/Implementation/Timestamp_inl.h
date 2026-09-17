@@ -3,135 +3,135 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Math.h>
 
-inline ezTimestamp::ezTimestamp() = default;
+inline WTimestamp::WTimestamp() = default;
 
-inline bool ezTimestamp::IsValid() const
+inline bool WTimestamp::IsValid() const
 {
-  return m_iTimestamp != EZ_INVALID_TIME_STAMP;
+  return m_iTimestamp != W_INVALID_TIME_STAMP;
 }
 
-inline void ezTimestamp::operator+=(const ezTime& timeSpan)
+inline void WTimestamp::operator+=(const WTime& timeSpan)
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  m_iTimestamp += (ezInt64)timeSpan.GetMicroseconds();
+  W_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  m_iTimestamp += (WInt64)timeSpan.GetMicroseconds();
 }
 
-inline void ezTimestamp::operator-=(const ezTime& timeSpan)
+inline void WTimestamp::operator-=(const WTime& timeSpan)
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  m_iTimestamp -= (ezInt64)timeSpan.GetMicroseconds();
+  W_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  m_iTimestamp -= (WInt64)timeSpan.GetMicroseconds();
 }
 
-inline const ezTime ezTimestamp::operator-(const ezTimestamp& other) const
+inline const WTime WTimestamp::operator-(const WTimestamp& other) const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  EZ_ASSERT_DEBUG(other.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  return ezTime::MakeFromMicroseconds((double)(m_iTimestamp - other.m_iTimestamp));
+  W_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  W_ASSERT_DEBUG(other.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  return WTime::MakeFromMicroseconds((double)(m_iTimestamp - other.m_iTimestamp));
 }
 
-inline const ezTimestamp ezTimestamp::operator+(const ezTime& timeSpan) const
+inline const WTimestamp WTimestamp::operator+(const WTime& timeSpan) const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  return ezTimestamp::MakeFromInt(m_iTimestamp + (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
+  W_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  return WTimestamp::MakeFromInt(m_iTimestamp + (WInt64)timeSpan.GetMicroseconds(), WSIUnitOfTime::Microsecond);
 }
 
-inline const ezTimestamp ezTimestamp::operator-(const ezTime& timeSpan) const
+inline const WTimestamp WTimestamp::operator-(const WTime& timeSpan) const
 {
-  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  return ezTimestamp::MakeFromInt(m_iTimestamp - (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
+  W_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  return WTimestamp::MakeFromInt(m_iTimestamp - (WInt64)timeSpan.GetMicroseconds(), WSIUnitOfTime::Microsecond);
 }
 
-inline const ezTimestamp operator+(const ezTime& timeSpan, const ezTimestamp& timestamp)
+inline const WTimestamp operator+(const WTime& timeSpan, const WTimestamp& timestamp)
 {
-  EZ_ASSERT_DEBUG(timestamp.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  return ezTimestamp::MakeFromInt(timestamp.GetInt64(ezSIUnitOfTime::Microsecond) + (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
+  W_ASSERT_DEBUG(timestamp.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  return WTimestamp::MakeFromInt(timestamp.GetInt64(WSIUnitOfTime::Microsecond) + (WInt64)timeSpan.GetMicroseconds(), WSIUnitOfTime::Microsecond);
 }
 
 
 
-inline ezUInt32 ezDateTime::GetYear() const
+inline WUInt32 WDateTime::GetYear() const
 {
   return m_iYear;
 }
 
-inline void ezDateTime::SetYear(ezInt16 iYear)
+inline void WDateTime::SetYear(WInt16 iYear)
 {
   m_iYear = iYear;
 }
 
-inline ezUInt8 ezDateTime::GetMonth() const
+inline WUInt8 WDateTime::GetMonth() const
 {
   return m_uiMonth;
 }
 
-inline void ezDateTime::SetMonth(ezUInt8 uiMonth)
+inline void WDateTime::SetMonth(WUInt8 uiMonth)
 {
-  EZ_ASSERT_DEBUG(uiMonth >= 1 && uiMonth <= 12, "Invalid month value");
+  W_ASSERT_DEBUG(uiMonth >= 1 && uiMonth <= 12, "Invalid month value");
   m_uiMonth = uiMonth;
 }
 
-inline ezUInt8 ezDateTime::GetDay() const
+inline WUInt8 WDateTime::GetDay() const
 {
   return m_uiDay;
 }
 
-inline void ezDateTime::SetDay(ezUInt8 uiDay)
+inline void WDateTime::SetDay(WUInt8 uiDay)
 {
-  EZ_ASSERT_DEBUG(uiDay >= 1 && uiDay <= 31, "Invalid day value");
+  W_ASSERT_DEBUG(uiDay >= 1 && uiDay <= 31, "Invalid day value");
   m_uiDay = uiDay;
 }
 
-inline ezUInt8 ezDateTime::GetDayOfWeek() const
+inline WUInt8 WDateTime::GetDayOfWeek() const
 {
   return m_uiDayOfWeek;
 }
 
-inline void ezDateTime::SetDayOfWeek(ezUInt8 uiDayOfWeek)
+inline void WDateTime::SetDayOfWeek(WUInt8 uiDayOfWeek)
 {
-  EZ_ASSERT_DEBUG(uiDayOfWeek <= 6, "Invalid day of week value");
+  W_ASSERT_DEBUG(uiDayOfWeek <= 6, "Invalid day of week value");
   m_uiDayOfWeek = uiDayOfWeek;
 }
 
-inline ezUInt8 ezDateTime::GetHour() const
+inline WUInt8 WDateTime::GetHour() const
 {
   return m_uiHour;
 }
 
-inline void ezDateTime::SetHour(ezUInt8 uiHour)
+inline void WDateTime::SetHour(WUInt8 uiHour)
 {
-  EZ_ASSERT_DEBUG(uiHour <= 23, "Invalid hour value");
+  W_ASSERT_DEBUG(uiHour <= 23, "Invalid hour value");
   m_uiHour = uiHour;
 }
 
-inline ezUInt8 ezDateTime::GetMinute() const
+inline WUInt8 WDateTime::GetMinute() const
 {
   return m_uiMinute;
 }
 
-inline void ezDateTime::SetMinute(ezUInt8 uiMinute)
+inline void WDateTime::SetMinute(WUInt8 uiMinute)
 {
-  EZ_ASSERT_DEBUG(uiMinute <= 59, "Invalid minute value");
+  W_ASSERT_DEBUG(uiMinute <= 59, "Invalid minute value");
   m_uiMinute = uiMinute;
 }
 
-inline ezUInt8 ezDateTime::GetSecond() const
+inline WUInt8 WDateTime::GetSecond() const
 {
   return m_uiSecond;
 }
 
-inline void ezDateTime::SetSecond(ezUInt8 uiSecond)
+inline void WDateTime::SetSecond(WUInt8 uiSecond)
 {
-  EZ_ASSERT_DEBUG(uiSecond <= 59, "Invalid second value");
+  W_ASSERT_DEBUG(uiSecond <= 59, "Invalid second value");
   m_uiSecond = uiSecond;
 }
 
-inline ezUInt32 ezDateTime::GetMicroseconds() const
+inline WUInt32 WDateTime::GetMicroseconds() const
 {
   return m_uiMicroseconds;
 }
 
-inline void ezDateTime::SetMicroseconds(ezUInt32 uiMicroSeconds)
+inline void WDateTime::SetMicroseconds(WUInt32 uiMicroSeconds)
 {
-  EZ_ASSERT_DEBUG(uiMicroSeconds <= 999999u, "Invalid micro-second value");
+  W_ASSERT_DEBUG(uiMicroSeconds <= 999999u, "Invalid micro-second value");
   m_uiMicroseconds = uiMicroSeconds;
 }

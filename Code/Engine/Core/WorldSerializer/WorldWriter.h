@@ -4,75 +4,75 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
 
-/// Stores an entire ezWorld in a stream.
+/// Stores an entire WWorld in a stream.
 ///
 /// Used for exporting a world in binary form either as a level or as a prefab (though there is no
 /// difference).
 /// Can be used for saving a game, if the exact state of the world shall be stored (e.g. like in an FPS).
-class EZ_CORE_DLL ezWorldWriter
+class W_CORE_DLL WWorldWriter
 {
 public:
   /// Writes all content in \a world to \a stream.
   ///
   /// All game objects with tags that overlap with \a pExclude will be ignored.
-  void WriteWorld(ezStreamWriter& inout_stream, ezWorld& ref_world, const ezTagSet* pExclude = nullptr);
+  void WriteWorld(WStreamWriter& inout_stream, WWorld& ref_world, const WTagSet* pExclude = nullptr);
 
   /// Only writes the given root objects and all their children to the stream.
-  void WriteObjects(ezStreamWriter& inout_stream, const ezDeque<const ezGameObject*>& rootObjects);
+  void WriteObjects(WStreamWriter& inout_stream, const WDeque<const WGameObject*>& rootObjects);
 
   /// Only writes the given root objects and all their children to the stream.
-  void WriteObjects(ezStreamWriter& inout_stream, ezArrayPtr<const ezGameObject*> rootObjects);
+  void WriteObjects(WStreamWriter& inout_stream, WArrayPtr<const WGameObject*> rootObjects);
 
   /// Writes the given game object handle to the stream.
   ///
   /// \note If the handle belongs to an object that is not part of the serialized scene, e.g. an object
   /// that was excluded by a tag, this function will assert.
-  void WriteGameObjectHandle(const ezGameObjectHandle& hObject);
+  void WriteGameObjectHandle(const WGameObjectHandle& hObject);
 
   /// Writes the given component handle to the stream.
   ///
   /// \note If the handle belongs to a component that is not part of the serialized scene, e.g. an object
   /// that was excluded by a tag, this function will assert.
-  void WriteComponentHandle(const ezComponentHandle& hComponent);
+  void WriteComponentHandle(const WComponentHandle& hComponent);
 
   /// Accesses the stream to which data is written. Use this in component serialization functions
   /// to write data to the stream.
-  ezStreamWriter& GetStream() const { return *m_pStream; }
+  WStreamWriter& GetStream() const { return *m_pStream; }
 
   /// Returns an array containing all game object pointers that were written to the stream as root objects
-  const ezDeque<const ezGameObject*>& GetAllWrittenRootObjects() const { return m_AllRootObjects; }
+  const WDeque<const WGameObject*>& GetAllWrittenRootObjects() const { return m_AllRootObjects; }
 
   /// Returns an array containing all game object pointers that were written to the stream as child objects
-  const ezDeque<const ezGameObject*>& GetAllWrittenChildObjects() const { return m_AllChildObjects; }
+  const WDeque<const WGameObject*>& GetAllWrittenChildObjects() const { return m_AllChildObjects; }
 
 private:
   void Clear();
-  ezResult WriteToStream();
+  WResult WriteToStream();
   void AssignGameObjectIndices();
-  void AssignComponentHandleIndices(const ezMap<ezString, const ezRTTI*>& sortedTypes);
+  void AssignComponentHandleIndices(const WMap<WString, const WRTTI*>& sortedTypes);
   void IncludeAllComponentBaseTypes();
-  void IncludeAllComponentBaseTypes(const ezRTTI* pRtti);
-  void Traverse(ezGameObject* pObject);
+  void IncludeAllComponentBaseTypes(const WRTTI* pRtti);
+  void Traverse(WGameObject* pObject);
 
-  ezVisitorExecution::Enum ObjectTraverser(ezGameObject* pObject);
-  void WriteGameObject(const ezGameObject* pObject);
-  void WriteComponentTypeInfo(const ezRTTI* pRtti);
-  void WriteComponentCreationData(const ezDeque<const ezComponent*>& components);
-  void WriteComponentSerializationData(const ezDeque<const ezComponent*>& components);
+  WVisitorExecution::Enum ObjectTraverser(WGameObject* pObject);
+  void WriteGameObject(const WGameObject* pObject);
+  void WriteComponentTypeInfo(const WRTTI* pRtti);
+  void WriteComponentCreationData(const WDeque<const WComponent*>& components);
+  void WriteComponentSerializationData(const WDeque<const WComponent*>& components);
 
-  ezStreamWriter* m_pStream = nullptr;
-  const ezTagSet* m_pExclude = nullptr;
+  WStreamWriter* m_pStream = nullptr;
+  const WTagSet* m_pExclude = nullptr;
 
-  ezDeque<const ezGameObject*> m_AllRootObjects;
-  ezDeque<const ezGameObject*> m_AllChildObjects;
-  ezMap<ezGameObjectHandle, ezUInt32> m_WrittenGameObjectHandles;
+  WDeque<const WGameObject*> m_AllRootObjects;
+  WDeque<const WGameObject*> m_AllChildObjects;
+  WMap<WGameObjectHandle, WUInt32> m_WrittenGameObjectHandles;
 
   struct Components
   {
-    ezUInt16 m_uiSerializedTypeIndex = 0;
-    ezDeque<const ezComponent*> m_Components;
-    ezMap<ezComponentHandle, ezUInt32> m_HandleToIndex;
+    WUInt16 m_uiSerializedTypeIndex = 0;
+    WDeque<const WComponent*> m_Components;
+    WMap<WComponentHandle, WUInt32> m_HandleToIndex;
   };
 
-  ezHashTable<const ezRTTI*, Components> m_AllComponents;
+  WHashTable<const WRTTI*, Components> m_AllComponents;
 };

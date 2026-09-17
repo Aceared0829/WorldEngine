@@ -9,121 +9,121 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSkyBoxComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
-    EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
-    EZ_ACCESSOR_PROPERTY("UseFog", GetUseFog, SetUseFog)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("VirtualDistance", GetVirtualDistance, SetVirtualDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1000.0f)),
+    W_RESOURCE_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_Cube"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new WClampValueAttribute(-32.0f, 32.0f)),
+    W_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
+    W_ACCESSOR_PROPERTY("UseFog", GetUseFog, SetUseFog)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("VirtualDistance", GetVirtualDistance, SetVirtualDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1000.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezSkyBoxComponent::ezSkyBoxComponent() = default;
-ezSkyBoxComponent::~ezSkyBoxComponent() = default;
+WSkyBoxComponent::WSkyBoxComponent() = default;
+WSkyBoxComponent::~WSkyBoxComponent() = default;
 
-void ezSkyBoxComponent::Initialize()
+void WSkyBoxComponent::Initialize()
 {
   SUPER::Initialize();
 
   const char* szBufferResourceName = "SkyBoxBuffer";
-  ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
+  WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szBufferResourceName);
   if (!hMeshBuffer.IsValid())
   {
-    ezGeometry geom;
-    geom.AddRect(ezVec2(2.0f));
+    WGeometry geom;
+    geom.AddRect(WVec2(2.0f));
 
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezMeshVertexStreamType::Position);
-    desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+    WMeshBufferResourceDescriptor desc;
+    desc.AddStream(WMeshVertexStreamType::Position);
+    desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-    hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+    hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
   }
 
   const char* szMeshResourceName = "SkyBoxMesh";
-  m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
+  m_hMesh = WResourceManager::GetExistingResource<WMeshResource>(szMeshResourceName);
   if (!m_hMesh.IsValid())
   {
-    ezMeshResourceDescriptor desc;
+    WMeshResourceDescriptor desc;
     desc.UseExistingMeshBuffer(hMeshBuffer);
     desc.AddSubMesh(2, 0, 0);
     desc.ComputeBounds();
 
-    m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+    m_hMesh = WResourceManager::GetOrCreateResource<WMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
   }
 
-  ezStringBuilder cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
-  cubeMapMaterialName.AppendFormat("_{0}", ezArgP(GetWorld())); // make the resource unique for each world
+  WStringBuilder cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
+  cubeMapMaterialName.AppendFormat("_{0}", WArgP(GetWorld())); // make the resource unique for each world
 
-  m_hCubeMapMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(cubeMapMaterialName);
+  m_hCubeMapMaterial = WResourceManager::GetExistingResource<WMaterialResource>(cubeMapMaterialName);
   if (!m_hCubeMapMaterial.IsValid())
   {
-    ezMaterialResourceDescriptor desc;
-    desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // Sky.ezMaterialAsset
+    WMaterialResourceDescriptor desc;
+    desc.m_hBaseMaterial = WResourceManager::LoadResource<WMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // Sky.WMaterialAsset
 
-    m_hCubeMapMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, std::move(desc), cubeMapMaterialName);
+    m_hCubeMapMaterial = WResourceManager::CreateResource<WMaterialResource>(cubeMapMaterialName, std::move(desc), cubeMapMaterialName);
   }
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::OnActivated()
+void WSkyBoxComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::OnDeactivated()
+void WSkyBoxComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }
 
-ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WSkyBoxComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSkyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSkyBoxComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't extract sky render data for selection or in orthographic views.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
   const bool bDynamic = GetOwner()->IsDynamic();
-  ezTransform globalTransform = GetOwner()->GetGlobalTransform();
+  WTransform globalTransform = GetOwner()->GetGlobalTransform();
   globalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  WMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(GetOwner());
   pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hCubeMapMaterial, m_hMesh);
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Sky, WRenderData::Caching::IfStatic);
 }
 
-void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSkyBoxComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fExposureBias;
   s << m_bInverseTonemap;
@@ -132,12 +132,12 @@ void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_hCubeMap;
 }
 
-void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSkyBoxComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fExposureBias;
   s >> m_bInverseTonemap;
@@ -154,7 +154,7 @@ void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
   else
   {
-    ezTexture2DResourceHandle dummyHandle;
+    WTexture2DResourceHandle dummyHandle;
     for (int i = 0; i < 6; i++)
     {
       s >> dummyHandle;
@@ -162,50 +162,50 @@ void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezSkyBoxComponent::SetExposureBias(float fExposureBias)
+void WSkyBoxComponent::SetExposureBias(float fExposureBias)
 {
   m_fExposureBias = fExposureBias;
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
+void WSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
 {
   m_bInverseTonemap = bInverseTonemap;
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetUseFog(bool bUseFog)
+void WSkyBoxComponent::SetUseFog(bool bUseFog)
 {
   m_bUseFog = bUseFog;
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetVirtualDistance(float fVirtualDistance)
+void WSkyBoxComponent::SetVirtualDistance(float fVirtualDistance)
 {
   m_fVirtualDistance = fVirtualDistance;
 
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
+void WSkyBoxComponent::SetCubeMap(const WTextureCubeResourceHandle& hCubeMap)
 {
   m_hCubeMap = hCubeMap;
   UpdateMaterials();
 }
 
-const ezTextureCubeResourceHandle& ezSkyBoxComponent::GetCubeMap() const
+const WTextureCubeResourceHandle& WSkyBoxComponent::GetCubeMap() const
 {
   return m_hCubeMap;
 }
 
-void ezSkyBoxComponent::UpdateMaterials()
+void WSkyBoxComponent::UpdateMaterials()
 {
   if (m_hCubeMapMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hCubeMapMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WMaterialResource> pMaterial(m_hCubeMapMaterial, WResourceAcquireMode::AllowLoadingFallback);
 
     pMaterial->SetParameter("ExposureBias", m_fExposureBias);
     pMaterial->SetParameter("InverseTonemap", m_bInverseTonemap);
@@ -224,15 +224,15 @@ void ezSkyBoxComponent::UpdateMaterials()
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
+class WSkyBoxComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezSkyBoxComponentPatch_1_2()
-    : ezGraphPatch("ezSkyBoxComponent", 2)
+  WSkyBoxComponentPatch_1_2()
+    : WGraphPatch("WSkyBoxComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Exposure Bias", "ExposureBias");
     pNode->RenameProperty("Inverse Tonemap", "InverseTonemap");
@@ -245,8 +245,8 @@ public:
   }
 };
 
-ezSkyBoxComponentPatch_1_2 g_ezSkyBoxComponentPatch_1_2;
+WSkyBoxComponentPatch_1_2 g_WSkyBoxComponentPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SkyBoxComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SkyBoxComponent);

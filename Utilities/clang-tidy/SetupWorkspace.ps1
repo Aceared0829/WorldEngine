@@ -16,7 +16,7 @@
             $clangCppExe = "$pwd\llvm\bin\clang++.exe" -replace "\\","/"
             $clangExe = "$pwd\llvm\bin\clang.exe" -replace "\\","/"
             $ninjaExe = "$pwd\llvm\ninja.exe" -replace "\\","/"
-            $cmakeCommand = ".\Data\Tools\Precompiled\cmake\bin\cmake.exe -G Ninja -B Workspace/clang-tidy -S . '-DCMAKE_MAKE_PROGRAM=$ninjaExe' '-DCMAKE_CXX_COMPILER=$clangCppExe' '-DCMAKE_C_COMPILER=$clangExe' '-DCMAKE_RC_COMPILER=$rcExe' -DCMAKE_RC_COMPILER_INIT=rc -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEZ_USE_PCH=OFF -DEZ_ENABLE_FOLDER_UNITY_FILES=OFF '-DCMAKE_SYSTEM_VERSION=$WindowsSdkVersion'"
+            $cmakeCommand = ".\Data\Tools\Precompiled\cmake\bin\cmake.exe -G Ninja -B Workspace/clang-tidy -S . '-DCMAKE_MAKE_PROGRAM=$ninjaExe' '-DCMAKE_CXX_COMPILER=$clangCppExe' '-DCMAKE_C_COMPILER=$clangExe' '-DCMAKE_RC_COMPILER=$rcExe' -DCMAKE_RC_COMPILER_INIT=rc -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DW_USE_PCH=OFF -DW_ENABLE_FOLDER_UNITY_FILES=OFF '-DCMAKE_SYSTEM_VERSION=$WindowsSdkVersion'"
             Write-Host "////////////////////////////////////////////////////////////////////////////////////////////////////////////"
             Write-Host "// CMake Command: $cmakeCommand"
             Write-Host "////////////////////////////////////////////////////////////////////////////////////////////////////////////"

@@ -3,12 +3,12 @@
 #include "Basics.h"
 #include <Core/Graphics/Camera.h>
 
-ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestBasics::InitializeSubTest(WInt32 iIdentifier)
 {
   m_iFrame = -1;
 
-  if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  if (WGraphicsTest::InitializeSubTest(iIdentifier).Failed())
+    return W_FAILURE;
 
   if (iIdentifier == SubTests::ST_ClearScreen)
   {
@@ -16,7 +16,7 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   }
 
   if (CreateWindow().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_hSphere = CreateSphere(3, 1.0f);
   m_hSphere2 = CreateSphere(1, 0.75f);
@@ -26,10 +26,10 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 
 
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestBasics::DeInitializeSubTest(WInt32 iIdentifier)
 {
   m_hSphere.Invalidate();
   m_hSphere2.Invalidate();
@@ -41,89 +41,89 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
 
   DestroyWindow();
 
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  if (WGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
+WTestAppRun WRendererTestBasics::SubtestClearScreen()
 {
   BeginFrame();
   BeginCommands("ClearScreen");
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
   switch (m_iFrame)
   {
     case 0:
-      BeginRendering(ezColor(1, 0, 0));
+      BeginRendering(WColor(1, 0, 0));
       break;
     case 1:
-      BeginRendering(ezColor(0, 1, 0));
+      BeginRendering(WColor(0, 1, 0));
       break;
     case 2:
-      BeginRendering(ezColor(0, 0, 1));
+      BeginRendering(WColor(0, 0, 1));
       break;
     case 3:
-      BeginRendering(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
+      BeginRendering(WColor(0.5f, 0.5f, 0.5f, 0.5f));
       break;
   }
 
   EndRendering();
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-  EZ_TEST_IMAGE(m_iFrame, 1);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+  W_TEST_IMAGE(m_iFrame, 1);
   EndCommands();
   EndFrame();
 
-  return m_iFrame < 3 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 3 ? WTestAppRun::Continue : WTestAppRun::Quit;
 }
 
-void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags)
+void WRendererTestBasics::RenderObjects(WBitflags<WShaderBindFlags> ShaderBindFlags)
 {
-  ezCamera cam;
-  cam.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
-  cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
-  ezMat4 mProj;
+  WCamera cam;
+  cam.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
+  cam.LookAt(WVec3(0, 0, 0), WVec3(0, 0, -1), WVec3(0, 1, 0));
+  WMat4 mProj;
   cam.GetProjectionMatrix((float)GetResolution().width / (float)GetResolution().height, mProj);
-  ezMat4 mView = cam.GetViewMatrix();
+  WMat4 mView = cam.GetViewMatrix();
 
-  ezMat4 mTransform, mOther, mRot;
+  WMat4 mTransform, mOther, mRot;
 
-  mRot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
+  mRot = WMat4::MakeRotationX(WAngle::MakeFromDegree(-90));
 
-  mOther = ezMat4::MakeScaling(ezVec3(1.0f, 1.0f, 1.0f));
-  mTransform = ezMat4::MakeTranslation(ezVec3(-0.3f, -0.3f, 0.0f));
-  RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1, 0.25f), ShaderBindFlags);
+  mOther = WMat4::MakeScaling(WVec3(1.0f, 1.0f, 1.0f));
+  mTransform = WMat4::MakeTranslation(WVec3(-0.3f, -0.3f, 0.0f));
+  RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, WColor(1, 0, 1, 0.25f), ShaderBindFlags);
 
-  mOther = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(80.0f));
-  mTransform = ezMat4::MakeTranslation(ezVec3(0.75f, 0, -1.8f));
-  RenderObject(m_hTorus, mProj * mView * mTransform * mOther * mRot, ezColor(1, 0, 0, 0.5f), ShaderBindFlags);
+  mOther = WMat4::MakeRotationX(WAngle::MakeFromDegree(80.0f));
+  mTransform = WMat4::MakeTranslation(WVec3(0.75f, 0, -1.8f));
+  RenderObject(m_hTorus, mProj * mView * mTransform * mOther * mRot, WColor(1, 0, 0, 0.5f), ShaderBindFlags);
 
   mOther.SetIdentity();
-  mTransform = ezMat4::MakeTranslation(ezVec3(0, 0.1f, -2.0f));
-  RenderObject(m_hSphere, mProj * mView * mTransform * mOther, ezColor(0, 1, 0, 0.75f), ShaderBindFlags);
+  mTransform = WMat4::MakeTranslation(WVec3(0, 0.1f, -2.0f));
+  RenderObject(m_hSphere, mProj * mView * mTransform * mOther, WColor(0, 1, 0, 0.75f), ShaderBindFlags);
 
-  mOther = ezMat4::MakeScaling(ezVec3(1.5f, 1.0f, 1.0f));
-  mTransform = ezMat4::MakeTranslation(ezVec3(-0.6f, -0.2f, -2.2f));
-  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther * mRot, ezColor(0, 0, 1, 1), ShaderBindFlags);
+  mOther = WMat4::MakeScaling(WVec3(1.5f, 1.0f, 1.0f));
+  mTransform = WMat4::MakeTranslation(WVec3(-0.6f, -0.2f, -2.2f));
+  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther * mRot, WColor(0, 0, 1, 1), ShaderBindFlags);
 }
 
-void ezRendererTestBasics::RenderLineObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags)
+void WRendererTestBasics::RenderLineObjects(WBitflags<WShaderBindFlags> ShaderBindFlags)
 {
-  ezCamera cam;
-  cam.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
-  cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
-  ezMat4 mProj;
+  WCamera cam;
+  cam.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
+  cam.LookAt(WVec3(0, 0, 0), WVec3(0, 0, -1), WVec3(0, 1, 0));
+  WMat4 mProj;
   cam.GetProjectionMatrix((float)GetResolution().width / (float)GetResolution().height, mProj);
-  ezMat4 mView = cam.GetViewMatrix();
+  WMat4 mView = cam.GetViewMatrix();
 
-  ezMat4 mTransform, mOther, mRot;
+  WMat4 mTransform, mOther, mRot;
 
-  mRot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
+  mRot = WMat4::MakeRotationX(WAngle::MakeFromDegree(-90));
 
-  mOther = ezMat4::MakeScaling(ezVec3(1.0f, 1.0f, 1.0f));
-  mTransform = ezMat4::MakeTranslation(ezVec3(-0.3f, -0.3f, 0.0f));
-  RenderObject(m_hLineBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1, 0.25f), ShaderBindFlags);
+  mOther = WMat4::MakeScaling(WVec3(1.0f, 1.0f, 1.0f));
+  mTransform = WMat4::MakeTranslation(WVec3(-0.3f, -0.3f, 0.0f));
+  RenderObject(m_hLineBox, mProj * mView * mTransform * mOther, WColor(1, 0, 1, 0.25f), ShaderBindFlags);
 }
 
-static ezRendererTestBasics g_Test;
+static WRendererTestBasics g_Test;

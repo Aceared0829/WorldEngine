@@ -1,0 +1,288 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{15768789185513003451,4920043893049495347}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/Explosion.jpg"}
+		}
+		Uuid %DocumentID{u4{15768789185513003451,4920043893049495347}}
+		u4 %Hash{9170727747591343004}
+		VarArray %MetaInfo{}
+		VarArray %Outputs
+		{
+			s{"LOWRES"}
+		}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Textures/Explosion.jpg"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{33952229448327342,5306505632995422117}}
+	s %t{"WTextureAssetProperties"}
+	u3 %v{5}
+	p
+	{
+		s %AddressModeU{"WImageAddressMode::Clamp"}
+		s %AddressModeV{"WImageAddressMode::Clamp"}
+		s %AddressModeW{"WImageAddressMode::Repeat"}
+		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
+		f %CVarResScale{0x0000803F}
+		s %ChannelMapping{"WTexture2DChannelMappingEnum::RGB1"}
+		s %CompressionMode{"WTexConvCompressionMode::Medium"}
+		b %DilateColor{1}
+		b %FlipHorizontal{0}
+		s %Format{"WRenderTargetFormat::RGBA8sRgb"}
+		f %HdrExposureBias{0}
+		s %Input1{"Textures/Explosion.jpg"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %IsArrayTexture{0}
+		b %IsRenderTarget{0}
+		s %MipmapMode{"WTexConvMipmapMode::Kaiser"}
+		b %PremultipliedAlpha{0}
+		b %PreserveAlphaCoverage{0}
+		s %Resolution{"WTexture2DResolution::Fixed256x256"}
+		s %TextureFilter{"WTextureFilterSetting::DefaultQuality"}
+		s %Usage{"WTexConvUsage::Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{33952229448327342,5306505632995422117}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{12203372038544747648,1304846957001536306}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WTexConvCompressionMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8056413000846340440,3023450138914009177}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WTextureAssetProperties"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{6606822328587505351,4158023727683023298}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WTexConvUsage"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8978639096379244608,5602414126398036750}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WRenderTargetFormat"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10141898220652821643,7992438720797374380}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WTexture2DResolution"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15250044141338656666,8993131727605744715}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WTextureFilterSetting"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9760759588213427989,10521812630174686177}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"WTexture2DChannelMappingEnum"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14746541170062030859,14911800878971067818}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WImageAddressMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2647008765262101666,17105863286049156560}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WTexConvMipmapMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

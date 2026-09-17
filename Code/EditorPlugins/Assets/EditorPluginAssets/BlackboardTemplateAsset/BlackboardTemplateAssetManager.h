@@ -3,22 +3,22 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
 
-class ezBlackboardTemplateAssetDocumentManager : public ezAssetDocumentManager
+class WBlackboardTemplateAssetDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateAssetDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WBlackboardTemplateAssetDocumentManager, WAssetDocumentManager);
 
 public:
-  ezBlackboardTemplateAssetDocumentManager();
-  ~ezBlackboardTemplateAssetDocumentManager();
+  WBlackboardTemplateAssetDocumentManager();
+  ~WBlackboardTemplateAssetDocumentManager();
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
 
-  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
+  virtual void InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
 
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

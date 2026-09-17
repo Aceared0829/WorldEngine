@@ -4,18 +4,18 @@
 
 namespace
 {
-  struct ezMsgTest : public ezMessage
+  struct WMsgTest : public WMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
+    W_DECLARE_MESSAGE_TYPE(WMsgTest, WMessage);
   };
 
-  EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_IMPLEMENT_MESSAGE_TYPE(WMsgTest);
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgTest, 1, WRTTIDefaultAllocator<WMsgTest>)
+  W_END_DYNAMIC_REFLECTED_TYPE;
 
-  struct TestMessage : public ezMsgTest
+  struct TestMessage : public WMsgTest
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage, ezMsgTest);
+    W_DECLARE_MESSAGE_TYPE(TestMessage, WMsgTest);
 
     int x;
     int y;
@@ -26,27 +26,27 @@ namespace
     int receiver;
   };
 
-  using TestMessageQueue = ezMessageQueue<MetaData>;
+  using TestMessageQueue = WMessageQueue<MetaData>;
 
-  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage, 1, ezRTTIDefaultAllocator<TestMessage>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_IMPLEMENT_MESSAGE_TYPE(TestMessage);
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage, 1, WRTTIDefaultAllocator<TestMessage>)
+  W_END_DYNAMIC_REFLECTED_TYPE;
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
+W_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 {
   {
     TestMessage msg;
-    EZ_TEST_INT(msg.GetSize(), sizeof(TestMessage));
+    W_TEST_INT(msg.GetSize(), sizeof(TestMessage));
   }
 
   TestMessageQueue q;
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enqueue")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Enqueue")
   {
-    for (ezUInt32 i = 0; i < 100; ++i)
+    for (WUInt32 i = 0; i < 100; ++i)
     {
-      TestMessage* pMsg = EZ_DEFAULT_NEW(TestMessage);
+      TestMessage* pMsg = W_DEFAULT_NEW(TestMessage);
       pMsg->x = rand();
       pMsg->y = rand();
 
@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sorting")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Sorting")
   {
     struct MessageComparer
     {
@@ -73,37 +73,37 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     q.Sort(MessageComparer());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator[]")
   {
-    EZ_LOCK(q);
+    W_LOCK(q);
 
-    ezMessage* pLastMsg = q[0].m_pMessage;
+    WMessage* pLastMsg = q[0].m_pMessage;
     MetaData lastMd = q[0].m_MetaData;
 
-    for (ezUInt32 i = 1; i < q.GetCount(); ++i)
+    for (WUInt32 i = 1; i < q.GetCount(); ++i)
     {
-      ezMessage* pMsg = q[i].m_pMessage;
+      WMessage* pMsg = q[i].m_pMessage;
       MetaData md = q[i].m_MetaData;
 
       if (md.receiver == lastMd.receiver)
       {
-        EZ_TEST_BOOL(pMsg->GetHash() >= pLastMsg->GetHash());
+        W_TEST_BOOL(pMsg->GetHash() >= pLastMsg->GetHash());
       }
       else
       {
-        EZ_TEST_BOOL(md.receiver >= lastMd.receiver);
+        W_TEST_BOOL(md.receiver >= lastMd.receiver);
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dequeue")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Dequeue")
   {
-    ezMessage* pMsg = nullptr;
+    WMessage* pMsg = nullptr;
     MetaData md;
 
     while (q.TryDequeue(pMsg, md))
     {
-      EZ_DEFAULT_DELETE(pMsg);
+      W_DEFAULT_DELETE(pMsg);
     }
   }
 }

@@ -11,11 +11,11 @@
 ///
 /// This class has no associated behavior or functionality, and its getters and setters have no effect other than changing
 /// the contained value. It is intended as a container to be modified by image utils and loaders.
-class EZ_TEXTURE_DLL ezImageHeader
+class W_TEXTURE_DLL WImageHeader
 {
 public:
   /// Constructs an image using an unknown format and zero size.
-  ezImageHeader() { Clear(); }
+  WImageHeader() { Clear(); }
 
   /// Constructs an image using an unknown format and zero size.
   void Clear()
@@ -26,134 +26,134 @@ public:
     m_uiWidth = 0;
     m_uiHeight = 0;
     m_uiDepth = 1;
-    m_Format = ezImageFormat::UNKNOWN;
+    m_Format = WImageFormat::UNKNOWN;
   }
 
   /// Sets the image format.
-  void SetImageFormat(const ezImageFormat::Enum& format) { m_Format = format; }
+  void SetImageFormat(const WImageFormat::Enum& format) { m_Format = format; }
 
   /// Returns the image format.
-  ezImageFormat::Enum GetImageFormat() const { return m_Format; }
+  WImageFormat::Enum GetImageFormat() const { return m_Format; }
 
   /// Sets the image width.
-  void SetWidth(ezUInt32 uiWidth) { m_uiWidth = uiWidth; }
+  void SetWidth(WUInt32 uiWidth) { m_uiWidth = uiWidth; }
 
   /// Returns the image width for a given mip level, clamped to 1.
-  ezUInt32 GetWidth(ezUInt32 uiMipLevel = 0) const
+  WUInt32 GetWidth(WUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
-    return ezMath::Max(m_uiWidth >> uiMipLevel, 1U);
+    W_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    return WMath::Max(m_uiWidth >> uiMipLevel, 1U);
   }
 
   /// Sets the image height.
-  void SetHeight(ezUInt32 uiHeight) { m_uiHeight = uiHeight; }
+  void SetHeight(WUInt32 uiHeight) { m_uiHeight = uiHeight; }
 
   /// Returns the image height for a given mip level, clamped to 1.
-  ezUInt32 GetHeight(ezUInt32 uiMipLevel = 0) const
+  WUInt32 GetHeight(WUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
-    return ezMath::Max(m_uiHeight >> uiMipLevel, 1U);
+    W_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    return WMath::Max(m_uiHeight >> uiMipLevel, 1U);
   }
 
   /// Sets the image depth. The default is 1.
-  void SetDepth(ezUInt32 uiDepth) { m_uiDepth = uiDepth; }
+  void SetDepth(WUInt32 uiDepth) { m_uiDepth = uiDepth; }
 
   /// Returns the image depth for a given mip level, clamped to 1.
-  ezUInt32 GetDepth(ezUInt32 uiMipLevel = 0) const
+  WUInt32 GetDepth(WUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
-    return ezMath::Max(m_uiDepth >> uiMipLevel, 1U);
+    W_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    return WMath::Max(m_uiDepth >> uiMipLevel, 1U);
   }
 
   /// Sets the number of mip levels, including the full-size image.
   ///
   /// Setting this to 0 will result in an empty image.
-  void SetNumMipLevels(ezUInt32 uiNumMipLevels) { m_uiNumMipLevels = uiNumMipLevels; }
+  void SetNumMipLevels(WUInt32 uiNumMipLevels) { m_uiNumMipLevels = uiNumMipLevels; }
 
   /// Returns the number of mip levels, including the full-size image.
-  ezUInt32 GetNumMipLevels() const { return m_uiNumMipLevels; }
+  WUInt32 GetNumMipLevels() const { return m_uiNumMipLevels; }
 
   /// Sets the number of cubemap faces. Use 1 for a non-cubemap.
   ///
   /// Setting this to 0 will result in an empty image.
-  void SetNumFaces(ezUInt32 uiNumFaces) { m_uiNumFaces = uiNumFaces; }
+  void SetNumFaces(WUInt32 uiNumFaces) { m_uiNumFaces = uiNumFaces; }
 
   /// Returns the number of cubemap faces, or 1 for a non-cubemap.
-  ezUInt32 GetNumFaces() const { return m_uiNumFaces; }
+  WUInt32 GetNumFaces() const { return m_uiNumFaces; }
 
   /// Sets the number of array indices.
   ///
   /// Setting this to 0 will result in an empty image.
-  void SetNumArrayIndices(ezUInt32 uiNumArrayIndices) { m_uiNumArrayIndices = uiNumArrayIndices; }
+  void SetNumArrayIndices(WUInt32 uiNumArrayIndices) { m_uiNumArrayIndices = uiNumArrayIndices; }
 
   /// Returns the number of array indices.
-  ezUInt32 GetNumArrayIndices() const { return m_uiNumArrayIndices; }
+  WUInt32 GetNumArrayIndices() const { return m_uiNumArrayIndices; }
 
   /// Returns the number of image planes.
-  ezUInt32 GetPlaneCount() const
+  WUInt32 GetPlaneCount() const
   {
-    return ezImageFormat::GetPlaneCount(m_Format);
+    return WImageFormat::GetPlaneCount(m_Format);
   }
 
   /// Returns the number of blocks contained in a given mip level in the horizontal direction.
-  ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  WUInt32 GetNumBlocksX(WUInt32 uiMipLevel = 0, WUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetNumBlocksX(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
+    return WImageFormat::GetNumBlocksX(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
   }
 
   /// Returns the number of blocks contained in a given mip level in the horizontal direction.
-  ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  WUInt32 GetNumBlocksY(WUInt32 uiMipLevel = 0, WUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetNumBlocksY(m_Format, GetHeight(uiMipLevel), uiPlaneIndex);
+    return WImageFormat::GetNumBlocksY(m_Format, GetHeight(uiMipLevel), uiPlaneIndex);
   }
 
   /// Returns the number of blocks contained in a given mip level in the depth direction.
-  ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  WUInt32 GetNumBlocksZ(WUInt32 uiMipLevel = 0, WUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetNumBlocksZ(m_Format, GetDepth(uiMipLevel), uiPlaneIndex);
+    return WImageFormat::GetNumBlocksZ(m_Format, GetDepth(uiMipLevel), uiPlaneIndex);
   }
 
   /// Returns the offset in bytes between two subsequent rows of the given mip level.
-  ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  WUInt64 GetRowPitch(WUInt32 uiMipLevel = 0, WUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetRowPitch(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
+    return WImageFormat::GetRowPitch(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
   }
 
   /// Returns the offset in bytes between two subsequent depth slices of the given mip level.
-  ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  WUInt64 GetDepthPitch(WUInt32 uiMipLevel = 0, WUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetDepthPitch(m_Format, GetWidth(uiMipLevel), GetHeight(uiMipLevel), uiPlaneIndex);
+    return WImageFormat::GetDepthPitch(m_Format, GetWidth(uiMipLevel), GetHeight(uiMipLevel), uiPlaneIndex);
   }
 
   /// Computes the data size required for an image with the header's format and dimensions.
-  ezUInt64 ComputeDataSize() const
+  WUInt64 ComputeDataSize() const
   {
-    ezUInt64 uiDataSize = 0;
+    WUInt64 uiDataSize = 0;
 
-    for (ezUInt32 uiMipLevel = 0; uiMipLevel < GetNumMipLevels(); uiMipLevel++)
+    for (WUInt32 uiMipLevel = 0; uiMipLevel < GetNumMipLevels(); uiMipLevel++)
     {
-      for (ezUInt32 uiPlaneIndex = 0; uiPlaneIndex < GetPlaneCount(); ++uiPlaneIndex)
+      for (WUInt32 uiPlaneIndex = 0; uiPlaneIndex < GetPlaneCount(); ++uiPlaneIndex)
       {
-        uiDataSize += GetDepthPitch(uiMipLevel, uiPlaneIndex) * static_cast<ezUInt64>(GetDepth(uiMipLevel));
+        uiDataSize += GetDepthPitch(uiMipLevel, uiPlaneIndex) * static_cast<WUInt64>(GetDepth(uiMipLevel));
       }
     }
 
-    return ezMath::SafeMultiply64(uiDataSize, ezMath::SafeMultiply32(GetNumArrayIndices(), GetNumFaces()));
+    return WMath::SafeMultiply64(uiDataSize, WMath::SafeMultiply32(GetNumArrayIndices(), GetNumFaces()));
   }
 
   /// Computes the number of mip maps in the full mip chain.
-  ezUInt32 ComputeNumberOfMipMaps() const
+  WUInt32 ComputeNumberOfMipMaps() const
   {
-    ezUInt32 numMipMaps = 1;
-    ezUInt32 width = GetWidth();
-    ezUInt32 height = GetHeight();
-    ezUInt32 depth = GetDepth();
+    WUInt32 numMipMaps = 1;
+    WUInt32 width = GetWidth();
+    WUInt32 height = GetHeight();
+    WUInt32 depth = GetDepth();
 
     while (width > 1 || height > 1 || depth > 1)
     {
-      width = ezMath::Max(1u, width / 2);
-      height = ezMath::Max(1u, height / 2);
-      depth = ezMath::Max(1u, depth / 2);
+      width = WMath::Max(1u, width / 2);
+      height = WMath::Max(1u, height / 2);
+      depth = WMath::Max(1u, depth / 2);
 
       numMipMaps++;
     }
@@ -161,7 +161,7 @@ public:
     return numMipMaps;
   }
 
-  bool operator==(const ezImageHeader& other) const
+  bool operator==(const WImageHeader& other) const
   {
     return m_uiNumMipLevels == other.m_uiNumMipLevels &&
            m_uiNumFaces == other.m_uiNumFaces &&
@@ -172,19 +172,19 @@ public:
            m_Format == other.m_Format;
   }
 
-  bool operator!=(const ezImageHeader& other) const
+  bool operator!=(const WImageHeader& other) const
   {
     return !operator==(other);
   }
 
 protected:
-  ezUInt32 m_uiNumMipLevels;
-  ezUInt32 m_uiNumFaces;
-  ezUInt32 m_uiNumArrayIndices;
+  WUInt32 m_uiNumMipLevels;
+  WUInt32 m_uiNumFaces;
+  WUInt32 m_uiNumArrayIndices;
 
-  ezUInt32 m_uiWidth;
-  ezUInt32 m_uiHeight;
-  ezUInt32 m_uiDepth;
+  WUInt32 m_uiWidth;
+  WUInt32 m_uiHeight;
+  WUInt32 m_uiDepth;
 
-  ezImageFormat::Enum m_Format;
+  WImageFormat::Enum m_Format;
 };

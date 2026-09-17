@@ -5,33 +5,33 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <SharedPluginScene/Common/Messages.h>
 
-class ezDocumentOpenMsgToEngine;
+class WDocumentOpenMsgToEngine;
 
-/// Layers that are loaded as sub-documents of a scene share the ezWorld with their main document scene. Thus, this context attaches itself to its parent ezSceneContext.
-class EZ_ENGINEPLUGINSCENE_DLL ezLayerContext : public ezEngineProcessDocumentContext
+/// Layers that are loaded as sub-documents of a scene share the WWorld with their main document scene. Thus, this context attaches itself to its parent WSceneContext.
+class W_ENGINEPLUGINSCENE_DLL WLayerContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WLayerContext, WEngineProcessDocumentContext);
 
 public:
-  static ezEngineProcessDocumentContext* AllocateContext(const ezDocumentOpenMsgToEngine* pMsg);
-  ezLayerContext();
-  ~ezLayerContext();
+  static WEngineProcessDocumentContext* AllocateContext(const WDocumentOpenMsgToEngine* pMsg);
+  WLayerContext();
+  ~WLayerContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
   void SceneDeinitialized();
-  const ezTag& GetLayerTag() const;
+  const WTag& GetLayerTag() const;
 
 protected:
   virtual void OnInitialize() override;
   virtual void OnDeinitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual WStatus ExportDocument(const WExportDocumentMsgToEngine* pMsg) override;
 
   virtual void UpdateDocumentContext() override;
 
 private:
-  ezSceneContext* m_pParentSceneContext = nullptr;
-  ezTag m_LayerTag;
+  WSceneContext* m_pParentSceneContext = nullptr;
+  WTag m_LayerTag;
 };

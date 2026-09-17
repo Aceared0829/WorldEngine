@@ -3,46 +3,46 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <JoltPlugin/System/JoltJobSystem.h>
 
-ezJoltJobSystem::ezJoltJobSystem(ezUInt32 uiMaxJobs, ezUInt32 uiMaxBarriers)
+WJoltJobSystem::WJoltJobSystem(WUInt32 uiMaxJobs, WUInt32 uiMaxBarriers)
 {
   JobSystemWithBarrier::Init(uiMaxBarriers);
 
   m_Jobs.Init(uiMaxJobs, uiMaxJobs);
 
   m_Tasks.SetCount(uiMaxJobs);
-  for (ezUInt32 i = 0; i < m_Tasks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Tasks.GetCount(); ++i)
   {
-    m_Tasks[i] = EZ_DEFAULT_NEW(ezJoltTask);
-    m_Tasks[i]->ConfigureTask("Jolt", ezTaskNesting::Never, &ezJoltJobSystem::OnTaskFinished);
+    m_Tasks[i] = W_DEFAULT_NEW(WJoltTask);
+    m_Tasks[i]->ConfigureTask("Jolt", WTaskNesting::Never, &WJoltJobSystem::OnTaskFinished);
   }
 }
 
-int ezJoltJobSystem::GetMaxConcurrency() const
+int WJoltJobSystem::GetMaxConcurrency() const
 {
-  return ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
+  return WTaskSystem::GetWorkerThreadCount(WWorkerThreadType::ShortTasks);
 }
 
-JPH::JobHandle ezJoltJobSystem::CreateJob(const char* szName, JPH::ColorArg color, const JobFunction& jobFunction, ezUInt32 uiNumDependencies)
+JPH::JobHandle WJoltJobSystem::CreateJob(const char* szName, JPH::ColorArg color, const JobFunction& jobFunction, WUInt32 uiNumDependencies)
 {
   // Loop until we can get a job from the free list
-  ezUInt32 index;
+  WUInt32 index;
   for (;;)
   {
     index = m_Jobs.ConstructObject(szName, color, this, jobFunction, uiNumDependencies);
     if (index != AvailableJobs::cInvalidObjectIndex)
       break;
 
-    EZ_ASSERT_DEBUG(false, "No Jolt jobs available!");
-    ezThreadUtils::YieldTimeSlice();
+    W_ASSERT_DEBUG(false, "No Jolt jobs available!");
+    WThreadUtils::YieldTimeSlice();
   }
 
   CustomJob* job = &m_Jobs.Get(index);
   job->m_uiJobIndex = index;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   {
-    ezStringBuilder name("Jolt-", szName);
-    m_Tasks[index]->ConfigureTask(name, ezTaskNesting::Never, &ezJoltJobSystem::OnTaskFinished);
+    WStringBuilder name("Jolt-", szName);
+    m_Tasks[index]->ConfigureTask(name, WTaskNesting::Never, &WJoltJobSystem::OnTaskFinished);
   }
 #endif
 
@@ -57,14 +57,14 @@ JPH::JobHandle ezJoltJobSystem::CreateJob(const char* szName, JPH::ColorArg colo
   return handle;
 }
 
-void ezJoltJobSystem::FreeJob(Job* pJob)
+void WJoltJobSystem::FreeJob(Job* pJob)
 {
   m_Jobs.DestructObject(static_cast<CustomJob*>(pJob));
 }
 
-void ezJoltJobSystem::OnTaskFinished(const ezSharedPtr<ezTask>& task)
+void WJoltJobSystem::OnTaskFinished(const WSharedPtr<WTask>& task)
 {
-  ezJoltTask* pTask = static_cast<ezJoltTask*>(task.Borrow());
+  WJoltTask* pTask = static_cast<WJoltTask*>(task.Borrow());
 
   auto* pJob = static_cast<JPH::JobSystem::Job*>(pTask->m_pJob);
   pTask->m_pJob = nullptr;
@@ -73,7 +73,7 @@ void ezJoltJobSystem::OnTaskFinished(const ezSharedPtr<ezTask>& task)
   pJob->Release();
 }
 
-void ezJoltJobSystem::QueueJob(Job* pJob)
+void WJoltJobSystem::QueueJob(Job* pJob)
 {
   auto* pMyJob = static_cast<CustomJob*>(pJob);
   pMyJob->AddRef();
@@ -82,18 +82,18 @@ void ezJoltJobSystem::QueueJob(Job* pJob)
 
   pTask->m_pJob = pMyJob;
 
-  ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
+  WTaskSystem::StartSingleTask(pTask, WTaskPriority::EarlyThisFrame);
 }
 
-void ezJoltJobSystem::QueueJobs(Job** pJob, ezUInt32 uiNum_Jobs)
+void WJoltJobSystem::QueueJobs(Job** pJob, WUInt32 uiNum_Jobs)
 {
-  for (ezUInt32 i = 0; i < uiNum_Jobs; ++i)
+  for (WUInt32 i = 0; i < uiNum_Jobs; ++i)
   {
     QueueJob(pJob[i]);
   }
 }
 
-void ezJoltJobSystem::ezJoltTask::Execute()
+void WJoltJobSystem::WJoltTask::Execute()
 {
   m_pJob->Execute();
 }

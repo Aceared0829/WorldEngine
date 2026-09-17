@@ -24,57 +24,57 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltRopeAnchorConstraintMode, 1)
-  EZ_ENUM_CONSTANTS(ezJoltRopeAnchorConstraintMode::None, ezJoltRopeAnchorConstraintMode::Point, ezJoltRopeAnchorConstraintMode::Fixed, ezJoltRopeAnchorConstraintMode::Cone)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltRopeAnchorConstraintMode, 1)
+  W_ENUM_CONSTANTS(WJoltRopeAnchorConstraintMode::None, WJoltRopeAnchorConstraintMode::Point, WJoltRopeAnchorConstraintMode::Fixed, WJoltRopeAnchorConstraintMode::Cone)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 4, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WJoltRopeComponent, 4, WComponentMode::Dynamic)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Anchor1", DummyGetter, SetAnchor1Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-      EZ_ACCESSOR_PROPERTY("Anchor2", DummyGetter, SetAnchor2Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-      EZ_ENUM_ACCESSOR_PROPERTY("Anchor1Constraint", ezJoltRopeAnchorConstraintMode, GetAnchor1ConstraintMode, SetAnchor1ConstraintMode),
-      EZ_ENUM_ACCESSOR_PROPERTY("Anchor2Constraint", ezJoltRopeAnchorConstraintMode, GetAnchor2ConstraintMode, SetAnchor2ConstraintMode),
-      EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(2, 64)),
-      EZ_MEMBER_PROPERTY("Slack", m_fSlack)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
-      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-      EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
-      EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
-      EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   ezVariant())),
-      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(90))),
-      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.01f), ezAngle::MakeFromDegree(90))),
-      EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-      EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-      EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
-      EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
+      W_ACCESSOR_PROPERTY("Anchor1", DummyGetter, SetAnchor1Reference)->AddAttributes(new WGameObjectReferenceAttribute()),
+      W_ACCESSOR_PROPERTY("Anchor2", DummyGetter, SetAnchor2Reference)->AddAttributes(new WGameObjectReferenceAttribute()),
+      W_ENUM_ACCESSOR_PROPERTY("Anchor1Constraint", WJoltRopeAnchorConstraintMode, GetAnchor1ConstraintMode, SetAnchor1ConstraintMode),
+      W_ENUM_ACCESSOR_PROPERTY("Anchor2Constraint", WJoltRopeAnchorConstraintMode, GetAnchor2ConstraintMode, SetAnchor2ConstraintMode),
+      W_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new WDefaultValueAttribute(16), new WClampValueAttribute(2, 64)),
+      W_MEMBER_PROPERTY("Slack", m_fSlack)->AddAttributes(new WDefaultValueAttribute(0.3f)),
+      W_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new WDynamicEnumAttribute("PhysicsWeightCategory")),
+      W_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 10.0f)),
+      W_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new WSuffixAttribute(" kg"), new WDefaultValueAttribute(5.0f), new WClampValueAttribute(1.0f, 1000.0f)),
+      W_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new WDefaultValueAttribute(0.05f), new WClampValueAttribute(0.01f, 0.5f)),
+      W_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new WClampValueAttribute(0.0f,   WVariant())),
+      W_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(30)), new WClampValueAttribute(WAngle::MakeFromDegree(5), WAngle::MakeFromDegree(90))),
+      W_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(30)), new WClampValueAttribute(WAngle::MakeFromDegree(0.01f), WAngle::MakeFromDegree(90))),
+      W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      W_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+      W_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+      W_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
+      W_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+    W_END_PROPERTIES;
+    W_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
-      EZ_MESSAGE_HANDLER(ezJoltMsgDisconnectConstraints, OnJoltMsgDisconnectConstraints),
+      W_MESSAGE_HANDLER(WMsgPhysicsAddImpulse, AddImpulseAtPos),
+      W_MESSAGE_HANDLER(WJoltMsgDisconnectConstraints, OnJoltMsgDisconnectConstraints),
     }
-    EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_MESSAGEHANDLERS;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Physics/Jolt/Effects"),
+      new WCategoryAttribute("Physics/Jolt/Effects"),
     }
-    EZ_END_ATTRIBUTES;
+    W_END_ATTRIBUTES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltRopeComponent::ezJoltRopeComponent() = default;
-ezJoltRopeComponent::~ezJoltRopeComponent() = default;
+WJoltRopeComponent::WJoltRopeComponent() = default;
+WJoltRopeComponent::~WJoltRopeComponent() = default;
 
-void ezJoltRopeComponent::SetSurfaceFile(ezStringView sFile)
+void WJoltRopeComponent::SetSurfaceFile(WStringView sFile)
 {
   if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+    m_hSurface = WResourceManager::LoadResource<WSurfaceResource>(sFile);
   }
   else
   {
@@ -82,15 +82,15 @@ void ezJoltRopeComponent::SetSurfaceFile(ezStringView sFile)
   }
 
   if (m_hSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hSurface);
+    WResourceManager::PreloadResource(m_hSurface);
 }
 
-ezStringView ezJoltRopeComponent::GetSurfaceFile() const
+WStringView WJoltRopeComponent::GetSurfaceFile() const
 {
   return m_hSurface.GetResourceID();
 }
 
-void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltRopeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -116,12 +116,12 @@ void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   inout_stream.WriteGameObjectHandle(m_hAnchor2);
 }
 
-void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltRopeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  EZ_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
+  W_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
   if (uiVersion < 4)
     return;
 
@@ -158,48 +158,48 @@ void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   m_hAnchor2 = inout_stream.ReadGameObjectHandle();
 }
 
-void ezJoltRopeComponent::OnSimulationStarted()
+void WJoltRopeComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   CreateRope();
 }
 
-void ezJoltRopeComponent::OnActivated()
+void WJoltRopeComponent::OnActivated()
 {
   UpdatePreview();
 }
 
-void ezJoltRopeComponent::OnDeactivated()
+void WJoltRopeComponent::OnDeactivated()
 {
   DestroyPhysicsShapes();
 
   // tell the render components, that the rope is gone
-  ezMsgRopePoseUpdated poseMsg;
+  WMsgRopePoseUpdated poseMsg;
   GetOwner()->SendMessage(poseMsg);
 
   SUPER::OnDeactivated();
 }
 
-const ezJoltMaterial* ezJoltRopeComponent::GetJoltMaterial()
+const WJoltMaterial* WJoltRopeComponent::GetJoltMaterial()
 {
   if (m_hSurface.IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WSurfaceResource> pSurface(m_hSurface, WResourceAcquireMode::BlockTillLoaded);
 
     if (pSurface->m_pPhysicsMaterialJolt != nullptr)
     {
-      return static_cast<const ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+      return static_cast<const WJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
     }
   }
 
-  return ezJoltCore::GetDefaultMaterial();
+  return WJoltCore::GetDefaultMaterial();
 }
 
-void ezJoltRopeComponent::CreateRope()
+void WJoltRopeComponent::CreateRope()
 {
-  ezGameObjectHandle hAnchor1 = m_hAnchor1;
-  ezGameObjectHandle hAnchor2 = m_hAnchor2;
+  WGameObjectHandle hAnchor1 = m_hAnchor1;
+  WGameObjectHandle hAnchor2 = m_hAnchor2;
 
   if (hAnchor1.IsInvalidated())
     hAnchor1 = GetOwner()->GetHandle();
@@ -209,19 +209,19 @@ void ezJoltRopeComponent::CreateRope()
   if (hAnchor1 == hAnchor2)
     return;
 
-  ezHybridArray<ezTransform, 65> nodes;
+  WHybridArray<WTransform, 65> nodes;
   float fPieceLength;
   if (CreateSegmentTransforms(nodes, fPieceLength, hAnchor1, hAnchor2).Failed())
     return;
 
-  const ezUInt32 numPieces = nodes.GetCount() - 1;
+  const WUInt32 numPieces = nodes.GetCount() - 1;
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   m_uiObjectFilterID = pModule->CreateObjectFilterID();
 
-  const ezJoltMaterial* pMaterial = GetJoltMaterial();
+  const WJoltMaterial* pMaterial = GetJoltMaterial();
 
-  ezJoltUserData* pUserData = nullptr;
+  WJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
@@ -230,25 +230,25 @@ void ezJoltRopeComponent::CreateRope()
   opt->mSkeleton->GetJoints().resize(numPieces);
   opt->mParts.resize(numPieces);
 
-  const float fInitialMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 5.0f, m_fWeightMass, m_fWeightScale);
+  const float fInitialMass = WJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 5.0f, m_fWeightMass, m_fWeightScale);
 
   const float fPieceMass = fInitialMass / numPieces;
 
-  ezStringBuilder name;
+  WStringBuilder name;
 
   JPH::CapsuleShapeSettings capsule;
   capsule.mRadius = m_fThickness * 0.5f;
   capsule.mHalfHeightOfCylinder = fPieceLength * 0.5f;
   capsule.mMaterial = pMaterial;
-  capsule.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+  capsule.mUserData = reinterpret_cast<WUInt64>(pUserData);
 
   JPH::RotatedTranslatedShapeSettings capsOffset;
   capsOffset.mInnerShapePtr = capsule.Create().Get();
   capsOffset.mPosition = JPH::Vec3(fPieceLength * 0.5f, 0, 0);
-  capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), ezAngle::MakeFromDegree(-90).GetRadian());
-  capsOffset.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+  capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), WAngle::MakeFromDegree(-90).GetRadian());
+  capsOffset.mUserData = reinterpret_cast<WUInt64>(pUserData);
 
-  for (ezUInt32 idx = 0; idx < numPieces; ++idx)
+  for (WUInt32 idx = 0; idx < numPieces; ++idx)
   {
     // skeleton
     {
@@ -259,17 +259,17 @@ void ezJoltRopeComponent::CreateRope()
 
       name.SetFormat("Link{}", idx);
       joint.mName = name;
-      joint.mParentJointIndex = static_cast<ezInt32>(idx) - 1;
+      joint.mParentJointIndex = static_cast<WInt32>(idx) - 1;
     }
 
     auto& part = opt->mParts[idx];
-    part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Rope);
+    part.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Rope);
     part.mGravityFactor = m_fGravityFactor;
     part.mMotionQuality = m_bCCD ? JPH::EMotionQuality::LinearCast : JPH::EMotionQuality::Discrete;
     part.mMotionType = JPH::EMotionType::Dynamic;
-    part.mPosition = ezJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
-    part.mRotation = ezJoltConversionUtils::ToQuat(nodes[idx].m_qRotation);
-    part.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+    part.mPosition = WJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
+    part.mRotation = WJoltConversionUtils::ToQuat(nodes[idx].m_qRotation);
+    part.mUserData = reinterpret_cast<WUInt64>(pUserData);
     part.SetShape(capsOffset.Create().Get()); // shape is cached, only 1 is created
     part.mMassPropertiesOverride.mMass = fPieceMass;
     part.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
@@ -284,26 +284,26 @@ void ezJoltRopeComponent::CreateRope()
     {
       JPH::SwingTwistConstraintSettings* pConstraint = new JPH::SwingTwistConstraintSettings();
       pConstraint->mDrawConstraintSize = 0.1f;
-      pConstraint->mPosition1 = ezJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
+      pConstraint->mPosition1 = WJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
       pConstraint->mPosition2 = pConstraint->mPosition1;
       pConstraint->mNormalHalfConeAngle = m_MaxBend.GetRadian();
       pConstraint->mPlaneHalfConeAngle = m_MaxBend.GetRadian();
-      pConstraint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * ezVec3(1, 0, 0)).Normalized();
-      pConstraint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * ezVec3(1, 0, 0)).Normalized();
-      pConstraint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * ezVec3(0, 1, 0)).Normalized();
-      pConstraint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * ezVec3(0, 1, 0)).Normalized();
+      pConstraint->mTwistAxis1 = WJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * WVec3(1, 0, 0)).Normalized();
+      pConstraint->mTwistAxis2 = WJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * WVec3(1, 0, 0)).Normalized();
+      pConstraint->mPlaneAxis1 = WJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * WVec3(0, 1, 0)).Normalized();
+      pConstraint->mPlaneAxis2 = WJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * WVec3(0, 1, 0)).Normalized();
       pConstraint->mTwistMinAngle = -m_MaxTwist.GetRadian();
       pConstraint->mTwistMaxAngle = m_MaxTwist.GetRadian();
       pConstraint->mMaxFrictionTorque = m_fBendStiffness;
       part.mToParent = pConstraint;
     }
 
-    if ((m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx == 0) ||
-        (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx + 1 == numPieces))
+    if ((m_Anchor1ConstraintMode != WJoltRopeAnchorConstraintMode::None && idx == 0) ||
+        (m_Anchor2ConstraintMode != WJoltRopeAnchorConstraintMode::None && idx + 1 == numPieces))
     {
       // disable all collisions for the first and last rope segment
       // this prevents colliding with walls that the rope is attached to
-      part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Query);
+      part.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Query);
     }
   }
 
@@ -315,37 +315,37 @@ void ezJoltRopeComponent::CreateRope()
 
   opt->Stabilize();
 
-  m_pRagdoll = opt->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<ezUInt64>(pUserData), pModule->GetJoltSystem());
+  m_pRagdoll = opt->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<WUInt64>(pUserData), pModule->GetJoltSystem());
   m_pRagdoll->AddRef();
   m_pRagdoll->AddToPhysicsSystem(JPH::EActivation::Activate);
 
-  if (m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
+  if (m_Anchor1ConstraintMode != WJoltRopeAnchorConstraintMode::None)
   {
     m_pConstraintAnchor1 = CreateConstraint(hAnchor1, nodes[0], m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber(), m_Anchor1ConstraintMode, m_uiAnchor1BodyID);
   }
 
-  if (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
+  if (m_Anchor2ConstraintMode != WJoltRopeAnchorConstraintMode::None)
   {
-    ezTransform end = nodes.PeekBack();
+    WTransform end = nodes.PeekBack();
     end.m_qRotation = end.m_qRotation.GetInverse();
     m_pConstraintAnchor2 = CreateConstraint(hAnchor2, end, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode, m_uiAnchor2BodyID);
   }
 }
 
-JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& pieceLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID)
+JPH::Constraint* WJoltRopeComponent::CreateConstraint(const WGameObjectHandle& hTarget, const WTransform& pieceLoc, WUInt32 uiBodyID, WJoltRopeAnchorConstraintMode::Enum mode, WUInt32& out_uiConnectedToBodyID)
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
 
   JPH::BodyID bodyIDs[2] = {JPH::BodyID(JPH::BodyID::cInvalidBodyID), JPH::BodyID(uiBodyID)};
 
-  ezGameObject* pTarget = nullptr;
+  WGameObject* pTarget = nullptr;
   if (!GetWorld()->TryGetObject(hTarget, pTarget))
     return nullptr;
 
   // const auto targetLoc = pTarget->GetGlobalTransform();
 
-  ezJoltDynamicActorComponent* pActor = nullptr;
+  WJoltDynamicActorComponent* pActor = nullptr;
   while (pTarget && !pTarget->TryGetComponentOfBaseType(pActor))
   {
     // search for a parent with a physics actor
@@ -369,29 +369,29 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
 
     JPH::Body* pAnchor = bodies.GetBody(0) != nullptr ? bodies.GetBody(0) : &JPH::Body::sFixedToWorld;
 
-    const ezVec3 vTwistAxis1 = pieceLoc.m_qRotation * ezVec3(1, 0, 0);
-    const ezVec3 vTwistAxis2 = pieceLoc.m_qRotation * ezVec3(1, 0, 0);
+    const WVec3 vTwistAxis1 = pieceLoc.m_qRotation * WVec3(1, 0, 0);
+    const WVec3 vTwistAxis2 = pieceLoc.m_qRotation * WVec3(1, 0, 0);
 
-    const ezVec3 vOrthoAxis1 = pieceLoc.m_qRotation * ezVec3(0, 1, 0);
-    const ezVec3 vOrthoAxis2 = pieceLoc.m_qRotation * ezVec3(0, 1, 0);
+    const WVec3 vOrthoAxis1 = pieceLoc.m_qRotation * WVec3(0, 1, 0);
+    const WVec3 vOrthoAxis2 = pieceLoc.m_qRotation * WVec3(0, 1, 0);
 
     JPH::Constraint* pConstraint = nullptr;
 
-    if (mode == ezJoltRopeAnchorConstraintMode::Cone)
+    if (mode == WJoltRopeAnchorConstraintMode::Cone)
     {
       JPH::SwingTwistConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPosition1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
-      constraint.mPosition2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mPosition1 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mPosition2 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mNormalHalfConeAngle = m_MaxBend.GetRadian();
       constraint.mPlaneHalfConeAngle = m_MaxBend.GetRadian();
 
-      constraint.mTwistAxis1 = ezJoltConversionUtils::ToVec3(vTwistAxis1).Normalized();
-      constraint.mTwistAxis2 = ezJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
+      constraint.mTwistAxis1 = WJoltConversionUtils::ToVec3(vTwistAxis1).Normalized();
+      constraint.mTwistAxis2 = WJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
 
-      constraint.mPlaneAxis1 = ezJoltConversionUtils::ToVec3(vOrthoAxis1).Normalized();
-      constraint.mPlaneAxis2 = ezJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
+      constraint.mPlaneAxis1 = WJoltConversionUtils::ToVec3(vOrthoAxis1).Normalized();
+      constraint.mPlaneAxis2 = WJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
 
       constraint.mTwistMinAngle = -m_MaxTwist.GetRadian();
       constraint.mTwistMaxAngle = m_MaxTwist.GetRadian();
@@ -399,33 +399,33 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
 
       pConstraint = constraint.Create(*pAnchor, *bodies.GetBody(1));
     }
-    else if (mode == ezJoltRopeAnchorConstraintMode::Point)
+    else if (mode == WJoltRopeAnchorConstraintMode::Point)
     {
       JPH::PointConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
-      constraint.mPoint2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mPoint1 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mPoint2 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
 
       pConstraint = constraint.Create(*pAnchor, *bodies.GetBody(1));
     }
-    else if (mode == ezJoltRopeAnchorConstraintMode::Fixed)
+    else if (mode == WJoltRopeAnchorConstraintMode::Fixed)
     {
       JPH::FixedConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
-      constraint.mPoint2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
-      constraint.mAxisX1 = ezJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
-      constraint.mAxisY1 = ezJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
-      constraint.mAxisX2 = ezJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
-      constraint.mAxisY2 = ezJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
+      constraint.mPoint1 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mPoint2 = WJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
+      constraint.mAxisX1 = WJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
+      constraint.mAxisY1 = WJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
+      constraint.mAxisX2 = WJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
+      constraint.mAxisY2 = WJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
 
       pConstraint = constraint.Create(*pAnchor, *bodies.GetBody(1));
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
 
     pConstraint->AddRef();
@@ -440,10 +440,10 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
   }
 }
 
-void ezJoltRopeComponent::UpdatePreview()
+void WJoltRopeComponent::UpdatePreview()
 {
-  ezGameObject* pAnchor1 = nullptr;
-  ezGameObject* pAnchor2 = nullptr;
+  WGameObject* pAnchor1 = nullptr;
+  WGameObject* pAnchor2 = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor1, pAnchor1))
     pAnchor1 = GetOwner();
   if (!GetWorld()->TryGetObject(m_hAnchor2, pAnchor2))
@@ -452,26 +452,26 @@ void ezJoltRopeComponent::UpdatePreview()
   if (pAnchor1 == pAnchor2)
     return;
 
-  ezUInt32 uiHash = 0;
-  ezQuat rot;
+  WUInt32 uiHash = 0;
+  WQuat rot;
 
-  ezVec3 pos = GetOwner()->GetGlobalPosition();
-  uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+  WVec3 pos = GetOwner()->GetGlobalPosition();
+  uiHash = WHashingUtils::xxHash32(&pos, sizeof(WVec3), uiHash);
 
   pos = pAnchor1->GetGlobalPosition();
-  uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+  uiHash = WHashingUtils::xxHash32(&pos, sizeof(WVec3), uiHash);
   rot = pAnchor1->GetGlobalRotation();
-  uiHash = ezHashingUtils::xxHash32(&rot, sizeof(ezQuat), uiHash);
+  uiHash = WHashingUtils::xxHash32(&rot, sizeof(WQuat), uiHash);
 
   pos = pAnchor2->GetGlobalPosition();
-  uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+  uiHash = WHashingUtils::xxHash32(&pos, sizeof(WVec3), uiHash);
   rot = pAnchor2->GetGlobalRotation();
-  uiHash = ezHashingUtils::xxHash32(&rot, sizeof(ezQuat), uiHash);
+  uiHash = WHashingUtils::xxHash32(&rot, sizeof(WQuat), uiHash);
 
-  uiHash = ezHashingUtils::xxHash32(&m_fSlack, sizeof(float), uiHash);
-  uiHash = ezHashingUtils::xxHash32(&m_uiPieces, sizeof(ezUInt16), uiHash);
-  uiHash = ezHashingUtils::xxHash32(&m_Anchor1ConstraintMode, sizeof(ezJoltRopeAnchorConstraintMode::StorageType), uiHash);
-  uiHash = ezHashingUtils::xxHash32(&m_Anchor2ConstraintMode, sizeof(ezJoltRopeAnchorConstraintMode::StorageType), uiHash);
+  uiHash = WHashingUtils::xxHash32(&m_fSlack, sizeof(float), uiHash);
+  uiHash = WHashingUtils::xxHash32(&m_uiPieces, sizeof(WUInt16), uiHash);
+  uiHash = WHashingUtils::xxHash32(&m_Anchor1ConstraintMode, sizeof(WJoltRopeAnchorConstraintMode::StorageType), uiHash);
+  uiHash = WHashingUtils::xxHash32(&m_Anchor2ConstraintMode, sizeof(WJoltRopeAnchorConstraintMode::StorageType), uiHash);
 
   if (uiHash != m_uiPreviewHash)
   {
@@ -480,14 +480,14 @@ void ezJoltRopeComponent::UpdatePreview()
   }
 }
 
-ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength, ezGameObjectHandle hAnchor1, ezGameObjectHandle hAnchor2)
+WResult WJoltRopeComponent::CreateSegmentTransforms(WDynamicArray<WTransform>& transforms, float& out_fPieceLength, WGameObjectHandle hAnchor1, WGameObjectHandle hAnchor2)
 {
   out_fPieceLength = 0.0f;
 
   if (m_uiPieces == 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  // ezPathComponent* pPath;
+  // WPathComponent* pPath;
   // if (GetOwner()->TryGetComponentOfBaseType(pPath))
   //{
   //   // generally working, but the usability is still WIP
@@ -496,19 +496,19 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
   //  const float fLength = pPath->GetLinearizedRepresentationLength();
 
-  //  if (ezMath::IsZero(fLength, 0.001f))
-  //    return EZ_FAILURE;
+  //  if (WMath::IsZero(fLength, 0.001f))
+  //    return W_FAILURE;
 
-  //  const ezTransform ownTrans = GetOwner()->GetGlobalTransform();
+  //  const WTransform ownTrans = GetOwner()->GetGlobalTransform();
 
   //  out_fPieceLength = fLength / m_uiPieces;
 
   //  transforms.SetCountUninitialized(m_uiPieces + 1);
 
-  //  ezPathComponent::LinearSampler sampler;
+  //  WPathComponent::LinearSampler sampler;
   //  auto t0 = pPath->SampleLinearizedRepresentation(sampler);
 
-  //  for (ezUInt16 p = 0; p < m_uiPieces; ++p)
+  //  for (WUInt16 p = 0; p < m_uiPieces; ++p)
   //  {
   //    float fAddDistance = out_fPieceLength;
   //    pPath->AdvanceLinearSamplerBy(sampler, fAddDistance);
@@ -516,7 +516,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
   //    transforms[p].m_vPosition = ownTrans * t0.m_vPosition;
   //    transforms[p].m_vScale.Set(1);
-  //    transforms[p].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
+  //    transforms[p].m_qRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
 
   //    t0 = t1;
   //  }
@@ -525,65 +525,65 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
   //  transforms.PeekBack().m_vScale.Set(1);
   //  transforms.PeekBack().m_qRotation = transforms[m_uiPieces - 1].m_qRotation;
 
-  //  return EZ_SUCCESS;
+  //  return W_SUCCESS;
   //}
   // else
   {
-    const ezGameObject* pAnchor1 = nullptr;
-    const ezGameObject* pAnchor2 = nullptr;
+    const WGameObject* pAnchor1 = nullptr;
+    const WGameObject* pAnchor2 = nullptr;
 
     if (!GetWorld()->TryGetObject(hAnchor1, pAnchor1))
-      return EZ_FAILURE;
+      return W_FAILURE;
     if (!GetWorld()->TryGetObject(hAnchor2, pAnchor2))
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezVec3 vOrgAnchor1 = pAnchor1->GetGlobalPosition();
-    const ezVec3 vOrgAnchor2 = pAnchor2->GetGlobalPosition();
+    const WVec3 vOrgAnchor1 = pAnchor1->GetGlobalPosition();
+    const WVec3 vOrgAnchor2 = pAnchor2->GetGlobalPosition();
 
-    ezSimdVec4f vAnchor1 = ezSimdConversion::ToVec3(vOrgAnchor1);
-    ezSimdVec4f vAnchor2 = ezSimdConversion::ToVec3(vOrgAnchor2);
+    WSimdVec4f vAnchor1 = WSimdConversion::ToVec3(vOrgAnchor1);
+    WSimdVec4f vAnchor2 = WSimdConversion::ToVec3(vOrgAnchor2);
 
     const float fLength = (vAnchor2 - vAnchor1).GetLength<3>();
-    if (ezMath::IsZero(fLength, 0.001f))
-      return EZ_FAILURE;
+    if (WMath::IsZero(fLength, 0.001f))
+      return W_FAILURE;
 
     // the rope simulation always introduces some sag,
     // (m_fSlack - 0.1f) puts the rope under additional tension to counteract the imprecise simulation
     // we could also drastically ramp up the simulation steps, but that costs way too much performance
-    const float fIntendedRopeLength = fLength + fLength * (ezMath::Abs(m_fSlack) - 0.1f);
+    const float fIntendedRopeLength = fLength + fLength * (WMath::Abs(m_fSlack) - 0.1f);
 
     const float fPieceLength = fIntendedRopeLength / m_uiPieces;
 
-    ezUInt16 uiSimulatedPieces = m_uiPieces;
+    WUInt16 uiSimulatedPieces = m_uiPieces;
 
     bool bAnchor1Fixed = false;
     bool bAnchor2Fixed = false;
 
-    if (m_Anchor1ConstraintMode == ezJoltRopeAnchorConstraintMode::Cone ||
-        m_Anchor1ConstraintMode == ezJoltRopeAnchorConstraintMode::Fixed)
+    if (m_Anchor1ConstraintMode == WJoltRopeAnchorConstraintMode::Cone ||
+        m_Anchor1ConstraintMode == WJoltRopeAnchorConstraintMode::Fixed)
     {
       bAnchor1Fixed = true;
-      vAnchor1 += ezSimdConversion::ToVec3(pAnchor1->GetGlobalDirForwards()) * fPieceLength;
+      vAnchor1 += WSimdConversion::ToVec3(pAnchor1->GetGlobalDirForwards()) * fPieceLength;
       --uiSimulatedPieces;
     }
 
-    if (m_Anchor2ConstraintMode == ezJoltRopeAnchorConstraintMode::Cone ||
-        m_Anchor2ConstraintMode == ezJoltRopeAnchorConstraintMode::Fixed)
+    if (m_Anchor2ConstraintMode == WJoltRopeAnchorConstraintMode::Cone ||
+        m_Anchor2ConstraintMode == WJoltRopeAnchorConstraintMode::Fixed)
     {
       bAnchor2Fixed = true;
-      vAnchor2 += ezSimdConversion::ToVec3(pAnchor2->GetGlobalDirForwards()) * fPieceLength;
+      vAnchor2 += WSimdConversion::ToVec3(pAnchor2->GetGlobalDirForwards()) * fPieceLength;
       --uiSimulatedPieces;
     }
 
-    ezRopeSimulator rope;
+    WRopeSimulator rope;
     rope.m_bFirstNodeIsFixed = true;
     rope.m_bLastNodeIsFixed = true;
     rope.m_fDampingFactor = 0.97f;
     rope.m_fSegmentLength = fPieceLength;
     rope.m_Nodes.SetCount(uiSimulatedPieces + 1);
-    rope.m_vAcceleration.Set(0, 0, ezMath::Sign(m_fSlack) * -1);
+    rope.m_vAcceleration.Set(0, 0, WMath::Sign(m_fSlack) * -1);
 
-    for (ezUInt16 i = 0; i < uiSimulatedPieces + 1; ++i)
+    for (WUInt16 i = 0; i < uiSimulatedPieces + 1; ++i)
     {
       rope.m_Nodes[i].m_vPosition = vAnchor1 + (vAnchor2 - vAnchor1) * ((float)i / (float)uiSimulatedPieces);
       rope.m_Nodes[i].m_vPreviousPosition = rope.m_Nodes[i].m_vPosition;
@@ -593,7 +593,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
     transforms.SetCountUninitialized(m_uiPieces + 1);
 
-    ezUInt16 idx2 = 0;
+    WUInt16 idx2 = 0;
 
     out_fPieceLength = 0.0f;
 
@@ -611,24 +611,24 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
     const float fRopeLen = rope.GetTotalLength();
     const float fRopePieceLen = fRopeLen / uiSimulatedPieces;
 
-    ezSimdVec4f p0 = rope.m_Nodes[0].m_vPosition;
+    WSimdVec4f p0 = rope.m_Nodes[0].m_vPosition;
 
-    for (ezUInt16 idx = 0; idx < uiSimulatedPieces; ++idx)
+    for (WUInt16 idx = 0; idx < uiSimulatedPieces; ++idx)
     {
-      const ezSimdVec4f p1 = rope.GetPositionAtLength((idx + 1) * fRopePieceLen);
-      ezSimdVec4f dir = p1 - p0;
+      const WSimdVec4f p1 = rope.GetPositionAtLength((idx + 1) * fRopePieceLen);
+      WSimdVec4f dir = p1 - p0;
 
-      const ezSimdFloat len = dir.GetLength<3>();
+      const WSimdFloat len = dir.GetLength<3>();
       out_fPieceLength += len;
 
       if (len <= 0.001f)
-        dir = ezSimdVec4f(1, 0, 0, 0);
+        dir = WSimdVec4f(1, 0, 0, 0);
       else
         dir /= len;
 
       transforms[idx2].m_vScale.Set(1);
-      transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(p0);
-      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));
+      transforms[idx2].m_vPosition = WSimdConversion::ToVec3(p0);
+      transforms[idx2].m_qRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), WSimdConversion::ToVec3(dir));
 
       ++idx2;
       p0 = p1;
@@ -636,7 +636,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
     {
       transforms[idx2].m_vScale.Set(1);
-      transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(rope.m_Nodes.PeekBack().m_vPosition);
+      transforms[idx2].m_vPosition = WSimdConversion::ToVec3(rope.m_Nodes.PeekBack().m_vPosition);
       transforms[idx2].m_qRotation = transforms[idx2 - 1].m_qRotation;
 
       ++idx2;
@@ -650,8 +650,8 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
       transforms[idx2].m_vPosition = vOrgAnchor2;
       transforms[idx2].m_qRotation = pAnchor2->GetGlobalRotation();
 
-      ezVec3 dir = transforms[idx2].m_qRotation * ezVec3(1, 0, 0);
-      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), -dir);
+      WVec3 dir = transforms[idx2].m_qRotation * WVec3(1, 0, 0);
+      transforms[idx2].m_qRotation = WQuat::MakeShortestRotation(WVec3(1, 0, 0), -dir);
 
       // transforms[idx2].m_qRotation.Flip();
       transforms[idx2].m_qRotation.Normalize();
@@ -660,15 +660,15 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
     out_fPieceLength /= m_uiPieces;
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-void ezJoltRopeComponent::DestroyPhysicsShapes()
+void WJoltRopeComponent::DestroyPhysicsShapes()
 {
   if (m_pRagdoll)
   {
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
     m_pRagdoll->RemoveFromPhysicsSystem();
     m_pRagdoll->Release();
@@ -679,7 +679,7 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
       m_pConstraintAnchor1->Release();
       m_pConstraintAnchor1 = nullptr;
-      m_uiAnchor1BodyID = ezInvalidIndex;
+      m_uiAnchor1BodyID = WInvalidIndex;
     }
 
     if (m_pConstraintAnchor2)
@@ -687,7 +687,7 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
       m_pConstraintAnchor2->Release();
       m_pConstraintAnchor2 = nullptr;
-      m_uiAnchor2BodyID = ezInvalidIndex;
+      m_uiAnchor2BodyID = WInvalidIndex;
     }
 
     pModule->DeallocateUserData(m_uiUserDataIndex);
@@ -703,9 +703,9 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
 // this effectively ignores most forces that are applied to multiple links and just moves one or two links
 constexpr float g_fMaxForce = 1.5f;
 
-void ezJoltRopeComponent::Update()
+void WJoltRopeComponent::Update()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   m_fMaxForcePerFrame = g_fMaxForce * 2.0f;
 
@@ -714,34 +714,34 @@ void ezJoltRopeComponent::Update()
 
   // at runtime, allow to disengage the connection
   {
-    if (m_Anchor1ConstraintMode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor1)
+    if (m_Anchor1ConstraintMode == WJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor1)
     {
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
       m_pConstraintAnchor1->Release();
       m_pConstraintAnchor1 = nullptr;
-      m_uiAnchor1BodyID = ezInvalidIndex;
+      m_uiAnchor1BodyID = WInvalidIndex;
       m_pRagdoll->Activate();
     }
 
-    if (m_Anchor2ConstraintMode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor2)
+    if (m_Anchor2ConstraintMode == WJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor2)
     {
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
       m_pConstraintAnchor2->Release();
       m_pConstraintAnchor2 = nullptr;
-      m_uiAnchor2BodyID = ezInvalidIndex;
+      m_uiAnchor2BodyID = WInvalidIndex;
       m_pRagdoll->Activate();
     }
   }
 
   // if (m_fWindInfluence > 0.0f)
   //{
-  //   if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  //   if (const WWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<WWindWorldModuleInterface>())
   //   {
-  //     ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
+  //     WVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
 
-  //    const ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
+  //    const WVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
 
-  //    ezVec3 windForce = vWind;
+  //    WVec3 windForce = vWind;
   //    windForce += pWind->ComputeWindFlutter(vWind, ropeDir, 10.0f, GetOwner()->GetStableRandomSeed());
 
   //    if (!windForce.IsZero())
@@ -751,60 +751,60 @@ void ezJoltRopeComponent::Update()
   //  }
   //}
 
-  ezHybridArray<ezTransform, 32> poses(ezFrameAllocator::GetCurrentAllocator());
-  poses.SetCountUninitialized(static_cast<ezUInt32>(m_pRagdoll->GetBodyCount()) + 1);
+  WHybridArray<WTransform, 32> poses(WFrameAllocator::GetCurrentAllocator());
+  poses.SetCountUninitialized(static_cast<WUInt32>(m_pRagdoll->GetBodyCount()) + 1);
 
-  ezMsgRopePoseUpdated poseMsg;
+  WMsgRopePoseUpdated poseMsg;
   poseMsg.m_LinkTransforms = poses;
 
   JPH::Vec3 rootPos;
   JPH::Quat rootRot;
   m_pRagdoll->GetRootTransform(rootPos, rootRot);
 
-  ezTransform rootTransform = GetOwner()->GetGlobalTransform();
-  rootTransform.m_vPosition = ezJoltConversionUtils::ToVec3(rootPos);
+  WTransform rootTransform = GetOwner()->GetGlobalTransform();
+  rootTransform.m_vPosition = WJoltConversionUtils::ToVec3(rootPos);
 
   GetOwner()->SetGlobalPosition(rootTransform.m_vPosition);
 
   auto& lockInterface = pModule->GetJoltSystem()->GetBodyLockInterface();
 
-  ezTransform global;
+  WTransform global;
   global.m_vScale.Set(1);
 
   JPH::BodyLockMultiRead lock(lockInterface, m_pRagdoll->GetBodyIDs().data(), (int)m_pRagdoll->GetBodyCount());
 
-  for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+  for (WUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
   {
     if (auto pBody = lock.GetBody(i))
     {
-      global.m_vPosition = ezJoltConversionUtils::ToVec3(pBody->GetPosition());
-      global.m_qRotation = ezJoltConversionUtils::ToQuat(pBody->GetRotation());
+      global.m_vPosition = WJoltConversionUtils::ToVec3(pBody->GetPosition());
+      global.m_qRotation = WJoltConversionUtils::ToQuat(pBody->GetRotation());
 
-      poses[i] = ezTransform::MakeLocalTransform(rootTransform, global);
+      poses[i] = WTransform::MakeLocalTransform(rootTransform, global);
     }
   }
 
   // last pose
   {
-    const ezUInt32 uiLastIdx = static_cast<ezUInt32>(m_pRagdoll->GetBodyCount());
+    const WUInt32 uiLastIdx = static_cast<WUInt32>(m_pRagdoll->GetBodyCount());
 
-    ezTransform tLocal;
+    WTransform tLocal;
     tLocal.SetIdentity();
     tLocal.m_vPosition.x = (poses[uiLastIdx - 1].m_vPosition - poses[uiLastIdx - 2].m_vPosition).GetLength();
 
-    poses.PeekBack() = ezTransform::MakeGlobalTransform(poses[uiLastIdx - 1], tLocal);
+    poses.PeekBack() = WTransform::MakeGlobalTransform(poses[uiLastIdx - 1], tLocal);
   }
 
   GetOwner()->SendMessage(poseMsg);
 }
 
-void ezJoltRopeComponent::SendPreviewPose()
+void WJoltRopeComponent::SendPreviewPose()
 {
   if (!IsActiveAndInitialized() || IsActiveAndSimulating())
     return;
 
-  ezGameObjectHandle hAnchor1 = m_hAnchor1;
-  ezGameObjectHandle hAnchor2 = m_hAnchor2;
+  WGameObjectHandle hAnchor1 = m_hAnchor1;
+  WGameObjectHandle hAnchor2 = m_hAnchor2;
 
   if (hAnchor1.IsInvalidated())
     hAnchor1 = GetOwner()->GetHandle();
@@ -814,26 +814,26 @@ void ezJoltRopeComponent::SendPreviewPose()
   if (hAnchor1 == hAnchor2)
     return;
 
-  ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
+  WDynamicArray<WTransform> pieces(WFrameAllocator::GetCurrentAllocator());
 
-  ezMsgRopePoseUpdated poseMsg;
+  WMsgRopePoseUpdated poseMsg;
   float fPieceLength;
   if (CreateSegmentTransforms(pieces, fPieceLength, hAnchor1, hAnchor2).Succeeded())
   {
     poseMsg.m_LinkTransforms = pieces;
 
-    const ezTransform tOwner = GetOwner()->GetGlobalTransform();
+    const WTransform tOwner = GetOwner()->GetGlobalTransform();
 
     for (auto& n : pieces)
     {
-      n = ezTransform::MakeLocalTransform(tOwner, n);
+      n = WTransform::MakeLocalTransform(tOwner, n);
     }
   }
 
-  GetOwner()->PostMessage(poseMsg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(poseMsg, WTime::MakeZero(), WObjectMsgQueueType::AfterInitialized);
 }
 
-void ezJoltRopeComponent::SetGravityFactor(float fGravity)
+void WJoltRopeComponent::SetGravityFactor(float fGravity)
 {
   if (m_fGravityFactor == fGravity)
     return;
@@ -843,9 +843,9 @@ void ezJoltRopeComponent::SetGravityFactor(float fGravity)
   if (!m_pRagdoll)
     return;
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
-  for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+  for (WUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
   {
     pModule->GetJoltSystem()->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), m_fGravityFactor);
   }
@@ -853,7 +853,7 @@ void ezJoltRopeComponent::SetGravityFactor(float fGravity)
   m_pRagdoll->Activate();
 }
 
-void ezJoltRopeComponent::SetAnchor1Reference(const char* szReference)
+void WJoltRopeComponent::SetAnchor1Reference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -863,7 +863,7 @@ void ezJoltRopeComponent::SetAnchor1Reference(const char* szReference)
   SetAnchor1(resolver(szReference, GetHandle(), "Anchor1"));
 }
 
-void ezJoltRopeComponent::SetAnchor2Reference(const char* szReference)
+void WJoltRopeComponent::SetAnchor2Reference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -873,31 +873,31 @@ void ezJoltRopeComponent::SetAnchor2Reference(const char* szReference)
   SetAnchor2(resolver(szReference, GetHandle(), "Anchor2"));
 }
 
-void ezJoltRopeComponent::SetAnchor1(ezGameObjectHandle hActor)
+void WJoltRopeComponent::SetAnchor1(WGameObjectHandle hActor)
 {
   m_hAnchor1 = hActor;
 }
 
-void ezJoltRopeComponent::SetAnchor2(ezGameObjectHandle hActor)
+void WJoltRopeComponent::SetAnchor2(WGameObjectHandle hActor)
 {
   m_hAnchor2 = hActor;
 }
 
-void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
+void WJoltRopeComponent::AddImpulseAtPos(WMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
 
-  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
+  const float fImpulse = WJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
 
-  ezUInt32 uiBodyID = ezInvalidIndex;
+  WUInt32 uiBodyID = WInvalidIndex;
 
   if (ref_msg.m_pInternalPhysicsActor != nullptr)
-    uiBodyID = (ezUInt32) reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
+    uiBodyID = (WUInt32) reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
   else
     uiBodyID = m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber();
 
-  ezVec3 vImp = ref_msg.m_vImpulse * fImpulse;
+  WVec3 vImp = ref_msg.m_vImpulse * fImpulse;
   const float fOrgImp = vImp.GetLength();
 
   if (fOrgImp > g_fMaxForce)
@@ -910,56 +910,56 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
     m_fMaxForcePerFrame -= fOrgImp;
   }
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   pModule->AddImpulse(uiBodyID, vImp, ref_msg.m_vGlobalPosition);
 }
 
-void ezJoltRopeComponent::SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode)
+void WJoltRopeComponent::SetAnchor1ConstraintMode(WEnum<WJoltRopeAnchorConstraintMode> mode)
 {
   if (m_Anchor1ConstraintMode == mode)
     return;
 
   m_Anchor1ConstraintMode = mode;
 
-  if (mode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor1)
+  if (mode == WJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor1)
   {
     m_pRagdoll->Activate();
   }
 }
 
-void ezJoltRopeComponent::SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode)
+void WJoltRopeComponent::SetAnchor2ConstraintMode(WEnum<WJoltRopeAnchorConstraintMode> mode)
 {
   if (m_Anchor2ConstraintMode == mode)
     return;
 
   m_Anchor2ConstraintMode = mode;
 
-  if (mode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor2)
+  if (mode == WJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor2)
   {
     m_pRagdoll->Activate();
   }
 }
 
-void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg)
+void WJoltRopeComponent::OnJoltMsgDisconnectConstraints(WJoltMsgDisconnectConstraints& ref_msg)
 {
   if (m_pConstraintAnchor1 && ref_msg.m_uiJoltBodyID == m_uiAnchor1BodyID)
   {
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
     m_pConstraintAnchor1->Release();
     m_pConstraintAnchor1 = nullptr;
-    m_uiAnchor1BodyID = ezInvalidIndex;
+    m_uiAnchor1BodyID = WInvalidIndex;
   }
 
   if (m_pConstraintAnchor2 && ref_msg.m_uiJoltBodyID == m_uiAnchor2BodyID)
   {
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
     pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
     m_pConstraintAnchor2->Release();
     m_pConstraintAnchor2 = nullptr;
-    m_uiAnchor2BodyID = ezInvalidIndex;
+    m_uiAnchor2BodyID = WInvalidIndex;
   }
 }
 
@@ -967,29 +967,29 @@ void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectCons
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltRopeComponentManager::ezJoltRopeComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WJoltRopeComponentManager::WJoltRopeComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-ezJoltRopeComponentManager::~ezJoltRopeComponentManager() = default;
+WJoltRopeComponentManager::~WJoltRopeComponentManager() = default;
 
-void ezJoltRopeComponentManager::Initialize()
+void WJoltRopeComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltRopeComponentManager::Update, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltRopeComponentManager::Update, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WJoltRopeComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE_SCOPE("UpdateRopes");
+  W_PROFILE_SCOPE("UpdateRopes");
 
   if (!GetWorld()->GetWorldSimulationEnabled())
   {
@@ -1004,7 +1004,7 @@ void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
     return;
   }
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
   for (auto itActor : pModule->GetActiveRopes())
   {
@@ -1012,4 +1012,4 @@ void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
   }
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRopeComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRopeComponent);

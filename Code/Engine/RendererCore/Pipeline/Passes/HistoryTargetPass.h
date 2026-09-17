@@ -4,25 +4,25 @@
 
 /// Render pass that stores data to be accessible in the next frame.
 ///
-/// Works in pairs with ezHistorySourcePass. Receives the current frame's data as input
+/// Works in pairs with WHistorySourcePass. Receives the current frame's data as input
 /// and stores it for the next frame. Set SourcePassName to match the corresponding
-/// ezHistorySourcePass. See ezHistorySourcePass for usage details.
-class EZ_RENDERERCORE_DLL ezHistoryTargetPass : public ezRenderPipelinePass
+/// WHistorySourcePass. See WHistorySourcePass for usage details.
+class W_RENDERERCORE_DLL WHistoryTargetPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHistoryTargetPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WHistoryTargetPass, WRenderPipelinePass);
 
 public:
-  ezHistoryTargetPass(const char* szName = "HistoryTargetPass");
-  ~ezHistoryTargetPass();
+  WHistoryTargetPass(const char* szName = "HistoryTargetPass");
+  ~WHistoryTargetPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
   /// Provides the history texture handle for the input pin.
-  virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WGALTextureHandle QueryTextureProvider(const WRenderPipelineNodePin* pPin, const WGALTextureCreationDescription& desc) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputProviderPin m_PinInput;  ///< Input texture to store for next frame.
-  ezString m_sSourcePassName = "HistorySourcePass"; ///< Name of the paired ezHistorySourcePass.
+  WRenderPipelineNodeInputProviderPin m_PinInput;  ///< Input texture to store for next frame.
+  WString m_sSourcePassName = "HistorySourcePass"; ///< Name of the paired WHistorySourcePass.
 };

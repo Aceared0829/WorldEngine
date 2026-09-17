@@ -4,38 +4,38 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 
-class EZ_EDITORPLUGINASSETS_DLL ezTextureAssetProfileConfig : public ezProfileConfigData
+class W_EDITORPLUGINASSETS_DLL WTextureAssetProfileConfig : public WProfileConfigData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProfileConfig, ezProfileConfigData);
+  W_ADD_DYNAMIC_REFLECTION(WTextureAssetProfileConfig, WProfileConfigData);
 
 public:
-  ezUInt16 m_uiMaxResolution = 1024 * 16;
+  WUInt16 m_uiMaxResolution = 1024 * 16;
 };
 
-class ezTextureAssetDocumentManager : public ezAssetDocumentManager
+class WTextureAssetDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WTextureAssetDocumentManager, WAssetDocumentManager);
 
 public:
-  ezTextureAssetDocumentManager();
-  ~ezTextureAssetDocumentManager();
+  WTextureAssetDocumentManager();
+  ~WTextureAssetDocumentManager();
 
-  virtual OutputReliability GetAssetTypeOutputReliability() const override { return ezAssetDocumentManager::OutputReliability::Perfect; }
+  virtual OutputReliability GetAssetTypeOutputReliability() const override { return WAssetDocumentManager::OutputReliability::Perfect; }
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
 
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
+  virtual WUInt64 ComputeAssetProfileHashImpl(const WPlatformProfile* pAssetProfile) const override;
 
-  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+  virtual void InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
-  virtual void AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix = "\n"_ezsv) const override;
+  virtual void AppendAssetInfoSummary(WStringBuilder& ref_sOut, const WAssetInfoFile& info, WStringView sLinePrefix = "\n"_wsv) const override;
 
-  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const override;
+  virtual WString GetRelativeOutputFileName(const WAssetDocumentTypeDescriptor* pTypeDescriptor, WStringView sDataDirectory, WStringView sDocumentPath, WStringView sOutputTag, const WPlatformProfile* pAssetProfile) const override;
 
 private:
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc2;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc2;
 };

@@ -14,149 +14,149 @@
 #include <../../Data/Base/Shaders/Common/LightData.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WBoxReflectionProbeComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), {}), new ezDefaultValueAttribute(ezVec3(5.0f))),
-    EZ_ACCESSOR_PROPERTY("InfluenceScale", GetInfluenceScale, SetInfluenceScale)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(1.0f))),
-    EZ_ACCESSOR_PROPERTY("InfluenceShift", GetInfluenceShift, SetInfluenceShift)->AddAttributes(new ezClampValueAttribute(ezVec3(-1.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.0f))),
-    EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.1f, 0.1f, 0.0f))),
-    EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.1f, 0.1f, 0.0f))),
-    EZ_ACCESSOR_PROPERTY("BoxProjection", GetBoxProjection, SetBoxProjection)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new WClampValueAttribute(WVec3(0.0f), {}), new WDefaultValueAttribute(WVec3(5.0f))),
+    W_ACCESSOR_PROPERTY("InfluenceScale", GetInfluenceScale, SetInfluenceScale)->AddAttributes(new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f)), new WDefaultValueAttribute(WVec3(1.0f))),
+    W_ACCESSOR_PROPERTY("InfluenceShift", GetInfluenceShift, SetInfluenceShift)->AddAttributes(new WClampValueAttribute(WVec3(-1.0f), WVec3(1.0f)), new WDefaultValueAttribute(WVec3(0.0f))),
+    W_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f)), new WDefaultValueAttribute(WVec3(0.1f, 0.1f, 0.0f))),
+    W_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f)), new WDefaultValueAttribute(WVec3(0.1f, 0.1f, 0.0f))),
+    W_ACCESSOR_PROPERTY("BoxProjection", GetBoxProjection, SetBoxProjection)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+    W_FUNCTION_PROPERTY(OnObjectCreated),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_FUNCTIONS;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnTransformChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Reflections"),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue)),
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxReflectionProbeVisualizerAttribute("Extents", "InfluenceScale", "InfluenceShift"),
+    new WCategoryAttribute("Rendering/Reflections"),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColorScheme::LightUI(WColorScheme::Blue)),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WBoxReflectionProbeVisualizerAttribute("Extents", "InfluenceScale", "InfluenceShift"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxReflectionProbeVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxReflectionProbeVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoxReflectionProbeVisualizerAttribute, 1, WRTTIDefaultAllocator<WBoxReflectionProbeVisualizerAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoxReflectionProbeComponentManager::ezBoxReflectionProbeComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezBoxReflectionProbeComponent, ezBlockStorageType::Compact>(pWorld)
+WBoxReflectionProbeComponentManager::WBoxReflectionProbeComponentManager(WWorld* pWorld)
+  : WComponentManager<WBoxReflectionProbeComponent, WBlockStorageType::Compact>(pWorld)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezBoxReflectionProbeComponent::ezBoxReflectionProbeComponent() = default;
-ezBoxReflectionProbeComponent::~ezBoxReflectionProbeComponent() = default;
+WBoxReflectionProbeComponent::WBoxReflectionProbeComponent() = default;
+WBoxReflectionProbeComponent::~WBoxReflectionProbeComponent() = default;
 
-void ezBoxReflectionProbeComponent::SetExtents(const ezVec3& vExtents)
+void WBoxReflectionProbeComponent::SetExtents(const WVec3& vExtents)
 {
   m_vExtents = vExtents;
 }
 
-const ezVec3& ezBoxReflectionProbeComponent::GetInfluenceScale() const
+const WVec3& WBoxReflectionProbeComponent::GetInfluenceScale() const
 {
   return m_vInfluenceScale;
 }
 
-void ezBoxReflectionProbeComponent::SetInfluenceScale(const ezVec3& vInfluenceScale)
+void WBoxReflectionProbeComponent::SetInfluenceScale(const WVec3& vInfluenceScale)
 {
   m_vInfluenceScale = vInfluenceScale;
 }
 
-const ezVec3& ezBoxReflectionProbeComponent::GetInfluenceShift() const
+const WVec3& WBoxReflectionProbeComponent::GetInfluenceShift() const
 {
   return m_vInfluenceShift;
 }
 
-void ezBoxReflectionProbeComponent::SetInfluenceShift(const ezVec3& vInfluenceShift)
+void WBoxReflectionProbeComponent::SetInfluenceShift(const WVec3& vInfluenceShift)
 {
   m_vInfluenceShift = vInfluenceShift;
 }
 
-void ezBoxReflectionProbeComponent::SetPositiveFalloff(const ezVec3& vFalloff)
+void WBoxReflectionProbeComponent::SetPositiveFalloff(const WVec3& vFalloff)
 {
   // Does not affect cube generation so m_bStatesDirty is not set.
-  m_vPositiveFalloff = vFalloff.CompClamp(ezVec3(ezMath::DefaultEpsilon<float>()), ezVec3(1.0f));
+  m_vPositiveFalloff = vFalloff.CompClamp(WVec3(WMath::DefaultEpsilon<float>()), WVec3(1.0f));
 }
 
-void ezBoxReflectionProbeComponent::SetNegativeFalloff(const ezVec3& vFalloff)
+void WBoxReflectionProbeComponent::SetNegativeFalloff(const WVec3& vFalloff)
 {
   // Does not affect cube generation so m_bStatesDirty is not set.
-  m_vNegativeFalloff = vFalloff.CompClamp(ezVec3(ezMath::DefaultEpsilon<float>()), ezVec3(1.0f));
+  m_vNegativeFalloff = vFalloff.CompClamp(WVec3(WMath::DefaultEpsilon<float>()), WVec3(1.0f));
 }
 
-void ezBoxReflectionProbeComponent::SetBoxProjection(bool bBoxProjection)
+void WBoxReflectionProbeComponent::SetBoxProjection(bool bBoxProjection)
 {
   m_bBoxProjection = bBoxProjection;
 }
 
-const ezVec3& ezBoxReflectionProbeComponent::GetExtents() const
+const WVec3& WBoxReflectionProbeComponent::GetExtents() const
 {
   return m_vExtents;
 }
 
-void ezBoxReflectionProbeComponent::OnActivated()
+void WBoxReflectionProbeComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
-  m_Id = ezReflectionPool::RegisterReflectionProbe(GetWorld(), m_Desc, this);
+  m_Id = WReflectionPool::RegisterReflectionProbe(GetWorld(), m_Desc, this);
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezBoxReflectionProbeComponent::OnDeactivated()
+void WBoxReflectionProbeComponent::OnDeactivated()
 {
-  ezReflectionPool::DeregisterReflectionProbe(GetWorld(), m_Id);
+  WReflectionPool::DeregisterReflectionProbe(GetWorld(), m_Id);
   m_Id.Invalidate();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezBoxReflectionProbeComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void WBoxReflectionProbeComponent::OnObjectCreated(const WAbstractObjectNode& node)
 {
   m_Desc.m_uniqueID = node.GetGuid();
 }
 
-void ezBoxReflectionProbeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WBoxReflectionProbeComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible(ezDefaultSpatialDataCategories::RenderDynamic);
+  msg.SetAlwaysVisible(WDefaultSpatialDataCategories::RenderDynamic);
 }
 
-void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WBoxReflectionProbeComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't trigger reflection rendering in shadow or other reflection views.
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Reflection)
     return;
 
   if (m_bStatesDirty)
   {
     m_bStatesDirty = false;
-    ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
+    WReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
   }
 
   auto globalTransform = GetOwner()->GetGlobalTransform();
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WReflectionProbeRenderData>(GetOwner());
   pRenderData->m_vGlobalPosition = globalTransform * m_Desc.m_vCaptureOffset;
   pRenderData->m_GlobalTransform = globalTransform;
   pRenderData->m_vHalfExtents = m_vExtents / 2.0f;
@@ -169,23 +169,23 @@ void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderDat
   if (m_bBoxProjection)
     pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
-  const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents);
-  const float fVolume = ezMath::Abs(vScale.x * vScale.y * vScale.z);
+  const WVec3 vScale = pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents);
+  const float fVolume = WMath::Abs(vScale.x * vScale.y * vScale.z);
 
   float fPriority = ComputePriority(msg, pRenderData, fVolume, vScale);
-  ezReflectionPool::ExtractReflectionProbe(this, msg, pRenderData, GetWorld(), m_Id, fPriority);
+  WReflectionPool::ExtractReflectionProbe(this, msg, pRenderData, GetWorld(), m_Id, fPriority);
 }
 
-void ezBoxReflectionProbeComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+void WBoxReflectionProbeComponent::OnTransformChanged(WMsgTransformChanged& msg)
 {
   m_bStatesDirty = true;
 }
 
-void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WBoxReflectionProbeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_vInfluenceScale;
@@ -195,11 +195,11 @@ void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& inout_stre
   s << m_bBoxProjection;
 }
 
-void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WBoxReflectionProbeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vInfluenceScale;
@@ -214,14 +214,14 @@ void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout_st
 
 //////////////////////////////////////////////////////////////////////////
 
-ezBoxReflectionProbeVisualizerAttribute::ezBoxReflectionProbeVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WBoxReflectionProbeVisualizerAttribute::WBoxReflectionProbeVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezBoxReflectionProbeVisualizerAttribute::ezBoxReflectionProbeVisualizerAttribute(const char* szExtentsProperty, const char* szInfluenceScaleProperty, const char* szInfluenceShiftProperty)
-  : ezVisualizerAttribute(szExtentsProperty, szInfluenceScaleProperty, szInfluenceShiftProperty)
+WBoxReflectionProbeVisualizerAttribute::WBoxReflectionProbeVisualizerAttribute(const char* szExtentsProperty, const char* szInfluenceScaleProperty, const char* szInfluenceShiftProperty)
+  : WVisualizerAttribute(szExtentsProperty, szInfluenceScaleProperty, szInfluenceShiftProperty)
 {
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_BoxReflectionProbeComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_BoxReflectionProbeComponent);

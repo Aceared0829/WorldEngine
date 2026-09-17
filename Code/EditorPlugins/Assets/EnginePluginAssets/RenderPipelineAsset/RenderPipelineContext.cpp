@@ -11,142 +11,142 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-/// Version of the file that wraps the serialized pipeline. Has to match the version that ezRenderPipelineResource expects.
-static constexpr ezUInt8 s_uiBinRenderPipelineVersion = 2;
+/// Version of the file that wraps the serialized pipeline. Has to match the version that WRenderPipelineResource expects.
+static constexpr WUInt8 s_uiBinRenderPipelineVersion = 2;
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineContext, 1, ezRTTIDefaultAllocator<ezRenderPipelineContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineContext, 1, WRTTIDefaultAllocator<WRenderPipelineContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "RenderPipeline"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "RenderPipeline"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRenderPipelineContext::ezRenderPipelineContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WRenderPipelineContext::WRenderPipelineContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezRenderPipelineContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WRenderPipelineContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezRenderPipelineContext::OnInitialize()
+void WRenderPipelineContext::OnInitialize()
 {
 }
 
-ezEngineProcessViewContext* ezRenderPipelineContext::CreateViewContext()
+WEngineProcessViewContext* WRenderPipelineContext::CreateViewContext()
 {
-  EZ_ASSERT_DEV(false, "Should not be called");
+  W_ASSERT_DEV(false, "Should not be called");
   return nullptr;
 }
 
-void ezRenderPipelineContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WRenderPipelineContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_ASSERT_DEV(false, "Should not be called");
+  W_ASSERT_DEV(false, "Should not be called");
 }
 
 /// Loads a binary render pipeline from an asset GUID string (resolving via the asset redirection table).
-static ezStatus ImportSubPipeline(ezStringView sGuidOrPath, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& out_passes, ezDynamicArray<ezUniquePtr<ezExtractor>>& out_extractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& out_connections)
+static WStatus ImportSubPipeline(WStringView sGuidOrPath, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& out_passes, WDynamicArray<WUniquePtr<WExtractor>>& out_extractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& out_connections)
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sGuidOrPath).Failed())
-    return ezStatus(ezFmt("Failed to open render pipeline '{}'.", sGuidOrPath));
+    return WStatus(WFmt("Failed to open render pipeline '{}'.", sGuidOrPath));
 
-  ezAssetFileHeader header;
+  WAssetFileHeader header;
   if (header.Read(file).Failed())
-    return ezStatus(ezFmt("Render pipeline '{}' has an invalid asset header.", sGuidOrPath));
+    return WStatus(WFmt("Render pipeline '{}' has an invalid asset header.", sGuidOrPath));
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   file >> uiVersion;
   if (uiVersion != s_uiBinRenderPipelineVersion)
-    return ezStatus(ezFmt("Render pipeline '{}' has version {}, expected {}.", sGuidOrPath, uiVersion, s_uiBinRenderPipelineVersion));
+    return WStatus(WFmt("Render pipeline '{}' has version {}, expected {}.", sGuidOrPath, uiVersion, s_uiBinRenderPipelineVersion));
 
-  ezUInt32 uiSize = 0;
+  WUInt32 uiSize = 0;
   file >> uiSize;
-  EZ_IGNORE_UNUSED(uiSize);
+  W_IGNORE_UNUSED(uiSize);
 
   // The pipeline data follows directly; deserialize it from the file stream.
-  return ezRenderPipelineResourceLoader::ImportPipeline(file, out_passes, out_extractors, out_connections);
+  return WRenderPipelineResourceLoader::ImportPipeline(file, out_passes, out_extractors, out_connections);
 }
 
-ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+WStatus WRenderPipelineContext::ExportDocument(const WExportDocumentMsgToEngine* pMsg)
 {
-  ezDynamicArray<ezRenderPipelineNode*> nodes;
-  ezDynamicArray<ezUuid> nodeUuids;
-  ezDynamicArray<ezExtractor*> extractors;
-  ezDynamicArray<ezDocumentObject_ConnectionBase*> toolConnections;
+  WDynamicArray<WRenderPipelineNode*> nodes;
+  WDynamicArray<WUuid> nodeUuids;
+  WDynamicArray<WExtractor*> extractors;
+  WDynamicArray<WDocumentObject_ConnectionBase*> toolConnections;
   m_Context.GetObjectsByType(nodes, &nodeUuids);
   m_Context.GetObjectsByType(extractors);
   m_Context.GetObjectsByType(toolConnections);
 
   // Build the UUID-to-index map used by serialized connections.
-  ezHashTable<ezUuid, ezUInt32> uuidToIndex;
-  for (ezUInt32 i = 0; i < nodes.GetCount(); ++i)
+  WHashTable<WUuid, WUInt32> uuidToIndex;
+  for (WUInt32 i = 0; i < nodes.GetCount(); ++i)
   {
     uuidToIndex.Insert(nodeUuids[i], i);
-    if (ezDynamicCast<ezRenderPipelinePass*>(nodes[i]) == nullptr && ezDynamicCast<ezSubGraphNode*>(nodes[i]) == nullptr)
-      return ezStatus(ezFmt("Unsupported GPU pipeline node type '{}'.", nodes[i]->GetDynamicRTTI()->GetTypeName()));
+    if (WDynamicCast<WRenderPipelinePass*>(nodes[i]) == nullptr && WDynamicCast<WSubGraphNode*>(nodes[i]) == nullptr)
+      return WStatus(WFmt("Unsupported GPU pipeline node type '{}'.", nodes[i]->GetDynamicRTTI()->GetTypeName()));
   }
 
   // Validate that the root graph contains at most one extractor of each type. Imported extractors
   // with matching types are ignored later so root extractors take precedence.
-  ezSet<const ezRTTI*> extractorTypes;
-  for (const ezExtractor* pExtractor : extractors)
+  WSet<const WRTTI*> extractorTypes;
+  for (const WExtractor* pExtractor : extractors)
   {
-    const ezRTTI* pType = pExtractor->GetDynamicRTTI();
+    const WRTTI* pType = pExtractor->GetDynamicRTTI();
     if (extractorTypes.Contains(pType))
-      return ezStatus(ezFmt("The pipeline contains more than one extractor of type '{}'.", pType->GetTypeName()));
+      return WStatus(WFmt("The pipeline contains more than one extractor of type '{}'.", pType->GetTypeName()));
     extractorTypes.Insert(pType);
   }
 
   // Convert tool connection UUIDs to indices in the temporary compiled node list.
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   connections.Reserve(toolConnections.GetCount());
-  for (const ezDocumentObject_ConnectionBase* pConn : toolConnections)
+  for (const WDocumentObject_ConnectionBase* pConn : toolConnections)
   {
     auto& conn = connections.ExpandAndGetRef();
     if (!uuidToIndex.TryGetValue(pConn->m_Source, conn.m_uiSource))
-      return ezStatus(ezFmt("Connection source UUID '{}' was not found in the pipeline node list.", pConn->m_Source));
+      return WStatus(WFmt("Connection source UUID '{}' was not found in the pipeline node list.", pConn->m_Source));
     if (!uuidToIndex.TryGetValue(pConn->m_Target, conn.m_uiTarget))
-      return ezStatus(ezFmt("Connection target UUID '{}' was not found in the pipeline node list.", pConn->m_Target));
+      return WStatus(WFmt("Connection target UUID '{}' was not found in the pipeline node list.", pConn->m_Target));
     conn.m_sSourcePin = pConn->m_SourcePin;
     conn.m_sTargetPin = pConn->m_TargetPin;
   }
 
   // Inline all SubGraph placeholders by importing their already transformed render pipeline data.
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-  ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-  EZ_SUCCEED_OR_RETURN(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ImportSubPipeline));
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+  WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+  W_SUCCEED_OR_RETURN(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ImportSubPipeline));
 
-  ezDynamicArray<ezRenderPipelinePass*> passes;
+  WDynamicArray<WRenderPipelinePass*> passes;
   passes.Reserve(nodes.GetCount());
-  for (ezRenderPipelineNode* pNode : nodes)
+  for (WRenderPipelineNode* pNode : nodes)
   {
-    ezRenderPipelinePass* pPass = ezDynamicCast<ezRenderPipelinePass*>(pNode);
+    WRenderPipelinePass* pPass = WDynamicCast<WRenderPipelinePass*>(pNode);
     if (pPass == nullptr)
-      return ezStatus("Failed to inline all GPU pipeline sub-graphs.");
+      return WStatus("Failed to inline all GPU pipeline sub-graphs.");
     passes.PushBack(pPass);
   }
 
-  ezDefaultMemoryStreamStorage storage;
+  WDefaultMemoryStreamStorage storage;
   {
     // Export Resource Data
-    ezMemoryStreamWriter writer(&storage);
-    EZ_SUCCEED_OR_RETURN(ezRenderPipelineResourceLoader::ExportPipeline(passes.GetArrayPtr(), extractors.GetArrayPtr(), connections.GetArrayPtr(), writer));
+    WMemoryStreamWriter writer(&storage);
+    W_SUCCEED_OR_RETURN(WRenderPipelineResourceLoader::ExportPipeline(passes.GetArrayPtr(), extractors.GetArrayPtr(), connections.GetArrayPtr(), writer));
   }
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(pMsg->m_sOutputFile);
 
   {
     // File Header
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
     header.Write(file).AssertSuccess();
 
@@ -155,15 +155,15 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
 
   {
     // Resource Data
-    ezUInt32 uiSize = storage.GetStorageSize32();
+    WUInt32 uiSize = storage.GetStorageSize32();
     file << uiSize;
     if (storage.CopyToStream(file).Failed())
-      return ezStatus(ezFmt("Failed to copy pipeline data to '{}'.", pMsg->m_sOutputFile));
+      return WStatus(WFmt("Failed to copy pipeline data to '{}'.", pMsg->m_sOutputFile));
   }
 
   // do the actual file writing
   if (file.Close().Failed())
-    return ezStatus(ezFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
+    return WStatus(WFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

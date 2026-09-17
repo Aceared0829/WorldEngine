@@ -1,6 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <EditorFramework/EditorApp/WindowsJumpList.h>
 #  include <Foundation/Logging/Log.h>
@@ -61,7 +61,7 @@ static HRESULT CreateShellLink(const wchar_t* pPath, const wchar_t* pArguments, 
   return hr;
 }
 
-void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
+void WWindowsJumpList::UpdateJumpList(const WRecentFilesList& recentProjects)
 {
   // Initialize COM if not already initialized
   HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
@@ -72,7 +72,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   hr = CoCreateInstance(CLSID_DestinationList, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDestList));
   if (FAILED(hr))
   {
-    ezLog::Warning("Failed to create destination list: 0x{0:X}", static_cast<ezUInt32>(hr));
+    WLog::Warning("Failed to create destination list: 0x{0:X}", static_cast<WUInt32>(hr));
     if (bComInitialized)
       CoUninitialize();
     return;
@@ -84,7 +84,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   hr = pDestList->BeginList(&cMinSlots, IID_PPV_ARGS(&pRemovedItems));
   if (FAILED(hr))
   {
-    ezLog::Warning("Failed to begin destination list: 0x{0:X}", static_cast<ezUInt32>(hr));
+    WLog::Warning("Failed to begin destination list: 0x{0:X}", static_cast<WUInt32>(hr));
     pDestList->Release();
     if (bComInitialized)
       CoUninitialize();
@@ -98,7 +98,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   wchar_t szExePath[MAX_PATH];
   if (GetModuleFileNameW(nullptr, szExePath, MAX_PATH) == 0)
   {
-    ezLog::Warning("Failed to get module file name");
+    WLog::Warning("Failed to get module file name");
     pDestList->AbortList();
     pDestList->Release();
     if (bComInitialized)
@@ -111,7 +111,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   hr = CoCreateInstance(CLSID_EnumerableObjectCollection, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pObjectCollection));
   if (FAILED(hr))
   {
-    ezLog::Warning("Failed to create object collection: 0x{0:X}", static_cast<ezUInt32>(hr));
+    WLog::Warning("Failed to create object collection: 0x{0:X}", static_cast<WUInt32>(hr));
     pDestList->AbortList();
     pDestList->Release();
     if (bComInitialized)
@@ -121,29 +121,29 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
 
   // Add recent projects
   const auto& fileList = recentProjects.GetFileList();
-  const ezUInt32 uiMaxItems = ezMath::Min<ezUInt32>(5, fileList.GetCount());
+  const WUInt32 uiMaxItems = WMath::Min<WUInt32>(5, fileList.GetCount());
 
-  for (ezUInt32 i = 0; i < uiMaxItems; ++i)
+  for (WUInt32 i = 0; i < uiMaxItems; ++i)
   {
     const auto& recentFile = fileList[i];
-    ezStringBuilder sProjectPath = recentFile.m_File;
+    WStringBuilder sProjectPath = recentFile.m_File;
 
-    // Get project directory (remove /ezProject suffix)
-    if (sProjectPath.EndsWith_NoCase("/ezProject"))
+    // Get project directory (remove /WProject suffix)
+    if (sProjectPath.EndsWith_NoCase("/WProject"))
     {
-      sProjectPath.Shrink(0, 10); // Remove "/ezProject"
+      sProjectPath.Shrink(0, 10); // Remove "/WProject"
     }
 
     // Extract project name from path
-    ezStringBuilder sProjectName = sProjectPath.GetFileName();
+    WStringBuilder sProjectName = sProjectPath.GetFileName();
 
     // Convert to wide strings
-    ezStringBuilder sArgumentsUtf8;
+    WStringBuilder sArgumentsUtf8;
     sArgumentsUtf8.SetFormat("-project \"{}\"", recentFile.m_File);
 
-    ezStringWChar szProjectPath(sProjectPath.GetData());
-    ezStringWChar szArguments(sArgumentsUtf8.GetData());
-    ezStringWChar szProjectName(sProjectName.GetData());
+    WStringWChar szProjectPath(sProjectPath.GetData());
+    WStringWChar szArguments(sArgumentsUtf8.GetData());
+    WStringWChar szProjectName(sProjectName.GetData());
 
     // Create shell link
     IShellLink* pShellLink = nullptr;
@@ -209,7 +209,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   hr = pDestList->CommitList();
   if (FAILED(hr))
   {
-    ezLog::Warning("Failed to commit destination list: 0x{0:X}", static_cast<ezUInt32>(hr));
+    WLog::Warning("Failed to commit destination list: 0x{0:X}", static_cast<WUInt32>(hr));
   }
 
   pDestList->Release();

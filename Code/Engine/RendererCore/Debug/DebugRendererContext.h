@@ -3,39 +3,39 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezWorld;
-class ezViewHandle;
+class WWorld;
+class WViewHandle;
 
 /// Value used by containers for indices to indicate an invalid index.
-#ifndef ezInvalidIndex
-#  define ezInvalidIndex 0xFFFFFFFF
+#ifndef WInvalidIndex
+#  define WInvalidIndex 0xFFFFFFFF
 #endif
 
-/// Used in ezDebugRenderer to determine where debug geometry should be rendered
-class EZ_RENDERERCORE_DLL ezDebugRendererContext
+/// Used in WDebugRenderer to determine where debug geometry should be rendered
+class W_RENDERERCORE_DLL WDebugRendererContext
 {
 public:
-  ezDebugRendererContext() = default;
+  WDebugRendererContext() = default;
 
   /// If this constructor is used, the geometry is rendered in all views for that scene.
-  ezDebugRendererContext(const ezWorld* pWorld);
+  WDebugRendererContext(const WWorld* pWorld);
 
   /// If this constructor is used, the geometry is only rendered in this view.
-  ezDebugRendererContext(const ezViewHandle& hView);
+  WDebugRendererContext(const WViewHandle& hView);
 
-  EZ_ALWAYS_INLINE bool operator==(const ezDebugRendererContext& other) const { return m_uiId == other.m_uiId; }
+  W_ALWAYS_INLINE bool operator==(const WDebugRendererContext& other) const { return m_uiId == other.m_uiId; }
 
 private:
-  friend struct ezHashHelper<ezDebugRendererContext>;
+  friend struct WHashHelper<WDebugRendererContext>;
 
-  ezUInt32 m_uiId = ezInvalidIndex;
+  WUInt32 m_uiId = WInvalidIndex;
 };
 
 
 template <>
-struct ezHashHelper<ezDebugRendererContext>
+struct WHashHelper<WDebugRendererContext>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezDebugRendererContext value) { return ezHashHelper<ezUInt32>::Hash(value.m_uiId); }
+  W_ALWAYS_INLINE static WUInt32 Hash(WDebugRendererContext value) { return WHashHelper<WUInt32>::Hash(value.m_uiId); }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezDebugRendererContext a, ezDebugRendererContext b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(WDebugRendererContext a, WDebugRendererContext b) { return a == b; }
 };

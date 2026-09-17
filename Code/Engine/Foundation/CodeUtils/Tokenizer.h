@@ -6,8 +6,8 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/HashedString.h>
 
-/// Describes which kind of token an ezToken is.
-struct EZ_FOUNDATION_DLL ezTokenType
+/// Describes which kind of token an WToken is.
+struct W_FOUNDATION_DLL WTokenType
 {
   enum Enum
   {
@@ -33,37 +33,37 @@ struct EZ_FOUNDATION_DLL ezTokenType
 };
 
 /// Represents one piece of tokenized text in a document.
-struct EZ_FOUNDATION_DLL ezToken
+struct W_FOUNDATION_DLL WToken
 {
-  ezToken()
+  WToken()
   {
-    m_iType = ezTokenType::Unknown;
+    m_iType = WTokenType::Unknown;
     m_uiLine = 0;
     m_uiColumn = 0;
     m_uiCustomFlags = 0;
   }
 
-  /// Typically of type ezTokenType, but users can put anything in there, that they like
-  ezInt32 m_iType;
+  /// Typically of type WTokenType, but users can put anything in there, that they like
+  WInt32 m_iType;
 
   /// The line in which the token appeared
-  ezUInt32 m_uiLine;
+  WUInt32 m_uiLine;
 
   /// The column in the line, at which the token string started.
-  ezUInt32 m_uiColumn;
+  WUInt32 m_uiColumn;
 
   /// The actual string data that represents the token. Note that this is a view to a substring of some larger text data.
-  /// To get only the relevant piece as one zero-terminated string, assign m_DataView to an ezStringBuilder and read that instead.
-  ezStringView m_DataView;
+  /// To get only the relevant piece as one zero-terminated string, assign m_DataView to an WStringBuilder and read that instead.
+  WStringView m_DataView;
 
   /// For users to be able to store additional info for a token.
-  ezUInt32 m_uiCustomFlags;
+  WUInt32 m_uiCustomFlags;
 
   /// The file in which the token appeared.
-  ezHashedString m_File;
+  WHashedString m_File;
 };
 
-/// Takes text and splits it up into ezToken objects. The result can be used for easier parsing.
+/// Takes text and splits it up into WToken objects. The result can be used for easier parsing.
 ///
 /// The tokenizer is built to work on code that is similar to C. That means it will tokenize comments and
 /// strings as they are defined in the C language. Also line breaks that end with a backslash are not
@@ -75,37 +75,37 @@ struct EZ_FOUNDATION_DLL ezToken
 /// Parenthesis etc. will not be tokenized in any special way, they are all considered as non-Identifiers.
 ///
 /// The token stream will always end with an end-of-file token.
-class EZ_FOUNDATION_DLL ezTokenizer
+class W_FOUNDATION_DLL WTokenizer
 {
 public:
   /// Constructor.
   ///
   /// Takes an additional optional allocator. If no allocator is given the default allocator will be used.
-  ezTokenizer(ezAllocator* pAllocator = nullptr);
+  WTokenizer(WAllocator* pAllocator = nullptr);
 
-  ~ezTokenizer();
+  ~WTokenizer();
 
   /// Clears any previous result and creates a new token stream for the given array.
   /// \param data The string data to be tokenized.
   /// \param pLog A log interface that will receive any tokenization errors.
   /// \param bCopyData If set, 'data' will be copied into a member variable and tokenization is run on the copy, allowing for the original data storage to be deallocated after this call. If false, tokenization will reference 'data' directly and thus, 'data' must outlive this instance.
-  void Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog, bool bCopyData = true);
+  void Tokenize(WArrayPtr<const WUInt8> data, WLogInterface* pLog, bool bCopyData = true);
 
   /// Gives read access to the token stream.
-  const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }
+  const WDeque<WToken>& GetTokens() const { return m_Tokens; }
 
   /// Gives read and write access to the token stream.
-  ezDeque<ezToken>& GetTokens() { return m_Tokens; }
+  WDeque<WToken>& GetTokens() { return m_Tokens; }
 
-  /// Returns an array with a copy of all tokens. Use this when using ezTokenParseUtils.
-  void GetAllTokens(ezDynamicArray<const ezToken*>& ref_tokens) const;
+  /// Returns an array with a copy of all tokens. Use this when using WTokenParseUtils.
+  void GetAllTokens(WDynamicArray<const WToken*>& ref_tokens) const;
 
   /// Returns an array of all tokens. New line tokens are ignored.
-  void GetAllLines(ezDynamicArray<const ezToken*>& ref_tokens) const;
+  void GetAllLines(WDynamicArray<const WToken*>& ref_tokens) const;
 
   /// Returns an array of tokens that represent the next line in the file.
   ///
-  /// Returns EZ_SUCCESS when there was more data to return, EZ_FAILURE if the end of the file was reached already.
+  /// Returns W_SUCCESS when there was more data to return, W_FAILURE if the end of the file was reached already.
   /// uiFirstToken is the index from where to start. It will be updated automatically. Consecutive calls to GetNextLine()
   /// with the same uiFirstToken variable will give one line after the other.
   ///
@@ -113,12 +113,12 @@ public:
   /// That means all such sequences will be ignored. Therefore the tokens that are returned as one line might not
   /// contain all tokens that are actually in the stream. Also the tokens might have different line numbers, when
   /// two or more lines from the file are merged into one logical line.
-  ezResult GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<const ezToken*>& out_tokens) const;
+  WResult GetNextLine(WUInt32& out_uiFirstToken, WDynamicArray<const WToken*>& out_tokens) const;
 
-  ezResult GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<ezToken*>& out_tokens);
+  WResult GetNextLine(WUInt32& out_uiFirstToken, WDynamicArray<WToken*>& out_tokens);
 
   /// Returns the internal copy of the tokenized data. Will be empty if Tokenize was called with 'bCopyData' equals 'false'.
-  const ezArrayPtr<const ezUInt8> GetTokenizedData() const { return m_Data; }
+  const WArrayPtr<const WUInt8> GetTokenizedData() const { return m_Data; }
 
   /// Enables treating lines that start with # character as line comments
   ///
@@ -139,24 +139,24 @@ private:
   void HandleIdentifier();
   void HandleNonIdentifier();
 
-  ezLogInterface* m_pLog = nullptr;
-  ezTokenType::Enum m_CurMode = ezTokenType::Unknown;
-  ezStringView m_sIterator;
-  ezStringView m_sRawStringMarker;
-  ezUInt32 m_uiCurLine = 1;
-  ezUInt32 m_uiCurColumn = ezInvalidIndex;
-  ezUInt32 m_uiCurChar = '\0';
-  ezUInt32 m_uiNextChar = '\0';
+  WLogInterface* m_pLog = nullptr;
+  WTokenType::Enum m_CurMode = WTokenType::Unknown;
+  WStringView m_sIterator;
+  WStringView m_sRawStringMarker;
+  WUInt32 m_uiCurLine = 1;
+  WUInt32 m_uiCurColumn = WInvalidIndex;
+  WUInt32 m_uiCurChar = '\0';
+  WUInt32 m_uiNextChar = '\0';
 
-  ezUInt32 m_uiLastLine = 1;
-  ezUInt32 m_uiLastColumn = 1;
+  WUInt32 m_uiLastLine = 1;
+  WUInt32 m_uiLastColumn = 1;
 
   const char* m_szCurCharStart = nullptr;
   const char* m_szNextCharStart = nullptr;
   const char* m_szTokenStart = nullptr;
 
-  ezDeque<ezToken> m_Tokens;
-  ezDynamicArray<ezUInt8> m_Data;
+  WDeque<WToken> m_Tokens;
+  WDynamicArray<WUInt8> m_Data;
 
   bool m_bHashSignIsLineComment = false;
 };

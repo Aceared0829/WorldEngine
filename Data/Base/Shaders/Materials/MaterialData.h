@@ -2,7 +2,7 @@
 
 #include <Shaders/Common/Common.h>
 
-struct ezMaterialData
+struct WMaterialData
 {
   float3 worldPosition;
   float3 worldNormal;

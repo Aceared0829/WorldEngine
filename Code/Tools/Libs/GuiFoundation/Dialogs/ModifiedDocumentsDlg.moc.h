@@ -5,13 +5,13 @@
 #include <GuiFoundation/ui_ModifiedDocumentsDlg.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtModifiedDocumentsDlg : public ezQtDialog, public Ui_DocumentList
+class W_GUIFOUNDATION_DLL WQtModifiedDocumentsDlg : public WQtDialog, public Ui_DocumentList
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtModifiedDocumentsDlg(QWidget* pParent, const ezHybridArray<ezDocument*, 32>& modifiedDocs);
+  WQtModifiedDocumentsDlg(QWidget* pParent, const WHybridArray<WDocument*, 32>& modifiedDocs);
 
 
 private Q_SLOTS:
@@ -21,7 +21,7 @@ private Q_SLOTS:
   void SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
 private:
-  ezResult SaveDocument(ezDocument* pDoc);
+  WResult SaveDocument(WDocument* pDoc);
 
-  ezHybridArray<ezDocument*, 32> m_ModifiedDocs;
+  WHybridArray<WDocument*, 32> m_ModifiedDocs;
 };

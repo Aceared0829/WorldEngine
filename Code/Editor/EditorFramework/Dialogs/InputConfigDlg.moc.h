@@ -9,13 +9,13 @@
 
 class QTreeWidgetItem;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtInputConfigDlg : public ezQtDialog, public Ui_InputConfigDialog
+class W_EDITORFRAMEWORK_DLL WQtInputConfigDlg : public WQtDialog, public Ui_InputConfigDialog
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtInputConfigDlg(QWidget* pParent);
+  WQtInputConfigDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonNewInputSet_clicked();
@@ -32,9 +32,9 @@ private:
   void FillList();
   void GetActionsFromList();
 
-  QTreeWidgetItem* CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action);
+  QTreeWidgetItem* CreateActionItem(QTreeWidgetItem* pParentItem, const WGameAppInputConfig& action);
 
-  ezMap<ezString, QTreeWidgetItem*> m_InputSetToItem;
-  ezHybridArray<ezGameAppInputConfig, 32> m_Actions;
-  ezDynamicArray<ezString> m_AllInputSlots;
+  WMap<WString, QTreeWidgetItem*> m_InputSetToItem;
+  WHybridArray<WGameAppInputConfig, 32> m_Actions;
+  WDynamicArray<WString> m_AllInputSlots;
 };

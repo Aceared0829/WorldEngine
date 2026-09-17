@@ -6,9 +6,9 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
-EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
+W_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
 {
-  ezDynamicArray<ezUInt32> TestData;
+  WDynamicArray<WUInt32> TestData;
 
   // create the test data
   // a repetition of a counting sequence that is getting longer and longer, ie:
@@ -16,17 +16,17 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
   {
     TestData.SetCountUninitialized(1024 * 1024 * 8);
 
-    const ezUInt32 uiItems = TestData.GetCount();
-    ezUInt32 uiStartPos = 0;
+    const WUInt32 uiItems = TestData.GetCount();
+    WUInt32 uiStartPos = 0;
 
-    for (ezUInt32 uiWrite = 1; uiWrite < uiItems; ++uiWrite)
+    for (WUInt32 uiWrite = 1; uiWrite < uiItems; ++uiWrite)
     {
-      uiWrite = ezMath::Min(uiWrite, uiItems - uiStartPos);
+      uiWrite = WMath::Min(uiWrite, uiItems - uiStartPos);
 
       if (uiWrite == 0)
         break;
 
-      for (ezUInt32 i = 0; i < uiWrite; ++i)
+      for (WUInt32 i = 0; i < uiWrite; ++i)
       {
         TestData[uiStartPos + i] = i;
       }
@@ -36,33 +36,33 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
   }
 
 
-  ezDefaultMemoryStreamStorage StreamStorage;
+  WDefaultMemoryStreamStorage StreamStorage;
 
-  ezMemoryStreamWriter MemoryWriter(&StreamStorage);
-  ezMemoryStreamReader MemoryReader(&StreamStorage);
+  WMemoryStreamWriter MemoryWriter(&StreamStorage);
+  WMemoryStreamReader MemoryReader(&StreamStorage);
 
-  ezCompressedStreamReaderZstd CompressedReader;
-  ezCompressedStreamWriterZstd CompressedWriter;
+  WCompressedStreamReaderZstd CompressedReader;
+  WCompressedStreamWriterZstd CompressedWriter;
 
   const float fExpectedCompressionRatio = 900.0f; // this is a guess that is based on the current input data and size
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compress Data")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compress Data")
   {
     CompressedWriter.SetOutputStream(&MemoryWriter, 0);
 
     bool bFlush = true;
 
-    ezUInt32 uiWrite = 1;
-    for (ezUInt32 i = 0; i < TestData.GetCount();)
+    WUInt32 uiWrite = 1;
+    for (WUInt32 i = 0; i < TestData.GetCount();)
     {
-      uiWrite = ezMath::Min<ezUInt32>(uiWrite, TestData.GetCount() - i);
+      uiWrite = WMath::Min<WUInt32>(uiWrite, TestData.GetCount() - i);
 
-      EZ_TEST_BOOL(CompressedWriter.WriteBytes(&TestData[i], sizeof(ezUInt32) * uiWrite) == EZ_SUCCESS);
+      W_TEST_BOOL(CompressedWriter.WriteBytes(&TestData[i], sizeof(WUInt32) * uiWrite) == W_SUCCESS);
 
       if (bFlush)
       {
         // this actually hurts compression rates
-        EZ_TEST_BOOL(CompressedWriter.Flush() == EZ_SUCCESS);
+        W_TEST_BOOL(CompressedWriter.Flush() == W_SUCCESS);
       }
 
       bFlush = !bFlush;
@@ -74,50 +74,50 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
     // flush all data
     CompressedWriter.FinishCompressedStream().AssertSuccess();
 
-    const ezUInt64 uiCompressed = CompressedWriter.GetCompressedSize();
-    const ezUInt64 uiUncompressed = CompressedWriter.GetUncompressedSize();
-    const ezUInt64 uiBytesWritten = CompressedWriter.GetWrittenBytes();
+    const WUInt64 uiCompressed = CompressedWriter.GetCompressedSize();
+    const WUInt64 uiUncompressed = CompressedWriter.GetUncompressedSize();
+    const WUInt64 uiBytesWritten = CompressedWriter.GetWrittenBytes();
 
-    EZ_TEST_INT(uiUncompressed, TestData.GetCount() * sizeof(ezUInt32));
-    EZ_TEST_BOOL(uiBytesWritten > uiCompressed);
-    EZ_TEST_BOOL(uiBytesWritten < uiUncompressed);
+    W_TEST_INT(uiUncompressed, TestData.GetCount() * sizeof(WUInt32));
+    W_TEST_BOOL(uiBytesWritten > uiCompressed);
+    W_TEST_BOOL(uiBytesWritten < uiUncompressed);
 
     const float fRatio = (float)uiUncompressed / (float)uiCompressed;
-    EZ_TEST_BOOL(fRatio >= fExpectedCompressionRatio);
+    W_TEST_BOOL(fRatio >= fExpectedCompressionRatio);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Uncompress Data")
   {
     CompressedReader.SetInputStream(&MemoryReader);
 
     bool bSkip = false;
-    ezUInt32 uiStartPos = 0;
+    WUInt32 uiStartPos = 0;
 
-    ezDynamicArray<ezUInt32> TestDataRead = TestData; // initialize with identical data, makes comparing the skipped parts easier
+    WDynamicArray<WUInt32> TestDataRead = TestData; // initialize with identical data, makes comparing the skipped parts easier
 
     // read the data in blocks that get larger and larger
-    for (ezUInt32 iRead = 1; iRead < TestData.GetCount(); ++iRead)
+    for (WUInt32 iRead = 1; iRead < TestData.GetCount(); ++iRead)
     {
-      ezUInt32 iToRead = ezMath::Min(iRead, TestData.GetCount() - uiStartPos);
+      WUInt32 iToRead = WMath::Min(iRead, TestData.GetCount() - uiStartPos);
 
       if (iToRead == 0)
         break;
 
       if (bSkip)
       {
-        const ezUInt64 uiReadFromStream = CompressedReader.SkipBytes(sizeof(ezUInt32) * iToRead);
-        EZ_TEST_BOOL(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+        const WUInt64 uiReadFromStream = CompressedReader.SkipBytes(sizeof(WUInt32) * iToRead);
+        W_TEST_BOOL(uiReadFromStream == sizeof(WUInt32) * iToRead);
       }
       else
       {
         // overwrite part we are going to read from the stream, to make sure it re-reads the correct data
-        for (ezUInt32 i = 0; i < iToRead; ++i)
+        for (WUInt32 i = 0; i < iToRead; ++i)
         {
           TestDataRead[uiStartPos + i] = 0;
         }
 
-        const ezUInt64 uiReadFromStream = CompressedReader.ReadBytes(&TestDataRead[uiStartPos], sizeof(ezUInt32) * iToRead);
-        EZ_TEST_BOOL(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+        const WUInt64 uiReadFromStream = CompressedReader.ReadBytes(&TestDataRead[uiStartPos], sizeof(WUInt32) * iToRead);
+        W_TEST_BOOL(uiReadFromStream == sizeof(WUInt32) * iToRead);
       }
 
       bSkip = !bSkip;
@@ -125,13 +125,13 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
       uiStartPos += iToRead;
     }
 
-    EZ_TEST_BOOL(TestData == TestDataRead);
+    W_TEST_BOOL(TestData == TestDataRead);
 
     // test reading after the end of the stream
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
-      ezUInt32 uiTemp = 0;
-      EZ_TEST_BOOL(CompressedReader.ReadBytes(&uiTemp, sizeof(ezUInt32)) == 0);
+      WUInt32 uiTemp = 0;
+      W_TEST_BOOL(CompressedReader.ReadBytes(&uiTemp, sizeof(WUInt32)) == 0);
     }
   }
 }

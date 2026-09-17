@@ -2,45 +2,45 @@
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
-class ezFmodListenerComponentManager : public ezComponentManager<class ezFmodListenerComponent, ezBlockStorageType::Compact>
+class WFmodListenerComponentManager : public WComponentManager<class WFmodListenerComponent, WBlockStorageType::Compact>
 {
 public:
-  ezFmodListenerComponentManager(ezWorld* pWorld);
+  WFmodListenerComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
 private:
-  void UpdateListeners(const ezWorldModule::UpdateContext& context);
+  void UpdateListeners(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Represents the position of the sound listener
-class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent
+class W_FMODPLUGIN_DLL WFmodListenerComponent : public WFmodComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFmodListenerComponent, ezFmodComponent, ezFmodListenerComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WFmodListenerComponent, WFmodComponent, WFmodListenerComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFmodComponent
+  // WFmodComponent
 
 private:
-  virtual void ezFmodComponentIsAbstract() override {}
+  virtual void WFmodComponentIsAbstract() override {}
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFmodListenerComponent
+  // WFmodListenerComponent
 
 public:
-  ezFmodListenerComponent();
-  ~ezFmodListenerComponent();
+  WFmodListenerComponent();
+  ~WFmodListenerComponent();
 
-  ezUInt8 m_uiListenerIndex = 0; // [ property ]
+  WUInt8 m_uiListenerIndex = 0; // [ property ]
 
 protected:
   void Update();

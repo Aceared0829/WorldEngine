@@ -10,61 +10,61 @@
 #include <ozz/base/maths/simd_math.h>
 #include <ozz/base/maths/soa_transform.h>
 
-class ezEventTrack;
-struct ezMsgGenericEvent;
+class WEventTrack;
+struct WMsgGenericEvent;
 
-using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
+using WAnimationClipResourceHandle = WTypedResourceHandle<class WAnimationClipResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
 
 
-/// Component manager for ezSimpleAnimationComponent.
+/// Component manager for WSimpleAnimationComponent.
 ///
 /// Schedules updates in the async world update phase so that multiple instances can be evaluated in parallel.
-class EZ_GAMEENGINE_DLL ezSimpleAnimationComponentManager : public ezComponentManager<class ezSimpleAnimationComponent, ezBlockStorageType::FreeList>
+class W_GAMEENGINE_DLL WSimpleAnimationComponentManager : public WComponentManager<class WSimpleAnimationComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezSimpleAnimationComponentManager(ezWorld* pWorld);
-  ~ezSimpleAnimationComponentManager();
+  WSimpleAnimationComponentManager(WWorld* pWorld);
+  ~WSimpleAnimationComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
-  void ApplyRootMotion(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
+  void ApplyRootMotion(const WWorldModule::UpdateContext& context);
 };
 
 
 /// Plays a single animation clip on an animated mesh.
 ///
-/// \see ezAnimatedMeshComponent
-class EZ_GAMEENGINE_DLL ezSimpleAnimationComponent : public ezComponent
+/// \see WAnimatedMeshComponent
+class W_GAMEENGINE_DLL WSimpleAnimationComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSimpleAnimationComponent, ezComponent, ezSimpleAnimationComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSimpleAnimationComponent, WComponent, WSimpleAnimationComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJointAttachmentComponent
+  // WJointAttachmentComponent
 
 public:
-  ezSimpleAnimationComponent();
-  ~ezSimpleAnimationComponent();
+  WSimpleAnimationComponent();
+  ~WSimpleAnimationComponent();
 
-  ezAnimationClipResourceHandle m_hAnimationClip;
+  WAnimationClipResourceHandle m_hAnimationClip;
 
   // adds SetAnimationClipFile() and GetAnimationClipFile() for convenience
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS(AnimationClip, m_hAnimationClip);
+  W_ADD_RESOURCEHANDLE_ACCESSORS(AnimationClip, m_hAnimationClip);
 
   /// How to play the animation.
-  ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
+  WEnum<WPropertyAnimMode> m_AnimationMode; // [ property ]
 
   /// How quickly or slowly to play the animation.
   float m_fSpeed = 1.0f; // [ property ]
@@ -76,20 +76,20 @@ public:
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
   /// How often to update the animation while the animated mesh is invisible.
-  ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
+  WEnum<WAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
 protected:
   void Update();
   void ApplyRootMotion();
-  bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling);
+  bool UpdatePlaybackTime(WTime tDiff, const WEventTrack& eventTrack, WAnimPoseEventTrackSampleMode& out_trackSampling);
 
-  ezEnum<ezRootMotionMode> m_RootMotionMode;
+  WEnum<WRootMotionMode> m_RootMotionMode;
   float m_fNormalizedPlaybackPosition = 0.0f;
-  ezTime m_Duration;
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  WTime m_Duration;
+  WSkeletonResourceHandle m_hSkeleton;
+  WTime m_ElapsedTimeSinceUpdate = WTime::MakeZero();
   bool m_bEnableIK = false;
-  ezVec3 m_vPendingRootMotion = ezVec3::MakeZero();
+  WVec3 m_vPendingRootMotion = WVec3::MakeZero();
 
   ozz::vector<ozz::math::SoaTransform> m_OzzLocalTransforms; // TODO: could be frame allocated
 };

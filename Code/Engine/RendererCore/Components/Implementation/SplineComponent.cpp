@@ -11,34 +11,34 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezSplineComponentFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezSplineComponentFlags::VisualizeSpline, ezSplineComponentFlags::VisualizeUpDir, ezSplineComponentFlags::VisualizeTangents)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WSplineComponentFlags, 1)
+  W_BITFLAGS_CONSTANTS(WSplineComponentFlags::VisualizeSpline, WSplineComponentFlags::VisualizeUpDir, WSplineComponentFlags::VisualizeTangents)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSplineComponentSpace, 1)
-  EZ_ENUM_CONSTANTS(ezSplineComponentSpace::Local, ezSplineComponentSpace::Global)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSplineComponentSpace, 1)
+  W_ENUM_CONSTANTS(WSplineComponentSpace::Local, WSplineComponentSpace::Global)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSplineChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSplineChanged, 1, ezRTTIDefaultAllocator<ezMsgSplineChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSplineChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSplineChanged, 1, WRTTIDefaultAllocator<WMsgSplineChanged>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ChangeCounter", m_uiChangeCounter),
+    W_MEMBER_PROPERTY("ChangeCounter", m_uiChangeCounter),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSplineComponentManager::ezSplineComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WSplineComponentManager::WSplineComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-void ezSplineComponentManager::SetEnableUpdate(ezSplineComponent* pThis, bool bEnable)
+void WSplineComponentManager::SetEnableUpdate(WSplineComponent* pThis, bool bEnable)
 {
   if (bEnable)
   {
@@ -51,18 +51,18 @@ void ezSplineComponentManager::SetEnableUpdate(ezSplineComponent* pThis, bool bE
   }
 }
 
-void ezSplineComponentManager::Initialize()
+void WSplineComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSplineComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSplineComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = false;
-  desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+  desc.m_Phase = WWorldUpdatePhase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
 }
 
-void ezSplineComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WSplineComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  for (ezSplineComponent* pComponent : m_NeedUpdate)
+  for (WSplineComponent* pComponent : m_NeedUpdate)
   {
     if (pComponent->IsActiveAndInitialized())
     {
@@ -74,54 +74,54 @@ void ezSplineComponentManager::Update(const ezWorldModule::UpdateContext& contex
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSplineComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezSplineComponentFlags, GetSplineFlags, SetSplineFlags),
-    EZ_ACCESSOR_PROPERTY("Closed", GetClosed, SetClosed),
-    EZ_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
+    W_BITFLAGS_ACCESSOR_PROPERTY("Flags", WSplineComponentFlags, GetSplineFlags, SetSplineFlags),
+    W_ACCESSOR_PROPERTY("Closed", GetClosed, SetClosed),
+    W_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSplineChanged, OnMsgSplineChanged),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSplineChanged, OnMsgSplineChanged),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtKey, In, "Key", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtKey, In, "Key", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtKey, In, "Key", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtKey, In, "Key", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtKey, In, "Key", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetPositionAtKey, In, "Key", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtKey, In, "Key", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtKey, In, "Key", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetScaleAtKey, In, "Key", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTransformAtKey, In, "Key", In, "Space"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTotalLength),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetKeyAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtDistance, In, "Distance", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtDistance, In, "Distance", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtDistance, In, "Distance", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtDistance, In, "Distance", In, "Space"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtDistance, In, "Distance", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTotalLength),
+    W_SCRIPT_FUNCTION_PROPERTY(GetKeyAtDistance, In, "Distance"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetPositionAtDistance, In, "Distance", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtDistance, In, "Distance", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtDistance, In, "Distance", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetScaleAtDistance, In, "Distance", In, "Space"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTransformAtDistance, In, "Distance", In, "Space"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindKeyClosestToPoint, In, "Point", Out, "DistanceToPoint", In, "Space", In, "MaxError")->AddAttributes(new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(0.1))),
+    W_SCRIPT_FUNCTION_PROPERTY(FindKeyClosestToPoint, In, "Point", Out, "DistanceToPoint", In, "Space", In, "MaxError")->AddAttributes(new WFunctionArgumentAttributes(3, new WDefaultValueAttribute(0.1))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetChangeCounter),
+    W_SCRIPT_FUNCTION_PROPERTY(GetChangeCounter),
 
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
-    EZ_FUNCTION_PROPERTY(SetChildOrder),
+    W_FUNCTION_PROPERTY(OnObjectCreated),
+    W_FUNCTION_PROPERTY(SetChildOrder),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities/Splines"),
-    new ezSyncChildOrderAttribute(),
-    new ezSplineManipulatorAttribute("EditNodes", "Closed"),
+    new WCategoryAttribute("Utilities/Splines"),
+    new WSyncChildOrderAttribute(),
+    new WSplineManipulatorAttribute("EditNodes", "Closed"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
 enum SplineComponentInternalFlags
@@ -129,10 +129,10 @@ enum SplineComponentInternalFlags
   DisallowUpdateFromNodes = 0,
 };
 
-ezSplineComponent::ezSplineComponent() = default;
-ezSplineComponent::~ezSplineComponent() = default;
+WSplineComponent::WSplineComponent() = default;
+WSplineComponent::~WSplineComponent() = default;
 
-void ezSplineComponent::SerializeComponent(ezWorldWriter& ref_stream) const
+void WSplineComponent::SerializeComponent(WWorldWriter& ref_stream) const
 {
   SUPER::SerializeComponent(ref_stream);
 
@@ -143,10 +143,10 @@ void ezSplineComponent::SerializeComponent(ezWorldWriter& ref_stream) const
   s << m_Uuid;
 }
 
-void ezSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
+void WSplineComponent::DeserializeComponent(WWorldReader& ref_stream)
 {
   SUPER::DeserializeComponent(ref_stream);
-  ezUInt32 uiVersion = ref_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WUInt32 uiVersion = ref_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = ref_stream.GetStream();
   s >> m_SplineFlags;
@@ -162,30 +162,30 @@ void ezSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
   SetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes, true);
 }
 
-void ezSplineComponent::OnActivated()
+void WSplineComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   if (m_SplineFlags.IsAnyFlagSet())
   {
-    static_cast<ezSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, true);
+    static_cast<WSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, true);
   }
 
   UpdateSpline();
 }
 
-void ezSplineComponent::OnDeactivated()
+void WSplineComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   if (m_SplineFlags.IsAnyFlagSet())
   {
     // assume that if no flag is set, update is already disabled
-    static_cast<ezSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, false);
+    static_cast<WSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, false);
   }
 }
 
-void ezSplineComponent::SetClosed(bool bClosed)
+void WSplineComponent::SetClosed(bool bClosed)
 {
   if (m_Spline.m_bClosed == bClosed)
     return;
@@ -195,7 +195,7 @@ void ezSplineComponent::SetClosed(bool bClosed)
   UpdateSpline();
 }
 
-void ezSplineComponent::SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags)
+void WSplineComponent::SetSplineFlags(WBitflags<WSplineComponentFlags> flags)
 {
   if (m_SplineFlags == flags)
     return;
@@ -204,72 +204,72 @@ void ezSplineComponent::SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags)
 
   if (IsActiveAndInitialized())
   {
-    static_cast<ezSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, m_SplineFlags.IsAnyFlagSet());
+    static_cast<WSplineComponentManager*>(GetOwningManager())->SetEnableUpdate(this, m_SplineFlags.IsAnyFlagSet());
   }
 }
 
-ezVec3 ezSplineComponent::GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetPositionAtKey(float fKey, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
-  ezSimdVec4f pos = m_Spline.EvaluatePosition(fKey);
+  WSimdVec4f pos = m_Spline.EvaluatePosition(fKey);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
     pos = GetOwner()->GetGlobalTransformSimd().TransformPosition(pos);
   }
 
-  return ezSimdConversion::ToVec3(pos);
+  return WSimdConversion::ToVec3(pos);
 }
 
-ezVec3 ezSplineComponent::GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetForwardDirAtKey(float fKey, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
-  ezSimdVec4f dir = m_Spline.EvaluateDerivative(fKey);
-  dir.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0, 0), 0.0001f);
+  WSimdVec4f dir = m_Spline.EvaluateDerivative(fKey);
+  dir.NormalizeIfNotZero<3>(WSimdVec4f(1, 0, 0, 0), 0.0001f);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
     dir = GetOwner()->GetGlobalTransformSimd().TransformDirection(dir);
   }
 
-  return ezSimdConversion::ToVec3(dir);
+  return WSimdConversion::ToVec3(dir);
 }
 
-ezVec3 ezSplineComponent::GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetUpDirAtKey(float fKey, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
-  ezSimdVec4f dir = m_Spline.EvaluateUpDirection(fKey);
+  WSimdVec4f dir = m_Spline.EvaluateUpDirection(fKey);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
     dir = GetOwner()->GetGlobalTransformSimd().TransformDirection(dir);
   }
 
-  return ezSimdConversion::ToVec3(dir);
+  return WSimdConversion::ToVec3(dir);
 }
 
-ezVec3 ezSplineComponent::GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetScaleAtKey(float fKey, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
-  ezSimdVec4f scale = m_Spline.EvaluateScale(fKey);
+  WSimdVec4f scale = m_Spline.EvaluateScale(fKey);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
     scale = scale.CompMul(GetOwner()->GetGlobalTransformSimd().m_Scale);
   }
 
-  return ezSimdConversion::ToVec3(scale);
+  return WSimdConversion::ToVec3(scale);
 }
 
-ezTransform ezSplineComponent::GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WTransform WSplineComponent::GetTransformAtKey(float fKey, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
-  ezSimdTransform t = m_Spline.EvaluateTransform(fKey);
+  WSimdTransform t = m_Spline.EvaluateTransform(fKey);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
-    t = ezSimdTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransformSimd(), t);
+    t = WSimdTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransformSimd(), t);
   }
 
-  return ezSimdConversion::ToTransform(t);
+  return WSimdConversion::ToTransform(t);
 }
 
-float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
+float WSplineComponent::GetSegmentLength(WUInt32 uiSegmentIndex) const
 {
   const float fSegmentKey = static_cast<float>(uiSegmentIndex);
   const float fNextSegmentKey = static_cast<float>(uiSegmentIndex + 1);
@@ -278,11 +278,11 @@ float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
   float fEndDistance = 0.0f;
   for (auto it : m_DistanceToKey)
   {
-    if (ezMath::IsEqual(it.value, fSegmentKey, ezMath::DefaultEpsilon<float>()))
+    if (WMath::IsEqual(it.value, fSegmentKey, WMath::DefaultEpsilon<float>()))
     {
       fStartDistance = it.key;
     }
-    if (ezMath::IsEqual(it.value, fNextSegmentKey, ezMath::DefaultEpsilon<float>()))
+    if (WMath::IsEqual(it.value, fNextSegmentKey, WMath::DefaultEpsilon<float>()))
     {
       fEndDistance = it.key;
       break;
@@ -292,41 +292,41 @@ float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
   return fEndDistance - fStartDistance;
 }
 
-ezVec3 ezSplineComponent::GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetPositionAtDistance(float fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
   return GetPositionAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetForwardDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetForwardDirAtDistance(float fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
   return GetForwardDirAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetUpDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetUpDirAtDistance(float fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
   return GetUpDirAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetScaleAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WVec3 WSplineComponent::GetScaleAtDistance(float fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
   return GetScaleAtKey(fKey, space);
 }
 
-ezTransform ezSplineComponent::GetTransformAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
+WTransform WSplineComponent::GetTransformAtDistance(float fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
   return GetTransformAtKey(fKey, space);
 }
 
-float ezSplineComponent::FindKeyClosestToPoint(const ezVec3& vPoint, float& out_fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/, float fMaxError /*= 0.1f*/) const
+float WSplineComponent::FindKeyClosestToPoint(const WVec3& vPoint, float& out_fDistance, WEnum<WSplineComponentSpace> space /* = WSplineComponentSpace::Default*/, float fMaxError /*= 0.1f*/) const
 {
-  ezSimdVec4f p = ezSimdConversion::ToVec3(vPoint);
+  WSimdVec4f p = WSimdConversion::ToVec3(vPoint);
 
-  if (space == ezSplineComponentSpace::Global)
+  if (space == WSplineComponentSpace::Global)
   {
     p = GetOwner()->GetGlobalTransformSimd().GetInverse().TransformPosition(p);
   }
@@ -335,13 +335,13 @@ float ezSplineComponent::FindKeyClosestToPoint(const ezVec3& vPoint, float& out_
   float fClosestDistSqr = 0.0f;
   m_Spline.FindClosestPoint(p, fClosestKey, fClosestDistSqr, fMaxError);
 
-  out_fDistance = ezMath::Sqrt(fClosestDistSqr);
+  out_fDistance = WMath::Sqrt(fClosestDistSqr);
   return fClosestKey;
 }
 
-void ezSplineComponent::SetSpline(ezSpline&& spline)
+void WSplineComponent::SetSpline(WSpline&& spline)
 {
-  ezUInt32 uiOldChangeCounter = m_Spline.m_uiChangeCounter;
+  WUInt32 uiOldChangeCounter = m_Spline.m_uiChangeCounter;
   m_Spline = std::move(spline);
   m_Spline.m_uiChangeCounter = uiOldChangeCounter + 1;
 
@@ -350,7 +350,7 @@ void ezSplineComponent::SetSpline(ezSpline&& spline)
   SendSplineChangedEvent();
 }
 
-void ezSplineComponent::EndModifySpline(bool bRecreateDistanceToKeyMapping /*= true*/)
+void WSplineComponent::EndModifySpline(bool bRecreateDistanceToKeyMapping /*= true*/)
 {
   m_Spline.m_uiChangeCounter++;
 
@@ -362,44 +362,44 @@ void ezSplineComponent::EndModifySpline(bool bRecreateDistanceToKeyMapping /*= t
   SendSplineChangedEvent();
 }
 
-float ezSplineComponent::GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance)
+float WSplineComponent::GetKeyAtDistanceHelper(const WArrayMap<float, float>& distanceToKey, float fDistance)
 {
   if (distanceToKey.IsEmpty())
     return 0.0f;
 
-  const ezUInt32 uiUpperIndex = ezMath::Min(distanceToKey.UpperBound(fDistance), distanceToKey.GetCount() - 1);
-  const ezUInt32 uiLowerIndex = uiUpperIndex > 0 ? uiUpperIndex - 1 : 0;
+  const WUInt32 uiUpperIndex = WMath::Min(distanceToKey.UpperBound(fDistance), distanceToKey.GetCount() - 1);
+  const WUInt32 uiLowerIndex = uiUpperIndex > 0 ? uiUpperIndex - 1 : 0;
 
   const float fLowerDistance = distanceToKey.GetKey(uiLowerIndex);
   const float fUpperDistance = distanceToKey.GetKey(uiUpperIndex);
   const float fLowerKey = distanceToKey.GetValue(uiLowerIndex);
   const float fUpperKey = distanceToKey.GetValue(uiUpperIndex);
 
-  return ezMath::Lerp(fLowerKey, fUpperKey, ezMath::Saturate(ezMath::Unlerp(fLowerDistance, fUpperDistance, fDistance)));
+  return WMath::Lerp(fLowerKey, fUpperKey, WMath::Saturate(WMath::Unlerp(fLowerDistance, fUpperDistance, fDistance)));
 }
 
-void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
+void WSplineComponent::OnMsgSplineChanged(WMsgSplineChanged& ref_msg)
 {
   UpdateSpline();
 }
 
-void ezSplineComponent::SetChildOrder(const ezVariantArray& handles)
+void WSplineComponent::SetChildOrder(const WVariantArray& handles)
 {
   m_Nodes.Clear();
   m_Nodes.Reserve(handles.GetCount());
 
-  for (const ezVariant& v : handles)
-    m_Nodes.PushBack(v.Get<ezGameObjectHandle>());
+  for (const WVariant& v : handles)
+    m_Nodes.PushBack(v.Get<WGameObjectHandle>());
 
   UpdateSpline();
 }
 
-void ezSplineComponent::SendSplineChangedEvent()
+void WSplineComponent::SendSplineChangedEvent()
 {
-  ezMsgSplineChanged msg;
+  WMsgSplineChanged msg;
   msg.m_uiChangeCounter = m_Spline.m_uiChangeCounter;
 
-  for (ezComponent* pComp : GetOwner()->GetComponents())
+  for (WComponent* pComp : GetOwner()->GetComponents())
   {
     if (pComp != this)
     {
@@ -408,12 +408,12 @@ void ezSplineComponent::SendSplineChangedEvent()
   }
 }
 
-void ezSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
+void WSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
 {
   if (!IsActiveAndInitialized())
     return;
 
-  if (GetUniqueID() != ezInvalidIndex && !GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes))
+  if (GetUniqueID() != WInvalidIndex && !GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes))
   {
     // Only in Editor
     UpdateFromNodeObjects();
@@ -427,9 +427,9 @@ void ezSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
   }
 }
 
-void ezSplineComponent::UpdateFromNodeObjects()
+void WSplineComponent::UpdateFromNodeObjects()
 {
-  EZ_ASSERT_DEV(!GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes), "This function should not be called when updates from nodes are disabled.");
+  W_ASSERT_DEV(!GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes), "This function should not be called when updates from nodes are disabled.");
 
   auto& points = m_Spline.m_ControlPoints;
   points.Clear();
@@ -437,25 +437,25 @@ void ezSplineComponent::UpdateFromNodeObjects()
   if (m_Nodes.GetCount() < 2)
     return;
 
-  for (ezGameObjectHandle hNode : m_Nodes)
+  for (WGameObjectHandle hNode : m_Nodes)
   {
-    ezGameObject* pNode;
+    WGameObject* pNode;
     if (!GetWorld()->TryGetObject(hNode, pNode))
       continue;
 
-    ezSplineNodeComponent* pNodeComponent = nullptr;
+    WSplineNodeComponent* pNodeComponent = nullptr;
     if (!pNode->TryGetComponentOfBaseType(pNodeComponent))
       continue;
 
     pNodeComponent->m_uiNodeIndex = points.GetCount();
 
-    const ezSimdTransform localNodeTransform = pNodeComponent->GetOwner()->GetLocalTransformSimd();
+    const WSimdTransform localNodeTransform = pNodeComponent->GetOwner()->GetLocalTransformSimd();
 
     auto& cp = points.ExpandAndGetRef();
     cp.SetPosition(localNodeTransform.m_Position);
     cp.SetTangentIn(pNodeComponent->GetFinalCustomTangentIn(), pNodeComponent->GetTangentModeIn());
 
-    if (pNodeComponent->GetLinkCustomTangents() && pNodeComponent->GetTangentModeIn() == ezSplineTangentMode::Custom && pNodeComponent->GetTangentModeOut() == ezSplineTangentMode::Custom)
+    if (pNodeComponent->GetLinkCustomTangents() && pNodeComponent->GetTangentModeIn() == WSplineTangentMode::Custom && pNodeComponent->GetTangentModeOut() == WSplineTangentMode::Custom)
     {
       cp.SetTangentOut(-pNodeComponent->GetFinalCustomTangentIn(), pNodeComponent->GetTangentModeOut());
     }
@@ -474,25 +474,25 @@ void ezSplineComponent::UpdateFromNodeObjects()
     return;
   }
 
-  ezCoordinateSystem coordinateSystem;
+  WCoordinateSystem coordinateSystem;
   GetWorld()->GetCoordinateSystem(GetOwner()->GetGlobalPosition(), coordinateSystem);
 
-  m_Spline.CalculateUpDirAndAutoTangents(ezSimdConversion::ToVec3(coordinateSystem.m_vUpDir), ezSimdConversion::ToVec3(coordinateSystem.m_vForwardDir));
+  m_Spline.CalculateUpDirAndAutoTangents(WSimdConversion::ToVec3(coordinateSystem.m_vUpDir), WSimdConversion::ToVec3(coordinateSystem.m_vForwardDir));
 
   ++m_Spline.m_uiChangeCounter;
-  if (m_Spline.m_uiChangeCounter == ezInvalidIndex)
+  if (m_Spline.m_uiChangeCounter == WInvalidIndex)
     m_Spline.m_uiChangeCounter = 0;
 }
 
-void ezSplineComponent::InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const
+void WSplineComponent::InsertHalfPoint(WDynamicArray<float>& ref_Ts, WUInt32 uiCp0, float fLowerT, float fUpperT, const WSimdVec4f& vLowerPos, const WSimdVec4f& vUpperPos, float fDistSqr, WInt32 iMinSteps, WInt32 iMaxSteps) const
 {
-  const float fHalfT = ezMath::Lerp(fLowerT, fUpperT, 0.5f);
+  const float fHalfT = WMath::Lerp(fLowerT, fUpperT, 0.5f);
 
-  const ezSimdVec4f vHalfPos = m_Spline.EvaluatePosition(uiCp0, fHalfT);
+  const WSimdVec4f vHalfPos = m_Spline.EvaluatePosition(uiCp0, fHalfT);
 
   if (iMinSteps <= 0)
   {
-    const ezSimdVec4f vInterpPos = ezSimdVec4f::Lerp(vLowerPos, vUpperPos, ezSimdVec4f(0.5f));
+    const WSimdVec4f vInterpPos = WSimdVec4f::Lerp(vLowerPos, vUpperPos, WSimdVec4f(0.5f));
     if ((vHalfPos - vInterpPos).GetLengthSquared<3>() < fDistSqr)
     {
       return;
@@ -512,39 +512,39 @@ void ezSplineComponent::InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 
   }
 }
 
-void ezSplineComponent::CreateDistanceToKeyRemapping()
+void WSplineComponent::CreateDistanceToKeyRemapping()
 {
   m_DistanceToKey.Clear();
   m_fTotalLength = 0.0f;
 
   const auto& points = m_Spline.m_ControlPoints;
-  const ezUInt32 uiNumCPs = points.GetCount();
+  const WUInt32 uiNumCPs = points.GetCount();
   if (uiNumCPs < 2)
     return;
 
   m_DistanceToKey.Insert(0.0f, 0.0f);
-  constexpr float fMaxErrorSqr = ezMath::Square(0.1f);
+  constexpr float fMaxErrorSqr = WMath::Square(0.1f);
 
-  ezTempHybridArray<float, 64> segmentTs;
-  const ezUInt32 uiNumSegments = m_Spline.m_bClosed ? uiNumCPs : uiNumCPs - 1;
-  for (ezUInt32 uiSegment = 0; uiSegment < uiNumSegments; ++uiSegment)
+  WTempHybridArray<float, 64> segmentTs;
+  const WUInt32 uiNumSegments = m_Spline.m_bClosed ? uiNumCPs : uiNumCPs - 1;
+  for (WUInt32 uiSegment = 0; uiSegment < uiNumSegments; ++uiSegment)
   {
     segmentTs.Clear();
     segmentTs.PushBack(1.0f);
 
-    const ezUInt32 uiCp0 = uiSegment;
-    const ezUInt32 uiCp1 = (uiCp0 + 1 < uiNumCPs) ? uiCp0 + 1 : 0;
+    const WUInt32 uiCp0 = uiSegment;
+    const WUInt32 uiCp1 = (uiCp0 + 1 < uiNumCPs) ? uiCp0 + 1 : 0;
     const auto& vLowerPos = points[uiCp0].m_vPos;
     const auto& vUpperPos = points[uiCp1].m_vPos;
-    EZ_ASSERT_DEBUG(vLowerPos.IsValid<3>() && vUpperPos.IsValid<3>(), "Invalid control point position.");
+    W_ASSERT_DEBUG(vLowerPos.IsValid<3>() && vUpperPos.IsValid<3>(), "Invalid control point position.");
 
     InsertHalfPoint(segmentTs, uiCp0, 0.0f, 1.0f, vLowerPos, vUpperPos, fMaxErrorSqr, 0, 7);
     segmentTs.Sort();
 
-    ezSimdVec4f vLastPos = vLowerPos;
+    WSimdVec4f vLastPos = vLowerPos;
     for (float t : segmentTs)
     {
-      const ezSimdVec4f vCurPos = m_Spline.EvaluatePosition(uiCp0, t);
+      const WSimdVec4f vCurPos = m_Spline.EvaluatePosition(uiCp0, t);
       m_fTotalLength += (vLastPos - vCurPos).GetLength<3>();
 
       m_DistanceToKey.Insert(m_fTotalLength, t + uiSegment);
@@ -554,7 +554,7 @@ void ezSplineComponent::CreateDistanceToKeyRemapping()
   }
 }
 
-void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlags> flags) const
+void WSplineComponent::DrawDebugVisualizations(WBitflags<WSplineComponentFlags> flags) const
 {
   if (flags.IsNoFlagSet())
     return;
@@ -562,24 +562,24 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
   if (m_DistanceToKey.IsEmpty())
     return;
 
-  const bool bVisPath = flags.IsSet(ezSplineComponentFlags::VisualizeSpline);
-  const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
+  const bool bVisPath = flags.IsSet(WSplineComponentFlags::VisualizeSpline);
+  const bool bVisUp = flags.IsSet(WSplineComponentFlags::VisualizeUpDir);
 
-  ezTempHybridArray<ezDebugRendererLine, 32> lines;
-  ezColor c = ezColorScheme::LightUI(ezColorScheme::Pink);
-  ezColor cUp = ezColorScheme::LightUI(ezColorScheme::Blue);
+  WTempHybridArray<WDebugRendererLine, 32> lines;
+  WColor c = WColorScheme::LightUI(WColorScheme::Pink);
+  WColor cUp = WColorScheme::LightUI(WColorScheme::Blue);
 
-  ezVec3 lastPos = GetPositionAtKey(0);
+  WVec3 lastPos = GetPositionAtKey(0);
   float fLastKey = 0.0f;
-  for (ezUInt32 i = 1; i < m_DistanceToKey.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_DistanceToKey.GetCount(); ++i)
   {
     const float fKey = m_DistanceToKey.GetValue(i);
 
     const float fSubStep = 1.0f / 4.0f;
     for (float fT = fSubStep; fT <= 1.01f; fT += fSubStep)
     {
-      const float fSubKey = ezMath::Lerp(fLastKey, fKey, fT);
-      const ezVec3 curPos = GetPositionAtKey(fSubKey);
+      const float fSubKey = WMath::Lerp(fLastKey, fKey, fT);
+      const WVec3 curPos = GetPositionAtKey(fSubKey);
 
       if (bVisPath)
       {
@@ -605,46 +605,46 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
     fLastKey = fKey;
   }
 
-  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::White.GetDarker(), GetOwner()->GetGlobalTransform());
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
+  WDebugRenderer::DrawLinesOccluded(GetWorld(), lines, WColor::White.GetDarker(), GetOwner()->GetGlobalTransform());
+  WDebugRenderer::DrawLines(GetWorld(), lines, WColor::White, GetOwner()->GetGlobalTransform());
 
-  const bool bVisTangents = flags.IsSet(ezSplineComponentFlags::VisualizeTangents);
+  const bool bVisTangents = flags.IsSet(WSplineComponentFlags::VisualizeTangents);
   if (bVisTangents)
   {
-    for (ezUInt32 i = 0; i < m_Spline.m_ControlPoints.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Spline.m_ControlPoints.GetCount(); ++i)
     {
       DrawDebugTangents(i);
     }
   }
 }
 
-void ezSplineComponent::DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangentMode::Enum tangentModeIn /*= ezSplineTangentMode::Default*/, ezSplineTangentMode::Enum tangentModeOut /*= ezSplineTangentMode::Default*/) const
+void WSplineComponent::DrawDebugTangents(WUInt32 uiPointIndex, WSplineTangentMode::Enum tangentModeIn /*= WSplineTangentMode::Default*/, WSplineTangentMode::Enum tangentModeOut /*= WSplineTangentMode::Default*/) const
 {
   if (uiPointIndex < m_Spline.m_ControlPoints.GetCount())
   {
-    const ezSpline::ControlPoint& cp = m_Spline.m_ControlPoints[uiPointIndex];
+    const WSpline::ControlPoint& cp = m_Spline.m_ControlPoints[uiPointIndex];
 
-    const ezColor tInColor = ezColorScheme::DarkUI(tangentModeIn == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
-    const ezColor tOutColor = ezColorScheme::DarkUI(tangentModeOut == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
-    const ezVec3 vTangentIn = ezSimdConversion::ToVec3(cp.m_vPosTangentIn);
-    const ezVec3 vTangentOut = ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
+    const WColor tInColor = WColorScheme::DarkUI(tangentModeIn == WSplineTangentMode::Custom ? WColorScheme::Grape : WColorScheme::Gray);
+    const WColor tOutColor = WColorScheme::DarkUI(tangentModeOut == WSplineTangentMode::Custom ? WColorScheme::Grape : WColorScheme::Gray);
+    const WVec3 vTangentIn = WSimdConversion::ToVec3(cp.m_vPosTangentIn);
+    const WVec3 vTangentOut = WSimdConversion::ToVec3(cp.m_vPosTangentOut);
 
-    const ezVec3 vGlobalPos = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().TransformPosition(cp.m_vPos));
-    const ezTransform t = ezTransform::Make(vGlobalPos, GetOwner()->GetGlobalRotation(), GetOwner()->GetGlobalScaling());
+    const WVec3 vGlobalPos = WSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().TransformPosition(cp.m_vPos));
+    const WTransform t = WTransform::Make(vGlobalPos, GetOwner()->GetGlobalRotation(), GetOwner()->GetGlobalScaling());
 
-    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
-    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
+    WDebugRenderer::DrawLineSphere(GetWorld(), WBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
+    WDebugRenderer::DrawLineSphere(GetWorld(), WBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
 
-    ezTempHybridArray<ezDebugRendererLine, 2> lines;
-    lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentIn, tInColor));
-    lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentOut, tOutColor));
-    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, t);
+    WTempHybridArray<WDebugRendererLine, 2> lines;
+    lines.PushBack(WDebugRendererLine(WVec3::MakeZero(), vTangentIn, tInColor));
+    lines.PushBack(WDebugRendererLine(WVec3::MakeZero(), vTangentOut, tOutColor));
+    WDebugRenderer::DrawLines(GetWorld(), lines, WColor::White, t);
   }
 }
 
-bool ezSplineComponent::DrawSplineOnSelection() const
+bool WSplineComponent::DrawSplineOnSelection() const
 {
-  const ezUInt16 uiFrame = static_cast<ezUInt16>(ezRenderWorld::GetFrameCounter());
+  const WUInt16 uiFrame = static_cast<WUInt16>(WRenderWorld::GetFrameCounter());
   if (m_uiExtractedFrame == uiFrame)
   {
     return false; // already drawn this frame
@@ -652,23 +652,23 @@ bool ezSplineComponent::DrawSplineOnSelection() const
 
   m_uiExtractedFrame = uiFrame;
 
-  if (!m_SplineFlags.IsSet(ezSplineComponentFlags::VisualizeSpline))
+  if (!m_SplineFlags.IsSet(WSplineComponentFlags::VisualizeSpline))
   {
-    DrawDebugVisualizations(ezSplineComponentFlags::VisualizeSpline);
+    DrawDebugVisualizations(WSplineComponentFlags::VisualizeSpline);
   }
 
   return true;
 }
 
-void ezSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSplineComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
+  if (msg.m_OverrideCategory != WDefaultRenderDataCategories::Selection)
     return;
 
   DrawSplineOnSelection();
 }
 
-void ezSplineComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void WSplineComponent::OnObjectCreated(const WAbstractObjectNode& node)
 {
   m_Uuid = node.GetGuid();
 }
@@ -676,44 +676,44 @@ void ezSplineComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSplineNodeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Roll", GetRoll, SetRoll),
-    EZ_ENUM_ACCESSOR_PROPERTY("TangentModeIn", ezSplineTangentMode, GetTangentModeIn, SetTangentModeIn),
-    EZ_ACCESSOR_PROPERTY("CustomTangentIn", GetCustomTangentIn, SetCustomTangentIn),
-    EZ_ENUM_ACCESSOR_PROPERTY("TangentModeOut", ezSplineTangentMode, GetTangentModeOut, SetTangentModeOut),
-    EZ_ACCESSOR_PROPERTY("CustomTangentOut", GetCustomTangentOut, SetCustomTangentOut),
-    EZ_ACCESSOR_PROPERTY("LinkCustomTangents", GetLinkCustomTangents, SetLinkCustomTangents),
-    EZ_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
+    W_ACCESSOR_PROPERTY("Roll", GetRoll, SetRoll),
+    W_ENUM_ACCESSOR_PROPERTY("TangentModeIn", WSplineTangentMode, GetTangentModeIn, SetTangentModeIn),
+    W_ACCESSOR_PROPERTY("CustomTangentIn", GetCustomTangentIn, SetCustomTangentIn),
+    W_ENUM_ACCESSOR_PROPERTY("TangentModeOut", WSplineTangentMode, GetTangentModeOut, SetTangentModeOut),
+    W_ACCESSOR_PROPERTY("CustomTangentOut", GetCustomTangentOut, SetCustomTangentOut),
+    W_ACCESSOR_PROPERTY("LinkCustomTangents", GetLinkCustomTangents, SetLinkCustomTangents),
+    W_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
-    EZ_MESSAGE_HANDLER(ezMsgParentChanged, OnMsgParentChanged),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnMsgTransformChanged),
+    W_MESSAGE_HANDLER(WMsgParentChanged, OnMsgParentChanged),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities/Splines"),
-    new ezShapeIconAlwaysVisibleAttribute(),
-    new ezSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
-    new ezSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
-    new ezSplineManipulatorAttribute("EditNodes", "Closed"),
+    new WCategoryAttribute("Utilities/Splines"),
+    new WShapeIconAlwaysVisibleAttribute(),
+    new WSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
+    new WSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
+    new WSplineManipulatorAttribute("EditNodes", "Closed"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSplineNodeComponent::ezSplineNodeComponent() = default;
-ezSplineNodeComponent::~ezSplineNodeComponent() = default;
+WSplineNodeComponent::WSplineNodeComponent() = default;
+WSplineNodeComponent::~WSplineNodeComponent() = default;
 
-void ezSplineNodeComponent::SetRoll(ezAngle roll)
+void WSplineNodeComponent::SetRoll(WAngle roll)
 {
   if (m_Roll != roll)
   {
@@ -722,7 +722,7 @@ void ezSplineNodeComponent::SetRoll(ezAngle roll)
   }
 }
 
-void ezSplineNodeComponent::SetTangentModeIn(ezEnum<ezSplineTangentMode> mode)
+void WSplineNodeComponent::SetTangentModeIn(WEnum<WSplineTangentMode> mode)
 {
   if (m_TangentModeIn != mode)
   {
@@ -731,7 +731,7 @@ void ezSplineNodeComponent::SetTangentModeIn(ezEnum<ezSplineTangentMode> mode)
   }
 }
 
-void ezSplineNodeComponent::SetTangentModeOut(ezEnum<ezSplineTangentMode> mode)
+void WSplineNodeComponent::SetTangentModeOut(WEnum<WSplineTangentMode> mode)
 {
   if (m_TangentModeOut != mode)
   {
@@ -740,7 +740,7 @@ void ezSplineNodeComponent::SetTangentModeOut(ezEnum<ezSplineTangentMode> mode)
   }
 }
 
-void ezSplineNodeComponent::SetCustomTangentIn(const ezVec3& vTangent)
+void WSplineNodeComponent::SetCustomTangentIn(const WVec3& vTangent)
 {
   if (m_vCustomTangentIn != vTangent)
   {
@@ -749,7 +749,7 @@ void ezSplineNodeComponent::SetCustomTangentIn(const ezVec3& vTangent)
   }
 }
 
-void ezSplineNodeComponent::SetCustomTangentOut(const ezVec3& vTangent)
+void WSplineNodeComponent::SetCustomTangentOut(const WVec3& vTangent)
 {
   if (m_vCustomTangentOut != vTangent)
   {
@@ -758,7 +758,7 @@ void ezSplineNodeComponent::SetCustomTangentOut(const ezVec3& vTangent)
   }
 }
 
-void ezSplineNodeComponent::SetLinkCustomTangents(bool bLink)
+void WSplineNodeComponent::SetLinkCustomTangents(bool bLink)
 {
   if (m_bLinkCustomTangents != bLink)
   {
@@ -767,19 +767,19 @@ void ezSplineNodeComponent::SetLinkCustomTangents(bool bLink)
   }
 }
 
-void ezSplineNodeComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
+void WSplineNodeComponent::OnMsgTransformChanged(WMsgTransformChanged& msg)
 {
   SplineChanged();
 }
 
-void ezSplineNodeComponent::OnMsgParentChanged(ezMsgParentChanged& msg)
+void WSplineNodeComponent::OnMsgParentChanged(WMsgParentChanged& msg)
 {
-  if (msg.m_Type == ezMsgParentChanged::Type::ParentUnlinked)
+  if (msg.m_Type == WMsgParentChanged::Type::ParentUnlinked)
   {
-    ezGameObject* pOldParent = nullptr;
+    WGameObject* pOldParent = nullptr;
     if (GetWorld()->TryGetObject(msg.m_hParent, pOldParent))
     {
-      ezMsgSplineChanged msg2;
+      WMsgSplineChanged msg2;
       pOldParent->SendEventMessage(msg2, this);
     }
   }
@@ -789,13 +789,13 @@ void ezSplineNodeComponent::OnMsgParentChanged(ezMsgParentChanged& msg)
   }
 }
 
-void ezSplineNodeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSplineNodeComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
+  if (msg.m_OverrideCategory != WDefaultRenderDataCategories::Selection)
     return;
 
-  const ezGameObject* pParent = GetOwner()->GetParent();
-  const ezSplineComponent* pSplineComponent = nullptr;
+  const WGameObject* pParent = GetOwner()->GetParent();
+  const WSplineComponent* pSplineComponent = nullptr;
 
   while (pParent != nullptr && !pParent->TryGetComponentOfBaseType(pSplineComponent))
   {
@@ -808,7 +808,7 @@ void ezSplineNodeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   }
 }
 
-void ezSplineNodeComponent::OnActivated()
+void WSplineNodeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -816,25 +816,25 @@ void ezSplineNodeComponent::OnActivated()
   GetOwner()->EnableParentChangesNotifications();
 }
 
-void ezSplineNodeComponent::SplineChanged()
+void WSplineNodeComponent::SplineChanged()
 {
   if (!IsActiveAndInitialized())
     return;
 
-  ezMsgSplineChanged msg;
+  WMsgSplineChanged msg;
   GetOwner()->SendEventMessage(msg, this);
 }
 
-ezSimdVec4f ezSplineNodeComponent::GetFinalCustomTangentIn() const
+WSimdVec4f WSplineNodeComponent::GetFinalCustomTangentIn() const
 {
-  ezSimdVec4f t = ezSimdConversion::ToVec3(m_vCustomTangentIn);
+  WSimdVec4f t = WSimdConversion::ToVec3(m_vCustomTangentIn);
   t = GetOwner()->GetLocalRotationSimd() * t;
   return t;
 }
 
-ezSimdVec4f ezSplineNodeComponent::GetFinalCustomTangentOut() const
+WSimdVec4f WSplineNodeComponent::GetFinalCustomTangentOut() const
 {
-  ezSimdVec4f t = ezSimdConversion::ToVec3(m_vCustomTangentOut);
+  WSimdVec4f t = WSimdConversion::ToVec3(m_vCustomTangentOut);
   t = GetOwner()->GetLocalRotationSimd() * t;
   return t;
 }
@@ -846,45 +846,45 @@ ezSimdVec4f ezSplineNodeComponent::GetFinalCustomTangentOut() const
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezPathComponentPatch_1_2 : public ezGraphPatch
+class WPathComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezPathComponentPatch_1_2()
-    : ezGraphPatch("ezPathComponent", 2)
+  WPathComponentPatch_1_2()
+    : WGraphPatch("WPathComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezSplineComponent");
+    ref_context.RenameClass("WSplineComponent");
 
     auto* pFlags = pNode->FindProperty("Flags");
-    if (pFlags && pFlags->m_Value.IsA<ezString>())
+    if (pFlags && pFlags->m_Value.IsA<WString>())
     {
-      ezStringBuilder sFlags = pFlags->m_Value.Get<ezString>();
+      WStringBuilder sFlags = pFlags->m_Value.Get<WString>();
       sFlags.ReplaceAll("Path", "Spline");
       pNode->ChangeProperty("Flags", sFlags.GetView());
     }
   }
 };
 
-ezPathComponentPatch_1_2 g_ezPathComponentPatch_1_2;
+WPathComponentPatch_1_2 g_WPathComponentPatch_1_2;
 
-class ezPathNodeComponentPatch_1_2 : public ezGraphPatch
+class WPathNodeComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezPathNodeComponentPatch_1_2()
-    : ezGraphPatch("ezPathNodeComponent", 2)
+  WPathNodeComponentPatch_1_2()
+    : WGraphPatch("WPathNodeComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezSplineNodeComponent");
+    ref_context.RenameClass("WSplineNodeComponent");
   }
 };
 
-ezPathNodeComponentPatch_1_2 g_ezPathNodeComponentPatch_1_2;
+WPathNodeComponentPatch_1_2 g_WPathNodeComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SplineComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SplineComponent);

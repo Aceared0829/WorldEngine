@@ -13,43 +13,43 @@
 
 /// This class allows to hook into the OS top-level exception handler to handle application crashes
 ///
-/// Derive from this class to implement custom behavior. Call ezCrashHandler::SetCrashHandler() to
+/// Derive from this class to implement custom behavior. Call WCrashHandler::SetCrashHandler() to
 /// register which instance to use.
 ///
-/// For typical use-cases use ezCrashHandler_WriteMiniDump::g_Instance.
-class EZ_FOUNDATION_DLL ezCrashHandler
+/// For typical use-cases use WCrashHandler_WriteMiniDump::g_Instance.
+class W_FOUNDATION_DLL WCrashHandler
 {
 public:
-  ezCrashHandler();
-  virtual ~ezCrashHandler();
+  WCrashHandler();
+  virtual ~WCrashHandler();
 
-  static void SetCrashHandler(ezCrashHandler* pHandler);
-  static ezCrashHandler* GetCrashHandler();
+  static void SetCrashHandler(WCrashHandler* pHandler);
+  static WCrashHandler* GetCrashHandler();
 
   virtual void HandleCrash(void* pOsSpecificData) = 0;
 
 private:
-  static ezCrashHandler* s_pActiveHandler;
+  static WCrashHandler* s_pActiveHandler;
 };
 
-/// A default implementation of ezCrashHandler that tries to write a mini-dump and prints the callstack.
+/// A default implementation of WCrashHandler that tries to write a mini-dump and prints the callstack.
 ///
-/// To use it, call ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
+/// To use it, call WCrashHandler::SetCrashHandler(&WCrashHandler_WriteMiniDump::g_Instance);
 /// Do not forget to also specify the dump-file path, otherwise writing dump-files is skipped.
-class EZ_FOUNDATION_DLL ezCrashHandler_WriteMiniDump : public ezCrashHandler
+class W_FOUNDATION_DLL WCrashHandler_WriteMiniDump : public WCrashHandler
 {
 public:
-  static ezCrashHandler_WriteMiniDump g_Instance;
+  static WCrashHandler_WriteMiniDump g_Instance;
 
   struct PathFlags
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
-      AppendDate = EZ_BIT(0),      ///< Whether to append the current date to the crash-dump file (YYYY-MM-DD_HH-MM-SS)
-      AppendSubFolder = EZ_BIT(1), ///< Whether to append "CrashDump" as a sub-folder
-      AppendPID = EZ_BIT(2),       ///< Whether to append the process ID to the crash-dump file
+      AppendDate = W_BIT(0),      ///< Whether to append the current date to the crash-dump file (YYYY-MM-DD_HH-MM-SS)
+      AppendSubFolder = W_BIT(1), ///< Whether to append "CrashDump" as a sub-folder
+      AppendPID = W_BIT(2),       ///< Whether to append the process ID to the crash-dump file
 
       Default = AppendDate | AppendSubFolder | AppendPID
     };
@@ -63,16 +63,16 @@ public:
   };
 
 public:
-  ezCrashHandler_WriteMiniDump();
+  WCrashHandler_WriteMiniDump();
 
   /// Sets the raw path for the dump-file to write
-  void SetFullDumpFilePath(ezStringView sFullAbsDumpFilePath);
+  void SetFullDumpFilePath(WStringView sFullAbsDumpFilePath);
 
   /// Sets the dump-file path to "{szAbsDirectoryPath}/{szAppName}_{cur-date}.tmp"
-  void SetDumpFilePath(ezStringView sAbsDirectoryPath, ezStringView sAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
+  void SetDumpFilePath(WStringView sAbsDirectoryPath, WStringView sAppName, WBitflags<PathFlags> flags = PathFlags::Default);
 
-  /// Sets the dump-file path to "{ezOSFile::GetApplicationDirectory()}/{szAppName}_{cur-date}.tmp"
-  void SetDumpFilePath(ezStringView sAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
+  /// Sets the dump-file path to "{WOSFile::GetApplicationDirectory()}/{szAppName}_{cur-date}.tmp"
+  void SetDumpFilePath(WStringView sAppName, WBitflags<PathFlags> flags = PathFlags::Default);
 
   virtual void HandleCrash(void* pOsSpecificData) override;
 
@@ -80,7 +80,7 @@ protected:
   virtual bool WriteOwnProcessMiniDump(void* pOsSpecificData);
   virtual void PrintStackTrace(void* pOsSpecificData);
 
-  ezString m_sDumpFilePath;
+  WString m_sDumpFilePath;
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezCrashHandler_WriteMiniDump::PathFlags);
+W_DECLARE_FLAGS_OPERATORS(WCrashHandler_WriteMiniDump::PathFlags);

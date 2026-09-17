@@ -6,21 +6,21 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-using ezThreadHandle = pthread_t;
-using ezThreadID = pthread_t;
-using ezMutexHandle = pthread_mutex_t;
-using ezOSThreadEntryPoint = void* (*)(void* pThreadParameter);
+using WThreadHandle = pthread_t;
+using WThreadID = pthread_t;
+using WMutexHandle = pthread_mutex_t;
+using WOSThreadEntryPoint = void* (*)(void* pThreadParameter);
 
-struct ezSemaphoreHandle
+struct WSemaphoreHandle
 {
   sem_t* m_pNamedOrUnnamed = nullptr;
   sem_t* m_pNamed = nullptr;
   sem_t m_Unnamed;
 };
 
-#define EZ_THREAD_CLASS_ENTRY_POINT void* ezThreadClassEntryPoint(void* pThreadParameter);
+#define W_THREAD_CLASS_ENTRY_POINT void* WThreadClassEntryPoint(void* pThreadParameter);
 
-struct ezConditionVariableData
+struct WConditionVariableData
 {
   pthread_cond_t m_ConditionVariable;
 };

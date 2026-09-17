@@ -4,21 +4,21 @@
 #include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-class EZ_ENGINEPLUGINASSETS_DLL ezDecalContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WDecalContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WDecalContext, WEngineProcessDocumentContext);
 
 public:
-  ezDecalContext();
+  WDecalContext();
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
 
 private:
-  ezMeshResourceHandle m_hPreviewMeshResource;
+  WMeshResourceHandle m_hPreviewMeshResource;
 
-  // ezDecalResourceHandle m_hDecal;
+  // WDecalResourceHandle m_hDecal;
 };

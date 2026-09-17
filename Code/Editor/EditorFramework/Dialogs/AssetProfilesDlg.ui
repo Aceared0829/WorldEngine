@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ezQtAssetProfilesDlg</class>
- <widget class="QDialog" name="ezQtAssetProfilesDlg">
+ <class>WQtAssetProfilesDlg</class>
+ <widget class="QDialog" name="WQtAssetProfilesDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -26,7 +26,7 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="ezQtDocumentTreeView" name="Tree"/>
+        <widget class="WQtDocumentTreeView" name="Tree"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -106,7 +106,7 @@
      <widget class="QWidget" name="layoutWidget1">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="ezQtPropertyGridWidget" name="Properties" native="true"/>
+        <widget class="WQtPropertyGridWidget" name="Properties" native="true"/>
        </item>
       </layout>
      </widget>
@@ -153,13 +153,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtPropertyGridWidget</class>
+   <class>WQtPropertyGridWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtDocumentTreeView</class>
+   <class>WQtDocumentTreeView</class>
    <extends>QTreeView</extends>
    <header location="global">EditorFramework/GUI/RawDocumentTreeWidget.moc.h</header>
   </customwidget>

@@ -6,9 +6,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 
-ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
+WQtPluginsWidget* WQtPluginsWidget::s_pWidget = nullptr;
 
-ezQtPluginsWidget::ezQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtPluginsWidget::WQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Plugins Widget", pParent)
 {
   s_pWidget = this;
@@ -21,26 +21,26 @@ ezQtPluginsWidget::ezQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* p
   ResetStats();
 }
 
-void ezQtPluginsWidget::ResetStats()
+void WQtPluginsWidget::ResetStats()
 {
   m_bUpdatePlugins = true;
   m_Plugins.Clear();
 }
 
 
-void ezQtPluginsWidget::UpdateStats()
+void WQtPluginsWidget::UpdateStats()
 {
   UpdatePlugins();
 }
 
-void ezQtPluginsWidget::UpdatePlugins()
+void WQtPluginsWidget::UpdatePlugins()
 {
   if (!m_bUpdatePlugins)
     return;
 
   m_bUpdatePlugins = false;
 
-  ezQtScopedUpdatesDisabled _1(TablePlugins);
+  WQtScopedUpdatesDisabled _1(TablePlugins);
 
   TablePlugins->clear();
 
@@ -57,13 +57,13 @@ void ezQtPluginsWidget::UpdatePlugins()
   TablePlugins->setHorizontalHeaderLabels(Headers);
 
   {
-    ezStringBuilder sTemp;
-    ezInt32 iRow = 0;
+    WStringBuilder sTemp;
+    WInt32 iRow = 0;
 
-    for (ezMap<ezString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
+    for (WMap<WString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pIcon = new QLabel();
-      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/Plugin.svg");
+      QIcon icon = WQtUiServices::GetCachedIconResource(":/Icons/Icons/Plugin.svg");
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
@@ -87,14 +87,14 @@ void ezQtPluginsWidget::UpdatePlugins()
   TablePlugins->resizeColumnsToContents();
 }
 
-void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
+void WQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('PLUG', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('PLUG', Msg) == W_SUCCESS)
   {
     switch (Msg.GetMessageID())
     {
@@ -107,7 +107,7 @@ void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
 
       case 'DATA':
       {
-        ezString sName;
+        WString sName;
 
         Msg.GetReader() >> sName;
 

@@ -4,50 +4,50 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <JoltPlugin/Declarations.h>
 
-using ezJoltSettingsComponentManager = ezSettingsComponentManager<class ezJoltSettingsComponent>;
+using WJoltSettingsComponentManager = WSettingsComponentManager<class WJoltSettingsComponent>;
 
-class EZ_JOLTPLUGIN_DLL ezJoltSettingsComponent : public ezSettingsComponent
+class W_JOLTPLUGIN_DLL WJoltSettingsComponent : public WSettingsComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltSettingsComponent, ezSettingsComponent, ezJoltSettingsComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltSettingsComponent, WSettingsComponent, WJoltSettingsComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltSettingsComponent
+  // WJoltSettingsComponent
 
 public:
-  ezJoltSettingsComponent();
-  ~ezJoltSettingsComponent();
+  WJoltSettingsComponent();
+  ~WJoltSettingsComponent();
 
-  const ezJoltSettings& GetSettings() const { return m_Settings; }
+  const WJoltSettings& GetSettings() const { return m_Settings; }
 
-  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; }           // [ property ]
-  void SetObjectGravity(const ezVec3& v);                                                  // [ property ]
+  const WVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; }           // [ property ]
+  void SetObjectGravity(const WVec3& v);                                                  // [ property ]
 
-  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }     // [ property ]
-  void SetCharacterGravity(const ezVec3& v);                                               // [ property ]
+  const WVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }     // [ property ]
+  void SetCharacterGravity(const WVec3& v);                                               // [ property ]
 
-  ezJoltSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }   // [ property ]
-  void SetSteppingMode(ezJoltSteppingMode::Enum mode);                                     // [ property ]
+  WJoltSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }   // [ property ]
+  void SetSteppingMode(WJoltSteppingMode::Enum mode);                                     // [ property ]
 
   float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; }                 // [ property ]
   void SetFixedFrameRate(float fFixedFrameRate);                                           // [ property ]
 
-  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; }                   // [ property ]
-  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);                                             // [ property ]
+  WUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; }                   // [ property ]
+  void SetMaxSubSteps(WUInt32 uiMaxSubSteps);                                             // [ property ]
 
-  ezUInt32 GetMaxBodies() const { return m_Settings.m_uiMaxBodies; }                       // [ property ]
-  void SetMaxBodies(ezUInt32 uiMaxBodies);                                                 // [ property ]
+  WUInt32 GetMaxBodies() const { return m_Settings.m_uiMaxBodies; }                       // [ property ]
+  void SetMaxBodies(WUInt32 uiMaxBodies);                                                 // [ property ]
 
   float GetSleepVelocityThreshold() const { return m_Settings.m_fSleepVelocityThreshold; } // [ property ]
   void SetSleepVelocityThreshold(float fSleepVelocityThreshold);                           // [ property ]
 
 protected:
-  ezJoltSettings m_Settings;
+  WJoltSettings m_Settings;
 };

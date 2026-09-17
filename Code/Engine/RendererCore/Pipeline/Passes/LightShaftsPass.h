@@ -6,54 +6,54 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezClusteredDataCPU;
+class WClusteredDataCPU;
 
 /// Screen-space light shafts (crepuscular rays) post-processing pass.
 ///
 /// Generates volumetric light shaft effects from the brightest directional light by
 /// building a mask from the depth buffer and applying a radial blur toward
 /// the projected light position. The result is additively composited into the scene color.
-class EZ_RENDERERCORE_DLL ezLightShaftsPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WLightShaftsPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLightShaftsPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WLightShaftsPass, WRenderPipelinePass);
 
 public:
-  ezLightShaftsPass();
-  ~ezLightShaftsPass();
+  WLightShaftsPass();
+  ~WLightShaftsPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  void SetDownsampleFactor(ezUInt32 uiFactor);                          // [ property ]
-  ezUInt32 GetDownsampleFactor() const { return m_uiDownsampleFactor; } // [ property ]
+  void SetDownsampleFactor(WUInt32 uiFactor);                          // [ property ]
+  WUInt32 GetDownsampleFactor() const { return m_uiDownsampleFactor; } // [ property ]
 
-  void SetNumBlurPasses(ezUInt32 uiPasses);                             // [ property ]
-  ezUInt32 GetNumBlurPasses() const { return m_uiNumBlurPasses; }       // [ property ]
+  void SetNumBlurPasses(WUInt32 uiPasses);                             // [ property ]
+  WUInt32 GetNumBlurPasses() const { return m_uiNumBlurPasses; }       // [ property ]
 
-  void SetNumSamples(ezUInt32 uiSamples);                               // [ property ]
-  ezUInt32 GetNumSamples() const { return m_uiNumSamples; }             // [ property ]
+  void SetNumSamples(WUInt32 uiSamples);                               // [ property ]
+  WUInt32 GetNumSamples() const { return m_uiNumSamples; }             // [ property ]
 
   void SetMaxBlurDistance(float fDistance);                             // [ property ]
   float GetMaxBlurDistance() const { return m_fMaxBlurDistance; }       // [ property ]
 
 protected:
-  ezVec4 CalculateOriginUVs(const ezVec3& vLightDirection, const ezViewData& viewData, const ezCamera& camera) const;
-  void UpdateConstantBuffer(const ezClusteredDataCPU& clusteredData, const ezVec2& vLightOriginUVs, float fBlurStep);
+  WVec4 CalculateOriginUVs(const WVec3& vLightDirection, const WViewData& viewData, const WCamera& camera) const;
+  void UpdateConstantBuffer(const WClusteredDataCPU& clusteredData, const WVec2& vLightOriginUVs, float fBlurStep);
 
-  ezRenderPipelineNodePassThroughPin m_PinColor;
-  ezRenderPipelineNodeInputPin m_PinDepthInput;
+  WRenderPipelineNodePassThroughPin m_PinColor;
+  WRenderPipelineNodeInputPin m_PinDepthInput;
 
-  ezConstantBufferStorageHandle m_hConstantBuffer;
-  ezShaderResourceHandle m_hMaskShader;
-  ezShaderResourceHandle m_hRadialBlurShader;
-  ezShaderResourceHandle m_hApplyShader;
+  WConstantBufferStorageHandle m_hConstantBuffer;
+  WShaderResourceHandle m_hMaskShader;
+  WShaderResourceHandle m_hRadialBlurShader;
+  WShaderResourceHandle m_hApplyShader;
 
-  ezEnum<ezGALResourceFormat> m_TextureFormat;
+  WEnum<WGALResourceFormat> m_TextureFormat;
 
   // Properties
-  ezUInt8 m_uiDownsampleFactor = 3;
-  ezUInt8 m_uiNumBlurPasses = 3;
-  ezUInt8 m_uiNumSamples = 12;
+  WUInt8 m_uiDownsampleFactor = 3;
+  WUInt8 m_uiNumBlurPasses = 3;
+  WUInt8 m_uiNumSamples = 12;
   float m_fMaxBlurDistance = 1.0f;
 };

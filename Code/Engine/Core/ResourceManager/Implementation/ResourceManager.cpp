@@ -23,11 +23,11 @@
 /// Resource Loader
 ///   Requires No File Access -> on non-File Thread
 
-ezUniquePtr<ezResourceManagerState> ezResourceManager::s_pState;
-ezMutex ezResourceManager::s_ResourceMutex;
+WUniquePtr<WResourceManagerState> WResourceManager::s_pState;
+WMutex WResourceManager::s_ResourceMutex;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation"
@@ -35,12 +35,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::OnCoreStartup();
+    WResourceManager::OnCoreStartup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::OnCoreShutdown();
+    WResourceManager::OnCoreShutdown();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -49,28 +49,28 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezResourceManager::OnEngineShutdown();
+    WResourceManager::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
+WResourceTypeLoader* WResourceManager::GetResourceTypeLoader(const WRTTI* pRTTI)
 {
   return s_pState->m_ResourceTypeLoader[pRTTI];
 }
 
-ezMap<const ezRTTI*, ezResourceTypeLoader*>& ezResourceManager::GetResourceTypeLoaders()
+WMap<const WRTTI*, WResourceTypeLoader*>& WResourceManager::GetResourceTypeLoaders()
 {
   return s_pState->m_ResourceTypeLoader;
 }
 
-void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
+void WResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  EZ_ASSERT_DEV(cb.IsComparable(), "Delegates with captures are not allowed");
+  W_ASSERT_DEV(cb.IsComparable(), "Delegates with captures are not allowed");
 
-  for (ezUInt32 i = 0; i < s_pState->m_ResourceCleanupCallbacks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_ResourceCleanupCallbacks.GetCount(); ++i)
   {
     if (s_pState->m_ResourceCleanupCallbacks[i].IsEqualIfComparable(cb))
       return;
@@ -79,9 +79,9 @@ void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
   s_pState->m_ResourceCleanupCallbacks.PushBack(cb);
 }
 
-void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
+void WResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  for (ezUInt32 i = 0; i < s_pState->m_ResourceCleanupCallbacks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_ResourceCleanupCallbacks.GetCount(); ++i)
   {
     if (s_pState->m_ResourceCleanupCallbacks[i].IsEqualIfComparable(cb))
     {
@@ -91,7 +91,7 @@ void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
   }
 }
 
-void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
+void WResourceManager::ExecuteAllResourceCleanupCallbacks()
 {
   if (s_pState == nullptr)
   {
@@ -99,7 +99,7 @@ void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
     return;
   }
 
-  ezDynamicArray<ResourceCleanupCB> callbacks = s_pState->m_ResourceCleanupCallbacks;
+  WDynamicArray<ResourceCleanupCB> callbacks = s_pState->m_ResourceCleanupCallbacks;
   s_pState->m_ResourceCleanupCallbacks.Clear();
 
   for (auto& cb : callbacks)
@@ -107,17 +107,17 @@ void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
     cb();
   }
 
-  EZ_ASSERT_DEV(s_pState->m_ResourceCleanupCallbacks.IsEmpty(), "During resource cleanup, new resource cleanup callbacks were registered.");
+  W_ASSERT_DEV(s_pState->m_ResourceCleanupCallbacks.IsEmpty(), "During resource cleanup, new resource cleanup callbacks were registered.");
 }
 
-ezMap<const ezRTTI*, ezResourcePriority>& ezResourceManager::GetResourceTypePriorities()
+WMap<const WRTTI*, WResourcePriority>& WResourceManager::GetResourceTypePriorities()
 {
   return s_pState->m_ResourceTypePriorities;
 }
 
-void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
+void WResourceManager::BroadcastResourceEvent(const WResourceEvent& e)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
   // broadcast it through the resource to everyone directly interested in that specific resource
   e.m_pResource->m_ResourceEvents.Broadcast(e);
@@ -126,32 +126,32 @@ void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
   s_pState->m_ResourceEvents.Broadcast(e);
 }
 
-void ezResourceManager::RegisterResourceForAssetType(ezStringView sAssetTypeName, const ezRTTI* pResourceType)
+void WResourceManager::RegisterResourceForAssetType(WStringView sAssetTypeName, const WRTTI* pResourceType)
 {
-  ezStringBuilder s = sAssetTypeName;
+  WStringBuilder s = sAssetTypeName;
   s.ToLower();
 
   s_pState->m_AssetToResourceType[s] = pResourceType;
 }
 
-const ezRTTI* ezResourceManager::FindResourceForAssetType(ezStringView sAssetTypeName)
+const WRTTI* WResourceManager::FindResourceForAssetType(WStringView sAssetTypeName)
 {
-  ezStringBuilder s = sAssetTypeName;
+  WStringBuilder s = sAssetTypeName;
   s.ToLower();
 
   return s_pState->m_AssetToResourceType.GetValueOrDefault(s, nullptr);
 }
 
-void ezResourceManager::ForceNoFallbackAcquisition(ezUInt32 uiNumFrames /*= 0xFFFFFFFF*/)
+void WResourceManager::ForceNoFallbackAcquisition(WUInt32 uiNumFrames /*= 0xFFFFFFFF*/)
 {
-  s_pState->m_uiForceNoFallbackAcquisition = ezMath::Max(s_pState->m_uiForceNoFallbackAcquisition, uiNumFrames);
+  s_pState->m_uiForceNoFallbackAcquisition = WMath::Max(s_pState->m_uiForceNoFallbackAcquisition, uiNumFrames);
 }
 
-ezUInt32 ezResourceManager::FreeAllUnusedResources()
+WUInt32 WResourceManager::FreeAllUnusedResources()
 {
-  EZ_LOG_BLOCK("ezResourceManager::FreeAllUnusedResources");
+  W_LOG_BLOCK("WResourceManager::FreeAllUnusedResources");
 
-  EZ_PROFILE_SCOPE("FreeAllUnusedResources");
+  W_PROFILE_SCOPE("FreeAllUnusedResources");
 
   if (s_pState == nullptr)
   {
@@ -161,14 +161,14 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
   const bool bFreeAllUnused = true;
 
-  ezUInt32 uiUnloaded = 0;
+  WUInt32 uiUnloaded = 0;
   bool bUnloadedAny = false;
   bool bAnyFailed = false;
 
   do
   {
     {
-      EZ_LOCK(s_ResourceMutex);
+      W_LOCK(s_ResourceMutex);
 
       bUnloadedAny = false;
 
@@ -178,7 +178,7 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
         for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)
         {
-          ezResource* pReference = it.Value();
+          WResource* pReference = it.Value();
 
           if (pReference->m_iReferenceCount == 0)
           {
@@ -210,8 +210,8 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
       bAnyFailed = false;
 
-      ezInt32 iHelpExecTasksRounds = 1;
-      ezTaskSystem::WaitForCondition([&iHelpExecTasksRounds]()
+      WInt32 iHelpExecTasksRounds = 1;
+      WTaskSystem::WaitForCondition([&iHelpExecTasksRounds]()
         { return iHelpExecTasksRounds-- <= 0; });
     }
 
@@ -220,14 +220,14 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
   return uiUnloaded;
 }
 
-ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcquireThreshold)
+WUInt32 WResourceManager::FreeUnusedResources(WTime timeout, WTime lastAcquireThreshold)
 {
   if (timeout.IsZeroOrNegative())
     return 0;
 
-  EZ_LOCK(s_ResourceMutex);
-  EZ_LOG_BLOCK("ezResourceManager::FreeUnusedResources");
-  EZ_PROFILE_SCOPE("FreeUnusedResources");
+  W_LOCK(s_ResourceMutex);
+  W_LOG_BLOCK("WResourceManager::FreeUnusedResources");
+  W_PROFILE_SCOPE("FreeUnusedResources");
 
   auto itResourceType = s_pState->m_LoadedResources.Find(s_pState->m_pFreeUnusedLastType);
   if (!itResourceType.IsValid())
@@ -244,16 +244,16 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
     itResourceID = itResourceType.Value().m_Resources.GetIterator();
   }
 
-  const ezTime tStart = ezTime::Now();
+  const WTime tStart = WTime::Now();
 
-  ezUInt32 uiDeallocatedCount = 0;
+  WUInt32 uiDeallocatedCount = 0;
 
-  ezStringBuilder sResourceName;
+  WStringBuilder sResourceName;
 
-  const ezRTTI* pLastTypeCheck = nullptr;
+  const WRTTI* pLastTypeCheck = nullptr;
 
   // stop once we wasted enough time
-  while (ezTime::Now() - tStart < timeout)
+  while (WTime::Now() - tStart < timeout)
   {
     if (!itResourceID.IsValid())
     {
@@ -266,7 +266,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
         // if we reached the end, reset everything and stop
 
         s_pState->m_pFreeUnusedLastType = nullptr;
-        s_pState->m_sFreeUnusedLastResourceID = ezTempHashedString();
+        s_pState->m_sFreeUnusedLastResourceID = WTempHashedString();
         return uiDeallocatedCount;
       }
 
@@ -290,17 +290,17 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
       }
     }
 
-    ezResource* pResource = itResourceID.Value();
+    WResource* pResource = itResourceID.Value();
 
     if ((pResource->GetReferenceCount() == 0) && (tStart - pResource->GetLastAcquireTime() > lastAcquireThreshold))
     {
       sResourceName = pResource->GetResourceID();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       // A zero acquire timestamp means the resource was created (a handle was made for it) but never
       // acquired even once, so 'lastAcquireThreshold' could not protect it - it becomes eligible for
       // freeing on the very next sweep. Harmless once, but a caller that does this in an update loop
-      // (typically: ezResourceManager::LoadResource into a *local* handle that is dropped again, on a
+      // (typically: WResourceManager::LoadResource into a *local* handle that is dropped again, on a
       // code path that then doesn't use it) recreates and frees the resource forever. Warn about that,
       // but only from the second time on, so that a one-off create-and-discard stays quiet.
       const bool bNeverAcquired = pResource->GetLastAcquireTime().IsZero();
@@ -308,17 +308,17 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
 
       if (DeallocateResource(pResource).Succeeded())
       {
-        ezLog::Debug("Freed '{}'", ezArgSensitive(sResourceName, "ResourceID"));
+        WLog::Debug("Freed '{}'", WArgSensitive(sResourceName, "ResourceID"));
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
         if (bNeverAcquired)
         {
-          ezUInt8& uiState = s_pState->m_NeverAcquiredResources[ezTempHashedString(sResourceName.GetView())];
+          WUInt8& uiState = s_pState->m_NeverAcquiredResources[WTempHashedString(sResourceName.GetView())];
           uiState = uiState + 1; // allow wrap around -> repeated warnings
 
           if (uiState == 5)
           {
-            ezLog::Warning("Resource '{}' is repeatedly created and freed without ever being acquired. Keep the resource handle around instead of recreating it, otherwise it is reloaded from scratch every time.", ezArgSensitive(sResourceName, "ResourceID"));
+            WLog::Warning("Resource '{}' is repeatedly created and freed without ever being acquired. Keep the resource handle around instead of recreating it, otherwise it is reloaded from scratch every time.", WArgSensitive(sResourceName, "ResourceID"));
           }
         }
 #endif
@@ -335,27 +335,27 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
   return uiDeallocatedCount;
 }
 
-void ezResourceManager::SetAutoFreeUnused(ezTime timeout, ezTime lastAcquireThreshold)
+void WResourceManager::SetAutoFreeUnused(WTime timeout, WTime lastAcquireThreshold)
 {
   s_pState->m_AutoFreeUnusedTimeout = timeout;
   s_pState->m_AutoFreeUnusedThreshold = lastAcquireThreshold;
 }
 
-void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+void WResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const WRTTI* pTypeBeingUpdated, const WRTTI* pTypeItWantsToAcquire)
 {
   auto& info = s_pState->m_TypeInfo[pTypeBeingUpdated];
 
-  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
+  W_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
 
-  if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == ezInvalidIndex)
+  if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == WInvalidIndex)
   {
     info.m_NestedTypes.PushBack(pTypeItWantsToAcquire);
   }
 }
 
-bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+bool WResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const WRTTI* pTypeBeingUpdated, const WRTTI* pTypeItWantsToAcquire)
 {
-  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "");
+  W_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "");
 
   auto& info = s_pState->m_TypeInfo[pTypeBeingUpdated];
 
@@ -363,20 +363,20 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
   {
     info.m_bAllowNestedAcquireCached = true;
 
-    ezSet<const ezRTTI*> visited;
-    ezSet<const ezRTTI*> todo;
-    ezSet<const ezRTTI*> deps;
+    WSet<const WRTTI*> visited;
+    WSet<const WRTTI*> todo;
+    WSet<const WRTTI*> deps;
 
-    for (const ezRTTI* pRtti : info.m_NestedTypes)
+    for (const WRTTI* pRtti : info.m_NestedTypes)
     {
-      ezRTTI::ForEachDerivedType(pRtti, [&](const ezRTTI* pDerived)
+      WRTTI::ForEachDerivedType(pRtti, [&](const WRTTI* pDerived)
         { todo.Insert(pDerived); });
     }
 
     while (!todo.IsEmpty())
     {
       auto it = todo.GetIterator();
-      const ezRTTI* pRtti = it.Key();
+      const WRTTI* pRtti = it.Key();
       todo.Remove(it);
 
       if (visited.Contains(pRtti))
@@ -385,93 +385,93 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
       visited.Insert(pRtti);
       deps.Insert(pRtti);
 
-      for (const ezRTTI* pNestedRtti : s_pState->m_TypeInfo[pRtti].m_NestedTypes)
+      for (const WRTTI* pNestedRtti : s_pState->m_TypeInfo[pRtti].m_NestedTypes)
       {
         if (!visited.Contains(pNestedRtti))
         {
-          ezRTTI::ForEachDerivedType(pNestedRtti, [&](const ezRTTI* pDerived)
+          WRTTI::ForEachDerivedType(pNestedRtti, [&](const WRTTI* pDerived)
             { todo.Insert(pDerived); });
         }
       }
     }
 
     info.m_NestedTypes.Clear();
-    for (const ezRTTI* pRtti : deps)
+    for (const WRTTI* pRtti : deps)
     {
       info.m_NestedTypes.PushBack(pRtti);
     }
     info.m_NestedTypes.Sort();
   }
 
-  return info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) != ezInvalidIndex;
+  return info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) != WInvalidIndex;
 }
 
-ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
+WResult WResourceManager::DeallocateResource(WResource* pResource)
 {
-  // EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
+  // W_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
     // cannot deallocate resources that are currently queued for loading,
     // especially when they are already picked up by a task
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
+  pResource->CallUnloadData(WResource::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEBUG(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
+  W_ASSERT_DEBUG(pResource->GetLoadingState() <= WResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
 
   // broadcast that we are going to delete the resource
   {
-    ezResourceEvent e;
+    WResourceEvent e;
     e.m_pResource = pResource;
-    e.m_Type = ezResourceEvent::Type::ResourceDeleted;
-    ezResourceManager::BroadcastResourceEvent(e);
+    e.m_Type = WResourceEvent::Type::ResourceDeleted;
+    WResourceManager::BroadcastResourceEvent(e);
   }
 
-  EZ_ASSERT_DEV(pResource->GetReferenceCount() == 0, "The resource '{}' ({}) is being deallocated, you just stored a handle to it, which won't work! If you are listening to ezResourceEvent::Type::ResourceContentUnloading then additionally listen to ezResourceEvent::Type::ResourceDeleted to clean up handles to dead resources.", pResource->GetResourceID(), pResource->GetResourceDescription());
+  W_ASSERT_DEV(pResource->GetReferenceCount() == 0, "The resource '{}' ({}) is being deallocated, you just stored a handle to it, which won't work! If you are listening to WResourceEvent::Type::ResourceContentUnloading then additionally listen to WResourceEvent::Type::ResourceDeleted to clean up handles to dead resources.", pResource->GetResourceID(), pResource->GetResourceDescription());
 
   // delete the resource via the RTTI provided allocator
   pResource->GetDynamicRTTI()->GetAllocator()->Deallocate(pResource);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // To allow triggering this event without a link dependency
 // Used by Fileserve, to trigger this event, even though Fileserve should not have a link dependency on Core
-EZ_ON_GLOBAL_EVENT(ezResourceManager_ReloadAllResources)
+W_ON_GLOBAL_EVENT(WResourceManager_ReloadAllResources)
 {
-  EZ_IGNORE_UNUSED(param0);
-  EZ_IGNORE_UNUSED(param1);
-  EZ_IGNORE_UNUSED(param2);
-  EZ_IGNORE_UNUSED(param3);
+  W_IGNORE_UNUSED(param0);
+  W_IGNORE_UNUSED(param1);
+  W_IGNORE_UNUSED(param2);
+  W_IGNORE_UNUSED(param3);
 
-  ezResourceManager::ReloadAllResources(false);
+  WResourceManager::ReloadAllResources(false);
 }
-void ezResourceManager::ResetAllResources()
+void WResourceManager::ResetAllResources()
 {
-  EZ_LOCK(s_ResourceMutex);
-  EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
+  W_LOCK(s_ResourceMutex);
+  W_LOG_BLOCK("WResourceManager::ReloadAllResources");
 
   for (auto itType = s_pState->m_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
     for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
     {
-      ezResource* pResource = it.Value();
+      WResource* pResource = it.Value();
       pResource->ResetResource();
     }
   }
 }
 
-void ezResourceManager::PerFrameUpdate()
+void WResourceManager::PerFrameUpdate()
 {
-  EZ_PROFILE_SCOPE("ezResourceManagerUpdate");
+  W_PROFILE_SCOPE("WResourceManagerUpdate");
 
-  s_pState->m_LastFrameUpdate = ezClock::GetGlobalClock()->GetLastUpdateTime();
+  s_pState->m_LastFrameUpdate = WClock::GetGlobalClock()->GetLastUpdateTime();
 
   if (s_pState->m_bBroadcastExistsEvent)
   {
-    EZ_LOCK(s_ResourceMutex);
+    W_LOCK(s_ResourceMutex);
 
     s_pState->m_bBroadcastExistsEvent = false;
 
@@ -479,17 +479,17 @@ void ezResourceManager::PerFrameUpdate()
     {
       for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
       {
-        ezResourceEvent e;
-        e.m_Type = ezResourceEvent::Type::ResourceExists;
+        WResourceEvent e;
+        e.m_Type = WResourceEvent::Type::ResourceExists;
         e.m_pResource = it.Value();
 
-        ezResourceManager::BroadcastResourceEvent(e);
+        WResourceManager::BroadcastResourceEvent(e);
       }
     }
   }
 
   {
-    EZ_LOCK(s_ResourceMutex);
+    W_LOCK(s_ResourceMutex);
 
     for (auto it = s_pState->m_ResourcesToUnloadOnMainThread.GetIterator(); it.IsValid(); it.Next())
     {
@@ -501,19 +501,19 @@ void ezResourceManager::PerFrameUpdate()
       }
 
       // See, if the resource we want to unload still exists.
-      ezResource* resourceToUnload = nullptr;
+      WResource* resourceToUnload = nullptr;
 
       if (loadedResourcesForType.m_Resources.TryGetValue(it.Key(), resourceToUnload) == false)
       {
         continue;
       }
 
-      EZ_ASSERT_DEV(resourceToUnload != nullptr, "Found a resource above, should not be nullptr.");
+      W_ASSERT_DEV(resourceToUnload != nullptr, "Found a resource above, should not be nullptr.");
 
       // If the resource was still loaded, we are going to unload it now.
-      resourceToUnload->CallUnloadData(ezResource::Unload::AllQualityLevels);
+      resourceToUnload->CallUnloadData(WResource::Unload::AllQualityLevels);
 
-      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
+      W_ASSERT_DEV(resourceToUnload->GetLoadingState() <= WResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
     }
 
     s_pState->m_ResourcesToUnloadOnMainThread.Clear();
@@ -530,26 +530,26 @@ void ezResourceManager::PerFrameUpdate()
   }
 }
 
-const ezEvent<const ezResourceEvent&, ezMutex>& ezResourceManager::GetResourceEvents()
+const WEvent<const WResourceEvent&, WMutex>& WResourceManager::GetResourceEvents()
 {
   return s_pState->m_ResourceEvents;
 }
 
-const ezEvent<const ezResourceManagerEvent&, ezMutex>& ezResourceManager::GetManagerEvents()
+const WEvent<const WResourceManagerEvent&, WMutex>& WResourceManager::GetManagerEvents()
 {
   return s_pState->m_ManagerEvents;
 }
 
-void ezResourceManager::BroadcastExistsEvent()
+void WResourceManager::BroadcastExistsEvent()
 {
   s_pState->m_bBroadcastExistsEvent = true;
 }
 
-void ezResourceManager::PluginEventHandler(const ezPluginEvent& e)
+void WResourceManager::PluginEventHandler(const WPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPluginEvent::AfterStartupShutdown:
+    case WPluginEvent::AfterStartupShutdown:
     {
       // unload all resources until there are no more that can be unloaded
       // this is to prevent having resources allocated that came from a dynamic plugin
@@ -562,21 +562,21 @@ void ezResourceManager::PluginEventHandler(const ezPluginEvent& e)
   }
 }
 
-void ezResourceManager::OnCoreStartup()
+void WResourceManager::OnCoreStartup()
 {
-  s_pState = EZ_DEFAULT_NEW(ezResourceManagerState);
+  s_pState = W_DEFAULT_NEW(WResourceManagerState);
 
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
   s_pState->m_bAllowLaunchDataLoadTask = true;
   s_pState->m_bShutdown = false;
 
-  ezPlugin::Events().AddEventHandler(PluginEventHandler);
+  WPlugin::Events().AddEventHandler(PluginEventHandler);
 }
 
-void ezResourceManager::EngineAboutToShutdown()
+void WResourceManager::EngineAboutToShutdown()
 {
   {
-    EZ_LOCK(s_ResourceMutex);
+    W_LOCK(s_ResourceMutex);
 
     if (s_pState == nullptr)
     {
@@ -588,22 +588,22 @@ void ezResourceManager::EngineAboutToShutdown()
     s_pState->m_bShutdown = true;
   }
 
-  for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_pState->m_WorkerTasksDataLoad[i].m_pTask).IgnoreResult();
+    WTaskSystem::CancelTask(s_pState->m_WorkerTasksDataLoad[i].m_pTask).IgnoreResult();
   }
 
-  for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_pState->m_WorkerTasksUpdateContent[i].m_pTask).IgnoreResult();
+    WTaskSystem::CancelTask(s_pState->m_WorkerTasksUpdateContent[i].m_pTask).IgnoreResult();
   }
 
   {
-    EZ_LOCK(s_ResourceMutex);
+    W_LOCK(s_ResourceMutex);
 
     for (auto entry : s_pState->m_LoadingQueue)
     {
-      entry.m_pResource->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+      entry.m_pResource->m_Flags.Remove(WResourceFlags::IsQueuedForLoading);
     }
 
     s_pState->m_LoadingQueue.Clear();
@@ -616,27 +616,27 @@ void ezResourceManager::EngineAboutToShutdown()
     {
       for (auto itRes : itTypes.Value().m_Resources)
       {
-        ezResource* pRes = itRes.Value();
+        WResource* pRes = itRes.Value();
 
-        if (pRes->GetBaseResourceFlags().IsSet(ezResourceFlags::IsQueuedForLoading))
+        if (pRes->GetBaseResourceFlags().IsSet(WResourceFlags::IsQueuedForLoading))
         {
-          pRes->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+          pRes->m_Flags.Remove(WResourceFlags::IsQueuedForLoading);
         }
       }
     }
   }
 }
 
-bool ezResourceManager::IsAnyLoadingInProgress()
+bool WResourceManager::IsAnyLoadingInProgress()
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
   if (s_pState->m_LoadingQueue.GetCount() > 0)
   {
     return true;
   }
 
-  for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
   {
     if (!s_pState->m_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
     {
@@ -644,7 +644,7 @@ bool ezResourceManager::IsAnyLoadingInProgress()
     }
   }
 
-  for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
   {
     if (!s_pState->m_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
     {
@@ -654,15 +654,15 @@ bool ezResourceManager::IsAnyLoadingInProgress()
   return false;
 }
 
-void ezResourceManager::OnEngineShutdown()
+void WResourceManager::OnEngineShutdown()
 {
-  ezResourceManagerEvent e;
-  e.m_Type = ezResourceManagerEvent::Type::ManagerShuttingDown;
+  WResourceManagerEvent e;
+  e.m_Type = WResourceManagerEvent::Type::ManagerShuttingDown;
 
   // in case of a crash inside the event broadcast or ExecuteAllResourceCleanupCallbacks():
   // you might have a resource type added through a dynamic plugin that has already been unloaded,
   // but the event handler is still referenced
-  // to fix this, call ezResource::CleanupDynamicPluginReferences() on that resource type during engine shutdown (see ezStartup)
+  // to fix this, call WResource::CleanupDynamicPluginReferences() on that resource type during engine shutdown (see WStartup)
   s_pState->m_ManagerEvents.Broadcast(e);
 
   ExecuteAllResourceCleanupCallbacks();
@@ -673,64 +673,64 @@ void ezResourceManager::OnEngineShutdown()
   FreeAllUnusedResources();
 }
 
-void ezResourceManager::OnCoreShutdown()
+void WResourceManager::OnCoreShutdown()
 {
   OnEngineShutdown();
 
-  EZ_LOG_BLOCK("Referenced Resources");
+  W_LOG_BLOCK("Referenced Resources");
 
   for (auto itType = s_pState->m_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
-    const ezRTTI* pRtti = itType.Key();
+    const WRTTI* pRtti = itType.Key();
     LoadedResources& lr = itType.Value();
 
     if (!lr.m_Resources.IsEmpty())
     {
-      EZ_LOG_BLOCK("Type", pRtti->GetTypeName());
+      W_LOG_BLOCK("Type", pRtti->GetTypeName());
 
-      ezLog::Error("{0} resource of type '{1}' are still referenced.", lr.m_Resources.GetCount(), pRtti->GetTypeName());
+      WLog::Error("{0} resource of type '{1}' are still referenced.", lr.m_Resources.GetCount(), pRtti->GetTypeName());
 
       for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); ++it)
       {
-        ezResource* pReference = it.Value();
+        WResource* pReference = it.Value();
 
-        ezLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), ezArgSensitive(pReference->GetResourceID(), "ResourceID"));
+        WLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), WArgSensitive(pReference->GetResourceID(), "ResourceID"));
 
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
         pReference->PrintHandleStackTraces();
 #endif
       }
     }
   }
 
-  ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
+  WPlugin::Events().RemoveEventHandler(PluginEventHandler);
 
   s_pState.Clear();
 }
 
-ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sResourceID, bool bIsReloadable)
+WResource* WResourceManager::GetResource(const WRTTI* pRtti, WStringView sResourceID, bool bIsReloadable)
 {
   if (sResourceID.IsEmpty())
     return nullptr;
 
-  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Calling code must lock the mutex until the resource pointer is stored in a handle");
+  W_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Calling code must lock the mutex until the resource pointer is stored in a handle");
 
   // redirect requested type to override type, if available
   pRtti = FindResourceTypeOverride(pRtti, sResourceID);
 
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
+  W_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", W_PP_STRINGIFY(ResourceType));
 
-  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+  if (pRtti->GetTypeFlags().IsSet(WTypeFlags::Abstract))
   {
     // this can happen for assets that use a resource type override (such as scripts) shortly after they have been created
     return nullptr;
   }
 
-  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
+  W_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", W_PP_STRINGIFY(ResourceType));
 
-  ezTempHashedString sHashedResourceID(sResourceID);
+  WTempHashedString sHashedResourceID(sResourceID);
 
-  ezHashedString* redirection;
+  WHashedString* redirection;
   if (s_pState->m_NamedResources.TryGetValue(sHashedResourceID, redirection))
   {
     sHashedResourceID = *redirection;
@@ -739,22 +739,22 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
 
   LoadedResources& lr = s_pState->m_LoadedResources[pRtti];
 
-  ezResource*& pResource = lr.m_Resources[sHashedResourceID];
+  WResource*& pResource = lr.m_Resources[sHashedResourceID];
   if (pResource != nullptr)
     return pResource;
 
-  pResource = pRtti->GetAllocator()->Allocate<ezResource>();
-  pResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
+  pResource = pRtti->GetAllocator()->Allocate<WResource>();
+  pResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, WResourcePriority::Medium);
   pResource->SetUniqueID(sResourceID, bIsReloadable);
-  pResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pResource->HasResourceTypeLoadingFallback());
+  pResource->m_Flags.AddOrRemove(WResourceFlags::ResourceHasTypeFallback, pResource->HasResourceTypeLoadingFallback());
 
   return pResource;
 }
 
-void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> overrideDecider)
+void WResourceManager::RegisterResourceOverrideType(const WRTTI* pDerivedTypeToUse, WDelegate<bool(const WStringBuilder&)> overrideDecider)
 {
-  const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
-  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
+  const WRTTI* pParentType = pDerivedTypeToUse->GetParentType();
+  while (pParentType != nullptr && pParentType != WGetStaticRTTI<WResource>())
   {
     auto& info = s_pState->m_DerivedTypeInfos[pParentType].ExpandAndGetRef();
     info.m_pDerivedType = pDerivedTypeToUse;
@@ -764,10 +764,10 @@ void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeT
   }
 }
 
-void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse)
+void WResourceManager::UnregisterResourceOverrideType(const WRTTI* pDerivedTypeToUse)
 {
-  const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
-  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
+  const WRTTI* pParentType = pDerivedTypeToUse->GetParentType();
+  while (pParentType != nullptr && pParentType != WGetStaticRTTI<WResource>())
   {
     auto it = s_pState->m_DerivedTypeInfos.Find(pParentType);
     pParentType = pParentType->GetParentType();
@@ -777,7 +777,7 @@ void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTyp
 
     auto& infos = it.Value();
 
-    for (ezUInt32 i = infos.GetCount(); i > 0; --i)
+    for (WUInt32 i = infos.GetCount(); i > 0; --i)
     {
       if (infos[i - 1].m_pDerivedType == pDerivedTypeToUse)
         infos.RemoveAtAndSwap(i - 1);
@@ -785,15 +785,15 @@ void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTyp
   }
 }
 
-const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, ezStringView sResourceID)
+const WRTTI* WResourceManager::FindResourceTypeOverride(const WRTTI* pRtti, WStringView sResourceID)
 {
   auto it = s_pState->m_DerivedTypeInfos.Find(pRtti);
 
   if (!it.IsValid())
     return pRtti;
 
-  ezStringBuilder sRedirectedPath;
-  ezFileSystem::ResolveAssetRedirection(sResourceID, sRedirectedPath);
+  WStringBuilder sRedirectedPath;
+  WFileSystem::ResolveAssetRedirection(sResourceID, sRedirectedPath);
 
   while (it.IsValid())
   {
@@ -813,95 +813,95 @@ const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, e
   return pRtti;
 }
 
-ezString ezResourceManager::GenerateUniqueResourceID(ezStringView sResourceIDPrefix)
+WString WResourceManager::GenerateUniqueResourceID(WStringView sResourceIDPrefix)
 {
-  ezStringBuilder resourceID;
+  WStringBuilder resourceID;
   resourceID.SetFormat("{}-{}", sResourceIDPrefix, s_pState->m_uiNextResourceID++);
   return resourceID;
 }
 
-ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID)
+WTypelessResourceHandle WResourceManager::GetExistingResourceByType(const WRTTI* pResourceType, WStringView sResourceID)
 {
-  ezResource* pResource = nullptr;
+  WResource* pResource = nullptr;
 
-  const ezTempHashedString sResourceHash(sResourceID);
+  const WTempHashedString sResourceHash(sResourceID);
 
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  const ezRTTI* pRtti = FindResourceTypeOverride(pResourceType, sResourceID);
+  const WRTTI* pRtti = FindResourceTypeOverride(pResourceType, sResourceID);
 
   if (s_pState->m_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
-    return ezTypelessResourceHandle(pResource);
+    return WTypelessResourceHandle(pResource);
 
-  return ezTypelessResourceHandle();
+  return WTypelessResourceHandle();
 }
 
-ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
+WTypelessResourceHandle WResourceManager::GetExistingResourceOrCreateAsync(const WRTTI* pResourceType, WStringView sResourceID, WUniquePtr<WResourceTypeLoader>&& pLoader)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  ezTypelessResourceHandle hResource = GetExistingResourceByType(pResourceType, sResourceID);
+  WTypelessResourceHandle hResource = GetExistingResourceByType(pResourceType, sResourceID);
 
   if (hResource.IsValid())
     return hResource;
 
   hResource = GetResource(pResourceType, sResourceID, false);
-  ezResource* pResource = hResource.m_pResource;
+  WResource* pResource = hResource.m_pResource;
 
-  pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader | ezResourceFlags::IsCreatedResource);
+  pResource->m_Flags.Add(WResourceFlags::HasCustomDataLoader | WResourceFlags::IsCreatedResource);
   s_pState->m_CustomLoaders[pResource] = std::move(pLoader);
 
   return hResource;
 }
 
-void ezResourceManager::ForceLoadResourceNow(const ezTypelessResourceHandle& hResource)
+void WResourceManager::ForceLoadResourceNow(const WTypelessResourceHandle& hResource)
 {
-  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
+  W_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
 
-  ezResource* pResource = hResource.m_pResource;
+  WResource* pResource = hResource.m_pResource;
 
-  if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing && pResource->GetLoadingState() != ezResourceState::Loaded)
+  if (pResource->GetLoadingState() != WResourceState::LoadedResourceMissing && pResource->GetLoadingState() != WResourceState::Loaded)
   {
     InternalPreloadResource(pResource, true);
 
-    EnsureResourceLoadingState(hResource.m_pResource, ezResourceState::Loaded);
+    EnsureResourceLoadingState(hResource.m_pResource, WResourceState::Loaded);
   }
 }
 
-void ezResourceManager::RegisterNamedResource(ezStringView sLookupName, ezStringView sRedirectionResource)
+void WResourceManager::RegisterNamedResource(WStringView sLookupName, WStringView sRedirectionResource)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  ezTempHashedString lookup(sLookupName);
+  WTempHashedString lookup(sLookupName);
 
-  ezHashedString redirection;
+  WHashedString redirection;
   redirection.Assign(sRedirectionResource);
 
   s_pState->m_NamedResources[lookup] = redirection;
 }
 
-void ezResourceManager::UnregisterNamedResource(ezStringView sLookupName)
+void WResourceManager::UnregisterNamedResource(WStringView sLookupName)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  ezTempHashedString hash(sLookupName);
+  WTempHashedString hash(sLookupName);
   s_pState->m_NamedResources.Remove(hash);
 }
 
-void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream)
+void WResourceManager::SetResourceLowResData(const WTypelessResourceHandle& hResource, WStreamReader* pStream)
 {
-  ezResource* pResource = hResource.m_pResource;
+  WResource* pResource = hResource.m_pResource;
 
-  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::HasLowResData))
+  if (pResource->GetBaseResourceFlags().IsSet(WResourceFlags::HasLowResData))
     return;
 
-  if (!pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsReloadable))
+  if (!pResource->GetBaseResourceFlags().IsSet(WResourceFlags::IsReloadable))
     return;
 
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
   // set this, even if we don't end up using the data (because some thread is already loading the full thing)
-  pResource->m_Flags.Add(ezResourceFlags::HasLowResData);
+  pResource->m_Flags.Add(WResourceFlags::HasLowResData);
 
   if (IsQueuedForLoading(pResource))
   {
@@ -913,81 +913,81 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
 
   pResource->CallUpdateContent(pStream);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "The resource should have changed its loading state.");
+  W_ASSERT_DEV(pResource->GetLoadingState() != WResourceState::Unloaded, "The resource should have changed its loading state.");
 
   // Update Memory Usage
   {
-    ezResource::MemoryUsage MemUsage;
+    WResource::MemoryUsage MemUsage;
     MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     pResource->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
+    W_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
+    W_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
 
     pResource->m_MemoryUsage = MemUsage;
   }
 }
 
-ezResourceTypeLoader* ezResourceManager::GetDefaultResourceLoader()
+WResourceTypeLoader* WResourceManager::GetDefaultResourceLoader()
 {
   return s_pState->m_pDefaultResourceLoader;
 }
 
-void ezResourceManager::EnableExportMode(bool bEnable)
+void WResourceManager::EnableExportMode(bool bEnable)
 {
-  EZ_ASSERT_DEV(s_pState != nullptr, "ezStartup::StartupCoreSystems() must be called before using the ezResourceManager.");
+  W_ASSERT_DEV(s_pState != nullptr, "WStartup::StartupCoreSystems() must be called before using the WResourceManager.");
 
   s_pState->m_bExportMode = bEnable;
 }
 
-bool ezResourceManager::IsExportModeEnabled()
+bool WResourceManager::IsExportModeEnabled()
 {
-  EZ_ASSERT_DEV(s_pState != nullptr, "ezStartup::StartupCoreSystems() must be called before using the ezResourceManager.");
+  W_ASSERT_DEV(s_pState != nullptr, "WStartup::StartupCoreSystems() must be called before using the WResourceManager.");
 
   return s_pState->m_bExportMode;
 }
 
-void ezResourceManager::RestoreResource(const ezTypelessResourceHandle& hResource)
+void WResourceManager::RestoreResource(const WTypelessResourceHandle& hResource)
 {
-  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
+  W_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
 
-  ezResource* pResource = hResource.m_pResource;
-  pResource->m_Flags.Remove(ezResourceFlags::PreventFileReload);
+  WResource* pResource = hResource.m_pResource;
+  pResource->m_Flags.Remove(WResourceFlags::PreventFileReload);
 
   ReloadResource(pResource, true);
 }
 
-ezUInt32 ezResourceManager::GetForceNoFallbackAcquisition()
+WUInt32 WResourceManager::GetForceNoFallbackAcquisition()
 {
   return s_pState->m_uiForceNoFallbackAcquisition;
 }
 
-ezTime ezResourceManager::GetLastFrameUpdate()
+WTime WResourceManager::GetLastFrameUpdate()
 {
   return s_pState->m_LastFrameUpdate;
 }
 
-ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources>& ezResourceManager::GetLoadedResources()
+WHashTable<const WRTTI*, WResourceManager::LoadedResources>& WResourceManager::GetLoadedResources()
 {
   return s_pState->m_LoadedResources;
 }
 
-ezDynamicArray<ezResource*>& ezResourceManager::GetLoadedResourceOfTypeTempContainer()
+WDynamicArray<WResource*>& WResourceManager::GetLoadedResourceOfTypeTempContainer()
 {
   return s_pState->m_LoadedResourceOfTypeTempContainer;
 }
 
-void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)
+void WResourceManager::SetDefaultResourceLoader(WResourceTypeLoader* pDefaultLoader)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
   s_pState->m_pDefaultResourceLoader = pDefaultLoader;
 }
 
-ezResourceManager::ResourceTypeInfo& ezResourceManager::GetResourceTypeInfo(const ezRTTI* pRtti)
+WResourceManager::ResourceTypeInfo& WResourceManager::GetResourceTypeInfo(const WRTTI* pRtti)
 {
   return s_pState->m_TypeInfo[pRtti];
 }
 
-EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
+W_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);

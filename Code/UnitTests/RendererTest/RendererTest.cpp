@@ -7,22 +7,22 @@
 
 #include <RendererTest/Advanced/OffscreenRenderer.h>
 
-EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("RendererTest", "Renderer Tests")
+W_TESTFRAMEWORK_ENTRY_POINT_BEGIN("RendererTest", "Renderer Tests")
 {
-  ezTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
+  WTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
 
-  ezCommandLineUtils cmd;
-  cmd.SetCommandLine(argc, (const char**)argv, ezCommandLineUtils::PreferOsArgs);
+  WCommandLineUtils cmd;
+  cmd.SetCommandLine(argc, (const char**)argv, WCommandLineUtils::PreferOsArgs);
 
   if (cmd.GetBoolOption("-offscreen"))
   {
-    ezOffscreenRendererTest offScreenTest;
+    WOffscreenRendererTest offScreenTest;
     offScreenTest.SetCommandLineArguments(argc, (const char**)argv);
-    ezRun(&offScreenTest); // Life cycle & run method calling
+    WRun(&offScreenTest); // Life cycle & run method calling
     const int iReturnCode = offScreenTest.GetReturnCode();
     // shutdown with exit code
-    ezTestSetup::DeInitTestFramework(true);
+    WTestSetup::DeInitTestFramework(true);
     return iReturnCode;
   }
 }
-EZ_TESTFRAMEWORK_ENTRY_POINT_END()
+W_TESTFRAMEWORK_ENTRY_POINT_END()

@@ -3,64 +3,64 @@
 #include <Foundation/Time/Timestamp.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTimestamp, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTimestamp, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("time", m_iTimestamp),
+    W_MEMBER_PROPERTY("time", m_iTimestamp),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
+WInt64 WTimestamp::GetInt64(WSIUnitOfTime::Enum unitOfTime) const
 {
-  EZ_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
+  W_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");
+  W_ASSERT_DEV(unitOfTime >= WSIUnitOfTime::Nanosecond && unitOfTime <= WSIUnitOfTime::Second, "Invalid WSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
-    case ezSIUnitOfTime::Nanosecond:
+    case WSIUnitOfTime::Nanosecond:
       return m_iTimestamp * 1000LL;
-    case ezSIUnitOfTime::Microsecond:
+    case WSIUnitOfTime::Microsecond:
       return m_iTimestamp;
-    case ezSIUnitOfTime::Millisecond:
+    case WSIUnitOfTime::Millisecond:
       return m_iTimestamp / 1000LL;
-    case ezSIUnitOfTime::Second:
+    case WSIUnitOfTime::Second:
       return m_iTimestamp / 1000000LL;
   }
-  return EZ_INVALID_TIME_STAMP;
+  return W_INVALID_TIME_STAMP;
 }
 
-ezTimestamp ezTimestamp::MakeFromInt(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
+WTimestamp WTimestamp::MakeFromInt(WInt64 iTimeValue, WSIUnitOfTime::Enum unitOfTime)
 {
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
+  W_ASSERT_DEV(unitOfTime >= WSIUnitOfTime::Nanosecond && unitOfTime <= WSIUnitOfTime::Second, "Invalid WSIUnitOfTime value ({0})", unitOfTime);
 
-  ezTimestamp ts;
+  WTimestamp ts;
 
   switch (unitOfTime)
   {
-    case ezSIUnitOfTime::Nanosecond:
+    case WSIUnitOfTime::Nanosecond:
       ts.m_iTimestamp = iTimeValue / 1000LL;
       break;
-    case ezSIUnitOfTime::Microsecond:
+    case WSIUnitOfTime::Microsecond:
       ts.m_iTimestamp = iTimeValue;
       break;
-    case ezSIUnitOfTime::Millisecond:
+    case WSIUnitOfTime::Millisecond:
       ts.m_iTimestamp = iTimeValue * 1000LL;
       break;
-    case ezSIUnitOfTime::Second:
+    case WSIUnitOfTime::Second:
       ts.m_iTimestamp = iTimeValue * 1000000LL;
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return ts;
 }
 
-bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
+bool WTimestamp::Compare(const WTimestamp& rhs, CompareMode::Enum mode) const
 {
   switch (mode)
   {
@@ -76,21 +76,21 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
       return (m_iTimestamp / 1000000LL) > (rhs.m_iTimestamp / 1000000LL);
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
 
-ezDateTime::ezDateTime() = default;
-ezDateTime::~ezDateTime() = default;
+WDateTime::WDateTime() = default;
+WDateTime::~WDateTime() = default;
 
-ezDateTime ezDateTime::MakeFromTimestamp(ezTimestamp timestamp)
+WDateTime WDateTime::MakeFromTimestamp(WTimestamp timestamp)
 {
-  ezDateTime res;
+  WDateTime res;
   res.SetFromTimestamp(timestamp).AssertSuccess("Invalid timestamp");
   return res;
 }
 
-bool ezDateTime::IsValid() const
+bool WDateTime::IsValid() const
 {
   if (m_uiMonth <= 0 || m_uiMonth > 12)
     return false;
@@ -113,9 +113,9 @@ bool ezDateTime::IsValid() const
   return true;
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WDateTime& arg)
 {
-  ezStringUtils::snprintf(szTmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
+  WStringUtils::snprintf(szTmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
     arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
 
   return szTmp;
@@ -126,7 +126,7 @@ namespace
   // This implementation chooses a 3-character-long short name for each of the twelve months
   // for consistency reasons. Mind, that other, potentially more widely-spread stylist
   // alternatives may exist.
-  const char* GetMonthShortName(const ezDateTime& dateTime)
+  const char* GetMonthShortName(const WDateTime& dateTime)
   {
     switch (dateTime.GetMonth())
     {
@@ -155,7 +155,7 @@ namespace
       case 12:
         return "Dec";
       default:
-        EZ_ASSERT_DEV(false, "Unknown month.");
+        W_ASSERT_DEV(false, "Unknown month.");
         return "Unknown Month";
     }
   }
@@ -163,7 +163,7 @@ namespace
   // This implementation chooses a 3-character-long short name for each of the seven days
   // of the week for consistency reasons. Mind, that other, potentially more widely-spread
   // stylistic alternatives may exist.
-  const char* GetDayOfWeekShortName(const ezDateTime& dateTime)
+  const char* GetDayOfWeekShortName(const WDateTime& dateTime)
   {
     switch (dateTime.GetDayOfWeek())
     {
@@ -182,33 +182,33 @@ namespace
       case 6:
         return "Sat";
       default:
-        EZ_ASSERT_DEV(false, "Unknown day of week.");
+        W_ASSERT_DEV(false, "Unknown day of week.");
         return "Unknown Day of Week";
     }
   }
 } // namespace
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgDateTime& arg)
 {
-  const ezDateTime& dateTime = arg.m_Value;
+  const WDateTime& dateTime = arg.m_Value;
 
-  ezUInt32 offset = 0;
+  WUInt32 offset = 0;
 
-  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowDate) == ezArgDateTime::ShowDate)
+  if ((arg.m_uiFormattingFlags & WArgDateTime::ShowDate) == WArgDateTime::ShowDate)
   {
-    if ((arg.m_uiFormattingFlags & ezArgDateTime::TextualDate) == ezArgDateTime::TextualDate)
+    if ((arg.m_uiFormattingFlags & WArgDateTime::TextualDate) == WArgDateTime::TextualDate)
     {
-      offset += ezStringUtils::snprintf(
+      offset += WStringUtils::snprintf(
         szTmp + offset, uiLength - offset, "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
     }
     else
     {
       offset +=
-        ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
+        WStringUtils::snprintf(szTmp + offset, uiLength - offset, "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
     }
   }
 
-  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowWeekday) == ezArgDateTime::ShowWeekday)
+  if ((arg.m_uiFormattingFlags & WArgDateTime::ShowWeekday) == WArgDateTime::ShowWeekday)
   {
     // add a space
     if (offset != 0)
@@ -218,10 +218,10 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& ar
       szTmp[offset] = '\0';
     }
 
-    offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "(%s)", ::GetDayOfWeekShortName(dateTime));
+    offset += WStringUtils::snprintf(szTmp + offset, uiLength - offset, "(%s)", ::GetDayOfWeekShortName(dateTime));
   }
 
-  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTime) == ezArgDateTime::ShowTime)
+  if ((arg.m_uiFormattingFlags & WArgDateTime::ShowTime) == WArgDateTime::ShowTime)
   {
     // add a space
     if (offset != 0)
@@ -233,25 +233,25 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& ar
       offset += 3;
     }
 
-    offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
+    offset += WStringUtils::snprintf(szTmp + offset, uiLength - offset, "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
 
-    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowSeconds) == ezArgDateTime::ShowSeconds)
+    if ((arg.m_uiFormattingFlags & WArgDateTime::ShowSeconds) == WArgDateTime::ShowSeconds)
     {
-      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, ":%02u", dateTime.GetSecond());
+      offset += WStringUtils::snprintf(szTmp + offset, uiLength - offset, ":%02u", dateTime.GetSecond());
     }
 
-    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowMilliseconds) == ezArgDateTime::ShowMilliseconds)
+    if ((arg.m_uiFormattingFlags & WArgDateTime::ShowMilliseconds) == WArgDateTime::ShowMilliseconds)
     {
-      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, ".%03u", dateTime.GetMicroseconds() / 1000);
+      offset += WStringUtils::snprintf(szTmp + offset, uiLength - offset, ".%03u", dateTime.GetMicroseconds() / 1000);
     }
 
-    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTimeZone) == ezArgDateTime::ShowTimeZone)
+    if ((arg.m_uiFormattingFlags & WArgDateTime::ShowTimeZone) == WArgDateTime::ShowTimeZone)
     {
-      ezStringUtils::snprintf(szTmp + offset, uiLength - offset, " (UTC)");
+      WStringUtils::snprintf(szTmp + offset, uiLength - offset, " (UTC)");
     }
   }
 
   return szTmp;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Timestamp);
+W_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Timestamp);

@@ -10,17 +10,17 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
+WSelectionContext::WSelectionContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView, const WCamera* pCamera)
 {
   m_pCamera = pCamera;
 
   SetOwner(pOwnerWindow, pOwnerView);
 
-  m_hMarqueeGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::OnTop);
+  m_hMarqueeGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::LineBox, WColor::CadetBlue, WGizmoFlags::ShowInOrtho | WGizmoFlags::OnTop);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hMarqueeGizmo);
 }
 
-ezSelectionContext::~ezSelectionContext()
+WSelectionContext::~WSelectionContext()
 {
   // if anyone is registered for object picking, tell them that nothing was picked,
   // so that they reset their state
@@ -31,13 +31,13 @@ ezSelectionContext::~ezSelectionContext()
   }
 }
 
-void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride)
+void WSelectionContext::SetPickObjectOverride(WDelegate<void(const WDocumentObject*)> pickOverride)
 {
   m_PickObjectOverride = pickOverride;
   GetOwnerView()->setCursor(Qt::CrossCursor);
 }
 
-void ezSelectionContext::ResetPickObjectOverride()
+void WSelectionContext::ResetPickObjectOverride()
 {
   if (m_PickObjectOverride.IsValid())
   {
@@ -46,11 +46,11 @@ void ezSelectionContext::ResetPickObjectOverride()
   }
 }
 
-ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WSelectionContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+    const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {
@@ -58,10 +58,10 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
       if (pSO != nullptr)
       {
-        if (pSO->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
+        if (pSO->GetDynamicRTTI()->IsDerivedFrom<WGizmoHandle>())
         {
-          ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSO);
-          ezGizmo* pGizmo = pGizmoHandle->GetOwnerGizmo();
+          WGizmoHandle* pGizmoHandle = static_cast<WGizmoHandle*>(pSO);
+          WGizmo* pGizmo = pGizmoHandle->GetOwnerGizmo();
 
           if (pGizmo)
           {
@@ -84,24 +84,24 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       MakeActiveInputContext();
 
       if (m_Mode == Mode::MarqueeAdd)
-        m_hMarqueeGizmo.SetColor(ezColor::LightSkyBlue);
+        m_hMarqueeGizmo.SetColor(WColor::LightSkyBlue);
       else
-        m_hMarqueeGizmo.SetColor(ezColor::PaleVioletRed);
+        m_hMarqueeGizmo.SetColor(WColor::PaleVioletRed);
 
-      return ezEditorInput::WasExclusivelyHandled;
+      return WEditorInput::WasExclusivelyHandled;
     }
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     if (e->modifiers() & Qt::KeyboardModifier::ControlModifier)
     {
-      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+      const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
       OpenDocumentForPickedObject(res);
     }
@@ -111,7 +111,7 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
   {
     if (m_Mode == Mode::Single)
     {
-      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+      const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
       const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
       const bool bDirect = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
@@ -121,7 +121,7 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       // we handled the mouse click event
       // but this is it, we don't stay active
-      return ezEditorInput::WasExclusivelyHandled;
+      return WEditorInput::WasExclusivelyHandled;
     }
 
     if (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove)
@@ -131,26 +131,26 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
       const bool bPressedSpace = m_bPressedSpace;
       DoFocusLost(false);
       m_bPressedSpace = bPressedSpace;
-      return ezEditorInput::WasExclusivelyHandled;
+      return WEditorInput::WasExclusivelyHandled;
     }
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
 
-void ezSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult& res) const
+void WSelectionContext::OpenDocumentForPickedObject(const WObjectPickingResult& res) const
 {
   if (!res.m_PickedComponent.IsValid())
     return;
 
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
-  if (const ezDocumentObject* pPickedComponent = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent))
+  if (const WDocumentObject* pPickedComponent = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent))
   {
-    for (auto pDocMan : ezDocumentManager::GetAllDocumentManagers())
+    for (auto pDocMan : WDocumentManager::GetAllDocumentManagers())
     {
-      if (ezAssetDocumentManager* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocMan))
+      if (WAssetDocumentManager* pAssetMan = WDynamicCast<WAssetDocumentManager*>(pDocMan))
       {
         if (pAssetMan->OpenPickedDocument(pPickedComponent, res.m_uiPartIndex).Succeeded())
         {
@@ -162,23 +162,23 @@ void ezSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult
     // Fallback: iterate component properties and open the first asset-browser string property we find a value for.
     for (auto pProperty : pPickedComponent->GetTypeAccessor().GetType()->GetProperties())
     {
-      const ezRTTI* pType = pProperty->GetSpecificType();
+      const WRTTI* pType = pProperty->GetSpecificType();
 
-      if (pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr && (pType == ezGetStaticRTTI<const char*>() || pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezStringView>()))
+      if (pProperty->GetAttributeByType<WAssetBrowserAttribute>() != nullptr && (pType == WGetStaticRTTI<const char*>() || pType == WGetStaticRTTI<WString>() || pType == WGetStaticRTTI<WStringView>()))
       {
-        ezStringBuilder sValue;
+        WStringBuilder sValue;
 
-        if (pProperty->GetCategory() == ezPropertyCategory::Member)
+        if (pProperty->GetCategory() == WPropertyCategory::Member)
         {
-          sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+          sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<WString>();
         }
-        else if (pProperty->GetCategory() == ezPropertyCategory::Array)
+        else if (pProperty->GetCategory() == WPropertyCategory::Array)
         {
           if (pPickedComponent->GetTypeAccessor().GetCount(pProperty->GetPropertyName()) > 0)
-            sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<ezString>();
+            sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<WString>();
         }
 
-        if (!sValue.IsEmpty() && ezAssetDocumentManager::TryOpenAssetDocument(sValue).Succeeded())
+        if (!sValue.IsEmpty() && WAssetDocumentManager::TryOpenAssetDocument(sValue).Succeeded())
           return;
       }
     }
@@ -187,12 +187,12 @@ void ezSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult
   }
 }
 
-void ezSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const
+void WSelectionContext::SelectPickedObject(const WObjectPickingResult& res, bool bToggle, bool bDirect) const
 {
   if (res.m_PickedObject.IsValid())
   {
     auto* pDocument = GetOwnerWindow()->GetDocument();
-    const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+    const WDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
     if (!pObject)
       return;
 
@@ -210,61 +210,61 @@ void ezSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bo
   }
 }
 
-void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
+void WSelectionContext::SendMarqueeMsg(QMouseEvent* e, WUInt8 uiWhatToDo)
 {
   // Get devicePixelRatio from the owner view
   const qreal devicePixelRatio = GetOwnerView()->devicePixelRatioF();
 
-  ezVec2I32 curPos;
+  WVec2I32 curPos;
   curPos.Set(e->pos().x(), e->pos().y());
 
-  ezMat4 mView = m_pCamera->GetViewMatrix();
-  ezMat4 mProj;
+  WMat4 mView = m_pCamera->GetViewMatrix();
+  WMat4 mProj;
   m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
 
-  ezMat4 mViewProj = mProj * mView;
-  ezMat4 mInvViewProj = mViewProj;
+  WMat4 mViewProj = mProj * mView;
+  WMat4 mInvViewProj = mViewProj;
   if (mInvViewProj.Invert(0.0f).Failed())
   {
     // if this fails, the marquee will not be rendered correctly
-    EZ_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
+    W_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
   }
 
   // Multiply mouse positions by devicePixelRatio
-  const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
-  const ezVec3 vScreenSpacePos0(vMousePos.x, vMousePos.y, vMousePos.z);
-  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
+  const WVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
+  const WVec3 vScreenSpacePos0(vMousePos.x, vMousePos.y, vMousePos.z);
+  const WVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
 
-  ezVec3 vPosOnNearPlane0, vRayDir0;
-  ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
+  WVec3 vPosOnNearPlane0, vRayDir0;
+  WVec3 vPosOnNearPlane1, vRayDir1;
+  WGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
+  WGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
 
-  ezTransform t;
+  WTransform t;
   t.SetIdentity();
-  t.m_vPosition = ezMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
-  t.m_qRotation = ezQuat::MakeFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
+  t.m_vPosition = WMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
+  t.m_qRotation = WQuat::MakeFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
 
   // box coordinates in screen space
-  ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
-  ezVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
+  WVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
+  WVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
 
   t.m_qRotation = t.m_qRotation.GetInverse();
 
-  t.m_vScale.x = ezMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
-  t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
+  t.m_vScale.x = WMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
+  t.m_vScale.y = WMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
   t.m_vScale.z = 0.0f;
 
   m_hMarqueeGizmo.SetTransformation(t);
   m_hMarqueeGizmo.SetVisible(true);
 
   {
-    ezViewMarqueePickingMsgToEngine msg;
+    WViewMarqueePickingMsgToEngine msg;
     msg.m_uiViewID = GetOwnerView()->GetViewID();
-    msg.m_uiPickPosX0 = (ezUInt16)(m_vMarqueeStartPos.x * devicePixelRatio);
-    msg.m_uiPickPosY0 = (ezUInt16)(m_vMarqueeStartPos.y * devicePixelRatio);
-    msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x() * devicePixelRatio);
-    msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y() * devicePixelRatio);
+    msg.m_uiPickPosX0 = (WUInt16)(m_vMarqueeStartPos.x * devicePixelRatio);
+    msg.m_uiPickPosY0 = (WUInt16)(m_vMarqueeStartPos.y * devicePixelRatio);
+    msg.m_uiPickPosX1 = (WUInt16)(e->pos().x() * devicePixelRatio);
+    msg.m_uiPickPosY1 = (WUInt16)(e->pos().y() * devicePixelRatio);
     msg.m_uiWhatToDo = uiWhatToDo;
     msg.m_uiActionIdentifier = m_uiMarqueeID;
 
@@ -272,20 +272,20 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   }
 }
 
-ezEditorInput ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
+WEditorInput WSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext() && (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove))
   {
     SendMarqueeMsg(e, 0xFF);
 
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
   else
   {
-    ezViewHighlightMsgToEngine msg;
+    WViewHighlightMsgToEngine msg;
 
     {
-      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+      const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
       if (res.m_PickedComponent.IsValid())
         msg.m_HighlightObject = res.m_PickedComponent;
@@ -298,24 +298,24 @@ ezEditorInput ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
     GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
     // we only updated the highlight, so others may do additional stuff, if they like
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   }
 }
 
-ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
+WEditorInput WSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 {
   /// \todo Handle the current cursor (icon) across all active input contexts
 
   if (e->key() == Qt::Key_Space)
   {
     m_bPressedSpace = true;
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   }
 
   if (e->key() == Qt::Key_Delete)
   {
     GetOwnerWindow()->GetDocument()->DeleteSelectedObjects();
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
   if (e->key() == Qt::Key_Escape)
@@ -339,34 +339,34 @@ ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
       }
     }
 
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
+WEditorInput WSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Space)
   {
     m_bPressedSpace = false;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_pParentInSelection, const ezDocumentObject*& out_pParentChild, const ezDocumentObject* pRootObject)
+static const bool IsInSelection(const WDeque<const WDocumentObject*>& selection, const WDocumentObject* pObject, const WDocumentObject*& out_pParentInSelection, const WDocumentObject*& out_pParentChild, const WDocumentObject* pRootObject)
 {
   if (pObject == pRootObject)
     return false;
 
-  if (selection.IndexOf(pObject) != ezInvalidIndex)
+  if (selection.IndexOf(pObject) != WInvalidIndex)
   {
     out_pParentInSelection = pObject;
     return true;
   }
 
-  const ezDocumentObject* pParent = pObject->GetParent();
+  const WDocumentObject* pParent = pObject->GetParent();
 
   if (IsInSelection(selection, pParent, out_pParentInSelection, out_pParentChild, pRootObject))
   {
@@ -379,16 +379,16 @@ static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selectio
   return false;
 }
 
-static const ezDocumentObject* GetPrefabParentOrSelf(const ezDocumentObject* pObject)
+static const WDocumentObject* GetPrefabParentOrSelf(const WDocumentObject* pObject)
 {
-  const ezDocumentObject* pParent = pObject;
-  const ezDocument* pDocument = pObject->GetDocumentObjectManager()->GetDocument();
+  const WDocumentObject* pParent = pObject;
+  const WDocument* pDocument = pObject->GetDocumentObjectManager()->GetDocument();
   const auto& metaData = *pDocument->m_DocumentObjectMetaData;
 
   while (pParent != nullptr)
   {
     {
-      const ezDocumentObjectMetaData* pMeta = metaData.BeginReadMetaData(pParent->GetGuid());
+      const WDocumentObjectMetaData* pMeta = metaData.BeginReadMetaData(pParent->GetGuid());
       bool bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
       metaData.EndReadMetaData();
 
@@ -401,15 +401,15 @@ static const ezDocumentObject* GetPrefabParentOrSelf(const ezDocumentObject* pOb
   return pObject;
 }
 
-const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const
+const WDocumentObject* WSelectionContext::determineObjectToSelect(const WDocumentObject* pickedObject, bool bToggle, bool bDirect) const
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
-  const ezDeque<const ezDocumentObject*> sel = pDocument->GetSelectionManager()->GetSelection();
+  const WDeque<const WDocumentObject*> sel = pDocument->GetSelectionManager()->GetSelection();
 
-  const ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject();
+  const WDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject();
 
-  const ezDocumentObject* pParentInSelection = nullptr;
-  const ezDocumentObject* pParentChild = nullptr;
+  const WDocumentObject* pParentInSelection = nullptr;
+  const WDocumentObject* pParentChild = nullptr;
 
   if (!IsInSelection(sel, pickedObject, pParentInSelection, pParentChild, pRootObject))
   {
@@ -451,9 +451,9 @@ const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocu
   }
 }
 
-void ezSelectionContext::DoFocusLost(bool bCancel)
+void WSelectionContext::DoFocusLost(bool bCancel)
 {
-  ezEditorInputContext::DoFocusLost(bCancel);
+  WEditorInputContext::DoFocusLost(bCancel);
 
   m_bPressedSpace = false;
   m_Mode = Mode::None;

@@ -22,20 +22,20 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneContext, 1, WRTTIDefaultAllocator<WSceneContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Scene;Prefab;PropertyAnim"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Scene;Prefab;PropertyAnim"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezWorld* ezSceneContext::s_pWorldLinkedWithGameState = nullptr;
+WWorld* WSceneContext::s_pWorldLinkedWithGameState = nullptr;
 
-void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
+void WSceneContext::ComputeHierarchyBounds(WGameObject* pObj, WBoundingBoxSphere& bounds)
 {
   pObj->UpdateGlobalTransformAndBounds();
   const auto& b = pObj->GetGlobalBounds();
@@ -49,18 +49,18 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
   }
 }
 
-void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
+void WSceneContext::DrawSelectionBounds(const WViewHandle& hView)
 {
   if (!m_bRenderSelectionBoxes)
     return;
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
   for (const auto& obj : m_Selection)
   {
-    ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+    WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
-    ezGameObject* pObj;
+    WGameObject* pObj;
     if (!m_pWorld->TryGetObject(obj, pObj))
       continue;
 
@@ -68,19 +68,19 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
     if (bounds.IsValid())
     {
-      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColorScheme::LightUI(ezColorScheme::Yellow));
+      WDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, WColorScheme::LightUI(WColorScheme::Yellow));
     }
   }
 }
 
-void ezSceneContext::UpdateInvisibleLayerTags()
+void WSceneContext::UpdateInvisibleLayerTags()
 {
   if (m_bInvisibleLayersDirty)
   {
     m_bInvisibleLayersDirty = false;
 
-    ezMap<ezUuid, ezUInt32> layerGuidToIndex;
-    for (ezUInt32 i = 0; i < m_Layers.GetCount(); i++)
+    WMap<WUuid, WUInt32> layerGuidToIndex;
+    for (WUInt32 i = 0; i < m_Layers.GetCount(); i++)
     {
       if (m_Layers[i] != nullptr)
       {
@@ -88,11 +88,11 @@ void ezSceneContext::UpdateInvisibleLayerTags()
       }
     }
 
-    ezTempHybridArray<ezTag, 1> newInvisibleLayerTags;
+    WTempHybridArray<WTag, 1> newInvisibleLayerTags;
     newInvisibleLayerTags.Reserve(m_InvisibleLayers.GetCount());
-    for (const ezUuid& guid : m_InvisibleLayers)
+    for (const WUuid& guid : m_InvisibleLayers)
     {
-      ezUInt32 uiLayerID = 0;
+      WUInt32 uiLayerID = 0;
       if (layerGuidToIndex.TryGetValue(guid, uiLayerID))
       {
         newInvisibleLayerTags.PushBack(m_Layers[uiLayerID]->GetLayerTag());
@@ -103,19 +103,19 @@ void ezSceneContext::UpdateInvisibleLayerTags()
       }
     }
 
-    for (ezEngineProcessViewContext* pView : m_ViewContexts)
+    for (WEngineProcessViewContext* pView : m_ViewContexts)
     {
       if (pView)
       {
-        static_cast<ezSceneViewContext*>(pView)->SetInvisibleLayerTags(m_InvisibleLayerTags.GetArrayPtr(), newInvisibleLayerTags.GetArrayPtr());
+        static_cast<WSceneViewContext*>(pView)->SetInvisibleLayerTags(m_InvisibleLayerTags.GetArrayPtr(), newInvisibleLayerTags.GetArrayPtr());
       }
     }
     m_InvisibleLayerTags.Swap(newInvisibleLayerTags);
   }
 }
 
-ezSceneContext::ezSceneContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WSceneContext::WSceneContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_bRenderSelectionOverlay = true;
   m_bRenderSelectionBoxes = true;
@@ -124,125 +124,125 @@ ezSceneContext::ezSceneContext()
   m_GridTransform.SetIdentity();
   m_pWorld = nullptr;
 
-  ezResourceManager::GetManagerEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
+  WResourceManager::GetManagerEvents().AddEventHandler(WMakeDelegate(&WSceneContext::OnResourceManagerEvent, this));
+  WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(WMakeDelegate(&WSceneContext::GameApplicationEventHandler, this));
 }
 
-ezSceneContext::~ezSceneContext()
+WSceneContext::~WSceneContext()
 {
-  ezResourceManager::GetManagerEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
+  WResourceManager::GetManagerEvents().RemoveEventHandler(WMakeDelegate(&WSceneContext::OnResourceManagerEvent, this));
+  WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(WMakeDelegate(&WSceneContext::GameApplicationEventHandler, this));
 }
 
-void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WSceneContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezWorldSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WWorldSettingsMsgToEngine>())
   {
     // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
-    HandleWorldSettingsMsg(static_cast<const ezWorldSettingsMsgToEngine*>(pMsg));
+    HandleWorldSettingsMsg(static_cast<const WWorldSettingsMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSimulationSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WSimulationSettingsMsgToEngine>())
   {
-    HandleSimulationSettingsMsg(static_cast<const ezSimulationSettingsMsgToEngine*>(pMsg));
+    HandleSimulationSettingsMsg(static_cast<const WSimulationSettingsMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGridSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WGridSettingsMsgToEngine>())
   {
-    HandleGridSettingsMsg(static_cast<const ezGridSettingsMsgToEngine*>(pMsg));
+    HandleGridSettingsMsg(static_cast<const WGridSettingsMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectsForDebugVisMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WObjectsForDebugVisMsgToEngine>())
   {
-    HandleObjectsForDebugVisMsg(static_cast<const ezObjectsForDebugVisMsgToEngine*>(pMsg));
+    HandleObjectsForDebugVisMsg(static_cast<const WObjectsForDebugVisMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WGameModeMsgToEngine>())
   {
-    HandleGameModeMsg(static_cast<const ezGameModeMsgToEngine*>(pMsg));
+    HandleGameModeMsg(static_cast<const WGameModeMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectSelectionMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WObjectSelectionMsgToEngine>())
   {
-    HandleSelectionMsg(static_cast<const ezObjectSelectionMsgToEngine*>(pMsg));
+    HandleSelectionMsg(static_cast<const WObjectSelectionMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxMsgToEngine>())
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExposedDocumentObjectPropertiesMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WExposedDocumentObjectPropertiesMsgToEngine>())
   {
-    HandleExposedPropertiesMsg(static_cast<const ezExposedDocumentObjectPropertiesMsgToEngine*>(pMsg));
+    HandleExposedPropertiesMsg(static_cast<const WExposedDocumentObjectPropertiesMsgToEngine*>(pMsg));
     return;
   }
 
-  if (const ezExportSceneGeometryMsgToEngine* msg = ezDynamicCast<const ezExportSceneGeometryMsgToEngine*>(pMsg))
+  if (const WExportSceneGeometryMsgToEngine* msg = WDynamicCast<const WExportSceneGeometryMsgToEngine*>(pMsg))
   {
     HandleSceneGeometryMsg(msg);
     return;
   }
 
-  if (const ezPullObjectStateMsgToEngine* msg = ezDynamicCast<const ezPullObjectStateMsgToEngine*>(pMsg))
+  if (const WPullObjectStateMsgToEngine* msg = WDynamicCast<const WPullObjectStateMsgToEngine*>(pMsg))
   {
     HandlePullObjectStateMsg(msg);
     return;
   }
 
-  if (const ezSyncChildOrderMsgToEngine* msg = ezDynamicCast<const ezSyncChildOrderMsgToEngine*>(pMsg))
+  if (const WSyncChildOrderMsgToEngine* msg = WDynamicCast<const WSyncChildOrderMsgToEngine*>(pMsg))
   {
     HandleSyncChildOrderMsg(msg);
     return;
   }
 
-  if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
+  if (pMsg->IsInstanceOf<WViewRedrawMsgToEngine>())
   {
-    HandleViewRedrawMsg(static_cast<const ezViewRedrawMsgToEngine*>(pMsg));
+    HandleViewRedrawMsg(static_cast<const WViewRedrawMsgToEngine*>(pMsg));
     // fall through
   }
 
-  if (pMsg->IsInstanceOf<ezActiveLayerChangedMsgToEngine>())
+  if (pMsg->IsInstanceOf<WActiveLayerChangedMsgToEngine>())
   {
-    HandleActiveLayerChangedMsg(static_cast<const ezActiveLayerChangedMsgToEngine*>(pMsg));
+    HandleActiveLayerChangedMsg(static_cast<const WActiveLayerChangedMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->IsInstanceOf<ezObjectTagMsgToEngine>())
+  if (pMsg->IsInstanceOf<WObjectTagMsgToEngine>())
   {
-    HandleTagMsgToEngineMsg(static_cast<const ezObjectTagMsgToEngine*>(pMsg));
+    HandleTagMsgToEngineMsg(static_cast<const WObjectTagMsgToEngine*>(pMsg));
     return;
   }
 
-  if (pMsg->IsInstanceOf<ezLayerVisibilityChangedMsgToEngine>())
+  if (pMsg->IsInstanceOf<WLayerVisibilityChangedMsgToEngine>())
   {
-    HandleLayerVisibilityChangedMsgToEngineMsg(static_cast<const ezLayerVisibilityChangedMsgToEngine*>(pMsg));
+    HandleLayerVisibilityChangedMsgToEngineMsg(static_cast<const WLayerVisibilityChangedMsgToEngine*>(pMsg));
     return;
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
 
-  if (pMsg->IsInstanceOf<ezEntityMsgToEngine>())
+  if (pMsg->IsInstanceOf<WEntityMsgToEngine>())
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
-    AddLayerIndexTag(*static_cast<const ezEntityMsgToEngine*>(pMsg), m_Context, m_LayerTag);
+    W_LOCK(m_pWorld->GetWriteMarker());
+    AddLayerIndexTag(*static_cast<const WEntityMsgToEngine*>(pMsg), m_Context, m_LayerTag);
   }
 }
 
-void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
+void WSceneContext::HandleViewRedrawMsg(const WViewRedrawMsgToEngine* pMsg)
 {
   if (m_bUpdateAllLocalBounds)
   {
     m_bUpdateAllLocalBounds = false;
 
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
     {
@@ -258,16 +258,16 @@ void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
   UpdateInvisibleLayerTags();
 }
 
-void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine* pMsg)
+void WSceneContext::AnswerObjectStatePullRequest(const WViewRedrawMsgToEngine* pMsg)
 {
   if (m_pWorld->GetWorldSimulationEnabled() || m_PushObjectStateMsg.m_ObjectStates.IsEmpty())
     return;
 
-  EZ_LOCK(m_pWorld->GetReadMarker());
+  W_LOCK(m_pWorld->GetReadMarker());
 
   for (auto& state : m_PushObjectStateMsg.m_ObjectStates)
   {
-    ezWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
+    WWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
     if (!pContext)
       return;
 
@@ -285,16 +285,16 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     if (!state.m_bAdjustFromPrefabRootChild)
       continue;
 
-    ezWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
+    WWorldRttiConverterContext* pContext = GetContextForLayer(state.m_LayerGuid);
     if (!pContext)
       continue;
 
     const auto& objectMapper = pContext->m_GameObjectMap;
 
-    ezGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
+    WGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
 
     // if this object does not exist anymore, this is not considered a problem (user may have deleted it)
-    ezGameObject* pObject;
+    WGameObject* pObject;
     if (!m_pWorld->TryGetObject(hObject, pObject))
       continue;
 
@@ -304,15 +304,15 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     if (pObject->GetChildCount() == 0)
       return;
 
-    const ezGameObject* pChild = pObject->GetChildren();
+    const WGameObject* pChild = pObject->GetChildren();
 
-    const ezVec3 localPos = pChild->GetLocalPosition();
-    const ezQuat localRot = pChild->GetLocalRotation();
+    const WVec3 localPos = pChild->GetLocalPosition();
+    const WQuat localRot = pChild->GetLocalRotation();
 
     // the child's local position is expressed in the parent's (scaled) space,
     // so it has to be scaled by the parent's global scale before it can be subtracted
     // from the child's global position, otherwise scaled prefabs end up misplaced
-    const ezVec3 vParentScale = pObject->GetGlobalScaling();
+    const WVec3 vParentScale = pObject->GetGlobalScaling();
 
     // now adjust the position
     state.m_qRotation = state.m_qRotation * localRot.GetInverse();
@@ -326,20 +326,20 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
   m_PushObjectStateMsg.m_ObjectStates.Clear();
 }
 
-void ezSceneContext::HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg)
+void WSceneContext::HandleActiveLayerChangedMsg(const WActiveLayerChangedMsgToEngine* pMsg)
 {
   m_ActiveLayer = pMsg->m_ActiveLayer;
 }
 
-void ezSceneContext::HandleTagMsgToEngineMsg(const ezObjectTagMsgToEngine* pMsg)
+void WSceneContext::HandleTagMsgToEngineMsg(const WObjectTagMsgToEngine* pMsg)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  ezGameObjectHandle hObject = GetActiveContext().m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
+  WGameObjectHandle hObject = GetActiveContext().m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
 
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg->m_sTag);
+  const WTag& tag = WTagRegistry::GetGlobalRegistry().RegisterTag(pMsg->m_sTag);
 
-  ezGameObject* pObject;
+  WGameObject* pObject;
   if (m_pWorld->TryGetObject(hObject, pObject))
   {
     if (pMsg->m_bApplyOnAllChildren)
@@ -359,13 +359,13 @@ void ezSceneContext::HandleTagMsgToEngineMsg(const ezObjectTagMsgToEngine* pMsg)
   }
 }
 
-void ezSceneContext::HandleLayerVisibilityChangedMsgToEngineMsg(const ezLayerVisibilityChangedMsgToEngine* pMsg)
+void WSceneContext::HandleLayerVisibilityChangedMsgToEngineMsg(const WLayerVisibilityChangedMsgToEngine* pMsg)
 {
   m_InvisibleLayers = pMsg->m_HiddenLayers;
   m_bInvisibleLayersDirty = true;
 }
 
-void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
+void WSceneContext::HandleGridSettingsMsg(const WGridSettingsMsgToEngine* pMsg)
 {
   m_fGridDensity = pMsg->m_fGridDensity;
   if (m_fGridDensity != 0.0f)
@@ -380,19 +380,19 @@ void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg
     {
       m_GridTransform.m_vScale.Set(1.0f);
 
-      ezMat3 mRot;
+      WMat3 mRot;
       mRot.SetColumn(0, pMsg->m_vGridTangent1);
       mRot.SetColumn(1, pMsg->m_vGridTangent2);
       mRot.SetColumn(2, pMsg->m_vGridTangent1.CrossRH(pMsg->m_vGridTangent2));
-      m_GridTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
+      m_GridTransform.m_qRotation = WQuat::MakeFromMat3(mRot);
     }
   }
 }
 
-void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* pMsg)
+void WSceneContext::HandleSimulationSettingsMsg(const WSimulationSettingsMsgToEngine* pMsg)
 {
   const bool bSimulate = pMsg->m_bSimulateWorld;
-  ezGameStateBase* pState = GetGameState();
+  WGameStateBase* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
   m_pWorld->GetClock().SetPaused(pMsg->m_fSimulationSpeed == 0.0f);
 
@@ -407,7 +407,7 @@ void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgTo
   }
 }
 
-void ezSceneContext::HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* pMsg)
+void WSceneContext::HandleWorldSettingsMsg(const WWorldSettingsMsgToEngine* pMsg)
 {
   m_bRenderSelectionOverlay = pMsg->m_bRenderOverlay;
   m_bRenderShapeIcons = pMsg->m_bRenderShapeIcons;
@@ -419,19 +419,19 @@ void ezSceneContext::HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* pM
     RemoveAmbientLight();
 }
 
-void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WSceneContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_Selection.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     for (const auto& obj : m_Selection)
     {
-      ezGameObject* pObj;
+      WGameObject* pObj;
       if (!m_pWorld->TryGetObject(obj, pObj))
         continue;
 
@@ -443,26 +443,26 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
     {
       for (const auto& obj : m_Selection)
       {
-        ezGameObject* pObj;
+        WGameObject* pObj;
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromCenterExtents(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
+        bounds.ExpandToInclude(WBoundingBoxSphere::MakeFromCenterExtents(pObj->GetGlobalPosition(), WVec3(0.0f), 0.0f));
       }
     }
   }
 
-  // EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
+  // W_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
 
   if (!bounds.IsValid() || bounds.IsNaN())
   {
-    ezLog::Error("Selection has no valid bounding box");
+    WLog::Error("Selection has no valid bounding box");
     return;
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
@@ -472,47 +472,47 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   SendProcessMessage(&res);
 }
 
-void ezSceneContext::OnSimulationEnabled()
+void WSceneContext::OnSimulationEnabled()
 {
-  ezLog::Info("World Simulation enabled");
+  WLog::Info("World Simulation enabled");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
+  WSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
-  ezResourceManager::ReloadAllResources(false);
+  WResourceManager::ReloadAllResources(false);
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(true);
   }
 }
 
-void ezSceneContext::OnSimulationDisabled()
+void WSceneContext::OnSimulationDisabled()
 {
-  ezLog::Info("World Simulation disabled");
+  WLog::Info("World Simulation disabled");
 
-  ezResourceManager::ResetAllResources();
+  WResourceManager::ResetAllResources();
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(false);
   }
 }
 
-ezGameStateBase* ezSceneContext::GetGameState() const
+WGameStateBase* WSceneContext::GetGameState() const
 {
   if (s_pWorldLinkedWithGameState == m_pWorld)
   {
-    return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
+    return WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
   }
 
   return nullptr;
 }
 
-ezUInt32 ezSceneContext::RegisterLayer(ezLayerContext* pLayer)
+WUInt32 WSceneContext::RegisterLayer(WLayerContext* pLayer)
 {
   m_bInvisibleLayersDirty = true;
   m_Contexts.PushBack(&pLayer->m_Context);
-  for (ezUInt32 i = 0; i < m_Layers.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Layers.GetCount(); ++i)
   {
     if (m_Layers[i] == nullptr)
     {
@@ -525,10 +525,10 @@ ezUInt32 ezSceneContext::RegisterLayer(ezLayerContext* pLayer)
   return m_Layers.GetCount() - 1;
 }
 
-void ezSceneContext::UnregisterLayer(ezLayerContext* pLayer)
+void WSceneContext::UnregisterLayer(WLayerContext* pLayer)
 {
   m_Contexts.RemoveAndSwap(&pLayer->m_Context);
-  for (ezUInt32 i = 0; i < m_Layers.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Layers.GetCount(); ++i)
   {
     if (m_Layers[i] == pLayer)
     {
@@ -540,85 +540,85 @@ void ezSceneContext::UnregisterLayer(ezLayerContext* pLayer)
     m_Layers.PopBack();
 }
 
-void ezSceneContext::AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& ref_context, const ezTag& layerTag)
+void WSceneContext::AddLayerIndexTag(const WEntityMsgToEngine& msg, WWorldRttiConverterContext& ref_context, const WTag& layerTag)
 {
-  if (msg.m_change.m_Change.m_Operation == ezObjectChangeType::NodeAdded)
+  if (msg.m_change.m_Change.m_Operation == WObjectChangeType::NodeAdded)
   {
-    if ((msg.m_change.m_Change.m_sProperty == "Children" || msg.m_change.m_Change.m_sProperty.IsEmpty()) && msg.m_change.m_Change.m_Value.IsA<ezUuid>())
+    if ((msg.m_change.m_Change.m_sProperty == "Children" || msg.m_change.m_Change.m_sProperty.IsEmpty()) && msg.m_change.m_Change.m_Value.IsA<WUuid>())
     {
-      const ezUuid& object = msg.m_change.m_Change.m_Value.Get<ezUuid>();
-      ezRttiConverterObject target = ref_context.GetObjectByGUID(object);
-      if (target.m_pType == ezGetStaticRTTI<ezGameObject>() && target.m_pObject != nullptr)
+      const WUuid& object = msg.m_change.m_Change.m_Value.Get<WUuid>();
+      WRttiConverterObject target = ref_context.GetObjectByGUID(object);
+      if (target.m_pType == WGetStaticRTTI<WGameObject>() && target.m_pObject != nullptr)
       {
         // We do postpone tagging until after the first frame so that prefab references are instantiated and affected as well.
-        ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);
+        WGameObject* pObject = static_cast<WGameObject*>(target.m_pObject);
         m_ObjectsToTag.PushBack({pObject->GetHandle(), layerTag});
       }
     }
   }
 }
 
-const ezArrayPtr<const ezTag> ezSceneContext::GetInvisibleLayerTags() const
+const WArrayPtr<const WTag> WSceneContext::GetInvisibleLayerTags() const
 {
   return m_InvisibleLayerTags.GetArrayPtr();
 }
 
-void ezSceneContext::OnInitialize()
+void WSceneContext::OnInitialize()
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
   if (!m_ActiveLayer.IsValid())
     m_ActiveLayer = m_DocumentGuid;
   m_Contexts.PushBack(&m_Context);
 
-  m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag("Layer_Scene");
+  m_LayerTag = WTagRegistry::GetGlobalRegistry().RegisterTag("Layer_Scene");
 
-  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
+  WShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
-void ezSceneContext::OnDeinitialize()
+void WSceneContext::OnDeinitialize()
 {
   m_Selection.Clear();
   m_SelectionWithChildren.Clear();
   m_SelectionWithChildrenSet.Clear();
   m_hSkyLight.Invalidate();
   m_hDirectionalLight.Invalidate();
-  m_LayerTag = ezTag();
+  m_LayerTag = WTag();
   m_ObjectsToTag.Clear();
-  for (ezLayerContext* pLayer : m_Layers)
+  for (WLayerContext* pLayer : m_Layers)
   {
     if (pLayer != nullptr)
       pLayer->SceneDeinitialized();
   }
 }
 
-ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
+WEngineProcessViewContext* WSceneContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezSceneViewContext, this);
+  return W_DEFAULT_NEW(WSceneViewContext, this);
 }
 
-void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WSceneContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg)
+void WSceneContext::HandleSelectionMsg(const WObjectSelectionMsgToEngine* pMsg)
 {
   m_Selection.Clear();
   m_SelectionWithChildrenSet.Clear();
   m_SelectionWithChildren.Clear();
 
-  ezStringBuilder sSel = pMsg->m_sSelection;
-  ezStringBuilder sGuid;
+  WStringBuilder sSel = pMsg->m_sSelection;
+  WStringBuilder sGuid;
 
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetReadMarker());
+  W_LOCK(pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())
   {
     sGuid.SetSubString_ElementCount(sSel.GetData() + 1, 40);
     sSel.Shrink(41, 0);
 
-    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
+    const WUuid guid = WConversionUtils::ConvertStringToUuid(sGuid);
 
     auto hObject = GetActiveContext().m_GameObjectMap.GetHandle(guid);
 
@@ -626,7 +626,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
     {
       m_Selection.PushBack(hObject);
 
-      ezGameObject* pObject;
+      WGameObject* pObject;
       if (pWorld->TryGetObject(hObject, pObject))
         InsertSelectedChildren(pObject);
     }
@@ -638,41 +638,41 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 }
 
-void ezSceneContext::OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WSceneContext::OnPlayTheGameModeStarted(WStringView sStartPosition, const WTransform& startPositionOffset)
 {
-  if (ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState() != nullptr)
+  if (WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState() != nullptr)
   {
-    ezLog::Warning("A Play-the-Game instance is already running, cannot launch a second in parallel.");
+    WLog::Warning("A Play-the-Game instance is already running, cannot launch a second in parallel.");
     return;
   }
 
-  ezLog::Info("Starting Play-the-Game mode");
+  WLog::Info("Starting Play-the-Game mode");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
+  WSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
-  ezResourceManager::ReloadAllResources(false);
+  WResourceManager::ReloadAllResources(false);
 
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
 
   s_pWorldLinkedWithGameState = m_pWorld;
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, sStartPosition, startPositionOffset);
+  WGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, sStartPosition, startPositionOffset);
 
-  ezGameModeMsgToEditor msgRet;
+  WGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
   msgRet.m_bRunningPTG = true;
 
   SendProcessMessage(&msgRet);
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(false);
   }
 }
 
-void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
+void WSceneContext::OnResourceManagerEvent(const WResourceManagerEvent& e)
 {
-  if (e.m_Type == ezResourceManagerEvent::Type::ReloadAllResources)
+  if (e.m_Type == WResourceManagerEvent::Type::ReloadAllResources)
   {
     // when resources get reloaded, make sure to update all object bounds
     // this is to prevent culling errors after meshes got transformed etc.
@@ -680,15 +680,15 @@ void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
   }
 }
 
-void ezSceneContext::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
+void WSceneContext::GameApplicationEventHandler(const WGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins && !m_ObjectsToTag.IsEmpty())
+  if (e.m_Type == WGameApplicationExecutionEvent::Type::AfterUpdatePlugins && !m_ObjectsToTag.IsEmpty())
   {
     // At this point the world was ticked once and prefab instances are instantiated and will be affected by SetTagRecursive.
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
     for (const TagGameObject& tagObject : m_ObjectsToTag)
     {
-      ezGameObject* pObject = nullptr;
+      WGameObject* pObject = nullptr;
       if (m_pWorld->TryGetObject(tagObject.m_hObject, pObject))
       {
         SetTagRecursive(pObject, tagObject.m_Tag);
@@ -698,11 +698,11 @@ void ezSceneContext::GameApplicationEventHandler(const ezGameApplicationExecutio
   }
 }
 
-void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg)
+void WSceneContext::HandleObjectsForDebugVisMsg(const WObjectsForDebugVisMsgToEngine* pMsg)
 {
-  EZ_LOCK(GetWorld()->GetWriteMarker());
+  W_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+  const WArrayPtr<const WUuid> guids(reinterpret_cast<const WUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(WUuid));
 
   for (auto guid : guids)
   {
@@ -711,7 +711,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
     if (hComp.IsInvalidated())
       continue;
 
-    ezEventMessageHandlerComponent* pComp = nullptr;
+    WEventMessageHandlerComponent* pComp = nullptr;
     if (!m_pWorld->TryGetComponent(hComp, pComp))
       continue;
 
@@ -719,29 +719,29 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
   }
 }
 
-void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
+void WSceneContext::HandleGameModeMsg(const WGameModeMsgToEngine* pMsg)
 {
-  ezGameStateBase* pState = GetGameState();
+  WGameStateBase* pState = GetGameState();
 
   if (pMsg->m_bEnablePTG)
   {
     if (pState != nullptr)
     {
-      ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
+      WLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
       return;
     }
 
     if (pMsg->m_bUseStartPosition)
     {
-      ezQuat qRot = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
+      WQuat qRot = WQuat::MakeShortestRotation(WVec3(1, 0, 0), pMsg->m_vStartDirection);
 
-      ezTransform tStart(pMsg->m_vStartPosition, qRot);
+      WTransform tStart(pMsg->m_vStartPosition, qRot);
 
       OnPlayTheGameModeStarted("GlobalOverride", tStart);
     }
     else
     {
-      OnPlayTheGameModeStarted({}, ezTransform::MakeIdentity());
+      OnPlayTheGameModeStarted({}, WTransform::MakeIdentity());
     }
   }
   else
@@ -749,12 +749,12 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
     if (pState == nullptr)
       return;
 
-    ezLog::Info("Attempting to stop Play-the-Game mode");
+    WLog::Info("Attempting to stop Play-the-Game mode");
     pState->RequestQuit("editor-force");
   }
 }
 
-void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
+void WSceneContext::InsertSelectedChildren(const WGameObject* pObject)
 {
   m_SelectionWithChildrenSet.Insert(pObject->GetHandle());
 
@@ -768,57 +768,57 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
   }
 }
 
-ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+WStatus WSceneContext::ExportDocument(const WExportDocumentMsgToEngine* pMsg)
 {
   if (!m_Context.m_UnknownTypes.IsEmpty())
   {
-    ezStringBuilder s;
+    WStringBuilder s;
 
     s.Append("Scene / prefab export failed: ");
 
-    for (const ezString& sType : m_Context.m_UnknownTypes)
+    for (const WString& sType : m_Context.m_UnknownTypes)
     {
       s.AppendFormat("'{}' is unknown. ", sType);
     }
 
-    return ezStatus(s.GetView());
+    return WStatus(s.GetView());
   }
 
   // make sure the world has been updated at least once, otherwise components aren't initialized
   // and messages for geometry extraction won't be delivered
   // this is necessary for the scene export modifiers to work
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
     m_pWorld->SetWorldSimulationEnabled(false);
     m_pWorld->Update();
   }
 
   // #TODO layers
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), true);
+  WSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), true);
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(pMsg->m_sOutputFile);
 
   // export
   {
     // File Header
     {
-      ezAssetFileHeader header;
+      WAssetFileHeader header;
       header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
       header.Write(file).IgnoreResult();
 
-      const char* szSceneTag = "[ezBinaryScene]";
+      const char* szSceneTag = "[WEBinaryScene]";
       file.WriteBytes(szSceneTag, sizeof(char) * 16).IgnoreResult();
     }
 
-    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-    const ezTag& tagNoExport = ezTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
+    const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    const WTag& tagNoExport = WTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
 
-    ezTagSet tags;
+    WTagSet tags;
     tags.Set(tagEditor);
     tags.Set(tagNoExport);
 
-    ezWorldWriter ww;
+    WWorldWriter ww;
     ww.WriteWorld(file, *m_pWorld, &tags);
 
     ExportExposedParameters(ww, file);
@@ -826,32 +826,32 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
   // do the actual file writing
   if (file.Close().Failed())
-    return ezStatus(ezFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
+    return WStatus(WFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
+void WSceneContext::ExportExposedParameters(const WWorldWriter& ww, WDeferredFileWriter& file) const
 {
-  ezTempHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+  WTempHybridArray<WExposedPrefabParameterDesc, 16> exposedParams;
 
   for (const auto& esp : m_ExposedSceneProperties)
   {
-    ezGameObject* pTargetObject = nullptr;
-    const ezRTTI* pComponenType = nullptr;
+    WGameObject* pTargetObject = nullptr;
+    const WRTTI* pComponenType = nullptr;
 
-    ezRttiConverterObject obj = m_Context.GetObjectByGUID(esp.m_Object);
+    WRttiConverterObject obj = m_Context.GetObjectByGUID(esp.m_Object);
 
     if (obj.m_pType == nullptr)
       continue;
 
-    if (obj.m_pType->IsDerivedFrom<ezGameObject>())
+    if (obj.m_pType->IsDerivedFrom<WGameObject>())
     {
-      pTargetObject = reinterpret_cast<ezGameObject*>(obj.m_pObject);
+      pTargetObject = reinterpret_cast<WGameObject*>(obj.m_pObject);
     }
-    else if (obj.m_pType->IsDerivedFrom<ezComponent>())
+    else if (obj.m_pType->IsDerivedFrom<WComponent>())
     {
-      ezComponent* pComponent = reinterpret_cast<ezComponent*>(obj.m_pObject);
+      WComponent* pComponent = reinterpret_cast<WComponent*>(obj.m_pObject);
 
       pTargetObject = pComponent->GetOwner();
       pComponenType = obj.m_pType;
@@ -860,13 +860,13 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     if (pTargetObject == nullptr)
       continue;
 
-    ezInt32 iFoundObjRoot = -1;
-    ezInt32 iFoundObjChild = -1;
+    WInt32 iFoundObjRoot = -1;
+    WInt32 iFoundObjChild = -1;
 
     // search for the target object in the exported objects
     {
       const auto& objects = ww.GetAllWrittenRootObjects();
-      for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+      for (WUInt32 i = 0; i < objects.GetCount(); ++i)
       {
         if (objects[i] == pTargetObject)
         {
@@ -878,7 +878,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
       if (iFoundObjRoot < 0)
       {
         const auto& objects = ww.GetAllWrittenChildObjects();
-        for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+        for (WUInt32 i = 0; i < objects.GetCount(); ++i)
         {
           if (objects[i] == pTargetObject)
           {
@@ -894,7 +894,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
       continue;
 
     // store the exposed parameter information
-    ezExposedPrefabParameterDesc& paramdesc = exposedParams.ExpandAndGetRef();
+    WExposedPrefabParameterDesc& paramdesc = exposedParams.ExpandAndGetRef();
     paramdesc.m_sExposeName.Assign(esp.m_sName.GetData());
     paramdesc.m_uiWorldReaderChildObject = (iFoundObjChild >= 0) ? 1 : 0;
     paramdesc.m_uiWorldReaderObjectIndex = (iFoundObjChild >= 0) ? iFoundObjChild : iFoundObjRoot;
@@ -908,7 +908,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+  exposedParams.Sort([](const WExposedPrefabParameterDesc& lhs, const WExposedPrefabParameterDesc& rhs) -> bool
     { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
@@ -919,34 +919,34 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
   }
 }
 
-void ezSceneContext::OnThumbnailViewContextCreated()
+void WSceneContext::OnThumbnailViewContextCreated()
 {
   // make sure there is ambient light in the thumbnails
-  // TODO: should check whether this is a prefab (info currently not available in ezSceneContext)
+  // TODO: should check whether this is a prefab (info currently not available in WSceneContext)
   RemoveAmbientLight();
   AddAmbientLight(false, true);
 }
 
-void ezSceneContext::OnDestroyThumbnailViewContext()
+void WSceneContext::OnDestroyThumbnailViewContext()
 {
   RemoveAmbientLight();
 }
 
-void ezSceneContext::UpdateDocumentContext()
+void WSceneContext::UpdateDocumentContext()
 {
   SUPER::UpdateDocumentContext();
 
-  if (ezGameStateBase* pState = GetGameState())
+  if (WGameStateBase* pState = GetGameState())
   {
     // If we have a running game state we always want to render it (e.g. play the game).
     pState->AddMainViewsToRender();
 
     if (pState->WasQuitRequested())
     {
-      ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
+      WGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
       s_pWorldLinkedWithGameState = nullptr;
 
-      ezGameModeMsgToEditor msgToEd;
+      WGameModeMsgToEditor msgToEd;
       msgToEd.m_DocumentGuid = GetDocumentGuid();
       msgToEd.m_bRunningPTG = false;
 
@@ -955,20 +955,20 @@ void ezSceneContext::UpdateDocumentContext()
   }
 }
 
-ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const
+WGameObjectHandle WSceneContext::ResolveStringToGameObjectHandle(const void* pString, WComponentHandle hThis, WStringView sProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pString);
 
   if (hThis.IsInvalidated() && sProperty.IsEmpty())
   {
-    // This code path is used by ezPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
+    // This code path is used by WPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
     // represent a game object reference. References will always be stringyfied GUIDs.
 
-    if (!ezConversionUtils::IsStringUuid(szTargetGuid))
-      return ezGameObjectHandle();
+    if (!WConversionUtils::IsStringUuid(szTargetGuid))
+      return WGameObjectHandle();
 
     // convert string to GUID and check if references a known object
-    return m_Context.m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
+    return m_Context.m_GameObjectMap.GetHandle(WConversionUtils::ConvertStringToUuid(szTargetGuid));
   }
 
   // Test if the component is a direct part of this scene or one of its layers.
@@ -976,7 +976,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
   {
     return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
   }
-  for (const ezLayerContext* pLayer : m_Layers)
+  for (const WLayerContext* pLayer : m_Layers)
   {
     if (pLayer)
     {
@@ -989,18 +989,18 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
 
   // Component not found - it is probably an engine prefab instance part.
   // Walk up the hierarchy and find a game object that belongs to the scene or layer.
-  ezComponent* pComponent = nullptr;
-  if (!GetWorld()->TryGetComponent<ezComponent>(hThis, pComponent))
+  WComponent* pComponent = nullptr;
+  if (!GetWorld()->TryGetComponent<WComponent>(hThis, pComponent))
     return {};
 
-  const ezGameObject* pParent = pComponent->GetOwner();
+  const WGameObject* pParent = pComponent->GetOwner();
   while (pParent)
   {
     if (m_Context.m_GameObjectMap.GetGuid(pParent->GetHandle()).IsValid())
     {
       return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
     }
-    for (const ezLayerContext* pLayer : m_Layers)
+    for (const WLayerContext* pLayer : m_Layers)
     {
       if (pLayer)
       {
@@ -1013,79 +1013,79 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
     pParent = pParent->GetParent();
   }
 
-  ezLog::Error("Game object reference could not be resolved. Component source was not found.");
-  return ezGameObjectHandle();
+  WLog::Error("Game object reference could not be resolved. Component source was not found.");
+  return WGameObjectHandle();
 }
 
-bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WSceneContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  const WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
+  WSceneViewContext* pMaterialViewContext = static_cast<WSceneViewContext*>(pThumbnailViewContext);
   const bool result = pMaterialViewContext->UpdateThumbnailCamera(bounds);
 
   return result;
 }
 
-void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
+void WSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
 {
   if (!m_hSkyLight.IsInvalidated() || !m_hDirectionalLight.IsInvalidated())
     return;
 
-  EZ_LOCK(GetWorld()->GetWriteMarker());
+  W_LOCK(GetWorld()->GetWriteMarker());
 
   // delay adding ambient light until the scene isn't empty, to prevent adding two skylights
   if (!bForce && GetWorld()->GetObjectCount() == 0)
     return;
 
-  ezSkyLightComponentManager* pSkyMan = GetWorld()->GetComponentManager<ezSkyLightComponentManager>();
+  WSkyLightComponentManager* pSkyMan = GetWorld()->GetComponentManager<WSkyLightComponentManager>();
   if (pSkyMan == nullptr || pSkyMan->GetSingletonComponent() == nullptr)
   {
     // only create a skylight, if there is none yet
 
-    ezGameObjectDesc obj;
+    WGameObjectDesc obj;
     obj.m_sName.Assign("Sky Light");
 
     if (bSetEditorTag)
     {
-      const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+      const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
       obj.m_Tags.Set(tagEditor); // to prevent it from being exported
     }
 
-    ezGameObject* pObj;
+    WGameObject* pObj;
     m_hSkyLight = GetWorld()->CreateObject(obj, pObj);
 
 
-    ezSkyLightComponent* pSkyLight = nullptr;
-    ezSkyLightComponent::CreateComponent(pObj, pSkyLight);
+    WSkyLightComponent* pSkyLight = nullptr;
+    WSkyLightComponent::CreateComponent(pObj, pSkyLight);
     pSkyLight->SetCubeMapFile("{ 0b202e08-a64f-465d-b38e-15b81d161822 }");
-    pSkyLight->SetReflectionProbeMode(ezReflectionProbeMode::Static);
+    pSkyLight->SetReflectionProbeMode(WReflectionProbeMode::Static);
   }
 
   {
-    ezGameObjectDesc obj;
+    WGameObjectDesc obj;
     obj.m_sName.Assign("Ambient Light");
 
-    obj.m_LocalRotation = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(-14.510815f), ezAngle::MakeFromDegree(43.07951f), ezAngle::MakeFromDegree(93.223808f));
+    obj.m_LocalRotation = WQuat::MakeFromEulerAngles(WAngle::MakeFromDegree(-14.510815f), WAngle::MakeFromDegree(43.07951f), WAngle::MakeFromDegree(93.223808f));
 
     if (bSetEditorTag)
     {
-      const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+      const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
       obj.m_Tags.Set(tagEditor); // to prevent it from being exported
     }
 
-    ezGameObject* pLight;
+    WGameObject* pLight;
     m_hDirectionalLight = GetWorld()->CreateObject(obj, pLight);
 
-    ezDirectionalLightComponent* pDirLight = nullptr;
-    ezDirectionalLightComponent::CreateComponent(pLight, pDirLight);
+    WDirectionalLightComponent* pDirLight = nullptr;
+    WDirectionalLightComponent::CreateComponent(pLight, pDirLight);
     pDirLight->SetIntensity(10.0f);
   }
 }
 
-void ezSceneContext::RemoveAmbientLight()
+void WSceneContext::RemoveAmbientLight()
 {
-  EZ_LOCK(GetWorld()->GetWriteMarker());
+  W_LOCK(GetWorld()->GetWriteMarker());
 
   if (!m_hSkyLight.IsInvalidated())
   {
@@ -1102,14 +1102,14 @@ void ezSceneContext::RemoveAmbientLight()
   }
 }
 
-const ezEngineProcessDocumentContext* ezSceneContext::GetActiveDocumentContext() const
+const WEngineProcessDocumentContext* WSceneContext::GetActiveDocumentContext() const
 {
   if (m_ActiveLayer == GetDocumentGuid())
   {
     return this;
   }
 
-  for (const ezLayerContext* pLayer : m_Layers)
+  for (const WLayerContext* pLayer : m_Layers)
   {
     if (pLayer && m_ActiveLayer == pLayer->GetDocumentGuid())
     {
@@ -1117,31 +1117,31 @@ const ezEngineProcessDocumentContext* ezSceneContext::GetActiveDocumentContext()
     }
   }
 
-  EZ_REPORT_FAILURE("Active layer does not exist.");
+  W_REPORT_FAILURE("Active layer does not exist.");
   return this;
 }
 
-ezEngineProcessDocumentContext* ezSceneContext::GetActiveDocumentContext()
+WEngineProcessDocumentContext* WSceneContext::GetActiveDocumentContext()
 {
-  return const_cast<ezEngineProcessDocumentContext*>(const_cast<const ezSceneContext*>(this)->GetActiveDocumentContext());
+  return const_cast<WEngineProcessDocumentContext*>(const_cast<const WSceneContext*>(this)->GetActiveDocumentContext());
 }
 
-const ezWorldRttiConverterContext& ezSceneContext::GetActiveContext() const
+const WWorldRttiConverterContext& WSceneContext::GetActiveContext() const
 {
   return GetActiveDocumentContext()->m_Context;
 }
 
-ezWorldRttiConverterContext& ezSceneContext::GetActiveContext()
+WWorldRttiConverterContext& WSceneContext::GetActiveContext()
 {
-  return const_cast<ezWorldRttiConverterContext&>(const_cast<const ezSceneContext*>(this)->GetActiveContext());
+  return const_cast<WWorldRttiConverterContext&>(const_cast<const WSceneContext*>(this)->GetActiveContext());
 }
 
-ezWorldRttiConverterContext* ezSceneContext::GetContextForLayer(const ezUuid& layerGuid)
+WWorldRttiConverterContext* WSceneContext::GetContextForLayer(const WUuid& layerGuid)
 {
   if (layerGuid == GetDocumentGuid())
     return &m_Context;
 
-  for (ezLayerContext* pLayer : m_Layers)
+  for (WLayerContext* pLayer : m_Layers)
   {
     if (pLayer && layerGuid == pLayer->GetDocumentGuid())
     {
@@ -1151,32 +1151,32 @@ ezWorldRttiConverterContext* ezSceneContext::GetContextForLayer(const ezUuid& la
   return nullptr;
 }
 
-ezArrayPtr<ezWorldRttiConverterContext*> ezSceneContext::GetAllContexts()
+WArrayPtr<WWorldRttiConverterContext*> WSceneContext::GetAllContexts()
 {
   return m_Contexts;
 }
 
-void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg)
+void WSceneContext::HandleExposedPropertiesMsg(const WExposedDocumentObjectPropertiesMsgToEngine* pMsg)
 {
   m_ExposedSceneProperties = pMsg->m_Properties;
 }
 
-void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg)
+void WSceneContext::HandleSceneGeometryMsg(const WExportSceneGeometryMsgToEngine* pMsg)
 {
-  ezWorldGeoExtractionUtil::MeshObjectList objects;
+  WWorldGeoExtractionUtil::MeshObjectList objects;
 
-  ezTagSet excludeTags;
+  WTagSet excludeTags;
   excludeTags.SetByName("Editor");
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+    WWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<WWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+    WWorldGeoExtractionUtil::ExtractWorldGeometry(objects, *m_pWorld, static_cast<WWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
-  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, objects, pMsg->m_Transform);
+  WWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, objects, pMsg->m_Transform);
 }
 
-void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg)
+void WSceneContext::HandlePullObjectStateMsg(const WPullObjectStateMsgToEngine* pMsg)
 {
   if (!m_pWorld->GetWorldSimulationEnabled())
     return;
@@ -1184,14 +1184,14 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
   // Objects that don't move on their own can't be placed physically. Ask them to become simulated for the rest of
   // this simulation, so that pressing the shortcut again records where they came to rest.
   {
-    ezWorld* pMutableWorld = GetWorld();
-    EZ_LOCK(pMutableWorld->GetWriteMarker());
+    WWorld* pMutableWorld = GetWorld();
+    W_LOCK(pMutableWorld->GetWriteMarker());
 
-    ezMsgPhysicsMakeTemporarilyDynamic makeDynamicMsg;
+    WMsgPhysicsMakeTemporarilyDynamic makeDynamicMsg;
 
-    for (ezGameObjectHandle hObject : m_SelectionWithChildren)
+    for (WGameObjectHandle hObject : m_SelectionWithChildren)
     {
-      ezGameObject* pObject = nullptr;
+      WGameObject* pObject = nullptr;
       if (!pMutableWorld->TryGetObject(hObject, pObject))
         continue;
 
@@ -1199,20 +1199,20 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
     }
   }
 
-  const ezWorld* pWorld = GetWorld();
-  EZ_LOCK(pWorld->GetReadMarker());
+  const WWorld* pWorld = GetWorld();
+  W_LOCK(pWorld->GetReadMarker());
 
   const auto& objectMapper = GetActiveContext().m_GameObjectMap;
 
   m_PushObjectStateMsg.m_ObjectStates.Reserve(m_PushObjectStateMsg.m_ObjectStates.GetCount() + m_SelectionWithChildren.GetCount());
 
-  for (ezGameObjectHandle hObject : m_SelectionWithChildren)
+  for (WGameObjectHandle hObject : m_SelectionWithChildren)
   {
-    const ezGameObject* pObject = nullptr;
+    const WGameObject* pObject = nullptr;
     if (!pWorld->TryGetObject(hObject, pObject))
       continue;
 
-    ezUuid objectGuid = objectMapper.GetGuid(hObject);
+    WUuid objectGuid = objectMapper.GetGuid(hObject);
     bool bAdjust = false;
 
     if (!objectGuid.IsValid())
@@ -1220,7 +1220,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       // this must be an object created on the runtime side, try to match it to some editor object
       // we only try the direct parent, more steps than that are not allowed
 
-      const ezGameObject* pParentObject = pObject->GetParent();
+      const WGameObject* pParentObject = pObject->GetParent();
       if (pParentObject == nullptr)
         continue;
 
@@ -1236,7 +1236,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       objectGuid = parentGuid;
       bAdjust = true;
 
-      for (ezUInt32 i = 0; i < m_PushObjectStateMsg.m_ObjectStates.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_PushObjectStateMsg.m_ObjectStates.GetCount(); ++i)
       {
         if (m_PushObjectStateMsg.m_ObjectStates[i].m_ObjectGuid == objectGuid)
         {
@@ -1255,7 +1255,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       state.m_vPosition = pObject->GetGlobalPosition();
       state.m_qRotation = pObject->GetGlobalRotation();
 
-      ezMsgRetrieveBoneState msg;
+      WMsgRetrieveBoneState msg;
       pObject->SendMessage(msg);
 
       state.m_BoneTransforms = msg.m_BoneTransforms;
@@ -1265,33 +1265,33 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
   // the return message is sent after the simulation has stopped
 }
 
-void ezSceneContext::HandleSyncChildOrderMsg(const ezSyncChildOrderMsgToEngine* pMsg)
+void WSceneContext::HandleSyncChildOrderMsg(const WSyncChildOrderMsgToEngine* pMsg)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  ezWorldRttiConverterContext* pContext = pMsg->m_LayerGuid.IsValid() ? GetContextForLayer(pMsg->m_LayerGuid) : &GetActiveContext();
+  WWorldRttiConverterContext* pContext = pMsg->m_LayerGuid.IsValid() ? GetContextForLayer(pMsg->m_LayerGuid) : &GetActiveContext();
   if (pContext == nullptr)
     return;
 
-  ezComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(pMsg->m_ComponentGuid);
-  ezComponent* pComponent = nullptr;
+  WComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(pMsg->m_ComponentGuid);
+  WComponent* pComponent = nullptr;
   if (!m_pWorld->TryGetComponent(hComponent, pComponent))
     return;
 
-  ezVariantArray handles;
+  WVariantArray handles;
   handles.Reserve(pMsg->m_ChildOrder.GetCount());
-  for (const ezUuid& guid : pMsg->m_ChildOrder)
+  for (const WUuid& guid : pMsg->m_ChildOrder)
   {
-    handles.PushBack(ezVariant(pContext->m_GameObjectMap.GetHandle(guid)));
+    handles.PushBack(WVariant(pContext->m_GameObjectMap.GetHandle(guid)));
   }
 
-  for (const ezAbstractFunctionProperty* pFunc : pComponent->GetDynamicRTTI()->GetFunctions())
+  for (const WAbstractFunctionProperty* pFunc : pComponent->GetDynamicRTTI()->GetFunctions())
   {
-    if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "SetChildOrder"))
+    if (WStringUtils::IsEqual(pFunc->GetPropertyName(), "SetChildOrder"))
     {
-      ezTempHybridArray<ezVariant, 1> params;
+      WTempHybridArray<WVariant, 1> params;
       params.PushBack(handles);
-      ezVariant ret;
+      WVariant ret;
       pFunc->Execute(pComponent, params, ret);
       break;
     }

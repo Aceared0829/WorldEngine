@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezScreenSpaceShadowConstants, 4)
+CONSTANT_BUFFER(WScreenSpaceShadowConstants, 4)
 {
   FLOAT4(LightCoordinate);
   INT2(WaveOffset);

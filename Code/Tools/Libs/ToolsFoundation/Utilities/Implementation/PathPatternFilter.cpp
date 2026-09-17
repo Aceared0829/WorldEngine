@@ -3,9 +3,9 @@
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
-void ezPathPattern::Configure(const ezStringView sText0)
+void WPathPattern::Configure(const WStringView sText0)
 {
-  ezStringView text = sText0;
+  WStringView text = sText0;
 
   text.Trim(" \t\r\n");
 
@@ -25,7 +25,7 @@ void ezPathPattern::Configure(const ezStringView sText0)
     m_MatchType = MatchType::Exact;
 }
 
-bool ezPathPattern::Matches(const ezStringView sText) const
+bool WPathPattern::Matches(const WStringView sText) const
 {
   switch (m_MatchType)
   {
@@ -39,13 +39,13 @@ bool ezPathPattern::Matches(const ezStringView sText) const
       return sText.FindSubString_NoCase(m_sString) != nullptr;
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezPathPatternFilter::PassesFilters(ezStringView sText, ezStringBuilder* pMatchingFilter) const
+bool WPathPatternFilter::PassesFilters(WStringView sText, WStringBuilder* pMatchingFilter) const
 {
   for (const auto& filter : m_IncludePatterns)
   {
@@ -56,12 +56,12 @@ bool ezPathPatternFilter::PassesFilters(ezStringView sText, ezStringBuilder* pMa
       {
         pMatchingFilter->Clear();
 
-        if (filter.m_MatchType == ezPathPattern::EndsWith || filter.m_MatchType == ezPathPattern::Contains)
+        if (filter.m_MatchType == WPathPattern::EndsWith || filter.m_MatchType == WPathPattern::Contains)
           pMatchingFilter->Append("*");
 
         pMatchingFilter->Append(filter.m_sString);
 
-        if (filter.m_MatchType == ezPathPattern::StartsWith || filter.m_MatchType == ezPathPattern::Contains)
+        if (filter.m_MatchType == WPathPattern::StartsWith || filter.m_MatchType == WPathPattern::Contains)
           pMatchingFilter->Append("*");
       }
 
@@ -78,12 +78,12 @@ bool ezPathPatternFilter::PassesFilters(ezStringView sText, ezStringBuilder* pMa
       {
         pMatchingFilter->Clear();
 
-        if (filter.m_MatchType == ezPathPattern::EndsWith || filter.m_MatchType == ezPathPattern::Contains)
+        if (filter.m_MatchType == WPathPattern::EndsWith || filter.m_MatchType == WPathPattern::Contains)
           pMatchingFilter->Append("*");
 
         pMatchingFilter->Append(filter.m_sString);
 
-        if (filter.m_MatchType == ezPathPattern::StartsWith || filter.m_MatchType == ezPathPattern::Contains)
+        if (filter.m_MatchType == WPathPattern::StartsWith || filter.m_MatchType == WPathPattern::Contains)
           pMatchingFilter->Append("*");
       }
 
@@ -95,9 +95,9 @@ bool ezPathPatternFilter::PassesFilters(ezStringView sText, ezStringBuilder* pMa
   return true;
 }
 
-void ezPathPatternFilter::AddFilter(ezStringView sText, bool bIncludeFilter)
+void WPathPatternFilter::AddFilter(WStringView sText, bool bIncludeFilter)
 {
-  ezStringBuilder text = sText;
+  WStringBuilder text = sText;
   text.MakeCleanPath();
   text.Trim(" \t\r\n");
 
@@ -113,11 +113,11 @@ void ezPathPatternFilter::AddFilter(ezStringView sText, bool bIncludeFilter)
     m_ExcludePatterns.ExpandAndGetRef().Configure(text);
 }
 
-ezResult ezPathPatternFilter::ReadConfigFile(ezStringView sFile, const ezDynamicArray<ezString>& preprocessorDefines)
+WResult WPathPatternFilter::ReadConfigFile(WStringView sFile, const WDynamicArray<WString>& preprocessorDefines)
 {
-  ezStringBuilder content;
+  WStringBuilder content;
 
-  ezPreprocessor pp;
+  WPreprocessor pp;
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
 
@@ -129,9 +129,9 @@ ezResult ezPathPatternFilter::ReadConfigFile(ezStringView sFile, const ezDynamic
   // keep comments, because * and / can form a multi-line comment, and then we could lose vital information
   // instead only allow single-line comments and filter those out in AddFilter().
   if (pp.Process(sFile, content, true, true).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezDynamicArray<ezStringView> lines;
+  WDynamicArray<WStringView> lines;
 
   content.Split(false, lines, "\n", "\r");
 
@@ -154,5 +154,5 @@ ezResult ezPathPatternFilter::ReadConfigFile(ezStringView sFile, const ezDynamic
     AddFilter(line, bIncludeFilter);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

@@ -7,14 +7,14 @@
 /// Provides an easy way to wrap function calls (delegates) as tasks for the task system.
 /// The template parameter T specifies the type of data passed to the delegate function.
 /// Use the void specialization for parameterless functions. This eliminates the need
-/// to manually derive from ezTask for simple function execution scenarios.
+/// to manually derive from WTask for simple function execution scenarios.
 template <typename T>
-class ezDelegateTask final : public ezTask
+class WDelegateTask final : public WTask
 {
 public:
-  using FunctionType = ezDelegate<void(const T&)>;
+  using FunctionType = WDelegate<void(const T&)>;
 
-  ezDelegateTask(const char* szTaskName, ezTaskNesting taskNesting, FunctionType func, const T& param)
+  WDelegateTask(const char* szTaskName, WTaskNesting taskNesting, FunctionType func, const T& param)
   {
     m_Func = func;
     m_param = param;
@@ -29,12 +29,12 @@ private:
 };
 
 template <>
-class ezDelegateTask<void> final : public ezTask
+class WDelegateTask<void> final : public WTask
 {
 public:
-  using FunctionType = ezDelegate<void()>;
+  using FunctionType = WDelegate<void()>;
 
-  ezDelegateTask(const char* szTaskName, ezTaskNesting taskNesting, FunctionType func)
+  WDelegateTask(const char* szTaskName, WTaskNesting taskNesting, FunctionType func)
   {
     m_Func = func;
     ConfigureTask(szTaskName, taskNesting);

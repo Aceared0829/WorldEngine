@@ -2,7 +2,7 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
-#if EZ_ENABLED(EZ_EMBED_FONT_FILE)
+#if W_ENABLED(W_EMBED_FONT_FILE)
 
 // Font: https://fonts.google.com/specimen/Inconsolata
 // License: Open Font License (http://scripts.sil.org/OFL_web)
@@ -10,12 +10,12 @@
 // Png is only the upper 512x256 pixels, only contains ASCII-7 characters
 // Used Bin2C to convert file to C (http://tools.garry.tv/bin2c/)
 
-extern ezUInt32 g_FontFilePNGSize;
-extern const ezUInt8 g_FontFilePNG[];
+extern WUInt32 g_FontFilePNGSize;
+extern const WUInt8 g_FontFilePNG[];
 
 // clang-format off
-ezUInt32 g_FontFilePNGSize = 13973;
-const ezUInt8 g_FontFilePNG[] = {
+WUInt32 g_FontFilePNGSize = 13973;
+const WUInt8 g_FontFilePNG[] = {
     0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
     0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0xE0, 0xFB, 0x91,
     0xBB, 0x00, 0x00, 0x05, 0x55, 0x69, 0x54, 0x58, 0x74, 0x58, 0x4D, 0x4C, 0x3A, 0x63, 0x6F, 0x6D,

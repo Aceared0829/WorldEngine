@@ -1,0 +1,17 @@
+# Component Types
+
+WTerrainBrush2DComponent;Terrain Brush 2D;;https://ezengine.net/pages/docs/terrain/terrain-brush-2d-component.html
+WTerrainBrush3DComponent;Terrain Brush 3D;;https://ezengine.net/pages/docs/terrain/terrain-brush-3d-component.html
+WTerrainVolumeComponent;Terrain Volume;;https://ezengine.net/pages/docs/terrain/terrain-volume-component.html
+WTerrainPatchComponent;Terrain Patch;;https://ezengine.net/pages/docs/terrain/terrain-patch-component.html
+
+# Enums
+
+WTerrainModifyMode2D::Max;Raise
+WTerrainModifyMode2D::Min;Lower
+WTerrainModifyMode2D::Set;Set
+WTerrainModifyMode2D::OnlyPaint2D;Paint Only
+
+WTerrainModifyMode3D::Carve;Carve
+WTerrainModifyMode3D::Add;Fill
+WTerrainModifyMode3D::OnlyPaint3D;Paint Only

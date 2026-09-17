@@ -9,7 +9,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -18,32 +18,32 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("Kraut Tree", ezGetStaticRTTI<ezKrautGeneratorResource>());
+    WResourceManager::RegisterResourceForAssetType("Kraut Tree", WGetStaticRTTI<WKrautGeneratorResource>());
 
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezKrautTreeResource, ezMaterialResource>();
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezKrautTreeResource, ezMeshResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WKrautTreeResource, WMaterialResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WKrautTreeResource, WMeshResource>();
 
     {
-      ezKrautTreeResourceDescriptor desc;
-      desc.m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+      WKrautTreeResourceDescriptor desc;
+      desc.m_Details.m_Bounds = WBoundingBoxSphere::MakeInvalid();
 
-        ezKrautTreeResourceHandle hResource = ezResourceManager::CreateResource<ezKrautTreeResource>("Missing Kraut Tree Mesh", std::move(desc), "Empty Kraut Tree Mesh");
-      ezResourceManager::SetResourceTypeMissingFallback<ezKrautTreeResource>(hResource);
+        WKrautTreeResourceHandle hResource = WResourceManager::CreateResource<WKrautTreeResource>("Missing Kraut Tree Mesh", std::move(desc), "Empty Kraut Tree Mesh");
+      WResourceManager::SetResourceTypeMissingFallback<WKrautTreeResource>(hResource);
     }
 
     //{
-    //  ezKrautGeneratorResourceHandle hResource = ezResourceManager::LoadResource<ezKrautGeneratorResource>("Kraut/KrautFallback.tree");
-    //  ezResourceManager::SetResourceTypeMissingFallback<ezKrautGeneratorResource>(hResource);
+    //  WKrautGeneratorResourceHandle hResource = WResourceManager::LoadResource<WKrautGeneratorResource>("Kraut/KrautFallback.tree");
+    //  WResourceManager::SetResourceTypeMissingFallback<WKrautGeneratorResource>(hResource);
     //}
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::SetResourceTypeMissingFallback<ezKrautTreeResource>(ezKrautTreeResourceHandle());
-    ezResourceManager::SetResourceTypeMissingFallback<ezKrautGeneratorResource>(ezKrautGeneratorResourceHandle());
+    WResourceManager::SetResourceTypeMissingFallback<WKrautTreeResource>(WKrautTreeResourceHandle());
+    WResourceManager::SetResourceTypeMissingFallback<WKrautGeneratorResource>(WKrautGeneratorResourceHandle());
 
-    ezKrautTreeResource::CleanupDynamicPluginReferences();
-    ezKrautGeneratorResource::CleanupDynamicPluginReferences();
+    WKrautTreeResource::CleanupDynamicPluginReferences();
+    WKrautGeneratorResource::CleanupDynamicPluginReferences();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -54,15 +54,15 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_STATICLINK_LIBRARY(KrautPlugin)
+W_STATICLINK_LIBRARY(KrautPlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(KrautPlugin_Components_KrautTreeComponent);
-  EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautGeneratorResource);
-  EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautTreeResource);
+  W_STATICLINK_REFERENCE(KrautPlugin_Components_KrautTreeComponent);
+  W_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautGeneratorResource);
+  W_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautTreeResource);
 }

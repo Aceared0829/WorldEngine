@@ -3,34 +3,34 @@
 #include <Foundation/Math/Angle.h>
 #include <Foundation/SimdMath/SimdTypes.h>
 
-class EZ_FOUNDATION_DLL ezSimdDouble
+class W_FOUNDATION_DLL WSimdDouble
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor, leaves the data uninitialized.
-  ezSimdDouble();
+  WSimdDouble();
 
   /// Constructs from a given float.
-  ezSimdDouble(float f);
+  WSimdDouble(float f);
 
   /// Constructs from a given double.
-  ezSimdDouble(double f);
+  WSimdDouble(double f);
 
   /// Constructs from a given integer.
-  ezSimdDouble(ezInt32 i);
+  WSimdDouble(WInt32 i);
 
   /// Constructs from a given integer.
-  ezSimdDouble(ezUInt32 i);
+  WSimdDouble(WUInt32 i);
 
   /// Constructs from given angle.
-  ezSimdDouble(ezAngle a);
+  WSimdDouble(WAngle a);
 
   /// Constructs from smaller SIMD
-  ezSimdDouble(ezInternal::QuadFloat v);
+  WSimdDouble(WInternal::QuadFloat v);
 
   /// Constructs from the internal implementation type.
-  ezSimdDouble(ezInternal::QuadDouble v);
+  WSimdDouble(WInternal::QuadDouble v);
 
   // /// Returns the stored number as a standard float.
   // operator float() const;
@@ -38,31 +38,31 @@ public:
   /// Returns the stored number as a standard double.
   operator double() const;
 
-  /// Creates an ezSimdDouble that is initialized to zero.
-  [[nodiscard]] static ezSimdDouble MakeZero();
+  /// Creates an WSimdDouble that is initialized to zero.
+  [[nodiscard]] static WSimdDouble MakeZero();
 
-  /// Creates an ezSimdDouble that is initialized to Not-A-Number (NaN).
-  [[nodiscard]] static ezSimdDouble MakeNaN();
+  /// Creates an WSimdDouble that is initialized to Not-A-Number (NaN).
+  [[nodiscard]] static WSimdDouble MakeNaN();
 
 public:
-  ezSimdDouble operator+(const ezSimdDouble& f) const;
-  ezSimdDouble operator-(const ezSimdDouble& f) const;
-  ezSimdDouble operator*(const ezSimdDouble& f) const;
-  ezSimdDouble operator/(const ezSimdDouble& f) const;
+  WSimdDouble operator+(const WSimdDouble& f) const;
+  WSimdDouble operator-(const WSimdDouble& f) const;
+  WSimdDouble operator*(const WSimdDouble& f) const;
+  WSimdDouble operator/(const WSimdDouble& f) const;
 
-  ezSimdDouble& operator+=(const ezSimdDouble& f);
-  ezSimdDouble& operator-=(const ezSimdDouble& f);
-  ezSimdDouble& operator*=(const ezSimdDouble& f);
-  ezSimdDouble& operator/=(const ezSimdDouble& f);
+  WSimdDouble& operator+=(const WSimdDouble& f);
+  WSimdDouble& operator-=(const WSimdDouble& f);
+  WSimdDouble& operator*=(const WSimdDouble& f);
+  WSimdDouble& operator/=(const WSimdDouble& f);
 
-  bool IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& fEpsilon) const;
+  bool IsEqual(const WSimdDouble& rhs, const WSimdDouble& fEpsilon) const;
 
-  bool operator==(const ezSimdDouble& f) const;
-  bool operator!=(const ezSimdDouble& f) const;
-  bool operator>(const ezSimdDouble& f) const;
-  bool operator>=(const ezSimdDouble& f) const;
-  bool operator<(const ezSimdDouble& f) const;
-  bool operator<=(const ezSimdDouble& f) const;
+  bool operator==(const WSimdDouble& f) const;
+  bool operator!=(const WSimdDouble& f) const;
+  bool operator>(const WSimdDouble& f) const;
+  bool operator>=(const WSimdDouble& f) const;
+  bool operator<(const WSimdDouble& f) const;
+  bool operator<=(const WSimdDouble& f) const;
 
   bool operator==(double f) const;
   bool operator!=(double f) const;
@@ -78,29 +78,29 @@ public:
   bool operator<(float f) const;
   bool operator<=(float f) const;
 
-  ezSimdDouble GetReciprocal() const;
+  WSimdDouble GetReciprocal() const;
 
-  ezSimdDouble GetSqrt() const;
+  WSimdDouble GetSqrt() const;
 
-  ezSimdDouble GetInvSqrt() const;
+  WSimdDouble GetInvSqrt() const;
 
-  [[nodiscard]] ezSimdDouble Max(const ezSimdDouble& d) const;
-  [[nodiscard]] ezSimdDouble Min(const ezSimdDouble& d) const;
-  [[nodiscard]] ezSimdDouble Abs() const;
+  [[nodiscard]] WSimdDouble Max(const WSimdDouble& d) const;
+  [[nodiscard]] WSimdDouble Min(const WSimdDouble& d) const;
+  [[nodiscard]] WSimdDouble Abs() const;
 
 public:
-  ezInternal::QuadDouble m_v;
+  WInternal::QuadDouble m_v;
 };
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
+#  if W_SSE_LEVEL >= W_SSE_AVX
 #    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_AVX_inl.h>
 #  else
 #    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_inl.h>
 #  endif
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_NEON
 #  include <Foundation/SimdMath/Implementation/NEON/NEONDouble_inl.h>
 #else
 #  error "Unknown SIMD implementation."

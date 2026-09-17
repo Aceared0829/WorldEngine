@@ -5,10 +5,10 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-EZ_DEFINE_AS_POD_TYPE(vk::PresentModeKHR);
+W_DEFINE_AS_POD_TYPE(vk::PresentModeKHR);
 
-/// Helper functions to convert and extract Vulkan objects from EZ objects.
-class EZ_RENDERERVULKAN_DLL ezConversionUtilsVulkan
+/// Helper functions to convert and extract Vulkan objects from W objects.
+class W_RENDERERVULKAN_DLL WConversionUtilsVulkan
 {
 public:
   /// Helper function to hash vk enums.
@@ -25,37 +25,37 @@ public:
     return static_cast<typename T::MaskType>(value);
   }
 
-  static vk::AttachmentLoadOp GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op);
-  static vk::AttachmentStoreOp GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op);
-  static vk::VertexInputRate GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate);
-  static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);
-  static vk::PresentModeKHR GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes);
-  static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& desc);
+  static vk::AttachmentLoadOp GetAttachmentLoadOp(WEnum<WGALRenderTargetLoadOp> op);
+  static vk::AttachmentStoreOp GetAttachmentStoreOp(WEnum<WGALRenderTargetStoreOp> op);
+  static vk::VertexInputRate GetVertexBindingRate(WEnum<WGALVertexBindingRate> rate);
+  static vk::SampleCountFlagBits GetSamples(WEnum<WGALMSAASampleCount> samples);
+  static vk::PresentModeKHR GetPresentMode(WEnum<WGALPresentMode> presentMode, const WDynamicArray<vk::PresentModeKHR>& supportedModes);
+  static vk::ImageSubresourceRange GetSubresourceRange(const WGALTextureCreationDescription& texDesc, const WGALRenderTargetViewCreationDescription& desc);
   static vk::ImageSubresourceRange GetSubresourceRange(const vk::ImageSubresourceLayers& layers);
-  static vk::ImageSubresourceRange GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange);
-  static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType);
-  static vk::ImageViewType GetImageViewType(ezEnum<ezGALShaderTextureType> texType);
-  static vk::ImageViewType GetImageArrayViewType(ezEnum<ezGALTextureType> texType);
+  static vk::ImageSubresourceRange GetSubresourceRange(WGALResourceFormat::Enum format, WGALTextureRange textureRange);
+  static vk::ImageViewType GetImageViewType(WEnum<WGALTextureType> texType);
+  static vk::ImageViewType GetImageViewType(WEnum<WGALShaderTextureType> texType);
+  static vk::ImageViewType GetImageArrayViewType(WEnum<WGALTextureType> texType);
 
   static bool IsDepthFormat(vk::Format format);
   static bool IsStencilFormat(vk::Format format);
   static vk::ImageLayout GetTextureReadLayout(vk::Format format);
-  static vk::PrimitiveTopology GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology);
-  static vk::ShaderStageFlagBits GetShaderStage(ezGALShaderStage::Enum stage);
-  static vk::ShaderStageFlagBits GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages);
-  static vk::PipelineStageFlags GetPipelineStage(ezGALShaderStage::Enum stage);
+  static vk::PrimitiveTopology GetPrimitiveTopology(WEnum<WGALPrimitiveTopology> topology);
+  static vk::ShaderStageFlagBits GetShaderStage(WGALShaderStage::Enum stage);
+  static vk::ShaderStageFlagBits GetShaderStages(WBitflags<WGALShaderStageFlags> stages);
+  static vk::PipelineStageFlags GetPipelineStage(WGALShaderStage::Enum stage);
   static vk::PipelineStageFlags GetPipelineStage(vk::ShaderStageFlags flags);
-  static vk::PipelineStageFlags GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages);
-  static vk::DescriptorType GetDescriptorType(ezGALShaderResourceType::Enum type);
+  static vk::PipelineStageFlags GetPipelineStages(WBitflags<WGALShaderStageFlags> stages);
+  static vk::DescriptorType GetDescriptorType(WGALShaderResourceType::Enum type);
 
-  /// Converts an ezGALResourceState bitmask to the equivalent Vulkan pipeline stages and access flags.
-  static void ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags& out_stages, vk::AccessFlags& out_access);
+  /// Converts an WGALResourceState bitmask to the equivalent Vulkan pipeline stages and access flags.
+  static void ConvertResourceState(WBitflags<WGALResourceState> state, vk::PipelineStageFlags& out_stages, vk::AccessFlags& out_access);
 
-  /// Converts an ezGALResourceState bitmask to Synchronization2 pipeline stages and access flags.
-  static void ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags2& out_stages, vk::AccessFlags2& out_access);
+  /// Converts an WGALResourceState bitmask to Synchronization2 pipeline stages and access flags.
+  static void ConvertResourceState(WBitflags<WGALResourceState> state, vk::PipelineStageFlags2& out_stages, vk::AccessFlags2& out_access);
 
   /// Returns the Vulkan image layout that corresponds to the given resource state.
-  static vk::ImageLayout GetTextureLayout(ezBitflags<ezGALResourceState> state);
+  static vk::ImageLayout GetTextureLayout(WBitflags<WGALResourceState> state);
 };
 
 #include <RendererVulkan/Utils/Implementation/ConversionUtilsVulkan.inl.h>

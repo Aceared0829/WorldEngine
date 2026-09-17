@@ -15,55 +15,55 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
-ezCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, ezCVarFlags::Default, "Enables render data caching of static objects");
+WCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, WCVarFlags::Default, "Enables multi-threaded update and rendering");
+WCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, WCVarFlags::Default, "Enables render data caching of static objects");
 
-ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;
-ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewDeletedEvent;
+WEvent<WView*, WMutex> WRenderWorld::s_ViewCreatedEvent;
+WEvent<WView*, WMutex> WRenderWorld::s_ViewDeletedEvent;
 
-ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
-bool ezRenderWorld::s_bModifyingCameraConfigs = false;
-ezMap<ezString, ezRenderWorld::CameraConfig> ezRenderWorld::s_CameraConfigs;
+WEvent<void*> WRenderWorld::s_CameraConfigsModifiedEvent;
+bool WRenderWorld::s_bModifyingCameraConfigs = false;
+WMap<WString, WRenderWorld::CameraConfig> WRenderWorld::s_CameraConfigs;
 
-ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> ezRenderWorld::s_ExtractionEvent;
-ezEvent<const ezRenderWorldRenderEvent&, ezMutex> ezRenderWorld::s_RenderEvent;
-ezUInt64 ezRenderWorld::s_uiFrameCounter;
+WEvent<const WRenderWorldExtractionEvent&, WMutex> WRenderWorld::s_ExtractionEvent;
+WEvent<const WRenderWorldRenderEvent&, WMutex> WRenderWorld::s_RenderEvent;
+WUInt64 WRenderWorld::s_uiFrameCounter;
 
 namespace
 {
   static bool s_bInExtract;
-  static ezThreadID s_RenderingThreadID;
+  static WThreadID s_RenderingThreadID;
 
-  static ezMutex s_ExtractTasksMutex;
-  static ezDynamicArray<ezTaskGroupID> s_ExtractTasks;
+  static WMutex s_ExtractTasksMutex;
+  static WDynamicArray<WTaskGroupID> s_ExtractTasks;
 
-  static ezMutex s_ViewsMutex;
-  static ezIdTable<ezViewId, ezView*> s_Views;
+  static WMutex s_ViewsMutex;
+  static WIdTable<WViewId, WView*> s_Views;
 
-  static ezDynamicArray<ezViewHandle> s_MainViews;
+  static WDynamicArray<WViewHandle> s_MainViews;
 
-  static ezMutex s_ViewsToRenderMutex;
-  static ezDynamicArray<ezView*> s_ViewsToRender;
+  static WMutex s_ViewsToRenderMutex;
+  static WDynamicArray<WView*> s_ViewsToRender;
 
-  static ezDynamicArray<ezSharedPtr<ezRenderPipeline>> s_FilteredRenderPipelines[2];
+  static WDynamicArray<WSharedPtr<WRenderPipeline>> s_FilteredRenderPipelines[2];
 
   struct PipelineToRebuild
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezRenderPipeline* m_pPipeline;
-    ezViewHandle m_hView;
+    WRenderPipeline* m_pPipeline;
+    WViewHandle m_hView;
   };
 
-  static ezMutex s_PipelinesToRebuildMutex;
-  static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
+  static WMutex s_PipelinesToRebuildMutex;
+  static WDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 
-  static ezProxyAllocator* s_pCacheAllocator;
+  static WProxyAllocator* s_pCacheAllocator;
 
-  static ezMutex s_CachedRenderDataMutex;
-  using CachedRenderDataPerComponent = ezHybridArray<const ezRenderData*, 4>;
-  static ezHashTable<ezComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
-  static ezDynamicArray<const ezRenderData*> s_DeletedRenderData;
+  static WMutex s_CachedRenderDataMutex;
+  using CachedRenderDataPerComponent = WHybridArray<const WRenderData*, 4>;
+  static WHashTable<WComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
+  static WDynamicArray<const WRenderData*> s_DeletedRenderData;
 
   enum
   {
@@ -71,18 +71,18 @@ namespace
   };
 
   static bool s_bWriteRenderPipelineDgml = false;
-  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []()
+  static WConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []()
     { s_bWriteRenderPipelineDgml = true; });
 } // namespace
 
-namespace ezInternal
+namespace WInternal
 {
   struct RenderDataCache
   {
-    RenderDataCache(ezAllocator* pAllocator)
+    RenderDataCache(WAllocator* pAllocator)
       : m_PerObjectCaches(pAllocator)
     {
-      for (ezUInt32 i = 0; i < MaxNumNewCacheEntries; ++i)
+      for (WUInt32 i = 0; i < MaxNumNewCacheEntries; ++i)
       {
         m_NewEntriesPerComponent.PushBack(NewEntryPerComponent(pAllocator));
       }
@@ -92,51 +92,51 @@ namespace ezInternal
     {
       PerObjectCache() = default;
 
-      PerObjectCache(ezAllocator* pAllocator)
+      PerObjectCache(WAllocator* pAllocator)
         : m_Entries(pAllocator)
       {
       }
 
-      ezHybridArray<RenderDataCacheEntry, 4> m_Entries;
-      ezUInt16 m_uiVersion = 0;
+      WHybridArray<RenderDataCacheEntry, 4> m_Entries;
+      WUInt16 m_uiVersion = 0;
       bool m_bHasDependencies = false;
     };
 
     struct PerObjectDependenciesCache
     {
-      ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
-      ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
-      ezUInt16 m_uiVersion = 0;
+      WSmallArray<WTextureDependency, 4> m_TextureDependencies;
+      WSmallArray<WBufferDependency, 4> m_BufferDependencies;
+      WUInt16 m_uiVersion = 0;
     };
 
-    ezDynamicArray<PerObjectCache> m_PerObjectCaches;
-    ezHashTable<ezUInt32, PerObjectDependenciesCache> m_PerObjectDependenciesCache;
+    WDynamicArray<PerObjectCache> m_PerObjectCaches;
+    WHashTable<WUInt32, PerObjectDependenciesCache> m_PerObjectDependenciesCache;
 
     struct NewEntryPerComponent
     {
-      NewEntryPerComponent(ezAllocator* pAllocator)
+      NewEntryPerComponent(WAllocator* pAllocator)
         : m_Cache(pAllocator)
       {
       }
 
-      ezGameObjectHandle m_hOwnerObject;
-      ezComponentHandle m_hOwnerComponent;
+      WGameObjectHandle m_hOwnerObject;
+      WComponentHandle m_hOwnerComponent;
       PerObjectCache m_Cache;
-      ezSmallArray<ezTextureDependency, 2> m_TextureDependencies;
-      ezSmallArray<ezBufferDependency, 2> m_BufferDependencies;
+      WSmallArray<WTextureDependency, 2> m_TextureDependencies;
+      WSmallArray<WBufferDependency, 2> m_BufferDependencies;
     };
 
-    ezStaticArray<NewEntryPerComponent, MaxNumNewCacheEntries> m_NewEntriesPerComponent;
-    ezAtomicInteger32 m_NewEntriesCount;
+    WStaticArray<NewEntryPerComponent, MaxNumNewCacheEntries> m_NewEntriesPerComponent;
+    WAtomicInteger32 m_NewEntriesCount;
   };
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#if W_ENABLED(W_PLATFORM_64BIT)
   static_assert(sizeof(RenderDataCacheEntry) == 16);
 #endif
-} // namespace ezInternal
+} // namespace WInternal
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -145,29 +145,29 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezRenderWorld::OnEngineStartup();
+    WRenderWorld::OnEngineStartup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezRenderWorld::OnEngineShutdown();
+    WRenderWorld::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezViewHandle ezRenderWorld::CreateView(ezStringView sName, ezView*& out_pView)
+WViewHandle WRenderWorld::CreateView(WStringView sName, WView*& out_pView)
 {
-  ezView* pView = EZ_DEFAULT_NEW(ezView);
+  WView* pView = W_DEFAULT_NEW(WView);
 
   {
-    EZ_LOCK(s_ViewsMutex);
+    W_LOCK(s_ViewsMutex);
     pView->m_InternalId = s_Views.Insert(pView);
   }
 
   pView->SetName(sName);
 
-  pView->m_pRenderDataCache = EZ_NEW(s_pCacheAllocator, ezInternal::RenderDataCache, s_pCacheAllocator);
+  pView->m_pRenderDataCache = W_NEW(s_pCacheAllocator, WInternal::RenderDataCache, s_pCacheAllocator);
 
   s_ViewCreatedEvent.Broadcast(pView);
 
@@ -175,24 +175,24 @@ ezViewHandle ezRenderWorld::CreateView(ezStringView sName, ezView*& out_pView)
   return pView->GetHandle();
 }
 
-void ezRenderWorld::DeleteView(const ezViewHandle& hView)
+void WRenderWorld::DeleteView(const WViewHandle& hView)
 {
-  ezView* pView = nullptr;
+  WView* pView = nullptr;
 
   {
-    EZ_LOCK(s_ViewsMutex);
+    W_LOCK(s_ViewsMutex);
     if (!s_Views.Remove(hView, &pView))
       return;
   }
 
   s_ViewDeletedEvent.Broadcast(pView);
 
-  EZ_DELETE(s_pCacheAllocator, pView->m_pRenderDataCache);
+  W_DELETE(s_pCacheAllocator, pView->m_pRenderDataCache);
 
   {
-    EZ_LOCK(s_PipelinesToRebuildMutex);
+    W_LOCK(s_PipelinesToRebuildMutex);
 
-    for (ezUInt32 i = s_PipelinesToRebuild.GetCount(); i-- > 0;)
+    for (WUInt32 i = s_PipelinesToRebuild.GetCount(); i-- > 0;)
     {
       if (s_PipelinesToRebuild[i].m_hView == hView)
       {
@@ -203,24 +203,24 @@ void ezRenderWorld::DeleteView(const ezViewHandle& hView)
 
   RemoveMainView(hView);
 
-  EZ_DEFAULT_DELETE(pView);
+  W_DEFAULT_DELETE(pView);
 }
 
-bool ezRenderWorld::TryGetView(const ezViewHandle& hView, ezView*& out_pView)
+bool WRenderWorld::TryGetView(const WViewHandle& hView, WView*& out_pView)
 {
-  EZ_LOCK(s_ViewsMutex);
+  W_LOCK(s_ViewsMutex);
   return s_Views.TryGetValue(hView, out_pView);
 }
 
-ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/, const ezWorld* pWorld /*= nullptr*/)
+WView* WRenderWorld::GetViewByUsageHint(WCameraUsageHint::Enum usageHint, WCameraUsageHint::Enum alternativeUsageHint /*= WCameraUsageHint::None*/, const WWorld* pWorld /*= nullptr*/)
 {
-  EZ_LOCK(s_ViewsMutex);
+  W_LOCK(s_ViewsMutex);
 
-  ezView* pAlternativeView = nullptr;
+  WView* pAlternativeView = nullptr;
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
+    WView* pView = it.Value();
     if (pWorld != nullptr && pView->GetWorld() != pWorld)
       continue;
 
@@ -228,7 +228,7 @@ ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezC
     {
       return pView;
     }
-    else if (alternativeUsageHint != ezCameraUsageHint::None && pView->GetCameraUsageHint() == alternativeUsageHint)
+    else if (alternativeUsageHint != WCameraUsageHint::None && pView->GetCameraUsageHint() == alternativeUsageHint)
     {
       pAlternativeView = pView;
     }
@@ -237,46 +237,46 @@ ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezC
   return pAlternativeView;
 }
 
-void ezRenderWorld::AddMainView(const ezViewHandle& hView)
+void WRenderWorld::AddMainView(const WViewHandle& hView)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main view during extraction");
+  W_ASSERT_DEV(!s_bInExtract, "Cannot add main view during extraction");
 
   if (!s_MainViews.Contains(hView))
     s_MainViews.PushBack(hView);
 }
 
-void ezRenderWorld::RemoveMainView(const ezViewHandle& hView)
+void WRenderWorld::RemoveMainView(const WViewHandle& hView)
 {
-  ezUInt32 uiIndex = s_MainViews.IndexOf(hView);
-  if (uiIndex != ezInvalidIndex)
+  WUInt32 uiIndex = s_MainViews.IndexOf(hView);
+  if (uiIndex != WInvalidIndex)
   {
-    EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
+    W_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
     s_MainViews.RemoveAtAndCopy(uiIndex);
   }
 }
 
-void ezRenderWorld::ClearMainViews()
+void WRenderWorld::ClearMainViews()
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot clear main views during extraction");
+  W_ASSERT_DEV(!s_bInExtract, "Cannot clear main views during extraction");
 
   s_MainViews.Clear();
 }
 
-ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
+WArrayPtr<WViewHandle> WRenderWorld::GetMainViews()
 {
   return s_MainViews;
 }
 
-bool ezRenderWorld::IsRenderingScheduled()
+bool WRenderWorld::IsRenderingScheduled()
 {
   return !s_MainViews.IsEmpty() || !s_FilteredRenderPipelines[GetDataIndexForRendering()].IsEmpty();
 }
 
-void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies, ezArrayPtr<const ezBufferDependency> bufferDependencies)
+void WRenderWorld::CacheRenderData(const WView& view, const WGameObjectHandle& hOwnerObject, const WComponentHandle& hOwnerComponent, WUInt16 uiComponentVersion, WArrayPtr<WInternal::RenderDataCacheEntry> cacheEntries, WArrayPtr<const WTextureDependency> textureDependencies, WArrayPtr<const WBufferDependency> bufferDependencies)
 {
   if (cvar_RenderingCachingStaticObjects)
   {
-    ezUInt32 uiNewEntriesCount = view.m_pRenderDataCache->m_NewEntriesCount;
+    WUInt32 uiNewEntriesCount = view.m_pRenderDataCache->m_NewEntriesCount;
     if (uiNewEntriesCount >= MaxNumNewCacheEntries)
     {
       return;
@@ -296,25 +296,25 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
   }
 }
 
-void ezRenderWorld::DeleteAllCachedRenderData()
+void WRenderWorld::DeleteAllCachedRenderData()
 {
-  EZ_PROFILE_SCOPE("DeleteAllCachedRenderData");
+  W_PROFILE_SCOPE("DeleteAllCachedRenderData");
 
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
+  W_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
   {
-    EZ_LOCK(s_ViewsMutex);
+    W_LOCK(s_ViewsMutex);
 
     for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
     {
-      ezView* pView = it.Value();
+      WView* pView = it.Value();
       pView->m_pRenderDataCache->m_PerObjectCaches.Clear();
       pView->m_pRenderDataCache->m_PerObjectDependenciesCache.Clear();
     }
   }
 
   {
-    EZ_LOCK(s_CachedRenderDataMutex);
+    W_LOCK(s_CachedRenderDataMutex);
 
     for (auto it = s_CachedRenderData.GetIterator(); it.IsValid(); ++it)
     {
@@ -330,13 +330,13 @@ void ezRenderWorld::DeleteAllCachedRenderData()
   }
 }
 
-void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent)
+void WRenderWorld::DeleteCachedRenderData(const WGameObjectHandle& hOwnerObject, const WComponentHandle& hOwnerComponent)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
+  W_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
   DeleteCachedRenderDataInternal(hOwnerObject);
 
-  EZ_LOCK(s_CachedRenderDataMutex);
+  W_LOCK(s_CachedRenderDataMutex);
 
   CachedRenderDataPerComponent* pCachedRenderDataPerComponent = nullptr;
   if (s_CachedRenderData.TryGetValue(hOwnerComponent, pCachedRenderDataPerComponent))
@@ -350,7 +350,7 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
   }
 }
 
-void ezRenderWorld::ResetRenderDataCache(ezView& ref_view)
+void WRenderWorld::ResetRenderDataCache(WView& ref_view)
 {
   ref_view.m_pRenderDataCache->m_PerObjectCaches.Clear();
   ref_view.m_pRenderDataCache->m_PerObjectDependenciesCache.Clear();
@@ -358,25 +358,25 @@ void ezRenderWorld::ResetRenderDataCache(ezView& ref_view)
 
   if (ref_view.GetWorld() != nullptr)
   {
-    if (ref_view.GetWorld()->GetObjectDeletionEvent().HasEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject) == false)
+    if (ref_view.GetWorld()->GetObjectDeletionEvent().HasEventHandler(&WRenderWorld::DeleteCachedRenderDataForObject) == false)
     {
-      ref_view.GetWorld()->GetObjectDeletionEvent().AddEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject);
+      ref_view.GetWorld()->GetObjectDeletionEvent().AddEventHandler(&WRenderWorld::DeleteCachedRenderDataForObject);
     }
   }
 }
 
-void ezRenderWorld::DeleteCachedRenderDataForObject(const ezGameObject* pOwnerObject)
+void WRenderWorld::DeleteCachedRenderDataForObject(const WGameObject* pOwnerObject)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
+  W_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
   DeleteCachedRenderDataInternal(pOwnerObject->GetHandle());
 
-  EZ_LOCK(s_CachedRenderDataMutex);
+  W_LOCK(s_CachedRenderDataMutex);
 
   auto components = pOwnerObject->GetComponents();
   for (auto pComponent : components)
   {
-    ezComponentHandle hComponent = pComponent->GetHandle();
+    WComponentHandle hComponent = pComponent->GetHandle();
 
     CachedRenderDataPerComponent* pCachedRenderDataPerComponent = nullptr;
     if (s_CachedRenderData.TryGetValue(hComponent, pCachedRenderDataPerComponent))
@@ -391,7 +391,7 @@ void ezRenderWorld::DeleteCachedRenderDataForObject(const ezGameObject* pOwnerOb
   }
 }
 
-void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject* pOwnerObject)
+void WRenderWorld::DeleteCachedRenderDataForObjectRecursive(const WGameObject* pOwnerObject)
 {
   DeleteCachedRenderDataForObject(pOwnerObject);
 
@@ -401,12 +401,12 @@ void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject*
   }
 }
 
-ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies)
+WArrayPtr<const WInternal::RenderDataCacheEntry> WRenderWorld::GetCachedRenderData(const WView& view, const WGameObjectHandle& hOwner, WUInt16 uiComponentVersion, WArrayPtr<const WTextureDependency>& out_textureDependencies, WArrayPtr<const WBufferDependency>& out_bufferDependencies)
 {
   if (cvar_RenderingCachingStaticObjects)
   {
     const auto& perObjectCaches = view.m_pRenderDataCache->m_PerObjectCaches;
-    ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
+    WUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
     if (uiCacheIndex < perObjectCaches.GetCount())
     {
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
@@ -415,7 +415,7 @@ ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRende
         if (perObjectCache.m_bHasDependencies)
         {
           const auto& perObjectDependenciesCaches = view.m_pRenderDataCache->m_PerObjectDependenciesCache;
-          ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
+          WUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
 
           auto it = perObjectDependenciesCaches.Find(uiCacheIndex);
           if (it.IsValid() && it.Value().m_uiVersion == uiComponentVersion)
@@ -430,12 +430,12 @@ ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRende
     }
   }
 
-  return ezArrayPtr<const ezInternal::RenderDataCacheEntry>();
+  return WArrayPtr<const WInternal::RenderDataCacheEntry>();
 }
 
-void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
+void WRenderWorld::AddViewToRender(const WViewHandle& hView)
 {
-  ezView* pView = nullptr;
+  WView* pView = nullptr;
   if (!TryGetView(hView, pView))
     return;
 
@@ -443,13 +443,13 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
     return;
 
   {
-    EZ_LOCK(s_ViewsToRenderMutex);
-    EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
+    W_LOCK(s_ViewsToRenderMutex);
+    W_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
 
     // make sure the view is put at the end of the array, if it is already there, reorder it
     // this ensures that the views that have been referenced by the last other view, get rendered first
-    ezUInt32 uiIndex = s_ViewsToRender.IndexOf(pView);
-    if (uiIndex != ezInvalidIndex)
+    WUInt32 uiIndex = s_ViewsToRender.IndexOf(pView);
+    if (uiIndex != WInvalidIndex)
     {
       s_ViewsToRender.RemoveAtAndCopy(uiIndex);
       s_ViewsToRender.PushBack(pView);
@@ -461,10 +461,10 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
 
   if (cvar_RenderingMultithreading)
   {
-    ezTaskGroupID extractTaskID = ezTaskSystem::StartSingleTask(pView->GetExtractTask(), ezTaskPriority::EarlyThisFrame);
+    WTaskGroupID extractTaskID = WTaskSystem::StartSingleTask(pView->GetExtractTask(), WTaskPriority::EarlyThisFrame);
 
     {
-      EZ_LOCK(s_ExtractTasksMutex);
+      W_LOCK(s_ExtractTasksMutex);
       s_ExtractTasks.PushBack(extractTaskID);
     }
   }
@@ -474,9 +474,9 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
   }
 }
 
-void ezRenderWorld::AddViewDependency(const ezView& consumerView, ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+void WRenderWorld::AddViewDependency(const WView& consumerView, WGALTextureHandle hTexture, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage)
 {
-  EZ_ASSERT_DEV(s_bInExtract, "AddViewDependency must be called during extraction");
+  W_ASSERT_DEV(s_bInExtract, "AddViewDependency must be called during extraction");
 
   if (consumerView.m_pRenderPipeline)
   {
@@ -484,9 +484,9 @@ void ezRenderWorld::AddViewDependency(const ezView& consumerView, ezGALTextureHa
   }
 }
 
-void ezRenderWorld::AddViewDependency(const ezView& consumerView, ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+void WRenderWorld::AddViewDependency(const WView& consumerView, WGALBufferHandle hBuffer, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage)
 {
-  EZ_ASSERT_DEV(s_bInExtract, "AddViewDependency must be called during extraction");
+  W_ASSERT_DEV(s_bInExtract, "AddViewDependency must be called during extraction");
 
   if (consumerView.m_pRenderPipeline)
   {
@@ -494,9 +494,9 @@ void ezRenderWorld::AddViewDependency(const ezView& consumerView, ezGALBufferHan
   }
 }
 
-void ezRenderWorld::ExtractMainViews()
+void WRenderWorld::ExtractMainViews()
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "ExtractMainViews must not be called from multiple threads.");
+  W_ASSERT_DEV(!s_bInExtract, "ExtractMainViews must not be called from multiple threads.");
 
   s_bInExtract = true;
 
@@ -504,45 +504,45 @@ void ezRenderWorld::ExtractMainViews()
   // which appends the tasks that we have to wait for below
   if (cvar_RenderingMultithreading)
   {
-    EZ_LOCK(s_ExtractTasksMutex);
+    W_LOCK(s_ExtractTasksMutex);
     s_ExtractTasks.Clear();
   }
 
-  ezRenderWorldExtractionEvent extractionEvent;
-  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeginExtraction;
+  WRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = WRenderWorldExtractionEvent::Type::BeginExtraction;
   extractionEvent.m_uiFrameCounter = s_uiFrameCounter;
   s_ExtractionEvent.Broadcast(extractionEvent);
 
   if (cvar_RenderingMultithreading)
   {
-    ezTaskGroupID extractTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+    WTaskGroupID extractTaskID = WTaskSystem::CreateTaskGroup(WTaskPriority::EarlyThisFrame);
     s_ExtractTasks.PushBack(extractTaskID);
 
     {
-      EZ_LOCK(s_ViewsMutex);
+      W_LOCK(s_ViewsMutex);
 
-      for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
+      for (WUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
       {
-        ezView* pView = nullptr;
+        WView* pView = nullptr;
         if (s_Views.TryGetValue(s_MainViews[i], pView) && pView->IsValid())
         {
           s_ViewsToRender.PushBack(pView);
-          ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
+          WTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
         }
       }
     }
 
-    ezTaskSystem::StartTaskGroup(extractTaskID);
+    WTaskSystem::StartTaskGroup(extractTaskID);
 
     {
-      EZ_PROFILE_SCOPE("Wait for Extraction");
+      W_PROFILE_SCOPE("Wait for Extraction");
 
       while (true)
       {
-        ezTaskGroupID taskID;
+        WTaskGroupID taskID;
 
         {
-          EZ_LOCK(s_ExtractTasksMutex);
+          W_LOCK(s_ExtractTasksMutex);
           if (s_ExtractTasks.IsEmpty())
             break;
 
@@ -550,15 +550,15 @@ void ezRenderWorld::ExtractMainViews()
           s_ExtractTasks.PopBack();
         }
 
-        ezTaskSystem::WaitForGroup(taskID);
+        WTaskSystem::WaitForGroup(taskID);
       }
     }
   }
   else
   {
-    for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
+    for (WUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
     {
-      ezView* pView = nullptr;
+      WView* pView = nullptr;
       if (s_Views.TryGetValue(s_MainViews[i], pView) && pView->IsValid())
       {
         s_ViewsToRender.PushBack(pView);
@@ -572,7 +572,7 @@ void ezRenderWorld::ExtractMainViews()
     auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForExtraction()];
     filteredRenderPipelines.Clear();
 
-    for (ezUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
+    for (WUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
     {
       auto& pRenderPipeline = s_ViewsToRender[i]->m_pRenderPipeline;
       if (!filteredRenderPipelines.Contains(pRenderPipeline))
@@ -584,24 +584,24 @@ void ezRenderWorld::ExtractMainViews()
     s_ViewsToRender.Clear();
   }
 
-  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::EndExtraction;
+  extractionEvent.m_Type = WRenderWorldExtractionEvent::Type::EndExtraction;
   s_ExtractionEvent.Broadcast(extractionEvent);
 
   s_bInExtract = false;
 }
 
-void ezRenderWorld::Render(ezRenderContext* pRenderContext)
+void WRenderWorld::Render(WRenderContext* pRenderContext)
 {
-  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
-  ezStringBuilder sb;
+  const WUInt64 uiRenderFrame = WRenderWorld::GetUseMultithreadedRendering() ? WRenderWorld::GetFrameCounter() - 1 : WRenderWorld::GetFrameCounter();
+  WStringBuilder sb;
   sb.SetFormat("RENDER FRAME {}", uiRenderFrame);
-  EZ_PROFILE_SCOPE(sb.GetData());
+  W_PROFILE_SCOPE(sb.GetData());
 
-  ezRenderWorldRenderEvent renderEvent;
-  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
+  WRenderWorldRenderEvent renderEvent;
+  renderEvent.m_Type = WRenderWorldRenderEvent::Type::BeginRender;
   renderEvent.m_uiFrameCounter = s_uiFrameCounter;
   {
-    EZ_PROFILE_SCOPE("BeginRender");
+    W_PROFILE_SCOPE("BeginRender");
     s_RenderEvent.Broadcast(renderEvent);
   }
 
@@ -616,18 +616,18 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   {
     // Executed via WriteRenderPipelineDgml console command.
     s_bWriteRenderPipelineDgml = false;
-    const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
-    for (ezUInt32 i = 0; i < filteredRenderPipelines.GetCount(); ++i)
+    const WDateTime dt = WDateTime::MakeFromTimestamp(WTimestamp::CurrentTimestamp());
+    for (WUInt32 i = 0; i < filteredRenderPipelines.GetCount(); ++i)
     {
       auto& pRenderPipeline = filteredRenderPipelines[i];
-      ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
-      sPath.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}_Pipeline{}_{}.dgml", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), i, pRenderPipeline->GetViewName().GetData());
+      WStringBuilder sPath(":appdata/Profiling/", WApplication::GetApplicationInstance()->GetApplicationName());
+      sPath.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}_Pipeline{}_{}.dgml", dt.GetYear(), WArgU(dt.GetMonth(), 2, true), WArgU(dt.GetDay(), 2, true), WArgU(dt.GetHour(), 2, true), WArgU(dt.GetMinute(), 2, true), WArgU(dt.GetSecond(), 2, true), i, pRenderPipeline->GetViewName().GetData());
 
-      ezDGMLGraph graph(ezDGMLGraph::Direction::TopToBottom);
+      WDGMLGraph graph(WDGMLGraph::Direction::TopToBottom);
       pRenderPipeline->CreateDgmlGraph(graph);
-      if (ezDGMLGraphWriter::WriteGraphToFile(sPath, graph).Failed())
+      if (WDGMLGraphWriter::WriteGraphToFile(sPath, graph).Failed())
       {
-        ezLog::Error("Failed to write render pipeline dgml: {}", sPath);
+        WLog::Error("Failed to write render pipeline dgml: {}", sPath);
       }
     }
   }
@@ -641,28 +641,28 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
     }
     pRenderPipeline = nullptr;
   }
-  ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice::GetDefaultDevice());
+  WRenderGraphManager::ExecuteRenderGraphs(WGALDevice::GetDefaultDevice());
 
   filteredRenderPipelines.Clear();
   /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
   {
-    renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
-    EZ_PROFILE_SCOPE("EndRender");
+    renderEvent.m_Type = WRenderWorldRenderEvent::Type::EndRender;
+    W_PROFILE_SCOPE("EndRender");
     s_RenderEvent.Broadcast(renderEvent);
   }
 }
 
-void ezRenderWorld::BeginFrame()
+void WRenderWorld::BeginFrame()
 {
-  EZ_PROFILE_SCOPE("BeginFrame");
+  W_PROFILE_SCOPE("BeginFrame");
 
-  s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  s_RenderingThreadID = WThreadUtils::GetCurrentThreadID();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
+    WView* pView = it.Value();
     pView->EnsureUpToDate();
   }
 
@@ -670,32 +670,32 @@ void ezRenderWorld::BeginFrame()
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
   for (auto& pRenderPipeline : filteredRenderPipelines)
   {
-    ezGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
+    WGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
     if (!hSwapChain.IsInvalidated())
     {
       pDevice->EnqueueFrameSwapChain(hSwapChain);
     }
   }
 
-  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  const WUInt64 uiRenderFrame = WRenderWorld::GetUseMultithreadedRendering() ? WRenderWorld::GetFrameCounter() - 1 : WRenderWorld::GetFrameCounter();
   // This will acquire swap-chain textures and may have changed size
   {
-    ezLogBlock b("Device::BeginFrame");
+    WLogBlock b("Device::BeginFrame");
     pDevice->BeginFrame(uiRenderFrame);
   }
   RebuildPipelines();
 }
 
-void ezRenderWorld::EndFrame()
+void WRenderWorld::EndFrame()
 {
-  EZ_PROFILE_SCOPE("ezRenderWorld::EndFrame");
-  ezGALDevice::GetDefaultDevice()->EndFrame();
+  W_PROFILE_SCOPE("WRenderWorld::EndFrame");
+  WGALDevice::GetDefaultDevice()->EndFrame();
 
   ++s_uiFrameCounter;
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
+    WView* pView = it.Value();
     if (pView->IsValid())
     {
       pView->ReadBackPassProperties();
@@ -705,30 +705,30 @@ void ezRenderWorld::EndFrame()
   ClearRenderDataCache();
   UpdateRenderDataCache();
 
-  s_RenderingThreadID = (ezThreadID)0;
+  s_RenderingThreadID = (WThreadID)0;
 }
 
-bool ezRenderWorld::GetUseMultithreadedRendering()
+bool WRenderWorld::GetUseMultithreadedRendering()
 {
   return cvar_RenderingMultithreading;
 }
 
 
-bool ezRenderWorld::IsRenderingThread()
+bool WRenderWorld::IsRenderingThread()
 {
-  return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
+  return s_RenderingThreadID == WThreadUtils::GetCurrentThreadID();
 }
 
-void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject)
+void WRenderWorld::DeleteCachedRenderDataInternal(const WGameObjectHandle& hOwnerObject)
 {
-  ezUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
-  ezWorld* pWorld = ezWorld::GetWorld(hOwnerObject);
+  WUInt32 uiCacheIndex = hOwnerObject.GetInternalID().m_InstanceIndex;
+  WWorld* pWorld = WWorld::GetWorld(hOwnerObject);
 
-  EZ_LOCK(s_ViewsMutex);
+  W_LOCK(s_ViewsMutex);
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
+    WView* pView = it.Value();
     if (pView->GetWorld() != nullptr && pView->GetWorld() == pWorld)
     {
       auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
@@ -744,54 +744,54 @@ void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOw
   }
 }
 
-void ezRenderWorld::ClearRenderDataCache()
+void WRenderWorld::ClearRenderDataCache()
 {
-  EZ_PROFILE_SCOPE("Clear Render Data Cache");
+  W_PROFILE_SCOPE("Clear Render Data Cache");
 
   for (auto pRenderData : s_DeletedRenderData)
   {
-    ezRenderData* ptr = const_cast<ezRenderData*>(pRenderData);
-    EZ_DELETE(s_pCacheAllocator, ptr);
+    WRenderData* ptr = const_cast<WRenderData*>(pRenderData);
+    W_DELETE(s_pCacheAllocator, ptr);
   }
 
   s_DeletedRenderData.Clear();
 }
 
-void ezRenderWorld::UpdateRenderDataCache()
+void WRenderWorld::UpdateRenderDataCache()
 {
-  EZ_PROFILE_SCOPE("Update Render Data Cache");
+  W_PROFILE_SCOPE("Update Render Data Cache");
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
-    ezUInt32 uiNumNewEntries = ezMath::Min<ezInt32>(pView->m_pRenderDataCache->m_NewEntriesCount, MaxNumNewCacheEntries);
+    WView* pView = it.Value();
+    WUInt32 uiNumNewEntries = WMath::Min<WInt32>(pView->m_pRenderDataCache->m_NewEntriesCount, MaxNumNewCacheEntries);
     pView->m_pRenderDataCache->m_NewEntriesCount = 0;
 
     auto& perObjectCaches = pView->m_pRenderDataCache->m_PerObjectCaches;
 
-    for (ezUInt32 uiNewEntryIndex = 0; uiNewEntryIndex < uiNumNewEntries; ++uiNewEntryIndex)
+    for (WUInt32 uiNewEntryIndex = 0; uiNewEntryIndex < uiNumNewEntries; ++uiNewEntryIndex)
     {
       auto& newEntries = pView->m_pRenderDataCache->m_NewEntriesPerComponent[uiNewEntryIndex];
-      EZ_ASSERT_DEV(!newEntries.m_hOwnerObject.IsInvalidated(), "Implementation error");
+      W_ASSERT_DEV(!newEntries.m_hOwnerObject.IsInvalidated(), "Implementation error");
 
       // find or create cached render data
       auto& cachedRenderDataPerComponent = s_CachedRenderData[newEntries.m_hOwnerComponent];
 
-      const ezUInt32 uiNumCachedRenderData = cachedRenderDataPerComponent.GetCount();
+      const WUInt32 uiNumCachedRenderData = cachedRenderDataPerComponent.GetCount();
       if (uiNumCachedRenderData == 0) // Nothing cached yet
       {
         cachedRenderDataPerComponent = CachedRenderDataPerComponent(s_pCacheAllocator);
       }
 
-      ezUInt32 uiCachedRenderDataIndex = 0;
+      WUInt32 uiCachedRenderDataIndex = 0;
       for (auto& newEntry : newEntries.m_Cache.m_Entries)
       {
         if (newEntry.m_pRenderData != nullptr)
         {
           if (uiCachedRenderDataIndex >= cachedRenderDataPerComponent.GetCount())
           {
-            const ezRTTI* pRtti = newEntry.m_pRenderData->GetDynamicRTTI();
-            newEntry.m_pRenderData = pRtti->GetAllocator()->Clone<ezRenderData>(newEntry.m_pRenderData, s_pCacheAllocator);
+            const WRTTI* pRtti = newEntry.m_pRenderData->GetDynamicRTTI();
+            newEntry.m_pRenderData = pRtti->GetAllocator()->Clone<WRenderData>(newEntry.m_pRenderData, s_pCacheAllocator);
 
             cachedRenderDataPerComponent.PushBack(newEntry.m_pRenderData);
           }
@@ -806,7 +806,7 @@ void ezRenderWorld::UpdateRenderDataCache()
       }
 
       // add entry for this view
-      const ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
+      const WUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
       perObjectCaches.EnsureCount(uiCacheIndex + 1);
       const bool bHasDependencies = !newEntries.m_TextureDependencies.IsEmpty() || !newEntries.m_BufferDependencies.IsEmpty();
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
@@ -836,29 +836,29 @@ void ezRenderWorld::UpdateRenderDataCache()
           perObjectDependenciesCache.m_uiVersion = newEntries.m_Cache.m_uiVersion;
         }
 
-        for (const ezTextureDependency& dep : newEntries.m_TextureDependencies)
+        for (const WTextureDependency& dep : newEntries.m_TextureDependencies)
         {
           perObjectDependenciesCache.m_TextureDependencies.PushBack(dep);
         }
 
-        for (const ezBufferDependency& dep : newEntries.m_BufferDependencies)
+        for (const WBufferDependency& dep : newEntries.m_BufferDependencies)
         {
           perObjectDependenciesCache.m_BufferDependencies.PushBack(dep);
         }
       }
 
-      // keep entries sorted, otherwise the logic ezExtractor::ExtractRenderData doesn't work
+      // keep entries sorted, otherwise the logic WExtractor::ExtractRenderData doesn't work
       perObjectCache.m_Entries.Sort();
     }
   }
 }
 
 // static
-void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView)
+void WRenderWorld::AddRenderPipelineToRebuild(WRenderPipeline* pRenderPipeline, const WViewHandle& hView)
 {
-  EZ_ASSERT_DEV(pRenderPipeline != nullptr, "Pipeline must not be null");
+  W_ASSERT_DEV(pRenderPipeline != nullptr, "Pipeline must not be null");
 
-  EZ_LOCK(s_PipelinesToRebuildMutex);
+  W_LOCK(s_PipelinesToRebuildMutex);
 
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
@@ -875,18 +875,18 @@ void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline
 }
 
 // static
-void ezRenderWorld::RebuildPipelines()
+void WRenderWorld::RebuildPipelines()
 {
-  EZ_PROFILE_SCOPE("RebuildPipelines");
+  W_PROFILE_SCOPE("RebuildPipelines");
 
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
-    ezView* pView = nullptr;
+    WView* pView = nullptr;
     if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
     {
-      if (pipelineToRebuild.m_pPipeline->Rebuild(*pView) == ezRenderPipeline::PipelineState::RebuildError)
+      if (pipelineToRebuild.m_pPipeline->Rebuild(*pView) == WRenderPipeline::PipelineState::RebuildError)
       {
-        ezLog::Error("Failed to rebuild pipeline '{}' for view '{}'", pipelineToRebuild.m_pPipeline->m_sName, pView->GetName());
+        WLog::Error("Failed to rebuild pipeline '{}' for view '{}'", pipelineToRebuild.m_pPipeline->m_sName, pView->GetName());
       }
     }
   }
@@ -894,29 +894,29 @@ void ezRenderWorld::RebuildPipelines()
   s_PipelinesToRebuild.Clear();
 }
 
-void ezRenderWorld::OnEngineStartup()
+void WRenderWorld::OnEngineStartup()
 {
-  s_pCacheAllocator = EZ_DEFAULT_NEW(ezProxyAllocator, "Cached Render Data", ezFoundation::GetDefaultAllocator());
+  s_pCacheAllocator = W_DEFAULT_NEW(WProxyAllocator, "Cached Render Data", WFoundation::GetDefaultAllocator());
 
-  s_CachedRenderData = ezHashTable<ezComponentHandle, CachedRenderDataPerComponent>(s_pCacheAllocator);
+  s_CachedRenderData = WHashTable<WComponentHandle, CachedRenderDataPerComponent>(s_pCacheAllocator);
 }
 
-void ezRenderWorld::OnEngineShutdown()
+void WRenderWorld::OnEngineShutdown()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   for (auto it : s_CachedRenderData)
   {
     auto& cachedRenderDataPerComponent = it.Value();
     if (cachedRenderDataPerComponent.IsEmpty() == false)
     {
-      EZ_REPORT_FAILURE("Leaked cached render data of type '{}'", cachedRenderDataPerComponent[0]->GetDynamicRTTI()->GetTypeName());
+      W_REPORT_FAILURE("Leaked cached render data of type '{}'", cachedRenderDataPerComponent[0]->GetDynamicRTTI()->GetTypeName());
     }
   }
 #endif
 
   ClearRenderDataCache();
 
-  EZ_DEFAULT_DELETE(s_pCacheAllocator);
+  W_DEFAULT_DELETE(s_pCacheAllocator);
 
   s_FilteredRenderPipelines[0].Clear();
   s_FilteredRenderPipelines[1].Clear();
@@ -925,40 +925,40 @@ void ezRenderWorld::OnEngineShutdown()
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
-    EZ_DEFAULT_DELETE(pView);
+    WView* pView = it.Value();
+    W_DEFAULT_DELETE(pView);
   }
 
   s_Views.Clear();
   s_CameraConfigs.Clear();
 }
 
-void ezRenderWorld::BeginModifyCameraConfigs()
+void WRenderWorld::BeginModifyCameraConfigs()
 {
-  EZ_ASSERT_DEBUG(!s_bModifyingCameraConfigs, "Recursive call not allowed.");
+  W_ASSERT_DEBUG(!s_bModifyingCameraConfigs, "Recursive call not allowed.");
   s_bModifyingCameraConfigs = true;
 }
 
-void ezRenderWorld::EndModifyCameraConfigs()
+void WRenderWorld::EndModifyCameraConfigs()
 {
-  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  W_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call WRenderWorld::BeginModifyCameraConfigs first");
   s_bModifyingCameraConfigs = false;
   s_CameraConfigsModifiedEvent.Broadcast(nullptr);
 }
 
-void ezRenderWorld::ClearCameraConfigs()
+void WRenderWorld::ClearCameraConfigs()
 {
-  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  W_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call WRenderWorld::BeginModifyCameraConfigs first");
   s_CameraConfigs.Clear();
 }
 
-void ezRenderWorld::SetCameraConfig(const char* szName, const CameraConfig& config)
+void WRenderWorld::SetCameraConfig(const char* szName, const CameraConfig& config)
 {
-  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  W_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call WRenderWorld::BeginModifyCameraConfigs first");
   s_CameraConfigs[szName] = config;
 }
 
-const ezRenderWorld::CameraConfig* ezRenderWorld::FindCameraConfig(const char* szName)
+const WRenderWorld::CameraConfig* WRenderWorld::FindCameraConfig(const char* szName)
 {
   auto it = s_CameraConfigs.Find(szName);
 
@@ -968,4 +968,4 @@ const ezRenderWorld::CameraConfig* ezRenderWorld::FindCameraConfig(const char* s
   return &it.Value();
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);
+W_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);

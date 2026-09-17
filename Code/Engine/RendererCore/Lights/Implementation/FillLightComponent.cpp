@@ -9,65 +9,65 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+extern WCVarBool cvar_RenderingLightingVisScreenSpaceSize;
 #endif
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFillLightMode, 1)
-  EZ_ENUM_CONSTANTS(ezFillLightMode::Additive, ezFillLightMode::Subtractive, ezFillLightMode::ModulateIndirect)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WFillLightMode, 1)
+  W_ENUM_CONSTANTS(WFillLightMode::Additive, WFillLightMode::Subtractive, WFillLightMode::ModulateIndirect)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFillLightRenderData, 1, ezRTTIDefaultAllocator<ezFillLightRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFillLightRenderData, 1, WRTTIDefaultAllocator<WFillLightRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezFillLightRenderData::FillSortingKey(float fScreenSpaceSize)
+void WFillLightRenderData::FillSortingKey(float fScreenSpaceSize)
 {
-  const ezUInt32 uiSortingKey = 10000u - static_cast<ezUInt32>(ezMath::Clamp(fScreenSpaceSize, 0.0f, 10.0f) * 1000.0f);
+  const WUInt32 uiSortingKey = 10000u - static_cast<WUInt32>(WMath::Clamp(fScreenSpaceSize, 0.0f, 10.0f) * 1000.0f);
   m_uiSortingKey = 0x1000000 + uiSortingKey;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezFillLightComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WFillLightComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("EffectiveColor", GetEffectiveColor)->AddAttributes(new ezHiddenAttribute),
-    EZ_ENUM_ACCESSOR_PROPERTY("LightMode", ezFillLightMode, GetLightMode, SetLightMode),
-    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
-    EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
-    EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezImageSliderUiAttribute("LightTemperature"), new ezDefaultValueAttribute(6550), new ezClampValueAttribute(1000, 15000)),
-    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(5.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("FalloffExponent", GetFalloffExponent, SetFalloffExponent)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("Directionality", GetDirectionality, SetDirectionality)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY_READ_ONLY("EffectiveColor", GetEffectiveColor)->AddAttributes(new WHiddenAttribute),
+    W_ENUM_ACCESSOR_PROPERTY("LightMode", WFillLightMode, GetLightMode, SetLightMode),
+    W_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
+    W_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
+    W_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new WImageSliderUiAttribute("LightTemperature"), new WDefaultValueAttribute(6550), new WClampValueAttribute(1000, 15000)),
+    W_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(5.0f), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("FalloffExponent", GetFalloffExponent, SetFalloffExponent)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("Directionality", GetDirectionality, SetDirectionality)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f), new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Lighting"),
-    new ezSphereManipulatorAttribute("Range"),
-    new ezSphereVisualizerAttribute("Range", ezColor::White, "LightColor"),
+    new WCategoryAttribute("Lighting"),
+    new WSphereManipulatorAttribute("Range"),
+    new WSphereVisualizerAttribute("Range", WColor::White, "LightColor"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezFillLightComponent::ezFillLightComponent() = default;
-ezFillLightComponent::~ezFillLightComponent() = default;
+WFillLightComponent::WFillLightComponent() = default;
+WFillLightComponent::~WFillLightComponent() = default;
 
-void ezFillLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WFillLightComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_LightColor;
   s << m_uiTemperature;
@@ -79,11 +79,11 @@ void ezFillLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_bUseColorTemperature;
 }
 
-void ezFillLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WFillLightComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_LightColor;
   s >> m_uiTemperature;
@@ -95,45 +95,45 @@ void ezFillLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_bUseColorTemperature;
 }
 
-ezResult ezFillLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WFillLightComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRange);
-  return EZ_SUCCESS;
+  ref_bounds = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRange);
+  return W_SUCCESS;
 }
 
-void ezFillLightComponent::SetLightMode(ezEnum<ezFillLightMode> mode)
+void WFillLightComponent::SetLightMode(WEnum<WFillLightMode> mode)
 {
   m_LightMode = mode;
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
+void WFillLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
 {
   m_bUseColorTemperature = bUseColorTemperature;
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::SetTemperature(ezUInt32 uiTemperature)
+void WFillLightComponent::SetTemperature(WUInt32 uiTemperature)
 {
-  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
+  m_uiTemperature = WMath::Clamp(uiTemperature, 1500u, 40000u);
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::SetLightColor(ezColorGammaUB lightColor)
+void WFillLightComponent::SetLightColor(WColorGammaUB lightColor)
 {
   m_LightColor = lightColor;
 
   InvalidateCachedRenderData();
 }
 
-ezColorGammaUB ezFillLightComponent::GetEffectiveColor() const
+WColorGammaUB WFillLightComponent::GetEffectiveColor() const
 {
   if (m_bUseColorTemperature)
   {
-    return ezColor::MakeFromKelvin(m_uiTemperature);
+    return WColor::MakeFromKelvin(m_uiTemperature);
   }
   else
   {
@@ -141,65 +141,65 @@ ezColorGammaUB ezFillLightComponent::GetEffectiveColor() const
   }
 }
 
-void ezFillLightComponent::SetIntensity(float fIntensity)
+void WFillLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::SetRange(float fRange)
+void WFillLightComponent::SetRange(float fRange)
 {
-  m_fRange = ezMath::Max(fRange, 0.0f);
+  m_fRange = WMath::Max(fRange, 0.0f);
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezFillLightComponent::SetFalloffExponent(float fFalloffExponent)
+void WFillLightComponent::SetFalloffExponent(float fFalloffExponent)
 {
-  m_fFalloffExponent = ezMath::Max(fFalloffExponent, 0.0f);
+  m_fFalloffExponent = WMath::Max(fFalloffExponent, 0.0f);
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::SetDirectionality(float fDirectionality)
+void WFillLightComponent::SetDirectionality(float fDirectionality)
 {
-  m_fDirectionality = ezMath::Saturate(fDirectionality);
+  m_fDirectionality = WMath::Saturate(fDirectionality);
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WFillLightComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_LightColor);
 
   InvalidateCachedRenderData();
 }
 
-void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WFillLightComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow)
     return;
 
-  if ((m_LightMode == ezFillLightMode::Additive && ezMath::IsZero(m_fIntensity, ezMath::DefaultEpsilon<float>())) || m_fRange <= 0.0f)
+  if ((m_LightMode == WFillLightMode::Additive && WMath::IsZero(m_fIntensity, WMath::DefaultEpsilon<float>())) || m_fRange <= 0.0f)
     return;
 
-  const ezTransform t = GetOwner()->GetGlobalTransform();
-  const ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fRange);
+  const WTransform t = GetOwner()->GetGlobalTransform();
+  const WBoundingSphere bs = WBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fRange);
 
-  const float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
+  const float fScreenSpaceSize = WLightComponent::CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingLightingVisScreenSpaceSize)
   {
-    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
-    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
+    WColor c = WColorScheme::LightUI(WColorScheme::Cyan);
+    WDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), WFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
+    WDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
   }
 #endif
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFillLightRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WFillLightRenderData>(GetOwner());
 
   pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_LightMode = m_LightMode;
@@ -210,13 +210,13 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   pRenderData->FillSortingKey(fScreenSpaceSize);
 
-  ezRenderData::Caching::Enum caching = ezRenderData::Caching::IfStatic;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  WRenderData::Caching::Enum caching = WRenderData::Caching::IfStatic;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingLightingVisScreenSpaceSize)
-    caching = ezRenderData::Caching::Never;
+    caching = WRenderData::Caching::Never;
 #endif
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Light, caching);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_FillLightComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_FillLightComponent);

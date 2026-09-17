@@ -4,7 +4,7 @@
 #include <Foundation/Memory/LargeBlockAllocator.h>
 
 /// Defines storage strategies for block-based container management.
-struct ezBlockStorageType
+struct WBlockStorageType
 {
   enum Enum
   {
@@ -25,8 +25,8 @@ struct ezBlockStorageType
 ///   contiguous memory but invalidating iterators and pointers to moved objects
 /// - FreeList: Uses a free list to reuse deleted slots, preserving object positions but
 ///   potentially creating memory fragmentation
-template <typename T, ezUInt32 BlockSizeInByte, ezBlockStorageType::Enum StorageType>
-class ezBlockStorage
+template <typename T, WUInt32 BlockSizeInByte, WBlockStorageType::Enum StorageType>
+class WBlockStorage
 {
 public:
   class ConstIterator
@@ -43,15 +43,15 @@ public:
     void operator++();
 
   protected:
-    friend class ezBlockStorage<T, BlockSizeInByte, StorageType>;
+    friend class WBlockStorage<T, BlockSizeInByte, StorageType>;
 
-    ConstIterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    ConstIterator(const WBlockStorage<T, BlockSizeInByte, StorageType>& storage, WUInt32 uiStartIndex, WUInt32 uiCount);
 
     T& CurrentElement() const;
 
-    const ezBlockStorage<T, BlockSizeInByte, StorageType>& m_Storage;
-    ezUInt32 m_uiCurrentIndex;
-    ezUInt32 m_uiEndIndex;
+    const WBlockStorage<T, BlockSizeInByte, StorageType>& m_Storage;
+    WUInt32 m_uiCurrentIndex;
+    WUInt32 m_uiEndIndex;
   };
 
   class Iterator : public ConstIterator
@@ -63,13 +63,13 @@ public:
     operator T*();
 
   private:
-    friend class ezBlockStorage<T, BlockSizeInByte, StorageType>;
+    friend class WBlockStorage<T, BlockSizeInByte, StorageType>;
 
-    Iterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    Iterator(const WBlockStorage<T, BlockSizeInByte, StorageType>& storage, WUInt32 uiStartIndex, WUInt32 uiCount);
   };
 
-  ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocator* pAllocator);
-  ~ezBlockStorage();
+  WBlockStorage(WLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, WAllocator* pAllocator);
+  ~WBlockStorage();
 
   /// Removes all objects and deallocates all blocks.
   void Clear();
@@ -90,26 +90,26 @@ public:
   void Delete(T* pObject, T*& out_pMovedObject);
 
   /// Returns the total number of objects currently stored.
-  ezUInt32 GetCount() const;
+  WUInt32 GetCount() const;
 
   /// Returns an iterator for traversing objects in a specified range.
-  Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
+  Iterator GetIterator(WUInt32 uiStartIndex = 0, WUInt32 uiCount = WInvalidIndex);
 
   /// Returns a const iterator for traversing objects in a specified range.
-  ConstIterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
+  ConstIterator GetIterator(WUInt32 uiStartIndex = 0, WUInt32 uiCount = WInvalidIndex) const;
 
 private:
-  void Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>);
-  void Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>);
+  void Delete(T* pObject, T*& out_pMovedObject, WTraitInt<WBlockStorageType::Compact>);
+  void Delete(T* pObject, T*& out_pMovedObject, WTraitInt<WBlockStorageType::FreeList>);
 
-  ezLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
+  WLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
 
-  ezDynamicArray<ezDataBlock<T, BlockSizeInByte>> m_Blocks;
-  ezUInt32 m_uiCount = 0;
+  WDynamicArray<WDataBlock<T, BlockSizeInByte>> m_Blocks;
+  WUInt32 m_uiCount = 0;
 
-  ezUInt32 m_uiFreelistStart = ezInvalidIndex;
+  WUInt32 m_uiFreelistStart = WInvalidIndex;
 
-  ezDynamicBitfield m_UsedEntries;
+  WDynamicBitfield m_UsedEntries;
 };
 
 #include <Foundation/Memory/Implementation/BlockStorage_inl.h>

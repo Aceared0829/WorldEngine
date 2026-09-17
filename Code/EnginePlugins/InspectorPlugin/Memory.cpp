@@ -11,57 +11,57 @@ namespace MemoryDetail
 
   static void BroadcastMemoryStats()
   {
-    ezUInt64 uiTotalAllocations = 0;
-    ezUInt64 uiTotalPerFrameAllocationSize = 0;
-    ezTime TotalPerFrameAllocationTime;
+    WUInt64 uiTotalAllocations = 0;
+    WUInt64 uiTotalPerFrameAllocationSize = 0;
+    WTime TotalPerFrameAllocationTime;
 
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID(' MEM', 'BGN');
-      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Unreliable, msg);
     }
 
-    for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
+    for (auto it = WMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID(' MEM', 'STAT');
       msg.GetWriter() << it.Id().m_Data;
       msg.GetWriter() << it.Name();
-      msg.GetWriter() << (it.ParentId().IsInvalidated() ? ezInvalidIndex : it.ParentId().m_Data);
+      msg.GetWriter() << (it.ParentId().IsInvalidated() ? WInvalidIndex : it.ParentId().m_Data);
       msg.GetWriter() << it.Stats();
 
       uiTotalAllocations += it.Stats().m_uiNumAllocations;
       uiTotalPerFrameAllocationSize += it.Stats().m_uiPerFrameAllocationSize;
       TotalPerFrameAllocationTime += it.Stats().m_PerFrameAllocationTime;
 
-      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Unreliable, msg);
     }
 
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID(' MEM', 'END');
-      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Unreliable, msg);
     }
 
-    static ezUInt64 uiLastTotalAllocations = 0;
+    static WUInt64 uiLastTotalAllocations = 0;
 
-    ezStats::SetStat("App/Allocs Per Frame", uiTotalAllocations - uiLastTotalAllocations);
-    ezStats::SetStat("App/Per Frame Alloc Size (byte)", uiTotalPerFrameAllocationSize);
-    ezStats::SetStat("App/Per Frame Alloc Time", TotalPerFrameAllocationTime);
+    WStats::SetStat("App/Allocs Per Frame", uiTotalAllocations - uiLastTotalAllocations);
+    WStats::SetStat("App/Per Frame Alloc Size (byte)", uiTotalPerFrameAllocationSize);
+    WStats::SetStat("App/Per Frame Alloc Time", TotalPerFrameAllocationTime);
 
     uiLastTotalAllocations = uiTotalAllocations;
 
-    ezMemoryTracker::ResetPerFrameAllocatorStats();
+    WMemoryTracker::ResetPerFrameAllocatorStats();
   }
 
-  static void PerframeUpdateHandler(const ezGameApplicationExecutionEvent& e)
+  static void PerframeUpdateHandler(const WGameApplicationExecutionEvent& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_Type)
     {
-      case ezGameApplicationExecutionEvent::Type::AfterPresent:
+      case WGameApplicationExecutionEvent::Type::AfterPresent:
         BroadcastMemoryStats();
         break;
 
@@ -75,19 +75,19 @@ namespace MemoryDetail
 void AddMemoryEventHandler()
 {
   // We're handling the per frame update by a different event since
-  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
-  // to deadlocks between the ezStats and ezTelemetry system.
-  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  // using WTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the WStats and WTelemetry system.
+  if (WGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
   }
 }
 
 void RemoveMemoryEventHandler()
 {
-  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  if (WGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
   }
 }
 

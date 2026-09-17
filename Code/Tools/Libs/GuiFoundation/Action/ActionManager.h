@@ -3,70 +3,70 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 
-/// Registers an ezAction whose constructor takes no arguments.
-#define EZ_REGISTER_ACTION_0(ActionName, Scope, CategoryName, ShortCut, ActionClass)                                  \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName); }));
+/// Registers an WAction whose constructor takes no arguments.
+#define W_REGISTER_ACTION_0(ActionName, Scope, CategoryName, ShortCut, ActionClass)                                  \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(ActionClass, context, ActionName); }));
 
-/// Registers an ezAction whose constructor takes one argument.
-#define EZ_REGISTER_ACTION_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                          \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
+/// Registers an WAction whose constructor takes one argument.
+#define W_REGISTER_ACTION_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                          \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
-/// Registers an ezAction whose constructor takes two arguments.
-#define EZ_REGISTER_ACTION_2(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2)                  \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1, Param2); }));
+/// Registers an WAction whose constructor takes two arguments.
+#define W_REGISTER_ACTION_2(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2)                  \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(ActionClass, context, ActionName, Param1, Param2); }));
 
-/// Registers an ezDynamicMenuAction
-#define EZ_REGISTER_DYNAMIC_MENU(ActionName, ActionClass, IconPath)                                                  \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
+/// Registers an WDynamicMenuAction
+#define W_REGISTER_DYNAMIC_MENU(ActionName, ActionClass, IconPath)                                                  \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Menu, WActionScope::Default, ActionName, "", "", \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
 
-/// Registers an ezDynamicActionAndMenuAction.
-#define EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::ActionAndMenu, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
+/// Registers an WDynamicActionAndMenuAction.
+#define W_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::ActionAndMenu, Scope, ActionName, CategoryName, ShortCut, \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
 /// Registers a category that should be treated as a sub-menu.
-#define EZ_REGISTER_MENU(ActionName)                                                                                 \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, ""); }));
+#define W_REGISTER_MENU(ActionName)                                                                                 \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Menu, WActionScope::Default, ActionName, "", "", \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(WMenuAction, context, ActionName, ""); }));
 
 /// Registers a category that should be treated as a sub-menu and specifies a custom QIcon path.
-#define EZ_REGISTER_MENU_WITH_ICON(ActionName, IconPath)                                                             \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, IconPath); }));
+#define W_REGISTER_MENU_WITH_ICON(ActionName, IconPath)                                                             \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Menu, WActionScope::Default, ActionName, "", "", \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(WMenuAction, context, ActionName, IconPath); }));
 
 /// Registers a category that should just be a grouped area in a menu, but no dedicated sub-menu.
-#define EZ_REGISTER_CATEGORY(CategoryName)                                                                                 \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Category, ezActionScope::Default, CategoryName, "", "", \
-    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezCategoryAction, context); }));
+#define W_REGISTER_CATEGORY(CategoryName)                                                                                 \
+  WActionManager::RegisterAction(WActionDescriptor(WActionType::Category, WActionScope::Default, CategoryName, "", "", \
+    [](const WActionContext& context) -> WAction* { return W_DEFAULT_NEW(WCategoryAction, context); }));
 
 /// Stores 'actions' (things that can be triggered from UI).
 ///
 /// Actions are usually represented by a button in a toolbar, or a menu entry.
 /// Actions are unique across the entire application. Each action is registered exactly once,
-/// but it may be referenced by many different ezActionMap instances, which defines how an action shows up in a window.
+/// but it may be referenced by many different WActionMap instances, which defines how an action shows up in a window.
 ///
 /// Through RegisterAction() / UnregisterAction() an action is added or removed.
-/// These functions are usually not called directly, but rather the macros at the top of this file are used (see EZ_REGISTER_CATEGORY, EZ_REGISTER_MENU, EZ_REGISTER_ACTION_X, ...).
+/// These functions are usually not called directly, but rather the macros at the top of this file are used (see W_REGISTER_CATEGORY, W_REGISTER_MENU, W_REGISTER_ACTION_X, ...).
 ///
 /// Unit tests can call ExecuteAction() to directly invoke an action.
-/// Widgets use ezActionMap to organize which actions are available in a window, and how they are structured.
+/// Widgets use WActionMap to organize which actions are available in a window, and how they are structured.
 /// For instance, the same action can appear in a menu, in a toolbar and a context menu. In each case their location may be different (top-level, in a sub-menu, etc).
-/// See ezActionMap for details.
-class EZ_GUIFOUNDATION_DLL ezActionManager
+/// See WActionMap for details.
+class W_GUIFOUNDATION_DLL WActionManager
 {
 public:
-  static ezActionDescriptorHandle RegisterAction(const ezActionDescriptor& desc);
-  static bool UnregisterAction(ezActionDescriptorHandle& ref_hAction);
-  static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
-  static ezActionDescriptorHandle GetActionHandle(ezStringView sCategory, ezStringView sActionName);
+  static WActionDescriptorHandle RegisterAction(const WActionDescriptor& desc);
+  static bool UnregisterAction(WActionDescriptorHandle& ref_hAction);
+  static const WActionDescriptor* GetActionDescriptor(WActionDescriptorHandle hAction);
+  static WActionDescriptorHandle GetActionHandle(WStringView sCategory, WStringView sActionName);
 
   /// Searches all action categories for the given action name. Returns the category name in which the action name was found, or an empty
   /// string.
-  static ezString FindActionCategory(ezStringView sActionName);
+  static WString FindActionCategory(WStringView sActionName);
 
   /// Quick way to execute an action from code
   ///
@@ -78,16 +78,16 @@ public:
   ///        This parameter may be nullptr in which case FindActionCategory(szActionName) is used to try to detect the category automatically.
   /// \param szActionName The name (not mapped path) under which the action was registered.
   ///        For example "Selection.Copy", "Prefabs.ConvertToEngine", "Scene.Camera.SnapObjectToCamera"
-  /// \param context The context in which to execute the action. Depending on the ezActionScope of the target action,
+  /// \param context The context in which to execute the action. Depending on the WActionScope of the target action,
   ///        some members are optional. E.g. for document actions, only the m_pDocument member must be specified.
-  /// \param value Optional value passed through to the ezAction::Execute() call. Some actions use it, most don't.
+  /// \param value Optional value passed through to the WAction::Execute() call. Some actions use it, most don't.
   /// \return Returns failure in case the action could not be found.
-  static ezResult ExecuteAction(ezStringView sCategory, ezStringView sActionName, const ezActionContext& context, const ezVariant& value = ezVariant());
+  static WResult ExecuteAction(WStringView sCategory, WStringView sActionName, const WActionContext& context, const WVariant& value = WVariant());
 
   static void SaveShortcutAssignment();
   static void LoadShortcutAssignment();
 
-  static const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator GetActionIterator();
+  static const WIdTable<WActionId, WActionDescriptor*>::ConstIterator GetActionIterator();
 
   struct Event
   {
@@ -98,28 +98,28 @@ public:
     };
 
     Type m_Type;
-    const ezActionDescriptor* m_pDesc;
-    ezActionDescriptorHandle m_Handle;
+    const WActionDescriptor* m_pDesc;
+    WActionDescriptorHandle m_Handle;
   };
 
-  static ezEvent<const Event&> s_Events;
+  static WEvent<const Event&> s_Events;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, ActionManager);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, ActionManager);
 
   static void Startup();
   static void Shutdown();
-  static ezActionDescriptor* CreateActionDesc(const ezActionDescriptor& desc);
-  static void DeleteActionDesc(ezActionDescriptor* pDesc);
+  static WActionDescriptor* CreateActionDesc(const WActionDescriptor& desc);
+  static void DeleteActionDesc(WActionDescriptor* pDesc);
 
   struct CategoryData
   {
-    ezSet<ezActionDescriptorHandle> m_Actions;
-    ezHashTable<ezStringView, ezActionDescriptorHandle> m_ActionNameToHandle;
+    WSet<WActionDescriptorHandle> m_Actions;
+    WHashTable<WStringView, WActionDescriptorHandle> m_ActionNameToHandle;
   };
 
 private:
-  static ezIdTable<ezActionId, ezActionDescriptor*> s_ActionTable;
-  static ezMap<ezString, CategoryData> s_CategoryPathToActions;
-  static ezMap<ezString, ezString> s_ShortcutOverride;
+  static WIdTable<WActionId, WActionDescriptor*> s_ActionTable;
+  static WMap<WString, CategoryData> s_CategoryPathToActions;
+  static WMap<WString, WString> s_ShortcutOverride;
 };

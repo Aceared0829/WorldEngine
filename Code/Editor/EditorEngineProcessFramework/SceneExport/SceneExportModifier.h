@@ -3,19 +3,19 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezWorld;
+class WWorld;
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneExportModifier : public ezReflectedClass
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSceneExportModifier : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier, WReflectedClass);
 
 public:
-  static void CreateModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers);
-  static void DestroyModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers);
+  static void CreateModifiers(WDynamicArray<WSceneExportModifier*>& ref_modifiers);
+  static void DestroyModifiers(WDynamicArray<WSceneExportModifier*>& ref_modifiers);
 
-  static void ApplyAllModifiers(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport);
+  static void ApplyAllModifiers(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport);
 
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) = 0;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) = 0;
 
-  static void CleanUpWorld(ezWorld& ref_world);
+  static void CleanUpWorld(WWorld& ref_world);
 };

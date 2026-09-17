@@ -7,14 +7,14 @@
 
 class QSlider;
 
-class ezQtVarianceTypeWidget : public ezQtStandardPropertyWidget
+class WQtVarianceTypeWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtVarianceTypeWidget();
+  WQtVarianceTypeWidget();
 
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
 
 private Q_SLOTS:
   void onBeginTemporary();
@@ -24,12 +24,12 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pValueWidget = nullptr;
+  WQtDoubleSpinBox* m_pValueWidget = nullptr;
   QSlider* m_pVarianceWidget = nullptr;
-  const ezAbstractMemberProperty* m_pValueProp = nullptr;
-  const ezAbstractMemberProperty* m_pVarianceProp = nullptr;
+  const WAbstractMemberProperty* m_pValueProp = nullptr;
+  const WAbstractMemberProperty* m_pVarianceProp = nullptr;
 };

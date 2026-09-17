@@ -2,7 +2,7 @@
 
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 
-using ezJoltDistanceConstraintComponentManager = ezComponentManager<class ezJoltDistanceConstraintComponent, ezBlockStorageType::Compact>;
+using WJoltDistanceConstraintComponentManager = WComponentManager<class WJoltDistanceConstraintComponent, WBlockStorageType::Compact>;
 
 /// Implements a distance physics constraint.
 ///
@@ -10,19 +10,19 @@ using ezJoltDistanceConstraintComponentManager = ezComponentManager<class ezJolt
 /// They are pushed apart if they come too close, and pulled together if they separate too much.
 ///
 /// To push and pull may be very abrupt, like pieces of a chain, or elastic, like in a rubber band.
-class EZ_JOLTPLUGIN_DLL ezJoltDistanceConstraintComponent : public ezJoltConstraintComponent
+class W_JOLTPLUGIN_DLL WJoltDistanceConstraintComponent : public WJoltConstraintComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltDistanceConstraintComponent, ezJoltConstraintComponent, ezJoltDistanceConstraintComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltDistanceConstraintComponent, WJoltConstraintComponent, WJoltDistanceConstraintComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConstraintComponent
+  // WJoltConstraintComponent
 
 protected:
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
@@ -30,11 +30,11 @@ protected:
   virtual bool ExceededBreakingPoint() final override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltDistanceConstraintComponent
+  // WJoltDistanceConstraintComponent
 
 public:
-  ezJoltDistanceConstraintComponent();
-  ~ezJoltDistanceConstraintComponent();
+  WJoltDistanceConstraintComponent();
+  ~WJoltDistanceConstraintComponent();
 
   float GetMinDistance() const { return m_fMinDistance; } // [ property ]
   void SetMinDistance(float value);                       // [ property ]

@@ -10,68 +10,68 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRPoseLocation, 1)
-EZ_BITFLAGS_CONSTANTS(ezXRPoseLocation::Grip, ezXRPoseLocation::Aim)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WXRPoseLocation, 1)
+W_BITFLAGS_CONSTANTS(WXRPoseLocation::Grip, WXRPoseLocation::Aim)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDeviceTrackingComponent, 3, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WDeviceTrackingComponent, 3, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("DeviceType", ezXRDeviceType, GetDeviceType, SetDeviceType),
-    EZ_ENUM_ACCESSOR_PROPERTY("PoseLocation", ezXRPoseLocation, GetPoseLocation, SetPoseLocation),
-    EZ_ENUM_ACCESSOR_PROPERTY("TransformSpace", ezXRTransformSpace, GetTransformSpace, SetTransformSpace),
-    EZ_MEMBER_PROPERTY("Rotation", m_bRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Scale", m_bScale)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ENUM_ACCESSOR_PROPERTY("DeviceType", WXRDeviceType, GetDeviceType, SetDeviceType),
+    W_ENUM_ACCESSOR_PROPERTY("PoseLocation", WXRPoseLocation, GetPoseLocation, SetPoseLocation),
+    W_ENUM_ACCESSOR_PROPERTY("TransformSpace", WXRTransformSpace, GetTransformSpace, SetTransformSpace),
+    W_MEMBER_PROPERTY("Rotation", m_bRotation)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Scale", m_bScale)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("XR"),
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
+    new WCategoryAttribute("XR"),
+    new WInDevelopmentAttribute(WInDevelopmentAttribute::Phase::Alpha),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezDeviceTrackingComponent::ezDeviceTrackingComponent() = default;
-ezDeviceTrackingComponent::~ezDeviceTrackingComponent() = default;
+WDeviceTrackingComponent::WDeviceTrackingComponent() = default;
+WDeviceTrackingComponent::~WDeviceTrackingComponent() = default;
 
-void ezDeviceTrackingComponent::SetDeviceType(ezEnum<ezXRDeviceType> type)
+void WDeviceTrackingComponent::SetDeviceType(WEnum<WXRDeviceType> type)
 {
   m_DeviceType = type;
 }
 
-ezEnum<ezXRDeviceType> ezDeviceTrackingComponent::GetDeviceType() const
+WEnum<WXRDeviceType> WDeviceTrackingComponent::GetDeviceType() const
 {
   return m_DeviceType;
 }
 
-void ezDeviceTrackingComponent::SetPoseLocation(ezEnum<ezXRPoseLocation> poseLocation)
+void WDeviceTrackingComponent::SetPoseLocation(WEnum<WXRPoseLocation> poseLocation)
 {
   m_PoseLocation = poseLocation;
 }
 
-ezEnum<ezXRPoseLocation> ezDeviceTrackingComponent::GetPoseLocation() const
+WEnum<WXRPoseLocation> WDeviceTrackingComponent::GetPoseLocation() const
 {
   return m_PoseLocation;
 }
 
-void ezDeviceTrackingComponent::SetTransformSpace(ezEnum<ezXRTransformSpace> space)
+void WDeviceTrackingComponent::SetTransformSpace(WEnum<WXRTransformSpace> space)
 {
   m_Space = space;
 }
 
-ezEnum<ezXRTransformSpace> ezDeviceTrackingComponent::GetTransformSpace() const
+WEnum<WXRTransformSpace> WDeviceTrackingComponent::GetTransformSpace() const
 {
   return m_Space;
 }
 
-void ezDeviceTrackingComponent::SerializeComponent(ezWorldWriter& stream) const
+void WDeviceTrackingComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  WStreamWriter& s = stream.GetStream();
 
   s << m_DeviceType;
   s << m_PoseLocation;
@@ -80,11 +80,11 @@ void ezDeviceTrackingComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bScale;
 }
 
-void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
+void WDeviceTrackingComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = stream.GetStream();
 
   s >> m_DeviceType;
   if (uiVersion >= 2)
@@ -99,28 +99,28 @@ void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezDeviceTrackingComponent::Update()
+void WDeviceTrackingComponent::Update()
 {
   if (!IsActiveAndSimulating())
     return;
 
-  if (ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>())
+  if (WXRInterface* pXRInterface = WSingletonRegistry::GetSingletonInstance<WXRInterface>())
   {
     if (!pXRInterface->IsInitialized())
       return;
 
-    ezXRDeviceID deviceID = pXRInterface->GetXRInput().GetDeviceIDByType(m_DeviceType);
+    WXRDeviceID deviceID = pXRInterface->GetXRInput().GetDeviceIDByType(m_DeviceType);
     if (deviceID != -1)
     {
-      const ezXRDeviceState& state = pXRInterface->GetXRInput().GetDeviceState(deviceID);
-      ezVec3 vPosition;
-      ezQuat qRotation;
-      if (m_PoseLocation == ezXRPoseLocation::Grip && state.m_bGripPoseIsValid)
+      const WXRDeviceState& state = pXRInterface->GetXRInput().GetDeviceState(deviceID);
+      WVec3 vPosition;
+      WQuat qRotation;
+      if (m_PoseLocation == WXRPoseLocation::Grip && state.m_bGripPoseIsValid)
       {
         vPosition = state.m_vGripPosition;
         qRotation = state.m_qGripRotation;
       }
-      else if (m_PoseLocation == ezXRPoseLocation::Aim && state.m_bAimPoseIsValid)
+      else if (m_PoseLocation == WXRPoseLocation::Aim && state.m_bAimPoseIsValid)
       {
         vPosition = state.m_vAimPosition;
         qRotation = state.m_qAimRotation;
@@ -129,7 +129,7 @@ void ezDeviceTrackingComponent::Update()
       {
         return;
       }
-      if (m_Space == ezXRTransformSpace::Local)
+      if (m_Space == WXRTransformSpace::Local)
       {
         GetOwner()->SetLocalPosition(vPosition);
         if (m_bRotation)
@@ -137,21 +137,21 @@ void ezDeviceTrackingComponent::Update()
       }
       else
       {
-        ezTransform add;
+        WTransform add;
         add.SetIdentity();
-        if (const ezStageSpaceComponentManager* pStageMan = GetWorld()->GetComponentManager<ezStageSpaceComponentManager>())
+        if (const WStageSpaceComponentManager* pStageMan = GetWorld()->GetComponentManager<WStageSpaceComponentManager>())
         {
-          if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+          if (const WStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
           {
             add = pStage->GetOwner()->GetGlobalTransform();
           }
         }
 
-        const ezTransform global(add * ezTransform(vPosition, qRotation));
-        ezTransform local;
+        const WTransform global(add * WTransform(vPosition, qRotation));
+        WTransform local;
         if (GetOwner()->GetParent() != nullptr)
         {
-          local = ezTransform::MakeLocalTransform(GetOwner()->GetParent()->GetGlobalTransform(), global);
+          local = WTransform::MakeLocalTransform(GetOwner()->GetParent()->GetGlobalTransform(), global);
         }
         else
         {
@@ -167,4 +167,4 @@ void ezDeviceTrackingComponent::Update()
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_DeviceTrackingComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_DeviceTrackingComponent);

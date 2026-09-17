@@ -16,95 +16,95 @@
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
 
-void ezQtMainWindow::on_ActionShowWindowLog_triggered()
+void WQtMainWindow::on_ActionShowWindowLog_triggered()
 {
-  ezQtLogDockWidget::s_pWidget->toggleView(ActionShowWindowLog->isChecked());
-  ezQtLogDockWidget::s_pWidget->raise();
+  WQtLogDockWidget::s_pWidget->toggleView(ActionShowWindowLog->isChecked());
+  WQtLogDockWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowMemory_triggered()
+void WQtMainWindow::on_ActionShowWindowMemory_triggered()
 {
-  ezQtMemoryWidget::s_pWidget->toggleView(ActionShowWindowMemory->isChecked());
-  ezQtMemoryWidget::s_pWidget->raise();
+  WQtMemoryWidget::s_pWidget->toggleView(ActionShowWindowMemory->isChecked());
+  WQtMemoryWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowTime_triggered()
+void WQtMainWindow::on_ActionShowWindowTime_triggered()
 {
-  ezQtTimeWidget::s_pWidget->toggleView(ActionShowWindowTime->isChecked());
-  ezQtTimeWidget::s_pWidget->raise();
+  WQtTimeWidget::s_pWidget->toggleView(ActionShowWindowTime->isChecked());
+  WQtTimeWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowInput_triggered()
+void WQtMainWindow::on_ActionShowWindowInput_triggered()
 {
-  ezQtInputWidget::s_pWidget->toggleView(ActionShowWindowInput->isChecked());
-  ezQtInputWidget::s_pWidget->raise();
+  WQtInputWidget::s_pWidget->toggleView(ActionShowWindowInput->isChecked());
+  WQtInputWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowCVar_triggered()
+void WQtMainWindow::on_ActionShowWindowCVar_triggered()
 {
-  ezQtCVarsWidget::s_pWidget->toggleView(ActionShowWindowCVar->isChecked());
-  ezQtCVarsWidget::s_pWidget->raise();
+  WQtCVarsWidget::s_pWidget->toggleView(ActionShowWindowCVar->isChecked());
+  WQtCVarsWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowReflection_triggered()
+void WQtMainWindow::on_ActionShowWindowReflection_triggered()
 {
-  ezQtReflectionWidget::s_pWidget->toggleView(ActionShowWindowReflection->isChecked());
-  ezQtReflectionWidget::s_pWidget->raise();
+  WQtReflectionWidget::s_pWidget->toggleView(ActionShowWindowReflection->isChecked());
+  WQtReflectionWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowSubsystems_triggered()
+void WQtMainWindow::on_ActionShowWindowSubsystems_triggered()
 {
-  ezQtSubsystemsWidget::s_pWidget->toggleView(ActionShowWindowSubsystems->isChecked());
-  ezQtSubsystemsWidget::s_pWidget->raise();
+  WQtSubsystemsWidget::s_pWidget->toggleView(ActionShowWindowSubsystems->isChecked());
+  WQtSubsystemsWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowPlugins_triggered()
+void WQtMainWindow::on_ActionShowWindowPlugins_triggered()
 {
-  ezQtPluginsWidget::s_pWidget->toggleView(ActionShowWindowPlugins->isChecked());
-  ezQtPluginsWidget::s_pWidget->raise();
+  WQtPluginsWidget::s_pWidget->toggleView(ActionShowWindowPlugins->isChecked());
+  WQtPluginsWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowFile_triggered()
+void WQtMainWindow::on_ActionShowWindowFile_triggered()
 {
-  ezQtFileWidget::s_pWidget->toggleView(ActionShowWindowFile->isChecked());
-  ezQtFileWidget::s_pWidget->raise();
+  WQtFileWidget::s_pWidget->toggleView(ActionShowWindowFile->isChecked());
+  WQtFileWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowGlobalEvents_triggered()
+void WQtMainWindow::on_ActionShowWindowGlobalEvents_triggered()
 {
-  ezQtGlobalEventsWidget::s_pWidget->toggleView(ActionShowWindowGlobalEvents->isChecked());
-  ezQtGlobalEventsWidget::s_pWidget->raise();
+  WQtGlobalEventsWidget::s_pWidget->toggleView(ActionShowWindowGlobalEvents->isChecked());
+  WQtGlobalEventsWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowData_triggered()
+void WQtMainWindow::on_ActionShowWindowData_triggered()
 {
-  ezQtDataWidget::s_pWidget->toggleView(ActionShowWindowData->isChecked());
-  ezQtDataWidget::s_pWidget->raise();
+  WQtDataWidget::s_pWidget->toggleView(ActionShowWindowData->isChecked());
+  WQtDataWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowResource_triggered()
+void WQtMainWindow::on_ActionShowWindowResource_triggered()
 {
-  ezQtResourceWidget::s_pWidget->toggleView(ActionShowWindowResource->isChecked());
-  ezQtResourceWidget::s_pWidget->raise();
+  WQtResourceWidget::s_pWidget->toggleView(ActionShowWindowResource->isChecked());
+  WQtResourceWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionShowWindowRenderGraph_triggered()
+void WQtMainWindow::on_ActionShowWindowRenderGraph_triggered()
 {
-  ezQtRenderGraphWidget::s_pWidget->toggleView(ActionShowWindowRenderGraph->isChecked());
-  ezQtRenderGraphWidget::s_pWidget->raise();
+  WQtRenderGraphWidget::s_pWidget->toggleView(ActionShowWindowRenderGraph->isChecked());
+  WQtRenderGraphWidget::s_pWidget->raise();
 }
 
-void ezQtMainWindow::on_ActionOnTopWhenConnected_triggered()
+void WQtMainWindow::on_ActionOnTopWhenConnected_triggered()
 {
   SetAlwaysOnTop(WhenConnected);
 }
 
-void ezQtMainWindow::on_ActionAlwaysOnTop_triggered()
+void WQtMainWindow::on_ActionAlwaysOnTop_triggered()
 {
   SetAlwaysOnTop(Always);
 }
 
-void ezQtMainWindow::on_ActionNeverOnTop_triggered()
+void WQtMainWindow::on_ActionNeverOnTop_triggered()
 {
   SetAlwaysOnTop(Never);
 }

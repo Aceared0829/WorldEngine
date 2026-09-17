@@ -4,35 +4,35 @@
 #include <EditorPluginJolt/Dialogs/JoltProjectSettingsDlg.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezJoltActions::s_hCategoryJolt;
-ezActionDescriptorHandle ezJoltActions::s_hProjectSettings;
+WActionDescriptorHandle WJoltActions::s_hCategoryJolt;
+WActionDescriptorHandle WJoltActions::s_hProjectSettings;
 
-void ezJoltActions::RegisterActions()
+void WJoltActions::RegisterActions()
 {
-  s_hCategoryJolt = EZ_REGISTER_CATEGORY("Jolt");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Jolt.Settings.Project", ezActionScope::Document, "Jolt", "", ezJoltAction, ezJoltAction::ActionType::ProjectSettings);
+  s_hCategoryJolt = W_REGISTER_CATEGORY("Jolt");
+  s_hProjectSettings = W_REGISTER_ACTION_1("Jolt.Settings.Project", WActionScope::Document, "Jolt", "", WJoltAction, WJoltAction::ActionType::ProjectSettings);
 }
 
-void ezJoltActions::UnregisterActions()
+void WJoltActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategoryJolt);
-  ezActionManager::UnregisterAction(s_hProjectSettings);
+  WActionManager::UnregisterAction(s_hCategoryJolt);
+  WActionManager::UnregisterAction(s_hProjectSettings);
 }
 
-void ezJoltActions::MapMenuActions()
+void WJoltActions::MapMenuActions()
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("AssetMenuBar");
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap("AssetMenuBar");
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryJolt, "G.Plugins.Settings", 10.0f);
   pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "Jolt", 1.0f);
 }
 
-ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WJoltAction::WJoltAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -44,16 +44,16 @@ ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, A
   }
 }
 
-ezJoltAction::~ezJoltAction() = default;
+WJoltAction::~WJoltAction() = default;
 
-void ezJoltAction::Execute(const ezVariant& value)
+void WJoltAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezQtJoltProjectSettingsDlg dlg(value);
+    WQtJoltProjectSettingsDlg dlg(value);
     if (dlg.exec() == QDialog::Accepted)
     {
-      ezToolsProject::BroadcastConfigChanged();
+      WToolsProject::BroadcastConfigChanged();
     }
   }
 }

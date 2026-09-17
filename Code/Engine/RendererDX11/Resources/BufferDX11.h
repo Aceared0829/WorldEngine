@@ -7,45 +7,45 @@
 struct ID3D11Buffer;
 struct D3D11_BUFFER_DESC;
 
-class EZ_RENDERERDX11_DLL ezGALBufferDX11 : public ezGALBuffer
+class W_RENDERERDX11_DLL WGALBufferDX11 : public WGALBuffer
 {
 public:
-  static ezResult CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat);
+  static WResult CreateBufferDesc(const WGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat);
 
 public:
   ID3D11Buffer* GetDXBuffer() const;
   DXGI_FORMAT GetIndexFormat() const;
-  ID3D11ShaderResourceView* GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
-  ID3D11UnorderedAccessView* GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
+  ID3D11ShaderResourceView* GetSRV(WGALBufferRange bufferRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALResourceFormat> overrideTexelBufferFormat) const;
+  ID3D11UnorderedAccessView* GetUAV(WGALBufferRange bufferRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALResourceFormat> overrideTexelBufferFormat) const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALBufferDX11(const ezGALBufferCreationDescription& Description);
-  virtual ~ezGALBufferDX11();
+  WGALBufferDX11(const WGALBufferCreationDescription& Description);
+  virtual ~WGALBufferDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<const WUInt8> pInitialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
-  ezGALDeviceDX11* m_pDevice = nullptr;
+  WGALDeviceDX11* m_pDevice = nullptr;
   ID3D11Buffer* m_pDXBuffer = nullptr;
   DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_UNKNOWN; // Only applicable for index buffers
 
   // Views
-  struct View : ezHashableStruct<View>
+  struct View : WHashableStruct<View>
   {
-    ezGALBufferRange m_BufferRange;
-    ezEnum<ezGALShaderResourceType> m_ResourceType;
-    ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat;
+    WGALBufferRange m_BufferRange;
+    WEnum<WGALShaderResourceType> m_ResourceType;
+    WEnum<WGALResourceFormat> m_OverrideTexelBufferFormat;
 
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
-    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+    W_ALWAYS_INLINE static WUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    W_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
   };
-  mutable ezHashTable<View, ID3D11ShaderResourceView*, View> m_SRVs;
-  mutable ezHashTable<View, ID3D11UnorderedAccessView*, View> m_UAVs;
+  mutable WHashTable<View, ID3D11ShaderResourceView*, View> m_SRVs;
+  mutable WHashTable<View, ID3D11UnorderedAccessView*, View> m_UAVs;
 };
 
 #include <RendererDX11/Resources/Implementation/BufferDX11_inl.h>

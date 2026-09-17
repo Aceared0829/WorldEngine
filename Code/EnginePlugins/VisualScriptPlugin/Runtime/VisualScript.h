@@ -3,16 +3,16 @@
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptData.h>
 
-class ezVisualScriptInstance;
-class ezVisualScriptExecutionContext;
+class WVisualScriptInstance;
+class WVisualScriptExecutionContext;
 
-struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
+struct W_VISUALSCRIPTPLUGIN_DLL WVisualScriptNodeDescription
 {
   /// Native node types for visual script graphs.
   /// Editor only types are not supported at runtime and will be replaced by the visual script compiler during asset transform.
-  struct EZ_VISUALSCRIPTPLUGIN_DLL Type
+  struct W_VISUALSCRIPTPLUGIN_DLL Type
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -109,45 +109,45 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Default = Invalid
     };
 
-    EZ_ALWAYS_INLINE static bool IsEntry(Enum type) { return type >= EntryCall && type <= MessageHandler_Coroutine; }
-    EZ_ALWAYS_INLINE static bool IsLoop(Enum type) { return type >= Builtin_WhileLoop && type <= Builtin_ReverseForEachLoop; }
+    W_ALWAYS_INLINE static bool IsEntry(Enum type) { return type >= EntryCall && type <= MessageHandler_Coroutine; }
+    W_ALWAYS_INLINE static bool IsLoop(Enum type) { return type >= Builtin_WhileLoop && type <= Builtin_ReverseForEachLoop; }
 
-    EZ_ALWAYS_INLINE static bool MakesOuterCoroutine(Enum type) { return type == InplaceCoroutine || (type >= Builtin_WaitForAll && type <= Builtin_Yield); }
+    W_ALWAYS_INLINE static bool MakesOuterCoroutine(Enum type) { return type == InplaceCoroutine || (type >= Builtin_WaitForAll && type <= Builtin_Yield); }
 
-    EZ_ALWAYS_INLINE static bool IsBuiltin(Enum type) { return type > FirstBuiltin && type < LastBuiltin; }
+    W_ALWAYS_INLINE static bool IsBuiltin(Enum type) { return type > FirstBuiltin && type < LastBuiltin; }
 
-    static Enum GetConversionType(ezVisualScriptDataType::Enum targetDataType);
+    static Enum GetConversionType(WVisualScriptDataType::Enum targetDataType);
 
     static const char* GetName(Enum type);
   };
 
-  using DataOffset = ezVisualScriptDataDescription::DataOffset;
+  using DataOffset = WVisualScriptDataDescription::DataOffset;
 
-  ezEnum<Type> m_Type;
-  ezEnum<ezVisualScriptDataType> m_DeductedDataType;
-  ezSmallArray<ezUInt16, 4> m_ExecutionIndices;
-  ezSmallArray<DataOffset, 4> m_InputDataOffsets;
-  ezSmallArray<DataOffset, 2> m_OutputDataOffsets;
+  WEnum<Type> m_Type;
+  WEnum<WVisualScriptDataType> m_DeductedDataType;
+  WSmallArray<WUInt16, 4> m_ExecutionIndices;
+  WSmallArray<DataOffset, 4> m_InputDataOffsets;
+  WSmallArray<DataOffset, 2> m_OutputDataOffsets;
 
-  ezHashedString m_sTargetTypeName;
+  WHashedString m_sTargetTypeName;
 
-  ezVariant m_Value;
+  WVariant m_Value;
 
-  void AppendUserDataName(ezStringBuilder& out_sResult) const;
+  void AppendUserDataName(WStringBuilder& out_sResult) const;
 };
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptGraphDescription : public ezRefCounted
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptGraphDescription : public WRefCounted
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezVisualScriptGraphDescription);
+  W_DISALLOW_COPY_AND_ASSIGN(WVisualScriptGraphDescription);
 
 public:
-  ezVisualScriptGraphDescription();
-  ~ezVisualScriptGraphDescription();
+  WVisualScriptGraphDescription();
+  ~WVisualScriptGraphDescription();
 
-  static ezResult Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream);
-  ezResult Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc);
+  static WResult Serialize(WArrayPtr<const WVisualScriptNodeDescription> nodes, const WVisualScriptDataDescription& localDataDesc, WStreamWriter& inout_stream);
+  WResult Deserialize(WStreamReader& inout_stream, const WVisualScriptDataDescription& instanceDataDesc, const WVisualScriptDataDescription& constantDataDesc);
 
-  template <typename T, ezUInt32 Size>
+  template <typename T, WUInt32 Size>
   struct EmbeddedArrayOrPointer
   {
     union
@@ -156,11 +156,11 @@ public:
       T* m_Ptr;
     };
 
-    static void AddAdditionalDataSize(ezArrayPtr<const T> a, ezUInt32& inout_uiAdditionalDataSize);
-    static void AddAdditionalDataSize(ezUInt32 uiSize, ezUInt32 uiAlignment, ezUInt32& inout_uiAdditionalDataSize);
+    static void AddAdditionalDataSize(WArrayPtr<const T> a, WUInt32& inout_uiAdditionalDataSize);
+    static void AddAdditionalDataSize(WUInt32 uiSize, WUInt32 uiAlignment, WUInt32& inout_uiAdditionalDataSize);
 
-    T* Init(ezUInt8 uiCount, ezUInt32 uiAlignment, ezUInt8*& inout_pAdditionalData);
-    ezResult ReadFromStream(ezUInt8& out_uiCount, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
+    T* Init(WUInt8 uiCount, WUInt32 uiAlignment, WUInt8*& inout_pAdditionalData);
+    WResult ReadFromStream(WUInt8& out_uiCount, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData);
   };
 
   struct ExecResult
@@ -176,28 +176,28 @@ public:
       };
     };
 
-    static EZ_ALWAYS_INLINE ExecResult Completed() { return {0}; }
-    static EZ_ALWAYS_INLINE ExecResult RunNext(int iExecSlot) { return {iExecSlot}; }
-    static EZ_ALWAYS_INLINE ExecResult ContinueLater(ezTime maxDelay) { return {State::ContinueLater, maxDelay}; }
-    static EZ_ALWAYS_INLINE ExecResult Error() { return {State::Error}; }
+    static W_ALWAYS_INLINE ExecResult Completed() { return {0}; }
+    static W_ALWAYS_INLINE ExecResult RunNext(int iExecSlot) { return {iExecSlot}; }
+    static W_ALWAYS_INLINE ExecResult ContinueLater(WTime maxDelay) { return {State::ContinueLater, maxDelay}; }
+    static W_ALWAYS_INLINE ExecResult Error() { return {State::Error}; }
 
     int m_NextExecAndState = 0;
-    ezTime m_MaxDelay = ezTime::MakeZero();
+    WTime m_MaxDelay = WTime::MakeZero();
   };
 
   struct Node;
-  using ExecuteFunction = ExecResult (*)(ezVisualScriptExecutionContext& inout_context, const Node& node);
-  using DataOffset = ezVisualScriptDataDescription::DataOffset;
-  using ExecutionIndicesArray = EmbeddedArrayOrPointer<ezUInt16, 4>;
+  using ExecuteFunction = ExecResult (*)(WVisualScriptExecutionContext& inout_context, const Node& node);
+  using DataOffset = WVisualScriptDataDescription::DataOffset;
+  using ExecutionIndicesArray = EmbeddedArrayOrPointer<WUInt16, 4>;
   using InputDataOffsetsArray = EmbeddedArrayOrPointer<DataOffset, 4>;
   using OutputDataOffsetsArray = EmbeddedArrayOrPointer<DataOffset, 2>;
-  using UserDataArray = EmbeddedArrayOrPointer<ezUInt32, 4>;
+  using UserDataArray = EmbeddedArrayOrPointer<WUInt32, 4>;
 
   struct Node
   {
     ExecuteFunction m_Function = nullptr;
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding = 0;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding = 0;
 #endif
 
     ExecutionIndicesArray m_ExecutionIndices;
@@ -205,62 +205,62 @@ public:
     OutputDataOffsetsArray m_OutputDataOffsets;
     UserDataArray m_UserData;
 
-    ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
-    ezUInt8 m_NumExecutionIndices;
-    ezUInt8 m_NumInputDataOffsets;
-    ezUInt8 m_NumOutputDataOffsets;
+    WEnum<WVisualScriptNodeDescription::Type> m_Type;
+    WUInt8 m_NumExecutionIndices;
+    WUInt8 m_NumInputDataOffsets;
+    WUInt8 m_NumOutputDataOffsets;
 
-    ezUInt16 m_UserDataByteSize;
-    ezEnum<ezVisualScriptDataType> m_DeductedDataType;
-    ezUInt8 m_Reserved = 0;
+    WUInt16 m_UserDataByteSize;
+    WEnum<WVisualScriptDataType> m_DeductedDataType;
+    WUInt8 m_Reserved = 0;
 
-    ezUInt32 GetExecutionIndex(ezUInt32 uiSlot) const;
-    DataOffset GetInputDataOffset(ezUInt32 uiSlot) const;
-    DataOffset GetOutputDataOffset(ezUInt32 uiSlot) const;
+    WUInt32 GetExecutionIndex(WUInt32 uiSlot) const;
+    DataOffset GetInputDataOffset(WUInt32 uiSlot) const;
+    DataOffset GetOutputDataOffset(WUInt32 uiSlot) const;
 
     DataOffset* GetInputDataOffsets();
     DataOffset* GetOutputDataOffsets();
 
     template <typename T>
-    static constexpr ezUInt32 GetUserDataAlignment();
+    static constexpr WUInt32 GetUserDataAlignment();
 
     template <typename T>
     const T& GetUserData() const;
 
     template <typename T>
-    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T), ezUInt32 uiAlignment = GetUserDataAlignment<T>());
+    T& InitUserData(WUInt8*& inout_pAdditionalData, WUInt32 uiByteSize = sizeof(T), WUInt32 uiAlignment = GetUserDataAlignment<T>());
   };
 
-  const Node* GetNode(ezUInt32 uiIndex) const;
+  const Node* GetNode(WUInt32 uiIndex) const;
 
   bool IsCoroutine() const;
-  ezScriptMessageDesc GetMessageDesc() const;
+  WScriptMessageDesc GetMessageDesc() const;
 
-  const ezSharedPtr<const ezVisualScriptDataDescription>& GetLocalDataDesc() const;
+  const WSharedPtr<const WVisualScriptDataDescription>& GetLocalDataDesc() const;
 
 private:
-  ezArrayPtr<const Node> m_Nodes;
-  ezBlob m_Storage;
+  WArrayPtr<const Node> m_Nodes;
+  WBlob m_Storage;
 
-  ezSharedPtr<const ezVisualScriptDataDescription> m_pLocalDataDesc;
+  WSharedPtr<const WVisualScriptDataDescription> m_pLocalDataDesc;
 };
 
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptExecutionContext
 {
 public:
-  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc, ezAllocator* pAllocator);
-  ~ezVisualScriptExecutionContext();
+  WVisualScriptExecutionContext(const WSharedPtr<const WVisualScriptGraphDescription>& pDesc, WAllocator* pAllocator);
+  ~WVisualScriptExecutionContext();
 
-  void Initialize(ezVisualScriptInstance& inout_instance, ezArrayPtr<ezVariant> arguments);
+  void Initialize(WVisualScriptInstance& inout_instance, WArrayPtr<WVariant> arguments);
   void Deinitialize();
 
-  using ExecResult = ezVisualScriptGraphDescription::ExecResult;
-  ExecResult Execute(ezTime deltaTimeSinceLastExecution);
+  using ExecResult = WVisualScriptGraphDescription::ExecResult;
+  ExecResult Execute(WTime deltaTimeSinceLastExecution);
 
-  ezVisualScriptInstance& GetInstance() { return *m_pInstance; }
+  WVisualScriptInstance& GetInstance() { return *m_pInstance; }
 
-  using DataOffset = ezVisualScriptDataDescription::DataOffset;
+  using DataOffset = WVisualScriptDataDescription::DataOffset;
 
   template <typename T>
   const T& GetData(DataOffset dataOffset) const;
@@ -271,46 +271,46 @@ public:
   template <typename T>
   void SetData(DataOffset dataOffset, const T& value);
 
-  ezTypedPointer GetPointerData(DataOffset dataOffset);
+  WTypedPointer GetPointerData(DataOffset dataOffset);
 
   template <typename T>
-  void SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType = nullptr);
+  void SetPointerData(DataOffset dataOffset, T ptr, const WRTTI* pType = nullptr);
 
-  ezVariant GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType) const;
-  void SetDataFromVariant(DataOffset dataOffset, const ezVariant& value);
+  WVariant GetDataAsVariant(DataOffset dataOffset, const WRTTI* pExpectedType) const;
+  void SetDataFromVariant(DataOffset dataOffset, const WVariant& value);
 
-  ezScriptCoroutine* GetCurrentCoroutine() { return m_pCurrentCoroutine; }
-  void SetCurrentCoroutine(ezScriptCoroutine* pCoroutine);
+  WScriptCoroutine* GetCurrentCoroutine() { return m_pCurrentCoroutine; }
+  void SetCurrentCoroutine(WScriptCoroutine* pCoroutine);
 
-  ezTime GetDeltaTimeSinceLastExecution();
+  WTime GetDeltaTimeSinceLastExecution();
 
 private:
-  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
-  ezVisualScriptInstance* m_pInstance = nullptr;
-  ezUInt32 m_uiCurrentNode = 0;
-  ezUInt32 m_uiExecutionCounter = 0;
-  ezTime m_DeltaTimeSinceLastExecution;
+  WSharedPtr<const WVisualScriptGraphDescription> m_pDesc;
+  WVisualScriptInstance* m_pInstance = nullptr;
+  WUInt32 m_uiCurrentNode = 0;
+  WUInt32 m_uiExecutionCounter = 0;
+  WTime m_DeltaTimeSinceLastExecution;
 
-  ezVisualScriptDataStorage m_LocalDataStorage;
-  ezVisualScriptDataStorage* m_DataStorage[DataOffset::Source::Count] = {};
+  WVisualScriptDataStorage m_LocalDataStorage;
+  WVisualScriptDataStorage* m_DataStorage[DataOffset::Source::Count] = {};
 
-  ezScriptCoroutine* m_pCurrentCoroutine = nullptr;
+  WScriptCoroutine* m_pCurrentCoroutine = nullptr;
 };
 
-struct ezVisualScriptSendMessageMode
+struct WVisualScriptSendMessageMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     Direct,    ///< Directly send the message to the target game object
     Recursive, ///< Send the message to the target game object and its children
-    Event,     ///< Send the message as event. \sa ezGameObject::SendEventMessage()
+    Event,     ///< Send the message as event. \sa WGameObject::SendEventMessage()
 
     Default = Direct
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_VISUALSCRIPTPLUGIN_DLL, ezVisualScriptSendMessageMode);
+W_DECLARE_REFLECTABLE_TYPE(W_VISUALSCRIPTPLUGIN_DLL, WVisualScriptSendMessageMode);
 
 #include <VisualScriptPlugin/Runtime/VisualScript_inl.h>

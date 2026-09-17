@@ -2,33 +2,33 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptFunctionProperty : public ezScriptFunctionProperty
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptFunctionProperty : public WScriptFunctionProperty
 {
 public:
-  ezVisualScriptFunctionProperty(ezStringView sName, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
-  ~ezVisualScriptFunctionProperty();
+  WVisualScriptFunctionProperty(WStringView sName, const WSharedPtr<const WVisualScriptGraphDescription>& pDesc);
+  ~WVisualScriptFunctionProperty();
 
-  virtual ezFunctionType::Enum GetFunctionType() const override { return ezFunctionType::Member; }
-  virtual const ezRTTI* GetReturnType() const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override { return ezPropertyFlags::Void; }
-  virtual ezUInt32 GetArgumentCount() const override { return 0; }
-  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override { return ezPropertyFlags::Void; }
+  virtual WFunctionType::Enum GetFunctionType() const override { return WFunctionType::Member; }
+  virtual const WRTTI* GetReturnType() const override { return nullptr; }
+  virtual WBitflags<WPropertyFlags> GetReturnFlags() const override { return WPropertyFlags::Void; }
+  virtual WUInt32 GetArgumentCount() const override { return 0; }
+  virtual const WRTTI* GetArgumentType(WUInt32 uiParamIndex) const override { return nullptr; }
+  virtual WBitflags<WPropertyFlags> GetArgumentFlags(WUInt32 uiParamIndex) const override { return WPropertyFlags::Void; }
 
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override;
+  virtual void Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const override;
 
 private:
-  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
+  WSharedPtr<const WVisualScriptGraphDescription> m_pDesc;
 };
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptMessageHandler : public ezScriptMessageHandler
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptMessageHandler : public WScriptMessageHandler
 {
 public:
-  ezVisualScriptMessageHandler(const ezScriptMessageDesc& desc, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
-  ~ezVisualScriptMessageHandler();
+  WVisualScriptMessageHandler(const WScriptMessageDesc& desc, const WSharedPtr<const WVisualScriptGraphDescription>& pDesc);
+  ~WVisualScriptMessageHandler();
 
-  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+  static void Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg);
 
 private:
-  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
+  WSharedPtr<const WVisualScriptGraphDescription> m_pDesc;
 };

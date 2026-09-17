@@ -4,7 +4,7 @@
 # tools, does the same on the engine process, and shuts everything down through 'app_quit'.
 #
 # Example:
-#   Test-Mcp.ps1 -SdkDir "D:\ez-test\ezEngine.Release.26.9.0" -OutputDir "D:\ez-test\results"
+#   Test-Mcp.ps1 -SdkDir "D:\W-test\WorldEngine.Release.26.9.0" -OutputDir "D:\W-test\results"
 
 [CmdletBinding()]
 param(
@@ -13,7 +13,7 @@ param(
 	# explicit binary folder, e.g. a build workspace output; derived from -SdkDir when empty
 	[string]$BinDir = "",
 	[string]$Project = "Data/Samples/Testing Chambers",
-	[string]$Scene = "Scenes/Main.ezScene",
+	[string]$Scene = "Scenes/Main.WScene",
 	# not the default port 7391, so that an editor the user has open is never talked to by accident
 	[int]$EditorPort = 7399,
 	[int]$StartupTimeoutSeconds = 90
@@ -26,8 +26,8 @@ $ErrorActionPreference = "Stop"
 
 $SdkDir = (Resolve-Path $SdkDir).Path
 $binDir = Get-EzBinDir -SdkDir $SdkDir -BinDir $BinDir
-$editorExe = Get-EzExe -BinDir $binDir -ExeName "ezEditor.exe"
-$playerExe = Get-EzExe -BinDir $binDir -ExeName "ezPlayer.exe"
+$editorExe = Get-EzExe -BinDir $binDir -ExeName "WEditor.exe"
+$playerExe = Get-EzExe -BinDir $binDir -ExeName "WPlayer.exe"
 
 $projectDir = Join-Path $SdkDir $Project
 
@@ -38,9 +38,9 @@ $logDir = Join-Path $OutputDir "Logs"
 New-Item -ItemType Directory -Force -Path $screenshotDir, $logDir | Out-Null
 
 # without this the editor would be started anyway and the only symptom would be a startup timeout
-if (-not (Test-Path (Join-Path $projectDir "ezProject")))
+if (-not (Test-Path (Join-Path $projectDir "WProject")))
 {
-	Add-TestResult -Name "Project exists" -Status "FAIL" -Message "'$projectDir' contains no 'ezProject' file."
+	Add-TestResult -Name "Project exists" -Status "FAIL" -Message "'$projectDir' contains no 'WProject' file."
 	exit (Save-TestResults)
 }
 
@@ -103,7 +103,7 @@ try
 		$init = Invoke-McpRequest -Port $EditorPort -Method "initialize" -TimeoutSeconds 300 -Params @{
 			protocolVersion = "2025-06-18"
 			capabilities    = @{}
-			clientInfo      = @{ name = "ezReleaseTest"; version = "1.0" }
+			clientInfo      = @{ name = "WReleaseTest"; version = "1.0" }
 		}
 
 		if (-not $init.protocolVersion)

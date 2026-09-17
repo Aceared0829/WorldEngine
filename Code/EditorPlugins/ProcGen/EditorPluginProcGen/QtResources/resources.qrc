@@ -3,11 +3,11 @@
         <file>ProcGen_Graph.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezProcPlacementComponent.svg</file>
-    <file>ezProcVolumeBoxComponent.svg</file>
-    <file>ezProcVolumeSphereComponent.svg</file>
-    <file>ezProcVolumeImageComponent.svg</file>
-    <file>ezProcVertexColorComponent.svg</file>
+    <file>WProcPlacementComponent.svg</file>
+    <file>WProcVolumeBoxComponent.svg</file>
+    <file>WProcVolumeSphereComponent.svg</file>
+    <file>WProcVolumeImageComponent.svg</file>
+    <file>WProcVertexColorComponent.svg</file>
   </qresource>
   <qresource prefix="Icons">
   </qresource>

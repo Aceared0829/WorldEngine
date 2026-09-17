@@ -3,33 +3,33 @@
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 
-/// An ezIReflectedTypeAccessor implementation that also stores the actual data that is defined in the passed ezRTTI.
+/// An WIReflectedTypeAccessor implementation that also stores the actual data that is defined in the passed WRTTI.
 ///
 /// This class is used to store data on the tool side for classes that are not known to the tool but exist outside of it
 /// like engine components. As this is basically a complex value map the used type can be hot-reloaded. For this, the
-/// ezRTTI just needs to be updated with its new definition in the ezPhantomRttiManager and all ezReflectedTypeStorageAccessor
+/// WRTTI just needs to be updated with its new definition in the WPhantomRttiManager and all WReflectedTypeStorageAccessor
 /// will be automatically rearranged to match the new class layout.
-class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageAccessor : public ezIReflectedTypeAccessor
+class W_TOOLSFOUNDATION_DLL WReflectedTypeStorageAccessor : public WIReflectedTypeAccessor
 {
-  friend class ezReflectedTypeStorageManager;
+  friend class WReflectedTypeStorageManager;
 
 public:
-  ezReflectedTypeStorageAccessor(const ezRTTI* pReflectedType, ezDocumentObject* pOwner);                                           // [tested]
-  ~ezReflectedTypeStorageAccessor();
+  WReflectedTypeStorageAccessor(const WRTTI* pReflectedType, WDocumentObject* pOwner);                                           // [tested]
+  ~WReflectedTypeStorageAccessor();
 
-  virtual const ezVariant GetValue(ezStringView sProperty, ezVariant index = ezVariant(), ezStatus* pRes = nullptr) const override; // [tested]
-  virtual bool SetValue(ezStringView sProperty, const ezVariant& value, ezVariant index = ezVariant()) override;                    // [tested]
+  virtual const WVariant GetValue(WStringView sProperty, WVariant index = WVariant(), WStatus* pRes = nullptr) const override; // [tested]
+  virtual bool SetValue(WStringView sProperty, const WVariant& value, WVariant index = WVariant()) override;                    // [tested]
 
-  virtual ezInt32 GetCount(ezStringView sProperty) const override;
-  virtual bool GetKeys(ezStringView sProperty, ezDynamicArray<ezVariant>& out_keys) const override;
+  virtual WInt32 GetCount(WStringView sProperty) const override;
+  virtual bool GetKeys(WStringView sProperty, WDynamicArray<WVariant>& out_keys) const override;
 
-  virtual bool InsertValue(ezStringView sProperty, ezVariant index, const ezVariant& value) override;
-  virtual bool RemoveValue(ezStringView sProperty, ezVariant index) override;
-  virtual bool MoveValue(ezStringView sProperty, ezVariant oldIndex, ezVariant newIndex) override;
+  virtual bool InsertValue(WStringView sProperty, WVariant index, const WVariant& value) override;
+  virtual bool RemoveValue(WStringView sProperty, WVariant index) override;
+  virtual bool MoveValue(WStringView sProperty, WVariant oldIndex, WVariant newIndex) override;
 
-  virtual ezVariant GetPropertyChildIndex(ezStringView sProperty, const ezVariant& value) const override;
+  virtual WVariant GetPropertyChildIndex(WStringView sProperty, const WVariant& value) const override;
 
 private:
-  ezDynamicArray<ezVariant> m_Data;
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* m_pMapping;
+  WDynamicArray<WVariant> m_Data;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping* m_pMapping;
 };

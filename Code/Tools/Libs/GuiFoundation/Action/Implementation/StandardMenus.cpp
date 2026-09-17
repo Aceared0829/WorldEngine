@@ -6,89 +6,89 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuPanelsAll;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuAsset;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuTools;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
-ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
-ezActionDescriptorHandle ezStandardMenus::s_hReportProblem;
-ezActionDescriptorHandle ezStandardMenus::s_hAskQuestion;
+WActionDescriptorHandle WStandardMenus::s_hMenuProject;
+WActionDescriptorHandle WStandardMenus::s_hMenuFile;
+WActionDescriptorHandle WStandardMenus::s_hMenuEdit;
+WActionDescriptorHandle WStandardMenus::s_hMenuPanels;
+WActionDescriptorHandle WStandardMenus::s_hMenuPanelsAll;
+WActionDescriptorHandle WStandardMenus::s_hMenuScene;
+WActionDescriptorHandle WStandardMenus::s_hMenuAsset;
+WActionDescriptorHandle WStandardMenus::s_hMenuView;
+WActionDescriptorHandle WStandardMenus::s_hMenuTools;
+WActionDescriptorHandle WStandardMenus::s_hMenuHelp;
+WActionDescriptorHandle WStandardMenus::s_hCheckForUpdates;
+WActionDescriptorHandle WStandardMenus::s_hReportProblem;
+WActionDescriptorHandle WStandardMenus::s_hAskQuestion;
 
-void ezStandardMenus::RegisterActions()
+void WStandardMenus::RegisterActions()
 {
-  s_hMenuProject = EZ_REGISTER_MENU("G.Project");
-  s_hMenuFile = EZ_REGISTER_MENU("G.File");
-  s_hMenuEdit = EZ_REGISTER_MENU("G.Edit");
-  s_hMenuPanels = EZ_REGISTER_MENU("G.Panels");
-  s_hMenuPanelsAll = EZ_REGISTER_DYNAMIC_MENU("Panels.All", ezApplicationPanelsMenuAction, "Show Panels");
-  s_hMenuScene = EZ_REGISTER_MENU("G.Scene");
-  s_hMenuAsset = EZ_REGISTER_MENU("G.Asset");
-  s_hMenuView = EZ_REGISTER_MENU("G.View");
-  s_hMenuTools = EZ_REGISTER_MENU("G.Tools");
-  s_hMenuHelp = EZ_REGISTER_MENU("G.Help");
-  s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
-  s_hReportProblem = EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
-  s_hAskQuestion = EZ_REGISTER_ACTION_1("Help.AskQuestion", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::AskQuestion);
+  s_hMenuProject = W_REGISTER_MENU("G.Project");
+  s_hMenuFile = W_REGISTER_MENU("G.File");
+  s_hMenuEdit = W_REGISTER_MENU("G.Edit");
+  s_hMenuPanels = W_REGISTER_MENU("G.Panels");
+  s_hMenuPanelsAll = W_REGISTER_DYNAMIC_MENU("Panels.All", WApplicationPanelsMenuAction, "Show Panels");
+  s_hMenuScene = W_REGISTER_MENU("G.Scene");
+  s_hMenuAsset = W_REGISTER_MENU("G.Asset");
+  s_hMenuView = W_REGISTER_MENU("G.View");
+  s_hMenuTools = W_REGISTER_MENU("G.Tools");
+  s_hMenuHelp = W_REGISTER_MENU("G.Help");
+  s_hCheckForUpdates = W_REGISTER_ACTION_1("Help.CheckForUpdates", WActionScope::Global, "Help", "", WHelpActions, WHelpActions::ButtonType::CheckForUpdates);
+  s_hReportProblem = W_REGISTER_ACTION_1("Help.ReportProblem", WActionScope::Global, "Help", "", WHelpActions, WHelpActions::ButtonType::ReportProblem);
+  s_hAskQuestion = W_REGISTER_ACTION_1("Help.AskQuestion", WActionScope::Global, "Help", "", WHelpActions, WHelpActions::ButtonType::AskQuestion);
 }
 
-void ezStandardMenus::UnregisterActions()
+void WStandardMenus::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hMenuProject);
-  ezActionManager::UnregisterAction(s_hMenuFile);
-  ezActionManager::UnregisterAction(s_hMenuEdit);
-  ezActionManager::UnregisterAction(s_hMenuPanels);
-  ezActionManager::UnregisterAction(s_hMenuPanelsAll);
-  ezActionManager::UnregisterAction(s_hMenuScene);
-  ezActionManager::UnregisterAction(s_hMenuAsset);
-  ezActionManager::UnregisterAction(s_hMenuView);
-  ezActionManager::UnregisterAction(s_hMenuTools);
-  ezActionManager::UnregisterAction(s_hMenuHelp);
-  ezActionManager::UnregisterAction(s_hCheckForUpdates);
-  ezActionManager::UnregisterAction(s_hReportProblem);
-  ezActionManager::UnregisterAction(s_hAskQuestion);
+  WActionManager::UnregisterAction(s_hMenuProject);
+  WActionManager::UnregisterAction(s_hMenuFile);
+  WActionManager::UnregisterAction(s_hMenuEdit);
+  WActionManager::UnregisterAction(s_hMenuPanels);
+  WActionManager::UnregisterAction(s_hMenuPanelsAll);
+  WActionManager::UnregisterAction(s_hMenuScene);
+  WActionManager::UnregisterAction(s_hMenuAsset);
+  WActionManager::UnregisterAction(s_hMenuView);
+  WActionManager::UnregisterAction(s_hMenuTools);
+  WActionManager::UnregisterAction(s_hMenuHelp);
+  WActionManager::UnregisterAction(s_hCheckForUpdates);
+  WActionManager::UnregisterAction(s_hReportProblem);
+  WActionManager::UnregisterAction(s_hAskQuestion);
 }
 
-void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes>& menus)
+void WStandardMenus::MapActions(WStringView sMapping, const WBitflags<WStandardMenuTypes>& menus)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", sMapping);
 
-  ezActionMapDescriptor md;
+  WActionMapDescriptor md;
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Project))
+  if (menus.IsAnySet(WStandardMenuTypes::Project))
     pMap->MapAction(s_hMenuProject, "", -10000.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::File))
+  if (menus.IsAnySet(WStandardMenuTypes::File))
     pMap->MapAction(s_hMenuFile, "", 1.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Edit))
+  if (menus.IsAnySet(WStandardMenuTypes::Edit))
     pMap->MapAction(s_hMenuEdit, "", 2.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Scene))
+  if (menus.IsAnySet(WStandardMenuTypes::Scene))
     pMap->MapAction(s_hMenuScene, "", 3.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Asset))
+  if (menus.IsAnySet(WStandardMenuTypes::Asset))
     pMap->MapAction(s_hMenuAsset, "", 4.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::View))
+  if (menus.IsAnySet(WStandardMenuTypes::View))
     pMap->MapAction(s_hMenuView, "", 5.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Tools))
+  if (menus.IsAnySet(WStandardMenuTypes::Tools))
     pMap->MapAction(s_hMenuTools, "", 6.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Panels))
+  if (menus.IsAnySet(WStandardMenuTypes::Panels))
   {
     pMap->MapAction(s_hMenuPanels, "", 7.0f);
     pMap->MapAction(s_hMenuPanelsAll, "G.Panels", 1.0f);
   }
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Help))
+  if (menus.IsAnySet(WStandardMenuTypes::Help))
   {
     pMap->MapAction(s_hMenuHelp, "", 8.0f);
     pMap->MapAction(s_hReportProblem, "G.Help", 3.0f);
@@ -98,50 +98,50 @@ void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStand
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezApplicationPanelsMenuAction
+// WApplicationPanelsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezApplicationPanelsMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WApplicationPanelsMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-struct ezComparePanels
+struct WComparePanels
 {
   /// Returns true if a is less than b
-  EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const { return p1.m_sDisplay < p2.m_sDisplay; }
+  W_ALWAYS_INLINE bool Less(const WDynamicMenuAction::Item& p1, const WDynamicMenuAction::Item& p2) const { return p1.m_sDisplay < p2.m_sDisplay; }
 
   /// Returns true if a is equal to b
-  EZ_ALWAYS_INLINE bool Equal(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
+  W_ALWAYS_INLINE bool Equal(const WDynamicMenuAction::Item& p1, const WDynamicMenuAction::Item& p2) const
   {
     return p1.m_sDisplay == p2.m_sDisplay;
   }
 };
 
 
-void ezApplicationPanelsMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WApplicationPanelsMenuAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
-  for (auto* pPanel : ezQtApplicationPanel::GetAllApplicationPanels())
+  for (auto* pPanel : WQtApplicationPanel::GetAllApplicationPanels())
   {
-    ezDynamicMenuAction::Item item;
+    WDynamicMenuAction::Item item;
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->icon();
-    item.m_CheckState = pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
+    item.m_CheckState = pPanel->isClosed() ? WDynamicMenuAction::Item::CheckMark::Unchecked : WDynamicMenuAction::Item::CheckMark::Checked;
 
     out_entries.PushBack(item);
   }
 
   // make sure the panels appear in alphabetical order in the menu
-  ezComparePanels cp;
-  out_entries.Sort<ezComparePanels>(cp);
+  WComparePanels cp;
+  out_entries.Sort<WComparePanels>(cp);
 }
 
-void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)
+void WApplicationPanelsMenuAction::Execute(const WVariant& value)
 {
-  ezQtApplicationPanel* pPanel = static_cast<ezQtApplicationPanel*>(value.ConvertTo<void*>());
+  WQtApplicationPanel* pPanel = static_cast<WQtApplicationPanel*>(value.ConvertTo<void*>());
   if (pPanel->isClosed())
   {
     pPanel->toggleView(true);
@@ -156,12 +156,12 @@ void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHelpActions, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WHelpActions, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WHelpActions::WHelpActions(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
@@ -175,9 +175,9 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
   }
 }
 
-ezHelpActions::~ezHelpActions() = default;
+WHelpActions::~WHelpActions() = default;
 
-void ezHelpActions::Execute(const ezVariant& value)
+void WHelpActions::Execute(const WVariant& value)
 {
   if (m_ButtonType == ButtonType::ReportProblem)
   {
@@ -189,6 +189,6 @@ void ezHelpActions::Execute(const ezVariant& value)
   }
   else if (m_ButtonType == ButtonType::CheckForUpdates)
   {
-    ezQtUiServices::CheckForUpdates();
+    WQtUiServices::CheckForUpdates();
   }
 }

@@ -11,16 +11,16 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtDecalAssetDocumentWindow
+// WQtDecalAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
-ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtDecalAssetDocumentWindow::WQtDecalAssetDocumentWindow(WDecalAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "DecalAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -29,8 +29,8 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "DecalAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -43,26 +43,26 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(2, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(2, 0, 0));
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureFixed(WVec3(0), WVec3(0.0f), WVec3(2, 0, 0));
     AddViewWidget(m_pViewWidget);
 
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "DecalAssetViewToolBar");
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "DecalAssetViewToolBar");
 
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("DecalAssetDockWidget");
     pPropertyPanel->setWindowTitle("Decal Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -70,7 +70,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -83,17 +83,17 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
   FinishWindowCreation();
 }
 
-void ezQtDecalAssetDocumentWindow::InternalRedraw()
+void WQtDecalAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtDecalAssetDocumentWindow::SendRedrawMsg()
+void WQtDecalAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   for (auto pView : m_ViewWidgets)

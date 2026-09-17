@@ -2,16 +2,16 @@
 
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 
-class ezBakingScene;
+class WBakingScene;
 
-class ezLongOpWorker_BakeScene : public ezLongOpWorker
+class WLongOpWorker_BakeScene : public WLongOpWorker
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpWorker_BakeScene, ezLongOpWorker);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpWorker_BakeScene, WLongOpWorker);
 
 public:
-  virtual ezResult InitializeExecution(ezStreamReader& ref_config, const ezUuid& documentGuid) override;
-  virtual ezResult Execute(ezProgress& ref_progress, ezStreamWriter& ref_proxydata) override;
+  virtual WResult InitializeExecution(WStreamReader& ref_config, const WUuid& documentGuid) override;
+  virtual WResult Execute(WProgress& ref_progress, WStreamWriter& ref_proxydata) override;
 
-  ezString m_sOutputPath;
-  ezBakingScene* m_pScene;
+  WString m_sOutputPath;
+  WBakingScene* m_pScene;
 };

@@ -5,23 +5,23 @@
 #include <EditorPluginScene/ui_ExportAndRunDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezSceneDocument;
+class WSceneDocument;
 
-class ezQtExportAndRunDlg : public ezQtDialog, public Ui_ExportAndRunDlg
+class WQtExportAndRunDlg : public WQtDialog, public Ui_ExportAndRunDlg
 {
   Q_OBJECT
 
 public:
-  ezQtExportAndRunDlg(QWidget* pParent);
+  WQtExportAndRunDlg(QWidget* pParent);
 
   static bool s_bTransformAll;
   static bool s_bUpdateThumbnail;
   static bool s_bCompileCpp;
   bool m_bRunAfterExport = false;
   bool m_bShowThumbnailCheckbox = true;
-  ezString m_sCmdLine;
-  ezString m_sApplication;
-  ezCppSettings m_CppSettings;
+  WString m_sCmdLine;
+  WString m_sApplication;
+  WCppSettings m_CppSettings;
 
 private Q_SLOTS:
   void on_ExportOnly_clicked();

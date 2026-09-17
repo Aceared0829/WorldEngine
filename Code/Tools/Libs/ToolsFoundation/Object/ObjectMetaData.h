@@ -9,36 +9,36 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 /// Stores meta data for document objects that is not part of the object itself. E.g. editor-only states like hidden or prefab information.
-/// \tparam KEY The key under which data is stored. Usually ezUuid to reference document objects.
+/// \tparam KEY The key under which data is stored. Usually WUuid to reference document objects.
 /// \tparam VALUE Meta value type to be stored.
 template <typename KEY, typename VALUE>
-class ezObjectMetaData
+class WObjectMetaData
 {
 public:
   struct EventData
   {
     KEY m_ObjectKey;
     const VALUE* m_pValue;
-    ezUInt32 m_uiModifiedFlags;
+    WUInt32 m_uiModifiedFlags;
   };
 
-  ezEvent<const EventData&> m_DataModifiedEvent;
+  WEvent<const EventData&> m_DataModifiedEvent;
 
   // Storage for the meta data so it can be swapped when using multiple sub documents.
-  class Storage : public ezRefCounted
+  class Storage : public WRefCounted
   {
   public:
     mutable enum class AccessMode { Nothing,
       Read,
       Write } m_AccessMode;
     mutable KEY m_AcessingKey;
-    mutable ezMutex m_Mutex;
-    ezHashTable<KEY, VALUE> m_MetaData;
+    mutable WMutex m_Mutex;
+    WHashTable<KEY, VALUE> m_MetaData;
 
-    ezEvent<const EventData&> m_DataModifiedEvent;
+    WEvent<const EventData&> m_DataModifiedEvent;
   };
 
-  ezObjectMetaData();
+  WObjectMetaData();
 
   bool HasMetaData(const KEY objectKey) const;
 
@@ -49,27 +49,27 @@ public:
   void EndReadMetaData() const;
 
   VALUE* BeginModifyMetaData(const KEY objectKey);
-  void EndModifyMetaData(ezUInt32 uiModifiedFlags = 0xFFFFFFFF);
+  void EndModifyMetaData(WUInt32 uiModifiedFlags = 0xFFFFFFFF);
 
 
-  ezMutex& GetMutex() const { return m_pMetaStorage->m_Mutex; }
+  WMutex& GetMutex() const { return m_pMetaStorage->m_Mutex; }
 
   const VALUE& GetDefaultValue() const { return m_DefaultValue; }
 
   /// Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph
   /// objects.
-  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& inout_graph) const;
+  void AttachMetaDataToAbstractGraph(WAbstractObjectGraph& inout_graph) const;
 
   /// Uses reflection information from VALUE to restore all meta data properties from the graph.
-  void RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph);
+  void RestoreMetaDataFromAbstractGraph(const WAbstractObjectGraph& graph);
 
-  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> SwapStorage(ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> pNewStorage);
-  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> GetStorage() { return m_pMetaStorage; }
+  WSharedPtr<WObjectMetaData<KEY, VALUE>::Storage> SwapStorage(WSharedPtr<WObjectMetaData<KEY, VALUE>::Storage> pNewStorage);
+  WSharedPtr<WObjectMetaData<KEY, VALUE>::Storage> GetStorage() { return m_pMetaStorage; }
 
 private:
   VALUE m_DefaultValue;
-  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> m_pMetaStorage;
-  typename ezEvent<const EventData&>::Unsubscriber m_EventsUnsubscriber;
+  WSharedPtr<WObjectMetaData<KEY, VALUE>::Storage> m_pMetaStorage;
+  typename WEvent<const EventData&>::Unsubscriber m_EventsUnsubscriber;
 };
 
 #include <ToolsFoundation/Object/Implementation/ObjectMetaData_inl.h>

@@ -6,12 +6,12 @@
 
 class QAbstractButton;
 
-class ezQtSnapSettingsDlg : public ezQtDialog, public Ui_SnapSettingsDlg
+class WQtSnapSettingsDlg : public WQtDialog, public Ui_SnapSettingsDlg
 {
   Q_OBJECT
 
 public:
-  ezQtSnapSettingsDlg(QWidget* pParent);
+  WQtSnapSettingsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);
@@ -19,15 +19,15 @@ private Q_SLOTS:
 private:
   struct KeyValue
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     const char* m_szKey;
     float m_fValue;
   };
 
-  ezHybridArray<KeyValue, 16> m_Translation;
-  ezHybridArray<KeyValue, 16> m_Rotation;
-  ezHybridArray<KeyValue, 16> m_Scale;
+  WHybridArray<KeyValue, 16> m_Translation;
+  WHybridArray<KeyValue, 16> m_Rotation;
+  WHybridArray<KeyValue, 16> m_Scale;
 
   void QueryUI();
 };

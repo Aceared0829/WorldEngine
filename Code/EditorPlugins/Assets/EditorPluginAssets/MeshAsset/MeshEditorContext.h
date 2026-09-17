@@ -8,14 +8,14 @@
 ///
 /// Ctrl+Middle click fires a picking query to determine the material slot under the cursor,
 /// then opens the corresponding material document. Used only in the mesh asset preview.
-class EZ_EDITORPLUGINASSETS_DLL ezMeshEditorInputContext : public ezEditorInputContext
+class W_EDITORPLUGINASSETS_DLL WMeshEditorInputContext : public WEditorInputContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshEditorInputContext, ezEditorInputContext);
+  W_ADD_DYNAMIC_REFLECTION(WMeshEditorInputContext, WEditorInputContext);
 
 public:
-  ezMeshEditorInputContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
+  WMeshEditorInputContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView);
 
 protected:
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override {}
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
 };

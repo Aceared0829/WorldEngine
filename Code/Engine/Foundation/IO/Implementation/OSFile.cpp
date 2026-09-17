@@ -2,84 +2,84 @@
 
 #include <Foundation/IO/OSFile.h>
 
-ezString64 ezOSFile::s_sApplicationPath;
-ezString64 ezOSFile::s_sUserDataPath;
-ezString64 ezOSFile::s_sTempDataPath;
-ezString64 ezOSFile::s_sUserDocumentsPath;
-ezAtomicInteger32 ezOSFile::s_iFileCounter;
+WString64 WOSFile::s_sApplicationPath;
+WString64 WOSFile::s_sUserDataPath;
+WString64 WOSFile::s_sTempDataPath;
+WString64 WOSFile::s_sUserDocumentsPath;
+WAtomicInteger32 WOSFile::s_iFileCounter;
 
-ezOSFile::Event ezOSFile::s_FileEvents;
+WOSFile::Event WOSFile::s_FileEvents;
 
-ezFileStats::ezFileStats() = default;
-ezFileStats::~ezFileStats() = default;
+WFileStats::WFileStats() = default;
+WFileStats::~WFileStats() = default;
 
-void ezFileStats::GetFullPath(ezStringBuilder& ref_sPath) const
+void WFileStats::GetFullPath(WStringBuilder& ref_sPath) const
 {
   ref_sPath.Set(m_sParentPath, "/", m_sName);
   ref_sPath.MakeCleanPath();
 }
 
-ezOSFile::ezOSFile()
+WOSFile::WOSFile()
 {
-  m_FileMode = ezFileOpenMode::None;
+  m_FileMode = WFileOpenMode::None;
   m_iFileID = s_iFileCounter.Increment();
 }
 
-ezOSFile::~ezOSFile()
+WOSFile::~WOSFile()
 {
   Close();
 }
 
-ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode)
+WResult WOSFile::Open(WStringView sFile, WFileOpenMode::Enum openMode, WFileShareMode::Enum fileShareMode)
 {
   m_iFileID = s_iFileCounter.Increment();
 
-  EZ_ASSERT_DEV(openMode >= ezFileOpenMode::Read && openMode <= ezFileOpenMode::Append, "Invalid Mode");
-  EZ_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
+  W_ASSERT_DEV(openMode >= WFileOpenMode::Read && openMode <= WFileOpenMode::Append, "Invalid Mode");
+  W_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
   m_sFileName = sFile;
   m_sFileName.MakeCleanPath();
   m_sFileName.MakePathSeparatorsNative();
 
-  ezResult Res = EZ_FAILURE;
+  WResult Res = W_FAILURE;
 
   if (!m_sFileName.IsAbsolutePath())
     goto done;
 
   {
-    ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
+    WStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
-    if (openMode == ezFileOpenMode::Write || openMode == ezFileOpenMode::Append)
+    if (openMode == WFileOpenMode::Write || openMode == WFileOpenMode::Append)
     {
-      EZ_SUCCEED_OR_RETURN(CreateDirectoryStructure(sFolder.GetData()));
+      W_SUCCEED_OR_RETURN(CreateDirectoryStructure(sFolder.GetData()));
     }
   }
 
-  if (InternalOpen(m_sFileName.GetData(), openMode, fileShareMode) == EZ_SUCCESS)
+  if (InternalOpen(m_sFileName.GetData(), openMode, fileShareMode) == W_SUCCESS)
   {
     m_FileMode = openMode;
-    Res = EZ_SUCCESS;
+    Res = W_SUCCESS;
     goto done;
   }
 
   m_sFileName.Clear();
-  m_FileMode = ezFileOpenMode::None;
+  m_FileMode = WFileOpenMode::None;
   goto done;
 
 done:
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_FileMode = openMode;
   e.m_iFileID = m_iFileID;
@@ -91,26 +91,26 @@ done:
   return Res;
 }
 
-bool ezOSFile::IsOpen() const
+bool WOSFile::IsOpen() const
 {
-  return m_FileMode != ezFileOpenMode::None;
+  return m_FileMode != WFileOpenMode::None;
 }
 
-void ezOSFile::Close()
+void WOSFile::Close()
 {
   if (!IsOpen())
     return;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
   InternalClose();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
@@ -123,31 +123,31 @@ void ezOSFile::Close()
   s_FileEvents.Broadcast(e);
 
   m_sFileName.Clear();
-  m_FileMode = ezFileOpenMode::None;
+  m_FileMode = WFileOpenMode::None;
 }
 
-ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
+WResult WOSFile::Write(const void* pBuffer, WUInt64 uiBytes)
 {
   if (uiBytes == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  EZ_ASSERT_DEV((m_FileMode == ezFileOpenMode::Write) || (m_FileMode == ezFileOpenMode::Append), "The file is not opened for writing.");
-  EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
+  W_ASSERT_DEV((m_FileMode == WFileOpenMode::Write) || (m_FileMode == WFileOpenMode::Append), "The file is not opened for writing.");
+  W_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  const ezResult Res = InternalWrite(pBuffer, uiBytes);
+  const WResult Res = InternalWrite(pBuffer, uiBytes);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = m_iFileID;
   e.m_sFile = m_sFileName;
@@ -159,21 +159,21 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
   return Res;
 }
 
-ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
+WUInt64 WOSFile::Read(void* pBuffer, WUInt64 uiBytes)
 {
-  EZ_ASSERT_DEV(m_FileMode == ezFileOpenMode::Read, "The file is not opened for reading.");
-  EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
+  W_ASSERT_DEV(m_FileMode == WFileOpenMode::Read, "The file is not opened for reading.");
+  W_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  const ezUInt64 Res = InternalRead(pBuffer, uiBytes);
+  const WUInt64 Res = InternalRead(pBuffer, uiBytes);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
@@ -189,12 +189,12 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   return Res;
 }
 
-ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_fileContent)
+WUInt64 WOSFile::ReadAll(WDynamicArray<WUInt8>& out_fileContent)
 {
-  EZ_ASSERT_DEV(m_FileMode == ezFileOpenMode::Read, "The file is not opened for reading.");
+  W_ASSERT_DEV(m_FileMode == WFileOpenMode::Read, "The file is not opened for reading.");
 
   out_fileContent.Clear();
-  out_fileContent.SetCountUninitialized((ezUInt32)GetFileSize());
+  out_fileContent.SetCountUninitialized((WUInt32)GetFileSize());
 
   if (!out_fileContent.IsEmpty())
   {
@@ -204,41 +204,41 @@ ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_fileContent)
   return out_fileContent.GetCount();
 }
 
-ezUInt64 ezOSFile::GetFilePosition() const
+WUInt64 WOSFile::GetFilePosition() const
 {
-  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
+  W_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
 
   return InternalGetFilePosition();
 }
 
-void ezOSFile::SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum pos) const
+void WOSFile::SetFilePosition(WInt64 iDistance, WFileSeekMode::Enum pos) const
 {
-  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
-  EZ_ASSERT_DEV(m_FileMode != ezFileOpenMode::Append, "SetFilePosition is not possible on files that were opened for appending.");
+  W_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
+  W_ASSERT_DEV(m_FileMode != WFileOpenMode::Append, "SetFilePosition is not possible on files that were opened for appending.");
 
   return InternalSetFilePosition(iDistance, pos);
 }
 
-ezUInt64 ezOSFile::GetFileSize() const
+WUInt64 WOSFile::GetFileSize() const
 {
-  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file size.");
+  W_ASSERT_DEV(IsOpen(), "The file must be open to tell the file size.");
 
-  const ezInt64 iCurPos = static_cast<ezInt64>(GetFilePosition());
-
-  // to circumvent the 'append does not support SetFilePosition' assert, we use the internal function directly
-  InternalSetFilePosition(0, ezFileSeekMode::FromEnd);
-
-  const ezUInt64 uiCurSize = static_cast<ezInt64>(GetFilePosition());
+  const WInt64 iCurPos = static_cast<WInt64>(GetFilePosition());
 
   // to circumvent the 'append does not support SetFilePosition' assert, we use the internal function directly
-  InternalSetFilePosition(iCurPos, ezFileSeekMode::FromStart);
+  InternalSetFilePosition(0, WFileSeekMode::FromEnd);
+
+  const WUInt64 uiCurSize = static_cast<WInt64>(GetFilePosition());
+
+  // to circumvent the 'append does not support SetFilePosition' assert, we use the internal function directly
+  InternalSetFilePosition(iCurPos, WFileSeekMode::FromStart);
 
   return uiCurSize;
 }
 
-const ezString ezOSFile::MakePathAbsoluteWithCWD(ezStringView sPath)
+const WString WOSFile::MakePathAbsoluteWithCWD(WStringView sPath)
 {
-  ezStringBuilder tmp = sPath;
+  WStringBuilder tmp = sPath;
   tmp.MakeCleanPath();
 
   if (tmp.IsRelativePath())
@@ -250,24 +250,24 @@ const ezString ezOSFile::MakePathAbsoluteWithCWD(ezStringView sPath)
   return tmp;
 }
 
-bool ezOSFile::ExistsFile(ezStringView sFile)
+bool WOSFile::ExistsFile(WStringView sFile)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  ezStringBuilder s(sFile);
+  WStringBuilder s(sFile);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sFile);
+  W_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sFile);
 
   const bool bRes = InternalExistsFile(s);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
 
@@ -283,24 +283,24 @@ bool ezOSFile::ExistsFile(ezStringView sFile)
   return bRes;
 }
 
-bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
+bool WOSFile::ExistsDirectory(WStringView sDirectory)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  ezStringBuilder s(sDirectory);
+  WStringBuilder s(sDirectory);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sDirectory);
+  W_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sDirectory);
 
   const bool bRes = InternalExistsDirectory(s);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
@@ -315,48 +315,48 @@ bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
   return bRes;
 }
 
-void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix /*= {}*/)
+void WOSFile::FindFreeFilename(WStringBuilder& inout_sPath, WStringView sSuffix /*= {}*/)
 {
-  EZ_ASSERT_DEV(!inout_sPath.IsEmpty() && inout_sPath.IsAbsolutePath(), "Invalid input path.");
+  W_ASSERT_DEV(!inout_sPath.IsEmpty() && inout_sPath.IsAbsolutePath(), "Invalid input path.");
 
-  if (!ezOSFile::ExistsFile(inout_sPath))
+  if (!WOSFile::ExistsFile(inout_sPath))
     return;
 
-  const ezString orgName = inout_sPath.GetFileName();
+  const WString orgName = inout_sPath.GetFileName();
 
-  ezStringBuilder newName;
+  WStringBuilder newName;
 
-  for (ezUInt32 i = 2; i < 100000; ++i)
+  for (WUInt32 i = 2; i < 100000; ++i)
   {
     newName.SetFormat("{}{}{}", orgName, sSuffix, i);
 
     inout_sPath.ChangeFileName(newName);
-    if (!ezOSFile::ExistsFile(inout_sPath))
+    if (!WOSFile::ExistsFile(inout_sPath))
       return;
   }
 
-  EZ_REPORT_FAILURE("Something went wrong.");
+  W_REPORT_FAILURE("Something went wrong.");
 }
 
-ezResult ezOSFile::DeleteFile(ezStringView sFile)
+WResult WOSFile::DeleteFile(WStringView sFile)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  ezStringBuilder s(sFile);
+  WStringBuilder s(sFile);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  const ezResult Res = InternalDeleteFile(s.GetData());
+  const WResult Res = InternalDeleteFile(s.GetData());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = s_iFileCounter.Increment();
   e.m_sFile = sFile;
@@ -367,39 +367,39 @@ ezResult ezOSFile::DeleteFile(ezStringView sFile)
   return Res;
 }
 
-ezStringView ezOSFile::GetApplicationDirectory()
+WStringView WOSFile::GetApplicationDirectory()
 {
   if (s_sApplicationPath.IsEmpty())
   {
     // s_sApplicationPath is filled out and cached by GetApplicationPath(), so call that first, if necessary
     GetApplicationPath();
-    EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
+    W_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
   }
 
   return s_sApplicationPath.GetFileDirectory();
 }
 
-ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
+WResult WOSFile::CreateDirectoryStructure(WStringView sDirectory)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  ezStringBuilder s(sDirectory);
+  WStringBuilder s(sDirectory);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
+  W_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
 
-  ezStringBuilder sCurPath;
+  WStringBuilder sCurPath;
 
   auto it = s.GetIteratorFront();
 
-  ezResult Res = EZ_SUCCESS;
+  WResult Res = W_SUCCESS;
 
   while (it.IsValid())
   {
-    while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
+    while ((it.GetCharacter() != '\0') && (!WPathUtils::IsPathSeparator(it.GetCharacter())))
     {
       sCurPath.Append(it.GetCharacter());
       ++it;
@@ -408,21 +408,21 @@ ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
     sCurPath.Append(it.GetCharacter());
     ++it;
 
-    if (InternalCreateDirectory(sCurPath.GetData()) == EZ_FAILURE)
+    if (InternalCreateDirectory(sCurPath.GetData()) == W_FAILURE)
     {
-      Res = EZ_FAILURE;
+      Res = W_FAILURE;
       break;
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = s_iFileCounter.Increment();
   e.m_sFile = sDirectory;
@@ -433,67 +433,67 @@ ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
   return Res;
 }
 
-ezResult ezOSFile::MoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo)
+WResult WOSFile::MoveFileOrDirectory(WStringView sDirectoryFrom, WStringView sDirectoryTo)
 {
-  ezStringBuilder sFrom(sDirectoryFrom);
+  WStringBuilder sFrom(sDirectoryFrom);
   sFrom.MakeCleanPath();
   sFrom.MakePathSeparatorsNative();
 
-  ezStringBuilder sTo(sDirectoryTo);
+  WStringBuilder sTo(sDirectoryTo);
   sTo.MakeCleanPath();
   sTo.MakePathSeparatorsNative();
 
   return InternalMoveFileOrDirectory(sFrom, sTo);
 }
 
-ezResult ezOSFile::CopyFile(ezStringView sSource, ezStringView sDestination)
+WResult WOSFile::CopyFile(WStringView sSource, WStringView sDestination)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #endif
 
-  ezOSFile SrcFile, DstFile;
+  WOSFile SrcFile, DstFile;
 
-  ezResult Res = EZ_FAILURE;
+  WResult Res = W_FAILURE;
 
-  if (SrcFile.Open(sSource, ezFileOpenMode::Read) == EZ_FAILURE)
+  if (SrcFile.Open(sSource, WFileOpenMode::Read) == W_FAILURE)
     goto done;
 
   DstFile.m_bRetryOnSharingViolation = false;
-  if (DstFile.Open(sDestination, ezFileOpenMode::Write) == EZ_FAILURE)
+  if (DstFile.Open(sDestination, WFileOpenMode::Write) == W_FAILURE)
     goto done;
 
   {
-    const ezUInt32 uiTempSize = 1024 * 1024 * 8; // 8 MB
+    const WUInt32 uiTempSize = 1024 * 1024 * 8; // 8 MB
 
     // can't allocate that much data on the stack
-    ezDynamicArray<ezUInt8> TempBuffer;
+    WDynamicArray<WUInt8> TempBuffer;
     TempBuffer.SetCountUninitialized(uiTempSize);
 
     while (true)
     {
-      const ezUInt64 uiRead = SrcFile.Read(&TempBuffer[0], uiTempSize);
+      const WUInt64 uiRead = SrcFile.Read(&TempBuffer[0], uiTempSize);
 
       if (uiRead == 0)
         break;
 
-      if (DstFile.Write(&TempBuffer[0], uiRead) == EZ_FAILURE)
+      if (DstFile.Write(&TempBuffer[0], uiRead) == W_FAILURE)
         goto done;
     }
   }
 
-  Res = EZ_SUCCESS;
+  Res = W_SUCCESS;
 
 done:
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = s_iFileCounter.Increment();
   e.m_sFile = sSource;
@@ -505,30 +505,30 @@ done:
   return Res;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
 
-ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats)
+WResult WOSFile::GetFileStats(WStringView sFileOrFolder, WFileStats& out_stats)
 {
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#  if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #  endif
 
-  ezStringBuilder s = sFileOrFolder;
+  WStringBuilder s = sFileOrFolder;
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
+  W_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
 
-  const ezResult Res = InternalGetFileStats(s.GetData(), out_stats);
+  const WResult Res = InternalGetFileStats(s.GetData(), out_stats);
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#  if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #  else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #  endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = s_iFileCounter.Increment();
   e.m_sFile = sFileOrFolder;
@@ -539,32 +539,32 @@ ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_sta
   return Res;
 }
 
-#  if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
+#  if W_ENABLED(W_SUPPORTS_CASE_INSENSITIVE_PATHS) && W_ENABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+WResult WOSFile::GetFileCasing(WStringView sFileOrFolder, WStringBuilder& out_sCorrectSpelling)
 {
-  /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
+  /// \todo We should implement this also on WFileSystem, to be able to support stats through virtual filesystems
 
-#    if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime t0 = ezTime::Now();
+#    if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime t0 = WTime::Now();
 #    endif
 
-  ezStringBuilder s(sFileOrFolder);
+  WStringBuilder s(sFileOrFolder);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
+  W_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
 
-  ezStringBuilder sCurPath;
+  WStringBuilder sCurPath;
 
   auto it = s.GetIteratorFront();
 
   out_sCorrectSpelling.Clear();
 
-  ezResult Res = EZ_SUCCESS;
+  WResult Res = W_SUCCESS;
 
   while (it.IsValid())
   {
-    while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
+    while ((it.GetCharacter() != '\0') && (!WPathUtils::IsPathSeparator(it.GetCharacter())))
     {
       sCurPath.Append(it.GetCharacter());
       ++it;
@@ -572,10 +572,10 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
 
     if (!sCurPath.IsEmpty())
     {
-      ezFileStats stats;
-      if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
+      WFileStats stats;
+      if (GetFileStats(sCurPath.GetData(), stats) == W_FAILURE)
       {
-        Res = EZ_FAILURE;
+        Res = W_FAILURE;
         break;
       }
 
@@ -585,14 +585,14 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
     ++it;
   }
 
-#    if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezTime tdiff = ezTime::Now() - t0;
+#    if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WTime tdiff = WTime::Now() - t0;
 #    else
-  const ezTime tdiff = ezTime::MakeZero();
+  const WTime tdiff = WTime::MakeZero();
 #    endif
 
   EventData e;
-  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_bSuccess = Res == W_SUCCESS;
   e.m_Duration = tdiff;
   e.m_iFileID = s_iFileCounter.Increment();
   e.m_sFile = sFileOrFolder;
@@ -603,17 +603,17 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
   return Res;
 }
 
-#  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+#  endif // W_SUPPORTS_CASE_INSENSITIVE_PATHS && W_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif   // EZ_SUPPORTS_FILE_STATS
+#endif   // W_SUPPORTS_FILE_STATS
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS) && W_ENABLED(W_SUPPORTS_FILE_STATS)
 
-void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_itemList, ezStringView sFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void WOSFile::GatherAllItemsInFolder(WDynamicArray<WFileStats>& out_itemList, WStringView sFolder, WBitflags<WFileSystemIteratorFlags> flags /*= WFileSystemIteratorFlags::All*/)
 {
   out_itemList.Clear();
 
-  ezFileSystemIterator iterator;
+  WFileSystemIterator iterator;
   iterator.StartSearch(sFolder, flags);
 
   if (!iterator.IsValid())
@@ -629,14 +629,14 @@ void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_itemList,
   }
 }
 
-ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_pFilesCopied /*= nullptr*/)
+WResult WOSFile::CopyFolder(WStringView sSourceFolder, WStringView sDestinationFolder, WDynamicArray<WString>* out_pFilesCopied /*= nullptr*/)
 {
-  ezDynamicArray<ezFileStats> items;
+  WDynamicArray<WFileStats> items;
   GatherAllItemsInFolder(items, sSourceFolder);
 
-  ezStringBuilder srcPath;
-  ezStringBuilder dstPath;
-  ezStringBuilder relPath;
+  WStringBuilder srcPath;
+  WStringBuilder dstPath;
+  WStringBuilder relPath;
 
   for (const auto& item : items)
   {
@@ -646,20 +646,20 @@ ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinat
     relPath = srcPath;
 
     if (relPath.MakeRelativeTo(sSourceFolder).Failed())
-      return EZ_FAILURE; // unexpected to ever fail, but don't want to assert on it
+      return W_FAILURE; // unexpected to ever fail, but don't want to assert on it
 
     dstPath = sDestinationFolder;
     dstPath.AppendPath(relPath);
 
     if (item.m_bIsDirectory)
     {
-      if (ezOSFile::CreateDirectoryStructure(dstPath).Failed())
-        return EZ_FAILURE;
+      if (WOSFile::CreateDirectoryStructure(dstPath).Failed())
+        return W_FAILURE;
     }
     else
     {
-      if (ezOSFile::CopyFile(srcPath, dstPath).Failed())
-        return EZ_FAILURE;
+      if (WOSFile::CopyFile(srcPath, dstPath).Failed())
+        return W_FAILURE;
 
       if (out_pFilesCopied)
       {
@@ -670,15 +670,15 @@ ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinat
     // TODO: make sure to remove read-only flags of copied files ?
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOSFile::DeleteFolder(ezStringView sFolder)
+WResult WOSFile::DeleteFolder(WStringView sFolder)
 {
-  ezDynamicArray<ezFileStats> items;
+  WDynamicArray<WFileStats> items;
   GatherAllItemsInFolder(items, sFolder);
 
-  ezStringBuilder fullPath;
+  WStringBuilder fullPath;
 
   for (const auto& item : items)
   {
@@ -688,11 +688,11 @@ ezResult ezOSFile::DeleteFolder(ezStringView sFolder)
     fullPath = item.m_sParentPath;
     fullPath.AppendPath(item.m_sName);
 
-    if (ezOSFile::DeleteFile(fullPath).Failed())
-      return EZ_FAILURE;
+    if (WOSFile::DeleteFile(fullPath).Failed())
+      return W_FAILURE;
   }
 
-  for (ezUInt32 i = items.GetCount(); i > 0; --i)
+  for (WUInt32 i = items.GetCount(); i > 0; --i)
   {
     const auto& item = items[i - 1];
 
@@ -702,21 +702,21 @@ ezResult ezOSFile::DeleteFolder(ezStringView sFolder)
     fullPath = item.m_sParentPath;
     fullPath.AppendPath(item.m_sName);
 
-    if (ezOSFile::InternalDeleteDirectory(fullPath).Failed())
-      return EZ_FAILURE;
+    if (WOSFile::InternalDeleteDirectory(fullPath).Failed())
+      return W_FAILURE;
   }
 
-  if (ezOSFile::InternalDeleteDirectory(sFolder).Failed())
-    return EZ_FAILURE;
+  if (WOSFile::InternalDeleteDirectory(sFolder).Failed())
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-#endif // EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#endif // W_ENABLED(W_SUPPORTS_FILE_ITERATORS) && W_ENABLED(W_SUPPORTS_FILE_STATS)
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
 
-void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+void WFileSystemIterator::StartMultiFolderSearch(WArrayPtr<WString> startFolders, WStringView sSearchTerm, WBitflags<WFileSystemIteratorFlags> flags /*= WFileSystemIteratorFlags::Default*/)
 {
   if (startFolders.IsEmpty())
     return;
@@ -726,7 +726,7 @@ void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFold
   m_uiCurrentStartFolder = 0;
   m_StartFolders = startFolders;
 
-  ezStringBuilder search = startFolders[m_uiCurrentStartFolder];
+  WStringBuilder search = startFolders[m_uiCurrentStartFolder];
   search.AppendPath(sSearchTerm);
 
   StartSearch(search, m_Flags);
@@ -737,11 +737,11 @@ void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFold
   }
 }
 
-void ezFileSystemIterator::Next()
+void WFileSystemIterator::Next()
 {
   while (true)
   {
-    const ezInt32 res = InternalNext();
+    const WInt32 res = InternalNext();
 
     if (res == 1) // success
     {
@@ -753,7 +753,7 @@ void ezFileSystemIterator::Next()
 
       if (m_uiCurrentStartFolder < m_StartFolders.GetCount())
       {
-        ezStringBuilder search = m_StartFolders[m_uiCurrentStartFolder];
+        WStringBuilder search = m_StartFolders[m_uiCurrentStartFolder];
         search.AppendPath(m_sMultiSearchTerm);
 
         if (search.IsAbsolutePath())
@@ -778,16 +778,16 @@ void ezFileSystemIterator::Next()
   }
 }
 
-void ezFileSystemIterator::SkipFolder()
+void WFileSystemIterator::SkipFolder()
 {
-  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
+  W_ASSERT_DEBUG(m_Flags.IsSet(WFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
+  W_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
 
-  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
+  m_Flags.Remove(WFileSystemIteratorFlags::Recursive);
 
   Next();
 
-  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
+  m_Flags.Add(WFileSystemIteratorFlags::Recursive);
 }
 
 #endif

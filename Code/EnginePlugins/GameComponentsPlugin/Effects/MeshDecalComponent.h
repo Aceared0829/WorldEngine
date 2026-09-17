@@ -4,56 +4,56 @@
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 #include <RendererCore/Declarations.h>
 
-struct ezMsgExtractRenderData;
+struct WMsgExtractRenderData;
 
-struct EZ_GAMECOMPONENTS_DLL ezMeshDecalDescription
+struct W_GAMECOMPONENTS_DLL WMeshDecalDescription
 {
-  ezUInt16 m_uiIndex = 0;
-  ezTexture2DResourceHandle m_hBaseColorTexture;
+  WUInt16 m_uiIndex = 0;
+  WTexture2DResourceHandle m_hBaseColorTexture;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezMeshDecalDescription);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WMeshDecalDescription);
 
 ////////////////////////////////////////////////////////////////////////////
 
-using ezMeshDecalComponentManager = ezComponentManager<class ezMeshDecalComponent, ezBlockStorageType::Compact>;
+using WMeshDecalComponentManager = WComponentManager<class WMeshDecalComponent, WBlockStorageType::Compact>;
 
 /// A component that takes a couple of decal textures, picks a random one for each slot,
 /// adds them to runtime decal atlas and sends a custom data message with the corresponding decal indices.
 ///
 /// The decals in this case are not regular projected decals, but rather mesh decals aka floaters.
 /// This requires a special shader to be used which uses the custom data in the instance data to map the UV coordinates to the decal atlas.
-/// See "Data/Samples/Testing Chambers/Materials/MeshDecalMaterial.ezShader" for an example shader.
-class EZ_GAMECOMPONENTS_DLL ezMeshDecalComponent final : public ezComponent
+/// See "Data/Samples/Testing Chambers/Materials/MeshDecalMaterial.WShader" for an example shader.
+class W_GAMECOMPONENTS_DLL WMeshDecalComponent final : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMeshDecalComponent, ezComponent, ezMeshDecalComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMeshDecalComponent, WComponent, WMeshDecalComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
 private:
-  ezUInt32 Decals_GetCount() const;
-  const ezMeshDecalDescription& Decals_Get(ezUInt32 uiIndex) const;
-  void Decals_Set(ezUInt32 uiIndex, const ezMeshDecalDescription& desc);
-  void Decals_Insert(ezUInt32 uiIndex, const ezMeshDecalDescription& desc);
-  void Decals_Remove(ezUInt32 uiIndex);
+  WUInt32 Decals_GetCount() const;
+  const WMeshDecalDescription& Decals_Get(WUInt32 uiIndex) const;
+  void Decals_Set(WUInt32 uiIndex, const WMeshDecalDescription& desc);
+  void Decals_Insert(WUInt32 uiIndex, const WMeshDecalDescription& desc);
+  void Decals_Remove(WUInt32 uiIndex);
 
   void UpdateDecals();
   void DeleteDecals();
 
-  ezSmallArray<ezMeshDecalDescription, 2> m_DecalDescs;
-  ezSmallArray<ezDecalId, 2> m_DecalIds;
+  WSmallArray<WMeshDecalDescription, 2> m_DecalDescs;
+  WSmallArray<WDecalId, 2> m_DecalIds;
 };

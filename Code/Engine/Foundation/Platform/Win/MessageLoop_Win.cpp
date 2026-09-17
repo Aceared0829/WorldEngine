@@ -1,25 +1,25 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Communication/IpcChannel.h>
 #  include <Foundation/Platform/Win/MessageLoop_Platform.h>
 #  include <Foundation/Platform/Win/PipeChannel_Platform.h>
 
-ezMessageLoop_win::ezMessageLoop_win()
+WMessageLoop_win::WMessageLoop_win()
 {
   m_hPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
-  EZ_ASSERT_DEBUG(m_hPort != INVALID_HANDLE_VALUE, "Failed to create IO completion port!");
+  W_ASSERT_DEBUG(m_hPort != INVALID_HANDLE_VALUE, "Failed to create IO completion port!");
 }
 
-ezMessageLoop_win::~ezMessageLoop_win()
+WMessageLoop_win::~WMessageLoop_win()
 {
   StopUpdateThread();
   CloseHandle(m_hPort);
 }
 
 
-bool ezMessageLoop_win::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter)
+bool WMessageLoop_win::WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter)
 {
   if (iTimeout < 0)
     iTimeout = INFINITE;
@@ -42,14 +42,14 @@ bool ezMessageLoop_win::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter)
     }
     else
     {
-      EZ_ASSERT_DEBUG(item.pContext->pChannel == item.pChannel, "");
-      static_cast<ezPipeChannel_win*>(item.pChannel)->OnIOCompleted(item.pContext, item.uiBytesTransfered, item.uiError);
+      W_ASSERT_DEBUG(item.pContext->pChannel == item.pChannel, "");
+      static_cast<WPipeChannel_win*>(item.pChannel)->OnIOCompleted(item.pContext, item.uiBytesTransfered, item.uiError);
     }
   }
   return true;
 }
 
-bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
+bool WMessageLoop_win::GetIOItem(WInt32 iTimeout, IOItem* pItem)
 {
   memset(pItem, 0, sizeof(*pItem));
   ULONG_PTR key = 0;
@@ -64,26 +64,26 @@ bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
     pItem->uiBytesTransfered = 0;
   }
 
-  pItem->pChannel = reinterpret_cast<ezIpcChannel*>(key);
+  pItem->pChannel = reinterpret_cast<WIpcChannel*>(key);
   pItem->pContext = reinterpret_cast<IOContext*>(overlapped);
   return true;
 }
 
-bool ezMessageLoop_win::ProcessInternalIOItem(const IOItem& item)
+bool WMessageLoop_win::ProcessInternalIOItem(const IOItem& item)
 {
-  if (reinterpret_cast<ezMessageLoop_win*>(item.pContext) == this && reinterpret_cast<ezMessageLoop_win*>(item.pChannel) == this)
+  if (reinterpret_cast<WMessageLoop_win*>(item.pContext) == this && reinterpret_cast<WMessageLoop_win*>(item.pChannel) == this)
   {
     // internal notification
-    EZ_ASSERT_DEBUG(item.uiBytesTransfered == 0, "");
+    W_ASSERT_DEBUG(item.uiBytesTransfered == 0, "");
     InterlockedExchange(&m_iHaveWork, 0);
     return true;
   }
   return false;
 }
 
-bool ezMessageLoop_win::MatchCompletedIOItem(ezIpcChannel* pFilter, IOItem* pItem)
+bool WMessageLoop_win::MatchCompletedIOItem(WIpcChannel* pFilter, IOItem* pItem)
 {
-  for (ezUInt32 i = 0; i < m_CompletedIO.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_CompletedIO.GetCount(); i++)
   {
     if (pFilter == NULL || m_CompletedIO[i].pChannel == pFilter)
     {
@@ -95,7 +95,7 @@ bool ezMessageLoop_win::MatchCompletedIOItem(ezIpcChannel* pFilter, IOItem* pIte
   return false;
 }
 
-void ezMessageLoop_win::WakeUp()
+void WMessageLoop_win::WakeUp()
 {
   if (InterlockedExchange(&m_iHaveWork, 1))
   {
@@ -104,8 +104,8 @@ void ezMessageLoop_win::WakeUp()
   }
   // wake up the loop
   BOOL res = PostQueuedCompletionStatus(m_hPort, 0, reinterpret_cast<ULONG_PTR>(this), reinterpret_cast<OVERLAPPED*>(this));
-  EZ_IGNORE_UNUSED(res);
-  EZ_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", ezArgErrorCode(GetLastError()));
+  W_IGNORE_UNUSED(res);
+  W_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", WArgErrorCode(GetLastError()));
 }
 
 #endif

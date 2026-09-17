@@ -11,16 +11,16 @@
 /// allows easier control over a game. The virtual thumb-stick takes input inside a certain screen area. It tracks the users finger
 /// movements inside this area and translates those into input from a controller thumb-stick, which it then feeds back into the input
 /// system. That makes it then possible to be mapped to input actions again. This way a game controller type of input is emulated.
-class EZ_CORE_DLL ezVirtualThumbStick final : public ezInputDevice
+class W_CORE_DLL WVirtualThumbStick final : public WInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick, ezInputDevice);
+  W_ADD_DYNAMIC_REFLECTION(WVirtualThumbStick, WInputDevice);
 
 public:
   /// Constructor.
-  ezVirtualThumbStick();
+  WVirtualThumbStick();
 
   /// Destructor.
-  ~ezVirtualThumbStick();
+  ~WVirtualThumbStick();
 
   /// This enum allows to select either some default input mapping or to select 'Custom'.
   struct Input
@@ -63,12 +63,12 @@ public:
 
   struct Flags
   {
-    using StorageType = ezUInt16;
+    using StorageType = WUInt16;
 
     enum Enum
     {
       None = 0,
-      OnlyMaxAxis = EZ_BIT(0), ///< If set, only the output axis that has the strongest value will be set. Thus the stick acts more like a DPAD with 4 distinct directions where only one will be active at any one time.
+      OnlyMaxAxis = W_BIT(0), ///< If set, only the output axis that has the strongest value will be set. Thus the stick acts more like a DPAD with 4 distinct directions where only one will be active at any one time.
 
       Default = None,
     };
@@ -97,13 +97,13 @@ public:
   ///
   /// \param center
   ///   \sa CenterMode.
-  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center = CenterMode::ActivationPoint);
+  void SetInputArea(const WVec2& vLowerLeft, const WVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center = CenterMode::ActivationPoint);
 
   /// See the Flags struct for details.
-  void SetFlags(ezBitflags<Flags> flags);
+  void SetFlags(WBitflags<Flags> flags);
 
   /// See the Flags struct for details.
-  ezBitflags<Flags> GetFlags() const { return m_Flags; }
+  WBitflags<Flags> GetFlags() const { return m_Flags; }
 
   /// Sets the aspect ratio of the screen on which the input happens.
   ///
@@ -117,22 +117,22 @@ public:
   float GetInputCoordinateAspectRatio() const { return m_fAspectRatio; }
 
   /// Returns the input area of the virtual thumb-stick.
-  void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight) const;
+  void GetInputArea(WVec2& out_vLowerLeft, WVec2& out_vUpperRight) const;
 
   /// Specifies from which input slots the thumb-stick is activated.
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumb-stick.
   /// Otherwise the remaining parameters are ignored.
-  void SetTriggerInputSlot(Input::Enum input, const ezInputActionConfig* pCustomConfig = nullptr);
+  void SetTriggerInputSlot(Input::Enum input, const WInputActionConfig* pCustomConfig = nullptr);
 
   /// Specifies which output the thumb-stick generates.
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
-  void SetThumbstickOutput(Output::Enum output, ezStringView sOutputLeft = {}, ezStringView sOutputRight = {}, ezStringView sOutputUp = {}, ezStringView sOutputDown = {});
+  void SetThumbstickOutput(Output::Enum output, WStringView sOutputLeft = {}, WStringView sOutputRight = {}, WStringView sOutputUp = {}, WStringView sOutputDown = {});
 
   /// Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
-  void SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEnter, ezInputActionConfig::OnLeaveArea onLeave);
+  void SetAreaFocusMode(WInputActionConfig::OnEnterArea onEnter, WInputActionConfig::OnLeaveArea onLeave);
 
   /// Allows to enable or disable the entire thumb-stick temporarily.
   void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }
@@ -144,46 +144,46 @@ public:
   bool IsActive() const { return m_bIsActive; }
 
   /// Returns the (normalized screen) coordinate where the current input center is. Depends on CenterMode.
-  ezVec2 GetCurrentCenter() const { return m_vCenter; }
+  WVec2 GetCurrentCenter() const { return m_vCenter; }
 
   /// See SetInputArea() for details.
   float GetThumbstickRadius() const { return m_fRadius; }
 
   /// Returns the (normalized screen) coordinate where the current touch point is.
-  ezVec2 GetCurrentTouchPos() const { return m_vTouchPos; }
+  WVec2 GetCurrentTouchPos() const { return m_vTouchPos; }
 
   /// Returns the total strength of input.
   float GetInputStrength() const { return m_fInputStrength; }
 
   /// Returns the normalized direction of the input.
-  ezVec2 GetInputDirection() const { return m_vInputDirection; }
+  WVec2 GetInputDirection() const { return m_vInputDirection; }
 
 protected:
   void UpdateActionMapping();
 
-  ezVec2 m_vLowerLeft = ezVec2::MakeZero();
-  ezVec2 m_vUpperRight = ezVec2::MakeZero();
+  WVec2 m_vLowerLeft = WVec2::MakeZero();
+  WVec2 m_vUpperRight = WVec2::MakeZero();
   float m_fRadius = 0.0f;
 
-  ezInputActionConfig m_ActionConfig;
-  ezStringView m_sOutputLeft;
-  ezStringView m_sOutputRight;
-  ezStringView m_sOutputUp;
-  ezStringView m_sOutputDown;
+  WInputActionConfig m_ActionConfig;
+  WStringView m_sOutputLeft;
+  WStringView m_sOutputRight;
+  WStringView m_sOutputUp;
+  WStringView m_sOutputDown;
 
-  ezBitflags<Flags> m_Flags;
+  WBitflags<Flags> m_Flags;
   bool m_bEnabled = false;
   bool m_bConfigChanged = false;
   bool m_bIsActive = false;
-  ezString m_sName;
-  ezVec2 m_vCenter = ezVec2::MakeZero();
-  ezVec2 m_vTouchPos = ezVec2::MakeZero();
-  ezVec2 m_vInputDirection = ezVec2::MakeZero();
+  WString m_sName;
+  WVec2 m_vCenter = WVec2::MakeZero();
+  WVec2 m_vTouchPos = WVec2::MakeZero();
+  WVec2 m_vInputDirection = WVec2::MakeZero();
   float m_fInputStrength = 0.0f;
   float m_fAspectRatio = 1.0f;
   CenterMode::Enum m_CenterMode;
 
-  static ezInt32 s_iThumbsticks;
+  static WInt32 s_iThumbsticks;
 
 private:
   virtual void InitializeDevice() override {}

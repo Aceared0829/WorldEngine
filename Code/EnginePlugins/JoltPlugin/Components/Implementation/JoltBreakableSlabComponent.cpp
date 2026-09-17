@@ -18,45 +18,45 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltBreakableSlabFlags, 1)
-  EZ_ENUM_CONSTANT(ezJoltBreakableSlabFlags::FixedEdgeTop),
-    EZ_ENUM_CONSTANT(ezJoltBreakableSlabFlags::FixedEdgeRight),
-    EZ_ENUM_CONSTANT(ezJoltBreakableSlabFlags::FixedEdgeBottom),
-    EZ_ENUM_CONSTANT(ezJoltBreakableSlabFlags::FixedEdgeLeft),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WJoltBreakableSlabFlags, 1)
+  W_ENUM_CONSTANT(WJoltBreakableSlabFlags::FixedEdgeTop),
+    W_ENUM_CONSTANT(WJoltBreakableSlabFlags::FixedEdgeRight),
+    W_ENUM_CONSTANT(WJoltBreakableSlabFlags::FixedEdgeBottom),
+    W_ENUM_CONSTANT(WJoltBreakableSlabFlags::FixedEdgeLeft),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltBreakableShape, 1)
-  EZ_ENUM_CONSTANT(ezJoltBreakableShape::Rectangle),
-    EZ_ENUM_CONSTANT(ezJoltBreakableShape::Triangle),
-    EZ_ENUM_CONSTANT(ezJoltBreakableShape::Circle),
-EZ_END_STATIC_REFLECTED_ENUM
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltBreakableShape, 1)
+  W_ENUM_CONSTANT(WJoltBreakableShape::Rectangle),
+    W_ENUM_CONSTANT(WJoltBreakableShape::Triangle),
+    W_ENUM_CONSTANT(WJoltBreakableShape::Circle),
+W_END_STATIC_REFLECTED_ENUM
 
-ezAtomicInteger32 ezJoltBreakableSlabComponent::s_iShardMeshCounter;
+WAtomicInteger32 WJoltBreakableSlabComponent::s_iShardMeshCounter;
 
-ezCVarBool cvar_BreakableSlabVis("Jolt.BreakableSlab.DebugVis", false, ezCVarFlags::Default, "Debug draw the state of breakable slabs.");
+WCVarBool cvar_BreakableSlabVis("Jolt.BreakableSlab.DebugVis", false, WCVarFlags::Default, "Debug draw the state of breakable slabs.");
 
-ezJoltBreakableSlabComponentManager::ezJoltBreakableSlabComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezJoltBreakableSlabComponent, ezBlockStorageType::FreeList>(pWorld)
+WJoltBreakableSlabComponentManager::WJoltBreakableSlabComponentManager(WWorld* pWorld)
+  : WComponentManager<WJoltBreakableSlabComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezJoltBreakableSlabComponentManager::~ezJoltBreakableSlabComponentManager() = default;
+WJoltBreakableSlabComponentManager::~WJoltBreakableSlabComponentManager() = default;
 
-void ezJoltBreakableSlabComponentManager::Initialize()
+void WJoltBreakableSlabComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::PreAsyncUpdate, this);
-    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltBreakableSlabComponentManager::PreAsyncUpdate, this);
+    desc.m_Phase = WWorldUpdatePhase::PreAsync;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
     RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::ReinitSlabs, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltBreakableSlabComponentManager::ReinitSlabs, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = false;
     desc.m_uiAsyncPhaseBatchSize = 16;
 
@@ -64,51 +64,51 @@ void ezJoltBreakableSlabComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::PostAsyncUpdate, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltBreakableSlabComponentManager::PostAsyncUpdate, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
     RegisterUpdateFunction(desc);
   }
 }
 
-void ezJoltBreakableSlabComponentManager::PreAsyncUpdate(const ezWorldModule::UpdateContext& context)
+void WJoltBreakableSlabComponentManager::PreAsyncUpdate(const WWorldModule::UpdateContext& context)
 {
   m_iTriggerBoundsUpdateSlot = 0;
   m_TriggerBoundsUpdate.SetCount(m_ComponentStorage.GetCount());
 }
 
-void ezJoltBreakableSlabComponentManager::ReinitSlabs(const ezWorldModule::UpdateContext& context)
+void WJoltBreakableSlabComponentManager::ReinitSlabs(const WWorldModule::UpdateContext& context)
 {
   for (auto it = m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
-    ezJoltBreakableSlabComponent* pComponent = it;
+    WJoltBreakableSlabComponent* pComponent = it;
     if (pComponent->IsActive() && pComponent->m_bReinitMeshes)
     {
       pComponent->ReinitMeshes();
 
       // we need to call TriggerUpdateBounds() on this component, but we can't do this on just any thread, so queue this for the PostAsync update
-      const ezInt32 iSlot = m_iTriggerBoundsUpdateSlot.PostIncrement();
+      const WInt32 iSlot = m_iTriggerBoundsUpdateSlot.PostIncrement();
       m_TriggerBoundsUpdate[iSlot] = pComponent;
     }
   }
 }
 
-void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::UpdateContext& context)
+void WJoltBreakableSlabComponentManager::PostAsyncUpdate(const WWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE_SCOPE("UpdateBreakableSlabs");
+  W_PROFILE_SCOPE("UpdateBreakableSlabs");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
   // when updating slabs, we activate bodies, which would immediately modify the active slabs map
   // and then create a crash during iteration
   // therefore we have to make a copy of the active slabs first
-  ezTempHybridArray<ezJoltBreakableSlabComponent*, 64> activeSlabs;
+  WTempHybridArray<WJoltBreakableSlabComponent*, 64> activeSlabs;
   activeSlabs.Reserve(pModule->GetActiveSlabs().GetCount());
 
   for (auto it : pModule->GetActiveSlabs())
   {
-    ezJoltBreakableSlabComponent* pComponent = it.Key();
+    WJoltBreakableSlabComponent* pComponent = it.Key();
     activeSlabs.PushBack(pComponent);
   }
 
@@ -117,24 +117,24 @@ void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::U
     pComponent->RetrieveShardTransforms();
   }
 
-  for (ezJoltBreakableSlabComponent* pComponent : pModule->GetSlabsPutToSleep())
+  for (WJoltBreakableSlabComponent* pComponent : pModule->GetSlabsPutToSleep())
   {
     pComponent->RetrieveShardTransforms();
   }
 
   for (auto hComponent : m_RequireBreakage)
   {
-    ezJoltBreakableSlabComponent* pComponent;
+    WJoltBreakableSlabComponent* pComponent;
     if (TryGetComponent(hComponent, pComponent))
     {
       if (pComponent->IsActiveAndSimulating() && pComponent->m_pShatterTask == nullptr)
       {
-        pComponent->m_pShatterTask = EZ_DEFAULT_NEW(ezShatterTask);
-        pComponent->m_pShatterTask->ConfigureTask("ShatterGlass", ezTaskNesting::Never);
+        pComponent->m_pShatterTask = W_DEFAULT_NEW(WShatterTask);
+        pComponent->m_pShatterTask->ConfigureTask("ShatterGlass", WTaskNesting::Never);
         pComponent->m_pShatterTask->m_pComponent = pComponent;
         pComponent->m_pShatterTask->m_ShatterPoints = pComponent->m_ShatterPoints;
 
-        ezTaskSystem::StartSingleTask(pComponent->m_pShatterTask, ezTaskPriority::In3Frames); // allow some delay, this can take longer than a single frame
+        WTaskSystem::StartSingleTask(pComponent->m_pShatterTask, WTaskPriority::In3Frames); // allow some delay, this can take longer than a single frame
 
         m_RequireBreakUpdate.Insert(hComponent);
       }
@@ -149,7 +149,7 @@ void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::U
 
   for (auto hComponent : m_RequireBreakUpdate)
   {
-    ezJoltBreakableSlabComponent* pComponent;
+    WJoltBreakableSlabComponent* pComponent;
     if (TryGetComponent(hComponent, pComponent) && pComponent->IsActiveAndSimulating() && pComponent->m_pShatterTask != nullptr)
     {
       if (pComponent->m_pShatterTask->IsTaskFinished())
@@ -167,7 +167,7 @@ void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::U
     }
   }
 
-  for (ezInt32 i = 0; i < m_iTriggerBoundsUpdateSlot; ++i)
+  for (WInt32 i = 0; i < m_iTriggerBoundsUpdateSlot; ++i)
   {
     m_TriggerBoundsUpdate[i]->TriggerLocalBoundsUpdate();
   }
@@ -189,50 +189,50 @@ void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::U
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltBreakableSlabComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WJoltBreakableSlabComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 8.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 8.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.02f), new ezClampValueAttribute(0.005f, 1.0f), new ezSuffixAttribute(" m")),
-    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("UVScale", GetUvScale, SetUvScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
-    EZ_MEMBER_PROPERTY("CollisionLayerStatic", m_uiCollisionLayerStatic)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("CollisionLayerDynamic", m_uiCollisionLayerDynamic)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezJoltBreakableShape, GetShape, SetShape),
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezJoltBreakableSlabFlags, GetFlags, SetFlags),
-    EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("ContactReportForceThreshold", m_fContactReportForceThreshold),
+    W_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 8.0f), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 8.0f), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new WDefaultValueAttribute(0.02f), new WClampValueAttribute(0.005f, 1.0f), new WSuffixAttribute(" m")),
+    W_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("UVScale", GetUvScale, SetUvScale)->AddAttributes(new WDefaultValueAttribute(WVec2(1.0f))),
+    W_MEMBER_PROPERTY("CollisionLayerStatic", m_uiCollisionLayerStatic)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("CollisionLayerDynamic", m_uiCollisionLayerDynamic)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_ENUM_ACCESSOR_PROPERTY("Shape", WJoltBreakableShape, GetShape, SetShape),
+    W_BITFLAGS_ACCESSOR_PROPERTY("Flags", WJoltBreakableSlabFlags, GetFlags, SetFlags),
+    W_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("ContactReportForceThreshold", m_fContactReportForceThreshold),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Effects"),
+    new WCategoryAttribute("Physics/Jolt/Effects"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicContact, OnMsgPhysicContactMsg),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicCharacterContact, OnMsgPhysicCharacterContact),
-    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
+    W_MESSAGE_HANDLER(WMsgPhysicContact, OnMsgPhysicContactMsg),
+    W_MESSAGE_HANDLER(WMsgPhysicCharacterContact, OnMsgPhysicCharacterContact),
+    W_MESSAGE_HANDLER(WMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Restore),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ShatterCellular, In, "vGlobalPosition", In, "fCellSize", In, "vImpulse", In, "fMakeDynamicRadius"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ShatterRadial, In, "vGlobalPosition", In, "fImpactRadius", In, "vImpulse", In, "fMakeDynamicRadius"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ShatterAll, In, "fShardSize", In, "vImpulse"),
+    W_SCRIPT_FUNCTION_PROPERTY(Restore),
+    W_SCRIPT_FUNCTION_PROPERTY(ShatterCellular, In, "vGlobalPosition", In, "fCellSize", In, "vImpulse", In, "fMakeDynamicRadius"),
+    W_SCRIPT_FUNCTION_PROPERTY(ShatterRadial, In, "vGlobalPosition", In, "fImpactRadius", In, "vImpulse", In, "fMakeDynamicRadius"),
+    W_SCRIPT_FUNCTION_PROPERTY(ShatterAll, In, "fShardSize", In, "vImpulse"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezJoltBreakableSlabComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltBreakableSlabComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -250,7 +250,7 @@ void ezJoltBreakableSlabComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_fContactReportForceThreshold;
 }
 
-void ezJoltBreakableSlabComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltBreakableSlabComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
@@ -268,47 +268,47 @@ void ezJoltBreakableSlabComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_fContactReportForceThreshold;
 }
 
-void ezJoltBreakableSlabComponent::OnActivated()
+void WJoltBreakableSlabComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   m_bReinitMeshes = true;
 }
 
-void ezJoltBreakableSlabComponent::OnSimulationStarted()
+void WJoltBreakableSlabComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  if (m_uiObjectFilterID == ezInvalidIndex)
+  if (m_uiObjectFilterID == WInvalidIndex)
   {
     // only create a new filter ID, if none has been passed in manually
     m_uiObjectFilterID = pModule->CreateObjectFilterID();
   }
 
-  if (m_uiUserDataIndexStatic == ezInvalidIndex)
+  if (m_uiUserDataIndexStatic == WInvalidIndex)
   {
-    ezJoltUserData* pUserData = nullptr;
+    WJoltUserData* pUserData = nullptr;
     m_uiUserDataIndexStatic = pModule->AllocateUserData(pUserData);
-    pUserData->Init(this, ezOnJoltContact::SendContactMsg);
+    pUserData->Init(this, WOnJoltContact::SendContactMsg);
   }
 
-  if (m_uiUserDataIndexDynamic == ezInvalidIndex)
+  if (m_uiUserDataIndexDynamic == WInvalidIndex)
   {
-    ezJoltUserData* pUserData = nullptr;
+    WJoltUserData* pUserData = nullptr;
     m_uiUserDataIndexDynamic = pModule->AllocateUserData(pUserData);
-    pUserData->Init(this, ezOnJoltContact::ImpactReactions);
+    pUserData->Init(this, WOnJoltContact::ImpactReactions);
   }
 
-  ezTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
+  WTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
 
-  if (m_Shape == ezJoltBreakableShape::Rectangle)
+  if (m_Shape == WJoltBreakableShape::Rectangle)
   {
     // this code path is an optimization for PrepareShardColliders() because box colliders are much more efficient to set up (and simulate)
     shapes.SetCount(1);
 
-    const float fShardThickness = ezMath::Max(m_fThickness, JPH::cDefaultConvexRadius * 2.0f);
+    const float fShardThickness = WMath::Max(m_fThickness, JPH::cDefaultConvexRadius * 2.0f);
     const float fThick1 = -(fShardThickness - m_fThickness) * 0.5f;
     const float fThick2 = fShardThickness + fThick1;
 
@@ -342,14 +342,14 @@ void ezJoltBreakableSlabComponent::OnSimulationStarted()
   }
 }
 
-void ezJoltBreakableSlabComponent::OnDeactivated()
+void WJoltBreakableSlabComponent::OnDeactivated()
 {
   Cleanup();
 
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
-  if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
+  if (WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>())
   {
     pModule->DeallocateUserData(m_uiUserDataIndexStatic);
     pModule->DeallocateUserData(m_uiUserDataIndexDynamic);
@@ -359,13 +359,13 @@ void ezJoltBreakableSlabComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezJoltBreakableSlabComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WJoltBreakableSlabComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bounds = m_Bounds;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezJoltBreakableSlabComponent::SetWidth(float fWidth)
+void WJoltBreakableSlabComponent::SetWidth(float fWidth)
 {
   if (fWidth <= 0.0f)
     return;
@@ -374,12 +374,12 @@ void ezJoltBreakableSlabComponent::SetWidth(float fWidth)
   m_bReinitMeshes = true;
 }
 
-float ezJoltBreakableSlabComponent::GetWidth() const
+float WJoltBreakableSlabComponent::GetWidth() const
 {
   return m_fWidth;
 }
 
-void ezJoltBreakableSlabComponent::SetHeight(float fHeight)
+void WJoltBreakableSlabComponent::SetHeight(float fHeight)
 {
   if (fHeight <= 0.0f)
     return;
@@ -388,12 +388,12 @@ void ezJoltBreakableSlabComponent::SetHeight(float fHeight)
   m_bReinitMeshes = true;
 }
 
-float ezJoltBreakableSlabComponent::GetHeight() const
+float WJoltBreakableSlabComponent::GetHeight() const
 {
   return m_fHeight;
 }
 
-void ezJoltBreakableSlabComponent::SetThickness(float fThickness)
+void WJoltBreakableSlabComponent::SetThickness(float fThickness)
 {
   if (fThickness <= 0.0f)
     return;
@@ -402,12 +402,12 @@ void ezJoltBreakableSlabComponent::SetThickness(float fThickness)
   m_bReinitMeshes = true;
 }
 
-float ezJoltBreakableSlabComponent::GetThickness() const
+float WJoltBreakableSlabComponent::GetThickness() const
 {
   return m_fThickness;
 }
 
-void ezJoltBreakableSlabComponent::SetUvScale(ezVec2 vScale)
+void WJoltBreakableSlabComponent::SetUvScale(WVec2 vScale)
 {
   if (m_vUvScale == vScale)
     return;
@@ -417,30 +417,30 @@ void ezJoltBreakableSlabComponent::SetUvScale(ezVec2 vScale)
 }
 
 
-ezVec2 ezJoltBreakableSlabComponent::GetUvScale() const
+WVec2 WJoltBreakableSlabComponent::GetUvScale() const
 {
   return m_vUvScale;
 }
 
-void ezJoltBreakableSlabComponent::SetFlags(ezBitflags<ezJoltBreakableSlabFlags> flags)
+void WJoltBreakableSlabComponent::SetFlags(WBitflags<WJoltBreakableSlabFlags> flags)
 {
   m_Flags = flags;
   m_bReinitMeshes = true;
 }
 
-void ezJoltBreakableSlabComponent::SetShape(ezEnum<ezJoltBreakableShape> shape)
+void WJoltBreakableSlabComponent::SetShape(WEnum<WJoltBreakableShape> shape)
 {
   m_Shape = shape;
   m_bReinitMeshes = true;
 }
 
-void ezJoltBreakableSlabComponent::Restore()
+void WJoltBreakableSlabComponent::Restore()
 {
   Cleanup();
   ReinitMeshes();
   TriggerLocalBoundsUpdate();
 
-  ezTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
+  WTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
   PrepareShardColliders(0, shapes);
 
   CreateShardColliders(0, shapes);
@@ -449,25 +449,25 @@ void ezJoltBreakableSlabComponent::Restore()
   InvalidateCachedRenderData();
 }
 
-bool ezJoltBreakableSlabComponent::IsPointOnSlab(const ezVec3& vGlobalPosition) const
+bool WJoltBreakableSlabComponent::IsPointOnSlab(const WVec3& vGlobalPosition) const
 {
-  const ezPlane mainPlane = ezPlane::MakeFromNormalAndPoint(GetOwner()->GetGlobalDirUp(), GetOwner()->GetGlobalPosition());
-  const float fDist = ezMath::Abs(mainPlane.GetDistanceTo(vGlobalPosition));
-  if (fDist > ezMath::Max(JPH::cDefaultConvexRadius * 2.0f, m_fThickness))
+  const WPlane mainPlane = WPlane::MakeFromNormalAndPoint(GetOwner()->GetGlobalDirUp(), GetOwner()->GetGlobalPosition());
+  const float fDist = WMath::Abs(mainPlane.GetDistanceTo(vGlobalPosition));
+  if (fDist > WMath::Max(JPH::cDefaultConvexRadius * 2.0f, m_fThickness))
     return false;
 
   return true;
 }
 
-ezUInt32 ezJoltBreakableSlabComponent::FindClosestShard(const ezVec3& vGlobalPosition) const
+WUInt32 WJoltBreakableSlabComponent::FindClosestShard(const WVec3& vGlobalPosition) const
 {
-  const ezVec2 vLocalPos = (GetOwner()->GetGlobalTransform().GetInverse() * vGlobalPosition).GetAsVec2();
-  float fBestDistance = ezMath::HighValue<float>();
+  const WVec2 vLocalPos = (GetOwner()->GetGlobalTransform().GetInverse() * vGlobalPosition).GetAsVec2();
+  float fBestDistance = WMath::HighValue<float>();
 
-  ezUInt32 uiShardIdx = ezInvalidIndex;
+  WUInt32 uiShardIdx = WInvalidIndex;
 
-  const ezUInt32 uiShards = m_Breakable.m_Shards.GetCount();
-  for (ezUInt32 i = 0; i < uiShards; ++i)
+  const WUInt32 uiShards = m_Breakable.m_Shards.GetCount();
+  for (WUInt32 i = 0; i < uiShards; ++i)
   {
     const auto& shard = m_Breakable.m_Shards[i];
     if (shard.m_bShattered || shard.m_bDynamic)
@@ -479,7 +479,7 @@ ezUInt32 ezJoltBreakableSlabComponent::FindClosestShard(const ezVec3& vGlobalPos
       continue;
 
     // if the shard is smaller than we are close to it, ignore it
-    if (fDistSqr > ezMath::Square(shard.m_fBoundingRadius))
+    if (fDistSqr > WMath::Square(shard.m_fBoundingRadius))
       continue;
 
     fBestDistance = fDistSqr;
@@ -489,18 +489,18 @@ ezUInt32 ezJoltBreakableSlabComponent::FindClosestShard(const ezVec3& vGlobalPos
   return uiShardIdx;
 }
 
-void ezJoltBreakableSlabComponent::ShatterCellular(const ezVec3& vGlobalPosition, float fCellSize, const ezVec3& vImpulse, float fMakeDynamicRadius)
+void WJoltBreakableSlabComponent::ShatterCellular(const WVec3& vGlobalPosition, float fCellSize, const WVec3& vImpulse, float fMakeDynamicRadius)
 {
   if (!IsPointOnSlab(vGlobalPosition))
     return;
 
-  const ezUInt32 uiShardIdx = FindClosestShard(vGlobalPosition);
-  if (uiShardIdx == ezInvalidIndex)
+  const WUInt32 uiShardIdx = FindClosestShard(vGlobalPosition);
+  if (uiShardIdx == WInvalidIndex)
     return;
 
   if (m_ShatterPoints.IsEmpty())
   {
-    ((ezJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
+    ((WJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
   }
 
   auto& pt = m_ShatterPoints.ExpandAndGetRef();
@@ -509,21 +509,21 @@ void ezJoltBreakableSlabComponent::ShatterCellular(const ezVec3& vGlobalPosition
   pt.m_fCellSize = fCellSize;
   pt.m_uiShardIdx = uiShardIdx;
   pt.m_fMakeDynamicRadius = fMakeDynamicRadius;
-  pt.m_uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::Cellular;
+  pt.m_uiAllowedBreakPatterns = (WUInt8)WBreakablePattern::Cellular;
 }
 
-void ezJoltBreakableSlabComponent::ShatterRadial(const ezVec3& vGlobalPosition, float fImpactRadius, const ezVec3& vImpulse, float fMakeDynamicRadius)
+void WJoltBreakableSlabComponent::ShatterRadial(const WVec3& vGlobalPosition, float fImpactRadius, const WVec3& vImpulse, float fMakeDynamicRadius)
 {
   if (!IsPointOnSlab(vGlobalPosition))
     return;
 
-  const ezUInt32 uiShardIdx = FindClosestShard(vGlobalPosition);
-  if (uiShardIdx == ezInvalidIndex)
+  const WUInt32 uiShardIdx = FindClosestShard(vGlobalPosition);
+  if (uiShardIdx == WInvalidIndex)
     return;
 
   if (m_ShatterPoints.IsEmpty())
   {
-    ((ezJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
+    ((WJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
   }
 
   auto& pt = m_ShatterPoints.ExpandAndGetRef();
@@ -533,35 +533,35 @@ void ezJoltBreakableSlabComponent::ShatterRadial(const ezVec3& vGlobalPosition, 
   pt.m_fCellSize = 0.4f;
   pt.m_uiShardIdx = uiShardIdx;
   pt.m_fMakeDynamicRadius = fMakeDynamicRadius;
-  pt.m_uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::Radial | (ezUInt8)ezBreakablePattern::Cellular;
+  pt.m_uiAllowedBreakPatterns = (WUInt8)WBreakablePattern::Radial | (WUInt8)WBreakablePattern::Cellular;
 }
 
-void ezJoltBreakableSlabComponent::ShatterAll(float fShardSize, const ezVec3& vImpulse)
+void WJoltBreakableSlabComponent::ShatterAll(float fShardSize, const WVec3& vImpulse)
 {
   m_fContactReportForceThreshold = 0.0f;
 
   if (m_ShatterPoints.IsEmpty())
   {
-    ((ezJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
+    ((WJoltBreakableSlabComponentManager*)GetOwningManager())->m_RequireBreakage.Insert(GetHandle());
   }
 
   auto& pt = m_ShatterPoints.ExpandAndGetRef();
   pt.m_vGlobalPosition.Set(1024, 1024, 1024);
   pt.m_vImpulse = vImpulse;
   pt.m_fCellSize = fShardSize;
-  pt.m_uiShardIdx = ezInvalidIndex;
+  pt.m_uiShardIdx = WInvalidIndex;
 }
 
-void ezJoltBreakableSlabComponent::PrepareBreakAsync(ezDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes, ezArrayPtr<const ezShatterPoint> points)
+void WJoltBreakableSlabComponent::PrepareBreakAsync(WDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes, WArrayPtr<const WShatterPoint> points)
 {
-  EZ_PROFILE_SCOPE("PrepareBreakAsync");
+  W_PROFILE_SCOPE("PrepareBreakAsync");
 
 
-  for (ezUInt32 i = 0; i < points.GetCount(); ++i)
+  for (WUInt32 i = 0; i < points.GetCount(); ++i)
   {
     const auto& point = points[i];
 
-    if (point.m_vGlobalPosition == ezVec3(1024, 1024, 1024))
+    if (point.m_vGlobalPosition == WVec3(1024, 1024, 1024))
     {
       // shatter all pieces
       m_Breakable.ShatterAll(point.m_fCellSize, GetWorld()->GetRandomNumberGenerator(), true);
@@ -570,19 +570,19 @@ void ezJoltBreakableSlabComponent::PrepareBreakAsync(ezDynamicArray<JPH::Ref<JPH
     else
     {
 
-      if (point.m_uiShardIdx != ezInvalidIndex && !m_Breakable.m_Shards[point.m_uiShardIdx].m_bShattered)
+      if (point.m_uiShardIdx != WInvalidIndex && !m_Breakable.m_Shards[point.m_uiShardIdx].m_bShattered)
       {
-        const ezUInt32 uiShardIdxOffset = m_Breakable.m_Shards.GetCount();
-        const ezVec2 vLocalPos = (GetOwner()->GetGlobalTransform().GetInverse() * point.m_vGlobalPosition).GetAsVec2();
+        const WUInt32 uiShardIdxOffset = m_Breakable.m_Shards.GetCount();
+        const WVec2 vLocalPos = (GetOwner()->GetGlobalTransform().GetInverse() * point.m_vGlobalPosition).GetAsVec2();
 
-        m_Breakable.ShatterShard(point.m_uiShardIdx, vLocalPos, GetWorld()->GetRandomNumberGenerator(), ezMath::Clamp(point.m_fImpactRadius, 0.05f, 0.4f), ezMath::Clamp(point.m_fCellSize, 0.3f, 0.5f), point.m_uiAllowedBreakPatterns);
+        m_Breakable.ShatterShard(point.m_uiShardIdx, vLocalPos, GetWorld()->GetRandomNumberGenerator(), WMath::Clamp(point.m_fImpactRadius, 0.05f, 0.4f), WMath::Clamp(point.m_fCellSize, 0.3f, 0.5f), point.m_uiAllowedBreakPatterns);
 
-        const float fDistSqr = ezMath::Square(point.m_fMakeDynamicRadius);
+        const float fDistSqr = WMath::Square(point.m_fMakeDynamicRadius);
 
-        for (ezUInt32 idx = uiShardIdxOffset; idx < m_Breakable.m_Shards.GetCount(); ++idx)
+        for (WUInt32 idx = uiShardIdxOffset; idx < m_Breakable.m_Shards.GetCount(); ++idx)
         {
           // make everything dynamic that can't be broken further
-          if (m_Breakable.m_Shards[idx].m_uiBreakablePatterns == (ezUInt8)ezBreakablePattern::None)
+          if (m_Breakable.m_Shards[idx].m_uiBreakablePatterns == (WUInt8)WBreakablePattern::None)
           {
             m_Breakable.m_Shards[idx].m_bDynamic = true;
           }
@@ -602,13 +602,13 @@ void ezJoltBreakableSlabComponent::PrepareBreakAsync(ezDynamicArray<JPH::Ref<JPH
   PrepareShardColliders(m_ShardBodyIDs.GetCount(), out_Shapes);
 }
 
-void ezJoltBreakableSlabComponent::ApplyBreak(ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes, const ezMeshResourceHandle& hMesh, const ezVec3& vImpulse)
+void WJoltBreakableSlabComponent::ApplyBreak(WArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes, const WMeshResourceHandle& hMesh, const WVec3& vImpulse)
 {
-  EZ_PROFILE_SCOPE("ApplyBreak");
+  W_PROFILE_SCOPE("ApplyBreak");
 
   UpdateShardColliders();
 
-  const ezUInt32 uiFirstShard = m_ShardBodyIDs.GetCount();
+  const WUInt32 uiFirstShard = m_ShardBodyIDs.GetCount();
 
   m_hMesh = hMesh;
   CreateShardColliders(uiFirstShard, shapes);
@@ -619,11 +619,11 @@ void ezJoltBreakableSlabComponent::ApplyBreak(ezArrayPtr<JPH::Ref<JPH::ConvexSha
   WakeUpBodies();
 }
 
-void ezJoltBreakableSlabComponent::Cleanup()
+void WJoltBreakableSlabComponent::Cleanup()
 {
   if (m_pShatterTask)
   {
-    ezTaskSystem::CancelTask(m_pShatterTask, ezOnTaskRunning::WaitTillFinished).IgnoreResult();
+    WTaskSystem::CancelTask(m_pShatterTask, WOnTaskRunning::WaitTillFinished).IgnoreResult();
     m_pShatterTask = nullptr;
   }
 
@@ -637,9 +637,9 @@ void ezJoltBreakableSlabComponent::Cleanup()
   m_SkinningState.Clear();
 }
 
-void ezJoltBreakableSlabComponent::ReinitMeshes()
+void WJoltBreakableSlabComponent::ReinitMeshes()
 {
-  EZ_ASSERT_DEBUG(IsActive(), "Should only be called on active components.");
+  W_ASSERT_DEBUG(IsActive(), "Should only be called on active components.");
 
   m_bReinitMeshes = false;
 
@@ -649,64 +649,64 @@ void ezJoltBreakableSlabComponent::ReinitMeshes()
 
   auto& shard = m_Breakable.m_Shards[0];
 
-  if (m_Shape == ezJoltBreakableShape::Rectangle)
+  if (m_Shape == WJoltBreakableShape::Rectangle)
   {
     shard.m_vCenterPosition.Set(m_fWidth * 0.5f, m_fHeight * 0.5f);
-    shard.m_fBoundingRadius = ezMath::Max(m_fWidth, m_fHeight) * 0.75f;
+    shard.m_fBoundingRadius = WMath::Max(m_fWidth, m_fHeight) * 0.75f;
     shard.m_Edges.SetCount(4);
 
     shard.m_Edges[0].m_vStartPosition.Set(0, 0);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeLeft))
-      shard.m_Edges[0].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeLeft))
+      shard.m_Edges[0].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
 
     shard.m_Edges[1].m_vStartPosition.Set(0, m_fHeight);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeTop))
-      shard.m_Edges[1].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeTop))
+      shard.m_Edges[1].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
 
     shard.m_Edges[2].m_vStartPosition.Set(m_fWidth, m_fHeight);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeRight))
-      shard.m_Edges[2].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeRight))
+      shard.m_Edges[2].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
 
     shard.m_Edges[3].m_vStartPosition.Set(m_fWidth, 0);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeBottom))
-      shard.m_Edges[3].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeBottom))
+      shard.m_Edges[3].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
   }
-  else if (m_Shape == ezJoltBreakableShape::Triangle)
+  else if (m_Shape == WJoltBreakableShape::Triangle)
   {
     shard.m_vCenterPosition.Set(m_fWidth * 0.5f, m_fHeight * 0.5f);
-    shard.m_fBoundingRadius = ezMath::Max(m_fWidth, m_fHeight) * 0.75f;
+    shard.m_fBoundingRadius = WMath::Max(m_fWidth, m_fHeight) * 0.75f;
     shard.m_Edges.SetCount(3);
 
     shard.m_Edges[0].m_vStartPosition.Set(0, 0);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeLeft))
-      shard.m_Edges[0].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeLeft))
+      shard.m_Edges[0].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
 
     shard.m_Edges[1].m_vStartPosition.Set(0, m_fHeight);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeTop) || m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeRight))
-      shard.m_Edges[1].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeTop) || m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeRight))
+      shard.m_Edges[1].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
 
     shard.m_Edges[2].m_vStartPosition.Set(m_fWidth, 0);
-    if (m_Flags.IsSet(ezJoltBreakableSlabFlags::FixedEdgeBottom))
-      shard.m_Edges[2].m_uiOutsideShardIdx = ezBreakableShard2D::FixedEdge;
+    if (m_Flags.IsSet(WJoltBreakableSlabFlags::FixedEdgeBottom))
+      shard.m_Edges[2].m_uiOutsideShardIdx = WBreakableShard2D::FixedEdge;
   }
-  else if (m_Shape == ezJoltBreakableShape::Circle)
+  else if (m_Shape == WJoltBreakableShape::Circle)
   {
-    const ezUInt32 num = 16;
+    const WUInt32 num = 16;
 
     shard.m_vCenterPosition.Set(m_fWidth * 0.5f, m_fHeight * 0.5f);
-    shard.m_fBoundingRadius = ezMath::Max(m_fWidth, m_fHeight) * 0.75f;
+    shard.m_fBoundingRadius = WMath::Max(m_fWidth, m_fHeight) * 0.75f;
     shard.m_Edges.SetCount(num);
 
     const float hw = m_fWidth * 0.5f;
     const float hh = m_fHeight * 0.5f;
 
-    const ezUInt32 uiOutsideIdx = m_Flags.IsAnySet(ezJoltBreakableSlabFlags::Default) ? ezBreakableShard2D::FixedEdge : ezBreakableShard2D::LooseEdge;
+    const WUInt32 uiOutsideIdx = m_Flags.IsAnySet(WJoltBreakableSlabFlags::Default) ? WBreakableShard2D::FixedEdge : WBreakableShard2D::LooseEdge;
 
-    for (ezUInt32 i = 0; i < num; ++i)
+    for (WUInt32 i = 0; i < num; ++i)
     {
-      const ezAngle a = ezAngle::MakeFromDegree((360.0f / num) * i);
+      const WAngle a = WAngle::MakeFromDegree((360.0f / num) * i);
 
-      shard.m_Edges[i].m_vStartPosition.Set(hw + ezMath::Sin(a) * hw, hh + ezMath::Cos(a) * hh);
+      shard.m_Edges[i].m_vStartPosition.Set(hw + WMath::Sin(a) * hw, hh + WMath::Cos(a) * hh);
       shard.m_Edges[i].m_uiOutsideShardIdx = uiOutsideIdx;
     }
   }
@@ -715,10 +715,10 @@ void ezJoltBreakableSlabComponent::ReinitMeshes()
 
   InvalidateCachedRenderData();
 
-  m_Bounds = ezBoundingBox::MakeFromMinMax(ezVec3::MakeZero(), ezVec3(m_fWidth, m_fHeight, m_fThickness));
+  m_Bounds = WBoundingBox::MakeFromMinMax(WVec3::MakeZero(), WVec3(m_fWidth, m_fHeight, m_fThickness));
 }
 
-void ezJoltBreakableSlabComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const
+void WJoltBreakableSlabComponent::BuildMeshResourceFromGeometry(WGeometry& Geometry, WMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const
 {
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
@@ -726,110 +726,110 @@ void ezJoltBreakableSlabComponent::BuildMeshResourceFromGeometry(ezGeometry& Geo
 
   if (bWithSkinningData)
   {
-    MeshBufferDesc.AddStream(ezMeshVertexStreamType::SkinningData);
+    MeshBufferDesc.AddStream(WMeshVertexStreamType::SkinningData);
   }
-  MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, ezGALPrimitiveTopology::Triangles);
+  MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, WGALPrimitiveTopology::Triangles);
 
   MeshDesc.AddSubMesh(MeshBufferDesc.GetPrimitiveCount(), 0, 0);
 
   MeshDesc.ComputeBounds();
 }
 
-const ezJoltMaterial* ezJoltBreakableSlabComponent::GetPhysicsMaterial()
+const WJoltMaterial* WJoltBreakableSlabComponent::GetPhysicsMaterial()
 {
   if (m_hMaterial.IsValid())
   {
     if (!m_hSurface.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMat(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WMaterialResource> pMat(m_hMaterial, WResourceAcquireMode::BlockTillLoaded);
 
       if (!pMat->GetSurface().IsEmpty())
       {
-        m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(pMat->GetSurface());
+        m_hSurface = WResourceManager::LoadResource<WSurfaceResource>(pMat->GetSurface());
       }
     }
 
     if (m_hSurface.IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pSurf(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WSurfaceResource> pSurf(m_hSurface, WResourceAcquireMode::BlockTillLoaded);
 
       if (pSurf->m_pPhysicsMaterialJolt != nullptr)
       {
-        return static_cast<ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+        return static_cast<WJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
       }
     }
   }
 
-  return ezJoltCore::GetDefaultMaterial();
+  return WJoltCore::GetDefaultMaterial();
 }
 
-void AddSkirtPolygons(const ezVec2& vPoint0, const ezVec2& vPoint1, float fThickness, ezGeometry& ref_geometry, const ezGeometry::GeoOptions& opt)
+void AddSkirtPolygons(const WVec2& vPoint0, const WVec2& vPoint1, float fThickness, WGeometry& ref_geometry, const WGeometry::GeoOptions& opt)
 {
-  const float fSpanX = ezMath::Abs(vPoint0.x - vPoint1.x);
-  const float fSpanY = ezMath::Abs(vPoint0.y - vPoint1.y);
-  const float fSpan = ezMath::Max(fSpanX, fSpanY);
+  const float fSpanX = WMath::Abs(vPoint0.x - vPoint1.x);
+  const float fSpanY = WMath::Abs(vPoint0.y - vPoint1.y);
+  const float fSpan = WMath::Max(fSpanX, fSpanY);
 
-  ezVec3 vPoint0Front(vPoint0.x, vPoint0.y, fThickness);
-  ezVec2 vPoint0FrontUV(fThickness, 0);
-  ezVec3 vPoint0Back(vPoint0.x, vPoint0.y, 0);
-  ezVec2 vPoint0BackUV(0, 0);
-  ezVec3 vPoint1Front(vPoint1.x, vPoint1.y, fThickness);
-  ezVec2 vPoint1FrontUV(fThickness, fSpan);
-  ezVec3 vPoint1Back(vPoint1.x, vPoint1.y, 0);
-  ezVec2 vPoint1BackUV(0, fSpan);
+  WVec3 vPoint0Front(vPoint0.x, vPoint0.y, fThickness);
+  WVec2 vPoint0FrontUV(fThickness, 0);
+  WVec3 vPoint0Back(vPoint0.x, vPoint0.y, 0);
+  WVec2 vPoint0BackUV(0, 0);
+  WVec3 vPoint1Front(vPoint1.x, vPoint1.y, fThickness);
+  WVec2 vPoint1FrontUV(fThickness, fSpan);
+  WVec3 vPoint1Back(vPoint1.x, vPoint1.y, 0);
+  WVec2 vPoint1BackUV(0, fSpan);
 
-  ezVec3 FaceNormal;
+  WVec3 FaceNormal;
   if (FaceNormal.CalculateNormal(vPoint0Front, vPoint1Front, vPoint0Back).Failed())
   {
     // ignore degenerate triangles
     return;
   }
 
-  const ezUInt32 uiIdx0 = ref_geometry.AddVertex(opt, vPoint0Front, FaceNormal, vPoint0FrontUV);
-  const ezUInt32 uiIdx1 = ref_geometry.AddVertex(opt, vPoint0Back, FaceNormal, vPoint0BackUV);
-  const ezUInt32 uiIdx2 = ref_geometry.AddVertex(opt, vPoint1Front, FaceNormal, vPoint1FrontUV);
-  const ezUInt32 uiIdx3 = ref_geometry.AddVertex(opt, vPoint1Back, FaceNormal, vPoint1BackUV);
+  const WUInt32 uiIdx0 = ref_geometry.AddVertex(opt, vPoint0Front, FaceNormal, vPoint0FrontUV);
+  const WUInt32 uiIdx1 = ref_geometry.AddVertex(opt, vPoint0Back, FaceNormal, vPoint0BackUV);
+  const WUInt32 uiIdx2 = ref_geometry.AddVertex(opt, vPoint1Front, FaceNormal, vPoint1FrontUV);
+  const WUInt32 uiIdx3 = ref_geometry.AddVertex(opt, vPoint1Back, FaceNormal, vPoint1BackUV);
 
   {
-    ezUInt32 idx[3] = {uiIdx0, uiIdx2, uiIdx1};
+    WUInt32 idx[3] = {uiIdx0, uiIdx2, uiIdx1};
     ref_geometry.AddPolygon(idx, false);
   }
 
   {
-    ezUInt32 idx[3] = {uiIdx1, uiIdx2, uiIdx3};
+    WUInt32 idx[3] = {uiIdx1, uiIdx2, uiIdx3};
     ref_geometry.AddPolygon(idx, false);
   }
 }
 
-ezMeshResourceHandle ezJoltBreakableSlabComponent::CreateShardsMesh() const
+WMeshResourceHandle WJoltBreakableSlabComponent::CreateShardsMesh() const
 {
-  EZ_PROFILE_SCOPE("CreateShardsMesh");
+  W_PROFILE_SCOPE("CreateShardsMesh");
 
-  ezStringBuilder meshName;
-  meshName.SetFormat("JoltSlab-{}-{}", ezArgP(this), s_iShardMeshCounter.Increment());
+  WStringBuilder meshName;
+  meshName.SetFormat("JoltSlab-{}-{}", WArgP(this), s_iShardMeshCounter.Increment());
 
-  ezGeometry geo;
-  ezTempHybridArray<ezUInt32, 16> vtxIdx1;
-  ezTempHybridArray<ezUInt32, 16> vtxIdx2;
+  WGeometry geo;
+  WTempHybridArray<WUInt32, 16> vtxIdx1;
+  WTempHybridArray<WUInt32, 16> vtxIdx2;
 
-  const ezVec3 vNormal(0, 0, 1);
+  const WVec3 vNormal(0, 0, 1);
 
-  const ezVec3 vOffset = vNormal * m_fThickness;
+  const WVec3 vOffset = vNormal * m_fThickness;
 
-  for (ezUInt32 uiShardIdx = 0; uiShardIdx < m_Breakable.m_Shards.GetCount(); ++uiShardIdx)
+  for (WUInt32 uiShardIdx = 0; uiShardIdx < m_Breakable.m_Shards.GetCount(); ++uiShardIdx)
   {
     const auto& shard = m_Breakable.m_Shards[uiShardIdx];
     vtxIdx1.Clear();
     vtxIdx2.Clear();
 
-    ezGeometry::GeoOptions opt;
+    WGeometry::GeoOptions opt;
     opt.m_uiBoneIndex = uiShardIdx;
 
-    for (ezUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
+    for (WUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
     {
-      ezVec3 v = shard.m_Edges[i].m_vStartPosition.GetAsVec3(0);
+      WVec3 v = shard.m_Edges[i].m_vStartPosition.GetAsVec3(0);
 
-      ezVec2 vTexCoord;
+      WVec2 vTexCoord;
       vTexCoord.x = v.x / m_fWidth;
       vTexCoord.y = 1.0f - (v.y / m_fHeight);
       vTexCoord = vTexCoord.CompMul(m_vUvScale);
@@ -843,8 +843,8 @@ ezMeshResourceHandle ezJoltBreakableSlabComponent::CreateShardsMesh() const
     geo.AddPolygon(vtxIdx1, false);
     geo.AddPolygon(vtxIdx2, true);
 
-    ezUInt32 uiPrev = shard.m_Edges.GetCount() - 1;
-    for (ezUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
+    WUInt32 uiPrev = shard.m_Edges.GetCount() - 1;
+    for (WUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
     {
       AddSkirtPolygons(shard.m_Edges[uiPrev].m_vStartPosition - shard.m_vCenterPosition, shard.m_Edges[i].m_vStartPosition - shard.m_vCenterPosition, m_fThickness, geo, opt);
       uiPrev = i;
@@ -854,23 +854,23 @@ ezMeshResourceHandle ezJoltBreakableSlabComponent::CreateShardsMesh() const
   geo.TriangulatePolygons();
   geo.ComputeTangents();
 
-  ezMeshResourceDescriptor desc;
+  WMeshResourceDescriptor desc;
   BuildMeshResourceFromGeometry(geo, desc, true /* include skinning data */);
 
-  return ezResourceManager::CreateResource<ezMeshResource>(meshName, std::move(desc));
+  return WResourceManager::CreateResource<WMeshResource>(meshName, std::move(desc));
 }
 
-void ezJoltBreakableSlabComponent::PrepareShardColliders(ezUInt32 uiFirstShard, ezDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes) const
+void WJoltBreakableSlabComponent::PrepareShardColliders(WUInt32 uiFirstShard, WDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes) const
 {
-  EZ_PROFILE_SCOPE("PrepareShardColliders");
+  W_PROFILE_SCOPE("PrepareShardColliders");
 
   out_Shapes.SetCount(m_Breakable.m_Shards.GetCount() - uiFirstShard);
 
-  const float fShardThickness = ezMath::Max(m_fThickness, JPH::cDefaultConvexRadius * 2.0f);
+  const float fShardThickness = WMath::Max(m_fThickness, JPH::cDefaultConvexRadius * 2.0f);
   const float fThick1 = -(fShardThickness - m_fThickness) * 0.5f;
   const float fThick2 = fShardThickness + fThick1;
 
-  for (ezUInt32 uiShardIdx = 0; uiShardIdx < out_Shapes.GetCount(); ++uiShardIdx)
+  for (WUInt32 uiShardIdx = 0; uiShardIdx < out_Shapes.GetCount(); ++uiShardIdx)
   {
     const auto& shard = m_Breakable.m_Shards[uiFirstShard + uiShardIdx];
 
@@ -880,9 +880,9 @@ void ezJoltBreakableSlabComponent::PrepareShardColliders(ezUInt32 uiFirstShard, 
     JPH::Array<JPH::Vec3> points;
     points.reserve(shard.m_Edges.GetCount() * 2);
 
-    for (ezUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
+    for (WUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
     {
-      const ezVec2 v = shard.m_Edges[i].m_vStartPosition - shard.m_vCenterPosition;
+      const WVec2 v = shard.m_Edges[i].m_vStartPosition - shard.m_vCenterPosition;
       points.push_back(JPH::Vec3(v.x, v.y, fThick1));
       points.push_back(JPH::Vec3(v.x, v.y, fThick2));
     }
@@ -894,7 +894,7 @@ void ezJoltBreakableSlabComponent::PrepareShardColliders(ezUInt32 uiFirstShard, 
     JPH::ShapeSettings::ShapeResult shapeResult = shapeSettings.Create();
     if (shapeResult.HasError())
     {
-      // ezLog::Warning("Invalid shard shape: {} - {} points", shapeResult.GetError().c_str(), points.size());
+      // WLog::Warning("Invalid shard shape: {} - {} points", shapeResult.GetError().c_str(), points.size());
       continue;
     }
 
@@ -902,19 +902,19 @@ void ezJoltBreakableSlabComponent::PrepareShardColliders(ezUInt32 uiFirstShard, 
   }
 }
 
-void ezJoltBreakableSlabComponent::UpdateShardColliders()
+void WJoltBreakableSlabComponent::UpdateShardColliders()
 {
-  EZ_PROFILE_SCOPE("UpdateShardColliders");
+  W_PROFILE_SCOPE("UpdateShardColliders");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   auto* pSystem = pModule->GetJoltSystem();
   auto& jphBodies = pModule->GetBodyInterface();
 
-  for (ezUInt32 uiShardIdx = 0; uiShardIdx < m_ShardBodyIDs.GetCount(); ++uiShardIdx)
+  for (WUInt32 uiShardIdx = 0; uiShardIdx < m_ShardBodyIDs.GetCount(); ++uiShardIdx)
   {
     const auto& shard = m_Breakable.m_Shards[uiShardIdx];
 
-    if (m_ShardBodyIDs[uiShardIdx] == ezInvalidIndex)
+    if (m_ShardBodyIDs[uiShardIdx] == WInvalidIndex)
       continue;
 
     if (shard.m_bShattered)
@@ -950,7 +950,7 @@ void ezJoltBreakableSlabComponent::UpdateShardColliders()
           bodyCfg.mMassPropertiesOverride.mMass = 1.0f;
           bodyCfg.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
           bodyCfg.mMotionType = JPH::EMotionType::Dynamic;
-          bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerDynamic, ezJoltBroadphaseLayer::Debris);
+          bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerDynamic, WJoltBroadphaseLayer::Debris);
           bodyCfg.mPosition = body.GetPosition();
           bodyCfg.mRotation = body.GetRotation();
           bodyCfg.mGravityFactor = m_fGravityFactor;
@@ -977,54 +977,54 @@ void ezJoltBreakableSlabComponent::UpdateShardColliders()
   }
 }
 
-void ezJoltBreakableSlabComponent::WakeUpBodies()
+void WJoltBreakableSlabComponent::WakeUpBodies()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   auto& jphBodies = pModule->GetBodyInterface();
 
-  ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayerStatic);
+  WJoltObjectLayerFilter objectFilter(m_uiCollisionLayerStatic);
 
-  ezUInt32 broadphase = ezPhysicsShapeType::Default;
-  broadphase &= ~ezPhysicsShapeType::Static;
-  broadphase &= ~ezPhysicsShapeType::Character;
-  broadphase &= ~ezPhysicsShapeType::Query;
-  broadphase &= ~ezPhysicsShapeType::Trigger;
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(static_cast<ezPhysicsShapeType::Enum>(broadphase));
+  WUInt32 broadphase = WPhysicsShapeType::Default;
+  broadphase &= ~WPhysicsShapeType::Static;
+  broadphase &= ~WPhysicsShapeType::Character;
+  broadphase &= ~WPhysicsShapeType::Query;
+  broadphase &= ~WPhysicsShapeType::Trigger;
+  WJoltBroadPhaseLayerFilter broadphaseFilter(static_cast<WPhysicsShapeType::Enum>(broadphase));
 
-  ezBoundingBox bbox;
+  WBoundingBox bbox;
   bbox.m_vMin.SetZero();
-  bbox.m_vMax = ezVec3(m_fWidth, m_fHeight, m_fThickness);
-  bbox.Grow(ezVec3(0.3f));
+  bbox.m_vMax = WVec3(m_fWidth, m_fHeight, m_fThickness);
+  bbox.Grow(WVec3(0.3f));
 
   bbox.TransformFromOrigin(GetOwner()->GetGlobalTransform().GetAsMat4());
 
-  const JPH::AABox box = JPH::AABox::sFromTwoPoints(ezJoltConversionUtils::ToVec3(bbox.m_vMin), ezJoltConversionUtils::ToVec3(bbox.m_vMax));
+  const JPH::AABox box = JPH::AABox::sFromTwoPoints(WJoltConversionUtils::ToVec3(bbox.m_vMin), WJoltConversionUtils::ToVec3(bbox.m_vMax));
   jphBodies.ActivateBodiesInAABox(box, broadphaseFilter, objectFilter);
 }
 
-void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes)
+void WJoltBreakableSlabComponent::CreateShardColliders(WUInt32 uiFirstShard, WArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes)
 {
-  EZ_PROFILE_SCOPE("CreateShardColliders");
+  W_PROFILE_SCOPE("CreateShardColliders");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   auto& jphBodies = pModule->GetBodyInterface();
 
-  const ezJoltUserData* pUserDataStatic = &pModule->GetUserData(m_uiUserDataIndexStatic);
-  const ezJoltUserData* pUserDataDynamic = &pModule->GetUserData(m_uiUserDataIndexDynamic);
-  const ezJoltMaterial* pMaterial = GetPhysicsMaterial();
+  const WJoltUserData* pUserDataStatic = &pModule->GetUserData(m_uiUserDataIndexStatic);
+  const WJoltUserData* pUserDataDynamic = &pModule->GetUserData(m_uiUserDataIndexDynamic);
+  const WJoltMaterial* pMaterial = GetPhysicsMaterial();
 
   // GetOrCreateBoneTransformsForWriting will resize as necessary but will lose existing data so we need to make a copy here
-  ezTempArray<ezShaderTransform> oldTransforms;
+  WTempArray<WShaderTransform> oldTransforms;
   oldTransforms = m_SkinningState.GetBoneTransformsForReading();
 
   auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_Breakable.m_Shards.GetCount());
-  ezMemoryUtils::Copy(transforms.GetPtr(), oldTransforms.GetData(), oldTransforms.GetCount());
+  WMemoryUtils::Copy(transforms.GetPtr(), oldTransforms.GetData(), oldTransforms.GetCount());
 
-  m_ShardBodyIDs.SetCount(m_Breakable.m_Shards.GetCount(), ezInvalidIndex);
+  m_ShardBodyIDs.SetCount(m_Breakable.m_Shards.GetCount(), WInvalidIndex);
 
-  for (ezUInt32 uiShardIdx = uiFirstShard; uiShardIdx < m_Breakable.m_Shards.GetCount(); ++uiShardIdx)
+  for (WUInt32 uiShardIdx = uiFirstShard; uiShardIdx < m_Breakable.m_Shards.GetCount(); ++uiShardIdx)
   {
-    transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0));
+    transforms[uiShardIdx] = WMat4::MakeScaling(WVec3(0));
 
     const auto& shard = m_Breakable.m_Shards[uiShardIdx];
 
@@ -1051,23 +1051,23 @@ void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, e
 
     if (shard.m_bDynamic == false)
     {
-      bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserDataStatic);
+      bodyCfg.mUserData = reinterpret_cast<WUInt64>(pUserDataStatic);
       bodyCfg.mMotionType = JPH::EMotionType::Static;
-      bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerStatic, ezJoltBroadphaseLayer::Static);
+      bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerStatic, WJoltBroadphaseLayer::Static);
     }
     else
     {
-      bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserDataDynamic);
+      bodyCfg.mUserData = reinterpret_cast<WUInt64>(pUserDataDynamic);
       bodyCfg.mMotionType = JPH::EMotionType::Dynamic;
-      bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerDynamic, ezJoltBroadphaseLayer::Debris);
+      bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayerDynamic, WJoltBroadphaseLayer::Debris);
     }
 
     // Set transform to owner
-    ezTransform trans = GetOwner()->GetGlobalTransform();
+    WTransform trans = GetOwner()->GetGlobalTransform();
     trans.m_vPosition += trans.m_qRotation * shard.m_vCenterPosition.GetAsVec3(0);
 
-    bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_vPosition);
-    bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_qRotation).Normalized();
+    bodyCfg.mPosition = WJoltConversionUtils::ToVec3(trans.m_vPosition);
+    bodyCfg.mRotation = WJoltConversionUtils::ToQuat(trans.m_qRotation).Normalized();
 
     transforms[uiShardIdx] = trans;
 
@@ -1079,16 +1079,16 @@ void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, e
   }
 }
 
-void ezJoltBreakableSlabComponent::DestroyAllShardColliders()
+void WJoltBreakableSlabComponent::DestroyAllShardColliders()
 {
   if (m_ShardBodyIDs.IsEmpty())
     return;
 
-  if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
+  if (WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>())
   {
     auto& jphBodies = pModule->GetBodyInterface();
 
-    for (ezUInt32 uiShardIdx = 0; uiShardIdx < m_ShardBodyIDs.GetCount(); ++uiShardIdx)
+    for (WUInt32 uiShardIdx = 0; uiShardIdx < m_ShardBodyIDs.GetCount(); ++uiShardIdx)
     {
       DestroyShardCollider(uiShardIdx, jphBodies, false);
     }
@@ -1097,15 +1097,15 @@ void ezJoltBreakableSlabComponent::DestroyAllShardColliders()
   m_ShardBodyIDs.Clear();
 }
 
-void ezJoltBreakableSlabComponent::DestroyShardCollider(ezUInt32 uiShardIdx, JPH::BodyInterface& jphBodies, bool bUpdateVis)
+void WJoltBreakableSlabComponent::DestroyShardCollider(WUInt32 uiShardIdx, JPH::BodyInterface& jphBodies, bool bUpdateVis)
 {
   JPH::BodyID bodyId(m_ShardBodyIDs[uiShardIdx]);
-  m_ShardBodyIDs[uiShardIdx] = ezInvalidIndex;
+  m_ShardBodyIDs[uiShardIdx] = WInvalidIndex;
 
   if (bUpdateVis)
   {
     auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_SkinningState.m_uiNumBones);
-    transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0)); // make it disappear by scaling to zero
+    transforms[uiShardIdx] = WMat4::MakeScaling(WVec3(0)); // make it disappear by scaling to zero
   }
 
   if (bodyId.IsInvalid())
@@ -1119,7 +1119,7 @@ void ezJoltBreakableSlabComponent::DestroyShardCollider(ezUInt32 uiShardIdx, JPH
   jphBodies.DestroyBody(bodyId);
 }
 
-void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
+void WJoltBreakableSlabComponent::RetrieveShardTransforms()
 {
   if (m_uiShardsSleeping >= 200)
   {
@@ -1129,16 +1129,16 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
 
   m_uiShardsSleeping = 0;
 
-  ezBoundingBox bbox = ezBoundingBox::MakeInvalid();
+  WBoundingBox bbox = WBoundingBox::MakeInvalid();
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   auto& jphBodies = pModule->GetBodyInterface();
 
-  const ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
+  const WVec3 vOwnPos = GetOwner()->GetGlobalPosition();
 
   auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_SkinningState.m_uiNumBones);
 
-  for (ezUInt32 idx = 0; idx < m_ShardBodyIDs.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < m_ShardBodyIDs.GetCount(); ++idx)
   {
     JPH::BodyID bodyId(m_ShardBodyIDs[idx]);
 
@@ -1149,11 +1149,11 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
     JPH::Quat rot;
     jphBodies.GetPositionAndRotation(bodyId, pos, rot);
 
-    transforms[idx] = ezJoltConversionUtils::ToTransform(pos, rot);
+    transforms[idx] = WJoltConversionUtils::ToTransform(pos, rot);
 
-    const ezVec3 vPos = ezJoltConversionUtils::ToVec3(pos);
+    const WVec3 vPos = WJoltConversionUtils::ToVec3(pos);
 
-    if ((vPos - vOwnPos).GetLengthSquared() > ezMath::Square(30.0f))
+    if ((vPos - vOwnPos).GetLengthSquared() > WMath::Square(30.0f))
     {
       // if the shard moved pretty far away from the center, it probably tunneled through geometry and just keeps falling
       // we don't want to use continuous collision detection (CCD), because this is just low-priority eye-candy
@@ -1167,54 +1167,54 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
 
   if (bbox.IsValid())
   {
-    const ezTransform tInv = GetOwner()->GetGlobalTransform().GetInverse();
+    const WTransform tInv = GetOwner()->GetGlobalTransform().GetInverse();
 
     bbox.TransformFromOrigin(tInv.GetAsMat4());
-    bbox.Grow(ezVec3(m_Breakable.m_fMaxRadius));
+    bbox.Grow(WVec3(m_Breakable.m_fMaxRadius));
 
     m_Bounds = bbox;
     TriggerLocalBoundsUpdate();
   }
 }
 
-void ezJoltBreakableSlabComponent::ApplyImpulse(const ezVec3& vImpulse, ezUInt32 uiFirstShard)
+void WJoltBreakableSlabComponent::ApplyImpulse(const WVec3& vImpulse, WUInt32 uiFirstShard)
 {
   const float fTorque = vImpulse.GetLength();
   if (fTorque <= 0.01f)
     return;
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  const ezVec3 vTorques[] = {
-    ezVec3::MakeAxisX(),
-    -ezVec3::MakeAxisX(),
-    ezVec3::MakeAxisY(),
-    -ezVec3::MakeAxisY(),
-    ezVec3::MakeAxisZ(),
-    -ezVec3::MakeAxisZ(),
-    ezVec3(0.7f, 0.7f, 0.0f),
-    ezVec3(0.7f, -0.7f, 0.0f),
-    ezVec3(-0.7f, 0.7f, 0.0f),
-    ezVec3(-0.7f, -0.7f, 0.0f),
-    ezVec3(0.7f, 0, 0.7f),
-    ezVec3(0.7f, 0, -0.7f),
-    ezVec3(-0.7f, 0, -0.7f),
-    ezVec3(-0.7f, 0, 0.7f),
-    ezVec3(0, 0.7f, 0.7f),
-    ezVec3(0, -0.7f, 0.7f),
+  const WVec3 vTorques[] = {
+    WVec3::MakeAxisX(),
+    -WVec3::MakeAxisX(),
+    WVec3::MakeAxisY(),
+    -WVec3::MakeAxisY(),
+    WVec3::MakeAxisZ(),
+    -WVec3::MakeAxisZ(),
+    WVec3(0.7f, 0.7f, 0.0f),
+    WVec3(0.7f, -0.7f, 0.0f),
+    WVec3(-0.7f, 0.7f, 0.0f),
+    WVec3(-0.7f, -0.7f, 0.0f),
+    WVec3(0.7f, 0, 0.7f),
+    WVec3(0.7f, 0, -0.7f),
+    WVec3(-0.7f, 0, -0.7f),
+    WVec3(-0.7f, 0, 0.7f),
+    WVec3(0, 0.7f, 0.7f),
+    WVec3(0, -0.7f, 0.7f),
   };
 
-  const ezUInt32 uiNumTorques = EZ_ARRAY_SIZE(vTorques);
+  const WUInt32 uiNumTorques = W_ARRAY_SIZE(vTorques);
 
-  for (ezUInt32 idx = uiFirstShard; idx < m_Breakable.m_Shards.GetCount(); ++idx)
+  for (WUInt32 idx = uiFirstShard; idx < m_Breakable.m_Shards.GetCount(); ++idx)
   {
     const auto& shard = m_Breakable.m_Shards[idx];
 
     if (shard.m_bDynamic)
     {
-      const ezUInt32 uiBodyID = m_ShardBodyIDs[idx];
+      const WUInt32 uiBodyID = m_ShardBodyIDs[idx];
 
-      if (uiBodyID != ezInvalidIndex)
+      if (uiBodyID != WInvalidIndex)
       {
         pModule->AddImpulse(uiBodyID, vImpulse);
         pModule->AddTorque(uiBodyID, vTorques[idx % uiNumTorques] * fTorque);
@@ -1223,24 +1223,24 @@ void ezJoltBreakableSlabComponent::ApplyImpulse(const ezVec3& vImpulse, ezUInt32
   }
 }
 
-void ezJoltBreakableSlabComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg)
+void WJoltBreakableSlabComponent::OnMsgPhysicsAddImpulse(WMsgPhysicsAddImpulse& ref_msg)
 {
   // not implemented atm
 }
 
-void ezJoltBreakableSlabComponent::OnMsgPhysicContactMsg(ezMsgPhysicContact& ref_msg)
+void WJoltBreakableSlabComponent::OnMsgPhysicContactMsg(WMsgPhysicContact& ref_msg)
 {
   if (m_fContactReportForceThreshold <= 0.0f)
     return;
 
-  if (ref_msg.m_fImpactSqr < ezMath::Square(m_fContactReportForceThreshold))
+  if (ref_msg.m_fImpactSqr < WMath::Square(m_fContactReportForceThreshold))
     return;
 
   // let the script decide what to do
-  GetOwner()->PostEventMessage(ref_msg, this, ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
+  GetOwner()->PostEventMessage(ref_msg, this, WTime::MakeZero(), WObjectMsgQueueType::PostTransform);
 }
 
-void ezJoltBreakableSlabComponent::OnMsgPhysicCharacterContact(ezMsgPhysicCharacterContact& ref_msg)
+void WJoltBreakableSlabComponent::OnMsgPhysicCharacterContact(WMsgPhysicCharacterContact& ref_msg)
 {
   if (m_fContactReportForceThreshold <= 0.0f)
     return;
@@ -1249,37 +1249,37 @@ void ezJoltBreakableSlabComponent::OnMsgPhysicCharacterContact(ezMsgPhysicCharac
     return;
 
   // let the script decide what to do
-  GetOwner()->PostEventMessage(ref_msg, this, ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
+  GetOwner()->PostEventMessage(ref_msg, this, WTime::MakeZero(), WObjectMsgQueueType::PostTransform);
 }
 
-void ezJoltBreakableSlabComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg)
+void WJoltBreakableSlabComponent::OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& ref_msg)
 {
   m_SkinningState.m_DataOffset = ref_msg.m_NewOffset;
 }
 
-void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WJoltBreakableSlabComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (m_hMesh.IsValid())
   {
-    ezMeshRenderData* pRenderData = nullptr;
-    ezTransform globalTransform;
+    WMeshRenderData* pRenderData = nullptr;
+    WTransform globalTransform;
 
     const bool bHasSkinning = m_SkinningState.HasBoneTransforms();
     if (bHasSkinning)
     {
-      auto pSkinnedRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+      auto pSkinnedRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WSkinnedMeshRenderData>(GetOwner());
       pSkinnedRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
       pSkinnedRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
       pRenderData = pSkinnedRenderData;
 
-      globalTransform = ezTransform::MakeIdentity();
+      globalTransform = WTransform::MakeIdentity();
     }
     else
     {
-      pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+      pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(GetOwner());
 
       globalTransform = GetOwner()->GetGlobalTransform();
-      globalTransform.m_vPosition += globalTransform.m_qRotation * ezVec3(m_fWidth * 0.5f, m_fHeight * 0.5f, 0);
+      globalTransform.m_vPosition += globalTransform.m_qRotation * WVec3(m_fWidth * 0.5f, m_fHeight * 0.5f, 0);
     }
 
     const bool bDynamic = GetOwner()->IsDynamic();
@@ -1288,35 +1288,35 @@ void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData
     pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceBuffer, m_hMaterial, m_hMesh);
 
-    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
+    WRenderData::Category category = WMaterialResource::GetRenderDataCategory(m_hMaterial);
 
     if (bHasSkinning)
     {
       if (m_uiShardsSleeping >= 200)
       {
-        msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
+        msg.AddRenderData(pRenderData, category, WRenderData::Caching::IfStatic);
       }
       else
       {
         ++m_uiShardsSleeping;
-        msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+        msg.AddRenderData(pRenderData, category, WRenderData::Caching::Never);
       }
     }
     else
     {
-      msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
+      msg.AddRenderData(pRenderData, category, WRenderData::Caching::IfStatic);
     }
   }
 }
 
-void ezJoltBreakableSlabComponent::DebugDraw()
+void WJoltBreakableSlabComponent::DebugDraw()
 {
-  const ezTransform trans = GetOwner()->GetGlobalTransform();
+  const WTransform trans = GetOwner()->GetGlobalTransform();
 
-  ezDynamicArray<ezDebugRendererLine> lines;
+  WDynamicArray<WDebugRendererLine> lines;
 
-  const ezColor edgeColor = ezColor::White;
-  const ezColor centerColor = ezColor::Yellow;
+  const WColor edgeColor = WColor::White;
+  const WColor centerColor = WColor::Yellow;
 
   for (const auto& shard : m_Breakable.m_Shards)
   {
@@ -1325,23 +1325,23 @@ void ezJoltBreakableSlabComponent::DebugDraw()
 
     auto& center = lines.ExpandAndGetRef();
     center.m_start = shard.m_vCenterPosition.GetAsVec3(0);
-    center.m_end = center.m_start + ezVec3(0, 0, 0.1f);
+    center.m_end = center.m_start + WVec3(0, 0, 0.1f);
     center.m_startColor = centerColor;
     center.m_endColor = centerColor;
 
-    const ezColor c = shard.m_bDynamic ? ezColor::GreenYellow : ezColor::OrangeRed;
+    const WColor c = shard.m_bDynamic ? WColor::GreenYellow : WColor::OrangeRed;
 
 
-    ezUInt32 uiPrevEdge = shard.m_Edges.GetCount() - 1;
-    for (ezUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
+    WUInt32 uiPrevEdge = shard.m_Edges.GetCount() - 1;
+    for (WUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
     {
 
       auto& l = lines.ExpandAndGetRef();
       l.m_start = shard.m_Edges[uiPrevEdge].m_vStartPosition.GetAsVec3(0);
       l.m_end = shard.m_Edges[i].m_vStartPosition.GetAsVec3(0);
 
-      const ezUInt32 uiOut = shard.m_Edges[uiPrevEdge].m_uiOutsideShardIdx;
-      if (uiOut > ezInvalidIndex - 32 && uiOut < ezInvalidIndex)
+      const WUInt32 uiOut = shard.m_Edges[uiPrevEdge].m_uiOutsideShardIdx;
+      if (uiOut > WInvalidIndex - 32 && uiOut < WInvalidIndex)
       {
         l.m_startColor = edgeColor;
         l.m_endColor = edgeColor;
@@ -1356,12 +1356,12 @@ void ezJoltBreakableSlabComponent::DebugDraw()
     }
   }
 
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, trans);
+  WDebugRenderer::DrawLines(GetWorld(), lines, WColor::White, trans);
 
   {
-    const ezVec3 vCenter = GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalRotation() * (ezVec3(m_fWidth * 0.5f, m_fHeight * 0.2f, 0));
+    const WVec3 vCenter = GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalRotation() * (WVec3(m_fWidth * 0.5f, m_fHeight * 0.2f, 0));
 
-    ezStringBuilder txt;
+    WStringBuilder txt;
     txt.AppendFormat("Shards: {}\n", m_Breakable.m_Shards.GetCount());
 
     if (m_uiShardsSleeping >= 200)
@@ -1369,11 +1369,11 @@ void ezJoltBreakableSlabComponent::DebugDraw()
     else
       txt.Append("Moving\n");
 
-    ezDebugRenderer::Draw3DText(GetWorld(), txt, vCenter, ezColor::LightGray);
+    WDebugRenderer::Draw3DText(GetWorld(), txt, vCenter, WColor::LightGray);
   }
 }
 
-void ezShatterTask::Execute()
+void WShatterTask::Execute()
 {
   m_vFinalImpulse.SetZero();
 
@@ -1392,4 +1392,4 @@ void ezShatterTask::Execute()
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBreakableSlabComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBreakableSlabComponent);

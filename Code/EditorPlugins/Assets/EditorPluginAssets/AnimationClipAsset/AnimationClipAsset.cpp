@@ -15,59 +15,59 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
-  EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRootMotionSource, 1)
+  W_ENUM_CONSTANTS(WRootMotionSource::None, WRootMotionSource::Constant)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipCurveData, 1, ezRTTIDefaultAllocator<ezAnimationClipCurveData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipCurveData, 1, WRTTIDefaultAllocator<WAnimationClipCurveData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("CustomAnimCurveNames")),
-    EZ_MEMBER_PROPERTY("Curve", m_Curve)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new WDynamicStringEnumAttribute("CustomAnimCurveNames")),
+    W_MEMBER_PROPERTY("Curve", m_Curve)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAdditiveAnimationReference, 1)
-  EZ_ENUM_CONSTANTS(ezAdditiveAnimationReference::FirstKeyFrame, ezAdditiveAnimationReference::LastKeyFrame)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WAdditiveAnimationReference, 1)
+  W_ENUM_CONSTANTS(WAdditiveAnimationReference::FirstKeyFrame, WAdditiveAnimationReference::LastKeyFrame)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 4, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipAssetProperties, 4, WRTTIDefaultAllocator<WAnimationClipAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::Thumbnail)),
-    // \see ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum()
-    EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipsInSourceFile")),
-    EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
-    EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
-    EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
-    EZ_MEMBER_PROPERTY("BasePreviewAnim", m_sPreviewAnim)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation", ezDependencyFlags::Thumbnail)),
-    EZ_ENUM_MEMBER_PROPERTY("AdditiveReference", ezAdditiveAnimationReference, m_AdditiveReference),
-    EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
-    EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
-    EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
-    EZ_MEMBER_PROPERTY("AdjustScale", m_fAnimationPositionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f), new ezGroupAttribute("Adjustments")),
-    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
-    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new WFileBrowserAttribute("Select Animation", WFileBrowserAttribute::MeshesWithAnimations), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", WDependencyFlags::Thumbnail)),
+    // \see WAnimationClipAssetDocument::OnRefreshDynamicStringEnum()
+    W_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipsInSourceFile")),
+    W_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
+    W_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
+    W_MEMBER_PROPERTY("Additive", m_bAdditive),
+    W_MEMBER_PROPERTY("BasePreviewAnim", m_sPreviewAnim)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation", WDependencyFlags::Thumbnail)),
+    W_ENUM_MEMBER_PROPERTY("AdditiveReference", WAdditiveAnimationReference, m_AdditiveReference),
+    W_ENUM_MEMBER_PROPERTY("RootMotion", WRootMotionSource, m_RootMotionMode),
+    W_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
+    W_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
+    W_MEMBER_PROPERTY("AdjustScale", m_fAnimationPositionScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0001f, 10000.0f), new WGroupAttribute("Adjustments")),
+    W_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
+    W_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 7, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipAssetDocument, 7, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimationClipAssetProperties::ezAnimationClipAssetProperties() = default;
-ezAnimationClipAssetProperties::~ezAnimationClipAssetProperties() = default;
+WAnimationClipAssetProperties::WAnimationClipAssetProperties() = default;
+WAnimationClipAssetProperties::~WAnimationClipAssetProperties() = default;
 
-void ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum(ezDynamicStringEnum::RefreshValuesEvent& e)
+void WAnimationClipAssetDocument::OnRefreshDynamicStringEnum(WDynamicStringEnum::RefreshValuesEvent& e)
 {
-  if (e.m_sEnumName != "AnimationClipsInSourceFile"_ezsv)
+  if (e.m_sEnumName != "AnimationClipsInSourceFile"_wsv)
     return;
 
   e.m_pEnum->Clear();
@@ -75,47 +75,47 @@ void ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum(ezDynamicStringEnu
   if (e.m_pDocument == nullptr)
     return;
 
-  const ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->GetSubAsset(e.m_pDocument->GetGuid());
+  const WAssetCurator::WLockedSubAsset asset = WAssetCurator::GetSingleton()->GetSubAsset(e.m_pDocument->GetGuid());
 
   if (!asset.isValid())
     return;
 
-  const ezAssetInfoFile* pInfo = asset->m_pAssetInfo->GetTransformInfo();
+  const WAssetInfoFile* pInfo = asset->m_pAssetInfo->GetTransformInfo();
 
   if (pInfo == nullptr)
     return;
 
-  const ezVariant clips = pInfo->GetValue(ezAssetInfoFile::Keys::AvailableClips);
+  const WVariant clips = pInfo->GetValue(WAssetInfoFile::Keys::AvailableClips);
 
-  if (!clips.IsA<ezVariantArray>())
+  if (!clips.IsA<WVariantArray>())
     return;
 
-  for (const ezVariant& clip : clips.Get<ezVariantArray>())
+  for (const WVariant& clip : clips.Get<WVariantArray>())
   {
-    e.m_pEnum->AddValidValue(clip.ConvertTo<ezString>());
+    e.m_pEnum->AddValidValue(clip.ConvertTo<WString>());
   }
 }
 
-void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WAnimationClipAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezAnimationClipAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() != WGetStaticRTTI<WAnimationClipAssetProperties>())
     return;
 
   auto& props = *e.m_pPropertyStates;
 
   const bool bAdditive = e.m_pObject->GetTypeAccessor().GetValue("Additive").ConvertTo<bool>();
-  props["AdditiveReference"].m_Visibility = bAdditive ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["BasePreviewAnim"].m_Visibility = bAdditive ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["AdditiveReference"].m_Visibility = bAdditive ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["BasePreviewAnim"].m_Visibility = bAdditive ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
-  const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
-  props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
-  props["RootMotionDistance"].m_Visibility = ezPropertyUiState::Invisible;
+  const WInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<WInt64>();
+  props["ConstantRootMotion"].m_Visibility = WPropertyUiState::Invisible;
+  props["RootMotionDistance"].m_Visibility = WPropertyUiState::Invisible;
 
   switch (motionType)
   {
-    case ezRootMotionSource::Constant:
-      props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Default;
-      props["RootMotionDistance"].m_Visibility = ezPropertyUiState::Default;
+    case WRootMotionSource::Constant:
+      props["ConstantRootMotion"].m_Visibility = WPropertyUiState::Default;
+      props["RootMotionDistance"].m_Visibility = WPropertyUiState::Default;
       break;
 
     default:
@@ -123,16 +123,16 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   }
 }
 
-ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WAnimationClipAssetDocument::WAnimationClipAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WAnimationClipAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-void ezAnimationClipAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value)
+void WAnimationClipAssetDocument::SetCommonAssetUiState(WCommonAssetUiState::Enum state, double value)
 {
   switch (state)
   {
-    case ezCommonAssetUiState::SimulationSpeed:
+    case WCommonAssetUiState::SimulationSpeed:
       m_fSimulationSpeed = value;
       break;
     default:
@@ -143,11 +143,11 @@ void ezAnimationClipAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::E
   return SUPER::SetCommonAssetUiState(state, value);
 }
 
-double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const
+double WAnimationClipAssetDocument::GetCommonAssetUiState(WCommonAssetUiState::Enum state) const
 {
   switch (state)
   {
-    case ezCommonAssetUiState::SimulationSpeed:
+    case WCommonAssetUiState::SimulationSpeed:
       return m_fSimulationSpeed;
     default:
       break;
@@ -156,44 +156,44 @@ double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState:
   return SUPER::GetCommonAssetUiState(state);
 }
 
-ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAnimationClipAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezProgressRange range("Transforming Asset", 2, false);
+  WProgressRange range("Transforming Asset", 2, false);
 
-  ezAnimationClipAssetProperties* pProp = GetProperties();
+  WAnimationClipAssetProperties* pProp = GetProperties();
 
-  ezAnimationClipResourceDescriptor desc;
+  WAnimationClipResourceDescriptor desc;
 
   range.BeginNextStep("Importing Animations");
 
-  ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  WStringBuilder sAbsFilename = pProp->m_sSourceFile;
+  if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
   {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
+    return WStatus(WFmt("Could not make path absolute: '{0};", sAbsFilename));
   }
 
-  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  WUniquePtr<WModelImporter2::Importer> pImporter = WModelImporter2::RequestImporterForFileType(sAbsFilename);
   if (pImporter == nullptr)
-    return ezStatus("No known importer for this file type.");
+    return WStatus("No known importer for this file type.");
 
-  ezEditableSkeleton skeleton;
+  WEditableSkeleton skeleton;
 
-  ezModelImporter2::ImportOptions opt;
+  WModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   // opt.m_pSkeletonOutput = &skeleton; // TODO: may be needed later to optimize the clip
   opt.m_pAnimationOutput = &desc;
   opt.m_bAdditiveAnimation = pProp->m_bAdditive;
-  opt.m_AdditiveReference = (pProp->m_AdditiveReference == ezAdditiveAnimationReference::FirstKeyFrame) ? ezModelImporter2::AdditiveReference::FirstKeyFrame : ezModelImporter2::AdditiveReference::LastKeyFrame;
+  opt.m_AdditiveReference = (pProp->m_AdditiveReference == WAdditiveAnimationReference::FirstKeyFrame) ? WModelImporter2::AdditiveReference::FirstKeyFrame : WModelImporter2::AdditiveReference::LastKeyFrame;
   opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;
   opt.m_fAnimationPositionScale = pProp->m_fAnimationPositionScale;
 
-  const ezResult res = pImporter->Import(opt);
+  const WResult res = pImporter->Import(opt);
 
   if (res.Succeeded())
   {
-    if (pProp->m_RootMotionMode == ezRootMotionSource::Constant)
+    if (pProp->m_RootMotionMode == WRootMotionSource::Constant)
     {
       desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
 
@@ -205,7 +205,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
 
     // copy named custom curves
     desc.m_CustomCurves.SetCount(pProp->m_Curves.GetCount());
-    for (ezUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
     {
       desc.m_CustomCurves[i].m_sName.Assign(pProp->m_Curves[i].m_sName);
       pProp->m_Curves[i].m_Curve.ConvertToRuntimeData(desc.m_CustomCurves[i].m_Curve);
@@ -217,68 +217,68 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
 
     pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
-    EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+    W_SUCCEED_OR_RETURN(desc.Serialize(stream));
   }
 
   // Fills the drop down of the 'UseAnimationClip' property, so that a clip can be picked without
   // opening the source file again.
   if (!pImporter->m_OutputAnimationNames.IsEmpty())
   {
-    ezVariantArray clipNames;
+    WVariantArray clipNames;
     clipNames.Reserve(pImporter->m_OutputAnimationNames.GetCount());
 
     for (const auto& sName : pImporter->m_OutputAnimationNames)
     {
-      clipNames.PushBack(ezVariant(sName));
+      clipNames.PushBack(WVariant(sName));
     }
 
-    GetTransformInfo().SetValue(ezAssetInfoFile::Keys::AvailableClips, ezVariant(clipNames));
+    GetTransformInfo().SetValue(WAssetInfoFile::Keys::AvailableClips, WVariant(clipNames));
   }
 
   if (res.Failed())
-    return ezStatus("Model importer was unable to read this asset.");
+    return WStatus("Model importer was unable to read this asset.");
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WAnimationClipAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   // the preview mesh is an editor side only option, so the thumbnail context doesn't know anything about this
   // until we explicitly tell it about the mesh
   // without sending this here, thumbnails would remain black for assets transformed in the background
   if (!GetProperties()->m_sPreviewMesh.IsEmpty())
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
     msg.m_sPayload = GetProperties()->m_sPreviewMesh;
     SendMessageToEngine(&msg);
   }
   if (!GetProperties()->m_sPreviewAnim.IsEmpty())
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewAnim";
     msg.m_sPayload = GetProperties()->m_sPreviewAnim;
     SendMessageToEngine(&msg);
   }
 
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
-ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue)
+WUuid WAnimationClipAssetDocument::InsertEventTrackCpAt(WInt64 iTickX, const char* szValue)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
   acc.StartTransaction("Insert Event");
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
-  ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  WUuid trackGuid = accessor.Get<WUuid>(GetPropertyObject(), pTrackProp);
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(), "");
-  const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, WGetStaticRTTI<WEventTrackControlPointData>(), newObjectGuid).Succeeded(), "");
+  const WDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
+  W_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
 
@@ -287,36 +287,36 @@ ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WAnimationClipAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
+WAnimationClipAssetDocumentGenerator::WAnimationClipAssetDocumentGenerator()
 {
   AddSupportedFileType("fbx");
   AddSupportedFileType("gltf");
   AddSupportedFileType("glb");
 }
 
-ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() = default;
+WAnimationClipAssetDocumentGenerator::~WAnimationClipAssetDocumentGenerator() = default;
 
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WAnimationClipAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport_Single";
     info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   }
 
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport_All";
     info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   }
 }
 
-bool ezAnimationClipAssetDocumentGenerator::NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const
+bool WAnimationClipAssetDocumentGenerator::NeedsImport(WStringView sInputFileAbs, WStringView sMode) const
 {
   // In this mode the clip documents are named after the animations inside the file, which are only
   // known after parsing it. Always import, the loop over the clips skips the ones that exist.
@@ -326,102 +326,102 @@ bool ezAnimationClipAssetDocumentGenerator::NeedsImport(ezStringView sInputFileA
   return SUPER::NeedsImport(sInputFileAbs, sMode);
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WAnimationClipAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezStringBuilder title;
+  WStringBuilder title;
   title.SetFormat("Select Preview Mesh for Animation Clip '{}'", sInputFileAbs.GetFileName());
 
-  ezStringBuilder sPreviewMesh;
+  WStringBuilder sPreviewMesh;
 
   // The preview mesh is only used for previewing the clip in the editor, so leaving it empty is fine.
   // Without a user there is nobody to close this dialog, which would block the editor indefinitely.
   if (!pApp->IsInUnattendedMode())
   {
-    ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
+    WQtAssetBrowserDlg dlg(nullptr, WUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
     if (dlg.exec() != 0)
     {
       if (dlg.GetSelectedAssetGuid().IsValid())
       {
-        ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+        WConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
       }
     }
   }
 
   if (sMode == "AnimationClipImport_Single")
   {
-    ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+    WDocument* pDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
     if (pDoc == nullptr)
-      return ezStatus("Could not create target document");
+      return WStatus("Could not create target document");
 
     out_generatedDocuments.PushBack(pDoc);
 
-    ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
+    WAnimationClipAssetDocument* pAssetDoc = WDynamicCast<WAnimationClipAssetDocument*>(pDoc);
 
     auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
     accessor.SetValue("File", sInputFileRel.GetView());
     accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
 
-    ezLog::Success("Imported animation clip: '{}'", sOutFile);
+    WLog::Success("Imported animation clip: '{}'", sOutFile);
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
   if (sMode == "AnimationClipImport_All")
   {
-    ezModelImporter2::ImportOptions opt;
+    WModelImporter2::ImportOptions opt;
     opt.m_sSourceFile = sInputFileAbs;
 
-    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(opt.m_sSourceFile);
+    WUniquePtr<WModelImporter2::Importer> pImporter = WModelImporter2::RequestImporterForFileType(opt.m_sSourceFile);
     if (pImporter == nullptr)
-      return ezStatus("No known importer for this file type.");
+      return WStatus("No known importer for this file type.");
 
     if (pImporter->Import(opt).Failed())
-      return ezStatus("Failed to import asset.");
+      return WStatus("Failed to import asset.");
 
-    ezStringBuilder sFilename;
-    ezStringBuilder sOutFile2;
+    WStringBuilder sFilename;
+    WStringBuilder sOutFile2;
 
     for (const auto& clip : pImporter->m_OutputAnimationNames)
     {
-      ezPathUtils::MakeValidFilename(clip, '-', sFilename);
+      WPathUtils::MakeValidFilename(clip, '-', sFilename);
       sFilename.ReplaceAll(" ", "-");
       sFilename.Prepend(sOutFile.GetFileName(), "_");
 
       sOutFile2 = sOutFile;
       sOutFile2.ChangeFileName(sFilename);
 
-      if (ezOSFile::ExistsFile(sOutFile2))
+      if (WOSFile::ExistsFile(sOutFile2))
       {
-        ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
+        WLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
         continue;
       }
 
-      ezDocument* pDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
+      WDocument* pDoc = pApp->CreateDocument(sOutFile2, WDocumentFlags::None);
       if (pDoc == nullptr)
-        return ezStatus("Could not create target document");
+        return WStatus("Could not create target document");
 
       out_generatedDocuments.PushBack(pDoc);
 
-      ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
+      WAnimationClipAssetDocument* pAssetDoc = WDynamicCast<WAnimationClipAssetDocument*>(pDoc);
 
       auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
       accessor.SetValue("File", sInputFileRel.GetView());
       accessor.SetValue("UseAnimationClip", clip);
       accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
 
-      ezLog::Success("Imported animation clip: '{}'", sOutFile2);
+      WLog::Success("Imported animation clip: '{}'", sOutFile2);
     }
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezStatus(EZ_FAILURE);
+  W_ASSERT_NOT_IMPLEMENTED;
+  return WStatus(W_FAILURE);
 }

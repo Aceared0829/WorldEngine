@@ -2,35 +2,35 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// Behavior that applies gravity to particles
 ///
 /// Uses the world's gravity vector from the physics module.
 /// The gravity factor scales the applied gravity force.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Gravity final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Gravity final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Gravity, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Gravity, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Gravity();
+  WParticleBehaviorFactory_Gravity();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
 public:
   float m_fGravityFactor;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Gravity final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Gravity, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Gravity, WParticleBehavior);
 
 public:
   float m_fGravityFactor;
@@ -38,13 +38,13 @@ public:
   virtual void CreateRequiredStreams() override;
 
 protected:
-  friend class ezParticleBehaviorFactory_Gravity;
+  friend class WParticleBehaviorFactory_Gravity;
 
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) override;
 
-  ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+  WPhysicsWorldModuleInterface* m_pPhysicsModule;
 
-  ezProcessingStream* m_pStreamVelocity;
+  WProcessingStream* m_pStreamVelocity;
 };

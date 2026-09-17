@@ -13,7 +13,7 @@
 /// Supports various output modes including compact/verbose formatting, different type name styles,
 /// and precise floating-point representation. Objects and primitive lists can be nested arbitrarily.
 /// Call SetOutputStream() first, then use BeginObject/EndObject and BeginPrimitiveList/EndPrimitiveList pairs.
-class EZ_FOUNDATION_DLL ezOpenDdlWriter
+class W_FOUNDATION_DLL WOpenDdlWriter
 {
 public:
   /// Controls how primitive type names are written in the output
@@ -33,12 +33,12 @@ public:
   };
 
   /// Constructor
-  ezOpenDdlWriter();
+  WOpenDdlWriter();
 
-  virtual ~ezOpenDdlWriter() = default;
+  virtual ~WOpenDdlWriter() = default;
 
   /// All output is written to this binary stream.
-  void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
+  void SetOutputStream(WStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
 
   /// Configures how much whitespace is output.
   void SetCompactMode(bool bCompact) { m_bCompactMode = bCompact; } // [tested]
@@ -56,61 +56,61 @@ public:
   ///
   /// Negative values are allowed to delay indentation until deeper nesting levels.
   /// For example, setting -2 means indentation only starts at nesting level 3.
-  void SetIndentation(ezInt8 iIndentation) { m_iIndentation = iIndentation; }
+  void SetIndentation(WInt8 iIndentation) { m_iIndentation = iIndentation; }
 
   /// Begins outputting an object.
-  void BeginObject(ezStringView sType, ezStringView sName = {}, bool bGlobalName = false, bool bSingleLine = false); // [tested]
+  void BeginObject(WStringView sType, WStringView sName = {}, bool bGlobalName = false, bool bSingleLine = false); // [tested]
 
   /// Ends outputting an object.
   void EndObject(); // [tested]
 
   /// Begins outputting a list of primitives of the given type.
-  void BeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName = {}, bool bGlobalName = false); // [tested]
+  void BeginPrimitiveList(WOpenDdlPrimitiveType type, WStringView sName = {}, bool bGlobalName = false); // [tested]
 
   /// Ends outputting the list of primitives.
   void EndPrimitiveList(); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteBool(const bool* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteBool(const bool* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt8(const ezInt8* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteInt8(const WInt8* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt16(const ezInt16* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteInt16(const WInt16* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt32(const ezInt32* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteInt32(const WInt32* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt64(const ezInt64* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteInt64(const WInt64* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt8(const ezUInt8* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteUInt8(const WUInt8* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt16(const ezUInt16* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteUInt16(const WUInt16* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt32(const ezUInt32* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteUInt32(const WUInt32* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt64(const ezUInt64* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteUInt64(const WUInt64* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteFloat(const float* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteFloat(const float* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteDouble(const double* pValues, ezUInt32 uiCount = 1); // [tested]
+  void WriteDouble(const double* pValues, WUInt32 uiCount = 1); // [tested]
 
   /// Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteString(const ezStringView& sString); // [tested]
+  void WriteString(const WStringView& sString); // [tested]
 
   /// Writes binary data as a hexadecimal string to the primitive list
   ///
   /// Converts the binary data to a hex string representation and writes it as a string primitive.
   /// Useful for embedding binary data within OpenDDL text format.
-  void WriteBinaryAsString(const void* pData, ezUInt32 uiBytes);
+  void WriteBinaryAsString(const void* pData, WUInt32 uiBytes);
 
 
 protected:
@@ -121,7 +121,7 @@ protected:
     ObjectSingleLine = -3,
     ObjectMultiLine = -2,
     ObjectStart = -1,
-    PrimitivesBool = 0, // same values as in ezOpenDdlPrimitiveType to enable casting
+    PrimitivesBool = 0, // same values as in WOpenDdlPrimitiveType to enable casting
     PrimitivesInt8,
     PrimitivesInt16,
     PrimitivesInt32,
@@ -141,24 +141,24 @@ protected:
     bool m_bPrimitivesWritten = false;
   };
 
-  EZ_ALWAYS_INLINE void OutputString(ezStringView s) { m_pOutput->WriteBytes(s.GetStartPointer(), s.GetElementCount()).IgnoreResult(); }
-  EZ_ALWAYS_INLINE void OutputString(ezStringView s, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(s.GetStartPointer(), uiElementCount).IgnoreResult(); }
-  void OutputEscapedString(const ezStringView& string);
+  W_ALWAYS_INLINE void OutputString(WStringView s) { m_pOutput->WriteBytes(s.GetStartPointer(), s.GetElementCount()).IgnoreResult(); }
+  W_ALWAYS_INLINE void OutputString(WStringView s, WUInt32 uiElementCount) { m_pOutput->WriteBytes(s.GetStartPointer(), uiElementCount).IgnoreResult(); }
+  void OutputEscapedString(const WStringView& string);
   void OutputIndentation();
-  void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);
-  void OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type);
-  void OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType type);
-  void WritePrimitiveType(ezOpenDdlWriter::State exp);
-  void OutputObjectName(ezStringView sName, bool bGlobalName);
-  void WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes);
+  void OutputPrimitiveTypeNameCompliant(WOpenDdlPrimitiveType type);
+  void OutputPrimitiveTypeNameShort(WOpenDdlPrimitiveType type);
+  void OutputPrimitiveTypeNameShortest(WOpenDdlPrimitiveType type);
+  void WritePrimitiveType(WOpenDdlWriter::State exp);
+  void OutputObjectName(WStringView sName, bool bGlobalName);
+  void WriteBinaryAsHex(const void* pData, WUInt32 uiBytes);
   void OutputObjectBeginning();
 
-  ezInt32 m_iIndentation = 0;
+  WInt32 m_iIndentation = 0;
   bool m_bCompactMode = false;
   TypeStringMode m_TypeStringMode = TypeStringMode::ShortenedUnsignedInt;
   FloatPrecisionMode m_FloatPrecisionMode = FloatPrecisionMode::Exact;
-  ezStreamWriter* m_pOutput = nullptr;
-  ezStringBuilder m_sTemp;
+  WStreamWriter* m_pOutput = nullptr;
+  WStringBuilder m_sTemp;
 
-  ezHybridArray<DdlState, 16> m_StateStack;
+  WHybridArray<DdlState, 16> m_StateStack;
 };

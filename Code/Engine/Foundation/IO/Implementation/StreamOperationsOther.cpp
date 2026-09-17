@@ -7,110 +7,110 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 
-// ezAllocator::Stats
+// WAllocator::Stats
 
-void operator<<(ezStreamWriter& inout_stream, const ezAllocator::Stats& rhs)
+void operator<<(WStreamWriter& inout_stream, const WAllocator::Stats& rhs)
 {
   inout_stream << rhs.m_uiNumAllocations;
   inout_stream << rhs.m_uiNumDeallocations;
   inout_stream << rhs.m_uiAllocationSize;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezAllocator::Stats& rhs)
+void operator>>(WStreamReader& inout_stream, WAllocator::Stats& rhs)
 {
   inout_stream >> rhs.m_uiNumAllocations;
   inout_stream >> rhs.m_uiNumDeallocations;
   inout_stream >> rhs.m_uiAllocationSize;
 }
 
-// ezTime
+// WTime
 
-void operator<<(ezStreamWriter& inout_stream, ezTime value)
+void operator<<(WStreamWriter& inout_stream, WTime value)
 {
   inout_stream << value.GetSeconds();
 }
 
-void operator>>(ezStreamReader& inout_stream, ezTime& ref_value)
+void operator>>(WStreamReader& inout_stream, WTime& ref_value)
 {
   double d = 0;
   inout_stream.ReadQWordValue(&d).IgnoreResult();
 
-  ref_value = ezTime::MakeFromSeconds(d);
+  ref_value = WTime::MakeFromSeconds(d);
 }
 
-// ezUuid
+// WUuid
 
-void operator<<(ezStreamWriter& inout_stream, const ezUuid& value)
+void operator<<(WStreamWriter& inout_stream, const WUuid& value)
 {
   inout_stream << value.m_uiHigh;
   inout_stream << value.m_uiLow;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value)
+void operator>>(WStreamReader& inout_stream, WUuid& ref_value)
 {
   inout_stream >> ref_value.m_uiHigh;
   inout_stream >> ref_value.m_uiLow;
 }
 
-// ezHashedString
+// WHashedString
 
-void operator<<(ezStreamWriter& inout_stream, const ezHashedString& sValue)
+void operator<<(WStreamWriter& inout_stream, const WHashedString& sValue)
 {
   inout_stream.WriteString(sValue.GetView()).AssertSuccess();
 }
 
-void operator>>(ezStreamReader& inout_stream, ezHashedString& ref_sValue)
+void operator>>(WStreamReader& inout_stream, WHashedString& ref_sValue)
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
   inout_stream >> sTemp;
   ref_sValue.Assign(sTemp);
 }
 
-// ezTempHashedString
+// WTempHashedString
 
-void operator<<(ezStreamWriter& inout_stream, const ezTempHashedString& sValue)
+void operator<<(WStreamWriter& inout_stream, const WTempHashedString& sValue)
 {
-  inout_stream << (ezUInt64)sValue.GetHash();
+  inout_stream << (WUInt64)sValue.GetHash();
 }
 
-void operator>>(ezStreamReader& inout_stream, ezTempHashedString& ref_sValue)
+void operator>>(WStreamReader& inout_stream, WTempHashedString& ref_sValue)
 {
-  ezUInt64 hash;
+  WUInt64 hash;
   inout_stream >> hash;
-  ref_sValue = ezTempHashedString(hash);
+  ref_sValue = WTempHashedString(hash);
 }
 
-// ezVariant
+// WVariant
 
 struct WriteValueFunc
 {
   template <typename T>
-  EZ_ALWAYS_INLINE void operator()()
+  W_ALWAYS_INLINE void operator()()
   {
     (*m_pStream) << m_pValue->Get<T>();
   }
 
-  ezStreamWriter* m_pStream;
-  const ezVariant* m_pValue;
+  WStreamWriter* m_pStream;
+  const WVariant* m_pValue;
 };
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantArray>()
+W_FORCE_INLINE void WriteValueFunc::operator()<WVariantArray>()
 {
-  const ezVariantArray& values = m_pValue->Get<ezVariantArray>();
-  const ezUInt32 iCount = values.GetCount();
+  const WVariantArray& values = m_pValue->Get<WVariantArray>();
+  const WUInt32 iCount = values.GetCount();
   (*m_pStream) << iCount;
-  for (ezUInt32 i = 0; i < iCount; i++)
+  for (WUInt32 i = 0; i < iCount; i++)
   {
     (*m_pStream) << values[i];
   }
 }
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantDictionary>()
+W_FORCE_INLINE void WriteValueFunc::operator()<WVariantDictionary>()
 {
-  const ezVariantDictionary& values = m_pValue->Get<ezVariantDictionary>();
-  const ezUInt32 iCount = values.GetCount();
+  const WVariantDictionary& values = m_pValue->Get<WVariantDictionary>();
+  const WUInt32 iCount = values.GetCount();
   (*m_pStream) << iCount;
   for (auto it = values.GetIterator(); it.IsValid(); ++it)
   {
@@ -120,38 +120,38 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-inline void WriteValueFunc::operator()<ezTypedPointer>()
+inline void WriteValueFunc::operator()<WTypedPointer>()
 {
-  EZ_REPORT_FAILURE("Type 'ezReflectedClass*' not supported in serialization.");
+  W_REPORT_FAILURE("Type 'WReflectedClass*' not supported in serialization.");
 }
 
 template <>
-inline void WriteValueFunc::operator()<ezTypedObject>()
+inline void WriteValueFunc::operator()<WTypedObject>()
 {
-  ezTypedObject obj = m_pValue->Get<ezTypedObject>();
-  if (const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
+  WTypedObject obj = m_pValue->Get<WTypedObject>();
+  if (const WVariantTypeInfo* pTypeInfo = WVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
   {
     (*m_pStream) << obj.m_pType->GetTypeName();
     pTypeInfo->Serialize(*m_pStream, obj.m_pObject);
   }
   else
   {
-    EZ_REPORT_FAILURE("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
+    W_REPORT_FAILURE("The type '{0}' was declared but not defined, add W_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
   }
 }
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<ezStringView>()
+W_FORCE_INLINE void WriteValueFunc::operator()<WStringView>()
 {
-  ezStringBuilder s = m_pValue->Get<ezStringView>();
+  WStringBuilder s = m_pValue->Get<WStringView>();
   (*m_pStream) << s;
 }
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<ezDataBuffer>()
+W_FORCE_INLINE void WriteValueFunc::operator()<WDataBuffer>()
 {
-  const ezDataBuffer& data = m_pValue->Get<ezDataBuffer>();
-  const ezUInt32 iCount = data.GetCount();
+  const WDataBuffer& data = m_pValue->Get<WDataBuffer>();
+  const WUInt32 iCount = data.GetCount();
   (*m_pStream) << iCount;
   m_pStream->WriteBytes(data.GetData(), data.GetCount()).AssertSuccess();
 }
@@ -159,25 +159,25 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezDataBuffer>()
 struct ReadValueFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  W_FORCE_INLINE void operator()()
   {
     T value;
     (*m_pStream) >> value;
     *m_pValue = value;
   }
 
-  ezStreamReader* m_pStream;
-  ezVariant* m_pValue;
+  WStreamReader* m_pStream;
+  WVariant* m_pValue;
 };
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantArray>()
+W_FORCE_INLINE void ReadValueFunc::operator()<WVariantArray>()
 {
-  ezVariantArray values;
-  ezUInt32 iCount;
+  WVariantArray values;
+  WUInt32 iCount;
   (*m_pStream) >> iCount;
   values.SetCount(iCount);
-  for (ezUInt32 i = 0; i < iCount; i++)
+  for (WUInt32 i = 0; i < iCount; i++)
   {
     (*m_pStream) >> values[i];
   }
@@ -185,15 +185,15 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantArray>()
 }
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantDictionary>()
+W_FORCE_INLINE void ReadValueFunc::operator()<WVariantDictionary>()
 {
-  ezVariantDictionary values;
-  ezUInt32 iCount;
+  WVariantDictionary values;
+  WUInt32 iCount;
   (*m_pStream) >> iCount;
-  for (ezUInt32 i = 0; i < iCount; i++)
+  for (WUInt32 i = 0; i < iCount; i++)
   {
-    ezString key;
-    ezVariant value;
+    WString key;
+    WVariant value;
     (*m_pStream) >> key;
     (*m_pStream) >> value;
     values.Insert(key, value);
@@ -202,38 +202,38 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-inline void ReadValueFunc::operator()<ezTypedPointer>()
+inline void ReadValueFunc::operator()<WTypedPointer>()
 {
-  EZ_REPORT_FAILURE("Type 'ezTypedPointer' not supported in serialization.");
+  W_REPORT_FAILURE("Type 'WTypedPointer' not supported in serialization.");
 }
 
 template <>
-inline void ReadValueFunc::operator()<ezTypedObject>()
+inline void ReadValueFunc::operator()<WTypedObject>()
 {
-  ezStringBuilder sType;
+  WStringBuilder sType;
   (*m_pStream) >> sType;
-  const ezRTTI* pType = ezRTTI::FindTypeByName(sType);
-  EZ_ASSERT_DEV(pType, "The type '{0}' could not be found.", sType);
-  const ezVariantTypeInfo* pTypeInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
-  EZ_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", sType);
-  EZ_MSVC_ANALYSIS_ASSUME(pType != nullptr);
-  EZ_MSVC_ANALYSIS_ASSUME(pTypeInfo != nullptr);
+  const WRTTI* pType = WRTTI::FindTypeByName(sType);
+  W_ASSERT_DEV(pType, "The type '{0}' could not be found.", sType);
+  const WVariantTypeInfo* pTypeInfo = WVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pType);
+  W_ASSERT_DEV(pTypeInfo, "The type '{0}' was declared but not defined, add W_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", sType);
+  W_MSVC_ANALYSIS_ASSUME(pType != nullptr);
+  W_MSVC_ANALYSIS_ASSUME(pTypeInfo != nullptr);
   void* pObject = pType->GetAllocator()->Allocate<void>();
   pTypeInfo->Deserialize(*m_pStream, pObject);
   m_pValue->MoveTypedObject(pObject, pType);
 }
 
 template <>
-inline void ReadValueFunc::operator()<ezStringView>()
+inline void ReadValueFunc::operator()<WStringView>()
 {
-  EZ_REPORT_FAILURE("Type 'ezStringView' not supported in serialization.");
+  W_REPORT_FAILURE("Type 'WStringView' not supported in serialization.");
 }
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
+W_FORCE_INLINE void ReadValueFunc::operator()<WDataBuffer>()
 {
-  ezDataBuffer data;
-  ezUInt32 iCount;
+  WDataBuffer data;
+  WUInt32 iCount;
   (*m_pStream) >> iCount;
   data.SetCountUninitialized(iCount);
 
@@ -241,99 +241,99 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   *m_pValue = data;
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezVariant& value)
+void operator<<(WStreamWriter& inout_stream, const WVariant& value)
 {
-  ezUInt8 variantVersion = (ezUInt8)ezGetStaticRTTI<ezVariant>()->GetTypeVersion();
+  WUInt8 variantVersion = (WUInt8)WGetStaticRTTI<WVariant>()->GetTypeVersion();
   inout_stream << variantVersion;
-  ezVariant::Type::Enum type = value.GetType();
-  ezUInt8 typeStorage = type;
-  if (typeStorage == ezVariantType::StringView)
-    typeStorage = ezVariantType::String;
+  WVariant::Type::Enum type = value.GetType();
+  WUInt8 typeStorage = type;
+  if (typeStorage == WVariantType::StringView)
+    typeStorage = WVariantType::String;
   inout_stream << typeStorage;
 
-  if (type != ezVariant::Type::Invalid)
+  if (type != WVariant::Type::Invalid)
   {
     WriteValueFunc func;
     func.m_pStream = &inout_stream;
     func.m_pValue = &value;
 
-    ezVariant::DispatchTo(func, type);
+    WVariant::DispatchTo(func, type);
   }
 }
 
-void operator>>(ezStreamReader& inout_stream, ezVariant& ref_value)
+void operator>>(WStreamReader& inout_stream, WVariant& ref_value)
 {
-  ezUInt8 variantVersion;
+  WUInt8 variantVersion;
   inout_stream >> variantVersion;
-  EZ_ASSERT_DEBUG(ezGetStaticRTTI<ezVariant>()->GetTypeVersion() == variantVersion, "Older variant serialization not supported!");
+  W_ASSERT_DEBUG(WGetStaticRTTI<WVariant>()->GetTypeVersion() == variantVersion, "Older variant serialization not supported!");
 
-  ezUInt8 typeStorage;
+  WUInt8 typeStorage;
   inout_stream >> typeStorage;
-  ezVariant::Type::Enum type = (ezVariant::Type::Enum)typeStorage;
+  WVariant::Type::Enum type = (WVariant::Type::Enum)typeStorage;
 
-  if (type != ezVariant::Type::Invalid)
+  if (type != WVariant::Type::Invalid)
   {
     ReadValueFunc func;
     func.m_pStream = &inout_stream;
     func.m_pValue = &ref_value;
 
-    ezVariant::DispatchTo(func, type);
+    WVariant::DispatchTo(func, type);
   }
   else
   {
-    ref_value = ezVariant();
+    ref_value = WVariant();
   }
 }
 
-// ezTimestamp
+// WTimestamp
 
-void operator<<(ezStreamWriter& inout_stream, ezTimestamp value)
+void operator<<(WStreamWriter& inout_stream, WTimestamp value)
 {
-  inout_stream << value.GetInt64(ezSIUnitOfTime::Microsecond);
+  inout_stream << value.GetInt64(WSIUnitOfTime::Microsecond);
 }
 
-void operator>>(ezStreamReader& inout_stream, ezTimestamp& ref_value)
+void operator>>(WStreamReader& inout_stream, WTimestamp& ref_value)
 {
-  ezInt64 value;
+  WInt64 value;
   inout_stream >> value;
 
-  ref_value = ezTimestamp::MakeFromInt(value, ezSIUnitOfTime::Microsecond);
+  ref_value = WTimestamp::MakeFromInt(value, WSIUnitOfTime::Microsecond);
 }
 
-// ezVarianceTypeFloat
+// WVarianceTypeFloat
 
-void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeFloat& value)
+void operator<<(WStreamWriter& inout_stream, const WVarianceTypeFloat& value)
 {
   inout_stream << value.m_fVariance;
   inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& inout_stream, ezVarianceTypeFloat& ref_value)
+void operator>>(WStreamReader& inout_stream, WVarianceTypeFloat& ref_value)
 {
   inout_stream >> ref_value.m_fVariance;
   inout_stream >> ref_value.m_Value;
 }
 
-// ezVarianceTypeTime
+// WVarianceTypeTime
 
-void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeTime& value)
+void operator<<(WStreamWriter& inout_stream, const WVarianceTypeTime& value)
 {
   inout_stream << value.m_fVariance;
   inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& inout_stream, ezVarianceTypeTime& ref_value)
+void operator>>(WStreamReader& inout_stream, WVarianceTypeTime& ref_value)
 {
   inout_stream >> ref_value.m_fVariance;
   inout_stream >> ref_value.m_Value;
 }
 
-// ezVarianceTypeAngle
+// WVarianceTypeAngle
 
-void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeAngle& value)
+void operator<<(WStreamWriter& inout_stream, const WVarianceTypeAngle& value)
 {
   inout_stream << value.m_fVariance;
   inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& inout_stream, ezVarianceTypeAngle& ref_value)
+void operator>>(WStreamReader& inout_stream, WVarianceTypeAngle& ref_value)
 {
   inout_stream >> ref_value.m_fVariance;
   inout_stream >> ref_value.m_Value;

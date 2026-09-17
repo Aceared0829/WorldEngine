@@ -6,12 +6,12 @@
 #include <Core/Messages/EventMessageSender.h>
 #include <Core/Messages/TriggerMessage.h>
 
-using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
+using WInputComponentManager = WComponentManagerSimple<class WInputComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Which types of input events are broadcast
-struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
+struct W_GAMEENGINE_DLL WInputMessageGranularity
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   /// Which types of input events are broadcast
   enum Enum
@@ -24,18 +24,18 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WInputMessageGranularity);
 
-/// ezInputComponent raises this event when it detects input
-struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezMessage
+/// WInputComponent raises this event when it detects input
+struct W_GAMEENGINE_DLL WMsgInputActionTriggered : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgInputActionTriggered, WMessage);
 
   /// The input action string.
-  ezHashedString m_sInputAction;
+  WHashedString m_sInputAction;
 
-  /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
-  ezEnum<ezTriggerState> m_TriggerState;
+  /// The 'trigger state', depending on the key state and the configuration on the WInputComponent
+  WEnum<WTriggerState> m_TriggerState;
 
   /// For analog keys, how much they are pressed. Typically between 0 and 1.
   float m_fKeyPressValue;
@@ -49,27 +49,27 @@ private:
 /// object.
 ///
 /// To deactivate input handling, just deactivate the entire component.
-/// To use the input data, add a message handler on another component and handle messages of type ezMsgInputActionTriggered.
+/// To use the input data, add a message handler on another component and handle messages of type WMsgInputActionTriggered.
 /// For every input event, one such message is sent every frame.
 /// The granularity property defines for which input events (key pressed, released or down) messages are sent.
-class EZ_GAMEENGINE_DLL ezInputComponent : public ezComponent
+class W_GAMEENGINE_DLL WInputComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezInputComponent, ezComponent, ezInputComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WInputComponent, WComponent, WInputComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezInputComponent
+  // WInputComponent
 
 public:
-  ezInputComponent();
-  ~ezInputComponent();
+  WInputComponent();
+  ~WInputComponent();
 
   /// Returns the amount to which szInputAction is active (0 to 1).
   ///
@@ -77,12 +77,12 @@ public:
   /// ie key down and key released events are ignored.
   float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const; // [ scriptable ]
 
-  ezString m_sInputSet;                                                                      // [ property ]
-  ezEnum<ezInputMessageGranularity> m_Granularity;                                           // [ property ]
+  WString m_sInputSet;                                                                      // [ property ]
+  WEnum<WInputMessageGranularity> m_Granularity;                                           // [ property ]
   bool m_bForwardToBlackboard = false;                                                       // [ property ]
 
 protected:
   void Update();
 
-  ezEventMessageSender<ezMsgInputActionTriggered> m_InputEventSender; // [ event ]
+  WEventMessageSender<WMsgInputActionTriggered> m_InputEventSender; // [ event ]
 };

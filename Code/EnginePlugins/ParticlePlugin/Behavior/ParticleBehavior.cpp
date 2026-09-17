@@ -3,18 +3,18 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemInstance* pOwner) const
+WParticleBehavior* WParticleBehaviorFactory::CreateBehavior(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetBehaviorType();
+  const WRTTI* pRtti = GetBehaviorType();
 
-  ezParticleBehavior* pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehavior>();
+  WParticleBehavior* pBehavior = pRtti->GetAllocator()->Allocate<WParticleBehavior>();
   pBehavior->Reset(pOwner);
 
   CopyBehaviorProperties(pBehavior, true);
@@ -23,10 +23,10 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
   return pBehavior;
 }
 
-ezParticleBehavior::ezParticleBehavior()
+WParticleBehavior::WParticleBehavior()
 {
   // run after the initializers, before the types
   m_fPriority = 0.0f;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior);

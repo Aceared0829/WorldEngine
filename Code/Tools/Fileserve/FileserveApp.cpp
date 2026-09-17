@@ -9,91 +9,91 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-void ezFileserverApp::AfterCoreSystemsStartup()
+void WFileserverApp::AfterCoreSystemsStartup()
 {
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+  WFileSystem::AddDataDirectory("", "App", ":", WDataDirUsage::AllowWrites).IgnoreResult();
 
-  EZ_DEFAULT_NEW(ezFileserver);
+  W_DEFAULT_NEW(WFileserver);
 
-  ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandler, this));
+  WFileserver::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WFileserverApp::FileserverEventHandler, this));
 
-#ifndef EZ_USE_QT
-  ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandlerConsole, this));
-  ezFileserver::GetSingleton()->StartServer();
+#ifndef W_USE_QT
+  WFileserver::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WFileserverApp::FileserverEventHandlerConsole, this));
+  WFileserver::GetSingleton()->StartServer();
 #endif
 
   // Load all available shader compiler plugins
   {
-    ezFileSystemIterator it;
-    ezStringBuilder sShaderCompilerSearch(ezOSFile::GetApplicationDirectory(), "/ezShaderCompiler*");
+    WFileSystemIterator it;
+    WStringBuilder sShaderCompilerSearch(WOSFile::GetApplicationDirectory(), "/WShaderCompiler*");
     sShaderCompilerSearch.MakeCleanPath();
 
-    for (it.StartSearch(sShaderCompilerSearch, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
+    for (it.StartSearch(sShaderCompilerSearch, WFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
     {
-      ezStringBuilder sName = it.GetStats().m_sName;
+      WStringBuilder sName = it.GetStats().m_sName;
 
       if (sName.HasExtension("DLL"))
       {
         sName.RemoveFileExtension();
-        ezPlugin::LoadPlugin(sName, ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+        WPlugin::LoadPlugin(sName, WPluginLoadFlags::PluginIsOptional).IgnoreResult();
       }
     }
   }
 
-  ezFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', ezMakeDelegate(&ezFileserverApp::ShaderMessageHandler, this));
+  WFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', WMakeDelegate(&WFileserverApp::ShaderMessageHandler, this));
 
   // TODO: CommandLine Option
-  m_CloseAppTimeout = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
-  m_TimeTillClosing = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
+  m_CloseAppTimeout = WTime::MakeFromSeconds(WCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
+  m_TimeTillClosing = WTime::MakeFromSeconds(WCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
 
   if (m_TimeTillClosing.GetSeconds() > 0)
   {
-    m_TimeTillClosing += ezTime::Now();
+    m_TimeTillClosing += WTime::Now();
   }
 }
 
-void ezFileserverApp::BeforeCoreSystemsShutdown()
+void WFileserverApp::BeforeCoreSystemsShutdown()
 {
-  ezFileserver::GetSingleton()->StopServer();
+  WFileserver::GetSingleton()->StopServer();
 
-#ifndef EZ_USE_QT
-  ezFileserver::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandlerConsole, this));
+#ifndef W_USE_QT
+  WFileserver::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WFileserverApp::FileserverEventHandlerConsole, this));
 #endif
 
-  ezFileserver::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandler, this));
+  WFileserver::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WFileserverApp::FileserverEventHandler, this));
 
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-void ezFileserverApp::Run()
+void WFileserverApp::Run()
 {
   // if there are no more connections, and we have a timeout to close when no connections are left, we return Quit
-  if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::MakeFromSeconds(0) && ezTime::Now() > m_TimeTillClosing)
+  if (m_uiConnections == 0 && m_TimeTillClosing > WTime::MakeFromSeconds(0) && WTime::Now() > m_TimeTillClosing)
   {
     QuitApplication();
     return;
   }
 
-  if (ezFileserver::GetSingleton()->UpdateServer() == false)
+  if (WFileserver::GetSingleton()->UpdateServer() == false)
   {
     m_uiSleepCounter++;
 
     if (m_uiSleepCounter > 1000)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
     }
     else if (m_uiSleepCounter > 10)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
     }
   }
   else

@@ -7,28 +7,28 @@
 /// Qt graphics item for procedural generation nodes.
 ///
 /// Visual representation of procedural generation nodes, such as noise generators, modifiers, or output nodes.
-class ezQtProcGenNode : public ezQtVisualGraphNode
+class WQtProcGenNode : public WQtVisualGraphNode
 {
 public:
-  ezQtProcGenNode();
+  WQtProcGenNode();
 
-  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
 
 private:
-  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
+  void ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput);
 };
 
 /// Qt graphics item for procedural generation pins.
 ///
 /// Extends the base pin with debugging support. Pins can be marked for debug visualization,
 /// allowing users to inspect intermediate results in the procedural generation pipeline.
-class ezQtProcGenPin : public ezQtVisualGraphPin
+class WQtProcGenPin : public WQtVisualGraphPin
 {
 public:
-  ezQtProcGenPin();
-  ~ezQtProcGenPin();
+  WQtProcGenPin();
+  ~WQtProcGenPin();
 
   virtual void ExtendContextMenu(QMenu& ref_menu) override;
 
@@ -46,17 +46,17 @@ private:
 ///
 /// Manages the visual scene for procedural generation graph editing, including debug pin tracking
 /// for visualizing intermediate generation results.
-class ezQtProcGenScene : public ezQtVisualGraphScene
+class WQtProcGenScene : public WQtVisualGraphScene
 {
 public:
-  ezQtProcGenScene(QObject* pParent = nullptr);
-  ~ezQtProcGenScene();
+  WQtProcGenScene(QObject* pParent = nullptr);
+  ~WQtProcGenScene();
 
-  void SetDebugPin(ezQtProcGenPin* pDebugPin);
+  void SetDebugPin(WQtProcGenPin* pDebugPin);
 
 private:
-  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
+  virtual WStatus RemoveNode(WQtVisualGraphNode* pNode) override;
 
   bool m_bUpdatingDebugPin = false;
-  ezQtProcGenPin* m_pDebugPin = nullptr;
+  WQtProcGenPin* m_pDebugPin = nullptr;
 };

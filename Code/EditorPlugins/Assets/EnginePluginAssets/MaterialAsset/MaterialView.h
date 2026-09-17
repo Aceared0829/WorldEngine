@@ -2,18 +2,18 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezMaterialContext;
+class WMaterialContext;
 
-class ezMaterialViewContext : public ezEngineProcessViewContext
+class WMaterialViewContext : public WEngineProcessViewContext
 {
 public:
-  ezMaterialViewContext(ezMaterialContext* pMaterialContext);
-  ~ezMaterialViewContext();
+  WMaterialViewContext(WMaterialContext* pMaterialContext);
+  ~WMaterialViewContext();
 
   void PositionThumbnailCamera();
 
 protected:
-  virtual ezViewHandle CreateView() override;
+  virtual WViewHandle CreateView() override;
 
-  ezMaterialContext* m_pMaterialContext;
+  WMaterialContext* m_pMaterialContext;
 };

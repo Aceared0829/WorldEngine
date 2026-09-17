@@ -9,12 +9,12 @@
 #include <GameComponentsPlugin/Gameplay/RaycastComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezRaycastComponentManager::ezRaycastComponentManager(ezWorld* pWorld)
+WRaycastComponentManager::WRaycastComponentManager(WWorld* pWorld)
   : SUPER(pWorld)
 {
 }
 
-void ezRaycastComponentManager::Initialize()
+void WRaycastComponentManager::Initialize()
 {
   // we want to do the raycast as late as possible, ie. after animated objects and characters moved
   // such that we get the latest position that is in sync with those animated objects
@@ -22,15 +22,15 @@ void ezRaycastComponentManager::Initialize()
   // we DO NOT want to use post transform update, because when we move the target object
   // child objects of the target node should still get the full global transform update within this frame
 
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRaycastComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WRaycastComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+  desc.m_Phase = WWorldUpdatePhase::PostAsync;
   desc.m_fPriority = -1000;
 
   this->RegisterUpdateFunction(desc);
 }
 
-void ezRaycastComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WRaycastComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -45,55 +45,55 @@ void ezRaycastComponentManager::Update(const ezWorldModule::UpdateContext& conte
 ////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WRaycastComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("DisableTargetObjectOnNoHit", m_bDisableTargetObjectOnNoHit),
-    EZ_ACCESSOR_PROPERTY("RaycastEndObject", DummyGetter, SetRaycastEndObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_MEMBER_PROPERTY("ForceTargetParentless", m_bForceTargetParentless),
-    EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
-    EZ_MEMBER_PROPERTY("CollisionLayerEndPoint", m_uiCollisionLayerEndPoint)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("ChangeNotificationMsg", m_sChangeNotificationMsg),
+    W_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new WDefaultValueAttribute(100.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("DisableTargetObjectOnNoHit", m_bDisableTargetObjectOnNoHit),
+    W_ACCESSOR_PROPERTY("RaycastEndObject", DummyGetter, SetRaycastEndObject)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_MEMBER_PROPERTY("ForceTargetParentless", m_bForceTargetParentless),
+    W_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", WPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new WDefaultValueAttribute(WVariant(WPhysicsShapeType::Default & ~(WPhysicsShapeType::Trigger)))),
+    W_MEMBER_PROPERTY("CollisionLayerEndPoint", m_uiCollisionLayerEndPoint)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("ChangeNotificationMsg", m_sChangeNotificationMsg),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentEndPosition),
-    EZ_SCRIPT_FUNCTION_PROPERTY(HasHit),
+    W_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance),
+    W_SCRIPT_FUNCTION_PROPERTY(GetCurrentEndPosition),
+    W_SCRIPT_FUNCTION_PROPERTY(HasHit),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
+    new WCategoryAttribute("Gameplay"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.5f, WColor::YellowGreen),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRaycastComponent::ezRaycastComponent() = default;
-ezRaycastComponent::~ezRaycastComponent() = default;
+WRaycastComponent::WRaycastComponent() = default;
+WRaycastComponent::~WRaycastComponent() = default;
 
-void ezRaycastComponent::Deinitialize()
+void WRaycastComponent::Deinitialize()
 {
   if (m_bForceTargetParentless)
   {
-    // see end of ezRaycastComponent::Update() for details
+    // see end of WRaycastComponent::Update() for details
     GetWorld()->DeleteObjectDelayed(m_hRaycastEndObject);
   }
 
   SUPER::Deinitialize();
 }
 
-void ezRaycastComponent::OnDeactivated()
+void WRaycastComponent::OnDeactivated()
 {
   if (m_bDisableTargetObjectOnNoHit)
   {
-    ezGameObject* pEndObject = nullptr;
+    WGameObject* pEndObject = nullptr;
     if (GetWorld()->TryGetObject(m_hRaycastEndObject, pEndObject))
     {
       pEndObject->SetActiveFlag(false);
@@ -103,11 +103,11 @@ void ezRaycastComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezRaycastComponent::OnSimulationStarted()
+void WRaycastComponent::OnSimulationStarted()
 {
-  m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<WPhysicsWorldModuleInterface>();
 
-  ezGameObject* pEndObject = nullptr;
+  WGameObject* pEndObject = nullptr;
   if (GetWorld()->TryGetObject(m_hRaycastEndObject, pEndObject))
   {
     if (!pEndObject->IsDynamic())
@@ -117,7 +117,7 @@ void ezRaycastComponent::OnSimulationStarted()
   }
 }
 
-void ezRaycastComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WRaycastComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -131,10 +131,10 @@ void ezRaycastComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_sChangeNotificationMsg;
 }
 
-void ezRaycastComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WRaycastComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   m_hRaycastEndObject = inout_stream.ReadGameObjectHandle();
@@ -144,10 +144,10 @@ void ezRaycastComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   if (uiVersion < 4)
   {
-    ezUInt8 uiCollisionLayerTrigger = 0;
+    WUInt8 uiCollisionLayerTrigger = 0;
     s >> uiCollisionLayerTrigger;
 
-    ezStringBuilder sTriggerMessage;
+    WStringBuilder sTriggerMessage;
     s >> sTriggerMessage;
   }
 
@@ -167,12 +167,12 @@ void ezRaycastComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezVec3 ezRaycastComponent::GetCurrentEndPosition() const
+WVec3 WRaycastComponent::GetCurrentEndPosition() const
 {
   return GetOwner()->GetGlobalPosition() + m_fCurrentDistance * GetOwner()->GetGlobalDirForwards();
 }
 
-void ezRaycastComponent::SetRaycastEndObject(const char* szReference)
+void WRaycastComponent::SetRaycastEndObject(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -182,7 +182,7 @@ void ezRaycastComponent::SetRaycastEndObject(const char* szReference)
   m_hRaycastEndObject = resolver(szReference, GetHandle(), "RaycastEndObject");
 }
 
-void ezRaycastComponent::Update()
+void WRaycastComponent::Update()
 {
   if (m_hRaycastEndObject.IsInvalidated())
     return;
@@ -193,7 +193,7 @@ void ezRaycastComponent::Update()
     return;
   }
 
-  ezGameObject* pEndObject = nullptr;
+  WGameObject* pEndObject = nullptr;
   if (!GetWorld()->TryGetObject(m_hRaycastEndObject, pEndObject))
   {
     // early out in the future
@@ -207,13 +207,13 @@ void ezRaycastComponent::Update()
 
   bool bAnyChange = false;
 
-  const ezVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
-  const ezVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
+  const WVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
+  const WVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
 
-  ezPhysicsCastResult hit;
+  WPhysicsCastResult hit;
 
   {
-    ezPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
+    WPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
     queryParams.m_bIgnoreInitialOverlap = true;
     queryParams.m_ShapeTypes = m_ShapeTypesToHit;
 
@@ -225,7 +225,7 @@ void ezRaycastComponent::Update()
         bAnyChange = true;
       }
 
-      if (!ezMath::IsEqual(m_fCurrentDistance, hit.m_fDistance, 0.001f))
+      if (!WMath::IsEqual(m_fCurrentDistance, hit.m_fDistance, 0.001f))
       {
         m_fCurrentDistance = hit.m_fDistance;
         bAnyChange = true;
@@ -270,11 +270,11 @@ void ezRaycastComponent::Update()
     // position set by the raycast component
     // since we now change ownership (target is not deleted with its former parent anymore)
     // this flag also means that the raycast component will delete the target object, when it dies
-    pEndObject->SetParent(ezGameObjectHandle());
+    pEndObject->SetParent(WGameObjectHandle());
   }
 
-  const ezVec3 vOldPos = pEndObject->GetGlobalPosition();
-  const ezVec3 vNewPos = rayStartPosition + m_fCurrentDistance * rayDir;
+  const WVec3 vOldPos = pEndObject->GetGlobalPosition();
+  const WVec3 vNewPos = rayStartPosition + m_fCurrentDistance * rayDir;
 
   if (!vOldPos.IsEqual(vNewPos, 0.001f))
   {
@@ -285,7 +285,7 @@ void ezRaycastComponent::Update()
 
   if (!m_sChangeNotificationMsg.IsEmpty() && bAnyChange)
   {
-    ezMsgGenericEvent msg;
+    WMsgGenericEvent msg;
     msg.m_sMessage = m_sChangeNotificationMsg;
 
     GetOwner()->SendEventMessage(msg, this);
@@ -294,10 +294,10 @@ void ezRaycastComponent::Update()
 
   if (false)
   {
-    ezDebugRendererLine lines[] = {{rayStartPosition, vNewPos}};
-    ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::GreenYellow.GetDarker());
-    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::GreenYellow);
+    WDebugRendererLine lines[] = {{rayStartPosition, vNewPos}};
+    WDebugRenderer::DrawLinesOccluded(GetWorld(), lines, WColor::GreenYellow.GetDarker());
+    WDebugRenderer::DrawLines(GetWorld(), lines, WColor::GreenYellow);
   }
 }
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_RaycastComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_RaycastComponent);

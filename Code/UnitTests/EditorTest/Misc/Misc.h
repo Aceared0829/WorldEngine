@@ -4,12 +4,12 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezDocument;
+class WDocument;
 
-class ezEditorTestMisc : public ezEditorTest
+class WEditorTestMisc : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -22,16 +22,16 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezTestAppRun GameObjectReferencesTest();
-  ezTestAppRun DefaultValuesTest();
-  ezTestAppRun AssetBrowerModelTest();
+  WTestAppRun GameObjectReferencesTest();
+  WTestAppRun DefaultValuesTest();
+  WTestAppRun AssetBrowerModelTest();
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
-  ezDocument* m_pDocument = nullptr;
+  WDocument* m_pDocument = nullptr;
 };

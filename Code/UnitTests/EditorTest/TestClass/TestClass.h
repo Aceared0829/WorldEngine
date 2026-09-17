@@ -11,17 +11,17 @@
 #include <Texture/Image/Image.h>
 #include <memory>
 
-class ezSceneDocument;
+class WSceneDocument;
 class QMimeData;
-class ezScene2Document;
+class WScene2Document;
 
-class ezEditorTestApplication : public ezApplication
+class WEditorTestApplication : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezEditorTestApplication(ezStringView sTestName);
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  WEditorTestApplication(WStringView sTestName);
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsShutdown() override;
   virtual void Run() override;
 
@@ -32,56 +32,56 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 public:
-  ezQtEditorApp* m_pEditorApp = nullptr;
-  ezString m_sTestName;
+  WQtEditorApp* m_pEditorApp = nullptr;
+  WString m_sTestName;
 };
 
-class ezEditorTest : public ezTestBaseClass
+class WEditorTest : public WTestBaseClass
 {
-  using SUPER = ezTestBaseClass;
+  using SUPER = WTestBaseClass;
 
 public:
-  ezEditorTest();
-  ~ezEditorTest();
+  WEditorTest();
+  ~WEditorTest();
 
-  virtual ezEditorTestApplication* CreateApplication();
-  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
+  virtual WEditorTestApplication* CreateApplication();
+  virtual WResult GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber) override;
 
 protected:
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
 
-  ezResult CreateAndLoadProject(const char* name);
+  WResult CreateAndLoadProject(const char* name);
   /// Opens a project by copying it to a temp location and opening that one.
   /// This ensures that the tests always work on a clean state.
-  ezResult OpenProject(const char* path);
-  ezDocument* OpenDocument(const char* subpath);
-  void ExecuteDocumentAction(const char* szActionName, ezDocument* pDocument, const ezVariant& argument = ezVariant());
-  ezResult CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName);
+  WResult OpenProject(const char* path);
+  WDocument* OpenDocument(const char* subpath);
+  void ExecuteDocumentAction(const char* szActionName, WDocument* pDocument, const WVariant& argument = WVariant());
+  WResult CaptureImage(WQtDocumentWindow* pWindow, const char* szImageName);
 
-  /// Path of the ezEditorProcessor executable next to the test executable.
-  ezString GetEditorProcessorPath() const;
-  /// Runs ezEditorProcessor with the given arguments and waits for it. A non-zero exit code is a failure.
-  ezStatus RunEditorProcessor(const ezDynamicArray<ezString>& arguments);
+  /// Path of the WEditorProcessor executable next to the test executable.
+  WString GetEditorProcessorPath() const;
+  /// Runs WEditorProcessor with the given arguments and waits for it. A non-zero exit code is a failure.
+  WStatus RunEditorProcessor(const WDynamicArray<WString>& arguments);
 
   void CloseCurrentProject();
   void SafeProfilingData();
-  void ProcessEvents(ezUInt32 uiIterations = 1);
-  void WaitFrames(ezUInt32 uiFrames = 1);
-  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
+  void ProcessEvents(WUInt32 uiIterations = 1);
+  void WaitFrames(WUInt32 uiFrames = 1);
+  void UIServicesTickEventHandler(const WQtUiServices::TickEvent& e);
 
-  std::unique_ptr<QMimeData> AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids);
-  std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
-  void MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects);
-  const ezDocumentObject* DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift = false, bool bCtrl = false);
-  const ezDocumentObject* CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent = nullptr, ezStringView sName = {});
+  std::unique_ptr<QMimeData> AssetsToDragMimeData(WArrayPtr<WUuid> assetGuids);
+  std::unique_ptr<QMimeData> ObjectsDragMimeData(const WDeque<const WDocumentObject*>& objects);
+  void MoveObjectsToLayer(WScene2Document* pDoc, const WDeque<const WDocumentObject*>& objects, const WUuid& layer, WDeque<const WDocumentObject*>& new_objects);
+  const WDocumentObject* DropAsset(WScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift = false, bool bCtrl = false);
+  const WDocumentObject* CreateGameObject(WScene2Document* pDoc, const WDocumentObject* pParent = nullptr, WStringView sName = {});
 
 
-  ezEditorTestApplication* m_pApplication = nullptr;
-  ezString m_sProjectPath;
-  ezImage m_CapturedImage;
-  ezDynamicArray<ezString> m_CommandLineArguments;
-  ezDynamicArray<const char*> m_CommandLineArgumentPointers;
-  ezEventSubscriptionID m_UIServicesTickEventHandlerID = {};
-  ezUInt32 m_uiRenderedFrames = 0;
+  WEditorTestApplication* m_pApplication = nullptr;
+  WString m_sProjectPath;
+  WImage m_CapturedImage;
+  WDynamicArray<WString> m_CommandLineArguments;
+  WDynamicArray<const char*> m_CommandLineArgumentPointers;
+  WEventSubscriptionID m_UIServicesTickEventHandlerID = {};
+  WUInt32 m_uiRenderedFrames = 0;
 };

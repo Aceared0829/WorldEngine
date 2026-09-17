@@ -7,38 +7,38 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 
-ezResult ezCppSettings::Save(ezStringView sFile)
+WResult WCppSettings::Save(WStringView sFile)
 {
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileWriter file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
   ddl.BeginObject("Target", "Default");
 
-  ezOpenDdlUtils::StoreString(ddl, m_sPluginName, "PluginName");
+  WOpenDdlUtils::StoreString(ddl, m_sPluginName, "PluginName");
 
   ddl.EndObject();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCppSettings::Load(ezStringView sFile)
+WResult WCppSettings::Load(WStringView sFile)
 {
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezOpenDdlReader ddl;
-  EZ_SUCCEED_OR_RETURN(ddl.ParseDocument(file));
+  WOpenDdlReader ddl;
+  W_SUCCEED_OR_RETURN(ddl.ParseDocument(file));
 
   if (auto pTarget = ddl.GetRootElement()->FindChildOfType("Target", "Default"))
   {
-    if (auto pValue = pTarget->FindChildOfType(ezOpenDdlPrimitiveType::String, "PluginName"))
+    if (auto pValue = pTarget->FindChildOfType(WOpenDdlPrimitiveType::String, "PluginName"))
     {
       m_sPluginName = pValue->GetPrimitivesString()[0];
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

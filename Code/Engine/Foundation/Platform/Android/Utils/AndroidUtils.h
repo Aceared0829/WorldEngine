@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_ANDROID)
+#if W_DISABLED(W_PLATFORM_ANDROID)
 #  error "android util header should only be included in android builds!"
 #endif
 #include <Foundation/Communication/Event.h>
@@ -14,15 +14,15 @@ class _jobject;
 using jobject = _jobject*;
 struct AInputEvent;
 
-/// Event fired by ezAndroidUtils::s_InputEvent.
+/// Event fired by WAndroidUtils::s_InputEvent.
 /// Event listeners should inspect m_pEvent and set m_bHandled to true if they handled the event.
-struct ezAndroidInputEvent
+struct WAndroidInputEvent
 {
   AInputEvent* m_pEvent = nullptr;
   bool m_bHandled = false;
 };
 
-class EZ_FOUNDATION_DLL ezAndroidUtils
+class W_FOUNDATION_DLL WAndroidUtils
 {
 public:
   static void SetAndroidApp(android_app* app);
@@ -35,8 +35,8 @@ public:
   static jobject GetAndroidNativeActivity();
 
 public:
-  static ezEvent<ezAndroidInputEvent&> s_InputEvent;
-  static ezEvent<ezInt32> s_AppCommandEvent;
+  static WEvent<WAndroidInputEvent&> s_InputEvent;
+  static WEvent<WInt32> s_AppCommandEvent;
 
 private:
   static android_app* s_app;

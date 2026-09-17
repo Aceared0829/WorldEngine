@@ -3,29 +3,29 @@
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEventReactionFactory, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventType", m_sEventType)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
-    EZ_MEMBER_PROPERTY("Probability", m_uiProbability)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("EventType", m_sEventType)->AddAttributes(new WDynamicStringEnumAttribute("ParticleEventNamesEnum")),
+    W_MEMBER_PROPERTY("Probability", m_uiProbability)->AddAttributes(new WDefaultValueAttribute(100), new WClampValueAttribute(1, 100)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEventReaction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 // clang-format on
 
-ezParticleEventReaction* ezParticleEventReactionFactory::CreateEventReaction(ezParticleEffectInstance* pOwner) const
+WParticleEventReaction* WParticleEventReactionFactory::CreateEventReaction(WParticleEffectInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetEventReactionType();
+  const WRTTI* pRtti = GetEventReactionType();
 
-  ezParticleEventReaction* pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReaction>();
+  WParticleEventReaction* pReaction = pRtti->GetAllocator()->Allocate<WParticleEventReaction>();
   pReaction->Reset(pOwner);
-  pReaction->m_sEventName = ezTempHashedString(m_sEventType.GetData());
+  pReaction->m_sEventName = WTempHashedString(m_sEventType.GetData());
   pReaction->m_uiProbability = m_uiProbability;
 
   CopyReactionProperties(pReaction, true);
@@ -44,9 +44,9 @@ enum class ReactionVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory::Save(ezStreamWriter& inout_stream) const
+void WParticleEventReactionFactory::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)ReactionVersion::Version_Current;
+  const WUInt8 uiVersion = (int)ReactionVersion::Version_Current;
   inout_stream << uiVersion;
 
   // Version 1
@@ -57,12 +57,12 @@ void ezParticleEventReactionFactory::Save(ezStreamWriter& inout_stream) const
 }
 
 
-void ezParticleEventReactionFactory::Load(ezStreamReader& inout_stream)
+void WParticleEventReactionFactory::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)ReactionVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)ReactionVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   // Version 1
   inout_stream >> m_sEventType;
@@ -75,13 +75,13 @@ void ezParticleEventReactionFactory::Load(ezStreamReader& inout_stream)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleEventReaction::ezParticleEventReaction() = default;
-ezParticleEventReaction::~ezParticleEventReaction() = default;
+WParticleEventReaction::WParticleEventReaction() = default;
+WParticleEventReaction::~WParticleEventReaction() = default;
 
-void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)
+void WParticleEventReaction::Reset(WParticleEffectInstance* pOwner)
 {
   m_pOwnerEffect = pOwner;
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction);

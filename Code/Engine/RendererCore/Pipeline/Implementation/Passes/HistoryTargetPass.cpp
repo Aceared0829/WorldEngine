@@ -7,58 +7,58 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistoryTargetPass, 1, ezRTTIDefaultAllocator<ezHistoryTargetPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WHistoryTargetPass, 1, WRTTIDefaultAllocator<WHistoryTargetPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input", m_PinInput),
-    EZ_MEMBER_PROPERTY("SourcePassName", m_sSourcePassName)->AddAttributes(new ezDefaultValueAttribute("HistorySourcePass"))
+    W_MEMBER_PROPERTY("Input", m_PinInput),
+    W_MEMBER_PROPERTY("SourcePassName", m_sSourcePassName)->AddAttributes(new WDefaultValueAttribute("HistorySourcePass"))
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Output")
+    new WCategoryAttribute("Output")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHistoryTargetPass::ezHistoryTargetPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WHistoryTargetPass::WHistoryTargetPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezHistoryTargetPass::~ezHistoryTargetPass() = default;
+WHistoryTargetPass::~WHistoryTargetPass() = default;
 
-ezStatus ezHistoryTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WHistoryTargetPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
+  auto pData = GetPipeline()->GetFrameDataProvider<WHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(m_sSourcePassName);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezGALTextureHandle ezHistoryTargetPass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
+WGALTextureHandle WHistoryTargetPass::QueryTextureProvider(const WRenderPipelineNodePin* pPin, const WGALTextureCreationDescription& desc)
 {
-  auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
+  auto pData = GetPipeline()->GetFrameDataProvider<WHistorySourcePassTextureDataProvider>();
   return pData->GetOrCreateTexture(m_sSourcePassName, desc);
 }
 
-ezResult ezHistoryTargetPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WHistoryTargetPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_sSourcePassName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezHistoryTargetPass::Deserialize(ezStreamReader& inout_stream)
+WResult WHistoryTargetPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sSourcePassName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_HistoryTargetPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_HistoryTargetPass);

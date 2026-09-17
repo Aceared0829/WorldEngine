@@ -10,55 +10,55 @@
 #include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/TangentQuadParticleShaderData.h>
 
 /// Render data for quad particles.
-class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData
+class W_PARTICLEPLUGIN_DLL WParticleQuadRenderData final : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WParticleQuadRenderData, WRenderData);
 
 public:
-  virtual bool CanBatch(const ezRenderData& other) const override;
+  virtual bool CanBatch(const WRenderData& other) const override;
 
-  ezTexture2DResourceHandle m_hTexture;
-  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
-  ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
-  ezTransform m_GlobalTransform;
-  ezTime m_TotalEffectLifeTime;
-  ezUInt8 m_uiNumVariationsX = 1;
-  ezUInt8 m_uiNumVariationsY = 1;
-  ezUInt8 m_uiNumFlipbookAnimationsX = 1;
-  ezUInt8 m_uiNumFlipbookAnimationsY = 1;
-  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
-  ezEnum<ezParticleLightingMode> m_LightingMode;
+  WTexture2DResourceHandle m_hTexture;
+  WArrayPtr<WBaseParticleShaderData> m_BaseParticleData;
+  WArrayPtr<WBillboardQuadParticleShaderData> m_BillboardParticleData;
+  WArrayPtr<WTangentQuadParticleShaderData> m_TangentParticleData;
+  WTransform m_GlobalTransform;
+  WTime m_TotalEffectLifeTime;
+  WUInt8 m_uiNumVariationsX = 1;
+  WUInt8 m_uiNumVariationsY = 1;
+  WUInt8 m_uiNumFlipbookAnimationsX = 1;
+  WUInt8 m_uiNumFlipbookAnimationsY = 1;
+  WEnum<WParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
+  WEnum<WParticleTypeRenderMode> m_RenderMode;
+  WEnum<WParticleLightingMode> m_LightingMode;
 
-  ezTempHashedString m_QuadModePermutation;
+  WTempHashedString m_QuadModePermutation;
 
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
   float m_fGeometryProximityFadeOut = 0.1f;
   float m_fCameraProximityFadeOut = 0.5f;
-  ezMaterialResourceHandle m_hCustomMaterial;
+  WMaterialResourceHandle m_hCustomMaterial;
 };
 
 /// Renderer for quad particle systems.
-class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderer final : public ezParticleRenderer
+class W_PARTICLEPLUGIN_DLL WParticleQuadRenderer final : public WParticleRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderer, ezParticleRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleQuadRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleQuadRenderer, WParticleRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WParticleQuadRenderer);
 
 public:
-  ezParticleQuadRenderer();
-  ~ezParticleQuadRenderer();
+  WParticleQuadRenderer();
+  ~WParticleQuadRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
+  virtual void RenderBatch(const WRenderViewContext& renderContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
 
 protected:
-  void ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext) const;
+  void ConfigureRenderMode(const WParticleQuadRenderData* pRenderData, WRenderContext* pRenderContext) const;
 
-  static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferPool m_BaseDataBuffer;
-  ezGALBufferPool m_BillboardDataBuffer;
-  ezGALBufferPool m_TangentDataBuffer;
+  static const WUInt32 s_uiParticlesPerBatch = 1024;
+  WGALBufferPool m_BaseDataBuffer;
+  WGALBufferPool m_BillboardDataBuffer;
+  WGALBufferPool m_TangentDataBuffer;
 };

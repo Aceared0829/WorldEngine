@@ -3,39 +3,39 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-ezResult ezDataDirectoryType::InitializeDataDirectory(ezStringView sDataDirPath)
+WResult WDataDirectoryType::InitializeDataDirectory(WStringView sDataDirPath)
 {
-  ezStringBuilder sPath = sDataDirPath;
+  WStringBuilder sPath = sDataDirPath;
   sPath.MakeCleanPath();
 
-  EZ_ASSERT_DEV(sPath.IsEmpty() || sPath.EndsWith("/"), "Data directory path must end with a slash.");
+  W_ASSERT_DEV(sPath.IsEmpty() || sPath.EndsWith("/"), "Data directory path must end with a slash.");
 
   m_sDataDirectoryPath = sPath;
 
   return InternalInitializeDataDirectory(m_sDataDirectoryPath.GetData());
 }
 
-bool ezDataDirectoryType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
+bool WDataDirectoryType::ExistsFile(WStringView sFile, bool bOneSpecificDataDir)
 {
-  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+  W_IGNORE_UNUSED(bOneSpecificDataDir);
 
-  ezStringBuilder sRedirectedAsset;
+  WStringBuilder sRedirectedAsset;
   ResolveAssetRedirection(sFile, sRedirectedAsset);
 
-  ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
+  WStringBuilder sPath = GetRedirectedDataDirectoryPath();
   sPath.AppendPath(sRedirectedAsset);
-  return ezOSFile::ExistsFile(sPath);
+  return WOSFile::ExistsFile(sPath);
 }
 
-void ezDataDirectoryReaderWriterBase::Close()
+void WDataDirectoryReaderWriterBase::Close()
 {
   InternalClose();
 
-  ezFileSystem::FileEvent fe;
-  fe.m_EventType = ezFileSystem::FileEventType::CloseFile;
+  WFileSystem::FileEvent fe;
+  fe.m_EventType = WFileSystem::FileEventType::CloseFile;
   fe.m_sFileOrDirectory = GetFilePath();
   fe.m_pDataDir = m_pDataDirType;
-  ezFileSystem::s_pData->m_Event.Broadcast(fe);
+  WFileSystem::s_pData->m_Event.Broadcast(fe);
 
   m_pDataDirType->OnReaderWriterClose(this);
 }

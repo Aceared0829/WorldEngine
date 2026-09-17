@@ -4,36 +4,36 @@
 #include <Core/Scripting/ScriptWorldModule.h>
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezScriptWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_WORLD_MODULE(WScriptWorldModule);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScriptWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptWorldModule::ezScriptWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WScriptWorldModule::WScriptWorldModule(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
 }
 
-ezScriptWorldModule::~ezScriptWorldModule() = default;
+WScriptWorldModule::~WScriptWorldModule() = default;
 
-void ezScriptWorldModule::Initialize()
+void WScriptWorldModule::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezScriptWorldModule::CallUpdateFunctions, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    auto updateDesc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WScriptWorldModule::CallUpdateFunctions, this);
+    updateDesc.m_Phase = WWorldUpdatePhase::PreAsync;
 
     RegisterUpdateFunction(updateDesc);
   }
 }
 
-void ezScriptWorldModule::WorldClear()
+void WScriptWorldModule::WorldClear()
 {
   m_Scheduler.Clear();
 }
 
-void ezScriptWorldModule::AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating)
+void WScriptWorldModule::AddUpdateFunctionToSchedule(const WAbstractFunctionProperty* pFunction, void* pInstance, WTime updateInterval, bool bOnlyWhenSimulating)
 {
   FunctionContext context;
   context.m_pFunctionAndFlags.SetPtrAndFlags(pFunction, bOnlyWhenSimulating ? FunctionContext::Flags::OnlyWhenSimulating : FunctionContext::Flags::None);
@@ -42,7 +42,7 @@ void ezScriptWorldModule::AddUpdateFunctionToSchedule(const ezAbstractFunctionPr
   m_Scheduler.AddOrUpdateWork(context, updateInterval);
 }
 
-void ezScriptWorldModule::RemoveUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance)
+void WScriptWorldModule::RemoveUpdateFunctionToSchedule(const WAbstractFunctionProperty* pFunction, void* pInstance)
 {
   FunctionContext context;
   context.m_pFunctionAndFlags.SetPtr(pFunction);
@@ -51,16 +51,16 @@ void ezScriptWorldModule::RemoveUpdateFunctionToSchedule(const ezAbstractFunctio
   m_Scheduler.RemoveWork(context);
 }
 
-ezScriptCoroutineHandle ezScriptWorldModule::CreateCoroutine(const ezRTTI* pCoroutineType, ezStringView sName, ezScriptInstance& inout_instance, ezScriptCoroutineCreationMode::Enum creationMode, ezScriptCoroutine*& out_pCoroutine)
+WScriptCoroutineHandle WScriptWorldModule::CreateCoroutine(const WRTTI* pCoroutineType, WStringView sName, WScriptInstance& inout_instance, WScriptCoroutineCreationMode::Enum creationMode, WScriptCoroutine*& out_pCoroutine)
 {
-  if (creationMode != ezScriptCoroutineCreationMode::AllowOverlap)
+  if (creationMode != WScriptCoroutineCreationMode::AllowOverlap)
   {
-    ezScriptCoroutine* pOverlappingCoroutine = nullptr;
+    WScriptCoroutine* pOverlappingCoroutine = nullptr;
 
     auto& runningCoroutines = m_InstanceToScriptCoroutines[&inout_instance];
     for (auto& hCoroutine : runningCoroutines)
     {
-      ezUniquePtr<ezScriptCoroutine>* pCoroutine = nullptr;
+      WUniquePtr<WScriptCoroutine>* pCoroutine = nullptr;
       if (m_RunningScriptCoroutines.TryGetValue(hCoroutine.GetInternalID(), pCoroutine) && (*pCoroutine)->GetName() == sName)
       {
         pOverlappingCoroutine = pCoroutine->Borrow();
@@ -70,36 +70,36 @@ ezScriptCoroutineHandle ezScriptWorldModule::CreateCoroutine(const ezRTTI* pCoro
 
     if (pOverlappingCoroutine != nullptr)
     {
-      if (creationMode == ezScriptCoroutineCreationMode::StopOther)
+      if (creationMode == WScriptCoroutineCreationMode::StopOther)
       {
         StopAndDeleteCoroutine(pOverlappingCoroutine->GetHandle());
       }
-      else if (creationMode == ezScriptCoroutineCreationMode::DontCreateNew)
+      else if (creationMode == WScriptCoroutineCreationMode::DontCreateNew)
       {
         out_pCoroutine = nullptr;
-        return ezScriptCoroutineHandle();
+        return WScriptCoroutineHandle();
       }
       else
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
     }
   }
 
-  auto pCoroutine = pCoroutineType->GetAllocator()->Allocate<ezScriptCoroutine>(ezScriptAllocator::GetAllocator());
+  auto pCoroutine = pCoroutineType->GetAllocator()->Allocate<WScriptCoroutine>(WScriptAllocator::GetAllocator());
 
-  ezScriptCoroutineId id = m_RunningScriptCoroutines.Insert(pCoroutine);
+  WScriptCoroutineId id = m_RunningScriptCoroutines.Insert(pCoroutine);
   pCoroutine->Initialize(id, sName, inout_instance, *this);
 
-  m_InstanceToScriptCoroutines[&inout_instance].PushBack(ezScriptCoroutineHandle(id));
+  m_InstanceToScriptCoroutines[&inout_instance].PushBack(WScriptCoroutineHandle(id));
 
   out_pCoroutine = pCoroutine;
-  return ezScriptCoroutineHandle(id);
+  return WScriptCoroutineHandle(id);
 }
 
-void ezScriptWorldModule::StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezArrayPtr<ezVariant> arguments)
+void WScriptWorldModule::StartCoroutine(WScriptCoroutineHandle hCoroutine, WArrayPtr<WVariant> arguments)
 {
-  ezUniquePtr<ezScriptCoroutine>* pCoroutine = nullptr;
+  WUniquePtr<WScriptCoroutine>* pCoroutine = nullptr;
   if (m_RunningScriptCoroutines.TryGetValue(hCoroutine.GetInternalID(), pCoroutine))
   {
     (*pCoroutine)->StartWithVarargs(arguments);
@@ -107,9 +107,9 @@ void ezScriptWorldModule::StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezA
   }
 }
 
-void ezScriptWorldModule::StopAndDeleteCoroutine(ezScriptCoroutineHandle hCoroutine)
+void WScriptWorldModule::StopAndDeleteCoroutine(WScriptCoroutineHandle hCoroutine)
 {
-  ezUniquePtr<ezScriptCoroutine> pCoroutine;
+  WUniquePtr<WScriptCoroutine> pCoroutine;
   if (m_RunningScriptCoroutines.Remove(hCoroutine.GetInternalID(), &pCoroutine) == false)
     return;
 
@@ -118,15 +118,15 @@ void ezScriptWorldModule::StopAndDeleteCoroutine(ezScriptCoroutineHandle hCorout
   m_DeadScriptCoroutines.PushBack(std::move(pCoroutine));
 }
 
-void ezScriptWorldModule::StopAndDeleteCoroutine(ezStringView sName, ezScriptInstance* pInstance)
+void WScriptWorldModule::StopAndDeleteCoroutine(WStringView sName, WScriptInstance* pInstance)
 {
   if (auto pCoroutines = m_InstanceToScriptCoroutines.GetValue(pInstance))
   {
-    for (ezUInt32 i = 0; i < pCoroutines->GetCount();)
+    for (WUInt32 i = 0; i < pCoroutines->GetCount();)
     {
       auto hCoroutine = (*pCoroutines)[i];
 
-      ezUniquePtr<ezScriptCoroutine>* pCoroutine = nullptr;
+      WUniquePtr<WScriptCoroutine>* pCoroutine = nullptr;
       if (m_RunningScriptCoroutines.TryGetValue(hCoroutine.GetInternalID(), pCoroutine) && (*pCoroutine)->GetName() == sName)
       {
         StopAndDeleteCoroutine(hCoroutine);
@@ -139,7 +139,7 @@ void ezScriptWorldModule::StopAndDeleteCoroutine(ezStringView sName, ezScriptIns
   }
 }
 
-void ezScriptWorldModule::StopAndDeleteAllCoroutines(ezScriptInstance* pInstance)
+void WScriptWorldModule::StopAndDeleteAllCoroutines(WScriptInstance* pInstance)
 {
   if (auto pCoroutines = m_InstanceToScriptCoroutines.GetValue(pInstance))
   {
@@ -150,45 +150,45 @@ void ezScriptWorldModule::StopAndDeleteAllCoroutines(ezScriptInstance* pInstance
   }
 }
 
-bool ezScriptWorldModule::IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine) const
+bool WScriptWorldModule::IsCoroutineFinished(WScriptCoroutineHandle hCoroutine) const
 {
   return m_RunningScriptCoroutines.Contains(hCoroutine.GetInternalID()) == false;
 }
 
-void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
+void WScriptWorldModule::CallUpdateFunctions(const WWorldModule::UpdateContext& context)
 {
-  EZ_IGNORE_UNUSED(context);
+  W_IGNORE_UNUSED(context);
 
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  ezTime deltaTime;
+  WTime deltaTime;
   if (pWorld->GetWorldSimulationEnabled())
   {
     deltaTime = pWorld->GetClock().GetTimeDiff();
   }
   else
   {
-    deltaTime = ezClock::GetGlobalClock()->GetTimeDiff();
+    deltaTime = WClock::GetGlobalClock()->GetTimeDiff();
   }
 
   m_Scheduler.Update(deltaTime,
-    [this](const FunctionContext& context, ezTime deltaTime)
+    [this](const FunctionContext& context, WTime deltaTime)
     {
       if (GetWorld()->GetWorldSimulationEnabled() || context.m_pFunctionAndFlags.GetFlags() == FunctionContext::Flags::None)
       {
-        ezVariant args[] = {deltaTime};
-        ezVariant returnValue;
-        context.m_pFunctionAndFlags->Execute(context.m_pInstance, ezMakeArrayPtr(args), returnValue);
+        WVariant args[] = {deltaTime};
+        WVariant returnValue;
+        context.m_pFunctionAndFlags->Execute(context.m_pInstance, WMakeArrayPtr(args), returnValue);
       }
     });
 
   // Delete dead coroutines
-  for (ezUInt32 i = 0; i < m_DeadScriptCoroutines.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DeadScriptCoroutines.GetCount(); ++i)
   {
     auto& pCoroutine = m_DeadScriptCoroutines[i];
-    ezScriptInstance* pInstance = pCoroutine->GetScriptInstance();
+    WScriptInstance* pInstance = pCoroutine->GetScriptInstance();
     auto pCoroutines = m_InstanceToScriptCoroutines.GetValue(pInstance);
-    EZ_ASSERT_DEV(pCoroutines != nullptr, "Implementation error");
+    W_ASSERT_DEV(pCoroutines != nullptr, "Implementation error");
 
     pCoroutines->RemoveAndSwap(pCoroutine->GetHandle());
     if (pCoroutines->IsEmpty())
@@ -202,4 +202,4 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptWorldModule);
+W_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptWorldModule);

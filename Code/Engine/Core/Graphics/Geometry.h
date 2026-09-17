@@ -14,22 +14,22 @@
 /// This class provides simple functions to create frequently used basic shapes. It allows to transform the shapes, merge them
 /// into a single mesh, compute normals, etc.
 /// It is meant for debug and editor geometry (gizmos, etc.). Vertices can have position, normal, color and 'shape index'.
-class EZ_CORE_DLL ezGeometry
+class W_CORE_DLL WGeometry
 {
 public:
   /// The data that is stored per vertex.
   struct Vertex
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec3 m_vPosition;
-    ezVec3 m_vNormal;
-    ezVec3 m_vTangent;
+    WVec3 m_vPosition;
+    WVec3 m_vNormal;
+    WVec3 m_vTangent;
     float m_fBiTangentSign;
-    ezVec2 m_vTexCoord;
-    ezColor m_Color;
-    ezVec4U16 m_BoneIndices;
-    ezColorLinearUB m_BoneWeights;
+    WVec2 m_vTexCoord;
+    WColor m_Color;
+    WVec4U16 m_BoneIndices;
+    WColorLinearUB m_BoneWeights;
 
     bool operator<(const Vertex& rhs) const;
     bool operator==(const Vertex& rhs) const;
@@ -41,86 +41,86 @@ public:
     // Reverses the order of vertices.
     void FlipWinding();
 
-    ezVec3 m_vNormal;
-    ezHybridArray<ezUInt32, 4> m_Vertices;
+    WVec3 m_vNormal;
+    WHybridArray<WUInt32, 4> m_Vertices;
   };
 
   /// A line only references two vertices.
   struct Line
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiStartVertex;
-    ezUInt32 m_uiEndVertex;
+    WUInt32 m_uiStartVertex;
+    WUInt32 m_uiEndVertex;
   };
 
   /// Options shared among all geometry creation functions
   struct GeoOptions
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     GeoOptions() {}                                        // NOLINT: This struct is used before the surrounding class ends, so it needs a default constructor. = default doesn't work here.
 
-    ezBasisAxis::Enum m_MainAxis = ezBasisAxis::PositiveZ; ///< Used by some geometry as a reference direction.
-    ezColor m_Color = ezColor(1, 1, 1, 1);                 ///< The color of the entire geometric object
-    ezMat4 m_Transform = ezMat4::MakeIdentity();           ///< An additional transform to apply to the geometry while adding it
-    ezUInt16 m_uiBoneIndex = 0;                            ///< Which bone should influence this geometry, for single-bone skinning.
+    WBasisAxis::Enum m_MainAxis = WBasisAxis::PositiveZ; ///< Used by some geometry as a reference direction.
+    WColor m_Color = WColor(1, 1, 1, 1);                 ///< The color of the entire geometric object
+    WMat4 m_Transform = WMat4::MakeIdentity();           ///< An additional transform to apply to the geometry while adding it
+    WUInt16 m_uiBoneIndex = 0;                            ///< Which bone should influence this geometry, for single-bone skinning.
 
     bool IsFlipWindingNecessary() const;
   };
 
   /// Returns the entire vertex data.
-  ezDeque<Vertex>& GetVertices() { return m_Vertices; }
+  WDeque<Vertex>& GetVertices() { return m_Vertices; }
 
   /// Returns the entire polygon data.
-  ezDeque<Polygon>& GetPolygons() { return m_Polygons; }
+  WDeque<Polygon>& GetPolygons() { return m_Polygons; }
 
   /// Returns the entire line data.
-  ezDeque<Line>& GetLines() { return m_Lines; }
+  WDeque<Line>& GetLines() { return m_Lines; }
 
   /// Returns the entire vertex data.
-  const ezDeque<Vertex>& GetVertices() const { return m_Vertices; }
+  const WDeque<Vertex>& GetVertices() const { return m_Vertices; }
 
   /// Returns the entire polygon data.
-  const ezDeque<Polygon>& GetPolygons() const { return m_Polygons; }
+  const WDeque<Polygon>& GetPolygons() const { return m_Polygons; }
 
   /// Returns the entire line data.
-  const ezDeque<Line>& GetLines() const { return m_Lines; }
+  const WDeque<Line>& GetLines() const { return m_Lines; }
 
   /// Clears all data.
   void Clear();
 
   /// Adds a vertex, returns the index to the added vertex.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord = ezVec2(0.0f), const ezColor& color = ezColor::White, const ezVec4U16& vBoneIndices = ezVec4U16::MakeZero(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
+  WUInt32 AddVertex(const WVec3& vPos, const WVec3& vNormal, const WVec2& vTexCoord = WVec2(0.0f), const WColor& color = WColor::White, const WVec4U16& vBoneIndices = WVec4U16::MakeZero(), const WColorLinearUB& boneWeights = WColorLinearUB(255, 0, 0, 0));
 
   /// Overload that transforms position and normal with the given matrix.
-  ezUInt32 AddVertex(const ezMat4& mTransform, const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord = ezVec2(0.0f), const ezColor& color = ezColor::White, const ezVec4U16& vBoneIndices = ezVec4U16::MakeZero(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0))
+  WUInt32 AddVertex(const WMat4& mTransform, const WVec3& vPos, const WVec3& vNormal, const WVec2& vTexCoord = WVec2(0.0f), const WColor& color = WColor::White, const WVec4U16& vBoneIndices = WVec4U16::MakeZero(), const WColorLinearUB& boneWeights = WColorLinearUB(255, 0, 0, 0))
   {
     return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, vBoneIndices, boneWeights);
   }
 
   /// Overload that uses the options for color and to transform position and normal and uses a single bone.
-  ezUInt32 AddVertex(const GeoOptions& options, const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord = ezVec2(0.0f))
+  WUInt32 AddVertex(const GeoOptions& options, const WVec3& vPos, const WVec3& vNormal, const WVec2& vTexCoord = WVec2(0.0f))
   {
-    return AddVertex(options.m_Transform, vPos, vNormal, vTexCoord, options.m_Color, ezVec4U16(options.m_uiBoneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
+    return AddVertex(options.m_Transform, vPos, vNormal, vTexCoord, options.m_Color, WVec4U16(options.m_uiBoneIndex, 0, 0, 0), WColorLinearUB(255, 0, 0, 0));
   }
 
   /// Overload that uses the options for color and a single bone and transforms position and normal by a separately provided matrix.
-  ezUInt32 AddVertex(const ezMat4& mTransform, const GeoOptions& options, const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord = ezVec2(0.0f))
+  WUInt32 AddVertex(const WMat4& mTransform, const GeoOptions& options, const WVec3& vPos, const WVec3& vNormal, const WVec2& vTexCoord = WVec2(0.0f))
   {
-    return AddVertex(mTransform, vPos, vNormal, vTexCoord, options.m_Color, ezVec4U16(options.m_uiBoneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
+    return AddVertex(mTransform, vPos, vNormal, vTexCoord, options.m_Color, WVec4U16(options.m_uiBoneIndex, 0, 0, 0), WColorLinearUB(255, 0, 0, 0));
   }
 
   /// Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
-  void AddPolygon(const ezArrayPtr<ezUInt32>& vertices, bool bFlipWinding);
+  void AddPolygon(const WArrayPtr<WUInt32>& vertices, bool bFlipWinding);
 
   /// Adds a line with the given start and end vertex index.
-  void AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex);
+  void AddLine(WUInt32 uiStartVertex, WUInt32 uiEndVertex);
 
   /// Triangulates all polygons that have more than \a uiMaxVerticesInPolygon vertices.
   ///
   /// Set \a uiMaxVerticesInPolygon to 4, if you want to keep quads unchanged.
-  void TriangulatePolygons(ezUInt32 uiMaxVerticesInPolygon = 3);
+  void TriangulatePolygons(WUInt32 uiMaxVerticesInPolygon = 3);
 
   /// Computes normals for all polygons from the current vertex positions. Call this when you do not intend to make further
   /// modifications.
@@ -147,44 +147,44 @@ public:
   void ValidateTangents(float fEpsilon = 0.01f);
 
   /// Returns the number of triangles that the polygons are made up of.
-  ezUInt32 CalculateTriangleCount() const;
+  WUInt32 CalculateTriangleCount() const;
 
   /// Changes the bone indices for all vertices (starting at vertex \a uiFirstVertex).
-  void SetAllVertexBoneIndices(const ezVec4U16& vBoneIndices, ezUInt32 uiFirstVertex = 0);
+  void SetAllVertexBoneIndices(const WVec4U16& vBoneIndices, WUInt32 uiFirstVertex = 0);
 
   /// Changes the color for all vertices (starting at vertex \a uiFirstVertex).
-  void SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex = 0);
+  void SetAllVertexColor(const WColor& color, WUInt32 uiFirstVertex = 0);
 
   /// Changes the texture coordinates for all vertices (starting at vertex \a uiFirstVertex).
-  void SetAllVertexTexCoord(const ezVec2& vTexCoord, ezUInt32 uiFirstVertex = 0);
+  void SetAllVertexTexCoord(const WVec2& vTexCoord, WUInt32 uiFirstVertex = 0);
 
   /// Transforms all vertices by the given transform.
   ///
   /// When \a bTransformPolyNormals is true, the polygon normals are transformed, as well.
   /// Set this to false when face normals are going to be computed later anyway.
-  void Transform(const ezMat4& mTransform, bool bTransformPolyNormals);
+  void Transform(const WMat4& mTransform, bool bTransformPolyNormals);
 
   /// Merges the given mesh into this one. Use this to composite multiple shapes into one.
-  void Merge(const ezGeometry& other);
+  void Merge(const WGeometry& other);
 
   /// Adds a rectangle shape, with the front pointing into the main axis direction.
   ///
   /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
   /// Optionally tessellates the rectangle for more detail.
-  void AddRect(const ezVec2& vSize, ezUInt32 uiTesselationX = 1, ezUInt32 uiTesselationY = 1, const GeoOptions& options = GeoOptions());
+  void AddRect(const WVec2& vSize, WUInt32 uiTesselationX = 1, WUInt32 uiTesselationY = 1, const GeoOptions& options = GeoOptions());
 
   /// Adds a box.
   /// If bExtraVerticesForTexturing is false, 8 shared vertices are added.
   /// If bExtraVerticesForTexturing is true, 24 separate vertices with UV coordinates are added.
-  void AddBox(const ezVec3& vFullExtents, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
+  void AddBox(const WVec3& vFullExtents, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// Adds box out of lines (8 vertices).
-  void AddLineBox(const ezVec3& vSize, const GeoOptions& options = GeoOptions());
+  void AddLineBox(const WVec3& vSize, const GeoOptions& options = GeoOptions());
 
   /// Adds the 8 corners of a box as lines.
   ///
   /// fCornerFraction must be between 1.0 and 0.0, with 1 making it a completely closed box and 0 no lines at all.
-  void AddLineBoxCorners(const ezVec3& vSize, float fCornerFraction, const GeoOptions& options = GeoOptions());
+  void AddLineBoxCorners(const WVec3& vSize, float fCornerFraction, const GeoOptions& options = GeoOptions());
 
   /// Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///
@@ -201,7 +201,7 @@ public:
   /// 3 = 1280 triangles,  642 vertices\n
   /// 4 = 5120 triangles, 2562 vertices\n
   /// ...\n
-  void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const GeoOptions& options = GeoOptions());
+  void AddGeodesicSphere(float fRadius, WUInt8 uiSubDivisions, const GeoOptions& options = GeoOptions());
 
   /// Adds a cylinder revolving around the main axis (see GeoOptions).
   ///
@@ -211,33 +211,33 @@ public:
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / PacMan-shaped cylinder is created.
-  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions(), ezAngle fraction = ezAngle::MakeFromDegree(360.0f));
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, WUInt16 uiSegments, const GeoOptions& options = GeoOptions(), WAngle fraction = WAngle::MakeFromDegree(360.0f));
 
   /// Same as AddCylinder(), but always adds caps and does not generate separate vertices for the caps.
   ///
   /// This is a more compact representation, but does not allow as good texturing.
-  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
+  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, WUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
   /// Similar to AddCylinderOnePiece(), but only adds lines. This gives cleaner results for debug geometry.
-  void AddLineCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
+  void AddLineCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, WUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
   /// Adds a cone with the origin at the center of the bottom and the tip pointing into the direction of the main axis (see GeoOptions).
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
-  void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
+  void AddCone(float fRadius, float fHeight, bool bCap, WUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
   /// Adds a sphere consisting of a number of stacks along the main axis (see GeoOptions) with a fixed tessellation.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail along the up axis, must be at least 2.
-  void AddStackedSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const GeoOptions& options = GeoOptions());
+  void AddStackedSphere(float fRadius, WUInt16 uiSegments, WUInt16 uiStacks, const GeoOptions& options = GeoOptions());
 
   /// Adds half a stacked sphere with the half being in the direction of the main axis (see GeoOptions).
   ///
   /// The origin is at the 'full sphere center', ie. at the center of the cap.
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
-  void AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const GeoOptions& options = GeoOptions());
+  void AddHalfSphere(float fRadius, WUInt16 uiSegments, WUInt16 uiStacks, bool bCap, const GeoOptions& options = GeoOptions());
 
   /// Adds a capsule, revolving around the main axis (see GeoOptions).
   ///
@@ -245,7 +245,7 @@ public:
   /// Radius and height are added to get the total height of the capsule.
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
-  void AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const GeoOptions& options = GeoOptions());
+  void AddCapsule(float fRadius, float fHeight, WUInt16 uiSegments, WUInt16 uiStacks, const GeoOptions& options = GeoOptions());
 
   /// Adds a full torus with the ring revolving around the main axis (see GeoOptions).
   ///
@@ -255,13 +255,13 @@ public:
   /// \param uiSegments is the detail around the main axis.
   /// \param uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
   /// \param bExtraVerticesForTexturing specifies whether the torus should be one closed piece or have additional vertices at the seams, such that texturing works better.
-  void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
+  void AddTorus(float fInnerRadius, float fOuterRadius, WUInt16 uiSegments, WUInt16 uiSegmentDetail, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// Adds a ramp that has UV coordinates set.
-  void AddTexturedRamp(const ezVec3& vSize, const GeoOptions& options = GeoOptions());
+  void AddTexturedRamp(const WVec3& vSize, const GeoOptions& options = GeoOptions());
 
   /// Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
-  void AddStairs(const ezVec3& vSize, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
+  void AddStairs(const WVec3& vSize, WUInt32 uiNumSteps, WAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
 
   /// Creates and arch, pipe or spiral stairs within the defined volume (size) curving around the main axis.
   ///
@@ -271,12 +271,12 @@ public:
   /// \param bMakeSteps If true, segments are only thin and are offset in position from the previous one.
   /// \param bSmoothBottom, bSmoothTop If true and bMakeSteps as well, the segments will have a step, but connect smoothly, like in a spiral.
   /// \param bCapTopAndBottom If false, the top and bottom geometry is skipped. Can be used to reduce detail in pipe geometry that connects with something else anyway.
-  void AddArch(const ezVec3& vSize, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options = GeoOptions());
+  void AddArch(const WVec3& vSize, WUInt32 uiNumSegments, float fThickness, WAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options = GeoOptions());
 
 private:
-  void TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVertex);
+  void TransformVertices(const WMat4& mTransform, WUInt32 uiFirstVertex);
 
-  ezDeque<Vertex> m_Vertices;
-  ezDeque<Polygon> m_Polygons;
-  ezDeque<Line> m_Lines;
+  WDeque<Vertex> m_Vertices;
+  WDeque<Polygon> m_Polygons;
+  WDeque<Line> m_Lines;
 };

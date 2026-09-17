@@ -6,15 +6,15 @@
 ///
 /// This is what orients an agent that has just connected: every path an other tool returns is
 /// relative to the data directories reported here, and asset states depend on the active profile.
-class ezMcpProjectTool : public ezMcpToolProvider
+class WMcpProjectTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpProjectTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpProjectTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteProjectInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteProjectExport(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteProjectInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteProjectExport(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 };

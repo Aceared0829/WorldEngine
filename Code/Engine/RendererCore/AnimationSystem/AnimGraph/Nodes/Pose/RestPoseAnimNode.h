@@ -8,22 +8,22 @@
 ///
 /// This node provides the default T-pose or A-pose from the skeleton definition. Commonly used as a fallback
 /// when no animation is active, as a base for additive blending, or when animations fail to load.
-class EZ_RENDERERCORE_DLL ezRestPoseAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WRestPoseAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRestPoseAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WRestPoseAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRestPoseAnimNode
+  // WRestPoseAnimNode
 
 private:
-  ezAnimGraphLocalPoseOutputPin m_OutPose; // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose; // [ property ]
 };

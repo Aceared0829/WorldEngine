@@ -3,11 +3,11 @@
 #include <Foundation/System/SystemInformation.h>
 
 // Storage for the current configuration
-ezSystemInformation ezSystemInformation::s_SystemInformation;
+WSystemInformation WSystemInformation::s_SystemInformation;
 
 /// CPU feature detection code copied from https://github.com/Mysticial/FeatureDetector
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#if W_ENABLED(W_PLATFORM_ARCH_X86)
 
 namespace cpu_x86
 {
@@ -63,7 +63,7 @@ namespace cpu_x86
 
 } // namespace cpu_x86
 
-void ezCpuFeatures::Detect()
+void WCpuFeatures::Detect()
 {
   using namespace cpu_x86;
 
@@ -165,7 +165,7 @@ void ezCpuFeatures::Detect()
 
 #else
 
-void ezCpuFeatures::Detect()
+void WCpuFeatures::Detect()
 {
 }
 

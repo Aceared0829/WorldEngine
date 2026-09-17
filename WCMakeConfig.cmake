@@ -1,0 +1,26 @@
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_DEBUG "Debug")
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_DEV "Dev")
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_RELEASE "Shipping")
+
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_DEBUG_UPPER "DEBUG")
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_DEV_UPPER "DEV")
+set_property(GLOBAL PROPERTY W_BUILDTYPENAME_RELEASE_UPPER "SHIPPING")
+
+set_property(GLOBAL PROPERTY W_DEV_BUILD_LINKERFLAGS "DEBUG")
+
+set_property(GLOBAL PROPERTY W_CMAKE_RELPATH "Code/BuildSystem/CMake")
+set_property(GLOBAL PROPERTY W_CMAKE_RELPATH_CODE "Code")
+
+set_property(GLOBAL PROPERTY W_CONFIG_PATH_7ZA "Data/Tools/Precompiled/7z.exe")
+
+set_property(GLOBAL PROPERTY W_CONFIG_QT_WINX64_VERSION "Qt6-6.11.0-vs144-x64")
+set_property(GLOBAL PROPERTY W_CONFIG_QT_WINX64_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt6-6.11.0-vs144-x64/Qt6-6.11.0-vs144-x64.7z")
+
+set_property(GLOBAL PROPERTY W_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION "1.8.2505.1")
+set_property(GLOBAL PROPERTY W_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/linux_dxc_2025_07_14.x86_64.tar.gz")
+set_property(GLOBAL PROPERTY W_CONFIG_DIRECTXSHADERCOMPILER_WINX64_VERSION "1.8.2505.1")
+set_property(GLOBAL PROPERTY W_CONFIG_DIRECTXSHADERCOMPILER_WINX64_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/dxc_2025_07_14.zip")
+
+# Android validation layers version 1.3.275.0 are broken, so a different version is used compared to the SDK.
+set_property(GLOBAL PROPERTY W_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION "1.3.280.0")
+set_property(GLOBAL PROPERTY W_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL "https://github.com/KhronosGroup/Vulkan-ValidationLayers/releases/download/vulkan-sdk-1.3.280.0/android-binaries-1.3.280.0.tar.gz")

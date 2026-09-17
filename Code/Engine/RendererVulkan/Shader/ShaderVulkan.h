@@ -8,28 +8,28 @@
 
 #include <RendererCore/Shader/ShaderStageBinary.h>
 
-class EZ_RENDERERVULKAN_DLL ezGALShaderVulkan : public ezGALShader
+class W_RENDERERVULKAN_DLL WGALShaderVulkan : public WGALShader
 {
 public:
-  virtual void SetDebugName(ezStringView sName) const override;
+  virtual void SetDebugName(WStringView sName) const override;
 
-  EZ_ALWAYS_INLINE vk::ShaderModule GetShader(ezGALShaderStage::Enum stage) const;
+  W_ALWAYS_INLINE vk::ShaderModule GetShader(WGALShaderStage::Enum stage) const;
   vk::PipelineLayout GetVkPipelineLayout() const;
-  vk::DescriptorSetLayout GetDescriptorSetLayout(ezUInt32 uiSet = 0) const;
+  vk::DescriptorSetLayout GetDescriptorSetLayout(WUInt32 uiSet = 0) const;
   vk::PushConstantRange GetPushConstantRange() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALShaderVulkan(const ezGALShaderCreationDescription& description);
-  virtual ~ezGALShaderVulkan();
+  WGALShaderVulkan(const WGALShaderCreationDescription& description);
+  virtual ~WGALShaderVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
 private:
-  vk::ShaderModule m_Shaders[ezGALShaderStage::ENUM_COUNT];
+  vk::ShaderModule m_Shaders[WGALShaderStage::ENUM_COUNT];
 };
 
 #include <RendererVulkan/Shader/Implementation/ShaderVulkan_inl.h>

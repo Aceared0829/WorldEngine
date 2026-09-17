@@ -4,64 +4,64 @@
 #include <Core/Scripting/ScriptClasses/ScriptExtensionClass_Log.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Log, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_Log, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Info, In, "Text", In, "Params")->AddAttributes(new ezDynamicPinAttribute("Params")),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Warning, In, "Text", In, "Params")->AddAttributes(new ezDynamicPinAttribute("Params")),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Error, In, "Text", In, "Params")->AddAttributes(new ezDynamicPinAttribute("Params")),
+    W_SCRIPT_FUNCTION_PROPERTY(Info, In, "Text", In, "Params")->AddAttributes(new WDynamicPinAttribute("Params")),
+    W_SCRIPT_FUNCTION_PROPERTY(Warning, In, "Text", In, "Params")->AddAttributes(new WDynamicPinAttribute("Params")),
+    W_SCRIPT_FUNCTION_PROPERTY(Error, In, "Text", In, "Params")->AddAttributes(new WDynamicPinAttribute("Params")),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("Log"),
+    new WScriptExtensionAttribute("Log"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
+static WStringView BuildFormattedText(WStringView sText, const WVariantArray& params, WStringBuilder& ref_sStorage)
 {
-  ezTempHybridArray<ezString, 12> stringStorage;
+  WTempHybridArray<WString, 12> stringStorage;
   stringStorage.Reserve(params.GetCount());
   for (auto& param : params)
   {
-    stringStorage.PushBack(param.ConvertTo<ezString>());
+    stringStorage.PushBack(param.ConvertTo<WString>());
   }
 
-  ezTempHybridArray<ezStringView, 12> stringViews;
+  WTempHybridArray<WStringView, 12> stringViews;
   stringViews.Reserve(stringStorage.GetCount());
   for (auto& s : stringStorage)
   {
     stringViews.PushBack(s);
   }
 
-  ezFormatString fs(sText);
+  WFormatString fs(sText);
   return fs.BuildFormattedText(ref_sStorage, stringViews.GetData(), stringViews.GetCount());
 }
 
 // static
-void ezScriptExtensionClass_Log::Info(ezStringView sText, const ezVariantArray& params)
+void WScriptExtensionClass_Log::Info(WStringView sText, const WVariantArray& params)
 {
-  ezStringBuilder sStorage;
-  ezLog::Info(BuildFormattedText(sText, params, sStorage));
+  WStringBuilder sStorage;
+  WLog::Info(BuildFormattedText(sText, params, sStorage));
 }
 
 // static
-void ezScriptExtensionClass_Log::Warning(ezStringView sText, const ezVariantArray& params)
+void WScriptExtensionClass_Log::Warning(WStringView sText, const WVariantArray& params)
 {
-  ezStringBuilder sStorage;
-  ezLog::Warning(BuildFormattedText(sText, params, sStorage));
+  WStringBuilder sStorage;
+  WLog::Warning(BuildFormattedText(sText, params, sStorage));
 }
 
 // static
-void ezScriptExtensionClass_Log::Error(ezStringView sText, const ezVariantArray& params)
+void WScriptExtensionClass_Log::Error(WStringView sText, const WVariantArray& params)
 {
-  ezStringBuilder sStorage;
-  ezLog::Error(BuildFormattedText(sText, params, sStorage));
+  WStringBuilder sStorage;
+  WLog::Error(BuildFormattedText(sText, params, sStorage));
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);

@@ -2,16 +2,16 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezDecalContext;
+class WDecalContext;
 
-class ezDecalViewContext : public ezEngineProcessViewContext
+class WDecalViewContext : public WEngineProcessViewContext
 {
 public:
-  ezDecalViewContext(ezDecalContext* pDecalContext);
-  ~ezDecalViewContext();
+  WDecalViewContext(WDecalContext* pDecalContext);
+  ~WDecalViewContext();
 
 protected:
-  virtual ezViewHandle CreateView() override;
+  virtual WViewHandle CreateView() override;
 
-  ezDecalContext* m_pDecalContext;
+  WDecalContext* m_pDecalContext;
 };

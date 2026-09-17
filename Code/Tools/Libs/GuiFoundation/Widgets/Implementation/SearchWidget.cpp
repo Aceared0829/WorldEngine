@@ -6,7 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
+WQtSearchWidget::WQtSearchWidget(QWidget* pParent)
 {
   setLayout(new QHBoxLayout(this));
   setContentsMargins(0, 0, 0, 0);
@@ -33,44 +33,44 @@ ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
   layout()->addWidget(m_pLineEdit);
   layout()->addWidget(m_pClearButton);
 
-  connect(m_pLineEdit, &QLineEdit::textChanged, this, &ezQtSearchWidget::onLineEditTextChanged);
-  connect(m_pClearButton, &QPushButton::clicked, this, &ezQtSearchWidget::onClearButtonClicked);
+  connect(m_pLineEdit, &QLineEdit::textChanged, this, &WQtSearchWidget::onLineEditTextChanged);
+  connect(m_pClearButton, &QPushButton::clicked, this, &WQtSearchWidget::onClearButtonClicked);
 }
 
-void ezQtSearchWidget::setText(const QString& sText)
+void WQtSearchWidget::setText(const QString& sText)
 {
   m_pLineEdit->setText(sText);
 }
 
-QString ezQtSearchWidget::text() const
+QString WQtSearchWidget::text() const
 {
   return m_pLineEdit->text();
 }
 
-void ezQtSearchWidget::setPlaceholderText(const QString& sText)
+void WQtSearchWidget::setPlaceholderText(const QString& sText)
 {
   m_pLineEdit->setPlaceholderText(sText);
 }
 
-void ezQtSearchWidget::selectAll()
+void WQtSearchWidget::selectAll()
 {
   QTimer::singleShot(0, m_pLineEdit, &QLineEdit::selectAll);
 }
 
-void ezQtSearchWidget::onLineEditTextChanged(const QString& text)
+void WQtSearchWidget::onLineEditTextChanged(const QString& text)
 {
   m_pClearButton->setEnabled(!text.isEmpty());
 
   Q_EMIT textChanged(text);
 }
 
-void ezQtSearchWidget::onClearButtonClicked(bool checked)
+void WQtSearchWidget::onClearButtonClicked(bool checked)
 {
   m_pLineEdit->setText(QString());
   m_pLineEdit->setFocus();
 }
 
-bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
+bool WQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
 {
   if (obj == m_pLineEdit)
   {
@@ -101,7 +101,7 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
   return false;
 }
 
-void ezQtSearchWidget::showEvent(QShowEvent* e)
+void WQtSearchWidget::showEvent(QShowEvent* e)
 {
   QWidget::showEvent(e);
 

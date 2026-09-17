@@ -1,21 +1,21 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Logging/TraceWriter.h>
 #  include <android/log.h>
 
-void ezLog::Print(const char* szText)
+void WLog::Print(const char* szText)
 {
   printf("%s", szText);
 
-  ezLoggingEventData data;
-  data.m_EventType = ezLogMsgType::InfoMsg;
+  WLoggingEventData data;
+  data.m_EventType = WLogMsgType::InfoMsg;
   data.m_sText = szText;
-  ezLogWriter::Tracing::LogMessageHandler(data);
+  WLogWriter::Tracing::LogMessageHandler(data);
 
-  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
+  __android_log_print(ANDROID_LOG_ERROR, "WorldEngine", "%s", szText);
 
   if (s_CustomPrintFunction)
   {
@@ -26,14 +26,14 @@ void ezLog::Print(const char* szText)
   fflush(stderr);
 }
 
-void ezLog::OsMessageBox(const ezFormatString& text)
+void WLog::OsMessageBox(const WFormatString& text)
 {
-  ezStringBuilder tmp;
-  ezStringBuilder display = text.GetText(tmp);
+  WStringBuilder tmp;
+  WStringBuilder display = text.GetText(tmp);
   display.Trim(" \n\r\t");
 
-  ezLog::Print(display);
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  WLog::Print(display);
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif

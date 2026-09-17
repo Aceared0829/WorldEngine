@@ -4,9 +4,9 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ProcGenPlugin/Declarations.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   class PlacementTile
   {
@@ -15,24 +15,24 @@ namespace ezProcGenInternal
     PlacementTile(PlacementTile&& other);
     ~PlacementTile();
 
-    void Initialize(const PlacementTileDesc& desc, ezSharedPtr<const PlacementOutput>& ref_pOutput);
-    void Deinitialize(ezWorld& ref_world);
+    void Initialize(const PlacementTileDesc& desc, WSharedPtr<const PlacementOutput>& ref_pOutput);
+    void Deinitialize(WWorld& ref_world);
 
     bool IsValid() const;
 
     const PlacementTileDesc& GetDesc() const;
     const PlacementOutput* GetOutput() const;
-    ezArrayPtr<const ezGameObjectHandle> GetPlacedObjects() const;
-    ezBoundingBox GetBoundingBox() const;
-    ezColor GetDebugColor() const;
+    WArrayPtr<const WGameObjectHandle> GetPlacedObjects() const;
+    WBoundingBox GetBoundingBox() const;
+    WColor GetDebugColor() const;
 
-    void PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, bool bDebugVisualization, PlacementData& ref_placementData);
+    void PreparePlacementData(const WWorld* pWorld, const WPhysicsWorldModuleInterface* pPhysicsModule, bool bDebugVisualization, PlacementData& ref_placementData);
 
-    ezUInt32 PlaceObjects(ezWorld& ref_world, ezArrayPtr<const PlacementTransform> objectTransforms);
+    WUInt32 PlaceObjects(WWorld& ref_world, WArrayPtr<const PlacementTransform> objectTransforms);
 
   private:
     PlacementTileDesc m_Desc;
-    ezSharedPtr<const PlacementOutput> m_pOutput;
+    WSharedPtr<const PlacementOutput> m_pOutput;
 
     struct State
     {
@@ -46,6 +46,6 @@ namespace ezProcGenInternal
     };
 
     State::Enum m_State = State::Invalid;
-    ezDynamicArray<ezGameObjectHandle> m_PlacedObjects;
+    WDynamicArray<WGameObjectHandle> m_PlacedObjects;
   };
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#if W_ENABLED(W_PLATFORM_OSX)
 
 #  include <Foundation/Time/Timestamp.h>
 
@@ -9,18 +9,18 @@
 #  include <CoreFoundation/CFCalendar.h>
 #  include <CoreFoundation/CoreFoundation.h>
 
-const ezTimestamp ezTimestamp::CurrentTimestamp()
+const WTimestamp WTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return WTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, WSIUnitOfTime::Microsecond);
 }
 
-const ezTimestamp ezDateTime::GetTimestamp() const
+const WTimestamp WDateTime::GetTimestamp() const
 {
-  ezScopedCFRef<CFTimeZoneRef> timezone(CFTimeZoneCreateWithTimeIntervalFromGMT(kCFAllocatorDefault, 0));
-  ezScopedCFRef<CFCalendarRef> calendar(CFCalendarCreateWithIdentifier(kCFAllocatorSystemDefault, kCFGregorianCalendar));
+  WScopedCFRef<CFTimeZoneRef> timezone(CFTimeZoneCreateWithTimeIntervalFromGMT(kCFAllocatorDefault, 0));
+  WScopedCFRef<CFCalendarRef> calendar(CFCalendarCreateWithIdentifier(kCFAllocatorSystemDefault, kCFGregorianCalendar));
   CFCalendarSetTimeZone(calendar, timezone);
 
   int year = m_iYear, month = m_uiMonth, day = m_uiDay, hour = m_uiHour, minute = m_uiMinute, second = m_uiSecond;
@@ -31,7 +31,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (year < yearMin.location || year > yearMax.length)
     {
-      return ezTimestamp::MakeInvalid();
+      return WTimestamp::MakeInvalid();
     }
   }
 
@@ -41,7 +41,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (month < monthMin.location || month > monthMax.length)
     {
-      return ezTimestamp::MakeInvalid();
+      return WTimestamp::MakeInvalid();
     }
   }
 
@@ -51,47 +51,47 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (day < dayMin.location || day > dayMax.length)
     {
-      return ezTimestamp::MakeInvalid();
+      return WTimestamp::MakeInvalid();
     }
   }
 
   CFAbsoluteTime absTime;
   if (CFCalendarComposeAbsoluteTime(calendar, &absTime, "yMdHms", year, month, day, hour, minute, second) == FALSE)
   {
-    return ezTimestamp::MakeInvalid();
+    return WTimestamp::MakeInvalid();
   }
 
-  return ezTimestamp::MakeFromInt(static_cast<ezInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), ezSIUnitOfTime::Microsecond);
+  return WTimestamp::MakeFromInt(static_cast<WInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), WSIUnitOfTime::Microsecond);
 }
 
-ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
+WResult WDateTime::SetFromTimestamp(WTimestamp timestamp)
 {
   // Round the microseconds to the full second so that we can reconstruct the right date / time afterwards
-  ezInt64 us = timestamp.GetInt64(ezSIUnitOfTime::Microsecond);
-  ezInt64 microseconds = us % (1000 * 1000);
+  WInt64 us = timestamp.GetInt64(WSIUnitOfTime::Microsecond);
+  WInt64 microseconds = us % (1000 * 1000);
 
   CFAbsoluteTime at = (static_cast<CFAbsoluteTime>((us - microseconds) / 1000000.0)) - kCFAbsoluteTimeIntervalSince1970;
 
-  ezScopedCFRef<CFTimeZoneRef> timezone(CFTimeZoneCreateWithTimeIntervalFromGMT(kCFAllocatorDefault, 0));
-  ezScopedCFRef<CFCalendarRef> calendar(CFCalendarCreateWithIdentifier(kCFAllocatorSystemDefault, kCFGregorianCalendar));
+  WScopedCFRef<CFTimeZoneRef> timezone(CFTimeZoneCreateWithTimeIntervalFromGMT(kCFAllocatorDefault, 0));
+  WScopedCFRef<CFCalendarRef> calendar(CFCalendarCreateWithIdentifier(kCFAllocatorSystemDefault, kCFGregorianCalendar));
   CFCalendarSetTimeZone(calendar, timezone);
 
   int year, month, day, dayOfWeek, hour, minute, second;
 
   if (CFCalendarDecomposeAbsoluteTime(calendar, at, "yMdHmsE", &year, &month, &day, &hour, &minute, &second, &dayOfWeek) == FALSE)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  m_iYear = (ezInt16)year;
-  m_uiMonth = (ezUInt8)month;
-  m_uiDay = (ezUInt8)day;
-  m_uiDayOfWeek = (ezUInt8)(dayOfWeek - 1);
-  m_uiHour = (ezUInt8)hour;
-  m_uiMinute = (ezUInt8)minute;
-  m_uiSecond = (ezUInt8)second;
-  m_uiMicroseconds = (ezUInt32)microseconds;
-  return EZ_SUCCESS;
+  m_iYear = (WInt16)year;
+  m_uiMonth = (WUInt8)month;
+  m_uiDay = (WUInt8)day;
+  m_uiDayOfWeek = (WUInt8)(dayOfWeek - 1);
+  m_uiHour = (WUInt8)hour;
+  m_uiMinute = (WUInt8)minute;
+  m_uiSecond = (WUInt8)second;
+  m_uiMicroseconds = (WUInt32)microseconds;
+  return W_SUCCESS;
 }
 
 #endif

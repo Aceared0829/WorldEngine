@@ -8,54 +8,54 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezStreamReader;
-class ezStreamWriter;
+class WStreamReader;
+class WStreamWriter;
 
 /// Identifies a render graph execution that was observed during the last frame.
-struct ezRenderGraphExecutionSummary
+struct WRenderGraphExecutionSummary
 {
-  ezUInt64 m_uiRenderGraphId = 0;
-  ezString m_sGraphName;
-  ezString m_sUserName;
-  ezEnum<ezRenderGraphPhase> m_Phase;
-  ezInt32 m_uiExecutionOrder = -1; ///< execution oder in the phase. -1 if not executed this frame.
+  WUInt64 m_uiRenderGraphId = 0;
+  WString m_sGraphName;
+  WString m_sUserName;
+  WEnum<WRenderGraphPhase> m_Phase;
+  WInt32 m_uiExecutionOrder = -1; ///< execution oder in the phase. -1 if not executed this frame.
 };
 
 /// Describes a swap-chain that can be used as a preview target by the render graph inspector.
-struct ezRenderGraphSwapChainSummary
+struct WRenderGraphSwapChainSummary
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezUInt32 m_uiSwapChainId = 0;
-  ezUInt32 m_uiWidth = 0;
-  ezUInt32 m_uiHeight = 0;
+  WUInt32 m_uiSwapChainId = 0;
+  WUInt32 m_uiWidth = 0;
+  WUInt32 m_uiHeight = 0;
 };
 
 /// Aggregates the render graphs and preview targets currently known to the inspector.
-struct ezRenderGraphInspectionSummary
+struct WRenderGraphInspectionSummary
 {
-  ezDynamicArray<ezRenderGraphExecutionSummary> m_RenderGraphs;
-  ezDynamicArray<ezRenderGraphSwapChainSummary> m_AvailableSwapChains;
+  WDynamicArray<WRenderGraphExecutionSummary> m_RenderGraphs;
+  WDynamicArray<WRenderGraphSwapChainSummary> m_AvailableSwapChains;
 };
 
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphExecutionSummary& value);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphExecutionSummary& ref_value);
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphSwapChainSummary& value);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphSwapChainSummary& ref_value);
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionSummary& value);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionSummary& ref_value);
+W_RENDERERCORE_DLL void operator<<(WStreamWriter& inout_stream, const WRenderGraphExecutionSummary& value);
+W_RENDERERCORE_DLL void operator>>(WStreamReader& inout_stream, WRenderGraphExecutionSummary& ref_value);
+W_RENDERERCORE_DLL void operator<<(WStreamWriter& inout_stream, const WRenderGraphSwapChainSummary& value);
+W_RENDERERCORE_DLL void operator>>(WStreamReader& inout_stream, WRenderGraphSwapChainSummary& ref_value);
+W_RENDERERCORE_DLL void operator<<(WStreamWriter& inout_stream, const WRenderGraphInspectionSummary& value);
+W_RENDERERCORE_DLL void operator>>(WStreamReader& inout_stream, WRenderGraphInspectionSummary& ref_value);
 
 /// Read-only snapshot of a compiled render graph's structure, taken after compilation. Used for visualization and debugging without exposing internal graph state.
-struct EZ_RENDERERCORE_DLL ezRenderGraphInspectionInfo
+struct W_RENDERERCORE_DLL WRenderGraphInspectionInfo
 {
-  void Swap(ezRenderGraphInspectionInfo& ref_data);
+  void Swap(WRenderGraphInspectionInfo& ref_data);
   void Clear();
 
   /// Describes one declared pass and whether it remains active after graph compilation.
   struct PassInfo
   {
-    ezString m_sName;
-    ezEnum<ezGALQueueType> m_QueueType;
+    WString m_sName;
+    WEnum<WGALQueueType> m_QueueType;
     bool m_bHasSideEffects = false;
     bool m_bAlive = true; ///< false if the pass was culled during compilation.
   };
@@ -63,46 +63,46 @@ struct EZ_RENDERERCORE_DLL ezRenderGraphInspectionInfo
   /// Describes a texture resource used by the compiled render graph.
   struct TextureResourceInfo
   {
-    EZ_DECLARE_POD_TYPE();
-    ezGALTextureCreationDescription m_Desc;
+    W_DECLARE_POD_TYPE();
+    WGALTextureCreationDescription m_Desc;
     bool m_bImported = false;
-    ezUInt16 m_uiFirstUsePassIndex = 0xFFFF;
-    ezUInt16 m_uiLastUsePassIndex = 0xFFFF;
-    ezUInt16 m_uiResolvedIndex = 0xFFFF;
+    WUInt16 m_uiFirstUsePassIndex = 0xFFFF;
+    WUInt16 m_uiLastUsePassIndex = 0xFFFF;
+    WUInt16 m_uiResolvedIndex = 0xFFFF;
   };
 
   /// Describes a buffer resource used by the compiled render graph.
   struct BufferResourceInfo
   {
-    EZ_DECLARE_POD_TYPE();
-    ezGALBufferCreationDescription m_Desc;
+    W_DECLARE_POD_TYPE();
+    WGALBufferCreationDescription m_Desc;
     bool m_bImported = false;
-    ezUInt16 m_uiFirstUsePassIndex = 0xFFFF;
-    ezUInt16 m_uiLastUsePassIndex = 0xFFFF;
-    ezUInt16 m_uiResolvedIndex = 0xFFFF;
+    WUInt16 m_uiFirstUsePassIndex = 0xFFFF;
+    WUInt16 m_uiLastUsePassIndex = 0xFFFF;
+    WUInt16 m_uiResolvedIndex = 0xFFFF;
   };
 
   /// Describes a single resource access made by one pass in the compiled render graph.
   struct AccessInfo
   {
-    EZ_DECLARE_POD_TYPE();
-    ezUInt16 m_uiPassIndex = 0;     ///< Index into m_Passes (declaration order).
-    ezUInt16 m_uiResourceIndex = 0; ///< Index into m_Textures or m_Buffers.
-    ezUInt16 m_uiAccessIndex = 0;
+    W_DECLARE_POD_TYPE();
+    WUInt16 m_uiPassIndex = 0;     ///< Index into m_Passes (declaration order).
+    WUInt16 m_uiResourceIndex = 0; ///< Index into m_Textures or m_Buffers.
+    WUInt16 m_uiAccessIndex = 0;
     bool m_bIsTexture = true;
-    ezBitflags<ezGALResourceState> m_Access;
-    ezGALTextureRange m_TextureRange; ///< Only meaningful for textures.
+    WBitflags<WGALResourceState> m_Access;
+    WGALTextureRange m_TextureRange; ///< Only meaningful for textures.
   };
 
   /// All passes in declaration order. Culled passes have m_bAlive == false.
-  ezDynamicArray<PassInfo> m_Passes;
+  WDynamicArray<PassInfo> m_Passes;
 
-  ezDynamicArray<TextureResourceInfo> m_Textures;
-  ezDynamicArray<BufferResourceInfo> m_Buffers;
+  WDynamicArray<TextureResourceInfo> m_Textures;
+  WDynamicArray<BufferResourceInfo> m_Buffers;
 
   /// All resource accesses across all passes, flattened first by passId, then by access types.
-  ezDynamicArray<AccessInfo> m_Accesses;
+  WDynamicArray<AccessInfo> m_Accesses;
 };
 
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo& value);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_value);
+W_RENDERERCORE_DLL void operator<<(WStreamWriter& inout_stream, const WRenderGraphInspectionInfo& value);
+W_RENDERERCORE_DLL void operator>>(WStreamReader& inout_stream, WRenderGraphInspectionInfo& ref_value);

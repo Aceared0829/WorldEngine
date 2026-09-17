@@ -3,91 +3,91 @@
 #include <Foundation/SimdMath/SimdVec4i.h>
 
 /// A SIMD 4-component vector class of unsigned 32b integers
-class EZ_FOUNDATION_DLL ezSimdVec4u
+class W_FOUNDATION_DLL WSimdVec4u
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezSimdVec4u();                                                   // [tested]
+  WSimdVec4u();                                                   // [tested]
 
-  explicit ezSimdVec4u(ezUInt32 uiXyzw);                           // [tested]
+  explicit WSimdVec4u(WUInt32 uiXyzw);                           // [tested]
 
-  ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w = 1); // [tested]
+  WSimdVec4u(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w = 1); // [tested]
 
-  ezSimdVec4u(ezInternal::QuadUInt v);                             // [tested]
+  WSimdVec4u(WInternal::QuadUInt v);                             // [tested]
 
-  /// Creates an ezSimdVec4u that is initialized to zero.
-  [[nodiscard]] static ezSimdVec4u MakeZero();                     // [tested]
+  /// Creates an WSimdVec4u that is initialized to zero.
+  [[nodiscard]] static WSimdVec4u MakeZero();                     // [tested]
 
-  void Set(ezUInt32 uiXyzw);                                       // [tested]
+  void Set(WUInt32 uiXyzw);                                       // [tested]
 
-  void Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w);        // [tested]
+  void Set(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w);        // [tested]
 
   void SetZero();                                                  // [tested]
 
 public:
-  explicit ezSimdVec4u(const ezSimdVec4i& i);                      // [tested]
+  explicit WSimdVec4u(const WSimdVec4i& i);                      // [tested]
 
 public:
-  ezSimdVec4f ToFloat() const;                                     // [tested]
+  WSimdVec4f ToFloat() const;                                     // [tested]
 
-  [[nodiscard]] static ezSimdVec4u Truncate(const ezSimdVec4f& f); // [tested]
+  [[nodiscard]] static WSimdVec4u Truncate(const WSimdVec4f& f); // [tested]
 
 public:
   template <int N>
-  ezUInt32 GetComponent() const;                                   // [tested]
+  WUInt32 GetComponent() const;                                   // [tested]
 
-  ezUInt32 x() const;                                              // [tested]
-  ezUInt32 y() const;                                              // [tested]
-  ezUInt32 z() const;                                              // [tested]
-  ezUInt32 w() const;                                              // [tested]
+  WUInt32 x() const;                                              // [tested]
+  WUInt32 y() const;                                              // [tested]
+  WUInt32 z() const;                                              // [tested]
+  WUInt32 w() const;                                              // [tested]
 
-  template <ezSwizzle::Enum s>
-  ezSimdVec4u Get() const;                                         // [tested]
-
-public:
-  [[nodiscard]] ezSimdVec4u operator+(const ezSimdVec4u& v) const; // [tested]
-  [[nodiscard]] ezSimdVec4u operator-(const ezSimdVec4u& v) const; // [tested]
-
-  [[nodiscard]] ezSimdVec4u CompMul(const ezSimdVec4u& v) const;   // [tested]
-
-  [[nodiscard]] ezSimdVec4u operator|(const ezSimdVec4u& v) const; // [tested]
-  [[nodiscard]] ezSimdVec4u operator&(const ezSimdVec4u& v) const; // [tested]
-  [[nodiscard]] ezSimdVec4u operator^(const ezSimdVec4u& v) const; // [tested]
-  [[nodiscard]] ezSimdVec4u operator~() const;                     // [tested]
-
-  [[nodiscard]] ezSimdVec4u operator<<(ezUInt32 uiShift) const;    // [tested]
-  [[nodiscard]] ezSimdVec4u operator>>(ezUInt32 uiShift) const;    // [tested]
-
-  ezSimdVec4u& operator+=(const ezSimdVec4u& v);                   // [tested]
-  ezSimdVec4u& operator-=(const ezSimdVec4u& v);                   // [tested]
-
-  ezSimdVec4u& operator|=(const ezSimdVec4u& v);                   // [tested]
-  ezSimdVec4u& operator&=(const ezSimdVec4u& v);                   // [tested]
-  ezSimdVec4u& operator^=(const ezSimdVec4u& v);                   // [tested]
-
-  ezSimdVec4u& operator<<=(ezUInt32 uiShift);                      // [tested]
-  ezSimdVec4u& operator>>=(ezUInt32 uiShift);                      // [tested]
-
-  [[nodiscard]] ezSimdVec4u CompMin(const ezSimdVec4u& v) const;   // [tested]
-  [[nodiscard]] ezSimdVec4u CompMax(const ezSimdVec4u& v) const;   // [tested]
-
-  ezSimdVec4b operator==(const ezSimdVec4u& v) const;              // [tested]
-  ezSimdVec4b operator!=(const ezSimdVec4u& v) const;              // [tested]
-  ezSimdVec4b operator<=(const ezSimdVec4u& v) const;              // [tested]
-  ezSimdVec4b operator<(const ezSimdVec4u& v) const;               // [tested]
-  ezSimdVec4b operator>=(const ezSimdVec4u& v) const;              // [tested]
-  ezSimdVec4b operator>(const ezSimdVec4u& v) const;               // [tested]
+  template <WSwizzle::Enum s>
+  WSimdVec4u Get() const;                                         // [tested]
 
 public:
-  ezInternal::QuadUInt m_v;
+  [[nodiscard]] WSimdVec4u operator+(const WSimdVec4u& v) const; // [tested]
+  [[nodiscard]] WSimdVec4u operator-(const WSimdVec4u& v) const; // [tested]
+
+  [[nodiscard]] WSimdVec4u CompMul(const WSimdVec4u& v) const;   // [tested]
+
+  [[nodiscard]] WSimdVec4u operator|(const WSimdVec4u& v) const; // [tested]
+  [[nodiscard]] WSimdVec4u operator&(const WSimdVec4u& v) const; // [tested]
+  [[nodiscard]] WSimdVec4u operator^(const WSimdVec4u& v) const; // [tested]
+  [[nodiscard]] WSimdVec4u operator~() const;                     // [tested]
+
+  [[nodiscard]] WSimdVec4u operator<<(WUInt32 uiShift) const;    // [tested]
+  [[nodiscard]] WSimdVec4u operator>>(WUInt32 uiShift) const;    // [tested]
+
+  WSimdVec4u& operator+=(const WSimdVec4u& v);                   // [tested]
+  WSimdVec4u& operator-=(const WSimdVec4u& v);                   // [tested]
+
+  WSimdVec4u& operator|=(const WSimdVec4u& v);                   // [tested]
+  WSimdVec4u& operator&=(const WSimdVec4u& v);                   // [tested]
+  WSimdVec4u& operator^=(const WSimdVec4u& v);                   // [tested]
+
+  WSimdVec4u& operator<<=(WUInt32 uiShift);                      // [tested]
+  WSimdVec4u& operator>>=(WUInt32 uiShift);                      // [tested]
+
+  [[nodiscard]] WSimdVec4u CompMin(const WSimdVec4u& v) const;   // [tested]
+  [[nodiscard]] WSimdVec4u CompMax(const WSimdVec4u& v) const;   // [tested]
+
+  WSimdVec4b operator==(const WSimdVec4u& v) const;              // [tested]
+  WSimdVec4b operator!=(const WSimdVec4u& v) const;              // [tested]
+  WSimdVec4b operator<=(const WSimdVec4u& v) const;              // [tested]
+  WSimdVec4b operator<(const WSimdVec4u& v) const;               // [tested]
+  WSimdVec4b operator>=(const WSimdVec4u& v) const;              // [tested]
+  WSimdVec4b operator>(const WSimdVec4u& v) const;               // [tested]
+
+public:
+  WInternal::QuadUInt m_v;
 };
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
 #  include <Foundation/SimdMath/Implementation/SSE/SSEVec4u_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUVec4u_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_NEON
 #  include <Foundation/SimdMath/Implementation/NEON/NEONVec4u_inl.h>
 #else
 #  error "Unknown SIMD implementation."

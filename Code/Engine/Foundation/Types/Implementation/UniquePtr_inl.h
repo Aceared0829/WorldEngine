@@ -1,10 +1,10 @@
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr() = default;
+W_ALWAYS_INLINE WUniquePtr<T>::WUniquePtr() = default;
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(const ezInternal::NewInstance<U>& instance)
+W_ALWAYS_INLINE WUniquePtr<T>::WUniquePtr(const WInternal::NewInstance<U>& instance)
 {
   m_pInstance = instance.m_pInstance;
   m_pAllocator = instance.m_pAllocator;
@@ -12,7 +12,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(const ezInternal::NewInstance<U>& i
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(U* pInstance, ezAllocator* pAllocator)
+W_ALWAYS_INLINE WUniquePtr<T>::WUniquePtr(U* pInstance, WAllocator* pAllocator)
 {
   m_pInstance = pInstance;
   m_pAllocator = pAllocator;
@@ -20,7 +20,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(U* pInstance, ezAllocator* pAllocat
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(ezUniquePtr<U>&& other)
+W_ALWAYS_INLINE WUniquePtr<T>::WUniquePtr(WUniquePtr<U>&& other)
 {
   m_pInstance = other.m_pInstance;
   m_pAllocator = other.m_pAllocator;
@@ -30,19 +30,19 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(ezUniquePtr<U>&& other)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(std::nullptr_t)
+W_ALWAYS_INLINE WUniquePtr<T>::WUniquePtr(std::nullptr_t)
 {
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::~ezUniquePtr()
+W_ALWAYS_INLINE WUniquePtr<T>::~WUniquePtr()
 {
   Clear();
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
+W_ALWAYS_INLINE WUniquePtr<T>& WUniquePtr<T>::operator=(const WInternal::NewInstance<U>& instance)
 {
   Clear();
 
@@ -54,7 +54,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(const ezInternal::New
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(ezUniquePtr<U>&& other)
+W_ALWAYS_INLINE WUniquePtr<T>& WUniquePtr<T>::operator=(WUniquePtr<U>&& other)
 {
   Clear();
 
@@ -68,7 +68,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(ezUniquePtr<U>&& othe
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(std::nullptr_t)
+W_ALWAYS_INLINE WUniquePtr<T>& WUniquePtr<T>::operator=(std::nullptr_t)
 {
   Clear();
 
@@ -76,7 +76,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(std::nullptr_t)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release()
+W_ALWAYS_INLINE T* WUniquePtr<T>::Release()
 {
   T* pInstance = m_pInstance;
 
@@ -87,7 +87,7 @@ EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release(ezAllocator*& out_pAllocator)
+W_ALWAYS_INLINE T* WUniquePtr<T>::Release(WAllocator*& out_pAllocator)
 {
   T* pInstance = m_pInstance;
   out_pAllocator = m_pAllocator;
@@ -99,17 +99,17 @@ EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release(ezAllocator*& out_pAllocator)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Borrow() const
+W_ALWAYS_INLINE T* WUniquePtr<T>::Borrow() const
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezUniquePtr<T>::Clear()
+W_ALWAYS_INLINE void WUniquePtr<T>::Clear()
 {
   if (m_pAllocator != nullptr)
   {
-    EZ_DELETE(m_pAllocator, m_pInstance);
+    W_DELETE(m_pAllocator, m_pInstance);
   }
 
   m_pInstance = nullptr;
@@ -117,91 +117,91 @@ EZ_ALWAYS_INLINE void ezUniquePtr<T>::Clear()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T& ezUniquePtr<T>::operator*() const
+W_ALWAYS_INLINE T& WUniquePtr<T>::operator*() const
 {
   return *m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezUniquePtr<T>::operator->() const
+W_ALWAYS_INLINE T* WUniquePtr<T>::operator->() const
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::operator bool() const
+W_ALWAYS_INLINE WUniquePtr<T>::operator bool() const
 {
   return m_pInstance != nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator==(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator==(const WUniquePtr<T>& rhs) const
 {
   return m_pInstance == rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator!=(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator!=(const WUniquePtr<T>& rhs) const
 {
   return m_pInstance != rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator<(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator<(const WUniquePtr<T>& rhs) const
 {
   return m_pInstance < rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator<=(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator<=(const WUniquePtr<T>& rhs) const
 {
   return !(rhs < *this);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator>(const WUniquePtr<T>& rhs) const
 {
   return rhs < *this;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>=(const ezUniquePtr<T>& rhs) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator>=(const WUniquePtr<T>& rhs) const
 {
   return !(*this < rhs);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator==(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator==(std::nullptr_t) const
 {
   return m_pInstance == nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator!=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator!=(std::nullptr_t) const
 {
   return m_pInstance != nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator<(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator<(std::nullptr_t) const
 {
   return m_pInstance < nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator<=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator<=(std::nullptr_t) const
 {
   return m_pInstance <= nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator>(std::nullptr_t) const
 {
   return m_pInstance > nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WUniquePtr<T>::operator>=(std::nullptr_t) const
 {
   return m_pInstance >= nullptr;
 }
@@ -210,49 +210,49 @@ EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>=(std::nullptr_t) const
 // free functions
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator==(const ezUniquePtr<T>& lhs, const T* rhs)
+W_ALWAYS_INLINE bool operator==(const WUniquePtr<T>& lhs, const T* rhs)
 {
   return lhs.Borrow() == rhs;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator==(const ezUniquePtr<T>& lhs, T* rhs)
+W_ALWAYS_INLINE bool operator==(const WUniquePtr<T>& lhs, T* rhs)
 {
   return lhs.Borrow() == rhs;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator!=(const ezUniquePtr<T>& lhs, const T* rhs)
+W_ALWAYS_INLINE bool operator!=(const WUniquePtr<T>& lhs, const T* rhs)
 {
   return lhs.Borrow() != rhs;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator!=(const ezUniquePtr<T>& lhs, T* rhs)
+W_ALWAYS_INLINE bool operator!=(const WUniquePtr<T>& lhs, T* rhs)
 {
   return lhs.Borrow() != rhs;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator==(const T* lhs, const ezUniquePtr<T>& rhs)
+W_ALWAYS_INLINE bool operator==(const T* lhs, const WUniquePtr<T>& rhs)
 {
   return lhs == rhs.Borrow();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator==(T* lhs, const ezUniquePtr<T>& rhs)
+W_ALWAYS_INLINE bool operator==(T* lhs, const WUniquePtr<T>& rhs)
 {
   return lhs == rhs.Borrow();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator!=(const T* lhs, const ezUniquePtr<T>& rhs)
+W_ALWAYS_INLINE bool operator!=(const T* lhs, const WUniquePtr<T>& rhs)
 {
   return lhs != rhs.Borrow();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool operator!=(T* lhs, const ezUniquePtr<T>& rhs)
+W_ALWAYS_INLINE bool operator!=(T* lhs, const WUniquePtr<T>& rhs)
 {
   return lhs != rhs.Borrow();
 }

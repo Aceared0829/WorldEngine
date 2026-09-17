@@ -5,176 +5,176 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 
-class ezProcPlacementComponent;
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
+class WProcPlacementComponent;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponentManager : public ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>
+class W_PROCGENPLUGIN_DLL WProcPlacementComponentManager : public WComponentManager<WProcPlacementComponent, WBlockStorageType::Compact>
 {
 public:
-  ezProcPlacementComponentManager(ezWorld* pWorld);
-  ~ezProcPlacementComponentManager();
+  WProcPlacementComponentManager(WWorld* pWorld);
+  ~WProcPlacementComponentManager();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
 private:
-  friend class ezProcPlacementComponent;
+  friend class WProcPlacementComponent;
 
-  void FindTiles(const ezWorldModule::UpdateContext& context);
-  void PreparePlace(const ezWorldModule::UpdateContext& context);
-  void PlaceObjects(const ezWorldModule::UpdateContext& context);
+  void FindTiles(const WWorldModule::UpdateContext& context);
+  void PreparePlace(const WWorldModule::UpdateContext& context);
+  void PlaceObjects(const WWorldModule::UpdateContext& context);
 
-  bool DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex = ezInvalidIndex);
+  bool DebugDrawTile(const WProcGenInternal::PlacementTileDesc& desc, const WColor& color, WUInt32 uiQueueIndex = WInvalidIndex);
 
-  void AddComponent(ezProcPlacementComponent* pComponent);
-  void RemoveComponent(ezProcPlacementComponent* pComponent);
+  void AddComponent(WProcPlacementComponent* pComponent);
+  void RemoveComponent(WProcPlacementComponent* pComponent);
 
-  ezUInt32 AllocateTile(const ezProcGenInternal::PlacementTileDesc& desc, ezSharedPtr<const ezProcGenInternal::PlacementOutput>& pOutput);
-  void DeallocateTile(ezUInt32 uiTileIndex);
+  WUInt32 AllocateTile(const WProcGenInternal::PlacementTileDesc& desc, WSharedPtr<const WProcGenInternal::PlacementOutput>& pOutput);
+  void DeallocateTile(WUInt32 uiTileIndex);
 
-  ezUInt32 AllocateProcessingTask(ezUInt32 uiTileIndex);
-  void DeallocateProcessingTask(ezUInt32 uiTaskIndex);
-  ezUInt32 GetNumAllocatedProcessingTasks() const;
+  WUInt32 AllocateProcessingTask(WUInt32 uiTileIndex);
+  void DeallocateProcessingTask(WUInt32 uiTaskIndex);
+  WUInt32 GetNumAllocatedProcessingTasks() const;
 
-  void RemoveTilesForComponent(ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved = nullptr);
-  void OnResourceEvent(const ezResourceEvent& resourceEvent);
-  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
+  void RemoveTilesForComponent(WProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved = nullptr);
+  void OnResourceEvent(const WResourceEvent& resourceEvent);
+  void OnAreaInvalidated(const WProcGenInternal::InvalidatedArea& area);
 
-  void AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
+  void AddVisibleComponent(const WComponentHandle& hComponent, const WVec3& cameraPosition, const WVec3& cameraDirection) const;
   void ClearVisibleComponents();
 
   struct VisibleComponent
   {
-    ezComponentHandle m_hComponent;
-    ezVec3 m_vCameraPosition;
-    ezVec3 m_vCameraDirection;
+    WComponentHandle m_hComponent;
+    WVec3 m_vCameraPosition;
+    WVec3 m_vCameraDirection;
   };
 
-  mutable ezMutex m_VisibleComponentsMutex;
-  mutable ezDynamicArray<VisibleComponent> m_VisibleComponents;
+  mutable WMutex m_VisibleComponentsMutex;
+  mutable WDynamicArray<VisibleComponent> m_VisibleComponents;
 
-  ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
+  WDynamicArray<WComponentHandle> m_ComponentsToUpdate;
 
-  ezDynamicArray<ezProcGenInternal::PlacementTile, ezAlignedAllocatorWrapper> m_ActiveTiles;
-  ezDynamicArray<ezUInt32> m_FreeTiles;
+  WDynamicArray<WProcGenInternal::PlacementTile, WAlignedAllocatorWrapper> m_ActiveTiles;
+  WDynamicArray<WUInt32> m_FreeTiles;
 
   struct ProcessingTask
   {
-    EZ_ALWAYS_INLINE bool IsValid() const { return m_uiTileIndex != ezInvalidIndex; }
-    EZ_ALWAYS_INLINE bool IsScheduled() const { return m_PlacementTaskGroupID.IsValid(); }
-    EZ_ALWAYS_INLINE void Invalidate()
+    W_ALWAYS_INLINE bool IsValid() const { return m_uiTileIndex != WInvalidIndex; }
+    W_ALWAYS_INLINE bool IsScheduled() const { return m_PlacementTaskGroupID.IsValid(); }
+    W_ALWAYS_INLINE void Invalidate()
     {
       m_uiScheduledFrame = -1;
       m_PlacementTaskGroupID.Invalidate();
-      m_uiTileIndex = ezInvalidIndex;
+      m_uiTileIndex = WInvalidIndex;
     }
 
-    ezUInt64 m_uiScheduledFrame;
-    ezUniquePtr<ezProcGenInternal::PlacementData> m_pData;
-    ezSharedPtr<ezProcGenInternal::PreparePlacementTask> m_pPrepareTask;
-    ezSharedPtr<ezProcGenInternal::PlacementTask> m_pPlacementTask;
-    ezTaskGroupID m_PlacementTaskGroupID;
-    ezUInt32 m_uiTileIndex;
+    WUInt64 m_uiScheduledFrame;
+    WUniquePtr<WProcGenInternal::PlacementData> m_pData;
+    WSharedPtr<WProcGenInternal::PreparePlacementTask> m_pPrepareTask;
+    WSharedPtr<WProcGenInternal::PlacementTask> m_pPlacementTask;
+    WTaskGroupID m_PlacementTaskGroupID;
+    WUInt32 m_uiTileIndex;
   };
 
-  ezDynamicArray<ProcessingTask> m_ProcessingTasks;
-  ezDynamicArray<ezUInt32> m_FreeProcessingTasks;
+  WDynamicArray<ProcessingTask> m_ProcessingTasks;
+  WDynamicArray<WUInt32> m_FreeProcessingTasks;
 
   struct SortedProcessingTask
   {
-    ezUInt64 m_uiScheduledFrame = 0;
-    ezUInt32 m_uiTaskIndex = 0;
+    WUInt64 m_uiScheduledFrame = 0;
+    WUInt32 m_uiTaskIndex = 0;
   };
 
-  ezDynamicArray<SortedProcessingTask> m_SortedProcessingTasks;
+  WDynamicArray<SortedProcessingTask> m_SortedProcessingTasks;
 
-  ezDynamicArray<ezProcGenInternal::PlacementTileDesc, ezAlignedAllocatorWrapper> m_NewTiles;
-  ezTaskGroupID m_UpdateTilesTaskGroupID;
+  WDynamicArray<WProcGenInternal::PlacementTileDesc, WAlignedAllocatorWrapper> m_NewTiles;
+  WTaskGroupID m_UpdateTilesTaskGroupID;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezProcGenBoxExtents
+struct WProcGenBoxExtents
 {
-  ezVec3 m_vOffset = ezVec3::MakeZero();
-  ezQuat m_Rotation = ezQuat::MakeIdentity();
-  ezVec3 m_vExtents = ezVec3(10);
+  WVec3 m_vOffset = WVec3::MakeZero();
+  WQuat m_Rotation = WQuat::MakeIdentity();
+  WVec3 m_vExtents = WVec3(10);
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBoxExtents);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcGenBoxExtents);
 
-class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponent : public ezComponent
+class W_PROCGENPLUGIN_DLL WProcPlacementComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcPlacementComponent, ezComponent, ezProcPlacementComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcPlacementComponent, WComponent, WProcPlacementComponentManager);
 
 public:
-  ezProcPlacementComponent();
-  ~ezProcPlacementComponent();
+  WProcPlacementComponent();
+  ~WProcPlacementComponent();
 
-  ezProcPlacementComponent& operator=(ezProcPlacementComponent&& other);
+  WProcPlacementComponent& operator=(WProcPlacementComponent&& other);
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetResource(const ezProcGenGraphResourceHandle& hResource);                // [ property ]
-  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; } // [ property ]
+  void SetResource(const WProcGenGraphResourceHandle& hResource);                // [ property ]
+  const WProcGenGraphResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& ref_msg) const;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 private:
-  ezUInt32 BoxExtents_GetCount() const;
-  const ezProcGenBoxExtents& BoxExtents_GetValue(ezUInt32 uiIndex) const;
-  void BoxExtents_SetValue(ezUInt32 uiIndex, const ezProcGenBoxExtents& value);
-  void BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value);
-  void BoxExtents_Remove(ezUInt32 uiIndex);
+  WUInt32 BoxExtents_GetCount() const;
+  const WProcGenBoxExtents& BoxExtents_GetValue(WUInt32 uiIndex) const;
+  void BoxExtents_SetValue(WUInt32 uiIndex, const WProcGenBoxExtents& value);
+  void BoxExtents_Insert(WUInt32 uiIndex, const WProcGenBoxExtents& value);
+  void BoxExtents_Remove(WUInt32 uiIndex);
 
   void UpdateBoundsAndTiles();
 
-  ezProcGenGraphResourceHandle m_hResource;
+  WProcGenGraphResourceHandle m_hResource;
 
-  ezDynamicArray<ezProcGenBoxExtents> m_BoxExtents;
+  WDynamicArray<WProcGenBoxExtents> m_BoxExtents;
 
   // runtime data
-  friend class ezProcGenInternal::FindPlacementTilesTask;
+  friend class WProcGenInternal::FindPlacementTilesTask;
 
   struct Bounds
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezSimdBBox m_GlobalBoundingBox;
-    ezSimdMat4f m_GlobalToLocalBoxTransform;
+    WSimdBBox m_GlobalBoundingBox;
+    WSimdMat4f m_GlobalToLocalBoxTransform;
   };
 
-  ezDynamicArray<Bounds, ezAlignedAllocatorWrapper> m_Bounds;
+  WDynamicArray<Bounds, WAlignedAllocatorWrapper> m_Bounds;
 
   struct OutputContext
   {
-    ezSharedPtr<const ezProcGenInternal::PlacementOutput> m_pOutput;
+    WSharedPtr<const WProcGenInternal::PlacementOutput> m_pOutput;
 
     struct TileIndexAndAge
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
-      ezUInt32 m_uiIndex;
-      ezUInt64 m_uiLastSeenFrame;
+      WUInt32 m_uiIndex;
+      WUInt64 m_uiLastSeenFrame;
     };
 
-    ezHashTable<ezUInt64, TileIndexAndAge> m_TileIndices;
+    WHashTable<WUInt64, TileIndexAndAge> m_TileIndices;
 
-    ezSharedPtr<ezProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
+    WSharedPtr<WProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
 
     bool IsValid() const { return m_pOutput != nullptr && m_pUpdateTilesTask != nullptr; }
   };
 
-  ezDynamicArray<OutputContext> m_OutputContexts;
+  WDynamicArray<OutputContext> m_OutputContexts;
 };

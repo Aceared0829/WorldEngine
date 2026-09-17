@@ -13,60 +13,60 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(PacManGameState, 1, ezRTTIDefaultAllocator<PacManGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(PacManGameState, 1, WRTTIDefaultAllocator<PacManGameState>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 PacManGameState::PacManGameState() = default;
 PacManGameState::~PacManGameState() = default;
 
-ezHashedString PacManGameState::s_sStats = ezMakeHashedString("Stat");
-ezHashedString PacManGameState::s_sCoinsEaten = ezMakeHashedString("CoinsEaten");
-ezHashedString PacManGameState::s_sPacManState = ezMakeHashedString("PacManState");
+WHashedString PacManGameState::s_sStats = WMakeHashedString("Stat");
+WHashedString PacManGameState::s_sCoinsEaten = WMakeHashedString("CoinsEaten");
+WHashedString PacManGameState::s_sPacManState = WMakeHashedString("PacManState");
 
-void PacManGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
+void PacManGameState::GetStartupOptions(WString& out_sScene, WString& out_sPreloadCollection)
 {
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
-  // otherwise, we use the hardcoded 'Main.ezScene' of the PacMan project
-  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  // otherwise, we use the hardcoded 'Main.WScene' of the PacMan project
+  if (WCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
   else
   {
-    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+    out_sScene = "AssetCache/Common/Scenes/Main.WBinScene";
   }
 }
 
-void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void PacManGameState::OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   // this is called shortly after the game state was created, and before the game starts to properly run
   // so here you could do general startup stuff
 
-  EZ_LOG_BLOCK("GameState::Activate");
+  W_LOG_BLOCK("GameState::Activate");
 
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ResetState();
 
   {
-    m_pLeftStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-    m_pLeftStick->SetInputArea(ezVec2(0, 0), ezVec2(0.3f, 1), 0.07f, 1.0f, ezVirtualThumbStick::CenterMode::Swipe);
-    m_pLeftStick->SetFlags(ezVirtualThumbStick::Flags::OnlyMaxAxis);
-    m_pLeftStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-    m_pLeftStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
-    m_pLeftStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::ActivateImmediately, ezInputActionConfig::OnLeaveArea::KeepFocus);
+    m_pLeftStick = W_DEFAULT_NEW(WVirtualThumbStick);
+    m_pLeftStick->SetInputArea(WVec2(0, 0), WVec2(0.3f, 1), 0.07f, 1.0f, WVirtualThumbStick::CenterMode::Swipe);
+    m_pLeftStick->SetFlags(WVirtualThumbStick::Flags::OnlyMaxAxis);
+    m_pLeftStick->SetTriggerInputSlot(WVirtualThumbStick::Input::Touchpoint);
+    m_pLeftStick->SetThumbstickOutput(WVirtualThumbStick::Output::Controller0_LeftStick);
+    m_pLeftStick->SetAreaFocusMode(WInputActionConfig::OnEnterArea::ActivateImmediately, WInputActionConfig::OnLeaveArea::KeepFocus);
     m_pLeftStick->SetEnabled(false);
   }
   {
-    m_pRightStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-    m_pRightStick->SetInputArea(ezVec2(0.8f, 0), ezVec2(1.0f, 0.2f), 0.05f, 0.0f, ezVirtualThumbStick::CenterMode::InputArea);
-    m_pRightStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-    m_pRightStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
-    m_pRightStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::RequireKeyUp, ezInputActionConfig::OnLeaveArea::LoseFocus);
+    m_pRightStick = W_DEFAULT_NEW(WVirtualThumbStick);
+    m_pRightStick->SetInputArea(WVec2(0.8f, 0), WVec2(1.0f, 0.2f), 0.05f, 0.0f, WVirtualThumbStick::CenterMode::InputArea);
+    m_pRightStick->SetTriggerInputSlot(WVirtualThumbStick::Input::Touchpoint);
+    m_pRightStick->SetThumbstickOutput(WVirtualThumbStick::Output::Controller0_RightStick);
+    m_pRightStick->SetAreaFocusMode(WInputActionConfig::OnEnterArea::RequireKeyUp, WInputActionConfig::OnLeaveArea::LoseFocus);
     m_pRightStick->SetEnabled(false);
   }
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
     // adjust the volume of the sound groups
     // this would usually be a user setting
@@ -80,14 +80,14 @@ void PacManGameState::OnDeactivation()
 {
   // this is run when the game is shutting down
 
-  EZ_LOG_BLOCK("GameState::Deactivate");
+  W_LOG_BLOCK("GameState::Deactivate");
 
   SUPER::OnDeactivation();
 }
 
 void PacManGameState::AfterWorldUpdate()
 {
-  // this is called once each frame after the ezWorld got updated
+  // this is called once each frame after the WWorld got updated
   // here we use it to evaluate the current state and to also draw some text on screen
   // all of this could also be done in ProcessInput() instead, especially since the debug-drawing can be done at any time during the frame
   // but in a more complex game you may want to do some things right after the world update
@@ -101,7 +101,7 @@ void PacManGameState::AfterWorldUpdate()
   {
     // we don't know the number of coins in the scene yet, so lets iterate over all objects and count how many coins we find
 
-    EZ_LOCK(m_pMainWorld->GetWriteMarker());
+    W_LOCK(m_pMainWorld->GetWriteMarker());
 
     for (auto it = m_pMainWorld->GetObjects(); it.IsValid(); ++it)
     {
@@ -114,12 +114,12 @@ void PacManGameState::AfterWorldUpdate()
   }
 
   // get the global blackboard in which we track the state
-  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(s_sStats);
+  auto pBlackboard = WBlackboard::GetOrCreateGlobal(s_sStats);
 
-  const ezInt32 iNumCoinsFound = pBlackboard->GetEntryValue(s_sCoinsEaten, 0).Get<ezInt32>();
-  const ezInt32 iPacManState = pBlackboard->GetEntryValue(s_sPacManState, 1).Get<ezInt32>();
+  const WInt32 iNumCoinsFound = pBlackboard->GetEntryValue(s_sCoinsEaten, 0).Get<WInt32>();
+  const WInt32 iPacManState = pBlackboard->GetEntryValue(s_sPacManState, 1).Get<WInt32>();
 
-  ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", ezFmt("Coins: {} / {}", iNumCoinsFound, m_uiNumCoinsTotal));
+  WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", WFmt("Coins: {} / {}", iNumCoinsFound, m_uiNumCoinsTotal));
 
   if (iPacManState == PacManState::Alive && m_uiNumCoinsTotal > 0 && iNumCoinsFound == m_uiNumCoinsTotal)
   {
@@ -127,39 +127,39 @@ void PacManGameState::AfterWorldUpdate()
     pBlackboard->SetEntryValue(s_sPacManState, PacManState::WonGame);
 
     // play a sound, the GUID of the sound asset was copied from the editor
-    // ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::MakeIdentity()).IgnoreResult(); // FMOD
-    ezSoundInterface::PlaySound(m_pMainWorld, "{ 2281d82a-cf87-4747-b664-a41ebc74c052 }", ezTransform::MakeIdentity()).IgnoreResult(); // MiniAudio
+    // WSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", WTransform::MakeIdentity()).IgnoreResult(); // FMOD
+    WSoundInterface::PlaySound(m_pMainWorld, "{ 2281d82a-cf87-4747-b664-a41ebc74c052 }", WTransform::MakeIdentity()).IgnoreResult(); // MiniAudio
   }
 
   if (m_bShowSceneExportError)
   {
-    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "Cannot reload scene!\n\nThe scene must be transformed/exported first.\nUse 'Transform All' in the editor or export the scene.", ezColor::OrangeRed);
+    WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", "Cannot reload scene!\n\nThe scene must be transformed/exported first.\nUse 'Transform All' in the editor or export the scene.", WColor::OrangeRed);
   }
   else if (iPacManState == PacManState::EatenByGhost)
   {
     if (m_bTouchInput)
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nSwipe top-right screen to play again.", WColor::LightPink);
     }
     else
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nPress SPACE to play again.", ezColor::Red);
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nPress SPACE to play again.", WColor::Red);
     }
   }
   else if (iPacManState == PacManState::WonGame)
   {
     if (m_bTouchInput)
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nSwipe top-right screen to play again.", WColor::LightPink);
     }
     else
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nnPress SPACE to play again", ezColor::LightPink);
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nnPress SPACE to play again", WColor::LightPink);
     }
   }
 
   {
-    if (ezInputManager::GetInputSlotState(ezInputManager::GetInputSlotTouchPoint(0)) == ezKeyState::Down)
+    if (WInputManager::GetInputSlotState(WInputManager::GetInputSlotTouchPoint(0)) == WKeyState::Down)
     {
       m_bTouchInput = true;
       m_pLeftStick->SetEnabled(true);
@@ -168,27 +168,27 @@ void PacManGameState::AfterWorldUpdate()
 
     if (m_bTouchInput)
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopLeft, "Manual", "Swipe left screen area to steer.");
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopRight, "Manual", "Swipe top-right screen to reset.");
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopLeft, "Manual", "Swipe left screen area to steer.");
+      WDebugRenderer::DrawInfoText(m_pMainWorld, WDebugTextPlacement::TopRight, "Manual", "Swipe top-right screen to reset.");
     }
 
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hMainView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(m_hMainView, pView))
     {
-      const ezRectFloat viewport = pView->GetViewport();
-      const ezVec2 resolution = viewport.GetExtents();
+      const WRectFloat viewport = pView->GetViewport();
+      const WVec2 resolution = viewport.GetExtents();
 
       m_pLeftStick->SetInputCoordinateAspectRatio(resolution.x / resolution.y);
       m_pRightStick->SetInputCoordinateAspectRatio(resolution.x / resolution.y);
 
-      ezInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pLeftStick);
-      ezInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pRightStick);
+      WInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pLeftStick);
+      WInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pRightStick);
     }
   }
 }
 
 
-ezResult PacManGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
+WResult PacManGameState::SpawnPlayer(WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   // this is called every time we switch to a new scene
   // some games may want to create the 'player object' here
@@ -196,7 +196,7 @@ ezResult PacManGameState::SpawnPlayer(ezStringView sStartPosition, const ezTrans
   // but since it is also called when we reset the scene, it is a good point in time to reset the current state
 
   ResetState();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 void PacManGameState::ResetState()
@@ -205,7 +205,7 @@ void PacManGameState::ResetState()
 
   m_uiNumCoinsTotal = 0;
 
-  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(s_sStats);
+  auto pBlackboard = WBlackboard::GetOrCreateGlobal(s_sStats);
 
   // 'reset' the state
   pBlackboard->SetEntryValue(s_sCoinsEaten, 0);
@@ -215,13 +215,13 @@ void PacManGameState::ResetState()
 // a helper function to bind one or several keys to an input action
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
-  ezInputActionConfig cfg;
+  WInputActionConfig cfg;
   cfg.m_bApplyTimeScaling = true;
   cfg.m_sInputSlotTrigger[0] = szKey1;
   cfg.m_sInputSlotTrigger[1] = szKey2;
   cfg.m_sInputSlotTrigger[2] = szKey3;
 
-  ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
+  WInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
 
 void PacManGameState::ConfigureInputActions()
@@ -233,33 +233,33 @@ void PacManGameState::ConfigureInputActions()
   SUPER::ConfigureInputActions();
 
   // we want to be able to reset the game to the start state, using the spacebar
-  RegisterInputAction("Game", "Reset", ezInputSlot_KeySpace, ezInputSlot_Controller0_ButtonStart, ezInputSlot_Controller0_RightStick_PosX);
+  RegisterInputAction("Game", "Reset", WInputSlot_KeySpace, WInputSlot_Controller0_ButtonStart, WInputSlot_Controller0_RightStick_PosX);
 }
 
 void PacManGameState::ProcessInput()
 {
   SUPER::ProcessInput();
 
-  if (ezInputManager::GetInputActionState("Game", "Reset") == ezKeyState::Released)
+  if (WInputManager::GetInputActionState("Game", "Reset") == WKeyState::Released)
   {
     ResetState();
 
-    // We just kick off a scene load. The 'scene file' is the asset GUID of the 'Level1.ezScene' document.
-    ezString sScene;
-    ezString sPreloadCollection;
+    // We just kick off a scene load. The 'scene file' is the asset GUID of the 'Level1.WScene' document.
+    WString sScene;
+    WString sPreloadCollection;
     GetStartupOptions(sScene, sPreloadCollection);
 
     // Check if the exported scene file exists before attempting to load it
-    if (!ezFileSystem::ExistsFile(sScene))
+    if (!WFileSystem::ExistsFile(sScene))
     {
       // The scene hasn't been exported yet, show an error message
-      ezLog::Warning("Cannot reload scene '{}'. The scene must be transformed/exported before it can be reloaded.", sScene);
+      WLog::Warning("Cannot reload scene '{}'. The scene must be transformed/exported before it can be reloaded.", sScene);
       m_bShowSceneExportError = true;
     }
     else
     {
       m_bShowSceneExportError = false;
-      LoadScene(sScene, sPreloadCollection, {}, ezTransform::MakeIdentity());
+      LoadScene(sScene, sPreloadCollection, {}, WTransform::MakeIdentity());
 
       // scene loading happens in the background, and once it is ready, will switch automatically to the new scene
     }
@@ -276,4 +276,4 @@ void PacManGameState::ConfigureMainCamera()
 }
 
 
-EZ_STATICLINK_FILE(PacManPlugin, PacManPlugin_GameState_PacManGameState);
+W_STATICLINK_FILE(PacManPlugin, PacManPlugin_GameState_PacManGameState);

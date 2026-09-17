@@ -5,13 +5,13 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
-class ezLogInterface;
-class ezProgress;
-class ezEditableSkeleton;
-class ezMeshResourceDescriptor;
-struct ezAnimationClipResourceDescriptor;
+class WLogInterface;
+class WProgress;
+class WEditableSkeleton;
+class WMeshResourceDescriptor;
+struct WAnimationClipResourceDescriptor;
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   enum AdditiveReference
   {
@@ -21,38 +21,38 @@ namespace ezModelImporter2
 
   struct ImportOptions
   {
-    ezString m_sSourceFile;
+    WString m_sSourceFile;
 
     bool m_bImportSkinningData = false;
     bool m_bRecomputeNormals = false;
     bool m_bRecomputeTangents = false;
     bool m_bNormalizeWeights = false;
-    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
+    WEnum<WMeshVertexColorConversion> m_MeshVertexColorConversion = WMeshVertexColorConversion::Default;
     bool m_bHighPrecision = false;
-    ezMat3 m_RootTransform = ezMat3::MakeIdentity();
+    WMat3 m_RootTransform = WMat3::MakeIdentity();
     /// Translation that is applied to the mesh vertices after m_RootTransform.
     /// Not applied to skinned meshes, animations or skeletons.
-    ezVec3 m_vRootPosition = ezVec3::MakeZero();
+    WVec3 m_vRootPosition = WVec3::MakeZero();
 
     // if non-empty, only import meshes whose names start or end with any of these strings
-    ezDynamicArray<ezString> m_MeshIncludeTags;
+    WDynamicArray<WString> m_MeshIncludeTags;
     // if non-empty, do not import meshes whose names start or end with any of these strings (unless already explicitly included)
-    ezDynamicArray<ezString> m_MeshExcludeTags;
+    WDynamicArray<WString> m_MeshExcludeTags;
 
-    ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
+    WMeshResourceDescriptor* m_pMeshOutput = nullptr;
 
-    ezEditableSkeleton* m_pSkeletonOutput = nullptr;
+    WEditableSkeleton* m_pSkeletonOutput = nullptr;
 
     bool m_bAdditiveAnimation = false;
     AdditiveReference m_AdditiveReference = AdditiveReference::FirstKeyFrame;
 
-    ezString m_sAnimationToImport; // empty = first in file; "name" = only anim with that name
-    ezAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
-    ezUInt32 m_uiFirstAnimKeyframe = 0;
-    ezUInt32 m_uiNumAnimKeyframes = 0;
+    WString m_sAnimationToImport; // empty = first in file; "name" = only anim with that name
+    WAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
+    WUInt32 m_uiFirstAnimKeyframe = 0;
+    WUInt32 m_uiNumAnimKeyframes = 0;
 
-    ezUInt8 m_uiMeshSimplification = 0;
-    ezUInt8 m_uiMaxSimplificationError = 5;
+    WUInt8 m_uiMeshSimplification = 0;
+    WUInt8 m_uiMaxSimplificationError = 5;
     float m_fNormalWeight = 0.5f;
     bool m_bAggressiveSimplification = false;
 
@@ -60,7 +60,7 @@ namespace ezModelImporter2
     float m_fAnimationPositionScale = 1.0f;
   };
 
-  enum class PropertySemantic : ezInt8
+  enum class PropertySemantic : WInt8
   {
     Unknown = 0,
 
@@ -71,7 +71,7 @@ namespace ezModelImporter2
     TwosidedValue,
   };
 
-  enum class TextureSemantic : ezInt8
+  enum class TextureSemantic : WInt8
   {
     Unknown = 0,
 
@@ -86,43 +86,43 @@ namespace ezModelImporter2
     EmissiveMap,
   };
 
-  struct EZ_MODELIMPORTER2_DLL OutputTexture
+  struct W_MODELIMPORTER2_DLL OutputTexture
   {
-    ezString m_sFilename;
-    ezString m_sFileFormatExtension;
-    ezConstByteArrayPtr m_RawData;
+    WString m_sFilename;
+    WString m_sFileFormatExtension;
+    WConstByteArrayPtr m_RawData;
 
-    void GenerateFileName(ezStringBuilder& out_sName) const;
+    void GenerateFileName(WStringBuilder& out_sName) const;
   };
 
-  struct EZ_MODELIMPORTER2_DLL OutputMaterial
+  struct W_MODELIMPORTER2_DLL OutputMaterial
   {
-    ezString m_sName;
+    WString m_sName;
 
-    ezInt32 m_iReferencedByMesh = -1;                     // if -1, no sub-mesh in the output actually references this
-    ezMap<TextureSemantic, ezString> m_TextureReferences; // semantic -> path
-    ezMap<PropertySemantic, ezVariant> m_Properties;      // semantic -> value
+    WInt32 m_iReferencedByMesh = -1;                     // if -1, no sub-mesh in the output actually references this
+    WMap<TextureSemantic, WString> m_TextureReferences; // semantic -> path
+    WMap<PropertySemantic, WVariant> m_Properties;      // semantic -> value
   };
 
-  class EZ_MODELIMPORTER2_DLL Importer
+  class W_MODELIMPORTER2_DLL Importer
   {
   public:
     Importer();
     virtual ~Importer();
 
-    ezResult Import(const ImportOptions& options, ezLogInterface* pLogInterface = nullptr, ezProgress* pProgress = nullptr);
+    WResult Import(const ImportOptions& options, WLogInterface* pLogInterface = nullptr, WProgress* pProgress = nullptr);
     const ImportOptions& GetImportOptions() const { return m_Options; }
 
-    ezMap<ezString, OutputTexture> m_OutputTextures; // path -> additional data
-    ezDeque<OutputMaterial> m_OutputMaterials;
-    ezDynamicArray<ezString> m_OutputAnimationNames;
-    ezDynamicArray<ezString> m_OutputMeshNames;
+    WMap<WString, OutputTexture> m_OutputTextures; // path -> additional data
+    WDeque<OutputMaterial> m_OutputMaterials;
+    WDynamicArray<WString> m_OutputAnimationNames;
+    WDynamicArray<WString> m_OutputMeshNames;
 
   protected:
-    virtual ezResult DoImport() = 0;
+    virtual WResult DoImport() = 0;
 
     ImportOptions m_Options;
-    ezProgress* m_pProgress = nullptr;
+    WProgress* m_pProgress = nullptr;
   };
 
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

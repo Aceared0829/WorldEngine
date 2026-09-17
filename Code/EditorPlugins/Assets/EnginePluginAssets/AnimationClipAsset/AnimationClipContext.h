@@ -4,33 +4,33 @@
 #include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/Declarations.h>
 
-class EZ_ENGINEPLUGINASSETS_DLL ezAnimationClipContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WAnimationClipContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipContext, WEngineProcessDocumentContext);
 
 public:
-  ezAnimationClipContext();
+  WAnimationClipContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
   bool m_bDisplayGrid = true;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg);
   void SetPlaybackPosition(double pos);
   void GenerateAndApplyPose();
   void ExtractRootMotionFromFeet();
 
-  ezGameObject* m_pGameObject = nullptr;
-  ezString m_sAnimatedMeshToUse;
-  ezString m_sBaseAnimationClip;
+  WGameObject* m_pGameObject = nullptr;
+  WString m_sAnimatedMeshToUse;
+  WString m_sBaseAnimationClip;
   float m_fNormalizedPlaybackPosition = 0.0f;
-  ezComponentHandle m_hAnimMeshComponent;
+  WComponentHandle m_hAnimMeshComponent;
 };

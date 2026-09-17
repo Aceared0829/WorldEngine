@@ -7,47 +7,47 @@
 ///
 /// Curl noise produces divergence-free flow fields that look natural and avoid
 /// compression artifacts. Useful for smoke, fire, and magical effects.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Turbulence final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Turbulence final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Turbulence, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Turbulence, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Turbulence();
+  WParticleBehaviorFactory_Turbulence();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   float m_fStrength = 2.0f;
   float m_fFrequency = 1.0f;
-  ezVec3 m_vScrollSpeed = ezVec3::MakeZero();
-  ezUInt8 m_uiOctaves = 1;
+  WVec3 m_vScrollSpeed = WVec3::MakeZero();
+  WUInt8 m_uiOctaves = 1;
   bool m_bAffectVelocity = true;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Turbulence final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Turbulence final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Turbulence, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Turbulence, WParticleBehavior);
 
 public:
   float m_fStrength = 2.0f;
   float m_fFrequency = 1.0f;
-  ezVec3 m_vScrollSpeed = ezVec3::MakeZero();
-  ezUInt8 m_uiOctaves = 1;
+  WVec3 m_vScrollSpeed = WVec3::MakeZero();
+  WUInt8 m_uiOctaves = 1;
   bool m_bAffectVelocity = true;
 
 protected:
   virtual void OnFinalize() override;
 
   virtual void CreateRequiredStreams() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
 
-  ezSimdPerlinNoise m_Noise;
-  ezTime m_TotalTime;
+  WSimdPerlinNoise m_Noise;
+  WTime m_TotalTime;
 };

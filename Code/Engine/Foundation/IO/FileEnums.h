@@ -1,18 +1,18 @@
 #pragma once
 
 /// Selection specifying file lock behavior on open
-struct ezFileShareMode
+struct WFileShareMode
 {
   enum Enum
   {
-    Default,     ///< Results in 'Exclusive' when requesting write access and 'SharedReads' when requesting read access. See ezFileOpenMode::Enum.
+    Default,     ///< Results in 'Exclusive' when requesting write access and 'SharedReads' when requesting read access. See WFileOpenMode::Enum.
     Exclusive,   ///< No other process is allowed to access the file for reading or writing, while it is open
     SharedReads, ///< Other processes may read the file concurrently
   };
 };
 
 /// For file seek operations this enum defines from which relative position the seek position is described.
-struct ezFileSeekMode
+struct WFileSeekMode
 {
   enum Enum
   {

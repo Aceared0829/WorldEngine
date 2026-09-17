@@ -3,8 +3,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ModelImporter2/Importer/Importer.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
-  EZ_MODELIMPORTER2_DLL ezUniquePtr<Importer> RequestImporterForFileType(ezStringView sFile);
+  W_MODELIMPORTER2_DLL WUniquePtr<Importer> RequestImporterForFileType(WStringView sFile);
 
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

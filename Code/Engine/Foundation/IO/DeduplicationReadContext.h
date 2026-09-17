@@ -8,47 +8,47 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezStreamReader;
+class WStreamReader;
 
 /// Serialization Context that reads de-duplicated objects from a stream and restores the pointers.
-class EZ_FOUNDATION_DLL ezDeduplicationReadContext : public ezSerializationContext<ezDeduplicationReadContext>
+class W_FOUNDATION_DLL WDeduplicationReadContext : public WSerializationContext<WDeduplicationReadContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezDeduplicationReadContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WDeduplicationReadContext);
 
 public:
-  ezDeduplicationReadContext();
-  ~ezDeduplicationReadContext();
+  WDeduplicationReadContext();
+  ~WDeduplicationReadContext();
 
   /// Reads a single object inplace.
   template <typename T>
-  ezResult ReadObjectInplace(ezStreamReader& inout_stream, T& ref_obj); // [tested]
+  WResult ReadObjectInplace(WStreamReader& inout_stream, T& ref_obj); // [tested]
 
   /// Reads a single object and sets the pointer to it. The given allocator is used to create the object if it doesn't exist yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& inout_stream, T*& ref_pObject,
-    ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadObject(WStreamReader& inout_stream, T*& ref_pObject,
+    WAllocator* pAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
   /// Reads a single object and sets the shared pointer to it. The given allocator is used to create the object if it doesn't exist
   /// yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& inout_stream, ezSharedPtr<T>& ref_pObject,
-    ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadObject(WStreamReader& inout_stream, WSharedPtr<T>& ref_pObject,
+    WAllocator* pAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
   /// Reads a single object and sets the unique pointer to it. The given allocator is used to create the object if it doesn't exist
   /// yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& inout_stream, ezUniquePtr<T>& ref_pObject,
-    ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadObject(WStreamReader& inout_stream, WUniquePtr<T>& ref_pObject,
+    WAllocator* pAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
   /// Reads an array of de-duplicated objects.
   template <typename ArrayType, typename ValueType>
-  ezResult ReadArray(ezStreamReader& inout_stream, ezArrayBase<ValueType, ArrayType>& ref_array,
-    ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadArray(WStreamReader& inout_stream, WArrayBase<ValueType, ArrayType>& ref_array,
+    WAllocator* pAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
   /// Reads a set of de-duplicated objects.
   template <typename KeyType, typename Comparer>
-  ezResult ReadSet(ezStreamReader& inout_stream, ezSetBase<KeyType, Comparer>& ref_set,
-    ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadSet(WStreamReader& inout_stream, WSetBase<KeyType, Comparer>& ref_set,
+    WAllocator* pAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
   enum class ReadMapMode
   {
@@ -59,15 +59,15 @@ public:
 
   /// Reads a map. Mode controls whether key or value or both should de-duplicated.
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult ReadMap(ezStreamReader& inout_stream, ezMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode,
-    ezAllocator* pKeyAllocator = ezFoundation::GetDefaultAllocator(),
-    ezAllocator* pValueAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  WResult ReadMap(WStreamReader& inout_stream, WMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode,
+    WAllocator* pKeyAllocator = WFoundation::GetDefaultAllocator(),
+    WAllocator* pValueAllocator = WFoundation::GetDefaultAllocator()); // [tested]
 
 private:
   template <typename T>
-  ezResult ReadObject(ezStreamReader& stream, T& obj, ezAllocator* pAllocator); // [tested]
+  WResult ReadObject(WStreamReader& stream, T& obj, WAllocator* pAllocator); // [tested]
 
-  ezDynamicArray<void*> m_Objects;
+  WDynamicArray<void*> m_Objects;
 };
 
 #include <Foundation/IO/Implementation/DeduplicationReadContext_inl.h>

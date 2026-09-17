@@ -12,31 +12,31 @@
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 2, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleSystemDescriptor, 2, WRTTIDefaultAllocator<WParticleSystemDescriptor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("LifeTime", m_LifeTime)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeTime(ezTime::MakeFromSeconds(2))), new ezClampValueAttribute(ezTime::MakeFromSeconds(0.0), ezVariant())),
-    EZ_MEMBER_PROPERTY("LifeScaleParam", m_sLifeScaleParameter),
-    EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
-    EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
-    EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
-    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("LifeTime", m_LifeTime)->AddAttributes(new WDefaultValueAttribute(WVarianceTypeTime(WTime::MakeFromSeconds(2))), new WClampValueAttribute(WTime::MakeFromSeconds(0.0), WVariant())),
+    W_MEMBER_PROPERTY("LifeScaleParam", m_sLifeScaleParameter),
+    W_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent)->AddAttributes(new WDynamicStringEnumAttribute("ParticleEventNamesEnum")),
+    W_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(WPropertyFlags::PointerOwner)->AddAttributes(new WMaxArraySizeAttribute(1)),
+    W_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(WPropertyFlags::PointerOwner)->AddAttributes(new WPreventDuplicatesAttribute()),
+    W_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(WPropertyFlags::PointerOwner),
+    W_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleSystemDescriptor::ezParticleSystemDescriptor()
+WParticleSystemDescriptor::WParticleSystemDescriptor()
 {
   m_bVisible = true;
 }
 
-ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
+WParticleSystemDescriptor::~WParticleSystemDescriptor()
 {
   ClearEmitters();
   ClearInitializers();
@@ -45,7 +45,7 @@ ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
   ClearTypes();
 }
 
-void ezParticleSystemDescriptor::ClearEmitters()
+void WParticleSystemDescriptor::ClearEmitters()
 {
   for (auto pFactory : m_EmitterFactories)
   {
@@ -55,7 +55,7 @@ void ezParticleSystemDescriptor::ClearEmitters()
   m_EmitterFactories.Clear();
 }
 
-void ezParticleSystemDescriptor::ClearInitializers()
+void WParticleSystemDescriptor::ClearInitializers()
 {
   for (auto pFactory : m_InitializerFactories)
   {
@@ -65,7 +65,7 @@ void ezParticleSystemDescriptor::ClearInitializers()
   m_InitializerFactories.Clear();
 }
 
-void ezParticleSystemDescriptor::ClearBehaviors()
+void WParticleSystemDescriptor::ClearBehaviors()
 {
   for (auto pFactory : m_BehaviorFactories)
   {
@@ -75,7 +75,7 @@ void ezParticleSystemDescriptor::ClearBehaviors()
   m_BehaviorFactories.Clear();
 }
 
-void ezParticleSystemDescriptor::ClearTypes()
+void WParticleSystemDescriptor::ClearTypes()
 {
   for (auto pFactory : m_TypeFactories)
   {
@@ -85,7 +85,7 @@ void ezParticleSystemDescriptor::ClearTypes()
   m_TypeFactories.Clear();
 }
 
-void ezParticleSystemDescriptor::ClearFinalizers()
+void WParticleSystemDescriptor::ClearFinalizers()
 {
   for (auto pFactory : m_FinalizerFactories)
   {
@@ -95,12 +95,12 @@ void ezParticleSystemDescriptor::ClearFinalizers()
   m_FinalizerFactories.Clear();
 }
 
-void ezParticleSystemDescriptor::SetupDefaultProcessors()
+void WParticleSystemDescriptor::SetupDefaultProcessors()
 {
   // Age Behavior
   {
-    ezParticleFinalizerFactory_Age* pFactory =
-      ezParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Age>();
+    WParticleFinalizerFactory_Age* pFactory =
+      WParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<WParticleFinalizerFactory_Age>();
     pFactory->m_LifeTime = m_LifeTime;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
     pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
@@ -109,18 +109,18 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 
   // Bounding Volume Update Behavior
   {
-    ezParticleFinalizerFactory_Volume* pFactory =
-      ezParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Volume>();
+    WParticleFinalizerFactory_Volume* pFactory =
+      WParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<WParticleFinalizerFactory_Volume>();
     m_FinalizerFactories.PushBack(pFactory);
   }
 
   if (m_TypeFactories.IsEmpty())
   {
-    ezParticleTypePointFactory* pFactory = ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePointFactory>();
+    WParticleTypePointFactory* pFactory = WParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<WParticleTypePointFactory>();
     m_TypeFactories.PushBack(pFactory);
   }
 
-  ezSet<const ezRTTI*> finalizers;
+  WSet<const WRTTI*> finalizers;
   for (const auto* pFactory : m_InitializerFactories)
   {
     pFactory->QueryFinalizerDependencies(finalizers);
@@ -136,13 +136,13 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
     pFactory->QueryFinalizerDependencies(finalizers);
   }
 
-  for (const ezRTTI* pRtti : finalizers)
+  for (const WRTTI* pRtti : finalizers)
   {
-    EZ_ASSERT_DEBUG(
-      pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
-    EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
+    W_ASSERT_DEBUG(
+      pRtti->IsDerivedFrom<WParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
+    W_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
 
-    m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizerFactory>());
+    m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<WParticleFinalizerFactory>());
   }
 }
 
@@ -163,9 +163,9 @@ enum class ParticleSystemVersion
 };
 
 
-ezTime ezParticleSystemDescriptor::GetAvgLifetime() const
+WTime WParticleSystemDescriptor::GetAvgLifetime() const
 {
-  ezTime time = m_LifeTime.m_Value + m_LifeTime.m_Value * (m_LifeTime.m_fVariance * 2.0f / 3.0f);
+  WTime time = m_LifeTime.m_Value + m_LifeTime.m_Value * (m_LifeTime.m_fVariance * 2.0f / 3.0f);
 
   // we actively prevent values outside the [0;2] range for the life-time scale parameter, when it is applied
   // so this is the accurate worst case value
@@ -178,18 +178,18 @@ ezTime ezParticleSystemDescriptor::GetAvgLifetime() const
   return time;
 }
 
-void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
+void WParticleSystemDescriptor::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)ParticleSystemVersion::Version_Current;
+  const WUInt8 uiVersion = (int)ParticleSystemVersion::Version_Current;
 
   inout_stream << uiVersion;
 
-  const ezUInt32 uiNumEmitters = m_EmitterFactories.GetCount();
-  const ezUInt32 uiNumInitializers = m_InitializerFactories.GetCount();
-  const ezUInt32 uiNumBehaviors = m_BehaviorFactories.GetCount();
-  const ezUInt32 uiNumTypes = m_TypeFactories.GetCount();
+  const WUInt32 uiNumEmitters = m_EmitterFactories.GetCount();
+  const WUInt32 uiNumInitializers = m_InitializerFactories.GetCount();
+  const WUInt32 uiNumBehaviors = m_BehaviorFactories.GetCount();
+  const WUInt32 uiNumTypes = m_TypeFactories.GetCount();
 
-  ezUInt32 uiMaxParticles = 0;
+  WUInt32 uiMaxParticles = 0;
   inout_stream << m_bVisible;
   inout_stream << uiMaxParticles;
   inout_stream << m_LifeTime.m_Value;
@@ -231,7 +231,7 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
 }
 
 
-void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor)
+void WParticleSystemDescriptor::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor)
 {
   ClearEmitters();
   ClearInitializers();
@@ -239,14 +239,14 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
   ClearFinalizers();
   ClearTypes();
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= (int)ParticleSystemVersion::Version_Current, "Unknown particle template version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)ParticleSystemVersion::Version_Current, "Unknown particle template version {0}", uiVersion);
 
-  ezUInt32 uiNumEmitters = 0;
-  ezUInt32 uiNumInitializers = 0;
-  ezUInt32 uiNumBehaviors = 0;
-  ezUInt32 uiNumTypes = 0;
+  WUInt32 uiNumEmitters = 0;
+  WUInt32 uiNumInitializers = 0;
+  WUInt32 uiNumBehaviors = 0;
+  WUInt32 uiNumTypes = 0;
 
   if (uiVersion >= 3)
   {
@@ -256,7 +256,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
   if (uiVersion >= 2)
   {
     // now unused
-    ezUInt32 uiMaxParticles = 0;
+    WUInt32 uiMaxParticles = 0;
     inout_stream >> uiMaxParticles;
   }
 
@@ -291,16 +291,16 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
   m_BehaviorFactories.SetCountUninitialized(uiNumBehaviors);
   m_TypeFactories.SetCountUninitialized(uiNumTypes);
 
-  ezStringBuilder sType;
+  WStringBuilder sType;
 
   for (auto& pEmitter : m_EmitterFactories)
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType);
+    const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+    W_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType);
 
-    pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitterFactory>();
+    pEmitter = pRtti->GetAllocator()->Allocate<WParticleEmitterFactory>();
 
     pEmitter->Load(inout_stream, ownerEffectDescriptor, *this);
   }
@@ -311,10 +311,10 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType);
+      const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+      W_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType);
 
-      pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializerFactory>();
+      pInitializer = pRtti->GetAllocator()->Allocate<WParticleInitializerFactory>();
 
       pInitializer->Load(inout_stream, ownerEffectDescriptor, *this);
     }
@@ -324,10 +324,10 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType);
+    const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+    W_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType);
 
-    pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehaviorFactory>();
+    pBehavior = pRtti->GetAllocator()->Allocate<WParticleBehaviorFactory>();
 
     pBehavior->Load(inout_stream, ownerEffectDescriptor, *this);
   }
@@ -338,10 +338,10 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType);
+      const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+      W_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType);
 
-      pType = pRtti->GetAllocator()->Allocate<ezParticleTypeFactory>();
+      pType = pRtti->GetAllocator()->Allocate<WParticleTypeFactory>();
 
       pType->Load(inout_stream, ownerEffectDescriptor, *this);
     }
@@ -352,21 +352,21 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleSystemDescriptor_1_2 : public ezGraphPatch
+class WParticleSystemDescriptor_1_2 : public WGraphPatch
 {
 public:
-  ezParticleSystemDescriptor_1_2()
-    : ezGraphPatch("ezParticleSystemDescriptor", 2)
+  WParticleSystemDescriptor_1_2()
+    : WGraphPatch("WParticleSystemDescriptor", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("LifeTime").IgnoreResult();
   }
 };
 
-ezParticleSystemDescriptor_1_2 g_ezParticleSystemDescriptor_1_2;
+WParticleSystemDescriptor_1_2 g_WParticleSystemDescriptor_1_2;
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemDescriptor);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemDescriptor);

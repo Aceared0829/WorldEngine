@@ -1,0 +1,20 @@
+# Asset Types
+
+Animation Clip;Animation Clip;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-clip-asset.html
+
+# Component Types
+
+# UI
+
+AnimationClipImport_Single;Animation Clip (Single)
+AnimationClipImport_All;Animation Clips (All)
+
+AnimationClip.RootMotionFromFeet;Extract Root Motion From Feet
+
+# Properties
+
+WRootMotionSource::None;No Root Motion
+WRootMotionSource::Constant;Constant Motion
+
+WAdditiveAnimationReference::FirstKeyFrame;First Keyframe
+WAdditiveAnimationReference::LastKeyFrame;Last Keyframe

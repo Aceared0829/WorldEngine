@@ -9,58 +9,58 @@
 /// This node plays multiple animation clips in sequence (start → middle clips → end), with optional looping.
 /// Useful for complex animations composed of intro, loop, and outro sections (e.g., sprint start, sprint loop, sprint end).
 /// Trigger outputs signal when transitioning between clips.
-class EZ_RENDERERCORE_DLL ezSampleAnimClipSequenceAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSampleAnimClipSequenceAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSampleAnimClipSequenceAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSampleAnimClipSequenceAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSampleAnimClipSequenceAnimNode
+  // WSampleAnimClipSequenceAnimNode
 
 public:
-  ezSampleAnimClipSequenceAnimNode();
-  ~ezSampleAnimClipSequenceAnimNode();
+  WSampleAnimClipSequenceAnimNode();
+  ~WSampleAnimClipSequenceAnimNode();
 
   void SetStartClip(const char* szClip);
   const char* GetStartClip() const;
 
-  ezUInt32 Clips_GetCount() const;                            // [ property ]
-  const char* Clips_GetValue(ezUInt32 uiIndex) const;         // [ property ]
-  void Clips_SetValue(ezUInt32 uiIndex, const char* szValue); // [ property ]
-  void Clips_Insert(ezUInt32 uiIndex, const char* szValue);   // [ property ]
-  void Clips_Remove(ezUInt32 uiIndex);                        // [ property ]
+  WUInt32 Clips_GetCount() const;                            // [ property ]
+  const char* Clips_GetValue(WUInt32 uiIndex) const;         // [ property ]
+  void Clips_SetValue(WUInt32 uiIndex, const char* szValue); // [ property ]
+  void Clips_Insert(WUInt32 uiIndex, const char* szValue);   // [ property ]
+  void Clips_Remove(WUInt32 uiIndex);                        // [ property ]
 
   void SetEndClip(const char* szClip);
   const char* GetEndClip() const;
 
 private:
-  ezHashedString m_sStartClip;                      // [ property ]
-  ezHybridArray<ezHashedString, 1> m_Clips;         // [ property ]
-  ezHashedString m_sEndClip;                        // [ property ]
+  WHashedString m_sStartClip;                      // [ property ]
+  WHybridArray<WHashedString, 1> m_Clips;         // [ property ]
+  WHashedString m_sEndClip;                        // [ property ]
   float m_fRootMotionAmount = 0.0f;                 // [ property ]
   bool m_bLoop = false;                             // [ property ]
   float m_fPlaybackSpeed = 1.0f;                    // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;             // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;                 // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;              // [ property ]
-  ezAnimGraphNumberInputPin m_ClipIndexPin;         // [ property ]
+  WAnimGraphTriggerInputPin m_InStart;             // [ property ]
+  WAnimGraphBoolInputPin m_InLoop;                 // [ property ]
+  WAnimGraphNumberInputPin m_InSpeed;              // [ property ]
+  WAnimGraphNumberInputPin m_ClipIndexPin;         // [ property ]
 
-  ezAnimGraphLocalPoseOutputPin m_OutPose;          // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnMiddleStarted; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnEndStarted;    // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFinished;      // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;          // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnMiddleStarted; // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnEndStarted;    // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFinished;      // [ property ]
 
-  enum class State : ezUInt8
+  enum class State : WUInt8
   {
     Off,
     Start,
@@ -73,8 +73,8 @@ private:
 
   struct InstanceData
   {
-    ezTime m_PlaybackTime = ezTime::MakeFromHours(1000);
+    WTime m_PlaybackTime = WTime::MakeFromHours(1000);
     State m_State = State::Off;
-    ezUInt8 m_uiMiddleClipIdx = 0;
+    WUInt8 m_uiMiddleClipIdx = 0;
   };
 };

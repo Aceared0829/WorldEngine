@@ -10,13 +10,13 @@
 ///
 /// Displays pins with color coding based on data type and provides tooltips with detailed type information.
 /// Handles both execution pins and data pins with appropriate visual styling.
-class ezQtVisualScriptPin : public ezQtVisualGraphPin
+class WQtVisualScriptPin : public WQtVisualGraphPin
 {
 public:
-  ezQtVisualScriptPin();
+  WQtVisualScriptPin();
 
-  virtual void SetPin(const ezVisualGraphPin& pin) override;
-  virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr) override;
+  virtual void SetPin(const WVisualGraphPin& pin) override;
+  virtual bool UpdatePinColors(const WColorGammaUB* pOverwriteColor = nullptr) override;
 
 private:
   void UpdateTooltip();
@@ -25,46 +25,46 @@ private:
 /// Qt graphics item for visual script connections.
 ///
 /// Renders connections between visual script pins, representing both execution flow and data flow.
-class ezQtVisualScriptConnection : public ezQtVisualGraphConnection
+class WQtVisualScriptConnection : public WQtVisualGraphConnection
 {
 public:
-  ezQtVisualScriptConnection();
+  WQtVisualScriptConnection();
 };
 
 /// Qt graphics item for visual script nodes.
 ///
 /// Visual representation of nodes in a visual script, such as function calls, variables, or control flow nodes.
 /// Displays special icons for coroutine and loop nodes.
-class ezQtVisualScriptNode : public ezQtVisualGraphNode
+class WQtVisualScriptNode : public WQtVisualGraphNode
 {
 public:
-  ezQtVisualScriptNode();
+  WQtVisualScriptNode();
 
   virtual void UpdateState() override;
 
 private:
-  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
+  void ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput);
 };
 
 /// Qt scene for visual script graphs.
 ///
 /// Manages the visual scene for visual script editing. Provides icons for coroutine and loop nodes
 /// and updates node visuals when their properties change.
-class ezQtVisualScriptNodeScene : public ezQtVisualGraphScene
+class WQtVisualScriptNodeScene : public WQtVisualGraphScene
 {
   Q_OBJECT
 
 public:
-  ezQtVisualScriptNodeScene(QObject* pParent = nullptr);
-  ~ezQtVisualScriptNodeScene();
+  WQtVisualScriptNodeScene(QObject* pParent = nullptr);
+  ~WQtVisualScriptNodeScene();
 
-  virtual void InitScene(const ezVisualGraphObjectManager* pManager);
+  virtual void InitScene(const WVisualGraphObjectManager* pManager);
 
   const QPixmap& GetCoroutineIcon() const { return m_CoroutineIcon; }
   const QPixmap& GetLoopIcon() const { return m_LoopIcon; }
 
 private:
-  void NodeChangedHandler(const ezDocumentObject* pObject);
+  void NodeChangedHandler(const WDocumentObject* pObject);
 
   QPixmap m_CoroutineIcon;
   QPixmap m_LoopIcon;

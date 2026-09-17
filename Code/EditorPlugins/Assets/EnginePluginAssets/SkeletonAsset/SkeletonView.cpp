@@ -7,30 +7,30 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezSkeletonViewContext::ezSkeletonViewContext(ezSkeletonContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+WSkeletonViewContext::WSkeletonViewContext(WSkeletonContext* pContext)
+  : WEngineProcessViewContext(pContext)
 {
   m_pContext = pContext;
 
   // Start with something valid.
-  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
+  m_Camera.LookAt(WVec3(1, 1, 1), WVec3::MakeZero(), WVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezSkeletonViewContext::~ezSkeletonViewContext() = default;
+WSkeletonViewContext::~WSkeletonViewContext() = default;
 
-bool ezSkeletonViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
+bool WSkeletonViewContext::UpdateThumbnailCamera(const WBoundingBoxSphere& bounds)
 {
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -WVec3(5, -2, 3));
 }
 
 
-void ezSkeletonViewContext::Redraw(bool bRenderEditorGizmos)
+void WSkeletonViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hView, pView))
   {
-    const ezTag& tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
+    const WTag& tagNoOrtho = WTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
     if (pView->GetCamera()->IsOrthographic())
     {
@@ -41,111 +41,111 @@ void ezSkeletonViewContext::Redraw(bool bRenderEditorGizmos)
       pView->m_ExcludeTags.Remove(tagNoOrtho);
     }
 
-    EZ_LOCK(pView->GetWorld()->GetWriteMarker());
-    if (auto pGizmoManager = pView->GetWorld()->GetComponentManager<ezGizmoComponentManager>())
+    W_LOCK(pView->GetWorld()->GetWriteMarker());
+    if (auto pGizmoManager = pView->GetWorld()->GetComponentManager<WGizmoComponentManager>())
     {
       pGizmoManager->m_uiHighlightID = GetDocumentContext()->m_Context.m_uiHighlightID;
     }
   }
 
-  ezEngineProcessViewContext::Redraw(bRenderEditorGizmos);
+  WEngineProcessViewContext::Redraw(bRenderEditorGizmos);
 }
 
-ezViewHandle ezSkeletonViewContext::CreateView()
+WViewHandle WSkeletonViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Skeleton Editor - View");
+  WView* pView = CreateDefaultView("Skeleton Editor - View");
   return pView->GetHandle();
 }
 
-void ezSkeletonViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WSkeletonViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
   if (m_pContext->m_bDisplayGrid)
   {
-    ezEngineProcessViewContext::DrawSimpleGrid();
+    WEngineProcessViewContext::DrawSimpleGrid();
   }
 
-  ezEngineProcessViewContext::SetCamera(pMsg);
+  WEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+  const WUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
   auto hSkeleton = m_pContext->GetSkeleton();
   if (hSkeleton.IsValid())
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WSkeletonResource> pSkeleton(hSkeleton, WResourceAcquireMode::AllowLoadingFallback);
 
-    ezUInt32 uiNumJoints = pSkeleton->GetDescriptor().m_Skeleton.GetJointCount();
+    WUInt32 uiNumJoints = pSkeleton->GetDescriptor().m_Skeleton.GetJointCount();
 
-    ezStringBuilder sText;
+    WStringBuilder sText;
     sText.AppendFormat("Joints: {}\n", uiNumJoints);
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugTextHAlign::Left,
-      ezDebugTextVAlign::Bottom);
+    WDebugRenderer::Draw2DText(m_hView, sText, WVec2I32(10, viewHeight - 10), WColor::White, 16, WDebugTextHAlign::Left,
+      WDebugTextVAlign::Bottom);
   }
 }
 
-void ezSkeletonViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void WSkeletonViewContext::HandleViewMessage(const WEditorEngineViewMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewPickingMsgToEngine>())
   {
-    const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
+    const WViewPickingMsgToEngine* pMsg2 = static_cast<const WViewPickingMsgToEngine*>(pMsg);
 
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), true);
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), true);
+      pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorPickingPass.Active"), true);
+      pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorPickingPass.PickSelected"), true);
     }
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
   }
   else
   {
-    ezEngineProcessViewContext::HandleViewMessage(pMsg);
+    WEngineProcessViewContext::HandleViewMessage(pMsg);
   }
 }
 
-void ezSkeletonViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
+void WSkeletonViewContext::PickObjectAt(WUInt16 x, WUInt16 y)
 {
   // remote processes do not support picking, just ignore this
-  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+  if (WEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     return;
 
-  ezViewPickingResultMsgToEditor res;
-  EZ_SCOPE_EXIT(SendViewMessage(&res));
+  WViewPickingResultMsgToEditor res;
+  W_SCOPE_EXIT(SendViewMessage(&res));
 
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView) == false)
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hView, pView) == false)
     return;
 
   auto pBlackboard = pView->GetBlackboard();
-  pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickingPosition"), ezVec2(x, y));
+  pBlackboard->SetEntryValue(WMakeHashedString("EditorPickingPass.PickingPosition"), WVec2(x, y));
 
   auto pPickedPositionEntry = pBlackboard->GetEntry("EditorPickingPass.PickedPosition");
-  if (pPickedPositionEntry == nullptr || pPickedPositionEntry->m_Value.IsA<ezVec3>() == false)
+  if (pPickedPositionEntry == nullptr || pPickedPositionEntry->m_Value.IsA<WVec3>() == false)
     return;
 
-  const ezUInt32 uiPickingID = pBlackboard->GetEntryValue("EditorPickingPass.PickedID").ConvertTo<ezUInt32>();
-  res.m_vPickedNormal = pBlackboard->GetEntryValue("EditorPickingPass.PickedNormal").ConvertTo<ezVec3>();
-  res.m_vPickingRayStartPosition = pBlackboard->GetEntryValue("EditorPickingPass.PickedRayStartPosition").ConvertTo<ezVec3>();
-  res.m_vPickedPosition = pPickedPositionEntry->m_Value.ConvertTo<ezVec3>();
+  const WUInt32 uiPickingID = pBlackboard->GetEntryValue("EditorPickingPass.PickedID").ConvertTo<WUInt32>();
+  res.m_vPickedNormal = pBlackboard->GetEntryValue("EditorPickingPass.PickedNormal").ConvertTo<WVec3>();
+  res.m_vPickingRayStartPosition = pBlackboard->GetEntryValue("EditorPickingPass.PickedRayStartPosition").ConvertTo<WVec3>();
+  res.m_vPickedPosition = pPickedPositionEntry->m_Value.ConvertTo<WVec3>();
 
-  EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
+  W_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
 
-  const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
-  const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0xFF;
+  const WUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
+  const WUInt32 uiPartIndex = (uiPickingID >> 24) & 0xFF;
 
   res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
   res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
 
   if (res.m_ComponentGuid.IsValid())
   {
-    ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
+    WComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
 
-    ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+    WEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
 
     // check whether the component is still valid
-    ezComponent* pComponent = nullptr;
-    if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+    WComponent* pComponent = nullptr;
+    if (pDocumentContext->GetWorld()->TryGetComponent<WComponent>(hComponent, pComponent))
     {
       // if yes, fill out the parent game object guid
       res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
@@ -153,7 +153,7 @@ void ezSkeletonViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     }
     else
     {
-      res.m_ComponentGuid = ezUuid();
+      res.m_ComponentGuid = WUuid();
     }
   }
 }

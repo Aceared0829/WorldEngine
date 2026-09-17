@@ -2,38 +2,38 @@
 
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
-ezPropertyAnimObjectManager::ezPropertyAnimObjectManager() = default;
+WPropertyAnimObjectManager::WPropertyAnimObjectManager() = default;
 
-ezPropertyAnimObjectManager::~ezPropertyAnimObjectManager() = default;
+WPropertyAnimObjectManager::~WPropertyAnimObjectManager() = default;
 
-ezStatus ezPropertyAnimObjectManager::InternalCanAdd(
-  const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
+WStatus WPropertyAnimObjectManager::InternalCanAdd(
+  const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const
 {
   if (m_bAllowStructureChangeOnTemporaries)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
   if (IsTemporary(pParent, sParentProperty))
-    return ezStatus("The structure of the context cannot be animated.");
-  return ezStatus(EZ_SUCCESS);
+    return WStatus("The structure of the context cannot be animated.");
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectManager::InternalCanRemove(const ezDocumentObject* pObject) const
+WStatus WPropertyAnimObjectManager::InternalCanRemove(const WDocumentObject* pObject) const
 {
   if (m_bAllowStructureChangeOnTemporaries)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
   if (IsTemporary(pObject))
-    return ezStatus("The structure of the context cannot be animated.");
-  return ezStatus(EZ_SUCCESS);
+    return WStatus("The structure of the context cannot be animated.");
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectManager::InternalCanMove(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const
+WStatus WPropertyAnimObjectManager::InternalCanMove(
+  const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProperty, const WVariant& index) const
 {
   if (m_bAllowStructureChangeOnTemporaries)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
   if (IsTemporary(pObject))
-    return ezStatus("The structure of the context cannot be animated.");
-  return ezStatus(EZ_SUCCESS);
+    return WStatus("The structure of the context cannot be animated.");
+  return WStatus(W_SUCCESS);
 }

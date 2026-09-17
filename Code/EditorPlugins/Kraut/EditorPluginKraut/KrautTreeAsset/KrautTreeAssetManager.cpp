@@ -3,39 +3,39 @@
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WKrautTreeAssetDocumentManager, 1, WRTTIDefaultAllocator<WKrautTreeAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
+WKrautTreeAssetDocumentManager::WKrautTreeAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Kraut Tree";
-  m_DocTypeDesc.m_sFileExtension = "ezKrautTreeAsset";
+  m_DocTypeDesc.m_sFileExtension = "WKrautTreeAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.svg";
   m_DocTypeDesc.m_sAssetCategory = "Terrain";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WKrautTreeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Kraut_Tree");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinKrautTree";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinKrautTree";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail;
 }
 
-ezKrautTreeAssetDocumentManager::~ezKrautTreeAssetDocumentManager()
+WKrautTreeAssetDocumentManager::~WKrautTreeAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezKrautTreeAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WKrautTreeAssetDocument>())
       {
-        new ezQtKrautTreeAssetDocumentWindow(static_cast<ezKrautTreeAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtKrautTreeAssetDocumentWindow(static_cast<WKrautTreeAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -45,13 +45,13 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezKrautTreeAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WKrautTreeAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezKrautTreeAssetDocument(sPath);
+  out_pDocument = new WKrautTreeAssetDocument(sPath);
 }
 
-void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

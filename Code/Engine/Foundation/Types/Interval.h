@@ -4,19 +4,19 @@
 
 /// Represents an interval with a start and an end value.
 template <class Type>
-class ezInterval
+class WInterval
 {
 public:
   /// The default constructor initializes the two values to zero.
-  constexpr ezInterval() = default;
+  constexpr WInterval() = default;
 
   /// Initializes both start and end to the same value.
-  constexpr ezInterval(Type startAndEndValue);
+  constexpr WInterval(Type startAndEndValue);
 
   /// Initializes start and end to the given values.
   ///
   /// Clamps the end value to not be lower than the start value.
-  constexpr ezInterval(Type start, Type end);
+  constexpr WInterval(Type start, Type end);
 
   /// Sets the start value. If necessary, the end value will adjusted to not be lower than the start value.
   void SetStartAdjustEnd(Type value);
@@ -37,14 +37,14 @@ public:
   /// Returns how much the start and and value are separated from each other.
   Type GetSeparation() const;
 
-  bool operator==(const ezInterval<Type>& rhs) const;
-  bool operator!=(const ezInterval<Type>& rhs) const;
+  bool operator==(const WInterval<Type>& rhs) const;
+  bool operator!=(const WInterval<Type>& rhs) const;
 
   Type m_StartValue = Type();
   Type m_EndValue = Type();
 };
 
-using ezFloatInterval = ezInterval<float>;
-using ezIntInterval = ezInterval<ezInt32>;
+using WFloatInterval = WInterval<float>;
+using WIntInterval = WInterval<WInt32>;
 
 #include <Foundation/Types/Implementation/Interval_inl.h>

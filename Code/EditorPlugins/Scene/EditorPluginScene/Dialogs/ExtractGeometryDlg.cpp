@@ -6,14 +6,14 @@
 
 #include <QFileDialog>
 
-QString ezQtExtractGeometryDlg::s_sDestinationFile;
-bool ezQtExtractGeometryDlg::s_bOnlySelection = false;
-int ezQtExtractGeometryDlg::s_iExtractionMode = (int)ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
-int ezQtExtractGeometryDlg::s_iCoordinateSystem = 1;
+QString WQtExtractGeometryDlg::s_sDestinationFile;
+bool WQtExtractGeometryDlg::s_bOnlySelection = false;
+int WQtExtractGeometryDlg::s_iExtractionMode = (int)WWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
+int WQtExtractGeometryDlg::s_iCoordinateSystem = 1;
 
-ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* pParent)
+WQtExtractGeometryDlg::WQtExtractGeometryDlg(QWidget* pParent)
 
-  : ezQtDialog(pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -22,14 +22,14 @@ ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* pParent)
   ExtractionMode->addItem("Collision Mesh");
 
   CoordinateSystem->clear();
-  CoordinateSystem->addItem("Forward: +X, Right: +Y, Up: +Z (ez)");
+  CoordinateSystem->addItem("Forward: +X, Right: +Y, Up: +Z (W)");
   CoordinateSystem->addItem("Forward: -Z, Right: +X, Up: +Y (OpenGL/Maya)");
   CoordinateSystem->addItem("Forward: +Z, Right: +X, Up: +Y (D3D)");
 
   UpdateUI();
 }
 
-void ezQtExtractGeometryDlg::UpdateUI()
+void WQtExtractGeometryDlg::UpdateUI()
 {
   DestinationFile->setText(s_sDestinationFile);
   ExtractOnlySelection->setChecked(s_bOnlySelection);
@@ -37,7 +37,7 @@ void ezQtExtractGeometryDlg::UpdateUI()
   CoordinateSystem->setCurrentIndex(s_iCoordinateSystem);
 }
 
-void ezQtExtractGeometryDlg::QueryUI()
+void WQtExtractGeometryDlg::QueryUI()
 {
   s_sDestinationFile = DestinationFile->text();
   s_bOnlySelection = ExtractOnlySelection->isChecked();
@@ -45,15 +45,15 @@ void ezQtExtractGeometryDlg::QueryUI()
   s_iCoordinateSystem = CoordinateSystem->currentIndex();
 }
 
-void ezQtExtractGeometryDlg::on_ButtonBox_clicked(QAbstractButton* button)
+void WQtExtractGeometryDlg::on_ButtonBox_clicked(QAbstractButton* button)
 {
   if (button == ButtonBox->button(QDialogButtonBox::StandardButton::Ok))
   {
     QueryUI();
 
-    if (!ezPathUtils::IsAbsolutePath(s_sDestinationFile.toUtf8().data()))
+    if (!WPathUtils::IsAbsolutePath(s_sDestinationFile.toUtf8().data()))
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("Only absolute paths are allowed for the destination file.");
+      WQtUiServices::GetSingleton()->MessageBoxWarning("Only absolute paths are allowed for the destination file.");
       return;
     }
 
@@ -68,7 +68,7 @@ void ezQtExtractGeometryDlg::on_ButtonBox_clicked(QAbstractButton* button)
   }
 }
 
-void ezQtExtractGeometryDlg::on_BrowseButton_clicked()
+void WQtExtractGeometryDlg::on_BrowseButton_clicked()
 {
   QString allFilters = "OBJ (*.obj)";
   QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Destination file"), s_sDestinationFile, allFilters,
@@ -80,9 +80,9 @@ void ezQtExtractGeometryDlg::on_BrowseButton_clicked()
   DestinationFile->setText(sFile);
 }
 
-ezMat3 ezQtExtractGeometryDlg::GetCoordinateSystemTransform()
+WMat3 WQtExtractGeometryDlg::GetCoordinateSystemTransform()
 {
-  ezMat3 m;
+  WMat3 m;
   m.SetIdentity();
 
   switch (s_iCoordinateSystem)
@@ -91,15 +91,15 @@ ezMat3 ezQtExtractGeometryDlg::GetCoordinateSystemTransform()
       break;
 
     case 1:
-      m.SetRow(2, ezVec3(-1, 0, 0)); // forward
-      m.SetRow(1, ezVec3(0, 0, 1));  // up
-      m.SetRow(0, ezVec3(0, 1, 0));  // right
+      m.SetRow(2, WVec3(-1, 0, 0)); // forward
+      m.SetRow(1, WVec3(0, 0, 1));  // up
+      m.SetRow(0, WVec3(0, 1, 0));  // right
       break;
 
     case 2:
-      m.SetRow(2, ezVec3(1, 0, 0)); // forward
-      m.SetRow(1, ezVec3(0, 0, 1)); // up
-      m.SetRow(0, ezVec3(0, 1, 0)); // right
+      m.SetRow(2, WVec3(1, 0, 0)); // forward
+      m.SetRow(1, WVec3(0, 0, 1)); // up
+      m.SetRow(0, WVec3(0, 1, 0)); // right
       break;
   }
 

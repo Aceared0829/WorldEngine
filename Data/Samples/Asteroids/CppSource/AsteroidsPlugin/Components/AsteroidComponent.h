@@ -3,17 +3,17 @@
 #include <Core/World/World.h>
 
 class AsteroidComponent;
-using AsteroidComponentManager = ezComponentManagerSimple<AsteroidComponent, ezComponentUpdateType::WhenSimulating>;
+using AsteroidComponentManager = WComponentManagerSimple<AsteroidComponent, WComponentUpdateType::WhenSimulating>;
 
-class AsteroidComponent : public ezComponent
+class AsteroidComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(AsteroidComponent, ezComponent, AsteroidComponentManager);
+  W_DECLARE_COMPONENT_TYPE(AsteroidComponent, WComponent, AsteroidComponentManager);
 
 public:
   AsteroidComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override {}
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override {}
 
   void Update();
 

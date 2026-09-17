@@ -9,179 +9,179 @@
 
 // clang-format off
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTriggerState, 1)
-  EZ_ENUM_CONSTANTS(ezTriggerState::Activated, ezTriggerState::Continuing, ezTriggerState::Deactivated)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTriggerState, 1)
+  W_ENUM_CONSTANTS(WTriggerState::Activated, WTriggerState::Continuing, WTriggerState::Deactivated)
+W_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeleteGameObject);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeleteGameObject, 1, ezRTTIDefaultAllocator<ezMsgDeleteGameObject>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgDeleteGameObject);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgDeleteGameObject, 1, WRTTIDefaultAllocator<WMsgDeleteGameObject>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentInternalTrigger);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultAllocator<ezMsgComponentInternalTrigger>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgComponentInternalTrigger);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgComponentInternalTrigger, 1, WRTTIDefaultAllocator<WMsgComponentInternalTrigger>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
-    EZ_MEMBER_PROPERTY("Payload", m_iPayload),
+    W_MEMBER_PROPERTY("Message", m_sMessage),
+    W_MEMBER_PROPERTY("Payload", m_iPayload),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgUpdateLocalBounds);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgUpdateLocalBounds, 1, ezRTTIDefaultAllocator<ezMsgUpdateLocalBounds>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgUpdateLocalBounds);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgUpdateLocalBounds, 1, WRTTIDefaultAllocator<WMsgUpdateLocalBounds>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetPlaying);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsgSetPlaying>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSetPlaying);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSetPlaying, 1, WRTTIDefaultAllocator<WMsgSetPlaying>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgInterruptPlaying);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInterruptPlaying, 1, ezRTTIDefaultAllocator<ezMsgInterruptPlaying>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgInterruptPlaying);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgInterruptPlaying, 1, WRTTIDefaultAllocator<WMsgInterruptPlaying>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgParentChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgParentChanged, 1, ezRTTIDefaultAllocator<ezMsgParentChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgParentChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgParentChanged, 1, WRTTIDefaultAllocator<WMsgParentChanged>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChildrenChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChildrenChanged, 1, ezRTTIDefaultAllocator<ezMsgChildrenChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgChildrenChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgChildrenChanged, 1, WRTTIDefaultAllocator<WMsgChildrenChanged>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentsChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentsChanged, 1, ezRTTIDefaultAllocator<ezMsgComponentsChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgComponentsChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgComponentsChanged, 1, WRTTIDefaultAllocator<WMsgComponentsChanged>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTransformChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTransformChanged, 1, ezRTTIDefaultAllocator<ezMsgTransformChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgTransformChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgTransformChanged, 1, WRTTIDefaultAllocator<WMsgTransformChanged>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetFloatParameter);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetFloatParameter, 1, ezRTTIDefaultAllocator<ezMsgSetFloatParameter>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSetFloatParameter);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSetFloatParameter, 1, WRTTIDefaultAllocator<WMsgSetFloatParameter>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sParameterName),
-    EZ_MEMBER_PROPERTY("Value", m_fValue),
+    W_MEMBER_PROPERTY("Name", m_sParameterName),
+    W_MEMBER_PROPERTY("Value", m_fValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetColorParameter);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColorParameter, 1, ezRTTIDefaultAllocator<ezMsgSetColorParameter>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSetColorParameter);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSetColorParameter, 1, WRTTIDefaultAllocator<WMsgSetColorParameter>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sParameterName),
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Name", m_sParameterName),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericEvent);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericEvent>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgGenericEvent);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgGenericEvent, 1, WRTTIDefaultAllocator<WMsgGenericEvent>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
-    EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezDefaultValueAttribute(0))
+    W_MEMBER_PROPERTY("Message", m_sMessage),
+    W_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new WDefaultValueAttribute(0))
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationReachedEnd);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationReachedEnd, 1, ezRTTIDefaultAllocator<ezMsgAnimationReachedEnd>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgAnimationReachedEnd);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgAnimationReachedEnd, 1, WRTTIDefaultAllocator<WMsgAnimationReachedEnd>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerTriggered)
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgTriggerTriggered>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgTriggerTriggered)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgTriggerTriggered, 1, WRTTIDefaultAllocator<WMsgTriggerTriggered>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
-    EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
-    EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
+    W_MEMBER_PROPERTY("Message", m_sMessage),
+    W_ENUM_MEMBER_PROPERTY("TriggerState", WTriggerState, m_TriggerState),
+    W_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format on
 
-EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);
+W_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);

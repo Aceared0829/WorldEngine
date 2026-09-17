@@ -4,9 +4,9 @@
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/VarianceTypes.h>
 
-struct ezExampleEnum
+struct WExampleEnum
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
   enum Enum
   {
     Value1 = 1,      // normal value
@@ -16,17 +16,17 @@ struct ezExampleEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WExampleEnum);
 
 
-struct ezExampleBitflags
+struct WExampleBitflags
 {
-  using StorageType = ezUInt64;
-  enum Enum : ezUInt64
+  using StorageType = WUInt64;
+  enum Enum : WUInt64
   {
-    Value1 = EZ_BIT(0),  // normal value
-    Value2 = EZ_BIT(31), // normal value
-    Value3 = EZ_BIT(63), // normal value
+    Value1 = W_BIT(0),  // normal value
+    Value2 = W_BIT(31), // normal value
+    Value3 = W_BIT(63), // normal value
     Default = Value1     // Default initialization value (required)
   };
 
@@ -40,129 +40,129 @@ struct ezExampleBitflags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezExampleBitflags);
+W_DECLARE_FLAGS_OPERATORS(WExampleBitflags);
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WExampleBitflags);
 
 
-class ezAbstractTestClass : public ezReflectedClass
+class WAbstractTestClass : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAbstractTestClass, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAbstractTestClass, WReflectedClass);
 
   virtual void AbstractFunction() = 0;
 };
 
 
-struct ezAbstractTestStruct
+struct WAbstractTestStruct
 {
   virtual void AbstractFunction() = 0;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezAbstractTestStruct);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WAbstractTestStruct);
 
 
-struct ezTestStruct
+struct WTestStruct
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct);
+  W_ALLOW_PRIVATE_PROPERTIES(WTestStruct);
 
 public:
-  static ezDataBuffer GetDefaultDataBuffer()
+  static WDataBuffer GetDefaultDataBuffer()
   {
-    ezDataBuffer data;
+    WDataBuffer data;
     data.PushBack(255);
     data.PushBack(0);
     data.PushBack(127);
     return data;
   }
 
-  ezTestStruct()
+  WTestStruct()
   {
     m_fFloat1 = 1.1f;
     m_iInt2 = 2;
     m_vProperty3.Set(3, 4, 5);
     m_UInt8 = 6;
     m_variant = "Test";
-    m_Angle = ezAngle::MakeFromDegree(0.5);
+    m_Angle = WAngle::MakeFromDegree(0.5);
     m_DataBuffer = GetDefaultDataBuffer();
-    m_vVec3I = ezVec3I32(1, 2, 3);
+    m_vVec3I = WVec3I32(1, 2, 3);
     m_VarianceAngle.m_fVariance = 0.5f;
-    m_VarianceAngle.m_Value = ezAngle::MakeFromDegree(90.0f);
+    m_VarianceAngle.m_Value = WAngle::MakeFromDegree(90.0f);
   }
 
 
 
-  bool operator==(const ezTestStruct& rhs) const
+  bool operator==(const WTestStruct& rhs) const
   {
     return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 && m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I && m_VarianceAngle == rhs.m_VarianceAngle;
   }
 
   float m_fFloat1;
-  ezUInt8 m_UInt8;
-  ezVariant m_variant;
-  ezAngle m_Angle;
-  ezDataBuffer m_DataBuffer;
-  ezVec3I32 m_vVec3I;
-  ezVarianceTypeAngle m_VarianceAngle;
+  WUInt8 m_UInt8;
+  WVariant m_variant;
+  WAngle m_Angle;
+  WDataBuffer m_DataBuffer;
+  WVec3I32 m_vVec3I;
+  WVarianceTypeAngle m_VarianceAngle;
 
 private:
-  void SetInt(ezInt32 i) { m_iInt2 = i; }
-  ezInt32 GetInt() const { return m_iInt2; }
+  void SetInt(WInt32 i) { m_iInt2 = i; }
+  WInt32 GetInt() const { return m_iInt2; }
 
-  ezInt32 m_iInt2;
-  ezVec3 m_vProperty3;
+  WInt32 m_iInt2;
+  WVec3 m_vProperty3;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTestStruct);
 
 
-struct ezTestStruct3
+struct WTestStruct3
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct3);
+  W_ALLOW_PRIVATE_PROPERTIES(WTestStruct3);
 
 public:
-  ezTestStruct3()
+  WTestStruct3()
   {
     m_fFloat1 = 1.1f;
     m_UInt8 = 6;
     m_iInt32 = 2;
   }
-  ezTestStruct3(double a, ezInt16 b)
+  WTestStruct3(double a, WInt16 b)
   {
     m_fFloat1 = a;
     m_UInt8 = b;
     m_iInt32 = 32;
   }
 
-  bool operator==(const ezTestStruct3& rhs) const { return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8; }
+  bool operator==(const WTestStruct3& rhs) const { return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8; }
 
-  bool operator!=(const ezTestStruct3& rhs) const { return !(*this == rhs); }
+  bool operator!=(const WTestStruct3& rhs) const { return !(*this == rhs); }
 
   double m_fFloat1;
-  ezInt16 m_UInt8;
+  WInt16 m_UInt8;
 
-  ezUInt32 GetIntPublic() const { return m_iInt32; }
+  WUInt32 GetIntPublic() const { return m_iInt32; }
 
 private:
-  void SetInt(ezUInt32 i) { m_iInt32 = i; }
-  ezUInt32 GetInt() const { return m_iInt32; }
+  void SetInt(WUInt32 i) { m_iInt32 = i; }
+  WUInt32 GetInt() const { return m_iInt32; }
 
-  ezInt32 m_iInt32;
+  WInt32 m_iInt32;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct3);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTestStruct3);
 
-struct ezTypedObjectStruct
+struct WTypedObjectStruct
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTypedObjectStruct);
+  W_ALLOW_PRIVATE_PROPERTIES(WTypedObjectStruct);
 
 public:
-  ezTypedObjectStruct()
+  WTypedObjectStruct()
   {
     m_fFloat1 = 1.1f;
     m_UInt8 = 6;
     m_iInt32 = 2;
   }
-  ezTypedObjectStruct(double a, ezInt16 b)
+  WTypedObjectStruct(double a, WInt16 b)
   {
     m_fFloat1 = a;
     m_UInt8 = b;
@@ -170,286 +170,286 @@ public:
   }
 
   double m_fFloat1;
-  ezInt16 m_UInt8;
-  ezInt32 m_iInt32;
+  WInt16 m_UInt8;
+  WInt32 m_iInt32;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTypedObjectStruct);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezTypedObjectStruct);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTypedObjectStruct);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WTypedObjectStruct);
 
-class ezTestClass1 : public ezReflectedClass
+class WTestClass1 : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass1, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestClass1, WReflectedClass);
 
 public:
-  ezTestClass1()
+  WTestClass1()
   {
     m_MyVector.Set(3, 4, 5);
 
     m_Struct.m_fFloat1 = 33.3f;
 
-    m_Color = ezColor::CornflowerBlue; // The Original!
+    m_Color = WColor::CornflowerBlue; // The Original!
   }
 
-  ezTestClass1(const ezColor& c, const ezTestStruct& s)
+  WTestClass1(const WColor& c, const WTestStruct& s)
   {
     m_Color = c;
     m_Struct = s;
     m_MyVector.Set(1, 2, 3);
   }
 
-  bool operator==(const ezTestClass1& rhs) const { return m_Struct == rhs.m_Struct && m_MyVector == rhs.m_MyVector && m_Color == rhs.m_Color; }
+  bool operator==(const WTestClass1& rhs) const { return m_Struct == rhs.m_Struct && m_MyVector == rhs.m_MyVector && m_Color == rhs.m_Color; }
 
-  ezVec3 GetVector() const { return m_MyVector; }
+  WVec3 GetVector() const { return m_MyVector; }
 
-  ezTestStruct m_Struct;
-  ezVec3 m_MyVector;
-  ezColor m_Color;
+  WTestStruct m_Struct;
+  WVec3 m_MyVector;
+  WColor m_Color;
 };
 
 
-class ezTestClass2 : public ezTestClass1
+class WTestClass2 : public WTestClass1
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
+  W_ADD_DYNAMIC_REFLECTION(WTestClass2, WTestClass1);
 
 public:
-  ezTestClass2()
+  WTestClass2()
   {
     m_sCharPtr = "AAA";
     m_sString = "BBB";
     m_sStringView = "CCC";
   }
 
-  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sCharPtr == rhs.m_sCharPtr && m_sString == rhs.m_sString && m_sStringView == rhs.m_sStringView; }
+  bool operator==(const WTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sCharPtr == rhs.m_sCharPtr && m_sString == rhs.m_sString && m_sStringView == rhs.m_sStringView; }
 
   const char* GetCharPtr() const { return m_sCharPtr.GetData(); }
   void SetCharPtr(const char* szSz) { m_sCharPtr = szSz; }
 
-  const ezString& GetString() const { return m_sString; }
-  void SetString(const ezString& sStr) { m_sString = sStr; }
+  const WString& GetString() const { return m_sString; }
+  void SetString(const WString& sStr) { m_sString = sStr; }
 
-  ezStringView GetStringView() const { return m_sStringView.GetView(); }
-  void SetStringView(ezStringView sStrView) { m_sStringView = sStrView; }
+  WStringView GetStringView() const { return m_sStringView.GetView(); }
+  void SetStringView(WStringView sStrView) { m_sStringView = sStrView; }
 
-  ezTime m_Time;
-  ezEnum<ezExampleEnum> m_enumClass;
-  ezBitflags<ezExampleBitflags> m_bitflagsClass;
-  ezHybridArray<float, 4> m_array;
-  ezVariant m_Variant;
+  WTime m_Time;
+  WEnum<WExampleEnum> m_enumClass;
+  WBitflags<WExampleBitflags> m_bitflagsClass;
+  WHybridArray<float, 4> m_array;
+  WVariant m_Variant;
 
 private:
-  ezString m_sCharPtr;
-  ezString m_sString;
-  ezString m_sStringView;
+  WString m_sCharPtr;
+  WString m_sString;
+  WString m_sStringView;
 };
 
 
-struct ezTestClass2Allocator : public ezRTTIAllocator
+struct WTestClass2Allocator : public WRTTIAllocator
 {
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override
+  virtual WInternal::NewInstance<void> AllocateInternal(WAllocator* pAllocator) override
   {
     ++m_iAllocs;
 
-    return EZ_DEFAULT_NEW(ezTestClass2);
+    return W_DEFAULT_NEW(WTestClass2);
   }
 
-  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override
+  virtual void Deallocate(void* pObject, WAllocator* pAllocator) override
   {
     ++m_iDeallocs;
 
-    ezTestClass2* pPointer = (ezTestClass2*)pObject;
-    EZ_DEFAULT_DELETE(pPointer);
+    WTestClass2* pPointer = (WTestClass2*)pObject;
+    W_DEFAULT_DELETE(pPointer);
   }
 
-  static ezInt32 m_iAllocs;
-  static ezInt32 m_iDeallocs;
+  static WInt32 m_iAllocs;
+  static WInt32 m_iDeallocs;
 };
 
 
-class ezTestClass2b : ezReflectedClass
+class WTestClass2b : WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestClass2b, WReflectedClass);
 
 public:
-  ezTestClass2b() { m_sText = "Tut"; }
+  WTestClass2b() { m_sText = "Tut"; }
 
   const char* GetText() const { return m_sText.GetData(); }
   void SetText(const char* szSz) { m_sText = szSz; }
 
-  ezTestStruct3 m_Struct;
-  ezColor m_Color;
+  WTestStruct3 m_Struct;
+  WColor m_Color;
 
 private:
-  ezString m_sText;
+  WString m_sText;
 };
 
 
-class ezTestArrays : public ezReflectedClass
+class WTestArrays : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestArrays, WReflectedClass);
 
 public:
-  ezTestArrays() = default;
+  WTestArrays() = default;
 
-  bool operator==(const ezTestArrays& rhs) const
+  bool operator==(const WTestArrays& rhs) const
   {
     return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar && m_CustomVariant == rhs.m_CustomVariant;
   }
 
-  bool operator!=(const ezTestArrays& rhs) const { return !(*this == rhs); }
+  bool operator!=(const WTestArrays& rhs) const { return !(*this == rhs); }
 
-  ezUInt32 GetCount() const;
-  double GetValue(ezUInt32 uiIndex) const;
-  void SetValue(ezUInt32 uiIndex, double value);
-  void Insert(ezUInt32 uiIndex, double value);
-  void Remove(ezUInt32 uiIndex);
+  WUInt32 GetCount() const;
+  double GetValue(WUInt32 uiIndex) const;
+  void SetValue(WUInt32 uiIndex, double value);
+  void Insert(WUInt32 uiIndex, double value);
+  void Remove(WUInt32 uiIndex);
 
-  ezUInt32 GetCountChar() const;
-  const char* GetValueChar(ezUInt32 uiIndex) const;
-  void SetValueChar(ezUInt32 uiIndex, const char* value);
-  void InsertChar(ezUInt32 uiIndex, const char* value);
-  void RemoveChar(ezUInt32 uiIndex);
+  WUInt32 GetCountChar() const;
+  const char* GetValueChar(WUInt32 uiIndex) const;
+  void SetValueChar(WUInt32 uiIndex, const char* value);
+  void InsertChar(WUInt32 uiIndex, const char* value);
+  void RemoveChar(WUInt32 uiIndex);
 
-  ezUInt32 GetCountDyn() const;
-  const ezTestStruct3& GetValueDyn(ezUInt32 uiIndex) const;
-  void SetValueDyn(ezUInt32 uiIndex, const ezTestStruct3& value);
-  void InsertDyn(ezUInt32 uiIndex, const ezTestStruct3& value);
-  void RemoveDyn(ezUInt32 uiIndex);
+  WUInt32 GetCountDyn() const;
+  const WTestStruct3& GetValueDyn(WUInt32 uiIndex) const;
+  void SetValueDyn(WUInt32 uiIndex, const WTestStruct3& value);
+  void InsertDyn(WUInt32 uiIndex, const WTestStruct3& value);
+  void RemoveDyn(WUInt32 uiIndex);
 
-  ezUInt32 GetCountDeq() const;
-  const ezTestArrays& GetValueDeq(ezUInt32 uiIndex) const;
-  void SetValueDeq(ezUInt32 uiIndex, const ezTestArrays& value);
-  void InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value);
-  void RemoveDeq(ezUInt32 uiIndex);
+  WUInt32 GetCountDeq() const;
+  const WTestArrays& GetValueDeq(WUInt32 uiIndex) const;
+  void SetValueDeq(WUInt32 uiIndex, const WTestArrays& value);
+  void InsertDeq(WUInt32 uiIndex, const WTestArrays& value);
+  void RemoveDeq(WUInt32 uiIndex);
 
-  ezUInt32 GetCountCustom() const;
-  ezVarianceTypeAngle GetValueCustom(ezUInt32 uiIndex) const;
-  void SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value);
-  void InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value);
-  void RemoveCustom(ezUInt32 uiIndex);
+  WUInt32 GetCountCustom() const;
+  WVarianceTypeAngle GetValueCustom(WUInt32 uiIndex) const;
+  void SetValueCustom(WUInt32 uiIndex, WVarianceTypeAngle value);
+  void InsertCustom(WUInt32 uiIndex, WVarianceTypeAngle value);
+  void RemoveCustom(WUInt32 uiIndex);
 
-  ezHybridArray<double, 5> m_Hybrid;
-  ezHybridArray<ezString, 2> m_HybridChar;
-  ezDynamicArray<ezTestStruct3> m_Dynamic;
-  ezDeque<ezTestArrays> m_Deque;
-  ezHybridArray<ezVarianceTypeAngle, 1> m_CustomVariant;
+  WHybridArray<double, 5> m_Hybrid;
+  WHybridArray<WString, 2> m_HybridChar;
+  WDynamicArray<WTestStruct3> m_Dynamic;
+  WDeque<WTestArrays> m_Deque;
+  WHybridArray<WVarianceTypeAngle, 1> m_CustomVariant;
 };
 
 
-class ezTestSets : public ezReflectedClass
+class WTestSets : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestSets, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestSets, WReflectedClass);
 
 public:
-  ezTestSets() = default;
+  WTestSets() = default;
 
-  bool operator==(const ezTestSets& rhs) const
+  bool operator==(const WTestSets& rhs) const
   {
     return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array && m_CustomVariant == rhs.m_CustomVariant;
   }
 
-  bool operator!=(const ezTestSets& rhs) const { return !(*this == rhs); }
+  bool operator!=(const WTestSets& rhs) const { return !(*this == rhs); }
 
-  const ezSet<double>& GetSet() const;
+  const WSet<double>& GetSet() const;
   void Insert(double value);
   void Remove(double value);
 
-  const ezHashSet<ezInt64>& GetHashSet() const;
-  void HashInsert(ezInt64 value);
-  void HashRemove(ezInt64 value);
+  const WHashSet<WInt64>& GetHashSet() const;
+  void HashInsert(WInt64 value);
+  void HashRemove(WInt64 value);
 
-  const ezDeque<int>& GetPseudoSet() const;
+  const WDeque<int>& GetPseudoSet() const;
   void PseudoInsert(int value);
   void PseudoRemove(int value);
 
-  ezArrayPtr<const ezString> GetPseudoSet2() const;
-  void PseudoInsert2(const ezString& value);
-  void PseudoRemove2(const ezString& value);
+  WArrayPtr<const WString> GetPseudoSet2() const;
+  void PseudoInsert2(const WString& value);
+  void PseudoRemove2(const WString& value);
 
   void PseudoInsert2b(const char* value);
   void PseudoRemove2b(const char* value);
 
-  const ezHashSet<ezVarianceTypeAngle>& GetCustomHashSet() const;
-  void CustomHashInsert(ezVarianceTypeAngle value);
-  void CustomHashRemove(ezVarianceTypeAngle value);
+  const WHashSet<WVarianceTypeAngle>& GetCustomHashSet() const;
+  void CustomHashInsert(WVarianceTypeAngle value);
+  void CustomHashRemove(WVarianceTypeAngle value);
 
-  ezSet<ezInt8> m_SetMember;
-  ezSet<double> m_SetAccessor;
+  WSet<WInt8> m_SetMember;
+  WSet<double> m_SetAccessor;
 
-  ezHashSet<ezInt32> m_HashSetMember;
-  ezHashSet<ezInt64> m_HashSetAccessor;
+  WHashSet<WInt32> m_HashSetMember;
+  WHashSet<WInt64> m_HashSetAccessor;
 
-  ezDeque<int> m_Deque;
-  ezDynamicArray<ezString> m_Array;
-  ezHashSet<ezVarianceTypeAngle> m_CustomVariant;
+  WDeque<int> m_Deque;
+  WDynamicArray<WString> m_Array;
+  WHashSet<WVarianceTypeAngle> m_CustomVariant;
 };
 
 
-class ezTestMaps : public ezReflectedClass
+class WTestMaps : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestMaps, WReflectedClass);
 
 public:
-  ezTestMaps() = default;
+  WTestMaps() = default;
 
-  bool operator==(const ezTestMaps& rhs) const;
+  bool operator==(const WTestMaps& rhs) const;
 
-  const ezMap<ezString, ezInt64>& GetContainer() const;
-  void Insert(const char* szKey, ezInt64 value);
+  const WMap<WString, WInt64>& GetContainer() const;
+  void Insert(const char* szKey, WInt64 value);
   void Remove(const char* szKey);
 
-  const ezHashTable<ezString, ezString>& GetContainer2() const;
-  void Insert2(const char* szKey, const ezString& value);
+  const WHashTable<WString, WString>& GetContainer2() const;
+  void Insert2(const char* szKey, const WString& value);
   void Remove2(const char* szKey);
 
-  const ezRangeView<const char*, ezUInt32> GetKeys3() const;
-  void Insert3(const char* szKey, const ezVariant& value);
+  const WRangeView<const char*, WUInt32> GetKeys3() const;
+  void Insert3(const char* szKey, const WVariant& value);
   void Remove3(const char* szKey);
-  bool GetValue3(const char* szKey, ezVariant& out_value) const;
+  bool GetValue3(const char* szKey, WVariant& out_value) const;
 
-  ezMap<ezString, int> m_MapMember;
-  ezMap<ezString, ezInt64> m_MapAccessor;
+  WMap<WString, int> m_MapMember;
+  WMap<WString, WInt64> m_MapAccessor;
 
-  ezHashTable<ezString, double> m_HashTableMember;
-  ezHashTable<ezString, ezString> m_HashTableAccessor;
+  WHashTable<WString, double> m_HashTableMember;
+  WHashTable<WString, WString> m_HashTableAccessor;
 
-  ezMap<ezString, ezVarianceTypeAngle> m_CustomVariant;
+  WMap<WString, WVarianceTypeAngle> m_CustomVariant;
 
   struct Tuple
   {
-    ezString m_Key;
-    ezVariant m_Value;
+    WString m_Key;
+    WVariant m_Value;
   };
-  ezHybridArray<Tuple, 2> m_Accessor3;
+  WHybridArray<Tuple, 2> m_Accessor3;
 };
 
-class ezTestPtr : public ezReflectedClass
+class WTestPtr : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestPtr, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTestPtr, WReflectedClass);
 
 public:
-  ezTestPtr()
+  WTestPtr()
   {
     m_pArrays = nullptr;
     m_pArraysDirect = nullptr;
   }
 
-  ~ezTestPtr()
+  ~WTestPtr()
   {
-    EZ_DEFAULT_DELETE(m_pArrays);
-    EZ_DEFAULT_DELETE(m_pArraysDirect);
+    W_DEFAULT_DELETE(m_pArrays);
+    W_DEFAULT_DELETE(m_pArraysDirect);
     for (auto ptr : m_ArrayPtr)
     {
-      EZ_DEFAULT_DELETE(ptr);
+      W_DEFAULT_DELETE(ptr);
     }
     m_ArrayPtr.Clear();
     for (auto ptr : m_SetPtr)
     {
-      EZ_DEFAULT_DELETE(ptr);
+      W_DEFAULT_DELETE(ptr);
     }
     m_SetPtr.Clear();
   }
 
-  bool operator==(const ezTestPtr& rhs) const
+  bool operator==(const WTestPtr& rhs) const
   {
     if (m_sString != rhs.m_sString || (m_pArrays != rhs.m_pArrays && *m_pArrays != *rhs.m_pArrays))
       return false;
@@ -457,7 +457,7 @@ public:
     if (m_ArrayPtr.GetCount() != rhs.m_ArrayPtr.GetCount())
       return false;
 
-    for (ezUInt32 i = 0; i < m_ArrayPtr.GetCount(); i++)
+    for (WUInt32 i = 0; i < m_ArrayPtr.GetCount(); i++)
     {
       if (!(*m_ArrayPtr[i] == *rhs.m_ArrayPtr[i]))
         return false;
@@ -476,69 +476,69 @@ public:
   void SetString(const char* szValue) { m_sString = szValue; }
   const char* GetString() const { return m_sString; }
 
-  void SetArrays(ezTestArrays* pValue) { m_pArrays = pValue; }
-  ezTestArrays* GetArrays() const { return m_pArrays; }
+  void SetArrays(WTestArrays* pValue) { m_pArrays = pValue; }
+  WTestArrays* GetArrays() const { return m_pArrays; }
 
 
-  ezString m_sString;
-  ezTestArrays* m_pArrays;
-  ezTestArrays* m_pArraysDirect;
-  ezDeque<ezTestArrays*> m_ArrayPtr;
-  ezSet<ezTestSets*> m_SetPtr;
+  WString m_sString;
+  WTestArrays* m_pArrays;
+  WTestArrays* m_pArraysDirect;
+  WDeque<WTestArrays*> m_ArrayPtr;
+  WSet<WTestSets*> m_SetPtr;
 };
 
 
-struct ezTestEnumStruct
+struct WTestEnumStruct
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestEnumStruct);
+  W_ALLOW_PRIVATE_PROPERTIES(WTestEnumStruct);
 
 public:
-  ezTestEnumStruct()
+  WTestEnumStruct()
   {
-    m_enum = ezExampleEnum::Value1;
-    m_enumClass = ezExampleEnum::Value1;
-    m_Enum2 = ezExampleEnum::Value1;
-    m_EnumClass2 = ezExampleEnum::Value1;
+    m_enum = WExampleEnum::Value1;
+    m_enumClass = WExampleEnum::Value1;
+    m_Enum2 = WExampleEnum::Value1;
+    m_EnumClass2 = WExampleEnum::Value1;
   }
 
-  bool operator==(const ezTestEnumStruct& rhs) const { return m_Enum2 == rhs.m_Enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_EnumClass2 == rhs.m_EnumClass2; }
+  bool operator==(const WTestEnumStruct& rhs) const { return m_Enum2 == rhs.m_Enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_EnumClass2 == rhs.m_EnumClass2; }
 
-  ezExampleEnum::Enum m_enum;
-  ezEnum<ezExampleEnum> m_enumClass;
+  WExampleEnum::Enum m_enum;
+  WEnum<WExampleEnum> m_enumClass;
 
-  void SetEnum(ezExampleEnum::Enum e) { m_Enum2 = e; }
-  ezExampleEnum::Enum GetEnum() const { return m_Enum2; }
-  void SetEnumClass(ezEnum<ezExampleEnum> e) { m_EnumClass2 = e; }
-  ezEnum<ezExampleEnum> GetEnumClass() const { return m_EnumClass2; }
+  void SetEnum(WExampleEnum::Enum e) { m_Enum2 = e; }
+  WExampleEnum::Enum GetEnum() const { return m_Enum2; }
+  void SetEnumClass(WEnum<WExampleEnum> e) { m_EnumClass2 = e; }
+  WEnum<WExampleEnum> GetEnumClass() const { return m_EnumClass2; }
 
 private:
-  ezExampleEnum::Enum m_Enum2;
-  ezEnum<ezExampleEnum> m_EnumClass2;
+  WExampleEnum::Enum m_Enum2;
+  WEnum<WExampleEnum> m_EnumClass2;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestEnumStruct);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTestEnumStruct);
 
 
-struct ezTestBitflagsStruct
+struct WTestBitflagsStruct
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestBitflagsStruct);
+  W_ALLOW_PRIVATE_PROPERTIES(WTestBitflagsStruct);
 
 public:
-  ezTestBitflagsStruct()
+  WTestBitflagsStruct()
   {
-    m_bitflagsClass = ezExampleBitflags::Value1;
-    m_BitflagsClass2 = ezExampleBitflags::Value1;
+    m_bitflagsClass = WExampleBitflags::Value1;
+    m_BitflagsClass2 = WExampleBitflags::Value1;
   }
 
-  bool operator==(const ezTestBitflagsStruct& rhs) const { return m_bitflagsClass == rhs.m_bitflagsClass && m_BitflagsClass2 == rhs.m_BitflagsClass2; }
+  bool operator==(const WTestBitflagsStruct& rhs) const { return m_bitflagsClass == rhs.m_bitflagsClass && m_BitflagsClass2 == rhs.m_BitflagsClass2; }
 
-  ezBitflags<ezExampleBitflags> m_bitflagsClass;
+  WBitflags<WExampleBitflags> m_bitflagsClass;
 
-  void SetBitflagsClass(ezBitflags<ezExampleBitflags> e) { m_BitflagsClass2 = e; }
-  ezBitflags<ezExampleBitflags> GetBitflagsClass() const { return m_BitflagsClass2; }
+  void SetBitflagsClass(WBitflags<WExampleBitflags> e) { m_BitflagsClass2 = e; }
+  WBitflags<WExampleBitflags> GetBitflagsClass() const { return m_BitflagsClass2; }
 
 private:
-  ezBitflags<ezExampleBitflags> m_BitflagsClass2;
+  WBitflags<WExampleBitflags> m_BitflagsClass2;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestBitflagsStruct);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTestBitflagsStruct);

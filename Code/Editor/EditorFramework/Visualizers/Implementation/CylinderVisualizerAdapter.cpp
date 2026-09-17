@@ -4,29 +4,29 @@
 #include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCylinderVisualizerAdapter::ezCylinderVisualizerAdapter() = default;
+WCylinderVisualizerAdapter::WCylinderVisualizerAdapter() = default;
 
-ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() = default;
+WCylinderVisualizerAdapter::~WCylinderVisualizerAdapter() = default;
 
-void ezCylinderVisualizerAdapter::Finalize()
+void WCylinderVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
+  const WCylinderVisualizerAttribute* pAttr = static_cast<const WCylinderVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hCylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hCylinder.ConfigureHandle(nullptr, WEngineGizmoHandleType::CylinderZ, pAttr->m_Color, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hCylinder);
 
   m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezCylinderVisualizerAdapter::Update()
+void WCylinderVisualizerAdapter::Update()
 {
-  const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WCylinderVisualizerAttribute* pAttr = static_cast<const WCylinderVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 
   m_fRadius = 1.0f;
@@ -35,60 +35,60 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
     auto pProp = GetProperty(pAttr->GetRadiusProperty());
-    EZ_ASSERT_DEBUG(pProp != nullptr, "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
+    W_ASSERT_DEBUG(pProp != nullptr, "Invalid property '{0}' bound to WCylinderVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
 
     if (pProp == nullptr)
       return;
 
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, pProp, value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'",
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to WCylinderVisualizerAttribute 'radius'",
       pAttr->GetRadiusProperty());
     m_fRadius = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetHeightProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCylinderVisualizerAttribute 'height'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WCylinderVisualizerAttribute 'height'");
     m_fHeight = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
-    m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WCylinderVisualizerAttribute 'color'");
+    m_hCylinder.SetColor(value.ConvertTo<WColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
 
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezCylinderVisualizerAttribute 'offset'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WVec3>(), "Invalid property bound to WCylinderVisualizerAttribute 'offset'");
 
     if (m_vPositionOffset.IsZero())
-      m_vPositionOffset = value.ConvertTo<ezVec3>();
+      m_vPositionOffset = value.ConvertTo<WVec3>();
     else
-      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
+      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<WVec3>());
   }
 
   if (!pAttr->GetAxisProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezCylinderVisualizerAttribute 'axis'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WInt32>(), "Invalid property bound to WCylinderVisualizerAttribute 'axis'");
 
-    m_Axis = static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>());
+    m_Axis = static_cast<WBasisAxis::Enum>(value.ConvertTo<WInt32>());
   }
   else
   {
@@ -98,36 +98,36 @@ void ezCylinderVisualizerAdapter::Update()
   m_Anchor = pAttr->m_Anchor;
 }
 
-void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
+void WCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_Axis);
+  const WQuat axisRotation = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveZ, m_Axis);
 
-  ezTransform t;
+  WTransform t;
   t.m_qRotation = axisRotation;
-  t.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
+  t.m_vScale = WVec3(m_fRadius, m_fRadius, m_fHeight);
   t.m_vPosition = m_vPositionOffset;
 
-  ezVec3 vOffset = ezVec3::MakeZero();
+  WVec3 vOffset = WVec3::MakeZero();
 
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegX))
     vOffset.x += t.m_vScale.x;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosY))
     vOffset.y -= t.m_vScale.y;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegY))
     vOffset.y += t.m_vScale.y;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosZ))
     vOffset.z -= t.m_vScale.z * 0.5f;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegZ))
     vOffset.z += t.m_vScale.z * 0.5f;
 
   t.m_vPosition += vOffset;
 
-  // ezTransform doesn't (can't) combine rotations with scales
+  // WTransform doesn't (can't) combine rotations with scales
   // however, here we know that the axisRotation is just an axis remapping, so we can combine them
-  ezTransform parentTransform = GetObjectTransform();
-  ezTransform newTrans = parentTransform * t;
+  WTransform parentTransform = GetObjectTransform();
+  WTransform newTrans = parentTransform * t;
   newTrans.m_vScale = (axisRotation * parentTransform.m_vScale).CompMul(t.m_vScale);
 
   m_hCylinder.SetTransformation(newTrans);

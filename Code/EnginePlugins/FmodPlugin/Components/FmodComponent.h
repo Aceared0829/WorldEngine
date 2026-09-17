@@ -5,24 +5,24 @@
 #include <FmodPlugin/FmodPluginDLL.h>
 
 /// Base class for all FMOD components, such that they all have a common ancestor
-class EZ_FMODPLUGIN_DLL ezFmodComponent : public ezComponent
+class W_FMODPLUGIN_DLL WFmodComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WFmodComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override {}
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override {}
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFmodComponent
+  // WFmodComponent
 
 public:
-  ezFmodComponent();
-  ~ezFmodComponent();
+  WFmodComponent();
+  ~WFmodComponent();
 
 private:
-  virtual void ezFmodComponentIsAbstract() = 0; // abstract classes are not shown in the UI, since this class has no other abstract functions so far, this is a dummy
+  virtual void WFmodComponentIsAbstract() = 0; // abstract classes are not shown in the UI, since this class has no other abstract functions so far, this is a dummy
 };

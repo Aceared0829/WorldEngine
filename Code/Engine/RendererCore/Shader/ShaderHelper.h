@@ -3,13 +3,13 @@
 #include <Foundation/Strings/String.h>
 #include <RendererCore/Declarations.h>
 
-namespace ezShaderHelper
+namespace WShaderHelper
 {
   /// Parses shader source code into named sections.
   ///
   /// Shader files are divided into sections like [PLATFORMS], [PERMUTATIONS], [VERTEXSHADER], etc.
   /// This class extracts these sections for further processing during shader compilation.
-  class EZ_RENDERERCORE_DLL ezTextSectionizer
+  class W_RENDERERCORE_DLL WTextSectionizer
   {
   public:
     void Clear();
@@ -21,12 +21,12 @@ namespace ezShaderHelper
     void Process(const char* szText);
 
     /// Returns the content of a specific section and its starting line number.
-    ezStringView GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const;
+    WStringView GetSectionContent(WUInt32 uiSection, WUInt32& out_uiFirstLine) const;
 
   private:
-    struct ezTextSection
+    struct WTextSection
     {
-      ezTextSection(const char* szName)
+      WTextSection(const char* szName)
         : m_sName(szName)
 
       {
@@ -35,22 +35,22 @@ namespace ezShaderHelper
       void Reset()
       {
         m_szSectionStart = nullptr;
-        m_Content = ezStringView();
+        m_Content = WStringView();
         m_uiFirstLine = 0;
       }
 
-      ezString m_sName;
+      WString m_sName;
       const char* m_szSectionStart = nullptr;
-      ezStringView m_Content;
-      ezUInt32 m_uiFirstLine = 0;
+      WStringView m_Content;
+      WUInt32 m_uiFirstLine = 0;
     };
 
-    ezStringBuilder m_sText;
-    ezHybridArray<ezTextSection, 16> m_Sections;
+    WStringBuilder m_sText;
+    WHybridArray<WTextSection, 16> m_Sections;
   };
 
   /// Defines the standard section names in shader files.
-  struct ezShaderSections
+  struct WShaderSections
   {
     enum Enum
     {
@@ -72,8 +72,8 @@ namespace ezShaderHelper
   };
 
   /// Extracts all standard sections from shader source code.
-  EZ_RENDERERCORE_DLL void GetShaderSections(const char* szContent, ezTextSectionizer& out_sections);
+  W_RENDERERCORE_DLL void GetShaderSections(const char* szContent, WTextSectionizer& out_sections);
 
   /// Calculates a hash from permutation variables for shader variant identification.
-  ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
-} // namespace ezShaderHelper
+  WUInt32 CalculateHash(const WArrayPtr<WPermutationVar>& vars);
+} // namespace WShaderHelper

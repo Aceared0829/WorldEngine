@@ -4,25 +4,25 @@
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 /// A state machine state implementation that represents another state machine nested within this state. This can be used to build hierarchical state machines.
-class EZ_GAMEENGINE_DLL ezStateMachineState_NestedStateMachine : public ezStateMachineState
+class W_GAMEENGINE_DLL WStateMachineState_NestedStateMachine : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_NestedStateMachine, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_NestedStateMachine, WStateMachineState);
 
 public:
-  ezStateMachineState_NestedStateMachine(ezStringView sName = ezStringView());
-  ~ezStateMachineState_NestedStateMachine();
+  WStateMachineState_NestedStateMachine(WStringView sName = WStringView());
+  ~WStateMachineState_NestedStateMachine();
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
-  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
-  virtual void Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const override;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override;
+  virtual void OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const override;
+  virtual void Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) override;
 
-  void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
-  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
+  void SetResource(const WStateMachineResourceHandle& hResource);                // [ property ]
+  const WStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   /// Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
@@ -30,15 +30,15 @@ public:
   const char* GetInitialState() const { return m_sInitialState; } // [ property ]
 
 private:
-  ezStateMachineResourceHandle m_hResource;
-  ezHashedString m_sInitialState;
+  WStateMachineResourceHandle m_hResource;
+  WHashedString m_sInitialState;
 
   // Should the inner state machine keep its current state on exit and re-enter or should it exit as well and re-enter the initial state again.
   bool m_bKeepCurrentStateOnExit = false;
 
   struct InstanceData
   {
-    ezUniquePtr<ezStateMachineInstance> m_pStateMachineInstance;
+    WUniquePtr<WStateMachineInstance> m_pStateMachineInstance;
   };
 };
 
@@ -48,35 +48,35 @@ private:
 ///
 /// Can be used to build states in a more modular way. All calls are simply redirected to all sub states,
 /// e.g. when entered it calls OnEnter on all its sub states.
-class EZ_GAMEENGINE_DLL ezStateMachineState_Compound : public ezStateMachineState
+class W_GAMEENGINE_DLL WStateMachineState_Compound : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Compound, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_Compound, WStateMachineState);
 
 public:
-  ezStateMachineState_Compound(ezStringView sName = ezStringView());
-  ~ezStateMachineState_Compound();
+  WStateMachineState_Compound(WStringView sName = WStringView());
+  ~WStateMachineState_Compound();
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
-  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
-  virtual void Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const override;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override;
+  virtual void OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const override;
+  virtual void Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) override;
 
-  ezSmallArray<ezStateMachineState*, 2> m_SubStates;
+  WSmallArray<WStateMachineState*, 2> m_SubStates;
 
 private:
-  ezStateMachineInternal::Compound m_Compound;
+  WStateMachineInternal::Compound m_Compound;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// An enum that represents the operator of a comparison
-struct EZ_GAMEENGINE_DLL ezStateMachineLogicOperator
+struct W_GAMEENGINE_DLL WStateMachineLogicOperator
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -87,45 +87,45 @@ struct EZ_GAMEENGINE_DLL ezStateMachineLogicOperator
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineLogicOperator);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WStateMachineLogicOperator);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// A state machine transition implementation that checks the instance's blackboard for the given conditions.
-class EZ_GAMEENGINE_DLL ezStateMachineTransition_BlackboardConditions : public ezStateMachineTransition
+class W_GAMEENGINE_DLL WStateMachineTransition_BlackboardConditions : public WStateMachineTransition
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_BlackboardConditions, ezStateMachineTransition);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineTransition_BlackboardConditions, WStateMachineTransition);
 
 public:
-  ezStateMachineTransition_BlackboardConditions();
-  ~ezStateMachineTransition_BlackboardConditions();
+  WStateMachineTransition_BlackboardConditions();
+  ~WStateMachineTransition_BlackboardConditions();
 
-  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+  virtual bool IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  ezEnum<ezStateMachineLogicOperator> m_Operator;
-  ezHybridArray<ezBlackboardCondition, 2> m_Conditions;
+  WEnum<WStateMachineLogicOperator> m_Operator;
+  WHybridArray<WBlackboardCondition, 2> m_Conditions;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// A state machine transition implementation that triggers after the given time
-class EZ_GAMEENGINE_DLL ezStateMachineTransition_Timeout : public ezStateMachineTransition
+class W_GAMEENGINE_DLL WStateMachineTransition_Timeout : public WStateMachineTransition
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_Timeout, ezStateMachineTransition);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineTransition_Timeout, WStateMachineTransition);
 
 public:
-  ezStateMachineTransition_Timeout();
-  ~ezStateMachineTransition_Timeout();
+  WStateMachineTransition_Timeout();
+  ~WStateMachineTransition_Timeout();
 
-  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+  virtual bool IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  ezTime m_Timeout;
+  WTime m_Timeout;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -134,43 +134,43 @@ public:
 ///
 /// Can be used to build transitions in a more modular way. All calls are simply redirected to all sub transitions
 /// and then combined with the given logic operator (AND, OR).
-class EZ_GAMEENGINE_DLL ezStateMachineTransition_Compound : public ezStateMachineTransition
+class W_GAMEENGINE_DLL WStateMachineTransition_Compound : public WStateMachineTransition
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_Compound, ezStateMachineTransition);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineTransition_Compound, WStateMachineTransition);
 
 public:
-  ezStateMachineTransition_Compound();
-  ~ezStateMachineTransition_Compound();
+  WStateMachineTransition_Compound();
+  ~WStateMachineTransition_Compound();
 
-  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+  virtual bool IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) override;
 
-  ezEnum<ezStateMachineLogicOperator> m_Operator;
-  ezSmallArray<ezStateMachineTransition*, 2> m_SubTransitions;
+  WEnum<WStateMachineLogicOperator> m_Operator;
+  WSmallArray<WStateMachineTransition*, 2> m_SubTransitions;
 
 private:
-  ezStateMachineInternal::Compound m_Compound;
+  WStateMachineInternal::Compound m_Compound;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// A state machine transition implementation that triggers when a 'transition event' is sent.
-class EZ_GAMEENGINE_DLL ezStateMachineTransition_TransitionEvent : public ezStateMachineTransition
+class W_GAMEENGINE_DLL WStateMachineTransition_TransitionEvent : public WStateMachineTransition
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_TransitionEvent, ezStateMachineTransition);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineTransition_TransitionEvent, WStateMachineTransition);
 
 public:
-  ezStateMachineTransition_TransitionEvent();
-  ~ezStateMachineTransition_TransitionEvent();
+  WStateMachineTransition_TransitionEvent();
+  ~WStateMachineTransition_TransitionEvent();
 
-  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+  virtual bool IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  ezHashedString m_sEventName;
+  WHashedString m_sEventName;
 };

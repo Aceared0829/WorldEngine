@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/System/CrashHandler.h>
@@ -9,35 +9,35 @@
 
 static void PrintHelper(const char* szString)
 {
-  ezLog::Printf("%s", szString);
+  WLog::Printf("%s", szString);
 }
 
-static LONG WINAPI ezCrashHandlerFunc(struct _EXCEPTION_POINTERS* pExceptionInfo)
+static LONG WINAPI WCrashHandlerFunc(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-  static ezMutex s_CrashMutex;
-  EZ_LOCK(s_CrashMutex);
+  static WMutex s_CrashMutex;
+  W_LOCK(s_CrashMutex);
 
   static bool s_bAlreadyHandled = false;
 
   if (s_bAlreadyHandled == false)
   {
-    if (ezCrashHandler::GetCrashHandler() != nullptr)
+    if (WCrashHandler::GetCrashHandler() != nullptr)
     {
       s_bAlreadyHandled = true;
-      ezCrashHandler::GetCrashHandler()->HandleCrash(pExceptionInfo);
+      WCrashHandler::GetCrashHandler()->HandleCrash(pExceptionInfo);
     }
   }
 
   return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
+void WCrashHandler::SetCrashHandler(WCrashHandler* pHandler)
 {
   s_pActiveHandler = pHandler;
 
   if (s_pActiveHandler != nullptr)
   {
-    SetUnhandledExceptionFilter(ezCrashHandlerFunc);
+    SetUnhandledExceptionFilter(WCrashHandlerFunc);
   }
   else
   {
@@ -45,33 +45,33 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
   }
 }
 
-bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
+bool WCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  WStatus res = WMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
   if (res.Failed())
-    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
+    WLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
   return res.Succeeded();
 #  else
-  EZ_IGNORE_UNUSED(pOsSpecificData);
+  W_IGNORE_UNUSED(pOsSpecificData);
   return false;
 #  endif
 }
 
-void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
+void WCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
 {
   _EXCEPTION_POINTERS* pExceptionInfo = (_EXCEPTION_POINTERS*)pOsSpecificData;
 
-  ezLog::Printf("***Unhandled Exception:***\n");
-  ezLog::Printf("Exception: %08x", (ezUInt32)pExceptionInfo->ExceptionRecord->ExceptionCode);
+  WLog::Printf("***Unhandled Exception:***\n");
+  WLog::Printf("Exception: %08x", (WUInt32)pExceptionInfo->ExceptionRecord->ExceptionCode);
 
   {
-    ezLog::Printf("\n\n***Stack Trace:***\n");
+    WLog::Printf("\n\n***Stack Trace:***\n");
     void* pBuffer[64];
-    ezArrayPtr<void*> tempTrace(pBuffer);
-    const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, pExceptionInfo->ContextRecord);
+    WArrayPtr<void*> tempTrace(pBuffer);
+    const WUInt32 uiNumTraces = WStackTracer::GetStackTrace(tempTrace, pExceptionInfo->ContextRecord);
 
-    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
+    WStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
   }
 }
 

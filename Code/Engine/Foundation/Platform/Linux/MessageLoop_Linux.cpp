@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Linux/MessageLoop_Platform.h>
@@ -10,12 +10,12 @@
 #  include <poll.h>
 #  include <unistd.h>
 
-ezMessageLoop_linux::ezMessageLoop_linux()
+WMessageLoop_linux::WMessageLoop_linux()
 {
   int fds[2];
   if (pipe2(fds, O_NONBLOCK | O_CLOEXEC) < 0)
   {
-    ezLog::Error("[IPC]Failed to create wakeup pipe for ezMessageLoop_linux");
+    WLog::Error("[IPC]Failed to create wakeup pipe for WMessageLoop_linux");
   }
   else
   {
@@ -28,7 +28,7 @@ ezMessageLoop_linux::ezMessageLoop_linux()
   }
 }
 
-ezMessageLoop_linux::~ezMessageLoop_linux()
+WMessageLoop_linux::~WMessageLoop_linux()
 {
   StopUpdateThread();
   if (m_wakeupPipeReadEndFd >= 0)
@@ -38,31 +38,31 @@ ezMessageLoop_linux::~ezMessageLoop_linux()
   }
 }
 
-bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter)
+bool WMessageLoop_linux::WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter)
 {
-  EZ_ASSERT_ALWAYS(pFilter == nullptr, "Not implemented");
+  W_ASSERT_ALWAYS(pFilter == nullptr, "Not implemented");
 
   while (m_numPendingPollModifications > 0)
   {
-    ezThreadUtils::YieldTimeSlice();
+    WThreadUtils::YieldTimeSlice();
   }
 
-  ezLock lock{m_pollMutex};
+  WLock lock{m_pollMutex};
   int result = poll(m_pollInfos.GetData(), m_pollInfos.GetCount(), iTimeout);
   if (result > 0)
   {
     // Result at index 0 is special and means there was a WakeUp
     if (m_pollInfos[0].revents != 0)
     {
-      ezUInt8 wakeupByte;
+      WUInt8 wakeupByte;
       auto readResult = read(m_wakeupPipeReadEndFd, &wakeupByte, sizeof(wakeupByte));
-      EZ_IGNORE_UNUSED(readResult);
-      EZ_ASSERT_DEV(readResult == sizeof(wakeupByte), "Wakeup byte not read");
+      W_IGNORE_UNUSED(readResult);
+      W_ASSERT_DEV(readResult == sizeof(wakeupByte), "Wakeup byte not read");
       m_pollInfos[0].revents = 0;
       return true;
     }
 
-    for (ezUInt32 i = 1; i < m_waitInfos.GetCount();)
+    for (WUInt32 i = 1; i < m_waitInfos.GetCount();)
     {
       WaitInfo& waitInfo = m_waitInfos[i];
       struct pollfd& pollInfo = m_pollInfos[i];
@@ -97,12 +97,12 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
   }
   if (result < 0)
   {
-    ezLog::Error("[IPC]ezMessageLoop_linux failed to poll events. Error {}", errno);
+    WLog::Error("[IPC]WMessageLoop_linux failed to poll events. Error {}", errno);
   }
   return false;
 }
 
-void ezMessageLoop_linux::RegisterWait(ezPipeChannel_linux* pChannel, WaitType type, int fd)
+void WMessageLoop_linux::RegisterWait(WPipeChannel_linux* pChannel, WaitType type, int fd)
 {
   short int waitFlags = 0;
   switch (type)
@@ -122,23 +122,23 @@ void ezMessageLoop_linux::RegisterWait(ezPipeChannel_linux* pChannel, WaitType t
   }
 
   m_numPendingPollModifications.Increment();
-  EZ_SCOPE_EXIT(m_numPendingPollModifications.Decrement());
+  W_SCOPE_EXIT(m_numPendingPollModifications.Decrement());
   WakeUp();
   {
-    ezLock lock{m_pollMutex};
+    WLock lock{m_pollMutex};
     m_waitInfos.PushBack({pChannel, type});
     m_pollInfos.PushBack({fd, waitFlags, 0});
   }
 }
 
-void ezMessageLoop_linux::RemovePendingWaits(ezPipeChannel_linux* pChannel)
+void WMessageLoop_linux::RemovePendingWaits(WPipeChannel_linux* pChannel)
 {
   m_numPendingPollModifications.Increment();
-  EZ_SCOPE_EXIT(m_numPendingPollModifications.Decrement());
+  W_SCOPE_EXIT(m_numPendingPollModifications.Decrement());
   WakeUp();
   {
-    ezLock lock{m_pollMutex};
-    for (ezUInt32 i = 0; i < m_pollInfos.GetCount();)
+    WLock lock{m_pollMutex};
+    for (WUInt32 i = 0; i < m_pollInfos.GetCount();)
     {
       if (m_waitInfos[i].m_pChannel == pChannel)
       {
@@ -153,12 +153,12 @@ void ezMessageLoop_linux::RemovePendingWaits(ezPipeChannel_linux* pChannel)
   }
 }
 
-void ezMessageLoop_linux::WakeUp()
+void WMessageLoop_linux::WakeUp()
 {
-  ezUInt8 wakeupByte = 0;
+  WUInt8 wakeupByte = 0;
   int writeResult = write(m_wakeupPipeWriteEndFd, &wakeupByte, sizeof(wakeupByte));
-  EZ_IGNORE_UNUSED(writeResult);
-  EZ_ASSERT_DEV(writeResult == sizeof(wakeupByte), "Wakeup byte not written");
+  W_IGNORE_UNUSED(writeResult);
+  W_ASSERT_DEV(writeResult == sizeof(wakeupByte), "Wakeup byte not written");
 }
 
 #endif

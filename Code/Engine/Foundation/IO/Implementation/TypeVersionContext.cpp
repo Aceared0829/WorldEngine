@@ -4,54 +4,54 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 
-static constexpr ezTypeVersion s_uiTypeVersionContextVersion = 1;
+static constexpr WTypeVersion s_uiTypeVersionContextVersion = 1;
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionWriteContext)
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WTypeVersionWriteContext)
 
-ezTypeVersionWriteContext::ezTypeVersionWriteContext() = default;
-ezTypeVersionWriteContext::~ezTypeVersionWriteContext() = default;
+WTypeVersionWriteContext::WTypeVersionWriteContext() = default;
+WTypeVersionWriteContext::~WTypeVersionWriteContext() = default;
 
-ezStreamWriter& ezTypeVersionWriteContext::Begin(ezStreamWriter& ref_originalStream)
+WStreamWriter& WTypeVersionWriteContext::Begin(WStreamWriter& ref_originalStream)
 {
   m_pOriginalStream = &ref_originalStream;
 
-  EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a type version context.");
+  W_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a type version context.");
   m_TempStreamWriter.SetStorage(&m_TempStreamStorage);
 
   return m_TempStreamWriter;
 }
 
-ezResult ezTypeVersionWriteContext::End()
+WResult WTypeVersionWriteContext::End()
 {
-  EZ_ASSERT_DEV(m_pOriginalStream != nullptr, "End() called before Begin()");
+  W_ASSERT_DEV(m_pOriginalStream != nullptr, "End() called before Begin()");
 
   WriteTypeVersions(*m_pOriginalStream);
 
   // Now append the original stream
-  EZ_SUCCEED_OR_RETURN(m_TempStreamStorage.CopyToStream(*m_pOriginalStream));
+  W_SUCCEED_OR_RETURN(m_TempStreamStorage.CopyToStream(*m_pOriginalStream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezTypeVersionWriteContext::AddType(const ezRTTI* pRtti)
+void WTypeVersionWriteContext::AddType(const WRTTI* pRtti)
 {
   if (m_KnownTypes.Insert(pRtti) == false)
   {
-    if (const ezRTTI* pParentRtti = pRtti->GetParentType())
+    if (const WRTTI* pParentRtti = pRtti->GetParentType())
     {
       AddType(pParentRtti);
     }
   }
 }
 
-void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& inout_stream) const
+void WTypeVersionWriteContext::WriteTypeVersions(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(s_uiTypeVersionContextVersion);
 
-  const ezUInt32 uiNumTypes = m_KnownTypes.GetCount();
+  const WUInt32 uiNumTypes = m_KnownTypes.GetCount();
   inout_stream << uiNumTypes;
 
-  ezMap<ezString, const ezRTTI*> sortedTypes;
+  WMap<WString, const WRTTI*> sortedTypes;
   for (auto pType : m_KnownTypes)
   {
     sortedTypes.Insert(pType->GetTypeName(), pType);
@@ -66,40 +66,40 @@ void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& inout_stream) 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionReadContext)
+W_IMPLEMENT_SERIALIZATION_CONTEXT(WTypeVersionReadContext)
 
-ezTypeVersionReadContext::ezTypeVersionReadContext(ezStreamReader& inout_stream)
+WTypeVersionReadContext::WTypeVersionReadContext(WStreamReader& inout_stream)
 {
   auto version = inout_stream.ReadVersion(s_uiTypeVersionContextVersion);
-  EZ_IGNORE_UNUSED(version);
+  W_IGNORE_UNUSED(version);
 
-  ezUInt32 uiNumTypes = 0;
+  WUInt32 uiNumTypes = 0;
   inout_stream >> uiNumTypes;
 
-  ezStringBuilder sTypeName;
-  ezUInt32 uiTypeVersion;
+  WStringBuilder sTypeName;
+  WUInt32 uiTypeVersion;
 
-  for (ezUInt32 i = 0; i < uiNumTypes; ++i)
+  for (WUInt32 i = 0; i < uiNumTypes; ++i)
   {
     inout_stream >> sTypeName;
     inout_stream >> uiTypeVersion;
 
-    if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+    if (const WRTTI* pType = WRTTI::FindTypeByName(sTypeName))
     {
       m_TypeVersions.Insert(pType, uiTypeVersion);
     }
     else
     {
-      ezLog::Warning("Ignoring unknown type '{}'", sTypeName);
+      WLog::Warning("Ignoring unknown type '{}'", sTypeName);
     }
   }
 }
 
-ezTypeVersionReadContext::~ezTypeVersionReadContext() = default;
+WTypeVersionReadContext::~WTypeVersionReadContext() = default;
 
-ezUInt32 ezTypeVersionReadContext::GetTypeVersion(const ezRTTI* pRtti) const
+WUInt32 WTypeVersionReadContext::GetTypeVersion(const WRTTI* pRtti) const
 {
-  ezUInt32 uiVersion = ezInvalidIndex;
+  WUInt32 uiVersion = WInvalidIndex;
   m_TypeVersions.TryGetValue(pRtti, uiVersion);
 
   return uiVersion;

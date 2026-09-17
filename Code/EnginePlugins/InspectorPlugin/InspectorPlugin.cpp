@@ -54,7 +54,7 @@ void RemoveRenderGraphEventHandler();
 void SetAppStats();
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
+W_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation", "ResourceManager"
@@ -101,10 +101,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     RemoveLogWriter();
     RemoveTelemetryAssertHandler();
 
-    ezTelemetry::AcceptMessagesForSystem(' APP', false);
+    WTelemetry::AcceptMessagesForSystem(' APP', false);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_InspectorPlugin);
+W_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_InspectorPlugin);

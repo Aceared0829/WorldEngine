@@ -5,12 +5,12 @@
 #include <Foundation/Tracks/CurveEditData.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// How Move behavior changes movement speed
-struct EZ_PARTICLEPLUGIN_DLL ezMovementMode
+struct W_PARTICLEPLUGIN_DLL WMovementMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -22,87 +22,87 @@ struct EZ_PARTICLEPLUGIN_DLL ezMovementMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezMovementMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WMovementMode);
 
 /// Behavior that moves particles along world axes
 ///
 /// Moves particles at constant speed along the X, Y, or Z axes.
 /// Movement direction is in world space.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Move final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Move final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Move, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Move, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Move();
-  ~ezParticleBehaviorFactory_Move();
+  WParticleBehaviorFactory_Move();
+  ~WParticleBehaviorFactory_Move();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezEnum<ezMovementMode> m_MoveX_Mode;
+  WEnum<WMovementMode> m_MoveX_Mode;
   float m_fMoveX_Speed = 0.0f;
-  ezSingleCurveData m_MoveX_Curve;
-  ezCurve1DResourceHandle m_hMoveX_SharedCurve;
+  WSingleCurveData m_MoveX_Curve;
+  WCurve1DResourceHandle m_hMoveX_SharedCurve;
   float m_fMoveX_CurveOffset = 0.0f;
   float m_fMoveX_CurveScale = 1.0f;
-  mutable ezCurve1D m_RuntimeMoveX_Curve;
+  mutable WCurve1D m_RuntimeMoveX_Curve;
 
-  ezEnum<ezMovementMode> m_MoveY_Mode;
+  WEnum<WMovementMode> m_MoveY_Mode;
   float m_fMoveY_Speed = 0.0f;
-  ezSingleCurveData m_MoveY_Curve;
-  ezCurve1DResourceHandle m_hMoveY_SharedCurve;
+  WSingleCurveData m_MoveY_Curve;
+  WCurve1DResourceHandle m_hMoveY_SharedCurve;
   float m_fMoveY_CurveOffset = 0.0f;
   float m_fMoveY_CurveScale = 1.0f;
-  mutable ezCurve1D m_RuntimeMoveY_Curve;
+  mutable WCurve1D m_RuntimeMoveY_Curve;
 
-  ezEnum<ezMovementMode> m_MoveZ_Mode;
+  WEnum<WMovementMode> m_MoveZ_Mode;
   float m_fMoveZ_Speed = 0.0f;
-  ezSingleCurveData m_MoveZ_Curve;
-  ezCurve1DResourceHandle m_hMoveZ_SharedCurve;
+  WSingleCurveData m_MoveZ_Curve;
+  WCurve1DResourceHandle m_hMoveZ_SharedCurve;
   float m_fMoveZ_CurveOffset = 0.0f;
   float m_fMoveZ_CurveScale = 1.0f;
-  mutable ezCurve1D m_RuntimeMoveZ_Curve;
+  mutable WCurve1D m_RuntimeMoveZ_Curve;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Move final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Move final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Move, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Move, WParticleBehavior);
 
 public:
   virtual void CreateRequiredStreams() override;
 
-  ezEnum<ezMovementMode> m_MoveX_Mode;
-  const ezCurve1D* m_pMoveX_Curve = nullptr;
+  WEnum<WMovementMode> m_MoveX_Mode;
+  const WCurve1D* m_pMoveX_Curve = nullptr;
   float m_fMoveX_CurveOffset = 0;
   float m_fMoveX_CurveScale = 1;
   float m_fMoveX_Speed = 0.0f;
 
-  ezEnum<ezMovementMode> m_MoveY_Mode;
-  const ezCurve1D* m_pMoveY_Curve = nullptr;
+  WEnum<WMovementMode> m_MoveY_Mode;
+  const WCurve1D* m_pMoveY_Curve = nullptr;
   float m_fMoveY_CurveOffset = 0;
   float m_fMoveY_CurveScale = 1;
   float m_fMoveY_Speed = 0.0f;
 
-  ezEnum<ezMovementMode> m_MoveZ_Mode;
-  const ezCurve1D* m_pMoveZ_Curve = nullptr;
+  WEnum<WMovementMode> m_MoveZ_Mode;
+  const WCurve1D* m_pMoveZ_Curve = nullptr;
   float m_fMoveZ_CurveOffset = 0;
   float m_fMoveZ_CurveScale = 1;
   float m_fMoveZ_Speed = 0.0f;
 
 protected:
-  friend class ezParticleBehaviorFactory_Move;
+  friend class WParticleBehaviorFactory_Move;
 
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) override;
 
   // used to get the gravity vector for Z-axis direction
-  ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
+  WPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
 };

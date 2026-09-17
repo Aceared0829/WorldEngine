@@ -8,19 +8,19 @@
 #include <Core/Scripting/ScriptWorldModule.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeliverAngelScriptMsg, 1, ezRTTIDefaultAllocator<ezMsgDeliverAngelScriptMsg>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgDeliverAngelScriptMsg);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgDeliverAngelScriptMsg, 1, WRTTIDefaultAllocator<WMsgDeliverAngelScriptMsg>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAngelScriptFunctionProperty::ezAngelScriptFunctionProperty(ezStringView sName, asIScriptFunction* pFunction)
-  : ezScriptFunctionProperty(sName)
+WAngelScriptFunctionProperty::WAngelScriptFunctionProperty(WStringView sName, asIScriptFunction* pFunction)
+  : WScriptFunctionProperty(sName)
 {
   m_pAsFunction = pFunction;
   m_pAsFunction->AddRef();
 }
 
-ezAngelScriptFunctionProperty::~ezAngelScriptFunctionProperty()
+WAngelScriptFunctionProperty::~WAngelScriptFunctionProperty()
 {
   if (m_pAsFunction)
   {
@@ -29,11 +29,11 @@ ezAngelScriptFunctionProperty::~ezAngelScriptFunctionProperty()
   }
 }
 
-void ezAngelScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
+void WAngelScriptFunctionProperty::Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const
 {
   if (m_pAsFunction)
   {
-    auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pInstance);
+    auto pScriptInstance = static_cast<WAngelScriptInstance*>(pInstance);
     auto pContext = pScriptInstance->GetContext();
 
     bool bPush = false;
@@ -43,18 +43,18 @@ void ezAngelScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVarian
       AS_CHECK(pContext->PushState());
     }
 
-    ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
+    WAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
 
-    ezTime tDiff;
+    WTime tDiff;
 
     if (pContext->Prepare(m_pAsFunction) >= 0)
     {
-      EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
+      W_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
       pContext->SetObject(pScriptInstance->GetObject());
 
       if (m_pAsFunction->GetParamCount() > 0)
       {
-        tDiff = arguments[0].Get<ezTime>();
+        tDiff = arguments[0].Get<WTime>();
         AS_CHECK(pContext->SetArgObject(0, &tDiff));
       }
 
@@ -70,8 +70,8 @@ void ezAngelScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVarian
 
 //////////////////////////////////////////////////////////////////////////
 
-ezAngelScriptMessageHandler::ezAngelScriptMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction)
-  : ezScriptMessageHandler(desc)
+WAngelScriptMessageHandler::WAngelScriptMessageHandler(const WScriptMessageDesc& desc, asIScriptFunction* pFunction)
+  : WScriptMessageHandler(desc)
 {
   m_DispatchFunc = &Dispatch;
 
@@ -79,7 +79,7 @@ ezAngelScriptMessageHandler::ezAngelScriptMessageHandler(const ezScriptMessageDe
   m_pAsFunction->AddRef();
 }
 
-ezAngelScriptMessageHandler::~ezAngelScriptMessageHandler()
+WAngelScriptMessageHandler::~WAngelScriptMessageHandler()
 {
   if (m_pAsFunction)
   {
@@ -88,12 +88,12 @@ ezAngelScriptMessageHandler::~ezAngelScriptMessageHandler()
   }
 }
 
-void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+void WAngelScriptMessageHandler::Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg)
 {
-  auto pScriptComp = static_cast<ezScriptComponent*>(pInstance);
+  auto pScriptComp = static_cast<WScriptComponent*>(pInstance);
 
-  auto pThis = static_cast<ezAngelScriptMessageHandler*>(pSelf);
-  auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
+  auto pThis = static_cast<WAngelScriptMessageHandler*>(pSelf);
+  auto pScriptInstance = static_cast<WAngelScriptInstance*>(pScriptComp->GetScriptInstance());
   auto pContext = pScriptInstance->GetContext();
 
   bool bPush = false;
@@ -103,11 +103,11 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
     AS_CHECK(pContext->PushState());
   }
 
-  ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
+  WAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
 
   if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
   {
-    EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
+    W_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
     AS_CHECK(pContext->SetObject(pScriptInstance->GetObject()));
     AS_CHECK(pContext->SetArgObject(0, &ref_msg));
     AS_CHECK(pContext->Execute());
@@ -121,13 +121,13 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
 
 //////////////////////////////////////////////////////////////////////////
 
-ezAngelScriptCustomAsMessageHandler::ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc)
-  : ezScriptMessageHandler(desc)
+WAngelScriptCustomAsMessageHandler::WAngelScriptCustomAsMessageHandler(const WScriptMessageDesc& desc)
+  : WScriptMessageHandler(desc)
 {
   m_DispatchFunc = &Dispatch;
 }
 
-ezAngelScriptCustomAsMessageHandler::~ezAngelScriptCustomAsMessageHandler()
+WAngelScriptCustomAsMessageHandler::~WAngelScriptCustomAsMessageHandler()
 {
   for (auto& r : m_Receivers)
   {
@@ -137,7 +137,7 @@ ezAngelScriptCustomAsMessageHandler::~ezAngelScriptCustomAsMessageHandler()
 }
 
 
-void ezAngelScriptCustomAsMessageHandler::AddReceiver(asIScriptFunction* pFunction, const char* szArgType)
+void WAngelScriptCustomAsMessageHandler::AddReceiver(asIScriptFunction* pFunction, const char* szArgType)
 {
   auto& r = m_Receivers.ExpandAndGetRef();
   r.m_pAsFunction = pFunction;
@@ -145,23 +145,23 @@ void ezAngelScriptCustomAsMessageHandler::AddReceiver(asIScriptFunction* pFuncti
   r.m_sArgType.Assign(szArgType);
 }
 
-void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+void WAngelScriptCustomAsMessageHandler::Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg)
 {
-  auto pThis = static_cast<ezAngelScriptCustomAsMessageHandler*>(pSelf);
-  ezMsgDeliverAngelScriptMsg& asMsg = static_cast<ezMsgDeliverAngelScriptMsg&>(ref_msg);
+  auto pThis = static_cast<WAngelScriptCustomAsMessageHandler*>(pSelf);
+  WMsgDeliverAngelScriptMsg& asMsg = static_cast<WMsgDeliverAngelScriptMsg&>(ref_msg);
 
   auto pMsgObj = reinterpret_cast<asIScriptObject*>(asMsg.m_pAsMsg);
   const char* szObjType = pMsgObj->GetObjectType()->GetName();
-  const ezTempHashedString sObjType(szObjType);
+  const WTempHashedString sObjType(szObjType);
 
   for (const auto& r : pThis->m_Receivers)
   {
     if (r.m_sArgType != sObjType)
       continue;
 
-    auto pScriptComp = static_cast<ezScriptComponent*>(pInstance);
-    auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
-    EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
+    auto pScriptComp = static_cast<WScriptComponent*>(pInstance);
+    auto pScriptInstance = static_cast<WAngelScriptInstance*>(pScriptComp->GetScriptInstance());
+    W_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
 
     auto pContext = pScriptInstance->GetContext();
 
@@ -172,7 +172,7 @@ void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSe
       AS_CHECK(pContext->PushState());
     }
 
-    ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
+    WAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
 
     if (pContext->Prepare(r.m_pAsFunction) >= 0)
     {
@@ -195,7 +195,7 @@ void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSe
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezMsgDeliverAngelScriptMsg::~ezMsgDeliverAngelScriptMsg()
+WMsgDeliverAngelScriptMsg::~WMsgDeliverAngelScriptMsg()
 {
   if (m_bRelease)
   {
@@ -204,19 +204,19 @@ ezMsgDeliverAngelScriptMsg::~ezMsgDeliverAngelScriptMsg()
   }
 }
 
-ezMsgDeliverAngelScriptMsg::ezMsgDeliverAngelScriptMsg(const ezMsgDeliverAngelScriptMsg& rhs)
+WMsgDeliverAngelScriptMsg::WMsgDeliverAngelScriptMsg(const WMsgDeliverAngelScriptMsg& rhs)
 {
   *this = rhs;
 }
 
-ezMsgDeliverAngelScriptMsg::ezMsgDeliverAngelScriptMsg(ezMsgDeliverAngelScriptMsg&& rhs)
+WMsgDeliverAngelScriptMsg::WMsgDeliverAngelScriptMsg(WMsgDeliverAngelScriptMsg&& rhs)
 {
   *this = std::move(rhs);
 }
 
-void ezMsgDeliverAngelScriptMsg::operator=(const ezMsgDeliverAngelScriptMsg& rhs)
+void WMsgDeliverAngelScriptMsg::operator=(const WMsgDeliverAngelScriptMsg& rhs)
 {
-  ezMemoryUtils::RawByteCopy(this, &rhs, sizeof(ezMsgDeliverAngelScriptMsg));
+  WMemoryUtils::RawByteCopy(this, &rhs, sizeof(WMsgDeliverAngelScriptMsg));
 
   if (m_bRelease)
   {
@@ -225,7 +225,7 @@ void ezMsgDeliverAngelScriptMsg::operator=(const ezMsgDeliverAngelScriptMsg& rhs
   }
 }
 
-void ezMsgDeliverAngelScriptMsg::operator=(ezMsgDeliverAngelScriptMsg&& rhs)
+void WMsgDeliverAngelScriptMsg::operator=(WMsgDeliverAngelScriptMsg&& rhs)
 {
   m_bRelease = rhs.m_bRelease;
   m_pAsMsg = rhs.m_pAsMsg;
@@ -234,4 +234,4 @@ void ezMsgDeliverAngelScriptMsg::operator=(ezMsgDeliverAngelScriptMsg&& rhs)
 }
 
 
-EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsFunctionDispatch);
+W_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsFunctionDispatch);

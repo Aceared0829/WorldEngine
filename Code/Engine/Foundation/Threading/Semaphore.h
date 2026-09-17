@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-/// A semaphore is used to synchronize threads, similar to a mutex (see ezMutex).
+/// A semaphore is used to synchronize threads, similar to a mutex (see WMutex).
 ///
 /// There are three main differences to a mutex:
 /// 1. The thread that acquires a token from a semaphore and the one that returns a token, don't have to be the same.
@@ -12,26 +12,26 @@
 ///
 /// Semaphores are quite a bit slower than mutexes (10x or so), so don't use them unless you need the added flexibility.
 ///
-/// \sa ezMutex, ezConditionVariable
-class EZ_FOUNDATION_DLL ezSemaphore
+/// \sa WMutex, WConditionVariable
+class W_FOUNDATION_DLL WSemaphore
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSemaphore);
+  W_DISALLOW_COPY_AND_ASSIGN(WSemaphore);
 
 public:
-  ezSemaphore();
-  ~ezSemaphore();
+  WSemaphore();
+  ~WSemaphore();
 
   /// Attempts to create a new semaphore with an initial number of available tokens.
   ///
   /// If szSharedName is a non-empty string, a 'named' semaphore is created, which can be opened on other processes as well.
   ///
-  /// This call can fail, if a semaphore with the same name already exists. Use ezSemaphore::Open() instead.
-  ezResult Create(ezUInt32 uiInitialTokenCount = 0, ezStringView sSharedName = ezStringView());
+  /// This call can fail, if a semaphore with the same name already exists. Use WSemaphore::Open() instead.
+  WResult Create(WUInt32 uiInitialTokenCount = 0, WStringView sSharedName = WStringView());
 
   /// Attempts to open an existing named semaphore.
   ///
   /// Fails if no such semaphore exists.
-  ezResult Open(ezStringView sSharedName);
+  WResult Open(WStringView sSharedName);
 
   /// Waits until a token is available and acquires it.
   ///
@@ -44,9 +44,9 @@ public:
   /// AcquireToken() and ReturnToken() may be called from different threads.
   void ReturnToken();
 
-  /// Same as AcquireToken() but returns immediately with EZ_FAILURE, if currently not tokens are available.
-  ezResult TryAcquireToken();
+  /// Same as AcquireToken() but returns immediately with W_FAILURE, if currently not tokens are available.
+  WResult TryAcquireToken();
 
 private:
-  ezSemaphoreHandle m_hSemaphore = {};
+  WSemaphoreHandle m_hSemaphore = {};
 };

@@ -9,26 +9,26 @@
 ///
 /// Performs a two-pass separable gaussian blur with configurable radius.
 /// Output has the same format as the input.
-class EZ_RENDERERCORE_DLL ezBlurPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WBlurPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlurPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WBlurPass, WRenderPipelinePass);
 
 public:
-  ezBlurPass();
-  ~ezBlurPass();
+  WBlurPass();
+  ~WBlurPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  void SetRadius(ezInt32 iRadius);           ///< Sets the blur radius in pixels.
-  ezInt32 GetRadius() const;                 ///< Returns the current blur radius.
+  void SetRadius(WInt32 iRadius);           ///< Sets the blur radius in pixels.
+  WInt32 GetRadius() const;                 ///< Returns the current blur radius.
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;   ///< Input texture to blur.
-  ezRenderPipelineNodeOutputPin m_PinOutput; ///< Blurred output texture.
+  WRenderPipelineNodeInputPin m_PinInput;   ///< Input texture to blur.
+  WRenderPipelineNodeOutputPin m_PinOutput; ///< Blurred output texture.
 
-  ezInt32 m_iRadius = 15;                    ///< Blur radius in pixels.
-  ezConstantBufferStorageHandle m_hBlurCB;   ///< Constant buffer for blur parameters.
-  ezShaderResourceHandle m_hShader;          ///< Blur shader.
+  WInt32 m_iRadius = 15;                    ///< Blur radius in pixels.
+  WConstantBufferStorageHandle m_hBlurCB;   ///< Constant buffer for blur parameters.
+  WShaderResourceHandle m_hShader;          ///< Blur shader.
 };

@@ -3,42 +3,42 @@
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundEventAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSoundEventAssetDocumentManager, 1, WRTTIDefaultAllocator<WSoundEventAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
+WSoundEventAssetDocumentManager::WSoundEventAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_bCanCreate = false;
   m_DocTypeDesc.m_sDocumentTypeName = "Sound Event";
-  m_DocTypeDesc.m_sFileExtension = "ezSoundEventAsset";
+  m_DocTypeDesc.m_sFileExtension = "WSoundEventAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.svg";
   m_DocTypeDesc.m_sAssetCategory = "Sound";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WSoundEventAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Event");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinFmodSoundEvent";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinFmodSoundEvent";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::None;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.svg"));
 }
 
-ezSoundEventAssetDocumentManager::~ezSoundEventAssetDocumentManager()
+WSoundEventAssetDocumentManager::~WSoundEventAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WSoundEventAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundEventAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSoundEventAssetDocument>())
       {
-        new ezSoundEventAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WSoundEventAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -47,12 +47,12 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezSoundEventAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WSoundEventAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSoundEventAssetDocument(sPath);
+  out_pDocument = new WSoundEventAssetDocument(sPath);
 }
 
-void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

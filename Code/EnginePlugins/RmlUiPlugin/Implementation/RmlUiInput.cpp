@@ -3,46 +3,46 @@
 #include <Core/Input/InputManager.h>
 
 
-ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
+WRmlUiInputSnapshot WRmlUiInputSnapshot::MakeFromCurrentInput()
 {
-  ezRmlUiInputSnapshot snapshot = ezRmlUiInputSnapshot::MakeEmpty();
+  WRmlUiInputSnapshot snapshot = WRmlUiInputSnapshot::MakeEmpty();
 
-  const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
-  const bool bShiftPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
-  const bool bAltPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
+  const bool bCtrlPressed = WInputManager::GetInputSlotState(WInputSlot_KeyLeftCtrl) >= WKeyState::Pressed ||
+    WInputManager::GetInputSlotState(WInputSlot_KeyRightCtrl) >= WKeyState::Pressed;
+  const bool bShiftPressed = WInputManager::GetInputSlotState(WInputSlot_KeyLeftShift) >= WKeyState::Pressed ||
+    WInputManager::GetInputSlotState(WInputSlot_KeyRightShift) >= WKeyState::Pressed;
+  const bool bAltPressed = WInputManager::GetInputSlotState(WInputSlot_KeyLeftAlt) >= WKeyState::Pressed ||
+    WInputManager::GetInputSlotState(WInputSlot_KeyRightAlt) >= WKeyState::Pressed;
 
   if (bCtrlPressed)
-    snapshot.m_Buttons |= ezRmlUiInputButtons::Ctrl;
+    snapshot.m_Buttons |= WRmlUiInputButtons::Ctrl;
   if (bShiftPressed)
-    snapshot.m_Buttons |= ezRmlUiInputButtons::Shift;
+    snapshot.m_Buttons |= WRmlUiInputButtons::Shift;
   if (bAltPressed)
-    snapshot.m_Buttons |= ezRmlUiInputButtons::Alt;
+    snapshot.m_Buttons |= WRmlUiInputButtons::Alt;
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_MouseButtonMappings); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(WRmlUiInputButtons::s_MouseButtonMappings); ++i)
   {
-    ezRmlUiInputButtons::MouseButtonMapping mbm = ezRmlUiInputButtons::s_MouseButtonMappings[i];
-    if (ezInputManager::GetInputSlotState(mbm.szEzButton) >= ezKeyState::Pressed)
+    WRmlUiInputButtons::MouseButtonMapping mbm = WRmlUiInputButtons::s_MouseButtonMappings[i];
+    if (WInputManager::GetInputSlotState(mbm.szEzButton) >= WKeyState::Pressed)
       snapshot.m_Buttons |= mbm.uiEzButton;
   }
 
-  if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
+  if (WInputManager::GetInputSlotState(WInputSlot_MouseWheelDown) == WKeyState::Pressed)
   {
-    snapshot.m_Buttons |= ezRmlUiInputButtons::MouseWheelDown;
+    snapshot.m_Buttons |= WRmlUiInputButtons::MouseWheelDown;
   }
-  if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
+  if (WInputManager::GetInputSlotState(WInputSlot_MouseWheelUp) == WKeyState::Pressed)
   {
-    snapshot.m_Buttons |= ezRmlUiInputButtons::MouseWheelUp;
+    snapshot.m_Buttons |= WRmlUiInputButtons::MouseWheelUp;
   }
 
-  snapshot.m_sLastCharacters = ezInputManager::RetrieveLastCharacters(false);
+  snapshot.m_sLastCharacters = WInputManager::RetrieveLastCharacters(false);
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(WRmlUiInputButtons::s_KeyMappings); ++i)
   {
-    ezRmlUiInputButtons::KeyMapping km = ezRmlUiInputButtons::s_KeyMappings[i];
-    if (ezInputManager::GetInputSlotState(km.szEzKey) >= ezKeyState::Pressed)
+    WRmlUiInputButtons::KeyMapping km = WRmlUiInputButtons::s_KeyMappings[i];
+    if (WInputManager::GetInputSlotState(km.szEzKey) >= WKeyState::Pressed)
       snapshot.m_Buttons |= km.uiEzKey;
   }
 
@@ -50,7 +50,7 @@ ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
 }
 
 
-bool ezRmlUiInputProvider::Update(ezRmlUiInputSnapshot input)
+bool WRmlUiInputProvider::Update(WRmlUiInputSnapshot input)
 {
   bool bHasChanged = m_Buttons != input.m_Buttons || m_sLastCharacters != input.m_sLastCharacters;
   m_PrevButtons = m_Buttons;
@@ -59,18 +59,18 @@ bool ezRmlUiInputProvider::Update(ezRmlUiInputSnapshot input)
   return bHasChanged;
 }
 
-ezKeyState::Enum ezRmlUiInputProvider::GetButtonState(ezRmlUiInputButtons::Enum button) const
+WKeyState::Enum WRmlUiInputProvider::GetButtonState(WRmlUiInputButtons::Enum button) const
 {
   if (m_Buttons.IsSet(button))
   {
     if (!m_PrevButtons.IsSet(button))
-      return ezKeyState::Pressed;
-    return ezKeyState::Down;
+      return WKeyState::Pressed;
+    return WKeyState::Down;
   }
   else
   {
     if (m_PrevButtons.IsSet(button))
-      return ezKeyState::Released;
-    return ezKeyState::Up;
+      return WKeyState::Released;
+    return WKeyState::Up;
   }
 }

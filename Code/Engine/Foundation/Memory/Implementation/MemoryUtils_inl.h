@@ -1,10 +1,10 @@
 
-#define EZ_CHECK_CLASS(T)                   \
+#define W_CHECK_CLASS(T)                   \
   static_assert(!std::is_trivial<T>::value, \
-    "Trivial POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
+    "Trivial POD type is treated as class. Use W_DECLARE_POD_TYPE(YourClass) or W_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
 
-template <ezConstructionMode mode, typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
+template <WConstructionMode mode, typename T>
+W_ALWAYS_INLINE void WMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
   if constexpr (mode == SkipTrivialTypes && std::is_trivial<T>::value)
   {
@@ -19,8 +19,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
   }
 }
 
-template <ezConstructionMode mode, typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction()
+template <WConstructionMode mode, typename T>
+W_ALWAYS_INLINE WMemoryUtils::ConstructorFunction WMemoryUtils::MakeConstructorFunction()
 {
   if constexpr (mode == SkipTrivialTypes && std::is_trivial<T>::value)
   {
@@ -30,7 +30,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstruct
   {
     struct Helper
     {
-      static void Construct(void* pDestination) { ezMemoryUtils::Construct<mode>(static_cast<T*>(pDestination), 1); }
+      static void Construct(void* pDestination) { WMemoryUtils::Construct<mode>(static_cast<T*>(pDestination), 1); }
     };
 
     return &Helper::Construct;
@@ -38,9 +38,9 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstruct
 }
 
 template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount)
 {
-  if constexpr (ezIsPodType<Destination>::value)
+  if constexpr (WIsPodType<Destination>::value)
   {
     static_assert(std::is_same<Destination, Source>::value ||
                     (std::is_base_of<Destination, Source>::value == false && std::is_base_of<Source, Destination>::value == false),
@@ -54,7 +54,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, co
   }
   else
   {
-    EZ_CHECK_CLASS(Destination);
+    W_CHECK_CLASS(Destination);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -65,17 +65,17 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, co
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
+  W_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
 
-  if constexpr (ezIsPodType<T>::value)
+  if constexpr (WIsPodType<T>::value)
   {
     memcpy(pDestination, pSource, uiCount * sizeof(T));
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -85,13 +85,13 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::CopyConstructorFunction ezMemoryUtils::MakeCopyConstructorFunction()
+W_ALWAYS_INLINE WMemoryUtils::CopyConstructorFunction WMemoryUtils::MakeCopyConstructorFunction()
 {
   struct Helper
   {
     static void CopyConstruct(void* pDestination, const void* pSource)
     {
-      ezMemoryUtils::CopyConstruct(static_cast<T*>(pDestination), *static_cast<const T*>(pSource), 1);
+      WMemoryUtils::CopyConstruct(static_cast<T*>(pDestination), *static_cast<const T*>(pSource), 1);
     }
   };
 
@@ -99,7 +99,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::CopyConstructorFunction ezMemoryUtils::MakeCopyC
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
+W_ALWAYS_INLINE void WMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 {
   // Make sure source is actually an rvalue reference (T&& is a universal reference).
   static_assert(std::is_rvalue_reference<decltype(source)>::value, "'source' parameter is not an rvalue reference.");
@@ -107,9 +107,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::MoveConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using MoveConstruct.");
+  W_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using MoveConstruct.");
 
   // Enforce move construction.
   static_assert(std::is_move_constructible<T>::value, "Type is not move constructible!");
@@ -121,7 +121,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, 
 }
 
 template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source)
+W_ALWAYS_INLINE void WMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source)
 {
   if constexpr (std::is_rvalue_reference<decltype(source)>::value)
   {
@@ -136,17 +136,17 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  W_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
 
-  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  if constexpr (WGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
     memcpy(pDestination, pSource, uiCount * sizeof(T));
   }
   else // class
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -159,9 +159,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSour
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 {
-  if constexpr (ezIsPodType<T>::value == 1)
+  if constexpr (WIsPodType<T>::value == 1)
   {
     static_assert(std::is_trivially_destructible<T>::value != 0, "Class is declared as POD but has a non-trivial destructor. Remove the destructor or don't declare it as POD.");
   }
@@ -175,42 +175,42 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction()
+W_ALWAYS_INLINE WMemoryUtils::DestructorFunction WMemoryUtils::MakeDestructorFunction()
 {
-  if constexpr (ezIsPodType<T>::value)
+  if constexpr (WIsPodType<T>::value)
   {
     return nullptr;
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     struct Helper
     {
-      static void Destruct(void* pDestination) { ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1); }
+      static void Destruct(void* pDestination) { WMemoryUtils::Destruct(static_cast<T*>(pDestination), 1); }
     };
 
     return &Helper::Destruct;
   }
 }
 
-EZ_ALWAYS_INLINE void ezMemoryUtils::RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy)
+W_ALWAYS_INLINE void WMemoryUtils::RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy)
 {
   memcpy(pDestination, pSource, uiNumBytesToCopy);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
+  W_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
 
-  if constexpr (ezIsPodType<T>::value)
+  if constexpr (WIsPodType<T>::value)
   {
     memcpy(pDestination, pSource, uiCount * sizeof(T));
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -220,15 +220,15 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, siz
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount)
 {
-  if constexpr (ezIsPodType<T>::value)
+  if constexpr (WIsPodType<T>::value)
   {
     memmove(pDestination, pSource, uiCount * sizeof(T));
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     if (pDestination == pSource)
       return;
@@ -251,17 +251,17 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pS
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
+  W_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
 
-  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  if constexpr (WGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
     memcpy(pDestination, pSource, uiCount * sizeof(T));
   }
   else // class
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -274,9 +274,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount)
 {
-  if constexpr (ezGetTypeClass<T>::value == 2) // mem-relocatable
+  if constexpr (WGetTypeClass<T>::value == 2) // mem-relocatable
   {
     if (pDestination < pSource)
     {
@@ -290,13 +290,13 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSou
     }
     memmove(pDestination, pSource, uiCount * sizeof(T));
   }
-  else if constexpr (ezGetTypeClass<T>::value == 1) // POD
+  else if constexpr (WGetTypeClass<T>::value == 1) // POD
   {
     memmove(pDestination, pSource, uiCount * sizeof(T));
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     if (pDestination == pSource)
       return;
@@ -325,16 +325,16 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSou
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount)
 {
-  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  if constexpr (WGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
     memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
     CopyConstruct(pDestination, source, 1);
   }
   else // class
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     if (uiCount > 0)
     {
@@ -355,16 +355,16 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, s
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount)
 {
-  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  if constexpr (WGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
     memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
     MoveConstruct(pDestination, std::move(source));
   }
   else // class
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     if (uiCount > 0)
     {
@@ -385,16 +385,16 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount)
 {
-  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  if constexpr (WGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
     memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
     CopyConstructArray(pDestination, pSource, uiSourceCount);
   }
   else // class
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     if (uiCount > 0)
     {
@@ -409,15 +409,15 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, 
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
+W_ALWAYS_INLINE bool WMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
-  if constexpr (ezIsPodType<T>::value)
+  if constexpr (WIsPodType<T>::value)
   {
     return memcmp(a, b, uiCount * sizeof(T)) == 0;
   }
   else
   {
-    EZ_CHECK_CLASS(T);
+    W_CHECK_CLASS(T);
 
     for (size_t i = 0; i < uiCount; i++)
     {
@@ -429,74 +429,74 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCo
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::ZeroFill(T* pDestination, size_t uiCount)
 {
   memset(pDestination, 0, uiCount * sizeof(T));
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFillArray(T (&destination)[N])
+W_ALWAYS_INLINE void WMemoryUtils::ZeroFillArray(T (&destination)[N])
 {
   return ZeroFill(destination, N);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount)
+W_ALWAYS_INLINE void WMemoryUtils::PatternFill(T* pDestination, WUInt8 uiBytePattern, size_t uiCount)
 {
   memset(pDestination, uiBytePattern, uiCount * sizeof(T));
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFillArray(T (&destination)[N], ezUInt8 uiBytePattern)
+W_ALWAYS_INLINE void WMemoryUtils::PatternFillArray(T (&destination)[N], WUInt8 uiBytePattern)
 {
   return PatternFill(destination, uiBytePattern, N);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::Compare(const T* a, const T* b, size_t uiCount /*= 1*/)
+W_ALWAYS_INLINE WInt32 WMemoryUtils::Compare(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
   return memcmp(a, b, uiCount * sizeof(T));
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare)
+W_ALWAYS_INLINE WInt32 WMemoryUtils::RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare)
 {
   return memcmp(a, b, uiNumBytesToCompare);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, std::ptrdiff_t offset)
+W_ALWAYS_INLINE T* WMemoryUtils::AddByteOffset(T* pPtr, std::ptrdiff_t offset)
 {
   return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(pPtr) + offset);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignBackwards(T* pPtr, size_t uiAlignment)
+W_ALWAYS_INLINE T* WMemoryUtils::AlignBackwards(T* pPtr, size_t uiAlignment)
 {
   return reinterpret_cast<T*>(reinterpret_cast<size_t>(pPtr) & ~(uiAlignment - 1));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignForwards(T* pPtr, size_t uiAlignment)
+W_ALWAYS_INLINE T* WMemoryUtils::AlignForwards(T* pPtr, size_t uiAlignment)
 {
   return reinterpret_cast<T*>((reinterpret_cast<size_t>(pPtr) + uiAlignment - 1) & ~(uiAlignment - 1));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T ezMemoryUtils::AlignSize(T uiSize, T uiAlignment)
+W_ALWAYS_INLINE T WMemoryUtils::AlignSize(T uiSize, T uiAlignment)
 {
   return ((uiSize + (uiAlignment - 1)) & ~(uiAlignment - 1));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsAligned(const T* pPtr, size_t uiAlignment)
+W_ALWAYS_INLINE bool WMemoryUtils::IsAligned(const T* pPtr, size_t uiAlignment)
 {
   return (reinterpret_cast<size_t>(pPtr) & (uiAlignment - 1)) == 0;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
+W_ALWAYS_INLINE bool WMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
 {
   return (uiSize & (uiAlignment - 1)) == 0;
 }
 
-#undef EZ_CHECK_CLASS
+#undef W_CHECK_CLASS

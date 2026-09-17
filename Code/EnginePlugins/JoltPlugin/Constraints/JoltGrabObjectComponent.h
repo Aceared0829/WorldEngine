@@ -8,44 +8,44 @@ namespace JPH
   class SixDOFConstraint;
 }
 
-using ezJoltGrabObjectComponentManager = ezComponentManagerSimple<class ezJoltGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+using WJoltGrabObjectComponentManager = WComponentManagerSimple<class WJoltGrabObjectComponent, WComponentUpdateType::WhenSimulating, WBlockStorageType::Compact>;
 
 /// Used to 'grab' physical objects and attach them to an object. For player objects to pick up objects.
 ///
-/// The component does a raycast along its X axis to detect nearby physics objects. If it finds a non-kinematic ezJoltDynamicActor
+/// The component does a raycast along its X axis to detect nearby physics objects. If it finds a non-kinematic WJoltDynamicActor
 /// it connects a dedicated object with the picked object through a 6DOF joint, which is set up to drag the picked object towards its
 /// position and rotation.
 /// The grabbed object can be dropped or thrown away.
 ///
-/// If the picked object has a ezGrabbableItemComponent, the custom grab points are used to determine how to grab the object.
-class EZ_JOLTPLUGIN_DLL ezJoltGrabObjectComponent : public ezComponent
+/// If the picked object has a WGrabbableItemComponent, the custom grab points are used to determine how to grab the object.
+class W_JOLTPLUGIN_DLL WJoltGrabObjectComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltGrabObjectComponent, ezComponent, ezJoltGrabObjectComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltGrabObjectComponent, WComponent, WJoltGrabObjectComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltGrabObjectComponent
+  // WJoltGrabObjectComponent
 
 public:
-  ezJoltGrabObjectComponent();
-  ~ezJoltGrabObjectComponent();
+  WJoltGrabObjectComponent();
+  ~WJoltGrabObjectComponent();
 
   /// Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
   /// Whether these objects are interact able or not is up to the caller.
-  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, bool bIgnoreGrabbedActor = true) const;
+  bool FindNearbyObject(WGameObject*& out_pObject, WTransform& out_localGrabPoint, bool bIgnoreGrabbedActor = true) const;
 
   /// Grabs the given object at the given grab point if possible.
-  bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
+  bool GrabObject(WGameObject* pObjectToGrab, const WTransform& localGrabPoint);
 
   /// Tries to find an object to pick up and do so.
   bool GrabNearbyObject(); // [ scriptable ]
@@ -54,29 +54,29 @@ public:
   bool HasObjectGrabbed() const; // [ scriptable ]
 
   /// Returns the grabbed object's actor component.
-  ezComponentHandle GetGrabbedActor() const { return m_hGrabbedActor; }
+  WComponentHandle GetGrabbedActor() const { return m_hGrabbedActor; }
 
   /// Returns the grabbed object's mass.
   float GetGrabbedActorMass() const { return m_fGrabbedActorInverseMass > 0.0f ? 1.0f / m_fGrabbedActorInverseMass : 0.0f; }
 
   /// The grabbed object is dropped in place.
   ///
-  /// If an impulse type is given (see ezImpulseTypeConfig) the dropped object is allowed to retain as much linear velocity
+  /// If an impulse type is given (see WImpulseTypeConfig) the dropped object is allowed to retain as much linear velocity
   /// as a push with such a force would give it.
   /// E.g. if you pass in the same impulse type as in ThrowGrabbedObject(), releasing a grabbed object while
   /// rotating, would allow to throw it as far as if you had actually "thrown" the object.
   /// If any invalid impulse type is passed in (e.g. 0 or 1), the object drops in place.
   /// However, momentum from the character (this objects owner) is always preserved.
-  void DropGrabbedObject(ezUInt8 uiImpulseType = 0); // [ scriptable ]
+  void DropGrabbedObject(WUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// Throws the held object away.
   ///
-  /// See ezImpulseTypeConfig for impulse types.
+  /// See WImpulseTypeConfig for impulse types.
   /// If a non-zero impulse type is given, vRelativeDir is scaled by the impulse type,
   /// such that heavy and light objects may get a different impulse.
-  void ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType = 0); // [ scriptable ]
+  void ThrowGrabbedObject(const WVec3& vRelativeDir, WUInt8 uiImpulseType = 0); // [ scriptable ]
 
-  /// Similar to DropGrabbedObject() but additionally posts the event message ezMsgPhysicsJointBroke.
+  /// Similar to DropGrabbedObject() but additionally posts the event message WMsgPhysicsJointBroke.
   ///
   /// This can be used to inform other code that the object was ripped from the hands of the player.
   void BreakObjectGrab(); // [ scriptable ]
@@ -99,36 +99,36 @@ public:
   float m_fCastRadius = 0.0f; // [ property ]
 
   /// The collision layer to use for the raycast.
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  WUInt8 m_uiCollisionLayer = 0; // [ property ]
 
-  /// If non-zero, the player can pick up objects that have no ezGrabbableItemComponent, if their bounding box extents are below this value.
+  /// If non-zero, the player can pick up objects that have no WGrabbableItemComponent, if their bounding box extents are below this value.
   float m_fAllowGrabAnyObjectWithSize = 0.75f;        // [ property ]
 
   void SetAttachToReference(const char* szReference); // [ property ]
 
   /// Which other game object to attach the grabbed object to.
-  /// It is expected to hold a kinematic ezJoltDynamicActorComponent that an ezJoltJointComponent can be attached to.
-  ezGameObjectHandle m_hAttachTo;
+  /// It is expected to hold a kinematic WJoltDynamicActorComponent that an WJoltJointComponent can be attached to.
+  WGameObjectHandle m_hAttachTo;
 
 protected:
   void Update();
   void ReleaseGrabbedObject(float fMaxAllowedImpulse);
 
-  ezJoltDynamicActorComponent* GetAttachToActor();
-  ezResult DetermineGrabPoint(const ezComponent* pActor, ezTransform& out_LocalGrabPoint) const;
-  void CreateJoint(ezJoltDynamicActorComponent* pParent, ezJoltDynamicActorComponent* pChild);
-  void DetectDistanceViolation(ezJoltDynamicActorComponent* pGrabbedActor);
-  bool IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const;
+  WJoltDynamicActorComponent* GetAttachToActor();
+  WResult DetermineGrabPoint(const WComponent* pActor, WTransform& out_LocalGrabPoint) const;
+  void CreateJoint(WJoltDynamicActorComponent* pParent, WJoltDynamicActorComponent* pChild);
+  void DetectDistanceViolation(WJoltDynamicActorComponent* pGrabbedActor);
+  bool IsCharacterStandingOnObject(WGameObjectHandle hActorToGrab) const;
 
-  void OnMsgReleaseObjectGrab(ezMsgReleaseObjectGrab& msg); // [ message handler ]
+  void OnMsgReleaseObjectGrab(WMsgReleaseObjectGrab& msg); // [ message handler ]
 
-  ezComponentHandle m_hGrabbedActor;
+  WComponentHandle m_hGrabbedActor;
   float m_fGrabbedActorGravity = 1.0f;
   float m_fGrabbedActorInverseMass = 0.0f;
 
-  ezTime m_LastValidTime;
-  ezTransform m_ChildAnchorLocal;
-  ezComponentHandle m_hCharacterControllerComponent;
+  WTime m_LastValidTime;
+  WTransform m_ChildAnchorLocal;
+  WComponentHandle m_hCharacterControllerComponent;
   JPH::SixDOFConstraint* m_pConstraint = nullptr;
 
 private:

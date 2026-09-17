@@ -12,16 +12,16 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtTextureCubeAssetDocumentWindow
+// WQtTextureCubeAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
-ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtTextureCubeAssetDocumentWindow::WQtTextureCubeAssetDocumentWindow(WTextureCubeAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "TextureCubeAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -30,8 +30,8 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "TextureCubeAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -44,24 +44,24 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-2, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureFixed(WVec3(0), WVec3(0.0f), WVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
 
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("TextureCubeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -69,7 +69,7 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -82,25 +82,25 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
   FinishWindowCreation();
 }
 
-void ezQtTextureCubeAssetDocumentWindow::InternalRedraw()
+void WQtTextureCubeAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
+void WQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    const ezTextureCubeAssetDocument* pDoc = static_cast<const ezTextureCubeAssetDocument*>(GetDocument());
-    const ezTextureCubeAssetProperties* pProps = pDoc->GetProperties();
+    const WTextureCubeAssetDocument* pDoc = static_cast<const WTextureCubeAssetDocument*>(GetDocument());
+    const WTextureCubeAssetProperties* pProps = pDoc->GetProperties();
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetChannelMode";
       msg.m_iValue = pDoc->m_ChannelMode.GetValue();
       msg.m_fValue = 0.5f;
@@ -108,7 +108,7 @@ void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
     }
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetLodLevel";
       msg.m_iValue = pDoc->m_iTextureLod;
       GetEditorEngineConnection()->SendMessage(&msg);

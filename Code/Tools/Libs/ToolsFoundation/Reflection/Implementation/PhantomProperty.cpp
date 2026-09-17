@@ -3,78 +3,78 @@
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-ezPhantomConstantProperty::ezPhantomConstantProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractConstantProperty(nullptr)
+WPhantomConstantProperty::WPhantomConstantProperty(const WReflectedPropertyDescriptor* pDesc)
+  : WAbstractConstantProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
   m_Value = pDesc->m_ConstantValue;
-  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
+  m_pPropertyType = WRTTI::FindTypeByName(pDesc->m_sType);
 
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 }
 
-ezPhantomConstantProperty::~ezPhantomConstantProperty()
+WPhantomConstantProperty::~WPhantomConstantProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-const ezRTTI* ezPhantomConstantProperty::GetSpecificType() const
+const WRTTI* WPhantomConstantProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
 
-void* ezPhantomConstantProperty::GetPropertyPointer() const
+void* WPhantomConstantProperty::GetPropertyPointer() const
 {
   return nullptr;
 }
 
 
 
-ezPhantomMemberProperty::ezPhantomMemberProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractMemberProperty(nullptr)
+WPhantomMemberProperty::WPhantomMemberProperty(const WReflectedPropertyDescriptor* pDesc)
+  : WAbstractMemberProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
-  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
+  m_pPropertyType = WRTTI::FindTypeByName(pDesc->m_sType);
 
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 }
 
-ezPhantomMemberProperty::~ezPhantomMemberProperty()
+WPhantomMemberProperty::~WPhantomMemberProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-const ezRTTI* ezPhantomMemberProperty::GetSpecificType() const
+const WRTTI* WPhantomMemberProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
 
 
 
-ezPhantomFunctionProperty::ezPhantomFunctionProperty(ezReflectedFunctionDescriptor* pDesc)
-  : ezAbstractFunctionProperty(nullptr)
+WPhantomFunctionProperty::WPhantomFunctionProperty(WReflectedFunctionDescriptor* pDesc)
+  : WAbstractFunctionProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
   m_FunctionType = pDesc->m_Type;
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 
@@ -84,127 +84,127 @@ ezPhantomFunctionProperty::ezPhantomFunctionProperty(ezReflectedFunctionDescript
 
 
 
-ezPhantomFunctionProperty::~ezPhantomFunctionProperty()
+WPhantomFunctionProperty::~WPhantomFunctionProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-ezFunctionType::Enum ezPhantomFunctionProperty::GetFunctionType() const
+WFunctionType::Enum WPhantomFunctionProperty::GetFunctionType() const
 {
   return m_FunctionType;
 }
 
-const ezRTTI* ezPhantomFunctionProperty::GetReturnType() const
+const WRTTI* WPhantomFunctionProperty::GetReturnType() const
 {
-  return ezRTTI::FindTypeByName(m_ReturnValue.m_sType);
+  return WRTTI::FindTypeByName(m_ReturnValue.m_sType);
 }
 
-ezBitflags<ezPropertyFlags> ezPhantomFunctionProperty::GetReturnFlags() const
+WBitflags<WPropertyFlags> WPhantomFunctionProperty::GetReturnFlags() const
 {
   return m_ReturnValue.m_Flags;
 }
 
-ezUInt32 ezPhantomFunctionProperty::GetArgumentCount() const
+WUInt32 WPhantomFunctionProperty::GetArgumentCount() const
 {
   return m_Arguments.GetCount();
 }
 
-const ezRTTI* ezPhantomFunctionProperty::GetArgumentType(ezUInt32 uiParamIndex) const
+const WRTTI* WPhantomFunctionProperty::GetArgumentType(WUInt32 uiParamIndex) const
 {
-  return ezRTTI::FindTypeByName(m_Arguments[uiParamIndex].m_sType);
+  return WRTTI::FindTypeByName(m_Arguments[uiParamIndex].m_sType);
 }
 
-ezBitflags<ezPropertyFlags> ezPhantomFunctionProperty::GetArgumentFlags(ezUInt32 uiParamIndex) const
+WBitflags<WPropertyFlags> WPhantomFunctionProperty::GetArgumentFlags(WUInt32 uiParamIndex) const
 {
   return m_Arguments[uiParamIndex].m_Flags;
 }
 
-void ezPhantomFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& ref_returnValue) const
+void WPhantomFunctionProperty::Execute(void* pInstance, WArrayPtr<WVariant> values, WVariant& ref_returnValue) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractArrayProperty(nullptr)
+WPhantomArrayProperty::WPhantomArrayProperty(const WReflectedPropertyDescriptor* pDesc)
+  : WAbstractArrayProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
-  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
+  m_pPropertyType = WRTTI::FindTypeByName(pDesc->m_sType);
 
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 }
 
-ezPhantomArrayProperty::~ezPhantomArrayProperty()
+WPhantomArrayProperty::~WPhantomArrayProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-const ezRTTI* ezPhantomArrayProperty::GetSpecificType() const
+const WRTTI* WPhantomArrayProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
 
-ezPhantomSetProperty::ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractSetProperty(nullptr)
+WPhantomSetProperty::WPhantomSetProperty(const WReflectedPropertyDescriptor* pDesc)
+  : WAbstractSetProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
-  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
+  m_pPropertyType = WRTTI::FindTypeByName(pDesc->m_sType);
 
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 }
 
-ezPhantomSetProperty::~ezPhantomSetProperty()
+WPhantomSetProperty::~WPhantomSetProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-const ezRTTI* ezPhantomSetProperty::GetSpecificType() const
+const WRTTI* WPhantomSetProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
 
-ezPhantomMapProperty::ezPhantomMapProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractMapProperty(nullptr)
+WPhantomMapProperty::WPhantomMapProperty(const WReflectedPropertyDescriptor* pDesc)
+  : WAbstractMapProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
-  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
+  m_pPropertyType = WRTTI::FindTypeByName(pDesc->m_sType);
 
   m_Flags = pDesc->m_Flags;
-  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Flags.Add(WPropertyFlags::Phantom);
   m_Attributes = pDesc->m_Attributes;
   pDesc->m_Attributes.Clear();
 }
 
-ezPhantomMapProperty::~ezPhantomMapProperty()
+WPhantomMapProperty::~WPhantomMapProperty()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<WPropertyAttribute*>(pAttr));
   }
   m_Attributes.Clear();
 }
 
-const ezRTTI* ezPhantomMapProperty::GetSpecificType() const
+const WRTTI* WPhantomMapProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }

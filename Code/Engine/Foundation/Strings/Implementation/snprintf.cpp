@@ -33,12 +33,12 @@ struct sprintfFlags
   enum Enum
   {
     None,
-    LeftJustify = EZ_BIT(0),   // -
-    ForceSign = EZ_BIT(1),     // +
-    BlankSign = EZ_BIT(2),     // (space)
-    Hash = EZ_BIT(3),          // #
-    PadZeros = EZ_BIT(4),      // 0
-    ForceZeroSign = EZ_BIT(5), // [internal] Prints a '+' even for zero
+    LeftJustify = W_BIT(0),   // -
+    ForceSign = W_BIT(1),     // +
+    BlankSign = W_BIT(2),     // (space)
+    Hash = W_BIT(3),          // #
+    PadZeros = W_BIT(4),      // 0
+    ForceZeroSign = W_BIT(5), // [internal] Prints a '+' even for zero
   };
 };
 
@@ -870,12 +870,12 @@ static void OutputFloat_Short(char* szOutputBuffer, unsigned int uiBufferSize, u
     OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, iWidth, iPrecF, uiFlags, bUpperCase, bScientific, iPrecision < 0);
 }
 
-int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, va_list szArgs0)
+int WStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, va_list szArgs0)
 {
   va_list args;
   va_copy(args, szArgs0);
 
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
+  W_ASSERT_DEBUG(WUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
 
   // make sure the last character is a \0
   if ((szOutputBuffer) && (uiBufferSize > 0))
@@ -1059,7 +1059,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
   return uiWritePos - 1;
 }
 
-int ezStringUtils::snprintf(char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, ...)
+int WStringUtils::snprintf(char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, ...)
 {
   va_list args;
   va_start(args, szFormat);
@@ -1072,21 +1072,21 @@ int ezStringUtils::snprintf(char* szOutputBuffer, unsigned int uiBufferSize, con
 }
 
 
-void ezStringUtils::OutputFormattedInt(
-  char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase)
+void WStringUtils::OutputFormattedInt(
+  char* szOutputBuffer, WUInt32 uiBufferSize, WUInt32& ref_uiWritePos, WInt64 value, WUInt8 uiWidth, bool bPadZeros, WUInt8 uiBase)
 {
   OutputInt(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase);
 }
 
-void ezStringUtils::OutputFormattedUInt(
-  char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase, bool bUpperCase)
+void WStringUtils::OutputFormattedUInt(
+  char* szOutputBuffer, WUInt32 uiBufferSize, WUInt32& ref_uiWritePos, WUInt64 value, WUInt8 uiWidth, bool bPadZeros, WUInt8 uiBase, bool bUpperCase)
 {
   OutputUInt(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase, bUpperCase);
 }
 
-void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, double value, ezUInt8 uiWidth,
-  bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes)
+void WStringUtils::OutputFormattedFloat(char* szOutputBuffer, WUInt32 uiBufferSize, WUInt32& ref_uiWritePos, double value, WUInt8 uiWidth,
+  bool bPadZeros, WInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes)
 {
-  OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
+  OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, WMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
     false, bScientific, bRemoveTrailingZeroes);
 }

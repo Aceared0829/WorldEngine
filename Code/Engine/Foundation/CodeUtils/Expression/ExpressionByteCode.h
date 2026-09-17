@@ -3,10 +3,10 @@
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/Containers/Blob.h>
 
-class ezStreamWriter;
-class ezStreamReader;
+class WStreamWriter;
+class WStreamReader;
 
-class EZ_FOUNDATION_DLL ezExpressionByteCode
+class W_FOUNDATION_DLL WExpressionByteCode
 {
 public:
   struct OpCode
@@ -178,69 +178,69 @@ public:
     static const char* GetName(Enum code);
   };
 
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
-  ezExpressionByteCode();
-  ezExpressionByteCode(const ezExpressionByteCode& other);
-  ~ezExpressionByteCode();
+  WExpressionByteCode();
+  WExpressionByteCode(const WExpressionByteCode& other);
+  ~WExpressionByteCode();
 
-  void operator=(const ezExpressionByteCode& other);
+  void operator=(const WExpressionByteCode& other);
 
-  bool operator==(const ezExpressionByteCode& other) const;
-  bool operator!=(const ezExpressionByteCode& other) const { return !(*this == other); }
+  bool operator==(const WExpressionByteCode& other) const;
+  bool operator!=(const WExpressionByteCode& other) const { return !(*this == other); }
 
   void Clear();
   bool IsEmpty() const { return m_uiByteCodeCount == 0; }
 
   const StorageType* GetByteCodeStart() const;
   const StorageType* GetByteCodeEnd() const;
-  ezArrayPtr<const StorageType> GetByteCode() const;
+  WArrayPtr<const StorageType> GetByteCode() const;
 
-  ezUInt32 GetNumInstructions() const;
-  ezUInt32 GetNumTempRegisters() const;
-  ezArrayPtr<const ezExpression::StreamDesc> GetInputs() const;
-  ezArrayPtr<const ezExpression::StreamDesc> GetOutputs() const;
-  ezArrayPtr<const ezExpression::FunctionDesc> GetFunctions() const;
+  WUInt32 GetNumInstructions() const;
+  WUInt32 GetNumTempRegisters() const;
+  WArrayPtr<const WExpression::StreamDesc> GetInputs() const;
+  WArrayPtr<const WExpression::StreamDesc> GetOutputs() const;
+  WArrayPtr<const WExpression::FunctionDesc> GetFunctions() const;
 
   static OpCode::Enum GetOpCode(const StorageType*& ref_pByteCode);
-  static ezUInt32 GetRegisterIndex(const StorageType*& ref_pByteCode);
-  static ezExpression::Register GetConstant(const StorageType*& ref_pByteCode);
-  static ezUInt32 GetFunctionIndex(const StorageType*& ref_pByteCode);
-  static ezUInt32 GetFunctionArgCount(const StorageType*& ref_pByteCode);
+  static WUInt32 GetRegisterIndex(const StorageType*& ref_pByteCode);
+  static WExpression::Register GetConstant(const StorageType*& ref_pByteCode);
+  static WUInt32 GetFunctionIndex(const StorageType*& ref_pByteCode);
+  static WUInt32 GetFunctionArgCount(const StorageType*& ref_pByteCode);
 
-  void Disassemble(ezStringBuilder& out_sDisassembly) const;
+  void Disassemble(WStringBuilder& out_sDisassembly) const;
 
-  ezResult Save(ezStreamWriter& inout_stream) const;
-  ezResult Load(ezStreamReader& inout_stream, ezByteArrayPtr externalMemory = ezByteArrayPtr());
+  WResult Save(WStreamWriter& inout_stream) const;
+  WResult Load(WStreamReader& inout_stream, WByteArrayPtr externalMemory = WByteArrayPtr());
 
-  ezConstByteBlobPtr GetDataBlob() const { return m_Data.GetByteBlobPtr(); }
+  WConstByteBlobPtr GetDataBlob() const { return m_Data.GetByteBlobPtr(); }
 
 private:
-  friend class ezExpressionCompiler;
+  friend class WExpressionCompiler;
 
-  void Init(ezArrayPtr<const StorageType> byteCode, ezArrayPtr<const ezExpression::StreamDesc> inputs, ezArrayPtr<const ezExpression::StreamDesc> outputs, ezArrayPtr<const ezExpression::FunctionDesc> functions, ezUInt32 uiNumTempRegisters, ezUInt32 uiNumInstructions);
+  void Init(WArrayPtr<const StorageType> byteCode, WArrayPtr<const WExpression::StreamDesc> inputs, WArrayPtr<const WExpression::StreamDesc> outputs, WArrayPtr<const WExpression::FunctionDesc> functions, WUInt32 uiNumTempRegisters, WUInt32 uiNumInstructions);
 
-  ezBlob m_Data;
+  WBlob m_Data;
 
-  ezExpression::StreamDesc* m_pInputs = nullptr;
-  ezExpression::StreamDesc* m_pOutputs = nullptr;
-  ezExpression::FunctionDesc* m_pFunctions = nullptr;
+  WExpression::StreamDesc* m_pInputs = nullptr;
+  WExpression::StreamDesc* m_pOutputs = nullptr;
+  WExpression::FunctionDesc* m_pFunctions = nullptr;
   StorageType* m_pByteCode = nullptr;
 
-  ezUInt32 m_uiByteCodeCount = 0;
-  ezUInt16 m_uiNumInputs = 0;
-  ezUInt16 m_uiNumOutputs = 0;
-  ezUInt16 m_uiNumFunctions = 0;
+  WUInt32 m_uiByteCodeCount = 0;
+  WUInt16 m_uiNumInputs = 0;
+  WUInt16 m_uiNumOutputs = 0;
+  WUInt16 m_uiNumFunctions = 0;
 
-  ezUInt16 m_uiNumTempRegisters = 0;
-  ezUInt32 m_uiNumInstructions = 0;
+  WUInt16 m_uiNumTempRegisters = 0;
+  WUInt32 m_uiNumInstructions = 0;
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
-static_assert(sizeof(ezExpressionByteCode) == 64);
+#if W_ENABLED(W_PLATFORM_64BIT)
+static_assert(sizeof(WExpressionByteCode) == 64);
 #endif
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezExpressionByteCode);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExpressionByteCode);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WExpressionByteCode);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WExpressionByteCode);
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionByteCode_inl.h>

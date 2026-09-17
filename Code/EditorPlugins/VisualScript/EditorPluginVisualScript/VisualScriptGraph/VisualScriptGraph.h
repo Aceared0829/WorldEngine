@@ -3,44 +3,44 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-struct ezVisualScriptVariable;
+struct WVisualScriptVariable;
 
 /// Visual graph pin for visual script nodes.
 ///
 /// Extends the base pin with visual scripting metadata including execution flow pins, data type information,
 /// and support for type deduction. Pins can represent both execution flow and data connections.
-class ezVisualScriptPin : public ezVisualGraphPin
+class WVisualScriptPin : public WVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezVisualGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WVisualScriptPin, WVisualGraphPin);
 
 public:
-  ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex);
-  ~ezVisualScriptPin();
+  WVisualScriptPin(Type type, WStringView sName, const WVisualScriptNodeRegistry::PinDesc& pinDesc, const WDocumentObject* pObject, WUInt32 uiDataPinIndex, WUInt32 uiElementIndex);
+  ~WVisualScriptPin();
 
-  EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_pDesc->IsExecutionPin(); }
-  EZ_ALWAYS_INLINE bool IsDataPin() const { return m_pDesc->IsDataPin(); }
+  W_ALWAYS_INLINE bool IsExecutionPin() const { return m_pDesc->IsExecutionPin(); }
+  W_ALWAYS_INLINE bool IsDataPin() const { return m_pDesc->IsDataPin(); }
 
-  EZ_ALWAYS_INLINE const ezRTTI* GetDataType() const { return m_pDesc->m_pDataType; }
-  EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetScriptDataType() const { return m_pDesc->m_ScriptDataType; }
-  ezVisualScriptDataType::Enum GetResolvedScriptDataType() const;
-  ezStringView GetDataTypeName() const;
-  EZ_ALWAYS_INLINE ezUInt32 GetDataPinIndex() const { return m_uiDataPinIndex; }
-  EZ_ALWAYS_INLINE ezUInt32 GetElementIndex() const { return m_uiElementIndex; }
-  EZ_ALWAYS_INLINE bool IsRequired() const { return m_pDesc->m_bRequired; }
-  EZ_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty.IsEmpty() == false; }
-  EZ_ALWAYS_INLINE bool SplitExecution() const { return m_pDesc->m_bSplitExecution; }
-  EZ_ALWAYS_INLINE bool ReplaceWithArray() const { return m_pDesc->m_bReplaceWithArray; }
-  EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_pDesc->m_DeductTypeFunc != nullptr; }
+  W_ALWAYS_INLINE const WRTTI* GetDataType() const { return m_pDesc->m_pDataType; }
+  W_ALWAYS_INLINE WVisualScriptDataType::Enum GetScriptDataType() const { return m_pDesc->m_ScriptDataType; }
+  WVisualScriptDataType::Enum GetResolvedScriptDataType() const;
+  WStringView GetDataTypeName() const;
+  W_ALWAYS_INLINE WUInt32 GetDataPinIndex() const { return m_uiDataPinIndex; }
+  W_ALWAYS_INLINE WUInt32 GetElementIndex() const { return m_uiElementIndex; }
+  W_ALWAYS_INLINE bool IsRequired() const { return m_pDesc->m_bRequired; }
+  W_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty.IsEmpty() == false; }
+  W_ALWAYS_INLINE bool SplitExecution() const { return m_pDesc->m_bSplitExecution; }
+  W_ALWAYS_INLINE bool ReplaceWithArray() const { return m_pDesc->m_bReplaceWithArray; }
+  W_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_pDesc->m_DeductTypeFunc != nullptr; }
 
-  EZ_ALWAYS_INLINE const ezHashedString& GetDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty; }
-  EZ_ALWAYS_INLINE ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc GetDeductTypeFunc() const { return m_pDesc->m_DeductTypeFunc; }
+  W_ALWAYS_INLINE const WHashedString& GetDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty; }
+  W_ALWAYS_INLINE WVisualScriptNodeRegistry::PinDesc::DeductTypeFunc GetDeductTypeFunc() const { return m_pDesc->m_DeductTypeFunc; }
 
-  bool CanConvertTo(const ezVisualScriptPin& targetPin, bool bUseResolvedDataTypes = true) const;
+  bool CanConvertTo(const WVisualScriptPin& targetPin, bool bUseResolvedDataTypes = true) const;
 
 private:
-  const ezVisualScriptNodeRegistry::PinDesc* m_pDesc = nullptr;
-  ezUInt32 m_uiDataPinIndex = 0;
-  ezUInt32 m_uiElementIndex = 0;
+  const WVisualScriptNodeRegistry::PinDesc* m_pDesc = nullptr;
+  WUInt32 m_uiDataPinIndex = 0;
+  WUInt32 m_uiElementIndex = 0;
 };
 
 /// Object manager for visual script graphs.
@@ -48,60 +48,60 @@ private:
 /// Manages visual script nodes and their connections, including both execution flow and data flow.
 /// Handles complex features such as type deduction, dynamic pin creation, variable management,
 /// and coroutine detection. Validates connections based on script data types and execution flow rules.
-class ezVisualScriptNodeManager : public ezVisualGraphObjectManager
+class WVisualScriptNodeManager : public WVisualGraphObjectManager
 {
 public:
-  ezVisualScriptNodeManager();
-  ~ezVisualScriptNodeManager();
+  WVisualScriptNodeManager();
+  ~WVisualScriptNodeManager();
 
-  ezHashedString GetScriptBaseClass() const;
-  bool IsFilteredByBaseClass(const ezRTTI* pNodeType, const ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, const ezHashedString& sBaseClass, bool bLogWarning = false) const;
+  WHashedString GetScriptBaseClass() const;
+  bool IsFilteredByBaseClass(const WRTTI* pNodeType, const WVisualScriptNodeRegistry::NodeDesc& nodeDesc, const WHashedString& sBaseClass, bool bLogWarning = false) const;
 
-  ezVisualScriptDataType::Enum GetVariableType(ezTempHashedString sName) const;
-  ezResult GetVariable(ezTempHashedString sName, ezVisualScriptVariable& out_variable) const;
-  void GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const;
+  WVisualScriptDataType::Enum GetVariableType(WTempHashedString sName) const;
+  WResult GetVariable(WTempHashedString sName, WVisualScriptVariable& out_variable) const;
+  void GetAllVariables(WDynamicArray<WVisualScriptVariable>& out_variables) const;
 
-  void GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
-  void GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
+  void GetInputExecutionPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const;
+  void GetOutputExecutionPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const;
 
-  void GetInputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
-  void GetOutputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
+  void GetInputDataPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const;
+  void GetOutputDataPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const;
 
-  void GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const;
+  void GetEntryNodes(const WDocumentObject* pObject, WDynamicArray<const WDocumentObject*>& out_entryNodes) const;
 
-  static ezStringView GetNiceTypeName(const ezDocumentObject* pObject);
-  static ezStringView GetNiceFunctionName(const ezDocumentObject* pObject);
+  static WStringView GetNiceTypeName(const WDocumentObject* pObject);
+  static WStringView GetNiceFunctionName(const WDocumentObject* pObject);
 
-  ezVisualScriptDataType::Enum GetDeductedType(const ezVisualScriptPin& pin) const;
-  ezVisualScriptDataType::Enum GetDeductedType(const ezDocumentObject* pObject) const;
+  WVisualScriptDataType::Enum GetDeductedType(const WVisualScriptPin& pin) const;
+  WVisualScriptDataType::Enum GetDeductedType(const WDocumentObject* pObject) const;
 
-  bool IsCoroutine(const ezDocumentObject* pObject) const;
-  bool IsLoop(const ezDocumentObject* pObject) const;
+  bool IsCoroutine(const WDocumentObject* pObject) const;
+  bool IsLoop(const WDocumentObject* pObject) const;
 
-  ezEvent<const ezDocumentObject*> m_NodeChangedEvent;
+  WEvent<const WDocumentObject*> m_NodeChangedEvent;
 
 private:
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;
-  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const override;
+  virtual bool InternalIsNode(const WDocumentObject* pObject) const override;
+  virtual bool InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const override;
+  virtual WStatus InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_Result) const override;
 
-  virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
+  virtual void InternalCreatePins(const WDocumentObject* pObject, NodeInternal& node) override;
 
-  virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const override;
+  virtual void GetNodeCreationTemplates(WDynamicArray<WVisualGraphNodeDesc>& out_templates) const override;
 
-  void NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e);
-  void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
+  void NodeEventsHandler(const WVisualGraphObjectManagerEvent& e);
+  void PropertyEventsHandler(const WDocumentObjectPropertyEvent& e);
 
-  friend class ezVisualScriptPin;
-  void RemoveDeductedPinType(const ezVisualScriptPin& pin);
-  void DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezVisualGraphPin* pDisconnectedPin = nullptr);
-  void UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false);
-  bool IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false) const;
+  friend class WVisualScriptPin;
+  void RemoveDeductedPinType(const WVisualScriptPin& pin);
+  void DeductNodeTypeAndAllPinTypes(const WDocumentObject* pObject, const WVisualGraphPin* pDisconnectedPin = nullptr);
+  void UpdateCoroutine(const WDocumentObject* pTargetNode, const WVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false);
+  bool IsConnectedToCoroutine(const WDocumentObject* pEntryNode, const WVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false) const;
 
-  ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
-  ezHashTable<const ezVisualScriptPin*, ezEnum<ezVisualScriptDataType>> m_PinToDeductedType;
-  ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
+  WHashTable<const WDocumentObject*, WEnum<WVisualScriptDataType>> m_ObjectToDeductedType;
+  WHashTable<const WVisualScriptPin*, WEnum<WVisualScriptDataType>> m_PinToDeductedType;
+  WHashSet<const WDocumentObject*> m_CoroutineObjects;
 
-  mutable ezDynamicArray<ezVisualGraphNodeProperty> m_PropertyValues;
-  mutable ezDeque<ezString> m_VariableNodeTypeNames;
+  mutable WDynamicArray<WVisualGraphNodeProperty> m_PropertyValues;
+  mutable WDeque<WString> m_VariableNodeTypeNames;
 };

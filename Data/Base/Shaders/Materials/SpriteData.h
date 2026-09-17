@@ -2,7 +2,7 @@
 
 #include <Shaders/Common/ConstantBufferMacros.h>
 
-struct EZ_SHADER_STRUCT ezPerSpriteData
+struct W_SHADER_STRUCT WPerSpriteData
 {
   FLOAT3(WorldSpacePosition);
   FLOAT1(Size);

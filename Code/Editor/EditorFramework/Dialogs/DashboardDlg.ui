@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ezQtDashboardDlg</class>
- <widget class="QDialog" name="ezQtDashboardDlg">
+ <class>WQtDashboardDlg</class>
+ <widget class="QDialog" name="WQtDashboardDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+    <normaloff>:/GuiFoundation/W-logo.svg</normaloff>:/GuiFoundation/W-logo.svg</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
@@ -452,7 +452,7 @@
               </size>
              </property>
              <property name="text">
-              <string>@ezEngineProject on Twitter</string>
+              <string>@WEngineProject on Twitter</string>
              </property>
              <property name="icon">
               <iconset resource="../QtResources/resources.qrc">
@@ -473,7 +473,7 @@
              </property>
              <property name="icon">
               <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-               <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+               <normaloff>:/GuiFoundation/W-logo.svg</normaloff>:/GuiFoundation/W-logo.svg</iconset>
              </property>
             </widget>
            </item>
@@ -486,7 +486,7 @@
               </size>
              </property>
              <property name="text">
-              <string>@ezEngine on Bluesky</string>
+              <string>@WorldEngine on Bluesky</string>
              </property>
              <property name="icon">
               <iconset resource="../QtResources/resources.qrc">

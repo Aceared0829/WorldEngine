@@ -6,10 +6,10 @@
 #include <Foundation/Types/Delegate.h>
 
 /// Identifies an event subscription. Zero is always an invalid subscription ID.
-using ezEventSubscriptionID = ezUInt32;
+using WEventSubscriptionID = WUInt32;
 
-/// Specifies the type of ezEvent implementation to use
-enum class ezEventType
+/// Specifies the type of WEvent implementation to use
+enum class WEventType
 {
   Default,        /// Default implementation. Does not support modifying the event while broadcasting.
   CopyOnBroadcast /// CopyOnBroadcast implementation. Supports modifying the event while broadcasting.
@@ -19,36 +19,36 @@ enum class ezEventType
 ///
 /// An event can be anything that "happens" that might be of interest to other code, such
 /// that it can react on it in some way.
-/// Just create an instance of ezEvent and call Broadcast() on it. Other interested code needs const access to
+/// Just create an instance of WEvent and call Broadcast() on it. Other interested code needs const access to
 /// the event variable to be able to call AddEventHandler() and RemoveEventHandler().
 /// To pass information to the handlers, create a custom struct with event information
 /// and then pass a (const) reference to that data through Broadcast().
 ///
 /// If you need to modify the event while broadcasting, for example inside one of the registered event handlers,
-/// set EventType = ezEventType::CopyOnBroadcast. Each broadcast will then copy the event handler array before signaling them, allowing
+/// set EventType = WEventType::CopyOnBroadcast. Each broadcast will then copy the event handler array before signaling them, allowing
 /// modifications during broadcasting.
 ///
-/// \note A class holding an ezEvent member needs to provide public access to the member for external code to
+/// \note A class holding an WEvent member needs to provide public access to the member for external code to
 /// be able to register as an event handler. To make it possible to prevent external code from also raising events,
 /// all functions that are needed for listening are const, and all others are non-const.
 /// Therefore, simply make event members private and provide const reference access through a public getter.
-template <typename EventData, typename MutexType, ezEventType EventType>
-class ezEventBase
+template <typename EventData, typename MutexType, WEventType EventType>
+class WEventBase
 {
 protected:
   /// Constructor.
-  ezEventBase(ezAllocator* pAllocator);
-  ~ezEventBase();
+  WEventBase(WAllocator* pAllocator);
+  ~WEventBase();
 
 public:
   /// Notification callback type for events.
-  using Handler = ezDelegate<void(EventData)>;
+  using Handler = WDelegate<void(EventData)>;
 
-  /// An object that can be passed to ezEvent::AddEventHandler to store the subscription information
+  /// An object that can be passed to WEvent::AddEventHandler to store the subscription information
   /// and automatically remove the event handler upon destruction.
   class Unsubscriber
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(Unsubscriber);
+    W_DISALLOW_COPY_AND_ASSIGN(Unsubscriber);
 
   public:
     Unsubscriber() = default;
@@ -69,7 +69,7 @@ public:
       other.Clear();
     }
 
-    /// If the unsubscriber holds a valid subscription, it will be removed from the target ezEvent.
+    /// If the unsubscriber holds a valid subscription, it will be removed from the target WEvent.
     void Unsubscribe()
     {
       if (m_SubscriptionID == 0)
@@ -82,7 +82,7 @@ public:
     /// Checks whether this unsubscriber has a valid subscription.
     bool IsSubscribed() const { return m_SubscriptionID != 0; }
 
-    /// Resets the unsubscriber. Use when the target ezEvent may have been destroyed and automatic unsubscription cannot be executed
+    /// Resets the unsubscriber. Use when the target WEvent may have been destroyed and automatic unsubscription cannot be executed
     /// anymore.
     void Clear()
     {
@@ -91,20 +91,20 @@ public:
     }
 
   private:
-    friend class ezEventBase<EventData, MutexType, EventType>;
+    friend class WEventBase<EventData, MutexType, EventType>;
 
-    const ezEventBase<EventData, MutexType, EventType>* m_pEvent = nullptr;
-    ezEventSubscriptionID m_SubscriptionID = 0;
+    const WEventBase<EventData, MutexType, EventType>* m_pEvent = nullptr;
+    WEventSubscriptionID m_SubscriptionID = 0;
   };
 
   /// Implementation specific constants.
   enum
   {
     /// Whether the uiMaxRecursionDepth parameter to Broadcast() is supported in this implementation or not.
-    RecursionDepthSupported = (EventType == ezEventType::Default || ezConversionTest<MutexType, ezNoMutex>::sameType == 1) ? 1 : 0,
+    RecursionDepthSupported = (EventType == WEventType::Default || WConversionTest<MutexType, WNoMutex>::sameType == 1) ? 1 : 0,
 
     /// Default value for the maximum recursion depth of Broadcast.
-    /// As limiting the recursion depth is not supported when EventType == ezEventType::CopyAndBroadcast and MutexType != ezNoMutex
+    /// As limiting the recursion depth is not supported when EventType == WEventType::CopyAndBroadcast and MutexType != WNoMutex
     /// the default value for that case is the maximum.
     MaxRecursionDepthDefault = RecursionDepthSupported ? 0 : 255
   };
@@ -112,12 +112,12 @@ public:
   /// This function will broadcast to all registered users, that this event has just happened.
   ///  Setting uiMaxRecursionDepth will allow you to permit recursions. When broadcasting consider up to what depth
   ///  you want recursions to be permitted. By default no recursion is allowed.
-  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = MaxRecursionDepthDefault); // [tested]
+  void Broadcast(EventData pEventData, WUInt8 uiMaxRecursionDepth = MaxRecursionDepthDefault); // [tested]
 
   /// Adds a function as an event handler. All handlers will be notified in the order that they were registered.
   ///
   /// The return value can be stored and used to remove the event handler later again.
-  ezEventSubscriptionID AddEventHandler(Handler handler) const; // [tested]
+  WEventSubscriptionID AddEventHandler(Handler handler) const; // [tested]
 
   /// An overload that adds an event handler and initializes the given \a Unsubscriber object.
   ///
@@ -131,7 +131,7 @@ public:
   ///
   /// The ID will be reset to zero.
   /// If this is called with a zero ID, nothing happens.
-  void RemoveEventHandler(ezEventSubscriptionID& inout_id) const;
+  void RemoveEventHandler(WEventSubscriptionID& inout_id) const;
 
   /// Checks whether an event handler has already been registered.
   bool HasEventHandler(const Handler& handler) const;
@@ -142,45 +142,45 @@ public:
   /// Returns true, if no event handlers are registered.
   bool IsEmpty() const;
 
-  // it would be a problem if the ezEvent moves in memory, for instance the Unsubscriber's would point to invalid memory
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
+  // it would be a problem if the WEvent moves in memory, for instance the Unsubscriber's would point to invalid memory
+  W_DISALLOW_COPY_AND_ASSIGN(WEventBase);
 
 private:
   // Used to detect recursive broadcasts and then throw asserts at you.
-  ezUInt8 m_uiRecursionDepth = 0;
-  mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
+  WUInt8 m_uiRecursionDepth = 0;
+  mutable WEventSubscriptionID m_NextSubscriptionID = 0;
 
   mutable MutexType m_Mutex;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   const void* m_pSelf = nullptr;
 #endif
 
   struct HandlerData
   {
     Handler m_Handler;
-    ezEventSubscriptionID m_SubscriptionID;
+    WEventSubscriptionID m_SubscriptionID;
   };
 
   /// A dynamic array allows to have zero overhead as long as no event handlers are registered.
-  mutable ezDynamicArray<HandlerData> m_EventHandlers;
+  mutable WDynamicArray<HandlerData> m_EventHandlers;
 };
 
-/// Can be used when ezEvent is used without any additional data
-struct ezNoEventData
+/// Can be used when WEvent is used without any additional data
+struct WNoEventData
 {
 };
 
-/// \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, ezEventType EventType = ezEventType::Default>
-class ezEvent : public ezEventBase<EventData, MutexType, EventType>
+/// \see WEventBase
+template <typename EventData, typename MutexType = WNoMutex, typename AllocatorWrapper = WDefaultAllocatorWrapper, WEventType EventType = WEventType::Default>
+class WEvent : public WEventBase<EventData, MutexType, EventType>
 {
 public:
-  ezEvent();
-  ezEvent(ezAllocator* pAllocator);
+  WEvent();
+  WEvent(WAllocator* pAllocator);
 };
 
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-using ezCopyOnBroadcastEvent = ezEvent<EventData, MutexType, AllocatorWrapper, ezEventType::CopyOnBroadcast>;
+template <typename EventData, typename MutexType = WNoMutex, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+using WCopyOnBroadcastEvent = WEvent<EventData, MutexType, AllocatorWrapper, WEventType::CopyOnBroadcast>;
 
 #include <Foundation/Communication/Implementation/Event_inl.h>

@@ -9,9 +9,9 @@
 #include <QSettings>
 #include <QStandardPaths>
 
-ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
+WQtMainWidget* WQtMainWidget::s_pWidget = nullptr;
 
-ezQtMainWidget::ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtMainWidget::WQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Main", pParent)
 {
   s_pWidget = this;
@@ -40,28 +40,28 @@ ezQtMainWidget::ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent
   Settings.endGroup();
 }
 
-ezQtMainWidget::~ezQtMainWidget()
+WQtMainWidget::~WQtMainWidget()
 {
   SaveFavorites();
 }
 
-void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
+void WQtMainWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('STAT', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('STAT', Msg) == W_SUCCESS)
   {
     switch (Msg.GetMessageID())
     {
       case ' DEL':
       {
-        ezString sStatName;
+        WString sStatName;
         Msg.GetReader() >> sStatName;
 
-        ezMap<ezString, StatData>::Iterator it = s_pWidget->m_Stats.Find(sStatName);
+        WMap<WString, StatData>::Iterator it = s_pWidget->m_Stats.Find(sStatName);
 
         if (!it.IsValid())
           break;
@@ -75,7 +75,7 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
 
       case ' SET':
       {
-        ezString sStatName;
+        WString sStatName;
         Msg.GetReader() >> sStatName;
 
         StatData& sd = s_pWidget->m_Stats[sStatName];
@@ -88,7 +88,7 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
 
         sd.m_History.PushBack(ss);
 
-        s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, ss.m_AtGlobalTime);
+        s_pWidget->m_MaxGlobalTime = WMath::Max(s_pWidget->m_MaxGlobalTime, ss.m_AtGlobalTime);
 
         // remove excess samples
         if (sd.m_History.GetCount() > s_pWidget->m_uiMaxStatSamples)
@@ -102,7 +102,7 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
             sd.m_pItem->setCheckState(0, Qt::Checked);
         }
 
-        const ezString sValue = sd.m_Value.ConvertTo<ezString>();
+        const WString sValue = sd.m_Value.ConvertTo<WString>();
         sd.m_pItem->setData(1, Qt::DisplayRole, sValue.GetData());
 
         if (sd.m_pItemFavorite)
@@ -113,7 +113,7 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezQtMainWidget::on_ButtonConnect_clicked()
+void WQtMainWidget::on_ButtonConnect_clicked()
 {
   QSettings Settings;
   const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
@@ -125,12 +125,12 @@ void ezQtMainWidget::on_ButtonConnect_clicked()
     return;
 
   Settings.setValue("LastConnection", sRes);
-  ezQtMainWindow::s_pWidget->SetConnectionTarget(sRes);
+  WQtMainWindow::s_pWidget->SetConnectionTarget(sRes);
 
-  ezTelemetry::ConnectToServer(sRes.toUtf8().data()).IgnoreResult();
+  WTelemetry::ConnectToServer(sRes.toUtf8().data()).IgnoreResult();
 }
 
-void ezQtMainWidget::SaveFavorites()
+void WQtMainWidget::SaveFavorites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   QDir dir;
@@ -144,10 +144,10 @@ void ezQtMainWidget::SaveFavorites()
 
   QDataStream stream(&f);
 
-  const ezUInt32 uiNumFavorites = m_Favorites.GetCount();
+  const WUInt32 uiNumFavorites = m_Favorites.GetCount();
   stream << uiNumFavorites;
 
-  for (ezSet<ezString>::Iterator it = m_Favorites.GetIterator(); it.IsValid(); ++it)
+  for (WSet<WString>::Iterator it = m_Favorites.GetIterator(); it.IsValid(); ++it)
   {
     const QString s = it.Key().GetData();
     stream << s;
@@ -156,7 +156,7 @@ void ezQtMainWidget::SaveFavorites()
   f.close();
 }
 
-void ezQtMainWidget::LoadFavorites()
+void WQtMainWidget::LoadFavorites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   QDir dir;
@@ -171,36 +171,36 @@ void ezQtMainWidget::LoadFavorites()
 
   QDataStream stream(&f);
 
-  ezUInt32 uiNumFavorites = 0;
+  WUInt32 uiNumFavorites = 0;
   stream >> uiNumFavorites;
 
-  for (ezUInt32 i = 0; i < uiNumFavorites; ++i)
+  for (WUInt32 i = 0; i < uiNumFavorites; ++i)
   {
     QString s;
     stream >> s;
 
-    ezString ezs = s.toUtf8().data();
+    WString Ws = s.toUtf8().data();
 
-    m_Favorites.Insert(ezs);
+    m_Favorites.Insert(Ws);
   }
 
   f.close();
 }
 
-void ezQtMainWidget::ResetStats()
+void WQtMainWidget::ResetStats()
 {
   m_Stats.Clear();
   TreeStats->clear();
   TreeFavorites->clear();
 }
 
-void ezQtMainWidget::UpdateStats()
+void WQtMainWidget::UpdateStats()
 {
   static bool bWasConnected = false;
-  const bool bIsConnected = ezTelemetry::IsConnectedToServer();
+  const bool bIsConnected = WTelemetry::IsConnectedToServer();
 
   if (bIsConnected)
-    LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32)ezTelemetry::GetPingToServer().GetMilliseconds()));
+    LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((WUInt32)WTelemetry::GetPingToServer().GetMilliseconds()));
 
   if (bWasConnected == bIsConnected)
     return;
@@ -216,15 +216,15 @@ void ezQtMainWidget::UpdateStats()
   }
   else
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
-    LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP().GetData(tmp)).arg(ezTelemetry::s_uiPort));
+    LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(WTelemetry::GetServerIP().GetData(tmp)).arg(WTelemetry::s_uiPort));
   }
 }
 
 
-void ezQtMainWidget::closeEvent(QCloseEvent* pEvent)
+void WQtMainWidget::closeEvent(QCloseEvent* pEvent)
 {
   QSettings Settings;
 
@@ -236,13 +236,13 @@ void ezQtMainWidget::closeEvent(QCloseEvent* pEvent)
   Settings.endGroup();
 }
 
-QTreeWidgetItem* ezQtMainWidget::CreateStat(ezStringView sPath, bool bParent)
+QTreeWidgetItem* WQtMainWidget::CreateStat(WStringView sPath, bool bParent)
 {
-  ezStringBuilder sCleanPath = sPath;
+  WStringBuilder sCleanPath = sPath;
   if (sCleanPath.EndsWith("/"))
     sCleanPath.Shrink(0, 1);
 
-  ezMap<ezString, StatData>::Iterator it = m_Stats.Find(sCleanPath.GetData());
+  WMap<WString, StatData>::Iterator it = m_Stats.Find(sCleanPath.GetData());
 
   if (it.IsValid() && it.Value().m_pItem != nullptr)
     return it.Value().m_pItem;
@@ -251,7 +251,7 @@ QTreeWidgetItem* ezQtMainWidget::CreateStat(ezStringView sPath, bool bParent)
   StatData& sd = m_Stats[sCleanPath.GetData()];
 
   {
-    ezStringBuilder sParentPath = sCleanPath.GetData();
+    WStringBuilder sParentPath = sCleanPath.GetData();
     sParentPath.PathParentDirectory(1);
 
     sd.m_pItem = new QTreeWidgetItem();
@@ -279,7 +279,7 @@ QTreeWidgetItem* ezQtMainWidget::CreateStat(ezStringView sPath, bool bParent)
   }
 
   {
-    ezString sFileName = sCleanPath.GetFileName();
+    WString sFileName = sCleanPath.GetFileName();
     sd.m_pItem->setData(0, Qt::DisplayRole, sFileName.GetData());
 
     if (pParent)
@@ -293,7 +293,7 @@ QTreeWidgetItem* ezQtMainWidget::CreateStat(ezStringView sPath, bool bParent)
   return sd.m_pItem;
 }
 
-void ezQtMainWidget::SetFavorite(const ezString& sStat, bool bFavorite)
+void WQtMainWidget::SetFavorite(const WString& sStat, bool bFavorite)
 {
   StatData& sd = m_Stats[sStat];
 
@@ -306,7 +306,7 @@ void ezQtMainWidget::SetFavorite(const ezString& sStat, bool bFavorite)
       sd.m_pItemFavorite = new QTreeWidgetItem();
       TreeFavorites->addTopLevelItem(sd.m_pItemFavorite);
       sd.m_pItemFavorite->setData(0, Qt::DisplayRole, sStat.GetData());
-      sd.m_pItemFavorite->setData(1, Qt::DisplayRole, sd.m_Value.ConvertTo<ezString>().GetData());
+      sd.m_pItemFavorite->setData(1, Qt::DisplayRole, sd.m_Value.ConvertTo<WString>().GetData());
       sd.m_pItemFavorite->setIcon(0, QIcon(":/Icons/Icons/StatFavorite.svg"));
 
       TreeFavorites->resizeColumnToContents(0);
@@ -324,17 +324,17 @@ void ezQtMainWidget::SetFavorite(const ezString& sStat, bool bFavorite)
   }
 }
 
-void ezQtMainWidget::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
+void WQtMainWidget::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
 {
   if (column == 0)
   {
-    ezString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
+    WString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
 
     SetFavorite(sPath, (item->checkState(0) == Qt::Checked));
   }
 }
 
-void ezQtMainWidget::on_TreeStats_customContextMenuRequested(const QPoint& p)
+void WQtMainWidget::on_TreeStats_customContextMenuRequested(const QPoint& p)
 {
   if (!TreeStats->currentItem())
     return;
@@ -346,10 +346,10 @@ void ezQtMainWidget::on_TreeStats_customContextMenuRequested(const QPoint& p)
   QMenu m;
   m.addMenu(&mSub);
 
-  for (ezInt32 i = 0; i < 10; ++i)
+  for (WInt32 i = 0; i < 10; ++i)
   {
-    ezQtMainWindow::s_pWidget->m_pActionShowStatIn[i]->setText(ezQtMainWindow::s_pWidget->m_pStatHistoryWidgets[i]->LineName->text());
-    mSub.addAction(ezQtMainWindow::s_pWidget->m_pActionShowStatIn[i]);
+    WQtMainWindow::s_pWidget->m_pActionShowStatIn[i]->setText(WQtMainWindow::s_pWidget->m_pStatHistoryWidgets[i]->LineName->text());
+    mSub.addAction(WQtMainWindow::s_pWidget->m_pActionShowStatIn[i]);
   }
 
   if (TreeStats->currentItem()->childCount() > 0)
@@ -359,17 +359,17 @@ void ezQtMainWidget::on_TreeStats_customContextMenuRequested(const QPoint& p)
 }
 
 
-void ezQtMainWidget::ShowStatIn(bool)
+void WQtMainWidget::ShowStatIn(bool)
 {
   if (!TreeStats->currentItem())
     return;
 
   QAction* pAction = (QAction*)sender();
 
-  ezInt32 iHistoryWidget = 0;
+  WInt32 iHistoryWidget = 0;
   for (iHistoryWidget = 0; iHistoryWidget < 10; ++iHistoryWidget)
   {
-    if (ezQtMainWindow::s_pWidget->m_pActionShowStatIn[iHistoryWidget] == pAction)
+    if (WQtMainWindow::s_pWidget->m_pActionShowStatIn[iHistoryWidget] == pAction)
       goto found;
   }
 
@@ -377,7 +377,7 @@ void ezQtMainWidget::ShowStatIn(bool)
 
 found:
 
-  ezString sPath = TreeStats->currentItem()->data(0, Qt::UserRole).toString().toUtf8().data();
+  WString sPath = TreeStats->currentItem()->data(0, Qt::UserRole).toString().toUtf8().data();
 
-  ezQtMainWindow::s_pWidget->m_pStatHistoryWidgets[iHistoryWidget]->AddStat(sPath);
+  WQtMainWindow::s_pWidget->m_pStatHistoryWidgets[iHistoryWidget]->AddStat(sPath);
 }

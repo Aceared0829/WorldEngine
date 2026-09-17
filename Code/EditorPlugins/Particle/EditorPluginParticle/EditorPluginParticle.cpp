@@ -13,42 +13,42 @@
 
 void OnLoadPlugin()
 {
-  ezParticleActions::RegisterActions();
+  WParticleActions::RegisterActions();
 
   // Particle Effect
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar", "AssetMenuBar");
+      WActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar", "AssetToolbar");
-      ezParticleActions::MapActions("ParticleEffectAssetToolBar");
+      WActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar", "AssetToolbar");
+      WParticleActions::MapActions("ParticleEffectAssetToolBar");
     }
 
     // View Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar", "SimpleAssetViewToolbar");
+      WActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar", "SimpleAssetViewToolbar");
     }
 
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WParticleEffectAssetDocument::PropertyMetaStateEventHandler);
   }
 }
 
 void OnUnloadPlugin()
 {
-  ezParticleActions::UnregisterActions();
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
+  WParticleActions::UnregisterActions();
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WParticleEffectAssetDocument::PropertyMetaStateEventHandler);
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

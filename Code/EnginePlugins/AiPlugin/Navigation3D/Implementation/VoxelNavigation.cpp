@@ -6,39 +6,39 @@
 #include <Foundation/Math/Math.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezAiVoxelNavigation::ezAiVoxelNavigation() = default;
-ezAiVoxelNavigation::~ezAiVoxelNavigation() = default;
+WAiVoxelNavigation::WAiVoxelNavigation() = default;
+WAiVoxelNavigation::~WAiVoxelNavigation() = default;
 
 // How many voxels FindPathToTarget()/FindPathToExit() search around a blocked start coordinate
 // before giving up. 2 voxels covers the common case of the immediate neighbor also being blocked
 // (e.g. a tight corner), without letting recovery silently teleport the object very far.
-static const ezUInt32 s_uiStartRecoveryRadiusVoxels = 2;
+static const WUInt32 s_uiStartRecoveryRadiusVoxels = 2;
 
-bool ezAiVoxelNavigation::FindNearbyValidCoord(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezUInt32 uiMaxRadius, ezVec3I32& out_vValidCoord)
+bool WAiVoxelNavigation::FindNearbyValidCoord(const WVoxelGrid& grid, const WVec3I32& vCoord, WUInt32 uiMaxRadius, WVec3I32& out_vValidCoord)
 {
   // Exhaustive search of the (2*uiMaxRadius+1)^3 cube around vCoord, keeping the closest valid,
   // non-solid coordinate found (squared voxel-offset distance is monotonic with physical distance
   // since a grid's voxels are uniform in size, so this doesn't need to convert to world space).
   // uiMaxRadius is expected to stay small (a handful of voxels) - this is meant for local recovery,
   // not long-range searches.
-  const ezInt32 iMaxRadius = (ezInt32)uiMaxRadius;
-  ezInt32 iBestDistSqr = ezMath::MaxValue<ezInt32>();
+  const WInt32 iMaxRadius = (WInt32)uiMaxRadius;
+  WInt32 iBestDistSqr = WMath::MaxValue<WInt32>();
   bool bFound = false;
 
-  for (ezInt32 dz = -iMaxRadius; dz <= iMaxRadius; ++dz)
+  for (WInt32 dz = -iMaxRadius; dz <= iMaxRadius; ++dz)
   {
-    for (ezInt32 dy = -iMaxRadius; dy <= iMaxRadius; ++dy)
+    for (WInt32 dy = -iMaxRadius; dy <= iMaxRadius; ++dy)
     {
-      for (ezInt32 dx = -iMaxRadius; dx <= iMaxRadius; ++dx)
+      for (WInt32 dx = -iMaxRadius; dx <= iMaxRadius; ++dx)
       {
         if (dx == 0 && dy == 0 && dz == 0)
           continue;
 
-        const ezInt32 iDistSqr = dx * dx + dy * dy + dz * dz;
+        const WInt32 iDistSqr = dx * dx + dy * dy + dz * dz;
         if (iDistSqr >= iBestDistSqr)
           continue;
 
-        const ezVec3I32 vNeighbor = vCoord + ezVec3I32(dx, dy, dz);
+        const WVec3I32 vNeighbor = vCoord + WVec3I32(dx, dy, dz);
         if (!grid.IsCoordValid(vNeighbor) || grid.IsVoxelSet(vNeighbor))
           continue;
 
@@ -56,53 +56,53 @@ namespace
 {
   struct AStarNode
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    float fGCost = ezMath::MaxValue<float>();
-    float fFCost = ezMath::MaxValue<float>();
-    ezUInt32 uiParent = ezInvalidIndex;
+    float fGCost = WMath::MaxValue<float>();
+    float fFCost = WMath::MaxValue<float>();
+    WUInt32 uiParent = WInvalidIndex;
     bool bClosed = false;
   };
 
-  EZ_FORCE_INLINE ezUInt32 PackCoord(const ezVec3I32& vCoord, ezUInt32 uiDimX, ezUInt32 uiDimY)
+  W_FORCE_INLINE WUInt32 PackCoord(const WVec3I32& vCoord, WUInt32 uiDimX, WUInt32 uiDimY)
   {
-    return (ezUInt32)vCoord.z * uiDimX * uiDimY + (ezUInt32)vCoord.y * uiDimX + (ezUInt32)vCoord.x;
+    return (WUInt32)vCoord.z * uiDimX * uiDimY + (WUInt32)vCoord.y * uiDimX + (WUInt32)vCoord.x;
   }
 
-  EZ_FORCE_INLINE ezVec3I32 UnpackCoord(ezUInt32 uiIndex, ezUInt32 uiDimX, ezUInt32 uiDimY)
+  W_FORCE_INLINE WVec3I32 UnpackCoord(WUInt32 uiIndex, WUInt32 uiDimX, WUInt32 uiDimY)
   {
-    const ezInt32 z = (ezInt32)(uiIndex / (uiDimX * uiDimY));
-    const ezUInt32 uiRemaining = uiIndex - (ezUInt32)z * uiDimX * uiDimY;
-    const ezInt32 y = (ezInt32)(uiRemaining / uiDimX);
-    const ezInt32 x = (ezInt32)(uiRemaining % uiDimX);
-    return ezVec3I32(x, y, z);
+    const WInt32 z = (WInt32)(uiIndex / (uiDimX * uiDimY));
+    const WUInt32 uiRemaining = uiIndex - (WUInt32)z * uiDimX * uiDimY;
+    const WInt32 y = (WInt32)(uiRemaining / uiDimX);
+    const WInt32 x = (WInt32)(uiRemaining % uiDimX);
+    return WVec3I32(x, y, z);
   }
 
-  EZ_FORCE_INLINE bool IsBoundaryCoord(const ezVec3I32& vCoord, const ezVec3U32& vDims)
+  W_FORCE_INLINE bool IsBoundaryCoord(const WVec3I32& vCoord, const WVec3U32& vDims)
   {
     return vCoord.x == 0 || vCoord.y == 0 || vCoord.z == 0 ||
-           (ezUInt32)vCoord.x == vDims.x - 1 || (ezUInt32)vCoord.y == vDims.y - 1 || (ezUInt32)vCoord.z == vDims.z - 1;
+           (WUInt32)vCoord.x == vDims.x - 1 || (WUInt32)vCoord.y == vDims.y - 1 || (WUInt32)vCoord.z == vDims.z - 1;
   }
 
   /// Returns the (unnormalized) outward-facing normal of the grid boundary at vCoord, i.e. the sum
   /// of the outward unit vectors of every face vCoord touches (nonzero only where IsBoundaryCoord is true).
-  EZ_FORCE_INLINE ezVec3 GetBoundaryOutwardNormal(const ezVec3I32& vCoord, const ezVec3U32& vDims)
+  W_FORCE_INLINE WVec3 GetBoundaryOutwardNormal(const WVec3I32& vCoord, const WVec3U32& vDims)
   {
-    ezVec3 vNormal = ezVec3::MakeZero();
+    WVec3 vNormal = WVec3::MakeZero();
 
     if (vCoord.x == 0)
       vNormal.x -= 1.0f;
-    if ((ezUInt32)vCoord.x == vDims.x - 1)
+    if ((WUInt32)vCoord.x == vDims.x - 1)
       vNormal.x += 1.0f;
 
     if (vCoord.y == 0)
       vNormal.y -= 1.0f;
-    if ((ezUInt32)vCoord.y == vDims.y - 1)
+    if ((WUInt32)vCoord.y == vDims.y - 1)
       vNormal.y += 1.0f;
 
     if (vCoord.z == 0)
       vNormal.z -= 1.0f;
-    if ((ezUInt32)vCoord.z == vDims.z - 1)
+    if ((WUInt32)vCoord.z == vDims.z - 1)
       vNormal.z += 1.0f;
 
     return vNormal;
@@ -111,11 +111,11 @@ namespace
   /// Whether exiting the grid at vCoord (which must satisfy IsBoundaryCoord) actually leads away
   /// from the grid, towards vTargetCoord - i.e. leaving through this particular voxel doesn't just
   /// walk straight back into the same grid. vTargetCoord may lie outside the grid.
-  bool IsUsableExit(const ezVec3I32& vCoord, const ezVec3U32& vDims, const ezVec3I32& vTargetCoord)
+  bool IsUsableExit(const WVec3I32& vCoord, const WVec3U32& vDims, const WVec3I32& vTargetCoord)
   {
-    const ezVec3 vNormal = GetBoundaryOutwardNormal(vCoord, vDims);
+    const WVec3 vNormal = GetBoundaryOutwardNormal(vCoord, vDims);
 
-    const ezVec3 vToTarget(
+    const WVec3 vToTarget(
       (float)(vTargetCoord.x - vCoord.x),
       (float)(vTargetCoord.y - vCoord.y),
       (float)(vTargetCoord.z - vCoord.z));
@@ -128,14 +128,14 @@ namespace
 
   /// Grids are not supposed to overlap, but in case they do, reject exit voxels that fall inside a
   /// solid voxel of another grid - that world position wouldn't actually be reachable.
-  bool IsCoordFreeInOtherGrids(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezArrayPtr<const ezVoxelGrid* const> otherGrids)
+  bool IsCoordFreeInOtherGrids(const WVoxelGrid& grid, const WVec3I32& vCoord, WArrayPtr<const WVoxelGrid* const> otherGrids)
   {
     if (otherGrids.IsEmpty())
       return true;
 
-    const ezVec3 vWorldPos = grid.CoordToWorld(vCoord);
+    const WVec3 vWorldPos = grid.CoordToWorld(vCoord);
 
-    for (const ezVoxelGrid* pOther : otherGrids)
+    for (const WVoxelGrid* pOther : otherGrids)
     {
       if (pOther == &grid)
         continue;
@@ -143,7 +143,7 @@ namespace
       if (!pOther->GetAABB().Contains(vWorldPos))
         continue;
 
-      const ezVec3I32 vOtherCoord = pOther->WorldToCoord(vWorldPos);
+      const WVec3I32 vOtherCoord = pOther->WorldToCoord(vWorldPos);
       if (pOther->IsCoordValid(vOtherCoord) && pOther->IsVoxelSet(vOtherCoord))
         return false;
     }
@@ -153,21 +153,21 @@ namespace
 
   // Admissible heuristic for 6-connected (face-neighbor only) movement: the minimum number of
   // axis-aligned unit steps needed, which is exactly the Manhattan distance.
-  float ManhattanHeuristic(const ezVec3I32& vA, const ezVec3I32& vB)
+  float ManhattanHeuristic(const WVec3I32& vA, const WVec3I32& vB)
   {
-    return (float)(ezMath::Abs(vA.x - vB.x) + ezMath::Abs(vA.y - vB.y) + ezMath::Abs(vA.z - vB.z));
+    return (float)(WMath::Abs(vA.x - vB.x) + WMath::Abs(vA.y - vB.y) + WMath::Abs(vA.z - vB.z));
   }
 
   // Minimal binary min-heap for A* open set
   struct OpenSetEntry
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 uiIndex;
+    WUInt32 uiIndex;
     float fFCost;
   };
 
-  void HeapPush(ezDynamicArray<OpenSetEntry>& ref_heap, ezUInt32 uiIndex, float fFCost)
+  void HeapPush(WDynamicArray<OpenSetEntry>& ref_heap, WUInt32 uiIndex, float fFCost)
   {
     OpenSetEntry entry;
     entry.uiIndex = uiIndex;
@@ -175,13 +175,13 @@ namespace
     ref_heap.PushBack(entry);
 
     // Sift up
-    ezUInt32 i = ref_heap.GetCount() - 1;
+    WUInt32 i = ref_heap.GetCount() - 1;
     while (i > 0)
     {
-      const ezUInt32 uiParent = (i - 1) / 2;
+      const WUInt32 uiParent = (i - 1) / 2;
       if (ref_heap[uiParent].fFCost > ref_heap[i].fFCost)
       {
-        ezMath::Swap(ref_heap[uiParent], ref_heap[i]);
+        WMath::Swap(ref_heap[uiParent], ref_heap[i]);
         i = uiParent;
       }
       else
@@ -191,20 +191,20 @@ namespace
     }
   }
 
-  OpenSetEntry HeapPop(ezDynamicArray<OpenSetEntry>& ref_heap)
+  OpenSetEntry HeapPop(WDynamicArray<OpenSetEntry>& ref_heap)
   {
     OpenSetEntry top = ref_heap[0];
     ref_heap[0] = ref_heap[ref_heap.GetCount() - 1];
     ref_heap.PopBack();
 
     // Sift down
-    ezUInt32 i = 0;
-    const ezUInt32 uiCount = ref_heap.GetCount();
+    WUInt32 i = 0;
+    const WUInt32 uiCount = ref_heap.GetCount();
     while (true)
     {
-      ezUInt32 uiSmallest = i;
-      const ezUInt32 uiLeft = 2 * i + 1;
-      const ezUInt32 uiRight = 2 * i + 2;
+      WUInt32 uiSmallest = i;
+      const WUInt32 uiLeft = 2 * i + 1;
+      const WUInt32 uiRight = 2 * i + 2;
 
       if (uiLeft < uiCount && ref_heap[uiLeft].fFCost < ref_heap[uiSmallest].fFCost)
         uiSmallest = uiLeft;
@@ -213,7 +213,7 @@ namespace
 
       if (uiSmallest != i)
       {
-        ezMath::Swap(ref_heap[i], ref_heap[uiSmallest]);
+        WMath::Swap(ref_heap[i], ref_heap[uiSmallest]);
         i = uiSmallest;
       }
       else
@@ -233,27 +233,27 @@ namespace
 // must also be a valid, non-solid coordinate in grid and is searched for exactly. If bExitSearch is
 // true, vTargetCoord is only used to bias the search heuristic and may lie outside grid; the search
 // stops at the first voxel reached that lies on the boundary of grid.
-static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ezVec3I32& vStartCoord, const ezVec3I32& vTargetCoord,
-  bool bExitSearch, ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, ezDynamicArray<ezVec3>& out_waypoints)
+static WAiVoxelNavigation::State RunGridAStar(const WVoxelGrid& grid, const WVec3I32& vStartCoord, const WVec3I32& vTargetCoord,
+  bool bExitSearch, WArrayPtr<const WVoxelGrid* const> otherGrids, WUInt32 uiMaxIterations, WDynamicArray<WVec3>& out_waypoints)
 {
-  using State = ezAiVoxelNavigation::State;
+  using State = WAiVoxelNavigation::State;
 
-  const ezUInt32 uiDimX = grid.GetDimensions().x;
-  const ezUInt32 uiDimY = grid.GetDimensions().y;
-  const ezVec3U32 vDims = grid.GetDimensions();
+  const WUInt32 uiDimX = grid.GetDimensions().x;
+  const WUInt32 uiDimY = grid.GetDimensions().y;
+  const WVec3U32 vDims = grid.GetDimensions();
 
-  const ezUInt32 uiStartPacked = PackCoord(vStartCoord, uiDimX, uiDimY);
-  const ezUInt32 uiTargetPacked = PackCoord(vTargetCoord, uiDimX, uiDimY);
+  const WUInt32 uiStartPacked = PackCoord(vStartCoord, uiDimX, uiDimY);
+  const WUInt32 uiTargetPacked = PackCoord(vTargetCoord, uiDimX, uiDimY);
 
-  ezHashTable<ezUInt32, AStarNode> nodes;
-  ezDynamicArray<OpenSetEntry> openSet;
+  WHashTable<WUInt32, AStarNode> nodes;
+  WDynamicArray<OpenSetEntry> openSet;
 
   // Initialize start node
   {
     AStarNode startNode;
     startNode.fGCost = 0.0f;
     startNode.fFCost = ManhattanHeuristic(vStartCoord, vTargetCoord);
-    startNode.uiParent = ezInvalidIndex;
+    startNode.uiParent = WInvalidIndex;
     nodes.Insert(uiStartPacked, startNode);
     HeapPush(openSet, uiStartPacked, startNode.fFCost);
   }
@@ -263,7 +263,7 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
   // corner, squeezing through a gap that isn't actually open.
   struct Neighbor
   {
-    ezInt32 dx, dy, dz;
+    WInt32 dx, dy, dz;
   };
 
   static const Neighbor neighbors[6] = {
@@ -274,10 +274,10 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
     {0, 0, -1},
     {0, 0, 1},
   };
-  const ezUInt32 uiNeighborCount = 6;
+  const WUInt32 uiNeighborCount = 6;
 
-  ezUInt32 uiIterations = 0;
-  ezUInt32 uiGoalPacked = ezInvalidIndex;
+  WUInt32 uiIterations = 0;
+  WUInt32 uiGoalPacked = WInvalidIndex;
 
   while (!openSet.IsEmpty() && uiIterations < uiMaxIterations)
   {
@@ -293,7 +293,7 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
 
     pCurrentNode->bClosed = true;
 
-    const ezVec3I32 vCurrentCoord = UnpackCoord(current.uiIndex, uiDimX, uiDimY);
+    const WVec3I32 vCurrentCoord = UnpackCoord(current.uiIndex, uiDimX, uiDimY);
 
     const bool bIsGoal = bExitSearch
                            ? (IsBoundaryCoord(vCurrentCoord, vDims) && IsUsableExit(vCurrentCoord, vDims, vTargetCoord) &&
@@ -308,9 +308,9 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
 
     const float fCurrentG = pCurrentNode->fGCost;
 
-    for (ezUInt32 n = 0; n < uiNeighborCount; ++n)
+    for (WUInt32 n = 0; n < uiNeighborCount; ++n)
     {
-      const ezVec3I32 vNeighborCoord(
+      const WVec3I32 vNeighborCoord(
         vCurrentCoord.x + neighbors[n].dx,
         vCurrentCoord.y + neighbors[n].dy,
         vCurrentCoord.z + neighbors[n].dz);
@@ -321,7 +321,7 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
       if (grid.IsVoxelSet(vNeighborCoord))
         continue;
 
-      const ezUInt32 uiNeighborPacked = PackCoord(vNeighborCoord, uiDimX, uiDimY);
+      const WUInt32 uiNeighborPacked = PackCoord(vNeighborCoord, uiDimX, uiDimY);
       const float fTentativeG = fCurrentG + 1.0f;
 
       AStarNode* pNeighborNode = nullptr;
@@ -345,16 +345,16 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
     }
   }
 
-  if (uiGoalPacked == ezInvalidIndex)
+  if (uiGoalPacked == WInvalidIndex)
     return State::NoPathFound;
 
   // Back-trace path
-  ezDynamicArray<ezVec3> rawPath;
-  ezUInt32 uiCurrent = uiGoalPacked;
+  WDynamicArray<WVec3> rawPath;
+  WUInt32 uiCurrent = uiGoalPacked;
 
-  while (uiCurrent != ezInvalidIndex)
+  while (uiCurrent != WInvalidIndex)
   {
-    const ezVec3I32 vCoord = UnpackCoord(uiCurrent, uiDimX, uiDimY);
+    const WVec3I32 vCoord = UnpackCoord(uiCurrent, uiDimX, uiDimY);
     rawPath.PushBack(grid.CoordToWorld(vCoord));
 
     AStarNode* pNode = nullptr;
@@ -369,29 +369,29 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
   }
 
   // Reverse to get start-to-target order
-  for (ezUInt32 i = 0; i < rawPath.GetCount() / 2; ++i)
+  for (WUInt32 i = 0; i < rawPath.GetCount() / 2; ++i)
   {
-    ezMath::Swap(rawPath[i], rawPath[rawPath.GetCount() - 1 - i]);
+    WMath::Swap(rawPath[i], rawPath[rawPath.GetCount() - 1 - i]);
   }
 
   out_waypoints = std::move(rawPath);
   return State::PathFound;
 }
 
-ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vTarget,
-  ezUInt32 uiMaxIterations, ezDynamicArray<ezVec3>& out_waypoints) const
+WAiVoxelNavigation::State WAiVoxelNavigation::FindPathToTarget(const WVoxelGrid& grid, const WVec3& vStart, const WVec3& vTarget,
+  WUInt32 uiMaxIterations, WDynamicArray<WVec3>& out_waypoints) const
 {
   out_waypoints.Clear();
 
-  ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
-  const ezVec3I32 vTargetCoord = grid.WorldToCoord(vTarget);
+  WVec3I32 vStartCoord = grid.WorldToCoord(vStart);
+  const WVec3I32 vTargetCoord = grid.WorldToCoord(vTarget);
 
   if (!grid.IsCoordValid(vStartCoord) || grid.IsVoxelSet(vStartCoord))
   {
     // The exact start voxel is blocked or out of bounds - before giving up, try to recover by
     // stepping into a free voxel immediately next to it (e.g. the object got pushed into a voxel
     // that turned solid after it last pathed).
-    ezVec3I32 vRecoveredCoord;
+    WVec3I32 vRecoveredCoord;
     if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, vRecoveredCoord))
       return State::InvalidStartPosition;
 
@@ -401,7 +401,7 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGr
   if (!grid.IsCoordValid(vTargetCoord) || grid.IsVoxelSet(vTargetCoord))
     return State::InvalidTargetPosition;
 
-  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, false, ezArrayPtr<const ezVoxelGrid* const>(), uiMaxIterations, out_waypoints);
+  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, false, WArrayPtr<const WVoxelGrid* const>(), uiMaxIterations, out_waypoints);
 
   if (result == State::PathFound)
   {
@@ -411,17 +411,17 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGr
   return result;
 }
 
-ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToExit(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vRealTarget,
-  ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, ezDynamicArray<ezVec3>& out_waypoints) const
+WAiVoxelNavigation::State WAiVoxelNavigation::FindPathToExit(const WVoxelGrid& grid, const WVec3& vStart, const WVec3& vRealTarget,
+  WArrayPtr<const WVoxelGrid* const> otherGrids, WUInt32 uiMaxIterations, WDynamicArray<WVec3>& out_waypoints) const
 {
   out_waypoints.Clear();
 
-  ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
-  const ezVec3I32 vTargetCoord = grid.WorldToCoord(vRealTarget); // may lie outside grid, only used for the heuristic
+  WVec3I32 vStartCoord = grid.WorldToCoord(vStart);
+  const WVec3I32 vTargetCoord = grid.WorldToCoord(vRealTarget); // may lie outside grid, only used for the heuristic
 
   if (!grid.IsCoordValid(vStartCoord) || grid.IsVoxelSet(vStartCoord))
   {
-    ezVec3I32 vRecoveredCoord;
+    WVec3I32 vRecoveredCoord;
     if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, vRecoveredCoord))
       return State::InvalidStartPosition;
 
@@ -438,17 +438,17 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToExit(const ezVoxelGrid
   return result;
 }
 
-ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, const ezVec3& vTarget, const ezAiVoxelGridFinder& gridFinder,
-  float fSearchMargin, ezUInt32 uiMaxIterationsPerHop, ezUInt32 uiMaxHops)
+WAiVoxelNavigation::State WAiVoxelNavigation::FindPath(const WVec3& vStart, const WVec3& vTarget, const WAiVoxelGridFinder& gridFinder,
+  float fSearchMargin, WUInt32 uiMaxIterationsPerHop, WUInt32 uiMaxHops)
 {
   m_Waypoints.Clear();
   m_SegmentInsideGrid.Clear();
   m_uiCurrentWaypoint = 0;
   m_Waypoints.PushBack(vStart);
 
-  ezVec3 vCurrent = vStart;
+  WVec3 vCurrent = vStart;
 
-  for (ezUInt32 uiHop = 0; uiHop < uiMaxHops; ++uiHop)
+  for (WUInt32 uiHop = 0; uiHop < uiMaxHops; ++uiHop)
   {
     if ((vTarget - vCurrent).GetLengthSquared() < 0.0001f)
     {
@@ -456,21 +456,21 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
       return m_State;
     }
 
-    ezBoundingBox searchBox = ezBoundingBox::MakeInvalid();
+    WBoundingBox searchBox = WBoundingBox::MakeInvalid();
     searchBox.ExpandToInclude(vCurrent);
     searchBox.ExpandToInclude(vTarget);
-    searchBox.Grow(ezVec3(fSearchMargin));
+    searchBox.Grow(WVec3(fSearchMargin));
 
-    ezDynamicArray<const ezVoxelGrid*> grids;
+    WDynamicArray<const WVoxelGrid*> grids;
     gridFinder(searchBox, grids);
 
-    const ezVoxelGrid* pGrid = nullptr;
-    ezVec3 vEntry = vCurrent;
-    float fBestEnter = ezMath::HighValue<float>();
+    const WVoxelGrid* pGrid = nullptr;
+    WVec3 vEntry = vCurrent;
+    float fBestEnter = WMath::HighValue<float>();
 
-    for (const ezVoxelGrid* pCandidate : grids)
+    for (const WVoxelGrid* pCandidate : grids)
     {
-      const ezBoundingBox box = pCandidate->GetAABB();
+      const WBoundingBox box = pCandidate->GetAABB();
 
       if (box.Contains(vCurrent))
       {
@@ -489,8 +489,8 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
         // further along the segment, into the grid's interior: a point exactly on the max-corner
         // face would otherwise floor to a voxel coordinate one past the last valid index (an
         // off-by-one at the boundary), making the grid falsely look unreachable.
-        const ezVec3 vTravelDir = (vTarget - vCurrent).GetNormalized();
-        vEntry = ezMath::Lerp(vCurrent, vTarget, fEnter) + vTravelDir * (pCandidate->GetVoxelSize() * 0.1f);
+        const WVec3 vTravelDir = (vTarget - vCurrent).GetNormalized();
+        vEntry = WMath::Lerp(vCurrent, vTarget, fEnter) + vTravelDir * (pCandidate->GetVoxelSize() * 0.1f);
       }
     }
 
@@ -511,7 +511,7 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
 
     const bool bTargetInside = pGrid->GetAABB().Contains(vTarget);
 
-    ezDynamicArray<ezVec3> hopWaypoints;
+    WDynamicArray<WVec3> hopWaypoints;
     const State hopState = bTargetInside
                              ? FindPathToTarget(*pGrid, vEntry, vTarget, uiMaxIterationsPerHop, hopWaypoints)
                              : FindPathToExit(*pGrid, vEntry, vTarget, grids, uiMaxIterationsPerHop, hopWaypoints);
@@ -522,7 +522,7 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
       return m_State;
     }
 
-    for (ezUInt32 i = 0; i < hopWaypoints.GetCount(); ++i)
+    for (WUInt32 i = 0; i < hopWaypoints.GetCount(); ++i)
     {
       if (i == 0 && !m_Waypoints.IsEmpty() && hopWaypoints[i].IsEqual(m_Waypoints.PeekBack(), 0.0001f))
         continue;
@@ -546,8 +546,8 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
     // is farthest from center on, which usually isn't the axis of the face that was actually crossed).
     // A full voxel step guarantees clearing the boundary even when exiting through a corner or edge,
     // where the face normal is not axis-aligned.
-    const ezVec3I32 vExitCoord = pGrid->WorldToCoord(vCurrent);
-    const ezVec3 vOutward = GetBoundaryOutwardNormal(vExitCoord, pGrid->GetDimensions());
+    const WVec3I32 vExitCoord = pGrid->WorldToCoord(vCurrent);
+    const WVec3 vOutward = GetBoundaryOutwardNormal(vExitCoord, pGrid->GetDimensions());
     if (!vOutward.IsZero(0.0001f))
     {
       vCurrent += vOutward.GetNormalized() * pGrid->GetVoxelSize();
@@ -558,24 +558,24 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
   return m_State;
 }
 
-void ezAiVoxelNavigation::SmoothPath(const ezVoxelGrid& grid, ezDynamicArray<ezVec3>& inout_waypoints) const
+void WAiVoxelNavigation::SmoothPath(const WVoxelGrid& grid, WDynamicArray<WVec3>& inout_waypoints) const
 {
   if (inout_waypoints.GetCount() <= 2)
     return;
 
-  ezDynamicArray<ezVec3> smoothed;
+  WDynamicArray<WVec3> smoothed;
   smoothed.PushBack(inout_waypoints[0]);
 
-  ezUInt32 uiCurrent = 0;
+  WUInt32 uiCurrent = 0;
 
   while (uiCurrent < inout_waypoints.GetCount() - 1)
   {
-    ezUInt32 uiFarthestVisible = uiCurrent + 1;
+    WUInt32 uiFarthestVisible = uiCurrent + 1;
 
-    for (ezUInt32 i = inout_waypoints.GetCount() - 1; i > uiCurrent + 1; --i)
+    for (WUInt32 i = inout_waypoints.GetCount() - 1; i > uiCurrent + 1; --i)
     {
-      ezVec3I32 vCoordA = grid.WorldToCoord(inout_waypoints[uiCurrent]);
-      ezVec3I32 vCoordB = grid.WorldToCoord(inout_waypoints[i]);
+      WVec3I32 vCoordA = grid.WorldToCoord(inout_waypoints[uiCurrent]);
+      WVec3I32 vCoordB = grid.WorldToCoord(inout_waypoints[i]);
 
       if (grid.IsCoordValid(vCoordA) &&
           grid.IsCoordValid(vCoordB) &&
@@ -593,7 +593,7 @@ void ezAiVoxelNavigation::SmoothPath(const ezVoxelGrid& grid, ezDynamicArray<ezV
   inout_waypoints = std::move(smoothed);
 }
 
-bool ezAiVoxelNavigation::AdvanceWaypoint()
+bool WAiVoxelNavigation::AdvanceWaypoint()
 {
   if (m_uiCurrentWaypoint + 1 < m_Waypoints.GetCount())
   {
@@ -603,10 +603,10 @@ bool ezAiVoxelNavigation::AdvanceWaypoint()
   return false;
 }
 
-ezVec3 ezAiVoxelNavigation::GetNextWaypoint() const
+WVec3 WAiVoxelNavigation::GetNextWaypoint() const
 {
   if (m_Waypoints.IsEmpty())
-    return ezVec3::MakeZero();
+    return WVec3::MakeZero();
 
   if (m_uiCurrentWaypoint < m_Waypoints.GetCount())
     return m_Waypoints[m_uiCurrentWaypoint];
@@ -614,20 +614,20 @@ ezVec3 ezAiVoxelNavigation::GetNextWaypoint() const
   return m_Waypoints[m_Waypoints.GetCount() - 1];
 }
 
-bool ezAiVoxelNavigation::IsPathComplete() const
+bool WAiVoxelNavigation::IsPathComplete() const
 {
   return m_Waypoints.IsEmpty() || m_uiCurrentWaypoint >= m_Waypoints.GetCount();
 }
 
-ezVec3 ezAiVoxelNavigation::WalkPathForward(const ezVec3& vCurrentPos, float fDistance, ezUInt32& inout_uiIndex) const
+WVec3 WAiVoxelNavigation::WalkPathForward(const WVec3& vCurrentPos, float fDistance, WUInt32& inout_uiIndex) const
 {
-  ezVec3 vFrom = vCurrentPos;
-  ezVec3 vTo = m_Waypoints[inout_uiIndex];
-  float fRemaining = ezMath::Max(fDistance, 0.0f);
+  WVec3 vFrom = vCurrentPos;
+  WVec3 vTo = m_Waypoints[inout_uiIndex];
+  float fRemaining = WMath::Max(fDistance, 0.0f);
 
   while (true)
   {
-    const ezVec3 vSeg = vTo - vFrom;
+    const WVec3 vSeg = vTo - vFrom;
     const float fSegLen = vSeg.GetLength();
 
     if (fSegLen > 0.0001f)
@@ -647,16 +647,16 @@ ezVec3 ezAiVoxelNavigation::WalkPathForward(const ezVec3& vCurrentPos, float fDi
   }
 }
 
-ezVec3 ezAiVoxelNavigation::GetLookAheadPoint(const ezVec3& vCurrentPos, float fLookAheadDistance) const
+WVec3 WAiVoxelNavigation::GetLookAheadPoint(const WVec3& vCurrentPos, float fLookAheadDistance) const
 {
   if (IsPathComplete())
     return vCurrentPos;
 
-  ezUInt32 uiIndex = m_uiCurrentWaypoint; // local copy - peek only, does not advance the path
+  WUInt32 uiIndex = m_uiCurrentWaypoint; // local copy - peek only, does not advance the path
   return WalkPathForward(vCurrentPos, fLookAheadDistance, uiIndex);
 }
 
-ezVec3 ezAiVoxelNavigation::AdvanceAlongPath(const ezVec3& vCurrentPos, float fDistance)
+WVec3 WAiVoxelNavigation::AdvanceAlongPath(const WVec3& vCurrentPos, float fDistance)
 {
   if (IsPathComplete())
     return vCurrentPos;
@@ -664,7 +664,7 @@ ezVec3 ezAiVoxelNavigation::AdvanceAlongPath(const ezVec3& vCurrentPos, float fD
   return WalkPathForward(vCurrentPos, fDistance, m_uiCurrentWaypoint); // mutates the current waypoint index directly
 }
 
-void ezAiVoxelNavigation::SetDirectPath(const ezVec3& vStart, const ezVec3& vTarget)
+void WAiVoxelNavigation::SetDirectPath(const WVec3& vStart, const WVec3& vTarget)
 {
   m_Waypoints.Clear();
   m_SegmentInsideGrid.Clear();
@@ -677,7 +677,7 @@ void ezAiVoxelNavigation::SetDirectPath(const ezVec3& vStart, const ezVec3& vTar
   m_State = State::PathFound;
 }
 
-void ezAiVoxelNavigation::CancelNavigation()
+void WAiVoxelNavigation::CancelNavigation()
 {
   m_Waypoints.Clear();
   m_SegmentInsideGrid.Clear();
@@ -685,15 +685,15 @@ void ezAiVoxelNavigation::CancelNavigation()
   m_State = State::Idle;
 }
 
-void ezAiVoxelNavigation::DebugDrawPath(const ezDebugRendererContext& context, const ezColor& color) const
+void WAiVoxelNavigation::DebugDrawPath(const WDebugRendererContext& context, const WColor& color) const
 {
   if (m_Waypoints.GetCount() < 2)
     return;
 
-  ezDynamicArray<ezDebugRendererLine> lines;
+  WDynamicArray<WDebugRendererLine> lines;
   lines.Reserve(m_Waypoints.GetCount() - 1);
 
-  for (ezUInt32 i = 0; i + 1 < m_Waypoints.GetCount(); ++i)
+  for (WUInt32 i = 0; i + 1 < m_Waypoints.GetCount(); ++i)
   {
     auto& line = lines.ExpandAndGetRef();
     line.m_start = m_Waypoints[i];
@@ -701,8 +701,8 @@ void ezAiVoxelNavigation::DebugDrawPath(const ezDebugRendererContext& context, c
 
     if (i < m_uiCurrentWaypoint)
     {
-      line.m_startColor = ezColor::Grey;
-      line.m_endColor = ezColor::Grey;
+      line.m_startColor = WColor::Grey;
+      line.m_endColor = WColor::Grey;
     }
     else
     {
@@ -711,28 +711,28 @@ void ezAiVoxelNavigation::DebugDrawPath(const ezDebugRendererContext& context, c
     }
   }
 
-  ezDebugRenderer::DrawLines(context, lines, color);
+  WDebugRenderer::DrawLines(context, lines, color);
 }
 
-void ezAiVoxelNavigation::DebugDrawPathSegments(const ezDebugRendererContext& context, const ezColor& insideGridColor,
-  const ezColor& freeSpaceColor) const
+void WAiVoxelNavigation::DebugDrawPathSegments(const WDebugRendererContext& context, const WColor& insideGridColor,
+  const WColor& freeSpaceColor) const
 {
   if (m_Waypoints.GetCount() < 2)
     return;
 
-  ezDynamicArray<ezDebugRendererLine> lines;
+  WDynamicArray<WDebugRendererLine> lines;
   lines.Reserve(m_Waypoints.GetCount() - 1);
 
-  for (ezUInt32 i = 0; i + 1 < m_Waypoints.GetCount(); ++i)
+  for (WUInt32 i = 0; i + 1 < m_Waypoints.GetCount(); ++i)
   {
     auto& line = lines.ExpandAndGetRef();
     line.m_start = m_Waypoints[i];
     line.m_end = m_Waypoints[i + 1];
 
-    const ezColor& color = m_SegmentInsideGrid[i] ? insideGridColor : freeSpaceColor;
+    const WColor& color = m_SegmentInsideGrid[i] ? insideGridColor : freeSpaceColor;
     line.m_startColor = color;
     line.m_endColor = color;
   }
 
-  ezDebugRenderer::DrawLines(context, lines, ezColor::White);
+  WDebugRenderer::DrawLines(context, lines, WColor::White);
 }

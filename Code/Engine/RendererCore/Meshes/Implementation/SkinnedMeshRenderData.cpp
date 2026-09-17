@@ -6,32 +6,32 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkinnedMeshRenderData, 1, ezRTTIDefaultAllocator<ezSkinnedMeshRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkinnedMeshRenderData, 1, WRTTIDefaultAllocator<WSkinnedMeshRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezSkinnedMeshRenderData::CanBatch(const ezRenderData& other0) const
+bool WSkinnedMeshRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezSkinnedMeshRenderData&>(other0);
+  const auto& other = WStaticCast<const WSkinnedMeshRenderData&>(other0);
 
   return m_hSkinningBuffer == other.m_hSkinningBuffer && SUPER::CanBatch(other0);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSkinningState::ezSkinningState() = default;
+WSkinningState::WSkinningState() = default;
 
-ezSkinningState::~ezSkinningState()
+WSkinningState::~WSkinningState()
 {
   Clear();
 }
 
-void ezSkinningState::Clear()
+void WSkinningState::Clear()
 {
   if (m_pWorld == nullptr)
     return;
 
-  if (auto pRenderDataManager = m_pWorld->GetModule<ezRenderDataManager>())
+  if (auto pRenderDataManager = m_pWorld->GetModule<WRenderDataManager>())
   {
     pRenderDataManager->DeleteSkinningData(m_DataOffset);
   }
@@ -40,15 +40,15 @@ void ezSkinningState::Clear()
   m_pWorld = nullptr;
 }
 
-ezArrayPtr<ezShaderTransform> ezSkinningState::GetOrCreateBoneTransformsForWriting(ezComponent& ref_ownerComponent, ezUInt32 uiNumBones)
+WArrayPtr<WShaderTransform> WSkinningState::GetOrCreateBoneTransformsForWriting(WComponent& ref_ownerComponent, WUInt32 uiNumBones)
 {
-  EZ_ASSERT_DEV(ref_ownerComponent.HandlesMessage(ezMsgCustomInstanceDataOffsetChanged()), "Owner component must handle ezMsgCustomInstanceDataOffsetChanged.");
+  W_ASSERT_DEV(ref_ownerComponent.HandlesMessage(WMsgCustomInstanceDataOffsetChanged()), "Owner component must handle WMsgCustomInstanceDataOffsetChanged.");
 
   auto pWorld = ref_ownerComponent.GetWorld();
-  EZ_ASSERT_DEV(m_pWorld == nullptr || m_pWorld == pWorld, "ezSkinningState used with different worlds simultaneously, which is not supported.");
+  W_ASSERT_DEV(m_pWorld == nullptr || m_pWorld == pWorld, "WSkinningState used with different worlds simultaneously, which is not supported.");
   m_pWorld = pWorld;
 
-  auto pRenderDataManager = m_pWorld->GetModuleReadOnly<ezRenderDataManager>();
+  auto pRenderDataManager = m_pWorld->GetModuleReadOnly<WRenderDataManager>();
 
   if (m_uiNumBones > 0 && m_uiNumBones != uiNumBones)
   {
@@ -59,17 +59,17 @@ ezArrayPtr<ezShaderTransform> ezSkinningState::GetOrCreateBoneTransformsForWriti
   return pRenderDataManager->GetOrCreateSkinningData(&ref_ownerComponent, m_DataOffset, uiNumBones);
 }
 
-ezArrayPtr<const ezShaderTransform> ezSkinningState::GetBoneTransformsForReading() const
+WArrayPtr<const WShaderTransform> WSkinningState::GetBoneTransformsForReading() const
 {
   if (m_pWorld != nullptr && m_uiNumBones > 0)
   {
-    if (auto pRenderDataManager = m_pWorld->GetModuleReadOnly<ezRenderDataManager>())
+    if (auto pRenderDataManager = m_pWorld->GetModuleReadOnly<WRenderDataManager>())
     {
       return pRenderDataManager->GetSkinningData(m_DataOffset);
     }
   }
 
-  return ezArrayPtr<const ezShaderTransform>();
+  return WArrayPtr<const WShaderTransform>();
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshRenderData);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshRenderData);

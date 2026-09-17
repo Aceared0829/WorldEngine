@@ -1,6 +1,6 @@
-set (EZ_3RDPARTY_MINIAUDIO_SUPPORT ON CACHE BOOL "Whether to add support for MiniAudio.")
-mark_as_advanced(FORCE EZ_3RDPARTY_MINIAUDIO_SUPPORT)
+set (W_3RDPARTY_MINIAUDIO_SUPPORT ON CACHE BOOL "Whether to add support for MiniAudio.")
+mark_as_advanced(FORCE W_3RDPARTY_MINIAUDIO_SUPPORT)
 
-macro(ez_requires_miniaudio)
-	ez_requires(EZ_3RDPARTY_MINIAUDIO_SUPPORT)
+macro(W_requires_miniaudio)
+	W_requires(W_3RDPARTY_MINIAUDIO_SUPPORT)
 endmacro()

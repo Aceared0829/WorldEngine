@@ -3,9 +3,9 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
 /// What happens when a particle is outside the sphere
-struct EZ_PARTICLEPLUGIN_DLL ezParticleSphereOutOfBoundsMode
+struct W_PARTICLEPLUGIN_DLL WParticleSphereOutOfBoundsMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -16,42 +16,42 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleSphereOutOfBoundsMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleSphereOutOfBoundsMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WParticleSphereOutOfBoundsMode);
 
 /// Constrains particles to a spherical volume.
 ///
 /// Particles outside the radius are either killed or pushed back to the sphere surface.
 /// The center is relative to the effect's world position.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_BoundsSphere final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_BoundsSphere final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_BoundsSphere, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_BoundsSphere, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_BoundsSphere();
+  WParticleBehaviorFactory_BoundsSphere();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezVec3 m_vCenterOffset = ezVec3::MakeZero();
+  WVec3 m_vCenterOffset = WVec3::MakeZero();
   float m_fRadius = 3.0f;
-  ezEnum<ezParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
+  WEnum<WParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_BoundsSphere final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_BoundsSphere final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_BoundsSphere, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_BoundsSphere, WParticleBehavior);
 
 public:
-  ezVec3 m_vCenterOffset = ezVec3::MakeZero();
+  WVec3 m_vCenterOffset = WVec3::MakeZero();
   float m_fRadius = 3.0f;
-  ezEnum<ezParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
+  WEnum<WParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
 
 protected:
   virtual void CreateRequiredStreams() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
 };

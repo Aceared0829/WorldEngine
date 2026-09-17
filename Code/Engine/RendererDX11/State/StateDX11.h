@@ -10,82 +10,82 @@ struct ID3D11RasterizerState;
 struct ID3D11RasterizerState2;
 struct ID3D11SamplerState;
 
-class EZ_RENDERERDX11_DLL ezGALBlendStateDX11 : public ezGALBlendState
+class W_RENDERERDX11_DLL WGALBlendStateDX11 : public WGALBlendState
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11BlendState* GetDXBlendState() const;
+  W_ALWAYS_INLINE ID3D11BlendState* GetDXBlendState() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALBlendStateDX11(const ezGALBlendStateCreationDescription& Description);
+  WGALBlendStateDX11(const WGALBlendStateCreationDescription& Description);
 
-  ~ezGALBlendStateDX11();
+  ~WGALBlendStateDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11BlendState* m_pDXBlendState = nullptr;
 };
 
-class EZ_RENDERERDX11_DLL ezGALDepthStencilStateDX11 : public ezGALDepthStencilState
+class W_RENDERERDX11_DLL WGALDepthStencilStateDX11 : public WGALDepthStencilState
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11DepthStencilState* GetDXDepthStencilState() const;
+  W_ALWAYS_INLINE ID3D11DepthStencilState* GetDXDepthStencilState() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALDepthStencilStateDX11(const ezGALDepthStencilStateCreationDescription& Description);
+  WGALDepthStencilStateDX11(const WGALDepthStencilStateCreationDescription& Description);
 
-  ~ezGALDepthStencilStateDX11();
+  ~WGALDepthStencilStateDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11DepthStencilState* m_pDXDepthStencilState = nullptr;
 };
 
-class EZ_RENDERERDX11_DLL ezGALRasterizerStateDX11 : public ezGALRasterizerState
+class W_RENDERERDX11_DLL WGALRasterizerStateDX11 : public WGALRasterizerState
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11RasterizerState* GetDXRasterizerState() const;
+  W_ALWAYS_INLINE ID3D11RasterizerState* GetDXRasterizerState() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALRasterizerStateDX11(const ezGALRasterizerStateCreationDescription& Description);
+  WGALRasterizerStateDX11(const WGALRasterizerStateCreationDescription& Description);
 
-  ~ezGALRasterizerStateDX11();
+  ~WGALRasterizerStateDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11RasterizerState* m_pDXRasterizerState = nullptr;
 };
 
-class EZ_RENDERERDX11_DLL ezGALSamplerStateDX11 : public ezGALSamplerState
+class W_RENDERERDX11_DLL WGALSamplerStateDX11 : public WGALSamplerState
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11SamplerState* GetDXSamplerState() const;
+  W_ALWAYS_INLINE ID3D11SamplerState* GetDXSamplerState() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALSamplerStateDX11(const ezGALSamplerStateCreationDescription& Description);
+  WGALSamplerStateDX11(const WGALSamplerStateCreationDescription& Description);
 
-  ~ezGALSamplerStateDX11();
+  ~WGALSamplerStateDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11SamplerState* m_pDXSamplerState = nullptr;
 };

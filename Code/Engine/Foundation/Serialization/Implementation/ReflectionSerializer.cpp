@@ -11,75 +11,75 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezReflectionSerializer public static functions
+// WReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+void WReflectionSerializer::WriteObjectToDDL(WStreamWriter& inout_stream, const WRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, WOpenDdlWriter::TypeStringMode typeMode /*= WOpenDdlWriter::TypeStringMode::Shortest*/)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter conv(&graph, &context, false, true);
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
+  WRttiConverterWriter conv(&graph, &context, false, true);
 
-  context.RegisterObject(ezUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
+  context.RegisterObject(WUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphDdlSerializer::Write(inout_stream, &graph, nullptr, bCompactMmode, typeMode);
+  WAbstractGraphDdlSerializer::Write(inout_stream, &graph, nullptr, bCompactMmode, typeMode);
 }
 
-void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ref_ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid /*= ezUuid()*/)
+void WReflectionSerializer::WriteObjectToDDL(WOpenDdlWriter& ref_ddl, const WRTTI* pRtti, const void* pObject, WUuid guid /*= WUuid()*/)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter conv(&graph, &context, false, true);
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
+  WRttiConverterWriter conv(&graph, &context, false, true);
 
   if (!guid.IsValid())
   {
-    guid = ezUuid::MakeUuid();
+    guid = WUuid::MakeUuid();
   }
 
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphDdlSerializer::Write(ref_ddl, &graph, nullptr);
+  WAbstractGraphDdlSerializer::Write(ref_ddl, &graph, nullptr);
 }
 
-void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject)
+void WReflectionSerializer::WriteObjectToBinary(WStreamWriter& inout_stream, const WRTTI* pRtti, const void* pObject)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter conv(&graph, &context, false, true);
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
+  WRttiConverterWriter conv(&graph, &context, false, true);
 
-  context.RegisterObject(ezUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
+  context.RegisterObject(WUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphBinarySerializer::Write(inout_stream, &graph);
+  WAbstractGraphBinarySerializer::Write(inout_stream, &graph);
 }
 
-void* ezReflectionSerializer::ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti)
+void* WReflectionSerializer::ReadObjectFromDDL(WStreamReader& inout_stream, const WRTTI*& ref_pRtti)
 {
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  WOpenDdlReader reader;
+  if (reader.ParseDocument(inout_stream, 0, WLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse DDL graph");
+    WLog::Error("Failed to parse DDL graph");
     return nullptr;
   }
 
   return ReadObjectFromDDL(reader.GetRootElement(), ref_pRtti);
 }
 
-void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& ref_pRtti)
+void* WReflectionSerializer::ReadObjectFromDDL(const WOpenDdlReaderElement* pRootElement, const WRTTI*& ref_pRtti)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(pRootElement, &graph).IgnoreResult();
+  WAbstractGraphDdlSerializer::Read(pRootElement, &graph).IgnoreResult();
 
-  ezRttiConverterReader convRead(&graph, &context);
+  WRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
 
-  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+  W_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  ref_pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+  ref_pRtti = WRTTI::FindTypeByName(pRootNode->GetType());
 
   void* pTarget = context.CreateObject(pRootNode->GetGuid(), ref_pRtti);
 
@@ -88,19 +88,19 @@ void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pR
   return pTarget;
 }
 
-void* ezReflectionSerializer::ReadObjectFromBinary(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti)
+void* WReflectionSerializer::ReadObjectFromBinary(WStreamReader& inout_stream, const WRTTI*& ref_pRtti)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
 
-  ezAbstractGraphBinarySerializer::Read(inout_stream, &graph);
+  WAbstractGraphBinarySerializer::Read(inout_stream, &graph);
 
-  ezRttiConverterReader convRead(&graph, &context);
+  WRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
 
-  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+  W_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  ref_pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+  ref_pRtti = WRTTI::FindTypeByName(pRootNode->GetType());
 
   void* pTarget = context.CreateObject(pRootNode->GetGuid(), ref_pRtti);
 
@@ -109,17 +109,17 @@ void* ezReflectionSerializer::ReadObjectFromBinary(ezStreamReader& inout_stream,
   return pTarget;
 }
 
-void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject)
+void WReflectionSerializer::ReadObjectPropertiesFromDDL(WStreamReader& inout_stream, const WRTTI& rtti, void* pObject)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(inout_stream, &graph).IgnoreResult();
+  WAbstractGraphDdlSerializer::Read(inout_stream, &graph).IgnoreResult();
 
-  ezRttiConverterReader convRead(&graph, &context);
+  WRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
 
-  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+  W_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
   if (pRootNode == nullptr)
     return;
@@ -127,17 +127,17 @@ void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& inout_s
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
 
-void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject)
+void WReflectionSerializer::ReadObjectPropertiesFromBinary(WStreamReader& inout_stream, const WRTTI& rtti, void* pObject)
 {
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
 
-  ezAbstractGraphBinarySerializer::Read(inout_stream, &graph);
+  WAbstractGraphBinarySerializer::Read(inout_stream, &graph);
 
-  ezRttiConverterReader convRead(&graph, &context);
+  WRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
 
-  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+  W_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
@@ -145,53 +145,53 @@ void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& inou
 
 namespace
 {
-  static void CloneProperty(const void* pObject, void* pClone, const ezAbstractProperty* pProp)
+  static void CloneProperty(const void* pObject, void* pClone, const WAbstractProperty* pProp)
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    if (pProp->GetFlags().IsSet(WPropertyFlags::ReadOnly))
       return;
 
-    const ezRTTI* pPropType = pProp->GetSpecificType();
+    const WRTTI* pPropType = pProp->GetSpecificType();
 
-    const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+    const bool bIsValueType = WReflectionUtils::IsValueType(pProp);
 
-    ezVariant vTemp;
+    WVariant vTemp;
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractMemberProperty*>(pProp);
 
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+          vTemp = WReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
 
           void* pRefrencedObject = vTemp.ConvertTo<void*>();
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && pRefrencedObject)
+          if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner) && pRefrencedObject)
           {
-            pRefrencedObject = ezReflectionSerializer::Clone(pRefrencedObject, pPropType);
-            vTemp = ezVariant(pRefrencedObject, pPropType);
+            pRefrencedObject = WReflectionSerializer::Clone(pRefrencedObject, pPropType);
+            vTemp = WVariant(pRefrencedObject, pPropType);
           }
 
-          ezVariant vOldValue = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pClone);
-          ezReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-            ezReflectionUtils::DeleteObject(vOldValue.ConvertTo<void*>(), pProp);
+          WVariant vOldValue = WReflectionUtils::GetMemberPropertyValue(pSpecific, pClone);
+          WReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
+          if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
+            WReflectionUtils::DeleteObject(vOldValue.ConvertTo<void*>(), pProp);
         }
         else
         {
-          if (bIsValueType || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+          if (bIsValueType || pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags))
           {
-            vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
-            ezReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
+            vTemp = WReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+            WReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
           }
-          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+          else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
           {
             void* pSubObject = pSpecific->GetPropertyPointer(pObject);
             // Do we have direct access to the property?
             if (pSubObject != nullptr)
             {
               void* pSubClone = pSpecific->GetPropertyPointer(pClone);
-              ezReflectionSerializer::Clone(pSubObject, pSubClone, pPropType);
+              WReflectionSerializer::Clone(pSubObject, pSubClone, pPropType);
             }
             // If the property is behind an accessor, we need to retrieve it first.
             else if (pPropType->GetAllocator()->CanAllocate())
@@ -205,54 +205,54 @@ namespace
         }
       }
       break;
-      case ezPropertyCategory::Array:
+      case WPropertyCategory::Array:
       {
-        auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractArrayProperty*>(pProp);
         // Delete old values
-        if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+        if (pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
         {
-          const ezInt32 iCloneCount = (ezInt32)pSpecific->GetCount(pClone);
-          for (ezInt32 i = iCloneCount - 1; i >= 0; --i)
+          const WInt32 iCloneCount = (WInt32)pSpecific->GetCount(pClone);
+          for (WInt32 i = iCloneCount - 1; i >= 0; --i)
           {
             void* pOldSubClone = nullptr;
             pSpecific->GetValue(pClone, i, &pOldSubClone);
             pSpecific->Remove(pClone, i);
             if (pOldSubClone)
-              ezReflectionUtils::DeleteObject(pOldSubClone, pProp);
+              WReflectionUtils::DeleteObject(pOldSubClone, pProp);
           }
         }
 
-        const ezUInt32 uiCount = pSpecific->GetCount(pObject);
+        const WUInt32 uiCount = pSpecific->GetCount(pObject);
         pSpecific->SetCount(pClone, uiCount);
-        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        if (pSpecific->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          for (ezUInt32 i = 0; i < uiCount; ++i)
+          for (WUInt32 i = 0; i < uiCount; ++i)
           {
-            vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+            vTemp = WReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
             void* pRefrencedObject = vTemp.ConvertTo<void*>();
-            if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && pRefrencedObject)
+            if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner) && pRefrencedObject)
             {
-              pRefrencedObject = ezReflectionSerializer::Clone(pRefrencedObject, pPropType);
-              vTemp = ezVariant(pRefrencedObject, pPropType);
+              pRefrencedObject = WReflectionSerializer::Clone(pRefrencedObject, pPropType);
+              vTemp = WVariant(pRefrencedObject, pPropType);
             }
-            ezReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
+            WReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
           }
         }
         else
         {
           if (bIsValueType)
           {
-            for (ezUInt32 i = 0; i < uiCount; ++i)
+            for (WUInt32 i = 0; i < uiCount; ++i)
             {
-              vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
-              ezReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
+              vTemp = WReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+              WReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
             }
           }
-          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
+          else if (pProp->GetFlags().IsSet(WPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
           {
             void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
-            for (ezUInt32 i = 0; i < uiCount; ++i)
+            for (WUInt32 i = 0; i < uiCount; ++i)
             {
               pSpecific->GetValue(pObject, i, pSubObject);
               pSpecific->SetValue(pClone, i, pSubObject);
@@ -263,89 +263,89 @@ namespace
         }
       }
       break;
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Set:
       {
-        auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractSetProperty*>(pProp);
 
         // Delete old values
-        if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+        if (pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
         {
-          ezTempHybridArray<ezVariant, 16> keys;
+          WTempHybridArray<WVariant, 16> keys;
           pSpecific->GetValues(pClone, keys);
           pSpecific->Clear(pClone);
-          for (ezVariant& value : keys)
+          for (WVariant& value : keys)
           {
             void* pOldClone = value.ConvertTo<void*>();
             if (pOldClone)
-              ezReflectionUtils::DeleteObject(pOldClone, pProp);
+              WReflectionUtils::DeleteObject(pOldClone, pProp);
           }
         }
         pSpecific->Clear(pClone);
 
-        ezTempHybridArray<ezVariant, 16> values;
+        WTempHybridArray<WVariant, 16> values;
         pSpecific->GetValues(pObject, values);
 
 
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+          for (WUInt32 i = 0; i < values.GetCount(); ++i)
           {
             void* pRefrencedObject = values[i].ConvertTo<void*>();
-            if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && pRefrencedObject)
+            if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner) && pRefrencedObject)
             {
-              pRefrencedObject = ezReflectionSerializer::Clone(pRefrencedObject, pPropType);
+              pRefrencedObject = WReflectionSerializer::Clone(pRefrencedObject, pPropType);
             }
-            vTemp = ezVariant(pRefrencedObject, pPropType);
-            ezReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, vTemp);
+            vTemp = WVariant(pRefrencedObject, pPropType);
+            WReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, vTemp);
           }
         }
         else if (bIsValueType)
         {
-          for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+          for (WUInt32 i = 0; i < values.GetCount(); ++i)
           {
-            ezReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, values[i]);
+            WReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, values[i]);
           }
         }
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
+        auto pSpecific = static_cast<const WAbstractMapProperty*>(pProp);
 
         // Delete old values
-        if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+        if (pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
         {
-          ezTempHybridArray<ezString, 16> keys;
+          WTempHybridArray<WString, 16> keys;
           pSpecific->GetKeys(pClone, keys);
-          for (const ezString& sKey : keys)
+          for (const WString& sKey : keys)
           {
-            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pClone, sKey);
+            WVariant value = WReflectionUtils::GetMapPropertyValue(pSpecific, pClone, sKey);
             void* pOldClone = value.ConvertTo<void*>();
             pSpecific->Remove(pClone, sKey);
             if (pOldClone)
-              ezReflectionUtils::DeleteObject(pOldClone, pProp);
+              WReflectionUtils::DeleteObject(pOldClone, pProp);
           }
         }
         pSpecific->Clear(pClone);
 
-        ezTempHybridArray<ezString, 16> keys;
+        WTempHybridArray<WString, 16> keys;
         pSpecific->GetKeys(pObject, keys);
 
-        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        for (WUInt32 i = 0; i < keys.GetCount(); ++i)
         {
           if (bIsValueType ||
-              (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+              (pProp->GetFlags().IsSet(WPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner)))
           {
-            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
-            ezReflectionUtils::SetMapPropertyValue(pSpecific, pClone, keys[i], value);
+            WVariant value = WReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+            WReflectionUtils::SetMapPropertyValue(pSpecific, pClone, keys[i], value);
           }
-          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+          else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
           {
-            if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+            if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
             {
               void* pValue = nullptr;
               pSpecific->GetValue(pObject, keys[i], &pValue);
-              pValue = ezReflectionSerializer::Clone(pValue, pPropType);
+              pValue = WReflectionSerializer::Clone(pValue, pPropType);
               pSpecific->Insert(pClone, keys[i], &pValue);
             }
             else
@@ -353,13 +353,13 @@ namespace
               if (pPropType->GetAllocator()->CanAllocate())
               {
                 void* pValue = pPropType->GetAllocator()->Allocate<void>();
-                EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pValue););
-                EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pValue), "Previously retrieved key does not exist.");
+                W_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pValue););
+                W_VERIFY(pSpecific->GetValue(pObject, keys[i], pValue), "Previously retrieved key does not exist.");
                 pSpecific->Insert(pClone, keys[i], pValue);
               }
               else
               {
-                ezLog::Error("The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
+                WLog::Error("The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
               }
             }
           }
@@ -371,7 +371,7 @@ namespace
     }
   }
 
-  static void CloneProperties(const void* pObject, void* pClone, const ezRTTI* pType)
+  static void CloneProperties(const void* pObject, void* pClone, const WRTTI* pType)
   {
     if (pType->GetParentType())
       CloneProperties(pObject, pClone, pType->GetParentType());
@@ -383,33 +383,33 @@ namespace
   }
 } // namespace
 
-void* ezReflectionSerializer::Clone(const void* pObject, const ezRTTI* pType)
+void* WReflectionSerializer::Clone(const void* pObject, const WRTTI* pType)
 {
   if (!pObject)
     return nullptr;
 
-  EZ_ASSERT_DEV(pType != nullptr, "invalid type.");
-  if (pType->IsDerivedFrom<ezReflectedClass>())
+  W_ASSERT_DEV(pType != nullptr, "invalid type.");
+  if (pType->IsDerivedFrom<WReflectedClass>())
   {
-    const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
+    const WReflectedClass* pRefObject = static_cast<const WReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
   }
 
-  EZ_ASSERT_DEV(pType->GetAllocator()->CanAllocate(), "The type '{0}' can't be cloned!", pType->GetTypeName());
+  W_ASSERT_DEV(pType->GetAllocator()->CanAllocate(), "The type '{0}' can't be cloned!", pType->GetTypeName());
   void* pClone = pType->GetAllocator()->Allocate<void>();
   CloneProperties(pObject, pClone, pType);
   return pClone;
 }
 
 
-void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRTTI* pType)
+void WReflectionSerializer::Clone(const void* pObject, void* pClone, const WRTTI* pType)
 {
-  EZ_ASSERT_DEV(pObject && pClone && pType, "invalid type.");
-  if (pType->IsDerivedFrom<ezReflectedClass>())
+  W_ASSERT_DEV(pObject && pClone && pType, "invalid type.");
+  if (pType->IsDerivedFrom<WReflectedClass>())
   {
-    const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
+    const WReflectedClass* pRefObject = static_cast<const WReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
-    EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!", pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
+    W_ASSERT_DEV(pType == static_cast<WReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!", pType->GetTypeName(), static_cast<WReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 
   CloneProperties(pObject, pClone, pType);

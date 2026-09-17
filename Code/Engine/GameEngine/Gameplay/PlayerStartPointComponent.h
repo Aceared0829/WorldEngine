@@ -8,15 +8,15 @@
 #include <Foundation/Types/Variant.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
+using WPrefabResourceHandle = WTypedResourceHandle<class WPrefabResource>;
 
-using ezPlayerStartPointComponentManager = ezComponentManager<class ezPlayerStartPointComponent, ezBlockStorageType::Compact>;
+using WPlayerStartPointComponentManager = WComponentManager<class WPlayerStartPointComponent, WBlockStorageType::Compact>;
 
 /// Defines a location that the player may start from.
 ///
 /// This component specifies which prefab to use as the player object and parameters to spawn the player object with.
 ///
-/// The component itself has no functionality. It is the ezGameState that decides how to utilize player start points.
+/// The component itself has no functionality. It is the WGameState that decides how to utilize player start points.
 /// The default game state searches for a start point component and spawns the prefab from there, assuming that the prefab
 /// contains all the functionality to make the game playable (e.g. it should contain a main camera, input handling, movement and so on).
 ///
@@ -26,33 +26,33 @@ using ezPlayerStartPointComponentManager = ezComponentManager<class ezPlayerStar
 /// prefab. However, the editor functionality "Play from here", that allows you to spawn the player object at any location in the
 /// scene, relies on spawn points, as the spawn point defines which prefab to use for the player prefab, but the game state
 /// can now override the location where to spawn the player.
-class EZ_GAMEENGINE_DLL ezPlayerStartPointComponent : public ezComponent
+class W_GAMEENGINE_DLL WPlayerStartPointComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPlayerStartPointComponent, ezComponent, ezPlayerStartPointComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WPlayerStartPointComponent, WComponent, WPlayerStartPointComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPlayerStartPointComponent
+  // WPlayerStartPointComponent
 
 public:
-  ezPlayerStartPointComponent();
-  ~ezPlayerStartPointComponent();
+  WPlayerStartPointComponent();
+  ~WPlayerStartPointComponent();
 
-  void SetPlayerPrefab(const ezPrefabResourceHandle& hPrefab);      // [ property ]
-  const ezPrefabResourceHandle& GetPlayerPrefab() const;            // [ property ]
+  void SetPlayerPrefab(const WPrefabResourceHandle& hPrefab);      // [ property ]
+  const WPrefabResourceHandle& GetPlayerPrefab() const;            // [ property ]
 
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
-  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
+  const WRangeView<const char*, WUInt32> GetParameters() const;   // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const WVariant& value);     // [ property ] (exposed parameter)
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
-  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, WVariant& out_value) const; // [ property ] (exposed parameter)
 
-  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  WArrayMap<WHashedString, WVariant> m_Parameters;
 
   // TODO:
   //  add properties to differentiate use cases, such as
@@ -60,5 +60,5 @@ public:
   //  team number
 
 protected:
-  ezPrefabResourceHandle m_hPlayerPrefab;
+  WPrefabResourceHandle m_hPlayerPrefab;
 };

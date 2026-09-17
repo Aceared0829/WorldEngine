@@ -7,38 +7,38 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezSpatialAnchorComponentManager = ezComponentManagerSimple<class ezSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating>;
+using WSpatialAnchorComponentManager = WComponentManagerSimple<class WSpatialAnchorComponent, WComponentUpdateType::WhenSimulating>;
 
-class EZ_GAMEENGINE_DLL ezSpatialAnchorComponent : public ezComponent
+class W_GAMEENGINE_DLL WSpatialAnchorComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSpatialAnchorComponent, ezComponent, ezSpatialAnchorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSpatialAnchorComponent, WComponent, WSpatialAnchorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSpatialAnchorComponent
+  // WSpatialAnchorComponent
 
 public:
-  ezSpatialAnchorComponent();
-  ~ezSpatialAnchorComponent();
+  WSpatialAnchorComponent();
+  ~WSpatialAnchorComponent();
 
   /// Attempts to create a new anchor at the given location.
   ///
   /// On failure, the existing anchor will continue to be used.
   /// On success, the new anchor will be used and the new location.
-  ezResult RecreateAnchorAt(const ezTransform& position);
+  WResult RecreateAnchorAt(const WTransform& position);
 
 protected:
   void Update();
 
 private:
-  ezXRSpatialAnchorID m_AnchorID;
+  WXRSpatialAnchorID m_AnchorID;
 };

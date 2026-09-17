@@ -4,20 +4,20 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCpuMeshResource, 1, ezRTTIDefaultAllocator<ezCpuMeshResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCpuMeshResource, 1, WRTTIDefaultAllocator<WCpuMeshResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCpuMeshResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WCpuMeshResource);
 // clang-format on
 
-ezCpuMeshResource::ezCpuMeshResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WCpuMeshResource::WCpuMeshResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezCpuMeshResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WCpuMeshResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_State = GetLoadingState();
   res.m_uiQualityLevelsDiscardable = GetNumQualityLevelsDiscardable();
   res.m_uiQualityLevelsLoadable = GetNumQualityLevelsLoadable();
@@ -29,60 +29,60 @@ ezResourceLoadDesc ezCpuMeshResource::UnloadData(Unload WhatToUnload)
 
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::Unloaded;
+    res.m_State = WResourceState::Unloaded;
   }
 
   return res;
 }
 
-ezResourceLoadDesc ezCpuMeshResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WCpuMeshResource::UpdateContent(WStreamReader* Stream)
 {
-  ezMeshResourceDescriptor desc;
-  ezResourceLoadDesc res;
+  WMeshResourceDescriptor desc;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
   if (m_Descriptor.Load(*Stream).Failed())
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezCpuMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WCpuMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezCpuMeshResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WCpuMeshResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCpuMeshResource, ezMeshResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WCpuMeshResource, WMeshResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CpuMeshResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CpuMeshResource);

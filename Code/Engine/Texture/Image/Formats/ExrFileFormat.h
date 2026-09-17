@@ -5,15 +5,15 @@
 #ifdef BUILDSYSTEM_ENABLE_TINYEXR_SUPPORT
 
 /// EXR file format support using TinyEXR.
-class EZ_TEXTURE_DLL ezExrFileFormat : public ezImageFileFormat
+class W_TEXTURE_DLL WExrFileFormat : public WImageFileFormat
 {
 public:
-  ezResult ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const override;
-  ezResult ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, ezStringView sFileExtension) const override;
-  ezResult WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, ezStringView sFileExtension) const override;
+  WResult ReadImageHeader(WStreamReader& ref_stream, WImageHeader& ref_header, WStringView sFileExtension) const override;
+  WResult ReadImage(WStreamReader& ref_stream, WImage& ref_image, WStringView sFileExtension) const override;
+  WResult WriteImage(WStreamWriter& ref_stream, const WImageView& image, WStringView sFileExtension) const override;
 
-  bool CanReadFileType(ezStringView sExtension) const override;
-  bool CanWriteFileType(ezStringView sExtension) const override;
+  bool CanReadFileType(WStringView sExtension) const override;
+  bool CanWriteFileType(WStringView sExtension) const override;
 };
 
 #endif

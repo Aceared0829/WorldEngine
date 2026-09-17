@@ -2,12 +2,12 @@
 
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
-  ezUInt32 GraphSharedData::AddTagSet(const ezTagSet& tagSet)
+  WUInt32 GraphSharedData::AddTagSet(const WTagSet& tagSet)
   {
-    ezUInt32 uiIndex = m_TagSets.IndexOf(tagSet);
-    if (uiIndex == ezInvalidIndex)
+    WUInt32 uiIndex = m_TagSets.IndexOf(tagSet);
+    if (uiIndex == WInvalidIndex)
     {
       uiIndex = m_TagSets.GetCount();
       m_TagSets.PushBack(tagSet);
@@ -15,10 +15,10 @@ namespace ezProcGenInternal
     return uiIndex;
   }
 
-  ezUInt32 GraphSharedData::AddCurve(ezSampledCurve1D&& curve)
+  WUInt32 GraphSharedData::AddCurve(WSampledCurve1D&& curve)
   {
-    ezUInt32 uiIndex = m_Curves.IndexOf(curve);
-    if (uiIndex == ezInvalidIndex)
+    WUInt32 uiIndex = m_Curves.IndexOf(curve);
+    if (uiIndex == WInvalidIndex)
     {
       uiIndex = m_Curves.GetCount();
       m_Curves.PushBack(std::move(curve));
@@ -27,73 +27,73 @@ namespace ezProcGenInternal
     return uiIndex;
   }
 
-  const ezTagSet& GraphSharedData::GetTagSet(ezUInt32 uiIndex) const
+  const WTagSet& GraphSharedData::GetTagSet(WUInt32 uiIndex) const
   {
     return m_TagSets[uiIndex];
   }
 
-  const ezSampledCurve1D& GraphSharedData::GetCurve(ezUInt32 uiIndex) const
+  const WSampledCurve1D& GraphSharedData::GetCurve(WUInt32 uiIndex) const
   {
     return m_Curves[uiIndex];
   }
 
-  static ezTypeVersion s_GraphSharedDataVersion = 2;
+  static WTypeVersion s_GraphSharedDataVersion = 2;
 
-  void GraphSharedData::Save(ezStreamWriter& inout_stream) const
+  void GraphSharedData::Save(WStreamWriter& inout_stream) const
   {
     inout_stream.WriteVersion(s_GraphSharedDataVersion);
 
     {
-      const ezUInt32 uiCount = m_TagSets.GetCount();
+      const WUInt32 uiCount = m_TagSets.GetCount();
       inout_stream << uiCount;
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         m_TagSets[i].Save(inout_stream);
       }
     }
 
     {
-      const ezUInt32 uiCount = m_Curves.GetCount();
+      const WUInt32 uiCount = m_Curves.GetCount();
       inout_stream << uiCount;
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         m_Curves[i].Save(inout_stream);
       }
     }
   }
 
-  ezResult GraphSharedData::Load(ezStreamReader& inout_stream)
+  WResult GraphSharedData::Load(WStreamReader& inout_stream)
   {
     auto version = inout_stream.ReadVersion(s_GraphSharedDataVersion);
 
     {
-      ezUInt32 uiCount = 0;
+      WUInt32 uiCount = 0;
       inout_stream >> uiCount;
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
-        m_TagSets.ExpandAndGetRef().Load(inout_stream, ezTagRegistry::GetGlobalRegistry());
+        m_TagSets.ExpandAndGetRef().Load(inout_stream, WTagRegistry::GetGlobalRegistry());
       }
     }
 
     if (version >= 2)
     {
-      ezUInt32 uiCount = 0;
+      WUInt32 uiCount = 0;
       inout_stream >> uiCount;
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
-        ezSampledCurve1D curveData;
-        EZ_SUCCEED_OR_RETURN(curveData.Load(inout_stream));
+        WSampledCurve1D curveData;
+        W_SUCCEED_OR_RETURN(curveData.Load(inout_stream));
         m_Curves.PushBack(std::move(curveData));
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal
 
 

@@ -7,46 +7,46 @@
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/StbImageFileFormats.h>
 #include <Texture/Image/ImageUtils.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
+#include <Texture/WTexFormat/WTexFormat.h>
 
-ezTexConv::ezTexConv()
-  : ezApplication("TexConv")
+WTexConv::WTexConv()
+  : WApplication("TexConv")
 {
 }
 
-ezResult ezTexConv::BeforeCoreSystemsStartup()
+WResult WTexConv::BeforeCoreSystemsStartup()
 {
-  ezStartup::AddApplicationTag("tool");
-  ezStartup::AddApplicationTag("texconv");
+  WStartup::AddApplicationTag("tool");
+  WStartup::AddApplicationTag("texconv");
 
   return SUPER::BeforeCoreSystemsStartup();
 }
 
-void ezTexConv::AfterCoreSystemsStartup()
+void WTexConv::AfterCoreSystemsStartup()
 {
-  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+  WFileSystem::AddDataDirectory("", "App", ":", WDataDirUsage::AllowWrites).IgnoreResult();
 
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 }
 
-void ezTexConv::BeforeCoreSystemsShutdown()
+void WTexConv::BeforeCoreSystemsShutdown()
 {
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezResult ezTexConv::DetectOutputFormat()
+WResult WTexConv::DetectOutputFormat()
 {
   if (m_sOutputFile.IsEmpty())
   {
-    m_Processor.m_Descriptor.m_OutputType = ezTexConvOutputType::None;
-    return EZ_SUCCESS;
+    m_Processor.m_Descriptor.m_OutputType = WTexConvOutputType::None;
+    return W_SUCCESS;
   }
 
-  ezStringBuilder sExt = ezPathUtils::GetFileExtension(m_sOutputFile);
+  WStringBuilder sExt = WPathUtils::GetFileExtension(m_sOutputFile);
   sExt.ToUpper();
 
   if (sExt == "DDS")
@@ -58,7 +58,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = false;
     m_bOutputSupportsCompression = true;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   if (sExt == "TGA" || sExt == "PNG")
   {
@@ -69,9 +69,9 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = false;
     m_bOutputSupportsCompression = false;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  if (sExt == "EZBINTEXTURE2D")
+  if (sExt == "WBINTEXTURE2D")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -80,9 +80,9 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  if (sExt == "EZBINTEXTURE3D")
+  if (sExt == "WBINTEXTURE3D")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = true;
@@ -91,9 +91,9 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  if (sExt == "EZBINTEXTURECUBE")
+  if (sExt == "WBINTEXTURECUBE")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -102,9 +102,9 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  if (sExt == "EZBINTEXTUREATLAS")
+  if (sExt == "WBINTEXTUREATLAS")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -113,9 +113,9 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  if (sExt == "EZBINIMAGEDATA")
+  if (sExt == "WBINIMAGEDATA")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -124,29 +124,29 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = false;
     m_bOutputSupportsCompression = false;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezLog::Error("Output file uses unsupported file format '{}'", sExt);
-  return EZ_FAILURE;
+  WLog::Error("Output file uses unsupported file format '{}'", sExt);
+  return W_FAILURE;
 }
 
-bool ezTexConv::IsTexFormat() const
+bool WTexConv::IsTexFormat() const
 {
-  const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
+  const WStringView ext = WPathUtils::GetFileExtension(m_sOutputFile);
 
-  return ext.StartsWith_NoCase("ez");
+  return ext.StartsWith_NoCase("W");
 }
 
-ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image)
+WResult WTexConv::WriteTexFile(WStreamWriter& inout_stream, const WImage& image)
 {
-  ezAssetFileHeader asset;
+  WAssetFileHeader asset;
   asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-  EZ_SUCCEED_OR_RETURN(asset.Write(inout_stream));
+  W_SUCCEED_OR_RETURN(asset.Write(inout_stream));
 
-  ezTexFormat texFormat;
-  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
+  WTexFormat texFormat;
+  texFormat.m_bSRGB = WImageFormat::IsSrgb(image.GetImageFormat());
   texFormat.m_AddressModeU = m_Processor.m_Descriptor.m_AddressModeU;
   texFormat.m_AddressModeV = m_Processor.m_Descriptor.m_AddressModeV;
   texFormat.m_AddressModeW = m_Processor.m_Descriptor.m_AddressModeW;
@@ -154,53 +154,53 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& im
 
   texFormat.WriteTextureHeader(inout_stream);
 
-  ezDdsFileFormat ddsWriter;
+  WDdsFileFormat ddsWriter;
   if (ddsWriter.WriteImage(inout_stream, image, "dds").Failed())
   {
-    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to write DDS image chunk to WTex file.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
+WResult WTexConv::WriteOutputFile(WStringView sFile, const WImage& image)
 {
-  if (sFile.HasExtension("ezBinImageData"))
+  if (sFile.HasExtension("WBinImageData"))
   {
-    ezDeferredFileWriter file;
+    WDeferredFileWriter file;
     file.SetOutput(sFile);
 
-    ezAssetFileHeader asset;
+    WAssetFileHeader asset;
     asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
     if (asset.Write(file).Failed())
     {
-      ezLog::Error("Failed to write asset header to file.");
-      return EZ_FAILURE;
+      WLog::Error("Failed to write asset header to file.");
+      return W_FAILURE;
     }
 
-    ezUInt8 uiVersion = 1;
+    WUInt8 uiVersion = 1;
     file << uiVersion;
 
-    ezUInt8 uiFormat = 1; // 1 == PNG
+    WUInt8 uiFormat = 1; // 1 == PNG
     file << uiFormat;
 
-    ezStbImageFileFormats pngWriter;
+    WStbImageFileFormats pngWriter;
     if (pngWriter.WriteImage(file, image, "png").Failed())
     {
-      ezLog::Error("Failed to write data as PNG to ezImageData file.");
-      return EZ_FAILURE;
+      WLog::Error("Failed to write data as PNG to WImageData file.");
+      return W_FAILURE;
     }
 
     return file.Close();
   }
   else if (IsTexFormat())
   {
-    ezDeferredFileWriter file;
+    WDeferredFileWriter file;
     file.SetOutput(sFile);
 
-    EZ_SUCCEED_OR_RETURN(WriteTexFile(file, image));
+    W_SUCCEED_OR_RETURN(WriteTexFile(file, image));
 
     return file.Close();
   }
@@ -210,33 +210,33 @@ ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
   }
 }
 
-ezResult ezTexConv::ReduceSingleFile(ezStringView sInputFile, ezStringView sOutputDir, ezStringView sExplicitOutputFile)
+WResult WTexConv::ReduceSingleFile(WStringView sInputFile, WStringView sOutputDir, WStringView sExplicitOutputFile)
 {
-  ezImage image;
+  WImage image;
   if (image.LoadFrom(sInputFile).Failed())
   {
-    ezLog::Error("Failed to load input image '{}'.", sInputFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to load input image '{}'.", sInputFile);
+    return W_FAILURE;
   }
 
   bool bHasAlpha = false;
-  if (ezImageFormat::GetNumChannels(image.GetImageFormat()) >= 4)
+  if (WImageFormat::GetNumChannels(image.GetImageFormat()) >= 4)
   {
-    if (image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded())
+    if (image.Convert(WImageFormat::R32G32B32A32_FLOAT).Succeeded())
     {
       const float* pColors = image.GetPixelPointer<float>();
       pColors += 3; // offset to alpha channel
 
-      EZ_ASSERT_DEV(image.GetRowPitch() == image.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
+      W_ASSERT_DEV(image.GetRowPitch() == image.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
 
       bool bAllOpaque = true;
       bool bAllTransparent = true;
 
-      for (ezUInt32 i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+      for (WUInt32 i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
       {
         const float a = *pColors;
-        bAllOpaque = bAllOpaque && ezMath::IsEqual(a, 1.0f, 1.0f / 255.0f);
-        bAllTransparent = bAllTransparent && ezMath::IsEqual(a, 0.0f, 1.0f / 255.0f);
+        bAllOpaque = bAllOpaque && WMath::IsEqual(a, 1.0f, 1.0f / 255.0f);
+        bAllTransparent = bAllTransparent && WMath::IsEqual(a, 0.0f, 1.0f / 255.0f);
         pColors += 4;
 
         if (!bAllOpaque && !bAllTransparent)
@@ -253,13 +253,13 @@ ezResult ezTexConv::ReduceSingleFile(ezStringView sInputFile, ezStringView sOutp
     }
   }
 
-  const ezStringView sExt = bHasAlpha ? "png" : "jpg";
+  const WStringView sExt = bHasAlpha ? "png" : "jpg";
 
   // Determine output path:
   //   sExplicitOutputFile takes priority (single-file mode with -out as a file path)
   //   sOutputDir places the file in a given folder (folder mode, or single-file with -out as directory)
   //   otherwise output goes next to the input file
-  ezStringBuilder sOutputFile;
+  WStringBuilder sOutputFile;
   if (!sExplicitOutputFile.IsEmpty())
   {
     sOutputFile = sExplicitOutputFile;
@@ -267,7 +267,7 @@ ezResult ezTexConv::ReduceSingleFile(ezStringView sInputFile, ezStringView sOutp
   else if (!sOutputDir.IsEmpty())
   {
     sOutputFile = sOutputDir;
-    sOutputFile.AppendPath(ezPathUtils::GetFileName(sInputFile));
+    sOutputFile.AppendPath(WPathUtils::GetFileName(sInputFile));
     sOutputFile.ChangeFileExtension(sExt);
   }
   else
@@ -276,37 +276,37 @@ ezResult ezTexConv::ReduceSingleFile(ezStringView sInputFile, ezStringView sOutp
     sOutputFile.ChangeFileExtension(sExt);
   }
 
-  if (ezOSFile::ExistsFile(sOutputFile))
+  if (WOSFile::ExistsFile(sOutputFile))
   {
-    ezLog::Info("Skipping '{}' (output already exists).", sOutputFile);
-    return EZ_SUCCESS;
+    WLog::Info("Skipping '{}' (output already exists).", sOutputFile);
+    return W_SUCCESS;
   }
 
   if (image.SaveTo(sOutputFile).Failed())
   {
-    ezLog::Error("Failed to write output image '{}'.", sOutputFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to write output image '{}'.", sOutputFile);
+    return W_FAILURE;
   }
 
-  ezLog::Success("Wrote '{}' ({})", sOutputFile, bHasAlpha ? "has alpha -> PNG" : "no alpha -> JPG");
+  WLog::Success("Wrote '{}' ({})", sOutputFile, bHasAlpha ? "has alpha -> PNG" : "no alpha -> JPG");
 
   if (m_bDeleteSource)
   {
-    if (ezOSFile::DeleteFile(sInputFile).Failed())
+    if (WOSFile::DeleteFile(sInputFile).Failed())
     {
-      ezLog::Error("Failed to delete source file '{}'.", sInputFile);
-      return EZ_FAILURE;
+      WLog::Error("Failed to delete source file '{}'.", sInputFile);
+      return W_FAILURE;
     }
 
-    ezLog::Dev("Deleted source file '{}'.", sInputFile);
+    WLog::Dev("Deleted source file '{}'.", sInputFile);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConv::RunReduce()
+WResult WTexConv::RunReduce()
 {
-  ezStringBuilder sInputPath = m_sReduceInputFile;
+  WStringBuilder sInputPath = m_sReduceInputFile;
 
   // Check for trailing '*' which signals recursive folder processing
   bool bRecursive = false;
@@ -318,15 +318,15 @@ ezResult ezTexConv::RunReduce()
   }
 
   // Single file mode: -out is either a redirect directory or a direct output file path
-  if (ezOSFile::ExistsFile(sInputPath))
+  if (WOSFile::ExistsFile(sInputPath))
   {
-    const ezStringView sOutputDir = (!m_sOutputFile.IsEmpty() && ezOSFile::ExistsDirectory(m_sOutputFile)) ? ezStringView(m_sOutputFile) : ezStringView();
-    const ezStringView sOutputFile = (!m_sOutputFile.IsEmpty() && !ezOSFile::ExistsDirectory(m_sOutputFile)) ? ezStringView(m_sOutputFile) : ezStringView();
+    const WStringView sOutputDir = (!m_sOutputFile.IsEmpty() && WOSFile::ExistsDirectory(m_sOutputFile)) ? WStringView(m_sOutputFile) : WStringView();
+    const WStringView sOutputFile = (!m_sOutputFile.IsEmpty() && !WOSFile::ExistsDirectory(m_sOutputFile)) ? WStringView(m_sOutputFile) : WStringView();
     return ReduceSingleFile(sInputPath, sOutputDir, sOutputFile);
   }
 
   // Folder mode: parse -out, which may end with '*' to mirror the input subfolder structure
-  ezStringBuilder sOutputBase = m_sOutputFile;
+  WStringBuilder sOutputBase = m_sOutputFile;
   bool bMirrorStructure = false;
   if (sOutputBase.EndsWith("*"))
   {
@@ -335,36 +335,36 @@ ezResult ezTexConv::RunReduce()
     sOutputBase.Trim("/\\");
   }
 
-  if (!sOutputBase.IsEmpty() && !ezOSFile::ExistsDirectory(sOutputBase))
+  if (!sOutputBase.IsEmpty() && !WOSFile::ExistsDirectory(sOutputBase))
   {
-    ezLog::Error("The -out path '{}' is not an existing directory.", sOutputBase);
-    return EZ_FAILURE;
+    WLog::Error("The -out path '{}' is not an existing directory.", sOutputBase);
+    return W_FAILURE;
   }
 
-  if (ezOSFile::ExistsDirectory(sInputPath))
+  if (WOSFile::ExistsDirectory(sInputPath))
   {
     // Recursive iteration does not support wildcards; filter by extension manually instead.
-    const ezFileSystemIteratorFlags::Enum flags = bRecursive ? ezFileSystemIteratorFlags::ReportFilesRecursive : ezFileSystemIteratorFlags::ReportFiles;
+    const WFileSystemIteratorFlags::Enum flags = bRecursive ? WFileSystemIteratorFlags::ReportFilesRecursive : WFileSystemIteratorFlags::ReportFiles;
 
-    ezUInt32 uiConverted = 0;
-    ezUInt32 uiFailed = 0;
+    WUInt32 uiConverted = 0;
+    WUInt32 uiFailed = 0;
 
     bool bAnyFound = false;
 
-    ezStringBuilder sFullPath;
-    ezStringBuilder sFileOutputDir;
+    WStringBuilder sFullPath;
+    WStringBuilder sFileOutputDir;
 
     {
-      ezStringBuilder sSearch = sInputPath;
+      WStringBuilder sSearch = sInputPath;
       if (!bRecursive)
         sSearch.AppendPath("*");
 
-      ezFileSystemIterator iter;
+      WFileSystemIterator iter;
       iter.StartSearch(sSearch, flags);
 
       for (; iter.IsValid(); iter.Next())
       {
-        const ezStringView sName = iter.GetStats().m_sName;
+        const WStringView sName = iter.GetStats().m_sName;
         if (!sName.HasExtension("dds") && !sName.HasExtension("tga"))
           continue;
 
@@ -383,22 +383,22 @@ ezResult ezTexConv::RunReduce()
           // -out ends with '*': mirror the subfolder structure under sOutputBase.
           // iter.GetCurrentPath() is the directory containing the current file.
           // Strip the sInputPath prefix to obtain the relative subdirectory.
-          ezStringView sCurDir = iter.GetCurrentPath();
-          ezStringView sRelativeDir;
+          WStringView sCurDir = iter.GetCurrentPath();
+          WStringView sRelativeDir;
           if (sCurDir.StartsWith(sInputPath))
           {
-            sRelativeDir = ezStringView(sCurDir.GetStartPointer() + sInputPath.GetElementCount());
+            sRelativeDir = WStringView(sCurDir.GetStartPointer() + sInputPath.GetElementCount());
             // trim any leading separator
             while (!sRelativeDir.IsEmpty() && (sRelativeDir.GetStartPointer()[0] == '/' || sRelativeDir.GetStartPointer()[0] == '\\'))
             {
-              sRelativeDir = ezStringView(sRelativeDir.GetStartPointer() + 1, sRelativeDir.GetEndPointer());
+              sRelativeDir = WStringView(sRelativeDir.GetStartPointer() + 1, sRelativeDir.GetEndPointer());
             }
           }
           sFileOutputDir = sOutputBase;
           if (!sRelativeDir.IsEmpty())
           {
             sFileOutputDir.AppendPath(sRelativeDir);
-            ezOSFile::CreateDirectoryStructure(sFileOutputDir).IgnoreResult();
+            WOSFile::CreateDirectoryStructure(sFileOutputDir).IgnoreResult();
           }
         }
         else
@@ -420,19 +420,19 @@ ezResult ezTexConv::RunReduce()
 
     if (!bAnyFound)
     {
-      ezLog::Warning("No DDS or TGA files found in '{}'.", sInputPath);
-      return EZ_SUCCESS;
+      WLog::Warning("No DDS or TGA files found in '{}'.", sInputPath);
+      return W_SUCCESS;
     }
 
-    ezLog::Info("Reduce folder '{}': {} processed, {} failed.", sInputPath, uiConverted, uiFailed);
-    return uiFailed == 0 ? EZ_SUCCESS : EZ_FAILURE;
+    WLog::Info("Reduce folder '{}': {} processed, {} failed.", sInputPath, uiConverted, uiFailed);
+    return uiFailed == 0 ? W_SUCCESS : W_FAILURE;
   }
 
-  ezLog::Error("Input path '{}' is neither a file nor an existing directory.", sInputPath);
-  return EZ_FAILURE;
+  WLog::Error("Input path '{}' is neither a file nor an existing directory.", sInputPath);
+  return W_FAILURE;
 }
 
-void ezTexConv::Run()
+void WTexConv::Run()
 {
   SetReturnCode(-1);
 
@@ -442,7 +442,7 @@ void ezTexConv::Run()
     return;
   }
 
-  if (m_Mode == ezTexConvMode::Reduce)
+  if (m_Mode == WTexConvMode::Reduce)
   {
     if (RunReduce().Succeeded())
     {
@@ -453,7 +453,7 @@ void ezTexConv::Run()
     return;
   }
 
-  if (m_Mode == ezTexConvMode::Compare)
+  if (m_Mode == WTexConvMode::Compare)
   {
     if (m_Comparer.Compare().Failed())
     {
@@ -469,7 +469,7 @@ void ezTexConv::Run()
 
       if (!m_sOutputFile.IsEmpty())
       {
-        ezStringBuilder tmp;
+        WStringBuilder tmp;
 
         tmp.Set(m_sOutputFile, "-rgb.png");
         m_Comparer.m_OutputImageDiffRgb.SaveTo(tmp).IgnoreResult();
@@ -481,12 +481,12 @@ void ezTexConv::Run()
         {
           tmp.Set(m_sOutputFile, ".htm");
 
-          ezFileWriter file;
+          WFileWriter file;
           if (file.Open(tmp).Succeeded())
           {
-            ezStringBuilder html;
+            WStringBuilder html;
 
-            ezImageUtils::CreateImageDiffHtml(html, m_sHtmlTitle, m_Comparer.m_ExtractedExpectedRgb, m_Comparer.m_ExtractedExpectedAlpha, m_Comparer.m_ExtractedActualRgb, m_Comparer.m_ExtractedActualAlpha, m_Comparer.m_OutputImageDiffRgb, m_Comparer.m_OutputImageDiffAlpha, m_Comparer.m_OutputMSE, m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold, m_Comparer.m_uiOutputMinDiffRgb, m_Comparer.m_uiOutputMaxDiffRgb, m_Comparer.m_uiOutputMinDiffAlpha, m_Comparer.m_uiOutputMaxDiffAlpha);
+            WImageUtils::CreateImageDiffHtml(html, m_sHtmlTitle, m_Comparer.m_ExtractedExpectedRgb, m_Comparer.m_ExtractedExpectedAlpha, m_Comparer.m_ExtractedActualRgb, m_Comparer.m_ExtractedActualAlpha, m_Comparer.m_OutputImageDiffRgb, m_Comparer.m_OutputImageDiffAlpha, m_Comparer.m_OutputMSE, m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold, m_Comparer.m_uiOutputMinDiffRgb, m_Comparer.m_uiOutputMaxDiffRgb, m_Comparer.m_uiOutputMinDiffAlpha, m_Comparer.m_uiOutputMaxDiffAlpha);
 
             file.WriteBytes(html.GetData(), html.GetElementCount()).AssertSuccess();
           }
@@ -502,12 +502,12 @@ void ezTexConv::Run()
       return;
     }
 
-    if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
+    if (m_Processor.m_Descriptor.m_OutputType == WTexConvOutputType::Atlas)
     {
-      ezDeferredFileWriter file;
+      WDeferredFileWriter file;
       file.SetOutput(m_sOutputFile);
 
-      ezAssetFileHeader header;
+      WAssetFileHeader header;
       header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
       header.Write(file).IgnoreResult();
@@ -520,7 +520,7 @@ void ezTexConv::Run()
       }
       else
       {
-        ezLog::Error("Failed to write atlas output image.");
+        WLog::Error("Failed to write atlas output image.");
       }
 
       QuitApplication();
@@ -531,64 +531,64 @@ void ezTexConv::Run()
     {
       if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
       {
-        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+        WLog::Error("Failed to write main result to '{}'", m_sOutputFile);
         QuitApplication();
         return;
       }
 
-      ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
+      WLog::Success("Wrote main result to '{}'", m_sOutputFile);
     }
 
     if (!m_sOutputThumbnailFile.IsEmpty() && m_Processor.m_ThumbnailOutputImage.IsValid())
     {
       if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
       {
-        ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
+        WLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
         QuitApplication();
         return;
       }
 
-      ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
+      WLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
     }
 
     if (!m_sOutputAssetInfoFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
     {
-      const ezImageHeader& header = m_Processor.m_OutputImage.GetHeader();
+      const WImageHeader& header = m_Processor.m_OutputImage.GetHeader();
 
-      ezAssetInfoFile info;
-      info.SetValue(ezAssetInfoFile::Keys::ImageWidth, header.GetWidth());
-      info.SetValue(ezAssetInfoFile::Keys::ImageHeight, header.GetHeight());
-      info.SetValue(ezAssetInfoFile::Keys::Format, ezImageFormat::GetName(header.GetImageFormat()));
+      WAssetInfoFile info;
+      info.SetValue(WAssetInfoFile::Keys::ImageWidth, header.GetWidth());
+      info.SetValue(WAssetInfoFile::Keys::ImageHeight, header.GetHeight());
+      info.SetValue(WAssetInfoFile::Keys::Format, WImageFormat::GetName(header.GetImageFormat()));
       info.SetValue("MipLevels", header.GetNumMipLevels());
 
-      ezAssetFileHeader assetHeader;
+      WAssetFileHeader assetHeader;
       assetHeader.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
       if (info.WriteToFile(m_sOutputAssetInfoFile, assetHeader).Failed())
       {
-        ezLog::Error("Failed to write asset info to '{}'", m_sOutputAssetInfoFile);
+        WLog::Error("Failed to write asset info to '{}'", m_sOutputAssetInfoFile);
         QuitApplication();
         return;
       }
 
-      ezLog::Success("Wrote asset info to '{}'", m_sOutputAssetInfoFile);
+      WLog::Success("Wrote asset info to '{}'", m_sOutputAssetInfoFile);
     }
 
     if (!m_sOutputLowResFile.IsEmpty())
     {
       // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
-      ezOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
+      WOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
 
       if (m_Processor.m_LowResOutputImage.IsValid())
       {
         if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
         {
-          ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
+          WLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
           QuitApplication();
           return;
         }
 
-        ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
+        WLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
       }
     }
 
@@ -598,4 +598,4 @@ void ezTexConv::Run()
   QuitApplication();
 }
 
-EZ_APPLICATION_ENTRY_POINT(ezTexConv);
+W_APPLICATION_ENTRY_POINT(WTexConv);

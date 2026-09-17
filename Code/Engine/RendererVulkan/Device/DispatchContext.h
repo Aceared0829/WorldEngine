@@ -1,15 +1,15 @@
 #pragma once
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
 // A vulkan hpp compatible dispatch context.
-class ezVulkanDispatchContext
+class WVulkanDispatchContext
 {
 public:
   void InitInstance(vk::Instance instance, const void* pExtensions);
   void InitDevice(vk::Device device, const void* pExtensions);
 
-  ezUInt32 getVkHeaderVersion() const { return VK_HEADER_VERSION; }
+  WUInt32 getVkHeaderVersion() const { return VK_HEADER_VERSION; }
 
   // VK_EXT_debug_utils (instance functions)
   PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT = nullptr;
@@ -33,7 +33,7 @@ public:
   PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR = nullptr;
   PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2 = nullptr; // Alias for Vulkan-Hpp compatibility
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
   // VK_KHR_external_memory_fd
   PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR = nullptr;
   PFN_vkGetMemoryFdPropertiesKHR vkGetMemoryFdPropertiesKHR = nullptr;
@@ -41,7 +41,7 @@ public:
   // VK_KHR_external_semaphore_fd
   PFN_vkGetSemaphoreFdKHR vkGetSemaphoreFdKHR = nullptr;
   PFN_vkImportSemaphoreFdKHR vkImportSemaphoreFdKHR = nullptr;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
   // VK_KHR_external_memory_win32
   PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR = nullptr;
   PFN_vkGetMemoryWin32HandlePropertiesKHR vkGetMemoryWin32HandlePropertiesKHR = nullptr;

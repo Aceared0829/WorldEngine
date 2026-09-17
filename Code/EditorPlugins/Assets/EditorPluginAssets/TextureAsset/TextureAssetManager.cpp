@@ -8,75 +8,75 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProfileConfig, 1, ezRTTIDefaultAllocator<ezTextureAssetProfileConfig>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureAssetProfileConfig, 1, WRTTIDefaultAllocator<WTextureAssetProfileConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MaxResolution", m_uiMaxResolution)->AddAttributes(new ezDefaultValueAttribute(16 * 1024)),
+    W_MEMBER_PROPERTY("MaxResolution", m_uiMaxResolution)->AddAttributes(new WDefaultValueAttribute(16 * 1024)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureAssetDocumentManager, 1, WRTTIDefaultAllocator<WTextureAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
+WTextureAssetDocumentManager::WTextureAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "dds");
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "color");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "dds");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "color");
 
   // texture asset source files
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Texture 2D";
-  m_DocTypeDesc.m_sFileExtension = "ezTextureAsset";
+  m_DocTypeDesc.m_sFileExtension = "WTextureAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.svg";
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WTextureAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinTexture2D";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinTexture2D";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoThumbnailOnTransform;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D");
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
-  m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
+  m_DocTypeDesc2.m_sFileExtension = "WRenderTargetAsset";
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.svg";
   m_DocTypeDesc2.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc2.m_pDocumentType = WGetStaticRTTI<WTextureAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
-  m_DocTypeDesc2.m_sResourceFileExtension = "ezBinRenderTarget";
-  m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc2.m_sResourceFileExtension = "WBinRenderTarget";
+  m_DocTypeDesc2.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // render targets can also be used as 2D textures
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Target");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
-ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
+WTextureAssetDocumentManager::~WTextureAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
+WUInt64 WTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const WPlatformProfile* pAssetProfile) const
 {
-  return pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>()->m_uiMaxResolution;
+  return pAssetProfile->GetTypeConfig<WTextureAssetProfileConfig>()->m_uiMaxResolution;
 }
 
-void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WTextureAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WTextureAssetDocument>())
       {
-        new ezQtTextureAssetDocumentWindow(static_cast<ezTextureAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtTextureAssetDocumentWindow(static_cast<WTextureAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -86,9 +86,9 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezTextureAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WTextureAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(sPath);
+  WTextureAssetDocument* pDoc = new WTextureAssetDocument(sPath);
   out_pDocument = pDoc;
 
   if (sDocumentTypeName.IsEqual("Render Target"))
@@ -97,30 +97,30 @@ void ezTextureAssetDocumentManager::InternalCreateDocument(ezStringView sDocumen
   }
 }
 
-void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
-ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+WString WTextureAssetDocumentManager::GetRelativeOutputFileName(const WAssetDocumentTypeDescriptor* pTypeDescriptor, WStringView sDataDirectory, WStringView sDocumentPath, WStringView sOutputTag, const WPlatformProfile* pAssetProfile) const
 {
   if (sOutputTag.IsEqual("LOWRES"))
   {
-    ezStringBuilder sRelativePath(sDocumentPath);
+    WStringBuilder sRelativePath(sDocumentPath);
     sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
     sRelativePath.Append(".ext"); // dummy extension, so that the next function knows which part to modify
-    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezBinTexture2D", true);
+    WAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "WBinTexture2D", true);
     return sRelativePath;
   }
 
   return SUPER::GetRelativeOutputFileName(pTypeDescriptor, sDataDirectory, sDocumentPath, sOutputTag, pAssetProfile);
 }
 
-void ezTextureAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+void WTextureAssetDocumentManager::AppendAssetInfoSummary(WStringBuilder& ref_sOut, const WAssetInfoFile& info, WStringView sLinePrefix) const
 {
-  const ezStringView keys[] = {ezAssetInfoFile::Keys::ImageWidth, ezAssetInfoFile::Keys::Format};
+  const WStringView keys[] = {WAssetInfoFile::Keys::ImageWidth, WAssetInfoFile::Keys::Format};
   info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
 }

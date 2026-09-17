@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Windows Performance Recorder Profile for WorldEngine Tracing
+
+  This profile configures Windows Performance Recorder (wpr.exe) to capture
+  events from the WTraceProvider (ETW TraceLogging provider).
+
+  Usage:
+    1. Start recording:
+       wpr -start Utilities\Tracing\WTraceProvider.wprp -instancename WorldEngine
+
+    2. Run your WorldEngine application.
+
+    3. Stop recording and save:
+       wpr -stop MyTrace.etl -instancename WorldEngine
+
+    4. Open the .etl file in Windows Performance Analyzer (WPA):
+       wpa MyTrace.etl
+
+    5. In WPA, navigate to:
+       System Activity -> Generic Events
+       Filter by Provider Name "WTraceProvider" to see all events.
+
+  Provider Details:
+    Name: WTraceProvider
+    GUID: {BFD4350A-BA77-463D-B4BE-E30374E42494}
+-->
+<WindowsPerformanceRecorder Version="1.0" Author="WorldEngine" Tag="WorldEngine">
+  <Profiles>
+
+    <!-- System Collector: captures kernel-level process/thread information so every event can be matched to a process name and PID. -->
+    <SystemCollector Id="SystemCollector_WTrace" Name="WTrace System Collector">
+      <BufferSize Value="256" />
+      <Buffers Value="20" />
+    </SystemCollector>
+
+    <!-- Event Collector: defines the buffer sizes for the ETW session -->
+    <EventCollector Id="EventCollector_WTrace" Name="WTrace Event Collector">
+      <BufferSize Value="1024" />
+      <Buffers Value="40" />
+    </EventCollector>
+
+    <!-- System Provider: ProcessThread captures process and thread start/stop events, Loader captures module loads for symbol resolution. -->
+    <SystemProvider Id="SystemProvider_WTrace">
+      <Keywords>
+        <Keyword Value="ProcessThread" />
+        <Keyword Value="Loader" />
+      </Keywords>
+    </SystemProvider>
+
+    <!-- Event Provider: the WTraceProvider registered via TraceLogging -->
+    <EventProvider Id="EventProvider_WTrace"
+                   Name="BFD4350A-BA77-463D-B4BE-E30374E42494" />
+
+    <!-- Profile for verbose capture of all WorldEngine trace events -->
+    <Profile Id="WTraceProfile.Verbose.File"
+             Name="WTraceProfile"
+             Description="Captures all WorldEngine trace events with process information."
+             LoggingMode="File"
+             DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector_WTrace">
+          <SystemProviderId Value="SystemProvider_WTrace" />
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_WTrace">
+          <EventProviders>
+            <EventProviderId Value="EventProvider_WTrace" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+    <!-- Memory variant for real-time viewing -->
+    <Profile Id="WTraceProfile.Verbose.Memory"
+             Name="WTraceProfile"
+             Description="Captures all WorldEngine trace events with process information (circular buffer)."
+             LoggingMode="Memory"
+             DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector_WTrace">
+          <SystemProviderId Value="SystemProvider_WTrace" />
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_WTrace">
+          <EventProviders>
+            <EventProviderId Value="EventProvider_WTrace" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+  </Profiles>
+</WindowsPerformanceRecorder>

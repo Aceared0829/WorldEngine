@@ -7,19 +7,19 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_JOLTPLUGIN_DLL ezJoltTriggerComponentManager : public ezComponentManager<class ezJoltTriggerComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltTriggerComponentManager : public WComponentManager<class WJoltTriggerComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltTriggerComponentManager(ezWorld* pWorld);
-  ~ezJoltTriggerComponentManager();
+  WJoltTriggerComponentManager(WWorld* pWorld);
+  ~WJoltTriggerComponentManager();
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltTriggerComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltTriggerComponent;
 
   void UpdateMovingTriggers();
 
-  ezSet<ezJoltTriggerComponent*> m_MovingTriggers;
+  WSet<WJoltTriggerComponent*> m_MovingTriggers;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,18 +34,18 @@ private:
 /// \note The physics trigger only sends enter and leave messages. It does not send any message when an object stays inside
 /// the trigger.
 ///
-/// The message ezMsgTriggerTriggered is sent for every change. It references the object that entered or left the volume
+/// The message WMsgTriggerTriggered is sent for every change. It references the object that entered or left the volume
 /// and it also contains a trigger-specific message string to identify what this should be used for.
-class EZ_JOLTPLUGIN_DLL ezJoltTriggerComponent : public ezJoltActorComponent
+class W_JOLTPLUGIN_DLL WJoltTriggerComponent : public WJoltActorComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltTriggerComponent, ezJoltActorComponent, ezJoltTriggerComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltTriggerComponent, WJoltActorComponent, WJoltTriggerComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -53,21 +53,21 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltTriggerComponent
+  // WJoltTriggerComponent
 public:
-  ezJoltTriggerComponent();
-  ~ezJoltTriggerComponent();
+  WJoltTriggerComponent();
+  ~WJoltTriggerComponent();
 
-  /// Sets the text that the ezMsgTriggerTriggered should contain when the trigger fires.
+  /// Sets the text that the WMsgTriggerTriggered should contain when the trigger fires.
   void SetTriggerMessage(const char* szSz) { m_sTriggerMessage.Assign(szSz); }  // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
 protected:
-  friend class ezJoltWorldModule;
-  friend class ezJoltContactListener;
+  friend class WJoltWorldModule;
+  friend class WJoltContactListener;
 
-  void PostTriggerMessage(const ezGameObjectHandle& hOtherObject, ezTriggerState::Enum triggerState) const;
+  void PostTriggerMessage(const WGameObjectHandle& hOtherObject, WTriggerState::Enum triggerState) const;
 
-  ezHashedString m_sTriggerMessage;
-  ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
+  WHashedString m_sTriggerMessage;
+  WEventMessageSender<WMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 };

@@ -5,30 +5,30 @@
 
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
-class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents : public ezSceneExportModifier
+class W_ENGINEPLUGINSCENE_DLL WSceneExportModifier_RemoveShapeIconComponents : public WSceneExportModifier
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveShapeIconComponents, ezSceneExportModifier);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier_RemoveShapeIconComponents, WSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemovePathNodeComponents : public ezSceneExportModifier
+class W_ENGINEPLUGINSCENE_DLL WSceneExportModifier_RemovePathNodeComponents : public WSceneExportModifier
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemovePathNodeComponents, ezSceneExportModifier);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier_RemovePathNodeComponents, WSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_GenericExport : public ezSceneExportModifier
+class W_ENGINEPLUGINSCENE_DLL WSceneExportModifier_GenericExport : public WSceneExportModifier
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_GenericExport, ezSceneExportModifier);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier_GenericExport, WSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) override;
 };

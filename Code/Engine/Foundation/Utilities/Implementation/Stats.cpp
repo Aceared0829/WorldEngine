@@ -6,13 +6,13 @@
 #  include <tracy/tracy/Tracy.hpp>
 #endif
 
-ezMutex ezStats::s_Mutex;
-ezStats::MapType ezStats::s_Stats;
-ezStats::ezEventStats ezStats::s_StatsEvents;
+WMutex WStats::s_Mutex;
+WStats::MapType WStats::s_Stats;
+WStats::WEventStats WStats::s_StatsEvents;
 
-void ezStats::RemoveStat(ezStringView sStatName)
+void WStats::RemoveStat(WStringView sStatName)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
   MapType::Iterator it = s_Stats.Find(sStatName);
 
@@ -28,9 +28,9 @@ void ezStats::RemoveStat(ezStringView sStatName)
   s_StatsEvents.Broadcast(e);
 }
 
-void ezStats::SetStat(ezStringView sStatName, const ezVariant& value)
+void WStats::SetStat(WStringView sStatName, const WVariant& value)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
   bool bExisted = false;
   auto it = s_Stats.FindOrAdd(sStatName, &bExisted);

@@ -8,155 +8,155 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTIDefaultAllocator<ezDirectionalLightRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDirectionalLightRenderData, 1, WRTTIDefaultAllocator<WDirectionalLightRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 5, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WDirectionalLightComponent, 5, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("SourceAngle", GetSourceAngle, SetSourceAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), ezAngle::MakeFromDegree(10.0f))),
-    EZ_ACCESSOR_PROPERTY("NumCascades", GetNumCascades, SetNumCascades)->AddAttributes(new ezClampValueAttribute(1, 4), new ezDefaultValueAttribute(2)),
-    EZ_ACCESSOR_PROPERTY("MinShadowRange", GetMinShadowRange, SetMinShadowRange)->AddAttributes(new ezClampValueAttribute(0.1f, ezVariant()), new ezDefaultValueAttribute(30.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezClampValueAttribute(0.6f, 1.0f), new ezDefaultValueAttribute(0.8f)),
-    EZ_ACCESSOR_PROPERTY("SplitModeWeight", GetSplitModeWeight, SetSplitModeWeight)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.7f)),
-    EZ_ACCESSOR_PROPERTY("NearPlaneOffset", GetNearPlaneOffset, SetNearPlaneOffset)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("ScreenSpaceShadows", GetScreenSpaceShadows, SetScreenSpaceShadows),
+    W_ACCESSOR_PROPERTY("SourceAngle", GetSourceAngle, SetSourceAngle)->AddAttributes(new WClampValueAttribute(WAngle::MakeZero(), WAngle::MakeFromDegree(10.0f))),
+    W_ACCESSOR_PROPERTY("NumCascades", GetNumCascades, SetNumCascades)->AddAttributes(new WClampValueAttribute(1, 4), new WDefaultValueAttribute(2)),
+    W_ACCESSOR_PROPERTY("MinShadowRange", GetMinShadowRange, SetMinShadowRange)->AddAttributes(new WClampValueAttribute(0.1f, WVariant()), new WDefaultValueAttribute(30.0f), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new WClampValueAttribute(0.6f, 1.0f), new WDefaultValueAttribute(0.8f)),
+    W_ACCESSOR_PROPERTY("SplitModeWeight", GetSplitModeWeight, SetSplitModeWeight)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f), new WDefaultValueAttribute(0.7f)),
+    W_ACCESSOR_PROPERTY("NearPlaneOffset", GetNearPlaneOffset, SetNearPlaneOffset)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(100.0f), new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("ScreenSpaceShadows", GetScreenSpaceShadows, SetScreenSpaceShadows),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::White, "LightColor"),
-    new ezDirectionalLightVisualizerAttribute("SourceAngle", "LightColor"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 1.0f, WColor::White, "LightColor"),
+    new WDirectionalLightVisualizerAttribute("SourceAngle", "LightColor"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezDirectionalLightComponent::ezDirectionalLightComponent() = default;
-ezDirectionalLightComponent::~ezDirectionalLightComponent() = default;
+WDirectionalLightComponent::WDirectionalLightComponent() = default;
+WDirectionalLightComponent::~WDirectionalLightComponent() = default;
 
-ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WDirectionalLightComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezDirectionalLightComponent::SetScreenSpaceShadows(bool bShadows)
+void WDirectionalLightComponent::SetScreenSpaceShadows(bool bShadows)
 {
   m_bScreenSpaceShadows = bShadows;
 
   InvalidateCachedRenderData();
 }
 
-bool ezDirectionalLightComponent::GetScreenSpaceShadows() const
+bool WDirectionalLightComponent::GetScreenSpaceShadows() const
 {
   return m_bScreenSpaceShadows;
 }
 
-void ezDirectionalLightComponent::SetSourceAngle(ezAngle sourceAngle)
+void WDirectionalLightComponent::SetSourceAngle(WAngle sourceAngle)
 {
-  m_SourceAngle = ezMath::Clamp(sourceAngle, ezAngle::MakeZero(), ezAngle::MakeFromDegree(10.0f));
+  m_SourceAngle = WMath::Clamp(sourceAngle, WAngle::MakeZero(), WAngle::MakeFromDegree(10.0f));
 
   InvalidateCachedRenderData();
 }
 
-ezAngle ezDirectionalLightComponent::GetSourceAngle() const
+WAngle WDirectionalLightComponent::GetSourceAngle() const
 {
   return m_SourceAngle;
 }
 
-void ezDirectionalLightComponent::SetNumCascades(ezUInt32 uiNumCascades)
+void WDirectionalLightComponent::SetNumCascades(WUInt32 uiNumCascades)
 {
-  m_uiNumCascades = ezMath::Clamp(uiNumCascades, 1u, 4u);
+  m_uiNumCascades = WMath::Clamp(uiNumCascades, 1u, 4u);
 
   InvalidateCachedRenderData();
 }
 
-ezUInt32 ezDirectionalLightComponent::GetNumCascades() const
+WUInt32 WDirectionalLightComponent::GetNumCascades() const
 {
   return m_uiNumCascades;
 }
 
-void ezDirectionalLightComponent::SetMinShadowRange(float fMinShadowRange)
+void WDirectionalLightComponent::SetMinShadowRange(float fMinShadowRange)
 {
-  m_fMinShadowRange = ezMath::Max(fMinShadowRange, 0.0f);
+  m_fMinShadowRange = WMath::Max(fMinShadowRange, 0.0f);
 
   InvalidateCachedRenderData();
 }
 
-float ezDirectionalLightComponent::GetMinShadowRange() const
+float WDirectionalLightComponent::GetMinShadowRange() const
 {
   return m_fMinShadowRange;
 }
 
-void ezDirectionalLightComponent::SetFadeOutStart(float fFadeOutStart)
+void WDirectionalLightComponent::SetFadeOutStart(float fFadeOutStart)
 {
-  m_fFadeOutStart = ezMath::Clamp(fFadeOutStart, 0.0f, 1.0f);
+  m_fFadeOutStart = WMath::Clamp(fFadeOutStart, 0.0f, 1.0f);
 
   InvalidateCachedRenderData();
 }
 
-float ezDirectionalLightComponent::GetFadeOutStart() const
+float WDirectionalLightComponent::GetFadeOutStart() const
 {
   return m_fFadeOutStart;
 }
 
-void ezDirectionalLightComponent::SetSplitModeWeight(float fSplitModeWeight)
+void WDirectionalLightComponent::SetSplitModeWeight(float fSplitModeWeight)
 {
-  m_fSplitModeWeight = ezMath::Clamp(fSplitModeWeight, 0.0f, 1.0f);
+  m_fSplitModeWeight = WMath::Clamp(fSplitModeWeight, 0.0f, 1.0f);
 
   InvalidateCachedRenderData();
 }
 
-float ezDirectionalLightComponent::GetSplitModeWeight() const
+float WDirectionalLightComponent::GetSplitModeWeight() const
 {
   return m_fSplitModeWeight;
 }
 
-void ezDirectionalLightComponent::SetNearPlaneOffset(float fNearPlaneOffset)
+void WDirectionalLightComponent::SetNearPlaneOffset(float fNearPlaneOffset)
 {
-  m_fNearPlaneOffset = ezMath::Max(fNearPlaneOffset, 0.0f);
+  m_fNearPlaneOffset = WMath::Max(fNearPlaneOffset, 0.0f);
 
   InvalidateCachedRenderData();
 }
 
-float ezDirectionalLightComponent::GetNearPlaneOffset() const
+float WDirectionalLightComponent::GetNearPlaneOffset() const
 {
   return m_fNearPlaneOffset;
 }
 
-void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WDirectionalLightComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f)
     return;
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WDirectionalLightRenderData>(GetOwner());
 
   pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
 
-  pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
-  // The shader reinterprets ezLightRenderData::m_fRadius for directional lights as sin(halfAngle)
+  pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * WVec3(-1, 0, 0);
+  // The shader reinterprets WLightRenderData::m_fRadius for directional lights as sin(halfAngle)
   // of the emitter disc. This keeps the packed fp16 slot (specularMultiplierAndRadius) uniform
   // across all light types while giving directional lights an angular parameterisation.
-  pRenderData->m_fRadius = ezMath::Sin(m_SourceAngle * 0.5f);
+  pRenderData->m_fRadius = WMath::Sin(m_SourceAngle * 0.5f);
   pRenderData->m_bScreenSpaceShadows = m_bScreenSpaceShadows;
 
   if (m_bCastShadows)
   {
-    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddDirectionalLight(this, msg.m_pView), 1.0f);
+    pRenderData->FillShadowDataOffsetAndFadeOut(WShadowPool::AddDirectionalLight(this, msg.m_pView), 1.0f);
   }
   else
   {
@@ -166,18 +166,18 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   // Sorting key
   {
     const float fShadowMultiplier = m_bCastShadows ? 1.0f : 0.5f;
-    const float fIntensity = (m_fIntensity * ezColor(pRenderData->m_LightColor).GetLuminance() * fShadowMultiplier);
-    pRenderData->m_uiSortingKey = pRenderData->s_uiBaseSortingKey - ezMath::Clamp(static_cast<ezUInt32>(fIntensity), 0u, pRenderData->s_uiBaseSortingKey - 1);
+    const float fIntensity = (m_fIntensity * WColor(pRenderData->m_LightColor).GetLuminance() * fShadowMultiplier);
+    pRenderData->m_uiSortingKey = pRenderData->s_uiBaseSortingKey - WMath::Clamp(static_cast<WUInt32>(fIntensity), 0u, pRenderData->s_uiBaseSortingKey - 1);
   }
 
-  ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
+  WRenderData::Caching::Enum caching = m_bCastShadows ? WRenderData::Caching::Never : WRenderData::Caching::IfStatic;
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Light, caching);
 }
 
-void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WDirectionalLightComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_bScreenSpaceShadows;
   s << m_uiNumCascades;
@@ -188,11 +188,11 @@ void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_SourceAngle;
 }
 
-void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WDirectionalLightComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   if (uiVersion >= 4)
   {
@@ -221,39 +221,39 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stre
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
+class WDirectionalLightComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezDirectionalLightComponentPatch_1_2()
-    : ezGraphPatch("ezDirectionalLightComponent", 2)
+  WDirectionalLightComponentPatch_1_2()
+    : WGraphPatch("WDirectionalLightComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.PatchBaseClass("ezLightComponent", 2, true);
+    ref_context.PatchBaseClass("WLightComponent", 2, true);
   }
 };
 
-ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
+WDirectionalLightComponentPatch_1_2 g_WDirectionalLightComponentPatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionalLightVisualizerAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDirectionalLightVisualizerAttribute, 1, WRTTIDefaultAllocator<WDirectionalLightVisualizerAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDirectionalLightVisualizerAttribute::ezDirectionalLightVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WDirectionalLightVisualizerAttribute::WDirectionalLightVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezDirectionalLightVisualizerAttribute::ezDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty)
-  : ezVisualizerAttribute(szAngleProperty, szColorProperty)
+WDirectionalLightVisualizerAttribute::WDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty)
+  : WVisualizerAttribute(szAngleProperty, szColorProperty)
 {
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);

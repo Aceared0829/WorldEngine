@@ -2,56 +2,56 @@
 
 #include <RendererFoundation/Device/ReadbackLock.h>
 
-class ezGALDevice;
+class WGALDevice;
 
-/// Base-class for ezGALReadbackBufferHelper and ezGALReadbackTextureHelper.
-class EZ_RENDERERFOUNDATION_DLL ezGALReadbackHelper
+/// Base-class for WGALReadbackBufferHelper and WGALReadbackTextureHelper.
+class W_RENDERERFOUNDATION_DLL WGALReadbackHelper
 {
 public:
   /// Returns the fence of the last readback operation.
-  EZ_FORCE_INLINE ezGALFenceHandle GetCurrentFence() const { return m_hFence; }
+  W_FORCE_INLINE WGALFenceHandle GetCurrentFence() const { return m_hFence; }
   /// Returns the current status of the readback.
-  [[nodiscard]] ezEnum<ezGALAsyncResult> GetReadbackResult(ezTime timeout) const;
+  [[nodiscard]] WEnum<WGALAsyncResult> GetReadbackResult(WTime timeout) const;
 
 protected:
-  ezGALDevice* m_pDevice = nullptr;
-  ezGALFenceHandle m_hFence = 0;
+  WGALDevice* m_pDevice = nullptr;
+  WGALFenceHandle m_hFence = 0;
 };
 
 /// Helper class that automatically creates a readback buffer and controls it's lifetime.
-class EZ_RENDERERFOUNDATION_DLL ezGALReadbackBufferHelper : public ezGALReadbackHelper
+class W_RENDERERFOUNDATION_DLL WGALReadbackBufferHelper : public WGALReadbackHelper
 {
 public:
-  ezGALReadbackBufferHelper() = default;
-  ~ezGALReadbackBufferHelper();
+  WGALReadbackBufferHelper() = default;
+  ~WGALReadbackBufferHelper();
 
   /// Free the memory of the readback buffer.
   void Reset();
   /// Starts a readback of a buffer. A new readback buffer will be created if the current one does not match the new buffer.
-  ezGALFenceHandle ReadbackBuffer(ezGALCommandEncoder& ref_encoder, ezGALBufferHandle hBuffer);
-  /// Same as ezGALDevice::LockBuffer, but checks that the fence has been reached. If not, returns an invalid lock object.
-  ezReadbackBufferLock LockBuffer(ezArrayPtr<const ezUInt8>& out_memory);
+  WGALFenceHandle ReadbackBuffer(WGALCommandEncoder& ref_encoder, WGALBufferHandle hBuffer);
+  /// Same as WGALDevice::LockBuffer, but checks that the fence has been reached. If not, returns an invalid lock object.
+  WReadbackBufferLock LockBuffer(WArrayPtr<const WUInt8>& out_memory);
 
 private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezGALReadbackBufferHelper);
-  ezGALReadbackBufferHandle m_hReadbackBuffer;
+  W_DISALLOW_COPY_AND_ASSIGN(WGALReadbackBufferHelper);
+  WGALReadbackBufferHandle m_hReadbackBuffer;
 };
 
 /// Helper class that automatically creates a readback texture and controls it's lifetime.
-class EZ_RENDERERFOUNDATION_DLL ezGALReadbackTextureHelper : public ezGALReadbackHelper
+class W_RENDERERFOUNDATION_DLL WGALReadbackTextureHelper : public WGALReadbackHelper
 {
 public:
-  ezGALReadbackTextureHelper() = default;
-  ~ezGALReadbackTextureHelper();
+  WGALReadbackTextureHelper() = default;
+  ~WGALReadbackTextureHelper();
 
   /// Free the memory of the readback texture.
   void Reset();
   /// Starts a readback of a texture. A new readback texture will be created if the current one does not match the new texture.
-  ezGALFenceHandle ReadbackTexture(ezGALCommandEncoder& ref_encoder, ezGALTextureHandle hTexture);
-  /// Same as ezGALDevice::LockTexture, but checks that the fence has been reached. If not, returns an invalid lock object.
-  ezReadbackTextureLock LockTexture(const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory);
+  WGALFenceHandle ReadbackTexture(WGALCommandEncoder& ref_encoder, WGALTextureHandle hTexture);
+  /// Same as WGALDevice::LockTexture, but checks that the fence has been reached. If not, returns an invalid lock object.
+  WReadbackTextureLock LockTexture(const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_memory);
 
 private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezGALReadbackTextureHelper);
-  ezGALReadbackTextureHandle m_hReadbackTexture;
+  W_DISALLOW_COPY_AND_ASSIGN(WGALReadbackTextureHelper);
+  WGALReadbackTextureHandle m_hReadbackTexture;
 };

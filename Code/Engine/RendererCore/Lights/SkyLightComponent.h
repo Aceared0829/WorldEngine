@@ -5,22 +5,22 @@
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
-struct ezMsgTransformChanged;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
+struct WMsgTransformChanged;
 
-using ezSkyLightComponentManager = ezSettingsComponentManager<class ezSkyLightComponent>;
+using WSkyLightComponentManager = WSettingsComponentManager<class WSkyLightComponent>;
 
-class EZ_RENDERERCORE_DLL ezSkyLightComponent : public ezSettingsComponent
+class W_RENDERERCORE_DLL WSkyLightComponent : public WSettingsComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSkyLightComponent, ezSettingsComponent, ezSkyLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSkyLightComponent, WSettingsComponent, WSkyLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -28,14 +28,14 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSkyLightComponent
+  // WSkyLightComponent
 
 public:
-  ezSkyLightComponent();
-  ~ezSkyLightComponent();
+  WSkyLightComponent();
+  ~WSkyLightComponent();
 
-  void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
-  ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
+  void SetReflectionProbeMode(WEnum<WReflectionProbeMode> mode); // [ property ]
+  WEnum<WReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
 
   void SetDiffuseIntensity(float fIntensity);                      // [ property ]
   float GetDiffuseIntensity() const;                               // [ property ]
@@ -46,11 +46,11 @@ public:
   void SetSpecularIntensity(float fIntensity);                     // [ property ]
   float GetSpecularIntensity() const;                              // [ property ]
 
-  const ezTagSet& GetIncludeTags() const;                          // [ property ]
+  const WTagSet& GetIncludeTags() const;                          // [ property ]
   void InsertIncludeTag(const char* szTag);                        // [ property ]
   void RemoveIncludeTag(const char* szTag);                        // [ property ]
 
-  const ezTagSet& GetExcludeTags() const;                          // [ property ]
+  const WTagSet& GetExcludeTags() const;                          // [ property ]
   void InsertExcludeTag(const char* szTag);                        // [ property ]
   void RemoveExcludeTag(const char* szTag);                        // [ property ]
 
@@ -60,10 +60,10 @@ public:
   void SetShowMipMaps(bool bShowMipMaps);                          // [ property ]
   bool GetShowMipMaps() const;                                     // [ property ]
 
-  void SetCubeMapFile(ezStringView sFile);                         // [ property ]
-  ezStringView GetCubeMapFile() const;                             // [ property ]
+  void SetCubeMapFile(WStringView sFile);                         // [ property ]
+  WStringView GetCubeMapFile() const;                             // [ property ]
 
-  ezTextureCubeResourceHandle GetCubeMap() const
+  WTextureCubeResourceHandle GetCubeMap() const
   {
     return m_hCubeMap;
   }
@@ -75,14 +75,14 @@ public:
   void SetFarPlane(float fFarPlane);                         // [ property ]
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnTransformChanged(ezMsgTransformChanged& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
+  void OnTransformChanged(WMsgTransformChanged& msg);
 
-  ezReflectionProbeDesc m_Desc;
-  ezTextureCubeResourceHandle m_hCubeMap;
+  WReflectionProbeDesc m_Desc;
+  WTextureCubeResourceHandle m_hCubeMap;
 
-  ezReflectionProbeId m_Id;
+  WReflectionProbeId m_Id;
 
   mutable bool m_bStatesDirty = true;
 };

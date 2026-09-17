@@ -3,77 +3,77 @@
 #include <Foundation/Math/Mat4.h>
 
 template <typename Type>
-EZ_FORCE_INLINE ezPlaneTemplate<Type>::ezPlaneTemplate()
+W_FORCE_INLINE WPlaneTemplate<Type>::WPlaneTemplate()
 {
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::NaN<Type>();
+  const Type TypeNaN = WMath::NaN<Type>();
   m_vNormal.Set(TypeNaN);
   m_fNegDistance = TypeNaN;
 #endif
 }
 
 template <typename Type>
-ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeInvalid()
+WPlaneTemplate<Type> WPlaneTemplate<Type>::MakeInvalid()
 {
-  ezPlaneTemplate<Type> res;
+  WPlaneTemplate<Type> res;
   res.m_vNormal.Set(0);
   res.m_fNegDistance = 0;
   return res;
 }
 
 template <typename Type>
-ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
+WPlaneTemplate<Type> WPlaneTemplate<Type>::MakeFromNormalAndPoint(const WVec3Template<Type>& vNormal, const WVec3Template<Type>& vPointOnPlane)
 {
-  EZ_ASSERT_DEV(vNormal.IsNormalized(), "Normal must be normalized.");
+  W_ASSERT_DEV(vNormal.IsNormalized(), "Normal must be normalized.");
 
-  ezPlaneTemplate<Type> res;
+  WPlaneTemplate<Type> res;
   res.m_vNormal = vNormal;
   res.m_fNegDistance = -vNormal.Dot(vPointOnPlane);
   return res;
 }
 
 template <typename Type>
-ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+WPlaneTemplate<Type> WPlaneTemplate<Type>::MakeFromPoints(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2, const WVec3Template<Type>& v3)
 {
-  ezPlaneTemplate<Type> res;
-  EZ_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points do not form a plane");
+  WPlaneTemplate<Type> res;
+  W_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points do not form a plane");
 
   res.m_fNegDistance = -res.m_vNormal.Dot(v1);
   return res;
 }
 
 template <typename Type>
-ezVec4Template<Type> ezPlaneTemplate<Type>::GetAsVec4() const
+WVec4Template<Type> WPlaneTemplate<Type>::GetAsVec4() const
 {
-  return ezVec4(m_vNormal.x, m_vNormal.y, m_vNormal.z, m_fNegDistance);
+  return WVec4(m_vNormal.x, m_vNormal.y, m_vNormal.z, m_fNegDistance);
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+WResult WPlaneTemplate<Type>::SetFromPoints(const WVec3Template<Type>& v1, const WVec3Template<Type>& v2, const WVec3Template<Type>& v3)
 {
-  if (m_vNormal.CalculateNormal(v1, v2, v3) == EZ_FAILURE)
-    return EZ_FAILURE;
+  if (m_vNormal.CalculateNormal(v1, v2, v3) == W_FAILURE)
+    return W_FAILURE;
 
   m_fNegDistance = -m_vNormal.Dot(v1);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* const pVertices)
+WResult WPlaneTemplate<Type>::SetFromPoints(const WVec3Template<Type>* const pVertices)
 {
-  if (m_vNormal.CalculateNormal(pVertices[0], pVertices[1], pVertices[2]) == EZ_FAILURE)
-    return EZ_FAILURE;
+  if (m_vNormal.CalculateNormal(pVertices[0], pVertices[1], pVertices[2]) == W_FAILURE)
+    return W_FAILURE;
 
   m_fNegDistance = -m_vNormal.Dot(pVertices[0]);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane)
+WResult WPlaneTemplate<Type>::SetFromDirections(const WVec3Template<Type>& vTangent1, const WVec3Template<Type>& vTangent2, const WVec3Template<Type>& vPointOnPlane)
 {
-  ezVec3Template<Type> vNormal = vTangent1.CrossRH(vTangent2);
-  ezResult res = vNormal.NormalizeIfNotZero();
+  WVec3Template<Type> vNormal = vTangent1.CrossRH(vTangent2);
+  WResult res = vNormal.NormalizeIfNotZero();
 
   m_vNormal = vNormal;
   m_fNegDistance = -vNormal.Dot(vPointOnPlane);
@@ -81,136 +81,136 @@ ezResult ezPlaneTemplate<Type>::SetFromDirections(const ezVec3Template<Type>& vT
 }
 
 template <typename Type>
-void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
+void WPlaneTemplate<Type>::Transform(const WMat3Template<Type>& m)
 {
-  ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
+  WVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
   // Transform the normal
-  ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+  WVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
 
   // Normalize the normal vector
   const bool normalizeSucceeded = vTransformedNormal.NormalizeIfNotZero().Succeeded();
-  EZ_ASSERT_DEBUG(normalizeSucceeded, "");
-  EZ_IGNORE_UNUSED(normalizeSucceeded);
+  W_ASSERT_DEBUG(normalizeSucceeded, "");
+  W_IGNORE_UNUSED(normalizeSucceeded);
 
   // If the plane's distance is already infinite, there won't be any meaningful change
   // to it as a result of the transformation.
-  if (!ezMath::IsFinite(m_fNegDistance))
+  if (!WMath::IsFinite(m_fNegDistance))
   {
     m_vNormal = vTransformedNormal;
   }
   else
   {
-    *this = ezPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = WPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 
 template <typename Type>
-void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
+void WPlaneTemplate<Type>::Transform(const WMat4Template<Type>& m)
 {
-  ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
+  WVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
   // Transform the normal
-  ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+  WVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
 
   // Normalize the normal vector
   const bool normalizeSucceeded = vTransformedNormal.NormalizeIfNotZero().Succeeded();
-  EZ_ASSERT_DEBUG(normalizeSucceeded, "");
-  EZ_IGNORE_UNUSED(normalizeSucceeded);
+  W_ASSERT_DEBUG(normalizeSucceeded, "");
+  W_IGNORE_UNUSED(normalizeSucceeded);
 
   // If the plane's distance is already infinite, there won't be any meaningful change
   // to it as a result of the transformation.
-  if (!ezMath::IsFinite(m_fNegDistance))
+  if (!WMath::IsFinite(m_fNegDistance))
   {
     m_vNormal = vTransformedNormal;
   }
   else
   {
-    *this = ezPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = WPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezPlaneTemplate<Type>::Flip()
+W_FORCE_INLINE void WPlaneTemplate<Type>::Flip()
 {
   m_fNegDistance = -m_fNegDistance;
   m_vNormal = -m_vNormal;
 }
 
 template <typename Type>
-EZ_FORCE_INLINE Type ezPlaneTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>& vPoint) const
+W_FORCE_INLINE Type WPlaneTemplate<Type>::GetDistanceTo(const WVec3Template<Type>& vPoint) const
 {
   return (m_vNormal.Dot(vPoint) + m_fNegDistance);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetPointPosition(const ezVec3Template<Type>& vPoint) const
+W_FORCE_INLINE WPositionOnPlane::Enum WPlaneTemplate<Type>::GetPointPosition(const WVec3Template<Type>& vPoint) const
 {
-  return (m_vNormal.Dot(vPoint) < -m_fNegDistance ? ezPositionOnPlane::Back : ezPositionOnPlane::Front);
+  return (m_vNormal.Dot(vPoint) < -m_fNegDistance ? WPositionOnPlane::Back : WPositionOnPlane::Front);
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetPointPosition(const ezVec3Template<Type>& vPoint, Type fPlaneHalfWidth) const
+WPositionOnPlane::Enum WPlaneTemplate<Type>::GetPointPosition(const WVec3Template<Type>& vPoint, Type fPlaneHalfWidth) const
 {
   const Type f = m_vNormal.Dot(vPoint);
 
   if (f + fPlaneHalfWidth < -m_fNegDistance)
-    return ezPositionOnPlane::Back;
+    return WPositionOnPlane::Back;
 
   if (f - fPlaneHalfWidth > -m_fNegDistance)
-    return ezPositionOnPlane::Front;
+    return WPositionOnPlane::Front;
 
-  return ezPositionOnPlane::OnPlane;
+  return WPositionOnPlane::OnPlane;
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezPlaneTemplate<Type>::ProjectOntoPlane(const ezVec3Template<Type>& vPoint) const
+W_FORCE_INLINE const WVec3Template<Type> WPlaneTemplate<Type>::ProjectOntoPlane(const WVec3Template<Type>& vPoint) const
 {
   return vPoint - m_vNormal * (m_vNormal.Dot(vPoint) + m_fNegDistance);
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezPlaneTemplate<Type>::Mirror(const ezVec3Template<Type>& vPoint) const
+W_FORCE_INLINE const WVec3Template<Type> WPlaneTemplate<Type>::Mirror(const WVec3Template<Type>& vPoint) const
 {
   return vPoint - (Type)2 * GetDistanceTo(vPoint) * m_vNormal;
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezPlaneTemplate<Type>::GetCoplanarDirection(const ezVec3Template<Type>& vDirection) const
+const WVec3Template<Type> WPlaneTemplate<Type>::GetCoplanarDirection(const WVec3Template<Type>& vDirection) const
 {
-  ezVec3Template<Type> res = vDirection;
+  WVec3Template<Type> res = vDirection;
   res.MakeOrthogonalTo(m_vNormal);
   return res;
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::IsIdentical(const ezPlaneTemplate& rhs) const
+bool WPlaneTemplate<Type>::IsIdentical(const WPlaneTemplate& rhs) const
 {
   return m_vNormal.IsIdentical(rhs.m_vNormal) && m_fNegDistance == rhs.m_fNegDistance;
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::IsEqual(const ezPlaneTemplate& rhs, Type fEpsilon) const
+bool WPlaneTemplate<Type>::IsEqual(const WPlaneTemplate& rhs, Type fEpsilon) const
 {
-  return m_vNormal.IsEqual(rhs.m_vNormal, fEpsilon) && ezMath::IsEqual(m_fNegDistance, rhs.m_fNegDistance, fEpsilon);
+  return m_vNormal.IsEqual(rhs.m_vNormal, fEpsilon) && WMath::IsEqual(m_fNegDistance, rhs.m_fNegDistance, fEpsilon);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator==(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
+W_ALWAYS_INLINE bool operator==(const WPlaneTemplate<Type>& lhs, const WPlaneTemplate<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator!=(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
+W_ALWAYS_INLINE bool operator!=(const WPlaneTemplate<Type>& lhs, const WPlaneTemplate<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::FlipIfNecessary(const ezVec3Template<Type>& vPoint, bool bPlaneShouldFacePoint)
+bool WPlaneTemplate<Type>::FlipIfNecessary(const WVec3Template<Type>& vPoint, bool bPlaneShouldFacePoint)
 {
-  if ((GetPointPosition(vPoint) == ezPositionOnPlane::Front) != bPlaneShouldFacePoint)
+  if ((GetPointPosition(vPoint) == WPositionOnPlane::Front) != bPlaneShouldFacePoint)
   {
     Flip();
     return true;
@@ -220,45 +220,45 @@ bool ezPlaneTemplate<Type>::FlipIfNecessary(const ezVec3Template<Type>& vPoint, 
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::IsValid() const
+bool WPlaneTemplate<Type>::IsValid() const
 {
-  return !IsNaN() && m_vNormal.IsNormalized(ezMath::DefaultEpsilon<Type>());
+  return !IsNaN() && m_vNormal.IsNormalized(WMath::DefaultEpsilon<Type>());
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::IsNaN() const
+bool WPlaneTemplate<Type>::IsNaN() const
 {
-  return ezMath::IsNaN(m_fNegDistance) || m_vNormal.IsNaN();
+  return WMath::IsNaN(m_fNegDistance) || m_vNormal.IsNaN();
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::IsFinite() const
+bool WPlaneTemplate<Type>::IsFinite() const
 {
-  return m_vNormal.IsValid() && ezMath::IsFinite(m_fNegDistance);
+  return m_vNormal.IsValid() && WMath::IsFinite(m_fNegDistance);
 }
 
 /*! The given vertices can be partially equal or lie on the same line. The algorithm will try to find 3 vertices, that
   form a plane, and deduce the normal from them. This algorithm is much slower, than all the other methods, so only
   use it, when you know, that your data can contain such configurations. */
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices)
+WResult WPlaneTemplate<Type>::SetFromPoints(const WVec3Template<Type>* const pVertices, WUInt32 uiMaxVertices)
 {
-  ezInt32 iPoints[3];
+  WInt32 iPoints[3];
 
-  if (FindSupportPoints(pVertices, uiMaxVertices, iPoints[0], iPoints[1], iPoints[2]) == EZ_FAILURE)
+  if (FindSupportPoints(pVertices, uiMaxVertices, iPoints[0], iPoints[1], iPoints[2]) == W_FAILURE)
   {
     SetFromPoints(pVertices).IgnoreResult();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   SetFromPoints(pVertices[iPoints[0]], pVertices[iPoints[1]], pVertices[iPoints[2]]).IgnoreResult();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::FindSupportPoints(const ezVec3Template<Type>* const pVertices, int iMaxVertices, int& out_i1, int& out_i2, int& out_i3)
+WResult WPlaneTemplate<Type>::FindSupportPoints(const WVec3Template<Type>* const pVertices, int iMaxVertices, int& out_i1, int& out_i2, int& out_i3)
 {
-  const ezVec3Template<Type> v1 = pVertices[0];
+  const WVec3Template<Type> v1 = pVertices[0];
 
   bool bFoundSecond = false;
 
@@ -275,11 +275,11 @@ ezResult ezPlaneTemplate<Type>::FindSupportPoints(const ezVec3Template<Type>* co
   }
 
   if (!bFoundSecond)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezVec3Template<Type> v2 = pVertices[i];
+  const WVec3Template<Type> v2 = pVertices[i];
 
-  const ezVec3Template<Type> vDir1 = (v1 - v2).GetNormalized();
+  const WVec3Template<Type> vDir1 = (v1 - v2).GetNormalized();
 
   out_i1 = 0;
   out_i2 = i;
@@ -289,36 +289,36 @@ ezResult ezPlaneTemplate<Type>::FindSupportPoints(const ezVec3Template<Type>* co
   while (i < iMaxVertices)
   {
     // check for inequality, then for non-collinearity
-    if ((pVertices[i].IsEqual(v2, 0.001f) == false) && (ezMath::Abs((pVertices[i] - v2).GetNormalized().Dot(vDir1)) < (Type)0.999))
+    if ((pVertices[i].IsEqual(v2, 0.001f) == false) && (WMath::Abs((pVertices[i] - v2).GetNormalized().Dot(vDir1)) < (Type)0.999))
     {
       out_i3 = i;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     ++i;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Template<Type>* const pPoints, ezUInt32 uiVertices) const
+WPositionOnPlane::Enum WPlaneTemplate<Type>::GetObjectPosition(const WVec3Template<Type>* const pPoints, WUInt32 uiVertices) const
 {
   bool bFront = false;
   bool bBack = false;
 
-  for (ezUInt32 i = 0; i < uiVertices; ++i)
+  for (WUInt32 i = 0; i < uiVertices; ++i)
   {
     switch (GetPointPosition(pPoints[i]))
     {
-      case ezPositionOnPlane::Front:
+      case WPositionOnPlane::Front:
         if (bBack)
-          return (ezPositionOnPlane::Spanning);
+          return (WPositionOnPlane::Spanning);
         bFront = true;
         break;
-      case ezPositionOnPlane::Back:
+      case WPositionOnPlane::Back:
         if (bFront)
-          return (ezPositionOnPlane::Spanning);
+          return (WPositionOnPlane::Spanning);
         bBack = true;
         break;
 
@@ -327,27 +327,27 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Tem
     }
   }
 
-  return (bFront ? ezPositionOnPlane::Front : ezPositionOnPlane::Back);
+  return (bFront ? WPositionOnPlane::Front : WPositionOnPlane::Back);
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Template<Type>* const pPoints, ezUInt32 uiVertices, Type fPlaneHalfWidth) const
+WPositionOnPlane::Enum WPlaneTemplate<Type>::GetObjectPosition(const WVec3Template<Type>* const pPoints, WUInt32 uiVertices, Type fPlaneHalfWidth) const
 {
   bool bFront = false;
   bool bBack = false;
 
-  for (ezUInt32 i = 0; i < uiVertices; ++i)
+  for (WUInt32 i = 0; i < uiVertices; ++i)
   {
     switch (GetPointPosition(pPoints[i], fPlaneHalfWidth))
     {
-      case ezPositionOnPlane::Front:
+      case WPositionOnPlane::Front:
         if (bBack)
-          return (ezPositionOnPlane::Spanning);
+          return (WPositionOnPlane::Spanning);
         bFront = true;
         break;
-      case ezPositionOnPlane::Back:
+      case WPositionOnPlane::Back:
         if (bFront)
-          return (ezPositionOnPlane::Spanning);
+          return (WPositionOnPlane::Spanning);
         bBack = true;
         break;
 
@@ -357,26 +357,26 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezVec3Tem
   }
 
   if (bFront)
-    return (ezPositionOnPlane::Front);
+    return (WPositionOnPlane::Front);
   if (bBack)
-    return (ezPositionOnPlane::Back);
+    return (WPositionOnPlane::Back);
 
-  return (ezPositionOnPlane::OnPlane);
+  return (WPositionOnPlane::OnPlane);
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance, ezVec3Template<Type>* out_pIntersection) const
+bool WPlaneTemplate<Type>::GetRayIntersection(const WVec3Template<Type>& vRayStartPos, const WVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance, WVec3Template<Type>* out_pIntersection) const
 {
-  EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
-  EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
+  W_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
+  W_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
 
-  if (ezMath::IsZero(fCosAlpha, (Type)0.00001))                 // ray is orthogonal to plane
+  if (WMath::IsZero(fCosAlpha, (Type)0.00001))                 // ray is orthogonal to plane
     return false;
 
-  if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane
+  if (WMath::Sign(fPlaneSide) == WMath::Sign(fCosAlpha)) // ray points away from the plane
     return false;
 
   const Type fTime = -fPlaneSide / fCosAlpha;
@@ -391,15 +391,15 @@ bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayS
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance, ezVec3Template<Type>* out_pIntersection) const
+bool WPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const WVec3Template<Type>& vRayStartPos, const WVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance, WVec3Template<Type>* out_pIntersection) const
 {
-  EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
-  EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
+  W_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
+  W_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
 
-  if (ezMath::IsZero(fCosAlpha, (Type)0.00001)) // ray is orthogonal to plane
+  if (WMath::IsZero(fCosAlpha, (Type)0.00001)) // ray is orthogonal to plane
     return false;
 
   const Type fTime = -fPlaneSide / fCosAlpha;
@@ -414,7 +414,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template
 }
 
 template <typename Type>
-bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_pHitFraction, ezVec3Template<Type>* out_pIntersection) const
+bool WPlaneTemplate<Type>::GetLineSegmentIntersection(const WVec3Template<Type>& vLineStartPos, const WVec3Template<Type>& vLineEndPos, Type* out_pHitFraction, WVec3Template<Type>* out_pIntersection) const
 {
   Type fTime = 0;
 
@@ -428,46 +428,46 @@ bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
+Type WPlaneTemplate<Type>::GetMinimumDistanceTo(const WVec3Template<Type>* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride /* = sizeof (WVec3Template<Type>) */) const
 {
-  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
-  EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
+  W_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  W_ASSERT_DEBUG(uiStride >= sizeof(WVec3Template<Type>), "Stride must be at least sizeof(WVec3Template) to not have overlapping data.");
+  W_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
-  Type fMinDist = ezMath::MaxValue<Type>();
+  Type fMinDist = WMath::MaxValue<Type>();
 
-  const ezVec3Template<Type>* pCurPoint = pPoints;
+  const WVec3Template<Type>* pCurPoint = pPoints;
 
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  for (WUInt32 i = 0; i < uiNumPoints; ++i)
   {
-    fMinDist = ezMath::Min(m_vNormal.Dot(*pCurPoint), fMinDist);
+    fMinDist = WMath::Min(m_vNormal.Dot(*pCurPoint), fMinDist);
 
-    pCurPoint = ezMemoryUtils::AddByteOffset(pCurPoint, uiStride);
+    pCurPoint = WMemoryUtils::AddByteOffset(pCurPoint, uiStride);
   }
 
   return fMinDist + m_fNegDistance;
 }
 
 template <typename Type>
-void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
+void WPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const WVec3Template<Type>* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride /* = sizeof (WVec3Template<Type>) */) const
 {
-  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
-  EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
+  W_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  W_ASSERT_DEBUG(uiStride >= sizeof(WVec3Template<Type>), "Stride must be at least sizeof(WVec3Template) to not have overlapping data.");
+  W_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
-  out_fMin = ezMath::MaxValue<Type>();
-  out_fMax = -ezMath::MaxValue<Type>();
+  out_fMin = WMath::MaxValue<Type>();
+  out_fMax = -WMath::MaxValue<Type>();
 
-  const ezVec3Template<Type>* pCurPoint = pPoints;
+  const WVec3Template<Type>* pCurPoint = pPoints;
 
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  for (WUInt32 i = 0; i < uiNumPoints; ++i)
   {
     const Type f = m_vNormal.Dot(*pCurPoint);
 
-    out_fMin = ezMath::Min(f, out_fMin);
-    out_fMax = ezMath::Max(f, out_fMax);
+    out_fMin = WMath::Min(f, out_fMin);
+    out_fMax = WMath::Max(f, out_fMax);
 
-    pCurPoint = ezMemoryUtils::AddByteOffset(pCurPoint, uiStride);
+    pCurPoint = WMemoryUtils::AddByteOffset(pCurPoint, uiStride);
   }
 
   out_fMin += m_fNegDistance;
@@ -475,20 +475,20 @@ void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, 
 }
 
 template <typename Type>
-ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(const ezPlaneTemplate& p0, const ezPlaneTemplate& p1, const ezPlaneTemplate& p2, ezVec3Template<Type>& out_vResult)
+WResult WPlaneTemplate<Type>::GetPlanesIntersectionPoint(const WPlaneTemplate& p0, const WPlaneTemplate& p1, const WPlaneTemplate& p2, WVec3Template<Type>& out_vResult)
 {
-  const ezVec3Template<Type> n1(p0.m_vNormal);
-  const ezVec3Template<Type> n2(p1.m_vNormal);
-  const ezVec3Template<Type> n3(p2.m_vNormal);
+  const WVec3Template<Type> n1(p0.m_vNormal);
+  const WVec3Template<Type> n2(p1.m_vNormal);
+  const WVec3Template<Type> n3(p2.m_vNormal);
 
   const Type det = n1.Dot(n2.CrossRH(n3));
 
-  if (ezMath::IsZero<Type>(det, ezMath::LargeEpsilon<Type>()))
-    return EZ_FAILURE;
+  if (WMath::IsZero<Type>(det, WMath::LargeEpsilon<Type>()))
+    return W_FAILURE;
 
   out_vResult = (-p0.m_fNegDistance * n2.CrossRH(n3) + -p1.m_fNegDistance * n3.CrossRH(n1) + -p2.m_fNegDistance * n1.CrossRH(n2)) / det;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>

@@ -4,20 +4,20 @@
 
 struct ID3D11Buffer;
 
-class ezGALReadbackBufferDX11 : public ezGALReadbackBuffer
+class WGALReadbackBufferDX11 : public WGALReadbackBuffer
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11Buffer* GetDXBuffer() const { return m_pDXBuffer; }
+  W_ALWAYS_INLINE ID3D11Buffer* GetDXBuffer() const { return m_pDXBuffer; }
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALReadbackBufferDX11(const ezGALBufferCreationDescription& Description);
-  ~ezGALReadbackBufferDX11();
+  WGALReadbackBufferDX11(const WGALBufferCreationDescription& Description);
+  ~WGALReadbackBufferDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:

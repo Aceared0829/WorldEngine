@@ -4,30 +4,30 @@
 #include <Foundation/Types/Variant.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class ezOpenDdlWriter;
-class ezOpenDdlReaderElement;
+class WOpenDdlWriter;
+class WOpenDdlReaderElement;
 
-class EZ_GAMEENGINE_DLL ezGameAppInputConfig
+class W_GAMEENGINE_DLL WGameAppInputConfig
 {
 public:
-  constexpr static ezUInt32 MaxInputSlotAlternatives = 3;
+  constexpr static WUInt32 MaxInputSlotAlternatives = 3;
 
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/InputConfig.ddl"_ezsv;
+  static constexpr const WStringView s_sConfigFile = ":project/RuntimeConfigs/InputConfig.ddl"_wsv;
 
-  ezGameAppInputConfig();
+  WGameAppInputConfig();
 
   void Apply() const;
-  void WriteToDDL(ezOpenDdlWriter& ref_writer) const;
-  void ReadFromDDL(const ezOpenDdlReaderElement* pAction);
+  void WriteToDDL(WOpenDdlWriter& ref_writer) const;
+  void ReadFromDDL(const WOpenDdlReaderElement* pAction);
 
-  static void ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void WriteToDDL(ezStreamWriter& inout_stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void ReadFromDDL(ezStreamReader& inout_stream, ezDynamicArray<ezGameAppInputConfig>& out_actions);
+  static void ApplyAll(const WArrayPtr<WGameAppInputConfig>& actions);
+  static void WriteToDDL(WStreamWriter& inout_stream, const WArrayPtr<WGameAppInputConfig>& actions);
+  static void ReadFromDDL(WStreamReader& inout_stream, WDynamicArray<WGameAppInputConfig>& out_actions);
 
-  ezString m_sInputSet;
-  ezString m_sInputAction;
+  WString m_sInputSet;
+  WString m_sInputAction;
 
-  ezString m_sInputSlotTrigger[MaxInputSlotAlternatives];
+  WString m_sInputSlotTrigger[MaxInputSlotAlternatives];
 
   float m_fInputSlotScale[MaxInputSlotAlternatives];
 

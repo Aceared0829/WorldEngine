@@ -4,53 +4,53 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/Resource.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBlendState : public ezGALObject<ezGALBlendStateCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALBlendState : public WGALObject<WGALBlendStateCreationDescription>
 {
 public:
 protected:
-  ezGALBlendState(const ezGALBlendStateCreationDescription& Description);
+  WGALBlendState(const WGALBlendStateCreationDescription& Description);
 
-  virtual ~ezGALBlendState();
+  virtual ~WGALBlendState();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALDepthStencilState : public ezGALObject<ezGALDepthStencilStateCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALDepthStencilState : public WGALObject<WGALDepthStencilStateCreationDescription>
 {
 public:
 protected:
-  ezGALDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description);
+  WGALDepthStencilState(const WGALDepthStencilStateCreationDescription& Description);
 
-  virtual ~ezGALDepthStencilState();
+  virtual ~WGALDepthStencilState();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALRasterizerState : public ezGALObject<ezGALRasterizerStateCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALRasterizerState : public WGALObject<WGALRasterizerStateCreationDescription>
 {
 public:
 protected:
-  ezGALRasterizerState(const ezGALRasterizerStateCreationDescription& Description);
+  WGALRasterizerState(const WGALRasterizerStateCreationDescription& Description);
 
-  virtual ~ezGALRasterizerState();
+  virtual ~WGALRasterizerState();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALSamplerState : public ezGALResource<ezGALSamplerStateCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALSamplerState : public WGALResource<WGALSamplerStateCreationDescription>
 {
 public:
 protected:
-  ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description);
+  WGALSamplerState(const WGALSamplerStateCreationDescription& Description);
 
-  virtual ~ezGALSamplerState();
+  virtual ~WGALSamplerState();
 
-  virtual void SetDebugNamePlatform(const char* szName) const override { EZ_IGNORE_UNUSED(szName); };
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual void SetDebugNamePlatform(const char* szName) const override { W_IGNORE_UNUSED(szName); };
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 };

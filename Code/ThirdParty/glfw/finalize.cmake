@@ -1,6 +1,6 @@
 if(TARGET glfw)
-    ez_set_build_flags(glfw)
-    ez_set_default_target_output_dirs(glfw)
+    W_set_build_flags(glfw)
+    W_set_default_target_output_dirs(glfw)
 
     mark_as_advanced(FORCE GLFW_BUILD_SHARED_LIBS)
     mark_as_advanced(FORCE GLFW_BUILD_EXAMPLES)
@@ -12,8 +12,8 @@ if(TARGET glfw)
 
     set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" glfw)
     
-    ez_set_project_ide_folder(glfw "Code/ThirdParty/GLFW")
-    ez_set_project_ide_folder(update_mappings "Code/ThirdParty/GLFW")
+    W_set_project_ide_folder(glfw "Code/ThirdParty/GLFW")
+    W_set_project_ide_folder(update_mappings "Code/ThirdParty/GLFW")
     
     mark_as_advanced(FORCE GLFW_USE_HYBRID_HPG)
     mark_as_advanced(FORCE USE_MSVC_RUNTIME_LIBRARY_DLL)

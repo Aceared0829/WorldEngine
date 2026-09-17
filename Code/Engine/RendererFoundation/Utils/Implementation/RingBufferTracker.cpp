@@ -2,32 +2,32 @@
 
 #include <RendererFoundation/Utils/RingBufferTracker.h>
 
-ezRingBufferTracker::ezRingBufferTracker(ezUInt32 uiAlignment, ezUInt32 uiTotalSize)
+WRingBufferTracker::WRingBufferTracker(WUInt32 uiAlignment, WUInt32 uiTotalSize)
   : m_uiAlignment(uiAlignment)
   , m_uiTotalSize(uiTotalSize)
   , m_uiFree(uiTotalSize)
 {
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
+  W_ASSERT_DEBUG(WMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
 }
 
-ezResult ezRingBufferTracker::CanAllocate(ezUInt32 uiSize) const
+WResult WRingBufferTracker::CanAllocate(WUInt32 uiSize) const
 {
-  uiSize = ezMemoryUtils::AlignSize(uiSize, m_uiAlignment);
+  uiSize = WMemoryUtils::AlignSize(uiSize, m_uiAlignment);
   if (m_uiFree < uiSize)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (m_uiCurrentOffset + uiSize > m_uiTotalSize)
   {
-    const ezUInt32 uiSkip = m_uiTotalSize - m_uiCurrentOffset;
+    const WUInt32 uiSkip = m_uiTotalSize - m_uiCurrentOffset;
     if (m_uiFree - uiSkip < uiSize)
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRingBufferTracker::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiAllocatedOffset)
+WResult WRingBufferTracker::Allocate(WUInt32 uiSize, WUInt64 uiCurrentFrame, WUInt32& out_uiAllocatedOffset)
 {
-  uiSize = ezMemoryUtils::AlignSize(uiSize, m_uiAlignment);
+  uiSize = WMemoryUtils::AlignSize(uiSize, m_uiAlignment);
 
   FrameData* pData = nullptr;
   // New frame data blocks need to be created in these cases:
@@ -47,13 +47,13 @@ ezResult ezRingBufferTracker::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame,
   }
 
   if (m_uiFree < uiSize)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (m_uiCurrentOffset + uiSize > m_uiTotalSize)
   {
-    const ezUInt32 uiSkip = m_uiTotalSize - m_uiCurrentOffset;
+    const WUInt32 uiSkip = m_uiTotalSize - m_uiCurrentOffset;
     if (m_uiFree - uiSkip < uiSize)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pData->m_uiSize += uiSkip;
     m_uiFree -= uiSkip;
@@ -68,10 +68,10 @@ ezResult ezRingBufferTracker::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame,
   m_uiFree -= uiSize;
   m_uiCurrentOffset = (m_uiCurrentOffset + uiSize) % m_uiTotalSize;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRingBufferTracker::Free(ezUInt64 uiUpToFrame)
+void WRingBufferTracker::Free(WUInt64 uiUpToFrame)
 {
   while (!m_FrameData.IsEmpty() && (m_FrameData[0].m_uiFrame & ~s_FrameDataSubmitted) <= uiUpToFrame)
   {
@@ -80,10 +80,10 @@ void ezRingBufferTracker::Free(ezUInt64 uiUpToFrame)
   }
 }
 
-ezResult ezRingBufferTracker::SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_frameData)
+WResult WRingBufferTracker::SubmitFrame(WUInt64 uiFrame, WDynamicArray<FrameData>& out_frameData)
 {
   out_frameData.Clear();
-  for (ezUInt32 i = 0; i < m_FrameData.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_FrameData.GetCount(); i++)
   {
     if (m_FrameData[i].m_uiFrame == uiFrame)
     {
@@ -92,5 +92,5 @@ ezResult ezRingBufferTracker::SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<Frame
       m_FrameData[i].m_uiFrame |= s_FrameDataSubmitted;
     }
   }
-  return out_frameData.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
+  return out_frameData.IsEmpty() ? W_FAILURE : W_SUCCESS;
 }

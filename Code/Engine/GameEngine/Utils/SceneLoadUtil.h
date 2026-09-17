@@ -8,25 +8,25 @@
 #include <Foundation/Utilities/Progress.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
+using WCollectionResourceHandle = WTypedResourceHandle<class WCollectionResource>;
 
 /// This class allows to load a scene in the background and switch to it, once loading has finished.
-class EZ_GAMEENGINE_DLL ezSceneLoadUtility
+class W_GAMEENGINE_DLL WSceneLoadUtility
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSceneLoadUtility);
+  W_DISALLOW_COPY_AND_ASSIGN(WSceneLoadUtility);
 
 public:
-  ezSceneLoadUtility();
-  ~ezSceneLoadUtility();
+  WSceneLoadUtility();
+  ~WSceneLoadUtility();
 
   /// Redirects a scene path to the actual binary scene file, if necessary.
-  static ezStatus FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile);
+  static WStatus FindRedirectedSceneFile(WStringBuilder& ref_sFinalPath, WStringView sSceneFile);
 
   /// Loads a scene immediately into the given target world.
   ///
   /// Doesn't clear the world beforehand.
   /// Does call FindRedirectedSceneFile() on the scene path first.
-  static ezStatus LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile);
+  static WStatus LoadSceneImmediate(WWorld& inout_targetWorld, WStringView sSceneFile);
 
   enum class LoadingState
   {
@@ -44,13 +44,13 @@ public:
   float GetLoadingProgress() const { return m_fLoadingProgress; }
 
   /// In case loading failed, this returns what went wrong.
-  ezStringView GetLoadingFailureReason() const { return m_sFailureReason; }
+  WStringView GetLoadingFailureReason() const { return m_sFailureReason; }
 
   /// Starts loading a scene. If provided, the assets in the collection are loaded first and then the scene is instantiated.
   ///
   /// Using a collection will make loading in the background much smoother. Without it, most assets will be loaded once the scene gets updated
   /// for the first time, resulting in very long delays.
-  void StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollectionFile);
+  void StartSceneLoading(WStringView sSceneFile, WStringView sPreloadCollectionFile);
 
   /// This has to be called periodically (usually once per frame) to progress the scene loading.
   ///
@@ -59,28 +59,28 @@ public:
 
   /// Once loading is finished successfully, call this to take ownership of the loaded scene.
   ///
-  /// Afterwards there is no point in keeping the ezSceneLoadUtility around anymore and it should be deleted.
-  ezUniquePtr<ezWorld> RetrieveLoadedScene();
+  /// Afterwards there is no point in keeping the WSceneLoadUtility around anymore and it should be deleted.
+  WUniquePtr<WWorld> RetrieveLoadedScene();
 
   /// Returns the path to the scene file as it was originally requested.
-  ezStringView GetRequestedScene() const { return m_sRequestedFile; }
+  WStringView GetRequestedScene() const { return m_sRequestedFile; }
 
   /// Returns the path to the scene file after it was redirected.
-  ezStringView GetRedirectedScene() const { return m_sRedirectedFile; }
+  WStringView GetRedirectedScene() const { return m_sRedirectedFile; }
 
 private:
-  void LoadingFailed(const ezFormatString& reason);
+  void LoadingFailed(const WFormatString& reason);
 
   LoadingState m_LoadingState = LoadingState::NotStarted;
   float m_fLoadingProgress = 0.0f;
-  ezString m_sFailureReason;
+  WString m_sFailureReason;
 
-  ezString m_sRequestedFile;
-  ezString m_sRedirectedFile;
-  ezCollectionResourceHandle m_hPreloadCollection;
-  ezFileReader m_FileReader;
-  ezWorldReader m_WorldReader;
-  ezUniquePtr<ezWorld> m_pWorld;
-  ezUniquePtr<ezWorldReader::InstantiationContextBase> m_pInstantiationContext;
-  ezProgress m_InstantiationProgress;
+  WString m_sRequestedFile;
+  WString m_sRedirectedFile;
+  WCollectionResourceHandle m_hPreloadCollection;
+  WFileReader m_FileReader;
+  WWorldReader m_WorldReader;
+  WUniquePtr<WWorld> m_pWorld;
+  WUniquePtr<WWorldReader::InstantiationContextBase> m_pInstantiationContext;
+  WProgress m_InstantiationProgress;
 };

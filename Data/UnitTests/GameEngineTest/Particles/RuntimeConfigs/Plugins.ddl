@@ -1,10 +1,10 @@
 Plugin
 {
-	string %Path{"ezJoltPlugin"}
+	string %Path{"WJoltPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"WParticlePlugin"}
 	bool %LoadCopy{false}
 }

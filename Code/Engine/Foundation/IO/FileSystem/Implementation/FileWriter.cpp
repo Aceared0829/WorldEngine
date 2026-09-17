@@ -2,23 +2,23 @@
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-ezResult ezFileWriter::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 1024*/, ezFileShareMode::Enum fileShareMode /*= ezFileShareMode::Exclusive*/, bool bAllowFileEvents /*= true*/)
+WResult WFileWriter::Open(WStringView sFile, WUInt32 uiCacheSize /*= 1024 * 1024*/, WFileShareMode::Enum fileShareMode /*= WFileShareMode::Exclusive*/, bool bAllowFileEvents /*= true*/)
 {
-  uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
+  uiCacheSize = WMath::Clamp<WUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 
   m_pDataDirWriter = GetFileWriter(sFile, fileShareMode, bAllowFileEvents);
 
   if (!m_pDataDirWriter)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Cache.SetCountUninitialized(uiCacheSize);
 
   m_uiCacheWritePosition = 0;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezFileWriter::Close()
+void WFileWriter::Close()
 {
   if (!m_pDataDirWriter)
     return;
@@ -29,17 +29,17 @@ void ezFileWriter::Close()
   m_pDataDirWriter = nullptr;
 }
 
-ezResult ezFileWriter::Flush()
+WResult WFileWriter::Flush()
 {
-  const ezResult res = m_pDataDirWriter->Write(&m_Cache[0], m_uiCacheWritePosition);
+  const WResult res = m_pDataDirWriter->Write(&m_Cache[0], m_uiCacheWritePosition);
   m_uiCacheWritePosition = 0;
 
   return res;
 }
 
-ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WFileWriter::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT_DEV(m_pDataDirWriter != nullptr, "The file has not been opened (successfully).");
+  W_ASSERT_DEV(m_pDataDirWriter != nullptr, "The file has not been opened (successfully).");
 
   if (uiBytesToWrite > m_Cache.GetCount())
   {
@@ -48,27 +48,27 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 
     if (m_uiCacheWritePosition > 0)
     {
-      EZ_SUCCEED_OR_RETURN(Flush());
+      W_SUCCEED_OR_RETURN(Flush());
     }
 
     return m_pDataDirWriter->Write(pWriteBuffer, uiBytesToWrite);
   }
   else
   {
-    ezUInt8* pBuffer = (ezUInt8*)pWriteBuffer;
+    WUInt8* pBuffer = (WUInt8*)pWriteBuffer;
 
     while (uiBytesToWrite > 0)
     {
       // determine chunk size to be written
-      ezUInt64 uiChunkSize = uiBytesToWrite;
+      WUInt64 uiChunkSize = uiBytesToWrite;
 
-      const ezUInt64 uiRemainingCache = m_Cache.GetCount() - m_uiCacheWritePosition;
+      const WUInt64 uiRemainingCache = m_Cache.GetCount() - m_uiCacheWritePosition;
 
       if (uiRemainingCache < uiBytesToWrite)
         uiChunkSize = uiRemainingCache;
 
       // copy memory
-      ezMemoryUtils::Copy(&m_Cache[(ezUInt32)m_uiCacheWritePosition], pBuffer, (ezUInt32)uiChunkSize);
+      WMemoryUtils::Copy(&m_Cache[(WUInt32)m_uiCacheWritePosition], pBuffer, (WUInt32)uiChunkSize);
 
       pBuffer += uiChunkSize;
       m_uiCacheWritePosition += uiChunkSize;
@@ -77,11 +77,11 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
       // if the cache is full or nearly full, flush it to disk
       if (m_uiCacheWritePosition + 32 >= m_Cache.GetCount())
       {
-        if (Flush() == EZ_FAILURE)
-          return EZ_FAILURE;
+        if (Flush() == W_FAILURE)
+          return W_FAILURE;
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }

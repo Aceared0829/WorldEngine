@@ -11,30 +11,30 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSplineComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WProcVolumeSplineComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSplineChanged, OnMsgSplineChanged),
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnMsgUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnMsgExtractVolumes),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSplineChanged, OnMsgSplineChanged),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnMsgUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractVolumes, OnMsgExtractVolumes),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezProcVolumeSplineComponent::ezProcVolumeSplineComponent() = default;
-ezProcVolumeSplineComponent::~ezProcVolumeSplineComponent() = default;
+WProcVolumeSplineComponent::WProcVolumeSplineComponent() = default;
+WProcVolumeSplineComponent::~WProcVolumeSplineComponent() = default;
 
-void ezProcVolumeSplineComponent::SetRadius(float fRadius)
+void WProcVolumeSplineComponent::SetRadius(float fRadius)
 {
   if (m_fRadius != fRadius)
   {
@@ -51,7 +51,7 @@ void ezProcVolumeSplineComponent::SetRadius(float fRadius)
   }
 }
 
-void ezProcVolumeSplineComponent::SetFalloff(float fFalloff)
+void WProcVolumeSplineComponent::SetFalloff(float fFalloff)
 {
   if (m_fFalloff != fFalloff)
   {
@@ -61,30 +61,30 @@ void ezProcVolumeSplineComponent::SetFalloff(float fFalloff)
   }
 }
 
-void ezProcVolumeSplineComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProcVolumeSplineComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFalloff;
 }
 
-void ezProcVolumeSplineComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProcVolumeSplineComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
 }
 
-void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
+void WProcVolumeSplineComponent::OnMsgSplineChanged(WMsgSplineChanged& ref_msg)
 {
   // An invalid change counter indicates that this msg came from a spline node before the actual spline has been updated. Ignore that here.
-  if (ref_msg.m_uiChangeCounter == ezInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
+  if (ref_msg.m_uiChangeCounter == WInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
     return;
 
   m_uiLastChangeCounter = ref_msg.m_uiChangeCounter;
@@ -96,25 +96,25 @@ void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg
   m_DebugLines.Clear();
 }
 
-void ezProcVolumeSplineComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WProcVolumeSplineComponent::OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  const WSplineComponent* pSplineComponent = GetSplineComponent();
   if (pSplineComponent == nullptr)
     return;
 
-  ezSimdBBoxSphere bounds;
+  WSimdBBoxSphere bounds;
   if (pSplineComponent->GetSpline().CalculateBounds(bounds).Failed())
     return;
 
-  bounds.m_BoxHalfExtents += ezSimdVec4f(m_fRadius);
-  bounds.m_CenterAndRadius.SetW(bounds.m_CenterAndRadius.w() + ezSimdFloat(m_fRadius));
+  bounds.m_BoxHalfExtents += WSimdVec4f(m_fRadius);
+  bounds.m_CenterAndRadius.SetW(bounds.m_CenterAndRadius.w() + WSimdFloat(m_fRadius));
 
-  ref_msg.AddBounds(ezSimdConversion::ToBBoxSphere(bounds), s_SpatialCategory);
+  ref_msg.AddBounds(WSimdConversion::ToBBoxSphere(bounds), s_SpatialCategory);
 }
 
-void ezProcVolumeSplineComponent::OnMsgExtractVolumes(ezMsgExtractVolumes& ref_msg) const
+void WProcVolumeSplineComponent::OnMsgExtractVolumes(WMsgExtractVolumes& ref_msg) const
 {
-  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  const WSplineComponent* pSplineComponent = GetSplineComponent();
   if (pSplineComponent == nullptr)
     return;
 
@@ -124,12 +124,12 @@ void ezProcVolumeSplineComponent::OnMsgExtractVolumes(ezMsgExtractVolumes& ref_m
   ref_msg.m_pCollection->AddSpline(GetOwner()->GetGlobalTransformSimd(), pSplineComponent->GetSpline(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFalloff);
 }
 
-void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const
+void WProcVolumeSplineComponent::OnMsgExtractRenderData(WMsgExtractRenderData& ref_msg) const
 {
-  if (ref_msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
+  if (ref_msg.m_OverrideCategory != WDefaultRenderDataCategories::Selection)
     return;
 
-  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  const WSplineComponent* pSplineComponent = GetSplineComponent();
   if (pSplineComponent == nullptr)
     return;
 
@@ -139,70 +139,70 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
   if (m_DebugLines.IsEmpty())
   {
-    constexpr ezUInt32 uiSteps = 8;
-    constexpr ezUInt32 uiRingSteps = 16;
-    constexpr ezAngle ringStepAngle = ezAngle::MakeFromDegree(360.0f / (float)uiRingSteps);
-    const ezUInt32 uiNumSegments = spline.GetNumSegments();
+    constexpr WUInt32 uiSteps = 8;
+    constexpr WUInt32 uiRingSteps = 16;
+    constexpr WAngle ringStepAngle = WAngle::MakeFromDegree(360.0f / (float)uiRingSteps);
+    const WUInt32 uiNumSegments = spline.GetNumSegments();
 
-    const ezUInt32 uiNumRings = uiNumSegments * 2 + (spline.m_bClosed ? 0 : 3);
-    const ezUInt32 uiNumLines = uiNumSegments * uiSteps * 4 + uiNumRings * uiRingSteps;
+    const WUInt32 uiNumRings = uiNumSegments * 2 + (spline.m_bClosed ? 0 : 3);
+    const WUInt32 uiNumLines = uiNumSegments * uiSteps * 4 + uiNumRings * uiRingSteps;
     m_DebugLines.Reserve(uiNumLines);
 
-    auto AddRing = [&](const ezSimdTransform& t, ezBasisAxis::Enum rightAxis, ezBasisAxis::Enum upAxis, ezUInt32 uiNumSteps)
+    auto AddRing = [&](const WSimdTransform& t, WBasisAxis::Enum rightAxis, WBasisAxis::Enum upAxis, WUInt32 uiNumSteps)
     {
-      const ezSimdVec4f vRight = ezSimdConversion::ToVec3(ezBasisAxis::GetBasisVector(rightAxis)) * m_fRadius;
-      const ezSimdVec4f vUp = ezSimdConversion::ToVec3(ezBasisAxis::GetBasisVector(upAxis)) * m_fRadius;
+      const WSimdVec4f vRight = WSimdConversion::ToVec3(WBasisAxis::GetBasisVector(rightAxis)) * m_fRadius;
+      const WSimdVec4f vUp = WSimdConversion::ToVec3(WBasisAxis::GetBasisVector(upAxis)) * m_fRadius;
 
-      for (ezUInt32 s = 0; s < uiNumSteps; ++s)
+      for (WUInt32 s = 0; s < uiNumSteps; ++s)
       {
         const float fS1 = static_cast<float>(s);
         const float fS2 = static_cast<float>(s + 1);
 
-        const float fCos1 = ezMath::Cos(fS1 * ringStepAngle);
-        const float fCos2 = ezMath::Cos(fS2 * ringStepAngle);
+        const float fCos1 = WMath::Cos(fS1 * ringStepAngle);
+        const float fCos2 = WMath::Cos(fS2 * ringStepAngle);
 
-        const float fSin1 = ezMath::Sin(fS1 * ringStepAngle);
-        const float fSin2 = ezMath::Sin(fS2 * ringStepAngle);
+        const float fSin1 = WMath::Sin(fS1 * ringStepAngle);
+        const float fSin2 = WMath::Sin(fS2 * ringStepAngle);
 
         auto& line = m_DebugLines.ExpandAndGetRef();
-        line.m_start = ezSimdConversion::ToVec3(t.TransformPosition(vRight * fSin1 + vUp * fCos1));
-        line.m_end = ezSimdConversion::ToVec3(t.TransformPosition(vRight * fSin2 + vUp * fCos2));
+        line.m_start = WSimdConversion::ToVec3(t.TransformPosition(vRight * fSin1 + vUp * fCos1));
+        line.m_end = WSimdConversion::ToVec3(t.TransformPosition(vRight * fSin2 + vUp * fCos2));
       }
     };
 
-    const ezSimdVec4f vOffsets[] = {
-      ezSimdVec4f(0, m_fRadius, 0),
-      ezSimdVec4f(0, -m_fRadius, 0),
-      ezSimdVec4f(0, 0, m_fRadius),
-      ezSimdVec4f(0, 0, -m_fRadius),
+    const WSimdVec4f vOffsets[] = {
+      WSimdVec4f(0, m_fRadius, 0),
+      WSimdVec4f(0, -m_fRadius, 0),
+      WSimdVec4f(0, 0, m_fRadius),
+      WSimdVec4f(0, 0, -m_fRadius),
     };
 
     const float fStep = 1.0f / static_cast<float>(uiSteps);
-    for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+    for (WUInt32 i = 0; i < uiNumSegments; ++i)
     {
-      ezSimdTransform t0 = spline.EvaluateTransform(static_cast<float>(i));
+      WSimdTransform t0 = spline.EvaluateTransform(static_cast<float>(i));
 
-      AddRing(t0, ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ, uiRingSteps);
+      AddRing(t0, WBasisAxis::PositiveY, WBasisAxis::PositiveZ, uiRingSteps);
       if (i == 0 && !spline.m_bClosed)
       {
-        AddRing(t0, ezBasisAxis::NegativeX, ezBasisAxis::PositiveY, uiRingSteps / 2);
-        AddRing(t0, ezBasisAxis::NegativeX, ezBasisAxis::PositiveZ, uiRingSteps / 2);
+        AddRing(t0, WBasisAxis::NegativeX, WBasisAxis::PositiveY, uiRingSteps / 2);
+        AddRing(t0, WBasisAxis::NegativeX, WBasisAxis::PositiveZ, uiRingSteps / 2);
       }
 
-      for (ezUInt32 uiStep = 1; uiStep <= uiSteps; ++uiStep)
+      for (WUInt32 uiStep = 1; uiStep <= uiSteps; ++uiStep)
       {
         const float fT = fStep * static_cast<float>(uiStep);
-        const ezSimdTransform t1 = spline.EvaluateTransform(fT + i);
+        const WSimdTransform t1 = spline.EvaluateTransform(fT + i);
         for (const auto& offset : vOffsets)
         {
           auto& line = m_DebugLines.ExpandAndGetRef();
-          line.m_start = ezSimdConversion::ToVec3(t0.TransformPosition(offset));
-          line.m_end = ezSimdConversion::ToVec3(t1.TransformPosition(offset));
+          line.m_start = WSimdConversion::ToVec3(t0.TransformPosition(offset));
+          line.m_end = WSimdConversion::ToVec3(t1.TransformPosition(offset));
         }
 
         if (uiStep == uiSteps / 2)
         {
-          AddRing(t1, ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ, uiRingSteps);
+          AddRing(t1, WBasisAxis::PositiveY, WBasisAxis::PositiveZ, uiRingSteps);
         }
 
         t0 = t1;
@@ -210,25 +210,25 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
       if (i == uiNumSegments - 1 && !spline.m_bClosed)
       {
-        AddRing(t0, ezBasisAxis::PositiveX, ezBasisAxis::PositiveY, uiRingSteps / 2);
-        AddRing(t0, ezBasisAxis::PositiveX, ezBasisAxis::PositiveZ, uiRingSteps / 2);
-        AddRing(t0, ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ, uiRingSteps);
+        AddRing(t0, WBasisAxis::PositiveX, WBasisAxis::PositiveY, uiRingSteps / 2);
+        AddRing(t0, WBasisAxis::PositiveX, WBasisAxis::PositiveZ, uiRingSteps / 2);
+        AddRing(t0, WBasisAxis::PositiveY, WBasisAxis::PositiveZ, uiRingSteps);
       }
     }
 
-    EZ_ASSERT_DEBUG(m_DebugLines.GetCount() == uiNumLines, "Implementation error");
+    W_ASSERT_DEBUG(m_DebugLines.GetCount() == uiNumLines, "Implementation error");
   }
 
-  ezColor c = ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon);
-  ezDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, GetOwner()->GetGlobalTransform());
+  WColor c = WColorScheme::GetCategoryColor("Construction", WColorScheme::CategoryColorUsage::ViewportIcon);
+  WDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, GetOwner()->GetGlobalTransform());
 }
 
-const ezSplineComponent* ezProcVolumeSplineComponent::GetSplineComponent() const
+const WSplineComponent* WProcVolumeSplineComponent::GetSplineComponent() const
 {
-  const ezGameObject* pObject = GetOwner();
+  const WGameObject* pObject = GetOwner();
   while (pObject != nullptr)
   {
-    const ezSplineComponent* pSplineComponent = nullptr;
+    const WSplineComponent* pSplineComponent = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSplineComponent))
     {
       return pSplineComponent;
@@ -240,4 +240,4 @@ const ezSplineComponent* ezProcVolumeSplineComponent::GetSplineComponent() const
 }
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeSplineComponent);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeSplineComponent);

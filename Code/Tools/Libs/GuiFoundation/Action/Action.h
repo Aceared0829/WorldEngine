@@ -12,47 +12,47 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 class QWidget;
-struct ezActionDescriptor;
-class ezAction;
-struct ezActionContext;
+struct WActionDescriptor;
+class WAction;
+struct WActionContext;
 
-using ezActionId = ezGenericId<24, 8>;
+using WActionId = WGenericId<24, 8>;
 
-/// Creates an instance of an action for the given context. See ezActionDescriptor::CreateAction().
-using CreateActionFunc = ezAction* (*)(const ezActionContext&);
+/// Creates an instance of an action for the given context. See WActionDescriptor::CreateAction().
+using CreateActionFunc = WAction* (*)(const WActionContext&);
 /// Destroys an instance created by a CreateActionFunc. If none is given, the action is deleted with the default allocator.
-using DeleteActionFunc = void (*)(ezAction*);
+using DeleteActionFunc = void (*)(WAction*);
 
-/// Handle for a ezActionDescriptor.
+/// Handle for a WActionDescriptor.
 ///
-/// ezAction can be invalidated at runtime so don't store them.
-class EZ_GUIFOUNDATION_DLL ezActionDescriptorHandle
+/// WAction can be invalidated at runtime so don't store them.
+class W_GUIFOUNDATION_DLL WActionDescriptorHandle
 {
 public:
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
-  EZ_DECLARE_HANDLE_TYPE(ezActionDescriptorHandle, ezActionId);
-  friend class ezActionManager;
+  W_DECLARE_HANDLE_TYPE(WActionDescriptorHandle, WActionId);
+  friend class WActionManager;
 
 public:
-  const ezActionDescriptor* GetDescriptor() const;
+  const WActionDescriptor* GetDescriptor() const;
 };
 
 /// Determines the range in which an action's shortcut is active and which contexts it needs.
-struct ezActionScope
+struct WActionScope
 {
   enum Enum
   {
     Global,   ///< Available application wide, independent of any document or window.
-    Document, ///< Requires ezActionContext::m_pDocument. Its shortcut is only active while that document's window has focus.
-    Window,   ///< Requires ezActionContext::m_pWindow. Its shortcut is only active within that window.
+    Document, ///< Requires WActionContext::m_pDocument. Its shortcut is only active while that document's window has focus.
+    Window,   ///< Requires WActionContext::m_pWindow. Its shortcut is only active within that window.
     Default = Global
   };
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
 /// What kind of UI element an action maps to when a menu, menu bar or toolbar is built from an action map.
-struct ezActionType
+struct WActionType
 {
   enum Enum
   {
@@ -62,53 +62,53 @@ struct ezActionType
     ActionAndMenu, ///< Can both be executed and opened as a sub-menu, e.g. a toolbar button with an attached drop-down.
     Default = Action
   };
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
 /// The environment that an action instance operates on.
 ///
-/// Which members have to be filled out depends on the ezActionScope of the action.
-struct EZ_GUIFOUNDATION_DLL ezActionContext
+/// Which members have to be filled out depends on the WActionScope of the action.
+struct W_GUIFOUNDATION_DLL WActionContext
 {
-  ezActionContext() = default;
-  ezActionContext(ezDocument* pDoc) { m_pDocument = pDoc; }
+  WActionContext() = default;
+  WActionContext(WDocument* pDoc) { m_pDocument = pDoc; }
 
-  ezDocument* m_pDocument = nullptr; ///< The document that the action shall affect. Required for ezActionScope::Document.
-  ezString m_sMapping;               ///< Name of the ezActionMap from which the UI element was built.
-  QWidget* m_pWindow = nullptr;      ///< The widget that the action belongs to. Required for ezActionScope::Window.
+  WDocument* m_pDocument = nullptr; ///< The document that the action shall affect. Required for WActionScope::Document.
+  WString m_sMapping;               ///< Name of the WActionMap from which the UI element was built.
+  QWidget* m_pWindow = nullptr;      ///< The widget that the action belongs to. Required for WActionScope::Window.
 };
 
 
 /// Describes a type of action, from which any number of action instances can be created.
 ///
-/// Descriptors are registered once (see ezActionManager and the EZ_REGISTER_ACTION macros) and hold everything
+/// Descriptors are registered once (see WActionManager and the W_REGISTER_ACTION macros) and hold everything
 /// that is shared between all instances, such as the name and the configured shortcut. Refer to them through
-/// ezActionDescriptorHandle rather than by pointer.
-struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
+/// WActionDescriptorHandle rather than by pointer.
+struct W_GUIFOUNDATION_DLL WActionDescriptor
 {
-  ezActionDescriptor() = default;
+  WActionDescriptor() = default;
   ;
-  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
+  WActionDescriptor(WActionType::Enum type, WActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 
-  ezActionDescriptorHandle m_Handle; ///< Set by ezActionManager during registration.
-  ezEnum<ezActionType> m_Type;
+  WActionDescriptorHandle m_Handle; ///< Set by WActionManager during registration.
+  WEnum<WActionType> m_Type;
 
-  ezEnum<ezActionScope> m_Scope;
-  ezString m_sActionName;   ///< Unique within category path, shown in key configuration dialog
-  ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
+  WEnum<WActionScope> m_Scope;
+  WString m_sActionName;   ///< Unique within category path, shown in key configuration dialog
+  WString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
 
-  ezString m_sShortcut;     ///< The currently configured shortcut. May be modified by the user, empty means no shortcut.
-  ezString m_sDefaultShortcut; ///< The shortcut that the action was registered with, used to reset m_sShortcut.
+  WString m_sShortcut;     ///< The currently configured shortcut. May be modified by the user, empty means no shortcut.
+  WString m_sDefaultShortcut; ///< The shortcut that the action was registered with, used to reset m_sShortcut.
 
   /// Creates an action instance for the given context and adds it to GetCreatedActions().
   ///
   /// The result must be destroyed through DeleteAction(), not deleted directly. Usually only called by the
   /// view classes that build menus and toolbars from an action map.
-  ezAction* CreateAction(const ezActionContext& context) const;
+  WAction* CreateAction(const WActionContext& context) const;
 
   /// Destroys an instance that was returned by CreateAction().
-  void DeleteAction(ezAction* pAction) const;
+  void DeleteAction(WAction* pAction) const;
 
   /// Makes all existing instances broadcast their status update event, e.g. after the shortcut was reconfigured.
   void UpdateExistingActions();
@@ -117,36 +117,36 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ///
   /// One descriptor can have any number of live instances, because the same action may be mapped into
   /// several windows, menus and toolbars at once, each with its own context. State such as
-  /// ezButtonAction::IsEnabled() lives on these instances, not on the descriptor, so this is the only
+  /// WButtonAction::IsEnabled() lives on these instances, not on the descriptor, so this is the only
   /// way to observe an action's current state without creating an instance.
-  ezArrayPtr<ezAction* const> GetCreatedActions() const { return m_CreatedActions; }
+  WArrayPtr<WAction* const> GetCreatedActions() const { return m_CreatedActions; }
 
 private:
   CreateActionFunc m_CreateAction;
   DeleteActionFunc m_DeleteAction;
 
-  mutable ezHybridArray<ezAction*, 4> m_CreatedActions;
+  mutable WHybridArray<WAction*, 4> m_CreatedActions;
 };
 
 
 
 /// Base class for all actions, meaning commands that can be triggered through menus, toolbars or shortcuts.
 ///
-/// An instance is always tied to one ezActionContext and is created through its ezActionDescriptor.
-/// Derived classes are typically not instantiated directly, see ezButtonAction, ezCategoryAction, ezMenuAction and others.
-class EZ_GUIFOUNDATION_DLL ezAction : public ezReflectedClass
+/// An instance is always tied to one WActionContext and is created through its WActionDescriptor.
+/// Derived classes are typically not instantiated directly, see WButtonAction, WCategoryAction, WMenuAction and others.
+class W_GUIFOUNDATION_DLL WAction : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAction, ezReflectedClass);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAction);
+  W_ADD_DYNAMIC_REFLECTION(WAction, WReflectedClass);
+  W_DISALLOW_COPY_AND_ASSIGN(WAction);
 
 public:
-  ezAction(const ezActionContext& context) { m_Context = context; }
+  WAction(const WActionContext& context) { m_Context = context; }
 
   /// Performs whatever the action does.
   ///
   /// The meaning of the value depends on the concrete action, for buttons it is typically the new checked state,
   /// for others it is an invalid variant.
-  virtual void Execute(const ezVariant& value) = 0;
+  virtual void Execute(const WVariant& value) = 0;
 
   /// Recomputes the action's enabled/visible state.
   ///
@@ -158,16 +158,16 @@ public:
   /// Broadcasts m_StatusUpdateEvent, so that the UI element displaying this action updates itself.
   void TriggerUpdate();
 
-  const ezActionContext& GetContext() const { return m_Context; }
-  ezActionDescriptorHandle GetDescriptorHandle() { return m_hDescriptorHandle; }
+  const WActionContext& GetContext() const { return m_Context; }
+  WActionDescriptorHandle GetDescriptorHandle() { return m_hDescriptorHandle; }
 
 public:
-  ezEvent<ezAction*> m_StatusUpdateEvent; ///< Fire when the state of the action changes (enabled, value etc...)
+  WEvent<WAction*> m_StatusUpdateEvent; ///< Fire when the state of the action changes (enabled, value etc...)
 
 protected:
-  ezActionContext m_Context;
+  WActionContext m_Context;
 
 private:
-  friend struct ezActionDescriptor;
-  ezActionDescriptorHandle m_hDescriptorHandle;
+  friend struct WActionDescriptor;
+  WActionDescriptorHandle m_hDescriptorHandle;
 };

@@ -3,8 +3,8 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 
-ezQtDocumentPanel::ezQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezDocument* pDocument)
-  : ads::CDockWidget(pDockManager, "ezQtDocumentPanel", pParent)
+WQtDocumentPanel::WQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* pParent, WDocument* pDocument)
+  : ads::CDockWidget(pDockManager, "WQtDocumentPanel", pParent)
 {
   m_pDocument = pDocument;
 
@@ -17,14 +17,14 @@ ezQtDocumentPanel::ezQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* p
   setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFocusable, true);
 }
 
-ezQtDocumentPanel::~ezQtDocumentPanel() = default;
+WQtDocumentPanel::~WQtDocumentPanel() = default;
 
-bool ezQtDocumentPanel::event(QEvent* pEvent)
+bool WQtDocumentPanel::event(QEvent* pEvent)
 {
   if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
+    if (WQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
   }
 

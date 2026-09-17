@@ -15,13 +15,13 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="ezQtCVarWidget" name="CVarWidget" native="true"/>
+    <widget class="WQtCVarWidget" name="CVarWidget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtCVarWidget</class>
+   <class>WQtCVarWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/CVarWidget.moc.h</header>
    <container>1</container>

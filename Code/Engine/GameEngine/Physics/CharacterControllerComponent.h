@@ -6,9 +6,9 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezMsgMoveCharacterController : public ezMessage
+struct W_GAMEENGINE_DLL WMsgMoveCharacterController : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgMoveCharacterController, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgMoveCharacterController, WMessage);
 
   double m_fMoveForwards = 0;
   double m_fMoveBackwards = 0;

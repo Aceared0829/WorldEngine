@@ -6,27 +6,27 @@
 
 struct RtsMsgSetTarget;
 
-using RtsTorpedoComponentManager = ezComponentManagerSimple<class RtsTorpedoComponent, ezComponentUpdateType::WhenSimulating>;
+using RtsTorpedoComponentManager = WComponentManagerSimple<class RtsTorpedoComponent, WComponentUpdateType::WhenSimulating>;
 
-class EZ_RTSPLUGIN_DLL RtsTorpedoComponent : public ezComponent
+class W_RTSPLUGIN_DLL RtsTorpedoComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(RtsTorpedoComponent, ezComponent, RtsTorpedoComponentManager);
+  W_DECLARE_COMPONENT_TYPE(RtsTorpedoComponent, WComponent, RtsTorpedoComponentManager);
 
 public:
   RtsTorpedoComponent();
   ~RtsTorpedoComponent();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // WComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
   float m_fSpeed = 10.0f;
-  ezInt16 m_iDamage = 10;
+  WInt16 m_iDamage = 10;
 
   //////////////////////////////////////////////////////////////////////////
   //
@@ -36,6 +36,6 @@ public:
 protected:
   void Update();
 
-  ezGameObjectHandle m_hTargetObject;
-  ezVec2 m_vTargetPosition;
+  WGameObjectHandle m_hTargetObject;
+  WVec2 m_vTargetPosition;
 };

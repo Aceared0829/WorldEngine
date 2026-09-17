@@ -7,16 +7,16 @@
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
 #include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
-EZ_IMPLEMENT_SINGLETON(ezOpenXRSpatialAnchors);
+W_IMPLEMENT_SINGLETON(WOpenXRSpatialAnchors);
 
-ezOpenXRSpatialAnchors::ezOpenXRSpatialAnchors(ezOpenXR* pOpenXR)
+WOpenXRSpatialAnchors::WOpenXRSpatialAnchors(WOpenXR* pOpenXR)
   : m_SingletonRegistrar(this)
   , m_pOpenXR(pOpenXR)
 {
-  EZ_ASSERT_DEV(m_pOpenXR->m_Extensions.m_bSpatialAnchor, "Spatial anchors not supported");
+  W_ASSERT_DEV(m_pOpenXR->m_Extensions.m_bSpatialAnchor, "Spatial anchors not supported");
 }
 
-ezOpenXRSpatialAnchors::~ezOpenXRSpatialAnchors()
+WOpenXRSpatialAnchors::~WOpenXRSpatialAnchors()
 {
   for (auto it = m_Anchors.GetIterator(); it.IsValid(); ++it)
   {
@@ -30,37 +30,37 @@ ezOpenXRSpatialAnchors::~ezOpenXRSpatialAnchors()
   m_Anchors.Clear();
 }
 
-ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& globalTransform)
+WXRSpatialAnchorID WOpenXRSpatialAnchors::CreateAnchor(const WTransform& globalTransform)
 {
-  ezWorld* pWorld = m_pOpenXR->GetWorld();
+  WWorld* pWorld = m_pOpenXR->GetWorld();
   if (pWorld == nullptr)
-    return ezXRSpatialAnchorID();
+    return WXRSpatialAnchorID();
 
-  ezTransform globalStageTransform;
+  WTransform globalStageTransform;
   globalStageTransform.SetIdentity();
-  if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+  if (const WStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<WStageSpaceComponentManager>())
   {
-    if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+    if (const WStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
     {
       globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
     }
   }
-  ezTransform local = ezTransform::MakeLocalTransform(globalStageTransform, globalTransform);
+  WTransform local = WTransform::MakeLocalTransform(globalStageTransform, globalTransform);
 
   XrSpatialAnchorCreateInfoMSFT createInfo{XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT};
   createInfo.space = m_pOpenXR->GetBaseSpace();
-  createInfo.pose.position = ezOpenXRConversionUtils::ConvertPosition(local.m_vPosition);
-  createInfo.pose.orientation = ezOpenXRConversionUtils::ConvertOrientation(local.m_qRotation);
+  createInfo.pose.position = WOpenXRConversionUtils::ConvertPosition(local.m_vPosition);
+  createInfo.pose.orientation = WOpenXRConversionUtils::ConvertOrientation(local.m_qRotation);
   createInfo.time = m_pOpenXR->m_FrameState.predictedDisplayTime;
 
   XrSpatialAnchorMSFT anchor;
   XrResult res = m_pOpenXR->m_Extensions.pfn_xrCreateSpatialAnchorMSFT(m_pOpenXR->m_pSession, &createInfo, &anchor);
   if (res != XrResult::XR_SUCCESS)
-    return ezXRSpatialAnchorID();
+    return WXRSpatialAnchorID();
 
   XrSpatialAnchorSpaceCreateInfoMSFT createSpaceInfo{XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT};
   createSpaceInfo.anchor = anchor;
-  createSpaceInfo.poseInAnchorSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
+  createSpaceInfo.poseInAnchorSpace = WOpenXRConversionUtils::ConvertTransform(WTransform::MakeIdentity());
 
   XrSpace space;
   res = m_pOpenXR->m_Extensions.pfn_xrCreateSpatialAnchorSpaceMSFT(m_pOpenXR->m_pSession, &createSpaceInfo, &space);
@@ -68,51 +68,51 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
   return m_Anchors.Insert({anchor, space});
 }
 
-ezResult ezOpenXRSpatialAnchors::DestroyAnchor(ezXRSpatialAnchorID id)
+WResult WOpenXRSpatialAnchors::DestroyAnchor(WXRSpatialAnchorID id)
 {
   AnchorData anchorData;
   if (!m_Anchors.TryGetValue(id, anchorData))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrDestroySpatialAnchorMSFT(anchorData.m_Anchor));
   XR_LOG_ERROR(xrDestroySpace(anchorData.m_Space));
   m_Anchors.Remove(id);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, ezTransform& out_globalTransform)
+WResult WOpenXRSpatialAnchors::TryGetAnchorTransform(WXRSpatialAnchorID id, WTransform& out_globalTransform)
 {
-  ezWorld* pWorld = m_pOpenXR->GetWorld();
+  WWorld* pWorld = m_pOpenXR->GetWorld();
   if (!pWorld)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   AnchorData anchorData;
   if (!m_Anchors.TryGetValue(id, anchorData))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const XrTime time = m_pOpenXR->m_FrameState.predictedDisplayTime;
   XrSpaceLocation viewInScene = {XR_TYPE_SPACE_LOCATION};
   XrResult res = xrLocateSpace(anchorData.m_Space, m_pOpenXR->m_pSceneSpace, time, &viewInScene);
   if (res != XrResult::XR_SUCCESS)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
       (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
   {
-    ezTransform globalStageTransform;
+    WTransform globalStageTransform;
     globalStageTransform.SetIdentity();
-    if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+    if (const WStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<WStageSpaceComponentManager>())
     {
-      if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+      if (const WStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
       {
         globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
       }
     }
-    ezTransform local(ezOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position), ezOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation));
-    out_globalTransform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
+    WTransform local(WOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position), WOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation));
+    out_globalTransform = WTransform::MakeGlobalTransform(globalStageTransform, local);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return EZ_FAILURE;
+  return W_FAILURE;
 }

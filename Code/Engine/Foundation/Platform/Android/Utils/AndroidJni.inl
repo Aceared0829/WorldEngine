@@ -1,4 +1,4 @@
-struct ezJniModifiers
+struct WJniModifiers
 {
   enum Enum
   {
@@ -17,36 +17,36 @@ struct ezJniModifiers
   };
 };
 
-ezJniObject::ezJniObject(jobject object, ezJniOwnerShip ownerShip)
+WJniObject::WJniObject(jobject object, WJniOwnerShip ownerShip)
   : m_class(nullptr)
 {
   switch (ownerShip)
   {
-    case ezJniOwnerShip::OWN:
+    case WJniOwnerShip::OWN:
       m_object = object;
       m_own = true;
       break;
 
-    case ezJniOwnerShip::COPY:
-      m_object = ezJniAttachment::GetEnv()->NewLocalRef(object);
+    case WJniOwnerShip::COPY:
+      m_object = WJniAttachment::GetEnv()->NewLocalRef(object);
       m_own = true;
       break;
 
-    case ezJniOwnerShip::BORROW:
+    case WJniOwnerShip::BORROW:
       m_object = object;
       m_own = false;
       break;
   }
 }
 
-ezJniObject::ezJniObject(const ezJniObject& other)
+WJniObject::WJniObject(const WJniObject& other)
   : m_class(nullptr)
 {
-  m_object = ezJniAttachment::GetEnv()->NewLocalRef(other.m_object);
+  m_object = WJniAttachment::GetEnv()->NewLocalRef(other.m_object);
   m_own = true;
 }
 
-ezJniObject::ezJniObject(ezJniObject&& other)
+WJniObject::WJniObject(WJniObject&& other)
 {
   m_object = other.m_object;
   m_class = other.m_class;
@@ -57,18 +57,18 @@ ezJniObject::ezJniObject(ezJniObject&& other)
   other.m_own = false;
 }
 
-ezJniObject& ezJniObject::operator=(const ezJniObject& other)
+WJniObject& WJniObject::operator=(const WJniObject& other)
 {
   if (this == &other)
     return *this;
 
   Reset();
-  m_object = ezJniAttachment::GetEnv()->NewLocalRef(other.m_object);
+  m_object = WJniAttachment::GetEnv()->NewLocalRef(other.m_object);
   m_own = true;
   return *this;
 }
 
-ezJniObject& ezJniObject::operator=(ezJniObject&& other)
+WJniObject& WJniObject::operator=(WJniObject&& other)
 {
   if (this == &other)
     return *this;
@@ -86,55 +86,55 @@ ezJniObject& ezJniObject::operator=(ezJniObject&& other)
   return *this;
 }
 
-ezJniObject::~ezJniObject()
+WJniObject::~WJniObject()
 {
   Reset();
 }
 
-void ezJniObject::Reset()
+void WJniObject::Reset()
 {
   if (m_object && m_own)
   {
-    ezJniAttachment::GetEnv()->DeleteLocalRef(m_object);
+    WJniAttachment::GetEnv()->DeleteLocalRef(m_object);
     m_object = nullptr;
     m_own = false;
   }
   if (m_class)
   {
-    ezJniAttachment::GetEnv()->DeleteLocalRef(m_class);
+    WJniAttachment::GetEnv()->DeleteLocalRef(m_class);
     m_class = nullptr;
   }
 }
 
-jobject ezJniObject::GetJObject() const
+jobject WJniObject::GetJObject() const
 {
   return m_object;
 }
 
-bool ezJniObject::operator==(const ezJniObject& other) const
+bool WJniObject::operator==(const WJniObject& other) const
 {
-  return ezJniAttachment::GetEnv()->IsSameObject(m_object, other.m_object) == JNI_TRUE;
+  return WJniAttachment::GetEnv()->IsSameObject(m_object, other.m_object) == JNI_TRUE;
 }
 
-bool ezJniObject::operator!=(const ezJniObject& other) const
+bool WJniObject::operator!=(const WJniObject& other) const
 {
   return !operator==(other);
 }
 
 // Template specializations to dispatch to the correct JNI method for each C++ type.
 template <typename T, bool unused = false>
-struct ezJniTraits
+struct WJniTraits
 {
-  static_assert(unused, "The passed C++ type is not supported by the JNI wrapper. Arguments and returns types must be one of bool, signed char/jbyte, unsigned short/jchar, short/jshort, int/jint, long long/jlong, float/jfloat, double/jdouble, ezJniObject, ezJniString or ezJniClass.");
+  static_assert(unused, "The passed C++ type is not supported by the JNI wrapper. Arguments and returns types must be one of bool, signed char/jbyte, unsigned short/jchar, short/jshort, int/jint, long long/jlong, float/jfloat, double/jdouble, WJniObject, WJniString or WJniClass.");
 
   // Places the argument inside a jvalue union.
   static jvalue ToValue(T);
 
   // Retrieves the Java class static type of the argument. For primitives, this is not the boxed type, but the primitive type.
-  static ezJniClass GetStaticType();
+  static WJniClass GetStaticType();
 
   // Retrieves the Java class dynamic type of the argument. For primitives, this is not the boxed type, but the primitive type.
-  static ezJniClass GetRuntimeType(T);
+  static WJniClass GetRuntimeType(T);
 
   // Creates an invalid/null object to return in case of errors.
   static T GetEmptyObject();
@@ -156,18 +156,18 @@ struct ezJniTraits
   static T GetStaticField(jclass clazz, jfieldID field);
 
   // Appends the JNI type signature of this type to the string buf
-  static bool AppendSignature(const T& obj, ezStringBuilder& str);
+  static bool AppendSignature(const T& obj, WStringBuilder& str);
   static const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<bool>
+struct WJniTraits<bool>
 {
   static inline jvalue ToValue(bool value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(bool);
+  static inline WJniClass GetRuntimeType(bool);
 
   static inline bool GetEmptyObject();
 
@@ -183,18 +183,18 @@ struct ezJniTraits<bool>
   static inline void SetStaticField(jclass clazz, jfieldID field, bool arg);
   static inline bool GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(bool, ezStringBuilder& str);
+  static inline bool AppendSignature(bool, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jbyte>
+struct WJniTraits<jbyte>
 {
   static inline jvalue ToValue(jbyte value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jbyte);
+  static inline WJniClass GetRuntimeType(jbyte);
 
   static inline jbyte GetEmptyObject();
 
@@ -210,18 +210,18 @@ struct ezJniTraits<jbyte>
   static inline void SetStaticField(jclass clazz, jfieldID field, jbyte arg);
   static inline jbyte GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jbyte, ezStringBuilder& str);
+  static inline bool AppendSignature(jbyte, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jchar>
+struct WJniTraits<jchar>
 {
   static inline jvalue ToValue(jchar value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jchar);
+  static inline WJniClass GetRuntimeType(jchar);
 
   static inline jchar GetEmptyObject();
 
@@ -237,18 +237,18 @@ struct ezJniTraits<jchar>
   static inline void SetStaticField(jclass clazz, jfieldID field, jchar arg);
   static inline jchar GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jchar, ezStringBuilder& str);
+  static inline bool AppendSignature(jchar, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jshort>
+struct WJniTraits<jshort>
 {
   static inline jvalue ToValue(jshort value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jshort);
+  static inline WJniClass GetRuntimeType(jshort);
 
   static inline jshort GetEmptyObject();
 
@@ -264,18 +264,18 @@ struct ezJniTraits<jshort>
   static inline void SetStaticField(jclass clazz, jfieldID field, jshort arg);
   static inline jshort GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jshort, ezStringBuilder& str);
+  static inline bool AppendSignature(jshort, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jint>
+struct WJniTraits<jint>
 {
   static inline jvalue ToValue(jint value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jint);
+  static inline WJniClass GetRuntimeType(jint);
 
   static inline jint GetEmptyObject();
 
@@ -291,18 +291,18 @@ struct ezJniTraits<jint>
   static inline void SetStaticField(jclass clazz, jfieldID field, jint arg);
   static inline jint GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jint, ezStringBuilder& str);
+  static inline bool AppendSignature(jint, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jlong>
+struct WJniTraits<jlong>
 {
   static inline jvalue ToValue(jlong value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jlong);
+  static inline WJniClass GetRuntimeType(jlong);
 
   static inline jlong GetEmptyObject();
 
@@ -318,18 +318,18 @@ struct ezJniTraits<jlong>
   static inline void SetStaticField(jclass clazz, jfieldID field, jlong arg);
   static inline jlong GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jlong, ezStringBuilder& str);
+  static inline bool AppendSignature(jlong, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jfloat>
+struct WJniTraits<jfloat>
 {
   static inline jvalue ToValue(jfloat value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jfloat);
+  static inline WJniClass GetRuntimeType(jfloat);
 
   static inline jfloat GetEmptyObject();
 
@@ -345,18 +345,18 @@ struct ezJniTraits<jfloat>
   static inline void SetStaticField(jclass clazz, jfieldID field, jfloat arg);
   static inline jfloat GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jfloat, ezStringBuilder& str);
+  static inline bool AppendSignature(jfloat, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<jdouble>
+struct WJniTraits<jdouble>
 {
   static inline jvalue ToValue(jdouble value);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(jdouble);
+  static inline WJniClass GetRuntimeType(jdouble);
 
   static inline jdouble GetEmptyObject();
 
@@ -372,95 +372,95 @@ struct ezJniTraits<jdouble>
   static inline void SetStaticField(jclass clazz, jfieldID field, jdouble arg);
   static inline jdouble GetStaticField(jclass clazz, jfieldID field);
 
-  static inline bool AppendSignature(jdouble, ezStringBuilder& str);
+  static inline bool AppendSignature(jdouble, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<ezJniObject>
+struct WJniTraits<WJniObject>
 {
-  static inline jvalue ToValue(const ezJniObject& object);
+  static inline jvalue ToValue(const WJniObject& object);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(const ezJniObject& object);
+  static inline WJniClass GetRuntimeType(const WJniObject& object);
 
-  static inline ezJniObject GetEmptyObject();
-
-  template <typename... Args>
-  static ezJniObject CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
+  static inline WJniObject GetEmptyObject();
 
   template <typename... Args>
-  static ezJniObject CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
+  static WJniObject CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
 
-  static inline void SetField(jobject self, jfieldID field, const ezJniObject& arg);
-  static inline ezJniObject GetField(jobject self, jfieldID field);
+  template <typename... Args>
+  static WJniObject CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
 
-  static inline void SetStaticField(jclass clazz, jfieldID field, const ezJniObject& arg);
-  static inline ezJniObject GetStaticField(jclass clazz, jfieldID field);
+  static inline void SetField(jobject self, jfieldID field, const WJniObject& arg);
+  static inline WJniObject GetField(jobject self, jfieldID field);
 
-  static inline bool AppendSignature(const ezJniObject& obj, ezStringBuilder& str);
+  static inline void SetStaticField(jclass clazz, jfieldID field, const WJniObject& arg);
+  static inline WJniObject GetStaticField(jclass clazz, jfieldID field);
+
+  static inline bool AppendSignature(const WJniObject& obj, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<ezJniClass>
+struct WJniTraits<WJniClass>
 {
-  static inline jvalue ToValue(const ezJniClass& object);
+  static inline jvalue ToValue(const WJniClass& object);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(const ezJniClass& object);
+  static inline WJniClass GetRuntimeType(const WJniClass& object);
 
-  static inline ezJniClass GetEmptyObject();
-
-  template <typename... Args>
-  static ezJniClass CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
+  static inline WJniClass GetEmptyObject();
 
   template <typename... Args>
-  static ezJniClass CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
+  static WJniClass CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
 
-  static inline void SetField(jobject self, jfieldID field, const ezJniClass& arg);
-  static inline ezJniClass GetField(jobject self, jfieldID field);
+  template <typename... Args>
+  static WJniClass CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
 
-  static inline void SetStaticField(jclass clazz, jfieldID field, const ezJniClass& arg);
-  static inline ezJniClass GetStaticField(jclass clazz, jfieldID field);
+  static inline void SetField(jobject self, jfieldID field, const WJniClass& arg);
+  static inline WJniClass GetField(jobject self, jfieldID field);
 
-  static inline bool AppendSignature(const ezJniClass& obj, ezStringBuilder& str);
+  static inline void SetStaticField(jclass clazz, jfieldID field, const WJniClass& arg);
+  static inline WJniClass GetStaticField(jclass clazz, jfieldID field);
+
+  static inline bool AppendSignature(const WJniClass& obj, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<ezJniString>
+struct WJniTraits<WJniString>
 {
-  static inline jvalue ToValue(const ezJniString& object);
+  static inline jvalue ToValue(const WJniString& object);
 
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
-  static inline ezJniClass GetRuntimeType(const ezJniString& object);
+  static inline WJniClass GetRuntimeType(const WJniString& object);
 
-  static inline ezJniString GetEmptyObject();
-
-  template <typename... Args>
-  static ezJniString CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
+  static inline WJniString GetEmptyObject();
 
   template <typename... Args>
-  static ezJniString CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
+  static WJniString CallInstanceMethod(jobject self, jmethodID method, const Args&... args);
 
-  static inline void SetField(jobject self, jfieldID field, const ezJniString& arg);
-  static inline ezJniString GetField(jobject self, jfieldID field);
+  template <typename... Args>
+  static WJniString CallStaticMethod(jclass clazz, jmethodID method, const Args&... args);
 
-  static inline void SetStaticField(jclass clazz, jfieldID field, const ezJniString& arg);
-  static inline ezJniString GetStaticField(jclass clazz, jfieldID field);
+  static inline void SetField(jobject self, jfieldID field, const WJniString& arg);
+  static inline WJniString GetField(jobject self, jfieldID field);
 
-  static inline bool AppendSignature(const ezJniString& obj, ezStringBuilder& str);
+  static inline void SetStaticField(jclass clazz, jfieldID field, const WJniString& arg);
+  static inline WJniString GetStaticField(jclass clazz, jfieldID field);
+
+  static inline bool AppendSignature(const WJniString& obj, WStringBuilder& str);
   static inline const char* GetSignatureStatic();
 };
 
 template <>
-struct ezJniTraits<void>
+struct WJniTraits<void>
 {
-  static inline ezJniClass GetStaticType();
+  static inline WJniClass GetStaticType();
 
   static inline void GetEmptyObject();
 
@@ -474,17 +474,17 @@ struct ezJniTraits<void>
 };
 
 // Helpers to unpack variadic templates.
-struct ezJniImpl
+struct WJniImpl
 {
-  static void CollectArgumentTypes(ezJniClass* target)
+  static void CollectArgumentTypes(WJniClass* target)
   {
   }
 
   template <typename T, typename... Tail>
-  static void CollectArgumentTypes(ezJniClass* target, const T& arg, const Tail&... tail)
+  static void CollectArgumentTypes(WJniClass* target, const T& arg, const Tail&... tail)
   {
-    *target = ezJniTraits<T>::GetRuntimeType(arg);
-    return ezJniImpl::CollectArgumentTypes(target + 1, tail...);
+    *target = WJniTraits<T>::GetRuntimeType(arg);
+    return WJniImpl::CollectArgumentTypes(target + 1, tail...);
   }
 
   static void UnpackArgs(jvalue* target)
@@ -494,646 +494,646 @@ struct ezJniImpl
   template <typename T, typename... Tail>
   static void UnpackArgs(jvalue* target, const T& arg, const Tail&... tail)
   {
-    *target = ezJniTraits<T>::ToValue(arg);
+    *target = WJniTraits<T>::ToValue(arg);
     return UnpackArgs(target + 1, tail...);
   }
 
   template <typename Ret, typename... Args>
-  static bool BuildMethodSignature(ezStringBuilder& signature, const Args&... args)
+  static bool BuildMethodSignature(WStringBuilder& signature, const Args&... args)
   {
     signature.Append("(");
-    if (!ezJniImpl::AppendSignature(signature, args...))
+    if (!WJniImpl::AppendSignature(signature, args...))
     {
       return false;
     }
     signature.Append(")");
-    signature.Append(ezJniTraits<Ret>::GetSignatureStatic());
+    signature.Append(WJniTraits<Ret>::GetSignatureStatic());
     return true;
   }
 
-  static bool AppendSignature(ezStringBuilder& signature)
+  static bool AppendSignature(WStringBuilder& signature)
   {
     return true;
   }
 
   template <typename T, typename... Tail>
-  static bool AppendSignature(ezStringBuilder& str, const T& arg, const Tail&... tail)
+  static bool AppendSignature(WStringBuilder& str, const T& arg, const Tail&... tail)
   {
-    return ezJniTraits<T>::AppendSignature(arg, str) && AppendSignature(str, tail...);
+    return WJniTraits<T>::AppendSignature(arg, str) && AppendSignature(str, tail...);
   }
 };
 
-jvalue ezJniTraits<bool>::ToValue(bool value)
+jvalue WJniTraits<bool>::ToValue(bool value)
 {
   jvalue result;
   result.z = value ? JNI_TRUE : JNI_FALSE;
   return result;
 }
 
-ezJniClass ezJniTraits<bool>::GetStaticType()
+WJniClass WJniTraits<bool>::GetStaticType()
 {
-  return ezJniClass("java/lang/Boolean").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Boolean").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<bool>::GetRuntimeType(bool)
+WJniClass WJniTraits<bool>::GetRuntimeType(bool)
 {
   return GetStaticType();
 }
 
-bool ezJniTraits<bool>::GetEmptyObject()
+bool WJniTraits<bool>::GetEmptyObject()
 {
   return false;
 }
 
 template <typename... Args>
-bool ezJniTraits<bool>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+bool WJniTraits<bool>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallBooleanMethodA(self, method, array) == JNI_TRUE;
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallBooleanMethodA(self, method, array) == JNI_TRUE;
 }
 
 template <typename... Args>
-bool ezJniTraits<bool>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+bool WJniTraits<bool>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticBooleanMethodA(clazz, method, array) == JNI_TRUE;
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticBooleanMethodA(clazz, method, array) == JNI_TRUE;
 }
 
-void ezJniTraits<bool>::SetField(jobject self, jfieldID field, bool arg)
+void WJniTraits<bool>::SetField(jobject self, jfieldID field, bool arg)
 {
-  return ezJniAttachment::GetEnv()->SetBooleanField(self, field, arg ? JNI_TRUE : JNI_FALSE);
+  return WJniAttachment::GetEnv()->SetBooleanField(self, field, arg ? JNI_TRUE : JNI_FALSE);
 }
 
-bool ezJniTraits<bool>::GetField(jobject self, jfieldID field)
+bool WJniTraits<bool>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetBooleanField(self, field) == JNI_TRUE;
+  return WJniAttachment::GetEnv()->GetBooleanField(self, field) == JNI_TRUE;
 }
 
-void ezJniTraits<bool>::SetStaticField(jclass clazz, jfieldID field, bool arg)
+void WJniTraits<bool>::SetStaticField(jclass clazz, jfieldID field, bool arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticBooleanField(clazz, field, arg ? JNI_TRUE : JNI_FALSE);
+  return WJniAttachment::GetEnv()->SetStaticBooleanField(clazz, field, arg ? JNI_TRUE : JNI_FALSE);
 }
 
-bool ezJniTraits<bool>::GetStaticField(jclass clazz, jfieldID field)
+bool WJniTraits<bool>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticBooleanField(clazz, field) == JNI_TRUE;
+  return WJniAttachment::GetEnv()->GetStaticBooleanField(clazz, field) == JNI_TRUE;
 }
 
-bool ezJniTraits<bool>::AppendSignature(bool, ezStringBuilder& str)
+bool WJniTraits<bool>::AppendSignature(bool, WStringBuilder& str)
 {
   str.Append("Z");
   return true;
 }
 
-const char* ezJniTraits<bool>::GetSignatureStatic()
+const char* WJniTraits<bool>::GetSignatureStatic()
 {
   return "Z";
 }
 
-jvalue ezJniTraits<jbyte>::ToValue(jbyte value)
+jvalue WJniTraits<jbyte>::ToValue(jbyte value)
 {
   jvalue result;
   result.b = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jbyte>::GetStaticType()
+WJniClass WJniTraits<jbyte>::GetStaticType()
 {
-  return ezJniClass("java/lang/Byte").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Byte").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jbyte>::GetRuntimeType(jbyte)
+WJniClass WJniTraits<jbyte>::GetRuntimeType(jbyte)
 {
   return GetStaticType();
 }
 
-jbyte ezJniTraits<jbyte>::GetEmptyObject()
+jbyte WJniTraits<jbyte>::GetEmptyObject()
 {
   return 0;
 }
 
 template <typename... Args>
-jbyte ezJniTraits<jbyte>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jbyte WJniTraits<jbyte>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallByteMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallByteMethodA(self, method, array);
 }
 
 template <typename... Args>
-jbyte ezJniTraits<jbyte>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jbyte WJniTraits<jbyte>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticByteMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticByteMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jbyte>::SetField(jobject self, jfieldID field, jbyte arg)
+void WJniTraits<jbyte>::SetField(jobject self, jfieldID field, jbyte arg)
 {
-  return ezJniAttachment::GetEnv()->SetByteField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetByteField(self, field, arg);
 }
 
-jbyte ezJniTraits<jbyte>::GetField(jobject self, jfieldID field)
+jbyte WJniTraits<jbyte>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetByteField(self, field);
+  return WJniAttachment::GetEnv()->GetByteField(self, field);
 }
 
-void ezJniTraits<jbyte>::SetStaticField(jclass clazz, jfieldID field, jbyte arg)
+void WJniTraits<jbyte>::SetStaticField(jclass clazz, jfieldID field, jbyte arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticByteField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticByteField(clazz, field, arg);
 }
 
-jbyte ezJniTraits<jbyte>::GetStaticField(jclass clazz, jfieldID field)
+jbyte WJniTraits<jbyte>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticByteField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticByteField(clazz, field);
 }
 
-bool ezJniTraits<jbyte>::AppendSignature(jbyte, ezStringBuilder& str)
+bool WJniTraits<jbyte>::AppendSignature(jbyte, WStringBuilder& str)
 {
   str.Append("B");
   return true;
 }
 
-const char* ezJniTraits<jbyte>::GetSignatureStatic()
+const char* WJniTraits<jbyte>::GetSignatureStatic()
 {
   return "B";
 }
 
-jvalue ezJniTraits<jchar>::ToValue(jchar value)
+jvalue WJniTraits<jchar>::ToValue(jchar value)
 {
   jvalue result;
   result.c = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jchar>::GetStaticType()
+WJniClass WJniTraits<jchar>::GetStaticType()
 {
-  return ezJniClass("java/lang/Character").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Character").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jchar>::GetRuntimeType(jchar)
+WJniClass WJniTraits<jchar>::GetRuntimeType(jchar)
 {
   return GetStaticType();
 }
 
-jchar ezJniTraits<jchar>::GetEmptyObject()
+jchar WJniTraits<jchar>::GetEmptyObject()
 {
   return 0;
 }
 
 template <typename... Args>
-jchar ezJniTraits<jchar>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jchar WJniTraits<jchar>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallCharMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallCharMethodA(self, method, array);
 }
 
 template <typename... Args>
-jchar ezJniTraits<jchar>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jchar WJniTraits<jchar>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticCharMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticCharMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jchar>::SetField(jobject self, jfieldID field, jchar arg)
+void WJniTraits<jchar>::SetField(jobject self, jfieldID field, jchar arg)
 {
-  return ezJniAttachment::GetEnv()->SetCharField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetCharField(self, field, arg);
 }
 
-jchar ezJniTraits<jchar>::GetField(jobject self, jfieldID field)
+jchar WJniTraits<jchar>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetCharField(self, field);
+  return WJniAttachment::GetEnv()->GetCharField(self, field);
 }
 
-void ezJniTraits<jchar>::SetStaticField(jclass clazz, jfieldID field, jchar arg)
+void WJniTraits<jchar>::SetStaticField(jclass clazz, jfieldID field, jchar arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticCharField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticCharField(clazz, field, arg);
 }
 
-jchar ezJniTraits<jchar>::GetStaticField(jclass clazz, jfieldID field)
+jchar WJniTraits<jchar>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticCharField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticCharField(clazz, field);
 }
 
-bool ezJniTraits<jchar>::AppendSignature(jchar, ezStringBuilder& str)
+bool WJniTraits<jchar>::AppendSignature(jchar, WStringBuilder& str)
 {
   str.Append("C");
   return true;
 }
 
-const char* ezJniTraits<jchar>::GetSignatureStatic()
+const char* WJniTraits<jchar>::GetSignatureStatic()
 {
   return "C";
 }
 
-jvalue ezJniTraits<jshort>::ToValue(jshort value)
+jvalue WJniTraits<jshort>::ToValue(jshort value)
 {
   jvalue result;
   result.s = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jshort>::GetStaticType()
+WJniClass WJniTraits<jshort>::GetStaticType()
 {
-  return ezJniClass("java/lang/Short").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Short").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jshort>::GetRuntimeType(jshort)
+WJniClass WJniTraits<jshort>::GetRuntimeType(jshort)
 {
   return GetStaticType();
 }
 
-jshort ezJniTraits<jshort>::GetEmptyObject()
+jshort WJniTraits<jshort>::GetEmptyObject()
 {
   return 0;
 }
 
 template <typename... Args>
-jshort ezJniTraits<jshort>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jshort WJniTraits<jshort>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallShortMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallShortMethodA(self, method, array);
 }
 
 template <typename... Args>
-jshort ezJniTraits<jshort>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jshort WJniTraits<jshort>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticShortMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticShortMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jshort>::SetField(jobject self, jfieldID field, jshort arg)
+void WJniTraits<jshort>::SetField(jobject self, jfieldID field, jshort arg)
 {
-  return ezJniAttachment::GetEnv()->SetShortField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetShortField(self, field, arg);
 }
 
-jshort ezJniTraits<jshort>::GetField(jobject self, jfieldID field)
+jshort WJniTraits<jshort>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetShortField(self, field);
+  return WJniAttachment::GetEnv()->GetShortField(self, field);
 }
 
-void ezJniTraits<jshort>::SetStaticField(jclass clazz, jfieldID field, jshort arg)
+void WJniTraits<jshort>::SetStaticField(jclass clazz, jfieldID field, jshort arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticShortField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticShortField(clazz, field, arg);
 }
 
-jshort ezJniTraits<jshort>::GetStaticField(jclass clazz, jfieldID field)
+jshort WJniTraits<jshort>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticShortField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticShortField(clazz, field);
 }
 
-bool ezJniTraits<jshort>::AppendSignature(jshort, ezStringBuilder& str)
+bool WJniTraits<jshort>::AppendSignature(jshort, WStringBuilder& str)
 {
   str.Append("S");
   return true;
 }
 
-const char* ezJniTraits<jshort>::GetSignatureStatic()
+const char* WJniTraits<jshort>::GetSignatureStatic()
 {
   return "S";
 }
 
-jvalue ezJniTraits<jint>::ToValue(jint value)
+jvalue WJniTraits<jint>::ToValue(jint value)
 {
   jvalue result;
   result.i = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jint>::GetStaticType()
+WJniClass WJniTraits<jint>::GetStaticType()
 {
-  return ezJniClass("java/lang/Integer").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Integer").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jint>::GetRuntimeType(jint)
+WJniClass WJniTraits<jint>::GetRuntimeType(jint)
 {
   return GetStaticType();
 }
 
-jint ezJniTraits<jint>::GetEmptyObject()
+jint WJniTraits<jint>::GetEmptyObject()
 {
   return 0;
 }
 
 template <typename... Args>
-jint ezJniTraits<jint>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jint WJniTraits<jint>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallIntMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallIntMethodA(self, method, array);
 }
 
 template <typename... Args>
-jint ezJniTraits<jint>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jint WJniTraits<jint>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticIntMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticIntMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jint>::SetField(jobject self, jfieldID field, jint arg)
+void WJniTraits<jint>::SetField(jobject self, jfieldID field, jint arg)
 {
-  return ezJniAttachment::GetEnv()->SetIntField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetIntField(self, field, arg);
 }
 
-jint ezJniTraits<jint>::GetField(jobject self, jfieldID field)
+jint WJniTraits<jint>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetIntField(self, field);
+  return WJniAttachment::GetEnv()->GetIntField(self, field);
 }
 
-void ezJniTraits<jint>::SetStaticField(jclass clazz, jfieldID field, jint arg)
+void WJniTraits<jint>::SetStaticField(jclass clazz, jfieldID field, jint arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticIntField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticIntField(clazz, field, arg);
 }
 
-jint ezJniTraits<jint>::GetStaticField(jclass clazz, jfieldID field)
+jint WJniTraits<jint>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticIntField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticIntField(clazz, field);
 }
 
-bool ezJniTraits<jint>::AppendSignature(jint, ezStringBuilder& str)
+bool WJniTraits<jint>::AppendSignature(jint, WStringBuilder& str)
 {
   str.Append("I");
   return true;
 }
 
-const char* ezJniTraits<jint>::GetSignatureStatic()
+const char* WJniTraits<jint>::GetSignatureStatic()
 {
   return "I";
 }
 
-jvalue ezJniTraits<jlong>::ToValue(jlong value)
+jvalue WJniTraits<jlong>::ToValue(jlong value)
 {
   jvalue result;
   result.j = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jlong>::GetStaticType()
+WJniClass WJniTraits<jlong>::GetStaticType()
 {
-  return ezJniClass("java/lang/Long").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Long").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jlong>::GetRuntimeType(jlong)
+WJniClass WJniTraits<jlong>::GetRuntimeType(jlong)
 {
   return GetStaticType();
 }
 
-jlong ezJniTraits<jlong>::GetEmptyObject()
+jlong WJniTraits<jlong>::GetEmptyObject()
 {
   return 0;
 }
 
 template <typename... Args>
-jlong ezJniTraits<jlong>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jlong WJniTraits<jlong>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallLongMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallLongMethodA(self, method, array);
 }
 
 template <typename... Args>
-jlong ezJniTraits<jlong>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jlong WJniTraits<jlong>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticLongMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticLongMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jlong>::SetField(jobject self, jfieldID field, jlong arg)
+void WJniTraits<jlong>::SetField(jobject self, jfieldID field, jlong arg)
 {
-  return ezJniAttachment::GetEnv()->SetLongField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetLongField(self, field, arg);
 }
 
-jlong ezJniTraits<jlong>::GetField(jobject self, jfieldID field)
+jlong WJniTraits<jlong>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetLongField(self, field);
+  return WJniAttachment::GetEnv()->GetLongField(self, field);
 }
 
-void ezJniTraits<jlong>::SetStaticField(jclass clazz, jfieldID field, jlong arg)
+void WJniTraits<jlong>::SetStaticField(jclass clazz, jfieldID field, jlong arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticLongField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticLongField(clazz, field, arg);
 }
 
-jlong ezJniTraits<jlong>::GetStaticField(jclass clazz, jfieldID field)
+jlong WJniTraits<jlong>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticLongField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticLongField(clazz, field);
 }
 
-bool ezJniTraits<jlong>::AppendSignature(jlong, ezStringBuilder& str)
+bool WJniTraits<jlong>::AppendSignature(jlong, WStringBuilder& str)
 {
   str.Append("J");
   return true;
 }
 
-const char* ezJniTraits<jlong>::GetSignatureStatic()
+const char* WJniTraits<jlong>::GetSignatureStatic()
 {
   return "J";
 }
 
-jvalue ezJniTraits<jfloat>::ToValue(jfloat value)
+jvalue WJniTraits<jfloat>::ToValue(jfloat value)
 {
   jvalue result;
   result.f = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jfloat>::GetStaticType()
+WJniClass WJniTraits<jfloat>::GetStaticType()
 {
-  return ezJniClass("java/lang/Float").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Float").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jfloat>::GetRuntimeType(jfloat)
+WJniClass WJniTraits<jfloat>::GetRuntimeType(jfloat)
 {
   return GetStaticType();
 }
 
-jfloat ezJniTraits<jfloat>::GetEmptyObject()
+jfloat WJniTraits<jfloat>::GetEmptyObject()
 {
   return nanf("");
 }
 
 template <typename... Args>
-jfloat ezJniTraits<jfloat>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jfloat WJniTraits<jfloat>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallFloatMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallFloatMethodA(self, method, array);
 }
 
 template <typename... Args>
-jfloat ezJniTraits<jfloat>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jfloat WJniTraits<jfloat>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticFloatMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticFloatMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jfloat>::SetField(jobject self, jfieldID field, jfloat arg)
+void WJniTraits<jfloat>::SetField(jobject self, jfieldID field, jfloat arg)
 {
-  return ezJniAttachment::GetEnv()->SetFloatField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetFloatField(self, field, arg);
 }
 
-jfloat ezJniTraits<jfloat>::GetField(jobject self, jfieldID field)
+jfloat WJniTraits<jfloat>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetFloatField(self, field);
+  return WJniAttachment::GetEnv()->GetFloatField(self, field);
 }
 
-void ezJniTraits<jfloat>::SetStaticField(jclass clazz, jfieldID field, jfloat arg)
+void WJniTraits<jfloat>::SetStaticField(jclass clazz, jfieldID field, jfloat arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticFloatField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticFloatField(clazz, field, arg);
 }
 
-jfloat ezJniTraits<jfloat>::GetStaticField(jclass clazz, jfieldID field)
+jfloat WJniTraits<jfloat>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticFloatField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticFloatField(clazz, field);
 }
 
-bool ezJniTraits<jfloat>::AppendSignature(jfloat, ezStringBuilder& str)
+bool WJniTraits<jfloat>::AppendSignature(jfloat, WStringBuilder& str)
 {
   str.Append("F");
   return true;
 }
 
-const char* ezJniTraits<jfloat>::GetSignatureStatic()
+const char* WJniTraits<jfloat>::GetSignatureStatic()
 {
   return "F";
 }
 
-jvalue ezJniTraits<jdouble>::ToValue(jdouble value)
+jvalue WJniTraits<jdouble>::ToValue(jdouble value)
 {
   jvalue result;
   result.d = value;
   return result;
 }
 
-ezJniClass ezJniTraits<jdouble>::GetStaticType()
+WJniClass WJniTraits<jdouble>::GetStaticType()
 {
-  return ezJniClass("java/lang/Double").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Double").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-ezJniClass ezJniTraits<jdouble>::GetRuntimeType(jdouble)
+WJniClass WJniTraits<jdouble>::GetRuntimeType(jdouble)
 {
   return GetStaticType();
 }
 
-jdouble ezJniTraits<jdouble>::GetEmptyObject()
+jdouble WJniTraits<jdouble>::GetEmptyObject()
 {
   return nan("");
 }
 
 template <typename... Args>
-jdouble ezJniTraits<jdouble>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+jdouble WJniTraits<jdouble>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallDoubleMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallDoubleMethodA(self, method, array);
 }
 
 template <typename... Args>
-jdouble ezJniTraits<jdouble>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+jdouble WJniTraits<jdouble>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticDoubleMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticDoubleMethodA(clazz, method, array);
 }
 
-void ezJniTraits<jdouble>::SetField(jobject self, jfieldID field, jdouble arg)
+void WJniTraits<jdouble>::SetField(jobject self, jfieldID field, jdouble arg)
 {
-  return ezJniAttachment::GetEnv()->SetDoubleField(self, field, arg);
+  return WJniAttachment::GetEnv()->SetDoubleField(self, field, arg);
 }
 
-jdouble ezJniTraits<jdouble>::GetField(jobject self, jfieldID field)
+jdouble WJniTraits<jdouble>::GetField(jobject self, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetDoubleField(self, field);
+  return WJniAttachment::GetEnv()->GetDoubleField(self, field);
 }
 
-void ezJniTraits<jdouble>::SetStaticField(jclass clazz, jfieldID field, jdouble arg)
+void WJniTraits<jdouble>::SetStaticField(jclass clazz, jfieldID field, jdouble arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticDoubleField(clazz, field, arg);
+  return WJniAttachment::GetEnv()->SetStaticDoubleField(clazz, field, arg);
 }
 
-jdouble ezJniTraits<jdouble>::GetStaticField(jclass clazz, jfieldID field)
+jdouble WJniTraits<jdouble>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniAttachment::GetEnv()->GetStaticDoubleField(clazz, field);
+  return WJniAttachment::GetEnv()->GetStaticDoubleField(clazz, field);
 }
 
-bool ezJniTraits<jdouble>::AppendSignature(jdouble, ezStringBuilder& str)
+bool WJniTraits<jdouble>::AppendSignature(jdouble, WStringBuilder& str)
 {
   str.Append("D");
   return true;
 }
 
-const char* ezJniTraits<jdouble>::GetSignatureStatic()
+const char* WJniTraits<jdouble>::GetSignatureStatic()
 {
   return "D";
 }
 
-jvalue ezJniTraits<ezJniObject>::ToValue(const ezJniObject& value)
+jvalue WJniTraits<WJniObject>::ToValue(const WJniObject& value)
 {
   jvalue result;
   result.l = value.GetHandle();
   return result;
 }
 
-ezJniClass ezJniTraits<ezJniObject>::GetStaticType()
+WJniClass WJniTraits<WJniObject>::GetStaticType()
 {
-  return ezJniClass("java/lang/Object");
+  return WJniClass("java/lang/Object");
 }
 
-ezJniClass ezJniTraits<ezJniObject>::GetRuntimeType(const ezJniObject& arg)
+WJniClass WJniTraits<WJniObject>::GetRuntimeType(const WJniObject& arg)
 {
   return arg.GetClass();
 }
 
-ezJniObject ezJniTraits<ezJniObject>::GetEmptyObject()
+WJniObject WJniTraits<WJniObject>::GetEmptyObject()
 {
-  return ezJniObject();
+  return WJniObject();
 }
 
 template <typename... Args>
-ezJniObject ezJniTraits<ezJniObject>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+WJniObject WJniTraits<WJniObject>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniObject(ezJniAttachment::GetEnv()->CallObjectMethodA(self, method, array), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniObject(WJniAttachment::GetEnv()->CallObjectMethodA(self, method, array), WJniOwnerShip::OWN);
 }
 
 template <typename... Args>
-ezJniObject ezJniTraits<ezJniObject>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+WJniObject WJniTraits<WJniObject>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniObject(ezJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniObject(WJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniObject>::SetField(jobject self, jfieldID field, const ezJniObject& arg)
+void WJniTraits<WJniObject>::SetField(jobject self, jfieldID field, const WJniObject& arg)
 {
-  return ezJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
 }
 
-ezJniObject ezJniTraits<ezJniObject>::GetField(jobject self, jfieldID field)
+WJniObject WJniTraits<WJniObject>::GetField(jobject self, jfieldID field)
 {
-  return ezJniObject(ezJniAttachment::GetEnv()->GetObjectField(self, field), ezJniOwnerShip::OWN);
+  return WJniObject(WJniAttachment::GetEnv()->GetObjectField(self, field), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniObject>::SetStaticField(jclass clazz, jfieldID field, const ezJniObject& arg)
+void WJniTraits<WJniObject>::SetStaticField(jclass clazz, jfieldID field, const WJniObject& arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
 }
 
-ezJniObject ezJniTraits<ezJniObject>::GetStaticField(jclass clazz, jfieldID field)
+WJniObject WJniTraits<WJniObject>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniObject(ezJniAttachment::GetEnv()->GetStaticObjectField(clazz, field), ezJniOwnerShip::OWN);
+  return WJniObject(WJniAttachment::GetEnv()->GetStaticObjectField(clazz, field), WJniOwnerShip::OWN);
 }
 
-bool ezJniTraits<ezJniObject>::AppendSignature(const ezJniObject& obj, ezStringBuilder& str)
+bool WJniTraits<WJniObject>::AppendSignature(const WJniObject& obj, WStringBuilder& str)
 {
   if (obj.IsNull())
   {
@@ -1143,423 +1143,423 @@ bool ezJniTraits<ezJniObject>::AppendSignature(const ezJniObject& obj, ezStringB
   else
   {
     str.Append("L");
-    str.Append(obj.GetClass().UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;").GetData());
+    str.Append(obj.GetClass().UnsafeCall<WJniString>("getName", "()Ljava/lang/String;").GetData());
     str.ReplaceAll(".", "/");
     str.Append(";");
     return true;
   }
 }
 
-const char* ezJniTraits<ezJniObject>::GetSignatureStatic()
+const char* WJniTraits<WJniObject>::GetSignatureStatic()
 {
   return "Ljava/lang/Object;";
 }
 
-jvalue ezJniTraits<ezJniClass>::ToValue(const ezJniClass& value)
+jvalue WJniTraits<WJniClass>::ToValue(const WJniClass& value)
 {
   jvalue result;
   result.l = value.GetHandle();
   return result;
 }
 
-ezJniClass ezJniTraits<ezJniClass>::GetStaticType()
+WJniClass WJniTraits<WJniClass>::GetStaticType()
 {
-  return ezJniClass("java/lang/Class");
+  return WJniClass("java/lang/Class");
 }
 
-ezJniClass ezJniTraits<ezJniClass>::GetRuntimeType(const ezJniClass& arg)
+WJniClass WJniTraits<WJniClass>::GetRuntimeType(const WJniClass& arg)
 {
   // Assume there are no types derived from Class
   return GetStaticType();
 }
 
-ezJniClass ezJniTraits<ezJniClass>::GetEmptyObject()
+WJniClass WJniTraits<WJniClass>::GetEmptyObject()
 {
-  return ezJniClass();
+  return WJniClass();
 }
 
 template <typename... Args>
-ezJniClass ezJniTraits<ezJniClass>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+WJniClass WJniTraits<WJniClass>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniClass(jclass(ezJniAttachment::GetEnv()->CallObjectMethodA(self, method, array)), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniClass(jclass(WJniAttachment::GetEnv()->CallObjectMethodA(self, method, array)), WJniOwnerShip::OWN);
 }
 
 template <typename... Args>
-ezJniClass ezJniTraits<ezJniClass>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+WJniClass WJniTraits<WJniClass>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniClass(jclass(ezJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array)), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniClass(jclass(WJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array)), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniClass>::SetField(jobject self, jfieldID field, const ezJniClass& arg)
+void WJniTraits<WJniClass>::SetField(jobject self, jfieldID field, const WJniClass& arg)
 {
-  return ezJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
 }
 
-ezJniClass ezJniTraits<ezJniClass>::GetField(jobject self, jfieldID field)
+WJniClass WJniTraits<WJniClass>::GetField(jobject self, jfieldID field)
 {
-  return ezJniClass(jclass(ezJniAttachment::GetEnv()->GetObjectField(self, field)), ezJniOwnerShip::OWN);
+  return WJniClass(jclass(WJniAttachment::GetEnv()->GetObjectField(self, field)), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniClass>::SetStaticField(jclass clazz, jfieldID field, const ezJniClass& arg)
+void WJniTraits<WJniClass>::SetStaticField(jclass clazz, jfieldID field, const WJniClass& arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
 }
 
-ezJniClass ezJniTraits<ezJniClass>::GetStaticField(jclass clazz, jfieldID field)
+WJniClass WJniTraits<WJniClass>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniClass(jclass(ezJniAttachment::GetEnv()->GetStaticObjectField(clazz, field)), ezJniOwnerShip::OWN);
+  return WJniClass(jclass(WJniAttachment::GetEnv()->GetStaticObjectField(clazz, field)), WJniOwnerShip::OWN);
 }
 
-bool ezJniTraits<ezJniClass>::AppendSignature(const ezJniClass& obj, ezStringBuilder& str)
+bool WJniTraits<WJniClass>::AppendSignature(const WJniClass& obj, WStringBuilder& str)
 {
   str.Append("Ljava/lang/Class;");
   return true;
 }
 
-const char* ezJniTraits<ezJniClass>::GetSignatureStatic()
+const char* WJniTraits<WJniClass>::GetSignatureStatic()
 {
   return "Ljava/lang/Class;";
 }
 
-jvalue ezJniTraits<ezJniString>::ToValue(const ezJniString& value)
+jvalue WJniTraits<WJniString>::ToValue(const WJniString& value)
 {
   jvalue result;
   result.l = value.GetHandle();
   return result;
 }
 
-ezJniClass ezJniTraits<ezJniString>::GetStaticType()
+WJniClass WJniTraits<WJniString>::GetStaticType()
 {
-  return ezJniClass("java/lang/String");
+  return WJniClass("java/lang/String");
 }
 
-ezJniClass ezJniTraits<ezJniString>::GetRuntimeType(const ezJniString& arg)
+WJniClass WJniTraits<WJniString>::GetRuntimeType(const WJniString& arg)
 {
   // Assume there are no types derived from String
   return GetStaticType();
 }
 
-ezJniString ezJniTraits<ezJniString>::GetEmptyObject()
+WJniString WJniTraits<WJniString>::GetEmptyObject()
 {
-  return ezJniString();
+  return WJniString();
 }
 
 template <typename... Args>
-ezJniString ezJniTraits<ezJniString>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+WJniString WJniTraits<WJniString>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniString(jstring(ezJniAttachment::GetEnv()->CallObjectMethodA(self, method, array)), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniString(jstring(WJniAttachment::GetEnv()->CallObjectMethodA(self, method, array)), WJniOwnerShip::OWN);
 }
 
 template <typename... Args>
-ezJniString ezJniTraits<ezJniString>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+WJniString WJniTraits<WJniString>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniString(jstring(ezJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array)), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniString(jstring(WJniAttachment::GetEnv()->CallStaticObjectMethodA(clazz, method, array)), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniString>::SetField(jobject self, jfieldID field, const ezJniString& arg)
+void WJniTraits<WJniString>::SetField(jobject self, jfieldID field, const WJniString& arg)
 {
-  return ezJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetObjectField(self, field, arg.GetHandle());
 }
 
-ezJniString ezJniTraits<ezJniString>::GetField(jobject self, jfieldID field)
+WJniString WJniTraits<WJniString>::GetField(jobject self, jfieldID field)
 {
-  return ezJniString(jstring(ezJniAttachment::GetEnv()->GetObjectField(self, field)), ezJniOwnerShip::OWN);
+  return WJniString(jstring(WJniAttachment::GetEnv()->GetObjectField(self, field)), WJniOwnerShip::OWN);
 }
 
-void ezJniTraits<ezJniString>::SetStaticField(jclass clazz, jfieldID field, const ezJniString& arg)
+void WJniTraits<WJniString>::SetStaticField(jclass clazz, jfieldID field, const WJniString& arg)
 {
-  return ezJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
+  return WJniAttachment::GetEnv()->SetStaticObjectField(clazz, field, arg.GetHandle());
 }
 
-ezJniString ezJniTraits<ezJniString>::GetStaticField(jclass clazz, jfieldID field)
+WJniString WJniTraits<WJniString>::GetStaticField(jclass clazz, jfieldID field)
 {
-  return ezJniString(jstring(ezJniAttachment::GetEnv()->GetStaticObjectField(clazz, field)), ezJniOwnerShip::OWN);
+  return WJniString(jstring(WJniAttachment::GetEnv()->GetStaticObjectField(clazz, field)), WJniOwnerShip::OWN);
 }
 
-bool ezJniTraits<ezJniString>::AppendSignature(const ezJniString& obj, ezStringBuilder& str)
+bool WJniTraits<WJniString>::AppendSignature(const WJniString& obj, WStringBuilder& str)
 {
   str.Append("Ljava/lang/String;");
   return true;
 }
 
-const char* ezJniTraits<ezJniString>::GetSignatureStatic()
+const char* WJniTraits<WJniString>::GetSignatureStatic()
 {
   return "Ljava/lang/String;";
 }
 
-ezJniClass ezJniTraits<void>::GetStaticType()
+WJniClass WJniTraits<void>::GetStaticType()
 {
-  return ezJniClass("java/lang/Void").UnsafeGetStaticField<ezJniClass>("TYPE", "Ljava/lang/Class;");
+  return WJniClass("java/lang/Void").UnsafeGetStaticField<WJniClass>("TYPE", "Ljava/lang/Class;");
 }
 
-void ezJniTraits<void>::GetEmptyObject()
+void WJniTraits<void>::GetEmptyObject()
 {
   return;
 }
 
 template <typename... Args>
-void ezJniTraits<void>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
+void WJniTraits<void>::CallInstanceMethod(jobject self, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallVoidMethodA(self, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallVoidMethodA(self, method, array);
 }
 
 template <typename... Args>
-void ezJniTraits<void>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
+void WJniTraits<void>::CallStaticMethod(jclass clazz, jmethodID method, const Args&... args)
 {
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniAttachment::GetEnv()->CallStaticVoidMethodA(clazz, method, array);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniAttachment::GetEnv()->CallStaticVoidMethodA(clazz, method, array);
 }
 
-const char* ezJniTraits<void>::GetSignatureStatic()
+const char* WJniTraits<void>::GetSignatureStatic()
 {
   return "V";
 }
 
 template <typename... Args>
-ezJniObject ezJniClass::CreateInstance(const Args&... args) const
+WJniObject WJniClass::CreateInstance(const Args&... args) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniObject();
+    return WJniObject();
   }
 
   const size_t N = sizeof...(args);
 
-  ezJniClass inputTypes[N];
-  ezJniImpl::CollectArgumentTypes(inputTypes, args...);
+  WJniClass inputTypes[N];
+  WJniImpl::CollectArgumentTypes(inputTypes, args...);
 
-  ezJniObject foundMethod = FindConstructor(*this, inputTypes, N);
+  WJniObject foundMethod = FindConstructor(*this, inputTypes, N);
 
   if (foundMethod.IsNull())
   {
-    return ezJniObject();
+    return WJniObject();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.GetHandle());
+  jmethodID method = WJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.GetHandle());
 
   jvalue array[sizeof...(args)];
-  ezJniImpl::UnpackArgs(array, args...);
-  return ezJniObject(ezJniAttachment::GetEnv()->NewObjectA(GetHandle(), method, array), ezJniOwnerShip::OWN);
+  WJniImpl::UnpackArgs(array, args...);
+  return WJniObject(WJniAttachment::GetEnv()->NewObjectA(GetHandle(), method, array), WJniOwnerShip::OWN);
 }
 
 template <typename Ret, typename... Args>
-Ret ezJniClass::CallStatic(const char* name, const Args&... args) const
+Ret WJniClass::CallStatic(const char* name, const Args&... args) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to call static method '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to call static method '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  ezStringBuilder signature;
-  if (ezJniImpl::BuildMethodSignature<Ret>(signature, args...))
+  WStringBuilder signature;
+  if (WJniImpl::BuildMethodSignature<Ret>(signature, args...))
   {
-    jmethodID method = ezJniAttachment::GetEnv()->GetStaticMethodID(GetHandle(), name, signature.GetData());
+    jmethodID method = WJniAttachment::GetEnv()->GetStaticMethodID(GetHandle(), name, signature.GetData());
 
     if (method)
     {
-      return ezJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
+      return WJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
     }
     else
     {
-      ezJniAttachment::GetEnv()->ExceptionClear();
+      WJniAttachment::GetEnv()->ExceptionClear();
     }
   }
 
   const size_t N = sizeof...(args);
 
-  ezJniClass returnType = ezJniTraits<Ret>::GetStaticType();
+  WJniClass returnType = WJniTraits<Ret>::GetStaticType();
 
-  ezJniClass inputTypes[N];
-  ezJniImpl::CollectArgumentTypes(inputTypes, args...);
+  WJniClass inputTypes[N];
+  WJniImpl::CollectArgumentTypes(inputTypes, args...);
 
-  ezJniObject foundMethod = FindMethod(true, name, *this, returnType, inputTypes, N);
+  WJniObject foundMethod = FindMethod(true, name, *this, returnType, inputTypes, N);
 
   if (foundMethod.IsNull())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.GetHandle());
-  return ezJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
+  jmethodID method = WJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.GetHandle());
+  return WJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
 }
 
 template <typename Ret, typename... Args>
-Ret ezJniClass::UnsafeCallStatic(const char* name, const char* signature, const Args&... args) const
+Ret WJniClass::UnsafeCallStatic(const char* name, const char* signature, const Args&... args) const
 {
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to call static method '{}' on null class.", name);
-    ezLog::Error("Attempting to call static method '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to call static method '{}' on null class.", name);
+    WLog::Error("Attempting to call static method '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->GetStaticMethodID(GetHandle(), name, signature);
+  jmethodID method = WJniAttachment::GetEnv()->GetStaticMethodID(GetHandle(), name, signature);
   if (!method)
   {
-    ezLog::Error("No such static method: '{}' with signature '{}' in class '{}'.", name, signature, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_METHOD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("No such static method: '{}' with signature '{}' in class '{}'.", name, signature, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_METHOD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
   else
   {
-    return ezJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
+    return WJniTraits<Ret>::CallStaticMethod(GetHandle(), method, args...);
   }
 }
 
 template <typename Ret>
-Ret ezJniClass::GetStaticField(const char* name) const
+Ret WJniClass::GetStaticField(const char* name) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to get static field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to get static field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jfieldID fieldID = ezJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, ezJniTraits<Ret>::GetSignatureStatic());
+  jfieldID fieldID = WJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, WJniTraits<Ret>::GetSignatureStatic());
   if (fieldID)
   {
-    return ezJniTraits<Ret>::GetStaticField(GetHandle(), fieldID);
+    return WJniTraits<Ret>::GetStaticField(GetHandle(), fieldID);
   }
   else
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
   }
 
-  ezJniObject field = UnsafeCall<ezJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", ezJniString(name));
+  WJniObject field = UnsafeCall<WJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", WJniString(name));
 
-  if (ezJniAttachment::GetEnv()->ExceptionOccurred())
+  if (WJniAttachment::GetEnv()->ExceptionOccurred())
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
 
-    ezLog::Error("No field named '{}' found in class '{}'.", name, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No field named '{}' found in class '{}'.", name, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
 
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  if ((field.UnsafeCall<jint>("getModifiers", "()I") & ezJniModifiers::STATIC) == 0)
+  if ((field.UnsafeCall<jint>("getModifiers", "()I") & WJniModifiers::STATIC) == 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' isn't static.", name, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Field named '{}' in class '{}' isn't static.", name, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  ezJniClass fieldType = field.UnsafeCall<ezJniClass>("getType", "()Ljava/lang/Class;");
+  WJniClass fieldType = field.UnsafeCall<WJniClass>("getType", "()Ljava/lang/Class;");
 
-  ezJniClass returnType = ezJniTraits<Ret>::GetStaticType();
+  WJniClass returnType = WJniTraits<Ret>::GetStaticType();
 
   if (!returnType.IsAssignableFrom(fieldType))
   {
-    ezLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned to return type '{}'.", name, fieldType.ToString().GetData(), ToString().GetData(), returnType.ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned to return type '{}'.", name, fieldType.ToString().GetData(), ToString().GetData(), returnType.ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  return ezJniTraits<Ret>::GetStaticField(GetHandle(), ezJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()));
+  return WJniTraits<Ret>::GetStaticField(GetHandle(), WJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()));
 }
 
 template <typename Ret>
-Ret ezJniClass::UnsafeGetStaticField(const char* name, const char* signature) const
+Ret WJniClass::UnsafeGetStaticField(const char* name, const char* signature) const
 {
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to get static field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to get static field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jfieldID field = ezJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, signature);
+  jfieldID field = WJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, signature);
   if (!field)
   {
-    ezLog::Error("No such field: '{}' with signature '{}'.", name, signature);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("No such field: '{}' with signature '{}'.", name, signature);
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
   else
   {
-    return ezJniTraits<Ret>::GetStaticField(GetHandle(), field);
+    return WJniTraits<Ret>::GetStaticField(GetHandle(), field);
   }
 }
 
 template <typename T>
-void ezJniClass::SetStaticField(const char* name, const T& arg) const
+void WJniClass::SetStaticField(const char* name, const T& arg) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
     return;
   }
 
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to set static field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
+    WLog::Error("Attempting to set static field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
     return;
   }
 
-  ezJniObject field = UnsafeCall<ezJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", ezJniString(name));
+  WJniObject field = UnsafeCall<WJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", WJniString(name));
 
-  if (ezJniAttachment::GetEnv()->ExceptionOccurred())
+  if (WJniAttachment::GetEnv()->ExceptionOccurred())
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
 
-    ezLog::Error("No field named '{}' found in class '{}'.", name, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No field named '{}' found in class '{}'.", name, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
 
     return;
   }
 
-  ezJniClass modifierClass("java/lang/reflect/Modifier");
+  WJniClass modifierClass("java/lang/reflect/Modifier");
   jint modifiers = field.UnsafeCall<jint>("getModifiers", "()I");
 
-  if ((modifiers & ezJniModifiers::STATIC) == 0)
+  if ((modifiers & WJniModifiers::STATIC) == 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' isn't static.", name, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("Field named '{}' in class '{}' isn't static.", name, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
 
-  if ((modifiers & ezJniModifiers::FINAL) != 0)
+  if ((modifiers & WJniModifiers::FINAL) != 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' is final.", name, ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("Field named '{}' in class '{}' is final.", name, ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
 
-  ezJniClass fieldType = field.UnsafeCall<ezJniClass>("getType", "()Ljava/lang/Class;");
+  WJniClass fieldType = field.UnsafeCall<WJniClass>("getType", "()Ljava/lang/Class;");
 
-  ezJniClass argType = ezJniTraits<T>::GetRuntimeType(arg);
+  WJniClass argType = WJniTraits<T>::GetRuntimeType(arg);
 
   if (argType.IsNull())
   {
     if (fieldType.IsPrimitive())
     {
-      ezLog::Error("Field '{}' of type '{}' can't be assigned null because it is a primitive type.", name, fieldType.ToString().GetData());
-      ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+      WLog::Error("Field '{}' of type '{}' can't be assigned null because it is a primitive type.", name, fieldType.ToString().GetData());
+      WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
       return;
     }
   }
@@ -1567,169 +1567,169 @@ void ezJniClass::SetStaticField(const char* name, const T& arg) const
   {
     if (!fieldType.IsAssignableFrom(argType))
     {
-      ezLog::Error("Field '{}' of type '{}' can't be assigned from type '{}'.", name, fieldType.ToString().GetData(), argType.ToString().GetData());
-      ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+      WLog::Error("Field '{}' of type '{}' can't be assigned from type '{}'.", name, fieldType.ToString().GetData(), argType.ToString().GetData());
+      WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
       return;
     }
   }
 
-  return ezJniTraits<T>::SetStaticField(GetHandle(), ezJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()), arg);
+  return WJniTraits<T>::SetStaticField(GetHandle(), WJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()), arg);
 }
 
 template <typename T>
-void ezJniClass::UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const
+void WJniClass::UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const
 {
   if (!GetJObject())
   {
-    ezLog::Error("Attempting to set static field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
+    WLog::Error("Attempting to set static field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
     return;
   }
 
-  jfieldID field = ezJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, signature);
+  jfieldID field = WJniAttachment::GetEnv()->GetStaticFieldID(GetHandle(), name, signature);
   if (!field)
   {
-    ezLog::Error("No such field: '{}' with signature '{}'.", name, signature);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No such field: '{}' with signature '{}'.", name, signature);
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
   else
   {
-    return ezJniTraits<T>::SetStaticField(GetHandle(), field, arg);
+    return WJniTraits<T>::SetStaticField(GetHandle(), field, arg);
   }
 }
 
 template <typename Ret, typename... Args>
-Ret ezJniObject::Call(const char* name, const Args&... args) const
+Ret WJniObject::Call(const char* name, const Args&... args) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
   if (!m_object)
   {
-    ezLog::Error("Attempting to call method '{}' on null object.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to call method '{}' on null object.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
   // Fast path: Lookup method via signature built from parameters.
   // This only works for exact matches, but is roughly 50 times faster.
-  ezStringBuilder signature;
-  if (ezJniImpl::BuildMethodSignature<Ret>(signature, args...))
+  WStringBuilder signature;
+  if (WJniImpl::BuildMethodSignature<Ret>(signature, args...))
   {
-    jmethodID method = ezJniAttachment::GetEnv()->GetMethodID(reinterpret_cast<jclass>(GetClass().GetHandle()), name, signature.GetData());
+    jmethodID method = WJniAttachment::GetEnv()->GetMethodID(reinterpret_cast<jclass>(GetClass().GetHandle()), name, signature.GetData());
 
     if (method)
     {
-      return ezJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
+      return WJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
     }
     else
     {
-      ezJniAttachment::GetEnv()->ExceptionClear();
+      WJniAttachment::GetEnv()->ExceptionClear();
     }
   }
 
   // Fallback to slow path using reflection
   const size_t N = sizeof...(args);
 
-  ezJniClass returnType = ezJniTraits<Ret>::GetStaticType();
+  WJniClass returnType = WJniTraits<Ret>::GetStaticType();
 
-  ezJniClass inputTypes[N];
-  ezJniImpl::CollectArgumentTypes(inputTypes, args...);
+  WJniClass inputTypes[N];
+  WJniImpl::CollectArgumentTypes(inputTypes, args...);
 
-  ezJniObject foundMethod = FindMethod(false, name, GetClass(), returnType, inputTypes, N);
+  WJniObject foundMethod = FindMethod(false, name, GetClass(), returnType, inputTypes, N);
 
   if (foundMethod.IsNull())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.m_object);
-  return ezJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
+  jmethodID method = WJniAttachment::GetEnv()->FromReflectedMethod(foundMethod.m_object);
+  return WJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
 }
 
 template <typename Ret, typename... Args>
-Ret ezJniObject::UnsafeCall(const char* name, const char* signature, const Args&... args) const
+Ret WJniObject::UnsafeCall(const char* name, const char* signature, const Args&... args) const
 {
   if (!m_object)
   {
-    ezLog::Error("Attempting to call method '{}' on null object.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to call method '{}' on null object.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->GetMethodID(jclass(GetClass().m_object), name, signature);
+  jmethodID method = WJniAttachment::GetEnv()->GetMethodID(jclass(GetClass().m_object), name, signature);
   if (!method)
   {
-    ezLog::Error("No such method: '{}' with signature '{}' in class '{}'.", name, signature, GetClass().ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_METHOD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("No such method: '{}' with signature '{}' in class '{}'.", name, signature, GetClass().ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_METHOD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
   else
   {
-    return ezJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
+    return WJniTraits<Ret>::CallInstanceMethod(m_object, method, args...);
   }
 }
 
 template <typename T>
-void ezJniObject::SetField(const char* name, const T& arg) const
+void WJniObject::SetField(const char* name, const T& arg) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
     return;
   }
 
   if (!m_object)
   {
-    ezLog::Error("Attempting to set field '{}' on null object.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
+    WLog::Error("Attempting to set field '{}' on null object.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
     return;
   }
 
   // No fast path here since we need to be able to report failures when attempting
   // to set final fields, which we can only do using reflection.
 
-  ezJniObject field = GetClass().UnsafeCall<ezJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", ezJniString(name));
+  WJniObject field = GetClass().UnsafeCall<WJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", WJniString(name));
 
-  if (ezJniAttachment::GetEnv()->ExceptionOccurred())
+  if (WJniAttachment::GetEnv()->ExceptionOccurred())
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
 
-    ezLog::Error("No field named '{}' found.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No field named '{}' found.", name);
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
 
     return;
   }
 
-  ezJniClass modifierClass("java/lang/reflect/Modifier");
+  WJniClass modifierClass("java/lang/reflect/Modifier");
   jint modifiers = field.UnsafeCall<jint>("getModifiers", "()I");
 
-  if ((modifiers & ezJniModifiers::STATIC) != 0)
+  if ((modifiers & WJniModifiers::STATIC) != 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' is static.", name, GetClass().ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("Field named '{}' in class '{}' is static.", name, GetClass().ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
 
-  if ((modifiers & ezJniModifiers::FINAL) != 0)
+  if ((modifiers & WJniModifiers::FINAL) != 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' is final.", name, GetClass().ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("Field named '{}' in class '{}' is final.", name, GetClass().ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
 
-  ezJniClass fieldType = field.UnsafeCall<ezJniClass>("getType", "()Ljava/lang/Class;");
+  WJniClass fieldType = field.UnsafeCall<WJniClass>("getType", "()Ljava/lang/Class;");
 
-  ezJniClass argType = ezJniTraits<T>::GetRuntimeType(arg);
+  WJniClass argType = WJniTraits<T>::GetRuntimeType(arg);
 
   if (argType.IsNull())
   {
     if (fieldType.IsPrimitive())
     {
-      ezLog::Error("Field '{}' of type '{}'  in class '{}' can't be assigned null because it is a primitive type.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData());
-      ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+      WLog::Error("Field '{}' of type '{}'  in class '{}' can't be assigned null because it is a primitive type.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData());
+      WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
       return;
     }
   }
@@ -1737,124 +1737,124 @@ void ezJniObject::SetField(const char* name, const T& arg) const
   {
     if (!fieldType.IsAssignableFrom(argType))
     {
-      ezLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned from type '{}'.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData(), argType.ToString().GetData());
-      ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+      WLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned from type '{}'.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData(), argType.ToString().GetData());
+      WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
       return;
     }
   }
 
-  return ezJniTraits<T>::SetField(m_object, ezJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()), arg);
+  return WJniTraits<T>::SetField(m_object, WJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()), arg);
 }
 
 template <typename T>
-void ezJniObject::UnsafeSetField(const char* name, const char* signature, const T& arg) const
+void WJniObject::UnsafeSetField(const char* name, const char* signature, const T& arg) const
 {
   if (!m_object)
   {
-    ezLog::Error("Attempting to set field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
+    WLog::Error("Attempting to set field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
     return;
   }
 
-  jfieldID field = ezJniAttachment::GetEnv()->GetFieldID(jclass(GetClass().GetHandle()), name, signature);
+  jfieldID field = WJniAttachment::GetEnv()->GetFieldID(jclass(GetClass().GetHandle()), name, signature);
   if (!field)
   {
-    ezLog::Error("No such field: '{}' with signature '{}'.", name, signature);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No such field: '{}' with signature '{}'.", name, signature);
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
   else
   {
-    return ezJniTraits<T>::SetField(m_object, field, arg);
+    return WJniTraits<T>::SetField(m_object, field, arg);
   }
 }
 
 template <typename Ret>
-Ret ezJniObject::GetField(const char* name) const
+Ret WJniObject::GetField(const char* name) const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
   if (!m_object)
   {
-    ezLog::Error("Attempting to get field '{}' on null object.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Attempting to get field '{}' on null object.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  jfieldID fieldID = ezJniAttachment::GetEnv()->GetFieldID(GetClass().GetHandle(), name, ezJniTraits<Ret>::GetSignatureStatic());
+  jfieldID fieldID = WJniAttachment::GetEnv()->GetFieldID(GetClass().GetHandle(), name, WJniTraits<Ret>::GetSignatureStatic());
   if (fieldID)
   {
-    return ezJniTraits<Ret>::GetField(m_object, fieldID);
+    return WJniTraits<Ret>::GetField(m_object, fieldID);
   }
   else
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
   }
 
-  ezJniObject field = GetClass().UnsafeCall<ezJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", ezJniString(name));
+  WJniObject field = GetClass().UnsafeCall<WJniObject>("getField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;", WJniString(name));
 
-  if (ezJniAttachment::GetEnv()->ExceptionOccurred())
+  if (WJniAttachment::GetEnv()->ExceptionOccurred())
   {
-    ezJniAttachment::GetEnv()->ExceptionClear();
+    WJniAttachment::GetEnv()->ExceptionClear();
 
-    ezLog::Error("No field named '{}' found in class '{}'.", name, GetClass().ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No field named '{}' found in class '{}'.", name, GetClass().ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
 
-    return ezJniTraits<Ret>::GetEmptyObject();
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  if ((field.UnsafeCall<jint>("getModifiers", "()I") & ezJniModifiers::STATIC) != 0)
+  if ((field.UnsafeCall<jint>("getModifiers", "()I") & WJniModifiers::STATIC) != 0)
   {
-    ezLog::Error("Field named '{}' in class '{}' is static.", name, GetClass().ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Field named '{}' in class '{}' is static.", name, GetClass().ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  ezJniClass fieldType = field.UnsafeCall<ezJniClass>("getType", "()Ljava/lang/Class;");
+  WJniClass fieldType = field.UnsafeCall<WJniClass>("getType", "()Ljava/lang/Class;");
 
-  ezJniClass returnType = ezJniTraits<Ret>::GetStaticType();
+  WJniClass returnType = WJniTraits<Ret>::GetStaticType();
 
   if (!returnType.IsAssignableFrom(fieldType))
   {
-    ezLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned to return type '{}'.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData(), returnType.ToString().GetData());
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
-    return ezJniTraits<Ret>::GetEmptyObject();
+    WLog::Error("Field '{}' of type '{}' in class '{}' can't be assigned to return type '{}'.", name, fieldType.ToString().GetData(), GetClass().ToString().GetData(), returnType.ToString().GetData());
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
+    return WJniTraits<Ret>::GetEmptyObject();
   }
 
-  return ezJniTraits<Ret>::GetField(m_object, ezJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()));
+  return WJniTraits<Ret>::GetField(m_object, WJniAttachment::GetEnv()->FromReflectedField(field.GetHandle()));
 }
 
 template <typename Ret>
-Ret ezJniObject::UnsafeGetField(const char* name, const char* signature) const
+Ret WJniObject::UnsafeGetField(const char* name, const char* signature) const
 {
   if (!m_object)
   {
-    ezLog::Error("Attempting to get field '{}' on null class.", name);
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
+    WLog::Error("Attempting to get field '{}' on null class.", name);
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
     return;
   }
 
-  jfieldID field = ezJniAttachment::GetEnv()->GetFieldID(GetClass().GetHandle(), name, signature);
+  jfieldID field = WJniAttachment::GetEnv()->GetFieldID(GetClass().GetHandle(), name, signature);
   if (!field)
   {
-    ezLog::Error("No such field: '{}' with signature '{}'.", name, signature);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_FIELD);
+    WLog::Error("No such field: '{}' with signature '{}'.", name, signature);
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_FIELD);
     return;
   }
   else
   {
-    return ezJniTraits<Ret>::GetField(m_object, field);
+    return WJniTraits<Ret>::GetField(m_object, field);
   }
 }
 
 template <>
-struct ezJniTraits<ezJniNullPtr>
+struct WJniTraits<WJniNullPtr>
 {
 
-  static inline bool AppendSignature(const ezJniNullPtr& object, ezStringBuilder& str)
+  static inline bool AppendSignature(const WJniNullPtr& object, WStringBuilder& str)
   {
     str.Append("L");
     str.Append(object.GetTypeSignature().GetData());
@@ -1862,20 +1862,20 @@ struct ezJniTraits<ezJniNullPtr>
     return true;
   }
 
-  static inline jvalue ToValue(const ezJniNullPtr& object)
+  static inline jvalue ToValue(const WJniNullPtr& object)
   {
     jvalue j;
     j.l = nullptr;
     return j;
   }
 
-  static inline ezJniClass GetStaticType()
+  static inline WJniClass GetStaticType()
   {
-    return ezJniClass("java/lang/Object");
+    return WJniClass("java/lang/Object");
   }
 
-  static inline ezJniClass GetRuntimeType(const ezJniNullPtr& arg)
+  static inline WJniClass GetRuntimeType(const WJniNullPtr& arg)
   {
-    return ezJniClass(arg.GetTypeSignature().GetData());
+    return WJniClass(arg.GetTypeSignature().GetData());
   }
 };

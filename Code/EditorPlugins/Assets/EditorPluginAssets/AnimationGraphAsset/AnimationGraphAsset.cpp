@@ -11,24 +11,24 @@
 #include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationGraphAssetDocument, 5, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationGraphAssetDocument, 5, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationGraphNodePin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationGraphNodePin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationGraphAssetProperties, 1, ezRTTIDefaultAllocator<ezAnimationGraphAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationGraphAssetProperties, 1, WRTTIDefaultAllocator<WAnimationGraphAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("IncludeGraphs", m_IncludeGraphs)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
-    EZ_ARRAY_MEMBER_PROPERTY("AnimationClipMapping", m_AnimationClipMapping),
+    W_ARRAY_MEMBER_PROPERTY("IncludeGraphs", m_IncludeGraphs)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
+    W_ARRAY_MEMBER_PROPERTY("AnimationClipMapping", m_AnimationClipMapping),
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, AnimationGraph)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, AnimationGraph)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Core"
@@ -36,211 +36,211 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, AnimationGraph)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezAnimGraphNode>(), [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtAnimationGraphNode(); });
+    WQtVisualGraphScene::GetNodeFactory().RegisterCreator(WGetStaticRTTI<WAnimGraphNode>(), [](const WRTTI* pRtti)->WQtVisualGraphNode* { return new WQtAnimationGraphNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezAnimGraphNode>());
+    WQtVisualGraphScene::GetNodeFactory().UnregisterCreator(WGetStaticRTTI<WAnimGraphNode>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezAnimationGraphNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WAnimationGraphNodeManager::InternalIsNode(const WDocumentObject* pObject) const
 {
   auto pType = pObject->GetTypeAccessor().GetType();
-  return pType->IsDerivedFrom<ezAnimGraphNode>();
+  return pType->IsDerivedFrom<WAnimGraphNode>();
 }
 
-void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
+void WAnimationGraphNodeManager::InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node)
 {
   auto pType = pObject->GetTypeAccessor().GetType();
-  if (!pType->IsDerivedFrom<ezAnimGraphNode>())
+  if (!pType->IsDerivedFrom<WAnimGraphNode>())
     return;
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  const ezColor triggerPinColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
-  const ezColor numberPinColor = ezColorScheme::DarkUI(ezColorScheme::Lime);
-  const ezColor boolPinColor = ezColorScheme::LightUI(ezColorScheme::Lime);
-  const ezColor weightPinColor = ezColorScheme::DarkUI(ezColorScheme::Teal);
-  const ezColor localPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Blue);
-  const ezColor modelPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Grape);
+  const WColor triggerPinColor = WColorScheme::DarkUI(WColorScheme::Yellow);
+  const WColor numberPinColor = WColorScheme::DarkUI(WColorScheme::Lime);
+  const WColor boolPinColor = WColorScheme::LightUI(WColorScheme::Lime);
+  const WColor weightPinColor = WColorScheme::DarkUI(WColorScheme::Teal);
+  const WColor localPosePinColor = WColorScheme::DarkUI(WColorScheme::Blue);
+  const WColor modelPosePinColor = WColorScheme::DarkUI(WColorScheme::Grape);
   // EXTEND THIS if a new type is introduced
 
-  ezTempHybridArray<ezString, 16> pinNames;
+  WTempHybridArray<WString, 16> pinNames;
 
   for (auto pProp : properties)
   {
-    if (!pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphPin>())
+    if (!pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphPin>())
       continue;
 
     pinNames.Clear();
 
-    if (pProp->GetCategory() == ezPropertyCategory::Array)
+    if (pProp->GetCategory() == WPropertyCategory::Array)
     {
-      if (const ezDynamicPinAttribute* pDynPin = pProp->GetAttributeByType<ezDynamicPinAttribute>())
+      if (const WDynamicPinAttribute* pDynPin = pProp->GetAttributeByType<WDynamicPinAttribute>())
       {
         GetDynamicPinNames(pObject, pDynPin->GetProperty(), pProp->GetPropertyName(), pinNames);
       }
     }
-    else if (pProp->GetCategory() == ezPropertyCategory::Member)
+    else if (pProp->GetCategory() == WPropertyCategory::Member)
     {
       pinNames.PushBack(pProp->GetPropertyName());
     }
 
-    for (ezUInt32 i = 0; i < pinNames.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pinNames.GetCount(); ++i)
     {
       const auto& pinName = pinNames[i];
 
-      if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphTriggerInputPin>())
+      if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphTriggerInputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Input, pinName, triggerPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Trigger;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Input, pinName, triggerPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Trigger;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphTriggerOutputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphTriggerOutputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Output, pinName, triggerPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Trigger;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Output, pinName, triggerPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Trigger;
         ref_node.m_Outputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberInputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphNumberInputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Input, pinName, numberPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Number;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Input, pinName, numberPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Number;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberOutputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphNumberOutputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Output, pinName, numberPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Number;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Output, pinName, numberPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Number;
         ref_node.m_Outputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoolInputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphBoolInputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Input, pinName, boolPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Bool;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Input, pinName, boolPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Bool;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoolOutputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphBoolOutputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Output, pinName, boolPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::Bool;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Output, pinName, boolPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::Bool;
         ref_node.m_Outputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoneWeightsInputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphBoneWeightsInputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Input, pinName, weightPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::BoneWeights;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Input, pinName, weightPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::BoneWeights;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoneWeightsOutputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphBoneWeightsOutputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Output, pinName, weightPinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::BoneWeights;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Output, pinName, weightPinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::BoneWeights;
         ref_node.m_Outputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseInputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphLocalPoseInputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Input, pinName, localPosePinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::LocalPose;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Input, pinName, localPosePinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::LocalPose;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
+      else if (pProp->GetSpecificType()->IsDerivedFrom<WAnimGraphLocalPoseOutputPin>())
       {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezVisualGraphPin::Type::Output, pinName, localPosePinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::LocalPose;
+        auto pPin = W_DEFAULT_NEW(WAnimationGraphNodePin, WVisualGraphPin::Type::Output, pinName, localPosePinColor, pObject);
+        pPin->m_DataType = WAnimGraphPin::LocalPose;
         ref_node.m_Outputs.PushBack(pPin);
       }
       else
       {
         // EXTEND THIS if a new type is introduced
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
     }
   }
 }
 
-void ezAnimationGraphNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WAnimationGraphNodeManager::GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  ezRTTI::ForEachDerivedType<ezAnimGraphNode>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WAnimGraphNode>(
+    [&](const WRTTI* pRtti)
     { out_types.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    WRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezAnimationGraphNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
+WStatus WAnimationGraphNodeManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const
 {
-  const ezAnimationGraphNodePin& sourcePin = ezStaticCast<const ezAnimationGraphNodePin&>(source);
-  const ezAnimationGraphNodePin& targetPin = ezStaticCast<const ezAnimationGraphNodePin&>(target);
+  const WAnimationGraphNodePin& sourcePin = WStaticCast<const WAnimationGraphNodePin&>(source);
+  const WAnimationGraphNodePin& targetPin = WStaticCast<const WAnimationGraphNodePin&>(target);
 
   out_result = CanConnectResult::ConnectNever;
 
   if (sourcePin.m_DataType != targetPin.m_DataType)
-    return ezStatus("Can't connect pins of different data types");
+    return WStatus("Can't connect pins of different data types");
 
   if (sourcePin.GetType() == targetPin.GetType())
-    return ezStatus("Can only connect input pins with output pins.");
+    return WStatus("Can only connect input pins with output pins.");
 
   switch (sourcePin.m_DataType)
   {
-    case ezAnimGraphPin::Trigger:
+    case WAnimGraphPin::Trigger:
       out_result = CanConnectResult::ConnectNtoN;
       break;
 
-    case ezAnimGraphPin::Number:
+    case WAnimGraphPin::Number:
       out_result = CanConnectResult::ConnectNto1;
       break;
 
-    case ezAnimGraphPin::Bool:
+    case WAnimGraphPin::Bool:
       out_result = CanConnectResult::ConnectNto1;
       break;
 
-    case ezAnimGraphPin::BoneWeights:
+    case WAnimGraphPin::BoneWeights:
       out_result = CanConnectResult::ConnectNto1;
       break;
 
-    case ezAnimGraphPin::LocalPose:
+    case WAnimGraphPin::LocalPose:
       if (targetPin.m_bMultiInputPin)
         out_result = CanConnectResult::ConnectNtoN;
       else
         out_result = CanConnectResult::ConnectNto1;
       break;
 
-    case ezAnimGraphPin::ModelPose:
+    case WAnimGraphPin::ModelPose:
       out_result = CanConnectResult::ConnectNto1;
       break;
 
       // EXTEND THIS if a new type is introduced
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   if (out_result != CanConnectResult::ConnectNever && WouldConnectionCreateCircle(source, target))
   {
     out_result = CanConnectResult::ConnectNever;
-    return ezStatus("Connecting these pins would create a circle in the graph.");
+    return WStatus("Connecting these pins would create a circle in the graph.");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-bool ezAnimationGraphNodeManager::InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool WAnimationGraphNodeManager::InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const
 {
-  return pProp->GetAttributeByType<ezDynamicPinAttribute>() != nullptr;
+  return pProp->GetAttributeByType<WDynamicPinAttribute>() != nullptr;
 }
 
-ezAnimationGraphAssetDocument::ezAnimationGraphAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationGraphAssetProperties>(EZ_DEFAULT_NEW(ezAnimationGraphNodeManager), sDocumentPath, ezAssetDocEngineConnection::None)
+WAnimationGraphAssetDocument::WAnimationGraphAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WAnimationGraphAssetProperties>(W_DEFAULT_NEW(WAnimationGraphNodeManager), sDocumentPath, WAssetDocEngineConnection::None)
 {
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
+  m_pObjectAccessor = W_DEFAULT_NEW(WVisualGraphCommandAccessor, GetCommandHistory());
 }
 
-ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAnimationGraphAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  const auto* pNodeManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const auto* pNodeManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
 
   auto pProp = GetProperties();
 
@@ -248,10 +248,10 @@ ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStream
     stream.WriteVersion(2);
     stream.WriteArray(pProp->m_IncludeGraphs).AssertSuccess();
 
-    const ezUInt32 uiNum = pProp->m_AnimationClipMapping.GetCount();
+    const WUInt32 uiNum = pProp->m_AnimationClipMapping.GetCount();
     stream << uiNum;
 
-    for (ezUInt32 i = 0; i < uiNum; ++i)
+    for (WUInt32 i = 0; i < uiNum; ++i)
     {
       stream << pProp->m_AnimationClipMapping[i].m_sClipName;
       stream << pProp->m_AnimationClipMapping[i].m_hClip;
@@ -259,7 +259,7 @@ ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStream
   }
 
   // find all 'nodes'
-  ezDynamicArray<const ezDocumentObject*> allNodes;
+  WDynamicArray<const WDocumentObject*> allNodes;
   for (auto pNode : pNodeManager->GetRootObject()->GetChildren())
   {
     if (!pNodeManager->IsNode(pNode))
@@ -268,38 +268,38 @@ ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStream
     allNodes.PushBack(pNode);
   }
 
-  ezAnimGraph animGraph;
+  WAnimGraph animGraph;
 
-  ezMap<const ezDocumentObject*, ezAnimGraphNode*> docNodeToRuntimeNode;
+  WMap<const WDocumentObject*, WAnimGraphNode*> docNodeToRuntimeNode;
 
-  // create all nodes in the ezAnimGraph
+  // create all nodes in the WAnimGraph
   {
-    for (const ezDocumentObject* pNode : allNodes)
+    for (const WDocumentObject* pNode : allNodes)
     {
-      ezAnimGraphNode* pNewNode = animGraph.AddNode(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
+      WAnimGraphNode* pNewNode = animGraph.AddNode(pNode->GetType()->GetAllocator()->Allocate<WAnimGraphNode>());
 
       // copy all the non-hidden properties
-      ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p)
-        { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+      WToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const WAbstractProperty* p)
+        { return p->GetAttributeByType<WHiddenAttribute>() == nullptr; });
 
       docNodeToRuntimeNode[pNode] = pNewNode;
     }
   }
 
-  // add all node connections to the ezAnimGraph
+  // add all node connections to the WAnimGraph
   {
-    for (ezUInt32 nodeIdx = 0; nodeIdx < allNodes.GetCount(); ++nodeIdx)
+    for (WUInt32 nodeIdx = 0; nodeIdx < allNodes.GetCount(); ++nodeIdx)
     {
-      const ezDocumentObject* pNode = allNodes[nodeIdx];
+      const WDocumentObject* pNode = allNodes[nodeIdx];
 
       const auto outputPins = pNodeManager->GetOutputPins(pNode);
 
       for (auto& pPin : outputPins)
       {
-        for (const ezVisualGraphConnection* pCon : pNodeManager->GetConnections(*pPin))
+        for (const WVisualGraphConnection* pCon : pNodeManager->GetConnections(*pPin))
         {
-          const ezAnimGraphNode* pSrcNode = docNodeToRuntimeNode[pCon->GetSourcePin().GetParent()];
-          ezAnimGraphNode* pDstNode = docNodeToRuntimeNode[pCon->GetTargetPin().GetParent()];
+          const WAnimGraphNode* pSrcNode = docNodeToRuntimeNode[pCon->GetSourcePin().GetParent()];
+          WAnimGraphNode* pDstNode = docNodeToRuntimeNode[pCon->GetTargetPin().GetParent()];
 
           animGraph.AddConnection(pSrcNode, pCon->GetSourcePin().GetName(), pDstNode, pCon->GetTargetPin().GetName());
         }
@@ -307,57 +307,57 @@ ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStream
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(animGraph.Serialize(stream));
+  W_SUCCEED_OR_RETURN(animGraph.Serialize(stream));
 
-  return ezTransformStatus(EZ_SUCCESS);
+  return WTransformStatus(W_SUCCESS);
 }
 
-void ezAnimationGraphAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+void WAnimationGraphAssetDocument::InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const
 {
   // without this, changing connections only (no property value) may not result in a different asset document hash and therefore no transform
 
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
-void ezAnimationGraphAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+void WAnimationGraphAssetDocument::AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
-void ezAnimationGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
+void WAnimationGraphAssetDocument::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
 
 
-void ezAnimationGraphAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
+void WAnimationGraphAssetDocument::GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const
 {
-  out_mimeTypes.PushBack("application/ezEditor.AnimationGraphGraph");
+  out_mimeTypes.PushBack("application/WEditor.AnimationGraphGraph");
 }
 
-bool ezAnimationGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool WAnimationGraphAssetDocument::CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const
 {
-  out_MimeType = "application/ezEditor.AnimationGraphGraph";
+  out_MimeType = "application/WEditor.AnimationGraphGraph";
 
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezAnimationGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
+bool WAnimationGraphAssetDocument::Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType)
 {
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, WQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }
 
-ezAnimationGraphNodePin::ezAnimationGraphNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
-  : ezVisualGraphPin(type, szName, color, pObject)
+WAnimationGraphNodePin::WAnimationGraphNodePin(Type type, const char* szName, const WColorGammaUB& color, const WDocumentObject* pObject)
+  : WVisualGraphPin(type, szName, color, pObject)
 {
 }
 
-ezAnimationGraphNodePin::~ezAnimationGraphNodePin() = default;
+WAnimationGraphNodePin::~WAnimationGraphNodePin() = default;

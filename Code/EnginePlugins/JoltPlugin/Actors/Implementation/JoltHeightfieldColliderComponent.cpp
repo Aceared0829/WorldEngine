@@ -16,27 +16,27 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltHeightfieldColliderComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltHeightfieldColliderComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Heightfield", m_hHeightfield),
+    W_RESOURCE_MEMBER_PROPERTY("Heightfield", m_hHeightfield),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezHiddenAttribute(),
-    new ezCategoryAttribute("Physics/Jolt/Actors"),
+    new WHiddenAttribute(),
+    new WCategoryAttribute("Physics/Jolt/Actors"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezJoltHeightfieldColliderComponent::ezJoltHeightfieldColliderComponent() = default;
-ezJoltHeightfieldColliderComponent::~ezJoltHeightfieldColliderComponent() = default;
+WJoltHeightfieldColliderComponent::WJoltHeightfieldColliderComponent() = default;
+WJoltHeightfieldColliderComponent::~WJoltHeightfieldColliderComponent() = default;
 
-void ezJoltHeightfieldColliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltHeightfieldColliderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -44,10 +44,10 @@ void ezJoltHeightfieldColliderComponent::SerializeComponent(ezWorldWriter& inout
   s << m_hHeightfield;
 }
 
-void ezJoltHeightfieldColliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltHeightfieldColliderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -57,101 +57,101 @@ void ezJoltHeightfieldColliderComponent::DeserializeComponent(ezWorldReader& ino
   }
 }
 
-void ezJoltHeightfieldColliderComponent::OnSimulationStarted()
+void WJoltHeightfieldColliderComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   if (!m_hHeightfield.IsValid())
     return;
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   if (pModule == nullptr)
     return;
 
-  ezResourceLock<ezJoltHeightfieldResource> pRes(m_hHeightfield, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pRes.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WJoltHeightfieldResource> pRes(m_hHeightfield, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pRes.GetAcquireResult() != WResourceAcquireResult::Final)
   {
-    ezLog::Warning("ezJoltHeightfieldColliderComponent: could not load heightfield resource '{}'.", m_hHeightfield.GetResourceIdOrDescription());
+    WLog::Warning("WJoltHeightfieldColliderComponent: could not load heightfield resource '{}'.", m_hHeightfield.GetResourceIdOrDescription());
     return;
   }
 
-  const ezDataBuffer& shapeData = pRes->GetShapeData();
-  ezRawMemoryStreamReader memReader(shapeData);
-  ezJoltStreamIn jStream(&memReader);
+  const WDataBuffer& shapeData = pRes->GetShapeData();
+  WRawMemoryStreamReader memReader(shapeData);
+  WJoltStreamIn jStream(&memReader);
   auto shapeResult = JPH::Shape::sRestoreFromBinaryState(jStream);
   if (shapeResult.HasError())
   {
-    ezLog::Error("ezJoltHeightfieldColliderComponent: failed to restore Jolt shape from '{}': {}", m_hHeightfield.GetResourceIdOrDescription(), shapeResult.GetError().c_str());
+    WLog::Error("WJoltHeightfieldColliderComponent: failed to restore Jolt shape from '{}': {}", m_hHeightfield.GetResourceIdOrDescription(), shapeResult.GetError().c_str());
     return;
   }
 
   {
     const auto& surfaces = pRes->GetSurfaces();
-    ezTempHybridArray<JPH::PhysicsMaterialRefC, 8> materials;
+    WTempHybridArray<JPH::PhysicsMaterialRefC, 8> materials;
     materials.SetCount(surfaces.GetCount());
-    for (ezUInt32 i = 0; i < surfaces.GetCount(); ++i)
+    for (WUInt32 i = 0; i < surfaces.GetCount(); ++i)
     {
-      const ezJoltMaterial* pResolved = nullptr;
+      const WJoltMaterial* pResolved = nullptr;
       if (surfaces[i].IsValid())
       {
-        ezResourceLock<ezSurfaceResource> pSurf(surfaces[i], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-        if (pSurf.GetAcquireResult() == ezResourceAcquireResult::Final && pSurf->m_pPhysicsMaterialJolt != nullptr)
-          pResolved = reinterpret_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+        WResourceLock<WSurfaceResource> pSurf(surfaces[i], WResourceAcquireMode::BlockTillLoaded_NeverFail);
+        if (pSurf.GetAcquireResult() == WResourceAcquireResult::Final && pSurf->m_pPhysicsMaterialJolt != nullptr)
+          pResolved = reinterpret_cast<const WJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
       }
-      materials[i] = pResolved != nullptr ? pResolved : ezJoltCore::GetDefaultMaterial();
+      materials[i] = pResolved != nullptr ? pResolved : WJoltCore::GetDefaultMaterial();
     }
     if (!materials.IsEmpty())
       shapeResult.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());
   }
 
-  // Wrap in a RotatedTranslatedShape to apply the +90° X rotation that maps Jolt's Y-up to ezEngine's Z-up.
+  // Wrap in a RotatedTranslatedShape to apply the +90° X rotation that maps Jolt's Y-up to WorldEngine's Z-up.
   const JPH::Quat qRotX90 = JPH::Quat::sRotation(JPH::Vec3::sAxisX(), 0.5f * JPH::JPH_PI);
   JPH::RotatedTranslatedShapeSettings rtsSettings(JPH::Vec3::sZero(), qRotX90, shapeResult.Get());
   JPH::ShapeSettings::ShapeResult rtsResult = rtsSettings.Create();
   if (rtsResult.HasError())
   {
-    ezLog::Error("ezJoltHeightfieldColliderComponent: failed to wrap shape: {}", rtsResult.GetError().c_str());
+    WLog::Error("WJoltHeightfieldColliderComponent: failed to wrap shape: {}", rtsResult.GetError().c_str());
     return;
   }
 
-  ezJoltUserData* pUserData = nullptr;
+  WJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
   m_uiObjectFilterID = pModule->CreateObjectFilterID();
 
   // Use the first resolved material for body-level friction/restitution, or the default.
-  const ezJoltMaterial* pFirstMaterial = ezJoltCore::GetDefaultMaterial();
+  const WJoltMaterial* pFirstMaterial = WJoltCore::GetDefaultMaterial();
   if (!pRes->GetSurfaces().IsEmpty() && pRes->GetSurfaces()[0].IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pSurf(pRes->GetSurfaces()[0], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pSurf.GetAcquireResult() == ezResourceAcquireResult::Final && pSurf->m_pPhysicsMaterialJolt != nullptr)
-      pFirstMaterial = reinterpret_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+    WResourceLock<WSurfaceResource> pSurf(pRes->GetSurfaces()[0], WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pSurf.GetAcquireResult() == WResourceAcquireResult::Final && pSurf->m_pPhysicsMaterialJolt != nullptr)
+      pFirstMaterial = reinterpret_cast<const WJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
   }
 
-  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
   JPH::BodyCreationSettings bodyCfg;
   bodyCfg.SetShape(rtsResult.Get());
-  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
-  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
+  bodyCfg.mPosition = WJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = WJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Static;
-  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(pRes->GetCollisionLayer(), ezJoltBroadphaseLayer::Static);
+  bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(pRes->GetCollisionLayer(), WJoltBroadphaseLayer::Static);
   bodyCfg.mRestitution = pFirstMaterial->m_fRestitution;
   bodyCfg.mFriction = pFirstMaterial->m_fFriction;
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
   bodyCfg.mEnhancedInternalEdgeRemoval = true;
-  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+  bodyCfg.mUserData = reinterpret_cast<WUInt64>(pUserData);
 
   auto* pBodies = &pModule->GetJoltSystem()->GetBodyInterface();
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   if (pBody == nullptr)
   {
-    ezLog::Error("ezJoltHeightfieldColliderComponent: Jolt body creation failed. Increase the maximum number of bodies.");
+    WLog::Error("WJoltHeightfieldColliderComponent: Jolt body creation failed. Increase the maximum number of bodies.");
     pModule->DeallocateUserData(m_uiUserDataIndex);
     pModule->DeleteObjectFilterID(m_uiObjectFilterID);
-    m_uiUserDataIndex = ezInvalidIndex;
-    m_uiObjectFilterID = ezInvalidIndex;
+    m_uiUserDataIndex = WInvalidIndex;
+    m_uiObjectFilterID = WInvalidIndex;
     return;
   }
 
@@ -159,9 +159,9 @@ void ezJoltHeightfieldColliderComponent::OnSimulationStarted()
   pModule->QueueBodyToAdd(pBody, false);
 }
 
-void ezJoltHeightfieldColliderComponent::OnDeactivated()
+void WJoltHeightfieldColliderComponent::OnDeactivated()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   if (pModule != nullptr)
   {
@@ -193,4 +193,4 @@ void ezJoltHeightfieldColliderComponent::OnDeactivated()
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltHeightfieldColliderComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltHeightfieldColliderComponent);

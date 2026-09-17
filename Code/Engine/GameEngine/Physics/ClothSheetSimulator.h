@@ -12,43 +12,43 @@
 /// Uses Verlet Integration to update the cloth positions from velocities, and the "Jakobsen method" to enforce distance constraints.
 ///
 /// Based on https://owlree.blog/posts/simulating-a-rope.html
-class EZ_GAMEENGINE_DLL ezClothSimulator
+class W_GAMEENGINE_DLL WClothSimulator
 {
 public:
   struct Node
   {
     /// Whether this node can swing freely or will remain fixed in place.
     bool m_bFixed = false;
-    ezSimdVec4f m_vPosition = ezSimdVec4f::MakeZero();
-    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::MakeZero();
+    WSimdVec4f m_vPosition = WSimdVec4f::MakeZero();
+    WSimdVec4f m_vPreviousPosition = WSimdVec4f::MakeZero();
   };
 
   /// Resolution of the cloth along X
-  ezUInt8 m_uiWidth = 32;
+  WUInt8 m_uiWidth = 32;
 
   /// Resolution of the cloth along Y
-  ezUInt8 m_uiHeight = 32;
+  WUInt8 m_uiHeight = 32;
 
   /// Overall force acting equally upon all cloth nodes.
-  ezVec3 m_vAcceleration;
+  WVec3 m_vAcceleration;
 
   /// Factor with which all node velocities are damped to reduce swinging.
   float m_fDampingFactor = 0.995f;
 
   /// The distance along x and y between each neighboring node.
-  ezVec2 m_vSegmentLength = ezVec2(0.1f);
+  WVec2 m_vSegmentLength = WVec2(0.1f);
 
   /// All cloth nodes.
-  ezDynamicArray<Node, ezAlignedAllocatorWrapper> m_Nodes;
+  WDynamicArray<Node, WAlignedAllocatorWrapper> m_Nodes;
 
-  void SimulateCloth(const ezTime& diff);
-  void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
-  bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
+  void SimulateCloth(const WTime& diff);
+  void SimulateStep(const WSimdFloat fDiffSqr, WUInt32 uiMaxIterations, WSimdFloat fAllowedError);
+  bool HasEquilibrium(WSimdFloat fAllowedMovement) const;
 
 private:
-  ezSimdFloat EnforceDistanceConstraint();
-  void UpdateNodePositions(const ezSimdFloat tDiffSqr);
-  ezSimdVec4f MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError, ezSimdFloat fSegLen);
+  WSimdFloat EnforceDistanceConstraint();
+  void UpdateNodePositions(const WSimdFloat tDiffSqr);
+  WSimdVec4f MoveTowards(const WSimdVec4f posThis, const WSimdVec4f posNext, WSimdFloat factor, const WSimdVec4f fallbackDir, WSimdFloat& inout_fError, WSimdFloat fSegLen);
 
-  ezTime m_LeftOverTimeStep;
+  WTime m_LeftOverTimeStep;
 };

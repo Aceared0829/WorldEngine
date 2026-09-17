@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 #  include <Foundation/Communication/RemoteMessage.h>
@@ -9,7 +9,7 @@
 #  include <Foundation/Platform/Win/PipeChannel_Platform.h>
 #  include <Foundation/Serialization/ReflectionSerializer.h>
 
-ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
+WPipeChannel_win::State::State(WPipeChannel_win* pChannel)
   : IsPending(false)
 {
   memset(&Context.Overlapped, 0, sizeof(Context.Overlapped));
@@ -17,17 +17,17 @@ ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
   IsPending = false;
 }
 
-ezPipeChannel_win::State::~State() = default;
+WPipeChannel_win::State::~State() = default;
 
-ezPipeChannel_win::ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode)
-  : ezIpcChannel(sAddress, mode)
+WPipeChannel_win::WPipeChannel_win(WStringView sAddress, Mode::Enum mode)
+  : WIpcChannel(sAddress, mode)
   , m_InputState(this)
   , m_OutputState(this)
 {
   m_pOwner->AddChannel(this);
 }
 
-ezPipeChannel_win::~ezPipeChannel_win()
+WPipeChannel_win::~WPipeChannel_win()
 {
   if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
@@ -35,14 +35,14 @@ ezPipeChannel_win::~ezPipeChannel_win()
   }
   while (IsConnected())
   {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
   m_pOwner->RemoveChannel(this);
 }
 
-bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
+bool WPipeChannel_win::CreatePipe(WStringView sAddress)
 {
-  ezStringBuilder sPipename("\\\\.\\pipe\\", sAddress);
+  WStringBuilder sPipename("\\\\.\\pipe\\", sAddress);
 
   if (m_Mode == Mode::Server)
   {
@@ -51,41 +51,41 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
     attributes.lpSecurityDescriptor = NULL;
     attributes.bInheritHandle = FALSE;
 
-    m_hPipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+    m_hPipeHandle = CreateNamedPipeW(WStringWChar(sPipename).GetData(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
       PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 1, BUFFER_SIZE, BUFFER_SIZE, 5000, &attributes);
   }
   else
   {
-    m_hPipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+    m_hPipeHandle = CreateFileW(WStringWChar(sPipename).GetData(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
       SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED, NULL);
   }
 
   if (m_hPipeHandle == INVALID_HANDLE_VALUE)
   {
-    ezLog::Error("Could not create named pipe: {0}", ezArgErrorCode(GetLastError()));
+    WLog::Error("Could not create named pipe: {0}", WArgErrorCode(GetLastError()));
     return false;
   }
 
   if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
-    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(m_pOwner);
+    WMessageLoop_win* pMsgLoopWin = static_cast<WMessageLoop_win*>(m_pOwner);
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
     HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
-    EZ_IGNORE_UNUSED(port);
-    EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
+    W_IGNORE_UNUSED(port);
+    W_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", WArgErrorCode(GetLastError()));
   }
   return true;
 }
 
-void ezPipeChannel_win::InternalConnect()
+void WPipeChannel_win::InternalConnect()
 {
   if (GetConnectionState() != ConnectionState::Connecting)
     return;
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (m_ThreadId == 0)
-    m_ThreadId = ezThreadUtils::GetCurrentThreadID();
+    m_ThreadId = WThreadUtils::GetCurrentThreadID();
 #  endif
 
   if (!CreatePipe(m_sAddress))
@@ -127,14 +127,14 @@ void ezPipeChannel_win::InternalConnect()
   return;
 }
 
-void ezPipeChannel_win::InternalDisconnect()
+void WPipeChannel_win::InternalDisconnect()
 {
   if (GetConnectionState() == ConnectionState::Disconnected)
     return;
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if W_ENABLED(W_COMPILE_FOR_DEBUG)
   if (m_ThreadId != 0)
-    EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
+    W_ASSERT_DEBUG(m_ThreadId == WThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
 #  endif
   if (m_InputState.IsPending || m_OutputState.IsPending)
   {
@@ -154,7 +154,7 @@ void ezPipeChannel_win::InternalDisconnect()
 
   const bool bNeedsDisconnectedEvent = GetConnectionState() != ConnectionState::Disconnected;
   {
-    EZ_LOCK(m_OutputQueueMutex);
+    W_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
   }
 
@@ -166,7 +166,7 @@ void ezPipeChannel_win::InternalDisconnect()
   }
 }
 
-void ezPipeChannel_win::InternalSend()
+void WPipeChannel_win::InternalSend()
 {
   if (!m_OutputState.IsPending && IsConnected())
   {
@@ -175,25 +175,25 @@ void ezPipeChannel_win::InternalSend()
 }
 
 
-bool ezPipeChannel_win::NeedWakeup() const
+bool WPipeChannel_win::NeedWakeup() const
 {
   return m_OutputState.IsPending == 0;
 }
 
-bool ezPipeChannel_win::ProcessConnection()
+bool WPipeChannel_win::ProcessConnection()
 {
-  EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
+  W_ASSERT_DEBUG(m_ThreadId == WThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
   if (m_InputState.IsPending)
     m_InputState.IsPending = false;
 
   BOOL res = ConnectNamedPipe(m_hPipeHandle, &m_InputState.Context.Overlapped);
   if (res)
   {
-    // EZ_REPORT_FAILURE
+    // W_REPORT_FAILURE
     return false;
   }
 
-  ezUInt32 error = GetLastError();
+  WUInt32 error = GetLastError();
   switch (error)
   {
     case ERROR_IO_PENDING:
@@ -205,16 +205,16 @@ bool ezPipeChannel_win::ProcessConnection()
     case ERROR_NO_DATA:
       return false;
     default:
-      ezLog::Error("Could not connect to pipe (Error code: {0})", ezArgErrorCode(error));
+      WLog::Error("Could not connect to pipe (Error code: {0})", WArgErrorCode(error));
       return false;
   }
 
   return true;
 }
 
-bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
+bool WPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
 {
-  EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
+  W_ASSERT_DEBUG(m_ThreadId == WThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
   if (m_InputState.IsPending)
   {
     m_InputState.IsPending = false;
@@ -233,7 +233,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
 
       if (!res)
       {
-        ezUInt32 error = GetLastError();
+        WUInt32 error = GetLastError();
         if (error == ERROR_IO_PENDING)
         {
           m_InputState.IsPending = true;
@@ -242,7 +242,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
         if (m_Mode == Mode::Server)
         {
           // only log when in server mode, otherwise this can result in an endless recursion
-          ezLog::Error("Read from pipe failed: {0}", ezArgErrorCode(error));
+          WLog::Error("Read from pipe failed: {0}", WArgErrorCode(error));
         }
         return false;
       }
@@ -250,17 +250,17 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
       return true;
     }
 
-    EZ_ASSERT_DEBUG(uiBytesRead != 0, "We really should have data at this point.");
-    ReceiveData(ezArrayPtr<ezUInt8>(m_InputBuffer, uiBytesRead));
+    W_ASSERT_DEBUG(uiBytesRead != 0, "We really should have data at this point.");
+    ReceiveData(WArrayPtr<WUInt8>(m_InputBuffer, uiBytesRead));
     uiBytesRead = 0;
   }
   return true;
 }
 
-bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
+bool WPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 {
-  EZ_ASSERT_DEBUG(IsConnected(), "Must be connected to process outgoing messages.");
-  EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
+  W_ASSERT_DEBUG(IsConnected(), "Must be connected to process outgoing messages.");
+  W_ASSERT_DEBUG(m_ThreadId == WThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
 
   if (m_OutputState.IsPending)
   {
@@ -268,12 +268,12 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     {
       // Don't reset isPending right away as we want to use it to decide
       // whether we need to wake up the worker thread again.
-      ezLog::Error("pipe error: {0}", ezArgErrorCode(GetLastError()));
+      WLog::Error("pipe error: {0}", WArgErrorCode(GetLastError()));
       m_OutputState.IsPending = false;
       return false;
     }
 
-    EZ_LOCK(m_OutputQueueMutex);
+    W_LOCK(m_OutputQueueMutex);
     // message was send
     m_OutputQueue.PopFront();
   }
@@ -283,9 +283,9 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     m_OutputState.IsPending = false;
     return false;
   }
-  const ezMemoryStreamStorageInterface* storage = nullptr;
+  const WMemoryStreamStorageInterface* storage = nullptr;
   {
-    EZ_LOCK(m_OutputQueueMutex);
+    W_LOCK(m_OutputQueueMutex);
     if (m_OutputQueue.IsEmpty())
     {
       m_OutputState.IsPending = false;
@@ -294,24 +294,24 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     storage = &m_OutputQueue.PeekFront();
   }
 
-  ezUInt64 uiToWrite = storage->GetStorageSize64();
-  ezUInt64 uiNextOffset = 0;
+  WUInt64 uiToWrite = storage->GetStorageSize64();
+  WUInt64 uiNextOffset = 0;
   while (uiToWrite > 0)
   {
-    const ezArrayPtr<const ezUInt8> range = storage->GetContiguousMemoryRange(uiNextOffset);
+    const WArrayPtr<const WUInt8> range = storage->GetContiguousMemoryRange(uiNextOffset);
     uiToWrite -= range.GetCount();
 
     BOOL res = WriteFile(m_hPipeHandle, range.GetPtr(), range.GetCount(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
 
     if (!res)
     {
-      ezUInt32 error = GetLastError();
+      WUInt32 error = GetLastError();
       if (error == ERROR_IO_PENDING)
       {
         m_OutputState.IsPending = true;
         return true;
       }
-      ezLog::Error("Write to pipe failed: {0}", ezArgErrorCode(error));
+      WLog::Error("Write to pipe failed: {0}", WArgErrorCode(error));
       return false;
     }
 
@@ -323,11 +323,11 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
   return true;
 }
 
-void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfered, DWORD uiError)
+void WPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfered, DWORD uiError)
 {
-  EZ_IGNORE_UNUSED(uiError);
+  W_IGNORE_UNUSED(uiError);
 
-  EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
+  W_ASSERT_DEBUG(m_ThreadId == WThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
   bool bRes = true;
   if (pContext == &m_InputState.Context)
   {
@@ -341,7 +341,7 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
 
       bool bHasOutput = false;
       {
-        EZ_LOCK(m_OutputQueueMutex);
+        W_LOCK(m_OutputQueueMutex);
         bHasOutput = !m_OutputQueue.IsEmpty();
       }
 
@@ -354,7 +354,7 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
   }
   else
   {
-    EZ_ASSERT_DEBUG(pContext == &m_OutputState.Context, "");
+    W_ASSERT_DEBUG(pContext == &m_OutputState.Context, "");
     bRes = ProcessOutgoingMessages(uiBytesTransfered);
   }
   if (!bRes && m_hPipeHandle != INVALID_HANDLE_VALUE)

@@ -1,10 +1,10 @@
 Plugin
 {
-	string %Path{"ezKrautPlugin"}
+	string %Path{"WKrautPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"WParticlePlugin"}
 	bool %LoadCopy{false}
 }

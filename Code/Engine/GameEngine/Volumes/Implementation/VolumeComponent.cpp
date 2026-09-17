@@ -7,37 +7,37 @@
 #include <RendererCore/Utils/BlackboardTemplateResource.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WVolumeComponent, 1)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Type", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
-    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Template", GetTemplate, SetTemplate)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
-    EZ_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
+    W_ACCESSOR_PROPERTY("Type", GetVolumeType, SetVolumeType)->AddAttributes(new WDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new WDefaultValueAttribute("GenericVolume")),
+    W_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new WClampValueAttribute(-64.0f, 64.0f)),
+    W_RESOURCE_ACCESSOR_PROPERTY("Template", GetTemplate, SetTemplate)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    W_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new WCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+W_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezVolumeComponent::ezVolumeComponent() = default;
-ezVolumeComponent::~ezVolumeComponent() = default;
+WVolumeComponent::WVolumeComponent() = default;
+WVolumeComponent::~WVolumeComponent() = default;
 
-void ezVolumeComponent::OnActivated()
+void WVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -46,7 +46,7 @@ void ezVolumeComponent::OnActivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezVolumeComponent::OnDeactivated()
+void WVolumeComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
@@ -55,7 +55,7 @@ void ezVolumeComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hResource)
+void WVolumeComponent::SetTemplate(const WBlackboardTemplateResourceHandle& hResource)
 {
   RemoveReloadFunction();
 
@@ -67,15 +67,15 @@ void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hR
   }
 }
 
-void ezVolumeComponent::SetSortOrder(float fOrder)
+void WVolumeComponent::SetSortOrder(float fOrder)
 {
-  fOrder = ezMath::Clamp(fOrder, -64.0f, 64.0f);
+  fOrder = WMath::Clamp(fOrder, -64.0f, 64.0f);
   m_fSortOrder = fOrder;
 }
 
-void ezVolumeComponent::SetVolumeType(const char* szType)
+void WVolumeComponent::SetVolumeType(const char* szType)
 {
-  m_SpatialCategory = ezSpatialData::RegisterCategory(szType, ezSpatialData::Flags::None);
+  m_SpatialCategory = WSpatialData::RegisterCategory(szType, WSpatialData::Flags::None);
 
   if (IsActiveAndInitialized())
   {
@@ -83,35 +83,35 @@ void ezVolumeComponent::SetVolumeType(const char* szType)
   }
 }
 
-const char* ezVolumeComponent::GetVolumeType() const
+const char* WVolumeComponent::GetVolumeType() const
 {
-  return ezSpatialData::GetCategoryName(m_SpatialCategory);
+  return WSpatialData::GetCategoryName(m_SpatialCategory);
 }
 
-void ezVolumeComponent::SetValue(const ezHashedString& sName, const ezVariant& value)
+void WVolumeComponent::SetValue(const WHashedString& sName, const WVariant& value)
 {
   m_Values.Insert(sName, value);
 }
 
-void ezVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fSortOrder;
 
-  auto& sCategory = ezSpatialData::GetCategoryName(m_SpatialCategory);
+  auto& sCategory = WSpatialData::GetCategoryName(m_SpatialCategory);
   s << sCategory;
 
   s << m_hTemplateResource;
 
   // Only serialize overwritten values so a template change doesn't require a re-save of all volumes
-  ezUInt32 numValues = m_OverwrittenValues.GetCount();
+  WUInt32 numValues = m_OverwrittenValues.GetCount();
   s << numValues;
   for (auto& sName : m_OverwrittenValues)
   {
-    ezVariant value;
+    WVariant value;
     m_Values.TryGetValue(sName, value);
 
     s << sName;
@@ -119,27 +119,27 @@ void ezVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   }
 }
 
-void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fSortOrder;
 
-  ezHashedString sCategory;
+  WHashedString sCategory;
   s >> sCategory;
-  m_SpatialCategory = ezSpatialData::RegisterCategory(sCategory, ezSpatialData::Flags::None);
+  m_SpatialCategory = WSpatialData::RegisterCategory(sCategory, WSpatialData::Flags::None);
 
   s >> m_hTemplateResource;
 
   // m_OverwrittenValues is only used in editor so we don't write to it here
-  ezUInt32 numValues = 0;
+  WUInt32 numValues = 0;
   s >> numValues;
-  for (ezUInt32 i = 0; i < numValues; ++i)
+  for (WUInt32 i = 0; i < numValues; ++i)
   {
-    ezHashedString sName;
-    ezVariant value;
+    WHashedString sName;
+    WVariant value;
     s >> sName;
     s >> value;
 
@@ -147,30 +147,30 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-const ezRangeView<const ezString&, ezUInt32> ezVolumeComponent::Reflection_GetKeys() const
+const WRangeView<const WString&, WUInt32> WVolumeComponent::Reflection_GetKeys() const
 {
-  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const WString&, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_OverwrittenValues.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const ezString&
+    [this](const WUInt32& uiIt) -> const WString&
     { return m_OverwrittenValues[uiIt].GetString(); });
 }
 
-bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value) const
+bool WVolumeComponent::Reflection_GetValue(const char* szName, WVariant& value) const
 {
-  return m_Values.TryGetValue(ezTempHashedString(szName), value);
+  return m_Values.TryGetValue(WTempHashedString(szName), value);
 }
 
-void ezVolumeComponent::Reflection_InsertValue(const char* szName, const ezVariant& value)
+void WVolumeComponent::Reflection_InsertValue(const char* szName, const WVariant& value)
 {
-  ezHashedString sName;
+  WHashedString sName;
   sName.Assign(szName);
 
   // Only needed in editor
-  if (GetUniqueID() != ezInvalidIndex && m_OverwrittenValues.Contains(sName) == false)
+  if (GetUniqueID() != WInvalidIndex && m_OverwrittenValues.Contains(sName) == false)
   {
     m_OverwrittenValues.PushBack(sName);
   }
@@ -178,9 +178,9 @@ void ezVolumeComponent::Reflection_InsertValue(const char* szName, const ezVaria
   m_Values.Insert(sName, value);
 }
 
-void ezVolumeComponent::Reflection_RemoveValue(const char* szName)
+void WVolumeComponent::Reflection_RemoveValue(const char* szName)
 {
-  ezHashedString sName;
+  WHashedString sName;
   sName.Assign(szName);
 
   m_OverwrittenValues.RemoveAndCopy(sName);
@@ -188,13 +188,13 @@ void ezVolumeComponent::Reflection_RemoveValue(const char* szName)
   m_Values.Remove(sName);
 }
 
-void ezVolumeComponent::InitializeFromTemplate()
+void WVolumeComponent::InitializeFromTemplate()
 {
   if (!m_hTemplateResource.IsValid())
     return;
 
-  ezResourceLock<ezBlackboardTemplateResource> pTemplate(m_hTemplateResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pTemplate.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WBlackboardTemplateResource> pTemplate(m_hTemplateResource, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pTemplate.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   for (const auto& entry : pTemplate->GetDescriptor().m_Entries)
@@ -208,19 +208,19 @@ void ezVolumeComponent::InitializeFromTemplate()
   if (m_bReloadFunctionAdded == false)
   {
     GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
-      [](const ezWorld::ResourceReloadContext& context)
+      [](const WWorld::ResourceReloadContext& context)
       {
-        ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
+        WStaticCast<WVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
       });
 
     m_bReloadFunctionAdded = true;
   }
 }
 
-void ezVolumeComponent::ReloadTemplate()
+void WVolumeComponent::ReloadTemplate()
 {
   // Remove all values that are not overwritten
-  ezHashTable<ezHashedString, ezVariant> overwrittenValues;
+  WHashTable<WHashedString, WVariant> overwrittenValues;
   for (auto& sName : m_OverwrittenValues)
   {
     overwrittenValues.Insert(sName, m_Values[sName]);
@@ -230,7 +230,7 @@ void ezVolumeComponent::ReloadTemplate()
   InitializeFromTemplate();
 }
 
-void ezVolumeComponent::RemoveReloadFunction()
+void WVolumeComponent::RemoveReloadFunction()
 {
   if (m_bReloadFunctionAdded)
   {
@@ -243,33 +243,33 @@ void ezVolumeComponent::RemoveReloadFunction()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVolumeSphereComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WVolumeSphereComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", ezColorScheme::LightUI(ezColorScheme::Cyan)),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius", WColorScheme::LightUI(WColorScheme::Cyan)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezVolumeSphereComponent::ezVolumeSphereComponent() = default;
-ezVolumeSphereComponent::~ezVolumeSphereComponent() = default;
+WVolumeSphereComponent::WVolumeSphereComponent() = default;
+WVolumeSphereComponent::~WVolumeSphereComponent() = default;
 
-void ezVolumeSphereComponent::SetRadius(float fRadius)
+void WVolumeSphereComponent::SetRadius(float fRadius)
 {
   if (m_fRadius != fRadius)
   {
@@ -282,66 +282,66 @@ void ezVolumeSphereComponent::SetRadius(float fRadius)
   }
 }
 
-void ezVolumeSphereComponent::SetFalloff(float fFalloff)
+void WVolumeSphereComponent::SetFalloff(float fFalloff)
 {
-  m_fFalloff = ezMath::Max(fFalloff, 0.0001f);
+  m_fFalloff = WMath::Max(fFalloff, 0.0001f);
 }
 
-void ezVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WVolumeSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFalloff;
 }
 
-void ezVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WVolumeSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
 }
 
-void ezVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WVolumeSphereComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), m_SpatialCategory);
+  ref_msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), m_SpatialCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVolumeBoxComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WVolumeBoxComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
+    W_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new WDefaultValueAttribute(WVec3(10.0f)), new WClampValueAttribute(WVec3(0), WVariant())),
+    W_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new WDefaultValueAttribute(WVec3(0.5f)), new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Cyan)),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColorScheme::LightUI(WColorScheme::Cyan)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezVolumeBoxComponent::ezVolumeBoxComponent() = default;
-ezVolumeBoxComponent::~ezVolumeBoxComponent() = default;
+WVolumeBoxComponent::WVolumeBoxComponent() = default;
+WVolumeBoxComponent::~WVolumeBoxComponent() = default;
 
-void ezVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
+void WVolumeBoxComponent::SetExtents(const WVec3& vExtents)
 {
   if (m_vExtents != vExtents)
   {
@@ -354,35 +354,35 @@ void ezVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
   }
 }
 
-void ezVolumeBoxComponent::SetFalloff(const ezVec3& vFalloff)
+void WVolumeBoxComponent::SetFalloff(const WVec3& vFalloff)
 {
-  m_vFalloff = vFalloff.CompMax(ezVec3(0.0001f));
+  m_vFalloff = vFalloff.CompMax(WVec3(0.0001f));
 }
 
-void ezVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WVolumeBoxComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_vFalloff;
 }
 
-void ezVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WVolumeBoxComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vFalloff;
 }
 
-void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WVolumeBoxComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), m_SpatialCategory);
+  ref_msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), m_SpatialCategory);
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeComponent);

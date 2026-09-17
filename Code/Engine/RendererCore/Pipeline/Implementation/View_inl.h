@@ -1,159 +1,159 @@
 
-EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
+W_ALWAYS_INLINE WViewHandle WView::GetHandle() const
 {
-  return ezViewHandle(m_InternalId);
+  return WViewHandle(m_InternalId);
 }
 
-EZ_ALWAYS_INLINE ezStringView ezView::GetName() const
+W_ALWAYS_INLINE WStringView WView::GetName() const
 {
   return m_Data.m_sName.GetView();
 }
 
-EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()
+W_ALWAYS_INLINE WWorld* WView::GetWorld()
 {
   return m_pWorld;
 }
 
-EZ_ALWAYS_INLINE const ezWorld* ezView::GetWorld() const
+W_ALWAYS_INLINE const WWorld* WView::GetWorld() const
 {
   return m_pWorld;
 }
 
-EZ_ALWAYS_INLINE ezGALSwapChainHandle ezView::GetSwapChain() const
+W_ALWAYS_INLINE WGALSwapChainHandle WView::GetSwapChain() const
 {
   return m_Data.m_hSwapChain;
 }
 
-EZ_ALWAYS_INLINE const ezGALRenderTargets& ezView::GetRenderTargets() const
+W_ALWAYS_INLINE const WGALRenderTargets& WView::GetRenderTargets() const
 {
   return m_Data.m_RenderTargets;
 }
 
-EZ_ALWAYS_INLINE void ezView::SetCamera(ezCamera* pCamera)
+W_ALWAYS_INLINE void WView::SetCamera(WCamera* pCamera)
 {
   m_pCamera = pCamera;
 }
 
-EZ_ALWAYS_INLINE ezCamera* ezView::GetCamera()
+W_ALWAYS_INLINE WCamera* WView::GetCamera()
 {
   return m_pCamera;
 }
 
-EZ_ALWAYS_INLINE const ezCamera* ezView::GetCamera() const
+W_ALWAYS_INLINE const WCamera* WView::GetCamera() const
 {
   return m_pCamera;
 }
 
-EZ_ALWAYS_INLINE void ezView::SetCullingCamera(const ezCamera* pCamera)
+W_ALWAYS_INLINE void WView::SetCullingCamera(const WCamera* pCamera)
 {
   m_pCullingCamera = pCamera;
 }
 
-EZ_ALWAYS_INLINE const ezCamera* ezView::GetCullingCamera() const
+W_ALWAYS_INLINE const WCamera* WView::GetCullingCamera() const
 {
   return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
-EZ_ALWAYS_INLINE void ezView::SetLodCamera(const ezCamera* pCamera)
+W_ALWAYS_INLINE void WView::SetLodCamera(const WCamera* pCamera)
 {
   m_pLodCamera = pCamera;
 }
 
-EZ_ALWAYS_INLINE const ezCamera* ezView::GetLodCamera() const
+W_ALWAYS_INLINE const WCamera* WView::GetLodCamera() const
 {
   return m_pLodCamera != nullptr ? m_pLodCamera : m_pCamera;
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezCameraUsageHint> ezView::GetCameraUsageHint() const
+W_ALWAYS_INLINE WEnum<WCameraUsageHint> WView::GetCameraUsageHint() const
 {
   return m_Data.m_CameraUsageHint;
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezViewRenderMode> ezView::GetViewRenderMode() const
+W_ALWAYS_INLINE WEnum<WViewRenderMode> WView::GetViewRenderMode() const
 {
   return m_Data.m_ViewRenderMode;
 }
 
-EZ_ALWAYS_INLINE const ezRectFloat& ezView::GetViewport() const
+W_ALWAYS_INLINE const WRectFloat& WView::GetViewport() const
 {
   return m_Data.m_ViewPortRect;
 }
 
-EZ_ALWAYS_INLINE const ezViewData& ezView::GetData() const
+W_ALWAYS_INLINE const WViewData& WView::GetData() const
 {
   UpdateCachedMatrices();
   return m_Data;
 }
 
-EZ_FORCE_INLINE bool ezView::IsValid() const
+W_FORCE_INLINE bool WView::IsValid() const
 {
   return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pCamera != nullptr && m_Data.m_ViewPortRect.HasNonZeroArea();
 }
 
-EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezView::GetExtractTask()
+W_ALWAYS_INLINE const WSharedPtr<WTask>& WView::GetExtractTask()
 {
   return m_pExtractTask;
 }
 
-EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const
+W_FORCE_INLINE WResult WView::ComputePickingRay(float fScreenPosX, float fScreenPosY, WVec3& out_vRayStartPos, WVec3& out_vRayDir) const
 {
   UpdateCachedMatrices();
   return m_Data.ComputePickingRay(fScreenPosX, fScreenPosY, out_vRayStartPos, out_vRayDir);
 }
 
-EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const
+W_FORCE_INLINE WResult WView::ComputeScreenSpacePos(const WVec3& vPoint, WVec3& out_vScreenPos) const
 {
   UpdateCachedMatrices();
   return m_Data.ComputeScreenSpacePos(vPoint, out_vScreenPos);
 }
 
-EZ_FORCE_INLINE ezResult ezView::ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const
+W_FORCE_INLINE WResult WView::ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, WVec3& out_vWorldPos) const
 {
   UpdateCachedMatrices();
   return m_Data.ComputeWorldSpacePos(fNormalizedScreenPosX, fNormalizedScreenPosY, out_vWorldPos);
 }
 
-EZ_FORCE_INLINE void ezView::ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos)
+W_FORCE_INLINE void WView::ConvertScreenPixelPosToNormalizedPos(WVec3& inout_vPixelPos)
 {
   m_Data.ConvertScreenPixelPosToNormalizedPos(inout_vPixelPos);
 }
 
-EZ_FORCE_INLINE void ezView::ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos)
+W_FORCE_INLINE void WView::ConvertScreenNormalizedPosToPixelPos(WVec3& inout_vNormalizedPos)
 {
   m_Data.ConvertScreenNormalizedPosToPixelPos(inout_vNormalizedPos);
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetProjectionMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetProjectionMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_ProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseProjectionMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetInverseProjectionMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_InverseProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetViewMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_ViewMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetInverseViewMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_InverseViewMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewProjectionMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetViewProjectionMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_ViewProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WView::GetInverseViewProjectionMatrix(WCameraEye eye) const
 {
   UpdateCachedMatrices();
   return m_Data.m_InverseViewProjectionMatrix[static_cast<int>(eye)];

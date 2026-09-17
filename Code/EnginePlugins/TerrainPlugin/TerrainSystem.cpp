@@ -19,21 +19,21 @@
 #include <TerrainPlugin/TerrainSystem.h>
 #include <Texture/Image/ImageUtils.h>
 
-static void ExecuteGraphSync(ezRenderGraph& ref_graph, ezGALDevice* pDevice)
+static void ExecuteGraphSync(WRenderGraph& ref_graph, WGALDevice* pDevice)
 {
-  EZ_VERIFY(ref_graph.Compile().Succeeded(), "Terrain sync render graph compilation failed");
+  W_VERIFY(ref_graph.Compile().Succeeded(), "Terrain sync render graph compilation failed");
 
   pDevice->BeginFrame();
 
-  ezGALResourceStateTracker tracker(pDevice);
+  WGALResourceStateTracker tracker(pDevice);
   ref_graph.ComputeBarriers(tracker);
 
   auto* pEncoder = pDevice->BeginCommands("TerrainSync");
-  ezRenderGraphContext ctx(pEncoder, pDevice, ezRenderContext::GetDefaultInstance());
+  WRenderGraphContext ctx(pEncoder, pDevice, WRenderContext::GetDefaultInstance());
   ref_graph.Execute(ctx);
 
-  ezHybridArray<ezGALBufferBarrier, 4> bufBarriers;
-  tracker.RevertBufferState([&](const ezGALBufferBarrier& b)
+  WHybridArray<WGALBufferBarrier, 4> bufBarriers;
+  tracker.RevertBufferState([&](const WGALBufferBarrier& b)
     { bufBarriers.PushBack(b); });
   if (!bufBarriers.IsEmpty())
     pEncoder->BufferBarrier(bufBarriers);
@@ -44,67 +44,67 @@ static void ExecuteGraphSync(ezRenderGraph& ref_graph, ezGALDevice* pDevice)
 }
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezTerrainSystem);
+W_IMPLEMENT_WORLD_MODULE(WTerrainSystem);
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTerrainSystem, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTerrainSystem, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTerrainResolution, 1)
-  EZ_ENUM_CONSTANT(ezTerrainResolution::Res32),
-  EZ_ENUM_CONSTANT(ezTerrainResolution::Res64),
-  EZ_ENUM_CONSTANT(ezTerrainResolution::Res128),
-  EZ_ENUM_CONSTANT(ezTerrainResolution::Res256),
-  EZ_ENUM_CONSTANT(ezTerrainResolution::Res512),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTerrainResolution, 1)
+  W_ENUM_CONSTANT(WTerrainResolution::Res32),
+  W_ENUM_CONSTANT(WTerrainResolution::Res64),
+  W_ENUM_CONSTANT(WTerrainResolution::Res128),
+  W_ENUM_CONSTANT(WTerrainResolution::Res256),
+  W_ENUM_CONSTANT(WTerrainResolution::Res512),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTerrainPatchColliderMode, 1)
-  EZ_ENUM_CONSTANT(ezTerrainPatchColliderMode::None),
-  EZ_ENUM_CONSTANT(ezTerrainPatchColliderMode::FullResolution),
-  EZ_ENUM_CONSTANT(ezTerrainPatchColliderMode::HalfResolution),
-  EZ_ENUM_CONSTANT(ezTerrainPatchColliderMode::QuarterResolution),
-  EZ_ENUM_CONSTANT(ezTerrainPatchColliderMode::EighthResolution),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTerrainPatchColliderMode, 1)
+  W_ENUM_CONSTANT(WTerrainPatchColliderMode::None),
+  W_ENUM_CONSTANT(WTerrainPatchColliderMode::FullResolution),
+  W_ENUM_CONSTANT(WTerrainPatchColliderMode::HalfResolution),
+  W_ENUM_CONSTANT(WTerrainPatchColliderMode::QuarterResolution),
+  W_ENUM_CONSTANT(WTerrainPatchColliderMode::EighthResolution),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezDeque<ezTerrainSystem*> ezTerrainSystem::s_TerrainSystems;
+WDeque<WTerrainSystem*> WTerrainSystem::s_TerrainSystems;
 
-ezTerrainSystem::ezTerrainSystem(ezWorld* pWorld)
+WTerrainSystem::WTerrainSystem(WWorld* pWorld)
   : SUPER(pWorld)
 {
 }
 
-ezTerrainSystem::~ezTerrainSystem() = default;
+WTerrainSystem::~WTerrainSystem() = default;
 
-void ezTerrainSystem::Initialize()
+void WTerrainSystem::Initialize()
 {
   SUPER::Initialize();
 
   if (s_TerrainSystems.IsEmpty())
   {
-    ezRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
+    WRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
   }
 
   s_TerrainSystems.PushBack(this);
 
-  m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("TerrainBake", ezRenderGraphPhase::PreRender);
+  m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("TerrainBake", WRenderGraphPhase::PreRender);
 
-  m_hTerrainBakeStep1Shader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep1CS.ezShader");
-  m_hTerrainBakeStep2Shader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep2CS.ezShader");
-  m_hTerrainBakeStep3Shader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep3CS.ezShader");
-  m_hHeightfieldBakeConstants = ezRenderContext::CreateConstantBufferStorage<HeightfieldBakeConstants>();
+  m_hTerrainBakeStep1Shader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep1CS.WShader");
+  m_hTerrainBakeStep2Shader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep2CS.WShader");
+  m_hTerrainBakeStep3Shader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/HeightfieldTerrainBakeStep3CS.WShader");
+  m_hHeightfieldBakeConstants = WRenderContext::CreateConstantBufferStorage<HeightfieldBakeConstants>();
 
-  m_hVoxelBakeShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelBakeCS.ezShader");
-  m_hVoxelMeshClearShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelMeshClearCS.ezShader");
-  m_hVoxelSurfaceNetsPass1Shader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelSurfaceNetsPass1CS.ezShader");
-  m_hVoxelSurfaceNetsPass2Shader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelSurfaceNetsPass2CS.ezShader");
-  m_hVoxelBlurDistShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelBlurDistCS.ezShader");
-  m_hVoxelCleanupShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelCleanupCS.ezShader");
-  m_hVoxelFillCompactCopyArgsShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelFillCompactCopyArgsCS.ezShader");
-  m_hVoxelCompactCopyShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Terrain/Generation/VoxelCompactCopyCS.ezShader");
-  m_hVoxelBakeConstants = ezRenderContext::CreateConstantBufferStorage<VoxelBakeConstants>();
+  m_hVoxelBakeShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelBakeCS.WShader");
+  m_hVoxelMeshClearShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelMeshClearCS.WShader");
+  m_hVoxelSurfaceNetsPass1Shader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelSurfaceNetsPass1CS.WShader");
+  m_hVoxelSurfaceNetsPass2Shader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelSurfaceNetsPass2CS.WShader");
+  m_hVoxelBlurDistShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelBlurDistCS.WShader");
+  m_hVoxelCleanupShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelCleanupCS.WShader");
+  m_hVoxelFillCompactCopyArgsShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelFillCompactCopyArgsCS.WShader");
+  m_hVoxelCompactCopyShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Terrain/Generation/VoxelCompactCopyCS.WShader");
+  m_hVoxelBakeConstants = WRenderContext::CreateConstantBufferStorage<VoxelBakeConstants>();
 }
 
-void ezTerrainSystem::Deinitialize()
+void WTerrainSystem::Deinitialize()
 {
   FrameCleanup();
 
@@ -112,42 +112,42 @@ void ezTerrainSystem::Deinitialize()
 
   if (s_TerrainSystems.IsEmpty())
   {
-    ezRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
+    WRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
   }
 
   m_pRenderGraph = nullptr;
 
-  ezRenderContext::DeleteConstantBufferStorage(m_hHeightfieldBakeConstants);
+  WRenderContext::DeleteConstantBufferStorage(m_hHeightfieldBakeConstants);
   DestroyHeightfields();
   DestroySharedHeightfieldScratch();
 
-  ezRenderContext::DeleteConstantBufferStorage(m_hVoxelBakeConstants);
+  WRenderContext::DeleteConstantBufferStorage(m_hVoxelBakeConstants);
   DestroyVoxelVolumes();
   DestroySharedVoxelScratch();
 
   SUPER::Deinitialize();
 }
 
-void ezTerrainSystem::FrameCleanup()
+void WTerrainSystem::FrameCleanup()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  for (ezUInt32 idx : m_QueuedHeightfieldsToDelete)
+  for (WUInt32 idx : m_QueuedHeightfieldsToDelete)
   {
     DestroyHeightfieldTerrain(idx);
   }
   m_QueuedHeightfieldsToDelete.Clear();
 
-  for (ezUInt32 idx : m_QueuedVoxelVolumesToDelete)
+  for (WUInt32 idx : m_QueuedVoxelVolumesToDelete)
   {
     DestroyVoxelTerrain(idx);
   }
   m_QueuedVoxelVolumesToDelete.Clear();
 }
 
-void ezTerrainSystem::OnRenderEvent(const ezRenderWorldRenderEvent& e)
+void WTerrainSystem::OnRenderEvent(const WRenderWorldRenderEvent& e)
 {
-  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+  if (e.m_Type != WRenderWorldRenderEvent::Type::BeginRender)
     return;
 
   for (auto* pTerrain : s_TerrainSystems)
@@ -156,7 +156,7 @@ void ezTerrainSystem::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   }
 }
 
-void ezTerrainSystem::UpdateTerrain()
+void WTerrainSystem::UpdateTerrain()
 {
   FrameCleanup();
 
@@ -189,13 +189,13 @@ void ezTerrainSystem::UpdateTerrain()
   if (!bAnyDirty)
     return;
 
-  EZ_PROFILE_SCOPE("UpdateTerrain");
+  W_PROFILE_SCOPE("UpdateTerrain");
 
   m_pRenderGraph->Reset();
 
-  for (ezUInt32 i = 0; i < m_Heightfields.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Heightfields.GetCount(); ++i)
   {
-    ezTerrainData_Heightfield& patch = m_Heightfields[i];
+    WTerrainData_Heightfield& patch = m_Heightfields[i];
 
     if (!patch.m_bInUse)
       continue;
@@ -204,7 +204,7 @@ void ezTerrainSystem::UpdateTerrain()
 
     if (m_bBrushesDirty)
     {
-      const ezUInt64 uiNewHash = ComputeHeightfieldBrushOverlapHash(patch);
+      const WUInt64 uiNewHash = ComputeHeightfieldBrushOverlapHash(patch);
       if (uiNewHash != patch.m_uiBrushOverlapHash)
         bShouldBake = true;
 
@@ -217,14 +217,14 @@ void ezTerrainSystem::UpdateTerrain()
     }
   }
 
-  for (ezUInt32 i = 0; i < m_VoxelVolumes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_VoxelVolumes.GetCount(); ++i)
   {
-    ezTerrainData_Voxel& vol = m_VoxelVolumes[i];
+    WTerrainData_Voxel& vol = m_VoxelVolumes[i];
     if (!vol.m_bInUse)
       continue;
 
     bool bShouldBake = vol.m_bDirty;
-    ezUInt64 uiNewHash = vol.m_uiBrushOverlapHash;
+    WUInt64 uiNewHash = vol.m_uiBrushOverlapHash;
     if (m_bBrushesDirty)
     {
       uiNewHash = ComputeVoxelBrushOverlapHash(vol);
@@ -240,7 +240,7 @@ void ezTerrainSystem::UpdateTerrain()
     }
   }
 
-  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  WRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
 
   m_bBrushesDirty = false;
 }
@@ -249,9 +249,9 @@ void ezTerrainSystem::UpdateTerrain()
 // Brushes
 //////////////////////////////////////////////////////////////////////////
 
-ezUInt32 ezTerrainSystem::CreateBrushData()
+WUInt32 WTerrainSystem::CreateBrushData()
 {
-  for (ezUInt32 idx = 0; idx < m_Brushes.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < m_Brushes.GetCount(); ++idx)
   {
     if (!m_Brushes[idx].m_bInUse)
     {
@@ -264,55 +264,55 @@ ezUInt32 ezTerrainSystem::CreateBrushData()
   return m_Brushes.GetCount() - 1;
 }
 
-void ezTerrainSystem::RemoveBrushData(ezUInt32& ref_uiIdx)
+void WTerrainSystem::RemoveBrushData(WUInt32& ref_uiIdx)
 {
-  if (ref_uiIdx == ezInvalidIndex)
+  if (ref_uiIdx == WInvalidIndex)
     return;
 
-  EZ_ASSERT_DEV(ref_uiIdx < m_Brushes.GetCount(), "Invalid brush index");
+  W_ASSERT_DEV(ref_uiIdx < m_Brushes.GetCount(), "Invalid brush index");
 
   m_bBrushesDirty = true;
   m_Brushes[ref_uiIdx].m_bInUse = false;
-  ref_uiIdx = ezInvalidIndex;
+  ref_uiIdx = WInvalidIndex;
 }
 
-const ezTerrainData_Brush& ezTerrainSystem::ReadBrushData(ezUInt32 uiIdx) const
+const WTerrainData_Brush& WTerrainSystem::ReadBrushData(WUInt32 uiIdx) const
 {
   return m_Brushes[uiIdx];
 }
 
-ezTerrainData_Brush& ezTerrainSystem::ModifyBrushData(ezUInt32 uiIdx)
+WTerrainData_Brush& WTerrainSystem::ModifyBrushData(WUInt32 uiIdx)
 {
   m_bBrushesDirty = true;
   return m_Brushes[uiIdx];
 }
 
-ezGALBufferHandle ezTerrainSystem::CreateBrushBuffer(ezDynamicArray<TerrainBrushData>& brushes, ezGALDevice* pDevice) const
+WGALBufferHandle WTerrainSystem::CreateBrushBuffer(WDynamicArray<TerrainBrushData>& brushes, WGALDevice* pDevice) const
 {
   // Always allocate at least one element so the binding is always valid.
   // BrushCount=0 prevents the shader from indexing into it.
   if (brushes.IsEmpty())
     brushes.ExpandAndGetRef();
 
-  ezGALBufferCreationDescription brushDesc;
+  WGALBufferCreationDescription brushDesc;
   brushDesc.m_uiStructSize = sizeof(TerrainBrushData);
   brushDesc.m_uiTotalSize = brushes.GetCount() * sizeof(TerrainBrushData);
-  brushDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  brushDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
 
-  return pDevice->CreateBuffer(brushDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(brushes.GetData()), brushes.GetCount() * sizeof(TerrainBrushData)));
+  return pDevice->CreateBuffer(brushDesc, WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(brushes.GetData()), brushes.GetCount() * sizeof(TerrainBrushData)));
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Heightfield Terrain
 //////////////////////////////////////////////////////////////////////////
 
-ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
+WUInt32 WTerrainSystem::CreateHeightfieldTerrain(WUInt32 uiCellsPerSide)
 {
-  EZ_PROFILE_SCOPE("CreateHeightfieldTerrain");
+  W_PROFILE_SCOPE("CreateHeightfieldTerrain");
 
   // Find a free slot first
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_Heightfields.GetCount(); ++i)
+  WUInt32 uiIndex = WInvalidIndex;
+  for (WUInt32 i = 0; i < m_Heightfields.GetCount(); ++i)
   {
     if (!m_Heightfields[i].m_bInUse)
     {
@@ -321,13 +321,13 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
     }
   }
 
-  if (uiIndex == ezInvalidIndex)
+  if (uiIndex == WInvalidIndex)
   {
     uiIndex = m_Heightfields.GetCount();
     m_Heightfields.ExpandAndGetRef();
   }
 
-  ezTerrainData_Heightfield& patch = m_Heightfields[uiIndex];
+  WTerrainData_Heightfield& patch = m_Heightfields[uiIndex];
   patch.m_uiCellsPerSide = uiCellsPerSide;
 
   patch.m_bInUse = true;
@@ -336,78 +336,78 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
   // Stored grid = render vertices (CellsPerSide+1) plus 4 extra rings on each side.
   // Extra rings let normals CS use correct central-differences at patch edges,
   // and provide enough padding for Jolt's required multiple-of-4 vertex count.
-  const ezUInt32 uiStoredSize = uiCellsPerSide + 9;
+  const WUInt32 uiStoredSize = uiCellsPerSide + 9;
   // Create persistent GPU buffer (UAV for CS, SRV in VS)
-  ezGALBufferCreationDescription bufDesc;
+  WGALBufferCreationDescription bufDesc;
   bufDesc.m_uiStructSize = sizeof(float);
   bufDesc.m_uiTotalSize = uiStoredSize * uiStoredSize * sizeof(float);
-  bufDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  bufDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   bufDesc.m_ResourceAccess.m_bImmutable = false;
 
-  patch.m_hBakedHeights = ezGALDevice::GetDefaultDevice()->CreateBuffer(bufDesc);
+  patch.m_hBakedHeights = WGALDevice::GetDefaultDevice()->CreateBuffer(bufDesc);
 
   // Create persistent normal buffer (uint per vertex: XY as packed 16-bit floats)
-  ezGALBufferCreationDescription normDesc;
-  normDesc.m_uiStructSize = sizeof(ezUInt32);
-  normDesc.m_uiTotalSize = uiStoredSize * uiStoredSize * sizeof(ezUInt32);
-  normDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  WGALBufferCreationDescription normDesc;
+  normDesc.m_uiStructSize = sizeof(WUInt32);
+  normDesc.m_uiTotalSize = uiStoredSize * uiStoredSize * sizeof(WUInt32);
+  normDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   normDesc.m_ResourceAccess.m_bImmutable = false;
 
-  patch.m_hBakedNormals = ezGALDevice::GetDefaultDevice()->CreateBuffer(normDesc);
+  patch.m_hBakedNormals = WGALDevice::GetDefaultDevice()->CreateBuffer(normDesc);
 
   // Per-cell top-4 material indices (uint per cell), written by Step3 and bound as SRV in the VS.
   // Covers the border cells too, so skirt cells have real data instead of reusing the nearest inner
   // cell's. The stored grid is a power of two plus 8 cells wide, so it divides evenly by the step.
-  const ezUInt32 uiStoredCellsPerSide = (uiStoredSize - 1) / ezTerrainMaterialCellStep;
+  const WUInt32 uiStoredCellsPerSide = (uiStoredSize - 1) / WTerrainMaterialCellStep;
 
-  ezGALBufferCreationDescription cellMatDesc;
-  cellMatDesc.m_uiStructSize = sizeof(ezUInt32);
-  cellMatDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * sizeof(ezUInt32);
-  cellMatDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  WGALBufferCreationDescription cellMatDesc;
+  cellMatDesc.m_uiStructSize = sizeof(WUInt32);
+  cellMatDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * sizeof(WUInt32);
+  cellMatDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   cellMatDesc.m_ResourceAccess.m_bImmutable = false;
 
-  patch.m_hCellMaterials = ezGALDevice::GetDefaultDevice()->CreateBuffer(cellMatDesc);
+  patch.m_hCellMaterials = WGALDevice::GetDefaultDevice()->CreateBuffer(cellMatDesc);
 
   // Per-cell-corner f16 blend weights (uint per corner), written by Step3 and bound as SRV in the VS.
   // Layout: (cellIndex * 4 + cornerSlot), cornerSlot = TL:0, TR:1, BL:2, BR:3.
   // Each corner slot is unique — no inter-thread write conflicts in Step3.
-  ezGALBufferCreationDescription weightDesc;
-  weightDesc.m_uiStructSize = sizeof(ezUInt32);
-  weightDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * 4 * sizeof(ezUInt32);
-  weightDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  WGALBufferCreationDescription weightDesc;
+  weightDesc.m_uiStructSize = sizeof(WUInt32);
+  weightDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * 4 * sizeof(WUInt32);
+  weightDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   weightDesc.m_ResourceAccess.m_bImmutable = false;
 
-  patch.m_hVertexWeights = ezGALDevice::GetDefaultDevice()->CreateBuffer(weightDesc);
+  patch.m_hVertexWeights = WGALDevice::GetDefaultDevice()->CreateBuffer(weightDesc);
 
   // One carve bit per stored-grid vertex, written by Step2 and bound as SRV in the VS. Full
   // resolution regardless of the material cell step, because carving is a per-vertex decision.
   // Rounded up to whole words; trailing bits of the last word are written as not carved.
-  ezGALBufferCreationDescription carveDesc;
-  carveDesc.m_uiStructSize = sizeof(ezUInt32);
-  carveDesc.m_uiTotalSize = ((uiStoredSize * uiStoredSize + 31) / 32) * sizeof(ezUInt32);
-  carveDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  WGALBufferCreationDescription carveDesc;
+  carveDesc.m_uiStructSize = sizeof(WUInt32);
+  carveDesc.m_uiTotalSize = ((uiStoredSize * uiStoredSize + 31) / 32) * sizeof(WUInt32);
+  carveDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   carveDesc.m_ResourceAccess.m_bImmutable = false;
 
-  patch.m_hCarveMask = ezGALDevice::GetDefaultDevice()->CreateBuffer(carveDesc);
+  patch.m_hCarveMask = WGALDevice::GetDefaultDevice()->CreateBuffer(carveDesc);
 
   return uiIndex;
 }
 
-void ezTerrainSystem::RemoveHeightfieldTerrain(ezUInt32& ref_uiPatchIndex)
+void WTerrainSystem::RemoveHeightfieldTerrain(WUInt32& ref_uiPatchIndex)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_QueuedHeightfieldsToDelete.PushBack(ref_uiPatchIndex);
 }
 
-void ezTerrainSystem::DestroyHeightfieldTerrain(ezUInt32& uiIdx)
+void WTerrainSystem::DestroyHeightfieldTerrain(WUInt32& uiIdx)
 {
   if (uiIdx >= m_Heightfields.GetCount())
     return;
 
   auto& data = m_Heightfields[uiIdx];
-  uiIdx = ezInvalidIndex;
+  uiIdx = WInvalidIndex;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   pDevice->DestroyBuffer(data.m_hBakedHeights);
   pDevice->DestroyBuffer(data.m_hBakedNormals);
   pDevice->DestroyBuffer(data.m_hCellMaterials);
@@ -417,73 +417,73 @@ void ezTerrainSystem::DestroyHeightfieldTerrain(ezUInt32& uiIdx)
   data.m_bInUse = false;
 }
 
-ezTerrainData_Heightfield& ezTerrainSystem::ModifyHeightfieldTerrain(ezUInt32 uiIdx)
+WTerrainData_Heightfield& WTerrainSystem::ModifyHeightfieldTerrain(WUInt32 uiIdx)
 {
   auto& data = m_Heightfields[uiIdx];
   data.m_bDirty = true;
   return data;
 }
 
-ezGALBufferHandle ezTerrainSystem::GetHeightfieldHeightBuffer(ezUInt32 uiPatchIndex) const
+WGALBufferHandle WTerrainSystem::GetHeightfieldHeightBuffer(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hBakedHeights;
 
-  return ezGALBufferHandle();
+  return WGALBufferHandle();
 }
 
-ezGALBufferHandle ezTerrainSystem::GetHeightfieldNormalBuffer(ezUInt32 uiPatchIndex) const
+WGALBufferHandle WTerrainSystem::GetHeightfieldNormalBuffer(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hBakedNormals;
 
-  return ezGALBufferHandle();
+  return WGALBufferHandle();
 }
 
-ezGALBufferHandle ezTerrainSystem::GetHeightfieldCellMaterialBuffer(ezUInt32 uiPatchIndex) const
+WGALBufferHandle WTerrainSystem::GetHeightfieldCellMaterialBuffer(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hCellMaterials;
 
-  return ezGALBufferHandle();
+  return WGALBufferHandle();
 }
 
-ezGALBufferHandle ezTerrainSystem::GetHeightfieldMaterialVertexWeightBuffer(ezUInt32 uiPatchIndex) const
+WGALBufferHandle WTerrainSystem::GetHeightfieldMaterialVertexWeightBuffer(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hVertexWeights;
 
-  return ezGALBufferHandle();
+  return WGALBufferHandle();
 }
 
-ezGALBufferHandle ezTerrainSystem::GetHeightfieldCarveMaskBuffer(ezUInt32 uiPatchIndex) const
+WGALBufferHandle WTerrainSystem::GetHeightfieldCarveMaskBuffer(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hCarveMask;
 
-  return ezGALBufferHandle();
+  return WGALBufferHandle();
 }
 
-ezUInt32 ezTerrainSystem::GetHeightfieldCellsPerSide(ezUInt32 uiPatchIndex) const
+WUInt32 WTerrainSystem::GetHeightfieldCellsPerSide(WUInt32 uiPatchIndex) const
 {
   return (uiPatchIndex < m_Heightfields.GetCount()) ? m_Heightfields[uiPatchIndex].m_uiCellsPerSide : 128;
 }
 
-ezUInt64 ezTerrainSystem::GetHeightfieldBrushOverlapHash(ezUInt32 uiPatchIndex) const
+WUInt64 WTerrainSystem::GetHeightfieldBrushOverlapHash(WUInt32 uiPatchIndex) const
 {
   if (uiPatchIndex >= m_Heightfields.GetCount() || !m_Heightfields[uiPatchIndex].m_bInUse)
     return 0;
   return ComputeHeightfieldBrushOverlapHash(m_Heightfields[uiPatchIndex]);
 }
 
-ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushOverlapHash(const ezTerrainData_Heightfield& heightfield) const
+WUInt64 WTerrainSystem::ComputeHeightfieldBrushOverlapHash(const WTerrainData_Heightfield& heightfield) const
 {
-  const ezTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
+  const WTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
   const float fSize = (float)heightfield.m_uiCellsPerSide * heightfield.m_fGridSpacing;
 
-  ezHashStreamWriter64 writer;
+  WHashStreamWriter64 writer;
 
-  for (ezUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
   {
     const auto& brush = m_Brushes[i];
     if (!brush.m_bInUse || !brush.m_bAffectHeightfields)
@@ -492,11 +492,11 @@ ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushOverlapHash(const ezTerrainData
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(heightfield.m_Tags))
       continue;
 
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
+    const WVec3 vLocalCenter = invTrans * brush.m_vPosition;
+    const float fConservativeRadius = WMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
 
-    const float fClampedX = ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fClampedY = ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
+    const float fClampedX = WMath::Clamp(vLocalCenter.x, 0.0f, fSize);
+    const float fClampedY = WMath::Clamp(vLocalCenter.y, 0.0f, fSize);
     const float fDx = vLocalCenter.x - fClampedX;
     const float fDy = vLocalCenter.y - fClampedY;
 
@@ -523,15 +523,15 @@ ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushOverlapHash(const ezTerrainData
   return writer.GetHashValue();
 }
 
-void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heightfield& heightfield, ezDynamicArray<TerrainBrushData>& brushes) const
+void WTerrainSystem::FindHeightfieldOverlappingBrushes(const WTerrainData_Heightfield& heightfield, WDynamicArray<TerrainBrushData>& brushes) const
 {
-  const ezTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
+  const WTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
   const float fSize = (float)heightfield.m_uiCellsPerSide * heightfield.m_fGridSpacing;
 
   brushes.Clear();
   brushes.Reserve(m_Brushes.GetCount());
 
-  const ezMat3 mInvTerrainRot = heightfield.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
+  const WMat3 mInvTerrainRot = heightfield.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
 
   for (auto& brush : m_Brushes)
   {
@@ -541,14 +541,14 @@ void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heig
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(heightfield.m_Tags))
       continue;
 
-    if ((brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
+    if ((brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
       continue;
 
     // Skip brushes whose conservative footprint does not overlap the heightfield XY extent.
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
-    const float fClampedX = ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fClampedY = ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
+    const WVec3 vLocalCenter = invTrans * brush.m_vPosition;
+    const float fConservativeRadius = WMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
+    const float fClampedX = WMath::Clamp(vLocalCenter.x, 0.0f, fSize);
+    const float fClampedY = WMath::Clamp(vLocalCenter.y, 0.0f, fSize);
     const float fDx = vLocalCenter.x - fClampedX;
     const float fDy = vLocalCenter.y - fClampedY;
     if (fDx * fDx + fDy * fDy > fConservativeRadius * fConservativeRadius)
@@ -562,19 +562,19 @@ void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heig
     bd.HalfExtentYTop = brush.m_fHalfExtentYTop;
     bd.HalfExtentZ = brush.m_fHalfExtentZ;
     bd.InnerRadius = brush.m_fInnerRadius;
-    bd.OuterRadius = ezMath::Max(brush.m_fOuterRadius, 0.0001f);
+    bd.OuterRadius = WMath::Max(brush.m_fOuterRadius, 0.0001f);
     bd.Falloff = brush.m_fFalloff;
     bd.ModifyMode = brush.m_ModifyMode.GetValue();
     bd.MaterialIndex = brush.m_uiMaterialIndex;
     bd.MaterialStrength = brush.m_fMaterialStrength;
     bd.NoiseStrength = brush.m_fNoiseStrength;
-    bd.NoiseFrequency = ezMath::Max(0.0001f, brush.m_fNoiseFrequency);
+    bd.NoiseFrequency = WMath::Max(0.0001f, brush.m_fNoiseFrequency);
     bd.CpuPriority = static_cast<float>(brush.m_iPriority);
 
     // Build the inverse rotation from terrain-local space into brush-local space.
     // mLocalBrushRot = invTerrainRot * brushWorldRot  (takes brush-local -> terrain-local)
     // mInvLocalBrushRot = transpose of above          (takes terrain-local -> brush-local)
-    const ezMat3 mInvLocalBrushRot = (mInvTerrainRot * brush.m_qRotation.GetAsMat3()).GetTranspose();
+    const WMat3 mInvLocalBrushRot = (mInvTerrainRot * brush.m_qRotation.GetAsMat3()).GetTranspose();
 
     bd.InvRotRow0 = mInvLocalBrushRot.GetRow(0);
     bd.InvRotRow1 = mInvLocalBrushRot.GetRow(1);
@@ -587,8 +587,8 @@ void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heig
     {
       if (a.CpuPriority != b.CpuPriority)
         return a.CpuPriority < b.CpuPriority;
-      const bool aCarve = a.ModifyMode == ezTerrainModifyMode::Carve;
-      const bool bCarve = b.ModifyMode == ezTerrainModifyMode::Carve;
+      const bool aCarve = a.ModifyMode == WTerrainModifyMode::Carve;
+      const bool bCarve = b.ModifyMode == WTerrainModifyMode::Carve;
       if (aCarve != bCarve)
         return !aCarve;
       if (a.ModifyMode != b.ModifyMode)
@@ -599,29 +599,29 @@ void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heig
     });
 }
 
-void ezTerrainSystem::EnsureSharedHeightfieldScratch(ezUInt32 uiStoredSize)
+void WTerrainSystem::EnsureSharedHeightfieldScratch(WUInt32 uiStoredSize)
 {
   if (uiStoredSize <= m_uiHeightfieldSharedMaskStoredSize && !m_hHeightfieldSharedMask.IsInvalidated())
     return;
 
   DestroySharedHeightfieldScratch();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Intermediate material mask (uint2 per vertex): written by Step1/2, read by Step3.
-  ezGALBufferCreationDescription maskDesc;
-  maskDesc.m_uiStructSize = sizeof(ezUInt64);
-  maskDesc.m_uiTotalSize = uiStoredSize * uiStoredSize * sizeof(ezUInt64);
-  maskDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  WGALBufferCreationDescription maskDesc;
+  maskDesc.m_uiStructSize = sizeof(WUInt64);
+  maskDesc.m_uiTotalSize = uiStoredSize * uiStoredSize * sizeof(WUInt64);
+  maskDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
   maskDesc.m_ResourceAccess.m_bImmutable = false;
 
   m_hHeightfieldSharedMask = pDevice->CreateBuffer(maskDesc);
   m_uiHeightfieldSharedMaskStoredSize = uiStoredSize;
 }
 
-void ezTerrainSystem::DestroyHeightfields()
+void WTerrainSystem::DestroyHeightfields()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   for (auto& patch : m_Heightfields)
   {
     pDevice->DestroyBuffer(patch.m_hBakedHeights);
@@ -632,67 +632,67 @@ void ezTerrainSystem::DestroyHeightfields()
   m_Heightfields.Clear();
 }
 
-void ezTerrainSystem::DestroySharedHeightfieldScratch()
+void WTerrainSystem::DestroySharedHeightfieldScratch()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   pDevice->DestroyBuffer(m_hHeightfieldSharedMask);
 
   m_uiHeightfieldSharedMaskStoredSize = 0;
 }
 
-void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
+void WTerrainSystem::UpdateHeightfield(WUInt32 uiIndex, WRenderGraph& graph)
 {
-  EZ_PROFILE_SCOPE("UpdateHeightfield");
+  W_PROFILE_SCOPE("UpdateHeightfield");
 
   auto& patch = m_Heightfields[uiIndex];
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  ezTempHybridArray<TerrainBrushData, 16> brushCPUData;
+  WTempHybridArray<TerrainBrushData, 16> brushCPUData;
   FindHeightfieldOverlappingBrushes(patch, brushCPUData);
-  const ezUInt32 uiNumBrushes = brushCPUData.GetCount();
+  const WUInt32 uiNumBrushes = brushCPUData.GetCount();
 
-  ezGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
+  WGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
 
   // Build source height data by sampling the height image (or zeros if no image is assigned).
   // Stored grid = (CellsPerSide+9)² — 4 border rings on each side beyond the render vertices.
-  const ezUInt32 uiStoredSize = patch.m_uiCellsPerSide + 9;
-  const ezUInt32 uiVertexCount = patch.m_uiCellsPerSide + 1; // vertices per side (quads+1)
-  ezTempArray<float> srcHeights;
+  const WUInt32 uiStoredSize = patch.m_uiCellsPerSide + 9;
+  const WUInt32 uiVertexCount = patch.m_uiCellsPerSide + 1; // vertices per side (quads+1)
+  WTempArray<float> srcHeights;
   srcHeights.SetCount(uiStoredSize * uiStoredSize, 0.0f);
 
   if (patch.m_hHeightImage.IsValid() && patch.m_fHeightScale > 0.0f)
   {
-    ezResourceLock<ezImageDataResource> imgLock(patch.m_hHeightImage, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (imgLock.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WImageDataResource> imgLock(patch.m_hHeightImage, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (imgLock.GetAcquireResult() == WResourceAcquireResult::Final)
     {
-      const ezImage& img = imgLock->GetDescriptor().m_Image;
-      const ezColor* pPixels = img.GetPixelPointer<ezColor>();
-      const ezUInt32 uiImgW = img.GetWidth();
-      const ezUInt32 uiImgH = img.GetHeight();
+      const WImage& img = imgLock->GetDescriptor().m_Image;
+      const WColor* pPixels = img.GetPixelPointer<WColor>();
+      const WUInt32 uiImgW = img.GetWidth();
+      const WUInt32 uiImgH = img.GetHeight();
       const float fInvVertexCount = (uiVertexCount > 1) ? 1.0f / static_cast<float>(uiVertexCount - 1) : 0.0f;
 
-      for (ezUInt32 sRow = 0; sRow < uiStoredSize; ++sRow)
+      for (WUInt32 sRow = 0; sRow < uiStoredSize; ++sRow)
       {
-        for (ezUInt32 sCol = 0; sCol < uiStoredSize; ++sCol)
+        for (WUInt32 sCol = 0; sCol < uiStoredSize; ++sCol)
         {
-          const float u = patch.m_vImageOffset.x + static_cast<float>(static_cast<ezInt32>(sCol) - 4) * fInvVertexCount * patch.m_vImageSize.x;
-          const float v = patch.m_vImageOffset.y + static_cast<float>(static_cast<ezInt32>(sRow) - 4) * fInvVertexCount * patch.m_vImageSize.y;
-          srcHeights[sRow * uiStoredSize + sCol] = ezImageUtils::BilinearSample(pPixels, uiImgW, uiImgH, ezImageAddressMode::Clamp, ezVec2(u, v)).r * patch.m_fHeightScale;
+          const float u = patch.m_vImageOffset.x + static_cast<float>(static_cast<WInt32>(sCol) - 4) * fInvVertexCount * patch.m_vImageSize.x;
+          const float v = patch.m_vImageOffset.y + static_cast<float>(static_cast<WInt32>(sRow) - 4) * fInvVertexCount * patch.m_vImageSize.y;
+          srcHeights[sRow * uiStoredSize + sCol] = WImageUtils::BilinearSample(pPixels, uiImgW, uiImgH, WImageAddressMode::Clamp, WVec2(u, v)).r * patch.m_fHeightScale;
         }
       }
     }
   }
 
   // Create source heights buffer with initial data (no separate UpdateBuffer needed).
-  ezGALBufferCreationDescription srcDesc;
+  WGALBufferCreationDescription srcDesc;
   srcDesc.m_uiStructSize = sizeof(float);
   srcDesc.m_uiTotalSize = srcHeights.GetCount() * sizeof(float);
-  srcDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  srcDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
   srcDesc.m_ResourceAccess.m_bImmutable = false;
 
-  ezGALBufferHandle hSourceBuffer = pDevice->CreateBuffer(srcDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(srcHeights.GetData()), srcHeights.GetCount() * sizeof(float)));
+  WGALBufferHandle hSourceBuffer = pDevice->CreateBuffer(srcDesc, WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(srcHeights.GetData()), srcHeights.GetCount() * sizeof(float)));
 
-  const ezUInt32 uiGroups = (uiStoredSize + 15) / 16;
+  const WUInt32 uiGroups = (uiStoredSize + 15) / 16;
 
   // The intermediate mask is shared bake scratch — grow it to fit this patch's stored grid.
   EnsureSharedHeightfieldScratch(uiStoredSize);
@@ -719,17 +719,17 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphBakedH);
     pass.WriteBuffer(hGraphBakedM);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c1, uiGroups, hGraphSrc, hGraphBrush, hGraphBakedH, hGraphBakedM](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c1, uiGroups, hGraphSrc, hGraphBrush, hGraphBakedH, hGraphBakedM](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrevAsync = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
 
-        HeightfieldBakeConstants* constants = ezRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
+        HeightfieldBakeConstants* constants = WRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
         *constants = c1;
         pRC->BindShader(m_hTerrainBakeStep1Shader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("SourceHeights", ctx.ResolveBuffer(hGraphSrc));
         bg.BindBuffer("BakedHeights", ctx.ResolveBuffer(hGraphBakedH));
         bg.BindBuffer("BakedMask", ctx.ResolveBuffer(hGraphBakedM));
@@ -752,17 +752,17 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphCarve);
     pass.WriteBuffer(hGraphBakedN);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c2, uiGroups, hGraphBakedH, hGraphBakedN, hGraphBakedM, hGraphCarve](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c2, uiGroups, hGraphBakedH, hGraphBakedN, hGraphBakedM, hGraphCarve](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrevAsync = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
 
-        HeightfieldBakeConstants* constants = ezRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
+        HeightfieldBakeConstants* constants = WRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
         *constants = c2;
         pRC->BindShader(m_hTerrainBakeStep2Shader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedHeights", ctx.ResolveBuffer(hGraphBakedH));
         bg.BindBuffer("BakedNormals", ctx.ResolveBuffer(hGraphBakedN));
         bg.BindBuffer("BakedMask", ctx.ResolveBuffer(hGraphBakedM));
@@ -777,9 +777,9 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     HeightfieldBakeConstants c3;
     c3.VertexIdxPitch = uiStoredSize;
     // Step3 covers the border cells too, so skirt cells get their own material set and weights.
-    c3.CellsPerSide = (uiStoredSize - 1) / ezTerrainMaterialCellStep;
+    c3.CellsPerSide = (uiStoredSize - 1) / WTerrainMaterialCellStep;
 
-    const ezUInt32 uiCellGroups = (c3.CellsPerSide + 15) / 16;
+    const WUInt32 uiCellGroups = (c3.CellsPerSide + 15) / 16;
 
     auto hGraphCellMat = graph.ImportBuffer(patch.m_hCellMaterials);
     auto hGraphVtxW = graph.ImportBuffer(patch.m_hVertexWeights);
@@ -789,17 +789,17 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphCellMat);
     pass.WriteBuffer(hGraphVtxW);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c3, uiCellGroups, hGraphBakedM, hGraphCellMat, hGraphVtxW](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c3, uiCellGroups, hGraphBakedM, hGraphCellMat, hGraphVtxW](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrevAsync = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrevAsync));
 
-        HeightfieldBakeConstants* constants = ezRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
+        HeightfieldBakeConstants* constants = WRenderContext::GetConstantBufferData<HeightfieldBakeConstants>(m_hHeightfieldBakeConstants);
         *constants = c3;
         pRC->BindShader(m_hTerrainBakeStep3Shader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedMask", ctx.ResolveBuffer(hGraphBakedM));
         bg.BindBuffer("CellMaterials", ctx.ResolveBuffer(hGraphCellMat));
         bg.BindBuffer("VertexWeights", ctx.ResolveBuffer(hGraphVtxW));
@@ -814,24 +814,24 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   patch.m_bDirty = false;
 }
 
-ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynamicArray<float>& out_heights, ezDynamicArray<ezUInt8>& out_dominantMat, ezTime timeout)
+WResult WTerrainSystem::ReadbackHeightfieldData(WUInt32 uiPatchIndex, WDynamicArray<float>& out_heights, WDynamicArray<WUInt8>& out_dominantMat, WTime timeout)
 {
   if (uiPatchIndex >= m_Heightfields.GetCount())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   auto& patch = m_Heightfields[uiPatchIndex];
   if (!patch.m_bInUse || patch.m_hBakedHeights.IsInvalidated())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // The mask is shared scratch, so it is not persistent — always re-bake and read back within one sync graph.
   patch.m_bDirty = true;
 
-  ezGALReadbackBufferHelper heightRB;
-  ezGALReadbackBufferHelper maskRB;
+  WGALReadbackBufferHelper heightRB;
+  WGALReadbackBufferHelper maskRB;
 
-  auto pGraph = ezRenderGraphManager::CreateRenderGraph("TerrainHFExportReadback", ezRenderGraphPhase::PreRender);
+  auto pGraph = WRenderGraphManager::CreateRenderGraph("TerrainHFExportReadback", WRenderGraphPhase::PreRender);
   pGraph->Reset();
 
   UpdateHeightfield(uiPatchIndex, *pGraph);
@@ -840,62 +840,62 @@ ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynam
   auto hGraphBakedH = pGraph->ImportBuffer(patch.m_hBakedHeights);
   auto hGraphBakedM = pGraph->ImportBuffer(m_hHeightfieldSharedMask);
 
-  const ezGALBufferHandle hBH = patch.m_hBakedHeights;
-  const ezGALBufferHandle hBM = m_hHeightfieldSharedMask;
+  const WGALBufferHandle hBH = patch.m_hBakedHeights;
+  const WGALBufferHandle hBM = m_hHeightfieldSharedMask;
 
   auto pass = pGraph->AddTransferPass("TerrainHFReadback");
-  pass.ReadBuffer(hGraphBakedH, ezGALResourceState::CopySource);
-  pass.ReadBuffer(hGraphBakedM, ezGALResourceState::CopySource);
+  pass.ReadBuffer(hGraphBakedH, WGALResourceState::CopySource);
+  pass.ReadBuffer(hGraphBakedM, WGALResourceState::CopySource);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([hBH, hBM, &heightRB, &maskRB](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([hBH, hBM, &heightRB, &maskRB](const WRenderGraphContext& ctx)
     {
       heightRB.ReadbackBuffer(*ctx.GetCommandEncoder(), hBH);
       maskRB.ReadbackBuffer(*ctx.GetCommandEncoder(), hBM); });
 
   ExecuteGraphSync(*pGraph, pDevice);
 
-  const ezTime tDeadline = ezTime::Now() + timeout;
+  const WTime tDeadline = WTime::Now() + timeout;
 
-  auto PollReadback = [&](ezGALReadbackBufferHelper& readback, const char* szName) -> ezResult
+  auto PollReadback = [&](WGALReadbackBufferHelper& readback, const char* szName) -> WResult
   {
     while (true)
     {
-      const auto result = readback.GetReadbackResult(ezTime::MakeFromMilliseconds(2));
-      if (result == ezGALAsyncResult::Expired)
+      const auto result = readback.GetReadbackResult(WTime::MakeFromMilliseconds(2));
+      if (result == WGALAsyncResult::Expired)
       {
-        ezLog::Error("ReadbackHeightfieldData: {} readback expired for patch {}.", szName, uiPatchIndex);
-        return EZ_FAILURE;
+        WLog::Error("ReadbackHeightfieldData: {} readback expired for patch {}.", szName, uiPatchIndex);
+        return W_FAILURE;
       }
-      if (result == ezGALAsyncResult::Ready)
-        return EZ_SUCCESS;
-      if (ezTime::Now() >= tDeadline)
+      if (result == WGALAsyncResult::Ready)
+        return W_SUCCESS;
+      if (WTime::Now() >= tDeadline)
       {
-        ezLog::Error("ReadbackHeightfieldData: timed out waiting for {} of patch {}.", szName, uiPatchIndex);
-        return EZ_FAILURE;
+        WLog::Error("ReadbackHeightfieldData: timed out waiting for {} of patch {}.", szName, uiPatchIndex);
+        return W_FAILURE;
       }
     }
   };
 
   if (PollReadback(heightRB, "heights").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
   if (PollReadback(maskRB, "mask").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezUInt32 S = patch.m_uiCellsPerSide + 9;
+  const WUInt32 S = patch.m_uiCellsPerSide + 9;
 
   {
-    ezArrayPtr<const ezUInt8> rawMemory;
+    WArrayPtr<const WUInt8> rawMemory;
     auto lock = heightRB.LockBuffer(rawMemory);
     if (!lock)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     const float* pStoredHeights = reinterpret_cast<const float*>(rawMemory.GetPtr());
     out_heights.SetCountUninitialized(S * S);
-    ezMemoryUtils::Copy(out_heights.GetData(), pStoredHeights, S * S);
+    WMemoryUtils::Copy(out_heights.GetData(), pStoredHeights, S * S);
   }
 
   {
-    ezArrayPtr<const ezUInt8> rawMemory;
+    WArrayPtr<const WUInt8> rawMemory;
     auto lock = maskRB.LockBuffer(rawMemory);
     if (lock)
     {
@@ -903,14 +903,14 @@ ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynam
       // which is not necessarily the strongest material overall: the base material is implicit and
       // covers whatever weight the brushes leave over. Compare it against slot 0 here so a faint
       // brush does not win over a base material that visually dominates the surface.
-      const ezUInt32* pStoredMask = reinterpret_cast<const ezUInt32*>(rawMemory.GetPtr());
+      const WUInt32* pStoredMask = reinterpret_cast<const WUInt32*>(rawMemory.GetPtr());
       out_dominantMat.SetCountUninitialized(S * S);
-      for (ezUInt32 i = 0; i < S * S; ++i)
+      for (WUInt32 i = 0; i < S * S; ++i)
       {
-        const ezUInt32 uiIndices = pStoredMask[i * 2];
-        const ezUInt32 uiWeights = pStoredMask[i * 2 + 1];
+        const WUInt32 uiIndices = pStoredMask[i * 2];
+        const WUInt32 uiWeights = pStoredMask[i * 2 + 1];
 
-        const ezUInt8 uiTopBrushMat = static_cast<ezUInt8>(uiIndices & 0xFFu);
+        const WUInt8 uiTopBrushMat = static_cast<WUInt8>(uiIndices & 0xFFu);
 
         // 0xFF in slot 0 is the sentinel for a carved (non-colliding) vertex and must be preserved.
         if (uiTopBrushMat == 0xFFu)
@@ -919,35 +919,35 @@ ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynam
           continue;
         }
 
-        const ezUInt32 uiTopBrushWeight = uiWeights & 0xFFu;
-        ezUInt32 uiTotalBrushWeight = 0;
-        for (ezUInt32 s = 0; s < 4; ++s)
+        const WUInt32 uiTopBrushWeight = uiWeights & 0xFFu;
+        WUInt32 uiTotalBrushWeight = 0;
+        for (WUInt32 s = 0; s < 4; ++s)
           uiTotalBrushWeight += (uiWeights >> (s * 8)) & 0xFFu;
 
         // Step1 composites brushes with alpha semantics, so the weights sum to <= 1 and the remainder
         // is the base material's share. A brush painting at full strength leaves no remainder and wins here.
-        const ezUInt32 uiBaseWeight = (uiTotalBrushWeight >= 255) ? 0 : (255 - uiTotalBrushWeight);
+        const WUInt32 uiBaseWeight = (uiTotalBrushWeight >= 255) ? 0 : (255 - uiTotalBrushWeight);
 
         out_dominantMat[i] = (uiBaseWeight > uiTopBrushWeight) ? patch.m_uiDefaultMaterialIndex : uiTopBrushMat;
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Voxel Terrain
 //////////////////////////////////////////////////////////////////////////
 
-EZ_DEFINE_AS_POD_TYPE(VoxelGpuVertex);
+W_DEFINE_AS_POD_TYPE(VoxelGpuVertex);
 
-ezUInt32 ezTerrainSystem::CreateVoxelTerrain(ezUInt32 uiResolution, float fVoxelSize)
+WUInt32 WTerrainSystem::CreateVoxelTerrain(WUInt32 uiResolution, float fVoxelSize)
 {
-  EZ_PROFILE_SCOPE("CreateVoxelTerrain");
+  W_PROFILE_SCOPE("CreateVoxelTerrain");
 
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_VoxelVolumes.GetCount(); ++i)
+  WUInt32 uiIndex = WInvalidIndex;
+  for (WUInt32 i = 0; i < m_VoxelVolumes.GetCount(); ++i)
   {
     if (!m_VoxelVolumes[i].m_bInUse)
     {
@@ -955,86 +955,86 @@ ezUInt32 ezTerrainSystem::CreateVoxelTerrain(ezUInt32 uiResolution, float fVoxel
       break;
     }
   }
-  if (uiIndex == ezInvalidIndex)
+  if (uiIndex == WInvalidIndex)
   {
     uiIndex = m_VoxelVolumes.GetCount();
     m_VoxelVolumes.ExpandAndGetRef();
   }
 
-  constexpr ezUInt32 c_uiVoxelBorderVoxels = 4u; // border voxels on each side of the inner volume
-  ezTerrainData_Voxel& vol = m_VoxelVolumes[uiIndex];
+  constexpr WUInt32 c_uiVoxelBorderVoxels = 4u; // border voxels on each side of the inner volume
+  WTerrainData_Voxel& vol = m_VoxelVolumes[uiIndex];
   vol.m_uiResolution = uiResolution;
   // X: add border on both sides, then align to multiple of 8 (required for voxel packing — 8 per uint).
   // Y/Z: add border on both sides, no alignment needed.
-  const ezUInt32 uiBufX = ((uiResolution + 2u * c_uiVoxelBorderVoxels + 7u) & ~7u);
+  const WUInt32 uiBufX = ((uiResolution + 2u * c_uiVoxelBorderVoxels + 7u) & ~7u);
   vol.m_uiPackPitch = uiBufX / 8u;
   vol.m_fVoxelSize = fVoxelSize;
   vol.m_bInUse = true;
   vol.m_bDirty = true;
   vol.m_uiBrushOverlapHash = 0;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Only the final render buffers are held per piece; all bake scratch lives in the shared set on the system.
   // Cells = (N+1)³ where N = uiResolution; indices worst-case = cells * 18.
-  const ezUInt32 uiCells = vol.m_uiResolution + 1u;
-  const ezUInt32 uiMaxCells = uiCells * uiCells * uiCells;
-  const ezUInt32 uiMaxIndices = uiMaxCells * 18u;
+  const WUInt32 uiCells = vol.m_uiResolution + 1u;
+  const WUInt32 uiMaxCells = uiCells * uiCells * uiCells;
+  const WUInt32 uiMaxIndices = uiMaxCells * 18u;
 
   // Final render buffers — worst-case sized so rendering can begin on the first bake without a count readback;
   // the GPU-driven compact-copy only writes the used entries and DrawArgs controls the draw count.
   {
-    ezGALBufferCreationDescription bufDesc;
+    WGALBufferCreationDescription bufDesc;
     bufDesc.m_uiStructSize = sizeof(VoxelGpuVertex);
     bufDesc.m_uiTotalSize = uiMaxCells * sizeof(VoxelGpuVertex);
-    bufDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::UnorderedAccess | ezGALBufferUsageFlags::ShaderResource;
+    bufDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::UnorderedAccess | WGALBufferUsageFlags::ShaderResource;
     bufDesc.m_ResourceAccess.m_bImmutable = false;
     vol.m_hFinalVertices = pDevice->CreateBuffer(bufDesc);
   }
   {
-    ezGALBufferCreationDescription bufDesc;
-    bufDesc.m_uiStructSize = sizeof(ezUInt32);
-    bufDesc.m_uiTotalSize = uiMaxIndices * sizeof(ezUInt32);
-    bufDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::UnorderedAccess | ezGALBufferUsageFlags::ShaderResource;
+    WGALBufferCreationDescription bufDesc;
+    bufDesc.m_uiStructSize = sizeof(WUInt32);
+    bufDesc.m_uiTotalSize = uiMaxIndices * sizeof(WUInt32);
+    bufDesc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::UnorderedAccess | WGALBufferUsageFlags::ShaderResource;
     bufDesc.m_ResourceAccess.m_bImmutable = false;
     vol.m_hFinalIndices = pDevice->CreateBuffer(bufDesc);
   }
   {
     // DrawArgs: 4 uints {IndexCount, 1, 0, 0}. ByteAddressBuffer + DrawIndirect.
-    ezGALBufferCreationDescription bufDesc;
-    bufDesc.m_uiStructSize = sizeof(ezUInt32);
-    bufDesc.m_uiTotalSize = 4u * sizeof(ezUInt32);
-    bufDesc.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::UnorderedAccess | ezGALBufferUsageFlags::DrawIndirect;
+    WGALBufferCreationDescription bufDesc;
+    bufDesc.m_uiStructSize = sizeof(WUInt32);
+    bufDesc.m_uiTotalSize = 4u * sizeof(WUInt32);
+    bufDesc.m_BufferFlags = WGALBufferUsageFlags::ByteAddressBuffer | WGALBufferUsageFlags::UnorderedAccess | WGALBufferUsageFlags::DrawIndirect;
     bufDesc.m_ResourceAccess.m_bImmutable = false;
-    const ezUInt32 zero[4] = {0, 1, 0, 0};
-    vol.m_hFinalDrawArgs = pDevice->CreateBuffer(bufDesc, ezMakeArrayPtr(zero).ToByteArray());
+    const WUInt32 zero[4] = {0, 1, 0, 0};
+    vol.m_hFinalDrawArgs = pDevice->CreateBuffer(bufDesc, WMakeArrayPtr(zero).ToByteArray());
   }
 
   return uiIndex;
 }
 
-void ezTerrainSystem::RemoveVoxelTerrain(ezUInt32 uiIndex)
+void WTerrainSystem::RemoveVoxelTerrain(WUInt32 uiIndex)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_QueuedVoxelVolumesToDelete.PushBack(uiIndex);
 }
 
-ezTerrainData_Voxel& ezTerrainSystem::ModifyVoxelTerrain(ezUInt32 uiIndex)
+WTerrainData_Voxel& WTerrainSystem::ModifyVoxelTerrain(WUInt32 uiIndex)
 {
   auto& vol = m_VoxelVolumes[uiIndex];
   vol.m_bDirty = true;
   return vol;
 }
 
-void ezTerrainSystem::DestroyVoxelTerrain(ezUInt32& uiIdx)
+void WTerrainSystem::DestroyVoxelTerrain(WUInt32& uiIdx)
 {
   if (uiIdx >= m_VoxelVolumes.GetCount())
     return;
 
   auto& data = m_VoxelVolumes[uiIdx];
-  uiIdx = ezInvalidIndex;
+  uiIdx = WInvalidIndex;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   if (!data.m_hFinalVertices.IsInvalidated())
   {
@@ -1055,52 +1055,52 @@ void ezTerrainSystem::DestroyVoxelTerrain(ezUInt32& uiIdx)
   data.m_bInUse = false;
 }
 
-void ezTerrainSystem::EnsureSharedVoxelScratch(ezUInt32 uiPackPitch, ezUInt32 uiBufYZ, ezUInt32 uiResolution)
+void WTerrainSystem::EnsureSharedVoxelScratch(WUInt32 uiPackPitch, WUInt32 uiBufYZ, WUInt32 uiResolution)
 {
   if (uiPackPitch <= m_uiSharedVoxelPackPitch && uiBufYZ <= m_uiSharedVoxelBufYZ && uiResolution <= m_uiSharedVoxelResolution && !m_hSharedVoxels.IsInvalidated())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   DestroySharedVoxelScratch();
 
   // Grow to the maximum of the requested and previous dimensions so a smaller later bake never shrinks it.
-  uiPackPitch = ezMath::Max(uiPackPitch, m_uiSharedVoxelPackPitch);
-  uiBufYZ = ezMath::Max(uiBufYZ, m_uiSharedVoxelBufYZ);
-  uiResolution = ezMath::Max(uiResolution, m_uiSharedVoxelResolution);
+  uiPackPitch = WMath::Max(uiPackPitch, m_uiSharedVoxelPackPitch);
+  uiBufYZ = WMath::Max(uiBufYZ, m_uiSharedVoxelBufYZ);
+  uiResolution = WMath::Max(uiResolution, m_uiSharedVoxelResolution);
 
-  const ezUInt32 uiBufX = uiPackPitch * 8u;
-  const ezUInt32 uiPackedCount = uiPackPitch * uiBufYZ * uiBufYZ;
-  const ezUInt32 uiCells = uiResolution + 1u;
-  const ezUInt32 uiMaxCells = uiCells * uiCells * uiCells;
-  const ezUInt32 uiMaxIndices = uiMaxCells * 18u;
+  const WUInt32 uiBufX = uiPackPitch * 8u;
+  const WUInt32 uiPackedCount = uiPackPitch * uiBufYZ * uiBufYZ;
+  const WUInt32 uiCells = uiResolution + 1u;
+  const WUInt32 uiMaxCells = uiCells * uiCells * uiCells;
+  const WUInt32 uiMaxIndices = uiMaxCells * 18u;
 
-  auto CreateBuf = [pDevice](ezUInt32 uiStructSize, ezUInt32 uiCount) -> ezGALBufferHandle
+  auto CreateBuf = [pDevice](WUInt32 uiStructSize, WUInt32 uiCount) -> WGALBufferHandle
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiStructSize;
     desc.m_uiTotalSize = uiStructSize * uiCount;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
     return pDevice->CreateBuffer(desc);
   };
 
-  m_hSharedVoxels = CreateBuf(sizeof(ezUInt32), uiPackedCount);
+  m_hSharedVoxels = CreateBuf(sizeof(WUInt32), uiPackedCount);
   m_hSharedVoxelDist = CreateBuf(sizeof(float), uiBufX * uiBufYZ * uiBufYZ);
   m_hSharedVoxelDistScratch = CreateBuf(sizeof(float), uiBufX * uiBufYZ * uiBufYZ);
-  m_hSharedMeshRemap = CreateBuf(sizeof(ezUInt32), uiMaxCells);
+  m_hSharedMeshRemap = CreateBuf(sizeof(WUInt32), uiMaxCells);
   m_hSharedMeshCompactVertices = CreateBuf(sizeof(VoxelGpuVertex), uiMaxCells);
-  m_hSharedMeshIndices = CreateBuf(sizeof(ezUInt32), uiMaxIndices);
+  m_hSharedMeshIndices = CreateBuf(sizeof(WUInt32), uiMaxIndices);
   m_hSharedMeshCounts = CreateBuf(sizeof(VoxelMeshCounts), 1);
 
   // DispatchIndirect args for VoxelCompactCopyCS: 3 uints {GroupsX, 1, 1}. Re-filled each bake.
   {
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezUInt32);
-    desc.m_uiTotalSize = 3u * sizeof(ezUInt32);
-    desc.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::UnorderedAccess | ezGALBufferUsageFlags::DrawIndirect;
+    WGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(WUInt32);
+    desc.m_uiTotalSize = 3u * sizeof(WUInt32);
+    desc.m_BufferFlags = WGALBufferUsageFlags::ByteAddressBuffer | WGALBufferUsageFlags::UnorderedAccess | WGALBufferUsageFlags::DrawIndirect;
     desc.m_ResourceAccess.m_bImmutable = false;
-    const ezUInt32 one[3] = {1, 1, 1};
-    m_hSharedCompactCopyDispatchArgs = pDevice->CreateBuffer(desc, ezMakeArrayPtr(one).ToByteArray());
+    const WUInt32 one[3] = {1, 1, 1};
+    m_hSharedCompactCopyDispatchArgs = pDevice->CreateBuffer(desc, WMakeArrayPtr(one).ToByteArray());
   }
 
   m_uiSharedVoxelPackPitch = uiPackPitch;
@@ -1108,9 +1108,9 @@ void ezTerrainSystem::EnsureSharedVoxelScratch(ezUInt32 uiPackPitch, ezUInt32 ui
   m_uiSharedVoxelResolution = uiResolution;
 }
 
-void ezTerrainSystem::DestroyVoxelVolumes()
+void WTerrainSystem::DestroyVoxelVolumes()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   for (auto& vol : m_VoxelVolumes)
   {
     if (!vol.m_hFinalVertices.IsInvalidated())
@@ -1123,12 +1123,12 @@ void ezTerrainSystem::DestroyVoxelVolumes()
   m_VoxelVolumes.Clear();
 }
 
-void ezTerrainSystem::DestroySharedVoxelScratch()
+void WTerrainSystem::DestroySharedVoxelScratch()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  ezGALBufferHandle* handles[] = {&m_hSharedVoxels, &m_hSharedVoxelDist, &m_hSharedVoxelDistScratch, &m_hSharedMeshRemap, &m_hSharedMeshCompactVertices, &m_hSharedMeshIndices, &m_hSharedMeshCounts, &m_hSharedCompactCopyDispatchArgs};
-  for (ezGALBufferHandle* pHandle : handles)
+  WGALBufferHandle* handles[] = {&m_hSharedVoxels, &m_hSharedVoxelDist, &m_hSharedVoxelDistScratch, &m_hSharedMeshRemap, &m_hSharedMeshCompactVertices, &m_hSharedMeshIndices, &m_hSharedMeshCounts, &m_hSharedCompactCopyDispatchArgs};
+  for (WGALBufferHandle* pHandle : handles)
   {
     if (!pHandle->IsInvalidated())
     {
@@ -1142,7 +1142,7 @@ void ezTerrainSystem::DestroySharedVoxelScratch()
   m_uiSharedVoxelResolution = 0;
 }
 
-ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshVertexBuffer(ezUInt32 uiIndex) const
+WGALBufferHandle WTerrainSystem::GetVoxelVolumeGpuMeshVertexBuffer(WUInt32 uiIndex) const
 {
   if (uiIndex < m_VoxelVolumes.GetCount())
   {
@@ -1152,7 +1152,7 @@ ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshVertexBuffer(ezUInt32 ui
   return {};
 }
 
-ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshDrawArgsBuffer(ezUInt32 uiIndex) const
+WGALBufferHandle WTerrainSystem::GetVoxelVolumeGpuMeshDrawArgsBuffer(WUInt32 uiIndex) const
 {
   if (uiIndex < m_VoxelVolumes.GetCount())
   {
@@ -1162,7 +1162,7 @@ ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshDrawArgsBuffer(ezUInt32 
   return {};
 }
 
-ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshIndexBuffer(ezUInt32 uiIndex) const
+WGALBufferHandle WTerrainSystem::GetVoxelVolumeGpuMeshIndexBuffer(WUInt32 uiIndex) const
 {
   if (uiIndex < m_VoxelVolumes.GetCount())
   {
@@ -1172,21 +1172,21 @@ ezGALBufferHandle ezTerrainSystem::GetVoxelVolumeGpuMeshIndexBuffer(ezUInt32 uiI
   return {};
 }
 
-ezUInt64 ezTerrainSystem::GetVoxelBrushOverlapHash(ezUInt32 uiIndex) const
+WUInt64 WTerrainSystem::GetVoxelBrushOverlapHash(WUInt32 uiIndex) const
 {
   if (uiIndex >= m_VoxelVolumes.GetCount())
     return 0;
   return m_VoxelVolumes[uiIndex].m_uiBrushOverlapHash;
 }
 
-ezUInt64 ezTerrainSystem::ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol) const
+WUInt64 WTerrainSystem::ComputeVoxelBrushOverlapHash(const WTerrainData_Voxel& vol) const
 {
-  const ezTransform invTrans = vol.m_GlobalTransform.GetInverse();
+  const WTransform invTrans = vol.m_GlobalTransform.GetInverse();
   const float fSize = (float)vol.m_uiResolution * vol.m_fVoxelSize;
 
-  ezHashStreamWriter64 writer;
+  WHashStreamWriter64 writer;
 
-  for (ezUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
   {
     const auto& brush = m_Brushes[i];
     if (!brush.m_bInUse || !brush.m_bAffectVoxels)
@@ -1195,13 +1195,13 @@ ezUInt64 ezTerrainSystem::ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(vol.m_Tags))
       continue;
 
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
+    const WVec3 vLocalCenter = invTrans * brush.m_vPosition;
+    const float fConservativeRadius = WMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
 
-    const float fDx = vLocalCenter.x - ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fDy = vLocalCenter.y - ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
+    const float fDx = vLocalCenter.x - WMath::Clamp(vLocalCenter.x, 0.0f, fSize);
+    const float fDy = vLocalCenter.y - WMath::Clamp(vLocalCenter.y, 0.0f, fSize);
     // OnlyPaint2D projects from above with no Z extent — skip Z bounds check.
-    const float fDz = (brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - ezMath::Clamp(vLocalCenter.z, 0.0f, fSize));
+    const float fDz = (brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - WMath::Clamp(vLocalCenter.z, 0.0f, fSize));
     if (fDx * fDx + fDy * fDy + fDz * fDz > fConservativeRadius * fConservativeRadius)
       continue;
 
@@ -1224,15 +1224,15 @@ ezUInt64 ezTerrainSystem::ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel
   return writer.GetHashValue();
 }
 
-void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes) const
+void WTerrainSystem::FindVoxelOverlappingBrushes(const WTerrainData_Voxel& vol, WDynamicArray<TerrainBrushData>& brushes) const
 {
-  const ezTransform invTrans = vol.m_GlobalTransform.GetInverse();
+  const WTransform invTrans = vol.m_GlobalTransform.GetInverse();
   const float fSize = (float)vol.m_uiResolution * vol.m_fVoxelSize;
 
   brushes.Clear();
   brushes.Reserve(m_Brushes.GetCount());
 
-  const ezMat3 mInvVolumeRot = vol.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
+  const WMat3 mInvVolumeRot = vol.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
 
   for (const auto& brush : m_Brushes)
   {
@@ -1242,16 +1242,16 @@ void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(vol.m_Tags))
       continue;
 
-    if ((brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
+    if ((brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
       continue;
 
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
+    const WVec3 vLocalCenter = invTrans * brush.m_vPosition;
+    const float fConservativeRadius = WMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
 
-    const float fDx = vLocalCenter.x - ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fDy = vLocalCenter.y - ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
+    const float fDx = vLocalCenter.x - WMath::Clamp(vLocalCenter.x, 0.0f, fSize);
+    const float fDy = vLocalCenter.y - WMath::Clamp(vLocalCenter.y, 0.0f, fSize);
     // OnlyPaint2D projects from above with no Z extent — skip Z bounds check.
-    const float fDz = (brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - ezMath::Clamp(vLocalCenter.z, 0.0f, fSize));
+    const float fDz = (brush.m_ModifyMode == WTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - WMath::Clamp(vLocalCenter.z, 0.0f, fSize));
     if (fDx * fDx + fDy * fDy + fDz * fDz > fConservativeRadius * fConservativeRadius)
       continue;
 
@@ -1262,16 +1262,16 @@ void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol
     bd.HalfExtentYTop = brush.m_fHalfExtentYTop;
     bd.HalfExtentZ = brush.m_fHalfExtentZ;
     bd.InnerRadius = brush.m_fInnerRadius;
-    bd.OuterRadius = ezMath::Max(brush.m_fOuterRadius, 0.0001f);
+    bd.OuterRadius = WMath::Max(brush.m_fOuterRadius, 0.0001f);
     bd.Falloff = brush.m_fFalloff;
     bd.ModifyMode = brush.m_ModifyMode.GetValue();
     bd.MaterialIndex = brush.m_uiMaterialIndex;
     bd.MaterialStrength = brush.m_fMaterialStrength;
     bd.NoiseStrength = brush.m_fNoiseStrength;
-    bd.NoiseFrequency = ezMath::Max(0.0001f, brush.m_fNoiseFrequency);
+    bd.NoiseFrequency = WMath::Max(0.0001f, brush.m_fNoiseFrequency);
     bd.CpuPriority = static_cast<float>(brush.m_iPriority);
 
-    const ezMat3 mInvLocalBrushRot = (mInvVolumeRot * brush.m_qRotation.GetAsMat3()).GetTranspose();
+    const WMat3 mInvLocalBrushRot = (mInvVolumeRot * brush.m_qRotation.GetAsMat3()).GetTranspose();
     bd.InvRotRow0 = mInvLocalBrushRot.GetRow(0);
     bd.InvRotRow1 = mInvLocalBrushRot.GetRow(1);
     bd.InvRotRow2 = mInvLocalBrushRot.GetRow(2);
@@ -1283,8 +1283,8 @@ void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol
     {
       if (a.CpuPriority != b.CpuPriority)
         return a.CpuPriority < b.CpuPriority;
-      const bool aCarve = a.ModifyMode == ezTerrainModifyMode::Carve;
-      const bool bCarve = b.ModifyMode == ezTerrainModifyMode::Carve;
+      const bool aCarve = a.ModifyMode == WTerrainModifyMode::Carve;
+      const bool bCarve = b.ModifyMode == WTerrainModifyMode::Carve;
       if (aCarve != bCarve)
         return !aCarve;
       if (a.ModifyMode != b.ModifyMode)
@@ -1294,33 +1294,33 @@ void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol
       return a.Position.z < b.Position.z; });
 }
 
-void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
+void WTerrainSystem::UpdateVoxels(WUInt32 uiIndex, WRenderGraph& graph)
 {
-  EZ_PROFILE_SCOPE("UpdateVoxels");
+  W_PROFILE_SCOPE("UpdateVoxels");
 
   auto& vol = m_VoxelVolumes[uiIndex];
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  ezTempHybridArray<TerrainBrushData, 16> brushCPUData;
+  WTempHybridArray<TerrainBrushData, 16> brushCPUData;
   FindVoxelOverlappingBrushes(vol, brushCPUData);
 
-  const ezUInt32 uiNumBrushes = brushCPUData.GetCount();
-  ezGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
+  const WUInt32 uiNumBrushes = brushCPUData.GetCount();
+  WGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
 
-  constexpr ezUInt32 c_uiVoxelBorderVoxels = 4u;
+  constexpr WUInt32 c_uiVoxelBorderVoxels = 4u;
 
-  const ezUInt32 uiResolution = vol.m_uiResolution;
-  const ezUInt32 uiPackPitch = vol.m_uiPackPitch;
-  const ezUInt32 uiBufYZ = uiResolution + 2u * c_uiVoxelBorderVoxels;
-  const ezUInt32 uiGroupsX = (uiPackPitch + 3u) / 4u;
-  const ezUInt32 uiGroupsYZ = (uiBufYZ + 3u) / 4u;
+  const WUInt32 uiResolution = vol.m_uiResolution;
+  const WUInt32 uiPackPitch = vol.m_uiPackPitch;
+  const WUInt32 uiBufYZ = uiResolution + 2u * c_uiVoxelBorderVoxels;
+  const WUInt32 uiGroupsX = (uiPackPitch + 3u) / 4u;
+  const WUInt32 uiGroupsYZ = (uiBufYZ + 3u) / 4u;
 
   // The bake scratch is shared across all volumes — grow it to fit this volume before importing.
   EnsureSharedVoxelScratch(uiPackPitch, uiBufYZ, uiResolution);
 
   // Import all buffers. Default states: UAV for SRV|UAV buffers, SRV for brush. Scratch is the shared set;
   // only the Final* buffers are per volume.
-  auto hGraphBrush = graph.ImportBuffer(hBrushBuffer, ezGALResourceState::ShaderResource);
+  auto hGraphBrush = graph.ImportBuffer(hBrushBuffer, WGALResourceState::ShaderResource);
   auto hGraphBakedVoxels = graph.ImportBuffer(m_hSharedVoxels);
   auto hGraphBakedVoxelDist = graph.ImportBuffer(m_hSharedVoxelDist);
   auto hGraphBakedVoxelDistScratch = graph.ImportBuffer(m_hSharedVoxelDistScratch);
@@ -1337,8 +1337,8 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   {
     VoxelBakeConstants c = {};
     c.GridSpacing = vol.m_fVoxelSize;
-    c.VoxelResolution = ezVec3U32(uiResolution, uiResolution, uiResolution);
-    c.BufferSize = ezVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
+    c.VoxelResolution = WVec3U32(uiResolution, uiResolution, uiResolution);
+    c.BufferSize = WVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
     c.NumBorderVoxels = c_uiVoxelBorderVoxels;
     c.BrushCount = uiNumBrushes;
     c.InitialSolid = vol.m_bInitialSolid ? 1 : 0;
@@ -1350,17 +1350,17 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphBakedVoxels);
     pass.WriteBuffer(hGraphBakedVoxelDist);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBrush, hGraphBakedVoxels, hGraphBakedVoxelDist](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBrush, hGraphBakedVoxels, hGraphBakedVoxelDist](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
-        VoxelBakeConstants* constants = ezRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
+        VoxelBakeConstants* constants = WRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
         *constants = c;
         pRC->BindShader(m_hVoxelBakeShader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedVoxels",    ctx.ResolveBuffer(hGraphBakedVoxels));
         bg.BindBuffer("BakedVoxelDist", ctx.ResolveBuffer(hGraphBakedVoxelDist));
         bg.BindBuffer("Brushes",        ctx.ResolveBuffer(hGraphBrush));
@@ -1374,8 +1374,8 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   // SDF blur: reads BakedVoxelDist (SRV), writes BakedVoxelDistScratch (UAV), reads BakedVoxels (SRV).
   {
     VoxelBakeConstants c = {};
-    c.VoxelResolution = ezVec3U32(uiResolution, uiResolution, uiResolution);
-    c.BufferSize = ezVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
+    c.VoxelResolution = WVec3U32(uiResolution, uiResolution, uiResolution);
+    c.BufferSize = WVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
     c.NumBorderVoxels = c_uiVoxelBorderVoxels;
     c.SmoothFactor = 0.3f;
 
@@ -1384,17 +1384,17 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.ReadBuffer(hGraphBakedVoxels);
     pass.WriteBuffer(hGraphBakedVoxelDistScratch);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBakedVoxelDist, hGraphBakedVoxelDistScratch, hGraphBakedVoxels](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBakedVoxelDist, hGraphBakedVoxelDistScratch, hGraphBakedVoxels](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
-        VoxelBakeConstants* constants = ezRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
+        VoxelBakeConstants* constants = WRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
         *constants = c;
         pRC->BindShader(m_hVoxelBlurDistShader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedVoxelDistIn",  ctx.ResolveBuffer(hGraphBakedVoxelDist));
         bg.BindBuffer("BakedVoxelDistOut", ctx.ResolveBuffer(hGraphBakedVoxelDistScratch));
         bg.BindBuffer("BakedVoxels",       ctx.ResolveBuffer(hGraphBakedVoxels));
@@ -1406,14 +1406,14 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   // After blur, Scratch holds the smoothed result so that is the initial src.
   auto hGraphCleanupSrc = hGraphBakedVoxelDistScratch;
   auto hGraphCleanupDst = hGraphBakedVoxelDist;
-  const ezUInt32 uiCleanupIterations = vol.m_uiCleanupIterations;
+  const WUInt32 uiCleanupIterations = vol.m_uiCleanupIterations;
 
-  for (ezUInt32 it = 0; it < uiCleanupIterations; ++it)
+  for (WUInt32 it = 0; it < uiCleanupIterations; ++it)
   {
     VoxelBakeConstants c = {};
     c.GridSpacing = vol.m_fVoxelSize;
-    c.VoxelResolution = ezVec3U32(uiResolution, uiResolution, uiResolution);
-    c.BufferSize = ezVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
+    c.VoxelResolution = WVec3U32(uiResolution, uiResolution, uiResolution);
+    c.BufferSize = WVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
     c.NumBorderVoxels = c_uiVoxelBorderVoxels;
 
     auto hSrc = hGraphCleanupSrc;
@@ -1424,24 +1424,24 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hDst);
     pass.ReadBuffer(hGraphBakedVoxels);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hSrc, hDst, hGraphBakedVoxels](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hSrc, hDst, hGraphBakedVoxels](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
-        VoxelBakeConstants* constants = ezRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
+        VoxelBakeConstants* constants = WRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
         *constants = c;
         pRC->BindShader(m_hVoxelCleanupShader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedVoxelDistIn",  ctx.ResolveBuffer(hSrc));
         bg.BindBuffer("BakedVoxelDistOut", ctx.ResolveBuffer(hDst));
         bg.BindBuffer("BakedVoxels",       ctx.ResolveBuffer(hGraphBakedVoxels));
         bg.BindBuffer("VoxelBakeConstants", m_hVoxelBakeConstants);
         pRC->Dispatch(uiGroupsX, uiGroupsYZ, uiGroupsYZ).AssertSuccess(); });
 
-    ezMath::Swap(hGraphCleanupSrc, hGraphCleanupDst);
+    WMath::Swap(hGraphCleanupSrc, hGraphCleanupDst);
   }
 
   // After cleanup, hGraphCleanupSrc holds the most recent output.
@@ -1452,25 +1452,25 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     auto pass = graph.AddComputePass("VoxelMeshClear");
     pass.WriteBuffer(hGraphGpuMeshCounts);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hGraphGpuMeshCounts](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hGraphGpuMeshCounts](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
         pRC->BindShader(m_hVoxelMeshClearShader);
-        pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL).BindBuffer("OutCounts", ctx.ResolveBuffer(hGraphGpuMeshCounts));
+        pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL).BindBuffer("OutCounts", ctx.ResolveBuffer(hGraphGpuMeshCounts));
         pRC->Dispatch(1, 1, 1).AssertSuccess(); });
   }
 
   // Surface Nets Pass 1: scatter vertices into compact slots, record remapping.
-  const ezUInt32 uiPass1Groups = (uiResolution + 1u + 3u) / 4u;
+  const WUInt32 uiPass1Groups = (uiResolution + 1u + 3u) / 4u;
   {
     VoxelBakeConstants c = {};
     c.GridSpacing = vol.m_fVoxelSize;
-    c.VoxelResolution = ezVec3U32(uiResolution, uiResolution, uiResolution);
-    c.BufferSize = ezVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
+    c.VoxelResolution = WVec3U32(uiResolution, uiResolution, uiResolution);
+    c.BufferSize = WVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
     c.NumBorderVoxels = c_uiVoxelBorderVoxels;
 
     auto pass = graph.AddComputePass("VoxelSurfaceNetsPass1");
@@ -1480,17 +1480,17 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphGpuMeshCompactVerts);
     pass.WriteBuffer(hGraphGpuMeshCounts);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiPass1Groups, hGraphBakedVoxels, hGraphFinalVoxelDist, hGraphGpuMeshRemap, hGraphGpuMeshCompactVerts, hGraphGpuMeshCounts](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiPass1Groups, hGraphBakedVoxels, hGraphFinalVoxelDist, hGraphGpuMeshRemap, hGraphGpuMeshCompactVerts, hGraphGpuMeshCounts](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
-        VoxelBakeConstants* constants = ezRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
+        VoxelBakeConstants* constants = WRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
         *constants = c;
         pRC->BindShader(m_hVoxelSurfaceNetsPass1Shader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedVoxels",        ctx.ResolveBuffer(hGraphBakedVoxels));
         bg.BindBuffer("BakedVoxelDist",     ctx.ResolveBuffer(hGraphFinalVoxelDist));
         bg.BindBuffer("OutRemap",           ctx.ResolveBuffer(hGraphGpuMeshRemap));
@@ -1502,13 +1502,13 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
 
   // Surface Nets Pass 2: emit indices for each axis (3 separate passes).
   // Reading OutRemap (now InRemap as SRV) causes a UAV→SRV barrier, which serializes pass 1 writes.
-  const ezUInt32 uiPass2Groups = (uiResolution + 1u + 3u) / 4u;
-  for (ezUInt32 axis = 0; axis < 3; ++axis)
+  const WUInt32 uiPass2Groups = (uiResolution + 1u + 3u) / 4u;
+  for (WUInt32 axis = 0; axis < 3; ++axis)
   {
     VoxelBakeConstants c = {};
     c.GridSpacing = vol.m_fVoxelSize;
-    c.VoxelResolution = ezVec3U32(uiResolution, uiResolution, uiResolution);
-    c.BufferSize = ezVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
+    c.VoxelResolution = WVec3U32(uiResolution, uiResolution, uiResolution);
+    c.BufferSize = WVec3U32(uiPackPitch * 8u, uiBufYZ, uiBufYZ);
     c.NumBorderVoxels = c_uiVoxelBorderVoxels;
     c.EdgeAxis = axis;
 
@@ -1518,17 +1518,17 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphGpuMeshIndices);
     pass.WriteBuffer(hGraphGpuMeshCounts);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiPass2Groups, hGraphBakedVoxels, hGraphFinalVoxelDist, hGraphGpuMeshRemap, hGraphGpuMeshIndices, hGraphGpuMeshCounts](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiPass2Groups, hGraphBakedVoxels, hGraphFinalVoxelDist, hGraphGpuMeshRemap, hGraphGpuMeshIndices, hGraphGpuMeshCounts](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
-        VoxelBakeConstants* constants = ezRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
+        VoxelBakeConstants* constants = WRenderContext::GetConstantBufferData<VoxelBakeConstants>(m_hVoxelBakeConstants);
         *constants = c;
         pRC->BindShader(m_hVoxelSurfaceNetsPass2Shader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("BakedVoxels",    ctx.ResolveBuffer(hGraphBakedVoxels));
         bg.BindBuffer("BakedVoxelDist", ctx.ResolveBuffer(hGraphFinalVoxelDist));
         bg.BindBuffer("InRemap",        ctx.ResolveBuffer(hGraphGpuMeshRemap));
@@ -1544,15 +1544,15 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.ReadBuffer(hGraphGpuMeshCounts);
     pass.WriteBuffer(hGraphCompactCopyDispatchArgs);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hGraphGpuMeshCounts, hGraphCompactCopyDispatchArgs](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hGraphGpuMeshCounts, hGraphCompactCopyDispatchArgs](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
         pRC->BindShader(m_hVoxelFillCompactCopyArgsShader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("InCounts",        ctx.ResolveBuffer(hGraphGpuMeshCounts));
         bg.BindBuffer("OutDispatchArgs", ctx.ResolveBuffer(hGraphCompactCopyDispatchArgs));
         pRC->Dispatch(1, 1, 1).AssertSuccess(); });
@@ -1561,10 +1561,10 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   // Compact-copy: GPU-driven DispatchIndirect copies only active entries to final render buffers.
   // The dispatch args buffer must be in DrawIndirect state for DispatchIndirect.
   {
-    ezGALBufferHandle hDispatchArgs = m_hSharedCompactCopyDispatchArgs;
+    WGALBufferHandle hDispatchArgs = m_hSharedCompactCopyDispatchArgs;
 
     auto pass = graph.AddComputePass("VoxelCompactCopy");
-    pass.ReadBuffer(hGraphCompactCopyDispatchArgs, ezGALResourceState::DrawIndirect);
+    pass.ReadBuffer(hGraphCompactCopyDispatchArgs, WGALResourceState::DrawIndirect);
     pass.ReadBuffer(hGraphGpuMeshCompactVerts);
     pass.ReadBuffer(hGraphGpuMeshIndices);
     pass.ReadBuffer(hGraphGpuMeshCounts);
@@ -1572,15 +1572,15 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
     pass.WriteBuffer(hGraphFinalIndices);
     pass.WriteBuffer(hGraphFinalDrawArgs);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hDispatchArgs, hGraphGpuMeshCompactVerts, hGraphGpuMeshIndices, hGraphGpuMeshCounts, hGraphFinalVertices, hGraphFinalIndices, hGraphFinalDrawArgs](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hDispatchArgs, hGraphGpuMeshCompactVerts, hGraphGpuMeshIndices, hGraphGpuMeshCounts, hGraphFinalVertices, hGraphFinalIndices, hGraphFinalDrawArgs](const WRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
         pRC->SetAllowAsyncShaderLoading(false);
-        EZ_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
+        W_SCOPE_EXIT(pRC->SetAllowAsyncShaderLoading(bPrev));
 
         pRC->BindShader(m_hVoxelCompactCopyShader);
-        ezBindGroupBuilder& bg = pRC->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bg = pRC->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bg.BindBuffer("InCompactVertices", ctx.ResolveBuffer(hGraphGpuMeshCompactVerts));
         bg.BindBuffer("InIndices",         ctx.ResolveBuffer(hGraphGpuMeshIndices));
         bg.BindBuffer("InCounts",          ctx.ResolveBuffer(hGraphGpuMeshCounts));
@@ -1593,28 +1593,28 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
 }
 
 
-ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_uiVertexCount, ezUInt32& out_uiPrimitiveCount, ezTime timeout)
+WResult WTerrainSystem::ReadbackVoxelData(WUInt32 uiIndex, WTempArray<VoxelGpuVertex>& out_verts, WDynamicArray<WUInt32>& out_indices, WUInt32& out_uiVertexCount, WUInt32& out_uiPrimitiveCount, WTime timeout)
 {
   out_uiVertexCount = 0;
   out_uiPrimitiveCount = 0;
 
   if (uiIndex >= m_VoxelVolumes.GetCount())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   auto& vol = m_VoxelVolumes[uiIndex];
   if (!vol.m_bInUse)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // The mesh scratch is shared and not persistent — always re-bake and read back within one sync graph.
   vol.m_bDirty = true;
 
-  ezGALReadbackBufferHelper countRB;
-  ezGALReadbackBufferHelper vertRB;
-  ezGALReadbackBufferHelper idxRB;
+  WGALReadbackBufferHelper countRB;
+  WGALReadbackBufferHelper vertRB;
+  WGALReadbackBufferHelper idxRB;
 
-  auto pGraph = ezRenderGraphManager::CreateRenderGraph("VoxelExportReadback", ezRenderGraphPhase::PreRender);
+  auto pGraph = WRenderGraphManager::CreateRenderGraph("VoxelExportReadback", WRenderGraphPhase::PreRender);
   pGraph->Reset();
 
   UpdateVoxels(uiIndex, *pGraph);
@@ -1624,16 +1624,16 @@ ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelG
   auto hGraphVerts = pGraph->ImportBuffer(m_hSharedMeshCompactVertices);
   auto hGraphIdx = pGraph->ImportBuffer(m_hSharedMeshIndices);
 
-  const ezGALBufferHandle hCounts = m_hSharedMeshCounts;
-  const ezGALBufferHandle hVerts = m_hSharedMeshCompactVertices;
-  const ezGALBufferHandle hIdx = m_hSharedMeshIndices;
+  const WGALBufferHandle hCounts = m_hSharedMeshCounts;
+  const WGALBufferHandle hVerts = m_hSharedMeshCompactVertices;
+  const WGALBufferHandle hIdx = m_hSharedMeshIndices;
 
   auto pass = pGraph->AddTransferPass("VoxelReadback");
-  pass.ReadBuffer(hGraphCounts, ezGALResourceState::CopySource);
-  pass.ReadBuffer(hGraphVerts, ezGALResourceState::CopySource);
-  pass.ReadBuffer(hGraphIdx, ezGALResourceState::CopySource);
+  pass.ReadBuffer(hGraphCounts, WGALResourceState::CopySource);
+  pass.ReadBuffer(hGraphVerts, WGALResourceState::CopySource);
+  pass.ReadBuffer(hGraphIdx, WGALResourceState::CopySource);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([hCounts, hVerts, hIdx, &countRB, &vertRB, &idxRB](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([hCounts, hVerts, hIdx, &countRB, &vertRB, &idxRB](const WRenderGraphContext& ctx)
     {
       countRB.ReadbackBuffer(*ctx.GetCommandEncoder(), hCounts);
       vertRB.ReadbackBuffer(*ctx.GetCommandEncoder(), hVerts);
@@ -1641,66 +1641,66 @@ ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelG
 
   ExecuteGraphSync(*pGraph, pDevice);
 
-  const ezTime tDeadline = ezTime::Now() + timeout;
+  const WTime tDeadline = WTime::Now() + timeout;
 
-  auto PollReadback = [&](ezGALReadbackBufferHelper& readback, const char* szName) -> ezResult
+  auto PollReadback = [&](WGALReadbackBufferHelper& readback, const char* szName) -> WResult
   {
     while (true)
     {
-      const auto result = readback.GetReadbackResult(ezTime::MakeFromMilliseconds(2));
-      if (result == ezGALAsyncResult::Expired)
+      const auto result = readback.GetReadbackResult(WTime::MakeFromMilliseconds(2));
+      if (result == WGALAsyncResult::Expired)
       {
-        ezLog::Error("ReadbackVoxelData: {} readback expired for volume {}.", szName, uiIndex);
-        return EZ_FAILURE;
+        WLog::Error("ReadbackVoxelData: {} readback expired for volume {}.", szName, uiIndex);
+        return W_FAILURE;
       }
-      if (result == ezGALAsyncResult::Ready)
-        return EZ_SUCCESS;
-      if (ezTime::Now() >= tDeadline)
+      if (result == WGALAsyncResult::Ready)
+        return W_SUCCESS;
+      if (WTime::Now() >= tDeadline)
       {
-        ezLog::Error("ReadbackVoxelData: timed out waiting for {} of volume {}.", szName, uiIndex);
-        return EZ_FAILURE;
+        WLog::Error("ReadbackVoxelData: timed out waiting for {} of volume {}.", szName, uiIndex);
+        return W_FAILURE;
       }
     }
   };
 
   if (PollReadback(countRB, "counts").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
   if (PollReadback(vertRB, "vertices").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
   if (PollReadback(idxRB, "indices").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // Pull the counts first; they bound the vertex/index copies below.
   {
-    ezArrayPtr<const ezUInt8> rawMemory;
+    WArrayPtr<const WUInt8> rawMemory;
     auto lock = countRB.LockBuffer(rawMemory);
     if (!lock)
-      return EZ_FAILURE;
+      return W_FAILURE;
     const VoxelMeshCounts* pCounts = reinterpret_cast<const VoxelMeshCounts*>(rawMemory.GetPtr());
     out_uiVertexCount = pCounts->VertexCount;
     out_uiPrimitiveCount = pCounts->PrimitiveCount;
   }
 
   {
-    ezArrayPtr<const ezUInt8> rawMemory;
+    WArrayPtr<const WUInt8> rawMemory;
     auto lock = vertRB.LockBuffer(rawMemory);
     if (lock)
     {
       out_verts.SetCountUninitialized(out_uiVertexCount);
-      ezMemoryUtils::Copy(out_verts.GetData(), reinterpret_cast<const VoxelGpuVertex*>(rawMemory.GetPtr()), out_uiVertexCount);
+      WMemoryUtils::Copy(out_verts.GetData(), reinterpret_cast<const VoxelGpuVertex*>(rawMemory.GetPtr()), out_uiVertexCount);
     }
   }
 
   {
-    ezArrayPtr<const ezUInt8> rawMemory;
+    WArrayPtr<const WUInt8> rawMemory;
     auto lock = idxRB.LockBuffer(rawMemory);
     if (lock)
     {
-      const ezUInt32 uiIndexCount = out_uiPrimitiveCount * 3;
+      const WUInt32 uiIndexCount = out_uiPrimitiveCount * 3;
       out_indices.SetCountUninitialized(uiIndexCount);
-      ezMemoryUtils::Copy(out_indices.GetData(), reinterpret_cast<const ezUInt32*>(rawMemory.GetPtr()), uiIndexCount);
+      WMemoryUtils::Copy(out_indices.GetData(), reinterpret_cast<const WUInt32*>(rawMemory.GetPtr()), uiIndexCount);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

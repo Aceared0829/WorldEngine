@@ -7,36 +7,36 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltSwingTwistConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltSwingTwistConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("SwingLimitY", GetSwingLimitY, SetSwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
-    EZ_ACCESSOR_PROPERTY("SwingLimitZ", GetSwingLimitZ, SetSwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("SwingLimitY", GetSwingLimitY, SetSwingLimitY)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("SwingLimitZ", GetSwingLimitZ, SetSwingLimitZ)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(175))),
 
-    EZ_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
 
-    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(175)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
-    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(175)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
+    W_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(5), WAngle::MakeFromDegree(175)), new WDefaultValueAttribute(WAngle::MakeFromDegree(90))),
+    W_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(5), WAngle::MakeFromDegree(175)), new WDefaultValueAttribute(WAngle::MakeFromDegree(90))),
 
-    //EZ_ENUM_ACCESSOR_PROPERTY("TwistDriveMode", ezJoltConstraintDriveMode, GetTwistDriveMode, SetTwistDriveMode),
-    //EZ_ACCESSOR_PROPERTY("TwistDriveTargetValue", GetTwistDriveTargetValue, SetTwistDriveTargetValue),
-    //EZ_ACCESSOR_PROPERTY("TwistDriveStrength", GetTwistDriveStrength, SetTwistDriveStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("Maximum"))
+    //W_ENUM_ACCESSOR_PROPERTY("TwistDriveMode", WJoltConstraintDriveMode, GetTwistDriveMode, SetTwistDriveMode),
+    //W_ACCESSOR_PROPERTY("TwistDriveTargetValue", GetTwistDriveTargetValue, SetTwistDriveTargetValue),
+    //W_ACCESSOR_PROPERTY("TwistDriveStrength", GetTwistDriveStrength, SetTwistDriveStrength)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WMinValueTextAttribute("Maximum"))
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "SwingLimitY", 0.3f, nullptr)
+    new WConeVisualizerAttribute(WBasisAxis::PositiveX, "SwingLimitY", 0.3f, nullptr)
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltSwingTwistConstraintComponent::ezJoltSwingTwistConstraintComponent() = default;
-ezJoltSwingTwistConstraintComponent::~ezJoltSwingTwistConstraintComponent() = default;
+WJoltSwingTwistConstraintComponent::WJoltSwingTwistConstraintComponent() = default;
+WJoltSwingTwistConstraintComponent::~WJoltSwingTwistConstraintComponent() = default;
 
-void ezJoltSwingTwistConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltSwingTwistConstraintComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -55,10 +55,10 @@ void ezJoltSwingTwistConstraintComponent::SerializeComponent(ezWorldWriter& inou
   // s << m_fTwistDriveStrength;
 }
 
-void ezJoltSwingTwistConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltSwingTwistConstraintComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -75,7 +75,7 @@ void ezJoltSwingTwistConstraintComponent::DeserializeComponent(ezWorldReader& in
   // s >> m_fTwistDriveStrength;
 }
 
-void ezJoltSwingTwistConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJoltSwingTwistConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
   const auto inv2 = pBody1->GetInverseCenterOfMassTransform() * pBody1->GetWorldTransform();
@@ -83,24 +83,24 @@ void ezJoltSwingTwistConstraintComponent::CreateContstraintType(JPH::Body* pBody
   JPH::SwingTwistConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPosition1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
-  opt.mPosition2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
+  opt.mPosition1 = inv1 * WJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPosition2 = inv2 * WJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mPlaneHalfConeAngle = m_SwingLimitY.GetRadian() * 0.5f;
   opt.mNormalHalfConeAngle = m_SwingLimitZ.GetRadian() * 0.5f;
   opt.mMaxFrictionTorque = m_fFriction;
-  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::MakeAxisX()));
-  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::MakeAxisX()));
+  opt.mTwistAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3::MakeAxisX()));
+  opt.mTwistAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3::MakeAxisX()));
   opt.mTwistMinAngle = -m_LowerTwistLimit.GetRadian();
   opt.mTwistMaxAngle = m_UpperTwistLimit.GetRadian();
-  opt.mPlaneAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::MakeAxisY()));
-  opt.mPlaneAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::MakeAxisY()));
+  opt.mPlaneAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3::MakeAxisY()));
+  opt.mPlaneAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3::MakeAxisY()));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
 
-void ezJoltSwingTwistConstraintComponent::ApplySettings()
+void WJoltSwingTwistConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   auto pConstraint = static_cast<JPH::SwingTwistConstraint*>(m_pConstraint);
 
@@ -112,13 +112,13 @@ void ezJoltSwingTwistConstraintComponent::ApplySettings()
 
   // drive
   //{
-  //  if (m_TwistDriveMode == ezJoltConstraintDriveMode::NoDrive)
+  //  if (m_TwistDriveMode == WJoltConstraintDriveMode::NoDrive)
   //  {
   //    pConstraint->SetTwistMotorState(JPH::EMotorState::Off);
   //  }
   //  else
   //  {
-  //    if (m_TwistDriveMode == ezJoltConstraintDriveMode::DriveVelocity)
+  //    if (m_TwistDriveMode == WJoltConstraintDriveMode::DriveVelocity)
   //    {
   //      pConstraint->SetTwistMotorState(JPH::EMotorState::Velocity);
   //      pConstraint->SetTargetAngularVelocityCS(JPH::Vec3::sReplicate(m_TwistDriveTargetValue.GetRadian()));
@@ -140,12 +140,12 @@ void ezJoltSwingTwistConstraintComponent::ApplySettings()
   if (pConstraint->GetBody2()->IsInBroadPhase())
   {
     // wake up the bodies that are attached to this constraint
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
 
-bool ezJoltSwingTwistConstraintComponent::ExceededBreakingPoint()
+bool WJoltSwingTwistConstraintComponent::ExceededBreakingPoint()
 {
   if (auto pConstraint = static_cast<JPH::SwingTwistConstraint*>(m_pConstraint))
   {
@@ -171,53 +171,53 @@ bool ezJoltSwingTwistConstraintComponent::ExceededBreakingPoint()
   return false;
 }
 
-void ezJoltSwingTwistConstraintComponent::SetSwingLimitZ(ezAngle f)
+void WJoltSwingTwistConstraintComponent::SetSwingLimitZ(WAngle f)
 {
   m_SwingLimitZ = f;
   QueueApplySettings();
 }
 
-void ezJoltSwingTwistConstraintComponent::SetSwingLimitY(ezAngle f)
+void WJoltSwingTwistConstraintComponent::SetSwingLimitY(WAngle f)
 {
   m_SwingLimitY = f;
   QueueApplySettings();
 }
 
-void ezJoltSwingTwistConstraintComponent::SetFriction(float f)
+void WJoltSwingTwistConstraintComponent::SetFriction(float f)
 {
   m_fFriction = f;
   QueueApplySettings();
 }
 
-void ezJoltSwingTwistConstraintComponent::SetLowerTwistLimit(ezAngle f)
+void WJoltSwingTwistConstraintComponent::SetLowerTwistLimit(WAngle f)
 {
   m_LowerTwistLimit = f;
   QueueApplySettings();
 }
 
-void ezJoltSwingTwistConstraintComponent::SetUpperTwistLimit(ezAngle f)
+void WJoltSwingTwistConstraintComponent::SetUpperTwistLimit(WAngle f)
 {
   m_UpperTwistLimit = f;
   QueueApplySettings();
 }
 
-// void ezJoltSwingTwistConstraintComponent::SetTwistDriveMode(ezJoltConstraintDriveMode::Enum mode)
+// void WJoltSwingTwistConstraintComponent::SetTwistDriveMode(WJoltConstraintDriveMode::Enum mode)
 //{
 //   m_TwistDriveMode = mode;
 //   QueueApplySettings();
 // }
 //
-// void ezJoltSwingTwistConstraintComponent::SetTwistDriveTargetValue(ezAngle f)
+// void WJoltSwingTwistConstraintComponent::SetTwistDriveTargetValue(WAngle f)
 //{
 //   m_TwistDriveTargetValue = f;
 //   QueueApplySettings();
 // }
 //
-// void ezJoltSwingTwistConstraintComponent::SetTwistDriveStrength(float f)
+// void WJoltSwingTwistConstraintComponent::SetTwistDriveStrength(float f)
 //{
 //   m_fTwistDriveStrength = f;
 //   QueueApplySettings();
 // }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSwingTwistConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSwingTwistConstraintComponent);

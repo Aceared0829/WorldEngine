@@ -8,7 +8,7 @@
 /// Access is limited to iteration from front-to-back or back-to-front, there is no random-access.
 /// Define the type of object to store in the list via the template argument T.
 template <typename T>
-class ezListBase
+class WListBase
 {
 private:
   struct ListElement;
@@ -36,7 +36,7 @@ private:
   /// base-class for all iterators
   struct ConstIterator
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     /// Constructor.
     ConstIterator()
@@ -45,8 +45,8 @@ private:
     } // [tested]
 
     /// Equality comparison operator.
-    bool operator==(typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(typename ezListBase<T>::ConstIterator);
+    bool operator==(typename WListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
+    W_ADD_DEFAULT_OPERATOR_NOTEQUAL(typename WListBase<T>::ConstIterator);
 
     /// Grants access to the node-data.
     const T& operator*() const { return (m_pElement->m_Data); } // [tested]
@@ -70,7 +70,7 @@ private:
     void operator--() { Prev(); } // [tested]
 
   private:
-    friend class ezListBase<T>;
+    friend class WListBase<T>;
 
     ConstIterator(ListElement* pInit)
       : m_pElement(pInit)
@@ -88,7 +88,7 @@ public:
     using ConstIterator::operator*;
     using ConstIterator::operator->;
 
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     /// Constructor.
     Iterator()
@@ -103,7 +103,7 @@ public:
     T* operator->() { return (&this->m_pElement->m_Data); } // [tested]
 
   private:
-    friend class ezListBase<T>;
+    friend class WListBase<T>;
 
     explicit Iterator(ListElement* pInit)
       : ConstIterator(pInit)
@@ -113,26 +113,26 @@ public:
 
 protected:
   /// Initializes the list to be empty.
-  explicit ezListBase(ezAllocator* pAllocator); // [tested]
+  explicit WListBase(WAllocator* pAllocator); // [tested]
 
   /// Initializes the list with a copy from another list.
-  ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator); // [tested]
+  WListBase(const WListBase<T>& cc, WAllocator* pAllocator); // [tested]
 
   /// Destroys the list and all its content.
-  ~ezListBase(); // [tested]
+  ~WListBase(); // [tested]
 
   /// Copies the list cc into this list.
-  void operator=(const ezListBase<T>& cc); // [tested]
+  void operator=(const WListBase<T>& cc); // [tested]
 
 public:
   /// Clears the list, afterwards it is empty.
   void Clear(); // [tested]
 
-  /// See ezDeque::Compact()
+  /// See WDeque::Compact()
   void Compact();
 
   /// Returns the number of elements in the list. O(1) operation.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Returns whether size == 0. O(1) operation.
   bool IsEmpty() const; // [tested]
@@ -168,7 +168,7 @@ public:
   void PopFront(); // [tested]
 
   /// Sets the number of elements that are in the list.
-  void SetCount(ezUInt32 uiNewSize); // [tested]
+  void SetCount(WUInt32 uiNewSize); // [tested]
 
   /// Inserts one element before the position defined by the iterator.
   Iterator Insert(const Iterator& pos, const T& data); // [tested]
@@ -198,14 +198,14 @@ public:
   ConstIterator GetEndIterator() const; // [tested]
 
   /// Returns the allocator that is used by this instance.
-  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
+  WAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// Comparison operator
-  bool operator==(const ezListBase<T>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezListBase<T>&);
+  bool operator==(const WListBase<T>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WListBase<T>&);
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
+  WUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
 private:
   /// Sentinel node before the first element.
@@ -218,7 +218,7 @@ private:
   Iterator m_End;
 
   /// The number of active elements in the list.
-  ezUInt32 m_uiCount;
+  WUInt32 m_uiCount;
 
   /// Acquires and initializes one default constructed node.
   ListElement* AcquireNode();
@@ -227,25 +227,25 @@ private:
   void ReleaseNode(ListElement* pNode);
 
   /// Data-Store. Contains all the elements.
-  ezDeque<ListElement, ezNullAllocatorWrapper, false> m_Elements;
+  WDeque<ListElement, WNullAllocatorWrapper, false> m_Elements;
 
   /// Stack that holds recently freed nodes, that can be quickly reused.
   ListElement* m_pFreeElementStack;
 };
 
-/// \see ezListBase
-template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezList : public ezListBase<T>
+/// \see WListBase
+template <typename T, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WList : public WListBase<T>
 {
 public:
-  ezList();
-  explicit ezList(ezAllocator* pAllocator);
+  WList();
+  explicit WList(WAllocator* pAllocator);
 
-  ezList(const ezList<T, AllocatorWrapper>& other);
-  ezList(const ezListBase<T>& other);
+  WList(const WList<T, AllocatorWrapper>& other);
+  WList(const WListBase<T>& other);
 
-  void operator=(const ezList<T, AllocatorWrapper>& rhs);
-  void operator=(const ezListBase<T>& rhs);
+  void operator=(const WList<T, AllocatorWrapper>& rhs);
+  void operator=(const WListBase<T>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/List_inl.h>

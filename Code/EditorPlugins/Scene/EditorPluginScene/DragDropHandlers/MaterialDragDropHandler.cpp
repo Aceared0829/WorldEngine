@@ -8,41 +8,41 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialDragDropHandler, 1, ezRTTIDefaultAllocator<ezMaterialDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMaterialDragDropHandler, 1, WRTTIDefaultAllocator<WMaterialDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezMaterialDragDropHandler::RequestConfiguration(ezDragDropConfig* pConfigToFillOut)
+void WMaterialDragDropHandler::RequestConfiguration(WDragDropConfig* pConfigToFillOut)
 {
   pConfigToFillOut->m_bPickSelectedObjects = true;
 }
 
-float ezMaterialDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WMaterialDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
   if (pInfo->m_sTargetContext != "viewport")
     return 0.0f;
 
-  const ezDocument* pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
+  const WDocument* pDocument = WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
 
-  if (!pDocument->GetDynamicRTTI()->IsDerivedFrom<ezSceneDocument>())
+  if (!pDocument->GetDynamicRTTI()->IsDerivedFrom<WSceneDocument>())
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Material") ? 1.0f : 0.0f;
 }
 
-void ezMaterialDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WMaterialDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  m_pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
-  EZ_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
+  m_pDocument = WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
+  W_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
 
   m_pDocument->GetCommandHistory()->BeginTemporaryCommands("Drag Material", true);
 }
 
-void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
+void WMaterialDragDropHandler::OnDragUpdate(const WDragDropInfo* pInfo)
 {
   if (!pInfo->m_TargetComponent.IsValid())
     return;
 
-  const ezDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
+  const WDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
 
   if (!pComponent)
     return;
@@ -53,9 +53,9 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   m_AppliedToComponent = pInfo->m_TargetComponent;
   m_iAppliedToSlot = pInfo->m_iTargetObjectSubID;
 
-  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponentBase>())
+  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<WMeshComponentBase>())
   {
-    ezResizeAndSetObjectPropertyCommand cmd;
+    WResizeAndSetObjectPropertyCommand cmd;
     cmd.m_Object = pInfo->m_TargetComponent;
     cmd.m_Index = pInfo->m_iTargetObjectSubID;
     cmd.m_sProperty = "Materials";
@@ -66,9 +66,9 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
     m_pDocument->GetCommandHistory()->FinishTransaction();
   }
 
-  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>())
+  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<WGreyBoxComponent>())
   {
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = pInfo->m_TargetComponent;
     cmd.m_sProperty = "Material";
     cmd.m_NewValue = GetAssetGuidString(pInfo);
@@ -79,19 +79,19 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   }
 }
 
-void ezMaterialDragDropHandler::OnDragCancel()
+void WMaterialDragDropHandler::OnDragCancel()
 {
   m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
 }
 
-void ezMaterialDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
+void WMaterialDragDropHandler::OnDrop(const WDragDropInfo* pInfo)
 {
   if (pInfo->m_TargetComponent.IsValid())
   {
-    const ezDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
+    const WDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
 
-    if (pComponent && (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>() ||
-                        pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>()))
+    if (pComponent && (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<WMeshComponent>() ||
+                        pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<WGreyBoxComponent>()))
     {
       m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
       return;

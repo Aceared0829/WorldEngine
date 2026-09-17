@@ -10,19 +10,19 @@
 /// Generates an ambient occlusion texture from the depth buffer. The effect darkens areas
 /// where geometry is close together, simulating indirect lighting occlusion. Supports distance-based
 /// fade-out and various quality parameters.
-class EZ_RENDERERCORE_DLL ezAOPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WAOPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAOPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WAOPass, WRenderPipelinePass);
 
 public:
-  ezAOPass();
-  ~ezAOPass();
+  WAOPass();
+  ~WAOPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezStatus AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPassesInactive(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
   void SetFadeOutStart(float fStart);
   float GetFadeOutStart() const;
@@ -33,8 +33,8 @@ public:
 protected:
   void CreateSamplerState();
 
-  ezRenderPipelineNodeInputPin m_PinDepthInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinDepthInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
   float m_fRadius = 1.0f;
   float m_fMaxScreenSpaceRadius = 1.0f;
@@ -48,20 +48,20 @@ protected:
   float m_fMipLevelScale = 10.0f;
   float m_fDepthBlurThreshold = 2.0f;
 
-  ezConstantBufferStorageHandle m_hDownscaleConstantBuffer;
-  ezConstantBufferStorageHandle m_hSSAOConstantBuffer;
+  WConstantBufferStorageHandle m_hDownscaleConstantBuffer;
+  WConstantBufferStorageHandle m_hSSAOConstantBuffer;
 
-  ezTexture2DResourceHandle m_hNoiseTexture;
+  WTexture2DResourceHandle m_hNoiseTexture;
 
-  ezGALSamplerStateHandle m_hSSAOSamplerState;
+  WGALSamplerStateHandle m_hSSAOSamplerState;
 
-  ezShaderResourceHandle m_hDownscaleShader;
-  ezShaderResourceHandle m_hSSAOShader;
-  ezShaderResourceHandle m_hBlurShader;
+  WShaderResourceHandle m_hDownscaleShader;
+  WShaderResourceHandle m_hSSAOShader;
+  WShaderResourceHandle m_hBlurShader;
 
   // Graph state
-  ezRenderGraphTextureHandle m_hHzbTexture;
-  ezTempHybridArray<ezVec2, 8> m_HzbSizes;
-  ezTempHybridArray<ezGALTextureRange, 8> m_HzbResourceViews;
-  ezRenderGraphTextureHandle m_hSSAOTemp;
+  WRenderGraphTextureHandle m_hHzbTexture;
+  WTempHybridArray<WVec2, 8> m_HzbSizes;
+  WTempHybridArray<WGALTextureRange, 8> m_HzbResourceViews;
+  WRenderGraphTextureHandle m_hSSAOTemp;
 };

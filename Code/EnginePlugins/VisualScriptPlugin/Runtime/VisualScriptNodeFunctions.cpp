@@ -6,140 +6,140 @@
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
 
-using ExecResult = ezVisualScriptGraphDescription::ExecResult;
-using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*)(ezVisualScriptDataType::Enum dataType);
+using ExecResult = WVisualScriptGraphDescription::ExecResult;
+using ExecuteFunctionGetter = WVisualScriptGraphDescription::ExecuteFunction (*)(WVisualScriptDataType::Enum dataType);
 
 #define MAKE_EXEC_FUNC_GETTER(funcName)                                                                                  \
-  ezVisualScriptGraphDescription::ExecuteFunction EZ_PP_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
+  WVisualScriptGraphDescription::ExecuteFunction W_PP_CONCAT(funcName, _Getter)(WVisualScriptDataType::Enum dataType) \
   {                                                                                                                      \
-    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                           \
+    static WVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                           \
       nullptr, /* Invalid*/                                                                                              \
       &funcName<bool>,                                                                                                   \
-      &funcName<ezUInt8>,                                                                                                \
-      &funcName<ezInt32>,                                                                                                \
-      &funcName<ezInt64>,                                                                                                \
+      &funcName<WUInt8>,                                                                                                \
+      &funcName<WInt32>,                                                                                                \
+      &funcName<WInt64>,                                                                                                \
       &funcName<float>,                                                                                                  \
       &funcName<double>,                                                                                                 \
-      &funcName<ezColor>,                                                                                                \
-      &funcName<ezVec2>,                                                                                                 \
-      &funcName<ezVec3>,                                                                                                 \
-      &funcName<ezVec4>,                                                                                                 \
-      &funcName<ezQuat>,                                                                                                 \
-      &funcName<ezTransform>,                                                                                            \
-      &funcName<ezTime>,                                                                                                 \
-      &funcName<ezAngle>,                                                                                                \
-      &funcName<ezString>,                                                                                               \
-      &funcName<ezHashedString>,                                                                                         \
-      &funcName<ezGameObjectHandle>,                                                                                     \
-      &funcName<ezComponentHandle>,                                                                                      \
-      &funcName<ezTypedPointer>,                                                                                         \
-      &funcName<ezVariant>,                                                                                              \
-      &funcName<ezVariantArray>,                                                                                         \
-      &funcName<ezVariantDictionary>,                                                                                    \
-      &funcName<ezScriptCoroutineHandle>,                                                                                \
+      &funcName<WColor>,                                                                                                \
+      &funcName<WVec2>,                                                                                                 \
+      &funcName<WVec3>,                                                                                                 \
+      &funcName<WVec4>,                                                                                                 \
+      &funcName<WQuat>,                                                                                                 \
+      &funcName<WTransform>,                                                                                            \
+      &funcName<WTime>,                                                                                                 \
+      &funcName<WAngle>,                                                                                                \
+      &funcName<WString>,                                                                                               \
+      &funcName<WHashedString>,                                                                                         \
+      &funcName<WGameObjectHandle>,                                                                                     \
+      &funcName<WComponentHandle>,                                                                                      \
+      &funcName<WTypedPointer>,                                                                                         \
+      &funcName<WVariant>,                                                                                              \
+      &funcName<WVariantArray>,                                                                                         \
+      &funcName<WVariantDictionary>,                                                                                    \
+      &funcName<WScriptCoroutineHandle>,                                                                                \
     };                                                                                                                   \
                                                                                                                          \
-    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                        \
-    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                        \
+    static_assert(W_ARRAY_SIZE(functionTable) == WVisualScriptDataType::Count);                                        \
+    if (dataType >= 0 && dataType < W_ARRAY_SIZE(functionTable))                                                        \
       return functionTable[dataType];                                                                                    \
                                                                                                                          \
-    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                        \
+    WLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                        \
     return nullptr;                                                                                                      \
   }
 
 template <typename T>
-ezStringView GetTypeName()
+WStringView GetTypeName()
 {
-  if constexpr (std::is_same_v<T, ezTypedPointer>)
+  if constexpr (std::is_same_v<T, WTypedPointer>)
   {
-    return "ezTypePointer";
+    return "WTypePointer";
   }
   else
   {
-    return ezGetStaticRTTI<T>()->GetTypeName();
+    return WGetStaticRTTI<T>()->GetTypeName();
   }
 }
 
 namespace
 {
-  static EZ_FORCE_INLINE ezResult FillFunctionArgs(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const ezAbstractFunctionProperty* pFunction, ezUInt32 uiInputArgsMask, ezUInt32 uiStartSlot, ezDynamicArray<ezVariant>& out_args)
+  static W_FORCE_INLINE WResult FillFunctionArgs(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node, const WAbstractFunctionProperty* pFunction, WUInt32 uiInputArgsMask, WUInt32 uiStartSlot, WDynamicArray<WVariant>& out_args)
   {
-    const ezUInt32 uiArgCount = pFunction->GetArgumentCount();
+    const WUInt32 uiArgCount = pFunction->GetArgumentCount();
 
-    ezUInt32 uiInputSlot = uiStartSlot;
-    for (ezUInt32 i = 0; i < uiArgCount; ++i)
+    WUInt32 uiInputSlot = uiStartSlot;
+    for (WUInt32 i = 0; i < uiArgCount; ++i)
     {
-      const ezRTTI* pArgType = pFunction->GetArgumentType(i);
-      if ((uiInputArgsMask & EZ_BIT(i)) != 0)
+      const WRTTI* pArgType = pFunction->GetArgumentType(i);
+      if ((uiInputArgsMask & W_BIT(i)) != 0)
       {
         out_args.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(uiInputSlot), pArgType));
         ++uiInputSlot;
       }
       else
       {
-        out_args.PushBack(ezReflectionUtils::GetDefaultVariantFromType(pArgType));
+        out_args.PushBack(WReflectionUtils::GetDefaultVariantFromType(pArgType));
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static EZ_FORCE_INLINE ezScriptWorldModule* GetScriptModule(ezVisualScriptExecutionContext& inout_context)
+  static W_FORCE_INLINE WScriptWorldModule* GetScriptModule(WVisualScriptExecutionContext& inout_context)
   {
-    ezWorld* pWorld = inout_context.GetInstance().GetWorld();
+    WWorld* pWorld = inout_context.GetInstance().GetWorld();
     if (pWorld == nullptr)
     {
-      ezLog::Error("Visual script coroutines need a script instance with a valid ezWorld");
+      WLog::Error("Visual script coroutines need a script instance with a valid WWorld");
       return nullptr;
     }
 
-    return pWorld->GetOrCreateModule<ezScriptWorldModule>();
+    return pWorld->GetOrCreateModule<WScriptWorldModule>();
   }
 
-  static ExecResult NodeFunction_ReflectedFunction(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_ReflectedFunction(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
-    EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
-    auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
+    W_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == WPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
+    auto pFunction = static_cast<const WAbstractFunctionProperty*>(userData.m_pProperty);
 
-    ezTypedPointer pInstance;
-    ezUInt32 uiInputSlot = 0;
+    WTypedPointer pInstance;
+    WUInt32 uiInputSlot = 0;
 
-    if (pFunction->GetFunctionType() == ezFunctionType::Member)
+    if (pFunction->GetFunctionType() == WFunctionType::Member)
     {
       pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
       if (pInstance.m_pObject == nullptr)
       {
-        ezLog::Error("Visual script function call '{}': Target object is invalid (nullptr)", pFunction->GetPropertyName());
+        WLog::Error("Visual script function call '{}': Target object is invalid (nullptr)", pFunction->GetPropertyName());
         return ExecResult::Error();
       }
 
       if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
       {
-        ezLog::Error("Visual script function call '{}': Target object is not of expected type '{}'", pFunction->GetPropertyName(), userData.m_pType->GetTypeName());
+        WLog::Error("Visual script function call '{}': Target object is not of expected type '{}'", pFunction->GetPropertyName(), userData.m_pType->GetTypeName());
         return ExecResult::Error();
       }
 
       ++uiInputSlot;
     }
 
-    ezTempHybridArray<ezVariant, 8> args;
+    WTempHybridArray<WVariant, 8> args;
     if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, uiInputSlot, args).Failed())
     {
       return ExecResult::Error();
     }
 
-    ezVariant returnValue;
+    WVariant returnValue;
     pFunction->Execute(pInstance.m_pObject, args, returnValue);
 
-    ezUInt32 uiOutputSlot = 0;
+    WUInt32 uiOutputSlot = 0;
     if (pFunction->GetReturnType() != nullptr)
     {
       inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), returnValue);
       ++uiOutputSlot;
     }
 
-    for (ezUInt32 uiArgIndex : ezIterateBitIndices(userData.m_uiOutputArgsMask))
+    for (WUInt32 uiArgIndex : WIterateBitIndices(userData.m_uiOutputArgsMask))
     {
       inout_context.SetDataFromVariant(node.GetOutputDataOffset(uiOutputSlot), args[uiArgIndex]);
       ++uiOutputSlot;
@@ -149,39 +149,39 @@ namespace
   }
 
   template <typename T>
-  static ExecResult NodeFunction_GetReflectedProperty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_GetReflectedProperty(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
     auto pProperty = userData.m_pProperty;
 
-    ezTypedPointer pInstance;
+    WTypedPointer pInstance;
     pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
 
     if (pInstance.m_pObject == nullptr)
     {
-      ezLog::Error("Visual script get property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
+      WLog::Error("Visual script get property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
       return ExecResult::Error();
     }
 
     if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
     {
-      ezLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
+      WLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
       return ExecResult::Error();
     }
 
-    if (pProperty->GetCategory() == ezPropertyCategory::Member)
+    if (pProperty->GetCategory() == WPropertyCategory::Member)
     {
-      auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pProperty);
+      auto pMemberProperty = static_cast<const WAbstractMemberProperty*>(pProperty);
 
-      if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                    std::is_same_v<T, ezComponentHandle> ||
-                    std::is_same_v<T, ezTypedPointer>)
+      if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                    std::is_same_v<T, WComponentHandle> ||
+                    std::is_same_v<T, WTypedPointer>)
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
       else
       {
-        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        if (pProperty->GetSpecificType() == WGetStaticRTTI<T>())
         {
           T value;
           pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
@@ -189,14 +189,14 @@ namespace
         }
         else
         {
-          ezVariant value = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pInstance.m_pObject);
+          WVariant value = WReflectionUtils::GetMemberPropertyValue(pMemberProperty, pInstance.m_pObject);
           inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), value);
         }
       }
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
 
     return ExecResult::RunNext(0);
@@ -205,53 +205,53 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_GetReflectedProperty);
 
   template <typename T>
-  static ExecResult NodeFunction_SetReflectedProperty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_SetReflectedProperty(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
     auto pProperty = userData.m_pProperty;
 
-    ezTypedPointer pInstance;
+    WTypedPointer pInstance;
     pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
 
     if (pInstance.m_pObject == nullptr)
     {
-      ezLog::Error("Visual script set property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
+      WLog::Error("Visual script set property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
       return ExecResult::Error();
     }
 
     if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
     {
-      ezLog::Error("Visual script set property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
+      WLog::Error("Visual script set property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
       return ExecResult::Error();
     }
 
-    if (pProperty->GetCategory() == ezPropertyCategory::Member)
+    if (pProperty->GetCategory() == WPropertyCategory::Member)
     {
-      auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pProperty);
+      auto pMemberProperty = static_cast<const WAbstractMemberProperty*>(pProperty);
 
-      if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                    std::is_same_v<T, ezComponentHandle> ||
-                    std::is_same_v<T, ezTypedPointer>)
+      if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                    std::is_same_v<T, WComponentHandle> ||
+                    std::is_same_v<T, WTypedPointer>)
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
       else
       {
-        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        if (pProperty->GetSpecificType() == WGetStaticRTTI<T>())
         {
           const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
           pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
         }
         else
         {
-          ezVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), pProperty->GetSpecificType());
-          ezReflectionUtils::SetMemberPropertyValue(pMemberProperty, pInstance.m_pObject, value);
+          WVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), pProperty->GetSpecificType());
+          WReflectionUtils::SetMemberPropertyValue(pMemberProperty, pInstance.m_pObject, value);
         }
       }
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
 
     return ExecResult::RunNext(0);
@@ -259,9 +259,9 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_SetReflectedProperty);
 
-  static ExecResult NodeFunction_InplaceCoroutine(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_InplaceCoroutine(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezScriptCoroutine* pCoroutine = inout_context.GetCurrentCoroutine();
+    WScriptCoroutine* pCoroutine = inout_context.GetCurrentCoroutine();
     if (pCoroutine == nullptr)
     {
       auto pModule = GetScriptModule(inout_context);
@@ -269,12 +269,12 @@ namespace
         return ExecResult::Error();
 
       auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
-      pModule->CreateCoroutine(userData.m_pType, userData.m_pType->GetTypeName(), inout_context.GetInstance(), ezScriptCoroutineCreationMode::AllowOverlap, pCoroutine);
+      pModule->CreateCoroutine(userData.m_pType, userData.m_pType->GetTypeName(), inout_context.GetInstance(), WScriptCoroutineCreationMode::AllowOverlap, pCoroutine);
 
-      EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
-      auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
+      W_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == WPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
+      auto pFunction = static_cast<const WAbstractFunctionProperty*>(userData.m_pProperty);
 
-      ezTempHybridArray<ezVariant, 8> args;
+      WTempHybridArray<WVariant, 8> args;
       if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, 0, args).Failed())
       {
         return ExecResult::Error();
@@ -286,26 +286,26 @@ namespace
     }
 
     auto result = pCoroutine->Update(inout_context.GetDeltaTimeSinceLastExecution());
-    if (result.m_State == ezScriptCoroutine::Result::State::Running)
+    if (result.m_State == WScriptCoroutine::Result::State::Running)
     {
       return ExecResult::ContinueLater(result.m_MaxDelay);
     }
 
-    ezWorld* pWorld = inout_context.GetInstance().GetWorld();
-    auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
+    WWorld* pWorld = inout_context.GetInstance().GetWorld();
+    auto pModule = pWorld->GetOrCreateModule<WScriptWorldModule>();
     pModule->StopAndDeleteCoroutine(pCoroutine->GetHandle());
     inout_context.SetCurrentCoroutine(nullptr);
 
-    return ExecResult::RunNext(result.m_State == ezScriptCoroutine::Result::State::Completed ? 0 : 1);
+    return ExecResult::RunNext(result.m_State == WScriptCoroutine::Result::State::Completed ? 0 : 1);
   }
 
-  static ExecResult NodeFunction_GetScriptOwner(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_GetScriptOwner(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezWorld* pWorld = inout_context.GetInstance().GetWorld();
-    inout_context.SetPointerData(node.GetOutputDataOffset(0), pWorld, ezGetStaticRTTI<ezWorld>());
+    WWorld* pWorld = inout_context.GetInstance().GetWorld();
+    inout_context.SetPointerData(node.GetOutputDataOffset(0), pWorld, WGetStaticRTTI<WWorld>());
 
-    ezReflectedClass& owner = inout_context.GetInstance().GetOwner();
-    if (auto pComponent = ezDynamicCast<ezComponent*>(&owner))
+    WReflectedClass& owner = inout_context.GetInstance().GetOwner();
+    if (auto pComponent = WDynamicCast<WComponent*>(&owner))
     {
       inout_context.SetPointerData(node.GetOutputDataOffset(1), pComponent->GetOwner());
       inout_context.SetPointerData(node.GetOutputDataOffset(2), pComponent);
@@ -318,45 +318,45 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_SendMessage(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_SendMessage(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_TypeAndProperties>();
     auto targetObjectDataOffset = node.GetInputDataOffset(0);
     auto targetComponentDataOffset = node.GetInputDataOffset(1);
 
-    auto pTargetObject = targetObjectDataOffset.IsValid() ? static_cast<ezGameObject*>(inout_context.GetPointerData(targetObjectDataOffset).m_pObject) : nullptr;
-    auto pTargetComponent = targetComponentDataOffset.IsValid() ? static_cast<ezComponent*>(inout_context.GetPointerData(targetComponentDataOffset).m_pObject) : nullptr;
+    auto pTargetObject = targetObjectDataOffset.IsValid() ? static_cast<WGameObject*>(inout_context.GetPointerData(targetObjectDataOffset).m_pObject) : nullptr;
+    auto pTargetComponent = targetComponentDataOffset.IsValid() ? static_cast<WComponent*>(inout_context.GetPointerData(targetComponentDataOffset).m_pObject) : nullptr;
     if (pTargetObject == nullptr && pTargetComponent == nullptr)
     {
-      ezLog::Error("Visual script send '{}': Invalid target game object and component.", userData.m_pType->GetTypeName());
+      WLog::Error("Visual script send '{}': Invalid target game object and component.", userData.m_pType->GetTypeName());
       return ExecResult::Error();
     }
 
-    auto mode = static_cast<ezVisualScriptSendMessageMode::Enum>(inout_context.GetData<ezInt64>(node.GetInputDataOffset(2)));
-    ezTime delay = inout_context.GetData<ezTime>(node.GetInputDataOffset(3));
+    auto mode = static_cast<WVisualScriptSendMessageMode::Enum>(inout_context.GetData<WInt64>(node.GetInputDataOffset(2)));
+    WTime delay = inout_context.GetData<WTime>(node.GetInputDataOffset(3));
 
-    ezScriptComponent* pSenderComponent = nullptr;
-    if (mode == ezVisualScriptSendMessageMode::Event)
+    WScriptComponent* pSenderComponent = nullptr;
+    if (mode == WVisualScriptSendMessageMode::Event)
     {
-      pSenderComponent = ezDynamicCast<ezScriptComponent*>(&inout_context.GetInstance().GetOwner());
+      pSenderComponent = WDynamicCast<WScriptComponent*>(&inout_context.GetInstance().GetOwner());
     }
 
-    const ezUInt32 uiStartSlot = 4;
+    const WUInt32 uiStartSlot = 4;
 
-    ezUniquePtr<ezMessage> pMessage = userData.m_pType->GetAllocator()->Allocate<ezMessage>(ezTempAllocator::Get());
-    for (ezUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
+    WUniquePtr<WMessage> pMessage = userData.m_pType->GetAllocator()->Allocate<WMessage>(WTempAllocator::Get());
+    for (WUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
     {
       auto pProp = userData.m_Properties[i];
-      const ezRTTI* pPropType = pProp->GetSpecificType();
-      ezVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(uiStartSlot + i), pPropType);
+      const WRTTI* pPropType = pProp->GetSpecificType();
+      WVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(uiStartSlot + i), pPropType);
 
-      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      if (pProp->GetCategory() == WPropertyCategory::Member)
       {
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pMessage.Borrow(), value);
+        WReflectionUtils::SetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pMessage.Borrow(), value);
       }
       else
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
     }
 
@@ -376,18 +376,18 @@ namespace
     {
       if (delay.IsPositive())
       {
-        if (mode == ezVisualScriptSendMessageMode::Direct)
+        if (mode == WVisualScriptSendMessageMode::Direct)
           pTargetObject->PostMessage(*pMessage, delay);
-        else if (mode == ezVisualScriptSendMessageMode::Recursive)
+        else if (mode == WVisualScriptSendMessageMode::Recursive)
           pTargetObject->PostMessageRecursive(*pMessage, delay);
         else
           pTargetObject->PostEventMessage(*pMessage, pSenderComponent, delay);
       }
       else
       {
-        if (mode == ezVisualScriptSendMessageMode::Direct)
+        if (mode == WVisualScriptSendMessageMode::Direct)
           bWriteOutputs = pTargetObject->SendMessage(*pMessage);
-        else if (mode == ezVisualScriptSendMessageMode::Recursive)
+        else if (mode == WVisualScriptSendMessageMode::Recursive)
           bWriteOutputs = pTargetObject->SendMessageRecursive(*pMessage);
         else
           bWriteOutputs = pTargetObject->SendEventMessage(*pMessage, pSenderComponent);
@@ -396,22 +396,22 @@ namespace
 
     if (bWriteOutputs)
     {
-      for (ezUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
+      for (WUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
       {
         auto dataOffset = node.GetOutputDataOffset(i);
         if (dataOffset.IsValid() == false)
           continue;
 
         auto pProp = userData.m_Properties[i];
-        ezVariant value;
+        WVariant value;
 
-        if (pProp->GetCategory() == ezPropertyCategory::Member)
+        if (pProp->GetCategory() == WPropertyCategory::Member)
         {
-          value = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pMessage.Borrow());
+          value = WReflectionUtils::GetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pMessage.Borrow());
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          W_ASSERT_NOT_IMPLEMENTED;
         }
 
         inout_context.SetDataFromVariant(dataOffset, value);
@@ -424,21 +424,21 @@ namespace
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_SetVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_SetVariable(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezGameObjectHandle>)
+    if constexpr (std::is_same_v<T, WGameObjectHandle>)
     {
-      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezGameObject*>(ptr.m_pObject), ezGetStaticRTTI<ezGameObject>());
+      WTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<WGameObject*>(ptr.m_pObject), WGetStaticRTTI<WGameObject>());
     }
-    else if constexpr (std::is_same_v<T, ezComponentHandle>)
+    else if constexpr (std::is_same_v<T, WComponentHandle>)
     {
-      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezComponent*>(ptr.m_pObject), ezGetStaticRTTI<ezComponent>());
+      WTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<WComponent*>(ptr.m_pObject), WGetStaticRTTI<WComponent>());
     }
-    else if constexpr (std::is_same_v<T, ezTypedPointer>)
+    else if constexpr (std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      WTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
       inout_context.SetPointerData(node.GetOutputDataOffset(0), ptr.m_pObject, ptr.m_pType);
     }
     else
@@ -451,11 +451,11 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_SetVariable);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_IncVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_IncVariable(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double>)
     {
@@ -464,7 +464,7 @@ namespace
     }
     else
     {
-      ezLog::Error("Increment is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Increment is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -473,11 +473,11 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IncVariable);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_DecVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_DecVariable(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double>)
     {
@@ -486,7 +486,7 @@ namespace
     }
     else
     {
-      ezLog::Error("Decrement is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Decrement is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -494,31 +494,31 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_DecVariable);
 
-  static ExecResult NodeFunction_Builtin_Branch(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Branch(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
     return ExecResult::RunNext(bCondition ? 0 : 1);
   }
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Switch(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Switch(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezInt64 iValue = 0;
-    if constexpr (std::is_same_v<T, ezInt64>)
+    WInt64 iValue = 0;
+    if constexpr (std::is_same_v<T, WInt64>)
     {
-      iValue = inout_context.GetData<ezInt64>(node.GetInputDataOffset(0));
+      iValue = inout_context.GetData<WInt64>(node.GetInputDataOffset(0));
     }
-    else if constexpr (std::is_same_v<T, ezHashedString>)
+    else if constexpr (std::is_same_v<T, WHashedString>)
     {
-      iValue = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0)).GetHash();
+      iValue = inout_context.GetData<WHashedString>(node.GetInputDataOffset(0)).GetHash();
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
 
     auto& userData = node.GetUserData<NodeUserData_Switch>();
-    for (ezUInt32 i = 0; i < userData.m_uiNumCases; ++i)
+    for (WUInt32 i = 0; i < userData.m_uiNumCases; ++i)
     {
       if (iValue == userData.m_Cases[i])
       {
@@ -531,7 +531,7 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Switch);
 
-  static ExecResult NodeFunction_Builtin_And(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_And(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     bool a = inout_context.GetData<bool>(node.GetInputDataOffset(0));
     bool b = inout_context.GetData<bool>(node.GetInputDataOffset(1));
@@ -539,7 +539,7 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Or(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Or(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     bool a = inout_context.GetData<bool>(node.GetInputDataOffset(0));
     bool b = inout_context.GetData<bool>(node.GetInputDataOffset(1));
@@ -547,7 +547,7 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Not(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Not(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     bool a = inout_context.GetData<bool>(node.GetInputDataOffset(0));
     inout_context.SetData(node.GetOutputDataOffset(0), !a);
@@ -555,80 +555,80 @@ namespace
   }
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Compare(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Compare(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_Comparison>();
     bool bRes = false;
 
     if constexpr (std::is_same_v<T, bool> ||
-                  std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezVec2> ||
-                  std::is_same_v<T, ezVec3> ||
-                  std::is_same_v<T, ezVec4> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle> ||
-                  std::is_same_v<T, ezString> ||
-                  std::is_same_v<T, ezHashedString>)
+                  std::is_same_v<T, WColor> ||
+                  std::is_same_v<T, WVec2> ||
+                  std::is_same_v<T, WVec3> ||
+                  std::is_same_v<T, WVec4> ||
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle> ||
+                  std::is_same_v<T, WString> ||
+                  std::is_same_v<T, WHashedString>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
-      bRes = ezComparisonOperator::Compare(userData.m_ComparisonOperator, a, b);
+      bRes = WComparisonOperator::Compare(userData.m_ComparisonOperator, a, b);
     }
-    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                       std::is_same_v<T, ezComponentHandle> ||
-                       std::is_same_v<T, ezTypedPointer>)
+    else if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                       std::is_same_v<T, WComponentHandle> ||
+                       std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(1));
-      bRes = ezComparisonOperator::Compare(userData.m_ComparisonOperator, a.m_pObject, b.m_pObject);
+      WTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      WTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(1));
+      bRes = WComparisonOperator::Compare(userData.m_ComparisonOperator, a.m_pObject, b.m_pObject);
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
-      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      WVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      WVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
 
-      if (userData.m_ComparisonOperator == ezComparisonOperator::Equal)
+      if (userData.m_ComparisonOperator == WComparisonOperator::Equal)
       {
         bRes = a == b;
       }
-      else if (userData.m_ComparisonOperator == ezComparisonOperator::NotEqual)
+      else if (userData.m_ComparisonOperator == WComparisonOperator::NotEqual)
       {
         bRes = a != b;
       }
       else
       {
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
+        WLog::Error("Comparison '{}' is not defined for type '{}'", WArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
-    else if constexpr (std::is_same_v<T, ezQuat> ||
-                       std::is_same_v<T, ezTransform> ||
-                       std::is_same_v<T, ezVariantArray> ||
-                       std::is_same_v<T, ezVariantDictionary>)
+    else if constexpr (std::is_same_v<T, WQuat> ||
+                       std::is_same_v<T, WTransform> ||
+                       std::is_same_v<T, WVariantArray> ||
+                       std::is_same_v<T, WVariantDictionary>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
 
-      if (userData.m_ComparisonOperator == ezComparisonOperator::Equal)
+      if (userData.m_ComparisonOperator == WComparisonOperator::Equal)
       {
         bRes = a == b;
       }
-      else if (userData.m_ComparisonOperator == ezComparisonOperator::NotEqual)
+      else if (userData.m_ComparisonOperator == WComparisonOperator::NotEqual)
       {
         bRes = a != b;
       }
       else
       {
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
+        WLog::Error("Comparison '{}' is not defined for type '{}'", WArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
     else
     {
-      ezLog::Error("Comparison is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Comparison is not defined for type '{}'", GetTypeName<T>());
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), bRes);
@@ -638,56 +638,56 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Compare);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_IsValid(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_IsValid(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto dataOffset = node.GetInputDataOffset(0);
 
     bool bIsValid = true;
     if constexpr (std::is_same_v<T, float>)
     {
-      bIsValid = ezMath::IsFinite(inout_context.GetData<float>(dataOffset));
+      bIsValid = WMath::IsFinite(inout_context.GetData<float>(dataOffset));
     }
     else if constexpr (std::is_same_v<T, double>)
     {
-      bIsValid = ezMath::IsFinite(inout_context.GetData<double>(dataOffset));
+      bIsValid = WMath::IsFinite(inout_context.GetData<double>(dataOffset));
     }
-    else if constexpr (std::is_same_v<T, ezColor>)
+    else if constexpr (std::is_same_v<T, WColor>)
     {
-      bIsValid = inout_context.GetData<ezColor>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WColor>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same_v<T, ezVec2>)
+    else if constexpr (std::is_same_v<T, WVec2>)
     {
-      bIsValid = inout_context.GetData<ezVec2>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WVec2>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, WVec3>)
     {
-      bIsValid = inout_context.GetData<ezVec3>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WVec3>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec4>)
     {
-      bIsValid = inout_context.GetData<ezVec4>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WVec4>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same_v<T, ezQuat>)
+    else if constexpr (std::is_same_v<T, WQuat>)
     {
-      bIsValid = inout_context.GetData<ezQuat>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WQuat>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same_v<T, ezString>)
+    else if constexpr (std::is_same_v<T, WString>)
     {
-      bIsValid = inout_context.GetData<ezString>(dataOffset).IsEmpty() == false;
+      bIsValid = inout_context.GetData<WString>(dataOffset).IsEmpty() == false;
     }
-    else if constexpr (std::is_same_v<T, ezHashedString>)
+    else if constexpr (std::is_same_v<T, WHashedString>)
     {
-      bIsValid = inout_context.GetData<ezHashedString>(dataOffset).IsEmpty() == false;
+      bIsValid = inout_context.GetData<WHashedString>(dataOffset).IsEmpty() == false;
     }
-    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                       std::is_same_v<T, ezComponentHandle> ||
-                       std::is_same_v<T, ezTypedPointer>)
+    else if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                       std::is_same_v<T, WComponentHandle> ||
+                       std::is_same_v<T, WTypedPointer>)
     {
       bIsValid = inout_context.GetPointerData(dataOffset).m_pObject != nullptr;
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      bIsValid = inout_context.GetData<ezVariant>(dataOffset).IsValid();
+      bIsValid = inout_context.GetData<WVariant>(dataOffset).IsValid();
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), bIsValid);
@@ -697,15 +697,15 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IsValid);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Select(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Select(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
 
-    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    if constexpr (std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(1));
-      ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(2));
-      ezTypedPointer res = bCondition ? a : b;
+      WTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(1));
+      WTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(2));
+      WTypedPointer res = bCondition ? a : b;
       inout_context.SetPointerData(node.GetOutputDataOffset(0), res.m_pObject, res.m_pType);
     }
     else
@@ -722,55 +722,55 @@ namespace
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Add(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Add(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezVec2> ||
-                  std::is_same_v<T, ezVec3> ||
-                  std::is_same_v<T, ezVec4> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, WColor> ||
+                  std::is_same_v<T, WVec2> ||
+                  std::is_same_v<T, WVec3> ||
+                  std::is_same_v<T, WVec4> ||
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a + b));
     }
-    else if constexpr (std::is_same_v<T, ezString>)
+    else if constexpr (std::is_same_v<T, WString>)
     {
-      auto& a = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
-      auto& b = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
+      auto& a = inout_context.GetData<WString>(node.GetInputDataOffset(0));
+      auto& b = inout_context.GetData<WString>(node.GetInputDataOffset(1));
 
-      ezStringBuilder s;
+      WStringBuilder s;
       s.Set(a, b);
 
-      inout_context.SetData(node.GetOutputDataOffset(0), ezString(s.GetView()));
+      inout_context.SetData(node.GetOutputDataOffset(0), WString(s.GetView()));
     }
-    else if constexpr (std::is_same_v<T, ezHashedString>)
+    else if constexpr (std::is_same_v<T, WHashedString>)
     {
-      auto& a = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0));
-      auto& b = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(1));
+      auto& a = inout_context.GetData<WHashedString>(node.GetInputDataOffset(0));
+      auto& b = inout_context.GetData<WHashedString>(node.GetInputDataOffset(1));
 
-      ezStringBuilder s;
+      WStringBuilder s;
       s.Set(a, b);
-      ezHashedString sHashed;
+      WHashedString sHashed;
       sHashed.Assign(s);
 
       inout_context.SetData(node.GetOutputDataOffset(0), sHashed);
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
-      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      WVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      WVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
       inout_context.SetData(node.GetOutputDataOffset(0), a + b);
     }
     else
     {
-      ezLog::Error("Add is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Add is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -779,33 +779,33 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Add);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Sub(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Sub(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezVec2> ||
-                  std::is_same_v<T, ezVec3> ||
-                  std::is_same_v<T, ezVec4> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, WColor> ||
+                  std::is_same_v<T, WVec2> ||
+                  std::is_same_v<T, WVec3> ||
+                  std::is_same_v<T, WVec4> ||
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a - b));
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
-      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      WVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      WVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
       inout_context.SetData(node.GetOutputDataOffset(0), a - b);
     }
     else
     {
-      ezLog::Error("Subtract is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Subtract is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -814,42 +814,42 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Sub);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Mul(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Mul(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezQuat>)
+                  std::is_same_v<T, WColor> ||
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WQuat>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a * b));
     }
-    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec2> || std::is_same_v<T, WVec3> || std::is_same_v<T, WVec4>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompMul(b));
     }
-    else if constexpr (std::is_same_v<T, ezAngle>)
+    else if constexpr (std::is_same_v<T, WAngle>)
     {
-      const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
-      const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
-      inout_context.SetData(node.GetOutputDataOffset(0), ezAngle(a * b.GetRadian()));
+      const WAngle& a = inout_context.GetData<WAngle>(node.GetInputDataOffset(0));
+      const WAngle& b = inout_context.GetData<WAngle>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), WAngle(a * b.GetRadian()));
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
-      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      WVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      WVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
       inout_context.SetData(node.GetOutputDataOffset(0), a * b);
     }
     else
     {
-      ezLog::Error("Multiply is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Multiply is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -858,40 +858,40 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Mul);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Div(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Div(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime>)
+                  std::is_same_v<T, WTime>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a / b));
     }
-    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec2> || std::is_same_v<T, WVec3> || std::is_same_v<T, WVec4>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompDiv(b));
     }
-    else if constexpr (std::is_same_v<T, ezAngle>)
+    else if constexpr (std::is_same_v<T, WAngle>)
     {
-      const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
-      const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
-      inout_context.SetData(node.GetOutputDataOffset(0), ezAngle(a / b.GetRadian()));
+      const WAngle& a = inout_context.GetData<WAngle>(node.GetInputDataOffset(0));
+      const WAngle& b = inout_context.GetData<WAngle>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), WAngle(a / b.GetRadian()));
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
-      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      WVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      WVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
       inout_context.SetData(node.GetOutputDataOffset(0), a / b);
     }
     else
     {
-      ezLog::Error("Divide is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Divide is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -900,11 +900,11 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Div);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Mod(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Mod(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64>)
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -914,11 +914,11 @@ namespace
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
-      inout_context.SetData(node.GetOutputDataOffset(0), T(ezMath::Mod(a, b)));
+      inout_context.SetData(node.GetOutputDataOffset(0), T(WMath::Mod(a, b)));
     }
     else
     {
-      ezLog::Error("Modulo is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Modulo is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -927,21 +927,21 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Mod);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Min(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Min(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
-      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Min(a, b));
+      inout_context.SetData(node.GetOutputDataOffset(0), WMath::Min(a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec2> || std::is_same_v<T, WVec3> || std::is_same_v<T, WVec4>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -949,7 +949,7 @@ namespace
     }
     else
     {
-      ezLog::Error("Min is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Min is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -958,21 +958,21 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Min);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Max(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Max(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
-      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Max(a, b));
+      inout_context.SetData(node.GetOutputDataOffset(0), WMath::Max(a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec2> || std::is_same_v<T, WVec3> || std::is_same_v<T, WVec4>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -980,7 +980,7 @@ namespace
     }
     else
     {
-      ezLog::Error("Max is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Max is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -989,22 +989,22 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Max);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Clamp(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Clamp(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezUInt8> ||
-                  std::is_same_v<T, ezInt32> ||
-                  std::is_same_v<T, ezInt64> ||
+    if constexpr (std::is_same_v<T, WUInt8> ||
+                  std::is_same_v<T, WInt32> ||
+                  std::is_same_v<T, WInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, WTime> ||
+                  std::is_same_v<T, WAngle>)
     {
       const T& x = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
-      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Clamp(x, a, b));
+      inout_context.SetData(node.GetOutputDataOffset(0), WMath::Clamp(x, a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
+    else if constexpr (std::is_same_v<T, WVec2> || std::is_same_v<T, WVec3> || std::is_same_v<T, WVec4>)
     {
       const T& x = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -1013,7 +1013,7 @@ namespace
     }
     else
     {
-      ezLog::Error("Clamp is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("Clamp is not defined for type '{}'", GetTypeName<T>());
     }
 
     return ExecResult::RunNext(0);
@@ -1021,21 +1021,21 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Clamp);
 
-  static ExecResult NodeFunction_Builtin_Expression(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Expression(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
     if (pModule == nullptr)
       return ExecResult::Error();
 
-    static ezHashedString sStream = ezMakeHashedString("VsStream");
+    static WHashedString sStream = WMakeHashedString("VsStream");
 
     int iDummy = 0;
-    ezTempHybridArray<ezProcessingStream, 8> inputStreams;
-    for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
+    WTempHybridArray<WProcessingStream, 8> inputStreams;
+    for (WUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
     {
       auto dataOffset = node.GetInputDataOffset(i);
 
-      ezTypedPointer ptr;
+      WTypedPointer ptr;
       if (dataOffset.IsConstant())
       {
         ptr.m_pObject = &iDummy;
@@ -1045,38 +1045,38 @@ namespace
         ptr = inout_context.GetPointerData(dataOffset);
       }
 
-      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
-      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+      const WUInt32 uiDataSize = WVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+      auto streamDataType = WVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
 
-      inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+      inputStreams.PushBack(WProcessingStream(sStream, WMakeArrayPtr(static_cast<WUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
     }
 
     auto& userData = node.GetUserData<NodeUserData_Expression>();
 
-    ezUInt8 dummyOutput[sizeof(ezVec4)];
-    ezTempHybridArray<ezProcessingStream, 8> outputStreams;
-    for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
+    WUInt8 dummyOutput[sizeof(WVec4)];
+    WTempHybridArray<WProcessingStream, 8> outputStreams;
+    for (WUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
     {
       auto dataOffset = node.GetOutputDataOffset(i);
       if (dataOffset.IsValid())
       {
-        ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
+        WTypedPointer ptr = inout_context.GetPointerData(dataOffset);
 
-        const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
-        auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+        const WUInt32 uiDataSize = WVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+        auto streamDataType = WVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
 
-        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+        outputStreams.PushBack(WProcessingStream(sStream, WMakeArrayPtr(static_cast<WUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
       }
       else
       {
         auto& outputStreamDesc = userData.m_ByteCode.GetOutputs()[i];
-        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(dummyOutput), outputStreamDesc.m_DataType));
+        outputStreams.PushBack(WProcessingStream(sStream, WMakeArrayPtr(dummyOutput), outputStreamDesc.m_DataType));
       }
     }
 
-    if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, ezExpression::GlobalData(), ezExpressionVM::Flags::ScalarizeStreams).Failed())
+    if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, WExpression::GlobalData(), WExpressionVM::Flags::ScalarizeStreams).Failed())
     {
-      ezLog::Error("Visual script expression execution failed");
+      WLog::Error("Visual script expression execution failed");
       return ExecResult::Error();
     }
 
@@ -1086,7 +1086,7 @@ namespace
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_ToBool(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_ToBool(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto dataOffset = node.GetInputDataOffset(0);
 
@@ -1095,27 +1095,27 @@ namespace
     {
       bRes = inout_context.GetData<T>(dataOffset);
     }
-    else if constexpr (std::is_same_v<T, ezUInt8> ||
-                       std::is_same_v<T, ezInt32> ||
-                       std::is_same_v<T, ezInt64> ||
+    else if constexpr (std::is_same_v<T, WUInt8> ||
+                       std::is_same_v<T, WInt32> ||
+                       std::is_same_v<T, WInt64> ||
                        std::is_same_v<T, float> ||
                        std::is_same_v<T, double>)
     {
       bRes = inout_context.GetData<T>(dataOffset) != 0;
     }
-    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                       std::is_same_v<T, ezComponentHandle> ||
-                       std::is_same_v<T, ezTypedPointer>)
+    else if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                       std::is_same_v<T, WComponentHandle> ||
+                       std::is_same_v<T, WTypedPointer>)
     {
       bRes = inout_context.GetPointerData(dataOffset).m_pObject != nullptr;
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      bRes = inout_context.GetData<ezVariant>(dataOffset).ConvertTo<bool>();
+      bRes = inout_context.GetData<WVariant>(dataOffset).ConvertTo<bool>();
     }
     else
     {
-      ezLog::Error("ToBool is not defined for type '{}'", GetTypeName<T>());
+      WLog::Error("ToBool is not defined for type '{}'", GetTypeName<T>());
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), bRes);
@@ -1125,7 +1125,7 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToBool);
 
   template <typename NumberType, typename T>
-  EZ_FORCE_INLINE static ExecResult NodeFunction_Builtin_ToNumber(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const char* szName)
+  W_FORCE_INLINE static ExecResult NodeFunction_Builtin_ToNumber(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node, const char* szName)
   {
     auto dataOffset = node.GetInputDataOffset(0);
 
@@ -1134,21 +1134,21 @@ namespace
     {
       res = inout_context.GetData<T>(dataOffset) ? NumberType(1) : NumberType(0);
     }
-    else if constexpr (std::is_same_v<T, ezUInt8> ||
-                       std::is_same_v<T, ezInt32> ||
-                       std::is_same_v<T, ezInt64> ||
+    else if constexpr (std::is_same_v<T, WUInt8> ||
+                       std::is_same_v<T, WInt32> ||
+                       std::is_same_v<T, WInt64> ||
                        std::is_same_v<T, float> ||
                        std::is_same_v<T, double>)
     {
       res = static_cast<NumberType>(inout_context.GetData<T>(dataOffset));
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      res = inout_context.GetData<ezVariant>(dataOffset).ConvertTo<NumberType>();
+      res = inout_context.GetData<WVariant>(dataOffset).ConvertTo<NumberType>();
     }
     else
     {
-      ezLog::Error("To{} is not defined for type '{}'", szName, GetTypeName<T>());
+      WLog::Error("To{} is not defined for type '{}'", szName, GetTypeName<T>());
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), res);
@@ -1157,14 +1157,14 @@ namespace
 
 #define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                                 \
   template <typename T>                                                                                                                                           \
-  static ExecResult EZ_PP_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
+  static ExecResult W_PP_CONCAT(NodeFunction_Builtin_To, Name)(WVisualScriptExecutionContext & inout_context, const WVisualScriptGraphDescription::Node& node) \
   {                                                                                                                                                               \
     return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                              \
   }
 
-  MAKE_TONUMBER_EXEC_FUNC(ezUInt8, Byte);
-  MAKE_TONUMBER_EXEC_FUNC(ezInt32, Int);
-  MAKE_TONUMBER_EXEC_FUNC(ezInt64, Int64);
+  MAKE_TONUMBER_EXEC_FUNC(WUInt8, Byte);
+  MAKE_TONUMBER_EXEC_FUNC(WInt32, Int);
+  MAKE_TONUMBER_EXEC_FUNC(WInt64, Int64);
   MAKE_TONUMBER_EXEC_FUNC(float, Float);
   MAKE_TONUMBER_EXEC_FUNC(double, Double);
 
@@ -1175,38 +1175,38 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToDouble);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_ToString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_ToString(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto dataOffset = node.GetInputDataOffset(0);
 
-    ezStringBuilder sb;
-    ezStringView s;
-    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                  std::is_same_v<T, ezComponentHandle> ||
-                  std::is_same_v<T, ezTypedPointer>)
+    WStringBuilder sb;
+    WStringView s;
+    if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                  std::is_same_v<T, WComponentHandle> ||
+                  std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer p = inout_context.GetPointerData(dataOffset);
-      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      WTypedPointer p = inout_context.GetPointerData(dataOffset);
+      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), WArgP(p.m_pObject));
       s = sb;
     }
-    else if constexpr (std::is_same_v<T, ezString>)
+    else if constexpr (std::is_same_v<T, WString>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezString>(dataOffset));
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<WString>(dataOffset));
       return ExecResult::RunNext(0);
     }
-    else if constexpr (std::is_same_v<T, ezHashedString>)
+    else if constexpr (std::is_same_v<T, WHashedString>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(dataOffset).GetString());
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<WHashedString>(dataOffset).GetString());
       return ExecResult::RunNext(0);
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezVariant>(dataOffset).ConvertTo<ezString>());
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<WVariant>(dataOffset).ConvertTo<WString>());
       return ExecResult::RunNext(0);
     }
     else
     {
-      s = ezConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
+      s = WConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), s);
@@ -1216,40 +1216,40 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToString);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_ToHashedString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_ToHashedString(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto dataOffset = node.GetInputDataOffset(0);
 
-    ezStringBuilder sb;
-    ezStringView s;
-    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                  std::is_same_v<T, ezComponentHandle> ||
-                  std::is_same_v<T, ezTypedPointer>)
+    WStringBuilder sb;
+    WStringView s;
+    if constexpr (std::is_same_v<T, WGameObjectHandle> ||
+                  std::is_same_v<T, WComponentHandle> ||
+                  std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer p = inout_context.GetPointerData(dataOffset);
-      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      WTypedPointer p = inout_context.GetPointerData(dataOffset);
+      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), WArgP(p.m_pObject));
       s = sb;
     }
-    else if constexpr (std::is_same_v<T, ezString>)
+    else if constexpr (std::is_same_v<T, WString>)
     {
-      s = inout_context.GetData<ezString>(dataOffset);
+      s = inout_context.GetData<WString>(dataOffset);
     }
-    else if constexpr (std::is_same_v<T, ezHashedString>)
+    else if constexpr (std::is_same_v<T, WHashedString>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(dataOffset));
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<WHashedString>(dataOffset));
       return ExecResult::RunNext(0);
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezVariant>(dataOffset).ConvertTo<ezHashedString>());
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<WVariant>(dataOffset).ConvertTo<WHashedString>());
       return ExecResult::RunNext(0);
     }
     else
     {
-      s = ezConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
+      s = WConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
     }
 
-    ezHashedString sHashed;
+    WHashedString sHashed;
     sHashed.Assign(s);
     inout_context.SetData(node.GetOutputDataOffset(0), sHashed);
     return ExecResult::RunNext(0);
@@ -1258,13 +1258,13 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToHashedString);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_ToVariant(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_ToVariant(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariant v;
-    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    WVariant v;
+    if constexpr (std::is_same_v<T, WTypedPointer>)
     {
-      ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      v = ezVariant(p.m_pObject, p.m_pType);
+      WTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      v = WVariant(p.m_pObject, p.m_pType);
     }
     else
     {
@@ -1277,14 +1277,14 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToVariant);
 
   template <typename T>
-  static ExecResult NodeFunction_Builtin_Variant_ConvertTo(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Variant_ConvertTo(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariant& v = inout_context.GetData<ezVariant>(node.GetInputDataOffset(0));
-    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    const WVariant& v = inout_context.GetData<WVariant>(node.GetInputDataOffset(0));
+    if constexpr (std::is_same_v<T, WTypedPointer>)
     {
-      if (v.IsA<ezTypedPointer>())
+      if (v.IsA<WTypedPointer>())
       {
-        ezTypedPointer typedPtr = v.Get<ezTypedPointer>();
+        WTypedPointer typedPtr = v.Get<WTypedPointer>();
         inout_context.SetPointerData(node.GetOutputDataOffset(0), typedPtr.m_pObject, typedPtr.m_pType);
         return ExecResult::RunNext(0);
       }
@@ -1292,14 +1292,14 @@ namespace
       inout_context.SetPointerData<void*>(node.GetOutputDataOffset(0), nullptr, nullptr);
       return ExecResult::RunNext(1);
     }
-    else if constexpr (std::is_same_v<T, ezVariant>)
+    else if constexpr (std::is_same_v<T, WVariant>)
     {
       inout_context.SetData(node.GetOutputDataOffset(0), v);
       return ExecResult::RunNext(0);
     }
     else
     {
-      ezResult conversionResult = EZ_SUCCESS;
+      WResult conversionResult = W_SUCCESS;
       inout_context.SetData(node.GetOutputDataOffset(0), v.ConvertTo<T>(&conversionResult));
       return ExecResult::RunNext(conversionResult.Succeeded() ? 0 : 1);
     }
@@ -1309,55 +1309,55 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_String_Format(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    auto& sText = inout_context.GetData<WString>(node.GetInputDataOffset(0));
 
-    ezTempHybridArray<ezString, 12> stringStorage;
+    WTempHybridArray<WString, 12> stringStorage;
     stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
-    for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
+    for (WUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
     {
-      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
+      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<WString>());
     }
 
-    ezTempHybridArray<ezStringView, 12> stringViews;
+    WTempHybridArray<WStringView, 12> stringViews;
     stringViews.Reserve(stringStorage.GetCount());
     for (auto& s : stringStorage)
     {
       stringViews.PushBack(s);
     }
 
-    ezFormatString fs(sText.GetView());
-    ezStringBuilder sStorage;
-    ezStringView sFormatted = fs.BuildFormattedText(sStorage, stringViews.GetData(), stringViews.GetCount());
+    WFormatString fs(sText.GetView());
+    WStringBuilder sStorage;
+    WStringView sFormatted = fs.BuildFormattedText(sStorage, stringViews.GetData(), stringViews.GetCount());
 
     inout_context.SetData(node.GetOutputDataOffset(0), sFormatted);
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_String_GetCharacterCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_String_GetCharacterCount(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    auto& sText = inout_context.GetData<WString>(node.GetInputDataOffset(0));
     inout_context.SetData(node.GetOutputDataOffset(0), sText.GetCharacterCount());
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_String_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_String_IsEmpty(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    auto& sText = inout_context.GetData<WString>(node.GetInputDataOffset(0));
     inout_context.SetData(node.GetOutputDataOffset(0), sText.IsEmpty());
     return ExecResult::RunNext(0);
   }
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ExecResult NodeFunction_Builtin_MakeArray(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_MakeArray(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetOutputDataOffset(0));
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetOutputDataOffset(0));
     a.Clear();
     a.Reserve(node.m_NumInputDataOffsets);
 
-    for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
+    for (WUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
     {
       auto dataOffset = node.GetInputDataOffset(i);
 
@@ -1367,16 +1367,16 @@ namespace
       }
       else
       {
-        a.PushBack(inout_context.GetData<ezVariant>(dataOffset));
+        a.PushBack(inout_context.GetData<WVariant>(dataOffset));
       }
     }
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_GetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_GetElement(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const WVariantArray& a = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(0));
     int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
     if (iIndex >= 0 && iIndex < int(a.GetCount()))
     {
@@ -1384,15 +1384,15 @@ namespace
     }
     else
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), ezVariant());
+      inout_context.SetData(node.GetOutputDataOffset(0), WVariant());
     }
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_SetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_SetElement(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
     int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
     if (iIndex >= 0 && iIndex < int(a.GetCount()))
     {
@@ -1400,59 +1400,59 @@ namespace
       return ExecResult::RunNext(0);
     }
 
-    ezLog::Error("Visual script Array::SetElement: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    WLog::Error("Visual script Array::SetElement: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
     return ExecResult::Error();
   }
 
-  static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_GetCount(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const WVariantArray& a = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(0));
     inout_context.SetData<int>(node.GetOutputDataOffset(0), a.GetCount());
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_Clear(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_Clear(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
     a.Clear();
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_IsEmpty(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const WVariantArray& a = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(0));
     inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.IsEmpty());
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_Contains(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_Contains(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    const WVariantArray& a = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
     inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.Contains(element));
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_IndexOf(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_IndexOf(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
-    ezUInt32 uiStartIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+    const WVariantArray& a = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    WUInt32 uiStartIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
 
-    ezUInt32 uiIndex = a.IndexOf(element, uiStartIndex);
-    inout_context.SetData<int>(node.GetOutputDataOffset(0), uiIndex == ezInvalidIndex ? -1 : int(uiIndex));
+    WUInt32 uiIndex = a.IndexOf(element, uiStartIndex);
+    inout_context.SetData<int>(node.GetOutputDataOffset(0), uiIndex == WInvalidIndex ? -1 : int(uiIndex));
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_Insert(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_Insert(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
     int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
     if (iIndex >= 0 && iIndex <= int(a.GetCount()))
     {
@@ -1460,40 +1460,40 @@ namespace
       return ExecResult::RunNext(0);
     }
 
-    ezLog::Error("Visual script Array::Insert: Index '{}' is out of bounds. Valid range is [0, {}].", iIndex, a.GetCount());
+    WLog::Error("Visual script Array::Insert: Index '{}' is out of bounds. Valid range is [0, {}].", iIndex, a.GetCount());
     return ExecResult::Error();
   }
 
-  static ExecResult NodeFunction_Builtin_Array_PushBack(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_PushBack(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
     a.PushBack(element);
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_PushBackRange(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_PushBackRange(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariantArray& b = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariantArray& b = inout_context.GetData<WVariantArray>(node.GetInputDataOffset(1));
     a.PushBackRange(b);
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_Remove(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_Remove(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
+    const WVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
     a.RemoveAndCopy(element);
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_Array_RemoveAt(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Array_RemoveAt(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    WVariantArray& a = inout_context.GetWritableData<WVariantArray>(node.GetInputDataOffset(0));
     int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
     if (iIndex >= 0 && iIndex < int(a.GetCount()))
     {
@@ -1501,33 +1501,33 @@ namespace
       return ExecResult::RunNext(0);
     }
 
-    ezLog::Error("Visual script Array::RemoveAt: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    WLog::Error("Visual script Array::RemoveAt: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
     return ExecResult::Error();
   }
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ExecResult NodeFunction_Builtin_CreateComponent(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_CreateComponent(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_Type>();
 
-    ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-    if (p.m_pType != ezGetStaticRTTI<ezGameObject>())
+    WTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+    if (p.m_pType != WGetStaticRTTI<WGameObject>())
     {
-      ezLog::Error("Visual script call CreateComponent: Game object is not of type 'ezGameObject'");
+      WLog::Error("Visual script call CreateComponent: Game object is not of type 'WGameObject'");
       return ExecResult::Error();
     }
 
     if (p.m_pObject == nullptr)
     {
-      ezLog::Error("Visual script call CreateComponent: Game object is null");
+      WLog::Error("Visual script call CreateComponent: Game object is null");
       return ExecResult::Error();
     }
 
-    ezGameObject* pObject = static_cast<ezGameObject*>(p.m_pObject);
+    WGameObject* pObject = static_cast<WGameObject*>(p.m_pObject);
     auto pComponentManager = pObject->GetWorld()->GetOrCreateManagerForComponentType(userData.m_pType);
 
-    ezComponent* pComponent = nullptr;
+    WComponent* pComponent = nullptr;
     pComponentManager->CreateComponent(pObject, pComponent);
     inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);
 
@@ -1536,25 +1536,25 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ExecResult NodeFunction_Builtin_TryGetComponentOfBaseType(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_TryGetComponentOfBaseType(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_Type>();
 
-    ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-    if (p.m_pType != ezGetStaticRTTI<ezGameObject>())
+    WTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+    if (p.m_pType != WGetStaticRTTI<WGameObject>())
     {
-      ezLog::Error("Visual script call TryGetComponentOfBaseType: Game object is not of type 'ezGameObject'");
+      WLog::Error("Visual script call TryGetComponentOfBaseType: Game object is not of type 'WGameObject'");
       return ExecResult::Error();
     }
 
     if (p.m_pObject == nullptr)
     {
-      ezLog::Error("Visual script call TryGetComponentOfBaseType: Game object is null");
+      WLog::Error("Visual script call TryGetComponentOfBaseType: Game object is null");
       return ExecResult::Error();
     }
 
-    ezComponent* pComponent = nullptr;
-    bool _ = static_cast<ezGameObject*>(p.m_pObject)->TryGetComponentOfBaseType(userData.m_pType, pComponent);
+    WComponent* pComponent = nullptr;
+    bool _ = static_cast<WGameObject*>(p.m_pObject)->TryGetComponentOfBaseType(userData.m_pType, pComponent);
     inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);
 
     return ExecResult::RunNext(0);
@@ -1562,18 +1562,18 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ExecResult NodeFunction_Builtin_StartCoroutine(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_StartCoroutine(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
     if (pModule == nullptr)
       return ExecResult::Error();
 
     auto& userData = node.GetUserData<NodeUserData_StartCoroutine>();
-    ezString sName = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    WString sName = inout_context.GetData<WString>(node.GetInputDataOffset(0));
 
-    ezScriptCoroutine* pCoroutine = nullptr;
+    WScriptCoroutine* pCoroutine = nullptr;
     auto hCoroutine = pModule->CreateCoroutine(userData.m_pType, sName, inout_context.GetInstance(), userData.m_CreationMode, pCoroutine);
-    pModule->StartCoroutine(hCoroutine, ezArrayPtr<ezVariant>());
+    pModule->StartCoroutine(hCoroutine, WArrayPtr<WVariant>());
 
     inout_context.SetData(node.GetOutputDataOffset(0), hCoroutine);
 
@@ -1581,27 +1581,27 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_StopCoroutine(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_StopCoroutine(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
     if (pModule == nullptr)
       return ExecResult::Error();
 
-    auto hCoroutine = inout_context.GetData<ezScriptCoroutineHandle>(node.GetInputDataOffset(0));
+    auto hCoroutine = inout_context.GetData<WScriptCoroutineHandle>(node.GetInputDataOffset(0));
     if (pModule->IsCoroutineFinished(hCoroutine) == false)
     {
       pModule->StopAndDeleteCoroutine(hCoroutine);
     }
     else
     {
-      auto& sName = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
+      auto& sName = inout_context.GetData<WString>(node.GetInputDataOffset(1));
       pModule->StopAndDeleteCoroutine(sName, &inout_context.GetInstance());
     }
 
     return ExecResult::RunNext(0);
   }
 
-  static ExecResult NodeFunction_Builtin_StopAllCoroutines(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_StopAllCoroutines(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
     if (pModule == nullptr)
@@ -1613,18 +1613,18 @@ namespace
   }
 
   template <bool bWaitForAll>
-  static ExecResult NodeFunction_Builtin_WaitForX(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_WaitForX(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
     if (pModule == nullptr)
       return ExecResult::Error();
 
-    const ezUInt32 uiNumCoroutines = node.m_NumInputDataOffsets;
-    ezUInt32 uiNumFinishedCoroutines = 0;
+    const WUInt32 uiNumCoroutines = node.m_NumInputDataOffsets;
+    WUInt32 uiNumFinishedCoroutines = 0;
 
-    for (ezUInt32 i = 0; i < uiNumCoroutines; ++i)
+    for (WUInt32 i = 0; i < uiNumCoroutines; ++i)
     {
-      auto hCoroutine = inout_context.GetData<ezScriptCoroutineHandle>(node.GetInputDataOffset(i));
+      auto hCoroutine = inout_context.GetData<WScriptCoroutineHandle>(node.GetInputDataOffset(i));
       if (pModule->IsCoroutineFinished(hCoroutine))
       {
         if constexpr (bWaitForAll == false)
@@ -1646,18 +1646,18 @@ namespace
       }
     }
 
-    return ExecResult::ContinueLater(ezTime::MakeZero());
+    return ExecResult::ContinueLater(WTime::MakeZero());
   }
 
-  static ExecResult NodeFunction_Builtin_Yield(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  static ExecResult NodeFunction_Builtin_Yield(WVisualScriptExecutionContext& inout_context, const WVisualScriptGraphDescription::Node& node)
   {
-    ezScriptCoroutine* pCoroutine = inout_context.GetCurrentCoroutine();
+    WScriptCoroutine* pCoroutine = inout_context.GetCurrentCoroutine();
     if (pCoroutine == nullptr)
     {
       // set marker value of 0x1 to indicate we are in a yield
-      inout_context.SetCurrentCoroutine(reinterpret_cast<ezScriptCoroutine*>(0x1));
+      inout_context.SetCurrentCoroutine(reinterpret_cast<WScriptCoroutine*>(0x1));
 
-      return ExecResult::ContinueLater(ezTime::MakeZero());
+      return ExecResult::ContinueLater(WTime::MakeZero());
     }
 
     inout_context.SetCurrentCoroutine(nullptr);
@@ -1669,7 +1669,7 @@ namespace
 
   struct ExecuteFunctionContext
   {
-    ezVisualScriptGraphDescription::ExecuteFunction m_Func = nullptr;
+    WVisualScriptGraphDescription::ExecuteFunction m_Func = nullptr;
     ExecuteFunctionGetter m_FuncGetter = nullptr;
   };
 
@@ -1764,12 +1764,12 @@ namespace
     {},                                                        // LastBuiltin,
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_TypeToExecuteFunctions) == ezVisualScriptNodeDescription::Type::Count);
+  static_assert(W_ARRAY_SIZE(s_TypeToExecuteFunctions) == WVisualScriptNodeDescription::Type::Count);
 } // namespace
 
-ezVisualScriptGraphDescription::ExecuteFunction GetExecuteFunction(ezVisualScriptNodeDescription::Type::Enum nodeType, ezVisualScriptDataType::Enum dataType)
+WVisualScriptGraphDescription::ExecuteFunction GetExecuteFunction(WVisualScriptNodeDescription::Type::Enum nodeType, WVisualScriptDataType::Enum dataType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
+  W_ASSERT_DEBUG(nodeType >= 0 && static_cast<WUInt32>(nodeType) < W_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
   auto& context = s_TypeToExecuteFunctions[nodeType];
   if (context.m_Func != nullptr)
   {

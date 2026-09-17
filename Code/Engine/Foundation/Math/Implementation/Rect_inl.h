@@ -1,10 +1,10 @@
 #pragma once
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate() = default;
+W_ALWAYS_INLINE WRectTemplate<Type>::WRectTemplate() = default;
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type x, Type y, Type width, Type height)
+W_ALWAYS_INLINE WRectTemplate<Type>::WRectTemplate(Type x, Type y, Type width, Type height)
   : x(x)
   , y(y)
   , width(width)
@@ -13,7 +13,7 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type x, Type y, Type width
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
+W_ALWAYS_INLINE WRectTemplate<Type>::WRectTemplate(Type width, Type height)
   : x(0)
   , y(0)
   , width(width)
@@ -22,7 +22,7 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize)
+W_ALWAYS_INLINE WRectTemplate<Type>::WRectTemplate(const WVec2Template<Type>& vTopLeftPosition, const WVec2Template<Type>& vSize)
 {
   x = vTopLeftPosition.x;
   y = vTopLeftPosition.y;
@@ -31,13 +31,13 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(const ezVec2Template<Type>
 }
 
 template <typename Type>
-ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
+WRectTemplate<Type> WRectTemplate<Type>::MakeInvalid()
 {
   /// \test This is new
 
-  ezRectTemplate<Type> res;
+  WRectTemplate<Type> res;
 
-  const Type fLargeValue = ezMath::MaxValue<Type>() / 2;
+  const Type fLargeValue = WMath::MaxValue<Type>() / 2;
   res.x = fLargeValue;
   res.y = fLargeValue;
   res.width = -fLargeValue;
@@ -47,22 +47,22 @@ ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
 }
 
 template <typename Type>
-ezRectTemplate<Type> ezRectTemplate<Type>::MakeZero()
+WRectTemplate<Type> WRectTemplate<Type>::MakeZero()
 {
-  return ezRectTemplate<Type>(0, 0, 0, 0);
+  return WRectTemplate<Type>(0, 0, 0, 0);
 }
 
 template <typename Type>
-ezRectTemplate<Type> ezRectTemplate<Type>::MakeIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
+WRectTemplate<Type> WRectTemplate<Type>::MakeIntersection(const WRectTemplate<Type>& r0, const WRectTemplate<Type>& r1)
 {
   /// \test This is new
 
-  ezRectTemplate<Type> res;
+  WRectTemplate<Type> res;
 
-  Type x1 = ezMath::Max(r0.GetX1(), r1.GetX1());
-  Type y1 = ezMath::Max(r0.GetY1(), r1.GetY1());
-  Type x2 = ezMath::Min(r0.GetX2(), r1.GetX2());
-  Type y2 = ezMath::Min(r0.GetY2(), r1.GetY2());
+  Type x1 = WMath::Max(r0.GetX1(), r1.GetX1());
+  Type y1 = WMath::Max(r0.GetY1(), r1.GetY1());
+  Type x2 = WMath::Min(r0.GetX2(), r1.GetX2());
+  Type y2 = WMath::Min(r0.GetY2(), r1.GetY2());
 
   res.x = x1;
   res.y = y1;
@@ -73,16 +73,16 @@ ezRectTemplate<Type> ezRectTemplate<Type>::MakeIntersection(const ezRectTemplate
 }
 
 template <typename Type>
-ezRectTemplate<Type> ezRectTemplate<Type>::MakeUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
+WRectTemplate<Type> WRectTemplate<Type>::MakeUnion(const WRectTemplate<Type>& r0, const WRectTemplate<Type>& r1)
 {
   /// \test This is new
 
-  ezRectTemplate<Type> res;
+  WRectTemplate<Type> res;
 
-  Type x1 = ezMath::Min(r0.GetX1(), r1.GetX1());
-  Type y1 = ezMath::Min(r0.GetY1(), r1.GetY1());
-  Type x2 = ezMath::Max(r0.GetX2(), r1.GetX2());
-  Type y2 = ezMath::Max(r0.GetY2(), r1.GetY2());
+  Type x1 = WMath::Min(r0.GetX1(), r1.GetX1());
+  Type y1 = WMath::Min(r0.GetY1(), r1.GetY1());
+  Type x2 = WMath::Max(r0.GetX2(), r1.GetX2());
+  Type y2 = WMath::Max(r0.GetY2(), r1.GetY2());
 
   res.x = x1;
   res.y = y1;
@@ -93,25 +93,25 @@ ezRectTemplate<Type> ezRectTemplate<Type>::MakeUnion(const ezRectTemplate<Type>&
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::operator==(const ezRectTemplate<Type>& rhs) const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::operator==(const WRectTemplate<Type>& rhs) const
 {
   return x == rhs.x && y == rhs.y && width == rhs.width && height == rhs.height;
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::operator!=(const ezRectTemplate<Type>& rhs) const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::operator!=(const WRectTemplate<Type>& rhs) const
 {
   return !(*this == rhs);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::HasNonZeroArea() const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::HasNonZeroArea() const
 {
   return (width > 0) && (height > 0);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>& vPoint) const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::Contains(const WVec2Template<Type>& vPoint) const
 {
   if (vPoint.x >= x && vPoint.x <= Right())
   {
@@ -123,13 +123,13 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>&
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezRectTemplate<Type>& r) const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::Contains(const WRectTemplate<Type>& r) const
 {
   return r.x >= x && r.y >= y && r.Right() <= Right() && r.Bottom() <= Bottom();
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Overlaps(const ezRectTemplate<Type>& other) const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::Overlaps(const WRectTemplate<Type>& other) const
 {
   if (x < other.Right() && Right() > other.x && y < other.Bottom() && Bottom() > other.y)
     return true;
@@ -138,7 +138,7 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Overlaps(const ezRectTemplate<Type>&
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::ExpandToInclude(const ezRectTemplate<Type>& other)
+void WRectTemplate<Type>::ExpandToInclude(const WRectTemplate<Type>& other)
 {
   Type thisRight = Right();
   Type thisBottom = Bottom();
@@ -161,7 +161,7 @@ void ezRectTemplate<Type>::ExpandToInclude(const ezRectTemplate<Type>& other)
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::ExpandToInclude(const ezVec2Template<Type>& other)
+void WRectTemplate<Type>::ExpandToInclude(const WVec2Template<Type>& other)
 {
   Type thisRight = Right();
   Type thisBottom = Bottom();
@@ -184,7 +184,7 @@ void ezRectTemplate<Type>::ExpandToInclude(const ezVec2Template<Type>& other)
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::Grow(Type xy)
+void WRectTemplate<Type>::Grow(Type xy)
 {
   x -= xy;
   y -= xy;
@@ -193,13 +193,13 @@ void ezRectTemplate<Type>::Grow(Type xy)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezRectTemplate<Type>::Clip(const ezRectTemplate<Type>& clipRect)
+W_ALWAYS_INLINE void WRectTemplate<Type>::Clip(const WRectTemplate<Type>& clipRect)
 {
-  Type newLeft = ezMath::Max<Type>(x, clipRect.x);
-  Type newTop = ezMath::Max<Type>(y, clipRect.y);
+  Type newLeft = WMath::Max<Type>(x, clipRect.x);
+  Type newTop = WMath::Max<Type>(y, clipRect.y);
 
-  Type newRight = ezMath::Min<Type>(Right(), clipRect.Right());
-  Type newBottom = ezMath::Min<Type>(Bottom(), clipRect.Bottom());
+  Type newRight = WMath::Min<Type>(Right(), clipRect.Right());
+  Type newBottom = WMath::Min<Type>(Bottom(), clipRect.Bottom());
 
   x = newLeft;
   y = newTop;
@@ -208,7 +208,7 @@ EZ_ALWAYS_INLINE void ezRectTemplate<Type>::Clip(const ezRectTemplate<Type>& cli
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::IsValid() const
+W_ALWAYS_INLINE bool WRectTemplate<Type>::IsValid() const
 {
   /// \test This is new
 
@@ -216,15 +216,15 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::IsValid() const
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE const ezVec2Template<Type> ezRectTemplate<Type>::GetClampedPoint(const ezVec2Template<Type>& vPoint) const
+W_ALWAYS_INLINE const WVec2Template<Type> WRectTemplate<Type>::GetClampedPoint(const WVec2Template<Type>& vPoint) const
 {
   /// \test This is new
 
-  return ezVec2Template<Type>(ezMath::Clamp(vPoint.x, Left(), Right()), ezMath::Clamp(vPoint.y, Top(), Bottom()));
+  return WVec2Template<Type>(WMath::Clamp(vPoint.x, Left(), Right()), WMath::Clamp(vPoint.y, Top(), Bottom()));
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::SetCenter(Type tX, Type tY)
+void WRectTemplate<Type>::SetCenter(Type tX, Type tY)
 {
   /// \test This is new
 
@@ -233,7 +233,7 @@ void ezRectTemplate<Type>::SetCenter(Type tX, Type tY)
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::Translate(Type tX, Type tY)
+void WRectTemplate<Type>::Translate(Type tX, Type tY)
 {
   /// \test This is new
 
@@ -242,7 +242,7 @@ void ezRectTemplate<Type>::Translate(Type tX, Type tY)
 }
 
 template <typename Type>
-void ezRectTemplate<Type>::Scale(Type sX, Type sY)
+void WRectTemplate<Type>::Scale(Type sX, Type sY)
 {
   /// \test This is new
 

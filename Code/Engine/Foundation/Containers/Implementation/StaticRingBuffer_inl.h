@@ -1,15 +1,15 @@
 #pragma once
 
-template <typename T, ezUInt32 C>
-ezStaticRingBuffer<T, C>::ezStaticRingBuffer()
+template <typename T, WUInt32 C>
+WStaticRingBuffer<T, C>::WStaticRingBuffer()
 {
   m_pElements = GetStaticArray();
   m_uiFirstElement = 0;
   m_uiCount = 0;
 }
 
-template <typename T, ezUInt32 C>
-ezStaticRingBuffer<T, C>::ezStaticRingBuffer(const ezStaticRingBuffer<T, C>& rhs)
+template <typename T, WUInt32 C>
+WStaticRingBuffer<T, C>::WStaticRingBuffer(const WStaticRingBuffer<T, C>& rhs)
 {
   m_pElements = GetStaticArray();
   m_uiFirstElement = 0;
@@ -18,28 +18,28 @@ ezStaticRingBuffer<T, C>::ezStaticRingBuffer(const ezStaticRingBuffer<T, C>& rhs
   *this = rhs;
 }
 
-template <typename T, ezUInt32 C>
-ezStaticRingBuffer<T, C>::~ezStaticRingBuffer()
+template <typename T, WUInt32 C>
+WStaticRingBuffer<T, C>::~WStaticRingBuffer()
 {
   Clear();
 }
 
-template <typename T, ezUInt32 C>
-void ezStaticRingBuffer<T, C>::operator=(const ezStaticRingBuffer<T, C>& rhs)
+template <typename T, WUInt32 C>
+void WStaticRingBuffer<T, C>::operator=(const WStaticRingBuffer<T, C>& rhs)
 {
   Clear();
 
-  for (ezUInt32 i = 0; i < rhs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < rhs.GetCount(); ++i)
     PushBack(rhs[i]);
 }
 
-template <typename T, ezUInt32 C>
-bool ezStaticRingBuffer<T, C>::operator==(const ezStaticRingBuffer<T, C>& rhs) const
+template <typename T, WUInt32 C>
+bool WStaticRingBuffer<T, C>::operator==(const WStaticRingBuffer<T, C>& rhs) const
 {
   if (GetCount() != rhs.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < m_uiCount; ++i)
+  for (WUInt32 i = 0; i < m_uiCount; ++i)
   {
     if ((*this)[i] != rhs[i])
       return false;
@@ -48,54 +48,54 @@ bool ezStaticRingBuffer<T, C>::operator==(const ezStaticRingBuffer<T, C>& rhs) c
   return true;
 }
 
-template <typename T, ezUInt32 C>
-void ezStaticRingBuffer<T, C>::PushBack(const T& element)
+template <typename T, WUInt32 C>
+void WStaticRingBuffer<T, C>::PushBack(const T& element)
 {
-  EZ_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
+  W_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
 
-  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
+  const WUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
 
-  ezMemoryUtils::CopyConstruct(&m_pElements[uiLastElement], element, 1);
+  WMemoryUtils::CopyConstruct(&m_pElements[uiLastElement], element, 1);
   ++m_uiCount;
 }
 
-template <typename T, ezUInt32 C>
-void ezStaticRingBuffer<T, C>::PushBack(T&& element)
+template <typename T, WUInt32 C>
+void WStaticRingBuffer<T, C>::PushBack(T&& element)
 {
-  EZ_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
+  W_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
 
-  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
+  const WUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
 
-  ezMemoryUtils::MoveConstruct(&m_pElements[uiLastElement], std::move(element));
+  WMemoryUtils::MoveConstruct(&m_pElements[uiLastElement], std::move(element));
   ++m_uiCount;
 }
 
-template <typename T, ezUInt32 C>
-T& ezStaticRingBuffer<T, C>::PeekBack()
+template <typename T, WUInt32 C>
+T& WStaticRingBuffer<T, C>::PeekBack()
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
+  W_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
 
-  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
+  const WUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
   return m_pElements[uiLastElement];
 }
 
-template <typename T, ezUInt32 C>
-const T& ezStaticRingBuffer<T, C>::PeekBack() const
+template <typename T, WUInt32 C>
+const T& WStaticRingBuffer<T, C>::PeekBack() const
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
+  W_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
 
-  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
+  const WUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
   return m_pElements[uiLastElement];
 }
 
-template <typename T, ezUInt32 C>
-void ezStaticRingBuffer<T, C>::PopFront(ezUInt32 uiElements)
+template <typename T, WUInt32 C>
+void WStaticRingBuffer<T, C>::PopFront(WUInt32 uiElements)
 {
-  EZ_ASSERT_DEV(m_uiCount >= uiElements, "The ring-buffer contains {0} elements, cannot remove {1} elements from it.", m_uiCount, uiElements);
+  W_ASSERT_DEV(m_uiCount >= uiElements, "The ring-buffer contains {0} elements, cannot remove {1} elements from it.", m_uiCount, uiElements);
 
   while (uiElements > 0)
   {
-    ezMemoryUtils::Destruct(&m_pElements[m_uiFirstElement], 1);
+    WMemoryUtils::Destruct(&m_pElements[m_uiFirstElement], 1);
     ++m_uiFirstElement;
     m_uiFirstElement %= C;
     --m_uiCount;
@@ -104,65 +104,65 @@ void ezStaticRingBuffer<T, C>::PopFront(ezUInt32 uiElements)
   }
 }
 
-template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::PeekFront() const
+template <typename T, WUInt32 C>
+W_FORCE_INLINE const T& WStaticRingBuffer<T, C>::PeekFront() const
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
+  W_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
 
   return m_pElements[m_uiFirstElement];
 }
 
-template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::PeekFront()
+template <typename T, WUInt32 C>
+W_FORCE_INLINE T& WStaticRingBuffer<T, C>::PeekFront()
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
+  W_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
 
   return m_pElements[m_uiFirstElement];
 }
 
-template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex) const
+template <typename T, WUInt32 C>
+W_FORCE_INLINE const T& WStaticRingBuffer<T, C>::operator[](WUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }
 
-template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex)
+template <typename T, WUInt32 C>
+W_FORCE_INLINE T& WStaticRingBuffer<T, C>::operator[](WUInt32 uiIndex)
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }
 
-template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE ezUInt32 ezStaticRingBuffer<T, C>::GetCount() const
+template <typename T, WUInt32 C>
+W_ALWAYS_INLINE WUInt32 WStaticRingBuffer<T, C>::GetCount() const
 {
   return m_uiCount;
 }
 
-template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::IsEmpty() const
+template <typename T, WUInt32 C>
+W_ALWAYS_INLINE bool WStaticRingBuffer<T, C>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
-template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::CanAppend(ezUInt32 uiElements)
+template <typename T, WUInt32 C>
+W_ALWAYS_INLINE bool WStaticRingBuffer<T, C>::CanAppend(WUInt32 uiElements)
 {
   return (m_uiCount + uiElements) <= C;
 }
 
-template <typename T, ezUInt32 C>
-void ezStaticRingBuffer<T, C>::Clear()
+template <typename T, WUInt32 C>
+void WStaticRingBuffer<T, C>::Clear()
 {
   while (!IsEmpty())
     PopFront();
 }
 
-template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE T* ezStaticRingBuffer<T, C>::GetStaticArray()
+template <typename T, WUInt32 C>
+W_ALWAYS_INLINE T* WStaticRingBuffer<T, C>::GetStaticArray()
 {
   return reinterpret_cast<T*>(m_Data);
 }

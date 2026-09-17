@@ -13,48 +13,48 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodMeshLod>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WLodMeshLod, WNoBase, 2, WRTTIDefaultAllocator<WLodMeshLod>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)
+    W_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("Threshold", m_fThreshold)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLodMeshComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
-    EZ_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
-    EZ_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    EZ_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ARRAY_MEMBER_PROPERTY("Meshes", m_Meshes),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
+    W_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
+    W_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    W_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ARRAY_MEMBER_PROPERTY("Meshes", m_Meshes),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
-    new ezSphereVisualizerAttribute("BoundsRadius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "BoundsOffset"),
-    new ezTransformManipulatorAttribute("BoundsOffset"),
+    new WCategoryAttribute("Rendering"),
+    new WSphereVisualizerAttribute("BoundsRadius", WColor::MediumVioletRed, nullptr, WVisualizerAnchor::Center, WVec3(1.0f), "BoundsOffset"),
+    new WTransformManipulatorAttribute("BoundsOffset"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgSetCustomData, OnMsgSetCustomData),
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
 struct LodMeshCompFlags
@@ -66,41 +66,41 @@ struct LodMeshCompFlags
   };
 };
 
-ezLodMeshComponent::ezLodMeshComponent() = default;
-ezLodMeshComponent::~ezLodMeshComponent() = default;
+WLodMeshComponent::WLodMeshComponent() = default;
+WLodMeshComponent::~WLodMeshComponent() = default;
 
-void ezLodMeshComponent::SetShowDebugInfo(bool bShow)
+void WLodMeshComponent::SetShowDebugInfo(bool bShow)
 {
   SetUserFlag(LodMeshCompFlags::ShowDebugInfo, bShow);
 }
 
-bool ezLodMeshComponent::GetShowDebugInfo() const
+bool WLodMeshComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(LodMeshCompFlags::ShowDebugInfo);
 }
 
-void ezLodMeshComponent::SetOverlapRanges(bool bShow)
+void WLodMeshComponent::SetOverlapRanges(bool bShow)
 {
   SetUserFlag(LodMeshCompFlags::OverlapRanges, bShow);
 }
 
-bool ezLodMeshComponent::GetOverlapRanges() const
+bool WLodMeshComponent::GetOverlapRanges() const
 {
   return GetUserFlag(LodMeshCompFlags::OverlapRanges);
 }
 
-void ezLodMeshComponent::OnDeactivated()
+void WLodMeshComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }
 
-void ezLodMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLodMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_Meshes.GetCount();
   for (const auto& mesh : m_Meshes)
@@ -118,14 +118,14 @@ void ezLodMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_vCustomData;
 }
 
-void ezLodMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLodMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
-  ezUInt32 uiMeshes = 0;
+  WUInt32 uiMeshes = 0;
   s >> uiMeshes;
 
   m_Meshes.SetCount(uiMeshes);
@@ -148,24 +148,24 @@ void ezLodMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezResult ezLodMeshComponent::GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WLodMeshComponent::GetLocalBounds(WBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  out_bounds = ezBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
+  out_bounds = WBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
   out_bAlwaysVisible = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WLodMeshComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (m_Meshes.IsEmpty())
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::EditorView || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::MainView)
   {
     UpdateSelectedLod(*msg.m_pView);
   }
 
-  if (m_iCurLod >= (ezInt32)m_Meshes.GetCount())
+  if (m_iCurLod >= (WInt32)m_Meshes.GetCount())
     return;
 
   auto hMesh = m_Meshes[m_iCurLod].m_hMesh;
@@ -177,125 +177,125 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
   const bool bDynamic = true;
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
 
-  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
+  WResourceLock<WMeshResource> pMesh(hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WArrayPtr<const WMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
-  for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
+  for (WUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial;
+    const WUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+    WMaterialResourceHandle hMaterial;
 
     hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    WMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(GetOwner());
     pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
     pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiMaterialIndex, uiPartIndex);
 
-    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
+    WRenderData::Category category = WMaterialResource::GetRenderDataCategory(hMaterial);
 
-    msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+    msg.AddRenderData(pRenderData, category, WRenderData::Caching::Never);
   }
 }
 
-void ezLodMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
+void WLodMeshComponent::OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const
 {
-  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+  if (ref_msg.m_Mode != WWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
 
-  for (ezUInt32 i = m_Meshes.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_Meshes.GetCount(); i > 0; --i)
   {
-    const ezMeshResourceHandle& hMesh = m_Meshes[i - 1].m_hMesh;
+    const WMeshResourceHandle& hMesh = m_Meshes[i - 1].m_hMesh;
 
     if (!hMesh.IsValid())
       continue;
 
     // A procedurally created mesh only exists on the GPU side, there is no file to load a CPU mesh from.
     {
-      ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::PointerOnly);
-      if (pMesh->GetBaseResourceFlags().IsAnySet(ezResourceFlags::IsCreatedResource))
+      WResourceLock<WMeshResource> pMesh(hMesh, WResourceAcquireMode::PointerOnly);
+      if (pMesh->GetBaseResourceFlags().IsAnySet(WResourceFlags::IsCreatedResource))
         continue;
     }
 
-    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID()));
+    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), WResourceManager::LoadResource<WCpuMeshResource>(hMesh.GetResourceID()));
     return;
   }
 }
 
-void ezLodMeshComponent::SetColor(const ezColor& color)
+void WLodMeshComponent::SetColor(const WColor& color)
 {
   m_Color = color;
 
   InvalidateCachedRenderData();
 }
 
-const ezColor& ezLodMeshComponent::GetColor() const
+const WColor& WLodMeshComponent::GetColor() const
 {
   return m_Color;
 }
 
-void ezLodMeshComponent::SetCustomData(const ezVec4& vData)
+void WLodMeshComponent::SetCustomData(const WVec4& vData)
 {
   m_vCustomData = vData;
 
   InvalidateCachedRenderData();
 }
 
-const ezVec4& ezLodMeshComponent::GetCustomData() const
+const WVec4& WLodMeshComponent::GetCustomData() const
 {
   return m_vCustomData;
 }
 
-void ezLodMeshComponent::SetSortingDepthOffset(float fOffset)
+void WLodMeshComponent::SetSortingDepthOffset(float fOffset)
 {
   m_fSortingDepthOffset = fOffset;
 
   InvalidateCachedRenderData();
 }
 
-float ezLodMeshComponent::GetSortingDepthOffset() const
+float WLodMeshComponent::GetSortingDepthOffset() const
 {
   return m_fSortingDepthOffset;
 }
 
-void ezLodMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WLodMeshComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
 
   InvalidateCachedRenderData();
 }
 
-void ezLodMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+void WLodMeshComponent::OnMsgSetCustomData(WMsgSetCustomData& ref_msg)
 {
   m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
 
-static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
+static float CalculateSphereScreenSpaceCoverage(const WBoundingSphere& sphere, const WCamera& camera)
 {
   if (camera.IsPerspective())
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
   }
   else
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
   }
 }
 
-void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
+void WLodMeshComponent::UpdateSelectedLod(const WView& view) const
 {
-  const ezInt32 iNumLods = (ezInt32)m_Meshes.GetCount();
+  const WInt32 iNumLods = (WInt32)m_Meshes.GetCount();
 
-  const ezVec3 vScale = GetOwner()->GetGlobalScaling();
-  const float fScale = ezMath::Max(vScale.x, vScale.y, vScale.z);
-  const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
+  const WVec3 vScale = GetOwner()->GetGlobalScaling();
+  const float fScale = WMath::Max(vScale.x, vScale.y, vScale.z);
+  const WVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
 
-  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera()) * ezMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
+  const float fCoverage = CalculateSphereScreenSpaceCoverage(WBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera()) * WMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
 
   // clamp the input value, this is to prevent issues while editing the threshold array
-  ezInt32 iNewLod = ezMath::Clamp<ezInt32>(m_iCurLod, 0, iNumLods);
+  WInt32 iNewLod = WMath::Clamp<WInt32>(m_iCurLod, 0, iNumLods);
 
   float fCoverageP = 1;
   float fCoverageN = 0;
@@ -335,22 +335,22 @@ void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
     --iNewLod;
   }
 
-  iNewLod = ezMath::Clamp(iNewLod, 0, iNumLods);
+  iNewLod = WMath::Clamp(iNewLod, 0, iNumLods);
 
   if (cvar_RenderingLodForce >= 0)
   {
-    iNewLod = ezMath::Min<ezInt32>(cvar_RenderingLodForce, iNumLods - 1);
+    iNewLod = WMath::Min<WInt32>(cvar_RenderingLodForce, iNumLods - 1);
   }
 
   m_iCurLod = iNewLod;
 
   if (GetShowDebugInfo())
   {
-    ezStringBuilder sb;
-    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", ezArgF(fCoverage, 3), iNewLod, ezArgF(fCoverageP, 3), ezArgF(fCoverageN, 3));
-    ezDebugRenderer::Draw3DText(view.GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::White);
+    WStringBuilder sb;
+    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", WArgF(fCoverage, 3), iNewLod, WArgF(fCoverageP, 3), WArgF(fCoverageN, 3));
+    WDebugRenderer::Draw3DText(view.GetHandle(), sb, GetOwner()->GetGlobalPosition(), WColor::White);
   }
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_LodMeshComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_LodMeshComponent);

@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezBloomConstants, 3)
+CONSTANT_BUFFER(WBloomConstants, 3)
 {
   FLOAT2(PixelSize);
   FLOAT1(BloomThreshold);

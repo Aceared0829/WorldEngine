@@ -3,7 +3,7 @@
     <file>Kraut_Tree.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezKrautTreeComponent.svg</file>
+    <file>WKrautTreeComponent.svg</file>
   </qresource>
   <qresource prefix="EditorPluginKraut">
     <file>Wind.svg</file>

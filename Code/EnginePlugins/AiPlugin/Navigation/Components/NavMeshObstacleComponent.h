@@ -4,7 +4,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 
-using ezNavMeshObstacleComponentManager = ezComponentManager<class ezNavMeshObstacleComponent, ezBlockStorageType::Compact>;
+using WNavMeshObstacleComponentManager = WComponentManager<class WNavMeshObstacleComponent, WBlockStorageType::Compact>;
 
 /// Represents a dynamic obstacle on a navmesh.
 ///
@@ -16,13 +16,13 @@ using ezNavMeshObstacleComponentManager = ezComponentManager<class ezNavMeshObst
 /// Another example could be a bridge that connects two navmesh islands, allowing a direct path between the two.
 ///
 /// Currently, only works with static game objects with relevant physics geometry.
-class EZ_AIPLUGIN_DLL ezNavMeshObstacleComponent : public ezComponent
+class W_AIPLUGIN_DLL WNavMeshObstacleComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezNavMeshObstacleComponent, ezComponent, ezNavMeshObstacleComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WNavMeshObstacleComponent, WComponent, WNavMeshObstacleComponentManager);
 
 public:
-  ezNavMeshObstacleComponent();
-  ~ezNavMeshObstacleComponent();
+  WNavMeshObstacleComponent();
+  ~WNavMeshObstacleComponent();
 
 protected:
   virtual void OnActivated() override;

@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezReflectionIrradianceConstants, 3)
+CONSTANT_BUFFER(WReflectionIrradianceConstants, 3)
 {
   FLOAT1(LodLevel);
   FLOAT1(Intensity);

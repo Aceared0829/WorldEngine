@@ -6,34 +6,34 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptCoroutineHandle, ezNoBase, 1, ezRTTIDefaultAllocator<ezScriptCoroutineHandle>)
-EZ_END_STATIC_REFLECTED_TYPE;
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezScriptCoroutineHandle);
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptCoroutineHandle, WNoBase, 1, WRTTIDefaultAllocator<WScriptCoroutineHandle>)
+W_END_STATIC_REFLECTED_TYPE;
+W_DEFINE_CUSTOM_VARIANT_TYPE(WScriptCoroutineHandle);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptCoroutine, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptCoroutine, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName),
+    W_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(UpdateAndSchedule),
+    W_FUNCTION_PROPERTY(UpdateAndSchedule),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptCoroutine::ezScriptCoroutine() = default;
+WScriptCoroutine::WScriptCoroutine() = default;
 
-ezScriptCoroutine::~ezScriptCoroutine()
+WScriptCoroutine::~WScriptCoroutine()
 {
-  EZ_ASSERT_DEV(m_pOwnerModule == nullptr, "Deinitialize was not called");
+  W_ASSERT_DEV(m_pOwnerModule == nullptr, "Deinitialize was not called");
 }
 
-void ezScriptCoroutine::UpdateAndSchedule(ezTime deltaTimeSinceLastUpdate)
+void WScriptCoroutine::UpdateAndSchedule(WTime deltaTimeSinceLastUpdate)
 {
   auto result = Update(deltaTimeSinceLastUpdate);
 
@@ -54,7 +54,7 @@ void ezScriptCoroutine::UpdateAndSchedule(ezTime deltaTimeSinceLastUpdate)
   }
 }
 
-void ezScriptCoroutine::Initialize(ezScriptCoroutineId id, ezStringView sName, ezScriptInstance& inout_instance, ezScriptWorldModule& inout_ownerModule)
+void WScriptCoroutine::Initialize(WScriptCoroutineId id, WStringView sName, WScriptInstance& inout_instance, WScriptWorldModule& inout_ownerModule)
 {
   m_Id = id;
   m_sName.Assign(sName);
@@ -62,22 +62,22 @@ void ezScriptCoroutine::Initialize(ezScriptCoroutineId id, ezStringView sName, e
   m_pOwnerModule = &inout_ownerModule;
 }
 
-void ezScriptCoroutine::Deinitialize()
+void WScriptCoroutine::Deinitialize()
 {
   m_pOwnerModule->RemoveUpdateFunctionToSchedule(GetUpdateFunctionProperty(), this);
   m_pOwnerModule = nullptr;
 }
 
 // static
-const ezAbstractFunctionProperty* ezScriptCoroutine::GetUpdateFunctionProperty()
+const WAbstractFunctionProperty* WScriptCoroutine::GetUpdateFunctionProperty()
 {
-  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty*
+  static const WAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const WAbstractFunctionProperty*
   {
-    const ezRTTI* pType = ezGetStaticRTTI<ezScriptCoroutine>();
+    const WRTTI* pType = WGetStaticRTTI<WScriptCoroutine>();
     auto functions = pType->GetFunctions();
     for (auto pFunc : functions)
     {
-      if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "UpdateAndSchedule"))
+      if (WStringUtils::IsEqual(pFunc->GetPropertyName(), "UpdateAndSchedule"))
       {
         return pFunc;
       }
@@ -91,15 +91,15 @@ const ezAbstractFunctionProperty* ezScriptCoroutine::GetUpdateFunctionProperty()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezScriptCoroutineCreationMode, 1)
-  EZ_ENUM_CONSTANTS(ezScriptCoroutineCreationMode::StopOther, ezScriptCoroutineCreationMode::DontCreateNew, ezScriptCoroutineCreationMode::AllowOverlap)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WScriptCoroutineCreationMode, 1)
+  W_ENUM_CONSTANTS(WScriptCoroutineCreationMode::StopOther, WScriptCoroutineCreationMode::DontCreateNew, WScriptCoroutineCreationMode::AllowOverlap)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptCoroutineRTTI::ezScriptCoroutineRTTI(ezStringView sName, ezUniquePtr<ezRTTIAllocator>&& pAllocator)
-  : ezRTTI(nullptr, ezGetStaticRTTI<ezScriptCoroutine>(), 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<const ezAbstractProperty*>(), ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+WScriptCoroutineRTTI::WScriptCoroutineRTTI(WStringView sName, WUniquePtr<WRTTIAllocator>&& pAllocator)
+  : WRTTI(nullptr, WGetStaticRTTI<WScriptCoroutine>(), 0, 1, WVariantType::Invalid, WTypeFlags::Class, nullptr, WArrayPtr<const WAbstractProperty*>(), WArrayPtr<const WAbstractFunctionProperty*>(), WArrayPtr<const WPropertyAttribute*>(), WArrayPtr<WAbstractMessageHandler*>(), WArrayPtr<WMessageSenderInfo>(), nullptr)
   , m_sTypeNameStorage(sName)
   , m_pAllocatorStorage(std::move(pAllocator))
 {
@@ -111,7 +111,7 @@ ezScriptCoroutineRTTI::ezScriptCoroutineRTTI(ezStringView sName, ezUniquePtr<ezR
   SetupParentHierarchy();
 }
 
-ezScriptCoroutineRTTI::~ezScriptCoroutineRTTI()
+WScriptCoroutineRTTI::~WScriptCoroutineRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
@@ -124,37 +124,37 @@ ezScriptCoroutineRTTI::~ezScriptCoroutineRTTI()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptCoroutineFunctionProperty::ezScriptCoroutineFunctionProperty(ezStringView sName, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode)
-  : ezScriptFunctionProperty(sName)
+WScriptCoroutineFunctionProperty::WScriptCoroutineFunctionProperty(WStringView sName, const WSharedPtr<WScriptCoroutineRTTI>& pType, WScriptCoroutineCreationMode::Enum creationMode)
+  : WScriptFunctionProperty(sName)
   , m_pType(pType)
   , m_CreationMode(creationMode)
 {
 }
 
-ezScriptCoroutineFunctionProperty::~ezScriptCoroutineFunctionProperty() = default;
+WScriptCoroutineFunctionProperty::~WScriptCoroutineFunctionProperty() = default;
 
-void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
+void WScriptCoroutineFunctionProperty::Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const
 {
-  EZ_IGNORE_UNUSED(out_returnValue);
+  W_IGNORE_UNUSED(out_returnValue);
 
-  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
-  auto pScriptInstance = static_cast<ezScriptInstance*>(pInstance);
+  W_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
+  auto pScriptInstance = static_cast<WScriptInstance*>(pInstance);
 
-  ezWorld* pWorld = pScriptInstance->GetWorld();
+  WWorld* pWorld = pScriptInstance->GetWorld();
   if (pWorld == nullptr)
   {
-    ezLog::Error("Script coroutines need a script instance with a valid ezWorld");
+    WLog::Error("Script coroutines need a script instance with a valid WWorld");
     return;
   }
 
-  auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
+  auto pModule = pWorld->GetOrCreateModule<WScriptWorldModule>();
 
-  ezScriptCoroutine* pCoroutine = nullptr;
+  WScriptCoroutine* pCoroutine = nullptr;
   auto hCoroutine = pModule->CreateCoroutine(m_pType.Borrow(), m_szPropertyName, *pScriptInstance, m_CreationMode, pCoroutine);
 
   if (pCoroutine != nullptr)
   {
-    ezTempHybridArray<ezVariant, 8> finalArgs;
+    WTempHybridArray<WVariant, 8> finalArgs;
     finalArgs = arguments;
     finalArgs.PushBack(hCoroutine);
 
@@ -164,8 +164,8 @@ void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVa
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptCoroutineMessageHandler::ezScriptCoroutineMessageHandler(ezStringView sName, const ezScriptMessageDesc& desc, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode)
-  : ezScriptMessageHandler(desc)
+WScriptCoroutineMessageHandler::WScriptCoroutineMessageHandler(WStringView sName, const WScriptMessageDesc& desc, const WSharedPtr<WScriptCoroutineRTTI>& pType, WScriptCoroutineCreationMode::Enum creationMode)
+  : WScriptMessageHandler(desc)
   , m_pType(pType)
   , m_CreationMode(creationMode)
 {
@@ -173,31 +173,31 @@ ezScriptCoroutineMessageHandler::ezScriptCoroutineMessageHandler(ezStringView sN
   m_DispatchFunc = &Dispatch;
 }
 
-ezScriptCoroutineMessageHandler::~ezScriptCoroutineMessageHandler() = default;
+WScriptCoroutineMessageHandler::~WScriptCoroutineMessageHandler() = default;
 
 // static
-void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+void WScriptCoroutineMessageHandler::Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg)
 {
-  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
-  auto pHandler = static_cast<ezScriptCoroutineMessageHandler*>(pSelf);
-  auto pComponent = static_cast<ezScriptComponent*>(pInstance);
+  W_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
+  auto pHandler = static_cast<WScriptCoroutineMessageHandler*>(pSelf);
+  auto pComponent = static_cast<WScriptComponent*>(pInstance);
   auto pScriptInstance = pComponent->GetScriptInstance();
 
-  ezWorld* pWorld = pScriptInstance->GetWorld();
+  WWorld* pWorld = pScriptInstance->GetWorld();
   if (pWorld == nullptr)
   {
-    ezLog::Error("Script coroutines need a script instance with a valid ezWorld");
+    WLog::Error("Script coroutines need a script instance with a valid WWorld");
     return;
   }
 
-  auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
+  auto pModule = pWorld->GetOrCreateModule<WScriptWorldModule>();
 
-  ezScriptCoroutine* pCoroutine = nullptr;
+  WScriptCoroutine* pCoroutine = nullptr;
   auto hCoroutine = pModule->CreateCoroutine(pHandler->m_pType.Borrow(), pHandler->m_sName, *pScriptInstance, pHandler->m_CreationMode, pCoroutine);
 
   if (pCoroutine != nullptr)
   {
-    ezTempHybridArray<ezVariant, 8> arguments;
+    WTempHybridArray<WVariant, 8> arguments;
     pHandler->FillMessagePropertyValues(ref_msg, arguments);
     arguments.PushBack(hCoroutine);
 
@@ -206,4 +206,4 @@ void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, 
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptCoroutine);
+W_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptCoroutine);

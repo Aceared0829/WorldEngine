@@ -9,53 +9,53 @@
 struct FileSuffixToUsage
 {
   const char* m_szSuffix = nullptr;
-  const ezTexConvUsage::Enum m_Usage = ezTexConvUsage::Auto;
+  const WTexConvUsage::Enum m_Usage = WTexConvUsage::Auto;
 };
 
 static FileSuffixToUsage suffixToUsageMap[] = {
   //
-  {"_d", ezTexConvUsage::Color},          //
-  {"diff", ezTexConvUsage::Color},        //
-  {"diffuse", ezTexConvUsage::Color},     //
-  {"albedo", ezTexConvUsage::Color},      //
-  {"col", ezTexConvUsage::Color},         //
-  {"color", ezTexConvUsage::Color},       //
-  {"emissive", ezTexConvUsage::Color},    //
-  {"emit", ezTexConvUsage::Color},        //
+  {"_d", WTexConvUsage::Color},          //
+  {"diff", WTexConvUsage::Color},        //
+  {"diffuse", WTexConvUsage::Color},     //
+  {"albedo", WTexConvUsage::Color},      //
+  {"col", WTexConvUsage::Color},         //
+  {"color", WTexConvUsage::Color},       //
+  {"emissive", WTexConvUsage::Color},    //
+  {"emit", WTexConvUsage::Color},        //
 
-  {"_n", ezTexConvUsage::NormalMap},      //
-  {"nrm", ezTexConvUsage::NormalMap},     //
-  {"norm", ezTexConvUsage::NormalMap},    //
-  {"normal", ezTexConvUsage::NormalMap},  //
-  {"normals", ezTexConvUsage::NormalMap}, //
+  {"_n", WTexConvUsage::NormalMap},      //
+  {"nrm", WTexConvUsage::NormalMap},     //
+  {"norm", WTexConvUsage::NormalMap},    //
+  {"normal", WTexConvUsage::NormalMap},  //
+  {"normals", WTexConvUsage::NormalMap}, //
 
-  {"_r", ezTexConvUsage::Linear},         //
-  {"_rgh", ezTexConvUsage::Linear},       //
-  {"_rough", ezTexConvUsage::Linear},     //
-  {"roughness", ezTexConvUsage::Linear},  //
+  {"_r", WTexConvUsage::Linear},         //
+  {"_rgh", WTexConvUsage::Linear},       //
+  {"_rough", WTexConvUsage::Linear},     //
+  {"roughness", WTexConvUsage::Linear},  //
 
-  {"_m", ezTexConvUsage::Linear},         //
-  {"_met", ezTexConvUsage::Linear},       //
-  {"_metal", ezTexConvUsage::Linear},     //
-  {"metallic", ezTexConvUsage::Linear},   //
+  {"_m", WTexConvUsage::Linear},         //
+  {"_met", WTexConvUsage::Linear},       //
+  {"_metal", WTexConvUsage::Linear},     //
+  {"metallic", WTexConvUsage::Linear},   //
 
-  {"_h", ezTexConvUsage::Linear},         //
-  {"height", ezTexConvUsage::Linear},     //
-  {"_disp", ezTexConvUsage::Linear},      //
+  {"_h", WTexConvUsage::Linear},         //
+  {"height", WTexConvUsage::Linear},     //
+  {"_disp", WTexConvUsage::Linear},      //
 
-  {"_ao", ezTexConvUsage::Linear},        //
-  {"occlusion", ezTexConvUsage::Linear},  //
+  {"_ao", WTexConvUsage::Linear},        //
+  {"occlusion", WTexConvUsage::Linear},  //
 
-  {"_alpha", ezTexConvUsage::Linear},     //
+  {"_alpha", WTexConvUsage::Linear},     //
 };
 
 
-static ezTexConvUsage::Enum DetectUsageFromFilename(ezStringView sFile)
+static WTexConvUsage::Enum DetectUsageFromFilename(WStringView sFile)
 {
-  ezStringBuilder name = ezPathUtils::GetFileName(sFile);
+  WStringBuilder name = WPathUtils::GetFileName(sFile);
   name.ToLower();
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(suffixToUsageMap); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(suffixToUsageMap); ++i)
   {
     if (name.EndsWith_NoCase(suffixToUsageMap[i].m_szSuffix))
     {
@@ -63,73 +63,73 @@ static ezTexConvUsage::Enum DetectUsageFromFilename(ezStringView sFile)
     }
   }
 
-  return ezTexConvUsage::Auto;
+  return WTexConvUsage::Auto;
 }
 
-static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
+static WTexConvUsage::Enum DetectUsageFromImage(const WImage& image)
 {
-  const ezImageHeader& header = image.GetHeader();
-  const ezImageFormat::Enum format = header.GetImageFormat();
+  const WImageHeader& header = image.GetHeader();
+  const WImageFormat::Enum format = header.GetImageFormat();
 
   if (header.GetDepth() > 1)
   {
     // unsupported
-    return ezTexConvUsage::Auto;
+    return WTexConvUsage::Auto;
   }
 
-  if (ezImageFormat::IsSrgb(format))
+  if (WImageFormat::IsSrgb(format))
   {
     // already sRGB so must be color
-    return ezTexConvUsage::Color;
+    return WTexConvUsage::Color;
   }
 
-  if (format == ezImageFormat::BC5_UNORM)
+  if (format == WImageFormat::BC5_UNORM)
   {
-    return ezTexConvUsage::NormalMap;
+    return WTexConvUsage::NormalMap;
   }
 
-  if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) > 8 || format == ezImageFormat::BC6H_SF16 ||
-      format == ezImageFormat::BC6H_UF16)
+  if (WImageFormat::GetBitsPerChannel(format, WImageFormatChannel::R) > 8 || format == WImageFormat::BC6H_SF16 ||
+      format == WImageFormat::BC6H_UF16)
   {
-    return ezTexConvUsage::Hdr;
+    return WTexConvUsage::Hdr;
   }
 
-  if (ezImageFormat::GetNumChannels(format) <= 2)
+  if (WImageFormat::GetNumChannels(format) <= 2)
   {
-    return ezTexConvUsage::Linear;
+    return WTexConvUsage::Linear;
   }
 
-  const ezImage* pImgRGBA = &image;
-  ezImage convertedRGBA;
+  const WImage* pImgRGBA = &image;
+  WImage convertedRGBA;
 
-  if (image.GetImageFormat() != ezImageFormat::R8G8B8A8_UNORM)
+  if (image.GetImageFormat() != WImageFormat::R8G8B8A8_UNORM)
   {
     pImgRGBA = &convertedRGBA;
-    if (ezImageConversion::Convert(image, convertedRGBA, ezImageFormat::R8G8B8A8_UNORM).Failed())
+    if (WImageConversion::Convert(image, convertedRGBA, WImageFormat::R8G8B8A8_UNORM).Failed())
     {
       // cannot convert to RGBA -> maybe some weird lookup table format
-      return ezTexConvUsage::Auto;
+      return WTexConvUsage::Auto;
     }
   }
 
   // analyze the image content
   {
-    ezUInt32 sr = 0;
-    ezUInt32 sg = 0;
-    ezUInt32 sb = 0;
+    WUInt32 sr = 0;
+    WUInt32 sg = 0;
+    WUInt32 sb = 0;
 
-    ezUInt32 uiExtremeNormals = 0;
+    WUInt32 uiExtremeNormals = 0;
 
-    ezUInt32 uiNumPixels = header.GetWidth() * header.GetHeight();
-    EZ_ASSERT_DEBUG(uiNumPixels > 0, "Unexpected empty image");
+    WUInt32 uiNumPixels = header.GetWidth() * header.GetHeight();
+    W_ASSERT_DEBUG(uiNumPixels > 0, "Unexpected empty image");
 
     // Sample no more than 10000 pixels
-    ezUInt32 uiStride = ezMath::Max(1U, uiNumPixels / 10000);
+    WUInt32 uiStride = WMath::Max(1U, uiNumPixels / 10000);
     uiNumPixels /= uiStride;
 
-    const ezUInt8* pPixel = pImgRGBA->GetPixelPointer<ezUInt8>();
+    const WUInt8* pPixel = pImgRGBA->GetPixelPointer<WUInt8>();
 
-    for (ezUInt32 uiPixel = 0; uiPixel < uiNumPixels; ++uiPixel)
+    for (WUInt32 uiPixel = 0; uiPixel < uiNumPixels; ++uiPixel)
     {
       // definitely not a normal map, if any Z vector points that much backwards
       uiExtremeNormals += (pPixel[2] < 90) ? 1 : 0;
@@ -149,39 +149,39 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     if (sb < 230 || sr < 128 - 60 || sr > 128 + 60 || sg < 128 - 60 || sg > 128 + 60)
     {
       // if the average color is not a proper hue of blue, it cannot be a normal map
-      return ezTexConvUsage::Color;
+      return WTexConvUsage::Color;
     }
 
     if (uiExtremeNormals > uiNumPixels / 100)
     {
       // more than 1 percent of normals pointing backwards ? => probably not a normalmap
-      return ezTexConvUsage::Color;
+      return WTexConvUsage::Color;
     }
 
     // it might just be a normal map, it does have the proper hue of blue
-    return ezTexConvUsage::NormalMap;
+    return WTexConvUsage::NormalMap;
   }
 }
 
-ezResult ezTexConvProcessor::AdjustUsage(ezStringView sFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage)
+WResult WTexConvProcessor::AdjustUsage(WStringView sFilename, const WImage& srcImg, WEnum<WTexConvUsage>& inout_Usage)
 {
-  EZ_PROFILE_SCOPE("AdjustUsage");
+  W_PROFILE_SCOPE("AdjustUsage");
 
-  if (inout_Usage == ezTexConvUsage::Auto)
+  if (inout_Usage == WTexConvUsage::Auto)
   {
     inout_Usage = DetectUsageFromFilename(sFilename);
   }
 
-  if (inout_Usage == ezTexConvUsage::Auto)
+  if (inout_Usage == WTexConvUsage::Auto)
   {
     inout_Usage = DetectUsageFromImage(srcImg);
   }
 
-  if (inout_Usage == ezTexConvUsage::Auto)
+  if (inout_Usage == WTexConvUsage::Auto)
   {
-    ezLog::Error("Failed to deduce target format.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to deduce target format.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

@@ -7,30 +7,30 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
-ezResult ezAssetTable::WriteAssetTable()
+WResult WAssetTable::WriteAssetTable()
 {
-  EZ_PROFILE_SCOPE("WriteAssetTable");
+  W_PROFILE_SCOPE("WriteAssetTable");
 
-  ezStringBuilder sTemp;
-  ezString sResourcePath;
+  WStringBuilder sTemp;
+  WString sResourcePath;
 
   {
-    for (auto& man : ezAssetDocumentManager::GetAllDocumentManagers())
+    for (auto& man : WAssetDocumentManager::GetAllDocumentManagers())
     {
-      if (!man->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+      if (!man->GetDynamicRTTI()->IsDerivedFrom<WAssetDocumentManager>())
         continue;
 
-      ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
+      WAssetDocumentManager* pManager = static_cast<WAssetDocumentManager*>(man);
 
       // allow to add fully custom entries
-      pManager->AddEntriesToAssetTable(m_sDataDir, m_pProfile, ezMakeDelegate(&ezAssetTable::AddManagerResource, this));
+      pManager->AddEntriesToAssetTable(m_sDataDir, m_pProfile, WMakeDelegate(&WAssetTable::AddManagerResource, this));
     }
   }
 
   if (m_bReset)
   {
     m_GuidToPath.Clear();
-    ezAssetCurator::ezLockedSubAssetTable allSubAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+    WAssetCurator::WLockedSubAssetTable allSubAssetsLocked = WAssetCurator::GetSingleton()->GetKnownSubAssets();
 
     for (auto it = allSubAssetsLocked->GetIterator(); it.IsValid(); ++it)
     {
@@ -46,13 +46,13 @@ ezResult ezAssetTable::WriteAssetTable()
   }
 
   // We don't write anything on a background process as the main editor process will have already written any dirty tables before sending an RPC request. We still want to engine process to reload any potential changes though and be able to check which resources to reload so the tables are kept up to date in memory.
-  if (ezQtEditorApp::GetSingleton()->IsBackgroundMode())
-    return EZ_SUCCESS;
+  if (WQtEditorApp::GetSingleton()->IsBackgroundMode())
+    return W_SUCCESS;
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(m_sTargetFile);
 
-  auto Write = [](const ezString& sGuid, const ezString& sPath, ezDeferredFileWriter& ref_file)
+  auto Write = [](const WString& sGuid, const WString& sPath, WDeferredFileWriter& ref_file)
   {
     ref_file.WriteBytes(sGuid.GetData(), sGuid.GetElementCount()).IgnoreResult();
     ref_file.WriteBytes(";", 1).IgnoreResult();
@@ -72,56 +72,56 @@ ezResult ezAssetTable::WriteAssetTable()
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Failed to open asset lookup table file '{0}'", m_sTargetFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to open asset lookup table file '{0}'", m_sTargetFile);
+    return W_FAILURE;
   }
 
   m_bDirty = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezAssetTable::Remove(const ezSubAsset& subAsset)
+void WAssetTable::Remove(const WSubAsset& subAsset)
 {
-  ezStringBuilder sTemp;
-  ezConversionUtils::ToString(subAsset.m_Data.m_Guid, sTemp);
+  WStringBuilder sTemp;
+  WConversionUtils::ToString(subAsset.m_Data.m_Guid, sTemp);
   m_GuidToPath.Remove(sTemp);
   m_bDirty = true;
 }
 
-void ezAssetTable::Update(const ezSubAsset& subAsset)
+void WAssetTable::Update(const WSubAsset& subAsset)
 {
-  ezStringBuilder sTemp;
-  ezAssetDocumentManager* pManager = subAsset.m_pAssetInfo->GetManager();
-  ezString sEntry = pManager->GetAssetTableEntry(&subAsset, m_sDataDir, m_pProfile);
+  WStringBuilder sTemp;
+  WAssetDocumentManager* pManager = subAsset.m_pAssetInfo->GetManager();
+  WString sEntry = pManager->GetAssetTableEntry(&subAsset, m_sDataDir, m_pProfile);
 
   // It is valid to write no asset table entry, if no redirection is required. This is used by decal assets for instance.
   if (!sEntry.IsEmpty())
   {
-    ezConversionUtils::ToString(subAsset.m_Data.m_Guid, sTemp);
+    WConversionUtils::ToString(subAsset.m_Data.m_Guid, sTemp);
 
     m_GuidToPath[sTemp] = sEntry;
   }
   m_bDirty = true;
 }
 
-void ezAssetTable::AddManagerResource(ezStringView sGuid, ezStringView sPath, ezStringView sType)
+void WAssetTable::AddManagerResource(WStringView sGuid, WStringView sPath, WStringView sType)
 {
   m_GuidToManagerResource[sGuid] = ManagerResource{sPath, sType};
 }
 
-ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& fileSystemConfig)
+WAssetTableWriter::WAssetTableWriter(const WApplicationFileSystemConfig& fileSystemConfig)
 {
   m_FileSystemConfig = fileSystemConfig;
   m_DataDirToAssetTables.SetCount(m_FileSystemConfig.m_DataDirs.GetCount());
 
-  ezStringBuilder sDataDirPath;
+  WStringBuilder sDataDirPath;
 
   m_DataDirRoots.Reserve(m_FileSystemConfig.m_DataDirs.GetCount());
-  for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
   {
-    if (ezFileSystem::ResolveSpecialDirectory(m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath, sDataDirPath).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath, sDataDirPath).Failed())
     {
-      ezLog::Error("Failed to resolve data directory named '{}' at '{}'", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
+      WLog::Error("Failed to resolve data directory named '{}' at '{}'", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
       m_DataDirRoots.PushBack({});
     }
     else
@@ -130,60 +130,60 @@ ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& file
     }
   }
 
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetTableWriter::AssetCuratorEvents, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WAssetTableWriter::AssetCuratorEvents, this));
 }
 
-ezAssetTableWriter::~ezAssetTableWriter()
+WAssetTableWriter::~WAssetTableWriter()
 {
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetTableWriter::AssetCuratorEvents, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WAssetTableWriter::AssetCuratorEvents, this));
 }
 
-void ezAssetTableWriter::MainThreadTick()
+void WAssetTableWriter::MainThreadTick()
 {
   // We must flush any pending table changes before triggering resource reloads.
   // If no resource reload is scheduled, we can just wait for the timer to run out to flush the changes.
   //
-  if (m_bTablesDirty && (ezTime::Now() > m_NextTableFlush || m_bNeedToReloadResources))
+  if (m_bTablesDirty && (WTime::Now() > m_NextTableFlush || m_bNeedToReloadResources))
   {
     m_bTablesDirty = false;
-    if (WriteAssetTables(ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
+    if (WriteAssetTables(WAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
     {
-      ezLog::Error("Failed to write asset tables");
+      WLog::Error("Failed to write asset tables");
     }
   }
 
   if (m_bNeedToReloadResources)
   {
     // We need to lock the curator first because that lock is hold when AssetCuratorEvents are called.
-    auto lock = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-    EZ_LOCK(m_AssetTableMutex);
+    auto lock = WAssetCurator::GetSingleton()->GetKnownSubAssets();
+    W_LOCK(m_AssetTableMutex);
 
     bool bReloadManagerResources = false;
-    const ezPlatformProfile* pCurrentProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
+    const WPlatformProfile* pCurrentProfile = WAssetCurator::GetSingleton()->GetActiveAssetProfile();
     for (const ReloadResource& reload : m_ReloadResources)
     {
-      if (ezAssetTable* pTable = GetAssetTable(reload.m_uiDataDirIndex, pCurrentProfile))
+      if (WAssetTable* pTable = GetAssetTable(reload.m_uiDataDirIndex, pCurrentProfile))
       {
         if (pTable->m_GuidToPath.Contains(reload.m_sResource))
         {
-          ezReloadResourceMsgToEngine msg2;
+          WReloadResourceMsgToEngine msg2;
           msg2.m_sResourceID = reload.m_sResource;
           msg2.m_sResourceType = reload.m_sType;
-          ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
+          WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
         }
-        else if (ezPathUtils::IsAbsolutePath(reload.m_sResource))
+        else if (WPathUtils::IsAbsolutePath(reload.m_sResource))
         {
           if (reload.m_uiDataDirIndex >= m_DataDirRoots.GetCount())
             continue;
 
-          ezStringBuilder sTempPath = reload.m_sResource;
+          WStringBuilder sTempPath = reload.m_sResource;
           if (sTempPath.MakeRelativeTo(m_DataDirRoots[reload.m_uiDataDirIndex]).Failed())
             continue;
 
-          ezReloadResourceMsgToEngine msg2;
+          WReloadResourceMsgToEngine msg2;
           msg2.m_sResourceID = sTempPath;
           msg2.m_sResourceType = reload.m_sType;
-          ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
+          WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
         }
         else
         {
@@ -197,50 +197,50 @@ void ezAssetTableWriter::MainThreadTick()
 
     if (bReloadManagerResources)
     {
-      for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
       {
-        ezAssetTable* pTable = GetAssetTable(i, pCurrentProfile);
+        WAssetTable* pTable = GetAssetTable(i, pCurrentProfile);
         for (auto it : pTable->m_GuidToManagerResource)
         {
-          ezReloadResourceMsgToEngine msg2;
+          WReloadResourceMsgToEngine msg2;
           msg2.m_sResourceID = it.Key();
           msg2.m_sResourceType = it.Value().m_sType;
-          ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
+          WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
         }
       }
     }
 
     // This forces the deletion of cached render data.
-    ezSimpleConfigMsgToEngine msg;
+    WSimpleConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ReloadResources";
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
     m_bNeedToReloadResources = false;
   }
 }
 
-void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
+void WAssetTableWriter::NeedsReloadResource(const WUuid& assetGuid)
 {
-  ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+  WAssetCurator::WLockedSubAsset asset = WAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (asset.isValid())
   {
-    EZ_LOCK(m_AssetTableMutex);
+    W_LOCK(m_AssetTableMutex);
     m_bNeedToReloadResources = true;
-    ezString sDocType = asset->m_Data.m_sSubAssetsDocumentTypeName.GetString();
-    ezStringBuilder sGuid;
-    ezConversionUtils::ToString(assetGuid, sGuid);
-    const ezUInt32 uiDataDirIndex = FindDataDir(*asset);
+    WString sDocType = asset->m_Data.m_sSubAssetsDocumentTypeName.GetString();
+    WStringBuilder sGuid;
+    WConversionUtils::ToString(assetGuid, sGuid);
+    const WUInt32 uiDataDirIndex = FindDataDir(*asset);
 
     if (asset->m_bMainAsset)
     {
-      const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
-      const ezAssetDocumentManager* pManager = asset->m_pAssetInfo->GetManager();
-      const ezAssetDocumentTypeDescriptor* pDocTypeDesc = asset->m_pAssetInfo->m_pDocumentTypeDescriptor;
-      const ezSet<ezString>& outputs = asset->m_pAssetInfo->m_Info->m_Outputs;
+      const WPlatformProfile* pProfile = WAssetCurator::GetSingleton()->GetActiveAssetProfile();
+      const WAssetDocumentManager* pManager = asset->m_pAssetInfo->GetManager();
+      const WAssetDocumentTypeDescriptor* pDocTypeDesc = asset->m_pAssetInfo->m_pDocumentTypeDescriptor;
+      const WSet<WString>& outputs = asset->m_pAssetInfo->m_Info->m_Outputs;
       for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
       {
         // Additional outputs are not written to the asset table, so we assume they are referenced by a relative path in the runtime. We store an absolute path here though so that we can detect additional outputs inside the MainThreadTick function where we flush the resource reloads.
-        const ezString sTargetFile = pManager->GetAbsoluteOutputFileName(pDocTypeDesc, asset->m_pAssetInfo->m_Path.GetAbsolutePath(), it.Key(), pProfile);
-        const ezStringView sDocumentType = pManager->GetOutputDocumentType(pDocTypeDesc, it.Key(), pProfile);
+        const WString sTargetFile = pManager->GetAbsoluteOutputFileName(pDocTypeDesc, asset->m_pAssetInfo->m_Path.GetAbsolutePath(), it.Key(), pProfile);
+        const WStringView sDocumentType = pManager->GetOutputDocumentType(pDocTypeDesc, it.Key(), pProfile);
         m_ReloadResources.PushBack({uiDataDirIndex, sTargetFile, sDocumentType});
       }
     }
@@ -248,28 +248,28 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
   }
 }
 
-ezResult ezAssetTableWriter::WriteAssetTables(const ezPlatformProfile* pAssetProfile, bool bForce)
+WResult WAssetTableWriter::WriteAssetTables(const WPlatformProfile* pAssetProfile, bool bForce)
 {
   CURATOR_PROFILE("WriteAssetTables");
-  EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
-  EZ_ASSERT_DEV(pAssetProfile != nullptr, "WriteAssetTables: pAssetProfile must be set.");
+  W_LOG_BLOCK("WAssetCurator::WriteAssetTables");
+  W_ASSERT_DEV(pAssetProfile != nullptr, "WriteAssetTables: pAssetProfile must be set.");
 
-  ezResult res = EZ_SUCCESS;
+  WResult res = W_SUCCESS;
   bool bAnyChanged = false;
   {
     // We need to lock the curator first because that lock is hold when AssetCuratorEvents are called.
-    auto lock = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-    EZ_LOCK(m_AssetTableMutex);
+    auto lock = WAssetCurator::GetSingleton()->GetKnownSubAssets();
+    W_LOCK(m_AssetTableMutex);
 
-    ezStringBuilder sd;
+    WStringBuilder sd;
 
-    for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
     {
-      ezAssetTable* table = GetAssetTable(i, pAssetProfile);
+      WAssetTable* table = GetAssetTable(i, pAssetProfile);
       if (!table)
       {
-        ezLog::Error("WriteAssetTables: The data dir '{}' with path '{}' could not be resolved", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
-        res = EZ_FAILURE;
+        WLog::Error("WriteAssetTables: The data dir '{}' with path '{}' could not be resolved", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
+        res = W_FAILURE;
         continue;
       }
 
@@ -278,57 +278,57 @@ ezResult ezAssetTableWriter::WriteAssetTables(const ezPlatformProfile* pAssetPro
         continue;
 
       if (table->WriteAssetTable().Failed())
-        res = EZ_FAILURE;
+        res = W_FAILURE;
     }
   }
 
-  if (bAnyChanged && pAssetProfile == ezAssetCurator::GetSingleton()->GetActiveAssetProfile())
+  if (bAnyChanged && pAssetProfile == WAssetCurator::GetSingleton()->GetActiveAssetProfile())
   {
-    ezSimpleConfigMsgToEngine msg;
+    WSimpleConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ReloadAssetLUT";
     msg.m_sPayload = pAssetProfile->GetConfigName();
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  m_NextTableFlush = ezTime::Now() + ezTime::MakeFromSeconds(1.5);
+  m_NextTableFlush = WTime::Now() + WTime::MakeFromSeconds(1.5);
   return res;
 }
 
-void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
+void WAssetTableWriter::AssetCuratorEvents(const WAssetCuratorEvent& e)
 {
-  EZ_LOCK(m_AssetTableMutex);
+  W_LOCK(m_AssetTableMutex);
 
-  const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
+  const WPlatformProfile* pProfile = WAssetCurator::GetSingleton()->GetActiveAssetProfile();
   switch (e.m_Type)
   {
     // #TODO Are asset table entries static or do they change with the asset?
-    /*case ezAssetCuratorEvent::Type::AssetUpdated:
-      if (e.m_pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::Unknown)
+    /*case WAssetCuratorEvent::Type::AssetUpdated:
+      if (e.m_pInfo->m_pAssetInfo->m_TransformState == WAssetInfo::TransformState::Unknown)
         return;
       [[fallthrough]];*/
-    case ezAssetCuratorEvent::Type::AssetAdded:
-    case ezAssetCuratorEvent::Type::AssetMoved:
+    case WAssetCuratorEvent::Type::AssetAdded:
+    case WAssetCuratorEvent::Type::AssetMoved:
     {
-      ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
-      if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
+      WUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
+      if (WAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
       {
         pTable->Update(*e.m_pInfo);
         m_bTablesDirty = true;
       }
     }
     break;
-    case ezAssetCuratorEvent::Type::AssetRemoved:
+    case WAssetCuratorEvent::Type::AssetRemoved:
     {
-      ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
-      if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
+      WUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
+      if (WAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
       {
         pTable->Remove(*e.m_pInfo);
         m_bTablesDirty = true;
       }
     }
     break;
-    case ezAssetCuratorEvent::Type::AssetListReset:
-      for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+    case WAssetCuratorEvent::Type::AssetListReset:
+      for (WUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
       {
         for (auto it : m_DataDirToAssetTables[i])
         {
@@ -337,10 +337,10 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
       }
       m_bTablesDirty = true;
       break;
-    case ezAssetCuratorEvent::Type::ActivePlatformChanged:
+    case WAssetCuratorEvent::Type::ActivePlatformChanged:
       if (WriteAssetTables(pProfile, false).Failed())
       {
-        ezLog::Error("Failed to write asset tables");
+        WLog::Error("Failed to write asset tables");
       }
       break;
     default:
@@ -348,7 +348,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
   }
 }
 
-ezAssetTable* ezAssetTableWriter::GetAssetTable(ezUInt32 uiDataDirIndex, const ezPlatformProfile* pAssetProfile)
+WAssetTable* WAssetTableWriter::GetAssetTable(WUInt32 uiDataDirIndex, const WPlatformProfile* pAssetProfile)
 {
   auto it = m_DataDirToAssetTables[uiDataDirIndex].Find(pAssetProfile);
   if (!it.IsValid())
@@ -356,11 +356,11 @@ ezAssetTable* ezAssetTableWriter::GetAssetTable(ezUInt32 uiDataDirIndex, const e
     if (m_DataDirRoots[uiDataDirIndex].IsEmpty())
       return nullptr;
 
-    ezUniquePtr<ezAssetTable> table = EZ_DEFAULT_NEW(ezAssetTable);
+    WUniquePtr<WAssetTable> table = W_DEFAULT_NEW(WAssetTable);
     table->m_pProfile = pAssetProfile;
     table->m_sDataDir = m_DataDirRoots[uiDataDirIndex];
 
-    ezStringBuilder sFinalPath(m_DataDirRoots[uiDataDirIndex], "/AssetCache/", pAssetProfile->GetConfigName(), ".ezAidlt");
+    WStringBuilder sFinalPath(m_DataDirRoots[uiDataDirIndex], "/AssetCache/", pAssetProfile->GetConfigName(), ".WAidlt");
     sFinalPath.MakeCleanPath();
     table->m_sTargetFile = sFinalPath;
 
@@ -369,7 +369,7 @@ ezAssetTable* ezAssetTableWriter::GetAssetTable(ezUInt32 uiDataDirIndex, const e
   return it.Value().Borrow();
 }
 
-ezUInt32 ezAssetTableWriter::FindDataDir(const ezSubAsset& asset)
+WUInt32 WAssetTableWriter::FindDataDir(const WSubAsset& asset)
 {
   return asset.m_pAssetInfo->m_Path.GetDataDirIndex();
 }

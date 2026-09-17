@@ -7,7 +7,7 @@
 #include <QBoxLayout>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtExposedBoneWidget::ezQtExposedBoneWidget()
+WQtExposedBoneWidget::WQtExposedBoneWidget()
 {
   m_pRotWidget[0] = nullptr;
   m_pRotWidget[1] = nullptr;
@@ -19,11 +19,11 @@ ezQtExposedBoneWidget::ezQtExposedBoneWidget()
 
   QSizePolicy policy = sizePolicy();
 
-  for (ezInt32 c = 0; c < 3; ++c)
+  for (WInt32 c = 0; c < 3; ++c)
   {
-    m_pRotWidget[c] = new ezQtDoubleSpinBox(this);
-    m_pRotWidget[c]->setMinimum(-ezMath::Infinity<double>());
-    m_pRotWidget[c]->setMaximum(ezMath::Infinity<double>());
+    m_pRotWidget[c] = new WQtDoubleSpinBox(this);
+    m_pRotWidget[c]->setMinimum(-WMath::Infinity<double>());
+    m_pRotWidget[c]->setMaximum(WMath::Infinity<double>());
     m_pRotWidget[c]->setSingleStep(1.0);
     m_pRotWidget[c]->setAccelerated(true);
     m_pRotWidget[c]->setDisplaySuffix("\xC2\xB0");
@@ -38,68 +38,68 @@ ezQtExposedBoneWidget::ezQtExposedBoneWidget()
   }
 }
 
-void ezQtExposedBoneWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtExposedBoneWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  ezQtStandardPropertyWidget::SetSelection(items);
-  EZ_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<ezExposedBone>(), "Selection does not match ezExposedBone.");
+  WQtStandardPropertyWidget::SetSelection(items);
+  W_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<WExposedBone>(), "Selection does not match WExposedBone.");
 }
 
-void ezQtExposedBoneWidget::onBeginTemporary()
+void WQtExposedBoneWidget::onBeginTemporary()
 {
   if (!m_bTemporaryCommand)
   {
-    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    Broadcast(WPropertyEvent::Type::BeginTemporary);
     m_bTemporaryCommand = true;
   }
 }
 
-void ezQtExposedBoneWidget::onEndTemporary()
+void WQtExposedBoneWidget::onEndTemporary()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezPropertyEvent::Type::EndTemporary);
+    Broadcast(WPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
 
-void ezQtExposedBoneWidget::SlotValueChanged()
+void WQtExposedBoneWidget::SlotValueChanged()
 {
   onBeginTemporary();
 
-  auto obj = m_OldValue.Get<ezTypedObject>();
-  ezExposedBone* pCopy = reinterpret_cast<ezExposedBone*>(ezReflectionSerializer::Clone(obj.m_pObject, obj.m_pType));
+  auto obj = m_OldValue.Get<WTypedObject>();
+  WExposedBone* pCopy = reinterpret_cast<WExposedBone*>(WReflectionSerializer::Clone(obj.m_pObject, obj.m_pType));
 
   {
-    ezAngle x = ezAngle::MakeFromDegree(m_pRotWidget[0]->value());
-    ezAngle y = ezAngle::MakeFromDegree(m_pRotWidget[1]->value());
-    ezAngle z = ezAngle::MakeFromDegree(m_pRotWidget[2]->value());
+    WAngle x = WAngle::MakeFromDegree(m_pRotWidget[0]->value());
+    WAngle y = WAngle::MakeFromDegree(m_pRotWidget[1]->value());
+    WAngle z = WAngle::MakeFromDegree(m_pRotWidget[2]->value());
 
-    pCopy->m_Transform.m_qRotation = ezQuat::MakeFromEulerAngles(x, y, z);
+    pCopy->m_Transform.m_qRotation = WQuat::MakeFromEulerAngles(x, y, z);
   }
 
-  ezVariant newValue;
+  WVariant newValue;
   newValue.MoveTypedObject(pCopy, obj.m_pType);
 
   BroadcastValueChanged(newValue);
 }
 
-void ezQtExposedBoneWidget::OnInit()
+void WQtExposedBoneWidget::OnInit()
 {
 }
 
-void ezQtExposedBoneWidget::InternalSetValue(const ezVariant& value)
+void WQtExposedBoneWidget::InternalSetValue(const WVariant& value)
 {
-  if (value.GetReflectedType() != ezGetStaticRTTI<ezExposedBone>())
+  if (value.GetReflectedType() != WGetStaticRTTI<WExposedBone>())
     return;
 
-  const ezExposedBone* pBone = reinterpret_cast<const ezExposedBone*>(value.GetData());
+  const WExposedBone* pBone = reinterpret_cast<const WExposedBone*>(value.GetData());
 
-  ezQtScopedBlockSignals b0(m_pRotWidget[0]);
-  ezQtScopedBlockSignals b1(m_pRotWidget[1]);
-  ezQtScopedBlockSignals b2(m_pRotWidget[2]);
+  WQtScopedBlockSignals b0(m_pRotWidget[0]);
+  WQtScopedBlockSignals b1(m_pRotWidget[1]);
+  WQtScopedBlockSignals b2(m_pRotWidget[2]);
 
   if (value.IsValid())
   {
-    ezAngle x, y, z;
+    WAngle x, y, z;
     pBone->m_Transform.m_qRotation.GetAsEulerAngles(x, y, z);
 
     m_pRotWidget[0]->setValue(x.GetDegree());

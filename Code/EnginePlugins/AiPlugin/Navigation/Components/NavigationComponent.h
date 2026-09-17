@@ -7,13 +7,13 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 
-EZ_DECLARE_FLAGS(ezUInt32, ezAiNavigationDebugFlags, PrintState, VisPathCorridor, VisPathLine, VisTarget);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationDebugFlags);
+W_DECLARE_FLAGS(WUInt32, WAiNavigationDebugFlags, PrintState, VisPathCorridor, VisPathLine, VisTarget);
+W_DECLARE_REFLECTABLE_TYPE(W_AIPLUGIN_DLL, WAiNavigationDebugFlags);
 
 /// Describes the different states a navigating object may be in.
-struct ezAiNavigationComponentState
+struct WAiNavigationComponentState
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -28,9 +28,9 @@ struct ezAiNavigationComponentState
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationComponentState);
+W_DECLARE_REFLECTABLE_TYPE(W_AIPLUGIN_DLL, WAiNavigationComponentState);
 
-using ezAiNavigationComponentManager = ezComponentManagerSimple<class ezAiNavigationComponent, ezComponentUpdateType::WhenSimulating>;
+using WAiNavigationComponentManager = WComponentManagerSimple<class WAiNavigationComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Adds functionality to navigate on a navmesh.
 ///
@@ -44,59 +44,59 @@ using ezAiNavigationComponentManager = ezComponentManagerSimple<class ezAiNaviga
 ///   * There is no avoidance of dynamic obstacles (other creatures) whatsoever. They will just pass through each other.
 ///   * It is not designed to be pushed around dynamically. There is no physics character controller use to prevent it from being pushed into walls.
 ///   * If it somehow leaves the navmesh area, it just fails, there is no recovery mechanism.
-class EZ_AIPLUGIN_DLL ezAiNavigationComponent : public ezComponent
+class W_AIPLUGIN_DLL WAiNavigationComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAiNavigationComponent, ezComponent, ezAiNavigationComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAiNavigationComponent, WComponent, WAiNavigationComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  //  ezAiNavMeshPathTestComponent
+  //  WAiNavMeshPathTestComponent
 
 public:
-  ezAiNavigationComponent();
-  ~ezAiNavigationComponent();
+  WAiNavigationComponent();
+  ~WAiNavigationComponent();
 
   /// Sets the target position to reach.
   ///
   /// If bAllowPartialPath is false, and a complete path can't be found (too far or simply not reachable),
   /// the 'Failed' state is used.
   /// Otherwise the 'Moving' state indicates that the character is navigating.
-  void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath); ///< [ scriptable ]
+  void SetDestination(const WVec3& vGlobalPos, bool bAllowPartialPath); ///< [ scriptable ]
 
   /// Can be called at any time to stop moving.
   void CancelNavigation();                    ///< [ scriptable ]
 
   void StopWalking(float fWithinDistance);    ///< [ scriptable ]
 
-  void TurnTowards(const ezVec2& vGlobalPos); ///< [ scriptable ]
+  void TurnTowards(const WVec2& vGlobalPos); ///< [ scriptable ]
 
   /// How much the object would have to turn, to look at the position.
-  ezAngle GetTurnAngleTowards(const ezVec2& vGlobalPos) const; ///< [ scriptable ]
+  WAngle GetTurnAngleTowards(const WVec2& vGlobalPos) const; ///< [ scriptable ]
 
-  ezHashedString m_sNavmeshConfig;                             ///< [ property ] Which navmesh to walk on.
-  ezHashedString m_sPathSearchConfig;                          ///< [ property ] What constraints there are for walking on the navmesh.
+  WHashedString m_sNavmeshConfig;                             ///< [ property ] Which navmesh to walk on.
+  WHashedString m_sPathSearchConfig;                          ///< [ property ] What constraints there are for walking on the navmesh.
 
   float m_fReachedDistance = 1.0f;                             ///< [ property ] The distance at which the destination is considered to be reached.
   float m_fSpeed = 5.0f;                                       ///< [ property ] The target speed to reach.
   float m_fFootRadius = 0.15f;                                 ///< [ property ] The footprint to determine whether the character is standing on solid ground.
-  ezUInt32 m_uiCollisionLayer = 0;                             ///< [ property ] The physics collision layer for determining what ground one can stand on.
+  WUInt32 m_uiCollisionLayer = 0;                             ///< [ property ] The physics collision layer for determining what ground one can stand on.
   float m_fFallHeight = 0.7f;                                  ///< [ property ] If there is more distance below the character than this, it is considered to be falling.
   float m_fAcceleration = 3.0f;                                ///< [ property ] How fast to gain speed.
   float m_fDecceleration = 8.0f;                               ///< [ property ] How fast to brake.
 
-  ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags;           ///< [ property ] What aspects of the navigation to visualize.
+  WBitflags<WAiNavigationDebugFlags> m_DebugFlags;           ///< [ property ] What aspects of the navigation to visualize.
 
   /// Returns the current navigation state.
-  ezEnum<ezAiNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
+  WEnum<WAiNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
 
 
   /// Checks whether the area around the given point is loaded and thus queries would succeed.
@@ -104,38 +104,38 @@ public:
   /// If the area is not fully loaded, the function returns false.
   /// In this case, queries in that area will probably fail and should be delayed to a later point,
   /// since the navmesh first has to be generated.
-  bool EnsureNavMeshSectorAvailable(const ezVec3& vCenter, float fRadius); ///< [ scriptable ]
+  bool EnsureNavMeshSectorAvailable(const WVec3& vCenter, float fRadius); ///< [ scriptable ]
 
   /// Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
   ///
   /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
-  bool FindRandomPointAroundCircle(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint); ///< [ scriptable ]
+  bool FindRandomPointAroundCircle(const WVec3& vCenter, float fRadius, WVec3& out_vPoint); ///< [ scriptable ]
 
-  bool RaycastNavMesh(const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezVec3& out_vPoint, float& out_fDistance);
+  bool RaycastNavMesh(const WVec3& vStart, const WVec3& vDirection, float fDistance, WVec3& out_vPoint, float& out_fDistance);
 
-  ezVec3 GetSteeringPosition() const; ///< [ scriptable ]
-  ezQuat GetSteeringRotation() const; ///< [ scriptable ]
+  WVec3 GetSteeringPosition() const; ///< [ scriptable ]
+  WQuat GetSteeringRotation() const; ///< [ scriptable ]
 
 protected:
   void Update();
-  void Steer(ezTransform& transform, float tDiff);
-  void Turn(ezTransform& transform, float tDiff);
-  void PlaceOnGround(ezTransform& transform, float tDiff);
+  void Steer(WTransform& transform, float tDiff);
+  void Turn(WTransform& transform, float tDiff);
+  void PlaceOnGround(WTransform& transform, float tDiff);
   bool PrepareQueryObject();
 
-  ezAiNavmeshQuery m_Query;
-  ezEnum<ezAiNavigationComponentState> m_State;
-  ezAiSteering m_Steering;
-  ezAiNavigation m_Navigation;
+  WAiNavmeshQuery m_Query;
+  WEnum<WAiNavigationComponentState> m_State;
+  WAiSteering m_Steering;
+  WAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
   bool m_bApplySteering = true;
-  ezUInt8 m_uiSkipNextFrames = 0;
-  float m_fStopWalkDistance = ezMath::HighValue<float>();
-  ezVec2 m_vTurnTowardsPos = ezVec2::MakeZero();
+  WUInt8 m_uiSkipNextFrames = 0;
+  float m_fStopWalkDistance = WMath::HighValue<float>();
+  WVec2 m_vTurnTowardsPos = WVec2::MakeZero();
 
-  ezVec3 m_vSteerPosition;
-  ezQuat m_qSteerRotation;
+  WVec3 m_vSteerPosition;
+  WQuat m_qSteerRotation;
 
 private:
   const char* DummyGetter() const { return nullptr; }

@@ -16,13 +16,13 @@
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/Variant.h>
 
-static ezAsAllocatorType* g_pAsAllocator = nullptr;
-static void OnThreadEvent(const ezThreadEvent& e);
+static WAsAllocatorType* g_pAsAllocator = nullptr;
+static void OnThreadEvent(const WThreadEvent& e);
 
-EZ_IMPLEMENT_SINGLETON(ezAngelScriptEngineSingleton);
+W_IMPLEMENT_SINGLETON(WAngelScriptEngineSingleton);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(AngelScriptPlugin, AngelScriptEngineSingleton)
+W_BEGIN_SUBSYSTEM_DECLARATION(AngelScriptPlugin, AngelScriptEngineSingleton)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation"
@@ -32,168 +32,168 @@ ON_CORESYSTEMS_SHUTDOWN
 {
   if (g_pAsAllocator)
   {
-    ezThread::s_ThreadEvents.RemoveEventHandler(OnThreadEvent);
-    EZ_DEFAULT_DELETE(g_pAsAllocator);
+    WThread::s_ThreadEvents.RemoveEventHandler(OnThreadEvent);
+    W_DEFAULT_DELETE(g_pAsAllocator);
   }
 }
 
 ON_HIGHLEVELSYSTEMS_STARTUP
 {
-  g_pAsAllocator = EZ_DEFAULT_NEW(ezAsAllocatorType, "AngelScript", ezFoundation::GetDefaultAllocator());
-  ezThread::s_ThreadEvents.AddEventHandler(OnThreadEvent);
-  EZ_DEFAULT_NEW(ezAngelScriptEngineSingleton);
+  g_pAsAllocator = W_DEFAULT_NEW(WAsAllocatorType, "AngelScript", WFoundation::GetDefaultAllocator());
+  WThread::s_ThreadEvents.AddEventHandler(OnThreadEvent);
+  W_DEFAULT_NEW(WAngelScriptEngineSingleton);
 }
 
 ON_HIGHLEVELSYSTEMS_SHUTDOWN
 {
-  ezAngelScriptEngineSingleton* pDummy = ezAngelScriptEngineSingleton::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
+  WAngelScriptEngineSingleton* pDummy = WAngelScriptEngineSingleton::GetSingleton();
+  W_DEFAULT_DELETE(pDummy);
 }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
 
-static void* ezAsMalloc(size_t uiSize)
+static void* WAsMalloc(size_t uiSize)
 {
   return g_pAsAllocator->Allocate(uiSize, 8);
 }
 
-static void ezAsFree(void* pPtr)
+static void WAsFree(void* pPtr)
 {
   g_pAsAllocator->Deallocate(pPtr);
 }
 
-static void AsThrow(ezStringView sMsg)
+static void AsThrow(WStringView sMsg)
 {
   if (asIScriptContext* ctx = asGetActiveContext())
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     ctx->SetException(sMsg.GetData(tmp), false);
   }
 }
 
-static void OnThreadEvent(const ezThreadEvent& e)
+static void OnThreadEvent(const WThreadEvent& e)
 {
-  if (e.m_Type == ezThreadEvent::Type::ClearThreadLocals)
+  if (e.m_Type == WThreadEvent::Type::ClearThreadLocals)
   {
     asThreadCleanup();
   }
 }
 
-ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
+WAngelScriptEngineSingleton::WAngelScriptEngineSingleton()
   : m_SingletonRegistrar(this)
 {
-  EZ_LOG_BLOCK("ezAngelScriptEngineSingleton");
+  W_LOG_BLOCK("WAngelScriptEngineSingleton");
 
-  asSetGlobalMemoryFunctions(ezAsMalloc, ezAsFree);
+  asSetGlobalMemoryFunctions(WAsMalloc, WAsFree);
 
   m_pEngine = asCreateScriptEngine();
   // m_pEngine->SetEngineProperty(asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE, 1); // means we can't copy messages during PostMessage
   m_pEngine->SetEngineProperty(asEP_REQUIRE_ENUM_SCOPE, 1);
   m_pEngine->SetEngineProperty(asEP_DISALLOW_GLOBAL_VARS, 1);
 
-  AS_CHECK(m_pEngine->SetMessageCallback(asMETHOD(ezAngelScriptEngineSingleton, CompilerMessageCallback), this, asCALL_THISCALL));
-  AS_CHECK(m_pEngine->SetTranslateAppExceptionCallback(asMETHOD(ezAngelScriptEngineSingleton, ExceptionCallback), this, asCALL_THISCALL));
+  AS_CHECK(m_pEngine->SetMessageCallback(asMETHOD(WAngelScriptEngineSingleton, CompilerMessageCallback), this, asCALL_THISCALL));
+  AS_CHECK(m_pEngine->SetTranslateAppExceptionCallback(asMETHOD(WAngelScriptEngineSingleton, ExceptionCallback), this, asCALL_THISCALL));
 
-  m_pStringFactory = EZ_DEFAULT_NEW(ezAsStringFactory);
+  m_pStringFactory = W_DEFAULT_NEW(WAsStringFactory);
 
-  AS_CHECK(m_pEngine->RegisterInterface("ezAngelScriptMessage"));
+  AS_CHECK(m_pEngine->RegisterInterface("WAngelScriptMessage"));
 
   RegisterScriptArray(m_pEngine, true);
   // RegisterScriptDictionary(m_pEngine);
 
   RegisterStandardTypes();
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("void throw(ezStringView)", asFUNCTION(AsThrow), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("void throw(WStringView)", asFUNCTION(AsThrow), asCALL_CDECL));
 
-  m_pEngine->RegisterStringFactory("ezStringView", m_pStringFactory);
+  m_pEngine->RegisterStringFactory("WStringView", m_pStringFactory);
 
   Register_ReflectedTypes();
   Register_GlobalReflectedFunctions();
 
-  Register_ezAngelScriptClass();
+  Register_WAngelScriptClass();
 
-  AddForbiddenType("ezStringView");
-  AddForbiddenType("ezStringBuilder");
+  AddForbiddenType("WStringView");
+  AddForbiddenType("WStringBuilder");
 }
 
-ezAngelScriptEngineSingleton::~ezAngelScriptEngineSingleton()
+WAngelScriptEngineSingleton::~WAngelScriptEngineSingleton()
 {
   m_pEngine->ShutDownAndRelease();
 
   if (m_pStringFactory)
   {
-    ezAsStringFactory* pFactor = (ezAsStringFactory*)m_pStringFactory;
-    EZ_DEFAULT_DELETE(pFactor);
+    WAsStringFactory* pFactor = (WAsStringFactory*)m_pStringFactory;
+    W_DEFAULT_DELETE(pFactor);
   }
 }
 
-void ezAngelScriptEngineSingleton::AddForbiddenType(const char* szTypeName)
+void WAngelScriptEngineSingleton::AddForbiddenType(const char* szTypeName)
 {
   asITypeInfo* pTypeInfo = m_pEngine->GetTypeInfoByName(szTypeName);
-  EZ_ASSERT_DEV(pTypeInfo != nullptr, "Type '{}' not found", szTypeName);
+  W_ASSERT_DEV(pTypeInfo != nullptr, "Type '{}' not found", szTypeName);
 
   m_ForbiddenTypes.PushBack(pTypeInfo);
 }
 
-bool ezAngelScriptEngineSingleton::IsTypeForbidden(const asITypeInfo* pType) const
+bool WAngelScriptEngineSingleton::IsTypeForbidden(const asITypeInfo* pType) const
 {
   return m_ForbiddenTypes.Contains(pType);
 }
 
-void ezAngelScriptEngineSingleton::ExceptionCallback(asIScriptContext* pContext)
+void WAngelScriptEngineSingleton::ExceptionCallback(asIScriptContext* pContext)
 {
-  ezLog::Error("AngelScript: App-Exception: {}", pContext->GetExceptionString());
+  WLog::Error("AngelScript: App-Exception: {}", pContext->GetExceptionString());
 }
 
-void ezAngelScriptEngineSingleton::RegisterStandardTypes()
+void WAngelScriptEngineSingleton::RegisterStandardTypes()
 {
-  EZ_LOG_BLOCK("AS::RegisterStandardTypes");
+  W_LOG_BLOCK("AS::RegisterStandardTypes");
 
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt8", "int8"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt16", "int16"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt32", "int32"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt64", "int64"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt8", "uint8"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt16", "uint16"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt32", "uint32"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt64", "uint64"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WInt8", "int8"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WInt16", "int16"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WInt32", "int32"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WInt64", "int64"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WUInt8", "uint8"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WUInt16", "uint16"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WUInt32", "uint32"));
+  AS_CHECK(m_pEngine->RegisterTypedef("WUInt64", "uint64"));
 
-  AS_CHECK(m_pEngine->RegisterObjectType("ezRTTI", 0, asOBJ_REF | asOBJ_NOCOUNT));
+  AS_CHECK(m_pEngine->RegisterObjectType("WRTTI", 0, asOBJ_REF | asOBJ_NOCOUNT));
 
-  // TODO AngelScript: ezResult ?
+  // TODO AngelScript: WResult ?
 
-  RegisterPodValueType<ezVec2>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezVec3>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezVec4>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezAngle>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezQuat>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezMat3>(asOBJ_APP_CLASS_ALLFLOATS);
-  RegisterPodValueType<ezMat4>(asOBJ_APP_CLASS_ALLFLOATS);
-  RegisterPodValueType<ezTransform>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezTime>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_ALIGN8);
-  RegisterPodValueType<ezColor>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezColorGammaUB>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezStringView>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezGameObjectHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezComponentHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezTempHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
-  RegisterPodValueType<ezHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WVec2>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WVec3>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WVec4>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WAngle>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WQuat>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WMat3>(asOBJ_APP_CLASS_ALLFLOATS);
+  RegisterPodValueType<WMat4>(asOBJ_APP_CLASS_ALLFLOATS);
+  RegisterPodValueType<WTransform>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WTime>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_ALIGN8);
+  RegisterPodValueType<WColor>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WColorGammaUB>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WStringView>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WGameObjectHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WComponentHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WTempHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<WHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
 
-  RegisterNonPodValueType<ezString>();
-  RegisterNonPodValueType<ezStringBuilder>();
+  RegisterNonPodValueType<WString>();
+  RegisterNonPodValueType<WStringBuilder>();
 
-  RegisterRefType<ezGameObject>();
-  RegisterRefType<ezComponent>();
-  RegisterRefType<ezWorld>();
-  RegisterRefType<ezMessage>();
-  RegisterRefType<ezClock>();
+  RegisterRefType<WGameObject>();
+  RegisterRefType<WComponent>();
+  RegisterRefType<WWorld>();
+  RegisterRefType<WMessage>();
+  RegisterRefType<WClock>();
 
   {
-    AS_CHECK(m_pEngine->RegisterObjectType("ezRandom", 0, asOBJ_REF | asOBJ_NOCOUNT));
-    AddForbiddenType("ezRandom");
+    AS_CHECK(m_pEngine->RegisterObjectType("WRandom", 0, asOBJ_REF | asOBJ_NOCOUNT));
+    AddForbiddenType("WRandom");
   }
 
   Register_RTTI();
@@ -221,33 +221,33 @@ void ezAngelScriptEngineSingleton::RegisterStandardTypes()
   Register_Spatial();
 
   // TODO AngelScript: register these standard types
-  // ezBoundingBox
-  // ezBoundingSphere
-  // ezPlane
+  // WBoundingBox
+  // WBoundingSphere
+  // WPlane
 }
 
 
 
-void ezAngelScriptEngineSingleton::Register_ReflectedTypes()
+void WAngelScriptEngineSingleton::Register_ReflectedTypes()
 {
-  EZ_LOG_BLOCK("Register_ReflectedTypes");
+  W_LOG_BLOCK("Register_ReflectedTypes");
 
-  Register_ReflectedType(ezGetStaticRTTI<ezComponent>(), false);
-  Register_ReflectedType(ezGetStaticRTTI<ezMessage>(), true);
+  Register_ReflectedType(WGetStaticRTTI<WComponent>(), false);
+  Register_ReflectedType(WGetStaticRTTI<WMessage>(), true);
 
   Register_ExtraComponentFuncs();
 }
 
-void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
+void WAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
 {
-  ezRTTI::ForEachDerivedType(ezGetStaticRTTI<ezComponent>(), [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType(WGetStaticRTTI<WComponent>(), [&](const WRTTI* pRtti)
     {
-      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
+      if (pRtti->GetAttributeByType<WHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<WExcludeFromScript>() != nullptr)
         return;
 
       intptr_t flags = 0;
 
-      if (pRtti != ezGetStaticRTTI<ezComponent>())
+      if (pRtti != WGetStaticRTTI<WComponent>())
       {
         // derived type
         flags = 0x01;
@@ -257,24 +257,24 @@ void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
 
       int funcID;
 
-      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg)", asMETHODPR(ezComponent, SendMessage, (ezMessage&), bool), asCALL_THISCALL);
+      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(WMessage& inout ref_msg)", asMETHODPR(WComponent, SendMessage, (WMessage&), bool), asCALL_THISCALL);
       AS_CHECK(funcID);
-      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
 
-      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg) const", asMETHODPR(ezComponent, SendMessage, (ezMessage&) const, bool), asCALL_THISCALL);
+      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(WMessage& inout ref_msg) const", asMETHODPR(WComponent, SendMessage, (WMessage&) const, bool), asCALL_THISCALL);
       AS_CHECK(funcID);
-      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
 
-      funcID = m_pEngine->RegisterObjectMethod(compName, "void PostMessage(const ezMessage& in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const", asMETHOD(ezComponent, PostMessage), asCALL_THISCALL);
+      funcID = m_pEngine->RegisterObjectMethod(compName, "void PostMessage(const WMessage& in msg, WTime delay = WTime::MakeZero(), WObjectMsgQueueType queueType = WObjectMsgQueueType::NextFrame) const", asMETHOD(WComponent, PostMessage), asCALL_THISCALL);
       AS_CHECK(funcID);
-      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
 
-      funcID = m_pEngine->RegisterObjectMethod(compName, "ezComponentHandle GetHandle() const", asMETHOD(ezComponent, GetHandle), asCALL_THISCALL);
+      funcID = m_pEngine->RegisterObjectMethod(compName, "WComponentHandle GetHandle() const", asMETHOD(WComponent, GetHandle), asCALL_THISCALL);
       AS_CHECK(funcID);
-      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
       //
     });
 }
 
 
-EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsEngineSingleton);
+W_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsEngineSingleton);

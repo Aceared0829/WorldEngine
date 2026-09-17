@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef EZ_INCLUDING_BASICS_H
+#ifndef W_INCLUDING_BASICS_H
 #  error "Please don't include TypeTraits.h directly, but instead include Foundation/Basics.h"
 #endif
 
@@ -8,7 +8,7 @@
 
 /// Compile-time type classification system for optimizing container operations.
 ///
-/// The ezEngine type trait system classifies types into three categories to enable
+/// The WorldEngine type trait system classifies types into three categories to enable
 /// different optimization strategies for containers and memory operations:
 ///
 /// - Class (0): Standard types requiring constructor/destructor calls and careful copying
@@ -18,83 +18,83 @@
 /// This classification allows containers to choose the most efficient implementation
 /// for construction, destruction, copying, and moving operations.
 template <int v>
-struct ezTraitInt
+struct WTraitInt
 {
   static constexpr int value = v;
 };
 
-using ezTypeIsMemRelocatable = ezTraitInt<2>; ///< Types that can be moved with memcpy
-using ezTypeIsPod = ezTraitInt<1>;            ///< Plain Old Data types
-using ezTypeIsClass = ezTraitInt<0>;          ///< Standard class types
+using WTypeIsMemRelocatable = WTraitInt<2>; ///< Types that can be moved with memcpy
+using WTypeIsPod = WTraitInt<1>;            ///< Plain Old Data types
+using WTypeIsClass = WTraitInt<0>;          ///< Standard class types
 
-using ezCompileTimeTrueType = char;
-using ezCompileTimeFalseType = int;
+using WCompileTimeTrueType = char;
+using WCompileTimeFalseType = int;
 
 /// Converts a bool condition to CompileTimeTrue/FalseType
 template <bool cond>
-struct ezConditionToCompileTimeBool
+struct WConditionToCompileTimeBool
 {
-  using type = ezCompileTimeFalseType;
+  using type = WCompileTimeFalseType;
 };
 
 template <>
-struct ezConditionToCompileTimeBool<true>
+struct WConditionToCompileTimeBool<true>
 {
-  using type = ezCompileTimeTrueType;
+  using type = WCompileTimeTrueType;
 };
 
 /// Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
 template <typename T>
-ezCompileTimeFalseType operator%(const T&, const ezTypeIsPod&);
+WCompileTimeFalseType operator%(const T&, const WTypeIsPod&);
 
 /// If there is an % operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default % operator return false.
 template <typename T>
-struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsPod*)0)) == sizeof(ezCompileTimeTrueType)) ? 1 : 0>
+struct WIsPodType : public WTraitInt<(sizeof(*((T*)0) % *((const WTypeIsPod*)0)) == sizeof(WCompileTimeTrueType)) ? 1 : 0>
 {
 };
 
 /// Pointers are POD types.
 template <typename T>
-struct ezIsPodType<T*> : public ezTypeIsPod
+struct WIsPodType<T*> : public WTypeIsPod
 {
 };
 
 /// arrays are POD types
 template <typename T, int N>
-struct ezIsPodType<T[N]> : public ezTypeIsPod
+struct WIsPodType<T[N]> : public WTypeIsPod
 {
 };
 
-/// Default % operator for T and ezTypeIsMemRelocatable which returns a CompileTimeFalseType.
+/// Default % operator for T and WTypeIsMemRelocatable which returns a CompileTimeFalseType.
 template <typename T>
-ezCompileTimeFalseType operator%(const T&, const ezTypeIsMemRelocatable&);
+WCompileTimeFalseType operator%(const T&, const WTypeIsMemRelocatable&);
 
-/// If there is an % operator which takes a ezTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator
+/// If there is an % operator which takes a WTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator
 /// return false.
 template <typename T>
-struct ezGetTypeClass
-  : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsMemRelocatable*)0)) == sizeof(ezCompileTimeTrueType)) ? 2 : ezIsPodType<T>::value>
+struct WGetTypeClass
+  : public WTraitInt<(sizeof(*((T*)0) % *((const WTypeIsMemRelocatable*)0)) == sizeof(WCompileTimeTrueType)) ? 2 : WIsPodType<T>::value>
 {
 };
 
 /// Static Conversion Test
 template <typename From, typename To>
-struct ezConversionTest
+struct WConversionTest
 {
-  static ezCompileTimeTrueType Test(const To&);
-  static ezCompileTimeFalseType Test(...);
+  static WCompileTimeTrueType Test(const To&);
+  static WCompileTimeFalseType Test(...);
   static From MakeFrom();
 
   enum
   {
-    exists = sizeof(Test(MakeFrom())) == sizeof(ezCompileTimeTrueType),
+    exists = sizeof(Test(MakeFrom())) == sizeof(WCompileTimeTrueType),
     sameType = 0
   };
 };
 
 /// Specialization for above Type.
 template <typename T>
-struct ezConversionTest<T, T>
+struct WConversionTest<T, T>
 {
   enum
   {
@@ -105,7 +105,7 @@ struct ezConversionTest<T, T>
 
 // remapping of the 0 (not special) type to 3
 template <typename T1, typename T2>
-struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value == 0) ? 0 : EZ_COMPILE_TIME_MAX(T1::value, T2::value)>
+struct WGetStrongestTypeClass : public WTraitInt<(T1::value == 0 || T2::value == 0) ? 0 : W_COMPILE_TIME_MAX(T1::value, T2::value)>
 {
 };
 
@@ -114,29 +114,29 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 
 /// Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#  define EZ_DECLARE_POD_TYPE()
+#  define W_DECLARE_POD_TYPE()
 
 /// Embed this into a class to mark it as memory relocatable.
 /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and
 /// copy. A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur;
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
 /// are met, a type is memory relocatable.
-#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
+#  define W_DECLARE_MEM_RELOCATABLE_TYPE()
 
 /// mark a class as memory relocatable if the passed type is relocatable or pod.
-#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)
+#  define W_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)
 
 // embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
-#  define EZ_DETECT_TYPE_CLASS(...)
+#  define W_DETECT_TYPE_CLASS(...)
 
 #else
 
 /// Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#  define EZ_DECLARE_POD_TYPE()                               \
-    ezCompileTimeTrueType operator%(const ezTypeIsPod&) const \
+#  define W_DECLARE_POD_TYPE()                               \
+    WCompileTimeTrueType operator%(const WTypeIsPod&) const \
     {                                                         \
       return {};                                              \
     }
@@ -146,34 +146,34 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 /// copy. A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur;
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
 /// are met, a type is memory relocatable.
-#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE()                              \
-    ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const \
+#  define W_DECLARE_MEM_RELOCATABLE_TYPE()                              \
+    WCompileTimeTrueType operator%(const WTypeIsMemRelocatable&) const \
     {                                                                    \
       return {};                                                         \
     }
 
 /// mark a class as memory relocatable if the passed type is relocatable or pod.
-#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)                                                                                       \
-    typename ezConditionToCompileTimeBool<ezGetTypeClass<T>::value == ezTypeIsMemRelocatable::value || ezIsPodType<T>::value>::type operator%( \
-      const ezTypeIsMemRelocatable&) const                                                                                                     \
+#  define W_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)                                                                                       \
+    typename WConditionToCompileTimeBool<WGetTypeClass<T>::value == WTypeIsMemRelocatable::value || WIsPodType<T>::value>::type operator%( \
+      const WTypeIsMemRelocatable&) const                                                                                                     \
     {                                                                                                                                          \
       return {};                                                                                                                               \
     }
 
-#  define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<T1>
-#  define EZ_DETECT_TYPE_CLASS_2(T1, T2) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_1(T1), EZ_DETECT_TYPE_CLASS_1(T2)>
-#  define EZ_DETECT_TYPE_CLASS_3(T1, T2, T3) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_1(T3)>
-#  define EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_2(T3, T4)>
-#  define EZ_DETECT_TYPE_CLASS_5(T1, T2, T3, T4, T5) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), EZ_DETECT_TYPE_CLASS_1(T5)>
-#  define EZ_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) \
-    ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), EZ_DETECT_TYPE_CLASS_2(T5, T6)>
+#  define W_DETECT_TYPE_CLASS_1(T1) WGetTypeClass<T1>
+#  define W_DETECT_TYPE_CLASS_2(T1, T2) WGetStrongestTypeClass<W_DETECT_TYPE_CLASS_1(T1), W_DETECT_TYPE_CLASS_1(T2)>
+#  define W_DETECT_TYPE_CLASS_3(T1, T2, T3) WGetStrongestTypeClass<W_DETECT_TYPE_CLASS_2(T1, T2), W_DETECT_TYPE_CLASS_1(T3)>
+#  define W_DETECT_TYPE_CLASS_4(T1, T2, T3, T4) WGetStrongestTypeClass<W_DETECT_TYPE_CLASS_2(T1, T2), W_DETECT_TYPE_CLASS_2(T3, T4)>
+#  define W_DETECT_TYPE_CLASS_5(T1, T2, T3, T4, T5) WGetStrongestTypeClass<W_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), W_DETECT_TYPE_CLASS_1(T5)>
+#  define W_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) \
+    WGetStrongestTypeClass<W_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), W_DETECT_TYPE_CLASS_2(T5, T6)>
 
 // embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
-#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                   \
-    ezCompileTimeTrueType operator%(                                                                                                  \
-      const ezTraitInt<EZ_CALL_MACRO(EZ_PP_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
+#  define W_DETECT_TYPE_CLASS(...)                                                                                                   \
+    WCompileTimeTrueType operator%(                                                                                                  \
+      const WTraitInt<W_CALL_MACRO(W_PP_CONCAT(W_DETECT_TYPE_CLASS_, W_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
     {                                                                                                                                 \
       return {};                                                                                                                      \
     }
@@ -181,40 +181,40 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 
 /// Defines a type T as Pod.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#define EZ_DEFINE_AS_POD_TYPE(T)             \
+#define W_DEFINE_AS_POD_TYPE(T)             \
   template <>                                \
-  struct ezIsPodType<T> : public ezTypeIsPod \
+  struct WIsPodType<T> : public WTypeIsPod \
   {                                          \
   }
 
-EZ_DEFINE_AS_POD_TYPE(bool);
-EZ_DEFINE_AS_POD_TYPE(float);
-EZ_DEFINE_AS_POD_TYPE(double);
+W_DEFINE_AS_POD_TYPE(bool);
+W_DEFINE_AS_POD_TYPE(float);
+W_DEFINE_AS_POD_TYPE(double);
 
-EZ_DEFINE_AS_POD_TYPE(char);
-EZ_DEFINE_AS_POD_TYPE(ezInt8);
-EZ_DEFINE_AS_POD_TYPE(ezInt16);
-EZ_DEFINE_AS_POD_TYPE(ezInt32);
-EZ_DEFINE_AS_POD_TYPE(ezInt64);
-EZ_DEFINE_AS_POD_TYPE(ezUInt8);
-EZ_DEFINE_AS_POD_TYPE(ezUInt16);
-EZ_DEFINE_AS_POD_TYPE(ezUInt32);
-EZ_DEFINE_AS_POD_TYPE(ezUInt64);
-EZ_DEFINE_AS_POD_TYPE(wchar_t);
-EZ_DEFINE_AS_POD_TYPE(unsigned long);
-EZ_DEFINE_AS_POD_TYPE(long);
-EZ_DEFINE_AS_POD_TYPE(std::byte);
+W_DEFINE_AS_POD_TYPE(char);
+W_DEFINE_AS_POD_TYPE(WInt8);
+W_DEFINE_AS_POD_TYPE(WInt16);
+W_DEFINE_AS_POD_TYPE(WInt32);
+W_DEFINE_AS_POD_TYPE(WInt64);
+W_DEFINE_AS_POD_TYPE(WUInt8);
+W_DEFINE_AS_POD_TYPE(WUInt16);
+W_DEFINE_AS_POD_TYPE(WUInt32);
+W_DEFINE_AS_POD_TYPE(WUInt64);
+W_DEFINE_AS_POD_TYPE(wchar_t);
+W_DEFINE_AS_POD_TYPE(unsigned long);
+W_DEFINE_AS_POD_TYPE(long);
+W_DEFINE_AS_POD_TYPE(std::byte);
 
 /// Checks inheritance at compile time.
-#define EZ_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \
-  (ezConversionTest<const DerivedClass*, const BaseClass*>::exists && !ezConversionTest<const BaseClass*, const void*>::sameType)
+#define W_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \
+  (WConversionTest<const DerivedClass*, const BaseClass*>::exists && !WConversionTest<const BaseClass*, const void*>::sameType)
 
 /// Checks whether A and B are the same type
-#define EZ_IS_SAME_TYPE(TypeA, TypeB) ezConversionTest<TypeA, TypeB>::sameType
+#define W_IS_SAME_TYPE(TypeA, TypeB) WConversionTest<TypeA, TypeB>::sameType
 
 /// Utility template for extracting clean types from decorated types.
 template <typename T>
-struct ezTypeTraits
+struct WTypeTraits
 {
   /// Removes const qualifier: const int -> int
   using NonConstType = typename std::remove_const<T>::type;
@@ -240,18 +240,18 @@ struct ezTypeTraits
 
 /// generates a template named 'checkerName' which checks for the existence of a member function with
 /// the name 'functionName' and the signature 'Signature'
-#define EZ_MAKE_MEMBERFUNCTION_CHECKER(functionName, checkerName)                \
+#define W_MAKE_MEMBERFUNCTION_CHECKER(functionName, checkerName)                \
   template <typename T, typename Signature>                                      \
   struct checkerName                                                             \
   {                                                                              \
     template <typename U, U>                                                     \
     struct type_check;                                                           \
     template <typename O>                                                        \
-    static ezCompileTimeTrueType& chk(type_check<Signature, &O::functionName>*); \
+    static WCompileTimeTrueType& chk(type_check<Signature, &O::functionName>*); \
     template <typename>                                                          \
-    static ezCompileTimeFalseType& chk(...);                                     \
+    static WCompileTimeFalseType& chk(...);                                     \
     enum                                                                         \
     {                                                                            \
-      value = (sizeof(chk<T>(0)) == sizeof(ezCompileTimeTrueType)) ? 1 : 0       \
+      value = (sizeof(chk<T>(0)) == sizeof(WCompileTimeTrueType)) ? 1 : 0       \
     };                                                                           \
   }

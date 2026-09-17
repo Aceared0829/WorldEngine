@@ -3,157 +3,157 @@
 #include <Foundation/IO/Archive/Archive.h>
 #include <Foundation/Logging/Log.h>
 
-void operator<<(ezStreamWriter& inout_stream, const ezArchiveStoredString& value)
+void operator<<(WStreamWriter& inout_stream, const WArchiveStoredString& value)
 {
   inout_stream << value.m_uiLowerCaseHash;
   inout_stream << value.m_uiSrcStringOffset;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value)
+void operator>>(WStreamReader& inout_stream, WArchiveStoredString& value)
 {
   inout_stream >> value.m_uiLowerCaseHash;
   inout_stream >> value.m_uiSrcStringOffset;
 }
 
-ezUInt32 ezArchiveTOC::FindEntry(ezStringView sFile) const
+WUInt32 WArchiveTOC::FindEntry(WStringView sFile) const
 {
-  ezStringBuilder sLowerCasePath = sFile;
+  WStringBuilder sLowerCasePath = sFile;
   sLowerCasePath.ToLower();
 
-  ezUInt32 uiIndex;
+  WUInt32 uiIndex;
 
-  ezArchiveLookupString lookup(ezHashingUtils::StringHash(sLowerCasePath.GetView()), sLowerCasePath, m_AllPathStrings);
+  WArchiveLookupString lookup(WHashingUtils::StringHash(sLowerCasePath.GetView()), sLowerCasePath, m_AllPathStrings);
 
   if (!m_PathToEntryIndex.TryGetValue(lookup, uiIndex))
-    return ezInvalidIndex;
+    return WInvalidIndex;
 
-  EZ_ASSERT_DEBUG(sFile.IsEqual_NoCase(GetEntryPathString(uiIndex)), "Hash table corruption detected.");
+  W_ASSERT_DEBUG(sFile.IsEqual_NoCase(GetEntryPathString(uiIndex)), "Hash table corruption detected.");
   return uiIndex;
 }
 
-ezUInt32 ezArchiveTOC::AddPathString(ezStringView sPathString)
+WUInt32 WArchiveTOC::AddPathString(WStringView sPathString)
 {
-  const ezUInt32 offset = m_AllPathStrings.GetCount();
-  const ezUInt32 numNewBytesNeeded = sPathString.GetElementCount() + 1;
+  const WUInt32 offset = m_AllPathStrings.GetCount();
+  const WUInt32 numNewBytesNeeded = sPathString.GetElementCount() + 1;
   m_AllPathStrings.Reserve(m_AllPathStrings.GetCount() + numNewBytesNeeded);
-  m_AllPathStrings.PushBackRange(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(sPathString.GetStartPointer()), sPathString.GetElementCount()));
+  m_AllPathStrings.PushBackRange(WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(sPathString.GetStartPointer()), sPathString.GetElementCount()));
   m_AllPathStrings.PushBackUnchecked('\0');
   return offset;
 }
 
-void ezArchiveTOC::RebuildPathToEntryHashes()
+void WArchiveTOC::RebuildPathToEntryHashes()
 {
-  const ezUInt32 uiNumEntries = m_Entries.GetCount();
+  const WUInt32 uiNumEntries = m_Entries.GetCount();
   m_PathToEntryIndex.Clear();
   m_PathToEntryIndex.Reserve(uiNumEntries);
 
-  ezStringBuilder sLowerCasePath;
+  WStringBuilder sLowerCasePath;
 
-  for (ezUInt32 i = 0; i < uiNumEntries; i++)
+  for (WUInt32 i = 0; i < uiNumEntries; i++)
   {
-    const ezUInt32 uiSrcStringOffset = m_Entries[i].m_uiPathStringOffset;
-    ezStringView sEntryString = GetEntryPathString(i);
+    const WUInt32 uiSrcStringOffset = m_Entries[i].m_uiPathStringOffset;
+    WStringView sEntryString = GetEntryPathString(i);
     sLowerCasePath = sEntryString;
     sLowerCasePath.ToLower();
 
     // cut off the upper 32 bit, we don't need them here
-    const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetView()) & 0xFFFFFFFFllu);
+    const WUInt32 uiLowerCaseHash = WHashingUtils::StringHashTo32(WHashingUtils::StringHash(sLowerCasePath.GetView()) & 0xFFFFFFFFllu);
 
-    m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
+    m_PathToEntryIndex.Insert(WArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 
     // Verify that the conversion worked
-    EZ_ASSERT_DEBUG(FindEntry(sEntryString) == i, "Hashed path retrieval did not yield inserted index");
+    W_ASSERT_DEBUG(FindEntry(sEntryString) == i, "Hashed path retrieval did not yield inserted index");
   }
 }
 
-ezStringView ezArchiveTOC::GetEntryPathString(ezUInt32 uiEntryIdx) const
+WStringView WArchiveTOC::GetEntryPathString(WUInt32 uiEntryIdx) const
 {
   return reinterpret_cast<const char*>(&m_AllPathStrings[m_Entries[uiEntryIdx].m_uiPathStringOffset]);
 }
 
-ezResult ezArchiveTOC::Serialize(ezStreamWriter& inout_stream) const
+WResult WArchiveTOC::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Entries));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Entries));
 
   // write the hash of a known string to the archive, to detect hash function changes
-  ezUInt64 uiStringHash = ezHashingUtils::StringHash("ezArchive");
+  WUInt64 uiStringHash = WHashingUtils::StringHash("WArchive");
   inout_stream << uiStringHash;
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(m_PathToEntryIndex));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(m_PathToEntryIndex));
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_AllPathStrings));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_AllPathStrings));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-struct ezOldTempHashedString
+struct WOldTempHashedString
 {
-  ezUInt32 m_uiHash = 0;
+  WUInt32 m_uiHash = 0;
 
-  ezResult Deserialize(ezStreamReader& r)
+  WResult Deserialize(WStreamReader& r)
   {
     r >> m_uiHash;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  bool operator==(const ezOldTempHashedString& rhs) const
+  bool operator==(const WOldTempHashedString& rhs) const
   {
     return m_uiHash == rhs.m_uiHash;
   }
 };
 
 template <>
-struct ezHashHelper<ezOldTempHashedString>
+struct WHashHelper<WOldTempHashedString>
 {
-  static ezUInt32 Hash(const ezOldTempHashedString& value)
+  static WUInt32 Hash(const WOldTempHashedString& value)
   {
     return value.m_uiHash;
   }
 
-  static bool Equal(const ezOldTempHashedString& a, const ezOldTempHashedString& b) { return a == b; }
+  static bool Equal(const WOldTempHashedString& a, const WOldTempHashedString& b) { return a == b; }
 };
 
-ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchiveVersion)
+WResult WArchiveTOC::Deserialize(WStreamReader& inout_stream, WUInt8 uiArchiveVersion)
 {
-  EZ_ASSERT_ALWAYS(uiArchiveVersion <= 4, "Unsupported archive version {}", uiArchiveVersion);
+  W_ASSERT_ALWAYS(uiArchiveVersion <= 4, "Unsupported archive version {}", uiArchiveVersion);
 
   // we don't use the TOC version anymore, but the archive version instead
-  const ezTypeVersion version = inout_stream.ReadVersion(2);
+  const WTypeVersion version = inout_stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Entries));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Entries));
 
   bool bRecreateStringHashes = true;
 
   if (version == 1)
   {
     // read and discard the data, it is regenerated below
-    ezHashTable<ezOldTempHashedString, ezUInt32> m_PathToIndex;
-    EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToIndex));
+    WHashTable<WOldTempHashedString, WUInt32> m_PathToIndex;
+    W_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToIndex));
   }
   else
   {
     if (uiArchiveVersion >= 4)
     {
       // read the hash of a known string from the archive, to detect hash function changes
-      ezUInt64 uiStringHash = 0;
+      WUInt64 uiStringHash = 0;
       inout_stream >> uiStringHash;
 
-      if (uiStringHash == ezHashingUtils::StringHash("ezArchive"))
+      if (uiStringHash == WHashingUtils::StringHash("WArchive"))
       {
         bRecreateStringHashes = false;
       }
     }
 
-    EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToEntryIndex));
+    W_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToEntryIndex));
   }
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_AllPathStrings));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_AllPathStrings));
 
   if (bRecreateStringHashes)
   {
-    ezLog::Info("Archive uses older string hashing, recomputing hashes.");
+    WLog::Info("Archive uses older string hashing, recomputing hashes.");
 
     // version 1 stores an older way for the path/hash -> entry lookup table, which is prone to hash collisions
     // in this case, rebuild the new hash table on the fly
@@ -168,33 +168,33 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchi
   // path strings mustn't be empty and must be zero-terminated
   if (m_AllPathStrings.IsEmpty() || m_AllPathStrings.PeekBack() != '\0')
   {
-    ezLog::Error("Archive is corrupt. Invalid string data.");
-    return EZ_FAILURE;
+    WLog::Error("Archive is corrupt. Invalid string data.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezArchiveEntry::Serialize(ezStreamWriter& inout_stream) const
+WResult WArchiveEntry::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_uiDataStartOffset;
   inout_stream << m_uiUncompressedDataSize;
   inout_stream << m_uiStoredDataSize;
-  inout_stream << (ezUInt8)m_CompressionMode;
+  inout_stream << (WUInt8)m_CompressionMode;
   inout_stream << m_uiPathStringOffset;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezArchiveEntry::Deserialize(ezStreamReader& inout_stream)
+WResult WArchiveEntry::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_uiDataStartOffset;
   inout_stream >> m_uiUncompressedDataSize;
   inout_stream >> m_uiStoredDataSize;
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
   inout_stream >> uiCompressionMode;
-  m_CompressionMode = (ezArchiveCompressionMode)uiCompressionMode;
+  m_CompressionMode = (WArchiveCompressionMode)uiCompressionMode;
   inout_stream >> m_uiPathStringOffset;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

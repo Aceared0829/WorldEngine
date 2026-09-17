@@ -7,23 +7,23 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Mutex.h>
 
-class ezAsStringFactory : public asIStringFactory
+class WAsStringFactory : public asIStringFactory
 {
 public:
-  ezAsStringFactory();
-  ~ezAsStringFactory();
+  WAsStringFactory();
+  ~WAsStringFactory();
 
   const void* GetStringConstant(const char* szData, asUINT length) override;
   int ReleaseStringConstant(const void* pStr) override;
   int GetRawStringData(const void* pStr, char* szData, asUINT* pLength) const override;
 
-  static ezAsStringFactory* GetFactory() { return s_pFactory; }
+  static WAsStringFactory* GetFactory() { return s_pFactory; }
 
-  const ezString& StoreString(const ezString& sStr);
+  const WString& StoreString(const WString& sStr);
 
 private:
-  static ezAsStringFactory* s_pFactory;
-  ezMutex m_Mutex;
-  ezSet<ezString> m_Strings;
-  ezSet<ezStringView> m_StringViews;
+  static WAsStringFactory* s_pFactory;
+  WMutex m_Mutex;
+  WSet<WString> m_Strings;
+  WSet<WStringView> m_StringViews;
 };

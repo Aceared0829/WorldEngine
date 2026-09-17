@@ -1,56 +1,56 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u()
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u()
 {
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   m_v.Set(0xCDCDCDCD);
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 xyzw)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WUInt32 xyzw)
 {
   m_v.Set(xyzw);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w)
 {
   m_v.Set(x, y, z, w);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezInternal::QuadUInt v)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(WInternal::QuadUInt v)
 {
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 xyzw)
+W_ALWAYS_INLINE void WSimdVec4u::Set(WUInt32 xyzw)
 {
   m_v.Set(xyzw);
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
+W_ALWAYS_INLINE void WSimdVec4u::Set(WUInt32 x, WUInt32 y, WUInt32 z, WUInt32 w)
 {
   m_v.Set(x, y, z, w);
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
+W_ALWAYS_INLINE void WSimdVec4u::SetZero()
 {
   m_v.SetZero();
 }
 
 // needs to be implemented here because of include dependencies
-EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
+W_ALWAYS_INLINE WSimdVec4i::WSimdVec4i(const WSimdVec4u& u)
   : m_v(u.m_v.x, u.m_v.y, u.m_v.z, u.m_v.w)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(const ezSimdVec4i& i)
+W_ALWAYS_INLINE WSimdVec4u::WSimdVec4u(const WSimdVec4i& i)
   : m_v(i.m_v.x, i.m_v.y, i.m_v.z, i.m_v.w)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4u::ToFloat() const
 {
-  ezSimdVec4f result;
+  WSimdVec4f result;
   result.m_v.x = (float)m_v.x;
   result.m_v.y = (float)m_v.y;
   result.m_v.z = (float)m_v.z;
@@ -60,21 +60,21 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::Truncate(const WSimdVec4f& f)
 {
-  ezSimdVec4f clampedF = f.CompMax(ezSimdVec4f::MakeZero());
+  WSimdVec4f clampedF = f.CompMax(WSimdVec4f::MakeZero());
 
-  ezSimdVec4u result;
-  result.m_v.x = (ezUInt32)clampedF.m_v.x;
-  result.m_v.y = (ezUInt32)clampedF.m_v.y;
-  result.m_v.z = (ezUInt32)clampedF.m_v.z;
-  result.m_v.w = (ezUInt32)clampedF.m_v.w;
+  WSimdVec4u result;
+  result.m_v.x = (WUInt32)clampedF.m_v.x;
+  result.m_v.y = (WUInt32)clampedF.m_v.y;
+  result.m_v.z = (WUInt32)clampedF.m_v.z;
+  result.m_v.w = (WUInt32)clampedF.m_v.w;
 
   return result;
 }
 
 template <int N>
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::GetComponent() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::GetComponent() const
 {
   if constexpr (N == 0)
   {
@@ -98,32 +98,32 @@ EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::GetComponent() const
   }
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::x() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::x() const
 {
   return m_v.x;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::y() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::y() const
 {
   return m_v.y;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::z() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::z() const
 {
   return m_v.z;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::w() const
+W_ALWAYS_INLINE WUInt32 WSimdVec4u::w() const
 {
   return m_v.w;
 }
 
-template <ezSwizzle::Enum s>
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
+template <WSwizzle::Enum s>
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::Get() const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
 
-  const ezUInt32* v = &m_v.x;
+  const WUInt32* v = &m_v.x;
   result.m_v.x = v[(s & 0x3000) >> 12];
   result.m_v.y = v[(s & 0x0300) >> 8];
   result.m_v.z = v[(s & 0x0030) >> 4];
@@ -132,24 +132,24 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator+(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator+(const WSimdVec4u& v) const
 {
   return m_v + v.m_v;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator-(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator-(const WSimdVec4u& v) const
 {
   return m_v - v.m_v;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMul(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMul(const WSimdVec4u& v) const
 {
   return m_v.CompMul(v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator|(const WSimdVec4u& v) const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = m_v.x | v.m_v.x;
   result.m_v.y = m_v.y | v.m_v.y;
   result.m_v.z = m_v.z | v.m_v.z;
@@ -158,9 +158,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator&(const WSimdVec4u& v) const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = m_v.x & v.m_v.x;
   result.m_v.y = m_v.y & v.m_v.y;
   result.m_v.z = m_v.z & v.m_v.z;
@@ -169,9 +169,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator^(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator^(const WSimdVec4u& v) const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = m_v.x ^ v.m_v.x;
   result.m_v.y = m_v.y ^ v.m_v.y;
   result.m_v.z = m_v.z ^ v.m_v.z;
@@ -180,9 +180,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator^(const ezSimdVec4u& v) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator~() const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator~() const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = ~m_v.x;
   result.m_v.y = ~m_v.y;
   result.m_v.z = ~m_v.z;
@@ -191,9 +191,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator~() const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator<<(WUInt32 uiShift) const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = m_v.x << uiShift;
   result.m_v.y = m_v.y << uiShift;
   result.m_v.z = m_v.z << uiShift;
@@ -202,9 +202,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::operator>>(WUInt32 uiShift) const
 {
-  ezSimdVec4u result;
+  WSimdVec4u result;
   result.m_v.x = m_v.x >> uiShift;
   result.m_v.y = m_v.y >> uiShift;
   result.m_v.z = m_v.z >> uiShift;
@@ -213,19 +213,19 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator+=(const WSimdVec4u& v)
 {
   m_v += v.m_v;
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator-=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator-=(const WSimdVec4u& v)
 {
   m_v -= v.m_v;
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator|=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator|=(const WSimdVec4u& v)
 {
   m_v.x |= v.m_v.x;
   m_v.y |= v.m_v.y;
@@ -234,7 +234,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator|=(const ezSimdVec4u& v)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator&=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator&=(const WSimdVec4u& v)
 {
   m_v.x &= v.m_v.x;
   m_v.y &= v.m_v.y;
@@ -243,7 +243,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator&=(const ezSimdVec4u& v)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator^=(const ezSimdVec4u& v)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator^=(const WSimdVec4u& v)
 {
   m_v.x ^= v.m_v.x;
   m_v.y ^= v.m_v.y;
@@ -252,7 +252,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator^=(const ezSimdVec4u& v)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator<<=(ezUInt32 uiShift)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator<<=(WUInt32 uiShift)
 {
   m_v.x <<= uiShift;
   m_v.y <<= uiShift;
@@ -261,7 +261,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator<<=(ezUInt32 uiShift)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator>>=(ezUInt32 uiShift)
+W_ALWAYS_INLINE WSimdVec4u& WSimdVec4u::operator>>=(WUInt32 uiShift)
 {
   m_v.x >>= uiShift;
   m_v.y >>= uiShift;
@@ -270,17 +270,17 @@ EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator>>=(ezUInt32 uiShift)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMin(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMin(const WSimdVec4u& v) const
 {
   return m_v.CompMin(v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMax(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::CompMax(const WSimdVec4u& v) const
 {
   return m_v.CompMax(v.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator==(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator==(const WSimdVec4u& v) const
 {
   bool result[4];
   result[0] = m_v.x == v.m_v.x;
@@ -288,20 +288,20 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator==(const ezSimdVec4u& v) const
   result[2] = m_v.z == v.m_v.z;
   result[3] = m_v.w == v.m_v.w;
 
-  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
+  return WSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator!=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator!=(const WSimdVec4u& v) const
 {
   return !(*this == v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator<=(const WSimdVec4u& v) const
 {
   return !(*this > v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator<(const WSimdVec4u& v) const
 {
   bool result[4];
   result[0] = m_v.x < v.m_v.x;
@@ -309,15 +309,15 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<(const ezSimdVec4u& v) const
   result[2] = m_v.z < v.m_v.z;
   result[3] = m_v.w < v.m_v.w;
 
-  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
+  return WSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>=(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator>=(const WSimdVec4u& v) const
 {
   return !(*this < v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4u::operator>(const WSimdVec4u& v) const
 {
   bool result[4];
   result[0] = m_v.x > v.m_v.x;
@@ -325,11 +325,11 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
   result[2] = m_v.z > v.m_v.z;
   result[3] = m_v.w > v.m_v.w;
 
-  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
+  return WSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
+W_ALWAYS_INLINE WSimdVec4u WSimdVec4u::MakeZero()
 {
-  return ezVec4U32::MakeZero();
+  return WVec4U32::MakeZero();
 }

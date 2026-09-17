@@ -5,53 +5,53 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-ezStatus ezQtEditorApp::SaveTagRegistry()
+WStatus WQtEditorApp::SaveTagRegistry()
 {
-  EZ_LOG_BLOCK("ezQtEditorApp::SaveTagRegistry()");
+  W_LOG_BLOCK("WQtEditorApp::SaveTagRegistry()");
 
-  ezStringBuilder sPath;
-  sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath;
+  sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/Tags.ddl");
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sPath);
 
-  ezToolsTagRegistry::WriteToDDL(file);
+  WToolsTagRegistry::WriteToDDL(file);
 
   if (file.Close().Failed())
   {
-    return ezStatus(ezFmt("Could not open tags config file '{0}' for writing", sPath));
+    return WStatus(WFmt("Could not open tags config file '{0}' for writing", sPath));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezQtEditorApp::ReadTagRegistry()
+void WQtEditorApp::ReadTagRegistry()
 {
-  EZ_LOG_BLOCK("ezQtEditorApp::ReadTagRegistry");
+  W_LOG_BLOCK("WQtEditorApp::ReadTagRegistry");
 
-  ezToolsTagRegistry::Clear();
+  WToolsTagRegistry::Clear();
 
-  ezStringBuilder sPath;
-  sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath;
+  sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/Tags.ddl");
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open tags config file '{0}'", sPath);
+    WLog::Warning("Could not open tags config file '{0}'", sPath);
 
     SaveTagRegistry().LogFailure();
   }
   else
   {
-    ezToolsTagRegistry::ReadFromDDL(file).LogFailure();
+    WToolsTagRegistry::ReadFromDDL(file).LogFailure();
   }
 
 
   // TODO: Add default tags
-  ezToolsTag tag;
+  WToolsTag tag;
   tag.m_sName = "EditorHidden";
   tag.m_sCategory = "Editor";
-  ezToolsTagRegistry::AddTag(tag);
+  WToolsTagRegistry::AddTag(tag);
 }

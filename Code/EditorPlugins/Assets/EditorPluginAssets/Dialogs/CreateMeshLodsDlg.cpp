@@ -4,27 +4,27 @@
 #include <EditorPluginAssets/Dialogs/CreateMeshLodsDlg.moc.h>
 #include <QPushButton>
 
-ezInt32 ezQtCreateMeshLodsDlg::s_iLodCount = 2;
-bool ezQtCreateMeshLodsDlg::s_bOpenAfterCreate = false;
+WInt32 WQtCreateMeshLodsDlg::s_iLodCount = 2;
+bool WQtCreateMeshLodsDlg::s_bOpenAfterCreate = false;
 
-ezQtCreateMeshLodsDlg::ezQtCreateMeshLodsDlg(const ezMeshLodSource& source, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshLodsDlg::WQtCreateMeshLodsDlg(const WMeshLodSource& source, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_pSource(&source)
 {
   Setup();
 
   {
     // not editable: the prefab tool finds LODs by this exact name
-    ezStringBuilder sFolder = m_pSource->m_sLodFolder;
-    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sFolder);
-    LodFolder->setText(ezMakeQString(sFolder));
+    WStringBuilder sFolder = m_pSource->m_sLodFolder;
+    WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sFolder);
+    LodFolder->setText(WMakeQString(sFolder));
   }
 
   UpdateInfo();
 }
 
-ezQtCreateMeshLodsDlg::ezQtCreateMeshLodsDlg(ezUInt32 uiMeshCount, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshLodsDlg::WQtCreateMeshLodsDlg(WUInt32 uiMeshCount, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_uiMeshCount(uiMeshCount)
 {
   Setup();
@@ -39,39 +39,39 @@ ezQtCreateMeshLodsDlg::ezQtCreateMeshLodsDlg(ezUInt32 uiMeshCount, QWidget* pPar
   UpdateInfo();
 }
 
-void ezQtCreateMeshLodsDlg::Setup()
+void WQtCreateMeshLodsDlg::Setup()
 {
   setupUi(this);
 
-  LodCount->setMaximum((int)ezMeshLodCreator::s_uiMaxLods);
+  LodCount->setMaximum((int)WMeshLodCreator::s_uiMaxLods);
   LodCount->setValue(s_iLodCount);
   OpenAfterCreate->setChecked(s_bOpenAfterCreate);
 }
 
-void ezQtCreateMeshLodsDlg::UpdateInfo()
+void WQtCreateMeshLodsDlg::UpdateInfo()
 {
-  const ezUInt32 uiLodCount = (ezUInt32)LodCount->value();
+  const WUInt32 uiLodCount = (WUInt32)LodCount->value();
   const bool bOverwrite = OverwriteExisting->isChecked();
 
   {
     // how far each level goes depends on the mesh's own simplification, which isn't visible otherwise
-    const ezUInt8 uiBase = (m_pSource != nullptr) ? m_pSource->m_uiBaseSimplification : 0;
+    const WUInt8 uiBase = (m_pSource != nullptr) ? m_pSource->m_uiBaseSimplification : 0;
 
     // the percent signs are appended: a literal '%' in a format string is consumed as a format spec
-    ezStringBuilder sLadder;
-    sLadder.SetFormat("LOD 0 (the mesh itself): {}", (ezUInt32)uiBase);
+    WStringBuilder sLadder;
+    sLadder.SetFormat("LOD 0 (the mesh itself): {}", (WUInt32)uiBase);
     sLadder.Append("% simplified.");
 
-    for (ezUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
+    for (WUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
     {
-      sLadder.AppendFormat("\nLOD {}: {}", uiLod, (ezUInt32)ezMeshLodCreator::GetLodSimplification(uiBase, uiLod));
+      sLadder.AppendFormat("\nLOD {}: {}", uiLod, (WUInt32)WMeshLodCreator::GetLodSimplification(uiBase, uiLod));
       sLadder.Append("% simplified.");
     }
 
-    LadderInfo->setText(ezMakeQString(sLadder));
+    LadderInfo->setText(WMakeQString(sLadder));
   }
 
-  ezStringBuilder sWarning;
+  WStringBuilder sWarning;
 
   // not every message blocks: that some LODs are kept still leaves something to create
   bool bCanCreate = true;
@@ -92,8 +92,8 @@ void ezQtCreateMeshLodsDlg::UpdateInfo()
   }
   else
   {
-    ezHybridArray<ezUInt32, 4> existing;
-    for (ezUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
+    WHybridArray<WUInt32, 4> existing;
+    for (WUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
     {
       if (m_pSource->HasLod(uiLod))
       {
@@ -104,8 +104,8 @@ void ezQtCreateMeshLodsDlg::UpdateInfo()
     // with the overwrite box ticked, its own label already says what happens
     if (!existing.IsEmpty() && !bOverwrite)
     {
-      ezStringBuilder sList;
-      for (ezUInt32 uiLod : existing)
+      WStringBuilder sList;
+      for (WUInt32 uiLod : existing)
       {
         if (!sList.IsEmpty())
           sList.Append(", ");
@@ -126,7 +126,7 @@ void ezQtCreateMeshLodsDlg::UpdateInfo()
     }
   }
 
-  WarningLabel->setText(ezMakeQString(sWarning));
+  WarningLabel->setText(WMakeQString(sWarning));
 
   if (QPushButton* pOk = ButtonBox->button(QDialogButtonBox::Ok))
   {
@@ -134,17 +134,17 @@ void ezQtCreateMeshLodsDlg::UpdateInfo()
   }
 }
 
-void ezQtCreateMeshLodsDlg::on_LodCount_valueChanged(int value)
+void WQtCreateMeshLodsDlg::on_LodCount_valueChanged(int value)
 {
   UpdateInfo();
 }
 
-void ezQtCreateMeshLodsDlg::on_OverwriteExisting_toggled(bool checked)
+void WQtCreateMeshLodsDlg::on_OverwriteExisting_toggled(bool checked)
 {
   UpdateInfo();
 }
 
-void ezQtCreateMeshLodsDlg::on_ButtonBox_accepted()
+void WQtCreateMeshLodsDlg::on_ButtonBox_accepted()
 {
   s_iLodCount = LodCount->value();
 
@@ -154,14 +154,14 @@ void ezQtCreateMeshLodsDlg::on_ButtonBox_accepted()
     s_bOpenAfterCreate = OpenAfterCreate->isChecked();
   }
 
-  m_Options.m_uiLodCount = (ezUInt32)s_iLodCount;
+  m_Options.m_uiLodCount = (WUInt32)s_iLodCount;
   m_Options.m_bOverwriteExisting = OverwriteExisting->isChecked();
   m_Options.m_bOpenAfterCreate = OpenAfterCreate->isChecked();
 
   accept();
 }
 
-void ezQtCreateMeshLodsDlg::on_ButtonBox_rejected()
+void WQtCreateMeshLodsDlg::on_ButtonBox_rejected()
 {
   reject();
 }

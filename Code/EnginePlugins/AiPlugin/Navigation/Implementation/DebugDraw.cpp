@@ -18,7 +18,7 @@ static float DistancePoint2Line2D(const float* pPoint, const float* pLine1, cons
   return dx * dx + dz * dz;
 }
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRendererTriangle>& out_triangles, ezArrayPtr<ezColor> areaColors)
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, WDynamicArray<WDebugRendererTriangle>& out_triangles, WArrayPtr<WColor> areaColors)
 {
   for (int polyIdx = 0; polyIdx < meshTile.header->polyCount; ++polyIdx)
   {
@@ -31,16 +31,16 @@ void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRend
 
     for (int triIdx = 0; triIdx < polyDetail.triCount; ++triIdx)
     {
-      const ezUInt8* pTriangle = &meshTile.detailTris[(polyDetail.triBase + triIdx) * 4]; // 3 indices, one byte flags
+      const WUInt8* pTriangle = &meshTile.detailTris[(polyDetail.triBase + triIdx) * 4]; // 3 indices, one byte flags
 
-      ezDebugRendererTriangle& tri = out_triangles.ExpandAndGetRef();
+      WDebugRendererTriangle& tri = out_triangles.ExpandAndGetRef();
 
-      ezUInt8 uiArea = poly.getArea();
+      WUInt8 uiArea = poly.getArea();
       tri.m_color = areaColors[uiArea];
 
       for (int vtxIdx = 0; vtxIdx < 3; ++vtxIdx)
       {
-        const ezUInt8 vtxValue = pTriangle[vtxIdx];
+        const WUInt8 vtxValue = pTriangle[vtxIdx];
         const float* vtxPos = nullptr;
 
         if (vtxValue < poly.vertCount)
@@ -55,12 +55,12 @@ void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRend
         tri.m_position[vtxIdx].Set(vtxPos[0], vtxPos[2], vtxPos[1] + 0.05f); // swap Y and Z and move it up slightly
       }
 
-      ezMath::Swap(tri.m_position[1], tri.m_position[2]);                    // fix the triangle winding
+      WMath::Swap(tri.m_position[1], tri.m_position[2]);                    // fix the triangle winding
     }
   }
 }
 
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRendererLine>& out_lines)
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, WDynamicArray<WDebugRendererLine>& out_lines)
 {
   constexpr float fThreshold = 0.01f * 0.01f;
 
@@ -85,7 +85,7 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
       if (!bIsInnerEdge && !bOuterEdges)
         continue; // Skip outer edges.
 
-      ezColor edgeColor = ezColor::White;
+      WColor edgeColor = WColor::White;
 
       if (bIsInnerEdge)
       {
@@ -93,7 +93,7 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
         {
           bool bIsConnected = false;       // Connected to solid edge.
 
-          for (ezUInt32 linkIdx = p->firstLink; linkIdx != DT_NULL_LINK; linkIdx = meshTile.links[linkIdx].next)
+          for (WUInt32 linkIdx = p->firstLink; linkIdx != DT_NULL_LINK; linkIdx = meshTile.links[linkIdx].next)
           {
             if (meshTile.links[linkIdx].edge == vtxIdx)
             {
@@ -103,21 +103,21 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
           }
 
           if (bIsConnected)
-            edgeColor = ezColor::Blue; // border with a neighboring tile that is loaded
+            edgeColor = WColor::Blue; // border with a neighboring tile that is loaded
           else
-            edgeColor = ezColor::Red;  // border with a neighboring tile that is not loaded
+            edgeColor = WColor::Red;  // border with a neighboring tile that is not loaded
         }
         else
         {
           if (!bInnerDetailEdges)
             continue;                    // Skip inner detail edges.
 
-          edgeColor = ezColor::DarkGrey; // inner detail region boundary
+          edgeColor = WColor::DarkGrey; // inner detail region boundary
         }
       }
       else
       {
-        edgeColor = ezColor::Yellow; // outer boundary color
+        edgeColor = WColor::Yellow; // outer boundary color
       }
 
       const float* v0 = &meshTile.verts[p->verts[vtxIdx] * 3];
@@ -126,10 +126,10 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
       // Draw detail mesh edges which align with the actual poly edge.
       for (int k = 0; k < detailMesh.triCount; ++k)
       {
-        const ezUInt8* t = &meshTile.detailTris[(detailMesh.triBase + k) * 4];
+        const WUInt8* t = &meshTile.detailTris[(detailMesh.triBase + k) * 4];
         const float* tv[3];
 
-        for (ezInt32 m = 0; m < 3; ++m)
+        for (WInt32 m = 0; m < 3; ++m)
         {
           if (t[m] < p->vertCount)
             tv[m] = &meshTile.verts[p->verts[t[m]] * 3];
@@ -137,7 +137,7 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
             tv[m] = &meshTile.detailVerts[(detailMesh.vertBase + (t[m] - p->vertCount)) * 3];
         }
 
-        for (ezInt32 m = 0, n = 2; m < 3; n = m++)
+        for (WInt32 m = 0, n = 2; m < 3; n = m++)
         {
           if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
             continue;

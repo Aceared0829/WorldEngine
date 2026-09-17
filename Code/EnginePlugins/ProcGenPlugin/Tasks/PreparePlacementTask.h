@@ -3,9 +3,9 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
-  class PreparePlacementTask final : public ezTask
+  class PreparePlacementTask final : public WTask
   {
   public:
     PreparePlacementTask(PlacementData* pData, const char* szName);
@@ -20,4 +20,4 @@ namespace ezProcGenInternal
 
     virtual void Execute() override;
   };
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

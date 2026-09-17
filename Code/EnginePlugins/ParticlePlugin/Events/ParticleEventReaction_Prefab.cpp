@@ -8,22 +8,22 @@
 #include <ParticlePlugin/Events/ParticleEventReaction_Prefab.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTIDefaultAllocator<ezParticleEventReactionFactory_Prefab>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEventReactionFactory_Prefab, 1, WRTTIDefaultAllocator<WParticleEventReactionFactory_Prefab>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab"), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
+    W_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab"), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("Alignment", WSurfaceInteractionAlignment, m_Alignment),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Prefab, 1, ezRTTIDefaultAllocator<ezParticleEventReaction_Prefab>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEventReaction_Prefab, 1, WRTTIDefaultAllocator<WParticleEventReaction_Prefab>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEventReactionFactory_Prefab::ezParticleEventReactionFactory_Prefab() = default;
+WParticleEventReactionFactory_Prefab::WParticleEventReactionFactory_Prefab() = default;
 
 enum class ReactionPrefabVersion
 {
@@ -36,11 +36,11 @@ enum class ReactionPrefabVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory_Prefab::Save(ezStreamWriter& inout_stream) const
+void WParticleEventReactionFactory_Prefab::Save(WStreamWriter& inout_stream) const
 {
   SUPER::Save(inout_stream);
 
-  const ezUInt8 uiVersion = (int)ReactionPrefabVersion::Version_Current;
+  const WUInt8 uiVersion = (int)ReactionPrefabVersion::Version_Current;
   inout_stream << uiVersion;
 
   // Version 1
@@ -50,14 +50,14 @@ void ezParticleEventReactionFactory_Prefab::Save(ezStreamWriter& inout_stream) c
   inout_stream << m_Alignment;
 }
 
-void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
+void WParticleEventReactionFactory_Prefab::Load(WStreamReader& inout_stream)
 {
   SUPER::Load(inout_stream);
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)ReactionPrefabVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)ReactionPrefabVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   // Version 1
   inout_stream >> m_sPrefab;
@@ -69,20 +69,20 @@ void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
 
   if (!m_sPrefab.IsEmpty())
   {
-    m_hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(m_sPrefab);
+    m_hPrefab = WResourceManager::LoadResource<WPrefabResource>(m_sPrefab);
   }
 }
 
 
-const ezRTTI* ezParticleEventReactionFactory_Prefab::GetEventReactionType() const
+const WRTTI* WParticleEventReactionFactory_Prefab::GetEventReactionType() const
 {
-  return ezGetStaticRTTI<ezParticleEventReaction_Prefab>();
+  return WGetStaticRTTI<WParticleEventReaction_Prefab>();
 }
 
 
-void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const
+void WParticleEventReactionFactory_Prefab::CopyReactionProperties(WParticleEventReaction* pObject, bool bFirstTime) const
 {
-  ezParticleEventReaction_Prefab* pReaction = static_cast<ezParticleEventReaction_Prefab*>(pObject);
+  WParticleEventReaction_Prefab* pReaction = static_cast<WParticleEventReaction_Prefab*>(pObject);
 
   pReaction->m_hPrefab = m_hPrefab;
   pReaction->m_Alignment = m_Alignment;
@@ -90,61 +90,61 @@ void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEve
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleEventReaction_Prefab::ezParticleEventReaction_Prefab() = default;
-ezParticleEventReaction_Prefab::~ezParticleEventReaction_Prefab() = default;
+WParticleEventReaction_Prefab::WParticleEventReaction_Prefab() = default;
+WParticleEventReaction_Prefab::~WParticleEventReaction_Prefab() = default;
 
-void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
+void WParticleEventReaction_Prefab::ProcessEvent(const WParticleEvent& e)
 {
   if (!m_hPrefab.IsValid())
     return;
 
-  ezTransform trans;
+  WTransform trans;
   trans.m_vScale.Set(1.0f);
   trans.m_vPosition = e.m_vPosition;
 
-  ezVec3 vAlignDir = e.m_vNormal;
+  WVec3 vAlignDir = e.m_vNormal;
 
   switch (m_Alignment)
   {
-    case ezSurfaceInteractionAlignment::IncidentDirection:
+    case WSurfaceInteractionAlignment::IncidentDirection:
       vAlignDir = -e.m_vDirection;
       break;
 
-    case ezSurfaceInteractionAlignment::ReflectedDirection:
+    case WSurfaceInteractionAlignment::ReflectedDirection:
       vAlignDir = e.m_vDirection.GetReflectedVector(e.m_vNormal);
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
+    case WSurfaceInteractionAlignment::ReverseSurfaceNormal:
       vAlignDir = -e.m_vNormal;
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+    case WSurfaceInteractionAlignment::ReverseIncidentDirection:
       vAlignDir = e.m_vDirection;
       ;
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+    case WSurfaceInteractionAlignment::ReverseReflectedDirection:
       vAlignDir = -e.m_vDirection.GetReflectedVector(e.m_vNormal);
       break;
 
-    case ezSurfaceInteractionAlignment::SurfaceNormal:
+    case WSurfaceInteractionAlignment::SurfaceNormal:
       break;
   }
 
   // rotate the prefab randomly along its main axis (the X axis)
-  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromRadian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
+  WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3(1, 0, 0), WAngle::MakeFromRadian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * WMath::Pi<float>() * 2.0f));
 
-  vAlignDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+  vAlignDir.NormalizeIfNotZero(WVec3::MakeAxisX()).IgnoreResult();
 
-  trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vAlignDir);
+  trans.m_qRotation = WQuat::MakeShortestRotation(WVec3(1, 0, 0), vAlignDir);
   trans.m_qRotation = trans.m_qRotation * qRot;
 
-  ezResourceLock<ezPrefabResource> pPrefab(m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WPrefabResource> pPrefab(m_hPrefab, WResourceAcquireMode::BlockTillLoaded);
 
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
 
   pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, options);
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Prefab);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Prefab);

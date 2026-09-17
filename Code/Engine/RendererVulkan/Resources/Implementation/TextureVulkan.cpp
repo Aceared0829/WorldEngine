@@ -8,16 +8,16 @@
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-vk::Extent3D ezGALTextureVulkan::GetMipLevelSize(const ezGALTextureCreationDescription& description, ezUInt32 uiMipLevel)
+vk::Extent3D WGALTextureVulkan::GetMipLevelSize(const WGALTextureCreationDescription& description, WUInt32 uiMipLevel)
 {
   vk::Extent3D size = {description.m_uiWidth, description.m_uiHeight, description.m_uiDepth};
-  size.width = ezMath::Max(1u, size.width >> uiMipLevel);
-  size.height = ezMath::Max(1u, size.height >> uiMipLevel);
-  size.depth = ezMath::Max(1u, size.depth >> uiMipLevel);
+  size.width = WMath::Max(1u, size.width >> uiMipLevel);
+  size.height = WMath::Max(1u, size.height >> uiMipLevel);
+  size.depth = WMath::Max(1u, size.depth >> uiMipLevel);
   return size;
 }
 
-vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
+vk::ImageSubresourceRange WGALTextureVulkan::GetFullRange() const
 {
   vk::ImageSubresourceRange range;
   range.aspectMask = GetAspectMask();
@@ -26,7 +26,7 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
   range.layerCount = m_Description.m_uiArraySize;
   range.levelCount = m_Description.m_uiMipLevelCount;
 
-  if (m_Description.m_Type == ezGALTextureType::TextureCube || m_Description.m_Type == ezGALTextureType::TextureCubeArray)
+  if (m_Description.m_Type == WGALTextureType::TextureCube || m_Description.m_Type == WGALTextureType::TextureCubeArray)
   {
     range.layerCount *= 6;
   }
@@ -34,15 +34,15 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
   return range;
 }
 
-vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
+vk::ImageAspectFlags WGALTextureVulkan::GetAspectMask() const
 {
-  vk::ImageAspectFlags mask = ezConversionUtilsVulkan::IsDepthFormat(m_ImageFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (ezConversionUtilsVulkan::IsStencilFormat(m_ImageFormat))
+  vk::ImageAspectFlags mask = WConversionUtilsVulkan::IsDepthFormat(m_ImageFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (WConversionUtilsVulkan::IsStencilFormat(m_ImageFormat))
     mask |= vk::ImageAspectFlagBits::eStencil;
   return mask;
 }
 
-vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureRange textureRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+vk::DescriptorImageInfo WGALTextureVulkan::GetDescriptorImageInfo(WGALTextureRange textureRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALShaderTextureType> textureType, WEnum<WGALResourceFormat> overrideViewFormat) const
 {
   vk::DescriptorImageInfo imageInfo;
   View view;
@@ -53,18 +53,18 @@ vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureR
 
   if (!m_TextureViews.TryGetValue(view, imageInfo))
   {
-    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+    const WGALResourceFormat::Enum viewFormat = overrideViewFormat == WGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
 
     vk::ImageViewCreateInfo viewCreateInfo;
     viewCreateInfo.image = m_Image;
-    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(textureType);
+    viewCreateInfo.viewType = WConversionUtilsVulkan::GetImageViewType(textureType);
     viewCreateInfo.format = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
-    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(viewFormat, textureRange);
+    viewCreateInfo.subresourceRange = WConversionUtilsVulkan::GetSubresourceRange(viewFormat, textureRange);
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
 
     VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &imageInfo.imageView));
-    imageInfo.imageLayout = ezConversionUtilsVulkan::GetTextureReadLayout(m_ImageFormat);
-    if (resourceType == ezGALShaderResourceType::TextureRW)
+    imageInfo.imageLayout = WConversionUtilsVulkan::GetTextureReadLayout(m_ImageFormat);
+    if (resourceType == WGALShaderResourceType::TextureRW)
       imageInfo.imageLayout = vk::ImageLayout::eGeneral;
     m_TextureViews.Insert(view, imageInfo);
   }
@@ -72,16 +72,16 @@ vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureR
   return imageInfo;
 }
 
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
-  : ezGALTexture(Description)
+WGALTextureVulkan::WGALTextureVulkan(const WGALTextureCreationDescription& Description)
+  : WGALTexture(Description)
 {
 }
 
-ezGALTextureVulkan::~ezGALTextureVulkan() = default;
+WGALTextureVulkan::~WGALTextureVulkan() = default;
 
-ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+WResult WGALTextureVulkan::InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData)
 {
-  m_pDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDevice = static_cast<WGALDeviceVulkan*>(pDevice);
 
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
@@ -96,21 +96,21 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   }
   else
   {
-    ezVulkanAllocationCreateInfo allocInfo;
+    WVulkanAllocationCreateInfo allocInfo;
     ComputeAllocInfo(allocInfo);
 
     vk::ImageFormatProperties props2;
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_Image, m_pAlloc, &m_AllocInfo));
+    VK_SUCCEED_OR_RETURN_W_FAILURE(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
+    VK_SUCCEED_OR_RETURN_W_FAILURE(WMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_Image, m_pAlloc, &m_AllocInfo));
     m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-vk::Format ezGALTextureVulkan::ComputeImageFormat(const ezGALDeviceVulkan* pDevice, ezEnum<ezGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats)
+vk::Format WGALTextureVulkan::ComputeImageFormat(const WGALDeviceVulkan* pDevice, WEnum<WGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats)
 {
-  const ezGALFormatLookupEntryVulkan& format = pDevice->GetFormatLookupTable().GetFormatInfo(galFormat);
+  const WGALFormatLookupEntryVulkan& format = pDevice->GetFormatLookupTable().GetFormatInfo(galFormat);
 
   ref_createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
   if (pDevice->GetExtensions().m_bImageFormatList && !format.m_mutableFormats.IsEmpty())
@@ -125,11 +125,11 @@ vk::Format ezGALTextureVulkan::ComputeImageFormat(const ezGALDeviceVulkan* pDevi
   return ref_createInfo.format;
 }
 
-void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& out_createInfo)
+void WGALTextureVulkan::ComputeCreateInfo(const WGALDeviceVulkan* pDevice, const WGALTextureCreationDescription& description, vk::ImageCreateInfo& out_createInfo)
 {
-  EZ_ASSERT_DEBUG(out_createInfo.format != vk::Format::eUndefined, "No storage format available for given format: {0}", description.m_Format);
+  W_ASSERT_DEBUG(out_createInfo.format != vk::Format::eUndefined, "No storage format available for given format: {0}", description.m_Format);
 
-  const bool bIsDepth = ezConversionUtilsVulkan::IsDepthFormat(out_createInfo.format);
+  const bool bIsDepth = WConversionUtilsVulkan::IsDepthFormat(out_createInfo.format);
 
   // Transfer is always needed.
   out_createInfo.initialLayout = vk::ImageLayout::eUndefined;
@@ -150,7 +150,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, con
   out_createInfo.samples = static_cast<vk::SampleCountFlagBits>(description.m_SampleCount.GetValue());
 
   // Shader resources need transfer and sampled support for mip generation via shader.
-  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
+  if (description.m_TextureFlags.IsSet(WGALTextureUsageFlags::ShaderResource))
   {
     out_createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
     out_createInfo.usage |= vk::ImageUsageFlagBits::eSampled;
@@ -164,7 +164,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, con
     out_createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
   }
 
-  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+  if (description.m_TextureFlags.IsSet(WGALTextureUsageFlags::RenderTarget))
   {
     if (bIsDepth)
     {
@@ -175,34 +175,34 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, con
     }
   }
 
-  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
+  if (description.m_TextureFlags.IsSet(WGALTextureUsageFlags::UnorderedAccess))
   {
     out_createInfo.usage |= vk::ImageUsageFlagBits::eStorage;
   }
 
   switch (description.m_Type)
   {
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
+    case WGALTextureType::TextureCube:
+    case WGALTextureType::TextureCubeArray:
       out_createInfo.imageType = vk::ImageType::e2D;
       out_createInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
       out_createInfo.arrayLayers = description.m_uiArraySize * 6;
       break;
 
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::Texture2DShared:
+    case WGALTextureType::Texture2D:
+    case WGALTextureType::Texture2DArray:
+    case WGALTextureType::Texture2DShared:
     {
       out_createInfo.imageType = vk::ImageType::e2D;
       out_createInfo.arrayLayers = description.m_uiArraySize;
     }
     break;
 
-    case ezGALTextureType::Texture3D:
+    case WGALTextureType::Texture3D:
     {
       out_createInfo.arrayLayers = 1;
       out_createInfo.imageType = vk::ImageType::e3D;
-      if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+      if (description.m_TextureFlags.IsSet(WGALTextureUsageFlags::RenderTarget))
       {
         out_createInfo.flags |= vk::ImageCreateFlagBits::e2DArrayCompatible;
       }
@@ -210,32 +210,32 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, con
     break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
-void ezGALTextureVulkan::ComputeAllocInfo(ezVulkanAllocationCreateInfo& ref_allocInfo)
+void WGALTextureVulkan::ComputeAllocInfo(WVulkanAllocationCreateInfo& ref_allocInfo)
 {
-  ref_allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+  ref_allocInfo.m_usage = WVulkanMemoryUsage::Auto;
 }
 
-ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& ref_subResourceSizes)
+WUInt32 WGALTextureVulkan::ComputeSubResourceOffsets(const WGALDeviceVulkan* pDevice, const WGALTextureCreationDescription& description, WDynamicArray<SubResourceOffset>& ref_subResourceSizes)
 {
-  const ezUInt32 alignment = (ezUInt32)ezGALBufferVulkan::GetAlignment(pDevice, vk::BufferUsageFlagBits::eTransferDst);
+  const WUInt32 alignment = (WUInt32)WGALBufferVulkan::GetAlignment(pDevice, vk::BufferUsageFlagBits::eTransferDst);
   const vk::Format stagingFormat = pDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_readback;
-  const ezUInt8 uiBlockSize = vk::blockSize(stagingFormat);
+  const WUInt8 uiBlockSize = vk::blockSize(stagingFormat);
   const auto blockExtent = vk::blockExtent(stagingFormat);
-  const ezUInt32 arrayLayers = (description.m_Type == ezGALTextureType::TextureCube || description.m_Type == ezGALTextureType::TextureCubeArray) ? (description.m_uiArraySize * 6) : description.m_uiArraySize;
-  const ezUInt32 mipLevels = description.m_uiMipLevelCount;
+  const WUInt32 arrayLayers = (description.m_Type == WGALTextureType::TextureCube || description.m_Type == WGALTextureType::TextureCubeArray) ? (description.m_uiArraySize * 6) : description.m_uiArraySize;
+  const WUInt32 mipLevels = description.m_uiMipLevelCount;
 
   ref_subResourceSizes.Reserve(arrayLayers * mipLevels);
-  ezUInt32 uiOffset = 0;
-  for (ezUInt32 uiLayer = 0; uiLayer < arrayLayers; uiLayer++)
+  WUInt32 uiOffset = 0;
+  for (WUInt32 uiLayer = 0; uiLayer < arrayLayers; uiLayer++)
   {
-    for (ezUInt32 uiMipLevel = 0; uiMipLevel < mipLevels; uiMipLevel++)
+    for (WUInt32 uiMipLevel = 0; uiMipLevel < mipLevels; uiMipLevel++)
     {
-      const ezUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * mipLevels;
-      EZ_ASSERT_DEBUG(ref_subResourceSizes.GetCount() == uiSubresourceIndex, "");
+      const WUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * mipLevels;
+      W_ASSERT_DEBUG(ref_subResourceSizes.GetCount() == uiSubresourceIndex, "");
 
       const vk::Extent3D imageExtent = GetMipLevelSize(description, uiMipLevel);
       const VkExtent3D blockCount = {
@@ -243,17 +243,17 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* 
         (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
         (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
-      const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
+      const WUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
       ref_subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width * blockExtent[0], blockCount.height * blockExtent[1]});
-      uiOffset += ezMemoryUtils::AlignSize(uiTotalSize, alignment);
+      uiOffset += WMemoryUtils::AlignSize(uiTotalSize, alignment);
     }
   }
   return uiOffset;
 }
 
-ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALTextureVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
   if (m_Image && !m_Description.m_pExisitingNativeObject)
   {
     pVulkanDevice->DeleteLater(m_Image, m_pAlloc);
@@ -267,10 +267,10 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   m_TextureViews.Clear();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
+void WGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_pDevice->SetDebugName(szName, m_Image, m_pAlloc);
 }

@@ -10,46 +10,46 @@
 
 struct FileResourceLoadData
 {
-  ezBlob m_Storage;
-  ezRawMemoryStreamReader m_Reader;
+  WBlob m_Storage;
+  WRawMemoryStreamReader m_Reader;
 };
 
-ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WResourceLoaderFromFile::OpenDataStream(const WResource* pResource)
 {
-  EZ_PROFILE_SCOPE("ReadResourceFile");
+  W_PROFILE_SCOPE("ReadResourceFile");
 
-  ezResourceLoadData res;
+  WResourceLoadData res;
 
-  ezFileReader File;
+  WFileReader File;
   if (File.Open(pResource->GetResourceID()).Failed())
     return res;
 
   res.m_sResourceDescription = File.GetFilePathRelative().GetData();
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  ezFileStats stat;
-  if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
+  WFileStats stat;
+  if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
   {
     res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
   }
 
 #endif
 
-  FileResourceLoadData* pData = EZ_DEFAULT_NEW(FileResourceLoadData);
+  FileResourceLoadData* pData = W_DEFAULT_NEW(FileResourceLoadData);
 
-  const ezUInt64 uiFileSize = File.GetFileSize();
+  const WUInt64 uiFileSize = File.GetFileSize();
 
-  const ezUInt64 uiBlobCapacity = uiFileSize + File.GetFilePathAbsolute().GetElementCount() + 8; // +8 for the string overhead
+  const WUInt64 uiBlobCapacity = uiFileSize + File.GetFilePathAbsolute().GetElementCount() + 8; // +8 for the string overhead
   pData->m_Storage.SetCountUninitialized(uiBlobCapacity);
 
-  ezUInt8* pBlobPtr = pData->m_Storage.GetBlobPtr<ezUInt8>().GetPtr();
+  WUInt8* pBlobPtr = pData->m_Storage.GetBlobPtr<WUInt8>().GetPtr();
 
-  ezRawMemoryStreamWriter w(pBlobPtr, uiBlobCapacity);
+  WRawMemoryStreamWriter w(pBlobPtr, uiBlobCapacity);
 
   // write the absolute path to the read file into the memory stream
   w << File.GetFilePathAbsolute();
 
-  const ezUInt64 uiOffset = w.GetNumWrittenBytes();
+  const WUInt64 uiOffset = w.GetNumWrittenBytes();
 
   File.ReadBytes(pBlobPtr + uiOffset, uiFileSize);
 
@@ -60,30 +60,30 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
   return res;
 }
 
-void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WResourceLoaderFromFile::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
-  EZ_IGNORE_UNUSED(pResource);
+  W_IGNORE_UNUSED(pResource);
 
   FileResourceLoadData* pData = static_cast<FileResourceLoadData*>(loaderData.m_pCustomLoaderData);
 
-  EZ_DEFAULT_DELETE(pData);
+  W_DEFAULT_DELETE(pData);
 }
 
-bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) const
+bool WResourceLoaderFromFile::IsResourceOutdated(const WResource* pResource) const
 {
   // if we cannot find the target file, there is no point in trying to reload it -> claim it's up to date
-  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), nullptr, nullptr).Failed())
+  if (WFileSystem::ResolvePath(pResource->GetResourceID(), nullptr, nullptr).Failed())
     return false;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
 
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
-    ezFileStats stat;
-    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
+    WFileStats stat;
+    if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
       return false;
 
-    return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);
+    return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), WTimestamp::CompareMode::FileTimeEqual);
   }
 
 #endif
@@ -93,14 +93,14 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) c
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WResourceLoaderFromMemory::OpenDataStream(const WResource* pResource)
 {
-  EZ_IGNORE_UNUSED(pResource);
+  W_IGNORE_UNUSED(pResource);
 
   m_Reader.SetStorage(&m_CustomData);
   m_Reader.SetReadPosition(0);
 
-  ezResourceLoadData res;
+  WResourceLoadData res;
 
   res.m_sResourceDescription = m_sResourceDescription;
   res.m_LoadedFileModificationDate = m_ModificationTimestamp;
@@ -110,19 +110,19 @@ ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* 
   return res;
 }
 
-void ezResourceLoaderFromMemory::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WResourceLoaderFromMemory::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
-  EZ_IGNORE_UNUSED(pResource);
-  EZ_IGNORE_UNUSED(loaderData);
+  W_IGNORE_UNUSED(pResource);
+  W_IGNORE_UNUSED(loaderData);
 
   m_Reader.SetStorage(nullptr);
 }
 
-bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResource* pResource) const
+bool WResourceLoaderFromMemory::IsResourceOutdated(const WResource* pResource) const
 {
   if (pResource->GetLoadedFileModificationTime().IsValid() && m_ModificationTimestamp.IsValid())
   {
-    if (!m_ModificationTimestamp.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
+    if (!m_ModificationTimestamp.Compare(pResource->GetLoadedFileModificationTime(), WTimestamp::CompareMode::FileTimeEqual))
       return true;
 
     return false;

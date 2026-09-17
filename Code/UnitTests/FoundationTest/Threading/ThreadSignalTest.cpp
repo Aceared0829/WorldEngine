@@ -6,20 +6,20 @@
 
 namespace
 {
-  class TestThread2 : public ezThread
+  class TestThread2 : public WThread
   {
   public:
     TestThread2()
-      : ezThread("Test Thread")
+      : WThread("Test Thread")
     {
     }
 
-    ezThreadSignal* m_pSignalAuto = nullptr;
-    ezThreadSignal* m_pSignalManual = nullptr;
-    ezAtomicInteger32* m_pCounter = nullptr;
+    WThreadSignal* m_pSignalAuto = nullptr;
+    WThreadSignal* m_pSignalManual = nullptr;
+    WAtomicInteger32* m_pCounter = nullptr;
     bool m_bTimeout = false;
 
-    virtual ezUInt32 Run()
+    virtual WUInt32 Run()
     {
       m_pCounter->Decrement();
 
@@ -29,7 +29,7 @@ namespace
 
       if (m_bTimeout)
       {
-        m_pSignalManual->WaitForSignal(ezTime::MakeFromSeconds(0.5));
+        m_pSignalManual->WaitForSignal(WTime::MakeFromSeconds(0.5));
       }
       else
       {
@@ -43,20 +43,20 @@ namespace
   };
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
+W_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Wait No Timeout")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Wait No Timeout")
   {
-    constexpr ezUInt32 uiNumThreads = 32;
+    constexpr WUInt32 uiNumThreads = 32;
 
-    ezUniquePtr<TestThread2> pTestThread2s[uiNumThreads];
-    ezAtomicInteger32 iCounter = uiNumThreads;
-    ezThreadSignal sigAuto(ezThreadSignal::Mode::AutoReset);
-    ezThreadSignal sigManual(ezThreadSignal::Mode::ManualReset);
+    WUniquePtr<TestThread2> pTestThread2s[uiNumThreads];
+    WAtomicInteger32 iCounter = uiNumThreads;
+    WThreadSignal sigAuto(WThreadSignal::Mode::AutoReset);
+    WThreadSignal sigManual(WThreadSignal::Mode::ManualReset);
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
-      pTestThread2s[i] = EZ_DEFAULT_NEW(TestThread2);
+      pTestThread2s[i] = W_DEFAULT_NEW(TestThread2);
       pTestThread2s[i]->m_pCounter = &iCounter;
       pTestThread2s[i]->m_pSignalAuto = &sigAuto;
       pTestThread2s[i]->m_pSignalManual = &sigManual;
@@ -66,18 +66,18 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
     // wait until all threads are in waiting state
     while (iCounter > 0)
     {
-      ezThreadUtils::YieldTimeSlice();
+      WThreadUtils::YieldTimeSlice();
     }
 
-    for (ezUInt32 t = 0; t < uiNumThreads; ++t)
+    for (WUInt32 t = 0; t < uiNumThreads; ++t)
     {
-      const ezInt32 iExpected = t + 1;
+      const WInt32 iExpected = t + 1;
 
       sigAuto.RaiseSignal();
 
-      for (ezUInt32 a = 0; a < 1000; ++a)
+      for (WUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
 
         if (iCounter >= iExpected)
           break;
@@ -85,47 +85,47 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
 
       // theoretically this could fail, if the OS doesn't wake up any other thread in time
       // but with 1000 tries that is very unlikely
-      EZ_TEST_INT(iCounter, iExpected);
-      EZ_TEST_BOOL(iCounter <= iExpected); // THIS test must never fail!
+      W_TEST_INT(iCounter, iExpected);
+      W_TEST_BOOL(iCounter <= iExpected); // THIS test must never fail!
     }
 
     // wake up the rest
     {
       sigManual.RaiseSignal();
 
-      for (ezUInt32 a = 0; a < 1000; ++a)
+      for (WUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
 
-        if (iCounter >= (ezInt32)uiNumThreads * 2)
+        if (iCounter >= (WInt32)uiNumThreads * 2)
           break;
       }
 
       // theoretically this could fail, if the OS doesn't wake up any other thread in time
       // but with 1000 tries that is very unlikely
-      EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads * 2);
-      EZ_TEST_BOOL(iCounter <= (ezInt32)uiNumThreads * 2); // THIS test must never fail!
+      W_TEST_INT(iCounter, (WInt32)uiNumThreads * 2);
+      W_TEST_BOOL(iCounter <= (WInt32)uiNumThreads * 2); // THIS test must never fail!
     }
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
       pTestThread2s[i]->Join();
     }
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Wait With Timeout")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Wait With Timeout")
   {
-    constexpr ezUInt32 uiNumThreads = 16;
+    constexpr WUInt32 uiNumThreads = 16;
 
-    ezUniquePtr<TestThread2> pTestThread2s[uiNumThreads];
-    ezAtomicInteger32 iCounter = uiNumThreads;
-    ezThreadSignal sigAuto(ezThreadSignal::Mode::AutoReset);
-    ezThreadSignal sigManual(ezThreadSignal::Mode::ManualReset);
+    WUniquePtr<TestThread2> pTestThread2s[uiNumThreads];
+    WAtomicInteger32 iCounter = uiNumThreads;
+    WThreadSignal sigAuto(WThreadSignal::Mode::AutoReset);
+    WThreadSignal sigManual(WThreadSignal::Mode::ManualReset);
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
-      pTestThread2s[i] = EZ_DEFAULT_NEW(TestThread2);
+      pTestThread2s[i] = W_DEFAULT_NEW(TestThread2);
       pTestThread2s[i]->m_pCounter = &iCounter;
       pTestThread2s[i]->m_pSignalAuto = &sigAuto;
       pTestThread2s[i]->m_pSignalManual = &sigManual;
@@ -136,43 +136,43 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
     // wait until all threads are in waiting state
     while (iCounter > 0)
     {
-      ezThreadUtils::YieldTimeSlice();
+      WThreadUtils::YieldTimeSlice();
     }
 
     // raise the signal N times
-    for (ezUInt32 t = 0; t < uiNumThreads; ++t)
+    for (WUInt32 t = 0; t < uiNumThreads; ++t)
     {
       sigAuto.RaiseSignal();
 
-      for (ezUInt32 a = 0; a < 1000; ++a)
+      for (WUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
 
-        if (iCounter >= (ezInt32)t + 1)
+        if (iCounter >= (WInt32)t + 1)
           break;
       }
     }
 
     // due to the wait timeout in the thread, testing this exact value here would be unreliable
-    // EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads);
+    // W_TEST_INT(iCounter, (WInt32)uiNumThreads);
 
     // just wait for the rest
     {
-      for (ezUInt32 a = 0; a < 100; ++a)
+      for (WUInt32 a = 0; a < 100; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(50));
 
-        if (iCounter >= (ezInt32)uiNumThreads * 2)
+        if (iCounter >= (WInt32)uiNumThreads * 2)
           break;
       }
 
       // theoretically this could fail, if the OS doesn't wake up any other thread in time
       // but with 1000 tries that is very unlikely
-      EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads * 2);
-      EZ_TEST_BOOL(iCounter <= (ezInt32)uiNumThreads * 2); // THIS test must never fail!
+      W_TEST_INT(iCounter, (WInt32)uiNumThreads * 2);
+      W_TEST_BOOL(iCounter <= (WInt32)uiNumThreads * 2); // THIS test must never fail!
     }
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
       pTestThread2s[i]->Join();
     }

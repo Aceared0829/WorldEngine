@@ -2,10 +2,10 @@
 
 #include <Mcp/McpTool.h>
 
-class ezRTTI;
-class ezMcpJsonWriter;
-class ezAbstractProperty;
-class ezAbstractFunctionProperty;
+class WRTTI;
+class WMcpJsonWriter;
+class WAbstractProperty;
+class WAbstractFunctionProperty;
 
 /// Exposes the reflection data, so an agent can find out which types exist and what they look like.
 ///
@@ -17,34 +17,34 @@ class ezAbstractFunctionProperty;
 /// Host independent, hence concrete and living in the Mcp library: reflection is the same system in a
 /// game as in the editor, and it is how an agent finds out what a component or a game's own types look
 /// like. Whatever the host has registered by the time of the call is what gets reported - in the editor
-/// that includes the phantom types ezPhantomRttiManager puts into ezRTTI, which the same traversal picks
+/// that includes the phantom types WPhantomRttiManager puts into WRTTI, which the same traversal picks
 /// up without having to know about them.
-class ezMcpRttiTool : public ezMcpToolProvider
+class WMcpRttiTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpRttiTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpRttiTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteFindTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteTypeProperties(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteDerivedTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteFindTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteTypeInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteTypeProperties(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteDerivedTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 
-  static void WriteTypeFlags(ezMcpJsonWriter& ref_writer, const ezRTTI* pType);
-  static void WritePropertyFlags(ezMcpJsonWriter& ref_writer, ezStringView sName, ezBitflags<ezPropertyFlags> flags);
-  static void WriteAttributes(ezMcpJsonWriter& ref_writer, ezArrayPtr<const ezPropertyAttribute* const> attributes);
+  static void WriteTypeFlags(WMcpJsonWriter& ref_writer, const WRTTI* pType);
+  static void WritePropertyFlags(WMcpJsonWriter& ref_writer, WStringView sName, WBitflags<WPropertyFlags> flags);
+  static void WriteAttributes(WMcpJsonWriter& ref_writer, WArrayPtr<const WPropertyAttribute* const> attributes);
 
   /// Writes one attribute as an object: its concrete type plus its reflected members.
-  static void WriteAttribute(ezMcpJsonWriter& ref_writer, const ezPropertyAttribute* pAttr);
+  static void WriteAttribute(WMcpJsonWriter& ref_writer, const WPropertyAttribute* pAttr);
 
   /// Returns the attribute a variant points at, or nullptr if it does not hold one. Attributes nested
   /// inside another attribute arrive as a TypedPointer and would otherwise lose their contents.
-  static const ezPropertyAttribute* GetAttributeFromVariant(const ezVariant& value);
+  static const WPropertyAttribute* GetAttributeFromVariant(const WVariant& value);
   /// \param pOwnerType The type the property was listed for. Only used to look up its translations, which
-  ///        are keyed on the declaring type - ezAbstractProperty does not know which type that is.
-  static void WriteProperty(ezMcpJsonWriter& ref_writer, const ezRTTI* pOwnerType, const ezAbstractProperty* pProp);
-  static void WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractFunctionProperty* pFunc);
+  ///        are keyed on the declaring type - WAbstractProperty does not know which type that is.
+  static void WriteProperty(WMcpJsonWriter& ref_writer, const WRTTI* pOwnerType, const WAbstractProperty* pProp);
+  static void WriteFunction(WMcpJsonWriter& ref_writer, const WAbstractFunctionProperty* pFunc);
 };

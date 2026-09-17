@@ -7,22 +7,22 @@
 ///
 /// Converts a regular texture to an MSAA texture by replicating samples. Used when
 /// transitioning from non-MSAA to MSAA rendering in the pipeline.
-class EZ_RENDERERCORE_DLL ezMsaaUpscalePass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WMsaaUpscalePass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMsaaUpscalePass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WMsaaUpscalePass, WRenderPipelinePass);
 
 public:
-  ezMsaaUpscalePass();
-  ~ezMsaaUpscalePass();
+  WMsaaUpscalePass();
+  ~WMsaaUpscalePass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;
-  ezShaderResourceHandle m_hShader;
+  WEnum<WGALMSAASampleCount> m_MsaaMode = WGALMSAASampleCount::None;
+  WShaderResourceHandle m_hShader;
 };

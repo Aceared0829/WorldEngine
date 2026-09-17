@@ -4,189 +4,189 @@
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariantTestStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezVariantTestStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVariantTestStruct, WNoBase, 1, WRTTIDefaultAllocator<WVariantTestStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Variant", m_Variant),
-    EZ_ARRAY_MEMBER_PROPERTY("VariantArray", m_VariantArray),
-    EZ_MAP_MEMBER_PROPERTY("VariantDictionary", m_VariantDictionary)
+    W_MEMBER_PROPERTY("Variant", m_Variant),
+    W_ARRAY_MEMBER_PROPERTY("VariantArray", m_VariantArray),
+    W_MAP_MEMBER_PROPERTY("VariantDictionary", m_VariantDictionary)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezIntegerStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WIntegerStruct, WNoBase, 1, WRTTIDefaultAllocator<WIntegerStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Int8", GetInt8, SetInt8),
-    EZ_ACCESSOR_PROPERTY("UInt8", GetUInt8, SetUInt8),
-    EZ_MEMBER_PROPERTY("Int16", m_iInt16),
-    EZ_MEMBER_PROPERTY("UInt16", m_iUInt16),
-    EZ_ACCESSOR_PROPERTY("Int32", GetInt32, SetInt32),
-    EZ_ACCESSOR_PROPERTY("UInt32", GetUInt32, SetUInt32),
-    EZ_MEMBER_PROPERTY("Int64", m_iInt64),
-    EZ_MEMBER_PROPERTY("UInt64", m_iUInt64),
+    W_ACCESSOR_PROPERTY("Int8", GetInt8, SetInt8),
+    W_ACCESSOR_PROPERTY("UInt8", GetUInt8, SetUInt8),
+    W_MEMBER_PROPERTY("Int16", m_iInt16),
+    W_MEMBER_PROPERTY("UInt16", m_iUInt16),
+    W_ACCESSOR_PROPERTY("Int32", GetInt32, SetInt32),
+    W_ACCESSOR_PROPERTY("UInt32", GetUInt32, SetUInt32),
+    W_MEMBER_PROPERTY("Int64", m_iInt64),
+    W_MEMBER_PROPERTY("UInt64", m_iUInt64),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezFloatStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WFloatStruct, WNoBase, 1, WRTTIDefaultAllocator<WFloatStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Float", GetFloat, SetFloat),
-    EZ_ACCESSOR_PROPERTY("Double", GetDouble, SetDouble),
-    EZ_ACCESSOR_PROPERTY("Time", GetTime, SetTime),
-    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle),
+    W_ACCESSOR_PROPERTY("Float", GetFloat, SetFloat),
+    W_ACCESSOR_PROPERTY("Double", GetDouble, SetDouble),
+    W_ACCESSOR_PROPERTY("Time", GetTime, SetTime),
+    W_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, 1, ezRTTIDefaultAllocator<ezPODClass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPODClass, 1, WRTTIDefaultAllocator<WPODClass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Integer", m_IntegerStruct),
-    EZ_MEMBER_PROPERTY("Float", m_FloatStruct),
-    EZ_ACCESSOR_PROPERTY("Bool", GetBool, SetBool),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor),
-    EZ_MEMBER_PROPERTY("ColorUB", m_Color2),
-    EZ_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr),
-    EZ_ACCESSOR_PROPERTY("String", GetString, SetString),
-    EZ_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView),
-    EZ_ACCESSOR_PROPERTY("Buffer", GetBuffer, SetBuffer),
-    EZ_ACCESSOR_PROPERTY("VarianceAngle", GetCustom, SetCustom),
+    W_MEMBER_PROPERTY("Integer", m_IntegerStruct),
+    W_MEMBER_PROPERTY("Float", m_FloatStruct),
+    W_ACCESSOR_PROPERTY("Bool", GetBool, SetBool),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor),
+    W_MEMBER_PROPERTY("ColorUB", m_Color2),
+    W_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr),
+    W_ACCESSOR_PROPERTY("String", GetString, SetString),
+    W_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView),
+    W_ACCESSOR_PROPERTY("Buffer", GetBuffer, SetBuffer),
+    W_ACCESSOR_PROPERTY("VarianceAngle", GetCustom, SetCustom),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, 1, ezRTTIDefaultAllocator<ezMathClass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMathClass, 1, WRTTIDefaultAllocator<WMathClass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Vec2", GetVec2, SetVec2),
-    EZ_ACCESSOR_PROPERTY("Vec3", GetVec3, SetVec3),
-    EZ_ACCESSOR_PROPERTY("Vec4", GetVec4, SetVec4),
-    EZ_MEMBER_PROPERTY("Vec2I", m_Vec2I),
-    EZ_MEMBER_PROPERTY("Vec3I", m_Vec3I),
-    EZ_MEMBER_PROPERTY("Vec4I", m_Vec4I),
-    EZ_ACCESSOR_PROPERTY("Quat", GetQuat, SetQuat),
-    EZ_ACCESSOR_PROPERTY("Mat3", GetMat3, SetMat3),
-    EZ_ACCESSOR_PROPERTY("Mat4", GetMat4, SetMat4),
+    W_ACCESSOR_PROPERTY("Vec2", GetVec2, SetVec2),
+    W_ACCESSOR_PROPERTY("Vec3", GetVec3, SetVec3),
+    W_ACCESSOR_PROPERTY("Vec4", GetVec4, SetVec4),
+    W_MEMBER_PROPERTY("Vec2I", m_Vec2I),
+    W_MEMBER_PROPERTY("Vec3I", m_Vec3I),
+    W_MEMBER_PROPERTY("Vec4I", m_Vec4I),
+    W_ACCESSOR_PROPERTY("Quat", GetQuat, SetQuat),
+    W_ACCESSOR_PROPERTY("Mat3", GetMat3, SetMat3),
+    W_ACCESSOR_PROPERTY("Mat4", GetMat4, SetMat4),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
-  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2)
-  EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WExampleEnum, 1)
+  W_ENUM_CONSTANTS(WExampleEnum::Value1, WExampleEnum::Value2)
+  W_ENUM_CONSTANT(WExampleEnum::Value3),
+W_END_STATIC_REFLECTED_ENUM;
 
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2)
-  EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WExampleBitflags, 1)
+  W_BITFLAGS_CONSTANTS(WExampleBitflags::Value1, WExampleBitflags::Value2)
+  W_BITFLAGS_CONSTANT(WExampleBitflags::Value3),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationsClass, 1, ezRTTIDefaultAllocator<ezEnumerationsClass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEnumerationsClass, 1, WRTTIDefaultAllocator<WEnumerationsClass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Enum", ezExampleEnum, GetEnum, SetEnum),
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("Bitflags", ezExampleBitflags, GetBitflags, SetBitflags),
+    W_ENUM_ACCESSOR_PROPERTY("Enum", WExampleEnum, GetEnum, SetEnum),
+    W_BITFLAGS_ACCESSOR_PROPERTY("Bitflags", WExampleBitflags, GetBitflags, SetBitflags),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<InnerStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, WNoBase, 1, WRTTIDefaultAllocator<InnerStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("IP1", m_fP1),
+    W_MEMBER_PROPERTY("IP1", m_fP1),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, 1, ezRTTIDefaultAllocator<OuterClass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, 1, WRTTIDefaultAllocator<OuterClass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Inner", m_Inner1),
-    EZ_MEMBER_PROPERTY("OP1", m_fP1),
+    W_MEMBER_PROPERTY("Inner", m_Inner1),
+    W_MEMBER_PROPERTY("OP1", m_fP1),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ExtendedOuterClass, 1, ezRTTIDefaultAllocator<ExtendedOuterClass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(ExtendedOuterClass, 1, WRTTIDefaultAllocator<ExtendedOuterClass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MORE", m_more),
+    W_MEMBER_PROPERTY("MORE", m_more),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTest, 1, ezRTTIDefaultAllocator<ezObjectTest>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectTest, 1, WRTTIDefaultAllocator<WObjectTest>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MemberClass", m_MemberClass),
-    EZ_ARRAY_MEMBER_PROPERTY("StandardTypeArray", m_StandardTypeArray),
-    EZ_ARRAY_MEMBER_PROPERTY("ClassArray", m_ClassArray),
-    EZ_ARRAY_MEMBER_PROPERTY("ClassPtrArray", m_ClassPtrArray)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("StandardTypeSet", GetStandardTypeSet, StandardTypeSetInsert, StandardTypeSetRemove),
-    EZ_SET_MEMBER_PROPERTY("SubObjectSet", m_SubObjectSet)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_MAP_MEMBER_PROPERTY("StandardTypeMap", m_StandardTypeMap),
-    EZ_MAP_MEMBER_PROPERTY("ClassMap", m_ClassMap),
-    EZ_MAP_MEMBER_PROPERTY("ClassPtrMap", m_ClassPtrMap)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("MemberClass", m_MemberClass),
+    W_ARRAY_MEMBER_PROPERTY("StandardTypeArray", m_StandardTypeArray),
+    W_ARRAY_MEMBER_PROPERTY("ClassArray", m_ClassArray),
+    W_ARRAY_MEMBER_PROPERTY("ClassPtrArray", m_ClassPtrArray)->AddFlags(WPropertyFlags::PointerOwner),
+    W_SET_ACCESSOR_PROPERTY("StandardTypeSet", GetStandardTypeSet, StandardTypeSetInsert, StandardTypeSetRemove),
+    W_SET_MEMBER_PROPERTY("SubObjectSet", m_SubObjectSet)->AddFlags(WPropertyFlags::PointerOwner),
+    W_MAP_MEMBER_PROPERTY("StandardTypeMap", m_StandardTypeMap),
+    W_MAP_MEMBER_PROPERTY("ClassMap", m_ClassMap),
+    W_MAP_MEMBER_PROPERTY("ClassPtrMap", m_ClassPtrMap)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMirrorTest, 1, ezRTTIDefaultAllocator<ezMirrorTest>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMirrorTest, 1, WRTTIDefaultAllocator<WMirrorTest>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Math", m_math),
-    EZ_MEMBER_PROPERTY("Object", m_object),
+    W_MEMBER_PROPERTY("Math", m_math),
+    W_MEMBER_PROPERTY("Object", m_object),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezArrayPtr<const ezString> ezObjectTest::GetStandardTypeSet() const
+WArrayPtr<const WString> WObjectTest::GetStandardTypeSet() const
 {
   return m_StandardTypeSet;
 }
 
-void ezObjectTest::StandardTypeSetInsert(const ezString& value)
+void WObjectTest::StandardTypeSetInsert(const WString& value)
 {
   if (!m_StandardTypeSet.Contains(value))
     m_StandardTypeSet.PushBack(value);
 }
 
-void ezObjectTest::StandardTypeSetRemove(const ezString& value)
+void WObjectTest::StandardTypeSetRemove(const WString& value)
 {
   m_StandardTypeSet.RemoveAndCopy(value);
 }

@@ -3,67 +3,67 @@
 #include <EditorPluginMiniAudio/Preferences/MiniAudioPreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioProjectPreferences, 1, ezRTTIDefaultAllocator<ezMiniAudioProjectPreferences>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioProjectPreferences, 1, WRTTIDefaultAllocator<WMiniAudioProjectPreferences>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Mute", m_bMute),
-    EZ_MEMBER_PROPERTY("Volume", m_fMasterVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("Mute", m_bMute),
+    W_MEMBER_PROPERTY("Volume", m_fMasterVolume)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMiniAudioProjectPreferences::ezMiniAudioProjectPreferences()
-  : ezPreferences(Domain::Project, "MiniAudio")
+WMiniAudioProjectPreferences::WMiniAudioProjectPreferences()
+  : WPreferences(Domain::Project, "MiniAudio")
 {
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezMiniAudioProjectPreferences::ProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.AddEventHandler(WMakeDelegate(&WMiniAudioProjectPreferences::ProcessEventHandler, this));
 }
 
-ezMiniAudioProjectPreferences::~ezMiniAudioProjectPreferences()
+WMiniAudioProjectPreferences::~WMiniAudioProjectPreferences()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMiniAudioProjectPreferences::ProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.RemoveEventHandler(WMakeDelegate(&WMiniAudioProjectPreferences::ProcessEventHandler, this));
 }
 
-void ezMiniAudioProjectPreferences::SetMute(bool bMute)
+void WMiniAudioProjectPreferences::SetMute(bool bMute)
 {
   m_bMute = bMute;
 
   SyncCVars();
 }
 
-void ezMiniAudioProjectPreferences::SetVolume(float fVolume)
+void WMiniAudioProjectPreferences::SetVolume(float fVolume)
 {
-  m_fMasterVolume = ezMath::Clamp(fVolume, 0.0f, 1.0f);
+  m_fMasterVolume = WMath::Clamp(fVolume, 0.0f, 1.0f);
 
   SyncCVars();
 }
 
-void ezMiniAudioProjectPreferences::SyncCVars()
+void WMiniAudioProjectPreferences::SyncCVars()
 {
   TriggerPreferencesChangedEvent();
 
   {
-    ezChangeCVarMsgToEngine msg;
+    WChangeCVarMsgToEngine msg;
     msg.m_sCVarName = "MiniAudio.Mute";
     msg.m_NewValue = m_bMute;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
   {
-    ezChangeCVarMsgToEngine msg;
+    WChangeCVarMsgToEngine msg;
     msg.m_sCVarName = "MiniAudio.Volume";
     msg.m_NewValue = m_fMasterVolume;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
-void ezMiniAudioProjectPreferences::ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void WMiniAudioProjectPreferences::ProcessEventHandler(const WEditorEngineProcessConnection::Event& e)
 {
-  if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessRestarted)
+  if (e.m_Type == WEditorEngineProcessConnection::Event::Type::ProcessRestarted)
   {
     SyncCVars();
   }

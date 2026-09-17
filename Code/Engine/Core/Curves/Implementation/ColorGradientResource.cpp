@@ -3,96 +3,96 @@
 #include <Core/Curves/ColorGradientResource.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientResource, 1, ezRTTIDefaultAllocator<ezColorGradientResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WColorGradientResource, 1, WRTTIDefaultAllocator<WColorGradientResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezColorGradientResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WColorGradientResource);
 
-ezColorGradientResource::ezColorGradientResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WColorGradientResource::WColorGradientResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezColorGradientResource, ezColorGradientResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WColorGradientResource, WColorGradientResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezColorGradientResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WColorGradientResource::UnloadData(Unload WhatToUnload)
 {
-  EZ_IGNORE_UNUSED(WhatToUnload);
+  W_IGNORE_UNUSED(WhatToUnload);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   m_Descriptor.m_Gradient.Clear();
 
   return res;
 }
 
-ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WColorGradientResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezColorGradientResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WColorGradientResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
   m_Descriptor.Load(*Stream);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezColorGradientResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WColorGradientResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<WUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<WUInt32>(sizeof(m_Descriptor));
 }
 
-void ezColorGradientResourceDescriptor::Save(ezStreamWriter& inout_stream) const
+void WColorGradientResourceDescriptor::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
 
   inout_stream << uiVersion;
 
   m_Gradient.Save(inout_stream);
 }
 
-void ezColorGradientResourceDescriptor::Load(ezStreamReader& inout_stream)
+void WColorGradientResourceDescriptor::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
   m_Gradient.Load(inout_stream);
 }
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Curves_Implementation_ColorGradientResource);
+W_STATICLINK_FILE(Core, Core_Curves_Implementation_ColorGradientResource);

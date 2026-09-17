@@ -3,9 +3,9 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 
-struct EZ_CORE_DLL ezTriggerState
+struct W_CORE_DLL WTriggerState
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -17,31 +17,31 @@ struct EZ_CORE_DLL ezTriggerState
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezTriggerState);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WTriggerState);
 
 /// For internal use by components to trigger some known behavior. Usually components will post this message to themselves with a
 /// delay, e.g. to trigger self destruction.
-struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
+struct W_CORE_DLL WMsgComponentInternalTrigger : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgComponentInternalTrigger, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgComponentInternalTrigger, WMessage);
 
   /// Identifies what the message should trigger.
-  ezHashedString m_sMessage;
+  WHashedString m_sMessage;
 
-  ezInt32 m_iPayload = 0;
+  WInt32 m_iPayload = 0;
 };
 
 /// Sent when something enters or leaves a trigger
-struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezMessage
+struct W_CORE_DLL WMsgTriggerTriggered : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgTriggerTriggered, WMessage);
 
   /// Identifies what the message should trigger.
-  ezHashedString m_sMessage;
+  WHashedString m_sMessage;
 
   /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
-  ezEnum<ezTriggerState> m_TriggerState;
+  WEnum<WTriggerState> m_TriggerState;
 
   /// The object that entered the trigger volume.
-  ezGameObjectHandle m_hTriggeringObject;
+  WGameObjectHandle m_hTriggeringObject;
 };

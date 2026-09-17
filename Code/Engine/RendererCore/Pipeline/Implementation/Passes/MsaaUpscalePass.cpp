@@ -9,86 +9,86 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezMsaaUpscalePass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsaaUpscalePass, 2, WRTTIDefaultAllocator<WMsaaUpscalePass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input", m_PinInput),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode)
+    W_MEMBER_PROPERTY("Input", m_PinInput),
+    W_MEMBER_PROPERTY("Output", m_PinOutput),
+    W_ENUM_MEMBER_PROPERTY("MSAA_Mode", WGALMSAASampleCount, m_MsaaMode)
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities")
+    new WCategoryAttribute("Utilities")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMsaaUpscalePass::ezMsaaUpscalePass()
-  : ezRenderPipelinePass("MsaaUpscalePass")
+WMsaaUpscalePass::WMsaaUpscalePass()
+  : WRenderPipelinePass("MsaaUpscalePass")
 
 {
   {
     // Load shader.
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/MsaaUpscale.ezShader");
-    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load msaa upscale shader!");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/MsaaUpscale.WShader");
+    W_ASSERT_DEV(m_hShader.IsValid(), "Could not load msaa upscale shader!");
   }
 }
 
-ezMsaaUpscalePass::~ezMsaaUpscalePass() = default;
+WMsaaUpscalePass::~WMsaaUpscalePass() = default;
 
-ezStatus ezMsaaUpscalePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WMsaaUpscalePass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
-    return ezStatus(ezFmt("Input: Not connected"));
+    return WStatus(WFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
-  if (inputDesc.m_SampleCount != ezGALMSAASampleCount::None)
-    return ezStatus(ezFmt("Input must not be a msaa target"));
+  const WGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
+  if (inputDesc.m_SampleCount != WGALMSAASampleCount::None)
+    return WStatus(WFmt("Input must not be a msaa target"));
 
-  ezGALTextureCreationDescription outputDesc = inputDesc;
+  WGALTextureCreationDescription outputDesc = inputDesc;
   outputDesc.m_SampleCount = m_MsaaMode;
-  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
+  WRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   auto pass = ref_graph.AddGraphicsPass("MsaaUpscale");
   pass.AddColorTarget(hOutput);
-  pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.ReadTexture(hInput, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     renderViewContext.UpdateViewport();
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    WBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMsaaUpscalePass::Serialize(ezStreamWriter& inout_stream) const
+WResult WMsaaUpscalePass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_MsaaMode;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMsaaUpscalePass::Deserialize(ezStreamReader& inout_stream)
+WResult WMsaaUpscalePass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_MsaaMode;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,19 +98,19 @@ ezResult ezMsaaUpscalePass::Deserialize(ezStreamReader& inout_stream)
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezMsaaUpscalePassPatch_1_2 : public ezGraphPatch
+class WMsaaUpscalePassPatch_1_2 : public WGraphPatch
 {
 public:
-  ezMsaaUpscalePassPatch_1_2()
-    : ezGraphPatch("ezMsaaUpscalePass", 2)
+  WMsaaUpscalePassPatch_1_2()
+    : WGraphPatch("WMsaaUpscalePass", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("MSAA Mode", "MSAA_Mode"); }
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override { pNode->RenameProperty("MSAA Mode", "MSAA_Mode"); }
 };
 
-ezMsaaUpscalePassPatch_1_2 g_ezMsaaUpscalePassPatch_1_2;
+WMsaaUpscalePassPatch_1_2 g_WMsaaUpscalePassPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_MsaaUpscalePass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_MsaaUpscalePass);

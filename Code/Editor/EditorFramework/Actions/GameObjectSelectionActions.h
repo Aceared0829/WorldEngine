@@ -4,31 +4,31 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezGameObjectDocument;
+class WGameObjectDocument;
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectSelectionActions
+class W_EDITORFRAMEWORK_DLL WGameObjectSelectionActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
-  static void MapContextMenuActions(ezStringView sMapping);
-  static void MapViewContextMenuActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
+  static void MapContextMenuActions(WStringView sMapping);
+  static void MapViewContextMenuActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hSelectionCategory;
-  static ezActionDescriptorHandle s_hShowInScenegraph;
-  static ezActionDescriptorHandle s_hFocusOnSelection;
-  static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
-  static ezActionDescriptorHandle s_hSnapCameraToObject;
-  static ezActionDescriptorHandle s_hMoveCameraHere;
+  static WActionDescriptorHandle s_hSelectionCategory;
+  static WActionDescriptorHandle s_hShowInScenegraph;
+  static WActionDescriptorHandle s_hFocusOnSelection;
+  static WActionDescriptorHandle s_hFocusOnSelectionAllViews;
+  static WActionDescriptorHandle s_hSnapCameraToObject;
+  static WActionDescriptorHandle s_hMoveCameraHere;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectSelectionAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WGameObjectSelectionAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectSelectionAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectSelectionAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -40,16 +40,16 @@ public:
     MoveCameraHere,
   };
 
-  ezGameObjectSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezGameObjectSelectionAction();
+  WGameObjectSelectionAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WGameObjectSelectionAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
   void UpdateEnableState();
 
-  ezGameObjectDocument* m_pSceneDocument;
+  WGameObjectDocument* m_pSceneDocument;
   ActionType m_Type;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#if W_ENABLED(W_PLATFORM_ARCH_X86)
 
 #  include <smmintrin.h>
 

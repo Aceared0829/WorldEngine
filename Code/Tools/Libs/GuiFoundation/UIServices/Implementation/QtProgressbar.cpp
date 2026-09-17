@@ -5,48 +5,48 @@
 #include <QApplication>
 #include <QProgressDialog>
 
-ezQtProgressbar::ezQtProgressbar() = default;
+WQtProgressbar::WQtProgressbar() = default;
 
-ezQtProgressbar::~ezQtProgressbar()
+WQtProgressbar::~WQtProgressbar()
 {
   SetProgressbar(nullptr);
   EnsureDestroyed();
 }
 
-void ezQtProgressbar::SetProgressbar(ezProgress* pProgress)
+void WQtProgressbar::SetProgressbar(WProgress* pProgress)
 {
   if (m_pProgress)
   {
-    m_pProgress->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtProgressbar::ProgressbarEventHandler, this));
+    m_pProgress->m_Events.RemoveEventHandler(WMakeDelegate(&WQtProgressbar::ProgressbarEventHandler, this));
     m_pProgress = nullptr;
   }
 
   if (pProgress)
   {
     m_pProgress = pProgress;
-    m_pProgress->m_Events.AddEventHandler(ezMakeDelegate(&ezQtProgressbar::ProgressbarEventHandler, this));
+    m_pProgress->m_Events.AddEventHandler(WMakeDelegate(&WQtProgressbar::ProgressbarEventHandler, this));
   }
 }
 
-void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
+void WQtProgressbar::ProgressbarEventHandler(const WProgressEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezProgressEvent::Type::ProgressStarted:
+    case WProgressEvent::Type::ProgressStarted:
     {
       ++m_iNestedProcessEvents;
       EnsureCreated();
     }
     break;
 
-    case ezProgressEvent::Type::ProgressEnded:
+    case WProgressEvent::Type::ProgressEnded:
     {
       EnsureDestroyed();
       --m_iNestedProcessEvents;
     }
     break;
 
-    case ezProgressEvent::Type::ProgressChanged:
+    case WProgressEvent::Type::ProgressChanged:
     {
       ++m_iNestedProcessEvents;
 
@@ -56,12 +56,12 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
 
       EnsureCreated();
 
-      ezStringBuilder sText(e.m_pProgressbar->GetMainDisplayText(), "\n", e.m_pProgressbar->GetStepDisplayText());
+      WStringBuilder sText(e.m_pProgressbar->GetMainDisplayText(), "\n", e.m_pProgressbar->GetStepDisplayText());
 
       m_pDialog->setLabelText(QString::fromUtf8(sText.GetData()));
-      EZ_ASSERT_DEV(m_pDialog != nullptr, "Progress dialog was destroyed while being in use");
+      W_ASSERT_DEV(m_pDialog != nullptr, "Progress dialog was destroyed while being in use");
 
-      const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0f), 0, 1000);
+      const WUInt32 uiProMille = WMath::Clamp<WUInt32>((WUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0f), 0, 1000);
       m_pDialog->setValue(uiProMille);
 
       if (m_pDialog->wasCanceled())
@@ -74,12 +74,12 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
     }
     break;
 
-    case ezProgressEvent::Type::CancelClicked:
+    case WProgressEvent::Type::CancelClicked:
       break;
   }
 }
 
-void ezQtProgressbar::EnsureCreated()
+void WQtProgressbar::EnsureCreated()
 {
   if (m_pDialog)
     return;
@@ -106,7 +106,7 @@ void ezQtProgressbar::EnsureCreated()
     { m_pProgress->UserClickedCancel(); });
 }
 
-void ezQtProgressbar::EnsureDestroyed()
+void WQtProgressbar::EnsureDestroyed()
 {
   if (m_pDialog)
   {

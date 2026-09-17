@@ -14,76 +14,76 @@
 ///
 /// Values are untyped, because the file is written by several tools (editor, editor processor, TexConv) and consumed
 /// generically. Use the key names below where they apply.
-class EZ_FOUNDATION_DLL ezAssetInfoFile
+class W_FOUNDATION_DLL WAssetInfoFile
 {
 public:
   /// Key names used across multiple asset types. Asset types may add arbitrary further keys.
   ///
   /// Must be valid DDL identifiers, because that is what they become in the file. For display they are run through
-  /// ezTranslate, which splits CamelCase into words, so "ConvexParts" shows up as "Convex Parts".
+  /// WTranslate, which splits CamelCase into words, so "ConvexParts" shows up as "Convex Parts".
   struct Keys
   {
-    static constexpr ezStringView NumVertices = "Vertices"_ezsv;            ///< ezUInt32
-    static constexpr ezStringView NumTriangles = "Triangles"_ezsv;          ///< ezUInt32
-    static constexpr ezStringView NumSubMeshes = "Meshes"_ezsv;             ///< ezUInt32
-    static constexpr ezStringView NumSurfaces = "Surfaces"_ezsv;            ///< ezUInt32
-    static constexpr ezStringView NumBones = "Bones"_ezsv;                  ///< ezUInt32
-    static constexpr ezStringView BoundsCenter = "Center"_ezsv;             ///< ezVec3, shown together with Extents as the resulting range
-    static constexpr ezStringView BoundsHalfExtents = "Extents"_ezsv;       ///< ezVec3, so the full size is twice this
-    static constexpr ezStringView BoundsRadius = "Radius"_ezsv;             ///< float
-    static constexpr ezStringView ImageWidth = "Width"_ezsv;                ///< ezUInt32, shown together with Height as the resolution
-    static constexpr ezStringView ImageHeight = "Height"_ezsv;              ///< ezUInt32
-    static constexpr ezStringView Format = "Format"_ezsv;                   ///< ezString
-    static constexpr ezStringView CollisionMeshType = "CollisionMesh"_ezsv; ///< ezString, e.g. "Triangle" or "ConvexHull"
-    static constexpr ezStringView NumConvexParts = "ConvexParts"_ezsv;      ///< ezUInt32, only recorded when there is more than one
-    static constexpr ezStringView AvailableClips = "Clips"_ezsv;            ///< ezVariantArray of ezString: animation clip names in the source file
-    static constexpr ezStringView AvailableMeshes = "MeshesInSource"_ezsv;  ///< ezVariantArray of ezString: mesh names in the source file
+    static constexpr WStringView NumVertices = "Vertices"_wsv;            ///< WUInt32
+    static constexpr WStringView NumTriangles = "Triangles"_wsv;          ///< WUInt32
+    static constexpr WStringView NumSubMeshes = "Meshes"_wsv;             ///< WUInt32
+    static constexpr WStringView NumSurfaces = "Surfaces"_wsv;            ///< WUInt32
+    static constexpr WStringView NumBones = "Bones"_wsv;                  ///< WUInt32
+    static constexpr WStringView BoundsCenter = "Center"_wsv;             ///< WVec3, shown together with Extents as the resulting range
+    static constexpr WStringView BoundsHalfExtents = "Extents"_wsv;       ///< WVec3, so the full size is twice this
+    static constexpr WStringView BoundsRadius = "Radius"_wsv;             ///< float
+    static constexpr WStringView ImageWidth = "Width"_wsv;                ///< WUInt32, shown together with Height as the resolution
+    static constexpr WStringView ImageHeight = "Height"_wsv;              ///< WUInt32
+    static constexpr WStringView Format = "Format"_wsv;                   ///< WString
+    static constexpr WStringView CollisionMeshType = "CollisionMesh"_wsv; ///< WString, e.g. "Triangle" or "ConvexHull"
+    static constexpr WStringView NumConvexParts = "ConvexParts"_wsv;      ///< WUInt32, only recorded when there is more than one
+    static constexpr WStringView AvailableClips = "Clips"_wsv;            ///< WVariantArray of WString: animation clip names in the source file
+    static constexpr WStringView AvailableMeshes = "MeshesInSource"_wsv;  ///< WVariantArray of WString: mesh names in the source file
   };
 
   /// Adds or overwrites a value. An invalid value removes the key.
-  void SetValue(ezStringView sKey, const ezVariant& value);
+  void SetValue(WStringView sKey, const WVariant& value);
 
   /// Returns an invalid variant if the key does not exist.
-  ezVariant GetValue(ezStringView sKey) const;
+  WVariant GetValue(WStringView sKey) const;
 
   bool IsEmpty() const { return m_Values.IsEmpty(); }
   void Clear() { m_Values.Clear(); }
 
-  const ezMap<ezString, ezVariant>& GetValues() const { return m_Values; }
+  const WMap<WString, WVariant>& GetValues() const { return m_Values; }
 
   /// Writes the values and the header as OpenDDL.
   ///
   /// Always writes, even when the map is empty. Prefer WriteToFile(), which skips empty maps.
-  ezResult Write(ezStreamWriter& inout_stream, const ezAssetFileHeader& header) const;
+  WResult Write(WStreamWriter& inout_stream, const WAssetFileHeader& header) const;
 
   /// Discards previous content. Values whose type this build cannot represent are skipped individually.
-  ezResult Read(ezStreamReader& inout_stream, ezAssetFileHeader& out_header);
+  WResult Read(WStreamReader& inout_stream, WAssetFileHeader& out_header);
 
   /// Writes the file, or deletes any existing one if there is nothing to write.
-  ezResult WriteToFile(ezStringView sAbsolutePath, const ezAssetFileHeader& header) const;
+  WResult WriteToFile(WStringView sAbsolutePath, const WAssetFileHeader& header) const;
 
   /// Fails if the file does not exist, or if it was written for a different hash or type version, ie. if it is stale.
-  ezResult ReadFromFile(ezStringView sAbsolutePath, ezUInt64 uiExpectedHash, ezUInt16 uiExpectedTypeVersion);
+  WResult ReadFromFile(WStringView sAbsolutePath, WUInt64 uiExpectedHash, WUInt16 uiExpectedTypeVersion);
 
   /// Returns the path of the info file that belongs to the given transform output.
-  static ezStringBuilder GetInfoFilePathForOutput(ezStringView sAbsoluteOutputPath);
+  static WStringBuilder GetInfoFilePathForOutput(WStringView sAbsoluteOutputPath);
 
   /// Appends all values, one "Name: value" per line, for display in the UI.
   ///
   /// Nothing is appended when there are no values, not even a separator. This shows everything, which is a lot for some
-  /// asset types; for a short summary use ezAssetDocumentManager::AppendAssetInfoSummary() instead.
-  void AppendToDisplayString(ezStringBuilder& ref_sOut, ezStringView sLinePrefix = "\n"_ezsv) const;
+  /// asset types; for a short summary use WAssetDocumentManager::AppendAssetInfoSummary() instead.
+  void AppendToDisplayString(WStringBuilder& ref_sOut, WStringView sLinePrefix = "\n"_wsv) const;
 
   /// Appends only the given keys, in the given order. Keys that have no value are skipped.
-  void AppendValuesToDisplayString(ezStringBuilder& ref_sOut, ezArrayPtr<const ezStringView> keys, ezStringView sLinePrefix = "\n"_ezsv) const;
+  void AppendValuesToDisplayString(WStringBuilder& ref_sOut, WArrayPtr<const WStringView> keys, WStringView sLinePrefix = "\n"_wsv) const;
 
   /// Appends a single value. Returns false if there is nothing to show for that key.
   ///
   /// Some keys are formatted together with another one, e.g. ImageWidth prints the full resolution. The absorbed key
   /// (here ImageHeight) returns false on its own, so iterating over all keys does not print it twice.
-  bool AppendValueToDisplayString(ezStringBuilder& ref_sOut, ezStringView sKey, ezStringView sLinePrefix = "\n"_ezsv) const;
+  bool AppendValueToDisplayString(WStringBuilder& ref_sOut, WStringView sKey, WStringView sLinePrefix = "\n"_wsv) const;
 
 private:
   // A map, not a hash table, so that the written files don't change just because the insertion order did.
-  ezMap<ezString, ezVariant> m_Values;
+  WMap<WString, WVariant> m_Values;
 };

@@ -2,9 +2,9 @@
 
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
-struct ezShaderPermutationBinaryVersion
+struct WShaderPermutationBinaryVersion
 {
-  enum Enum : ezUInt32
+  enum Enum : WUInt32
   {
     Version1 = 1,
     Version2 = 2,
@@ -21,27 +21,27 @@ struct ezShaderPermutationBinaryVersion
   };
 };
 
-ezShaderPermutationBinary::ezShaderPermutationBinary()
+WShaderPermutationBinary::WShaderPermutationBinary()
 {
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
     m_uiShaderStageHashes[stage] = 0;
 }
 
-ezResult ezShaderPermutationBinary::Write(ezStreamWriter& inout_stream)
+WResult WShaderPermutationBinary::Write(WStreamWriter& inout_stream)
 {
-  // write this at the beginning so that the file can be read as an ezDependencyFile
+  // write this at the beginning so that the file can be read as an WDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(inout_stream));
+  W_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(inout_stream));
 
-  const ezUInt8 uiVersion = ezShaderPermutationBinaryVersion::Current;
+  const WUInt8 uiVersion = WShaderPermutationBinaryVersion::Current;
 
-  if (inout_stream.WriteBytes(&uiVersion, sizeof(ezUInt8)).Failed())
-    return EZ_FAILURE;
+  if (inout_stream.WriteBytes(&uiVersion, sizeof(WUInt8)).Failed())
+    return W_FAILURE;
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (inout_stream.WriteDWordValue(&m_uiShaderStageHashes[stage]).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
   m_StateDescriptor.Save(inout_stream);
@@ -54,39 +54,39 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& inout_stream)
     inout_stream << var.m_sValue.GetString();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezShaderPermutationBinary::Read(ezStreamReader& inout_stream, bool& out_bOldVersion)
+WResult WShaderPermutationBinary::Read(WStreamReader& inout_stream, bool& out_bOldVersion)
 {
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
+  W_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
-  if (inout_stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
-    return EZ_FAILURE;
+  if (inout_stream.ReadBytes(&uiVersion, sizeof(WUInt8)) != sizeof(WUInt8))
+    return W_FAILURE;
 
-  EZ_ASSERT_DEV(uiVersion <= ezShaderPermutationBinaryVersion::Current, "Wrong Version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= WShaderPermutationBinaryVersion::Current, "Wrong Version {0}", uiVersion);
 
-  out_bOldVersion = uiVersion != ezShaderPermutationBinaryVersion::Current;
+  out_bOldVersion = uiVersion != WShaderPermutationBinaryVersion::Current;
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (inout_stream.ReadDWordValue(&m_uiShaderStageHashes[stage]).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
   m_StateDescriptor.Load(inout_stream);
 
-  if (uiVersion >= ezShaderPermutationBinaryVersion::Version2)
+  if (uiVersion >= WShaderPermutationBinaryVersion::Version2)
   {
-    ezUInt32 uiPermutationCount;
+    WUInt32 uiPermutationCount;
     inout_stream >> uiPermutationCount;
 
     m_PermutationVars.SetCount(uiPermutationCount);
 
-    ezStringBuilder tmp;
-    for (ezUInt32 i = 0; i < uiPermutationCount; ++i)
+    WStringBuilder tmp;
+    for (WUInt32 i = 0; i < uiPermutationCount; ++i)
     {
       auto& var = m_PermutationVars[i];
 
@@ -97,5 +97,5 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& inout_stream, bool& out
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

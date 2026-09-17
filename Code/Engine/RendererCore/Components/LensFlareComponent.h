@@ -6,19 +6,19 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgSetColor;
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+struct WMsgSetColor;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
 
-class EZ_RENDERERCORE_DLL ezLensFlareRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WLensFlareRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLensFlareRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WLensFlareRenderData, WRenderData);
 
 public:
   void FillSortingKey();
-  virtual bool CanBatch(const ezRenderData& other) const override;
+  virtual bool CanBatch(const WRenderData& other) const override;
 
-  ezTexture2DResourceHandle m_hTexture;
-  ezFloat16Vec4 m_Color;
+  WTexture2DResourceHandle m_hTexture;
+  WFloat16Vec4 m_Color;
 
   float m_fSize;
   float m_fMaxScreenSize;
@@ -34,10 +34,10 @@ public:
 };
 
 /// Represents an individual element of a lens flare.
-struct ezLensFlareElement
+struct WLensFlareElement
 {
-  ezTexture2DResourceHandle m_hTexture; // [ property ]
-  ezColor m_Color = ezColor::White;
+  WTexture2DResourceHandle m_hTexture; // [ property ]
+  WColor m_Color = WColor::White;
   float m_fSize = 10000.0f;             ///< World space size
   float m_fMaxScreenSize = 1.0f;        ///< Relative screen space size in 0..1 range
   float m_fAspectRatio = 1.0f;          ///< Width:height ratio, only height is adjusted while width stays fixed
@@ -46,13 +46,13 @@ struct ezLensFlareElement
   bool m_bModulateByLightColor = true;  ///< Modulate the element's color by the light color and intensity if the lens flare component is linked to a light component.
   bool m_bInverseTonemap = false;       ///< Apply an inverse tonemapping operation on the final color. This can be useful if the lens flare is not linked to a light or does not use an hdr color since lens flares are rendered before tonemapping and can look washed out in this case.
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLensFlareElement);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WLensFlareElement);
 
-using ezLensFlareComponentManager = ezComponentManager<class ezLensFlareComponent, ezBlockStorageType::Compact>;
+using WLensFlareComponentManager = WComponentManager<class WLensFlareComponent, WBlockStorageType::Compact>;
 
 /// Adds a lensflare or corona effect to a lightsource.
 ///
@@ -67,37 +67,37 @@ using ezLensFlareComponentManager = ezComponentManager<class ezLensFlareComponen
 ///
 /// The component does not require a lightsource, it can be attached to any other object, as well, it is just mostly
 /// used in conjunction with a point or directional lightsource.
-class EZ_RENDERERCORE_DLL ezLensFlareComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WLensFlareComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLensFlareComponent, ezRenderComponent, ezLensFlareComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLensFlareComponent, WRenderComponent, WLensFlareComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLensFlareComponent
+  // WLensFlareComponent
 
 public:
-  ezLensFlareComponent();
-  ~ezLensFlareComponent();
+  WLensFlareComponent();
+  ~WLensFlareComponent();
 
   /// Adjusts the overall intensity of the lens flare
   float m_fIntensity = 1.0f; // [ property ]
 
   /// Fallback color if the lens flare is not linked to a light component.
-  ezColorGammaUB m_LightColor = ezColor::White; // [ property ]
+  WColorGammaUB m_LightColor = WColor::White; // [ property ]
 
   /// Link the lens flare to the first light component on the same owner object or any of its parent objects.
   ///
@@ -123,18 +123,18 @@ public:
   /// This can be used to prevent self occlusion with the light source object.
   float m_fOcclusionDepthOffset = 0.0f;           // [ property ]
 
-  ezSmallArray<ezLensFlareElement, 1> m_Elements; // [ property ]
+  WSmallArray<WLensFlareElement, 1> m_Elements; // [ property ]
 
 private:
   void FindLightComponent();
 
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgSetColor(WMsgSetColor& ref_msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   float m_fOcclusionSampleRadius = 0.1f;
   bool m_bLinkToLightShape = true;
   bool m_bApplyFog = true;
 
   bool m_bDirectionalLight = false;
-  ezComponentHandle m_hLightComponent;
+  WComponentHandle m_hLightComponent;
 };

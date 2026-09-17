@@ -5,19 +5,19 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessingStreamProcessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcessingStreamProcessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezProcessingStreamProcessor::ezProcessingStreamProcessor()
+WProcessingStreamProcessor::WProcessingStreamProcessor()
 
   = default;
 
-ezProcessingStreamProcessor::~ezProcessingStreamProcessor()
+WProcessingStreamProcessor::~WProcessingStreamProcessor()
 {
   m_pStreamGroup = nullptr;
 }
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);
+W_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);

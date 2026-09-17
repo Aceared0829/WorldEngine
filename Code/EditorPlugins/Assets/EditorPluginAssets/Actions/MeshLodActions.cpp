@@ -10,57 +10,57 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshLodAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshLodAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezMeshLodActions::s_hCategory;
-ezActionDescriptorHandle ezMeshLodActions::s_hCreateLods;
-ezActionDescriptorHandle ezMeshLodActions::s_hCreateLodsDoc;
+WActionDescriptorHandle WMeshLodActions::s_hCategory;
+WActionDescriptorHandle WMeshLodActions::s_hCreateLods;
+WActionDescriptorHandle WMeshLodActions::s_hCreateLodsDoc;
 
-void ezMeshLodActions::RegisterActions()
+void WMeshLodActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("MeshLodCategory");
+  s_hCategory = W_REGISTER_CATEGORY("MeshLodCategory");
 
-  s_hCreateLods = EZ_REGISTER_ACTION_0("Meshes.CreateLods", ezActionScope::Global, "Meshes", "", ezMeshLodAction);
-  s_hCreateLodsDoc = EZ_REGISTER_ACTION_0("Meshes.CreateLodsDocument", ezActionScope::Document, "Meshes", "", ezMeshLodAction);
+  s_hCreateLods = W_REGISTER_ACTION_0("Meshes.CreateLods", WActionScope::Global, "Meshes", "", WMeshLodAction);
+  s_hCreateLodsDoc = W_REGISTER_ACTION_0("Meshes.CreateLodsDocument", WActionScope::Document, "Meshes", "", WMeshLodAction);
 }
 
-void ezMeshLodActions::UnregisterActions()
+void WMeshLodActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hCreateLods);
-  ezActionManager::UnregisterAction(s_hCreateLodsDoc);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hCreateLods);
+  WActionManager::UnregisterAction(s_hCreateLodsDoc);
 }
 
-ezResult ezMeshLodActions::MapActions(ezStringView sActionMap, ezStringView sSubPath, bool bDocumentScope)
+WResult WMeshLodActions::MapActions(WStringView sActionMap, WStringView sSubPath, bool bDocumentScope)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sActionMap);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sActionMap);
   if (pMap == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // 9.0f, so that creating LODs sits above creating a prefab (10.0f) and a collider (11.0f)
   pMap->MapAction(s_hCategory, sSubPath, 9.0f);
   pMap->MapAction(bDocumentScope ? s_hCreateLodsDoc : s_hCreateLods, "MeshLodCategory", 1.0f);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezMeshLodAction::IsLodAsset(const ezUuid& assetGuid)
+bool WMeshLodAction::IsLodAsset(const WUuid& assetGuid)
 {
-  auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+  auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (!pSubAsset.isValid() || pSubAsset->m_pAssetInfo == nullptr)
     return false;
 
-  return ezPathUtils::GetFileName(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath()).StartsWith_NoCase("LOD-");
+  return WPathUtils::GetFileName(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath()).StartsWith_NoCase("LOD-");
 }
 
-void ezMeshLodAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const
+void WMeshLodAction::GetTargetAssets(WDynamicArray<WUuid>& out_assets) const
 {
   out_assets.Clear();
 
-  if (const ezAssetDocument* pAssetDoc = ezDynamicCast<const ezAssetDocument*>(m_Context.m_pDocument))
+  if (const WAssetDocument* pAssetDoc = WDynamicCast<const WAssetDocument*>(m_Context.m_pDocument))
   {
-    if (ezMeshLodCreator::IsMeshAsset(pAssetDoc->GetGuid()) && !IsLodAsset(pAssetDoc->GetGuid()))
+    if (WMeshLodCreator::IsMeshAsset(pAssetDoc->GetGuid()) && !IsLodAsset(pAssetDoc->GetGuid()))
     {
       out_assets.PushBack(pAssetDoc->GetGuid());
     }
@@ -68,35 +68,35 @@ void ezMeshLodAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const
     return;
   }
 
-  for (const ezUuid& guid : ezAssetBrowserSelection::GetCurrent().m_AssetGuids)
+  for (const WUuid& guid : WAssetBrowserSelection::GetCurrent().m_AssetGuids)
   {
-    if (ezMeshLodCreator::IsMeshAsset(guid) && !IsLodAsset(guid))
+    if (WMeshLodCreator::IsMeshAsset(guid) && !IsLodAsset(guid))
     {
       out_assets.PushBack(guid);
     }
   }
 }
 
-ezMeshLodAction::ezMeshLodAction(const ezActionContext& context, const char* szName)
-  : ezButtonAction(context, szName, false, "")
+WMeshLodAction::WMeshLodAction(const WActionContext& context, const char* szName)
+  : WButtonAction(context, szName, false, "")
 {
   SetIconPath(":/AssetIcons/Mesh.svg");
 
   RefreshState();
 }
 
-void ezMeshLodAction::RefreshState()
+void WMeshLodAction::RefreshState()
 {
-  ezHybridArray<ezUuid, 16> assets;
+  WHybridArray<WUuid, 16> assets;
   GetTargetAssets(assets);
 
   SetVisible(!assets.IsEmpty(), false);
   SetEnabled(!assets.IsEmpty(), false);
 }
 
-void ezMeshLodAction::Execute(const ezVariant& value)
+void WMeshLodAction::Execute(const WVariant& value)
 {
-  ezHybridArray<ezUuid, 16> assets;
+  WHybridArray<WUuid, 16> assets;
   GetTargetAssets(assets);
 
   if (assets.IsEmpty())
@@ -104,52 +104,52 @@ void ezMeshLodAction::Execute(const ezVariant& value)
 
   if (assets.GetCount() == 1)
   {
-    ezMeshLodSource source;
-    if (ezMeshLodCreator::GatherMeshLodSource(assets[0], source).Failed())
+    WMeshLodSource source;
+    if (WMeshLodCreator::GatherMeshLodSource(assets[0], source).Failed())
     {
-      ezQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
+      WQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
       return;
     }
 
-    ezQtCreateMeshLodsDlg dlg(source, nullptr);
+    WQtCreateMeshLodsDlg dlg(source, nullptr);
     if (dlg.exec() != QDialog::Accepted)
       return;
 
-    ezUInt32 uiCreated = 0;
-    ezUInt32 uiSkipped = 0;
-    const ezStatus res = ezMeshLodCreator::CreateMeshLods(source, dlg.GetOptions(), uiCreated, uiSkipped);
+    WUInt32 uiCreated = 0;
+    WUInt32 uiSkipped = 0;
+    const WStatus res = WMeshLodCreator::CreateMeshLods(source, dlg.GetOptions(), uiCreated, uiSkipped);
 
     if (res.Failed())
     {
-      ezQtUiServices::MessageBoxStatus(res, "Failed to create the LOD assets.", "", true);
+      WQtUiServices::MessageBoxStatus(res, "Failed to create the LOD assets.", "", true);
       return;
     }
 
     if (uiSkipped > 0)
     {
-      ezQtUiServices::MessageBoxInformation(ezFmt("Created {} LOD asset(s), skipped {}.", uiCreated, uiSkipped));
+      WQtUiServices::MessageBoxInformation(WFmt("Created {} LOD asset(s), skipped {}.", uiCreated, uiSkipped));
     }
 
     return;
   }
 
-  ezQtCreateMeshLodsDlg dlg(assets.GetCount(), nullptr);
+  WQtCreateMeshLodsDlg dlg(assets.GetCount(), nullptr);
   if (dlg.exec() != QDialog::Accepted)
     return;
 
-  ezUInt32 uiCreated = 0;
-  ezUInt32 uiSkipped = 0;
-  const ezStatus res = ezMeshLodCreator::CreateMeshLodsForAll(assets, dlg.GetOptions(), uiCreated, uiSkipped);
+  WUInt32 uiCreated = 0;
+  WUInt32 uiSkipped = 0;
+  const WStatus res = WMeshLodCreator::CreateMeshLodsForAll(assets, dlg.GetOptions(), uiCreated, uiSkipped);
 
   if (res.Failed())
   {
-    ezQtUiServices::MessageBoxStatus(res, "Failed to create the LOD assets.", "", true);
+    WQtUiServices::MessageBoxStatus(res, "Failed to create the LOD assets.", "", true);
     return;
   }
 
   // which meshes were skipped and why is in the log
   if (uiSkipped > 0)
   {
-    ezQtUiServices::MessageBoxInformation(ezFmt("Created {} LOD asset(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
+    WQtUiServices::MessageBoxInformation(WFmt("Created {} LOD asset(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
   }
 }

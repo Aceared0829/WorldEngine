@@ -2,44 +2,44 @@
 
 #include <Foundation/Time/Stopwatch.h>
 
-ezStopwatch::ezStopwatch()
+WStopwatch::WStopwatch()
 {
-  m_LastCheckpoint = ezTime::Now();
+  m_LastCheckpoint = WTime::Now();
 
   StopAndReset();
   Resume();
 }
 
-void ezStopwatch::StopAndReset()
+void WStopwatch::StopAndReset()
 {
-  m_TotalDuration = ezTime::MakeZero();
+  m_TotalDuration = WTime::MakeZero();
   m_bRunning = false;
 }
 
-void ezStopwatch::Resume()
+void WStopwatch::Resume()
 {
   if (m_bRunning)
     return;
 
   m_bRunning = true;
-  m_LastUpdate = ezTime::Now();
+  m_LastUpdate = WTime::Now();
 }
 
-void ezStopwatch::Pause()
+void WStopwatch::Pause()
 {
   if (!m_bRunning)
     return;
 
   m_bRunning = false;
 
-  m_TotalDuration += ezTime::Now() - m_LastUpdate;
+  m_TotalDuration += WTime::Now() - m_LastUpdate;
 }
 
-ezTime ezStopwatch::GetRunningTotal() const
+WTime WStopwatch::GetRunningTotal() const
 {
   if (m_bRunning)
   {
-    const ezTime tNow = ezTime::Now();
+    const WTime tNow = WTime::Now();
 
     m_TotalDuration += tNow - m_LastUpdate;
     m_LastUpdate = tNow;
@@ -48,11 +48,11 @@ ezTime ezStopwatch::GetRunningTotal() const
   return m_TotalDuration;
 }
 
-ezTime ezStopwatch::Checkpoint()
+WTime WStopwatch::Checkpoint()
 {
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
-  const ezTime tDiff = tNow - m_LastCheckpoint;
+  const WTime tDiff = tNow - m_LastCheckpoint;
   m_LastCheckpoint = tNow;
 
   return tDiff;

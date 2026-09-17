@@ -6,41 +6,41 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleStreamFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleStream, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleStreamFactory::ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate)
+WParticleStreamFactory::WParticleStreamFactory(const char* szStreamName, WProcessingStream::DataType dataType, const WRTTI* pStreamTypeToCreate)
 {
   m_szStreamName = szStreamName;
   m_DataType = dataType;
   m_pStreamTypeToCreate = pStreamTypeToCreate;
 }
 
-const ezRTTI* ezParticleStreamFactory::GetParticleStreamType() const
+const WRTTI* WParticleStreamFactory::GetParticleStreamType() const
 {
   return m_pStreamTypeToCreate;
 }
 
-ezProcessingStream::DataType ezParticleStreamFactory::GetStreamDataType() const
+WProcessingStream::DataType WParticleStreamFactory::GetStreamDataType() const
 {
   return m_DataType;
 }
 
-const char* ezParticleStreamFactory::GetStreamName() const
+const char* WParticleStreamFactory::GetStreamName() const
 {
   return m_szStreamName;
 }
 
-ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystemInstance* pOwner) const
+WParticleStream* WParticleStreamFactory::CreateParticleStream(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetParticleStreamType();
-  EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleStream>(), "Particle stream factory does not create a valid stream type");
+  const WRTTI* pRtti = GetParticleStreamType();
+  W_ASSERT_DEBUG(pRtti->IsDerivedFrom<WParticleStream>(), "Particle stream factory does not create a valid stream type");
 
-  ezParticleStream* pStream = pRtti->GetAllocator()->Allocate<ezParticleStream>();
+  WParticleStream* pStream = pRtti->GetAllocator()->Allocate<WParticleStream>();
 
   pOwner->CreateStream(GetStreamName(), GetStreamDataType(), &pStream->m_pStream, pStream->m_StreamBinding, true);
   pStream->Initialize(pOwner);
@@ -50,31 +50,31 @@ ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystem
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleStream::ezParticleStream()
+WParticleStream::WParticleStream()
 {
   // make sure default stream initializers are run very first
   m_fPriority = -1000.0f;
 }
 
-ezResult ezParticleStream::UpdateStreamBindings()
+WResult WParticleStream::UpdateStreamBindings()
 {
   m_StreamBinding.UpdateBindings(m_pStreamGroup);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezParticleStream::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleStream::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  const ezUInt64 uiElementSize = m_pStream->GetElementSize();
-  const ezUInt64 uiElementStride = m_pStream->GetElementStride();
+  const WUInt64 uiElementSize = m_pStream->GetElementSize();
+  const WUInt64 uiElementStride = m_pStream->GetElementStride();
 
-  for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+  for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezMemoryUtils::ZeroFill<ezUInt8>(
-      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
+    WMemoryUtils::ZeroFill<WUInt8>(
+      static_cast<WUInt8*>(WMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
       static_cast<size_t>(uiElementSize));
   }
 }
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_ParticleStream);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_ParticleStream);

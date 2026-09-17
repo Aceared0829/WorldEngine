@@ -5,34 +5,34 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WShaderResource, 1, WRTTIDefaultAllocator<WShaderResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WShaderResource);
 // clang-format on
 
-ezShaderResource::ezShaderResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WShaderResource::WShaderResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }
 
-ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WShaderResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderResourceIsValid = false;
   m_PermutationVarsUsed.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
+WResourceLoadDesc WShaderResource::UpdateContent(WStreamReader* stream)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
@@ -40,51 +40,51 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
 
   if (stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*stream) >> sAbsFilePath;
 
-  ezString sContent;
+  WString sContent;
   sContent.ReadAll(*stream);
 
-  ezShaderHelper::ezTextSectionizer Sections;
-  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
+  WShaderHelper::WTextSectionizer Sections;
+  WShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
-  ezUInt32 uiFirstLine = 0;
-  ezTempHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
-  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ezShaderParser::ParsePermutationSection(sPermutations, m_PermutationVarsUsed, fixedPermVars);
+  WUInt32 uiFirstLine = 0;
+  WTempHybridArray<WPermutationVar, 16> fixedPermVars; // ignored here
+  WStringView sPermutations = Sections.GetSectionContent(WShaderHelper::WShaderSections::PERMUTATIONS, uiFirstLine);
+  WShaderParser::ParsePermutationSection(sPermutations, m_PermutationVarsUsed, fixedPermVars);
 
   uiFirstLine = 0;
-  ezStringView sShader = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstLine);
+  WStringView sShader = Sections.GetSectionContent(WShaderHelper::WShaderSections::MATERIALCONSTANTS, uiFirstLine);
   if (!sShader.IsEmpty())
   {
-    if (ezShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded() && m_pLayout != nullptr)
+    if (WShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded() && m_pLayout != nullptr)
     {
-      ezShaderParser::LayoutMaterialConstants(*m_pLayout, ezGALDevice::GetDefaultDevice()->GetCapabilities().m_materialBufferLayout);
+      WShaderParser::LayoutMaterialConstants(*m_pLayout, WGALDevice::GetDefaultDevice()->GetCapabilities().m_materialBufferLayout);
     }
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   m_bShaderResourceIsValid = true;
 
   return res;
 }
 
-void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderResource) + (ezUInt32)m_PermutationVarsUsed.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WShaderResource) + (WUInt32)m_PermutationVarsUsed.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderResource, ezShaderResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WShaderResource, WShaderResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
-  ret.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc ret;
+  ret.m_State = WResourceState::Loaded;
   ret.m_uiQualityLevelsDiscardable = 0;
   ret.m_uiQualityLevelsLoadable = 0;
 
@@ -93,4 +93,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderResource, ezShaderResourceDescriptor)
   return ret;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderResource);

@@ -12,7 +12,7 @@
 namespace
 {
   static RTCDevice s_rtcDevice;
-  static ezHashTable<ezHashedString, RTCScene, ezHashHelper<ezHashedString>, ezStaticsAllocatorWrapper> s_rtcMeshCache;
+  static WHashTable<WHashedString, RTCScene, WHashHelper<WHashedString>, WStaticsAllocatorWrapper> s_rtcMeshCache;
 
   const char* rtcErrorCodeToString[] = {
     "RTC_NO_ERROR",
@@ -25,21 +25,21 @@ namespace
 
   const char* GetStringFromRTCErrorCode(RTCError code)
   {
-    return (code >= 0 && code < EZ_ARRAY_SIZE(rtcErrorCodeToString)) ? rtcErrorCodeToString[code] : "RTC invalid error code";
+    return (code >= 0 && code < W_ARRAY_SIZE(rtcErrorCodeToString)) ? rtcErrorCodeToString[code] : "RTC invalid error code";
   }
 
   static void ErrorCallback(void* userPtr, RTCError code, const char* str)
   {
-    ezLog::Error("Embree: {}: {}", GetStringFromRTCErrorCode(code), str);
+    WLog::Error("Embree: {}: {}", GetStringFromRTCErrorCode(code), str);
   }
 
-  static ezResult InitDevice()
+  static WResult InitDevice()
   {
     if (s_rtcDevice == nullptr)
     {
       if (s_rtcDevice = rtcNewDevice("threads=1"))
       {
-        ezLog::Info("Created new Embree Device (Version {})", RTC_VERSION_STRING);
+        WLog::Info("Created new Embree Device (Version {})", RTC_VERSION_STRING);
 
         rtcSetDeviceErrorFunction(s_rtcDevice, &ErrorCallback, nullptr);
 
@@ -48,16 +48,16 @@ namespace
         bool bRay16Supported = rtcGetDeviceProperty(s_rtcDevice, RTC_DEVICE_PROPERTY_NATIVE_RAY16_SUPPORTED);
         bool bRayStreamSupported = rtcGetDeviceProperty(s_rtcDevice, RTC_DEVICE_PROPERTY_RAY_STREAM_SUPPORTED);
 
-        ezLog::Info("Supported ray packets: Ray4:{}, Ray8:{}, Ray16:{}, RayStream:{}", bRay4Supported, bRay8Supported, bRay16Supported, bRayStreamSupported);
+        WLog::Info("Supported ray packets: Ray4:{}, Ray8:{}, Ray16:{}, RayStream:{}", bRay4Supported, bRay8Supported, bRay16Supported, bRayStreamSupported);
       }
       else
       {
-        ezLog::Error("Failed to create Embree Device. Error: {}", GetStringFromRTCErrorCode(rtcGetDeviceError(nullptr)));
-        return EZ_FAILURE;
+        WLog::Error("Failed to create Embree Device. Error: {}", GetStringFromRTCErrorCode(rtcGetDeviceError(nullptr)));
+        return W_FAILURE;
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   static void DeinitDevice()
@@ -72,9 +72,9 @@ namespace
     s_rtcDevice = nullptr;
   }
 
-  static RTCScene GetOrCreateMesh(const ezCpuMeshResourceHandle& hMeshResource)
+  static RTCScene GetOrCreateMesh(const WCpuMeshResourceHandle& hMeshResource)
   {
-    ezHashedString sResourceId;
+    WHashedString sResourceId;
     sResourceId.Assign(hMeshResource.GetResourceID());
 
     RTCScene scene = nullptr;
@@ -83,10 +83,10 @@ namespace
       return scene;
     }
 
-    ezResourceLock<ezCpuMeshResource> pCpuMesh(hMeshResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    WResourceLock<WCpuMeshResource> pCpuMesh(hMeshResource, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pCpuMesh.GetAcquireResult() != WResourceAcquireResult::Final)
     {
-      ezLog::Warning("Failed to retrieve CPU mesh '{}'", sResourceId);
+      WLog::Warning("Failed to retrieve CPU mesh '{}'", sResourceId);
       return nullptr;
     }
 
@@ -94,38 +94,38 @@ namespace
     {
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-      const ezVec3* pPositions = mbDesc.GetPositionData().GetPtr();
+      const WVec3* pPositions = mbDesc.GetPositionData().GetPtr();
 
-      ezUInt32 uiNormalStride = 0;
-      const ezUInt8* pNormals = mbDesc.GetNormalData(&uiNormalStride).GetPtr();
-      ezGALResourceFormat::Enum normalFormat = mbDesc.GetVertexStreamConfig().GetNormalFormat();
+      WUInt32 uiNormalStride = 0;
+      const WUInt8* pNormals = mbDesc.GetNormalData(&uiNormalStride).GetPtr();
+      WGALResourceFormat::Enum normalFormat = mbDesc.GetVertexStreamConfig().GetNormalFormat();
 
-      ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
+      WVec3* rtcPositions = static_cast<WVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(WVec3), mbDesc.GetVertexCount()));
 
       rtcSetGeometryVertexAttributeCount(triangleMesh, 1);
-      ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
+      WVec3* rtcNormals = static_cast<WVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(WVec3), mbDesc.GetVertexCount()));
 
       // write out all vertices
-      ezVec3 vNormal;
-      for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
+      WVec3 vNormal;
+      for (WUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
       {
-        ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
+        WMeshBufferUtils::DecodeNormal(WMakeArrayPtr(pNormals, sizeof(WVec3)), normalFormat, vNormal).IgnoreResult();
 
         rtcPositions[i] = *pPositions;
         rtcNormals[i] = vNormal;
 
         ++pPositions;
-        pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiNormalStride);
+        pNormals = WMemoryUtils::AddByteOffset(pNormals, uiNormalStride);
       }
 
-      ezVec3U32* rtcIndices = static_cast<ezVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(ezVec3U32), mbDesc.GetPrimitiveCount()));
+      WVec3U32* rtcIndices = static_cast<WVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(WVec3U32), mbDesc.GetPrimitiveCount()));
 
       bool flip = false;
       if (mbDesc.Uses32BitIndices())
       {
-        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(mbDesc.GetIndexBufferData().GetPtr());
+        const WUInt32* pTypedIndices = reinterpret_cast<const WUInt32*>(mbDesc.GetIndexBufferData().GetPtr());
 
-        for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
+        for (WUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
         {
           rtcIndices[p].x = pTypedIndices[p * 3 + (flip ? 2 : 0)];
           rtcIndices[p].y = pTypedIndices[p * 3 + 1];
@@ -134,9 +134,9 @@ namespace
       }
       else
       {
-        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(mbDesc.GetIndexBufferData().GetPtr());
+        const WUInt16* pTypedIndices = reinterpret_cast<const WUInt16*>(mbDesc.GetIndexBufferData().GetPtr());
 
-        for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
+        for (WUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
         {
           rtcIndices[p].x = pTypedIndices[p * 3 + (flip ? 2 : 0)];
           rtcIndices[p].y = pTypedIndices[p * 3 + 1];
@@ -149,7 +149,7 @@ namespace
 
     scene = rtcNewScene(s_rtcDevice);
     {
-      EZ_VERIFY(rtcAttachGeometry(scene, triangleMesh) == 0, "Geometry id must be 0");
+      W_VERIFY(rtcAttachGeometry(scene, triangleMesh) == 0, "Geometry id must be 0");
       rtcReleaseGeometry(triangleMesh);
 
       rtcCommitScene(scene);
@@ -161,7 +161,7 @@ namespace
 
 } // namespace
 
-struct ezTracerEmbree::Data
+struct WTracerEmbree::Data
 {
   ~Data()
   {
@@ -184,24 +184,24 @@ struct ezTracerEmbree::Data
   struct InstancedGeometry
   {
     RTCGeometry m_mesh;
-    ezSimdVec4f m_normalTransform0;
-    ezSimdVec4f m_normalTransform1;
-    ezSimdVec4f m_normalTransform2;
+    WSimdVec4f m_normalTransform0;
+    WSimdVec4f m_normalTransform1;
+    WSimdVec4f m_normalTransform2;
   };
 
-  ezDynamicArray<InstancedGeometry, ezAlignedAllocatorWrapper> m_rtcInstancedGeometry;
+  WDynamicArray<InstancedGeometry, WAlignedAllocatorWrapper> m_rtcInstancedGeometry;
 };
 
-ezTracerEmbree::ezTracerEmbree()
+WTracerEmbree::WTracerEmbree()
 {
-  m_pData = EZ_DEFAULT_NEW(Data);
+  m_pData = W_DEFAULT_NEW(Data);
 }
 
-ezTracerEmbree::~ezTracerEmbree() = default;
+WTracerEmbree::~WTracerEmbree() = default;
 
-ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
+WResult WTracerEmbree::BuildScene(const WBakingScene& scene)
 {
-  EZ_SUCCEED_OR_RETURN(InitDevice());
+  W_SUCCEED_OR_RETURN(InitDevice());
 
   m_pData->ClearScene();
   m_pData->m_rtcScene = rtcNewScene(s_rtcDevice);
@@ -214,7 +214,7 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
       continue;
     }
 
-    ezMat4 transform = meshObject.m_GlobalTransform.GetAsMat4();
+    WMat4 transform = meshObject.m_GlobalTransform.GetAsMat4();
 
     RTCGeometry instance = rtcNewGeometry(s_rtcDevice, RTC_GEOMETRY_TYPE_INSTANCE);
     {
@@ -224,34 +224,34 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
       rtcCommitGeometry(instance);
     }
 
-    ezUInt32 uiInstanceID = rtcAttachGeometry(m_pData->m_rtcScene, instance);
+    WUInt32 uiInstanceID = rtcAttachGeometry(m_pData->m_rtcScene, instance);
     rtcReleaseGeometry(instance);
 
-    ezMat3 normalTransform = transform.GetRotationalPart().GetInverse(0.0f).GetTranspose();
+    WMat3 normalTransform = transform.GetRotationalPart().GetInverse(0.0f).GetTranspose();
 
-    EZ_ASSERT_DEBUG(uiInstanceID == m_pData->m_rtcInstancedGeometry.GetCount(), "");
+    W_ASSERT_DEBUG(uiInstanceID == m_pData->m_rtcInstancedGeometry.GetCount(), "");
     auto& instancedGeometry = m_pData->m_rtcInstancedGeometry.ExpandAndGetRef();
     instancedGeometry.m_mesh = rtcGetGeometry(mesh, 0);
-    instancedGeometry.m_normalTransform0 = ezSimdConversion::ToVec3(normalTransform.GetColumn(0));
-    instancedGeometry.m_normalTransform1 = ezSimdConversion::ToVec3(normalTransform.GetColumn(1));
-    instancedGeometry.m_normalTransform2 = ezSimdConversion::ToVec3(normalTransform.GetColumn(2));
+    instancedGeometry.m_normalTransform0 = WSimdConversion::ToVec3(normalTransform.GetColumn(0));
+    instancedGeometry.m_normalTransform1 = WSimdConversion::ToVec3(normalTransform.GetColumn(1));
+    instancedGeometry.m_normalTransform2 = WSimdConversion::ToVec3(normalTransform.GetColumn(2));
   }
 
   rtcCommitScene(m_pData->m_rtcScene);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_DEFINE_AS_POD_TYPE(RTCRayHit);
+W_DEFINE_AS_POD_TYPE(RTCRayHit);
 
-void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
+void WTracerEmbree::TraceRays(WArrayPtr<const Ray> rays, WArrayPtr<Hit> hits)
 {
-  const ezUInt32 uiNumRays = rays.GetCount();
+  const WUInt32 uiNumRays = rays.GetCount();
 
-  ezHybridArray<RTCRayHit, 256, ezAlignedAllocatorWrapper> rtcRayHits;
+  WHybridArray<RTCRayHit, 256, WAlignedAllocatorWrapper> rtcRayHits;
   rtcRayHits.SetCountUninitialized(uiNumRays);
 
-  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  for (WUInt32 i = 0; i < uiNumRays; ++i)
   {
     auto& ray = rays[i];
     auto& rtcRayHit = rtcRayHits[i];
@@ -279,7 +279,7 @@ void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
 
   rtcIntersect1M(m_pData->m_rtcScene, &context, rtcRayHits.GetData(), uiNumRays, sizeof(RTCRayHit));
 
-  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  for (WUInt32 i = 0; i < uiNumRays; ++i)
   {
     auto& rtcRayHit = rtcRayHits[i];
     auto& ray = rays[i];
@@ -289,14 +289,14 @@ void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
     {
       auto& instancedGeometry = m_pData->m_rtcInstancedGeometry[rtcRayHit.hit.instID[0]];
 
-      ezSimdVec4f objectSpaceNormal;
+      WSimdVec4f objectSpaceNormal;
       rtcInterpolate0(instancedGeometry.m_mesh, rtcRayHit.hit.primID, rtcRayHit.hit.u, rtcRayHit.hit.v, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, reinterpret_cast<float*>(&objectSpaceNormal), 3);
 
-      ezSimdVec4f worldSpaceNormal = instancedGeometry.m_normalTransform0 * objectSpaceNormal.x();
+      WSimdVec4f worldSpaceNormal = instancedGeometry.m_normalTransform0 * objectSpaceNormal.x();
       worldSpaceNormal += instancedGeometry.m_normalTransform1 * objectSpaceNormal.y();
       worldSpaceNormal += instancedGeometry.m_normalTransform2 * objectSpaceNormal.z();
 
-      hit.m_vNormal = ezSimdConversion::ToVec3(worldSpaceNormal.GetNormalized<3>());
+      hit.m_vNormal = WSimdConversion::ToVec3(worldSpaceNormal.GetNormalized<3>());
       hit.m_fDistance = rtcRayHit.ray.tfar;
       hit.m_vPosition = ray.m_vStartPos + ray.m_vDir * hit.m_fDistance;
     }

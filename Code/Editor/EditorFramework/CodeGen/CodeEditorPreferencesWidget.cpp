@@ -7,17 +7,17 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtCodeEditorPreferencesWidget::ezQtCodeEditorPreferencesWidget()
-  : ezQtPropertyTypeWidget(true)
+WQtCodeEditorPreferencesWidget::WQtCodeEditorPreferencesWidget()
+  : WQtPropertyTypeWidget(true)
 {
   m_pCodeEditor = new QComboBox();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  m_pCodeEditor->addItem(ezMakeQString("Visual Studio"), true);
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  m_pCodeEditor->addItem(WMakeQString("Visual Studio"), true);
 #endif
-  m_pCodeEditor->addItem(ezMakeQString("Custom"), false);
+  m_pCodeEditor->addItem(WMakeQString("Custom"), false);
 
-  connect(m_pCodeEditor, &QComboBox::currentIndexChanged, this, &ezQtCodeEditorPreferencesWidget::on_code_editor_changed);
+  connect(m_pCodeEditor, &QComboBox::currentIndexChanged, this, &WQtCodeEditorPreferencesWidget::on_code_editor_changed);
 
   auto gridLayout = new QGridLayout();
   gridLayout->setColumnStretch(0, 1);
@@ -32,27 +32,27 @@ ezQtCodeEditorPreferencesWidget::ezQtCodeEditorPreferencesWidget()
   m_pGroupLayout->addLayout(gridLayout);
 }
 
-ezQtCodeEditorPreferencesWidget::~ezQtCodeEditorPreferencesWidget() = default;
+WQtCodeEditorPreferencesWidget::~WQtCodeEditorPreferencesWidget() = default;
 
-void ezQtCodeEditorPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtCodeEditorPreferencesWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
 
-  ezQtPropertyTypeWidget::SetSelection(items);
+  WQtPropertyTypeWidget::SetSelection(items);
 
   if (m_pTypeWidget)
   {
     const auto& selection = m_pTypeWidget->GetSelection();
 
-    EZ_ASSERT_DEBUG(selection.GetCount() == 1, "Expected exactly one object");
+    W_ASSERT_DEBUG(selection.GetCount() == 1, "Expected exactly one object");
     auto pObj = selection[0].m_pObject;
 
-    ezVariant varIsVisualStudio;
+    WVariant varIsVisualStudio;
     m_pObjectAccessor->GetValueByName(pObj, "IsVisualStudio", varIsVisualStudio).AssertSuccess();
     bool bIsVisualStudio = varIsVisualStudio.Get<decltype(bIsVisualStudio)>();
 
     m_pCodeEditor->blockSignals(true);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
     m_pCodeEditor->setCurrentIndex(bIsVisualStudio ? 0 : 1);
 #else
     m_pCodeEditor->setCurrentIndex(0);
@@ -61,10 +61,10 @@ void ezQtCodeEditorPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySe
   }
 }
 
-void ezQtCodeEditorPreferencesWidget::on_code_editor_changed(int index)
+void WQtCodeEditorPreferencesWidget::on_code_editor_changed(int index)
 {
   const auto& selection = m_pTypeWidget->GetSelection();
-  EZ_ASSERT_DEV(selection.GetCount() == 1, "This Widget does not support multi selection");
+  W_ASSERT_DEV(selection.GetCount() == 1, "This Widget does not support multi selection");
 
   const QVariant variant = m_pCodeEditor->currentData();
   if (variant.toBool())
@@ -80,29 +80,29 @@ void ezQtCodeEditorPreferencesWidget::on_code_editor_changed(int index)
   m_pObjectAccessor->StartTransaction("Change Code Editor Preset");
   m_pObjectAccessor->SetValueByName(obj, "IsVisualStudio", false).AssertSuccess();
 
-  ezVariant editorArgs;
-  if (m_pObjectAccessor->GetValueByName(obj, "CodeEditorArgs", editorArgs).Succeeded() && editorArgs.Get<ezString>().IsEmpty())
+  WVariant editorArgs;
+  if (m_pObjectAccessor->GetValueByName(obj, "CodeEditorArgs", editorArgs).Succeeded() && editorArgs.Get<WString>().IsEmpty())
   {
     m_pObjectAccessor->SetValueByName(obj, "CodeEditorArgs", "{file} {line}").AssertSuccess();
   }
   m_pObjectAccessor->FinishTransaction();
 }
 
-void ezCodeEditorPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WCodeEditorPreferences_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezCodeEditorPreferences>();
+  const WRTTI* pRtti = WGetStaticRTTI<WCodeEditorPreferences>();
 
   auto& typeAccessor = e.m_pObject->GetTypeAccessor();
 
   if (typeAccessor.GetType() != pRtti)
     return;
 
-  ezPropertyUiState::Visibility codeEditorFieldsVisibility = ezPropertyUiState::Default;
+  WPropertyUiState::Visibility codeEditorFieldsVisibility = WPropertyUiState::Default;
 
-  ezStatus res(EZ_SUCCESS);
-  if (typeAccessor.GetValue("IsVisualStudio", ezVariant(), &res).Get<bool>() && res.Succeeded())
+  WStatus res(W_SUCCESS);
+  if (typeAccessor.GetValue("IsVisualStudio", WVariant(), &res).Get<bool>() && res.Succeeded())
   {
-    codeEditorFieldsVisibility = ezPropertyUiState::Invisible;
+    codeEditorFieldsVisibility = WPropertyUiState::Invisible;
   }
 
   auto& props = *e.m_pPropertyStates;

@@ -1,35 +1,35 @@
 Plugin
 {
-	string %Path{"ezFmodPlugin"}
+	string %Path{"WFmodPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezGameComponentsPlugin"}
+	string %Path{"WGameComponentsPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezJoltPlugin"}
+	string %Path{"WJoltPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezKrautPlugin"}
+	string %Path{"WKrautPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"WParticlePlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezProcGenPlugin"}
+	string %Path{"WProcGenPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezRmlUiPlugin"}
+	string %Path{"WRmlUiPlugin"}
 	bool %LoadCopy{false}
 }

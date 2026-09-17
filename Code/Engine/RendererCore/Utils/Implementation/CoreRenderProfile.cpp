@@ -4,23 +4,23 @@
 #include <RendererCore/Utils/CoreRenderProfile.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCoreRenderProfileConfig, 1, ezRTTIDefaultAllocator<ezCoreRenderProfileConfig>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCoreRenderProfileConfig, 1, WRTTIDefaultAllocator<WCoreRenderProfileConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ShadowAtlasTextureSize", m_uiShadowAtlasTextureSize)->AddAttributes(new ezDefaultValueAttribute(4096), new ezClampValueAttribute(512, 8192)),
-    EZ_MEMBER_PROPERTY("MaxShadowMapSize", m_uiMaxShadowMapSize)->AddAttributes(new ezDefaultValueAttribute(1024), new ezClampValueAttribute(64, 4096)),
-    EZ_MEMBER_PROPERTY("MinShadowMapSize", m_uiMinShadowMapSize)->AddAttributes(new ezDefaultValueAttribute(64), new ezClampValueAttribute(8, 512)),
-    EZ_MEMBER_PROPERTY("RuntimeDecalAtlasTextureSize", m_uiRuntimeDecalAtlasTextureSize)->AddAttributes(new ezDefaultValueAttribute(3072), new ezClampValueAttribute(512, 8192)),
+    W_MEMBER_PROPERTY("ShadowAtlasTextureSize", m_uiShadowAtlasTextureSize)->AddAttributes(new WDefaultValueAttribute(4096), new WClampValueAttribute(512, 8192)),
+    W_MEMBER_PROPERTY("MaxShadowMapSize", m_uiMaxShadowMapSize)->AddAttributes(new WDefaultValueAttribute(1024), new WClampValueAttribute(64, 4096)),
+    W_MEMBER_PROPERTY("MinShadowMapSize", m_uiMinShadowMapSize)->AddAttributes(new WDefaultValueAttribute(64), new WClampValueAttribute(8, 512)),
+    W_MEMBER_PROPERTY("RuntimeDecalAtlasTextureSize", m_uiRuntimeDecalAtlasTextureSize)->AddAttributes(new WDefaultValueAttribute(3072), new WClampValueAttribute(512, 8192)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezCoreRenderProfileConfig::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const
+void WCoreRenderProfileConfig::SaveRuntimeData(WChunkStreamWriter& inout_stream) const
 {
-  inout_stream.BeginChunk("ezCoreRenderProfileConfig", 2);
+  inout_stream.BeginChunk("WCoreRenderProfileConfig", 2);
 
   inout_stream << m_uiShadowAtlasTextureSize;
   inout_stream << m_uiMaxShadowMapSize;
@@ -30,11 +30,11 @@ void ezCoreRenderProfileConfig::SaveRuntimeData(ezChunkStreamWriter& inout_strea
   inout_stream.EndChunk();
 }
 
-void ezCoreRenderProfileConfig::LoadRuntimeData(ezChunkStreamReader& inout_stream)
+void WCoreRenderProfileConfig::LoadRuntimeData(WChunkStreamReader& inout_stream)
 {
   const auto& chunk = inout_stream.GetCurrentChunk();
 
-  if (chunk.m_sChunkName == "ezCoreRenderProfileConfig" && chunk.m_uiChunkVersion >= 1)
+  if (chunk.m_sChunkName == "WCoreRenderProfileConfig" && chunk.m_uiChunkVersion >= 1)
   {
     inout_stream >> m_uiShadowAtlasTextureSize;
     inout_stream >> m_uiMaxShadowMapSize;
@@ -48,4 +48,4 @@ void ezCoreRenderProfileConfig::LoadRuntimeData(ezChunkStreamReader& inout_strea
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_CoreRenderProfile);
+W_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_CoreRenderProfile);

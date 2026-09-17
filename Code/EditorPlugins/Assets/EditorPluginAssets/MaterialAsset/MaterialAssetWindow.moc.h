@@ -6,27 +6,27 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezMaterialAssetDocument;
-class ezQtOrbitCamViewWidget;
-class ezQtVisualShaderScene;
-class ezQtVisualGraphView;
-struct ezSelectionManagerEvent;
-class ezDirectoryWatcher;
-enum class ezDirectoryWatcherAction;
-enum class ezDirectoryWatcherType;
-class ezQtDocumentPanel;
+class WMaterialAssetDocument;
+class WQtOrbitCamViewWidget;
+class WQtVisualShaderScene;
+class WQtVisualGraphView;
+struct WSelectionManagerEvent;
+class WDirectoryWatcher;
+enum class WDirectoryWatcherAction;
+enum class WDirectoryWatcherType;
+class WQtDocumentPanel;
 class QTextEdit;
-struct ezMaterialVisualShaderEvent;
+struct WMaterialVisualShaderEvent;
 
-class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtMaterialAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument);
-  ~ezQtMaterialAssetDocumentWindow();
+  WQtMaterialAssetDocumentWindow(WMaterialAssetDocument* pDocument);
+  ~WQtMaterialAssetDocumentWindow();
 
-  ezMaterialAssetDocument* GetMaterialDocument();
+  WMaterialAssetDocument* GetMaterialDocument();
 
 protected:
   virtual void InternalRedraw() override;
@@ -39,48 +39,48 @@ private Q_SLOTS:
 
 private:
   void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
   void SendRedrawMsg();
   void RestoreResource();
   void UpdateNodeEditorVisibility();
-  void OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
-  void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
+  void OnVseConfigChanged(WStringView sFilename, WDirectoryWatcherAction action, WDirectoryWatcherType type);
+  void VisualShaderEventHandler(const WMaterialVisualShaderEvent& e);
   void SetupDirectoryWatcher(bool needIt);
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
-  ezQtVisualShaderScene* m_pScene = nullptr;
-  ezQtVisualGraphView* m_pNodeView = nullptr;
-  ezQtDocumentPanel* m_pVsePanel = nullptr;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget = nullptr;
+  WQtVisualShaderScene* m_pScene = nullptr;
+  WQtVisualGraphView* m_pNodeView = nullptr;
+  WQtDocumentPanel* m_pVsePanel = nullptr;
   QTextEdit* m_pOutputLine = nullptr;
   QPushButton* m_pOpenShaderButton = nullptr;
   bool m_bVisualShaderEnabled;
 
-  static ezInt32 s_iNodeConfigWatchers;
+  static WInt32 s_iNodeConfigWatchers;
 
   /// One watcher for the editor's own VisualShader folder, plus one for each data directory of the
   /// open project that has such a folder (projects may ship their own nodes).
-  static ezHybridArray<ezDirectoryWatcher*, 4> s_NodeConfigWatchers;
+  static WHybridArray<WDirectoryWatcher*, 4> s_NodeConfigWatchers;
 };
 
-class ezMaterialModelAction : public ezEnumerationMenuAction
+class WMaterialModelAction : public WEnumerationMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialModelAction, ezEnumerationMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialModelAction, WEnumerationMenuAction);
 
 public:
-  ezMaterialModelAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual ezInt64 GetValue() const override;
-  virtual void Execute(const ezVariant& value) override;
+  WMaterialModelAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual WInt64 GetValue() const override;
+  virtual void Execute(const WVariant& value) override;
 };
 
-class ezMaterialAssetActions
+class WMaterialAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hMaterialModelAction;
+  static WActionDescriptorHandle s_hMaterialModelAction;
 };

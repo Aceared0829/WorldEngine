@@ -8,7 +8,7 @@ enum Phase
     Done,
 }
 
-class AsTestEventMsg : ezAngelScriptMessage
+class AsTestEventMsg : WAngelScriptMessage
 {
   ScriptObject@ FromComponent = null;
   int iHandledBy0 = 0;
@@ -16,11 +16,11 @@ class AsTestEventMsg : ezAngelScriptMessage
   int iHandledBy2 = 0;
 }
 
-class AsTestEventMsg2 : ezAngelScriptMessage
+class AsTestEventMsg2 : WAngelScriptMessage
 {
 }
 
-class ScriptObject : ezAngelScriptTestClass
+class ScriptObject : WAngelScriptTestClass
 {
     int Participant = -1;
     // This number should be equal to the number of objects the message is expected to traverse upwards through the hierarchy
@@ -30,7 +30,7 @@ class ScriptObject : ezAngelScriptTestClass
     
     private int m_iResponses = 0;
     private Phase m_Phase = Phase::SendAS;
-    private ezTime m_waitStartTime;
+    private WTime m_waitStartTime;
 
     ScriptObject()
     {
@@ -39,7 +39,7 @@ class ScriptObject : ezAngelScriptTestClass
 
     bool ExecuteTests()
     {
-        EZ_TEST_BOOL(Participant != -1);
+        W_TEST_BOOL(Participant != -1);
         
         if (m_Phase == Phase::SendAS)
         {
@@ -47,32 +47,32 @@ class ScriptObject : ezAngelScriptTestClass
             @msg.FromComponent = @this;
 
             m_iResponses = 0;
-            ezGameObject@ child = GetOwner().FindChildByName("Child");
-            EZ_TEST_BOOL(child.SendEventMessage(msg, GetOwnerComponent()));
-            EZ_TEST_INT(m_iResponses, ExpectedResponseCount);
+            WGameObject@ child = GetOwner().FindChildByName("Child");
+            W_TEST_BOOL(child.SendEventMessage(msg, GetOwnerComponent()));
+            W_TEST_INT(m_iResponses, ExpectedResponseCount);
             // Ugly part to verify that the message traversed the correct objects
             // The object tree is expected to be 0 -> 1 - > 2
             switch(Participant)
             {
             case 0:
             {
-                EZ_TEST_INT(msg.iHandledBy0, 1);
-                EZ_TEST_INT(msg.iHandledBy1, 0);
-                EZ_TEST_INT(msg.iHandledBy2, 0);
+                W_TEST_INT(msg.iHandledBy0, 1);
+                W_TEST_INT(msg.iHandledBy1, 0);
+                W_TEST_INT(msg.iHandledBy2, 0);
                 break;
             }
             case 1:
             {
-                EZ_TEST_INT(msg.iHandledBy0, 1);
-                EZ_TEST_INT(msg.iHandledBy1, 1);
-                EZ_TEST_INT(msg.iHandledBy2, 0);
+                W_TEST_INT(msg.iHandledBy0, 1);
+                W_TEST_INT(msg.iHandledBy1, 1);
+                W_TEST_INT(msg.iHandledBy2, 0);
                 break;
             }
             case 2:
             {
-                EZ_TEST_INT(msg.iHandledBy0, 1);
-                EZ_TEST_INT(msg.iHandledBy1, 1);
-                EZ_TEST_INT(msg.iHandledBy1, 1);
+                W_TEST_INT(msg.iHandledBy0, 1);
+                W_TEST_INT(msg.iHandledBy1, 1);
+                W_TEST_INT(msg.iHandledBy1, 1);
                 break;
             }
             }
@@ -83,25 +83,25 @@ class ScriptObject : ezAngelScriptTestClass
             AsTestEventMsg msg;
             @msg.FromComponent = @this;
             m_iResponses = 0;
-            ezGameObject@ child = GetOwner().FindChildByName("Child");
-            child.PostEventMessage(msg, GetOwnerComponent(), ezTime::Milliseconds(200));
-            EZ_TEST_INT(m_iResponses, 0);
-            EZ_TEST_INT(msg.iHandledBy0, 0);
-            EZ_TEST_INT(msg.iHandledBy1, 0);
+            WGameObject@ child = GetOwner().FindChildByName("Child");
+            child.PostEventMessage(msg, GetOwnerComponent(), WTime::Milliseconds(200));
+            W_TEST_INT(m_iResponses, 0);
+            W_TEST_INT(msg.iHandledBy0, 0);
+            W_TEST_INT(msg.iHandledBy1, 0);
 
             m_waitStartTime = GetWorld().GetClock().GetAccumulatedTime();
             m_Phase = Phase::WaitPostAS;
         }
         else if (m_Phase == Phase::WaitPostAS)
         {
-            const ezTime tNow = GetWorld().GetClock().GetAccumulatedTime();
-            if (tNow - m_waitStartTime < ezTime::Milliseconds(200))
+            const WTime tNow = GetWorld().GetClock().GetAccumulatedTime();
+            if (tNow - m_waitStartTime < WTime::Milliseconds(200))
             {
-                EZ_TEST_INT(m_iResponses, 0);
+                W_TEST_INT(m_iResponses, 0);
             }
-            else if (tNow - m_waitStartTime > ezTime::Milliseconds(220))
+            else if (tNow - m_waitStartTime > WTime::Milliseconds(220))
             {
-                EZ_TEST_INT(m_iResponses, ExpectedResponseCount);
+                W_TEST_INT(m_iResponses, ExpectedResponseCount);
                 m_Phase = Phase::Done;
             }
         }

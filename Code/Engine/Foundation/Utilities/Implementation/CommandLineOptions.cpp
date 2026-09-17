@@ -6,29 +6,29 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCommandLineOption);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WCommandLineOption);
 
-void ezCommandLineOption::GetSortingGroup(ezStringBuilder& ref_sOut) const
+void WCommandLineOption::GetSortingGroup(WStringBuilder& ref_sOut) const
 {
   ref_sOut = m_sSortingGroup;
 }
 
-void ezCommandLineOption::GetSplitOptions(ezStringBuilder& out_sAll, ezDynamicArray<ezStringView>& ref_splitOptions) const
+void WCommandLineOption::GetSplitOptions(WStringBuilder& out_sAll, WDynamicArray<WStringView>& ref_splitOptions) const
 {
   GetOptions(out_sAll);
   out_sAll.Split(false, ref_splitOptions, ";", "|");
 }
 
-bool ezCommandLineOption::IsHelpRequested(const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool WCommandLineOption::IsHelpRequested(const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/)
 {
   return pUtils->GetBoolOption("-help") || pUtils->GetBoolOption("--help") || pUtils->GetBoolOption("-h") || pUtils->GetBoolOption("-?");
 }
 
-ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+WResult WCommandLineOption::RequireOptions(WStringView sRequiredOptions, WString* pMissingOption /*= nullptr*/, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/)
 {
-  ezStringBuilder tmp;
-  ezStringBuilder allOpts = sRequiredOptions;
-  ezHybridArray<ezStringView, 16> options;
+  WStringBuilder tmp;
+  WStringBuilder allOpts = sRequiredOptions;
+  WHybridArray<WStringView, 16> options;
   allOpts.Split(false, options, ";");
 
   for (auto opt : options)
@@ -42,7 +42,7 @@ ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezSt
         *pMissingOption = opt;
       }
 
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
@@ -51,10 +51,10 @@ ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezSt
     pMissingOption->Clear();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringView sGroupFilter0 /*= {} */, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool WCommandLineOption::LogAvailableOptions(LogAvailableModes mode, WStringView sGroupFilter0 /*= {} */, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/)
 {
   if (mode == LogAvailableModes::IfHelpRequested)
   {
@@ -65,17 +65,17 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
   // Note: nothing in here may use the temp allocator. Printing the command line help is the typical
   // reason for an application to abort in BeforeCoreSystemsStartup(), i.e. before the core systems -
   // and with them the temp allocator - exist.
-  ezMap<ezString, ezHybridArray<ezCommandLineOption*, 16>> sorted;
+  WMap<WString, WHybridArray<WCommandLineOption*, 16>> sorted;
 
-  ezStringBuilder sGroupFilter;
+  WStringBuilder sGroupFilter;
   if (!sGroupFilter0.IsEmpty())
   {
     sGroupFilter.Set(";", sGroupFilter0, ";");
   }
 
-  for (ezCommandLineOption* pOpt = ezCommandLineOption::GetFirstInstance(); pOpt != nullptr; pOpt = pOpt->GetNextInstance())
+  for (WCommandLineOption* pOpt = WCommandLineOption::GetFirstInstance(); pOpt != nullptr; pOpt = pOpt->GetNextInstance())
   {
-    ezStringBuilder sGroup;
+    WStringBuilder sGroup;
     pOpt->GetSortingGroup(sGroup);
     sGroup.Prepend(";");
     sGroup.Append(";");
@@ -89,25 +89,25 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
     sorted[sGroup].PushBack(pOpt);
   }
 
-  if (ezApplication::GetApplicationInstance())
+  if (WApplication::GetApplicationInstance())
   {
-    ezLog::Info("");
-    ezLog::Info("{} command line options:", ezApplication::GetApplicationInstance()->GetApplicationName());
+    WLog::Info("");
+    WLog::Info("{} command line options:", WApplication::GetApplicationInstance()->GetApplicationName());
   }
 
   if (sorted.IsEmpty())
   {
-    ezLog::Info("This application has no documented command line options.");
+    WLog::Info("This application has no documented command line options.");
     return true;
   }
 
-  ezStringBuilder sLine;
+  WStringBuilder sLine;
 
   for (auto optIt : sorted)
   {
     for (auto pOpt : optIt.Value())
     {
-      ezStringBuilder sOptions, sParamShort, sParamDefault, sLongDesc;
+      WStringBuilder sOptions, sParamShort, sParamDefault, sLongDesc;
 
       sLine.Clear();
 
@@ -116,7 +116,7 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
       pOpt->GetParamDefaultValueDesc(sParamDefault);
       pOpt->GetLongDesc(sLongDesc);
 
-      ezHybridArray<ezStringView, 4> lines;
+      WHybridArray<WStringView, 4> lines;
 
       sOptions.Split(false, lines, ";", "|");
 
@@ -135,8 +135,8 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
         }
       }
 
-      ezLog::Info("");
-      ezLog::Info(sLine);
+      WLog::Info("");
+      WLog::Info(sLine);
 
       sLongDesc.Trim(" \t\n\r");
       sLongDesc.Split(true, lines, "\n");
@@ -147,25 +147,25 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
         sLine.Trim("\t\n\r");
         sLine.Prepend("    ");
 
-        ezLog::Info(sLine);
+        WLog::Info(sLine);
       }
     }
 
-    ezLog::Info("");
+    WLog::Info("");
   }
 
-  ezLog::Info("");
+  WLog::Info("");
 
   return true;
 }
 
 
-bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, ezStringView sGroupFilter /*= {} */, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool WCommandLineOption::LogAvailableOptionsToBuffer(WStringBuilder& out_sBuffer, LogAvailableModes mode, WStringView sGroupFilter /*= {} */, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/)
 {
-  ezLogSystemToBuffer log;
-  ezLogSystemScope ls(&log);
+  WLogSystemToBuffer log;
+  WLogSystemScope ls(&log);
 
-  const bool res = ezCommandLineOption::LogAvailableOptions(mode, sGroupFilter, pUtils);
+  const bool res = WCommandLineOption::LogAvailableOptions(mode, sGroupFilter, pUtils);
 
   out_sBuffer = log.m_sBuffer;
 
@@ -176,8 +176,8 @@ bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuff
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionDoc::ezCommandLineOptionDoc(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sParamShortDesc, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOption(sSortingGroup)
+WCommandLineOptionDoc::WCommandLineOptionDoc(WStringView sSortingGroup, WStringView sArgument, WStringView sParamShortDesc, WStringView sLongDesc, WStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : WCommandLineOption(sSortingGroup)
 {
   m_sArgument = sArgument;
   m_sParamShortDesc = sParamShortDesc;
@@ -186,30 +186,30 @@ ezCommandLineOptionDoc::ezCommandLineOptionDoc(ezStringView sSortingGroup, ezStr
   m_bCaseSensitive = bCaseSensitive;
 }
 
-void ezCommandLineOptionDoc::GetOptions(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionDoc::GetOptions(WStringBuilder& ref_sOut) const
 {
   ref_sOut = m_sArgument;
 }
 
-void ezCommandLineOptionDoc::GetParamShortDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionDoc::GetParamShortDesc(WStringBuilder& ref_sOut) const
 {
   ref_sOut = m_sParamShortDesc;
 }
 
-void ezCommandLineOptionDoc::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionDoc::GetParamDefaultValueDesc(WStringBuilder& ref_sOut) const
 {
   ref_sOut = m_sParamDefaultValue;
 }
 
-void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionDoc::GetLongDesc(WStringBuilder& ref_sOut) const
 {
   ref_sOut = m_sLongDesc;
 }
 
-bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+bool WCommandLineOptionDoc::IsOptionSpecified(WStringBuilder* out_pWhich, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezStringBuilder sOptions, tmp;
-  ezHybridArray<ezStringView, 4> eachOption;
+  WStringBuilder sOptions, tmp;
+  WHybridArray<WStringView, 4> eachOption;
   GetSplitOptions(sOptions, eachOption);
 
   for (auto o : eachOption)
@@ -234,7 +234,7 @@ bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, cons
 }
 
 
-bool ezCommandLineOptionDoc::ShouldLog(LogMode mode, bool bWasSpecified) const
+bool WCommandLineOptionDoc::ShouldLog(LogMode mode, bool bWasSpecified) const
 {
   if (mode == LogMode::Never)
     return false;
@@ -248,17 +248,17 @@ bool ezCommandLineOptionDoc::ShouldLog(LogMode mode, bool bWasSpecified) const
   return true;
 }
 
-void ezCommandLineOptionDoc::LogOption(ezStringView sOption, ezStringView sValue, bool bWasSpecified) const
+void WCommandLineOptionDoc::LogOption(WStringView sOption, WStringView sValue, bool bWasSpecified) const
 {
   m_bLoggedOnce = true;
 
   if (bWasSpecified)
   {
-    ezLog::Info("Option '{}' is set to '{}'", sOption, sValue);
+    WLog::Info("Option '{}' is set to '{}'", sOption, sValue);
   }
   else
   {
-    ezLog::Info("Option '{}' is not set, default value is '{}'", sOption, sValue);
+    WLog::Info("Option '{}' is not set, default value is '{}'", sOption, sValue);
   }
 }
 
@@ -266,17 +266,17 @@ void ezCommandLineOptionDoc::LogOption(ezStringView sOption, ezStringView sValue
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionBool::ezCommandLineOptionBool(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, bool bDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<bool>", sLongDesc, bDefaultValue ? "true" : "false", bCaseSensitive)
+WCommandLineOptionBool::WCommandLineOptionBool(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, bool bDefaultValue, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<bool>", sLongDesc, bDefaultValue ? "true" : "false", bCaseSensitive)
 {
   m_bDefaultValue = bDefaultValue;
 }
 
-bool ezCommandLineOptionBool::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+bool WCommandLineOptionBool::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
   bool result = m_bDefaultValue;
 
-  ezStringBuilder sOption;
+  WStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
@@ -296,25 +296,25 @@ bool ezCommandLineOptionBool::GetOptionValue(LogMode logMode, const ezCommandLin
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionInt::ezCommandLineOptionInt(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, int iDefaultValue, int iMinValue /*= ezMath::MinValue<int>()*/, int iMaxValue /*= ezMath::MaxValue<int>()*/, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<int>", sLongDesc, "0", bCaseSensitive)
+WCommandLineOptionInt::WCommandLineOptionInt(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, int iDefaultValue, int iMinValue /*= WMath::MinValue<int>()*/, int iMaxValue /*= WMath::MaxValue<int>()*/, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<int>", sLongDesc, "0", bCaseSensitive)
 {
   m_iDefaultValue = iDefaultValue;
   m_iMinValue = iMinValue;
   m_iMaxValue = iMaxValue;
 
-  EZ_ASSERT_DEV(m_iMinValue < m_iMaxValue, "Invalid min/max value");
+  W_ASSERT_DEV(m_iMinValue < m_iMaxValue, "Invalid min/max value");
 }
 
-void ezCommandLineOptionInt::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionInt::GetParamDefaultValueDesc(WStringBuilder& ref_sOut) const
 {
   ref_sOut.SetFormat("{}", m_iDefaultValue);
 }
 
 
-void ezCommandLineOptionInt::GetParamShortDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionInt::GetParamShortDesc(WStringBuilder& ref_sOut) const
 {
-  if (m_iMinValue == ezMath::MinValue<int>() && m_iMaxValue == ezMath::MaxValue<int>())
+  if (m_iMinValue == WMath::MinValue<int>() && m_iMaxValue == WMath::MaxValue<int>())
   {
     ref_sOut = "<int>";
   }
@@ -324,11 +324,11 @@ void ezCommandLineOptionInt::GetParamShortDesc(ezStringBuilder& ref_sOut) const
   }
 }
 
-int ezCommandLineOptionInt::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+int WCommandLineOptionInt::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
   int result = m_iDefaultValue;
 
-  ezStringBuilder sOption, tmp;
+  WStringBuilder sOption, tmp;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
@@ -339,7 +339,7 @@ int ezCommandLineOptionInt::GetOptionValue(LogMode logMode, const ezCommandLineU
     {
       if (ShouldLog(logMode, bSpecified))
       {
-        ezLog::Warning("Option '{}' selected value '{}' is outside valid range [{} .. {}]. Using default value instead.", sOption, result, m_iMinValue, m_iMaxValue);
+        WLog::Warning("Option '{}' selected value '{}' is outside valid range [{} .. {}]. Using default value instead.", sOption, result, m_iMinValue, m_iMaxValue);
       }
 
       result = m_iDefaultValue;
@@ -359,24 +359,24 @@ int ezCommandLineOptionInt::GetOptionValue(LogMode logMode, const ezCommandLineU
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionFloat::ezCommandLineOptionFloat(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, float fDefaultValue, float fMinValue /*= ezMath::MinValue<float>()*/, float fMaxValue /*= ezMath::MaxValue<float>()*/, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<float>", sLongDesc, "0", bCaseSensitive)
+WCommandLineOptionFloat::WCommandLineOptionFloat(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, float fDefaultValue, float fMinValue /*= WMath::MinValue<float>()*/, float fMaxValue /*= WMath::MaxValue<float>()*/, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<float>", sLongDesc, "0", bCaseSensitive)
 {
   m_fDefaultValue = fDefaultValue;
   m_fMinValue = fMinValue;
   m_fMaxValue = fMaxValue;
 
-  EZ_ASSERT_DEV(m_fMinValue < m_fMaxValue, "Invalid min/max value");
+  W_ASSERT_DEV(m_fMinValue < m_fMaxValue, "Invalid min/max value");
 }
 
-void ezCommandLineOptionFloat::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionFloat::GetParamDefaultValueDesc(WStringBuilder& ref_sOut) const
 {
   ref_sOut.SetFormat("{}", m_fDefaultValue);
 }
 
-void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionFloat::GetParamShortDesc(WStringBuilder& ref_sOut) const
 {
-  if (m_fMinValue == ezMath::MinValue<float>() && m_fMaxValue == ezMath::MaxValue<float>())
+  if (m_fMinValue == WMath::MinValue<float>() && m_fMaxValue == WMath::MaxValue<float>())
   {
     ref_sOut = "<float>";
   }
@@ -386,11 +386,11 @@ void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& ref_sOut) cons
   }
 }
 
-float ezCommandLineOptionFloat::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+float WCommandLineOptionFloat::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
   float result = m_fDefaultValue;
 
-  ezStringBuilder sOption, tmp;
+  WStringBuilder sOption, tmp;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
@@ -401,7 +401,7 @@ float ezCommandLineOptionFloat::GetOptionValue(LogMode logMode, const ezCommandL
     {
       if (ShouldLog(logMode, bSpecified))
       {
-        ezLog::Warning("Option '{}' selected value '{}' is outside valid range [{} .. {}]. Using default value instead.", sOption, result, m_fMinValue, m_fMaxValue);
+        WLog::Warning("Option '{}' selected value '{}' is outside valid range [{} .. {}]. Using default value instead.", sOption, result, m_fMinValue, m_fMaxValue);
       }
 
       result = m_fDefaultValue;
@@ -421,17 +421,17 @@ float ezCommandLineOptionFloat::GetOptionValue(LogMode logMode, const ezCommandL
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionString::ezCommandLineOptionString(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<string>", sLongDesc, sDefaultValue, bCaseSensitive)
+WCommandLineOptionString::WCommandLineOptionString(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, WStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<string>", sLongDesc, sDefaultValue, bCaseSensitive)
 {
   m_sDefaultValue = sDefaultValue;
 }
 
-ezStringView ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+WStringView WCommandLineOptionString::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezStringView result = m_sDefaultValue;
+  WStringView result = m_sDefaultValue;
 
-  ezStringBuilder sOption;
+  WStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
@@ -451,17 +451,17 @@ ezStringView ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ez
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionPath::ezCommandLineOptionPath(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<path>", sLongDesc, sDefaultValue, bCaseSensitive)
+WCommandLineOptionPath::WCommandLineOptionPath(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, WStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<path>", sLongDesc, sDefaultValue, bCaseSensitive)
 {
   m_sDefaultValue = sDefaultValue;
 }
 
-ezString ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+WString WCommandLineOptionPath::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezString result = m_sDefaultValue;
+  WString result = m_sDefaultValue;
 
-  ezStringBuilder sOption;
+  WStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
@@ -477,26 +477,26 @@ ezString ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezComman
   return result;
 }
 
-ezCommandLineOptionEnum::ezCommandLineOptionEnum(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<enum>", sLongDesc, "", bCaseSensitive)
+WCommandLineOptionEnum::WCommandLineOptionEnum(WStringView sSortingGroup, WStringView sArgument, WStringView sLongDesc, WStringView sEnumKeysAndValues, WInt32 iDefaultValue, bool bCaseSensitive /*= false*/)
+  : WCommandLineOptionDoc(sSortingGroup, sArgument, "<enum>", sLongDesc, "", bCaseSensitive)
 {
   m_iDefaultValue = iDefaultValue;
   m_sEnumKeysAndValues = sEnumKeysAndValues;
 }
 
-ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+WInt32 WCommandLineOptionEnum::GetOptionValue(LogMode logMode, const WCommandLineUtils* pUtils /*= WCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezInt32 result = m_iDefaultValue;
+  WInt32 result = m_iDefaultValue;
 
-  ezStringBuilder sOption;
+  WStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  WHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   if (bSpecified)
   {
-    ezStringView selected = pUtils->GetStringOption(sOption, 0, "", m_bCaseSensitive);
+    WStringView selected = pUtils->GetStringOption(sOption, 0, "", m_bCaseSensitive);
 
     for (const auto& e : keysAndValues)
     {
@@ -509,7 +509,7 @@ ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommand
 
     if (ShouldLog(logMode, bSpecified))
     {
-      ezLog::Warning("Option '{}' selected value '{}' is unknown. Using default value instead.", sOption, selected);
+      WLog::Warning("Option '{}' selected value '{}' is unknown. Using default value instead.", sOption, selected);
     }
   }
 
@@ -517,7 +517,7 @@ found:
 
   if (ShouldLog(logMode, bSpecified))
   {
-    ezStringBuilder opt;
+    WStringBuilder opt;
 
     for (const auto& e : keysAndValues)
     {
@@ -534,9 +534,9 @@ found:
   return result;
 }
 
-void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionEnum::GetParamShortDesc(WStringBuilder& ref_sOut) const
 {
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  WHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -548,9 +548,9 @@ void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
   ref_sOut.Append(">");
 }
 
-void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
+void WCommandLineOptionEnum::GetParamDefaultValueDesc(WStringBuilder& ref_sOut) const
 {
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  WHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -563,25 +563,25 @@ void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut
   }
 }
 
-void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_keysAndValues) const
+void WCommandLineOptionEnum::GetEnumKeysAndValues(WDynamicArray<EnumKeyValue>& out_keysAndValues) const
 {
-  ezStringBuilder tmp = m_sEnumKeysAndValues;
+  WStringBuilder tmp = m_sEnumKeysAndValues;
 
-  ezHybridArray<ezStringView, 16> enums;
+  WHybridArray<WStringView, 16> enums;
   tmp.Split(false, enums, ";", "|");
 
   out_keysAndValues.SetCount(enums.GetCount());
 
-  ezInt32 eVal = 0;
-  for (ezUInt32 e = 0; e < enums.GetCount(); ++e)
+  WInt32 eVal = 0;
+  for (WUInt32 e = 0; e < enums.GetCount(); ++e)
   {
-    ezStringView eName;
+    WStringView eName;
 
     if (const char* eq = enums[e].FindSubString("="))
     {
-      eName = ezStringView(enums[e].GetStartPointer(), eq);
+      eName = WStringView(enums[e].GetStartPointer(), eq);
 
-      EZ_VERIFY(ezConversionUtils::StringToInt(eq + 1, eVal).Succeeded(), "Invalid enum declaration");
+      W_VERIFY(WConversionUtils::StringToInt(eq + 1, eVal).Succeeded(), "Invalid enum declaration");
     }
     else
     {
@@ -591,11 +591,11 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
     eName.Trim(" \n\r\t=");
 
     const char* pStart = m_sEnumKeysAndValues.GetStartPointer();
-    pStart += (ezInt64)eName.GetStartPointer();
-    pStart -= (ezInt64)tmp.GetData();
+    pStart += (WInt64)eName.GetStartPointer();
+    pStart -= (WInt64)tmp.GetData();
 
     out_keysAndValues[e].m_iValue = eVal;
-    out_keysAndValues[e].m_Key = ezStringView(pStart, eName.GetElementCount());
+    out_keysAndValues[e].m_Key = WStringView(pStart, eName.GetElementCount());
 
     eVal++;
   }

@@ -11,26 +11,26 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpAppTool, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpAppTool, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStringView ezMcpAppTool::GetBuildTimestamp() const
+WStringView WMcpAppTool::GetBuildTimestamp() const
 {
   // when this library was compiled - a host that ships its tools in a separate, faster moving plugin
   // should override this with that plugin's own timestamp
   return __DATE__ " " __TIME__;
 }
 
-void ezMcpAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpAppTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
-  const ezStringView sHost = GetHostNoun();
+  const WStringView sHost = GetHostNoun();
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "app_quit";
 
-    ezStringBuilder sDesc;
+    WStringBuilder sDesc;
     sDesc.SetFormat("Shuts this {0} process down. The response is sent before it exits, but every other tool "
                     "stops answering immediately afterwards - this is the last call to this {0}.\n",
       sHost);
@@ -41,10 +41,10 @@ void ezMcpAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "app_ping";
 
-    ezStringBuilder sDesc;
+    WStringBuilder sDesc;
     sDesc.SetFormat("Returns immediately, to check that the {0} is still responsive. Answering requires a working main "
                     "thread, so a reply means the {0} is genuinely usable, not merely that the port is still open. Use it "
                     "after a call that may have blocked - a modal dialog or a long running action leaves the process stuck "
@@ -59,10 +59,10 @@ void ezMcpAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "app_info";
 
-    ezStringBuilder sDesc;
+    WStringBuilder sDesc;
     sDesc.SetFormat("Returns how to talk to and restart this {0}: the port it serves MCP on, the executable that runs it, the "
                     "process id and the command line it was started with. Use it to launch another one the same way, or to "
                     "launch a replacement after app_quit - the executable path is not otherwise discoverable, and a different "
@@ -76,10 +76,10 @@ void ezMcpAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "app_command_line_options";
 
-    ezStringBuilder sDesc;
+    WStringBuilder sDesc;
     sDesc.SetFormat("Lists every command line option this {0} supports, with its type, default value and description. This is "
                     "more complete than running it with '-help': options declared by plugins - the MCP port among them - only "
                     "exist once their plugin is loaded, which happens after '-help' has already printed. Use it to find out "
@@ -91,7 +91,7 @@ void ezMcpAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 }
 
-void ezMcpAppTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAppTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "app_ping")
   {
@@ -111,37 +111,37 @@ void ezMcpAppTool::Execute(ezStringView sToolName, const ezVariantDictionary& ar
   }
 }
 
-void ezMcpAppTool::ExecutePing(const ezVariantDictionary& /*arguments*/, ezMcpToolResult& out_result)
+void WMcpAppTool::ExecutePing(const WVariantDictionary& /*arguments*/, WMcpToolResult& out_result)
 {
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableBool("responsive", true);
 
   // Included so that a caller which pings once at the start has the process id on hand later, when a
   // blocked process cannot be asked for anything at all and killing it is the only option left.
-  writer.AddVariableUInt32("processId", ezProcess::GetCurrentProcessID());
+  writer.AddVariableUInt32("processId", WProcess::GetCurrentProcessID());
 
   writer.EndObject();
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAppTool::ExecuteCommandLineOptions(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAppTool::ExecuteCommandLineOptions(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sContains = ezMcpJson::GetString(arguments, "contains");
+  const WStringView sContains = WMcpJson::GetString(arguments, "contains");
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  ezUInt32 uiTotalOptions = 0;
-  ezUInt32 uiReturned = 0;
+  WUInt32 uiTotalOptions = 0;
+  WUInt32 uiReturned = 0;
 
-  ezStringBuilder sOptions, sShortDesc, sDefaultValue, sLongDesc, sGroup;
+  WStringBuilder sOptions, sShortDesc, sDefaultValue, sLongDesc, sGroup;
 
   writer.BeginArray("options");
 
   // The options register themselves into this list from wherever they are declared, including plugin
   // DLLs, so anything loaded by now is covered.
-  for (ezCommandLineOption* pOpt = ezCommandLineOption::GetFirstInstance(); pOpt != nullptr; pOpt = pOpt->GetNextInstance())
+  for (WCommandLineOption* pOpt = WCommandLineOption::GetFirstInstance(); pOpt != nullptr; pOpt = pOpt->GetNextInstance())
   {
     pOpt->GetOptions(sOptions);
     pOpt->GetLongDesc(sLongDesc);
@@ -163,11 +163,11 @@ void ezMcpAppTool::ExecuteCommandLineOptions(const ezVariantDictionary& argument
 
     // One option can have several spellings, e.g. '-h;-help;-?', so they are reported as a list
     // rather than as the raw separated string.
-    ezTempHybridArray<ezStringView, 4> names;
+    WTempHybridArray<WStringView, 4> names;
     sOptions.Split(false, names, ";", "|");
 
     writer.BeginArray("names");
-    for (ezStringView sName : names)
+    for (WStringView sName : names)
     {
       writer.WriteString(sName);
     }
@@ -212,16 +212,16 @@ void ezMcpAppTool::ExecuteCommandLineOptions(const ezVariantDictionary& argument
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAppTool::ExecuteInfo(const ezVariantDictionary& /*arguments*/, ezMcpToolResult& out_result)
+void WMcpAppTool::ExecuteInfo(const WVariantDictionary& /*arguments*/, WMcpToolResult& out_result)
 {
-  const ezMcpServer* pServer = ezMcpServer::GetInstance();
-  const ezUInt16 uiPort = pServer != nullptr ? pServer->GetPort() : 0;
+  const WMcpServer* pServer = WMcpServer::GetInstance();
+  const WUInt16 uiPort = pServer != nullptr ? pServer->GetPort() : 0;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  writer.AddVariableString("executable", ezOSFile::GetApplicationPath());
-  writer.AddVariableUInt32("processId", ezProcess::GetCurrentProcessID());
+  writer.AddVariableString("executable", WOSFile::GetApplicationPath());
+  writer.AddVariableUInt32("processId", WProcess::GetCurrentProcessID());
 
   // Compare this against when the source last changed before concluding that a tool is missing: a
   // binary that predates the feature reports exactly the same tool list as one that never had it.
@@ -229,17 +229,17 @@ void ezMcpAppTool::ExecuteInfo(const ezVariantDictionary& /*arguments*/, ezMcpTo
 
   writer.AddVariableUInt32("mcpPort", uiPort);
 
-  ezStringBuilder sUrl;
+  WStringBuilder sUrl;
   sUrl.SetFormat("http://127.0.0.1:{}/mcp", uiPort);
   writer.AddVariableString("mcpUrl", sUrl);
 
   // The command line this process was started with, so that another one can be launched the same way.
   // Whether the executable itself appears as the first entry is platform dependent, which is why it
   // is also reported on its own above.
-  const ezCommandLineUtils* pCmd = ezCommandLineUtils::GetGlobalInstance();
+  const WCommandLineUtils* pCmd = WCommandLineUtils::GetGlobalInstance();
 
   writer.BeginArray("commandLine");
-  for (ezUInt32 i = 0; i < pCmd->GetParameterCount(); ++i)
+  for (WUInt32 i = 0; i < pCmd->GetParameterCount(); ++i)
   {
     writer.WriteString(pCmd->GetParameter(i));
   }
@@ -251,13 +251,13 @@ void ezMcpAppTool::ExecuteInfo(const ezVariantDictionary& /*arguments*/, ezMcpTo
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAppTool::ExecuteQuit(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAppTool::ExecuteQuit(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const bool bDiscardChanges = ezMcpJson::GetBool(arguments, "discardChanges", false);
+  const bool bDiscardChanges = WMcpJson::GetBool(arguments, "discardChanges", false);
 
   const bool bRefused = CanQuit(bDiscardChanges).Failed();
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableBool("quitting", !bRefused);
 

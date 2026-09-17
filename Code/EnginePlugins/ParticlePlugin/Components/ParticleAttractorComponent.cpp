@@ -6,52 +6,52 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <ParticlePlugin/Components/ParticleAttractorComponent.h>
 
-static ezSpatialData::Category s_AttractorSpatialCategory = ezSpatialData::RegisterCategory("ParticleAttractor", ezSpatialData::Flags::None);
+static WSpatialData::Category s_AttractorSpatialCategory = WSpatialData::RegisterCategory("ParticleAttractor", WSpatialData::Flags::None);
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezParticleAttractorComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WParticleAttractorComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, {})),
-    EZ_MEMBER_PROPERTY("Strength", m_fStrength)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
-    EZ_MEMBER_PROPERTY("MinDistance", m_fMinDistance)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.001f, {})),
-    EZ_MEMBER_PROPERTY("KillDistance", m_fKillDistance)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {})),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.01f, {})),
+    W_MEMBER_PROPERTY("Strength", m_fStrength)->AddAttributes(new WDefaultValueAttribute(5.0f)),
+    W_MEMBER_PROPERTY("MinDistance", m_fMinDistance)->AddAttributes(new WDefaultValueAttribute(0.1f), new WClampValueAttribute(0.001f, {})),
+    W_MEMBER_PROPERTY("KillDistance", m_fKillDistance)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, {})),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereManipulatorAttribute("KillDistance"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::CornflowerBlue),
-    new ezSphereVisualizerAttribute("KillDistance", ezColor::OrangeRed),
+    new WCategoryAttribute("Effects"),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereManipulatorAttribute("KillDistance"),
+    new WSphereVisualizerAttribute("Radius", WColor::CornflowerBlue),
+    new WSphereVisualizerAttribute("KillDistance", WColor::OrangeRed),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezParticleAttractorComponent::ezParticleAttractorComponent() = default;
-ezParticleAttractorComponent::~ezParticleAttractorComponent() = default;
+WParticleAttractorComponent::WParticleAttractorComponent() = default;
+WParticleAttractorComponent::~WParticleAttractorComponent() = default;
 
 // static
-ezSpatialData::Category ezParticleAttractorComponent::GetSpatialCategory()
+WSpatialData::Category WParticleAttractorComponent::GetSpatialCategory()
 {
   return s_AttractorSpatialCategory;
 }
 
-void ezParticleAttractorComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WParticleAttractorComponent::OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_AttractorSpatialCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), s_AttractorSpatialCategory);
 }
 
-void ezParticleAttractorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WParticleAttractorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -62,7 +62,7 @@ void ezParticleAttractorComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_fKillDistance;
 }
 
-void ezParticleAttractorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WParticleAttractorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -73,16 +73,16 @@ void ezParticleAttractorComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_fKillDistance;
 }
 
-void ezParticleAttractorComponent::OnActivated()
+void WParticleAttractorComponent::OnActivated()
 {
   SUPER::OnActivated();
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezParticleAttractorComponent::OnDeactivated()
+void WParticleAttractorComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
   GetOwner()->UpdateLocalBounds();
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleAttractorComponent);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleAttractorComponent);

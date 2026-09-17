@@ -2,78 +2,78 @@
 
 #include <Foundation/Types/RefCounted.h>
 
-class RefCountedTestClass : public ezRefCounted
+class RefCountedTestClass : public WRefCounted
 {
 public:
-  ezUInt32 m_uiDummyMember = 0x42u;
+  WUInt32 m_uiDummyMember = 0x42u;
 };
 
-EZ_CREATE_SIMPLE_TEST(Basics, RefCounted)
+W_CREATE_SIMPLE_TEST(Basics, RefCounted)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ref Counting")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Ref Counting")
   {
     RefCountedTestClass Instance;
 
-    EZ_TEST_BOOL(Instance.GetRefCount() == 0);
-    EZ_TEST_BOOL(!Instance.IsReferenced());
+    W_TEST_BOOL(Instance.GetRefCount() == 0);
+    W_TEST_BOOL(!Instance.IsReferenced());
 
     Instance.AddRef();
 
-    EZ_TEST_BOOL(Instance.GetRefCount() == 1);
-    EZ_TEST_BOOL(Instance.IsReferenced());
+    W_TEST_BOOL(Instance.GetRefCount() == 1);
+    W_TEST_BOOL(Instance.IsReferenced());
 
     /// Test scoped ref pointer
     {
-      ezScopedRefPointer<RefCountedTestClass> ScopeTester(&Instance);
+      WScopedRefPointer<RefCountedTestClass> ScopeTester(&Instance);
 
-      EZ_TEST_BOOL(Instance.GetRefCount() == 2);
-      EZ_TEST_BOOL(Instance.IsReferenced());
+      W_TEST_BOOL(Instance.GetRefCount() == 2);
+      W_TEST_BOOL(Instance.IsReferenced());
     }
 
     /// Test assignment of scoped ref pointer
     {
-      ezScopedRefPointer<RefCountedTestClass> ScopeTester;
+      WScopedRefPointer<RefCountedTestClass> ScopeTester;
 
       ScopeTester = &Instance;
 
-      EZ_TEST_BOOL(Instance.GetRefCount() == 2);
-      EZ_TEST_BOOL(Instance.IsReferenced());
+      W_TEST_BOOL(Instance.GetRefCount() == 2);
+      W_TEST_BOOL(Instance.IsReferenced());
 
-      ezScopedRefPointer<RefCountedTestClass> ScopeTester2;
+      WScopedRefPointer<RefCountedTestClass> ScopeTester2;
 
       ScopeTester2 = ScopeTester;
 
-      EZ_TEST_BOOL(Instance.GetRefCount() == 3);
-      EZ_TEST_BOOL(Instance.IsReferenced());
+      W_TEST_BOOL(Instance.GetRefCount() == 3);
+      W_TEST_BOOL(Instance.IsReferenced());
 
-      ezScopedRefPointer<RefCountedTestClass> ScopeTester3(ScopeTester);
+      WScopedRefPointer<RefCountedTestClass> ScopeTester3(ScopeTester);
 
-      EZ_TEST_BOOL(Instance.GetRefCount() == 4);
-      EZ_TEST_BOOL(Instance.IsReferenced());
+      W_TEST_BOOL(Instance.GetRefCount() == 4);
+      W_TEST_BOOL(Instance.IsReferenced());
     }
 
-    /// Test copy constructor for ezRefCounted
+    /// Test copy constructor for WRefCounted
     {
       RefCountedTestClass inst2(Instance);
       RefCountedTestClass inst3;
       inst3 = Instance;
 
-      EZ_TEST_BOOL(Instance.GetRefCount() == 1);
-      EZ_TEST_BOOL(Instance.IsReferenced());
+      W_TEST_BOOL(Instance.GetRefCount() == 1);
+      W_TEST_BOOL(Instance.IsReferenced());
 
-      EZ_TEST_BOOL(inst2.GetRefCount() == 0);
-      EZ_TEST_BOOL(!inst2.IsReferenced());
+      W_TEST_BOOL(inst2.GetRefCount() == 0);
+      W_TEST_BOOL(!inst2.IsReferenced());
 
-      EZ_TEST_BOOL(inst3.GetRefCount() == 0);
-      EZ_TEST_BOOL(!inst3.IsReferenced());
+      W_TEST_BOOL(inst3.GetRefCount() == 0);
+      W_TEST_BOOL(!inst3.IsReferenced());
     }
 
-    EZ_TEST_BOOL(Instance.GetRefCount() == 1);
-    EZ_TEST_BOOL(Instance.IsReferenced());
+    W_TEST_BOOL(Instance.GetRefCount() == 1);
+    W_TEST_BOOL(Instance.IsReferenced());
 
     Instance.ReleaseRef();
 
-    EZ_TEST_BOOL(Instance.GetRefCount() == 0);
-    EZ_TEST_BOOL(!Instance.IsReferenced());
+    W_TEST_BOOL(Instance.GetRefCount() == 0);
+    W_TEST_BOOL(!Instance.IsReferenced());
   }
 }

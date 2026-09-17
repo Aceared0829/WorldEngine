@@ -3,11 +3,11 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezCppSettings
+class W_EDITORFRAMEWORK_DLL WCppSettings
 {
 public:
-  ezResult Save(ezStringView sFile = ":project/Editor/CppProject.ddl");
-  ezResult Load(ezStringView sFile = ":project/Editor/CppProject.ddl");
+  WResult Save(WStringView sFile = ":project/Editor/CppProject.ddl");
+  WResult Load(WStringView sFile = ":project/Editor/CppProject.ddl");
 
-  ezString m_sPluginName;
+  WString m_sPluginName;
 };

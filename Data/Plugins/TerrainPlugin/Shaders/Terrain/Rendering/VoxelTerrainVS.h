@@ -24,7 +24,7 @@ VS_OUT FillVoxelTerrainVertexOutput(uint vertexID)
   const uint idx = VoxelIndices[vertexID];
   const VoxelGpuVertex v = VoxelVertices[idx];
 
-  const ezPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset)];
+  const WPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset)];
   const float4x4 objectToWorld = TransformToMatrix(instanceData.ObjectToWorld);
   const float3x3 objectToWorldNormal = TransformToRotation(instanceData.ObjectToWorldNormal);
 

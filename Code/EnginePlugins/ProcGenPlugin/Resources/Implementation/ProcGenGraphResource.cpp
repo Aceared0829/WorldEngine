@@ -10,93 +10,93 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
-  extern Pattern* GetPattern(ezProcPlacementPattern::Enum pattern);
+  extern Pattern* GetPattern(WProcPlacementPattern::Enum pattern);
 }
 
-using namespace ezProcGenInternal;
+using namespace WProcGenInternal;
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphResource, 1, ezRTTIDefaultAllocator<ezProcGenGraphResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenGraphResource, 1, WRTTIDefaultAllocator<WProcGenGraphResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezProcGenGraphResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WProcGenGraphResource);
 // clang-format on
 
-ezProcGenGraphResource::ezProcGenGraphResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WProcGenGraphResource::WProcGenGraphResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezProcGenGraphResource::~ezProcGenGraphResource() = default;
+WProcGenGraphResource::~WProcGenGraphResource() = default;
 
-const ezDynamicArray<ezSharedPtr<const PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
+const WDynamicArray<WSharedPtr<const PlacementOutput>>& WProcGenGraphResource::GetPlacementOutputs() const
 {
   return m_PlacementOutputs;
 }
 
-const ezDynamicArray<ezSharedPtr<const VertexColorOutput>>& ezProcGenGraphResource::GetVertexColorOutputs() const
+const WDynamicArray<WSharedPtr<const VertexColorOutput>>& WProcGenGraphResource::GetVertexColorOutputs() const
 {
   return m_VertexColorOutputs;
 }
 
-ezResourceLoadDesc ezProcGenGraphResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WProcGenGraphResource::UnloadData(Unload WhatToUnload)
 {
   m_PlacementOutputs.Clear();
   m_VertexColorOutputs.Clear();
   m_pSharedData = nullptr;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WProcGenGraphResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezProcGenGraphResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WProcGenGraphResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezUniquePtr<ezStringDeduplicationReadContext> pStringDedupReadContext;
+  WUniquePtr<WStringDeduplicationReadContext> pStringDedupReadContext;
   if (AssetHash.GetFileVersion() >= 5)
   {
-    pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, *Stream);
+    pStringDedupReadContext = W_DEFAULT_NEW(WStringDeduplicationReadContext, *Stream);
   }
 
   // load
   {
-    ezChunkStreamReader chunk(*Stream);
-    chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);
+    WChunkStreamReader chunk(*Stream);
+    chunk.SetEndChunkFileMode(WChunkStreamReader::EndChunkFileMode::JustClose);
 
     chunk.BeginStream();
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
     // skip all chunks that we don't know
     while (chunk.GetCurrentChunk().m_bValid)
     {
       if (chunk.GetCurrentChunk().m_sChunkName == "SharedData")
       {
-        ezSharedPtr<GraphSharedData> pSharedData = EZ_DEFAULT_NEW(GraphSharedData);
+        WSharedPtr<GraphSharedData> pSharedData = W_DEFAULT_NEW(GraphSharedData);
         if (pSharedData->Load(chunk).Succeeded())
         {
           m_pSharedData = pSharedData;
@@ -106,37 +106,37 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
       {
         if (chunk.GetCurrentChunk().m_uiChunkVersion < 9)
         {
-          ezLog::Error("Invalid PlacementOutputs Chunk Version {0}. Expected >= 9", chunk.GetCurrentChunk().m_uiChunkVersion);
+          WLog::Error("Invalid PlacementOutputs Chunk Version {0}. Expected >= 9", chunk.GetCurrentChunk().m_uiChunkVersion);
           chunk.NextChunk();
           continue;
         }
 
-        ezUInt32 uiNumOutputs = 0;
+        WUInt32 uiNumOutputs = 0;
         chunk >> uiNumOutputs;
 
         m_PlacementOutputs.Reserve(uiNumOutputs);
-        for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
+        for (WUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
         {
-          ezUniquePtr<ezExpressionByteCode> pByteCode = EZ_DEFAULT_NEW(ezExpressionByteCode);
+          WUniquePtr<WExpressionByteCode> pByteCode = W_DEFAULT_NEW(WExpressionByteCode);
           if (pByteCode->Load(chunk).Failed())
           {
             break;
           }
 
-          ezSharedPtr<PlacementOutput> pOutput = EZ_DEFAULT_NEW(PlacementOutput);
+          WSharedPtr<PlacementOutput> pOutput = W_DEFAULT_NEW(PlacementOutput);
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
           chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
           chunk.ReadArray(pOutput->m_CurveIndices).IgnoreResult();
 
-          ezUInt64 uiNumObjectsToPlace = 0;
+          WUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
 
-          for (ezUInt32 uiObjectIndex = 0; uiObjectIndex < static_cast<ezUInt32>(uiNumObjectsToPlace); ++uiObjectIndex)
+          for (WUInt32 uiObjectIndex = 0; uiObjectIndex < static_cast<WUInt32>(uiNumObjectsToPlace); ++uiObjectIndex)
           {
             chunk >> sTemp;
-            pOutput->m_ObjectsToPlace.ExpandAndGetRef() = ezResourceManager::LoadResource<ezPrefabResource>(sTemp);
+            pOutput->m_ObjectsToPlace.ExpandAndGetRef() = WResourceManager::LoadResource<WPrefabResource>(sTemp);
           }
 
           chunk >> pOutput->m_fFootprint;
@@ -160,13 +160,13 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           chunk >> sTemp;
           if (!sTemp.IsEmpty())
           {
-            pOutput->m_hColorGradient = ezResourceManager::LoadResource<ezColorGradientResource>(sTemp);
+            pOutput->m_hColorGradient = WResourceManager::LoadResource<WColorGradientResource>(sTemp);
           }
 
           chunk >> sTemp;
           if (!sTemp.IsEmpty())
           {
-            pOutput->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
+            pOutput->m_hSurface = WResourceManager::LoadResource<WSurfaceResource>(sTemp);
           }
 
           if (chunk.GetCurrentChunk().m_uiChunkVersion >= 5)
@@ -180,13 +180,13 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
             chunk >> pOutput->m_fRaySpread;
           }
 
-          ezEnum<ezProcPlacementPattern> pattern = ezProcPlacementPattern::RegularGrid;
+          WEnum<WProcPlacementPattern> pattern = WProcPlacementPattern::RegularGrid;
           if (chunk.GetCurrentChunk().m_uiChunkVersion >= 7)
           {
             chunk >> pattern;
           }
 
-          pOutput->m_pPattern = ezProcGenInternal::GetPattern(pattern);
+          pOutput->m_pPattern = WProcGenInternal::GetPattern(pattern);
 
           m_PlacementOutputs.PushBack(pOutput);
         }
@@ -195,24 +195,24 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
       {
         if (chunk.GetCurrentChunk().m_uiChunkVersion < 3)
         {
-          ezLog::Error("Invalid VertexColorOutputs Chunk Version {0}. Expected >= 3", chunk.GetCurrentChunk().m_uiChunkVersion);
+          WLog::Error("Invalid VertexColorOutputs Chunk Version {0}. Expected >= 3", chunk.GetCurrentChunk().m_uiChunkVersion);
           chunk.NextChunk();
           continue;
         }
 
-        ezUInt32 uiNumOutputs = 0;
+        WUInt32 uiNumOutputs = 0;
         chunk >> uiNumOutputs;
 
         m_VertexColorOutputs.Reserve(uiNumOutputs);
-        for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
+        for (WUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
         {
-          ezUniquePtr<ezExpressionByteCode> pByteCode = EZ_DEFAULT_NEW(ezExpressionByteCode);
+          WUniquePtr<WExpressionByteCode> pByteCode = W_DEFAULT_NEW(WExpressionByteCode);
           if (pByteCode->Load(chunk).Failed())
           {
             break;
           }
 
-          ezSharedPtr<VertexColorOutput> pOutput = EZ_DEFAULT_NEW(VertexColorOutput);
+          WSharedPtr<VertexColorOutput> pOutput = W_DEFAULT_NEW(VertexColorOutput);
           pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
@@ -244,26 +244,26 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
     }
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezProcGenGraphResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WProcGenGraphResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WProcGenGraphResource, WProcGenGraphResourceDescriptor)
 {
-  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // W_REPORT_FAILURE("This resource type does not support creating data.");
 
   // Missing resource
 
-  auto pOutput = EZ_DEFAULT_NEW(PlacementOutput);
+  auto pOutput = W_DEFAULT_NEW(PlacementOutput);
   pOutput->m_sName.Assign("MissingPlacementOutput");
-  pOutput->m_ObjectsToPlace.PushBack(ezResourceManager::GetResourceTypeMissingFallback<ezPrefabResource>());
-  pOutput->m_pPattern = ezProcGenInternal::GetPattern(ezProcPlacementPattern::RegularGrid);
+  pOutput->m_ObjectsToPlace.PushBack(WResourceManager::GetResourceTypeMissingFallback<WPrefabResource>());
+  pOutput->m_pPattern = WProcGenInternal::GetPattern(WProcPlacementPattern::RegularGrid);
   pOutput->m_fFootprint = 3.0f;
   pOutput->m_vMinOffset.Set(-1.0f, -1.0f, -0.5f);
   pOutput->m_vMaxOffset.Set(1.0f, 1.0f, 0.0f);
@@ -273,13 +273,13 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceD
   m_PlacementOutputs.PushBack(pOutput);
   //
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);

@@ -6,32 +6,32 @@
 #include <JoltPlugin/Components/JoltVisColMeshComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshContext, 1, ezRTTIDefaultAllocator<ezJoltCollisionMeshContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltCollisionMeshContext, 1, WRTTIDefaultAllocator<WJoltCollisionMeshContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Jolt_Colmesh_Triangle;Jolt_Colmesh_Convex"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Jolt_Colmesh_Triangle;Jolt_Colmesh_Convex"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltCollisionMeshContext::ezJoltCollisionMeshContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WJoltCollisionMeshContext::WJoltCollisionMeshContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMeshObject = nullptr;
 }
 
-void ezJoltCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
+void WJoltCollisionMeshContext::HandleMessage(const WEditorEngineDocumentMsg* pDocMsg)
 {
-  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEngine*>(pDocMsg))
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
@@ -43,61 +43,61 @@ void ezJoltCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* 
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
+  WEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
-void ezJoltCollisionMeshContext::OnInitialize()
+void WJoltCollisionMeshContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezJoltVisColMeshComponent* pMesh = nullptr;
+  WGameObjectDesc obj;
+  WJoltVisColMeshComponent* pMesh = nullptr;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("MeshPreview");
     pWorld->CreateObject(obj, m_pMeshObject);
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    const WTag& tagCastShadows = WTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     m_pMeshObject->SetTag(tagCastShadows);
 
-    ezJoltVisColMeshComponent::CreateComponent(m_pMeshObject, pMesh);
-    ezStringBuilder sMeshGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    m_hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(sMeshGuid);
+    WJoltVisColMeshComponent::CreateComponent(m_pMeshObject, pMesh);
+    WStringBuilder sMeshGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
+    m_hMesh = WResourceManager::LoadResource<WJoltMeshResource>(sMeshGuid);
     pMesh->SetMesh(m_hMesh);
   }
 }
 
-ezEngineProcessViewContext* ezJoltCollisionMeshContext::CreateViewContext()
+WEngineProcessViewContext* WJoltCollisionMeshContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezJoltCollisionMeshViewContext, this);
+  return W_DEFAULT_NEW(WJoltCollisionMeshViewContext, this);
 }
 
-void ezJoltCollisionMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WJoltCollisionMeshContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezJoltCollisionMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WJoltCollisionMeshContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezJoltCollisionMeshViewContext* pMeshViewContext = static_cast<ezJoltCollisionMeshViewContext*>(pThumbnailViewContext);
+  WJoltCollisionMeshViewContext* pMeshViewContext = static_cast<WJoltCollisionMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezJoltCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WJoltCollisionMeshContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_pMeshObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
@@ -107,9 +107,9 @@ void ezJoltCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocument
       bounds.ExpandToInclude(b);
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;

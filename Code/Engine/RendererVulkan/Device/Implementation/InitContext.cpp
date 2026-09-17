@@ -9,19 +9,19 @@
 #include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
+WInitContextVulkan::WInitContextVulkan(WGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
 {
-  ezAllocator* pAllocator = m_pDevice->GetAllocator();
-  m_pCommandBufferPool = EZ_NEW(pAllocator, ezCommandBufferPoolVulkan, pAllocator);
+  WAllocator* pAllocator = m_pDevice->GetAllocator();
+  m_pCommandBufferPool = W_NEW(pAllocator, WCommandBufferPoolVulkan, pAllocator);
   m_pCommandBufferPool->Initialize(m_pDevice->GetVulkanDevice(), m_pDevice->GetGraphicsQueue().m_uiQueueFamily);
-  m_pStagingBufferPool = EZ_NEW(pAllocator, ezStagingBufferPoolVulkan);
+  m_pStagingBufferPool = W_NEW(pAllocator, WStagingBufferPoolVulkan);
   m_pStagingBufferPool->Initialize(m_pDevice, 50 * 1024 * 1024);
 }
 
-ezInitContextVulkan::~ezInitContextVulkan()
+WInitContextVulkan::~WInitContextVulkan()
 {
-  EZ_ASSERT_DEBUG(!m_CurrentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
+  W_ASSERT_DEBUG(!m_CurrentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
 
   m_pCommandBufferPool->DeInitialize();
   m_pStagingBufferPool->DeInitialize();
@@ -30,15 +30,15 @@ ezInitContextVulkan::~ezInitContextVulkan()
 }
 
 
-void ezInitContextVulkan::AfterBeginFrame()
+void WInitContextVulkan::AfterBeginFrame()
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
   m_pStagingBufferPool->AfterBeginFrame();
 }
 
-vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
+vk::CommandBuffer WInitContextVulkan::GetFinishedCommandBuffer()
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
   if (m_CurrentCommandBuffer)
   {
     m_pStagingBufferPool->BeforeCommandBufferSubmit();
@@ -55,7 +55,7 @@ vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
   return nullptr;
 }
 
-void ezInitContextVulkan::EnsureCommandBufferExists()
+void WInitContextVulkan::EnsureCommandBufferExists()
 {
   if (!m_CurrentCommandBuffer)
   {
@@ -67,7 +67,7 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
     {
       constexpr float markerColor[4] = {0, 0, 0, 0};
       vk::DebugUtilsLabelEXT markerInfo = {};
-      ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+      WMemoryUtils::Copy(markerInfo.color.data(), markerColor, W_ARRAY_SIZE(markerColor));
       markerInfo.pLabelName = "InitContext";
 
       m_CurrentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo, m_pDevice->GetDispatchContext());
@@ -76,33 +76,33 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
 }
 
 
-void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& ref_createInfo, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
+void WInitContextVulkan::InitTexture(const WGALTextureVulkan* pTexture, vk::ImageCreateInfo& ref_createInfo, WArrayPtr<WGALSystemMemoryDescription> initialData)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
 
-  const ezBitflags<ezGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
+  const WBitflags<WGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   if (pTexture->GetDescription().m_pExisitingNativeObject == nullptr)
   {
-    if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
+    if (pTexture->GetDescription().m_SampleCount != WGALMSAASampleCount::None)
     {
       // #TODO_VULKAN how do we clear a MS target to zero?
       // Transition MSAA target from undefined to its default state.
       barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(),
-        ezGALResourceState::Unknown, defaultState);
+        WGALResourceState::Unknown, defaultState);
       return;
     }
 
-    ezDynamicArray<ezGALSystemMemoryDescription> zeroInitialData;
+    WDynamicArray<WGALSystemMemoryDescription> zeroInitialData;
     if (initialData.IsEmpty())
     {
       // If we don't have any initial data to initialize the texture to zero memory to match DX11 behavior.
       const vk::Format format = pTexture->GetImageFormat();
-      const ezUInt8 uiBlockSize = vk::blockSize(format);
+      const WUInt8 uiBlockSize = vk::blockSize(format);
       const auto blockExtent = vk::blockExtent(format);
       {
         // Compute max size of the temp buffer.
@@ -111,17 +111,17 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
           (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
           (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
           (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
-        const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
+        const WUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
         if (m_TempData.GetCount() < uiTotalSize)
           m_TempData.SetCount(uiTotalSize, 0);
       }
 
-      for (ezUInt32 uiLayer = 0; uiLayer < ref_createInfo.arrayLayers; uiLayer++)
+      for (WUInt32 uiLayer = 0; uiLayer < ref_createInfo.arrayLayers; uiLayer++)
       {
-        for (ezUInt32 uiMipLevel = 0; uiMipLevel < ref_createInfo.mipLevels; uiMipLevel++)
+        for (WUInt32 uiMipLevel = 0; uiMipLevel < ref_createInfo.mipLevels; uiMipLevel++)
         {
-          const ezUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * ref_createInfo.mipLevels;
-          EZ_ASSERT_DEBUG(zeroInitialData.GetCount() == uiSubresourceIndex, "");
+          const WUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * ref_createInfo.mipLevels;
+          W_ASSERT_DEBUG(zeroInitialData.GetCount() == uiSubresourceIndex, "");
 
           const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(uiMipLevel);
           const VkExtent3D blockCount = {
@@ -129,7 +129,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
             (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
             (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
-          ezGALSystemMemoryDescription data;
+          WGALSystemMemoryDescription data;
           data.m_pData = m_TempData.GetByteArrayPtr();
           data.m_uiRowPitch = uiBlockSize * blockCount.width;
           data.m_uiSlicePitch = data.m_uiRowPitch * blockCount.height;
@@ -141,19 +141,19 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
     // Transition entire image from undefined to transfer destination.
     barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(),
-      ezGALResourceState::Unknown, ezGALResourceState::CopyDestination);
+      WGALResourceState::Unknown, WGALResourceState::CopyDestination);
 
-    for (ezUInt32 uiLayer = 0; uiLayer < ref_createInfo.arrayLayers; uiLayer++)
+    for (WUInt32 uiLayer = 0; uiLayer < ref_createInfo.arrayLayers; uiLayer++)
     {
-      for (ezUInt32 uiMipLevel = 0; uiMipLevel < ref_createInfo.mipLevels; uiMipLevel++)
+      for (WUInt32 uiMipLevel = 0; uiMipLevel < ref_createInfo.mipLevels; uiMipLevel++)
       {
-        const ezUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * ref_createInfo.mipLevels;
-        EZ_ASSERT_DEBUG(uiSubresourceIndex < initialData.GetCount(), "Not all data provided in the intial texture data.");
-        const ezGALSystemMemoryDescription& subResourceData = initialData[uiSubresourceIndex];
+        const WUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * ref_createInfo.mipLevels;
+        W_ASSERT_DEBUG(uiSubresourceIndex < initialData.GetCount(), "Not all data provided in the intial texture data.");
+        const WGALSystemMemoryDescription& subResourceData = initialData[uiSubresourceIndex];
 
         vk::ImageSubresourceLayers subresourceLayers;
         // We do not support stencil uploads right now.
-        subresourceLayers.aspectMask = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+        subresourceLayers.aspectMask = WConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
         subresourceLayers.mipLevel = uiMipLevel;
         subresourceLayers.baseArrayLayer = uiLayer;
         subresourceLayers.layerCount = 1;
@@ -168,102 +168,102 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
     // Transition entire image from transfer destination to default state.
     barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(),
-      ezGALResourceState::CopyDestination, defaultState);
+      WGALResourceState::CopyDestination, defaultState);
   }
   else
   {
     // We don't actually know what the current state is of an existing native object, so switch from Unknown to default.
     // This must not be done for swap chains textures as these are not allowed to be touched until acquired. The initial layout is set for these at the first time of acquire.
-    if (!pTexture->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::Presentable))
+    if (!pTexture->GetDescription().m_TextureFlags.IsSet(WGALTextureUsageFlags::Presentable))
     {
-      barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(), ezGALResourceState::Unknown, defaultState);
+      barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(), WGALResourceState::Unknown, defaultState);
     }
   }
 }
 
-void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstByteArrayPtr initialData)
+void WInitContextVulkan::InitBuffer(const WGALBufferVulkan* pBuffer, WConstByteArrayPtr initialData)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
-  const ezBitflags<ezGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  const WBitflags<WGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
 
   // During initialization, there can't be any read/write hazard with the GPU so we can write to the memory directly if supported, e.g. unified memory.
-  const ezVulkanAllocationInfo& allocInfo = pBuffer->GetAllocationInfo();
+  const WVulkanAllocationInfo& allocInfo = pBuffer->GetAllocationInfo();
   if (allocInfo.m_pMappedData != nullptr)
   {
-    ezMemoryUtils::Copy((ezUInt8*)allocInfo.m_pMappedData, initialData.GetPtr(), initialData.GetCount());
+    WMemoryUtils::Copy((WUInt8*)allocInfo.m_pMappedData, initialData.GetPtr(), initialData.GetCount());
 
     barriers.BufferBarrier(pBuffer->GetVkBuffer(),
-      ezGALResourceState::CpuWrite, defaultState);
+      WGALResourceState::CpuWrite, defaultState);
   }
   else
   {
-    barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::Unknown, ezGALResourceState::CopyDestination);
+    barriers.BufferBarrier(pBuffer->GetVkBuffer(), WGALResourceState::Unknown, WGALResourceState::CopyDestination);
 
     m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pBuffer, initialData, 0);
 
-    barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::CopyDestination, defaultState);
+    barriers.BufferBarrier(pBuffer->GetVkBuffer(), WGALResourceState::CopyDestination, defaultState);
   }
 }
 
-void ezInitContextVulkan::UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& subresource, const ezBoundingBoxu32& box, const ezGALSystemMemoryDescription& sourceData)
+void WInitContextVulkan::UpdateTexture(const WGALTextureVulkan* pTexture, const WGALTextureSubresource& subresource, const WBoundingBoxu32& box, const WGALSystemMemoryDescription& sourceData)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
 
-  const ezBitflags<ezGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
+  const WBitflags<WGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
 
-  const ezVec3U32 boxExtents = box.GetExtents();
-  const vk::Offset3D imageOffset = {(ezInt32)box.m_vMin.x, (ezInt32)box.m_vMin.y, (ezInt32)box.m_vMin.z};
+  const WVec3U32 boxExtents = box.GetExtents();
+  const vk::Offset3D imageOffset = {(WInt32)box.m_vMin.x, (WInt32)box.m_vMin.y, (WInt32)box.m_vMin.z};
   const vk::Extent3D imageExtent = {boxExtents.x, boxExtents.y, boxExtents.z};
 
   vk::ImageSubresourceLayers subresourceLayers;
-  subresourceLayers.aspectMask = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  subresourceLayers.aspectMask = WConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
   subresourceLayers.mipLevel = subresource.m_uiMipLevel;
   subresourceLayers.baseArrayLayer = subresource.m_uiArraySlice;
   subresourceLayers.layerCount = 1;
 
-  vk::ImageSubresourceRange subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(subresourceLayers);
+  vk::ImageSubresourceRange subresourceRange = WConversionUtilsVulkan::GetSubresourceRange(subresourceLayers);
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
-  barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, defaultState, ezGALResourceState::CopyDestination);
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, defaultState, WGALResourceState::CopyDestination);
 
   m_pDevice->UploadTextureStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, sourceData);
 
-  barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, ezGALResourceState::CopyDestination, defaultState);
+  barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, WGALResourceState::CopyDestination, defaultState);
 }
 
-void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezConstByteArrayPtr sourceData)
+void WInitContextVulkan::UpdateBuffer(const WGALBufferVulkan* pBuffer, WUInt32 uiOffset, WConstByteArrayPtr sourceData)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
-  const ezBitflags<ezGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
-  barriers.BufferBarrier(pBuffer->GetVkBuffer(), defaultState, ezGALResourceState::CopyDestination);
+  const WBitflags<WGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  barriers.BufferBarrier(pBuffer->GetVkBuffer(), defaultState, WGALResourceState::CopyDestination);
 
   m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pBuffer, sourceData, uiOffset);
 
-  barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::CopyDestination, defaultState);
+  barriers.BufferBarrier(pBuffer->GetVkBuffer(), WGALResourceState::CopyDestination, defaultState);
 }
 
-void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiOffset, ezUInt32 uiSize)
+void WInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, WUInt32 uiOffset, WUInt32 uiSize)
 {
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   if (stagingBuffer)
   {
     // gpuBuffer can't be accessed on the CPU, so the data is present in stagingBuffer and needs to be copied over.
     barriers.BufferBarrier(stagingBuffer,
-      ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
+      WGALResourceState::CpuWrite, WGALResourceState::CopySource);
 
     vk::BufferCopy bufferCopy = {};
     bufferCopy.dstOffset = uiOffset;
@@ -272,17 +272,17 @@ void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::B
     m_CurrentCommandBuffer.copyBuffer(stagingBuffer, gpuBuffer, 1, &bufferCopy);
 
     barriers.BufferBarrier(gpuBuffer,
-      ezGALResourceState::CopyDestination, ezGALResourceState::ConstantBuffer);
+      WGALResourceState::CopyDestination, WGALResourceState::ConstantBuffer);
   }
   else
   {
     // gpuBuffer is writable on the CPU and thus we only need to add a barrier.
     barriers.BufferBarrier(gpuBuffer,
-      ezGALResourceState::CpuWrite, ezGALResourceState::ConstantBuffer);
+      WGALResourceState::CpuWrite, WGALResourceState::ConstantBuffer);
   }
 }
 
-void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVulkan> buffers, ezArrayPtr<ezPendingTextureCopyVulkan> textures)
+void WInitContextVulkan::ExecutePendingCopies(WArrayPtr<WPendingBufferCopyVulkan> buffers, WArrayPtr<WPendingTextureCopyVulkan> textures)
 {
   if (buffers.IsEmpty() && textures.IsEmpty())
     return;
@@ -298,56 +298,56 @@ void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVul
     return range;
   };
 
-  EZ_LOCK(m_Lock);
+  W_LOCK(m_Lock);
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
+  WBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   // Transition resources to copy-compatible states.
-  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  for (const WPendingBufferCopyVulkan& bufferCopy : buffers)
   {
-    const ezBitflags<ezGALResourceState> defaultState = bufferCopy.m_pDstBuffer->GetDescription().GetDefaultState();
+    const WBitflags<WGALResourceState> defaultState = bufferCopy.m_pDstBuffer->GetDescription().GetDefaultState();
 
     barriers.BufferBarrier(bufferCopy.m_SrcBuffer.m_buffer,
-      ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
+      WGALResourceState::CpuWrite, WGALResourceState::CopySource);
 
     barriers.BufferBarrier(bufferCopy.m_pDstBuffer->GetVkBuffer(),
-      defaultState, ezGALResourceState::CopyDestination);
+      defaultState, WGALResourceState::CopyDestination);
   }
-  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  for (const WPendingTextureCopyVulkan& textureCopy : textures)
   {
-    const ezBitflags<ezGALResourceState> defaultState = textureCopy.m_pDstTexture->GetDescription().GetDefaultState();
+    const WBitflags<WGALResourceState> defaultState = textureCopy.m_pDstTexture->GetDescription().GetDefaultState();
 
     barriers.TextureBarrier(textureCopy.m_pDstTexture->GetImage(), getRange(textureCopy.m_Region.imageSubresource),
-      defaultState, ezGALResourceState::CopyDestination);
+      defaultState, WGALResourceState::CopyDestination);
 
     barriers.BufferBarrier(textureCopy.m_SrcBuffer.m_buffer,
-      ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
+      WGALResourceState::CpuWrite, WGALResourceState::CopySource);
   }
 
   // Execute the actual copies.
-  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  for (const WPendingBufferCopyVulkan& bufferCopy : buffers)
   {
     m_CurrentCommandBuffer.copyBuffer(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_pDstBuffer->GetVkBuffer(), 1, &bufferCopy.m_Region);
   }
-  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  for (const WPendingTextureCopyVulkan& textureCopy : textures)
   {
     m_CurrentCommandBuffer.copyBufferToImage(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_pDstTexture->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &textureCopy.m_Region);
   }
 
   // Transition resources back to their default states.
-  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  for (const WPendingBufferCopyVulkan& bufferCopy : buffers)
   {
-    const ezBitflags<ezGALResourceState> defaultState = bufferCopy.m_pDstBuffer->GetDescription().GetDefaultState();
+    const WBitflags<WGALResourceState> defaultState = bufferCopy.m_pDstBuffer->GetDescription().GetDefaultState();
 
     barriers.BufferBarrier(bufferCopy.m_pDstBuffer->GetVkBuffer(),
-      ezGALResourceState::CopyDestination, defaultState);
+      WGALResourceState::CopyDestination, defaultState);
   }
-  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  for (const WPendingTextureCopyVulkan& textureCopy : textures)
   {
-    const ezBitflags<ezGALResourceState> defaultState = textureCopy.m_pDstTexture->GetDescription().GetDefaultState();
+    const WBitflags<WGALResourceState> defaultState = textureCopy.m_pDstTexture->GetDescription().GetDefaultState();
 
     barriers.TextureBarrier(textureCopy.m_pDstTexture->GetImage(), getRange(textureCopy.m_Region.imageSubresource),
-      ezGALResourceState::CopyDestination, defaultState);
+      WGALResourceState::CopyDestination, defaultState);
   }
 }

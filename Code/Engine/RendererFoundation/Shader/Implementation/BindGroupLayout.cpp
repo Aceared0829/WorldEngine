@@ -2,9 +2,9 @@
 
 #include <RendererFoundation/Shader/BindGroupLayout.h>
 
-ezGALBindGroupLayout::ezGALBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& Description)
-  : ezGALObject(Description)
+WGALBindGroupLayout::WGALBindGroupLayout(const WGALBindGroupLayoutCreationDescription& Description)
+  : WGALObject(Description)
 {
 }
 
-ezGALBindGroupLayout::~ezGALBindGroupLayout() = default;
+WGALBindGroupLayout::~WGALBindGroupLayout() = default;

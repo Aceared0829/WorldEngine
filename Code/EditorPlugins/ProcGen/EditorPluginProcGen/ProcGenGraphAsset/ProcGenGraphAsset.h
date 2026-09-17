@@ -3,61 +3,61 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
-class ezVisualGraphPin;
+class WVisualGraphPin;
 
-class ezProcGenGraphAssetProperties : public ezReflectedClass
+class WProcGenGraphAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WProcGenGraphAssetProperties, WReflectedClass);
 
 public:
-  ezString m_sDebugPrefab;
-  ezString m_sDebugColorGradient;
-  ezString m_sDebugSurface;
+  WString m_sDebugPrefab;
+  WString m_sDebugColorGradient;
+  WString m_sDebugSurface;
   float m_fDebugFootprint = 1.0f;
   float m_fDebugAlignToNormal = 1.0f;
-  ezEnum<ezProcPlacementPattern> m_DebugPlacementPattern = ezProcPlacementPattern::RegularGrid;
+  WEnum<WProcPlacementPattern> m_DebugPlacementPattern = WProcPlacementPattern::RegularGrid;
 };
 
-class ezProcGenGraphAssetDocument : public ezAssetDocument
+class WProcGenGraphAssetDocument : public WAssetDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphAssetDocument, ezAssetDocument);
+  W_ADD_DYNAMIC_REFLECTION(WProcGenGraphAssetDocument, WAssetDocument);
 
 public:
-  ezProcGenGraphAssetDocument(ezStringView sDocumentPath);
+  WProcGenGraphAssetDocument(WStringView sDocumentPath);
 
-  void SetDebugPin(const ezVisualGraphPin* pDebugPin);
+  void SetDebugPin(const WVisualGraphPin* pDebugPin);
   void UpdateDebugNode();
 
-  ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
+  WStatus WriteAsset(WStreamWriter& inout_stream, const WPlatformProfile* pAssetProfile, bool bAllowDebug) const;
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
+  virtual void GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const override;
   virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+    const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType) override;
 
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
+  virtual void AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable) override;
 
-  void GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const;
+  void GetAllOutputNodes(WDynamicArray<const WDocumentObject*>& placementNodes, WDynamicArray<const WDocumentObject*>& vertexColorNodes) const;
 
 private:
-  friend class ezProcGenAction;
+  friend class WProcGenAction;
 
-  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
+  virtual void InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const override;
 
   struct GenerateContext;
 
-  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, ezExpressionAST& out_Ast) const;
-  ezExpressionAST::Node* GenerateDebugExpressionAST(GenerateContext& context, ezExpressionAST& out_Ast) const;
+  WExpressionAST::Node* GenerateExpressionAST(const WDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, WExpressionAST& out_Ast) const;
+  WExpressionAST::Node* GenerateDebugExpressionAST(GenerateContext& context, WExpressionAST& out_Ast) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 
-  const ezVisualGraphPin* m_pDebugPin = nullptr;
-  ezUniquePtr<ezProcGen_PlacementOutput> m_pDebugNode;
+  const WVisualGraphPin* m_pDebugPin = nullptr;
+  WUniquePtr<WProcGen_PlacementOutput> m_pDebugNode;
 };

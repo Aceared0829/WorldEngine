@@ -4,21 +4,21 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/Resource.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetView : public ezGALObject<ezGALRenderTargetViewCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALRenderTargetView : public WGALObject<WGALRenderTargetViewCreationDescription>
 {
 public:
-  EZ_ALWAYS_INLINE ezGALTexture* GetTexture() const { return m_pTexture; }
+  W_ALWAYS_INLINE WGALTexture* GetTexture() const { return m_pTexture; }
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  ezGALRenderTargetView(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& description);
+  WGALRenderTargetView(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& description);
 
-  virtual ~ezGALRenderTargetView();
+  virtual ~WGALRenderTargetView();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
-  ezGALTexture* m_pTexture;
+  WGALTexture* m_pTexture;
 };

@@ -5,16 +5,16 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtLaunchFileserveDlg : public ezQtDialog, public Ui_ezQtLaunchFileserveDlg
+class W_EDITORFRAMEWORK_DLL WQtLaunchFileserveDlg : public WQtDialog, public Ui_WQtLaunchFileserveDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtLaunchFileserveDlg(QWidget* pParent);
-  ~ezQtLaunchFileserveDlg();
+  WQtLaunchFileserveDlg(QWidget* pParent);
+  ~WQtLaunchFileserveDlg();
 
-  ezString m_sFileserveCmdLine;
+  WString m_sFileserveCmdLine;
 
 private Q_SLOTS:
   void on_ButtonLaunch_clicked();

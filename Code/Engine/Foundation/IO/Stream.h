@@ -10,12 +10,12 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 
-using ezTypeVersion = ezUInt16;
+using WTypeVersion = WUInt16;
 
-template <ezUInt16 Size, typename AllocatorWrapper>
-struct ezHybridString;
+template <WUInt16 Size, typename AllocatorWrapper>
+struct WHybridString;
 
-using ezString = ezHybridString<32, ezDefaultAllocatorWrapper>;
+using WString = WHybridString<32, WDefaultAllocatorWrapper>;
 
 /// Abstract base class for binary input streams providing unified reading interface.
 ///
@@ -33,79 +33,79 @@ using ezString = ezHybridString<32, ezDefaultAllocatorWrapper>;
 /// - Derived classes must implement ReadBytes() as the primary read method
 /// - All other methods are implemented in terms of ReadBytes()
 /// - Should handle EOF conditions gracefully by returning actual bytes read
-class EZ_FOUNDATION_DLL ezStreamReader
+class W_FOUNDATION_DLL WStreamReader
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamReader);
+  W_DISALLOW_COPY_AND_ASSIGN(WStreamReader);
 
 public:
   /// Constructor
-  ezStreamReader();
+  WStreamReader();
 
   /// Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamReader();
+  virtual ~WStreamReader();
 
   /// Reads a raw number of bytes into the read buffer. This is the only method that must be implemented by derived classes.
   ///
   /// \param pReadBuffer Destination buffer for the read data
   /// \param uiBytesToRead Maximum number of bytes to read
   /// \return Actual number of bytes read (may be less than requested on EOF or error)
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0; // [tested]
+  virtual WUInt64 ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead) = 0; // [tested]
 
   /// Helper method to read a word value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult ReadWordValue(T* pWordValue); // [tested]
+  WResult ReadWordValue(T* pWordValue); // [tested]
 
   /// Helper method to read a dword value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult ReadDWordValue(T* pDWordValue); // [tested]
+  WResult ReadDWordValue(T* pDWordValue); // [tested]
 
   /// Helper method to read a qword value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult ReadQWordValue(T* pQWordValue); // [tested]
+  WResult ReadQWordValue(T* pQWordValue); // [tested]
 
   /// Reads an array of elements from the stream
   template <typename ArrayType, typename ValueType>
-  ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& inout_array); // [tested]
+  WResult ReadArray(WArrayBase<ValueType, ArrayType>& inout_array); // [tested]
 
   /// Reads a small array of elements from the stream
-  template <typename ValueType, ezUInt16 uiSize, typename AllocatorWrapper>
-  ezResult ReadArray(ezSmallArray<ValueType, uiSize, AllocatorWrapper>& ref_array);
+  template <typename ValueType, WUInt16 uiSize, typename AllocatorWrapper>
+  WResult ReadArray(WSmallArray<ValueType, uiSize, AllocatorWrapper>& ref_array);
 
   /// Writes a C style fixed array
-  template <typename ValueType, ezUInt32 uiSize>
-  ezResult ReadArray(ValueType (&array)[uiSize]);
+  template <typename ValueType, WUInt32 uiSize>
+  WResult ReadArray(ValueType (&array)[uiSize]);
 
   /// Reads a set
   template <typename KeyType, typename Comparer>
-  ezResult ReadSet(ezSetBase<KeyType, Comparer>& inout_set); // [tested]
+  WResult ReadSet(WSetBase<KeyType, Comparer>& inout_set); // [tested]
 
   /// Reads a map
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& inout_map); // [tested]
+  WResult ReadMap(WMapBase<KeyType, ValueType, Comparer>& inout_map); // [tested]
 
   /// Read a hash table (note that the entry order is not stable)
   template <typename KeyType, typename ValueType, typename Hasher>
-  ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& inout_hashTable); // [tested]
+  WResult ReadHashTable(WHashTableBase<KeyType, ValueType, Hasher>& inout_hashTable); // [tested]
 
-  /// Reads a string into an ezStringBuilder
-  ezResult ReadString(ezStringBuilder& ref_sBuilder); // [tested]
+  /// Reads a string into an WStringBuilder
+  WResult ReadString(WStringBuilder& ref_sBuilder); // [tested]
 
-  /// Reads a string into an ezString
-  ezResult ReadString(ezString& ref_sString);
+  /// Reads a string into an WString
+  WResult ReadString(WString& ref_sString);
 
 
   /// Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
-  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
+  virtual WUInt64 SkipBytes(WUInt64 uiBytesToSkip)
   {
-    ezUInt8 uiTempBuffer[1024];
+    WUInt8 uiTempBuffer[1024];
 
-    ezUInt64 uiBytesSkipped = 0;
+    WUInt64 uiBytesSkipped = 0;
 
     while (uiBytesSkipped < uiBytesToSkip)
     {
-      ezUInt64 uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToSkip - uiBytesSkipped, 1024);
+      WUInt64 uiBytesToRead = WMath::Min<WUInt64>(uiBytesToSkip - uiBytesSkipped, 1024);
 
-      ezUInt64 uiBytesRead = ReadBytes(uiTempBuffer, uiBytesToRead);
+      WUInt64 uiBytesRead = ReadBytes(uiTempBuffer, uiBytesToRead);
 
       uiBytesSkipped += uiBytesRead;
 
@@ -117,8 +117,8 @@ public:
     return uiBytesSkipped;
   }
 
-  EZ_ALWAYS_INLINE ezTypeVersion ReadVersion();
-  EZ_ALWAYS_INLINE ezTypeVersion ReadVersion(ezTypeVersion expectedMaxVersion);
+  W_ALWAYS_INLINE WTypeVersion ReadVersion();
+  W_ALWAYS_INLINE WTypeVersion ReadVersion(WTypeVersion expectedMaxVersion);
 };
 
 /// Abstract base class for binary output streams providing unified writing interface.
@@ -138,75 +138,75 @@ public:
 /// - Derived classes must implement WriteBytes() as the primary write method
 /// - All other methods are implemented in terms of WriteBytes()
 /// - Flush() can be overridden for buffered implementations
-/// - Should handle write errors gracefully by returning appropriate ezResult
-class EZ_FOUNDATION_DLL ezStreamWriter
+/// - Should handle write errors gracefully by returning appropriate WResult
+class W_FOUNDATION_DLL WStreamWriter
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamWriter);
+  W_DISALLOW_COPY_AND_ASSIGN(WStreamWriter);
 
 public:
   /// Constructor
-  ezStreamWriter();
+  WStreamWriter();
 
   /// Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamWriter();
+  virtual ~WStreamWriter();
 
   /// Writes a raw number of bytes from the buffer. This is the only method that must be implemented by derived classes.
   ///
   /// \param pWriteBuffer Source buffer containing data to write
   /// \param uiBytesToWrite Number of bytes to write from the buffer
-  /// \return EZ_SUCCESS if all bytes were written successfully, EZ_FAILURE otherwise
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) = 0; // [tested]
+  /// \return W_SUCCESS if all bytes were written successfully, W_FAILURE otherwise
+  virtual WResult WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite) = 0; // [tested]
 
   /// Flushes buffered data to the underlying storage, ensuring data persistence.
   ///
   /// Default implementation is a no-op. Derived classes with internal buffering should
   /// override this method to force writing of buffered data to the actual destination.
-  virtual ezResult Flush() // [tested]
+  virtual WResult Flush() // [tested]
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   /// Helper method to write a word value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult WriteWordValue(const T* pWordValue); // [tested]
+  WResult WriteWordValue(const T* pWordValue); // [tested]
 
   /// Helper method to write a dword value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult WriteDWordValue(const T* pDWordValue); // [tested]
+  WResult WriteDWordValue(const T* pDWordValue); // [tested]
 
   /// Helper method to write a qword value correctly (copes with potentially different endianess)
   template <typename T>
-  ezResult WriteQWordValue(const T* pQWordValue); // [tested]
+  WResult WriteQWordValue(const T* pQWordValue); // [tested]
 
   /// Writes a type version to the stream
-  EZ_ALWAYS_INLINE void WriteVersion(ezTypeVersion version);
+  W_ALWAYS_INLINE void WriteVersion(WTypeVersion version);
 
   /// Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
-  ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& array); // [tested]
+  WResult WriteArray(const WArrayBase<ValueType, ArrayType>& array); // [tested]
 
   /// Writes a small array of elements to the stream
-  template <typename ValueType, ezUInt16 uiSize>
-  ezResult WriteArray(const ezSmallArrayBase<ValueType, uiSize>& array);
+  template <typename ValueType, WUInt16 uiSize>
+  WResult WriteArray(const WSmallArrayBase<ValueType, uiSize>& array);
 
   /// Writes a C style fixed array
-  template <typename ValueType, ezUInt32 uiSize>
-  ezResult WriteArray(const ValueType (&array)[uiSize]);
+  template <typename ValueType, WUInt32 uiSize>
+  WResult WriteArray(const ValueType (&array)[uiSize]);
 
   /// Writes a set
   template <typename KeyType, typename Comparer>
-  ezResult WriteSet(const ezSetBase<KeyType, Comparer>& set); // [tested]
+  WResult WriteSet(const WSetBase<KeyType, Comparer>& set); // [tested]
 
   /// Writes a map
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& map); // [tested]
+  WResult WriteMap(const WMapBase<KeyType, ValueType, Comparer>& map); // [tested]
 
   /// Writes a hash table (note that the entry order might change on read)
   template <typename KeyType, typename ValueType, typename Hasher>
-  ezResult WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable); // [tested]
+  WResult WriteHashTable(const WHashTableBase<KeyType, ValueType, Hasher>& hashTable); // [tested]
 
   /// Writes a string
-  ezResult WriteString(const ezStringView sStringView); // [tested]
+  WResult WriteString(const WStringView sStringView); // [tested]
 };
 
 // Contains the helper methods of both interfaces

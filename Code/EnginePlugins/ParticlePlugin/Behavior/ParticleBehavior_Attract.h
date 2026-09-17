@@ -8,43 +8,43 @@
 /// MinDistance prevents singularity at the attractor center.
 ///
 /// When \a Target is set to \a Attractors, the behavior queries the spatial system for nearby
-/// ezParticleAttractorComponents and applies each one's contribution per particle. The attractor
+/// WParticleAttractorComponents and applies each one's contribution per particle. The attractor
 /// list is refreshed roughly once per second for performance.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Attract final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Attract final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Attract, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Attract, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Attract();
+  WParticleBehaviorFactory_Attract();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   float m_fInfluence = 5.0f;
   bool m_bAffectVelocity = true;
 
   /// Maximum number of nearby attractors to consider. Higher values are more expensive.
-  ezUInt8 m_uiMaxAttractors = 1;
+  WUInt8 m_uiMaxAttractors = 1;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Attract final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Attract final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Attract, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Attract, WParticleBehavior);
 
 public:
   float m_fInfluence = 5.0f;
   bool m_bAffectVelocity = true;
 
-  ezUInt8 m_uiMaxAttractors = 1;
+  WUInt8 m_uiMaxAttractors = 1;
 
 protected:
   virtual void CreateRequiredStreams() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
 };

@@ -8,64 +8,64 @@
 #include <Foundation/Math/Intersection.h>
 #include <GameComponentsPlugin/Effects/Shake/CameraShakeVolumeComponent.h>
 
-ezSpatialData::Category ezCameraShakeVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("CameraShakeVolumes", ezSpatialData::Flags::None);
+WSpatialData::Category WCameraShakeVolumeComponent::SpatialDataCategory = WSpatialData::RegisterCategory("CameraShakeVolumes", WSpatialData::Flags::None);
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCameraShakeVolumeComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WCameraShakeVolumeComponent, 1)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Strength", m_fStrength),
-    EZ_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
-    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    W_MEMBER_PROPERTY("Strength", m_fStrength),
+    W_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
+    W_ENUM_MEMBER_PROPERTY("OnFinishedAction", WOnComponentFinishedAction, m_OnFinishedAction),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnTriggered),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects/CameraShake"),
+    new WCategoryAttribute("Effects/CameraShake"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezCameraShakeVolumeComponent::ezCameraShakeVolumeComponent() = default;
-ezCameraShakeVolumeComponent::~ezCameraShakeVolumeComponent() = default;
+WCameraShakeVolumeComponent::WCameraShakeVolumeComponent() = default;
+WCameraShakeVolumeComponent::~WCameraShakeVolumeComponent() = default;
 
-void ezCameraShakeVolumeComponent::OnActivated()
+void WCameraShakeVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezCameraShakeVolumeComponent::OnDeactivated()
+void WCameraShakeVolumeComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
 }
 
-void ezCameraShakeVolumeComponent::OnSimulationStarted()
+void WCameraShakeVolumeComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   if (m_BurstDuration.IsPositive())
   {
-    ezMsgComponentInternalTrigger msg;
+    WMsgComponentInternalTrigger msg;
     msg.m_sMessage.Assign("Suicide");
 
     PostMessage(msg, m_BurstDuration);
   }
 }
 
-void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCameraShakeVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -75,10 +75,10 @@ void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_fStrength;
 }
 
-void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCameraShakeVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
@@ -86,30 +86,30 @@ void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_fStrength;
 }
 
-float ezCameraShakeVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const
+float WCameraShakeVolumeComponent::ComputeForceAtGlobalPosition(const WSimdVec4f& vGlobalPos) const
 {
-  const ezSimdTransform t = GetOwner()->GetGlobalTransformSimd();
-  const ezSimdTransform tInv = t.GetInverse();
-  const ezSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
+  const WSimdTransform t = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform tInv = t.GetInverse();
+  const WSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
 
   return ComputeForceAtLocalPosition(localPos);
 }
 
-void ezCameraShakeVolumeComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
+void WCameraShakeVolumeComponent::OnTriggered(WMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_sMessage != ezTempHashedString("Suicide"))
+  if (msg.m_sMessage != WTempHashedString("Suicide"))
     return;
 
-  ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+  WOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
 
   SetActiveFlag(false);
 }
 
-void ezCameraShakeVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WCameraShakeVolumeComponent::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
   if (m_BurstDuration.IsPositive())
   {
-    ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+    WOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
   }
 }
 
@@ -118,31 +118,31 @@ void ezCameraShakeVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeVolumeSphereComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WCameraShakeVolumeSphereComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius", ezColor::SaddleBrown),
+    new WSphereVisualizerAttribute("Radius", WColor::SaddleBrown),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezCameraShakeVolumeSphereComponent::ezCameraShakeVolumeSphereComponent() = default;
-ezCameraShakeVolumeSphereComponent::~ezCameraShakeVolumeSphereComponent() = default;
+WCameraShakeVolumeSphereComponent::WCameraShakeVolumeSphereComponent() = default;
+WCameraShakeVolumeSphereComponent::~WCameraShakeVolumeSphereComponent() = default;
 
-void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCameraShakeVolumeSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -150,31 +150,31 @@ void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout
   s << m_fRadius;
 }
 
-void ezCameraShakeVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCameraShakeVolumeSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   m_fOneDivRadius = 1.0f / m_fRadius;
 }
 
-float ezCameraShakeVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
+float WCameraShakeVolumeSphereComponent::ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const
 {
-  ezSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
+  WSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
 
   // inverse quadratic falloff to have sharper edges
-  ezSimdFloat forceFactor = ezSimdFloat(1.0f) - lenScaled;
+  WSimdFloat forceFactor = WSimdFloat(1.0f) - lenScaled;
 
-  const ezSimdFloat force = forceFactor.Max(0.0f);
+  const WSimdFloat force = forceFactor.Max(0.0f);
 
   return m_fStrength * force;
 }
 
-void ezCameraShakeVolumeSphereComponent::SetRadius(float fVal)
+void WCameraShakeVolumeSphereComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(fVal, 0.1f);
+  m_fRadius = WMath::Max(fVal, 0.1f);
   m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
@@ -183,10 +183,10 @@ void ezCameraShakeVolumeSphereComponent::SetRadius(float fVal)
   }
 }
 
-void ezCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), WCameraShakeVolumeComponent::SpatialDataCategory);
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeVolumeComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeVolumeComponent);

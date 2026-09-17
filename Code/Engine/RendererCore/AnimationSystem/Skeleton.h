@@ -8,12 +8,12 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
-class ezStreamWriter;
-class ezStreamReader;
-class ezSkeletonBuilder;
-class ezSkeleton;
+class WStreamWriter;
+class WStreamReader;
+class WSkeletonBuilder;
+class WSkeleton;
 
-using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using WSurfaceResourceHandle = WTypedResourceHandle<class WSurfaceResource>;
 
 namespace ozz::animation
 {
@@ -23,95 +23,95 @@ namespace ozz::animation
 /// Describes a single joint.
 /// The transforms of the joints are in their local space and thus need to be correctly multiplied with their parent transforms to get the
 /// final transform.
-class EZ_RENDERERCORE_DLL ezSkeletonJoint
+class W_RENDERERCORE_DLL WSkeletonJoint
 {
 public:
-  const ezTransform& GetRestPoseLocalTransform() const { return m_RestPoseLocal; }
+  const WTransform& GetRestPoseLocalTransform() const { return m_RestPoseLocal; }
 
-  /// Returns ezInvalidJointIndex if no parent
-  ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
+  /// Returns WInvalidJointIndex if no parent
+  WUInt16 GetParentIndex() const { return m_uiParentIndex; }
 
-  bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
-  const ezHashedString& GetName() const { return m_sName; }
+  bool IsRootJoint() const { return m_uiParentIndex == WInvalidJointIndex; }
+  const WHashedString& GetName() const { return m_sName; }
 
-  ezAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
-  ezAngle GetHalfSwingLimitZ() const { return m_HalfSwingLimitZ; }
-  ezAngle GetTwistLimitHalfAngle() const { return m_TwistLimitHalfAngle; }
-  ezAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
-  ezAngle GetTwistLimitLow() const;
-  ezAngle GetTwistLimitHigh() const;
-  ezEnum<ezSkeletonJointType> GetJointType() const { return m_JointType; }
+  WAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
+  WAngle GetHalfSwingLimitZ() const { return m_HalfSwingLimitZ; }
+  WAngle GetTwistLimitHalfAngle() const { return m_TwistLimitHalfAngle; }
+  WAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
+  WAngle GetTwistLimitLow() const;
+  WAngle GetTwistLimitHigh() const;
+  WEnum<WSkeletonJointType> GetJointType() const { return m_JointType; }
 
-  ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
+  WQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
 
-  ezSurfaceResourceHandle GetSurface() const { return m_hSurface; }
-  ezUInt8 GetCollisionLayer() const { return m_uiCollisionLayer; }
+  WSurfaceResourceHandle GetSurface() const { return m_hSurface; }
+  WUInt8 GetCollisionLayer() const { return m_uiCollisionLayer; }
 
   float GetStiffness() const { return m_fStiffness; }
   void SetStiffness(float fValue) { m_fStiffness = fValue; }
 
 private:
-  friend ezSkeleton;
-  friend ezSkeletonBuilder;
+  friend WSkeleton;
+  friend WSkeletonBuilder;
 
-  ezTransform m_RestPoseLocal;
-  ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
-  ezHashedString m_sName;
+  WTransform m_RestPoseLocal;
+  WUInt16 m_uiParentIndex = WInvalidJointIndex;
+  WHashedString m_sName;
 
-  ezSurfaceResourceHandle m_hSurface;
-  ezUInt8 m_uiCollisionLayer = 0;
+  WSurfaceResourceHandle m_hSurface;
+  WUInt8 m_uiCollisionLayer = 0;
 
-  ezEnum<ezSkeletonJointType> m_JointType;
-  ezQuat m_qLocalJointOrientation = ezQuat::MakeIdentity();
-  ezAngle m_HalfSwingLimitY;
-  ezAngle m_HalfSwingLimitZ;
-  ezAngle m_TwistLimitHalfAngle;
-  ezAngle m_TwistLimitCenterAngle;
+  WEnum<WSkeletonJointType> m_JointType;
+  WQuat m_qLocalJointOrientation = WQuat::MakeIdentity();
+  WAngle m_HalfSwingLimitY;
+  WAngle m_HalfSwingLimitZ;
+  WAngle m_TwistLimitHalfAngle;
+  WAngle m_TwistLimitCenterAngle;
   float m_fStiffness = 0.0f;
 };
 
 /// The skeleton class encapsulates the information about the joint structure for a model.
-class EZ_RENDERERCORE_DLL ezSkeleton
+class W_RENDERERCORE_DLL WSkeleton
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSkeleton);
+  W_DISALLOW_COPY_AND_ASSIGN(WSkeleton);
 
 public:
-  ezSkeleton();
-  ezSkeleton(ezSkeleton&& rhs);
-  ~ezSkeleton();
+  WSkeleton();
+  WSkeleton(WSkeleton&& rhs);
+  ~WSkeleton();
 
-  void operator=(ezSkeleton&& rhs);
+  void operator=(WSkeleton&& rhs);
 
   /// Returns the number of joints in the skeleton.
-  ezUInt16 GetJointCount() const { return static_cast<ezUInt16>(m_Joints.GetCount()); }
+  WUInt16 GetJointCount() const { return static_cast<WUInt16>(m_Joints.GetCount()); }
 
   /// Returns the nth joint.
-  const ezSkeletonJoint& GetJointByIndex(ezUInt16 uiIndex) const { return m_Joints[uiIndex]; }
+  const WSkeletonJoint& GetJointByIndex(WUInt16 uiIndex) const { return m_Joints[uiIndex]; }
 
-  /// Allows to find a specific joint in the skeleton by name. Returns ezInvalidJointIndex if not found
-  ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
+  /// Allows to find a specific joint in the skeleton by name. Returns WInvalidJointIndex if not found
+  WUInt16 FindJointByName(const WTempHashedString& sName) const;
 
   /// Checks if two skeletons are compatible (same joint count and hierarchy)
-  // bool IsCompatibleWith(const ezSkeleton& other) const;
+  // bool IsCompatibleWith(const WSkeleton& other) const;
 
   /// Saves the skeleton in a given stream.
-  void Save(ezStreamWriter& inout_stream) const;
+  void Save(WStreamWriter& inout_stream) const;
 
   /// Loads the skeleton from the given stream.
-  void Load(ezStreamReader& inout_stream);
+  void Load(WStreamReader& inout_stream);
 
-  bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
+  bool IsJointDescendantOf(WUInt16 uiJoint, WUInt16 uiExpectedParent) const;
 
   const ozz::animation::Skeleton& GetOzzSkeleton() const;
 
-  ezUInt64 GetHeapMemoryUsage() const;
+  WUInt64 GetHeapMemoryUsage() const;
 
   /// The direction in which the bones shall point for visualization
-  ezEnum<ezBasisAxis> m_BoneDirection;
+  WEnum<WBasisAxis> m_BoneDirection;
 
 protected:
-  friend ezSkeletonBuilder;
+  friend WSkeletonBuilder;
 
-  ezDynamicArray<ezSkeletonJoint> m_Joints;
-  mutable ezUniquePtr<ozz::animation::Skeleton> m_pOzzSkeleton;
+  WDynamicArray<WSkeletonJoint> m_Joints;
+  mutable WUniquePtr<ozz::animation::Skeleton> m_pOzzSkeleton;
 };

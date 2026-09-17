@@ -4,41 +4,41 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
+using WCurve1DResourceHandle = WTypedResourceHandle<class WCurve1DResource>;
 
 /// Initializer that sets random particle rotation speeds
 ///
 /// Optionally also sets a random starting rotation angle.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomRotationSpeed final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_RandomRotationSpeed final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomRotationSpeed, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_RandomRotationSpeed, WParticleInitializerFactory);
 
 public:
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   bool m_bRandomStartAngle = false;
-  ezVarianceTypeAngle m_RotationSpeed;
+  WVarianceTypeAngle m_RotationSpeed;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_RandomRotationSpeed final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomRotationSpeed, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_RandomRotationSpeed, WParticleInitializer);
 
 public:
   bool m_bRandomStartAngle = false;
-  ezVarianceTypeAngle m_RotationSpeed;
+  WVarianceTypeAngle m_RotationSpeed;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
   bool m_bPositiveSign = false;
-  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
-  ezProcessingStream* m_pStreamRotationOffset = nullptr;
+  WProcessingStream* m_pStreamRotationSpeed = nullptr;
+  WProcessingStream* m_pStreamRotationOffset = nullptr;
 };

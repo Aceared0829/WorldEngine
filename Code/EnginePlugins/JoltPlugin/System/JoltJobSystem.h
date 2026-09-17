@@ -6,33 +6,33 @@
 #include <Jolt/Core/FixedSizeFreeList.h>
 #include <Jolt/Core/JobSystemWithBarrier.h>
 
-class ezJoltJobSystem final : public JPH::JobSystemWithBarrier
+class WJoltJobSystem final : public JPH::JobSystemWithBarrier
 {
 public:
-  ezJoltJobSystem(ezUInt32 uiMaxJobs, ezUInt32 uiMaxBarriers);
+  WJoltJobSystem(WUInt32 uiMaxJobs, WUInt32 uiMaxBarriers);
 
   virtual int GetMaxConcurrency() const override;
-  virtual JPH::JobHandle CreateJob(const char* szName, JPH::ColorArg color, const JobFunction& jobFunction, ezUInt32 uiNumDependencies = 0) override;
+  virtual JPH::JobHandle CreateJob(const char* szName, JPH::ColorArg color, const JobFunction& jobFunction, WUInt32 uiNumDependencies = 0) override;
 
   virtual void QueueJob(Job* pJob) override;
-  virtual void QueueJobs(Job** pJobs, ezUInt32 uiNumJobs) override;
+  virtual void QueueJobs(Job** pJobs, WUInt32 uiNumJobs) override;
   virtual void FreeJob(Job* pJob) override;
 
 private:
-  static void OnTaskFinished(const ezSharedPtr<ezTask>& task);
+  static void OnTaskFinished(const WSharedPtr<WTask>& task);
 
   class CustomJob : public JPH::JobSystem::Job
   {
   public:
-    CustomJob(const char* szJobName, JPH::ColorArg color, JPH::JobSystem* pJobSystem, const JobFunction& jobFunction, ezUInt32 uiNumDependencies)
+    CustomJob(const char* szJobName, JPH::ColorArg color, JPH::JobSystem* pJobSystem, const JobFunction& jobFunction, WUInt32 uiNumDependencies)
       : Job(szJobName, color, pJobSystem, jobFunction, uiNumDependencies)
     {
     }
 
-    ezUInt32 m_uiJobIndex = ezInvalidIndex;
+    WUInt32 m_uiJobIndex = WInvalidIndex;
   };
 
-  class ezJoltTask : public ezTask
+  class WJoltTask : public WTask
   {
   public:
     CustomJob* m_pJob = nullptr;
@@ -44,5 +44,5 @@ private:
   using AvailableJobs = JPH::FixedSizeFreeList<CustomJob>;
   AvailableJobs m_Jobs;
 
-  ezDynamicArray<ezSharedPtr<ezJoltTask>> m_Tasks;
+  WDynamicArray<WSharedPtr<WJoltTask>> m_Tasks;
 };

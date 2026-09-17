@@ -7,25 +7,25 @@
 namespace StartupDetail
 {
   static void SendSubsystemTelemetry();
-  static ezInt32 s_iSendSubSystemTelemetry = 0;
+  static WInt32 s_iSendSubSystemTelemetry = 0;
 } // namespace StartupDetail
 
-EZ_ON_GLOBAL_EVENT(ezStartup_StartupCoreSystems_End)
+W_ON_GLOBAL_EVENT(WStartup_StartupCoreSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_StartupHighLevelSystems_End)
+W_ON_GLOBAL_EVENT(WStartup_StartupHighLevelSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownCoreSystems_End)
+W_ON_GLOBAL_EVENT(WStartup_ShutdownCoreSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownHighLevelSystems_End)
+W_ON_GLOBAL_EVENT(WStartup_ShutdownHighLevelSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
@@ -37,44 +37,44 @@ namespace StartupDetail
     if (s_iSendSubSystemTelemetry <= 0)
       return;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', ' CLR', nullptr, 0);
+    WTelemetry::Broadcast(WTelemetry::Reliable, 'STRT', ' CLR', nullptr, 0);
 
-    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+    WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
     while (pSub)
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID('STRT', 'SYST');
       msg.GetWriter() << pSub->GetGroupName();
       msg.GetWriter() << pSub->GetSubSystemName();
       msg.GetWriter() << pSub->GetPluginName();
 
-      for (ezUInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
-        msg.GetWriter() << pSub->IsStartupPhaseDone((ezStartupStage::Enum)i);
+      for (WUInt32 i = 0; i < WStartupStage::ENUM_COUNT; ++i)
+        msg.GetWriter() << pSub->IsStartupPhaseDone((WStartupStage::Enum)i);
 
-      ezUInt8 uiDependencies = 0;
+      WUInt8 uiDependencies = 0;
       while (pSub->GetDependency(uiDependencies) != nullptr)
         ++uiDependencies;
 
       msg.GetWriter() << uiDependencies;
 
-      for (ezUInt8 i = 0; i < uiDependencies; ++i)
+      for (WUInt8 i = 0; i < uiDependencies; ++i)
         msg.GetWriter() << pSub->GetDependency(i);
 
-      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 
       pSub = pSub->GetNextInstance();
     }
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendSubsystemTelemetry();
         break;
 
@@ -87,15 +87,15 @@ namespace StartupDetail
 void AddStartupEventHandler()
 {
   ++StartupDetail::s_iSendSubSystemTelemetry;
-  ezTelemetry::AddEventHandler(StartupDetail::TelemetryEventsHandler);
+  WTelemetry::AddEventHandler(StartupDetail::TelemetryEventsHandler);
 }
 
 void RemoveStartupEventHandler()
 {
   --StartupDetail::s_iSendSubSystemTelemetry;
-  ezTelemetry::RemoveEventHandler(StartupDetail::TelemetryEventsHandler);
+  WTelemetry::RemoveEventHandler(StartupDetail::TelemetryEventsHandler);
 }
 
 
 
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Startup);
+W_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Startup);

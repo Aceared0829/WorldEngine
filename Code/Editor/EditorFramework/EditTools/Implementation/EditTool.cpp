@@ -3,13 +3,13 @@
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectEditTool, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGameObjectEditTool::ezGameObjectEditTool() = default;
+WGameObjectEditTool::WGameObjectEditTool() = default;
 
-void ezGameObjectEditTool::ConfigureTool(
-  ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow, ezGameObjectGizmoInterface* pInterface)
+void WGameObjectEditTool::ConfigureTool(
+  WGameObjectDocument* pDocument, WQtGameObjectDocumentWindow* pWindow, WGameObjectGizmoInterface* pInterface)
 {
   m_pDocument = pDocument;
   m_pWindow = pWindow;
@@ -18,7 +18,7 @@ void ezGameObjectEditTool::ConfigureTool(
   OnConfigured();
 }
 
-void ezGameObjectEditTool::SetActive(bool bActive)
+void WGameObjectEditTool::SetActive(bool bActive)
 {
   if (m_bIsActive == bActive)
     return;

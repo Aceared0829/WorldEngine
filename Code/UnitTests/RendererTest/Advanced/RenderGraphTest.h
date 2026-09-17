@@ -3,7 +3,7 @@
 #include "../TestClass/TestClass.h"
 #include <Foundation/Types/SharedPtr.h>
 
-class ezRenderGraphTest : public ezGraphicsTest
+class WRenderGraphTest : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "RenderGraph"; }
@@ -22,9 +22,9 @@ private:
 
   virtual void SetupSubTests() override;
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
   void DeadPassCulling();
   void ResourceAliasing();
@@ -32,8 +32,8 @@ private:
   void ExecuteCallbacks();
   void EmptyGraph();
   void MsaaResolve();
-  ezTestAppRun StressTestRenderGraph(ezUInt32 uiNumPasses);
+  WTestAppRun StressTestRenderGraph(WUInt32 uiNumPasses);
 
 private:
-  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  WSharedPtr<WRenderGraph> m_pRenderGraph;
 };

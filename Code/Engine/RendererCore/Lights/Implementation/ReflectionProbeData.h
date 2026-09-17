@@ -5,9 +5,9 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezReflectionProbeMode
+struct WReflectionProbeMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -17,17 +17,17 @@ struct ezReflectionProbeMode
     Default = Static
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezReflectionProbeMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WReflectionProbeMode);
 
 /// Describes how a cube map should be generated.
-struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
+struct W_RENDERERCORE_DLL WReflectionProbeDesc
 {
-  ezUuid m_uniqueID;
+  WUuid m_uniqueID;
 
-  ezTagSet m_IncludeTags;
-  ezTagSet m_ExcludeTags;
+  WTagSet m_IncludeTags;
+  WTagSet m_ExcludeTags;
 
-  ezEnum<ezReflectionProbeMode> m_Mode;
+  WEnum<WReflectionProbeMode> m_Mode;
 
   bool m_bShowDebugInfo = false;
   bool m_bShowMipMaps = false;
@@ -37,74 +37,74 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
   float m_fSpecularIntensity = 1.0f;
   float m_fNearPlane = 0.0f;
   float m_fFarPlane = 100.0f;
-  ezVec3 m_vCaptureOffset = ezVec3::MakeZero();
+  WVec3 m_vCaptureOffset = WVec3::MakeZero();
 };
 
-using ezReflectionProbeId = ezGenericId<24, 8>;
+using WReflectionProbeId = WGenericId<24, 8>;
 
 template <>
-struct ezHashHelper<ezReflectionProbeId>
+struct WHashHelper<WReflectionProbeId>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezReflectionProbeId value) { return ezHashHelper<ezUInt32>::Hash(value.m_Data); }
+  W_ALWAYS_INLINE static WUInt32 Hash(WReflectionProbeId value) { return WHashHelper<WUInt32>::Hash(value.m_Data); }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezReflectionProbeId a, ezReflectionProbeId b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(WReflectionProbeId a, WReflectionProbeId b) { return a == b; }
 };
 
 /// Render data for a reflection probe.
-class EZ_RENDERERCORE_DLL ezReflectionProbeRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WReflectionProbeRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReflectionProbeRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WReflectionProbeRenderData, WRenderData);
 
 public:
-  ezReflectionProbeRenderData()
+  WReflectionProbeRenderData()
   {
     m_Id.Invalidate();
     m_vHalfExtents.SetZero();
   }
 
-  ezTransform m_GlobalTransform;
-  ezReflectionProbeId m_Id;
-  ezUInt32 m_uiIndex = 0;
-  ezVec3 m_vHalfExtents;
-  ezVec3 m_vPositiveFalloff;
-  ezVec3 m_vNegativeFalloff;
-  ezVec3 m_vInfluenceScale;
-  ezVec3 m_vInfluenceShift;
+  WTransform m_GlobalTransform;
+  WReflectionProbeId m_Id;
+  WUInt32 m_uiIndex = 0;
+  WVec3 m_vHalfExtents;
+  WVec3 m_vPositiveFalloff;
+  WVec3 m_vNegativeFalloff;
+  WVec3 m_vInfluenceScale;
+  WVec3 m_vInfluenceShift;
 };
 
 /// A unique reference to a reflection probe.
-struct ezReflectionProbeRef
+struct WReflectionProbeRef
 {
-  bool operator==(const ezReflectionProbeRef& b) const
+  bool operator==(const WReflectionProbeRef& b) const
   {
     return m_Id == b.m_Id && m_uiWorldIndex == b.m_uiWorldIndex;
   }
 
-  ezUInt32 m_uiWorldIndex = 0;
-  ezReflectionProbeId m_Id;
+  WUInt32 m_uiWorldIndex = 0;
+  WReflectionProbeId m_Id;
 };
-static_assert(sizeof(ezReflectionProbeRef) == 8);
+static_assert(sizeof(WReflectionProbeRef) == 8);
 
 template <>
-struct ezHashHelper<ezReflectionProbeRef>
+struct WHashHelper<WReflectionProbeRef>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezReflectionProbeRef value) { return ezHashHelper<ezUInt64>::Hash(reinterpret_cast<ezUInt64&>(value)); }
+  W_ALWAYS_INLINE static WUInt32 Hash(WReflectionProbeRef value) { return WHashHelper<WUInt64>::Hash(reinterpret_cast<WUInt64&>(value)); }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezReflectionProbeRef a, ezReflectionProbeRef b) { return a.m_Id == b.m_Id && a.m_uiWorldIndex == b.m_uiWorldIndex; }
+  W_ALWAYS_INLINE static bool Equal(WReflectionProbeRef a, WReflectionProbeRef b) { return a.m_Id == b.m_Id && a.m_uiWorldIndex == b.m_uiWorldIndex; }
 };
 
 /// Flags that describe a reflection probe.
-struct ezProbeFlags
+struct WProbeFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    SkyLight = EZ_BIT(0),
-    HasCustomCubeMap = EZ_BIT(1),
-    Sphere = EZ_BIT(2),
-    Box = EZ_BIT(3),
-    Dynamic = EZ_BIT(4),
+    SkyLight = W_BIT(0),
+    HasCustomCubeMap = W_BIT(1),
+    Sphere = W_BIT(2),
+    Box = W_BIT(3),
+    Dynamic = W_BIT(4),
     Default = 0
   };
 
@@ -118,6 +118,6 @@ struct ezProbeFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezProbeFlags);
+W_DECLARE_FLAGS_OPERATORS(WProbeFlags);
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezProbeFlags);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WProbeFlags);

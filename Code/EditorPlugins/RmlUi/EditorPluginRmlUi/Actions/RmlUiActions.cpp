@@ -6,39 +6,39 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezRmlUiActions::s_hCategory;
-ezActionDescriptorHandle ezRmlUiActions::s_hOpenInVSC;
+WActionDescriptorHandle WRmlUiActions::s_hCategory;
+WActionDescriptorHandle WRmlUiActions::s_hOpenInVSC;
 
-void ezRmlUiActions::RegisterActions()
+void WRmlUiActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("RmlUiCategory");
-  s_hOpenInVSC = EZ_REGISTER_ACTION_1("RmlUi.OpenInVSC", ezActionScope::Document, "RmlUi", "", ezRmlUiAction, ezRmlUiAction::ActionType::OpenInVSC);
+  s_hCategory = W_REGISTER_CATEGORY("RmlUiCategory");
+  s_hOpenInVSC = W_REGISTER_ACTION_1("RmlUi.OpenInVSC", WActionScope::Document, "RmlUi", "", WRmlUiAction, WRmlUiAction::ActionType::OpenInVSC);
 }
 
-void ezRmlUiActions::UnregisterActions()
+void WRmlUiActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hOpenInVSC);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hOpenInVSC);
 }
 
-void ezRmlUiActions::MapActionsMenu(ezStringView sMapping)
+void WRmlUiActions::MapActionsMenu(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "G.Asset", 5.0f);
 
   pMap->MapAction(s_hOpenInVSC, "RmlUiCategory", 1.0f);
 }
 
-void ezRmlUiActions::MapActionsToolbar(ezStringView sMapping)
+void WRmlUiActions::MapActionsToolbar(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -47,12 +47,12 @@ void ezRmlUiActions::MapActionsToolbar(ezStringView sMapping)
   pMap->MapAction(s_hOpenInVSC, szSubPath, 1.0f);
 }
 
-ezRmlUiAction::ezRmlUiAction(const ezActionContext& context, const char* szName, ezRmlUiAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WRmlUiAction::WRmlUiAction(const WActionContext& context, const char* szName, WRmlUiAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
-  m_pDocument = const_cast<ezRmlUiAssetDocument*>(static_cast<const ezRmlUiAssetDocument*>(context.m_pDocument));
+  m_pDocument = const_cast<WRmlUiAssetDocument*>(static_cast<const WRmlUiAssetDocument*>(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -63,7 +63,7 @@ ezRmlUiAction::ezRmlUiAction(const ezActionContext& context, const char* szName,
 }
 
 
-void ezRmlUiAction::Execute(const ezVariant& value)
+void WRmlUiAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {

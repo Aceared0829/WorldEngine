@@ -2,16 +2,16 @@
 
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-class ezScene2Document;
+class WScene2Document;
 
-class EZ_EDITORPLUGINSCENE_DLL ezLayerDocument : public ezSceneDocument
+class W_EDITORPLUGINSCENE_DLL WLayerDocument : public WSceneDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerDocument, ezSceneDocument);
+  W_ADD_DYNAMIC_REFLECTION(WLayerDocument, WSceneDocument);
 
 public:
-  ezLayerDocument(ezStringView sDocumentPath, ezScene2Document* pParentScene);
-  ~ezLayerDocument();
+  WLayerDocument(WStringView sDocumentPath, WScene2Document* pParentScene);
+  ~WLayerDocument();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual ezVariant GetCreateEngineMetaData() const override;
+  virtual WVariant GetCreateEngineMetaData() const override;
 };

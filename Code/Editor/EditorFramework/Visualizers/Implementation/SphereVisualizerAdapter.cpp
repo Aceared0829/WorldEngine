@@ -4,87 +4,87 @@
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSphereVisualizerAdapter::ezSphereVisualizerAdapter() = default;
-ezSphereVisualizerAdapter::~ezSphereVisualizerAdapter() = default;
+WSphereVisualizerAdapter::WSphereVisualizerAdapter() = default;
+WSphereVisualizerAdapter::~WSphereVisualizerAdapter() = default;
 
-void ezSphereVisualizerAdapter::Finalize()
+void WSphereVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
+  const WSphereVisualizerAttribute* pAttr = static_cast<const WSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Sphere, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Sphere, pAttr->m_Color, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezSphereVisualizerAdapter::Update()
+void WSphereVisualizerAdapter::Update()
 {
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WSphereVisualizerAttribute* pAttr = static_cast<const WSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
   m_fScale = 1.0f;
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezSphereVisualizerAttribute 'radius'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WSphereVisualizerAttribute 'radius'");
     m_fScale = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSphereVisualizerAttribute 'color'");
-    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WSphereVisualizerAttribute 'color'");
+    m_hGizmo.SetColor(value.ConvertTo<WColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
 
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezSphereVisualizerAttribute 'offset'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WVec3>(), "Invalid property bound to WSphereVisualizerAttribute 'offset'");
 
     if (m_vPositionOffset.IsZero())
-      m_vPositionOffset = value.ConvertTo<ezVec3>();
+      m_vPositionOffset = value.ConvertTo<WVec3>();
     else
-      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
+      m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<WVec3>());
   }
 
   m_Anchor = pAttr->m_Anchor;
 }
 
-void ezSphereVisualizerAdapter::UpdateGizmoTransform()
+void WSphereVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezTransform t;
+  WTransform t;
   t.m_qRotation.SetIdentity();
   t.m_vScale.Set(m_fScale);
   t.m_vPosition = m_vPositionOffset;
 
-  ezVec3 vOffset = ezVec3::MakeZero();
+  WVec3 vOffset = WVec3::MakeZero();
 
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegX))
     vOffset.x += t.m_vScale.x;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosY))
     vOffset.y -= t.m_vScale.y;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegY))
     vOffset.y += t.m_vScale.y;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::PosZ))
     vOffset.z -= t.m_vScale.z;
-  if (m_Anchor.IsSet(ezVisualizerAnchor::NegZ))
+  if (m_Anchor.IsSet(WVisualizerAnchor::NegZ))
     vOffset.z += t.m_vScale.z;
 
   t.m_vPosition += vOffset;

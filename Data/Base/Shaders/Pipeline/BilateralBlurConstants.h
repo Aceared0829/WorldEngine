@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezBilateralBlurConstants, 3)
+CONSTANT_BUFFER(WBilateralBlurConstants, 3)
 {
   UINT1(BlurRadius);
   FLOAT1(GaussianFalloff); // 1 / (2 * sigma * sigma)

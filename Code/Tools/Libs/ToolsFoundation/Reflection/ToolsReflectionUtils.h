@@ -3,30 +3,30 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-class ezIReflectedTypeAccessor;
-class ezDocumentObject;
-class ezAbstractObjectGraph;
+class WIReflectedTypeAccessor;
+class WDocumentObject;
+class WAbstractObjectGraph;
 
 /// Helper functions for handling reflection related operations.
 ///
-/// Also check out ezToolsSerializationUtils for related functionality.
-class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
+/// Also check out WToolsSerializationUtils for related functionality.
+class W_TOOLSFOUNDATION_DLL WToolsReflectionUtils
 {
 public:
   /// Returns the type under which the property is stored on the editor side.
-  static ezVariantType::Enum GetStorageType(const ezAbstractProperty* pProperty);
+  static WVariantType::Enum GetStorageType(const WAbstractProperty* pProperty);
 
   /// Returns the default value for the entire property as it is stored on the editor side.
-  static ezVariant GetStorageDefault(const ezAbstractProperty* pProperty);
+  static WVariant GetStorageDefault(const WAbstractProperty* pProperty);
 
-  static bool GetFloatFromVariant(const ezVariant& val, double& out_fValue);
-  static bool GetVariantFromFloat(double fValue, ezVariantType::Enum type, ezVariant& out_val);
+  static bool GetFloatFromVariant(const WVariant& val, double& out_fValue);
+  static bool GetVariantFromFloat(double fValue, WVariantType::Enum type, WVariant& out_val);
 
-  /// Creates a ReflectedTypeDescriptor from an ezRTTI instance that can be serialized and registered at the ezPhantomRttiManager.
-  static void GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc); // [tested]
-  static void GetMinimalReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc);
+  /// Creates a ReflectedTypeDescriptor from an WRTTI instance that can be serialized and registered at the WPhantomRttiManager.
+  static void GetReflectedTypeDescriptorFromRtti(const WRTTI* pRtti, WReflectedTypeDescriptor& out_desc); // [tested]
+  static void GetMinimalReflectedTypeDescriptorFromRtti(const WRTTI* pRtti, WReflectedTypeDescriptor& out_desc);
 
-  static void GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types);
+  static void GatherObjectTypes(const WDocumentObject* pObject, WSet<const WRTTI*>& inout_types);
 
-  static bool DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& ref_descriptors);
+  static bool DependencySortTypeDescriptorArray(WDynamicArray<WReflectedTypeDescriptor*>& ref_descriptors);
 };

@@ -5,30 +5,30 @@
 #include <MiniAudioPlugin/MiniAudioSingleton.h>
 #include <MiniAudioPlugin/Resources/MiniAudioSoundResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundResource, 1, ezRTTIDefaultAllocator<ezMiniAudioSoundResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioSoundResource, 1, WRTTIDefaultAllocator<WMiniAudioSoundResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMiniAudioSoundResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WMiniAudioSoundResource);
 
-ezMiniAudioSoundResource::ezMiniAudioSoundResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WMiniAudioSoundResource::WMiniAudioSoundResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezMiniAudioSoundResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WMiniAudioSoundResource);
 }
 
-ezMiniAudioSoundResource::~ezMiniAudioSoundResource() = default;
+WMiniAudioSoundResource::~WMiniAudioSoundResource() = default;
 
-const ezDataBuffer& ezMiniAudioSoundResource::GetAudioData() const
+const WDataBuffer& WMiniAudioSoundResource::GetAudioData() const
 {
   return m_AudioData[0];
 }
 
-const ezDataBuffer& ezMiniAudioSoundResource::GetAudioData(ezRandom& ref_rng) const
+const WDataBuffer& WMiniAudioSoundResource::GetAudioData(WRandom& ref_rng) const
 {
   return m_AudioData[ref_rng.UInt32Index(m_AudioData.GetCount())];
 }
 
-float ezMiniAudioSoundResource::GetVolume(ezRandom& ref_rng) const
+float WMiniAudioSoundResource::GetVolume(WRandom& ref_rng) const
 {
   if (m_fMinVolume < m_fMaxVolume)
     return ref_rng.FloatMinMax(m_fMinVolume, m_fMaxVolume);
@@ -36,7 +36,7 @@ float ezMiniAudioSoundResource::GetVolume(ezRandom& ref_rng) const
   return m_fMinVolume;
 }
 
-float ezMiniAudioSoundResource::GetPitch(ezRandom& ref_rng) const
+float WMiniAudioSoundResource::GetPitch(WRandom& ref_rng) const
 {
   if (m_fMinPitch < m_fMaxPitch)
     return ref_rng.FloatMinMax(m_fMinPitch, m_fMaxPitch);
@@ -44,11 +44,11 @@ float ezMiniAudioSoundResource::GetPitch(ezRandom& ref_rng) const
   return m_fMinPitch;
 }
 
-ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* pRng, ezWorld* pWorld, const ezComponentHandle& hComponent)
+WMiniAudioSoundInstance* WMiniAudioSoundResource::InstantiateSound(WRandom* pRng, WWorld* pWorld, const WComponentHandle& hComponent)
 {
-  ezMiniAudioSingleton* pMA = ezMiniAudioSingleton::GetSingleton();
+  WMiniAudioSingleton* pMA = WMiniAudioSingleton::GetSingleton();
 
-  ezMiniAudioSoundInstance* pInstance = nullptr;
+  WMiniAudioSoundInstance* pInstance = nullptr;
 
   ma_sound_group* pGroup = nullptr;
 
@@ -68,7 +68,7 @@ ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* p
 
 
 
-  EZ_MA_CHECK(ma_data_source_set_looping(&pInstance->m_Decoder, GetLoop()));
+  W_MA_CHECK(ma_data_source_set_looping(&pInstance->m_Decoder, GetLoop()));
 
   ma_sound_set_min_distance(&pInstance->m_Sound, GetMinDistance());
   // ma_sound_set_max_distance(&pInstance->m_Sound, GetMaxDistance());
@@ -80,44 +80,44 @@ ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* p
   return pInstance;
 }
 
-ezResourceLoadDesc ezMiniAudioSoundResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WMiniAudioSoundResource::UnloadData(Unload WhatToUnload)
 {
   m_AudioData.Clear();
   m_AudioData.Compact();
 
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezMiniAudioSoundResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WMiniAudioSoundResource);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezMiniAudioSoundResource::UpdateContent(ezStreamReader* pStream)
+WResourceLoadDesc WMiniAudioSoundResource::UpdateContent(WStreamReader* pStream)
 {
-  EZ_LOG_BLOCK("ezMiniAudioSoundResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WMiniAudioSoundResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (pStream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezString sAbsFilePath;
+  WString sAbsFilePath;
   (*pStream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*pStream).IgnoreResult();
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   *pStream >> uiVersion;
 
   *pStream >> m_bLoop;
@@ -132,28 +132,28 @@ ezResourceLoadDesc ezMiniAudioSoundResource::UpdateContent(ezStreamReader* pStre
   *pStream >> m_fDopplerFactor;
 
   if (m_fMinVolume > m_fMaxVolume)
-    ezMath::Swap(m_fMinVolume, m_fMaxVolume);
+    WMath::Swap(m_fMinVolume, m_fMaxVolume);
 
   if (m_fMinDistance > m_fMaxDistance)
-    ezMath::Swap(m_fMinDistance, m_fMaxDistance);
+    WMath::Swap(m_fMinDistance, m_fMaxDistance);
 
   if (m_fMinPitch > m_fMaxPitch)
-    ezMath::Swap(m_fMinPitch, m_fMaxPitch);
+    WMath::Swap(m_fMinPitch, m_fMaxPitch);
 
-  ezUInt32 uiNumFiles = 0;
+  WUInt32 uiNumFiles = 0;
   *pStream >> uiNumFiles;
 
   m_AudioData.SetCount(uiNumFiles);
 
-  for (ezUInt32 i = 0; i < uiNumFiles; ++i)
+  for (WUInt32 i = 0; i < uiNumFiles; ++i)
   {
-    ezUInt32 uiFileSize = 0;
+    WUInt32 uiFileSize = 0;
     *pStream >> uiFileSize;
 
     m_AudioData[i].SetCountUninitialized(uiFileSize);
     if (pStream->ReadBytes(m_AudioData[i].GetData(), uiFileSize) != uiFileSize)
     {
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
     }
   }
@@ -163,14 +163,14 @@ ezResourceLoadDesc ezMiniAudioSoundResource::UpdateContent(ezStreamReader* pStre
     *pStream >> m_sSoundGroup;
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-void ezMiniAudioSoundResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WMiniAudioSoundResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMiniAudioSoundResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WMiniAudioSoundResource);
   out_NewMemoryUsage.m_uiMemoryCPU += m_AudioData.GetHeapMemoryUsage();
 
   for (const auto& data : m_AudioData)
@@ -181,15 +181,15 @@ void ezMiniAudioSoundResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMiniAudioSoundResource, ezMiniAudioSoundResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WMiniAudioSoundResource, WMiniAudioSoundResourceDescriptor)
 {
   // have to create one 'missing' resource
-  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // W_REPORT_FAILURE("This resource type does not support creating data.");
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }

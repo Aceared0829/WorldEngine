@@ -2,26 +2,26 @@
 
 #include <RendererCore/Pipeline/Passes/SkyRenderPass.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkyRenderPass, 1, ezRTTIDefaultAllocator<ezSkyRenderPass>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkyRenderPass, 1, WRTTIDefaultAllocator<WSkyRenderPass>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSkyRenderPass::ezSkyRenderPass(const char* szName)
-  : ezForwardRenderPass(szName)
+WSkyRenderPass::WSkyRenderPass(const char* szName)
+  : WForwardRenderPass(szName)
 {
 }
 
-ezSkyRenderPass::~ezSkyRenderPass() = default;
+WSkyRenderPass::~WSkyRenderPass() = default;
 
-void ezSkyRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+void WSkyRenderPass::DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass)
 {
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::Sky, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::Sky, ref_graph, ref_pass);
 }
 
-void ezSkyRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
+void WSkyRenderPass::RenderObjects(const WRenderViewContext& renderViewContext)
 {
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Sky);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::Sky);
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SkyRenderPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SkyRenderPass);

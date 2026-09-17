@@ -9,13 +9,13 @@
 #include <GameEngine/Physics/WeightCategory.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtJoltProjectSettingsDlg : public ezQtDialog, public Ui_JoltProjectSettingsDlg
+class WQtJoltProjectSettingsDlg : public WQtDialog, public Ui_JoltProjectSettingsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtJoltProjectSettingsDlg(const ezVariant& startup = {}, QWidget* pParent = nullptr);
+  WQtJoltProjectSettingsDlg(const WVariant& startup = {}, QWidget* pParent = nullptr);
 
   static void EnsureConfigFileExists();
 
@@ -52,16 +52,16 @@ private:
   void SetupWeightTable();
   void SetupImpulseTable();
 
-  ezResult Save();
-  ezResult Load();
+  WResult Save();
+  WResult Load();
 
-  ezUInt32 m_IndexRemap[32];
-  ezHybridArray<ezHashedString, 32> m_RowToWeight;
-  ezHybridArray<ezHashedString, 32> m_RowToImpulse;
-  ezCollisionFilterConfig m_Config;
-  ezCollisionFilterConfig m_ConfigReset;
-  ezWeightCategoryConfig m_WeightConfig;
-  ezWeightCategoryConfig m_WeightConfigReset;
-  ezImpulseTypeConfig m_ImpulseConfig;
-  ezImpulseTypeConfig m_ImpulseConfigReset;
+  WUInt32 m_IndexRemap[32];
+  WHybridArray<WHashedString, 32> m_RowToWeight;
+  WHybridArray<WHashedString, 32> m_RowToImpulse;
+  WCollisionFilterConfig m_Config;
+  WCollisionFilterConfig m_ConfigReset;
+  WWeightCategoryConfig m_WeightConfig;
+  WWeightCategoryConfig m_WeightConfigReset;
+  WImpulseTypeConfig m_ImpulseConfig;
+  WImpulseTypeConfig m_ImpulseConfigReset;
 };

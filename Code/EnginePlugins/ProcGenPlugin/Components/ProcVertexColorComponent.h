@@ -4,112 +4,112 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgGenerateSplineMeshCollision;
-class ezMeshComponentBase;
-class ezProcVertexColorComponent;
-using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
+struct WMsgGenerateSplineMeshCollision;
+class WMeshComponentBase;
+class WProcVertexColorComponent;
+using WCpuMeshResourceHandle = WTypedResourceHandle<class WCpuMeshResource>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
+class W_PROCGENPLUGIN_DLL WProcVertexColorComponentManager : public WComponentManager<WProcVertexColorComponent, WBlockStorageType::Compact>
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezProcVertexColorComponentManager);
+  W_DISALLOW_COPY_AND_ASSIGN(WProcVertexColorComponentManager);
 
 public:
-  ezProcVertexColorComponentManager(ezWorld* pWorld);
-  ~ezProcVertexColorComponentManager();
+  WProcVertexColorComponentManager(WWorld* pWorld);
+  ~WProcVertexColorComponentManager();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
 private:
-  friend class ezProcVertexColorComponent;
+  friend class WProcVertexColorComponent;
 
   struct UpdateContext
   {
-    ezProcVertexColorComponent* m_pComponent = nullptr;
-    ezCpuMeshResourceHandle m_hCpuMesh;
-    ezUInt32 m_uiVertexColorOffset = 0;
+    WProcVertexColorComponent* m_pComponent = nullptr;
+    WCpuMeshResourceHandle m_hCpuMesh;
+    WUInt32 m_uiVertexColorOffset = 0;
   };
 
-  void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
-  bool UpdateComponentOutputs(ezProcVertexColorComponent& component);
-  void UpdateComponentVertexColors(const UpdateContext& context, ezGALDynamicBuffer& buffer);
+  void UpdateVertexColors(const WWorldModule::UpdateContext& context);
+  bool UpdateComponentOutputs(WProcVertexColorComponent& component);
+  void UpdateComponentVertexColors(const UpdateContext& context, WGALDynamicBuffer& buffer);
 
-  void EnqueueUpdate(ezProcVertexColorComponent& component);
-  void RemoveComponent(ezProcVertexColorComponent& component);
+  void EnqueueUpdate(WProcVertexColorComponent& component);
+  void RemoveComponent(WProcVertexColorComponent& component);
 
-  void OnResourceEvent(const ezResourceEvent& resourceEvent);
+  void OnResourceEvent(const WResourceEvent& resourceEvent);
 
-  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
+  void OnAreaInvalidated(const WProcGenInternal::InvalidatedArea& area);
 
-  ezGALDynamicBufferHandle GetVertexColorBuffer();
+  WGALDynamicBufferHandle GetVertexColorBuffer();
 
-  ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
-  ezDynamicArray<UpdateContext> m_UpdateContexts;
+  WDynamicArray<WComponentHandle> m_ComponentsToUpdate;
+  WDynamicArray<UpdateContext> m_UpdateContexts;
 
-  ezDynamicArray<ezSharedPtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
-  ezTaskGroupID m_UpdateTaskGroupID;
-  ezUInt32 m_uiNextTaskIndex = 0;
+  WDynamicArray<WSharedPtr<WProcGenInternal::VertexColorTask>> m_UpdateTasks;
+  WTaskGroupID m_UpdateTaskGroupID;
+  WUInt32 m_uiNextTaskIndex = 0;
 
-  ezUInt32 m_uiCustomDataIndex = 0;
+  WUInt32 m_uiCustomDataIndex = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezProcVertexColorOutputDesc
+struct WProcVertexColorOutputDesc
 {
-  ezHashedString m_sName;
-  ezProcVertexColorMapping m_Mapping;
+  WHashedString m_sName;
+  WProcVertexColorMapping m_Mapping;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorOutputDesc);
+W_DECLARE_REFLECTABLE_TYPE(W_PROCGENPLUGIN_DLL, WProcVertexColorOutputDesc);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezMsgTransformChanged;
+struct WMsgTransformChanged;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezComponent
+class W_PROCGENPLUGIN_DLL WProcVertexColorComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezComponent, ezProcVertexColorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcVertexColorComponent, WComponent, WProcVertexColorComponentManager);
 
 public:
-  ezProcVertexColorComponent();
-  ~ezProcVertexColorComponent();
+  WProcVertexColorComponent();
+  ~WProcVertexColorComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetResourceFile(ezStringView sFile);
-  ezStringView GetResourceFile() const;
+  void SetResourceFile(WStringView sFile);
+  WStringView GetResourceFile() const;
 
-  void SetResource(const ezProcGenGraphResourceHandle& hResource);
-  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
+  void SetResource(const WProcGenGraphResourceHandle& hResource);
+  const WProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
-  const ezProcVertexColorOutputDesc& GetOutputDesc(ezUInt32 uiIndex) const;
-  void SetOutputDesc(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
+  const WProcVertexColorOutputDesc& GetOutputDesc(WUInt32 uiIndex) const;
+  void SetOutputDesc(WUInt32 uiIndex, const WProcVertexColorOutputDesc& outputDesc);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnMsgTransformChanged(ezMsgTransformChanged& ref_msg);                               // [ msg handler ]
-  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
-  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg);         // [ msg handler ]
+  void OnMsgTransformChanged(WMsgTransformChanged& ref_msg);                               // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
+  void OnMsgGenerateSplineMeshCollision(WMsgGenerateSplineMeshCollision& ref_msg);         // [ msg handler ]
 
 private:
-  ezUInt32 OutputDescs_GetCount() const;
-  void OutputDescs_Insert(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
-  void OutputDescs_Remove(ezUInt32 uiIndex);
+  WUInt32 OutputDescs_GetCount() const;
+  void OutputDescs_Insert(WUInt32 uiIndex, const WProcVertexColorOutputDesc& outputDesc);
+  void OutputDescs_Remove(WUInt32 uiIndex);
 
   bool HasValidOutputs() const;
 
-  ezMeshComponentBase* GetMeshComponent();
+  WMeshComponentBase* GetMeshComponent();
 
-  ezProcGenGraphResourceHandle m_hResource;
-  ezSmallArray<ezProcVertexColorOutputDesc, 1> m_OutputDescs;
+  WProcGenGraphResourceHandle m_hResource;
+  WSmallArray<WProcVertexColorOutputDesc, 1> m_OutputDescs;
 
-  ezSmallArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>, 1> m_Outputs;
+  WSmallArray<WSharedPtr<const WProcGenInternal::VertexColorOutput>, 1> m_Outputs;
 
-  ezCustomInstanceDataOffset m_CustomInstanceDataOffset;
+  WCustomInstanceDataOffset m_CustomInstanceDataOffset;
 };

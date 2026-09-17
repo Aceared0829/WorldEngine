@@ -4,11 +4,11 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtCollectionAssetDocumentWindow : public ezQtDocumentWindow
+class WQtCollectionAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtCollectionAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtCollectionAssetDocumentWindow();
+  WQtCollectionAssetDocumentWindow(WDocument* pDocument);
+  ~WQtCollectionAssetDocumentWindow();
 };

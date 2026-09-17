@@ -3,118 +3,118 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-class ezPhantomConstantProperty : public ezAbstractConstantProperty
+class WPhantomConstantProperty : public WAbstractConstantProperty
 {
 public:
-  ezPhantomConstantProperty(const ezReflectedPropertyDescriptor* pDesc);
-  ~ezPhantomConstantProperty();
+  WPhantomConstantProperty(const WReflectedPropertyDescriptor* pDesc);
+  ~WPhantomConstantProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;
+  virtual const WRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer() const override;
-  virtual ezVariant GetConstant() const override { return m_Value; }
+  virtual WVariant GetConstant() const override { return m_Value; }
 
 private:
-  ezVariant m_Value;
-  ezString m_sPropertyNameStorage;
-  const ezRTTI* m_pPropertyType;
+  WVariant m_Value;
+  WString m_sPropertyNameStorage;
+  const WRTTI* m_pPropertyType;
 };
 
-class ezPhantomMemberProperty : public ezAbstractMemberProperty
+class WPhantomMemberProperty : public WAbstractMemberProperty
 {
 public:
-  ezPhantomMemberProperty(const ezReflectedPropertyDescriptor* pDesc);
-  ~ezPhantomMemberProperty();
+  WPhantomMemberProperty(const WReflectedPropertyDescriptor* pDesc);
+  ~WPhantomMemberProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;
+  virtual const WRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer(const void* pInstance) const override { return nullptr; }
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override {}
   virtual void SetValuePtr(void* pInstance, const void* pObject) const override {}
 
 private:
-  ezString m_sPropertyNameStorage;
-  const ezRTTI* m_pPropertyType;
+  WString m_sPropertyNameStorage;
+  const WRTTI* m_pPropertyType;
 };
 
-class ezPhantomFunctionProperty : public ezAbstractFunctionProperty
+class WPhantomFunctionProperty : public WAbstractFunctionProperty
 {
 public:
-  ezPhantomFunctionProperty(ezReflectedFunctionDescriptor* pDesc);
-  ~ezPhantomFunctionProperty();
+  WPhantomFunctionProperty(WReflectedFunctionDescriptor* pDesc);
+  ~WPhantomFunctionProperty();
 
-  virtual ezFunctionType::Enum GetFunctionType() const override;
-  virtual const ezRTTI* GetReturnType() const override;
-  virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override;
-  virtual ezUInt32 GetArgumentCount() const override;
-  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override;
-  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override;
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& ref_returnValue) const override;
+  virtual WFunctionType::Enum GetFunctionType() const override;
+  virtual const WRTTI* GetReturnType() const override;
+  virtual WBitflags<WPropertyFlags> GetReturnFlags() const override;
+  virtual WUInt32 GetArgumentCount() const override;
+  virtual const WRTTI* GetArgumentType(WUInt32 uiParamIndex) const override;
+  virtual WBitflags<WPropertyFlags> GetArgumentFlags(WUInt32 uiParamIndex) const override;
+  virtual void Execute(void* pInstance, WArrayPtr<WVariant> values, WVariant& ref_returnValue) const override;
 
 private:
-  ezString m_sPropertyNameStorage;
-  ezEnum<ezFunctionType> m_FunctionType;
-  ezFunctionArgumentDescriptor m_ReturnValue;
-  ezDynamicArray<ezFunctionArgumentDescriptor> m_Arguments;
+  WString m_sPropertyNameStorage;
+  WEnum<WFunctionType> m_FunctionType;
+  WFunctionArgumentDescriptor m_ReturnValue;
+  WDynamicArray<WFunctionArgumentDescriptor> m_Arguments;
 };
 
 
-class ezPhantomArrayProperty : public ezAbstractArrayProperty
+class WPhantomArrayProperty : public WAbstractArrayProperty
 {
 public:
-  ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc);
-  ~ezPhantomArrayProperty();
+  WPhantomArrayProperty(const WReflectedPropertyDescriptor* pDesc);
+  ~WPhantomArrayProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;
-  virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
-  virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override {}
-  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) const override {}
-  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) const override {}
-  virtual void Remove(void* pInstance, ezUInt32 uiIndex) const override {}
+  virtual const WRTTI* GetSpecificType() const override;
+  virtual WUInt32 GetCount(const void* pInstance) const override { return 0; }
+  virtual void GetValue(const void* pInstance, WUInt32 uiIndex, void* pObject) const override {}
+  virtual void SetValue(void* pInstance, WUInt32 uiIndex, const void* pObject) const override {}
+  virtual void Insert(void* pInstance, WUInt32 uiIndex, const void* pObject) const override {}
+  virtual void Remove(void* pInstance, WUInt32 uiIndex) const override {}
   virtual void Clear(void* pInstance) const override {}
-  virtual void SetCount(void* pInstance, ezUInt32 uiCount) const override {}
+  virtual void SetCount(void* pInstance, WUInt32 uiCount) const override {}
 
 
 private:
-  ezString m_sPropertyNameStorage;
-  const ezRTTI* m_pPropertyType;
+  WString m_sPropertyNameStorage;
+  const WRTTI* m_pPropertyType;
 };
 
 
-class ezPhantomSetProperty : public ezAbstractSetProperty
+class WPhantomSetProperty : public WAbstractSetProperty
 {
 public:
-  ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc);
-  ~ezPhantomSetProperty();
+  WPhantomSetProperty(const WReflectedPropertyDescriptor* pDesc);
+  ~WPhantomSetProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;
+  virtual const WRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
   virtual void Clear(void* pInstance) const override {}
   virtual void Insert(void* pInstance, const void* pObject) const override {}
   virtual void Remove(void* pInstance, const void* pObject) const override {}
   virtual bool Contains(const void* pInstance, const void* pObject) const override { return false; }
-  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override {}
+  virtual void GetValues(const void* pInstance, WDynamicArray<WVariant>& out_keys) const override {}
 
 private:
-  ezString m_sPropertyNameStorage;
-  const ezRTTI* m_pPropertyType;
+  WString m_sPropertyNameStorage;
+  const WRTTI* m_pPropertyType;
 };
 
 
-class ezPhantomMapProperty : public ezAbstractMapProperty
+class WPhantomMapProperty : public WAbstractMapProperty
 {
 public:
-  ezPhantomMapProperty(const ezReflectedPropertyDescriptor* pDesc);
-  ~ezPhantomMapProperty();
+  WPhantomMapProperty(const WReflectedPropertyDescriptor* pDesc);
+  ~WPhantomMapProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;
+  virtual const WRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
   virtual void Clear(void* pInstance) const override {}
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override {}
   virtual void Remove(void* pInstance, const char* szKey) const override {}
   virtual bool Contains(const void* pInstance, const char* szKey) const override { return false; }
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override { return false; }
-  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override {}
+  virtual void GetKeys(const void* pInstance, WHybridArray<WString, 16>& out_keys) const override {}
 
 private:
-  ezString m_sPropertyNameStorage;
-  const ezRTTI* m_pPropertyType;
+  WString m_sPropertyNameStorage;
+  const WRTTI* m_pPropertyType;
 };

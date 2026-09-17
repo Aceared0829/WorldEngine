@@ -14,7 +14,7 @@
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <RmlUi/Include/RmlUi/Debugger/DebuggerFunctionTable.h>
 
@@ -28,14 +28,14 @@ void FillDebuggerFunctionTable()
   auto hModule = LoadLibraryW(L"RmlDebugger.dll");
   if (hModule == nullptr)
   {
-    ezLog::Error("Could not load RmlDebugger.dll");
+    WLog::Error("Could not load RmlDebugger.dll");
     return;
   }
 
   auto func = (GetFunctionsFunc)GetProcAddress(hModule, "Rml_Debugger_GetFunctions");
   if (func == nullptr)
   {
-    ezLog::Error("Could not find Rml_Debugger_GetFunctions in RmlDebugger.dll");
+    WLog::Error("Could not find Rml_Debugger_GetFunctions in RmlDebugger.dll");
     return;
   }
 
@@ -45,112 +45,112 @@ void FillDebuggerFunctionTable()
 #endif
 
 
-ezResult ezRmlUiConfiguration::Save(ezStringView sFile) const
+WResult WRmlUiConfiguration::Save(WStringView sFile) const
 {
-  EZ_LOG_BLOCK("ezRmlUiConfiguration::Save()");
+  W_LOG_BLOCK("WRmlUiConfiguration::Save()");
 
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&file);
   writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
 
   writer.BeginObject("Fonts");
   for (auto& font : m_Fonts)
   {
-    ezOpenDdlUtils::StoreString(writer, font);
+    WOpenDdlUtils::StoreString(writer, font);
   }
   writer.EndObject();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRmlUiConfiguration::Load(ezStringView sFile)
+WResult WRmlUiConfiguration::Load(WStringView sFile)
 {
-  EZ_LOG_BLOCK("ezRmlUiConfiguration::Load()");
+  W_LOG_BLOCK("WRmlUiConfiguration::Load()");
 
   m_Fonts.Clear();
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  WOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, WLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse RmlUi config file '{0}'", sFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to parse RmlUi config file '{0}'", sFile);
+    return W_FAILURE;
   }
 
-  const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
+  const WOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pChild = pTree->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+  for (const WOpenDdlReaderElement* pChild = pTree->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
   {
     if (pChild->IsCustomType("Fonts"))
     {
-      for (const ezOpenDdlReaderElement* pFont = pChild->GetFirstChild(); pFont != nullptr; pFont = pFont->GetSibling())
+      for (const WOpenDdlReaderElement* pFont = pChild->GetFirstChild(); pFont != nullptr; pFont = pFont->GetSibling())
       {
         m_Fonts.PushBack(pFont->GetPrimitivesString()[0]);
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezRmlUiConfiguration::operator==(const ezRmlUiConfiguration& rhs) const
+bool WRmlUiConfiguration::operator==(const WRmlUiConfiguration& rhs) const
 {
   return m_Fonts == rhs.m_Fonts;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_SINGLETON(ezRmlUi);
+W_IMPLEMENT_SINGLETON(WRmlUi);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarString cvar_RmlUiDebugContext("RmlUi.DebugContext", "", ezCVarFlags::Default, "Sets the name of the context that should be debugged");
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+WCVarString cvar_RmlUiDebugContext("RmlUi.DebugContext", "", WCVarFlags::Default, "Sets the name of the context that should be debugged");
 
-bool ShouldDebugContext(const ezRmlUiContext& context)
+bool ShouldDebugContext(const WRmlUiContext& context)
 {
   if (cvar_RmlUiDebugContext.GetValue().IsEmpty())
     return false;
 
-  ezStringView sContextName = ezRmlUiConversionUtils::ToStringView(context.GetName());
+  WStringView sContextName = WRmlUiConversionUtils::ToStringView(context.GetName());
   return sContextName.FindSubString_NoCase(cvar_RmlUiDebugContext.GetValue()) != nullptr;
 }
 #endif
 
-struct ezRmlUi::Data
+struct WRmlUi::Data
 {
-  ezMutex m_ExtractionMutex;
-  ezRmlUiInternal::RenderInterface m_RenderInterface;
+  WMutex m_ExtractionMutex;
+  WRmlUiInternal::RenderInterface m_RenderInterface;
 
-  ezRmlUiInternal::FileInterface m_FileInterface;
-  ezRmlUiInternal::SystemInterface m_SystemInterface;
+  WRmlUiInternal::FileInterface m_FileInterface;
+  WRmlUiInternal::SystemInterface m_SystemInterface;
 
-  ezRmlUiInternal::ContextInstancer m_ContextInstancer;
-  ezRmlUiInternal::EventListenerInstancer m_EventListenerInstancer;
+  WRmlUiInternal::ContextInstancer m_ContextInstancer;
+  WRmlUiInternal::EventListenerInstancer m_EventListenerInstancer;
 
-  ezMutex m_ContextsMutex;
-  ezDynamicArray<ezRmlUiContext*> m_Contexts;
+  WMutex m_ContextsMutex;
+  WDynamicArray<WRmlUiContext*> m_Contexts;
 
-  ezUInt64 m_uiLastClearedCacheFrame = 0;
+  WUInt64 m_uiLastClearedCacheFrame = 0;
 
-  ezRmlUiConfiguration m_Config;
+  WRmlUiConfiguration m_Config;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   bool m_bDebuggerInitialized = false;
-  ezEventSubscriptionID m_DebugCVarEventHandler;
+  WEventSubscriptionID m_DebugCVarEventHandler;
 #endif
 };
 
-ezRmlUi::ezRmlUi()
+WRmlUi::WRmlUi()
   : m_SingletonRegistrar(this)
 {
-  m_pData = EZ_DEFAULT_NEW(Data);
+  m_pData = W_DEFAULT_NEW(Data);
 
   Rml::SetRenderInterface(&m_pData->m_RenderInterface);
   Rml::SetFileInterface(&m_pData->m_FileInterface);
@@ -163,7 +163,7 @@ ezRmlUi::ezRmlUi()
 
   if (m_pData->m_Config.Load().Failed())
   {
-    ezLog::Warning("No valid RmlUi configuration file available in '{}'.", ezRmlUiConfiguration::s_sConfigFile);
+    WLog::Warning("No valid RmlUi configuration file available in '{}'.", WRmlUiConfiguration::s_sConfigFile);
     return;
   }
 
@@ -174,25 +174,25 @@ ezRmlUi::ezRmlUi()
 
     if (Rml::LoadFontFace(font.GetData(), bIsFallbackFont) == false)
     {
-      ezLog::Warning("Failed to load font face '{0}'.", font);
+      WLog::Warning("Failed to load font face '{0}'.", font);
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   m_pData->m_DebugCVarEventHandler = cvar_RmlUiDebugContext.m_CVarEvents.AddEventHandler(
-    [this](const ezCVarEvent& e)
+    [this](const WCVarEvent& e)
     {
-      if (e.m_EventType != ezCVarEvent::ValueChanged)
+      if (e.m_EventType != WCVarEvent::ValueChanged)
         return;
 
-      ezStringView sContextName = cvar_RmlUiDebugContext.GetValue();
+      WStringView sContextName = cvar_RmlUiDebugContext.GetValue();
       if (sContextName.IsEmpty())
       {
         DebugContext(nullptr);
         return;
       }
 
-      EZ_LOCK(m_pData->m_ContextsMutex);
+      W_LOCK(m_pData->m_ContextsMutex);
 
       for (auto pContext : m_pData->m_Contexts)
       {
@@ -208,39 +208,39 @@ ezRmlUi::ezRmlUi()
 #endif
 }
 
-ezRmlUi::~ezRmlUi()
+WRmlUi::~WRmlUi()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   cvar_RmlUiDebugContext.m_CVarEvents.RemoveEventHandler(m_pData->m_DebugCVarEventHandler);
 #endif
 
   Rml::Shutdown();
 }
 
-ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& vInitialSize)
+WRmlUiContext* WRmlUi::CreateContext(const char* szName, const WVec2U32& vInitialSize)
 {
-  EZ_LOCK(m_pData->m_ContextsMutex);
+  W_LOCK(m_pData->m_ContextsMutex);
 
-  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(vInitialSize.x, vInitialSize.y)));
-  EZ_ASSERT_DEV(pContext != nullptr, "RML UI context creation failed");
+  WRmlUiContext* pContext = static_cast<WRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(vInitialSize.x, vInitialSize.y)));
+  W_ASSERT_DEV(pContext != nullptr, "RML UI context creation failed");
 
   m_pData->m_Contexts.PushBack(pContext);
 
   return pContext;
 }
 
-void ezRmlUi::DeleteContext(ezRmlUiContext* pContext)
+void WRmlUi::DeleteContext(WRmlUiContext* pContext)
 {
-  EZ_LOCK(m_pData->m_ContextsMutex);
+  W_LOCK(m_pData->m_ContextsMutex);
 
   m_pData->m_Contexts.RemoveAndCopy(pContext);
 
   Rml::RemoveContext(pContext->GetName());
 }
 
-bool ezRmlUi::AnyContextWantsInput()
+bool WRmlUi::AnyContextWantsInput()
 {
-  EZ_LOCK(m_pData->m_ContextsMutex);
+  W_LOCK(m_pData->m_ContextsMutex);
 
   for (auto pContext : m_pData->m_Contexts)
   {
@@ -251,33 +251,33 @@ bool ezRmlUi::AnyContextWantsInput()
   return false;
 }
 
-ezResult ezRmlUi::LoadDocumentFromResource(ezRmlUiContext& ref_context, const ezRmlUiResourceHandle& hResource)
+WResult WRmlUi::LoadDocumentFromResource(WRmlUiContext& ref_context, const WRmlUiResourceHandle& hResource)
 {
   UnloadDocument(ref_context);
 
   if (hResource.IsValid())
   {
-    ezResourceLock<ezRmlUiResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
-    if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WRmlUiResource> pResource(hResource, WResourceAcquireMode::BlockTillLoaded);
+    if (pResource.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
-      EZ_LOCK(m_pData->m_ContextsMutex);
+      W_LOCK(m_pData->m_ContextsMutex);
 
       ref_context.LoadDocument(pResource->GetRmlFile().GetData());
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   if (ref_context.HasDocument() && ShouldDebugContext(ref_context))
   {
     DebugContext(&ref_context);
   }
 #endif
 
-  return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ref_context.HasDocument() ? W_SUCCESS : W_FAILURE;
 }
 
-ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& ref_context, const ezStringView& sContent)
+WResult WRmlUi::LoadDocumentFromString(WRmlUiContext& ref_context, const WStringView& sContent)
 {
   UnloadDocument(ref_context);
 
@@ -286,71 +286,71 @@ ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& ref_context, const ezSt
     Rml::String sRmlContent = Rml::String(sContent.GetStartPointer(), sContent.GetElementCount());
 
     // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
-    EZ_LOCK(m_pData->m_ContextsMutex);
+    W_LOCK(m_pData->m_ContextsMutex);
 
     ref_context.LoadDocumentFromMemory(sRmlContent);
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   if (ref_context.HasDocument() && ShouldDebugContext(ref_context))
   {
     DebugContext(&ref_context);
   }
 #endif
 
-  return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ref_context.HasDocument() ? W_SUCCESS : W_FAILURE;
 }
 
-void ezRmlUi::UnloadDocument(ezRmlUiContext& ref_context)
+void WRmlUi::UnloadDocument(WRmlUiContext& ref_context)
 {
   if (ref_context.HasDocument())
   {
     // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
-    EZ_LOCK(m_pData->m_ContextsMutex);
+    W_LOCK(m_pData->m_ContextsMutex);
 
     static_cast<Rml::Context&>(ref_context).UnloadDocument(ref_context.GetDocument(0));
   }
 }
 
-void ezRmlUi::ClearCaches()
+void WRmlUi::ClearCaches()
 {
-  ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  WUInt64 uiCurrentFrame = WRenderWorld::GetFrameCounter();
   if (uiCurrentFrame == m_pData->m_uiLastClearedCacheFrame)
     return;
 
   m_pData->m_uiLastClearedCacheFrame = uiCurrentFrame;
 
-  EZ_LOCK(m_pData->m_ContextsMutex);
+  W_LOCK(m_pData->m_ContextsMutex);
   Rml::Factory::ClearStyleSheetCache();
   Rml::Factory::ClearTemplateCache();
 }
 
-void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture)
+void WRmlUi::ExtractContext(WRmlUiContext& ref_context, WGALTextureHandle hTexture)
 {
   if (ref_context.HasDocument() == false)
     return;
 
   // Unfortunately we need to hold a lock for the whole extraction of a context since RmlUi is not thread safe.
-  EZ_LOCK(m_pData->m_ExtractionMutex);
+  W_LOCK(m_pData->m_ExtractionMutex);
 
   ref_context.ExtractRenderData(m_pData->m_RenderInterface, hTexture);
 }
 
-ezMutex& ezRmlUi::GetContextMutex()
+WMutex& WRmlUi::GetContextMutex()
 {
   return m_pData->m_ContextsMutex;
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-void ezRmlUi::DebugContext(ezRmlUiContext* pContext)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+void WRmlUi::DebugContext(WRmlUiContext* pContext)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if W_ENABLED(W_PLATFORM_WINDOWS)
   FillDebuggerFunctionTable();
 
   if (s_DebuggerFunctions.m_InitFunc == nullptr)
     return;
 
-  EZ_LOCK(m_pData->m_ContextsMutex);
+  W_LOCK(m_pData->m_ContextsMutex);
 
   if (m_pData->m_bDebuggerInitialized)
   {
@@ -365,10 +365,10 @@ void ezRmlUi::DebugContext(ezRmlUiContext* pContext)
     m_pData->m_bDebuggerInitialized = true;
   }
 #  else
-  ezLog::Error("RmlUi debugger is only available on Windows.");
+  WLog::Error("RmlUi debugger is only available on Windows.");
 #  endif
 }
 #endif
 
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiSingleton);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiSingleton);

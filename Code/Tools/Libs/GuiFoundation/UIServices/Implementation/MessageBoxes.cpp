@@ -5,18 +5,18 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-const char* ezQtUiServices::GetOwnVersionString()
+const char* WQtUiServices::GetOwnVersionString()
 {
-  return EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MAJOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MINOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_PATCH);
+  return W_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MAJOR) "." W_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MINOR) "." W_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_PATCH);
 }
 
-void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
+void WQtUiServices::MessageBoxStatus(const WStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
 {
-  ezStringBuilder sResult;
+  WStringBuilder sResult;
 
   if (s.Succeeded())
   {
-    if (ezStringUtils::IsNullOrEmpty(szSuccessMsg))
+    if (WStringUtils::IsNullOrEmpty(szSuccessMsg))
       return;
 
     if (bOnlySuccessMsgIfDetails && s.GetMessageString().IsEmpty())
@@ -40,16 +40,16 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
   }
 }
 
-void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringView sDontShowAgainID)
+void WQtUiServices::MessageBoxInformation(const WFormatString& msg, WStringView sDontShowAgainID)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   if (IsUnattended())
-    ReportSuppressedDialog(ezStringBuilder("Information: ", msg.GetText(tmp)));
+    ReportSuppressedDialog(WStringBuilder("Information: ", msg.GetText(tmp)));
   else
   {
     QMessageBox box(QApplication::activeWindow());
-    box.setWindowTitle(ezApplication::GetApplicationInstance()->GetApplicationName().GetData());
+    box.setWindowTitle(WApplication::GetApplicationInstance()->GetApplicationName().GetData());
     box.setText(QString::fromUtf8(msg.GetTextCStr(tmp)));
     box.setIcon(QMessageBox::Icon::Information);
 
@@ -59,7 +59,7 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringVi
 
     if (!sDontShowAgainID.IsEmpty())
     {
-      ShowAllDocumentsTemporaryStatusBarMessage(msg, ezTime::Seconds(3));
+      ShowAllDocumentsTemporaryStatusBarMessage(msg, WTime::Seconds(3));
 
       if (Settings.value(sDontShowAgainID.GetData(tmp), 0) != 0)
       {
@@ -79,31 +79,31 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringVi
   }
 }
 
-void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
+void WQtUiServices::MessageBoxWarning(const WFormatString& msg)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   if (IsUnattended())
-    ReportSuppressedDialog(ezStringBuilder("Warning: ", msg.GetText(tmp)));
+    ReportSuppressedDialog(WStringBuilder("Warning: ", msg.GetText(tmp)));
   else
   {
-    QMessageBox::warning(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
+    QMessageBox::warning(QApplication::activeWindow(), WApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
   }
 }
 
-QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton)
+QMessageBox::StandardButton WQtUiServices::MessageBoxQuestion(const WFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton)
 {
   if (IsUnattended())
   {
-    ezStringBuilder tmp;
-    ReportSuppressedDialog(ezStringBuilder("Question, answered automatically: ", msg.GetText(tmp)));
+    WStringBuilder tmp;
+    ReportSuppressedDialog(WStringBuilder("Question, answered automatically: ", msg.GetText(tmp)));
 
     return unattendedButton;
   }
   else
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
-    return QMessageBox::question(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), buttons, defaultButton);
+    return QMessageBox::question(QApplication::activeWindow(), WApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), buttons, defaultButton);
   }
 }

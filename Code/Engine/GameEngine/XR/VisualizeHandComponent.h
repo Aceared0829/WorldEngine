@@ -4,15 +4,15 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezVisualizeHandComponentManager = ezComponentManagerSimple<class ezVisualizeHandComponent, ezComponentUpdateType::WhenSimulating>;
+using WVisualizeHandComponentManager = WComponentManagerSimple<class WVisualizeHandComponent, WComponentUpdateType::WhenSimulating>;
 
-class EZ_GAMEENGINE_DLL ezVisualizeHandComponent : public ezComponent
+class W_GAMEENGINE_DLL WVisualizeHandComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezVisualizeHandComponent, ezComponent, ezVisualizeHandComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WVisualizeHandComponent, WComponent, WVisualizeHandComponentManager);
 
 public:
-  ezVisualizeHandComponent();
-  ~ezVisualizeHandComponent();
+  WVisualizeHandComponent();
+  ~WVisualizeHandComponent();
 
 protected:
   void Update();

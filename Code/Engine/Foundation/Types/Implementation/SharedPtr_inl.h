@@ -1,6 +1,6 @@
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr()
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr()
 {
   m_pInstance = nullptr;
   m_pAllocator = nullptr;
@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr()
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezInternal::NewInstance<U>& instance)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(const WInternal::NewInstance<U>& instance)
 {
   m_pInstance = instance.m_pInstance;
   m_pAllocator = instance.m_pAllocator;
@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezInternal::NewInstance<U>& i
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocator* pAllocator)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(U* pInstance, WAllocator* pAllocator)
 {
   m_pInstance = pInstance;
   m_pAllocator = pAllocator;
@@ -27,7 +27,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocator* pAllocat
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezSharedPtr<T>& other)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(const WSharedPtr<T>& other)
 {
   m_pInstance = other.m_pInstance;
   m_pAllocator = other.m_pAllocator;
@@ -37,7 +37,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezSharedPtr<T>& other)
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezSharedPtr<U>& other)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(const WSharedPtr<U>& other)
 {
   m_pInstance = other.m_pInstance;
   m_pAllocator = other.m_pAllocator;
@@ -47,7 +47,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezSharedPtr<U>& other)
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(ezSharedPtr<U>&& other)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(WSharedPtr<U>&& other)
 {
   m_pInstance = other.m_pInstance;
   m_pAllocator = other.m_pAllocator;
@@ -58,7 +58,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(ezSharedPtr<U>&& other)
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(ezUniquePtr<U>&& other)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(WUniquePtr<U>&& other)
 {
   m_pInstance = other.Release(m_pAllocator);
 
@@ -66,21 +66,21 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(ezUniquePtr<U>&& other)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(std::nullptr_t)
+W_ALWAYS_INLINE WSharedPtr<T>::WSharedPtr(std::nullptr_t)
 {
   m_pInstance = nullptr;
   m_pAllocator = nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::~ezSharedPtr()
+W_ALWAYS_INLINE WSharedPtr<T>::~WSharedPtr()
 {
   ReleaseReferenceIfValid();
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(const WInternal::NewInstance<U>& instance)
 {
   ReleaseReferenceIfValid();
 
@@ -93,7 +93,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezInternal::New
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<T>& other)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(const WSharedPtr<T>& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -110,7 +110,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<T>&
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<U>& other)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(const WSharedPtr<U>& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -127,7 +127,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<U>&
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezSharedPtr<U>&& other)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(WSharedPtr<U>&& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -145,7 +145,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezSharedPtr<U>&& othe
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezUniquePtr<U>&& other)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(WUniquePtr<U>&& other)
 {
   ReleaseReferenceIfValid();
 
@@ -157,7 +157,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezUniquePtr<U>&& othe
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(std::nullptr_t)
+W_ALWAYS_INLINE WSharedPtr<T>& WSharedPtr<T>::operator=(std::nullptr_t)
 {
   ReleaseReferenceIfValid();
 
@@ -165,121 +165,121 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(std::nullptr_t)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezSharedPtr<T>::Borrow() const
+W_ALWAYS_INLINE T* WSharedPtr<T>::Borrow() const
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::Clear()
+W_ALWAYS_INLINE void WSharedPtr<T>::Clear()
 {
   ReleaseReferenceIfValid();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T& ezSharedPtr<T>::operator*() const
+W_ALWAYS_INLINE T& WSharedPtr<T>::operator*() const
 {
   return *m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezSharedPtr<T>::operator->() const
+W_ALWAYS_INLINE T* WSharedPtr<T>::operator->() const
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::operator const T*() const
+W_ALWAYS_INLINE WSharedPtr<T>::operator const T*() const
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::operator T*()
+W_ALWAYS_INLINE WSharedPtr<T>::operator T*()
 {
   return m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::operator bool() const
+W_ALWAYS_INLINE WSharedPtr<T>::operator bool() const
 {
   return m_pInstance != nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator==(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator==(const WSharedPtr<T>& rhs) const
 {
   return m_pInstance == rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator!=(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator!=(const WSharedPtr<T>& rhs) const
 {
   return m_pInstance != rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator<(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator<(const WSharedPtr<T>& rhs) const
 {
   return m_pInstance < rhs.m_pInstance;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator<=(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator<=(const WSharedPtr<T>& rhs) const
 {
   return !(rhs < *this);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator>(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator>(const WSharedPtr<T>& rhs) const
 {
   return rhs < *this;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator>=(const ezSharedPtr<T>& rhs) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator>=(const WSharedPtr<T>& rhs) const
 {
   return !(*this < rhs);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator==(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator==(std::nullptr_t) const
 {
   return m_pInstance == nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator!=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator!=(std::nullptr_t) const
 {
   return m_pInstance != nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator<(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator<(std::nullptr_t) const
 {
   return m_pInstance < nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator<=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator<=(std::nullptr_t) const
 {
   return m_pInstance <= nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator>(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator>(std::nullptr_t) const
 {
   return m_pInstance > nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezSharedPtr<T>::operator>=(std::nullptr_t) const
+W_ALWAYS_INLINE bool WSharedPtr<T>::operator>=(std::nullptr_t) const
 {
   return m_pInstance >= nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::AddReferenceIfValid()
+W_ALWAYS_INLINE void WSharedPtr<T>::AddReferenceIfValid()
 {
   if (m_pInstance != nullptr)
   {
@@ -288,15 +288,15 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::AddReferenceIfValid()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
+W_ALWAYS_INLINE void WSharedPtr<T>::ReleaseReferenceIfValid()
 {
   if (m_pInstance != nullptr)
   {
     if (m_pInstance->ReleaseRef() == 0)
     {
-      auto pNonConstInstance = const_cast<typename ezTypeTraits<T>::NonConstType*>(m_pInstance);
-      EZ_ASSERT_DEV(m_pAllocator != nullptr, "Fake shared pointers should never be released");
-      EZ_DELETE(m_pAllocator, pNonConstInstance);
+      auto pNonConstInstance = const_cast<typename WTypeTraits<T>::NonConstType*>(m_pInstance);
+      W_ASSERT_DEV(m_pAllocator != nullptr, "Fake shared pointers should never be released");
+      W_DELETE(m_pAllocator, pNonConstInstance);
     }
 
     m_pInstance = nullptr;

@@ -6,32 +6,32 @@
 #include <Core/World/World.h>
 #include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 
-using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassResource>;
-class ezScriptInstance;
+using WScriptClassResourceHandle = WTypedResourceHandle<class WScriptClassResource>;
+class WScriptInstance;
 
 /// World module responsible for script execution and coroutine management.
 ///
 /// Handles the execution of script functions, manages script coroutines,
 /// and provides scheduling for script update functions. This module ensures
 /// scripts are properly integrated with the world update cycle.
-class EZ_CORE_DLL ezScriptWorldModule : public ezWorldModule
+class W_CORE_DLL WScriptWorldModule : public WWorldModule
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezScriptWorldModule, ezWorldModule);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezScriptWorldModule);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WScriptWorldModule, WWorldModule);
+  W_DISALLOW_COPY_AND_ASSIGN(WScriptWorldModule);
 
 public:
-  ezScriptWorldModule(ezWorld* pWorld);
-  ~ezScriptWorldModule();
+  WScriptWorldModule(WWorld* pWorld);
+  ~WScriptWorldModule();
 
   virtual void Initialize() override;
   virtual void WorldClear() override;
 
   /// Schedules a script function to be called at regular intervals.
-  void AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating);
+  void AddUpdateFunctionToSchedule(const WAbstractFunctionProperty* pFunction, void* pInstance, WTime updateInterval, bool bOnlyWhenSimulating);
 
   /// Removes a previously scheduled script function from the scheduler.
-  void RemoveUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance);
+  void RemoveUpdateFunctionToSchedule(const WAbstractFunctionProperty* pFunction, void* pInstance);
 
   /// \name Coroutine Functions
   ///@{
@@ -40,45 +40,45 @@ public:
   ///
   /// Returns an invalid handle if the creationMode prevents creating a new coroutine
   /// and there is already a coroutine running with the same name on the given instance.
-  ezScriptCoroutineHandle CreateCoroutine(const ezRTTI* pCoroutineType, ezStringView sName, ezScriptInstance& inout_instance, ezScriptCoroutineCreationMode::Enum creationMode, ezScriptCoroutine*& out_pCoroutine);
+  WScriptCoroutineHandle CreateCoroutine(const WRTTI* pCoroutineType, WStringView sName, WScriptInstance& inout_instance, WScriptCoroutineCreationMode::Enum creationMode, WScriptCoroutine*& out_pCoroutine);
 
   /// Starts the coroutine with the given arguments.
   ///
   /// Calls the Start() function and then UpdateAndSchedule() once on the coroutine object.
-  void StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezArrayPtr<ezVariant> arguments);
+  void StartCoroutine(WScriptCoroutineHandle hCoroutine, WArrayPtr<WVariant> arguments);
 
   /// Stops and deletes the coroutine.
   ///
   /// Calls the Stop() function and deletes the coroutine on the next update cycle.
-  void StopAndDeleteCoroutine(ezScriptCoroutineHandle hCoroutine);
+  void StopAndDeleteCoroutine(WScriptCoroutineHandle hCoroutine);
 
   /// Stops and deletes all coroutines with the given name on the specified instance.
-  void StopAndDeleteCoroutine(ezStringView sName, ezScriptInstance* pInstance);
+  void StopAndDeleteCoroutine(WStringView sName, WScriptInstance* pInstance);
 
   /// Stops and deletes all coroutines on the specified instance.
-  void StopAndDeleteAllCoroutines(ezScriptInstance* pInstance);
+  void StopAndDeleteAllCoroutines(WScriptInstance* pInstance);
 
   /// Returns whether the coroutine has finished or been stopped.
-  bool IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine) const;
+  bool IsCoroutineFinished(WScriptCoroutineHandle hCoroutine) const;
 
   ///@}
 
   /// Returns a shared expression VM for custom script implementations.
   ///
   /// The VM is NOT thread safe - only execute one expression at a time.
-  ezExpressionVM& GetSharedExpressionVM() { return m_SharedExpressionVM; }
+  WExpressionVM& GetSharedExpressionVM() { return m_SharedExpressionVM; }
 
   /// Context information for scheduled script functions.
   struct FunctionContext
   {
     /// Flags controlling when the function should be executed.
-    enum Flags : ezUInt8
+    enum Flags : WUInt8
     {
       None,              ///< Execute always
       OnlyWhenSimulating ///< Execute only during simulation
     };
 
-    ezPointerWithFlags<const ezAbstractFunctionProperty, 1> m_pFunctionAndFlags;
+    WPointerWithFlags<const WAbstractFunctionProperty, 1> m_pFunctionAndFlags;
     void* m_pInstance = nullptr;
 
     bool operator==(const FunctionContext& other) const
@@ -88,28 +88,28 @@ public:
   };
 
 private:
-  void CallUpdateFunctions(const ezWorldModule::UpdateContext& context);
+  void CallUpdateFunctions(const WWorldModule::UpdateContext& context);
 
-  ezIntervalScheduler<FunctionContext> m_Scheduler;
+  WIntervalScheduler<FunctionContext> m_Scheduler;
 
-  ezIdTable<ezScriptCoroutineId, ezUniquePtr<ezScriptCoroutine>> m_RunningScriptCoroutines;
-  ezHashTable<ezScriptInstance*, ezSmallArray<ezScriptCoroutineHandle, 8>> m_InstanceToScriptCoroutines;
-  ezDynamicArray<ezUniquePtr<ezScriptCoroutine>> m_DeadScriptCoroutines;
+  WIdTable<WScriptCoroutineId, WUniquePtr<WScriptCoroutine>> m_RunningScriptCoroutines;
+  WHashTable<WScriptInstance*, WSmallArray<WScriptCoroutineHandle, 8>> m_InstanceToScriptCoroutines;
+  WDynamicArray<WUniquePtr<WScriptCoroutine>> m_DeadScriptCoroutines;
 
-  ezExpressionVM m_SharedExpressionVM;
+  WExpressionVM m_SharedExpressionVM;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 template <>
-struct ezHashHelper<ezScriptWorldModule::FunctionContext>
+struct WHashHelper<WScriptWorldModule::FunctionContext>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezScriptWorldModule::FunctionContext& value)
+  W_ALWAYS_INLINE static WUInt32 Hash(const WScriptWorldModule::FunctionContext& value)
   {
-    ezUInt32 hash = ezHashHelper<const void*>::Hash(value.m_pFunctionAndFlags);
-    hash = ezHashingUtils::CombineHashValues32(hash, ezHashHelper<void*>::Hash(value.m_pInstance));
+    WUInt32 hash = WHashHelper<const void*>::Hash(value.m_pFunctionAndFlags);
+    hash = WHashingUtils::CombineHashValues32(hash, WHashHelper<void*>::Hash(value.m_pInstance));
     return hash;
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezScriptWorldModule::FunctionContext& a, const ezScriptWorldModule::FunctionContext& b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(const WScriptWorldModule::FunctionContext& a, const WScriptWorldModule::FunctionContext& b) { return a == b; }
 };

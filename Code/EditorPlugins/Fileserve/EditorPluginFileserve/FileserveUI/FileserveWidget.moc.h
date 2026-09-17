@@ -6,27 +6,27 @@
 #include <Foundation/Time/Time.h>
 #include <QWidget>
 
-struct ezFileserverEvent;
-class ezQtFileserveActivityModel;
-class ezQtFileserveAllFilesModel;
-enum class ezFileserveActivityType;
+struct WFileserverEvent;
+class WQtFileserveActivityModel;
+class WQtFileserveAllFilesModel;
+enum class WFileserveActivityType;
 
-/// A GUI for the ezFileServer
+/// A GUI for the WFileServer
 ///
 /// By default the file server does run at startup. Using the command line option "-fs_nostart" prevents that.
-class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveWidget : public QWidget, public Ui_ezQtFileserveWidget
+class W_EDITORPLUGINFILESERVE_DLL WQtFileserveWidget : public QWidget, public Ui_WQtFileserveWidget
 {
   Q_OBJECT
 
 public:
-  ezQtFileserveWidget(QWidget* pParent = nullptr);
+  WQtFileserveWidget(QWidget* pParent = nullptr);
 
-  void FindOwnIP(ezStringBuilder& out_sDisplay, ezHybridArray<ezStringBuilder, 4>* out_pAllIPs = nullptr);
+  void FindOwnIP(WStringBuilder& out_sDisplay, WHybridArray<WStringBuilder, 4>* out_pAllIPs = nullptr);
 
-  ~ezQtFileserveWidget();
+  ~WQtFileserveWidget();
 
 Q_SIGNALS:
-  void ServerStarted(const QString& sIp, ezUInt16 uiPort);
+  void ServerStarted(const QString& sIp, WUInt16 uiPort);
   void ServerStopped();
 
 public Q_SLOTS:
@@ -37,36 +37,36 @@ public Q_SLOTS:
   void on_ConnectClient_clicked();
 
 private:
-  void FileserverEventHandler(const ezFileserverEvent& e);
-  void LogActivity(const ezFormatString& text, ezFileserveActivityType type);
+  void FileserverEventHandler(const WFileserverEvent& e);
+  void LogActivity(const WFormatString& text, WFileserveActivityType type);
   void UpdateSpecialDirectoryUI();
 
-  ezQtFileserveActivityModel* m_pActivityModel;
-  ezQtFileserveAllFilesModel* m_pAllFilesModel;
-  ezTime m_LastProgressUpdate;
+  WQtFileserveActivityModel* m_pActivityModel;
+  WQtFileserveAllFilesModel* m_pAllFilesModel;
+  WTime m_LastProgressUpdate;
 
   struct DataDirInfo
   {
-    ezString m_sName;
-    ezString m_sPath;
-    ezString m_sRedirectedPath;
+    WString m_sName;
+    WString m_sPath;
+    WString m_sRedirectedPath;
   };
 
   struct ClientData
   {
     bool m_bConnected = false;
-    ezHybridArray<DataDirInfo, 8> m_DataDirs;
+    WHybridArray<DataDirInfo, 8> m_DataDirs;
   };
 
   struct SpecialDir
   {
-    ezString m_sName;
-    ezString m_sPath;
+    WString m_sName;
+    WString m_sPath;
   };
 
-  ezHybridArray<SpecialDir, 4> m_SpecialDirectories;
+  WHybridArray<SpecialDir, 4> m_SpecialDirectories;
 
-  ezHashTable<ezUInt32, ClientData> m_Clients;
+  WHashTable<WUInt32, ClientData> m_Clients;
   void UpdateClientList();
   void ConfigureSpecialDirectories();
 };

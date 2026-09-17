@@ -9,51 +9,51 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshColliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshColliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezMeshColliderActions::s_hCategory;
-ezActionDescriptorHandle ezMeshColliderActions::s_hCreateCollider;
-ezActionDescriptorHandle ezMeshColliderActions::s_hCreateColliderDoc;
+WActionDescriptorHandle WMeshColliderActions::s_hCategory;
+WActionDescriptorHandle WMeshColliderActions::s_hCreateCollider;
+WActionDescriptorHandle WMeshColliderActions::s_hCreateColliderDoc;
 
-void ezMeshColliderActions::RegisterActions()
+void WMeshColliderActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("MeshColliderCategory");
+  s_hCategory = W_REGISTER_CATEGORY("MeshColliderCategory");
 
   // Two descriptors, because the scope decides both the action's context and how its proxy is cached:
   // Global once overall for the asset browser, Document once per mesh document.
-  s_hCreateCollider = EZ_REGISTER_ACTION_0("Jolt.CreateColliderFromMesh", ezActionScope::Global, "Jolt", "", ezMeshColliderAction);
-  s_hCreateColliderDoc = EZ_REGISTER_ACTION_0("Jolt.CreateColliderFromMeshDocument", ezActionScope::Document, "Jolt", "", ezMeshColliderAction);
+  s_hCreateCollider = W_REGISTER_ACTION_0("Jolt.CreateColliderFromMesh", WActionScope::Global, "Jolt", "", WMeshColliderAction);
+  s_hCreateColliderDoc = W_REGISTER_ACTION_0("Jolt.CreateColliderFromMeshDocument", WActionScope::Document, "Jolt", "", WMeshColliderAction);
 }
 
-void ezMeshColliderActions::UnregisterActions()
+void WMeshColliderActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hCreateCollider);
-  ezActionManager::UnregisterAction(s_hCreateColliderDoc);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hCreateCollider);
+  WActionManager::UnregisterAction(s_hCreateColliderDoc);
 }
 
-ezResult ezMeshColliderActions::MapActions(ezStringView sActionMap, ezStringView sSubPath, bool bDocumentScope)
+WResult WMeshColliderActions::MapActions(WStringView sActionMap, WStringView sSubPath, bool bDocumentScope)
 {
   // Not an assert: the mesh document's action maps belong to EditorPluginAssets, which is not
   // guaranteed to have been loaded first.
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sActionMap);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sActionMap);
   if (pMap == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   pMap->MapAction(s_hCategory, sSubPath, 11.0f);
   pMap->MapAction(bDocumentScope ? s_hCreateColliderDoc : s_hCreateCollider, "MeshColliderCategory", 1.0f);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMeshColliderAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const
+void WMeshColliderAction::GetTargetAssets(WDynamicArray<WUuid>& out_assets) const
 {
   out_assets.Clear();
 
-  if (const ezAssetDocument* pAssetDoc = ezDynamicCast<const ezAssetDocument*>(m_Context.m_pDocument))
+  if (const WAssetDocument* pAssetDoc = WDynamicCast<const WAssetDocument*>(m_Context.m_pDocument))
   {
-    if (ezMeshColliderCreator::IsMeshAsset(pAssetDoc->GetGuid()))
+    if (WMeshColliderCreator::IsMeshAsset(pAssetDoc->GetGuid()))
     {
       out_assets.PushBack(pAssetDoc->GetGuid());
     }
@@ -61,35 +61,35 @@ void ezMeshColliderAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) c
     return;
   }
 
-  for (const ezUuid& guid : ezAssetBrowserSelection::GetCurrent().m_AssetGuids)
+  for (const WUuid& guid : WAssetBrowserSelection::GetCurrent().m_AssetGuids)
   {
-    if (ezMeshColliderCreator::IsMeshAsset(guid))
+    if (WMeshColliderCreator::IsMeshAsset(guid))
     {
       out_assets.PushBack(guid);
     }
   }
 }
 
-ezMeshColliderAction::ezMeshColliderAction(const ezActionContext& context, const char* szName)
-  : ezButtonAction(context, szName, false, "")
+WMeshColliderAction::WMeshColliderAction(const WActionContext& context, const char* szName)
+  : WButtonAction(context, szName, false, "")
 {
   SetIconPath(":/AssetIcons/Jolt_Collision_Mesh.svg");
 
   RefreshState();
 }
 
-void ezMeshColliderAction::RefreshState()
+void WMeshColliderAction::RefreshState()
 {
-  ezHybridArray<ezUuid, 16> assets;
+  WHybridArray<WUuid, 16> assets;
   GetTargetAssets(assets);
 
   SetVisible(!assets.IsEmpty(), false);
   SetEnabled(!assets.IsEmpty(), false);
 }
 
-void ezMeshColliderAction::Execute(const ezVariant& value)
+void WMeshColliderAction::Execute(const WVariant& value)
 {
-  ezHybridArray<ezUuid, 16> assets;
+  WHybridArray<WUuid, 16> assets;
   GetTargetAssets(assets);
 
   if (assets.IsEmpty())
@@ -97,39 +97,39 @@ void ezMeshColliderAction::Execute(const ezVariant& value)
 
   if (assets.GetCount() == 1)
   {
-    ezMeshColliderSource source;
-    if (ezMeshColliderCreator::GatherMeshColliderSource(assets[0], source).Failed())
+    WMeshColliderSource source;
+    if (WMeshColliderCreator::GatherMeshColliderSource(assets[0], source).Failed())
     {
-      ezQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
+      WQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
       return;
     }
 
-    ezQtCreateMeshColliderDlg dlg(source, nullptr);
+    WQtCreateMeshColliderDlg dlg(source, nullptr);
     if (dlg.exec() != QDialog::Accepted)
       return;
 
-    const ezStatus res = ezMeshColliderCreator::CreateMeshCollider(source, dlg.GetOptions());
-    ezQtUiServices::MessageBoxStatus(res, "Failed to create the collision mesh asset.", "", true);
+    const WStatus res = WMeshColliderCreator::CreateMeshCollider(source, dlg.GetOptions());
+    WQtUiServices::MessageBoxStatus(res, "Failed to create the collision mesh asset.", "", true);
     return;
   }
 
-  ezQtCreateMeshColliderDlg dlg(assets.GetCount(), nullptr);
+  WQtCreateMeshColliderDlg dlg(assets.GetCount(), nullptr);
   if (dlg.exec() != QDialog::Accepted)
     return;
 
-  ezUInt32 uiCreated = 0;
-  ezUInt32 uiSkipped = 0;
-  const ezStatus res = ezMeshColliderCreator::CreateMeshColliders(assets, dlg.GetOptions(), uiCreated, uiSkipped);
+  WUInt32 uiCreated = 0;
+  WUInt32 uiSkipped = 0;
+  const WStatus res = WMeshColliderCreator::CreateMeshColliders(assets, dlg.GetOptions(), uiCreated, uiSkipped);
 
   if (res.Failed())
   {
-    ezQtUiServices::MessageBoxStatus(res, "Failed to create the collision mesh assets.", "", true);
+    WQtUiServices::MessageBoxStatus(res, "Failed to create the collision mesh assets.", "", true);
     return;
   }
 
   if (uiSkipped > 0)
   {
     // which meshes were skipped and why is in the log
-    ezQtUiServices::MessageBoxInformation(ezFmt("Created {} collision mesh asset(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
+    WQtUiServices::MessageBoxInformation(WFmt("Created {} collision mesh asset(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
   }
 }

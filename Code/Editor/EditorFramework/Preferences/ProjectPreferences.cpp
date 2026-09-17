@@ -5,28 +5,28 @@
 #include <Foundation/Profiling/Profiling.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAllocator<ezProjectPreferencesUser>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProjectPreferencesUser, 1, WRTTIDefaultAllocator<WProjectPreferencesUser>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Players", m_PlayerApps)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("ExportFolder", m_sExportFolder)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("SharedMaterialFolder", m_sSharedMaterialFolder)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("MeshLodPrefix", m_sMeshLodPrefix)->AddAttributes(new ezHiddenAttribute(), new ezDefaultValueAttribute("$LOD")),
+    W_ARRAY_MEMBER_PROPERTY("Players", m_PlayerApps)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("ExportFolder", m_sExportFolder)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("SharedMaterialFolder", m_sSharedMaterialFolder)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("MeshLodPrefix", m_sMeshLodPrefix)->AddAttributes(new WHiddenAttribute(), new WDefaultValueAttribute("$LOD")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezProjectPreferencesUser::ezProjectPreferencesUser()
-  : ezPreferences(Domain::Project, "General")
+WProjectPreferencesUser::WProjectPreferencesUser()
+  : WPreferences(Domain::Project, "General")
 {
 }
 
 
-void ezQtEditorApp::LoadProjectPreferences()
+void WQtEditorApp::LoadProjectPreferences()
 {
-  EZ_PROFILE_SCOPE("LoadProjectPreferences");
-  ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  W_PROFILE_SCOPE("LoadProjectPreferences");
+  WPreferences::QueryPreferences<WProjectPreferencesUser>();
 }

@@ -9,55 +9,55 @@
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
-ezCommandLineOptionInt opt_PID("_MiniDumpTool", "-PID", "Process ID of the application for which to create a crash dump.", 0);
+WCommandLineOptionInt opt_PID("_MiniDumpTool", "-PID", "Process ID of the application for which to create a crash dump.", 0);
 
-ezCommandLineOptionPath opt_DumpFile("_MiniDumpTool", "-f", "Path to the crash dump file to write.", "");
+WCommandLineOptionPath opt_DumpFile("_MiniDumpTool", "-f", "Path to the crash dump file to write.", "");
 
-class ezMiniDumpTool : public ezApplication
+class WMiniDumpTool : public WApplication
 {
-  ezUInt32 m_uiProcessID = 0;
-  ezStringBuilder m_sDumpFile;
+  WUInt32 m_uiProcessID = 0;
+  WStringBuilder m_sDumpFile;
 
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezMiniDumpTool()
-    : ezApplication("MiniDumpTool")
+  WMiniDumpTool()
+    : WApplication("MiniDumpTool")
   {
   }
 
-  ezResult ParseArguments()
+  WResult ParseArguments()
   {
-    ezCommandLineUtils* cmd = ezCommandLineUtils::GetGlobalInstance();
+    WCommandLineUtils* cmd = WCommandLineUtils::GetGlobalInstance();
 
     m_uiProcessID = cmd->GetUIntOption("-PID");
 
-    m_sDumpFile = opt_DumpFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
+    m_sDumpFile = opt_DumpFile.GetOptionValue(WCommandLineOption::LogMode::Always);
     m_sDumpFile.MakeCleanPath();
 
     if (m_uiProcessID == 0)
     {
-      ezLog::Error("Missing '-PID' argument");
-      return EZ_FAILURE;
+      WLog::Error("Missing '-PID' argument");
+      return W_FAILURE;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   virtual void AfterCoreSystemsStartup() override
   {
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+    WFileSystem::AddDataDirectory("", "App", ":", WDataDirUsage::AllowWrites).IgnoreResult();
 
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
   }
 
   virtual void BeforeCoreSystemsShutdown() override
   {
     // prevent further output during shutdown
-    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-    ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    WGlobalLog::RemoveLogWriter(WLogWriter::Console::LogMessageHandler);
+    WGlobalLog::RemoveLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
     SUPER::BeforeCoreSystemsShutdown();
   }
@@ -65,10 +65,10 @@ public:
   virtual void Run() override
   {
     {
-      ezStringBuilder cmdHelp;
-      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
+      WStringBuilder cmdHelp;
+      if (WCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, WCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
       {
-        ezLog::Print(cmdHelp);
+        WLog::Print(cmdHelp);
         QuitApplication();
         return;
       }
@@ -81,9 +81,9 @@ public:
       return;
     }
 
-    ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
+    WMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
     QuitApplication();
   }
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezMiniDumpTool);
+W_APPLICATION_ENTRY_POINT(WMiniDumpTool);

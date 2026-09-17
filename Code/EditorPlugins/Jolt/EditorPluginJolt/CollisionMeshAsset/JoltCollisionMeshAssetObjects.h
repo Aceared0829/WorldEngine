@@ -4,18 +4,18 @@
 #include <RendererCore/Declarations.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
-struct ezJoltSurfaceResourceSlot
+struct WJoltSurfaceResourceSlot
 {
-  ezString m_sLabel;
-  ezString m_sResource;
+  WString m_sLabel;
+  WString m_sResource;
   bool m_bExclude = false;
 };
 
-struct ezJoltCollisionMeshType
+struct WJoltCollisionMeshType
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -27,11 +27,11 @@ struct ezJoltCollisionMeshType
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezJoltCollisionMeshType);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WJoltCollisionMeshType);
 
-struct ezJoltConvexCollisionMeshType
+struct WJoltConvexCollisionMeshType
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -44,49 +44,49 @@ struct ezJoltConvexCollisionMeshType
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezJoltConvexCollisionMeshType);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WJoltConvexCollisionMeshType);
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezJoltSurfaceResourceSlot);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WJoltSurfaceResourceSlot);
 
-class ezJoltCollisionMeshAssetProperties : public ezReflectedClass
+class WJoltCollisionMeshAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltCollisionMeshAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WJoltCollisionMeshAssetProperties, WReflectedClass);
 
 public:
-  ezJoltCollisionMeshAssetProperties();
-  ~ezJoltCollisionMeshAssetProperties();
+  WJoltCollisionMeshAssetProperties();
+  ~WJoltCollisionMeshAssetProperties();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezString m_sMeshFile;
-  ezString m_sMeshIncludeTags;
-  ezString m_sMeshExcludeTags;
+  WString m_sMeshFile;
+  WString m_sMeshIncludeTags;
+  WString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
-  ezString m_sConvexMeshSurface;
+  WString m_sConvexMeshSurface;
 
-  ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
-  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  WEnum<WMeshImportTransform> m_ImportTransform;
+  WEnum<WBasisAxis> m_RightDir = WBasisAxis::NegativeX;
+  WEnum<WBasisAxis> m_UpDir = WBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
-  ezVec3 m_vPositionOffset = ezVec3::MakeZero();
+  WVec3 m_vPositionOffset = WVec3::MakeZero();
   bool m_bIsConvexMesh = false;
-  ezEnum<ezJoltConvexCollisionMeshType> m_ConvexMeshType;
-  ezUInt16 m_uiMaxConvexPieces = 2;
+  WEnum<WJoltConvexCollisionMeshType> m_ConvexMeshType;
+  WUInt16 m_uiMaxConvexPieces = 2;
 
   // Cylinder
   float m_fRadius = 0.5f;
   float m_fRadius2 = 0.5f;
   float m_fHeight = 1.0f;
-  ezUInt8 m_uiDetail = 1;
+  WUInt8 m_uiDetail = 1;
 
-  ezHybridArray<ezJoltSurfaceResourceSlot, 8> m_Slots;
+  WHybridArray<WJoltSurfaceResourceSlot, 8> m_Slots;
 
-  ezUInt32 m_uiVertices = 0;
-  ezUInt32 m_uiTriangles = 0;
+  WUInt32 m_uiVertices = 0;
+  WUInt32 m_uiTriangles = 0;
 
   bool m_bSimplifyMesh = false;
   float m_fNormalWeight = 0.5f;
   bool m_bAggressiveSimplification = false;
-  ezUInt8 m_uiMeshSimplification = 50;
-  ezUInt8 m_uiMaxSimplificationError = 10;
+  WUInt8 m_uiMeshSimplification = 50;
+  WUInt8 m_uiMaxSimplificationError = 10;
 };

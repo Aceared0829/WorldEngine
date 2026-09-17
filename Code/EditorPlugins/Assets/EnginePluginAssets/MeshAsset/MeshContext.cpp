@@ -6,39 +6,39 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshContext, 1, WRTTIDefaultAllocator<WMeshContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMeshContext::ezMeshContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WMeshContext::WMeshContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pMeshObject = nullptr;
 }
 
-void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
+void WMeshContext::HandleMessage(const WEditorEngineDocumentMsg* pDocMsg)
 {
-  if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
+  if (auto* pMsg = WDynamicCast<const WEditorEngineSetMaterialsMsg*>(pDocMsg))
   {
     m_SlotNames = pMsg->m_SlotNames;
 
-    ezMeshComponent* pMesh;
+    WMeshComponent* pMesh;
     if (m_pMeshObject && m_pMeshObject->TryGetComponentOfBaseType(pMesh))
     {
-      for (ezUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
+      for (WUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
       {
-        ezMaterialResourceHandle hMat;
+        WMaterialResourceHandle hMat;
 
         if (!pMsg->m_Materials[i].IsEmpty())
         {
-          hMat = ezResourceManager::LoadResource<ezMaterialResource>(pMsg->m_Materials[i]);
+          hMat = WResourceManager::LoadResource<WMaterialResource>(pMsg->m_Materials[i]);
         }
 
         pMesh->SetMaterial(i, hMat);
@@ -48,13 +48,13 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     return;
   }
 
-  if (auto* pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
+  if (auto* pMsg = WDynamicCast<const WQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEngine*>(pDocMsg))
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
@@ -66,74 +66,74 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
+  WEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
-void ezMeshContext::OnInitialize()
+void WMeshContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezMeshComponent* pMesh;
+  WGameObjectDesc obj;
+  WMeshComponent* pMesh;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("MeshPreview");
     pWorld->CreateObject(obj, m_pMeshObject);
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    const WTag& tagCastShadows = WTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     m_pMeshObject->SetTag(tagCastShadows);
 
-    ezMeshComponent::CreateComponent(m_pMeshObject, pMesh);
-    ezStringBuilder sMeshGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
+    WMeshComponent::CreateComponent(m_pMeshObject, pMesh);
+    WStringBuilder sMeshGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
+    m_hMesh = WResourceManager::LoadResource<WMeshResource>(sMeshGuid);
     pMesh->SetMesh(m_hMesh);
 
     {
-      ezResourceLock<ezMeshResource> pMeshRes(m_hMesh, ezResourceAcquireMode::PointerOnly);
-      pMeshRes->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMeshContext::OnResourceEvent, this), m_MeshResourceEventSubscriber);
+      WResourceLock<WMeshResource> pMeshRes(m_hMesh, WResourceAcquireMode::PointerOnly);
+      pMeshRes->m_ResourceEvents.AddEventHandler(WMakeDelegate(&WMeshContext::OnResourceEvent, this), m_MeshResourceEventSubscriber);
     }
   }
 }
 
-ezEngineProcessViewContext* ezMeshContext::CreateViewContext()
+WEngineProcessViewContext* WMeshContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezMeshViewContext, this);
+  return W_DEFAULT_NEW(WMeshViewContext, this);
 }
 
-void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WMeshContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WMeshContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
   if (m_bBoundsDirty)
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
     m_bBoundsDirty = false;
   }
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
+  WMeshViewContext* pMeshViewContext = static_cast<WMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WMeshContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_pMeshObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
@@ -144,9 +144,9 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
       bounds.ExpandToInclude(b);
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
@@ -156,9 +156,9 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   SendProcessMessage(&res);
 }
 
-void ezMeshContext::OnResourceEvent(const ezResourceEvent& e)
+void WMeshContext::OnResourceEvent(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUpdated)
   {
     m_bBoundsDirty = true;
   }

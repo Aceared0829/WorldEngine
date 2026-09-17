@@ -8,12 +8,12 @@
 #include <QListView>
 #include <QStyledItemDelegate>
 
-/// In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
-class EZ_GUIFOUNDATION_DLL ezQtItemDelegate : public QItemDelegate
+/// In combination with WQtItemView this delegate allows for receiving the full range of mouse input.
+class W_GUIFOUNDATION_DLL WQtItemDelegate : public QItemDelegate
 {
   Q_OBJECT
 public:
-  explicit ezQtItemDelegate(QObject* pParent = nullptr)
+  explicit WQtItemDelegate(QObject* pParent = nullptr)
     : QItemDelegate(pParent)
   {
   }
@@ -25,12 +25,12 @@ public:
   virtual bool mouseMoveEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
 };
 
-/// Template to be used with classes derived from QAbstractItemView. Allows the use of ezQtItemDelegate.
+/// Template to be used with classes derived from QAbstractItemView. Allows the use of WQtItemDelegate.
 template <typename Base>
-class ezQtItemView : public Base
+class WQtItemView : public Base
 {
 public:
-  ezQtItemView(QWidget* pParent)
+  WQtItemView(QWidget* pParent)
     : Base(pParent)
 
   {
@@ -143,7 +143,7 @@ private:
     if (!index.isValid())
       return false;
 
-    if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(this->itemDelegateForIndex(m_Hovered)))
+    if (WQtItemDelegate* pDelegate = qobject_cast<WQtItemDelegate*>(this->itemDelegateForIndex(m_Hovered)))
     {
       QStyleOptionViewItem option;
       this->initViewItemOption(&option);
@@ -181,7 +181,7 @@ private:
   }
 
 private:
-  ezQtItemDelegate* m_pFocusedDelegate = nullptr;
+  WQtItemDelegate* m_pFocusedDelegate = nullptr;
   QPersistentModelIndex m_Hovered;
   QPersistentModelIndex m_Focused;
 };
@@ -189,13 +189,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezQtListView : public ezQtItemView<QListView>
+class WQtListView : public WQtItemView<QListView>
 {
   Q_OBJECT
 
 public:
-  ezQtListView(QWidget* pParent)
-    : ezQtItemView<QListView>(pParent)
+  WQtListView(QWidget* pParent)
+    : WQtItemView<QListView>(pParent)
   {
   }
 };

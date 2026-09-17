@@ -2,7 +2,7 @@
 
 #include <RmlUi/Core/SystemInterface.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   class SystemInterface final : public Rml::SystemInterface
   {
@@ -15,4 +15,4 @@ namespace ezRmlUiInternal
 
     virtual bool LogMessage(Rml::Log::Type type, const Rml::String& sMessage) override;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <qevent.h>
 
-ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* pParent)
+WQtColorAreaWidget::WQtColorAreaWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setAutoFillBackground(false);
@@ -13,7 +13,7 @@ ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* pParent)
   m_fHue = -1.0f;
 }
 
-void ezQtColorAreaWidget::SetHue(float fHue)
+void WQtColorAreaWidget::SetHue(float fHue)
 {
   if (m_fHue == fHue)
     return;
@@ -23,7 +23,7 @@ void ezQtColorAreaWidget::SetHue(float fHue)
   update();
 }
 
-void ezQtColorAreaWidget::SetSaturation(float fSat)
+void WQtColorAreaWidget::SetSaturation(float fSat)
 {
   if (m_fSaturation == fSat)
     return;
@@ -32,7 +32,7 @@ void ezQtColorAreaWidget::SetSaturation(float fSat)
   update();
 }
 
-void ezQtColorAreaWidget::SetValue(float fVal)
+void WQtColorAreaWidget::SetValue(float fVal)
 {
   if (m_fValue == fVal)
     return;
@@ -41,7 +41,7 @@ void ezQtColorAreaWidget::SetValue(float fVal)
   update();
 }
 
-void ezQtColorAreaWidget::paintEvent(QPaintEvent* event)
+void WQtColorAreaWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.setRenderHint(QPainter::RenderHint::Antialiasing);
@@ -60,7 +60,7 @@ void ezQtColorAreaWidget::paintEvent(QPaintEvent* event)
   painter.drawEllipse(center, 5.5f, 5.5f);
 }
 
-void ezQtColorAreaWidget::UpdateImage()
+void WQtColorAreaWidget::UpdateImage()
 {
   const int width = rect().width();
   const int height = rect().height();
@@ -72,15 +72,15 @@ void ezQtColorAreaWidget::UpdateImage()
   {
     for (int x = 0; x < width; ++x)
     {
-      ezColor c = ezColor::MakeHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
+      WColor c = WColor::MakeHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
 
-      ezColorGammaUB cg = c;
+      WColorGammaUB cg = c;
       m_Image.setPixel(x, (height - 1) - y, qRgb(cg.r, cg.g, cg.b));
     }
   }
 }
 
-void ezQtColorAreaWidget::mouseMoveEvent(QMouseEvent* event)
+void WQtColorAreaWidget::mouseMoveEvent(QMouseEvent* event)
 {
   if (event->buttons().testFlag(Qt::LeftButton))
   {
@@ -88,8 +88,8 @@ void ezQtColorAreaWidget::mouseMoveEvent(QMouseEvent* event)
     const int height = rect().height();
 
     QPoint coord = event->pos();
-    const int sat = ezMath::Clamp(coord.x(), 0, width - 1);
-    const int val = ezMath::Clamp((height - 1) - coord.y(), 0, height - 1);
+    const int sat = WMath::Clamp(coord.x(), 0, width - 1);
+    const int val = WMath::Clamp((height - 1) - coord.y(), 0, height - 1);
 
     const double fsat = (double)sat / (width - 1);
     const double fval = (double)val / (height - 1);
@@ -98,7 +98,7 @@ void ezQtColorAreaWidget::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
-void ezQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
+void WQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
 {
   mouseMoveEvent(event);
 }
@@ -107,13 +107,13 @@ void ezQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtColorRangeWidget::ezQtColorRangeWidget(QWidget* pParent)
+WQtColorRangeWidget::WQtColorRangeWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setAutoFillBackground(false);
 }
 
-void ezQtColorRangeWidget::SetHue(float fHue)
+void WQtColorRangeWidget::SetHue(float fHue)
 {
   if (m_fHue == fHue)
     return;
@@ -122,7 +122,7 @@ void ezQtColorRangeWidget::SetHue(float fHue)
   update();
 }
 
-void ezQtColorRangeWidget::paintEvent(QPaintEvent* event)
+void WQtColorRangeWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.setRenderHint(QPainter::RenderHint::Antialiasing);
@@ -167,7 +167,7 @@ void ezQtColorRangeWidget::paintEvent(QPaintEvent* event)
   }
 }
 
-void ezQtColorRangeWidget::UpdateImage()
+void WQtColorRangeWidget::UpdateImage()
 {
   const int width = rect().width();
 
@@ -175,14 +175,14 @@ void ezQtColorRangeWidget::UpdateImage()
 
   for (int x = 0; x < width; ++x)
   {
-    ezColor c = ezColor::MakeHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
+    WColor c = WColor::MakeHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
 
-    ezColorGammaUB cg = c;
+    WColorGammaUB cg = c;
     m_Image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));
   }
 }
 
-void ezQtColorRangeWidget::mouseMoveEvent(QMouseEvent* event)
+void WQtColorRangeWidget::mouseMoveEvent(QMouseEvent* event)
 {
   if (event->buttons().testFlag(Qt::LeftButton))
   {
@@ -190,7 +190,7 @@ void ezQtColorRangeWidget::mouseMoveEvent(QMouseEvent* event)
     const int height = rect().height();
 
     QPoint coord = event->pos();
-    const int x = ezMath::Clamp(coord.x(), 0, width - 1);
+    const int x = WMath::Clamp(coord.x(), 0, width - 1);
 
     const double fx = (double)x / (width - 1);
 
@@ -198,7 +198,7 @@ void ezQtColorRangeWidget::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
-void ezQtColorRangeWidget::mousePressEvent(QMouseEvent* event)
+void WQtColorRangeWidget::mousePressEvent(QMouseEvent* event)
 {
   mouseMoveEvent(event);
 }
@@ -207,12 +207,12 @@ void ezQtColorRangeWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtColorCompareWidget::ezQtColorCompareWidget(QWidget* pParent)
+WQtColorCompareWidget::WQtColorCompareWidget(QWidget* pParent)
 {
   setAutoFillBackground(false);
 }
 
-void ezQtColorCompareWidget::SetNewColor(const ezColor& color)
+void WQtColorCompareWidget::SetNewColor(const WColor& color)
 {
   if (m_NewColor == color)
     return;
@@ -221,13 +221,13 @@ void ezQtColorCompareWidget::SetNewColor(const ezColor& color)
   update();
 }
 
-void ezQtColorCompareWidget::SetInitialColor(const ezColor& color)
+void WQtColorCompareWidget::SetInitialColor(const WColor& color)
 {
   m_InitialColor = color;
   m_NewColor = color;
 }
 
-void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
+void WQtColorCompareWidget::paintEvent(QPaintEvent*)
 {
   const QRect area = rect();
   const QRect areaTop(area.left(), area.top(), area.width(), area.height() / 2);
@@ -235,7 +235,7 @@ void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
 
   QPainter p(this);
 
-  ezColor inLDR = m_InitialColor;
+  WColor inLDR = m_InitialColor;
   float fMultiplier = m_InitialColor.ComputeHdrMultiplier();
 
   if (fMultiplier > 1.0f)
@@ -243,9 +243,9 @@ void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
     inLDR.ScaleRGB(1.0f / fMultiplier);
   }
 
-  QColor qInCol = ezToQtColor(inLDR);
+  QColor qInCol = WToQtColor(inLDR);
 
-  ezColor newLDR = m_NewColor;
+  WColor newLDR = m_NewColor;
   fMultiplier = m_NewColor.ComputeHdrMultiplier();
 
   if (fMultiplier > 1.0f)
@@ -253,7 +253,7 @@ void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
     newLDR.ScaleRGB(1.0f / fMultiplier);
   }
 
-  QColor qNewCol = ezToQtColor(newLDR);
+  QColor qNewCol = WToQtColor(newLDR);
 
   p.fillRect(areaTop, qInCol);
   p.fillRect(areaBot, qNewCol);

@@ -7,67 +7,67 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSurfaceResource, 1, WRTTIDefaultAllocator<WSurfaceResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSurfaceResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WSurfaceResource);
 // clang-format on
 
-ezEvent<const ezSurfaceResourceEvent&, ezMutex> ezSurfaceResource::s_Events;
+WEvent<const WSurfaceResourceEvent&, WMutex> WSurfaceResource::s_Events;
 
-ezSurfaceResource::ezSurfaceResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WSurfaceResource::WSurfaceResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezSurfaceResource::~ezSurfaceResource()
+WSurfaceResource::~WSurfaceResource()
 {
-  ezSurfaceResourceEvent e;
+  WSurfaceResourceEvent e;
   e.m_pSurface = this;
-  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
+  e.m_Type = WSurfaceResourceEvent::Type::Destroyed;
   s_Events.Broadcast(e);
 
-  EZ_ASSERT_DEV(m_pPhysicsMaterialPhysX == nullptr, "Physics material has not been cleaned up properly");
-  EZ_ASSERT_DEV(m_pPhysicsMaterialJolt == nullptr, "Physics material has not been cleaned up properly");
+  W_ASSERT_DEV(m_pPhysicsMaterialPhysX == nullptr, "Physics material has not been cleaned up properly");
+  W_ASSERT_DEV(m_pPhysicsMaterialJolt == nullptr, "Physics material has not been cleaned up properly");
 }
 
-ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WSurfaceResource::UnloadData(Unload WhatToUnload)
 {
-  EZ_IGNORE_UNUSED(WhatToUnload);
+  W_IGNORE_UNUSED(WhatToUnload);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WSurfaceResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSurfaceResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WSurfaceResource::UpdateContent", GetResourceIdOrDescription());
 
   m_Interactions.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
   {
-    ezSurfaceResourceDescriptor dummy;
+    WSurfaceResourceDescriptor dummy;
     dummy.Load(*Stream);
 
     CreateResource(std::move(dummy));
@@ -78,7 +78,7 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
     m_Interactions.Reserve(m_Descriptor.m_Interactions.GetCount());
     for (const auto& i : m_Descriptor.m_Interactions)
     {
-      ezTempHashedString s(i.m_sInteractionType.GetData());
+      WTempHashedString s(i.m_sInteractionType.GetData());
       auto& item = m_Interactions.ExpandAndGetRef();
       item.m_uiInteractionTypeHash = s.GetHash();
       item.m_pInteraction = &i;
@@ -92,34 +92,34 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold; });
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezSurfaceResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WSurfaceResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezSurfaceResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WSurfaceResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WSurfaceResource, WSurfaceResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
-  ezSurfaceResourceEvent e;
+  WSurfaceResourceEvent e;
   e.m_pSurface = this;
-  e.m_Type = ezSurfaceResourceEvent::Type::Created;
+  e.m_Type = WSurfaceResourceEvent::Type::Created;
   s_Events.Broadcast(e);
 
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
+const WSurfaceInteraction* WSurfaceResource::FindInteraction(const WSurfaceResource* pCurSurf, WUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {
@@ -136,9 +136,9 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
         bFoundAny = true;
 
         // only use it if the threshold is large enough
-        if (fImpulseSqr >= ezMath::Square(interaction.m_pInteraction->m_fImpulseThreshold))
+        if (fImpulseSqr >= WMath::Square(interaction.m_pInteraction->m_fImpulseThreshold))
         {
-          const float fImpulse = ezMath::Sqrt(fImpulseSqr);
+          const float fImpulse = WMath::Sqrt(fImpulseSqr);
           out_fImpulseParamValue = (fImpulse - interaction.m_pInteraction->m_fImpulseThreshold) * interaction.m_pInteraction->m_fImpulseScale;
 
           return interaction.m_pInteraction;
@@ -152,7 +152,7 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
 
     if (pCurSurf->m_Descriptor.m_hBaseSurface.IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pBase(pCurSurf->m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WSurfaceResource> pBase(pCurSurf->m_Descriptor.m_hBaseSurface, WResourceAcquireMode::BlockTillLoaded);
       pCurSurf = pBase.GetPointer();
     }
     else
@@ -164,10 +164,10 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
   return nullptr;
 }
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/) const
+bool WSurfaceResource::InteractWithSurface(WWorld* pWorld, WGameObjectHandle hObject, const WVec3& vPosition, const WVec3& vSurfaceNormal, const WVec3& vIncomingDirection, const WTempHashedString& sInteraction, const WUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/) const
 {
   float fImpulseParam = 0;
-  const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);
+  const WSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);
 
   if (pIA == nullptr)
     return false;
@@ -176,75 +176,75 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   if (!pIA->m_hPrefab.IsValid())
     return false;
 
-  ezResourceLock<ezPrefabResource> pPrefab(pIA->m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WPrefabResource> pPrefab(pIA->m_hPrefab, WResourceAcquireMode::BlockTillLoaded);
 
-  ezVec3 vDir;
+  WVec3 vDir;
 
   switch (pIA->m_Alignment)
   {
-    case ezSurfaceInteractionAlignment::SurfaceNormal:
+    case WSurfaceInteractionAlignment::SurfaceNormal:
       vDir = vSurfaceNormal;
       break;
 
-    case ezSurfaceInteractionAlignment::IncidentDirection:
+    case WSurfaceInteractionAlignment::IncidentDirection:
       vDir = -vIncomingDirection;
       ;
       break;
 
-    case ezSurfaceInteractionAlignment::ReflectedDirection:
+    case WSurfaceInteractionAlignment::ReflectedDirection:
       vDir = vIncomingDirection.GetReflectedVector(vSurfaceNormal);
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
+    case WSurfaceInteractionAlignment::ReverseSurfaceNormal:
       vDir = -vSurfaceNormal;
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+    case WSurfaceInteractionAlignment::ReverseIncidentDirection:
       vDir = vIncomingDirection;
       ;
       break;
 
-    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+    case WSurfaceInteractionAlignment::ReverseReflectedDirection:
       vDir = -vIncomingDirection.GetReflectedVector(vSurfaceNormal);
       break;
   }
 
   vDir.Normalize();
-  ezVec3 vTangent = vDir.GetOrthogonalVector().GetNormalized();
+  WVec3 vTangent = vDir.GetOrthogonalVector().GetNormalized();
 
   // random rotation around the spawn direction
   {
-    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0);
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleMinMax(0.0, WMath::Pi<double>() * 2.0);
 
-    ezMat3 rotMat = ezMat3::MakeAxisRotation(vDir, ezAngle::MakeFromRadian((float)randomAngle));
+    WMat3 rotMat = WMat3::MakeAxisRotation(vDir, WAngle::MakeFromRadian((float)randomAngle));
 
     vTangent = rotMat * vTangent;
   }
 
-  if (pIA->m_Deviation > ezAngle::MakeFromRadian(0.0f))
+  if (pIA->m_Deviation > WAngle::MakeFromRadian(0.0f))
   {
-    ezAngle maxDeviation;
+    WAngle maxDeviation;
 
     /// \todo do random deviation, make sure to clamp max deviation angle
     switch (pIA->m_Alignment)
     {
-      case ezSurfaceInteractionAlignment::IncidentDirection:
-      case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+      case WSurfaceInteractionAlignment::IncidentDirection:
+      case WSurfaceInteractionAlignment::ReverseReflectedDirection:
       {
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
-        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = WMath::Pi<float>() - WMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
+        maxDeviation = WMath::Min(pIA->m_Deviation, WAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
-      case ezSurfaceInteractionAlignment::ReflectedDirection:
-      case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+      case WSurfaceInteractionAlignment::ReflectedDirection:
+      case WSurfaceInteractionAlignment::ReverseIncidentDirection:
       {
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
-        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = WMath::Pi<float>() - WMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
+        maxDeviation = WMath::Min(pIA->m_Deviation, WAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
@@ -253,41 +253,41 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         break;
     }
 
-    const ezAngle deviation = ezAngle::MakeFromRadian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+    const WAngle deviation = WAngle::MakeFromRadian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
-    ezMat3 matTilt = ezMat3::MakeAxisRotation(vTangent, deviation);
+    WMat3 matTilt = WMat3::MakeAxisRotation(vTangent, deviation);
 
     vDir = matTilt * vDir;
   }
 
 
   // finally compute the bi-tangent
-  const ezVec3 vBiTangent = vDir.CrossRH(vTangent);
+  const WVec3 vBiTangent = vDir.CrossRH(vTangent);
 
-  ezMat3 mRot;
+  WMat3 mRot;
   mRot.SetColumn(0, vDir); // we always use X as the main axis, so align X with the direction
   mRot.SetColumn(1, vTangent);
   mRot.SetColumn(2, vBiTangent);
 
-  ezTransform t;
+  WTransform t;
   t.m_vPosition = vPosition;
-  t.m_qRotation = ezQuat::MakeFromMat3(mRot);
+  t.m_qRotation = WQuat::MakeFromMat3(mRot);
   t.m_vScale.Set(1.0f);
 
   // attach to dynamic objects
-  ezGameObjectHandle hParent;
+  WGameObjectHandle hParent;
 
-  ezGameObject* pObject = nullptr;
+  WGameObject* pObject = nullptr;
   if (pWorld->TryGetObject(hObject, pObject) && pObject->IsDynamic())
   {
     hParent = hObject;
-    t = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
+    t = WTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
   }
 
-  ezTempHybridArray<ezGameObject*, 8> rootObjects;
+  WTempHybridArray<WGameObject*, 8> rootObjects;
 
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
   options.m_hParent = hParent;
   options.m_pCreatedRootObjectsOut = &rootObjects;
   options.m_pOverrideTeamID = pOverrideTeamID;
@@ -295,38 +295,38 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   pPrefab->InstantiatePrefab(*pWorld, t, options, &pIA->m_Parameters);
 
   {
-    ezMsgSetFloatParameter msgSetFloat;
+    WMsgSetFloatParameter msgSetFloat;
     msgSetFloat.m_sParameterName = "Impulse";
     msgSetFloat.m_fValue = fImpulseParam;
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msgSetFloat, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msgSetFloat, WTime::MakeZero(), WObjectMsgQueueType::AfterInitialized);
     }
   }
 
   if (pObject != nullptr && pObject->IsDynamic())
   {
-    ezMsgOnlyApplyToObject msg;
+    WMsgOnlyApplyToObject msg;
     msg.m_hObject = hParent;
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msg, WTime::MakeZero(), WObjectMsgQueueType::AfterInitialized);
     }
   }
 
   return true;
 }
 
-bool ezSurfaceResource::IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const
+bool WSurfaceResource::IsBasedOn(const WSurfaceResource* pThisOrBaseSurface) const
 {
   if (pThisOrBaseSurface == this)
     return true;
 
   if (m_Descriptor.m_hBaseSurface.IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, WResourceAcquireMode::BlockTillLoaded);
 
     return pBase->IsBasedOn(pThisOrBaseSurface);
   }
@@ -334,12 +334,12 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) c
   return false;
 }
 
-bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurface) const
+bool WSurfaceResource::IsBasedOn(const WSurfaceResourceHandle hThisOrBaseSurface) const
 {
-  ezResourceLock<ezSurfaceResource> pThisOrBaseSurface(hThisOrBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSurfaceResource> pThisOrBaseSurface(hThisOrBaseSurface, WResourceAcquireMode::BlockTillLoaded);
 
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Physics_Implementation_SurfaceResource);
+W_STATICLINK_FILE(Core, Core_Physics_Implementation_SurfaceResource);

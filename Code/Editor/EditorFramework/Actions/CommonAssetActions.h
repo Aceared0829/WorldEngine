@@ -5,29 +5,29 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezAssetDocument;
+class WAssetDocument;
 
-class EZ_EDITORFRAMEWORK_DLL ezCommonAssetActions
+class W_EDITORFRAMEWORK_DLL WCommonAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping, ezUInt32 uiStateMask);
+  static void MapToolbarActions(WStringView sMapping, WUInt32 uiStateMask);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hPause;
-  static ezActionDescriptorHandle s_hRestart;
-  static ezActionDescriptorHandle s_hLoop;
-  static ezActionDescriptorHandle s_hSimulationSpeedMenu;
-  static ezActionDescriptorHandle s_hSimulationSpeed[10];
-  static ezActionDescriptorHandle s_hGrid;
-  static ezActionDescriptorHandle s_hVisualizers;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hPause;
+  static WActionDescriptorHandle s_hRestart;
+  static WActionDescriptorHandle s_hLoop;
+  static WActionDescriptorHandle s_hSimulationSpeedMenu;
+  static WActionDescriptorHandle s_hSimulationSpeed[10];
+  static WActionDescriptorHandle s_hGrid;
+  static WActionDescriptorHandle s_hVisualizers;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezCommonAssetAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WCommonAssetAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommonAssetAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WCommonAssetAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -40,16 +40,16 @@ public:
     Visualizers,
   };
 
-  ezCommonAssetAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
-  ~ezCommonAssetAction();
+  WCommonAssetAction(const WActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
+  ~WCommonAssetAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void CommonUiEventHandler(const ezCommonAssetUiState& e);
+  void CommonUiEventHandler(const WCommonAssetUiState& e);
   void UpdateState();
 
-  ezAssetDocument* m_pAssetDocument = nullptr;
+  WAssetDocument* m_pAssetDocument = nullptr;
   ActionType m_Type;
   float m_fSimSpeed;
 };

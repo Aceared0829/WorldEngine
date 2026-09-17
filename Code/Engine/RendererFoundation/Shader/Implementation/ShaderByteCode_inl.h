@@ -1,6 +1,6 @@
 
 
-const void* ezGALShaderByteCode::GetByteCode() const
+const void* WGALShaderByteCode::GetByteCode() const
 {
   if (m_ByteCode.IsEmpty())
     return nullptr;
@@ -8,12 +8,12 @@ const void* ezGALShaderByteCode::GetByteCode() const
   return &m_ByteCode[0];
 }
 
-ezUInt32 ezGALShaderByteCode::GetSize() const
+WUInt32 WGALShaderByteCode::GetSize() const
 {
   return m_ByteCode.GetCount();
 }
 
-bool ezGALShaderByteCode::IsValid() const
+bool WGALShaderByteCode::IsValid() const
 {
   return !m_ByteCode.IsEmpty();
 }

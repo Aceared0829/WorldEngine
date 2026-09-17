@@ -6,34 +6,34 @@
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
+#include <Texture/WTexFormat/WTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureCubeResource, 1, WRTTIDefaultAllocator<WTextureCubeResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTextureCubeResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WTextureCubeResource);
 // clang-format on
 
-ezTextureCubeResource::ezTextureCubeResource()
-  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+WTextureCubeResource::WTextureCubeResource()
+  : WResource(DoUpdate::OnGraphicsResourceThreads, WTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
   m_uiMemoryGPU[1] = 0;
-  m_Format = ezGALResourceFormat::Invalid;
+  m_Format = WGALResourceFormat::Invalid;
   m_uiWidthAndHeight = 0;
 }
 
-ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WTextureCubeResource::UnloadData(Unload WhatToUnload)
 {
   if (m_uiLoadedTextures > 0)
   {
-    for (ezInt32 r = 0; r < 2; ++r)
+    for (WInt32 r = 0; r < 2; ++r)
     {
       --m_uiLoadedTextures;
 
-      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
+      WGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
 
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -44,59 +44,59 @@ ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
+    WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
   }
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
   res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
-  res.m_State = m_uiLoadedTextures == 0 ? ezResourceState::Unloaded : ezResourceState::Loaded;
+  res.m_State = m_uiLoadedTextures == 0 ? WResourceState::Unloaded : WResourceState::Loaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WTextureCubeResource::UpdateContent(WStreamReader* Stream)
 {
   if (Stream == nullptr)
   {
-    ezResourceLoadDesc res;
+    WResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
 
     return res;
   }
 
-  ezImage* pImage = nullptr;
-  Stream->ReadBytes(&pImage, sizeof(ezImage*));
+  WImage* pImage = nullptr;
+  Stream->ReadBytes(&pImage, sizeof(WImage*));
 
   bool bIsFallback = false;
   *Stream >> bIsFallback;
 
-  ezTexFormat texFormat;
+  WTexFormat texFormat;
   texFormat.ReadHeader(*Stream);
 
-  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+  const WUInt32 uiNumMipmapsLowRes = WTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
 
-  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
-  const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
+  const WUInt32 uiNumMipLevels = WMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+  const WUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   if (pImage->GetWidth(uiHighestMipLevel) != pImage->GetHeight(uiHighestMipLevel))
   {
-    ezLog::Error("Cubemap width '{0}' is not identical to height '{1}'", pImage->GetWidth(uiHighestMipLevel), pImage->GetHeight(uiHighestMipLevel));
+    WLog::Error("Cubemap width '{0}' is not identical to height '{1}'", pImage->GetWidth(uiHighestMipLevel), pImage->GetHeight(uiHighestMipLevel));
 
-    ezResourceLoadDesc res;
+    WResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
 
     return res;
   }
 
-  m_Format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), texFormat.m_bSRGB);
+  m_Format = WTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), texFormat.m_bSRGB);
   m_uiWidthAndHeight = pImage->GetWidth(uiHighestMipLevel);
 
-  ezGALTextureCreationDescription texDesc;
+  WGALTextureCreationDescription texDesc;
   texDesc.m_Format = m_Format;
   texDesc.m_uiWidth = m_uiWidthAndHeight;
   texDesc.m_uiHeight = m_uiWidthAndHeight;
@@ -106,79 +106,79 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   texDesc.m_ResourceAccess.m_bImmutable = true;
 
   if (texDesc.m_uiDepth > 1)
-    texDesc.m_Type = ezGALTextureType::Texture3D;
+    texDesc.m_Type = WGALTextureType::Texture3D;
 
   if (pImage->GetNumFaces() == 6)
-    texDesc.m_Type = ezGALTextureType::TextureCube;
+    texDesc.m_Type = WGALTextureType::TextureCube;
 
   if (texDesc.m_uiArraySize > 1)
   {
-    if (texDesc.m_Type == ezGALTextureType::TextureCube)
+    if (texDesc.m_Type == WGALTextureType::TextureCube)
     {
-      texDesc.m_Type = ezGALTextureType::TextureCubeArray;
+      texDesc.m_Type = WGALTextureType::TextureCubeArray;
     }
-    else if (texDesc.m_Type == ezGALTextureType::Texture2D)
+    else if (texDesc.m_Type == WGALTextureType::Texture2D)
     {
-      texDesc.m_Type = ezGALTextureType::Texture2DArray;
+      texDesc.m_Type = WGALTextureType::Texture2DArray;
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
+  W_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
-  ezTempHybridArray<ezGALSystemMemoryDescription, 32> InitData;
+  WTempHybridArray<WGALSystemMemoryDescription, 32> InitData;
 
-  for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
+  for (WUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {
-    for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
+    for (WUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
     {
-      for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
+      for (WUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
       {
-        ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
+        WGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
 
         id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
 
-        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
+        W_ASSERT_DEV(pImage->GetDepthPitch(mip) < WMath::MaxValue<WUInt32>(), "Depth pitch exceeds WGAL limits.");
 
-        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+        if (WImageFormat::GetType(pImage->GetImageFormat()) == WImageFormatType::BLOCK_COMPRESSED)
         {
-          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
+          const WUInt32 uiMemPitchFactor = WGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
 
-          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
+          id.m_uiRowPitch = WMath::Max<WUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
         }
         else
         {
-          id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
+          id.m_uiRowPitch = static_cast<WUInt32>(pImage->GetRowPitch(mip));
         }
 
-        id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
+        id.m_uiSlicePitch = static_cast<WUInt32>(pImage->GetDepthPitch(mip));
 
         m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
       }
     }
   }
 
-  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
+  const WArrayPtr<WGALSystemMemoryDescription> InitDataPtr(InitData);
 
-  ezTextureCubeResourceDescriptor td;
+  WTextureCubeResourceDescriptor td;
   td.m_DescGAL = texDesc;
   td.m_SamplerDesc.m_AddressU = texFormat.m_AddressModeU;
   td.m_SamplerDesc.m_AddressV = texFormat.m_AddressModeV;
   td.m_SamplerDesc.m_AddressW = texFormat.m_AddressModeW;
   td.m_InitialContent = InitDataPtr;
 
-  ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
+  WTextureUtils::ConfigureSampler(static_cast<WTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
   // ignore its return value here, we build our own
   CreateResource(std::move(td));
 
   {
-    ezResourceLoadDesc res;
+    WResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
 
     if (uiHighestMipLevel == 0)
@@ -186,34 +186,34 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
     else
       res.m_uiQualityLevelsLoadable = 1;
 
-    res.m_State = ezResourceState::Loaded;
+    res.m_State = WResourceState::Loaded;
 
     return res;
   }
 }
 
-void ezTextureCubeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WTextureCubeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezTextureCubeResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WTextureCubeResource);
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WTextureCubeResource, WTextureCubeResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
+  WResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;
   ret.m_uiQualityLevelsLoadable = descriptor.m_uiQualityLevelsLoadable;
-  ret.m_State = ezResourceState::Loaded;
+  ret.m_State = WResourceState::Loaded;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  EZ_ASSERT_DEV(descriptor.m_DescGAL.m_uiWidth == descriptor.m_DescGAL.m_uiHeight, "Cubemap width and height must be identical");
+  W_ASSERT_DEV(descriptor.m_DescGAL.m_uiWidth == descriptor.m_DescGAL.m_uiHeight, "Cubemap width and height must be identical");
 
   m_Format = descriptor.m_DescGAL.m_Format;
   m_uiWidthAndHeight = descriptor.m_DescGAL.m_uiWidth;
 
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
-  EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+  W_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
@@ -223,7 +223,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDes
   }
 
   m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
-  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+  W_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
 
   ++m_uiLoadedTextures;
 
@@ -232,4 +232,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDes
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureCubeResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureCubeResource);

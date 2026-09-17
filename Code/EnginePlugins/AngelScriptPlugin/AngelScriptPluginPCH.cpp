@@ -4,12 +4,12 @@
 
 #include <Foundation/Configuration/Plugin.h>
 
-EZ_STATICLINK_LIBRARY(AngelScriptPlugin)
+W_STATICLINK_LIBRARY(AngelScriptPlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(AngelScriptPlugin_Resources_AngelScriptResource);
-  EZ_STATICLINK_REFERENCE(AngelScriptPlugin_Runtime_AsEngineSingleton);
-  EZ_STATICLINK_REFERENCE(AngelScriptPlugin_Runtime_AsFunctionDispatch);
+  W_STATICLINK_REFERENCE(AngelScriptPlugin_Resources_AngelScriptResource);
+  W_STATICLINK_REFERENCE(AngelScriptPlugin_Runtime_AsEngineSingleton);
+  W_STATICLINK_REFERENCE(AngelScriptPlugin_Runtime_AsFunctionDispatch);
 }

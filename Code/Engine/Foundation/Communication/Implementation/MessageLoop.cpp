@@ -5,16 +5,16 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Configuration/Startup.h>
 
-EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
+W_IMPLEMENT_SINGLETON(WMessageLoop);
 
-#if EZ_ENABLED(EZ_SUPPORTS_IPC)
+#if W_ENABLED(W_SUPPORTS_IPC)
 #  include <MessageLoop_Platform.h>
 #else
 #  include <Foundation/Communication/Implementation/MessageLoop_Fallback.h>
 #endif
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "TaskSystem",
@@ -23,80 +23,80 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
 
   ON_CORESYSTEMS_STARTUP
   {
-    if (ezStartup::HasApplicationTag("NoMessageLoop"))
+    if (WStartup::HasApplicationTag("NoMessageLoop"))
       return;
 
-    #if EZ_ENABLED(EZ_SUPPORTS_IPC)
-      EZ_DEFAULT_NEW(ezMessageLoop_Platform);
+    #if W_ENABLED(W_SUPPORTS_IPC)
+      W_DEFAULT_NEW(WMessageLoop_Platform);
     #else
-      EZ_DEFAULT_NEW(ezMessageLoop_Fallback);
+      W_DEFAULT_NEW(WMessageLoop_Fallback);
     #endif
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezMessageLoop* pDummy = ezMessageLoop::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WMessageLoop* pDummy = WMessageLoop::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-class ezLoopThread : public ezThread
+class WLoopThread : public WThread
 {
 public:
-  ezLoopThread()
-    : ezThread("ezMessageLoopThread")
+  WLoopThread()
+    : WThread("WMessageLoopThread")
   {
   }
-  ezMessageLoop* m_pRemoteInterface = nullptr;
-  virtual ezUInt32 Run() override
+  WMessageLoop* m_pRemoteInterface = nullptr;
+  virtual WUInt32 Run() override
   {
     m_pRemoteInterface->RunLoop();
     return 0;
   }
 };
 
-ezMessageLoop::ezMessageLoop()
+WMessageLoop::WMessageLoop()
   : m_SingletonRegistrar(this)
 {
 }
 
-void ezMessageLoop::StartUpdateThread()
+void WMessageLoop::StartUpdateThread()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   if (m_pUpdateThread == nullptr)
   {
-    m_pUpdateThread = EZ_DEFAULT_NEW(ezLoopThread);
+    m_pUpdateThread = W_DEFAULT_NEW(WLoopThread);
     m_pUpdateThread->m_pRemoteInterface = this;
     m_pUpdateThread->Start();
   }
 }
 
-void ezMessageLoop::StopUpdateThread()
+void WMessageLoop::StopUpdateThread()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   if (m_pUpdateThread != nullptr)
   {
     m_bShouldQuit = true;
     WakeUp();
     m_pUpdateThread->Join();
 
-    EZ_DEFAULT_DELETE(m_pUpdateThread);
+    W_DEFAULT_DELETE(m_pUpdateThread);
   }
 }
 
-void ezMessageLoop::RunLoop()
+void WMessageLoop::RunLoop()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_ThreadId = ezThreadUtils::GetCurrentThreadID();
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+  m_ThreadId = WThreadUtils::GetCurrentThreadID();
 #endif
 
   while (true)
   {
     if (m_bCallTickFunction)
     {
-      for (ezIpcChannel* pChannel : m_AllAddedChannels)
+      for (WIpcChannel* pChannel : m_AllAddedChannels)
       {
         if (pChannel->RequiresRegularTick())
         {
@@ -125,25 +125,25 @@ void ezMessageLoop::RunLoop()
   }
 }
 
-bool ezMessageLoop::ProcessTasks()
+bool WMessageLoop::ProcessTasks()
 {
   {
-    EZ_LOCK(m_TasksMutex);
+    W_LOCK(m_TasksMutex);
     // Swap out the queues under the lock so we can process them without holding the lock
     m_ConnectQueueTask.Swap(m_ConnectQueue);
     m_SendQueueTask.Swap(m_SendQueue);
     m_DisconnectQueueTask.Swap(m_DisconnectQueue);
   }
 
-  for (ezIpcChannel* pChannel : m_ConnectQueueTask)
+  for (WIpcChannel* pChannel : m_ConnectQueueTask)
   {
     pChannel->InternalConnect();
   }
-  for (ezIpcChannel* pChannel : m_SendQueueTask)
+  for (WIpcChannel* pChannel : m_SendQueueTask)
   {
     pChannel->InternalSend();
   }
-  for (ezIpcChannel* pChannel : m_DisconnectQueueTask)
+  for (WIpcChannel* pChannel : m_DisconnectQueueTask)
   {
     pChannel->InternalDisconnect();
   }
@@ -155,15 +155,15 @@ bool ezMessageLoop::ProcessTasks()
   return bDidWork;
 }
 
-void ezMessageLoop::Quit()
+void WMessageLoop::Quit()
 {
   m_bShouldQuit = true;
 }
 
-void ezMessageLoop::AddChannel(ezIpcChannel* pChannel)
+void WMessageLoop::AddChannel(WIpcChannel* pChannel)
 {
   {
-    EZ_LOCK(m_TasksMutex);
+    W_LOCK(m_TasksMutex);
     m_AllAddedChannels.PushBack(pChannel);
 
     m_bCallTickFunction = false;
@@ -181,9 +181,9 @@ void ezMessageLoop::AddChannel(ezIpcChannel* pChannel)
   pChannel->m_pOwner = this;
 }
 
-void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
+void WMessageLoop::RemoveChannel(WIpcChannel* pChannel)
 {
-  EZ_LOCK(m_TasksMutex);
+  W_LOCK(m_TasksMutex);
 
   m_AllAddedChannels.RemoveAndSwap(pChannel);
   m_ConnectQueue.RemoveAndSwap(pChannel);
@@ -191,4 +191,4 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
   m_SendQueue.RemoveAndSwap(pChannel);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);
+W_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);

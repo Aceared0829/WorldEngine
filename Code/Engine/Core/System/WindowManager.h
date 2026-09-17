@@ -8,35 +8,35 @@
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezWindowBase;
-class ezWindowOutputTargetBase;
+class WWindowBase;
+class WWindowOutputTargetBase;
 
-using ezRegisteredWndHandleData = ezGenericId<16, 16>;
+using WRegisteredWndHandleData = WGenericId<16, 16>;
 
-/// Handle type for windows registered with the ezWindowManager.
+/// Handle type for windows registered with the WWindowManager.
 ///
 /// Default-constructed handles are invalid and can be checked with IsInvalidated().
-/// This handle type is separate from native platform window handles (ezWindowHandle).
-class ezRegisteredWndHandle
+/// This handle type is separate from native platform window handles (WWindowHandle).
+class WRegisteredWndHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezRegisteredWndHandle, ezRegisteredWndHandleData);
+  W_DECLARE_HANDLE_TYPE(WRegisteredWndHandle, WRegisteredWndHandleData);
 };
 
 /// Callback function type called when a registered window is destroyed.
-using ezWindowDestroyFunc = ezDelegate<void(ezRegisteredWndHandle)>;
+using WWindowDestroyFunc = WDelegate<void(WRegisteredWndHandle)>;
 
 /// Manages registered windows and their associated data.
 ///
 /// The WindowManager provides a centralized system for managing windows throughout
 /// their lifetime. Windows are registered with unique handles and can have associated
 /// output targets and destruction callbacks.
-class EZ_CORE_DLL ezWindowManager final
+class W_CORE_DLL WWindowManager final
 {
-  EZ_DECLARE_SINGLETON(ezWindowManager);
+  W_DECLARE_SINGLETON(WWindowManager);
 
 public:
-  ezWindowManager();
-  ~ezWindowManager();
+  WWindowManager();
+  ~WWindowManager();
 
   /// Processes window messages for all registered windows.
   ///
@@ -53,45 +53,45 @@ public:
   ///
   /// The returned handle remains valid until the window is explicitly closed.
   /// The pCreatedBy parameter allows closing all windows created by a specific object.
-  ezRegisteredWndHandle Register(ezStringView sName, const void* pCreatedBy, ezUniquePtr<ezWindowBase>&& pWindow);
+  WRegisteredWndHandle Register(WStringView sName, const void* pCreatedBy, WUniquePtr<WWindowBase>&& pWindow);
 
   /// Retrieves handles for all registered windows.
   ///
   /// \param out_WindowIDs Array to fill with window handles
   /// \param pCreatedBy Optional filter to only return windows created by this object
-  void GetRegistered(ezDynamicArray<ezRegisteredWndHandle>& out_windowHandles, const void* pCreatedBy = nullptr);
+  void GetRegistered(WDynamicArray<WRegisteredWndHandle>& out_windowHandles, const void* pCreatedBy = nullptr);
 
   /// Checks if a window handle is valid and refers to an existing window.
   ///
   /// Invalid handles can occur if the window was closed or if using a default-constructed handle.
-  bool IsValid(ezRegisteredWndHandle hWindow) const;
+  bool IsValid(WRegisteredWndHandle hWindow) const;
 
   /// Gets the name of a registered window.
-  ezStringView GetName(ezRegisteredWndHandle hWindow) const;
+  WStringView GetName(WRegisteredWndHandle hWindow) const;
 
   /// Gets the window implementation for a registered window.
-  ezWindowBase* GetWindow(ezRegisteredWndHandle hWindow) const;
+  WWindowBase* GetWindow(WRegisteredWndHandle hWindow) const;
 
   /// Sets a callback to be invoked when the window is destroyed.
   ///
   /// The callback receives the window handle as parameter. Only one callback
   /// can be set per window; setting a new callback replaces the previous one.
-  void SetDestroyCallback(ezRegisteredWndHandle hWindow, ezWindowDestroyFunc onDestroyCallback);
+  void SetDestroyCallback(WRegisteredWndHandle hWindow, WWindowDestroyFunc onDestroyCallback);
 
   /// Associates an output target with a registered window.
   ///
   /// Output targets are destroyed before the window to ensure proper cleanup order.
   /// Setting a new output target replaces any existing one.
-  void SetOutputTarget(ezRegisteredWndHandle hWindow, ezUniquePtr<ezWindowOutputTargetBase>&& pOutputTarget);
+  void SetOutputTarget(WRegisteredWndHandle hWindow, WUniquePtr<WWindowOutputTargetBase>&& pOutputTarget);
 
   /// Gets the output target associated with a window.
-  ezWindowOutputTargetBase* GetOutputTarget(ezRegisteredWndHandle hWindow) const;
+  WWindowOutputTargetBase* GetOutputTarget(WRegisteredWndHandle hWindow) const;
 
   /// Closes and unregisters a specific window.
   ///
   /// This first calls any registered destroy callback, then destroys the output target, then the window.
   /// The handle becomes invalid after this call.
-  void Close(ezRegisteredWndHandle hWindow);
+  void Close(WRegisteredWndHandle hWindow);
 
   /// Closes all windows created by a specific object.
   ///
@@ -103,12 +103,12 @@ public:
 private:
   struct Data
   {
-    ezString m_sName;
+    WString m_sName;
     const void* m_pCreatedBy = nullptr;
-    ezUniquePtr<ezWindowBase> m_pWindow;
-    ezUniquePtr<ezWindowOutputTargetBase> m_pOutputTarget;
-    ezWindowDestroyFunc m_OnDestroy;
+    WUniquePtr<WWindowBase> m_pWindow;
+    WUniquePtr<WWindowOutputTargetBase> m_pOutputTarget;
+    WWindowDestroyFunc m_OnDestroy;
   };
 
-  ezIdTable<ezRegisteredWndHandleData, ezUniquePtr<Data>> m_Data;
+  WIdTable<WRegisteredWndHandleData, WUniquePtr<Data>> m_Data;
 };

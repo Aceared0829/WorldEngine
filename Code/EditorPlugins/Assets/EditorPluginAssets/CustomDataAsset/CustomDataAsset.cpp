@@ -14,59 +14,59 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetProperties, 1, ezRTTIDefaultAllocator<ezCustomDataAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomDataAssetProperties, 1, WRTTIDefaultAllocator<WCustomDataAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_pType)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("Type", m_pType)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomDataAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCustomDataAssetDocument::ezCustomDataAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezCustomDataAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
+WCustomDataAssetDocument::WCustomDataAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WCustomDataAssetProperties>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezCustomDataAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WCustomDataAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+  const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezAbstractObjectGraph abstractObjectGraph;
-  ezDocumentObjectConverterWriter objectWriter(&abstractObjectGraph, GetObjectManager());
+  WAbstractObjectGraph abstractObjectGraph;
+  WDocumentObjectConverterWriter objectWriter(&abstractObjectGraph, GetObjectManager());
 
-  ezDocumentObject* pObject = GetPropertyObject();
+  WDocumentObject* pObject = GetPropertyObject();
 
-  ezVariant type = pObject->GetTypeAccessor().GetValue("Type");
-  EZ_ASSERT_DEV(type.IsA<ezUuid>(), "Implementation error");
+  WVariant type = pObject->GetTypeAccessor().GetValue("Type");
+  W_ASSERT_DEV(type.IsA<WUuid>(), "Implementation error");
 
-  if (ezDocumentObject* pDataObject = pObject->GetChild(type.Get<ezUuid>()))
+  if (WDocumentObject* pDataObject = pObject->GetChild(type.Get<WUuid>()))
   {
-    ezAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(pDataObject, "root");
+    WAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(pDataObject, "root");
   }
 
-  ezAbstractGraphBinarySerializer::Write(stream, &abstractObjectGraph);
-  return ezStatus(EZ_SUCCESS);
+  WAbstractGraphBinarySerializer::Write(stream, &abstractObjectGraph);
+  return WStatus(W_SUCCESS);
 }
 
-void ezCustomDataAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WCustomDataAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  const ezDocumentObject* pObject = GetPropertyObject();
+  const WDocumentObject* pObject = GetPropertyObject();
 
-  const ezUuid typeGuid = GetObjectAccessor()->GetByName<ezUuid>(pObject, "Type");
-  if (const ezDocumentObject* pDataObject = GetObjectAccessor()->GetObject(typeGuid))
+  const WUuid typeGuid = GetObjectAccessor()->GetByName<WUuid>(pObject, "Type");
+  if (const WDocumentObject* pDataObject = GetObjectAccessor()->GetObject(typeGuid))
   {
-    const ezRTTI* pRtti = pDataObject->GetType();
+    const WRTTI* pRtti = pDataObject->GetType();
 
-    ezStringBuilder tags(";");
+    WStringBuilder tags(";");
 
-    while (pRtti && pRtti != ezGetStaticRTTI<ezCustomData>())
+    while (pRtti && pRtti != WGetStaticRTTI<WCustomData>())
     {
       tags.Append(pRtti->GetTypeName(), ";");
 

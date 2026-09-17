@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ezQtLaunchFileserveDlg</class>
- <widget class="QDialog" name="ezQtLaunchFileserveDlg">
+ <class>WQtLaunchFileserveDlg</class>
+ <widget class="QDialog" name="WQtLaunchFileserveDlg">
   <property name="geometry">
    <rect>
     <x>0</x>

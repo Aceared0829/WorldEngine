@@ -4,15 +4,15 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALComputePipeline : public ezGALObject<ezGALComputePipelineCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALComputePipeline : public WGALObject<WGALComputePipelineCreationDescription>
 {
 public:
-  ezGALComputePipeline(const ezGALComputePipelineCreationDescription& description)
-    : ezGALObject<ezGALComputePipelineCreationDescription>(description)
+  WGALComputePipeline(const WGALComputePipelineCreationDescription& description)
+    : WGALObject<WGALComputePipelineCreationDescription>(description)
   {
   }
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
   virtual void SetDebugName(const char* szName) = 0;
 };

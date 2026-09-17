@@ -12,31 +12,31 @@
 #include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipContext, 1, ezRTTIDefaultAllocator<ezAnimationClipContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipContext, 1, WRTTIDefaultAllocator<WAnimationClipContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Animation Clip"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Animation Clip"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimationClipContext::ezAnimationClipContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WAnimationClipContext::WAnimationClipContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
+void WAnimationClipContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg0)
 {
-  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WQuerySelectionBBoxMsgToEngine*>(pMsg0))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEngine*>(pMsg0))
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
@@ -50,9 +50,9 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
       m_sAnimatedMeshToUse = pMsg->m_sPayload;
 
       auto pWorld = m_pWorld;
-      EZ_LOCK(pWorld->GetWriteMarker());
+      W_LOCK(pWorld->GetWriteMarker());
 
-      ezAnimatedMeshComponent* pAnimMesh;
+      WAnimatedMeshComponent* pAnimMesh;
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
       {
         pAnimMesh->DeleteComponent();
@@ -61,7 +61,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
       if (!m_sAnimatedMeshToUse.IsEmpty())
       {
-        m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+        m_hAnimMeshComponent = WAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
         pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
       }
     }
@@ -81,21 +81,21 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezViewRedrawMsgToEngine*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WViewRedrawMsgToEngine*>(pMsg0))
   {
     auto pWorld = m_pWorld;
-    EZ_LOCK(pWorld->GetWriteMarker());
+    W_LOCK(pWorld->GetWriteMarker());
 
     if (!m_sAnimatedMeshToUse.IsEmpty())
     {
-      ezStringBuilder sAnimClipGuid;
-      ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
-      ezAnimationClipResourceHandle hAnimation = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimClipGuid);
+      WStringBuilder sAnimClipGuid;
+      WConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
+      WAnimationClipResourceHandle hAnimation = WResourceManager::LoadResource<WAnimationClipResource>(sAnimClipGuid);
 
-      ezResourceLock<ezAnimationClipResource> pAnimation(hAnimation, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-      if (pAnimation.GetAcquireResult() == ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimation(hAnimation, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+      if (pAnimation.GetAcquireResult() == WResourceAcquireResult::Final)
       {
-        ezSimpleDocumentConfigMsgToEditor msg;
+        WSimpleDocumentConfigMsgToEditor msg;
         msg.m_DocumentGuid = pMsg->m_DocumentGuid;
         msg.m_sWhatToDo = "ClipDuration";
         msg.m_PayloadValue = pAnimation->GetDescriptor().GetDuration();
@@ -106,15 +106,15 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     GenerateAndApplyPose();
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg0);
+  WEngineProcessDocumentContext::HandleMessage(pMsg0);
 }
 
-void ezAnimationClipContext::OnInitialize()
+void WAnimationClipContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
+  WGameObjectDesc obj;
 
   // Preview
   {
@@ -124,20 +124,20 @@ void ezAnimationClipContext::OnInitialize()
   }
 }
 
-ezEngineProcessViewContext* ezAnimationClipContext::CreateViewContext()
+WEngineProcessViewContext* WAnimationClipContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezAnimationClipViewContext, this);
+  return W_DEFAULT_NEW(WAnimationClipViewContext, this);
 }
 
-void ezAnimationClipContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WAnimationClipContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WAnimationClipContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_fNormalizedPlaybackPosition = 0.5f;
     GenerateAndApplyPose();
@@ -147,22 +147,22 @@ bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewConte
     m_pWorld->SetWorldSimulationEnabled(false);
   }
 
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezAnimationClipViewContext* pMeshViewContext = static_cast<ezAnimationClipViewContext*>(pThumbnailViewContext);
+  WAnimationClipViewContext* pMeshViewContext = static_cast<WAnimationClipViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WAnimationClipContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_pGameObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pGameObject->UpdateLocalBounds();
     m_pGameObject->UpdateGlobalTransformAndBounds();
@@ -172,9 +172,9 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
       bounds.ExpandToInclude(b);
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
@@ -184,34 +184,34 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   SendProcessMessage(&res);
 }
 
-void ezAnimationClipContext::SetPlaybackPosition(double pos)
+void WAnimationClipContext::SetPlaybackPosition(double pos)
 {
   m_fNormalizedPlaybackPosition = static_cast<float>(pos);
 }
 
-void ezAnimationClipContext::GenerateAndApplyPose()
+void WAnimationClipContext::GenerateAndApplyPose()
 {
   if (m_sAnimatedMeshToUse.IsEmpty() || m_pGameObject == nullptr)
     return;
 
-  ezMeshResourceHandle hAnimMesh = ezResourceManager::LoadResource<ezMeshResource>(m_sAnimatedMeshToUse);
-  ezResourceLock<ezMeshResource> pAnimMesh(hAnimMesh, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-  if (pAnimMesh.GetAcquireResult() != ezResourceAcquireResult::Final || !pAnimMesh->m_hDefaultSkeleton.IsValid())
+  WMeshResourceHandle hAnimMesh = WResourceManager::LoadResource<WMeshResource>(m_sAnimatedMeshToUse);
+  WResourceLock<WMeshResource> pAnimMesh(hAnimMesh, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  if (pAnimMesh.GetAcquireResult() != WResourceAcquireResult::Final || !pAnimMesh->m_hDefaultSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(pAnimMesh->m_hDefaultSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(pAnimMesh->m_hDefaultSkeleton, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
-  ezStringBuilder sAnimClipGuid;
-  ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
-  ezAnimationClipResourceHandle hAnimation = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimClipGuid);
+  WStringBuilder sAnimClipGuid;
+  WConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
+  WAnimationClipResourceHandle hAnimation = WResourceManager::LoadResource<WAnimationClipResource>(sAnimClipGuid);
 
-  ezResourceLock<ezAnimationClipResource> pAnimation(hAnimation, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-  if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WAnimationClipResource> pAnimation(hAnimation, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  if (pAnimation.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
-  ezAnimPoseGenerator poseGen;
+  WAnimPoseGenerator poseGen;
   poseGen.Reset(pSkeleton.GetPointer(), m_pGameObject);
 
   bool bGraphSetup = false;
@@ -221,22 +221,22 @@ void ezAnimationClipContext::GenerateAndApplyPose()
     // Additive mode: blend base animation with the additive clip on top.
     // The CombinePoses command automatically separates additive and non-additive
     // layers based on the m_bAdditive flag in each clip's descriptor.
-    ezAnimationClipResourceHandle hBaseAnim = ezResourceManager::LoadResource<ezAnimationClipResource>(m_sBaseAnimationClip);
-    ezResourceLock<ezAnimationClipResource> pBaseAnim(hBaseAnim, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+    WAnimationClipResourceHandle hBaseAnim = WResourceManager::LoadResource<WAnimationClipResource>(m_sBaseAnimationClip);
+    WResourceLock<WAnimationClipResource> pBaseAnim(hBaseAnim, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-    if (pBaseAnim.GetAcquireResult() == ezResourceAcquireResult::Final)
+    if (pBaseAnim.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       auto& cmdBase = poseGen.AllocCommandSampleTrack(0);
       cmdBase.m_hAnimationClip = hBaseAnim;
       cmdBase.m_fNormalizedSamplePos = 0.0f;
       cmdBase.m_fPreviousNormalizedSamplePos = 0.0f;
-      cmdBase.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+      cmdBase.m_EventSampling = WAnimPoseEventTrackSampleMode::None;
 
       auto& cmdAdditive = poseGen.AllocCommandSampleTrack(1);
       cmdAdditive.m_hAnimationClip = hAnimation;
       cmdAdditive.m_fNormalizedSamplePos = m_fNormalizedPlaybackPosition;
       cmdAdditive.m_fPreviousNormalizedSamplePos = m_fNormalizedPlaybackPosition;
-      cmdAdditive.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+      cmdAdditive.m_EventSampling = WAnimPoseEventTrackSampleMode::None;
 
       auto& cmdCombine = poseGen.AllocCommandCombinePoses();
       cmdCombine.m_Inputs.PushBack(cmdBase.GetCommandID());
@@ -260,7 +260,7 @@ void ezAnimationClipContext::GenerateAndApplyPose()
     cmdSample.m_hAnimationClip = hAnimation;
     cmdSample.m_fNormalizedSamplePos = m_fNormalizedPlaybackPosition;
     cmdSample.m_fPreviousNormalizedSamplePos = m_fNormalizedPlaybackPosition;
-    cmdSample.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+    cmdSample.m_EventSampling = WAnimPoseEventTrackSampleMode::None;
 
     auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
     cmdL2M.m_pSendLocalPoseMsgTo = m_pGameObject;
@@ -272,7 +272,7 @@ void ezAnimationClipContext::GenerateAndApplyPose()
 
   if (poseGen.ShouldSendPoseResultMsg())
   {
-    ezMsgAnimationPoseUpdated poseMsg;
+    WMsgAnimationPoseUpdated poseMsg;
     poseMsg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     poseMsg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
     poseMsg.m_ModelTransforms = poseGen.GetCurrentPose();
@@ -280,11 +280,11 @@ void ezAnimationClipContext::GenerateAndApplyPose()
   }
 }
 
-void ezAnimationClipContext::ExtractRootMotionFromFeet()
+void WAnimationClipContext::ExtractRootMotionFromFeet()
 {
-  auto ReturnFailure = [this](ezStringView str)
+  auto ReturnFailure = [this](WStringView str)
   {
-    ezSimpleDocumentConfigMsgToEditor msg;
+    WSimpleDocumentConfigMsgToEditor msg;
     msg.m_sWhatToDo = "ReportError";
     msg.m_sPayload = str;
     SendProcessMessage(&msg);
@@ -296,21 +296,21 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     return;
   }
 
-  ezStringBuilder sAnimClipGuid;
-  ezConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
-  ezAnimationClipResourceHandle hAnimation = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimClipGuid);
+  WStringBuilder sAnimClipGuid;
+  WConversionUtils::ToString(GetDocumentGuid(), sAnimClipGuid);
+  WAnimationClipResourceHandle hAnimation = WResourceManager::LoadResource<WAnimationClipResource>(sAnimClipGuid);
 
-  ezResourceLock<ezAnimationClipResource> pAnimation(hAnimation, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WAnimationClipResource> pAnimation(hAnimation, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pAnimation.GetAcquireResult() != WResourceAcquireResult::Final)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nCouldn't load animation.");
     return;
   }
 
-  ezMeshResourceHandle hAnimMesh = ezResourceManager::LoadResource<ezMeshResource>(m_sAnimatedMeshToUse);
-  ezResourceLock<ezMeshResource> pAnimMesh(hAnimMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WMeshResourceHandle hAnimMesh = WResourceManager::LoadResource<WMeshResource>(m_sAnimatedMeshToUse);
+  WResourceLock<WMeshResource> pAnimMesh(hAnimMesh, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  if (pAnimMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pAnimMesh.GetAcquireResult() != WResourceAcquireResult::Final)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nCouldn't load preview mesh.");
     return;
@@ -322,27 +322,27 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     return;
   }
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(pAnimMesh->m_hDefaultSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(pAnimMesh->m_hDefaultSkeleton, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nSkeleton of preview mesh could not be loaded.");
     return;
   }
 
-  ezAnimPoseGenerator pg;
+  WAnimPoseGenerator pg;
 
   const auto& skel = pSkeleton->GetDescriptor().m_Skeleton;
 
-  const ezUInt16 uiFoot1 = pSkeleton->GetDescriptor().m_uiLeftFootJoint;
-  const ezUInt16 uiFoot2 = pSkeleton->GetDescriptor().m_uiRightFootJoint;
+  const WUInt16 uiFoot1 = pSkeleton->GetDescriptor().m_uiLeftFootJoint;
+  const WUInt16 uiFoot2 = pSkeleton->GetDescriptor().m_uiRightFootJoint;
 
-  if (uiFoot1 == ezInvalidJointIndex)
+  if (uiFoot1 == WInvalidJointIndex)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nLeft foot joint is not correctly defined in skeleton asset.");
     return;
   }
 
-  if (uiFoot2 == ezInvalidJointIndex)
+  if (uiFoot2 == WInvalidJointIndex)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nRight foot joint is not correctly defined in skeleton asset.");
     return;
@@ -354,16 +354,16 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     return;
   }
 
-  ezUInt16 uiSharedParentJoint = ezInvalidJointIndex;
+  WUInt16 uiSharedParentJoint = WInvalidJointIndex;
 
   // find shared parent bone
   {
-    ezTempHybridArray<ezUInt16, 32> parents;
+    WTempHybridArray<WUInt16, 32> parents;
 
     auto* pJoint = &skel.GetJointByIndex(uiFoot1);
 
     // collect all parent joint indices
-    while (pJoint->GetParentIndex() != ezInvalidJointIndex)
+    while (pJoint->GetParentIndex() != WInvalidJointIndex)
     {
       parents.PushBack(pJoint->GetParentIndex());
       pJoint = &skel.GetJointByIndex(pJoint->GetParentIndex());
@@ -372,7 +372,7 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     pJoint = &skel.GetJointByIndex(uiFoot2);
 
     // collect all parent joint indices
-    while (pJoint->GetParentIndex() != ezInvalidJointIndex)
+    while (pJoint->GetParentIndex() != WInvalidJointIndex)
     {
       if (parents.Contains(pJoint->GetParentIndex()))
       {
@@ -384,30 +384,30 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     }
   }
 
-  if (uiSharedParentJoint == ezInvalidJointIndex)
+  if (uiSharedParentJoint == WInvalidJointIndex)
   {
     ReturnFailure("Failed to extract root motion from feet.\n\nCouldn't find shared parent bone of feet bones.");
     return;
   }
 
   // TODO: don't hard-code num samples ?
-  const ezUInt32 uiNumSamples = 32;
+  const WUInt32 uiNumSamples = 32;
   float fPrevPos = 0.0f;
 
   int iFootDown = -1;
   int iFootUp = -1;
-  ezVec3 vLastHipDist(0);
+  WVec3 vLastHipDist(0);
 
-  ezVec3 vMovement(0);
+  WVec3 vMovement(0);
   int iSamplesTaken = 0;
 
 
-  for (ezUInt32 uiSample = 0; uiSample < uiNumSamples; ++uiSample)
+  for (WUInt32 uiSample = 0; uiSample < uiNumSamples; ++uiSample)
   {
     pg.Reset(pSkeleton.GetPointer(), nullptr);
 
     auto& cmd = pg.AllocCommandSampleTrack(0);
-    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+    cmd.m_EventSampling = WAnimPoseEventTrackSampleMode::None;
     cmd.m_fPreviousNormalizedSamplePos = fPrevPos;
     cmd.m_fNormalizedSamplePos = (float)uiSample / (float)(uiNumSamples - 1);
     cmd.m_hAnimationClip = hAnimation;
@@ -420,7 +420,7 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
 
     pg.UpdatePose(false);
 
-    const ezVec3 p[3] =
+    const WVec3 p[3] =
       {
         pg.GetCurrentPose()[uiSharedParentJoint].GetTranslationVector(),
         pg.GetCurrentPose()[uiFoot1].GetTranslationVector(),
@@ -445,13 +445,13 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     }
     else if (p[iFootDown].y > p[iFootUp].y)
     {
-      ezMath::Swap(iFootDown, iFootUp);
+      WMath::Swap(iFootDown, iFootUp);
 
       vLastHipDist = p[0] - p[iFootDown];
     }
     else
     {
-      const ezVec3 vHipDist = p[0] - p[iFootDown];
+      const WVec3 vHipDist = p[0] - p[iFootDown];
 
       vMovement += vHipDist - vLastHipDist;
       iSamplesTaken++;
@@ -465,7 +465,7 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
     return;
   }
 
-  ezVec3 avg = vMovement / (float)iSamplesTaken;
+  WVec3 avg = vMovement / (float)iSamplesTaken;
   avg *= (uiNumSamples - 1);                                           // calculate the average movement over the entire clip
   avg /= pAnimation->GetDescriptor().GetDuration().AsFloatInSeconds(); // scale it to the movement per second
 
@@ -474,11 +474,11 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
 
   const float len = avg.GetLengthAndNormalize();
 
-  ezVec4 res;
+  WVec4 res;
   res.Set(avg.x, avg.y, avg.z, len);
 
   {
-    ezSimpleDocumentConfigMsgToEditor msg;
+    WSimpleDocumentConfigMsgToEditor msg;
     msg.m_sWhatToDo = "ExtractRootMotionFromFeet";
     msg.m_PayloadValue = res;
 

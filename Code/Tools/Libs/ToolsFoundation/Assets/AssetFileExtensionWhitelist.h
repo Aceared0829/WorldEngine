@@ -8,15 +8,15 @@
 /// A global whitelist for file extension that may be used as certain asset types
 ///
 /// UI elements etc. may use this whitelist to detect whether a selected file is a valid candidate for an asset slot
-class EZ_TOOLSFOUNDATION_DLL ezAssetFileExtensionWhitelist
+class W_TOOLSFOUNDATION_DLL WAssetFileExtensionWhitelist
 {
 public:
-  static void AddAssetFileExtension(ezStringView sAssetType, ezStringView sAllowedFileExtension);
+  static void AddAssetFileExtension(WStringView sAssetType, WStringView sAllowedFileExtension);
 
-  static bool IsFileOnAssetWhitelist(ezStringView sAssetType, ezStringView sFile);
+  static bool IsFileOnAssetWhitelist(WStringView sAssetType, WStringView sFile);
 
-  static const ezSet<ezString>& GetAssetFileExtensions(ezStringView sAssetType);
+  static const WSet<WString>& GetAssetFileExtensions(WStringView sAssetType);
 
 private:
-  static ezMap<ezString, ezSet<ezString>> s_ExtensionWhitelist;
+  static WMap<WString, WSet<WString>> s_ExtensionWhitelist;
 };

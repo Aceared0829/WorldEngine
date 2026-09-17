@@ -6,78 +6,78 @@
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/RootMotion/RootMotionAnimNodes.h>
 
 // clang-format off
- EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRootRotationAnimNode, 1, ezRTTIDefaultAllocator<ezRootRotationAnimNode>)
+ W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRootRotationAnimNode, 1, WRTTIDefaultAllocator<WRootRotationAnimNode>)
 {
-   EZ_BEGIN_PROPERTIES
+   W_BEGIN_PROPERTIES
    {
-     EZ_MEMBER_PROPERTY("InRotateX", m_InRotateX)->AddAttributes(new ezHiddenAttribute),
-     EZ_MEMBER_PROPERTY("InRotateY", m_InRotateY)->AddAttributes(new ezHiddenAttribute),
-     EZ_MEMBER_PROPERTY("InRotateZ", m_InRotateZ)->AddAttributes(new ezHiddenAttribute),
+     W_MEMBER_PROPERTY("InRotateX", m_InRotateX)->AddAttributes(new WHiddenAttribute),
+     W_MEMBER_PROPERTY("InRotateY", m_InRotateY)->AddAttributes(new WHiddenAttribute),
+     W_MEMBER_PROPERTY("InRotateZ", m_InRotateZ)->AddAttributes(new WHiddenAttribute),
    }
-   EZ_END_PROPERTIES;
-   EZ_BEGIN_ATTRIBUTES
+   W_END_PROPERTIES;
+   W_BEGIN_ATTRIBUTES
    {
-     new ezCategoryAttribute("Output"),
-     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Grape)),
-     new ezTitleAttribute("Root Rotation"),
+     new WCategoryAttribute("Output"),
+     new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Grape)),
+     new WTitleAttribute("Root Rotation"),
    }
-   EZ_END_ATTRIBUTES;
+   W_END_ATTRIBUTES;
  }
- EZ_END_DYNAMIC_REFLECTED_TYPE;
+ W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRootRotationAnimNode::ezRootRotationAnimNode() = default;
-ezRootRotationAnimNode::~ezRootRotationAnimNode() = default;
+WRootRotationAnimNode::WRootRotationAnimNode() = default;
+WRootRotationAnimNode::~WRootRotationAnimNode() = default;
 
-ezResult ezRootRotationAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WRootRotationAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InRotateX.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InRotateY.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InRotateZ.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateX.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateY.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateZ.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRootRotationAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WRootRotationAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InRotateX.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InRotateY.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InRotateZ.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateX.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateY.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InRotateZ.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WRootRotationAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
-  ezVec3 vRootMotion = ezVec3::MakeZero();
-  ezAngle rootRotationX;
-  ezAngle rootRotationY;
-  ezAngle rootRotationZ;
+  WVec3 vRootMotion = WVec3::MakeZero();
+  WAngle rootRotationX;
+  WAngle rootRotationY;
+  WAngle rootRotationZ;
 
   ref_controller.GetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
 
   if (m_InRotateX.IsConnected())
   {
-    rootRotationX += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateX.GetNumber(ref_graph)));
+    rootRotationX += WAngle::MakeFromDegree(static_cast<float>(m_InRotateX.GetNumber(ref_graph)));
   }
   if (m_InRotateY.IsConnected())
   {
-    rootRotationY += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateY.GetNumber(ref_graph)));
+    rootRotationY += WAngle::MakeFromDegree(static_cast<float>(m_InRotateY.GetNumber(ref_graph)));
   }
   if (m_InRotateZ.IsConnected())
   {
-    rootRotationZ += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateZ.GetNumber(ref_graph)));
+    rootRotationZ += WAngle::MakeFromDegree(static_cast<float>(m_InRotateZ.GetNumber(ref_graph)));
   }
 
   ref_controller.SetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_RootMotion_RootMotionAnimNodes);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_RootMotion_RootMotionAnimNodes);

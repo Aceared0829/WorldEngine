@@ -9,14 +9,14 @@
 #include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #include <d3d11.h>
 
-void ezGALSwapChainDX11::AcquireNextRenderTarget(ezGALDevice* pDevice)
+void WGALSwapChainDX11::AcquireNextRenderTarget(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 }
 
-void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
+void WGALSwapChainDX11::PresentRenderTarget(WGALDevice* pDevice)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
 
   // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
   if (!this->m_hActualBackBufferTexture.IsInvalidated())
@@ -24,17 +24,17 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
     pDXDevice->GetCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
   }
 
-  HRESULT result = m_pDXSwapChain->Present(m_CurrentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
+  HRESULT result = m_pDXSwapChain->Present(m_CurrentPresentMode == WGALPresentMode::VSync ? 1 : 0, 0);
   if (FAILED(result))
   {
-    ezLog::Error("Swap chain PresentImage failed with {0}", (ezUInt32)result);
+    WLog::Error("Swap chain PresentImage failed with {0}", (WUInt32)result);
     return;
   }
 }
 
-ezResult ezGALSwapChainDX11::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+WResult WGALSwapChainDX11::UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
   m_CurrentPresentMode = newPresentMode;
   DestroyBackBufferInternal(pDXDevice);
 
@@ -49,25 +49,25 @@ ezResult ezGALSwapChainDX11::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALP
 
   if (FAILED(result))
   {
-    ezLog::Error("UpdateSwapChain: ResizeBuffers call failed: {}", ezArgErrorCode(result));
-    return EZ_FAILURE;
+    WLog::Error("UpdateSwapChain: ResizeBuffers call failed: {}", WArgErrorCode(result));
+    return W_FAILURE;
   }
 
   return CreateBackBufferInternal(pDXDevice);
 }
 
-ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescription& Description)
-  : ezGALWindowSwapChain(Description)
+WGALSwapChainDX11::WGALSwapChainDX11(const WGALWindowSwapChainCreationDescription& Description)
+  : WGALWindowSwapChain(Description)
 
 {
 }
 
-ezGALSwapChainDX11::~ezGALSwapChainDX11() = default;
+WGALSwapChainDX11::~WGALSwapChainDX11() = default;
 
 
-ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALSwapChainDX11::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
   m_pDevice = pDevice;
   m_CurrentPresentMode = m_WindowDesc.m_InitialPresentMode;
 
@@ -76,7 +76,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_WindowDesc.m_SampleCount;
   SwapChainDesc.SampleDesc.Quality = 0;                         /// \todo Get from MSAA value of the m_WindowDesc
-  SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
+  SwapChainDesc.OutputWindow = WMinWindows::ToNative(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
   SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;          // The FLIP models are more efficient but only supported in Win8+. See
                                                                 // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_WindowDesc.m_pWindow->IsFullscreenWindow(true) ? FALSE : TRUE;
@@ -94,7 +94,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (FAILED(pDXDevice->GetDXGIFactory()->CreateSwapChain(pDXDevice->GetDXDevice(), &SwapChainDesc, &m_pDXSwapChain)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // We have created a surface on a window, the window must not be destroyed while the surface is still alive.
@@ -104,32 +104,32 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   return CreateBackBufferInternal(pDXDevice);
 }
 
-ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice)
+WResult WGALSwapChainDX11::CreateBackBufferInternal(WGALDeviceDX11* pDXDevice)
 {
   // Get texture of the swap chain
   ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
   HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));
   if (FAILED(result))
   {
-    ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", ezHRESULTtoString(result));
-    EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
+    WLog::Error("Couldn't access backbuffer texture of swapchain: {0}", WHRESULTtoString(result));
+    W_GAL_DX11_RELEASE(m_pDXSwapChain);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezGALTextureCreationDescription TexDesc;
+  WGALTextureCreationDescription TexDesc;
   TexDesc.m_uiWidth = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
   TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
   TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
-  TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::Presentable;
+  TexDesc.m_TextureFlags = WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::ShaderResource | WGALTextureUsageFlags::Presentable;
   TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
 
   TexDesc.m_ResourceAccess.m_bImmutable = false;
 
-  // And create the ez texture object wrapping the backbuffer texture
+  // And create the W texture object wrapping the backbuffer texture
   m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-  EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
+  W_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
 
   // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
   if (!m_bCanMakeDirectScreenshots)
@@ -138,16 +138,16 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
 
     m_hActualBackBufferTexture = m_hBackBufferTexture;
     m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
+    W_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
   }
 
   m_RenderTargets.m_hRTs[0] = m_hBackBufferTexture;
-  m_CurrentSize = ezSizeU32(TexDesc.m_uiWidth, TexDesc.m_uiHeight);
+  m_CurrentSize = WSizeU32(TexDesc.m_uiWidth, TexDesc.m_uiHeight);
   m_pDevice->s_SwapChainUpdatedEvent.Broadcast(this);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALSwapChainDX11::DestroyBackBufferInternal(ezGALDeviceDX11* pDXDevice)
+void WGALSwapChainDX11::DestroyBackBufferInternal(WGALDeviceDX11* pDXDevice)
 {
   pDXDevice->DestroyTexture(m_hBackBufferTexture);
   m_hBackBufferTexture.Invalidate();
@@ -161,9 +161,9 @@ void ezGALSwapChainDX11::DestroyBackBufferInternal(ezGALDeviceDX11* pDXDevice)
   m_RenderTargets.m_hRTs[0].Invalidate();
 }
 
-ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALSwapChainDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  DestroyBackBufferInternal(static_cast<ezGALDeviceDX11*>(pDevice));
+  DestroyBackBufferInternal(static_cast<WGALDeviceDX11*>(pDevice));
 
   if (m_pDXSwapChain)
   {
@@ -171,9 +171,9 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
     // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying
     m_pDXSwapChain->SetFullscreenState(FALSE, NULL);
 
-    EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
+    W_GAL_DX11_RELEASE(m_pDXSwapChain);
 
     m_WindowDesc.m_pWindow->RemoveReference();
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

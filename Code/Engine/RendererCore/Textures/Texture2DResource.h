@@ -10,101 +10,101 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezImage;
+class WImage;
 
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
 
-/// Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture2DResource> to create textures from data in memory.
-struct EZ_RENDERERCORE_DLL ezTexture2DResourceDescriptor
+/// Use this descriptor in calls to WResourceManager::CreateResource<WTexture2DResource> to create textures from data in memory.
+struct W_RENDERERCORE_DLL WTexture2DResourceDescriptor
 {
   /// Describes the texture format, etc.
-  ezGALTextureCreationDescription m_DescGAL;
-  ezGALSamplerStateCreationDescription m_SamplerDesc;
+  WGALTextureCreationDescription m_DescGAL;
+  WGALSamplerStateCreationDescription m_SamplerDesc;
 
   /// How many quality levels can be discarded and reloaded. For created textures this can currently only be 0 or 1.
-  ezUInt8 m_uiQualityLevelsDiscardable = 0;
+  WUInt8 m_uiQualityLevelsDiscardable = 0;
 
   /// How many additional quality levels can be loaded (typically from file).
-  ezUInt8 m_uiQualityLevelsLoadable = 0;
+  WUInt8 m_uiQualityLevelsLoadable = 0;
 
   /// One memory desc per (array * faces * mipmap) (in that order) (array is outer loop, mipmap is inner loop). Can be empty to not
   /// initialize data.
-  ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
+  WArrayPtr<WGALSystemMemoryDescription> m_InitialContent;
 };
 
-class EZ_RENDERERCORE_DLL ezTexture2DResource : public ezResource
+class W_RENDERERCORE_DLL WTexture2DResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTexture2DResource, ezResource);
+  W_ADD_DYNAMIC_REFLECTION(WTexture2DResource, WResource);
 
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezTexture2DResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescriptor);
+  W_RESOURCE_DECLARE_COMMON_CODE(WTexture2DResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WTexture2DResource, WTexture2DResourceDescriptor);
 
 public:
-  ezTexture2DResource();
+  WTexture2DResource();
 
-  EZ_ALWAYS_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
-  EZ_ALWAYS_INLINE ezUInt32 GetWidth() const { return m_uiWidth; }
-  EZ_ALWAYS_INLINE ezUInt32 GetHeight() const { return m_uiHeight; }
-  EZ_ALWAYS_INLINE ezGALTextureType::Enum GetType() const { return m_Type; }
+  W_ALWAYS_INLINE WGALResourceFormat::Enum GetFormat() const { return m_Format; }
+  W_ALWAYS_INLINE WUInt32 GetWidth() const { return m_uiWidth; }
+  W_ALWAYS_INLINE WUInt32 GetHeight() const { return m_uiHeight; }
+  W_ALWAYS_INLINE WGALTextureType::Enum GetType() const { return m_Type; }
 
-  static void FillOutDescriptor(ezTexture2DResourceDescriptor& ref_td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-    ezUInt32& out_uiMemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& ref_initData);
+  static void FillOutDescriptor(WTexture2DResourceDescriptor& ref_td, const WImage* pImage, bool bSRGB, WUInt32 uiNumMipLevels,
+    WUInt32& out_uiMemoryUsed, WHybridArray<WGALSystemMemoryDescription, 32>& ref_initData);
 
-  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
-  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
+  const WGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
+  const WGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 protected:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezTexture2DResource(DoUpdate ResourceUpdateThread);
+  WTexture2DResource(DoUpdate ResourceUpdateThread);
 
-  ezUInt8 m_uiLoadedTextures = 0;
-  ezGALTextureHandle m_hGALTexture[2];
-  ezUInt32 m_uiMemoryGPU[2] = {0, 0};
+  WUInt8 m_uiLoadedTextures = 0;
+  WGALTextureHandle m_hGALTexture[2];
+  WUInt32 m_uiMemoryGPU[2] = {0, 0};
 
-  ezGALTextureType::Enum m_Type = ezGALTextureType::Invalid;
-  ezGALResourceFormat::Enum m_Format = ezGALResourceFormat::Invalid;
-  ezUInt32 m_uiWidth = 0;
-  ezUInt32 m_uiHeight = 0;
+  WGALTextureType::Enum m_Type = WGALTextureType::Invalid;
+  WGALResourceFormat::Enum m_Format = WGALResourceFormat::Invalid;
+  WUInt32 m_uiWidth = 0;
+  WUInt32 m_uiHeight = 0;
 
-  ezGALSamplerStateHandle m_hSamplerState;
+  WGALSamplerStateHandle m_hSamplerState;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
+using WRenderToTexture2DResourceHandle = WTypedResourceHandle<class WRenderToTexture2DResource>;
 
-struct EZ_RENDERERCORE_DLL ezRenderToTexture2DResourceDescriptor
+struct W_RENDERERCORE_DLL WRenderToTexture2DResourceDescriptor
 {
-  ezUInt32 m_uiWidth = 0;
-  ezUInt32 m_uiHeight = 0;
-  ezEnum<ezGALMSAASampleCount> m_SampleCount;
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  ezGALSamplerStateCreationDescription m_SamplerDesc;
-  ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
+  WUInt32 m_uiWidth = 0;
+  WUInt32 m_uiHeight = 0;
+  WEnum<WGALMSAASampleCount> m_SampleCount;
+  WEnum<WGALResourceFormat> m_Format = WGALResourceFormat::RGBAUByteNormalizedsRGB;
+  WGALSamplerStateCreationDescription m_SamplerDesc;
+  WArrayPtr<WGALSystemMemoryDescription> m_InitialContent;
 };
 
-class EZ_RENDERERCORE_DLL ezRenderToTexture2DResource : public ezTexture2DResource
+class W_RENDERERCORE_DLL WRenderToTexture2DResource : public WTexture2DResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderToTexture2DResource, ezTexture2DResource);
+  W_ADD_DYNAMIC_REFLECTION(WRenderToTexture2DResource, WTexture2DResource);
 
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezRenderToTexture2DResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezRenderToTexture2DResource, ezRenderToTexture2DResourceDescriptor);
+  W_RESOURCE_DECLARE_COMMON_CODE(WRenderToTexture2DResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WRenderToTexture2DResource, WRenderToTexture2DResourceDescriptor);
 
 public:
-  ezGALRenderTargetViewHandle GetRenderTargetView() const;
-  void AddRenderView(ezViewHandle hView);
-  void RemoveRenderView(ezViewHandle hView);
-  const ezDynamicArray<ezViewHandle>& GetAllRenderViews() const;
+  WGALRenderTargetViewHandle GetRenderTargetView() const;
+  void AddRenderView(WViewHandle hView);
+  void RemoveRenderView(WViewHandle hView);
+  const WDynamicArray<WViewHandle>& GetAllRenderViews() const;
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 protected:
   // other views that use this texture as their target
-  ezDynamicArray<ezViewHandle> m_RenderViews;
+  WDynamicArray<WViewHandle> m_RenderViews;
 };

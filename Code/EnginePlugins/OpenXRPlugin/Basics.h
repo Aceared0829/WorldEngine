@@ -3,12 +3,12 @@
 #include <Foundation/Basics.h>
 
 // Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_OPENXRPLUGIN_LIB
-#    define EZ_OPENXRPLUGIN_DLL EZ_DECL_EXPORT
+#    define W_OPENXRPLUGIN_DLL W_DECL_EXPORT
 #  else
-#    define EZ_OPENXRPLUGIN_DLL EZ_DECL_IMPORT
+#    define W_OPENXRPLUGIN_DLL W_DECL_IMPORT
 #  endif
 #else
-#  define EZ_OPENXRPLUGIN_DLL
+#  define W_OPENXRPLUGIN_DLL
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category)
+void WExtractedRenderData::AddRenderData(const WRenderData* pRenderData, WRenderData::Category category)
 {
   m_DataPerCategory.EnsureCount(category.m_uiValue + 1);
 
@@ -9,12 +9,12 @@ void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRen
   sortableRenderData.m_uiSortingKey = pRenderData->GetFinalSortingKey(category, m_Camera);
 }
 
-void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
+void WExtractedRenderData::AddFrameData(const WRenderData* pFrameData)
 {
   m_FrameData.PushBack(pFrameData);
 }
 
-void ezExtractedRenderData::AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+void WExtractedRenderData::AddViewDependency(WGALTextureHandle hTexture, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage)
 {
   if (hTexture.IsInvalidated())
     return;
@@ -25,7 +25,7 @@ void ezExtractedRenderData::AddViewDependency(ezGALTextureHandle hTexture, ezBit
   dep.m_Stage = stage;
 }
 
-void ezExtractedRenderData::AddViewDependency(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+void WExtractedRenderData::AddViewDependency(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage)
 {
   if (hBuffer.IsInvalidated())
     return;
@@ -36,31 +36,31 @@ void ezExtractedRenderData::AddViewDependency(ezGALBufferHandle hBuffer, ezBitfl
   dep.m_Stage = stage;
 }
 
-void ezExtractedRenderData::AddDependency(const ezTextureDependency& dependency)
+void WExtractedRenderData::AddDependency(const WTextureDependency& dependency)
 {
-  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category texture dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
+  W_ASSERT_DEBUG(dependency.m_uiCategory != WInvalidRenderDataCategory.m_uiValue, "Per-category texture dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
   m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
   m_DataPerCategory[dependency.m_uiCategory].m_TextureDependencies.PushBack(dependency);
 }
 
-void ezExtractedRenderData::AddDependency(const ezBufferDependency& dependency)
+void WExtractedRenderData::AddDependency(const WBufferDependency& dependency)
 {
-  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category buffer dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
+  W_ASSERT_DEBUG(dependency.m_uiCategory != WInvalidRenderDataCategory.m_uiValue, "Per-category buffer dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
   m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
   m_DataPerCategory[dependency.m_uiCategory].m_BufferDependencies.PushBack(dependency);
 }
 
-void ezExtractedRenderData::AddSamplerBinding(const ezSamplerBinding& binding)
+void WExtractedRenderData::AddSamplerBinding(const WSamplerBinding& binding)
 {
   m_SamplerBindings.PushBack(binding);
 }
 
-void ezExtractedRenderData::AddBufferBinding(const ezBufferBinding& binding)
+void WExtractedRenderData::AddBufferBinding(const WBufferBinding& binding)
 {
   m_BufferBindings.PushBack(binding);
 }
 
-void ezExtractedRenderData::AddTextureBinding(const ezTextureBinding& binding)
+void WExtractedRenderData::AddTextureBinding(const WTextureBinding& binding)
 {
   m_TextureBindings.PushBack(binding);
 }

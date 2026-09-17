@@ -3,11 +3,11 @@
 #include <Foundation/Application/Application.h>
 #include <Texture/TexConv/TexComparer.h>
 
-class ezStreamWriter;
+class WStreamWriter;
 
-struct ezTexConvMode
+struct WTexConvMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -19,71 +19,71 @@ struct ezTexConvMode
   };
 };
 
-class ezTexConv : public ezApplication
+class WTexConv : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
   struct KeyEnumValuePair
   {
-    KeyEnumValuePair(ezStringView sKey, ezInt32 iVal)
+    KeyEnumValuePair(WStringView sKey, WInt32 iVal)
       : m_sKey(sKey)
       , m_iEnumValue(iVal)
     {
     }
 
-    ezStringView m_sKey;
-    ezInt32 m_iEnumValue = -1;
+    WStringView m_sKey;
+    WInt32 m_iEnumValue = -1;
   };
 
-  ezTexConv();
+  WTexConv();
 
 public:
   virtual void Run() override;
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  ezResult ParseCommandLine();
-  ezResult ParseMode();
-  ezResult ParseCompareMode();
-  ezResult ParseReduceMode();
-  ezResult ParseOutputType();
-  ezResult DetectOutputFormat();
-  ezResult ParseInputFiles();
-  ezResult ParseOutputFiles();
-  ezResult ParseChannelMappings();
-  ezResult ParseChannelSliceMapping(ezInt32 iSlice);
-  ezResult ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, ezStringView sCfg, ezInt32 iChannelIndex, bool bSingleChannel);
-  ezResult ParseUsage();
-  ezResult ParseMipmapMode();
-  ezResult ParseTargetPlatform();
-  ezResult ParseCompressionMode();
-  ezResult ParseWrapModes();
-  ezResult ParseFilterModes();
-  ezResult ParseResolutionModifiers();
-  ezResult ParseMiscOptions();
-  ezResult ParseAssetHeader();
-  ezResult ParseBumpMapFilter();
+  WResult ParseCommandLine();
+  WResult ParseMode();
+  WResult ParseCompareMode();
+  WResult ParseReduceMode();
+  WResult ParseOutputType();
+  WResult DetectOutputFormat();
+  WResult ParseInputFiles();
+  WResult ParseOutputFiles();
+  WResult ParseChannelMappings();
+  WResult ParseChannelSliceMapping(WInt32 iSlice);
+  WResult ParseChannelMappingConfig(WTexConvChannelMapping& out_mapping, WStringView sCfg, WInt32 iChannelIndex, bool bSingleChannel);
+  WResult ParseUsage();
+  WResult ParseMipmapMode();
+  WResult ParseTargetPlatform();
+  WResult ParseCompressionMode();
+  WResult ParseWrapModes();
+  WResult ParseFilterModes();
+  WResult ParseResolutionModifiers();
+  WResult ParseMiscOptions();
+  WResult ParseAssetHeader();
+  WResult ParseBumpMapFilter();
 
-  ezResult ParseUIntOption(ezStringView sOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& ref_uiResult) const;
-  ezResult ParseStringOption(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& ref_iResult) const;
-  void PrintOptionValues(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
-  void PrintOptionValuesHelp(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
-  bool ParseFile(ezStringView sOption, ezString& ref_sResult) const;
+  WResult ParseUIntOption(WStringView sOption, WInt32 iMinValue, WInt32 iMaxValue, WUInt32& ref_uiResult) const;
+  WResult ParseStringOption(WStringView sOption, const WDynamicArray<KeyEnumValuePair>& allowed, WInt32& ref_iResult) const;
+  void PrintOptionValues(WStringView sOption, const WDynamicArray<KeyEnumValuePair>& allowed) const;
+  void PrintOptionValuesHelp(WStringView sOption, const WDynamicArray<KeyEnumValuePair>& allowed) const;
+  bool ParseFile(WStringView sOption, WString& ref_sResult) const;
 
   bool IsTexFormat() const;
-  ezResult WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image);
-  ezResult WriteOutputFile(ezStringView sFile, const ezImage& image);
-  ezResult RunReduce();
-  ezResult ReduceSingleFile(ezStringView sInputFile, ezStringView sOutputDir, ezStringView sExplicitOutputFile = {});
+  WResult WriteTexFile(WStreamWriter& inout_stream, const WImage& image);
+  WResult WriteOutputFile(WStringView sFile, const WImage& image);
+  WResult RunReduce();
+  WResult ReduceSingleFile(WStringView sInputFile, WStringView sOutputDir, WStringView sExplicitOutputFile = {});
 
 private:
-  ezString m_sOutputFile;
-  ezString m_sOutputThumbnailFile;
-  ezString m_sOutputAssetInfoFile;
-  ezString m_sOutputLowResFile;
-  ezString m_sReduceInputFile;
+  WString m_sOutputFile;
+  WString m_sOutputThumbnailFile;
+  WString m_sOutputAssetInfoFile;
+  WString m_sOutputLowResFile;
+  WString m_sReduceInputFile;
   bool m_bDeleteSource = false;
 
   bool m_bOutputSupports2D = false;
@@ -94,11 +94,11 @@ private:
   bool m_bOutputSupportsFiltering = false;
   bool m_bOutputSupportsCompression = false;
 
-  ezEnum<ezTexConvMode> m_Mode;
-  ezTexConvProcessor m_Processor;
+  WEnum<WTexConvMode> m_Mode;
+  WTexConvProcessor m_Processor;
 
   // Comparer specific
 
-  ezTexComparer m_Comparer;
-  ezString m_sHtmlTitle;
+  WTexComparer m_Comparer;
+  WString m_sHtmlTitle;
 };

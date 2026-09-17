@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Deploys and runs an ezEngine test application on an Android device via ADB.
+    Deploys and runs an WorldEngine test application on an Android device via ADB.
 
 .DESCRIPTION
     Installs an APK (if provided), launches the specified activity, captures logcat output, and waits for the test framework to report results. Downloads any output artifacts from the device when finished.
@@ -11,7 +11,7 @@
     ADB device identifier (serial number or IP:port for wireless debugging).
 
 .PARAMETER packageName
-    Android package name of the test application (e.g. "com.ezengine.FoundationTest").
+    Android package name of the test application (e.g. "com.worldengine.FoundationTest").
 
 .PARAMETER activityName
     Fully qualified activity class name (default: "android.app.NativeActivity").
@@ -32,7 +32,7 @@
     # Run FoundationTest with default settings (install APK + run all tests):
     pwsh ./Utilities/Android/AndroidTest.ps1 `
         -deviceAdb 192.168.178.77:5555 `
-        -packageName com.ezengine.FoundationTest `
+        -packageName com.worldengine.FoundationTest `
         -activityName android.app.NativeActivity `
         -outputFolder ./Output `
         -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk"
@@ -41,7 +41,7 @@
     # Run only the "Tracing" test group:
     pwsh ./Utilities/Android/AndroidTest.ps1 `
         -deviceAdb 192.168.178.77:5555 `
-        -packageName com.ezengine.FoundationTest `
+        -packageName com.worldengine.FoundationTest `
         -activityName android.app.NativeActivity `
         -outputFolder ./Output `
         -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk" `
@@ -51,7 +51,7 @@
     # Run without re-installing (app already on device):
     pwsh ./Utilities/Android/AndroidTest.ps1 `
         -deviceAdb 192.168.178.77:5555 `
-        -packageName com.ezengine.FoundationTest `
+        -packageName com.worldengine.FoundationTest `
         -activityName android.app.NativeActivity `
         -outputFolder ./Output
 #>
@@ -112,7 +112,7 @@ $pinfo.FileName = "$adb"
 $pinfo.RedirectStandardError = $false
 $pinfo.RedirectStandardOutput = $true
 $pinfo.UseShellExecute = $false
-$pinfo.Arguments = "-s $deviceAdb logcat -s ezEngine"
+$pinfo.Arguments = "-s $deviceAdb logcat -s WorldEngine"
 
 $process = New-Object System.Diagnostics.Process
 $process.StartInfo = $pinfo

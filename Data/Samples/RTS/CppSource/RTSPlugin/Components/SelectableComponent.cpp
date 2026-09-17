@@ -4,37 +4,37 @@
 #include <RTSPlugin/Components/SelectableComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SelectionRadius", m_fSelectionRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, 10.0f)),
+    W_MEMBER_PROPERTY("SelectionRadius", m_fSelectionRadius)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.1f, 10.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
   // BEGIN-DOCS-CODE-SNIPPET: spatial-bounds-handler
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
   // END-DOCS-CODE-SNIPPET
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("RTS Sample"),
+    new WCategoryAttribute("RTS Sample"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-category-registration
-ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatialData::RegisterCategory("Selectable", ezSpatialData::Flags::None);
+WSpatialData::Category RtsSelectableComponent::s_SelectableCategory = WSpatialData::RegisterCategory("Selectable", WSpatialData::Flags::None);
 // END-DOCS-CODE-SNIPPET
 
 RtsSelectableComponent::RtsSelectableComponent() = default;
 RtsSelectableComponent::~RtsSelectableComponent() = default;
 
-void RtsSelectableComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void RtsSelectableComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -43,10 +43,10 @@ void RtsSelectableComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_fSelectionRadius;
 }
 
-void RtsSelectableComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void RtsSelectableComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -60,9 +60,9 @@ void RtsSelectableComponent::OnActivated()
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-bounds-update
-void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
+void RtsSelectableComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg)
 {
-  ezBoundingBoxSphere bounds;
+  WBoundingBoxSphere bounds;
   bounds.m_fSphereRadius = m_fSelectionRadius;
   bounds.m_vCenter.SetZero();
   bounds.m_vBoxHalfExtents.Set(m_fSelectionRadius);

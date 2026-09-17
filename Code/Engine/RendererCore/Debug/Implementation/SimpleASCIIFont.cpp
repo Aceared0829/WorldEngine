@@ -5,10 +5,10 @@
 #include <Texture/Image/Formats/StbImageFileFormats.h>
 #include <Texture/Image/ImageConversion.h>
 
-#if EZ_ENABLED(EZ_EMBED_FONT_FILE)
+#if W_ENABLED(W_EMBED_FONT_FILE)
 
-extern ezUInt32 g_FontFilePNGSize;
-extern const ezUInt8 g_FontFilePNG[];
+extern WUInt32 g_FontFilePNGSize;
+extern const WUInt8 g_FontFilePNG[];
 
 #else
 
@@ -954,17 +954,17 @@ static const char* at = "\
 // clang-format on
 
 // copies one 10x10 character into the 16x16 cell at offset x,y, adding the 3 pixel boundary and converting the bitmap into greyscale values
-static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
+static void CopyCharacter(WUInt32* pImage, WInt32 c, const char* szChar)
 {
-  ezInt32 x = ((ezInt32)c % 16) * 16;
-  ezInt32 y = ((ezInt32)c / 16) * 16;
+  WInt32 x = ((WInt32)c % 16) * 16;
+  WInt32 y = ((WInt32)c / 16) * 16;
 
   pImage += (y + 3) * 256; // 3 pixel boundary at the top
   pImage += x + 3;         // 3 pixel boundary at the left side
 
-  for (ezUInt32 i1 = 0; i1 < 10; ++i1)
+  for (WUInt32 i1 = 0; i1 < 10; ++i1)
   {
-    for (ezUInt32 i2 = 0; i2 < 10; ++i2)
+    for (WUInt32 i2 = 0; i2 < 10; ++i2)
     {
       // convert character to greyscale value
       switch (*szChar)
@@ -1000,21 +1000,21 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
 
 #endif
 
-void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEmptyToUnknown)
+void WGraphicsUtils::CreateSimpleASCIIFontTexture(WImage& ref_img, bool bSetEmptyToUnknown)
 {
-#if EZ_DISABLED(EZ_EMBED_FONT_FILE)
+#if W_DISABLED(W_EMBED_FONT_FILE)
   Img.SetWidth(256);
   Img.SetHeight(128);
-  Img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  Img.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
   Img.AllocateImageData();
 
   // pre-fill with black
   {
-    ezUInt32* pPixelData = Img.GetPixelPointer<ezUInt32>();
+    WUInt32* pPixelData = Img.GetPixelPointer<WUInt32>();
 
-    for (ezUInt32 y = 0; y < Img.GetHeight(); ++y)
+    for (WUInt32 y = 0; y < Img.GetHeight(); ++y)
     {
-      for (ezUInt32 x = 0; x < Img.GetWidth(); ++x)
+      for (WUInt32 x = 0; x < Img.GetWidth(); ++x)
       {
         *pPixelData = 0;
 
@@ -1023,13 +1023,13 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
     }
   }
 
-  ezUInt32* pPixelData = Img.GetPixelPointer<ezUInt32>();
+  WUInt32* pPixelData = Img.GetPixelPointer<WUInt32>();
 
   // fill all cells with the upside down question mark
   // all known cells will overwrite the cells again
   if (bSetEmptyToUnknown)
   {
-    for (ezUInt32 i = 0; i < 128; ++i)
+    for (WUInt32 i = 0; i < 128; ++i)
     {
       CopyCharacter(pPixelData, i, unknown);
     }
@@ -1154,32 +1154,32 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
   }
 #else
 
-  class VariableReader : public ezStreamReader
+  class VariableReader : public WStreamReader
   {
   public:
-    virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override
+    virtual WUInt64 ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead) override
     {
-      const ezUInt64 uiSize = ezMath::Min(uiBytesToRead, m_uiSize);
+      const WUInt64 uiSize = WMath::Min(uiBytesToRead, m_uiSize);
       m_uiSize -= uiSize;
 
       if (uiSize > 0)
       {
-        ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, m_pData, (size_t)uiSize);
+        WMemoryUtils::Copy((WUInt8*)pReadBuffer, m_pData, (size_t)uiSize);
         m_pData += uiSize;
       }
 
       return uiSize;
     }
 
-    ezUInt64 m_uiSize;
-    const ezUInt8* m_pData;
+    WUInt64 m_uiSize;
+    const WUInt8* m_pData;
   };
 
   VariableReader reader;
   reader.m_uiSize = g_FontFilePNGSize;
   reader.m_pData = g_FontFilePNG;
 
-  ezStbImageFileFormats png;
+  WStbImageFileFormats png;
   png.ReadImage(reader, ref_img, "png").IgnoreResult();
 
 #endif

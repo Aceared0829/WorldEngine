@@ -7,12 +7,12 @@
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
 
-ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+WQtGameObjectViewWidget::WQtGameObjectViewWidget(QWidget* pParent, WQtGameObjectDocumentWindow* pOwnerWindow, WEngineViewConfig* pViewConfig)
+  : WQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
-  m_pOrthoGizmoContext = EZ_DEFAULT_NEW(ezOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
+  m_pSelectionContext = W_DEFAULT_NEW(WSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
+  m_pCameraMoveContext = W_DEFAULT_NEW(WCameraMoveContext, pOwnerWindow, this);
+  m_pOrthoGizmoContext = W_DEFAULT_NEW(WOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
 
   m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
   m_pCameraMoveContext->LoadState();
@@ -23,21 +23,21 @@ ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObj
   m_InputContexts.PushBack(m_pCameraMoveContext);
 }
 
-ezQtGameObjectViewWidget::~ezQtGameObjectViewWidget()
+WQtGameObjectViewWidget::~WQtGameObjectViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrthoGizmoContext);
-  EZ_DEFAULT_DELETE(m_pSelectionContext);
-  EZ_DEFAULT_DELETE(m_pCameraMoveContext);
+  W_DEFAULT_DELETE(m_pOrthoGizmoContext);
+  W_DEFAULT_DELETE(m_pSelectionContext);
+  W_DEFAULT_DELETE(m_pCameraMoveContext);
 }
 
-void ezQtGameObjectViewWidget::SyncToEngine()
+void WQtGameObjectViewWidget::SyncToEngine()
 {
-  m_pSelectionContext->SetWindowConfig(ezVec2I32(width(), height()));
+  m_pSelectionContext->SetWindowConfig(WVec2I32(width(), height()));
 
-  ezQtEngineViewWidget::SyncToEngine();
+  WQtEngineViewWidget::SyncToEngine();
 }
 
-void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg)
+void WQtGameObjectViewWidget::HandleMarqueePickingResult(const WViewMarqueePickingResultMsgToEditor* pMsg)
 {
   auto pSelMan = GetDocumentWindow()->GetDocument()->GetSelectionManager();
   auto pObjMan = GetDocumentWindow()->GetDocument()->GetObjectManager();
@@ -58,17 +58,17 @@ void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePic
     }
   }
 
-  ezDeque<const ezDocumentObject*> newSelection;
+  WDeque<const WDocumentObject*> newSelection;
 
-  for (ezUuid guid : m_MarqueeBaseSelection)
+  for (WUuid guid : m_MarqueeBaseSelection)
   {
     auto pObject = pObjMan->GetObject(guid);
     newSelection.PushBack(pObject);
   }
 
-  for (ezUuid guid : pMsg->m_ObjectGuids)
+  for (WUuid guid : pMsg->m_ObjectGuids)
   {
-    const ezDocumentObject* pObject = pObjMan->GetObject(guid);
+    const WDocumentObject* pObject = pObjMan->GetObject(guid);
 
     if (pMsg->m_uiWhatToDo == 2) // remove from selection
     {

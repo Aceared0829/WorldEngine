@@ -4,94 +4,94 @@
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezMath
+// WMath
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Math()
+void WAngelScriptEngineSingleton::Register_Math()
 {
   // static functions
-  m_pEngine->SetDefaultNamespace("ezMath");
+  m_pEngine->SetDefaultNamespace("WMath");
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsNaN(float value)", asFUNCTION(ezMath::IsNaN<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsNaN(double value)", asFUNCTION(ezMath::IsNaN<double>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsNaN(float value)", asFUNCTION(WMath::IsNaN<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsNaN(double value)", asFUNCTION(WMath::IsNaN<double>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(float value)", asFUNCTION(ezMath::IsFinite<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(double value)", asFUNCTION(ezMath::IsFinite<double>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(float value)", asFUNCTION(WMath::IsFinite<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(double value)", asFUNCTION(WMath::IsFinite<double>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sin(ezAngle a)", asFUNCTION(ezMath::Sin<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Cos(ezAngle a)", asFUNCTION(ezMath::Cos<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Tan(ezAngle a)", asFUNCTION(ezMath::Tan<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sin(WAngle a)", asFUNCTION(WMath::Sin<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Cos(WAngle a)", asFUNCTION(WMath::Cos<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Tan(WAngle a)", asFUNCTION(WMath::Tan<float>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ASin(float f)", asFUNCTION(ezMath::ASin<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ACos(float f)", asFUNCTION(ezMath::ACos<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan(float f)", asFUNCTION(ezMath::ATan<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan2(float x, float y)", asFUNCTION(ezMath::ATan2<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle ASin(float f)", asFUNCTION(WMath::ASin<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle ACos(float f)", asFUNCTION(WMath::ACos<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle ATan(float f)", asFUNCTION(WMath::ATan<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle ATan2(float x, float y)", asFUNCTION(WMath::ATan2<float>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Exp(float f)", asFUNCTIONPR(ezMath::Exp, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Ln(float f)", asFUNCTIONPR(ezMath::Ln, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log2(float f)", asFUNCTIONPR(ezMath::Log2, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("uint32 Log2i(uint32 uiVal)", asFUNCTIONPR(ezMath::Log2i, (ezUInt32), ezUInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log10(float f)", asFUNCTIONPR(ezMath::Log10, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log(float fBase, float f)", asFUNCTIONPR(ezMath::Log, (float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Exp(float f)", asFUNCTIONPR(WMath::Exp, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Ln(float f)", asFUNCTIONPR(WMath::Ln, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log2(float f)", asFUNCTIONPR(WMath::Log2, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("uint32 Log2i(uint32 uiVal)", asFUNCTIONPR(WMath::Log2i, (WUInt32), WUInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log10(float f)", asFUNCTIONPR(WMath::Log10, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Log(float fBase, float f)", asFUNCTIONPR(WMath::Log, (float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Pow2(float f)", asFUNCTIONPR(ezMath::Pow2, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Pow(float fBase, float fExp)", asFUNCTIONPR(ezMath::Pow, (float, float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Pow2(ezInt32 i)", asFUNCTIONPR(ezMath::Pow2, (ezInt32), ezInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Pow(ezInt32 iBase, ezInt32 iExp)", asFUNCTIONPR(ezMath::Pow, (ezInt32, ezInt32), ezInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Pow2(float f)", asFUNCTIONPR(WMath::Pow2, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Pow(float fBase, float fExp)", asFUNCTIONPR(WMath::Pow, (float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Pow2(WInt32 i)", asFUNCTIONPR(WMath::Pow2, (WInt32), WInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Pow(WInt32 iBase, WInt32 iExp)", asFUNCTIONPR(WMath::Pow, (WInt32, WInt32), WInt32), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sqrt(float f)", asFUNCTIONPR(ezMath::Sqrt, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("double Sqrt(double f)", asFUNCTIONPR(ezMath::Sqrt, (double), double), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sqrt(float f)", asFUNCTIONPR(WMath::Sqrt, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("double Sqrt(double f)", asFUNCTIONPR(WMath::Sqrt, (double), double), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sign(float f)", asFUNCTION(ezMath::Sign<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Sign(ezInt32 f)", asFUNCTION(ezMath::Sign<ezInt32>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sign(float f)", asFUNCTION(WMath::Sign<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Sign(WInt32 f)", asFUNCTION(WMath::Sign<WInt32>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Abs(float f)", asFUNCTION(ezMath::Abs<float>), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Abs(ezInt32 f)", asFUNCTION(ezMath::Abs<ezInt32>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Abs(float f)", asFUNCTION(WMath::Abs<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Abs(WInt32 f)", asFUNCTION(WMath::Abs<WInt32>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Min(ezInt32 f1, ezInt32 f2)", asFUNCTIONPR(ezMath::Min, (ezInt32, ezInt32), ezInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Min(float f1, float f2)", asFUNCTIONPR(ezMath::Min, (float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Min(WInt32 f1, WInt32 f2)", asFUNCTIONPR(WMath::Min, (WInt32, WInt32), WInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Min(float f1, float f2)", asFUNCTIONPR(WMath::Min, (float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Max(ezInt32 f1, ezInt32 f2)", asFUNCTIONPR(ezMath::Max, (ezInt32, ezInt32), ezInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Max(float f1, float f2)", asFUNCTIONPR(ezMath::Max, (float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Max(WInt32 f1, WInt32 f2)", asFUNCTIONPR(WMath::Max, (WInt32, WInt32), WInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Max(float f1, float f2)", asFUNCTIONPR(WMath::Max, (float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 Clamp(ezInt32 val, ezInt32 min, ezInt32 max)", asFUNCTIONPR(ezMath::Clamp, (ezInt32, ezInt32, ezInt32), ezInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Clamp(float val, float min, float max)", asFUNCTIONPR(ezMath::Clamp, (float, float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 Clamp(WInt32 val, WInt32 min, WInt32 max)", asFUNCTIONPR(WMath::Clamp, (WInt32, WInt32, WInt32), WInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Clamp(float val, float min, float max)", asFUNCTIONPR(WMath::Clamp, (float, float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Floor(float f)", asFUNCTIONPR(ezMath::Floor, (float), float), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Ceil(float f)", asFUNCTIONPR(ezMath::Ceil, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Floor(float f)", asFUNCTIONPR(WMath::Floor, (float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Ceil(float f)", asFUNCTIONPR(WMath::Ceil, (float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 FloorToInt(float f)", asFUNCTIONPR(ezMath::FloorToInt, (float), ezInt32), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 CeilToInt(float f)", asFUNCTIONPR(ezMath::CeilToInt, (float), ezInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 FloorToInt(float f)", asFUNCTIONPR(WMath::FloorToInt, (float), WInt32), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WInt32 CeilToInt(float f)", asFUNCTIONPR(WMath::CeilToInt, (float), WInt32), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Lerp(float from, float to, float factor)", asFUNCTIONPR(ezMath::Lerp, (float, float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Lerp(float from, float to, float factor)", asFUNCTIONPR(WMath::Lerp, (float, float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec2 Lerp(ezVec2 from, ezVec2 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec2, ezVec2, float), ezVec2), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 Lerp(ezVec3 from, ezVec3 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec3, ezVec3, float), ezVec3), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec4 Lerp(ezVec4 from, ezVec4 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec4, ezVec4, float), ezVec4), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor Lerp(ezColor from, ezColor to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezColor, ezColor, float), ezColor), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec2 Lerp(WVec2 from, WVec2 to, float factor)", asFUNCTIONPR(WMath::Lerp, (WVec2, WVec2, float), WVec2), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 Lerp(WVec3 from, WVec3 to, float factor)", asFUNCTIONPR(WMath::Lerp, (WVec3, WVec3, float), WVec3), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec4 Lerp(WVec4 from, WVec4 to, float factor)", asFUNCTIONPR(WMath::Lerp, (WVec4, WVec4, float), WVec4), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WColor Lerp(WColor from, WColor to, float factor)", asFUNCTIONPR(WMath::Lerp, (WColor, WColor, float), WColor), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Unlerp(float from, float to, float value)", asFUNCTIONPR(ezMath::Unlerp, (float, float, float), float), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Unlerp(float from, float to, float value)", asFUNCTIONPR(WMath::Unlerp, (float, float, float), float), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsEqual(float lhs, float rhs, float fEpsilon)", asFUNCTIONPR(ezMath::IsEqual, (float, float, float), bool), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsZero(float value, float fEpsilon)", asFUNCTIONPR(ezMath::IsZero, (float, float), bool), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsInRange(float value, float min, float max)", asFUNCTIONPR(ezMath::IsInRange, (float, float, float), bool), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsEqual(float lhs, float rhs, float fEpsilon)", asFUNCTIONPR(WMath::IsEqual, (float, float, float), bool), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsZero(float value, float fEpsilon)", asFUNCTIONPR(WMath::IsZero, (float, float), bool), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsInRange(float value, float min, float max)", asFUNCTIONPR(WMath::IsInRange, (float, float, float), bool), asCALL_CDECL));
 
-  // TODO AngelScript: finish ezMath registration
+  // TODO AngelScript: finish WMath registration
 
   /* not exposed yet:
 
-  ezUInt32 WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue);
-  ezInt32 WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue);
-  ezInt32 WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue);
+  WUInt32 WrapUInt(WUInt32 uiValue, WUInt32 uiExcludedMaxValue);
+  WInt32 WrapInt(WInt32 iValue, WUInt32 uiExcludedMaxValue);
+  WInt32 WrapInt(WInt32 iValue, WInt32 iMinValue, WInt32 iExcludedMaxValue);
   float WrapFloat01(float fValue);
   float WrapFloat(float fValue, float fMinValue, float fMaxValue);
 
   T Saturate(T value);
 
-  ezInt32 FloatToInt(float value);
+  WInt32 FloatToInt(float value);
 
   float Round(float f);
-  ezInt32 RoundToInt(float f);
+  WInt32 RoundToInt(float f);
   double Round(double f);
   float RoundToMultiple(float f, float fMultiple);
   double RoundToMultiple(double f, double fMultiple);
@@ -106,50 +106,50 @@ void ezAngelScriptEngineSingleton::Register_Math()
   float RoundUp(float f, float fMultiple);
   double RoundUp(double f, double fMultiple);
 
-  ezInt32 RoundUp(ezInt32 value, ezUInt16 uiMultiple);
-  ezInt32 RoundDown(ezInt32 value, ezUInt16 uiMultiple);
-  ezUInt32 RoundUp(ezUInt32 value, ezUInt16 uiMultiple);
-  ezUInt32 RoundDown(ezUInt32 value, ezUInt16 uiMultiple);
+  WInt32 RoundUp(WInt32 value, WUInt16 uiMultiple);
+  WInt32 RoundDown(WInt32 value, WUInt16 uiMultiple);
+  WUInt32 RoundUp(WUInt32 value, WUInt16 uiMultiple);
+  WUInt32 RoundDown(WUInt32 value, WUInt16 uiMultiple);
 
-  bool IsOdd(ezInt32 i);
-  bool IsEven(ezInt32 i);
+  bool IsOdd(WInt32 i);
+  bool IsEven(WInt32 i);
 
   T Step(T value, T edge);
   Type SmoothStep(Type value, Type edge1, Type edge2);
   Type SmootherStep(Type value, Type edge1, Type edge2);
 
-  bool IsPowerOf(ezInt32 value, ezInt32 iBase);
-  bool IsPowerOf2(ezInt32 value);
-  bool IsPowerOf2(ezUInt32 value);
-  bool IsPowerOf2(ezUInt64 value);
+  bool IsPowerOf(WInt32 value, WInt32 iBase);
+  bool IsPowerOf2(WInt32 value);
+  bool IsPowerOf2(WUInt32 value);
+  bool IsPowerOf2(WUInt64 value);
 
-  ezUInt32 PowerOfTwo_Floor(ezUInt32 value);
-  ezUInt64 PowerOfTwo_Floor(ezUInt64 value);
-  ezUInt32 PowerOfTwo_Ceil(ezUInt32 value);
-  ezUInt64 PowerOfTwo_Ceil(ezUInt64 value);
+  WUInt32 PowerOfTwo_Floor(WUInt32 value);
+  WUInt64 PowerOfTwo_Floor(WUInt64 value);
+  WUInt32 PowerOfTwo_Ceil(WUInt32 value);
+  WUInt64 PowerOfTwo_Ceil(WUInt64 value);
 
-  ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b);
+  WUInt32 GreatestCommonDivisor(WUInt32 a, WUInt32 b);
 
-  ezUInt32 ColorFloatToUnsignedInt(float value);
-  ezUInt8 ColorFloatToByte(float value);
-  ezUInt16 ColorFloatToShort(float value);
-  ezInt8 ColorFloatToSignedByte(float value);
-  ezInt16 ColorFloatToSignedShort(float value);
+  WUInt32 ColorFloatToUnsignedInt(float value);
+  WUInt8 ColorFloatToByte(float value);
+  WUInt16 ColorFloatToShort(float value);
+  WInt8 ColorFloatToSignedByte(float value);
+  WInt16 ColorFloatToSignedShort(float value);
 
-  float ColorByteToFloat(ezUInt8 value);
-  float ColorShortToFloat(ezUInt16 value);
-  float ColorSignedByteToFloat(ezInt8 value);
-  float ColorSignedShortToFloat(ezInt16 value);
+  float ColorByteToFloat(WUInt8 value);
+  float ColorShortToFloat(WUInt16 value);
+  float ColorSignedByteToFloat(WInt8 value);
+  float ColorSignedShortToFloat(WInt16 value);
   */
 
   m_pEngine->SetDefaultNamespace("");
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezAngle
+// WAngle
 //////////////////////////////////////////////////////////////////////////
 
-static int ezAngle_opCmp(const ezAngle& lhs, const ezAngle& rhs)
+static int WAngle_opCmp(const WAngle& lhs, const WAngle& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -159,50 +159,50 @@ static int ezAngle_opCmp(const ezAngle& lhs, const ezAngle& rhs)
   return 0;
 }
 
-void ezAngelScriptEngineSingleton::Register_Angle()
+void WAngelScriptEngineSingleton::Register_Angle()
 {
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezAngle");
+    m_pEngine->SetDefaultNamespace("WAngle");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("float DegToRad(float fDegree)", asFUNCTION(ezAngleTemplate<float>::DegToRad), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("float RadToDeg(float fRadians)", asFUNCTION(ezAngleTemplate<float>::RadToDeg), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeZero()", asFUNCTION(ezAngle::MakeZero), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeFromDegree(float fDegree)", asFUNCTION(ezAngle::MakeFromDegree), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeFromRadian(float fRadians)", asFUNCTION(ezAngle::MakeFromRadian), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle AngleBetween(ezAngle a1, ezAngle a2)", asFUNCTION(ezAngle::AngleBetween), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("float DegToRad(float fDegree)", asFUNCTION(WAngleTemplate<float>::DegToRad), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("float RadToDeg(float fRadians)", asFUNCTION(WAngleTemplate<float>::RadToDeg), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle MakeZero()", asFUNCTION(WAngle::MakeZero), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle MakeFromDegree(float fDegree)", asFUNCTION(WAngle::MakeFromDegree), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle MakeFromRadian(float fRadians)", asFUNCTION(WAngle::MakeFromRadian), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WAngle AngleBetween(WAngle a1, WAngle a2)", asFUNCTION(WAngle::AngleBetween), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "float GetDegree() const", asMETHOD(ezAngle, GetDegree), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "float GetRadian() const", asMETHOD(ezAngle, GetRadian), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void SetRadian(float fRadians)", asMETHOD(ezAngle, SetRadian), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void NormalizeRange()", asMETHOD(ezAngle, NormalizeRange), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle GetNormalizedRange() const", asMETHOD(ezAngle, GetNormalizedRange), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "bool IsEqualSimple(ezAngle rhs, ezAngle epsilon) const", asMETHOD(ezAngle, IsEqualSimple), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const", asMETHOD(ezAngle, IsEqualNormalized), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "float GetDegree() const", asMETHOD(WAngle, GetDegree), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "float GetRadian() const", asMETHOD(WAngle, GetRadian), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "void SetRadian(float fRadians)", asMETHOD(WAngle, SetRadian), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "void NormalizeRange()", asMETHOD(WAngle, NormalizeRange), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle GetNormalizedRange() const", asMETHOD(WAngle, GetNormalizedRange), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "bool IsEqualSimple(WAngle rhs, WAngle epsilon) const", asMETHOD(WAngle, IsEqualSimple), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "bool IsEqualNormalized(WAngle rhs, WAngle epsilon) const", asMETHOD(WAngle, IsEqualNormalized), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opNeg() const", asMETHODPR(ezAngle, operator-, () const, ezAngle), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opAdd(ezAngle) const", asMETHODPR(ezAngle, operator+, (ezAngle) const, ezAngle), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opSub(ezAngle) const", asMETHODPR(ezAngle, operator-, (ezAngle) const, ezAngle), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void opAddAssign(ezAngle)", asMETHOD(ezAngle, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void opSubAssign(ezAngle)", asMETHOD(ezAngle, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "bool opEquals(const ezAngle& in) const", asMETHODPR(ezAngle, operator==, (const ezAngle&) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "int opCmp(const ezAngle& in) const", asFUNCTION(ezAngle_opCmp), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opNeg() const", asMETHODPR(WAngle, operator-, () const, WAngle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opAdd(WAngle) const", asMETHODPR(WAngle, operator+, (WAngle) const, WAngle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opSub(WAngle) const", asMETHODPR(WAngle, operator-, (WAngle) const, WAngle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "void opAddAssign(WAngle)", asMETHOD(WAngle, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "void opSubAssign(WAngle)", asMETHOD(WAngle, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "bool opEquals(const WAngle& in) const", asMETHODPR(WAngle, operator==, (const WAngle&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "int opCmp(const WAngle& in) const", asFUNCTION(WAngle_opCmp), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opMul(float) const", asFUNCTIONPR(operator*, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opMul_r(float) const", asFUNCTIONPR(operator*, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opDiv(float) const", asFUNCTIONPR(operator/, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "float opDiv(const ezAngle& in) const", asFUNCTIONPR(operator/, (const ezAngle&, const ezAngle&), float), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opMul(float) const", asFUNCTIONPR(operator*, (const WAngle&, float), WAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opMul_r(float) const", asFUNCTIONPR(operator*, (const WAngle&, float), WAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "WAngle opDiv(float) const", asFUNCTIONPR(operator/, (const WAngle&, float), WAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WAngle", "float opDiv(const WAngle& in) const", asFUNCTIONPR(operator/, (const WAngle&, const WAngle&), float), asCALL_CDECL_OBJFIRST));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezVec2
+// WVec2
 //////////////////////////////////////////////////////////////////////////
 
-static int ezVec2_opCmp(const ezVec2& lhs, const ezVec2& rhs)
+static int WVec2_opCmp(const WVec2& lhs, const WVec2& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -212,92 +212,92 @@ static int ezVec2_opCmp(const ezVec2& lhs, const ezVec2& rhs)
   return 0;
 }
 
-static void ezVec2_Construct1(void* pMemory, float fXyz)
+static void WVec2_Construct1(void* pMemory, float fXyz)
 {
-  new (pMemory) ezVec2(fXyz);
+  new (pMemory) WVec2(fXyz);
 }
 
-static void ezVec2_Construct2(void* pMemory, float x, float y)
+static void WVec2_Construct2(void* pMemory, float x, float y)
 {
-  new (pMemory) ezVec2(x, y);
+  new (pMemory) WVec2(x, y);
 }
 
-void ezAngelScriptEngineSingleton::Register_Vec2()
+void WAngelScriptEngineSingleton::Register_Vec2()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec2", "float x", asOFFSET(ezVec2, x)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec2", "float y", asOFFSET(ezVec2, y)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec2", "float x", asOFFSET(WVec2, x)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec2", "float y", asOFFSET(WVec2, y)));
 
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezVec2");
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec2 MakeNaN()", asFUNCTION(ezVec2::MakeNaN<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec2 MakeZero()", asFUNCTION(ezVec2::MakeZero), asCALL_CDECL));
+    m_pEngine->SetDefaultNamespace("WVec2");
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec2 MakeNaN()", asFUNCTION(WVec2::MakeNaN<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec2 MakeZero()", asFUNCTION(WVec2::MakeZero), asCALL_CDECL));
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec3 GetAsVec3(float z) const", asMETHOD(ezVec2, GetAsVec3), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec4 GetAsVec4(float z, float w) const", asMETHOD(ezVec2, GetAsVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec3 GetAsVec3(float z) const", asMETHOD(WVec2, GetAsVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec4 GetAsVec4(float z, float w) const", asMETHOD(WVec2, GetAsVec4), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Set(float xyz)", asMETHODPR(ezVec2, Set, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Set(float x, float y)", asMETHODPR(ezVec2, Set, (float, float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void SetZero()", asMETHOD(ezVec2, SetZero), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void Set(float xyz)", asMETHODPR(WVec2, Set, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void Set(float x, float y)", asMETHODPR(WVec2, Set, (float, float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void SetZero()", asMETHOD(WVec2, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLength() const", asMETHODPR(ezVec2, GetLength, () const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetDistanceTo(const ezVec2& in rhs) const", asMETHODPR(ezVec2, GetDistanceTo, (const ezVec2&) const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetSquaredDistanceTo(const ezVec2& in rhs) const", asMETHODPR(ezVec2, GetSquaredDistanceTo, (const ezVec2&) const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthSquared() const", asMETHOD(ezVec2, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthAndNormalize()", asMETHODPR(ezVec2, GetLengthAndNormalize, (), float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetNormalized() const", asMETHODPR(ezVec2, GetNormalized, () const, const ezVec2), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Normalize()", asMETHODPR(ezVec2, Normalize, (), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float GetLength() const", asMETHODPR(WVec2, GetLength, () const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float GetDistanceTo(const WVec2& in rhs) const", asMETHODPR(WVec2, GetDistanceTo, (const WVec2&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float GetSquaredDistanceTo(const WVec2& in rhs) const", asMETHODPR(WVec2, GetSquaredDistanceTo, (const WVec2&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float GetLengthSquared() const", asMETHOD(WVec2, GetLengthSquared), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float GetLengthAndNormalize()", asMETHODPR(WVec2, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 GetNormalized() const", asMETHODPR(WVec2, GetNormalized, () const, const WVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void Normalize()", asMETHODPR(WVec2, Normalize, (), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsZero() const", asMETHODPR(ezVec2, IsZero, () const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec2, IsZero, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsZero() const", asMETHODPR(WVec2, IsZero, () const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsZero(float fEpsilon) const", asMETHODPR(WVec2, IsZero, (float) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(ezVec2, IsNormalized, (float) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsNaN() const", asMETHOD(ezVec2, IsNaN), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsValid() const", asMETHOD(ezVec2, IsValid), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(WVec2, IsNormalized, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsNaN() const", asMETHOD(WVec2, IsNaN), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsValid() const", asMETHOD(WVec2, IsValid), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void opAddAssign(const ezVec2& in)", asMETHOD(ezVec2, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void opSubAssign(const ezVec2& in)", asMETHOD(ezVec2, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void opMulAssign(float)", asMETHODPR(ezVec2, operator*=, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void opDivAssign(float)", asMETHODPR(ezVec2, operator/=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void opAddAssign(const WVec2& in)", asMETHOD(WVec2, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void opSubAssign(const WVec2& in)", asMETHOD(WVec2, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void opMulAssign(float)", asMETHODPR(WVec2, operator*=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void opDivAssign(float)", asMETHODPR(WVec2, operator/=, (float), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsIdentical(const ezVec2& in) const", asMETHOD(ezVec2, IsIdentical), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsEqual(const ezVec2& in, float fEpsilon) const", asMETHOD(ezVec2, IsEqual), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsIdentical(const WVec2& in) const", asMETHOD(WVec2, IsIdentical), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool IsEqual(const WVec2& in, float fEpsilon) const", asMETHOD(WVec2, IsEqual), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float Dot(const ezVec2& in) const", asMETHOD(ezVec2, Dot), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompMin(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompMin), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompMax(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompMax), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompClamp(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompClamp), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompMul(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompMul), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompDiv(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompDiv), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 Abs() const", asMETHOD(ezVec2, Abs), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "float Dot(const WVec2& in) const", asMETHOD(WVec2, Dot), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 CompMin(const WVec2& in rhs) const", asMETHOD(WVec2, CompMin), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 CompMax(const WVec2& in rhs) const", asMETHOD(WVec2, CompMax), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 CompClamp(const WVec2& in rhs) const", asMETHOD(WVec2, CompClamp), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 CompMul(const WVec2& in rhs) const", asMETHOD(WVec2, CompMul), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 CompDiv(const WVec2& in rhs) const", asMETHOD(WVec2, CompDiv), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 Abs() const", asMETHOD(WVec2, Abs), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void MakeOrthogonalTo(const ezVec2& in)", asMETHODPR(ezVec2, MakeOrthogonalTo, (const ezVec2&), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetOrthogonalVector() const", asMETHOD(ezVec2, GetOrthogonalVector), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetReflectedVector(const ezVec2& in) const", asMETHODPR(ezVec2, GetReflectedVector, (const ezVec2&) const, const ezVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "void MakeOrthogonalTo(const WVec2& in)", asMETHODPR(WVec2, MakeOrthogonalTo, (const WVec2&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 GetOrthogonalVector() const", asMETHOD(WVec2, GetOrthogonalVector), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 GetReflectedVector(const WVec2& in) const", asMETHODPR(WVec2, GetReflectedVector, (const WVec2&) const, const WVec2), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opNeg() const", asMETHODPR(ezVec2, operator-, () const, const ezVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opNeg() const", asMETHODPR(WVec2, operator-, () const, const WVec2), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opAdd(const ezVec2& in) const", asFUNCTIONPR(operator+, (const ezVec2&, const ezVec2&), const ezVec2), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opSub(const ezVec2& in) const", asFUNCTIONPR(operator-, (const ezVec2&, const ezVec2&), const ezVec2), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opMul(float) const", asFUNCTIONPR(operator*, (const ezVec2&, float), const ezVec2), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const ezVec2&), const ezVec2), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opDiv(float) const", asFUNCTIONPR(operator/, (const ezVec2&, float), const ezVec2), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opAdd(const WVec2& in) const", asFUNCTIONPR(operator+, (const WVec2&, const WVec2&), const WVec2), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opSub(const WVec2& in) const", asFUNCTIONPR(operator-, (const WVec2&, const WVec2&), const WVec2), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opMul(float) const", asFUNCTIONPR(operator*, (const WVec2&, float), const WVec2), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const WVec2&), const WVec2), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "WVec2 opDiv(float) const", asFUNCTIONPR(operator/, (const WVec2&, float), const WVec2), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool opEquals(const ezVec2& in) const", asFUNCTIONPR(operator==, (const ezVec2&, const ezVec2&), bool), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "int opCmp(const ezVec2& in) const", asFUNCTIONPR(ezVec2_opCmp, (const ezVec2&, const ezVec2&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "bool opEquals(const WVec2& in) const", asFUNCTIONPR(operator==, (const WVec2&, const WVec2&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec2", "int opCmp(const WVec2& in) const", asFUNCTIONPR(WVec2_opCmp, (const WVec2&, const WVec2&), int), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec2", asBEHAVE_CONSTRUCT, "void f(float x, float y)", asFUNCTION(ezVec2_Construct2), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec2", asBEHAVE_CONSTRUCT, "void f(float xyz)", asFUNCTION(ezVec2_Construct1), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec2", asBEHAVE_CONSTRUCT, "void f(float x, float y)", asFUNCTION(WVec2_Construct2), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec2", asBEHAVE_CONSTRUCT, "void f(float xyz)", asFUNCTION(WVec2_Construct1), asCALL_CDECL_OBJFIRST));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezVec3
+// WVec3
 //////////////////////////////////////////////////////////////////////////
 
-static int ezVec3_opCmp(const ezVec3& lhs, const ezVec3& rhs)
+static int WVec3_opCmp(const WVec3& lhs, const WVec3& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -307,110 +307,110 @@ static int ezVec3_opCmp(const ezVec3& lhs, const ezVec3& rhs)
   return 0;
 }
 
-static void ezVec3_Construct1(void* pMemory, float fXyz)
+static void WVec3_Construct1(void* pMemory, float fXyz)
 {
-  new (pMemory) ezVec3(fXyz);
+  new (pMemory) WVec3(fXyz);
 }
-static void ezVec3_Construct3(void* pMemory, float x, float y, float z)
+static void WVec3_Construct3(void* pMemory, float x, float y, float z)
 {
-  new (pMemory) ezVec3(x, y, z);
+  new (pMemory) WVec3(x, y, z);
 }
 
-void ezAngelScriptEngineSingleton::Register_Vec3()
+void WAngelScriptEngineSingleton::Register_Vec3()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec3", "float x", asOFFSET(ezVec3, x)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec3", "float y", asOFFSET(ezVec3, y)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec3", "float z", asOFFSET(ezVec3, z)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec3", "float x", asOFFSET(WVec3, x)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec3", "float y", asOFFSET(WVec3, y)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec3", "float z", asOFFSET(WVec3, z)));
 
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezVec3");
+    m_pEngine->SetDefaultNamespace("WVec3");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeNaN()", asFUNCTION(ezVec3::MakeNaN<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeZero()", asFUNCTION(ezVec3::MakeZero), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeAxisX()", asFUNCTION(ezVec3::MakeAxisX), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeAxisY()", asFUNCTION(ezVec3::MakeAxisY), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeAxisZ()", asFUNCTION(ezVec3::MakeAxisZ), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 Make(float x, float y, float z)", asFUNCTION(ezVec3::Make), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeNaN()", asFUNCTION(WVec3::MakeNaN<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeZero()", asFUNCTION(WVec3::MakeZero), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeAxisX()", asFUNCTION(WVec3::MakeAxisX), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeAxisY()", asFUNCTION(WVec3::MakeAxisY), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeAxisZ()", asFUNCTION(WVec3::MakeAxisZ), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 Make(float x, float y, float z)", asFUNCTION(WVec3::Make), asCALL_CDECL));
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomDirection(ezRandom& inout rng)", asFUNCTION(ezVec3::MakeRandomDirection<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomPointInSphere(ezRandom& inout rng)", asFUNCTION(ezVec3::MakeRandomPointInSphere<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomDeviationX(ezRandom& inout rng, const ezAngle& in maxDeviation)", asFUNCTION(ezVec3::MakeRandomDeviationX<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomDeviationY(ezRandom& inout rng, const ezAngle& in maxDeviation)", asFUNCTION(ezVec3::MakeRandomDeviationY<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomDeviationZ(ezRandom& inout rng, const ezAngle& in maxDeviation)", asFUNCTION(ezVec3::MakeRandomDeviationZ<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 MakeRandomDeviation(ezRandom& inout rng, const ezAngle& in maxDeviation, const ezVec3& in normal)", asFUNCTION(ezVec3::MakeRandomDeviation<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomDirection(WRandom& inout rng)", asFUNCTION(WVec3::MakeRandomDirection<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomPointInSphere(WRandom& inout rng)", asFUNCTION(WVec3::MakeRandomPointInSphere<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomDeviationX(WRandom& inout rng, const WAngle& in maxDeviation)", asFUNCTION(WVec3::MakeRandomDeviationX<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomDeviationY(WRandom& inout rng, const WAngle& in maxDeviation)", asFUNCTION(WVec3::MakeRandomDeviationY<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomDeviationZ(WRandom& inout rng, const WAngle& in maxDeviation)", asFUNCTION(WVec3::MakeRandomDeviationZ<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec3 MakeRandomDeviation(WRandom& inout rng, const WAngle& in maxDeviation, const WVec3& in normal)", asFUNCTION(WVec3::MakeRandomDeviation<float>), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec2 GetAsVec2() const", asMETHOD(ezVec3, GetAsVec2), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec4 GetAsVec4(float w) const", asMETHOD(ezVec3, GetAsVec4), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec4 GetAsPositionVec4() const", asMETHOD(ezVec3, GetAsPositionVec4), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec4 GetAsDirectionVec4() const", asMETHOD(ezVec3, GetAsDirectionVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec2 GetAsVec2() const", asMETHOD(WVec3, GetAsVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec4 GetAsVec4(float w) const", asMETHOD(WVec3, GetAsVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec4 GetAsPositionVec4() const", asMETHOD(WVec3, GetAsPositionVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec4 GetAsDirectionVec4() const", asMETHOD(WVec3, GetAsDirectionVec4), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Set(float xyz)", asMETHODPR(ezVec3, Set, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Set(float x, float y, float z)", asMETHODPR(ezVec3, Set, (float, float, float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void SetZero()", asMETHOD(ezVec3, SetZero), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void Set(float xyz)", asMETHODPR(WVec3, Set, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void Set(float x, float y, float z)", asMETHODPR(WVec3, Set, (float, float, float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void SetZero()", asMETHOD(WVec3, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLength() const", asMETHODPR(ezVec3, GetLength, () const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetDistanceTo(const ezVec3& in rhs) const", asMETHODPR(ezVec3, GetDistanceTo, (const ezVec3&) const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetSquaredDistanceTo(const ezVec3& in rhs) const", asMETHODPR(ezVec3, GetSquaredDistanceTo, (const ezVec3&) const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLengthSquared() const", asMETHOD(ezVec3, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLengthAndNormalize()", asMETHODPR(ezVec3, GetLengthAndNormalize, (), float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetNormalized() const", asMETHODPR(ezVec3, GetNormalized, () const, const ezVec3), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Normalize()", asMETHODPR(ezVec3, Normalize, (), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float GetLength() const", asMETHODPR(WVec3, GetLength, () const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float GetDistanceTo(const WVec3& in rhs) const", asMETHODPR(WVec3, GetDistanceTo, (const WVec3&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float GetSquaredDistanceTo(const WVec3& in rhs) const", asMETHODPR(WVec3, GetSquaredDistanceTo, (const WVec3&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float GetLengthSquared() const", asMETHOD(WVec3, GetLengthSquared), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float GetLengthAndNormalize()", asMETHODPR(WVec3, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 GetNormalized() const", asMETHODPR(WVec3, GetNormalized, () const, const WVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void Normalize()", asMETHODPR(WVec3, Normalize, (), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsZero() const", asMETHODPR(ezVec3, IsZero, () const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec3, IsZero, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsZero() const", asMETHODPR(WVec3, IsZero, () const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsZero(float fEpsilon) const", asMETHODPR(WVec3, IsZero, (float) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(ezVec3, IsNormalized, (float) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsNaN() const", asMETHOD(ezVec3, IsNaN), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsValid() const", asMETHOD(ezVec3, IsValid), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(WVec3, IsNormalized, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsNaN() const", asMETHOD(WVec3, IsNaN), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsValid() const", asMETHOD(WVec3, IsValid), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opAddAssign(const ezVec3& in)", asMETHOD(ezVec3, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opSubAssign(const ezVec3& in)", asMETHOD(ezVec3, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opMulAssign(const ezVec3& in)", asMETHODPR(ezVec3, operator*=, (const ezVec3&), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opDivAssign(const ezVec3& in)", asMETHODPR(ezVec3, operator/=, (const ezVec3&), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opMulAssign(float)", asMETHODPR(ezVec3, operator*=, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void opDivAssign(float)", asMETHODPR(ezVec3, operator/=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opAddAssign(const WVec3& in)", asMETHOD(WVec3, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opSubAssign(const WVec3& in)", asMETHOD(WVec3, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opMulAssign(const WVec3& in)", asMETHODPR(WVec3, operator*=, (const WVec3&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opDivAssign(const WVec3& in)", asMETHODPR(WVec3, operator/=, (const WVec3&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opMulAssign(float)", asMETHODPR(WVec3, operator*=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void opDivAssign(float)", asMETHODPR(WVec3, operator/=, (float), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsIdentical(const ezVec3& in) const", asMETHOD(ezVec3, IsIdentical), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsEqual(const ezVec3& in, float fEpsilon) const", asMETHOD(ezVec3, IsEqual), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsIdentical(const WVec3& in) const", asMETHOD(WVec3, IsIdentical), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool IsEqual(const WVec3& in, float fEpsilon) const", asMETHOD(WVec3, IsEqual), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float Dot(const ezVec3& in) const", asMETHOD(ezVec3, Dot), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CrossRH(const ezVec3& in) const", asMETHOD(ezVec3, CrossRH), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompMin(const ezVec3& in) const", asMETHOD(ezVec3, CompMin), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompMax(const ezVec3& in) const", asMETHOD(ezVec3, CompMax), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompClamp(const ezVec3& in) const", asMETHOD(ezVec3, CompClamp), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompMul(const ezVec3& in) const", asMETHOD(ezVec3, CompMul), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompDiv(const ezVec3& in) const", asMETHOD(ezVec3, CompDiv), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 Abs() const", asMETHOD(ezVec3, Abs), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "float Dot(const WVec3& in) const", asMETHOD(WVec3, Dot), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CrossRH(const WVec3& in) const", asMETHOD(WVec3, CrossRH), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CompMin(const WVec3& in) const", asMETHOD(WVec3, CompMin), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CompMax(const WVec3& in) const", asMETHOD(WVec3, CompMax), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CompClamp(const WVec3& in) const", asMETHOD(WVec3, CompClamp), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CompMul(const WVec3& in) const", asMETHOD(WVec3, CompMul), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 CompDiv(const WVec3& in) const", asMETHOD(WVec3, CompDiv), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 Abs() const", asMETHOD(WVec3, Abs), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void MakeOrthogonalTo(const ezVec3& in)", asMETHODPR(ezVec3, MakeOrthogonalTo, (const ezVec3&), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetOrthogonalVector() const", asMETHODPR(ezVec3, GetOrthogonalVector, () const, const ezVec3), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetReflectedVector(const ezVec3& in) const", asMETHODPR(ezVec3, GetReflectedVector, (const ezVec3&) const, const ezVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "void MakeOrthogonalTo(const WVec3& in)", asMETHODPR(WVec3, MakeOrthogonalTo, (const WVec3&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 GetOrthogonalVector() const", asMETHODPR(WVec3, GetOrthogonalVector, () const, const WVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 GetReflectedVector(const WVec3& in) const", asMETHODPR(WVec3, GetReflectedVector, (const WVec3&) const, const WVec3), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opNeg() const", asMETHODPR(ezVec3, operator-, () const, const ezVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opNeg() const", asMETHODPR(WVec3, operator-, () const, const WVec3), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opAdd(const ezVec3& in) const", asFUNCTIONPR(operator+, (const ezVec3&, const ezVec3&), const ezVec3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opSub(const ezVec3& in) const", asFUNCTIONPR(operator-, (const ezVec3&, const ezVec3&), const ezVec3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opMul(float) const", asFUNCTIONPR(operator*, (const ezVec3&, float), const ezVec3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const ezVec3&), const ezVec3), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opDiv(float) const", asFUNCTIONPR(operator/, (const ezVec3&, float), const ezVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opAdd(const WVec3& in) const", asFUNCTIONPR(operator+, (const WVec3&, const WVec3&), const WVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opSub(const WVec3& in) const", asFUNCTIONPR(operator-, (const WVec3&, const WVec3&), const WVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opMul(float) const", asFUNCTIONPR(operator*, (const WVec3&, float), const WVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const WVec3&), const WVec3), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "WVec3 opDiv(float) const", asFUNCTIONPR(operator/, (const WVec3&, float), const WVec3), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool opEquals(const ezVec3& in) const", asFUNCTIONPR(operator==, (const ezVec3&, const ezVec3&), bool), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "int opCmp(const ezVec3& in) const", asFUNCTIONPR(ezVec3_opCmp, (const ezVec3&, const ezVec3&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "bool opEquals(const WVec3& in) const", asFUNCTIONPR(operator==, (const WVec3&, const WVec3&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec3", "int opCmp(const WVec3& in) const", asFUNCTIONPR(WVec3_opCmp, (const WVec3&, const WVec3&), int), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec3", asBEHAVE_CONSTRUCT, "void f(float x, float y, float z)", asFUNCTION(ezVec3_Construct3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec3", asBEHAVE_CONSTRUCT, "void f(float xyz)", asFUNCTION(ezVec3_Construct1), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec3", asBEHAVE_CONSTRUCT, "void f(float x, float y, float z)", asFUNCTION(WVec3_Construct3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec3", asBEHAVE_CONSTRUCT, "void f(float xyz)", asFUNCTION(WVec3_Construct1), asCALL_CDECL_OBJFIRST));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezVec4
+// WVec4
 //////////////////////////////////////////////////////////////////////////
 
-static int ezVec4_opCmp(const ezVec4& lhs, const ezVec4& rhs)
+static int WVec4_opCmp(const WVec4& lhs, const WVec4& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -420,219 +420,219 @@ static int ezVec4_opCmp(const ezVec4& lhs, const ezVec4& rhs)
   return 0;
 }
 
-static void ezVec4_Construct1(void* pMemory, float fXyzw)
+static void WVec4_Construct1(void* pMemory, float fXyzw)
 {
-  new (pMemory) ezVec4(fXyzw);
+  new (pMemory) WVec4(fXyzw);
 }
-static void ezVec4_Construct4(void* pMemory, float x, float y, float z, float w)
+static void WVec4_Construct4(void* pMemory, float x, float y, float z, float w)
 {
-  new (pMemory) ezVec4(x, y, z, w);
+  new (pMemory) WVec4(x, y, z, w);
 }
 
-void ezAngelScriptEngineSingleton::Register_Vec4()
+void WAngelScriptEngineSingleton::Register_Vec4()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec4", "float x", asOFFSET(ezVec4, x)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec4", "float y", asOFFSET(ezVec4, y)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec4", "float z", asOFFSET(ezVec4, z)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezVec4", "float w", asOFFSET(ezVec4, w)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec4", "float x", asOFFSET(WVec4, x)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec4", "float y", asOFFSET(WVec4, y)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec4", "float z", asOFFSET(WVec4, z)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WVec4", "float w", asOFFSET(WVec4, w)));
 
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezVec4");
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec4 MakeNaN()", asFUNCTION(ezVec4::MakeNaN<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec4 MakeZero()", asFUNCTION(ezVec4::MakeZero), asCALL_CDECL));
+    m_pEngine->SetDefaultNamespace("WVec4");
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec4 MakeNaN()", asFUNCTION(WVec4::MakeNaN<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WVec4 MakeZero()", asFUNCTION(WVec4::MakeZero), asCALL_CDECL));
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec2 GetAsVec2() const", asMETHOD(ezVec4, GetAsVec2), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec3 GetAsVec3() const", asMETHOD(ezVec4, GetAsVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec2 GetAsVec2() const", asMETHOD(WVec4, GetAsVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec3 GetAsVec3() const", asMETHOD(WVec4, GetAsVec3), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Set(float xyzw)", asMETHODPR(ezVec4, Set, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Set(float x, float y, float z, float w)", asMETHODPR(ezVec4, Set, (float, float, float, float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void SetZero()", asMETHOD(ezVec4, SetZero), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void Set(float xyzw)", asMETHODPR(WVec4, Set, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void Set(float x, float y, float z, float w)", asMETHODPR(WVec4, Set, (float, float, float, float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void SetZero()", asMETHOD(WVec4, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLength() const", asMETHODPR(ezVec4, GetLength, () const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLengthSquared() const", asMETHOD(ezVec4, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLengthAndNormalize()", asMETHODPR(ezVec4, GetLengthAndNormalize, (), float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 GetNormalized() const", asMETHODPR(ezVec4, GetNormalized, () const, const ezVec4), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Normalize()", asMETHODPR(ezVec4, Normalize, (), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "float GetLength() const", asMETHODPR(WVec4, GetLength, () const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "float GetLengthSquared() const", asMETHOD(WVec4, GetLengthSquared), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "float GetLengthAndNormalize()", asMETHODPR(WVec4, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 GetNormalized() const", asMETHODPR(WVec4, GetNormalized, () const, const WVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void Normalize()", asMETHODPR(WVec4, Normalize, (), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsZero() const", asMETHODPR(ezVec4, IsZero, () const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec4, IsZero, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsZero() const", asMETHODPR(WVec4, IsZero, () const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsZero(float fEpsilon) const", asMETHODPR(WVec4, IsZero, (float) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(ezVec4, IsNormalized, (float) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsNaN() const", asMETHOD(ezVec4, IsNaN), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsValid() const", asMETHOD(ezVec4, IsValid), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsNormalized(float fEpsilon = 0.001f) const", asMETHODPR(WVec4, IsNormalized, (float) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsNaN() const", asMETHOD(WVec4, IsNaN), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsValid() const", asMETHOD(WVec4, IsValid), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void opAddAssign(const ezVec4& in)", asMETHOD(ezVec4, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void opSubAssign(const ezVec4& in)", asMETHOD(ezVec4, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void opMulAssign(float)", asMETHODPR(ezVec4, operator*=, (float), void), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void opDivAssign(float)", asMETHODPR(ezVec4, operator/=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void opAddAssign(const WVec4& in)", asMETHOD(WVec4, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void opSubAssign(const WVec4& in)", asMETHOD(WVec4, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void opMulAssign(float)", asMETHODPR(WVec4, operator*=, (float), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "void opDivAssign(float)", asMETHODPR(WVec4, operator/=, (float), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsIdentical(const ezVec4& in) const", asMETHOD(ezVec4, IsIdentical), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsEqual(const ezVec4& in, float) const", asMETHOD(ezVec4, IsEqual), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsIdentical(const WVec4& in) const", asMETHOD(WVec4, IsIdentical), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool IsEqual(const WVec4& in, float) const", asMETHOD(WVec4, IsEqual), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float Dot(const ezVec4& in) const", asMETHOD(ezVec4, Dot), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 CompMin(const ezVec4& in) const", asMETHOD(ezVec4, CompMin), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 CompMax(const ezVec4& in) const", asMETHOD(ezVec4, CompMax), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 CompClamp(const ezVec4& in) const", asMETHOD(ezVec4, CompClamp), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 CompMul(const ezVec4& in) const", asMETHOD(ezVec4, CompMul), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 CompDiv(const ezVec4& in) const", asMETHOD(ezVec4, CompDiv), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 Abs() const", asMETHOD(ezVec4, Abs), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "float Dot(const WVec4& in) const", asMETHOD(WVec4, Dot), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 CompMin(const WVec4& in) const", asMETHOD(WVec4, CompMin), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 CompMax(const WVec4& in) const", asMETHOD(WVec4, CompMax), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 CompClamp(const WVec4& in) const", asMETHOD(WVec4, CompClamp), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 CompMul(const WVec4& in) const", asMETHOD(WVec4, CompMul), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 CompDiv(const WVec4& in) const", asMETHOD(WVec4, CompDiv), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 Abs() const", asMETHOD(WVec4, Abs), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opNeg() const", asMETHODPR(ezVec4, operator-, () const, const ezVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opNeg() const", asMETHODPR(WVec4, operator-, () const, const WVec4), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opAdd(const ezVec4& in) const", asFUNCTIONPR(operator+, (const ezVec4&, const ezVec4&), const ezVec4), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opSub(const ezVec4& in) const", asFUNCTIONPR(operator-, (const ezVec4&, const ezVec4&), const ezVec4), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opMul(float) const", asFUNCTIONPR(operator*, (const ezVec4&, float), const ezVec4), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const ezVec4&), const ezVec4), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 opDiv(float) const", asFUNCTIONPR(operator/, (const ezVec4&, float), const ezVec4), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opAdd(const WVec4& in) const", asFUNCTIONPR(operator+, (const WVec4&, const WVec4&), const WVec4), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opSub(const WVec4& in) const", asFUNCTIONPR(operator-, (const WVec4&, const WVec4&), const WVec4), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opMul(float) const", asFUNCTIONPR(operator*, (const WVec4&, float), const WVec4), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opMul_r(float) const", asFUNCTIONPR(operator*, (float, const WVec4&), const WVec4), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "WVec4 opDiv(float) const", asFUNCTIONPR(operator/, (const WVec4&, float), const WVec4), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool opEquals(const ezVec4& in) const", asFUNCTIONPR(operator==, (const ezVec4&, const ezVec4&), bool), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "int opCmp(const ezVec4& in) const", asFUNCTIONPR(ezVec4_opCmp, (const ezVec4&, const ezVec4&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "bool opEquals(const WVec4& in) const", asFUNCTIONPR(operator==, (const WVec4&, const WVec4&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WVec4", "int opCmp(const WVec4& in) const", asFUNCTIONPR(WVec4_opCmp, (const WVec4&, const WVec4&), int), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec4", asBEHAVE_CONSTRUCT, "void f(float x, float y, float z, float w)", asFUNCTION(ezVec4_Construct4), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezVec4", asBEHAVE_CONSTRUCT, "void f(float xyzw)", asFUNCTION(ezVec4_Construct1), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec4", asBEHAVE_CONSTRUCT, "void f(float x, float y, float z, float w)", asFUNCTION(WVec4_Construct4), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WVec4", asBEHAVE_CONSTRUCT, "void f(float xyzw)", asFUNCTION(WVec4_Construct1), asCALL_CDECL_OBJFIRST));
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezQuat
+// WQuat
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Quat()
+void WAngelScriptEngineSingleton::Register_Quat()
 {
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezQuat", "float x", asOFFSET(ezQuat, x)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezQuat", "float y", asOFFSET(ezQuat, y)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezQuat", "float z", asOFFSET(ezQuat, z)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezQuat", "float w", asOFFSET(ezQuat, w)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WQuat", "float x", asOFFSET(WQuat, x)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WQuat", "float y", asOFFSET(WQuat, y)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WQuat", "float z", asOFFSET(WQuat, z)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WQuat", "float w", asOFFSET(WQuat, w)));
 
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezQuat");
+    m_pEngine->SetDefaultNamespace("WQuat");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeIdentity()", asFUNCTION(ezQuat::MakeIdentity), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromElements(float x, float y, float z, float w)", asFUNCTION(ezQuat::MakeFromElements), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromAxisAndAngle(const ezVec3& in vAxis , ezAngle angle)", asFUNCTION(ezQuat::MakeFromAxisAndAngle), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeShortestRotation(const ezVec3& in vFrom, const ezVec3& in vTo)", asFUNCTION(ezQuat::MakeShortestRotation), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromMat3(const ezMat3& in)", asFUNCTION(ezQuat::MakeFromMat3), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeSlerp(const ezQuat& in qFrom, const ezQuat& in qTo, float fFactor)", asFUNCTION(ezQuat::MakeSlerp), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromEulerAngles(const ezAngle& in x, const ezAngle& in y, const ezAngle& in z)", asFUNCTION(ezQuat::MakeFromEulerAngles), asCALL_CDECL));
-
-    m_pEngine->SetDefaultNamespace("");
-  }
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void SetIdentity()", asMETHOD(ezQuat, SetIdentity), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void ReconstructFromMat3(const ezMat3& in)", asMETHOD(ezQuat, ReconstructFromMat3), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void ReconstructFromMat4(const ezMat3& in)", asMETHOD(ezQuat, ReconstructFromMat4), asCALL_THISCALL));
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void Normalize()", asMETHOD(ezQuat, Normalize), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void GetRotationAxisAndAngle(ezVec3& out, ezAngle& out, float fEpsilon = 0.00001) const", asMETHOD(ezQuat, GetRotationAxisAndAngle), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezVec3 GetVectorPart() const", asMETHOD(ezQuat, GetVectorPart), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezMat3 GetAsMat3() const", asMETHOD(ezQuat, GetAsMat3), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezMat3 GetAsMat4() const", asMETHOD(ezQuat, GetAsMat4), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "bool IsValid(float fEpsilon = 0.00001) const", asMETHOD(ezQuat, IsValid), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "bool IsNaN() const", asMETHOD(ezQuat, IsNaN), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "bool IsEqualRotation(const ezQuat& in, float fEpsilon = 0.00001) const", asMETHOD(ezQuat, IsEqualRotation), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void Invert()", asMETHOD(ezQuat, Invert), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezQuat GetInverse() const", asMETHOD(ezQuat, GetInverse), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezQuat GetNegated() const", asMETHOD(ezQuat, GetNegated), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "float Dot(const ezQuat& in) const", asMETHOD(ezQuat, Dot), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezVec3 Rotate(const ezVec3& in) const", asMETHOD(ezQuat, Rotate), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "void GetAsEulerAngles(float& out, float& out, float& out) const", asMETHOD(ezQuat, GetAsEulerAngles), asCALL_THISCALL));
-
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezQuat opMul(const ezQuat& in) const", asFUNCTIONPR(operator*, (const ezQuat&, const ezQuat&), const ezQuat), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "ezVec3 opMul(const ezVec3& in) const", asFUNCTIONPR(operator*, (const ezQuat&, const ezVec3&), const ezVec3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezQuat", "bool opEquals(const ezQuat& in) const", asFUNCTIONPR(operator==, (const ezQuat&, const ezQuat&), bool), asCALL_CDECL_OBJFIRST));
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// ezTransform
-//////////////////////////////////////////////////////////////////////////
-
-static void ezTransform_Construct3(void* pMemory, const ezVec3& v, const ezQuat& r, const ezVec3& s)
-{
-  new (pMemory) ezTransform(v, r, s);
-}
-
-void ezAngelScriptEngineSingleton::Register_Transform()
-{
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezTransform", "ezVec3 m_vPosition", asOFFSET(ezTransform, m_vPosition)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezTransform", "ezQuat m_qRotation", asOFFSET(ezTransform, m_qRotation)));
-  AS_CHECK(m_pEngine->RegisterObjectProperty("ezTransform", "ezVec3 m_vScale", asOFFSET(ezTransform, m_vScale)));
-
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTransform", asBEHAVE_CONSTRUCT, "void f(const ezVec3& in vPosition, const ezQuat& in qRotation = ezQuat::MakeIdentity(), const ezVec3& in vScale = ezVec3(1))", asFUNCTION(ezTransform_Construct3), asCALL_CDECL_OBJFIRST));
-
-  // static functions
-  {
-    m_pEngine->SetDefaultNamespace("ezTransform");
-
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform Make(const ezVec3& in vPosition, const ezQuat& in qRotation = ezQuat::MakeIdentity(), const ezVec3& in vScale = ezVec3(1))", asFUNCTION(ezTransform::Make), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeIdentity()", asFUNCTION(ezTransform::MakeIdentity), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeFromMat4(const ezMat4& in)", asFUNCTION(ezTransform::MakeFromMat4), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeLocalTransform(const ezTransform& in, const ezTransform& in)", asFUNCTION(ezTransform::MakeLocalTransform), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeGlobalTransform(const ezTransform& in, const ezTransform& in)", asFUNCTION(ezTransform::MakeGlobalTransform), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeIdentity()", asFUNCTION(WQuat::MakeIdentity), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeFromElements(float x, float y, float z, float w)", asFUNCTION(WQuat::MakeFromElements), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeFromAxisAndAngle(const WVec3& in vAxis , WAngle angle)", asFUNCTION(WQuat::MakeFromAxisAndAngle), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeShortestRotation(const WVec3& in vFrom, const WVec3& in vTo)", asFUNCTION(WQuat::MakeShortestRotation), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeFromMat3(const WMat3& in)", asFUNCTION(WQuat::MakeFromMat3), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeSlerp(const WQuat& in qFrom, const WQuat& in qTo, float fFactor)", asFUNCTION(WQuat::MakeSlerp), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WQuat MakeFromEulerAngles(const WAngle& in x, const WAngle& in y, const WAngle& in z)", asFUNCTION(WQuat::MakeFromEulerAngles), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "void SetIdentity()", asMETHOD(ezTransform, SetIdentity), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "float GetMaxScale() const", asMETHOD(ezTransform, GetMaxScale), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool HasMirrorScaling() const", asMETHOD(ezTransform, HasMirrorScaling), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool HasOnlyUniformScaling() const", asMETHOD(ezTransform, HasOnlyUniformScaling), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool IsValid() const", asMETHOD(ezTransform, IsValid), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void SetIdentity()", asMETHOD(WQuat, SetIdentity), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void ReconstructFromMat3(const WMat3& in)", asMETHOD(WQuat, ReconstructFromMat3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void ReconstructFromMat4(const WMat3& in)", asMETHOD(WQuat, ReconstructFromMat4), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool IsIdentical(const ezTransform& in) const", asMETHOD(ezTransform, IsIdentical), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool IsEqual(const ezTransform& in, float fEpsilon) const", asMETHOD(ezTransform, IsEqual), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void Normalize()", asMETHOD(WQuat, Normalize), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void GetRotationAxisAndAngle(WVec3& out, WAngle& out, float fEpsilon = 0.00001) const", asMETHOD(WQuat, GetRotationAxisAndAngle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WVec3 GetVectorPart() const", asMETHOD(WQuat, GetVectorPart), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WMat3 GetAsMat3() const", asMETHOD(WQuat, GetAsMat3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WMat3 GetAsMat4() const", asMETHOD(WQuat, GetAsMat4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "bool IsValid(float fEpsilon = 0.00001) const", asMETHOD(WQuat, IsValid), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "bool IsNaN() const", asMETHOD(WQuat, IsNaN), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "bool IsEqualRotation(const WQuat& in, float fEpsilon = 0.00001) const", asMETHOD(WQuat, IsEqualRotation), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void Invert()", asMETHOD(WQuat, Invert), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WQuat GetInverse() const", asMETHOD(WQuat, GetInverse), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WQuat GetNegated() const", asMETHOD(WQuat, GetNegated), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "float Dot(const WQuat& in) const", asMETHOD(WQuat, Dot), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WVec3 Rotate(const WVec3& in) const", asMETHOD(WQuat, Rotate), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "void GetAsEulerAngles(float& out, float& out, float& out) const", asMETHOD(WQuat, GetAsEulerAngles), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "void Invert()", asMETHOD(ezTransform, Invert), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform GetInverse() const", asMETHOD(ezTransform, GetInverse), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezVec3 TransformPosition(const ezVec3& in vPosition) const", asMETHOD(ezTransform, TransformPosition), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezVec3 TransformDirection(const ezVec3& in vDirection) const", asMETHOD(ezTransform, TransformDirection), asCALL_THISCALL));
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "void opAddAssign(const ezVec3& in)", asMETHOD(ezTransform, operator+=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "void opSubAssign(const ezVec3& in)", asMETHOD(ezTransform, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezMat4 GetAsMat4() const", asMETHOD(ezTransform, GetAsMat4), asCALL_THISCALL));
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezVec3 opMul(const ezVec3& in) const", asFUNCTIONPR(operator*, (const ezTransform&, const ezVec3&), const ezVec3), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform opMul_r(const ezQuat& in qRotation) const", asFUNCTIONPR(operator*, (const ezQuat&, const ezTransform&), const ezTransform), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform opMul(const ezQuat& in qRotation) const", asFUNCTIONPR(operator*, (const ezTransform&, const ezQuat&), const ezTransform), asCALL_CDECL_OBJFIRST));
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform opAdd(const ezVec3& in) const", asFUNCTIONPR(operator+, (const ezTransform&, const ezVec3&), const ezTransform), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform opSub(const ezVec3& in) const", asFUNCTIONPR(operator-, (const ezTransform&, const ezVec3&), const ezTransform), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "ezTransform opMul(const ezTransform& in) const", asFUNCTIONPR(operator*, (const ezTransform&, const ezTransform&), const ezTransform), asCALL_CDECL_OBJFIRST));
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool opEquals(const ezTransform& in) const", asFUNCTIONPR(operator==, (const ezTransform&, const ezTransform&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WQuat opMul(const WQuat& in) const", asFUNCTIONPR(operator*, (const WQuat&, const WQuat&), const WQuat), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "WVec3 opMul(const WVec3& in) const", asFUNCTIONPR(operator*, (const WQuat&, const WVec3&), const WVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WQuat", "bool opEquals(const WQuat& in) const", asFUNCTIONPR(operator==, (const WQuat&, const WQuat&), bool), asCALL_CDECL_OBJFIRST));
 }
 
+
 //////////////////////////////////////////////////////////////////////////
-// ezMat3
+// WTransform
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Mat3()
+static void WTransform_Construct3(void* pMemory, const WVec3& v, const WQuat& r, const WVec3& s)
 {
+  new (pMemory) WTransform(v, r, s);
+}
+
+void WAngelScriptEngineSingleton::Register_Transform()
+{
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WTransform", "WVec3 m_vPosition", asOFFSET(WTransform, m_vPosition)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WTransform", "WQuat m_qRotation", asOFFSET(WTransform, m_qRotation)));
+  AS_CHECK(m_pEngine->RegisterObjectProperty("WTransform", "WVec3 m_vScale", asOFFSET(WTransform, m_vScale)));
+
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WTransform", asBEHAVE_CONSTRUCT, "void f(const WVec3& in vPosition, const WQuat& in qRotation = WQuat::MakeIdentity(), const WVec3& in vScale = WVec3(1))", asFUNCTION(WTransform_Construct3), asCALL_CDECL_OBJFIRST));
+
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezMat3");
+    m_pEngine->SetDefaultNamespace("WTransform");
+
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTransform Make(const WVec3& in vPosition, const WQuat& in qRotation = WQuat::MakeIdentity(), const WVec3& in vScale = WVec3(1))", asFUNCTION(WTransform::Make), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTransform MakeIdentity()", asFUNCTION(WTransform::MakeIdentity), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTransform MakeFromMat4(const WMat4& in)", asFUNCTION(WTransform::MakeFromMat4), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTransform MakeLocalTransform(const WTransform& in, const WTransform& in)", asFUNCTION(WTransform::MakeLocalTransform), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("WTransform MakeGlobalTransform(const WTransform& in, const WTransform& in)", asFUNCTION(WTransform::MakeGlobalTransform), asCALL_CDECL));
+
     m_pEngine->SetDefaultNamespace("");
   }
 
-  // TODO AngelScript: Register ezMat3
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "void SetIdentity()", asMETHOD(WTransform, SetIdentity), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "float GetMaxScale() const", asMETHOD(WTransform, GetMaxScale), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool HasMirrorScaling() const", asMETHOD(WTransform, HasMirrorScaling), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool HasOnlyUniformScaling() const", asMETHOD(WTransform, HasOnlyUniformScaling), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool IsValid() const", asMETHOD(WTransform, IsValid), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool IsIdentical(const WTransform& in) const", asMETHOD(WTransform, IsIdentical), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool IsEqual(const WTransform& in, float fEpsilon) const", asMETHOD(WTransform, IsEqual), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "void Invert()", asMETHOD(WTransform, Invert), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform GetInverse() const", asMETHOD(WTransform, GetInverse), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WVec3 TransformPosition(const WVec3& in vPosition) const", asMETHOD(WTransform, TransformPosition), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WVec3 TransformDirection(const WVec3& in vDirection) const", asMETHOD(WTransform, TransformDirection), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "void opAddAssign(const WVec3& in)", asMETHOD(WTransform, operator+=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "void opSubAssign(const WVec3& in)", asMETHOD(WTransform, operator-=), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WMat4 GetAsMat4() const", asMETHOD(WTransform, GetAsMat4), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WVec3 opMul(const WVec3& in) const", asFUNCTIONPR(operator*, (const WTransform&, const WVec3&), const WVec3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform opMul_r(const WQuat& in qRotation) const", asFUNCTIONPR(operator*, (const WQuat&, const WTransform&), const WTransform), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform opMul(const WQuat& in qRotation) const", asFUNCTIONPR(operator*, (const WTransform&, const WQuat&), const WTransform), asCALL_CDECL_OBJFIRST));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform opAdd(const WVec3& in) const", asFUNCTIONPR(operator+, (const WTransform&, const WVec3&), const WTransform), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform opSub(const WVec3& in) const", asFUNCTIONPR(operator-, (const WTransform&, const WVec3&), const WTransform), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "WTransform opMul(const WTransform& in) const", asFUNCTIONPR(operator*, (const WTransform&, const WTransform&), const WTransform), asCALL_CDECL_OBJFIRST));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTransform", "bool opEquals(const WTransform& in) const", asFUNCTIONPR(operator==, (const WTransform&, const WTransform&), bool), asCALL_CDECL_OBJFIRST));
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezMat4
+// WMat3
 //////////////////////////////////////////////////////////////////////////
 
-void ezAngelScriptEngineSingleton::Register_Mat4()
+void WAngelScriptEngineSingleton::Register_Mat3()
 {
   // static functions
   {
-    m_pEngine->SetDefaultNamespace("ezMat4");
+    m_pEngine->SetDefaultNamespace("WMat3");
     m_pEngine->SetDefaultNamespace("");
   }
 
-  // TODO AngelScript: Register ezMat4
+  // TODO AngelScript: Register WMat3
+}
+
+//////////////////////////////////////////////////////////////////////////
+// WMat4
+//////////////////////////////////////////////////////////////////////////
+
+void WAngelScriptEngineSingleton::Register_Mat4()
+{
+  // static functions
+  {
+    m_pEngine->SetDefaultNamespace("WMat4");
+    m_pEngine->SetDefaultNamespace("");
+  }
+
+  // TODO AngelScript: Register WMat4
 }

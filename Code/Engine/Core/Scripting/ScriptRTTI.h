@@ -6,16 +6,16 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
-class ezWorld;
+class WWorld;
 
-/// Runtime type information for script classes, extending ezRTTI with script-specific functionality.
+/// Runtime type information for script classes, extending WRTTI with script-specific functionality.
 ///
 /// Manages type metadata for script classes including function properties and message handlers.
 /// Supports reference counting and provides efficient storage for small numbers of functions
 /// and message handlers through inplace storage optimization.
-class EZ_CORE_DLL ezScriptRTTI : public ezRTTI, public ezRefCountingImpl
+class W_CORE_DLL WScriptRTTI : public WRTTI, public WRefCountingImpl
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezScriptRTTI);
+  W_DISALLOW_COPY_AND_ASSIGN(WScriptRTTI);
 
 public:
   enum
@@ -23,72 +23,72 @@ public:
     NumInplaceFunctions = 7
   };
 
-  using FunctionList = ezSmallArray<ezUniquePtr<ezAbstractFunctionProperty>, NumInplaceFunctions>;
-  using MessageHandlerList = ezSmallArray<ezUniquePtr<ezAbstractMessageHandler>, NumInplaceFunctions>;
+  using FunctionList = WSmallArray<WUniquePtr<WAbstractFunctionProperty>, NumInplaceFunctions>;
+  using MessageHandlerList = WSmallArray<WUniquePtr<WAbstractMessageHandler>, NumInplaceFunctions>;
 
-  ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers);
-  ~ezScriptRTTI();
+  WScriptRTTI(WStringView sName, const WRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers);
+  ~WScriptRTTI();
 
-  const ezAbstractFunctionProperty* GetFunctionByIndex(ezUInt32 uiIndex) const;
+  const WAbstractFunctionProperty* GetFunctionByIndex(WUInt32 uiIndex) const;
 
 private:
-  ezString m_sTypeNameStorage;
+  WString m_sTypeNameStorage;
   FunctionList m_FunctionStorage;
   MessageHandlerList m_MessageHandlerStorage;
-  ezSmallArray<const ezAbstractFunctionProperty*, NumInplaceFunctions> m_FunctionRawPtrs;
-  ezSmallArray<ezAbstractMessageHandler*, NumInplaceFunctions> m_MessageHandlerRawPtrs;
+  WSmallArray<const WAbstractFunctionProperty*, NumInplaceFunctions> m_FunctionRawPtrs;
+  WSmallArray<WAbstractMessageHandler*, NumInplaceFunctions> m_MessageHandlerRawPtrs;
 };
 
-class EZ_CORE_DLL ezScriptFunctionProperty : public ezAbstractFunctionProperty
+class W_CORE_DLL WScriptFunctionProperty : public WAbstractFunctionProperty
 {
 public:
-  ezScriptFunctionProperty(ezStringView sName);
-  ~ezScriptFunctionProperty();
+  WScriptFunctionProperty(WStringView sName);
+  ~WScriptFunctionProperty();
 
 private:
-  ezHashedString m_sPropertyNameStorage;
+  WHashedString m_sPropertyNameStorage;
 };
 
-struct ezScriptMessageDesc
+struct WScriptMessageDesc
 {
-  const ezRTTI* m_pType = nullptr;
-  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+  const WRTTI* m_pType = nullptr;
+  WArrayPtr<const WAbstractProperty* const> m_Properties;
 };
 
-class EZ_CORE_DLL ezScriptMessageHandler : public ezAbstractMessageHandler
+class W_CORE_DLL WScriptMessageHandler : public WAbstractMessageHandler
 {
 public:
-  ezScriptMessageHandler(const ezScriptMessageDesc& desc);
-  ~ezScriptMessageHandler();
+  WScriptMessageHandler(const WScriptMessageDesc& desc);
+  ~WScriptMessageHandler();
 
-  void FillMessagePropertyValues(const ezMessage& msg, ezDynamicArray<ezVariant>& out_propertyValues);
+  void FillMessagePropertyValues(const WMessage& msg, WDynamicArray<WVariant>& out_propertyValues);
 
 private:
-  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+  WArrayPtr<const WAbstractProperty* const> m_Properties;
 };
 
-class EZ_CORE_DLL ezScriptInstance
+class W_CORE_DLL WScriptInstance
 {
 public:
-  ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld);
-  virtual ~ezScriptInstance() = default;
+  WScriptInstance(WReflectedClass& inout_owner, WWorld* pWorld);
+  virtual ~WScriptInstance() = default;
 
-  ezReflectedClass& GetOwner() { return m_Owner; }
-  ezWorld* GetWorld() { return m_pWorld; }
+  WReflectedClass& GetOwner() { return m_Owner; }
+  WWorld* GetWorld() { return m_pWorld; }
 
-  virtual void SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters);
-  virtual void SetInstanceVariable(const ezHashedString& sName, const ezVariant& value) = 0;
-  virtual ezVariant GetInstanceVariable(const ezHashedString& sName) = 0;
+  virtual void SetInstanceVariables(const WArrayMap<WHashedString, WVariant>& parameters);
+  virtual void SetInstanceVariable(const WHashedString& sName, const WVariant& value) = 0;
+  virtual WVariant GetInstanceVariable(const WHashedString& sName) = 0;
 
 private:
-  ezReflectedClass& m_Owner;
-  ezWorld* m_pWorld = nullptr;
+  WReflectedClass& m_Owner;
+  WWorld* m_pWorld = nullptr;
 };
 
-struct EZ_CORE_DLL ezScriptAllocator
+struct W_CORE_DLL WScriptAllocator
 {
-  static ezAllocator* GetAllocator();
+  static WAllocator* GetAllocator();
 };
 
 /// creates a new instance of type using the script allocator
-#define EZ_SCRIPT_NEW(type, ...) EZ_NEW(ezScriptAllocator::GetAllocator(), type, __VA_ARGS__)
+#define W_SCRIPT_NEW(type, ...) W_NEW(WScriptAllocator::GetAllocator(), type, __VA_ARGS__)

@@ -4,16 +4,16 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmo, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGizmo, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGizmo::ezGizmo()
+WGizmo::WGizmo()
 {
   m_Transformation.SetIdentity();
   m_Transformation.m_vScale.SetZero();
 }
 
-void ezGizmo::SetVisible(bool bVisible)
+void WGizmo::SetVisible(bool bVisible)
 {
   if (m_bVisible == bVisible)
     return;
@@ -23,7 +23,7 @@ void ezGizmo::SetVisible(bool bVisible)
   OnVisibleChanged(m_bVisible);
 }
 
-void ezGizmo::SetTransformation(const ezTransform& transform)
+void WGizmo::SetTransformation(const WTransform& transform)
 {
   if (m_Transformation.IsIdentical(transform))
     return;
@@ -33,7 +33,7 @@ void ezGizmo::SetTransformation(const ezTransform& transform)
   OnTransformationChanged(m_Transformation);
 }
 
-void ezGizmo::GetInverseViewProjectionMatrix(ezMat4& out_mInvViewProj) const
+void WGizmo::GetInverseViewProjectionMatrix(WMat4& out_mInvViewProj) const
 {
   if (m_pCamera == nullptr || m_vViewport.x == 0.0f || m_vViewport.y == 0.0f)
   {
@@ -41,48 +41,48 @@ void ezGizmo::GetInverseViewProjectionMatrix(ezMat4& out_mInvViewProj) const
     return;
   }
 
-  ezMat4 mView = m_pCamera->GetViewMatrix();
-  ezMat4 mProj;
+  WMat4 mView = m_pCamera->GetViewMatrix();
+  WMat4 mProj;
   m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
-  ezMat4 mViewProj = mProj * mView;
+  WMat4 mViewProj = mProj * mView;
   out_mInvViewProj = mViewProj.GetInverse();
 }
 
-ezResult ezGizmo::GetPointOnPlane(const ezPlane& plane, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result) const
+WResult WGizmo::GetPointOnPlane(const WPlane& plane, const WVec2I32& vScreenPos, const WMat4& mInvViewProj, WVec3& out_Result) const
 {
-  out_Result = ezVec3::MakeZero();
+  out_Result = WVec3::MakeZero();
 
-  ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
-    return EZ_FAILURE;
+  WVec3 vPos, vRayDir;
+  if (WGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, WVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
+    return W_FAILURE;
 
-  ezVec3 vIntersection;
+  WVec3 vIntersection;
   if (!plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_Result = vIntersection;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGizmo::GetPointOnAxis(const ezVec3& vStartPos, const ezVec3& vAxis, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result, float* out_pProjectedLength /*= nullptr*/) const
+WResult WGizmo::GetPointOnAxis(const WVec3& vStartPos, const WVec3& vAxis, const WVec2I32& vScreenPos, const WMat4& mInvViewProj, WVec3& out_Result, float* out_pProjectedLength /*= nullptr*/) const
 {
   out_Result = vStartPos;
 
-  ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
-    return EZ_FAILURE;
+  WVec3 vPos, vRayDir;
+  if (WGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, WVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
+    return W_FAILURE;
 
-  const ezVec3 vPlaneTangent = vAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
-  const ezVec3 vPlaneNormal = vAxis.CrossRH(vPlaneTangent);
+  const WVec3 vPlaneTangent = vAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
+  const WVec3 vPlaneNormal = vAxis.CrossRH(vPlaneTangent);
 
-  ezPlane Plane;
-  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vStartPos);
+  WPlane Plane;
+  Plane = WPlane::MakeFromNormalAndPoint(vPlaneNormal, vStartPos);
 
-  ezVec3 vIntersection;
+  WVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezVec3 vDirAlongRay = vIntersection - vStartPos;
+  const WVec3 vDirAlongRay = vIntersection - vStartPos;
   const float fProjectedLength = vDirAlongRay.Dot(vAxis);
   if (out_pProjectedLength != nullptr)
   {
@@ -90,5 +90,5 @@ ezResult ezGizmo::GetPointOnAxis(const ezVec3& vStartPos, const ezVec3& vAxis, c
   }
 
   out_Result = vStartPos + fProjectedLength * vAxis;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

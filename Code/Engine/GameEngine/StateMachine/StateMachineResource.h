@@ -3,26 +3,26 @@
 #include <Core/ResourceManager/Resource.h>
 #include <GameEngine/StateMachine/StateMachine.h>
 
-using ezStateMachineResourceHandle = ezTypedResourceHandle<class ezStateMachineResource>;
+using WStateMachineResourceHandle = WTypedResourceHandle<class WStateMachineResource>;
 
-class EZ_GAMEENGINE_DLL ezStateMachineResource : public ezResource
+class W_GAMEENGINE_DLL WStateMachineResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezStateMachineResource);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WStateMachineResource);
 
 public:
-  ezStateMachineResource();
-  ~ezStateMachineResource();
+  WStateMachineResource();
+  ~WStateMachineResource();
 
-  const ezSharedPtr<const ezStateMachineDescription>& GetDescription() const { return m_pDescription; }
+  const WSharedPtr<const WStateMachineDescription>& GetDescription() const { return m_pDescription; }
 
-  ezUniquePtr<ezStateMachineInstance> CreateInstance(ezReflectedClass& ref_owner);
+  WUniquePtr<WStateMachineInstance> CreateInstance(WReflectedClass& ref_owner);
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezSharedPtr<const ezStateMachineDescription> m_pDescription;
+  WSharedPtr<const WStateMachineDescription> m_pDescription;
 };

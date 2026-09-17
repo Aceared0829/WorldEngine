@@ -9,13 +9,13 @@
 ///
 /// It is a namespace, instead of a static class, because that allows it to be extended
 /// at other locations, which is especially useful when adding custom types.
-namespace ezMath
+namespace WMath
 {
   /// Returns whether the given value is NaN under this type.
   template <typename Type>
   constexpr static bool IsNaN(Type value) // [tested]
   {
-    EZ_IGNORE_UNUSED(value);
+    W_IGNORE_UNUSED(value);
     return false;
   }
 
@@ -23,7 +23,7 @@ namespace ezMath
   template <typename Type>
   constexpr static bool IsFinite(Type value) // [tested]
   {
-    EZ_IGNORE_UNUSED(value);
+    W_IGNORE_UNUSED(value);
     return true;
   }
 
@@ -31,31 +31,31 @@ namespace ezMath
 
   /// Takes an angle, returns its sine
   template <typename Type>
-  [[nodiscard]] Type Sin(ezAngleTemplate<Type> a); // [tested]
+  [[nodiscard]] Type Sin(WAngleTemplate<Type> a); // [tested]
 
   /// Takes an angle, returns its cosine
   template <typename Type>
-  [[nodiscard]] Type Cos(ezAngleTemplate<Type> a); // [tested]
+  [[nodiscard]] Type Cos(WAngleTemplate<Type> a); // [tested]
 
   /// Takes an angle, returns its tangent
   template <typename Type>
-  [[nodiscard]] Type Tan(ezAngleTemplate<Type> a); // [tested]
+  [[nodiscard]] Type Tan(WAngleTemplate<Type> a); // [tested]
 
   /// Returns the arcus sinus of f
   template <typename Type>
-  [[nodiscard]] ezAngleTemplate<Type> ASin(Type f); // [tested]
+  [[nodiscard]] WAngleTemplate<Type> ASin(Type f); // [tested]
 
   /// Returns the arcus cosinus of f
   template <typename Type>
-  [[nodiscard]] ezAngleTemplate<Type> ACos(Type f); // [tested]
+  [[nodiscard]] WAngleTemplate<Type> ACos(Type f); // [tested]
 
   /// Returns the arcus tangent of f
   template <typename Type>
-  [[nodiscard]] ezAngleTemplate<Type> ATan(Type f); // [tested]
+  [[nodiscard]] WAngleTemplate<Type> ATan(Type f); // [tested]
 
   /// Returns the atan2 of x and y
   template <typename Type>
-  [[nodiscard]] ezAngleTemplate<Type> ATan2(Type y, Type x); // [tested]
+  [[nodiscard]] WAngleTemplate<Type> ATan2(Type y, Type x); // [tested]
 
   /// Returns e^f
   [[nodiscard]] float Exp(float f); // [tested]
@@ -67,7 +67,7 @@ namespace ezMath
   [[nodiscard]] float Log2(float f); // [tested]
 
   /// Returns the integral logarithm to the base 2, that comes closest to the given integer.
-  [[nodiscard]] ezUInt32 Log2i(ezUInt32 uiVal); // [tested]
+  [[nodiscard]] WUInt32 Log2i(WUInt32 uiVal); // [tested]
 
   /// Returns log (f), to the base 10
   [[nodiscard]] float Log10(float f); // [tested]
@@ -82,10 +82,10 @@ namespace ezMath
   [[nodiscard]] float Pow(float fBase, float fExp); // [tested]
 
   /// Returns 2^f
-  [[nodiscard]] constexpr ezInt32 Pow2(ezInt32 i); // [tested]
+  [[nodiscard]] constexpr WInt32 Pow2(WInt32 i); // [tested]
 
   /// Returns base^exp
-  [[nodiscard]] ezInt32 Pow(ezInt32 iBase, ezInt32 iExp); // [tested]
+  [[nodiscard]] WInt32 Pow(WInt32 iBase, WInt32 iExp); // [tested]
 
   /// Returns f * f
   template <typename T>
@@ -132,14 +132,14 @@ namespace ezMath
   ///
   /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
   /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
-  [[nodiscard]] constexpr ezUInt32 WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue); // [tested]
+  [[nodiscard]] constexpr WUInt32 WrapUInt(WUInt32 uiValue, WUInt32 uiExcludedMaxValue); // [tested]
 
   /// Wraps iValue around the maximum value, so that it stays within the range [0; uiExcludedMaxValue-1].
   ///
   /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
   /// Negative values are wrapped back around to a large value, ie -1 would be wrapped to (uiExcludedMaxValue-1).
   /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
-  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue); // [tested]
+  [[nodiscard]] constexpr WInt32 WrapInt(WInt32 iValue, WUInt32 uiExcludedMaxValue); // [tested]
 
   /// Wraps iValue around the minimum and maximum value, so that it stays within the range [iMinValue; iExcludedMaxValue-1].
   ///
@@ -147,7 +147,7 @@ namespace ezMath
   /// Values below iMinValue are wrapped back around to a large value, ie (iMinValue-1) would be wrapped to (iExcludedMaxValue-1).
   ///
   /// Both iMinValue and iExcludedMaxValue can be negative, but iMinValue has to be strictly smaller than iExcludedMaxValue.
-  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue); // [tested]
+  [[nodiscard]] constexpr WInt32 WrapInt(WInt32 iValue, WInt32 iMinValue, WInt32 iExcludedMaxValue); // [tested]
 
   /// Wraps a float value around to stay within the [0; 1] range.
   ///
@@ -174,7 +174,7 @@ namespace ezMath
   /// Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
   ///
   /// This function is identical to 'Floor()' except that it already returns the result cast to an int.
-  [[nodiscard]] ezInt32 FloorToInt(float f); // [tested]
+  [[nodiscard]] WInt32 FloorToInt(float f); // [tested]
 
   /// Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
   [[nodiscard]] float Ceil(float f); // [tested]
@@ -182,7 +182,7 @@ namespace ezMath
   /// Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
   ///
   /// This function is identical to 'Ceil()' except that it already returns the result cast to an int.
-  [[nodiscard]] ezInt32 CeilToInt(float f); // [tested]
+  [[nodiscard]] WInt32 CeilToInt(float f); // [tested]
 
   /// Returns a multiple of fMultiple that is smaller than f.
   [[nodiscard]] float RoundDown(float f, float fMultiple); // [tested]
@@ -204,16 +204,16 @@ namespace ezMath
   ///
   /// \sa Trunc, Round, Floor, Ceil
   template <typename T>
-  [[nodiscard]] constexpr ezInt32 FloatToInt32(T value);
+  [[nodiscard]] constexpr WInt32 FloatToInt32(T value);
 
 
   // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
   // FloatToInt(double) is not available on these version of the MSVC compiler.
-#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
+#if W_DISABLED(W_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
   /// Casts the float to an integer, removes the fractional part
   ///
   /// \sa Trunc, Round, Floor, Ceil
-  [[nodiscard]] constexpr ezInt64 FloatToInt(double value);
+  [[nodiscard]] constexpr WInt64 FloatToInt(double value);
 #endif
 
   /// Rounds f to the next integer.
@@ -226,7 +226,7 @@ namespace ezMath
   /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
   ///
   /// This function is identical to 'Round()' except that it already returns the result cast to an int.
-  [[nodiscard]] ezInt32 RoundToInt(float f); // [tested]
+  [[nodiscard]] WInt32 RoundToInt(float f); // [tested]
 
   /// Rounds f to the next integer.
   ///
@@ -254,42 +254,42 @@ namespace ezMath
   [[nodiscard]] constexpr Type Invert(Type f); // [tested]
 
   /// Returns a multiple of the given multiple that is larger than or equal to value.
-  [[nodiscard]] constexpr ezInt32 RoundUp(ezInt32 value, ezUInt16 uiMultiple); // [tested]
+  [[nodiscard]] constexpr WInt32 RoundUp(WInt32 value, WUInt16 uiMultiple); // [tested]
 
   /// Returns a multiple of the given multiple that is smaller than or equal to value.
-  [[nodiscard]] constexpr ezInt32 RoundDown(ezInt32 value, ezUInt16 uiMultiple); // [tested]
+  [[nodiscard]] constexpr WInt32 RoundDown(WInt32 value, WUInt16 uiMultiple); // [tested]
 
   /// Returns a multiple of the given multiple that is greater than or equal to value.
-  [[nodiscard]] constexpr ezUInt32 RoundUp(ezUInt32 value, ezUInt16 uiMultiple); // [tested]
+  [[nodiscard]] constexpr WUInt32 RoundUp(WUInt32 value, WUInt16 uiMultiple); // [tested]
 
   /// Returns a multiple of the given multiple that is smaller than or equal to value.
-  [[nodiscard]] constexpr ezUInt32 RoundDown(ezUInt32 value, ezUInt16 uiMultiple); // [tested]
+  [[nodiscard]] constexpr WUInt32 RoundDown(WUInt32 value, WUInt16 uiMultiple); // [tested]
 
   /// Returns true, if i is an odd number
-  [[nodiscard]] constexpr bool IsOdd(ezInt32 i); // [tested]
+  [[nodiscard]] constexpr bool IsOdd(WInt32 i); // [tested]
 
   /// Returns true, if i is an even number
-  [[nodiscard]] constexpr bool IsEven(ezInt32 i); // [tested]
+  [[nodiscard]] constexpr bool IsEven(WInt32 i); // [tested]
 
   /// Returns the index of the least significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  [[nodiscard]] ezUInt32 FirstBitLow(ezUInt32 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 FirstBitLow(WUInt32 uiBitmask); // [tested]
 
   /// Returns the index of the least significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  [[nodiscard]] ezUInt32 FirstBitLow(ezUInt64 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 FirstBitLow(WUInt64 uiBitmask); // [tested]
 
   /// Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  [[nodiscard]] ezUInt32 FirstBitHigh(ezUInt32 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 FirstBitHigh(WUInt32 uiBitmask); // [tested]
 
   /// Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  [[nodiscard]] ezUInt32 FirstBitHigh(ezUInt64 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 FirstBitHigh(WUInt64 uiBitmask); // [tested]
 
   /// Returns the number of zeros at the end (least significant part) of a bitmask.
   ///
@@ -298,10 +298,10 @@ namespace ezMath
   /// 0b0110 -> 1
   /// 0b0100 -> 2
   /// Returns 32 when the input is 0
-  [[nodiscard]] ezUInt32 CountTrailingZeros(ezUInt32 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 CountTrailingZeros(WUInt32 uiBitmask); // [tested]
 
   /// 64 bit overload for CountTrailingZeros()
-  [[nodiscard]] ezUInt32 CountTrailingZeros(ezUInt64 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 CountTrailingZeros(WUInt64 uiBitmask); // [tested]
 
   /// Returns the number of zeros at the start (most significant part) of a bitmask.
   ///
@@ -311,25 +311,25 @@ namespace ezMath
   /// 0b0001 -> 31
   /// 0b0000 -> 32
   /// Returns 32 when the input is 0
-  [[nodiscard]] ezUInt32 CountLeadingZeros(ezUInt32 uiBitmask); // [tested]
+  [[nodiscard]] WUInt32 CountLeadingZeros(WUInt32 uiBitmask); // [tested]
 
   /// Returns the number of bits set
-  [[nodiscard]] ezUInt32 CountBits(ezUInt32 value);
+  [[nodiscard]] WUInt32 CountBits(WUInt32 value);
 
   /// Returns the number of bits set
-  [[nodiscard]] ezUInt32 CountBits(ezUInt64 value);
+  [[nodiscard]] WUInt32 CountBits(WUInt64 value);
 
   /// Creates a bitmask in which the low N bits are set. For example for N=5, this would be '0000 ... 0001 1111'
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet); // [tested]
+  [[nodiscard]] constexpr Type Bitmask_LowN(WUInt32 uiNumBitsToSet); // [tested]
 
   /// Creates a bitmask in which the high N bits are set. For example for N=5, this would be '1111 1000 ... 0000'
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet); // [tested]
+  [[nodiscard]] constexpr Type Bitmask_HighN(WUInt32 uiNumBitsToSet); // [tested]
 
   /// Swaps the values in the two variables f1 and f2
   template <typename T>
@@ -360,31 +360,31 @@ namespace ezMath
   [[nodiscard]] Type SmootherStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// Returns true, if there exists some x with base^x == value
-  [[nodiscard]] EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL bool IsPowerOf(WInt32 value, WInt32 iBase); // [tested]
 
   /// Returns true, if there exists some x with 2^x == value
-  [[nodiscard]] constexpr bool IsPowerOf2(ezInt32 value); // [tested]
+  [[nodiscard]] constexpr bool IsPowerOf2(WInt32 value); // [tested]
 
   /// Returns true, if there exists some x with 2^x == value
-  [[nodiscard]] constexpr bool IsPowerOf2(ezUInt32 value); // [tested]
+  [[nodiscard]] constexpr bool IsPowerOf2(WUInt32 value); // [tested]
 
   /// Returns true, if there exists some x with 2^x == value
-  [[nodiscard]] constexpr bool IsPowerOf2(ezUInt64 value); // [tested]
+  [[nodiscard]] constexpr bool IsPowerOf2(WUInt64 value); // [tested]
 
   /// Returns the next power-of-two that is <= value
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL WUInt32 PowerOfTwo_Floor(WUInt32 value); // [tested]
 
   /// Returns the next power-of-two that is <= value
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 PowerOfTwo_Floor(ezUInt64 value); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL WUInt64 PowerOfTwo_Floor(WUInt64 value); // [tested]
 
   /// Returns the next power-of-two that is >= value
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL WUInt32 PowerOfTwo_Ceil(WUInt32 value); // [tested]
 
   /// Returns the next power-of-two that is >= value
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 PowerOfTwo_Ceil(ezUInt64 value); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL WUInt64 PowerOfTwo_Ceil(WUInt64 value); // [tested]
 
   /// Returns the greatest common divisor.
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL WUInt32 GreatestCommonDivisor(WUInt32 a, WUInt32 b); // [tested]
 
   /// Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>
@@ -399,36 +399,36 @@ namespace ezMath
   [[nodiscard]] bool IsZero(Type f, Type fEpsilon); // [tested]
 
   /// Converts a color value from float [0;1] range to unsigned int with the given number of bits, with proper rounding
-  template <ezUInt32 NumBits>
-  [[nodiscard]] ezUInt32 ColorFloatToUnsignedInt(float value);
+  template <WUInt32 NumBits>
+  [[nodiscard]] WUInt32 ColorFloatToUnsignedInt(float value);
 
   /// Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
-  [[nodiscard]] ezUInt8 ColorFloatToByte(float value); // [tested]
+  [[nodiscard]] WUInt8 ColorFloatToByte(float value); // [tested]
 
   /// Converts a color value from float [0;1] range to unsigned short [0;65535] range, with proper rounding
-  [[nodiscard]] ezUInt16 ColorFloatToShort(float value); // [tested]
+  [[nodiscard]] WUInt16 ColorFloatToShort(float value); // [tested]
 
   /// Converts a color value from float [-1;1] range to signed byte [-127;127] range, with proper rounding
-  [[nodiscard]] ezInt8 ColorFloatToSignedByte(float value); // [tested]
+  [[nodiscard]] WInt8 ColorFloatToSignedByte(float value); // [tested]
 
   /// Converts a color value from float [-1;1] range to signed short [-32767;32767] range, with proper rounding
-  [[nodiscard]] ezInt16 ColorFloatToSignedShort(float value); // [tested]
+  [[nodiscard]] WInt16 ColorFloatToSignedShort(float value); // [tested]
 
   /// Converts a color value from unsigned int with the given numer of bits to float [0;1] range, with proper rounding
-  template <ezUInt32 NumBits>
-  [[nodiscard]] constexpr float ColorUnsignedIntToFloat(ezUInt32 value);
+  template <WUInt32 NumBits>
+  [[nodiscard]] constexpr float ColorUnsignedIntToFloat(WUInt32 value);
 
   /// Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
-  [[nodiscard]] constexpr float ColorByteToFloat(ezUInt8 value); // [tested]
+  [[nodiscard]] constexpr float ColorByteToFloat(WUInt8 value); // [tested]
 
   /// Converts a color value from unsigned short [0;65535] range to float [0;1] range, with proper rounding
-  [[nodiscard]] constexpr float ColorShortToFloat(ezUInt16 value); // [tested]
+  [[nodiscard]] constexpr float ColorShortToFloat(WUInt16 value); // [tested]
 
   /// Converts a color value from signed byte [-128;127] range to float [-1;1] range, with proper rounding
-  [[nodiscard]] constexpr float ColorSignedByteToFloat(ezInt8 value); // [tested]
+  [[nodiscard]] constexpr float ColorSignedByteToFloat(WInt8 value); // [tested]
 
   /// Converts a color value from signed short [-32768;32767] range to float [0;1] range, with proper rounding
-  [[nodiscard]] constexpr float ColorSignedShortToFloat(ezInt16 value); // [tested]
+  [[nodiscard]] constexpr float ColorSignedShortToFloat(WInt16 value); // [tested]
 
   /// Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
@@ -440,34 +440,34 @@ namespace ezMath
   template <typename T, typename T2>
   [[nodiscard]] T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 
-  /// out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
-  EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
+  /// out_Result = \a a * \a b. If an overflow happens, W_FAILURE is returned.
+  W_FOUNDATION_DLL WResult TryMultiply32(WUInt32& out_uiResult, WUInt32 a, WUInt32 b, WUInt32 c = 1, WUInt32 d = 1); // [tested]
 
   /// returns \a a * \a b. If an overflow happens, the program is terminated.
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
+  [[nodiscard]] W_FOUNDATION_DLL WUInt32 SafeMultiply32(WUInt32 a, WUInt32 b, WUInt32 c = 1, WUInt32 d = 1);
 
-  /// out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
-  EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
+  /// out_Result = \a a * \a b. If an overflow happens, W_FAILURE is returned.
+  W_FOUNDATION_DLL WResult TryMultiply64(WUInt64& out_uiResult, WUInt64 a, WUInt64 b, WUInt64 c = 1, WUInt64 d = 1); // [tested]
 
   /// returns \a a * \a b. If an overflow happens, the program is terminated.
-  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
+  [[nodiscard]] W_FOUNDATION_DLL WUInt64 SafeMultiply64(WUInt64 a, WUInt64 b, WUInt64 c = 1, WUInt64 d = 1);
 
-  /// Checks whether the given 64bit value actually fits into size_t, If it doesn't EZ_FAILURE is returned.
-  ezResult TryConvertToSizeT(size_t& out_uiResult, ezUInt64 uiValue); // [tested]
+  /// Checks whether the given 64bit value actually fits into size_t, If it doesn't W_FAILURE is returned.
+  WResult TryConvertToSizeT(size_t& out_uiResult, WUInt64 uiValue); // [tested]
 
   /// Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
-  [[nodiscard]] EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);
+  [[nodiscard]] W_FOUNDATION_DLL size_t SafeConvertToSizeT(WUInt64 uiValue);
 
   /// If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  [[nodiscard]] EZ_FOUNDATION_DLL float ReplaceNaN(float fValue, float fFallback); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL float ReplaceNaN(float fValue, float fFallback); // [tested]
 
   /// If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  [[nodiscard]] EZ_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
+  [[nodiscard]] W_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
 
   /// Combines the two 32 bit uint values into one 64 bit value.
-  [[nodiscard]] constexpr ezUInt64 MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32);
+  [[nodiscard]] constexpr WUInt64 MakeUInt64(WUInt32 uiHigh32, WUInt32 uiLow32);
 
-} // namespace ezMath
+} // namespace WMath
 
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>

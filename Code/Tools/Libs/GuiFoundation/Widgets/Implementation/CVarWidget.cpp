@@ -11,17 +11,17 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-ezQtCVarWidget::ezQtCVarWidget(QWidget* pParent)
+WQtCVarWidget::WQtCVarWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
 
-  m_pItemModel = new ezQtCVarModel(this);
+  m_pItemModel = new WQtCVarModel(this);
 
   m_pFilterModel = new QSortFilterProxyModel(this);
   m_pFilterModel->setSourceModel(m_pItemModel);
 
-  m_pItemDelegate = new ezQtCVarItemDelegate(this);
+  m_pItemDelegate = new WQtCVarItemDelegate(this);
   m_pItemDelegate->m_pModel = m_pItemModel;
 
   CVarsView->setModel(m_pFilterModel);
@@ -31,18 +31,18 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* pParent)
   CVarsView->setEditTriggers(QAbstractItemView::EditTrigger::CurrentChanged | QAbstractItemView::EditTrigger::SelectedClicked);
   CVarsView->setItemDelegateForColumn(1, m_pItemDelegate);
 
-  connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezQtCVarWidget::SearchTextChanged);
-  connect(ConsoleInput, &ezQtSearchWidget::enterPressed, this, &ezQtCVarWidget::ConsoleEnterPressed);
-  connect(ConsoleInput, &ezQtSearchWidget::specialKeyPressed, this, &ezQtCVarWidget::ConsoleSpecialKeyPressed);
+  connect(SearchWidget, &WQtSearchWidget::textChanged, this, &WQtCVarWidget::SearchTextChanged);
+  connect(ConsoleInput, &WQtSearchWidget::enterPressed, this, &WQtCVarWidget::ConsoleEnterPressed);
+  connect(ConsoleInput, &WQtSearchWidget::specialKeyPressed, this, &WQtCVarWidget::ConsoleSpecialKeyPressed);
 
-  m_Console.Events().AddEventHandler(ezMakeDelegate(&ezQtCVarWidget::OnConsoleEvent, this));
+  m_Console.Events().AddEventHandler(WMakeDelegate(&WQtCVarWidget::OnConsoleEvent, this));
 
   ConsoleInput->setPlaceholderText("> TAB to auto-complete");
 }
 
-ezQtCVarWidget::~ezQtCVarWidget() = default;
+WQtCVarWidget::~WQtCVarWidget() = default;
 
-void ezQtCVarWidget::Clear()
+void WQtCVarWidget::Clear()
 {
   QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
   clearFocus();
@@ -53,13 +53,13 @@ void ezQtCVarWidget::Clear()
     pFocusWidget->setFocus();
 }
 
-void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
+void WQtCVarWidget::RebuildCVarUI(const WMap<WString, WCVarWidgetData>& cvars)
 {
   // for now update and rebuild are the same
   UpdateCVarUI(cvars);
 }
 
-void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
+void WQtCVarWidget::UpdateCVarUI(const WMap<WString, WCVarWidgetData>& cvars)
 {
   int row = 0;
 
@@ -80,16 +80,16 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
 
     switch (it.Value().m_uiType)
     {
-      case ezCVarType::Bool:
+      case WCVarType::Bool:
         item->m_Value = it.Value().m_bValue;
         break;
-      case ezCVarType::Float:
+      case WCVarType::Float:
         item->m_Value = it.Value().m_fValue;
         break;
-      case ezCVarType::Int:
+      case WCVarType::Int:
         item->m_Value = it.Value().m_iValue;
         break;
-      case ezCVarType::String:
+      case WCVarType::String:
         item->m_Value = it.Value().m_sValue;
         break;
     }
@@ -102,12 +102,12 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   CVarsView->resizeColumnToContents(1);
 }
 
-void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& sEncoded)
+void WQtCVarWidget::AddConsoleStrings(const WStringBuilder& sEncoded)
 {
-  ezTempHybridArray<ezStringView, 64> lines;
+  WTempHybridArray<WStringView, 64> lines;
   sEncoded.Split(false, lines, ";;");
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   for (auto l : lines)
   {
@@ -125,7 +125,7 @@ void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& sEncoded)
   }
 }
 
-void ezQtCVarWidget::SearchTextChanged(const QString& text)
+void WQtCVarWidget::SearchTextChanged(const QString& text)
 {
   m_pFilterModel->setRecursiveFilteringEnabled(true);
   m_pFilterModel->setFilterRole(Qt::UserRole);
@@ -142,18 +142,18 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
   CVarsView->expandAll();
 }
 
-void ezQtCVarWidget::ConsoleEnterPressed()
+void WQtCVarWidget::ConsoleEnterPressed()
 {
   m_Console.AddToInputHistory(ConsoleInput->text().toUtf8().data());
   m_Console.ExecuteCommand(ConsoleInput->text().toUtf8().data());
   ConsoleInput->setText("");
 }
 
-void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
+void WQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
 {
   if (key == Qt::Key_Tab)
   {
-    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    WStringBuilder input = ConsoleInput->text().toUtf8().data();
 
     if (m_Console.AutoComplete(input))
     {
@@ -162,13 +162,13 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
   }
   if (key == Qt::Key_Up)
   {
-    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    WStringBuilder input = ConsoleInput->text().toUtf8().data();
     m_Console.RetrieveInputHistory(1, input);
     ConsoleInput->setText(input.GetData());
   }
   if (key == Qt::Key_Down)
   {
-    ezStringBuilder input = ConsoleInput->text().toUtf8().data();
+    WStringBuilder input = ConsoleInput->text().toUtf8().data();
     m_Console.RetrieveInputHistory(-1, input);
     ConsoleInput->setText(input.GetData());
   }
@@ -188,9 +188,9 @@ void ezQtCVarWidget::ConsoleSpecialKeyPressed(Qt::Key key)
   }
 }
 
-void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
+void WQtCVarWidget::OnConsoleEvent(const WConsoleEvent& e)
 {
-  if (e.m_Type == ezConsoleEvent::Type::OutputLineAdded)
+  if (e.m_Type == WConsoleEvent::Type::OutputLineAdded)
   {
     QString t = ConsoleOutput->toPlainText();
     t += e.m_AddedpConsoleString->m_sText;
@@ -200,27 +200,27 @@ void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
   }
 }
 
-ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* pOwner)
+WQtCVarModel::WQtCVarModel(WQtCVarWidget* pOwner)
   : QAbstractItemModel(pOwner)
 {
   m_pOwner = pOwner;
 }
 
-ezQtCVarModel::~ezQtCVarModel() = default;
+WQtCVarModel::~WQtCVarModel() = default;
 
-void ezQtCVarModel::BeginResetModel()
+void WQtCVarModel::BeginResetModel()
 {
   beginResetModel();
   m_RootEntries.Clear();
   m_AllEntries.Clear();
 }
 
-void ezQtCVarModel::EndResetModel()
+void WQtCVarModel::EndResetModel()
 {
   endResetModel();
 }
 
-QVariant ezQtCVarModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
+QVariant WQtCVarModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
 {
   if (iRole == Qt::DisplayRole)
   {
@@ -243,27 +243,27 @@ QVariant ezQtCVarModel::headerData(int iSection, Qt::Orientation orientation, in
   return QAbstractItemModel::headerData(iSection, orientation, iRole);
 }
 
-bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int iRole /*= Qt::EditRole*/)
+bool WQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int iRole /*= Qt::EditRole*/)
 {
   if (index.column() == 1 && iRole == Qt::EditRole)
   {
-    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+    WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(index.internalId());
 
     switch (e->m_Value.GetType())
     {
-      case ezVariantType::Bool:
+      case WVariantType::Bool:
         e->m_Value = value.toBool();
         m_pOwner->onBoolChanged(e->m_sFullName, value.toBool());
         break;
-      case ezVariantType::Int32:
+      case WVariantType::Int32:
         e->m_Value = value.toInt();
         m_pOwner->onIntChanged(e->m_sFullName, value.toInt());
         break;
-      case ezVariantType::Float:
+      case WVariantType::Float:
         e->m_Value = value.toFloat();
         m_pOwner->onFloatChanged(e->m_sFullName, value.toFloat());
         break;
-      case ezVariantType::String:
+      case WVariantType::String:
         e->m_Value = value.toString().toUtf8().data();
         m_pOwner->onStringChanged(e->m_sFullName, value.toString().toUtf8().data());
         break;
@@ -275,12 +275,12 @@ bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int
   return QAbstractItemModel::setData(index, value, iRole);
 }
 
-QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
+QVariant WQtCVarModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid())
     return QVariant();
 
-  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+  WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(index.internalId());
 
   if (iRole == Qt::UserRole)
   {
@@ -296,7 +296,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
 
       case 1:
         if (e->m_Value.IsValid())
-          return e->m_Value.ConvertTo<ezString>().GetData();
+          return e->m_Value.ConvertTo<WString>().GetData();
         else
           return QVariant();
 
@@ -309,7 +309,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
   {
     if (e->m_Value.IsValid())
     {
-      return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg");
+      return WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg");
     }
   }
 
@@ -333,14 +333,14 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
   {
     switch (e->m_Value.GetType())
     {
-      case ezVariantType::Bool:
+      case WVariantType::Bool:
         return e->m_Value.Get<bool>();
-      case ezVariantType::Int32:
-        return e->m_Value.Get<ezInt32>();
-      case ezVariantType::Float:
+      case WVariantType::Int32:
+        return e->m_Value.Get<WInt32>();
+      case WVariantType::Float:
         return e->m_Value.ConvertTo<double>();
-      case ezVariantType::String:
-        return e->m_Value.Get<ezString>().GetData();
+      case WVariantType::String:
+        return e->m_Value.Get<WString>().GetData();
       default:
         break;
     }
@@ -348,11 +348,11 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
   return QVariant();
 }
 
-Qt::ItemFlags ezQtCVarModel::flags(const QModelIndex& index) const
+Qt::ItemFlags WQtCVarModel::flags(const QModelIndex& index) const
 {
   if (index.column() == 1)
   {
-    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+    WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(index.internalId());
 
     if (e->m_Value.IsValid())
     {
@@ -363,36 +363,36 @@ Qt::ItemFlags ezQtCVarModel::flags(const QModelIndex& index) const
   return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled;
 }
 
-QModelIndex ezQtCVarModel::index(int iRow, int iColumn, const QModelIndex& parent /*= QModelIndex()*/) const
+QModelIndex WQtCVarModel::index(int iRow, int iColumn, const QModelIndex& parent /*= QModelIndex()*/) const
 {
   if (parent.isValid())
   {
-    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(parent.internalId());
-    return createIndex(iRow, iColumn, const_cast<ezQtCVarModel::Entry*>(e->m_ChildEntries[iRow]));
+    WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(parent.internalId());
+    return createIndex(iRow, iColumn, const_cast<WQtCVarModel::Entry*>(e->m_ChildEntries[iRow]));
   }
   else
   {
-    return createIndex(iRow, iColumn, const_cast<ezQtCVarModel::Entry*>(m_RootEntries[iRow]));
+    return createIndex(iRow, iColumn, const_cast<WQtCVarModel::Entry*>(m_RootEntries[iRow]));
   }
 }
 
-QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
+QModelIndex WQtCVarModel::parent(const QModelIndex& index) const
 {
   if (!index.isValid())
     return QModelIndex();
 
-  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
+  WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(index.internalId());
 
   if (e->m_pParentEntry == nullptr)
     return QModelIndex();
 
-  ezQtCVarModel::Entry* p = e->m_pParentEntry;
+  WQtCVarModel::Entry* p = e->m_pParentEntry;
 
   // find the parent entry's row index
   if (p->m_pParentEntry == nullptr)
   {
     // if the parent has no parent itself, it is a root entry and we need to search that array
-    for (ezUInt32 row = 0; row < m_RootEntries.GetCount(); ++row)
+    for (WUInt32 row = 0; row < m_RootEntries.GetCount(); ++row)
     {
       if (m_RootEntries[row] == p)
       {
@@ -403,7 +403,7 @@ QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
   else
   {
     // if the parent has a parent itself, search that array for the row index
-    for (ezUInt32 row = 0; row < p->m_pParentEntry->m_ChildEntries.GetCount(); ++row)
+    for (WUInt32 row = 0; row < p->m_pParentEntry->m_ChildEntries.GetCount(); ++row)
     {
       if (p->m_pParentEntry->m_ChildEntries[row] == e)
       {
@@ -415,11 +415,11 @@ QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
   return QModelIndex();
 }
 
-int ezQtCVarModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
+int WQtCVarModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   if (parent.isValid())
   {
-    ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(parent.internalId());
+    WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(parent.internalId());
 
     return (int)e->m_ChildEntries.GetCount();
   }
@@ -429,26 +429,26 @@ int ezQtCVarModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
   }
 }
 
-int ezQtCVarModel::columnCount(const QModelIndex& index /*= QModelIndex()*/) const
+int WQtCVarModel::columnCount(const QModelIndex& index /*= QModelIndex()*/) const
 {
   return 3;
 }
 
-ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* szName)
+WQtCVarModel::Entry* WQtCVarModel::CreateEntry(const char* szName)
 {
-  ezStringBuilder tmp = szName;
-  ezStringBuilder tmp2;
+  WStringBuilder tmp = szName;
+  WStringBuilder tmp2;
 
-  ezTempHybridArray<ezStringView, 8> pieces;
+  WTempHybridArray<WStringView, 8> pieces;
   tmp.Split(false, pieces, ".", "_");
 
-  ezDynamicArray<Entry*>* vals = &m_RootEntries;
+  WDynamicArray<Entry*>* vals = &m_RootEntries;
   Entry* parentEntry = nullptr;
 
-  for (ezUInt32 p = 0; p < pieces.GetCount(); ++p)
+  for (WUInt32 p = 0; p < pieces.GetCount(); ++p)
   {
     QString piece = pieces[p].GetData(tmp2);
-    for (ezUInt32 v = 0; v < vals->GetCount(); ++v)
+    for (WUInt32 v = 0; v < vals->GetCount(); ++v)
     {
       if ((*vals)[v]->m_sDisplayString == piece)
       {
@@ -475,10 +475,10 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* szName)
   return parentEntry;
 }
 
-QWidget* ezQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
+QWidget* WQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
 {
   m_Index = static_cast<const QSortFilterProxyModel*>(idx.model())->mapToSource(idx);
-  ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(m_Index.internalPointer());
+  WQtCVarModel::Entry* e = reinterpret_cast<WQtCVarModel::Entry*>(m_Index.internalPointer());
 
   if (!e->m_Value.IsValid())
     return nullptr;
@@ -493,7 +493,7 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOption
     return ret;
   }
 
-  if (e->m_Value.IsA<ezInt32>())
+  if (e->m_Value.IsA<WInt32>())
   {
     QLineEdit* ret = new QLineEdit(pParent);
     ret->setValidator(new QIntValidator(ret));
@@ -509,7 +509,7 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOption
     return ret;
   }
 
-  if (e->m_Value.IsA<ezString>())
+  if (e->m_Value.IsA<WString>())
   {
     QLineEdit* ret = new QLineEdit(pParent);
     return ret;
@@ -518,7 +518,7 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOption
   return nullptr;
 }
 
-void ezQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& index) const
+void WQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& index) const
 {
   QVariant value = index.model()->data(index, Qt::EditRole);
 
@@ -545,7 +545,7 @@ void ezQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& in
   }
 }
 
-void ezQtCVarItemDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
+void WQtCVarItemDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
 {
   if (QLineEdit* pLine = qobject_cast<QLineEdit*>(pEditor))
   {
@@ -558,7 +558,7 @@ void ezQtCVarItemDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pM
   }
 }
 
-void ezQtCVarItemDelegate::onComboChanged(int)
+void WQtCVarItemDelegate::onComboChanged(int)
 {
   setModelData(qobject_cast<QWidget*>(sender()), m_pModel, m_Index);
 }

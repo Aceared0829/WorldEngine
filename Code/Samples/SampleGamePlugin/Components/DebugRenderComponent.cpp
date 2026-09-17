@@ -9,55 +9,55 @@
 #include <SampleGamePlugin/Components/DebugRenderComponent.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
-  EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Box),
-  EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Sphere),
-  EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Cross),
-  EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Quad)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
+  W_BITFLAGS_CONSTANT(DebugRenderComponentMask::Box),
+  W_BITFLAGS_CONSTANT(DebugRenderComponentMask::Sphere),
+  W_BITFLAGS_CONSTANT(DebugRenderComponentMask::Cross),
+  W_BITFLAGS_CONSTANT(DebugRenderComponentMask::Quad)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
 // BEGIN-DOCS-CODE-SNIPPET: component-reflection-block
-EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
-    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
-    EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
+    W_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(0, 10)),
+    W_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new WDefaultValueAttribute(WColor::White)),
+    W_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    W_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new WDefaultValueAttribute(DebugRenderComponentMask::Box)),
 
     // BEGIN-DOCS-CODE-SNIPPET: customdata-property
-    EZ_RESOURCE_MEMBER_PROPERTY("CustomData", m_hCustomData)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
+    W_RESOURCE_MEMBER_PROPERTY("CustomData", m_hCustomData)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
     // END-DOCS-CODE-SNIPPET
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGamePlugin"), // Component menu group
+    new WCategoryAttribute("SampleGamePlugin"), // Component menu group
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor)
+    W_MESSAGE_HANDLER(WMsgSetColor, OnSetColor)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetRandomColor)
+    W_SCRIPT_FUNCTION_PROPERTY(SetRandomColor)
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // END-DOCS-CODE-SNIPPET
 // clang-format on
 
 DebugRenderComponent::DebugRenderComponent() = default;
 DebugRenderComponent::~DebugRenderComponent() = default;
 
-void DebugRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void DebugRenderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -70,10 +70,10 @@ void DebugRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_hCustomData;
 }
 
-void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void DebugRenderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -84,14 +84,14 @@ void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_hCustomData;
 }
 
-void DebugRenderComponent::OnSetColor(ezMsgSetColor& ref_msg)
+void DebugRenderComponent::OnSetColor(WMsgSetColor& ref_msg)
 {
   m_Color = ref_msg.m_Color;
 }
 
 void DebugRenderComponent::SetRandomColor()
 {
-  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+  WRandom& rng = GetWorld()->GetRandomNumberGenerator();
 
   m_Color.r = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
   m_Color.g = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
@@ -100,31 +100,31 @@ void DebugRenderComponent::SetRandomColor()
 
 void DebugRenderComponent::Update()
 {
-  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
+  const WTransform ownerTransform = GetOwner()->GetGlobalTransform();
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Box))
   {
-    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(m_fSize));
+    WBoundingBox bbox = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), WVec3(m_fSize));
 
-    ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
+    WDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Cross))
   {
-    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::MakeZero(), m_fSize, m_Color, ownerTransform);
+    WDebugRenderer::DrawCross(GetWorld(), WVec3::MakeZero(), m_fSize, m_Color, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Sphere))
   {
     // BEGIN-DOCS-CODE-SNIPPET: debugrender-sphere
-    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize);
-    ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
+    WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fSize);
+    WDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
     // END-DOCS-CODE-SNIPPET
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Quad) && m_hTexture.IsValid())
   {
-    ezTempHybridArray<ezDebugRendererTexturedTriangle, 16> triangles;
+    WTempHybridArray<WDebugRendererTexturedTriangle, 16> triangles;
 
     {
       auto& t0 = triangles.ExpandAndGetRef();
@@ -158,20 +158,20 @@ void DebugRenderComponent::Update()
       tri.m_position[2] = ownerTransform.TransformPosition(tri.m_position[2]);
     }
 
-    ezDebugRenderer::DrawTexturedTriangles(GetWorld(), triangles, m_Color, m_hTexture);
+    WDebugRenderer::DrawTexturedTriangles(GetWorld(), triangles, m_Color, m_hTexture);
   }
 
   // accessing custom data resources
   if (m_hCustomData.IsValid())
   {
     // BEGIN-DOCS-CODE-SNIPPET: customdata-access
-    ezResourceLock<SampleCustomDataResource> pCustomDataResource(m_hCustomData, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+    WResourceLock<SampleCustomDataResource> pCustomDataResource(m_hCustomData, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-    if (pCustomDataResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    if (pCustomDataResource.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       const SampleCustomData* pCustomData = pCustomDataResource->GetData();
 
-      ezDebugRenderer::Draw3DText(GetWorld(), ezFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
+      WDebugRenderer::Draw3DText(GetWorld(), WFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
     }
     // END-DOCS-CODE-SNIPPET
   }

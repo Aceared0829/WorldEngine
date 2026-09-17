@@ -10,512 +10,512 @@
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-///////////////////////////////////// ezProcessMessages /////////////////////////////////////
+///////////////////////////////////// WProcessMessages /////////////////////////////////////
 
 
 
-///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
+///////////////////////////////////// WEditorEngineMsg /////////////////////////////////////
 
 /// Base class for all messages between editor and engine that are not bound to any document
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineMsg, WProcessMessage);
 
 public:
-  ezEditorEngineMsg() = default;
+  WEditorEngineMsg() = default;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WUpdateReflectionTypeMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WUpdateReflectionTypeMsgToEditor, WEditorEngineMsg);
 
 public:
-  // Mutable because it is eaten up by ezPhantomRttiManager.
-  mutable ezReflectedTypeDescriptor m_desc;
+  // Mutable because it is eaten up by WPhantomRttiManager.
+  mutable WReflectedTypeDescriptor m_desc;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSetupProjectMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSetupProjectMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSetupProjectMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sProjectDir;
-  ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezApplicationPluginConfig m_PluginConfig;
-  ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
-  ezString m_sAssetProfile;
+  WString m_sProjectDir;
+  WApplicationFileSystemConfig m_FileSystemConfig;
+  WApplicationPluginConfig m_PluginConfig;
+  WString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
+  WString m_sAssetProfile;
   float m_fDevicePixelRatio = 1.0f;
 };
 
 /// Sent to remote processes to shut them down.
 /// Local processes are simply killed through QProcess::close, but remote processes have to close themselves.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezShutdownProcessMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WShutdownProcessMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShutdownProcessMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WShutdownProcessMsgToEngine, WEditorEngineMsg);
 
 public:
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WProjectReadyMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectReadyMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WProjectReadyMsgToEditor, WEditorEngineMsg);
 
 public:
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSimpleConfigMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleConfigMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSimpleConfigMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sWhatToDo;
-  ezString m_sPayload;
+  WString m_sWhatToDo;
+  WString m_sPayload;
   double m_fPayload;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSaveProfilingResponseToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSaveProfilingResponseToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSaveProfilingResponseToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSaveProfilingResponseToEditor, WEditorEngineMsg);
 
 public:
-  ezString m_sProfilingFile;
+  WString m_sProfilingFile;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezReloadResourceMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WReloadResourceMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReloadResourceMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WReloadResourceMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sResourceType;
-  ezString m_sResourceID;
+  WString m_sResourceType;
+  WString m_sResourceID;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WResourceUpdateMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezResourceUpdateMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WResourceUpdateMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sResourceType;
-  ezString m_sResourceID;
-  ezDataBuffer m_Data;
+  WString m_sResourceType;
+  WString m_sResourceID;
+  WDataBuffer m_Data;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRestoreResourceMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WRestoreResourceMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRestoreResourceMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WRestoreResourceMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sResourceType;
-  ezString m_sResourceID;
+  WString m_sResourceType;
+  WString m_sResourceID;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezChangeCVarMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WChangeCVarMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezChangeCVarMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WChangeCVarMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezString m_sCVarName;
-  ezVariant m_NewValue;
+  WString m_sCVarName;
+  WVariant m_NewValue;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezConsoleCmdMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WConsoleCmdMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConsoleCmdMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WConsoleCmdMsgToEngine, WEditorEngineMsg);
 
 public:
-  ezInt8 m_iType; // 0 = execute, 1 = auto complete
-  ezString m_sCommand;
+  WInt8 m_iType; // 0 = execute, 1 = auto complete
+  WString m_sCommand;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezConsoleCmdResultMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WConsoleCmdResultMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConsoleCmdResultMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WConsoleCmdResultMsgToEditor, WEditorEngineMsg);
 
 public:
-  ezString m_sResult;
+  WString m_sResult;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDynamicStringEnumMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WDynamicStringEnumMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicStringEnumMsgToEditor, WEditorEngineMsg);
 
 public:
-  ezString m_sEnumName;
-  ezHybridArray<ezString, 8> m_EnumValues;
+  WString m_sEnumName;
+  WHybridArray<WString, 8> m_EnumValues;
 };
 
-///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
+///////////////////////////////////// WEditorEngineDocumentMsg /////////////////////////////////////
 
 /// Base class for all messages that are tied to some document.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineDocumentMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineDocumentMsg, WProcessMessage);
 
 public:
-  ezUuid m_DocumentGuid;
+  WUuid m_DocumentGuid;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSimpleDocumentConfigMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSimpleDocumentConfigMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezString m_sWhatToDo;
-  ezString m_sPayload;
-  ezVariant m_PayloadValue;
+  WString m_sWhatToDo;
+  WString m_sPayload;
+  WVariant m_PayloadValue;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSimpleDocumentConfigMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSimpleDocumentConfigMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
-  ezString m_sWhatToDo;
-  ezString m_sPayload;
-  ezVariant m_PayloadValue;
+  WString m_sWhatToDo;
+  WString m_sPayload;
+  WVariant m_PayloadValue;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSyncWithProcessMsgToEngine : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WSyncWithProcessMsgToEngine, WProcessMessage);
 
 public:
-  ezUInt32 m_uiRedrawCount;
+  WUInt32 m_uiRedrawCount;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSyncWithProcessMsgToEditor : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WSyncWithProcessMsgToEditor, WProcessMessage);
 
 public:
-  ezUInt32 m_uiRedrawCount;
+  WUInt32 m_uiRedrawCount;
 };
 
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineViewMsg : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineViewMsg : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineViewMsg, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineViewMsg, WEditorEngineDocumentMsg);
 
 public:
-  ezEditorEngineViewMsg() { m_uiViewID = 0xFFFFFFFF; }
+  WEditorEngineViewMsg() { m_uiViewID = 0xFFFFFFFF; }
 
-  ezUInt32 m_uiViewID;
+  WUInt32 m_uiViewID;
 };
 
 /// For very simple uses cases where a custom message would be too much
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WDocumentConfigMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentConfigMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezString m_sWhatToDo;
+  WString m_sWhatToDo;
   int m_iValue;
   float m_fValue;
-  ezString m_sValue;
+  WString m_sValue;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WDocumentOpenMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentOpenMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezDocumentOpenMsgToEngine() { m_bDocumentOpen = false; }
+  WDocumentOpenMsgToEngine() { m_bDocumentOpen = false; }
 
   bool m_bDocumentOpen;
-  ezString m_sDocumentType;
-  ezVariant m_DocumentMetaData;
+  WString m_sDocumentType;
+  WVariant m_DocumentMetaData;
 };
 
 /// Used to reset the engine side to an empty document before sending the full document state over
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentClearMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WDocumentClearMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentClearMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentClearMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezDocumentClearMsgToEngine() = default;
+  WDocumentClearMsgToEngine() = default;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WDocumentOpenResponseMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentOpenResponseMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
-  ezDocumentOpenResponseMsgToEditor() = default;
+  WDocumentOpenResponseMsgToEditor() = default;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewDestroyedMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewDestroyedMsgToEngine, WEditorEngineViewMsg);
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedResponseMsgToEditor : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewDestroyedResponseMsgToEditor : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedResponseMsgToEditor, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewDestroyedResponseMsgToEditor, WEditorEngineViewMsg);
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewRedrawMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewRedrawMsgToEngine, WEditorEngineViewMsg);
 
 public:
-  ezUInt64 m_uiHWND;
-  ezUInt16 m_uiWindowWidth;
-  ezUInt16 m_uiWindowHeight;
+  WUInt64 m_uiHWND;
+  WUInt16 m_uiWindowWidth;
+  WUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
   bool m_bEnablePickingSelected;
   bool m_bEnablePickTransparent;
   bool m_bUseCameraTransformOnDevice = true;
 
-  ezInt8 m_iCameraMode; ///< ezCameraMode::Enum
+  WInt8 m_iCameraMode; ///< WCameraMode::Enum
   float m_fNearPlane;
   float m_fFarPlane;
   float m_fFovOrDim;
-  ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
+  WUInt8 m_uiRenderMode; ///< WViewRenderMode::Enum
 
-  ezVec3 m_vPosition;
-  ezVec3 m_vDirForwards;
-  ezVec3 m_vDirUp;
-  ezVec3 m_vDirRight;
-  ezMat4 m_ViewMatrix;
-  ezMat4 m_ProjMatrix;
+  WVec3 m_vPosition;
+  WVec3 m_vDirForwards;
+  WVec3 m_vDirUp;
+  WVec3 m_vDirRight;
+  WMat4 m_ViewMatrix;
+  WMat4 m_ProjMatrix;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewScreenshotMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewScreenshotMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewScreenshotMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewScreenshotMsgToEngine, WEditorEngineViewMsg);
 
 public:
-  ezString m_sOutputFile;
+  WString m_sOutputFile;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezActivateRemoteViewMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WActivateRemoteViewMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezActivateRemoteViewMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WActivateRemoteViewMsgToEngine, WEditorEngineViewMsg);
 
 public:
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEntityMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEntityMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEntityMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEntityMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezObjectChange m_change;
+  WObjectChange m_change;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WExportDocumentMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WExportDocumentMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezExportDocumentMsgToEngine() = default;
+  WExportDocumentMsgToEngine() = default;
 
-  ezString m_sOutputFile;
-  ezUInt64 m_uiAssetHash = 0;
-  ezUInt16 m_uiVersion = 0;
+  WString m_sOutputFile;
+  WUInt64 m_uiAssetHash = 0;
+  WUInt16 m_uiVersion = 0;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WExportDocumentMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WExportDocumentMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
   bool m_bOutputSuccess = false;
-  ezString m_sFailureMsg;
+  WString m_sFailureMsg;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WCreateThumbnailMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WCreateThumbnailMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezUInt16 m_uiWidth = 0;
-  ezUInt16 m_uiHeight = 0;
-  ezHybridArray<ezString, 1> m_ViewExcludeTags;
+  WUInt16 m_uiWidth = 0;
+  WUInt16 m_uiHeight = 0;
+  WHybridArray<WString, 1> m_ViewExcludeTags;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WCreateThumbnailMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WCreateThumbnailMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
-  ezCreateThumbnailMsgToEditor() = default;
-  ezDataBuffer m_ThumbnailData; ///< Raw 8-bit RGBA data (256x256x4 bytes)
+  WCreateThumbnailMsgToEditor() = default;
+  WDataBuffer m_ThumbnailData; ///< Raw 8-bit RGBA data (256x256x4 bytes)
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewPickingMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewPickingMsgToEngine, WEditorEngineViewMsg);
 
 public:
-  ezUInt16 m_uiPickPosX;
-  ezUInt16 m_uiPickPosY;
+  WUInt16 m_uiPickPosX;
+  WUInt16 m_uiPickPosY;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewPickingResultMsgToEditor : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewPickingResultMsgToEditor, WEditorEngineViewMsg);
 
 public:
-  ezUuid m_ObjectGuid;
-  ezUuid m_ComponentGuid;
-  ezUuid m_OtherGuid;
-  ezUInt32 m_uiPartIndex;
+  WUuid m_ObjectGuid;
+  WUuid m_ComponentGuid;
+  WUuid m_OtherGuid;
+  WUInt32 m_uiPartIndex;
 
-  ezVec3 m_vPickedPosition;
-  ezVec3 m_vPickedNormal;
-  ezVec3 m_vPickingRayStartPosition;
+  WVec3 m_vPickedPosition;
+  WVec3 m_vPickedNormal;
+  WVec3 m_vPickingRayStartPosition;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingMsgToEngine : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewMarqueePickingMsgToEngine : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewMarqueePickingMsgToEngine, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewMarqueePickingMsgToEngine, WEditorEngineViewMsg);
 
 public:
-  ezUInt16 m_uiPickPosX0;
-  ezUInt16 m_uiPickPosY0;
+  WUInt16 m_uiPickPosX0;
+  WUInt16 m_uiPickPosY0;
 
-  ezUInt16 m_uiPickPosX1;
-  ezUInt16 m_uiPickPosY1;
+  WUInt16 m_uiPickPosX1;
+  WUInt16 m_uiPickPosY1;
 
-  ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
-  ezUInt32 m_uiActionIdentifier;
+  WUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
+  WUInt32 m_uiActionIdentifier;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingResultMsgToEditor : public ezEditorEngineViewMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewMarqueePickingResultMsgToEditor : public WEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewMarqueePickingResultMsgToEditor, ezEditorEngineViewMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewMarqueePickingResultMsgToEditor, WEditorEngineViewMsg);
 
 public:
-  ezDynamicArray<ezUuid> m_ObjectGuids;
-  ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
-  ezUInt32 m_uiActionIdentifier;
+  WDynamicArray<WUuid> m_ObjectGuids;
+  WUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
+  WUInt32 m_uiActionIdentifier;
 };
 
 
-class ezEditorEngineConnection;
+class WEditorEngineConnection;
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WViewHighlightMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WViewHighlightMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezUuid m_HighlightObject;
+  WUuid m_HighlightObject;
   // currently used for highlighting which object the mouse hovers over
   // extend this message if other types of highlighting become necessary
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WLogMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WLogMsgToEditor, WEditorEngineMsg);
 
 public:
-  ezLogEntry m_Entry;
+  WLogEntry m_Entry;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCVarMsgToEditor : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WCVarMsgToEditor : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCVarMsgToEditor, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WCVarMsgToEditor, WEditorEngineMsg);
 
 public:
-  ezString m_sName;
-  ezString m_sPlugin;
-  ezString m_sDescription;
-  ezVariant m_Value;
+  WString m_sName;
+  WString m_sPlugin;
+  WString m_sDescription;
+  WVariant m_Value;
 };
 
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpReplicationMsg : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WLongOpReplicationMsg : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpReplicationMsg, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpReplicationMsg, WEditorEngineMsg);
 
 public:
-  ezUuid m_OperationGuid;
-  ezUuid m_DocumentGuid;
-  ezString m_sReplicationType;
-  ezDataBuffer m_ReplicationData;
+  WUuid m_OperationGuid;
+  WUuid m_DocumentGuid;
+  WString m_sReplicationType;
+  WDataBuffer m_ReplicationData;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpProgressMsg : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WLongOpProgressMsg : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProgressMsg, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpProgressMsg, WEditorEngineMsg);
 
 public:
-  ezUuid m_OperationGuid;
+  WUuid m_OperationGuid;
   float m_fCompletion;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpResultMsg : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WLongOpResultMsg : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpResultMsg, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpResultMsg, WEditorEngineMsg);
 
 public:
-  ezUuid m_OperationGuid;
+  WUuid m_OperationGuid;
   bool m_bSuccess;
-  ezDataBuffer m_ResultData;
+  WDataBuffer m_ResultData;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineSyncObjectMsg : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineSyncObjectMsg, WEditorEngineDocumentMsg);
 
 public:
-  ezUuid m_ObjectGuid;
-  ezString m_sObjectType;
-  ezDataBuffer m_ObjectData;
+  WUuid m_ObjectGuid;
+  WString m_sObjectType;
+  WDataBuffer m_ObjectData;
 
-  const ezDataBuffer& GetObjectData() const { return m_ObjectData; }
-  void SetObjectData(const ezDataBuffer& s) { m_ObjectData = s; }
+  const WDataBuffer& GetObjectData() const { return m_ObjectData; }
+  void SetObjectData(const WDataBuffer& s) { m_ObjectData = s; }
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectTagMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WObjectTagMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTagMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WObjectTagMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezObjectTagMsgToEngine()
+  WObjectTagMsgToEngine()
   {
     m_bSetTag = false;
     m_bApplyOnAllChildren = false;
   }
 
-  ezUuid m_ObjectGuid;
-  ezString m_sTag;
+  WUuid m_ObjectGuid;
+  WString m_sTag;
   bool m_bSetTag;
   bool m_bApplyOnAllChildren;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectSelectionMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WObjectSelectionMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectSelectionMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WObjectSelectionMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezString m_sSelection;
+  WString m_sSelection;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimulationSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WSimulationSettingsMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimulationSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSimulationSettingsMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
   bool m_bSimulateWorld = false;
   float m_fSimulationSpeed = 1.0f;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGridSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGridSettingsMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGridSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WGridSettingsMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
   float m_fGridDensity = 0.0f;
-  ezVec3 m_vGridCenter;
-  ezVec3 m_vGridTangent1;
-  ezVec3 m_vGridTangent2;
+  WVec3 m_vGridCenter;
+  WVec3 m_vGridTangent1;
+  WVec3 m_vGridTangent2;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGlobalSettingsMsgToEngine : public WEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineMsg);
+  W_ADD_DYNAMIC_REFLECTION(WGlobalSettingsMsgToEngine, WEditorEngineMsg);
 
 public:
   float m_fGizmoScale = 0.0f;
@@ -523,9 +523,9 @@ public:
   float m_fShapeIconFadeDistance = 0.0f;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WWorldSettingsMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezWorldSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WWorldSettingsMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
   bool m_bRenderOverlay = false;
@@ -534,79 +534,79 @@ public:
   bool m_bAddAmbientLight = false;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGameModeMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameModeMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WGameModeMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
   bool m_bEnablePTG = false;
   bool m_bUseStartPosition = false;
-  ezVec3 m_vStartPosition;
-  ezVec3 m_vStartDirection;
+  WVec3 m_vStartPosition;
+  WVec3 m_vStartDirection;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGameModeMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGameModeMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameModeMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WGameModeMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
   bool m_bRunningPTG;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WQuerySelectionBBoxMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WQuerySelectionBBoxMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezUInt32 m_uiViewID; /// passed through to ezQuerySelectionBBoxResultMsgToEditor
-  ezInt32 m_iPurpose;  /// passed through to ezQuerySelectionBBoxResultMsgToEditor
+  WUInt32 m_uiViewID; /// passed through to WQuerySelectionBBoxResultMsgToEditor
+  WInt32 m_iPurpose;  /// passed through to WQuerySelectionBBoxResultMsgToEditor
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezQuerySelectionBBoxResultMsgToEditor : public ezEditorEngineDocumentMsg
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WQuerySelectionBBoxResultMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxResultMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WQuerySelectionBBoxResultMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
-  ezVec3 m_vCenter;
-  ezVec3 m_vHalfExtents;
+  WVec3 m_vCenter;
+  WVec3 m_vHalfExtents;
 
-  ezUInt32 m_uiViewID; /// passed through from ezQuerySelectionBBoxMsgToEngine
-  ezInt32 m_iPurpose;  /// passed through from ezQuerySelectionBBoxMsgToEngine
+  WUInt32 m_uiViewID; /// passed through from WQuerySelectionBBoxMsgToEngine
+  WInt32 m_iPurpose;  /// passed through from WQuerySelectionBBoxMsgToEngine
 };
 
 /// Send between editor documents, such that one document can know about objects in another document.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGatherObjectsOfTypeMsgInterDoc : public ezReflectedClass
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGatherObjectsOfTypeMsgInterDoc : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsOfTypeMsgInterDoc, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WGatherObjectsOfTypeMsgInterDoc, WReflectedClass);
 
 public:
-  const ezRTTI* m_pType;
+  const WRTTI* m_pType;
 
   struct Result
   {
-    const ezDocument* m_pDocument;
-    ezUuid m_ObjectGuid;
-    ezString m_sDisplayName;
+    const WDocument* m_pDocument;
+    WUuid m_ObjectGuid;
+    WString m_sDisplayName;
   };
 
-  ezDynamicArray<Result> m_Results;
+  WDynamicArray<Result> m_Results;
 };
 
 /// Send by the editor scene document to all other editor documents, to gather on which objects debug visualization should be enabled during
 /// play-the-game.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGatherObjectsForDebugVisMsgInterDoc : public ezReflectedClass
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGatherObjectsForDebugVisMsgInterDoc : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsForDebugVisMsgInterDoc, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WGatherObjectsForDebugVisMsgInterDoc, WReflectedClass);
 
 public:
-  ezDynamicArray<ezUuid> m_Objects;
+  WDynamicArray<WUuid> m_Objects;
 };
 
-/// Send by the editor scene document to the runtime scene document, to tell it about the poll results (see ezGatherObjectsForDebugVisMsgInterDoc).
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectsForDebugVisMsgToEngine : public ezEditorEngineDocumentMsg
+/// Send by the editor scene document to the runtime scene document, to tell it about the poll results (see WGatherObjectsForDebugVisMsgInterDoc).
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WObjectsForDebugVisMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectsForDebugVisMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WObjectsForDebugVisMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezDataBuffer m_Objects;
+  WDataBuffer m_Objects;
 };

@@ -6,15 +6,15 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 
-ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WSoundEventAssetDocumentWindow::WSoundEventAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "SoundEventAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -23,8 +23,8 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "SoundEventAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -34,12 +34,12 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SoundEventAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Event Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -47,7 +47,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -57,33 +57,33 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);
+  m_pAssetDoc = static_cast<WSoundEventAssetDocument*>(pDocument);
 
   FinishWindowCreation();
 
   UpdatePreview();
 }
 
-ezSoundEventAssetDocumentWindow::~ezSoundEventAssetDocumentWindow()
+WSoundEventAssetDocumentWindow::~WSoundEventAssetDocumentWindow()
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
+    WMakeDelegate(&WSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-void ezSoundEventAssetDocumentWindow::UpdatePreview()
+void WSoundEventAssetDocumentWindow::UpdatePreview()
 {
-  const auto& prop = ((ezSoundEventAssetDocument*)GetDocument())->GetProperties();
+  const auto& prop = ((WSoundEventAssetDocument*)GetDocument())->GetProperties();
 
-  // ezStringBuilder s;
+  // WStringBuilder s;
   // s.SetFormat("Vertices: {0}\nTriangles: {1}\nSubMeshes: {2}", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
 
-  // for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
+  // for (WUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
   //  s.AppendFormat("\nSlot {0}: {1}", m, prop->m_SlotNames[m]);
 
   // m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 
-void ezSoundEventAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WSoundEventAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   // if (e.m_sPropertyPath == "Texture File")
   //{

@@ -2,17 +2,17 @@
 
 #include <Foundation/Time/Clock.h>
 
-inline void ezClock::SetClockName(ezStringView sName)
+inline void WClock::SetClockName(WStringView sName)
 {
   m_sName = sName;
 }
 
-inline ezStringView ezClock::GetClockName() const
+inline WStringView WClock::GetClockName() const
 {
   return m_sName;
 }
 
-inline void ezClock::SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother)
+inline void WClock::SetTimeStepSmoothing(WTimeStepSmoothing* pSmoother)
 {
   m_pTimeStepSmoother = pSmoother;
 
@@ -20,12 +20,12 @@ inline void ezClock::SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother)
     m_pTimeStepSmoother->Reset(this);
 }
 
-inline ezTimeStepSmoothing* ezClock::GetTimeStepSmoothing() const
+inline WTimeStepSmoothing* WClock::GetTimeStepSmoothing() const
 {
   return m_pTimeStepSmoother;
 }
 
-inline void ezClock::SetPaused(bool bPaused)
+inline void WClock::SetPaused(bool bPaused)
 {
   m_bPaused = bPaused;
 
@@ -34,65 +34,65 @@ inline void ezClock::SetPaused(bool bPaused)
     m_pTimeStepSmoother->Reset(this);
 }
 
-inline bool ezClock::GetPaused() const
+inline bool WClock::GetPaused() const
 {
   return m_bPaused;
 }
 
-inline ezTime ezClock::GetFixedTimeStep() const
+inline WTime WClock::GetFixedTimeStep() const
 {
   return m_FixedTimeStep;
 }
 
-inline ezTime ezClock::GetAccumulatedTime() const
+inline WTime WClock::GetAccumulatedTime() const
 {
   return m_AccumulatedTime;
 }
 
-inline ezTime ezClock::GetTimeDiff() const
+inline WTime WClock::GetTimeDiff() const
 {
   return m_LastTimeDiff;
 }
 
-inline double ezClock::GetSpeed() const
+inline double WClock::GetSpeed() const
 {
   return m_fSpeed;
 }
 
-inline void ezClock::SetMinimumTimeStep(ezTime min)
+inline void WClock::SetMinimumTimeStep(WTime min)
 {
-  EZ_ASSERT_DEV(min >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
+  W_ASSERT_DEV(min >= WTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MinTimeStep = min;
 }
 
-inline void ezClock::SetMaximumTimeStep(ezTime max)
+inline void WClock::SetMaximumTimeStep(WTime max)
 {
-  EZ_ASSERT_DEV(max >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
+  W_ASSERT_DEV(max >= WTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MaxTimeStep = max;
 }
 
-inline ezTime ezClock::GetMinimumTimeStep() const
+inline WTime WClock::GetMinimumTimeStep() const
 {
   return m_MinTimeStep;
 }
 
-inline ezTime ezClock::GetMaximumTimeStep() const
+inline WTime WClock::GetMaximumTimeStep() const
 {
   return m_MaxTimeStep;
 }
 
-inline void ezClock::SetFixedTimeStep(ezTime diff)
+inline void WClock::SetFixedTimeStep(WTime diff)
 {
-  EZ_ASSERT_DEV(m_FixedTimeStep.GetSeconds() >= 0.0, "Fixed Time Stepping cannot reverse time!");
+  W_ASSERT_DEV(m_FixedTimeStep.GetSeconds() >= 0.0, "Fixed Time Stepping cannot reverse time!");
 
   m_FixedTimeStep = diff;
 }
 
-inline void ezClock::SetSpeed(double fFactor)
+inline void WClock::SetSpeed(double fFactor)
 {
-  EZ_ASSERT_DEV(fFactor >= 0.0, "Time cannot run backwards.");
+  W_ASSERT_DEV(fFactor >= 0.0, "Time cannot run backwards.");
 
   m_fSpeed = fFactor;
 }

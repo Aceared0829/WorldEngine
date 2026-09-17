@@ -5,20 +5,20 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRmlUiScaleMode, 1)
-  EZ_ENUM_CONSTANTS(ezRmlUiScaleMode::Fixed, ezRmlUiScaleMode::WithScreenSize)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRmlUiScaleMode, 1)
+  W_ENUM_CONSTANTS(WRmlUiScaleMode::Fixed, WRmlUiScaleMode::WithScreenSize)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-static ezTypeVersion s_RmlUiDescVersion = 1;
+static WTypeVersion s_RmlUiDescVersion = 1;
 
-ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& inout_stream)
+WResult WRmlUiResourceDescriptor::Save(WStreamWriter& inout_stream)
 {
-  // write this at the beginning so that the file can be read as an ezDependencyFile
+  // write this at the beginning so that the file can be read as an WDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(inout_stream));
+  W_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(inout_stream));
 
   inout_stream.WriteVersion(s_RmlUiDescVersion);
 
@@ -26,61 +26,61 @@ ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& inout_stream)
   inout_stream << m_ScaleMode;
   inout_stream << m_ReferenceResolution;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& inout_stream)
+WResult WRmlUiResourceDescriptor::Load(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
+  W_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
 
-  ezTypeVersion uiVersion = inout_stream.ReadVersion(s_RmlUiDescVersion);
-  EZ_IGNORE_UNUSED(uiVersion);
+  WTypeVersion uiVersion = inout_stream.ReadVersion(s_RmlUiDescVersion);
+  W_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_sRmlFile;
   inout_stream >> m_ScaleMode;
   inout_stream >> m_ReferenceResolution;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiResource, 1, ezRTTIDefaultAllocator<ezRmlUiResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiResource, 1, WRTTIDefaultAllocator<WRmlUiResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRmlUiResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WRmlUiResource);
 // clang-format on
 
-ezRmlUiResource::ezRmlUiResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WRmlUiResource::WRmlUiResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezRmlUiResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WRmlUiResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezRmlUiResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WRmlUiResource::UpdateContent(WStreamReader* Stream)
 {
-  ezRmlUiResourceDescriptor desc;
-  ezResourceLoadDesc res;
+  WRmlUiResourceDescriptor desc;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // Direct loading of rml file
@@ -88,62 +88,62 @@ ezResourceLoadDesc ezRmlUiResource::UpdateContent(ezStreamReader* Stream)
   {
     m_sRmlFile = sAbsFilePath;
 
-    res.m_State = ezResourceState::Loaded;
+    res.m_State = WResourceState::Loaded;
     return res;
   }
 
-  ezAssetFileHeader assetHeader;
+  WAssetFileHeader assetHeader;
   assetHeader.Read(*Stream).IgnoreResult();
 
   if (desc.Load(*Stream).Failed())
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   return CreateResource(std::move(desc));
 }
 
-void ezRmlUiResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WRmlUiResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRmlUiResource, ezRmlUiResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WRmlUiResource, WRmlUiResourceDescriptor)
 {
   m_sRmlFile = descriptor.m_sRmlFile;
   m_ScaleMode = descriptor.m_ScaleMode;
   m_vReferenceResolution = descriptor.m_ReferenceResolution;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) const
+bool WRmlUiResourceLoader::IsResourceOutdated(const WResource* pResource) const
 {
-  if (ezResourceLoaderFromFile::IsResourceOutdated(pResource))
+  if (WResourceLoaderFromFile::IsResourceOutdated(pResource))
     return true;
 
-  ezStringBuilder sId = pResource->GetResourceID();
+  WStringBuilder sId = pResource->GetResourceID();
   if (sId.GetFileExtension() == "rml")
     return false;
 
-  ezFileReader stream;
+  WFileReader stream;
   if (stream.Open(pResource->GetResourceID()).Failed())
     return false;
 
   // skip asset header
-  ezAssetFileHeader assetHeader;
+  WAssetFileHeader assetHeader;
   assetHeader.Read(stream).IgnoreResult();
 
-  ezDependencyFile dep;
+  WDependencyFile dep;
   if (dep.ReadDependencyFile(stream).Failed())
     return true;
 
@@ -151,4 +151,4 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 }
 
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Resources_RmlUiResource);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Resources_RmlUiResource);

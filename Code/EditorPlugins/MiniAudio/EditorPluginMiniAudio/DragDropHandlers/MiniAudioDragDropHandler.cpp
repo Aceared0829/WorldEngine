@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginMiniAudio/DragDropHandlers/MiniAudioDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezMiniAudioSoundComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioSoundComponentDragDropHandler, 1, WRTTIDefaultAllocator<WMiniAudioSoundComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezMiniAudioSoundComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WMiniAudioSoundComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "MiniAudioSound") ? 1.0f : 0.0f;
 }
 
-void ezMiniAudioSoundComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WMiniAudioSoundComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezMiniAudioSoundComponent";
+  constexpr const char* szComponentType = "WMiniAudioSoundComponent";
   constexpr const char* szPropertyName = "Sound";
 
   if (pInfo->m_sTargetContext == "viewport")

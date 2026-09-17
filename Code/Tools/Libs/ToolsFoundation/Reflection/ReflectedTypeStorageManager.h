@@ -3,18 +3,18 @@
 #include <Foundation/Containers/Set.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
-class ezReflectedTypeStorageAccessor;
-class ezDocumentObject;
+class WReflectedTypeStorageAccessor;
+class WDocumentObject;
 
-/// Manages all ezReflectedTypeStorageAccessor instances.
+/// Manages all WReflectedTypeStorageAccessor instances.
 ///
-/// This class takes care of patching all ezReflectedTypeStorageAccessor instances when their
-/// ezRTTI is modified. It also provides the mapping from property name to the data
-/// storage index of the corresponding ezVariant in the ezReflectedTypeStorageAccessor.
-class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageManager
+/// This class takes care of patching all WReflectedTypeStorageAccessor instances when their
+/// WRTTI is modified. It also provides the mapping from property name to the data
+/// storage index of the corresponding WVariant in the WReflectedTypeStorageAccessor.
+class W_TOOLSFOUNDATION_DLL WReflectedTypeStorageManager
 {
 public:
-  ezReflectedTypeStorageManager();
+  WReflectedTypeStorageManager();
 
 private:
   struct ReflectedTypeStorageMapping
@@ -23,48 +23,48 @@ private:
     {
       StorageInfo()
         : m_uiIndex(0)
-        , m_Type(ezVariant::Type::Invalid)
+        , m_Type(WVariant::Type::Invalid)
       {
       }
-      StorageInfo(ezUInt16 uiIndex, ezVariant::Type::Enum type, const ezVariant& defaultValue)
+      StorageInfo(WUInt16 uiIndex, WVariant::Type::Enum type, const WVariant& defaultValue)
         : m_uiIndex(uiIndex)
         , m_Type(type)
         , m_DefaultValue(defaultValue)
       {
       }
 
-      ezUInt16 m_uiIndex;
-      ezEnum<ezVariant::Type> m_Type;
-      ezVariant m_DefaultValue;
+      WUInt16 m_uiIndex;
+      WEnum<WVariant::Type> m_Type;
+      WVariant m_DefaultValue;
     };
 
-    /// Flattens all POD type properties of the given ezRTTI into m_PathToStorageInfoTable.
+    /// Flattens all POD type properties of the given WRTTI into m_PathToStorageInfoTable.
     ///
     /// The functions first adds all parent class properties and then adds its own properties.
     /// POD type properties are added under the current path.
-    void AddProperties(const ezRTTI* pType);
-    void AddPropertiesRecursive(const ezRTTI* pType, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
+    void AddProperties(const WRTTI* pType);
+    void AddPropertiesRecursive(const WRTTI* pType, WSet<const WDocumentObject*>& ref_requiresPatchingEmbeddedClass);
 
-    void UpdateInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
-    void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
+    void UpdateInstances(WUInt32 uiIndex, const WAbstractProperty* pProperty, WSet<const WDocumentObject*>& ref_requiresPatchingEmbeddedClass);
+    void AddPropertyToInstances(WUInt32 uiIndex, const WAbstractProperty* pProperty, WSet<const WDocumentObject*>& ref_requiresPatchingEmbeddedClass);
 
-    ezSet<ezReflectedTypeStorageAccessor*> m_Instances;
-    ezHashTable<ezString, StorageInfo> m_PathToStorageInfoTable;
+    WSet<WReflectedTypeStorageAccessor*> m_Instances;
+    WHashTable<WString, StorageInfo> m_PathToStorageInfoTable;
   };
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeStorageManager);
-  friend class ezReflectedTypeStorageAccessor;
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeStorageManager);
+  friend class WReflectedTypeStorageAccessor;
 
   static void Startup();
   static void Shutdown();
 
-  static const ReflectedTypeStorageMapping* AddStorageAccessor(ezReflectedTypeStorageAccessor* pInstance);
-  static void RemoveStorageAccessor(ezReflectedTypeStorageAccessor* pInstance);
+  static const ReflectedTypeStorageMapping* AddStorageAccessor(WReflectedTypeStorageAccessor* pInstance);
+  static void RemoveStorageAccessor(WReflectedTypeStorageAccessor* pInstance);
 
-  static ReflectedTypeStorageMapping* GetTypeStorageMapping(const ezRTTI* pType);
-  static void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
-  static void PluginEventHandler(const ezPluginEvent& EventData);
+  static ReflectedTypeStorageMapping* GetTypeStorageMapping(const WRTTI* pType);
+  static void TypeEventHandler(const WPhantomRttiManagerEvent& e);
+  static void PluginEventHandler(const WPluginEvent& EventData);
 
 private:
-  static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> s_ReflectedTypeToStorageMapping;
+  static WMap<const WRTTI*, ReflectedTypeStorageMapping*> s_ReflectedTypeToStorageMapping;
 };

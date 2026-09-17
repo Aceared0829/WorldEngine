@@ -3,13 +3,13 @@
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EnginePluginJolt/EnginePluginJoltDLL.h>
 
-/// A export modifier that finalizes the collision mesh generation from ezJoltGenerateCollisionComponents.
+/// A export modifier that finalizes the collision mesh generation from WJoltGenerateCollisionComponents.
 ///
 /// A static mesh actor which references the generated collision mesh and the generate component is removed from scenes (not prefabs though).
-class EZ_ENGINEPLUGINJOLT_DLL ezSceneExportModifier_JoltFinalizeGeneratedCollision : public ezSceneExportModifier
+class W_ENGINEPLUGINJOLT_DLL WSceneExportModifier_JoltFinalizeGeneratedCollision : public WSceneExportModifier
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_JoltFinalizeGeneratedCollision, ezSceneExportModifier);
+  W_ADD_DYNAMIC_REFLECTION(WSceneExportModifier_JoltFinalizeGeneratedCollision, WSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport) override;
 };

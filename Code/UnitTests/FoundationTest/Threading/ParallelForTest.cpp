@@ -5,26 +5,26 @@
 
 namespace
 {
-  static constexpr ezUInt32 s_uiNumberOfWorkers = 4;
-  static constexpr ezUInt32 s_uiTaskItemSliceSize = 25;
-  static constexpr ezUInt32 s_uiTotalNumberOfTaskItems = s_uiNumberOfWorkers * s_uiTaskItemSliceSize;
+  static constexpr WUInt32 s_uiNumberOfWorkers = 4;
+  static constexpr WUInt32 s_uiTaskItemSliceSize = 25;
+  static constexpr WUInt32 s_uiTotalNumberOfTaskItems = s_uiNumberOfWorkers * s_uiTaskItemSliceSize;
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
+W_CREATE_SIMPLE_TEST(Threading, ParallelFor)
 {
   // set up controlled task system environment
-  ezTaskSystem::SetWorkerThreadCount(::s_uiNumberOfWorkers, ::s_uiNumberOfWorkers);
+  WTaskSystem::SetWorkerThreadCount(::s_uiNumberOfWorkers, ::s_uiNumberOfWorkers);
 
   // shared variables
-  ezMutex dataAccessMutex;
+  WMutex dataAccessMutex;
 
-  ezUInt32 uiRangesEncounteredCheck = 0;
-  ezUInt32 uiNumbersSum = 0;
+  WUInt32 uiRangesEncounteredCheck = 0;
+  WUInt32 uiNumbersSum = 0;
 
-  ezUInt32 uiNumbersCheckSum = 0;
-  ezStaticArray<ezUInt32, ::s_uiTotalNumberOfTaskItems> numbers;
+  WUInt32 uiNumbersCheckSum = 0;
+  WStaticArray<WUInt32, ::s_uiTotalNumberOfTaskItems> numbers;
 
-  ezParallelForParams parallelForParams;
+  WParallelForParams parallelForParams;
   parallelForParams.m_uiBinSize = ::s_uiTaskItemSliceSize;
   parallelForParams.m_uiMaxTasksPerThread = 1;
 
@@ -36,14 +36,14 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     uiNumbersCheckSum = 0;
 
     numbers.EnsureCount(::s_uiTotalNumberOfTaskItems);
-    for (ezUInt32 i = 0; i < ::s_uiTotalNumberOfTaskItems; ++i)
+    for (WUInt32 i = 0; i < ::s_uiTotalNumberOfTaskItems; ++i)
     {
       numbers[i] = i + 1;
       uiNumbersCheckSum += numbers[i];
     }
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Indexed)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Indexed)")
   {
     // reset
     ResetSharedVariables();
@@ -51,39 +51,39 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // test
     // sum up the slice of number assigned to us via index ranges and
     // check if the ranges described by them are as expected
-    ezTaskSystem::ParallelForIndexed(
+    WTaskSystem::ParallelForIndexed(
       0, ::s_uiTotalNumberOfTaskItems,
-      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &numbers](ezUInt32 uiStartIndex, ezUInt32 uiEndIndex)
+      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &numbers](WUInt32 uiStartIndex, WUInt32 uiEndIndex)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
 
         // size check
-        EZ_TEST_INT(uiEndIndex - uiStartIndex, ::s_uiTaskItemSliceSize);
+        W_TEST_INT(uiEndIndex - uiStartIndex, ::s_uiTaskItemSliceSize);
 
         // note down which range this is
         uiRangesEncounteredCheck |= 1 << (uiStartIndex / ::s_uiTaskItemSliceSize);
 
         // sum up numbers in our slice
-        for (ezUInt32 uiIndex = uiStartIndex; uiIndex < uiEndIndex; ++uiIndex)
+        for (WUInt32 uiIndex = uiStartIndex; uiIndex < uiEndIndex; ++uiIndex)
         {
           uiNumbersSum += numbers[uiIndex];
         }
       },
-      "ParallelForIndexed Test", ezTaskNesting::Never, parallelForParams);
+      "ParallelForIndexed Test", WTaskNesting::Never, parallelForParams);
 
     // check results
-    EZ_TEST_INT(uiRangesEncounteredCheck, 0b1111);
-    EZ_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
+    W_TEST_INT(uiRangesEncounteredCheck, 0b1111);
+    W_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Array)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Array)")
   {
     // reset
     ResetSharedVariables();
 
     // test-specific data
-    ezStaticArray<ezUInt32*, ::s_uiNumberOfWorkers> startAddresses;
-    for (ezUInt32 i = 0; i < ::s_uiNumberOfWorkers; ++i)
+    WStaticArray<WUInt32*, ::s_uiNumberOfWorkers> startAddresses;
+    for (WUInt32 i = 0; i < ::s_uiNumberOfWorkers; ++i)
     {
       startAddresses.PushBack(numbers.GetArrayPtr().GetPtr() + (i * ::s_uiTaskItemSliceSize));
     }
@@ -91,17 +91,17 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // test
     // sum up the slice of numbers assigned to us via array pointers and
     // check if the ranges described by them are as expected
-    ezTaskSystem::ParallelFor<ezUInt32>(
+    WTaskSystem::ParallelFor<WUInt32>(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &startAddresses](ezArrayPtr<ezUInt32> taskItemSlice)
+      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &startAddresses](WArrayPtr<WUInt32> taskItemSlice)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
 
         // size check
-        EZ_TEST_INT(taskItemSlice.GetCount(), ::s_uiTaskItemSliceSize);
+        W_TEST_INT(taskItemSlice.GetCount(), ::s_uiTaskItemSliceSize);
 
         // note down which range this is
-        for (ezUInt32 index = 0; index < startAddresses.GetCount(); ++index)
+        for (WUInt32 index = 0; index < startAddresses.GetCount(); ++index)
         {
           if (startAddresses[index] == taskItemSlice.GetPtr())
           {
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
         }
 
         // sum up numbers in our slice
-        for (const ezUInt32& number : taskItemSlice)
+        for (const WUInt32& number : taskItemSlice)
         {
           uiNumbersSum += number;
         }
@@ -118,107 +118,107 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
       "ParallelFor Array Test", parallelForParams);
 
     // check results
-    EZ_TEST_INT(15, 0b1111);
-    EZ_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
+    W_TEST_INT(15, 0b1111);
+    W_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Array, Single)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Array, Single)")
   {
     // reset
     ResetSharedVariables();
 
     // test
     // sum up the slice of numbers by summing up the individual numbers that get handed to us
-    ezTaskSystem::ParallelForSingle(
+    WTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiNumber)
+      [&dataAccessMutex, &uiNumbersSum](WUInt32 uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },
       "ParallelFor Array Single Test", parallelForParams);
 
     // check the resulting sum
-    EZ_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
+    W_TEST_INT(uiNumbersSum, uiNumbersCheckSum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Array, Single, Index)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Array, Single, Index)")
   {
     // reset
     ResetSharedVariables();
 
     // test
     // sum up the slice of numbers that got assigned to us via an index range
-    ezTaskSystem::ParallelForSingleIndex(
+    WTaskSystem::ParallelForSingleIndex(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiIndex, ezUInt32 uiNumber)
+      [&dataAccessMutex, &uiNumbersSum](WUInt32 uiIndex, WUInt32 uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber + (uiIndex + 1);
       },
       "ParallelFor Array Single Index Test", parallelForParams);
 
     // check the resulting sum
-    EZ_TEST_INT(uiNumbersSum, 2 * uiNumbersCheckSum);
+    W_TEST_INT(uiNumbersSum, 2 * uiNumbersCheckSum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Array, Single) Write")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Array, Single) Write")
   {
     // reset
     ResetSharedVariables();
 
     // test
     // modify the original array of numbers
-    ezTaskSystem::ParallelForSingle(
+    WTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32& ref_uiNumber)
+      [&dataAccessMutex](WUInt32& ref_uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         ref_uiNumber = ref_uiNumber * 3;
       },
       "ParallelFor Array Single Write Test (Write)", parallelForParams);
 
     // sum up the new values to test if writing worked
-    ezTaskSystem::ParallelForSingle(
+    WTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber)
+      [&dataAccessMutex, &uiNumbersSum](const WUInt32& uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },
       "ParallelFor Array Single Write Test (Sum)", parallelForParams);
 
     // check the resulting sum
-    EZ_TEST_INT(uiNumbersSum, 3 * uiNumbersCheckSum);
+    W_TEST_INT(uiNumbersSum, 3 * uiNumbersCheckSum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parallel For (Array, Single, Index) Write")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Parallel For (Array, Single, Index) Write")
   {
     // reset
     ResetSharedVariables();
 
     // test
     // modify the original array of numbers
-    ezTaskSystem::ParallelForSingleIndex(
+    WTaskSystem::ParallelForSingleIndex(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32, ezUInt32& ref_uiNumber)
+      [&dataAccessMutex](WUInt32, WUInt32& ref_uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         ref_uiNumber = ref_uiNumber * 4;
       },
       "ParallelFor Array Single Write Test (Write)", parallelForParams);
 
     // sum up the new values to test if writing worked
-    ezTaskSystem::ParallelForSingle(
+    WTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber)
+      [&dataAccessMutex, &uiNumbersSum](const WUInt32& uiNumber)
       {
-        EZ_LOCK(dataAccessMutex);
+        W_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },
       "ParallelFor Array Single Write Test (Sum)", parallelForParams);
 
     // check the resulting sum
-    EZ_TEST_INT(uiNumbersSum, 4 * uiNumbersCheckSum);
+    W_TEST_INT(uiNumbersSum, 4 * uiNumbersCheckSum);
   }
 }

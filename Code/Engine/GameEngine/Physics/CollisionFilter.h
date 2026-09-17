@@ -5,45 +5,45 @@
 #include <GameEngine/GameEngineDLL.h>
 
 /// A 32x32 matrix of named filters that can be configured to enable or disable collisions
-class EZ_GAMEENGINE_DLL ezCollisionFilterConfig
+class W_GAMEENGINE_DLL WCollisionFilterConfig
 {
 public:
-  ezCollisionFilterConfig();
-  ~ezCollisionFilterConfig();
+  WCollisionFilterConfig();
+  ~WCollisionFilterConfig();
 
-  void SetGroupName(ezUInt32 uiGroup, ezStringView sName);
+  void SetGroupName(WUInt32 uiGroup, WStringView sName);
 
-  ezStringView GetGroupName(ezUInt32 uiGroup) const;
+  WStringView GetGroupName(WUInt32 uiGroup) const;
 
-  void EnableCollision(ezUInt32 uiGroup1, ezUInt32 uiGroup2, bool bEnable = true);
+  void EnableCollision(WUInt32 uiGroup1, WUInt32 uiGroup2, bool bEnable = true);
 
-  bool IsCollisionEnabled(ezUInt32 uiGroup1, ezUInt32 uiGroup2) const;
+  bool IsCollisionEnabled(WUInt32 uiGroup1, WUInt32 uiGroup2) const;
 
-  inline ezUInt32 GetFilterMask(ezUInt32 uiGroup) const { return m_GroupMasks[uiGroup]; }
+  inline WUInt32 GetFilterMask(WUInt32 uiGroup) const { return m_GroupMasks[uiGroup]; }
 
   /// Returns how many groups have non-empty names
-  ezUInt32 GetNumNamedGroups() const;
+  WUInt32 GetNumNamedGroups() const;
 
   /// Returns the index of the n-th group that has a non-empty name (ie. maps index '3' to index '5' if there are two unnamed groups in
   /// between)
-  ezUInt32 GetNamedGroupIndex(ezUInt32 uiGroup) const;
+  WUInt32 GetNamedGroupIndex(WUInt32 uiGroup) const;
 
-  /// Returns ezInvalidIndex if no group with the given name exists.
-  ezUInt32 GetFilterGroupByName(ezStringView sName) const;
+  /// Returns WInvalidIndex if no group with the given name exists.
+  WUInt32 GetFilterGroupByName(WStringView sName) const;
 
-  /// Searches for a group without a name and returns the index or ezInvalidIndex if none found.
-  ezUInt32 FindUnnamedGroup() const;
+  /// Searches for a group without a name and returns the index or WInvalidIndex if none found.
+  WUInt32 FindUnnamedGroup() const;
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
 
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg"_ezsv;
+  static constexpr const WStringView s_sConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg"_wsv;
 
-  ezResult Save(ezStringView sFile = s_sConfigFile) const;
-  ezResult Load(ezStringView sFile = s_sConfigFile);
+  WResult Save(WStringView sFile = s_sConfigFile) const;
+  WResult Load(WStringView sFile = s_sConfigFile);
 
 
 private:
-  ezUInt32 m_GroupMasks[32];
-  ezString m_GroupNames[32];
+  WUInt32 m_GroupMasks[32];
+  WString m_GroupNames[32];
 };

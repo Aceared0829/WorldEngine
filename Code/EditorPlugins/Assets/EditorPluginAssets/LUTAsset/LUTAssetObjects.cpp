@@ -3,36 +3,36 @@
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetProperties, 1, ezRTTIDefaultAllocator<ezLUTAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLUTAssetProperties, 1, WRTTIDefaultAllocator<WLUTAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Input", GetInputFile, SetInputFile)->AddAttributes(new ezFileBrowserAttribute("Select CUBE file", "*.cube"), new ezRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("Input", GetInputFile, SetInputFile)->AddAttributes(new WFileBrowserAttribute("Select CUBE file", "*.cube"), new WRequiredAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLUTAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WLUTAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezLUTAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WLUTAssetProperties>())
   {
     auto& props = *e.m_pPropertyStates;
 
-    props["Input"].m_Visibility = ezPropertyUiState::Default;
-    props["Input"].m_sNewLabelText = "ezLUTAssetProperties::CUBEfile";
+    props["Input"].m_Visibility = WPropertyUiState::Default;
+    props["Input"].m_sNewLabelText = "WLUTAssetProperties::CUBEfile";
   }
 }
 
-ezString ezLUTAssetProperties::GetAbsoluteInputFilePath() const
+WString WLUTAssetProperties::GetAbsoluteInputFilePath() const
 {
-  ezStringBuilder sPath = m_sInput;
+  WStringBuilder sPath = m_sInput;
   sPath.MakeCleanPath();
 
   if (!sPath.IsAbsolutePath())
   {
-    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
   }
 
   return sPath;

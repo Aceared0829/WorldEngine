@@ -9,96 +9,96 @@
 #include <GameEngine/Gameplay/SceneTransitionComponent.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneLoadMode, 1)
-  EZ_ENUM_CONSTANT(ezSceneLoadMode::None),
-  EZ_ENUM_CONSTANT(ezSceneLoadMode::LoadAndSwitch),
-  EZ_ENUM_CONSTANT(ezSceneLoadMode::Preload),
-  EZ_ENUM_CONSTANT(ezSceneLoadMode::CancelPreload),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSceneLoadMode, 1)
+  W_ENUM_CONSTANT(WSceneLoadMode::None),
+  W_ENUM_CONSTANT(WSceneLoadMode::LoadAndSwitch),
+  W_ENUM_CONSTANT(WSceneLoadMode::Preload),
+  W_ENUM_CONSTANT(WSceneLoadMode::CancelPreload),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSceneTransitionComponent, 1 /* version */, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezSceneLoadMode, m_Mode),
-    EZ_MEMBER_PROPERTY("TargetScene", m_sTargetScene)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Scene",  ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("PreloadCollection", m_sPreloadCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("SpawnPoint", m_sSpawnPoint),
-    EZ_MEMBER_PROPERTY("RelativeSpawnPosition", m_bRelativeSpawnPosition)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ENUM_MEMBER_PROPERTY("Mode", WSceneLoadMode, m_Mode),
+    W_MEMBER_PROPERTY("TargetScene", m_sTargetScene)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Scene",  WDependencyFlags::Package), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("PreloadCollection", m_sPreloadCollectionFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_AssetCollection", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("SpawnPoint", m_sSpawnPoint),
+    W_MEMBER_PROPERTY("RelativeSpawnPosition", m_bRelativeSpawnPosition)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTriggerTriggered, OnMsgTriggerTriggered),
+    W_MESSAGE_HANDLER(WMsgTriggerTriggered, OnMsgTriggerTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new WCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartTransition, In, "PositionOffset", In, "RotationOffset"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartTransitionWithOffsetTo, In, "GlobalPosition", In, "GlobalRotation"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartPreload),
-    EZ_SCRIPT_FUNCTION_PROPERTY(CancelPreload),
+    W_SCRIPT_FUNCTION_PROPERTY(StartTransition, In, "PositionOffset", In, "RotationOffset"),
+    W_SCRIPT_FUNCTION_PROPERTY(StartTransitionWithOffsetTo, In, "GlobalPosition", In, "GlobalRotation"),
+    W_SCRIPT_FUNCTION_PROPERTY(StartPreload),
+    W_SCRIPT_FUNCTION_PROPERTY(CancelPreload),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSceneTransitionComponent::ezSceneTransitionComponent() = default;
-ezSceneTransitionComponent::~ezSceneTransitionComponent() = default;
+WSceneTransitionComponent::WSceneTransitionComponent() = default;
+WSceneTransitionComponent::~WSceneTransitionComponent() = default;
 
-void ezSceneTransitionComponent::StartTransition(const ezVec3& vPositionOffset, const ezQuat& qRotationOffset)
+void WSceneTransitionComponent::StartTransition(const WVec3& vPositionOffset, const WQuat& qRotationOffset)
 {
-  if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (auto pGameStateBase = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
-    // we could move these functions into ezGameStateBase, but for now the dynamic cast should be fine
+    // we could move these functions into WGameStateBase, but for now the dynamic cast should be fine
     // there is no good reason to have this functionality on the base class
-    if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
+    if (WGameState* pGameState = WDynamicCast<WGameState*>(pGameStateBase))
     {
-      pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, ezTransform(vPositionOffset, qRotationOffset));
+      pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, WTransform(vPositionOffset, qRotationOffset));
     }
   }
 }
 
-void ezSceneTransitionComponent::StartTransitionWithOffsetTo(const ezVec3& vGlobalPosition, const ezQuat& qGlobalRotation)
+void WSceneTransitionComponent::StartTransitionWithOffsetTo(const WVec3& vGlobalPosition, const WQuat& qGlobalRotation)
 {
-  const ezTransform ownGlobal(vGlobalPosition, qGlobalRotation);
-  const ezTransform rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), ownGlobal);
+  const WTransform ownGlobal(vGlobalPosition, qGlobalRotation);
+  const WTransform rel = WTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), ownGlobal);
 
   StartTransition(rel.m_vPosition, rel.m_qRotation);
 }
 
-void ezSceneTransitionComponent::StartPreload()
+void WSceneTransitionComponent::StartPreload()
 {
-  if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (auto pGameStateBase = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
-    if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
+    if (WGameState* pGameState = WDynamicCast<WGameState*>(pGameStateBase))
     {
       pGameState->StartBackgroundSceneLoading(m_sTargetScene, m_sPreloadCollectionFile);
     }
   }
 }
 
-void ezSceneTransitionComponent::CancelPreload()
+void WSceneTransitionComponent::CancelPreload()
 {
-  if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  if (auto pGameStateBase = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
-    if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
+    if (WGameState* pGameState = WDynamicCast<WGameState*>(pGameStateBase))
     {
       pGameState->CancelBackgroundSceneLoading();
     }
   }
 }
 
-void ezSceneTransitionComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSceneTransitionComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -110,10 +110,10 @@ void ezSceneTransitionComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_sPreloadCollectionFile;
 }
 
-void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSceneTransitionComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_Mode;
@@ -123,25 +123,25 @@ void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_sPreloadCollectionFile;
 }
 
-void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& ref_msg)
+void WSceneTransitionComponent::OnMsgTriggerTriggered(WMsgTriggerTriggered& ref_msg)
 {
-  if (ref_msg.m_TriggerState == ezTriggerState::Activated)
+  if (ref_msg.m_TriggerState == WTriggerState::Activated)
   {
-    if (m_Mode == ezSceneLoadMode::None)
+    if (m_Mode == WSceneLoadMode::None)
     {
       return;
     }
 
-    if (m_Mode == ezSceneLoadMode::LoadAndSwitch)
+    if (m_Mode == WSceneLoadMode::LoadAndSwitch)
     {
-      ezTransform rel = ezTransform::MakeIdentity();
+      WTransform rel = WTransform::MakeIdentity();
 
       if (m_bRelativeSpawnPosition)
       {
-        ezGameObject* pPlayer;
+        WGameObject* pPlayer;
         if (GetWorld()->TryGetObject(ref_msg.m_hTriggeringObject, pPlayer))
         {
-          rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), pPlayer->GetGlobalTransform());
+          rel = WTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), pPlayer->GetGlobalTransform());
         }
       }
 
@@ -150,13 +150,13 @@ void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& re
       return;
     }
 
-    if (m_Mode == ezSceneLoadMode::Preload)
+    if (m_Mode == WSceneLoadMode::Preload)
     {
       StartPreload();
       return;
     }
 
-    if (m_Mode == ezSceneLoadMode::CancelPreload)
+    if (m_Mode == WSceneLoadMode::CancelPreload)
     {
       CancelPreload();
       return;
@@ -165,4 +165,4 @@ void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& re
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SceneTransitionComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SceneTransitionComponent);

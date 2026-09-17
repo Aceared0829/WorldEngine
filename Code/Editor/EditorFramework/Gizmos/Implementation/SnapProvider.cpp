@@ -5,15 +5,15 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Configuration/SubSystem.h>
 
-ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::MakeFromDegree(15.0f);
-float ezSnapProvider::s_fScaleSnapValue = 0.125f;
-float ezSnapProvider::s_fTranslationSnapValue = 0.25f;
-ezEventSubscriptionID ezSnapProvider::s_UserPreferencesChanged = 0;
+WAngle WSnapProvider::s_RotationSnapValue = WAngle::MakeFromDegree(15.0f);
+float WSnapProvider::s_fScaleSnapValue = 0.125f;
+float WSnapProvider::s_fTranslationSnapValue = 0.25f;
+WEventSubscriptionID WSnapProvider::s_UserPreferencesChanged = 0;
 
-ezEvent<const ezSnapProviderEvent&> ezSnapProvider::s_Events;
+WEvent<const WSnapProviderEvent&> WSnapProvider::s_Events;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, SnapProvider)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, SnapProvider)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "EditorFrameworkMain"
@@ -21,155 +21,155 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, SnapProvider)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezSnapProvider::Startup();
+    WSnapProvider::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezSnapProvider::Shutdown();
+    WSnapProvider::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezSnapProvider::Startup()
+void WSnapProvider::Startup()
 {
-  ezQtEditorApp::m_Events.AddEventHandler(ezMakeDelegate(&ezSnapProvider::EditorEventHandler));
+  WQtEditorApp::m_Events.AddEventHandler(WMakeDelegate(&WSnapProvider::EditorEventHandler));
 }
 
-void ezSnapProvider::Shutdown()
+void WSnapProvider::Shutdown()
 {
   if (s_UserPreferencesChanged)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
     pPreferences->m_ChangedEvent.RemoveEventHandler(s_UserPreferencesChanged);
   }
-  ezQtEditorApp::m_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapProvider::EditorEventHandler));
+  WQtEditorApp::m_Events.RemoveEventHandler(WMakeDelegate(&WSnapProvider::EditorEventHandler));
 }
 
-void ezSnapProvider::EditorEventHandler(const ezEditorAppEvent& e)
+void WSnapProvider::EditorEventHandler(const WEditorAppEvent& e)
 {
-  if (e.m_Type == ezEditorAppEvent::Type::EditorStarted)
+  if (e.m_Type == WEditorAppEvent::Type::EditorStarted)
   {
-    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
     PreferenceChangedEventHandler(pPreferences);
-    s_UserPreferencesChanged = pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezSnapProvider::PreferenceChangedEventHandler));
+    s_UserPreferencesChanged = pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WSnapProvider::PreferenceChangedEventHandler));
   }
 }
 
-void ezSnapProvider::PreferenceChangedEventHandler(ezPreferences* pPreferenceBase)
+void WSnapProvider::PreferenceChangedEventHandler(WPreferences* pPreferenceBase)
 {
-  auto* pPreferences = static_cast<ezEditorPreferencesUser*>(pPreferenceBase);
+  auto* pPreferences = static_cast<WEditorPreferencesUser*>(pPreferenceBase);
   SetRotationSnapValue(pPreferences->m_RotationSnapValue);
   SetScaleSnapValue(pPreferences->m_fScaleSnapValue);
   SetTranslationSnapValue(pPreferences->m_fTranslationSnapValue);
 }
 
-ezAngle ezSnapProvider::GetRotationSnapValue()
+WAngle WSnapProvider::GetRotationSnapValue()
 {
   return s_RotationSnapValue;
 }
 
-float ezSnapProvider::GetScaleSnapValue()
+float WSnapProvider::GetScaleSnapValue()
 {
   return s_fScaleSnapValue;
 }
 
-float ezSnapProvider::GetTranslationSnapValue()
+float WSnapProvider::GetTranslationSnapValue()
 {
   return s_fTranslationSnapValue;
 }
 
-void ezSnapProvider::SetRotationSnapValue(ezAngle angle)
+void WSnapProvider::SetRotationSnapValue(WAngle angle)
 {
   if (s_RotationSnapValue == angle)
     return;
 
   s_RotationSnapValue = angle;
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   pPreferences->m_RotationSnapValue = angle;
   pPreferences->TriggerPreferencesChangedEvent();
 
-  ezSnapProviderEvent e;
-  e.m_Type = ezSnapProviderEvent::Type::RotationSnapChanged;
+  WSnapProviderEvent e;
+  e.m_Type = WSnapProviderEvent::Type::RotationSnapChanged;
   s_Events.Broadcast(e);
 }
 
-void ezSnapProvider::SetScaleSnapValue(float fPercentage)
+void WSnapProvider::SetScaleSnapValue(float fPercentage)
 {
   if (s_fScaleSnapValue == fPercentage)
     return;
 
   s_fScaleSnapValue = fPercentage;
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   pPreferences->m_fScaleSnapValue = fPercentage;
   pPreferences->TriggerPreferencesChangedEvent();
 
-  ezSnapProviderEvent e;
-  e.m_Type = ezSnapProviderEvent::Type::ScaleSnapChanged;
+  WSnapProviderEvent e;
+  e.m_Type = WSnapProviderEvent::Type::ScaleSnapChanged;
   s_Events.Broadcast(e);
 }
 
-void ezSnapProvider::SetTranslationSnapValue(float fUnits)
+void WSnapProvider::SetTranslationSnapValue(float fUnits)
 {
   if (s_fTranslationSnapValue == fUnits)
     return;
 
   s_fTranslationSnapValue = fUnits;
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   pPreferences->m_fTranslationSnapValue = fUnits;
   pPreferences->TriggerPreferencesChangedEvent();
 
-  ezSnapProviderEvent e;
-  e.m_Type = ezSnapProviderEvent::Type::TranslationSnapChanged;
+  WSnapProviderEvent e;
+  e.m_Type = WSnapProviderEvent::Type::TranslationSnapChanged;
   s_Events.Broadcast(e);
 }
 
-void ezSnapProvider::SnapTranslation(ezVec3& value)
+void WSnapProvider::SnapTranslation(WVec3& value)
 {
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  value.x = ezMath::RoundToMultiple(value.x, s_fTranslationSnapValue);
-  value.y = ezMath::RoundToMultiple(value.y, s_fTranslationSnapValue);
-  value.z = ezMath::RoundToMultiple(value.z, s_fTranslationSnapValue);
+  value.x = WMath::RoundToMultiple(value.x, s_fTranslationSnapValue);
+  value.y = WMath::RoundToMultiple(value.y, s_fTranslationSnapValue);
+  value.z = WMath::RoundToMultiple(value.z, s_fTranslationSnapValue);
 }
 
-void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& qRotation, ezVec3& ref_vTranslation)
+void WSnapProvider::SnapTranslationInLocalSpace(const WQuat& qRotation, WVec3& ref_vTranslation)
 {
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  const ezQuat mInvRot = qRotation.GetInverse();
+  const WQuat mInvRot = qRotation.GetInverse();
 
-  ezVec3 vLocalTranslation = mInvRot * ref_vTranslation;
-  vLocalTranslation.x = ezMath::RoundToMultiple(vLocalTranslation.x, s_fTranslationSnapValue);
-  vLocalTranslation.y = ezMath::RoundToMultiple(vLocalTranslation.y, s_fTranslationSnapValue);
-  vLocalTranslation.z = ezMath::RoundToMultiple(vLocalTranslation.z, s_fTranslationSnapValue);
+  WVec3 vLocalTranslation = mInvRot * ref_vTranslation;
+  vLocalTranslation.x = WMath::RoundToMultiple(vLocalTranslation.x, s_fTranslationSnapValue);
+  vLocalTranslation.y = WMath::RoundToMultiple(vLocalTranslation.y, s_fTranslationSnapValue);
+  vLocalTranslation.z = WMath::RoundToMultiple(vLocalTranslation.z, s_fTranslationSnapValue);
 
   ref_vTranslation = qRotation * vLocalTranslation;
 }
 
-void ezSnapProvider::SnapRotation(ezAngle& ref_rotation)
+void WSnapProvider::SnapRotation(WAngle& ref_rotation)
 {
   if (s_RotationSnapValue.GetRadian() != 0.0f)
   {
-    ref_rotation = ezAngle::MakeFromRadian(ezMath::RoundToMultiple(ref_rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
+    ref_rotation = WAngle::MakeFromRadian(WMath::RoundToMultiple(ref_rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
   }
 }
 
-void ezSnapProvider::SnapScale(float& ref_fScale)
+void WSnapProvider::SnapScale(float& ref_fScale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
-    ref_fScale = ezMath::RoundToMultiple(ref_fScale, s_fScaleSnapValue);
+    ref_fScale = WMath::RoundToMultiple(ref_fScale, s_fScaleSnapValue);
   }
 }
 
-void ezSnapProvider::SnapScale(ezVec3& ref_vScale)
+void WSnapProvider::SnapScale(WVec3& ref_vScale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
@@ -179,9 +179,9 @@ void ezSnapProvider::SnapScale(ezVec3& ref_vScale)
   }
 }
 
-ezVec3 ezSnapProvider::GetScaleSnapped(const ezVec3& vScale)
+WVec3 WSnapProvider::GetScaleSnapped(const WVec3& vScale)
 {
-  ezVec3 res = vScale;
+  WVec3 res = vScale;
   SnapScale(res);
   return res;
 }

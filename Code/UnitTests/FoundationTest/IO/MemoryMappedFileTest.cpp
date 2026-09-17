@@ -3,78 +3,78 @@
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/OSFile.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
+#if W_ENABLED(W_SUPPORTS_MEMORY_MAPPED_FILE)
 
-EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
+W_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
 {
-  ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFile = WTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFile.MakeCleanPath();
   sOutputFile.AppendPath("IO");
   sOutputFile.AppendPath("MemoryMappedFile.dat");
 
-  const ezUInt32 uiFileSize = 1024 * 1024 * 16; // * 4
+  const WUInt32 uiFileSize = 1024 * 1024 * 16; // * 4
 
   // generate test data
   {
-    ezOSFile file;
-    if (!EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created"))
+    WOSFile file;
+    if (!W_TEST_BOOL_MSG(file.Open(sOutputFile, WFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created"))
       return;
 
-    ezDynamicArray<ezUInt32> data;
+    WDynamicArray<WUInt32> data;
     data.SetCountUninitialized(uiFileSize);
 
-    for (ezUInt32 i = 0; i < uiFileSize; ++i)
+    for (WUInt32 i = 0; i < uiFileSize; ++i)
     {
       data[i] = i;
     }
 
-    file.Write(data.GetData(), data.GetCount() * sizeof(ezUInt32)).IgnoreResult();
+    file.Write(data.GetData(), data.GetCount() * sizeof(WUInt32)).IgnoreResult();
     file.Close();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory map for writing")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Memory map for writing")
   {
-    ezMemoryMappedFile memFile;
+    WMemoryMappedFile memFile;
 
-    if (!EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed"))
+    if (!W_TEST_BOOL_MSG(memFile.Open(sOutputFile, WMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed"))
       return;
 
-    EZ_TEST_BOOL(memFile.GetWritePointer() != nullptr);
-    EZ_TEST_INT(memFile.GetFileSize(), uiFileSize * sizeof(ezUInt32));
+    W_TEST_BOOL(memFile.GetWritePointer() != nullptr);
+    W_TEST_INT(memFile.GetFileSize(), uiFileSize * sizeof(WUInt32));
 
-    ezUInt32* ptr = static_cast<ezUInt32*>(memFile.GetWritePointer());
+    WUInt32* ptr = static_cast<WUInt32*>(memFile.GetWritePointer());
 
-    for (ezUInt32 i = 0; i < uiFileSize; ++i)
+    for (WUInt32 i = 0; i < uiFileSize; ++i)
     {
-      EZ_TEST_INT(ptr[i], i);
+      W_TEST_INT(ptr[i], i);
       ptr[i] = ptr[i] + 1;
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory map for reading")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Memory map for reading")
   {
-    ezMemoryMappedFile memFile;
+    WMemoryMappedFile memFile;
 
-    if (!EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed"))
+    if (!W_TEST_BOOL_MSG(memFile.Open(sOutputFile, WMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed"))
       return;
 
-    EZ_TEST_BOOL(memFile.GetReadPointer() != nullptr);
-    EZ_TEST_INT(memFile.GetFileSize(), uiFileSize * sizeof(ezUInt32));
+    W_TEST_BOOL(memFile.GetReadPointer() != nullptr);
+    W_TEST_INT(memFile.GetFileSize(), uiFileSize * sizeof(WUInt32));
 
-    const ezUInt32* ptr = static_cast<const ezUInt32*>(memFile.GetReadPointer());
+    const WUInt32* ptr = static_cast<const WUInt32*>(memFile.GetReadPointer());
 
-    for (ezUInt32 i = 0; i < uiFileSize; ++i)
+    for (WUInt32 i = 0; i < uiFileSize; ++i)
     {
-      EZ_TEST_INT(ptr[i], i + 1);
+      W_TEST_INT(ptr[i], i + 1);
     }
 
     // try to map it a second time
-    ezMemoryMappedFile memFile2;
+    WMemoryMappedFile memFile2;
 
-    if (!EZ_TEST_BOOL_MSG(memFile2.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file twice failed"))
+    if (!W_TEST_BOOL_MSG(memFile2.Open(sOutputFile, WMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file twice failed"))
       return;
   }
 
-  ezOSFile::DeleteFile(sOutputFile).IgnoreResult();
+  WOSFile::DeleteFile(sOutputFile).IgnoreResult();
 }
 #endif

@@ -6,44 +6,44 @@
 #include <RendererCore/BakedProbes/BakedProbesVolumeComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesVolumeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WBakedProbesVolumeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    W_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new WDefaultValueAttribute(WVec3(10.0f)), new WClampValueAttribute(WVec3(0), WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezCategoryAttribute("Lighting/Baking"),
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::OrangeRed),
+    new WInDevelopmentAttribute(WInDevelopmentAttribute::Phase::Beta),
+    new WCategoryAttribute("Lighting/Baking"),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColor::OrangeRed),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezBakedProbesVolumeComponent::ezBakedProbesVolumeComponent() = default;
-ezBakedProbesVolumeComponent::~ezBakedProbesVolumeComponent() = default;
+WBakedProbesVolumeComponent::WBakedProbesVolumeComponent() = default;
+WBakedProbesVolumeComponent::~WBakedProbesVolumeComponent() = default;
 
-void ezBakedProbesVolumeComponent::OnActivated()
+void WBakedProbesVolumeComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezBakedProbesVolumeComponent::OnDeactivated()
+void WBakedProbesVolumeComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezBakedProbesVolumeComponent::SetExtents(const ezVec3& vExtents)
+void WBakedProbesVolumeComponent::SetExtents(const WVec3& vExtents)
 {
   if (m_vExtents != vExtents)
   {
@@ -56,28 +56,28 @@ void ezBakedProbesVolumeComponent::SetExtents(const ezVec3& vExtents)
   }
 }
 
-void ezBakedProbesVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WBakedProbesVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
 }
 
-void ezBakedProbesVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WBakedProbesVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
 }
 
-void ezBakedProbesVolumeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WBakedProbesVolumeComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezInvalidSpatialDataCategory);
+  ref_msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), WInvalidSpatialDataCategory);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesVolumeComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesVolumeComponent);

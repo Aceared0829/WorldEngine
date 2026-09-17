@@ -5,48 +5,48 @@
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 #include <RendererCore/Components/CameraComponent.h>
 
-class EZ_GAMECOMPONENTS_DLL ezThirdPersonViewComponentManager : public ezComponentManager<class ezThirdPersonViewComponent, ezBlockStorageType::Compact>
+class W_GAMECOMPONENTS_DLL WThirdPersonViewComponentManager : public WComponentManager<class WThirdPersonViewComponent, WBlockStorageType::Compact>
 {
 public:
-  ezThirdPersonViewComponentManager(ezWorld* pWorld);
-  ~ezThirdPersonViewComponentManager();
+  WThirdPersonViewComponentManager(WWorld* pWorld);
+  ~WThirdPersonViewComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 
-  friend class ezThirdPersonViewComponent;
+  friend class WThirdPersonViewComponent;
 };
 
 /// The third-person View component is used to place an object, typically a camera, relative to another object with clear line of sight.
 ///
 /// The component will make the owner object look at the target point and place it at a certain distance.
 /// When there are physical obstacles between the camera and the target, it moves the owner object closer.
-class EZ_GAMECOMPONENTS_DLL ezThirdPersonViewComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WThirdPersonViewComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezThirdPersonViewComponent, ezComponent, ezThirdPersonViewComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WThirdPersonViewComponent, WComponent, WThirdPersonViewComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezThirdPersonViewComponent
+  // WThirdPersonViewComponent
 
 public:
-  ezThirdPersonViewComponent();
-  ~ezThirdPersonViewComponent();
+  WThirdPersonViewComponent();
+  ~WThirdPersonViewComponent();
 
   /// Changes the object that the view should focus on.
   void SetTargetObject(const char* szTargetObject);
   const char* GetTargetObject() const;
 
   /// Makes the camera rotate up or down by the given angle within the defined boundaries.
-  void RotateUp(ezAngle angle); // [ scriptable ]
+  void RotateUp(WAngle angle); // [ scriptable ]
 
 protected:
   void Update();
@@ -54,23 +54,23 @@ protected:
 
 private:
   // properties
-  ezString m_sTargetObject;                               // [ property ]
-  ezVec3 m_vTargetOffsetHigh = ezVec3::MakeZero();        // [ property ]
-  ezVec3 m_vTargetOffsetLow = ezVec3::MakeZero();         // [ property ]
+  WString m_sTargetObject;                               // [ property ]
+  WVec3 m_vTargetOffsetHigh = WVec3::MakeZero();        // [ property ]
+  WVec3 m_vTargetOffsetLow = WVec3::MakeZero();         // [ property ]
   float m_fMinDistance = 0.25f;                           // [ property ]
   float m_fMaxDistance = 3.0f;                            // [ property ]
   float m_fMaxDistanceUp = 3.0f;                          // [ property ]
   float m_fMaxDistanceDown = 1.0f;                        // [ property ]
-  ezAngle m_MinUpRotation = ezAngle::MakeFromDegree(-70); // [ property ]
-  ezAngle m_MaxUpRotation = ezAngle::MakeFromDegree(+80); // [ property ]
-  ezUInt8 m_uiCollisionLayer = 0;                         // [ property ]
+  WAngle m_MinUpRotation = WAngle::MakeFromDegree(-70); // [ property ]
+  WAngle m_MaxUpRotation = WAngle::MakeFromDegree(+80); // [ property ]
+  WUInt8 m_uiCollisionLayer = 0;                         // [ property ]
   float m_fSweepWidth = 0.2f;                             // [ property ]
   float m_fZoomInSpeed = 10.0f;                           // [ property ]
   float m_fZoomOutSpeed = 1.0f;                           // [ property ]
 
   // runtime state
-  ezAngle m_RotateUp;
-  ezAngle m_CurUpRotation;
-  ezGameObjectHandle m_hTargetObject;
+  WAngle m_RotateUp;
+  WAngle m_CurUpRotation;
+  WGameObjectHandle m_hTargetObject;
   float m_fCurDistance = 1.0f;
 };

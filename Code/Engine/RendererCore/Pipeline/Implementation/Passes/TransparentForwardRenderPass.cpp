@@ -6,56 +6,56 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefaultAllocator<ezTransparentForwardRenderPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTransparentForwardRenderPass, 1, WRTTIDefaultAllocator<WTransparentForwardRenderPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
-    EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
-    EZ_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
+    W_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
+    W_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    W_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTransparentForwardRenderPass::ezTransparentForwardRenderPass(const char* szName)
-  : ezForwardRenderPass(szName)
+WTransparentForwardRenderPass::WTransparentForwardRenderPass(const char* szName)
+  : WForwardRenderPass(szName)
 {
 }
 
-ezTransparentForwardRenderPass::~ezTransparentForwardRenderPass()
+WTransparentForwardRenderPass::~WTransparentForwardRenderPass()
 {
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
+  WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
 }
 
-ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WTransparentForwardRenderPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  EZ_IGNORE_UNUSED(viewData);
+  W_IGNORE_UNUSED(viewData);
 
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
-    return ezStatus(ezFmt("Color: Not connected"));
+    return WStatus(WFmt("Color: Not connected"));
 
-  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepthStencil.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+    return WStatus(WFmt("DepthStencil: Not connected"));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
 
   // Create temp scene color texture
-  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
-  ezGALTextureCreationDescription sceneColorDesc;
+  const WGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
+  WGALTextureCreationDescription sceneColorDesc;
   sceneColorDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_Format);
-  sceneColorDesc.m_Type = ezGALTextureType::Texture2DArray;
+  sceneColorDesc.m_Type = WGALTextureType::Texture2DArray;
   sceneColorDesc.m_uiArraySize = colorDesc.m_uiArraySize;
   sceneColorDesc.m_uiMipLevelCount = 1;
-  ezRenderGraphTextureHandle hSceneColor = ref_graph.CreateTexture(sceneColorDesc);
+  WRenderGraphTextureHandle hSceneColor = ref_graph.CreateTexture(sceneColorDesc);
 
   // Transparent Pass1
   {
@@ -64,27 +64,27 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     auto pass = ref_graph.AddGraphicsPass("TransparentForward1");
     pass.AddColorTarget(hColor);
     pass.AddDepthStencilTarget(hDepthStencil);
-    pass.ReadTexture(hSceneColor, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hSceneColor, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     if (!hResolvedDepth.IsInvalidated())
-      pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
+      pass.ReadTexture(hResolvedDepth, {}, WGALResourceState::ShaderResource);
     if (!hSSAO.IsInvalidated())
-      pass.ReadTexture(hSSAO, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.ReadTexture(hSSAO, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     if (!hShadowMask.IsInvalidated())
-      pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.ReadTexture(hShadowMask, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
 
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMeshDecal, ref_graph, pass);
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitMeshDecal, ref_graph, pass);
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
         renderViewContext.UpdateViewport();
-        ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+        WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
         if (!hResolvedDepth.IsInvalidated())
         {
           bindGroupRenderPass.BindTexture("SceneDepth", ctx.ResolveTexture(hResolvedDepth));
         }
 
-        if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+        if (m_ShadingQuality == WForwardRenderShadingQuality::Normal)
         {
           if (!hSSAO.IsInvalidated())
           {
@@ -92,7 +92,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
           }
           else
           {
-            bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+            bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
           }
 
           if (!hShadowMask.IsInvalidated())
@@ -101,22 +101,22 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
           }
           else
           {
-            bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+            bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
           }
         }
 
-        RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMeshDecal); //
+        RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitMeshDecal); //
       });
   }
 
   // Copy current color to scene color texture
   {
     auto transferPass = ref_graph.AddTransferPass("CopySceneColor");
-    transferPass.ReadTexture(hColor, {}, ezGALResourceState::ResolveSource);
-    transferPass.WriteTexture(hSceneColor, {}, ezGALResourceState::ResolveDestination);
-    transferPass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    transferPass.ReadTexture(hColor, {}, WGALResourceState::ResolveSource);
+    transferPass.WriteTexture(hSceneColor, {}, WGALResourceState::ResolveDestination);
+    transferPass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-      ezGALTextureSubresource subresource;
+      WGALTextureSubresource subresource;
       subresource.m_uiMipLevel = 0;
       subresource.m_uiArraySlice = 0;
       ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hSceneColor), subresource, ctx.ResolveTexture(hColor), subresource); });
@@ -127,22 +127,22 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     auto pass = ref_graph.AddGraphicsPass("TransparentForward2");
     pass.AddColorTarget(hColor);
     pass.AddDepthStencilTarget(hDepthStencil);
-    pass.ReadTexture(hSceneColor, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hSceneColor, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     if (!hResolvedDepth.IsInvalidated())
-      pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
+      pass.ReadTexture(hResolvedDepth, {}, WGALResourceState::ShaderResource);
     pass.SetStereoscopic(camera.IsStereoscopic());
     DeclareRenderObjectDependencies(ref_graph, pass);
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
       renderViewContext.UpdateViewport();
       SetupPermutationVars(renderViewContext);
 
-      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
       bindGroupRenderPass.BindTexture("SceneColor", ctx.ResolveTexture(hSceneColor));
       bindGroupRenderPass.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
-      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
-      bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
+      bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
 
       if (!hResolvedDepth.IsInvalidated())
       {
@@ -152,42 +152,42 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
       RenderObjects(renderViewContext); });
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezTransparentForwardRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+void WTransparentForwardRenderPass::DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass)
 {
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitTransparent, ref_graph, ref_pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitForeground, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitTransparent, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitForeground, ref_graph, ref_pass);
 }
 
-void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
+void WTransparentForwardRenderPass::RenderObjects(const WRenderViewContext& renderViewContext)
 {
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitTransparent);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitForeground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitForeground);
 }
 
-void ezTransparentForwardRenderPass::CreateSamplerState()
+void WTransparentForwardRenderPass::CreateSamplerState()
 {
   if (m_hSceneColorSamplerState.IsInvalidated())
   {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_MinFilter = ezGALTextureFilterMode::Linear;
-    desc.m_MagFilter = ezGALTextureFilterMode::Linear;
-    desc.m_MipFilter = ezGALTextureFilterMode::Linear;
-    desc.m_AddressU = ezImageAddressMode::Clamp;
-    desc.m_AddressV = ezImageAddressMode::Mirror;
-    desc.m_AddressW = ezImageAddressMode::Mirror;
+    WGALSamplerStateCreationDescription desc;
+    desc.m_MinFilter = WGALTextureFilterMode::Linear;
+    desc.m_MagFilter = WGALTextureFilterMode::Linear;
+    desc.m_MipFilter = WGALTextureFilterMode::Linear;
+    desc.m_AddressU = WImageAddressMode::Clamp;
+    desc.m_AddressV = WImageAddressMode::Mirror;
+    desc.m_AddressW = WImageAddressMode::Mirror;
 
-    m_hSceneColorSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+    m_hSceneColorSamplerState = WGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TransparentForwardRenderPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TransparentForwardRenderPass);

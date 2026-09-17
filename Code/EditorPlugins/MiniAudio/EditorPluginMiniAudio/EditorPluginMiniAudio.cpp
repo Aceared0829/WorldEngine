@@ -10,21 +10,21 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezMiniAudioSoundAssetProperties::PropertyMetaStateEventHandler);
+  WToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WMiniAudioSoundAssetProperties::PropertyMetaStateEventHandler);
 
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("MiniAudioSoundAssetMenuBar", "AssetMenuBar");
+    WActionMapManager::RegisterActionMap("MiniAudioSoundAssetMenuBar", "AssetMenuBar");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("MiniAudioSoundAssetToolBar", "AssetToolbar");
+      WActionMapManager::RegisterActionMap("MiniAudioSoundAssetToolBar", "AssetToolbar");
     }
   }
 
@@ -32,38 +32,38 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezMiniAudioActions::RegisterActions();
-      ezMiniAudioActions::MapPluginMenuActions("AssetMenuBar");
-      ezMiniAudioActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
-      ezMiniAudioActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
-      ezMiniAudioActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");
-      ezMiniAudioActions::MapToolbarActions("EditorPluginScene_Scene2ToolBar");
+      WMiniAudioActions::RegisterActions();
+      WMiniAudioActions::MapPluginMenuActions("AssetMenuBar");
+      WMiniAudioActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
+      WMiniAudioActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
+      WMiniAudioActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");
+      WMiniAudioActions::MapToolbarActions("EditorPluginScene_Scene2ToolBar");
     }
   }
 }
 
 void OnUnloadPlugin()
 {
-  ezMiniAudioActions::UnregisterActions();
-  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMiniAudioSoundAssetProperties::PropertyMetaStateEventHandler);
+  WMiniAudioActions::UnregisterActions();
+  WToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WMiniAudioSoundAssetProperties::PropertyMetaStateEventHandler);
 }
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  if (e.m_Type == WToolsProjectEvent::Type::ProjectOpened)
   {
-    ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+    WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
     pPreferences->SyncCVars();
   }
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

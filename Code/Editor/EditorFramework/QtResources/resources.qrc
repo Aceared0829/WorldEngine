@@ -105,10 +105,10 @@
     <file>Icons/Snap4x.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezDragToPositionGizmoEditTool.svg</file>
-    <file>ezRotateGizmoEditTool.svg</file>
-    <file>ezScaleGizmoEditTool.svg</file>
-    <file>ezTranslateGizmoEditTool.svg</file>
+    <file>WDragToPositionGizmoEditTool.svg</file>
+    <file>WRotateGizmoEditTool.svg</file>
+    <file>WScaleGizmoEditTool.svg</file>
+    <file>WTranslateGizmoEditTool.svg</file>
   </qresource>
   <qresource prefix="Splash">
     <file>Splash/splash.svg</file>

@@ -2,25 +2,25 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezSoundBankAssetProperties : public ezReflectedClass
+class WSoundBankAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSoundBankAssetProperties, WReflectedClass);
 
 public:
-  ezSoundBankAssetProperties() = default;
+  WSoundBankAssetProperties() = default;
 
-  ezString m_sSoundBank;
+  WString m_sSoundBank;
 };
 
-class ezSoundBankAssetDocument : public ezSimpleAssetDocument<ezSoundBankAssetProperties>
+class WSoundBankAssetDocument : public WSimpleAssetDocument<WSoundBankAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetDocument, ezSimpleAssetDocument<ezSoundBankAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WSoundBankAssetDocument, WSimpleAssetDocument<WSoundBankAssetProperties>);
 
 public:
-  ezSoundBankAssetDocument(ezStringView sDocumentPath);
+  WSoundBankAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 };

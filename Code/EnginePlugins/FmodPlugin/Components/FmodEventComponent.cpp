@@ -15,67 +15,67 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-static_assert(sizeof(ezFmodParameterId) == sizeof(FMOD_STUDIO_PARAMETER_ID));
+static_assert(sizeof(WFmodParameterId) == sizeof(FMOD_STUDIO_PARAMETER_ID));
 
-EZ_ALWAYS_INLINE FMOD_STUDIO_PARAMETER_ID ConvertEzToFmodId(ezFmodParameterId paramId)
+W_ALWAYS_INLINE FMOD_STUDIO_PARAMETER_ID ConvertEzToFmodId(WFmodParameterId paramId)
 {
   return *reinterpret_cast<FMOD_STUDIO_PARAMETER_ID*>(&paramId);
 }
 
-EZ_ALWAYS_INLINE ezFmodParameterId ConvertFmodToEzId(FMOD_STUDIO_PARAMETER_ID paramId)
+W_ALWAYS_INLINE WFmodParameterId ConvertFmodToEzId(FMOD_STUDIO_PARAMETER_ID paramId)
 {
-  return *reinterpret_cast<ezFmodParameterId*>(&paramId);
+  return *reinterpret_cast<WFmodParameterId*>(&paramId);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodSoundFinished);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodSoundFinished, 1, ezRTTIDefaultAllocator<ezMsgFmodSoundFinished>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgFmodSoundFinished);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgFmodSoundFinished, 1, WRTTIDefaultAllocator<WMsgFmodSoundFinished>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCVarInt cvar_FmodOcclusionNumRays("FMOD.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
+WCVarInt cvar_FmodOcclusionNumRays("FMOD.Occlusion.NumRays", 2, WCVarFlags::Default, "Number of occlusion rays per component per frame");
 
-static ezVec3 s_InSpherePositions[32];
+static WVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
 
-ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WFmodEventComponentManager::WFmodEventComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
   if (!s_bInSpherePositionsInitialized)
   {
     s_bInSpherePositionsInitialized = true;
 
-    ezRandom rng;
+    WRandom rng;
     rng.Initialize(3);
-    ezRandomGauss rngGauss;
+    WRandomGauss rngGauss;
     rngGauss.Initialize(27, 0xFFFF);
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_InSpherePositions); ++i)
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_InSpherePositions); ++i)
     {
-      ezVec3& pos = s_InSpherePositions[i];
+      WVec3& pos = s_InSpherePositions[i];
       pos.x = (float)rngGauss.SignedValue();
       pos.y = (float)rngGauss.SignedValue();
       pos.z = (float)rngGauss.SignedValue();
 
-      float fRadius = ezMath::Pow((float)rng.DoubleZeroToOneExclusive(), 1.0f / 3.0f);
+      float fRadius = WMath::Pow((float)rng.DoubleZeroToOneExclusive(), 1.0f / 3.0f);
       fRadius = fRadius * 0.5f + 0.5f;
       pos.SetLength(fRadius).IgnoreResult();
     }
   }
 }
 
-void ezFmodEventComponentManager::Initialize()
+void WFmodEventComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WFmodEventComponentManager::UpdateOcclusion, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_uiAsyncPhaseBatchSize = 8;
 
@@ -83,40 +83,40 @@ void ezFmodEventComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateEvents, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WFmodEventComponentManager::UpdateEvents, this);
+    desc.m_Phase = WWorldUpdatePhase::PostTransform;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WFmodEventComponentManager::ResourceEventHandler, this));
 }
 
-void ezFmodEventComponentManager::Deinitialize()
+void WFmodEventComponentManager::Deinitialize()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WFmodEventComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }
 
-ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius)
+WUInt32 WFmodEventComponentManager::AddOcclusionState(WFmodEventComponent* pComponent, WFmodParameterId occlusionParamId, float fRadius)
 {
   auto& occlusionState = m_OcclusionStates.ExpandAndGetRef();
   occlusionState.m_pComponent = pComponent;
   occlusionState.m_OcclusionParamId = occlusionParamId;
   occlusionState.m_fRadius = fRadius;
 
-  if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
+  if (const auto pPhysicsWorldModule = GetWorld()->GetModule<WPhysicsWorldModuleInterface>())
   {
-    ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::MakeFromSeconds(1000.0));
+    WVec3 listenerPos = WFmod::GetSingleton()->GetListenerPosition();
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, WTime::MakeFromSeconds(1000.0));
   }
 
   return m_OcclusionStates.GetCount() - 1;
 }
 
-void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
+void WFmodEventComponentManager::RemoveOcclusionState(WUInt32 uiIndex)
 {
   if (uiIndex >= m_OcclusionStates.GetCount())
     return;
@@ -129,24 +129,24 @@ void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
   }
 }
 
-void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime)
+void WFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, WVec3 listenerPos, WUInt32 uiNumRays, const WPhysicsWorldModuleInterface* pPhysicsWorldModule, WTime deltaTime)
 {
-  uiNumRays = ezMath::Min(uiNumRays, 32u);
+  uiNumRays = WMath::Min(uiNumRays, 32u);
 
-  ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
-  ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
-  ezPhysicsCastResult hitResult;
+  WVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
+  WUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
+  WPhysicsCastResult hitResult;
 
-  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  for (WUInt32 i = 0; i < uiNumRays; ++i)
   {
-    ezUInt32 uiRayIndex = state.m_uiNextRayIndex;
-    ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * state.m_fRadius;
-    ezVec3 dir = targetPos - listenerPos;
+    WUInt32 uiRayIndex = state.m_uiNextRayIndex;
+    WVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * state.m_fRadius;
+    WVec3 dir = targetPos - listenerPos;
     float fDistance = dir.GetLengthAndNormalize();
 
-    ezPhysicsQueryParameters query(uiCollisionLayer);
+    WPhysicsQueryParameters query(uiCollisionLayer);
     query.m_bIgnoreInitialOverlap = true;
-    query.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+    query.m_ShapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic;
 
     bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, query);
     if (bHit)
@@ -159,23 +159,23 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     }
 
     state.m_uiNextRayIndex = (state.m_uiNextRayIndex + 1) % 32;
-    state.m_uiNumUsedRays = ezMath::Min<ezUInt8>(state.m_uiNumUsedRays + 1, 32);
+    state.m_uiNumUsedRays = WMath::Min<WUInt8>(state.m_uiNumUsedRays + 1, 32);
   }
 
-  float fNewOcclusionValue = (float)ezMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;
-  float fNormalizedDistance = ezMath::Min((centerPos - listenerPos).GetLength() / state.m_fRadius, 1.0f);
-  fNewOcclusionValue = ezMath::Max(fNewOcclusionValue - 1.0f + fNormalizedDistance, 0.0f);
-  state.m_fLastOcclusionValue = ezMath::Lerp(state.m_fLastOcclusionValue, fNewOcclusionValue, ezMath::Min(deltaTime.GetSeconds() * 8.0, 1.0));
+  float fNewOcclusionValue = (float)WMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;
+  float fNormalizedDistance = WMath::Min((centerPos - listenerPos).GetLength() / state.m_fRadius, 1.0f);
+  fNewOcclusionValue = WMath::Max(fNewOcclusionValue - 1.0f + fNormalizedDistance, 0.0f);
+  state.m_fLastOcclusionValue = WMath::Lerp(state.m_fLastOcclusionValue, fNewOcclusionValue, WMath::Min(deltaTime.GetSeconds() * 8.0, 1.0));
 }
 
-void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
+void WFmodEventComponentManager::UpdateOcclusion(const WWorldModule::UpdateContext& context)
 {
-  if (const auto pPhysicsWorldModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (const auto pPhysicsWorldModule = GetWorld()->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
+    WVec3 listenerPos = WFmod::GetSingleton()->GetListenerPosition();
+    WTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
 
-    ezUInt32 uiNumRays = ezMath::Clamp<int>(cvar_FmodOcclusionNumRays, 1, 32);
+    WUInt32 uiNumRays = WMath::Clamp<int>(cvar_FmodOcclusionNumRays, 1, 32);
 
     for (auto& occlusionState : m_OcclusionStates)
     {
@@ -184,22 +184,22 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
   }
 }
 
-void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
+void WFmodEventComponentManager::UpdateEvents(const WWorldModule::UpdateContext& context)
 {
-  constexpr ezUInt32 uiUpdatesPerSec = 20;
-  constexpr ezTime tUpdateRate = ezTime::Milliseconds(1000 / uiUpdatesPerSec);
+  constexpr WUInt32 uiUpdatesPerSec = 20;
+  constexpr WTime tUpdateRate = WTime::Milliseconds(1000 / uiUpdatesPerSec);
 
   const float fUpdateFraction = (GetWorld()->GetClock().GetTimeDiff() / tUpdateRate).AsFloatInSeconds();
 
-  const ezUInt32 uiNumComps = m_ComponentStorage.GetCount();
+  const WUInt32 uiNumComps = m_ComponentStorage.GetCount();
 
   if (m_uiFirstComponentIndex >= uiNumComps)
   {
     m_uiFirstComponentIndex = 0;
   }
 
-  const ezUInt32 uiNumUpdate = static_cast<ezUInt32>(uiNumComps * fUpdateFraction) + 1;
-  const ezUInt32 uiLastCompP1 = ezMath::Min(m_uiFirstComponentIndex + uiNumUpdate, uiNumComps);
+  const WUInt32 uiNumUpdate = static_cast<WUInt32>(uiNumComps * fUpdateFraction) + 1;
+  const WUInt32 uiLastCompP1 = WMath::Min(m_uiFirstComponentIndex + uiNumUpdate, uiNumComps);
 
   for (auto it = m_ComponentStorage.GetIterator(m_uiFirstComponentIndex, uiNumComps); it.IsValid(); ++it)
   {
@@ -215,11 +215,11 @@ void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContex
   m_uiFirstComponentIndex = uiLastCompP1;
 }
 
-void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WFmodEventComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WFmodSoundEventResource>())
   {
-    ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));
+    WFmodSoundEventResourceHandle hResource((WFmodSoundEventResource*)(e.m_pResource));
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
@@ -234,47 +234,47 @@ void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WFmodEventComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
-    EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-    EZ_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("SoundEvent", GetSoundEvent, SetSoundEvent)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
-    EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    //EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
+    W_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
+    W_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 10.0f)),
+    W_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
+    W_RESOURCE_ACCESSOR_PROPERTY("SoundEvent", GetSoundEvent, SetSoundEvent)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Fmod_Event", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
+    W_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_ENUM_MEMBER_PROPERTY("OnFinishedAction", WOnComponentFinishedAction, m_OnFinishedAction),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    //W_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
-    EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgSetFloatParameter, OnMsgSetFloatParameter),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_MESSAGESENDERS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_MESSAGESENDERS
   {
-    EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),
+    W_MESSAGE_SENDER(m_SoundFinishedEventSender),
   }
-  EZ_END_MESSAGESENDERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGESENDERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Play),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Pause),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Stop),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FadeOut),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartOneShot),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SoundCue),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetEventParameter, In, "ParamName", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(Play),
+    W_SCRIPT_FUNCTION_PROPERTY(Pause),
+    W_SCRIPT_FUNCTION_PROPERTY(Stop),
+    W_SCRIPT_FUNCTION_PROPERTY(FadeOut),
+    W_SCRIPT_FUNCTION_PROPERTY(StartOneShot),
+    W_SCRIPT_FUNCTION_PROPERTY(SoundCue),
+    W_SCRIPT_FUNCTION_PROPERTY(SetEventParameter, In, "ParamName", In, "Value"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 enum
@@ -283,7 +283,7 @@ enum
   NoGlobalPitch = 1,
 };
 
-ezFmodEventComponent::ezFmodEventComponent()
+WFmodEventComponent::WFmodEventComponent()
 {
   m_pEventDesc = nullptr;
   m_pEventInstance = nullptr;
@@ -295,9 +295,9 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_fVolume = 1.0f;
 }
 
-ezFmodEventComponent::~ezFmodEventComponent() = default;
+WFmodEventComponent::~WFmodEventComponent() = default;
 
-void ezFmodEventComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WFmodEventComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -312,10 +312,10 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   s << m_hSoundEvent;
 
-  ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
+  WOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
   s << type;
 
-  ezInt32 iTimelinePosition = -1;
+  WInt32 iTimelinePosition = -1;
 
   if (m_pEventInstance)
   {
@@ -331,10 +331,10 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << iTimelinePosition;
 }
 
-void ezFmodEventComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WFmodEventComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -355,14 +355,14 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fVolume;
   s >> m_hSoundEvent;
 
-  ezOnComponentFinishedAction::StorageType type;
+  WOnComponentFinishedAction::StorageType type;
   s >> type;
-  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum)type;
+  m_OnFinishedAction = (WOnComponentFinishedAction::Enum)type;
 
   s >> m_iTimelinePosition;
 }
 
-void ezFmodEventComponent::SetPaused(bool b)
+void WFmodEventComponent::SetPaused(bool b)
 {
   if (b == m_bPaused)
     return;
@@ -379,7 +379,7 @@ void ezFmodEventComponent::SetPaused(bool b)
   }
 }
 
-void ezFmodEventComponent::SetUseOcclusion(bool b)
+void WFmodEventComponent::SetUseOcclusion(bool b)
 {
   if (b == GetUseOcclusion())
     return;
@@ -388,27 +388,27 @@ void ezFmodEventComponent::SetUseOcclusion(bool b)
 
   if (!b)
   {
-    static_cast<ezFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
-    m_uiOcclusionStateIndex = ezInvalidIndex;
+    static_cast<WFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
+    m_uiOcclusionStateIndex = WInvalidIndex;
   }
 }
 
-void ezFmodEventComponent::SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer)
+void WFmodEventComponent::SetOcclusionCollisionLayer(WUInt8 uiCollisionLayer)
 {
   m_uiOcclusionCollisionLayer = uiCollisionLayer;
 }
 
-void ezFmodEventComponent::SetOcclusionThreshold(float fThreshold)
+void WFmodEventComponent::SetOcclusionThreshold(float fThreshold)
 {
-  m_uiOcclusionThreshold = ezMath::ColorFloatToByte(fThreshold);
+  m_uiOcclusionThreshold = WMath::ColorFloatToByte(fThreshold);
 }
 
-float ezFmodEventComponent::GetOcclusionThreshold() const
+float WFmodEventComponent::GetOcclusionThreshold() const
 {
-  return ezMath::ColorByteToFloat(m_uiOcclusionThreshold);
+  return WMath::ColorByteToFloat(m_uiOcclusionThreshold);
 }
 
-void ezFmodEventComponent::SetPitch(float f)
+void WFmodEventComponent::SetPitch(float f)
 {
   if (f == m_fPitch)
     return;
@@ -419,16 +419,16 @@ void ezFmodEventComponent::SetPitch(float f)
   {
     if (GetNoGlobalPitch())
     {
-      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch));
+      W_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch));
     }
     else
     {
-      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+      W_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
     }
   }
 }
 
-void ezFmodEventComponent::SetVolume(float f)
+void WFmodEventComponent::SetVolume(float f)
 {
   if (f == m_fVolume)
     return;
@@ -437,17 +437,17 @@ void ezFmodEventComponent::SetVolume(float f)
 
   if (m_pEventInstance != nullptr)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
+    W_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
   }
 }
 
-void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent)
+void WFmodEventComponent::SetSoundEvent(const WFmodSoundEventResourceHandle& hSoundEvent)
 {
   if (m_pEventInstance)
   {
     Stop();
 
-    EZ_FMOD_ASSERT(m_pEventInstance->release());
+    W_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
     m_iTimelinePosition = -1;
   }
@@ -455,27 +455,27 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
   m_hSoundEvent = hSoundEvent;
 }
 
-void ezFmodEventComponent::SetShowDebugInfo(bool bShow)
+void WFmodEventComponent::SetShowDebugInfo(bool bShow)
 {
   SetUserFlag(ShowDebugInfoFlag, bShow);
 }
 
-bool ezFmodEventComponent::GetShowDebugInfo() const
+bool WFmodEventComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(ShowDebugInfoFlag);
 }
 
-void ezFmodEventComponent::SetNoGlobalPitch(bool bEnable)
+void WFmodEventComponent::SetNoGlobalPitch(bool bEnable)
 {
   SetUserFlag(NoGlobalPitch, bEnable);
 }
 
-bool ezFmodEventComponent::GetNoGlobalPitch() const
+bool WFmodEventComponent::GetNoGlobalPitch() const
 {
   return GetUserFlag(NoGlobalPitch);
 }
 
-void ezFmodEventComponent::OnSimulationStarted()
+void WFmodEventComponent::OnSimulationStarted()
 {
   if (!m_bPaused)
   {
@@ -483,33 +483,33 @@ void ezFmodEventComponent::OnSimulationStarted()
   }
 }
 
-void ezFmodEventComponent::OnDeactivated()
+void WFmodEventComponent::OnDeactivated()
 {
   if (GetUseOcclusion())
   {
-    static_cast<ezFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
-    m_uiOcclusionStateIndex = ezInvalidIndex;
+    static_cast<WFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
+    m_uiOcclusionStateIndex = WInvalidIndex;
   }
 
   FadeOut();
 }
 
-void ezFmodEventComponent::Play()
+void WFmodEventComponent::Play()
 {
   if (!m_hSoundEvent.IsValid() || !IsActiveAndSimulating())
     return;
 
   if (m_pEventInstance == nullptr)
   {
-    ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WFmodSoundEventResource> pEvent(m_hSoundEvent, WResourceAcquireMode::BlockTillLoaded);
 
-    if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+    if (pEvent.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
       return;
 
     m_pEventInstance = pEvent->CreateInstance();
     if (m_pEventInstance == nullptr)
     {
-      ezLog::Error("Failed to start sound event '{}'.", m_hSoundEvent.GetResourceIdOrDescription());
+      WLog::Error("Failed to start sound event '{}'.", m_hSoundEvent.GetResourceIdOrDescription());
       return;
     }
   }
@@ -517,24 +517,24 @@ void ezFmodEventComponent::Play()
   if (m_bPaused)
   {
     m_bPaused = false;
-    EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
+    W_FMOD_ASSERT(m_pEventInstance->setPaused(false));
   }
 
   UpdateParameters(m_pEventInstance);
 
   FMOD_STUDIO_PLAYBACK_STATE state;
-  EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
+  W_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
   if (state != FMOD_STUDIO_PLAYBACK_PLAYING && state != FMOD_STUDIO_PLAYBACK_SUSTAINING)
   {
     // reset this, using the value is handled outside this function
     m_iTimelinePosition = -1;
 
-    EZ_FMOD_ASSERT(m_pEventInstance->start());
+    W_FMOD_ASSERT(m_pEventInstance->start());
   }
 }
 
-void ezFmodEventComponent::Pause()
+void WFmodEventComponent::Pause()
 {
   if (m_bPaused)
     return;
@@ -544,37 +544,37 @@ void ezFmodEventComponent::Pause()
   if (m_pEventInstance == nullptr)
     return;
 
-  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
+  W_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
 }
 
-void ezFmodEventComponent::FadeOut()
+void WFmodEventComponent::FadeOut()
 {
   if (m_pEventInstance == nullptr)
     return;
 
-  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
+  W_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
 
-  EZ_FMOD_ASSERT(m_pEventInstance->release());
+  W_FMOD_ASSERT(m_pEventInstance->release());
   m_pEventInstance = nullptr;
   m_iTimelinePosition = -1;
 }
 
-void ezFmodEventComponent::StartOneShot()
+void WFmodEventComponent::StartOneShot()
 {
   if (!m_hSoundEvent.IsValid())
     return;
 
-  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WFmodSoundEventResource> pEvent(m_hSoundEvent, WResourceAcquireMode::BlockTillLoaded);
 
-  if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+  if (pEvent.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
   {
-    ezLog::Debug("Cannot start one-shot sound event, resource is missing.");
+    WLog::Debug("Cannot start one-shot sound event, resource is missing.");
     return;
   }
 
   if (pEvent->GetDescriptor() == nullptr)
   {
-    ezLog::Debug("Cannot start one-shot sound event, descriptor is null.");
+    WLog::Debug("Cannot start one-shot sound event, descriptor is null.");
     return;
   }
 
@@ -584,7 +584,7 @@ void ezFmodEventComponent::StartOneShot()
   // do not start sounds that will not terminate
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{}' is not a one-shot event.", pEvent->GetResourceIdOrDescription());
+    WLog::Warning("WFmodEventComponent::StartOneShot: Request ignored, because sound event '{}' is not a one-shot event.", pEvent->GetResourceIdOrDescription());
     return;
   }
 
@@ -592,61 +592,61 @@ void ezFmodEventComponent::StartOneShot()
 
   if (pEventInstance == nullptr)
   {
-    ezLog::Debug("Cannot start one-shot sound event, instance could not be created.");
+    WLog::Debug("Cannot start one-shot sound event, instance could not be created.");
     return;
   }
 
   UpdateParameters(pEventInstance);
 
-  EZ_FMOD_ASSERT(pEventInstance->start());
-  EZ_FMOD_ASSERT(pEventInstance->release());
+  W_FMOD_ASSERT(pEventInstance->start());
+  W_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::Stop()
+void WFmodEventComponent::Stop()
 {
   if (m_pEventInstance == nullptr)
     return;
 
   m_iTimelinePosition = -1;
-  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
+  W_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
 }
 
-void ezFmodEventComponent::SoundCue()
+void WFmodEventComponent::SoundCue()
 {
   if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
 #if ((FMOD_VERSION & 0x0000FF00) >> 8 >= 2)
-    EZ_FMOD_ASSERT(m_pEventInstance->keyOff());
+    W_FMOD_ASSERT(m_pEventInstance->keyOff());
 #else
-    EZ_FMOD_ASSERT(m_pEventInstance->triggerCue());
+    W_FMOD_ASSERT(m_pEventInstance->triggerCue());
 #endif
   }
 }
 
-void ezFmodEventComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WFmodEventComponent::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
-  ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+  WOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-ezFmodParameterId ezFmodEventComponent::FindParameter(const char* szName) const
+WFmodParameterId WFmodEventComponent::FindParameter(const char* szName) const
 {
   if (!m_hSoundEvent.IsValid())
-    return ezFmodParameterId();
+    return WFmodParameterId();
 
-  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WFmodSoundEventResource> pEvent(m_hSoundEvent, WResourceAcquireMode::BlockTillLoaded);
 
   FMOD::Studio::EventDescription* pEventDesc = pEvent->GetDescriptor();
   if (pEventDesc == nullptr || !pEventDesc->isValid())
-    return ezFmodParameterId();
+    return WFmodParameterId();
 
   FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc;
   if (pEventDesc->getParameterDescriptionByName(szName, &paramDesc) != FMOD_OK)
-    return ezFmodParameterId();
+    return WFmodParameterId();
 
   return ConvertFmodToEzId(paramDesc.id);
 }
 
-void ezFmodEventComponent::SetParameter(ezFmodParameterId paramId, float fValue)
+void WFmodEventComponent::SetParameter(WFmodParameterId paramId, float fValue)
 {
   if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || paramId.IsInvalidated())
     return;
@@ -654,7 +654,7 @@ void ezFmodEventComponent::SetParameter(ezFmodParameterId paramId, float fValue)
   m_pEventInstance->setParameterByID(ConvertEzToFmodId(paramId), fValue);
 }
 
-float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
+float WFmodEventComponent::GetParameter(WFmodParameterId paramId) const
 {
   if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || paramId.IsInvalidated())
     return 0.0f;
@@ -665,21 +665,21 @@ float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
   return fFinalValue;
 }
 
-void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fValue)
+void WFmodEventComponent::SetEventParameter(const char* szParamName, float fValue)
 {
-  ezFmodParameterId paramId = FindParameter(szParamName);
+  WFmodParameterId paramId = FindParameter(szParamName);
   if (paramId.IsInvalidated())
     return;
 
   SetParameter(paramId, fValue);
 }
 
-void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg)
+void WFmodEventComponent::OnMsgSetFloatParameter(WMsgSetFloatParameter& ref_msg)
 {
   SetEventParameter(ref_msg.m_sParameterName, ref_msg.m_fValue);
 }
 
-void ezFmodEventComponent::Update()
+void WFmodEventComponent::Update()
 {
   FMOD_STUDIO_PLAYBACK_STATE state = FMOD_STUDIO_PLAYBACK_FORCEINT;
 
@@ -697,22 +697,22 @@ void ezFmodEventComponent::Update()
       UpdateOcclusion();
     }
 
-    EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
+    W_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
     if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
     {
       m_iTimelinePosition = -1;
 
-      ezMsgFmodSoundFinished msg;
+      WMsgFmodSoundFinished msg;
       m_SoundFinishedEventSender.SendEventMessage(msg, this, GetOwner());
 
-      ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+      WOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
     }
   }
   else if (m_iTimelinePosition >= 0 && !m_bPaused)
   {
     // Restore the event to the last playback position
-    const ezInt32 iTimelinePos = m_iTimelinePosition;
+    const WInt32 iTimelinePos = m_iTimelinePosition;
 
     Play(); // will reset m_iTimelinePosition, that's why it is copied first
 
@@ -726,7 +726,7 @@ void ezFmodEventComponent::Update()
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   if (GetShowDebugInfo())
   {
     if (m_pEventInstance)
@@ -747,12 +747,12 @@ void ezFmodEventComponent::Update()
         pDesc->getMaximumDistance(&maxDistance);
 #  endif
 
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
+        WDebugRenderer::DrawLineSphere(GetWorld(), WBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), minDistance), WColor::Blue);
+        WDebugRenderer::DrawLineSphere(GetWorld(), WBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), maxDistance), WColor::Cyan);
       }
 
       char path[128];
-      pDesc->getPath(path, EZ_ARRAY_SIZE(path), nullptr);
+      pDesc->getPath(path, W_ARRAY_SIZE(path), nullptr);
 
       const char* szStates[] = {"PLAYING", "SUSTAINING", "STOPPED", "STARTING", "STOPPING"};
 
@@ -762,35 +762,35 @@ void ezFmodEventComponent::Update()
         szCurrentState = szStates[state];
       }
 
-      ezStringBuilder sb;
+      WStringBuilder sb;
       sb.SetFormat("{}\n{}", path, szCurrentState);
 
       if (GetUseOcclusion())
       {
-        auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+        auto& occlusionState = static_cast<WFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
         sb.AppendFormat("\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 
-        ezVec3 centerPos = GetOwner()->GetGlobalPosition();
-        for (ezUInt32 uiRayIndex = 0; uiRayIndex < EZ_ARRAY_SIZE(s_InSpherePositions); ++uiRayIndex)
+        WVec3 centerPos = GetOwner()->GetGlobalPosition();
+        for (WUInt32 uiRayIndex = 0; uiRayIndex < W_ARRAY_SIZE(s_InSpherePositions); ++uiRayIndex)
         {
-          ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * occlusionState.m_fRadius;
-          ezColor color = (occlusionState.m_uiRaycastHits & (1 << uiRayIndex)) ? ezColor::Red : ezColor::Green;
-          ezDebugRenderer::DrawCross(GetWorld(), targetPos, 0.1f, color);
+          WVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * occlusionState.m_fRadius;
+          WColor color = (occlusionState.m_uiRaycastHits & (1 << uiRayIndex)) ? WColor::Red : WColor::Green;
+          WDebugRenderer::DrawCross(GetWorld(), targetPos, 0.1f, color);
         }
       }
 
-      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan);
+      WDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), WColor::Cyan);
     }
   }
 #endif
 }
 
-void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstance)
+void WFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstance)
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX();
-  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ();
+  const auto fwd = GetOwner()->GetGlobalRotation() * WVec3::MakeAxisX();
+  const auto up = GetOwner()->GetGlobalRotation() * WVec3::MakeAxisZ();
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = pos.x;
@@ -808,26 +808,26 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
 
   if (GetNoGlobalPitch())
   {
-    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch));
+    W_FMOD_ASSERT(pInstance->setPitch(m_fPitch));
   }
   else
   {
     // have to update pitch every time, in case the clock speed changes
-    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+    W_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   }
 
-  EZ_FMOD_ASSERT(pInstance->setVolume(m_fVolume));
-  EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
+  W_FMOD_ASSERT(pInstance->setVolume(m_fVolume));
+  W_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
 }
 
-void ezFmodEventComponent::UpdateOcclusion()
+void WFmodEventComponent::UpdateOcclusion()
 {
-  if (m_uiOcclusionStateIndex == ezInvalidIndex)
+  if (m_uiOcclusionStateIndex == WInvalidIndex)
   {
-    ezFmodParameterId occlusionParamId = FindParameter("Occlusion");
+    WFmodParameterId occlusionParamId = FindParameter("Occlusion");
     if (occlusionParamId.IsInvalidated())
     {
-      ezLog::Warning("'Occlusion' FMOD Event Parameter could not be found.");
+      WLog::Warning("'Occlusion' FMOD Event Parameter could not be found.");
       m_bUseOcclusion = false;
       return;
     }
@@ -851,14 +851,14 @@ void ezFmodEventComponent::UpdateOcclusion()
       }
     }
 
-    m_uiOcclusionStateIndex = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, occlusionParamId, fRadius);
+    m_uiOcclusionStateIndex = static_cast<WFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, occlusionParamId, fRadius);
   }
 
-  auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+  auto& occlusionState = static_cast<WFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
   SetParameter(occlusionState.m_OcclusionParamId, occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 }
 
-void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
+void WFmodEventComponent::InvalidateResource(bool bTryToRestore)
 {
   if (m_pEventInstance)
   {
@@ -883,4 +883,4 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
   }
 }
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);

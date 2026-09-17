@@ -9,157 +9,157 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAddObjectCommand, 1, WRTTIDefaultAllocator<WAddObjectCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Type", GetType, SetType),
-    EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
-    EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
+    W_ACCESSOR_PROPERTY("Type", GetType, SetType),
+    W_MEMBER_PROPERTY("ParentGuid", m_Parent),
+    W_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
+    W_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPasteObjectsCommand, 1, WRTTIDefaultAllocator<WPasteObjectsCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
-    EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
-    EZ_MEMBER_PROPERTY("Mime", m_sMimeType),
-    EZ_MEMBER_PROPERTY("AllowPickedPosition", m_bAllowPickedPosition),
+    W_MEMBER_PROPERTY("ParentGuid", m_Parent),
+    W_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
+    W_MEMBER_PROPERTY("Mime", m_sMimeType),
+    W_MEMBER_PROPERTY("AllowPickedPosition", m_bAllowPickedPosition),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllocator<ezInstantiatePrefabCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInstantiatePrefabCommand, 1, WRTTIDefaultAllocator<WInstantiatePrefabCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
-    EZ_MEMBER_PROPERTY("CreateFromPrefab", m_CreateFromPrefab),
-    EZ_MEMBER_PROPERTY("BaseGraph", m_sBasePrefabGraph),
-    EZ_MEMBER_PROPERTY("ObjectGraph", m_sObjectGraph),
-    EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
-    EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
-    EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("ParentGuid", m_Parent),
+    W_MEMBER_PROPERTY("CreateFromPrefab", m_CreateFromPrefab),
+    W_MEMBER_PROPERTY("BaseGraph", m_sBasePrefabGraph),
+    W_MEMBER_PROPERTY("ObjectGraph", m_sObjectGraph),
+    W_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
+    W_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
+    W_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
+    W_MEMBER_PROPERTY("Index", m_Index),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUnlinkPrefabCommand, 1, ezRTTIDefaultAllocator<ezUnlinkPrefabCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WUnlinkPrefabCommand, 1, WRTTIDefaultAllocator<WUnlinkPrefabCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Object", m_Object),
+    W_MEMBER_PROPERTY("Object", m_Object),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRemoveObjectCommand, 1, WRTTIDefaultAllocator<WRemoveObjectCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMoveObjectCommand, 1, WRTTIDefaultAllocator<WMoveObjectCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParent),
-    EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("NewParentGuid", m_NewParent),
+    W_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
+    W_MEMBER_PROPERTY("Index", m_Index),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSetObjectPropertyCommand, 1, WRTTIDefaultAllocator<WSetObjectPropertyCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("NewValue", m_NewValue),
+    W_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResizeAndSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezResizeAndSetObjectPropertyCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WResizeAndSetObjectPropertyCommand, 1, WRTTIDefaultAllocator<WResizeAndSetObjectPropertyCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("NewValue", m_NewValue),
+    W_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInsertObjectPropertyCommand, 1, WRTTIDefaultAllocator<WInsertObjectPropertyCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("NewValue", m_NewValue),
+    W_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRemoveObjectPropertyCommand, 1, WRTTIDefaultAllocator<WRemoveObjectPropertyCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("Index", m_Index),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMoveObjectPropertyCommand, 1, WRTTIDefaultAllocator<WMoveObjectPropertyCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
-    EZ_MEMBER_PROPERTY("OldIndex", m_OldIndex),
-    EZ_MEMBER_PROPERTY("NewIndex", m_NewIndex),
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    W_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    W_MEMBER_PROPERTY("OldIndex", m_OldIndex),
+    W_MEMBER_PROPERTY("NewIndex", m_NewIndex),
+    W_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezAddObjectCommand
+// WAddObjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezAddObjectCommand::ezAddObjectCommand()
+WAddObjectCommand::WAddObjectCommand()
 
   = default;
 
-ezStringView ezAddObjectCommand::GetType() const
+WStringView WAddObjectCommand::GetType() const
 {
   if (m_pType == nullptr)
     return {};
@@ -167,30 +167,30 @@ ezStringView ezAddObjectCommand::GetType() const
   return m_pType->GetTypeName();
 }
 
-void ezAddObjectCommand::SetType(ezStringView sType)
+void WAddObjectCommand::SetType(WStringView sType)
 {
-  m_pType = ezRTTI::FindTypeByName(sType);
+  m_pType = WRTTI::FindTypeByName(sType);
 }
 
-ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
+WStatus WAddObjectCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
     if (!m_NewObjectGuid.IsValid())
-      m_NewObjectGuid = ezUuid::MakeUuid();
+      m_NewObjectGuid = WUuid::MakeUuid();
   }
 
-  ezDocumentObject* pParent = nullptr;
+  WDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus("Add Object: The given parent does not exist!");
+      return WStatus("Add Object: The given parent does not exist!");
   }
 
-  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index));
+  W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index));
 
   if (!bRedo)
   {
@@ -198,21 +198,21 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
   }
 
   pDocument->GetObjectManager()->AddObject(m_pObject, pParent, m_sParentProperty, m_Index);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezAddObjectCommand::UndoInternal(bool bFireEvents)
+WStatus WAddObjectCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocument* pDocument = GetDocument();
-  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
+  WDocument* pDocument = GetDocument();
+  W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
 
   pDocument->GetObjectManager()->RemoveObject(m_pObject);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezAddObjectCommand::CleanupInternal(CommandState state)
+void WAddObjectCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -223,39 +223,39 @@ void ezAddObjectCommand::CleanupInternal(CommandState state)
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezPasteObjectsCommand
+// WPasteObjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezPasteObjectsCommand::ezPasteObjectsCommand() = default;
+WPasteObjectsCommand::WPasteObjectsCommand() = default;
 
-ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
+WStatus WPasteObjectsCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
-  ezDocumentObject* pParent = nullptr;
+  WDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus("Paste Objects: The given parent does not exist!");
+      return WStatus("Paste Objects: The given parent does not exist!");
   }
 
   if (!bRedo)
   {
-    ezAbstractObjectGraph graph;
+    WAbstractObjectGraph graph;
 
     {
       // Deserialize
-      ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-      EZ_SUCCEED_OR_RETURN(ezAbstractGraphDdlSerializer::Read(memoryReader, &graph));
+      WRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
+      W_SUCCEED_OR_RETURN(WAbstractGraphDdlSerializer::Read(memoryReader, &graph));
     }
 
     // Remap
-    graph.ReMapNodeGuids(ezUuid::MakeUuid());
+    graph.ReMapNodeGuids(WUuid::MakeUuid());
 
-    ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+    WDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezTempHybridArray<ezAbstractObjectNode*, 16> RootNodes;
+    WTempHybridArray<WAbstractObjectNode*, 16> RootNodes;
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
@@ -266,18 +266,18 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       }
     }
 
-    RootNodes.Sort([](const ezAbstractObjectNode* a, const ezAbstractObjectNode* b)
+    RootNodes.Sort([](const WAbstractObjectNode* a, const WAbstractObjectNode* b)
       {
       auto* pOrderA = a->FindProperty("__Order");
       auto* pOrderB = b->FindProperty("__Order");
-      if (pOrderA && pOrderB && pOrderA->m_Value.CanConvertTo<ezUInt32>() && pOrderB->m_Value.CanConvertTo<ezUInt32>())
+      if (pOrderA && pOrderB && pOrderA->m_Value.CanConvertTo<WUInt32>() && pOrderB->m_Value.CanConvertTo<WUInt32>())
       {
-        return pOrderA->m_Value.ConvertTo<ezUInt32>() < pOrderB->m_Value.ConvertTo<ezUInt32>();
+        return pOrderA->m_Value.ConvertTo<WUInt32>() < pOrderB->m_Value.ConvertTo<WUInt32>();
       }
       return a < b; });
 
-    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-    for (ezAbstractObjectNode* pNode : RootNodes)
+    WTempHybridArray<WDocument::PasteInfo, 16> ToBePasted;
+    for (WAbstractObjectNode* pNode : RootNodes)
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode);
 
@@ -311,7 +311,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     }
 
     if (m_PastedObjects.IsEmpty())
-      return ezStatus("Paste Objects: nothing was pasted!");
+      return WStatus("Paste Objects: nothing was pasted!");
   }
   else
   {
@@ -321,25 +321,25 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       pDocument->GetObjectManager()->AddObject(po.m_pObject, po.m_pParent, po.m_sParentProperty, po.m_Index);
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPasteObjectsCommand::UndoInternal(bool bFireEvents)
+WStatus WPasteObjectsCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
-  ezDocument* pDocument = GetDocument();
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  WDocument* pDocument = GetDocument();
 
   for (auto& po : m_PastedObjects)
   {
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezPasteObjectsCommand::CleanupInternal(CommandState state)
+void WPasteObjectsCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -352,39 +352,39 @@ void ezPasteObjectsCommand::CleanupInternal(CommandState state)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezInstantiatePrefabCommand
+// WInstantiatePrefabCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
+WInstantiatePrefabCommand::WInstantiatePrefabCommand()
 {
   m_bAllowPickedPosition = true;
 }
 
-ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
+WStatus WInstantiatePrefabCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
-  ezDocumentObject* pParent = nullptr;
+  WDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus("Instantiate Prefab: The given parent does not exist!");
+      return WStatus("Instantiate Prefab: The given parent does not exist!");
   }
 
   if (!bRedo)
   {
     // TODO: this is hard-coded, it only works for scene documents !
-    const ezRTTI* pRootObjectType = ezRTTI::FindTypeByName("ezGameObject");
-    ezStringView sParentProperty = "Children"_ezsv;
+    const WRTTI* pRootObjectType = WRTTI::FindTypeByName("WGameObject");
+    WStringView sParentProperty = "Children"_wsv;
 
-    ezDocumentObject* pRootObject = nullptr;
-    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-    ezAbstractObjectGraph graph;
+    WDocumentObject* pRootObject = nullptr;
+    WTempHybridArray<WDocument::PasteInfo, 16> ToBePasted;
+    WAbstractObjectGraph graph;
 
     // create root object
     {
-      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, sParentProperty, m_Index));
+      W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, sParentProperty, m_Index));
 
       // use the same GUID for the root object ID as the remap GUID, this way the object ID is deterministic and reproducible
       m_CreatedRootObject = m_RemapGuid;
@@ -407,7 +407,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
         pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
         pMeta->m_PrefabSeedGuid = m_RemapGuid;
         pMeta->m_sBasePrefab = m_sBasePrefabGraph;
-        pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+        pDocument->m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::PrefabFlag);
       }
       else
       {
@@ -415,7 +415,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition, "application/ezEditor.ezAbstractGraph"))
+    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition, "application/WEditor.WAbstractGraph"))
     {
       for (const auto& item : ToBePasted)
       {
@@ -437,22 +437,22 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     }
 
     if (m_PastedObjects.IsEmpty())
-      return ezStatus("Paste Objects: nothing was pasted!");
+      return WStatus("Paste Objects: nothing was pasted!");
 
     if (!m_sObjectGraph.IsEmpty())
-      ezPrefabUtils::LoadGraph(graph, m_sObjectGraph);
+      WPrefabUtils::LoadGraph(graph, m_sObjectGraph);
     else
-      ezPrefabUtils::LoadGraph(graph, m_sBasePrefabGraph);
+      WPrefabUtils::LoadGraph(graph, m_sBasePrefabGraph);
 
     graph.ReMapNodeGuids(m_RemapGuid);
 
     // a prefab can have multiple top level nodes
-    ezTempHybridArray<ezAbstractObjectNode*, 4> rootNodes;
-    ezPrefabUtils::GetRootNodes(graph, rootNodes);
+    WTempHybridArray<WAbstractObjectNode*, 4> rootNodes;
+    WPrefabUtils::GetRootNodes(graph, rootNodes);
 
     for (auto* pPrefabRoot : rootNodes)
     {
-      ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+      WDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateOnly);
 
       if (auto* pNewObject = reader.CreateObjectFromNode(pPrefabRoot))
       {
@@ -472,25 +472,25 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
+WStatus WInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
-  ezDocument* pDocument = GetDocument();
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  WDocument* pDocument = GetDocument();
 
   for (auto& po : m_PastedObjects)
   {
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezInstantiatePrefabCommand::CleanupInternal(CommandState state)
+void WInstantiatePrefabCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -504,16 +504,16 @@ void ezInstantiatePrefabCommand::CleanupInternal(CommandState state)
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezUnlinkPrefabCommand
+// WUnlinkPrefabCommand
 //////////////////////////////////////////////////////////////////////////
 
-ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
+WStatus WUnlinkPrefabCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
-  ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+  WDocument* pDocument = GetDocument();
+  WDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
 
   if (pObject == nullptr)
-    return ezStatus("Unlink Prefab: The given object does not exist!");
+    return WStatus("Unlink Prefab: The given object does not exist!");
 
   // store previous values
   if (!bRedo)
@@ -528,22 +528,22 @@ ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
   // unlink
   {
     auto pMeta = pDocument->m_DocumentObjectMetaData->BeginModifyMetaData(m_Object);
-    pMeta->m_CreateFromPrefab = ezUuid();
-    pMeta->m_PrefabSeedGuid = ezUuid();
+    pMeta->m_CreateFromPrefab = WUuid();
+    pMeta->m_PrefabSeedGuid = WUuid();
     pMeta->m_sBasePrefab.Clear();
-    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::PrefabFlag);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
+WStatus WUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 {
-  ezDocument* pDocument = GetDocument();
-  ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+  WDocument* pDocument = GetDocument();
+  WDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
 
   if (pObject == nullptr)
-    return ezStatus("Unlink Prefab: The given object does not exist!");
+    return WStatus("Unlink Prefab: The given object does not exist!");
 
   // restore link
   {
@@ -551,24 +551,24 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
     pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
     pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
     pMeta->m_sBasePrefab = m_sOldGraphTextFormat;
-    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    pDocument->m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::PrefabFlag);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezRemoveObjectCommand
+// WRemoveObjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezRemoveObjectCommand::ezRemoveObjectCommand()
+WRemoveObjectCommand::WRemoveObjectCommand()
 
   = default;
 
-ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
+WStatus WRemoveObjectCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -576,35 +576,35 @@ ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Remove Object: The given object does not exist!");
+        return WStatus("Remove Object: The given object does not exist!");
     }
     else
-      return ezStatus("Remove Object: The given object does not exist!");
+      return WStatus("Remove Object: The given object does not exist!");
 
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
 
-    m_pParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
+    m_pParent = const_cast<WDocumentObject*>(m_pObject->GetParent());
     m_sParentProperty = m_pObject->GetParentProperty();
-    const ezIReflectedTypeAccessor& accessor = m_pObject->GetParent()->GetTypeAccessor();
+    const WIReflectedTypeAccessor& accessor = m_pObject->GetParent()->GetTypeAccessor();
     m_Index = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
   }
 
   pDocument->GetObjectManager()->RemoveObject(m_pObject);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
+WStatus WRemoveObjectCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocument* pDocument = GetDocument();
-  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
+  WDocument* pDocument = GetDocument();
+  W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
 
   pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_sParentProperty, m_Index);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezRemoveObjectCommand::CleanupInternal(CommandState state)
+void WRemoveObjectCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasDone)
   {
@@ -615,63 +615,63 @@ void ezRemoveObjectCommand::CleanupInternal(CommandState state)
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezMoveObjectCommand
+// WMoveObjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezMoveObjectCommand::ezMoveObjectCommand()
+WMoveObjectCommand::WMoveObjectCommand()
 {
   m_pObject = nullptr;
   m_pOldParent = nullptr;
   m_pNewParent = nullptr;
 }
 
-ezStatus ezMoveObjectCommand::DoInternal(bool bRedo)
+WStatus WMoveObjectCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Move Object: The given object does not exist!");
+        return WStatus("Move Object: The given object does not exist!");
     }
 
     if (m_NewParent.IsValid())
     {
       m_pNewParent = pDocument->GetObjectManager()->GetObject(m_NewParent);
       if (m_pNewParent == nullptr)
-        return ezStatus("Move Object: The new parent does not exist!");
+        return WStatus("Move Object: The new parent does not exist!");
     }
 
-    m_pOldParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
+    m_pOldParent = const_cast<WDocumentObject*>(m_pObject->GetParent());
     m_sOldParentProperty = m_pObject->GetParentProperty();
-    const ezIReflectedTypeAccessor& accessor = m_pOldParent->GetTypeAccessor();
+    const WIReflectedTypeAccessor& accessor = m_pOldParent->GetTypeAccessor();
     m_OldIndex = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
 
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index));
   }
 
   pDocument->GetObjectManager()->MoveObject(m_pObject, m_pNewParent, m_sParentProperty, m_Index);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
+WStatus WMoveObjectCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
-  ezVariant FinalOldPosition = m_OldIndex;
+  WVariant FinalOldPosition = m_OldIndex;
 
-  if (m_Index.CanConvertTo<ezInt32>() && m_pOldParent == m_pNewParent)
+  if (m_Index.CanConvertTo<WInt32>() && m_pOldParent == m_pNewParent)
   {
     // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same
     // position) so an object must always be moved by at least +2 moving UP can be done by -1, so when we undo that, we must ensure to move
     // +2
 
-    ezInt32 iNew = m_Index.ConvertTo<ezInt32>();
-    ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
+    WInt32 iNew = m_Index.ConvertTo<WInt32>();
+    WInt32 iOld = m_OldIndex.ConvertTo<WInt32>();
 
     if (iNew < iOld)
     {
@@ -679,65 +679,65 @@ ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition));
+  W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition));
 
   pDocument->GetObjectManager()->MoveObject(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezSetObjectPropertyCommand
+// WSetObjectPropertyCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
+WSetObjectPropertyCommand::WSetObjectPropertyCommand()
 {
   m_pObject = nullptr;
 }
 
-ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
+WStatus WSetObjectPropertyCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
     // if this assert triggers because of a stringview, check the caller and make sure to copy the stringview into a string first
     // something like this:
-    // const ezVariantType::Enum storageType = ezToolsReflectionUtils::GetStorageType(pProp);
+    // const WVariantType::Enum storageType = WToolsReflectionUtils::GetStorageType(pProp);
     // if (op.m_Value.GetType() != storageType)
     //{
     //  op.m_Value = op.m_Value.ConvertTo(storageType);
     //}
-    EZ_ASSERT_DEBUG(m_NewValue.GetType() != ezVariantType::StringView && m_NewValue.GetType() != ezVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
+    W_ASSERT_DEBUG(m_NewValue.GetType() != WVariantType::StringView && m_NewValue.GetType() != WVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
 
     if (m_Object.IsValid())
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Set Property: The given object does not exist!");
+        return WStatus("Set Property: The given object does not exist!");
     }
     else
-      return ezStatus("Set Property: The given object does not exist!");
+      return WStatus("Set Property: The given object does not exist!");
 
-    ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    ezStatus res(EZ_SUCCESS);
+    WStatus res(W_SUCCESS);
     m_OldValue = accessor0.GetValue(m_sProperty, m_Index, &res);
 
     if (res.Failed())
       return res;
 
-    const ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
+    const WAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr)
-      return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
+      return WStatus(WFmt("Set Property: The property '{0}' does not exist", m_sProperty));
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
     {
-      return ezStatus(ezFmt("Set Property: The property '{0}' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty));
+      return WStatus(WFmt("Set Property: The property '{0}' is a PointerOwner, use WAddObjectCommand instead", m_sProperty));
     }
 
-    if (pProp->GetAttributeByType<ezTemporaryAttribute>())
+    if (pProp->GetAttributeByType<WTemporaryAttribute>())
     {
       // if we modify a 'temporary' property, ie. one that is not serialized,
       // don't mark the document as modified
@@ -748,7 +748,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
   return pDocument->GetObjectManager()->SetValue(m_pObject, m_sProperty, m_NewValue, m_Index);
 }
 
-ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
+WStatus WSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   if (bFireEvents)
   {
@@ -756,27 +756,27 @@ ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
   }
   else
   {
-    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.SetValue(m_sProperty, m_OldValue, m_Index))
     {
-      return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
+      return WStatus(WFmt("Set Property: The property '{0}' does not exist", m_sProperty));
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezSetObjectPropertyCommand
+// WSetObjectPropertyCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezResizeAndSetObjectPropertyCommand::ezResizeAndSetObjectPropertyCommand()
+WResizeAndSetObjectPropertyCommand::WResizeAndSetObjectPropertyCommand()
 {
   m_pObject = nullptr;
 }
 
-ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
+WStatus WResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -784,29 +784,29 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Set Property: The given object does not exist!");
+        return WStatus("Set Property: The given object does not exist!");
     }
     else
-      return ezStatus("Set Property: The given object does not exist!");
+      return WStatus("Set Property: The given object does not exist!");
 
-    const ezInt32 uiIndex = m_Index.ConvertTo<ezInt32>();
+    const WInt32 uiIndex = m_Index.ConvertTo<WInt32>();
 
-    ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    const ezInt32 iCount = accessor0.GetCount(m_sProperty);
+    const WInt32 iCount = accessor0.GetCount(m_sProperty);
 
-    for (ezInt32 i = iCount; i <= uiIndex; ++i)
+    for (WInt32 i = iCount; i <= uiIndex; ++i)
     {
-      ezInsertObjectPropertyCommand ins;
+      WInsertObjectPropertyCommand ins;
       ins.m_Object = m_Object;
       ins.m_sProperty = m_sProperty;
       ins.m_Index = i;
-      ins.m_NewValue = ezReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
+      ins.m_NewValue = WReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
 
       AddSubCommand(ins).AssertSuccess();
     }
 
-    ezSetObjectPropertyCommand set;
+    WSetObjectPropertyCommand set;
     set.m_sProperty = m_sProperty;
     set.m_Index = m_Index;
     set.m_NewValue = m_NewValue;
@@ -815,21 +815,21 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
     AddSubCommand(set).AssertSuccess();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezInsertObjectPropertyCommand
+// WInsertObjectPropertyCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezInsertObjectPropertyCommand::ezInsertObjectPropertyCommand()
+WInsertObjectPropertyCommand::WInsertObjectPropertyCommand()
 {
   m_pObject = nullptr;
 }
 
-ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
+WStatus WInsertObjectPropertyCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -837,14 +837,14 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Insert Property: The given object does not exist!");
+        return WStatus("Insert Property: The given object does not exist!");
     }
     else
-      return ezStatus("Insert Property: The given object does not exist!");
+      return WStatus("Insert Property: The given object does not exist!");
 
-    if (m_Index.CanConvertTo<ezInt32>() && m_Index.ConvertTo<ezInt32>() == -1)
+    if (m_Index.CanConvertTo<WInt32>() && m_Index.ConvertTo<WInt32>() == -1)
     {
-      ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+      WIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
       m_Index = accessor.GetCount(m_sProperty.GetData());
     }
   }
@@ -852,7 +852,7 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
   return pDocument->GetObjectManager()->InsertValue(m_pObject, m_sProperty, m_NewValue, m_Index);
 }
 
-ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
+WStatus WInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   if (bFireEvents)
   {
@@ -860,29 +860,29 @@ ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
   }
   else
   {
-    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.RemoveValue(m_sProperty, m_Index))
     {
-      return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty));
+      return WStatus(WFmt("Insert Property: The property '{0}' does not exist", m_sProperty));
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezRemoveObjectPropertyCommand
+// WRemoveObjectPropertyCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezRemoveObjectPropertyCommand::ezRemoveObjectPropertyCommand()
+WRemoveObjectPropertyCommand::WRemoveObjectPropertyCommand()
 {
   m_pObject = nullptr;
 }
 
-ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
+WStatus WRemoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -890,9 +890,9 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus("Remove Property: The given object does not exist!");
+        return WStatus("Remove Property: The given object does not exist!");
 
-      ezStatus res(EZ_SUCCESS);
+      WStatus res(W_SUCCESS);
 
       m_OldValue = m_pObject->GetTypeAccessor().GetValue(m_sProperty, m_Index, &res);
       if (res.Failed())
@@ -900,14 +900,14 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
     }
     else
     {
-      return ezStatus("Remove Property: The given object does not exist!");
+      return WStatus("Remove Property: The given object does not exist!");
     }
   }
 
   return pDocument->GetObjectManager()->RemoveValue(m_pObject, m_sProperty, m_Index);
 }
 
-ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
+WStatus WRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   if (bFireEvents)
   {
@@ -915,54 +915,54 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
   }
   else
   {
-    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
     {
-      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
+      return WStatus(WFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<WString>(), m_sProperty));
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezMoveObjectPropertyCommand
+// WMoveObjectPropertyCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezMoveObjectPropertyCommand::ezMoveObjectPropertyCommand()
+WMoveObjectPropertyCommand::WMoveObjectPropertyCommand()
 {
   m_pObject = nullptr;
 }
 
-ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
+WStatus WMoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
+  WDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
     m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
     if (m_pObject == nullptr)
-      return ezStatus("Move Property: The given object does not exist.");
+      return WStatus("Move Property: The given object does not exist.");
   }
 
   return GetDocument()->GetObjectManager()->MoveValue(m_pObject, m_sProperty, m_OldIndex, m_NewIndex);
 }
 
-ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
+WStatus WMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
-  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  W_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezVariant FinalOldPosition = m_OldIndex;
-  ezVariant FinalNewPosition = m_NewIndex;
+  WVariant FinalOldPosition = m_OldIndex;
+  WVariant FinalNewPosition = m_NewIndex;
 
-  if (m_OldIndex.CanConvertTo<ezInt32>())
+  if (m_OldIndex.CanConvertTo<WInt32>())
   {
     // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same
     // position) so an object must always be moved by at least +2 moving UP can be done by -1, so when we undo that, we must ensure to move
     // +2
 
-    ezInt32 iNew = m_NewIndex.ConvertTo<ezInt32>();
-    ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
+    WInt32 iNew = m_NewIndex.ConvertTo<WInt32>();
+    WInt32 iOld = m_OldIndex.ConvertTo<WInt32>();
 
     if (iNew < iOld)
     {

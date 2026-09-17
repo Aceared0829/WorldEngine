@@ -5,62 +5,62 @@
 /// This class uses delegates to define a range of values that can be enumerated using a forward iterator.
 ///
 /// Can be used to create a contiguous view to elements of a certain type without the need for them to actually
-/// exist in the same space or format. Think of IEnumerable in c# using composition via ezDelegate instead of derivation.
+/// exist in the same space or format. Think of IEnumerable in c# using composition via WDelegate instead of derivation.
 /// ValueType defines the value type we are iterating over and IteratorType is the internal key to identify an element.
 /// An example that creates a RangeView of strings that are stored in a linear array of structs.
 /// \code{.cpp}
-/// auto range = ezRangeView<const char*, ezUInt32>(
-///   [this]()-> ezUInt32 { return 0; },
-///   [this]()-> ezUInt32 { return array.GetCount(); },
-///   [this](ezUInt32& it) { ++it; },
-///   [this](const ezUInt32& it)-> const char* { return array[it].m_String; });
+/// auto range = WRangeView<const char*, WUInt32>(
+///   [this]()-> WUInt32 { return 0; },
+///   [this]()-> WUInt32 { return array.GetCount(); },
+///   [this](WUInt32& it) { ++it; },
+///   [this](const WUInt32& it)-> const char* { return array[it].m_String; });
 ///
 /// for (const char* szValue : range)
 /// {
 /// }
 /// \endcode
 template <typename ValueType, typename IteratorType>
-class ezRangeView
+class WRangeView
 {
 public:
-  using BeginCallback = ezDelegate<IteratorType()>;
-  using EndCallback = ezDelegate<IteratorType()>;
-  using NextCallback = ezDelegate<void(IteratorType&)>;
-  using ValueCallback = ezDelegate<ValueType(const IteratorType&)>;
+  using BeginCallback = WDelegate<IteratorType()>;
+  using EndCallback = WDelegate<IteratorType()>;
+  using NextCallback = WDelegate<void(IteratorType&)>;
+  using ValueCallback = WDelegate<ValueType(const IteratorType&)>;
 
-  /// Initializes the ezRangeView with the delegates used to enumerate the range.
-  EZ_ALWAYS_INLINE ezRangeView(BeginCallback begin, EndCallback end, NextCallback next, ValueCallback value);
+  /// Initializes the WRangeView with the delegates used to enumerate the range.
+  W_ALWAYS_INLINE WRangeView(BeginCallback begin, EndCallback end, NextCallback next, ValueCallback value);
 
   /// Const iterator, don't use directly, use ranged based for loops or call begin() end().
   struct ConstIterator
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     using iterator_category = std::forward_iterator_tag;
     using value_type = ConstIterator;
     using pointer = ConstIterator*;
     using reference = ConstIterator&;
 
-    EZ_ALWAYS_INLINE ConstIterator(const ConstIterator& rhs) = default;
-    EZ_FORCE_INLINE void Next();
-    EZ_FORCE_INLINE ValueType Value() const;
-    EZ_ALWAYS_INLINE ValueType operator*() const { return Value(); }
-    EZ_ALWAYS_INLINE void operator++() { Next(); }
-    EZ_FORCE_INLINE bool operator==(const typename ezRangeView<ValueType, IteratorType>::ConstIterator& it2) const;
-    EZ_FORCE_INLINE bool operator!=(const typename ezRangeView<ValueType, IteratorType>::ConstIterator& it2) const;
+    W_ALWAYS_INLINE ConstIterator(const ConstIterator& rhs) = default;
+    W_FORCE_INLINE void Next();
+    W_FORCE_INLINE ValueType Value() const;
+    W_ALWAYS_INLINE ValueType operator*() const { return Value(); }
+    W_ALWAYS_INLINE void operator++() { Next(); }
+    W_FORCE_INLINE bool operator==(const typename WRangeView<ValueType, IteratorType>::ConstIterator& it2) const;
+    W_FORCE_INLINE bool operator!=(const typename WRangeView<ValueType, IteratorType>::ConstIterator& it2) const;
 
   protected:
-    EZ_FORCE_INLINE explicit ConstIterator(const ezRangeView<ValueType, IteratorType>* view, IteratorType pos);
+    W_FORCE_INLINE explicit ConstIterator(const WRangeView<ValueType, IteratorType>* view, IteratorType pos);
 
-    friend class ezRangeView<ValueType, IteratorType>;
-    const ezRangeView<ValueType, IteratorType>* m_pView = nullptr;
+    friend class WRangeView<ValueType, IteratorType>;
+    const WRangeView<ValueType, IteratorType>* m_pView = nullptr;
     IteratorType m_Pos;
   };
 
   /// Iterator, don't use directly, use ranged based for loops or call begin() end().
   struct Iterator : public ConstIterator
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     using iterator_category = std::forward_iterator_tag;
     using value_type = Iterator;
@@ -68,12 +68,12 @@ public:
     using reference = Iterator&;
 
     using ConstIterator::Value;
-    EZ_ALWAYS_INLINE Iterator(const Iterator& rhs) = default;
-    EZ_FORCE_INLINE ValueType Value();
-    EZ_ALWAYS_INLINE ValueType operator*() { return Value(); }
+    W_ALWAYS_INLINE Iterator(const Iterator& rhs) = default;
+    W_FORCE_INLINE ValueType Value();
+    W_ALWAYS_INLINE ValueType operator*() { return Value(); }
 
   protected:
-    EZ_FORCE_INLINE explicit Iterator(const ezRangeView<ValueType, IteratorType>* view, IteratorType pos);
+    W_FORCE_INLINE explicit Iterator(const WRangeView<ValueType, IteratorType>* view, IteratorType pos);
   };
 
   Iterator begin() { return Iterator(this, m_Begin()); }
@@ -94,37 +94,37 @@ private:
 };
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator begin(ezRangeView<V, I>& in_container)
+typename WRangeView<V, I>::Iterator begin(WRangeView<V, I>& in_container)
 {
   return in_container.begin();
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator begin(const ezRangeView<V, I>& container)
+typename WRangeView<V, I>::ConstIterator begin(const WRangeView<V, I>& container)
 {
   return container.cbegin();
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator cbegin(const ezRangeView<V, I>& container)
+typename WRangeView<V, I>::ConstIterator cbegin(const WRangeView<V, I>& container)
 {
   return container.cbegin();
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator end(ezRangeView<V, I>& in_container)
+typename WRangeView<V, I>::Iterator end(WRangeView<V, I>& in_container)
 {
   return in_container.end();
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator end(const ezRangeView<V, I>& container)
+typename WRangeView<V, I>::ConstIterator end(const WRangeView<V, I>& container)
 {
   return container.cend();
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator cend(const ezRangeView<V, I>& container)
+typename WRangeView<V, I>::ConstIterator cend(const WRangeView<V, I>& container)
 {
   return container.cend();
 }

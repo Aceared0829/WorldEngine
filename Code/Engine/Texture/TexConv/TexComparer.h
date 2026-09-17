@@ -4,77 +4,77 @@
 #include <Texture/Image/Image.h>
 #include <Texture/TextureDLL.h>
 
-/// Input options for ezTexComparer
-class EZ_TEXTURE_DLL ezTexCompareDesc
+/// Input options for WTexComparer
+class W_TEXTURE_DLL WTexCompareDesc
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexCompareDesc);
+  W_DISALLOW_COPY_AND_ASSIGN(WTexCompareDesc);
 
 public:
-  ezTexCompareDesc() = default;
+  WTexCompareDesc() = default;
 
   /// Path to a file to load as a reference image. Optional, if m_ExpectedImage is already filled out.
-  ezString m_sExpectedFile;
+  WString m_sExpectedFile;
 
   /// Path to a file to load as the input image. Optional, if m_ActualImage is already filled out.
-  ezString m_sActualFile;
+  WString m_sActualFile;
 
   /// The reference image to compare. Ignored if m_sExpectedFile is filled out.
-  ezImage m_ExpectedImage;
+  WImage m_ExpectedImage;
 
   /// The image to compare. Ignored if m_sActualFile is filled out.
-  ezImage m_ActualImage;
+  WImage m_ActualImage;
 
   /// If enabled, the image comparison allows for more wiggle room.
   /// For images containing single-pixel rasterized lines.
   bool m_bRelaxedComparison = false;
 
   /// If the comparison yields a larger MSE than this, the images are considered to be too different.
-  ezUInt32 m_MeanSquareErrorThreshold = 100;
+  WUInt32 m_MeanSquareErrorThreshold = 100;
 };
 
 /// Compares two images and generates various outputs.
-class EZ_TEXTURE_DLL ezTexComparer
+class W_TEXTURE_DLL WTexComparer
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexComparer);
+  W_DISALLOW_COPY_AND_ASSIGN(WTexComparer);
 
 public:
-  ezTexComparer();
+  WTexComparer();
 
   /// The input data to compare.
-  ezTexCompareDesc m_Descriptor;
+  WTexCompareDesc m_Descriptor;
 
   /// Executes the comparison and fill out the public variables to describe the result.
-  ezResult Compare();
+  WResult Compare();
 
   /// If true, the mean-square error of the difference was larger than the threshold.
   bool m_bExceededMSE = false;
   /// The MSE of the difference image.
-  ezUInt32 m_OutputMSE = 0;
+  WUInt32 m_OutputMSE = 0;
 
   /// The (normalized) difference image.
-  ezImage m_OutputImageDiff;
+  WImage m_OutputImageDiff;
   /// Only the RGB part of the (normalized) difference image.
-  ezImage m_OutputImageDiffRgb;
+  WImage m_OutputImageDiffRgb;
   /// Only the Alpha part of the (normalized) difference image.
-  ezImage m_OutputImageDiffAlpha;
+  WImage m_OutputImageDiffAlpha;
 
   /// Only the RGB part of the actual input image.
-  ezImage m_ExtractedActualRgb;
+  WImage m_ExtractedActualRgb;
   /// Only the RGB part of the reference input image.
-  ezImage m_ExtractedExpectedRgb;
+  WImage m_ExtractedExpectedRgb;
   /// Only the Alpha part of the actual input image.
-  ezImage m_ExtractedActualAlpha;
+  WImage m_ExtractedActualAlpha;
   /// Only the Alpha part of the reference input image.
-  ezImage m_ExtractedExpectedAlpha;
+  WImage m_ExtractedExpectedAlpha;
 
   /// Min/Max difference of the RGB and Alpha images.
-  ezUInt8 m_uiOutputMinDiffRgb = 0;
-  ezUInt8 m_uiOutputMaxDiffRgb = 0;
-  ezUInt8 m_uiOutputMinDiffAlpha = 0;
-  ezUInt8 m_uiOutputMaxDiffAlpha = 0;
+  WUInt8 m_uiOutputMinDiffRgb = 0;
+  WUInt8 m_uiOutputMaxDiffRgb = 0;
+  WUInt8 m_uiOutputMinDiffAlpha = 0;
+  WUInt8 m_uiOutputMaxDiffAlpha = 0;
 
 private:
-  ezResult LoadInputImages();
-  ezResult ComputeMSE();
-  ezResult ExtractImages();
+  WResult LoadInputImages();
+  WResult ComputeMSE();
+  WResult ExtractImages();
 };

@@ -1,5 +1,5 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Threading/Semaphore.h>
 
@@ -9,13 +9,13 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <semaphore.h>
 #include <sys/stat.h>
 
-EZ_WARNING_PUSH()
+W_WARNING_PUSH()
 // On OSX sem_destroy and sem_init are deprecated
-EZ_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+W_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
 
-ezSemaphore::ezSemaphore() = default;
+WSemaphore::WSemaphore() = default;
 
-ezSemaphore::~ezSemaphore()
+WSemaphore::~WSemaphore()
 {
   if (m_hSemaphore.m_pNamedOrUnnamed != nullptr)
   {
@@ -30,7 +30,7 @@ ezSemaphore::~ezSemaphore()
   }
 }
 
-ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, ezStringView sSharedName /*= nullptr*/)
+WResult WSemaphore::Create(WUInt32 uiInitialTokenCount, WStringView sSharedName /*= nullptr*/)
 {
   if (sSharedName.IsEmpty())
   {
@@ -38,7 +38,7 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, ezStringView sSharedN
 
     if (sem_init(&m_hSemaphore.m_Unnamed, 0, uiInitialTokenCount) != 0)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     m_hSemaphore.m_pNamedOrUnnamed = &m_hSemaphore.m_Unnamed;
@@ -48,58 +48,58 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, ezStringView sSharedN
     // create a named semaphore
 
     // documentation is unclear about access rights, just throwing everything at it for good measure
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     m_hSemaphore.m_pNamed = sem_open(sSharedName.GetData(tmp), O_CREAT | O_EXCL, S_IRWXU | S_IRWXO | S_IRWXG, uiInitialTokenCount);
 
     if (m_hSemaphore.m_pNamed == nullptr)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     m_hSemaphore.m_pNamedOrUnnamed = m_hSemaphore.m_pNamed;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSemaphore::Open(ezStringView sSharedName)
+WResult WSemaphore::Open(WStringView sSharedName)
 {
-  EZ_ASSERT_DEV(!sSharedName.IsEmpty(), "Name of semaphore to open mustn't be empty.");
+  W_ASSERT_DEV(!sSharedName.IsEmpty(), "Name of semaphore to open mustn't be empty.");
 
   // open a named semaphore
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   m_hSemaphore.m_pNamed = sem_open(sSharedName.GetData(tmp), 0);
 
   if (m_hSemaphore.m_pNamed == nullptr)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_hSemaphore.m_pNamedOrUnnamed = m_hSemaphore.m_pNamed;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSemaphore::AcquireToken()
+void WSemaphore::AcquireToken()
 {
-  EZ_VERIFY(sem_wait(m_hSemaphore.m_pNamedOrUnnamed) == 0, "Semaphore token acquisition failed.");
+  W_VERIFY(sem_wait(m_hSemaphore.m_pNamedOrUnnamed) == 0, "Semaphore token acquisition failed.");
 }
 
-void ezSemaphore::ReturnToken()
+void WSemaphore::ReturnToken()
 {
-  EZ_VERIFY(sem_post(m_hSemaphore.m_pNamedOrUnnamed) == 0, "Returning a semaphore token failed, most likely due to a AcquireToken() / ReturnToken() mismatch.");
+  W_VERIFY(sem_post(m_hSemaphore.m_pNamedOrUnnamed) == 0, "Returning a semaphore token failed, most likely due to a AcquireToken() / ReturnToken() mismatch.");
 }
 
-ezResult ezSemaphore::TryAcquireToken()
+WResult WSemaphore::TryAcquireToken()
 {
   // documentation is unclear whether one needs to check errno, or not
   // assuming that this will return 0 only when trywait got a token
 
   if (sem_trywait(m_hSemaphore.m_pNamedOrUnnamed) == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-EZ_WARNING_POP()
+W_WARNING_POP()

@@ -4,11 +4,11 @@
 #include <Texture/Image/Conversions/PixelConversions.h>
 #include <Texture/Image/ImageConversion.h>
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_SSE_LEVEL >= W_SSE_20
 #  include <emmintrin.h>
 #endif
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_30
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_SSE_LEVEL >= W_SSE_30
 #  include <tmmintrin.h>
 #endif
 
@@ -26,20 +26,20 @@ namespace
   {
     struct Parts
     {
-      ezUInt32 xm : 6; // x-mantissa
-      ezUInt32 xe : 5; // x-exponent
-      ezUInt32 ym : 6; // y-mantissa
-      ezUInt32 ye : 5; // y-exponent
-      ezUInt32 zm : 5; // z-mantissa
-      ezUInt32 ze : 5; // z-exponent
+      WUInt32 xm : 6; // x-mantissa
+      WUInt32 xe : 5; // x-exponent
+      WUInt32 ym : 6; // y-mantissa
+      WUInt32 ye : 5; // y-exponent
+      WUInt32 zm : 5; // z-mantissa
+      WUInt32 ze : 5; // z-exponent
     } p;
-    ezUInt32 v;
+    WUInt32 v;
   };
 } // namespace
 
-ezColorBaseUB ezDecompressA4B4G4R4(ezUInt16 uiColor)
+WColorBaseUB WDecompressA4B4G4R4(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
+  WColorBaseUB result;
   result.r = ((uiColor & 0xF000u) * 17) >> 12;
   result.g = ((uiColor & 0x0F00u) * 17) >> 8;
   result.b = ((uiColor & 0x00F0u) * 17) >> 4;
@@ -47,18 +47,18 @@ ezColorBaseUB ezDecompressA4B4G4R4(ezUInt16 uiColor)
   return result;
 }
 
-ezUInt16 ezCompressA4B4G4R4(ezColorBaseUB color)
+WUInt16 WCompressA4B4G4R4(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 15 + 135) >> 8;
-  ezUInt32 g = (color.g * 15 + 135) >> 8;
-  ezUInt32 b = (color.b * 15 + 135) >> 8;
-  ezUInt32 a = (color.a * 15 + 135) >> 8;
-  return static_cast<ezUInt16>((r << 12) | (g << 8) | (b << 4) | a);
+  WUInt32 r = (color.r * 15 + 135) >> 8;
+  WUInt32 g = (color.g * 15 + 135) >> 8;
+  WUInt32 b = (color.b * 15 + 135) >> 8;
+  WUInt32 a = (color.a * 15 + 135) >> 8;
+  return static_cast<WUInt16>((r << 12) | (g << 8) | (b << 4) | a);
 }
 
-ezColorBaseUB ezDecompressB4G4R4A4(ezUInt16 uiColor)
+WColorBaseUB WDecompressB4G4R4A4(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
+  WColorBaseUB result;
   result.r = ((uiColor & 0x0F00u) * 17) >> 8;
   result.g = ((uiColor & 0x00F0u) * 17) >> 4;
   result.b = ((uiColor & 0x000Fu) * 17);
@@ -66,191 +66,191 @@ ezColorBaseUB ezDecompressB4G4R4A4(ezUInt16 uiColor)
   return result;
 }
 
-ezUInt16 ezCompressB4G4R4A4(ezColorBaseUB color)
+WUInt16 WCompressB4G4R4A4(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 15 + 135) >> 8;
-  ezUInt32 g = (color.g * 15 + 135) >> 8;
-  ezUInt32 b = (color.b * 15 + 135) >> 8;
-  ezUInt32 a = (color.a * 15 + 135) >> 8;
-  return static_cast<ezUInt16>((a << 12) | (r << 8) | (g << 4) | b);
+  WUInt32 r = (color.r * 15 + 135) >> 8;
+  WUInt32 g = (color.g * 15 + 135) >> 8;
+  WUInt32 b = (color.b * 15 + 135) >> 8;
+  WUInt32 a = (color.a * 15 + 135) >> 8;
+  return static_cast<WUInt16>((a << 12) | (r << 8) | (g << 4) | b);
 }
 
-ezColorBaseUB ezDecompressB5G6R5(ezUInt16 uiColor)
+WColorBaseUB WDecompressB5G6R5(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
-  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 47104) >> 17);
-  result.g = static_cast<ezUInt8>(((uiColor & 0x07E0u) * 259 + 1056) >> 11);
-  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
+  WColorBaseUB result;
+  result.r = static_cast<WUInt8>(((uiColor & 0xF800u) * 527 + 47104) >> 17);
+  result.g = static_cast<WUInt8>(((uiColor & 0x07E0u) * 259 + 1056) >> 11);
+  result.b = static_cast<WUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
   result.a = 0xFF;
 
   return result;
 }
 
-ezUInt16 ezCompressB5G6R5(ezColorBaseUB color)
+WUInt16 WCompressB5G6R5(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 249 + 1024) >> 11;
-  ezUInt32 g = (color.g * 253 + 512) >> 10;
-  ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return static_cast<ezUInt16>((r << 11) | (g << 5) | b);
+  WUInt32 r = (color.r * 249 + 1024) >> 11;
+  WUInt32 g = (color.g * 253 + 512) >> 10;
+  WUInt32 b = (color.b * 249 + 1024) >> 11;
+  return static_cast<WUInt16>((r << 11) | (g << 5) | b);
 }
 
-ezColorBaseUB ezDecompressB5G5R5X1(ezUInt16 uiColor)
+WColorBaseUB WDecompressB5G5R5X1(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
-  result.r = static_cast<ezUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
-  result.g = static_cast<ezUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
-  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
+  WColorBaseUB result;
+  result.r = static_cast<WUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
+  result.g = static_cast<WUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
+  result.b = static_cast<WUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
   result.a = 0xFF;
   return result;
 }
 
-ezUInt16 ezCompressB5G5R5X1(ezColorBaseUB color)
+WUInt16 WCompressB5G5R5X1(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 249 + 1024) >> 11;
-  ezUInt32 g = (color.g * 249 + 1024) >> 11;
-  ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return static_cast<ezUInt16>((1 << 15) | (r << 10) | (g << 5) | b);
+  WUInt32 r = (color.r * 249 + 1024) >> 11;
+  WUInt32 g = (color.g * 249 + 1024) >> 11;
+  WUInt32 b = (color.b * 249 + 1024) >> 11;
+  return static_cast<WUInt16>((1 << 15) | (r << 10) | (g << 5) | b);
 }
 
-ezColorBaseUB ezDecompressB5G5R5A1(ezUInt16 uiColor)
+WColorBaseUB WDecompressB5G5R5A1(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
-  result.r = static_cast<ezUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
-  result.g = static_cast<ezUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
-  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
-  result.a = static_cast<ezUInt8>(((uiColor & 0x8000u) * 255) >> 15);
+  WColorBaseUB result;
+  result.r = static_cast<WUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
+  result.g = static_cast<WUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
+  result.b = static_cast<WUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
+  result.a = static_cast<WUInt8>(((uiColor & 0x8000u) * 255) >> 15);
   return result;
 }
 
-ezUInt16 ezCompressB5G5R5A1(ezColorBaseUB color)
+WUInt16 WCompressB5G5R5A1(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 249 + 1024) >> 11;
-  ezUInt32 g = (color.g * 249 + 1024) >> 11;
-  ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  ezUInt32 a = (color.a) >> 7;
-  return static_cast<ezUInt16>((a << 15) | (r << 10) | (g << 5) | b);
+  WUInt32 r = (color.r * 249 + 1024) >> 11;
+  WUInt32 g = (color.g * 249 + 1024) >> 11;
+  WUInt32 b = (color.b * 249 + 1024) >> 11;
+  WUInt32 a = (color.a) >> 7;
+  return static_cast<WUInt16>((a << 15) | (r << 10) | (g << 5) | b);
 }
 
-ezColorBaseUB ezDecompressX1B5G5R5(ezUInt16 uiColor)
+WColorBaseUB WDecompressX1B5G5R5(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
-  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
-  result.g = static_cast<ezUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
-  result.b = static_cast<ezUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
+  WColorBaseUB result;
+  result.r = static_cast<WUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
+  result.g = static_cast<WUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
+  result.b = static_cast<WUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
   result.a = 0xFF;
   return result;
 }
 
-ezUInt16 ezCompressX1B5G5R5(ezColorBaseUB color)
+WUInt16 WCompressX1B5G5R5(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 249 + 1024) >> 11;
-  ezUInt32 g = (color.g * 249 + 1024) >> 11;
-  ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return static_cast<ezUInt16>((r << 11) | (g << 6) | (b << 1) | 1);
+  WUInt32 r = (color.r * 249 + 1024) >> 11;
+  WUInt32 g = (color.g * 249 + 1024) >> 11;
+  WUInt32 b = (color.b * 249 + 1024) >> 11;
+  return static_cast<WUInt16>((r << 11) | (g << 6) | (b << 1) | 1);
 }
 
-ezColorBaseUB ezDecompressA1B5G5R5(ezUInt16 uiColor)
+WColorBaseUB WDecompressA1B5G5R5(WUInt16 uiColor)
 {
-  ezColorBaseUB result;
-  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
-  result.g = static_cast<ezUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
-  result.b = static_cast<ezUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
-  result.a = static_cast<ezUInt8>((uiColor & 0x0001u) * 255);
+  WColorBaseUB result;
+  result.r = static_cast<WUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
+  result.g = static_cast<WUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
+  result.b = static_cast<WUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
+  result.a = static_cast<WUInt8>((uiColor & 0x0001u) * 255);
   return result;
 }
 
-ezUInt16 ezCompressA1B5G5R5(ezColorBaseUB color)
+WUInt16 WCompressA1B5G5R5(WColorBaseUB color)
 {
-  ezUInt32 r = (color.r * 249 + 1024) >> 11;
-  ezUInt32 g = (color.g * 249 + 1024) >> 11;
-  ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  ezUInt32 a = color.a >> 7;
-  return static_cast<ezUInt16>((r << 11) | (g << 6) | (b << 1) | a);
+  WUInt32 r = (color.r * 249 + 1024) >> 11;
+  WUInt32 g = (color.g * 249 + 1024) >> 11;
+  WUInt32 b = (color.b * 249 + 1024) >> 11;
+  WUInt32 a = color.a >> 7;
+  return static_cast<WUInt16>((r << 11) | (g << 6) | (b << 1) | a);
 }
 
-template <ezColorBaseUB (*decompressFunc)(ezUInt16), ezImageFormat::Enum templateSourceFormat>
-class ezImageConversionStep_Decompress16bpp : ezImageConversionStepLinear
+template <WColorBaseUB (*decompressFunc)(WUInt16), WImageFormat::Enum templateSourceFormat>
+class WImageConversionStep_Decompress16bpp : WImageConversionStepLinear
 {
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    ezImageFormat::Enum sourceFormatSrgb = ezImageFormat::AsSrgb(templateSourceFormat);
-    EZ_ASSERT_DEV(
-      sourceFormatSrgb != templateSourceFormat, "Format '%s' should have a corresponding sRGB format", ezImageFormat::GetName(templateSourceFormat));
+    WImageFormat::Enum sourceFormatSrgb = WImageFormat::AsSrgb(templateSourceFormat);
+    W_ASSERT_DEV(
+      sourceFormatSrgb != templateSourceFormat, "Format '%s' should have a corresponding sRGB format", WImageFormat::GetName(templateSourceFormat));
 
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(templateSourceFormat, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(sourceFormatSrgb, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(templateSourceFormat, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(sourceFormatSrgb, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
 
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 numElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 sourceStride = 2;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 2;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (numElements)
     {
-      *reinterpret_cast<ezColorBaseUB*>(targetPointer) = decompressFunc(*reinterpret_cast<const ezUInt16*>(sourcePointer));
+      *reinterpret_cast<WColorBaseUB*>(targetPointer) = decompressFunc(*reinterpret_cast<const WUInt16*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       numElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-template <ezUInt16 (*compressFunc)(ezColorBaseUB), ezImageFormat::Enum templateTargetFormat>
-class ezImageConversionStep_Compress16bpp : ezImageConversionStepLinear
+template <WUInt16 (*compressFunc)(WColorBaseUB), WImageFormat::Enum templateTargetFormat>
+class WImageConversionStep_Compress16bpp : WImageConversionStepLinear
 {
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    ezImageFormat::Enum targetFormatSrgb = ezImageFormat::AsSrgb(templateTargetFormat);
-    EZ_ASSERT_DEV(
-      targetFormatSrgb != templateTargetFormat, "Format '%s' should have a corresponding sRGB format", ezImageFormat::GetName(templateTargetFormat));
+    WImageFormat::Enum targetFormatSrgb = WImageFormat::AsSrgb(templateTargetFormat);
+    W_ASSERT_DEV(
+      targetFormatSrgb != templateTargetFormat, "Format '%s' should have a corresponding sRGB format", WImageFormat::GetName(templateTargetFormat));
 
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, templateTargetFormat, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, targetFormatSrgb, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, templateTargetFormat, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, targetFormatSrgb, WImageConversionFlags::Default),
     };
 
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 numElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 2;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 2;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (numElements)
     {
-      *reinterpret_cast<ezUInt16*>(targetPointer) = compressFunc(*reinterpret_cast<const ezColorBaseUB*>(sourcePointer));
+      *reinterpret_cast<WUInt16*>(targetPointer) = compressFunc(*reinterpret_cast<const WColorBaseUB*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       numElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
 
 static bool IsAligned(const void* pPointer)
 {
@@ -259,37 +259,37 @@ static bool IsAligned(const void* pPointer)
 
 #endif
 
-struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
+struct WImageSwizzleConversion32_2103 : public WImageConversionStepLinear
 {
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::InPlace),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8X8_UNORM, ezImageConversionFlags::InPlace),
-      ezImageConversionEntry(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::InPlace),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8X8_UNORM_SRGB, ezImageConversionFlags::InPlace),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::B8G8R8A8_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::InPlace),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::B8G8R8A8_UNORM, WImageConversionFlags::InPlace),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::B8G8R8X8_UNORM, WImageConversionFlags::InPlace),
+      WImageConversionEntry(WImageFormat::B8G8R8A8_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::InPlace),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::B8G8R8A8_UNORM_SRGB, WImageConversionFlags::InPlace),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::B8G8R8X8_UNORM_SRGB, WImageConversionFlags::InPlace),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
     if (IsAligned(sourcePointer) && IsAligned(targetPointer))
     {
-#  if EZ_SSE_LEVEL >= EZ_SSE_30
-      const ezUInt32 elementsPerBatch = 8;
+#  if W_SSE_LEVEL >= W_SSE_30
+      const WUInt32 elementsPerBatch = 8;
 
       __m128i shuffleMask = _mm_set_epi8(15, 12, 13, 14, 11, 8, 9, 10, 7, 4, 5, 6, 3, 0, 1, 2);
 
@@ -302,12 +302,12 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
         reinterpret_cast<__m128i*>(targetPointer)[0] = _mm_shuffle_epi8(in0, shuffleMask);
         reinterpret_cast<__m128i*>(targetPointer)[1] = _mm_shuffle_epi8(in1, shuffleMask);
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         uiNumElements -= elementsPerBatch;
       }
 #  else
-      const ezUInt32 elementsPerBatch = 8;
+      const WUInt32 elementsPerBatch = 8;
 
       __m128i mask1 = _mm_set1_epi32(0xff00ff00);
       __m128i mask2 = _mm_set1_epi32(0x00ff00ff);
@@ -323,8 +323,8 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
         reinterpret_cast<__m128i*>(targetPointer)[1] =
           _mm_or_si128(_mm_and_si128(in1, mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(in1, 16), _mm_srli_epi32(in1, 16)), mask2));
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         uiNumElements -= elementsPerBatch;
       }
 #  endif
@@ -333,51 +333,51 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
 
     while (uiNumElements)
     {
-      ezUInt8 a, b, c, d;
-      a = reinterpret_cast<const ezUInt8*>(sourcePointer)[2];
-      b = reinterpret_cast<const ezUInt8*>(sourcePointer)[1];
-      c = reinterpret_cast<const ezUInt8*>(sourcePointer)[0];
-      d = reinterpret_cast<const ezUInt8*>(sourcePointer)[3];
-      reinterpret_cast<ezUInt8*>(targetPointer)[0] = a;
-      reinterpret_cast<ezUInt8*>(targetPointer)[1] = b;
-      reinterpret_cast<ezUInt8*>(targetPointer)[2] = c;
-      reinterpret_cast<ezUInt8*>(targetPointer)[3] = d;
+      WUInt8 a, b, c, d;
+      a = reinterpret_cast<const WUInt8*>(sourcePointer)[2];
+      b = reinterpret_cast<const WUInt8*>(sourcePointer)[1];
+      c = reinterpret_cast<const WUInt8*>(sourcePointer)[0];
+      d = reinterpret_cast<const WUInt8*>(sourcePointer)[3];
+      reinterpret_cast<WUInt8*>(targetPointer)[0] = a;
+      reinterpret_cast<WUInt8*>(targetPointer)[1] = b;
+      reinterpret_cast<WUInt8*>(targetPointer)[2] = c;
+      reinterpret_cast<WUInt8*>(targetPointer)[3] = d;
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
+struct WImageConversion_BGRX_BGRA : public WImageConversionStepLinear
 {
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      {ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace},
-      {ezImageFormat::B8G8R8X8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace},
+    static WImageConversionEntry supportedConversions[] = {
+      {WImageFormat::B8G8R8X8_UNORM, WImageFormat::B8G8R8A8_UNORM, WImageConversionFlags::InPlace},
+      {WImageFormat::B8G8R8X8_UNORM_SRGB, WImageFormat::B8G8R8A8_UNORM_SRGB, WImageConversionFlags::InPlace},
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_SSE_LEVEL >= W_SSE_20
     if (IsAligned(sourcePointer) && IsAligned(targetPointer))
     {
-      const ezUInt32 elementsPerBatch = 4;
+      const WUInt32 elementsPerBatch = 4;
 
       __m128i mask = _mm_set1_epi32(0xFF000000);
 
@@ -388,8 +388,8 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
 
         pTarget[0] = _mm_or_si128(pSource[0], mask);
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         uiNumElements -= elementsPerBatch;
       }
     }
@@ -397,56 +397,56 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
 
     while (uiNumElements)
     {
-      ezUInt32 x = *(reinterpret_cast<const ezUInt32*>(sourcePointer));
+      WUInt32 x = *(reinterpret_cast<const WUInt32*>(sourcePointer));
 
-#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+#if W_ENABLED(W_PLATFORM_LITTLE_ENDIAN)
       x |= 0xFF000000;
 #else
       x |= 0x000000FF;
 #endif
 
-      *(reinterpret_cast<ezUInt32*>(targetPointer)) = x;
+      *(reinterpret_cast<WUInt32*>(targetPointer)) = x;
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F32_U8 : public ezImageConversionStepLinear
+class WImageConversion_F32_U8 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_FLOAT, ezImageFormat::R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R8G8B8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_FLOAT, WImageFormat::R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R8G8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R8G8B8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 1;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 1;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_SSE_LEVEL >= W_SSE_20
     {
-      const ezUInt32 elementsPerBatch = 16;
+      const WUInt32 elementsPerBatch = 16;
 
       __m128 zero = _mm_setzero_ps();
       __m128 one = _mm_set1_ps(1.0f);
@@ -493,8 +493,8 @@ public:
 
         _mm_storeu_si128(reinterpret_cast<__m128i*>(targetPointer), _mm_packus_epi16(short0, short1));
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         uiNumElements -= elementsPerBatch;
       }
     }
@@ -503,75 +503,75 @@ public:
     while (uiNumElements)
     {
 
-      *reinterpret_cast<ezUInt8*>(targetPointer) = ezMath::ColorFloatToByte(*reinterpret_cast<const float*>(sourcePointer));
+      *reinterpret_cast<WUInt8*>(targetPointer) = WMath::ColorFloatToByte(*reinterpret_cast<const float*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F32_sRGB : public ezImageConversionStepLinear
+class WImageConversion_F32_sRGB : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 sourceStride = 16;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 16;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<ezColorGammaUB*>(targetPointer) = *reinterpret_cast<const ezColor*>(sourcePointer);
+      *reinterpret_cast<WColorGammaUB*>(targetPointer) = *reinterpret_cast<const WColor*>(sourcePointer);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F32_U16 : public ezImageConversionStepLinear
+class WImageConversion_F32_U16 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_FLOAT, ezImageFormat::R16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R16G16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R16G16B16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R16G16B16A16_UNORM, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_FLOAT, WImageFormat::R16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R16G16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R16G16B16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R16G16B16A16_UNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 2;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 2;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -579,39 +579,39 @@ public:
     while (uiNumElements)
     {
 
-      *reinterpret_cast<ezUInt16*>(targetPointer) = ezMath::ColorFloatToShort(*reinterpret_cast<const float*>(sourcePointer));
+      *reinterpret_cast<WUInt16*>(targetPointer) = WMath::ColorFloatToShort(*reinterpret_cast<const float*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F32_F16 : public ezImageConversionStepLinear
+class WImageConversion_F32_F16 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_FLOAT, ezImageFormat::R16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R16G16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_FLOAT, WImageFormat::R16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R16G16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R16G16B16A16_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 2;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 2;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -619,40 +619,40 @@ public:
     while (uiNumElements)
     {
 
-      *reinterpret_cast<ezFloat16*>(targetPointer) = *reinterpret_cast<const float*>(sourcePointer);
+      *reinterpret_cast<WFloat16*>(targetPointer) = *reinterpret_cast<const float*>(sourcePointer);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F32_S8 : public ezImageConversionStepLinear
+class WImageConversion_F32_S8 : public WImageConversionStepLinear
 {
 public:
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_FLOAT, ezImageFormat::R8_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R8G8_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_SNORM, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_FLOAT, WImageFormat::R8_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R8G8_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R8G8B8A8_SNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 1;
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 1;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -660,301 +660,301 @@ public:
     while (uiNumElements)
     {
 
-      *reinterpret_cast<ezInt8*>(targetPointer) = ezMath::ColorFloatToSignedByte(*reinterpret_cast<const float*>(sourcePointer));
+      *reinterpret_cast<WInt8*>(targetPointer) = WMath::ColorFloatToSignedByte(*reinterpret_cast<const float*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_U8_F32 : public ezImageConversionStepLinear
+class WImageConversion_U8_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_UNORM, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UNORM, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8_UNORM, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_UNORM, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UNORM, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8_UNORM, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    ezUInt32 sourceStride = 1;
-    ezUInt32 targetStride = 4;
-
-    const void* sourcePointer = source.GetPtr();
-    void* targetPointer = target.GetPtr();
-
-    while (uiNumElements)
-    {
-      *reinterpret_cast<float*>(targetPointer) = ezMath::ColorByteToFloat(*reinterpret_cast<const ezUInt8*>(sourcePointer));
-
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      uiNumElements--;
-    }
-
-    return EZ_SUCCESS;
-  }
-};
-
-class ezImageConversion_sRGB_F32 : public ezImageConversionStepLinear
-{
-public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
-  {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
-    };
-    return supportedConversions;
-  }
-
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
-  {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
-
-    ezUInt32 sourceStride = 4;
-    ezUInt32 targetStride = 16;
+    WUInt32 sourceStride = 1;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<ezColor*>(targetPointer) = *reinterpret_cast<const ezColorGammaUB*>(sourcePointer);
+      *reinterpret_cast<float*>(targetPointer) = WMath::ColorByteToFloat(*reinterpret_cast<const WUInt8*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_U16_F32 : public ezImageConversionStepLinear
+class WImageConversion_sRGB_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R16_UNORM, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_UNORM, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16_UNORM, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
+
+    WUInt32 sourceStride = 4;
+    WUInt32 targetStride = 16;
+
+    const void* sourcePointer = source.GetPtr();
+    void* targetPointer = target.GetPtr();
+
+    while (uiNumElements)
+    {
+      *reinterpret_cast<WColor*>(targetPointer) = *reinterpret_cast<const WColorGammaUB*>(sourcePointer);
+
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      uiNumElements--;
+    }
+
+    return W_SUCCESS;
+  }
+};
+
+class WImageConversion_U16_F32 : public WImageConversionStepLinear
+{
+public:
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
+  {
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R16_UNORM, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_UNORM, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16_UNORM, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UNORM, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
+  {
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    ezUInt32 sourceStride = 2;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 2;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<float*>(targetPointer) = ezMath::ColorShortToFloat(*reinterpret_cast<const ezUInt16*>(sourcePointer));
+      *reinterpret_cast<float*>(targetPointer) = WMath::ColorShortToFloat(*reinterpret_cast<const WUInt16*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_S16_F32 : public ezImageConversionStepLinear
+class WImageConversion_S16_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R16_SNORM, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_SNORM, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R16_SNORM, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_SNORM, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SNORM, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    ezUInt32 sourceStride = 2;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 2;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<float*>(targetPointer) = ezMath::ColorSignedShortToFloat(*reinterpret_cast<const ezInt16*>(sourcePointer));
+      *reinterpret_cast<float*>(targetPointer) = WMath::ColorSignedShortToFloat(*reinterpret_cast<const WInt16*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_F16_F32 : public ezImageConversionStepLinear
+class WImageConversion_F16_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R16_FLOAT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_FLOAT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R16_FLOAT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_FLOAT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_FLOAT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    ezUInt32 sourceStride = 2;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 2;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<float*>(targetPointer) = *reinterpret_cast<const ezFloat16*>(sourcePointer);
+      *reinterpret_cast<float*>(targetPointer) = *reinterpret_cast<const WFloat16*>(sourcePointer);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_S8_F32 : public ezImageConversionStepLinear
+class WImageConversion_S8_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_SNORM, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SNORM, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_SNORM, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SNORM, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SNORM, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    ezUInt32 sourceStride = 1;
-    ezUInt32 targetStride = 4;
+    WUInt32 sourceStride = 1;
+    WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      *reinterpret_cast<float*>(targetPointer) = ezMath::ColorSignedByteToFloat(*reinterpret_cast<const ezInt8*>(sourcePointer));
+      *reinterpret_cast<float*>(targetPointer) = WMath::ColorSignedByteToFloat(*reinterpret_cast<const WInt8*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-struct ezImageConversion_Pad_To_RGBA_U8 : public ezImageConversionStepLinear
+struct WImageConversion_Pad_To_RGBA_U8 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8_UNORM, WImageFormat::B8G8R8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8_UNORM_SRGB, WImageFormat::B8G8R8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
-    const ezUInt8* sourcePointer = static_cast<const ezUInt8*>(source.GetPtr());
-    ezUInt8* targetPointer = static_cast<ezUInt8*>(target.GetPtr());
+    const WUInt8* sourcePointer = static_cast<const WUInt8*>(source.GetPtr());
+    WUInt8* targetPointer = static_cast<WUInt8*>(target.GetPtr());
 
-    const ezUInt32 numChannels = sourceStride / sizeof(ezUInt8);
+    const WUInt32 numChannels = sourceStride / sizeof(WUInt8);
 
-#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+#if W_ENABLED(W_PLATFORM_LITTLE_ENDIAN)
     if (numChannels == 3)
     {
       // Fast path for RGB -> RGBA
-      const ezUInt32 elementsPerBatch = 4;
+      const WUInt32 elementsPerBatch = 4;
 
       while (uiNumElements >= elementsPerBatch)
       {
-        ezUInt32 source0 = reinterpret_cast<const ezUInt32*>(sourcePointer)[0];
-        ezUInt32 source1 = reinterpret_cast<const ezUInt32*>(sourcePointer)[1];
-        ezUInt32 source2 = reinterpret_cast<const ezUInt32*>(sourcePointer)[2];
+        WUInt32 source0 = reinterpret_cast<const WUInt32*>(sourcePointer)[0];
+        WUInt32 source1 = reinterpret_cast<const WUInt32*>(sourcePointer)[1];
+        WUInt32 source2 = reinterpret_cast<const WUInt32*>(sourcePointer)[2];
 
-        ezUInt32 target0 = source0 | 0xFF000000;
-        ezUInt32 target1 = (source0 >> 24) | (source1 << 8) | 0xFF000000;
-        ezUInt32 target2 = (source1 >> 16) | (source2 << 16) | 0xFF000000;
-        ezUInt32 target3 = (source2 >> 8) | 0xFF000000;
+        WUInt32 target0 = source0 | 0xFF000000;
+        WUInt32 target1 = (source0 >> 24) | (source1 << 8) | 0xFF000000;
+        WUInt32 target2 = (source1 >> 16) | (source2 << 16) | 0xFF000000;
+        WUInt32 target3 = (source2 >> 8) | 0xFF000000;
 
-        reinterpret_cast<ezUInt32*>(targetPointer)[0] = target0;
-        reinterpret_cast<ezUInt32*>(targetPointer)[1] = target1;
-        reinterpret_cast<ezUInt32*>(targetPointer)[2] = target2;
-        reinterpret_cast<ezUInt32*>(targetPointer)[3] = target3;
+        reinterpret_cast<WUInt32*>(targetPointer)[0] = target0;
+        reinterpret_cast<WUInt32*>(targetPointer)[1] = target1;
+        reinterpret_cast<WUInt32*>(targetPointer)[2] = target2;
+        reinterpret_cast<WUInt32*>(targetPointer)[3] = target3;
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         uiNumElements -= elementsPerBatch;
       }
     }
@@ -967,43 +967,43 @@ public:
       memcpy(targetPointer, sourcePointer, numChannels);
 
       // Fill others with zero
-      memset(targetPointer + numChannels, 0, 3 * sizeof(ezUInt8) - numChannels);
+      memset(targetPointer + numChannels, 0, 3 * sizeof(WUInt8) - numChannels);
 
       // Set alpha to 1
       targetPointer[3] = 0xFF;
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-struct ezImageConversion_Pad_To_RGBA_F32 : public ezImageConversionStepLinear
+struct WImageConversion_Pad_To_RGBA_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_FLOAT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const float* sourcePointer = static_cast<const float*>(static_cast<const void*>(source.GetPtr()));
     float* targetPointer = static_cast<float*>(static_cast<void*>(target.GetPtr()));
 
-    const ezUInt32 numChannels = sourceStride / sizeof(float);
+    const WUInt32 numChannels = sourceStride / sizeof(float);
 
     while (uiNumElements)
     {
@@ -1016,105 +1016,105 @@ public:
       // Set alpha to 1
       targetPointer[3] = 1.0f;
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-struct ezImageConversion_DiscardChannels : public ezImageConversionStepLinear
+struct WImageConversion_DiscardChannels : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32G32B32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32G32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32G32B32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32G32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32G32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32G32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_FLOAT, ezImageFormat::R16G16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_FLOAT, ezImageFormat::R16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UNORM, ezImageFormat::R16G16B16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UNORM, ezImageFormat::R16G16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UNORM, ezImageFormat::R16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UINT, ezImageFormat::R16G16_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UINT, ezImageFormat::R16_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SNORM, ezImageFormat::R16G16_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SNORM, ezImageFormat::R16_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SINT, ezImageFormat::R16G16_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SINT, ezImageFormat::R16_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16_UNORM, ezImageFormat::R16G16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16_UNORM, ezImageFormat::R16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_FLOAT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_UINT, ezImageFormat::R32_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_SINT, ezImageFormat::R32_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::D32_FLOAT_S8X24_UINT, ezImageFormat::D32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::R8G8B8_UNORM_SRGB, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UINT, ezImageFormat::R8G8_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UINT, ezImageFormat::R8_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SNORM, ezImageFormat::R8G8_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SNORM, ezImageFormat::R8_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SINT, ezImageFormat::R8G8_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SINT, ezImageFormat::R8_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM_SRGB, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::B8G8R8X8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM_SRGB, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_FLOAT, ezImageFormat::R16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_UNORM, ezImageFormat::R16_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_UINT, ezImageFormat::R16_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_SNORM, ezImageFormat::R16_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_SINT, ezImageFormat::R16_SINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UINT, ezImageFormat::R8_UINT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SNORM, ezImageFormat::R8_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SINT, ezImageFormat::R8_SINT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_UINT, WImageFormat::R32G32B32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_UINT, WImageFormat::R32G32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_UINT, WImageFormat::R32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_SINT, WImageFormat::R32G32B32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_SINT, WImageFormat::R32G32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_SINT, WImageFormat::R32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_UINT, WImageFormat::R32G32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_UINT, WImageFormat::R32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_SINT, WImageFormat::R32G32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_SINT, WImageFormat::R32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_FLOAT, WImageFormat::R16G16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_FLOAT, WImageFormat::R16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UNORM, WImageFormat::R16G16B16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UNORM, WImageFormat::R16G16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UNORM, WImageFormat::R16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UINT, WImageFormat::R16G16_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UINT, WImageFormat::R16_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SNORM, WImageFormat::R16G16_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SNORM, WImageFormat::R16_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SINT, WImageFormat::R16G16_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SINT, WImageFormat::R16_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16_UNORM, WImageFormat::R16G16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16_UNORM, WImageFormat::R16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_FLOAT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_UINT, WImageFormat::R32_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_SINT, WImageFormat::R32_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::D32_FLOAT_S8X24_UINT, WImageFormat::D32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::R8G8B8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::R8G8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::R8G8B8_UNORM_SRGB, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UINT, WImageFormat::R8G8_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UINT, WImageFormat::R8_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SNORM, WImageFormat::R8G8_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SNORM, WImageFormat::R8_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SINT, WImageFormat::R8G8_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SINT, WImageFormat::R8_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8A8_UNORM, WImageFormat::B8G8R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8A8_UNORM_SRGB, WImageFormat::B8G8R8_UNORM_SRGB, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8X8_UNORM, WImageFormat::B8G8R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::B8G8R8X8_UNORM_SRGB, WImageFormat::B8G8R8_UNORM_SRGB, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_FLOAT, WImageFormat::R16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_UNORM, WImageFormat::R16_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_UINT, WImageFormat::R16_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_SNORM, WImageFormat::R16_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_SINT, WImageFormat::R16_SINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8_UNORM, WImageFormat::R8G8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8_UNORM, WImageFormat::R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UNORM, WImageFormat::R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UINT, WImageFormat::R8_UINT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SNORM, WImageFormat::R8_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SINT, WImageFormat::R8_SINT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    if (ezImageFormat::GetBitsPerPixel(sourceFormat) == 32 && ezImageFormat::GetBitsPerPixel(targetFormat) == 24)
+    if (WImageFormat::GetBitsPerPixel(sourceFormat) == 32 && WImageFormat::GetBitsPerPixel(targetFormat) == 24)
     {
       // Fast path for RGBA -> RGB
       while (uiNumElements)
       {
-        const ezUInt8* src = static_cast<const ezUInt8*>(sourcePointer);
-        ezUInt8* dst = static_cast<ezUInt8*>(targetPointer);
+        const WUInt8* src = static_cast<const WUInt8*>(sourcePointer);
+        WUInt8* dst = static_cast<WUInt8*>(targetPointer);
 
         dst[0] = src[0];
         dst[1] = src[1];
         dst[2] = src[2];
 
-        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+        sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+        targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
         uiNumElements--;
       }
     }
@@ -1123,32 +1123,32 @@ public:
     {
       memcpy(targetPointer, sourcePointer, targetStride);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_FLOAT_to_R11G11B10 : public ezImageConversionStepLinear
+class WImageConversion_FLOAT_to_R11G11B10 : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R11G11B10_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R11G11B10_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::R11G11B10_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_FLOAT, WImageFormat::R11G11B10_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -1156,16 +1156,16 @@ public:
     while (uiNumElements)
     {
       // Adapted from DirectXMath's XMStoreFloat3PK
-      ezUInt32 IValue[3];
+      WUInt32 IValue[3];
       memcpy(IValue, sourcePointer, 12);
 
-      ezUInt32 Result[3];
+      WUInt32 Result[3];
 
       // X & Y Channels (5-bit exponent, 6-bit mantissa)
-      for (ezUInt32 j = 0; j < 2; ++j)
+      for (WUInt32 j = 0; j < 2; ++j)
       {
-        ezUInt32 Sign = IValue[j] & 0x80000000;
-        ezUInt32 I = IValue[j] & 0x7FFFFFFF;
+        WUInt32 Sign = IValue[j] & 0x80000000;
+        WUInt32 I = IValue[j] & 0x7FFFFFFF;
 
         if ((I & 0x7F800000) == 0x7F800000)
         {
@@ -1197,7 +1197,7 @@ public:
           {
             // The number is too small to be represented as a normalized float11
             // Convert it to a denormalized value.
-            ezUInt32 Shift = 113U - (I >> 23U);
+            WUInt32 Shift = 113U - (I >> 23U);
             I = (0x800000U | (I & 0x7FFFFFU)) >> Shift;
           }
           else
@@ -1211,8 +1211,8 @@ public:
       }
 
       // Z Channel (5-bit exponent, 5-bit mantissa)
-      ezUInt32 Sign = IValue[2] & 0x80000000;
-      ezUInt32 I = IValue[2] & 0x7FFFFFFF;
+      WUInt32 Sign = IValue[2] & 0x80000000;
+      WUInt32 I = IValue[2] & 0x7FFFFFFF;
 
       if ((I & 0x7F800000) == 0x7F800000)
       {
@@ -1244,7 +1244,7 @@ public:
         {
           // The number is too small to be represented as a normalized float10
           // Convert it to a denormalized value.
-          ezUInt32 Shift = 113U - (I >> 23U);
+          WUInt32 Shift = 113U - (I >> 23U);
           I = (0x800000U | (I & 0x7FFFFFU)) >> Shift;
         }
         else
@@ -1257,35 +1257,35 @@ public:
       }
 
       // Pack Result into memory
-      *reinterpret_cast<ezUInt32*>(targetPointer) = (Result[0] & 0x7ff) | ((Result[1] & 0x7ff) << 11) | ((Result[2] & 0x3ff) << 22);
+      *reinterpret_cast<WUInt32*>(targetPointer) = (Result[0] & 0x7ff) | ((Result[1] & 0x7ff) << 11) | ((Result[2] & 0x3ff) << 22);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_R11G11B10_to_FLOAT : public ezImageConversionStepLinear
+class WImageConversion_R11G11B10_to_FLOAT : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R11G11B10_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R11G11B10_FLOAT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R11G11B10_FLOAT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R11G11B10_FLOAT, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
     };
 
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -1293,11 +1293,11 @@ public:
     while (uiNumElements)
     {
       const R11G11B10* pSource = reinterpret_cast<const R11G11B10*>(sourcePointer);
-      ezUInt32* targetUi = reinterpret_cast<ezUInt32*>(targetPointer);
+      WUInt32* targetUi = reinterpret_cast<WUInt32*>(targetPointer);
 
       // Adapted from XMLoadFloat3PK
-      ezUInt32 Mantissa;
-      ezUInt32 Exponent;
+      WUInt32 Mantissa;
+      WUInt32 Exponent;
 
       // X Channel (6-bit mantissa)
       Mantissa = pSource->p.xm;
@@ -1327,7 +1327,7 @@ public:
         }
         else // The value is zero
         {
-          Exponent = (ezUInt32)-112;
+          Exponent = (WUInt32)-112;
         }
 
         targetUi[0] = ((Exponent + 112) << 23) | (Mantissa << 17);
@@ -1361,7 +1361,7 @@ public:
         }
         else // The value is zero
         {
-          Exponent = (ezUInt32)-112;
+          Exponent = (WUInt32)-112;
         }
 
         targetUi[1] = ((Exponent + 112) << 23) | (Mantissa << 17);
@@ -1395,7 +1395,7 @@ public:
         }
         else // The value is zero
         {
-          Exponent = (ezUInt32)-112;
+          Exponent = (WUInt32)-112;
         }
 
         targetUi[2] = ((Exponent + 112) << 23) | (Mantissa << 18);
@@ -1405,69 +1405,69 @@ public:
       {
         reinterpret_cast<float*>(targetPointer)[3] = 1.0f; // Write alpha channel
       }
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_R11G11B10_to_HALF : public ezImageConversionStepLinear
+class WImageConversion_R11G11B10_to_HALF : public WImageConversionStepLinear
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R11G11B10_FLOAT, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default)};
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R11G11B10_FLOAT, WImageFormat::R16G16B16A16_FLOAT, WImageConversionFlags::Default)};
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     while (uiNumElements)
     {
-      ezUInt16* result = reinterpret_cast<ezUInt16*>(targetPointer);
+      WUInt16* result = reinterpret_cast<WUInt16*>(targetPointer);
       const R11G11B10* r11g11b10 = reinterpret_cast<const R11G11B10*>(sourcePointer);
 
       // We can do a straight forward conversion here because R11G11B10 uses the same number of bits for the exponent as a half
       // This means that all special values, e.g. denormals, inf, nan map exactly.
-      result[0] = static_cast<ezUInt16>((r11g11b10->p.xe << 10) | (r11g11b10->p.xm << 4));
-      result[1] = static_cast<ezUInt16>((r11g11b10->p.ye << 10) | (r11g11b10->p.ym << 4));
-      result[2] = static_cast<ezUInt16>((r11g11b10->p.ze << 10) | (r11g11b10->p.zm << 5));
+      result[0] = static_cast<WUInt16>((r11g11b10->p.xe << 10) | (r11g11b10->p.xm << 4));
+      result[1] = static_cast<WUInt16>((r11g11b10->p.ye << 10) | (r11g11b10->p.ym << 4));
+      result[2] = static_cast<WUInt16>((r11g11b10->p.ze << 10) | (r11g11b10->p.zm << 5));
       result[3] = 0x3C00; // hex value of 1.0f as half
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
 
 template <typename T>
-class ezImageConversion_Int_To_F32 : public ezImageConversionStepLinear
+class WImageConversion_Int_To_F32 : public WImageConversionStepLinear
 {
 public:
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult ConvertPixels(WConstByteBlobPtr source, WByteBlobPtr target, WUInt64 uiNumElements, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(sourceFormat);
+    W_IGNORE_UNUSED(sourceFormat);
 
     // Work with single channels instead of pixels
-    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= WImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
-    const ezUInt32 sourceStride = sizeof(T);
-    const ezUInt32 targetStride = 4;
+    const WUInt32 sourceStride = sizeof(T);
+    const WUInt32 targetStride = 4;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
@@ -1476,97 +1476,97 @@ public:
     {
       *reinterpret_cast<float*>(targetPointer) = static_cast<float>(*reinterpret_cast<const T*>(sourcePointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
       uiNumElements--;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
 
-class ezImageConversion_UINT8_F32 : public ezImageConversion_Int_To_F32<ezUInt8>
+class WImageConversion_UINT8_F32 : public WImageConversion_Int_To_F32<WUInt8>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_UINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 };
 
-class ezImageConversion_SINT8_F32 : public ezImageConversion_Int_To_F32<ezInt8>
+class WImageConversion_SINT8_F32 : public WImageConversion_Int_To_F32<WInt8>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_SINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 };
 
-class ezImageConversion_UINT16_F32 : public ezImageConversion_Int_To_F32<ezUInt16>
+class WImageConversion_UINT16_F32 : public WImageConversion_Int_To_F32<WUInt16>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R16_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R16_UINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_UINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_UINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 };
 
-class ezImageConversion_SINT16_F32 : public ezImageConversion_Int_To_F32<ezInt16>
+class WImageConversion_SINT16_F32 : public WImageConversion_Int_To_F32<WInt16>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R16_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R16_SINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16_SINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R16G16B16A16_SINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 };
 
-class ezImageConversion_UINT32_F32 : public ezImageConversion_Int_To_F32<ezUInt32>
+class WImageConversion_UINT32_F32 : public WImageConversion_Int_To_F32<WUInt32>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_UINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_UINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_UINT, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_UINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 };
 
-class ezImageConversion_SINT32_F32 : public ezImageConversion_Int_To_F32<ezInt32>
+class WImageConversion_SINT32_F32 : public WImageConversion_Int_To_F32<WInt32>
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R32_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R32_SINT, WImageFormat::R32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32_SINT, WImageFormat::R32G32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32_SINT, WImageFormat::R32G32B32_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R32G32B32A32_SINT, WImageFormat::R32G32B32A32_FLOAT, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
@@ -1574,8 +1574,8 @@ public:
 
 
 #define ADD_16BPP_CONVERSION(format)                                                                                                   \
-  static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format; \
-  static ezImageConversionStep_Compress16bpp<ezCompress##format, ezImageFormat::format##_UNORM> s_conversion_ezCompress##format
+  static WImageConversionStep_Decompress16bpp<WDecompress##format, WImageFormat::format##_UNORM> s_conversion_WDecompress##format; \
+  static WImageConversionStep_Compress16bpp<WCompress##format, WImageFormat::format##_UNORM> s_conversion_WCompress##format
 
 ADD_16BPP_CONVERSION(A4B4G4R4);
 ADD_16BPP_CONVERSION(B4G4R4A4);
@@ -1585,35 +1585,35 @@ ADD_16BPP_CONVERSION(B5G5R5A1);
 ADD_16BPP_CONVERSION(X1B5G5R5);
 ADD_16BPP_CONVERSION(A1B5G5R5);
 
-EZ_STATICLINK_FORCE
-static ezImageSwizzleConversion32_2103 s_conversion_swizzle2103;
-static ezImageConversion_BGRX_BGRA s_conversion_BGRX_BGRA;
-static ezImageConversion_F32_U8 s_conversion_F32_U8;
-static ezImageConversion_F32_sRGB s_conversion_F32_sRGB;
-static ezImageConversion_F32_U16 s_conversion_F32_U16;
-static ezImageConversion_F32_F16 s_conversion_F32_F16;
-static ezImageConversion_F32_S8 s_conversion_F32_S8;
-static ezImageConversion_U8_F32 s_conversion_U8_F32;
-static ezImageConversion_sRGB_F32 s_conversion_sRGB_F32;
-static ezImageConversion_U16_F32 s_conversion_U16_F32;
-static ezImageConversion_S16_F32 s_conversion_S16_F32;
-static ezImageConversion_F16_F32 s_conversion_F16_F32;
-static ezImageConversion_S8_F32 s_conversion_S8_F32;
-static ezImageConversion_UINT8_F32 s_conversion_UINT8_F32;
-static ezImageConversion_SINT8_F32 s_conversion_SINT8_F32;
-static ezImageConversion_UINT16_F32 s_conversion_UINT16_F32;
-static ezImageConversion_SINT16_F32 s_conversion_SINT16_F32;
-static ezImageConversion_UINT32_F32 s_conversion_UINT32_F32;
-static ezImageConversion_SINT32_F32 s_conversion_SINT32_F32;
+W_STATICLINK_FORCE
+static WImageSwizzleConversion32_2103 s_conversion_swizzle2103;
+static WImageConversion_BGRX_BGRA s_conversion_BGRX_BGRA;
+static WImageConversion_F32_U8 s_conversion_F32_U8;
+static WImageConversion_F32_sRGB s_conversion_F32_sRGB;
+static WImageConversion_F32_U16 s_conversion_F32_U16;
+static WImageConversion_F32_F16 s_conversion_F32_F16;
+static WImageConversion_F32_S8 s_conversion_F32_S8;
+static WImageConversion_U8_F32 s_conversion_U8_F32;
+static WImageConversion_sRGB_F32 s_conversion_sRGB_F32;
+static WImageConversion_U16_F32 s_conversion_U16_F32;
+static WImageConversion_S16_F32 s_conversion_S16_F32;
+static WImageConversion_F16_F32 s_conversion_F16_F32;
+static WImageConversion_S8_F32 s_conversion_S8_F32;
+static WImageConversion_UINT8_F32 s_conversion_UINT8_F32;
+static WImageConversion_SINT8_F32 s_conversion_SINT8_F32;
+static WImageConversion_UINT16_F32 s_conversion_UINT16_F32;
+static WImageConversion_SINT16_F32 s_conversion_SINT16_F32;
+static WImageConversion_UINT32_F32 s_conversion_UINT32_F32;
+static WImageConversion_SINT32_F32 s_conversion_SINT32_F32;
 
-static ezImageConversion_Pad_To_RGBA_U8 s_conversion_Pad_To_RGBA_U8;
-static ezImageConversion_Pad_To_RGBA_F32 s_conversion_Pad_To_RGBA_F32;
-static ezImageConversion_DiscardChannels s_conversion_DiscardChannels;
+static WImageConversion_Pad_To_RGBA_U8 s_conversion_Pad_To_RGBA_U8;
+static WImageConversion_Pad_To_RGBA_F32 s_conversion_Pad_To_RGBA_F32;
+static WImageConversion_DiscardChannels s_conversion_DiscardChannels;
 
-static ezImageConversion_R11G11B10_to_FLOAT s_conversion_R11G11B10_to_FLOAT;
-static ezImageConversion_R11G11B10_to_HALF s_conversion_R11G11B10_to_HALF;
-static ezImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
+static WImageConversion_R11G11B10_to_FLOAT s_conversion_R11G11B10_to_FLOAT;
+static WImageConversion_R11G11B10_to_HALF s_conversion_R11G11B10_to_HALF;
+static WImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);
+W_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);

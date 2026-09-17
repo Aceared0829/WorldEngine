@@ -7,12 +7,12 @@
 /// This template class tracks dependencies between resources and their dependencies to allow invalidating resources when their dependencies are destroyed.
 /// When a dependency is destroyed, all resources that depend on it are automatically identified and an invalidation event is broadcast for each affected resource.
 ///
-/// Both types must be usable as an ezMap key, i.e. provide `operator<`, and should be cheap to copy.
+/// Both types must be usable as an WMap key, i.e. provide `operator<`, and should be cheap to copy.
 ///
-/// \tparam Resource The type of resource being tracked (e.g. `ezGALBindGroup*`)
-/// \tparam Dependency The type of the dependencies (e.g. `const ezGALResourceBase*`)
+/// \tparam Resource The type of resource being tracked (e.g. `WGALBindGroup*`)
+/// \tparam Dependency The type of the dependencies (e.g. `const WGALResourceBase*`)
 template <typename Resource, typename Dependency>
-class ezDependencyTracker
+class WDependencyTracker
 {
 public:
   /// Adds a resource and its dependencies to the tracking system.
@@ -21,7 +21,7 @@ public:
   ///
   /// \param resource The resource to track
   /// \param dependencies Set of dependencies that this resource depends on
-  void AddResource(const Resource& resource, const ezSet<Dependency>& dependencies);
+  void AddResource(const Resource& resource, const WSet<Dependency>& dependencies);
 
   /// Removes a resource from the tracking system.
   ///
@@ -41,7 +41,7 @@ public:
 
 public:
   /// Event that is broadcast when a resource becomes invalid due to dependency destruction.
-  ezEvent<Resource> m_ResourceInvalidatedEvent;
+  WEvent<Resource> m_ResourceInvalidatedEvent;
 
 private:
   struct Item
@@ -53,8 +53,8 @@ private:
     Resource m_Resource = {};
     Dependency m_Dependency = {};
   };
-  using ResourceHeadMap = ezMap<Resource, Item*>;
-  using DependencyHeadMap = ezMap<Dependency, Item*>;
+  using ResourceHeadMap = WMap<Resource, Item*>;
+  using DependencyHeadMap = WMap<Dependency, Item*>;
 
 private:
   void InsertItem(typename ResourceHeadMap::Iterator resourceHead, const Resource& resource, const Dependency& dependency);
@@ -62,8 +62,8 @@ private:
   void RemoveDependencyItem(typename DependencyHeadMap::ConstIterator dependencyHead, Item* pItem);
 
 private:
-  ezMutex m_Mutex;
-  ezDeque<Item> m_Dependencies;
+  WMutex m_Mutex;
+  WDeque<Item> m_Dependencies;
   Item* m_pFreeList = nullptr;
   ResourceHeadMap m_ResourceHead;
   DependencyHeadMap m_DependencyHead;

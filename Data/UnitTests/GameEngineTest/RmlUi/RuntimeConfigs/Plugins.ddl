@@ -1,5 +1,5 @@
 Plugin
 {
-	string %Path{"ezRmlUiPlugin"}
+	string %Path{"WRmlUiPlugin"}
 	bool %LoadCopy{false}
 }

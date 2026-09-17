@@ -5,13 +5,13 @@
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 
-class ezSceneDocument;
+class WSceneDocument;
 
-class ezQtScenegraphModel : public ezQtGameObjectModel
+class WQtScenegraphModel : public WQtGameObjectModel
 {
   Q_OBJECT
 
 public:
-  ezQtScenegraphModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root = ezUuid());
-  ~ezQtScenegraphModel();
+  WQtScenegraphModel(const WDocumentObjectManager* pObjectManager, const WUuid& root = WUuid());
+  ~WQtScenegraphModel();
 };

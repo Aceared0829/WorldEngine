@@ -7,52 +7,52 @@
 #include <d3d11.h>
 
 
-ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
-  : ezGALBuffer(Description)
+WGALBufferDX11::WGALBufferDX11(const WGALBufferCreationDescription& Description)
+  : WGALBuffer(Description)
 {
 }
 
-ezGALBufferDX11::~ezGALBufferDX11() = default;
+WGALBufferDX11::~WGALBufferDX11() = default;
 
-ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat)
+WResult WGALBufferDX11::CreateBufferDesc(const WGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat)
 {
-  for (ezGALBufferUsageFlags::Enum flag : description.m_BufferFlags)
+  for (WGALBufferUsageFlags::Enum flag : description.m_BufferFlags)
   {
     switch (flag)
     {
-      case ezGALBufferUsageFlags::ConstantBuffer:
+      case WGALBufferUsageFlags::ConstantBuffer:
         out_bufferDesc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
         break;
-      case ezGALBufferUsageFlags::IndexBuffer:
+      case WGALBufferUsageFlags::IndexBuffer:
         out_bufferDesc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
         out_indexFormat = description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
         break;
-      case ezGALBufferUsageFlags::VertexBuffer:
+      case WGALBufferUsageFlags::VertexBuffer:
         out_bufferDesc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
         break;
-      case ezGALBufferUsageFlags::TexelBuffer:
+      case WGALBufferUsageFlags::TexelBuffer:
         break;
-      case ezGALBufferUsageFlags::StructuredBuffer:
+      case WGALBufferUsageFlags::StructuredBuffer:
         out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
         break;
-      case ezGALBufferUsageFlags::ByteAddressBuffer:
+      case WGALBufferUsageFlags::ByteAddressBuffer:
         out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
         break;
-      case ezGALBufferUsageFlags::ShaderResource:
+      case WGALBufferUsageFlags::ShaderResource:
         out_bufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         break;
-      case ezGALBufferUsageFlags::UnorderedAccess:
+      case WGALBufferUsageFlags::UnorderedAccess:
         out_bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
         break;
-      case ezGALBufferUsageFlags::DrawIndirect:
+      case WGALBufferUsageFlags::DrawIndirect:
         out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
         break;
-      case ezGALBufferUsageFlags::Transient:
-        // Nothing to set here. We only use this flag to decide whether its safe to use D3D11_MAP_WRITE_NO_OVERWRITE / D3D11_MAP_WRITE_DISCARD inside ezGALCommandEncoderImplDX11::UpdateBufferPlatform.
+      case WGALBufferUsageFlags::Transient:
+        // Nothing to set here. We only use this flag to decide whether its safe to use D3D11_MAP_WRITE_NO_OVERWRITE / D3D11_MAP_WRITE_DISCARD inside WGALCommandEncoderImplDX11::UpdateBufferPlatform.
         break;
       default:
-        ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
-        return EZ_FAILURE;
+        WLog::Error("Unknown buffer type supplied to CreateBuffer()!");
+        return W_FAILURE;
     }
   }
 
@@ -61,14 +61,14 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
   out_bufferDesc.StructureByteStride = description.m_uiStructSize;
 
   out_bufferDesc.CPUAccessFlags = 0;
-  if (description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
+  if (description.m_BufferFlags.IsSet(WGALBufferUsageFlags::ConstantBuffer))
   {
     out_bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     out_bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     out_bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
     // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-    out_bufferDesc.ByteWidth = ezMemoryUtils::AlignSize(out_bufferDesc.ByteWidth, 64u);
+    out_bufferDesc.ByteWidth = WMemoryUtils::AlignSize(out_bufferDesc.ByteWidth, 64u);
   }
   else
   {
@@ -78,7 +78,7 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
     }
     else
     {
-      if (description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
+      if (description.m_BufferFlags.IsSet(WGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
       {
         out_bufferDesc.Usage = D3D11_USAGE_DEFAULT;
       }
@@ -89,10 +89,10 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
       }
     }
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
+ID3D11ShaderResourceView* WGALBufferDX11::GetSRV(WGALBufferRange bufferRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALResourceFormat> overrideTexelBufferFormat) const
 {
   ID3D11ShaderResourceView* pSRV = nullptr;
 
@@ -104,7 +104,7 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
   if (!m_SRVs.TryGetValue(view, pSRV))
   {
     ID3D11Resource* pDXResource = GetDXBuffer();
-    const ezGALBufferCreationDescription& bufferDesc = GetDescription();
+    const WGALBufferCreationDescription& bufferDesc = GetDescription();
 
     D3D11_SHADER_RESOURCE_VIEW_DESC DXSRVDesc;
     DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -113,30 +113,30 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
 
     switch (resourceType)
     {
-      case ezGALShaderResourceType::TexelBuffer:
+      case WGALShaderResourceType::TexelBuffer:
       {
-        const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
+        const WGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == WGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
         const auto& formatInfo = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
-        const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
+        const WUInt32 uiBytesPerElement = WGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
 
         DXSRVDesc.BufferEx.FirstElement = bufferRange.m_uiByteOffset / uiBytesPerElement;
         DXSRVDesc.BufferEx.NumElements = bufferRange.m_uiByteCount / uiBytesPerElement;
-        DXSRVDesc.Format = ezGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
+        DXSRVDesc.Format = WGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
         if (DXSRVDesc.Format == DXGI_FORMAT_UNKNOWN)
         {
-          ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", viewFormat);
+          WLog::Error("Couldn't get valid DXGI format for resource view! ({0})", viewFormat);
           return nullptr;
         }
       }
       break;
-      case ezGALShaderResourceType::StructuredBuffer:
+      case WGALShaderResourceType::StructuredBuffer:
       {
         DXSRVDesc.BufferEx.FirstElement = bufferRange.m_uiByteOffset / bufferDesc.m_uiStructSize;
         DXSRVDesc.BufferEx.NumElements = bufferRange.m_uiByteCount / bufferDesc.m_uiStructSize;
       }
       break;
-      case ezGALShaderResourceType::ByteAddressBuffer:
+      case WGALShaderResourceType::ByteAddressBuffer:
       {
         DXSRVDesc.Format = DXGI_FORMAT_R32_TYPELESS;
         DXSRVDesc.BufferEx.FirstElement = bufferRange.m_uiByteOffset / 4;
@@ -145,7 +145,7 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
       }
       break;
       default:
-        EZ_REPORT_FAILURE("Unsupported resource type: {}", (ezUInt32)resourceType);
+        W_REPORT_FAILURE("Unsupported resource type: {}", (WUInt32)resourceType);
     }
 
     if (FAILED(m_pDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &pSRV)))
@@ -158,7 +158,7 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
   return pSRV;
 }
 
-ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
+ID3D11UnorderedAccessView* WGALBufferDX11::GetUAV(WGALBufferRange bufferRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALResourceFormat> overrideTexelBufferFormat) const
 {
   ID3D11UnorderedAccessView* pUAV = nullptr;
 
@@ -169,7 +169,7 @@ ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange,
   if (!m_UAVs.TryGetValue(view, pUAV))
   {
     ID3D11Resource* pDXResource = GetDXBuffer();
-    const ezGALBufferCreationDescription& bufferDesc = GetDescription();
+    const WGALBufferCreationDescription& bufferDesc = GetDescription();
 
     D3D11_UNORDERED_ACCESS_VIEW_DESC DXUAVDesc;
     DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -177,30 +177,30 @@ ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange,
     DXUAVDesc.Buffer.Flags = 0;
     switch (resourceType)
     {
-      case ezGALShaderResourceType::TexelBufferRW:
+      case WGALShaderResourceType::TexelBufferRW:
       {
-        const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
+        const WGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == WGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
         const auto& formatInfo = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
-        const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
+        const WUInt32 uiBytesPerElement = WGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
 
         DXUAVDesc.Buffer.FirstElement = bufferRange.m_uiByteOffset / uiBytesPerElement;
         DXUAVDesc.Buffer.NumElements = bufferRange.m_uiByteCount / uiBytesPerElement;
-        DXUAVDesc.Format = ezGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
+        DXUAVDesc.Format = WGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
         if (DXUAVDesc.Format == DXGI_FORMAT_UNKNOWN)
         {
-          ezLog::Error("Couldn't get valid DXGI format for unordered access view! ({0})", viewFormat);
+          WLog::Error("Couldn't get valid DXGI format for unordered access view! ({0})", viewFormat);
           return nullptr;
         }
       }
       break;
-      case ezGALShaderResourceType::StructuredBufferRW:
+      case WGALShaderResourceType::StructuredBufferRW:
       {
         DXUAVDesc.Buffer.FirstElement = bufferRange.m_uiByteOffset / bufferDesc.m_uiStructSize;
         DXUAVDesc.Buffer.NumElements = bufferRange.m_uiByteCount / bufferDesc.m_uiStructSize;
       }
       break;
-      case ezGALShaderResourceType::ByteAddressBufferRW:
+      case WGALShaderResourceType::ByteAddressBufferRW:
       {
         DXUAVDesc.Format = DXGI_FORMAT_R32_TYPELESS;
         DXUAVDesc.Buffer.FirstElement = bufferRange.m_uiByteOffset / 4;
@@ -209,7 +209,7 @@ ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange,
       }
       break;
       default:
-        EZ_REPORT_FAILURE("Unsupported resource type: {}", (ezUInt32)resourceType);
+        W_REPORT_FAILURE("Unsupported resource type: {}", (WUInt32)resourceType);
     }
 
     if (FAILED(m_pDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &pUAV)))
@@ -223,13 +223,13 @@ ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange,
   return pUAV;
 }
 
-ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
+WResult WGALBufferDX11::InitPlatform(WGALDevice* pDevice, WArrayPtr<const WUInt8> pInitialData)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
   m_pDevice = pDXDevice;
 
   D3D11_BUFFER_DESC BufferDesc = {};
-  EZ_SUCCEED_OR_RETURN(CreateBufferDesc(m_Description, BufferDesc, m_IndexFormat));
+  W_SUCCEED_OR_RETURN(CreateBufferDesc(m_Description, BufferDesc, m_IndexFormat));
 
   D3D11_SUBRESOURCE_DATA DXInitialData;
   DXInitialData.pSysMem = pInitialData.GetPtr();
@@ -237,36 +237,36 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 
   if (SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, pInitialData.IsEmpty() ? nullptr : &DXInitialData, &m_pDXBuffer)))
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
-    ezLog::Error("Creation of native DirectX buffer failed!");
-    return EZ_FAILURE;
+    WLog::Error("Creation of native DirectX buffer failed!");
+    return W_FAILURE;
   }
 }
 
-ezResult ezGALBufferDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALBufferDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
-  EZ_GAL_DX11_RELEASE(m_pDXBuffer);
+  W_IGNORE_UNUSED(pDevice);
+  W_GAL_DX11_RELEASE(m_pDXBuffer);
 
   for (auto it : m_SRVs)
   {
-    EZ_GAL_DX11_RELEASE(it.Value());
+    W_GAL_DX11_RELEASE(it.Value());
   }
   m_SRVs.Clear();
   for (auto it : m_UAVs)
   {
-    EZ_GAL_DX11_RELEASE(it.Value());
+    W_GAL_DX11_RELEASE(it.Value());
   }
   m_UAVs.Clear();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALBufferDX11::SetDebugNamePlatform(const char* szName) const
+void WGALBufferDX11::SetDebugNamePlatform(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  WUInt32 uiLength = WStringUtils::GetStringElementCount(szName);
 
   if (m_pDXBuffer != nullptr)
   {

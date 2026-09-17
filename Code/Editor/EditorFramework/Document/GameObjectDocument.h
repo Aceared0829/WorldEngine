@@ -8,22 +8,22 @@
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezAssetFileHeader;
-class ezGameObjectEditTool;
-class ezGameObjectDocument;
+class WAssetFileHeader;
+class WGameObjectEditTool;
+class WGameObjectDocument;
 
-struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
+struct W_EDITORFRAMEWORK_DLL TransformationChanges
 {
   enum Enum
   {
-    Translation = EZ_BIT(0),
-    Rotation = EZ_BIT(1),
-    Scale = EZ_BIT(2),
+    Translation = W_BIT(0),
+    Rotation = W_BIT(1),
+    Scale = W_BIT(2),
     All = 0xFF
   };
 };
 
-struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
+struct W_EDITORFRAMEWORK_DLL WGameObjectEvent
 {
   enum class Type
   {
@@ -52,82 +52,82 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
   };
 
   Type m_Type;
-  ezString m_sPayload;
+  WString m_sPayload;
 };
 
-struct ezGameObjectDocumentEvent
+struct WGameObjectDocumentEvent
 {
   enum class Type
   {
     GameMode_Stopped,
     GameMode_StartingSimulate,
     GameMode_StartingPlay,
-    GameMode_StartingExternal, ///< ie. scene is exported for ezPlayer
+    GameMode_StartingExternal, ///< ie. scene is exported for WPlayer
   };
 
   Type m_Type;
-  ezGameObjectDocument* m_pDocument = nullptr;
+  WGameObjectDocument* m_pDocument = nullptr;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectMetaData : public ezReflectedClass
+class W_EDITORFRAMEWORK_DLL WGameObjectMetaData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectMetaData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectMetaData, WReflectedClass);
 
 public:
   enum ModifiedFlags
   {
-    CachedName = EZ_BIT(2),
+    CachedName = W_BIT(2),
     AllFlags = 0xFFFFFFFF
   };
 
-  ezGameObjectMetaData() = default;
+  WGameObjectMetaData() = default;
 
-  ezString m_CachedNodeName;
+  WString m_CachedNodeName;
   QIcon m_Icon;
 };
 
-struct EZ_EDITORFRAMEWORK_DLL ezSelectedGameObject
+struct W_EDITORFRAMEWORK_DLL WSelectedGameObject
 {
-  const ezDocumentObject* m_pObject;
-  ezVec3 m_vLocalScaling;
+  const WDocumentObject* m_pObject;
+  WVec3 m_vLocalScaling;
   float m_fLocalUniformScaling;
-  ezTransform m_GlobalTransform;
+  WTransform m_GlobalTransform;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
+class W_EDITORFRAMEWORK_DLL WGameObjectDocument : public WAssetDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectDocument, WAssetDocument);
 
 public:
-  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
-  ~ezGameObjectDocument();
+  WGameObjectDocument(WStringView sDocumentPath, WDocumentObjectManager* pObjectManager, WAssetDocEngineConnection engineConnectionType = WAssetDocEngineConnection::FullObjectMirroring);
+  ~WGameObjectDocument();
 
   /// In case a document consists of multiple layers, this redirection is necessary to execute actions on the active layer.
-  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
+  virtual WGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
 
-  virtual ezEditorInputContext* GetEditorInputContextOverride() override;
+  virtual WEditorInputContext* GetEditorInputContextOverride() override;
 
 protected:
   void SubscribeGameObjectEventHandlers();
   void UnsubscribeGameObjectEventHandlers();
 
-  void GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e);
+  void GameObjectDocumentEventHandler(const WGameObjectDocumentEvent& e);
 
   /// \name Gizmo
   ///@{
 public:
   /// Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
-  void SetActiveEditTool(const ezRTTI* pEditToolType);
+  void SetActiveEditTool(const WRTTI* pEditToolType);
 
   /// Returns the currently active edit tool (nullptr for none).
-  ezGameObjectEditTool* GetActiveEditTool() const { return m_pActiveEditTool; }
+  WGameObjectEditTool* GetActiveEditTool() const { return m_pActiveEditTool; }
 
   /// Checks whether an edit tool of the given type, or nullptr for none, is active.
-  bool IsActiveEditTool(const ezRTTI* pEditToolType) const;
+  bool IsActiveEditTool(const WRTTI* pEditToolType) const;
 
   /// Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call
-  /// ezGameObjectEditTool::ConfigureTool()).
-  void SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate);
+  /// WGameObjectEditTool::ConfigureTool()).
+  void SetEditToolConfigDelegate(WDelegate<void(WGameObjectEditTool*)> configDelegate);
 
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
@@ -139,20 +139,20 @@ public:
   ///
   /// Additionally stores the current transformation. Useful to store this at the start of an operation
   /// to then do modifications on this base transformation every frame.
-  void ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_selection);
+  void ComputeTopLevelSelectedGameObjects(WDeque<WSelectedGameObject>& out_selection);
 
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
   /// Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const override;
+  virtual void FindAssetUsages(WStringView sAssetToFind, WDynamicArray<AssetUsage>& out_usages, WUInt32 uiMaxResults) const override;
 
 private:
-  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const;
+  void FindAssetUsagesInternal(WStringView sAssetToFind, const WDocumentObject* pObject, WDynamicArray<AssetUsage>& out_usages, WUInt32 uiMaxResults) const;
   void DeallocateEditTools();
 
-  ezDelegate<void(ezGameObjectEditTool*)> m_EditToolConfigDelegate;
-  ezGameObjectEditTool* m_pActiveEditTool = nullptr;
-  ezMap<const ezRTTI*, ezGameObjectEditTool*> m_CreatedEditTools;
+  WDelegate<void(WGameObjectEditTool*)> m_EditToolConfigDelegate;
+  WGameObjectEditTool* m_pActiveEditTool = nullptr;
+  WMap<const WRTTI*, WGameObjectEditTool*> m_CreatedEditTools;
 
 
   ///@}
@@ -204,14 +204,14 @@ public:
   bool GetStepSimulation() const { return m_bStepSimulation; }
 
   /// Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
-  void SetActiveParent(ezUuid object);
+  void SetActiveParent(WUuid object);
   /// Returns the object under which newly created objects should be parented.
   ///
   /// \note The object may not exist anymore! So check with the ObjectManager first.
-  ezUuid GetActiveParent() const { return m_ActiveParent; }
+  WUuid GetActiveParent() const { return m_ActiveParent; }
 
 private:
-  ezUuid m_ActiveParent = ezUuid::MakeInvalid();
+  WUuid m_ActiveParent = WUuid::MakeInvalid();
 
   ///@}
   /// \name Transform
@@ -221,66 +221,66 @@ public:
   /// Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
   /// some work can be spared.
-  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
+  void SetGlobalTransform(const WDocumentObject* pObject, const WTransform& t, WUInt8 uiTransformationChanges) const;
 
   /// Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
-  void SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
+  void SetGlobalTransformParentOnly(const WDocumentObject* pObject, const WTransform& t, WUInt8 uiTransformationChanges) const;
 
   /// Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
-  ezTransform GetGlobalTransform(const ezDocumentObject* pObject) const;
+  WTransform GetGlobalTransform(const WDocumentObject* pObject) const;
 
-  /// Retrieves the local transform property values from the object and combines it into one ezTransform
-  static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
-  static ezSimdTransform QueryLocalTransformSimd(const ezDocumentObject* pObject);
+  /// Retrieves the local transform property values from the object and combines it into one WTransform
+  static WTransform QueryLocalTransform(const WDocumentObject* pObject);
+  static WSimdTransform QueryLocalTransformSimd(const WDocumentObject* pObject);
 
   /// Computes the global transform of the parent and combines it with the local transform of the given object.
   /// This function does not return a cached value, but always computes it. It does update the internal cache for later reads though.
-  ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
+  WTransform ComputeGlobalTransform(const WDocumentObject* pObject) const;
 
-  /// Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const override;
+  /// Traverses the pObject hierarchy up until it hits an WGameObject, then computes the global transform of that.
+  virtual WResult ComputeObjectTransformation(const WDocumentObject* pObject, WTransform& out_result) const override;
 
   ///@}
   /// \name Node Names
   ///@{
 
   /// Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
-  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_sResult, QIcon* out_pIcon = nullptr) const;
+  void DetermineNodeName(const WDocumentObject* pObject, const WUuid& prefabGuid, WStringBuilder& out_sResult, QIcon* out_pIcon = nullptr) const;
 
   /// Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an
   /// outdated result.
   void QueryCachedNodeName(
-    const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
+    const WDocumentObject* pObject, WStringBuilder& out_sResult, WUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
 
   /// Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
-  void GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const;
+  void GenerateFullDisplayName(const WDocumentObject* pRoot, WStringBuilder& out_sFullPath) const;
 
   ///@}
 
 public:
-  mutable ezEvent<const ezGameObjectEvent&> m_GameObjectEvents;
-  mutable ezUniquePtr<ezObjectMetaData<ezUuid, ezGameObjectMetaData>> m_GameObjectMetaData;
+  mutable WEvent<const WGameObjectEvent&> m_GameObjectEvents;
+  mutable WUniquePtr<WObjectMetaData<WUuid, WGameObjectMetaData>> m_GameObjectMetaData;
 
-  static ezEvent<const ezGameObjectDocumentEvent&> s_GameObjectDocumentEvents;
+  static WEvent<const WGameObjectDocumentEvent&> s_GameObjectDocumentEvents;
 
 protected:
-  void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
+  void InvalidateGlobalTransformValue(const WDocumentObject* pObject) const;
   /// Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated
   /// on the engine side (after play the game etc.)
   virtual void SendGameWorldToEngine();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
+  virtual void AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable) override;
 
 public:
-  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void ObjectEventHandler(const ezDocumentObjectEvent& e);
+  void SelectionManagerEventHandler(const WSelectionManagerEvent& e);
+  void ObjectPropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void ObjectStructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void ObjectEventHandler(const WDocumentObjectEvent& e);
 
 protected:
-  struct EZ_EDITORFRAMEWORK_DLL GameModeData
+  struct W_EDITORFRAMEWORK_DLL GameModeData
   {
     bool m_bRenderSelectionOverlay;
     bool m_bRenderVisualizers;
@@ -298,17 +298,17 @@ private:
   bool m_bStepSimulation = false;
   float m_fSimulationSpeed = 1.0f;
 
-  using TransformTable = ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper>;
+  using TransformTable = WHashTable<const WDocumentObject*, WSimdTransform, WHashHelper<const WDocumentObject*>, WAlignedAllocatorWrapper>;
   mutable TransformTable m_GlobalTransforms;
 
   // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)
   // therefore when the selection is changed in the first frame, it might not be fully correct
   // by sending it a second time, we can fix that easily
-  ezInt8 m_iResendSelection = 0;
+  WInt8 m_iResendSelection = 0;
 
 protected:
-  ezEventSubscriptionID m_SelectionManagerEventHandlerID;
-  ezEventSubscriptionID m_ObjectPropertyEventHandlerID;
-  ezEventSubscriptionID m_ObjectStructureEventHandlerID;
-  ezEventSubscriptionID m_ObjectEventHandlerID;
+  WEventSubscriptionID m_SelectionManagerEventHandlerID;
+  WEventSubscriptionID m_ObjectPropertyEventHandlerID;
+  WEventSubscriptionID m_ObjectStructureEventHandlerID;
+  WEventSubscriptionID m_ObjectEventHandlerID;
 };

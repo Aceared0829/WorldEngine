@@ -2,19 +2,19 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezJoltCollisionMeshContext;
+class WJoltCollisionMeshContext;
 
-class ezJoltCollisionMeshViewContext : public ezEngineProcessViewContext
+class WJoltCollisionMeshViewContext : public WEngineProcessViewContext
 {
 public:
-  ezJoltCollisionMeshViewContext(ezJoltCollisionMeshContext* pMeshContext);
-  ~ezJoltCollisionMeshViewContext();
+  WJoltCollisionMeshViewContext(WJoltCollisionMeshContext* pMeshContext);
+  ~WJoltCollisionMeshViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  ezJoltCollisionMeshContext* m_pContext = nullptr;
+  WJoltCollisionMeshContext* m_pContext = nullptr;
 };

@@ -8,21 +8,21 @@
 /// Converts MSAA render targets to regular textures by averaging the samples. Supports both
 /// color and depth textures. Required when using MSAA rendering with post-processing effects
 /// that cannot operate on multi-sampled textures.
-class EZ_RENDERERCORE_DLL ezMsaaResolvePass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WMsaaResolvePass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMsaaResolvePass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WMsaaResolvePass, WRenderPipelinePass);
 
 public:
-  ezMsaaResolvePass();
-  ~ezMsaaResolvePass();
+  WMsaaResolvePass();
+  ~WMsaaResolvePass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
   bool m_bIsDepth = false;
-  ezGALMSAASampleCount::Enum m_MsaaSampleCount = ezGALMSAASampleCount::None;
-  ezShaderResourceHandle m_hDepthResolveShader;
+  WGALMSAASampleCount::Enum m_MsaaSampleCount = WGALMSAASampleCount::None;
+  WShaderResourceHandle m_hDepthResolveShader;
 };

@@ -6,13 +6,13 @@
 
 #include <d3d11.h>
 
-ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description)
-  : ezGALVertexDeclaration(Description)
+WGALVertexDeclarationDX11::WGALVertexDeclarationDX11(const WGALVertexDeclarationCreationDescription& Description)
+  : WGALVertexDeclaration(Description)
 
 {
 }
 
-ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11() = default;
+WGALVertexDeclarationDX11::~WGALVertexDeclarationDX11() = default;
 
 static const char* GALSemanticToDX11[] = {
   "POSITION",
@@ -58,28 +58,28 @@ static UINT GALSemanticToIndexDX11[] = {
 
 static D3D11_INPUT_CLASSIFICATION GalInputRateToDX11[] = {D3D11_INPUT_PER_VERTEX_DATA, D3D11_INPUT_PER_INSTANCE_DATA};
 
-static_assert(EZ_ARRAY_SIZE(GALSemanticToDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+static_assert(W_ARRAY_SIZE(GALSemanticToDX11) == WGALVertexAttributeSemantic::ENUM_COUNT,
   "GALSemanticToDX11 array size does not match vertex attribute semantic count");
-static_assert(EZ_ARRAY_SIZE(GALSemanticToIndexDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+static_assert(W_ARRAY_SIZE(GALSemanticToIndexDX11) == WGALVertexAttributeSemantic::ENUM_COUNT,
   "GALSemanticToIndexDX11 array size does not match vertex attribute semantic count");
 
-EZ_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
+W_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
 
-ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALVertexDeclarationDX11::InitPlatform(WGALDevice* pDevice)
 {
-  ezTempHybridArray<D3D11_INPUT_ELEMENT_DESC, 8> DXInputElementDescs;
+  WTempHybridArray<D3D11_INPUT_ELEMENT_DESC, 8> DXInputElementDescs;
 
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
 
-  const ezGALShader* pShader = pDevice->GetShader(m_Description.m_hShader);
+  const WGALShader* pShader = pDevice->GetShader(m_Description.m_hShader);
 
-  if (pShader == nullptr || !pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::VertexShader))
+  if (pShader == nullptr || !pShader->GetDescription().HasByteCodeForStage(WGALShaderStage::VertexShader))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   auto usedVertexAttributes = pShader->GetVertexInputAttributes();
-  auto IsAttributeUsed = [&](ezGALVertexAttributeSemantic::Enum semantic)
+  auto IsAttributeUsed = [&](WGALVertexAttributeSemantic::Enum semantic)
   {
     for (auto attrib : usedVertexAttributes)
     {
@@ -90,9 +90,9 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
   };
 
   // Copy attribute descriptions
-  for (ezUInt32 i = 0; i < m_Description.m_VertexAttributes.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Description.m_VertexAttributes.GetCount(); i++)
   {
-    const ezGALVertexAttribute& Current = m_Description.m_VertexAttributes[i];
+    const WGALVertexAttribute& Current = m_Description.m_VertexAttributes[i];
     if (!IsAttributeUsed(Current.m_eSemantic))
       continue;
 
@@ -102,15 +102,15 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (DXDesc.Format == DXGI_FORMAT_UNKNOWN)
     {
-      ezLog::Error("Vertex attribute format {0} of attribute at index {1} is unknown!", Current.m_eFormat, i);
-      return EZ_FAILURE;
+      WLog::Error("Vertex attribute format {0} of attribute at index {1} is unknown!", Current.m_eFormat, i);
+      return W_FAILURE;
     }
 
-    const ezGALVertexBinding& binding = m_Description.m_VertexBindings[Current.m_uiVertexBufferSlot];
+    const WGALVertexBinding& binding = m_Description.m_VertexBindings[Current.m_uiVertexBufferSlot];
 
     DXDesc.InputSlot = Current.m_uiVertexBufferSlot;
     DXDesc.InputSlotClass = GalInputRateToDX11[binding.m_Rate.GetValue()];
-    DXDesc.InstanceDataStepRate = binding.m_Rate == ezGALVertexBindingRate::Vertex ? 0 : 1;
+    DXDesc.InstanceDataStepRate = binding.m_Rate == WGALVertexBindingRate::Vertex ? 0 : 1;
     DXDesc.SemanticIndex = GALSemanticToIndexDX11[Current.m_eSemantic];
     DXDesc.SemanticName = GALSemanticToDX11[Current.m_eSemantic];
 
@@ -119,31 +119,31 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (DXInputElementDescs.IsEmpty())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_VertexBufferStrides.SetCount(m_Description.m_VertexBindings.GetCount());
-  for (ezUInt32 i = 0; i < m_Description.m_VertexBindings.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Description.m_VertexBindings.GetCount(); i++)
   {
     m_VertexBufferStrides[i] = m_Description.m_VertexBindings[i].m_uiStride;
   }
 
-  const ezSharedPtr<const ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
+  const WSharedPtr<const WGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[WGALShaderStage::VertexShader];
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(&DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-ezResult ezGALVertexDeclarationDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALVertexDeclarationDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXInputLayout);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXInputLayout);
+  return W_SUCCESS;
 }

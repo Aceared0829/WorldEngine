@@ -3,14 +3,14 @@
 #include <RTSPlugin/AI/AiUtilitySystem.h>
 #include <RTSPlugin/Components/ComponentMessages.h>
 
-class RtsUnitComponentManager : public ezComponentManager<class RtsUnitComponent, ezBlockStorageType::FreeList>
+class RtsUnitComponentManager : public WComponentManager<class RtsUnitComponent, WBlockStorageType::FreeList>
 {
 public:
-  RtsUnitComponentManager(ezWorld* pWorld);
+  RtsUnitComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
-  void UnitUpdate(const ezWorldModule::UpdateContext& context);
+  void UnitUpdate(const WWorldModule::UpdateContext& context);
 };
 
 enum class RtsUnitMode
@@ -20,29 +20,29 @@ enum class RtsUnitMode
   AttackUnit,
 };
 
-class RtsUnitComponent : public ezComponent
+class RtsUnitComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(RtsUnitComponent, ezComponent, RtsUnitComponentManager);
+  W_DECLARE_COMPONENT_TYPE(RtsUnitComponent, WComponent, RtsUnitComponentManager);
 
 public:
   RtsUnitComponent();
   ~RtsUnitComponent();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // WComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
-  ezUInt16 m_uiMaxHealth = 100;
-  ezUInt16 m_uiCurHealth = 0;
+  WUInt16 m_uiMaxHealth = 100;
+  WUInt16 m_uiCurHealth = 0;
 
 private:
-  ezPrefabResourceHandle m_hOnDestroyedPrefab;
+  WPrefabResourceHandle m_hOnDestroyedPrefab;
 
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
@@ -56,9 +56,9 @@ public:
   //////////////////////////////////////////////////////////////////////////
   //
 
-  ezGameObject* FindClosestEnemy(float fMaxRadius) const;
-  void FireAt(ezGameObjectHandle hUnit);
-  ezGameObject* AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius);
+  WGameObject* FindClosestEnemy(float fMaxRadius) const;
+  void FireAt(WGameObjectHandle hUnit);
+  WGameObject* AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius);
 
 protected:
   virtual void OnUnitDestroyed();
@@ -70,13 +70,13 @@ protected:
   bool m_bModeChanged = true;
   RtsUnitMode m_UnitMode;
 
-  ezVec2 m_vAssignedPosition;
+  WVec2 m_vAssignedPosition;
 
-  ezGameObjectHandle m_hAssignedUnitToAttack;
-  ezGameObjectHandle m_hCurrentUnitToAttack;
+  WGameObjectHandle m_hAssignedUnitToAttack;
+  WGameObjectHandle m_hCurrentUnitToAttack;
 
-  ezTime m_TimeLastShot;
-  ezUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable
+  WTime m_TimeLastShot;
+  WUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable
 
   void UpdateUnit();
 };

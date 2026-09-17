@@ -8,41 +8,41 @@
 #include <Core/World/World.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
-using ezColorAnimationComponentManager = ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating>;
+using WColorAnimationComponentManager = WComponentManagerSimple<class WColorAnimationComponent, WComponentUpdateType::WhenSimulating>;
 
-/// Samples a color gradient and sends an ezMsgSetColor to the object it is attached to
+/// Samples a color gradient and sends an WMsgSetColor to the object it is attached to
 ///
 /// The color gradient is sampled linearly over time.
 /// This can be used to animate the color of a light source or mesh.
-class EZ_GAMEENGINE_DLL ezColorAnimationComponent : public ezComponent
+class W_GAMEENGINE_DLL WColorAnimationComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezColorAnimationComponent, ezComponent, ezColorAnimationComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WColorAnimationComponent, WComponent, WColorAnimationComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezColorAnimationComponent
+  // WColorAnimationComponent
 public:
-  ezColorAnimationComponent();
+  WColorAnimationComponent();
 
   /// How long it takes to sample the entire color gradient.
-  ezTime m_Duration;                                                                                     // [ property ]
+  WTime m_Duration;                                                                                     // [ property ]
 
-  void SetColorGradient(const ezColorGradientResourceHandle& hResource);                                 // [ property ]
-  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; } // [ property ]
+  void SetColorGradient(const WColorGradientResourceHandle& hResource);                                 // [ property ]
+  W_ALWAYS_INLINE const WColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; } // [ property ]
 
   /// How the animation should be played and looped.
-  ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
+  WEnum<WPropertyAnimMode> m_AnimationMode; // [ property ]
 
   /// How the color should be applied to the target.
-  ezEnum<ezSetColorMode> m_SetColorMode; // [ property ]
+  WEnum<WSetColorMode> m_SetColorMode; // [ property ]
 
   bool GetApplyRecursive() const;        // [ property ]
   void SetApplyRecursive(bool value);    // [ property ]
@@ -53,6 +53,6 @@ public:
 protected:
   void Update();
 
-  ezTime m_CurAnimTime;
-  ezColorGradientResourceHandle m_hGradient;
+  WTime m_CurAnimTime;
+  WColorGradientResourceHandle m_hGradient;
 };

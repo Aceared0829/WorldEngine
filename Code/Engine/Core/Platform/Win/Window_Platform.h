@@ -1,20 +1,20 @@
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#if W_ENABLED(W_SUPPORTS_GLFW)
 
 #  include <Core/Platform/GLFW/Window_GLFW.h>
 
 #else
 
-class EZ_CORE_DLL ezWindowWin : public ezWindowPlatformShared
+class W_CORE_DLL WWindowWin : public WWindowPlatformShared
 {
 public:
-  ~ezWindowWin();
+  ~WWindowWin();
 
-  virtual ezResult InitializeWindow() override;
+  virtual WResult InitializeWindow() override;
   virtual void DestroyWindow() override;
-  virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual WResult Resize(const WSizeU32& newWindowSize) override;
   virtual void ProcessWindowMessages() override;
-  virtual ezWindowHandle GetNativeWindowHandle() const override;
+  virtual WWindowHandle GetNativeWindowHandle() const override;
 
   /// Called on any window message.
   ///
@@ -24,17 +24,17 @@ public:
   ///   Will be called <i>after</i> the On[...] callbacks!
   ///
   /// \see OnResizeMessage
-  virtual void OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+  virtual void OnWindowMessage(WMinWindows::HWND hWnd, WMinWindows::UINT msg, WMinWindows::WPARAM wparam, WMinWindows::LPARAM lparam)
   {
-    EZ_IGNORE_UNUSED(hWnd);
-    EZ_IGNORE_UNUSED(msg);
-    EZ_IGNORE_UNUSED(wparam);
-    EZ_IGNORE_UNUSED(lparam);
+    W_IGNORE_UNUSED(hWnd);
+    W_IGNORE_UNUSED(msg);
+    W_IGNORE_UNUSED(wparam);
+    W_IGNORE_UNUSED(lparam);
   }
 };
 
 // can't use a 'using' here, because that can't be forward declared
-class EZ_CORE_DLL ezWindow : public ezWindowWin
+class W_CORE_DLL WWindow : public WWindowWin
 {
 };
 

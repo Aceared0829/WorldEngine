@@ -3,11 +3,11 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Time/Clock.h>
 
-ezClock::Event ezClock::s_TimeEvents;
-ezClock* ezClock::s_pGlobalClock = nullptr;
+WClock::Event WClock::s_TimeEvents;
+WClock* WClock::s_pGlobalClock = nullptr;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Time"
@@ -15,73 +15,73 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
 
   ON_BASESYSTEMS_STARTUP
   {
-    ezClock::s_pGlobalClock = new ezClock("Global");
+    WClock::s_pGlobalClock = new WClock("Global");
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezClock, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WClock, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
-    EZ_ACCESSOR_PROPERTY("Speed", GetSpeed, SetSpeed),
+    W_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
+    W_ACCESSOR_PROPERTY("Speed", GetSpeed, SetSpeed),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalClock),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetAccumulatedTime),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTimeDiff)
+    W_SCRIPT_FUNCTION_PROPERTY(GetGlobalClock),
+    W_SCRIPT_FUNCTION_PROPERTY(GetAccumulatedTime),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTimeDiff)
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezClock::ezClock(ezStringView sName)
+WClock::WClock(WStringView sName)
 {
   SetClockName(sName);
 
   Reset(true);
 }
 
-void ezClock::Reset(bool bEverything)
+void WClock::Reset(bool bEverything)
 {
   if (bEverything)
   {
     m_pTimeStepSmoother = nullptr;
-    m_MinTimeStep = ezTime::MakeFromSeconds(0.001); // 1000 FPS
-    m_MaxTimeStep = ezTime::MakeFromSeconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
-    m_FixedTimeStep = ezTime::MakeFromSeconds(0.0);
+    m_MinTimeStep = WTime::MakeFromSeconds(0.001); // 1000 FPS
+    m_MaxTimeStep = WTime::MakeFromSeconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
+    m_FixedTimeStep = WTime::MakeFromSeconds(0.0);
   }
 
-  m_AccumulatedTime = ezTime::MakeFromSeconds(0.0);
+  m_AccumulatedTime = WTime::MakeFromSeconds(0.0);
   m_fSpeed = 1.0;
   m_bPaused = false;
 
   // this is to prevent having a time difference of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezTime::Now() - m_MinTimeStep;
+  m_LastTimeUpdate = WTime::Now() - m_MinTimeStep;
   m_LastTimeDiff = m_MinTimeStep;
 
   if (m_pTimeStepSmoother)
     m_pTimeStepSmoother->Reset(this);
 }
 
-void ezClock::Update()
+void WClock::Update()
 {
-  const ezTime tNow = ezTime::Now();
-  const ezTime tDiff = tNow - m_LastTimeUpdate;
+  const WTime tNow = WTime::Now();
+  const WTime tDiff = tNow - m_LastTimeUpdate;
   m_LastTimeUpdate = tNow;
 
   if (m_bPaused)
   {
     // no change during pause
-    m_LastTimeDiff = ezTime::MakeFromSeconds(0.0);
+    m_LastTimeDiff = WTime::MakeFromSeconds(0.0);
   }
-  else if (m_FixedTimeStep > ezTime::MakeFromSeconds(0.0))
+  else if (m_FixedTimeStep > WTime::MakeFromSeconds(0.0))
   {
     // scale the time step by the speed factor
     m_LastTimeDiff = m_FixedTimeStep * m_fSpeed;
@@ -95,7 +95,7 @@ void ezClock::Update()
     {
       // scale the time step by the speed factor
       // and make sure the time step does not leave the predetermined bounds
-      m_LastTimeDiff = ezMath::Clamp(tDiff * m_fSpeed, m_MinTimeStep, m_MaxTimeStep);
+      m_LastTimeDiff = WMath::Clamp(tDiff * m_fSpeed, m_MinTimeStep, m_MaxTimeStep);
     }
   }
 
@@ -109,19 +109,19 @@ void ezClock::Update()
   s_TimeEvents.Broadcast(ed);
 }
 
-void ezClock::SetAccumulatedTime(ezTime t)
+void WClock::SetAccumulatedTime(WTime t)
 {
   m_AccumulatedTime = t;
 
   // this is to prevent having a time difference of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezTime::Now() - ezTime::MakeFromSeconds(0.01);
-  m_LastTimeDiff = ezTime::MakeFromSeconds(0.01);
+  m_LastTimeUpdate = WTime::Now() - WTime::MakeFromSeconds(0.01);
+  m_LastTimeDiff = WTime::MakeFromSeconds(0.01);
 }
 
-void ezClock::Save(ezStreamWriter& inout_stream) const
+void WClock::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
 
   inout_stream << uiVersion;
   inout_stream << m_AccumulatedTime;
@@ -133,12 +133,12 @@ void ezClock::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_bPaused;
 }
 
-void ezClock::Load(ezStreamReader& inout_stream)
+void WClock::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Wrong version for ezClock: {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion == 1, "Wrong version for WClock: {0}", uiVersion);
 
   inout_stream >> m_AccumulatedTime;
   inout_stream >> m_LastTimeDiff;
@@ -149,7 +149,7 @@ void ezClock::Load(ezStreamReader& inout_stream)
   inout_stream >> m_bPaused;
 
   // make sure we continue properly
-  m_LastTimeUpdate = ezTime::Now() - m_MinTimeStep;
+  m_LastTimeUpdate = WTime::Now() - m_MinTimeStep;
 
   if (m_pTimeStepSmoother)
     m_pTimeStepSmoother->Reset(this);
@@ -157,4 +157,4 @@ void ezClock::Load(ezStreamReader& inout_stream)
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Clock);
+W_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Clock);

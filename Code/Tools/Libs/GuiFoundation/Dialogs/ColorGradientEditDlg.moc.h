@@ -5,16 +5,16 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_ColorGradientEditDlg.h>
 
-class ezObjectAccessorBase;
-class ezDocumentObject;
+class WObjectAccessorBase;
+class WDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtColorGradientEditDlg : public ezQtDialog, public Ui_ColorGradientEditDlg
+class W_GUIFOUNDATION_DLL WQtColorGradientEditDlg : public WQtDialog, public Ui_ColorGradientEditDlg
 {
   Q_OBJECT
 
 public:
-  ezQtColorGradientEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject, QWidget* pParent, ezStringView sTitle = {});
-  ~ezQtColorGradientEditDlg();
+  WQtColorGradientEditDlg(WObjectAccessorBase* pObjectAccessor, const WDocumentObject* pGradientObject, QWidget* pParent, WStringView sTitle = {});
+  ~WQtColorGradientEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
 
@@ -25,22 +25,22 @@ public:
 
 private Q_SLOTS:
   // Color CP operations
-  void OnColorCpAdded(double fPosX, const ezColorGammaUB& color);
-  void OnColorCpMoved(ezInt32 iIndex, double fNewPosX);
-  void OnColorCpDeleted(ezInt32 iIndex);
-  void OnColorCpChanged(ezInt32 iIndex, const ezColorGammaUB& color);
+  void OnColorCpAdded(double fPosX, const WColorGammaUB& color);
+  void OnColorCpMoved(WInt32 iIndex, double fNewPosX);
+  void OnColorCpDeleted(WInt32 iIndex);
+  void OnColorCpChanged(WInt32 iIndex, const WColorGammaUB& color);
 
   // Alpha CP operations
-  void OnAlphaCpAdded(double fPosX, ezUInt8 uiAlpha);
-  void OnAlphaCpMoved(ezInt32 iIndex, double fNewPosX);
-  void OnAlphaCpDeleted(ezInt32 iIndex);
-  void OnAlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha);
+  void OnAlphaCpAdded(double fPosX, WUInt8 uiAlpha);
+  void OnAlphaCpMoved(WInt32 iIndex, double fNewPosX);
+  void OnAlphaCpDeleted(WInt32 iIndex);
+  void OnAlphaCpChanged(WInt32 iIndex, WUInt8 uiAlpha);
 
   // Intensity CP operations
   void OnIntensityCpAdded(double fPosX, float fIntensity);
-  void OnIntensityCpMoved(ezInt32 iIndex, double fNewPosX);
-  void OnIntensityCpDeleted(ezInt32 iIndex);
-  void OnIntensityCpChanged(ezInt32 iIndex, float fIntensity);
+  void OnIntensityCpMoved(WInt32 iIndex, double fNewPosX);
+  void OnIntensityCpDeleted(WInt32 iIndex);
+  void OnIntensityCpChanged(WInt32 iIndex, float fIntensity);
 
   // Operation boundaries
   void OnBeginOperation();
@@ -62,14 +62,14 @@ private:
   void UpdatePreview();
   void UpdateUndoRedoState();
 
-  ezColorGradient m_Gradient;
-  ezUInt32 m_uiActionsUndoBaseline = 0;
+  WColorGradient m_Gradient;
+  WUInt32 m_uiActionsUndoBaseline = 0;
 
   QShortcut* m_pShortcutUndo = nullptr;
   QShortcut* m_pShortcutRedo = nullptr;
 
-  ezObjectAccessorBase* m_pObjectAccessor = nullptr;
-  const ezDocumentObject* m_pGradientObject = nullptr;
+  WObjectAccessorBase* m_pObjectAccessor = nullptr;
+  const WDocumentObject* m_pGradientObject = nullptr;
 
 protected:
   virtual void closeEvent(QCloseEvent* e) override;

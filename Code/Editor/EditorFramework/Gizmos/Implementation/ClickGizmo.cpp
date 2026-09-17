@@ -4,79 +4,79 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/ClickGizmo.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClickGizmo, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WClickGizmo, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezClickGizmo::ezClickGizmo()
+WClickGizmo::WClickGizmo()
 {
-  m_hShape.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::Pickable);
+  m_hShape.ConfigureHandle(this, WEngineGizmoHandleType::Sphere, WColor::White, WGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::MakeIdentity());
+  SetTransformation(WTransform::MakeIdentity());
 }
 
-void ezClickGizmo::SetColor(const ezColor& color)
+void WClickGizmo::SetColor(const WColor& color)
 {
   m_hShape.SetColor(color);
 }
 
-void ezClickGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void WClickGizmo::OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hShape);
 }
 
-void ezClickGizmo::OnVisibleChanged(bool bVisible)
+void WClickGizmo::OnVisibleChanged(bool bVisible)
 {
   m_hShape.SetVisible(bVisible);
 }
 
-void ezClickGizmo::OnTransformationChanged(const ezTransform& transform)
+void WClickGizmo::OnTransformationChanged(const WTransform& transform)
 {
   m_hShape.SetTransformation(transform);
 }
 
-void ezClickGizmo::DoFocusLost(bool bCancel)
+void WClickGizmo::DoFocusLost(bool bCancel)
 {
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 }
 
-ezEditorInput ezClickGizmo::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WClickGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle != &m_hShape)
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   SetActiveInputContext(this);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezClickGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WClickGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
+  ev.m_Type = WGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }

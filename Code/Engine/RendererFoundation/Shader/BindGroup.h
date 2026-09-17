@@ -11,48 +11,48 @@
 
 /// ***** Bind Group Item Notes *****
 ///
-/// The classes in this file define the bindings in a bind group layout. The user should never create these by hand, they are used mainly for easy hashing and comparison of bind groups. Instead, users should use the ezBindGroupBuilder to create bind groups and their items.
+/// The classes in this file define the bindings in a bind group layout. The user should never create these by hand, they are used mainly for easy hashing and comparison of bind groups. Instead, users should use the WBindGroupBuilder to create bind groups and their items.
 
-/// Sampler contents of ezGALBindGroupItem
-struct ezSamplerBindGroupItem
+/// Sampler contents of WGALBindGroupItem
+struct WSamplerBindGroupItem
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALSamplerStateHandle m_hSampler;
+  W_DECLARE_POD_TYPE();
+  WGALSamplerStateHandle m_hSampler;
 };
 
-/// Texture contents of ezGALBindGroupItem
-struct ezTextureBindGroupItem
+/// Texture contents of WGALBindGroupItem
+struct WTextureBindGroupItem
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALTextureHandle m_hTexture;
-  ezGALSamplerStateHandle m_hSampler;               ///< Only used for slots of ezGALShaderResourceType::TextureAndSampler.
-  ezGALTextureRange m_TextureRange;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat; ///< Overrides the default view format. E.g. used for converting between linear and gamma space.
-  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
+  W_DECLARE_POD_TYPE();
+  WGALTextureHandle m_hTexture;
+  WGALSamplerStateHandle m_hSampler;               ///< Only used for slots of WGALShaderResourceType::TextureAndSampler.
+  WGALTextureRange m_TextureRange;
+  WEnum<WGALResourceFormat> m_OverrideViewFormat; ///< Overrides the default view format. E.g. used for converting between linear and gamma space.
+  WEnum<WGALTextureType> m_OverrideViewType = WGALTextureType::Invalid;
 };
 
-/// Buffer contents of ezGALBindGroupItem
-struct ezGALBufferBindGroupItem
+/// Buffer contents of WGALBindGroupItem
+struct WGALBufferBindGroupItem
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALBufferHandle m_hBuffer;
-  ezGALBufferRange m_BufferRange;
-  ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat; ///< Texel buffer only: Overrides the default view format defined in the buffer description.
+  W_DECLARE_POD_TYPE();
+  WGALBufferHandle m_hBuffer;
+  WGALBufferRange m_BufferRange;
+  WEnum<WGALResourceFormat> m_OverrideTexelBufferFormat; ///< Texel buffer only: Overrides the default view format defined in the buffer description.
 };
 
-/// Used by ezGALBindGroupItem to define its content.
-struct ezGALBindGroupItemFlags
+/// Used by WGALBindGroupItem to define its content.
+struct WGALBindGroupItemFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
-    Sampler = EZ_BIT(0),          ///< ezGALBindGroupItem::m_Sampler is valid
-    Texture = EZ_BIT(1),          ///< ezGALBindGroupItem::m_Texture is valid
-    Buffer = EZ_BIT(2),           ///< ezGALBindGroupItem::m_Buffer is valid
-    EmptyBinding = EZ_BIT(3),     ///< The binding slot was empty and filled with a fallback resource from ezGALRendererFallbackResources.
-    FallbackResource = EZ_BIT(4), ///< The slot was filled with a fallback resource due to ezResourceAcquireMode::AllowLoadingFallback.
-    PartiallyLoaded = EZ_BIT(5),  ///< The resource is only partially loaded.
+    Sampler = W_BIT(0),          ///< WGALBindGroupItem::m_Sampler is valid
+    Texture = W_BIT(1),          ///< WGALBindGroupItem::m_Texture is valid
+    Buffer = W_BIT(2),           ///< WGALBindGroupItem::m_Buffer is valid
+    EmptyBinding = W_BIT(3),     ///< The binding slot was empty and filled with a fallback resource from WGALRendererFallbackResources.
+    FallbackResource = W_BIT(4), ///< The slot was filled with a fallback resource due to WResourceAcquireMode::AllowLoadingFallback.
+    PartiallyLoaded = W_BIT(5),  ///< The resource is only partially loaded.
     TypeFlags = Sampler | Texture | Buffer,
     MetaFlags = EmptyBinding | FallbackResource | PartiallyLoaded,
     Default = 0
@@ -68,50 +68,50 @@ struct ezGALBindGroupItemFlags
     StorageType PartiallyLoaded : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALBindGroupItemFlags);
+W_DECLARE_FLAGS_OPERATORS(WGALBindGroupItemFlags);
 
-/// Used by ezGALBindGroupCreationDescription to bind resources to a ezShaderResourceBinding slot.
-struct ezGALBindGroupItem : public ezHashableStruct<ezGALBindGroupItem>
+/// Used by WGALBindGroupCreationDescription to bind resources to a WShaderResourceBinding slot.
+struct WGALBindGroupItem : public WHashableStruct<WGALBindGroupItem>
 {
-  EZ_DECLARE_POD_TYPE();
-  inline ezGALBindGroupItem();
-  inline ezGALBindGroupItem(const ezGALBindGroupItem& rhs);
-  inline void operator=(const ezGALBindGroupItem& rhs);
+  W_DECLARE_POD_TYPE();
+  inline WGALBindGroupItem();
+  inline WGALBindGroupItem(const WGALBindGroupItem& rhs);
+  inline void operator=(const WGALBindGroupItem& rhs);
 
-  ezBitflags<ezGALBindGroupItemFlags> m_Flags;
+  WBitflags<WGALBindGroupItemFlags> m_Flags;
   union
   {
-    ezSamplerBindGroupItem m_Sampler;
-    ezTextureBindGroupItem m_Texture;
-    ezGALBufferBindGroupItem m_Buffer;
+    WSamplerBindGroupItem m_Sampler;
+    WTextureBindGroupItem m_Texture;
+    WGALBufferBindGroupItem m_Buffer;
   };
 };
 
 /// Defines a bind group.
-/// Can be set to the renderer via ezGALCommandEncoder::SetBindGroup.
-struct EZ_RENDERERFOUNDATION_DLL ezGALBindGroupCreationDescription
+/// Can be set to the renderer via WGALCommandEncoder::SetBindGroup.
+struct W_RENDERERFOUNDATION_DLL WGALBindGroupCreationDescription
 {
-  ezUInt64 CalculateHash() const;
-  void AssertValidDescription(const ezGALDevice& galDevice) const;
+  WUInt64 CalculateHash() const;
+  void AssertValidDescription(const WGALDevice& galDevice) const;
 
-  ezGALBindGroupLayoutHandle m_hBindGroupLayout;       ///< The layout that this bind group was created for.
-  ezDynamicArray<ezGALBindGroupItem> m_BindGroupItems; ///< Contains one item for every ezShaderResourceBinding in the ezGALBindGroupLayout at matching indices in the arrays.
+  WGALBindGroupLayoutHandle m_hBindGroupLayout;       ///< The layout that this bind group was created for.
+  WDynamicArray<WGALBindGroupItem> m_BindGroupItems; ///< Contains one item for every WShaderResourceBinding in the WGALBindGroupLayout at matching indices in the arrays.
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBindGroup : public ezGALResource<ezGALBindGroupCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALBindGroup : public WGALResource<WGALBindGroupCreationDescription>
 {
 public:
   virtual bool IsInvalidated() const = 0;
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
-  virtual void Invalidate(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
+  virtual void Invalidate(WGALDevice* pDevice) = 0;
 
-  inline ezGALBindGroup(const ezGALBindGroupCreationDescription& Description);
-  inline virtual ~ezGALBindGroup();
+  inline WGALBindGroup(const WGALBindGroupCreationDescription& Description);
+  inline virtual ~WGALBindGroup();
 };
 
 #include <RendererFoundation/Shader/Implementation/BindGroup_inl.h>

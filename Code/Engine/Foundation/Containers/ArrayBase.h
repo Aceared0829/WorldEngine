@@ -4,75 +4,75 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Types/ArrayPtr.h>
 
-#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#if W_ENABLED(W_INTEROP_STL_SPAN)
 #  include <span>
 #endif
 
 /// Value used by containers for indices to indicate an invalid index.
-#ifndef ezInvalidIndex
-#  define ezInvalidIndex 0xFFFFFFFF
+#ifndef WInvalidIndex
+#  define WInvalidIndex 0xFFFFFFFF
 #endif
 
 /// Base class for all array containers. Implements all the basic functionality that only requires a pointer and the element count.
 template <typename T, typename Derived>
-class ezArrayBase
+class WArrayBase
 {
 public:
   /// Constructor.
-  ezArrayBase(); // [tested]
+  WArrayBase(); // [tested]
 
   /// Destructor.
-  ~ezArrayBase(); // [tested]
+  ~WArrayBase(); // [tested]
 
   /// Copies the data from some other contiguous array into this one.
-  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
+  void operator=(const WArrayPtr<const T>& rhs); // [tested]
 
-  /// Conversion to const ezArrayPtr.
-  operator ezArrayPtr<const T>() const; // [tested]
+  /// Conversion to const WArrayPtr.
+  operator WArrayPtr<const T>() const; // [tested]
 
-  /// Conversion to ezArrayPtr.
-  operator ezArrayPtr<T>(); // [tested]
-
-  /// Compares this array to another contiguous array type.
-  bool operator==(const ezArrayBase<T, Derived>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayBase<T, Derived>&);
+  /// Conversion to WArrayPtr.
+  operator WArrayPtr<T>(); // [tested]
 
   /// Compares this array to another contiguous array type.
-  bool operator<(const ezArrayBase<T, Derived>& rhs) const; // [tested]
+  bool operator==(const WArrayBase<T, Derived>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WArrayBase<T, Derived>&);
 
-#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
   /// Compares this array to another contiguous array type.
-  bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
+  bool operator<(const WArrayBase<T, Derived>& rhs) const; // [tested]
+
+#if W_DISABLED(W_USE_CPP20_OPERATORS)
+  /// Compares this array to another contiguous array type.
+  bool operator==(const WArrayPtr<const T>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WArrayPtr<const T>&);
 #endif
 
   /// Compares this array to another contiguous array type.
-  bool operator<(const ezArrayPtr<const T>& rhs) const; // [tested]
+  bool operator<(const WArrayPtr<const T>& rhs) const; // [tested]
 
   /// Returns the element at the given index. Does bounds checks in debug builds.
-  const T& operator[](ezUInt32 uiIndex) const; // [tested]
+  const T& operator[](WUInt32 uiIndex) const; // [tested]
 
   /// Returns the element at the given index. Does bounds checks in debug builds.
-  T& operator[](ezUInt32 uiIndex); // [tested]
+  T& operator[](WUInt32 uiIndex); // [tested]
 
   /// Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
-  void SetCount(ezUInt32 uiCount); // [tested]
+  void SetCount(WUInt32 uiCount); // [tested]
 
   /// Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
-  void SetCount(ezUInt32 uiCount, const T& fillValue); // [tested]
+  void SetCount(WUInt32 uiCount, const T& fillValue); // [tested]
 
   /// Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
   ///
   /// This function is only available for types that are trivially constructible. New elements are not initialized,
   template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
-  void SetCountUninitialized(ezUInt32 uiCount); // [tested]
+  void SetCountUninitialized(WUInt32 uiCount); // [tested]
 
   /// Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
-  void EnsureCount(ezUInt32 uiCount); // [tested]
+  void EnsureCount(WUInt32 uiCount); // [tested]
 
   /// Returns the number of active elements in the array.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Returns true, if the array does not contain any elements.
   bool IsEmpty() const; // [tested]
@@ -84,13 +84,13 @@ public:
   bool Contains(const T& value) const; // [tested]
 
   /// Inserts value at index by shifting all following elements.
-  void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
+  void InsertAt(WUInt32 uiIndex, const T& value); // [tested]
 
   /// Inserts value at index by shifting all following elements.
-  void InsertAt(ezUInt32 uiIndex, T&& value); // [tested]
+  void InsertAt(WUInt32 uiIndex, T&& value); // [tested]
 
   /// Inserts all elements in the range starting at the given index, shifting the elements after the index.
-  void InsertRangeAt(ezUInt32 uiIndex, const ezArrayPtr<const T>& range); // [tested]
+  void InsertRangeAt(WUInt32 uiIndex, const WArrayPtr<const T>& range); // [tested]
 
   /// Removes the first occurrence of value and fills the gap by shifting all following elements.
   ///
@@ -108,25 +108,25 @@ public:
   ///
   /// This maintains the order of remaining elements but is O(n) due to element shifting.
   /// Can remove multiple consecutive elements when uiNumElements > 1.
-  void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndCopy(WUInt32 uiIndex, WUInt32 uiNumElements = 1); // [tested]
 
   /// Removes the element at index and fills the gap by swapping in the last element.
   ///
   /// This is O(1) but does not preserve element order. When removing multiple elements, each gap is filled
   /// by swapping in elements from the end of the array.
-  void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndSwap(WUInt32 uiIndex, WUInt32 uiNumElements = 1); // [tested]
 
-  /// Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
+  /// Searches for the first occurrence of the given value and returns its index or WInvalidIndex if not found.
+  WUInt32 IndexOf(const T& value, WUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
+  /// Searches for the last occurrence of the given value and returns its index or WInvalidIndex if not found.
+  WUInt32 LastIndexOf(const T& value, WUInt32 uiStartIndex = WInvalidIndex) const; // [tested]
 
   /// Grows the array by one element and returns a reference to the newly created element.
   T& ExpandAndGetRef(); // [tested]
 
   /// Expands the array by N new items and returns a pointer to the first new one.
-  T* ExpandBy(ezUInt32 uiNumNewItems);
+  T* ExpandBy(WUInt32 uiNumNewItems);
 
   /// Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
@@ -149,10 +149,10 @@ public:
   void PushBackUnchecked(T&& value); // [tested]
 
   /// Pushes all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
+  void PushBackRange(const WArrayPtr<const T>& range); // [tested]
 
   /// Removes count elements from the end of the array.
-  void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
+  void PopBack(WUInt32 uiCountToRemove = 1); // [tested]
 
   /// Returns the last element of the array.
   T& PeekBack(); // [tested]
@@ -174,26 +174,26 @@ public:
   const T* GetData() const;
 
   /// Returns an array pointer to the array data, or an empty array pointer if the array is empty.
-  ezArrayPtr<T> GetArrayPtr(); // [tested]
+  WArrayPtr<T> GetArrayPtr(); // [tested]
 
   /// Returns an array pointer to the array data, or an empty array pointer if the array is empty.
-  ezArrayPtr<const T> GetArrayPtr() const; // [tested]
+  WArrayPtr<const T> GetArrayPtr() const; // [tested]
 
   /// Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
-  ezArrayPtr<typename ezArrayPtr<T>::ByteType> GetByteArrayPtr(); // [tested]
+  WArrayPtr<typename WArrayPtr<T>::ByteType> GetByteArrayPtr(); // [tested]
 
   /// Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
-  ezArrayPtr<typename ezArrayPtr<const T>::ByteType> GetByteArrayPtr() const; // [tested]
+  WArrayPtr<typename WArrayPtr<const T>::ByteType> GetByteArrayPtr() const; // [tested]
 
   /// Returns the reserved number of elements that the array can hold without reallocating.
-  ezUInt32 GetCapacity() const { return m_uiCapacity; }
+  WUInt32 GetCapacity() const { return m_uiCapacity; }
 
   using const_iterator = const T*;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
   using iterator = T*;
   using reverse_iterator = reverse_pointer_iterator<T>;
 
-#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#if W_ENABLED(W_INTEROP_STL_SPAN)
   operator std::span<const T>() const
   {
     return std::span(GetData(), static_cast<size_t>(GetCount()));
@@ -216,88 +216,88 @@ public:
 #endif
 
 protected:
-  void DoSwap(ezArrayBase<T, Derived>& other);
+  void DoSwap(WArrayBase<T, Derived>& other);
 
   /// Element-type access to m_Data.
   T* m_pElements = nullptr;
 
   /// The number of elements used from the array.
-  ezUInt32 m_uiCount = 0;
+  WUInt32 m_uiCount = 0;
 
   /// The number of elements which can be stored in the array without re-allocating.
-  ezUInt32 m_uiCapacity = 0;
+  WUInt32 m_uiCapacity = 0;
 };
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator begin(ezArrayBase<T, Derived>& ref_container)
+typename WArrayBase<T, Derived>::iterator begin(WArrayBase<T, Derived>& ref_container)
 {
   return ref_container.GetData();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator begin(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_iterator begin(const WArrayBase<T, Derived>& container)
 {
   return container.GetData();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_iterator cbegin(const WArrayBase<T, Derived>& container)
 {
   return container.GetData();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& ref_container)
+typename WArrayBase<T, Derived>::reverse_iterator rbegin(WArrayBase<T, Derived>& ref_container)
 {
-  return typename ezArrayBase<T, Derived>::reverse_iterator(ref_container.GetData() + ref_container.GetCount() - 1);
+  return typename WArrayBase<T, Derived>::reverse_iterator(ref_container.GetData() + ref_container.GetCount() - 1);
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_reverse_iterator rbegin(const WArrayBase<T, Derived>& container)
 {
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
+  return typename WArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_reverse_iterator crbegin(const WArrayBase<T, Derived>& container)
 {
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
+  return typename WArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1);
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& ref_container)
+typename WArrayBase<T, Derived>::iterator end(WArrayBase<T, Derived>& ref_container)
 {
   return ref_container.GetData() + ref_container.GetCount();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_iterator end(const WArrayBase<T, Derived>& container)
 {
   return container.GetData() + container.GetCount();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_iterator cend(const WArrayBase<T, Derived>& container)
 {
   return container.GetData() + container.GetCount();
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& ref_container)
+typename WArrayBase<T, Derived>::reverse_iterator rend(WArrayBase<T, Derived>& ref_container)
 {
-  return typename ezArrayBase<T, Derived>::reverse_iterator(ref_container.GetData() - 1);
+  return typename WArrayBase<T, Derived>::reverse_iterator(ref_container.GetData() - 1);
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rend(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_reverse_iterator rend(const WArrayBase<T, Derived>& container)
 {
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
+  return typename WArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
 }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container)
+typename WArrayBase<T, Derived>::const_reverse_iterator crend(const WArrayBase<T, Derived>& container)
 {
-  return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
+  return typename WArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
 }
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>

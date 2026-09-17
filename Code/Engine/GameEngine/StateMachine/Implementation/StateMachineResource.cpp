@@ -4,80 +4,80 @@
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineResource, 1, ezRTTIDefaultAllocator<ezStateMachineResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineResource, 1, WRTTIDefaultAllocator<WStateMachineResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezStateMachineResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WStateMachineResource);
 // clang-format on
 
-ezStateMachineResource::ezStateMachineResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WStateMachineResource::WStateMachineResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezStateMachineResource::~ezStateMachineResource() = default;
+WStateMachineResource::~WStateMachineResource() = default;
 
-ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezReflectedClass& ref_owner)
+WUniquePtr<WStateMachineInstance> WStateMachineResource::CreateInstance(WReflectedClass& ref_owner)
 {
   if (m_pDescription != nullptr)
   {
-    return EZ_DEFAULT_NEW(ezStateMachineInstance, ref_owner, m_pDescription);
+    return W_DEFAULT_NEW(WStateMachineInstance, ref_owner, m_pDescription);
   }
 
   return nullptr;
 }
 
-ezResourceLoadDesc ezStateMachineResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WStateMachineResource::UnloadData(Unload WhatToUnload)
 {
   m_pDescription = nullptr;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezStateMachineResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WStateMachineResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezStateMachineResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WStateMachineResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezUniquePtr<ezStateMachineDescription> pDescription = EZ_DEFAULT_NEW(ezStateMachineDescription);
+  WUniquePtr<WStateMachineDescription> pDescription = W_DEFAULT_NEW(WStateMachineDescription);
   if (pDescription->Deserialize(*Stream).Failed())
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   m_pDescription = std::move(pDescription);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezStateMachineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WStateMachineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineResource);
+W_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineResource);

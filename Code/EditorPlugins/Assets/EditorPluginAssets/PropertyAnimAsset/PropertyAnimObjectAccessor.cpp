@@ -5,68 +5,68 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimObjectAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAnimObjectAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPropertyAnimObjectAccessor::ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDocument* pDoc, ezCommandHistory* pHistory)
-  : ezObjectCommandAccessor(pHistory)
+WPropertyAnimObjectAccessor::WPropertyAnimObjectAccessor(WPropertyAnimAssetDocument* pDoc, WCommandHistory* pHistory)
+  : WObjectCommandAccessor(pHistory)
   , m_pDocument(pDoc)
-  , m_pObjectManager(static_cast<ezPropertyAnimObjectManager*>(pDoc->GetObjectManager()))
+  , m_pObjectManager(static_cast<WPropertyAnimObjectManager*>(pDoc->GetObjectManager()))
 {
-  m_pObjAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, pHistory);
+  m_pObjAccessor = W_DEFAULT_NEW(WObjectCommandAccessor, pHistory);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::GetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
+WStatus WPropertyAnimObjectAccessor::GetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index /*= WVariant()*/)
 {
-  return ezObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
+  return WObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WPropertyAnimObjectAccessor::SetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
   if (IsTemporary(pObject))
   {
-    ezVariant oldValue;
-    EZ_VERIFY(m_pObjAccessor->GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
+    WVariant oldValue;
+    W_VERIFY(m_pObjAccessor->GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
 
-    ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
-    if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
+    WVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
+    if (type >= WVariantType::Bool && type <= WVariantType::Double)
     {
-      return SetCurveCp(pObject, pProp, index, ezPropertyAnimTarget::Number, oldValue.ConvertTo<double>(), newValue.ConvertTo<double>());
+      return SetCurveCp(pObject, pProp, index, WPropertyAnimTarget::Number, oldValue.ConvertTo<double>(), newValue.ConvertTo<double>());
     }
-    else if (type >= ezVariantType::Vector2 && type <= ezVariantType::Vector4U)
+    else if (type >= WVariantType::Vector2 && type <= WVariantType::Vector4U)
     {
-      const ezUInt32 uiComponents = ezReflectionUtils::GetComponentCount(type);
-      for (ezUInt32 c = 0; c < uiComponents; c++)
+      const WUInt32 uiComponents = WReflectionUtils::GetComponentCount(type);
+      for (WUInt32 c = 0; c < uiComponents; c++)
       {
-        const double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
-        const double fValue = ezReflectionUtils::GetComponent(newValue, c);
+        const double fOldValue = WReflectionUtils::GetComponent(oldValue, c);
+        const double fValue = WReflectionUtils::GetComponent(newValue, c);
 
-        if (ezMath::IsEqual(fOldValue, fValue, ezMath::SmallEpsilon<double>()))
+        if (WMath::IsEqual(fOldValue, fValue, WMath::SmallEpsilon<double>()))
           continue;
 
-        EZ_SUCCEED_OR_RETURN(
-          SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fOldValue, fValue));
+        W_SUCCEED_OR_RETURN(
+          SetCurveCp(pObject, pProp, index, static_cast<WPropertyAnimTarget::Enum>((int)WPropertyAnimTarget::VectorX + c), fOldValue, fValue));
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
-    else if (type == ezVariantType::Color)
+    else if (type == WVariantType::Color)
     {
-      auto oldColor = oldValue.Get<ezColor>();
-      ezColorGammaUB oldColorGamma;
-      ezUInt8 oldAlpha;
+      auto oldColor = oldValue.Get<WColor>();
+      WColorGammaUB oldColorGamma;
+      WUInt8 oldAlpha;
       float oldIntensity;
       SeparateColor(oldColor, oldColorGamma, oldAlpha, oldIntensity);
-      auto newColor = newValue.Get<ezColor>();
-      ezColorGammaUB newColorGamma;
-      ezUInt8 newAlpha;
+      auto newColor = newValue.Get<WColor>();
+      WColorGammaUB newColorGamma;
+      WUInt8 newAlpha;
       float newIntensity;
       SeparateColor(newColor, newColorGamma, newAlpha, newIntensity);
 
-      ezStatus res(EZ_SUCCESS);
+      WStatus res(W_SUCCESS);
       if (oldColorGamma != newColorGamma)
       {
         res = SetColorCurveCp(pObject, pProp, index, oldColorGamma, newColorGamma);
@@ -75,23 +75,23 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
       {
         res = SetAlphaCurveCp(pObject, pProp, index, oldAlpha, newAlpha);
       }
-      if (!ezMath::IsEqual(oldIntensity, newIntensity, ezMath::SmallEpsilon<float>()) && res.Succeeded())
+      if (!WMath::IsEqual(oldIntensity, newIntensity, WMath::SmallEpsilon<float>()) && res.Succeeded())
       {
         res = SetIntensityCurveCp(pObject, pProp, index, oldIntensity, newIntensity);
       }
       return res;
     }
-    else if (type == ezVariantType::ColorGamma)
+    else if (type == WVariantType::ColorGamma)
     {
-      auto oldColorGamma = oldValue.Get<ezColorGammaUB>();
-      ezUInt8 oldAlpha = oldColorGamma.a;
+      auto oldColorGamma = oldValue.Get<WColorGammaUB>();
+      WUInt8 oldAlpha = oldColorGamma.a;
       oldColorGamma.a = 255;
 
-      auto newColorGamma = newValue.Get<ezColorGammaUB>();
-      ezUInt8 newAlpha = newColorGamma.a;
+      auto newColorGamma = newValue.Get<WColorGammaUB>();
+      WUInt8 newAlpha = newColorGamma.a;
       newColorGamma.a = 255;
 
-      ezStatus res(EZ_SUCCESS);
+      WStatus res(W_SUCCESS);
       if (oldColorGamma != newColorGamma)
       {
         res = SetColorCurveCp(pObject, pProp, index, oldColorGamma, newColorGamma);
@@ -102,160 +102,160 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
       }
       return res;
     }
-    else if (type == ezVariantType::Quaternion)
+    else if (type == WVariantType::Quaternion)
     {
 
-      const ezQuat qOldRot = oldValue.Get<ezQuat>();
-      const ezQuat qNewRot = newValue.Get<ezQuat>();
+      const WQuat qOldRot = oldValue.Get<WQuat>();
+      const WQuat qNewRot = newValue.Get<WQuat>();
 
-      ezAngle oldEuler[3];
+      WAngle oldEuler[3];
       qOldRot.GetAsEulerAngles(oldEuler[0], oldEuler[1], oldEuler[2]);
-      ezAngle newEuler[3];
+      WAngle newEuler[3];
       qNewRot.GetAsEulerAngles(newEuler[0], newEuler[1], newEuler[2]);
 
-      for (ezUInt32 c = 0; c < 3; c++)
+      for (WUInt32 c = 0; c < 3; c++)
       {
-        EZ_SUCCEED_OR_RETURN(
-          m_pDocument->CanAnimate(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c)));
+        W_SUCCEED_OR_RETURN(
+          m_pDocument->CanAnimate(pObject, pProp, index, static_cast<WPropertyAnimTarget::Enum>((int)WPropertyAnimTarget::RotationX + c)));
         float oldValue = oldEuler[c].GetDegree();
-        ezUuid track = FindOrAddTrack(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),
-          [this, oldValue](const ezUuid& trackGuid)
+        WUuid track = FindOrAddTrack(pObject, pProp, index, static_cast<WPropertyAnimTarget::Enum>((int)WPropertyAnimTarget::RotationX + c),
+          [this, oldValue](const WUuid& trackGuid)
           {
             // add a control point at the start of the curve with the original value
             m_pDocument->InsertCurveCpAt(trackGuid, 0, oldValue);
           });
         const auto* pTrack = m_pDocument->GetTrack(track);
-        oldEuler[c] = ezAngle::MakeFromDegree(pTrack->m_FloatCurve.Evaluate(m_pDocument->GetScrubberPosition()));
+        oldEuler[c] = WAngle::MakeFromDegree(pTrack->m_FloatCurve.Evaluate(m_pDocument->GetScrubberPosition()));
       }
 
-      for (ezUInt32 c = 0; c < 3; c++)
+      for (WUInt32 c = 0; c < 3; c++)
       {
         // We assume the change is less than 180 degrees from the old value
         float fDiff = (newEuler[c] - oldEuler[c]).GetDegree();
-        float iRounds = ezMath::RoundToMultiple(fDiff, 360.0f);
+        float iRounds = WMath::RoundToMultiple(fDiff, 360.0f);
         fDiff -= iRounds;
-        newEuler[c] = oldEuler[c] + ezAngle::MakeFromDegree(fDiff);
-        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::MakeFromDegree(0.01f)))
+        newEuler[c] = oldEuler[c] + WAngle::MakeFromDegree(fDiff);
+        if (oldEuler[c].IsEqualSimple(newEuler[c], WAngle::MakeFromDegree(0.01f)))
           continue;
 
-        EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),
+        W_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<WPropertyAnimTarget::Enum>((int)WPropertyAnimTarget::RotationX + c),
           oldEuler[c].GetDegree(), newEuler[c].GetDegree()));
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
 
-    return ezStatus(ezFmt("The property '{0}' cannot be animated.", pProp->GetPropertyName()));
+    return WStatus(WFmt("The property '{0}' cannot be animated.", pProp->GetPropertyName()));
   }
   else
   {
-    return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
+    return WObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::InsertValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WPropertyAnimObjectAccessor::InsertValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
   if (IsTemporary(pObject))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index);
+    return WObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::RemoveValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+WStatus WPropertyAnimObjectAccessor::RemoveValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index /*= WVariant()*/)
 {
   if (IsTemporary(pObject))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::RemoveValue(pObject, pProp, index);
+    return WObjectCommandAccessor::RemoveValue(pObject, pProp, index);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::MoveValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WPropertyAnimObjectAccessor::MoveValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
   if (IsTemporary(pObject))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex);
+    return WObjectCommandAccessor::MoveValue(pObject, pProp, oldIndex, newIndex);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::AddObject(
-  const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+WStatus WPropertyAnimObjectAccessor::AddObject(
+  const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid)
 {
   if (IsTemporary(pParent, pParentProp))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid);
+    return WObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::RemoveObject(const ezDocumentObject* pObject)
+WStatus WPropertyAnimObjectAccessor::RemoveObject(const WDocumentObject* pObject)
 {
   if (IsTemporary(pObject))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::RemoveObject(pObject);
+    return WObjectCommandAccessor::RemoveObject(pObject);
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::MoveObject(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index)
+WStatus WPropertyAnimObjectAccessor::MoveObject(
+  const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index)
 {
   if (IsTemporary(pObject))
   {
-    return ezStatus("The structure of the context cannot be animated.");
+    return WStatus("The structure of the context cannot be animated.");
   }
   else
   {
-    return ezObjectCommandAccessor::MoveObject(pObject, pNewParent, pParentProp, index);
+    return WObjectCommandAccessor::MoveObject(pObject, pNewParent, pParentProp, index);
   }
 }
 
-bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pObject) const
+bool WPropertyAnimObjectAccessor::IsTemporary(const WDocumentObject* pObject) const
 {
   return m_pObjectManager->IsTemporary(pObject);
 }
 
-bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const
+bool WPropertyAnimObjectAccessor::IsTemporary(const WDocumentObject* pParent, const WAbstractProperty* pParentProp) const
 {
   return m_pObjectManager->IsTemporary(pParent, pParentProp->GetPropertyName());
 }
 
 
-ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-  ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
+WStatus WPropertyAnimObjectAccessor::SetCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index,
+  WPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
 {
-  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, target));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const ezUuid& trackGuid)
+  W_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, target));
+  WUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const WUuid& trackGuid)
     {
     // add a control point at the start of the curve with the original value
     m_pDocument->InsertCurveCpAt(trackGuid, 0, fOldValue); });
   return SetOrInsertCurveCp(track, fNewValue);
 }
 
-ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, OnAddTrack onAddTrack)
+WUuid WPropertyAnimObjectAccessor::FindOrAddTrack(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target, OnAddTrack onAddTrack)
 {
-  ezUuid track = m_pDocument->FindTrack(pObject, pProp, index, target);
+  WUuid track = m_pDocument->FindTrack(pObject, pProp, index, target);
   if (!track.IsValid())
   {
     auto pHistory = m_pDocument->GetCommandHistory();
@@ -272,18 +272,18 @@ ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(
       pHistory->ResumeTemporaryTransaction();
     }
   }
-  EZ_ASSERT_DEBUG(track.IsValid(), "Creating track failed.");
+  W_ASSERT_DEBUG(track.IsValid(), "Creating track failed.");
   return track;
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, double fValue)
+WStatus WPropertyAnimObjectAccessor::SetOrInsertCurveCp(const WUuid& track, double fValue)
 {
-  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
-  ezUuid cpGuid = m_pDocument->FindCurveCp(track, iScrubberPos);
+  const WInt64 iScrubberPos = (WInt64)m_pDocument->GetScrubberPosition();
+  WUuid cpGuid = m_pDocument->FindCurveCp(track, iScrubberPos);
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Value", fValue).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Value", fValue).Succeeded(), "");
   }
   else
   {
@@ -299,34 +299,34 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
       pHistory->ResumeTemporaryTransaction();
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue)
+WStatus WPropertyAnimObjectAccessor::SetColorCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, const WColorGammaUB& oldValue, const WColorGammaUB& newValue)
 {
-  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  W_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, WPropertyAnimTarget::Color));
+  WUuid track = FindOrAddTrack(pObject, pProp, index, WPropertyAnimTarget::Color, [this, &oldValue](const WUuid& trackGuid)
     {
       // add a control point at the start of the curve with the original value
       m_pDocument->InsertGradientColorCpAt(trackGuid, 0, oldValue);
       //
     });
 
-  EZ_SUCCEED_OR_RETURN(SetOrInsertColorCurveCp(track, newValue));
+  W_SUCCEED_OR_RETURN(SetOrInsertColorCurveCp(track, newValue));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& track, const ezColorGammaUB& value)
+WStatus WPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const WUuid& track, const WColorGammaUB& value)
 {
-  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
-  ezUuid cpGuid = m_pDocument->FindGradientColorCp(track, iScrubberPos);
+  const WInt64 iScrubberPos = (WInt64)m_pDocument->GetScrubberPosition();
+  WUuid cpGuid = m_pDocument->FindGradientColorCp(track, iScrubberPos);
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Red", value.r).Succeeded(), "");
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Green", value.g).Succeeded(), "");
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Blue", value.b).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Red", value.r).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Green", value.g).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Blue", value.b).Succeeded(), "");
   }
   else
   {
@@ -342,31 +342,31 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& tra
       pHistory->ResumeTemporaryTransaction();
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue)
+WStatus WPropertyAnimObjectAccessor::SetAlphaCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WUInt8 oldValue, WUInt8 newValue)
 {
-  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  W_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, WPropertyAnimTarget::Color));
+  WUuid track = FindOrAddTrack(pObject, pProp, index, WPropertyAnimTarget::Color, [this, &oldValue](const WUuid& trackGuid)
     {
       // add a control point at the start of the curve with the original value
       m_pDocument->InsertGradientAlphaCpAt(trackGuid, 0, oldValue);
       //
     });
 
-  EZ_SUCCEED_OR_RETURN(SetOrInsertAlphaCurveCp(track, newValue));
-  return ezStatus(EZ_SUCCESS);
+  W_SUCCEED_OR_RETURN(SetOrInsertAlphaCurveCp(track, newValue));
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& track, ezUInt8 value)
+WStatus WPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const WUuid& track, WUInt8 value)
 {
-  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
-  ezUuid cpGuid = m_pDocument->FindGradientAlphaCp(track, iScrubberPos);
+  const WInt64 iScrubberPos = (WInt64)m_pDocument->GetScrubberPosition();
+  WUuid cpGuid = m_pDocument->FindGradientAlphaCp(track, iScrubberPos);
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Alpha", value).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Alpha", value).Succeeded(), "");
   }
   else
   {
@@ -382,30 +382,30 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& tra
       pHistory->ResumeTemporaryTransaction();
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetIntensityCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue)
+WStatus WPropertyAnimObjectAccessor::SetIntensityCurveCp(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, float oldValue, float newValue)
 {
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  WUuid track = FindOrAddTrack(pObject, pProp, index, WPropertyAnimTarget::Color, [this, &oldValue](const WUuid& trackGuid)
     {
       // add a control point at the start of the curve with the original value
       m_pDocument->InsertGradientIntensityCpAt(trackGuid, 0, oldValue);
       //
     });
 
-  EZ_SUCCEED_OR_RETURN(SetOrInsertIntensityCurveCp(track, newValue));
-  return ezStatus(EZ_SUCCESS);
+  W_SUCCEED_OR_RETURN(SetOrInsertIntensityCurveCp(track, newValue));
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const ezUuid& track, float value)
+WStatus WPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const WUuid& track, float value)
 {
-  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
-  ezUuid cpGuid = m_pDocument->FindGradientIntensityCp(track, iScrubberPos);
+  const WInt64 iScrubberPos = (WInt64)m_pDocument->GetScrubberPosition();
+  WUuid cpGuid = m_pDocument->FindGradientIntensityCp(track, iScrubberPos);
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Intensity", value).Succeeded(), "");
+    W_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Intensity", value).Succeeded(), "");
   }
   else
   {
@@ -421,13 +421,13 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const ezUuid&
       pHistory->ResumeTemporaryTransaction();
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezPropertyAnimObjectAccessor::SeparateColor(const ezColor& color, ezColorGammaUB& gamma, ezUInt8& alpha, float& intensity)
+void WPropertyAnimObjectAccessor::SeparateColor(const WColor& color, WColorGammaUB& gamma, WUInt8& alpha, float& intensity)
 {
-  alpha = static_cast<ezColorGammaUB>(color).a;
-  intensity = ezMath::Max(color.r, color.g, color.b);
+  alpha = static_cast<WColorGammaUB>(color).a;
+  intensity = WMath::Max(color.r, color.g, color.b);
   if (intensity > 1.0f)
   {
     gamma = (color / intensity);

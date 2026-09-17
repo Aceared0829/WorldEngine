@@ -12,34 +12,34 @@ struct ID3D11GeometryShader;
 struct ID3D11PixelShader;
 struct ID3D11ComputeShader;
 
-class EZ_RENDERERDX11_DLL ezGALShaderDX11 : public ezGALShader
+class W_RENDERERDX11_DLL WGALShaderDX11 : public WGALShader
 {
 public:
-  void SetDebugName(ezStringView sName) const override;
+  void SetDebugName(WStringView sName) const override;
 
-  EZ_ALWAYS_INLINE ID3D11VertexShader* GetDXVertexShader() const;
+  W_ALWAYS_INLINE ID3D11VertexShader* GetDXVertexShader() const;
 
-  EZ_ALWAYS_INLINE ID3D11HullShader* GetDXHullShader() const;
+  W_ALWAYS_INLINE ID3D11HullShader* GetDXHullShader() const;
 
-  EZ_ALWAYS_INLINE ID3D11DomainShader* GetDXDomainShader() const;
+  W_ALWAYS_INLINE ID3D11DomainShader* GetDXDomainShader() const;
 
-  EZ_ALWAYS_INLINE ID3D11GeometryShader* GetDXGeometryShader() const;
+  W_ALWAYS_INLINE ID3D11GeometryShader* GetDXGeometryShader() const;
 
-  EZ_ALWAYS_INLINE ID3D11PixelShader* GetDXPixelShader() const;
+  W_ALWAYS_INLINE ID3D11PixelShader* GetDXPixelShader() const;
 
-  EZ_ALWAYS_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
+  W_ALWAYS_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALShaderDX11(const ezGALShaderCreationDescription& description);
+  WGALShaderDX11(const WGALShaderCreationDescription& description);
 
-  virtual ~ezGALShaderDX11();
+  virtual ~WGALShaderDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11VertexShader* m_pVertexShader = nullptr;
   ID3D11HullShader* m_pHullShader = nullptr;

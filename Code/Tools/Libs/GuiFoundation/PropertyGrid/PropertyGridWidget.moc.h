@@ -14,70 +14,70 @@ class QSpacerItem;
 class QVBoxLayout;
 class QScrollArea;
 
-class ezQtGroupBoxBase;
-class ezDocument;
-class ezDocumentObjectManager;
-class ezCommandHistory;
-class ezObjectAccessorBase;
-struct ezDocumentObjectPropertyEvent;
-struct ezPropertyMetaStateEvent;
-struct ezObjectAccessorChangeEvent;
-struct ezPropertyDefaultEvent;
-struct ezContainerElementMetaStateEvent;
+class WQtGroupBoxBase;
+class WDocument;
+class WDocumentObjectManager;
+class WCommandHistory;
+class WObjectAccessorBase;
+struct WDocumentObjectPropertyEvent;
+struct WPropertyMetaStateEvent;
+struct WObjectAccessorChangeEvent;
+struct WPropertyDefaultEvent;
+struct WContainerElementMetaStateEvent;
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyGridWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtPropertyGridWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument = nullptr, bool bBindToSelectionManager = true);
-  ~ezQtPropertyGridWidget();
+  WQtPropertyGridWidget(QWidget* pParent, WDocument* pDocument = nullptr, bool bBindToSelectionManager = true);
+  ~WQtPropertyGridWidget();
 
-  void SetDocument(ezDocument* pDocument, bool bBindToSelectionManager = true);
+  void SetDocument(WDocument* pDocument, bool bBindToSelectionManager = true);
 
   void ClearSelection();
   void SetSelectionIncludeExcludeProperties(const char* szIncludeProperties = nullptr, const char* szExcludeProperties = nullptr);
-  void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
-  const ezDocument* GetDocument() const;
-  const ezDocumentObjectManager* GetObjectManager() const;
-  ezCommandHistory* GetCommandHistory() const;
-  ezObjectAccessorBase* GetObjectAccessor() const;
+  void SetSelection(const WDeque<const WDocumentObject*>& selection);
+  const WDocument* GetDocument() const;
+  const WDocumentObjectManager* GetObjectManager() const;
+  WCommandHistory* GetCommandHistory() const;
+  WObjectAccessorBase* GetObjectAccessor() const;
 
-  static ezRttiMappedObjectFactory<ezQtPropertyWidget>& GetFactory();
-  static ezQtPropertyWidget* CreateMemberPropertyWidget(const ezAbstractProperty* pProp);
-  static ezQtPropertyWidget* CreatePropertyWidget(const ezAbstractProperty* pProp);
+  static WRttiMappedObjectFactory<WQtPropertyWidget>& GetFactory();
+  static WQtPropertyWidget* CreateMemberPropertyWidget(const WAbstractProperty* pProp);
+  static WQtPropertyWidget* CreatePropertyWidget(const WAbstractProperty* pProp);
 
-  void SetCollapseState(ezQtGroupBoxBase* pBox);
+  void SetCollapseState(WQtGroupBoxBase* pBox);
 
 Q_SIGNALS:
-  void ExtendContextMenu(QMenu& ref_menu, ezQtPropertyWidget* pPropWidget);
+  void ExtendContextMenu(QMenu& ref_menu, WQtPropertyWidget* pPropWidget);
 
 public Q_SLOTS:
   void OnCollapseStateChanged(bool bCollapsed);
 
 private:
-  static ezRttiMappedObjectFactory<ezQtPropertyWidget> s_Factory;
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, PropertyGrid);
+  static WRttiMappedObjectFactory<WQtPropertyWidget> s_Factory;
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, PropertyGrid);
 
 private:
-  void ObjectAccessorChangeEventHandler(const ezObjectAccessorChangeEvent& e);
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
-  void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
-  void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
-  ezUInt32 GetGroupBoxHash(ezQtGroupBoxBase* pBox) const;
+  void ObjectAccessorChangeEventHandler(const WObjectAccessorChangeEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
+  void FactoryEventHandler(const WRttiMappedObjectFactory<WQtPropertyWidget>::Event& e);
+  void TypeEventHandler(const WPhantomRttiManagerEvent& e);
+  WUInt32 GetGroupBoxHash(WQtGroupBoxBase* pBox) const;
 
 private:
-  ezDocument* m_pDocument;
+  WDocument* m_pDocument;
   bool m_bBindToSelectionManager = false;
-  ezDeque<const ezDocumentObject*> m_Selection;
-  ezMap<ezUInt32, bool> m_CollapseState;
-  ezString m_sSelectionIncludeProperties;
-  ezString m_sSelectionExcludeProperties;
+  WDeque<const WDocumentObject*> m_Selection;
+  WMap<WUInt32, bool> m_CollapseState;
+  WString m_sSelectionIncludeProperties;
+  WString m_sSelectionExcludeProperties;
 
   QVBoxLayout* m_pLayout;
   QScrollArea* m_pScroll;
   QWidget* m_pContent;
   QVBoxLayout* m_pContentLayout;
 
-  ezQtTypeWidget* m_pTypeWidget;
+  WQtTypeWidget* m_pTypeWidget;
   QSpacerItem* m_pSpacer;
 };

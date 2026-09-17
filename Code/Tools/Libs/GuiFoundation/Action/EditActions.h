@@ -4,29 +4,29 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 ///
-class EZ_GUIFOUNDATION_DLL ezEditActions
+class W_GUIFOUNDATION_DLL WEditActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions);
-  static void MapContextMenuActions(ezStringView sMapping);
-  static void MapViewContextMenuActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions);
+  static void MapContextMenuActions(WStringView sMapping);
+  static void MapViewContextMenuActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hEditCategory;
-  static ezActionDescriptorHandle s_hCopy;
-  static ezActionDescriptorHandle s_hPaste;
-  static ezActionDescriptorHandle s_hPasteAsChild;
-  static ezActionDescriptorHandle s_hPasteAtOriginalLocation;
-  static ezActionDescriptorHandle s_hDelete;
+  static WActionDescriptorHandle s_hEditCategory;
+  static WActionDescriptorHandle s_hCopy;
+  static WActionDescriptorHandle s_hPaste;
+  static WActionDescriptorHandle s_hPasteAsChild;
+  static WActionDescriptorHandle s_hPasteAtOriginalLocation;
+  static WActionDescriptorHandle s_hDelete;
 };
 
 
 ///
-class EZ_GUIFOUNDATION_DLL ezEditAction : public ezButtonAction
+class W_GUIFOUNDATION_DLL WEditAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WEditAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -37,13 +37,13 @@ public:
     PasteAtOriginalLocation,
     Delete,
   };
-  ezEditAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezEditAction();
+  WEditAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WEditAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
   ButtonType m_ButtonType;
 };

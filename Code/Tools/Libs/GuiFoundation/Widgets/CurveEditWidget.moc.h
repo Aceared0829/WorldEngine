@@ -10,25 +10,25 @@
 #include <QPen>
 #include <QWidget>
 
-class ezQGridBarWidget;
+class WQGridBarWidget;
 class QRubberBand;
 
-class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtCurveEditWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ezQtCurveEditWidget(QWidget* pParent);
+  WQtCurveEditWidget(QWidget* pParent);
 
-  double m_fLowerRange = -ezMath::HighValue<double>();
-  double m_fUpperRange = ezMath::HighValue<double>();
+  double m_fLowerRange = -WMath::HighValue<double>();
+  double m_fUpperRange = WMath::HighValue<double>();
   double m_fLowerExtent = 0.0;
   double m_fUpperExtent = 1.0;
   bool m_bLowerExtentFixed = false;
   bool m_bUpperExtentFixed = false;
 
-  void SetCurves(ezCurveGroupData* pCurveEditData);
-  void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
+  void SetCurves(WCurveGroupData* pCurveEditData);
+  void SetGridBarWidget(WQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
 
@@ -40,19 +40,19 @@ public:
   void Frame(double fOffsetX, double fOffsetY, double fWidth, double fHeight);
 
   QPoint MapFromScene(const QPointF& pos) const;
-  QPoint MapFromScene(const ezVec2d& vPos) const { return MapFromScene(QPointF(vPos.x, vPos.y)); }
+  QPoint MapFromScene(const WVec2d& vPos) const { return MapFromScene(QPointF(vPos.x, vPos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
-  ezVec2 MapDirFromScene(const ezVec2& vPos) const;
+  WVec2 MapDirFromScene(const WVec2& vPos) const;
 
   void ClearSelection();
   void SelectAll();
-  const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
-  bool IsSelected(const ezSelectedCurveCP& cp) const;
-  void SetSelection(const ezSelectedCurveCP& cp);
-  void ToggleSelected(const ezSelectedCurveCP& cp);
-  void SetSelected(const ezSelectedCurveCP& cp, bool bSet);
+  const WDynamicArray<WSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
+  bool IsSelected(const WSelectedCurveCP& cp) const;
+  void SetSelection(const WSelectedCurveCP& cp);
+  void ToggleSelected(const WSelectedCurveCP& cp);
+  void SetSelected(const WSelectedCurveCP& cp, bool bSet);
 
-  bool GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const;
+  bool GetSelectedTangent(WInt32& out_iCurve, WInt32& out_iPoint, bool& out_bLeftTangent) const;
 
 Q_SIGNALS:
   void DoubleClickEvent(const QPointF& scenePos, const QPointF& epsilon);
@@ -64,7 +64,7 @@ Q_SIGNALS:
   void ScaleControlPointsEvent(const QPointF& centerPos, double fScaleX, double fScaleY);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
-  void MoveCurveEvent(ezInt32 iCurve, double fMoveY);
+  void MoveCurveEvent(WInt32 iCurve, double fMoveY);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -106,7 +106,7 @@ private:
     Right
   };
 
-  void PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const;
+  void PaintCurveSegments(QPainter* painter, float fOffsetX, WUInt8 alpha) const;
   void PaintOutsideAreaOverlay(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
   void PaintSelectedControlPoints(QPainter* painter) const;
@@ -118,26 +118,26 @@ private:
   void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
   void RenderValueRanges(QPainter* painter);
   QRectF ComputeViewportSceneRect() const;
-  bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
+  bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, WSelectedCurveCP& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
-  void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
-  bool CombineSelectionAdd(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
-  bool CombineSelectionRemove(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
-  bool CombineSelectionToggle(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
+  void ExecMultiSelection(WDynamicArray<WSelectedCurveCP>& out_Selection);
+  bool CombineSelectionAdd(WDynamicArray<WSelectedCurveCP>& inout_Selection, const WDynamicArray<WSelectedCurveCP>& change);
+  bool CombineSelectionRemove(WDynamicArray<WSelectedCurveCP>& inout_Selection, const WDynamicArray<WSelectedCurveCP>& change);
+  bool CombineSelectionToggle(WDynamicArray<WSelectedCurveCP>& inout_Selection, const WDynamicArray<WSelectedCurveCP>& change);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
-  ezInt32 PickCurveAt(QPoint pos) const;
+  WInt32 PickCurveAt(QPoint pos) const;
   void ClampZoomPan();
 
-  ezQGridBarWidget* m_pGridBar = nullptr;
+  WQGridBarWidget* m_pGridBar = nullptr;
 
   EditState m_State = EditState::None;
-  ezInt32 m_iDraggedCurve;
+  WInt32 m_iDraggedCurve;
 
-  ezCurveGroupData* m_pCurveEditData;
-  ezHybridArray<ezCurve1D, 4> m_Curves;
-  ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
-  ezHybridArray<ezVec2d, 4> m_CurveExtents;
+  WCurveGroupData* m_pCurveEditData;
+  WHybridArray<WCurve1D, 4> m_Curves;
+  WHybridArray<WCurve1D, 4> m_CurvesSorted;
+  WHybridArray<WVec2d, 4> m_CurveExtents;
   double m_fMinExtentValue;
   double m_fMaxExtentValue;
   double m_fMinValue, m_fMaxValue;
@@ -152,9 +152,9 @@ private:
   QPen m_TangentLinePen;
   QBrush m_TangentHandleBrush;
 
-  ezDynamicArray<ezSelectedCurveCP> m_SelectedCPs;
-  ezInt32 m_iSelectedTangentCurve = -1;
-  ezInt32 m_iSelectedTangentPoint = -1;
+  WDynamicArray<WSelectedCurveCP> m_SelectedCPs;
+  WInt32 m_iSelectedTangentCurve = -1;
+  WInt32 m_iSelectedTangentPoint = -1;
   bool m_bSelectedTangentLeft = false;
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;

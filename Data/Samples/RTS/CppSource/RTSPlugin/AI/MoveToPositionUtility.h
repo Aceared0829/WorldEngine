@@ -5,8 +5,8 @@
 class RtsMoveToPositionAiUtility : public RtsUnitComponentUtility
 {
 public:
-  virtual void Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) override;
-  virtual void Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) override;
-  virtual void Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now) override;
-  virtual double ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const override;
+  virtual void Activate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) override;
+  virtual void Deactivate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) override;
+  virtual void Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now) override;
+  virtual double ComputePriority(WGameObject* pOwnerObject, WComponent* pOwnerComponent) const override;
 };

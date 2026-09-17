@@ -4,37 +4,37 @@
 
 // Reader implementation
 
-ezMemoryStreamReader::ezMemoryStreamReader(const ezMemoryStreamStorageInterface* pStreamStorage)
+WMemoryStreamReader::WMemoryStreamReader(const WMemoryStreamStorageInterface* pStreamStorage)
   : m_pStreamStorage(pStreamStorage)
 {
 }
 
-ezMemoryStreamReader::~ezMemoryStreamReader() = default;
+WMemoryStreamReader::~WMemoryStreamReader() = default;
 
-ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+WUInt64 WMemoryStreamReader::ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead)
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
+  W_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToRead, m_pStreamStorage->GetStorageSize64() - m_uiReadPosition);
+  const WUInt64 uiBytes = WMath::Min<WUInt64>(uiBytesToRead, m_pStreamStorage->GetStorageSize64() - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
 
   if (pReadBuffer)
   {
-    ezUInt64 uiBytesLeft = uiBytes;
+    WUInt64 uiBytesLeft = uiBytes;
 
     while (uiBytesLeft > 0)
     {
-      ezArrayPtr<const ezUInt8> data = m_pStreamStorage->GetContiguousMemoryRange(m_uiReadPosition);
+      WArrayPtr<const WUInt8> data = m_pStreamStorage->GetContiguousMemoryRange(m_uiReadPosition);
 
-      EZ_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
+      W_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
 
-      const ezUInt64 toRead = ezMath::Min<ezUInt64>(data.GetCount(), uiBytesLeft);
+      const WUInt64 toRead = WMath::Min<WUInt64>(data.GetCount(), uiBytesLeft);
 
-      ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), data.GetPtr(), static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
+      WMemoryUtils::Copy(static_cast<WUInt8*>(pReadBuffer), data.GetPtr(), static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
 
-      pReadBuffer = ezMemoryUtils::AddByteOffset(pReadBuffer, static_cast<size_t>(toRead));                // Down-cast to size_t for 32-bit.
+      pReadBuffer = WMemoryUtils::AddByteOffset(pReadBuffer, static_cast<size_t>(toRead));                // Down-cast to size_t for 32-bit.
 
       m_uiReadPosition += toRead;
       uiBytesLeft -= toRead;
@@ -48,38 +48,38 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
   return uiBytes;
 }
 
-ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
+WUInt64 WMemoryStreamReader::SkipBytes(WUInt64 uiBytesToSkip)
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
+  W_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToSkip, m_pStreamStorage->GetStorageSize64() - m_uiReadPosition);
+  const WUInt64 uiBytes = WMath::Min<WUInt64>(uiBytesToSkip, m_pStreamStorage->GetStorageSize64() - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
   return uiBytes;
 }
 
-void ezMemoryStreamReader::SetReadPosition(ezUInt64 uiReadPosition)
+void WMemoryStreamReader::SetReadPosition(WUInt64 uiReadPosition)
 {
-  EZ_ASSERT_RELEASE(uiReadPosition <= GetByteCount64(), "Read position must be between 0 and GetByteCount()!");
+  W_ASSERT_RELEASE(uiReadPosition <= GetByteCount64(), "Read position must be between 0 and GetByteCount()!");
   m_uiReadPosition = uiReadPosition;
 }
 
-ezUInt32 ezMemoryStreamReader::GetByteCount32() const
+WUInt32 WMemoryStreamReader::GetByteCount32() const
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
+  W_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
   return m_pStreamStorage->GetStorageSize32();
 }
 
-ezUInt64 ezMemoryStreamReader::GetByteCount64() const
+WUInt64 WMemoryStreamReader::GetByteCount64() const
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
+  W_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
   return m_pStreamStorage->GetStorageSize64();
 }
 
-void ezMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
+void WMemoryStreamReader::SetDebugSourceInformation(WStringView sDebugSourceInformation)
 {
   m_sDebugSourceInformation = sDebugSourceInformation;
 }
@@ -87,85 +87,85 @@ void ezMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceIn
 //////////////////////////////////////////////////////////////////////////
 
 // Writer implementation
-ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorageInterface* pStreamStorage)
+WMemoryStreamWriter::WMemoryStreamWriter(WMemoryStreamStorageInterface* pStreamStorage)
   : m_pStreamStorage(pStreamStorage)
 
 {
 }
 
-ezMemoryStreamWriter::~ezMemoryStreamWriter() = default;
+WMemoryStreamWriter::~WMemoryStreamWriter() = default;
 
-ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT_DEV(m_pStreamStorage != nullptr, "The memory stream writer needs a valid memory storage object!");
+  W_ASSERT_DEV(m_pStreamStorage != nullptr, "The memory stream writer needs a valid memory storage object!");
 
   if (uiBytesToWrite == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  EZ_ASSERT_DEBUG(pWriteBuffer != nullptr, "No valid buffer containing data given!");
+  W_ASSERT_DEBUG(pWriteBuffer != nullptr, "No valid buffer containing data given!");
 
   // Reserve the memory in the storage object, grow size if appending data (don't shrink)
-  m_pStreamStorage->SetInternalSize(ezMath::Max(m_pStreamStorage->GetStorageSize64(), m_uiWritePosition + uiBytesToWrite));
+  m_pStreamStorage->SetInternalSize(WMath::Max(m_pStreamStorage->GetStorageSize64(), m_uiWritePosition + uiBytesToWrite));
 
   {
-    ezUInt64 uiBytesLeft = uiBytesToWrite;
+    WUInt64 uiBytesLeft = uiBytesToWrite;
 
     while (uiBytesLeft > 0)
     {
-      ezArrayPtr<ezUInt8> data = m_pStreamStorage->GetContiguousMemoryRange(m_uiWritePosition);
+      WArrayPtr<WUInt8> data = m_pStreamStorage->GetContiguousMemoryRange(m_uiWritePosition);
 
-      EZ_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
+      W_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
 
-      const ezUInt64 toWrite = ezMath::Min<ezUInt64>(data.GetCount(), uiBytesLeft);
+      const WUInt64 toWrite = WMath::Min<WUInt64>(data.GetCount(), uiBytesLeft);
 
-      ezMemoryUtils::Copy(data.GetPtr(), static_cast<const ezUInt8*>(pWriteBuffer), static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
+      WMemoryUtils::Copy(data.GetPtr(), static_cast<const WUInt8*>(pWriteBuffer), static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
 
-      pWriteBuffer = ezMemoryUtils::AddByteOffset(pWriteBuffer, static_cast<size_t>(toWrite));                     // Down-cast to size_t for 32-bit.
+      pWriteBuffer = WMemoryUtils::AddByteOffset(pWriteBuffer, static_cast<size_t>(toWrite));                     // Down-cast to size_t for 32-bit.
 
       m_uiWritePosition += toWrite;
       uiBytesLeft -= toWrite;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMemoryStreamWriter::SetWritePosition(ezUInt64 uiWritePosition)
+void WMemoryStreamWriter::SetWritePosition(WUInt64 uiWritePosition)
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream writer needs a valid memory storage object!");
+  W_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream writer needs a valid memory storage object!");
 
-  EZ_ASSERT_RELEASE(uiWritePosition <= GetByteCount64(), "Write position must be between 0 and GetByteCount()!");
+  W_ASSERT_RELEASE(uiWritePosition <= GetByteCount64(), "Write position must be between 0 and GetByteCount()!");
   m_uiWritePosition = uiWritePosition;
 }
 
-ezUInt32 ezMemoryStreamWriter::GetByteCount32() const
+WUInt32 WMemoryStreamWriter::GetByteCount32() const
 {
-  EZ_ASSERT_DEV(m_uiWritePosition <= 0xFFFFFFFFllu, "Use GetByteCount64 instead of GetByteCount32");
-  return (ezUInt32)m_uiWritePosition;
+  W_ASSERT_DEV(m_uiWritePosition <= 0xFFFFFFFFllu, "Use GetByteCount64 instead of GetByteCount32");
+  return (WUInt32)m_uiWritePosition;
 }
 
-ezUInt64 ezMemoryStreamWriter::GetByteCount64() const
+WUInt64 WMemoryStreamWriter::GetByteCount64() const
 {
   return m_uiWritePosition;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMemoryStreamStorageInterface::ezMemoryStreamStorageInterface() = default;
-ezMemoryStreamStorageInterface::~ezMemoryStreamStorageInterface() = default;
+WMemoryStreamStorageInterface::WMemoryStreamStorageInterface() = default;
+WMemoryStreamStorageInterface::~WMemoryStreamStorageInterface() = default;
 
-void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& inout_stream, ezUInt64 uiMaxBytes /*= 0xFFFFFFFFFFFFFFFFllu*/)
+void WMemoryStreamStorageInterface::ReadAll(WStreamReader& inout_stream, WUInt64 uiMaxBytes /*= 0xFFFFFFFFFFFFFFFFllu*/)
 {
   Clear();
-  ezMemoryStreamWriter w(this);
+  WMemoryStreamWriter w(this);
 
-  ezUInt8 uiTemp[1024 * 8];
+  WUInt8 uiTemp[1024 * 8];
 
   while (uiMaxBytes > 0)
   {
-    const ezUInt64 uiToRead = ezMath::Min<ezUInt64>(uiMaxBytes, EZ_ARRAY_SIZE(uiTemp));
+    const WUInt64 uiToRead = WMath::Min<WUInt64>(uiMaxBytes, W_ARRAY_SIZE(uiTemp));
 
-    const ezUInt64 uiRead = inout_stream.ReadBytes(uiTemp, uiToRead);
+    const WUInt64 uiRead = inout_stream.ReadBytes(uiTemp, uiToRead);
     uiMaxBytes -= uiRead;
 
     w.WriteBytes(uiTemp, uiRead).IgnoreResult();
@@ -178,32 +178,32 @@ void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& inout_stream, ezUIn
 //////////////////////////////////////////////////////////////////////////
 
 
-ezRawMemoryStreamReader::ezRawMemoryStreamReader() = default;
+WRawMemoryStreamReader::WRawMemoryStreamReader() = default;
 
-ezRawMemoryStreamReader::ezRawMemoryStreamReader(const void* pData, ezUInt64 uiDataSize)
+WRawMemoryStreamReader::WRawMemoryStreamReader(const void* pData, WUInt64 uiDataSize)
 {
   Reset(pData, uiDataSize);
 }
 
-ezRawMemoryStreamReader::~ezRawMemoryStreamReader() = default;
+WRawMemoryStreamReader::~WRawMemoryStreamReader() = default;
 
-void ezRawMemoryStreamReader::Reset(const void* pData, ezUInt64 uiDataSize)
+void WRawMemoryStreamReader::Reset(const void* pData, WUInt64 uiDataSize)
 {
-  m_pRawMemory = static_cast<const ezUInt8*>(pData);
+  m_pRawMemory = static_cast<const WUInt8*>(pData);
   m_uiChunkSize = uiDataSize;
   m_uiReadPosition = 0;
 }
 
-ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+WUInt64 WRawMemoryStreamReader::ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead)
 {
-  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToRead, m_uiChunkSize - m_uiReadPosition);
+  const WUInt64 uiBytes = WMath::Min<WUInt64>(uiBytesToRead, m_uiChunkSize - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
 
   if (pReadBuffer)
   {
-    ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), &m_pRawMemory[m_uiReadPosition], static_cast<size_t>(uiBytes));
+    WMemoryUtils::Copy(static_cast<WUInt8*>(pReadBuffer), &m_pRawMemory[m_uiReadPosition], static_cast<size_t>(uiBytes));
   }
 
   m_uiReadPosition += uiBytes;
@@ -211,27 +211,27 @@ ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesT
   return uiBytes;
 }
 
-ezUInt64 ezRawMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
+WUInt64 WRawMemoryStreamReader::SkipBytes(WUInt64 uiBytesToSkip)
 {
-  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToSkip, m_uiChunkSize - m_uiReadPosition);
+  const WUInt64 uiBytes = WMath::Min<WUInt64>(uiBytesToSkip, m_uiChunkSize - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
   return uiBytes;
 }
 
-void ezRawMemoryStreamReader::SetReadPosition(ezUInt64 uiReadPosition)
+void WRawMemoryStreamReader::SetReadPosition(WUInt64 uiReadPosition)
 {
-  EZ_ASSERT_RELEASE(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
+  W_ASSERT_RELEASE(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
   m_uiReadPosition = uiReadPosition;
 }
 
-ezUInt64 ezRawMemoryStreamReader::GetByteCount() const
+WUInt64 WRawMemoryStreamReader::GetByteCount() const
 {
   return m_uiChunkSize;
 }
 
-void ezRawMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
+void WRawMemoryStreamReader::SetDebugSourceInformation(WStringView sDebugSourceInformation)
 {
   m_sDebugSourceInformation = sDebugSourceInformation;
 }
@@ -239,49 +239,49 @@ void ezRawMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourc
 //////////////////////////////////////////////////////////////////////////
 
 
-ezRawMemoryStreamWriter::ezRawMemoryStreamWriter() = default;
+WRawMemoryStreamWriter::WRawMemoryStreamWriter() = default;
 
-ezRawMemoryStreamWriter::ezRawMemoryStreamWriter(void* pData, ezUInt64 uiDataSize)
+WRawMemoryStreamWriter::WRawMemoryStreamWriter(void* pData, WUInt64 uiDataSize)
 {
   Reset(pData, uiDataSize);
 }
 
-ezRawMemoryStreamWriter::~ezRawMemoryStreamWriter() = default;
+WRawMemoryStreamWriter::~WRawMemoryStreamWriter() = default;
 
-void ezRawMemoryStreamWriter::Reset(void* pData, ezUInt64 uiDataSize)
+void WRawMemoryStreamWriter::Reset(void* pData, WUInt64 uiDataSize)
 {
-  EZ_ASSERT_DEV(pData != nullptr, "Invalid memory stream storage");
+  W_ASSERT_DEV(pData != nullptr, "Invalid memory stream storage");
 
-  m_pRawMemory = static_cast<ezUInt8*>(pData);
+  m_pRawMemory = static_cast<WUInt8*>(pData);
   m_uiChunkSize = uiDataSize;
   m_uiWritePosition = 0;
 }
 
-ezResult ezRawMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WRawMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
-  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToWrite, m_uiChunkSize - m_uiWritePosition);
+  const WUInt64 uiBytes = WMath::Min<WUInt64>(uiBytesToWrite, m_uiChunkSize - m_uiWritePosition);
 
-  ezMemoryUtils::Copy(&m_pRawMemory[m_uiWritePosition], static_cast<const ezUInt8*>(pWriteBuffer), static_cast<size_t>(uiBytes));
+  WMemoryUtils::Copy(&m_pRawMemory[m_uiWritePosition], static_cast<const WUInt8*>(pWriteBuffer), static_cast<size_t>(uiBytes));
 
   m_uiWritePosition += uiBytes;
 
   if (uiBytes < uiBytesToWrite)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt64 ezRawMemoryStreamWriter::GetStorageSize() const
+WUInt64 WRawMemoryStreamWriter::GetStorageSize() const
 {
   return m_uiChunkSize;
 }
 
-ezUInt64 ezRawMemoryStreamWriter::GetNumWrittenBytes() const
+WUInt64 WRawMemoryStreamWriter::GetNumWrittenBytes() const
 {
   return m_uiWritePosition;
 }
 
-void ezRawMemoryStreamWriter::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
+void WRawMemoryStreamWriter::SetDebugSourceInformation(WStringView sDebugSourceInformation)
 {
   m_sDebugSourceInformation = sDebugSourceInformation;
 }
@@ -290,39 +290,39 @@ void ezRawMemoryStreamWriter::SetDebugSourceInformation(ezStringView sDebugSourc
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultMemoryStreamStorage::ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity, ezAllocator* pAllocator)
+WDefaultMemoryStreamStorage::WDefaultMemoryStreamStorage(WUInt32 uiInitialCapacity, WAllocator* pAllocator)
   : m_Chunks(pAllocator)
 {
   Reserve(uiInitialCapacity);
 }
 
-ezDefaultMemoryStreamStorage::~ezDefaultMemoryStreamStorage()
+WDefaultMemoryStreamStorage::~WDefaultMemoryStreamStorage()
 {
   Clear();
 }
 
-void ezDefaultMemoryStreamStorage::Reserve(ezUInt64 uiBytes)
+void WDefaultMemoryStreamStorage::Reserve(WUInt64 uiBytes)
 {
   if (m_Chunks.IsEmpty())
   {
     auto& chunk = m_Chunks.ExpandAndGetRef();
-    chunk.m_Bytes = ezByteArrayPtr(m_InplaceMemory);
+    chunk.m_Bytes = WByteArrayPtr(m_InplaceMemory);
     chunk.m_uiStartOffset = 0;
     m_uiCapacity = m_Chunks[0].m_Bytes.GetCount();
   }
 
   while (m_uiCapacity < uiBytes)
   {
-    AddChunk(static_cast<ezUInt32>(ezMath::Min<ezUInt64>(uiBytes - m_uiCapacity, ezMath::MaxValue<ezUInt32>())));
+    AddChunk(static_cast<WUInt32>(WMath::Min<WUInt64>(uiBytes - m_uiCapacity, WMath::MaxValue<WUInt32>())));
   }
 }
 
-ezUInt64 ezDefaultMemoryStreamStorage::GetStorageSize64() const
+WUInt64 WDefaultMemoryStreamStorage::GetStorageSize64() const
 {
   return m_uiInternalSize;
 }
 
-void ezDefaultMemoryStreamStorage::Clear()
+void WDefaultMemoryStreamStorage::Clear()
 {
   m_uiInternalSize = 0;
   m_uiLastByteAccessed = 0;
@@ -330,7 +330,7 @@ void ezDefaultMemoryStreamStorage::Clear()
   Compact();
 }
 
-void ezDefaultMemoryStreamStorage::Compact()
+void WDefaultMemoryStreamStorage::Compact()
 {
   // skip chunk 0, because that's where our inplace storage is used
   while (m_Chunks.GetCount() > 1)
@@ -342,39 +342,39 @@ void ezDefaultMemoryStreamStorage::Compact()
 
     m_uiCapacity -= chunk.m_Bytes.GetCount();
 
-    ezUInt8* pData = chunk.m_Bytes.GetPtr();
-    EZ_DELETE_RAW_BUFFER(m_Chunks.GetAllocator(), pData);
+    WUInt8* pData = chunk.m_Bytes.GetPtr();
+    W_DELETE_RAW_BUFFER(m_Chunks.GetAllocator(), pData);
 
     m_Chunks.PopBack();
   }
 }
 
-ezUInt64 ezDefaultMemoryStreamStorage::GetHeapMemoryUsage() const
+WUInt64 WDefaultMemoryStreamStorage::GetHeapMemoryUsage() const
 {
   return m_Chunks.GetHeapMemoryUsage() + m_uiCapacity - m_Chunks[0].m_Bytes.GetCount();
 }
 
-ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& inout_stream) const
+WResult WDefaultMemoryStreamStorage::CopyToStream(WStreamWriter& inout_stream) const
 {
-  ezUInt64 uiBytesLeft = m_uiInternalSize;
-  ezUInt64 uiReadPosition = 0;
+  WUInt64 uiBytesLeft = m_uiInternalSize;
+  WUInt64 uiReadPosition = 0;
 
   while (uiBytesLeft > 0)
   {
-    ezArrayPtr<const ezUInt8> data = GetContiguousMemoryRange(uiReadPosition);
+    WArrayPtr<const WUInt8> data = GetContiguousMemoryRange(uiReadPosition);
 
-    EZ_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
+    W_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
 
-    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(data.GetPtr(), data.GetCount()));
+    W_SUCCEED_OR_RETURN(inout_stream.WriteBytes(data.GetPtr(), data.GetCount()));
 
     uiReadPosition += data.GetCount();
     uiBytesLeft -= data.GetCount();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezArrayPtr<const ezUInt8> ezDefaultMemoryStreamStorage::GetContiguousMemoryRange(ezUInt64 uiStartByte) const
+WArrayPtr<const WUInt8> WDefaultMemoryStreamStorage::GetContiguousMemoryRange(WUInt64 uiStartByte) const
 {
   if (uiStartByte >= m_uiInternalSize)
     return {};
@@ -395,35 +395,35 @@ ezArrayPtr<const ezUInt8> ezDefaultMemoryStreamStorage::GetContiguousMemoryRange
 
     if (uiStartByte < chunk.m_uiStartOffset + chunk.m_Bytes.GetCount())
     {
-      const ezUInt64 uiStartByteRel = uiStartByte - chunk.m_uiStartOffset;    // start offset into the chunk
-      const ezUInt64 uiMaxLenRel = chunk.m_Bytes.GetCount() - uiStartByteRel; // max number of bytes to use from this chunk
-      const ezUInt64 uiMaxRangeRel = m_uiInternalSize - uiStartByte;          // the 'stored data' might be less than the capacity of the chunk
+      const WUInt64 uiStartByteRel = uiStartByte - chunk.m_uiStartOffset;    // start offset into the chunk
+      const WUInt64 uiMaxLenRel = chunk.m_Bytes.GetCount() - uiStartByteRel; // max number of bytes to use from this chunk
+      const WUInt64 uiMaxRangeRel = m_uiInternalSize - uiStartByte;          // the 'stored data' might be less than the capacity of the chunk
 
-      return {chunk.m_Bytes.GetPtr() + uiStartByteRel, static_cast<ezUInt32>(ezMath::Min<ezUInt64>(uiMaxRangeRel, uiMaxLenRel))};
+      return {chunk.m_Bytes.GetPtr() + uiStartByteRel, static_cast<WUInt32>(WMath::Min<WUInt64>(uiMaxRangeRel, uiMaxLenRel))};
     }
   }
 
   return {};
 }
 
-ezArrayPtr<ezUInt8> ezDefaultMemoryStreamStorage::GetContiguousMemoryRange(ezUInt64 uiStartByte)
+WArrayPtr<WUInt8> WDefaultMemoryStreamStorage::GetContiguousMemoryRange(WUInt64 uiStartByte)
 {
-  ezArrayPtr<const ezUInt8> constData = const_cast<const ezDefaultMemoryStreamStorage*>(this)->GetContiguousMemoryRange(uiStartByte);
-  return {const_cast<ezUInt8*>(constData.GetPtr()), constData.GetCount()};
+  WArrayPtr<const WUInt8> constData = const_cast<const WDefaultMemoryStreamStorage*>(this)->GetContiguousMemoryRange(uiStartByte);
+  return {const_cast<WUInt8*>(constData.GetPtr()), constData.GetCount()};
 }
 
-void ezDefaultMemoryStreamStorage::SetInternalSize(ezUInt64 uiSize)
+void WDefaultMemoryStreamStorage::SetInternalSize(WUInt64 uiSize)
 {
   Reserve(uiSize);
 
   m_uiInternalSize = uiSize;
 }
 
-void ezDefaultMemoryStreamStorage::AddChunk(ezUInt32 uiMinimumSize)
+void WDefaultMemoryStreamStorage::AddChunk(WUInt32 uiMinimumSize)
 {
   auto& chunk = m_Chunks.ExpandAndGetRef();
 
-  ezUInt32 uiSize = 0;
+  WUInt32 uiSize = 0;
 
   if (m_Chunks.GetCount() < 4)
   {
@@ -442,11 +442,11 @@ void ezDefaultMemoryStreamStorage::AddChunk(ezUInt32 uiMinimumSize)
     uiSize = 1024 * 1024 * 64; // 64 MB
   }
 
-  uiSize = ezMath::Max(uiSize, uiMinimumSize);
+  uiSize = WMath::Max(uiSize, uiMinimumSize);
 
   const auto& prevChunk = m_Chunks[m_Chunks.GetCount() - 2];
 
-  chunk.m_Bytes = ezArrayPtr<ezUInt8>(EZ_NEW_RAW_BUFFER(m_Chunks.GetAllocator(), ezUInt8, uiSize), uiSize);
+  chunk.m_Bytes = WArrayPtr<WUInt8>(W_NEW_RAW_BUFFER(m_Chunks.GetAllocator(), WUInt8, uiSize), uiSize);
   chunk.m_uiStartOffset = prevChunk.m_uiStartOffset + prevChunk.m_Bytes.GetCount();
   m_uiCapacity += chunk.m_Bytes.GetCount();
 }

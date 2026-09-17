@@ -12,26 +12,26 @@
 #include <QNetworkReply>
 #include <QProcess>
 
-static ezString GetVersionFilePath()
+static WString GetVersionFilePath()
 {
-  ezStringBuilder sTemp = ezOSFile::GetTempDataFolder();
-  sTemp.AppendPath("ezEditor/version-page.htm");
+  WStringBuilder sTemp = WOSFile::GetTempDataFolder();
+  sTemp.AppendPath("WEditor/version-page.htm");
   return sTemp;
 }
 
 PageDownloader::PageDownloader(const QString& sUrl)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   QStringList args;
 
   args << "-Command";
   args << QString("(Invoke-webrequest -URI \"%1\" -UseBasicParsing).Content > \"%2\"").arg(sUrl).arg(GetVersionFilePath().GetData());
 
-  m_pProcess = EZ_DEFAULT_NEW(QProcess);
+  m_pProcess = W_DEFAULT_NEW(QProcess);
   connect(m_pProcess.Borrow(), &QProcess::finished, this, &PageDownloader::DownloadDone);
   m_pProcess->start("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe", args);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
 
@@ -39,51 +39,51 @@ void PageDownloader::DownloadDone(int exitCode, QProcess::ExitStatus exitStatus)
 {
   m_pProcess = nullptr;
 
-  ezOSFile file;
-  if (file.Open(GetVersionFilePath(), ezFileOpenMode::Read).Failed())
+  WOSFile file;
+  if (file.Open(GetVersionFilePath(), WFileOpenMode::Read).Failed())
     return;
 
-  ezDataBuffer content;
+  WDataBuffer content;
   file.ReadAll(content);
 
   content.PushBack('\0');
   content.PushBack('\0');
 
-  const ezUInt16* pStart = (ezUInt16*)content.GetData();
-  if (ezUnicodeUtils::SkipUtf16BomLE(pStart))
+  const WUInt16* pStart = (WUInt16*)content.GetData();
+  if (WUnicodeUtils::SkipUtf16BomLE(pStart))
   {
-    m_sDownloadedPage = ezStringWChar(pStart);
+    m_sDownloadedPage = WStringWChar(pStart);
   }
   else
   {
     const char* szUtf8 = (const char*)content.GetData();
-    m_sDownloadedPage = ezStringWChar(szUtf8);
+    m_sDownloadedPage = WStringWChar(szUtf8);
   }
 
-  ezOSFile::DeleteFile(GetVersionFilePath()).IgnoreResult();
+  WOSFile::DeleteFile(GetVersionFilePath()).IgnoreResult();
 
   Q_EMIT FinishedDownload();
 }
 
-ezQtVersionChecker::ezQtVersionChecker()
+WQtVersionChecker::WQtVersionChecker()
 {
   m_sKnownLatestVersion = GetOwnVersion();
   m_sConfigFile = ":appdata/VersionCheck.ddl";
 }
 
-void ezQtVersionChecker::Initialize()
+void WQtVersionChecker::Initialize()
 {
   m_bRequireOnlineCheck = true;
 
-  ezFileStats fs;
-  if (ezFileSystem::GetFileStats(m_sConfigFile, fs).Failed())
+  WFileStats fs;
+  if (WFileSystem::GetFileStats(m_sConfigFile, fs).Failed())
     return;
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(m_sConfigFile).Failed())
     return;
 
-  ezOpenDdlReader ddl;
+  WOpenDdlReader ddl;
   if (ddl.ParseDocument(file).Failed())
     return;
 
@@ -92,14 +92,14 @@ void ezQtVersionChecker::Initialize()
     return;
 
   auto pLatest = pRoot->FindChild("KnownLatest");
-  if (pLatest == nullptr || !pLatest->HasPrimitives(ezOpenDdlPrimitiveType::String))
+  if (pLatest == nullptr || !pLatest->HasPrimitives(WOpenDdlPrimitiveType::String))
     return;
 
   m_sKnownLatestVersion = pLatest->GetPrimitivesString()[0];
 
-  const ezTimestamp nextCheck = fs.m_LastModificationTime + ezTime::MakeFromHours(24);
+  const WTimestamp nextCheck = fs.m_LastModificationTime + WTime::MakeFromHours(24);
 
-  if (nextCheck.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Newer))
+  if (nextCheck.Compare(WTimestamp::CurrentTimestamp(), WTimestamp::CompareMode::Newer))
   {
     // everything fine, we already checked within the last 24 hours
 
@@ -108,23 +108,23 @@ void ezQtVersionChecker::Initialize()
   }
 }
 
-ezResult ezQtVersionChecker::StoreKnownVersion()
+WResult WQtVersionChecker::StoreKnownVersion()
 {
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(m_sConfigFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
-  ezOpenDdlUtils::StoreString(ddl, m_sKnownLatestVersion, "KnownLatest");
+  WOpenDdlUtils::StoreString(ddl, m_sKnownLatestVersion, "KnownLatest");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezQtVersionChecker::Check(bool bForce)
+bool WQtVersionChecker::Check(bool bForce)
 {
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  EZ_ASSERT_DEV(!bForce, "The version check is not yet implemented on this platform.");
+#if W_DISABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  W_ASSERT_DEV(!bForce, "The version check is not yet implemented on this platform.");
   return false;
 #endif
 
@@ -146,33 +146,33 @@ bool ezQtVersionChecker::Check(bool bForce)
 
   m_bCheckInProgresss = true;
 
-  m_pVersionPage = EZ_DEFAULT_NEW(PageDownloader, "https://ezengine.net/pages/getting-started/binaries.html");
+  m_pVersionPage = W_DEFAULT_NEW(PageDownloader, "https://ezengine.net/pages/getting-started/binaries.html");
 
-  connect(m_pVersionPage.Borrow(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
+  connect(m_pVersionPage.Borrow(), &PageDownloader::FinishedDownload, this, &WQtVersionChecker::PageDownloaded);
 
   return true;
 }
 
-const char* ezQtVersionChecker::GetOwnVersion() const
+const char* WQtVersionChecker::GetOwnVersion() const
 {
-  return ezQtUiServices::GetOwnVersionString();
+  return WQtUiServices::GetOwnVersionString();
 }
 
-const char* ezQtVersionChecker::GetKnownLatestVersion() const
+const char* WQtVersionChecker::GetKnownLatestVersion() const
 {
   return m_sKnownLatestVersion;
 }
 
-bool ezQtVersionChecker::IsLatestNewer() const
+bool WQtVersionChecker::IsLatestNewer() const
 {
   const char* szParsePos;
-  ezUInt32 own[3] = {0, 0, 0};
-  ezUInt32 cur[3] = {0, 0, 0};
+  WUInt32 own[3] = {0, 0, 0};
+  WUInt32 cur[3] = {0, 0, 0};
 
   szParsePos = GetOwnVersion();
-  for (ezUInt32 i : {0, 1, 2})
+  for (WUInt32 i : {0, 1, 2})
   {
-    if (ezConversionUtils::StringToUInt(szParsePos, own[i], &szParsePos).Failed())
+    if (WConversionUtils::StringToUInt(szParsePos, own[i], &szParsePos).Failed())
       break;
 
     if (*szParsePos == '.')
@@ -182,9 +182,9 @@ bool ezQtVersionChecker::IsLatestNewer() const
   }
 
   szParsePos = GetKnownLatestVersion();
-  for (ezUInt32 i : {0, 1, 2})
+  for (WUInt32 i : {0, 1, 2})
   {
-    if (ezConversionUtils::StringToUInt(szParsePos, cur[i], &szParsePos).Failed())
+    if (WConversionUtils::StringToUInt(szParsePos, cur[i], &szParsePos).Failed())
       break;
 
     if (*szParsePos == '.')
@@ -209,16 +209,16 @@ bool ezQtVersionChecker::IsLatestNewer() const
   return own[2] < cur[2];
 }
 
-void ezQtVersionChecker::PageDownloaded()
+void WQtVersionChecker::PageDownloaded()
 {
   m_bCheckInProgresss = false;
-  ezStringBuilder sPage = m_pVersionPage->GetDownloadedData();
+  WStringBuilder sPage = m_pVersionPage->GetDownloadedData();
 
   m_pVersionPage = nullptr;
 
   if (sPage.IsEmpty())
   {
-    ezLog::Warning("Could not download release notes page.");
+    WLog::Warning("Could not download release notes page.");
     return;
   }
 
@@ -230,12 +230,12 @@ void ezQtVersionChecker::PageDownloaded()
 
   if (pVersionStart == nullptr || pVersionEnd == nullptr)
   {
-    ezLog::Warning("Version check failed.");
+    WLog::Warning("Version check failed.");
     return;
   }
 
-  ezStringBuilder sVersion;
-  sVersion.SetSubString_FromTo(pVersionStart + ezStringUtils::GetStringElementCount(szVersionStartTag), pVersionEnd);
+  WStringBuilder sVersion;
+  sVersion.SetSubString_FromTo(pVersionStart + WStringUtils::GetStringElementCount(szVersionStartTag), pVersionEnd);
 
   const bool bNewRelease = m_sKnownLatestVersion != sVersion;
 
@@ -243,7 +243,7 @@ void ezQtVersionChecker::PageDownloaded()
   m_sKnownLatestVersion = sVersion;
   if (StoreKnownVersion().Failed())
   {
-    ezLog::Warning("Could not store the last known version file.");
+    WLog::Warning("Could not store the last known version file.");
   }
 
   Q_EMIT VersionCheckCompleted(bNewRelease, m_bForceCheck);

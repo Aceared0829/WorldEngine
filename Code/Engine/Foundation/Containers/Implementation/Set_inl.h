@@ -7,11 +7,11 @@
 // ***** Const Iterator *****
 template <typename KeyType, typename Comparer>
 template <bool REVERSE>
-void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Advance(ezInt32 dir0, ezInt32 dir1)
+void WSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Advance(WInt32 dir0, WInt32 dir1)
 {
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
+    W_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -55,7 +55,7 @@ void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Advance(ezInt32 dir0, 
 
 template <typename KeyType, typename Comparer>
 template <bool REVERSE>
-void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Next()
+void WSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Next()
 {
   if constexpr (REVERSE)
   {
@@ -69,7 +69,7 @@ void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Next()
 
 template <typename KeyType, typename Comparer>
 template <bool REVERSE>
-void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Prev()
+void WSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Prev()
 {
   if constexpr (REVERSE)
   {
@@ -81,10 +81,10 @@ void ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>::Prev()
   }
 }
 
-// ***** ezSetBase *****
+// ***** WSetBase *****
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Constructor()
+void WSetBase<KeyType, Comparer>::Constructor()
 {
   m_uiCount = 0;
 
@@ -98,7 +98,7 @@ void ezSetBase<KeyType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocator* pAllocator)
+WSetBase<KeyType, Comparer>::WSetBase(const Comparer& comparer, WAllocator* pAllocator)
   : m_Elements(pAllocator)
   , m_Comparer(comparer)
 {
@@ -106,7 +106,7 @@ ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocator* p
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocator* pAllocator)
+WSetBase<KeyType, Comparer>::WSetBase(const WSetBase<KeyType, Comparer>& cc, WAllocator* pAllocator)
   : m_Elements(pAllocator)
 {
   Constructor();
@@ -115,13 +115,13 @@ ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, 
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::~ezSetBase()
+WSetBase<KeyType, Comparer>::~WSetBase()
 {
   Clear();
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::operator=(const ezSetBase<KeyType, Comparer>& rhs)
+void WSetBase<KeyType, Comparer>::operator=(const WSetBase<KeyType, Comparer>& rhs)
 {
   Clear();
 
@@ -130,10 +130,10 @@ void ezSetBase<KeyType, Comparer>::operator=(const ezSetBase<KeyType, Comparer>&
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Clear()
+void WSetBase<KeyType, Comparer>::Clear()
 {
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
-    ezMemoryUtils::Destruct<Node>(it.m_pElement, 1);
+    WMemoryUtils::Destruct<Node>(it.m_pElement, 1);
 
   m_pFreeElementStack = nullptr;
   m_Elements.Clear();
@@ -149,32 +149,32 @@ void ezSetBase<KeyType, Comparer>::Clear()
 }
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::IsEmpty() const
+W_ALWAYS_INLINE bool WSetBase<KeyType, Comparer>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE ezUInt32 ezSetBase<KeyType, Comparer>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WSetBase<KeyType, Comparer>::GetCount() const
 {
   return m_uiCount;
 }
 
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetIterator() const
+W_ALWAYS_INLINE typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::GetIterator() const
 {
   return Iterator(GetLeftMost());
 }
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::ReverseIterator ezSetBase<KeyType, Comparer>::GetReverseIterator() const
+W_ALWAYS_INLINE typename WSetBase<KeyType, Comparer>::ReverseIterator WSetBase<KeyType, Comparer>::GetReverseIterator() const
 {
   return ReverseIterator(GetRightMost());
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetLeftMost() const
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::GetLeftMost() const
 {
   if (IsEmpty())
     return nullptr;
@@ -188,7 +188,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetLe
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetRightMost() const
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::GetRightMost() const
 {
   if (IsEmpty())
     return nullptr;
@@ -203,14 +203,14 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetRi
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_Find(const CompatibleKeyType& key) const
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::Internal_Find(const CompatibleKeyType& key) const
 {
   Node* pNode = m_pRoot;
 
   while (pNode != &m_NilNode) // && (pNode->m_Key != key))
   {
-    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
+    const WInt32 dir = (WInt32)m_Comparer.Less(pNode->m_Key, key);
+    const WInt32 dir2 = (WInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -226,20 +226,20 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Find(const CompatibleKeyType& key) const
+W_ALWAYS_INLINE typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::Find(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const CompatibleKeyType& key) const
+W_ALWAYS_INLINE bool WSetBase<KeyType, Comparer>::Contains(const CompatibleKeyType& key) const
 {
   return Internal_Find(key) != nullptr;
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const
+W_FORCE_INLINE bool WSetBase<KeyType, Comparer>::ContainsSet(const WSetBase<KeyType, Comparer>& operand) const
 {
   for (const KeyType& key : operand)
   {
@@ -252,15 +252,15 @@ EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::ContainsSet(const ezSetBase<K
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_LowerBound(const CompatibleKeyType& key) const
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::Internal_LowerBound(const CompatibleKeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
+    const WInt32 dir = (WInt32)m_Comparer.Less(pNode->m_Key, key);
+    const WInt32 dir2 = (WInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       return pNode;
@@ -276,22 +276,22 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::LowerBound(const CompatibleKeyType& key) const
+W_ALWAYS_INLINE typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::LowerBound(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_UpperBound(const CompatibleKeyType& key) const
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::Internal_UpperBound(const CompatibleKeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
+    const WInt32 dir = (WInt32)m_Comparer.Less(pNode->m_Key, key);
+    const WInt32 dir2 = (WInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
     {
@@ -311,13 +311,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound(const CompatibleKeyType& key) const
+W_ALWAYS_INLINE typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::UpperBound(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_UpperBound(key));
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Union(const ezSetBase<KeyType, Comparer>& operand)
+void WSetBase<KeyType, Comparer>::Union(const WSetBase<KeyType, Comparer>& operand)
 {
   for (const auto& key : operand)
   {
@@ -326,7 +326,7 @@ void ezSetBase<KeyType, Comparer>::Union(const ezSetBase<KeyType, Comparer>& ope
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Difference(const ezSetBase<KeyType, Comparer>& operand)
+void WSetBase<KeyType, Comparer>::Difference(const WSetBase<KeyType, Comparer>& operand)
 {
   for (const auto& key : operand)
   {
@@ -335,7 +335,7 @@ void ezSetBase<KeyType, Comparer>::Difference(const ezSetBase<KeyType, Comparer>
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Intersection(const ezSetBase<KeyType, Comparer>& operand)
+void WSetBase<KeyType, Comparer>::Intersection(const WSetBase<KeyType, Comparer>& operand)
 {
   for (auto it = GetIterator(); it.IsValid();)
   {
@@ -348,7 +348,7 @@ void ezSetBase<KeyType, Comparer>::Intersection(const ezSetBase<KeyType, Compare
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Insert(CompatibleKeyType&& key)
+typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::Insert(CompatibleKeyType&& key)
 {
   Node* pInsertedNode = nullptr;
 
@@ -361,7 +361,7 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::In
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-bool ezSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
+bool WSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
 {
   bool bRemoved = true;
   m_pRoot = Remove(m_pRoot, key, bRemoved);
@@ -373,7 +373,7 @@ bool ezSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::AcquireNode(CompatibleKeyType&& key, ezUInt16 uiLevel, Node* pParent)
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::AcquireNode(CompatibleKeyType&& key, WUInt16 uiLevel, Node* pParent)
 {
   Node* pNode;
 
@@ -388,7 +388,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Acqui
     m_pFreeElementStack = m_pFreeElementStack->m_pParent;
   }
 
-  ezMemoryUtils::Construct<SkipTrivialTypes, Node>(pNode, 1);
+  WMemoryUtils::Construct<SkipTrivialTypes, Node>(pNode, 1);
 
   pNode->m_pParent = pParent;
   pNode->m_Key = std::forward<CompatibleKeyType>(key);
@@ -402,11 +402,11 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Acqui
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
+void WSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
 {
-  EZ_ASSERT_DEBUG(pNode != nullptr, "pNode is invalid.");
+  W_ASSERT_DEBUG(pNode != nullptr, "pNode is invalid.");
 
-  ezMemoryUtils::Destruct<Node>(pNode, 1);
+  WMemoryUtils::Destruct<Node>(pNode, 1);
 
   // try to reduce the element array, if possible
   if (pNode == &m_Elements.PeekBack())
@@ -427,7 +427,7 @@ void ezSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SkewNode(Node* root)
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::SkewNode(Node* root)
 {
   if ((root->m_pLink[0]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0))
   {
@@ -443,7 +443,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SkewN
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SplitNode(Node* root)
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::SplitNode(Node* root)
 {
   if ((root->m_pLink[1]->m_pLink[1]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0))
   {
@@ -461,7 +461,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Split
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Insert(Node* root, CompatibleKeyType&& key, Node*& pInsertedNode)
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::Insert(Node* root, CompatibleKeyType&& key, Node*& pInsertedNode)
 {
   if (root == &m_NilNode)
   {
@@ -473,17 +473,17 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
     Node* it = root;
     Node* up[STACK_SIZE];
 
-    ezInt32 top = 0;
-    ezInt32 dir = 0;
+    WInt32 top = 0;
+    WInt32 dir = 0;
 
     while (true)
     {
-      EZ_ASSERT_DEBUG(top < STACK_SIZE, "ezSetBase's internal stack is not large enough to be able to sort {0} elements.", GetCount());
+      W_ASSERT_DEBUG(top < STACK_SIZE, "WSetBase's internal stack is not large enough to be able to sort {0} elements.", GetCount());
       up[top++] = it;
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
       // element is identical => do not insert
-      if ((ezInt32)m_Comparer.Less(key, it->m_Key) == dir)
+      if ((WInt32)m_Comparer.Less(key, it->m_Key) == dir)
       {
         pInsertedNode = it;
         return root;
@@ -521,7 +521,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved)
+typename WSetBase<KeyType, Comparer>::Node* WSetBase<KeyType, Comparer>::Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved)
 {
   bRemoved = false;
 
@@ -532,20 +532,20 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
   {
     Node* it = root;
     Node* up[STACK_SIZE];
-    ezInt32 top = 0;
-    ezInt32 dir = 0;
+    WInt32 top = 0;
+    WInt32 dir = 0;
 
     while (true)
     {
-      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
+      W_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
 
       if (it == &m_NilNode)
         return root;
 
-      ezInt32 newdir = (ezInt32)(m_Comparer.Less(it->m_Key, key));
+      WInt32 newdir = (WInt32)(m_Comparer.Less(it->m_Key, key));
 
-      if (newdir == (ezInt32)(m_Comparer.Less(key, it->m_Key)))
+      if (newdir == (WInt32)(m_Comparer.Less(key, it->m_Key)))
         break;
 
       dir = newdir;
@@ -557,11 +557,11 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
     if ((it->m_pLink[0] == &m_NilNode) || (it->m_pLink[1] == &m_NilNode))
     {
-      ezInt32 dir2 = it->m_pLink[0] == &m_NilNode;
+      WInt32 dir2 = it->m_pLink[0] == &m_NilNode;
 
       if (--top != 0)
       {
-        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
+        W_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = it->m_pLink[dir2];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
@@ -575,7 +575,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
       while (heir->m_pLink[0] != &m_NilNode)
       {
-        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
+        W_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         up[top++] = prev = heir;
 
         heir = heir->m_pLink[0];
@@ -592,11 +592,11 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
     {
       if (top != 0)
       {
-        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
+        W_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
       }
 
-      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
+      W_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
 
       if ((up[top]->m_pLink[0]->m_uiLevel < up[top]->m_uiLevel - 1) || (up[top]->m_pLink[1]->m_uiLevel < up[top]->m_uiLevel - 1))
       {
@@ -615,14 +615,14 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
       if (top != 0)
       {
-        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
+        W_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
 
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
       {
-        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
+        W_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
       }
     }
@@ -670,9 +670,9 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Remove(const Iterator& pos)
+typename WSetBase<KeyType, Comparer>::Iterator WSetBase<KeyType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT_DEBUG(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
+  W_ASSERT_DEBUG(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;
@@ -681,7 +681,7 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Re
 }
 
 template <typename KeyType, typename Comparer>
-bool ezSetBase<KeyType, Comparer>::operator==(const ezSetBase<KeyType, Comparer>& rhs) const
+bool WSetBase<KeyType, Comparer>::operator==(const WSetBase<KeyType, Comparer>& rhs) const
 {
   if (GetCount() != rhs.GetCount())
     return false;
@@ -704,57 +704,57 @@ bool ezSetBase<KeyType, Comparer>::operator==(const ezSetBase<KeyType, Comparer>
 #undef STACK_SIZE
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet()
-  : ezSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
+WSet<KeyType, Comparer, AllocatorWrapper>::WSet()
+  : WSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocator* pAllocator)
-  : ezSetBase<KeyType, Comparer>(Comparer(), pAllocator)
+WSet<KeyType, Comparer, AllocatorWrapper>::WSet(WAllocator* pAllocator)
+  : WSetBase<KeyType, Comparer>(Comparer(), pAllocator)
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocator* pAllocator)
-  : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
+WSet<KeyType, Comparer, AllocatorWrapper>::WSet(const Comparer& comparer, WAllocator* pAllocator)
+  : WSetBase<KeyType, Comparer>(comparer, pAllocator)
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other)
-  : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+WSet<KeyType, Comparer, AllocatorWrapper>::WSet(const WSet<KeyType, Comparer, AllocatorWrapper>& other)
+  : WSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSetBase<KeyType, Comparer>& other)
-  : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+WSet<KeyType, Comparer, AllocatorWrapper>::WSet(const WSetBase<KeyType, Comparer>& other)
+  : WSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-void ezSet<KeyType, Comparer, AllocatorWrapper>::operator=(const ezSet<KeyType, Comparer, AllocatorWrapper>& rhs)
+void WSet<KeyType, Comparer, AllocatorWrapper>::operator=(const WSet<KeyType, Comparer, AllocatorWrapper>& rhs)
 {
-  ezSetBase<KeyType, Comparer>::operator=(rhs);
+  WSetBase<KeyType, Comparer>::operator=(rhs);
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-void ezSet<KeyType, Comparer, AllocatorWrapper>::operator=(const ezSetBase<KeyType, Comparer>& rhs)
+void WSet<KeyType, Comparer, AllocatorWrapper>::operator=(const WSetBase<KeyType, Comparer>& rhs)
 {
-  ezSetBase<KeyType, Comparer>::operator=(rhs);
+  WSetBase<KeyType, Comparer>::operator=(rhs);
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Swap(ezSetBase<KeyType, Comparer>& other)
+void WSetBase<KeyType, Comparer>::Swap(WSetBase<KeyType, Comparer>& other)
 {
   SwapNilNode(this->m_pRoot, &this->m_NilNode, &other.m_NilNode);
   SwapNilNode(other.m_pRoot, &other.m_NilNode, &this->m_NilNode);
 
-  ezMath::Swap(this->m_pRoot, other.m_pRoot);
-  ezMath::Swap(this->m_uiCount, other.m_uiCount);
-  ezMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
-  ezMath::Swap(this->m_Comparer, other.m_Comparer);
+  WMath::Swap(this->m_pRoot, other.m_pRoot);
+  WMath::Swap(this->m_uiCount, other.m_uiCount);
+  WMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
+  WMath::Swap(this->m_Comparer, other.m_Comparer);
 
   // after we swapped the root nodes, fix up their parent nodes
   this->m_pRoot->m_pParent = reinterpret_cast<Node*>(&this->m_NilNode);
@@ -765,7 +765,7 @@ void ezSetBase<KeyType, Comparer>::Swap(ezSetBase<KeyType, Comparer>& other)
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, NilNode* pNew)
+void WSetBase<KeyType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, NilNode* pNew)
 {
   if (pCurNode == pOld)
   {

@@ -1,21 +1,21 @@
-class ScriptObject :  ezAngelScriptClass
+class ScriptObject :  WAngelScriptClass
 {
-    void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg)
+    void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg)
     {
         if (msg.Message == "ActivatePaddleWheel")
         {
-            if (msg.TriggerState == ezTriggerState::Activated) {
+            if (msg.TriggerState == WTriggerState::Activated) {
 
-                ezGameObject@ spawn;
+                WGameObject@ spawn;
                 if (GetWorld().TryGetObjectWithGlobalKey("PaddleWheelSpawn1", @spawn))
                 {
                     spawn.SetActiveFlag(true);
                 }
 
             }
-            else if (msg.TriggerState == ezTriggerState::Deactivated) {
+            else if (msg.TriggerState == WTriggerState::Deactivated) {
 
-                ezGameObject@ spawn;
+                WGameObject@ spawn;
                 if (GetWorld().TryGetObjectWithGlobalKey("PaddleWheelSpawn1", @spawn))
                 {
                     spawn.SetActiveFlag(false);
@@ -26,18 +26,18 @@ class ScriptObject :  ezAngelScriptClass
 
         if (msg.Message == "ActivateSwing") {
 
-            if (msg.TriggerState == ezTriggerState::Activated) 
+            if (msg.TriggerState == WTriggerState::Activated) 
             {
-                ezGameObject@ spawn;
+                WGameObject@ spawn;
                 if (GetWorld().TryGetObjectWithGlobalKey("SwingSpawn1", @spawn))
                 {
                     spawn.SetActiveFlag(true);
                 }
 
             }
-            else if (msg.TriggerState == ezTriggerState::Deactivated) 
+            else if (msg.TriggerState == WTriggerState::Deactivated) 
             {
-                ezGameObject@ spawn;
+                WGameObject@ spawn;
                 if (GetWorld().TryGetObjectWithGlobalKey("SwingSpawn1", @spawn))
                 {
                     spawn.SetActiveFlag(false);

@@ -8,91 +8,91 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
-EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
+W_IMPLEMENT_SINGLETON(WEditorEngineProcessApp);
 
-ezEditorEngineProcessApp::ezEditorEngineProcessApp()
+WEditorEngineProcessApp::WEditorEngineProcessApp()
   : m_SingletonRegistrar(this)
 {
 }
 
-ezEditorEngineProcessApp::~ezEditorEngineProcessApp()
+WEditorEngineProcessApp::~WEditorEngineProcessApp()
 {
   DestroyRemoteWindow();
 }
 
-void ezEditorEngineProcessApp::SetRemoteMode()
+void WEditorEngineProcessApp::SetRemoteMode()
 {
-  m_Mode = ezEditorEngineProcessMode::Remote;
+  m_Mode = WEditorEngineProcessMode::Remote;
 
   CreateRemoteWindow();
 }
 
-void ezEditorEngineProcessApp::CreateRemoteWindow()
+void WEditorEngineProcessApp::CreateRemoteWindow()
 {
-  EZ_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
+  W_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
 
   if (!m_hWindow.IsInvalidated())
     return;
 
-  ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
+  WUniquePtr<WWindow> pWindow = W_DEFAULT_NEW(WWindow);
 
-  ezWindowCreationDesc desc;
+  WWindowCreationDesc desc;
   desc.m_bClipMouseCursor = false;
   desc.m_bShowMouseCursor = true;
-  desc.m_Resolution = ezSizeU32(1024, 768);
-  desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
+  desc.m_Resolution = WSizeU32(1024, 768);
+  desc.m_WindowMode = WWindowMode::WindowFixedResolution;
   desc.m_Title = "Engine View";
 
   pWindow->Initialize(desc).IgnoreResult();
 
-  m_hWindow = ezWindowManager::GetSingleton()->Register("Engine View", this, std::move(pWindow));
+  m_hWindow = WWindowManager::GetSingleton()->Register("Engine View", this, std::move(pWindow));
 }
 
-void ezEditorEngineProcessApp::DestroyRemoteWindow()
+void WEditorEngineProcessApp::DestroyRemoteWindow()
 {
   if (!m_hRemoteView.IsInvalidated())
   {
-    ezRenderWorld::DeleteView(m_hRemoteView);
+    WRenderWorld::DeleteView(m_hRemoteView);
     m_hRemoteView.Invalidate();
   }
 
-  if (ezWindowManager::GetSingleton())
+  if (WWindowManager::GetSingleton())
   {
-    ezWindowManager::GetSingleton()->CloseAll(this);
+    WWindowManager::GetSingleton()->CloseAll(this);
   }
 
   m_hWindow.Invalidate();
 }
 
-ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
+WRenderPipelineResourceHandle WEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
 {
-  // EditorRenderPipeline.ezRenderPipelineAsset
-  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
+  // EditorRenderPipeline.WRenderPipelineAsset
+  return WResourceManager::LoadResource<WRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
 }
 
-ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultDebugRenderPipeline()
+WRenderPipelineResourceHandle WEditorEngineProcessApp::CreateDefaultDebugRenderPipeline()
 {
-  // DebugRenderPipeline.ezRenderPipelineAsset
-  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
+  // DebugRenderPipeline.WRenderPipelineAsset
+  return WResourceManager::LoadResource<WRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
 }
 
-ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCamera)
+WViewHandle WEditorEngineProcessApp::CreateRemoteWindowAndView(WCamera* pCamera)
 {
-  EZ_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
+  W_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
 
   CreateRemoteWindow();
 
   if (m_hRemoteView.IsInvalidated())
   {
-    auto pWinMan = ezWindowManager::GetSingleton();
+    auto pWinMan = WWindowManager::GetSingleton();
 
     // create output target
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+      WUniquePtr<WWindowOutputTargetGAL> pOutput = W_DEFAULT_NEW(WWindowOutputTargetGAL);
 
-      ezGALWindowSwapChainCreationDescription desc;
+      WGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWinMan->GetWindow(m_hWindow);
-      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      desc.m_BackBufferFormat = WGALResourceFormat::RGBAUByteNormalizedsRGB;
 
       pOutput->CreateSwapchain(desc);
 
@@ -100,24 +100,24 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
     }
 
     // get swapchain
-    ezGALSwapChainHandle hSwapChain;
+    WGALSwapChainHandle hSwapChain;
     {
-      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWinMan->GetOutputTarget(m_hWindow));
+      WWindowOutputTargetGAL* pOutputTarget = static_cast<WWindowOutputTargetGAL*>(pWinMan->GetOutputTarget(m_hWindow));
       hSwapChain = pOutputTarget->m_hSwapChain;
     }
 
     // setup view
     {
-      ezView* pView = nullptr;
-      m_hRemoteView = ezRenderWorld::CreateView("Remote Process", pView);
+      WView* pView = nullptr;
+      m_hRemoteView = WRenderWorld::CreateView("Remote Process", pView);
 
-      // EditorRenderPipeline.ezRenderPipelineAsset
-      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
+      // EditorRenderPipeline.WRenderPipelineAsset
+      pView->SetRenderPipelineResource(WResourceManager::LoadResource<WRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
-      const ezSizeU32 wndSize = pWinMan->GetWindow(m_hWindow)->GetClientAreaSize();
+      const WSizeU32 wndSize = pWinMan->GetWindow(m_hWindow)->GetClientAreaSize();
 
       pView->SetSwapChain(hSwapChain);
-      pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));
+      pView->SetViewport(WRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));
       pView->SetCamera(pCamera);
     }
   }

@@ -5,66 +5,66 @@
 
 class QMimeData;
 class QDataStream;
-class ezDocumentObject;
-class ezQtDocumentTreeModelAdapter;
+class WDocumentObject;
+class WQtDocumentTreeModelAdapter;
 
-/// This type is used to provide ezDragDropHandler instances with all the important information for a drag & drop target
+/// This type is used to provide WDragDropHandler instances with all the important information for a drag & drop target
 ///
 /// It is a reflected class such that one can derive and extend it, if necessary.
 /// DragDrop handlers can then inspect whether it is a known extended type and cast to the type to get access to additional information.
-class EZ_EDITORFRAMEWORK_DLL ezDragDropInfo : public ezReflectedClass
+class W_EDITORFRAMEWORK_DLL WDragDropInfo : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDragDropInfo, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDragDropInfo, WReflectedClass);
 
 public:
-  ezDragDropInfo();
+  WDragDropInfo();
 
   const QMimeData* m_pMimeData;
 
   /// A string identifying into what context the object is dropped, e.g. "viewport" or "scenetree" etc.
-  ezString m_sTargetContext;
+  WString m_sTargetContext;
 
-  /// The ezDocument GUID
-  ezUuid m_TargetDocument;
+  /// The WDocument GUID
+  WUuid m_TargetDocument;
 
-  /// GUID of the ezDocumentObject that is at the dropped position. May be invalid. Can be used to attach as a child, to modify the object itself or
+  /// GUID of the WDocumentObject that is at the dropped position. May be invalid. Can be used to attach as a child, to modify the object itself or
   /// can be ignored.
-  ezUuid m_TargetObject;
+  WUuid m_TargetObject;
 
-  /// GUID of the ezDocumentObject that may be used as the parent, if no other target is more important.
-  ezUuid m_ActiveParentObject;
+  /// GUID of the WDocumentObject that may be used as the parent, if no other target is more important.
+  WUuid m_ActiveParentObject;
 
-  /// GUID of the ezDocumentObject that is the more specific component (of m_TargetObject) that was dragged on. May be invalid.
-  ezUuid m_TargetComponent;
+  /// GUID of the WDocumentObject that is the more specific component (of m_TargetObject) that was dragged on. May be invalid.
+  WUuid m_TargetComponent;
 
   /// World space position where the object is dropped. May be NaN.
-  ezVec3 m_vDropPosition;
+  WVec3 m_vDropPosition;
 
   /// World space normal at the point where the object is dropped. May be NaN.
-  ezVec3 m_vDropNormal;
+  WVec3 m_vDropNormal;
 
   /// Some kind of index / ID for the object that is at the drop location. For meshes this is the material index.
-  ezInt32 m_iTargetObjectSubID;
+  WInt32 m_iTargetObjectSubID;
 
   /// If dropped on a scene tree, this may say as which child the object is supposed to be inserted. -1 if invalid (ie. append)
-  ezInt32 m_iTargetObjectInsertChildIndex;
+  WInt32 m_iTargetObjectInsertChildIndex;
 
   /// If dropped on a scene tree, this is the adapter for the target object.
-  const ezQtDocumentTreeModelAdapter* m_pAdapter = nullptr;
+  const WQtDocumentTreeModelAdapter* m_pAdapter = nullptr;
 
   bool m_bShiftKeyDown;
   bool m_bCtrlKeyDown;
 };
 
 
-/// After an ezDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended
-/// derived type) to enable configuring how ezDragDropInfo is computed by the target.
-class EZ_EDITORFRAMEWORK_DLL ezDragDropConfig : public ezReflectedClass
+/// After an WDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended
+/// derived type) to enable configuring how WDragDropInfo is computed by the target.
+class W_EDITORFRAMEWORK_DLL WDragDropConfig : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDragDropConfig, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDragDropConfig, WReflectedClass);
 
 public:
-  ezDragDropConfig();
+  WDragDropConfig();
 
   /// Whether the currently selected objects (ie the dragged objects) should be considered for picking or not. Default is disabled.
   bool m_bPickSelectedObjects;

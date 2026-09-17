@@ -3,9 +3,9 @@
 #include <EditorPluginAssets/AnimationGraphAsset/AnimationGraphAssetScene.moc.h>
 
 
-ezQtAnimationGraphAssetScene::ezQtAnimationGraphAssetScene(QObject* pParent)
-  : ezQtVisualGraphScene(pParent)
+WQtAnimationGraphAssetScene::WQtAnimationGraphAssetScene(QObject* pParent)
+  : WQtVisualGraphScene(pParent)
 {
 }
 
-ezQtAnimationGraphAssetScene::~ezQtAnimationGraphAssetScene() = default;
+WQtAnimationGraphAssetScene::~WQtAnimationGraphAssetScene() = default;

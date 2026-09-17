@@ -4,68 +4,68 @@
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/Components/FmodComponent.h>
 
-struct ezFmodParameterId
+struct WFmodParameterId
 {
 public:
-  EZ_ALWAYS_INLINE void Invalidate() { m_uiValue = -1; }
-  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiValue == -1; }
+  W_ALWAYS_INLINE void Invalidate() { m_uiValue = -1; }
+  W_ALWAYS_INLINE bool IsInvalidated() const { return m_uiValue == -1; }
 
 private:
-  ezUInt64 m_uiValue = -1;
+  WUInt64 m_uiValue = -1;
 };
 
-class ezPhysicsWorldModuleInterface;
-struct ezMsgSetFloatParameter;
+class WPhysicsWorldModuleInterface;
+struct WMsgSetFloatParameter;
 
-class ezFmodEventComponentManager : public ezComponentManager<class ezFmodEventComponent, ezBlockStorageType::FreeList>
+class WFmodEventComponentManager : public WComponentManager<class WFmodEventComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezFmodEventComponentManager(ezWorld* pWorld);
+  WFmodEventComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
 private:
-  friend class ezFmodEventComponent;
+  friend class WFmodEventComponent;
 
   struct OcclusionState
   {
-    ezFmodEventComponent* m_pComponent = nullptr;
-    ezFmodParameterId m_OcclusionParamId;
-    ezUInt32 m_uiRaycastHits = 0;
-    ezUInt8 m_uiNextRayIndex = 0;
-    ezUInt8 m_uiNumUsedRays = 0;
+    WFmodEventComponent* m_pComponent = nullptr;
+    WFmodParameterId m_OcclusionParamId;
+    WUInt32 m_uiRaycastHits = 0;
+    WUInt8 m_uiNextRayIndex = 0;
+    WUInt8 m_uiNumUsedRays = 0;
     float m_fRadius = 0.0f;
     float m_fLastOcclusionValue = -1.0f;
 
-    float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
+    float GetOcclusionValue(float fThreshold) const { return WMath::Clamp((m_fLastOcclusionValue - fThreshold) / WMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
   };
 
-  ezUInt32 m_uiFirstComponentIndex = 0;
-  ezDynamicArray<OcclusionState> m_OcclusionStates;
+  WUInt32 m_uiFirstComponentIndex = 0;
+  WDynamicArray<OcclusionState> m_OcclusionStates;
 
-  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);
-  void RemoveOcclusionState(ezUInt32 uiIndex);
-  const OcclusionState& GetOcclusionState(ezUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
+  WUInt32 AddOcclusionState(WFmodEventComponent* pComponent, WFmodParameterId occlusionParamId, float fRadius);
+  void RemoveOcclusionState(WUInt32 uiIndex);
+  const OcclusionState& GetOcclusionState(WUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
 
   void ShootOcclusionRays(
-    OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime);
-  void UpdateOcclusion(const ezWorldModule::UpdateContext& context);
-  void UpdateEvents(const ezWorldModule::UpdateContext& context);
+    OcclusionState& state, WVec3 listenerPos, WUInt32 uiNumRays, const WPhysicsWorldModuleInterface* pPhysicsWorldModule, WTime deltaTime);
+  void UpdateOcclusion(const WWorldModule::UpdateContext& context);
+  void UpdateEvents(const WWorldModule::UpdateContext& context);
 
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 };
 
-using ezFmodSoundEventResourceHandle = ezTypedResourceHandle<class ezFmodSoundEventResource>;
+using WFmodSoundEventResourceHandle = WTypedResourceHandle<class WFmodSoundEventResource>;
 
-struct ezResourceEvent;
+struct WResourceEvent;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
-struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
+/// Sent when a WFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
+struct W_FMODPLUGIN_DLL WMsgFmodSoundFinished : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgFmodSoundFinished, WMessage);
 };
 
 
@@ -74,16 +74,16 @@ struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
 /// Represents a sound (called an 'event') in the FMOD sound system.
 ///
 /// Provides functions to start, pause, stop a sound, set parameters, change volume, pitch etc.
-class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
+class W_FMODPLUGIN_DLL WFmodEventComponent : public WFmodComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFmodEventComponent, ezFmodComponent, ezFmodEventComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WFmodEventComponent, WFmodComponent, WFmodEventComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -91,19 +91,19 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFmodComponent
+  // WFmodComponent
 
 private:
-  virtual void ezFmodComponentIsAbstract() override {}
-  friend class ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>;
+  virtual void WFmodComponentIsAbstract() override {}
+  friend class WComponentManagerSimple<class WFmodEventComponent, WComponentUpdateType::WhenSimulating>;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFmodEventComponent
+  // WFmodEventComponent
 
 public:
-  ezFmodEventComponent();
-  ~ezFmodEventComponent();
+  WFmodEventComponent();
+  ~WFmodEventComponent();
 
   void SetPaused(bool b);                                                               // [ property ]
   bool GetPaused() const { return m_bPaused; }                                          // [ property ]
@@ -111,8 +111,8 @@ public:
   void SetUseOcclusion(bool b);                                                         // [ property ]
   bool GetUseOcclusion() const { return m_bUseOcclusion; }                              // [ property ]
 
-  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                            // [ property ]
-  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; }    // [ property ]
+  void SetOcclusionCollisionLayer(WUInt8 uiCollisionLayer);                            // [ property ]
+  WUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; }    // [ property ]
 
   void SetOcclusionThreshold(float fThreshold);                                         // [ property ]
   float GetOcclusionThreshold() const;                                                  // [ property ]
@@ -123,10 +123,10 @@ public:
   void SetVolume(float f);                                                              // [ property ]
   float GetVolume() const { return m_fVolume; }                                         // [ property ]
 
-  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);                // [ property ]
-  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; } // [ property ]
+  void SetSoundEvent(const WFmodSoundEventResourceHandle& hSoundEvent);                // [ property ]
+  const WFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; } // [ property ]
 
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;                               // [ property ]
+  WEnum<WOnComponentFinishedAction> m_OnFinishedAction;                               // [ property ]
 
   void SetShowDebugInfo(bool bShow);                                                    // [ property ]
   bool GetShowDebugInfo() const;                                                        // [ property ]
@@ -168,24 +168,24 @@ public:
   void SoundCue(); // [ scriptable ]
 
   /// Tries to find the FMOD event parameter by name. Returns the parameter id or -1, if no such parameter exists.
-  ezFmodParameterId FindParameter(const char* szName) const;
+  WFmodParameterId FindParameter(const char* szName) const;
 
   /// Sets an FMOD event parameter value. See FindParameter() for the index.
-  void SetParameter(ezFmodParameterId paramId, float fValue);
+  void SetParameter(WFmodParameterId paramId, float fValue);
 
   /// Gets an FMOD event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
-  float GetParameter(ezFmodParameterId paramId) const;
+  float GetParameter(WFmodParameterId paramId) const;
 
   /// Sets an event parameter via name lookup, so this is less efficient than SetParameter()
   void SetEventParameter(const char* szParamName, float fValue); // [ scriptable ]
 
-  /// Allows one to set event parameters through the generic ezMsgSetFloatParameter message.
+  /// Allows one to set event parameters through the generic WMsgSetFloatParameter message.
   ///
   /// Requires event parameter lookup via a name, so this is less efficient than SetParameter().
-  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
+  void OnMsgSetFloatParameter(WMsgSetFloatParameter& ref_msg); // [ msg handler ]
 
 protected:
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);       // [ msg handler ]
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg);       // [ msg handler ]
 
   void Update();
   void UpdateParameters(FMOD::Studio::EventInstance* pInstance);
@@ -197,16 +197,16 @@ protected:
 
   bool m_bPaused;
   bool m_bUseOcclusion;
-  ezUInt8 m_uiOcclusionThreshold;
-  ezUInt8 m_uiOcclusionCollisionLayer;
+  WUInt8 m_uiOcclusionThreshold;
+  WUInt8 m_uiOcclusionCollisionLayer;
   float m_fPitch;
   float m_fVolume;
-  ezInt32 m_iTimelinePosition = -1; // used to restore a sound after reloading the resource
-  ezUInt32 m_uiOcclusionStateIndex = ezInvalidIndex;
-  ezFmodSoundEventResourceHandle m_hSoundEvent;
+  WInt32 m_iTimelinePosition = -1; // used to restore a sound after reloading the resource
+  WUInt32 m_uiOcclusionStateIndex = WInvalidIndex;
+  WFmodSoundEventResourceHandle m_hSoundEvent;
 
   FMOD::Studio::EventDescription* m_pEventDesc;
   FMOD::Studio::EventInstance* m_pEventInstance;
 
-  ezEventMessageSender<ezMsgFmodSoundFinished> m_SoundFinishedEventSender; // [ event ]
+  WEventMessageSender<WMsgFmodSoundFinished> m_SoundFinishedEventSender; // [ event ]
 };

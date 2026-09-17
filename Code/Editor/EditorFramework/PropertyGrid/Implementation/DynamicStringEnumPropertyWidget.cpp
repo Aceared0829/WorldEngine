@@ -5,67 +5,67 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget()
-  : ezQtStandardPropertyWidget()
+WQtDynamicStringEnumPropertyWidget::WQtDynamicStringEnumPropertyWidget()
+  : WQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
-  m_pButton = new ezQtDynamicStringEnumMenuButton(this);
+  m_pButton = new WQtDynamicStringEnumMenuButton(this);
 
   QSizePolicy policy = m_pButton->sizePolicy();
   policy.setHorizontalStretch(0);
   m_pButton->setSizePolicy(policy);
 
-  connect(m_pButton, &ezQtDynamicStringEnumMenuButton::ValueSelected, this,
+  connect(m_pButton, &WQtDynamicStringEnumMenuButton::ValueSelected, this,
     [this](const QString& sValue)
     { SetNewValue(sValue.toUtf8().data()); });
 
   m_pLayout->addWidget(m_pButton);
 }
 
-void ezQtDynamicStringEnumPropertyWidget::OnInit()
+void WQtDynamicStringEnumPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>() != nullptr,
-    "ezQtDynamicStringEnumPropertyWidget was created without a ezDynamicStringEnumAttribute!");
-  ezVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
-  EZ_IGNORE_UNUSED(type);
-  EZ_ASSERT_DEV(type == ezVariantType::String || type == ezVariantType::HashedString || type == ezVariantType::StringView, "ezDynamicStringEnumAttribute can only be used with string types");
+  W_ASSERT_DEV(m_pProp->GetAttributeByType<WDynamicStringEnumAttribute>() != nullptr,
+    "WQtDynamicStringEnumPropertyWidget was created without a WDynamicStringEnumAttribute!");
+  WVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
+  W_IGNORE_UNUSED(type);
+  W_ASSERT_DEV(type == WVariantType::String || type == WVariantType::HashedString || type == WVariantType::StringView, "WDynamicStringEnumAttribute can only be used with string types");
 
-  const ezDynamicStringEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>();
+  const WDynamicStringEnumAttribute* pAttr = m_pProp->GetAttributeByType<WDynamicStringEnumAttribute>();
 
   m_pButton->SetEnum(pAttr->GetDynamicEnumName());
   m_pButton->SetDocument(m_pGrid->GetDocument());
 
-  if (auto pDefaultValueAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  if (auto pDefaultValueAttr = m_pProp->GetAttributeByType<WDefaultValueAttribute>())
   {
-    m_pButton->GetEnum()->AddValidValue(pDefaultValueAttr->GetValue().ConvertTo<ezString>(), true);
+    m_pButton->GetEnum()->AddValidValue(pDefaultValueAttr->GetValue().ConvertTo<WString>(), true);
   }
 }
 
-void ezQtDynamicStringEnumPropertyWidget::InternalSetValue(const ezVariant& value)
+void WQtDynamicStringEnumPropertyWidget::InternalSetValue(const WVariant& value)
 {
-  m_pButton->SetCurrentValue(value.ConvertTo<ezString>());
+  m_pButton->SetCurrentValue(value.ConvertTo<WString>());
 }
 
-void ezQtDynamicStringEnumPropertyWidget::SetNewValue(ezStringView sNewValue)
+void WQtDynamicStringEnumPropertyWidget::SetNewValue(WStringView sNewValue)
 {
-  ezVariant v;
-  ezVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
-  if (type == ezVariantType::String || type == ezVariantType::StringView)
+  WVariant v;
+  WVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
+  if (type == WVariantType::String || type == WVariantType::StringView)
   {
-    v = ezVariant(sNewValue);
+    v = WVariant(sNewValue);
   }
-  else if (type == ezVariantType::HashedString)
+  else if (type == WVariantType::HashedString)
   {
-    ezHashedString s;
+    WHashedString s;
     s.Assign(sNewValue);
     v = s;
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   InternalSetValue(v);

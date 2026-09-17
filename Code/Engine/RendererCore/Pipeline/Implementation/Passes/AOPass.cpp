@@ -13,84 +13,84 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/SSAOConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAOPass, 1, ezRTTIDefaultAllocator<ezAOPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAOPass, 1, WRTTIDefaultAllocator<WAOPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DepthInput", m_PinDepthInput),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 10.0f)),
-    EZ_MEMBER_PROPERTY("MaxScreenSpaceRadius", m_fMaxScreenSpaceRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 2.0f)),
-    EZ_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new ezDefaultValueAttribute(2.0f)),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(0.7f)),
-    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezDefaultValueAttribute(80.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("FadeOutEnd", GetFadeOutEnd, SetFadeOutEnd)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("PositionBias", m_fPositionBias)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("MipLevelScale", m_fMipLevelScale)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("DepthBlurThreshold", m_fDepthBlurThreshold)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, ezVariant())),
+    W_MEMBER_PROPERTY("DepthInput", m_PinDepthInput),
+    W_MEMBER_PROPERTY("Output", m_PinOutput),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 10.0f)),
+    W_MEMBER_PROPERTY("MaxScreenSpaceRadius", m_fMaxScreenSpaceRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 2.0f)),
+    W_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new WDefaultValueAttribute(2.0f)),
+    W_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new WDefaultValueAttribute(0.7f)),
+    W_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new WDefaultValueAttribute(80.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("FadeOutEnd", GetFadeOutEnd, SetFadeOutEnd)->AddAttributes(new WDefaultValueAttribute(100.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("PositionBias", m_fPositionBias)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("MipLevelScale", m_fMipLevelScale)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("DepthBlurThreshold", m_fDepthBlurThreshold)->AddAttributes(new WDefaultValueAttribute(2.0f), new WClampValueAttribute(0.01f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Post Processing")
+    new WCategoryAttribute("Post Processing")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAOPass::ezAOPass()
-  : ezRenderPipelinePass("AOPass", true)
+WAOPass::WAOPass()
+  : WRenderPipelinePass("AOPass", true)
 
 {
-  m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/SSAONoise.dds");
+  m_hNoiseTexture = WResourceManager::LoadResource<WTexture2DResource>("Textures/SSAONoise.dds");
 
-  m_hDownscaleShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/DownscaleDepth.ezShader");
-  EZ_ASSERT_DEV(m_hDownscaleShader.IsValid(), "Could not load downsample shader!");
+  m_hDownscaleShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/DownscaleDepth.WShader");
+  W_ASSERT_DEV(m_hDownscaleShader.IsValid(), "Could not load downsample shader!");
 
-  m_hSSAOShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAO.ezShader");
-  EZ_ASSERT_DEV(m_hSSAOShader.IsValid(), "Could not load SSAO shader!");
+  m_hSSAOShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/SSAO.WShader");
+  W_ASSERT_DEV(m_hSSAOShader.IsValid(), "Could not load SSAO shader!");
 
-  m_hBlurShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOBlur.ezShader");
-  EZ_ASSERT_DEV(m_hBlurShader.IsValid(), "Could not load SSAO shader!");
+  m_hBlurShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/SSAOBlur.WShader");
+  W_ASSERT_DEV(m_hBlurShader.IsValid(), "Could not load SSAO shader!");
 
-  m_hDownscaleConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezDownscaleDepthConstants>();
-  m_hSSAOConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezSSAOConstants>();
+  m_hDownscaleConstantBuffer = WRenderContext::CreateConstantBufferStorage<WDownscaleDepthConstants>();
+  m_hSSAOConstantBuffer = WRenderContext::CreateConstantBufferStorage<WSSAOConstants>();
 }
 
-ezAOPass::~ezAOPass()
+WAOPass::~WAOPass()
 {
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
+  WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
 
-  ezRenderContext::DeleteConstantBufferStorage(m_hDownscaleConstantBuffer);
-  ezRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hDownscaleConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
 }
 
-ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WAOPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
   // Validate input
-  ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
-    return ezStatus(ezFmt("DepthInput pin: Not connected "));
+    return WStatus(WFmt("DepthInput pin: Not connected "));
 
-  ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
-  if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
-    return ezStatus(ezFmt("DepthInput pin: Input must be resolved"));
+  WGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
+  if (depthDesc.m_SampleCount != WGALMSAASampleCount::None)
+    return WStatus(WFmt("DepthInput pin: Input must be resolved"));
   // #TODO_RG CHECK IS DEPTH
   //  Create output
-  ezGALTextureCreationDescription outputDesc = depthDesc;
-  outputDesc.m_Format = ezGALResourceFormat::RGHalf;
+  WGALTextureCreationDescription outputDesc = depthDesc;
+  outputDesc.m_Format = WGALResourceFormat::RGHalf;
 
-  ezRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
+  WRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hSSAOOutput;
 
   // Add passes
-  ezUInt32 uiWidth = depthDesc.m_uiWidth;
-  ezUInt32 uiHeight = depthDesc.m_uiHeight;
+  WUInt32 uiWidth = depthDesc.m_uiWidth;
+  WUInt32 uiHeight = depthDesc.m_uiHeight;
 
-  ezUInt32 uiNumMips = 3;
-  ezUInt32 uiHzbWidth = ezMath::RoundUp(uiWidth, 1u << uiNumMips);
-  ezUInt32 uiHzbHeight = ezMath::RoundUp(uiHeight, 1u << uiNumMips);
+  WUInt32 uiNumMips = 3;
+  WUInt32 uiHzbWidth = WMath::RoundUp(uiWidth, 1u << uiNumMips);
+  WUInt32 uiHzbHeight = WMath::RoundUp(uiHeight, 1u << uiNumMips);
 
   float fHzbScaleX = (float)uiWidth / uiHzbWidth;
   float fHzbScaleY = (float)uiHeight / uiHzbHeight;
@@ -98,27 +98,27 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   // Find temp targets
   {
     {
-      ezGALTextureCreationDescription desc;
+      WGALTextureCreationDescription desc;
       desc.m_uiWidth = uiHzbWidth / 2;
       desc.m_uiHeight = uiHzbHeight / 2;
       desc.m_uiMipLevelCount = 3;
-      desc.m_Type = ezGALTextureType::Texture2DArray;
-      desc.m_Format = ezGALResourceFormat::RHalf;
-      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
+      desc.m_Type = WGALTextureType::Texture2DArray;
+      desc.m_Format = WGALResourceFormat::RHalf;
+      desc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::ShaderResource);
       desc.m_uiArraySize = outputDesc.m_uiArraySize;
 
       m_hHzbTexture = ref_graph.CreateTexture(desc);
     }
 
-    for (ezUInt32 i = 0; i < uiNumMips; ++i)
+    for (WUInt32 i = 0; i < uiNumMips; ++i)
     {
       uiHzbWidth = uiHzbWidth / 2;
       uiHzbHeight = uiHzbHeight / 2;
 
-      m_HzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
+      m_HzbSizes.PushBack(WVec2((float)uiHzbWidth, (float)uiHzbHeight));
 
       {
-        ezGALTextureRange desc;
+        WGALTextureRange desc;
         desc.m_uiBaseMipLevel = i;
         desc.m_uiMipLevels = 1;
         desc.m_uiArraySlices = outputDesc.m_uiArraySize;
@@ -126,9 +126,9 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
       }
     }
 
-    ezGALTextureCreationDescription descTemp;
-    descTemp.SetAsRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None);
-    descTemp.m_Type = ezGALTextureType::Texture2DArray;
+    WGALTextureCreationDescription descTemp;
+    descTemp.SetAsRenderTarget(uiWidth, uiHeight, WGALResourceFormat::RGHalf, WGALMSAASampleCount::None);
+    descTemp.m_Type = WGALTextureType::Texture2DArray;
     descTemp.m_uiArraySize = outputDesc.m_uiArraySize;
     m_hSSAOTemp = ref_graph.CreateTexture(descTemp);
   }
@@ -137,42 +137,42 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   {
     CreateSamplerState();
 
-    for (ezUInt32 i = 0; i < uiNumMips; ++i)
+    for (WUInt32 i = 0; i < uiNumMips; ++i)
     {
-      ezRenderGraphTextureHandle hInputView = i == 0 ? hDepthInput : m_hHzbTexture;
-      ezVec2 pixelSize;
-      ezGALTextureRange range;
+      WRenderGraphTextureHandle hInputView = i == 0 ? hDepthInput : m_hHzbTexture;
+      WVec2 pixelSize;
+      WGALTextureRange range;
 
       if (i == 0)
       {
-        pixelSize = ezVec2(1.0f / uiWidth, 1.0f / uiHeight);
+        pixelSize = WVec2(1.0f / uiWidth, 1.0f / uiHeight);
       }
       else
       {
         range = m_HzbResourceViews[i - 1];
-        pixelSize = ezVec2(1.0f).CompDiv(m_HzbSizes[i - 1]);
+        pixelSize = WVec2(1.0f).CompDiv(m_HzbSizes[i - 1]);
       }
 
       auto pass = ref_graph.AddGraphicsPass("DownscaleDepth");
-      pass.AddColorTarget(m_hHzbTexture, ezGALRenderTargetRange::MakeFromMipLevel(i));
-      pass.ReadTexture(hInputView, range, i == 0 ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.AddColorTarget(m_hHzbTexture, WGALRenderTargetRange::MakeFromMipLevel(i));
+      pass.ReadTexture(hInputView, range, i == 0 ? WGALResourceState::DepthStencilRead : WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
-      pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
         {
-          const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-          ezDownscaleDepthConstants* constants = ezRenderContext::GetConstantBufferData<ezDownscaleDepthConstants>(m_hDownscaleConstantBuffer);
+          const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
+          WDownscaleDepthConstants* constants = WRenderContext::GetConstantBufferData<WDownscaleDepthConstants>(m_hDownscaleConstantBuffer);
           constants->PixelSize = pixelSize;
           constants->FadeOutEnd = m_fFadeOutEnd;
           constants->LinearizeDepth = (i == 0);
 
-          ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-          bindGroup.BindBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
+          WBindGroupBuilder& bindGroup = WRenderContext::GetDefaultInstance()->GetBindGroup();
+          bindGroup.BindBuffer("WDownscaleDepthConstants", m_hDownscaleConstantBuffer);
           renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
 
           bindGroup.BindTexture("DepthTexture", ctx.ResolveTexture(hInputView), range);
           bindGroup.BindSampler("DepthSampler", m_hSSAOSamplerState);
 
-          renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+          renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
           renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); //
         });
@@ -183,20 +183,20 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   {
     auto pass = ref_graph.AddGraphicsPass("SSAO");
     pass.AddColorTarget(m_hSSAOTemp);
-    pass.ReadTexture(m_hHzbTexture, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
-    pass.ReadTexture(hDepthInput, {}, ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(m_hHzbTexture, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hDepthInput, {}, WGALResourceState::DepthStencilRead, WGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
         // Update constants
         {
-          float fadeOutScale = -1.0f / ezMath::Max(0.001f, (m_fFadeOutEnd - m_fFadeOutStart));
+          float fadeOutScale = -1.0f / WMath::Max(0.001f, (m_fFadeOutEnd - m_fFadeOutStart));
           float fadeOutOffset = -fadeOutScale * m_fFadeOutStart + 1.0f;
 
-          ezSSAOConstants* constants = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hSSAOConstantBuffer);
-          constants->TexCoordsScale = ezVec2(fHzbScaleX, fHzbScaleY);
-          constants->FadeOutParams = ezVec2(fadeOutScale, fadeOutOffset);
+          WSSAOConstants* constants = WRenderContext::GetConstantBufferData<WSSAOConstants>(m_hSSAOConstantBuffer);
+          constants->TexCoordsScale = WVec2(fHzbScaleX, fHzbScaleY);
+          constants->FadeOutParams = WVec2(fadeOutScale, fadeOutOffset);
           constants->WorldRadius = m_fRadius;
           constants->MaxScreenSpaceRadius = m_fMaxScreenSpaceRadius;
           constants->Contrast = m_fContrast;
@@ -208,14 +208,14 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
         }
 
         renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
-        ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-        bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+        WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
+        bindGroupRenderPass.BindBuffer("WSSAOConstants", m_hSSAOConstantBuffer);
         bindGroupRenderPass.BindTexture("DepthTexture", ctx.ResolveTexture(hDepthInput));
         bindGroupRenderPass.BindTexture("LowResDepthTexture", ctx.ResolveTexture(m_hHzbTexture));
         bindGroupRenderPass.BindSampler("DepthSampler", m_hSSAOSamplerState);
-        bindGroupRenderPass.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+        bindGroupRenderPass.BindTexture("NoiseTexture", m_hNoiseTexture, WResourceAcquireMode::BlockTillLoaded);
 
-        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); //
       });
@@ -225,46 +225,46 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   {
     auto pass = ref_graph.AddGraphicsPass("SSAO Blur");
     pass.AddColorTarget(hSSAOOutput);
-    pass.ReadTexture(m_hSSAOTemp, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(m_hSSAOTemp, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
 
-      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
       renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
-      bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+      bindGroupRenderPass.BindBuffer("WSSAOConstants", m_hSSAOConstantBuffer);
       bindGroupRenderPass.BindTexture("SSAOTexture", ctx.ResolveTexture(m_hSSAOTemp));
 
-      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WAOPass::AddRenderPassesInactive(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
-    return ezStatus(ezFmt("DepthInput pin: Not connected "));
+    return WStatus(WFmt("DepthInput pin: Not connected "));
 
-  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hDepthInput);
-  outputDesc.m_Format = ezGALResourceFormat::RGHalf;
+  WGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hDepthInput);
+  outputDesc.m_Format = WGALResourceFormat::RGHalf;
 
-  ezRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
+  WRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hSSAOOutput;
 
   auto pass = ref_graph.AddGraphicsPass("InactiveSSAO");
-  pass.AddColorTarget(hSSAOOutput, {}, ezGALRenderTargetLoadOp::Clear);
-  pass.SetClearColor(0, ezColor::White);
-  return EZ_SUCCESS;
+  pass.AddColorTarget(hSSAOOutput, {}, WGALRenderTargetLoadOp::Clear);
+  pass.SetClearColor(0, WColor::White);
+  return W_SUCCESS;
 }
 
-ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WAOPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_fRadius;
   inout_stream << m_fMaxScreenSpaceRadius;
   inout_stream << m_fContrast;
@@ -274,14 +274,14 @@ ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << m_fPositionBias;
   inout_stream << m_fMipLevelScale;
   inout_stream << m_fDepthBlurThreshold;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
+WResult WAOPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_fRadius;
   inout_stream >> m_fMaxScreenSpaceRadius;
   inout_stream >> m_fContrast;
@@ -291,49 +291,49 @@ ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_fPositionBias;
   inout_stream >> m_fMipLevelScale;
   inout_stream >> m_fDepthBlurThreshold;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezAOPass::SetFadeOutStart(float fStart)
+void WAOPass::SetFadeOutStart(float fStart)
 {
-  m_fFadeOutStart = ezMath::Clamp(fStart, 0.0f, m_fFadeOutEnd);
+  m_fFadeOutStart = WMath::Clamp(fStart, 0.0f, m_fFadeOutEnd);
 }
 
-float ezAOPass::GetFadeOutStart() const
+float WAOPass::GetFadeOutStart() const
 {
   return m_fFadeOutStart;
 }
 
-void ezAOPass::SetFadeOutEnd(float fEnd)
+void WAOPass::SetFadeOutEnd(float fEnd)
 {
   if (m_fFadeOutEnd == fEnd)
     return;
 
-  m_fFadeOutEnd = ezMath::Max(fEnd, m_fFadeOutStart);
+  m_fFadeOutEnd = WMath::Max(fEnd, m_fFadeOutStart);
 
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
+  WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
 }
 
-float ezAOPass::GetFadeOutEnd() const
+float WAOPass::GetFadeOutEnd() const
 {
   return m_fFadeOutEnd;
 }
 
-void ezAOPass::CreateSamplerState()
+void WAOPass::CreateSamplerState()
 {
   if (m_hSSAOSamplerState.IsInvalidated())
   {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_MinFilter = ezGALTextureFilterMode::Point;
-    desc.m_MagFilter = ezGALTextureFilterMode::Point;
-    desc.m_MipFilter = ezGALTextureFilterMode::Point;
-    desc.m_AddressU = ezImageAddressMode::ClampBorder;
-    desc.m_AddressV = ezImageAddressMode::ClampBorder;
-    desc.m_AddressW = ezImageAddressMode::ClampBorder;
-    desc.m_BorderColor = ezColor::White * m_fFadeOutEnd;
+    WGALSamplerStateCreationDescription desc;
+    desc.m_MinFilter = WGALTextureFilterMode::Point;
+    desc.m_MagFilter = WGALTextureFilterMode::Point;
+    desc.m_MipFilter = WGALTextureFilterMode::Point;
+    desc.m_AddressU = WImageAddressMode::ClampBorder;
+    desc.m_AddressV = WImageAddressMode::ClampBorder;
+    desc.m_AddressW = WImageAddressMode::ClampBorder;
+    desc.m_BorderColor = WColor::White * m_fFadeOutEnd;
 
-    m_hSSAOSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+    m_hSSAOSamplerState = WGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AOPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AOPass);

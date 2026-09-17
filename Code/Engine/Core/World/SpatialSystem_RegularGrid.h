@@ -5,7 +5,7 @@
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Types/UniquePtr.h>
 
-namespace ezInternal
+namespace WInternal
 {
   struct QueryHelper;
 }
@@ -15,103 +15,103 @@ namespace ezInternal
 /// Divides space into uniform grid cells to enable efficient spatial queries. Supports
 /// multiple grids for different spatial data categories and implements a caching system
 /// to optimize frequently used tag-based queries by creating specialized grid views.
-class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
+class W_CORE_DLL WSpatialSystem_RegularGrid : public WSpatialSystem
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSpatialSystem_RegularGrid, ezSpatialSystem);
+  W_ADD_DYNAMIC_REFLECTION(WSpatialSystem_RegularGrid, WSpatialSystem);
 
 public:
   /// Creates a regular grid spatial system with the given cell size.
-  ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize = 128);
-  ~ezSpatialSystem_RegularGrid();
+  WSpatialSystem_RegularGrid(WUInt32 uiCellSize = 128);
+  ~WSpatialSystem_RegularGrid();
 
   /// Returns the bounding box of the cell associated with the given spatial data. Useful for debug visualizations.
-  ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_boundingBox) const;
+  WResult GetCellBoxForSpatialData(const WSpatialDataHandle& hData, WBoundingBox& out_boundingBox) const;
 
   /// Returns bounding boxes of all existing cells.
-  void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_boundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
+  void GetAllCellBoxes(WDynamicArray<WBoundingBox>& out_boundingBoxes, WSpatialData::Category filterCategory = WInvalidSpatialDataCategory) const;
 
 private:
-  friend ezInternal::QueryHelper;
+  friend WInternal::QueryHelper;
 
-  // ezSpatialSystem implementation
+  // WSpatialSystem implementation
   virtual void StartNewFrame() override;
 
-  ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
-  ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags) override;
+  WSpatialDataHandle CreateSpatialData(const WSimdBBoxSphere& bounds, WGameObject* pObject, WUInt32 uiCategoryBitmask, const WTagSet& tags) override;
+  WSpatialDataHandle CreateSpatialDataAlwaysVisible(WGameObject* pObject, WUInt32 uiCategoryBitmask, const WTagSet& tags) override;
 
-  void DeleteSpatialData(const ezSpatialDataHandle& hData) override;
+  void DeleteSpatialData(const WSpatialDataHandle& hData) override;
 
-  void UpdateSpatialDataBounds(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds) override;
-  void UpdateSpatialDataObject(const ezSpatialDataHandle& hData, ezGameObject* pObject) override;
+  void UpdateSpatialDataBounds(const WSpatialDataHandle& hData, const WSimdBBoxSphere& bounds) override;
+  void UpdateSpatialDataObject(const WSpatialDataHandle& hData, WGameObject* pObject) override;
 
-  void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
-  void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
+  void FindObjectsInSphere(const WBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
+  void FindObjectsInBox(const WBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
 
-  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const override;
+  void FindVisibleObjects(const WFrustum& frustum, const QueryParams& queryParams, WDynamicArray<const WGameObject*>& out_Objects, WSpatialSystem::IsOccludedFunc IsOccluded, WVisibilityState::Enum visType) const override;
 
-  ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const override;
+  WVisibilityState::Enum GetVisibilityState(const WSpatialDataHandle& hData, WUInt32 uiNumFramesBeforeInvisible) const override;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  virtual void GetInternalStats(ezStringBuilder& sb) const override;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  virtual void GetInternalStats(WStringBuilder& sb) const override;
 #endif
 
-  ezProxyAllocator m_AlignedAllocator;
+  WProxyAllocator m_AlignedAllocator;
 
-  ezSimdVec4i m_vCellSize;
-  ezSimdVec4f m_vOverlapSize;
-  ezSimdFloat m_fInvCellSize;
+  WSimdVec4i m_vCellSize;
+  WSimdVec4f m_vOverlapSize;
+  WSimdFloat m_fInvCellSize;
 
   enum
   {
     MAX_NUM_GRIDS = 63,
-    MAX_NUM_REGULAR_GRIDS = (sizeof(ezSpatialData::Category::m_uiValue) * 8),
+    MAX_NUM_REGULAR_GRIDS = (sizeof(WSpatialData::Category::m_uiValue) * 8),
     MAX_NUM_CACHED_GRIDS = MAX_NUM_GRIDS - MAX_NUM_REGULAR_GRIDS
   };
 
   struct Cell;
   struct Grid;
-  ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
-  ezUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
+  WDynamicArray<WUniquePtr<Grid>> m_Grids;
+  WUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
 
   /// Internal data structure tracking which grids contain a spatial data object.
   struct Data
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS; ///< Bitmask indicating which grids contain this object
-    ezUInt64 m_uiAlwaysVisible : 1;           ///< Whether this object is always visible (bypasses spatial queries)
+    WUInt64 m_uiGridBitmask : MAX_NUM_GRIDS; ///< Bitmask indicating which grids contain this object
+    WUInt64 m_uiAlwaysVisible : 1;           ///< Whether this object is always visible (bypasses spatial queries)
   };
 
-  ezIdTable<ezSpatialDataId, Data, ezLocalAllocatorWrapper> m_DataTable;
+  WIdTable<WSpatialDataId, Data, WLocalAllocatorWrapper> m_DataTable;
 
   bool IsAlwaysVisibleData(const Data& data) const;
 
-  ezSpatialDataHandle AddSpatialDataToGrids(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask, const ezTagSet& tags, bool bAlwaysVisible);
+  WSpatialDataHandle AddSpatialDataToGrids(const WSimdBBoxSphere& bounds, WGameObject* pObject, WUInt32 uiCategoryBitmask, const WTagSet& tags, bool bAlwaysVisible);
 
   template <typename Functor>
-  void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
+  void ForEachGrid(const Data& data, const WSpatialDataHandle& hData, Functor func) const;
 
   struct Stats;
-  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, ezVisibilityState::Enum)>;
-  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const;
+  using CellCallback = WDelegate<WVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, WVisibilityState::Enum)>;
+  void ForEachCellInBoxInMatchingGrids(const WSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, WVisibilityState::Enum visType) const;
 
   /// Candidate for grid caching based on query patterns and filtering efficiency.
   struct CacheCandidate
   {
-    ezTagSet m_IncludeTags;                  ///< Tags that must be included for this cached grid
-    ezTagSet m_ExcludeTags;                  ///< Tags that must be excluded for this cached grid
-    ezSpatialData::Category m_Category;      ///< Spatial data category for this cached grid
+    WTagSet m_IncludeTags;                  ///< Tags that must be included for this cached grid
+    WTagSet m_ExcludeTags;                  ///< Tags that must be excluded for this cached grid
+    WSpatialData::Category m_Category;      ///< Spatial data category for this cached grid
     float m_fQueryCount = 0.0f;              ///< How frequently this query pattern is used
     float m_fFilteredRatio = 0.0f;           ///< Ratio of objects that pass the tag filter
-    ezUInt32 m_uiGridIndex = ezInvalidIndex; ///< Index of the associated grid if already cached
+    WUInt32 m_uiGridIndex = WInvalidIndex; ///< Index of the associated grid if already cached
   };
 
-  mutable ezDynamicArray<CacheCandidate> m_CacheCandidates;
-  mutable ezMutex m_CacheCandidatesMutex;
+  mutable WDynamicArray<CacheCandidate> m_CacheCandidates;
+  mutable WMutex m_CacheCandidatesMutex;
 
   struct SortedCacheCandidate
   {
-    ezUInt32 m_uiIndex = 0;
+    WUInt32 m_uiIndex = 0;
     float m_fScore = 0;
 
     bool operator<(const SortedCacheCandidate& other) const
@@ -123,13 +123,13 @@ private:
     }
   };
 
-  ezDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
+  WDynamicArray<SortedCacheCandidate> m_SortedCacheCandidates;
 
-  void MigrateCachedGrid(ezUInt32 uiCandidateIndex);
-  void MigrateSpatialData(ezUInt32 uiTargetGridIndex, ezUInt32 uiSourceGridIndex);
+  void MigrateCachedGrid(WUInt32 uiCandidateIndex);
+  void MigrateSpatialData(WUInt32 uiTargetGridIndex, WUInt32 uiSourceGridIndex);
 
-  void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
+  void RemoveCachedGrid(WUInt32 uiCandidateIndex);
   void RemoveAllCachedGrids();
 
-  void UpdateCacheCandidate(const ezTagSet* pIncludeTags, const ezTagSet* pExcludeTags, ezSpatialData::Category category, float filteredRatio) const;
+  void UpdateCacheCandidate(const WTagSet* pIncludeTags, const WTagSet* pExcludeTags, WSpatialData::Category category, float filteredRatio) const;
 };

@@ -3,11 +3,11 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgSetColor;
+struct WMsgSetColor;
 
-struct ezFillLightMode
+struct WFillLightMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -19,70 +19,70 @@ struct ezFillLightMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezFillLightMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WFillLightMode);
 
 /// The render data object for fill lights.
-class EZ_RENDERERCORE_DLL ezFillLightRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WFillLightRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFillLightRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WFillLightRenderData, WRenderData);
 
 public:
   void FillSortingKey(float fScreenSpaceSize);
 
-  ezColorLinearUB m_LightColor;
-  ezEnum<ezFillLightMode> m_LightMode;
+  WColorLinearUB m_LightColor;
+  WEnum<WFillLightMode> m_LightMode;
   float m_fIntensity;
   float m_fRange;
   float m_fFalloffExponent;
   float m_fDirectionality;
 };
 
-using ezFillLightComponentManager = ezComponentManager<class ezFillLightComponent, ezBlockStorageType::Compact>;
+using WFillLightComponentManager = WComponentManager<class WFillLightComponent, WBlockStorageType::Compact>;
 
 /// Adds a fill light to the scene. This can be used to simulate bounced light or to light up dark areas.
 /// It can also be used to modulate the indirect lighting.
-class EZ_RENDERERCORE_DLL ezFillLightComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WFillLightComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFillLightComponent, ezRenderComponent, ezFillLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WFillLightComponent, WRenderComponent, WFillLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFillLightComponent
+  // WFillLightComponent
 
 public:
-  ezFillLightComponent();
-  ~ezFillLightComponent();
+  WFillLightComponent();
+  ~WFillLightComponent();
 
   /// In Additive mode the fill light adds light to scene like a regular light source.
   /// In ModulateIndirect mode it acts as a multiplier to the indirect light.
-  void SetLightMode(ezEnum<ezFillLightMode> mode);                     // [ property ]
-  ezEnum<ezFillLightMode> GetLightMode() const { return m_LightMode; } // [ property ]
+  void SetLightMode(WEnum<WFillLightMode> mode);                     // [ property ]
+  WEnum<WFillLightMode> GetLightMode() const { return m_LightMode; } // [ property ]
 
   /// Used to enable kelvin color values. This is a physical representation of light color using.
   /// for more detail: https://wikipedia.org/wiki/Color_temperature
   void SetUsingColorTemperature(bool bUseColorTemperature);                // [ property ]
   bool GetUsingColorTemperature() const { return m_bUseColorTemperature; } // [ property ]
 
-  void SetTemperature(ezUInt32 uiTemperature);                             // [ property ]
-  ezUInt32 GetTemperature() const { return m_uiTemperature; }              // [ property ]
+  void SetTemperature(WUInt32 uiTemperature);                             // [ property ]
+  WUInt32 GetTemperature() const { return m_uiTemperature; }              // [ property ]
 
-  void SetLightColor(ezColorGammaUB lightColor);                           // [ property ]
-  ezColorGammaUB GetLightColor() const { return m_LightColor; }            // [ property ]
+  void SetLightColor(WColorGammaUB lightColor);                           // [ property ]
+  WColorGammaUB GetLightColor() const { return m_LightColor; }            // [ property ]
 
-  ezColorGammaUB GetEffectiveColor() const;
+  WColorGammaUB GetEffectiveColor() const;
 
   /// In Additive mode this controls the brightness of the light source.
   /// In ModulateIndirect mode light color times intensity is multiplied with the indirect light,
@@ -104,15 +104,15 @@ public:
   float GetDirectionality() const { return m_fDirectionality; } // [ property ]
 
 protected:
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgSetColor(WMsgSetColor& ref_msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezColorGammaUB m_LightColor = ezColor::White;
-  ezUInt32 m_uiTemperature = 6550;
+  WColorGammaUB m_LightColor = WColor::White;
+  WUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;
   float m_fRange = 5.0f;
   float m_fFalloffExponent = 1.0f;
   float m_fDirectionality = 1.0f;
-  ezEnum<ezFillLightMode> m_LightMode;
+  WEnum<WFillLightMode> m_LightMode;
   bool m_bUseColorTemperature = false;
 };

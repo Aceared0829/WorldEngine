@@ -7,7 +7,7 @@ struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11UnorderedAccessView;
 
-class ezGALRenderTargetViewVulkan : public ezGALRenderTargetView
+class WGALRenderTargetViewVulkan : public WGALRenderTargetView
 {
 public:
   vk::ImageView GetImageView() const;
@@ -15,14 +15,14 @@ public:
   vk::ImageSubresourceRange GetRange() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALRenderTargetViewVulkan(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description);
-  virtual ~ezGALRenderTargetViewVulkan();
+  WGALRenderTargetViewVulkan(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description);
+  virtual ~WGALRenderTargetViewVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   vk::ImageView m_ImageView;
   bool m_bBfullRange = false;

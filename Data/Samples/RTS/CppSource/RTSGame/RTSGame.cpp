@@ -5,49 +5,49 @@
 #include <Foundation/Logging/Log.h>
 
 // this injects the C++ main() function
-EZ_APPLICATION_ENTRY_POINT(RTSGame);
+W_APPLICATION_ENTRY_POINT(RTSGame);
 
 RTSGame::RTSGame()
-  : ezGameApplication("RTS", nullptr)
+  : WGameApplication("RTS", nullptr)
 {
 }
 
-ezResult RTSGame::TryProjectFolder(ezStringView sPath)
+WResult RTSGame::TryProjectFolder(WStringView sPath)
 {
-  ezStringBuilder sProjDir = sPath;
+  WStringBuilder sProjDir = sPath;
   sProjDir.MakeCleanPath();
 
-  ezStringBuilder sProjFile;
-  sProjFile.SetPath(sProjDir, "ezProject");
+  WStringBuilder sProjFile;
+  sProjFile.SetPath(sProjDir, "WProject");
 
-  if (sProjFile.IsAbsolutePath() && ezOSFile::ExistsFile(sProjFile))
+  if (sProjFile.IsAbsolutePath() && WOSFile::ExistsFile(sProjFile))
   {
     m_sAppProjectPath = sProjDir;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 void RTSGame::DetermineProjectPath()
 {
   // IMPORTANT!
   //
-  // The project path has to be set for the ezGameApplication to know where the main 'project' data directory is.
+  // The project path has to be set for the WGameApplication to know where the main 'project' data directory is.
   // Without it, nothing will work (the game plugin won't be loaded etc).
   //
-  // The path can be relative to the '>SDK' directory (the root folder where EZ is located).
+  // The path can be relative to the '>SDK' directory (the root folder where W is located).
   // It may also be absolute (though this isn't portable across machines).
-  // Or it can be relative to ezOSFile::GetApplicationDirectory() (where the Game.exe is).
+  // Or it can be relative to WOSFile::GetApplicationDirectory() (where the Game.exe is).
   //
-  // If your project is inside the EZ directory, use a relative path from there.
+  // If your project is inside the W directory, use a relative path from there.
   // If it is somewhere outside, you either need to use an absolute path or some other way to locate it.
   //
-  // Note that in a final exported build the project folder is always merged with the EZ data folders into one package.
+  // Note that in a final exported build the project folder is always merged with the W data folders into one package.
 
   // this path works for exported projects, because during export the project folder is always copied there
-  ezStringBuilder sProjDir;
-  if (ezFileSystem::ResolveSpecialDirectory(">sdk/Data/project", sProjDir).Succeeded())
+  WStringBuilder sProjDir;
+  if (WFileSystem::ResolveSpecialDirectory(">sdk/Data/project", sProjDir).Succeeded())
   {
     if (TryProjectFolder(sProjDir).Succeeded())
       return;
@@ -55,8 +55,8 @@ void RTSGame::DetermineProjectPath()
 
 #ifdef GAME_PROJECT_FOLDER
   // this absolute path will only work on the machine where the game is compiled,
-  // but it works for projects that are located outside the ezEngine folder
-  if (TryProjectFolder(EZ_PP_STRINGIFY(GAME_PROJECT_FOLDER)).Succeeded())
+  // but it works for projects that are located outside the WorldEngine folder
+  if (TryProjectFolder(W_PP_STRINGIFY(GAME_PROJECT_FOLDER)).Succeeded())
     return;
 #endif
 
@@ -64,33 +64,33 @@ void RTSGame::DetermineProjectPath()
   m_sAppProjectPath = "Data/Samples/RTS";
 }
 
-ezUniquePtr<ezGameStateBase> RTSGame::CreateGameState()
+WUniquePtr<WGameStateBase> RTSGame::CreateGameState()
 {
   // usually we should only have a single non-fallback gamestate which is automatically picked
   // but if necessary, we can override this here
   return SUPER::CreateGameState();
 }
 
-ezResult RTSGame::BeforeCoreSystemsStartup()
+WResult RTSGame::BeforeCoreSystemsStartup()
 {
-  ezStartup::AddApplicationTag("game");
+  WStartup::AddApplicationTag("game");
 
-  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
+  W_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   DetermineProjectPath();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 void RTSGame::AfterCoreSystemsStartup()
 {
   ExecuteInitFunctions();
 
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 
   // we need a game state to do anything
-  // if no custom game state is available, ezFallbackGameState will be used
+  // if no custom game state is available, WFallbackGameState will be used
   // the game state is also responsible for either creating a world, or loading it
-  // the ezFallbackGameState inspects the command line to figure out which scene to load
-  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
+  // the WFallbackGameState inspects the command line to figure out which scene to load
+  ActivateGameState(nullptr, {}, WTransform::MakeIdentity());
 }

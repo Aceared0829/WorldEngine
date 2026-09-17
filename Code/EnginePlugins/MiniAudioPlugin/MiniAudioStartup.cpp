@@ -5,7 +5,7 @@
 #include <MiniAudioPlugin/MiniAudioSingleton.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(MiniAudio, MiniAudioPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(MiniAudio, MiniAudioPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -22,17 +22,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(MiniAudio, MiniAudioPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(&ezMiniAudioSingleton::GameApplicationEventHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(&WMiniAudioSingleton::GameApplicationEventHandler);
 
-    ezMiniAudioSingleton::GetSingleton()->Startup();
+    WMiniAudioSingleton::GetSingleton()->Startup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(&ezMiniAudioSingleton::GameApplicationEventHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(&WMiniAudioSingleton::GameApplicationEventHandler);
 
-    ezMiniAudioSingleton::GetSingleton()->Shutdown();
+    WMiniAudioSingleton::GetSingleton()->Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on

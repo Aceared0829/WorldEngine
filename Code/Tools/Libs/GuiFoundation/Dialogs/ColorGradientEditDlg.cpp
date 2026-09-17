@@ -7,10 +7,10 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-QByteArray ezQtColorGradientEditDlg::s_LastDialogGeometry;
+QByteArray WQtColorGradientEditDlg::s_LastDialogGeometry;
 
-ezQtColorGradientEditDlg::ezQtColorGradientEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject, QWidget* pParent, ezStringView sTitle)
-  : ezQtDialog(pParent)
+WQtColorGradientEditDlg::WQtColorGradientEditDlg(WObjectAccessorBase* pObjectAccessor, const WDocumentObject* pGradientObject, QWidget* pParent, WStringView sTitle)
+  : WQtDialog(pParent)
 {
   m_pObjectAccessor = pObjectAccessor;
   m_pGradientObject = pGradientObject;
@@ -19,43 +19,43 @@ ezQtColorGradientEditDlg::ezQtColorGradientEditDlg(ezObjectAccessorBase* pObject
 
   if (!sTitle.IsEmpty())
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     setWindowTitle(sTitle.GetData(tmp));
   }
 
-  ezQtColorGradientEditorWidget* pEdit = GradientEditor;
+  WQtColorGradientEditorWidget* pEdit = GradientEditor;
 
   // Connect color CP signals
-  connect(pEdit, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientEditDlg::OnColorCpAdded);
-  connect(pEdit, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientEditDlg::OnColorCpMoved);
-  connect(pEdit, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtColorGradientEditDlg::OnColorCpDeleted);
-  connect(pEdit, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtColorGradientEditDlg::OnColorCpChanged);
+  connect(pEdit, &WQtColorGradientEditorWidget::ColorCpAdded, this, &WQtColorGradientEditDlg::OnColorCpAdded);
+  connect(pEdit, &WQtColorGradientEditorWidget::ColorCpMoved, this, &WQtColorGradientEditDlg::OnColorCpMoved);
+  connect(pEdit, &WQtColorGradientEditorWidget::ColorCpDeleted, this, &WQtColorGradientEditDlg::OnColorCpDeleted);
+  connect(pEdit, &WQtColorGradientEditorWidget::ColorCpChanged, this, &WQtColorGradientEditDlg::OnColorCpChanged);
 
   // Connect alpha CP signals
-  connect(pEdit, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtColorGradientEditDlg::OnAlphaCpAdded);
-  connect(pEdit, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtColorGradientEditDlg::OnAlphaCpMoved);
-  connect(pEdit, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtColorGradientEditDlg::OnAlphaCpDeleted);
-  connect(pEdit, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtColorGradientEditDlg::OnAlphaCpChanged);
+  connect(pEdit, &WQtColorGradientEditorWidget::AlphaCpAdded, this, &WQtColorGradientEditDlg::OnAlphaCpAdded);
+  connect(pEdit, &WQtColorGradientEditorWidget::AlphaCpMoved, this, &WQtColorGradientEditDlg::OnAlphaCpMoved);
+  connect(pEdit, &WQtColorGradientEditorWidget::AlphaCpDeleted, this, &WQtColorGradientEditDlg::OnAlphaCpDeleted);
+  connect(pEdit, &WQtColorGradientEditorWidget::AlphaCpChanged, this, &WQtColorGradientEditDlg::OnAlphaCpChanged);
 
   // Connect intensity CP signals
-  connect(pEdit, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtColorGradientEditDlg::OnIntensityCpAdded);
-  connect(pEdit, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtColorGradientEditDlg::OnIntensityCpMoved);
-  connect(pEdit, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this, &ezQtColorGradientEditDlg::OnIntensityCpDeleted);
-  connect(pEdit, &ezQtColorGradientEditorWidget::IntensityCpChanged, this, &ezQtColorGradientEditDlg::OnIntensityCpChanged);
+  connect(pEdit, &WQtColorGradientEditorWidget::IntensityCpAdded, this, &WQtColorGradientEditDlg::OnIntensityCpAdded);
+  connect(pEdit, &WQtColorGradientEditorWidget::IntensityCpMoved, this, &WQtColorGradientEditDlg::OnIntensityCpMoved);
+  connect(pEdit, &WQtColorGradientEditorWidget::IntensityCpDeleted, this, &WQtColorGradientEditDlg::OnIntensityCpDeleted);
+  connect(pEdit, &WQtColorGradientEditorWidget::IntensityCpChanged, this, &WQtColorGradientEditDlg::OnIntensityCpChanged);
 
   // Connect operation boundaries
-  connect(pEdit, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtColorGradientEditDlg::OnBeginOperation);
-  connect(pEdit, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtColorGradientEditDlg::OnEndOperation);
+  connect(pEdit, &WQtColorGradientEditorWidget::BeginOperation, this, &WQtColorGradientEditDlg::OnBeginOperation);
+  connect(pEdit, &WQtColorGradientEditorWidget::EndOperation, this, &WQtColorGradientEditDlg::OnEndOperation);
 
   // Connect utility functions
-  connect(pEdit, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtColorGradientEditDlg::OnNormalizeRange);
+  connect(pEdit, &WQtColorGradientEditorWidget::NormalizeRange, this, &WQtColorGradientEditDlg::OnNormalizeRange);
 
   // Setup keyboard shortcuts
   m_pShortcutUndo = new QShortcut(QKeySequence("Ctrl+Z"), this);
   m_pShortcutRedo = new QShortcut(QKeySequence("Ctrl+Y"), this);
 
-  connect(m_pShortcutUndo, &QShortcut::activated, this, &ezQtColorGradientEditDlg::on_actionUndo_triggered);
-  connect(m_pShortcutRedo, &QShortcut::activated, this, &ezQtColorGradientEditDlg::on_actionRedo_triggered);
+  connect(m_pShortcutUndo, &QShortcut::activated, this, &WQtColorGradientEditDlg::on_actionUndo_triggered);
+  connect(m_pShortcutRedo, &QShortcut::activated, this, &WQtColorGradientEditDlg::on_actionRedo_triggered);
 
   RetrieveGradientState();
 
@@ -64,81 +64,81 @@ ezQtColorGradientEditDlg::ezQtColorGradientEditDlg(ezObjectAccessorBase* pObject
   UpdateUndoRedoState();
 }
 
-ezQtColorGradientEditDlg::~ezQtColorGradientEditDlg()
+WQtColorGradientEditDlg::~WQtColorGradientEditDlg()
 {
   s_LastDialogGeometry = saveGeometry();
 }
 
-void ezQtColorGradientEditDlg::RetrieveGradientState()
+void WQtColorGradientEditDlg::RetrieveGradientState()
 {
   m_Gradient.Clear();
-  ezVariant v;
+  WVariant v;
 
   // Retrieve ColorCPs
-  ezInt32 iNumColorCPs = 0;
+  WInt32 iNumColorCPs = 0;
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "ColorCPs", iNumColorCPs).AssertSuccess();
 
-  for (ezInt32 i = 0; i < iNumColorCPs; ++i)
+  for (WInt32 i = 0; i < iNumColorCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", i);
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", i);
 
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 tick = v.ConvertTo<ezInt64>();
+    WInt64 tick = v.ConvertTo<WInt64>();
 
     m_pObjectAccessor->GetValueByName(pCP, "Red", v).AssertSuccess();
-    ezUInt8 r = v.ConvertTo<ezUInt8>();
+    WUInt8 r = v.ConvertTo<WUInt8>();
     m_pObjectAccessor->GetValueByName(pCP, "Green", v).AssertSuccess();
-    ezUInt8 g = v.ConvertTo<ezUInt8>();
+    WUInt8 g = v.ConvertTo<WUInt8>();
     m_pObjectAccessor->GetValueByName(pCP, "Blue", v).AssertSuccess();
-    ezUInt8 b = v.ConvertTo<ezUInt8>();
+    WUInt8 b = v.ConvertTo<WUInt8>();
 
-    m_Gradient.AddColorControlPoint(ezColorGradient::TickToTime(tick), ezColorGammaUB(r, g, b));
+    m_Gradient.AddColorControlPoint(WColorGradient::TickToTime(tick), WColorGammaUB(r, g, b));
   }
 
   // Retrieve AlphaCPs
-  ezInt32 iNumAlphaCPs = 0;
+  WInt32 iNumAlphaCPs = 0;
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "AlphaCPs", iNumAlphaCPs).AssertSuccess();
 
-  for (ezInt32 i = 0; i < iNumAlphaCPs; ++i)
+  for (WInt32 i = 0; i < iNumAlphaCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", i);
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", i);
 
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 tick = v.ConvertTo<ezInt64>();
+    WInt64 tick = v.ConvertTo<WInt64>();
     m_pObjectAccessor->GetValueByName(pCP, "Alpha", v).AssertSuccess();
-    ezUInt8 alpha = v.ConvertTo<ezUInt8>();
+    WUInt8 alpha = v.ConvertTo<WUInt8>();
 
-    m_Gradient.AddAlphaControlPoint(ezColorGradient::TickToTime(tick), alpha);
+    m_Gradient.AddAlphaControlPoint(WColorGradient::TickToTime(tick), alpha);
   }
 
   // Retrieve IntensityCPs
-  ezInt32 iNumIntensityCPs = 0;
+  WInt32 iNumIntensityCPs = 0;
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "IntensityCPs", iNumIntensityCPs).AssertSuccess();
 
-  for (ezInt32 i = 0; i < iNumIntensityCPs; ++i)
+  for (WInt32 i = 0; i < iNumIntensityCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", i);
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", i);
 
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 tick = v.ConvertTo<ezInt64>();
+    WInt64 tick = v.ConvertTo<WInt64>();
     m_pObjectAccessor->GetValueByName(pCP, "Intensity", v).AssertSuccess();
     float intensity = v.ConvertTo<float>();
 
-    m_Gradient.AddIntensityControlPoint(ezColorGradient::TickToTime(tick), intensity);
+    m_Gradient.AddIntensityControlPoint(WColorGradient::TickToTime(tick), intensity);
   }
 }
 
-void ezQtColorGradientEditDlg::reject()
+void WQtColorGradientEditDlg::reject()
 {
   // Ignore - use cancel() instead
 }
 
-void ezQtColorGradientEditDlg::accept()
+void WQtColorGradientEditDlg::accept()
 {
   // Ignore - handled by OK button
 }
 
-void ezQtColorGradientEditDlg::cancel()
+void WQtColorGradientEditDlg::cancel()
 {
   auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   cmd.Undo(cmd.GetUndoStackSize() - m_uiActionsUndoBaseline).AssertSuccess();
@@ -146,27 +146,27 @@ void ezQtColorGradientEditDlg::cancel()
   QDialog::reject();
 }
 
-void ezQtColorGradientEditDlg::UpdatePreview()
+void WQtColorGradientEditDlg::UpdatePreview()
 {
-  ezQtColorGradientEditorWidget* pEdit = GradientEditor;
+  WQtColorGradientEditorWidget* pEdit = GradientEditor;
   pEdit->SetColorGradient(m_Gradient);
 }
 
-void ezQtColorGradientEditDlg::closeEvent(QCloseEvent*)
+void WQtColorGradientEditDlg::closeEvent(QCloseEvent*)
 {
   cancel();
 }
 
-void ezQtColorGradientEditDlg::showEvent(QShowEvent* e)
+void WQtColorGradientEditDlg::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
   UpdatePreview();
 }
 
 // Color CP handlers
-void ezQtColorGradientEditDlg::OnColorCpAdded(double fPosX, const ezColorGammaUB& color)
+void WQtColorGradientEditDlg::OnColorCpAdded(double fPosX, const WColorGammaUB& color)
 {
-  fPosX = ezColorGradient::SnapTimeTo(fPosX);
+  fPosX = WColorGradient::SnapTimeTo(fPosX);
 
   // Update local representation
   m_Gradient.AddColorControlPoint(fPosX, color);
@@ -175,11 +175,11 @@ void ezQtColorGradientEditDlg::OnColorCpAdded(double fPosX, const ezColorGammaUB
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Color Control Point");
 
-  ezUuid guid;
-  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "ColorCPs", -1, ezGetStaticRTTI<ezColorGradientColorCP>(), guid).AssertSuccess();
+  WUuid guid;
+  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "ColorCPs", -1, WGetStaticRTTI<WColorGradientColorCP>(), guid).AssertSuccess();
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
-  ezInt64 tick = ezColorGradient::TimeToTick(fPosX);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
+  WInt64 tick = WColorGradient::TimeToTick(fPosX);
 
   m_pObjectAccessor->SetValueByName(pCP, "Tick", tick).AssertSuccess();
   m_pObjectAccessor->SetValueByName(pCP, "Red", color.r).AssertSuccess();
@@ -193,27 +193,27 @@ void ezQtColorGradientEditDlg::OnColorCpAdded(double fPosX, const ezColorGammaUB
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnColorCpMoved(ezInt32 iIndex, double fNewPosX)
+void WQtColorGradientEditDlg::OnColorCpMoved(WInt32 iIndex, double fNewPosX)
 {
   // Update local representation
   auto& cp = m_Gradient.ModifyColorControlPoint(iIndex);
-  cp.m_iTick = ezColorGradient::SnapTimeToTick(fNewPosX);
+  cp.m_iTick = WColorGradient::SnapTimeToTick(fNewPosX);
 
   // Update document object
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Tick", cp.m_iTick).AssertSuccess();
 
   // Update the widget during drag
   UpdatePreview();
 }
 
-void ezQtColorGradientEditDlg::OnColorCpDeleted(ezInt32 iIndex)
+void WQtColorGradientEditDlg::OnColorCpDeleted(WInt32 iIndex)
 {
   // Update document object
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
   m_pObjectAccessor->RemoveObject(pCP).AssertSuccess();
 
   history->FinishTransaction();
@@ -224,7 +224,7 @@ void ezQtColorGradientEditDlg::OnColorCpDeleted(ezInt32 iIndex)
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnColorCpChanged(ezInt32 iIndex, const ezColorGammaUB& color)
+void WQtColorGradientEditDlg::OnColorCpChanged(WInt32 iIndex, const WColorGammaUB& color)
 {
   // Update local representation
   auto& cp = m_Gradient.ModifyColorControlPoint(iIndex);
@@ -236,7 +236,7 @@ void ezQtColorGradientEditDlg::OnColorCpChanged(ezInt32 iIndex, const ezColorGam
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Color");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Red", color.r).AssertSuccess();
   m_pObjectAccessor->SetValueByName(pCP, "Green", color.g).AssertSuccess();
   m_pObjectAccessor->SetValueByName(pCP, "Blue", color.b).AssertSuccess();
@@ -249,20 +249,20 @@ void ezQtColorGradientEditDlg::OnColorCpChanged(ezInt32 iIndex, const ezColorGam
 }
 
 // Alpha CP handlers
-void ezQtColorGradientEditDlg::OnAlphaCpAdded(double fPosX, ezUInt8 uiAlpha)
+void WQtColorGradientEditDlg::OnAlphaCpAdded(double fPosX, WUInt8 uiAlpha)
 {
-  fPosX = ezColorGradient::SnapTimeTo(fPosX);
+  fPosX = WColorGradient::SnapTimeTo(fPosX);
 
   m_Gradient.AddAlphaControlPoint(fPosX, uiAlpha);
 
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Alpha Control Point");
 
-  ezUuid guid;
-  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "AlphaCPs", -1, ezGetStaticRTTI<ezColorGradientAlphaCP>(), guid).AssertSuccess();
+  WUuid guid;
+  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "AlphaCPs", -1, WGetStaticRTTI<WColorGradientAlphaCP>(), guid).AssertSuccess();
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
-  ezInt64 tick = ezColorGradient::SnapTimeToTick(fPosX);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
+  WInt64 tick = WColorGradient::SnapTimeToTick(fPosX);
 
   m_pObjectAccessor->SetValueByName(pCP, "Tick", tick).AssertSuccess();
   m_pObjectAccessor->SetValueByName(pCP, "Alpha", uiAlpha).AssertSuccess();
@@ -274,24 +274,24 @@ void ezQtColorGradientEditDlg::OnAlphaCpAdded(double fPosX, ezUInt8 uiAlpha)
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnAlphaCpMoved(ezInt32 iIndex, double fNewPosX)
+void WQtColorGradientEditDlg::OnAlphaCpMoved(WInt32 iIndex, double fNewPosX)
 {
   auto& cp = m_Gradient.ModifyAlphaControlPoint(iIndex);
-  cp.m_iTick = ezColorGradient::SnapTimeToTick(fNewPosX);
+  cp.m_iTick = WColorGradient::SnapTimeToTick(fNewPosX);
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Tick", cp.m_iTick).AssertSuccess();
 
   // Update the widget during drag
   UpdatePreview();
 }
 
-void ezQtColorGradientEditDlg::OnAlphaCpDeleted(ezInt32 iIndex)
+void WQtColorGradientEditDlg::OnAlphaCpDeleted(WInt32 iIndex)
 {
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
   m_pObjectAccessor->RemoveObject(pCP).AssertSuccess();
 
   history->FinishTransaction();
@@ -301,7 +301,7 @@ void ezQtColorGradientEditDlg::OnAlphaCpDeleted(ezInt32 iIndex)
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnAlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha)
+void WQtColorGradientEditDlg::OnAlphaCpChanged(WInt32 iIndex, WUInt8 uiAlpha)
 {
   auto& cp = m_Gradient.ModifyAlphaControlPoint(iIndex);
   cp.m_Alpha = uiAlpha;
@@ -309,7 +309,7 @@ void ezQtColorGradientEditDlg::OnAlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha)
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Alpha");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Alpha", uiAlpha).AssertSuccess();
 
   history->FinishTransaction();
@@ -320,20 +320,20 @@ void ezQtColorGradientEditDlg::OnAlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha)
 }
 
 // Intensity CP handlers
-void ezQtColorGradientEditDlg::OnIntensityCpAdded(double fPosX, float fIntensity)
+void WQtColorGradientEditDlg::OnIntensityCpAdded(double fPosX, float fIntensity)
 {
-  fPosX = ezColorGradient::SnapTimeTo(fPosX);
+  fPosX = WColorGradient::SnapTimeTo(fPosX);
 
   m_Gradient.AddIntensityControlPoint(fPosX, fIntensity);
 
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Intensity Control Point");
 
-  ezUuid guid;
-  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "IntensityCPs", -1, ezGetStaticRTTI<ezColorGradientIntensityCP>(), guid).AssertSuccess();
+  WUuid guid;
+  m_pObjectAccessor->AddObjectByName(m_pGradientObject, "IntensityCPs", -1, WGetStaticRTTI<WColorGradientIntensityCP>(), guid).AssertSuccess();
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
-  ezInt64 tick = ezColorGradient::SnapTimeToTick(fPosX);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetObject(guid);
+  WInt64 tick = WColorGradient::SnapTimeToTick(fPosX);
 
   m_pObjectAccessor->SetValueByName(pCP, "Tick", tick).AssertSuccess();
   m_pObjectAccessor->SetValueByName(pCP, "Intensity", fIntensity).AssertSuccess();
@@ -345,24 +345,24 @@ void ezQtColorGradientEditDlg::OnIntensityCpAdded(double fPosX, float fIntensity
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnIntensityCpMoved(ezInt32 iIndex, double fNewPosX)
+void WQtColorGradientEditDlg::OnIntensityCpMoved(WInt32 iIndex, double fNewPosX)
 {
   auto& cp = m_Gradient.ModifyIntensityControlPoint(iIndex);
-  cp.m_iTick = ezColorGradient::SnapTimeToTick(fNewPosX);
+  cp.m_iTick = WColorGradient::SnapTimeToTick(fNewPosX);
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Tick", cp.m_iTick).AssertSuccess();
 
   // Update the widget during drag
   UpdatePreview();
 }
 
-void ezQtColorGradientEditDlg::OnIntensityCpDeleted(ezInt32 iIndex)
+void WQtColorGradientEditDlg::OnIntensityCpDeleted(WInt32 iIndex)
 {
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
   m_pObjectAccessor->RemoveObject(pCP).AssertSuccess();
 
   history->FinishTransaction();
@@ -372,7 +372,7 @@ void ezQtColorGradientEditDlg::OnIntensityCpDeleted(ezInt32 iIndex)
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnIntensityCpChanged(ezInt32 iIndex, float fIntensity)
+void WQtColorGradientEditDlg::OnIntensityCpChanged(WInt32 iIndex, float fIntensity)
 {
   auto& cp = m_Gradient.ModifyIntensityControlPoint(iIndex);
   cp.m_Intensity = fIntensity;
@@ -380,7 +380,7 @@ void ezQtColorGradientEditDlg::OnIntensityCpChanged(ezInt32 iIndex, float fInten
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Intensity");
 
-  const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
+  const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", iIndex);
   m_pObjectAccessor->SetValueByName(pCP, "Intensity", fIntensity).AssertSuccess();
 
   history->FinishTransaction();
@@ -391,12 +391,12 @@ void ezQtColorGradientEditDlg::OnIntensityCpChanged(ezInt32 iIndex, float fInten
 }
 
 // Operation boundaries
-void ezQtColorGradientEditDlg::OnBeginOperation()
+void WQtColorGradientEditDlg::OnBeginOperation()
 {
   m_pObjectAccessor->BeginTemporaryCommands("Modify Gradient");
 }
 
-void ezQtColorGradientEditDlg::OnEndOperation(bool bCommit)
+void WQtColorGradientEditDlg::OnEndOperation(bool bCommit)
 {
   if (bCommit)
   {
@@ -414,14 +414,14 @@ void ezQtColorGradientEditDlg::OnEndOperation(bool bCommit)
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::OnNormalizeRange()
+void WQtColorGradientEditDlg::OnNormalizeRange()
 {
   auto* history = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Normalize Gradient Range");
 
   // Find min/max tick values across all control points
-  double fMinTime = ezMath::MaxValue<double>();
-  double fMaxTime = -ezMath::MaxValue<double>();
+  double fMinTime = WMath::MaxValue<double>();
+  double fMaxTime = -WMath::MaxValue<double>();
 
   m_Gradient.GetExtents(fMinTime, fMaxTime);
 
@@ -434,47 +434,47 @@ void ezQtColorGradientEditDlg::OnNormalizeRange()
   const double fRange = fMaxTime - fMinTime;
 
   // Normalize all control points
-  ezInt32 iNumCPs = 0;
+  WInt32 iNumCPs = 0;
 
   // Color CPs
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "ColorCPs", iNumCPs).AssertSuccess();
-  for (ezInt32 i = 0; i < iNumCPs; ++i)
+  for (WInt32 i = 0; i < iNumCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", i);
-    ezVariant v;
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "ColorCPs", i);
+    WVariant v;
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 oldTick = v.ConvertTo<ezInt64>();
-    double oldTime = ezColorGradient::TickToTime(oldTick);
+    WInt64 oldTick = v.ConvertTo<WInt64>();
+    double oldTime = WColorGradient::TickToTime(oldTick);
     double newTime = (oldTime - fMinTime) / fRange;
-    ezInt64 newTick = ezColorGradient::TimeToTick(newTime);
+    WInt64 newTick = WColorGradient::TimeToTick(newTime);
     m_pObjectAccessor->SetValueByName(pCP, "Tick", newTick).AssertSuccess();
   }
 
   // Alpha CPs
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "AlphaCPs", iNumCPs).AssertSuccess();
-  for (ezInt32 i = 0; i < iNumCPs; ++i)
+  for (WInt32 i = 0; i < iNumCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", i);
-    ezVariant v;
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "AlphaCPs", i);
+    WVariant v;
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 oldTick = v.ConvertTo<ezInt64>();
-    double oldTime = ezColorGradient::TickToTime(oldTick);
+    WInt64 oldTick = v.ConvertTo<WInt64>();
+    double oldTime = WColorGradient::TickToTime(oldTick);
     double newTime = (oldTime - fMinTime) / fRange;
-    ezInt64 newTick = ezColorGradient::TimeToTick(newTime);
+    WInt64 newTick = WColorGradient::TimeToTick(newTime);
     m_pObjectAccessor->SetValueByName(pCP, "Tick", newTick).AssertSuccess();
   }
 
   // Intensity CPs
   m_pObjectAccessor->GetCountByName(m_pGradientObject, "IntensityCPs", iNumCPs).AssertSuccess();
-  for (ezInt32 i = 0; i < iNumCPs; ++i)
+  for (WInt32 i = 0; i < iNumCPs; ++i)
   {
-    const ezDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", i);
-    ezVariant v;
+    const WDocumentObject* pCP = m_pObjectAccessor->GetChildObjectByName(m_pGradientObject, "IntensityCPs", i);
+    WVariant v;
     m_pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
-    ezInt64 oldTick = v.ConvertTo<ezInt64>();
-    double oldTime = ezColorGradient::TickToTime(oldTick);
+    WInt64 oldTick = v.ConvertTo<WInt64>();
+    double oldTime = WColorGradient::TickToTime(oldTick);
     double newTime = (oldTime - fMinTime) / fRange;
-    ezInt64 newTick = ezColorGradient::TimeToTick(newTime);
+    WInt64 newTick = WColorGradient::TimeToTick(newTime);
     m_pObjectAccessor->SetValueByName(pCP, "Tick", newTick).AssertSuccess();
   }
 
@@ -485,7 +485,7 @@ void ezQtColorGradientEditDlg::OnNormalizeRange()
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::UpdateUndoRedoState()
+void WQtColorGradientEditDlg::UpdateUndoRedoState()
 {
   auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
 
@@ -493,7 +493,7 @@ void ezQtColorGradientEditDlg::UpdateUndoRedoState()
   ButtonRedo->setEnabled(cmd.CanRedo());
 }
 
-void ezQtColorGradientEditDlg::on_actionUndo_triggered()
+void WQtColorGradientEditDlg::on_actionUndo_triggered()
 {
   auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   cmd.Undo().AssertSuccess();
@@ -503,7 +503,7 @@ void ezQtColorGradientEditDlg::on_actionUndo_triggered()
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::on_actionRedo_triggered()
+void WQtColorGradientEditDlg::on_actionRedo_triggered()
 {
   auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
   cmd.Redo().AssertSuccess();
@@ -513,22 +513,22 @@ void ezQtColorGradientEditDlg::on_actionRedo_triggered()
   UpdateUndoRedoState();
 }
 
-void ezQtColorGradientEditDlg::on_ButtonOk_clicked()
+void WQtColorGradientEditDlg::on_ButtonOk_clicked()
 {
   QDialog::accept();
 }
 
-void ezQtColorGradientEditDlg::on_ButtonCancel_clicked()
+void WQtColorGradientEditDlg::on_ButtonCancel_clicked()
 {
   cancel();
 }
 
-void ezQtColorGradientEditDlg::on_ButtonUndo_clicked()
+void WQtColorGradientEditDlg::on_ButtonUndo_clicked()
 {
   on_actionUndo_triggered();
 }
 
-void ezQtColorGradientEditDlg::on_ButtonRedo_clicked()
+void WQtColorGradientEditDlg::on_ButtonRedo_clicked()
 {
   on_actionRedo_triggered();
 }

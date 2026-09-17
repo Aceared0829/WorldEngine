@@ -1,6 +1,6 @@
 WindowDesc
 {
-	string %Title{"ezEngine"}
+	string %Title{"WorldEngine"}
 	string %Mode{"Window"}
 	Vec2u %Resolution{uint32{320,240}}
 	bool %ClipMouseCursor{false}

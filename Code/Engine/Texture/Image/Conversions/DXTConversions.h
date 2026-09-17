@@ -2,11 +2,11 @@
 
 #include <Texture/Image/Image.h>
 
-class ezColorLinear16f;
+class WColorLinear16f;
 
-EZ_TEXTURE_DLL void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool bForceFourColorMode);
-EZ_TEXTURE_DLL void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiStride, ezUInt8 uiBias);
-EZ_TEXTURE_DLL void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, bool bIsSigned);
-EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* pTarget);
+W_TEXTURE_DLL void WDecompressBlockBC1(const WUInt8* pSource, WColorBaseUB* pTarget, bool bForceFourColorMode);
+W_TEXTURE_DLL void WDecompressBlockBC4(const WUInt8* pSource, WUInt8* pTarget, WUInt32 uiStride, WUInt8 uiBias);
+W_TEXTURE_DLL void WDecompressBlockBC6(const WUInt8* pSource, WColorLinear16f* pTarget, bool bIsSigned);
+W_TEXTURE_DLL void WDecompressBlockBC7(const WUInt8* pSource, WColorBaseUB* pTarget);
 
-EZ_TEXTURE_DLL void ezUnpackPaletteBC4(ezUInt32 ui0, ezUInt32 ui1, ezUInt32* pAlphas);
+W_TEXTURE_DLL void WUnpackPaletteBC4(WUInt32 ui0, WUInt32 ui1, WUInt32* pAlphas);

@@ -5,38 +5,38 @@
 
 /// A class which can be used to represent rational numbers by stating their numerator and denominator.
 ///
-/// ezRational uses the following rules
+/// WRational uses the following rules
 ///   0/0 is legal and will be interpreted as 0/1
 ///   If you are representing a whole number, the denominator should be 1
 ///
-class ezRational
+class WRational
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor, initializes to 0/1.
-  ezRational();
+  WRational();
 
   /// Constructor to initialize a rational
-  ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator);
+  WRational(WUInt32 uiNumerator, WUInt32 uiDenominator);
 
   /// returns true if the division of the numerator by the denominator would result in a full integer
   bool IsIntegral() const;
 
   /// Equality operator
-  bool operator==(const ezRational& other) const;
+  bool operator==(const WRational& other) const;
 
   /// Inequality operator
-  bool operator!=(const ezRational& other) const;
+  bool operator!=(const WRational& other) const;
 
   /// Returns the numerator of the rational number
-  ezUInt32 GetNumerator() const;
+  WUInt32 GetNumerator() const;
 
   /// Returns the denominator
-  ezUInt32 GetDenominator() const;
+  WUInt32 GetDenominator() const;
 
   /// Returns the result of the division as an integer.
-  ezUInt32 GetIntegralResult() const;
+  WUInt32 GetIntegralResult() const;
 
   /// Returns the result of the division as a floating point number (double).
   double GetFloatingPointResult() const;
@@ -47,11 +47,11 @@ public:
   /// This helper returns a reduced fraction in case of an integral input.
   ///
   /// Note that this will assert in DEV builds if this class is not integral.
-  ezRational ReduceIntegralFraction() const;
+  WRational ReduceIntegralFraction() const;
 
 protected:
-  ezUInt32 m_uiNumerator = 0;
-  ezUInt32 m_uiDenominator = 1;
+  WUInt32 m_uiNumerator = 0;
+  WUInt32 m_uiDenominator = 1;
 };
 
 #include <Foundation/Math/Implementation/Rational_inl.h>

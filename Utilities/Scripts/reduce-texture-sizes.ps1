@@ -1,4 +1,4 @@
-# Reduces texture sizes in a folder by converting DDS/TGA files to JPG/PNG using ezTexConv,
+# Reduces texture sizes in a folder by converting DDS/TGA files to JPG/PNG using WTexConv,
 # and optionally optimizes the resulting JPG and PNG files.
 #
 # Usage:
@@ -6,7 +6,7 @@
 #
 # Options:
 #   -TargetFolder   Folder to process recursively. Defaults to current directory.
-#   -Convert        Run ezTexConv in reduce mode to convert DDS/TGA to JPG/PNG (deletes source files).
+#   -Convert        Run WTexConv in reduce mode to convert DDS/TGA to JPG/PNG (deletes source files).
 #   -OptimizeJpeg   Run optimize-jpeg.ps1 on all JPG/JPEG files afterwards.
 #   -OptimizePng    Run optimize-png.ps1 on all PNG files afterwards.
 
@@ -26,20 +26,20 @@ if (-not (Test-Path $TargetFolder -PathType Container)) {
 
 $TargetFolder = [System.IO.Path]::GetFullPath($TargetFolder)
 
-# ---- Convert DDS/TGA -> JPG/PNG via ezTexConv ----
+# ---- Convert DDS/TGA -> JPG/PNG via WTexConv ----
 
 if ($Convert) {
-    $TexConv = Find-EzExe "ezTexConv.exe"
+    $TexConv = Find-EzExe "WTexConv.exe"
 
     if (-not $TexConv) {
-        Write-Error "ezTexConv.exe not found. Please build the project first."
+        Write-Error "WTexConv.exe not found. Please build the project first."
         exit 1
     }
 
-    Write-Host "Running ezTexConv in reduce mode on '$TargetFolder' ..." -ForegroundColor Cyan
+    Write-Host "Running WTexConv in reduce mode on '$TargetFolder' ..." -ForegroundColor Cyan
     & $TexConv -mode Reduce -in "$TargetFolder\*" -deleteSource true
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "ezTexConv failed with exit code $LASTEXITCODE."
+        Write-Error "WTexConv failed with exit code $LASTEXITCODE."
         exit 1
     }
 }

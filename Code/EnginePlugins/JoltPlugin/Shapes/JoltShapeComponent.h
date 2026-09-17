@@ -4,20 +4,20 @@
 #include <Core/World/Component.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-struct ezMsgExtractGeometry;
-struct ezMsgUpdateLocalBounds;
-class ezJoltUserData;
-class ezJoltMaterial;
+struct WMsgExtractGeometry;
+struct WMsgUpdateLocalBounds;
+class WJoltUserData;
+class WJoltMaterial;
 
 namespace JPH
 {
   class Shape;
 }
 
-struct ezJoltSubShape
+struct WJoltSubShape
 {
   JPH::Shape* m_pShape = nullptr;
-  ezTransform m_Transform = ezTransform::MakeIdentity();
+  WTransform m_Transform = WTransform::MakeIdentity();
 };
 
 /// Base class for all Jolt physics shapes.
@@ -25,15 +25,15 @@ struct ezJoltSubShape
 /// A physics shape is used to represent (part of) a physical actor, such as a box or sphere,
 /// which is used for the rigid body simulation.
 ///
-/// When an actor is created, it searches for ezJoltShapeComponent on its own object and all child objects.
+/// When an actor is created, it searches for WJoltShapeComponent on its own object and all child objects.
 /// It then adds all these shapes, with their respective transforms, to the Jolt actor.
-class EZ_JOLTPLUGIN_DLL ezJoltShapeComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltShapeComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezJoltShapeComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WJoltShapeComponent, WComponent);
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void Initialize() override;
@@ -41,23 +41,23 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeComponent
+  // WJoltShapeComponent
 
 public:
-  ezJoltShapeComponent();
-  ~ezJoltShapeComponent();
+  WJoltShapeComponent();
+  ~WJoltShapeComponent();
 
   /// If overridden, a triangular representation of the physics shape is added to the geometry object.
   ///
   /// This may be used for debug visualization or navmesh generation (though there are also other ways to do those).
-  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const {}
+  virtual void ExtractGeometry(WMsgExtractGeometry& ref_msg) const {}
 
 protected:
-  friend class ezJoltActorComponent;
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) = 0;
+  friend class WJoltActorComponent;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) = 0;
 
-  const ezJoltUserData* GetUserData();
-  ezUInt32 GetUserDataIndex();
+  const WJoltUserData* GetUserData();
+  WUInt32 GetUserDataIndex();
 
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
 };

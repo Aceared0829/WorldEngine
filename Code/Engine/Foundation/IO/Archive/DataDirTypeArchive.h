@@ -8,125 +8,125 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Time/Timestamp.h>
 
-class ezArchiveEntry;
+class WArchiveEntry;
 
-namespace ezDataDirectory
+namespace WDataDirectory
 {
   class ArchiveReaderUncompressed;
   class ArchiveReaderZstd;
   class ArchiveReaderZip;
 
-  class EZ_FOUNDATION_DLL ArchiveType : public ezDataDirectoryType
+  class W_FOUNDATION_DLL ArchiveType : public WDataDirectoryType
   {
   public:
     ArchiveType();
     ~ArchiveType();
 
-    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
+    static WDataDirectoryType* Factory(WStringView sDataDirectory, WStringView sGroup, WStringView sRootName, WDataDirUsage usage);
 
-    virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
+    virtual const WString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual WDataDirectoryReader* OpenFileToRead(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
     virtual void RemoveDataDirectory() override;
 
-    virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir) override;
+    virtual bool ExistsFile(WStringView sFile, bool bOneSpecificDataDir) override;
 
-    virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual WResult GetFileStats(WStringView sFileOrFolder, bool bOneSpecificDataDir, WFileStats& out_Stats) override;
 
-    virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
+    virtual WResult InternalInitializeDataDirectory(WStringView sDirectory) override;
 
-    virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
+    virtual void OnReaderWriterClose(WDataDirectoryReaderWriterBase* pClosed) override;
 
-    ezString128 m_sRedirectedDataDirPath;
-    ezString32 m_sArchiveSubFolder;
-    ezTimestamp m_LastModificationTime;
-    ezArchiveReader m_ArchiveReader;
+    WString128 m_sRedirectedDataDirPath;
+    WString32 m_sArchiveSubFolder;
+    WTimestamp m_LastModificationTime;
+    WArchiveReader m_ArchiveReader;
 
-    ezMutex m_ReaderMutex;
-    ezHybridArray<ezUniquePtr<ArchiveReaderUncompressed>, 4> m_ReadersUncompressed;
-    ezHybridArray<ArchiveReaderUncompressed*, 4> m_FreeReadersUncompressed;
+    WMutex m_ReaderMutex;
+    WHybridArray<WUniquePtr<ArchiveReaderUncompressed>, 4> m_ReadersUncompressed;
+    WHybridArray<ArchiveReaderUncompressed*, 4> m_FreeReadersUncompressed;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-    ezHybridArray<ezUniquePtr<ArchiveReaderZstd>, 4> m_ReadersZstd;
-    ezHybridArray<ArchiveReaderZstd*, 4> m_FreeReadersZstd;
+    WHybridArray<WUniquePtr<ArchiveReaderZstd>, 4> m_ReadersZstd;
+    WHybridArray<ArchiveReaderZstd*, 4> m_FreeReadersZstd;
 #endif
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-    ezHybridArray<ezUniquePtr<ArchiveReaderZip>, 4> m_ReadersZip;
-    ezHybridArray<ArchiveReaderZip*, 4> m_FreeReadersZip;
+    WHybridArray<WUniquePtr<ArchiveReaderZip>, 4> m_ReadersZip;
+    WHybridArray<ArchiveReaderZip*, 4> m_FreeReadersZip;
 #endif
   };
 
-  class EZ_FOUNDATION_DLL ArchiveReaderCommon : public ezDataDirectoryReader
+  class W_FOUNDATION_DLL ArchiveReaderCommon : public WDataDirectoryReader
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderCommon);
+    W_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderCommon);
 
   public:
-    ArchiveReaderCommon(ezInt32 iDataDirUserData);
+    ArchiveReaderCommon(WInt32 iDataDirUserData);
 
-    virtual ezUInt64 GetFileSize() const override;
+    virtual WUInt64 GetFileSize() const override;
 
   protected:
     friend class ArchiveType;
 
-    ezUInt64 m_uiUncompressedSize = 0;
-    ezUInt64 m_uiCompressedSize = 0;
-    ezRawMemoryStreamReader m_MemStreamReader;
+    WUInt64 m_uiUncompressedSize = 0;
+    WUInt64 m_uiCompressedSize = 0;
+    WRawMemoryStreamReader m_MemStreamReader;
   };
 
-  class EZ_FOUNDATION_DLL ArchiveReaderUncompressed : public ArchiveReaderCommon
+  class W_FOUNDATION_DLL ArchiveReaderUncompressed : public ArchiveReaderCommon
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderUncompressed);
+    W_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderUncompressed);
 
   public:
-    ArchiveReaderUncompressed(ezInt32 iDataDirUserData);
+    ArchiveReaderUncompressed(WInt32 iDataDirUserData);
 
-    virtual ezUInt64 Skip(ezUInt64 uiBytes) override;
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+    virtual WUInt64 Skip(WUInt64 uiBytes) override;
+    virtual WUInt64 Read(void* pBuffer, WUInt64 uiBytes) override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
   };
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  class EZ_FOUNDATION_DLL ArchiveReaderZstd : public ArchiveReaderCommon
+  class W_FOUNDATION_DLL ArchiveReaderZstd : public ArchiveReaderCommon
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZstd);
+    W_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZstd);
 
   public:
-    ArchiveReaderZstd(ezInt32 iDataDirUserData);
+    ArchiveReaderZstd(WInt32 iDataDirUserData);
 
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+    virtual WUInt64 Read(void* pBuffer, WUInt64 uiBytes) override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
-    ezCompressedStreamReaderZstd m_CompressedStreamReader;
+    WCompressedStreamReaderZstd m_CompressedStreamReader;
   };
 #endif
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
   /// Allows reading of zip / apk containers.
   /// Needed to allow Android to read data from the apk.
-  class EZ_FOUNDATION_DLL ArchiveReaderZip : public ArchiveReaderUncompressed
+  class W_FOUNDATION_DLL ArchiveReaderZip : public ArchiveReaderUncompressed
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZip);
+    W_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZip);
 
   public:
-    ArchiveReaderZip(ezInt32 iDataDirUserData);
+    ArchiveReaderZip(WInt32 iDataDirUserData);
     ~ArchiveReaderZip();
 
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+    virtual WUInt64 Read(void* pBuffer, WUInt64 uiBytes) override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
 
     friend class ArchiveType;
 
-    ezCompressedStreamReaderZip m_CompressedStreamReader;
+    WCompressedStreamReaderZip m_CompressedStreamReader;
   };
 #endif
-} // namespace ezDataDirectory
+} // namespace WDataDirectory

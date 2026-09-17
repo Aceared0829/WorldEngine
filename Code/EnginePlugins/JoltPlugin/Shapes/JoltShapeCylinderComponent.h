@@ -2,38 +2,38 @@
 
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 
-using ezJoltShapeCylinderComponentManager = ezComponentManager<class ezJoltShapeCylinderComponent, ezBlockStorageType::FreeList>;
+using WJoltShapeCylinderComponentManager = WComponentManager<class WJoltShapeCylinderComponent, WBlockStorageType::FreeList>;
 
 /// Adds a Jolt cylinder shape to a Jolt actor.
 ///
 /// Be aware that the cylinder shape is not as stable in simulation as other shapes.
 /// If possible use capsule shapes instead. In some cases even using a convex hull shape may provide better results,
 /// but this has to be tried out case by case.
-class EZ_JOLTPLUGIN_DLL ezJoltShapeCylinderComponent : public ezJoltShapeComponent
+class W_JOLTPLUGIN_DLL WJoltShapeCylinderComponent : public WJoltShapeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeCylinderComponent, ezJoltShapeComponent, ezJoltShapeCylinderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltShapeCylinderComponent, WJoltShapeComponent, WJoltShapeCylinderComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeComponent
+  // WJoltShapeComponent
 
 protected:
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeCylinderComponent
+  // WJoltShapeCylinderComponent
 
 public:
-  ezJoltShapeCylinderComponent();
-  ~ezJoltShapeCylinderComponent();
+  WJoltShapeCylinderComponent();
+  ~WJoltShapeCylinderComponent();
 
   void SetRadius(float f);                      // [ property ]
   float GetRadius() const { return m_fRadius; } // [ property ]
@@ -42,7 +42,7 @@ public:
   float GetHeight() const { return m_fHeight; } // [ property ]
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
 
   float m_fRadius = 0.5f;
   float m_fHeight = 0.5f;

@@ -1,0 +1,24 @@
+# Asset Types
+
+Decal;Decal;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
+
+# Component Types
+
+WDecalComponent;Decal;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
+
+# UI
+
+DecalImport.All;Decal
+
+# Properties
+
+WDecalMode::BaseColor;Base Color
+WDecalMode::BaseColorNormal;Base Color, Normal
+WDecalMode::BaseColorORM;Base Color, ORM
+WDecalMode::BaseColorNormalORM;Base Color, Normal, ORM
+WDecalMode::BaseColorEmissive;BaseColor, Emissive
+
+WDecalAssetProperties::BaseColor;Base Color Texture
+WDecalAssetProperties::Emissive;Emissive Texture
+WDecalAssetProperties::Normal;Normal Map
+WDecalAssetProperties::ORM;ORM Texture

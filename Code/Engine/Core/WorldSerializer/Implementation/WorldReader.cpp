@@ -5,14 +5,14 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/Progress.h>
 
-ezWorldReader::FindComponentTypeCallback ezWorldReader::s_FindComponentTypeCallback;
+WWorldReader::FindComponentTypeCallback WWorldReader::s_FindComponentTypeCallback;
 
-thread_local ezWorldReader::InstantiationContextBase* tl_pReaderContext = nullptr;
+thread_local WWorldReader::InstantiationContextBase* tl_pReaderContext = nullptr;
 
-ezWorldReader::ezWorldReader() = default;
-ezWorldReader::~ezWorldReader() = default;
+WWorldReader::WWorldReader() = default;
+WWorldReader::~WWorldReader() = default;
 
-ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUnknownSkip)
+WResult WWorldReader::ReadWorldDescription(WStreamReader& inout_stream, bool bWarningOnUnknownSkip)
 {
   m_pReadStream = &inout_stream;
 
@@ -21,51 +21,51 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool 
 
   if (m_uiVersion < 8 || m_uiVersion > 10)
   {
-    ezLog::Error("Invalid world version (got {}).", m_uiVersion);
-    return EZ_FAILURE;
+    WLog::Error("Invalid world version (got {}).", m_uiVersion);
+    return W_FAILURE;
   }
 
   // destroy old context first
   m_pStringDedupReadContext = nullptr;
-  m_pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, inout_stream);
+  m_pStringDedupReadContext = W_DEFAULT_NEW(WStringDeduplicationReadContext, inout_stream);
 
   if (m_uiVersion == 8)
   {
     // add tags from the stream
-    EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(inout_stream));
+    W_SUCCEED_OR_RETURN(WTagRegistry::GetGlobalRegistry().Load(inout_stream));
   }
 
-  ezUInt32 uiNumRootObjects = 0;
+  WUInt32 uiNumRootObjects = 0;
   inout_stream >> uiNumRootObjects;
 
-  ezUInt32 uiNumChildObjects = 0;
+  WUInt32 uiNumChildObjects = 0;
   inout_stream >> uiNumChildObjects;
 
-  ezUInt32 uiNumComponentTypes = 0;
+  WUInt32 uiNumComponentTypes = 0;
   inout_stream >> uiNumComponentTypes;
 
-  if (uiNumComponentTypes > ezMath::MaxValue<ezUInt16>())
+  if (uiNumComponentTypes > WMath::MaxValue<WUInt16>())
   {
-    ezLog::Error("World description has too many component types, got {0} - maximum allowed are {1}", uiNumComponentTypes, ezMath::MaxValue<ezUInt16>());
-    return EZ_FAILURE;
+    WLog::Error("World description has too many component types, got {0} - maximum allowed are {1}", uiNumComponentTypes, WMath::MaxValue<WUInt16>());
+    return W_FAILURE;
   }
 
   m_RootObjectsToCreate.Reserve(uiNumRootObjects);
   m_ChildObjectsToCreate.Reserve(uiNumChildObjects);
 
-  for (ezUInt32 i = 0; i < uiNumRootObjects; ++i)
+  for (WUInt32 i = 0; i < uiNumRootObjects; ++i)
   {
     ReadGameObjectDesc(m_RootObjectsToCreate.ExpandAndGetRef());
   }
 
-  for (ezUInt32 i = 0; i < uiNumChildObjects; ++i)
+  for (WUInt32 i = 0; i < uiNumChildObjects; ++i)
   {
     ReadGameObjectDesc(m_ChildObjectsToCreate.ExpandAndGetRef());
   }
 
   m_ComponentTypes.SetCount(uiNumComponentTypes);
   m_ComponentTypeVersions.Reserve(uiNumComponentTypes);
-  for (ezUInt32 i = 0; i < uiNumComponentTypes; ++i)
+  for (WUInt32 i = 0; i < uiNumComponentTypes; ++i)
   {
     ReadComponentTypeInfo(i);
   }
@@ -74,48 +74,48 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool 
   ReadComponentDataToMemStream(bWarningOnUnknownSkip);
   m_pStringDedupReadContext->SetActive(false);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime, ezProgress* pProgress)
+WUniquePtr<WWorldReader::InstantiationContextBase> WWorldReader::InstantiateWorld(WWorld& ref_world, const WUInt16* pOverrideTeamID, WTime maxStepTime, WProgress* pProgress)
 {
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
   options.m_pOverrideTeamID = pOverrideTeamID;
   options.m_MaxStepTime = maxStepTime;
   options.m_pProgress = pProgress;
-  options.m_RandomSeedMode = ezPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization;
+  options.m_RandomSeedMode = WPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization;
 
-  return Instantiate(ref_world, false, ezTransform(), options);
+  return Instantiate(ref_world, false, WTransform(), options);
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
+WUniquePtr<WWorldReader::InstantiationContextBase> WWorldReader::InstantiatePrefab(WWorld& ref_world, const WTransform& rootTransform, const WPrefabInstantiationOptions& options)
 {
   return Instantiate(ref_world, true, rootTransform, options);
 }
 
-ezStreamReader& ezWorldReader::GetStream() const
+WStreamReader& WWorldReader::GetStream() const
 {
-  ezWorldReader::InstantiationContext* pContext = ((ezWorldReader::InstantiationContext*)tl_pReaderContext);
+  WWorldReader::InstantiationContext* pContext = ((WWorldReader::InstantiationContext*)tl_pReaderContext);
 
   return pContext->m_CurrentReader;
 }
 
-ezGameObjectHandle ezWorldReader::ReadGameObjectHandle()
+WGameObjectHandle WWorldReader::ReadGameObjectHandle()
 {
-  ezWorldReader::InstantiationContext* pContext = ((ezWorldReader::InstantiationContext*)tl_pReaderContext);
+  WWorldReader::InstantiationContext* pContext = ((WWorldReader::InstantiationContext*)tl_pReaderContext);
 
-  ezUInt32 idx = 0;
+  WUInt32 idx = 0;
   pContext->m_CurrentReader >> idx;
 
   return pContext->m_IndexToGameObjectHandle[idx];
 }
 
-void ezWorldReader::ReadComponentHandle(ezComponentHandle& out_hComponent)
+void WWorldReader::ReadComponentHandle(WComponentHandle& out_hComponent)
 {
-  ezWorldReader::InstantiationContext* pContext = ((ezWorldReader::InstantiationContext*)tl_pReaderContext);
+  WWorldReader::InstantiationContext* pContext = ((WWorldReader::InstantiationContext*)tl_pReaderContext);
 
-  ezUInt16 uiTypeIndex = 0;
-  ezUInt32 uiIndex = 0;
+  WUInt16 uiTypeIndex = 0;
+  WUInt32 uiIndex = 0;
 
   pContext->m_CurrentReader >> uiTypeIndex;
   pContext->m_CurrentReader >> uiIndex;
@@ -132,20 +132,20 @@ void ezWorldReader::ReadComponentHandle(ezComponentHandle& out_hComponent)
   }
 }
 
-ezUInt32 ezWorldReader::GetComponentTypeVersion(const ezRTTI* pRtti) const
+WUInt32 WWorldReader::GetComponentTypeVersion(const WRTTI* pRtti) const
 {
-  ezUInt32 uiVersion = 0xFFFFFFFF;
+  WUInt32 uiVersion = 0xFFFFFFFF;
   m_ComponentTypeVersions.TryGetValue(pRtti, uiVersion);
 
   return uiVersion;
 }
 
-bool ezWorldReader::HasComponentOfType(const ezRTTI* pRtti) const
+bool WWorldReader::HasComponentOfType(const WRTTI* pRtti) const
 {
   return m_ComponentTypeVersions.Contains(pRtti);
 }
 
-void ezWorldReader::ClearAndCompact()
+void WWorldReader::ClearAndCompact()
 {
   m_RootObjectsToCreate.Clear();
   m_RootObjectsToCreate.Compact();
@@ -166,38 +166,38 @@ void ezWorldReader::ClearAndCompact()
   m_ComponentDataStream.Compact();
 }
 
-ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
+WUInt64 WWorldReader::GetHeapMemoryUsage() const
 {
   return m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
          m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() +
          m_ComponentCreationStream.GetHeapMemoryUsage() + m_ComponentDataStream.GetHeapMemoryUsage();
 }
 
-ezUInt32 ezWorldReader::GetRootObjectCount() const
+WUInt32 WWorldReader::GetRootObjectCount() const
 {
   return m_RootObjectsToCreate.GetCount();
 }
 
 
-ezUInt32 ezWorldReader::GetChildObjectCount() const
+WUInt32 WWorldReader::GetChildObjectCount() const
 {
   return m_ChildObjectsToCreate.GetCount();
 }
 
-void ezWorldReader::SetMaxStepTime(InstantiationContextBase* pContext, ezTime maxStepTime)
+void WWorldReader::SetMaxStepTime(InstantiationContextBase* pContext, WTime maxStepTime)
 {
   return static_cast<InstantiationContext*>(pContext)->SetMaxStepTime(maxStepTime);
 }
 
-ezTime ezWorldReader::GetMaxStepTime(InstantiationContextBase* pContext)
+WTime WWorldReader::GetMaxStepTime(InstantiationContextBase* pContext)
 {
   return static_cast<InstantiationContext*>(pContext)->GetMaxStepTime();
 }
 
-void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
+void WWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 {
-  ezGameObjectDesc& desc = godesc.m_Desc;
-  ezStringBuilder sName, sGlobalKey;
+  WGameObjectDesc& desc = godesc.m_Desc;
+  WStringBuilder sName, sGlobalKey;
 
   *m_pReadStream >> godesc.m_uiParentHandleIdx;
   *m_pReadStream >> sName;
@@ -213,7 +213,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   *m_pReadStream >> desc.m_bActiveFlag;
   *m_pReadStream >> desc.m_bDynamic;
 
-  desc.m_Tags.Load(*m_pReadStream, ezTagRegistry::GetGlobalRegistry());
+  desc.m_Tags.Load(*m_pReadStream, WTagRegistry::GetGlobalRegistry());
 
   *m_pReadStream >> desc.m_uiTeamID;
 
@@ -225,17 +225,17 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   }
 }
 
-void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
+void WWorldReader::ReadComponentTypeInfo(WUInt32 uiComponentTypeIdx)
 {
-  ezStreamReader& s = *m_pReadStream;
+  WStreamReader& s = *m_pReadStream;
 
-  ezStringBuilder sRttiName;
-  ezUInt32 uiRttiVersion = 0;
+  WStringBuilder sRttiName;
+  WUInt32 uiRttiVersion = 0;
 
   s >> sRttiName;
   s >> uiRttiVersion;
 
-  const ezRTTI* pRtti = nullptr;
+  const WRTTI* pRtti = nullptr;
 
   if (s_FindComponentTypeCallback.IsValid())
   {
@@ -243,11 +243,11 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
   }
   else
   {
-    pRtti = ezRTTI::FindTypeByName(sRttiName);
+    pRtti = WRTTI::FindTypeByName(sRttiName);
 
     if (pRtti == nullptr)
     {
-      ezLog::Error("Unknown component type '{0}'. Components of this type will be skipped.", sRttiName);
+      WLog::Error("Unknown component type '{0}'. Components of this type will be skipped.", sRttiName);
     }
   }
 
@@ -255,21 +255,21 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
   m_ComponentTypeVersions[pRtti] = uiRttiVersion;
 }
 
-void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
+void WWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents)
+  auto WriteToMemStream = [&](WMemoryStreamWriter& ref_writer, bool bReadNumComponents)
   {
-    ezUInt8 Temp[4096];
+    WUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
-      ezUInt32 uiAllComponentsSize = 0;
+      WUInt32 uiAllComponentsSize = 0;
       *m_pReadStream >> uiAllComponentsSize;
 
       if (compTypeInfo.m_pRtti == nullptr)
       {
         if (warningOnUnknownSkip)
         {
-          ezLog::Warning("Skipping components of unknown type");
+          WLog::Warning("Skipping components of unknown type");
         }
 
         m_pReadStream->SkipBytes(uiAllComponentsSize);
@@ -279,7 +279,7 @@ void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
         if (bReadNumComponents)
         {
           *m_pReadStream >> compTypeInfo.m_uiNumComponents;
-          uiAllComponentsSize -= sizeof(ezUInt32);
+          uiAllComponentsSize -= sizeof(WUInt32);
 
           m_uiTotalNumComponents += compTypeInfo.m_uiNumComponents;
         }
@@ -288,43 +288,43 @@ void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 
         while (uiAllComponentsSize > 0)
         {
-          const ezUInt64 uiRead = m_pReadStream->ReadBytes(Temp, ezMath::Min<ezUInt32>(uiAllComponentsSize, EZ_ARRAY_SIZE(Temp)));
+          const WUInt64 uiRead = m_pReadStream->ReadBytes(Temp, WMath::Min<WUInt32>(uiAllComponentsSize, W_ARRAY_SIZE(Temp)));
 
           ref_writer.WriteBytes(Temp, uiRead).IgnoreResult();
 
-          uiAllComponentsSize -= (ezUInt32)uiRead;
+          uiAllComponentsSize -= (WUInt32)uiRead;
         }
       }
     }
   };
 
   {
-    ezMemoryStreamWriter writer(&m_ComponentCreationStream);
+    WMemoryStreamWriter writer(&m_ComponentCreationStream);
     WriteToMemStream(writer, true);
   }
 
   {
-    ezMemoryStreamWriter writer(&m_ComponentDataStream);
+    WMemoryStreamWriter writer(&m_ComponentDataStream);
     WriteToMemStream(writer, false);
   }
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
+WUniquePtr<WWorldReader::InstantiationContextBase> WWorldReader::Instantiate(WWorld& world, bool bUseTransform, const WTransform& rootTransform, const WPrefabInstantiationOptions& options)
 {
-  if (options.m_MaxStepTime <= ezTime::MakeZero())
+  if (options.m_MaxStepTime <= WTime::MakeZero())
   {
-    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options, ezTempAllocator::Get());
+    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options, WTempAllocator::Get());
 
-    EZ_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
+    W_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
     return nullptr;
   }
 
-  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, &world, bUseTransform, rootTransform, options, ezFoundation::GetDefaultAllocator());
+  WUniquePtr<InstantiationContext> pContext = W_DEFAULT_NEW(InstantiationContext, *this, &world, bUseTransform, rootTransform, options, WFoundation::GetDefaultAllocator());
 
   return std::move(pContext);
 }
 
-ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options, ezAllocator* pAllocator)
+WWorldReader::InstantiationContext::InstantiationContext(WWorldReader& ref_worldReader, WWorld* pWorld, bool bUseTransform, const WTransform& rootTransform, const WPrefabInstantiationOptions& options, WAllocator* pAllocator)
   : m_WorldReader(ref_worldReader)
   , m_bUseTransform(bUseTransform)
   , m_RootTransform(rootTransform)
@@ -336,25 +336,25 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
 
   m_pWorld = pWorld;
 
-  const ezUInt32 uiRootObjectsToCreate = m_WorldReader.m_RootObjectsToCreate.GetCount();
-  const ezUInt32 uiChildObjectsToCreate = m_WorldReader.m_ChildObjectsToCreate.GetCount();
+  const WUInt32 uiRootObjectsToCreate = m_WorldReader.m_RootObjectsToCreate.GetCount();
+  const WUInt32 uiChildObjectsToCreate = m_WorldReader.m_ChildObjectsToCreate.GetCount();
 
   m_IndexToGameObjectHandle.Reserve(uiRootObjectsToCreate + uiChildObjectsToCreate + 1);
-  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
+  m_IndexToGameObjectHandle.PushBack(WGameObjectHandle());
 
   m_ComponentTypeStates.Reserve(m_WorldReader.m_ComponentTypes.GetCount());
-  for (ezUInt32 i = 0; i < m_WorldReader.m_ComponentTypes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_WorldReader.m_ComponentTypes.GetCount(); ++i)
   {
     m_ComponentTypeStates.PushBack(ComponentTypeState(pAllocator));
 
     auto& ct = m_ComponentTypeStates.PeekBack();
     ct.m_ComponentIndexToHandle.Reserve(m_WorldReader.m_ComponentTypes[i].m_uiNumComponents + 1);
-    ct.m_ComponentIndexToHandle.PushBack(ezComponentHandle());
+    ct.m_ComponentIndexToHandle.PushBack(WComponentHandle());
   }
 
   if (m_Options.m_MaxStepTime.IsZeroOrNegative())
   {
-    m_Options.m_MaxStepTime = ezTime::MakeFromHours(24 * 365);
+    m_Options.m_MaxStepTime = WTime::MakeFromHours(24 * 365);
   }
 
   if (options.m_MaxStepTime.IsPositive())
@@ -364,7 +364,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
 
   if (options.m_pProgress != nullptr)
   {
-    m_pOverallProgressRange = EZ_DEFAULT_NEW(ezProgressRange, "Instantiate", Phase::Count, false, options.m_pProgress);
+    m_pOverallProgressRange = W_DEFAULT_NEW(WProgressRange, "Instantiate", Phase::Count, false, options.m_pProgress);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateRootObjects, uiRootObjectsToCreate / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateChildObjects, uiChildObjectsToCreate / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateComponents, m_WorldReader.m_uiTotalNumComponents / 100.0f);
@@ -376,7 +376,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
   }
 }
 
-ezWorldReader::InstantiationContext::~InstantiationContext()
+WWorldReader::InstantiationContext::~InstantiationContext()
 {
   if (!m_hComponentInitBatch.IsInvalidated())
   {
@@ -385,29 +385,29 @@ ezWorldReader::InstantiationContext::~InstantiationContext()
   }
 }
 
-ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationContext::Step()
+WWorldReader::InstantiationContext::StepResult WWorldReader::InstantiationContext::Step()
 {
-  EZ_ASSERT_DEV(m_Phase != Phase::Invalid, "InstantiationContext cannot be re-used.");
+  W_ASSERT_DEV(m_Phase != Phase::Invalid, "InstantiationContext cannot be re-used.");
 
-  EZ_PROFILE_SCOPE("ezWorldReader::InstContext::Step");
+  W_PROFILE_SCOPE("WWorldReader::InstContext::Step");
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  ezTime endTime = ezTime::Now() + m_Options.m_MaxStepTime;
+  WTime endTime = WTime::Now() + m_Options.m_MaxStepTime;
 
   if (m_Phase == Phase::CreateRootObjects)
   {
     if (!m_Options.m_ReplaceNamedRootWithParent.IsEmpty())
     {
-      EZ_ASSERT_DEBUG(!m_Options.m_hParent.IsInvalidated(), "Parent must be provided when m_ReplaceNamedRootWithParent is specified.");
+      W_ASSERT_DEBUG(!m_Options.m_hParent.IsInvalidated(), "Parent must be provided when m_ReplaceNamedRootWithParent is specified.");
 
       if (m_WorldReader.m_RootObjectsToCreate.GetCount() == 1 && m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_sName == m_Options.m_ReplaceNamedRootWithParent)
       {
         m_uiCurrentIndex = 1;
-        EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
+        W_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
         m_IndexToGameObjectHandle.PushBack(m_Options.m_hParent);
 
-        ezGameObject* pParent = nullptr;
+        WGameObject* pParent = nullptr;
         if (m_pWorld->TryGetObject(m_Options.m_hParent, pParent))
         {
           if (m_Options.m_pCreatedRootObjectsOut)
@@ -450,7 +450,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::CreateChildObjects)
   {
-    if (!CreateGameObjects<false>(m_WorldReader.m_ChildObjectsToCreate, ezGameObjectHandle(), m_Options.m_pCreatedChildObjectsOut, endTime))
+    if (!CreateGameObjects<false>(m_WorldReader.m_ChildObjectsToCreate, WGameObjectHandle(), m_Options.m_pCreatedChildObjectsOut, endTime))
       return StepResult::Continue;
 
     m_CurrentReader.SetStorage(&m_WorldReader.m_ComponentCreationStream);
@@ -465,10 +465,10 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
       m_WorldReader.m_pStringDedupReadContext->SetActive(true);
       tl_pReaderContext = this;
 
-      // ezStreamReader* pPrevReader = m_WorldReader.m_pStream;
+      // WStreamReader* pPrevReader = m_WorldReader.m_pStream;
       // m_WorldReader.m_pStream = &m_CurrentReader;
 
-      EZ_SCOPE_EXIT(/*m_WorldReader.m_pStream = pPrevReader; */ m_WorldReader.m_pStringDedupReadContext->SetActive(false); tl_pReaderContext = nullptr;);
+      W_SCOPE_EXIT(/*m_WorldReader.m_pStream = pPrevReader; */ m_WorldReader.m_pStringDedupReadContext->SetActive(false); tl_pReaderContext = nullptr;);
 
       if (!CreateComponents(endTime))
         return StepResult::Continue;
@@ -486,10 +486,10 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
       m_WorldReader.m_pStringDedupReadContext->SetActive(true);
       tl_pReaderContext = this;
 
-      // ezStreamReader* pPrevReader = m_WorldReader.m_pStream;
+      // WStreamReader* pPrevReader = m_WorldReader.m_pStream;
       // m_WorldReader.m_pStream = &m_CurrentReader;
 
-      EZ_SCOPE_EXIT(/*m_WorldReader.m_pStream = pPrevReader;*/ m_WorldReader.m_pStringDedupReadContext->SetActive(false); tl_pReaderContext = nullptr;);
+      W_SCOPE_EXIT(/*m_WorldReader.m_pStream = pPrevReader;*/ m_WorldReader.m_pStringDedupReadContext->SetActive(false); tl_pReaderContext = nullptr;);
 
       if (!DeserializeComponents(endTime))
         return StepResult::Continue;
@@ -529,7 +529,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
   return StepResult::Finished;
 }
 
-void ezWorldReader::InstantiationContext::Cancel()
+void WWorldReader::InstantiationContext::Cancel()
 {
   if (!m_hComponentInitBatch.IsInvalidated())
   {
@@ -542,40 +542,40 @@ void ezWorldReader::InstantiationContext::Cancel()
 }
 
 // a super simple, but also efficient random number generator
-inline static ezUInt32 NextStableRandomSeed(ezUInt32& ref_uiSeed)
+inline static WUInt32 NextStableRandomSeed(WUInt32& ref_uiSeed)
 {
   ref_uiSeed = 214013L * ref_uiSeed + 2531011L;
   return ((ref_uiSeed >> 16) & 0x7FFFF);
 }
 
 template <bool UseTransform>
-bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_pCreatedObjects, ezTime endTime)
+bool WWorldReader::InstantiationContext::CreateGameObjects(const WDynamicArray<GameObjectToCreate>& objects, WGameObjectHandle hParent, WDynamicArray<WGameObject*>* out_pCreatedObjects, WTime endTime)
 {
-  EZ_PROFILE_SCOPE("ezWorldReader::CreateGameObjects");
+  W_PROFILE_SCOPE("WWorldReader::CreateGameObjects");
 
   while (m_uiCurrentIndex < objects.GetCount())
   {
     auto& godesc = objects[m_uiCurrentIndex];
 
-    ezGameObjectDesc desc = godesc.m_Desc; // make a copy
+    WGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent.IsInvalidated() ? m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx] : hParent;
     desc.m_bDynamic |= m_Options.m_bForceDynamic;
 
     switch (m_Options.m_RandomSeedMode)
     {
-      case ezPrefabInstantiationOptions::RandomSeedMode::DeterministicFromParent:
-        desc.m_uiStableRandomSeed = 0xFFFFFFFF; // ezWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
+      case WPrefabInstantiationOptions::RandomSeedMode::DeterministicFromParent:
+        desc.m_uiStableRandomSeed = 0xFFFFFFFF; // WWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
         break;
 
-      case ezPrefabInstantiationOptions::RandomSeedMode::CompletelyRandom:
-        desc.m_uiStableRandomSeed = 0; // ezWorld::CreateObject() will assign a random value to this object
+      case WPrefabInstantiationOptions::RandomSeedMode::CompletelyRandom:
+        desc.m_uiStableRandomSeed = 0; // WWorld::CreateObject() will assign a random value to this object
         break;
 
-      case ezPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization:
+      case WPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization:
         // keep deserialized value
         break;
 
-      case ezPrefabInstantiationOptions::RandomSeedMode::CustomRootValue:
+      case WPrefabInstantiationOptions::RandomSeedMode::CustomRootValue:
         // we use the given seed root value to assign a deterministic (but different) value to each game object
         desc.m_uiStableRandomSeed = NextStableRandomSeed(m_Options.m_uiCustomRandomSeedRootValue);
         break;
@@ -588,17 +588,17 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
 
     if (UseTransform)
     {
-      ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
-      ezTransform tFinal;
-      tFinal = ezTransform::MakeGlobalTransform(m_RootTransform, tChild);
+      WTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+      WTransform tFinal;
+      tFinal = WTransform::MakeGlobalTransform(m_RootTransform, tChild);
 
       desc.m_LocalPosition = tFinal.m_vPosition;
       desc.m_LocalRotation = tFinal.m_qRotation;
       desc.m_LocalScaling = tFinal.m_vScale;
     }
 
-    ezGameObject* pObject = nullptr;
-    EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
+    WGameObject* pObject = nullptr;
+    W_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
     m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
 
     if (!godesc.m_sGlobalKey.IsEmpty())
@@ -614,7 +614,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     ++m_uiCurrentIndex;
 
     // exit here to ensure that we at least did some work
-    if (ezTime::Now() >= endTime)
+    if (WTime::Now() >= endTime)
     {
       SetSubProgressCompletion(static_cast<double>(m_uiCurrentIndex) / objects.GetCount());
       return false;
@@ -626,11 +626,11 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
   return true;
 }
 
-bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
+bool WWorldReader::InstantiationContext::CreateComponents(WTime endTime)
 {
-  EZ_PROFILE_SCOPE("ezWorldReader::CreateComponents");
+  W_PROFILE_SCOPE("WWorldReader::CreateComponents");
 
-  ezStreamReader& s = m_CurrentReader;
+  WStreamReader& s = m_CurrentReader;
 
   for (; m_uiCurrentComponentTypeIndex < m_WorldReader.m_ComponentTypes.GetCount(); ++m_uiCurrentComponentTypeIndex)
   {
@@ -641,47 +641,47 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
     if (compTypeInfo.m_pRtti == nullptr || compTypeInfo.m_uiNumComponents == 0)
       continue;
 
-    ezComponentManagerBase* pManager = m_pWorld->GetOrCreateManagerForComponentType(compTypeInfo.m_pRtti);
-    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '{0}', manager is not available.", compTypeInfo.m_pRtti->GetTypeName());
+    WComponentManagerBase* pManager = m_pWorld->GetOrCreateManagerForComponentType(compTypeInfo.m_pRtti);
+    W_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '{0}', manager is not available.", compTypeInfo.m_pRtti->GetTypeName());
 
     while (m_uiCurrentIndex < compTypeInfo.m_uiNumComponents)
     {
-      const ezGameObjectHandle hOwner = m_WorldReader.ReadGameObjectHandle();
+      const WGameObjectHandle hOwner = m_WorldReader.ReadGameObjectHandle();
 
-      ezUInt32 uiComponentIdx = 0;
+      WUInt32 uiComponentIdx = 0;
       s >> uiComponentIdx;
 
       bool bActive = true;
       s >> bActive;
 
-      ezUInt8 userFlags = 0;
+      WUInt8 userFlags = 0;
       s >> userFlags;
 
-      ezGameObject* pOwnerObject = nullptr;
+      WGameObject* pOwnerObject = nullptr;
       if (!m_pWorld->TryGetObject(hOwner, pOwnerObject))
       {
-        EZ_REPORT_FAILURE("Owner object must not be null");
+        W_REPORT_FAILURE("Owner object must not be null");
       }
 
-      ezComponent* pComponent = nullptr;
+      WComponent* pComponent = nullptr;
       auto hComponent = pManager->CreateComponentNoInit(pOwnerObject, pComponent);
 
       pComponent->SetActiveFlag(bActive);
 
-      for (ezUInt8 j = 0; j < 8; ++j)
+      for (WUInt8 j = 0; j < 8; ++j)
       {
-        pComponent->SetUserFlag(j, (userFlags & EZ_BIT(j)) != 0);
+        pComponent->SetUserFlag(j, (userFlags & W_BIT(j)) != 0);
       }
 
-      EZ_ASSERT_DEBUG(uiComponentIdx == compTypeState.m_ComponentIndexToHandle.GetCount(), "Component index doesn't match");
-      EZ_ASSERT_DEBUG(compTypeState.m_ComponentIndexToHandle.GetCapacity() > compTypeState.m_ComponentIndexToHandle.GetCount(), "m_ComponentIndexToHandle should have enough capacity.");
+      W_ASSERT_DEBUG(uiComponentIdx == compTypeState.m_ComponentIndexToHandle.GetCount(), "Component index doesn't match");
+      W_ASSERT_DEBUG(compTypeState.m_ComponentIndexToHandle.GetCapacity() > compTypeState.m_ComponentIndexToHandle.GetCount(), "m_ComponentIndexToHandle should have enough capacity.");
       compTypeState.m_ComponentIndexToHandle.PushBack(hComponent);
 
       ++m_uiCurrentIndex;
       ++m_uiCurrentNumComponentsProcessed;
 
       // exit here to ensure that we at least did some work
-      if (ezTime::Now() >= endTime)
+      if (WTime::Now() >= endTime)
       {
         SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
         return false;
@@ -698,9 +698,9 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
   return true;
 }
 
-bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
+bool WWorldReader::InstantiationContext::DeserializeComponents(WTime endTime)
 {
-  EZ_PROFILE_SCOPE("ezWorldReader::DeserializeComponents");
+  W_PROFILE_SCOPE("WWorldReader::DeserializeComponents");
 
   for (; m_uiCurrentComponentTypeIndex < m_WorldReader.m_ComponentTypes.GetCount(); ++m_uiCurrentComponentTypeIndex)
   {
@@ -717,7 +717,7 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
 
     while (m_uiCurrentIndex < compTypeState.m_ComponentIndexToHandle.GetCount())
     {
-      ezComponent* pComponent = nullptr;
+      WComponent* pComponent = nullptr;
       if (m_pWorld->TryGetComponent(compTypeState.m_ComponentIndexToHandle[m_uiCurrentIndex++], pComponent))
       {
         pComponent->DeserializeComponent(m_WorldReader);
@@ -725,7 +725,7 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
         ++m_uiCurrentNumComponentsProcessed;
 
         // exit here to ensure that we at least did some work
-        if (ezTime::Now() >= endTime)
+        if (WTime::Now() >= endTime)
         {
           SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
           return false;
@@ -733,11 +733,11 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
       }
     }
 
-    const ezUInt64 uiBytesRead = m_CurrentReader.GetReadPosition() - compTypeState.m_uiDataReadOffset;
+    const WUInt64 uiBytesRead = m_CurrentReader.GetReadPosition() - compTypeState.m_uiDataReadOffset;
 
     if (uiBytesRead != compTypeInfo.m_uiComponentDataSize)
     {
-      EZ_REPORT_FAILURE("Component type '{}' (version {}) deserialized {} of the stored {} bytes.\nCheck that the serialization and deserialization functions assume the same data layout.", compTypeInfo.m_pRtti->GetTypeName(), compTypeInfo.m_pRtti->GetTypeVersion(), uiBytesRead, compTypeInfo.m_uiComponentDataSize);
+      W_REPORT_FAILURE("Component type '{}' (version {}) deserialized {} of the stored {} bytes.\nCheck that the serialization and deserialization functions assume the same data layout.", compTypeInfo.m_pRtti->GetTypeName(), compTypeInfo.m_pRtti->GetTypeVersion(), uiBytesRead, compTypeInfo.m_uiComponentDataSize);
     }
 
     m_uiCurrentIndex = 0;
@@ -750,9 +750,9 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
   return true;
 }
 
-bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
+bool WWorldReader::InstantiationContext::AddComponentsToBatch(WTime endTime)
 {
-  EZ_PROFILE_SCOPE("ezWorldReader::AddComponentsToBatch");
+  W_PROFILE_SCOPE("WWorldReader::AddComponentsToBatch");
 
   if (!m_hComponentInitBatch.IsInvalidated())
   {
@@ -769,7 +769,7 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
 
     while (m_uiCurrentIndex < compTypeState.m_ComponentIndexToHandle.GetCount())
     {
-      ezComponent* pComponent = nullptr;
+      WComponent* pComponent = nullptr;
       if (m_pWorld->TryGetComponent(compTypeState.m_ComponentIndexToHandle[m_uiCurrentIndex++], pComponent))
       {
         pComponent->GetOwningManager()->InitializeComponent(pComponent);
@@ -777,7 +777,7 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
         ++m_uiCurrentNumComponentsProcessed;
 
         // exit here to ensure that we at least did some work
-        if (ezTime::Now() >= endTime)
+        if (WTime::Now() >= endTime)
         {
           SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
 
@@ -805,27 +805,27 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
   return true;
 }
 
-void ezWorldReader::InstantiationContext::SetMaxStepTime(ezTime stepTime)
+void WWorldReader::InstantiationContext::SetMaxStepTime(WTime stepTime)
 {
   m_Options.m_MaxStepTime = stepTime;
 }
 
-ezTime ezWorldReader::InstantiationContext::GetMaxStepTime() const
+WTime WWorldReader::InstantiationContext::GetMaxStepTime() const
 {
   return m_Options.m_MaxStepTime;
 }
 
-void ezWorldReader::InstantiationContext::BeginNextProgressStep(ezStringView sName)
+void WWorldReader::InstantiationContext::BeginNextProgressStep(WStringView sName)
 {
   if (m_pOverallProgressRange != nullptr)
   {
     m_pOverallProgressRange->BeginNextStep(sName);
     m_pSubProgressRange = nullptr;
-    m_pSubProgressRange = EZ_DEFAULT_NEW(ezProgressRange, sName, false, m_pOverallProgressRange->GetProgressbar());
+    m_pSubProgressRange = W_DEFAULT_NEW(WProgressRange, sName, false, m_pOverallProgressRange->GetProgressbar());
   }
 }
 
-void ezWorldReader::InstantiationContext::SetSubProgressCompletion(double fCompletion)
+void WWorldReader::InstantiationContext::SetSubProgressCompletion(double fCompletion)
 {
   if (m_pSubProgressRange != nullptr)
   {

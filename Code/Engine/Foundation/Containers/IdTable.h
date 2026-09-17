@@ -12,9 +12,9 @@
 ///
 /// \note Valid IDs will never be all zero (index + generation).
 ///
-/// \see ezGenericId
+/// \see WGenericId
 template <typename IdType, typename ValueType>
-class ezIdTableBase
+class WIdTableBase
 {
 public:
   using IndexType = typename IdType::StorageType;
@@ -28,10 +28,10 @@ public:
     bool IsValid() const; // [tested]
 
     /// Checks whether the two iterators point to the same element.
-    bool operator==(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
+    bool operator==(const typename WIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
 
     /// Checks whether the two iterators point to the same element.
-    bool operator!=(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
+    bool operator!=(const typename WIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
 
     /// Returns the 'id' of the element that this iterator points to.
     IdType Id() const; // [tested]
@@ -46,11 +46,11 @@ public:
     void operator++(); // [tested]
 
   protected:
-    friend class ezIdTableBase<IdType, ValueType>;
+    friend class WIdTableBase<IdType, ValueType>;
 
-    explicit ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable);
+    explicit ConstIterator(const WIdTableBase<IdType, ValueType>& idTable);
 
-    const ezIdTableBase<IdType, ValueType>& m_IdTable;
+    const WIdTableBase<IdType, ValueType>& m_IdTable;
     IndexType m_CurrentIndex; // current element index that this iterator points to.
     IndexType m_CurrentCount; // current number of valid elements that this iterator has found so far.
   };
@@ -66,23 +66,23 @@ public:
     ValueType& Value(); // [tested]
 
   private:
-    friend class ezIdTableBase<IdType, ValueType>;
+    friend class WIdTableBase<IdType, ValueType>;
 
-    explicit Iterator(const ezIdTableBase<IdType, ValueType>& idTable);
+    explicit Iterator(const WIdTableBase<IdType, ValueType>& idTable);
   };
 
 protected:
   /// Creates an empty id-table. Does not allocate any data yet.
-  explicit ezIdTableBase(ezAllocator* pAllocator); // [tested]
+  explicit WIdTableBase(WAllocator* pAllocator); // [tested]
 
   /// Creates a copy of the given id-table.
-  ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocator* pAllocator); // [tested]
+  WIdTableBase(const WIdTableBase<IdType, ValueType>& rhs, WAllocator* pAllocator); // [tested]
 
   /// Destructor.
-  ~ezIdTableBase(); // [tested]
+  ~WIdTableBase(); // [tested]
 
   /// Copies the data from another table into this one.
-  void operator=(const ezIdTableBase<IdType, ValueType>& rhs); // [tested]
+  void operator=(const WIdTableBase<IdType, ValueType>& rhs); // [tested]
 
 public:
   /// Expands the table so it can at least store the given capacity.
@@ -140,7 +140,7 @@ public:
   ConstIterator GetIterator() const; // [tested]
 
   /// Returns the allocator that is used by this instance.
-  ezAllocator* GetAllocator() const;
+  WAllocator* GetAllocator() const;
 
   /// Returns whether the internal free-list is valid. For testing purpose only.
   bool IsFreelistValid() const;
@@ -165,25 +165,25 @@ private:
   IndexType m_FreelistEnqueue;
   IndexType m_FreelistDequeue;
 
-  ezAllocator* m_pAllocator;
+  WAllocator* m_pAllocator;
 
   void SetCapacity(IndexType uiCapacity);
   void InitializeFreelist(IndexType uiStart, IndexType uiEnd);
 };
 
-/// \see ezIdTableBase
-template <typename IdType, typename ValueType, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezIdTable : public ezIdTableBase<IdType, ValueType>
+/// \see WIdTableBase
+template <typename IdType, typename ValueType, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WIdTable : public WIdTableBase<IdType, ValueType>
 {
 public:
-  ezIdTable();
-  explicit ezIdTable(ezAllocator* pAllocator);
+  WIdTable();
+  explicit WIdTable(WAllocator* pAllocator);
 
-  ezIdTable(const ezIdTable<IdType, ValueType, AllocatorWrapper>& other);
-  ezIdTable(const ezIdTableBase<IdType, ValueType>& other);
+  WIdTable(const WIdTable<IdType, ValueType, AllocatorWrapper>& other);
+  WIdTable(const WIdTableBase<IdType, ValueType>& other);
 
-  void operator=(const ezIdTable<IdType, ValueType, AllocatorWrapper>& rhs);
-  void operator=(const ezIdTableBase<IdType, ValueType>& rhs);
+  void operator=(const WIdTable<IdType, ValueType, AllocatorWrapper>& rhs);
+  void operator=(const WIdTableBase<IdType, ValueType>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/IdTable_inl.h>

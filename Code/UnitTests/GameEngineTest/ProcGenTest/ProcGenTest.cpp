@@ -7,28 +7,28 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
 
-static ezGameEngineTestProcGen s_GameEngineTestProcGen;
+static WGameEngineTestProcGen s_GameEngineTestProcGen;
 
-const char* ezGameEngineTestProcGen::GetTestName() const
+const char* WGameEngineTestProcGen::GetTestName() const
 {
   return "ProcGen Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestProcGen::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestProcGen::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "ProcGen");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "ProcGen");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestProcGen::SetupSubTests()
+void WGameEngineTestProcGen::SetupSubTests()
 {
   AddSubTest("VertexColors", SubTests::VertexColors);
   AddSubTest("CurveNode", SubTests::CurveNode);
 }
 
-ezResult ezGameEngineTestProcGen::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestProcGen::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -38,65 +38,65 @@ ezResult ezGameEngineTestProcGen::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("ProcGen/AssetCache/Common/Scenes/VertexColors.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("ProcGen/AssetCache/Common/Scenes/VertexColors.WBinScene"));
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::CurveNode)
   {
     InputVertex inputVertices[] = {
-      {ezVec3(0.0f), ezVec3(0, 0, 1), ezColor::White, 0},
-      {ezVec3(0.25f), ezVec3(0, 0, 1), ezColor::White, 1},
-      {ezVec3(0.5f), ezVec3(0, 0, 1), ezColor::White, 2},
-      {ezVec3(1.0f), ezVec3(0, 0, 1), ezColor::White, 3},
-      {ezVec3(2.0f), ezVec3(0, 0, 1), ezColor::White, 4},
+      {WVec3(0.0f), WVec3(0, 0, 1), WColor::White, 0},
+      {WVec3(0.25f), WVec3(0, 0, 1), WColor::White, 1},
+      {WVec3(0.5f), WVec3(0, 0, 1), WColor::White, 2},
+      {WVec3(1.0f), WVec3(0, 0, 1), WColor::White, 3},
+      {WVec3(2.0f), WVec3(0, 0, 1), WColor::White, 4},
     };
 
-    ezVec4 expectedOutputs[] = {
-      ezVec4(1.0f, 0, 0, 1),
-      ezVec4(0.375f, 1, 0.02f, 1),
-      ezVec4(0.0f, 0, 0.274f, 1),
-      ezVec4(1.0f, 0, 2, 1),
-      ezVec4(1.0f, 0, 2, 0),
+    WVec4 expectedOutputs[] = {
+      WVec4(1.0f, 0, 0, 1),
+      WVec4(0.375f, 1, 0.02f, 1),
+      WVec4(0.0f, 0, 0.274f, 1),
+      WVec4(1.0f, 0, 2, 1),
+      WVec4(1.0f, 0, 2, 0),
     };
 
-    EZ_SUCCEED_OR_RETURN(TestOutput(ezMakeHashedString("CurveNodeTest"), ezMakeArrayPtr(inputVertices), ezMakeArrayPtr(expectedOutputs)));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(TestOutput(WMakeHashedString("CurveNodeTest"), WMakeArrayPtr(inputVertices), WMakeArrayPtr(expectedOutputs)));
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestProcGen::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestProcGen::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
+  const bool bVulkan = WGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
   if (m_ImgCompFrames.IsEmpty())
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    W_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
-ezResult ezGameEngineTestProcGen::DeInitializeTest()
+WResult WGameEngineTestProcGen::DeInitializeTest()
 {
   m_pVM.Clear();
 
@@ -106,26 +106,26 @@ ezResult ezGameEngineTestProcGen::DeInitializeTest()
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-EZ_ALWAYS_INLINE ezProcessingStream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName, ezProcessingStream::DataType dataType = ezProcessingStream::DataType::Float)
+W_ALWAYS_INLINE WProcessingStream MakeStream(WArrayPtr<T> data, WUInt32 uiOffset, const WHashedString& sName, WProcessingStream::DataType dataType = WProcessingStream::DataType::Float)
 {
-  return ezProcessingStream(sName, data.ToByteArray().GetSubArray(uiOffset), dataType, sizeof(T));
+  return WProcessingStream(sName, data.ToByteArray().GetSubArray(uiOffset), dataType, sizeof(T));
 }
 
-ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, ezArrayPtr<InputVertex> inputVertices, ezArrayPtr<const ezVec4> expectedOutputs)
+WResult WGameEngineTestProcGen::TestOutput(const WHashedString& sOutputName, WArrayPtr<InputVertex> inputVertices, WArrayPtr<const WVec4> expectedOutputs)
 {
-  EZ_ASSERT_DEV(inputVertices.GetCount() == expectedOutputs.GetCount(), "Input and expected output count must match");
+  W_ASSERT_DEV(inputVertices.GetCount() == expectedOutputs.GetCount(), "Input and expected output count must match");
 
-  // Data/ProcGenGraph.ezProcGenGraphAsset
-  ezProcGenGraphResourceHandle hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>("{ 11fe0278-f21e-4e05-9262-c836adeeef10 }");
+  // Data/ProcGenGraph.WProcGenGraphAsset
+  WProcGenGraphResourceHandle hResource = WResourceManager::LoadResource<WProcGenGraphResource>("{ 11fe0278-f21e-4e05-9262-c836adeeef10 }");
 
-  ezResourceLock<ezProcGenGraphResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
-  if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WProcGenGraphResource> pResource(hResource, WResourceAcquireMode::BlockTillLoaded);
+  if (pResource.GetAcquireResult() != WResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load ProcGenGraphResource for testing");
-    return EZ_FAILURE;
+    WLog::Error("Failed to load ProcGenGraphResource for testing");
+    return W_FAILURE;
   }
 
-  ezSharedPtr<const ezProcGenInternal::VertexColorOutput> pOutput;
+  WSharedPtr<const WProcGenInternal::VertexColorOutput> pOutput;
   {
     auto& vcOutputs = pResource->GetVertexColorOutputs();
     for (auto& pVcOutput : vcOutputs)
@@ -138,61 +138,61 @@ ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, 
     }
     if (!pOutput)
     {
-      ezLog::Error("Failed to find VertexColorOutput '{0}' in ProcGenGraphResource", sOutputName);
-      return EZ_FAILURE;
+      WLog::Error("Failed to find VertexColorOutput '{0}' in ProcGenGraphResource", sOutputName);
+      return W_FAILURE;
     }
   }
 
   if (m_pVM == nullptr)
   {
-    m_pVM = EZ_DEFAULT_NEW(ezExpressionVM);
-    m_pVM->RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
+    m_pVM = W_DEFAULT_NEW(WExpressionVM);
+    m_pVM->RegisterFunction(WExtendedExpressionFunctions::s_SampleCurveFunc);
   }
 
-  ezTempHybridArray<ezProcessingStream, 8> inputs;
+  WTempHybridArray<WProcessingStream, 8> inputs;
   {
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.x), ezProcGenInternal::ExpressionInputs::s_sPositionX));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.y), ezProcGenInternal::ExpressionInputs::s_sPositionY));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.z), ezProcGenInternal::ExpressionInputs::s_sPositionZ));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.x), WProcGenInternal::ExpressionInputs::s_sPositionX));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.y), WProcGenInternal::ExpressionInputs::s_sPositionY));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.z), WProcGenInternal::ExpressionInputs::s_sPositionZ));
 
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.x), ezProcGenInternal::ExpressionInputs::s_sNormalX));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.y), ezProcGenInternal::ExpressionInputs::s_sNormalY));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.z), ezProcGenInternal::ExpressionInputs::s_sNormalZ));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.x), WProcGenInternal::ExpressionInputs::s_sNormalX));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.y), WProcGenInternal::ExpressionInputs::s_sNormalY));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vNormal.z), WProcGenInternal::ExpressionInputs::s_sNormalZ));
 
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.r), ezProcGenInternal::ExpressionInputs::s_sColorR));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.g), ezProcGenInternal::ExpressionInputs::s_sColorG));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.b), ezProcGenInternal::ExpressionInputs::s_sColorB));
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.a), ezProcGenInternal::ExpressionInputs::s_sColorA));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.r), WProcGenInternal::ExpressionInputs::s_sColorR));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.g), WProcGenInternal::ExpressionInputs::s_sColorG));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.b), WProcGenInternal::ExpressionInputs::s_sColorB));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_Color.a), WProcGenInternal::ExpressionInputs::s_sColorA));
 
-    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_uiIndex), ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Int));
+    inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_uiIndex), WProcGenInternal::ExpressionInputs::s_sPointIndex, WProcessingStream::DataType::Int));
   }
 
-  ezTempHybridArray<ezVec4, 16> m_TempData;
+  WTempHybridArray<WVec4, 16> m_TempData;
   m_TempData.SetCountUninitialized(inputVertices.GetCount());
 
-  ezTempHybridArray<ezProcessingStream, 8> outputs;
+  WTempHybridArray<WProcessingStream, 8> outputs;
   {
-    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, x), ezProcGenInternal::ExpressionOutputs::s_sOutColorR));
-    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, y), ezProcGenInternal::ExpressionOutputs::s_sOutColorG));
-    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, z), ezProcGenInternal::ExpressionOutputs::s_sOutColorB));
-    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, w), ezProcGenInternal::ExpressionOutputs::s_sOutColorA));
+    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(WVec4, x), WProcGenInternal::ExpressionOutputs::s_sOutColorR));
+    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(WVec4, y), WProcGenInternal::ExpressionOutputs::s_sOutColorG));
+    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(WVec4, z), WProcGenInternal::ExpressionOutputs::s_sOutColorB));
+    outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(WVec4, w), WProcGenInternal::ExpressionOutputs::s_sOutColorA));
   }
 
   m_GlobalData.Clear();
-  ezProcGenGlobalData::SetCurves(*pOutput, m_GlobalData);
+  WProcGenGlobalData::SetCurves(*pOutput, m_GlobalData);
 
-  EZ_SUCCEED_OR_RETURN(m_pVM->Execute(*(pOutput->m_pByteCode), inputs, outputs, inputVertices.GetCount(), m_GlobalData, ezExpressionVM::Flags::BestPerformance));
+  W_SUCCEED_OR_RETURN(m_pVM->Execute(*(pOutput->m_pByteCode), inputs, outputs, inputVertices.GetCount(), m_GlobalData, WExpressionVM::Flags::BestPerformance));
 
-  for (ezUInt32 i = 0; i < m_TempData.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_TempData.GetCount(); ++i)
   {
-    const ezVec4& actual = m_TempData[i];
-    const ezVec4& expected = expectedOutputs[i];
+    const WVec4& actual = m_TempData[i];
+    const WVec4& expected = expectedOutputs[i];
     if (!actual.IsEqual(expected, 0.001f))
     {
-      ezLog::Error("Output value mismatch at index {}: Expected {}, but got {}", i, expected, actual);
-      return EZ_FAILURE;
+      WLog::Error("Output value mismatch at index {}: Expected {}, but got {}", i, expected, actual);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

@@ -9,41 +9,41 @@
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackControlPointData, 1, ezRTTIDefaultAllocator<ezEventTrackControlPointData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEventTrackControlPointData, 1, WRTTIDefaultAllocator<WEventTrackControlPointData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_ACCESSOR_PROPERTY("Event", GetEventName, SetEventName),
+    W_MEMBER_PROPERTY("Tick", m_iTick),
+    W_ACCESSOR_PROPERTY("Event", GetEventName, SetEventName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackData, 3, ezRTTIDefaultAllocator<ezEventTrackData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEventTrackData, 3, WRTTIDefaultAllocator<WEventTrackData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
+    W_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezEventTrackControlPointData::SetTickFromTime(ezTime time, ezInt64 iFps)
+void WEventTrackControlPointData::SetTickFromTime(WTime time, WInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / iFps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
+  const WUInt32 uiTicksPerStep = 4800 / iFps;
+  m_iTick = (WInt64)WMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-ezInt64 ezEventTrackData::TickFromTime(ezTime time) const
+WInt64 WEventTrackData::TickFromTime(WTime time) const
 {
-  const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
-  return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
+  const WUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
+  return (WInt64)WMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_result) const
+void WEventTrackData::ConvertToRuntimeData(WEventTrack& out_result) const
 {
   out_result.Clear();
 
@@ -53,7 +53,7 @@ void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_result) const
   }
 }
 
-void ezEventSet::AddAvailableEvent(ezStringView sEvent)
+void WEventSet::AddAvailableEvent(WStringView sEvent)
 {
   if (sEvent.IsEmpty())
     return;
@@ -65,12 +65,12 @@ void ezEventSet::AddAvailableEvent(ezStringView sEvent)
   m_AvailableEvents.Insert(sEvent);
 }
 
-ezResult ezEventSet::WriteToDDL(const char* szFile)
+WResult WEventSet::WriteToDDL(const char* szFile)
 {
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(szFile);
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
   for (const auto& s : m_AvailableEvents)
@@ -82,23 +82,23 @@ ezResult ezEventSet::WriteToDDL(const char* szFile)
   if (file.Close().Succeeded())
   {
     m_bModified = false;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezEventSet::ReadFromDDL(const char* szFile)
+WResult WEventSet::ReadFromDDL(const char* szFile)
 {
   m_AvailableEvents.Clear();
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(szFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlReader ddl;
+  WOpenDdlReader ddl;
   if (ddl.ParseDocument(file).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   auto* pRoot = ddl.GetRootElement();
 
@@ -111,5 +111,5 @@ ezResult ezEventSet::ReadFromDDL(const char* szFile)
   }
 
   m_bModified = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

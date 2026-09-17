@@ -11,107 +11,107 @@
 #include <RendererTest/TestClass/TestClass.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezOffscreenTest_SharedTexture, ezNoBase, 1, ezRTTIDefaultAllocator<ezOffscreenTest_SharedTexture>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WOffscreenTest_SharedTexture, WNoBase, 1, WRTTIDefaultAllocator<WOffscreenTest_SharedTexture>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CurrentTextureIndex", m_uiCurrentTextureIndex),
-    EZ_MEMBER_PROPERTY("CurrentSemaphoreValue", m_uiCurrentSemaphoreValue),
+    W_MEMBER_PROPERTY("CurrentTextureIndex", m_uiCurrentTextureIndex),
+    W_MEMBER_PROPERTY("CurrentSemaphoreValue", m_uiCurrentSemaphoreValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOffscreenTest_OpenMsg, 1, ezRTTIDefaultAllocator<ezOffscreenTest_OpenMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOffscreenTest_OpenMsg, 1, WRTTIDefaultAllocator<WOffscreenTest_OpenMsg>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("TextureDesc", m_TextureDesc),
-      EZ_ARRAY_MEMBER_PROPERTY("TextureHandles", m_TextureHandles),
+      W_MEMBER_PROPERTY("TextureDesc", m_TextureDesc),
+      W_ARRAY_MEMBER_PROPERTY("TextureHandles", m_TextureHandles),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOffscreenTest_CloseMsg, 1, ezRTTIDefaultAllocator<ezOffscreenTest_CloseMsg>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOffscreenTest_CloseMsg, 1, WRTTIDefaultAllocator<WOffscreenTest_CloseMsg>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOffscreenTest_RenderMsg, 1, ezRTTIDefaultAllocator<ezOffscreenTest_RenderMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOffscreenTest_RenderMsg, 1, WRTTIDefaultAllocator<WOffscreenTest_RenderMsg>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Texture", m_Texture),
+      W_MEMBER_PROPERTY("Texture", m_Texture),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOffscreenTest_RenderResponseMsg, 1, ezRTTIDefaultAllocator<ezOffscreenTest_RenderResponseMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOffscreenTest_RenderResponseMsg, 1, WRTTIDefaultAllocator<WOffscreenTest_RenderResponseMsg>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Texture", m_Texture),
+      W_MEMBER_PROPERTY("Texture", m_Texture),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezOffscreenRendererTest::ezOffscreenRendererTest()
-  : ezApplication("ezOffscreenRendererTest")
+WOffscreenRendererTest::WOffscreenRendererTest()
+  : WApplication("WOffscreenRendererTest")
 
 {
 }
 
-ezOffscreenRendererTest::~ezOffscreenRendererTest() = default;
+WOffscreenRendererTest::~WOffscreenRendererTest() = default;
 
-void ezOffscreenRendererTest::Run()
+void WOffscreenRendererTest::Run()
 {
-  EZ_PROFILE_SCOPE("Run");
+  W_PROFILE_SCOPE("Run");
 
-  ezClock::GetGlobalClock()->Update();
+  WClock::GetGlobalClock()->Update();
 
   if (!m_pProtocol->ProcessMessages())
   {
-    m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(8)).IgnoreResult();
+    m_pProtocol->WaitForMessages(WTime::MakeFromMilliseconds(8)).IgnoreResult();
   }
 
   // do the rendering
   if (!m_RequestedFrames.IsEmpty())
   {
-    ezOffscreenTest_RenderMsg action = m_RequestedFrames[0];
+    WOffscreenTest_RenderMsg action = m_RequestedFrames[0];
     m_RequestedFrames.RemoveAtAndCopy(0);
 
-    auto device = ezGALDevice::GetDefaultDevice();
+    auto device = WGALDevice::GetDefaultDevice();
 
-    auto pSwapChain = const_cast<ezGALSharedTextureSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain<ezGALSharedTextureSwapChain>(m_hSwapChain));
-    EZ_ASSERT_DEBUG(pSwapChain, "SwapChain should have been created at this point");
-    EZ_ANALYSIS_ASSUME(pSwapChain != nullptr);
+    auto pSwapChain = const_cast<WGALSharedTextureSwapChain*>(WGALDevice::GetDefaultDevice()->GetSwapChain<WGALSharedTextureSwapChain>(m_hSwapChain));
+    W_ASSERT_DEBUG(pSwapChain, "SwapChain should have been created at this point");
+    W_ANALYSIS_ASSUME(pSwapChain != nullptr);
     pSwapChain->Arm(action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
     sTemp.SetFormat("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
-    EZ_PROFILE_SCOPE(sTemp);
+    W_PROFILE_SCOPE(sTemp);
 
     m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
     device->BeginFrame();
 
-    ezGALCommandEncoder* pCommandEncoder = device->BeginCommands(sTemp);
+    WGALCommandEncoder* pCommandEncoder = device->BeginCommands(sTemp);
 
-    ezGALRenderingSetup renderingSetup;
-    ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
+    WGALRenderingSetup renderingSetup;
+    WGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
     renderingSetup.SetColorTarget(0, hBackbufferRTV);
-    renderingSetup.SetClearColor(0, ezColor::Pink);
+    renderingSetup.SetClearColor(0, WColor::Pink);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
-    ezGraphicsTest::SetClipSpace();
+    WRectFloat viewport = WRectFloat(0, 0, 8, 8);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WGraphicsTest::SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hScreenShader);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(m_hScreenShader);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
 
     device->EndCommands(pCommandEncoder);
 
@@ -125,96 +125,96 @@ void ezOffscreenRendererTest::Run()
   }
 
   // needs to be called once per frame
-  ezResourceManager::PerFrameUpdate();
+  WResourceManager::PerFrameUpdate();
 
   // tell the task system to finish its work for this frame
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
-  ezTaskSystem::FinishFrameTasks();
+  WTaskSystem::FinishFrameTasks();
 }
 
-void ezOffscreenRendererTest::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
+void WOffscreenRendererTest::OnPresent(WUInt32 uiCurrentTexture, WUInt64 uiCurrentSemaphoreValue)
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
   sTemp.SetFormat("Response {}|{}", uiCurrentTexture, uiCurrentSemaphoreValue);
-  EZ_PROFILE_SCOPE(sTemp);
+  W_PROFILE_SCOPE(sTemp);
 
-  ezOffscreenTest_RenderResponseMsg msg = {};
+  WOffscreenTest_RenderResponseMsg msg = {};
   msg.m_Texture.m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
   msg.m_Texture.m_uiCurrentTextureIndex = uiCurrentTexture;
   m_pProtocol->Send(&msg);
 }
 
-void ezOffscreenRendererTest::AfterCoreSystemsStartup()
+void WOffscreenRendererTest::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
 
-  ezGraphicsTest::CreateRenderer(m_pDevice).AssertSuccess();
+  WGraphicsTest::CreateRenderer(m_pDevice).AssertSuccess();
 
-  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-  ezStringBuilder sLogFile;
+  WGlobalLog::AddLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  WStringBuilder sLogFile;
   sLogFile.SetFormat(":imgout/OffscreenLog.htm");
-  m_LogHTML.BeginLog(sLogFile, "OffscreenRenderer"_ezsv);
+  m_LogHTML.BeginLog(sLogFile, "OffscreenRenderer"_wsv);
 
   // Setup Shaders and Materials
   {
-    m_hScreenShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
+    m_hScreenShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColor.WShader");
   }
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
+  if (WCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
   {
-    EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
+    W_REPORT_FAILURE("Command Line does not contain -IPC parameter");
     SetReturnCode(-1);
     QuitApplication();
     return;
   }
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
+  if (WCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
   {
-    EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
+    W_REPORT_FAILURE("Command Line does not contain -PID parameter");
     SetReturnCode(-2);
     QuitApplication();
     return;
   }
 
   m_iHostPID = 0;
-  if (ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID).Failed())
+  if (WConversionUtils::StringToInt64(WCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID).Failed())
   {
-    EZ_REPORT_FAILURE("Command Line -PID parameter could not be converted to int");
+    W_REPORT_FAILURE("Command Line -PID parameter could not be converted to int");
     SetReturnCode(-3);
     QuitApplication();
     return;
   }
 
-  ezLog::Debug("Host Process ID: {0}", m_iHostPID);
+  WLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-  m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
-  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
-  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezOffscreenRendererTest::MessageFunc, this));
-  EZ_TEST_RESULT(m_pChannel->Connect());
+  m_pChannel = WIpcChannel::CreatePipeChannel(WCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), WIpcChannel::Mode::Client);
+  m_pProtocol = W_DEFAULT_NEW(WIpcProcessMessageProtocol, m_pChannel.Borrow());
+  m_pProtocol->m_MessageEvent.AddEventHandler(WMakeDelegate(&WOffscreenRendererTest::MessageFunc, this));
+  W_TEST_RESULT(m_pChannel->Connect());
 
-  while (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
+  while (m_pChannel->GetConnectionState() == WIpcChannel::ConnectionState::Connecting)
   {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(16));
   }
 
-  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+  if (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connected)
   {
-    ezLog::Error("Failed to connect to host process");
+    WLog::Error("Failed to connect to host process");
     SetReturnCode(-4);
     QuitApplication();
     return;
   }
 
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 }
 
-void ezOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
+void WOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
 {
-  ezStringView sPath = ":imgout/Profiling/offscreenProfiling.json"_ezsv;
-  EZ_TEST_RESULT(ezProfilingUtils::SaveProfilingCapture(sPath));
+  WStringView sPath = ":imgout/Profiling/offscreenProfiling.json"_wsv;
+  W_TEST_RESULT(WProfilingUtils::SaveProfilingCapture(sPath));
 
-  auto pDevice = ezGALDevice::GetDefaultDevice();
+  auto pDevice = WGALDevice::GetDefaultDevice();
 
   pDevice->DestroySwapChain(m_hSwapChain);
   // This guarantees that when the process exits no shared textures are still being modified by the GPU so the main process can savely delete the resources.
@@ -227,52 +227,52 @@ void ezOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
   m_pProtocol = nullptr;
   m_pChannel = nullptr;
 
-  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  WGlobalLog::RemoveLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   m_LogHTML.EndLog();
 
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezOffscreenRendererTest::BeforeCoreSystemsShutdown()
+void WOffscreenRendererTest::BeforeCoreSystemsShutdown()
 {
-  ezResourceManager::FreeAllUnusedResources();
+  WResourceManager::FreeAllUnusedResources();
 
   if (m_pDevice)
   {
     m_pDevice->Shutdown().IgnoreResult();
-    EZ_DEFAULT_DELETE(m_pDevice);
+    W_DEFAULT_DELETE(m_pDevice);
   }
 
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-void ezOffscreenRendererTest::MessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
+void WOffscreenRendererTest::MessageFunc(const WIpcProcessMessageProtocol::Event& msg)
 {
-  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(msg.m_pMessage))
+  if (const auto* pAction = WDynamicCast<const WOffscreenTest_OpenMsg*>(msg.m_pMessage))
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    EZ_ASSERT_DEBUG(m_hSwapChain.IsInvalidated(), "SwapChain creation should only happen once");
+    WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+    W_ASSERT_DEBUG(m_hSwapChain.IsInvalidated(), "SwapChain creation should only happen once");
 
-    ezGALSharedTextureSwapChainCreationDescription desc;
+    WGALSharedTextureSwapChainCreationDescription desc;
     desc.m_TextureDesc = pAction->m_TextureDesc;
     desc.m_Textures = pAction->m_TextureHandles;
-    desc.m_OnPresent = ezMakeDelegate(&ezOffscreenRendererTest::OnPresent, this);
+    desc.m_OnPresent = WMakeDelegate(&WOffscreenRendererTest::OnPresent, this);
 
-    m_hSwapChain = ezGALSharedTextureSwapChain::Create(desc);
+    m_hSwapChain = WGALSharedTextureSwapChain::Create(desc);
     if (m_hSwapChain.IsInvalidated())
     {
-      EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
+      W_REPORT_FAILURE("Failed to create shared texture swapchain");
       SetReturnCode(-4);
       QuitApplication();
     }
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(msg.m_pMessage))
+  else if (const auto* pAction = WDynamicCast<const WOffscreenTest_CloseMsg*>(msg.m_pMessage))
   {
     m_bExiting = true;
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderMsg*>(msg.m_pMessage))
+  else if (const auto* pAction = WDynamicCast<const WOffscreenTest_RenderMsg*>(msg.m_pMessage))
   {
-    EZ_ASSERT_DEBUG(m_bExiting == false, "No new frame requests should come in at this point.");
+    W_ASSERT_DEBUG(m_bExiting == false, "No new frame requests should come in at this point.");
     m_RequestedFrames.PushBack(*pAction);
   }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezColorBaseUB::ezColorBaseUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a /* = 255*/)
+W_ALWAYS_INLINE WColorBaseUB::WColorBaseUB(WUInt8 r, WUInt8 g, WUInt8 b, WUInt8 a /* = 255*/)
 {
   this->r = r;
   this->g = g;
@@ -8,59 +8,59 @@ EZ_ALWAYS_INLINE ezColorBaseUB::ezColorBaseUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, e
   this->a = a;
 }
 
-EZ_ALWAYS_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a /* = 255*/)
-  : ezColorBaseUB(r, g, b, a)
+W_ALWAYS_INLINE WColorLinearUB::WColorLinearUB(WUInt8 r, WUInt8 g, WUInt8 b, WUInt8 a /* = 255*/)
+  : WColorBaseUB(r, g, b, a)
 {
 }
 
-inline ezColorLinearUB::ezColorLinearUB(const ezColor& color)
+inline WColorLinearUB::WColorLinearUB(const WColor& color)
 {
   *this = color;
 }
 
-inline void ezColorLinearUB::operator=(const ezColor& color)
+inline void WColorLinearUB::operator=(const WColor& color)
 {
-  r = ezMath::ColorFloatToByte(color.r);
-  g = ezMath::ColorFloatToByte(color.g);
-  b = ezMath::ColorFloatToByte(color.b);
-  a = ezMath::ColorFloatToByte(color.a);
+  r = WMath::ColorFloatToByte(color.r);
+  g = WMath::ColorFloatToByte(color.g);
+  b = WMath::ColorFloatToByte(color.b);
+  a = WMath::ColorFloatToByte(color.a);
 }
 
-inline ezColor ezColorLinearUB::ToLinearFloat() const
+inline WColor WColorLinearUB::ToLinearFloat() const
 {
-  return ezColor(ezMath::ColorByteToFloat(r), ezMath::ColorByteToFloat(g), ezMath::ColorByteToFloat(b), ezMath::ColorByteToFloat(a));
+  return WColor(WMath::ColorByteToFloat(r), WMath::ColorByteToFloat(g), WMath::ColorByteToFloat(b), WMath::ColorByteToFloat(a));
 }
 
 // *****************
 
-EZ_ALWAYS_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a)
-  : ezColorBaseUB(r, g, b, a)
+W_ALWAYS_INLINE WColorGammaUB::WColorGammaUB(WUInt8 r, WUInt8 g, WUInt8 b, WUInt8 a)
+  : WColorBaseUB(r, g, b, a)
 {
 }
 
-inline ezColorGammaUB::ezColorGammaUB(const ezColor& color)
+inline WColorGammaUB::WColorGammaUB(const WColor& color)
 {
   *this = color;
 }
 
-inline void ezColorGammaUB::operator=(const ezColor& color)
+inline void WColorGammaUB::operator=(const WColor& color)
 {
-  const ezVec3 gamma = ezColor::LinearToGamma(ezVec3(color.r, color.g, color.b));
+  const WVec3 gamma = WColor::LinearToGamma(WVec3(color.r, color.g, color.b));
 
-  r = ezMath::ColorFloatToByte(gamma.x);
-  g = ezMath::ColorFloatToByte(gamma.y);
-  b = ezMath::ColorFloatToByte(gamma.z);
-  a = ezMath::ColorFloatToByte(color.a);
+  r = WMath::ColorFloatToByte(gamma.x);
+  g = WMath::ColorFloatToByte(gamma.y);
+  b = WMath::ColorFloatToByte(gamma.z);
+  a = WMath::ColorFloatToByte(color.a);
 }
 
-inline ezColor ezColorGammaUB::ToLinearFloat() const
+inline WColor WColorGammaUB::ToLinearFloat() const
 {
-  ezVec3 gamma;
-  gamma.x = ezMath::ColorByteToFloat(r);
-  gamma.y = ezMath::ColorByteToFloat(g);
-  gamma.z = ezMath::ColorByteToFloat(b);
+  WVec3 gamma;
+  gamma.x = WMath::ColorByteToFloat(r);
+  gamma.y = WMath::ColorByteToFloat(g);
+  gamma.z = WMath::ColorByteToFloat(b);
 
-  const ezVec3 linear = ezColor::GammaToLinear(gamma);
+  const WVec3 linear = WColor::GammaToLinear(gamma);
 
-  return ezColor(linear.x, linear.y, linear.z, ezMath::ColorByteToFloat(a));
+  return WColor(linear.x, linear.y, linear.z, WMath::ColorByteToFloat(a));
 }

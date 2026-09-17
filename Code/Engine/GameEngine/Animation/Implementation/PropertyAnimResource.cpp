@@ -6,108 +6,108 @@
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAnimResource, 1, WRTTIDefaultAllocator<WPropertyAnimResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimTarget, 1)
-EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::Number, ezPropertyAnimTarget::VectorX, ezPropertyAnimTarget::VectorY, ezPropertyAnimTarget::VectorZ, ezPropertyAnimTarget::VectorW)
-EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::RotationX, ezPropertyAnimTarget::RotationY, ezPropertyAnimTarget::RotationZ, ezPropertyAnimTarget::Color)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WPropertyAnimTarget, 1)
+W_ENUM_CONSTANTS(WPropertyAnimTarget::Number, WPropertyAnimTarget::VectorX, WPropertyAnimTarget::VectorY, WPropertyAnimTarget::VectorZ, WPropertyAnimTarget::VectorW)
+W_ENUM_CONSTANTS(WPropertyAnimTarget::RotationX, WPropertyAnimTarget::RotationY, WPropertyAnimTarget::RotationZ, WPropertyAnimTarget::Color)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)
-EZ_ENUM_CONSTANTS(ezPropertyAnimMode::Once, ezPropertyAnimMode::Loop, ezPropertyAnimMode::BackAndForth)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WPropertyAnimMode, 1)
+W_ENUM_CONSTANTS(WPropertyAnimMode::Once, WPropertyAnimMode::Loop, WPropertyAnimMode::BackAndForth)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPropertyAnimResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WPropertyAnimResource);
 // clang-format on
 
-ezPropertyAnimResource::ezPropertyAnimResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WPropertyAnimResource::WPropertyAnimResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WPropertyAnimResource, WPropertyAnimResourceDescriptor)
 {
-  m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
+  m_pDescriptor = W_DEFAULT_NEW(WPropertyAnimResourceDescriptor);
   *m_pDescriptor = descriptor;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezPropertyAnimResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WPropertyAnimResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   m_pDescriptor = nullptr;
 
   return res;
 }
 
-ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WPropertyAnimResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezPropertyAnimResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WPropertyAnimResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
+  m_pDescriptor = W_DEFAULT_NEW(WPropertyAnimResourceDescriptor);
   m_pDescriptor->Load(*Stream);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
 
   if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU = m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor);
+    out_NewMemoryUsage.m_uiMemoryCPU = m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(WPropertyAnimResourceDescriptor);
   }
 }
 
-void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& inout_stream) const
+void WPropertyAnimResourceDescriptor::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 6;
-  const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
-  const ezUInt16 uiNumFloatAnimations = static_cast<ezUInt16>(m_FloatAnimations.GetCount());
-  const ezUInt16 uiNumColorAnimations = static_cast<ezUInt16>(m_ColorAnimations.GetCount());
+  const WUInt8 uiVersion = 6;
+  const WUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
+  const WUInt16 uiNumFloatAnimations = static_cast<WUInt16>(m_FloatAnimations.GetCount());
+  const WUInt16 uiNumColorAnimations = static_cast<WUInt16>(m_ColorAnimations.GetCount());
 
-  EZ_ASSERT_DEV(m_AnimationDuration.GetSeconds() > 0, "Animation duration must be positive");
+  W_ASSERT_DEV(m_AnimationDuration.GetSeconds() > 0, "Animation duration must be positive");
 
   inout_stream << uiVersion;
   inout_stream << uiIdentifier;
   inout_stream << m_AnimationDuration;
   inout_stream << uiNumFloatAnimations;
 
-  ezCurve1D tmpCurve;
+  WCurve1D tmpCurve;
 
-  for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
+  for (WUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
     inout_stream << m_FloatAnimations[i].m_sObjectSearchSequence;
     inout_stream << m_FloatAnimations[i].m_sComponentType;
@@ -121,9 +121,9 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& inout_stream) const
     tmpCurve.Save(inout_stream);
   }
 
-  ezColorGradient tmpGradient;
+  WColorGradient tmpGradient;
   inout_stream << uiNumColorAnimations;
-  for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
+  for (WUInt32 i = 0; i < uiNumColorAnimations; ++i)
   {
     inout_stream << m_ColorAnimations[i].m_sObjectSearchSequence;
     inout_stream << m_ColorAnimations[i].m_sComponentType;
@@ -138,30 +138,30 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& inout_stream) const
   m_EventTrack.Save(inout_stream);
 }
 
-void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& inout_stream)
+void WPropertyAnimResourceDescriptor::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
-  ezUInt8 uiIdentifier = 0;
-  ezUInt16 uiNumAnimations = 0;
+  WUInt8 uiVersion = 0;
+  WUInt8 uiIdentifier = 0;
+  WUInt16 uiNumAnimations = 0;
 
   inout_stream >> uiVersion;
   inout_stream >> uiIdentifier;
 
-  EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 4 || uiVersion == 5 || uiVersion == 6, "Invalid file version {0}", uiVersion);
+  W_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid WPropertyAnimResourceDescriptor");
+  W_ASSERT_DEV(uiVersion == 4 || uiVersion == 5 || uiVersion == 6, "Invalid file version {0}", uiVersion);
 
   inout_stream >> m_AnimationDuration;
 
   if (uiVersion == 4)
   {
-    ezEnum<ezPropertyAnimMode> mode;
+    WEnum<WPropertyAnimMode> mode;
     inout_stream >> mode;
   }
 
   inout_stream >> uiNumAnimations;
   m_FloatAnimations.SetCount(uiNumAnimations);
 
-  for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
+  for (WUInt32 i = 0; i < uiNumAnimations; ++i)
   {
     auto& anim = m_FloatAnimations[i];
 
@@ -174,13 +174,13 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& inout_stream)
     anim.m_Curve.CreateLinearApproximation();
 
     if (!anim.m_sComponentType.IsEmpty())
-      anim.m_pComponentRtti = ezRTTI::FindTypeByName(anim.m_sComponentType);
+      anim.m_pComponentRtti = WRTTI::FindTypeByName(anim.m_sComponentType);
   }
 
   inout_stream >> uiNumAnimations;
   m_ColorAnimations.SetCount(uiNumAnimations);
 
-  for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
+  for (WUInt32 i = 0; i < uiNumAnimations; ++i)
   {
     auto& anim = m_ColorAnimations[i];
 
@@ -191,7 +191,7 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& inout_stream)
     anim.m_Gradient.Load(inout_stream);
 
     if (!anim.m_sComponentType.IsEmpty())
-      anim.m_pComponentRtti = ezRTTI::FindTypeByName(anim.m_sComponentType);
+      anim.m_pComponentRtti = WRTTI::FindTypeByName(anim.m_sComponentType);
   }
 
   if (uiVersion >= 6)
@@ -202,4 +202,4 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& inout_stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimResource);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimResource);

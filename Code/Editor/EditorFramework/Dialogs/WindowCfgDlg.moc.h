@@ -6,13 +6,13 @@
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public ezQtDialog, public Ui_ezQtWindowCfgDlg
+class W_EDITORFRAMEWORK_DLL WQtWindowCfgDlg : public WQtDialog, public Ui_WQtWindowCfgDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtWindowCfgDlg(QWidget* pParent);
+  WQtWindowCfgDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_m_ButtonBox_clicked(QAbstractButton* button);
@@ -20,13 +20,13 @@ private Q_SLOTS:
   void on_m_CheckOverrideDefault_stateChanged(int state);
 
 private:
-  void FillUI(const ezWindowCreationDesc& desc);
-  void GrabUI(ezWindowCreationDesc& desc);
+  void FillUI(const WWindowCreationDesc& desc);
+  void GrabUI(WWindowCreationDesc& desc);
   void UpdateUI();
   void LoadDescs();
   void SaveDescs();
 
-  ezUInt8 m_uiCurDesc = 0;
-  ezWindowCreationDesc m_Descs[2];
+  WUInt8 m_uiCurDesc = 0;
+  WWindowCreationDesc m_Descs[2];
   bool m_bOverrideProjectDefault[2];
 };

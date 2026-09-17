@@ -6,102 +6,102 @@
 #include <Core/Scripting/ScriptClasses/ScriptExtensionClass_Physics.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Physics, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_Physics, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetGravity, In, "World"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionLayerByName, In, "World", In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetWeightCategoryByName, In, "World", In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetImpulseTypeByName, In, "World", In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetGravity, In, "World"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetCollisionLayerByName, In, "World", In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetWeightCategoryByName, In, "World", In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetImpulseTypeByName, In, "World", In, "Name"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(Raycast, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Start", In, "Direction", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
-      new ezFunctionArgumentAttributes(6, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(7, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic)),
-      new ezFunctionArgumentAttributes(8, new ezDefaultValueAttribute((ezInt32)ezInvalidIndex))),
+    W_SCRIPT_FUNCTION_PROPERTY(Raycast, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Start", In, "Direction", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
+      new WFunctionArgumentAttributes(6, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(7, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic)),
+      new WFunctionArgumentAttributes(8, new WDefaultValueAttribute((WInt32)WInvalidIndex))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(OverlapTestLine, In, "World", In, "Start", In, "End", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
-      new ezFunctionArgumentAttributes(3, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic)),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute((ezInt32)ezInvalidIndex))),
+    W_SCRIPT_FUNCTION_PROPERTY(OverlapTestLine, In, "World", In, "Start", In, "End", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
+      new WFunctionArgumentAttributes(3, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(4, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic)),
+      new WFunctionArgumentAttributes(5, new WDefaultValueAttribute((WInt32)WInvalidIndex))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(OverlapTestSphere, In, "World", In, "Radius", In, "Position", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
-      new ezFunctionArgumentAttributes(3, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic))),
+    W_SCRIPT_FUNCTION_PROPERTY(OverlapTestSphere, In, "World", In, "Radius", In, "Position", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
+      new WFunctionArgumentAttributes(3, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(4, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(OverlapTestCapsule, In, "World", In, "Radius", In, "Height", In, "Transform", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
-      new ezFunctionArgumentAttributes(4, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic))),
+    W_SCRIPT_FUNCTION_PROPERTY(OverlapTestCapsule, In, "World", In, "Radius", In, "Height", In, "Transform", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
+      new WFunctionArgumentAttributes(4, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(5, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(SweepTestSphere, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Radius", In, "Start", In, "Direction", In, "Distance", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
-      new ezFunctionArgumentAttributes(8, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(9, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic))),
+    W_SCRIPT_FUNCTION_PROPERTY(SweepTestSphere, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Radius", In, "Start", In, "Direction", In, "Distance", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
+      new WFunctionArgumentAttributes(8, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(9, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(SweepTestCapsule, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Radius", In, "Height", In, "Start", In, "Direction", In, "Distance", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
-      new ezFunctionArgumentAttributes(9, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(10, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic))),
+    W_SCRIPT_FUNCTION_PROPERTY(SweepTestCapsule, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Radius", In, "Height", In, "Start", In, "Direction", In, "Distance", In, "CollisionLayer", In, "ShapeTypes")->AddAttributes(
+      new WFunctionArgumentAttributes(9, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(10, new WDefaultValueAttribute((WInt32)WPhysicsShapeType::Static | (WInt32)WPhysicsShapeType::Dynamic))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(RaycastSurfaceInteraction, In, "World", In, "RayStart", In, "RayDirection", In, "CollisionLayer", In, "ShapeTypes", In, "FallbackSurface", In, "Interaction", In, "Impulse", In, "IgnoreObjectID")->AddAttributes(
-      new ezFunctionArgumentAttributes(3, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      new ezFunctionArgumentAttributes(7, new ezDefaultValueAttribute(0.0f)),
-      new ezFunctionArgumentAttributes(8, new ezDefaultValueAttribute((ezInt32)ezInvalidIndex))),
+    W_SCRIPT_FUNCTION_PROPERTY(RaycastSurfaceInteraction, In, "World", In, "RayStart", In, "RayDirection", In, "CollisionLayer", In, "ShapeTypes", In, "FallbackSurface", In, "Interaction", In, "Impulse", In, "IgnoreObjectID")->AddAttributes(
+      new WFunctionArgumentAttributes(3, new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      new WFunctionArgumentAttributes(7, new WDefaultValueAttribute(0.0f)),
+      new WFunctionArgumentAttributes(8, new WDefaultValueAttribute((WInt32)WInvalidIndex))),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("Physics"),
+    new WScriptExtensionAttribute("Physics"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVec3 ezScriptExtensionClass_Physics::GetGravity(ezWorld* pWorld)
+WVec3 WScriptExtensionClass_Physics::GetGravity(WWorld* pWorld)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
     return pModule->GetGravity();
   }
 
-  return ezVec3::MakeZero();
+  return WVec3::MakeZero();
 }
 
-ezUInt8 ezScriptExtensionClass_Physics::GetCollisionLayerByName(ezWorld* pWorld, ezStringView sLayerName)
+WUInt8 WScriptExtensionClass_Physics::GetCollisionLayerByName(WWorld* pWorld, WStringView sLayerName)
 {
-  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  if (WPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<WPhysicsWorldModuleInterface>())
   {
-    return static_cast<ezUInt8>(pInterface->GetCollisionLayerByName(sLayerName));
+    return static_cast<WUInt8>(pInterface->GetCollisionLayerByName(sLayerName));
   }
 
   return 0;
 }
 
-ezUInt8 ezScriptExtensionClass_Physics::GetWeightCategoryByName(ezWorld* pWorld, ezStringView sCategoryName)
+WUInt8 WScriptExtensionClass_Physics::GetWeightCategoryByName(WWorld* pWorld, WStringView sCategoryName)
 {
-  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  if (WPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<WPhysicsWorldModuleInterface>())
   {
-    return static_cast<ezUInt8>(pInterface->GetWeightCategoryByName(sCategoryName));
+    return static_cast<WUInt8>(pInterface->GetWeightCategoryByName(sCategoryName));
   }
 
   return 255;
 }
 
-ezUInt8 ezScriptExtensionClass_Physics::GetImpulseTypeByName(ezWorld* pWorld, ezStringView sImpulseTypeName)
+WUInt8 WScriptExtensionClass_Physics::GetImpulseTypeByName(WWorld* pWorld, WStringView sImpulseTypeName)
 {
-  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  if (WPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<WPhysicsWorldModuleInterface>())
   {
-    return static_cast<ezUInt8>(pInterface->GetImpulseTypeByName(sImpulseTypeName));
+    return static_cast<WUInt8>(pInterface->GetImpulseTypeByName(sImpulseTypeName));
   }
 
   return 255;
 }
 
-bool ezScriptExtensionClass_Physics::Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/, ezUInt32 uiIgnoreObjectID)
+bool WScriptExtensionClass_Physics::Raycast(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, const WVec3& vStart, const WVec3& vDirection, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/, WUInt32 uiIgnoreObjectID)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
     params.m_uiIgnoreObjectFilterID = uiIgnoreObjectID;
@@ -120,18 +120,18 @@ bool ezScriptExtensionClass_Physics::Raycast(ezVec3& out_vHitPosition, ezVec3& o
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::OverlapTestLine(ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/, ezUInt32 uiIgnoreObjectID /*= ezInvalidIndex*/)
+bool WScriptExtensionClass_Physics::OverlapTestLine(WWorld* pWorld, const WVec3& vStart, const WVec3& vEnd, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/, WUInt32 uiIgnoreObjectID /*= WInvalidIndex*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
     params.m_uiIgnoreObjectFilterID = uiIgnoreObjectID;
     params.m_bIgnoreInitialOverlap = true;
 
-    ezVec3 vDirection = vEnd - vStart;
+    WVec3 vDirection = vEnd - vStart;
     const float fDistance = vDirection.GetLengthAndNormalize();
 
     if (pModule->Raycast(res, vStart, vDirection, fDistance, params))
@@ -143,11 +143,11 @@ bool ezScriptExtensionClass_Physics::OverlapTestLine(ezWorld* pWorld, const ezVe
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::OverlapTestSphere(ezWorld* pWorld, float fRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/)
+bool WScriptExtensionClass_Physics::OverlapTestSphere(WWorld* pWorld, float fRadius, const WVec3& vPosition, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsQueryParameters params;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
 
@@ -157,11 +157,11 @@ bool ezScriptExtensionClass_Physics::OverlapTestSphere(ezWorld* pWorld, float fR
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::OverlapTestCapsule(ezWorld* pWorld, float fRadius, float fHeight, const ezTransform& transform, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/)
+bool WScriptExtensionClass_Physics::OverlapTestCapsule(WWorld* pWorld, float fRadius, float fHeight, const WTransform& transform, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsQueryParameters params;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
 
@@ -170,12 +170,12 @@ bool ezScriptExtensionClass_Physics::OverlapTestCapsule(ezWorld* pWorld, float f
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::SweepTestSphere(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, float fRadius, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/)
+bool WScriptExtensionClass_Physics::SweepTestSphere(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, float fRadius, const WVec3& vStart, const WVec3& vDirection, float fDistance, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
 
@@ -190,12 +190,12 @@ bool ezScriptExtensionClass_Physics::SweepTestSphere(ezVec3& out_vHitPosition, e
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::SweepTestCapsule(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, float fRadius, float fHeight, const ezTransform& start, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/)
+bool WScriptExtensionClass_Physics::SweepTestCapsule(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, float fRadius, float fHeight, const WTransform& start, const WVec3& vDirection, float fDistance, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes /*= WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
 
@@ -210,12 +210,12 @@ bool ezScriptExtensionClass_Physics::SweepTestCapsule(ezVec3& out_vHitPosition, 
   return false;
 }
 
-bool ezScriptExtensionClass_Physics::RaycastSurfaceInteraction(ezWorld* pWorld, const ezVec3& vRayStart, const ezVec3& vRayDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, ezStringView sFallbackSurface, const ezTempHashedString& sInteraction, float fInteractionImpulse, ezUInt32 uiIgnoreObjectID /*= ezInvalidIndex*/)
+bool WScriptExtensionClass_Physics::RaycastSurfaceInteraction(WWorld* pWorld, const WVec3& vRayStart, const WVec3& vRayDirection, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes, WStringView sFallbackSurface, const WTempHashedString& sInteraction, float fInteractionImpulse, WUInt32 uiIgnoreObjectID /*= WInvalidIndex*/)
 {
-  if (auto pModule = pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
+  if (auto pModule = pWorld->GetModuleReadOnly<WPhysicsWorldModuleInterface>())
   {
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
     params.m_ShapeTypes = shapeTypes;
     params.m_uiCollisionLayer = uiCollisionLayer;
     params.m_uiIgnoreObjectFilterID = uiIgnoreObjectID;
@@ -223,16 +223,16 @@ bool ezScriptExtensionClass_Physics::RaycastSurfaceInteraction(ezWorld* pWorld, 
 
     if (pModule->Raycast(res, vRayStart, vRayDirection, 1.0f, params))
     {
-      ezSurfaceResourceHandle hSurface = res.m_hSurface;
+      WSurfaceResourceHandle hSurface = res.m_hSurface;
       if (!hSurface.IsValid() && !sFallbackSurface.IsEmpty())
       {
-        hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFallbackSurface);
+        hSurface = WResourceManager::LoadResource<WSurfaceResource>(sFallbackSurface);
       }
 
       if (hSurface.IsValid())
       {
-        ezResourceLock<ezSurfaceResource> pSurf(hSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-        if (pSurf.GetAcquireResult() == ezResourceAcquireResult::Final)
+        WResourceLock<WSurfaceResource> pSurf(hSurface, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+        if (pSurf.GetAcquireResult() == WResourceAcquireResult::Final)
         {
           return pSurf->InteractWithSurface(pWorld, {}, res.m_vPosition, res.m_vNormal, vRayDirection, sInteraction, nullptr, fInteractionImpulse);
         }
@@ -244,4 +244,4 @@ bool ezScriptExtensionClass_Physics::RaycastSurfaceInteraction(ezWorld* pWorld, 
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);

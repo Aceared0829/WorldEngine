@@ -1,22 +1,22 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/ApplicationEntryPoint_Platform.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
-namespace ezApplicationDetails
+namespace WApplicationDetails
 {
-  void SetConsoleCtrlHandler(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType))
+  void SetConsoleCtrlHandler(WMinWindows::BOOL(W_WINDOWS_WINAPI* consoleHandler)(WMinWindows::DWORD dwCtrlType))
   {
     ::SetConsoleCtrlHandler(consoleHandler, TRUE);
   }
 
-  static ezMutex s_shutdownMutex;
+  static WMutex s_shutdownMutex;
 
-  ezMutex& GetShutdownMutex()
+  WMutex& GetShutdownMutex()
   {
     return s_shutdownMutex;
   }
 
-} // namespace ezApplicationDetails
+} // namespace WApplicationDetails
 #endif

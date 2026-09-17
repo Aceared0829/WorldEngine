@@ -9,43 +9,43 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpaqueForwardRenderPass, 1, ezRTTIDefaultAllocator<ezOpaqueForwardRenderPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOpaqueForwardRenderPass, 1, WRTTIDefaultAllocator<WOpaqueForwardRenderPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
-    EZ_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
-    EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    W_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
+    W_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
-  : ezForwardRenderPass(szName)
+WOpaqueForwardRenderPass::WOpaqueForwardRenderPass(const char* szName)
+  : WForwardRenderPass(szName)
 {
 }
 
-ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() = default;
+WOpaqueForwardRenderPass::~WOpaqueForwardRenderPass() = default;
 
-ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WOpaqueForwardRenderPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  EZ_IGNORE_UNUSED(viewData);
+  W_IGNORE_UNUSED(viewData);
 
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
-    return ezStatus(ezFmt("Color: Not connected"));
+    return WStatus(WFmt("Color: Not connected"));
 
-  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepthStencil.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+    return WStatus(WFmt("DepthStencil: Not connected"));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
 
   // Validate SSAO dimensions if connected
   if (!hSSAO.IsInvalidated())
@@ -54,11 +54,11 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
     const auto& colorDesc = ref_graph.GetTextureDesc(hColor);
     if (ssaoDesc.m_uiWidth != colorDesc.m_uiWidth || ssaoDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
-      ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
+      WLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
     }
-    if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
+    if (m_ShadingQuality == WForwardRenderShadingQuality::Simplified)
     {
-      ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
+      WLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
     }
   }
 
@@ -69,7 +69,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
     if (shadowMaskDesc.m_uiWidth != colorDesc.m_uiWidth ||
         shadowMaskDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
-      ezLog::Warning("Expected same resolution for shadow mask and color input to pass '{0}'!", GetName());
+      WLog::Warning("Expected same resolution for shadow mask and color input to pass '{0}'!", GetName());
     }
   }
 
@@ -77,20 +77,20 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   pass.AddColorTarget(hColor);
   pass.AddDepthStencilTarget(hDepthStencil);
   if (!hSSAO.IsInvalidated())
-    pass.ReadTexture(hSSAO, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hSSAO, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
   if (!hShadowMask.IsInvalidated())
-    pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hShadowMask, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
   DeclareRenderObjectDependencies(ref_graph, pass);
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
       renderViewContext.UpdateViewport();
       SetupPermutationVars(renderViewContext);
 
       // Bind SSAO texture
-      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-      if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+      WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
+      if (m_ShadingQuality == WForwardRenderShadingQuality::Normal)
       {
         if (!hSSAO.IsInvalidated())
         {
@@ -98,7 +98,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
         }
         else
         {
-          bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+          bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
         }
 
         if (!hShadowMask.IsInvalidated())
@@ -107,16 +107,16 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
         }
         else
         {
-          bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+          bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, WResourceAcquireMode::BlockTillLoaded);
         }
       }
       RenderObjects(renderViewContext); //
     });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
+void WOpaqueForwardRenderPass::SetupPermutationVars(const WRenderViewContext& renderViewContext)
 {
   SUPER::SetupPermutationVars(renderViewContext);
 
@@ -130,22 +130,22 @@ void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& 
   }
 }
 
-void ezOpaqueForwardRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+void WOpaqueForwardRenderPass::DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass)
 {
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, ref_pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, ref_pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedStatic, ref_graph, ref_pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitMaskedStatic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, ref_pass);
 }
 
-void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
+void WOpaqueForwardRenderPass::RenderObjects(const WRenderViewContext& renderViewContext)
 {
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitOpaqueStatic);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitOpaqueDynamic);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitMaskedStatic);
+  RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitMaskedDynamic);
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_OpaqueForwardRenderPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_OpaqueForwardRenderPass);

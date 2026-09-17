@@ -4,50 +4,50 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Status.h>
 
-void ezResult::AssertSuccess(const char* szMsg /*= nullptr*/, const char* szDetails /*= nullptr*/) const
+void WResult::AssertSuccess(const char* szMsg /*= nullptr*/, const char* szDetails /*= nullptr*/) const
 {
   if (Succeeded())
     return;
 
   if (szMsg)
   {
-    EZ_REPORT_FAILURE(szMsg, szDetails);
+    W_REPORT_FAILURE(szMsg, szDetails);
   }
   else
   {
-    EZ_REPORT_FAILURE("An operation failed unexpectedly.");
+    W_REPORT_FAILURE("An operation failed unexpectedly.");
   }
 }
 
-ezStatus::ezStatus(const ezFormatString& fmt)
-  : m_Result(EZ_FAILURE)
+WStatus::WStatus(const WFormatString& fmt)
+  : m_Result(W_FAILURE)
 {
-  ezStringBuilder sMsg;
+  WStringBuilder sMsg;
   m_sMessage = fmt.GetText(sMsg);
 }
 
-bool ezStatus::LogFailure(ezLogInterface* pLog) const
+bool WStatus::LogFailure(WLogInterface* pLog) const
 {
   if (Failed())
   {
-    ezLogInterface* pInterface = pLog ? pLog : ezLog::GetThreadLocalLogSystem();
-    ezLog::Error(pInterface, "{0}", m_sMessage);
+    WLogInterface* pInterface = pLog ? pLog : WLog::GetThreadLocalLogSystem();
+    WLog::Error(pInterface, "{0}", m_sMessage);
   }
 
   return Failed();
 }
 
-void ezStatus::AssertSuccess(const char* szMsg /*= nullptr*/) const
+void WStatus::AssertSuccess(const char* szMsg /*= nullptr*/) const
 {
   if (Succeeded())
     return;
 
   if (szMsg)
   {
-    EZ_REPORT_FAILURE(szMsg, m_sMessage);
+    W_REPORT_FAILURE(szMsg, m_sMessage);
   }
   else
   {
-    EZ_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage);
+    W_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage);
   }
 }

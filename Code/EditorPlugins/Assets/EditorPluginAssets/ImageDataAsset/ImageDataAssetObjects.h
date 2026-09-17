@@ -3,14 +3,14 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-class ezImageDataAssetProperties : public ezReflectedClass
+class WImageDataAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImageDataAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WImageDataAssetProperties, WReflectedClass);
 
 public:
-  ezString m_sInputFile;
+  WString m_sInputFile;
 
-  // TODO: more ezImageData options
+  // TODO: more WImageData options
   // * maximum resolution
   // * 1, 2, 3, 4 channels
   // * compression: lossy (jpg), lossless (png), uncompressed

@@ -2,7 +2,7 @@
 
 #include <Core/Scripting/LuaWrapper.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Scripting);
+W_CREATE_SIMPLE_TEST_GROUP(Scripting);
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
@@ -55,28 +55,28 @@ MyTable =\n\
 \n\
 ";
 
-class ScriptLog : public ezLogInterface
+class ScriptLog : public WLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  virtual void HandleLogMessage(const WLoggingEventData& le) override
   {
-    EZ_TEST_FAILURE("Script Error", le.m_sText);
-    EZ_TEST_DEBUG_BREAK;
+    W_TEST_FAILURE("Script Error", le.m_sText);
+    W_TEST_DEBUG_BREAK;
   }
 };
 
-class ScriptLogIgnore : public ezLogInterface
+class ScriptLogIgnore : public WLogInterface
 {
 public:
-  static ezInt32 g_iErrors;
+  static WInt32 g_iErrors;
 
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  virtual void HandleLogMessage(const WLoggingEventData& le) override
   {
     switch (le.m_EventType)
     {
-      case ezLogMsgType::ErrorMsg:
-      case ezLogMsgType::SeriousWarningMsg:
-      case ezLogMsgType::WarningMsg:
+      case WLogMsgType::ErrorMsg:
+      case WLogMsgType::SeriousWarningMsg:
+      case WLogMsgType::WarningMsg:
         ++g_iErrors;
       default:
         break;
@@ -84,43 +84,43 @@ public:
   }
 };
 
-ezInt32 ScriptLogIgnore::g_iErrors = 0;
+WInt32 ScriptLogIgnore::g_iErrors = 0;
 
 int MyFunc1(lua_State* pState)
 {
-  ezLuaWrapper s(pState);
+  WLuaWrapper s(pState);
 
-  EZ_TEST_INT(s.GetNumberOfFunctionParameters(), 0);
+  W_TEST_INT(s.GetNumberOfFunctionParameters(), 0);
 
   return s.ReturnToScript();
 }
 
 int MyFunc2(lua_State* pState)
 {
-  ezLuaWrapper s(pState);
+  WLuaWrapper s(pState);
 
-  EZ_TEST_INT(s.GetNumberOfFunctionParameters(), 6);
-  EZ_TEST_BOOL(s.IsParameterBool(0));
-  EZ_TEST_BOOL(s.IsParameterFloat(1));
-  EZ_TEST_BOOL(s.IsParameterInt(2));
-  EZ_TEST_BOOL(s.IsParameterNil(3));
-  EZ_TEST_BOOL(s.IsParameterString(4));
-  EZ_TEST_BOOL(s.IsParameterString(5));
+  W_TEST_INT(s.GetNumberOfFunctionParameters(), 6);
+  W_TEST_BOOL(s.IsParameterBool(0));
+  W_TEST_BOOL(s.IsParameterFloat(1));
+  W_TEST_BOOL(s.IsParameterInt(2));
+  W_TEST_BOOL(s.IsParameterNil(3));
+  W_TEST_BOOL(s.IsParameterString(4));
+  W_TEST_BOOL(s.IsParameterString(5));
 
-  EZ_TEST_BOOL(s.GetBoolParameter(0) == true);
-  EZ_TEST_FLOAT(s.GetFloatParameter(1), 2.3f, 0.0001f);
-  EZ_TEST_INT(s.GetIntParameter(2), 42);
-  EZ_TEST_STRING(s.GetStringParameter(4), "test");
-  EZ_TEST_STRING(s.GetStringParameter(5), "tut");
+  W_TEST_BOOL(s.GetBoolParameter(0) == true);
+  W_TEST_FLOAT(s.GetFloatParameter(1), 2.3f, 0.0001f);
+  W_TEST_INT(s.GetIntParameter(2), 42);
+  W_TEST_STRING(s.GetStringParameter(4), "test");
+  W_TEST_STRING(s.GetStringParameter(5), "tut");
 
   return s.ReturnToScript();
 }
 
 int MyFunc3(lua_State* pState)
 {
-  ezLuaWrapper s(pState);
+  WLuaWrapper s(pState);
 
-  EZ_TEST_INT(s.GetNumberOfFunctionParameters(), 0);
+  W_TEST_INT(s.GetNumberOfFunctionParameters(), 0);
 
   s.PushReturnValue(false);
   s.PushReturnValue(2.3f);
@@ -134,379 +134,379 @@ int MyFunc3(lua_State* pState)
 
 int MyFunc4(lua_State* pState)
 {
-  ezLuaWrapper s(pState);
+  WLuaWrapper s(pState);
 
-  EZ_TEST_INT(s.GetNumberOfFunctionParameters(), 1);
+  W_TEST_INT(s.GetNumberOfFunctionParameters(), 1);
 
-  EZ_TEST_BOOL(s.IsParameterTable(0));
+  W_TEST_BOOL(s.IsParameterTable(0));
 
-  EZ_TEST_BOOL(s.OpenTableFromParameter(0) == EZ_SUCCESS);
+  W_TEST_BOOL(s.OpenTableFromParameter(0) == W_SUCCESS);
 
-  EZ_TEST_BOOL(s.IsVariableAvailable("table1") == true);
+  W_TEST_BOOL(s.IsVariableAvailable("table1") == true);
 
   s.CloseAllTables();
 
   return s.ReturnToScript();
 }
 
-EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
+W_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
 {
   ScriptLog Log;
   ScriptLogIgnore LogIgnore;
 
-  ezLuaWrapper sMain;
-  EZ_TEST_BOOL(sMain.ExecuteString(g_Script, "MainScript", &Log) == EZ_SUCCESS);
+  WLuaWrapper sMain;
+  W_TEST_BOOL(sMain.ExecuteString(g_Script, "MainScript", &Log) == W_SUCCESS);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExecuteString")
   {
-    ezLuaWrapper s;
+    WLuaWrapper s;
     ScriptLogIgnore::g_iErrors = 0;
 
-    EZ_TEST_BOOL(s.ExecuteString(" pups ", "FailToCompile", &LogIgnore) == EZ_FAILURE);
-    EZ_TEST_INT(ScriptLogIgnore::g_iErrors, 1);
+    W_TEST_BOOL(s.ExecuteString(" pups ", "FailToCompile", &LogIgnore) == W_FAILURE);
+    W_TEST_INT(ScriptLogIgnore::g_iErrors, 1);
 
-    EZ_TEST_BOOL(s.ExecuteString(" pups(); ", "FailToExecute", &LogIgnore) == EZ_FAILURE);
-    EZ_TEST_INT(ScriptLogIgnore::g_iErrors, 2);
+    W_TEST_BOOL(s.ExecuteString(" pups(); ", "FailToExecute", &LogIgnore) == W_FAILURE);
+    W_TEST_INT(ScriptLogIgnore::g_iErrors, 2);
 
-    EZ_TEST_BOOL(s.ExecuteString(g_Script, "MainScript", &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(s.ExecuteString(g_Script, "MainScript", &Log) == W_SUCCESS);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear")
   {
-    ezLuaWrapper s;
-    EZ_TEST_BOOL(s.ExecuteString(g_Script, "MainScript", &Log) == EZ_SUCCESS);
+    WLuaWrapper s;
+    W_TEST_BOOL(s.ExecuteString(g_Script, "MainScript", &Log) == W_SUCCESS);
 
-    EZ_TEST_BOOL(s.IsVariableAvailable("globaltable") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("boolvar1") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("boolvar2") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("intvar1") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("intvar2") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("floatvar1") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("floatvar2") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("stringvar1") == true);
-    EZ_TEST_BOOL(s.IsVariableAvailable("stringvar2") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("globaltable") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("boolvar1") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("boolvar2") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("intvar1") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("intvar2") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("floatvar1") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("floatvar2") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("stringvar1") == true);
+    W_TEST_BOOL(s.IsVariableAvailable("stringvar2") == true);
 
     s.Clear();
 
     // after clearing the script, these variables should not be available anymore
-    EZ_TEST_BOOL(s.IsVariableAvailable("globaltable") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("boolvar1") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("boolvar2") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("intvar1") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("intvar2") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("floatvar1") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("floatvar2") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("stringvar1") == false);
-    EZ_TEST_BOOL(s.IsVariableAvailable("stringvar2") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("globaltable") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("boolvar1") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("boolvar2") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("intvar1") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("intvar2") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("floatvar1") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("floatvar2") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("stringvar1") == false);
+    W_TEST_BOOL(s.IsVariableAvailable("stringvar2") == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsVariableAvailable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsVariableAvailable (Global)")
   {
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("nonexisting1") == false);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("boolvar1") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("boolvar2") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("nonexisting2") == false);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("intvar1") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("intvar2") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("nonexisting3") == false);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("floatvar1") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("floatvar2") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("nonexisting4") == false);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("stringvar2") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("nonexisting1") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("boolvar1") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("boolvar2") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("nonexisting2") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("intvar1") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("intvar2") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("nonexisting3") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("floatvar1") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("floatvar2") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("nonexisting4") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("stringvar2") == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsFunctionAvailable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsFunctionAvailable (Global)")
   {
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("nonexisting1") == false);
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("f1") == true);
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("f2") == true);
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("nonexisting2") == false);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("nonexisting1") == false);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("f1") == true);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("f2") == true);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("nonexisting2") == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntVariable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetIntVariable (Global)")
   {
-    EZ_TEST_INT(sMain.GetIntVariable("nonexisting1", 13), 13);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar2", 13), 7);
-    EZ_TEST_INT(sMain.GetIntVariable("nonexisting2", 14), 14);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar2", 13), 7);
+    W_TEST_INT(sMain.GetIntVariable("nonexisting1", 13), 13);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
+    W_TEST_INT(sMain.GetIntVariable("intvar2", 13), 7);
+    W_TEST_INT(sMain.GetIntVariable("nonexisting2", 14), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
+    W_TEST_INT(sMain.GetIntVariable("intvar2", 13), 7);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntVariable (Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetIntVariable (Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_INT(sMain.GetIntVariable("nonexisting1", 13), 13);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar2", 13), 17);
-    EZ_TEST_INT(sMain.GetIntVariable("nonexisting2", 14), 14);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar2", 13), 17);
+    W_TEST_INT(sMain.GetIntVariable("nonexisting1", 13), 13);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar2", 13), 17);
+    W_TEST_INT(sMain.GetIntVariable("nonexisting2", 14), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar2", 13), 17);
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatVariable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFloatVariable (Global)")
   {
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, WMath::DefaultEpsilon<float>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatVariable (Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFloatVariable (Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, WMath::DefaultEpsilon<float>());
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoolVariable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetBoolVariable (Global)")
   {
-    EZ_TEST_BOOL(sMain.GetBoolVariable("nonexisting1", true) == true);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar1", false) == true);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar2", true) == false);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("nonexisting2", false) == false);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar1", false) == true);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar2", true) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("nonexisting1", true) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar1", false) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar2", true) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("nonexisting2", false) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar1", false) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar2", true) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoolVariable (Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetBoolVariable (Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_BOOL(sMain.GetBoolVariable("nonexisting1", true) == true);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar1", true) == false);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar2", false) == true);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("nonexisting2", false) == false);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar1", true) == false);
-    EZ_TEST_BOOL(sMain.GetBoolVariable("boolvar2", false) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("nonexisting1", true) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar1", true) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar2", false) == true);
+    W_TEST_BOOL(sMain.GetBoolVariable("nonexisting2", false) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar1", true) == false);
+    W_TEST_BOOL(sMain.GetBoolVariable("boolvar2", false) == true);
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringVariable (Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetStringVariable (Global)")
   {
-    EZ_TEST_STRING(sMain.GetStringVariable("nonexisting1", "a"), "a");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
-    EZ_TEST_STRING(sMain.GetStringVariable("nonexisting2", "b"), "b");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
+    W_TEST_STRING(sMain.GetStringVariable("nonexisting1", "a"), "a");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
+    W_TEST_STRING(sMain.GetStringVariable("nonexisting2", "b"), "b");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringVariable (Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetStringVariable (Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_STRING(sMain.GetStringVariable("nonexisting1", "a"), "a");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "+zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "+OhWhatsInHere");
-    EZ_TEST_STRING(sMain.GetStringVariable("nonexisting2", "b"), "b");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "+zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "+OhWhatsInHere");
+    W_TEST_STRING(sMain.GetStringVariable("nonexisting1", "a"), "a");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "+OhWhatsInHere");
+    W_TEST_STRING(sMain.GetStringVariable("nonexisting2", "b"), "b");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "+OhWhatsInHere");
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (int, Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (int, Global)")
   {
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
     sMain.SetVariable("intvar1", 27);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 27);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 27);
     sMain.SetVariable("intvar1", 4);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (int, Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (int, Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
     sMain.SetVariable("intvar1", 127);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 127);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 127);
     sMain.SetVariable("intvar1", 14);
-    EZ_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
+    W_TEST_INT(sMain.GetIntVariable("intvar1", 13), 14);
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (float, Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (float, Global)")
   {
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, WMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 27.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 27.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 27.3f, WMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 4.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, WMath::DefaultEpsilon<float>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (float, Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (float, Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, WMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 127.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 127.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 127.3f, WMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 14.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, WMath::DefaultEpsilon<float>());
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (bool, Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (bool, Global)")
   {
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
     sMain.SetVariable("boolvar1", false);
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
     sMain.SetVariable("boolvar1", true);
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (bool, Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (bool, Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
     sMain.SetVariable("boolvar1", true);
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", false), true);
     sMain.SetVariable("boolvar1", false);
-    EZ_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
+    W_TEST_INT(sMain.GetBoolVariable("boolvar1", true), false);
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (string, Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (string, Global)")
   {
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
 
     sMain.SetVariable("stringvar1", "test1");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "test1");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "test1");
     sMain.SetVariable("stringvar1", "zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
 
     sMain.SetVariable("stringvar1", "test1", 3);
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "tes");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "tes");
     sMain.SetVariable("stringvar1", "zweiundvierzigabc", 14);
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (string, Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (string, Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
 
     sMain.SetVariable("stringvar1", "+test1");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+test1");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+test1");
     sMain.SetVariable("stringvar1", "+zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
 
     sMain.SetVariable("stringvar1", "+test1", 4);
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+tes");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+tes");
     sMain.SetVariable("stringvar1", "+zweiundvierzigabc", 15);
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (nil, Global)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (nil, Global)")
   {
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "zweiundvierzig");
 
     sMain.SetVariableNil("stringvar1");
 
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == false); // It is Nil -> 'not available'
+    W_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == false); // It is Nil -> 'not available'
 
     sMain.SetVariable("stringvar1", "zweiundvierzig");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (nil, Table)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetVariable (nil, Table)")
   {
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
 
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
+    W_TEST_STRING(sMain.GetStringVariable("stringvar1", "bla"), "+zweiundvierzig");
 
     sMain.SetVariableNil("stringvar1");
 
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == false); // It is Nil -> 'not available'
+    W_TEST_BOOL(sMain.IsVariableAvailable("stringvar1") == false); // It is Nil -> 'not available'
 
     sMain.SetVariable("stringvar1", "+zweiundvierzig");
 
     sMain.CloseTable();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "OpenTable")
+  W_TEST_BLOCK(WTestBlock::Enabled, "OpenTable")
   {
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == true);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
-    EZ_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == true);
+    W_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
+    W_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
 
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == true);
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == true);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
 
-    EZ_TEST_BOOL(sMain.OpenTable("NotMyTable") == EZ_FAILURE);
+    W_TEST_BOOL(sMain.OpenTable("NotMyTable") == W_FAILURE);
 
-    EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.OpenTable("MyTable") == W_SUCCESS);
     {
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("table1") == true);
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
+      W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
+      W_TEST_BOOL(sMain.IsVariableAvailable("table1") == true);
+      W_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
 
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == true);
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == true);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
 
-      EZ_TEST_BOOL(sMain.OpenTable("NotMyTable") == EZ_FAILURE);
+      W_TEST_BOOL(sMain.OpenTable("NotMyTable") == W_FAILURE);
 
-      EZ_TEST_BOOL(sMain.OpenTable("SubTable") == EZ_SUCCESS);
+      W_TEST_BOOL(sMain.OpenTable("SubTable") == W_SUCCESS);
       {
-        EZ_TEST_BOOL(sMain.OpenTable("NotMyTable") == EZ_FAILURE);
+        W_TEST_BOOL(sMain.OpenTable("NotMyTable") == W_FAILURE);
 
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("table2") == true);
+        W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
+        W_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
+        W_TEST_BOOL(sMain.IsVariableAvailable("table2") == true);
 
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == true);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == true);
 
         sMain.CloseTable();
       }
 
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("table1") == true);
-      EZ_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
+      W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
+      W_TEST_BOOL(sMain.IsVariableAvailable("table1") == true);
+      W_TEST_BOOL(sMain.IsVariableAvailable("table2") == false);
 
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == true);
-      EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == true);
+      W_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == false);
 
-      EZ_TEST_BOOL(sMain.OpenTable("NotMyTable") == EZ_FAILURE);
+      W_TEST_BOOL(sMain.OpenTable("NotMyTable") == W_FAILURE);
 
-      EZ_TEST_BOOL(sMain.OpenTable("SubTable") == EZ_SUCCESS);
+      W_TEST_BOOL(sMain.OpenTable("SubTable") == W_SUCCESS);
       {
-        EZ_TEST_BOOL(sMain.OpenTable("NotMyTable") == EZ_FAILURE);
+        W_TEST_BOOL(sMain.OpenTable("NotMyTable") == W_FAILURE);
 
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
-        EZ_TEST_BOOL(sMain.IsVariableAvailable("table2") == true);
+        W_TEST_BOOL(sMain.IsVariableAvailable("globaltable") == false);
+        W_TEST_BOOL(sMain.IsVariableAvailable("table1") == false);
+        W_TEST_BOOL(sMain.IsVariableAvailable("table2") == true);
 
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
-        EZ_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == true);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_globaltable") == false);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_table1") == false);
+        W_TEST_BOOL(sMain.IsFunctionAvailable("f_table2") == true);
 
         sMain.CloseTable();
       }
@@ -515,46 +515,46 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterCFunction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RegisterCFunction")
   {
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("Func1") == false);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("Func1") == false);
 
     sMain.RegisterCFunction("Func1", MyFunc1);
 
-    EZ_TEST_BOOL(sMain.IsFunctionAvailable("Func1") == true);
+    W_TEST_BOOL(sMain.IsFunctionAvailable("Func1") == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call Lua Function")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Call Lua Function")
   {
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("NotExisting") == false);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("NotExisting") == false);
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("f_globaltable") == true);
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("f_globaltable") == true);
+    W_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == W_SUCCESS);
 
     ScriptLogIgnore::g_iErrors = 0;
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("f_NotWorking") == true);
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &LogIgnore) == EZ_FAILURE);
-    EZ_TEST_INT(ScriptLogIgnore::g_iErrors, 1);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("f_NotWorking") == true);
+    W_TEST_BOOL(sMain.CallPreparedFunction(0, &LogIgnore) == W_FAILURE);
+    W_TEST_INT(ScriptLogIgnore::g_iErrors, 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call C Function")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Call C Function")
   {
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("NotExisting") == false);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("NotExisting") == false);
 
     if (sMain.IsFunctionAvailable("Func1") == false)
       sMain.RegisterCFunction("Func1", MyFunc1);
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("Func1") == true);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("Func1") == true);
 
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == W_SUCCESS);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call C Function with Parameters")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Call C Function with Parameters")
   {
     if (sMain.IsFunctionAvailable("Func2") == false)
       sMain.RegisterCFunction("Func2", MyFunc2);
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("Func2") == true);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("Func2") == true);
 
     sMain.PushParameter(true);
     sMain.PushParameter(2.3f);
@@ -563,48 +563,48 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
     sMain.PushParameter("test");
     sMain.PushParameter("tuttut", 3);
 
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == W_SUCCESS);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call C Function with Return Values")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Call C Function with Return Values")
   {
     if (sMain.IsFunctionAvailable("Func3") == false)
       sMain.RegisterCFunction("Func3", MyFunc3);
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("Func3") == true);
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(6, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("Func3") == true);
+    W_TEST_BOOL(sMain.CallPreparedFunction(6, &Log) == W_SUCCESS);
 
-    EZ_TEST_BOOL(sMain.IsReturnValueBool(0));
-    EZ_TEST_BOOL(sMain.IsReturnValueFloat(1));
-    EZ_TEST_BOOL(sMain.IsReturnValueInt(2));
-    EZ_TEST_BOOL(sMain.IsReturnValueNil(3));
-    EZ_TEST_BOOL(sMain.IsReturnValueString(4));
-    EZ_TEST_BOOL(sMain.IsReturnValueString(5));
+    W_TEST_BOOL(sMain.IsReturnValueBool(0));
+    W_TEST_BOOL(sMain.IsReturnValueFloat(1));
+    W_TEST_BOOL(sMain.IsReturnValueInt(2));
+    W_TEST_BOOL(sMain.IsReturnValueNil(3));
+    W_TEST_BOOL(sMain.IsReturnValueString(4));
+    W_TEST_BOOL(sMain.IsReturnValueString(5));
 
-    EZ_TEST_BOOL(sMain.GetBoolReturnValue(0) == false);
-    EZ_TEST_FLOAT(sMain.GetFloatReturnValue(1), 2.3f, 0.0001f);
-    EZ_TEST_INT(sMain.GetIntReturnValue(2), 42);
-    EZ_TEST_STRING(sMain.GetStringReturnValue(4), "test");
-    EZ_TEST_STRING(sMain.GetStringReturnValue(5), "tut");
+    W_TEST_BOOL(sMain.GetBoolReturnValue(0) == false);
+    W_TEST_FLOAT(sMain.GetFloatReturnValue(1), 2.3f, 0.0001f);
+    W_TEST_INT(sMain.GetIntReturnValue(2), 42);
+    W_TEST_STRING(sMain.GetStringReturnValue(4), "test");
+    W_TEST_STRING(sMain.GetStringReturnValue(5), "tut");
 
     sMain.DiscardReturnValues();
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("Func3") == true);
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(6, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("Func3") == true);
+    W_TEST_BOOL(sMain.CallPreparedFunction(6, &Log) == W_SUCCESS);
 
     sMain.DiscardReturnValues();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call C Function with Table Parameter")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Call C Function with Table Parameter")
   {
     if (sMain.IsFunctionAvailable("Func4") == false)
       sMain.RegisterCFunction("Func4", MyFunc4);
 
-    EZ_TEST_BOOL(sMain.PrepareFunctionCall("Func4") == true);
+    W_TEST_BOOL(sMain.PrepareFunctionCall("Func4") == true);
 
     sMain.PushTable("MyTable", true);
 
-    EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == EZ_SUCCESS);
+    W_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == W_SUCCESS);
   }
 }
 

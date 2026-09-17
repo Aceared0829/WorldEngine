@@ -4,11 +4,11 @@
 #include <Foundation/Types/Delegate.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocumentObjectManager;
-class ezDocumentObject;
+class WDocumentObjectManager;
+class WDocumentObject;
 
 /// Implements visitor pattern for content of the document object manager.
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectVisitor
+class W_TOOLSFOUNDATION_DLL WDocumentObjectVisitor
 {
 public:
   /// Constructor
@@ -19,10 +19,10 @@ public:
   ///   Name of the property that is used for finding children on an object.
   /// \param szRootProperty
   ///   Same as szChildrenProperty, but for the root object of the document.
-  ezDocumentObjectVisitor(
-    const ezDocumentObjectManager* pManager, ezStringView sChildrenProperty = "Children", ezStringView sRootProperty = "Children");
+  WDocumentObjectVisitor(
+    const WDocumentObjectManager* pManager, WStringView sChildrenProperty = "Children", WStringView sRootProperty = "Children");
 
-  using VisitorFunction = ezDelegate<bool(const ezDocumentObject*)>;
+  using VisitorFunction = WDelegate<bool(const WDocumentObject*)>;
   /// Executes depth first traversal starting at the given node.
   ///
   /// \param pObject
@@ -31,12 +31,12 @@ public:
   ///   If true, function will be executed for the start object as well.
   /// \param function
   ///   Functions executed for each visited object. Should true if the object's children should be traversed.
-  void Visit(const ezDocumentObject* pObject, bool bVisitStart, VisitorFunction function);
+  void Visit(const WDocumentObject* pObject, bool bVisitStart, VisitorFunction function);
 
 private:
-  void TraverseChildren(const ezDocumentObject* pObject, ezStringView sProperty, VisitorFunction& function);
+  void TraverseChildren(const WDocumentObject* pObject, WStringView sProperty, VisitorFunction& function);
 
-  const ezDocumentObjectManager* m_pManager = nullptr;
-  ezString m_sChildrenProperty;
-  ezString m_sRootProperty;
+  const WDocumentObjectManager* m_pManager = nullptr;
+  WString m_sChildrenProperty;
+  WString m_sRootProperty;
 };

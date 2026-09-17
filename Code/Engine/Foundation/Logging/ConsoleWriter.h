@@ -2,19 +2,19 @@
 
 #include <Foundation/Logging/Log.h>
 
-namespace ezLogWriter
+namespace WLogWriter
 {
   /// A simple log writer that writes out log messages using printf.
-  class EZ_FOUNDATION_DLL Console
+  class W_FOUNDATION_DLL Console
   {
   public:
-    /// Register this at ezLog to write all log messages to the console using printf.
-    static void LogMessageHandler(const ezLoggingEventData& eventData);
+    /// Register this at WLog to write all log messages to the console using printf.
+    static void LogMessageHandler(const WLoggingEventData& eventData);
 
     /// Allows to indicate in what form timestamps should be added to log messages.
-    static void SetTimestampMode(ezLog::TimestampMode mode);
+    static void SetTimestampMode(WLog::TimestampMode mode);
 
   private:
-    static ezLog::TimestampMode s_TimestampMode;
+    static WLog::TimestampMode s_TimestampMode;
   };
-} // namespace ezLogWriter
+} // namespace WLogWriter

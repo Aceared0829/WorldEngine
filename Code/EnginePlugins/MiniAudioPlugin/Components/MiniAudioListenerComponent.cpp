@@ -5,25 +5,25 @@
 #include <MiniAudioPlugin/Components/MiniAudioListenerComponent.h>
 #include <MiniAudioPlugin/MiniAudioSingleton.h>
 
-ezMiniAudioListenerComponentManager::ezMiniAudioListenerComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WMiniAudioListenerComponentManager::WMiniAudioListenerComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-void ezMiniAudioListenerComponentManager::Initialize()
+void WMiniAudioListenerComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezMiniAudioListenerComponentManager::UpdateListeners, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WMiniAudioListenerComponentManager::UpdateListeners, this);
+    desc.m_Phase = WWorldUpdatePhase::PostTransform;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezMiniAudioListenerComponentManager::UpdateListeners(const ezWorldModule::UpdateContext& context)
+void WMiniAudioListenerComponentManager::UpdateListeners(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -38,42 +38,42 @@ void ezMiniAudioListenerComponentManager::UpdateListeners(const ezWorldModule::U
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezMiniAudioListenerComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WMiniAudioListenerComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Sound/MiniAudio"),
+    new WCategoryAttribute("Sound/MiniAudio"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMiniAudioListenerComponent::ezMiniAudioListenerComponent() = default;
-ezMiniAudioListenerComponent::~ezMiniAudioListenerComponent() = default;
+WMiniAudioListenerComponent::WMiniAudioListenerComponent() = default;
+WMiniAudioListenerComponent::~WMiniAudioListenerComponent() = default;
 
-void ezMiniAudioListenerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WMiniAudioListenerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
   auto& s = inout_stream.GetStream();
 }
 
-void ezMiniAudioListenerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WMiniAudioListenerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 }
 
-void ezMiniAudioListenerComponent::Update()
+void WMiniAudioListenerComponent::Update()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX()).GetNormalized();
-  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ()).GetNormalized();
+  const auto fwd = (GetOwner()->GetGlobalRotation() * WVec3::MakeAxisX()).GetNormalized();
+  const auto up = (GetOwner()->GetGlobalRotation() * WVec3::MakeAxisZ()).GetNormalized();
 
-  ezMiniAudioSingleton::GetSingleton()->SetListener(0, pos, fwd, up, vel);
+  WMiniAudioSingleton::GetSingleton()->SetListener(0, pos, fwd, up, vel);
 }
 

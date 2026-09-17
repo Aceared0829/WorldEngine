@@ -4,57 +4,57 @@
 
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
-/// Do not cast into this class or any of its derived classes, use ezAbstractSetProperty instead.
+/// Do not cast into this class or any of its derived classes, use WAbstractSetProperty instead.
 template <typename Type>
-class ezTypedSetProperty : public ezAbstractSetProperty
+class WTypedSetProperty : public WAbstractSetProperty
 {
 public:
-  ezTypedSetProperty(const char* szPropertyName)
-    : ezAbstractSetProperty(szPropertyName)
+  WTypedSetProperty(const char* szPropertyName)
+    : WAbstractSetProperty(szPropertyName)
   {
-    m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
+    m_Flags = WPropertyFlags::GetParameterFlags<Type>();
   }
 
-  virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }
+  virtual const WRTTI* GetSpecificType() const override { return WGetStaticRTTI<typename WTypeTraits<Type>::NonConstReferencePointerType>(); }
 };
 
-/// Specialization of ezTypedArrayProperty to retain the pointer in const char*.
+/// Specialization of WTypedArrayProperty to retain the pointer in const char*.
 template <>
-class ezTypedSetProperty<const char*> : public ezAbstractSetProperty
+class WTypedSetProperty<const char*> : public WAbstractSetProperty
 {
 public:
-  ezTypedSetProperty(const char* szPropertyName)
-    : ezAbstractSetProperty(szPropertyName)
+  WTypedSetProperty(const char* szPropertyName)
+    : WAbstractSetProperty(szPropertyName)
   {
-    m_Flags = ezPropertyFlags::GetParameterFlags<const char*>();
+    m_Flags = WPropertyFlags::GetParameterFlags<const char*>();
   }
 
-  virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<const char*>(); }
+  virtual const WRTTI* GetSpecificType() const override { return WGetStaticRTTI<const char*>(); }
 };
 
 
 template <typename Class, typename Type, typename Container>
-class ezAccessorSetProperty : public ezTypedSetProperty<Type>
+class WAccessorSetProperty : public WTypedSetProperty<Type>
 {
 public:
-  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
-  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using ContainerType = typename WTypeTraits<Container>::NonConstReferenceType;
+  using RealType = typename WTypeTraits<Type>::NonConstReferenceType;
 
   using InsertFunc = void (Class::*)(Type value);
   using RemoveFunc = void (Class::*)(Type value);
   using GetValuesFunc = Container (Class::*)() const;
 
-  ezAccessorSetProperty(const char* szPropertyName, GetValuesFunc getValues, InsertFunc insert, RemoveFunc remove)
-    : ezTypedSetProperty<Type>(szPropertyName)
+  WAccessorSetProperty(const char* szPropertyName, GetValuesFunc getValues, InsertFunc insert, RemoveFunc remove)
+    : WTypedSetProperty<Type>(szPropertyName)
   {
-    EZ_ASSERT_DEBUG(getValues != nullptr, "The get values function of an set property cannot be nullptr.");
+    W_ASSERT_DEBUG(getValues != nullptr, "The get values function of an set property cannot be nullptr.");
 
     m_GetValues = getValues;
     m_Insert = insert;
     m_Remove = remove;
 
     if (m_Insert == nullptr || m_Remove == nullptr)
-      ezAbstractSetProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+      WAbstractSetProperty::m_Flags.Add(WPropertyFlags::ReadOnly);
   }
 
 
@@ -62,11 +62,11 @@ public:
 
   virtual void Clear(void* pInstance) const override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is read-only",
-      ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is read-only",
+      WAbstractProperty::GetPropertyName());
 
     // We must not cache the container c here as the Remove can make it invalid
-    // e.g. ezArrayPtr by value.
+    // e.g. WArrayPtr by value.
     while (!IsEmpty(pInstance))
     {
       // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
@@ -79,13 +79,13 @@ public:
 
   virtual void Insert(void* pInstance, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const RealType*>(pObject));
   }
 
@@ -99,12 +99,12 @@ public:
     return false;
   }
 
-  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
+  virtual void GetValues(const void* pInstance, WDynamicArray<WVariant>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : (static_cast<const Class*>(pInstance)->*m_GetValues)())
     {
-      out_keys.PushBack(ezVariant(value));
+      out_keys.PushBack(WVariant(value));
     }
   }
 
@@ -117,10 +117,10 @@ private:
 
 
 template <typename Class, typename Container, Container Class::*Member>
-struct ezSetPropertyAccessor
+struct WSetPropertyAccessor
 {
-  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
-  using Type = typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
+  using ContainerType = typename WTypeTraits<Container>::NonConstReferenceType;
+  using Type = typename WTypeTraits<typename WContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
 
   static const ContainerType& GetConstContainer(const Class* pInstance) { return (*pInstance).*Member; }
 
@@ -129,45 +129,45 @@ struct ezSetPropertyAccessor
 
 
 template <typename Class, typename Container, typename Type>
-class ezMemberSetProperty : public ezTypedSetProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
+class WMemberSetProperty : public WTypedSetProperty<typename WTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using RealType = typename WTypeTraits<Type>::NonConstReferenceType;
   using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
   using GetContainerFunc = Container& (*)(Class* pInstance);
 
-  ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
-    : ezTypedSetProperty<RealType>(szPropertyName)
+  WMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
+    : WTypedSetProperty<RealType>(szPropertyName)
   {
-    EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an set property cannot be nullptr.");
+    W_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an set property cannot be nullptr.");
 
     m_ConstGetter = constGetter;
     m_Getter = getter;
 
     if (m_Getter == nullptr)
-      ezAbstractSetProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+      WAbstractSetProperty::m_Flags.Add(WPropertyFlags::ReadOnly);
   }
 
   virtual bool IsEmpty(const void* pInstance) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty(); }
 
   virtual void Clear(void* pInstance) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Remove(*static_cast<const RealType*>(pObject));
   }
 
@@ -176,12 +176,12 @@ public:
     return m_ConstGetter(static_cast<const Class*>(pInstance)).Contains(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
+  virtual void GetValues(const void* pInstance, WDynamicArray<WVariant>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
     {
-      out_keys.PushBack(ezVariant(value));
+      out_keys.PushBack(WVariant(value));
     }
   }
 

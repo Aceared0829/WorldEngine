@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Strings/StringBuilder.h>
@@ -11,9 +11,9 @@
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <intsafe.h>
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView szDefault)
+WString WEnvironmentVariableUtils::GetValueStringImpl(WStringView sName, WStringView szDefault)
 {
-  ezStringWChar szwName(sName);
+  WStringWChar szwName(sName);
   wchar_t szStaticValueBuffer[64] = {0};
   size_t uiRequiredSize = 0;
 
@@ -28,52 +28,52 @@ ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezSt
   // Succeeded
   if (res == 0)
   {
-    return ezString(szStaticValueBuffer);
+    return WString(szStaticValueBuffer);
   }
   // Static buffer was too small, do a heap allocation to query the value
   else if (res == ERANGE)
   {
-    EZ_ASSERT_DEV(uiRequiredSize != SIZE_T_MAX, "");
+    W_ASSERT_DEV(uiRequiredSize != SIZE_T_MAX, "");
     const size_t uiDynamicSize = uiRequiredSize + 1;
-    wchar_t* szDynamicBuffer = EZ_DEFAULT_NEW_RAW_BUFFER(wchar_t, uiDynamicSize);
-    ezMemoryUtils::ZeroFill(szDynamicBuffer, uiDynamicSize);
+    wchar_t* szDynamicBuffer = W_DEFAULT_NEW_RAW_BUFFER(wchar_t, uiDynamicSize);
+    WMemoryUtils::ZeroFill(szDynamicBuffer, uiDynamicSize);
 
     res = _wgetenv_s(&uiRequiredSize, szDynamicBuffer, uiDynamicSize, szwName);
 
     if (res != 0)
     {
-      ezLog::Error("Error getting environment variable \"{0}\" with dynamic buffer.", sName);
-      EZ_DEFAULT_DELETE_RAW_BUFFER(szDynamicBuffer);
+      WLog::Error("Error getting environment variable \"{0}\" with dynamic buffer.", sName);
+      W_DEFAULT_DELETE_RAW_BUFFER(szDynamicBuffer);
       return szDefault;
     }
     else
     {
-      ezString retVal(szDynamicBuffer);
-      EZ_DEFAULT_DELETE_RAW_BUFFER(szDynamicBuffer);
+      WString retVal(szDynamicBuffer);
+      W_DEFAULT_DELETE_RAW_BUFFER(szDynamicBuffer);
       return retVal;
     }
   }
   else
   {
-    ezLog::Warning("Couldn't get environment variable value for \"{0}\", got {1} as a result.", sName, res);
+    WLog::Warning("Couldn't get environment variable value for \"{0}\", got {1} as a result.", sName, res);
     return szDefault;
   }
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView szValue)
+WResult WEnvironmentVariableUtils::SetValueStringImpl(WStringView sName, WStringView szValue)
 {
-  ezStringWChar szwName(sName);
-  ezStringWChar szwValue(szValue);
+  WStringWChar szwName(sName);
+  WStringWChar szwValue(szValue);
 
   if (_wputenv_s(szwName, szwValue) == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   else
-    return EZ_FAILURE;
+    return W_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
+bool WEnvironmentVariableUtils::IsVariableSetImpl(WStringView sName)
 {
-  ezStringWChar szwName(sName);
+  WStringWChar szwName(sName);
   wchar_t szStaticValueBuffer[16] = {0};
   size_t uiRequiredSize = 0;
 
@@ -86,19 +86,19 @@ bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
   }
   else
   {
-    ezLog::Error("ezEnvironmentVariableUtils::IsVariableSet(\"{0}\") got {1} from _wgetenv_s.", sName, res);
+    WLog::Error("WEnvironmentVariableUtils::IsVariableSet(\"{0}\") got {1} from _wgetenv_s.", sName, res);
     return false;
   }
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
+WResult WEnvironmentVariableUtils::UnsetVariableImpl(WStringView sName)
 {
-  ezStringWChar szwName(sName);
+  WStringWChar szwName(sName);
 
   if (_wputenv_s(szwName, L"") == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   else
-    return EZ_FAILURE;
+    return W_FAILURE;
 }
 
 #endif

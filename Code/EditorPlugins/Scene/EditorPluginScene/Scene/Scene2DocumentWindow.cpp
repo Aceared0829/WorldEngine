@@ -16,36 +16,36 @@
 #include <QLayout>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
-  : ezQtSceneDocumentWindowBase(pDocument)
+WQtScene2DocumentWindow::WQtScene2DocumentWindow(WScene2Document* pDocument)
+  : WQtSceneDocumentWindowBase(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  auto ViewFactory = [](WQtEngineDocumentWindow* pWindow, WEngineViewConfig* pConfig) -> WQtEngineViewWidget*
   {
-    ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindowBase*>(pWindow), pConfig);
+    WQtSceneViewWidget* pWidget = new WQtSceneViewWidget(nullptr, static_cast<WQtSceneDocumentWindowBase*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
-  m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
+  m_pQuadViewWidget = new WQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
 
-  pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
-    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+  pDocument->SetEditToolConfigDelegate([this](WGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<WGameObjectDocument*>(GetDocument()), this, this); });
 
   {
-    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pViewPanel->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pViewPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pViewPanel->setObjectName("WQtDocumentPanel");
     pViewPanel->setWindowTitle("3D View");
     pViewPanel->setWidget(m_pQuadViewWidget);
 
     m_pDockManager->setCentralWidget(pViewPanel);
   }
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   SetTargetFramerate(pPreferences->GetMaxFramerate());
 
   {
     // Menu Bar
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "EditorPluginScene_Scene2MenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -54,8 +54,8 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
 
   {
     // Tool Bar
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "EditorPluginScene_Scene2ToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -66,21 +66,21 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
 
   {
     // Panels
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
     pPropertyPanel->layout()->setObjectName("PropertyPanelLayout");
 
-    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPanelTree = new WQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanelTree->show();
 
-    ezQtLayerPanel* pLayers = new ezQtLayerPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtLayerPanel* pLayers = new WQtLayerPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pLayers->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
-    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtScene2DocumentWindow::ExtendPropertyGridContextMenu), "");
+    W_VERIFY(connect(pPropertyGrid, &WQtPropertyGridWidget::ExtendContextMenu, this, &WQtScene2DocumentWindow::ExtendPropertyGridContextMenu), "");
 
     m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pLayers);
@@ -89,29 +89,29 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
   FinishWindowCreation();
 }
 
-ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow() = default;
+WQtScene2DocumentWindow::~WQtScene2DocumentWindow() = default;
 
-bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
+bool WQtScene2DocumentWindow::InternalCanCloseWindow()
 {
   // I guess this is to remove the focus from other widgets like input boxes, such that they may modify the document.
   setFocus();
   clearFocus();
 
-  ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
+  WScene2Document* pDoc = static_cast<WScene2Document*>(GetDocument());
   if (pDoc && pDoc->IsAnyLayerModified())
   {
-    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save scene and all layers before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
+    QMessageBox::StandardButton res = WQtUiServices::MessageBoxQuestion("Save scene and all layers before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
 
     if (res == QMessageBox::StandardButton::Yes)
     {
-      ezStatus err = SaveAllLayers();
+      WStatus err = SaveAllLayers();
 
       if (err.Failed())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
+        WQtUiServices::GetSingleton()->MessageBoxStatus(err, "Saving the scene failed.");
         return false;
       }
     }
@@ -120,16 +120,16 @@ bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
   return true;
 }
 
-ezStatus ezQtScene2DocumentWindow::SaveAllLayers()
+WStatus WQtScene2DocumentWindow::SaveAllLayers()
 {
-  ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
+  WScene2Document* pDoc = static_cast<WScene2Document*>(GetDocument());
 
-  ezTempHybridArray<ezSceneDocument*, 16> layers;
+  WTempHybridArray<WSceneDocument*, 16> layers;
   pDoc->GetLoadedLayers(layers);
 
   for (auto pLayer : layers)
   {
-    ezStatus res = pLayer->SaveDocument();
+    WStatus res = pLayer->SaveDocument();
 
     if (res.Failed())
     {
@@ -137,5 +137,5 @@ ezStatus ezQtScene2DocumentWindow::SaveAllLayers()
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

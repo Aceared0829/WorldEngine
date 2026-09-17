@@ -8,20 +8,20 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezTextureCubeAssetDocument;
+class WQtOrbitCamViewWidget;
+class WTextureCubeAssetDocument;
 
-class ezQtTextureCubeAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtTextureCubeAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument);
+  WQtTextureCubeAssetDocumentWindow(WTextureCubeAssetDocument* pDocument);
 
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
 };

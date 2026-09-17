@@ -5,20 +5,20 @@
 
 namespace
 {
-  using TokenMatch = ezTokenParseUtils::TokenMatch;
+  using TokenMatch = WTokenParseUtils::TokenMatch;
 
-  void CompareResults(const ezDynamicArray<TokenMatch>& expected, ezTokenizer& inout_tokenizer, bool bIgnoreWhitespace)
+  void CompareResults(const WDynamicArray<TokenMatch>& expected, WTokenizer& inout_tokenizer, bool bIgnoreWhitespace)
   {
     auto& tokens = inout_tokenizer.GetTokens();
 
-    const ezUInt32 expectedCount = expected.GetCount();
-    const ezUInt32 tokenCount = tokens.GetCount();
+    const WUInt32 expectedCount = expected.GetCount();
+    const WUInt32 tokenCount = tokens.GetCount();
 
-    ezUInt32 expectedIndex = 0, tokenIndex = 0;
+    WUInt32 expectedIndex = 0, tokenIndex = 0;
     while (expectedIndex < expectedCount && tokenIndex < tokenCount)
     {
       auto& token = tokens[tokenIndex];
-      if (bIgnoreWhitespace && (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::Newline))
+      if (bIgnoreWhitespace && (token.m_iType == WTokenType::Whitespace || token.m_iType == WTokenType::Newline))
       {
         tokenIndex++;
         continue;
@@ -26,12 +26,12 @@ namespace
 
       auto& e = expected[expectedIndex];
 
-      if (!EZ_TEST_BOOL_MSG(e.m_Type == token.m_iType, "Token with index %u does not match in type, expected %d actual %d", expectedIndex, e.m_Type, token.m_iType))
+      if (!W_TEST_BOOL_MSG(e.m_Type == token.m_iType, "Token with index %u does not match in type, expected %d actual %d", expectedIndex, e.m_Type, token.m_iType))
       {
         return;
       }
 
-      if (!EZ_TEST_BOOL_MSG(e.m_sToken == token.m_DataView, "Token with index %u does not match, expected '%.*s' actual '%.*s'", expectedIndex, e.m_sToken.GetElementCount(), e.m_sToken.GetStartPointer(), token.m_DataView.GetElementCount(), token.m_DataView.GetStartPointer()))
+      if (!W_TEST_BOOL_MSG(e.m_sToken == token.m_DataView, "Token with index %u does not match, expected '%.*s' actual '%.*s'", expectedIndex, e.m_sToken.GetElementCount(), e.m_sToken.GetStartPointer(), token.m_DataView.GetElementCount(), token.m_DataView.GetStartPointer()))
       {
         return;
       }
@@ -45,7 +45,7 @@ namespace
       while (tokenIndex < tokenCount)
       {
         auto& token = tokens[tokenIndex];
-        if (token.m_iType != ezTokenType::Whitespace && token.m_iType != ezTokenType::Newline)
+        if (token.m_iType != WTokenType::Whitespace && token.m_iType != WTokenType::Newline)
         {
           break;
         }
@@ -53,18 +53,18 @@ namespace
       }
     }
 
-    if (EZ_TEST_BOOL_MSG(tokenIndex == tokenCount - 1, "Not all tokens have been consumed"))
+    if (W_TEST_BOOL_MSG(tokenIndex == tokenCount - 1, "Not all tokens have been consumed"))
     {
-      EZ_TEST_BOOL_MSG(tokens[tokenIndex].m_iType == ezTokenType::EndOfFile, "Last token must be end of file token");
+      W_TEST_BOOL_MSG(tokens[tokenIndex].m_iType == WTokenType::EndOfFile, "Last token must be end of file token");
     }
 
-    EZ_TEST_BOOL_MSG(expectedIndex == expectedCount, "Not all expected values have been consumed");
+    W_TEST_BOOL_MSG(expectedIndex == expectedCount, "Not all expected values have been consumed");
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(CodeUtils, Tokenizer)
+W_CREATE_SIMPLE_TEST(CodeUtils, Tokenizer)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Token Types")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Token Types")
   {
     const char* stringLiteral = R"(
 float f=10.3f + 100'000.0;
@@ -76,67 +76,67 @@ block comment
 char c='f';
 const char* bla =  "blup";
 )";
-    ezTokenizer tokenizer(ezFoundation::GetDefaultAllocator());
-    tokenizer.Tokenize(ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(stringLiteral), ezStringUtils::GetStringElementCount(stringLiteral)), ezLog::GetThreadLocalLogSystem(), false);
+    WTokenizer tokenizer(WFoundation::GetDefaultAllocator());
+    tokenizer.Tokenize(WMakeArrayPtr(reinterpret_cast<const WUInt8*>(stringLiteral), WStringUtils::GetStringElementCount(stringLiteral)), WLog::GetThreadLocalLogSystem(), false);
 
-    EZ_TEST_BOOL(tokenizer.GetTokenizedData().IsEmpty());
+    W_TEST_BOOL(tokenizer.GetTokenizedData().IsEmpty());
 
-    ezDynamicArray<TokenMatch> expectedResult;
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    WDynamicArray<TokenMatch> expectedResult;
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::Identifier, "float"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Identifier, "f"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::Float, "10.3f"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "+"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Float, "100'000.0"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::Identifier, "float"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Identifier, "f"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::Float, "10.3f"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "+"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Float, "100'000.0"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::Identifier, "int"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Identifier, "i"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::Integer, "100'000"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
-    expectedResult.PushBack({ezTokenType::Integer, "12345"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::Identifier, "int"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Identifier, "i"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::Integer, "100'000"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "*"});
+    expectedResult.PushBack({WTokenType::Integer, "12345"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::LineComment, "// line comment"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::LineComment, "// line comment"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::BlockComment, "/*\nblock comment\n*/"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::BlockComment, "/*\nblock comment\n*/"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::Identifier, "char"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Identifier, "c"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::String2, "'f'"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::Identifier, "char"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Identifier, "c"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::String2, "'f'"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
-    expectedResult.PushBack({ezTokenType::Identifier, "const"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Identifier, "char"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::Identifier, "bla"});
-    expectedResult.PushBack({ezTokenType::Whitespace, " "});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::Whitespace, "  "});
-    expectedResult.PushBack({ezTokenType::String1, "\"blup\""});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
-    expectedResult.PushBack({ezTokenType::Newline, "\n"});
+    expectedResult.PushBack({WTokenType::Identifier, "const"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Identifier, "char"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "*"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::Identifier, "bla"});
+    expectedResult.PushBack({WTokenType::Whitespace, " "});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::Whitespace, "  "});
+    expectedResult.PushBack({WTokenType::String1, "\"blup\""});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
+    expectedResult.PushBack({WTokenType::Newline, "\n"});
 
     CompareResults(expectedResult, tokenizer, false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Raw string literal")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Raw string literal")
   {
     const char* stringLiteral = R"token(
 const char* test = R"(
@@ -148,28 +148,28 @@ fuenf
 )foo";
 )token";
 
-    ezTokenizer tokenizer(ezFoundation::GetDefaultAllocator());
-    tokenizer.Tokenize(ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(stringLiteral), ezStringUtils::GetStringElementCount(stringLiteral)), ezLog::GetThreadLocalLogSystem());
+    WTokenizer tokenizer(WFoundation::GetDefaultAllocator());
+    tokenizer.Tokenize(WMakeArrayPtr(reinterpret_cast<const WUInt8*>(stringLiteral), WStringUtils::GetStringElementCount(stringLiteral)), WLog::GetThreadLocalLogSystem());
 
-    ezDynamicArray<TokenMatch> expectedResult;
-    expectedResult.PushBack({ezTokenType::Identifier, "const"});
-    expectedResult.PushBack({ezTokenType::Identifier, "char"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
-    expectedResult.PushBack({ezTokenType::Identifier, "test"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::RawString1Prefix, "R\"("});
-    expectedResult.PushBack({ezTokenType::RawString1, "\neins\nzwei"});
-    expectedResult.PushBack({ezTokenType::RawString1Postfix, ")\""});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
-    expectedResult.PushBack({ezTokenType::Identifier, "const"});
-    expectedResult.PushBack({ezTokenType::Identifier, "char"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
-    expectedResult.PushBack({ezTokenType::Identifier, "test2"});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
-    expectedResult.PushBack({ezTokenType::RawString1Prefix, "R\"foo("});
-    expectedResult.PushBack({ezTokenType::RawString1, "\nvier,\nfuenf\n"});
-    expectedResult.PushBack({ezTokenType::RawString1Postfix, ")foo\""});
-    expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
+    WDynamicArray<TokenMatch> expectedResult;
+    expectedResult.PushBack({WTokenType::Identifier, "const"});
+    expectedResult.PushBack({WTokenType::Identifier, "char"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "*"});
+    expectedResult.PushBack({WTokenType::Identifier, "test"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::RawString1Prefix, "R\"("});
+    expectedResult.PushBack({WTokenType::RawString1, "\neins\nzwei"});
+    expectedResult.PushBack({WTokenType::RawString1Postfix, ")\""});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
+    expectedResult.PushBack({WTokenType::Identifier, "const"});
+    expectedResult.PushBack({WTokenType::Identifier, "char"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "*"});
+    expectedResult.PushBack({WTokenType::Identifier, "test2"});
+    expectedResult.PushBack({WTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({WTokenType::RawString1Prefix, "R\"foo("});
+    expectedResult.PushBack({WTokenType::RawString1, "\nvier,\nfuenf\n"});
+    expectedResult.PushBack({WTokenType::RawString1Postfix, ")foo\""});
+    expectedResult.PushBack({WTokenType::NonIdentifier, ";"});
 
     CompareResults(expectedResult, tokenizer, true);
   }

@@ -2,30 +2,30 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDoubleSpinBox>
-class ezVariant;
+class WVariant;
 
-class EZ_GUIFOUNDATION_DLL ezQtDoubleSpinBox : public QDoubleSpinBox
+class W_GUIFOUNDATION_DLL WQtDoubleSpinBox : public QDoubleSpinBox
 {
   Q_OBJECT
 public:
-  explicit ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
+  explicit WQtDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
 
   void SetIntMode(bool bEnable);
 
   void setDisplaySuffix(const char* szSuffix);
   void setDefaultValue(double value);
-  void setDefaultValue(const ezVariant& val);
+  void setDefaultValue(const WVariant& val);
   using QDoubleSpinBox::setMaximum;
   using QDoubleSpinBox::setMinimum;
-  void setMinimum(const ezVariant& val);
-  void setMaximum(const ezVariant& val);
+  void setMinimum(const WVariant& val);
+  void setMaximum(const WVariant& val);
 
   virtual QString textFromValue(double fVal) const override;
   virtual double valueFromText(const QString& sText) const override;
 
   void setValueInvalid();
   void setValue(double fVal);
-  void setValue(const ezVariant& val);
+  void setValue(const WVariant& val);
   double value() const;
 
 protected:
@@ -51,5 +51,5 @@ private:
   bool m_bDragging;
   double m_fStartDragValue;
   QPoint m_LastDragPos;
-  ezInt32 m_iDragDelta;
+  WInt32 m_iDragDelta;
 };

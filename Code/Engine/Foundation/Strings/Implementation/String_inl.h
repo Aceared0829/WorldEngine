@@ -1,82 +1,82 @@
 #pragma once
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   Clear();
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const WHybridStringBase& rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(WHybridStringBase&& rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   operator=(std::move(rhs));
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const char* rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const wchar_t* rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const WStringView& rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::~ezHybridStringBase() = default;
+template <WUInt16 Size>
+WHybridStringBase<Size>::~WHybridStringBase() = default;
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::Clear()
+template <WUInt16 Size>
+void WHybridStringBase<Size>::Clear()
 {
   m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
 }
 
-template <ezUInt16 Size>
-EZ_ALWAYS_INLINE const char* ezHybridStringBase<Size>::GetData() const
+template <WUInt16 Size>
+W_ALWAYS_INLINE const char* WHybridStringBase<Size>::GetData() const
 {
-  EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty. This can happen when you access a "
+  W_ASSERT_DEBUG(!m_Data.IsEmpty(), "WHybridString has been corrupted, the array can never be empty. This can happen when you access a "
                                      "string that was previously std::move'd into another string.");
 
   return &m_Data[0];
 }
 
-template <ezUInt16 Size>
-EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetElementCount() const
+template <WUInt16 Size>
+W_ALWAYS_INLINE WUInt32 WHybridStringBase<Size>::GetElementCount() const
 {
   return m_Data.GetCount() - 1;
 }
 
-template <ezUInt16 Size>
-EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
+template <WUInt16 Size>
+W_ALWAYS_INLINE WUInt32 WHybridStringBase<Size>::GetCharacterCount() const
 {
-  return ezStringUtils::GetCharacterCount(GetData());
+  return WStringUtils::GetCharacterCount(GetData());
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const char* szString)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const char* szString)
 {
-  ezUInt32 uiElementCount = ezStringUtils::GetStringElementCount(szString);
+  WUInt32 uiElementCount = WStringUtils::GetStringElementCount(szString);
 
   if (szString + uiElementCount < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount())
   {
@@ -85,15 +85,15 @@ void ezHybridStringBase<Size>::operator=(const char* szString)
   else
   {
     // source string overlaps with our own memory -> we can't increase the size of our memory, as that might invalidate the source data
-    EZ_ASSERT_DEBUG(uiElementCount < m_Data.GetCount(), "Invalid copy of overlapping string data.");
+    W_ASSERT_DEBUG(uiElementCount < m_Data.GetCount(), "Invalid copy of overlapping string data.");
   }
 
   m_Data.SetCountUninitialized(uiElementCount + 1);
-  ezStringUtils::Copy(&m_Data[0], uiElementCount + 1, szString);
+  WStringUtils::Copy(&m_Data[0], uiElementCount + 1, szString);
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const ezHybridStringBase& rhs)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const WHybridStringBase& rhs)
 {
   if (this == &rhs)
     return;
@@ -101,8 +101,8 @@ void ezHybridStringBase<Size>::operator=(const ezHybridStringBase& rhs)
   m_Data = rhs.m_Data;
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(ezHybridStringBase&& rhs)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(WHybridStringBase&& rhs)
 {
   if (this == &rhs)
     return;
@@ -110,164 +110,164 @@ void ezHybridStringBase<Size>::operator=(ezHybridStringBase&& rhs)
   m_Data = std::move(rhs.m_Data);
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const wchar_t* szString)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const wchar_t* szString)
 {
-  ezStringUtf8 sConversion(szString, m_Data.GetAllocator());
+  WStringUtf8 sConversion(szString, m_Data.GetAllocator());
   *this = sConversion.GetData();
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const WStringView& rhs)
 {
-  EZ_ASSERT_DEBUG(rhs.GetStartPointer() < m_Data.GetData() || rhs.GetStartPointer() >= m_Data.GetData() + m_Data.GetCount(),
+  W_ASSERT_DEBUG(rhs.GetStartPointer() < m_Data.GetData() || rhs.GetStartPointer() >= m_Data.GetData() + m_Data.GetCount(),
     "Can't assign string a value that points to ourself!");
 
   m_Data.SetCountUninitialized(rhs.GetElementCount() + 1);
-  ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetStartPointer(), rhs.GetEndPointer());
+  WStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetStartPointer(), rhs.GetEndPointer());
 }
 
-template <ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
+template <WUInt16 Size>
+WStringView WHybridStringBase<Size>::GetSubString(WUInt32 uiFirstCharacter, WUInt32 uiNumCharacters) const
 {
   const char* szStart = GetData();
-  if (ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter).Failed())
+  if (WUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter).Failed())
     return {};                                                           // szStart was moved too far, the result is just an empty string
 
   const char* szEnd = szStart;
-  ezUnicodeUtils::MoveToNextUtf8(szEnd, uiNumCharacters).IgnoreResult(); // if it fails, szEnd just points to the end of this string
+  WUnicodeUtils::MoveToNextUtf8(szEnd, uiNumCharacters).IgnoreResult(); // if it fails, szEnd just points to the end of this string
 
-  return ezStringView(szStart, szEnd);
+  return WStringView(szStart, szEnd);
 }
 
-template <ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetFirst(ezUInt32 uiNumCharacters) const
+template <WUInt16 Size>
+WStringView WHybridStringBase<Size>::GetFirst(WUInt32 uiNumCharacters) const
 {
   return GetSubString(0, uiNumCharacters);
 }
 
-template <ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
+template <WUInt16 Size>
+WStringView WHybridStringBase<Size>::GetLast(WUInt32 uiNumCharacters) const
 {
-  const ezUInt32 uiMaxCharacterCount = GetCharacterCount();
-  EZ_ASSERT_DEV(uiNumCharacters < uiMaxCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.",
+  const WUInt32 uiMaxCharacterCount = GetCharacterCount();
+  W_ASSERT_DEV(uiNumCharacters < uiMaxCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.",
     uiMaxCharacterCount, uiNumCharacters);
   return GetSubString(uiMaxCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString()
-  : ezHybridStringBase<Size>(A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString()
+  : WHybridStringBase<Size>(A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocator* pAllocator)
-  : ezHybridStringBase<Size>(pAllocator)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(WAllocator* pAllocator)
+  : WHybridStringBase<Size>(pAllocator)
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridString<Size, A>& other)
-  : ezHybridStringBase<Size>(other, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const WHybridString<Size, A>& other)
+  : WHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridStringBase<Size>& other)
-  : ezHybridStringBase<Size>(other, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const WHybridStringBase<Size>& other)
+  : WHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridString<Size, A>&& other)
-  : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(WHybridString<Size, A>&& other)
+  : WHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridStringBase<Size>&& other)
-  : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(WHybridStringBase<Size>&& other)
+  : WHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const char* rhs)
-  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const char* rhs)
+  : WHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const wchar_t* rhs)
-  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const wchar_t* rhs)
+  : WHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringView& rhs)
-  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const WStringView& rhs)
+  : WHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezHybridString<Size, A>& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const WHybridString<Size, A>& rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezHybridStringBase<Size>& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const WHybridStringBase<Size>& rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(ezHybridString<Size, A>&& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(WHybridString<Size, A>&& rhs)
 {
-  ezHybridStringBase<Size>::operator=(std::move(rhs));
+  WHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(ezHybridStringBase<Size>&& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(WHybridStringBase<Size>&& rhs)
 {
-  ezHybridStringBase<Size>::operator=(std::move(rhs));
+  WHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const char* rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const char* rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const wchar_t* rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const wchar_t* rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const WStringView& rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+#if W_ENABLED(W_INTEROP_STL_STRINGS)
 
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const std::string_view& rhs, ezAllocator* pAllocator)
-{
-  *this = rhs;
-}
-
-template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const std::string& rhs, ezAllocator* pAllocator)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const std::string_view& rhs, WAllocator* pAllocator)
 {
   *this = rhs;
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const std::string_view& rhs)
+template <WUInt16 Size>
+WHybridStringBase<Size>::WHybridStringBase(const std::string& rhs, WAllocator* pAllocator)
+{
+  *this = rhs;
+}
+
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const std::string_view& rhs)
 {
   if (rhs.empty())
   {
@@ -275,39 +275,39 @@ void ezHybridStringBase<Size>::operator=(const std::string_view& rhs)
   }
   else
   {
-    m_Data.SetCountUninitialized(((ezUInt32)rhs.size() + 1));
-    ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.data(), rhs.data() + rhs.size());
+    m_Data.SetCountUninitialized(((WUInt32)rhs.size() + 1));
+    WStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.data(), rhs.data() + rhs.size());
   }
 }
 
-template <ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const std::string& rhs)
+template <WUInt16 Size>
+void WHybridStringBase<Size>::operator=(const std::string& rhs)
 {
   *this = std::string_view(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const std::string_view& rhs)
-  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const std::string_view& rhs)
+  : WHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const std::string& rhs)
-  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE WHybridString<Size, A>::WHybridString(const std::string& rhs)
+  : WHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const std::string_view& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const std::string_view& rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const std::string& rhs)
+template <WUInt16 Size, typename A>
+W_ALWAYS_INLINE void WHybridString<Size, A>::operator=(const std::string& rhs)
 {
-  ezHybridStringBase<Size>::operator=(rhs);
+  WHybridStringBase<Size>::operator=(rhs);
 }
 
 #endif

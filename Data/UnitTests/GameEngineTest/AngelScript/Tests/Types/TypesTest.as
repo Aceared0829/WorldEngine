@@ -7,347 +7,347 @@ void ExecuteTests()
     // which mostly happens for operators, constructors and other special functions.
     // They do not test all the functionality, because that is already covered by the C++ tests.
 
-    // ezAngle
+    // WAngle
     {
-        ezAngle a, b;
-        a = ezAngle::MakeFromDegree(90);
+        WAngle a, b;
+        a = WAngle::MakeFromDegree(90);
 
-        EZ_TEST_FLOAT(a.GetDegree(), 90.0f);
+        W_TEST_FLOAT(a.GetDegree(), 90.0f);
         b = -a;
 
-        EZ_TEST_FLOAT(b.GetDegree(), -90.0f);
+        W_TEST_FLOAT(b.GetDegree(), -90.0f);
 
-        ezAngle c = a + b;
+        WAngle c = a + b;
         c += a;
         c -= b;
 
-        EZ_TEST_FLOAT(c.GetDegree(), c.GetDegree());
-        EZ_TEST_BOOL(c == c);
-        EZ_TEST_FLOAT(c.GetDegree(), (a * 2.0).GetDegree());
-        EZ_TEST_BOOL(c == 2.0f * a);
-        EZ_TEST_BOOL(c / 2.0f == a);
-        EZ_TEST_BOOL(c / a == 2.0f);
+        W_TEST_FLOAT(c.GetDegree(), c.GetDegree());
+        W_TEST_BOOL(c == c);
+        W_TEST_FLOAT(c.GetDegree(), (a * 2.0).GetDegree());
+        W_TEST_BOOL(c == 2.0f * a);
+        W_TEST_BOOL(c / 2.0f == a);
+        W_TEST_BOOL(c / a == 2.0f);
 
-        EZ_TEST_BOOL(a < c);
-        EZ_TEST_BOOL(c > a);
+        W_TEST_BOOL(a < c);
+        W_TEST_BOOL(c > a);
 
-        ezAngle d = ezAngle::AngleBetween(a, b);
-        EZ_TEST_FLOAT(d.GetDegree(), 180);
+        WAngle d = WAngle::AngleBetween(a, b);
+        W_TEST_FLOAT(d.GetDegree(), 180);
     }
 
-    // ezTime
+    // WTime
     {
-        ezTime t1 = ezTime::MakeZero();
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), 0.0f);
+        WTime t1 = WTime::MakeZero();
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), 0.0f);
 
-        t1 = ezTime::MakeFromSeconds(1.23f);
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), 1.23f);
+        t1 = WTime::MakeFromSeconds(1.23f);
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), 1.23f);
 
-        t1 += ezTime::Seconds(2.0f);
-        t1 -= ezTime::Seconds(0.1f);
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), 3.13f);
+        t1 += WTime::Seconds(2.0f);
+        t1 -= WTime::Seconds(0.1f);
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), 3.13f);
 
         t1 *= 4.0f;
         t1 /= 2.0f;
         t1 = -t1;
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), -6.26f);
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), -6.26f);
 
-        ezTime t2 = ezTime::Seconds(6.26f);
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), -t2.AsFloatInSeconds());
+        WTime t2 = WTime::Seconds(6.26f);
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), -t2.AsFloatInSeconds());
 
-        ezTime t3 = t1;
-        EZ_TEST_BOOL(t1 == t3);
-        EZ_TEST_BOOL(t1 < t2);
-        EZ_TEST_BOOL(t2 > t1);
+        WTime t3 = t1;
+        W_TEST_BOOL(t1 == t3);
+        W_TEST_BOOL(t1 < t2);
+        W_TEST_BOOL(t2 > t1);
 
         t3 *= 2.0f;
-        EZ_TEST_BOOL(t3 < t1);
+        W_TEST_BOOL(t3 < t1);
         
         t3 /= 2.0f;
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), t3.AsFloatInSeconds());
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), t3.AsFloatInSeconds());
 
-        t1 = 4 * (ezTime::Seconds(2) * ezTime::Seconds(3));
-        t2 = ezTime::Seconds(4) * 1.5f;
-        EZ_TEST_FLOAT(t1.AsFloatInSeconds(), 24);
-        EZ_TEST_FLOAT(t2.AsFloatInSeconds(), 6);
+        t1 = 4 * (WTime::Seconds(2) * WTime::Seconds(3));
+        t2 = WTime::Seconds(4) * 1.5f;
+        W_TEST_FLOAT(t1.AsFloatInSeconds(), 24);
+        W_TEST_FLOAT(t2.AsFloatInSeconds(), 6);
         
         t3 = t1 + t2;
-        EZ_TEST_FLOAT(t3.AsFloatInSeconds(), 30);
+        W_TEST_FLOAT(t3.AsFloatInSeconds(), 30);
         
         t3 = t3 - t1;
-        EZ_TEST_FLOAT(t3.AsFloatInSeconds(), 6);
+        W_TEST_FLOAT(t3.AsFloatInSeconds(), 6);
 
         t3 = t1 / t2;
-        EZ_TEST_FLOAT(t3.AsFloatInSeconds(), 4);
+        W_TEST_FLOAT(t3.AsFloatInSeconds(), 4);
 
         t3 = t1 / 3.0f;
-        EZ_TEST_FLOAT(t3.AsFloatInSeconds(), 8);
+        W_TEST_FLOAT(t3.AsFloatInSeconds(), 8);
 
         t3 = 48 / t1;
-        EZ_TEST_FLOAT(t3.AsFloatInSeconds(), 2);
+        W_TEST_FLOAT(t3.AsFloatInSeconds(), 2);
     }
 
-    // ezColor / ezColorGammaUB
+    // WColor / WColorGammaUB
     {
-        ezColor c1(0, 0, 0);
-        EZ_TEST_COLOR(c1, ezColor::Black);
+        WColor c1(0, 0, 0);
+        W_TEST_COLOR(c1, WColor::Black);
 
-        ezColor c2(ezColorGammaUB(255, 255, 255));
-        EZ_TEST_COLOR(c2, ezColor::White);
+        WColor c2(WColorGammaUB(255, 255, 255));
+        W_TEST_COLOR(c2, WColor::White);
 
         c2 = c1;
-        EZ_TEST_COLOR(c2, ezColor::Black);
+        W_TEST_COLOR(c2, WColor::Black);
 
-        c1 = ezColorGammaUB(255, 255, 255);
-        EZ_TEST_COLOR(c1, ezColor::White);
+        c1 = WColorGammaUB(255, 255, 255);
+        W_TEST_COLOR(c1, WColor::White);
 
-        c2 += ezColor::White;
-        EZ_TEST_COLOR(c2, ezColor(1, 1, 1, 2));
+        c2 += WColor::White;
+        W_TEST_COLOR(c2, WColor(1, 1, 1, 2));
 
-        c2 -= ezColor::White;
-        EZ_TEST_COLOR(c2, ezColor::Black);
+        c2 -= WColor::White;
+        W_TEST_COLOR(c2, WColor::Black);
 
         c1 *= 2;
-        EZ_TEST_COLOR(c1, ezColor::White * 2);
+        W_TEST_COLOR(c1, WColor::White * 2);
 
         c1 /= 2;
-        EZ_TEST_COLOR(c1, (2 * ezColor::White) / 2);
+        W_TEST_COLOR(c1, (2 * WColor::White) / 2);
 
         c1 *= c1 + c1;
-        EZ_TEST_COLOR(c1, ezColor::White * 2);
+        W_TEST_COLOR(c1, WColor::White * 2);
 
         c1 = c1 - c1;
-        EZ_TEST_COLOR(c1, ezColor::MakeZero());
+        W_TEST_COLOR(c1, WColor::MakeZero());
 
-        EZ_TEST_BOOL(c1 == ezColor::MakeZero());
+        W_TEST_BOOL(c1 == WColor::MakeZero());
 
-        EZ_TEST_VEC4(ezColor::White.WithAlpha(0.5).GetAsVec4(), ezVec4(1, 1, 1, 0.5));
+        W_TEST_VEC4(WColor::White.WithAlpha(0.5).GetAsVec4(), WVec4(1, 1, 1, 0.5));
 
-        EZ_TEST_COLOR(ezColor::Red * ezColor::Blue, ezColor::Black);
+        W_TEST_COLOR(WColor::Red * WColor::Blue, WColor::Black);
 
-        EZ_TEST_VEC4((ezColor::White / 2.0f).GetAsVec4(), ezVec4(0.5f));
+        W_TEST_VEC4((WColor::White / 2.0f).GetAsVec4(), WVec4(0.5f));
 
-        ezColorGammaUB cg = ezColor::Lime;
-        EZ_TEST_INT(cg.r, 0);
-        EZ_TEST_INT(cg.g, 255);
-        EZ_TEST_INT(cg.b, 0);
-        EZ_TEST_INT(cg.a, 255);
+        WColorGammaUB cg = WColor::Lime;
+        W_TEST_INT(cg.r, 0);
+        W_TEST_INT(cg.g, 255);
+        W_TEST_INT(cg.b, 0);
+        W_TEST_INT(cg.a, 255);
 
-        cg = ezColor::Red;
-        EZ_TEST_INT(cg.r, 255);
-        EZ_TEST_INT(cg.g, 0);
-        EZ_TEST_INT(cg.b, 0);
-        EZ_TEST_INT(cg.a, 255);
+        cg = WColor::Red;
+        W_TEST_INT(cg.r, 255);
+        W_TEST_INT(cg.g, 0);
+        W_TEST_INT(cg.b, 0);
+        W_TEST_INT(cg.a, 255);
     }
 
-    // ezVec2
+    // WVec2
     {
-        const ezVec2 c0 = ezVec2::MakeZero();
-        const ezVec2 c1(2, 4);
-        const ezVec2 c2(4, 2);
-        const ezVec2 c3(6);
+        const WVec2 c0 = WVec2::MakeZero();
+        const WVec2 c1(2, 4);
+        const WVec2 c2(4, 2);
+        const WVec2 c3(6);
 
-        EZ_TEST_FLOAT(c0.x, 0);
-        EZ_TEST_FLOAT(c0.y, 0);
+        W_TEST_FLOAT(c0.x, 0);
+        W_TEST_FLOAT(c0.y, 0);
 
-        EZ_TEST_FLOAT(c1.x, 2);
-        EZ_TEST_FLOAT(c1.y, 4);
+        W_TEST_FLOAT(c1.x, 2);
+        W_TEST_FLOAT(c1.y, 4);
 
-        EZ_TEST_FLOAT(c3.x, 6);
-        EZ_TEST_FLOAT(c3.y, 6);
+        W_TEST_FLOAT(c3.x, 6);
+        W_TEST_FLOAT(c3.y, 6);
 
-        EZ_TEST_BOOL(c1 != c2);
-        EZ_TEST_BOOL(c1 == c1);
-        EZ_TEST_BOOL(c1 < c3);
-        EZ_TEST_BOOL(c3 > c1);
+        W_TEST_BOOL(c1 != c2);
+        W_TEST_BOOL(c1 == c1);
+        W_TEST_BOOL(c1 < c3);
+        W_TEST_BOOL(c3 > c1);
 
-        ezVec2 v;
+        WVec2 v;
         v = c0;
-        EZ_TEST_VEC2(v, c0);
+        W_TEST_VEC2(v, c0);
         
         v += 2 * c1;
-        EZ_TEST_VEC2(v, c1 * 2);
+        W_TEST_VEC2(v, c1 * 2);
         
         v -= c1 * 2;
-        EZ_TEST_VEC2(v, c0);
+        W_TEST_VEC2(v, c0);
 
         v = c3;
         v *= 4;
         v /= 8;
-        EZ_TEST_VEC2(v, c3 / 2);
+        W_TEST_VEC2(v, c3 / 2);
         
         v = -1 * (c1 + c2);
-        EZ_TEST_VEC2(v, -c3);
+        W_TEST_VEC2(v, -c3);
         
         v = c3 - c1;
-        EZ_TEST_VEC2(v, c2);
+        W_TEST_VEC2(v, c2);
     }
 
-    // ezVec3
+    // WVec3
     {
-        const ezVec3 c0 = ezVec3::MakeZero();
-        const ezVec3 c1(2, 4, 3);
-        const ezVec3 c2(4, 2, 3);
-        const ezVec3 c3(6);
+        const WVec3 c0 = WVec3::MakeZero();
+        const WVec3 c1(2, 4, 3);
+        const WVec3 c2(4, 2, 3);
+        const WVec3 c3(6);
 
-        EZ_TEST_FLOAT(c0.x, 0);
-        EZ_TEST_FLOAT(c0.y, 0);
-        EZ_TEST_FLOAT(c0.z, 0);
+        W_TEST_FLOAT(c0.x, 0);
+        W_TEST_FLOAT(c0.y, 0);
+        W_TEST_FLOAT(c0.z, 0);
 
-        EZ_TEST_FLOAT(c1.x, 2);
-        EZ_TEST_FLOAT(c1.y, 4);
-        EZ_TEST_FLOAT(c1.z, 3);
+        W_TEST_FLOAT(c1.x, 2);
+        W_TEST_FLOAT(c1.y, 4);
+        W_TEST_FLOAT(c1.z, 3);
 
-        EZ_TEST_FLOAT(c3.x, 6);
-        EZ_TEST_FLOAT(c3.y, 6);
-        EZ_TEST_FLOAT(c3.z, 6);
+        W_TEST_FLOAT(c3.x, 6);
+        W_TEST_FLOAT(c3.y, 6);
+        W_TEST_FLOAT(c3.z, 6);
 
-        EZ_TEST_BOOL(c1 != c2);
-        EZ_TEST_BOOL(c1 == c1);
-        EZ_TEST_BOOL(c1 < c3);
-        EZ_TEST_BOOL(c3 > c1);
+        W_TEST_BOOL(c1 != c2);
+        W_TEST_BOOL(c1 == c1);
+        W_TEST_BOOL(c1 < c3);
+        W_TEST_BOOL(c3 > c1);
 
-        ezVec3 v;
+        WVec3 v;
         v = c0;
-        EZ_TEST_VEC3(v, c0);
+        W_TEST_VEC3(v, c0);
         
         v += 2 * c1;
-        EZ_TEST_VEC3(v, c1 * 2);
+        W_TEST_VEC3(v, c1 * 2);
         
         v -= c1 * 2;
-        EZ_TEST_VEC3(v, c0);
+        W_TEST_VEC3(v, c0);
 
         v = c3;
         v *= 4;
         v /= 8;
-        EZ_TEST_VEC3(v, c3 / 2);
+        W_TEST_VEC3(v, c3 / 2);
         
         v = -1 * (c1 + c2);
-        EZ_TEST_VEC3(v, -c3);
+        W_TEST_VEC3(v, -c3);
         
         v = c3 - c1;
-        EZ_TEST_VEC3(v, c2);
+        W_TEST_VEC3(v, c2);
     }
 
-    // ezVec4
+    // WVec4
     {
-        const ezVec4 c0 = ezVec4::MakeZero();
-        const ezVec4 c1(2, 4, 3, 1);
-        const ezVec4 c2(4, 2, 3, 5);
-        const ezVec4 c3(6);
+        const WVec4 c0 = WVec4::MakeZero();
+        const WVec4 c1(2, 4, 3, 1);
+        const WVec4 c2(4, 2, 3, 5);
+        const WVec4 c3(6);
 
-        EZ_TEST_FLOAT(c0.x, 0);
-        EZ_TEST_FLOAT(c0.y, 0);
-        EZ_TEST_FLOAT(c0.z, 0);
-        EZ_TEST_FLOAT(c0.w, 0);
+        W_TEST_FLOAT(c0.x, 0);
+        W_TEST_FLOAT(c0.y, 0);
+        W_TEST_FLOAT(c0.z, 0);
+        W_TEST_FLOAT(c0.w, 0);
 
-        EZ_TEST_FLOAT(c1.x, 2);
-        EZ_TEST_FLOAT(c1.y, 4);
-        EZ_TEST_FLOAT(c1.z, 3);
-        EZ_TEST_FLOAT(c1.w, 1);
+        W_TEST_FLOAT(c1.x, 2);
+        W_TEST_FLOAT(c1.y, 4);
+        W_TEST_FLOAT(c1.z, 3);
+        W_TEST_FLOAT(c1.w, 1);
 
-        EZ_TEST_FLOAT(c3.x, 6);
-        EZ_TEST_FLOAT(c3.y, 6);
-        EZ_TEST_FLOAT(c3.y, 6);
-        EZ_TEST_FLOAT(c3.y, 6);
+        W_TEST_FLOAT(c3.x, 6);
+        W_TEST_FLOAT(c3.y, 6);
+        W_TEST_FLOAT(c3.y, 6);
+        W_TEST_FLOAT(c3.y, 6);
 
-        EZ_TEST_BOOL(c1 != c2);
-        EZ_TEST_BOOL(c1 == c1);
-        EZ_TEST_BOOL(c1 < c3);
-        EZ_TEST_BOOL(c3 > c1);
+        W_TEST_BOOL(c1 != c2);
+        W_TEST_BOOL(c1 == c1);
+        W_TEST_BOOL(c1 < c3);
+        W_TEST_BOOL(c3 > c1);
 
-        ezVec4 v;
+        WVec4 v;
         v = c0;
-        EZ_TEST_VEC4(v, c0);
+        W_TEST_VEC4(v, c0);
         
         v += 2 * c1;
-        EZ_TEST_VEC4(v, c1 * 2);
+        W_TEST_VEC4(v, c1 * 2);
         
         v -= c1 * 2;
-        EZ_TEST_VEC4(v, c0);
+        W_TEST_VEC4(v, c0);
 
         v = c3;
         v *= 4;
         v /= 8;
-        EZ_TEST_VEC4(v, c3 / 2);
+        W_TEST_VEC4(v, c3 / 2);
         
         v = -1 * (c1 + c2);
-        EZ_TEST_VEC4(v, -c3);
+        W_TEST_VEC4(v, -c3);
         
         v = c3 - c1;
-        EZ_TEST_VEC4(v, c2);
+        W_TEST_VEC4(v, c2);
     }
 
-    // ezQuat
+    // WQuat
     {
-        EZ_TEST_QUAT(ezQuat::MakeIdentity(), ezQuat::MakeFromElements(0, 0, 0, 1));
+        W_TEST_QUAT(WQuat::MakeIdentity(), WQuat::MakeFromElements(0, 0, 0, 1));
 
-        ezQuat q = ezQuat::MakeFromElements(1, 2, 3, 4);
-        EZ_TEST_FLOAT(q.x, 1);
-        EZ_TEST_FLOAT(q.y, 2);
-        EZ_TEST_FLOAT(q.z, 3);
-        EZ_TEST_FLOAT(q.w, 4);
+        WQuat q = WQuat::MakeFromElements(1, 2, 3, 4);
+        W_TEST_FLOAT(q.x, 1);
+        W_TEST_FLOAT(q.y, 2);
+        W_TEST_FLOAT(q.z, 3);
+        W_TEST_FLOAT(q.w, 4);
 
-        EZ_TEST_BOOL(q == q);
-        EZ_TEST_BOOL(q != q.GetNegated());
+        W_TEST_BOOL(q == q);
+        W_TEST_BOOL(q != q.GetNegated());
 
-        ezQuat q2 = q;
-        EZ_TEST_BOOL(q2 == q);
+        WQuat q2 = q;
+        W_TEST_BOOL(q2 == q);
 
-        q2 = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
-        ezVec3 v = q2 * ezVec3(1, 2, 3);
+        q2 = WQuat::MakeFromAxisAndAngle(WVec3(1, 0, 0), WAngle::MakeFromDegree(90));
+        WVec3 v = q2 * WVec3(1, 2, 3);
 
-        EZ_TEST_VEC3(v, ezVec3(1, -3, 2));
+        W_TEST_VEC3(v, WVec3(1, -3, 2));
 
         q = q2 * q2;
 
-        ezVec3 axis;
-        ezAngle angle;
+        WVec3 axis;
+        WAngle angle;
         q.GetRotationAxisAndAngle(axis, angle);
 
-        EZ_TEST_VEC3(axis, ezVec3(1, 0, 0));
-        EZ_TEST_FLOAT(angle.GetDegree(), 180);
+        W_TEST_VEC3(axis, WVec3(1, 0, 0));
+        W_TEST_FLOAT(angle.GetDegree(), 180);
     }
 
-    // ezTransform
+    // WTransform
     {
-        ezTransform t1 = ezTransform::MakeIdentity();
-        EZ_TEST_VEC3(t1.m_vPosition, ezVec3::MakeZero());
-        EZ_TEST_QUAT(t1.m_qRotation, ezQuat::MakeIdentity());
-        EZ_TEST_VEC3(t1.m_vScale, ezVec3(1));
+        WTransform t1 = WTransform::MakeIdentity();
+        W_TEST_VEC3(t1.m_vPosition, WVec3::MakeZero());
+        W_TEST_QUAT(t1.m_qRotation, WQuat::MakeIdentity());
+        W_TEST_VEC3(t1.m_vScale, WVec3(1));
 
-        EZ_TEST_BOOL(t1 == t1.GetInverse());
+        W_TEST_BOOL(t1 == t1.GetInverse());
         
-        ezTransform t2;
+        WTransform t2;
         t2 = t1;
 
-        EZ_TEST_BOOL(t1 == t2);
+        W_TEST_BOOL(t1 == t2);
         
-        t1 += ezVec3(1);
-        EZ_TEST_BOOL(t1 != t2);
-        EZ_TEST_BOOL(t1 == t2 + ezVec3(1));
-        EZ_TEST_BOOL(t1 - ezVec3(1) == t2);
+        t1 += WVec3(1);
+        W_TEST_BOOL(t1 != t2);
+        W_TEST_BOOL(t1 == t2 + WVec3(1));
+        W_TEST_BOOL(t1 - WVec3(1) == t2);
 
-        t1 -= ezVec3(1);
-        EZ_TEST_BOOL(t1 == t2);
+        t1 -= WVec3(1);
+        W_TEST_BOOL(t1 == t2);
 
-        EZ_TEST_BOOL(ezTransform::Make(ezVec3(1), ezQuat::MakeIdentity(), ezVec3(2)) == ezTransform(ezVec3(1), ezQuat::MakeIdentity(), ezVec3(2)));
+        W_TEST_BOOL(WTransform::Make(WVec3(1), WQuat::MakeIdentity(), WVec3(2)) == WTransform(WVec3(1), WQuat::MakeIdentity(), WVec3(2)));
 
-        t1 = ezTransform::Make(ezVec3(1, 2, 3));
-        ezVec3 pos(2, 3, 4);
+        t1 = WTransform::Make(WVec3(1, 2, 3));
+        WVec3 pos(2, 3, 4);
         pos = t1 * pos;
-        EZ_TEST_VEC3(pos, ezVec3(3, 5, 7));
+        W_TEST_VEC3(pos, WVec3(3, 5, 7));
 
-        ezQuat rot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
+        WQuat rot = WQuat::MakeFromAxisAndAngle(WVec3(1, 0, 0), WAngle::MakeFromDegree(90));
         t1 = t1 * rot;
         t1 = rot * t1;
 
-        ezTransform t3 = t1 * t2;
-        ezTransform t4 = ezTransform::MakeGlobalTransform(t1, t2);
-        EZ_TEST_BOOL(t3 == t4);
+        WTransform t3 = t1 * t2;
+        WTransform t4 = WTransform::MakeGlobalTransform(t1, t2);
+        W_TEST_BOOL(t3 == t4);
     }
 
-    // ezMath
+    // WMath
     {
         // nothing that needs testing
     }

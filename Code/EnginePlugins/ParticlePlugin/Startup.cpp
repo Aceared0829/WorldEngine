@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -16,19 +16,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("Particle Effect", ezGetStaticRTTI<ezParticleEffectResource>());
+    WResourceManager::RegisterResourceForAssetType("Particle Effect", WGetStaticRTTI<WParticleEffectResource>());
 
-    ezParticleEffectResourceDescriptor desc;
-    ezParticleEffectResourceHandle hEffect = ezResourceManager::CreateResource<ezParticleEffectResource>("ParticleEffectMissing", std::move(desc), "Fallback for missing Particle Effects");
-    ezResourceManager::SetResourceTypeMissingFallback<ezParticleEffectResource>(hEffect);
+    WParticleEffectResourceDescriptor desc;
+    WParticleEffectResourceHandle hEffect = WResourceManager::CreateResource<WParticleEffectResource>("ParticleEffectMissing", std::move(desc), "Fallback for missing Particle Effects");
+    WResourceManager::SetResourceTypeMissingFallback<WParticleEffectResource>(hEffect);
 
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezParticleEffectResource, ezCurve1DResource>();
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezParticleEffectResource, ezColorGradientResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WParticleEffectResource, WCurve1DResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WParticleEffectResource, WColorGradientResource>();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezParticleEffectResource::CleanupDynamicPluginReferences();
+    WParticleEffectResource::CleanupDynamicPluginReferences();
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -39,8 +39,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Startup);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Startup);

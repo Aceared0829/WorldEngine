@@ -4,20 +4,20 @@
 #include <GameEngine/XR/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRTransformSpace, 1)
-  EZ_BITFLAGS_CONSTANTS(ezXRTransformSpace::Local, ezXRTransformSpace::Global)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WXRTransformSpace, 1)
+  W_BITFLAGS_CONSTANTS(WXRTransformSpace::Local, WXRTransformSpace::Global)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRDeviceType, 1)
-  EZ_BITFLAGS_CONSTANTS(ezXRDeviceType::HMD, ezXRDeviceType::LeftController, ezXRDeviceType::RightController)
-  EZ_BITFLAGS_CONSTANTS(ezXRDeviceType::DeviceID0, ezXRDeviceType::DeviceID1, ezXRDeviceType::DeviceID2, ezXRDeviceType::DeviceID3)
-  EZ_BITFLAGS_CONSTANTS(ezXRDeviceType::DeviceID4, ezXRDeviceType::DeviceID5, ezXRDeviceType::DeviceID6, ezXRDeviceType::DeviceID7)
-  EZ_BITFLAGS_CONSTANTS(ezXRDeviceType::DeviceID8, ezXRDeviceType::DeviceID9, ezXRDeviceType::DeviceID10, ezXRDeviceType::DeviceID11)
-  EZ_BITFLAGS_CONSTANTS(ezXRDeviceType::DeviceID12, ezXRDeviceType::DeviceID13, ezXRDeviceType::DeviceID14, ezXRDeviceType::DeviceID15)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WXRDeviceType, 1)
+  W_BITFLAGS_CONSTANTS(WXRDeviceType::HMD, WXRDeviceType::LeftController, WXRDeviceType::RightController)
+  W_BITFLAGS_CONSTANTS(WXRDeviceType::DeviceID0, WXRDeviceType::DeviceID1, WXRDeviceType::DeviceID2, WXRDeviceType::DeviceID3)
+  W_BITFLAGS_CONSTANTS(WXRDeviceType::DeviceID4, WXRDeviceType::DeviceID5, WXRDeviceType::DeviceID6, WXRDeviceType::DeviceID7)
+  W_BITFLAGS_CONSTANTS(WXRDeviceType::DeviceID8, WXRDeviceType::DeviceID9, WXRDeviceType::DeviceID10, WXRDeviceType::DeviceID11)
+  W_BITFLAGS_CONSTANTS(WXRDeviceType::DeviceID12, WXRDeviceType::DeviceID13, WXRDeviceType::DeviceID14, WXRDeviceType::DeviceID15)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezXRDeviceState::ezXRDeviceState()
+WXRDeviceState::WXRDeviceState()
 {
   m_vGripPosition.SetZero();
   m_qGripRotation.SetIdentity();
@@ -27,4 +27,4 @@ ezXRDeviceState::ezXRDeviceState()
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_Declaration);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_Declaration);

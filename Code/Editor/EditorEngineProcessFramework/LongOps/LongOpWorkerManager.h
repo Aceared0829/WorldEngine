@@ -6,42 +6,42 @@
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Utilities/Progress.h>
 
-class ezLongOpWorker;
-struct ezProgressEvent;
-using ezDataBuffer = ezDynamicArray<ezUInt8>;
+class WLongOpWorker;
+struct WProgressEvent;
+using WDataBuffer = WDynamicArray<WUInt8>;
 
 /// The LongOp worker manager is active in the engine process of the editor.
 ///
-/// This class has no public functionality, it communicates with the ezLongOpControllerManager
-/// and executes the ezLongOpWorker's that are named by the respective ezLongOpProxy's.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorkerManager final : public ezLongOpManager
+/// This class has no public functionality, it communicates with the WLongOpControllerManager
+/// and executes the WLongOpWorker's that are named by the respective WLongOpProxy's.
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WLongOpWorkerManager final : public WLongOpManager
 {
-  EZ_DECLARE_SINGLETON(ezLongOpWorkerManager);
+  W_DECLARE_SINGLETON(WLongOpWorkerManager);
 
 public:
-  ezLongOpWorkerManager();
-  ~ezLongOpWorkerManager();
+  WLongOpWorkerManager();
+  ~WLongOpWorkerManager();
 
 private:
-  friend class ezLongOpTask;
+  friend class WLongOpTask;
 
   struct WorkerOpInfo
   {
-    ezUniquePtr<ezLongOpWorker> m_pWorkerOp;
-    ezTaskGroupID m_TaskID;
-    ezUuid m_DocumentGuid;
-    ezUuid m_OperationGuid;
-    ezProgress m_Progress;
-    ezEvent<const ezProgressEvent&>::Unsubscriber m_ProgressSubscription;
+    WUniquePtr<WLongOpWorker> m_pWorkerOp;
+    WTaskGroupID m_TaskID;
+    WUuid m_DocumentGuid;
+    WUuid m_OperationGuid;
+    WProgress m_Progress;
+    WEvent<const WProgressEvent&>::Unsubscriber m_ProgressSubscription;
   };
 
-  virtual void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e) override;
-  WorkerOpInfo* GetOperation(const ezUuid& opGuid) const;
-  void LaunchWorkerOperation(WorkerOpInfo& opInfo, ezStreamReader& config);
-  void WorkerProgressBarEventHandler(const ezProgressEvent& e);
-  void RemoveOperation(ezUuid opGuid);
+  virtual void ProcessCommunicationChannelEventHandler(const WProcessCommunicationChannel::Event& e) override;
+  WorkerOpInfo* GetOperation(const WUuid& opGuid) const;
+  void LaunchWorkerOperation(WorkerOpInfo& opInfo, WStreamReader& config);
+  void WorkerProgressBarEventHandler(const WProgressEvent& e);
+  void RemoveOperation(WUuid opGuid);
   void SendProgress(WorkerOpInfo& opInfo);
-  void WorkerOperationFinished(ezUuid operationGuid, ezResult result, ezDataBuffer&& resultData);
+  void WorkerOperationFinished(WUuid operationGuid, WResult result, WDataBuffer&& resultData);
 
-  ezDynamicArray<ezUniquePtr<WorkerOpInfo>> m_WorkerOps;
+  WDynamicArray<WUniquePtr<WorkerOpInfo>> m_WorkerOps;
 };

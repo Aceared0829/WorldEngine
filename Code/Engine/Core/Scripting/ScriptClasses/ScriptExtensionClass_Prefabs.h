@@ -3,11 +3,11 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezWorld;
-class ezGameObject;
+class WWorld;
+class WGameObject;
 
 /// Script extension class providing prefab instantiation functionality for scripts.
-class EZ_CORE_DLL ezScriptExtensionClass_Prefabs
+class W_CORE_DLL WScriptExtensionClass_Prefabs
 {
 public:
   /// Spawns a prefab instance at the specified global transform.
@@ -18,7 +18,7 @@ public:
   /// \param bSetCreatedByPrefab Whether to mark spawned objects as created by prefab
   /// \param bSetHideShapeIcon Whether to hide shape icons in the editor for spawned objects
   /// \return Array of game object handles for the spawned prefab's top-level objects
-  static ezVariantArray SpawnPrefab(ezWorld* pWorld, ezStringView sPrefab, const ezTransform& globalTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon);
+  static WVariantArray SpawnPrefab(WWorld* pWorld, WStringView sPrefab, const WTransform& globalTransform, WUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon);
 
   /// Spawns a prefab instance as a child of the specified parent object.
   ///
@@ -29,7 +29,7 @@ public:
   /// \param bSetCreatedByPrefab Whether to mark spawned objects as created by prefab
   /// \param bSetHideShapeIcon Whether to hide shape icons in the editor for spawned objects
   /// \return Array of game object handles for the spawned prefab's top-level objects
-  static ezVariantArray SpawnPrefabAsChild(ezWorld* pWorld, ezStringView sPrefab, ezGameObject* pParent, const ezTransform& localTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon);
+  static WVariantArray SpawnPrefabAsChild(WWorld* pWorld, WStringView sPrefab, WGameObject* pParent, const WTransform& localTransform, WUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Prefabs);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptExtensionClass_Prefabs);

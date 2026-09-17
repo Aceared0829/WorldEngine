@@ -9,43 +9,43 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVelocityChangeMode, 1)
-  EZ_ENUM_CONSTANT(ezVelocityChangeMode::CustomCurve),
-  EZ_ENUM_CONSTANT(ezVelocityChangeMode::SharedCurve),
-  EZ_ENUM_CONSTANT(ezVelocityChangeMode::Friction),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WVelocityChangeMode, 1)
+  W_ENUM_CONSTANT(WVelocityChangeMode::CustomCurve),
+  W_ENUM_CONSTANT(WVelocityChangeMode::SharedCurve),
+  W_ENUM_CONSTANT(WVelocityChangeMode::Friction),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_Velocity, 2, WRTTIDefaultAllocator<WParticleBehaviorFactory_Velocity>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ChangeSpeedWith", ezVelocityChangeMode, m_ChangeSpeedWith),
-    EZ_MEMBER_PROPERTY("Friction", m_fFriction)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("SpeedCurve", m_SpeedCurve),
-    EZ_RESOURCE_MEMBER_PROPERTY("SharedSpeedCurve", m_hSpeedSharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("SpeedCurveOffset", m_fSpeedCurveOffset)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("SpeedCurveScale", m_fSpeedCurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("ChangeSpeedWith", WVelocityChangeMode, m_ChangeSpeedWith),
+    W_MEMBER_PROPERTY("Friction", m_fFriction)->AddAttributes(new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("SpeedCurve", m_SpeedCurve),
+    W_RESOURCE_MEMBER_PROPERTY("SharedSpeedCurve", m_hSpeedSharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_MEMBER_PROPERTY("SpeedCurveOffset", m_fSpeedCurveOffset)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("SpeedCurveScale", m_fSpeedCurveScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
 
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Velocity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_Velocity, 1, WRTTIDefaultAllocator<WParticleBehavior_Velocity>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity() = default;
-ezParticleBehaviorFactory_Velocity::~ezParticleBehaviorFactory_Velocity() = default;
+WParticleBehaviorFactory_Velocity::WParticleBehaviorFactory_Velocity() = default;
+WParticleBehaviorFactory_Velocity::~WParticleBehaviorFactory_Velocity() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_Velocity::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Velocity>();
+  return WGetStaticRTTI<WParticleBehavior_Velocity>();
 }
 
-void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_Velocity::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_Velocity* pBehavior = static_cast<ezParticleBehavior_Velocity*>(pObject);
+  WParticleBehavior_Velocity* pBehavior = static_cast<WParticleBehavior_Velocity*>(pObject);
 
   pBehavior->m_fFriction = m_fFriction;
   pBehavior->m_ChangeSpeedWith = m_ChangeSpeedWith;
@@ -69,9 +69,9 @@ enum class BehaviorVelocityVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_Velocity::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorVelocityVersion::Version_Current;
+  const WUInt8 uiVersion = (int)BehaviorVelocityVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_fFriction;
@@ -87,12 +87,12 @@ void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& inout_stream) cons
   m_RuntimeSpeedCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_Velocity::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   if (uiVersion < 6)
   {
@@ -120,10 +120,10 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, cons
     m_RuntimeSpeedCurve.SortControlPoints(); // also updates the aabb
     m_RuntimeSpeedCurve.CreateLinearApproximation();
 
-    if (m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve && m_hSpeedSharedCurve.IsValid())
+    if (m_ChangeSpeedWith == WVelocityChangeMode::SharedCurve && m_hSpeedSharedCurve.IsValid())
     {
-      ezResourceLock<ezCurve1DResource> pCurveResource(m_hSpeedSharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-      if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+      WResourceLock<WCurve1DResource> pCurveResource(m_hSpeedSharedCurve, WResourceAcquireMode::BlockTillLoaded);
+      if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
       {
         m_RuntimeSpeedCurve = pCurveResource->GetDescriptor().m_Curves[0];
       }
@@ -131,51 +131,51 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, cons
   }
 }
 
-void ezParticleBehaviorFactory_Velocity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void WParticleBehaviorFactory_Velocity::QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const
 {
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(WGetStaticRTTI<WParticleFinalizerFactory_ApplyVelocity>());
 }
 
-void ezParticleBehavior_Velocity::CreateRequiredStreams()
+void WParticleBehavior_Velocity::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 
-  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && m_pCurve && !m_pCurve->IsEmpty())
+  if ((m_ChangeSpeedWith == WVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == WVelocityChangeMode::SharedCurve) && m_pCurve && !m_pCurve->IsEmpty())
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   }
 }
 
-void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_Velocity::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Velocity");
+  W_PROFILE_SCOPE("PFX: Velocity");
 
   auto pOwner = GetOwnerEffect();
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   // Handle curve-based speed changes
-  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && m_pStreamLifeTime)
+  if ((m_ChangeSpeedWith == WVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == WVelocityChangeMode::SharedCurve) && m_pStreamLifeTime)
   {
     double fMinX, fMaxX;
     m_pCurve->QueryExtents(fMinX, fMaxX);
 
     // make sure the curve has a length of at least 1
-    fMinX = ezMath::Min(fMinX, 0.0);
-    fMaxX = ezMath::Max(fMaxX, 1.0);
+    fMinX = WMath::Min(fMinX, 0.0);
+    fMaxX = WMath::Max(fMaxX, 1.0);
 
-    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+    WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
 
     while (!itVelocity.HasReachedEnd())
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
 
-      const double evalPos = ezMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
+      const double evalPos = WMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
       const float val = (float)m_pCurve->Evaluate(evalPos);
 
-      ezVec4 vel = itVelocity.Current();
+      WVec4 vel = itVelocity.Current();
       vel.w = m_fSpeedCurveOffset + val * m_fSpeedCurveScale;
       itVelocity.Current() = vel;
 
@@ -186,12 +186,12 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   // Handle friction or no speed changes
   else
   {
-    const float fFriction = (m_ChangeSpeedWith == ezVelocityChangeMode::Friction) ? ezMath::Clamp(m_fFriction, 0.0f, 100.0f) : 0.0f;
-    const float fFrictionFactor = ezMath::Pow(0.5f, tDiff * fFriction);
+    const float fFriction = (m_ChangeSpeedWith == WVelocityChangeMode::Friction) ? WMath::Clamp(m_fFriction, 0.0f, 100.0f) : 0.0f;
+    const float fFrictionFactor = WMath::Pow(0.5f, tDiff * fFriction);
 
     while (!itVelocity.HasReachedEnd())
     {
-      ezVec4 vel = itVelocity.Current();
+      WVec4 vel = itVelocity.Current();
       vel.w *= fFrictionFactor;
       itVelocity.Current() = vel;
 
@@ -200,10 +200,10 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_Velocity::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void WParticleBehavior_Velocity::RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule)
 {
-  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
+  pParticleModule->CacheWorldModule<WPhysicsWorldModuleInterface>();
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Velocity);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Velocity);

@@ -1,21 +1,21 @@
 
 template <typename T>
-ezCustomDataResource<T>::ezCustomDataResource() = default;
+WCustomDataResource<T>::WCustomDataResource() = default;
 
 template <typename T>
-ezCustomDataResource<T>::~ezCustomDataResource() = default;
+WCustomDataResource<T>::~WCustomDataResource() = default;
 
 template <typename T>
-void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode)
+void WCustomDataResource<T>::CreateAndLoadData(WAbstractObjectGraph& ref_graph, WRttiConverterContext& ref_context, const WAbstractObjectNode* pRootNode)
 {
   T* pData = reinterpret_cast<T*>(m_Data);
 
-  if (GetLoadingState() == ezResourceState::Loaded)
+  if (GetLoadingState() == WResourceState::Loaded)
   {
-    ezMemoryUtils::Destruct(pData);
+    WMemoryUtils::Destruct(pData);
   }
 
-  ezMemoryUtils::Construct<SkipTrivialTypes>(pData);
+  WMemoryUtils::Construct<SkipTrivialTypes>(pData);
 
   if (pRootNode)
   {
@@ -26,25 +26,25 @@ void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& ref_graph
 }
 
 template <typename T>
-ezResourceLoadDesc ezCustomDataResource<T>::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WCustomDataResource<T>::UnloadData(Unload WhatToUnload)
 {
   if (GetData() != nullptr)
   {
-    ezMemoryUtils::Destruct(GetData());
+    WMemoryUtils::Destruct(GetData());
   }
 
-  return ezCustomDataResourceBase::UnloadData(WhatToUnload);
+  return WCustomDataResourceBase::UnloadData(WhatToUnload);
 }
 
 template <typename T>
-ezResourceLoadDesc ezCustomDataResource<T>::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WCustomDataResource<T>::UpdateContent(WStreamReader* Stream)
 {
-  return UpdateContent_Internal(Stream, *ezGetStaticRTTI<T>());
+  return UpdateContent_Internal(Stream, *WGetStaticRTTI<T>());
 }
 
 template <typename T>
-void ezCustomDataResource<T>::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WCustomDataResource<T>::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezCustomDataResource<T>);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WCustomDataResource<T>);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }

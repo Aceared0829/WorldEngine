@@ -10,28 +10,28 @@
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Types/Variant.h>
 
-class ezStreamWriter;
-class ezStreamReader;
+class WStreamWriter;
+class WStreamReader;
 
-namespace ezExpression
+namespace WExpression
 {
   struct Register
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     Register(){}; // NOLINT: using = default doesn't work here.
 
     union
     {
-      ezSimdVec4b b;
-      ezSimdVec4i i;
-      ezSimdVec4f f;
+      WSimdVec4b b;
+      WSimdVec4i i;
+      WSimdVec4f f;
     };
   };
 
   struct RegisterType
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -50,19 +50,19 @@ namespace ezExpression
     static const char* GetName(Enum registerType);
   };
 
-  using Output = ezArrayPtr<Register>;
-  using Inputs = ezArrayPtr<ezArrayPtr<const Register>>; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
-  using GlobalData = ezHashTable<ezHashedString, ezVariant>;
+  using Output = WArrayPtr<Register>;
+  using Inputs = WArrayPtr<WArrayPtr<const Register>>; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
+  using GlobalData = WHashTable<WHashedString, WVariant>;
 
   /// Describes an input or output stream for a expression VM
   struct StreamDesc
   {
-    ezHashedString m_sName;
-    ezProcessingStream::DataType m_DataType;
+    WHashedString m_sName;
+    WProcessingStream::DataType m_DataType;
 
     StreamDesc() = default;
 
-    StreamDesc(const ezHashedString sName, ezProcessingStream::DataType dataType)
+    StreamDesc(const WHashedString sName, WProcessingStream::DataType dataType)
       : m_sName(sName)
       , m_DataType(dataType)
     {
@@ -73,19 +73,19 @@ namespace ezExpression
       return m_sName == other.m_sName && m_DataType == other.m_DataType;
     }
 
-    ezResult Serialize(ezStreamWriter& inout_stream) const;
-    ezResult Deserialize(ezStreamReader& inout_stream);
+    WResult Serialize(WStreamWriter& inout_stream) const;
+    WResult Deserialize(WStreamReader& inout_stream);
   };
 
   /// Describes an expression function and its signature, e.g. how many input parameter it has and their type
   struct FunctionDesc
   {
-    using TypeList = ezSmallArray<ezEnum<ezExpression::RegisterType>, 8, ezStaticsAllocatorWrapper>;
+    using TypeList = WSmallArray<WEnum<WExpression::RegisterType>, 8, WStaticsAllocatorWrapper>;
 
-    ezHashedString m_sName;
+    WHashedString m_sName;
     TypeList m_InputTypes;
-    ezUInt8 m_uiNumRequiredInputs = 0;
-    ezEnum<ezExpression::RegisterType> m_OutputType;
+    WUInt8 m_uiNumRequiredInputs = 0;
+    WEnum<WExpression::RegisterType> m_OutputType;
 
     bool operator==(const FunctionDesc& other) const
     {
@@ -97,40 +97,40 @@ namespace ezExpression
 
     bool operator<(const FunctionDesc& other) const;
 
-    ezResult Serialize(ezStreamWriter& inout_stream) const;
-    ezResult Deserialize(ezStreamReader& inout_stream);
+    WResult Serialize(WStreamWriter& inout_stream) const;
+    WResult Deserialize(WStreamReader& inout_stream);
 
-    ezHashedString GetMangledName() const;
+    WHashedString GetMangledName() const;
   };
 
-  using Function = void (*)(ezExpression::Inputs, ezExpression::Output, const ezExpression::GlobalData&);
-  using ValidateGlobalDataFunction = ezResult (*)(const ezExpression::GlobalData&);
+  using Function = void (*)(WExpression::Inputs, WExpression::Output, const WExpression::GlobalData&);
+  using ValidateGlobalDataFunction = WResult (*)(const WExpression::GlobalData&);
 
-} // namespace ezExpression
+} // namespace WExpression
 
 /// Describes an external function that can be called in expressions.
 ///  These functions need to be state-less and thread-safe.
-struct ezExpressionFunction
+struct WExpressionFunction
 {
-  ezExpression::FunctionDesc m_Desc;
+  WExpression::FunctionDesc m_Desc;
 
-  ezExpression::Function m_Func;
+  WExpression::Function m_Func;
 
   // Optional validation function used to validate required global data for an expression function
-  ezExpression::ValidateGlobalDataFunction m_ValidateGlobalDataFunc;
+  WExpression::ValidateGlobalDataFunction m_ValidateGlobalDataFunc;
 };
 
 /// Contains the default expression functions that are always available in the expression system.
-struct EZ_FOUNDATION_DLL ezDefaultExpressionFunctions
+struct W_FOUNDATION_DLL WDefaultExpressionFunctions
 {
-  static ezExpressionFunction s_RandomFunc;
-  static ezExpressionFunction s_PerlinNoiseFunc;
+  static WExpressionFunction s_RandomFunc;
+  static WExpressionFunction s_PerlinNoiseFunc;
 };
 
 /// Contains extended expression functions that need to be registered explicitly with the expression VM.
-struct EZ_FOUNDATION_DLL ezExtendedExpressionFunctions
+struct W_FOUNDATION_DLL WExtendedExpressionFunctions
 {
-  static ezExpressionFunction s_SampleCurveFunc;
+  static WExpressionFunction s_SampleCurveFunc;
 };
 
 /// Add this attribute a string property that should be interpreted as expression source.
@@ -140,14 +140,14 @@ struct EZ_FOUNDATION_DLL ezExtendedExpressionFunctions
 ///
 /// Optionally, a semicolon-separated list of custom keywords can be provided. These are highlighted in the
 /// expression editor with a dedicated color, distinct from built-in types and functions.
-class EZ_FOUNDATION_DLL ezExpressionWidgetAttribute : public ezTypeWidgetAttribute
+class W_FOUNDATION_DLL WExpressionWidgetAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExpressionWidgetAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WExpressionWidgetAttribute, WTypeWidgetAttribute);
 
 public:
-  ezExpressionWidgetAttribute() = default;
+  WExpressionWidgetAttribute() = default;
 
-  ezExpressionWidgetAttribute(const char* szInputsProperty, const char* szOutputsProperty)
+  WExpressionWidgetAttribute(const char* szInputsProperty, const char* szOutputsProperty)
     : m_sInputsProperty(szInputsProperty)
     , m_sOutputsProperty(szOutputsProperty)
   {
@@ -155,7 +155,7 @@ public:
 
   /// \param szCustomKeywords Semicolon-separated list of identifiers to highlight as a custom keyword group.
   /// \param customKeywordColor The color used to highlight the custom keywords.
-  ezExpressionWidgetAttribute(const char* szCustomKeywords, ezColorGammaUB customKeywordColor)
+  WExpressionWidgetAttribute(const char* szCustomKeywords, WColorGammaUB customKeywordColor)
     : m_sCustomKeywords(szCustomKeywords)
     , m_CustomKeywordColor(customKeywordColor)
   {
@@ -164,11 +164,11 @@ public:
   const char* GetInputsProperty() const { return m_sInputsProperty; }
   const char* GetOutputsProperty() const { return m_sOutputsProperty; }
   const char* GetCustomKeywords() const { return m_sCustomKeywords; }
-  ezColorGammaUB GetCustomKeywordColor() const { return m_CustomKeywordColor; }
+  WColorGammaUB GetCustomKeywordColor() const { return m_CustomKeywordColor; }
 
 private:
-  ezUntrackedString m_sInputsProperty;
-  ezUntrackedString m_sOutputsProperty;
-  ezUntrackedString m_sCustomKeywords;
-  ezColorGammaUB m_CustomKeywordColor = ezColorGammaUB(ezColorScheme::DarkUI(ezColorScheme::Yellow));
+  WUntrackedString m_sInputsProperty;
+  WUntrackedString m_sOutputsProperty;
+  WUntrackedString m_sCustomKeywords;
+  WColorGammaUB m_CustomKeywordColor = WColorGammaUB(WColorScheme::DarkUI(WColorScheme::Yellow));
 };

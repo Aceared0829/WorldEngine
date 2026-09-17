@@ -7,26 +7,26 @@ struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11UnorderedAccessView;
 
-class ezGALRenderTargetViewDX11 : public ezGALRenderTargetView
+class WGALRenderTargetViewDX11 : public WGALRenderTargetView
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11RenderTargetView* GetRenderTargetView() const;
+  W_ALWAYS_INLINE ID3D11RenderTargetView* GetRenderTargetView() const;
 
-  EZ_ALWAYS_INLINE ID3D11DepthStencilView* GetDepthStencilView() const;
+  W_ALWAYS_INLINE ID3D11DepthStencilView* GetDepthStencilView() const;
 
-  EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
+  W_ALWAYS_INLINE ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description);
+  WGALRenderTargetViewDX11(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description);
 
-  virtual ~ezGALRenderTargetViewDX11();
+  virtual ~WGALRenderTargetViewDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
 

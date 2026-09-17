@@ -15,15 +15,15 @@
 
 class QStandardItemModel;
 class QSortFilterProxyModel;
-class ezQtCVarModel;
-class ezQtCVarWidget;
+class WQtCVarModel;
+class WQtCVarWidget;
 
-class ezQtCVarItemDelegate : public QItemDelegate
+class WQtCVarItemDelegate : public QItemDelegate
 {
   Q_OBJECT
 
 public:
-  explicit ezQtCVarItemDelegate(QObject* pParent = nullptr)
+  explicit WQtCVarItemDelegate(QObject* pParent = nullptr)
     : QItemDelegate(pParent)
   {
   }
@@ -32,7 +32,7 @@ public:
   virtual void setEditorData(QWidget* pEditor, const QModelIndex& index) const override;
   virtual void setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const override;
 
-  ezQtCVarModel* m_pModel = nullptr;
+  WQtCVarModel* m_pModel = nullptr;
 
 private:
   mutable QModelIndex m_Index;
@@ -41,12 +41,12 @@ private Q_SLOTS:
   void onComboChanged(int);
 };
 
-class ezQtCVarModel : public QAbstractItemModel
+class WQtCVarModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtCVarModel(ezQtCVarWidget* pOwner);
-  ~ezQtCVarModel();
+  WQtCVarModel(WQtCVarWidget* pOwner);
+  ~WQtCVarModel();
 
   void BeginResetModel();
   void EndResetModel();
@@ -64,60 +64,60 @@ public: // QAbstractItemModel interface
 public:
   struct Entry
   {
-    ezString m_sFullName;
+    WString m_sFullName;
     QString m_sDisplayString;
     Entry* m_pParentEntry = nullptr;
-    ezDynamicArray<Entry*> m_ChildEntries;
+    WDynamicArray<Entry*> m_ChildEntries;
 
     QString m_sPlugin;      // in which plugin a CVar is defined
     QString m_sDescription; // CVar description text
-    ezVariant m_Value;
+    WVariant m_Value;
   };
 
   Entry* CreateEntry(const char* szName);
 
-  ezQtCVarWidget* m_pOwner = nullptr;
-  ezDynamicArray<Entry*> m_RootEntries;
-  ezDeque<Entry> m_AllEntries;
+  WQtCVarWidget* m_pOwner = nullptr;
+  WDynamicArray<Entry*> m_RootEntries;
+  WDeque<Entry> m_AllEntries;
 };
 
-/// Data used by ezQtCVarWidget to represent CVar states
-struct EZ_GUIFOUNDATION_DLL ezCVarWidgetData
+/// Data used by WQtCVarWidget to represent CVar states
+struct W_GUIFOUNDATION_DLL WCVarWidgetData
 {
   mutable bool m_bNewEntry = true;
 
-  ezString m_sPlugin;      // in which plugin a CVar is defined
-  ezString m_sDescription; // CVar description text
-  ezUInt8 m_uiType = 0;    // ezCVarType
+  WString m_sPlugin;      // in which plugin a CVar is defined
+  WString m_sDescription; // CVar description text
+  WUInt8 m_uiType = 0;    // WCVarType
 
   // 'union' over the different possible CVar types
   bool m_bValue = false;
   float m_fValue = 0.0f;
-  ezInt32 m_iValue = 0;
-  ezString m_sValue;
+  WInt32 m_iValue = 0;
+  WString m_sValue;
 };
 
 /// Displays CVar values in a table and allows to modify them.
-class EZ_GUIFOUNDATION_DLL ezQtCVarWidget : public QWidget, public Ui_CVarWidget
+class W_GUIFOUNDATION_DLL WQtCVarWidget : public QWidget, public Ui_CVarWidget
 {
   Q_OBJECT
 
 public:
-  ezQtCVarWidget(QWidget* pParent);
-  ~ezQtCVarWidget();
+  WQtCVarWidget(QWidget* pParent);
+  ~WQtCVarWidget();
 
   /// Clears the table
   void Clear();
 
   /// Recreates the full UI. This is necessary when elements were added or removed.
-  void RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
+  void RebuildCVarUI(const WMap<WString, WCVarWidgetData>& cvars);
 
   /// Updates the existing UI. This is sufficient if values changed only.
-  void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
+  void UpdateCVarUI(const WMap<WString, WCVarWidgetData>& cvars);
 
-  void AddConsoleStrings(const ezStringBuilder& sEncoded);
+  void AddConsoleStrings(const WStringBuilder& sEncoded);
 
-  ezConsole& GetConsole() { return m_Console; }
+  WConsole& GetConsole() { return m_Console; }
 
 Q_SIGNALS:
   void onBoolChanged(const char* szCVar, bool bNewValue);
@@ -131,11 +131,11 @@ private Q_SLOTS:
   void ConsoleSpecialKeyPressed(Qt::Key key);
 
 private:
-  QPointer<ezQtCVarModel> m_pItemModel;
+  QPointer<WQtCVarModel> m_pItemModel;
   QPointer<QSortFilterProxyModel> m_pFilterModel;
-  QPointer<ezQtCVarItemDelegate> m_pItemDelegate;
+  QPointer<WQtCVarItemDelegate> m_pItemDelegate;
 
-  void OnConsoleEvent(const ezConsoleEvent& e);
+  void OnConsoleEvent(const WConsoleEvent& e);
 
-  ezConsole m_Console;
+  WConsole m_Console;
 };

@@ -6,46 +6,46 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSelectionActions
+class W_EDITORPLUGINSCENE_DLL WSelectionActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
-  static void MapPrefabActions(ezStringView sMapping, float fPriority);
-  static void MapContextMenuActions(ezStringView sMapping);
-  static void MapViewContextMenuActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
+  static void MapPrefabActions(WStringView sMapping, float fPriority);
+  static void MapContextMenuActions(WStringView sMapping);
+  static void MapViewContextMenuActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hGroupSelectedItems;
-  static ezActionDescriptorHandle s_hCreateEmptyChildObject;
-  static ezActionDescriptorHandle s_hCreateEmptyObjectAtPosition;
-  static ezActionDescriptorHandle s_hHideSelectedObjects;
-  static ezActionDescriptorHandle s_hHideUnselectedObjects;
-  static ezActionDescriptorHandle s_hShowHiddenObjects;
-  static ezActionDescriptorHandle s_hPrefabMenu;
-  static ezActionDescriptorHandle s_hCreatePrefab;
-  static ezActionDescriptorHandle s_hRevertPrefab;
-  static ezActionDescriptorHandle s_hUnlinkFromPrefab;
-  static ezActionDescriptorHandle s_hOpenPrefabDocument;
-  static ezActionDescriptorHandle s_hDuplicateSpecial;
-  static ezActionDescriptorHandle s_hDeltaTransform;
-  static ezActionDescriptorHandle s_hSnapObjectToCamera;
-  static ezActionDescriptorHandle s_hAttachToObject;
-  static ezActionDescriptorHandle s_hDetachFromParent;
-  static ezActionDescriptorHandle s_hConvertToEnginePrefab;
-  static ezActionDescriptorHandle s_hConvertToEditorPrefab;
-  static ezActionDescriptorHandle s_hCopyReference;
-  static ezActionDescriptorHandle s_hSelectParent;
-  static ezActionDescriptorHandle s_hSetActiveParent;
-  static ezActionDescriptorHandle s_hClearActiveParent;
-  static ezActionDescriptorHandle s_hUndoSelection;
+  static WActionDescriptorHandle s_hGroupSelectedItems;
+  static WActionDescriptorHandle s_hCreateEmptyChildObject;
+  static WActionDescriptorHandle s_hCreateEmptyObjectAtPosition;
+  static WActionDescriptorHandle s_hHideSelectedObjects;
+  static WActionDescriptorHandle s_hHideUnselectedObjects;
+  static WActionDescriptorHandle s_hShowHiddenObjects;
+  static WActionDescriptorHandle s_hPrefabMenu;
+  static WActionDescriptorHandle s_hCreatePrefab;
+  static WActionDescriptorHandle s_hRevertPrefab;
+  static WActionDescriptorHandle s_hUnlinkFromPrefab;
+  static WActionDescriptorHandle s_hOpenPrefabDocument;
+  static WActionDescriptorHandle s_hDuplicateSpecial;
+  static WActionDescriptorHandle s_hDeltaTransform;
+  static WActionDescriptorHandle s_hSnapObjectToCamera;
+  static WActionDescriptorHandle s_hAttachToObject;
+  static WActionDescriptorHandle s_hDetachFromParent;
+  static WActionDescriptorHandle s_hConvertToEnginePrefab;
+  static WActionDescriptorHandle s_hConvertToEditorPrefab;
+  static WActionDescriptorHandle s_hCopyReference;
+  static WActionDescriptorHandle s_hSelectParent;
+  static WActionDescriptorHandle s_hSetActiveParent;
+  static WActionDescriptorHandle s_hClearActiveParent;
+  static WActionDescriptorHandle s_hUndoSelection;
 };
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSelectionAction : public ezButtonAction
+class W_EDITORPLUGINSCENE_DLL WSelectionAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectionAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WSelectionAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -78,20 +78,20 @@ public:
     UndoSelection,
   };
 
-  ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezSelectionAction();
+  WSelectionAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WSelectionAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
   void OpenPrefabDocument();
 
   void CreatePrefab();
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
   void UpdateEnableState();
 
-  ezSceneDocument* m_pSceneDocument;
+  WSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };

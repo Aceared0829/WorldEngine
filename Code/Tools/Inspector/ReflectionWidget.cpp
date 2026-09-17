@@ -5,9 +5,9 @@
 #include <Inspector/ReflectionWidget.moc.h>
 #include <qlistwidget.h>
 
-ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
+WQtReflectionWidget* WQtReflectionWidget::s_pWidget = nullptr;
 
-ezQtReflectionWidget::ezQtReflectionWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtReflectionWidget::WQtReflectionWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Reflection Widget", pParent)
 {
   s_pWidget = this;
@@ -20,7 +20,7 @@ ezQtReflectionWidget::ezQtReflectionWidget(ads::CDockManager* pDockManager, QWid
   ResetStats();
 }
 
-void ezQtReflectionWidget::ResetStats()
+void WQtReflectionWidget::ResetStats()
 {
   TypeTree->clear();
 
@@ -37,16 +37,16 @@ void ezQtReflectionWidget::ResetStats()
   }
 }
 
-void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
+void WQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
 
   bool bUpdate = false;
 
-  while (ezTelemetry::RetrieveMessage('RFLC', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('RFLC', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == ' CLR')
     {
@@ -58,7 +58,7 @@ void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
     {
       bUpdate = true;
 
-      ezString sName;
+      WString sName;
       msg.GetReader() >> sName;
 
       TypeData& sd = s_pWidget->m_Types[sName];
@@ -68,17 +68,17 @@ void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
       msg.GetReader() >> sd.m_sPlugin;
 
       {
-        ezUInt32 num = 0;
+        WUInt32 num = 0;
         msg.GetReader() >> num;
 
-        for (ezUInt32 i = 0; i < num; ++i)
+        for (WUInt32 i = 0; i < num; ++i)
         {
           PropertyData pd;
           msg.GetReader() >> pd.m_sPropertyName;
           msg.GetReader() >> pd.m_iCategory;
           msg.GetReader() >> pd.m_sType;
 
-          for (ezUInt32 j = 0; j < sd.m_Properties.GetCount(); ++j)
+          for (WUInt32 j = 0; j < sd.m_Properties.GetCount(); ++j)
           {
             if (sd.m_Properties[j].m_sPropertyName == pd.m_sPropertyName)
               goto found;
@@ -108,7 +108,7 @@ void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-bool ezQtReflectionWidget::UpdateTree()
+bool WQtReflectionWidget::UpdateTree()
 {
   bool bAddedAny = false;
 
@@ -127,7 +127,7 @@ bool ezQtReflectionWidget::UpdateTree()
       QTreeWidgetItem* pItem = new QTreeWidgetItem();
       it.Value().m_pTreeItem = pItem;
 
-      ezStringBuilder sText;
+      WStringBuilder sText;
       sText.SetFormat("{0}", it.Value().m_uiSize);
 
       pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
@@ -147,7 +147,7 @@ bool ezQtReflectionWidget::UpdateTree()
         TypeTree->addTopLevelItem(pItem);
       }
 
-      for (ezUInt32 i = 0; i < it.Value().m_Properties.GetCount(); ++i)
+      for (WUInt32 i = 0; i < it.Value().m_Properties.GetCount(); ++i)
       {
         QTreeWidgetItem* pProperty = new QTreeWidgetItem();
         pProperty->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
@@ -158,23 +158,23 @@ bool ezQtReflectionWidget::UpdateTree()
             pProperty->setText(0, "Message");
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.svg"));
             break;
-          case ezPropertyCategory::Member:
+          case WPropertyCategory::Member:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.svg"));
             break;
-          case ezPropertyCategory::Function:
+          case WPropertyCategory::Function:
             pProperty->setText(0, "Function");
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.svg"));
             break;
-          case ezPropertyCategory::Array:
+          case WPropertyCategory::Array:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.svg"));
             break;
-          case ezPropertyCategory::Set:
+          case WPropertyCategory::Set:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.svg"));
             break;
-          case ezPropertyCategory::Map:
+          case WPropertyCategory::Map:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
             pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.svg"));
             break;

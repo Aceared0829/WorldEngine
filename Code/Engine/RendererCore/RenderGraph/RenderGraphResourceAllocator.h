@@ -6,10 +6,10 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
 #include <RendererCore/RendererCoreDLL.h>
-#include <RendererFoundation/Utils/ResourceStateTracker.h> // provides ezHashHelper<ezGALTextureHandle/ezGALBufferHandle>
+#include <RendererFoundation/Utils/ResourceStateTracker.h> // provides WHashHelper<WGALTextureHandle/WGALBufferHandle>
 
 /// Per-graph, single-threaded resource allocator that sits in front of the
-/// global ezRenderGraphResourcePool.
+/// global WRenderGraphResourcePool.
 ///
 /// Each render graph owns one allocator. The allocator provides a simple
 /// AcquireTexture / ReleaseTexture API. Internally it tracks how many resources
@@ -20,59 +20,59 @@
 /// Released resources stay alive in the allocator for intra-graph recycling.
 /// FreeResources (or the destructor) drops all shared pointers, decrementing
 /// the ref counts back toward the pool.
-class EZ_RENDERERCORE_DLL ezRenderGraphResourceAllocator
+class W_RENDERERCORE_DLL WRenderGraphResourceAllocator
 {
 public:
-  explicit ezRenderGraphResourceAllocator(ezRenderGraphResourcePool* pPool);
-  ~ezRenderGraphResourceAllocator();
+  explicit WRenderGraphResourceAllocator(WRenderGraphResourcePool* pPool);
+  ~WRenderGraphResourceAllocator();
 
-  ezRenderGraphResourceAllocator(const ezRenderGraphResourceAllocator&) = delete;
-  ezRenderGraphResourceAllocator& operator=(const ezRenderGraphResourceAllocator&) = delete;
-  ezRenderGraphResourceAllocator(ezRenderGraphResourceAllocator&& rhs) noexcept;
-  ezRenderGraphResourceAllocator& operator=(ezRenderGraphResourceAllocator&& rhs) noexcept;
+  WRenderGraphResourceAllocator(const WRenderGraphResourceAllocator&) = delete;
+  WRenderGraphResourceAllocator& operator=(const WRenderGraphResourceAllocator&) = delete;
+  WRenderGraphResourceAllocator(WRenderGraphResourceAllocator&& rhs) noexcept;
+  WRenderGraphResourceAllocator& operator=(WRenderGraphResourceAllocator&& rhs) noexcept;
 
   /// Acquire a texture matching the given description. If a previously released
   /// texture with the same description is available, it is recycled. Otherwise, a
   /// new slot is requested from the pool.
-  ezGALTextureHandle AcquireTexture(const ezGALTextureCreationDescription& desc);
+  WGALTextureHandle AcquireTexture(const WGALTextureCreationDescription& desc);
 
   /// Return a texture for intra-graph recycling. The underlying pooled resource
   /// stays alive in the allocator; a future AcquireTexture with a matching
   /// description may return this same resource.
-  void ReleaseTexture(ezGALTextureHandle hTexture);
+  void ReleaseTexture(WGALTextureHandle hTexture);
 
   /// Acquire a buffer matching the given description.
-  ezGALBufferHandle AcquireBuffer(const ezGALBufferCreationDescription& desc);
+  WGALBufferHandle AcquireBuffer(const WGALBufferCreationDescription& desc);
 
   /// Return a buffer for intra-graph recycling.
-  void ReleaseBuffer(ezGALBufferHandle hBuffer);
+  void ReleaseBuffer(WGALBufferHandle hBuffer);
 
   /// Drop all shared pointers, decrementing ref counts back toward the pool.
   void FreeResources();
 
 private:
-  ezRenderGraphResourcePool* m_pPool = nullptr;
+  WRenderGraphResourcePool* m_pPool = nullptr;
 
   struct TextureGroup
   {
     TextureGroup();
-    ezUInt32 m_uiNextPoolIndex = 0;
-    ezHybridArray<ezSharedPtr<ezPooledRenderTexture>, 1> m_All;
-    ezHybridArray<ezSharedPtr<ezPooledRenderTexture>, 1> m_Available;
+    WUInt32 m_uiNextPoolIndex = 0;
+    WHybridArray<WSharedPtr<WPooledRenderTexture>, 1> m_All;
+    WHybridArray<WSharedPtr<WPooledRenderTexture>, 1> m_Available;
   };
-  ezHashTable<ezUInt64, TextureGroup> m_TextureGroups; // keyed by desc hash
-  ezHashTable<ezGALTextureHandle, ezSharedPtr<ezPooledRenderTexture>> m_HandleToTexture;
+  WHashTable<WUInt64, TextureGroup> m_TextureGroups; // keyed by desc hash
+  WHashTable<WGALTextureHandle, WSharedPtr<WPooledRenderTexture>> m_HandleToTexture;
 
   struct BufferGroup
   {
     BufferGroup();
-    ezUInt32 m_uiNextPoolIndex = 0;
-    ezHybridArray<ezSharedPtr<ezPooledRenderBuffer>, 1> m_All;
-    ezHybridArray<ezSharedPtr<ezPooledRenderBuffer>, 1> m_Available;
+    WUInt32 m_uiNextPoolIndex = 0;
+    WHybridArray<WSharedPtr<WPooledRenderBuffer>, 1> m_All;
+    WHybridArray<WSharedPtr<WPooledRenderBuffer>, 1> m_Available;
   };
-  ezHashTable<ezUInt64, BufferGroup> m_BufferGroups;
-  ezHashTable<ezGALBufferHandle, ezSharedPtr<ezPooledRenderBuffer>> m_HandleToBuffer;
+  WHashTable<WUInt64, BufferGroup> m_BufferGroups;
+  WHashTable<WGALBufferHandle, WSharedPtr<WPooledRenderBuffer>> m_HandleToBuffer;
 
-  static ezUInt64 ComputeDescHash(const ezGALTextureCreationDescription& desc);
-  static ezUInt64 ComputeDescHash(const ezGALBufferCreationDescription& desc);
+  static WUInt64 ComputeDescHash(const WGALTextureCreationDescription& desc);
+  static WUInt64 ComputeDescHash(const WGALBufferCreationDescription& desc);
 };

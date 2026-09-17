@@ -8,41 +8,41 @@
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 #  include <Foundation/Utilities/Stats.h>
 #endif
 
 namespace
 {
-  ezUInt64 ComputeDescHash(const ezGALTextureCreationDescription& desc)
+  WUInt64 ComputeDescHash(const WGALTextureCreationDescription& desc)
   {
-    return ezHashingUtils::xxHash64(&desc, sizeof(desc));
+    return WHashingUtils::xxHash64(&desc, sizeof(desc));
   }
 
-  ezUInt64 ComputeDescHash(const ezGALBufferCreationDescription& desc)
+  WUInt64 ComputeDescHash(const WGALBufferCreationDescription& desc)
   {
-    return ezHashingUtils::xxHash64(&desc, sizeof(desc));
+    return WHashingUtils::xxHash64(&desc, sizeof(desc));
   }
 } // namespace
 
-ezRenderGraphResourcePool::ezRenderGraphResourcePool(ezGALDevice* pDevice)
+WRenderGraphResourcePool::WRenderGraphResourcePool(WGALDevice* pDevice)
   : m_pDevice(pDevice)
 {
 }
 
-ezRenderGraphResourcePool::~ezRenderGraphResourcePool()
+WRenderGraphResourcePool::~WRenderGraphResourcePool()
 {
   Clear();
 }
 
-// --- Private: called by ezRenderGraphResourceAllocator ---
+// --- Private: called by WRenderGraphResourceAllocator ---
 
-ezSharedPtr<ezPooledRenderTexture> ezRenderGraphResourcePool::AcquireTexture(const ezGALTextureCreationDescription& desc, ezUInt32 uiIndex)
+WSharedPtr<WPooledRenderTexture> WRenderGraphResourcePool::AcquireTexture(const WGALTextureCreationDescription& desc, WUInt32 uiIndex)
 {
-  EZ_PROFILE_SCOPE("AcquireTexture");
-  EZ_LOCK(m_Mutex);
+  W_PROFILE_SCOPE("AcquireTexture");
+  W_LOCK(m_Mutex);
 
-  const ezUInt64 uiHash = ComputeDescHash(desc);
+  const WUInt64 uiHash = ComputeDescHash(desc);
   auto& slots = m_Textures[uiHash]; // inserts empty array if not present
 
   // Grow the slot array if needed.
@@ -51,15 +51,15 @@ ezSharedPtr<ezPooledRenderTexture> ezRenderGraphResourcePool::AcquireTexture(con
     slots.PushBack(nullptr);
   }
 
-  ezSharedPtr<ezPooledRenderTexture>& pSlot = slots[uiIndex];
+  WSharedPtr<WPooledRenderTexture>& pSlot = slots[uiIndex];
   if (pSlot == nullptr)
   {
     // Create the GPU resource.
-    ezGALTextureHandle hTexture = m_pDevice->CreateTexture(desc);
-    EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create transient texture ({}x{}, format {})",
+    WGALTextureHandle hTexture = m_pDevice->CreateTexture(desc);
+    W_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create transient texture ({}x{}, format {})",
       desc.m_uiWidth, desc.m_uiHeight, (int)desc.m_Format.GetValue());
 
-    pSlot = EZ_DEFAULT_NEW(ezPooledRenderTexture);
+    pSlot = W_DEFAULT_NEW(WPooledRenderTexture);
     pSlot->m_hTexture = hTexture;
     pSlot->m_Desc = desc;
 
@@ -71,12 +71,12 @@ ezSharedPtr<ezPooledRenderTexture> ezRenderGraphResourcePool::AcquireTexture(con
   return pSlot;
 }
 
-ezSharedPtr<ezPooledRenderBuffer> ezRenderGraphResourcePool::AcquireBuffer(const ezGALBufferCreationDescription& desc, ezUInt32 uiIndex)
+WSharedPtr<WPooledRenderBuffer> WRenderGraphResourcePool::AcquireBuffer(const WGALBufferCreationDescription& desc, WUInt32 uiIndex)
 {
-  EZ_PROFILE_SCOPE("AcquireBuffer");
-  EZ_LOCK(m_Mutex);
+  W_PROFILE_SCOPE("AcquireBuffer");
+  W_LOCK(m_Mutex);
 
-  const ezUInt64 uiHash = ComputeDescHash(desc);
+  const WUInt64 uiHash = ComputeDescHash(desc);
   auto& slots = m_Buffers[uiHash];
 
   while (slots.GetCount() <= uiIndex)
@@ -84,13 +84,13 @@ ezSharedPtr<ezPooledRenderBuffer> ezRenderGraphResourcePool::AcquireBuffer(const
     slots.PushBack(nullptr);
   }
 
-  ezSharedPtr<ezPooledRenderBuffer>& pSlot = slots[uiIndex];
+  WSharedPtr<WPooledRenderBuffer>& pSlot = slots[uiIndex];
   if (pSlot == nullptr)
   {
-    ezGALBufferHandle hBuffer = m_pDevice->CreateBuffer(desc);
-    EZ_ASSERT_DEV(!hBuffer.IsInvalidated(), "Failed to create transient buffer (size {})", desc.m_uiTotalSize);
+    WGALBufferHandle hBuffer = m_pDevice->CreateBuffer(desc);
+    W_ASSERT_DEV(!hBuffer.IsInvalidated(), "Failed to create transient buffer (size {})", desc.m_uiTotalSize);
 
-    pSlot = EZ_DEFAULT_NEW(ezPooledRenderBuffer);
+    pSlot = W_DEFAULT_NEW(WPooledRenderBuffer);
     pSlot->m_hBuffer = hBuffer;
     pSlot->m_Desc = desc;
 
@@ -104,17 +104,17 @@ ezSharedPtr<ezPooledRenderBuffer> ezRenderGraphResourcePool::AcquireBuffer(const
 
 // --- GC & Cleanup ---
 
-void ezRenderGraphResourcePool::RunGC(ezUInt32 uiMinimumAge)
+void WRenderGraphResourcePool::RunGC(WUInt32 uiMinimumAge)
 {
-  EZ_PROFILE_SCOPE("RunGC");
-  EZ_LOCK(m_Mutex);
+  W_PROFILE_SCOPE("RunGC");
+  W_LOCK(m_Mutex);
 
   for (auto it = m_Textures.GetIterator(); it.IsValid(); ++it)
   {
     auto& slots = it.Value();
-    for (ezInt32 i = (ezInt32)slots.GetCount() - 1; i >= 0; --i)
+    for (WInt32 i = (WInt32)slots.GetCount() - 1; i >= 0; --i)
     {
-      ezSharedPtr<ezPooledRenderTexture>& pTex = slots[i];
+      WSharedPtr<WPooledRenderTexture>& pTex = slots[i];
       if (pTex == nullptr)
         continue;
 
@@ -141,9 +141,9 @@ void ezRenderGraphResourcePool::RunGC(ezUInt32 uiMinimumAge)
   for (auto it = m_Buffers.GetIterator(); it.IsValid(); ++it)
   {
     auto& slots = it.Value();
-    for (ezInt32 i = (ezInt32)slots.GetCount() - 1; i >= 0; --i)
+    for (WInt32 i = (WInt32)slots.GetCount() - 1; i >= 0; --i)
     {
-      ezSharedPtr<ezPooledRenderBuffer>& pBuf = slots[i];
+      WSharedPtr<WPooledRenderBuffer>& pBuf = slots[i];
       if (pBuf == nullptr)
         continue;
 
@@ -169,7 +169,7 @@ void ezRenderGraphResourcePool::RunGC(ezUInt32 uiMinimumAge)
   UpdateMemoryStats();
 }
 
-void ezRenderGraphResourcePool::EndFrame()
+void WRenderGraphResourcePool::EndFrame()
 {
   ++m_uiFrameCounter;
   ++m_uiFramesSinceLastGC;
@@ -180,9 +180,9 @@ void ezRenderGraphResourcePool::EndFrame()
   }
 }
 
-void ezRenderGraphResourcePool::Clear()
+void WRenderGraphResourcePool::Clear()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto it = m_Textures.GetIterator(); it.IsValid(); ++it)
   {
@@ -214,13 +214,13 @@ void ezRenderGraphResourcePool::Clear()
   UpdateMemoryStats();
 }
 
-void ezRenderGraphResourcePool::UpdateMemoryStats() const
+void WRenderGraphResourcePool::UpdateMemoryStats() const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   float fMegaBytes = float(m_uiCurrentlyAllocatedMemory) / (1024.0f * 1024.0f);
-  ezStats::SetStat("RenderGraph Resource Pool/Memory (MB)", fMegaBytes);
+  WStats::SetStat("RenderGraph Resource Pool/Memory (MB)", fMegaBytes);
 
-  ezUInt32 uiTextures = 0;
+  WUInt32 uiTextures = 0;
   for (auto it = m_Textures.GetIterator(); it.IsValid(); ++it)
   {
     for (auto& pTex : it.Value())
@@ -230,7 +230,7 @@ void ezRenderGraphResourcePool::UpdateMemoryStats() const
     }
   }
 
-  ezUInt32 uiBuffers = 0;
+  WUInt32 uiBuffers = 0;
   for (auto it = m_Buffers.GetIterator(); it.IsValid(); ++it)
   {
     for (auto& pBuf : it.Value())
@@ -240,7 +240,7 @@ void ezRenderGraphResourcePool::UpdateMemoryStats() const
     }
   }
 
-  ezStats::SetStat("RenderGraph Resource Pool/Textures", (double)uiTextures);
-  ezStats::SetStat("RenderGraph Resource Pool/Buffers", (double)uiBuffers);
+  WStats::SetStat("RenderGraph Resource Pool/Textures", (double)uiTextures);
+  WStats::SetStat("RenderGraph Resource Pool/Buffers", (double)uiBuffers);
 #endif
 }

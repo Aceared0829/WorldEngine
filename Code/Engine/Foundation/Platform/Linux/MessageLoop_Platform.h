@@ -2,9 +2,9 @@
 #pragma once
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
@@ -12,26 +12,26 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #  include <poll.h>
 
-class ezIpcChannel;
-class ezPipeChannel_linux;
+class WIpcChannel;
+class WPipeChannel_linux;
 
-#  ifndef _EZ_DEFINED_POLLFD_POD
-#    define _EZ_DEFINED_POLLFD_POD
-EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#  ifndef _W_DEFINED_POLLFD_POD
+#    define _W_DEFINED_POLLFD_POD
+W_DEFINE_AS_POD_TYPE(struct pollfd);
 #  endif
 
-class EZ_FOUNDATION_DLL ezMessageLoop_linux : public ezMessageLoop
+class W_FOUNDATION_DLL WMessageLoop_linux : public WMessageLoop
 {
 public:
-  ezMessageLoop_linux();
-  ~ezMessageLoop_linux();
+  WMessageLoop_linux();
+  ~WMessageLoop_linux();
 
 protected:
   virtual void WakeUp() override;
-  virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) override;
+  virtual bool WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter) override;
 
 private:
-  friend class ezPipeChannel_linux;
+  friend class WPipeChannel_linux;
 
   enum class WaitType
   {
@@ -41,28 +41,28 @@ private:
     Send
   };
 
-  void RegisterWait(ezPipeChannel_linux* pChannel, WaitType type, int fd);
-  void RemovePendingWaits(ezPipeChannel_linux* pChannel);
+  void RegisterWait(WPipeChannel_linux* pChannel, WaitType type, int fd);
+  void RemovePendingWaits(WPipeChannel_linux* pChannel);
 
 private:
   struct WaitInfo
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezPipeChannel_linux* m_pChannel;
+    WPipeChannel_linux* m_pChannel;
     WaitType m_type;
   };
 
   // m_waitInfos and m_pollInfos are alway the same size.
   // related information is stored at the same index.
-  ezHybridArray<WaitInfo, 16> m_waitInfos;
-  ezHybridArray<struct pollfd, 16> m_pollInfos;
-  ezMutex m_pollMutex;
-  ezAtomicInteger32 m_numPendingPollModifications = 0;
+  WHybridArray<WaitInfo, 16> m_waitInfos;
+  WHybridArray<struct pollfd, 16> m_pollInfos;
+  WMutex m_pollMutex;
+  WAtomicInteger32 m_numPendingPollModifications = 0;
   int m_wakeupPipeReadEndFd = -1;
   int m_wakeupPipeWriteEndFd = -1;
 };
 
-using ezMessageLoop_Platform = ezMessageLoop_linux;
+using WMessageLoop_Platform = WMessageLoop_linux;
 
 #endif

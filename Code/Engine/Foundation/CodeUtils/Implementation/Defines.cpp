@@ -2,9 +2,9 @@
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-bool ezPreprocessor::RemoveDefine(ezStringView sName)
+bool WPreprocessor::RemoveDefine(WStringView sName)
 {
   auto it = m_Macros.Find(sName);
 
@@ -18,18 +18,18 @@ bool ezPreprocessor::RemoveDefine(ezStringView sName)
 }
 
 
-ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs)
+WResult WPreprocessor::StoreDefine(const WToken* pMacroNameToken, const TokenStream* pReplacementTokens, WUInt32 uiFirstReplacementToken, WInt32 iNumParameters, bool bUsesVarArgs)
 {
   if ((pMacroNameToken->m_DataView.IsEqual("defined")) || (pMacroNameToken->m_DataView.IsEqual("__FILE__")) || (pMacroNameToken->m_DataView.IsEqual("__LINE__")))
   {
     PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, pMacroNameToken->m_DataView);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   MacroDefinition md;
   md.m_MacroIdentifier = pMacroNameToken;
   md.m_bIsFunction = iNumParameters >= 0;
-  md.m_uiNumParameters = ezMath::Max(0, iNumParameters);
+  md.m_uiNumParameters = WMath::Max(0, iNumParameters);
   md.m_bHasVarArgs = bUsesVarArgs;
 
   // removes whitespace at start and end, skips comments, newlines, etc.
@@ -39,14 +39,14 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   if (!md.m_Replacement.IsEmpty() && md.m_Replacement.PeekBack()->m_DataView == "#")
   {
     PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), pMacroNameToken->m_DataView);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   /* make sure all replacements are not empty
   {
-    ezToken Whitespace;
+    WToken Whitespace;
     Whitespace.m_File = pMacroNameToken->m_File;
-    Whitespace.m_iType = ezTokenType::Whitespace;
+    Whitespace.m_iType = WTokenType::Whitespace;
     Whitespace.m_uiColumn = pMacroNameToken->m_uiColumn + sMacroName.GetCharacterCount() + 1;
     Whitespace.m_uiLine = pMacroNameToken->m_uiLine;
 
@@ -64,26 +64,26 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   if (bExisted)
   {
     PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, pMacroNameToken->m_DataView);
-    // return EZ_FAILURE;
+    // return W_FAILURE;
   }
 
   it.Value() = md;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCurToken)
+WResult WPreprocessor::HandleDefine(const TokenStream& Tokens, WUInt32& uiCurToken)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  ezUInt32 uiNameToken = uiCurToken;
+  WUInt32 uiNameToken = uiCurToken;
 
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNameToken).Failed())
-    return EZ_FAILURE;
+  if (Expect(Tokens, uiCurToken, WTokenType::Identifier, &uiNameToken).Failed())
+    return W_FAILURE;
 
   // check if we got an empty macro definition
   if (IsEndOfLine(Tokens, uiCurToken, true))
   {
-    ezStringBuilder sDefine = Tokens[uiNameToken]->m_DataView;
+    WStringBuilder sDefine = Tokens[uiNameToken]->m_DataView;
 
     return StoreDefine(Tokens[uiNameToken], nullptr, 0, -1, false);
   }
@@ -101,31 +101,31 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
 
     // skip the opening parenthesis (
     if (Expect(Tokens, uiCurToken, "(").Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    ezTempHybridArray<ezString, 16> parameters;
+    WTempHybridArray<WString, 16> parameters;
 
     while (!Accept(Tokens, uiCurToken, ")"))
     {
       if (uiCurToken >= Tokens.GetCount())
       {
         PP_LOG(Error, "Could not extract macro parameter {0}, reached end of token stream first", Tokens[Tokens.GetCount() - 1], parameters.GetCount());
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
-      const ezUInt32 uiCurParamToken = uiCurToken;
+      const WUInt32 uiCurParamToken = uiCurToken;
 
-      ezString sParam;
-      if (ExtractParameterName(Tokens, uiCurToken, sParam) == EZ_FAILURE)
+      WString sParam;
+      if (ExtractParameterName(Tokens, uiCurToken, sParam) == W_FAILURE)
       {
         PP_LOG(Error, "Could not extract macro parameter {0}", Tokens[uiCurParamToken], parameters.GetCount());
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       if (bVarArgsFounds)
       {
         PP_LOG0(Error, "No additional parameters are allowed after '...'", Tokens[uiCurParamToken]);
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       /// \todo Make sure the same parameter name is not used twice
@@ -142,40 +142,40 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     TokenStream ReplacementTokens;
     CopyTokensReplaceParams(Tokens, uiCurToken, ReplacementTokens, parameters);
 
-    EZ_SUCCEED_OR_RETURN(StoreDefine(Tokens[uiNameToken], &ReplacementTokens, 0, parameters.GetCount(), bVarArgsFounds));
+    W_SUCCEED_OR_RETURN(StoreDefine(Tokens[uiNameToken], &ReplacementTokens, 0, parameters.GetCount(), bVarArgsFounds));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
+WResult WPreprocessor::AddCustomDefine(WStringView sDefinition)
 {
   m_CustomDefines.PushBack();
   m_CustomDefines.PeekBack().m_Content.SetCountUninitialized(sDefinition.GetElementCount());
-  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*)sDefinition.GetStartPointer(), m_CustomDefines.PeekBack().m_Content.GetCount());
+  WMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (WUInt8*)sDefinition.GetStartPointer(), m_CustomDefines.PeekBack().m_Content.GetCount());
   m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
 
-  ezUInt32 uiFirstToken = 0;
-  ezTempHybridArray<const ezToken*, 32> Tokens;
+  WUInt32 uiFirstToken = 0;
+  WTempHybridArray<const WToken*, 32> Tokens;
 
   if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezDeque<ezToken>& NewTokens = m_CustomDefines.PeekBack().m_Tokenized.GetTokens();
+  WDeque<WToken>& NewTokens = m_CustomDefines.PeekBack().m_Tokenized.GetTokens();
 
-  ezHashedString sFile;
+  WHashedString sFile;
   sFile.Assign("<CustomDefines>");
 
-  ezUInt32 uiColumn = 1;
-  for (ezUInt32 t = 0; t < NewTokens.GetCount(); ++t)
+  WUInt32 uiColumn = 1;
+  for (WUInt32 t = 0; t < NewTokens.GetCount(); ++t)
   {
     NewTokens[t].m_File = sFile;
     NewTokens[t].m_uiLine = m_CustomDefines.GetCount();
     NewTokens[t].m_uiColumn = uiColumn;
 
-    uiColumn += ezStringUtils::GetCharacterCount(NewTokens[t].m_DataView.GetStartPointer(), NewTokens[t].m_DataView.GetEndPointer());
+    uiColumn += WStringUtils::GetCharacterCount(NewTokens[t].m_DataView.GetStartPointer(), NewTokens[t].m_DataView.GetEndPointer());
   }
 
-  ezUInt32 uiCurToken = 0;
+  WUInt32 uiCurToken = 0;
   return HandleDefine(Tokens, uiCurToken);
 }

@@ -11,21 +11,21 @@
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 
-ezResult ezOpenDdlUtils::ConvertToColor(const ezOpenDdlReaderElement* pElement, ezColor& out_result)
+WResult WOpenDdlUtils::ConvertToColor(const WOpenDdlReaderElement* pElement, WColor& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
@@ -36,7 +36,7 @@ ezResult ezOpenDdlUtils::ConvertToColor(const ezOpenDdlReaderElement* pElement, 
       out_result.b = pValues[2];
       out_result.a = pValues[3];
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetNumPrimitives() == 3)
@@ -46,66 +46,66 @@ ezResult ezOpenDdlUtils::ConvertToColor(const ezOpenDdlReaderElement* pElement, 
       out_result.b = pValues[2];
       out_result.a = 1.0f;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
-  else if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt8)
+  else if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt8)
   {
-    const ezUInt8* pValues = pElement->GetPrimitivesUInt8();
+    const WUInt8* pValues = pElement->GetPrimitivesUInt8();
 
     if (pElement->GetNumPrimitives() == 4)
     {
-      out_result = ezColorGammaUB(pValues[0], pValues[1], pValues[2], pValues[3]);
+      out_result = WColorGammaUB(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetNumPrimitives() == 3)
     {
-      out_result = ezColorGammaUB(pValues[0], pValues[1], pValues[2]);
+      out_result = WColorGammaUB(pValues[0], pValues[1], pValues[2]);
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToColorGamma(const ezOpenDdlReaderElement* pElement, ezColorGammaUB& out_result)
+WResult WOpenDdlUtils::ConvertToColorGamma(const WOpenDdlReaderElement* pElement, WColorGammaUB& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
     if (pElement->GetNumPrimitives() == 4)
     {
-      out_result = ezColor(pValues[0], pValues[1], pValues[2], pValues[3]);
+      out_result = WColor(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetNumPrimitives() == 3)
     {
-      out_result = ezColor(pValues[0], pValues[1], pValues[2]);
+      out_result = WColor(pValues[0], pValues[1], pValues[2]);
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
-  else if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt8)
+  else if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt8)
   {
-    const ezUInt8* pValues = pElement->GetPrimitivesUInt8();
+    const WUInt8* pValues = pElement->GetPrimitivesUInt8();
 
     if (pElement->GetNumPrimitives() == 4)
     {
@@ -114,7 +114,7 @@ ezResult ezOpenDdlUtils::ConvertToColorGamma(const ezOpenDdlReaderElement* pElem
       out_result.b = pValues[2];
       out_result.a = pValues[3];
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetNumPrimitives() == 3)
@@ -124,392 +124,392 @@ ezResult ezOpenDdlUtils::ConvertToColorGamma(const ezOpenDdlReaderElement* pElem
       out_result.b = pValues[2];
       out_result.a = 255;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToTime(const ezOpenDdlReaderElement* pElement, ezTime& out_result)
+WResult WOpenDdlUtils::ConvertToTime(const WOpenDdlReaderElement* pElement, WTime& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result = ezTime::MakeFromSeconds(pValues[0]);
+    out_result = WTime::MakeFromSeconds(pValues[0]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Double)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Double)
   {
     const double* pValues = pElement->GetPrimitivesDouble();
 
-    out_result = ezTime::MakeFromSeconds(pValues[0]);
+    out_result = WTime::MakeFromSeconds(pValues[0]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec2(const ezOpenDdlReaderElement* pElement, ezVec2& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec2(const WOpenDdlReaderElement* pElement, WVec2& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
     out_vResult.Set(pValues[0], pValues[1]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec3(const ezOpenDdlReaderElement* pElement, ezVec3& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec3(const WOpenDdlReaderElement* pElement, WVec3& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 3)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec4(const ezOpenDdlReaderElement* pElement, ezVec4& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec4(const WOpenDdlReaderElement* pElement, WVec4& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec2I(const ezOpenDdlReaderElement* pElement, ezVec2I32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec2I(const WOpenDdlReaderElement* pElement, WVec2I32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Int32)
   {
-    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+    const WInt32* pValues = pElement->GetPrimitivesInt32();
 
     out_vResult.Set(pValues[0], pValues[1]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec3I(const ezOpenDdlReaderElement* pElement, ezVec3I32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec3I(const WOpenDdlReaderElement* pElement, WVec3I32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 3)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Int32)
   {
-    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+    const WInt32* pValues = pElement->GetPrimitivesInt32();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec4I(const ezOpenDdlReaderElement* pElement, ezVec4I32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec4I(const WOpenDdlReaderElement* pElement, WVec4I32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Int32)
   {
-    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+    const WInt32* pValues = pElement->GetPrimitivesInt32();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-ezResult ezOpenDdlUtils::ConvertToVec2U(const ezOpenDdlReaderElement* pElement, ezVec2U32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec2U(const WOpenDdlReaderElement* pElement, WVec2U32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt32)
   {
-    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+    const WUInt32* pValues = pElement->GetPrimitivesUInt32();
 
     out_vResult.Set(pValues[0], pValues[1]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec3U(const ezOpenDdlReaderElement* pElement, ezVec3U32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec3U(const WOpenDdlReaderElement* pElement, WVec3U32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 3)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt32)
   {
-    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+    const WUInt32* pValues = pElement->GetPrimitivesUInt32();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVec4U(const ezOpenDdlReaderElement* pElement, ezVec4U32& out_vResult)
+WResult WOpenDdlUtils::ConvertToVec4U(const WOpenDdlReaderElement* pElement, WVec4U32& out_vResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt32)
   {
-    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+    const WUInt32* pValues = pElement->GetPrimitivesUInt32();
 
     out_vResult.Set(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
 
-ezResult ezOpenDdlUtils::ConvertToMat3(const ezOpenDdlReaderElement* pElement, ezMat3& out_mResult)
+WResult WOpenDdlUtils::ConvertToMat3(const WOpenDdlReaderElement* pElement, WMat3& out_mResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 9)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_mResult = ezMat3::MakeFromColumnMajorArray(pValues);
+    out_mResult = WMat3::MakeFromColumnMajorArray(pValues);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToMat4(const ezOpenDdlReaderElement* pElement, ezMat4& out_mResult)
+WResult WOpenDdlUtils::ConvertToMat4(const WOpenDdlReaderElement* pElement, WMat4& out_mResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 16)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_mResult = ezMat4::MakeFromColumnMajorArray(pValues);
+    out_mResult = WMat4::MakeFromColumnMajorArray(pValues);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pElement, ezTransform& out_result)
+WResult WOpenDdlUtils::ConvertToTransform(const WOpenDdlReaderElement* pElement, WTransform& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 10)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
@@ -524,670 +524,670 @@ ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pEleme
     out_result.m_vScale.y = pValues[8];
     out_result.m_vScale.z = pValues[9];
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToQuat(const ezOpenDdlReaderElement* pElement, ezQuat& out_qResult)
+WResult WOpenDdlUtils::ConvertToQuat(const WOpenDdlReaderElement* pElement, WQuat& out_qResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_qResult = ezQuat(pValues[0], pValues[1], pValues[2], pValues[3]);
+    out_qResult = WQuat(pValues[0], pValues[1], pValues[2], pValues[3]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToUuid(const ezOpenDdlReaderElement* pElement, ezUuid& out_result)
+WResult WOpenDdlUtils::ConvertToUuid(const WOpenDdlReaderElement* pElement, WUuid& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt64)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt64)
   {
-    const ezUInt64* pValues = pElement->GetPrimitivesUInt64();
+    const WUInt64* pValues = pElement->GetPrimitivesUInt64();
 
-    out_result = ezUuid(pValues[0], pValues[1]);
+    out_result = WUuid(pValues[0], pValues[1]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, ezAngle& out_result)
+WResult WOpenDdlUtils::ConvertToAngle(const WOpenDdlReaderElement* pElement, WAngle& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
     // have to use radians to prevent precision loss
-    out_result = ezAngle::MakeFromRadian(pValues[0]);
+    out_result = WAngle::MakeFromRadian(pValues[0]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_sResult)
+WResult WOpenDdlUtils::ConvertToHashedString(const WOpenDdlReaderElement* pElement, WHashedString& out_sResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::String)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::String)
   {
-    const ezStringView* pValues = pElement->GetPrimitivesString();
+    const WStringView* pValues = pElement->GetPrimitivesString();
 
     out_sResult.Assign(pValues[0]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_sResult)
+WResult WOpenDdlUtils::ConvertToTempHashedString(const WOpenDdlReaderElement* pElement, WTempHashedString& out_sResult)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // go into the element, if we are at the group level
   if (pElement->IsCustomType())
   {
     if (pElement->GetNumChildObjects() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     pElement = pElement->GetFirstChild();
   }
 
   if (pElement->GetNumPrimitives() != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt64)
+  if (pElement->GetPrimitivesType() == WOpenDdlPrimitiveType::UInt64)
   {
-    const ezUInt64* pValues = pElement->GetPrimitivesUInt64();
+    const WUInt64* pValues = pElement->GetPrimitivesUInt64();
 
-    out_sResult = ezTempHashedString(pValues[0]);
+    out_sResult = WTempHashedString(pValues[0]);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement, ezVariant& out_result)
+WResult WOpenDdlUtils::ConvertToVariant(const WOpenDdlReaderElement* pElement, WVariant& out_result)
 {
   if (pElement == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // expect a custom type
   if (pElement->IsCustomType())
   {
     if (pElement->GetCustomType() == "VarArray")
     {
-      ezVariantArray value;
-      ezVariant varChild;
+      WVariantArray value;
+      WVariant varChild;
 
       /// \test This is just quickly hacked
       /// \todo Store array size for reserving var array length
 
-      for (const ezOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+      for (const WOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
       {
         if (ConvertToVariant(pChild, varChild).Failed())
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         value.PushBack(varChild);
       }
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "VarDict")
     {
-      ezVariantDictionary value;
-      ezVariant varChild;
+      WVariantDictionary value;
+      WVariant varChild;
 
       /// \test This is just quickly hacked
       /// \todo Store array size for reserving var array length
 
-      for (const ezOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+      for (const WOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
       {
         // no name -> invalid dictionary entry
         if (!pChild->HasName())
           continue;
 
         if (ConvertToVariant(pChild, varChild).Failed())
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         value[pChild->GetName()] = varChild;
       }
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "VarDataBuffer")
     {
       /// \test This is just quickly hacked
 
-      ezDataBuffer value;
+      WDataBuffer value;
 
-      const ezOpenDdlReaderElement* pString = pElement->GetFirstChild();
+      const WOpenDdlReaderElement* pString = pElement->GetFirstChild();
 
-      if (!pString->HasPrimitives(ezOpenDdlPrimitiveType::String))
-        return EZ_FAILURE;
+      if (!pString->HasPrimitives(WOpenDdlPrimitiveType::String))
+        return W_FAILURE;
 
-      const ezStringView* pValues = pString->GetPrimitivesString();
+      const WStringView* pValues = pString->GetPrimitivesString();
 
       value.SetCountUninitialized(pValues[0].GetElementCount() / 2);
-      ezConversionUtils::ConvertHexToBinary(pValues[0], value.GetData(), value.GetCount());
+      WConversionUtils::ConvertHexToBinary(pValues[0], value.GetData(), value.GetCount());
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Color")
     {
-      ezColor value;
+      WColor value;
       if (ConvertToColor(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "ColorGamma")
     {
-      ezColorGammaUB value;
+      WColorGammaUB value;
       if (ConvertToColorGamma(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Time")
     {
-      ezTime value;
+      WTime value;
       if (ConvertToTime(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec2")
     {
-      ezVec2 value;
+      WVec2 value;
       if (ConvertToVec2(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec3")
     {
-      ezVec3 value;
+      WVec3 value;
       if (ConvertToVec3(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec4")
     {
-      ezVec4 value;
+      WVec4 value;
       if (ConvertToVec4(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec2i")
     {
-      ezVec2I32 value;
+      WVec2I32 value;
       if (ConvertToVec2I(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec3i")
     {
-      ezVec3I32 value;
+      WVec3I32 value;
       if (ConvertToVec3I(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec4i")
     {
-      ezVec4I32 value;
+      WVec4I32 value;
       if (ConvertToVec4I(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec2u")
     {
-      ezVec2U32 value;
+      WVec2U32 value;
       if (ConvertToVec2U(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec3u")
     {
-      ezVec3U32 value;
+      WVec3U32 value;
       if (ConvertToVec3U(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Vec4u")
     {
-      ezVec4U32 value;
+      WVec4U32 value;
       if (ConvertToVec4U(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Mat3")
     {
-      ezMat3 value;
+      WMat3 value;
       if (ConvertToMat3(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Mat4")
     {
-      ezMat4 value;
+      WMat4 value;
       if (ConvertToMat4(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Transform")
     {
-      ezTransform value;
+      WTransform value;
       if (ConvertToTransform(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Quat")
     {
-      ezQuat value;
+      WQuat value;
       if (ConvertToQuat(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Uuid")
     {
-      ezUuid value;
+      WUuid value;
       if (ConvertToUuid(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Angle")
     {
-      ezAngle value;
+      WAngle value;
       if (ConvertToAngle(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "HashedString")
     {
-      ezHashedString value;
+      WHashedString value;
       if (ConvertToHashedString(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "TempHashedString")
     {
-      ezTempHashedString value;
+      WTempHashedString value;
       if (ConvertToTempHashedString(pElement, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_result = value;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (pElement->GetCustomType() == "Invalid")
     {
-      out_result = ezVariant();
-      return EZ_SUCCESS;
+      out_result = WVariant();
+      return W_SUCCESS;
     }
 
-    if (const ezRTTI* pRTTI = ezRTTI::FindTypeByName(pElement->GetCustomType()))
+    if (const WRTTI* pRTTI = WRTTI::FindTypeByName(pElement->GetCustomType()))
     {
-      if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pRTTI))
+      if (WVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pRTTI))
       {
         if (pElement == nullptr)
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         void* pObject = pRTTI->GetAllocator()->Allocate<void>();
 
-        for (const ezOpenDdlReaderElement* pChildElement = pElement->GetFirstChild(); pChildElement != nullptr; pChildElement = pChildElement->GetSibling())
+        for (const WOpenDdlReaderElement* pChildElement = pElement->GetFirstChild(); pChildElement != nullptr; pChildElement = pChildElement->GetSibling())
         {
           if (!pChildElement->HasName())
             continue;
 
-          if (const ezAbstractProperty* pProp = pRTTI->FindPropertyByName(pChildElement->GetName()))
+          if (const WAbstractProperty* pProp = pRTTI->FindPropertyByName(pChildElement->GetName()))
           {
             // Custom types should be POD and only consist of member properties.
-            if (pProp->GetCategory() == ezPropertyCategory::Member)
+            if (pProp->GetCategory() == WPropertyCategory::Member)
             {
-              ezVariant subValue;
+              WVariant subValue;
               if (ConvertToVariant(pChildElement, subValue).Succeeded())
               {
-                ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pObject, subValue);
+                WReflectionUtils::SetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pObject, subValue);
               }
             }
           }
         }
         out_result.MoveTypedObject(pObject, pRTTI);
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
       else
       {
-        ezLog::Error("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", pElement->GetCustomType());
+        WLog::Error("The type '{0}' was declared but not defined, add W_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", pElement->GetCustomType());
       }
     }
     else
     {
-      ezLog::Error("The type '{0}' is unknown.", pElement->GetCustomType());
+      WLog::Error("The type '{0}' is unknown.", pElement->GetCustomType());
     }
   }
   else
   {
     // always expect exactly one value
     if (pElement->GetNumPrimitives() != 1)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     switch (pElement->GetPrimitivesType())
     {
-      case ezOpenDdlPrimitiveType::Bool:
+      case WOpenDdlPrimitiveType::Bool:
         out_result = pElement->GetPrimitivesBool()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Int8:
+      case WOpenDdlPrimitiveType::Int8:
         out_result = pElement->GetPrimitivesInt8()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Int16:
+      case WOpenDdlPrimitiveType::Int16:
         out_result = pElement->GetPrimitivesInt16()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Int32:
+      case WOpenDdlPrimitiveType::Int32:
         out_result = pElement->GetPrimitivesInt32()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Int64:
+      case WOpenDdlPrimitiveType::Int64:
         out_result = pElement->GetPrimitivesInt64()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::UInt8:
+      case WOpenDdlPrimitiveType::UInt8:
         out_result = pElement->GetPrimitivesUInt8()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::UInt16:
+      case WOpenDdlPrimitiveType::UInt16:
         out_result = pElement->GetPrimitivesUInt16()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::UInt32:
+      case WOpenDdlPrimitiveType::UInt32:
         out_result = pElement->GetPrimitivesUInt32()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::UInt64:
+      case WOpenDdlPrimitiveType::UInt64:
         out_result = pElement->GetPrimitivesUInt64()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Float:
+      case WOpenDdlPrimitiveType::Float:
         out_result = pElement->GetPrimitivesFloat()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::Double:
+      case WOpenDdlPrimitiveType::Double:
         out_result = pElement->GetPrimitivesDouble()[0];
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      case ezOpenDdlPrimitiveType::String:
-        out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an ezString first
-        return EZ_SUCCESS;
+      case WOpenDdlPrimitiveType::String:
+        out_result = WString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an WString first
+        return W_SUCCESS;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& ref_writer, const ezColor& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreColor(WOpenDdlWriter& ref_writer, const WColor& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Color", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreColorGamma(
-  ezOpenDdlWriter& ref_writer, const ezColorGammaUB& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreColorGamma(
+  WOpenDdlWriter& ref_writer, const WColorGammaUB& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("ColorGamma", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt8);
     ref_writer.WriteUInt8(value.GetData(), 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& ref_writer, const ezTime& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreTime(WOpenDdlWriter& ref_writer, const WTime& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Time", sName, bGlobalName, true);
   {
     const double d = value.GetSeconds();
 
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Double);
     ref_writer.WriteDouble(&d, 1);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& ref_writer, const ezVec2& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec2(WOpenDdlWriter& ref_writer, const WVec2& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec2", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 2);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& ref_writer, const ezVec3& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec3(WOpenDdlWriter& ref_writer, const WVec3& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec3", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 3);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& ref_writer, const ezVec4& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec4(WOpenDdlWriter& ref_writer, const WVec4& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec4", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2I(ezOpenDdlWriter& ref_writer, const ezVec2I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec2I(WOpenDdlWriter& ref_writer, const WVec2I32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec2i", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 2);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3I(ezOpenDdlWriter& ref_writer, const ezVec3I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec3I(WOpenDdlWriter& ref_writer, const WVec3I32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec3i", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 3);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4I(ezOpenDdlWriter& ref_writer, const ezVec4I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec4I(WOpenDdlWriter& ref_writer, const WVec4I32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec4i", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2U(ezOpenDdlWriter& ref_writer, const ezVec2U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec2U(WOpenDdlWriter& ref_writer, const WVec2U32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec2u", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 2);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3U(ezOpenDdlWriter& ref_writer, const ezVec3U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec3U(WOpenDdlWriter& ref_writer, const WVec3U32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec3u", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 3);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& ref_writer, const ezVec4U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVec4U(WOpenDdlWriter& ref_writer, const WVec4U32& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Vec4u", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 4);
     ref_writer.EndPrimitiveList();
   }
@@ -1195,39 +1195,39 @@ void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& ref_writer, const ezVec4U32& va
 }
 
 
-void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& ref_writer, const ezMat3& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreMat3(WOpenDdlWriter& ref_writer, const WMat3& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Mat3", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
 
     float f[9];
-    value.GetAsArray(f, ezMatrixLayout::ColumnMajor);
+    value.GetAsArray(f, WMatrixLayout::ColumnMajor);
     ref_writer.WriteFloat(f, 9);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& ref_writer, const ezMat4& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreMat4(WOpenDdlWriter& ref_writer, const WMat4& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Mat4", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
 
     float f[16];
-    value.GetAsArray(f, ezMatrixLayout::ColumnMajor);
+    value.GetAsArray(f, WMatrixLayout::ColumnMajor);
     ref_writer.WriteFloat(f, 16);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransform& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreTransform(WOpenDdlWriter& ref_writer, const WTransform& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Transform", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
 
     float f[10];
 
@@ -1250,249 +1250,249 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransfo
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& ref_writer, const ezQuat& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreQuat(WOpenDdlWriter& ref_writer, const WQuat& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Quat", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(&value.x, 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& ref_writer, const ezUuid& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreUuid(WOpenDdlWriter& ref_writer, const WUuid& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Uuid", sName, bGlobalName, true);
   {
-    ezUInt64 ui[2];
+    WUInt64 ui[2];
     value.GetValues(ui[0], ui[1]);
 
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt64);
     ref_writer.WriteUInt64(ui, 2);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreAngle(WOpenDdlWriter& ref_writer, const WAngle& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Angle", sName, bGlobalName, true);
   {
     // have to use radians to prevent precision loss
     const float f = value.GetRadian();
 
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(&f, 1);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreHashedString(ezOpenDdlWriter& ref_writer, const ezHashedString& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreHashedString(WOpenDdlWriter& ref_writer, const WHashedString& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("HashedString", sName, bGlobalName, true);
   {
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String);
     ref_writer.WriteString(value.GetView());
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreTempHashedString(ezOpenDdlWriter& ref_writer, const ezTempHashedString& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreTempHashedString(WOpenDdlWriter& ref_writer, const WTempHashedString& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("TempHashedString", sName, bGlobalName, true);
   {
-    const ezUInt64 uiHash = value.GetHash();
+    const WUInt64 uiHash = value.GetHash();
 
-    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64);
+    ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt64);
     ref_writer.WriteUInt64(&uiHash);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreVariant(WOpenDdlWriter& ref_writer, const WVariant& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   switch (value.GetType())
   {
-    case ezVariant::Type::Invalid:
+    case WVariant::Type::Invalid:
       StoreInvalid(ref_writer, sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Bool:
+    case WVariant::Type::Bool:
       StoreBool(ref_writer, value.Get<bool>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Int8:
-      StoreInt8(ref_writer, value.Get<ezInt8>(), sName, bGlobalName);
+    case WVariant::Type::Int8:
+      StoreInt8(ref_writer, value.Get<WInt8>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::UInt8:
-      StoreUInt8(ref_writer, value.Get<ezUInt8>(), sName, bGlobalName);
+    case WVariant::Type::UInt8:
+      StoreUInt8(ref_writer, value.Get<WUInt8>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Int16:
-      StoreInt16(ref_writer, value.Get<ezInt16>(), sName, bGlobalName);
+    case WVariant::Type::Int16:
+      StoreInt16(ref_writer, value.Get<WInt16>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::UInt16:
-      StoreUInt16(ref_writer, value.Get<ezUInt16>(), sName, bGlobalName);
+    case WVariant::Type::UInt16:
+      StoreUInt16(ref_writer, value.Get<WUInt16>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Int32:
-      StoreInt32(ref_writer, value.Get<ezInt32>(), sName, bGlobalName);
+    case WVariant::Type::Int32:
+      StoreInt32(ref_writer, value.Get<WInt32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::UInt32:
-      StoreUInt32(ref_writer, value.Get<ezUInt32>(), sName, bGlobalName);
+    case WVariant::Type::UInt32:
+      StoreUInt32(ref_writer, value.Get<WUInt32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Int64:
-      StoreInt64(ref_writer, value.Get<ezInt64>(), sName, bGlobalName);
+    case WVariant::Type::Int64:
+      StoreInt64(ref_writer, value.Get<WInt64>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::UInt64:
-      StoreUInt64(ref_writer, value.Get<ezUInt64>(), sName, bGlobalName);
+    case WVariant::Type::UInt64:
+      StoreUInt64(ref_writer, value.Get<WUInt64>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Float:
+    case WVariant::Type::Float:
       StoreFloat(ref_writer, value.Get<float>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Double:
+    case WVariant::Type::Double:
       StoreDouble(ref_writer, value.Get<double>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::String:
-      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezString>(), sName, bGlobalName);
+    case WVariant::Type::String:
+      WOpenDdlUtils::StoreString(ref_writer, value.Get<WString>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::StringView:
-      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezStringView>(), sName, bGlobalName);
+    case WVariant::Type::StringView:
+      WOpenDdlUtils::StoreString(ref_writer, value.Get<WStringView>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Color:
-      StoreColor(ref_writer, value.Get<ezColor>(), sName, bGlobalName);
+    case WVariant::Type::Color:
+      StoreColor(ref_writer, value.Get<WColor>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector2:
-      StoreVec2(ref_writer, value.Get<ezVec2>(), sName, bGlobalName);
+    case WVariant::Type::Vector2:
+      StoreVec2(ref_writer, value.Get<WVec2>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector3:
-      StoreVec3(ref_writer, value.Get<ezVec3>(), sName, bGlobalName);
+    case WVariant::Type::Vector3:
+      StoreVec3(ref_writer, value.Get<WVec3>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector4:
-      StoreVec4(ref_writer, value.Get<ezVec4>(), sName, bGlobalName);
+    case WVariant::Type::Vector4:
+      StoreVec4(ref_writer, value.Get<WVec4>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector2I:
-      StoreVec2I(ref_writer, value.Get<ezVec2I32>(), sName, bGlobalName);
+    case WVariant::Type::Vector2I:
+      StoreVec2I(ref_writer, value.Get<WVec2I32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector3I:
-      StoreVec3I(ref_writer, value.Get<ezVec3I32>(), sName, bGlobalName);
+    case WVariant::Type::Vector3I:
+      StoreVec3I(ref_writer, value.Get<WVec3I32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector4I:
-      StoreVec4I(ref_writer, value.Get<ezVec4I32>(), sName, bGlobalName);
+    case WVariant::Type::Vector4I:
+      StoreVec4I(ref_writer, value.Get<WVec4I32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector2U:
-      StoreVec2U(ref_writer, value.Get<ezVec2U32>(), sName, bGlobalName);
+    case WVariant::Type::Vector2U:
+      StoreVec2U(ref_writer, value.Get<WVec2U32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector3U:
-      StoreVec3U(ref_writer, value.Get<ezVec3U32>(), sName, bGlobalName);
+    case WVariant::Type::Vector3U:
+      StoreVec3U(ref_writer, value.Get<WVec3U32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Vector4U:
-      StoreVec4U(ref_writer, value.Get<ezVec4U32>(), sName, bGlobalName);
+    case WVariant::Type::Vector4U:
+      StoreVec4U(ref_writer, value.Get<WVec4U32>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Quaternion:
-      StoreQuat(ref_writer, value.Get<ezQuat>(), sName, bGlobalName);
+    case WVariant::Type::Quaternion:
+      StoreQuat(ref_writer, value.Get<WQuat>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Matrix3:
-      StoreMat3(ref_writer, value.Get<ezMat3>(), sName, bGlobalName);
+    case WVariant::Type::Matrix3:
+      StoreMat3(ref_writer, value.Get<WMat3>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Matrix4:
-      StoreMat4(ref_writer, value.Get<ezMat4>(), sName, bGlobalName);
+    case WVariant::Type::Matrix4:
+      StoreMat4(ref_writer, value.Get<WMat4>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Transform:
-      StoreTransform(ref_writer, value.Get<ezTransform>(), sName, bGlobalName);
+    case WVariant::Type::Transform:
+      StoreTransform(ref_writer, value.Get<WTransform>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Time:
-      StoreTime(ref_writer, value.Get<ezTime>(), sName, bGlobalName);
+    case WVariant::Type::Time:
+      StoreTime(ref_writer, value.Get<WTime>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Uuid:
-      StoreUuid(ref_writer, value.Get<ezUuid>(), sName, bGlobalName);
+    case WVariant::Type::Uuid:
+      StoreUuid(ref_writer, value.Get<WUuid>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::Angle:
-      StoreAngle(ref_writer, value.Get<ezAngle>(), sName, bGlobalName);
+    case WVariant::Type::Angle:
+      StoreAngle(ref_writer, value.Get<WAngle>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::ColorGamma:
-      StoreColorGamma(ref_writer, value.Get<ezColorGammaUB>(), sName, bGlobalName);
+    case WVariant::Type::ColorGamma:
+      StoreColorGamma(ref_writer, value.Get<WColorGammaUB>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::HashedString:
-      StoreHashedString(ref_writer, value.Get<ezHashedString>(), sName, bGlobalName);
+    case WVariant::Type::HashedString:
+      StoreHashedString(ref_writer, value.Get<WHashedString>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::TempHashedString:
-      StoreTempHashedString(ref_writer, value.Get<ezTempHashedString>(), sName, bGlobalName);
+    case WVariant::Type::TempHashedString:
+      StoreTempHashedString(ref_writer, value.Get<WTempHashedString>(), sName, bGlobalName);
       return;
 
-    case ezVariant::Type::VariantArray:
+    case WVariant::Type::VariantArray:
     {
       /// \test This is just quickly hacked
 
       ref_writer.BeginObject("VarArray", sName, bGlobalName);
 
-      const ezVariantArray& arr = value.Get<ezVariantArray>();
-      for (ezUInt32 i = 0; i < arr.GetCount(); ++i)
+      const WVariantArray& arr = value.Get<WVariantArray>();
+      for (WUInt32 i = 0; i < arr.GetCount(); ++i)
       {
-        ezOpenDdlUtils::StoreVariant(ref_writer, arr[i]);
+        WOpenDdlUtils::StoreVariant(ref_writer, arr[i]);
       }
 
       ref_writer.EndObject();
     }
       return;
 
-    case ezVariant::Type::VariantDictionary:
+    case WVariant::Type::VariantDictionary:
     {
       /// \test This is just quickly hacked
 
       ref_writer.BeginObject("VarDict", sName, bGlobalName);
 
-      const ezVariantDictionary& dict = value.Get<ezVariantDictionary>();
+      const WVariantDictionary& dict = value.Get<WVariantDictionary>();
       for (auto it = dict.GetIterator(); it.IsValid(); ++it)
       {
-        ezOpenDdlUtils::StoreVariant(ref_writer, it.Value(), it.Key(), false);
+        WOpenDdlUtils::StoreVariant(ref_writer, it.Value(), it.Key(), false);
       }
 
       ref_writer.EndObject();
     }
       return;
 
-    case ezVariant::Type::DataBuffer:
+    case WVariant::Type::DataBuffer:
     {
       /// \test This is just quickly hacked
 
       ref_writer.BeginObject("VarDataBuffer", sName, bGlobalName);
-      ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
+      ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String);
 
-      const ezDataBuffer& db = value.Get<ezDataBuffer>();
+      const WDataBuffer& db = value.Get<WDataBuffer>();
       ref_writer.WriteBinaryAsString(db.GetData(), db.GetCount());
 
       ref_writer.EndPrimitiveList();
@@ -1500,33 +1500,33 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
     }
       return;
 
-    case ezVariant::Type::TypedObject:
+    case WVariant::Type::TypedObject:
     {
-      ezTypedObject obj = value.Get<ezTypedObject>();
-      if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
+      WTypedObject obj = value.Get<WTypedObject>();
+      if (WVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
       {
         ref_writer.BeginObject(obj.m_pType->GetTypeName(), sName, bGlobalName);
         {
-          ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+          WTempHybridArray<const WAbstractProperty*, 32> properties;
           obj.m_pType->GetAllProperties(properties);
-          for (const ezAbstractProperty* pProp : properties)
+          for (const WAbstractProperty* pProp : properties)
           {
             // Custom types should be POD and only consist of member properties.
             switch (pProp->GetCategory())
             {
-              case ezPropertyCategory::Member:
+              case WPropertyCategory::Member:
               {
-                ezVariant subValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), obj.m_pObject);
+                WVariant subValue = WReflectionUtils::GetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), obj.m_pObject);
                 StoreVariant(ref_writer, subValue, pProp->GetPropertyName(), false);
               }
               break;
-              case ezPropertyCategory::Array:
-              case ezPropertyCategory::Set:
-              case ezPropertyCategory::Map:
-                EZ_REPORT_FAILURE("Only member properties are supported in custom variant types!");
+              case WPropertyCategory::Array:
+              case WPropertyCategory::Set:
+              case WPropertyCategory::Map:
+                W_REPORT_FAILURE("Only member properties are supported in custom variant types!");
                 break;
-              case ezPropertyCategory::Constant:
-              case ezPropertyCategory::Function:
+              case WPropertyCategory::Constant:
+              case WPropertyCategory::Function:
                 break;
             }
           }
@@ -1535,100 +1535,100 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
       }
       else
       {
-        ezLog::Error("The type '{0}' was declared but not defined, add EZ_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
+        WLog::Error("The type '{0}' was declared but not defined, add W_DEFINE_CUSTOM_VARIANT_TYPE({0}); to a cpp to enable serialization of this variant type.", obj.m_pType->GetTypeName());
       }
     }
       return;
     default:
-      EZ_REPORT_FAILURE("Can't write this type of Variant");
+      W_REPORT_FAILURE("Can't write this type of Variant");
   }
 }
 
-void ezOpenDdlUtils::StoreString(ezOpenDdlWriter& ref_writer, const ezStringView& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreString(WOpenDdlWriter& ref_writer, const WStringView& value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String, sName, bGlobalName);
   ref_writer.WriteString(value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreBool(ezOpenDdlWriter& ref_writer, bool value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreBool(WOpenDdlWriter& ref_writer, bool value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Bool, sName, bGlobalName);
   ref_writer.WriteBool(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreFloat(ezOpenDdlWriter& ref_writer, float value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreFloat(WOpenDdlWriter& ref_writer, float value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Float, sName, bGlobalName);
   ref_writer.WriteFloat(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreDouble(ezOpenDdlWriter& ref_writer, double value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreDouble(WOpenDdlWriter& ref_writer, double value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Double, sName, bGlobalName);
   ref_writer.WriteDouble(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt8(ezOpenDdlWriter& ref_writer, ezInt8 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreInt8(WOpenDdlWriter& ref_writer, WInt8 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int8, sName, bGlobalName);
   ref_writer.WriteInt8(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt16(ezOpenDdlWriter& ref_writer, ezInt16 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreInt16(WOpenDdlWriter& ref_writer, WInt16 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int16, sName, bGlobalName);
   ref_writer.WriteInt16(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt32(ezOpenDdlWriter& ref_writer, ezInt32 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreInt32(WOpenDdlWriter& ref_writer, WInt32 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int32, sName, bGlobalName);
   ref_writer.WriteInt32(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt64(ezOpenDdlWriter& ref_writer, ezInt64 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreInt64(WOpenDdlWriter& ref_writer, WInt64 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::Int64, sName, bGlobalName);
   ref_writer.WriteInt64(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt8(ezOpenDdlWriter& ref_writer, ezUInt8 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreUInt8(WOpenDdlWriter& ref_writer, WUInt8 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt8, sName, bGlobalName);
   ref_writer.WriteUInt8(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt16(ezOpenDdlWriter& ref_writer, ezUInt16 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreUInt16(WOpenDdlWriter& ref_writer, WUInt16 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt16, sName, bGlobalName);
   ref_writer.WriteUInt16(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt32(ezOpenDdlWriter& ref_writer, ezUInt32 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreUInt32(WOpenDdlWriter& ref_writer, WUInt32 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt32, sName, bGlobalName);
   ref_writer.WriteUInt32(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& ref_writer, ezUInt64 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+void WOpenDdlUtils::StoreUInt64(WOpenDdlWriter& ref_writer, WUInt64 value, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, sName, bGlobalName);
+  ref_writer.BeginPrimitiveList(WOpenDdlPrimitiveType::UInt64, sName, bGlobalName);
   ref_writer.WriteUInt64(&value);
   ref_writer.EndPrimitiveList();
 }
 
-EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+W_FOUNDATION_DLL void WOpenDdlUtils::StoreInvalid(WOpenDdlWriter& ref_writer, WStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   ref_writer.BeginObject("Invalid", sName, bGlobalName, true);
   ref_writer.EndObject();

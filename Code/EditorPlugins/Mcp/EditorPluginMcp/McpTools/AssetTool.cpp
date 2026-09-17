@@ -15,8 +15,8 @@
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpAssetTool, 1, ezRTTIDefaultAllocator<ezMcpAssetTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpAssetTool, 1, WRTTIDefaultAllocator<WMcpAssetTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
@@ -24,13 +24,13 @@ namespace
   /// The largest number of assets asset_find returns. A real project has thousands, and an unfiltered
   /// listing would fill the client's context with paths it did not ask for. The total is reported
   /// alongside, so the agent can tell 'that is all of them' from 'narrow your filter'.
-  constexpr ezUInt32 s_uiMaxAssetResults = 200;
+  constexpr WUInt32 s_uiMaxAssetResults = 200;
 
-  /// The names of ezAssetInfo::TransformState, in enum order.
+  /// The names of WAssetInfo::TransformState, in enum order.
   ///
   /// These are the strings the tools report and accept as a filter, so they are part of the interface
   /// an agent sees, not just a debug aid.
-  constexpr const char* s_szTransformStateNames[ezAssetInfo::TransformState::COUNT] = {
+  constexpr const char* s_szTransformStateNames[WAssetInfo::TransformState::COUNT] = {
     "Unknown",
     "UpToDate",
     "NeedsImport",
@@ -47,32 +47,32 @@ namespace
   /// and the editor log does not have to learn two vocabularies. Kept as a separate copy rather than
   /// shared with LogTool, because exporting it would couple two otherwise unrelated tool providers
   /// through a header for seven strings. If a third tool needs these, move them into a common place.
-  ezStringView AssetLogSeverityToString(ezLogMsgType::Enum type)
+  WStringView AssetLogSeverityToString(WLogMsgType::Enum type)
   {
     switch (type)
     {
-      case ezLogMsgType::ErrorMsg:
+      case WLogMsgType::ErrorMsg:
         return "error";
-      case ezLogMsgType::SeriousWarningMsg:
+      case WLogMsgType::SeriousWarningMsg:
         return "serious-warning";
-      case ezLogMsgType::WarningMsg:
+      case WLogMsgType::WarningMsg:
         return "warning";
-      case ezLogMsgType::SuccessMsg:
+      case WLogMsgType::SuccessMsg:
         return "success";
-      case ezLogMsgType::InfoMsg:
+      case WLogMsgType::InfoMsg:
         return "info";
-      case ezLogMsgType::DevMsg:
+      case WLogMsgType::DevMsg:
         return "dev";
-      case ezLogMsgType::DebugMsg:
+      case WLogMsgType::DebugMsg:
         return "debug";
       default:
         return "other";
     }
   }
 
-  ezStringView TransformStateToString(ezAssetInfo::TransformState state)
+  WStringView TransformStateToString(WAssetInfo::TransformState state)
   {
-    if (state < 0 || state >= ezAssetInfo::TransformState::COUNT)
+    if (state < 0 || state >= WAssetInfo::TransformState::COUNT)
       return "Unknown";
 
     return s_szTransformStateNames[state];
@@ -80,23 +80,23 @@ namespace
 
   /// Returns COUNT if the name matches no state, which the caller has to report as a bad argument
   /// rather than silently filtering on something else.
-  ezAssetInfo::TransformState TransformStateFromString(ezStringView sName)
+  WAssetInfo::TransformState TransformStateFromString(WStringView sName)
   {
-    for (ezUInt32 i = 0; i < ezAssetInfo::TransformState::COUNT; ++i)
+    for (WUInt32 i = 0; i < WAssetInfo::TransformState::COUNT; ++i)
     {
       if (sName.IsEqual_NoCase(s_szTransformStateNames[i]))
-        return static_cast<ezAssetInfo::TransformState>(i);
+        return static_cast<WAssetInfo::TransformState>(i);
     }
 
-    return ezAssetInfo::TransformState::COUNT;
+    return WAssetInfo::TransformState::COUNT;
   }
 
   /// Wraps a semicolon separated list in semicolons, which is the form the filters compare against.
   ///
-  /// The type filter of ezAssetBrowserAttribute is already stored this way (";Texture 2D;Texture 3D;"),
+  /// The type filter of WAssetBrowserAttribute is already stored this way (";Texture 2D;Texture 3D;"),
   /// so an agent forwarding what rtti_type_properties reported would pass the delimiters along. Both
   /// forms have to work, because requiring the agent to strip delimiters it did not add is a trap.
-  void NormalizeDelimitedList(ezStringBuilder& ref_sList)
+  void NormalizeDelimitedList(WStringBuilder& ref_sList)
   {
     ref_sList.Trim(" ");
 
@@ -117,23 +117,23 @@ namespace
   /// is the 'usedBy' argument - a schema an agent can read beats a prefix it has to be told about.
   ///
   /// Returns false if the text carries no such prefix, in which case the outputs are untouched.
-  bool ExtractUsesSearch(ezStringView sText, ezUuid& out_guid, bool& out_bTransitive)
+  bool ExtractUsesSearch(WStringView sText, WUuid& out_guid, bool& out_bTransitive)
   {
-    ezStringBuilder sTemp = sText;
+    WStringBuilder sTemp = sText;
 
-    const char* szRefAll = ezStringUtils::FindSubString_NoCase(sTemp, "ref-all:");
-    const char* szRef = ezStringUtils::FindSubString_NoCase(sTemp, "ref:");
+    const char* szRefAll = WStringUtils::FindSubString_NoCase(sTemp, "ref-all:");
+    const char* szRef = WStringUtils::FindSubString_NoCase(sTemp, "ref:");
 
     if (szRefAll == nullptr && szRef == nullptr)
       return false;
 
     const bool bTransitive = szRefAll != nullptr;
-    const char* szGuid = bTransitive ? szRefAll + ezStringUtils::GetStringElementCount("ref-all:") : szRef + ezStringUtils::GetStringElementCount("ref:");
+    const char* szGuid = bTransitive ? szRefAll + WStringUtils::GetStringElementCount("ref-all:") : szRef + WStringUtils::GetStringElementCount("ref:");
 
-    if (!ezConversionUtils::IsStringUuid(szGuid))
+    if (!WConversionUtils::IsStringUuid(szGuid))
       return false;
 
-    out_guid = ezConversionUtils::ConvertStringToUuid(szGuid);
+    out_guid = WConversionUtils::ConvertStringToUuid(szGuid);
     out_bTransitive = bTransitive;
     return true;
   }
@@ -141,14 +141,14 @@ namespace
   /// Resolves a guid or a path to an asset.
   ///
   /// FindSubAsset()'s fast path handles guids and absolute paths, but *not* the data dir parent
-  /// relative path ("Testing Chambers/Prefabs/Barrel.ezMeshAsset") - which is exactly the form
+  /// relative path ("Testing Chambers/Prefabs/Barrel.WMeshAsset") - which is exactly the form
   /// asset_find reports as 'path'. Without the exhaustive fallback the tools do not compose: feeding
   /// asset_find's own output back into asset_info fails. The fallback is a linear scan over all known
   /// assets, but it only runs once the cheap lookup has already missed, and it is the same order of
   /// work asset_find does anyway.
-  ezAssetCurator::ezLockedSubAsset ResolveAsset(ezStringView sPathOrGuid)
+  WAssetCurator::WLockedSubAsset ResolveAsset(WStringView sPathOrGuid)
   {
-    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+    WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
     auto asset = pCurator->FindSubAsset(sPathOrGuid, false);
 
@@ -162,14 +162,14 @@ namespace
   ///
   /// The transitive case is exactly the dependency hull. The direct case has no curator call that
   /// returns guids, so it is the hull filtered down to the entries that appear in the asset's own
-  /// dependency sets. Those sets hold "a data dir relative path or a GUID" (see ezAssetDocumentInfo),
+  /// dependency sets. Those sets hold "a data dir relative path or a GUID" (see WAssetDocumentInfo),
   /// so each candidate is looked for under its guid and under both of its relative path spellings.
-  void CollectReferencedAssets(const ezSubAsset& subAsset, bool bTransitive, ezSet<ezUuid>& out_deps)
+  void CollectReferencedAssets(const WSubAsset& subAsset, bool bTransitive, WSet<WUuid>& out_deps)
   {
-    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+    WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
     pCurator->GenerateTransitiveAssetHull(subAsset.m_Data.m_Guid, out_deps,
-      ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package);
+      WDependencyFlags::Transform | WDependencyFlags::Thumbnail | WDependencyFlags::Package);
 
     // the hull includes the asset itself, which is never an answer to 'what does this use'
     out_deps.Remove(subAsset.m_Data.m_Guid);
@@ -177,7 +177,7 @@ namespace
     if (bTransitive)
       return;
 
-    const ezAssetDocumentInfo* pInfo = subAsset.m_pAssetInfo != nullptr ? subAsset.m_pAssetInfo->m_Info.Borrow() : nullptr;
+    const WAssetDocumentInfo* pInfo = subAsset.m_pAssetInfo != nullptr ? subAsset.m_pAssetInfo->m_Info.Borrow() : nullptr;
 
     if (pInfo == nullptr)
     {
@@ -187,20 +187,20 @@ namespace
       return;
     }
 
-    ezSet<ezUuid> direct;
-    ezStringBuilder sGuid;
+    WSet<WUuid> direct;
+    WStringBuilder sGuid;
 
-    auto IsListed = [pInfo](ezStringView sKey) -> bool
+    auto IsListed = [pInfo](WStringView sKey) -> bool
     {
       return pInfo->m_TransformDependencies.Contains(sKey) || pInfo->m_ThumbnailDependencies.Contains(sKey) ||
              pInfo->m_PackageDependencies.Contains(sKey);
     };
 
-    for (const ezUuid& guid : out_deps)
+    for (const WUuid& guid : out_deps)
     {
       // Deliberately no check that the curator knows this guid: a reference to a missing asset is
       // precisely what a caller asking about references wants to see.
-      ezConversionUtils::ToString(guid, sGuid);
+      WConversionUtils::ToString(guid, sGuid);
 
       if (IsListed(sGuid))
       {
@@ -212,11 +212,11 @@ namespace
       // asked for, because which one a document wrote depends on how the reference was authored, and a
       // path-stored reference that is not recognised here is reported as indirect - which is wrong,
       // not merely incomplete.
-      const ezAssetCurator::ezLockedSubAsset dep = pCurator->GetSubAsset(guid);
+      const WAssetCurator::WLockedSubAsset dep = pCurator->GetSubAsset(guid);
 
       if (dep.isValid() && dep->m_pAssetInfo != nullptr && dep->m_pAssetInfo->m_Path.IsValid())
       {
-        const ezDataDirPath& path = dep->m_pAssetInfo->m_Path;
+        const WDataDirPath& path = dep->m_pAssetInfo->m_Path;
 
         if (IsListed(path.GetDataDirRelativePath()) || IsListed(path.GetDataDirParentRelativePath()))
         {
@@ -233,9 +233,9 @@ namespace
   /// 'Stopped' and 'paused' are different things: the first means the processor was switched off, the
   /// second that it is on but temporarily held back (asset import does this). Both stop progress, and a
   /// caller watching the transform state counts has to be able to tell why nothing is moving.
-  void WriteProcessorStatus(ezMcpJsonWriter& ref_writer, ezStringView sName)
+  void WriteProcessorStatus(WMcpJsonWriter& ref_writer, WStringView sName)
   {
-    ezAssetProcessor* pProcessor = ezAssetProcessor::GetSingleton();
+    WAssetProcessor* pProcessor = WAssetProcessor::GetSingleton();
 
     if (pProcessor == nullptr)
       return;
@@ -244,25 +244,25 @@ namespace
 
     switch (pProcessor->GetProcessorState())
     {
-      case ezAssetProcessor::ProcessorState::Stopped:
+      case WAssetProcessor::ProcessorState::Stopped:
         ref_writer.AddVariableString("state", "Stopped");
         break;
-      case ezAssetProcessor::ProcessorState::Running:
+      case WAssetProcessor::ProcessorState::Running:
         ref_writer.AddVariableString("state", "Running");
         break;
-      case ezAssetProcessor::ProcessorState::Stopping:
+      case WAssetProcessor::ProcessorState::Stopping:
         ref_writer.AddVariableString("state", "Stopping");
         break;
     }
 
-    const ezUInt32 uiProcessCount = pProcessor->GetProcessCount();
+    const WUInt32 uiProcessCount = pProcessor->GetProcessCount();
 
-    ezUInt32 uiBusy = 0;
-    ezUInt32 uiCrashed = 0;
+    WUInt32 uiBusy = 0;
+    WUInt32 uiCrashed = 0;
 
-    for (ezUInt32 i = 0; i < uiProcessCount; ++i)
+    for (WUInt32 i = 0; i < uiProcessCount; ++i)
     {
-      const ezEditorProcessorState state = pProcessor->GetProcessState(i);
+      const WEditorProcessorState state = pProcessor->GetProcessState(i);
 
       if (state.m_bCrashed)
         ++uiCrashed;
@@ -292,13 +292,13 @@ namespace
   ///
   /// Empty arrays repeated across every asset are pure token cost. This does mean a client cannot tell
   /// 'no dependencies' from 'not reported', which is the trade Status.md settles on for optional detail.
-  void WriteStringSet(ezMcpJsonWriter& ref_writer, ezStringView sName, const ezSet<ezString>& values)
+  void WriteStringSet(WMcpJsonWriter& ref_writer, WStringView sName, const WSet<WString>& values)
   {
     if (values.IsEmpty())
       return;
 
     ref_writer.BeginArray(sName);
-    for (const ezString& sValue : values)
+    for (const WString& sValue : values)
     {
       ref_writer.WriteString(sValue);
     }
@@ -306,25 +306,25 @@ namespace
   }
 } // namespace
 
-void ezMcpAssetTool::OnActivate()
+void WMcpAssetTool::OnActivate()
 {
   if (m_ProgressSubscription != 0)
     return;
 
   // The processor is a singleton that only exists while a project is open, which is also when this
   // provider is activated.
-  if (ezAssetProcessor* pProcessor = ezAssetProcessor::GetSingleton())
+  if (WAssetProcessor* pProcessor = WAssetProcessor::GetSingleton())
   {
-    m_ProgressSubscription = pProcessor->m_ProgressEvents.AddEventHandler(ezMakeDelegate(&ezMcpAssetTool::ProcessorProgressEventHandler, this));
+    m_ProgressSubscription = pProcessor->m_ProgressEvents.AddEventHandler(WMakeDelegate(&WMcpAssetTool::ProcessorProgressEventHandler, this));
   }
 }
 
-void ezMcpAssetTool::OnDeactivate()
+void WMcpAssetTool::OnDeactivate()
 {
   if (m_ProgressSubscription == 0)
     return;
 
-  if (ezAssetProcessor* pProcessor = ezAssetProcessor::GetSingleton())
+  if (WAssetProcessor* pProcessor = WAssetProcessor::GetSingleton())
   {
     // takes the id by reference and resets it
     pProcessor->m_ProgressEvents.RemoveEventHandler(m_ProgressSubscription);
@@ -333,11 +333,11 @@ void ezMcpAssetTool::OnDeactivate()
   m_ProgressSubscription = 0;
 }
 
-void ezMcpAssetTool::ProcessorProgressEventHandler(const ezAssetProcessorProgressEvent& e)
+void WMcpAssetTool::ProcessorProgressEventHandler(const WAssetProcessorProgressEvent& e)
 {
   // Only finished work is recorded. A 'started' entry would be superseded moments later and the
   // in-flight count is already reported by asset_health.
-  if (e.m_Type != ezAssetProcessorProgressEvent::Type::ProcessingFinished)
+  if (e.m_Type != WAssetProcessorProgressEvent::Type::ProcessingFinished)
     return;
 
   // The path is stored exactly as the event delivers it - GetDataDirRelativePath(), which omits the
@@ -349,10 +349,10 @@ void ezMcpAssetTool::ProcessorProgressEventHandler(const ezAssetProcessorProgres
   RecordHistory(e.m_AssetGuid, e.m_sAssetPath, e.m_Result, e.m_EndTime - e.m_TransformStartTime, true);
 }
 
-void ezMcpAssetTool::RecordHistory(const ezUuid& guid, ezStringView sPath, const ezTransformStatus& status, ezTime duration, bool bBackground)
+void WMcpAssetTool::RecordHistory(const WUuid& guid, WStringView sPath, const WTransformStatus& status, WTime duration, bool bBackground)
 {
   // Called from the processor's worker threads as well as from the main thread via asset_transform.
-  EZ_LOCK(m_HistoryMutex);
+  W_LOCK(m_HistoryMutex);
 
   if (m_History.GetCount() >= s_uiMaxHistoryEntries)
   {
@@ -366,14 +366,14 @@ void ezMcpAssetTool::RecordHistory(const ezUuid& guid, ezStringView sPath, const
   entry.m_sMessage = status.m_sMessage;
   entry.m_Result = status.m_Result;
   entry.m_Duration = duration;
-  entry.m_EndTime = ezTime::Now();
+  entry.m_EndTime = WTime::Now();
   entry.m_bBackground = bBackground;
 }
 
-void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpAssetTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_types";
     desc.m_sDescription = "Lists every document/asset type the editor knows, with its file extension, whether it can be created, "
                           "its asset browser category, which asset slots it is compatible with, and a link to its online "
@@ -385,7 +385,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_find";
     desc.m_sDescription = "Searches the assets of the project and returns the GUID, path and type of each match. This is the entry "
                           "point into the asset database: narrow down to a few GUIDs here, then use asset_info, asset_uses or "
@@ -395,8 +395,8 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
                           R"("name":{"type":"string","description":"Matches against the asset name, its path and its GUID, case insensitive. Multiple words separated by spaces must all match, in any order; a word prefixed with '-' must not match. E.g. 'stone -rough'. A partial GUID works too."},)"
                           R"("path":{"type":"string","description":"Only return assets whose data directory relative path starts with this folder, e.g. 'Textures/Nature'."},)"
-                          R"("type":{"type":"string","description":"Only return assets of these document types, separated by semicolons, e.g. 'Texture 2D;Texture 3D'. Use asset_types for the valid names. This accepts the value of an ezAssetBrowserAttribute's TypeFilter unchanged."},)"
-                          R"("tag":{"type":"string","description":"Only return assets carrying this asset document tag. Tags restrict which assets may go into a specific property - the required tag is reported by the ezAssetBrowserAttribute on that property, see rtti_type_properties."},)"
+                          R"("type":{"type":"string","description":"Only return assets of these document types, separated by semicolons, e.g. 'Texture 2D;Texture 3D'. Use asset_types for the valid names. This accepts the value of an WAssetBrowserAttribute's TypeFilter unchanged."},)"
+                          R"("tag":{"type":"string","description":"Only return assets carrying this asset document tag. Tags restrict which assets may go into a specific property - the required tag is reported by the WAssetBrowserAttribute on that property, see rtti_type_properties."},)"
                           R"("usedBy":{"type":"string","description":"Reverse lookup: only return assets that are directly referenced by this asset (GUID or path). Answers 'what does this asset use'."},)"
                           R"("uses":{"type":"string","description":"Reverse lookup: only return assets that reference this asset (GUID or path). Answers 'who uses this'. Combine with 'transitive' for indirect uses."},)"
                           R"("transitive":{"type":"boolean","description":"If true, 'uses' and 'usedBy' also follow indirect references. Default false."},)"
@@ -406,7 +406,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_info";
     desc.m_sDescription = "Returns the details of one asset: its absolute and relative paths, type, transform state, tags, "
                           "sub-assets, its dependencies, a link to the documentation of its type, and - if the last transform "
@@ -428,7 +428,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_uses";
     desc.m_sDescription = "Returns what an asset references and what references it. This is the question that is genuinely hard to "
                           "answer by reading files, because references are stored as GUIDs. Use it before deleting or changing an "
@@ -441,7 +441,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_thumbnail";
     desc.m_sDescription = "Returns the absolute path of an asset's thumbnail image (a .jpg), plus whether that file currently "
                           "exists and whether it is up to date. The image data is not returned - read the file if you need it. "
@@ -452,7 +452,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_transform";
     desc.m_sDescription = "Transforms one asset, i.e. compiles it into its runtime format, and returns whether that succeeded. "
                           "On failure the returned message says why, and asset_info returns the full log. "
@@ -466,7 +466,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_health";
     desc.m_sDescription = "Returns how many assets are in each transform state, plus whether the background asset processor is "
                           "running and how many assets it is transforming right now. Cheap enough to call routinely, e.g. after "
@@ -478,7 +478,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_history";
     desc.m_sDescription = "Returns the assets that were transformed recently, newest last, with how long each took and whether it "
                           "succeeded. Use this after changing something to see what the editor rebuilt in response, which the "
@@ -495,7 +495,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_processor";
     desc.m_sDescription = "Starts or stops the background asset processor, which transforms outdated assets on its own in "
                           "separate processes. Use this when asset_health reports it as Stopped and assets are not becoming "
@@ -508,7 +508,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_importers";
     desc.m_sDescription =
       "Lists the source file types that can be imported as assets - fbx, gltf, png and so on - and the import modes available for "
@@ -521,7 +521,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "asset_import";
     desc.m_sDescription =
       "Imports a source file - a mesh, texture, animation and so on - as an asset document, the same way the asset browser's import "
@@ -538,7 +538,7 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 }
 
-void ezMcpAssetTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "asset_types")
     ExecuteListTypes(arguments, out_result);
@@ -564,16 +564,16 @@ void ezMcpAssetTool::Execute(ezStringView sToolName, const ezVariantDictionary& 
     ExecuteImport(arguments, out_result);
 }
 
-void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteHistory(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezInt64 iCount = ezMath::Clamp<ezInt64>(ezMcpJson::GetInt(arguments, "count", 50), 1, s_uiMaxHistoryEntries);
-  const ezUInt64 uiSinceId = static_cast<ezUInt64>(ezMath::Max<ezInt64>(0, ezMcpJson::GetInt(arguments, "sinceId", 0)));
-  const bool bFailedOnly = ezMcpJson::GetBool(arguments, "failedOnly", false);
-  const ezStringView sAssetFilter = ezMcpJson::GetString(arguments, "asset");
+  const WInt64 iCount = WMath::Clamp<WInt64>(WMcpJson::GetInt(arguments, "count", 50), 1, s_uiMaxHistoryEntries);
+  const WUInt64 uiSinceId = static_cast<WUInt64>(WMath::Max<WInt64>(0, WMcpJson::GetInt(arguments, "sinceId", 0)));
+  const bool bFailedOnly = WMcpJson::GetBool(arguments, "failedOnly", false);
+  const WStringView sAssetFilter = WMcpJson::GetString(arguments, "asset");
 
   // Resolve the asset filter once, so that a guid, an exact path and a path substring all work. An
   // unresolvable value is not an error - it is still usable as a substring match against the paths.
-  ezUuid filterGuid;
+  WUuid filterGuid;
   if (!sAssetFilter.IsEmpty())
   {
     auto asset = ResolveAsset(sAssetFilter);
@@ -582,27 +582,27 @@ void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpT
       filterGuid = asset->m_Data.m_Guid;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  ezUInt32 uiTotalMatches = 0;
-  ezUInt64 uiLastId = 0;
+  WUInt32 uiTotalMatches = 0;
+  WUInt64 uiLastId = 0;
 
   {
-    EZ_LOCK(m_HistoryMutex);
+    W_LOCK(m_HistoryMutex);
 
     // Walk backwards to find where the newest 'count' matches begin, so the output can still be
     // written oldest-first without collecting into a temporary array.
-    ezHybridArray<const HistoryEntry*, 64> selected;
+    WHybridArray<const HistoryEntry*, 64> selected;
 
-    for (ezUInt32 i = m_History.GetCount(); i > 0; --i)
+    for (WUInt32 i = m_History.GetCount(); i > 0; --i)
     {
       const HistoryEntry& entry = m_History[i - 1];
 
       if (entry.m_uiId <= uiSinceId)
         break; // ids increase with position, so everything before this is older still
 
-      if (bFailedOnly && entry.m_Result == ezTransformResult::Success)
+      if (bFailedOnly && entry.m_Result == WTransformResult::Success)
         continue;
 
       if (!sAssetFilter.IsEmpty())
@@ -616,14 +616,14 @@ void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpT
 
       ++uiTotalMatches;
 
-      if (selected.GetCount() < static_cast<ezUInt32>(iCount))
+      if (selected.GetCount() < static_cast<WUInt32>(iCount))
         selected.PushBack(&entry);
     }
 
     writer.BeginArray("transforms");
 
     // selected is newest-first, so it is written in reverse to end up chronological
-    for (ezUInt32 i = selected.GetCount(); i > 0; --i)
+    for (WUInt32 i = selected.GetCount(); i > 0; --i)
     {
       const HistoryEntry& entry = *selected[i - 1];
 
@@ -634,23 +634,23 @@ void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpT
 
       switch (entry.m_Result)
       {
-        case ezTransformResult::Success:
+        case WTransformResult::Success:
           writer.AddVariableString("result", "Success");
           break;
-        case ezTransformResult::Failure:
+        case WTransformResult::Failure:
           writer.AddVariableString("result", "Failure");
           break;
-        case ezTransformResult::NeedsImport:
+        case WTransformResult::NeedsImport:
           writer.AddVariableString("result", "NeedsImport");
           break;
       }
 
       // rounded to milliseconds - the sub-millisecond digits are noise and cost tokens
-      writer.AddVariableInt64("durationMs", static_cast<ezInt64>(entry.m_Duration.GetMilliseconds()));
+      writer.AddVariableInt64("durationMs", static_cast<WInt64>(entry.m_Duration.GetMilliseconds()));
 
       // how long ago this finished, which is more useful to a model than an absolute timestamp it has
       // no reference point for
-      writer.AddVariableInt64("secondsAgo", static_cast<ezInt64>((ezTime::Now() - entry.m_EndTime).GetSeconds()));
+      writer.AddVariableInt64("secondsAgo", static_cast<WInt64>((WTime::Now() - entry.m_EndTime).GetSeconds()));
 
       if (!entry.m_sMessage.IsEmpty())
         writer.AddVariableString("message", entry.m_sMessage);
@@ -661,7 +661,7 @@ void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpT
 
       writer.EndObject();
 
-      uiLastId = ezMath::Max(uiLastId, entry.m_uiId);
+      uiLastId = WMath::Max(uiLastId, entry.m_uiId);
     }
 
     writer.EndArray();
@@ -681,12 +681,12 @@ void ezMcpAssetTool::ExecuteHistory(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::WriteAssetIdentity(ezMcpJsonWriter& ref_writer, const ezSubAsset& subAsset)
+void WMcpAssetTool::WriteAssetIdentity(WMcpJsonWriter& ref_writer, const WSubAsset& subAsset)
 {
   ref_writer.AddVariableUuid("guid", subAsset.m_Data.m_Guid);
   ref_writer.AddVariableString("name", subAsset.GetName());
 
-  ezStringBuilder sIdentifier;
+  WStringBuilder sIdentifier;
   subAsset.GetSubAssetIdentifier(sIdentifier);
   ref_writer.AddVariableString("path", sIdentifier);
 
@@ -696,17 +696,17 @@ void ezMcpAssetTool::WriteAssetIdentity(ezMcpJsonWriter& ref_writer, const ezSub
     ref_writer.AddVariableBool("isSubAsset", true);
 }
 
-void ezMcpAssetTool::ExecuteListTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteListTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sFilter = ezMcpJson::GetString(arguments, "extension");
+  const WStringView sFilter = WMcpJson::GetString(arguments, "extension");
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginArray();
 
   // this map is ordered by type name, so the output is stable
-  for (auto it : ezDocumentManager::GetAllDocumentDescriptors())
+  for (auto it : WDocumentManager::GetAllDocumentDescriptors())
   {
-    const ezDocumentTypeDescriptor* pDesc = it.Value();
+    const WDocumentTypeDescriptor* pDesc = it.Value();
 
     if (!sFilter.IsEmpty() && pDesc->m_sFileExtension.FindSubString_NoCase(sFilter) == nullptr)
       continue;
@@ -717,21 +717,21 @@ void ezMcpAssetTool::ExecuteListTypes(const ezVariantDictionary& arguments, ezMc
 
     // What the user sees in the asset browser, which is not the type name. Without this an agent
     // cannot connect what a user describes ('the Decal asset') to the name every other tool wants.
-    ezMcpTranslation::AddOptionalString(writer, "displayName", ezMcpTranslation::GetDisplayName(pDesc->m_sDocumentTypeName));
+    WMcpTranslation::AddOptionalString(writer, "displayName", WMcpTranslation::GetDisplayName(pDesc->m_sDocumentTypeName));
 
     writer.AddVariableString("extension", pDesc->m_sFileExtension);
     writer.AddVariableBool("canCreate", pDesc->m_bCanCreate);
     writer.AddVariableString("category", pDesc->m_sAssetCategory);
 
     // the RTTI name of the document class - the entry point for finding the code that handles this type
-    writer.AddVariableString("documentClass", pDesc->m_pDocumentType != nullptr ? pDesc->m_pDocumentType->GetTypeName() : ezStringView());
+    writer.AddVariableString("documentClass", pDesc->m_pDocumentType != nullptr ? pDesc->m_pDocumentType->GetTypeName() : WStringView());
 
     // The link to the online documentation for this asset type, which is prose explaining what the type
     // is for - something no amount of reflection data conveys.
-    ezMcpTranslation::AddOptionalString(writer, "helpUrl", ezMcpTranslation::GetHelpURL(pDesc->m_sDocumentTypeName));
+    WMcpTranslation::AddOptionalString(writer, "helpUrl", WMcpTranslation::GetHelpURL(pDesc->m_sDocumentTypeName));
 
     writer.BeginArray("compatibleTypes");
-    for (const ezString& sCompatible : pDesc->m_CompatibleTypes)
+    for (const WString& sCompatible : pDesc->m_CompatibleTypes)
     {
       writer.WriteString(sCompatible);
     }
@@ -745,9 +745,9 @@ void ezMcpAssetTool::ExecuteListTypes(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteFind(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -755,34 +755,34 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
     return;
   }
 
-  const ezStringView sNameFilter = ezMcpJson::GetString(arguments, "name");
-  const ezStringView sTransformState = ezMcpJson::GetString(arguments, "transformState");
-  const bool bIncludeSubAssets = ezMcpJson::GetBool(arguments, "subAssets", false);
-  bool bTransitive = ezMcpJson::GetBool(arguments, "transitive", false);
+  const WStringView sNameFilter = WMcpJson::GetString(arguments, "name");
+  const WStringView sTransformState = WMcpJson::GetString(arguments, "transformState");
+  const bool bIncludeSubAssets = WMcpJson::GetBool(arguments, "subAssets", false);
+  bool bTransitive = WMcpJson::GetBool(arguments, "transitive", false);
 
-  ezStringBuilder sPathFilter = ezMcpJson::GetString(arguments, "path");
+  WStringBuilder sPathFilter = WMcpJson::GetString(arguments, "path");
   sPathFilter.MakeCleanPath();
   // matching a folder prefix only makes sense with the trailing separator, otherwise 'Text' would also
   // match the folder 'Textures'
   if (!sPathFilter.IsEmpty() && !sPathFilter.EndsWith("/"))
     sPathFilter.Append("/");
 
-  ezStringBuilder sTypeFilter = ezMcpJson::GetString(arguments, "type");
+  WStringBuilder sTypeFilter = WMcpJson::GetString(arguments, "type");
   NormalizeDelimitedList(sTypeFilter);
 
-  ezStringBuilder sTagFilter = ezMcpJson::GetString(arguments, "tag");
+  WStringBuilder sTagFilter = WMcpJson::GetString(arguments, "tag");
   sTagFilter.Trim(" ");
 
-  ezAssetInfo::TransformState stateFilter = ezAssetInfo::TransformState::COUNT;
+  WAssetInfo::TransformState stateFilter = WAssetInfo::TransformState::COUNT;
   if (!sTransformState.IsEmpty())
   {
     stateFilter = TransformStateFromString(sTransformState);
 
-    if (stateFilter == ezAssetInfo::TransformState::COUNT)
+    if (stateFilter == WAssetInfo::TransformState::COUNT)
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("'{}' is not a valid transform state. Valid values are: ", sTransformState);
-      for (ezUInt32 i = 0; i < ezAssetInfo::TransformState::COUNT; ++i)
+      for (WUInt32 i = 0; i < WAssetInfo::TransformState::COUNT; ++i)
       {
         if (i > 0)
           sError.Append(", ");
@@ -797,13 +797,13 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
   // the same as 'no restriction', so the flag has to be tracked separately - an asset that nothing
   // references must return zero results, not everything.
   bool bRestrictToSet = false;
-  ezSet<ezUuid> allowedGuids;
+  WSet<WUuid> allowedGuids;
 
-  ezSearchPatternFilter searchFilter;
+  WSearchPatternFilter searchFilter;
   {
     // 'ref:<guid>' inside the name filter is the asset browser's syntax for a reverse lookup. It is
     // accepted so a search copied out of the browser works, but 'uses' is the documented argument.
-    ezUuid refGuid;
+    WUuid refGuid;
     bool bRefTransitive = false;
 
     if (!sNameFilter.IsEmpty() && ExtractUsesSearch(sNameFilter, refGuid, bRefTransitive))
@@ -813,7 +813,7 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
     }
     else
     {
-      ezStringBuilder sCleanName = sNameFilter;
+      WStringBuilder sCleanName = sNameFilter;
       sCleanName.MakeCleanPath();
       sCleanName.ReplaceAll("*", "");
       searchFilter.SetSearchText(sCleanName);
@@ -821,14 +821,14 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
   }
 
   // 'uses' asks who references the given asset, which is exactly FindAllUses().
-  const ezStringView sUses = ezMcpJson::GetString(arguments, "uses");
+  const WStringView sUses = WMcpJson::GetString(arguments, "uses");
   if (!sUses.IsEmpty())
   {
     auto asset = ResolveAsset(sUses);
 
     if (!asset.isValid())
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("No asset found for 'uses' filter '{}'. Pass a GUID or a path as returned by asset_find.", sUses);
       out_result.SetError(sError);
       return;
@@ -840,27 +840,27 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
 
   // 'usedBy' asks the opposite - what the given asset references. There is no direct call for the
   // transitive case that returns GUIDs, so the dependency lists are resolved by hand.
-  const ezStringView sUsedBy = ezMcpJson::GetString(arguments, "usedBy");
+  const WStringView sUsedBy = WMcpJson::GetString(arguments, "usedBy");
   if (!sUsedBy.IsEmpty())
   {
     auto asset = ResolveAsset(sUsedBy);
 
     if (!asset.isValid())
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("No asset found for 'usedBy' filter '{}'. Pass a GUID or a path as returned by asset_find.", sUsedBy);
       out_result.SetError(sError);
       return;
     }
 
-    ezSet<ezUuid> deps;
+    WSet<WUuid> deps;
     CollectReferencedAssets(*asset, bTransitive, deps);
 
     if (bRestrictToSet)
     {
       // both reverse filters were given, so only assets satisfying both remain
-      ezSet<ezUuid> intersection;
-      for (const ezUuid& guid : deps)
+      WSet<WUuid> intersection;
+      for (const WUuid& guid : deps)
       {
         if (allowedGuids.Contains(guid))
           intersection.Insert(guid);
@@ -874,20 +874,20 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
     }
   }
 
-  ezUInt32 uiTotalMatches = 0;
+  WUInt32 uiTotalMatches = 0;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("assets");
 
   {
     auto knownSubAssets = pCurator->GetKnownSubAssets();
 
-    ezStringBuilder sIdentifier, sGuid, sTemp;
+    WStringBuilder sIdentifier, sGuid, sTemp;
 
     for (auto it : *knownSubAssets)
     {
-      const ezSubAsset& subAsset = it.Value();
+      const WSubAsset& subAsset = it.Value();
 
       if (!subAsset.m_bMainAsset && !bIncludeSubAssets)
         continue;
@@ -918,7 +918,7 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
       if (!sTagFilter.IsEmpty())
       {
         // an asset whose info failed to load carries no tags, so it cannot satisfy a tag filter
-        const ezAssetDocumentInfo* pInfo = subAsset.m_pAssetInfo->m_Info.Borrow();
+        const WAssetDocumentInfo* pInfo = subAsset.m_pAssetInfo->m_Info.Borrow();
 
         if (pInfo == nullptr)
           continue;
@@ -929,7 +929,7 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
           continue;
       }
 
-      if (stateFilter != ezAssetInfo::TransformState::COUNT && subAsset.m_pAssetInfo->m_TransformState != stateFilter)
+      if (stateFilter != WAssetInfo::TransformState::COUNT && subAsset.m_pAssetInfo->m_TransformState != stateFilter)
         continue;
 
       if (!searchFilter.IsEmpty())
@@ -938,7 +938,7 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
         // pasted GUID and a partial name both find something
         if (!searchFilter.PassesFilters(sIdentifier) && !searchFilter.PassesFilters(subAsset.GetName()))
         {
-          ezConversionUtils::ToString(subAsset.m_Data.m_Guid, sGuid);
+          WConversionUtils::ToString(subAsset.m_Data.m_Guid, sGuid);
 
           if (!searchFilter.PassesFilters(sGuid))
             continue;
@@ -959,7 +959,7 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
 
   writer.EndArray();
 
-  const ezUInt32 uiReturned = ezMath::Min(uiTotalMatches, s_uiMaxAssetResults);
+  const WUInt32 uiReturned = WMath::Min(uiTotalMatches, s_uiMaxAssetResults);
   writer.AddVariableUInt32("totalMatches", uiTotalMatches);
   writer.AddVariableUInt32("returned", uiReturned);
   writer.AddVariableBool("truncated", uiTotalMatches > uiReturned);
@@ -969,9 +969,9 @@ void ezMcpAssetTool::ExecuteFind(const ezVariantDictionary& arguments, ezMcpTool
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -979,7 +979,7 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
     return;
   }
 
-  const ezStringView sAsset = ezMcpJson::GetString(arguments, "asset");
+  const WStringView sAsset = WMcpJson::GetString(arguments, "asset");
 
   if (sAsset.IsEmpty())
   {
@@ -991,24 +991,24 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
 
   if (!asset.isValid())
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("No asset found for '{}'. Use asset_find to search for it.", sAsset);
     out_result.SetError(sError);
     return;
   }
 
-  const bool bDependencies = ezMcpJson::GetBool(arguments, "dependencies", true);
+  const bool bDependencies = WMcpJson::GetBool(arguments, "dependencies", true);
 
   // Null means 'the active profile', which DetermineFinalTargetProfile() resolves it to later.
-  const ezPlatformProfile* pRequestedProfile = nullptr;
+  const WPlatformProfile* pRequestedProfile = nullptr;
 
-  if (const ezStringView sProfile = ezMcpJson::GetString(arguments, "profile"); !sProfile.IsEmpty())
+  if (const WStringView sProfile = WMcpJson::GetString(arguments, "profile"); !sProfile.IsEmpty())
   {
-    ezStringBuilder sKnownProfiles;
+    WStringBuilder sKnownProfiles;
 
-    for (ezUInt32 i = 0; i < pCurator->GetNumAssetProfiles(); ++i)
+    for (WUInt32 i = 0; i < pCurator->GetNumAssetProfiles(); ++i)
     {
-      const ezPlatformProfile* pCandidate = pCurator->GetAssetProfile(i);
+      const WPlatformProfile* pCandidate = pCurator->GetAssetProfile(i);
 
       if (pCandidate->GetConfigName().IsEqual_NoCase(sProfile))
       {
@@ -1022,16 +1022,16 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
     // Falling back to the active profile would look plausible while being about the wrong platform.
     if (pRequestedProfile == nullptr)
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("There is no asset profile named '{}'. Known profiles: {}.", sProfile, sKnownProfiles);
       out_result.SetError(sError);
       return;
     }
   }
 
-  const ezAssetInfo* pAssetInfo = asset->m_pAssetInfo;
+  const WAssetInfo* pAssetInfo = asset->m_pAssetInfo;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   WriteAssetIdentity(writer, *asset);
@@ -1046,15 +1046,15 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
 
     // the documentation for this asset's type, so an agent looking at one asset does not need a
     // separate asset_types call to find out what the type is for
-    const ezString& sTypeName = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
-    ezMcpTranslation::AddOptionalString(writer, "typeHelpUrl", ezMcpTranslation::GetHelpURL(sTypeName));
+    const WString& sTypeName = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    WMcpTranslation::AddOptionalString(writer, "typeHelpUrl", WMcpTranslation::GetHelpURL(sTypeName));
   }
 
-  const ezAssetDocumentInfo* pInfo = pAssetInfo->m_Info.Borrow();
+  const WAssetDocumentInfo* pInfo = pAssetInfo->m_Info.Borrow();
 
   if (pInfo != nullptr)
   {
-    const ezString& sTags = pInfo->GetAssetsDocumentTags();
+    const WString& sTags = pInfo->GetAssetsDocumentTags();
     if (!sTags.IsEmpty())
       writer.AddVariableString("tags", sTags);
 
@@ -1069,12 +1069,12 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
   // Facts recorded by the last transform. Most asset types record nothing, so this is frequently absent.
   if (pAssetInfo->m_pDocumentTypeDescriptor != nullptr && pAssetInfo->m_AssetHash != 0)
   {
-    if (auto* pManager = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pDocumentTypeDescriptor->m_pManager))
+    if (auto* pManager = static_cast<WAssetDocumentManager*>(pAssetInfo->m_pDocumentTypeDescriptor->m_pManager))
     {
       // Some asset types transform differently per profile, and then these values describe one profile only.
-      const ezPlatformProfile* pProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pRequestedProfile);
+      const WPlatformProfile* pProfile = WAssetDocumentManager::DetermineFinalTargetProfile(pRequestedProfile);
 
-      if (const ezAssetInfoFile* pAssetInfoFile = pAssetInfo->GetTransformInfo({}, pProfile))
+      if (const WAssetInfoFile* pAssetInfoFile = pAssetInfo->GetTransformInfo({}, pProfile))
       {
         writer.BeginObject("info");
 
@@ -1104,7 +1104,7 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
   if (!pAssetInfo->m_SubAssets.IsEmpty())
   {
     writer.BeginArray("subAssets");
-    for (const ezUuid& guid : pAssetInfo->m_SubAssets)
+    for (const WUuid& guid : pAssetInfo->m_SubAssets)
     {
       auto sub = pCurator->GetSubAsset(guid);
 
@@ -1128,7 +1128,7 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
   if (!pAssetInfo->m_LogEntries.IsEmpty())
   {
     writer.BeginArray("transformLog");
-    for (const ezLogEntry& entry : pAssetInfo->m_LogEntries)
+    for (const WLogEntry& entry : pAssetInfo->m_LogEntries)
     {
       writer.BeginObject();
       writer.AddVariableString("severity", AssetLogSeverityToString(entry.m_Type));
@@ -1143,9 +1143,9 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteUses(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -1153,7 +1153,7 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
     return;
   }
 
-  const ezStringView sAsset = ezMcpJson::GetString(arguments, "asset");
+  const WStringView sAsset = WMcpJson::GetString(arguments, "asset");
 
   if (sAsset.IsEmpty())
   {
@@ -1165,41 +1165,41 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
 
   if (!asset.isValid())
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("No asset found for '{}'. Use asset_find to search for it.", sAsset);
     out_result.SetError(sError);
     return;
   }
 
-  const ezStringView sDirection = ezMcpJson::GetString(arguments, "direction", "both");
-  const bool bTransitive = ezMcpJson::GetBool(arguments, "transitive", false);
+  const WStringView sDirection = WMcpJson::GetString(arguments, "direction", "both");
+  const bool bTransitive = WMcpJson::GetBool(arguments, "transitive", false);
 
   const bool bWantUses = sDirection.IsEqual_NoCase("uses") || sDirection.IsEqual_NoCase("both");
   const bool bWantUsedBy = sDirection.IsEqual_NoCase("usedBy") || sDirection.IsEqual_NoCase("both");
 
   if (!bWantUses && !bWantUsedBy)
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("'{}' is not a valid direction. Use 'uses', 'usedBy' or 'both'.", sDirection);
     out_result.SetError(sError);
     return;
   }
 
-  const ezUuid assetGuid = asset->m_Data.m_Guid;
+  const WUuid assetGuid = asset->m_Data.m_Guid;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   WriteAssetIdentity(writer, *asset);
   writer.AddVariableBool("transitive", bTransitive);
 
-  auto writeGuidArray = [&](ezStringView sName, const ezSet<ezUuid>& guids)
+  auto writeGuidArray = [&](WStringView sName, const WSet<WUuid>& guids)
   {
     writer.BeginArray(sName);
 
-    ezUInt32 uiWritten = 0;
+    WUInt32 uiWritten = 0;
 
-    for (const ezUuid& guid : guids)
+    for (const WUuid& guid : guids)
     {
       if (uiWritten >= s_uiMaxAssetResults)
         break;
@@ -1224,12 +1224,12 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
 
     writer.EndArray();
 
-    ezStringBuilder sTotalName(sName, "Total");
+    WStringBuilder sTotalName(sName, "Total");
     writer.AddVariableUInt32(sTotalName, guids.GetCount());
 
     if (guids.GetCount() > uiWritten)
     {
-      ezStringBuilder sTruncatedName(sName, "Truncated");
+      WStringBuilder sTruncatedName(sName, "Truncated");
       writer.AddVariableBool(sTruncatedName, true);
     }
   };
@@ -1237,7 +1237,7 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
   if (bWantUses)
   {
     // who references this asset
-    ezSet<ezUuid> uses;
+    WSet<WUuid> uses;
     pCurator->FindAllUses(assetGuid, uses, bTransitive);
     uses.Remove(assetGuid);
 
@@ -1247,7 +1247,7 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
   if (bWantUsedBy)
   {
     // what this asset references
-    ezSet<ezUuid> deps;
+    WSet<WUuid> deps;
     CollectReferencedAssets(*asset, bTransitive, deps);
 
     writeGuidArray("uses", deps);
@@ -1258,9 +1258,9 @@ void ezMcpAssetTool::ExecuteUses(const ezVariantDictionary& arguments, ezMcpTool
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteThumbnail(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -1268,7 +1268,7 @@ void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  const ezStringView sAsset = ezMcpJson::GetString(arguments, "asset");
+  const WStringView sAsset = WMcpJson::GetString(arguments, "asset");
 
   if (sAsset.IsEmpty())
   {
@@ -1280,16 +1280,16 @@ void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMc
 
   if (!asset.isValid())
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("No asset found for '{}'. Use asset_find to search for it.", sAsset);
     out_result.SetError(sError);
     return;
   }
 
-  const ezAssetInfo* pAssetInfo = asset->m_pAssetInfo;
-  const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
+  const WAssetInfo* pAssetInfo = asset->m_pAssetInfo;
+  const WAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   WriteAssetIdentity(writer, *asset);
@@ -1301,17 +1301,17 @@ void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMc
 
   if (pTypeDesc != nullptr)
   {
-    const ezBitflags<ezAssetDocumentFlags> flags = pTypeDesc->m_AssetDocumentFlags;
+    const WBitflags<WAssetDocumentFlags> flags = pTypeDesc->m_AssetDocumentFlags;
 
     bSupportsThumbnail = bMainAsset
-                           ? flags.IsAnySet(ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoThumbnailOnTransform)
-                           : flags.IsAnySet(ezAssetDocumentFlags::SubAssetsSupportThumbnail | ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform);
+                           ? flags.IsAnySet(WAssetDocumentFlags::SupportsThumbnail | WAssetDocumentFlags::AutoThumbnailOnTransform)
+                           : flags.IsAnySet(WAssetDocumentFlags::SubAssetsSupportThumbnail | WAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform);
   }
 
   writer.AddVariableBool("supportsThumbnail", bSupportsThumbnail);
 
-  ezAssetDocumentManager* pManager = pAssetInfo->m_pDocumentTypeDescriptor != nullptr
-                                       ? static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pDocumentTypeDescriptor->m_pManager)
+  WAssetDocumentManager* pManager = pAssetInfo->m_pDocumentTypeDescriptor != nullptr
+                                       ? static_cast<WAssetDocumentManager*>(pAssetInfo->m_pDocumentTypeDescriptor->m_pManager)
                                        : nullptr;
 
   if (pManager == nullptr)
@@ -1322,13 +1322,13 @@ void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  const ezString sThumbPath = pManager->GenerateResourceThumbnailPath(pAssetInfo->m_Path, bMainAsset ? ezStringView() : ezStringView(asset->m_Data.m_sName));
+  const WString sThumbPath = pManager->GenerateResourceThumbnailPath(pAssetInfo->m_Path, bMainAsset ? WStringView() : WStringView(asset->m_Data.m_sName));
 
   // this is pure path arithmetic, so it returns a path whether or not anything was ever written there
   writer.AddVariableString("thumbnailPath", sThumbPath);
-  writer.AddVariableBool("exists", ezOSFile::ExistsFile(sThumbPath));
+  writer.AddVariableBool("exists", WOSFile::ExistsFile(sThumbPath));
 
-  const bool bUpToDate = pManager->IsThumbnailUpToDate(pAssetInfo->m_Path, bMainAsset ? ezStringView() : ezStringView(asset->m_Data.m_sName),
+  const bool bUpToDate = pManager->IsThumbnailUpToDate(pAssetInfo->m_Path, bMainAsset ? WStringView() : WStringView(asset->m_Data.m_sName),
     pAssetInfo->m_ThumbHash, pTypeDesc != nullptr && pTypeDesc->m_pDocumentType != nullptr ? pTypeDesc->m_pDocumentType->GetTypeVersion() : 0);
 
   writer.AddVariableBool("upToDate", bUpToDate);
@@ -1338,9 +1338,9 @@ void ezMcpAssetTool::ExecuteThumbnail(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteTransform(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -1348,7 +1348,7 @@ void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  const ezStringView sAsset = ezMcpJson::GetString(arguments, "asset");
+  const WStringView sAsset = WMcpJson::GetString(arguments, "asset");
 
   if (sAsset.IsEmpty())
   {
@@ -1356,15 +1356,15 @@ void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezUuid assetGuid;
-  ezStringBuilder sIdentifier;
+  WUuid assetGuid;
+  WStringBuilder sIdentifier;
 
   {
     auto asset = ResolveAsset(sAsset);
 
     if (!asset.isValid())
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("No asset found for '{}'. Use asset_find to search for it.", sAsset);
       out_result.SetError(sError);
       return;
@@ -1378,19 +1378,19 @@ void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMc
 
   // TriggeredManually is always set, because without it assets flagged OnlyTransformManually - scenes
   // among them - silently do nothing, which reads as an unexplained success to the caller.
-  ezBitflags<ezTransformFlags> flags = ezTransformFlags::TriggeredManually;
+  WBitflags<WTransformFlags> flags = WTransformFlags::TriggeredManually;
 
-  if (ezMcpJson::GetBool(arguments, "force", false))
-    flags |= ezTransformFlags::ForceTransform;
+  if (WMcpJson::GetBool(arguments, "force", false))
+    flags |= WTransformFlags::ForceTransform;
 
   // This runs on the main thread and so does not go through the asset processor, meaning it produces
   // no progress event. Recording it here keeps asset_history a complete picture of what was
   // transformed rather than only what the background processor did.
-  const ezTime startTime = ezTime::Now();
-  const ezTransformStatus status = pCurator->TransformAsset(assetGuid, flags);
-  RecordHistory(assetGuid, sIdentifier, status, ezTime::Now() - startTime, false);
+  const WTime startTime = WTime::Now();
+  const WTransformStatus status = pCurator->TransformAsset(assetGuid, flags);
+  RecordHistory(assetGuid, sIdentifier, status, WTime::Now() - startTime, false);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableUuid("guid", assetGuid);
@@ -1401,13 +1401,13 @@ void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMc
   // transformed, which is a different action for the caller to take.
   switch (status.m_Result)
   {
-    case ezTransformResult::Success:
+    case WTransformResult::Success:
       writer.AddVariableString("result", "Success");
       break;
-    case ezTransformResult::Failure:
+    case WTransformResult::Failure:
       writer.AddVariableString("result", "Failure");
       break;
-    case ezTransformResult::NeedsImport:
+    case WTransformResult::NeedsImport:
       writer.AddVariableString("result", "NeedsImport");
       break;
   }
@@ -1433,9 +1433,9 @@ void ezMcpAssetTool::ExecuteTransform(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteProcessor(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetProcessor* pProcessor = ezAssetProcessor::GetSingleton();
+  WAssetProcessor* pProcessor = WAssetProcessor::GetSingleton();
 
   if (pProcessor == nullptr)
   {
@@ -1443,7 +1443,7 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  const ezStringView sAction = ezMcpJson::GetString(arguments, "action", "query");
+  const WStringView sAction = WMcpJson::GetString(arguments, "action", "query");
 
   const bool bStart = sAction.IsEqual_NoCase("start");
   const bool bStop = sAction.IsEqual_NoCase("stop");
@@ -1452,7 +1452,7 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
 
   if (!bStart && !bStop && !bForceStop && !bQuery)
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("'{}' is not a valid action. Use 'start', 'stop', 'forceStop' or 'query'.", sAction);
     out_result.SetError(sError);
     return;
@@ -1461,8 +1461,8 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
   if (bStart)
   {
     // The UI pairs the start with a file system check, so that assets changed while the processor was
-    // off are noticed rather than sitting untouched (see ezQtCuratorControl::BackgroundProcessClicked).
-    ezAssetCurator::GetSingleton()->CheckFileSystem();
+    // off are noticed rather than sitting untouched (see WQtCuratorControl::BackgroundProcessClicked).
+    WAssetCurator::GetSingleton()->CheckFileSystem();
     pProcessor->StartProcessor();
   }
   else if (bStop || bForceStop)
@@ -1472,7 +1472,7 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
     pProcessor->StopProcessor(bForceStop);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("action", sAction);
@@ -1480,7 +1480,7 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
 
   // The state is read back straight after the call and may still be in transition - StopProcessor
   // without force returns while processes are still finishing.
-  if (bStop && pProcessor->GetProcessorState() == ezAssetProcessor::ProcessorState::Stopping)
+  if (bStop && pProcessor->GetProcessorState() == WAssetProcessor::ProcessorState::Stopping)
   {
     writer.AddVariableString("note", "The processor is finishing the assets it had already started. Call again with 'forceStop' to kill those processes instead of waiting.");
   }
@@ -1490,9 +1490,9 @@ void ezMcpAssetTool::ExecuteProcessor(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteHealth(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteHealth(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -1500,12 +1500,12 @@ void ezMcpAssetTool::ExecuteHealth(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  ezUInt32 uiNumAssets = 0;
-  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> counts;
+  WUInt32 uiNumAssets = 0;
+  WHybridArray<WUInt32, WAssetInfo::TransformState::COUNT> counts;
 
   pCurator->GetAssetTransformStats(uiNumAssets, counts);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableUInt32("totalAssets", uiNumAssets);
@@ -1513,12 +1513,12 @@ void ezMcpAssetTool::ExecuteHealth(const ezVariantDictionary& arguments, ezMcpTo
   // Only the non-zero states are written. On a healthy project this reduces the whole answer to the
   // asset count and one UpToDate entry, which is what makes this cheap enough to call routinely.
   writer.BeginObject("states");
-  for (ezUInt32 i = 0; i < counts.GetCount() && i < ezAssetInfo::TransformState::COUNT; ++i)
+  for (WUInt32 i = 0; i < counts.GetCount() && i < WAssetInfo::TransformState::COUNT; ++i)
   {
     if (counts[i] == 0)
       continue;
 
-    writer.AddVariableUInt32(TransformStateToString(static_cast<ezAssetInfo::TransformState>(i)), counts[i]);
+    writer.AddVariableUInt32(TransformStateToString(static_cast<WAssetInfo::TransformState>(i)), counts[i]);
   }
   writer.EndObject();
 
@@ -1532,23 +1532,23 @@ void ezMcpAssetTool::ExecuteHealth(const ezVariantDictionary& arguments, ezMcpTo
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteListImporters(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sFile = ezMcpJson::GetString(arguments, "file");
+  const WStringView sFile = WMcpJson::GetString(arguments, "file");
 
-  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
-  ezAssetDocumentGenerator::CreateGenerators(generators);
+  WTempHybridArray<WAssetDocumentGenerator*, 16> generators;
+  WAssetDocumentGenerator::CreateGenerators(generators);
 
   // The generators are freshly allocated and owned by this call.
-  EZ_SCOPE_EXIT(ezAssetDocumentGenerator::DestroyGenerators(generators));
+  W_SCOPE_EXIT(WAssetDocumentGenerator::DestroyGenerators(generators));
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("importers");
 
-  ezUInt32 uiCount = 0;
+  WUInt32 uiCount = 0;
 
-  for (ezAssetDocumentGenerator* pGen : generators)
+  for (WAssetDocumentGenerator* pGen : generators)
   {
     if (pGen == nullptr)
       continue;
@@ -1557,7 +1557,7 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
     if (!sFile.IsEmpty() && !pGen->SupportsFileType(sFile))
       continue;
 
-    ezHybridArray<ezAssetDocumentGenerator::ImportMode, 4> modes;
+    WHybridArray<WAssetDocumentGenerator::ImportMode, 4> modes;
 
     // An empty path asks the generator for its general purpose modes, which is what to report when no
     // particular file was named.
@@ -1572,7 +1572,7 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
     writer.AddVariableString("documentExtension", pGen->GetDocumentExtension());
 
     writer.BeginArray("modes");
-    for (const ezAssetDocumentGenerator::ImportMode& mode : modes)
+    for (const WAssetDocumentGenerator::ImportMode& mode : modes)
     {
       writer.BeginObject();
       writer.AddVariableString("name", mode.m_sName);
@@ -1580,13 +1580,13 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
       // What the import dialog would preselect. An agent with no opinion should use the highest.
       switch (mode.m_Priority)
       {
-        case ezAssetDocGeneratorPriority::HighPriority:
+        case WAssetDocGeneratorPriority::HighPriority:
           writer.AddVariableString("priority", "high");
           break;
-        case ezAssetDocGeneratorPriority::DefaultPriority:
+        case WAssetDocGeneratorPriority::DefaultPriority:
           writer.AddVariableString("priority", "default");
           break;
-        case ezAssetDocGeneratorPriority::LowPriority:
+        case WAssetDocGeneratorPriority::LowPriority:
           writer.AddVariableString("priority", "low");
           break;
         default:
@@ -1594,11 +1594,11 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
           break;
       }
 
-      ezMcpTranslation::AddOptionalString(writer, "displayName", ezMcpTranslation::GetDisplayName(mode.m_sName));
+      WMcpTranslation::AddOptionalString(writer, "displayName", WMcpTranslation::GetDisplayName(mode.m_sName));
 
       // What the mode actually does, where the name does not say it - which channel holds what in an
       // ORM texture, for instance. This is the part an agent cannot infer.
-      ezMcpTranslation::AddOptionalString(writer, "description", ezMcpTranslation::GetTooltip(mode.m_sName));
+      WMcpTranslation::AddOptionalString(writer, "description", WMcpTranslation::GetTooltip(mode.m_sName));
 
       writer.EndObject();
     }
@@ -1614,11 +1614,11 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
   // just repeat what the caller already knows.
   if (sFile.IsEmpty())
   {
-    ezSet<ezString> extensions;
-    ezAssetDocumentGenerator::GetSupportsFileTypes(extensions);
+    WSet<WString> extensions;
+    WAssetDocumentGenerator::GetSupportsFileTypes(extensions);
 
     writer.BeginArray("fileTypes");
-    for (const ezString& sExt : extensions)
+    for (const WString& sExt : extensions)
     {
       writer.WriteString(sExt);
     }
@@ -1630,9 +1630,9 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpAssetTool::ExecuteImport(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sFile = ezMcpJson::GetString(arguments, "file");
+  const WStringView sFile = WMcpJson::GetString(arguments, "file");
 
   if (sFile.IsEmpty())
   {
@@ -1640,30 +1640,30 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  ezStringBuilder sAbsFile = sFile;
+  WStringBuilder sAbsFile = sFile;
   sAbsFile.MakeCleanPath();
 
-  if (!ezPathUtils::IsAbsolutePath(sAbsFile))
+  if (!WPathUtils::IsAbsolutePath(sAbsFile))
   {
-    ezStringBuilder sResolved = sAbsFile;
+    WStringBuilder sResolved = sAbsFile;
 
-    if (ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sResolved, true))
+    if (WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sResolved, true))
     {
       sAbsFile = sResolved;
     }
     else
     {
       sResolved = sAbsFile;
-      if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sResolved))
+      if (WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sResolved))
         sAbsFile = sResolved;
     }
   }
 
   // Still relative means no data directory claimed it. Checked before ExistsFile(), which asserts on a
   // relative path instead of returning false.
-  if (!ezPathUtils::IsAbsolutePath(sAbsFile) || !ezOSFile::ExistsFile(sAbsFile))
+  if (!WPathUtils::IsAbsolutePath(sAbsFile) || !WOSFile::ExistsFile(sAbsFile))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("There is no file at '{}'. Pass an absolute path, or one relative to the data directory parent such as "
                 "'Testing Chambers/Textures/Wood.png'.",
       sAbsFile);
@@ -1671,7 +1671,7 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
   {
     out_result.SetError("No project is open, so nothing can be imported.");
     return;
@@ -1679,9 +1679,9 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
 
   // The generated document lands next to the source file, so a source outside the project would
   // create an asset outside it too, which the editor cannot then track.
-  if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(sAbsFile))
+  if (!WToolsProject::GetSingleton()->IsDocumentInAllowedRoot(sAbsFile))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' is outside the open project. The imported asset is created next to its source file, so the source has to live "
                 "in one of the project's data directories - 'project_info' lists them. Copy the file into the project first.",
       sAbsFile);
@@ -1689,30 +1689,30 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  const ezStringView sRequestedMode = ezMcpJson::GetString(arguments, "mode");
+  const WStringView sRequestedMode = WMcpJson::GetString(arguments, "mode");
 
-  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
-  ezAssetDocumentGenerator::CreateGenerators(generators);
-  EZ_SCOPE_EXIT(ezAssetDocumentGenerator::DestroyGenerators(generators));
+  WTempHybridArray<WAssetDocumentGenerator*, 16> generators;
+  WAssetDocumentGenerator::CreateGenerators(generators);
+  W_SCOPE_EXIT(WAssetDocumentGenerator::DestroyGenerators(generators));
 
-  ezAssetDocumentGenerator* pGenerator = nullptr;
-  ezString sMode = sRequestedMode;
+  WAssetDocumentGenerator* pGenerator = nullptr;
+  WString sMode = sRequestedMode;
 
   if (sRequestedMode.IsEmpty())
   {
     // No mode named: pick the highest priority one any generator offers for this file, which is what
     // the import dialog preselects.
-    ezAssetDocGeneratorPriority bestPriority = ezAssetDocGeneratorPriority::Undecided;
+    WAssetDocGeneratorPriority bestPriority = WAssetDocGeneratorPriority::Undecided;
 
-    for (ezAssetDocumentGenerator* pGen : generators)
+    for (WAssetDocumentGenerator* pGen : generators)
     {
       if (pGen == nullptr || !pGen->SupportsFileType(sAbsFile))
         continue;
 
-      ezHybridArray<ezAssetDocumentGenerator::ImportMode, 4> modes;
+      WHybridArray<WAssetDocumentGenerator::ImportMode, 4> modes;
       pGen->GetImportModes(sAbsFile, modes);
 
-      for (const ezAssetDocumentGenerator::ImportMode& mode : modes)
+      for (const WAssetDocumentGenerator::ImportMode& mode : modes)
       {
         if (pGenerator == nullptr || mode.m_Priority > bestPriority)
         {
@@ -1725,9 +1725,9 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
 
     if (pGenerator == nullptr)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("No importer handles '{}'. 'asset_importers' lists the file types that can be imported.",
-        ezPathUtils::GetFileExtension(sAbsFile));
+        WPathUtils::GetFileExtension(sAbsFile));
       out_result.SetError(s);
       return;
     }
@@ -1736,15 +1736,15 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
   {
     // A named mode has to belong to a generator that also accepts this file, otherwise Import() would
     // fail with a message about file types that does not mention the mode.
-    for (ezAssetDocumentGenerator* pGen : generators)
+    for (WAssetDocumentGenerator* pGen : generators)
     {
       if (pGen == nullptr || !pGen->SupportsFileType(sAbsFile))
         continue;
 
-      ezHybridArray<ezAssetDocumentGenerator::ImportMode, 4> modes;
+      WHybridArray<WAssetDocumentGenerator::ImportMode, 4> modes;
       pGen->GetImportModes(sAbsFile, modes);
 
-      for (const ezAssetDocumentGenerator::ImportMode& mode : modes)
+      for (const WAssetDocumentGenerator::ImportMode& mode : modes)
       {
         if (mode.m_sName == sRequestedMode)
         {
@@ -1759,9 +1759,9 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
 
     if (pGenerator == nullptr)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("'{}' is not an import mode available for '{}'. Call 'asset_importers' with that file to see which modes apply.",
-        sRequestedMode, ezPathUtils::GetFileExtension(sAbsFile));
+        sRequestedMode, WPathUtils::GetFileExtension(sAbsFile));
       out_result.SetError(s);
       return;
     }
@@ -1769,20 +1769,20 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
 
   // bOpenDocument false: opening is the caller's decision, and OpenDocumentQueued() would defer a
   // window creation past the end of this call where its failure could not be reported.
-  ezAssetDocumentGenerator::ImportResult importResult = ezAssetDocumentGenerator::ImportResult::Imported;
-  ezStringBuilder sTargetDoc;
+  WAssetDocumentGenerator::ImportResult importResult = WAssetDocumentGenerator::ImportResult::Imported;
+  WStringBuilder sTargetDoc;
 
-  const ezStatus res = pGenerator->Import(sAbsFile, sMode, false, &importResult, &sTargetDoc);
+  const WStatus res = pGenerator->Import(sAbsFile, sMode, false, &importResult, &sTargetDoc);
 
   if (res.Failed())
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("Importing '{}' failed: {}", sAbsFile, res.GetMessageString());
     out_result.SetError(s);
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableString("sourceFile", sAbsFile);
   writer.AddVariableString("mode", sMode);
@@ -1790,13 +1790,13 @@ void ezMcpAssetTool::ExecuteImport(const ezVariantDictionary& arguments, ezMcpTo
 
   // The generators skip silently when the target exists, so without this the caller would read a
   // success and believe it had just imported something. Import() reports which it was.
-  if (importResult == ezAssetDocumentGenerator::ImportResult::AlreadyExists)
+  if (importResult == WAssetDocumentGenerator::ImportResult::AlreadyExists)
   {
     writer.AddVariableBool("alreadyImported", true);
     writer.AddVariableString("note", "An asset for this source file already existed, so nothing was imported and the existing "
                                      "document is unchanged. Delete it first to re-import.");
   }
-  else if (!ezOSFile::ExistsFile(sTargetDoc))
+  else if (!WOSFile::ExistsFile(sTargetDoc))
   {
     // Reported as created, but not where the target path says. A generator that produces several
     // documents can do this legitimately, so it is a note rather than a failure.

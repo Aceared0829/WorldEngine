@@ -6,58 +6,58 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
-ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WFmodSoundEventResourceLoader::OpenDataStream(const WResource* pResource)
 {
-  EZ_LOG_BLOCK("ezFmodSoundEventResourceLoader::OpenDataStream", pResource->GetResourceID());
+  W_LOG_BLOCK("WFmodSoundEventResourceLoader::OpenDataStream", pResource->GetResourceID());
 
-  LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
+  LoadedData* pData = W_DEFAULT_NEW(LoadedData);
 
-  ezResourceLoadData res;
+  WResourceLoadData res;
 
-  if (ezFmod::GetSingleton()->GetStudioSystem() == nullptr)
+  if (WFmod::GetSingleton()->GetStudioSystem() == nullptr)
   {
-    ezLog::Warning("FMOD not initialized, ignoring sound event.");
+    WLog::Warning("FMOD not initialized, ignoring sound event.");
     return res;
   }
 
-  ezStringBuilder sResID;
-  ezFileSystem::ResolveAssetRedirection(pResource->GetResourceID(), sResID);
+  WStringBuilder sResID;
+  WFileSystem::ResolveAssetRedirection(pResource->GetResourceID(), sResID);
 
   const char* szSeperator = sResID.FindSubString("|");
 
   if (szSeperator == nullptr)
   {
-    ezLog::Error("FMOD event resource ID is invalid or could not be resolved: '{0}'", sResID);
+    WLog::Error("FMOD event resource ID is invalid or could not be resolved: '{0}'", sResID);
     return res;
   }
 
-  ezStringBuilder sBankPath, sSubPath;
+  WStringBuilder sBankPath, sSubPath;
   sBankPath.SetSubString_FromTo(sResID, szSeperator);
   sSubPath = szSeperator + 1;
 
-  pData->m_hSoundBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sBankPath);
+  pData->m_hSoundBank = WResourceManager::LoadResource<WFmodSoundBankResource>(sBankPath);
 
   // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the FMOD 'system' the
   // bank resource must be loaded first)
   {
-    ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WFmodSoundBankResource> pBank(pData->m_hSoundBank, WResourceAcquireMode::BlockTillLoaded);
 
-    if (ezConversionUtils::IsStringUuid(sSubPath))
+    if (WConversionUtils::IsStringUuid(sSubPath))
     {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sSubPath);
+      const WUuid guid = WConversionUtils::ConvertStringToUuid(sSubPath);
       const FMOD_GUID* fmodGuid = reinterpret_cast<const FMOD_GUID*>(&guid);
 
-      if (ezFmod::GetSingleton()->GetStudioSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
+      if (WFmod::GetSingleton()->GetStudioSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
       {
-        ezLog::Error("FMOD event could not be found. GUID: '{0}'", sSubPath);
+        WLog::Error("FMOD event could not be found. GUID: '{0}'", sSubPath);
         return res;
       }
     }
     else
     {
-      if (ezFmod::GetSingleton()->GetStudioSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
+      if (WFmod::GetSingleton()->GetStudioSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
       {
-        ezLog::Error("FMOD event could not be found. Path: '{0}'", sSubPath);
+        WLog::Error("FMOD event could not be found. Path: '{0}'", sSubPath);
         return res;
       }
     }
@@ -66,14 +66,14 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   // make sure to load the sample data (on this thread)
   if (pData->m_pEventDescription->loadSampleData() != FMOD_OK)
   {
-    ezLog::Error("FMOD event sample data could not be loaded. Event: '{0}'", sSubPath);
+    WLog::Error("FMOD event sample data could not be loaded. Event: '{0}'", sSubPath);
     return res;
   }
 
-  ezFmodSoundBankResourceHandle* pHandle = &pData->m_hSoundBank;
+  WFmodSoundBankResourceHandle* pHandle = &pData->m_hSoundBank;
 
-  ezMemoryStreamWriter w(&pData->m_Storage);
-  w.WriteBytes(&pHandle, sizeof(ezFmodSoundBankResourceHandle*)).IgnoreResult();
+  WMemoryStreamWriter w(&pData->m_Storage);
+  w.WriteBytes(&pHandle, sizeof(WFmodSoundBankResourceHandle*)).IgnoreResult();
   w.WriteBytes(&pData->m_pEventDescription, sizeof(FMOD::Studio::EventDescription*)).IgnoreResult();
 
   res.m_pDataStream = &pData->m_Reader;
@@ -82,16 +82,16 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   return res;
 }
 
-void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WFmodSoundEventResourceLoader::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
   LoadedData* pData = (LoadedData*)loaderData.m_pCustomLoaderData;
 
-  EZ_DEFAULT_DELETE(pData);
+  W_DEFAULT_DELETE(pData);
 }
 
-bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResource* pResource) const
+bool WFmodSoundEventResourceLoader::IsResourceOutdated(const WResource* pResource) const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
   // if the sound bank ever gets reloaded, the sound events may be invalid, so always reload all events
   /// \todo not sure whether this can be reduced to only reloading when the bank is outdated

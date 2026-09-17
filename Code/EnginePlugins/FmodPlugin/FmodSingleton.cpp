@@ -10,20 +10,20 @@
 #include <Foundation/Platform/PlatformDesc.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
-EZ_IMPLEMENT_SINGLETON(ezFmod);
+W_IMPLEMENT_SINGLETON(WFmod);
 
-static ezFmod g_FmodSingleton;
+static WFmod g_FmodSingleton;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, ezCVarFlags::Save, "Overall volume for all FMOD output");
-ezCVarBool cvar_FmodMute("FMOD.Mute", false, ezCVarFlags::Default, "Whether FMOD output is muted");
-ezCVarBool cvar_FmodPause("FMOD.Pause", false, ezCVarFlags::Default, "Whether FMOD output is paused");
+WCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, WCVarFlags::Save, "Overall volume for all FMOD output");
+WCVarBool cvar_FmodMute("FMOD.Mute", false, WCVarFlags::Default, "Whether FMOD output is muted");
+WCVarBool cvar_FmodPause("FMOD.Pause", false, WCVarFlags::Default, "Whether FMOD output is paused");
 
-ezFmod::ezFmod()
+WFmod::WFmod()
   : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
@@ -33,29 +33,29 @@ ezFmod::ezFmod()
   m_pLowLevelSystem = nullptr;
 }
 
-void ezFmod::Startup()
+void WFmod::Startup()
 {
   if (m_bInitialized)
     return;
 
-  m_pData = EZ_DEFAULT_NEW(Data);
+  m_pData = W_DEFAULT_NEW(Data);
 
   DetectPlatform();
 
   if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
   {
-    LoadConfiguration(ezFmodAssetProfiles::s_sConfigFile);
+    LoadConfiguration(WFmodAssetProfiles::s_sConfigFile);
 
     if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
     {
-      ezLog::Warning("No valid FMOD configuration file available in '{0}'. FMOD will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
+      WLog::Warning("No valid FMOD configuration file available in '{0}'. FMOD will be deactivated.", WFmodAssetProfiles::s_sConfigFile);
       return;
     }
   }
 
   if (!m_pData->m_Configs.m_AssetProfiles.Find(m_pData->m_sPlatform).IsValid())
   {
-    ezLog::Error("FMOD configuration for platform '{0}' not available. FMOD will be deactivated.", m_pData->m_sPlatform);
+    WLog::Error("FMOD configuration for platform '{0}' not available. FMOD will be deactivated.", m_pData->m_sPlatform);
     return;
   }
 
@@ -63,33 +63,33 @@ void ezFmod::Startup()
 
   FMOD_SPEAKERMODE fmodMode = FMOD_SPEAKERMODE_5POINT1;
   {
-    ezString sMode = "Unknown";
+    WString sMode = "Unknown";
     switch (config.m_SpeakerMode)
     {
-      case ezFmodSpeakerMode::ModeStereo:
+      case WFmodSpeakerMode::ModeStereo:
         sMode = "Stereo";
         fmodMode = FMOD_SPEAKERMODE_STEREO;
         break;
-      case ezFmodSpeakerMode::Mode5Point1:
+      case WFmodSpeakerMode::Mode5Point1:
         sMode = "5.1";
         fmodMode = FMOD_SPEAKERMODE_5POINT1;
         break;
-      case ezFmodSpeakerMode::Mode7Point1:
+      case WFmodSpeakerMode::Mode7Point1:
         sMode = "7.1";
         fmodMode = FMOD_SPEAKERMODE_7POINT1;
         break;
     }
 
-    EZ_LOG_BLOCK("FMOD Configuration");
-    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
-    ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
+    W_LOG_BLOCK("FMOD Configuration");
+    WLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
+    WLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
-  EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
+  W_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
 
   // The example Studio project is authored for 5.1 sound, so set up the system output mode to match
-  EZ_FMOD_ASSERT(m_pStudioSystem->getCoreSystem(&m_pLowLevelSystem));
-  EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
+  W_FMOD_ASSERT(m_pStudioSystem->getCoreSystem(&m_pLowLevelSystem));
+  W_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
 
   void* extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
@@ -97,12 +97,12 @@ void ezFmod::Startup()
   // FMOD live update doesn't work with multiple instances and the same default IP
   // bank loading fails, once two processes are running that use this feature with the same IP
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
     // mutex handle will be closed automatically on process termination
     GetLastError(); // clear any pending error codes
-    g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
+    g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"WFmodLiveUpdate");
 
     DWORD err = GetLastError();
     if (g_hLiveUpdateMutex != NULL && err != ERROR_ALREADY_EXISTS)
@@ -111,7 +111,7 @@ void ezFmod::Startup()
     }
     else
     {
-      ezLog::Warning("FMOD Live-Update not available for this process, another process using FMOD is already running.");
+      WLog::Warning("FMOD Live-Update not available for this process, another process using FMOD is already running.");
       if (g_hLiveUpdateMutex != NULL)
       {
         CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
@@ -122,16 +122,16 @@ void ezFmod::Startup()
   }
 #endif
 
-  EZ_FMOD_ASSERT(m_pStudioSystem->initialize(config.m_uiVirtualChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
+  W_FMOD_ASSERT(m_pStudioSystem->initialize(config.m_uiVirtualChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
 
   if ((studioflags & FMOD_STUDIO_INIT_LIVEUPDATE) != 0)
   {
-    ezLog::Success("FMOD Live-Update is enabled for this process.");
+    WLog::Success("FMOD Live-Update is enabled for this process.");
   }
 
   if (LoadMasterSoundBank(config.m_sMasterSoundBank).Failed())
   {
-    ezLog::Error("Failed to load FMOD master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
+    WLog::Error("Failed to load FMOD master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
     return;
   }
 
@@ -140,7 +140,7 @@ void ezFmod::Startup()
   UpdateSound();
 }
 
-void ezFmod::Shutdown()
+void WFmod::Shutdown()
 {
   if (m_pData == nullptr)
     return;
@@ -149,14 +149,14 @@ void ezFmod::Shutdown()
   // regardless, and unloading them needs m_pData to still be around
 
   // delete all FMOD resources, except the master bank
-  ezResourceManager::FreeAllUnusedResources();
+  WResourceManager::FreeAllUnusedResources();
 
   m_bInitialized = false;
   m_pData->m_hMasterBank.Invalidate();
   m_pData->m_hMasterBankStrings.Invalidate();
 
   // now also delete the master bank
-  ezResourceManager::FreeAllUnusedResources();
+  WResourceManager::FreeAllUnusedResources();
 
   // now actually delete the sound bank data
   ClearSoundBankDataDeletionQueue();
@@ -172,48 +172,48 @@ void ezFmod::Shutdown()
   m_pData.Clear();
 }
 
-void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
+void WFmod::SetNumListeners(WUInt8 uiNumListeners)
 {
-  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "FMOD supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
+  W_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "FMOD supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
 
   m_pStudioSystem->setNumListeners(uiNumListeners);
 }
 
-ezUInt8 ezFmod::GetNumListeners()
+WUInt8 WFmod::GetNumListeners()
 {
   int i = 0;
   m_pStudioSystem->getNumListeners(&i);
-  return static_cast<ezUInt8>(i);
+  return static_cast<WUInt8>(i);
 }
 
-void ezFmod::LoadConfiguration(ezStringView sFile)
+void WFmod::LoadConfiguration(WStringView sFile)
 {
   m_pData->m_Configs.Load(sFile).IgnoreResult();
 }
 
-void ezFmod::SetOverridePlatform(ezStringView sPlatform)
+void WFmod::SetOverridePlatform(WStringView sPlatform)
 {
   m_pData->m_sPlatform = sPlatform;
 }
 
-void ezFmod::UpdateSound()
+void WFmod::UpdateSound()
 {
   if (m_pStudioSystem == nullptr)
     return;
 
-  EZ_ASSERT_DEV(m_pData != nullptr, "UpdateSound() should not be called at this time.");
+  W_ASSERT_DEV(m_pData != nullptr, "UpdateSound() should not be called at this time.");
 
   // make sure to reload the sound bank, if it has been unloaded
   if (m_pData->m_hMasterBank.IsValid())
   {
-    ezResourceLock<ezFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, WResourceAcquireMode::BlockTillLoaded);
   }
 
   // Master Volume
   {
     FMOD::ChannelGroup* channel;
     m_pLowLevelSystem->getMasterChannelGroup(&channel);
-    channel->setVolume(ezMath::Clamp<float>(cvar_FmodMasterVolume, 0.0f, 1.0f));
+    channel->setVolume(WMath::Clamp<float>(cvar_FmodMasterVolume, 0.0f, 1.0f));
   }
 
   // Mute
@@ -237,49 +237,49 @@ void ezFmod::UpdateSound()
   ClearSoundBankDataDeletionQueue();
 }
 
-void ezFmod::SetMasterChannelVolume(float fVolume)
+void WFmod::SetMasterChannelVolume(float fVolume)
 {
-  cvar_FmodMasterVolume = ezMath::Clamp<float>(fVolume, 0.0f, 1.0f);
+  cvar_FmodMasterVolume = WMath::Clamp<float>(fVolume, 0.0f, 1.0f);
 }
 
-float ezFmod::GetMasterChannelVolume() const
+float WFmod::GetMasterChannelVolume() const
 {
   return cvar_FmodMasterVolume;
 }
 
-void ezFmod::SetMasterChannelMute(bool bMute)
+void WFmod::SetMasterChannelMute(bool bMute)
 {
   cvar_FmodMute = bMute;
 }
 
-bool ezFmod::GetMasterChannelMute() const
+bool WFmod::GetMasterChannelMute() const
 {
   return cvar_FmodMute;
 }
 
-void ezFmod::SetMasterChannelPaused(bool bPaused)
+void WFmod::SetMasterChannelPaused(bool bPaused)
 {
   cvar_FmodPause = bPaused;
 }
 
-bool ezFmod::GetMasterChannelPaused() const
+bool WFmod::GetMasterChannelPaused() const
 {
   return cvar_FmodPause;
 }
 
-void ezFmod::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)
+void WFmod::SetSoundGroupVolume(WStringView sVcaGroupGuid, float fVolume)
 {
-  m_pData->m_VcaVolumes[sVcaGroupGuid] = ezMath::Clamp(fVolume, 0.0f, 1.0f);
+  m_pData->m_VcaVolumes[sVcaGroupGuid] = WMath::Clamp(fVolume, 0.0f, 1.0f);
 
   UpdateSoundGroupVolumes();
 }
 
-float ezFmod::GetSoundGroupVolume(ezStringView sVcaGroupGuid) const
+float WFmod::GetSoundGroupVolume(WStringView sVcaGroupGuid) const
 {
   return m_pData->m_VcaVolumes.GetValueOrDefault(sVcaGroupGuid, 1.0f);
 }
 
-void ezFmod::UpdateSoundGroupVolumes()
+void WFmod::UpdateSoundGroupVolumes()
 {
   for (auto it = m_pData->m_VcaVolumes.GetIterator(); it.IsValid(); ++it)
   {
@@ -293,25 +293,25 @@ void ezFmod::UpdateSoundGroupVolumes()
   }
 }
 
-void ezFmod::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
+void WFmod::GameApplicationEventHandler(const WGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
+  if (e.m_Type == WGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
-    ezFmod::GetSingleton()->UpdateSound();
+    WFmod::GetSingleton()->UpdateSound();
   }
 }
 
-void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
+void WFmod::SetNumBlendedReverbVolumes(WUInt8 uiNumBlendedVolumes)
 {
-  m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
+  m_uiNumBlendedVolumes = WMath::Clamp<WUInt8>(m_uiNumBlendedVolumes, 0, 4);
 }
 
-void ezFmod::SetGlobalParameter(const char* szName, float fValue)
+void WFmod::SetGlobalParameter(const char* szName, float fValue)
 {
   m_pStudioSystem->setParameterByName(szName, fValue);
 }
 
-float ezFmod::GetGlobalParameter(const char* szName)
+float WFmod::GetGlobalParameter(const char* szName)
 {
   float fValue = 0.0f;
   float fFinalValue = 0.0f;
@@ -319,12 +319,12 @@ float ezFmod::GetGlobalParameter(const char* szName)
   return fFinalValue;
 }
 
-void ezFmod::SetListenerOverrideMode(bool bEnabled)
+void WFmod::SetListenerOverrideMode(bool bEnabled)
 {
   m_bListenerOverrideMode = bEnabled;
 }
 
-void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity)
+void WFmod::SetListener(WInt32 iIndex, const WVec3& vPosition, const WVec3& vForward, const WVec3& vUp, const WVec3& vVelocity)
 {
   if (m_bListenerOverrideMode)
   {
@@ -362,85 +362,85 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
   }
 }
 
-ezResult ezFmod::OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+WResult WFmod::OneShotSound(WWorld* pWorld, WStringView sResourceID, const WTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
-  ezFmodSoundEventResourceHandle hSound = ezResourceManager::LoadResource<ezFmodSoundEventResource>(sResourceID);
+  WFmodSoundEventResourceHandle hSound = WResourceManager::LoadResource<WFmodSoundEventResource>(sResourceID);
 
   if (!hSound.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezResourceLock<ezFmodSoundEventResource> pSound(hSound, bBlockIfNotLoaded ? ezResourceAcquireMode::BlockTillLoaded_NeverFail : ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  WResourceLock<WFmodSoundEventResource> pSound(hSound, bBlockIfNotLoaded ? WResourceAcquireMode::BlockTillLoaded_NeverFail : WResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-  if (pSound.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return EZ_FAILURE;
+  if (pSound.GetAcquireResult() != WResourceAcquireResult::Final)
+    return W_FAILURE;
 
   return pSound->PlayOnce(globalPosition, fPitch, fVolume);
 }
 
-void ezFmod::DetectPlatform()
+void WFmod::DetectPlatform()
 {
   if (!m_pData->m_sPlatform.IsEmpty())
     return;
 
-  m_pData->m_sPlatform = ezPlatformDesc::GetThisPlatformDesc().GetType();
+  m_pData->m_sPlatform = WPlatformDesc::GetThisPlatformDesc().GetType();
 }
 
-ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
+WResult WFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
 {
-  if (ezStringUtils::IsNullOrEmpty(szMasterBankResourceID))
+  if (WStringUtils::IsNullOrEmpty(szMasterBankResourceID))
   {
-    ezLog::Error("FMOD master bank name has not been configured.");
-    return EZ_FAILURE;
+    WLog::Error("FMOD master bank name has not been configured.");
+    return W_FAILURE;
   }
 
-  m_pData->m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
+  m_pData->m_hMasterBank = WResourceManager::LoadResource<WFmodSoundBankResource>(szMasterBankResourceID);
 
   {
-    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WFmodSoundBankResource> pResource(m_pData->m_hMasterBank, WResourceAcquireMode::BlockTillLoaded);
 
-    if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
-      return EZ_FAILURE;
+    if (pResource.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
+      return W_FAILURE;
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezStringBuilder sStringsBankPath = szMasterBankResourceID;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  WStringBuilder sStringsBankPath = szMasterBankResourceID;
   sStringsBankPath.ChangeFileExtension("strings.bank");
 
-  m_pData->m_hMasterBankStrings = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sStringsBankPath);
+  m_pData->m_hMasterBankStrings = WResourceManager::LoadResource<WFmodSoundBankResource>(sStringsBankPath);
 
   {
-    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, WResourceAcquireMode::BlockTillLoaded);
 
-    if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
-      return EZ_FAILURE;
+    if (pResource.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
+      return W_FAILURE;
   }
 #endif
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezFmod::QueueSoundBankDataForDeletion(ezDataBuffer* pData)
+void WFmod::QueueSoundBankDataForDeletion(WDataBuffer* pData)
 {
-  EZ_LOCK(m_DeletionQueueMutex);
+  W_LOCK(m_DeletionQueueMutex);
 
   if (m_pData == nullptr)
   {
     // Sound bank resources can outlive the FMOD shutdown (the missing-fallback resource is only freed
     // when the resource manager itself shuts down). By then the FMOD system is already released,
     // so there is nothing to wait for and the data can just be deleted.
-    EZ_DEFAULT_DELETE(pData);
+    W_DEFAULT_DELETE(pData);
     return;
   }
 
   m_pData->m_SbDeletionQueue.PushBack(pData);
 }
 
-void ezFmod::ClearSoundBankDataDeletionQueue()
+void WFmod::ClearSoundBankDataDeletionQueue()
 {
   if (m_pData == nullptr || m_pData->m_SbDeletionQueue.IsEmpty())
     return;
 
-  EZ_LOCK(m_DeletionQueueMutex);
+  W_LOCK(m_DeletionQueueMutex);
 
   if (m_pStudioSystem != nullptr)
   {
@@ -450,10 +450,10 @@ void ezFmod::ClearSoundBankDataDeletionQueue()
 
   for (auto pData : m_pData->m_SbDeletionQueue)
   {
-    EZ_DEFAULT_DELETE(pData);
+    W_DEFAULT_DELETE(pData);
   }
 
   m_pData->m_SbDeletionQueue.Clear();
 }
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);

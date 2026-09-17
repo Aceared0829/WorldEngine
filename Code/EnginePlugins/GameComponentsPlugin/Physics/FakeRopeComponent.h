@@ -7,16 +7,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMECOMPONENTS_DLL ezFakeRopeComponentManager : public ezComponentManager<class ezFakeRopeComponent, ezBlockStorageType::FreeList>
+class W_GAMECOMPONENTS_DLL WFakeRopeComponentManager : public WComponentManager<class WFakeRopeComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezFakeRopeComponentManager(ezWorld* pWorld);
-  ~ezFakeRopeComponentManager();
+  WFakeRopeComponentManager(WWorld* pWorld);
+  ~WFakeRopeComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,38 +31,38 @@ private:
 /// The fake rope simulation is more lightweight than proper physical simulation and also stops simulating when
 /// it isn't visible.
 ///
-/// Prefer to use this over e.g. the ezJoltRopeComponent, when the physical interaction isn't needed.
-class EZ_GAMECOMPONENTS_DLL ezFakeRopeComponent : public ezComponent
+/// Prefer to use this over e.g. the WJoltRopeComponent, when the physical interaction isn't needed.
+class W_GAMECOMPONENTS_DLL WFakeRopeComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFakeRopeComponent, ezComponent, ezFakeRopeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WFakeRopeComponent, WComponent, WFakeRopeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFakeRopeComponent
+  // WFakeRopeComponent
 
 public:
-  ezFakeRopeComponent();
-  ~ezFakeRopeComponent();
+  WFakeRopeComponent();
+  ~WFakeRopeComponent();
 
   /// Of how many pieces the rope is made up.
-  ezUInt16 m_uiPieces = 16;                          // [ property ]
+  WUInt16 m_uiPieces = 16;                          // [ property ]
 
   void SetAnchor1Reference(const char* szReference); // [ property ]
   void SetAnchor2Reference(const char* szReference); // [ property ]
 
   /// The first game object to attach to.
-  void SetAnchor1(ezGameObjectHandle hActor);
+  void SetAnchor1(WGameObjectHandle hActor);
   /// The second game object to attach to.
-  void SetAnchor2(ezGameObjectHandle hActor);
+  void SetAnchor2(WGameObjectHandle hActor);
 
   /// How much the rope should sag. A value of 0 means it should be absolutely straight. In practice there is always slack, due to imprecision in the simulation.
   void SetSlack(float fVal);
@@ -79,23 +79,23 @@ public:
   float m_fDamping = 0.5f; // [ property ]
 
 private:
-  ezResult ConfigureRopeSimulator();
+  WResult ConfigureRopeSimulator();
   void SendCurrentPose();
   void SendPreviewPose();
   void RuntimeUpdate();
 
-  ezGameObjectHandle m_hAnchor1;
-  ezGameObjectHandle m_hAnchor2;
+  WGameObjectHandle m_hAnchor1;
+  WGameObjectHandle m_hAnchor2;
 
   float m_fSlack = 0.0f;
-  ezUInt32 m_uiPreviewHash = 0;
+  WUInt32 m_uiPreviewHash = 0;
 
   // if the owner or the anchor object are flagged as 'dynamic', the rope must follow their movement
   // otherwise it can skip some update steps
   bool m_bIsDynamic = true;
-  ezUInt8 m_uiCheckEquilibriumCounter = 0;
-  ezUInt8 m_uiSleepCounter = 0;
-  ezRopeSimulator m_RopeSim;
+  WUInt8 m_uiCheckEquilibriumCounter = 0;
+  WUInt8 m_uiSleepCounter = 0;
+  WRopeSimulator m_RopeSim;
   float m_fWindInfluence = 0.0f;
 
 private:

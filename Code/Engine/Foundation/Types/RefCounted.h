@@ -9,34 +9,34 @@
 /// or component in objects that need reference counting. Uses atomic operations for
 /// thread-safe increment/decrement operations. Does not provide automatic deletion -
 /// derived classes or users must implement the deletion logic when reference count reaches zero.
-class EZ_FOUNDATION_DLL ezRefCountingImpl
+class W_FOUNDATION_DLL WRefCountingImpl
 {
 public:
   /// Constructor
-  ezRefCountingImpl() = default;                  // [tested]
+  WRefCountingImpl() = default;                  // [tested]
 
-  ezRefCountingImpl(const ezRefCountingImpl& rhs) // [tested]
+  WRefCountingImpl(const WRefCountingImpl& rhs) // [tested]
   {
-    EZ_IGNORE_UNUSED(rhs);
+    W_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 
-  void operator=(const ezRefCountingImpl& rhs) // [tested]
+  void operator=(const WRefCountingImpl& rhs) // [tested]
   {
-    EZ_IGNORE_UNUSED(rhs);
+    W_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 
   /// Increments the reference counter. Returns the new reference count.
-  inline ezInt32 AddRef() const // [tested]
+  inline WInt32 AddRef() const // [tested]
   {
-    return ezAtomicUtils::Increment(m_iRefCount);
+    return WAtomicUtils::Increment(m_iRefCount);
   }
 
   /// Decrements the reference counter. Returns the new reference count.
-  inline ezInt32 ReleaseRef() const // [tested]
+  inline WInt32 ReleaseRef() const // [tested]
   {
-    return ezAtomicUtils::Decrement(m_iRefCount);
+    return WAtomicUtils::Decrement(m_iRefCount);
   }
 
   /// Returns true if the reference count is greater than 0, false otherwise
@@ -46,25 +46,25 @@ public:
   }
 
   /// Returns the current reference count
-  inline ezInt32 GetRefCount() const // [tested]
+  inline WInt32 GetRefCount() const // [tested]
   {
     return m_iRefCount;
   }
 
 private:
-  mutable ezInt32 m_iRefCount = 0; ///< Stores the current reference count
+  mutable WInt32 m_iRefCount = 0; ///< Stores the current reference count
 };
 
 /// Base class for objects that require reference counting with virtual destructor
 ///
-/// Extends ezRefCountingImpl with a virtual destructor, making it suitable as a base class
+/// Extends WRefCountingImpl with a virtual destructor, making it suitable as a base class
 /// for polymorphic objects that need reference counting. Use this when you need virtual
 /// function dispatch and proper destruction through base class pointers.
-class EZ_FOUNDATION_DLL ezRefCounted : public ezRefCountingImpl
+class W_FOUNDATION_DLL WRefCounted : public WRefCountingImpl
 {
 public:
   /// Adds a virtual destructor.
-  virtual ~ezRefCounted() = default;
+  virtual ~WRefCounted() = default;
 };
 
 /// Stores a pointer to a reference counted object and automatically increases / decreases the reference count.
@@ -73,23 +73,23 @@ public:
 /// counted objects. The actual action which, should happen once an object is no longer referenced, obliges
 /// to the system that is using the objects.
 template <typename T>
-class ezScopedRefPointer
+class WScopedRefPointer
 {
 public:
   /// Constructor.
-  ezScopedRefPointer()
+  WScopedRefPointer()
     : m_pReferencedObject(nullptr)
   {
   }
 
   /// Constructor, increases the ref count of the given object.
-  ezScopedRefPointer(T* pReferencedObject)
+  WScopedRefPointer(T* pReferencedObject)
     : m_pReferencedObject(pReferencedObject)
   {
     AddReferenceIfValid();
   }
 
-  ezScopedRefPointer(const ezScopedRefPointer<T>& other)
+  WScopedRefPointer(const WScopedRefPointer<T>& other)
   {
     m_pReferencedObject = other.m_pReferencedObject;
 
@@ -97,7 +97,7 @@ public:
   }
 
   /// Destructor - releases the reference on the ref-counted object (if there is one).
-  ~ezScopedRefPointer() { ReleaseReferenceIfValid(); }
+  ~WScopedRefPointer() { ReleaseReferenceIfValid(); }
 
   /// Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly
   /// assigned object.
@@ -115,7 +115,7 @@ public:
 
   /// Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly
   /// assigned object.
-  void operator=(const ezScopedRefPointer<T>& other)
+  void operator=(const WScopedRefPointer<T>& other)
   {
     if (other.m_pReferencedObject == m_pReferencedObject)
       return;
@@ -136,14 +136,14 @@ public:
   /// Returns the referenced object (may be nullptr).
   const T* operator->() const
   {
-    EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
+    W_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
   /// Returns the referenced object (may be nullptr)
   T* operator->()
   {
-    EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
+    W_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
@@ -173,10 +173,10 @@ private:
 /// Wrapper that makes any type reference counted
 ///
 /// Useful for making existing types reference counted without modifying their implementation.
-/// The contained object can be accessed via the m_Content member. Inherits from ezRefCounted
+/// The contained object can be accessed via the m_Content member. Inherits from WRefCounted
 /// to provide virtual destructor and reference counting functionality.
 template <typename TYPE>
-class ezRefCountedContainer : public ezRefCounted
+class WRefCountedContainer : public WRefCounted
 {
 public:
   TYPE m_Content;

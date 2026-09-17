@@ -5,18 +5,18 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezQtSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab
+class WQtSettingsTab : public WQtDocumentWindow, Ui_SettingsTab
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtSettingsTab);
+  W_DECLARE_SINGLETON(WQtSettingsTab);
 
 public:
-  ezQtSettingsTab();
-  ~ezQtSettingsTab();
+  WQtSettingsTab();
+  ~WQtSettingsTab();
 
-  virtual ezString GetWindowIcon() const override;
-  virtual ezString GetDisplayNameShort() const override;
+  virtual WString GetWindowIcon() const override;
+  virtual WString GetDisplayNameShort() const override;
 
 private:
   virtual bool InternalCanCloseWindow() override;

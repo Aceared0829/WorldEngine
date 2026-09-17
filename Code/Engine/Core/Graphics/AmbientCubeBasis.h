@@ -9,7 +9,7 @@
 ///
 /// Provides the six cardinal directions (positive/negative X, Y, Z) used for
 /// ambient lighting calculations and directional sampling.
-struct EZ_CORE_DLL ezAmbientCubeBasis
+struct W_CORE_DLL WAmbientCubeBasis
 {
   enum
   {
@@ -23,7 +23,7 @@ struct EZ_CORE_DLL ezAmbientCubeBasis
     NumDirs = 6
   };
 
-  static ezVec3 s_Dirs[NumDirs];
+  static WVec3 s_Dirs[NumDirs];
 };
 
 /// Template class for storing ambient lighting data in a cube format.
@@ -32,29 +32,29 @@ struct EZ_CORE_DLL ezAmbientCubeBasis
 /// ambient lighting. Values can be added via directional samples and evaluated
 /// for any normal direction using trilinear interpolation.
 template <typename T>
-struct ezAmbientCube
+struct WAmbientCube
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezAmbientCube();
-
-  template <typename U>
-  ezAmbientCube(const ezAmbientCube<U>& other);
+  WAmbientCube();
 
   template <typename U>
-  void operator=(const ezAmbientCube<U>& other);
+  WAmbientCube(const WAmbientCube<U>& other);
 
-  bool operator==(const ezAmbientCube& other) const;
-  bool operator!=(const ezAmbientCube& other) const;
+  template <typename U>
+  void operator=(const WAmbientCube<U>& other);
 
-  void AddSample(const ezVec3& vDir, const T& value);
+  bool operator==(const WAmbientCube& other) const;
+  bool operator!=(const WAmbientCube& other) const;
 
-  T Evaluate(const ezVec3& vNormal) const;
+  void AddSample(const WVec3& vDir, const T& value);
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  T Evaluate(const WVec3& vNormal) const;
 
-  T m_Values[ezAmbientCubeBasis::NumDirs];
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
+
+  T m_Values[WAmbientCubeBasis::NumDirs];
 };
 
 #include <Core/Graphics/Implementation/AmbientCubeBasis_inl.h>

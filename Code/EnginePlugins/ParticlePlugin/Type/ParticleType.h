@@ -5,10 +5,10 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-struct ezMsgExtractRenderData;
+struct WMsgExtractRenderData;
 
 /// Sorting key values used to order particles during rendering.
-enum ezParticleTypeSortingKey
+enum WParticleTypeSortingKey
 {
   Opaque,
   BlendedBackground,
@@ -21,21 +21,21 @@ enum ezParticleTypeSortingKey
 ///
 /// Each particle type factory stores the configuration for a particle type
 /// and can create instances of that type for particle system instances.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleTypeFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeFactory, WReflectedClass);
 
 public:
-  virtual const ezRTTI* GetTypeType() const = 0;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const = 0;
+  virtual const WRTTI* GetTypeType() const = 0;
+  virtual void CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const = 0;
 
-  ezParticleType* CreateType(ezParticleSystemInstance* pOwner) const;
+  WParticleType* CreateType(WParticleSystemInstance* pOwner) const;
 
   /// Allows the type to register any finalizers it depends on.
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const {}
 
-  virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
+  virtual void Save(WStreamWriter& inout_stream) const = 0;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 };
 
 /// Base class for particle types that define how particles are rendered.
@@ -43,11 +43,11 @@ public:
 /// Each particle type handles a specific rendering method such as billboards,
 /// trails, meshes, or lights. Types process particle data each frame and
 /// generate render data for the renderer.
-class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
+class W_PARTICLEPLUGIN_DLL WParticleType : public WParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleType, ezParticleModule);
+  W_ADD_DYNAMIC_REFLECTION(WParticleType, WParticleModule);
 
-  friend class ezParticleSystemInstance;
+  friend class WParticleSystemInstance;
 
 public:
   /// Returns the maximum radius a particle can occupy for culling purposes.
@@ -59,16 +59,16 @@ public:
   /// Generates render data for all active particles.
   ///
   /// Called during render data extraction to create render objects for this particle type.
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const = 0;
+  virtual void ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const = 0;
 
 protected:
-  ezParticleType();
+  WParticleType();
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-  virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
+  virtual void StepParticleSystem(const WTime& tDiff, WUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
 
-  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt64 uiResource1Hash, ezUInt64 uiResource2Hash);
+  static WUInt32 ComputeSortingKey(WParticleTypeRenderMode::Enum mode, WUInt64 uiResource1Hash, WUInt64 uiResource2Hash);
 
-  ezTime m_TimeDiff;
-  mutable ezUInt64 m_uiLastExtractedFrame;
+  WTime m_TimeDiff;
+  mutable WUInt64 m_uiLastExtractedFrame;
 };

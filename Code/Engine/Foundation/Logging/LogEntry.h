@@ -5,46 +5,46 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogMsgType);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WLogMsgType);
 
-/// A persistent log entry created from a ezLoggingEventData.
+/// A persistent log entry created from a WLoggingEventData.
 /// Allows for a log event to survive for longer than just the event
 /// and is reflected, allowing for it to be sent to remote targets.
-struct EZ_FOUNDATION_DLL ezLogEntry
+struct W_FOUNDATION_DLL WLogEntry
 {
-  ezLogEntry();
-  ezLogEntry(const ezLoggingEventData& le);
+  WLogEntry();
+  WLogEntry(const WLoggingEventData& le);
 
-  ezString m_sMsg;
-  ezString m_sTag;
-  ezEnum<ezLogMsgType> m_Type;
-  ezUInt8 m_uiIndentation = 0;
+  WString m_sMsg;
+  WString m_sTag;
+  WEnum<WLogMsgType> m_Type;
+  WUInt8 m_uiIndentation = 0;
   double m_fSeconds = 0;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogEntry);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WLogEntry);
 
 /// A log interface implementation that converts a log event into
-/// a ezLogEntry and calls a delegate with it.
+/// a WLogEntry and calls a delegate with it.
 ///
 /// A typical use case is to re-route and store log messages in a scope:
 /// \code{.cpp}
 ///   {
-///     ezLogEntryDelegate logger(([&array](ezLogEntry& entry) -> void
+///     WLogEntryDelegate logger(([&array](WLogEntry& entry) -> void
 ///     {
 ///       array.PushBack(std::move(entry));
 ///     }));
-///     ezLogSystemScope logScope(&logger);
+///     WLogSystemScope logScope(&logger);
 ///     *log something*
 ///   }
 /// \endcode
-class EZ_FOUNDATION_DLL ezLogEntryDelegate : public ezLogInterface
+class W_FOUNDATION_DLL WLogEntryDelegate : public WLogInterface
 {
 public:
-  using Callback = ezDelegate<void(ezLogEntry&)>;
+  using Callback = WDelegate<void(WLogEntry&)>;
   /// Log events will be delegated to the given callback.
-  ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum logLevel = ezLogMsgType::All);
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override;
+  WLogEntryDelegate(Callback callback, WLogMsgType::Enum logLevel = WLogMsgType::All);
+  virtual void HandleLogMessage(const WLoggingEventData& le) override;
 
 private:
   Callback m_Callback;

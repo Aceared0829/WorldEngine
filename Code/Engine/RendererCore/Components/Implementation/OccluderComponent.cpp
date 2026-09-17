@@ -14,62 +14,62 @@
 // * have a way to render the occluder when selected in editor ?
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOccluderType, 1)
-  EZ_ENUM_CONSTANTS(ezOccluderType::Box, ezOccluderType::QuadPosX, ezOccluderType::Mesh)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WOccluderType, 1)
+  W_ENUM_CONSTANTS(WOccluderType::Box, WOccluderType::QuadPosX, WOccluderType::Mesh)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 3, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WOccluderComponent, 3, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Type", ezOccluderType, GetType, SetType),
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), {}), new ezDefaultValueAttribute(ezVec3(1.0f))),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
+    W_ENUM_ACCESSOR_PROPERTY("Type", WOccluderType, GetType, SetType),
+    W_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new WClampValueAttribute(WVec3(0.0f), {}), new WDefaultValueAttribute(WVec3(1.0f))),
+    W_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractOccluderData, OnMsgExtractOccluderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue)),
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezShapeIconAlwaysVisibleAttribute(),
+    new WCategoryAttribute("Rendering"),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColorScheme::LightUI(WColorScheme::Blue)),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WShapeIconAlwaysVisibleAttribute(),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezOccluderComponentManager::ezOccluderComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezOccluderComponent, ezBlockStorageType::FreeList>(pWorld)
+WOccluderComponentManager::WOccluderComponentManager(WWorld* pWorld)
+  : WComponentManager<WOccluderComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezOccluderComponent::ezOccluderComponent() = default;
-ezOccluderComponent::~ezOccluderComponent() = default;
+WOccluderComponent::WOccluderComponent() = default;
+WOccluderComponent::~WOccluderComponent() = default;
 
-void ezOccluderComponent::SetExtents(const ezVec3& vExtents)
+void WOccluderComponent::SetExtents(const WVec3& vExtents)
 {
   if (m_vExtents == vExtents)
     return;
 
   m_vExtents = vExtents;
 
-  if (m_Type != ezOccluderType::Mesh)
+  if (m_Type != WOccluderType::Mesh)
   {
     m_pOccluderObject.Clear();
     UpdateOccluder();
   }
 }
 
-void ezOccluderComponent::SetType(ezEnum<ezOccluderType> type)
+void WOccluderComponent::SetType(WEnum<WOccluderType> type)
 {
   if (m_Type == type)
     return;
@@ -80,40 +80,40 @@ void ezOccluderComponent::SetType(ezEnum<ezOccluderType> type)
   UpdateOccluder();
 }
 
-void ezOccluderComponent::SetMesh(const ezCpuMeshResourceHandle& hMesh)
+void WOccluderComponent::SetMesh(const WCpuMeshResourceHandle& hMesh)
 {
   if (m_hMesh == hMesh)
     return;
 
   m_hMesh = hMesh;
 
-  if (m_Type == ezOccluderType::Mesh)
+  if (m_Type == WOccluderType::Mesh)
   {
     m_pOccluderObject.Clear();
     UpdateOccluder();
   }
 }
 
-const ezCpuMeshResourceHandle& ezOccluderComponent::GetMesh() const
+const WCpuMeshResourceHandle& WOccluderComponent::GetMesh() const
 {
   return m_hMesh;
 }
 
-void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WOccluderComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  auto category = ezDefaultSpatialDataCategories::OcclusionDynamic;
+  auto category = WDefaultSpatialDataCategories::OcclusionDynamic;
 
   if (GetOwner()->IsStatic())
   {
-    category = ezDefaultSpatialDataCategories::OcclusionStatic;
+    category = WDefaultSpatialDataCategories::OcclusionStatic;
   }
 
-  if (m_Type == ezOccluderType::Mesh)
+  if (m_Type == WOccluderType::Mesh)
   {
     if (m_pOccluderObject)
     {
-      ezResourceLock<ezCpuMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pMesh.GetAcquireResult() == ezResourceAcquireResult::Final)
+      WResourceLock<WCpuMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pMesh.GetAcquireResult() == WResourceAcquireResult::Final)
       {
         msg.AddBounds(pMesh->GetDescriptor().GetBounds(), category);
       }
@@ -121,11 +121,11 @@ void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   }
   else
   {
-    msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), category);
+    msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), category);
   }
 }
 
-void ezOccluderComponent::UpdateOccluder()
+void WOccluderComponent::UpdateOccluder()
 {
   if (!IsActiveAndInitialized())
     return;
@@ -135,62 +135,62 @@ void ezOccluderComponent::UpdateOccluder()
 
   switch (m_Type)
   {
-    case ezOccluderType::Box:
-      m_pOccluderObject = ezRasterizerObject::CreateBox(m_vExtents);
+    case WOccluderType::Box:
+      m_pOccluderObject = WRasterizerObject::CreateBox(m_vExtents);
       break;
 
-    case ezOccluderType::QuadPosX:
-      m_pOccluderObject = ezRasterizerObject::CreateQuadX(ezVec2(m_vExtents.z, m_vExtents.y));
+    case WOccluderType::QuadPosX:
+      m_pOccluderObject = WRasterizerObject::CreateQuadX(WVec2(m_vExtents.z, m_vExtents.y));
       break;
 
-    case ezOccluderType::Mesh:
+    case WOccluderType::Mesh:
     {
       if (!m_hMesh.IsValid())
         return;
 
-      ezResourceLock<ezCpuMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WCpuMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
         return;
 
       const auto& desc = pMesh->GetDescriptor().MeshBufferDesc();
-      if (desc.GetTopology() != ezGALPrimitiveTopology::Triangles)
+      if (desc.GetTopology() != WGALPrimitiveTopology::Triangles)
       {
-        ezLog::Error("Mesh can't be used as a occluder, invalid topology: {}", m_hMesh.GetResourceIdOrDescription());
+        WLog::Error("Mesh can't be used as a occluder, invalid topology: {}", m_hMesh.GetResourceIdOrDescription());
         return;
       }
 
       if (!desc.GetVertexStreamConfig().HasPosition())
       {
-        ezLog::Error("Mesh can't be used as a occluder, invalid vertex stream configuration: {}", m_hMesh.GetResourceIdOrDescription());
+        WLog::Error("Mesh can't be used as a occluder, invalid vertex stream configuration: {}", m_hMesh.GetResourceIdOrDescription());
         return;
       }
 
       if (!desc.HasIndexBuffer())
       {
-        ezLog::Error("Mesh can't be used as a occluder, no index buffer: {}", m_hMesh.GetResourceIdOrDescription());
+        WLog::Error("Mesh can't be used as a occluder, no index buffer: {}", m_hMesh.GetResourceIdOrDescription());
         return;
       }
 
       if (desc.Uses32BitIndices())
       {
-        ezLog::Error("Mesh can't be used as a occluder, too many triangles: {}", m_hMesh.GetResourceIdOrDescription());
+        WLog::Error("Mesh can't be used as a occluder, too many triangles: {}", m_hMesh.GetResourceIdOrDescription());
         return;
       }
 
-      ezGeometry geo;
+      WGeometry geo;
 
-      const ezVec3* pPositions = desc.GetPositionData().GetPtr();
-      const ezUInt16* pIndices = (const ezUInt16*)desc.GetIndexBufferData().GetPtr();
+      const WVec3* pPositions = desc.GetPositionData().GetPtr();
+      const WUInt16* pIndices = (const WUInt16*)desc.GetIndexBufferData().GetPtr();
 
-      for (ezUInt32 vtx = 0; vtx < desc.GetVertexCount(); ++vtx)
+      for (WUInt32 vtx = 0; vtx < desc.GetVertexCount(); ++vtx)
       {
-        const ezVec3& v = pPositions[vtx];
-        geo.AddVertex(v, ezVec3(0, 0, 1));
+        const WVec3& v = pPositions[vtx];
+        geo.AddVertex(v, WVec3(0, 0, 1));
       }
 
-      ezUInt32 idx[3];
+      WUInt32 idx[3];
 
-      for (ezUInt32 p = 0; p < desc.GetPrimitiveCount(); ++p)
+      for (WUInt32 p = 0; p < desc.GetPrimitiveCount(); ++p)
       {
         idx[0] = pIndices[0];
         idx[1] = pIndices[1];
@@ -200,7 +200,7 @@ void ezOccluderComponent::UpdateOccluder()
         geo.AddPolygon(idx, false);
       }
 
-      m_pOccluderObject = ezRasterizerObject::CreateMesh(pMesh->GetResourceID(), geo);
+      m_pOccluderObject = WRasterizerObject::CreateMesh(pMesh->GetResourceID(), geo);
 
       break;
     }
@@ -209,43 +209,43 @@ void ezOccluderComponent::UpdateOccluder()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
+void WOccluderComponent::OnMsgExtractOccluderData(WMsgExtractOccluderData& msg) const
 {
   if (m_pOccluderObject == nullptr)
     return;
 
   switch (m_Type)
   {
-    case ezOccluderType::Box:
+    case WOccluderType::Box:
       msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
       break;
 
-    case ezOccluderType::QuadPosX:
-      msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform() + GetOwner()->GetGlobalRotation() * ezVec3(m_vExtents.x * 0.5f, 0, 0));
+    case WOccluderType::QuadPosX:
+      msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform() + GetOwner()->GetGlobalRotation() * WVec3(m_vExtents.x * 0.5f, 0, 0));
       break;
 
-    case ezOccluderType::Mesh:
+    case WOccluderType::Mesh:
       msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
       break;
   }
 }
 
-void ezOccluderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WOccluderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_Type;
   s << m_hMesh;
 }
 
-void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WOccluderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
 
@@ -260,17 +260,17 @@ void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezOccluderComponent::OnActivated()
+void WOccluderComponent::OnActivated()
 {
   m_pOccluderObject.Clear();
 
   UpdateOccluder();
 }
 
-void ezOccluderComponent::OnDeactivated()
+void WOccluderComponent::OnDeactivated()
 {
   m_pOccluderObject.Clear();
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_OccluderComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_OccluderComponent);

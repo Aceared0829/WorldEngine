@@ -5,84 +5,84 @@
 // #include <RendererCore/AnimationSystem/AnimationPose.h>
 // #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 //
-// using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
-// using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
+// using WAnimationClipResourceHandle = WTypedResourceHandle<class WAnimationClipResource>;
+// using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
 //
-// using ezMotionMatchingComponentManager = ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ;
+// using WMotionMatchingComponentManager = WComponentManagerSimple<class WMotionMatchingComponent, WComponentUpdateType::WhenSimulating> ;
 //
-// class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezSkinnedMeshComponent
+// class W_GAMEENGINE_DLL WMotionMatchingComponent : public WSkinnedMeshComponent
 //{
-//   EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezSkinnedMeshComponent, ezMotionMatchingComponentManager);
+//   W_DECLARE_COMPONENT_TYPE(WMotionMatchingComponent, WSkinnedMeshComponent, WMotionMatchingComponentManager);
 //
 //   //////////////////////////////////////////////////////////////////////////
-//   // ezComponent
+//   // WComponent
 //
 // public:
-//   virtual void SerializeComponent(ezWorldWriter& stream) const override;
-//   virtual void DeserializeComponent(ezWorldReader& stream) override;
+//   virtual void SerializeComponent(WWorldWriter& stream) const override;
+//   virtual void DeserializeComponent(WWorldReader& stream) override;
 //
 // protected:
 //   virtual void OnSimulationStarted() override;
 //
 //
 //   //////////////////////////////////////////////////////////////////////////
-//   // ezMotionMatchingComponent
+//   // WMotionMatchingComponent
 //
 // public:
-//   ezMotionMatchingComponent();
-//   ~ezMotionMatchingComponent();
+//   WMotionMatchingComponent();
+//   ~WMotionMatchingComponent();
 //
-//   void SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource);
-//   ezAnimationClipResourceHandle GetAnimation(ezUInt32 uiIndex) const;
+//   void SetAnimation(WUInt32 uiIndex, const WAnimationClipResourceHandle& hResource);
+//   WAnimationClipResourceHandle GetAnimation(WUInt32 uiIndex) const;
 //
 // protected:
 //   void Update();
 //
-//   ezUInt32 Animations_GetCount() const;                          // [ property ]
-//   const char* Animations_GetValue(ezUInt32 uiIndex) const;       // [ property ]
-//   void Animations_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
-//   void Animations_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
-//   void Animations_Remove(ezUInt32 uiIndex);                      // [ property ]
+//   WUInt32 Animations_GetCount() const;                          // [ property ]
+//   const char* Animations_GetValue(WUInt32 uiIndex) const;       // [ property ]
+//   void Animations_SetValue(WUInt32 uiIndex, const char* value); // [ property ]
+//   void Animations_Insert(WUInt32 uiIndex, const char* value);   // [ property ]
+//   void Animations_Remove(WUInt32 uiIndex);                      // [ property ]
 //
 //   void ConfigureInput();
-//   ezVec3 GetInputDirection() const;
-//   ezQuat GetInputRotation() const;
+//   WVec3 GetInputDirection() const;
+//   WQuat GetInputRotation() const;
 //
-//   ezAnimationPose m_AnimationPose;
-//   ezSkeletonResourceHandle m_hSkeleton;
+//   WAnimationPose m_AnimationPose;
+//   WSkeletonResourceHandle m_hSkeleton;
 //
-//   ezDynamicArray<ezAnimationClipResourceHandle> m_Animations;
+//   WDynamicArray<WAnimationClipResourceHandle> m_Animations;
 //
-//   ezVec3 m_vLeftFootPos;
-//   ezVec3 m_vRightFootPos;
+//   WVec3 m_vLeftFootPos;
+//   WVec3 m_vRightFootPos;
 //
 //   struct MotionData
 //   {
-//     ezUInt16 m_uiAnimClipIndex;
-//     ezUInt16 m_uiKeyframeIndex;
-//     ezVec3 m_vLeftFootPosition;
-//     ezVec3 m_vLeftFootVelocity;
-//     ezVec3 m_vRightFootPosition;
-//     ezVec3 m_vRightFootVelocity;
-//     ezVec3 m_vRootVelocity;
+//     WUInt16 m_uiAnimClipIndex;
+//     WUInt16 m_uiKeyframeIndex;
+//     WVec3 m_vLeftFootPosition;
+//     WVec3 m_vLeftFootVelocity;
+//     WVec3 m_vRightFootPosition;
+//     WVec3 m_vRightFootVelocity;
+//     WVec3 m_vRootVelocity;
 //   };
 //
 //   struct TargetKeyframe
 //   {
-//     ezUInt16 m_uiAnimClip;
-//     ezUInt16 m_uiKeyframe;
+//     WUInt16 m_uiAnimClip;
+//     WUInt16 m_uiKeyframe;
 //   };
 //
 //   TargetKeyframe m_Keyframe0;
 //   TargetKeyframe m_Keyframe1;
 //   float m_fKeyframeLerp = 0.0f;
 //
-//   TargetKeyframe FindNextKeyframe(const TargetKeyframe& current, const ezVec3& vTargetDir) const;
+//   TargetKeyframe FindNextKeyframe(const TargetKeyframe& current, const WVec3& vTargetDir) const;
 //
-//   ezDynamicArray<MotionData> m_MotionData;
+//   WDynamicArray<MotionData> m_MotionData;
 //
-//   static void PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
-//     const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton);
+//   static void PrecomputeMotion(WDynamicArray<MotionData>& motionData, WTempHashedString jointName1, WTempHashedString jointName2,
+//     const WAnimationClipResourceDescriptor& animClip, WUInt16 uiAnimClipIndex, const WSkeleton& skeleton);
 //
-//   ezUInt32 FindBestKeyframe(const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition, ezVec3 vTargetDir) const;
+//   WUInt32 FindBestKeyframe(const TargetKeyframe& current, WVec3 vLeftFootPosition, WVec3 vRightFootPosition, WVec3 vTargetDir) const;
 // };

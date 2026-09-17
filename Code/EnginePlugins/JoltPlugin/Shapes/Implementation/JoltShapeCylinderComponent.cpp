@@ -9,32 +9,32 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeCylinderComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltShapeCylinderComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius"),
+    new WCylinderVisualizerAttribute(WBasisAxis::PositiveZ, "Height", "Radius"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltShapeCylinderComponent::ezJoltShapeCylinderComponent() = default;
-ezJoltShapeCylinderComponent::~ezJoltShapeCylinderComponent() = default;
+WJoltShapeCylinderComponent::WJoltShapeCylinderComponent() = default;
+WJoltShapeCylinderComponent::~WJoltShapeCylinderComponent() = default;
 
-void ezJoltShapeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltShapeCylinderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -43,10 +43,10 @@ void ezJoltShapeCylinderComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_fHeight;
 }
 
-void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltShapeCylinderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
   auto& s = inout_stream.GetStream();
@@ -54,15 +54,15 @@ void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_fHeight;
 }
 
-void ezJoltShapeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WJoltShapeCylinderComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), ezVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f));
-  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(box), ezInvalidSpatialDataCategory);
+  WBoundingBox box = WBoundingBox::MakeFromMinMax(WVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), WVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f));
+  msg.AddBounds(WBoundingBoxSphere::MakeFromBox(box), WInvalidSpatialDataCategory);
 }
 
-void ezJoltShapeCylinderComponent::SetRadius(float f)
+void WJoltShapeCylinderComponent::SetRadius(float f)
 {
-  m_fRadius = ezMath::Max(f, 0.0f);
+  m_fRadius = WMath::Max(f, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -70,9 +70,9 @@ void ezJoltShapeCylinderComponent::SetRadius(float f)
   }
 }
 
-void ezJoltShapeCylinderComponent::SetHeight(float f)
+void WJoltShapeCylinderComponent::SetHeight(float f)
 {
-  m_fHeight = ezMath::Max(f, 0.0f);
+  m_fHeight = WMath::Max(f, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -80,24 +80,24 @@ void ezJoltShapeCylinderComponent::SetHeight(float f)
   }
 }
 
-void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+void WJoltShapeCylinderComponent::CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial)
 {
   auto pNewShape = new JPH::CylinderShape(m_fHeight * 0.5f, m_fRadius);
   pNewShape->AddRef();
   pNewShape->SetDensity(fDensity);
-  pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
+  pNewShape->SetUserData(reinterpret_cast<WUInt64>(GetUserData()));
   pNewShape->SetMaterial(pMaterial);
 
-  const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ);
+  const WQuat qTilt = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveY, WBasisAxis::PositiveZ);
 
-  ezTransform tOwn = GetOwner()->GetGlobalTransform();
+  WTransform tOwn = GetOwner()->GetGlobalTransform();
   tOwn.m_vScale.x = tOwn.m_vScale.z;
   tOwn.m_qRotation = tOwn.m_qRotation * qTilt;
 
-  ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+  WJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, tOwn);
+  sub.m_Transform = WTransform::MakeLocalTransform(rootTransform, tOwn);
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);

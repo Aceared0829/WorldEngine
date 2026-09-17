@@ -5,39 +5,39 @@
 #include <Foundation/Types/Status.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezRenderPipeline;
-struct ezRenderPipelineResourceDescriptor;
-class ezStreamReader;
-class ezStreamWriter;
-class ezRenderPipelinePass;
-class ezRenderPipelineNode;
-class ezExtractor;
+class WRenderPipeline;
+struct WRenderPipelineResourceDescriptor;
+class WStreamReader;
+class WStreamWriter;
+class WRenderPipelinePass;
+class WRenderPipelineNode;
+class WExtractor;
 
-struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoaderConnection
+struct W_RENDERERCORE_DLL WRenderPipelineResourceLoaderConnection
 {
-  ezUInt32 m_uiSource;
-  ezUInt32 m_uiTarget;
-  ezString m_sSourcePin;
-  ezString m_sTargetPin;
+  WUInt32 m_uiSource;
+  WUInt32 m_uiTarget;
+  WString m_sSourcePin;
+  WString m_sTargetPin;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineResourceLoaderConnection);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WRenderPipelineResourceLoaderConnection);
 
-struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoader
+struct W_RENDERERCORE_DLL WRenderPipelineResourceLoader
 {
-  /// Loads a transformed render pipeline by asset GUID or path. Used to resolve ezSubGraphNode references.
-  using ImportPipelineCallback = ezDelegate<ezStatus(ezStringView, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&, ezDynamicArray<ezUniquePtr<ezExtractor>>&, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>&)>;
+  /// Loads a transformed render pipeline by asset GUID or path. Used to resolve WSubGraphNode references.
+  using ImportPipelineCallback = WDelegate<WStatus(WStringView, WDynamicArray<WUniquePtr<WRenderPipelinePass>>&, WDynamicArray<WUniquePtr<WExtractor>>&, WDynamicArray<WRenderPipelineResourceLoaderConnection>&)>;
 
   /// Reads passes, extractors and connections from the binary format written by ExportPipeline.
-  static ezStatus ImportPipeline(ezStreamReader& ref_streamReader, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& out_passes, ezDynamicArray<ezUniquePtr<ezExtractor>>& out_extractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& out_connections);
+  static WStatus ImportPipeline(WStreamReader& ref_streamReader, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& out_passes, WDynamicArray<WUniquePtr<WExtractor>>& out_extractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& out_connections);
 
-  /// Replaces every ezSubGraphNode node with the contents of the pipeline it references.
+  /// Replaces every WSubGraphNode node with the contents of the pipeline it references.
   ///
   /// Connections to the sub-graph's pins are rerouted to the passes behind the corresponding boundary nodes, and connections to unconnected boundaries are dropped. Extractors that the root graph already has are not imported again. The imported objects are kept alive through ref_ownedPasses / ref_ownedExtractors, so those have to outlive ref_nodes and ref_extractors.
-  static ezStatus InlineImportedSubGraphs(ezDynamicArray<ezRenderPipelineNode*>& ref_nodes, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_ownedPasses, ezDynamicArray<ezExtractor*>& ref_extractors, ezDynamicArray<ezUniquePtr<ezExtractor>>& ref_ownedExtractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& ref_connections, const ImportPipelineCallback& importPipeline);
+  static WStatus InlineImportedSubGraphs(WDynamicArray<WRenderPipelineNode*>& ref_nodes, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& ref_ownedPasses, WDynamicArray<WExtractor*>& ref_extractors, WDynamicArray<WUniquePtr<WExtractor>>& ref_ownedExtractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& ref_connections, const ImportPipelineCallback& importPipeline);
 
-  static ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc);
-  static ezResult ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezStreamWriter& ref_streamWriter);
+  static WInternal::NewInstance<WRenderPipeline> CreateRenderPipeline(const WRenderPipelineResourceDescriptor& desc);
+  static WResult ExportPipeline(WArrayPtr<const WRenderPipelinePass* const> passes, WArrayPtr<const WExtractor* const> extractors, WArrayPtr<const WRenderPipelineResourceLoaderConnection> connections, WStreamWriter& ref_streamWriter);
 };

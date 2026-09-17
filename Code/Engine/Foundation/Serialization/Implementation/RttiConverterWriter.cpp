@@ -6,43 +6,43 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 
-void ezRttiConverterContext::Clear()
+void WRttiConverterContext::Clear()
 {
   m_GuidToObject.Clear();
   m_ObjectToGuid.Clear();
   m_QueuedObjects.Clear();
 }
 
-void ezRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
+void WRttiConverterContext::OnUnknownTypeError(WStringView sTypeName)
 {
-  ezLog::Error("RTTI type '{0}' is unknown, CreateObjectFromNode failed.", sTypeName);
+  WLog::Error("RTTI type '{0}' is unknown, CreateObjectFromNode failed.", sTypeName);
 }
 
-ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
+WUuid WRttiConverterContext::GenerateObjectGuid(const WUuid& parentGuid, const WAbstractProperty* pProp, WVariant index, void* pObject) const
 {
-  EZ_IGNORE_UNUSED(pObject);
+  W_IGNORE_UNUSED(pObject);
 
-  ezUuid guid = parentGuid;
-  guid.HashCombine(ezUuid::MakeStableUuidFromString(pProp->GetPropertyName()));
-  if (index.IsA<ezString>())
+  WUuid guid = parentGuid;
+  guid.HashCombine(WUuid::MakeStableUuidFromString(pProp->GetPropertyName()));
+  if (index.IsA<WString>())
   {
-    guid.HashCombine(ezUuid::MakeStableUuidFromString(index.Get<ezString>()));
+    guid.HashCombine(WUuid::MakeStableUuidFromString(index.Get<WString>()));
   }
-  else if (index.CanConvertTo<ezUInt32>())
+  else if (index.CanConvertTo<WUInt32>())
   {
-    guid.HashCombine(ezUuid::MakeStableUuidFromInt(index.ConvertTo<ezUInt32>()));
+    guid.HashCombine(WUuid::MakeStableUuidFromInt(index.ConvertTo<WUInt32>()));
   }
   else if (index.IsValid())
   {
-    EZ_REPORT_FAILURE("Index type must be ezUInt32 or ezString.");
+    W_REPORT_FAILURE("Index type must be WUInt32 or WString.");
   }
-  // ezLog::Warning("{0},{1},{2} -> {3}", parentGuid, pProp->GetPropertyName(), index, guid);
+  // WLog::Warning("{0},{1},{2} -> {3}", parentGuid, pProp->GetPropertyName(), index, guid);
   return guid;
 }
 
-ezInternal::NewInstance<void> ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+WInternal::NewInstance<void> WRttiConverterContext::CreateObject(const WUuid& guid, const WRTTI* pRtti)
 {
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
   if (!pRtti->GetAllocator() || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
@@ -51,7 +51,7 @@ ezInternal::NewInstance<void> ezRttiConverterContext::CreateObject(const ezUuid&
   return pObj;
 }
 
-void ezRttiConverterContext::DeleteObject(const ezUuid& guid)
+void WRttiConverterContext::DeleteObject(const WUuid& guid)
 {
   auto object = GetObjectByGUID(guid);
   if (object.m_pObject)
@@ -61,18 +61,18 @@ void ezRttiConverterContext::DeleteObject(const ezUuid& guid)
   UnregisterObject(guid);
 }
 
-void ezRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
+void WRttiConverterContext::RegisterObject(const WUuid& guid, const WRTTI* pRtti, void* pObject)
 {
-  EZ_ASSERT_DEV(pObject != nullptr, "cannot register null object!");
-  ezRttiConverterObject& co = m_GuidToObject[guid];
+  W_ASSERT_DEV(pObject != nullptr, "cannot register null object!");
+  WRttiConverterObject& co = m_GuidToObject[guid];
 
-  if (pRtti->IsDerivedFrom<ezReflectedClass>())
+  if (pRtti->IsDerivedFrom<WReflectedClass>())
   {
-    pRtti = static_cast<ezReflectedClass*>(pObject)->GetDynamicRTTI();
+    pRtti = static_cast<WReflectedClass*>(pObject)->GetDynamicRTTI();
   }
 
   // TODO: Actually remove child owner ptr from register when deleting an object
-  // EZ_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different
+  // W_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different
   // values");
 
   co.m_pObject = pObject;
@@ -81,9 +81,9 @@ void ezRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pR
   m_ObjectToGuid[pObject] = guid;
 }
 
-void ezRttiConverterContext::UnregisterObject(const ezUuid& guid)
+void WRttiConverterContext::UnregisterObject(const WUuid& guid)
 {
-  ezRttiConverterObject* pObj;
+  WRttiConverterObject* pObj;
   if (m_GuidToObject.TryGetValue(guid, pObj))
   {
     m_GuidToObject.Remove(guid);
@@ -91,18 +91,18 @@ void ezRttiConverterContext::UnregisterObject(const ezUuid& guid)
   }
 }
 
-ezRttiConverterObject ezRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
+WRttiConverterObject WRttiConverterContext::GetObjectByGUID(const WUuid& guid) const
 {
-  ezRttiConverterObject object;
+  WRttiConverterObject object;
   m_GuidToObject.TryGetValue(guid, object);
   return object;
 }
 
-ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const
+WUuid WRttiConverterContext::GetObjectGUID(const WRTTI* pRtti, const void* pObject) const
 {
-  EZ_IGNORE_UNUSED(pRtti);
+  W_IGNORE_UNUSED(pRtti);
 
-  ezUuid guid;
+  WUuid guid;
 
   if (pObject != nullptr)
     m_ObjectToGuid.TryGetValue(pObject, guid);
@@ -110,15 +110,15 @@ ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pO
   return guid;
 }
 
-const ezRTTI* ezRttiConverterContext::FindTypeByName(ezStringView sName) const
+const WRTTI* WRttiConverterContext::FindTypeByName(WStringView sName) const
 {
-  return ezRTTI::FindTypeByName(sName);
+  return WRTTI::FindTypeByName(sName);
 }
 
-ezUuid ezRttiConverterContext::EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
+WUuid WRttiConverterContext::EnqueObject(const WUuid& guid, const WRTTI* pRtti, void* pObject)
 {
-  EZ_ASSERT_DEBUG(guid.IsValid(), "For stable serialization, guid must be well defined");
-  ezUuid res = guid;
+  W_ASSERT_DEBUG(guid.IsValid(), "For stable serialization, guid must be well defined");
+  WUuid res = guid;
 
   if (pObject != nullptr)
   {
@@ -134,65 +134,65 @@ ezUuid ezRttiConverterContext::EnqueObject(const ezUuid& guid, const ezRTTI* pRt
   else
   {
     // Replace nullptr with invalid uuid.
-    res = ezUuid();
+    res = WUuid();
   }
   return res;
 }
 
-ezRttiConverterObject ezRttiConverterContext::DequeueObject()
+WRttiConverterObject WRttiConverterContext::DequeueObject()
 {
   if (!m_QueuedObjects.IsEmpty())
   {
     auto it = m_QueuedObjects.GetIterator();
     auto object = GetObjectByGUID(it.Key());
-    EZ_ASSERT_DEV(object.m_pObject != nullptr, "Enqueued object was never registered!");
+    W_ASSERT_DEV(object.m_pObject != nullptr, "Enqueued object was never registered!");
 
     m_QueuedObjects.Remove(it);
 
     return object;
   }
 
-  return ezRttiConverterObject();
+  return WRttiConverterObject();
 }
 
 
-ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
+WRttiConverterWriter::WRttiConverterWriter(WAbstractObjectGraph* pGraph, WRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
 {
   m_pGraph = pGraph;
   m_pContext = pContext;
 
-  m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const ezAbstractProperty* pProp)
+  m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const WAbstractProperty* pProp)
   {
-    EZ_IGNORE_UNUSED(pObject);
+    W_IGNORE_UNUSED(pObject);
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !bSerializeReadOnly)
+    if (pProp->GetFlags().IsSet(WPropertyFlags::ReadOnly) && !bSerializeReadOnly)
       return false;
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && !bSerializeOwnerPtrs)
+    if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner) && !bSerializeOwnerPtrs)
       return false;
 
     return true;
   };
 }
 
-ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter)
+WRttiConverterWriter::WRttiConverterWriter(WAbstractObjectGraph* pGraph, WRttiConverterContext* pContext, FilterFunction filter)
   : m_pContext(pContext)
   , m_pGraph(pGraph)
   , m_Filter(filter)
 {
-  EZ_ASSERT_DEBUG(filter.IsValid(), "Either filter function must be valid or a different ctor must be chosen.");
+  W_ASSERT_DEBUG(filter.IsValid(), "Either filter function must be valid or a different ctor must be chosen.");
 }
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)
+WAbstractObjectNode* WRttiConverterWriter::AddObjectToGraph(const WRTTI* pRtti, const void* pObject, const char* szNodeName)
 {
-  const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
-  EZ_ASSERT_DEV(guid.IsValid(), "The object was not registered. Call ezRttiConverterContext::RegisterObject before adding.");
-  ezAbstractObjectNode* pNode = AddSubObjectToGraph(pRtti, pObject, guid, szNodeName);
+  const WUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
+  W_ASSERT_DEV(guid.IsValid(), "The object was not registered. Call WRttiConverterContext::RegisterObject before adding.");
+  WAbstractObjectNode* pNode = AddSubObjectToGraph(pRtti, pObject, guid, szNodeName);
 
-  ezRttiConverterObject obj = m_pContext->DequeueObject();
+  WRttiConverterObject obj = m_pContext->DequeueObject();
   while (obj.m_pObject != nullptr)
   {
-    const ezUuid objectGuid = m_pContext->GetObjectGUID(obj.m_pType, obj.m_pObject);
+    const WUuid objectGuid = m_pContext->GetObjectGUID(obj.m_pType, obj.m_pObject);
     AddSubObjectToGraph(obj.m_pType, obj.m_pObject, objectGuid, nullptr);
 
     obj = m_pContext->DequeueObject();
@@ -201,36 +201,36 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   return pNode;
 }
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName)
+WAbstractObjectNode* WRttiConverterWriter::AddSubObjectToGraph(const WRTTI* pRtti, const void* pObject, const WUuid& guid, const char* szNodeName)
 {
-  ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
+  WAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pRtti, pObject);
   return pNode;
 }
 
-void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject)
+void WRttiConverterWriter::AddProperty(WAbstractObjectNode* pNode, const WAbstractProperty* pProp, const void* pObject)
 {
   if (!m_Filter(pObject, pProp))
     return;
 
-  ezVariant vTemp;
-  ezStringBuilder sTemp;
-  const ezRTTI* pPropType = pProp->GetSpecificType();
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+  WVariant vTemp;
+  WStringBuilder sTemp;
+  const WRTTI* pPropType = pProp->GetSpecificType();
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProp);
 
   switch (pProp->GetCategory())
   {
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
     {
-      const ezAbstractMemberProperty* pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
+      const WAbstractMemberProperty* pSpecific = static_cast<const WAbstractMemberProperty*>(pProp);
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
       {
-        vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+        vTemp = WReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
         void* pRefrencedObject = vTemp.ConvertTo<void*>();
 
-        ezUuid guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pRefrencedObject);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        WUuid guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, WVariant(), pRefrencedObject);
+        if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
         {
           guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           pNode->AddProperty(pProp->GetPropertyName(), guid);
@@ -243,18 +243,18 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else
       {
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        if (pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags))
         {
-          vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
-          ezReflectionUtils::EnumerationToString(pPropType, vTemp.Get<ezInt64>(), sTemp);
+          vTemp = WReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+          WReflectionUtils::EnumerationToString(pPropType, vTemp.Get<WInt64>(), sTemp);
 
           pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
         }
         else if (bIsValueType)
         {
-          pNode->AddProperty(pProp->GetPropertyName(), ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject));
+          pNode->AddProperty(pProp->GetPropertyName(), WReflectionUtils::GetMemberPropertyValue(pSpecific, pObject));
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetProperties().GetCount() > 0)
+        else if (pProp->GetFlags().IsSet(WPropertyFlags::Class) && pPropType->GetProperties().GetCount() > 0)
         {
           void* pSubObject = pSpecific->GetPropertyPointer(pObject);
 
@@ -262,7 +262,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           // Do we have direct access to the property?
           if (pSubObject != nullptr)
           {
-            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pSubObject);
+            const WUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, WVariant(), pSubObject);
             pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
 
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
@@ -273,7 +273,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
             pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
             pSpecific->GetValuePtr(pObject, pSubObject);
-            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pSubObject);
+            const WUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, WVariant(), pSubObject);
             pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
 
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
@@ -284,22 +284,22 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-    case ezPropertyCategory::Array:
+    case WPropertyCategory::Array:
     {
-      const ezAbstractArrayProperty* pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
-      ezUInt32 uiCount = pSpecific->GetCount(pObject);
-      ezVariantArray values;
+      const WAbstractArrayProperty* pSpecific = static_cast<const WAbstractArrayProperty*>(pProp);
+      WUInt32 uiCount = pSpecific->GetCount(pObject);
+      WVariantArray values;
       values.SetCount(uiCount);
 
-      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pSpecific->GetFlags().IsSet(WPropertyFlags::Pointer))
       {
-        for (ezUInt32 i = 0; i < uiCount; ++i)
+        for (WUInt32 i = 0; i < uiCount; ++i)
         {
-          vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+          vTemp = WReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
           void* pRefrencedObject = vTemp.ConvertTo<void*>();
 
-          ezUuid guid;
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          WUuid guid;
+          if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
           {
             guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
@@ -316,20 +316,20 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       {
         if (bIsValueType)
         {
-          for (ezUInt32 i = 0; i < uiCount; ++i)
+          for (WUInt32 i = 0; i < uiCount; ++i)
           {
-            values[i] = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+            values[i] = WReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
           }
           pNode->AddProperty(pProp->GetPropertyName(), values);
         }
-        else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
+        else if (pSpecific->GetFlags().IsSet(WPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
         {
           void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
-          for (ezUInt32 i = 0; i < uiCount; ++i)
+          for (WUInt32 i = 0; i < uiCount; ++i)
           {
             pSpecific->GetValue(pObject, i, pSubObject);
-            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pSubObject);
+            const WUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pSubObject);
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
 
             values[i] = SubObjectGuid;
@@ -340,23 +340,23 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Set:
     {
-      const ezAbstractSetProperty* pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
+      const WAbstractSetProperty* pSpecific = static_cast<const WAbstractSetProperty*>(pProp);
 
-      ezTempHybridArray<ezVariant, 16> values;
+      WTempHybridArray<WVariant, 16> values;
       pSpecific->GetValues(pObject, values);
 
-      ezVariantArray ValuesCopied(values);
+      WVariantArray ValuesCopied(values);
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
       {
-        for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+        for (WUInt32 i = 0; i < values.GetCount(); ++i)
         {
           void* pRefrencedObject = values[i].ConvertTo<void*>();
 
-          ezUuid guid;
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          WUuid guid;
+          if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
           {
             // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
             guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pRefrencedObject);
@@ -379,27 +379,27 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
     {
-      const ezAbstractMapProperty* pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
+      const WAbstractMapProperty* pSpecific = static_cast<const WAbstractMapProperty*>(pProp);
 
-      ezTempHybridArray<ezString, 16> keys;
+      WTempHybridArray<WString, 16> keys;
       pSpecific->GetKeys(pObject, keys);
 
-      ezVariantDictionary ValuesCopied;
+      WVariantDictionary ValuesCopied;
       ValuesCopied.Reserve(keys.GetCount());
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
       {
-        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        for (WUInt32 i = 0; i < keys.GetCount(); ++i)
         {
-          ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+          WVariant value = WReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
           void* pRefrencedObject = value.ConvertTo<void*>();
 
-          ezUuid guid;
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          WUuid guid;
+          if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
           {
-            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(keys[i]), pRefrencedObject);
+            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, WVariant(keys[i]), pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           }
           else
@@ -414,22 +414,22 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       {
         if (bIsValueType)
         {
-          for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+          for (WUInt32 i = 0; i < keys.GetCount(); ++i)
           {
-            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+            WVariant value = WReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
             ValuesCopied.Insert(keys[i], value);
           }
           pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+        else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
         {
-          for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+          for (WUInt32 i = 0; i < keys.GetCount(); ++i)
           {
             void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
-            EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
-            EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
+            W_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
+            W_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
 
-            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(keys[i]), pSubObject);
+            const WUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, WVariant(keys[i]), pSubObject);
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
             ValuesCopied.Insert(keys[i], SubObjectGuid);
           }
@@ -438,7 +438,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-    case ezPropertyCategory::Constant:
+    case WPropertyCategory::Constant:
       // Nothing to do here.
       break;
     default:
@@ -446,7 +446,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
   }
 }
 
-void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezRTTI* pRtti, const void* pObject)
+void WRttiConverterWriter::AddProperties(WAbstractObjectNode* pNode, const WRTTI* pRtti, const void* pObject)
 {
   if (pRtti->GetParentType())
     AddProperties(pNode, pRtti->GetParentType(), pObject);

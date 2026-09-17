@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
@@ -10,28 +10,28 @@
 
 #  include <Shlobj.h>
 
-ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
+WResult WOSFile::InternalOpen(WStringView sFile, WFileOpenMode::Enum OpenMode, WFileShareMode::Enum FileShareMode)
 {
-  const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
-  ezInt32 iRetries = 20;
+  const WTime sleepTime = WTime::MakeFromMilliseconds(20);
+  WInt32 iRetries = 20;
 
-  if (FileShareMode == ezFileShareMode::Default)
+  if (FileShareMode == WFileShareMode::Default)
   {
     // when 'default' share mode is requested, use 'share reads' when opening a file for reading
     // and use 'exclusive' when opening a file for writing
 
-    if (OpenMode == ezFileOpenMode::Read)
+    if (OpenMode == WFileOpenMode::Read)
     {
-      FileShareMode = ezFileShareMode::SharedReads;
+      FileShareMode = WFileShareMode::SharedReads;
     }
     else
     {
-      FileShareMode = ezFileShareMode::Exclusive;
+      FileShareMode = WFileShareMode::Exclusive;
     }
   }
 
   DWORD dwSharedMode = 0; // exclusive access
-  if (FileShareMode == ezFileShareMode::SharedReads)
+  if (FileShareMode == WFileShareMode::SharedReads)
   {
     dwSharedMode = FILE_SHARE_READ;
   }
@@ -43,34 +43,34 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
 
     switch (OpenMode)
     {
-      case ezFileOpenMode::Read:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case WFileOpenMode::Read:
+        m_FileData.m_pFileHandle = CreateFileW(WDosDevicePath(sFile), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
 
-      case ezFileOpenMode::Write:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case WFileOpenMode::Write:
+        m_FileData.m_pFileHandle = CreateFileW(WDosDevicePath(sFile), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
 
-      case ezFileOpenMode::Append:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case WFileOpenMode::Append:
+        m_FileData.m_pFileHandle = CreateFileW(WDosDevicePath(sFile), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
         // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
         if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
-          InternalSetFilePosition(0, ezFileSeekMode::FromEnd);
+          InternalSetFilePosition(0, WFileSeekMode::FromEnd);
 
         break;
 
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED
+        W_DEFAULT_CASE_NOT_IMPLEMENTED
     }
 
-    const ezResult res = ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
+    const WResult res = ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? W_SUCCESS : W_FAILURE;
 
     if (res.Failed())
     {
-      if (ezOSFile::ExistsDirectory(sFile))
+      if (WOSFile::ExistsDirectory(sFile))
       {
         // trying to 'open' a directory fails with little useful error codes such as 'access denied'
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       error = GetLastError();
@@ -83,7 +83,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
         return res;
 
       if (error == ERROR_SHARING_VIOLATION
-          // these two situations happen when the ezInspector is connected
+          // these two situations happen when the WInspector is connected
           // for some reason, the networking blocks file reading (when run on the same machine)
           // retrying fixes the problem, but can introduce very long stalls
           || error == WSAEWOULDBLOCK || error == ERROR_SUCCESS)
@@ -91,7 +91,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
         if (m_bRetryOnSharingViolation)
         {
           --iRetries;
-          ezThreadUtils::Sleep(sleepTime);
+          WThreadUtils::Sleep(sleepTime);
           continue; // try again
         }
         else
@@ -101,53 +101,53 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
       }
 
       // anything else, print an error (for now)
-      ezLog::Error("CreateFile failed with error {0}", ezArgErrorCode(error));
+      WLog::Error("CreateFile failed with error {0}", WArgErrorCode(error));
     }
 
     return res;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezOSFile::InternalClose()
+void WOSFile::InternalClose()
 {
   CloseHandle(m_FileData.m_pFileHandle);
   m_FileData.m_pFileHandle = INVALID_HANDLE_VALUE;
 }
 
-ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
+WResult WOSFile::InternalWrite(const void* pBuffer, WUInt64 uiBytes)
 {
-  const ezUInt32 uiBatchBytes = 1024 * 1024 * 1024; // 1 GB
+  const WUInt32 uiBatchBytes = 1024 * 1024 * 1024; // 1 GB
 
   // first write out all the data in 1GB batches
   while (uiBytes > uiBatchBytes)
   {
     DWORD uiBytesWritten = 0;
     if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBatchBytes, &uiBytesWritten, nullptr)) || (uiBytesWritten != uiBatchBytes))
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     uiBytes -= uiBatchBytes;
-    pBuffer = ezMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
+    pBuffer = WMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
   }
 
   if (uiBytes > 0)
   {
-    const ezUInt32 uiBytes32 = static_cast<ezUInt32>(uiBytes);
+    const WUInt32 uiBytes32 = static_cast<WUInt32>(uiBytes);
 
     DWORD uiBytesWritten = 0;
     if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesWritten, nullptr)) || (uiBytesWritten != uiBytes32))
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
+WUInt64 WOSFile::InternalRead(void* pBuffer, WUInt64 uiBytes)
 {
-  ezUInt64 uiBytesRead = 0;
+  WUInt64 uiBytesRead = 0;
 
-  const ezUInt32 uiBatchBytes = 1024 * 1024 * 1024; // 1 GB
+  const WUInt32 uiBatchBytes = 1024 * 1024 * 1024; // 1 GB
 
   // first write out all the data in 1GB batches
   while (uiBytes > uiBatchBytes)
@@ -162,12 +162,12 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
       return uiBytesRead;
 
     uiBytes -= uiBatchBytes;
-    pBuffer = ezMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
+    pBuffer = WMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
   }
 
   if (uiBytes > 0)
   {
-    const ezUInt32 uiBytes32 = static_cast<ezUInt32>(uiBytes);
+    const WUInt32 uiBytes32 = static_cast<WUInt32>(uiBytes);
 
     DWORD uiBytesReadThisTime = 0;
     if (!ReadFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesReadThisTime, nullptr))
@@ -179,15 +179,15 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
   return uiBytesRead;
 }
 
-ezUInt64 ezOSFile::InternalGetFilePosition() const
+WUInt64 WOSFile::InternalGetFilePosition() const
 {
   long int uiHigh32 = 0;
-  ezUInt32 uiLow32 = SetFilePointer(m_FileData.m_pFileHandle, 0, &uiHigh32, FILE_CURRENT);
+  WUInt32 uiLow32 = SetFilePointer(m_FileData.m_pFileHandle, 0, &uiHigh32, FILE_CURRENT);
 
-  return ezMath::MakeUInt64(uiHigh32, uiLow32);
+  return WMath::MakeUInt64(uiHigh32, uiLow32);
 }
 
-void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const
+void WOSFile::InternalSetFilePosition(WInt64 iDistance, WFileSeekMode::Enum Pos) const
 {
   LARGE_INTEGER pos;
   LARGE_INTEGER newpos;
@@ -195,95 +195,95 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 
   switch (Pos)
   {
-    case ezFileSeekMode::FromStart:
-      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");
+    case WFileSeekMode::FromStart:
+      W_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");
       break;
-    case ezFileSeekMode::FromEnd:
-      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_END), "Seek Failed.");
+    case WFileSeekMode::FromEnd:
+      W_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_END), "Seek Failed.");
       break;
-    case ezFileSeekMode::FromCurrent:
-      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_CURRENT), "Seek Failed.");
+    case WFileSeekMode::FromCurrent:
+      W_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_CURRENT), "Seek Failed.");
       break;
   }
 }
 
-bool ezOSFile::InternalExistsFile(ezStringView sFile)
+bool WOSFile::InternalExistsFile(WStringView sFile)
 {
-  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(sFile).GetData());
+  const DWORD dwAttrib = GetFileAttributesW(WDosDevicePath(sFile).GetData());
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0));
 }
 
-bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
+bool WOSFile::InternalExistsDirectory(WStringView sDirectory)
 {
-  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(sDirectory));
+  const DWORD dwAttrib = GetFileAttributesW(WDosDevicePath(sDirectory));
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0));
 }
 
-ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
+WResult WOSFile::InternalDeleteFile(WStringView sFile)
 {
-  if (DeleteFileW(ezDosDevicePath(sFile)) == FALSE)
+  if (DeleteFileW(WDosDevicePath(sFile)) == FALSE)
   {
     DWORD error = GetLastError();
     if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
+WResult WOSFile::InternalDeleteDirectory(WStringView sDirectory)
 {
-  if (RemoveDirectoryW(ezDosDevicePath(sDirectory)) == FALSE)
+  if (RemoveDirectoryW(WDosDevicePath(sDirectory)) == FALSE)
   {
     DWORD error = GetLastError();
     if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOSFile::InternalCreateDirectory(ezStringView sDirectory)
+WResult WOSFile::InternalCreateDirectory(WStringView sDirectory)
 {
   // handle drive letters as always successful
-  if (ezStringUtils::GetCharacterCount(sDirectory.GetStartPointer(), sDirectory.GetEndPointer()) <= 3) // 'C:\'
-    return EZ_SUCCESS;
+  if (WStringUtils::GetCharacterCount(sDirectory.GetStartPointer(), sDirectory.GetEndPointer()) <= 3) // 'C:\'
+    return W_SUCCESS;
 
-  if (CreateDirectoryW(ezDosDevicePath(sDirectory), nullptr) == FALSE)
+  if (CreateDirectoryW(WDosDevicePath(sDirectory), nullptr) == FALSE)
   {
     const DWORD uiError = GetLastError();
     if (uiError == ERROR_ALREADY_EXISTS)
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo)
+WResult WOSFile::InternalMoveFileOrDirectory(WStringView sDirectoryFrom, WStringView sDirectoryTo)
 {
-  if (MoveFileW(ezDosDevicePath(sDirectoryFrom), ezDosDevicePath(sDirectoryTo)) == 0)
+  if (MoveFileW(WDosDevicePath(sDirectoryFrom), WDosDevicePath(sDirectoryTo)) == 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
+WString WOSFile::GetUserDataFolder(WStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
-      s_sUserDataPath = ezStringWChar(pPath);
+      s_sUserDataPath = WStringWChar(pPath);
     }
 
     if (pPath != nullptr)
@@ -292,22 +292,22 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
     }
   }
 
-  ezStringBuilder s = s_sUserDataPath;
+  WStringBuilder s = s_sUserDataPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
 
-ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
+WString WOSFile::GetTempDataFolder(WStringView sSubFolder /*= nullptr*/)
 {
-  ezStringBuilder s;
+  WStringBuilder s;
 
   if (s_sTempDataPath.IsEmpty())
   {
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
-      s = ezStringWChar(pPath);
+      s = WStringWChar(pPath);
       s.AppendPath("Temp");
       s_sTempDataPath = s;
     }
@@ -324,14 +324,14 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
   return s;
 }
 
-ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
+WString WOSFile::GetUserDocumentsFolder(WStringView sSubFolder /*= {}*/)
 {
   if (s_sUserDocumentsPath.IsEmpty())
   {
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_PublicDocuments, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
-      s_sUserDocumentsPath = ezStringWChar(pPath);
+      s_sUserDocumentsPath = WStringWChar(pPath);
     }
 
     if (pPath != nullptr)
@@ -340,7 +340,7 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
     }
   }
 
-  ezStringBuilder s = s_sUserDocumentsPath;
+  WStringBuilder s = s_sUserDocumentsPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;

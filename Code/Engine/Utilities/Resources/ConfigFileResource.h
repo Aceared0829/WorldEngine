@@ -8,11 +8,11 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Utilities/UtilitiesDLL.h>
 
-using ezConfigFileResourceHandle = ezTypedResourceHandle<class ezConfigFileResource>;
+using WConfigFileResourceHandle = WTypedResourceHandle<class WConfigFileResource>;
 
 /// This resource loads config files containing key/value pairs
 ///
-/// The config files usually use the file extension '.ezConfig'.
+/// The config files usually use the file extension '.WConfig'.
 ///
 /// The file format looks like this:
 ///
@@ -29,7 +29,7 @@ using ezConfigFileResourceHandle = ezTypedResourceHandle<class ezConfigFileResou
 /// The format supports C preprocessor features like #include, #define, #ifdef, etc.
 /// This can be used to build hierarchical config files:
 ///
-///   #include "BaseConfig.ezConfig"
+///   #include "BaseConfig.WConfig"
 ///   override int SomeValue = 7
 ///
 /// It can also be used to define 'enum types':
@@ -43,58 +43,58 @@ using ezConfigFileResourceHandle = ezTypedResourceHandle<class ezConfigFileResou
 /// Using C preprocessor logic (#define, #if, #else, etc) you can quickly select between different configuration sets.
 ///
 /// Once loaded, accessing the data is very efficient.
-class EZ_UTILITIES_DLL ezConfigFileResource : public ezResource
+class W_UTILITIES_DLL WConfigFileResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConfigFileResource, ezResource);
+  W_ADD_DYNAMIC_REFLECTION(WConfigFileResource, WResource);
 
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezConfigFileResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WConfigFileResource);
 
 public:
-  ezConfigFileResource();
-  ~ezConfigFileResource();
+  WConfigFileResource();
+  ~WConfigFileResource();
 
   /// Returns the 'int' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  ezInt32 GetInt(ezTempHashedString sName) const;
+  WInt32 GetInt(WTempHashedString sName) const;
 
   /// Returns the 'float' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  float GetFloat(ezTempHashedString sName) const;
+  float GetFloat(WTempHashedString sName) const;
 
   /// Returns the 'bool' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  bool GetBool(ezTempHashedString sName) const;
+  bool GetBool(WTempHashedString sName) const;
 
   /// Returns the 'string' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  ezStringView GetString(ezTempHashedString sName) const;
+  WStringView GetString(WTempHashedString sName) const;
 
   /// Returns the 'int' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  ezInt32 GetInt(ezTempHashedString sName, ezInt32 iFallback) const;
+  WInt32 GetInt(WTempHashedString sName, WInt32 iFallback) const;
 
   /// Returns the 'float' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  float GetFloat(ezTempHashedString sName, float fFallback) const;
+  float GetFloat(WTempHashedString sName, float fFallback) const;
 
   /// Returns the 'bool' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  bool GetBool(ezTempHashedString sName, bool bFallback) const;
+  bool GetBool(WTempHashedString sName, bool bFallback) const;
 
   /// Returns the 'string' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  ezStringView GetString(ezTempHashedString sName, ezStringView sFallback) const;
+  WStringView GetString(WTempHashedString sName, WStringView sFallback) const;
 
 protected:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  friend class ezConfigFileResourceLoader;
+  friend class WConfigFileResourceLoader;
 
-  ezHashTable<ezHashedString, ezInt32> m_IntData;
-  ezHashTable<ezHashedString, float> m_FloatData;
-  ezHashTable<ezHashedString, ezString> m_StringData;
-  ezHashTable<ezHashedString, bool> m_BoolData;
+  WHashTable<WHashedString, WInt32> m_IntData;
+  WHashTable<WHashedString, float> m_FloatData;
+  WHashTable<WHashedString, WString> m_StringData;
+  WHashTable<WHashedString, bool> m_BoolData;
 
-  ezDependencyFile m_RequiredFiles;
+  WDependencyFile m_RequiredFiles;
 };
 
 
-class EZ_UTILITIES_DLL ezConfigFileResourceLoader : public ezResourceTypeLoader
+class W_UTILITIES_DLL WConfigFileResourceLoader : public WResourceTypeLoader
 {
 public:
   struct LoadedData
@@ -104,14 +104,14 @@ public:
     {
     }
 
-    ezDefaultMemoryStreamStorage m_Storage;
-    ezMemoryStreamReader m_Reader;
-    ezDependencyFile m_RequiredFiles;
+    WDefaultMemoryStreamStorage m_Storage;
+    WMemoryStreamReader m_Reader;
+    WDependencyFile m_RequiredFiles;
 
-    ezResult PrePropFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
+    WResult PrePropFileLocator(WStringView sCurAbsoluteFile, WStringView sIncludeFile, WPreprocessor::IncludeType incType, WStringBuilder& out_sAbsoluteFilePath);
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual WResourceLoadData OpenDataStream(const WResource* pResource) override;
+  virtual void CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData) override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 };

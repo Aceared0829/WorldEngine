@@ -8,34 +8,34 @@
 /// Qt graphics item for state machine pins.
 ///
 /// Displays connection points for state transitions with custom rectangular pin geometry.
-class ezQtStateMachinePin : public ezQtVisualGraphPin
+class WQtStateMachinePin : public WQtVisualGraphPin
 {
 public:
-  ezQtStateMachinePin();
+  WQtStateMachinePin();
 
-  virtual void SetPin(const ezVisualGraphPin& pin) override;
+  virtual void SetPin(const WVisualGraphPin& pin) override;
   virtual QRectF GetPinRect() const override;
 };
 
 /// Qt graphics item for state machine transitions.
 ///
 /// Renders the visual connections between states, representing the possible transitions.
-class ezQtStateMachineConnection : public ezQtVisualGraphConnection
+class WQtStateMachineConnection : public WQtVisualGraphConnection
 {
 public:
-  ezQtStateMachineConnection();
+  WQtStateMachineConnection();
 };
 
 /// Qt graphics item for state machine nodes.
 ///
 /// Represents individual states in a state machine. The initial state and "Any State" are displayed
 /// with distinct header colors for easy identification.
-class ezQtStateMachineNode : public ezQtVisualGraphNode
+class WQtStateMachineNode : public WQtVisualGraphNode
 {
 public:
-  ezQtStateMachineNode();
+  WQtStateMachineNode();
 
-  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject) override;
   virtual void UpdateGeometry() override;
   virtual void UpdateState() override;
   virtual void ExtendContextMenu(QMenu& ref_menu) override;
@@ -50,16 +50,16 @@ private:
 /// Qt scene for state machine graphs.
 ///
 /// Manages the visual scene for state machine editing, including handling the designation of the initial state.
-class ezQtStateMachineAssetScene : public ezQtVisualGraphScene
+class WQtStateMachineAssetScene : public WQtVisualGraphScene
 {
   Q_OBJECT
 
 public:
-  ezQtStateMachineAssetScene(QObject* pParent = nullptr);
-  ~ezQtStateMachineAssetScene();
+  WQtStateMachineAssetScene(QObject* pParent = nullptr);
+  ~WQtStateMachineAssetScene();
 
-  void SetInitialState(ezQtStateMachineNode* pNode);
+  void SetInitialState(WQtStateMachineNode* pNode);
 
 private:
-  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
+  virtual WStatus RemoveNode(WQtVisualGraphNode* pNode) override;
 };

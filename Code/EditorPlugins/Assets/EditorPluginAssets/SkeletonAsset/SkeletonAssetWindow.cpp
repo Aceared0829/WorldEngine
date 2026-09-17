@@ -12,13 +12,13 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
-ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtSkeletonAssetDocumentWindow::WQtSkeletonAssetDocumentWindow(WSkeletonAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "SkeletonAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -27,8 +27,8 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "SkeletonAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -38,28 +38,28 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
   }
 
   // 3D View
-  ezQtViewWidgetContainer* pContainer = nullptr;
+  WQtViewWidgetContainer* pContainer = nullptr;
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-1.6f, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
-    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig, true);
+    m_pViewWidget->ConfigureRelative(WVec3(0, 0, 1), WVec3(5.0f), WVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "SkeletonAssetViewToolBar");
+    pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "SkeletonAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SkeletonAssetDockWidget");
     pPropertyPanel->setWindowTitle("Skeleton Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -67,7 +67,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -79,82 +79,82 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Tree View
   {
-    ezQtDocumentPanel* pPanelTree = new ezQtSkeletonPanel(GetContainerWindow()->GetDockManager(), this, static_cast<ezSkeletonAssetDocument*>(pDocument));
+    WQtDocumentPanel* pPanelTree = new WQtSkeletonPanel(GetContainerWindow()->GetDockManager(), this, static_cast<WSkeletonAssetDocument*>(pDocument));
     pPanelTree->show();
 
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
   }
 
-  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+  pDocument->Events().AddEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
 
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
 
   FinishWindowCreation();
 }
 
-ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
+WQtSkeletonAssetDocumentWindow::~WQtSkeletonAssetDocumentWindow()
 {
-  static_cast<ezSkeletonAssetDocument*>(GetDocument())->Events().RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+  static_cast<WSkeletonAssetDocument*>(GetDocument())->Events().RemoveEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
 
-  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
 
   RestoreResource();
 }
 
-ezSkeletonAssetDocument* ezQtSkeletonAssetDocumentWindow::GetSkeletonDocument()
+WSkeletonAssetDocument* WQtSkeletonAssetDocumentWindow::GetSkeletonDocument()
 {
-  return static_cast<ezSkeletonAssetDocument*>(GetDocument());
+  return static_cast<WSkeletonAssetDocument*>(GetDocument());
 }
 
-void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
+void WQtSkeletonAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   auto* pDoc = GetSkeletonDocument();
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderBones";
     msg.m_PayloadValue = pDoc->GetRenderBones();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderColliders";
     msg.m_PayloadValue = pDoc->GetRenderColliders();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderJoints";
     msg.m_PayloadValue = pDoc->GetRenderJoints();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderSwingLimits";
     msg.m_PayloadValue = pDoc->GetRenderSwingLimits();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderTwistLimits";
     msg.m_PayloadValue = pDoc->GetRenderTwistLimits();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
 
     if (pDoc->GetRenderPreviewMesh())
@@ -175,38 +175,38 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
   QueryObjectBBox();
 }
 
-void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
+void WQtSkeletonAssetDocumentWindow::QueryObjectBBox(WInt32 iPurpose /*= 0*/)
 {
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
 
-void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtSkeletonAssetDocumentWindow::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
-  ezStringBuilder filter;
+  WStringBuilder filter;
 
   switch (e.m_Type)
   {
-    case ezSelectionManagerEvent::Type::SelectionCleared:
-    case ezSelectionManagerEvent::Type::SelectionSet:
-    case ezSelectionManagerEvent::Type::ObjectAdded:
-    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case WSelectionManagerEvent::Type::SelectionCleared:
+    case WSelectionManagerEvent::Type::SelectionSet:
+    case WSelectionManagerEvent::Type::ObjectAdded:
+    case WSelectionManagerEvent::Type::ObjectRemoved:
     {
       const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
       for (auto pObj : sel)
       {
-        ezVariant name = pObj->GetTypeAccessor().GetValue("Name");
-        if (name.IsValid() && name.CanConvertTo<ezString>())
+        WVariant name = pObj->GetTypeAccessor().GetValue("Name");
+        if (name.IsValid() && name.CanConvertTo<WString>())
         {
-          filter.Append(name.ConvertTo<ezString>().GetData(), ";");
+          filter.Append(name.ConvertTo<WString>().GetData(), ";");
         }
       }
 
-      ezSimpleDocumentConfigMsgToEngine msg;
+      WSimpleDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "HighlightBones";
       msg.m_sPayload = filter;
 
@@ -214,21 +214,21 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
     }
     break;
 
-    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+    case WSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
       // ignore
       break;
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e)
+void WQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler(const WSkeletonAssetEvent& e)
 {
-  if (e.m_Type == ezSkeletonAssetEvent::Transformed)
+  if (e.m_Type == WSkeletonAssetEvent::Transformed)
   {
     SendLiveResourcePreview();
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtSkeletonAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   // additionally do live updates for these specific properties
   if (e.m_sProperty == "LocalRotation" ||                                                 // joint offset rotation
@@ -242,79 +242,79 @@ void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::CommandEventHandler(const ezCommandHistoryEvent& e)
+void WQtSkeletonAssetDocumentWindow::CommandEventHandler(const WCommandHistoryEvent& e)
 {
-  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+  if (e.m_Type == WCommandHistoryEvent::Type::TransactionEnded || e.m_Type == WCommandHistoryEvent::Type::UndoEnded || e.m_Type == WCommandHistoryEvent::Type::RedoEnded)
   {
     SendLiveResourcePreview();
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
+void WQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezSkeletonAssetDocument* pDoc = ezDynamicCast<ezSkeletonAssetDocument*>(GetDocument());
+  WSkeletonAssetDocument* pDoc = WDynamicCast<WSkeletonAssetDocument*>(GetDocument());
 
   if (pDoc->m_bIsTransforming)
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Skeleton";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
 
   // Write Path
-  ezStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezSkeleton");
+  WStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WSkeleton");
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter, *pDoc->GetProperties()).AssertSuccess();
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+  msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtSkeletonAssetDocumentWindow::RestoreResource()
+void WQtSkeletonAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "Skeleton";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtSkeletonAssetDocumentWindow::InternalRedraw()
+void WQtSkeletonAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxResultMsgToEditor>())
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(WVec3(0.1f)));
     }
     else
     {
@@ -325,5 +325,5 @@ void ezQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorE
     return;
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
 }

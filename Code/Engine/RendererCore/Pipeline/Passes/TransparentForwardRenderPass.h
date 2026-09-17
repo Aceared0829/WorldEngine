@@ -5,25 +5,25 @@
 /// Forward render pass that renders transparent objects with proper blending.
 ///
 /// Provides access to the scene color for refraction and distortion effects.
-class EZ_RENDERERCORE_DLL ezTransparentForwardRenderPass : public ezForwardRenderPass
+class W_RENDERERCORE_DLL WTransparentForwardRenderPass : public WForwardRenderPass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTransparentForwardRenderPass, ezForwardRenderPass);
+  W_ADD_DYNAMIC_REFLECTION(WTransparentForwardRenderPass, WForwardRenderPass);
 
 public:
-  ezTransparentForwardRenderPass(const char* szName = "TransparentForwardRenderPass");
-  ~ezTransparentForwardRenderPass();
+  WTransparentForwardRenderPass(const char* szName = "TransparentForwardRenderPass");
+  ~WTransparentForwardRenderPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
 protected:
-  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
-  virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
+  virtual void DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass) override;
+  virtual void RenderObjects(const WRenderViewContext& renderViewContext) override;
 
   void CreateSamplerState();
 
-  ezRenderPipelineNodeInputPin m_PinResolvedDepth;   ///< Optional resolved depth for soft particles.
-  ezRenderPipelineNodeInputPin m_PinSSAO;            ///< Optional SSAO input for ambient occlusion.
-  ezRenderPipelineNodeInputPin m_PinShadowMasks;     ///< Optional shadow mask input for deferred shadows.
+  WRenderPipelineNodeInputPin m_PinResolvedDepth;   ///< Optional resolved depth for soft particles.
+  WRenderPipelineNodeInputPin m_PinSSAO;            ///< Optional SSAO input for ambient occlusion.
+  WRenderPipelineNodeInputPin m_PinShadowMasks;     ///< Optional shadow mask input for deferred shadows.
 
-  ezGALSamplerStateHandle m_hSceneColorSamplerState; ///< Sampler for scene color texture.
+  WGALSamplerStateHandle m_hSceneColorSamplerState; ///< Sampler for scene color texture.
 };

@@ -6,14 +6,14 @@
 
 class QPaintEvent;
 
-class EZ_GUIFOUNDATION_DLL ezQGridBarWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQGridBarWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ezQGridBarWidget(QWidget* pParent);
+  WQGridBarWidget(QWidget* pParent);
 
-  void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPointF(const QPointF&)> mapFromSceneFunc);
+  void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, WDelegate<QPointF(const QPointF&)> mapFromSceneFunc);
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
@@ -22,5 +22,5 @@ private:
   QRectF m_ViewportSceneRect;
   double m_fTextGridStops;
   double m_fFineGridStops;
-  ezDelegate<QPointF(const QPointF&)> m_MapFromSceneFunc;
+  WDelegate<QPointF(const QPointF&)> m_MapFromSceneFunc;
 };

@@ -5,21 +5,21 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezPreferencesDocument;
-class ezPreferences;
-class ezQtDocumentTreeView;
+class WPreferencesDocument;
+class WPreferences;
+class WQtDocumentTreeView;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public ezQtDialog, public Ui_ezQtPreferencesDlg
+class W_EDITORFRAMEWORK_DLL WQtPreferencesDlg : public WQtDialog, public Ui_WQtPreferencesDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtPreferencesDlg(QWidget* pParent);
-  ~ezQtPreferencesDlg();
+  WQtPreferencesDlg(QWidget* pParent);
+  ~WQtPreferencesDlg();
 
-  ezUuid NativeToObject(ezPreferences* pPreferences);
-  void ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument);
+  WUuid NativeToObject(WPreferences* pPreferences);
+  void ObjectToNative(WUuid objectGuid, const WDocument* pPrefDocument);
 
 
 private Q_SLOTS:
@@ -29,9 +29,9 @@ private Q_SLOTS:
 private:
   void RegisterAllPreferenceTypes();
   void AllPreferencesToObject();
-  void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void PropertyChangedEventHandler(const WDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();
 
-  ezPreferencesDocument* m_pDocument;
-  ezMap<ezUuid, const ezDocument*> m_DocumentBinding;
+  WPreferencesDocument* m_pDocument;
+  WMap<WUuid, const WDocument*> m_DocumentBinding;
 };

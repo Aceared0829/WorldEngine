@@ -6,12 +6,12 @@
 
 namespace
 {
-  struct ezImageFormatMetaData
+  struct WImageFormatMetaData
   {
-    ezImageFormatMetaData()
+    WImageFormatMetaData()
     {
-      ezMemoryUtils::ZeroFillArray(m_uiBitsPerChannel);
-      ezMemoryUtils::ZeroFillArray(m_uiChannelMasks);
+      WMemoryUtils::ZeroFillArray(m_uiBitsPerChannel);
+      WMemoryUtils::ZeroFillArray(m_uiChannelMasks);
 
       m_planeData.SetCount(1);
     }
@@ -20,19 +20,19 @@ namespace
 
     struct PlaneData
     {
-      ezUInt8 m_uiBitsPerBlock{0}; ///< Bits per block for compressed formats; for uncompressed formats (which always have a block size of 1x1x1), this is equal to bits per pixel.
-      ezUInt8 m_uiBlockWidth{1};
-      ezUInt8 m_uiBlockHeight{1};
-      ezUInt8 m_uiBlockDepth{1};
-      ezImageFormat::Enum m_subFormat{ezImageFormat::UNKNOWN}; ///< Subformats when viewing only a subslice of the data.
+      WUInt8 m_uiBitsPerBlock{0}; ///< Bits per block for compressed formats; for uncompressed formats (which always have a block size of 1x1x1), this is equal to bits per pixel.
+      WUInt8 m_uiBlockWidth{1};
+      WUInt8 m_uiBlockHeight{1};
+      WUInt8 m_uiBlockDepth{1};
+      WImageFormat::Enum m_subFormat{WImageFormat::UNKNOWN}; ///< Subformats when viewing only a subslice of the data.
     };
 
-    ezStaticArray<PlaneData, 2> m_planeData;
+    WStaticArray<PlaneData, 2> m_planeData;
 
-    ezUInt8 m_uiNumChannels{0};
+    WUInt8 m_uiNumChannels{0};
 
-    ezUInt8 m_uiBitsPerChannel[ezImageFormatChannel::COUNT];
-    ezUInt32 m_uiChannelMasks[ezImageFormatChannel::COUNT];
+    WUInt8 m_uiBitsPerChannel[WImageFormatChannel::COUNT];
+    WUInt32 m_uiChannelMasks[WImageFormatChannel::COUNT];
 
 
     bool m_requireFirstLevelBlockAligned{false}; ///< Only for compressed formats: If true, the first level's dimensions must be a multiple of the
@@ -40,60 +40,60 @@ namespace
     bool m_isDepth{false};
     bool m_isStencil{false};
 
-    ezImageFormatDataType::Enum m_dataType{ezImageFormatDataType::NONE};
-    ezImageFormatType::Enum m_formatType{ezImageFormatType::UNKNOWN};
+    WImageFormatDataType::Enum m_dataType{WImageFormatDataType::NONE};
+    WImageFormatType::Enum m_formatType{WImageFormatType::UNKNOWN};
 
-    ezImageFormat::Enum m_asLinear{ezImageFormat::UNKNOWN};
-    ezImageFormat::Enum m_asSrgb{ezImageFormat::UNKNOWN};
+    WImageFormat::Enum m_asLinear{WImageFormat::UNKNOWN};
+    WImageFormat::Enum m_asSrgb{WImageFormat::UNKNOWN};
 
-    ezUInt32 getNumBlocksX(ezUInt32 uiWidth, ezUInt32 uiPlaneIndex) const
+    WUInt32 getNumBlocksX(WUInt32 uiWidth, WUInt32 uiPlaneIndex) const
     {
       return (uiWidth - 1) / m_planeData[uiPlaneIndex].m_uiBlockWidth + 1;
     }
 
-    ezUInt32 getNumBlocksY(ezUInt32 uiHeight, ezUInt32 uiPlaneIndex) const
+    WUInt32 getNumBlocksY(WUInt32 uiHeight, WUInt32 uiPlaneIndex) const
     {
       return (uiHeight - 1) / m_planeData[uiPlaneIndex].m_uiBlockHeight + 1;
     }
 
-    ezUInt32 getNumBlocksZ(ezUInt32 uiDepth, ezUInt32 uiPlaneIndex) const
+    WUInt32 getNumBlocksZ(WUInt32 uiDepth, WUInt32 uiPlaneIndex) const
     {
       return (uiDepth - 1) / m_planeData[uiPlaneIndex].m_uiBlockDepth + 1;
     }
 
-    ezUInt32 getRowPitch(ezUInt32 uiWidth, ezUInt32 uiPlaneIndex) const
+    WUInt32 getRowPitch(WUInt32 uiWidth, WUInt32 uiPlaneIndex) const
     {
       return getNumBlocksX(uiWidth, uiPlaneIndex) * m_planeData[uiPlaneIndex].m_uiBitsPerBlock / 8;
     }
   };
 
-  ezStaticArray<ezImageFormatMetaData, ezImageFormat::NUM_FORMATS> s_formatMetaData;
+  WStaticArray<WImageFormatMetaData, WImageFormat::NUM_FORMATS> s_formatMetaData;
 
-  void InitFormatLinear(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, ezUInt8 uiBitsR,
-    ezUInt8 uiBitsG, ezUInt8 uiBitsB, ezUInt8 uiBitsA, ezUInt8 uiNumChannels)
+  void InitFormatLinear(WImageFormat::Enum format, const char* szName, WImageFormatDataType::Enum dataType, WUInt8 uiBitsPerPixel, WUInt8 uiBitsR,
+    WUInt8 uiBitsG, WUInt8 uiBitsB, WUInt8 uiBitsA, WUInt8 uiNumChannels)
   {
     s_formatMetaData[format].m_szName = szName;
 
     s_formatMetaData[format].m_planeData[0].m_uiBitsPerBlock = uiBitsPerPixel;
     s_formatMetaData[format].m_dataType = dataType;
-    s_formatMetaData[format].m_formatType = ezImageFormatType::LINEAR;
+    s_formatMetaData[format].m_formatType = WImageFormatType::LINEAR;
 
     s_formatMetaData[format].m_uiNumChannels = uiNumChannels;
 
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::R] = uiBitsR;
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::G] = uiBitsG;
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::B] = uiBitsB;
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::A] = uiBitsA;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::R] = uiBitsR;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::G] = uiBitsG;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::B] = uiBitsB;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::A] = uiBitsA;
 
     s_formatMetaData[format].m_asLinear = format;
     s_formatMetaData[format].m_asSrgb = format;
   }
 
 #define INIT_FORMAT_LINEAR(format, dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels) \
-  InitFormatLinear(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)
+  InitFormatLinear(WImageFormat::format, #format, WImageFormatDataType::dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)
 
-  void InitFormatCompressed(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerBlock,
-    ezUInt8 uiBlockWidth, ezUInt8 uiBlockHeight, ezUInt8 uiBlockDepth, bool bRequireFirstLevelBlockAligned, ezUInt8 uiNumChannels)
+  void InitFormatCompressed(WImageFormat::Enum format, const char* szName, WImageFormatDataType::Enum dataType, WUInt8 uiBitsPerBlock,
+    WUInt8 uiBlockWidth, WUInt8 uiBlockHeight, WUInt8 uiBlockDepth, bool bRequireFirstLevelBlockAligned, WUInt8 uiNumChannels)
   {
     s_formatMetaData[format].m_szName = szName;
 
@@ -102,7 +102,7 @@ namespace
     s_formatMetaData[format].m_planeData[0].m_uiBlockHeight = uiBlockHeight;
     s_formatMetaData[format].m_planeData[0].m_uiBlockDepth = uiBlockDepth;
     s_formatMetaData[format].m_dataType = dataType;
-    s_formatMetaData[format].m_formatType = ezImageFormatType::BLOCK_COMPRESSED;
+    s_formatMetaData[format].m_formatType = WImageFormatType::BLOCK_COMPRESSED;
 
     s_formatMetaData[format].m_uiNumChannels = uiNumChannels;
 
@@ -114,34 +114,34 @@ namespace
 
 #define INIT_FORMAT_COMPRESSED(                                                                                                                    \
   format, dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, requireFirstLevelBlockAligned, uiNumChannels)                       \
-  InitFormatCompressed(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, \
+  InitFormatCompressed(WImageFormat::format, #format, WImageFormatDataType::dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, \
     requireFirstLevelBlockAligned, uiNumChannels)
 
-  void InitFormatDepth(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, bool bIsStencil,
-    ezUInt8 uiBitsD, ezUInt8 uiBitsS)
+  void InitFormatDepth(WImageFormat::Enum format, const char* szName, WImageFormatDataType::Enum dataType, WUInt8 uiBitsPerPixel, bool bIsStencil,
+    WUInt8 uiBitsD, WUInt8 uiBitsS)
   {
     s_formatMetaData[format].m_szName = szName;
 
     s_formatMetaData[format].m_planeData[0].m_uiBitsPerBlock = uiBitsPerPixel;
     s_formatMetaData[format].m_dataType = dataType;
-    s_formatMetaData[format].m_formatType = ezImageFormatType::LINEAR;
+    s_formatMetaData[format].m_formatType = WImageFormatType::LINEAR;
 
     s_formatMetaData[format].m_isDepth = true;
     s_formatMetaData[format].m_isStencil = bIsStencil;
 
     s_formatMetaData[format].m_uiNumChannels = bIsStencil ? 2 : 1;
 
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::D] = uiBitsD;
-    s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::S] = uiBitsS;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::D] = uiBitsD;
+    s_formatMetaData[format].m_uiBitsPerChannel[WImageFormatChannel::S] = uiBitsS;
 
     s_formatMetaData[format].m_asLinear = format;
     s_formatMetaData[format].m_asSrgb = format;
   }
 
 #define INIT_FORMAT_DEPTH(format, dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS) \
-  InitFormatDepth(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS);
+  InitFormatDepth(WImageFormat::format, #format, WImageFormatDataType::dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS);
 
-  void SetupSrgbPair(ezImageFormat::Enum linearFormat, ezImageFormat::Enum srgbFormat)
+  void SetupSrgbPair(WImageFormat::Enum linearFormat, WImageFormat::Enum srgbFormat)
   {
     s_formatMetaData[linearFormat].m_asLinear = linearFormat;
     s_formatMetaData[linearFormat].m_asSrgb = srgbFormat;
@@ -157,9 +157,9 @@ static void SetupImageFormatTable()
   if (!s_formatMetaData.IsEmpty())
     return;
 
-  s_formatMetaData.SetCount(ezImageFormat::NUM_FORMATS);
+  s_formatMetaData.SetCount(WImageFormat::NUM_FORMATS);
 
-  s_formatMetaData[ezImageFormat::UNKNOWN].m_szName = "UNKNOWN";
+  s_formatMetaData[WImageFormat::UNKNOWN].m_szName = "UNKNOWN";
 
   INIT_FORMAT_LINEAR(R32G32B32A32_FLOAT, FLOAT, 128, 32, 32, 32, 32, 4);
   INIT_FORMAT_LINEAR(R32G32B32A32_UINT, UINT, 128, 32, 32, 32, 32, 4);
@@ -203,43 +203,43 @@ static void SetupImageFormatTable()
 
   INIT_FORMAT_LINEAR(R8G8B8A8_UNORM, UNORM, 32, 8, 8, 8, 8, 4);
   INIT_FORMAT_LINEAR(R8G8B8A8_UNORM_SRGB, UNORM, 32, 8, 8, 8, 8, 4);
-  SetupSrgbPair(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::R8G8B8A8_UNORM, WImageFormat::R8G8B8A8_UNORM_SRGB);
 
-  s_formatMetaData[ezImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x000000FF;
-  s_formatMetaData[ezImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x0000FF00;
-  s_formatMetaData[ezImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x00FF0000;
-  s_formatMetaData[ezImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0xFF000000;
+  s_formatMetaData[WImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x000000FF;
+  s_formatMetaData[WImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x0000FF00;
+  s_formatMetaData[WImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x00FF0000;
+  s_formatMetaData[WImageFormat::R8G8B8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0xFF000000;
 
   INIT_FORMAT_LINEAR(R8G8B8_UNORM, UNORM, 24, 8, 8, 8, 0, 3);
   INIT_FORMAT_LINEAR(R8G8B8_UNORM_SRGB, UNORM, 24, 8, 8, 8, 0, 3);
-  SetupSrgbPair(ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::R8G8B8_UNORM, WImageFormat::R8G8B8_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(B8G8R8A8_UNORM, UNORM, 32, 8, 8, 8, 8, 4);
   INIT_FORMAT_LINEAR(B8G8R8A8_UNORM_SRGB, UNORM, 32, 8, 8, 8, 8, 4);
-  SetupSrgbPair(ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B8G8R8A8_UNORM, WImageFormat::B8G8R8A8_UNORM_SRGB);
 
-  s_formatMetaData[ezImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x00FF0000;
-  s_formatMetaData[ezImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x0000FF00;
-  s_formatMetaData[ezImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x000000FF;
-  s_formatMetaData[ezImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0xFF000000;
+  s_formatMetaData[WImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x00FF0000;
+  s_formatMetaData[WImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x0000FF00;
+  s_formatMetaData[WImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x000000FF;
+  s_formatMetaData[WImageFormat::B8G8R8A8_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0xFF000000;
 
   INIT_FORMAT_LINEAR(B8G8R8X8_UNORM, UNORM, 32, 8, 8, 8, 0, 3);
   INIT_FORMAT_LINEAR(B8G8R8X8_UNORM_SRGB, UNORM, 32, 8, 8, 8, 0, 3);
-  SetupSrgbPair(ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8X8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B8G8R8X8_UNORM, WImageFormat::B8G8R8X8_UNORM_SRGB);
 
-  s_formatMetaData[ezImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x00FF0000;
-  s_formatMetaData[ezImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x0000FF00;
-  s_formatMetaData[ezImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x000000FF;
-  s_formatMetaData[ezImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x00000000;
+  s_formatMetaData[WImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x00FF0000;
+  s_formatMetaData[WImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x0000FF00;
+  s_formatMetaData[WImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x000000FF;
+  s_formatMetaData[WImageFormat::B8G8R8X8_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x00000000;
 
   INIT_FORMAT_LINEAR(B8G8R8_UNORM, UNORM, 24, 8, 8, 8, 0, 3);
   INIT_FORMAT_LINEAR(B8G8R8_UNORM_SRGB, UNORM, 24, 8, 8, 8, 0, 3);
-  SetupSrgbPair(ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B8G8R8_UNORM, WImageFormat::B8G8R8_UNORM_SRGB);
 
-  s_formatMetaData[ezImageFormat::B8G8R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x00FF0000;
-  s_formatMetaData[ezImageFormat::B8G8R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x0000FF00;
-  s_formatMetaData[ezImageFormat::B8G8R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x000000FF;
-  s_formatMetaData[ezImageFormat::B8G8R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x00000000;
+  s_formatMetaData[WImageFormat::B8G8R8_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x00FF0000;
+  s_formatMetaData[WImageFormat::B8G8R8_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x0000FF00;
+  s_formatMetaData[WImageFormat::B8G8R8_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x000000FF;
+  s_formatMetaData[WImageFormat::B8G8R8_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x00000000;
 
   INIT_FORMAT_LINEAR(R8G8_UINT, UINT, 16, 8, 8, 0, 0, 2);
   INIT_FORMAT_LINEAR(R8G8_SINT, SINT, 16, 8, 8, 0, 0, 2);
@@ -251,22 +251,22 @@ static void SetupImageFormatTable()
   INIT_FORMAT_LINEAR(R8_SNORM, SNORM, 8, 8, 0, 0, 0, 1);
 
   INIT_FORMAT_LINEAR(R8_UNORM, UNORM, 8, 8, 0, 0, 0, 1);
-  s_formatMetaData[ezImageFormat::R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0xFF;
-  s_formatMetaData[ezImageFormat::R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x00;
-  s_formatMetaData[ezImageFormat::R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x00;
-  s_formatMetaData[ezImageFormat::R8_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x00;
+  s_formatMetaData[WImageFormat::R8_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0xFF;
+  s_formatMetaData[WImageFormat::R8_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x00;
+  s_formatMetaData[WImageFormat::R8_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x00;
+  s_formatMetaData[WImageFormat::R8_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x00;
 
   INIT_FORMAT_COMPRESSED(BC1_UNORM, UNORM, 64, 4, 4, 1, true, 4);
   INIT_FORMAT_COMPRESSED(BC1_UNORM_SRGB, UNORM, 64, 4, 4, 1, true, 4);
-  SetupSrgbPair(ezImageFormat::BC1_UNORM, ezImageFormat::BC1_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::BC1_UNORM, WImageFormat::BC1_UNORM_SRGB);
 
   INIT_FORMAT_COMPRESSED(BC2_UNORM, UNORM, 128, 4, 4, 1, true, 4);
   INIT_FORMAT_COMPRESSED(BC2_UNORM_SRGB, UNORM, 128, 4, 4, 1, true, 4);
-  SetupSrgbPair(ezImageFormat::BC2_UNORM, ezImageFormat::BC2_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::BC2_UNORM, WImageFormat::BC2_UNORM_SRGB);
 
   INIT_FORMAT_COMPRESSED(BC3_UNORM, UNORM, 128, 4, 4, 1, true, 4);
   INIT_FORMAT_COMPRESSED(BC3_UNORM_SRGB, UNORM, 128, 4, 4, 1, true, 4);
-  SetupSrgbPair(ezImageFormat::BC3_UNORM, ezImageFormat::BC3_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::BC3_UNORM, WImageFormat::BC3_UNORM_SRGB);
 
   INIT_FORMAT_COMPRESSED(BC4_UNORM, UNORM, 64, 4, 4, 1, true, 1);
   INIT_FORMAT_COMPRESSED(BC4_SNORM, SNORM, 64, 4, 4, 1, true, 1);
@@ -279,79 +279,79 @@ static void SetupImageFormatTable()
 
   INIT_FORMAT_COMPRESSED(BC7_UNORM, UNORM, 128, 4, 4, 1, true, 4);
   INIT_FORMAT_COMPRESSED(BC7_UNORM_SRGB, UNORM, 128, 4, 4, 1, true, 4);
-  SetupSrgbPair(ezImageFormat::BC7_UNORM, ezImageFormat::BC7_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::BC7_UNORM, WImageFormat::BC7_UNORM_SRGB);
 
 
 
   INIT_FORMAT_LINEAR(B5G5R5A1_UNORM, UNORM, 16, 5, 5, 5, 1, 4);
   INIT_FORMAT_LINEAR(B5G5R5A1_UNORM_SRGB, UNORM, 16, 5, 5, 5, 1, 4);
-  SetupSrgbPair(ezImageFormat::B5G5R5A1_UNORM, ezImageFormat::B5G5R5A1_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B5G5R5A1_UNORM, WImageFormat::B5G5R5A1_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(B4G4R4A4_UNORM, UNORM, 16, 4, 4, 4, 4, 4);
-  s_formatMetaData[ezImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x0F00;
-  s_formatMetaData[ezImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x00F0;
-  s_formatMetaData[ezImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x000F;
-  s_formatMetaData[ezImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0xF000;
+  s_formatMetaData[WImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x0F00;
+  s_formatMetaData[WImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x00F0;
+  s_formatMetaData[WImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x000F;
+  s_formatMetaData[WImageFormat::B4G4R4A4_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0xF000;
   INIT_FORMAT_LINEAR(B4G4R4A4_UNORM_SRGB, UNORM, 16, 4, 4, 4, 4, 4);
-  SetupSrgbPair(ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B4G4R4A4_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B4G4R4A4_UNORM, WImageFormat::B4G4R4A4_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(A4B4G4R4_UNORM, UNORM, 16, 4, 4, 4, 4, 4);
-  s_formatMetaData[ezImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0xF000;
-  s_formatMetaData[ezImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x0F00;
-  s_formatMetaData[ezImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x00F0;
-  s_formatMetaData[ezImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x000F;
+  s_formatMetaData[WImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0xF000;
+  s_formatMetaData[WImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x0F00;
+  s_formatMetaData[WImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x00F0;
+  s_formatMetaData[WImageFormat::A4B4G4R4_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x000F;
   INIT_FORMAT_LINEAR(A4B4G4R4_UNORM_SRGB, UNORM, 16, 4, 4, 4, 4, 4);
-  SetupSrgbPair(ezImageFormat::A4B4G4R4_UNORM, ezImageFormat::A4B4G4R4_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::A4B4G4R4_UNORM, WImageFormat::A4B4G4R4_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(B5G6R5_UNORM, UNORM, 16, 5, 6, 5, 0, 3);
-  s_formatMetaData[ezImageFormat::B5G6R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0xF800;
-  s_formatMetaData[ezImageFormat::B5G6R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x07E0;
-  s_formatMetaData[ezImageFormat::B5G6R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x001F;
-  s_formatMetaData[ezImageFormat::B5G6R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x0000;
+  s_formatMetaData[WImageFormat::B5G6R5_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0xF800;
+  s_formatMetaData[WImageFormat::B5G6R5_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x07E0;
+  s_formatMetaData[WImageFormat::B5G6R5_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x001F;
+  s_formatMetaData[WImageFormat::B5G6R5_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x0000;
   INIT_FORMAT_LINEAR(B5G6R5_UNORM_SRGB, UNORM, 16, 5, 6, 5, 0, 3);
-  SetupSrgbPair(ezImageFormat::B5G6R5_UNORM, ezImageFormat::B5G6R5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B5G6R5_UNORM, WImageFormat::B5G6R5_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(B5G5R5A1_UNORM, UNORM, 16, 5, 5, 5, 1, 3);
-  s_formatMetaData[ezImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x7C00;
-  s_formatMetaData[ezImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x03E0;
-  s_formatMetaData[ezImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x001F;
-  s_formatMetaData[ezImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x8000;
+  s_formatMetaData[WImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x7C00;
+  s_formatMetaData[WImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x03E0;
+  s_formatMetaData[WImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x001F;
+  s_formatMetaData[WImageFormat::B5G5R5A1_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x8000;
   INIT_FORMAT_LINEAR(B5G5R5A1_UNORM_SRGB, UNORM, 16, 5, 5, 5, 1, 3);
-  SetupSrgbPair(ezImageFormat::B5G5R5A1_UNORM, ezImageFormat::B5G5R5A1_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B5G5R5A1_UNORM, WImageFormat::B5G5R5A1_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(B5G5R5X1_UNORM, UNORM, 16, 5, 5, 5, 0, 3);
-  s_formatMetaData[ezImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x7C00;
-  s_formatMetaData[ezImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x03E0;
-  s_formatMetaData[ezImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x001F;
-  s_formatMetaData[ezImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x0000;
+  s_formatMetaData[WImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x7C00;
+  s_formatMetaData[WImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x03E0;
+  s_formatMetaData[WImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x001F;
+  s_formatMetaData[WImageFormat::B5G5R5X1_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x0000;
   INIT_FORMAT_LINEAR(B5G5R5X1_UNORM_SRGB, UNORM, 16, 5, 5, 5, 0, 3);
-  SetupSrgbPair(ezImageFormat::B5G5R5X1_UNORM, ezImageFormat::B5G5R5X1_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::B5G5R5X1_UNORM, WImageFormat::B5G5R5X1_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(A1B5G5R5_UNORM, UNORM, 16, 5, 5, 5, 1, 3);
-  s_formatMetaData[ezImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x7C00;
-  s_formatMetaData[ezImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x03E0;
-  s_formatMetaData[ezImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x001F;
-  s_formatMetaData[ezImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x8000;
+  s_formatMetaData[WImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x7C00;
+  s_formatMetaData[WImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x03E0;
+  s_formatMetaData[WImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x001F;
+  s_formatMetaData[WImageFormat::A1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x8000;
   INIT_FORMAT_LINEAR(A1B5G5R5_UNORM_SRGB, UNORM, 16, 5, 5, 5, 1, 3);
-  SetupSrgbPair(ezImageFormat::A1B5G5R5_UNORM, ezImageFormat::A1B5G5R5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::A1B5G5R5_UNORM, WImageFormat::A1B5G5R5_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(X1B5G5R5_UNORM, UNORM, 16, 5, 5, 5, 1, 3);
-  s_formatMetaData[ezImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x7C00;
-  s_formatMetaData[ezImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x03E0;
-  s_formatMetaData[ezImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x001F;
-  s_formatMetaData[ezImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0x0000;
+  s_formatMetaData[WImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x7C00;
+  s_formatMetaData[WImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x03E0;
+  s_formatMetaData[WImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x001F;
+  s_formatMetaData[WImageFormat::X1B5G5R5_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0x0000;
   INIT_FORMAT_LINEAR(X1B5G5R5_UNORM_SRGB, UNORM, 16, 5, 5, 5, 1, 3);
-  SetupSrgbPair(ezImageFormat::X1B5G5R5_UNORM, ezImageFormat::X1B5G5R5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::X1B5G5R5_UNORM, WImageFormat::X1B5G5R5_UNORM_SRGB);
 
   INIT_FORMAT_LINEAR(R11G11B10_FLOAT, FLOAT, 32, 11, 11, 10, 0, 3);
   INIT_FORMAT_LINEAR(R10G10B10A2_UINT, UINT, 32, 10, 10, 10, 2, 4);
   INIT_FORMAT_LINEAR(R10G10B10A2_UNORM, UNORM, 32, 10, 10, 10, 2, 4);
 
   // msdn.microsoft.com/library/windows/desktop/bb943991(v=vs.85).aspx documents R10G10B10A2 as having an alpha mask of 0
-  s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::R] = 0x000003FF;
-  s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::G] = 0x000FFC00;
-  s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::B] = 0x3FF00000;
-  s_formatMetaData[ezImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[ezImageFormatChannel::A] = 0;
+  s_formatMetaData[WImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[WImageFormatChannel::R] = 0x000003FF;
+  s_formatMetaData[WImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[WImageFormatChannel::G] = 0x000FFC00;
+  s_formatMetaData[WImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[WImageFormatChannel::B] = 0x3FF00000;
+  s_formatMetaData[WImageFormat::R10G10B10A2_UNORM].m_uiChannelMasks[WImageFormatChannel::A] = 0;
 
   INIT_FORMAT_DEPTH(D32_FLOAT, DEPTH_STENCIL, 32, false, 32, 0);
   INIT_FORMAT_DEPTH(D32_FLOAT_S8X24_UINT, DEPTH_STENCIL, 64, true, 32, 8);
@@ -388,26 +388,26 @@ static void SetupImageFormatTable()
   INIT_FORMAT_COMPRESSED(ASTC_12x10_UNORM_SRGB, UNORM, 128, 12, 10, 1, false, 4);
   INIT_FORMAT_COMPRESSED(ASTC_12x12_UNORM_SRGB, UNORM, 128, 12, 12, 1, false, 4);
 
-  SetupSrgbPair(ezImageFormat::ASTC_4x4_UNORM, ezImageFormat::ASTC_4x4_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_5x4_UNORM, ezImageFormat::ASTC_5x4_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_5x5_UNORM, ezImageFormat::ASTC_5x5_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_6x5_UNORM, ezImageFormat::ASTC_6x5_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_6x6_UNORM, ezImageFormat::ASTC_6x6_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_8x5_UNORM, ezImageFormat::ASTC_8x5_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_8x6_UNORM, ezImageFormat::ASTC_8x6_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_10x5_UNORM, ezImageFormat::ASTC_10x5_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_10x6_UNORM, ezImageFormat::ASTC_10x6_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_8x8_UNORM, ezImageFormat::ASTC_8x8_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_10x8_UNORM, ezImageFormat::ASTC_10x8_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_10x10_UNORM, ezImageFormat::ASTC_10x10_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_12x10_UNORM, ezImageFormat::ASTC_12x10_UNORM_SRGB);
-  SetupSrgbPair(ezImageFormat::ASTC_12x12_UNORM, ezImageFormat::ASTC_12x12_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_4x4_UNORM, WImageFormat::ASTC_4x4_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_5x4_UNORM, WImageFormat::ASTC_5x4_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_5x5_UNORM, WImageFormat::ASTC_5x5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_6x5_UNORM, WImageFormat::ASTC_6x5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_6x6_UNORM, WImageFormat::ASTC_6x6_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_8x5_UNORM, WImageFormat::ASTC_8x5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_8x6_UNORM, WImageFormat::ASTC_8x6_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_10x5_UNORM, WImageFormat::ASTC_10x5_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_10x6_UNORM, WImageFormat::ASTC_10x6_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_8x8_UNORM, WImageFormat::ASTC_8x8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_10x8_UNORM, WImageFormat::ASTC_10x8_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_10x10_UNORM, WImageFormat::ASTC_10x10_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_12x10_UNORM, WImageFormat::ASTC_12x10_UNORM_SRGB);
+  SetupSrgbPair(WImageFormat::ASTC_12x12_UNORM, WImageFormat::ASTC_12x12_UNORM_SRGB);
 
   {
-    auto& meta = s_formatMetaData[ezImageFormat::NV12];
+    auto& meta = s_formatMetaData[WImageFormat::NV12];
 
     meta.m_szName = "NV12";
-    meta.m_formatType = ezImageFormatType::PLANAR;
+    meta.m_formatType = WImageFormatType::PLANAR;
     meta.m_uiNumChannels = 3;
 
     meta.m_planeData.SetCount(2);
@@ -416,20 +416,20 @@ static void SetupImageFormatTable()
     meta.m_planeData[0].m_uiBlockWidth = 1;
     meta.m_planeData[0].m_uiBlockHeight = 1;
     meta.m_planeData[0].m_uiBlockDepth = 1;
-    meta.m_planeData[0].m_subFormat = ezImageFormat::R8_UNORM;
+    meta.m_planeData[0].m_subFormat = WImageFormat::R8_UNORM;
 
     meta.m_planeData[1].m_uiBitsPerBlock = 16;
     meta.m_planeData[1].m_uiBlockWidth = 2;
     meta.m_planeData[1].m_uiBlockHeight = 2;
     meta.m_planeData[1].m_uiBlockDepth = 1;
-    meta.m_planeData[1].m_subFormat = ezImageFormat::R8G8_UNORM;
+    meta.m_planeData[1].m_subFormat = WImageFormat::R8G8_UNORM;
   }
 
   {
-    auto& meta = s_formatMetaData[ezImageFormat::P010];
+    auto& meta = s_formatMetaData[WImageFormat::P010];
 
     meta.m_szName = "P010";
-    meta.m_formatType = ezImageFormatType::PLANAR;
+    meta.m_formatType = WImageFormatType::PLANAR;
     meta.m_uiNumChannels = 3;
 
     meta.m_planeData.SetCount(2);
@@ -438,17 +438,17 @@ static void SetupImageFormatTable()
     meta.m_planeData[0].m_uiBlockWidth = 1;
     meta.m_planeData[0].m_uiBlockHeight = 1;
     meta.m_planeData[0].m_uiBlockDepth = 1;
-    meta.m_planeData[0].m_subFormat = ezImageFormat::R16_UNORM;
+    meta.m_planeData[0].m_subFormat = WImageFormat::R16_UNORM;
 
     meta.m_planeData[1].m_uiBitsPerBlock = 20;
     meta.m_planeData[1].m_uiBlockWidth = 2;
     meta.m_planeData[1].m_uiBlockHeight = 2;
     meta.m_planeData[1].m_uiBlockDepth = 1;
-    meta.m_planeData[1].m_subFormat = ezImageFormat::R16G16_UNORM;
+    meta.m_planeData[1].m_subFormat = WImageFormat::R16G16_UNORM;
   }
 }
 
-static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezImageFormat::Enum format)
+static const W_ALWAYS_INLINE WImageFormatMetaData& GetImageFormatMetaData(WImageFormat::Enum format)
 {
   if (s_formatMetaData.IsEmpty())
   {
@@ -459,7 +459,7 @@ static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezIm
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
+W_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -470,38 +470,38 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
     SetupImageFormatTable();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetBitsPerPixel(Enum format, WUInt32 uiPlaneIndex)
 {
-  const ezImageFormatMetaData& metaData = GetImageFormatMetaData(format);
+  const WImageFormatMetaData& metaData = GetImageFormatMetaData(format);
   auto pixelsPerBlock = metaData.m_planeData[uiPlaneIndex].m_uiBlockWidth * metaData.m_planeData[uiPlaneIndex].m_uiBlockHeight * metaData.m_planeData[uiPlaneIndex].m_uiBlockDepth;
   return (metaData.m_planeData[uiPlaneIndex].m_uiBitsPerBlock + pixelsPerBlock - 1) / pixelsPerBlock; // Return rounded-up value
 }
 
 
-float ezImageFormat::GetExactBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex)
+float WImageFormat::GetExactBitsPerPixel(Enum format, WUInt32 uiPlaneIndex)
 {
-  const ezImageFormatMetaData& metaData = GetImageFormatMetaData(format);
+  const WImageFormatMetaData& metaData = GetImageFormatMetaData(format);
   auto pixelsPerBlock = metaData.m_planeData[uiPlaneIndex].m_uiBlockWidth * metaData.m_planeData[uiPlaneIndex].m_uiBlockHeight * metaData.m_planeData[uiPlaneIndex].m_uiBlockDepth;
   return static_cast<float>(metaData.m_planeData[uiPlaneIndex].m_uiBitsPerBlock) / pixelsPerBlock;
 }
 
 
-ezUInt32 ezImageFormat::GetBitsPerBlock(Enum format, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetBitsPerBlock(Enum format, WUInt32 uiPlaneIndex)
 {
   return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBitsPerBlock;
 }
 
 
-ezUInt32 ezImageFormat::GetNumChannels(Enum format)
+WUInt32 WImageFormat::GetNumChannels(Enum format)
 {
   return GetImageFormatMetaData(format).m_uiNumChannels;
 }
 
-ezImageFormat::Enum ezImageFormat::FromPixelMask(
-  ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel)
+WImageFormat::Enum WImageFormat::FromPixelMask(
+  WUInt32 uiRedMask, WUInt32 uiGreenMask, WUInt32 uiBlueMask, WUInt32 uiAlphaMask, WUInt32 uiBitsPerPixel)
 {
   // Some DDS files in the wild are encoded as this
   if (uiBitsPerPixel == 8 && uiRedMask == 0xff && uiGreenMask == 0xff && uiBlueMask == 0xff)
@@ -509,12 +509,12 @@ ezImageFormat::Enum ezImageFormat::FromPixelMask(
     return R8_UNORM;
   }
 
-  for (ezUInt32 index = 0; index < NUM_FORMATS; index++)
+  for (WUInt32 index = 0; index < NUM_FORMATS; index++)
   {
     Enum format = static_cast<Enum>(index);
-    if (GetChannelMask(format, ezImageFormatChannel::R) == uiRedMask && GetChannelMask(format, ezImageFormatChannel::G) == uiGreenMask &&
-        GetChannelMask(format, ezImageFormatChannel::B) == uiBlueMask && GetChannelMask(format, ezImageFormatChannel::A) == uiAlphaMask &&
-        GetBitsPerPixel(format) == uiBitsPerPixel && GetDataType(format) == ezImageFormatDataType::UNORM && !IsCompressed(format))
+    if (GetChannelMask(format, WImageFormatChannel::R) == uiRedMask && GetChannelMask(format, WImageFormatChannel::G) == uiGreenMask &&
+        GetChannelMask(format, WImageFormatChannel::B) == uiBlueMask && GetChannelMask(format, WImageFormatChannel::A) == uiAlphaMask &&
+        GetBitsPerPixel(format) == uiBitsPerPixel && GetDataType(format) == WImageFormatDataType::UNORM && !IsCompressed(format))
     {
       return format;
     }
@@ -524,22 +524,22 @@ ezImageFormat::Enum ezImageFormat::FromPixelMask(
 }
 
 
-ezImageFormat::Enum ezImageFormat::GetPlaneSubFormat(Enum format, ezUInt32 uiPlaneIndex)
+WImageFormat::Enum WImageFormat::GetPlaneSubFormat(Enum format, WUInt32 uiPlaneIndex)
 {
   const auto& metadata = GetImageFormatMetaData(format);
 
-  if (metadata.m_formatType == ezImageFormatType::PLANAR)
+  if (metadata.m_formatType == WImageFormatType::PLANAR)
   {
     return metadata.m_planeData[uiPlaneIndex].m_subFormat;
   }
   else
   {
-    EZ_ASSERT_DEV(uiPlaneIndex == 0, "Invalid plane index {0} for format {0}", uiPlaneIndex, ezImageFormat::GetName(format));
+    W_ASSERT_DEV(uiPlaneIndex == 0, "Invalid plane index {0} for format {0}", uiPlaneIndex, WImageFormat::GetName(format));
     return format;
   }
 }
 
-bool ezImageFormat::IsCompatible(Enum left, Enum right)
+bool WImageFormat::IsCompatible(Enum left, Enum right)
 {
   if (left == right)
   {
@@ -547,260 +547,260 @@ bool ezImageFormat::IsCompatible(Enum left, Enum right)
   }
   switch (left)
   {
-    case ezImageFormat::R32G32B32A32_FLOAT:
-    case ezImageFormat::R32G32B32A32_UINT:
-    case ezImageFormat::R32G32B32A32_SINT:
-      return (right == ezImageFormat::R32G32B32A32_FLOAT || right == ezImageFormat::R32G32B32A32_UINT || right == ezImageFormat::R32G32B32A32_SINT);
-    case ezImageFormat::R32G32B32_FLOAT:
-    case ezImageFormat::R32G32B32_UINT:
-    case ezImageFormat::R32G32B32_SINT:
-      return (right == ezImageFormat::R32G32B32_FLOAT || right == ezImageFormat::R32G32B32_UINT || right == ezImageFormat::R32G32B32_SINT);
-    case ezImageFormat::R32G32_FLOAT:
-    case ezImageFormat::R32G32_UINT:
-    case ezImageFormat::R32G32_SINT:
-      return (right == ezImageFormat::R32G32_FLOAT || right == ezImageFormat::R32G32_UINT || right == ezImageFormat::R32G32_SINT);
-    case ezImageFormat::R32_FLOAT:
-    case ezImageFormat::R32_UINT:
-    case ezImageFormat::R32_SINT:
-      return (right == ezImageFormat::R32_FLOAT || right == ezImageFormat::R32_UINT || right == ezImageFormat::R32_SINT);
-    case ezImageFormat::R16G16B16A16_FLOAT:
-    case ezImageFormat::R16G16B16A16_UINT:
-    case ezImageFormat::R16G16B16A16_SINT:
-    case ezImageFormat::R16G16B16A16_UNORM:
-    case ezImageFormat::R16G16B16A16_SNORM:
-      return (right == ezImageFormat::R16G16B16A16_FLOAT || right == ezImageFormat::R16G16B16A16_UINT || right == ezImageFormat::R16G16B16A16_SINT ||
-              right == ezImageFormat::R16G16B16A16_UNORM || right == ezImageFormat::R16G16B16A16_SNORM);
-    case ezImageFormat::R16G16_FLOAT:
-    case ezImageFormat::R16G16_UINT:
-    case ezImageFormat::R16G16_SINT:
-    case ezImageFormat::R16G16_UNORM:
-    case ezImageFormat::R16G16_SNORM:
-      return (right == ezImageFormat::R16G16_FLOAT || right == ezImageFormat::R16G16_UINT || right == ezImageFormat::R16G16_SINT ||
-              right == ezImageFormat::R16G16_UNORM || right == ezImageFormat::R16G16_SNORM);
-    case ezImageFormat::R8G8B8A8_UINT:
-    case ezImageFormat::R8G8B8A8_SINT:
-    case ezImageFormat::R8G8B8A8_UNORM:
-    case ezImageFormat::R8G8B8A8_SNORM:
-    case ezImageFormat::R8G8B8A8_UNORM_SRGB:
-      return (right == ezImageFormat::R8G8B8A8_UINT || right == ezImageFormat::R8G8B8A8_SINT || right == ezImageFormat::R8G8B8A8_UNORM ||
-              right == ezImageFormat::R8G8B8A8_SNORM || right == ezImageFormat::R8G8B8A8_UNORM_SRGB);
-    case ezImageFormat::B8G8R8A8_UNORM:
-    case ezImageFormat::B8G8R8A8_UNORM_SRGB:
-      return (right == ezImageFormat::B8G8R8A8_UNORM || right == ezImageFormat::B8G8R8A8_UNORM_SRGB);
-    case ezImageFormat::B8G8R8X8_UNORM:
-    case ezImageFormat::B8G8R8X8_UNORM_SRGB:
-      return (right == ezImageFormat::B8G8R8X8_UNORM || right == ezImageFormat::B8G8R8X8_UNORM_SRGB);
-    case ezImageFormat::B8G8R8_UNORM:
-    case ezImageFormat::B8G8R8_UNORM_SRGB:
-      return (right == ezImageFormat::B8G8R8_UNORM || right == ezImageFormat::B8G8R8_UNORM_SRGB);
-    case ezImageFormat::R8G8_UINT:
-    case ezImageFormat::R8G8_SINT:
-    case ezImageFormat::R8G8_UNORM:
-    case ezImageFormat::R8G8_SNORM:
-      return (right == ezImageFormat::R8G8_UINT || right == ezImageFormat::R8G8_SINT || right == ezImageFormat::R8G8_UNORM ||
-              right == ezImageFormat::R8G8_SNORM);
-    case ezImageFormat::R8_UINT:
-    case ezImageFormat::R8_SINT:
-    case ezImageFormat::R8_UNORM:
-    case ezImageFormat::R8_SNORM:
+    case WImageFormat::R32G32B32A32_FLOAT:
+    case WImageFormat::R32G32B32A32_UINT:
+    case WImageFormat::R32G32B32A32_SINT:
+      return (right == WImageFormat::R32G32B32A32_FLOAT || right == WImageFormat::R32G32B32A32_UINT || right == WImageFormat::R32G32B32A32_SINT);
+    case WImageFormat::R32G32B32_FLOAT:
+    case WImageFormat::R32G32B32_UINT:
+    case WImageFormat::R32G32B32_SINT:
+      return (right == WImageFormat::R32G32B32_FLOAT || right == WImageFormat::R32G32B32_UINT || right == WImageFormat::R32G32B32_SINT);
+    case WImageFormat::R32G32_FLOAT:
+    case WImageFormat::R32G32_UINT:
+    case WImageFormat::R32G32_SINT:
+      return (right == WImageFormat::R32G32_FLOAT || right == WImageFormat::R32G32_UINT || right == WImageFormat::R32G32_SINT);
+    case WImageFormat::R32_FLOAT:
+    case WImageFormat::R32_UINT:
+    case WImageFormat::R32_SINT:
+      return (right == WImageFormat::R32_FLOAT || right == WImageFormat::R32_UINT || right == WImageFormat::R32_SINT);
+    case WImageFormat::R16G16B16A16_FLOAT:
+    case WImageFormat::R16G16B16A16_UINT:
+    case WImageFormat::R16G16B16A16_SINT:
+    case WImageFormat::R16G16B16A16_UNORM:
+    case WImageFormat::R16G16B16A16_SNORM:
+      return (right == WImageFormat::R16G16B16A16_FLOAT || right == WImageFormat::R16G16B16A16_UINT || right == WImageFormat::R16G16B16A16_SINT ||
+              right == WImageFormat::R16G16B16A16_UNORM || right == WImageFormat::R16G16B16A16_SNORM);
+    case WImageFormat::R16G16_FLOAT:
+    case WImageFormat::R16G16_UINT:
+    case WImageFormat::R16G16_SINT:
+    case WImageFormat::R16G16_UNORM:
+    case WImageFormat::R16G16_SNORM:
+      return (right == WImageFormat::R16G16_FLOAT || right == WImageFormat::R16G16_UINT || right == WImageFormat::R16G16_SINT ||
+              right == WImageFormat::R16G16_UNORM || right == WImageFormat::R16G16_SNORM);
+    case WImageFormat::R8G8B8A8_UINT:
+    case WImageFormat::R8G8B8A8_SINT:
+    case WImageFormat::R8G8B8A8_UNORM:
+    case WImageFormat::R8G8B8A8_SNORM:
+    case WImageFormat::R8G8B8A8_UNORM_SRGB:
+      return (right == WImageFormat::R8G8B8A8_UINT || right == WImageFormat::R8G8B8A8_SINT || right == WImageFormat::R8G8B8A8_UNORM ||
+              right == WImageFormat::R8G8B8A8_SNORM || right == WImageFormat::R8G8B8A8_UNORM_SRGB);
+    case WImageFormat::B8G8R8A8_UNORM:
+    case WImageFormat::B8G8R8A8_UNORM_SRGB:
+      return (right == WImageFormat::B8G8R8A8_UNORM || right == WImageFormat::B8G8R8A8_UNORM_SRGB);
+    case WImageFormat::B8G8R8X8_UNORM:
+    case WImageFormat::B8G8R8X8_UNORM_SRGB:
+      return (right == WImageFormat::B8G8R8X8_UNORM || right == WImageFormat::B8G8R8X8_UNORM_SRGB);
+    case WImageFormat::B8G8R8_UNORM:
+    case WImageFormat::B8G8R8_UNORM_SRGB:
+      return (right == WImageFormat::B8G8R8_UNORM || right == WImageFormat::B8G8R8_UNORM_SRGB);
+    case WImageFormat::R8G8_UINT:
+    case WImageFormat::R8G8_SINT:
+    case WImageFormat::R8G8_UNORM:
+    case WImageFormat::R8G8_SNORM:
+      return (right == WImageFormat::R8G8_UINT || right == WImageFormat::R8G8_SINT || right == WImageFormat::R8G8_UNORM ||
+              right == WImageFormat::R8G8_SNORM);
+    case WImageFormat::R8_UINT:
+    case WImageFormat::R8_SINT:
+    case WImageFormat::R8_UNORM:
+    case WImageFormat::R8_SNORM:
       return (
-        right == ezImageFormat::R8_UINT || right == ezImageFormat::R8_SINT || right == ezImageFormat::R8_UNORM || right == ezImageFormat::R8_SNORM);
-    case ezImageFormat::BC1_UNORM:
-    case ezImageFormat::BC1_UNORM_SRGB:
-      return (right == ezImageFormat::BC1_UNORM || right == ezImageFormat::BC1_UNORM_SRGB);
-    case ezImageFormat::BC2_UNORM:
-    case ezImageFormat::BC2_UNORM_SRGB:
-      return (right == ezImageFormat::BC2_UNORM || right == ezImageFormat::BC2_UNORM_SRGB);
-    case ezImageFormat::BC3_UNORM:
-    case ezImageFormat::BC3_UNORM_SRGB:
-      return (right == ezImageFormat::BC3_UNORM || right == ezImageFormat::BC3_UNORM_SRGB);
-    case ezImageFormat::BC4_UNORM:
-    case ezImageFormat::BC4_SNORM:
-      return (right == ezImageFormat::BC4_UNORM || right == ezImageFormat::BC4_SNORM);
-    case ezImageFormat::BC5_UNORM:
-    case ezImageFormat::BC5_SNORM:
-      return (right == ezImageFormat::BC5_UNORM || right == ezImageFormat::BC5_SNORM);
-    case ezImageFormat::BC6H_UF16:
-    case ezImageFormat::BC6H_SF16:
-      return (right == ezImageFormat::BC6H_UF16 || right == ezImageFormat::BC6H_SF16);
-    case ezImageFormat::BC7_UNORM:
-    case ezImageFormat::BC7_UNORM_SRGB:
-      return (right == ezImageFormat::BC7_UNORM || right == ezImageFormat::BC7_UNORM_SRGB);
-    case ezImageFormat::R10G10B10A2_UINT:
-    case ezImageFormat::R10G10B10A2_UNORM:
-      return (right == ezImageFormat::R10G10B10A2_UINT || right == ezImageFormat::R10G10B10A2_UNORM);
-    case ezImageFormat::ASTC_4x4_UNORM:
-    case ezImageFormat::ASTC_4x4_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_4x4_UNORM || right == ezImageFormat::ASTC_4x4_UNORM_SRGB);
-    case ezImageFormat::ASTC_5x4_UNORM:
-    case ezImageFormat::ASTC_5x4_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_5x4_UNORM || right == ezImageFormat::ASTC_5x4_UNORM_SRGB);
-    case ezImageFormat::ASTC_5x5_UNORM:
-    case ezImageFormat::ASTC_5x5_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_5x5_UNORM || right == ezImageFormat::ASTC_5x5_UNORM_SRGB);
-    case ezImageFormat::ASTC_6x5_UNORM:
-    case ezImageFormat::ASTC_6x5_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_6x5_UNORM || right == ezImageFormat::ASTC_6x5_UNORM_SRGB);
-    case ezImageFormat::ASTC_6x6_UNORM:
-    case ezImageFormat::ASTC_6x6_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_6x6_UNORM || right == ezImageFormat::ASTC_6x6_UNORM_SRGB);
-    case ezImageFormat::ASTC_8x5_UNORM:
-    case ezImageFormat::ASTC_8x5_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_8x5_UNORM || right == ezImageFormat::ASTC_8x5_UNORM_SRGB);
-    case ezImageFormat::ASTC_8x6_UNORM:
-    case ezImageFormat::ASTC_8x6_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_8x6_UNORM || right == ezImageFormat::ASTC_8x6_UNORM_SRGB);
-    case ezImageFormat::ASTC_10x5_UNORM:
-    case ezImageFormat::ASTC_10x5_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_10x5_UNORM || right == ezImageFormat::ASTC_10x5_UNORM_SRGB);
-    case ezImageFormat::ASTC_10x6_UNORM:
-    case ezImageFormat::ASTC_10x6_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_10x6_UNORM || right == ezImageFormat::ASTC_10x6_UNORM_SRGB);
-    case ezImageFormat::ASTC_8x8_UNORM:
-    case ezImageFormat::ASTC_8x8_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_8x8_UNORM || right == ezImageFormat::ASTC_8x8_UNORM_SRGB);
-    case ezImageFormat::ASTC_10x8_UNORM:
-    case ezImageFormat::ASTC_10x8_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_10x8_UNORM || right == ezImageFormat::ASTC_10x8_UNORM_SRGB);
-    case ezImageFormat::ASTC_10x10_UNORM:
-    case ezImageFormat::ASTC_10x10_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_10x10_UNORM || right == ezImageFormat::ASTC_10x10_UNORM_SRGB);
-    case ezImageFormat::ASTC_12x10_UNORM:
-    case ezImageFormat::ASTC_12x10_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_12x10_UNORM || right == ezImageFormat::ASTC_12x10_UNORM_SRGB);
-    case ezImageFormat::ASTC_12x12_UNORM:
-    case ezImageFormat::ASTC_12x12_UNORM_SRGB:
-      return (right == ezImageFormat::ASTC_12x12_UNORM || right == ezImageFormat::ASTC_12x12_UNORM_SRGB);
+        right == WImageFormat::R8_UINT || right == WImageFormat::R8_SINT || right == WImageFormat::R8_UNORM || right == WImageFormat::R8_SNORM);
+    case WImageFormat::BC1_UNORM:
+    case WImageFormat::BC1_UNORM_SRGB:
+      return (right == WImageFormat::BC1_UNORM || right == WImageFormat::BC1_UNORM_SRGB);
+    case WImageFormat::BC2_UNORM:
+    case WImageFormat::BC2_UNORM_SRGB:
+      return (right == WImageFormat::BC2_UNORM || right == WImageFormat::BC2_UNORM_SRGB);
+    case WImageFormat::BC3_UNORM:
+    case WImageFormat::BC3_UNORM_SRGB:
+      return (right == WImageFormat::BC3_UNORM || right == WImageFormat::BC3_UNORM_SRGB);
+    case WImageFormat::BC4_UNORM:
+    case WImageFormat::BC4_SNORM:
+      return (right == WImageFormat::BC4_UNORM || right == WImageFormat::BC4_SNORM);
+    case WImageFormat::BC5_UNORM:
+    case WImageFormat::BC5_SNORM:
+      return (right == WImageFormat::BC5_UNORM || right == WImageFormat::BC5_SNORM);
+    case WImageFormat::BC6H_UF16:
+    case WImageFormat::BC6H_SF16:
+      return (right == WImageFormat::BC6H_UF16 || right == WImageFormat::BC6H_SF16);
+    case WImageFormat::BC7_UNORM:
+    case WImageFormat::BC7_UNORM_SRGB:
+      return (right == WImageFormat::BC7_UNORM || right == WImageFormat::BC7_UNORM_SRGB);
+    case WImageFormat::R10G10B10A2_UINT:
+    case WImageFormat::R10G10B10A2_UNORM:
+      return (right == WImageFormat::R10G10B10A2_UINT || right == WImageFormat::R10G10B10A2_UNORM);
+    case WImageFormat::ASTC_4x4_UNORM:
+    case WImageFormat::ASTC_4x4_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_4x4_UNORM || right == WImageFormat::ASTC_4x4_UNORM_SRGB);
+    case WImageFormat::ASTC_5x4_UNORM:
+    case WImageFormat::ASTC_5x4_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_5x4_UNORM || right == WImageFormat::ASTC_5x4_UNORM_SRGB);
+    case WImageFormat::ASTC_5x5_UNORM:
+    case WImageFormat::ASTC_5x5_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_5x5_UNORM || right == WImageFormat::ASTC_5x5_UNORM_SRGB);
+    case WImageFormat::ASTC_6x5_UNORM:
+    case WImageFormat::ASTC_6x5_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_6x5_UNORM || right == WImageFormat::ASTC_6x5_UNORM_SRGB);
+    case WImageFormat::ASTC_6x6_UNORM:
+    case WImageFormat::ASTC_6x6_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_6x6_UNORM || right == WImageFormat::ASTC_6x6_UNORM_SRGB);
+    case WImageFormat::ASTC_8x5_UNORM:
+    case WImageFormat::ASTC_8x5_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_8x5_UNORM || right == WImageFormat::ASTC_8x5_UNORM_SRGB);
+    case WImageFormat::ASTC_8x6_UNORM:
+    case WImageFormat::ASTC_8x6_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_8x6_UNORM || right == WImageFormat::ASTC_8x6_UNORM_SRGB);
+    case WImageFormat::ASTC_10x5_UNORM:
+    case WImageFormat::ASTC_10x5_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_10x5_UNORM || right == WImageFormat::ASTC_10x5_UNORM_SRGB);
+    case WImageFormat::ASTC_10x6_UNORM:
+    case WImageFormat::ASTC_10x6_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_10x6_UNORM || right == WImageFormat::ASTC_10x6_UNORM_SRGB);
+    case WImageFormat::ASTC_8x8_UNORM:
+    case WImageFormat::ASTC_8x8_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_8x8_UNORM || right == WImageFormat::ASTC_8x8_UNORM_SRGB);
+    case WImageFormat::ASTC_10x8_UNORM:
+    case WImageFormat::ASTC_10x8_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_10x8_UNORM || right == WImageFormat::ASTC_10x8_UNORM_SRGB);
+    case WImageFormat::ASTC_10x10_UNORM:
+    case WImageFormat::ASTC_10x10_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_10x10_UNORM || right == WImageFormat::ASTC_10x10_UNORM_SRGB);
+    case WImageFormat::ASTC_12x10_UNORM:
+    case WImageFormat::ASTC_12x10_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_12x10_UNORM || right == WImageFormat::ASTC_12x10_UNORM_SRGB);
+    case WImageFormat::ASTC_12x12_UNORM:
+    case WImageFormat::ASTC_12x12_UNORM_SRGB:
+      return (right == WImageFormat::ASTC_12x12_UNORM || right == WImageFormat::ASTC_12x12_UNORM_SRGB);
     default:
-      EZ_ASSERT_DEV(false, "Encountered unhandled format: {0}", ezImageFormat::GetName(left));
+      W_ASSERT_DEV(false, "Encountered unhandled format: {0}", WImageFormat::GetName(left));
       return false;
   }
 }
 
 
-bool ezImageFormat::RequiresFirstLevelBlockAlignment(Enum format)
+bool WImageFormat::RequiresFirstLevelBlockAlignment(Enum format)
 {
   return GetImageFormatMetaData(format).m_requireFirstLevelBlockAligned;
 }
 
-const char* ezImageFormat::GetName(Enum format)
+const char* WImageFormat::GetName(Enum format)
 {
   return GetImageFormatMetaData(format).m_szName;
 }
 
-ezUInt32 ezImageFormat::GetPlaneCount(Enum format)
+WUInt32 WImageFormat::GetPlaneCount(Enum format)
 {
   return GetImageFormatMetaData(format).m_planeData.GetCount();
 }
 
-ezUInt32 ezImageFormat::GetChannelMask(Enum format, ezImageFormatChannel::Enum c)
+WUInt32 WImageFormat::GetChannelMask(Enum format, WImageFormatChannel::Enum c)
 {
   return GetImageFormatMetaData(format).m_uiChannelMasks[c];
 }
 
-ezUInt32 ezImageFormat::GetBitsPerChannel(Enum format, ezImageFormatChannel::Enum c)
+WUInt32 WImageFormat::GetBitsPerChannel(Enum format, WImageFormatChannel::Enum c)
 {
   return GetImageFormatMetaData(format).m_uiBitsPerChannel[c];
 }
 
-ezUInt32 ezImageFormat::GetRedMask(Enum format)
+WUInt32 WImageFormat::GetRedMask(Enum format)
 {
-  return GetImageFormatMetaData(format).m_uiChannelMasks[ezImageFormatChannel::R];
+  return GetImageFormatMetaData(format).m_uiChannelMasks[WImageFormatChannel::R];
 }
 
-ezUInt32 ezImageFormat::GetGreenMask(Enum format)
+WUInt32 WImageFormat::GetGreenMask(Enum format)
 {
-  return GetImageFormatMetaData(format).m_uiChannelMasks[ezImageFormatChannel::G];
+  return GetImageFormatMetaData(format).m_uiChannelMasks[WImageFormatChannel::G];
 }
 
-ezUInt32 ezImageFormat::GetBlueMask(Enum format)
+WUInt32 WImageFormat::GetBlueMask(Enum format)
 {
-  return GetImageFormatMetaData(format).m_uiChannelMasks[ezImageFormatChannel::B];
+  return GetImageFormatMetaData(format).m_uiChannelMasks[WImageFormatChannel::B];
 }
 
-ezUInt32 ezImageFormat::GetAlphaMask(Enum format)
+WUInt32 WImageFormat::GetAlphaMask(Enum format)
 {
-  return GetImageFormatMetaData(format).m_uiChannelMasks[ezImageFormatChannel::A];
+  return GetImageFormatMetaData(format).m_uiChannelMasks[WImageFormatChannel::A];
 }
 
-ezUInt32 ezImageFormat::GetBlockWidth(Enum format, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetBlockWidth(Enum format, WUInt32 uiPlaneIndex)
 {
   return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockWidth;
 }
 
-ezUInt32 ezImageFormat::GetBlockHeight(Enum format, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetBlockHeight(Enum format, WUInt32 uiPlaneIndex)
 {
   return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockHeight;
 }
 
-ezUInt32 ezImageFormat::GetBlockDepth(Enum format, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetBlockDepth(Enum format, WUInt32 uiPlaneIndex)
 {
   return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockDepth;
 }
 
-ezImageFormatDataType::Enum ezImageFormat::GetDataType(Enum format)
+WImageFormatDataType::Enum WImageFormat::GetDataType(Enum format)
 {
   return GetImageFormatMetaData(format).m_dataType;
 }
 
-bool ezImageFormat::IsCompressed(Enum format)
+bool WImageFormat::IsCompressed(Enum format)
 {
-  return GetImageFormatMetaData(format).m_formatType == ezImageFormatType::BLOCK_COMPRESSED;
+  return GetImageFormatMetaData(format).m_formatType == WImageFormatType::BLOCK_COMPRESSED;
 }
 
-bool ezImageFormat::IsDepth(Enum format)
+bool WImageFormat::IsDepth(Enum format)
 {
   return GetImageFormatMetaData(format).m_isDepth;
 }
 
-bool ezImageFormat::IsSrgb(Enum format)
+bool WImageFormat::IsSrgb(Enum format)
 {
   return GetImageFormatMetaData(format).m_asLinear != format;
 }
 
-bool ezImageFormat::IsStencil(Enum format)
+bool WImageFormat::IsStencil(Enum format)
 {
   return GetImageFormatMetaData(format).m_isStencil;
 }
 
-ezImageFormat::Enum ezImageFormat::AsSrgb(Enum format)
+WImageFormat::Enum WImageFormat::AsSrgb(Enum format)
 {
   return GetImageFormatMetaData(format).m_asSrgb;
 }
 
-ezImageFormat::Enum ezImageFormat::AsLinear(Enum format)
+WImageFormat::Enum WImageFormat::AsLinear(Enum format)
 {
   return GetImageFormatMetaData(format).m_asLinear;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksX(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetNumBlocksX(Enum format, WUInt32 uiWidth, WUInt32 uiPlaneIndex)
 {
   return (uiWidth - 1) / GetBlockWidth(format, uiPlaneIndex) + 1;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksY(Enum format, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetNumBlocksY(Enum format, WUInt32 uiHeight, WUInt32 uiPlaneIndex)
 {
   return (uiHeight - 1) / GetBlockHeight(format, uiPlaneIndex) + 1;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksZ(Enum format, ezUInt32 uiDepth, ezUInt32 uiPlaneIndex)
+WUInt32 WImageFormat::GetNumBlocksZ(Enum format, WUInt32 uiDepth, WUInt32 uiPlaneIndex)
 {
   return (uiDepth - 1) / GetBlockDepth(format, uiPlaneIndex) + 1;
 }
 
-ezUInt64 ezImageFormat::GetRowPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex)
+WUInt64 WImageFormat::GetRowPitch(Enum format, WUInt32 uiWidth, WUInt32 uiPlaneIndex)
 {
-  return static_cast<ezUInt64>(GetNumBlocksX(format, uiWidth, uiPlaneIndex)) * GetBitsPerBlock(format, uiPlaneIndex) / 8;
+  return static_cast<WUInt64>(GetNumBlocksX(format, uiWidth, uiPlaneIndex)) * GetBitsPerBlock(format, uiPlaneIndex) / 8;
 }
 
-ezUInt64 ezImageFormat::GetDepthPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex)
+WUInt64 WImageFormat::GetDepthPitch(Enum format, WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiPlaneIndex)
 {
-  return static_cast<ezUInt64>(GetNumBlocksY(format, uiHeight, uiPlaneIndex)) * static_cast<ezUInt64>(GetRowPitch(format, uiWidth, uiPlaneIndex));
+  return static_cast<WUInt64>(GetNumBlocksY(format, uiHeight, uiPlaneIndex)) * static_cast<WUInt64>(GetRowPitch(format, uiWidth, uiPlaneIndex));
 }
 
-ezImageFormatType::Enum ezImageFormat::GetType(Enum format)
+WImageFormatType::Enum WImageFormat::GetType(Enum format)
 {
   return GetImageFormatMetaData(format).m_formatType;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFormat);
+W_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFormat);

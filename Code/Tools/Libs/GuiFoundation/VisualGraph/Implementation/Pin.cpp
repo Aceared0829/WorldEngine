@@ -6,7 +6,7 @@
 #include <QApplication>
 #include <QPalette>
 
-ezQtVisualGraphPin::ezQtVisualGraphPin()
+WQtVisualGraphPin::WQtVisualGraphPin()
 {
   auto palette = QApplication::palette();
 
@@ -20,11 +20,11 @@ ezQtVisualGraphPin::ezQtVisualGraphPin()
   m_pLabel = new QGraphicsTextItem(this);
 }
 
-ezQtVisualGraphPin::~ezQtVisualGraphPin() = default;
+WQtVisualGraphPin::~WQtVisualGraphPin() = default;
 
-void ezQtVisualGraphPin::AddConnection(ezQtVisualGraphConnection* pConnection)
+void WQtVisualGraphPin::AddConnection(WQtVisualGraphConnection* pConnection)
 {
-  EZ_ASSERT_DEBUG(!m_Connections.Contains(pConnection), "Connection already present!");
+  W_ASSERT_DEBUG(!m_Connections.Contains(pConnection), "Connection already present!");
   m_Connections.PushBack(pConnection);
 
   ConnectedStateChanged(true);
@@ -32,27 +32,27 @@ void ezQtVisualGraphPin::AddConnection(ezQtVisualGraphConnection* pConnection)
   UpdateConnections();
 }
 
-void ezQtVisualGraphPin::RemoveConnection(ezQtVisualGraphConnection* pConnection)
+void WQtVisualGraphPin::RemoveConnection(WQtVisualGraphConnection* pConnection)
 {
-  EZ_ASSERT_DEBUG(m_Connections.Contains(pConnection), "Connection not present!");
+  W_ASSERT_DEBUG(m_Connections.Contains(pConnection), "Connection not present!");
   m_Connections.RemoveAndSwap(pConnection);
 
   if (m_Connections.IsEmpty())
     ConnectedStateChanged(false);
 }
 
-void ezQtVisualGraphPin::ConnectedStateChanged(bool bConnected)
+void WQtVisualGraphPin::ConnectedStateChanged(bool bConnected)
 {
   UpdatePinColors();
 }
 
-void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
+void WQtVisualGraphPin::SetPin(const WVisualGraphPin& pin)
 {
   m_pPin = &pin;
 
   if (m_bTranslatePinName)
   {
-    m_pLabel->setPlainText(ezMakeQString(ezTranslate(pin.GetName())));
+    m_pLabel->setPlainText(WMakeQString(WTranslate(pin.GetName())));
   }
   else
   {
@@ -64,7 +64,7 @@ void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
   const int iRadus = rectLabel.height();
   QRectF bounds;
 
-  if (pin.GetType() == ezVisualGraphPin::Type::Input)
+  if (pin.GetType() == WVisualGraphPin::Type::Input)
   {
     m_pLabel->setPos(iRadus, 0);
     bounds = QRectF(0, 0, iRadus, iRadus);
@@ -83,16 +83,16 @@ void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
     QPainterPath p;
     switch (m_pPin->m_Shape)
     {
-      case ezVisualGraphPin::Shape::Circle:
+      case WVisualGraphPin::Shape::Circle:
         p.addEllipse(bounds);
         break;
-      case ezVisualGraphPin::Shape::Rect:
+      case WVisualGraphPin::Shape::Rect:
         p.addRect(bounds);
         break;
-      case ezVisualGraphPin::Shape::RoundRect:
+      case WVisualGraphPin::Shape::RoundRect:
         p.addRoundedRect(bounds, 2, 2);
         break;
-      case ezVisualGraphPin::Shape::Arrow:
+      case WVisualGraphPin::Shape::Arrow:
       {
         QPolygonF arrow;
         arrow.append(bounds.topLeft());
@@ -105,7 +105,7 @@ void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
         p.addPolygon(arrow);
         break;
       }
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+        W_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     setPath(p);
@@ -114,14 +114,14 @@ void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
   UpdatePinColors();
 }
 
-QPointF ezQtVisualGraphPin::GetPinPos() const
+QPointF WQtVisualGraphPin::GetPinPos() const
 {
   return mapToScene(m_PinCenter);
 }
 
-QPointF ezQtVisualGraphPin::GetPinDir() const
+QPointF WQtVisualGraphPin::GetPinDir() const
 {
-  if (m_pPin->GetType() == ezVisualGraphPin::Type::Input)
+  if (m_pPin->GetType() == WVisualGraphPin::Type::Input)
   {
     return QPointF(-1.0f, 0.0f);
   }
@@ -132,12 +132,12 @@ QPointF ezQtVisualGraphPin::GetPinDir() const
   }
 }
 
-QRectF ezQtVisualGraphPin::GetPinRect() const
+QRectF WQtVisualGraphPin::GetPinRect() const
 {
   auto rectLabel = m_pLabel->boundingRect();
   rectLabel.translate(m_pLabel->pos());
 
-  if (m_pPin->GetType() == ezVisualGraphPin::Type::Input)
+  if (m_pPin->GetType() == WVisualGraphPin::Type::Input)
   {
     rectLabel.adjust(-5, 0, 0, 0);
   }
@@ -148,11 +148,11 @@ QRectF ezQtVisualGraphPin::GetPinRect() const
   return rectLabel;
 }
 
-void ezQtVisualGraphPin::UpdateConnections()
+void WQtVisualGraphPin::UpdateConnections()
 {
-  for (ezQtVisualGraphConnection* pConnection : m_Connections)
+  for (WQtVisualGraphConnection* pConnection : m_Connections)
   {
-    if (m_pPin->GetType() == ezVisualGraphPin::Type::Input)
+    if (m_pPin->GetType() == WVisualGraphPin::Type::Input)
     {
       pConnection->SetDirIn(GetPinDir());
       pConnection->SetPosIn(GetPinPos());
@@ -165,7 +165,7 @@ void ezQtVisualGraphPin::UpdateConnections()
   }
 }
 
-void ezQtVisualGraphPin::SetHighlightState(ezQtVisualGraphPinHighlight state)
+void WQtVisualGraphPin::SetHighlightState(WQtVisualGraphPinHighlight state)
 {
   if (m_HighlightState != state)
   {
@@ -178,7 +178,7 @@ void ezQtVisualGraphPin::SetHighlightState(ezQtVisualGraphPinHighlight state)
   }
 }
 
-void ezQtVisualGraphPin::SetActive(bool bActive)
+void WQtVisualGraphPin::SetActive(bool bActive)
 {
   m_bIsActive = bActive;
 
@@ -188,28 +188,28 @@ void ezQtVisualGraphPin::SetActive(bool bActive)
   }
 }
 
-bool ezQtVisualGraphPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
+bool WQtVisualGraphPin::UpdatePinColors(const WColorGammaUB* pOverwriteColor)
 {
-  ezColorGammaUB pinColor = pOverwriteColor != nullptr ? *pOverwriteColor : GetPin()->GetColor();
+  WColorGammaUB pinColor = pOverwriteColor != nullptr ? *pOverwriteColor : GetPin()->GetColor();
   QColor base = QApplication::palette().window().color();
 
   if (!m_bIsActive)
-    pinColor = ezMath::Lerp<ezColor>(ezColorGammaUB(base.red(), base.green(), base.blue()), pinColor, 0.2f);
+    pinColor = WMath::Lerp<WColor>(WColorGammaUB(base.red(), base.green(), base.blue()), pinColor, 0.2f);
 
   switch (m_HighlightState)
   {
-    case ezQtVisualGraphPinHighlight::None:
+    case WQtVisualGraphPinHighlight::None:
     {
       QPen p = pen();
-      p.setColor(ezToQtColor(pinColor));
+      p.setColor(WToQtColor(pinColor));
       setPen(p);
 
       setBrush(HasAnyConnections() ? pen().color().darker(125) : base);
     }
     break;
 
-    case ezQtVisualGraphPinHighlight::CannotConnect:
-    case ezQtVisualGraphPinHighlight::CannotConnectSameDirection:
+    case WQtVisualGraphPinHighlight::CannotConnect:
+    case WQtVisualGraphPinHighlight::CannotConnectSameDirection:
     {
       QPen p = pen();
       p.setColor(base.lighter());
@@ -219,11 +219,11 @@ bool ezQtVisualGraphPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
     }
     break;
 
-    case ezQtVisualGraphPinHighlight::CanReplaceConnection:
-    case ezQtVisualGraphPinHighlight::CanAddConnection:
+    case WQtVisualGraphPinHighlight::CanReplaceConnection:
+    case WQtVisualGraphPinHighlight::CanAddConnection:
     {
       QPen p = pen();
-      p.setColor(ezToQtColor(pinColor));
+      p.setColor(WToQtColor(pinColor));
       setPen(p);
 
       setBrush(base);
@@ -240,7 +240,7 @@ bool ezQtVisualGraphPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
   return true;
 }
 
-QVariant ezQtVisualGraphPin::itemChange(GraphicsItemChange change, const QVariant& value)
+QVariant WQtVisualGraphPin::itemChange(GraphicsItemChange change, const QVariant& value)
 {
   if (change == QGraphicsItem::ItemScenePositionHasChanged)
   {

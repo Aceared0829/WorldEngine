@@ -6,15 +6,15 @@
 ///
 /// Simple timing coroutine that delays script execution for a given time period.
 /// Useful for creating delays in script sequences or implementing timed behaviors.
-class EZ_CORE_DLL ezScriptCoroutine_Wait : public ezTypedScriptCoroutine<ezScriptCoroutine_Wait, ezTime>
+class W_CORE_DLL WScriptCoroutine_Wait : public WTypedScriptCoroutine<WScriptCoroutine_Wait, WTime>
 {
 public:
   /// Initiates the wait period for the specified duration.
-  void Start(ezTime timeout);
-  virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
+  void Start(WTime timeout);
+  virtual Result Update(WTime deltaTimeSinceLastUpdate) override;
 
 private:
-  ezTime m_TimeRemaing;
+  WTime m_TimeRemaing;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutine_Wait);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutine_Wait);

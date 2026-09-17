@@ -6,13 +6,13 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 
-ezMiniAudioSoundAssetDocumentWindow::ezMiniAudioSoundAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WMiniAudioSoundAssetDocumentWindow::WMiniAudioSoundAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "MiniAudioSoundAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -21,8 +21,8 @@ ezMiniAudioSoundAssetDocumentWindow::ezMiniAudioSoundAssetDocumentWindow(ezDocum
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "MiniAudioSoundAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -32,12 +32,12 @@ ezMiniAudioSoundAssetDocumentWindow::ezMiniAudioSoundAssetDocumentWindow(ezDocum
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("MiniAudioSoundAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -45,7 +45,7 @@ ezMiniAudioSoundAssetDocumentWindow::ezMiniAudioSoundAssetDocumentWindow(ezDocum
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -55,7 +55,7 @@ ezMiniAudioSoundAssetDocumentWindow::ezMiniAudioSoundAssetDocumentWindow(ezDocum
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pAssetDoc = static_cast<ezMiniAudioSoundAssetDocument*>(pDocument);
+  m_pAssetDoc = static_cast<WMiniAudioSoundAssetDocument*>(pDocument);
 
   FinishWindowCreation();
 }

@@ -4,20 +4,20 @@
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocument;
-class ezCommandTransaction;
+class WDocument;
+class WCommandTransaction;
 
 /// Interface for a command
 ///
 /// Commands are the only objects that have non-const access to any data structures (contexts, documents etc.).
-/// Thus, any modification must go through a command and the ezCommandHistory is the only class capable of executing commands.
-class EZ_TOOLSFOUNDATION_DLL ezCommand : public ezReflectedClass
+/// Thus, any modification must go through a command and the WCommandHistory is the only class capable of executing commands.
+class W_TOOLSFOUNDATION_DLL WCommand : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommand, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WCommand, WReflectedClass);
 
 public:
-  ezCommand();
-  ~ezCommand();
+  WCommand();
+  ~WCommand();
 
   bool IsUndoable() const { return m_bUndoable; };
   bool HasChildActions() const { return !m_ChildActions.IsEmpty(); }
@@ -30,26 +30,26 @@ public:
   };
 
 protected:
-  ezStatus Do(bool bRedo);
-  ezStatus Undo(bool bFireEvents);
+  WStatus Do(bool bRedo);
+  WStatus Undo(bool bFireEvents);
   void Cleanup(CommandState state);
 
-  ezStatus AddSubCommand(ezCommand& command);
-  ezDocument* GetDocument() { return m_pDocument; };
+  WStatus AddSubCommand(WCommand& command);
+  WDocument* GetDocument() { return m_pDocument; };
 
 private:
   virtual bool HasReturnValues() const { return false; }
-  virtual ezStatus DoInternal(bool bRedo) = 0;
-  virtual ezStatus UndoInternal(bool bFireEvents) = 0;
+  virtual WStatus DoInternal(bool bRedo) = 0;
+  virtual WStatus UndoInternal(bool bFireEvents) = 0;
   virtual void CleanupInternal(CommandState state) = 0;
 
 protected:
-  friend class ezCommandHistory;
-  friend class ezCommandTransaction;
+  friend class WCommandHistory;
+  friend class WCommandTransaction;
 
-  ezString m_sDescription;
+  WString m_sDescription;
   bool m_bUndoable = true;
   bool m_bModifiedDocument = true;
-  ezHybridArray<ezCommand*, 8> m_ChildActions;
-  ezDocument* m_pDocument = nullptr;
+  WHybridArray<WCommand*, 8> m_ChildActions;
+  WDocument* m_pDocument = nullptr;
 };

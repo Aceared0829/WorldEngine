@@ -1,18 +1,18 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
-EZ_STATICLINK_LIBRARY(ProcGenPlugin)
+W_STATICLINK_LIBRARY(ProcGenPlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcPlacementComponent);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVertexColorComponent);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVolumeComponent);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVolumeSplineComponent);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_VolumeCollection);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Declarations);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Startup);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_FindPlacementTilesTask);
-  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_PlacementTask);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcPlacementComponent);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVertexColorComponent);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVolumeComponent);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_ProcVolumeSplineComponent);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_VolumeCollection);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Declarations);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Startup);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_FindPlacementTilesTask);
+  W_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_PlacementTask);
 }

@@ -11,18 +11,18 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
-EZ_RENDERERCORE_DLL ezCVarFloat cvar_RenderingLodCoverageScale("Rendering.Lod.CoverageScale", 1.0f, ezCVarFlags::Save, "Scales the screen space coverage that LOD components compute. Values below 1 switch to lower detail LODs earlier, values above 1 keep higher detail LODs longer.");
-EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingLodForce("Rendering.Lod.Force", -1, ezCVarFlags::Save, "If non-negative, all LOD components use this LOD index (0 = highest detail), disabling the automatic selection.");
+W_RENDERERCORE_DLL WCVarFloat cvar_RenderingLodCoverageScale("Rendering.Lod.CoverageScale", 1.0f, WCVarFlags::Save, "Scales the screen space coverage that LOD components compute. Values below 1 switch to lower detail LODs earlier, values above 1 keep higher detail LODs longer.");
+W_RENDERERCORE_DLL WCVarInt cvar_RenderingLodForce("Rendering.Lod.Force", -1, WCVarFlags::Save, "If non-negative, all LOD components use this LOD index (0 = highest detail), disabling the automatic selection.");
 
-static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
+static float CalculateSphereScreenSpaceCoverage(const WBoundingSphere& sphere, const WCamera& camera)
 {
   if (camera.IsPerspective())
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
   }
   else
   {
-    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
+    return WGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
   }
 }
 
@@ -36,68 +36,68 @@ struct LodCompFlags
 };
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLodComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLodComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
-    EZ_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    EZ_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ARRAY_MEMBER_PROPERTY("LodThresholds", m_LodThresholds)->AddAttributes(new ezMaxArraySizeAttribute(4), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
+    W_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    W_ACCESSOR_PROPERTY("OverlapRanges", GetOverlapRanges, SetOverlapRanges)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ARRAY_MEMBER_PROPERTY("LodThresholds", m_LodThresholds)->AddAttributes(new WMaxArraySizeAttribute(4), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Construction"),
-    new ezSphereVisualizerAttribute("BoundsRadius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "BoundsOffset"),
-    new ezTransformManipulatorAttribute("BoundsOffset"),
+    new WCategoryAttribute("Construction"),
+    new WSphereVisualizerAttribute("BoundsRadius", WColor::MediumVioletRed, nullptr, WVisualizerAnchor::Center, WVec3(1.0f), "BoundsOffset"),
+    new WTransformManipulatorAttribute("BoundsOffset"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static const ezTempHashedString sLod0("LOD0");
-static const ezTempHashedString sLod1("LOD1");
-static const ezTempHashedString sLod2("LOD2");
-static const ezTempHashedString sLod3("LOD3");
-static const ezTempHashedString sLod4("LOD4");
+static const WTempHashedString sLod0("LOD0");
+static const WTempHashedString sLod1("LOD1");
+static const WTempHashedString sLod2("LOD2");
+static const WTempHashedString sLod3("LOD3");
+static const WTempHashedString sLod4("LOD4");
 
-ezLodComponent::ezLodComponent()
+WLodComponent::WLodComponent()
 {
   SetOverlapRanges(true);
 }
 
-ezLodComponent::~ezLodComponent() = default;
+WLodComponent::~WLodComponent() = default;
 
-void ezLodComponent::SetShowDebugInfo(bool bShow)
+void WLodComponent::SetShowDebugInfo(bool bShow)
 {
   SetUserFlag(LodCompFlags::ShowDebugInfo, bShow);
 }
 
-bool ezLodComponent::GetShowDebugInfo() const
+bool WLodComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(LodCompFlags::ShowDebugInfo);
 }
 
-void ezLodComponent::SetOverlapRanges(bool bShow)
+void WLodComponent::SetOverlapRanges(bool bShow)
 {
   SetUserFlag(LodCompFlags::OverlapRanges, bShow);
 }
 
-bool ezLodComponent::GetOverlapRanges() const
+bool WLodComponent::GetOverlapRanges() const
 {
   return GetUserFlag(LodCompFlags::OverlapRanges);
 }
 
-void ezLodComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLodComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -108,7 +108,7 @@ void ezLodComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s.WriteArray(m_LodThresholds).AssertSuccess();
 }
 
-void ezLodComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLodComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -119,40 +119,40 @@ void ezLodComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s.ReadArray(m_LodThresholds).AssertSuccess();
 }
 
-ezResult ezLodComponent::GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WLodComponent::GetLocalBounds(WBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  out_bounds = ezBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
+  out_bounds = WBoundingSphere::MakeFromCenterAndRadius(m_vBoundsOffset, m_fBoundsRadius);
   out_bAlwaysVisible = false;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLodComponent::OnActivated()
+void WLodComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   // start with the highest LOD (lowest detail)
   m_iCurLod = m_LodThresholds.GetCount();
 
-  ezMsgComponentInternalTrigger trig;
+  WMsgComponentInternalTrigger trig;
   trig.m_iPayload = m_iCurLod;
   OnMsgComponentInternalTrigger(trig);
 }
 
-void ezLodComponent::OnDeactivated()
+void WLodComponent::OnDeactivated()
 {
   // when the component gets deactivated, activate all LOD children
   // this is important for editing to not behave weirdly
   // not sure whether this can have unintended side-effects at runtime
   // but there this should only be called for objects that get deleted anyway
 
-  ezGameObject* pLod[5];
+  WGameObject* pLod[5];
   pLod[0] = GetOwner()->FindChildByName(sLod0);
   pLod[1] = GetOwner()->FindChildByName(sLod1);
   pLod[2] = GetOwner()->FindChildByName(sLod2);
   pLod[3] = GetOwner()->FindChildByName(sLod3);
   pLod[4] = GetOwner()->FindChildByName(sLod4);
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pLod); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(pLod); ++i)
   {
     if (pLod[i])
     {
@@ -163,28 +163,28 @@ void ezLodComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezLodComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WLodComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView)
+  if (msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::EditorView &&
+      msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::MainView)
   {
     return;
   }
 
   // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory)
     return;
 
-  const ezInt32 iNumLods = (ezInt32)m_LodThresholds.GetCount();
+  const WInt32 iNumLods = (WInt32)m_LodThresholds.GetCount();
 
-  const ezVec3 vScale = GetOwner()->GetGlobalScaling();
-  const float fScale = ezMath::Max(vScale.x, vScale.y, vScale.z);
-  const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
+  const WVec3 vScale = GetOwner()->GetGlobalScaling();
+  const float fScale = WMath::Max(vScale.x, vScale.y, vScale.z);
+  const WVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
 
-  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *msg.m_pView->GetCullingCamera()) * ezMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
+  const float fCoverage = CalculateSphereScreenSpaceCoverage(WBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *msg.m_pView->GetCullingCamera()) * WMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
 
   // clamp the input value, this is to prevent issues while editing the threshold array
-  ezInt32 iNewLod = ezMath::Clamp<ezInt32>(m_iCurLod, 0, iNumLods);
+  WInt32 iNewLod = WMath::Clamp<WInt32>(m_iCurLod, 0, iNumLods);
 
   float fCoverageP = 1;
   float fCoverageN = 0;
@@ -224,35 +224,35 @@ void ezLodComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     --iNewLod;
   }
 
-  iNewLod = ezMath::Clamp(iNewLod, 0, iNumLods);
+  iNewLod = WMath::Clamp(iNewLod, 0, iNumLods);
 
   if (cvar_RenderingLodForce >= 0)
   {
-    iNewLod = ezMath::Min<ezInt32>(cvar_RenderingLodForce, iNumLods);
+    iNewLod = WMath::Min<WInt32>(cvar_RenderingLodForce, iNumLods);
   }
 
   if (GetShowDebugInfo())
   {
-    ezStringBuilder sb;
-    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", ezArgF(fCoverage, 3), iNewLod, ezArgF(fCoverageP, 3), ezArgF(fCoverageN, 3));
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::White);
+    WStringBuilder sb;
+    sb.SetFormat("Coverage: {}\nLOD {}\nRange: {} - {}", WArgF(fCoverage, 3), iNewLod, WArgF(fCoverageP, 3), WArgF(fCoverageN, 3));
+    WDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), WColor::White);
   }
 
   if (iNewLod == m_iCurLod)
     return;
 
-  ezMsgComponentInternalTrigger trig;
+  WMsgComponentInternalTrigger trig;
   trig.m_iPayload = iNewLod;
 
   PostMessage(trig);
 }
 
-void ezLodComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg)
+void WLodComponent::OnMsgComponentInternalTrigger(WMsgComponentInternalTrigger& msg)
 {
   m_iCurLod = msg.m_iPayload;
 
   // search for direct children named LODn, don't waste performance searching recursively
-  ezGameObject* pLod[5];
+  WGameObject* pLod[5];
   pLod[0] = GetOwner()->FindChildByName(sLod0, false);
   pLod[1] = GetOwner()->FindChildByName(sLod1, false);
   pLod[2] = GetOwner()->FindChildByName(sLod2, false);
@@ -260,7 +260,7 @@ void ezLodComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger
   pLod[4] = GetOwner()->FindChildByName(sLod4, false);
 
   // activate the selected LOD, deactivate all others
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pLod); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(pLod); ++i)
   {
     if (pLod[i])
     {
@@ -270,4 +270,4 @@ void ezLodComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LodComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LodComponent);

@@ -1,187 +1,187 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat() {}
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat() {}
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(float f)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(float f)
 {
   m_v.Set(f);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WInt32 i)
 {
   m_v.Set((float)i);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WUInt32 i)
 {
   m_v.Set((float)i);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezAngle a)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WAngle a)
 {
   m_v.Set(a.GetRadian());
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WInternal::QuadFloat v)
 {
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
+W_ALWAYS_INLINE WSimdFloat::operator float() const
 {
   return m_v.x;
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::MakeZero()
 {
-  return ezSimdFloat(0.0f);
+  return WSimdFloat(0.0f);
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::MakeNaN()
 {
-  return ezSimdFloat(ezMath::NaN<float>());
+  return WSimdFloat(WMath::NaN<float>());
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator+(const WSimdFloat& f) const
 {
   return m_v + f.m_v;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator-(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator-(const WSimdFloat& f) const
 {
   return m_v - f.m_v;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator*(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator*(const WSimdFloat& f) const
 {
   return m_v.CompMul(f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator/(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator/(const WSimdFloat& f) const
 {
   return m_v.CompDiv(f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator+=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator+=(const WSimdFloat& f)
 {
   m_v += f.m_v;
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator-=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator-=(const WSimdFloat& f)
 {
   m_v -= f.m_v;
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator*=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator*=(const WSimdFloat& f)
 {
   m_v = m_v.CompMul(f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator/=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator/=(const WSimdFloat& f)
 {
   m_v = m_v.CompDiv(f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::IsEqual(const ezSimdFloat& rhs, const ezSimdFloat& fEpsilon) const
+W_ALWAYS_INLINE bool WSimdFloat::IsEqual(const WSimdFloat& rhs, const WSimdFloat& fEpsilon) const
 {
   return m_v.IsEqual(rhs.m_v, fEpsilon);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator==(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator==(const WSimdFloat& f) const
 {
   return m_v.x == f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator!=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator!=(const WSimdFloat& f) const
 {
   return m_v.x != f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>=(const WSimdFloat& f) const
 {
   return m_v.x >= f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>(const WSimdFloat& f) const
 {
   return m_v.x > f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<=(const WSimdFloat& f) const
 {
   return m_v.x <= f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<(const WSimdFloat& f) const
 {
   return m_v.x < f.m_v.x;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator==(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator==(float f) const
 {
   return m_v.x == f;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator!=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator!=(float f) const
 {
   return m_v.x != f;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>(float f) const
 {
   return m_v.x > f;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>=(float f) const
 {
   return m_v.x >= f;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<(float f) const
 {
   return m_v.x < f;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<=(float f) const
 {
   return m_v.x <= f;
 }
 
-template <ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal() const
+template <WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetReciprocal() const
 {
-  return ezSimdFloat(1.0f / m_v.x);
+  return WSimdFloat(1.0f / m_v.x);
 }
 
-template <ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt() const
+template <WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetSqrt() const
 {
-  return ezSimdFloat(ezMath::Sqrt(m_v.x));
+  return WSimdFloat(WMath::Sqrt(m_v.x));
 }
 
-template <ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt() const
+template <WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetInvSqrt() const
 {
-  return ezSimdFloat(1.0f / ezMath::Sqrt(m_v.x));
+  return WSimdFloat(1.0f / WMath::Sqrt(m_v.x));
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Max(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Max(const WSimdFloat& f) const
 {
   return m_v.CompMax(f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Min(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Min(const WSimdFloat& f) const
 {
   return m_v.CompMin(f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Abs() const
 {
-  return ezSimdFloat(ezMath::Abs(m_v.x));
+  return WSimdFloat(WMath::Abs(m_v.x));
 }

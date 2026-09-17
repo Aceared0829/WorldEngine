@@ -10,26 +10,26 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezKrautTreeAssetProperties::PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WKrautTreeAssetProperties::PropertyMetaStateEventHandler);
 
-  ezKrautActions::RegisterActions();
+  WKrautActions::RegisterActions();
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar", "AssetMenuBar");
+    WActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar", "AssetMenuBar");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar", "AssetToolbar");
-    ezKrautActions::MapActions("KrautTreeAssetToolBar");
+    WActionMapManager::RegisterActionMap("KrautTreeAssetToolBar", "AssetToolbar");
+    WKrautActions::MapActions("KrautTreeAssetToolBar");
   }
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezKrautTreeAssetProperties::PropertyMetaStateEventHandler);
-  ezKrautActions::UnregisterActions();
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WKrautTreeAssetProperties::PropertyMetaStateEventHandler);
+  WKrautActions::UnregisterActions();
 }

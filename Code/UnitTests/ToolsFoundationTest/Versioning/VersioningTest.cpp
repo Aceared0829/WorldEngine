@@ -9,138 +9,138 @@
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Versioning);
+W_CREATE_SIMPLE_TEST_GROUP(Versioning);
 
-struct ezPatchTestBase
+struct WPatchTestBase
 {
 public:
-  ezPatchTestBase()
+  WPatchTestBase()
   {
     m_string = "Base";
     m_string2 = "";
   }
 
-  ezString m_string;
-  ezString m_string2;
+  WString m_string;
+  WString m_string2;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTestBase);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WPatchTestBase);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTestBase, ezNoBase, 1, ezRTTIDefaultAllocator<ezPatchTestBase>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WPatchTestBase, WNoBase, 1, WRTTIDefaultAllocator<WPatchTestBase>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("String", m_string),
-    EZ_MEMBER_PROPERTY("String2", m_string2),
+    W_MEMBER_PROPERTY("String", m_string),
+    W_MEMBER_PROPERTY("String2", m_string2),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-struct ezPatchTest : public ezPatchTestBase
+struct WPatchTest : public WPatchTestBase
 {
 public:
-  ezPatchTest() { m_iInt32 = 1; }
+  WPatchTest() { m_iInt32 = 1; }
 
-  ezInt32 m_iInt32;
+  WInt32 m_iInt32;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTest);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WPatchTest);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTest, ezPatchTestBase, 1, ezRTTIDefaultAllocator<ezPatchTest>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WPatchTest, WPatchTestBase, 1, WRTTIDefaultAllocator<WPatchTest>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Int", m_iInt32),
+    W_MEMBER_PROPERTY("Int", m_iInt32),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   /// Patch class
-  class ezPatchTestP : public ezGraphPatch
+  class WPatchTestP : public WGraphPatch
   {
   public:
-    ezPatchTestP()
-      : ezGraphPatch("ezPatchTestP", 2)
+    WPatchTestP()
+      : WGraphPatch("WPatchTestP", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
     {
       pNode->RenameProperty("Int", "IntRenamed");
       pNode->ChangeProperty("IntRenamed", 2);
     }
   };
-  ezPatchTestP g_ezPatchTestP;
+  WPatchTestP g_WPatchTestP;
 
   /// Patch base class
-  class ezPatchTestBaseBP : public ezGraphPatch
+  class WPatchTestBaseBP : public WGraphPatch
   {
   public:
-    ezPatchTestBaseBP()
-      : ezGraphPatch("ezPatchTestBaseBP", 2)
+    WPatchTestBaseBP()
+      : WGraphPatch("WPatchTestBaseBP", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String", "BaseClassPatched");
     }
   };
-  ezPatchTestBaseBP g_ezPatchTestBaseBP;
+  WPatchTestBaseBP g_WPatchTestBaseBP;
 
   /// Rename class
-  class ezPatchTestRN : public ezGraphPatch
+  class WPatchTestRN : public WGraphPatch
   {
   public:
-    ezPatchTestRN()
-      : ezGraphPatch("ezPatchTestRN", 2)
+    WPatchTestRN()
+      : WGraphPatch("WPatchTestRN", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
     {
-      ref_context.RenameClass("ezPatchTestRN2");
+      ref_context.RenameClass("WPatchTestRN2");
       pNode->ChangeProperty("String", "RenameExecuted");
     }
   };
-  ezPatchTestRN g_ezPatchTestRN;
+  WPatchTestRN g_WPatchTestRN;
 
   /// Patch renamed class to v3
-  class ezPatchTestRN2 : public ezGraphPatch
+  class WPatchTestRN2 : public WGraphPatch
   {
   public:
-    ezPatchTestRN2()
-      : ezGraphPatch("ezPatchTestRN2", 3)
+    WPatchTestRN2()
+      : WGraphPatch("WPatchTestRN2", 3)
     {
     }
-    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String2", "Patched");
     }
   };
-  ezPatchTestRN2 g_ezPatchTestRN2;
+  WPatchTestRN2 g_WPatchTestRN2;
 
   /// Change base class
-  class ezPatchTestCB : public ezGraphPatch
+  class WPatchTestCB : public WGraphPatch
   {
   public:
-    ezPatchTestCB()
-      : ezGraphPatch("ezPatchTestCB", 2)
+    WPatchTestCB()
+      : WGraphPatch("WPatchTestCB", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
     {
-      ezVersionKey bases[] = {{"ezPatchTestBaseBP", 1}};
+      WVersionKey bases[] = {{"WPatchTestBaseBP", 1}};
       ref_context.ChangeBaseClass(bases);
       pNode->ChangeProperty("String2", "ChangedBase");
     }
   };
-  ezPatchTestCB g_ezPatchTestCB;
+  WPatchTestCB g_WPatchTestCB;
 
-  void ReplaceTypeName(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph, const char* szOldName, const char* szNewName)
+  void ReplaceTypeName(WAbstractObjectGraph& ref_graph, WAbstractObjectGraph& ref_typesGraph, const char* szOldName, const char* szNewName)
   {
     for (auto it : ref_graph.GetAllNodes())
     {
@@ -154,116 +154,116 @@ namespace
     {
       auto* pNode = it.Value();
 
-      if ("ezReflectedTypeDescriptor" == pNode->GetType())
+      if ("WReflectedTypeDescriptor" == pNode->GetType())
       {
         if (auto* pProp = pNode->FindProperty("TypeName"))
         {
-          if (ezStringUtils::IsEqual(szOldName, pProp->m_Value.Get<ezString>()))
+          if (WStringUtils::IsEqual(szOldName, pProp->m_Value.Get<WString>()))
             pProp->m_Value = szNewName;
         }
         if (auto* pProp = pNode->FindProperty("ParentTypeName"))
         {
-          if (ezStringUtils::IsEqual(szOldName, pProp->m_Value.Get<ezString>()))
+          if (WStringUtils::IsEqual(szOldName, pProp->m_Value.Get<WString>()))
             pProp->m_Value = szNewName;
         }
       }
     }
   }
 
-  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph, const ezRTTI* pRtti, void* pObject)
+  WAbstractObjectNode* SerializeObject(WAbstractObjectGraph& ref_graph, WAbstractObjectGraph& ref_typesGraph, const WRTTI* pRtti, void* pObject)
   {
-    ezAbstractObjectNode* pNode = nullptr;
+    WAbstractObjectNode* pNode = nullptr;
     {
       // Object
-      ezRttiConverterContext context;
-      ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
-      context.RegisterObject(ezUuid::MakeStableUuidFromString(pRtti->GetTypeName()), pRtti, pObject);
+      WRttiConverterContext context;
+      WRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
+      context.RegisterObject(WUuid::MakeStableUuidFromString(pRtti->GetTypeName()), pRtti, pObject);
       pNode = rttiConverter.AddObjectToGraph(pRtti, pObject, "ROOT");
     }
     {
       // Types
-      ezSet<const ezRTTI*> types;
+      WSet<const WRTTI*> types;
       types.Insert(pRtti);
-      ezReflectionUtils::GatherDependentTypes(pRtti, types);
-      ezToolsSerializationUtils::SerializeTypes(types, ref_typesGraph);
+      WReflectionUtils::GatherDependentTypes(pRtti, types);
+      WToolsSerializationUtils::SerializeTypes(types, ref_typesGraph);
     }
     return pNode;
   }
 
-  void PatchGraph(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph)
+  void PatchGraph(WAbstractObjectGraph& ref_graph, WAbstractObjectGraph& ref_typesGraph)
   {
-    ezGraphVersioning::GetSingleton()->PatchGraph(&ref_typesGraph);
-    ezGraphVersioning::GetSingleton()->PatchGraph(&ref_graph, &ref_typesGraph);
+    WGraphVersioning::GetSingleton()->PatchGraph(&ref_typesGraph);
+    WGraphVersioning::GetSingleton()->PatchGraph(&ref_graph, &ref_typesGraph);
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Versioning, GraphPatch)
+W_CREATE_SIMPLE_TEST(Versioning, GraphPatch)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PatchClass")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PatchClass")
   {
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectGraph typesGraph;
+    WAbstractObjectGraph graph;
+    WAbstractObjectGraph typesGraph;
 
-    ezPatchTest data;
+    WPatchTest data;
     data.m_iInt32 = 5;
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
-    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestP");
+    WAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, WGetStaticRTTI<WPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "WPatchTest", "WPatchTestP");
     PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pInt = pNode->FindProperty("IntRenamed");
-    EZ_TEST_INT(2, pInt->m_Value.Get<ezInt32>());
-    EZ_TEST_BOOL(pNode->FindProperty("Int") == nullptr);
+    WAbstractObjectNode::Property* pInt = pNode->FindProperty("IntRenamed");
+    W_TEST_INT(2, pInt->m_Value.Get<WInt32>());
+    W_TEST_BOOL(pNode->FindProperty("Int") == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PatchBaseClass")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PatchBaseClass")
   {
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectGraph typesGraph;
+    WAbstractObjectGraph graph;
+    WAbstractObjectGraph typesGraph;
 
-    ezPatchTest data;
+    WPatchTest data;
     data.m_string = "Unpatched";
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
-    ReplaceTypeName(graph, typesGraph, "ezPatchTestBase", "ezPatchTestBaseBP");
+    WAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, WGetStaticRTTI<WPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "WPatchTestBase", "WPatchTestBaseBP");
     PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
-    EZ_TEST_STRING(pString->m_Value.Get<ezString>(), "BaseClassPatched");
+    WAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    W_TEST_STRING(pString->m_Value.Get<WString>(), "BaseClassPatched");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RenameClass")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RenameClass")
   {
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectGraph typesGraph;
+    WAbstractObjectGraph graph;
+    WAbstractObjectGraph typesGraph;
 
-    ezPatchTest data;
+    WPatchTest data;
     data.m_string = "NotRenamed";
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
-    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestRN");
+    WAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, WGetStaticRTTI<WPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "WPatchTest", "WPatchTestRN");
     PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
-    EZ_TEST_BOOL(pString->m_Value.Get<ezString>() == "RenameExecuted");
-    EZ_TEST_STRING(pNode->GetType(), "ezPatchTestRN2");
-    EZ_TEST_INT(pNode->GetTypeVersion(), 3);
-    ezAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
-    EZ_TEST_BOOL(pString2->m_Value.Get<ezString>() == "Patched");
+    WAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    W_TEST_BOOL(pString->m_Value.Get<WString>() == "RenameExecuted");
+    W_TEST_STRING(pNode->GetType(), "WPatchTestRN2");
+    W_TEST_INT(pNode->GetTypeVersion(), 3);
+    WAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
+    W_TEST_BOOL(pString2->m_Value.Get<WString>() == "Patched");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeBaseClass")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ChangeBaseClass")
   {
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectGraph typesGraph;
+    WAbstractObjectGraph graph;
+    WAbstractObjectGraph typesGraph;
 
-    ezPatchTest data;
+    WPatchTest data;
     data.m_string = "NotPatched";
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
-    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestCB");
+    WAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, WGetStaticRTTI<WPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "WPatchTest", "WPatchTestCB");
     PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
-    EZ_TEST_STRING(pString->m_Value.Get<ezString>(), "BaseClassPatched");
-    EZ_TEST_INT(pNode->GetTypeVersion(), 2);
-    ezAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
-    EZ_TEST_STRING(pString2->m_Value.Get<ezString>(), "ChangedBase");
+    WAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    W_TEST_STRING(pString->m_Value.Get<WString>(), "BaseClassPatched");
+    W_TEST_INT(pNode->GetTypeVersion(), 2);
+    WAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
+    W_TEST_STRING(pString2->m_Value.Get<WString>(), "ChangedBase");
   }
 }

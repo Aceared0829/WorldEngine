@@ -6,19 +6,19 @@
 #include <GameEngine/Gameplay/InputComponent.h>
 #include <PacManPlugin/PacManPluginDLL.h>
 
-using PacManComponentManager = ezComponentManagerSimple<class PacManComponent, ezComponentUpdateType::WhenSimulating>;
+using PacManComponentManager = WComponentManagerSimple<class PacManComponent, WComponentUpdateType::WhenSimulating>;
 
 // The component that handles PacMan's behavior (movement / interaction with ghosts and coins)
-class PacManComponent : public ezComponent
+class PacManComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(PacManComponent, ezComponent, PacManComponentManager);
+  W_DECLARE_COMPONENT_TYPE(PacManComponent, WComponent, PacManComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -35,9 +35,9 @@ private:
   void Update();
 
   // Message handler for input messages that the input component sends to us once per frame.
-  void OnMsgInputActionTriggered(ezMsgInputActionTriggered& msg);
+  void OnMsgInputActionTriggered(WMsgInputActionTriggered& msg);
   // Message handler for trigger messages, that the triggers on PacMan send to us whenever PacMan overlaps with a coin or a ghost.
-  void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg);
+  void OnMsgTriggerTriggered(WMsgTriggerTriggered& msg);
 
   // the direction into which PacMan currently travels (0 = +X, 1 = +Y, 2 = -X, 3 = -Y)
   WalkDirection m_Direction = WalkDirection::Up;
@@ -45,9 +45,9 @@ private:
   WalkDirection m_TargetDirection = WalkDirection::Up;
 
   // the prefab that we spawn every time we collect a coin (plays a sound and such)
-  ezPrefabResourceHandle m_hCollectCoinEffect;
+  WPrefabResourceHandle m_hCollectCoinEffect;
   // the prefab that we spawn when PacMan dies (particle effect, sound)
-  ezPrefabResourceHandle m_hLoseGameEffect;
+  WPrefabResourceHandle m_hLoseGameEffect;
 
-  ezSharedPtr<ezBlackboard> m_pStateBlackboard;
+  WSharedPtr<WBlackboard> m_pStateBlackboard;
 };

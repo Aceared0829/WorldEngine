@@ -4,8 +4,8 @@
 #include <QFileDialog>
 #include <QInputDialog>
 
-ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtFmodProjectSettingsDlg::WQtFmodProjectSettingsDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -28,29 +28,29 @@ ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* pParent)
     SetCurrentPlatform("");
   }
 }
-ezResult ezQtFmodProjectSettingsDlg::Save()
+WResult WQtFmodProjectSettingsDlg::Save()
 {
   if (m_Configs.Save().Failed())
   {
-    ezStringBuilder sError;
-    sError.SetFormat("Failed to save the FMOD configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
+    WStringBuilder sError;
+    sError.SetFormat("Failed to save the FMOD configuration file\n'{0}'", WFmodAssetProfiles::s_sConfigFile);
 
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
+    WQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezQtFmodProjectSettingsDlg::Load()
+void WQtFmodProjectSettingsDlg::Load()
 {
   m_Configs.Load().IgnoreResult();
 
   m_ConfigsOld = m_Configs;
 }
 
-void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
+void WQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
 {
   StoreCurrentPlatform();
 
@@ -66,7 +66,7 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
     ButtonRemove->setEnabled(enable);
   }
 
-  ezQtScopedBlockSignals bs(ListPlatforms);
+  WQtScopedBlockSignals bs(ListPlatforms);
   QList<QListWidgetItem*> items = ListPlatforms->findItems(szPlatform, Qt::MatchFlag::MatchExactly);
 
   ListPlatforms->clearSelection();
@@ -89,19 +89,19 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
 
   switch (cfg.m_SpeakerMode)
   {
-    case ezFmodSpeakerMode::ModeStereo:
+    case WFmodSpeakerMode::ModeStereo:
       ComboMode->setCurrentIndex(0);
       break;
-    case ezFmodSpeakerMode::Mode7Point1:
+    case WFmodSpeakerMode::Mode7Point1:
       ComboMode->setCurrentIndex(2);
-    case ezFmodSpeakerMode::Mode5Point1:
+    case WFmodSpeakerMode::Mode5Point1:
     default:
       ComboMode->setCurrentIndex(1);
       break;
   }
 }
 
-void ezQtFmodProjectSettingsDlg::StoreCurrentPlatform()
+void WQtFmodProjectSettingsDlg::StoreCurrentPlatform()
 {
   if (!m_Configs.m_AssetProfiles.Contains(m_sCurrentPlatform))
     return;
@@ -118,18 +118,18 @@ void ezQtFmodProjectSettingsDlg::StoreCurrentPlatform()
   switch (ComboMode->currentIndex())
   {
     case 0:
-      cfg.m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
+      cfg.m_SpeakerMode = WFmodSpeakerMode::ModeStereo;
       break;
     case 1:
-      cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
+      cfg.m_SpeakerMode = WFmodSpeakerMode::Mode5Point1;
       break;
     case 2:
-      cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
+      cfg.m_SpeakerMode = WFmodSpeakerMode::Mode7Point1;
       break;
   }
 }
 
-void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
+void WQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 {
   if (pButton == ButtonBox->button(QDialogButtonBox::Ok))
   {
@@ -137,9 +137,9 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 
     if (m_ConfigsOld.m_AssetProfiles != m_Configs.m_AssetProfiles)
     {
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+      if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
       {
-        ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
+        WQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
 
         if (Save().Failed())
           return;
@@ -157,7 +157,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
   }
 }
 
-void ezQtFmodProjectSettingsDlg::on_ListPlatforms_itemSelectionChanged()
+void WQtFmodProjectSettingsDlg::on_ListPlatforms_itemSelectionChanged()
 {
   if (ListPlatforms->selectedItems().isEmpty())
   {
@@ -170,14 +170,14 @@ void ezQtFmodProjectSettingsDlg::on_ListPlatforms_itemSelectionChanged()
   SetCurrentPlatform(ListPlatforms->item(row)->text().toUtf8().data());
 }
 
-void ezQtFmodProjectSettingsDlg::on_ButtonAdd_clicked()
+void WQtFmodProjectSettingsDlg::on_ButtonAdd_clicked()
 {
   QString name = QInputDialog::getText(this, "Add Platform", "Platform Name:");
 
   if (name.isEmpty())
     return;
 
-  const ezString sName = name.toUtf8().data();
+  const WString sName = name.toUtf8().data();
 
   if (!m_Configs.m_AssetProfiles.Contains(sName))
   {
@@ -190,31 +190,31 @@ void ezQtFmodProjectSettingsDlg::on_ButtonAdd_clicked()
   SetCurrentPlatform(sName);
 }
 
-void ezQtFmodProjectSettingsDlg::on_ButtonRemove_clicked()
+void WQtFmodProjectSettingsDlg::on_ButtonRemove_clicked()
 {
   if (ListPlatforms->selectedItems().isEmpty())
     return;
 
   int row = ListPlatforms->selectionModel()->selectedIndexes()[0].row();
-  const ezString sPlatform = ListPlatforms->item(row)->text().toUtf8().data();
+  const WString sPlatform = ListPlatforms->item(row)->text().toUtf8().data();
 
   m_Configs.m_AssetProfiles.Remove(sPlatform);
   delete ListPlatforms->item(row);
 }
 
-void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
+void WQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
 {
-  static QString sLastPath = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
+  static QString sLastPath = WToolsProject::GetSingleton()->GetProjectDirectory().GetData();
   const QString sFile = QFileDialog::getOpenFileName(this, QLatin1String("Select Master Sound Bank"), sLastPath, "Sound Banks (*.bank)", nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
     return;
 
-  ezStringBuilder sRelative = sFile.toUtf8().data();
+  WStringBuilder sRelative = sFile.toUtf8().data();
 
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelative))
+  if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelative))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("<html>The selected sound bank is not in a data directory of the project.<br><br>Either choose another sound bank or add the necessary folder as a <a href='https://ezengine.net/pages/docs/projects/data-directories.html'>data directory</a> to the project.</html>");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("<html>The selected sound bank is not in a data directory of the project.<br><br>Either choose another sound bank or add the necessary folder as a <a href='https://ezengine.net/pages/docs/projects/data-directories.html'>data directory</a> to the project.</html>");
     return;
   }
 
@@ -222,7 +222,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
 
   if (sRelative.EndsWith_NoCase(".strings.bank"))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("The strings sound bank cannot be selected as the master sound bank.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("The strings sound bank cannot be selected as the master sound bank.");
     return;
   }
 

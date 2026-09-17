@@ -7,37 +7,37 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointOverrideComponent, 2, ezComponentMode::Dynamic);
+W_BEGIN_COMPONENT_TYPE(WJointOverrideComponent, 2, WComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("OverridePosition", m_bOverridePosition)->AddAttributes(new ezDefaultValueAttribute(false)),
-    EZ_MEMBER_PROPERTY("OverrideRotation", m_bOverrideRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("OverrideScale", m_bOverrideScale)->AddAttributes(new ezDefaultValueAttribute(false)),
+    W_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
+    W_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("OverridePosition", m_bOverridePosition)->AddAttributes(new WDefaultValueAttribute(false)),
+    W_MEMBER_PROPERTY("OverrideRotation", m_bOverrideRotation)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("OverrideScale", m_bOverrideScale)->AddAttributes(new WDefaultValueAttribute(false)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPosePreparing, OnAnimationPosePreparing)
+    W_MESSAGE_HANDLER(WMsgAnimationPosePreparing, OnAnimationPosePreparing)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezJointOverrideComponent::ezJointOverrideComponent() = default;
-ezJointOverrideComponent::~ezJointOverrideComponent() = default;
+WJointOverrideComponent::WJointOverrideComponent() = default;
+WJointOverrideComponent::~WJointOverrideComponent() = default;
 
-void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJointOverrideComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -49,10 +49,10 @@ void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_fWeight;
 }
 
-void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJointOverrideComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sJointToOverride;
@@ -65,40 +65,40 @@ void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_fWeight;
   }
 
-  m_uiJointIndex = ezInvalidJointIndex;
+  m_uiJointIndex = WInvalidJointIndex;
 }
 
-void ezJointOverrideComponent::SetJointName(const char* szName)
+void WJointOverrideComponent::SetJointName(const char* szName)
 {
   m_sJointToOverride.Assign(szName);
-  m_uiJointIndex = ezInvalidJointIndex;
+  m_uiJointIndex = WInvalidJointIndex;
 }
 
-const char* ezJointOverrideComponent::GetJointName() const
+const char* WJointOverrideComponent::GetJointName() const
 {
   return m_sJointToOverride.GetData();
 }
 
-void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const
+void WJointOverrideComponent::OnAnimationPosePreparing(WMsgAnimationPosePreparing& msg) const
 {
   using namespace ozz::math;
 
   if (m_fWeight <= 0.0f)
     return;
 
-  if (m_uiJointIndex == ezInvalidJointIndex)
+  if (m_uiJointIndex == WInvalidJointIndex)
   {
     m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToOverride);
   }
 
-  if (m_uiJointIndex == ezInvalidJointIndex)
+  if (m_uiJointIndex == WInvalidJointIndex)
     return;
 
   const int soaIdx = m_uiJointIndex / 4;
   const int soaSubIdx = m_uiJointIndex % 4;
 
-  const ezTransform t = GetOwner()->GetLocalTransform();
-  const float fWeight = ezMath::Clamp(m_fWeight, 0.0f, 1.0f);
+  const WTransform t = GetOwner()->GetLocalTransform();
+  const float fWeight = WMath::Clamp(m_fWeight, 0.0f, 1.0f);
 
   if (m_bOverridePosition)
   {
@@ -114,9 +114,9 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
     const float currentZ = currentPos[soaSubIdx];
 
     // Blend between current and override position
-    const float blendedX = ezMath::Lerp(currentX, t.m_vPosition.x, fWeight);
-    const float blendedY = ezMath::Lerp(currentY, t.m_vPosition.y, fWeight);
-    const float blendedZ = ezMath::Lerp(currentZ, t.m_vPosition.z, fWeight);
+    const float blendedX = WMath::Lerp(currentX, t.m_vPosition.x, fWeight);
+    const float blendedY = WMath::Lerp(currentY, t.m_vPosition.y, fWeight);
+    const float blendedZ = WMath::Lerp(currentZ, t.m_vPosition.z, fWeight);
 
     SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedX);
     SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedY);
@@ -144,11 +144,11 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
     ozz::math::StorePtrU(val.w, currentRot);
     const float currentW = currentRot[soaSubIdx];
 
-    ezQuat currentQuat(currentX, currentY, currentZ, currentW);
-    ezQuat overrideQuat = t.m_qRotation;
+    WQuat currentQuat(currentX, currentY, currentZ, currentW);
+    WQuat overrideQuat = t.m_qRotation;
 
     // Slerp between current and override rotation
-    ezQuat blendedQuat = ezQuat::MakeSlerp(currentQuat, overrideQuat, fWeight);
+    WQuat blendedQuat = WQuat::MakeSlerp(currentQuat, overrideQuat, fWeight);
 
     SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedQuat.x);
     SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedQuat.y);
@@ -177,9 +177,9 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
     const float currentZ = currentScale[soaSubIdx];
 
     // Blend between current and override scale
-    const float blendedX = ezMath::Lerp(currentX, t.m_vScale.x, fWeight);
-    const float blendedY = ezMath::Lerp(currentY, t.m_vScale.y, fWeight);
-    const float blendedZ = ezMath::Lerp(currentZ, t.m_vScale.z, fWeight);
+    const float blendedX = WMath::Lerp(currentX, t.m_vScale.x, fWeight);
+    const float blendedY = WMath::Lerp(currentY, t.m_vScale.y, fWeight);
+    const float blendedZ = WMath::Lerp(currentZ, t.m_vScale.z, fWeight);
 
     SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedX);
     SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedY);
@@ -194,4 +194,4 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointOverrideComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointOverrideComponent);

@@ -6,27 +6,27 @@
 
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-/// Configures what ezMeshPrefabCreator::CreateMeshPrefab() should generate.
+/// Configures what WMeshPrefabCreator::CreateMeshPrefab() should generate.
 ///
 /// Options the mesh can't support are disabled rather than hidden, with a tooltip saying why.
 ///
 /// Also used for several meshes at once, in which case there is no single output path or render
 /// component to configure: each prefab goes next to its own mesh, and each gets the component that
-/// suits it. \see ezMeshPrefabCreator::CreateMeshPrefabs()
-class ezQtCreateMeshPrefabDlg : public ezQtDialog, public Ui_CreateMeshPrefabDlg
+/// suits it. \see WMeshPrefabCreator::CreateMeshPrefabs()
+class WQtCreateMeshPrefabDlg : public WQtDialog, public Ui_CreateMeshPrefabDlg
 {
   Q_OBJECT
 
 public:
   /// For a single mesh, whose LODs are shown and whose path can be edited.
-  ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& source, QWidget* pParent);
+  WQtCreateMeshPrefabDlg(const WMeshPrefabSource& source, QWidget* pParent);
 
   /// For several meshes. Nothing mesh specific is shown, and the path is fixed to the default.
-  ezQtCreateMeshPrefabDlg(ezUInt32 uiMeshCount, QWidget* pParent);
+  WQtCreateMeshPrefabDlg(WUInt32 uiMeshCount, QWidget* pParent);
 
   /// The path and the render component type are empty for the multi-mesh case, which is what tells
   /// the creator to decide both per mesh.
-  const ezMeshPrefabOptions& GetOptions() const { return m_Options; }
+  const WMeshPrefabOptions& GetOptions() const { return m_Options; }
 
 private Q_SLOTS:
   void on_BrowseButton_clicked();
@@ -51,10 +51,10 @@ private:
   void UpdateSuggestedPath();
 
   /// Null when several meshes were selected, as none of them speaks for the others.
-  const ezMeshPrefabSource* m_pSource = nullptr;
+  const WMeshPrefabSource* m_pSource = nullptr;
 
   /// 1 unless several meshes were selected.
-  ezUInt32 m_uiMeshCount = 1;
+  WUInt32 m_uiMeshCount = 1;
 
   /// False once the path was edited by hand, which stops the overwrite box from overwriting it.
   bool m_bPathIsSuggestion = true;
@@ -62,13 +62,13 @@ private:
   /// Set while the path is filled in from code, so that this is not mistaken for the user typing.
   bool m_bSettingPath = false;
 
-  ezMeshPrefabOptions m_Options;
+  WMeshPrefabOptions m_Options;
 
   /// Above this many meshes the "open after creation" box starts out unticked. It stays available.
-  static constexpr ezUInt32 s_uiMaxAutoOpen = 5;
+  static constexpr WUInt32 s_uiMaxAutoOpen = 5;
 
   // remembered across invocations
-  static ezInt32 s_iPhysicsMode;
-  static ezInt32 s_iCollisionLayer;
+  static WInt32 s_iPhysicsMode;
+  static WInt32 s_iCollisionLayer;
   static bool s_bOpenAfterCreate;
 };

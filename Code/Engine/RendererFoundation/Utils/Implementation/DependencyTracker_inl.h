@@ -1,11 +1,11 @@
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::AddResource(const Resource& resource, const ezSet<Dependency>& dependencies)
+void WDependencyTracker<Resource, Dependency>::AddResource(const Resource& resource, const WSet<Dependency>& dependencies)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   bool bExisted = false;
   auto resourceHead = m_ResourceHead.FindOrAdd(resource, &bExisted);
-  EZ_IGNORE_UNUSED(bExisted);
-  EZ_ASSERT_DEBUG(!bExisted, "Resource already tracked");
+  W_IGNORE_UNUSED(bExisted);
+  W_ASSERT_DEBUG(!bExisted, "Resource already tracked");
 
   for (const Dependency& dependency : dependencies)
   {
@@ -14,12 +14,12 @@ void ezDependencyTracker<Resource, Dependency>::AddResource(const Resource& reso
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::RemoveResource(const Resource& resource)
+void WDependencyTracker<Resource, Dependency>::RemoveResource(const Resource& resource)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto resourceHead = m_ResourceHead.Find(resource);
-  EZ_ASSERT_DEBUG(resourceHead.IsValid(), "Resource not tracked");
+  W_ASSERT_DEBUG(resourceHead.IsValid(), "Resource not tracked");
 
   Item* pItem = resourceHead.Value();
   while (pItem != nullptr)
@@ -33,11 +33,11 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResource(const Resource& r
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(const Dependency& dependency)
+void WDependencyTracker<Resource, Dependency>::DependencyDestroyed(const Dependency& dependency)
 {
-  ezSet<Resource> invalidResources;
+  WSet<Resource> invalidResources;
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     auto dependencyHead = m_DependencyHead.Find(dependency);
     if (!dependencyHead.IsValid())
       return;
@@ -61,7 +61,7 @@ void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(const Depend
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHeadMap::Iterator resourceHead, const Resource& resource, const Dependency& dependency)
+void WDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHeadMap::Iterator resourceHead, const Resource& resource, const Dependency& dependency)
 {
   Item* pItem = nullptr;
   if (m_pFreeList != nullptr)
@@ -97,9 +97,9 @@ void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHead
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename ResourceHeadMap::ConstIterator resourceHead, Item* pItem)
+void WDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename ResourceHeadMap::ConstIterator resourceHead, Item* pItem)
 {
-  EZ_IGNORE_UNUSED(resourceHead); // TODO: why don't we do anything with this parameter?
+  W_IGNORE_UNUSED(resourceHead); // TODO: why don't we do anything with this parameter?
 
   if (pItem->m_pNextResource != nullptr)
   {
@@ -133,9 +133,9 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename Reso
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::RemoveDependencyItem(typename DependencyHeadMap::ConstIterator dependencyHead, Item* pItem)
+void WDependencyTracker<Resource, Dependency>::RemoveDependencyItem(typename DependencyHeadMap::ConstIterator dependencyHead, Item* pItem)
 {
-  EZ_IGNORE_UNUSED(dependencyHead); // TODO: why don't we do anything with this parameter?
+  W_IGNORE_UNUSED(dependencyHead); // TODO: why don't we do anything with this parameter?
 
   if (pItem->m_pNextDependency != nullptr)
   {

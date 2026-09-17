@@ -4,27 +4,27 @@
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
 
-ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig, bool bPicking)
-  : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
+WQtOrbitCamViewWidget::WQtOrbitCamViewWidget(WQtEngineDocumentWindow* pOwnerWindow, WEngineViewConfig* pViewConfig, bool bPicking)
+  : WQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
-  m_pOrbitCameraContext = EZ_DEFAULT_NEW(ezOrbitCameraContext, pOwnerWindow, this);
+  m_pOrbitCameraContext = W_DEFAULT_NEW(WOrbitCameraContext, pOwnerWindow, this);
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
 
   if (bPicking)
   {
-    m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
+    m_pSelectionContext = W_DEFAULT_NEW(WSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
     m_InputContexts.PushBack(m_pSelectionContext.Borrow());
   }
 
   m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
-ezQtOrbitCamViewWidget::~ezQtOrbitCamViewWidget() = default;
+WQtOrbitCamViewWidget::~WQtOrbitCamViewWidget() = default;
 
 
-void ezQtOrbitCamViewWidget::ConfigureFixed(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamPosition)
+void WQtOrbitCamViewWidget::ConfigureFixed(const WVec3& vCenterPos, const WVec3& vHalfBoxSize, const WVec3& vCamPosition)
 {
   m_pOrbitCameraContext->SetDefaultCameraFixed(vCamPosition);
   m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
@@ -32,7 +32,7 @@ void ezQtOrbitCamViewWidget::ConfigureFixed(const ezVec3& vCenterPos, const ezVe
   m_bSetDefaultCamPos = false;
 }
 
-void ezQtOrbitCamViewWidget::ConfigureRelative(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamDirection, float fCamDistanceScale)
+void WQtOrbitCamViewWidget::ConfigureRelative(const WVec3& vCenterPos, const WVec3& vHalfBoxSize, const WVec3& vCamDirection, float fCamDistanceScale)
 {
   m_pOrbitCameraContext->SetDefaultCameraRelative(vCamDirection, fCamDistanceScale);
   m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
@@ -40,13 +40,13 @@ void ezQtOrbitCamViewWidget::ConfigureRelative(const ezVec3& vCenterPos, const e
   m_bSetDefaultCamPos = true;
 }
 
-void ezQtOrbitCamViewWidget::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize)
+void WQtOrbitCamViewWidget::SetOrbitVolume(const WVec3& vCenterPos, const WVec3& vHalfBoxSize)
 {
   m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
 
   if (m_bSetDefaultCamPos)
   {
-    if (vHalfBoxSize != ezVec3(0.1f))
+    if (vHalfBoxSize != WVec3(0.1f))
     {
       // 0.1f is a hard-coded value for the bounding box, in case nothing is available yet
       // not pretty, but somehow we need to know when the first 'proper' bounds are available
@@ -57,17 +57,17 @@ void ezQtOrbitCamViewWidget::SetOrbitVolume(const ezVec3& vCenterPos, const ezVe
   }
 }
 
-ezOrbitCameraContext* ezQtOrbitCamViewWidget::GetOrbitCamera()
+WOrbitCameraContext* WQtOrbitCamViewWidget::GetOrbitCamera()
 {
   return m_pOrbitCameraContext.Borrow();
 }
 
-void ezQtOrbitCamViewWidget::SyncToEngine()
+void WQtOrbitCamViewWidget::SyncToEngine()
 {
   if (m_pSelectionContext)
   {
-    m_pSelectionContext->SetWindowConfig(ezVec2I32(width(), height()));
+    m_pSelectionContext->SetWindowConfig(WVec2I32(width(), height()));
   }
 
-  ezQtEngineViewWidget::SyncToEngine();
+  WQtEngineViewWidget::SyncToEngine();
 }

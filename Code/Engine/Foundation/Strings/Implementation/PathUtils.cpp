@@ -3,14 +3,14 @@
 #include <Foundation/Strings/Implementation/StringIterator.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)
+const char* WPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)
 {
-  if (ezStringUtils::IsNullOrEmpty(szPathStart))
+  if (WStringUtils::IsNullOrEmpty(szPathStart))
     return nullptr;
 
   while (szStartSearchAt > szPathStart)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szPathStart).AssertSuccess();
+    WUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szPathStart).AssertSuccess();
 
     if (IsPathSeparator(*szStartSearchAt))
       return szStartSearchAt;
@@ -19,15 +19,15 @@ const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const ch
   return nullptr;
 }
 
-bool ezPathUtils::HasAnyExtension(ezStringView sPath)
+bool WPathUtils::HasAnyExtension(WStringView sPath)
 {
   return !GetFileExtension(sPath, true).IsEmpty();
 }
 
-bool ezPathUtils::HasExtension(ezStringView sPath, ezStringView sExtension)
+bool WPathUtils::HasExtension(WStringView sPath, WStringView sExtension)
 {
   sPath = GetFileNameAndExtension(sPath);
-  ezStringView fullExt = GetFileExtension(sPath, true);
+  WStringView fullExt = GetFileExtension(sPath, true);
 
   if (sExtension.IsEmpty() && fullExt.IsEmpty())
     return true;
@@ -40,7 +40,7 @@ bool ezPathUtils::HasExtension(ezStringView sPath, ezStringView sExtension)
     return false;
 
   // remove the checked extension
-  sPath = ezStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - sExtension.GetElementCount());
+  sPath = WStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - sExtension.GetElementCount());
 
   // checked extension didn't start with a dot -> make sure there is one at the end of sPath
   if (!sPath.EndsWith("."))
@@ -50,7 +50,7 @@ bool ezPathUtils::HasExtension(ezStringView sPath, ezStringView sExtension)
   return sPath.GetElementCount() > 1;
 }
 
-ezStringView ezPathUtils::GetFileExtension(ezStringView sPath, bool bFullExtension)
+WStringView WPathUtils::GetFileExtension(WStringView sPath, bool bFullExtension)
 {
   // get rid of any path before the filename
   sPath = GetFileNameAndExtension(sPath);
@@ -73,26 +73,26 @@ ezStringView ezPathUtils::GetFileExtension(ezStringView sPath, bool bFullExtensi
 
   // no dot at all -> no extension
   if (szDot == nullptr)
-    return ezStringView();
+    return WStringView();
 
   // dot at the very end of the string -> not an extension
   if (szDot + 1 == sPath.GetEndPointer())
-    return ezStringView();
+    return WStringView();
 
-  return ezStringView(szDot + 1, sPath.GetEndPointer());
+  return WStringView(szDot + 1, sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileNameAndExtension(ezStringView sPath)
+WStringView WPathUtils::GetFileNameAndExtension(WStringView sPath)
 {
   const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
   if (szSeparator == nullptr)
     return sPath;
 
-  return ezStringView(szSeparator + 1, sPath.GetEndPointer());
+  return WStringView(szSeparator + 1, sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileName(ezStringView sPath, bool bRemoveFullExtension)
+WStringView WPathUtils::GetFileName(WStringView sPath, bool bRemoveFullExtension)
 {
   // reduce the problem to just the filename + extension
   sPath = GetFileNameAndExtension(sPath);
@@ -100,19 +100,19 @@ ezStringView ezPathUtils::GetFileName(ezStringView sPath, bool bRemoveFullExtens
   return GetWithoutExtension(sPath, bRemoveFullExtension);
 }
 
-ezStringView ezPathUtils::GetWithoutExtension(ezStringView sPath, bool bRemoveFullExtension)
+WStringView WPathUtils::GetWithoutExtension(WStringView sPath, bool bRemoveFullExtension)
 {
   // TODO: unit test
 
-  ezStringView ext = GetFileExtension(sPath, bRemoveFullExtension);
+  WStringView ext = GetFileExtension(sPath, bRemoveFullExtension);
 
   if (ext.IsEmpty())
     return sPath;
 
-  return ezStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - ext.GetElementCount() - 1);
+  return WStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - ext.GetElementCount() - 1);
 }
 
-ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
+WStringView WPathUtils::GetFileDirectory(WStringView sPath)
 {
   auto it = rbegin(sPath);
 
@@ -125,21 +125,21 @@ ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
 
   // no path separator -> root dir -> return the empty path
   if (szSeparator == nullptr)
-    return ezStringView(nullptr);
+    return WStringView(nullptr);
 
-  return ezStringView(sPath.GetStartPointer(), szSeparator + 1);
+  return WStringView(sPath.GetStartPointer(), szSeparator + 1);
 }
 
-const char ezPathUtils::OsSpecificPathSeparator = EZ_PLATFORM_PATH_SEPARATOR;
+const char WPathUtils::OsSpecificPathSeparator = W_PLATFORM_PATH_SEPARATOR;
 
-bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
+bool WPathUtils::IsAbsolutePath(WStringView sPath)
 {
   if (sPath.GetElementCount() < 1)
     return false;
 
   const char* szPath = sPath.GetStartPointer();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
   if (sPath.GetElementCount() < 2)
     return false;
@@ -155,26 +155,26 @@ bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
 #endif
 }
 
-bool ezPathUtils::IsRelativePath(ezStringView sPath)
+bool WPathUtils::IsRelativePath(WStringView sPath)
 {
   if (sPath.IsEmpty())
     return true;
 
   // if it starts with a separator, it is not a relative path, ever
-  if (ezPathUtils::IsPathSeparator(*sPath.GetStartPointer()))
+  if (WPathUtils::IsPathSeparator(*sPath.GetStartPointer()))
     return false;
 
   return !IsAbsolutePath(sPath) && !IsRootedPath(sPath);
 }
 
-bool ezPathUtils::IsRootedPath(ezStringView sPath)
+bool WPathUtils::IsRootedPath(WStringView sPath)
 {
   return !sPath.IsEmpty() && *sPath.GetStartPointer() == ':';
 }
 
-void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot, ezStringView& ref_sRelPath)
+void WPathUtils::GetRootedPathParts(WStringView sPath, WStringView& ref_sRoot, WStringView& ref_sRelPath)
 {
-  ref_sRoot = ezStringView();
+  ref_sRoot = WStringView();
   ref_sRelPath = sPath;
 
   if (!IsRootedPath(sPath))
@@ -185,7 +185,7 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot
 
   do
   {
-    ezUnicodeUtils::MoveToNextUtf8(szStart, szPathEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szStart, szPathEnd).AssertSuccess();
 
     if (*szStart == '\0')
       return;
@@ -193,32 +193,32 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot
   } while (IsPathSeparator(*szStart));
 
   const char* szEnd = szStart;
-  ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
+  WUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
 
   while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
-    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
+    WUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
 
-  ref_sRoot = ezStringView(szStart, szEnd);
+  ref_sRoot = WStringView(szStart, szEnd);
   if (*szEnd == '\0')
   {
-    ref_sRelPath = ezStringView();
+    ref_sRelPath = WStringView();
   }
   else
   {
     // skip path separator for the relative path
-    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
-    ref_sRelPath = ezStringView(szEnd, szPathEnd);
+    WUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
+    ref_sRelPath = WStringView(szEnd, szPathEnd);
   }
 }
 
-ezStringView ezPathUtils::GetRootedPathRootName(ezStringView sPath)
+WStringView WPathUtils::GetRootedPathRootName(WStringView sPath)
 {
-  ezStringView root, relPath;
+  WStringView root, relPath;
   GetRootedPathParts(sPath, root, relPath);
   return root;
 }
 
-bool ezPathUtils::IsValidFilenameChar(ezUInt32 uiCharacter)
+bool WPathUtils::IsValidFilenameChar(WUInt32 uiCharacter)
 {
   /// \test Not tested yet
 
@@ -226,9 +226,9 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 uiCharacter)
   // Unix: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
   // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like
   // this:
-  static const ezUInt32 forbiddenFilenameChars[] = {'<', '>', ':', '"', '|', '?', '*', '\\', '/', '\t', '\b', '\n', '\r', '\0'};
+  static const WUInt32 forbiddenFilenameChars[] = {'<', '>', ':', '"', '|', '?', '*', '\\', '/', '\t', '\b', '\n', '\r', '\0'};
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(forbiddenFilenameChars); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(forbiddenFilenameChars); ++i)
   {
     if (forbiddenFilenameChars[i] == uiCharacter)
       return false;
@@ -237,11 +237,11 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 uiCharacter)
   return true;
 }
 
-bool ezPathUtils::ContainsInvalidFilenameChars(ezStringView sPath)
+bool WPathUtils::ContainsInvalidFilenameChars(WStringView sPath)
 {
   /// \test Not tested yet
 
-  ezStringIterator it = sPath.GetIteratorFront();
+  WStringIterator it = sPath.GetIteratorFront();
 
   for (; it.IsValid(); ++it)
   {
@@ -252,15 +252,15 @@ bool ezPathUtils::ContainsInvalidFilenameChars(ezStringView sPath)
   return false;
 }
 
-void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplacementCharacter, ezStringBuilder& out_sFilename)
+void WPathUtils::MakeValidFilename(WStringView sFilename, WUInt32 uiReplacementCharacter, WStringBuilder& out_sFilename)
 {
-  EZ_ASSERT_DEBUG(IsValidFilenameChar(uiReplacementCharacter), "Given replacement character is not allowed for filenames.");
+  W_ASSERT_DEBUG(IsValidFilenameChar(uiReplacementCharacter), "Given replacement character is not allowed for filenames.");
 
   out_sFilename.Clear();
 
   for (auto it = sFilename.GetIteratorFront(); it.IsValid(); ++it)
   {
-    ezUInt32 currentChar = it.GetCharacter();
+    WUInt32 currentChar = it.GetCharacter();
 
     if (IsValidFilenameChar(currentChar) == false)
       out_sFilename.Append(uiReplacementCharacter);
@@ -269,16 +269,16 @@ void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplaceme
   }
 }
 
-void ezPathUtils::NormalizeWindowsDriveLetter(ezStringBuilder& ref_sAbsolutePath)
+void WPathUtils::NormalizeWindowsDriveLetter(WStringBuilder& ref_sAbsolutePath)
 {
   if (ref_sAbsolutePath.GetElementCount() >= 2 && ref_sAbsolutePath.GetData()[1] == ':')
   {
-    const ezUInt32 uiChar = static_cast<ezUInt8>(ref_sAbsolutePath.GetData()[0]);
+    const WUInt32 uiChar = static_cast<WUInt8>(ref_sAbsolutePath.GetData()[0]);
 
     // Only ASCII can be a drive letter, which also guarantees that the replacement is a single byte.
-    if (ezUnicodeUtils::IsASCII(uiChar))
+    if (WUnicodeUtils::IsASCII(uiChar))
     {
-      const ezUInt32 uiUpper = ezStringUtils::ToUpperChar(uiChar);
+      const WUInt32 uiUpper = WStringUtils::ToUpperChar(uiChar);
 
       const char szUpper[2] = {static_cast<char>(uiUpper), '\0'};
       ref_sAbsolutePath.ReplaceSubString(ref_sAbsolutePath.GetData(), ref_sAbsolutePath.GetData() + 1, szUpper);
@@ -286,22 +286,22 @@ void ezPathUtils::NormalizeWindowsDriveLetter(ezStringBuilder& ref_sAbsolutePath
   }
 }
 
-bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath0)
+bool WPathUtils::IsSubPath(WStringView sPrefixPath, WStringView sFullPath0)
 {
   if (sPrefixPath.IsEmpty())
   {
     if (sFullPath0.IsAbsolutePath())
       return true;
 
-    EZ_REPORT_FAILURE("Prefixpath is empty and checked path is not absolute.");
+    W_REPORT_FAILURE("Prefixpath is empty and checked path is not absolute.");
     return false;
   }
 
-  ezStringBuilder tmp = sPrefixPath;
+  WStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
   tmp.Trim("", "/");
 
-  ezStringBuilder sFullPath = sFullPath0;
+  WStringBuilder sFullPath = sFullPath0;
   sFullPath.MakeCleanPath();
 
   if (sFullPath.StartsWith(tmp))
@@ -315,9 +315,9 @@ bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath0)
   return false;
 }
 
-bool ezPathUtils::IsSubPath_NoCase(ezStringView sPrefixPath, ezStringView sFullPath)
+bool WPathUtils::IsSubPath_NoCase(WStringView sPrefixPath, WStringView sFullPath)
 {
-  ezStringBuilder tmp = sPrefixPath;
+  WStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
   tmp.Trim("", "/");
 

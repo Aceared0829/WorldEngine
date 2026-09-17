@@ -4,22 +4,22 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/BindGroup.h>
 
-class ezGALBindGroupDX11 : public ezGALBindGroup
+class WGALBindGroupDX11 : public WGALBindGroup
 {
 public:
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-  virtual void Invalidate(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
+  virtual void Invalidate(WGALDevice* pDevice) override;
   virtual bool IsInvalidated() const override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  ezGALBindGroupDX11(const ezGALBindGroupCreationDescription& Description);
+  WGALBindGroupDX11(const WGALBindGroupCreationDescription& Description);
 
-  virtual ~ezGALBindGroupDX11();
+  virtual ~WGALBindGroupDX11();
 
 private:
   bool m_bInvalidated = false;

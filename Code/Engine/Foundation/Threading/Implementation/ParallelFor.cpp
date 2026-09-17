@@ -4,7 +4,7 @@
 
 /// This is a helper class that splits up task items via index ranges.
 template <typename IndexType, typename Callback>
-class IndexedTask final : public ezTask
+class IndexedTask final : public WTask
 {
 public:
   IndexedTask(IndexType uiStartIndex, IndexType uiNumItems, Callback taskCallback, IndexType uiItemsPerInvocation)
@@ -21,12 +21,12 @@ public:
     m_TaskCallback(m_uiStartIndex, m_uiStartIndex + m_uiNumItems);
   }
 
-  void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const override
+  void ExecuteWithMultiplicity(WUInt32 uiInvocation) const override
   {
     const IndexType uiSliceStartIndex = uiInvocation * m_uiItemsPerInvocation;
-    const IndexType uiSliceEndIndex = ezMath::Min(uiSliceStartIndex + m_uiItemsPerInvocation, m_uiStartIndex + m_uiNumItems);
+    const IndexType uiSliceEndIndex = WMath::Min(uiSliceStartIndex + m_uiItemsPerInvocation, m_uiStartIndex + m_uiNumItems);
 
-    EZ_ASSERT_DEV(uiSliceStartIndex < uiSliceEndIndex, "ParallelFor start/end indices given to index task are invalid: {} -> {}", uiSliceStartIndex, uiSliceEndIndex);
+    W_ASSERT_DEV(uiSliceStartIndex < uiSliceEndIndex, "ParallelFor start/end indices given to index task are invalid: {} -> {}", uiSliceStartIndex, uiSliceEndIndex);
 
     // Run through the calculated slice, the end index is exclusive, i.e., should not be handled by this instance.
     m_TaskCallback(uiSliceStartIndex, uiSliceEndIndex);
@@ -40,7 +40,7 @@ private:
 };
 
 template <typename IndexType, typename Callback>
-void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback&& taskCallback, const char* szTaskName, const ezParallelForParams& params, ezTaskNesting taskNesting)
+void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback&& taskCallback, const char* szTaskName, const WParallelForParams& params, WTaskNesting taskNesting)
 {
   typedef IndexedTask<IndexType, Callback> Task;
 
@@ -56,34 +56,34 @@ void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, co
     Task indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiNumItems);
     indexedTask.ConfigureTask(szTaskName, taskNesting);
 
-    EZ_PROFILE_SCOPE(szTaskName);
+    W_PROFILE_SCOPE(szTaskName);
     indexedTask.Execute();
   }
   else
   {
-    ezUInt32 uiMultiplicity;
-    ezUInt64 uiItemsPerInvocation;
+    WUInt32 uiMultiplicity;
+    WUInt64 uiItemsPerInvocation;
     params.DetermineThreading(uiNumItems, uiMultiplicity, uiItemsPerInvocation);
 
-    ezAllocator* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
+    WAllocator* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : WFoundation::GetDefaultAllocator();
 
-    ezSharedPtr<Task> pIndexedTask = EZ_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), static_cast<IndexType>(uiItemsPerInvocation));
+    WSharedPtr<Task> pIndexedTask = W_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), static_cast<IndexType>(uiItemsPerInvocation));
     pIndexedTask->ConfigureTask(szTaskName, taskNesting);
 
     pIndexedTask->SetMultiplicity(uiMultiplicity);
-    ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(pIndexedTask, ezTaskPriority::EarlyThisFrame);
-    ezTaskSystem::WaitForGroup(taskGroupId);
+    WTaskGroupID taskGroupId = WTaskSystem::StartSingleTask(pIndexedTask, WTaskPriority::EarlyThisFrame);
+    WTaskSystem::WaitForGroup(taskGroupId);
   }
 }
 
-void ezParallelForParams::DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUInt32& out_uiNumTasksToRun, ezUInt64& out_uiNumItemsPerTask) const
+void WParallelForParams::DetermineThreading(WUInt64 uiNumItemsToExecute, WUInt32& out_uiNumTasksToRun, WUInt64& out_uiNumItemsPerTask) const
 {
   // we create a single task, but we set it's multiplicity to M (= out_uiNumTasksToRun)
   // so that it gets scheduled M times, which is effectively the same as creating M tasks
 
-  const ezUInt32 uiNumWorkerThreads = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
-  const ezUInt64 uiMaxTasksToUse = uiNumWorkerThreads * m_uiMaxTasksPerThread;
-  const ezUInt64 uiMaxExecutionsRequired = ezMath::Max(1llu, uiNumItemsToExecute / m_uiBinSize);
+  const WUInt32 uiNumWorkerThreads = WTaskSystem::GetWorkerThreadCount(WWorkerThreadType::ShortTasks);
+  const WUInt64 uiMaxTasksToUse = uiNumWorkerThreads * m_uiMaxTasksPerThread;
+  const WUInt64 uiMaxExecutionsRequired = WMath::Max(1llu, uiNumItemsToExecute / m_uiBinSize);
 
   if (uiMaxExecutionsRequired >= uiMaxTasksToUse)
   {
@@ -125,16 +125,16 @@ void ezParallelForParams::DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUIn
       }
     }
 
-    EZ_ASSERT_DEV(out_uiNumItemsPerTask * out_uiNumTasksToRun >= uiNumItemsToExecute, "ezParallelFor is missing invocations");
+    W_ASSERT_DEV(out_uiNumItemsPerTask * out_uiNumTasksToRun >= uiNumItemsToExecute, "WParallelFor is missing invocations");
   }
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback, const char* szTaskName, ezTaskNesting taskNesting, const ezParallelForParams& params)
+void WTaskSystem::ParallelForIndexed(WUInt32 uiStartIndex, WUInt32 uiNumItems, WParallelForIndexedFunction32 taskCallback, const char* szTaskName, WTaskNesting taskNesting, const WParallelForParams& params)
 {
-  ParallelForIndexedInternal<ezUInt32, ezParallelForIndexedFunction32>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params, taskNesting);
+  ParallelForIndexedInternal<WUInt32, WParallelForIndexedFunction32>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params, taskNesting);
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback, const char* szTaskName, ezTaskNesting taskNesting, const ezParallelForParams& params)
+void WTaskSystem::ParallelForIndexed(WUInt64 uiStartIndex, WUInt64 uiNumItems, WParallelForIndexedFunction64 taskCallback, const char* szTaskName, WTaskNesting taskNesting, const WParallelForParams& params)
 {
-  ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params, taskNesting);
+  ParallelForIndexedInternal<WUInt64, WParallelForIndexedFunction64>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params, taskNesting);
 }

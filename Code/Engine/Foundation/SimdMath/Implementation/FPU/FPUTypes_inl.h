@@ -2,12 +2,12 @@
 
 #include <Foundation/Math/Vec4.h>
 
-namespace ezInternal
+namespace WInternal
 {
-  using QuadDouble = ezVec4d;
-  using QuadFloat = ezVec4;
-  using QuadInt = ezVec4I32;
-  using QuadUInt = ezVec4U32;
-  using QuadBool = ezVec4U32;
-  using QuadBoolWide = ezVec4U64;
-} // namespace ezInternal
+  using QuadDouble = WVec4d;
+  using QuadFloat = WVec4;
+  using QuadInt = WVec4I32;
+  using QuadUInt = WVec4U32;
+  using QuadBool = WVec4U32;
+  using QuadBoolWide = WVec4U64;
+} // namespace WInternal

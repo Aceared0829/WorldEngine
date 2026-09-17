@@ -3,18 +3,18 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
-class ezVisualGraphObjectManager;
+class WVisualGraphObjectManager;
 
-class ezVisualShaderCodeGenerator
+class WVisualShaderCodeGenerator
 {
 public:
-  ezVisualShaderCodeGenerator();
+  WVisualShaderCodeGenerator();
 
-  ezStatus GenerateVisualShader(const ezVisualGraphObjectManager* pNodeMaanger, ezStringBuilder& out_sCheckPerms);
+  WStatus GenerateVisualShader(const WVisualGraphObjectManager* pNodeMaanger, WStringBuilder& out_sCheckPerms);
 
   const char* GetFinalShaderCode() const { return m_sFinalShaderCode; }
 
-  void DetermineConfigFileDependencies(const ezVisualGraphObjectManager* pNodeManager, ezSet<ezString>& out_cfgFiles);
+  void DetermineConfigFileDependencies(const WVisualGraphObjectManager* pNodeManager, WSet<WString>& out_cfgFiles);
 
 private:
   struct NodeState
@@ -26,7 +26,7 @@ private:
       m_bInProgress = false;
     }
 
-    ezUInt16 m_uiNodeId;
+    WUInt16 m_uiNodeId;
     bool m_bCodeGenerated;
     bool m_bInProgress;
   };
@@ -36,62 +36,62 @@ private:
     OutputPinState() { m_bCodeGenerated = false; }
 
     bool m_bCodeGenerated;
-    ezString m_sCodeAtPin;
+    WString m_sCodeAtPin;
   };
 
 
-  ezStatus GatherAllNodes(const ezDocumentObject* pRootObj);
-  ezUInt16 DeterminePinId(const ezDocumentObject* pOwner, const ezVisualGraphPin& pin) const;
-  ezStatus GenerateNode(const ezDocumentObject* pNode);
-  ezStatus GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> pins);
-  ezStatus CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc);
-  ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
-  ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezVisualGraphPin& pinSource);
+  WStatus GatherAllNodes(const WDocumentObject* pRootObj);
+  WUInt16 DeterminePinId(const WDocumentObject* pOwner, const WVisualGraphPin& pin) const;
+  WStatus GenerateNode(const WDocumentObject* pNode);
+  WStatus GenerateInputPinCode(WArrayPtr<const WUniquePtr<const WVisualGraphPin>> pins);
+  WStatus CheckPropertyValues(const WDocumentObject* pNode, const WVisualShaderNodeDescriptor* pDesc);
+  WStatus InsertPropertyValues(const WDocumentObject* pNode, const WVisualShaderNodeDescriptor* pDesc, WStringBuilder& sString);
+  WStatus GenerateOutputPinCode(const WDocumentObject* pOwnerNode, const WVisualGraphPin& pinSource);
 
-  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines);
-  void ReplaceMainNodeInputPins(const ezDocumentObject* pMainNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines, ezStringBuilder& out_sHelperFunctions);
-  void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);
-  static void AppendStringIfUnique(ezStringBuilder& inout_String, ezStringView sAppend);
+  WStatus ReplaceInputPinsByCode(const WDocumentObject* pOwnerNode, const WVisualShaderNodeDescriptor* pNodeDesc, WStringBuilder& sInlineCode, WStringBuilder& sCodeForPlacingDefines);
+  void ReplaceMainNodeInputPins(const WDocumentObject* pMainNode, const WVisualShaderNodeDescriptor* pNodeDesc, WStringBuilder& sInlineCode, WStringBuilder& sCodeForPlacingDefines, WStringBuilder& out_sHelperFunctions);
+  void SetPinDefines(const WDocumentObject* pOwnerNode, WStringBuilder& sInlineCode);
+  static void AppendStringIfUnique(WStringBuilder& inout_String, WStringView sAppend);
 
   // Generates the transitive hull of nodes connected via input pins to pNode.
-  void CollectReachableNodes(const ezDocumentObject* pNode, ezHashSet<const ezDocumentObject*>& out_Nodes) const;
+  void CollectReachableNodes(const WDocumentObject* pNode, WHashSet<const WDocumentObject*>& out_Nodes) const;
 
   // Gets the value to use for an unconnected input pin (either from property or default value)
   // Optionally appends defines to pDefinesOut when using a default value
-  ezString GetInputPinDefaultValue(const ezDocumentObject* pNode, const ezVisualShaderPinDescriptor& pinDesc, ezStringBuilder* pDefinesOut = nullptr);
+  WString GetInputPinDefaultValue(const WDocumentObject* pNode, const WVisualShaderPinDescriptor& pinDesc, WStringBuilder* pDefinesOut = nullptr);
 
   // Collects all nodes that are connected to the given connection. out_Sorted is sorted with the first element being the source pin of pStartConnection.
-  ezResult CollectNodesInTopologicalOrder(const ezDocumentObject* pRootNode, ezDynamicArray<const ezDocumentObject*>& out_Sorted) const;
+  WResult CollectNodesInTopologicalOrder(const WDocumentObject* pRootNode, WDynamicArray<const WDocumentObject*>& out_Sorted) const;
 
   // Computes the effective output type dimension for all output pins and stores in m_OutputPinDimensions
   void ComputeOutputPinDimensions();
 
   // Generates a helper function for a main node input pin, returns the function code and the function name
-  void GenerateInputHelperFunction(const ezVisualGraphPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall);
+  void GenerateInputHelperFunction(const WVisualGraphPin* pInputPin, WUInt32 uiInputIndex, WStringBuilder& out_sFunctionCode, WStringBuilder& out_sFunctionCall);
 
-  const ezDocumentObject* m_pMainNode;
-  const ezVisualShaderTypeRegistry* m_pTypeRegistry;
-  const ezVisualGraphObjectManager* m_pNodeManager;
-  const ezRTTI* m_pNodeBaseRtti;
-  ezMap<const ezDocumentObject*, NodeState> m_Nodes;
-  ezMap<const ezVisualGraphPin*, OutputPinState> m_OutputPins;
-  ezMap<const ezVisualGraphPin*, ezUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
-  ezMap<ezString, ezString> m_UsedIdentifiers; // Maps identifier name to node type name
-  ezMap<ezString, ezString> m_MaterialParameter;
+  const WDocumentObject* m_pMainNode;
+  const WVisualShaderTypeRegistry* m_pTypeRegistry;
+  const WVisualGraphObjectManager* m_pNodeManager;
+  const WRTTI* m_pNodeBaseRtti;
+  WMap<const WDocumentObject*, NodeState> m_Nodes;
+  WMap<const WVisualGraphPin*, OutputPinState> m_OutputPins;
+  WMap<const WVisualGraphPin*, WUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
+  WMap<WString, WString> m_UsedIdentifiers; // Maps identifier name to node type name
+  WMap<WString, WString> m_MaterialParameter;
 
-  ezStringBuilder m_sShaderPixelDefines;
-  ezStringBuilder m_sShaderPixelIncludes;
-  ezStringBuilder m_sShaderPixelConstants;
-  ezStringBuilder m_sShaderPixelSamplers;
-  ezStringBuilder m_sShaderPixelBody;
-  ezStringBuilder m_sShaderVertexDefines;
-  ezStringBuilder m_sShaderVertexIncludes;
-  ezStringBuilder m_sShaderVertexBody;
-  ezStringBuilder m_sShaderMaterialParam;
-  ezStringBuilder m_sShaderMaterialConstants;
-  ezStringBuilder m_sShaderMaterialCB;
-  ezStringBuilder m_sShaderRenderState;
-  ezStringBuilder m_sShaderMaterialConfig;
-  ezStringBuilder m_sShaderPermutations;
-  ezStringBuilder m_sFinalShaderCode;
+  WStringBuilder m_sShaderPixelDefines;
+  WStringBuilder m_sShaderPixelIncludes;
+  WStringBuilder m_sShaderPixelConstants;
+  WStringBuilder m_sShaderPixelSamplers;
+  WStringBuilder m_sShaderPixelBody;
+  WStringBuilder m_sShaderVertexDefines;
+  WStringBuilder m_sShaderVertexIncludes;
+  WStringBuilder m_sShaderVertexBody;
+  WStringBuilder m_sShaderMaterialParam;
+  WStringBuilder m_sShaderMaterialConstants;
+  WStringBuilder m_sShaderMaterialCB;
+  WStringBuilder m_sShaderRenderState;
+  WStringBuilder m_sShaderMaterialConfig;
+  WStringBuilder m_sShaderPermutations;
+  WStringBuilder m_sFinalShaderCode;
 };

@@ -6,12 +6,12 @@
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezMutex ezTaskSystem::s_TaskSystemMutex;
-ezUniquePtr<ezTaskSystemState> ezTaskSystem::s_pState;
-ezUniquePtr<ezTaskSystemThreadState> ezTaskSystem::s_pThreadState;
+WMutex WTaskSystem::s_TaskSystemMutex;
+WUniquePtr<WTaskSystemState> WTaskSystem::s_pState;
+WUniquePtr<WTaskSystemThreadState> WTaskSystem::s_pThreadState;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ThreadUtils",
@@ -20,33 +20,33 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   ON_CORESYSTEMS_STARTUP
   {
-    if (ezStartup::HasApplicationTag("NoTaskSystem"))
+    if (WStartup::HasApplicationTag("NoTaskSystem"))
       return;
 
-    ezTaskSystem::Startup();
+    WTaskSystem::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezTaskSystem::Shutdown();
+    WTaskSystem::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezTaskSystem::Startup()
+void WTaskSystem::Startup()
 {
-  s_pThreadState = EZ_DEFAULT_NEW(ezTaskSystemThreadState);
-  s_pState = EZ_DEFAULT_NEW(ezTaskSystemState);
+  s_pThreadState = W_DEFAULT_NEW(WTaskSystemThreadState);
+  s_pState = W_DEFAULT_NEW(WTaskSystemState);
 
-  tl_TaskWorkerInfo.m_WorkerType = ezWorkerThreadType::MainThread;
+  tl_TaskWorkerInfo.m_WorkerType = WWorkerThreadType::MainThread;
   tl_TaskWorkerInfo.m_iWorkerIndex = 0;
 
   // initialize with the default number of worker threads
   SetWorkerThreadCount();
 }
 
-void ezTaskSystem::Shutdown()
+void WTaskSystem::Shutdown()
 {
   if (s_pThreadState == nullptr)
     return;
@@ -57,16 +57,16 @@ void ezTaskSystem::Shutdown()
   s_pThreadState.Clear();
 }
 
-void ezTaskSystem::SetTargetFrameTime(ezTime targetFrameTime)
+void WTaskSystem::SetTargetFrameTime(WTime targetFrameTime)
 {
   s_pState->m_TargetFrameTime = targetFrameTime;
 }
 
-void ezTaskSystem::BroadcastClearThreadLocalsEvent()
+void WTaskSystem::BroadcastClearThreadLocalsEvent()
 {
-  for (ezUInt32 i = 0; i < ezWorkerThreadType::ENUM_COUNT; ++i)
+  for (WUInt32 i = 0; i < WWorkerThreadType::ENUM_COUNT; ++i)
   {
-    for (ezTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
+    for (WTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
     {
       if (pWorker)
       {
@@ -76,9 +76,9 @@ void ezTaskSystem::BroadcastClearThreadLocalsEvent()
   }
 
   // make sure they have all sent the event
-  for (ezUInt32 i = 0; i < ezWorkerThreadType::ENUM_COUNT; ++i)
+  for (WUInt32 i = 0; i < WWorkerThreadType::ENUM_COUNT; ++i)
   {
-    for (ezTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
+    for (WTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
     {
       if (pWorker)
       {
@@ -88,4 +88,4 @@ void ezTaskSystem::BroadcastClearThreadLocalsEvent()
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
+W_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

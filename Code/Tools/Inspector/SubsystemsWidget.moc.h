@@ -7,15 +7,15 @@
 #include <Inspector/ui_SubsystemsWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtSubsystemsWidget : public ads::CDockWidget, public Ui_SubsystemsWidget
+class WQtSubsystemsWidget : public ads::CDockWidget, public Ui_SubsystemsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtSubsystemsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtSubsystemsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtSubsystemsWidget* s_pWidget;
+  static WQtSubsystemsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -28,11 +28,11 @@ private:
 
   struct SubsystemData
   {
-    ezString m_sPlugin;
-    bool m_bStartupDone[ezStartupStage::ENUM_COUNT];
-    ezString m_sDependencies;
+    WString m_sPlugin;
+    bool m_bStartupDone[WStartupStage::ENUM_COUNT];
+    WString m_sDependencies;
   };
 
   bool m_bUpdateSubsystems;
-  ezMap<ezString, SubsystemData> m_Subsystems;
+  WMap<WString, SubsystemData> m_Subsystems;
 };

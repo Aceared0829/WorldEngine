@@ -5,9 +5,9 @@
 #include <Texture/TextureDLL.h>
 
 /// Defines how texture coordinates outside [0,1] are handled during sampling.
-struct EZ_TEXTURE_DLL ezImageAddressMode
+struct W_TEXTURE_DLL WImageAddressMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -22,10 +22,10 @@ struct EZ_TEXTURE_DLL ezImageAddressMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezImageAddressMode);
+W_DECLARE_REFLECTABLE_TYPE(W_TEXTURE_DLL, WImageAddressMode);
 
 //////////////////////////////////////////////////////////////////////////
-// ezTextureFilterSetting
+// WTextureFilterSetting
 //////////////////////////////////////////////////////////////////////////
 
 /// Defines texture filtering quality and method for runtime sampling.
@@ -34,9 +34,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezImageAddressMode);
 /// Fixed methods specify the exact filtering algorithm, while quality settings
 /// allow the renderer to choose appropriate filtering based on hardware capabilities
 /// and performance considerations.
-struct EZ_TEXTURE_DLL ezTextureFilterSetting
+struct W_TEXTURE_DLL WTextureFilterSetting
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -58,4 +58,4 @@ struct EZ_TEXTURE_DLL ezTextureFilterSetting
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTextureFilterSetting);
+W_DECLARE_REFLECTABLE_TYPE(W_TEXTURE_DLL, WTextureFilterSetting);

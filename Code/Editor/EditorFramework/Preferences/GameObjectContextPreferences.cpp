@@ -3,41 +3,41 @@
 #include <EditorFramework/Preferences/GameObjectContextPreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextPreferencesUser, 1, ezRTTIDefaultAllocator<ezGameObjectContextPreferencesUser>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectContextPreferencesUser, 1, WRTTIDefaultAllocator<WGameObjectContextPreferencesUser>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ContextDocument", m_ContextDocument)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("ContextObject", m_ContextObject)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("ContextDocument", m_ContextDocument)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("ContextObject", m_ContextObject)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGameObjectContextPreferencesUser::ezGameObjectContextPreferencesUser()
-  : ezPreferences(Domain::Document, "GameObjectContext")
+WGameObjectContextPreferencesUser::WGameObjectContextPreferencesUser()
+  : WPreferences(Domain::Document, "GameObjectContext")
 {
 }
 
-ezUuid ezGameObjectContextPreferencesUser::GetContextDocument() const
+WUuid WGameObjectContextPreferencesUser::GetContextDocument() const
 {
   return m_ContextDocument;
 }
 
 
-void ezGameObjectContextPreferencesUser::SetContextDocument(ezUuid val)
+void WGameObjectContextPreferencesUser::SetContextDocument(WUuid val)
 {
   m_ContextDocument = val;
   TriggerPreferencesChangedEvent();
 }
 
-ezUuid ezGameObjectContextPreferencesUser::GetContextObject() const
+WUuid WGameObjectContextPreferencesUser::GetContextObject() const
 {
   return m_ContextObject;
 }
 
-void ezGameObjectContextPreferencesUser::SetContextObject(ezUuid val)
+void WGameObjectContextPreferencesUser::SetContextObject(WUuid val)
 {
   m_ContextObject = val;
   TriggerPreferencesChangedEvent();

@@ -7,46 +7,46 @@
 #include <GameEngine/Gameplay/SpawnBoxComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSpawnBoxComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WSpawnBoxComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(2.0f, 2.0f, 0.25f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
-    EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
-    EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiMinSpawnCount)->AddAttributes(new ezDefaultValueAttribute(10)),
-    EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange)->AddAttributes(new ezDefaultValueAttribute(0)),
-    EZ_MEMBER_PROPERTY("Duration", m_SpawnDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(5))),
-    EZ_MEMBER_PROPERTY("MaxRotationZ", m_MaxRotationZ),
-    EZ_MEMBER_PROPERTY("MaxTiltZ", m_MaxTiltZ),
+    W_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new WDefaultValueAttribute(WVec3(2.0f, 2.0f, 0.25f)), new WClampValueAttribute(WVec3(0), WVariant())),
+    W_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
+    W_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
+    W_MEMBER_PROPERTY("MinSpawnCount", m_uiMinSpawnCount)->AddAttributes(new WDefaultValueAttribute(10)),
+    W_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange)->AddAttributes(new WDefaultValueAttribute(0)),
+    W_MEMBER_PROPERTY("Duration", m_SpawnDuration)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromSeconds(5))),
+    W_MEMBER_PROPERTY("MaxRotationZ", m_MaxRotationZ),
+    W_MEMBER_PROPERTY("MaxTiltZ", m_MaxTiltZ),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezBoxManipulatorAttribute("HalfExtents", 2.0f, true),
-    new ezBoxVisualizerAttribute("HalfExtents", 2.0f),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColorScheme::LightUI(ezColorScheme::Lime)),
+    new WCategoryAttribute("Gameplay"),
+    new WBoxManipulatorAttribute("HalfExtents", 2.0f, true),
+    new WBoxVisualizerAttribute("HalfExtents", 2.0f),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.5f, WColorScheme::LightUI(WColorScheme::Lime)),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_ATTRIBUTES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(StartSpawning),
+    W_SCRIPT_FUNCTION_PROPERTY(StartSpawning),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-void ezSpawnBoxComponent::SetHalfExtents(const ezVec3& value)
+void WSpawnBoxComponent::SetHalfExtents(const WVec3& value)
 {
-  m_vHalfExtents = value.CompMax(ezVec3::MakeZero());
+  m_vHalfExtents = value.CompMax(WVec3::MakeZero());
 
   if (IsActiveAndInitialized())
   {
@@ -54,27 +54,27 @@ void ezSpawnBoxComponent::SetHalfExtents(const ezVec3& value)
   }
 }
 
-bool ezSpawnBoxComponent::GetSpawnAtStart() const
+bool WSpawnBoxComponent::GetSpawnAtStart() const
 {
-  return m_Flags.IsAnySet(ezSpawnBoxComponentFlags::SpawnAtStart);
+  return m_Flags.IsAnySet(WSpawnBoxComponentFlags::SpawnAtStart);
 }
 
-void ezSpawnBoxComponent::SetSpawnAtStart(bool b)
+void WSpawnBoxComponent::SetSpawnAtStart(bool b)
 {
-  m_Flags.AddOrRemove(ezSpawnBoxComponentFlags::SpawnAtStart, b);
+  m_Flags.AddOrRemove(WSpawnBoxComponentFlags::SpawnAtStart, b);
 }
 
-bool ezSpawnBoxComponent::GetSpawnContinuously() const
+bool WSpawnBoxComponent::GetSpawnContinuously() const
 {
-  return m_Flags.IsAnySet(ezSpawnBoxComponentFlags::SpawnContinuously);
+  return m_Flags.IsAnySet(WSpawnBoxComponentFlags::SpawnContinuously);
 }
 
-void ezSpawnBoxComponent::SetSpawnContinuously(bool b)
+void WSpawnBoxComponent::SetSpawnContinuously(bool b)
 {
-  m_Flags.AddOrRemove(ezSpawnBoxComponentFlags::SpawnContinuously, b);
+  m_Flags.AddOrRemove(WSpawnBoxComponentFlags::SpawnContinuously, b);
 }
 
-void ezSpawnBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSpawnBoxComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -89,7 +89,7 @@ void ezSpawnBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_MaxTiltZ;
 }
 
-void ezSpawnBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSpawnBoxComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
@@ -104,7 +104,7 @@ void ezSpawnBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_MaxTiltZ;
 }
 
-void ezSpawnBoxComponent::OnSimulationStarted()
+void WSpawnBoxComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
@@ -114,12 +114,12 @@ void ezSpawnBoxComponent::OnSimulationStarted()
   }
 }
 
-void ezSpawnBoxComponent::StartSpawning()
+void WSpawnBoxComponent::StartSpawning()
 {
   InternalStartSpawning(true);
 }
 
-void ezSpawnBoxComponent::InternalStartSpawning(bool bFirstTime)
+void WSpawnBoxComponent::InternalStartSpawning(bool bFirstTime)
 {
 
   m_uiSpawned = 0;
@@ -146,16 +146,16 @@ void ezSpawnBoxComponent::InternalStartSpawning(bool bFirstTime)
       m_StartTime -= m_SpawnDuration / m_uiTotalToSpawn;
     }
 
-    ezMsgComponentInternalTrigger msg;
-    PostMessage(msg, ezTime::MakeZero());
+    WMsgComponentInternalTrigger msg;
+    PostMessage(msg, WTime::MakeZero());
   }
 }
 
-void ezSpawnBoxComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
+void WSpawnBoxComponent::OnTriggered(WMsgComponentInternalTrigger& msg)
 {
-  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
-  const ezTime tActive = tNow - m_StartTime;
-  const ezTime tEnd = m_StartTime + m_SpawnDuration;
+  const WTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+  const WTime tActive = tNow - m_StartTime;
+  const WTime tEnd = m_StartTime + m_SpawnDuration;
 
   if (tNow >= tEnd)
   {
@@ -172,7 +172,7 @@ void ezSpawnBoxComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
     return;
   }
 
-  const auto uiTargetSpawnCount = ezMath::Clamp<ezUInt16>(static_cast<ezUInt16>(((tActive.GetSeconds() / m_SpawnDuration.GetSeconds()) * m_uiTotalToSpawn)), 0, m_uiTotalToSpawn);
+  const auto uiTargetSpawnCount = WMath::Clamp<WUInt16>(static_cast<WUInt16>(((tActive.GetSeconds() / m_SpawnDuration.GetSeconds()) * m_uiTotalToSpawn)), 0, m_uiTotalToSpawn);
 
   if (m_uiSpawned < uiTargetSpawnCount)
   {
@@ -183,12 +183,12 @@ void ezSpawnBoxComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     // remaining time divided equally for the remaining spawns
     // this is to prevent a lot of unnecessary message sending at low spawn counts
-    ezTime tDelay = (tEnd - tNow) / (m_uiTotalToSpawn - m_uiSpawned);
+    WTime tDelay = (tEnd - tNow) / (m_uiTotalToSpawn - m_uiSpawned);
 
     // prevent unnecessary high number of updates, rather spawn multiple objects within one frame
-    tDelay = ezMath::Max(tDelay, ezTime::MakeFromMilliseconds(40)); // max 25 Hz
+    tDelay = WMath::Max(tDelay, WTime::MakeFromMilliseconds(40)); // max 25 Hz
 
-    ezMsgComponentInternalTrigger msg;
+    WMsgComponentInternalTrigger msg;
     PostMessage(msg, tDelay);
   }
   else if (GetSpawnContinuously())
@@ -197,7 +197,7 @@ void ezSpawnBoxComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   }
 }
 
-void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
+void WSpawnBoxComponent::Spawn(WUInt32 uiCount)
 {
   if (uiCount == 0)
     return;
@@ -207,49 +207,49 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
   if (!m_hPrefab.IsValid())
     return;
 
-  ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pResource.GetAcquireResult() == ezResourceAcquireResult::None)
+  WResourceLock<WPrefabResource> pResource(m_hPrefab, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pResource.GetAcquireResult() == WResourceAcquireResult::None)
     return;
 
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
   options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
 
-  ezRandom& rnd = GetWorld()->GetRandomNumberGenerator();
-  const ezTransform tOwner = GetOwner()->GetGlobalTransform();
+  WRandom& rnd = GetWorld()->GetRandomNumberGenerator();
+  const WTransform tOwner = GetOwner()->GetGlobalTransform();
 
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  for (WUInt32 i = 0; i < uiCount; ++i)
   {
-    ezTransform tLocal = ezTransform::MakeIdentity();
+    WTransform tLocal = WTransform::MakeIdentity();
     tLocal.m_vPosition.x = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.x, m_vHalfExtents.x));
     tLocal.m_vPosition.y = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.y, m_vHalfExtents.y));
     tLocal.m_vPosition.z = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.z, m_vHalfExtents.z));
 
     if (m_MaxRotationZ.GetRadian() > 0)
     {
-      const ezAngle rotationAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(-m_MaxRotationZ.GetRadian(), +m_MaxRotationZ.GetRadian()));
-      const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), rotationAngle);
+      const WAngle rotationAngle = WAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(-m_MaxRotationZ.GetRadian(), +m_MaxRotationZ.GetRadian()));
+      const WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), rotationAngle);
 
       tLocal.m_qRotation = qRot;
     }
 
     if (m_MaxTiltZ.GetRadian() > 0)
     {
-      const ezAngle tiltTurnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0));
-      const ezQuat qTiltTurn = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), tiltTurnAngle);
+      const WAngle tiltTurnAngle = WAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, WMath::Pi<double>() * 2.0));
+      const WQuat qTiltTurn = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), tiltTurnAngle);
 
-      const ezVec3 vTiltAxis = qTiltTurn * ezVec3(1, 0, 0);
+      const WVec3 vTiltAxis = qTiltTurn * WVec3(1, 0, 0);
 
-      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, (double)m_MaxTiltZ.GetRadian()));
-      const ezQuat qTilt = ezQuat::MakeFromAxisAndAngle(vTiltAxis, tiltAngle);
+      const WAngle tiltAngle = WAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, (double)m_MaxTiltZ.GetRadian()));
+      const WQuat qTilt = WQuat::MakeFromAxisAndAngle(vTiltAxis, tiltAngle);
 
       tLocal.m_qRotation = tLocal.m_qRotation * qTilt;
     }
 
-    const ezTransform tGlobal = ezTransform::MakeGlobalTransform(tOwner, tLocal);
+    const WTransform tGlobal = WTransform::MakeGlobalTransform(tOwner, tLocal);
 
     pResource->InstantiatePrefab(*GetWorld(), tGlobal, options);
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SpawnBoxComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SpawnBoxComponent);

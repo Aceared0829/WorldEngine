@@ -5,13 +5,13 @@
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public ezQtDialog, public Ui_ezQtDataDirsDlg
+class W_EDITORFRAMEWORK_DLL WQtDataDirsDlg : public WQtDialog, public Ui_WQtDataDirsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtDataDirsDlg(QWidget* pParent);
+  WQtDataDirsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonOK_clicked();
@@ -27,6 +27,6 @@ private Q_SLOTS:
 private:
   void FillList();
 
-  ezInt32 m_iSelection;
-  ezApplicationFileSystemConfig m_Config;
+  WInt32 m_iSelection;
+  WApplicationFileSystemConfig m_Config;
 };

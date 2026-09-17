@@ -19,26 +19,26 @@
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument)
-  : ezQtGameObjectDocumentWindow(pDocument)
+WQtPropertyAnimAssetDocumentWindow::WQtPropertyAnimAssetDocumentWindow(WPropertyAnimAssetDocument* pDocument)
+  : WQtGameObjectDocumentWindow(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  auto ViewFactory = [](WQtEngineDocumentWindow* pWindow, WEngineViewConfig* pConfig) -> WQtEngineViewWidget*
   {
-    ezQtGameObjectViewWidget* pWidget = new ezQtGameObjectViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
+    WQtGameObjectViewWidget* pWidget = new WQtGameObjectViewWidget(nullptr, static_cast<WQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
-  m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
+  m_pQuadViewWidget = new WQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-    [this](ezGameObjectEditTool* pTool)
-    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](WGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<WGameObjectDocument*>(GetDocument()), this, this); });
 
-  pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
+  pDocument->m_PropertyAnimEvents.AddEventHandler(WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
   {
-    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pViewPanel->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pViewPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pViewPanel->setObjectName("WQtDocumentPanel");
     pViewPanel->setWindowTitle("3D View");
     pViewPanel->setWidget(m_pQuadViewWidget);
 
@@ -49,8 +49,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "PropertyAnimAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -59,8 +59,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "PropertyAnimAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -71,22 +71,22 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Game Object Graph
   {
-    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtGameObjectModel(pDocument->GetObjectManager()));
-    pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
-    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
+    std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtGameObjectModel(pDocument->GetObjectManager()));
+    pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "TempObjects"));
+    pModel->AddAdapter(new WQtGameObjectAdapter(pDocument->GetObjectManager()));
 
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(GetContainerWindow()->GetDockManager(), this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
+    WQtDocumentPanel* pGameObjectPanel = new WQtGameObjectPanel(GetContainerWindow()->GetDockManager(), this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pGameObjectPanel);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPanel->setWindowTitle("Object Properties");
     pPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -94,7 +94,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -104,33 +104,33 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Tree View
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
     pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
 
-    m_pPropertyTreeView = new ezQtPropertyAnimAssetTreeView(pPanel);
+    m_pPropertyTreeView = new WQtPropertyAnimAssetTreeView(pPanel);
     m_pPropertyTreeView->setHeaderHidden(true);
     m_pPropertyTreeView->setRootIsDecorated(true);
     m_pPropertyTreeView->setUniformRowHeights(true);
     m_pPropertyTreeView->setExpandsOnDoubleClick(false);
     pPanel->setWidget(m_pPropertyTreeView);
 
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this,
-      &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::RebindSelectedItemsEvent, this,
-      &ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems);
+    connect(m_pPropertyTreeView, &WQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this,
+      &WQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
+    connect(m_pPropertyTreeView, &WQtPropertyAnimAssetTreeView::RebindSelectedItemsEvent, this,
+      &WQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems);
 
-    connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this,
-      &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
+    connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &WQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
+    connect(m_pPropertyTreeView, &WQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this,
+      &WQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
 
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanel);
   }
 
   // Property Model
   {
-    m_pPropertiesModel = new ezQtPropertyAnimModel(GetPropertyAnimDocument(), this);
+    m_pPropertiesModel = new WQtPropertyAnimModel(GetPropertyAnimDocument(), this);
     m_pPropertyTreeView->setModel(m_pPropertiesModel);
     m_pPropertyTreeView->expandToDepth(2);
     m_pPropertyTreeView->initialize();
@@ -144,17 +144,17 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pSelectionModel = new QItemSelectionModel(m_pPropertiesModel, this);
     m_pPropertyTreeView->setSelectionModel(m_pSelectionModel);
 
-    connect(m_pSelectionModel, &QItemSelectionModel::selectionChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged);
+    connect(m_pSelectionModel, &QItemSelectionModel::selectionChanged, this, &WQtPropertyAnimAssetDocumentWindow::onSelectionChanged);
   }
 
   // Float Curve Panel
   {
-    m_pCurvePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pCurvePanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
     m_pCurvePanel->setWindowTitle("Curves");
     m_pCurvePanel->show();
 
-    m_pCurveEditor = new ezQtCurve1DEditorWidget(m_pCurvePanel);
+    m_pCurveEditor = new WQtCurve1DEditorWidget(m_pCurvePanel);
     m_pCurvePanel->setWidget(m_pCurveEditor);
 
     m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurvePanel);
@@ -162,12 +162,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Color Gradient Panel
   {
-    m_pColorGradientPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pColorGradientPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
     m_pColorGradientPanel->setWindowTitle("Color Gradient");
     m_pColorGradientPanel->show();
 
-    m_pGradientEditor = new ezQtColorGradientEditorWidget(m_pColorGradientPanel);
+    m_pGradientEditor = new WQtColorGradientEditorWidget(m_pColorGradientPanel);
     m_pColorGradientPanel->setWidget(m_pGradientEditor);
 
     m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pColorGradientPanel);
@@ -175,12 +175,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pEventTrackPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
 
-    m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
+    m_pEventTrackEditor = new WQtEventTrackEditorWidget(m_pEventTrackPanel);
     m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
 
     m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pEventTrackPanel);
@@ -188,12 +188,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Time Scrubber
   {
-    m_pScrubberToolbar = new ezQtTimeScrubberToolbar(this);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::ScrubberPosChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::PlayPauseEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::RepeatEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::DurationChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::AdjustDurationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked);
+    m_pScrubberToolbar = new WQtTimeScrubberToolbar(this);
+    connect(m_pScrubberToolbar, &WQtTimeScrubberToolbar::ScrubberPosChangedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
+    connect(m_pScrubberToolbar, &WQtTimeScrubberToolbar::PlayPauseEvent, this, &WQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked);
+    connect(m_pScrubberToolbar, &WQtTimeScrubberToolbar::RepeatEvent, this, &WQtPropertyAnimAssetDocumentWindow::onRepeatClicked);
+    connect(m_pScrubberToolbar, &WQtTimeScrubberToolbar::DurationChangedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent);
+    connect(m_pScrubberToolbar, &WQtTimeScrubberToolbar::AdjustDurationEvent, this, &WQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked);
 
     addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
@@ -203,75 +203,75 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Curve editor events
   {
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::InsertCpEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpMovedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveCpMoved);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpDeletedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentMovedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentLinkEvent, this, &WQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpTangentModeEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged);
 
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginOperationEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndOperationEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginCpChangesEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndCpChangesEvent, this, &WQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
   }
 
   // Gradient editor events
   {
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpAdded, this, &WQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpMoved, this, &WQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpDeleted, this, &WQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpChanged, this, &WQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged);
 
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpAdded, this, &WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpMoved, this, &WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpDeleted, this, &WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpChanged, this, &WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged);
 
     connect(
-      m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded);
+      m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpAdded, this, &WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded);
     connect(
-      m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this,
-      &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this,
-      &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged);
+      m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpMoved, this, &WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpDeleted, this,
+      &WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpChanged, this,
+      &WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged);
 
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::BeginOperation, this, &WQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation);
+    connect(m_pGradientEditor, &WQtColorGradientEditorWidget::EndOperation, this, &WQtPropertyAnimAssetDocumentWindow::onGradientEndOperation);
 
-    // connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this,
-    // &ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange);
+    // connect(m_pGradientEditor, &WQtColorGradientEditorWidget::NormalizeRange, this,
+    // &WQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange);
   }
 
   // Event track editor events
   {
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::InsertCpEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::CpMovedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::CpDeletedEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted);
 
     connect(
-      m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation);
+      m_pEventTrackEditor, &WQtEventTrackEditorWidget::BeginOperationEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation);
     connect(
-      m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation);
+      m_pEventTrackEditor, &WQtEventTrackEditorWidget::EndOperationEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation);
     connect(
-      m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges);
+      m_pEventTrackEditor, &WQtEventTrackEditorWidget::BeginCpChangesEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges);
     connect(
-      m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
+      m_pEventTrackEditor, &WQtEventTrackEditorWidget::EndCpChangesEvent, this, &WQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
-  // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
   // this));
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 
   FinishWindowCreation();
 
   {
-    const ezUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
+    const WUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
     m_pScrubberToolbar->SetDuration(uiDuration);
   }
 
@@ -280,60 +280,60 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   UpdateEventTrackEditor();
 }
 
-ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
+WQtPropertyAnimAssetDocumentWindow::~WQtPropertyAnimAssetDocumentWindow()
 {
   GetPropertyAnimDocument()->m_PropertyAnimEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
-  // GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
   // this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
+    WMakeDelegate(&WQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::ToggleViews(QWidget* pView)
+void WQtPropertyAnimAssetDocumentWindow::ToggleViews(QWidget* pView)
 {
   m_pQuadViewWidget->ToggleViews(pView);
 }
 
-ezObjectAccessorBase* ezQtPropertyAnimAssetDocumentWindow::GetObjectAccessor()
+WObjectAccessorBase* WQtPropertyAnimAssetDocumentWindow::GetObjectAccessor()
 {
   return GetPropertyAnimDocument()->GetObjectAccessor();
 }
 
-bool ezQtPropertyAnimAssetDocumentWindow::CanDuplicateSelection() const
+bool WQtPropertyAnimAssetDocumentWindow::CanDuplicateSelection() const
 {
   return false;
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::DuplicateSelection()
+void WQtPropertyAnimAssetDocumentWindow::DuplicateSelection()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
+void WQtPropertyAnimAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   {
     // do not try to redraw while the process is crashed, it is obviously futile
-    if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
       return;
 
     {
-      ezSimulationSettingsMsgToEngine msg;
+      WSimulationSettingsMsgToEngine msg;
       msg.m_bSimulateWorld = false;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {
-      ezGridSettingsMsgToEngine msg = GetGridSettings();
+      WGridSettingsMsgToEngine msg = GetGridSettings();
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {
-      ezWorldSettingsMsgToEngine msg = GetWorldSettings();
+      WWorldSettingsMsgToEngine msg = GetWorldSettings();
       GetEditorEngineConnection()->SendMessage(&msg);
     }
 
@@ -348,28 +348,28 @@ void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
       pView->SyncToEngine();
     }
   }
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ezPropertyAnimAssetDocumentEvent& e)
+void WQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const WPropertyAnimAssetDocumentEvent& e)
 {
-  if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged)
+  if (e.m_Type == WPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged)
   {
-    const ezUInt64 uiDuration = e.m_pDocument->GetAnimationDurationTicks();
+    const WUInt64 uiDuration = e.m_pDocument->GetAnimationDurationTicks();
 
     m_pScrubberToolbar->SetDuration(uiDuration);
     UpdateCurveEditor();
     UpdateGradientEditor();
     UpdateEventTrackEditor();
   }
-  else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
+  else if (e.m_Type == WPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
   {
     m_pScrubberToolbar->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pCurveEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pGradientEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pEventTrackEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
   }
-  else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged)
+  else if (e.m_Type == WPropertyAnimAssetDocumentEvent::Type::PlaybackChanged)
   {
     if (!m_bAnimTimerInFlight && GetPropertyAnimDocument()->GetPlayAnimation())
     {
@@ -381,14 +381,14 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+void WQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
   UpdateSelectionData();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
+void WQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   m_MapSelectionToTrack.Clear();
   m_pGradientToDisplay = nullptr;
@@ -397,21 +397,21 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
   m_CurvesToDisplay.m_bOwnsData = false;
   m_CurvesToDisplay.m_uiFramesPerSecond = pDoc->GetProperties()->m_uiFramesPerSecond;
 
-  ezSet<ezInt32> tracks;
+  WSet<WInt32> tracks;
 
   for (const QModelIndex& selIdx : m_pSelectionModel->selection().indexes())
   {
-    ezQtPropertyAnimModelTreeEntry* pTreeItem =
-      reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(selIdx, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
+    WQtPropertyAnimModelTreeEntry* pTreeItem =
+      reinterpret_cast<WQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(selIdx, WQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
 
-    ezQtPropertyAnimModel* pModel = m_pPropertiesModel;
+    WQtPropertyAnimModel* pModel = m_pPropertiesModel;
 
-    auto addRecursive = [&tracks, pModel](auto& ref_self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void
+    auto addRecursive = [&tracks, pModel](auto& ref_self, const WQtPropertyAnimModelTreeEntry* pTreeItem) -> void
     {
       if (pTreeItem->m_pTrack != nullptr)
         tracks.Insert(pTreeItem->m_iTrackIdx);
 
-      for (ezInt32 iChild : pTreeItem->m_Children)
+      for (WInt32 iChild : pTreeItem->m_Children)
       {
         // cannot use 'addRecursive' here, because the name is not yet fully defined
         ref_self(ref_self, &pModel->GetAllEntries()[iChild]);
@@ -424,13 +424,13 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
   auto& trackArray = pDoc->GetProperties()->m_Tracks;
   for (auto it = tracks.GetIterator(); it.IsValid(); ++it)
   {
-    const ezInt32 iTrackIdx = it.Key();
+    const WInt32 iTrackIdx = it.Key();
 
     // this can happen during undo/redo when the selection still names data that has just been removed
-    if (iTrackIdx >= (ezInt32)trackArray.GetCount())
+    if (iTrackIdx >= (WInt32)trackArray.GetCount())
       continue;
 
-    if (trackArray[iTrackIdx]->m_Target != ezPropertyAnimTarget::Color)
+    if (trackArray[iTrackIdx]->m_Target != WPropertyAnimTarget::Color)
     {
       m_MapSelectionToTrack.PushBack(iTrackIdx);
 
@@ -461,12 +461,12 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged(ezUInt64 uiTick)
+void WQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged(WUInt64 uiTick)
 {
   GetPropertyAnimDocument()->SetScrubberPosition(uiTick);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
+void WQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 {
   auto pDoc = GetPropertyAnimDocument();
   auto pHistory = pDoc->GetCommandHistory();
@@ -478,9 +478,9 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 
   // delete the tracks with the highest index first, otherwise the lower indices become invalid
   // do this before modifying anything, as m_MapSelectionToTrack will change once the remove commands are executed
-  ezTempHybridArray<ezInt32, 16> sortedTrackIDs;
+  WTempHybridArray<WInt32, 16> sortedTrackIDs;
   {
-    for (ezInt32 iTrack : m_MapSelectionToTrack)
+    for (WInt32 iTrack : m_MapSelectionToTrack)
     {
       sortedTrackIDs.PushBack(iTrack);
     }
@@ -493,16 +493,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
     sortedTrackIDs.Sort();
   }
 
-  for (ezUInt32 i = sortedTrackIDs.GetCount(); i > 0; --i)
+  for (WUInt32 i = sortedTrackIDs.GetCount(); i > 0; --i)
   {
-    const ezInt32 iTrack = sortedTrackIDs[i - 1];
+    const WInt32 iTrack = sortedTrackIDs[i - 1];
 
-    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
+    const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
 
     if (trackGuid.IsValid())
     {
-      ezRemoveObjectCommand cmd;
-      cmd.m_Object = trackGuid.Get<ezUuid>();
+      WRemoveObjectCommand cmd;
+      cmd.m_Object = trackGuid.Get<WUuid>();
 
       pHistory->AddCommand(cmd).AssertSuccess();
     }
@@ -514,27 +514,27 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
   pHistory->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
+void WQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
 {
   auto pDoc = GetPropertyAnimDocument();
   auto pHistory = pDoc->GetCommandHistory();
 
-  ezTempHybridArray<ezUuid, 16> rebindTracks;
+  WTempHybridArray<WUuid, 16> rebindTracks;
 
-  for (ezInt32 iTrack : m_MapSelectionToTrack)
+  for (WInt32 iTrack : m_MapSelectionToTrack)
   {
-    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
+    const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
 
     if (trackGuid.IsValid())
-      rebindTracks.PushBack(trackGuid.Get<ezUuid>());
+      rebindTracks.PushBack(trackGuid.Get<WUuid>());
   }
 
   if (m_iMapGradientToTrack >= 0)
   {
-    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+    const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
 
     if (trackGuid.IsValid())
-      rebindTracks.PushBack(trackGuid.Get<ezUuid>());
+      rebindTracks.PushBack(trackGuid.Get<WUuid>());
   }
 
   bool ok = false;
@@ -545,16 +545,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
 
   m_pSelectionModel->clear();
 
-  ezStringBuilder path = result.toUtf8().data();
+  WStringBuilder path = result.toUtf8().data();
   ;
   path.MakeCleanPath();
-  const ezVariant varRes = path.GetData();
+  const WVariant varRes = path.GetData();
 
   pHistory->StartTransaction("Rebind Tracks");
 
-  for (const ezUuid guid : rebindTracks)
+  for (const WUuid guid : rebindTracks)
   {
-    ezSetObjectPropertyCommand cmdSet;
+    WSetObjectPropertyCommand cmdSet;
     cmdSet.m_Object = guid;
 
     cmdSet.m_sProperty = "ObjectPath";
@@ -565,7 +565,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
   pHistory->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onPlaybackTick()
+void WQtPropertyAnimAssetDocumentWindow::onPlaybackTick()
 {
   m_bAnimTimerInFlight = false;
 
@@ -578,34 +578,34 @@ void ezQtPropertyAnimAssetDocumentWindow::onPlaybackTick()
   QTimer::singleShot(0, this, SLOT(onPlaybackTick()));
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked()
+void WQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked()
 {
   GetPropertyAnimDocument()->SetPlayAnimation(!GetPropertyAnimDocument()->GetPlayAnimation());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked()
+void WQtPropertyAnimAssetDocumentWindow::onRepeatClicked()
 {
   GetPropertyAnimDocument()->SetRepeatAnimation(!GetPropertyAnimDocument()->GetRepeatAnimation());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked()
+void WQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked()
 {
   GetPropertyAnimDocument()->AdjustDuration();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent(double duration)
+void WQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent(double duration)
 {
-  GetPropertyAnimDocument()->SetAnimationDurationTicks((ezUInt64)(duration * 4800.0));
+  GetPropertyAnimDocument()->SetAnimationDurationTicks((WUInt64)(duration * 4800.0));
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIndex& index)
+void WQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIndex& index)
 {
-  ezQtPropertyAnimModelTreeEntry* pTreeItem =
-    reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(index, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
+  WQtPropertyAnimModelTreeEntry* pTreeItem =
+    reinterpret_cast<WQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(index, WQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
 
   if (pTreeItem != nullptr && pTreeItem->m_pTrack != nullptr)
   {
-    if (pTreeItem->m_pTrack->m_Target == ezPropertyAnimTarget::Color)
+    if (pTreeItem->m_pTrack->m_Target == WPropertyAnimTarget::Color)
     {
       m_pGradientEditor->FrameGradient();
       m_pColorGradientPanel->raise();
@@ -631,7 +631,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIn
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks()
+void WQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks()
 {
   if (!m_CurvesToDisplay.m_Curves.IsEmpty())
   {
@@ -645,14 +645,14 @@ void ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks()
   }
 }
 
-ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAnimDocument()
+WPropertyAnimAssetDocument* WQtPropertyAnimAssetDocumentWindow::GetPropertyAnimDocument()
 {
-  return static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
+  return static_cast<WPropertyAnimAssetDocument*>(GetDocument());
 }
 
-// void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+// void WQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 //{
-//  if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
+//  if (static_cast<WPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
 //    return;
 //
 //  // TODO: only update what needs to be updated
@@ -662,20 +662,20 @@ ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAni
 //  //m_bUpdateGradientEditor = true;
 //}
 
-void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   if (e.m_pNewParent &&
-      static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
+      static_cast<WPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
     return;
   if (e.m_pPreviousParent &&
-      static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
+      static_cast<WPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
     return;
 
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       UpdateSelectionData();
       break;
 
@@ -685,7 +685,7 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   // this would show the document properties
   // if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
@@ -699,10 +699,10 @@ void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectio
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
-  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
-      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+  if (e.m_Type == WCommandHistoryEvent::Type::TransactionEnded || e.m_Type == WCommandHistoryEvent::Type::UndoEnded ||
+      e.m_Type == WCommandHistoryEvent::Type::RedoEnded)
   {
     UpdateCurveEditor();
     UpdateGradientEditor();
@@ -710,46 +710,46 @@ void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCom
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
+void WQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
   m_pCurveEditor->SetCurveExtents(0, pDoc->GetAnimationDurationTime().GetSeconds(), true, true);
   m_pCurveEditor->SetCurves(m_CurvesToDisplay);
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::UpdateGradientEditor()
+void WQtPropertyAnimAssetDocumentWindow::UpdateGradientEditor()
 {
   if (m_pGradientToDisplay == nullptr || m_iMapGradientToTrack < 0)
   {
     // TODO: clear gradient editor ?
-    ezColorGradient empty;
+    WColorGradient empty;
     m_pGradientEditor->SetColorGradient(empty);
   }
   else
   {
-    ezColorGradient gradient;
+    WColorGradient gradient;
     m_pGradientToDisplay->FillGradientData(gradient);
     m_pGradientEditor->SetColorGradient(gradient);
   }
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::UpdateEventTrackEditor()
+void WQtPropertyAnimAssetDocumentWindow::UpdateEventTrackEditor()
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
   m_pEventTrackEditor->SetData(GetPropertyAnimDocument()->GetProperties()->m_EventTrack, pDoc->GetAnimationDurationTime().GetSeconds());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation(QString name)
+void WQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation(QString name)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands(name.toUtf8().data());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation(bool commit)
+void WQtPropertyAnimAssetDocumentWindow::onCurveEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -757,48 +757,48 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation(bool commit)
     history->CancelTemporaryCommands();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges(QString name)
+void WQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges(QString name)
 {
   GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges()
+void WQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
   UpdateCurveEditor();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double clickPosY)
+void WQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt(WUInt32 uiCurveIdx, WInt64 tickX, double clickPosY)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  pDoc->InsertCurveCpAt(trackGuid.Get<ezUuid>(), tickX, clickPosY);
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  pDoc->InsertCurveCpAt(trackGuid.Get<WUuid>(), tickX, clickPosY);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
+void WQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(WUInt32 uiCurveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+  iTickX = WMath::Max<WInt64>(iTickX, 0);
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
@@ -809,105 +809,105 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
+void WQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(WUInt32 uiCurveIdx, WUInt32 cpIdx)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   if (!cpGuid.IsValid())
     return;
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void WQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(WUInt32 uiCurveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   // clamp tangents to one side
   if (rightTangent)
-    newPosX = ezMath::Max(newPosX, 0.0f);
+    newPosX = WMath::Max(newPosX, 0.0f);
   else
-    newPosX = ezMath::Min(newPosX, 0.0f);
+    newPosX = WMath::Min(newPosX, 0.0f);
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
+  cmdSet.m_NewValue = WVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool bLink)
+void WQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(WUInt32 uiCurveIdx, WUInt32 cpIdx, bool bLink)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdLink;
-  cmdLink.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdLink;
+  cmdLink.m_Object = cpGuid.Get<WUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
   GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
-    const ezVec2 leftTangent = pDoc->GetProperties()->m_Tracks[iTrackIdx]->m_FloatCurve.m_ControlPoints[cpIdx].m_LeftTangent;
-    const ezVec2 rightTangent(-leftTangent.x, -leftTangent.y);
+    const WVec2 leftTangent = pDoc->GetProperties()->m_Tracks[iTrackIdx]->m_FloatCurve.m_ControlPoints[cpIdx].m_LeftTangent;
+    const WVec2 rightTangent(-leftTangent.x, -leftTangent.y);
 
     onCurveTangentMoved(uiCurveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+void WQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(WUInt32 uiCurveIdx, WUInt32 cpIdx, bool rightTangent, int mode)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
+  const WVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmd;
+  cmd.m_Object = cpGuid.Get<WUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
   GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
@@ -919,144 +919,144 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
 //////////////////////////////////////////////////////////////////////////
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, const ezColorGammaUB& color)
+void WQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, const WColorGammaUB& color)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
-  pDoc->InsertGradientColorCpAt(trackGuid.Get<ezUuid>(), tickX, color);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  WInt64 tickX = WColorGradient::TimeToTick(posX);
+  pDoc->InsertGradientColorCpAt(trackGuid.Get<WUuid>(), tickX, color);
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ezUInt8 alpha)
+void WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, WUInt8 alpha)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
-  pDoc->InsertGradientAlphaCpAt(trackGuid.Get<ezUuid>(), tickX, alpha);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  WInt64 tickX = WColorGradient::TimeToTick(posX);
+  pDoc->InsertGradientAlphaCpAt(trackGuid.Get<WUuid>(), tickX, alpha);
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
+void WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
-  pDoc->InsertGradientIntensityCpAt(trackGuid.Get<ezUuid>(), tickX, intensity);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  WInt64 tickX = WColorGradient::TimeToTick(posX);
+  pDoc->InsertGradientIntensityCpAt(trackGuid.Get<WUuid>(), tickX, intensity);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double newPosX, const char* szArrayName)
+void WQtPropertyAnimAssetDocumentWindow::MoveGradientCP(WInt32 idx, double newPosX, const char* szArrayName)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
-  ezVariant objGuid = gradientObject->GetTypeAccessor().GetValue(szArrayName, idx);
+  WVariant objGuid = gradientObject->GetTypeAccessor().GetValue(szArrayName, idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Move Control Point");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = ezColorGradient::TimeToTick(newPosX);
+  cmdSet.m_NewValue = WColorGradient::TimeToTick(newPosX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, double newPosX)
+void WQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved(WInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "ColorCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, double newPosX)
+void WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved(WInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "AlphaCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, double newPosX)
+void WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved(WInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "IntensityCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(ezInt32 idx, const char* szArrayName)
+void WQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(WInt32 idx, const char* szArrayName)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
-  ezVariant objGuid = gradientObject->GetTypeAccessor().GetValue(szArrayName, idx);
+  WVariant objGuid = gradientObject->GetTypeAccessor().GetValue(szArrayName, idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)
+void WQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted(WInt32 idx)
 {
   RemoveGradientCP(idx, "ColorCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted(ezInt32 idx)
+void WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted(WInt32 idx)
 {
   RemoveGradientCP(idx, "AlphaCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted(ezInt32 idx)
+void WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted(WInt32 idx)
 {
   RemoveGradientCP(idx, "IntensityCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
+void WQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged(WInt32 idx, const WColorGammaUB& color)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
-  ezVariant objGuid = gradientObject->GetTypeAccessor().GetValue("ColorCPs", idx);
+  WVariant objGuid = gradientObject->GetTypeAccessor().GetValue("ColorCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Color");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
@@ -1074,25 +1074,25 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, 
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, ezUInt8 alpha)
+void WQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged(WInt32 idx, WUInt8 alpha)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
-  ezVariant objGuid = gradientObject->GetTypeAccessor().GetValue("AlphaCPs", idx);
+  WVariant objGuid = gradientObject->GetTypeAccessor().GetValue("AlphaCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Alpha");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
@@ -1101,25 +1101,25 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, 
   history->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 idx, float intensity)
+void WQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged(WInt32 idx, float intensity)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   if (m_iMapGradientToTrack < 0)
     return;
 
-  const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  const WVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+  const WDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<WUuid>());
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
-  ezVariant objGuid = gradientObject->GetTypeAccessor().GetValue("IntensityCPs", idx);
+  WVariant objGuid = gradientObject->GetTypeAccessor().GetValue("IntensityCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Intensity");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
@@ -1128,15 +1128,15 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 i
   history->FinishTransaction();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation()
+void WQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation()
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Gradient");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation(bool commit)
+void WQtPropertyAnimAssetDocumentWindow::onGradientEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -1144,63 +1144,63 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation(bool commit)
     history->CancelTemporaryCommands();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt(WInt64 tickX, QString value)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
   pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(WUInt32 cpIdx, WInt64 iTickX)
 {
-  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+  iTickX = WMath::Max<WInt64>(iTickX, 0);
 
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+  WObjectCommandAccessor accessor(pDoc->GetCommandHistory());
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
-  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
-  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  const WUuid trackGuid = accessor.Get<WUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const WDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
 
-  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(WUInt32 cpIdx)
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  WPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+  WObjectCommandAccessor accessor(pDoc->GetCommandHistory());
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
-  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
-  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  const WUuid trackGuid = accessor.Get<WUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const WDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
 
-  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   if (!cpGuid.IsValid())
     return;
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Events");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation(bool commit)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -1208,12 +1208,12 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation(bool commit)
     history->CancelTemporaryCommands();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
 {
   GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
+void WQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
@@ -1222,30 +1222,30 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* pParent)
+WQtPropertyAnimAssetTreeView::WQtPropertyAnimAssetTreeView(QWidget* pParent)
   : QTreeView(pParent)
 {
   setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
 
-void ezQtPropertyAnimAssetTreeView::initialize()
+void WQtPropertyAnimAssetTreeView::initialize()
 {
-  connect(model(), &QAbstractItemModel::modelAboutToBeReset, this, &ezQtPropertyAnimAssetTreeView::onBeforeModelReset);
-  connect(model(), &QAbstractItemModel::modelReset, this, &ezQtPropertyAnimAssetTreeView::onAfterModelReset);
+  connect(model(), &QAbstractItemModel::modelAboutToBeReset, this, &WQtPropertyAnimAssetTreeView::onBeforeModelReset);
+  connect(model(), &QAbstractItemModel::modelReset, this, &WQtPropertyAnimAssetTreeView::onAfterModelReset);
 }
 
-void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
+void WQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
 {
   const QAbstractItemModel* pModel = model();
 
-  const ezUInt32 numRows = pModel->rowCount(parent);
-  for (ezUInt32 row = 0; row < numRows; ++row)
+  const WUInt32 numRows = pModel->rowCount(parent);
+  for (WUInt32 row = 0; row < numRows; ++row)
   {
     QModelIndex idx = pModel->index(row, 0, parent);
 
     const bool expanded = isExpanded(idx);
 
-    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+    QString path = pModel->data(idx, WQtPropertyAnimModel::UserRoles::Path).toString();
 
     if (!expanded)
       m_NotExpandedState.insert(path);
@@ -1254,16 +1254,16 @@ void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
   }
 }
 
-void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection)
+void WQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection)
 {
   const QAbstractItemModel* pModel = model();
 
-  const ezUInt32 numRows = pModel->rowCount(parent);
-  for (ezUInt32 row = 0; row < numRows; ++row)
+  const WUInt32 numRows = pModel->rowCount(parent);
+  for (WUInt32 row = 0; row < numRows; ++row)
   {
     QModelIndex idx = pModel->index(row, 0, parent);
 
-    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+    QString path = pModel->data(idx, WQtPropertyAnimModel::UserRoles::Path).toString();
 
     const bool notExpanded = m_NotExpandedState.contains(path);
 
@@ -1277,7 +1277,7 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
   }
 }
 
-void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
+void WQtPropertyAnimAssetTreeView::onBeforeModelReset()
 {
   m_NotExpandedState.clear();
   m_SelectedItems.clear();
@@ -1288,12 +1288,12 @@ void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
 
   for (QModelIndex idx : selectionModel()->selectedRows())
   {
-    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+    QString path = pModel->data(idx, WQtPropertyAnimModel::UserRoles::Path).toString();
     m_SelectedItems.insert(path);
   }
 }
 
-void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
+void WQtPropertyAnimAssetTreeView::onAfterModelReset()
 {
   QModelIndexList newSelection;
   restoreExpandState(QModelIndex(), newSelection);
@@ -1309,7 +1309,7 @@ void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
     } });
 }
 
-void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
+void WQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {
@@ -1321,7 +1321,7 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
+void WQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu m;
   m.setToolTipsVisible(true);

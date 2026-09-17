@@ -5,41 +5,41 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
+using WDynamicMeshBufferResourceHandle = WTypedResourceHandle<class WDynamicMeshBufferResource>;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMECOMPONENTS_DLL ezClothSheetComponentManager : public ezComponentManager<class ezClothSheetComponent, ezBlockStorageType::FreeList>
+class W_GAMECOMPONENTS_DLL WClothSheetComponentManager : public WComponentManager<class WClothSheetComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezClothSheetComponentManager(ezWorld* pWorld);
-  ~ezClothSheetComponentManager();
+  WClothSheetComponentManager(WWorld* pWorld);
+  ~WClothSheetComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
-  void UpdateBounds(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
+  void UpdateBounds(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Flags for how a piece of cloth should be simulated.
-struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
+struct W_GAMECOMPONENTS_DLL WClothSheetFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
-    FixedCornerTopLeft = EZ_BIT(0),     ///< This corner can't move.
-    FixedCornerTopRight = EZ_BIT(1),    ///< This corner can't move.
-    FixedCornerBottomRight = EZ_BIT(2), ///< This corner can't move.
-    FixedCornerBottomLeft = EZ_BIT(3),  ///< This corner can't move.
-    FixedEdgeTop = EZ_BIT(4),           ///< This entire edge can't move.
-    FixedEdgeRight = EZ_BIT(5),         ///< This entire edge can't move.
-    FixedEdgeBottom = EZ_BIT(6),        ///< This entire edge can't move.
-    FixedEdgeLeft = EZ_BIT(7),          ///< This entire edge can't move.
+    FixedCornerTopLeft = W_BIT(0),     ///< This corner can't move.
+    FixedCornerTopRight = W_BIT(1),    ///< This corner can't move.
+    FixedCornerBottomRight = W_BIT(2), ///< This corner can't move.
+    FixedCornerBottomLeft = W_BIT(3),  ///< This corner can't move.
+    FixedEdgeTop = W_BIT(4),           ///< This entire edge can't move.
+    FixedEdgeRight = W_BIT(5),         ///< This entire edge can't move.
+    FixedEdgeBottom = W_BIT(6),        ///< This entire edge can't move.
+    FixedEdgeLeft = W_BIT(7),          ///< This entire edge can't move.
 
     Default = FixedEdgeTop
   };
@@ -57,7 +57,7 @@ struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezClothSheetFlags);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WClothSheetFlags);
 
 /// Simulates a rectangular piece of cloth.
 ///
@@ -65,16 +65,16 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezClothSheetFlags);
 /// The component samples the wind simulation and applies wind forces to the cloth.
 ///
 /// Cloth sheets can be used as decorative elements like flags that blow in the wind.
-class EZ_GAMECOMPONENTS_DLL ezClothSheetComponent : public ezRenderComponent
+class W_GAMECOMPONENTS_DLL WClothSheetComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezClothSheetComponent, ezRenderComponent, ezClothSheetComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WClothSheetComponent, WRenderComponent, WClothSheetComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -82,24 +82,24 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezClothSheetComponent
+  // WClothSheetComponent
 
 public:
-  ezClothSheetComponent();
-  ~ezClothSheetComponent();
+  WClothSheetComponent();
+  ~WClothSheetComponent();
 
   /// Sets the world-space size of the cloth.
-  void SetSize(ezVec2 vVal);                 // [ property ]
-  ezVec2 GetSize() const { return m_vSize; } // [ property ]
+  void SetSize(WVec2 vVal);                 // [ property ]
+  WVec2 GetSize() const { return m_vSize; } // [ property ]
 
   /// Sets of how many pieces the cloth is made up.
   ///
@@ -107,12 +107,12 @@ public:
   /// A size of 32x32 is already quite performance intensive. USe as few segments as possible.
   /// For many cases 8x8 or 12x12 should already be good enough.
   /// Also the more segments there are, the more the cloth will sag.
-  void SetSegments(ezVec2U32 vVal);                     // [ property ]
-  ezVec2U32 GetSegments() const { return m_vSegments; } // [ property ]
+  void SetSegments(WVec2U32 vVal);                     // [ property ]
+  WVec2U32 GetSegments() const { return m_vSegments; } // [ property ]
 
   /// How much sag the cloth should have along each axis.
-  void SetSlack(ezVec2 vVal);                  // [ property ]
-  ezVec2 GetSlack() const { return m_vSlack; } // [ property ]
+  void SetSlack(WVec2 vVal);                  // [ property ]
+  WVec2 GetSlack() const { return m_vSlack; } // [ property ]
 
   /// A factor to tweak how strong the wind can push the cloth.
   float m_fWindInfluence = 0.3f; // [ property ]
@@ -121,30 +121,30 @@ public:
   float m_fDamping = 0.5f; // [ property ]
 
   /// Tint color for the cloth material.
-  ezColor m_Color = ezColor::White; // [ property ]
+  WColor m_Color = WColor::White; // [ property ]
 
   /// Sets where the cloth is attached to the world.
-  void SetFlags(ezBitflags<ezClothSheetFlags> flags);                // [ property ]
-  ezBitflags<ezClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
+  void SetFlags(WBitflags<WClothSheetFlags> flags);                // [ property ]
+  WBitflags<WClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
 
-  ezMaterialResourceHandle m_hMaterial;                              // [ property ]
+  WMaterialResourceHandle m_hMaterial;                              // [ property ]
 
 private:
   void Update();
   void UpdateClothMesh();
   void SetupCloth();
 
-  ezVec2 m_vSize;
-  ezVec2 m_vSlack;
-  ezVec2U32 m_vSegments;
-  ezBitflags<ezClothSheetFlags> m_Flags;
+  WVec2 m_vSize;
+  WVec2 m_vSlack;
+  WVec2U32 m_vSegments;
+  WBitflags<WClothSheetFlags> m_Flags;
 
-  ezUInt8 m_uiSleepCounter = 0;
-  ezUInt8 m_uiCheckEquilibriumCounter = 0;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  WUInt8 m_uiSleepCounter = 0;
+  WUInt8 m_uiCheckEquilibriumCounter = 0;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 
-  ezClothSimulator m_Simulator;
+  WClothSimulator m_Simulator;
 
-  ezBoundingBox m_Bbox;
-  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
+  WBoundingBox m_Bbox;
+  WDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };

@@ -4,27 +4,27 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <RendererCore/BakedProbes/BakingUtils.h>
 
-struct ezBakingSettings;
-class ezTracerInterface;
+struct WBakingSettings;
+class WTracerInterface;
 
-namespace ezBakingInternal
+namespace WBakingInternal
 {
-  class EZ_BAKINGPLUGIN_DLL SkyVisibilityTask : public ezTask
+  class W_BAKINGPLUGIN_DLL SkyVisibilityTask : public WTask
   {
   public:
-    SkyVisibilityTask(const ezBakingSettings& settings, ezTracerInterface& tracer, ezArrayPtr<const ezVec3> probePositions);
+    SkyVisibilityTask(const WBakingSettings& settings, WTracerInterface& tracer, WArrayPtr<const WVec3> probePositions);
     ~SkyVisibilityTask();
 
     virtual void Execute() override;
 
-    ezArrayPtr<const ezCompressedSkyVisibility> GetSkyVisibility() const { return m_SkyVisibility; }
+    WArrayPtr<const WCompressedSkyVisibility> GetSkyVisibility() const { return m_SkyVisibility; }
 
   private:
-    const ezBakingSettings& m_Settings;
+    const WBakingSettings& m_Settings;
 
-    ezTracerInterface& m_Tracer;
-    ezArrayPtr<const ezVec3> m_ProbePositions;
+    WTracerInterface& m_Tracer;
+    WArrayPtr<const WVec3> m_ProbePositions;
 
-    ezDynamicArray<ezCompressedSkyVisibility> m_SkyVisibility;
+    WDynamicArray<WCompressedSkyVisibility> m_SkyVisibility;
   };
-} // namespace ezBakingInternal
+} // namespace WBakingInternal

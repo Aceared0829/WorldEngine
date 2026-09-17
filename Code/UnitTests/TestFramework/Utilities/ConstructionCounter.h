@@ -3,14 +3,14 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <TestFramework/TestFrameworkDLL.h>
 
-struct ezConstructionCounter
+struct WConstructionCounter
 {
   /// Dummy m_iData, such that one can test the constructor with initialization
-  ezInt32 m_iData;
+  WInt32 m_iData;
   bool m_valid;
 
   /// Default Constructor
-  ezConstructionCounter()
+  WConstructionCounter()
     : m_iData(0)
     , m_valid(true)
   {
@@ -18,7 +18,7 @@ struct ezConstructionCounter
   }
 
   /// Constructor with initialization
-  ezConstructionCounter(ezInt32 d)
+  WConstructionCounter(WInt32 d)
     : m_iData(d)
     , m_valid(true)
   {
@@ -26,7 +26,7 @@ struct ezConstructionCounter
   }
 
   /// Copy Constructor
-  ezConstructionCounter(const ezConstructionCounter& cc)
+  WConstructionCounter(const WConstructionCounter& cc)
     : m_iData(cc.m_iData)
     , m_valid(true)
   {
@@ -34,7 +34,7 @@ struct ezConstructionCounter
   }
 
   /// Move construction counts as a construction as well.
-  ezConstructionCounter(ezConstructionCounter&& cc) noexcept
+  WConstructionCounter(WConstructionCounter&& cc) noexcept
     : m_iData(cc.m_iData)
     , m_valid(true)
   {
@@ -43,25 +43,25 @@ struct ezConstructionCounter
   }
 
   /// Destructor
-  ~ezConstructionCounter()
+  ~WConstructionCounter()
   {
-    EZ_ASSERT_ALWAYS(m_valid, "Destroying object twice");
+    W_ASSERT_ALWAYS(m_valid, "Destroying object twice");
     m_valid = false;
     ++s_iDestructions;
   }
 
   /// Assignment does not change the construction counter, because it is only executed on already constructed objects.
-  void operator=(const ezConstructionCounter& cc) { m_iData = cc.m_iData; }
+  void operator=(const WConstructionCounter& cc) { m_iData = cc.m_iData; }
   /// Move assignment does not change the construction counter, because it is only executed on already constructed objects.
-  void operator=(const ezConstructionCounter&& cc) noexcept { m_iData = cc.m_iData; }
+  void operator=(const WConstructionCounter&& cc) noexcept { m_iData = cc.m_iData; }
 
-  bool operator==(const ezConstructionCounter& cc) const { return m_iData == cc.m_iData; }
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezConstructionCounter&);
+  bool operator==(const WConstructionCounter& cc) const { return m_iData == cc.m_iData; }
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WConstructionCounter&);
 
-  bool operator<(const ezConstructionCounter& rhs) const { return m_iData < rhs.m_iData; }
+  bool operator<(const WConstructionCounter& rhs) const { return m_iData < rhs.m_iData; }
 
   /// Checks whether n constructions have been done since the last check.
-  static bool HasConstructed(ezInt32 iCons)
+  static bool HasConstructed(WInt32 iCons)
   {
     const bool b = s_iConstructions == s_iConstructionsLast + iCons;
     s_iConstructionsLast = s_iConstructions;
@@ -74,7 +74,7 @@ struct ezConstructionCounter
   }
 
   /// Checks whether n destructions have been done since the last check.
-  static bool HasDestructed(ezInt32 iCons)
+  static bool HasDestructed(WInt32 iCons)
   {
     const bool b = s_iDestructions == s_iDestructionsLast + iCons;
     s_iConstructionsLast = s_iConstructions;
@@ -87,7 +87,7 @@ struct ezConstructionCounter
   }
 
   /// Checks whether n constructions and destructions have been done since the last check.
-  static bool HasDone(ezInt32 iCons, ezInt32 iDes)
+  static bool HasDone(WInt32 iCons, WInt32 iDes)
   {
     const bool bc = (s_iConstructions == (s_iConstructionsLast + iCons));
     const bool bd = (s_iDestructions == (s_iDestructionsLast + iDes));
@@ -128,34 +128,34 @@ struct ezConstructionCounter
     s_iDestructionsLast = 0;
   }
 
-  static ezInt32 s_iConstructions;
-  static ezInt32 s_iConstructionsLast;
-  static ezInt32 s_iDestructions;
-  static ezInt32 s_iDestructionsLast;
+  static WInt32 s_iConstructions;
+  static WInt32 s_iConstructionsLast;
+  static WInt32 s_iDestructions;
+  static WInt32 s_iDestructionsLast;
 };
 
-struct ezConstructionCounterRelocatable
+struct WConstructionCounterRelocatable
 {
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+  W_DECLARE_MEM_RELOCATABLE_TYPE();
 
   /// Dummy m_iData, such that one can test the constructor with initialization
-  ezInt32 m_iData;
+  WInt32 m_iData;
 
   /// Bool to track if the element was default constructed or received valid data.
   bool m_valid = false;
 
-  ezConstructionCounterRelocatable() = default;
+  WConstructionCounterRelocatable() = default;
 
-  ezConstructionCounterRelocatable(ezInt32 d)
+  WConstructionCounterRelocatable(WInt32 d)
     : m_iData(d)
     , m_valid(true)
   {
     s_iConstructions++;
   }
 
-  ezConstructionCounterRelocatable(const ezConstructionCounterRelocatable& other) = delete;
+  WConstructionCounterRelocatable(const WConstructionCounterRelocatable& other) = delete;
 
-  ezConstructionCounterRelocatable(ezConstructionCounterRelocatable&& other) noexcept
+  WConstructionCounterRelocatable(WConstructionCounterRelocatable&& other) noexcept
   {
     m_iData = other.m_iData;
     m_valid = other.m_valid;
@@ -163,13 +163,13 @@ struct ezConstructionCounterRelocatable
     other.m_valid = false;
   }
 
-  ~ezConstructionCounterRelocatable()
+  ~WConstructionCounterRelocatable()
   {
     if (m_valid)
       s_iDestructions++;
   }
 
-  void operator=(ezConstructionCounterRelocatable&& other) noexcept
+  void operator=(WConstructionCounterRelocatable&& other) noexcept
   {
     m_iData = other.m_iData;
     m_valid = other.m_valid;
@@ -186,7 +186,7 @@ struct ezConstructionCounterRelocatable
   }
 
   /// Checks whether n constructions and destructions have been done since the last check.
-  static bool HasDone(ezInt32 iCons, ezInt32 iDes)
+  static bool HasDone(WInt32 iCons, WInt32 iDes)
   {
     const bool bc = (s_iConstructions == (s_iConstructionsLast + iCons));
     const bool bd = (s_iDestructions == (s_iDestructionsLast + iDes));
@@ -220,16 +220,16 @@ struct ezConstructionCounterRelocatable
     s_iDestructionsLast = 0;
   }
 
-  static ezInt32 s_iConstructions;
-  static ezInt32 s_iConstructionsLast;
-  static ezInt32 s_iDestructions;
-  static ezInt32 s_iDestructionsLast;
+  static WInt32 s_iConstructions;
+  static WInt32 s_iConstructionsLast;
+  static WInt32 s_iDestructions;
+  static WInt32 s_iDestructionsLast;
 };
 
 template <>
-struct ezHashHelper<ezConstructionCounter>
+struct WHashHelper<WConstructionCounter>
 {
-  static ezUInt32 Hash(const ezConstructionCounter& value) { return ezHashHelper<ezInt32>::Hash(value.m_iData); }
+  static WUInt32 Hash(const WConstructionCounter& value) { return WHashHelper<WInt32>::Hash(value.m_iData); }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezConstructionCounter& a, const ezConstructionCounter& b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(const WConstructionCounter& a, const WConstructionCounter& b) { return a == b; }
 };

@@ -5,11 +5,11 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezIpcChannel;
-class ezMessageLoop;
+class WIpcChannel;
+class WMessageLoop;
 
-/// Event data for ezIpcChannel::m_Events
-struct EZ_FOUNDATION_DLL ezIpcChannelEvent
+/// Event data for WIpcChannel::m_Events
+struct W_FOUNDATION_DLL WIpcChannelEvent
 {
   enum Type
   {
@@ -19,16 +19,16 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
     NewMessages,  ///< Sent when a new messages have been received or when disconnected to wake up any thread waiting for messages.
   };
 
-  ezIpcChannelEvent() = default;
+  WIpcChannelEvent() = default;
 
-  ezIpcChannelEvent(Type type, ezIpcChannel* pChannel)
+  WIpcChannelEvent(Type type, WIpcChannel* pChannel)
     : m_Type(type)
     , m_pChannel(pChannel)
   {
   }
 
   Type m_Type = NewMessages;
-  ezIpcChannel* m_pChannel = nullptr;
+  WIpcChannel* m_pChannel = nullptr;
 };
 
 
@@ -38,14 +38,14 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 ///  The channel allows for byte blobs to be send back and forth between two processes.
 ///  A client should only try to connect to a server once the server has changed to ConnectionState::Connecting as this indicates the server is ready to be conneccted to.
 ///
-///  Use ezIpcChannel:::CreatePipeChannel to create an IPC pipe instance.
-///  To send more complex messages accross, you can create a ezIpcProcessMessageProtocol on top of the channel.
-class EZ_FOUNDATION_DLL ezIpcChannel
+///  Use WIpcChannel:::CreatePipeChannel to create an IPC pipe instance.
+///  To send more complex messages accross, you can create a WIpcProcessMessageProtocol on top of the channel.
+class W_FOUNDATION_DLL WIpcChannel
 {
 public:
   struct Mode
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
     enum Enum
     {
       Server,
@@ -56,7 +56,7 @@ public:
 
   struct ConnectionState
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
     enum Enum
     {
       Disconnected,
@@ -66,41 +66,41 @@ public:
     };
   };
 
-  virtual ~ezIpcChannel();
+  virtual ~WIpcChannel();
 
   /// Creates an IPC communication channel using pipes.
   /// \param szAddress Name of the pipe, must be unique on a system and less than 200 characters.
   /// \param mode Whether to run in client or server mode.
-  static ezInternal::NewInstance<ezIpcChannel> CreatePipeChannel(ezStringView sAddress, Mode::Enum mode);
+  static WInternal::NewInstance<WIpcChannel> CreatePipeChannel(WStringView sAddress, Mode::Enum mode);
 
-  static ezInternal::NewInstance<ezIpcChannel> CreateNetworkChannel(ezStringView sAddress, Mode::Enum mode);
+  static WInternal::NewInstance<WIpcChannel> CreateNetworkChannel(WStringView sAddress, Mode::Enum mode);
 
-  ezEnum<Mode> GetMode() const { return m_Mode; }
-  ezStringView GetAddress() const { return m_sAddress; }
+  WEnum<Mode> GetMode() const { return m_Mode; }
+  WStringView GetAddress() const { return m_sAddress; }
 
   /// Connects async. Returns whether the state was changed from Disconnected to Connecting.
-  ezResult Connect();
+  WResult Connect();
   /// Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
   /// Returns whether we have a connection.
   bool IsConnected() const { return m_ConnectionState == ConnectionState::Connected; }
   /// Returns the current state of the connection.
-  ezEnum<ConnectionState> GetConnectionState() const { return ezEnum<ConnectionState>(m_ConnectionState); }
+  WEnum<ConnectionState> GetConnectionState() const { return WEnum<ConnectionState>(m_ConnectionState); }
 
   /// Sends a message. pMsg can be destroyed after the call.
-  bool Send(ezArrayPtr<const ezUInt8> data);
+  bool Send(WArrayPtr<const WUInt8> data);
 
-  using ReceiveCallback = ezDelegate<void(ezArrayPtr<const ezUInt8> message)>;
+  using ReceiveCallback = WDelegate<void(WArrayPtr<const WUInt8> message)>;
   void SetReceiveCallback(ReceiveCallback callback);
 
   /// Block and wait for new messages and call ProcessMessages.
-  ezResult WaitForMessages(ezTime timeout);
+  WResult WaitForMessages(WTime timeout);
 
 public:
-  ezEvent<const ezIpcChannelEvent&, ezMutex> m_Events; ///< Will be sent from any thread.
+  WEvent<const WIpcChannelEvent&, WMutex> m_Events; ///< Will be sent from any thread.
 
 protected:
-  ezIpcChannel(ezStringView sAddress, Mode::Enum mode);
+  WIpcChannel(WStringView sAddress, Mode::Enum mode);
 
   /// Override this and return true, if the surrounding infrastructure should call the 'Tick()' function.
   virtual bool RequiresRegularTick() { return false; }
@@ -117,42 +117,42 @@ protected:
   virtual bool NeedWakeup() const = 0;
 
   /// Sets the connection state and calls LogAndBroadcastConnectionState.
-  void SetConnectionState(ezEnum<ConnectionState> state);
+  void SetConnectionState(WEnum<ConnectionState> state);
   /// Implementation needs to call this when new data has been received.
   ///  data can be invalidated after the function.
-  void ReceiveData(ezArrayPtr<const ezUInt8> data);
+  void ReceiveData(WArrayPtr<const WUInt8> data);
   void FlushPendingOperations();
 
 private:
-  void LogAndBroadcastConnectionState(ezEnum<ConnectionState> previousState, ezEnum<ConnectionState> currentState);
+  void LogAndBroadcastConnectionState(WEnum<ConnectionState> previousState, WEnum<ConnectionState> currentState);
 
 protected:
-  enum Constants : ezUInt32
+  enum Constants : WUInt32
   {
-    HEADER_SIZE = 8,                     ///< Magic value and size ezUint32
+    HEADER_SIZE = 8,                     ///< Magic value and size WUint32
     MAGIC_VALUE = 'USED',                ///< Magic value
     MAX_MESSAGE_SIZE = 1024 * 1024 * 16, ///< Arbitrary message size limit
   };
 
-  friend class ezMessageLoop;
-  ezThreadID m_ThreadId = 0;
+  friend class WMessageLoop;
+  WThreadID m_ThreadId = 0;
 
-  ezAtomicInteger<ConnectionState::Enum> m_ConnectionState = ConnectionState::Disconnected;
+  WAtomicInteger<ConnectionState::Enum> m_ConnectionState = ConnectionState::Disconnected;
 
   // Setup in ctor
-  ezString m_sAddress;
-  const ezEnum<Mode> m_Mode;
-  ezMessageLoop* m_pOwner = nullptr;
+  WString m_sAddress;
+  const WEnum<Mode> m_Mode;
+  WMessageLoop* m_pOwner = nullptr;
 
   // Mutex locked
-  ezMutex m_OutputQueueMutex;
-  ezDeque<ezContiguousMemoryStreamStorage> m_OutputQueue;
+  WMutex m_OutputQueueMutex;
+  WDeque<WContiguousMemoryStreamStorage> m_OutputQueue;
 
   // Only accessed from worker thread
-  ezDynamicArray<ezUInt8> m_MessageAccumulator; ///< Message is assembled in here
+  WDynamicArray<WUInt8> m_MessageAccumulator; ///< Message is assembled in here
 
   // Mutex locked
-  ezMutex m_ReceiveCallbackMutex;
+  WMutex m_ReceiveCallbackMutex;
   ReceiveCallback m_ReceiveCallback;
-  ezThreadSignal m_IncomingMessages;
+  WThreadSignal m_IncomingMessages;
 };

@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
+#if W_DISABLED(W_PLATFORM_WINDOWS)
 #  error "WinRT util header should only be included in Windows builds!"
 #endif
 
@@ -24,4 +24,4 @@ using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
 
 // warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
-EZ_MSVC_ANALYSIS_WARNING_DISABLE(4530);
+W_MSVC_ANALYSIS_WARNING_DISABLE(4530);

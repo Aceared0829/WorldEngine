@@ -1,10 +1,10 @@
 #include <FileservePlugin/FileservePluginPCH.h>
 
-EZ_STATICLINK_LIBRARY(FileServePlugin)
+W_STATICLINK_LIBRARY(FileServePlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(FileServePlugin_Client_FileserveClient);
-  EZ_STATICLINK_REFERENCE(FileServePlugin_FileservePlugin);
+  W_STATICLINK_REFERENCE(FileServePlugin_Client_FileserveClient);
+  W_STATICLINK_REFERENCE(FileServePlugin_FileservePlugin);
 }

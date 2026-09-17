@@ -9,27 +9,27 @@
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 
-ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtGameObjectDocumentWindow::WQtGameObjectDocumentWindow(WGameObjectDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
-  pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
-  ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
+  pDocument->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WQtGameObjectDocumentWindow::GameObjectEventHandler, this));
+  WSnapProvider::s_Events.AddEventHandler(WMakeDelegate(&WQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
 }
 
-ezQtGameObjectDocumentWindow::~ezQtGameObjectDocumentWindow()
+WQtGameObjectDocumentWindow::~WQtGameObjectDocumentWindow()
 {
-  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
-  ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
+  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WQtGameObjectDocumentWindow::GameObjectEventHandler, this));
+  WSnapProvider::s_Events.RemoveEventHandler(WMakeDelegate(&WQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
 }
 
-ezGameObjectDocument* ezQtGameObjectDocumentWindow::GetGameObjectDocument() const
+WGameObjectDocument* WQtGameObjectDocumentWindow::GetGameObjectDocument() const
 {
-  return static_cast<ezGameObjectDocument*>(GetDocument());
+  return static_cast<WGameObjectDocument*>(GetDocument());
 }
 
-ezWorldSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetWorldSettings() const
+WWorldSettingsMsgToEngine WQtGameObjectDocumentWindow::GetWorldSettings() const
 {
-  ezWorldSettingsMsgToEngine msg;
+  WWorldSettingsMsgToEngine msg;
   auto pGameObjectDoc = GetGameObjectDocument();
   msg.m_bRenderOverlay = pGameObjectDoc->GetRenderSelectionOverlay();
   msg.m_bRenderShapeIcons = pGameObjectDoc->GetRenderShapeIcons();
@@ -38,9 +38,9 @@ ezWorldSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetWorldSettings() cons
   return msg;
 }
 
-ezGridSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGridSettings() const
+WGridSettingsMsgToEngine WQtGameObjectDocumentWindow::GetGridSettings() const
 {
-  ezGridSettingsMsgToEngine msg;
+  WGridSettingsMsgToEngine msg;
 
   if (auto pTool = GetGameObjectDocument()->GetActiveEditTool())
   {
@@ -48,18 +48,18 @@ ezGridSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGridSettings() const
   }
   else
   {
-    ezManipulatorAdapterRegistry::GetSingleton()->QueryGridSettings(GetDocument(), msg);
+    WManipulatorAdapterRegistry::GetSingleton()->QueryGridSettings(GetDocument(), msg);
   }
 
   return msg;
 }
 
-void ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtGameObjectDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxResultMsgToEditor>())
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (msg->m_uiViewID == 0xFFFFFFFF)
     {
@@ -69,12 +69,12 @@ void ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(const ezEditorEngi
           continue;
 
         if (msg->m_iPurpose == 0)
-          HandleFocusOnSelection(msg, static_cast<ezQtGameObjectViewWidget*>(pView));
+          HandleFocusOnSelection(msg, static_cast<WQtGameObjectViewWidget*>(pView));
       }
     }
     else
     {
-      ezQtGameObjectViewWidget* pSceneView = static_cast<ezQtGameObjectViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
+      WQtGameObjectViewWidget* pSceneView = static_cast<WQtGameObjectViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
 
       if (!pSceneView)
         return;
@@ -87,15 +87,15 @@ void ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(const ezEditorEngi
   }
 }
 
-void ezQtGameObjectDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WQtGameObjectDocumentWindow::GameObjectEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
+    case WGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
       FocusOnSelectionHoveredView();
       break;
 
-    case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
+    case WGameObjectEvent::Type::TriggerFocusOnSelection_All:
       FocusOnSelectionAllViews();
       break;
 
@@ -104,28 +104,28 @@ void ezQtGameObjectDocumentWindow::GameObjectEventHandler(const ezGameObjectEven
   }
 }
 
-void ezQtGameObjectDocumentWindow::FocusOnSelectionAllViews()
+void WQtGameObjectDocumentWindow::FocusOnSelectionAllViews()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
   if (sel.IsEmpty())
     return;
-  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     return;
 
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = 0;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
+void WQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
   if (sel.IsEmpty())
     return;
-  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     return;
 
   auto pView = GetHoveredViewWidget();
@@ -133,20 +133,20 @@ void ezQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
   if (pView == nullptr)
     return;
 
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = pView->GetViewID();
   msg.m_iPurpose = 0;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView)
+void WQtGameObjectDocumentWindow::HandleFocusOnSelection(const WQuerySelectionBBoxResultMsgToEditor* pMsg, WQtGameObjectViewWidget* pSceneView)
 {
-  const ezVec3 vPivotPoint = pMsg->m_vCenter;
+  const WVec3 vPivotPoint = pMsg->m_vCenter;
 
-  const ezCamera& cam = pSceneView->m_pViewConfig->m_Camera;
+  const WCamera& cam = pSceneView->m_pViewConfig->m_Camera;
 
-  ezVec3 vNewCameraPosition = cam.GetCenterPosition();
-  ezVec3 vNewCameraDirection = cam.GetDirForwards();
+  WVec3 vNewCameraPosition = cam.GetCenterPosition();
+  WVec3 vNewCameraDirection = cam.GetDirForwards();
   float fNewFovOrDim = cam.GetFovOrDim();
 
   if (pSceneView->width() == 0 || pSceneView->height() == 0)
@@ -154,47 +154,47 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
 
   const float fApsectRation = (float)pSceneView->width() / (float)pSceneView->height();
 
-  ezBoundingBox bbox;
+  WBoundingBox bbox;
 
   // clamp the bbox of the selection to ranges that won't break down due to float precision
   {
-    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
-    bbox.m_vMin = bbox.m_vMin.CompMax(ezVec3(-1000.0f));
-    bbox.m_vMax = bbox.m_vMax.CompMin(ezVec3(+1000.0f));
+    bbox = WBoundingBox::MakeFromCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
+    bbox.m_vMin = bbox.m_vMin.CompMax(WVec3(-1000.0f));
+    bbox.m_vMax = bbox.m_vMax.CompMin(WVec3(+1000.0f));
   }
 
-  const ezVec3 vCurrentOrbitPoint = pSceneView->m_pCameraMoveContext->GetOrbitPoint();
+  const WVec3 vCurrentOrbitPoint = pSceneView->m_pCameraMoveContext->GetOrbitPoint();
   const bool bZoomIn = vPivotPoint.IsEqual(vCurrentOrbitPoint, 0.1f);
 
-  if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
+  if (cam.GetCameraMode() == WCameraMode::PerspectiveFixedFovX || cam.GetCameraMode() == WCameraMode::PerspectiveFixedFovY)
   {
     const float maxExt = pMsg->m_vHalfExtents.GetLength();
     const float fMinDistance = cam.GetNearPlane() * 1.1f + maxExt;
 
     {
-      ezPlane p;
-      p = ezPlane::MakeFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
+      WPlane p;
+      p = WPlane::MakeFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
 
       // at some distance the floating point precision gets so crappy that the camera movement breaks
       // therefore we clamp it to a 'reasonable' distance here
-      const float distBest = ezMath::Min(ezMath::Abs(p.GetDistanceTo(vPivotPoint)), 500.0f);
+      const float distBest = WMath::Min(WMath::Abs(p.GetDistanceTo(vPivotPoint)), 500.0f);
 
-      vNewCameraPosition = vPivotPoint - vNewCameraDirection * ezMath::Max(fMinDistance, distBest);
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * WMath::Max(fMinDistance, distBest);
     }
 
     // only zoom in on the object, if the target position is already identical (action executed twice)
-    if (!pMsg->m_vHalfExtents.IsZero(ezMath::DefaultEpsilon<float>()) && bZoomIn)
+    if (!pMsg->m_vHalfExtents.IsZero(WMath::DefaultEpsilon<float>()) && bZoomIn)
     {
-      const ezAngle fovX = cam.GetFovX(fApsectRation);
-      const ezAngle fovY = cam.GetFovY(fApsectRation);
+      const WAngle fovX = cam.GetFovX(fApsectRation);
+      const WAngle fovY = cam.GetFovY(fApsectRation);
 
       const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
 
-      const float dist1 = fRadius / ezMath::Sin(fovX * 0.75f);
-      const float dist2 = fRadius / ezMath::Sin(fovY * 0.75f);
-      const float distBest = ezMath::Max(dist1, dist2);
+      const float dist1 = fRadius / WMath::Sin(fovX * 0.75f);
+      const float dist2 = fRadius / WMath::Sin(fovY * 0.75f);
+      const float distBest = WMath::Max(dist1, dist2);
 
-      vNewCameraPosition = vPivotPoint - vNewCameraDirection * ezMath::Max(fMinDistance, distBest);
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * WMath::Max(fMinDistance, distBest);
     }
   }
   else
@@ -205,17 +205,17 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
     if (bZoomIn)
     {
 
-      const ezVec3 right = cam.GetDirRight();
-      const ezVec3 up = cam.GetDirUp();
+      const WVec3 right = cam.GetDirRight();
+      const WVec3 up = cam.GetDirUp();
 
       const float fSizeFactor = 2.0f;
 
-      const float fRequiredWidth = ezMath::Abs(right.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
-      const float fRequiredHeight = ezMath::Abs(up.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
+      const float fRequiredWidth = WMath::Abs(right.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
+      const float fRequiredHeight = WMath::Abs(up.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
 
       float fDimWidth, fDimHeight;
 
-      if (cam.GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+      if (cam.GetCameraMode() == WCameraMode::OrthoFixedHeight)
       {
         fDimHeight = cam.GetFovOrDim();
         fDimWidth = fDimHeight * fApsectRation;
@@ -229,7 +229,7 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
       const float fScaleWidth = fRequiredWidth / fDimWidth;
       const float fScaleHeight = fRequiredHeight / fDimHeight;
 
-      const float fScaleDim = ezMath::Max(fScaleWidth, fScaleHeight);
+      const float fScaleDim = WMath::Max(fScaleWidth, fScaleHeight);
 
       if (fScaleDim > 0.0f)
       {
@@ -242,20 +242,20 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
   pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
 }
 
-void ezQtGameObjectDocumentWindow::SnapProviderEventHandler(const ezSnapProviderEvent& e)
+void WQtGameObjectDocumentWindow::SnapProviderEventHandler(const WSnapProviderEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezSnapProviderEvent::Type::RotationSnapChanged:
-      ShowTemporaryStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}°").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
+    case WSnapProviderEvent::Type::RotationSnapChanged:
+      ShowTemporaryStatusBarMsg(WFmt(WStringUtf8(L"Snapping Angle: {0}°").GetData(), WSnapProvider::GetRotationSnapValue().GetDegree()));
       break;
 
-    case ezSnapProviderEvent::Type::ScaleSnapChanged:
-      ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetScaleSnapValue()));
+    case WSnapProviderEvent::Type::ScaleSnapChanged:
+      ShowTemporaryStatusBarMsg(WFmt("Snapping Value: {0}", WSnapProvider::GetScaleSnapValue()));
       break;
 
-    case ezSnapProviderEvent::Type::TranslationSnapChanged:
-      ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetTranslationSnapValue()));
+    case WSnapProviderEvent::Type::TranslationSnapChanged:
+      ShowTemporaryStatusBarMsg(WFmt("Snapping Value: {0}", WSnapProvider::GetTranslationSnapValue()));
       break;
   }
 }

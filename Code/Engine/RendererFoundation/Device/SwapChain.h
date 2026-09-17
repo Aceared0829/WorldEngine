@@ -7,53 +7,53 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALSwapChain : public ezGALObject<ezGALSwapChainCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALSwapChain : public WGALObject<WGALSwapChainCreationDescription>
 {
 public:
-  const ezGALRenderTargets& GetRenderTargets() const { return m_RenderTargets; }
-  ezGALTextureHandle GetBackBufferTexture() const { return m_RenderTargets.m_hRTs[0]; }
-  ezSizeU32 GetCurrentSize() const { return m_CurrentSize; }
+  const WGALRenderTargets& GetRenderTargets() const { return m_RenderTargets; }
+  WGALTextureHandle GetBackBufferTexture() const { return m_RenderTargets.m_hRTs[0]; }
+  WSizeU32 GetCurrentSize() const { return m_CurrentSize; }
 
-  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) = 0;
-  virtual void PresentRenderTarget(ezGALDevice* pDevice) = 0;
-  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) = 0;
+  virtual void AcquireNextRenderTarget(WGALDevice* pDevice) = 0;
+  virtual void PresentRenderTarget(WGALDevice* pDevice) = 0;
+  virtual WResult UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode) = 0;
 
-  virtual ~ezGALSwapChain();
+  virtual ~WGALSwapChain();
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  ezGALSwapChain(const ezRTTI* pSwapChainType);
+  WGALSwapChain(const WRTTI* pSwapChainType);
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
-  ezGALRenderTargets m_RenderTargets;
-  ezSizeU32 m_CurrentSize = {};
+  WGALRenderTargets m_RenderTargets;
+  WSizeU32 m_CurrentSize = {};
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALSwapChain);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERFOUNDATION_DLL, WGALSwapChain);
 
 
-class EZ_RENDERERFOUNDATION_DLL ezGALWindowSwapChain : public ezGALSwapChain
+class W_RENDERERFOUNDATION_DLL WGALWindowSwapChain : public WGALSwapChain
 {
 public:
-  using Functor = ezDelegate<ezGALSwapChainHandle(const ezGALWindowSwapChainCreationDescription&)>;
+  using Functor = WDelegate<WGALSwapChainHandle(const WGALWindowSwapChainCreationDescription&)>;
   static void SetFactoryMethod(Functor factory);
 
-  static ezGALSwapChainHandle Create(const ezGALWindowSwapChainCreationDescription& desc);
+  static WGALSwapChainHandle Create(const WGALWindowSwapChainCreationDescription& desc);
 
 public:
-  const ezGALWindowSwapChainCreationDescription& GetWindowDescription() const { return m_WindowDesc; }
+  const WGALWindowSwapChainCreationDescription& GetWindowDescription() const { return m_WindowDesc; }
 
 protected:
-  ezGALWindowSwapChain(const ezGALWindowSwapChainCreationDescription& Description);
+  WGALWindowSwapChain(const WGALWindowSwapChainCreationDescription& Description);
 
 protected:
   static Functor s_Factory;
 
 protected:
-  ezGALWindowSwapChainCreationDescription m_WindowDesc;
+  WGALWindowSwapChainCreationDescription m_WindowDesc;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALWindowSwapChain);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERFOUNDATION_DLL, WGALWindowSwapChain);
 
 #include <RendererFoundation/Device/Implementation/SwapChain_inl.h>

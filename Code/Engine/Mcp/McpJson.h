@@ -11,31 +11,31 @@
 /// go missing, arrive as the wrong type, or are spelled differently than the schema asked for. A tool
 /// that wants to reject bad input has to compare against the fallback and say so in its result.
 ///
-/// For producing JSON see ezMcpJsonWriter.
-struct EZ_MCP_DLL ezMcpJson
+/// For producing JSON see WMcpJsonWriter.
+struct W_MCP_DLL WMcpJson
 {
   /// Returns the value of a string member, or sFallback if it is missing or not a string.
-  static ezStringView GetString(const ezVariantDictionary& dict, ezStringView sKey, ezStringView sFallback = {});
+  static WStringView GetString(const WVariantDictionary& dict, WStringView sKey, WStringView sFallback = {});
 
   /// Returns the value of a number member, or iFallback if it is missing or not a number.
   ///
   /// The JSON parser turns every number into a double, and AI clients happily send "10" as a string,
   /// so this accepts anything convertible.
-  static ezInt64 GetInt(const ezVariantDictionary& dict, ezStringView sKey, ezInt64 iFallback);
+  static WInt64 GetInt(const WVariantDictionary& dict, WStringView sKey, WInt64 iFallback);
 
   /// Returns the value of a bool member, or bFallback if it is missing or not a bool.
   ///
   /// Also accepts the strings "true"/"false" and numbers, because clients send all three.
-  static bool GetBool(const ezVariantDictionary& dict, ezStringView sKey, bool bFallback);
+  static bool GetBool(const WVariantDictionary& dict, WStringView sKey, bool bFallback);
 
   /// Returns a nested object member, or nullptr.
-  static const ezVariantDictionary* GetDict(const ezVariantDictionary& dict, ezStringView sKey);
+  static const WVariantDictionary* GetDict(const WVariantDictionary& dict, WStringView sKey);
 
   /// Returns a member that is a raw JSON array, or nullptr if it is missing or not an array.
   ///
   /// Unlike GetStringArray() this does not convert or filter elements - use it when the array holds
-  /// objects (e.g. a list of steps), and inspect each ezVariant yourself.
-  static const ezVariantArray* GetArray(const ezVariantDictionary& dict, ezStringView sKey);
+  /// objects (e.g. a list of steps), and inspect each WVariant yourself.
+  static const WVariantArray* GetArray(const WVariantDictionary& dict, WStringView sKey);
 
   /// Collects a member that is a list of strings into out_values.
   ///
@@ -43,5 +43,5 @@ struct EZ_MCP_DLL ezMcpJson
   /// tends to send it bare. Non-string array elements are converted where they can be and skipped
   /// otherwise, so one malformed entry does not discard the rest. Returns false when the member is
   /// missing entirely, which is what distinguishes 'not given' from 'given as empty'.
-  static bool GetStringArray(const ezVariantDictionary& dict, ezStringView sKey, ezDynamicArray<ezString>& out_values);
+  static bool GetStringArray(const WVariantDictionary& dict, WStringView sKey, WDynamicArray<WString>& out_values);
 };

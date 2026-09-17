@@ -19,34 +19,34 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Texture/Image/Image.h>
 
-ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
+WGameApplicationBase* WGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
 
-ezGameApplicationBase::ezGameApplicationBase(ezStringView sAppName)
-  : ezApplication(sAppName)
-  , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
-  , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
+WGameApplicationBase::WGameApplicationBase(WStringView sAppName)
+  : WApplication(sAppName)
+  , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", WMakeDelegate(&WGameApplicationBase::TakeScreenshot, this))
+  , m_ConFunc_CaptureFrame("CaptureFrame", "()", WMakeDelegate(&WGameApplicationBase::CaptureFrame, this))
 {
   s_pGameApplicationBaseInstance = this;
 }
 
-ezGameApplicationBase::~ezGameApplicationBase()
+WGameApplicationBase::~WGameApplicationBase()
 {
   s_pGameApplicationBaseInstance = nullptr;
 }
 
-void AppendCurrentTimestamp(ezStringBuilder& out_sString)
+void AppendCurrentTimestamp(WStringBuilder& out_sString)
 {
-  const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
+  const WDateTime dt = WDateTime::MakeFromTimestamp(WTimestamp::CurrentTimestamp());
 
-  out_sString.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+  out_sString.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), WArgU(dt.GetMonth(), 2, true), WArgU(dt.GetDay(), 2, true), WArgU(dt.GetHour(), 2, true), WArgU(dt.GetMinute(), 2, true), WArgU(dt.GetSecond(), 2, true), WArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
-void ezGameApplicationBase::TakeProfilingCapture()
+void WGameApplicationBase::TakeProfilingCapture()
 {
-  class WriteProfilingDataTask final : public ezTask
+  class WriteProfilingDataTask final : public WTask
   {
   public:
-    ezProfilingSystem::ProfilingData m_profilingData;
+    WProfilingSystem::ProfilingData m_profilingData;
 
     WriteProfilingDataTask() = default;
     ~WriteProfilingDataTask() = default;
@@ -54,44 +54,44 @@ void ezGameApplicationBase::TakeProfilingCapture()
   private:
     virtual void Execute() override
     {
-      ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
+      WStringBuilder sPath(":appdata/Profiling/", WApplication::GetApplicationInstance()->GetApplicationName());
       AppendCurrentTimestamp(sPath);
       sPath.Append(".json");
 
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(sPath) == EZ_SUCCESS)
+      WFileWriter fileWriter;
+      if (fileWriter.Open(sPath) == W_SUCCESS)
       {
         m_profilingData.Write(fileWriter).IgnoreResult();
-        ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        WLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
       }
       else
       {
-        ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
+        WLog::Error("Could not write profiling capture to '{0}'.", sPath);
       }
     }
   };
 
-  ezSharedPtr<WriteProfilingDataTask> pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
-  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never);
-  ezProfilingSystem::Capture(pWriteProfilingDataTask->m_profilingData);
+  WSharedPtr<WriteProfilingDataTask> pWriteProfilingDataTask = W_DEFAULT_NEW(WriteProfilingDataTask);
+  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", WTaskNesting::Never);
+  WProfilingSystem::Capture(pWriteProfilingDataTask->m_profilingData);
 
-  ezTaskSystem::StartSingleTask(pWriteProfilingDataTask, ezTaskPriority::LongRunning);
+  WTaskSystem::StartSingleTask(pWriteProfilingDataTask, WTaskPriority::LongRunning);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameApplicationBase::TakeScreenshot()
+void WGameApplicationBase::TakeScreenshot()
 {
   m_bTakeScreenshot = true;
 }
 
-void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sContext /*= {} */)
+void WGameApplicationBase::StoreScreenshot(WImage&& image, WStringView sContext /*= {} */)
 {
-  class WriteFileTask final : public ezTask
+  class WriteFileTask final : public WTask
   {
   public:
-    ezImage m_Image;
-    ezStringBuilder m_sPath;
+    WImage m_Image;
+    WStringBuilder m_sPath;
 
     WriteFileTask() = default;
     ~WriteFileTask() = default;
@@ -100,20 +100,20 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sConte
     virtual void Execute() override
     {
       // get rid of Alpha channel before saving
-      m_Image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB).IgnoreResult();
+      m_Image.Convert(WImageFormat::R8G8B8_UNORM_SRGB).IgnoreResult();
 
       if (m_Image.SaveTo(m_sPath).Succeeded())
       {
-        ezLog::Info("Screenshot: '{0}'", m_sPath);
+        WLog::Info("Screenshot: '{0}'", m_sPath);
       }
     }
   };
 
-  ezSharedPtr<WriteFileTask> pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
+  WSharedPtr<WriteFileTask> pWriteTask = W_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->ConfigureTask("Write Screenshot", WTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
-  pWriteTask->m_sPath.SetFormat(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
+  pWriteTask->m_sPath.SetFormat(":appdata/Screenshots/{0}", WApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
   pWriteTask->m_sPath.Append(sContext);
   pWriteTask->m_sPath.Append(".png");
@@ -121,17 +121,17 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sConte
   // we move the file writing off to another thread to save some time
   // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
   // 'LongRunning' will give it even less priority and let the task system do them in parallel to other things
-  ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
+  WTaskSystem::StartSingleTask(pWriteTask, WTaskPriority::LongRunning);
 }
 
-void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext /* = {} */)
+void WGameApplicationBase::ExecuteTakeScreenshot(WWindowOutputTargetBase* pOutputTarget, WStringView sContext /* = {} */)
 {
   // Poll a previously started capture first.
   if (m_bScreenshotPending)
   {
-    ezImage img;
-    ezEnum<ezCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
-    if (res == ezCaptureImageResult::Ready)
+    WImage img;
+    WEnum<WCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
+    if (res == WCaptureImageResult::Ready)
     {
       StoreScreenshot(std::move(img), sContext);
       m_bScreenshotPending = false;
@@ -141,7 +141,7 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
   // Start a new capture if requested and no operation is already in flight.
   if (m_bTakeScreenshot)
   {
-    EZ_PROFILE_SCOPE("ExecuteTakeScreenshot");
+    W_PROFILE_SCOPE("ExecuteTakeScreenshot");
     m_bScreenshotPending = true;
     pOutputTarget->StartCaptureImage().IgnoreResult();
   }
@@ -149,44 +149,44 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameApplicationBase::CaptureFrame()
+void WGameApplicationBase::CaptureFrame()
 {
   m_bCaptureFrame = true;
 }
 
-void ezGameApplicationBase::SetContinuousFrameCapture(bool bEnable)
+void WGameApplicationBase::SetContinuousFrameCapture(bool bEnable)
 {
   m_bContinuousFrameCapture = bEnable;
 }
 
-bool ezGameApplicationBase::GetContinousFrameCapture() const
+bool WGameApplicationBase::GetContinousFrameCapture() const
 {
   return m_bContinuousFrameCapture;
 }
 
 
-ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath)
+WResult WGameApplicationBase::GetAbsFrameCaptureOutputPath(WStringBuilder& ref_sOutputPath)
 {
-  ezStringBuilder sPath = ":appdata/FrameCaptures/Capture_";
+  WStringBuilder sPath = ":appdata/FrameCaptures/Capture_";
   AppendCurrentTimestamp(sPath);
-  return ezFileSystem::ResolvePath(sPath, &ref_sOutputPath, nullptr);
+  return WFileSystem::ResolvePath(sPath, &ref_sOutputPath, nullptr);
 }
 
-void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, ezStringView sContext /*= {} */)
+void WGameApplicationBase::ExecuteFrameCapture(WWindowHandle targetWindowHandle, WStringView sContext /*= {} */)
 {
-  ezFrameCaptureInterface* pCaptureInterface = ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>();
+  WFrameCaptureInterface* pCaptureInterface = WSingletonRegistry::GetSingletonInstance<WFrameCaptureInterface>();
   if (!pCaptureInterface)
   {
     return;
   }
 
-  EZ_PROFILE_SCOPE("ExecuteFrameCapture");
+  W_PROFILE_SCOPE("ExecuteFrameCapture");
   // If we still have a running capture (i.e., if no one else has taken the capture so far), finish it
   if (pCaptureInterface->IsFrameCapturing())
   {
     if (m_bCaptureFrame)
     {
-      ezStringBuilder sOutputPath;
+      WStringBuilder sOutputPath;
       if (GetAbsFrameCaptureOutputPath(sOutputPath).Succeeded())
       {
         sOutputPath.Append(sContext);
@@ -195,14 +195,14 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
       pCaptureInterface->EndFrameCaptureAndWriteOutput(targetWindowHandle);
 
-      ezStringBuilder stringBuilder;
+      WStringBuilder stringBuilder;
       if (pCaptureInterface->GetLastAbsCaptureFileName(stringBuilder).Succeeded())
       {
-        ezLog::Info("Frame captured: '{}'", stringBuilder);
+        WLog::Info("Frame captured: '{}'", stringBuilder);
       }
       else
       {
-        ezLog::Warning("Frame capture failed!");
+        WLog::Warning("Frame capture failed!");
       }
       m_bCaptureFrame = false;
     }
@@ -223,51 +223,51 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void WGameApplicationBase::ActivateGameState(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
-  EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
+  W_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
 
   m_pGameState = CreateGameState();
 
-  EZ_ASSERT_ALWAYS(m_pGameState != nullptr, "Failed to create a game state.");
+  W_ASSERT_ALWAYS(m_pGameState != nullptr, "Failed to create a game state.");
 
   m_pGameState->OnActivation(pWorld, sStartPosition, startPositionOffset);
 
-  ezGameApplicationStaticEvent e;
-  e.m_Type = ezGameApplicationStaticEvent::Type::AfterGameStateActivated;
+  WGameApplicationStaticEvent e;
+  e.m_Type = WGameApplicationStaticEvent::Type::AfterGameStateActivated;
   m_StaticEvents.Broadcast(e);
 
-  EZ_BROADCAST_EVENT(AfterGameStateActivation, m_pGameState.Borrow());
+  W_BROADCAST_EVENT(AfterGameStateActivation, m_pGameState.Borrow());
 }
 
-void ezGameApplicationBase::DeactivateGameState()
+void WGameApplicationBase::DeactivateGameState()
 {
   if (m_pGameState == nullptr)
     return;
 
-  EZ_BROADCAST_EVENT(BeforeGameStateDeactivation, m_pGameState.Borrow());
+  W_BROADCAST_EVENT(BeforeGameStateDeactivation, m_pGameState.Borrow());
 
-  ezGameApplicationStaticEvent e;
-  e.m_Type = ezGameApplicationStaticEvent::Type::BeforeGameStateDeactivated;
+  WGameApplicationStaticEvent e;
+  e.m_Type = WGameApplicationStaticEvent::Type::BeforeGameStateDeactivated;
   m_StaticEvents.Broadcast(e);
 
   m_pGameState->OnDeactivation();
 
-  ezWindowManager::GetSingleton()->CloseAll(m_pGameState.Borrow());
+  WWindowManager::GetSingleton()->CloseAll(m_pGameState.Borrow());
 
   m_pGameState = nullptr;
 }
 
-ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState()
+WUniquePtr<WGameStateBase> WGameApplicationBase::CreateGameState()
 {
-  EZ_LOG_BLOCK("Create Game State");
+  W_LOG_BLOCK("Create Game State");
 
-  ezUniquePtr<ezGameStateBase> pCurState;
+  WUniquePtr<WGameStateBase> pCurState;
 
-  ezRTTI::ForEachDerivedType<ezGameStateBase>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WGameStateBase>(
+    [&](const WRTTI* pRtti)
     {
-      ezUniquePtr<ezGameStateBase> pNewState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+      WUniquePtr<WGameStateBase> pNewState = pRtti->GetAllocator()->Allocate<WGameStateBase>();
 
       if (pCurState == nullptr)
 
@@ -290,36 +290,36 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState()
           return;
         }
 
-        ezLog::Warning("Multiple fallback game states found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        WLog::Warning("Multiple fallback game states found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
         return;
       }
 
       if (!pCurState->IsFallbackGameState() && !pNewState->IsFallbackGameState())
       {
-        ezLog::Warning("Multiple game state implementations found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        WLog::Warning("Multiple game state implementations found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
         return;
       }
     },
-    ezRTTI::ForEachOptions::ExcludeNotConcrete);
+    WRTTI::ForEachOptions::ExcludeNotConcrete);
 
   return pCurState;
 }
 
-void ezGameApplicationBase::ActivateGameStateAtStartup()
+void WGameApplicationBase::ActivateGameStateAtStartup()
 {
-  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
+  ActivateGameState(nullptr, {}, WTransform::MakeIdentity());
 }
 
-ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()
+WResult WGameApplicationBase::BeforeCoreSystemsStartup()
 {
-  ezStartup::AddApplicationTag("runtime");
+  WStartup::AddApplicationTag("runtime");
 
   ExecuteBaseInitFunctions();
 
   return SUPER::BeforeCoreSystemsStartup();
 }
 
-void ezGameApplicationBase::AfterCoreSystemsStartup()
+void WGameApplicationBase::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
 
@@ -333,52 +333,52 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
     return;
   }
 
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 
   ActivateGameStateAtStartup();
 }
 
-void ezGameApplicationBase::ExecuteBaseInitFunctions()
+void WGameApplicationBase::ExecuteBaseInitFunctions()
 {
   BaseInit_ConfigureLogging();
 }
 
-void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
+void WGameApplicationBase::BeforeHighLevelSystemsShutdown()
 {
   DeactivateGameState();
 
   {
     // make sure that no resources continue to be streamed in, while the engine shuts down
-    ezResourceManager::EngineAboutToShutdown();
-    ezResourceManager::ExecuteAllResourceCleanupCallbacks();
-    ezResourceManager::FreeAllUnusedResources();
+    WResourceManager::EngineAboutToShutdown();
+    WResourceManager::ExecuteAllResourceCleanupCallbacks();
+    WResourceManager::FreeAllUnusedResources();
   }
 }
 
-void ezGameApplicationBase::BeforeCoreSystemsShutdown()
+void WGameApplicationBase::BeforeCoreSystemsShutdown()
 {
-  if (ezWindowManager::GetSingleton() != nullptr)
+  if (WWindowManager::GetSingleton() != nullptr)
   {
-    ezWindowManager::GetSingleton()->CloseAll(nullptr);
+    WWindowManager::GetSingleton()->CloseAll(nullptr);
   }
 
   {
-    ezFrameAllocator::Reset();
-    ezResourceManager::FreeAllUnusedResources();
+    WFrameAllocator::Reset();
+    WResourceManager::FreeAllUnusedResources();
   }
 
   {
     Deinit_ShutdownGraphicsDevice();
-    ezResourceManager::FreeAllUnusedResources();
+    WResourceManager::FreeAllUnusedResources();
   }
 
-  ezTaskSystem::BroadcastClearThreadLocalsEvent();
+  WTaskSystem::BroadcastClearThreadLocalsEvent();
 
   Deinit_UnloadPlugins();
 
   // shut down telemetry if it was set up
   {
-    ezTelemetry::CloseConnection();
+    WTelemetry::CloseConnection();
   }
 
   Deinit_ShutdownLogging();
@@ -388,44 +388,44 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 
 static bool s_bUpdatePluginsExecuted = false;
 
-EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
+W_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 {
-  EZ_IGNORE_UNUSED(param0);
-  EZ_IGNORE_UNUSED(param1);
-  EZ_IGNORE_UNUSED(param2);
-  EZ_IGNORE_UNUSED(param3);
+  W_IGNORE_UNUSED(param0);
+  W_IGNORE_UNUSED(param1);
+  W_IGNORE_UNUSED(param2);
+  W_IGNORE_UNUSED(param3);
 
   s_bUpdatePluginsExecuted = true;
 }
 
-void ezGameApplicationBase::Run()
+void WGameApplicationBase::Run()
 {
   RunOneFrame();
 }
 
-void ezGameApplicationBase::RunOneFrame()
+void WGameApplicationBase::RunOneFrame()
 {
-  ezProfilingSystem::StartNewFrame();
+  WProfilingSystem::StartNewFrame();
 
-  EZ_PROFILE_SCOPE("Run");
+  W_PROFILE_SCOPE("Run");
   s_bUpdatePluginsExecuted = false;
 
-  ezWindowManager::GetSingleton()->Update();
+  WWindowManager::GetSingleton()->Update();
 
-  const ezGameUpdateMode state = GetGameUpdateMode();
-  if (state == ezGameUpdateMode::Skip)
+  const WGameUpdateMode state = GetGameUpdateMode();
+  if (state == WGameUpdateMode::Skip)
     return;
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
-    EZ_PROFILE_SCOPE("GameApp_BeginAppTick");
-    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::BeginAppTick;
+    W_PROFILE_SCOPE("GameApp_BeginAppTick");
+    W_BROADCAST_EVENT(GameApp_BeginAppTick);
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::BeginAppTick;
     m_ExecutionEvents.Broadcast(e);
   }
 
-  if (state == ezGameUpdateMode::UpdateInputAndRender)
+  if (state == WGameUpdateMode::UpdateInputAndRender)
   {
     Run_InputUpdate();
   }
@@ -438,61 +438,61 @@ void ezGameApplicationBase::RunOneFrame()
   {
     Run_UpdatePlugins();
 
-    EZ_ASSERT_DEV(s_bUpdatePluginsExecuted, "ezGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the "
+    W_ASSERT_DEV(s_bUpdatePluginsExecuted, "WGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the "
                                             "global event 'GameApp_UpdatePlugins' anymore.");
   }
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
-    EZ_PROFILE_SCOPE("GameApp_EndAppTick");
-    EZ_BROADCAST_EVENT(GameApp_EndAppTick);
+    W_PROFILE_SCOPE("GameApp_EndAppTick");
+    W_BROADCAST_EVENT(GameApp_EndAppTick);
 
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::EndAppTick;
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::EndAppTick;
     m_ExecutionEvents.Broadcast(e);
   }
 
   {
-    EZ_PROFILE_SCOPE("BeforePresent");
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
+    W_PROFILE_SCOPE("BeforePresent");
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::BeforePresent;
     m_ExecutionEvents.Broadcast(e);
   }
 
   {
-    EZ_PROFILE_SCOPE("Run_PresentImage");
+    W_PROFILE_SCOPE("Run_PresentImage");
     Run_PresentImage();
   }
-  ezClock::GetGlobalClock()->Update();
+  WClock::GetGlobalClock()->Update();
   UpdateFrameTime();
 
   {
-    EZ_PROFILE_SCOPE("AfterPresent");
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
+    W_PROFILE_SCOPE("AfterPresent");
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::AfterPresent;
     m_ExecutionEvents.Broadcast(e);
   }
 
   {
-    EZ_PROFILE_SCOPE("Run_FinishFrame");
+    W_PROFILE_SCOPE("Run_FinishFrame");
     Run_FinishFrame();
   }
 }
 
-bool ezGameApplicationBase::ShouldApplicationQuit() const
+bool WGameApplicationBase::ShouldApplicationQuit() const
 {
   if (m_pGameState && m_pGameState->WasQuitRequested())
   {
     return true;
   }
 
-  return ezApplication::ShouldApplicationQuit();
+  return WApplication::ShouldApplicationQuit();
 }
 
-void ezGameApplicationBase::Run_InputUpdate()
+void WGameApplicationBase::Run_InputUpdate()
 {
-  EZ_PROFILE_SCOPE("Run_InputUpdate");
-  ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
+  W_PROFILE_SCOPE("Run_InputUpdate");
+  WInputManager::Update(WClock::GetGlobalClock()->GetTimeDiff());
 
   if (!Run_ProcessApplicationInput())
     return;
@@ -503,18 +503,18 @@ void ezGameApplicationBase::Run_InputUpdate()
   }
 }
 
-bool ezGameApplicationBase::Run_ProcessApplicationInput()
+bool WGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
 }
 
-void ezGameApplicationBase::Run_AcquireImage()
+void WGameApplicationBase::Run_AcquireImage()
 {
 }
 
-void ezGameApplicationBase::Run_BeforeWorldUpdate()
+void WGameApplicationBase::Run_BeforeWorldUpdate()
 {
-  EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
+  W_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
 
   if (m_pGameState)
   {
@@ -522,15 +522,15 @@ void ezGameApplicationBase::Run_BeforeWorldUpdate()
   }
 
   {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeWorldUpdates;
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::BeforeWorldUpdates;
     m_ExecutionEvents.Broadcast(e);
   }
 }
 
-void ezGameApplicationBase::Run_AfterWorldUpdate()
+void WGameApplicationBase::Run_AfterWorldUpdate()
 {
-  EZ_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
+  W_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
 
   if (m_pGameState)
   {
@@ -540,59 +540,59 @@ void ezGameApplicationBase::Run_AfterWorldUpdate()
   }
 
   {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterWorldUpdates;
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::AfterWorldUpdates;
     m_ExecutionEvents.Broadcast(e);
   }
 }
 
-void ezGameApplicationBase::Run_UpdatePlugins()
+void WGameApplicationBase::Run_UpdatePlugins()
 {
-  EZ_PROFILE_SCOPE("Run_UpdatePlugins");
+  W_PROFILE_SCOPE("Run_UpdatePlugins");
   {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins;
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::BeforeUpdatePlugins;
     m_ExecutionEvents.Broadcast(e);
   }
 
   // for plugins that need to hook into this without a link dependency on this lib
-  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+  W_BROADCAST_EVENT(GameApp_UpdatePlugins);
 
   {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins;
+    WGameApplicationExecutionEvent e;
+    e.m_Type = WGameApplicationExecutionEvent::Type::AfterUpdatePlugins;
     m_ExecutionEvents.Broadcast(e);
   }
 }
 
-void ezGameApplicationBase::Run_PresentImage() {}
+void WGameApplicationBase::Run_PresentImage() {}
 
-void ezGameApplicationBase::Run_FinishFrame()
+void WGameApplicationBase::Run_FinishFrame()
 {
-  ezTelemetry::PerFrameUpdate();
-  ezResourceManager::PerFrameUpdate();
-  ezTaskSystem::FinishFrameTasks();
-  ezFrameAllocator::Swap();
+  WTelemetry::PerFrameUpdate();
+  WResourceManager::PerFrameUpdate();
+  WTaskSystem::FinishFrameTasks();
+  WFrameAllocator::Swap();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // if many messages have been logged, make sure they get written to disk
-  ezLog::Flush(100, ezTime::MakeFromSeconds(10));
+  WLog::Flush(100, WTime::MakeFromSeconds(10));
 #endif
 
   // reset this state
   m_bTakeScreenshot = false;
 }
 
-void ezGameApplicationBase::UpdateFrameTime()
+void WGameApplicationBase::UpdateFrameTime()
 {
-  // Do not use ezClock for this, it smooths and clamps the timestep
-  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
+  // Do not use WClock for this, it smooths and clamps the timestep
+  const WTime tNow = WClock::GetGlobalClock()->GetLastUpdateTime();
 
-  static ezTime tLast = tNow;
+  static WTime tLast = tNow;
   m_FrameTime = tNow - tLast;
   tLast = tNow;
 }
 
 
 
-EZ_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBase);
+W_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBase);

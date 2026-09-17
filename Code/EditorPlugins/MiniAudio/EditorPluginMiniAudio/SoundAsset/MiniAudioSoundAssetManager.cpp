@@ -6,42 +6,42 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMiniAudioSoundAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioSoundAssetDocumentManager, 1, WRTTIDefaultAllocator<WMiniAudioSoundAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMiniAudioSoundAssetDocumentManager::ezMiniAudioSoundAssetDocumentManager()
+WMiniAudioSoundAssetDocumentManager::WMiniAudioSoundAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "MiniAudioSound";
-  m_DocTypeDesc.m_sFileExtension = "ezMiniAudioSoundAsset";
+  m_DocTypeDesc.m_sFileExtension = "WMiniAudioSoundAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/MiniAudioSound.svg";
   m_DocTypeDesc.m_sAssetCategory = "Sound";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMiniAudioSoundAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WMiniAudioSoundAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_MiniAudio_Sound");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinMiniAudioSound";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinMiniAudioSound";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound", QPixmap(":/AssetIcons/MiniAudioSound.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Sound", QPixmap(":/AssetIcons/MiniAudioSound.svg"));
 }
 
-ezMiniAudioSoundAssetDocumentManager::~ezMiniAudioSoundAssetDocumentManager()
+WMiniAudioSoundAssetDocumentManager::~WMiniAudioSoundAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMiniAudioSoundAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WMiniAudioSoundAssetDocument>())
       {
-        new ezMiniAudioSoundAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WMiniAudioSoundAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -50,12 +50,12 @@ void ezMiniAudioSoundAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
   }
 }
 
-void ezMiniAudioSoundAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WMiniAudioSoundAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezMiniAudioSoundAssetDocument(sPath);
+  out_pDocument = new WMiniAudioSoundAssetDocument(sPath);
 }
 
-void ezMiniAudioSoundAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WMiniAudioSoundAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

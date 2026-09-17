@@ -3,7 +3,7 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-struct EZ_EDITORFRAMEWORK_DLL ezGameObjectContextEvent
+struct W_EDITORFRAMEWORK_DLL WGameObjectContextEvent
 {
   enum class Type
   {
@@ -13,21 +13,21 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectContextEvent
   Type m_Type;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextDocument : public ezGameObjectDocument
+class W_EDITORFRAMEWORK_DLL WGameObjectContextDocument : public WGameObjectDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextDocument, ezGameObjectDocument);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectContextDocument, WGameObjectDocument);
 
 public:
-  ezGameObjectContextDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager,
-    ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
-  ~ezGameObjectContextDocument();
+  WGameObjectContextDocument(WStringView sDocumentPath, WDocumentObjectManager* pObjectManager,
+    WAssetDocEngineConnection engineConnectionType = WAssetDocEngineConnection::FullObjectMirroring);
+  ~WGameObjectContextDocument();
 
-  ezStatus SetContext(ezUuid documentGuid, ezUuid objectGuid);
-  ezUuid GetContextDocumentGuid() const;
-  ezUuid GetContextObjectGuid() const;
-  const ezDocumentObject* GetContextObject() const;
+  WStatus SetContext(WUuid documentGuid, WUuid objectGuid);
+  WUuid GetContextDocumentGuid() const;
+  WUuid GetContextObjectGuid() const;
+  const WDocumentObject* GetContextObject() const;
 
-  mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
+  mutable WEvent<const WGameObjectContextEvent&> m_GameObjectContextEvents;
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
@@ -36,6 +36,6 @@ private:
   void ClearContext();
 
 private:
-  ezUuid m_ContextDocument;
-  ezUuid m_ContextObject;
+  WUuid m_ContextDocument;
+  WUuid m_ContextObject;
 };

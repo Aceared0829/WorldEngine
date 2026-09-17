@@ -5,16 +5,16 @@
 /// Behavior that fades particle alpha over their lifetime
 ///
 /// Uses a power curve to control the fade speed.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_FadeOut final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_FadeOut final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_FadeOut, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_FadeOut, WParticleBehaviorFactory);
 
 public:
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   // ************************************* PROPERTIES ***********************************
 
@@ -23,9 +23,9 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_FadeOut final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_FadeOut final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_FadeOut, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_FadeOut, WParticleBehavior);
 
 public:
   float m_fStartAlpha = 1.0f;
@@ -34,10 +34,10 @@ public:
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezUInt8 m_uiFirstToUpdate = 0;
-  ezUInt8 m_uiCurrentUpdateInterval = 2;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamColor = nullptr;
+  WUInt8 m_uiFirstToUpdate = 0;
+  WUInt8 m_uiCurrentUpdateInterval = 2;
 };

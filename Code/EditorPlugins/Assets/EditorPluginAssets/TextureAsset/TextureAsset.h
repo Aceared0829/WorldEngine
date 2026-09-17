@@ -5,11 +5,11 @@
 #include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 
-class ezTextureAssetProfileConfig;
+class WTextureAssetProfileConfig;
 
-struct ezTextureChannelMode
+struct WTextureChannelMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -25,39 +25,39 @@ struct ezTextureChannelMode
     Default = RGBA
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINASSETS_DLL, ezTextureChannelMode);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINASSETS_DLL, WTextureChannelMode);
 
-class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties>
+class WTextureAssetDocument : public WSimpleAssetDocument<WTextureAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocument, ezSimpleAssetDocument<ezTextureAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WTextureAssetDocument, WSimpleAssetDocument<WTextureAssetProperties>);
 
 public:
-  ezTextureAssetDocument(ezStringView sDocumentPath);
+  WTextureAssetDocument(WStringView sDocumentPath);
 
   // for previewing purposes
-  ezEnum<ezTextureChannelMode> m_ChannelMode;
-  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
+  WEnum<WTextureChannelMode> m_ChannelMode;
+  WInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
   bool m_bIsRenderTarget = false;
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override { return WStatus(W_SUCCESS); }
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const ezTextureAssetProfileConfig* pAssetConfig);
+  WStatus RunTexConv(const char* szTargetFile, const WAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const WTextureAssetProfileConfig* pAssetConfig);
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezTextureAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WTextureAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WTextureAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezTextureAssetDocumentGenerator();
-  ~ezTextureAssetDocumentGenerator();
+  WTextureAssetDocumentGenerator();
+  ~WTextureAssetDocumentGenerator();
 
   enum class TextureType
   {
@@ -73,10 +73,10 @@ public:
     Linear,
   };
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezTextureAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Images"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WTextureAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Images"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 
-  static TextureType DetermineTextureType(ezStringView sFile);
+  static TextureType DetermineTextureType(WStringView sFile);
 };

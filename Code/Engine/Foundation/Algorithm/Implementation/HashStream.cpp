@@ -2,68 +2,68 @@
 
 #include <Foundation/Algorithm/HashStream.h>
 
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_CLANG("-Wunused-function")
+W_WARNING_PUSH()
+W_WARNING_DISABLE_CLANG("-Wunused-function")
 
 #define XXH_INLINE_ALL
 #include <Foundation/ThirdParty/xxHash/xxhash.h>
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
-ezHashStreamWriter32::ezHashStreamWriter32(ezUInt32 uiSeed)
+WHashStreamWriter32::WHashStreamWriter32(WUInt32 uiSeed)
 {
   m_pState = XXH32_createState();
-  EZ_VERIFY(XXH_OK == XXH32_reset((XXH32_state_t*)m_pState, uiSeed), "");
+  W_VERIFY(XXH_OK == XXH32_reset((XXH32_state_t*)m_pState, uiSeed), "");
 }
 
-ezHashStreamWriter32::~ezHashStreamWriter32()
+WHashStreamWriter32::~WHashStreamWriter32()
 {
   XXH32_freeState((XXH32_state_t*)m_pState);
 }
 
-ezResult ezHashStreamWriter32::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WHashStreamWriter32::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
   if (uiBytesToWrite > std::numeric_limits<size_t>::max())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (XXH_OK == XXH32_update((XXH32_state_t*)m_pState, pWriteBuffer, static_cast<size_t>(uiBytesToWrite)))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezUInt32 ezHashStreamWriter32::GetHashValue() const
+WUInt32 WHashStreamWriter32::GetHashValue() const
 {
   return XXH32_digest((XXH32_state_t*)m_pState);
 }
 
 
-ezHashStreamWriter64::ezHashStreamWriter64(ezUInt64 uiSeed)
+WHashStreamWriter64::WHashStreamWriter64(WUInt64 uiSeed)
 {
   m_pState = XXH64_createState();
-  EZ_VERIFY(XXH_OK == XXH64_reset((XXH64_state_t*)m_pState, uiSeed), "");
+  W_VERIFY(XXH_OK == XXH64_reset((XXH64_state_t*)m_pState, uiSeed), "");
 }
 
-ezHashStreamWriter64::~ezHashStreamWriter64()
+WHashStreamWriter64::~WHashStreamWriter64()
 {
   XXH64_freeState((XXH64_state_t*)m_pState);
 }
 
-ezResult ezHashStreamWriter64::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WHashStreamWriter64::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
   if (uiBytesToWrite == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   if (uiBytesToWrite > std::numeric_limits<size_t>::max())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (XXH_OK == XXH64_update((XXH64_state_t*)m_pState, pWriteBuffer, static_cast<size_t>(uiBytesToWrite)))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezUInt64 ezHashStreamWriter64::GetHashValue() const
+WUInt64 WHashStreamWriter64::GetHashValue() const
 {
   return XXH64_digest((XXH64_state_t*)m_pState);
 }

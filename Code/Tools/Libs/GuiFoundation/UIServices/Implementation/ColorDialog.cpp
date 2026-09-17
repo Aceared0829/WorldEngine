@@ -4,30 +4,30 @@
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-QByteArray ezQtColorDialog::s_LastDialogGeometry;
+QByteArray WQtColorDialog::s_LastDialogGeometry;
 
-void ezQtUiServices::ShowColorDialog(
-  const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject)
+void WQtUiServices::ShowColorDialog(
+  const WColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject)
 {
-  m_pColorDlg = new ezQtColorDialog(color, pParent);
+  m_pColorDlg = new WQtColorDialog(color, pParent);
   m_pColorDlg->restoreGeometry(m_ColorDlgGeometry);
   m_pColorDlg->ShowAlpha(bAlpha);
   m_pColorDlg->ShowHDR(bHDR);
 
-  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(CurrentColorChanged(const ezColor&)), pParent, szSlotCurColChanged) != nullptr,
+  W_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(CurrentColorChanged(const WColor&)), pParent, szSlotCurColChanged) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, szSlotAccept) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, szSlotReject) != nullptr, "signal/slot connection failed");
+  W_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, szSlotAccept) != nullptr, "signal/slot connection failed");
+  W_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, szSlotReject) != nullptr, "signal/slot connection failed");
 
   m_pColorDlg->exec();
   delete m_pColorDlg;
   m_pColorDlg = nullptr;
 
-  m_ColorDlgGeometry = ezQtColorDialog::GetLastDialogGeometry();
+  m_ColorDlgGeometry = WQtColorDialog::GetLastDialogGeometry();
 }
 
-ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtColorDialog::WQtColorDialog(const WColor& initial, QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -79,12 +79,12 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* pParent)
   ApplyColor();
 }
 
-ezQtColorDialog::~ezQtColorDialog()
+WQtColorDialog::~WQtColorDialog()
 {
   s_LastDialogGeometry = saveGeometry();
 }
 
-void ezQtColorDialog::ShowAlpha(bool bEnable)
+void WQtColorDialog::ShowAlpha(bool bEnable)
 {
   m_bAlpha = bEnable;
   SpinAlpha->setVisible(bEnable);
@@ -93,7 +93,7 @@ void ezQtColorDialog::ShowAlpha(bool bEnable)
   ApplyColor();
 }
 
-void ezQtColorDialog::ShowHDR(bool bEnable)
+void WQtColorDialog::ShowHDR(bool bEnable)
 {
   m_bHDR = bEnable;
   LineRed32->setVisible(bEnable);
@@ -109,13 +109,13 @@ void ezQtColorDialog::ShowHDR(bool bEnable)
   ApplyColor();
 }
 
-void ezQtColorDialog::ApplyColor()
+void WQtColorDialog::ApplyColor()
 {
-  ezQtScopedBlockSignals _0(SpinAlpha, SliderExposure, LineExposure);
-  ezQtScopedBlockSignals _1(SpinRed, SpinGreen, SpinBlue);
-  ezQtScopedBlockSignals _2(SpinHue, SpinSaturation, SpinValue);
-  ezQtScopedBlockSignals _4(LineRed32, LineGreen32, LineBlue32);
-  ezQtScopedBlockSignals _3(ColorRange, ColorArea);
+  WQtScopedBlockSignals _0(SpinAlpha, SliderExposure, LineExposure);
+  WQtScopedBlockSignals _1(SpinRed, SpinGreen, SpinBlue);
+  WQtScopedBlockSignals _2(SpinHue, SpinSaturation, SpinValue);
+  WQtScopedBlockSignals _4(LineRed32, LineGreen32, LineBlue32);
+  WQtScopedBlockSignals _3(ColorRange, ColorArea);
 
   SpinAlpha->setValue(m_uiAlpha);
   SliderExposure->setValue(m_fExposureValue * 100.0f);
@@ -139,45 +139,45 @@ void ezQtColorDialog::ApplyColor()
   ColorArea->SetValue(m_fValue);
   ColorCompare->SetNewColor(m_CurrentColor);
 
-  ezStringBuilder s;
+  WStringBuilder s;
 
   if (m_bAlpha)
   {
-    s.SetFormat("{0}{1}{2}{3}", ezArgU(m_uiGammaRed, 2, true, 16, true), ezArgU(m_uiGammaGreen, 2, true, 16, true), ezArgU(m_uiGammaBlue, 2, true, 16, true),
-      ezArgU(m_uiAlpha, 2, true, 16, true));
+    s.SetFormat("{0}{1}{2}{3}", WArgU(m_uiGammaRed, 2, true, 16, true), WArgU(m_uiGammaGreen, 2, true, 16, true), WArgU(m_uiGammaBlue, 2, true, 16, true),
+      WArgU(m_uiAlpha, 2, true, 16, true));
   }
   else
   {
-    s.SetFormat("{0}{1}{2}", ezArgU(m_uiGammaRed, 2, true, 16, true), ezArgU(m_uiGammaGreen, 2, true, 16, true), ezArgU(m_uiGammaBlue, 2, true, 16, true));
+    s.SetFormat("{0}{1}{2}", WArgU(m_uiGammaRed, 2, true, 16, true), WArgU(m_uiGammaGreen, 2, true, 16, true), WArgU(m_uiGammaBlue, 2, true, 16, true));
   }
 
   LineHEX->setText(s.GetData());
 }
 
-void ezQtColorDialog::ChangedRGB()
+void WQtColorDialog::ChangedRGB()
 {
   ExtractColorRGB();
   ApplyColor();
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedHSV()
+void WQtColorDialog::ChangedHSV()
 {
   ExtractColorHSV();
   ApplyColor();
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedAlpha()
+void WQtColorDialog::ChangedAlpha()
 {
-  m_uiAlpha = (ezUInt8)SpinAlpha->value();
-  m_CurrentColor.a = ezMath::ColorByteToFloat(m_uiAlpha);
+  m_uiAlpha = (WUInt8)SpinAlpha->value();
+  m_CurrentColor.a = WMath::ColorByteToFloat(m_uiAlpha);
 
   ApplyColor();
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedExposure()
+void WQtColorDialog::ChangedExposure()
 {
   m_fExposureValue = SliderExposure->value() / 100.0f;
 
@@ -186,11 +186,11 @@ void ezQtColorDialog::ChangedExposure()
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedArea(double x, double y)
+void WQtColorDialog::ChangedArea(double x, double y)
 {
-  m_uiSaturation = ezMath::Min<ezUInt8>(ezMath::Round(x * 100.0), 100);
-  m_fSaturation = ezMath::Clamp((float)x, 0.0f, 1.0f);
-  m_fValue = ezMath::Clamp((float)y, 0.0f, 1.0f);
+  m_uiSaturation = WMath::Min<WUInt8>(WMath::Round(x * 100.0), 100);
+  m_fSaturation = WMath::Clamp((float)x, 0.0f, 1.0f);
+  m_fValue = WMath::Clamp((float)y, 0.0f, 1.0f);
 
   RecomputeRGB();
   RecomputeHDR();
@@ -199,9 +199,9 @@ void ezQtColorDialog::ChangedArea(double x, double y)
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedRange(double x)
+void WQtColorDialog::ChangedRange(double x)
 {
-  m_uiHue = ezMath::Clamp<ezUInt16>(ezMath::Round(x * 359), 0, 359);
+  m_uiHue = WMath::Clamp<WUInt16>(WMath::Round(x * 359), 0, 359);
   m_fHue = (float)m_uiHue;
 
   RecomputeRGB();
@@ -211,9 +211,9 @@ void ezQtColorDialog::ChangedRange(double x)
   Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
-void ezQtColorDialog::ChangedHEX()
+void WQtColorDialog::ChangedHEX()
 {
-  ezStringBuilder text = LineHEX->text().toUtf8().data();
+  WStringBuilder text = LineHEX->text().toUtf8().data();
 
   if (!text.StartsWith("#"))
   {
@@ -221,7 +221,7 @@ void ezQtColorDialog::ChangedHEX()
   }
 
   bool valid = false;
-  ezColor col = ezConversionUtils::GetColorByName(text, &valid);
+  WColor col = WConversionUtils::GetColorByName(text, &valid);
 
   if (valid)
   {
@@ -237,36 +237,36 @@ void ezQtColorDialog::ChangedHEX()
   }
 }
 
-void ezQtColorDialog::ExtractColorRGB()
+void WQtColorDialog::ExtractColorRGB()
 {
-  m_uiGammaRed = (ezUInt8)SpinRed->value();
-  m_uiGammaGreen = (ezUInt8)SpinGreen->value();
-  m_uiGammaBlue = (ezUInt8)SpinBlue->value();
+  m_uiGammaRed = (WUInt8)SpinRed->value();
+  m_uiGammaGreen = (WUInt8)SpinGreen->value();
+  m_uiGammaBlue = (WUInt8)SpinBlue->value();
 
   RecomputeHSV();
   RecomputeHDR();
 }
 
-void ezQtColorDialog::ExtractColorHSV()
+void WQtColorDialog::ExtractColorHSV()
 {
-  m_uiHue = ezMath::Clamp<float>(SpinHue->value(), 0, 359);
-  m_uiSaturation = ezMath::Min<ezUInt8>(SpinSaturation->value(), 100);
-  m_fValue = ezMath::Min<float>(SpinValue->value(), 100.0f);
+  m_uiHue = WMath::Clamp<float>(SpinHue->value(), 0, 359);
+  m_uiSaturation = WMath::Min<WUInt8>(SpinSaturation->value(), 100);
+  m_fValue = WMath::Min<float>(SpinValue->value(), 100.0f);
 
   m_fHue = (float)m_uiHue;
-  m_fSaturation = ezMath::Clamp(m_uiSaturation / 100.0f, 0.0f, 1.0f);
-  m_fValue = ezMath::Clamp(m_fValue / 100.0f, 0.0f, 1.0f);
+  m_fSaturation = WMath::Clamp(m_uiSaturation / 100.0f, 0.0f, 1.0f);
+  m_fValue = WMath::Clamp(m_fValue / 100.0f, 0.0f, 1.0f);
 
   RecomputeRGB();
   RecomputeHDR();
 }
 
-void ezQtColorDialog::ComputeRgbAndHsv(const ezColor& color)
+void WQtColorDialog::ComputeRgbAndHsv(const WColor& color)
 {
-  ezColor ldrColor = color;
+  WColor ldrColor = color;
   ldrColor.NormalizeToLdrRange();
 
-  ezColorGammaUB gamma = ldrColor;
+  WColorGammaUB gamma = ldrColor;
   m_uiGammaRed = gamma.r;
   m_uiGammaGreen = gamma.g;
   m_uiGammaBlue = gamma.b;
@@ -275,30 +275,30 @@ void ezQtColorDialog::ComputeRgbAndHsv(const ezColor& color)
   RecomputeHSV();
 }
 
-void ezQtColorDialog::RecomputeRGB()
+void WQtColorDialog::RecomputeRGB()
 {
-  ezColor col = ezColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
-  ezColorGammaUB colGamma = col;
+  WColor col = WColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
+  WColorGammaUB colGamma = col;
 
   m_uiGammaRed = colGamma.r;
   m_uiGammaGreen = colGamma.g;
   m_uiGammaBlue = colGamma.b;
 }
 
-void ezQtColorDialog::RecomputeHSV()
+void WQtColorDialog::RecomputeHSV()
 {
-  ezColorGammaUB colGamma(m_uiGammaRed, m_uiGammaGreen, m_uiGammaBlue, 255);
-  ezColor color = colGamma;
+  WColorGammaUB colGamma(m_uiGammaRed, m_uiGammaGreen, m_uiGammaBlue, 255);
+  WColor color = colGamma;
 
   color.GetHSV(m_fHue, m_fSaturation, m_fValue);
 
-  m_uiHue = (ezUInt16)ezMath::Round(m_fHue);
-  m_uiSaturation = ezMath::Min<ezUInt8>(ezMath::Round(m_fSaturation * 100.0), 100);
+  m_uiHue = (WUInt16)WMath::Round(m_fHue);
+  m_uiSaturation = WMath::Min<WUInt8>(WMath::Round(m_fSaturation * 100.0), 100);
 }
 
-void ezQtColorDialog::RecomputeHDR()
+void WQtColorDialog::RecomputeHDR()
 {
-  m_CurrentColor = ezColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
+  m_CurrentColor = WColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
   m_CurrentColor.ApplyHdrExposureValue(m_fExposureValue);
-  m_CurrentColor.a = ezMath::ColorByteToFloat(m_uiAlpha);
+  m_CurrentColor.a = WMath::ColorByteToFloat(m_uiAlpha);
 }

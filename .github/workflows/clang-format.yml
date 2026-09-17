@@ -52,8 +52,8 @@ jobs:
             #git apply -p0 "${env:GITHUB_WORKSPACE}/clangFormat.patch"
 
             echo "Committing ClangFormat patch"
-            git config --global user.email "ezEngineProject@gmail.com"
-            git config --global user.name "ezEngine Automation"
+            git config --global user.email "WEngineProject@gmail.com"
+            git config --global user.name "WorldEngine Automation"
             
             echo "Adding .h files"
             git add -v `*.h

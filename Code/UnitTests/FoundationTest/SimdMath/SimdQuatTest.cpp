@@ -2,169 +2,169 @@
 
 #include <Foundation/SimdMath/SimdQuat.h>
 
-EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
+W_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     // In debug the default constructor initializes everything with NaN.
-    ezSimdQuat vDefCtor;
-    EZ_TEST_BOOL(vDefCtor.IsNaN());
+    WSimdQuat vDefCtor;
+    W_TEST_BOOL(vDefCtor.IsNaN());
 #else
 
-#  if EZ_DISABLED(EZ_COMPILER_GCC)
+#  if W_DISABLED(W_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
-    ezSimdQuat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdQuat;
-    EZ_TEST_BOOL(pDefCtor->m_v.x() == 1.0f && pDefCtor->m_v.y() == 2.0f && pDefCtor->m_v.z() == 3.0f && pDefCtor->m_v.w() == 4.0f);
+    WSimdQuat* pDefCtor = ::new ((void*)&testBlock[0]) WSimdQuat;
+    W_TEST_BOOL(pDefCtor->m_v.x() == 1.0f && pDefCtor->m_v.y() == 2.0f && pDefCtor->m_v.z() == 3.0f && pDefCtor->m_v.w() == 4.0f);
 #  endif
 
 #endif
 
     // Make sure the class didn't accidentally change in size.
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    static_assert(sizeof(ezSimdQuat) == 16);
-    static_assert(alignof(ezSimdQuat) == 16);
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
+    static_assert(sizeof(WSimdQuat) == 16);
+    static_assert(alignof(WSimdQuat) == 16);
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityQuaternion")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IdentityQuaternion")
   {
-    ezSimdQuat q = ezSimdQuat::MakeIdentity();
+    WSimdQuat q = WSimdQuat::MakeIdentity();
 
-    EZ_TEST_BOOL(q.m_v.x() == 0.0f && q.m_v.y() == 0.0f && q.m_v.z() == 0.0f && q.m_v.w() == 1.0f);
+    W_TEST_BOOL(q.m_v.x() == 0.0f && q.m_v.y() == 0.0f && q.m_v.z() == 0.0f && q.m_v.w() == 1.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetIdentity")
   {
-    ezSimdQuat q(ezSimdVec4f(1, 2, 3, 4));
+    WSimdQuat q(WSimdVec4f(1, 2, 3, 4));
 
-    q = ezSimdQuat::MakeIdentity();
+    q = WSimdQuat::MakeIdentity();
 
-    EZ_TEST_BOOL(q.m_v.x() == 0.0f && q.m_v.y() == 0.0f && q.m_v.z() == 0.0f && q.m_v.w() == 1.0f);
+    W_TEST_BOOL(q.m_v.x() == 0.0f && q.m_v.y() == 0.0f && q.m_v.z() == 0.0f && q.m_v.w() == 1.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromAxisAndAngle / operator* (quat, vec)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetFromAxisAndAngle / operator* (quat, vec)")
   {
     {
-      ezSimdQuat q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(1, 0, 0), ezAngle::MakeFromDegree(90));
+      WSimdQuat q = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(1, 0, 0), WAngle::MakeFromDegree(90));
 
-      EZ_TEST_BOOL((q * ezSimdVec4f(0, 1, 0)).IsEqual(ezSimdVec4f(0, 0, 1), 0.0001f).AllSet());
+      W_TEST_BOOL((q * WSimdVec4f(0, 1, 0)).IsEqual(WSimdVec4f(0, 0, 1), 0.0001f).AllSet());
     }
 
     {
-      ezSimdQuat q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 1, 0), ezAngle::MakeFromDegree(90));
+      WSimdQuat q = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 1, 0), WAngle::MakeFromDegree(90));
 
-      EZ_TEST_BOOL((q * ezSimdVec4f(1, 0, 0)).IsEqual(ezSimdVec4f(0, 0, -1), 0.0001f).AllSet());
+      W_TEST_BOOL((q * WSimdVec4f(1, 0, 0)).IsEqual(WSimdVec4f(0, 0, -1), 0.0001f).AllSet());
     }
 
     {
-      ezSimdQuat q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
+      WSimdQuat q = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(90));
 
-      EZ_TEST_BOOL((q * ezSimdVec4f(0, 1, 0)).IsEqual(ezSimdVec4f(-1, 0, 0), 0.0001f).AllSet());
+      W_TEST_BOOL((q * WSimdVec4f(0, 1, 0)).IsEqual(WSimdVec4f(-1, 0, 0), 0.0001f).AllSet());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetShortestRotation / IsEqualRotation")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetShortestRotation / IsEqualRotation")
   {
-    ezSimdQuat q1, q2, q3;
-    q1 = ezSimdQuat::MakeShortestRotation(ezSimdVec4f(0, 1, 0), ezSimdVec4f(1, 0, 0));
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, -1), ezAngle::MakeFromDegree(90));
-    q3 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(-90));
+    WSimdQuat q1, q2, q3;
+    q1 = WSimdQuat::MakeShortestRotation(WSimdVec4f(0, 1, 0), WSimdVec4f(1, 0, 0));
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, -1), WAngle::MakeFromDegree(90));
+    q3 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(-90));
 
-    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<float>()));
-    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(q1.IsEqualRotation(q2, WMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(q1.IsEqualRotation(q3, WMath::LargeEpsilon<float>()));
 
-    EZ_TEST_BOOL(ezSimdQuat::MakeIdentity().IsEqualRotation(ezSimdQuat::MakeIdentity(), ezMath::LargeEpsilon<float>()));
-    EZ_TEST_BOOL(ezSimdQuat::MakeIdentity().IsEqualRotation(ezSimdQuat(ezSimdVec4f(0, 0, 0, -1)), ezMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(WSimdQuat::MakeIdentity().IsEqualRotation(WSimdQuat::MakeIdentity(), WMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(WSimdQuat::MakeIdentity().IsEqualRotation(WSimdQuat(WSimdVec4f(0, 0, 0, -1)), WMath::LargeEpsilon<float>()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSlerp")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetSlerp")
   {
-    ezSimdQuat q1, q2, q3, qr;
-    q1 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(45));
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(0));
-    q3 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
+    WSimdQuat q1, q2, q3, qr;
+    q1 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(45));
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(0));
+    q3 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(90));
 
-    qr = ezSimdQuat::MakeSlerp(q2, q3, 0.5f);
+    qr = WSimdQuat::MakeSlerp(q2, q3, 0.5f);
 
-    EZ_TEST_BOOL(q1.IsEqualRotation(qr, 0.0001f));
+    W_TEST_BOOL(q1.IsEqualRotation(qr, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRotationAxisAndAngle")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetRotationAxisAndAngle")
   {
-    ezSimdQuat q1, q2, q3;
-    q1 = ezSimdQuat::MakeShortestRotation(ezSimdVec4f(0, 1, 0), ezSimdVec4f(1, 0, 0));
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, -1), ezAngle::MakeFromDegree(90));
-    q3 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(-90));
+    WSimdQuat q1, q2, q3;
+    q1 = WSimdQuat::MakeShortestRotation(WSimdVec4f(0, 1, 0), WSimdVec4f(1, 0, 0));
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, -1), WAngle::MakeFromDegree(90));
+    q3 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(-90));
 
-    ezSimdVec4f axis;
-    ezSimdFloat angle;
+    WSimdVec4f axis;
+    WSimdFloat angle;
 
-    EZ_TEST_BOOL(q1.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
-    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
+    W_TEST_BOOL(q1.GetRotationAxisAndAngle(axis, angle) == W_SUCCESS);
+    W_TEST_BOOL(axis.IsEqual(WSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
+    W_TEST_FLOAT(WAngle::RadToDeg((float)angle), 90, WMath::LargeEpsilon<float>());
 
-    EZ_TEST_BOOL(q2.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
-    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
+    W_TEST_BOOL(q2.GetRotationAxisAndAngle(axis, angle) == W_SUCCESS);
+    W_TEST_BOOL(axis.IsEqual(WSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
+    W_TEST_FLOAT(WAngle::RadToDeg((float)angle), 90, WMath::LargeEpsilon<float>());
 
-    EZ_TEST_BOOL(q3.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
-    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
+    W_TEST_BOOL(q3.GetRotationAxisAndAngle(axis, angle) == W_SUCCESS);
+    W_TEST_BOOL(axis.IsEqual(WSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
+    W_TEST_FLOAT(WAngle::RadToDeg((float)angle), 90, WMath::LargeEpsilon<float>());
 
-    EZ_TEST_BOOL(ezSimdQuat::MakeIdentity().GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
-    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 0, ezMath::LargeEpsilon<float>());
+    W_TEST_BOOL(WSimdQuat::MakeIdentity().GetRotationAxisAndAngle(axis, angle) == W_SUCCESS);
+    W_TEST_BOOL(axis.IsEqual(WSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
+    W_TEST_FLOAT(WAngle::RadToDeg((float)angle), 0, WMath::LargeEpsilon<float>());
 
-    ezSimdQuat otherIdentity(ezSimdVec4f(0, 0, 0, -1));
-    EZ_TEST_BOOL(otherIdentity.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
-    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 360, ezMath::LargeEpsilon<float>());
+    WSimdQuat otherIdentity(WSimdVec4f(0, 0, 0, -1));
+    W_TEST_BOOL(otherIdentity.GetRotationAxisAndAngle(axis, angle) == W_SUCCESS);
+    W_TEST_BOOL(axis.IsEqual(WSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
+    W_TEST_FLOAT(WAngle::RadToDeg((float)angle), 360, WMath::LargeEpsilon<float>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid / Normalize")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsValid / Normalize")
   {
-    ezSimdQuat q(ezSimdVec4f(1, 2, 3, 4));
-    EZ_TEST_BOOL(!q.IsValid(0.001f));
+    WSimdQuat q(WSimdVec4f(1, 2, 3, 4));
+    W_TEST_BOOL(!q.IsValid(0.001f));
 
     q.Normalize();
-    EZ_TEST_BOOL(q.IsValid(0.001f));
+    W_TEST_BOOL(q.IsValid(0.001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator-")
   {
-    ezSimdQuat q, q1;
-    q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
-    q1 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(-90));
+    WSimdQuat q, q1;
+    q = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(90));
+    q1 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(-90));
 
-    ezSimdQuat q2 = -q;
-    EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.0001f));
+    WSimdQuat q2 = -q;
+    W_TEST_BOOL(q1.IsEqualRotation(q2, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(quat, quat)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator*(quat, quat)")
   {
-    ezSimdQuat q1, q2, qr, q3;
-    q1 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(60));
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(30));
-    q3 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
+    WSimdQuat q1, q2, qr, q3;
+    q1 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(60));
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(30));
+    q3 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(90));
 
     qr = q1 * q2;
 
-    EZ_TEST_BOOL(qr.IsEqualRotation(q3, 0.0001f));
+    W_TEST_BOOL(qr.IsEqualRotation(q3, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator==/!=")
   {
-    ezSimdQuat q1, q2;
-    q1 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(60));
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(30));
-    EZ_TEST_BOOL(q1 != q2);
+    WSimdQuat q1, q2;
+    q1 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(60));
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(30));
+    W_TEST_BOOL(q1 != q2);
 
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(1, 0, 0), ezAngle::MakeFromDegree(60));
-    EZ_TEST_BOOL(q1 != q2);
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(1, 0, 0), WAngle::MakeFromDegree(60));
+    W_TEST_BOOL(q1 != q2);
 
-    q2 = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(60));
-    EZ_TEST_BOOL(q1 == q2);
+    q2 = WSimdQuat::MakeFromAxisAndAngle(WSimdVec4f(0, 0, 1), WAngle::MakeFromDegree(60));
+    W_TEST_BOOL(q1 == q2);
   }
 }

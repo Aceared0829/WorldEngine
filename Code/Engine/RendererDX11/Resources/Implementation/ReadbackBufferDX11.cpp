@@ -6,43 +6,43 @@
 
 #include <d3d11.h>
 
-ezGALReadbackBufferDX11::ezGALReadbackBufferDX11(const ezGALBufferCreationDescription& Description)
-  : ezGALReadbackBuffer(Description)
+WGALReadbackBufferDX11::WGALReadbackBufferDX11(const WGALBufferCreationDescription& Description)
+  : WGALReadbackBuffer(Description)
 {
 }
 
-ezGALReadbackBufferDX11::~ezGALReadbackBufferDX11() = default;
+WGALReadbackBufferDX11::~WGALReadbackBufferDX11() = default;
 
-ezResult ezGALReadbackBufferDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackBufferDX11::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
 
   D3D11_BUFFER_DESC BufferDesc = {};
-  EZ_SUCCEED_OR_RETURN(ezGALBufferDX11::CreateBufferDesc(m_Description, BufferDesc, m_IndexFormat));
+  W_SUCCEED_OR_RETURN(WGALBufferDX11::CreateBufferDesc(m_Description, BufferDesc, m_IndexFormat));
   BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
   BufferDesc.Usage = D3D11_USAGE_STAGING;
 
   if (SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, nullptr, &m_pDXBuffer)))
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
-    ezLog::Error("Creation of native DirectX buffer failed!");
-    return EZ_FAILURE;
+    WLog::Error("Creation of native DirectX buffer failed!");
+    return W_FAILURE;
   }
 }
 
-ezResult ezGALReadbackBufferDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackBufferDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
-  EZ_GAL_DX11_RELEASE(m_pDXBuffer);
-  return EZ_SUCCESS;
+  W_IGNORE_UNUSED(pDevice);
+  W_GAL_DX11_RELEASE(m_pDXBuffer);
+  return W_SUCCESS;
 }
 
-void ezGALReadbackBufferDX11::SetDebugNamePlatform(const char* szName) const
+void WGALReadbackBufferDX11::SetDebugNamePlatform(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  WUInt32 uiLength = WStringUtils::GetStringElementCount(szName);
 
   if (m_pDXBuffer != nullptr)
   {

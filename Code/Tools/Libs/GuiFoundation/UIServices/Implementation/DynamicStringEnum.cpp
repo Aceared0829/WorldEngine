@@ -4,12 +4,12 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-ezMap<ezString, ezDynamicStringEnum> ezDynamicStringEnum::s_DynamicEnums;
-ezDelegate<void(ezStringView sEnumName, ezDynamicStringEnum& e)> ezDynamicStringEnum::s_RequestUnknownCallback;
-ezEvent<ezDynamicStringEnum::RefreshValuesEvent&> ezDynamicStringEnum::s_RefreshValuesEvent;
+WMap<WString, WDynamicStringEnum> WDynamicStringEnum::s_DynamicEnums;
+WDelegate<void(WStringView sEnumName, WDynamicStringEnum& e)> WDynamicStringEnum::s_RequestUnknownCallback;
+WEvent<WDynamicStringEnum::RefreshValuesEvent&> WDynamicStringEnum::s_RefreshValuesEvent;
 
 // static
-ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(ezStringView sEnumName)
+WDynamicStringEnum& WDynamicStringEnum::GetDynamicEnum(WStringView sEnumName)
 {
   bool bExisted = false;
   auto it = s_DynamicEnums.FindOrAdd(sEnumName, &bExisted);
@@ -23,12 +23,12 @@ ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(ezStringView sEnumName)
 }
 
 // static
-ezDynamicStringEnum& ezDynamicStringEnum::CreateDynamicEnum(ezStringView sEnumName)
+WDynamicStringEnum& WDynamicStringEnum::CreateDynamicEnum(WStringView sEnumName)
 {
   bool bExisted = false;
   auto it = s_DynamicEnums.FindOrAdd(sEnumName, &bExisted);
 
-  ezDynamicStringEnum& e = it.Value();
+  WDynamicStringEnum& e = it.Value();
   e.Clear();
   e.SetStorageFile(nullptr);
 
@@ -36,19 +36,19 @@ ezDynamicStringEnum& ezDynamicStringEnum::CreateDynamicEnum(ezStringView sEnumNa
 }
 
 // static
-void ezDynamicStringEnum::RemoveEnum(ezStringView sEnumName)
+void WDynamicStringEnum::RemoveEnum(WStringView sEnumName)
 {
   s_DynamicEnums.Remove(sEnumName);
 }
 
-void ezDynamicStringEnum::Clear()
+void WDynamicStringEnum::Clear()
 {
   m_ValidValues.Clear();
 }
 
-void ezDynamicStringEnum::AddValidValue(ezStringView sValue, bool bSortValues /*= false*/)
+void WDynamicStringEnum::AddValidValue(WStringView sValue, bool bSortValues /*= false*/)
 {
-  ezString sNewValue = sValue;
+  WString sNewValue = sValue;
 
   if (!m_ValidValues.Contains(sNewValue))
     m_ValidValues.PushBack(sNewValue);
@@ -57,41 +57,41 @@ void ezDynamicStringEnum::AddValidValue(ezStringView sValue, bool bSortValues /*
     SortValues();
 }
 
-void ezDynamicStringEnum::RemoveValue(ezStringView sValue)
+void WDynamicStringEnum::RemoveValue(WStringView sValue)
 {
   m_ValidValues.RemoveAndCopy(sValue);
 }
 
-bool ezDynamicStringEnum::IsValueValid(ezStringView sValue) const
+bool WDynamicStringEnum::IsValueValid(WStringView sValue) const
 {
   return m_ValidValues.Contains(sValue);
 }
 
-void ezDynamicStringEnum::SortValues()
+void WDynamicStringEnum::SortValues()
 {
-  ezCompareString_NoCase cmp;
+  WCompareString_NoCase cmp;
   m_ValidValues.Sort(cmp);
 }
 
-void ezDynamicStringEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
+void WDynamicStringEnum::SetEditCommand(WStringView sCmd, const WVariant& value)
 {
   m_sEditCommand = sCmd;
   m_EditCommandValue = value;
 }
 
-void ezDynamicStringEnum::ReadFromStorage()
+void WDynamicStringEnum::ReadFromStorage()
 {
   Clear();
 
-  ezStringBuilder sFile, tmp;
+  WStringBuilder sFile, tmp;
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(m_sStorageFile).Failed())
     return;
 
   sFile.ReadAll(file);
 
-  ezTempHybridArray<ezStringView, 32> values;
+  WTempHybridArray<WStringView, 32> values;
 
   sFile.Split(false, values, "\n", "\r");
 
@@ -101,16 +101,16 @@ void ezDynamicStringEnum::ReadFromStorage()
   }
 }
 
-void ezDynamicStringEnum::SaveToStorage()
+void WDynamicStringEnum::SaveToStorage()
 {
   if (m_sStorageFile.IsEmpty())
     return;
 
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(m_sStorageFile).Failed())
     return;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   for (const auto& val : m_ValidValues)
   {

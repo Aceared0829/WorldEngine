@@ -2,209 +2,209 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
-  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBUInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::B5G6R5UNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BGRAUByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BGRAUByteNormalizedsRGB),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAHalf),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGB10A2UInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGB10A2UIntNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RG11B10Float),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGHalf),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RGByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::DFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RUInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RInt),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RHalf),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RUShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RUShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RShort),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RShortNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RUByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RUByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RByte),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::RByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::AUByteNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::D16),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::D24S8),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1sRGB),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC2),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC2sRGB),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC3),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC3sRGB),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC4UNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC4Normalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC5UNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC5Normalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC6UFloat),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC6Float),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC7UNormalized),
-    EZ_ENUM_CONSTANT(ezGALResourceFormat::BC7UNormalizedsRGB)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALResourceFormat, 1)
+  W_ENUM_CONSTANT(WGALResourceFormat::RGBAFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBUInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::B5G6R5UNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BGRAUByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BGRAUByteNormalizedsRGB),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAHalf),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGUInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGB10A2UInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGB10A2UIntNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RG11B10Float),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUByteNormalizedsRGB),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAUByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGBAByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGHalf),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGUShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGUShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGUByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGUByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RGByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::DFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::RFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::RUInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RInt),
+    W_ENUM_CONSTANT(WGALResourceFormat::RHalf),
+    W_ENUM_CONSTANT(WGALResourceFormat::RUShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RUShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RShort),
+    W_ENUM_CONSTANT(WGALResourceFormat::RShortNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RUByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RUByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::RByte),
+    W_ENUM_CONSTANT(WGALResourceFormat::RByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::AUByteNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::D16),
+    W_ENUM_CONSTANT(WGALResourceFormat::D24S8),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC1),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC1sRGB),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC2),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC2sRGB),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC3),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC3sRGB),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC4UNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC4Normalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC5UNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC5Normalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC6UFloat),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC6Float),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC7UNormalized),
+    W_ENUM_CONSTANT(WGALResourceFormat::BC7UNormalizedsRGB)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALMSAASampleCount, 1)
-  EZ_ENUM_CONSTANTS(ezGALMSAASampleCount::None, ezGALMSAASampleCount::TwoSamples, ezGALMSAASampleCount::FourSamples, ezGALMSAASampleCount::EightSamples)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALMSAASampleCount, 1)
+  W_ENUM_CONSTANTS(WGALMSAASampleCount::None, WGALMSAASampleCount::TwoSamples, WGALMSAASampleCount::FourSamples, WGALMSAASampleCount::EightSamples)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALTextureType, 1)
-  EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared, ezGALTextureType::Texture2DArray, ezGALTextureType::TextureCubeArray)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALTextureType, 1)
+  W_ENUM_CONSTANTS(WGALTextureType::Invalid, WGALTextureType::Texture2D, WGALTextureType::TextureCube, WGALTextureType::Texture3D, WGALTextureType::Texture2DProxy, WGALTextureType::Texture2DShared, WGALTextureType::Texture2DArray, WGALTextureType::TextureCubeArray)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderResourceType, 1)
-  EZ_ENUM_CONSTANTS(ezGALShaderResourceType::Unknown,
-  ezGALShaderResourceType::Sampler,
-  ezGALShaderResourceType::ConstantBuffer,
-  ezGALShaderResourceType::PushConstants,
-  ezGALShaderResourceType::Texture,
-  ezGALShaderResourceType::TextureAndSampler,
-  ezGALShaderResourceType::TexelBuffer,
-  ezGALShaderResourceType::StructuredBuffer,
-  ezGALShaderResourceType::ByteAddressBuffer,
-  ezGALShaderResourceType::TextureRW)
-  EZ_ENUM_CONSTANTS(ezGALShaderResourceType::TexelBufferRW,
-  ezGALShaderResourceType::StructuredBufferRW,
-  ezGALShaderResourceType::ByteAddressBufferRW)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALShaderResourceType, 1)
+  W_ENUM_CONSTANTS(WGALShaderResourceType::Unknown,
+  WGALShaderResourceType::Sampler,
+  WGALShaderResourceType::ConstantBuffer,
+  WGALShaderResourceType::PushConstants,
+  WGALShaderResourceType::Texture,
+  WGALShaderResourceType::TextureAndSampler,
+  WGALShaderResourceType::TexelBuffer,
+  WGALShaderResourceType::StructuredBuffer,
+  WGALShaderResourceType::ByteAddressBuffer,
+  WGALShaderResourceType::TextureRW)
+  W_ENUM_CONSTANTS(WGALShaderResourceType::TexelBufferRW,
+  WGALShaderResourceType::StructuredBufferRW,
+  WGALShaderResourceType::ByteAddressBufferRW)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderTextureType, 1)
-  EZ_ENUM_CONSTANTS(ezGALShaderTextureType::Unknown,
-  ezGALShaderTextureType::Texture1D,
-  ezGALShaderTextureType::Texture1DArray,
-  ezGALShaderTextureType::Texture2D,
-  ezGALShaderTextureType::Texture2DArray,
-  ezGALShaderTextureType::Texture2DMS,
-  ezGALShaderTextureType::Texture2DMSArray,
-  ezGALShaderTextureType::Texture3D,
-  ezGALShaderTextureType::TextureCube,
-  ezGALShaderTextureType::TextureCubeArray)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALShaderTextureType, 1)
+  W_ENUM_CONSTANTS(WGALShaderTextureType::Unknown,
+  WGALShaderTextureType::Texture1D,
+  WGALShaderTextureType::Texture1DArray,
+  WGALShaderTextureType::Texture2D,
+  WGALShaderTextureType::Texture2DArray,
+  WGALShaderTextureType::Texture2DMS,
+  WGALShaderTextureType::Texture2DMSArray,
+  WGALShaderTextureType::Texture3D,
+  WGALShaderTextureType::TextureCube,
+  WGALShaderTextureType::TextureCubeArray)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALResourceAccess>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALResourceAccess, WNoBase, 1, WRTTIDefaultAllocator<WGALResourceAccess>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Immutable", m_bImmutable),
+    W_MEMBER_PROPERTY("Immutable", m_bImmutable),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALTextureUsageFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALTextureUsageFlags::ShaderResource, ezGALTextureUsageFlags::UnorderedAccess, ezGALTextureUsageFlags::RenderTarget, ezGALTextureUsageFlags::Presentable)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WGALTextureUsageFlags, 1)
+  W_BITFLAGS_CONSTANTS(WGALTextureUsageFlags::ShaderResource, WGALTextureUsageFlags::UnorderedAccess, WGALTextureUsageFlags::RenderTarget, WGALTextureUsageFlags::Presentable)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALTextureCreationDescription>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALTextureCreationDescription, WNoBase, 1, WRTTIDefaultAllocator<WGALTextureCreationDescription>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Width", m_uiWidth),
-    EZ_MEMBER_PROPERTY("Height", m_uiHeight),
-    EZ_MEMBER_PROPERTY("Depth", m_uiDepth),
-    EZ_MEMBER_PROPERTY("MipLevelCount", m_uiMipLevelCount),
-    EZ_MEMBER_PROPERTY("ArraySize", m_uiArraySize),
-    EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
-    EZ_ENUM_MEMBER_PROPERTY("SampleCount", ezGALMSAASampleCount, m_SampleCount),
-    EZ_ENUM_MEMBER_PROPERTY("Type", ezGALTextureType, m_Type),
-    EZ_BITFLAGS_MEMBER_PROPERTY("TextureFlags", ezGALTextureUsageFlags, m_TextureFlags),
-    EZ_MEMBER_PROPERTY("ResourceAccess", m_ResourceAccess),
+    W_MEMBER_PROPERTY("Width", m_uiWidth),
+    W_MEMBER_PROPERTY("Height", m_uiHeight),
+    W_MEMBER_PROPERTY("Depth", m_uiDepth),
+    W_MEMBER_PROPERTY("MipLevelCount", m_uiMipLevelCount),
+    W_MEMBER_PROPERTY("ArraySize", m_uiArraySize),
+    W_ENUM_MEMBER_PROPERTY("Format", WGALResourceFormat, m_Format),
+    W_ENUM_MEMBER_PROPERTY("SampleCount", WGALMSAASampleCount, m_SampleCount),
+    W_ENUM_MEMBER_PROPERTY("Type", WGALTextureType, m_Type),
+    W_BITFLAGS_MEMBER_PROPERTY("TextureFlags", WGALTextureUsageFlags, m_TextureFlags),
+    W_MEMBER_PROPERTY("ResourceAccess", m_ResourceAccess),
     // m_pExisitingNativeObject deliberately not reflected as it can't be serialized in any meaningful way.
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALPlatformSharedHandle, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALPlatformSharedHandle>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALPlatformSharedHandle, WNoBase, 1, WRTTIDefaultAllocator<WGALPlatformSharedHandle>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SharedTexture", m_hSharedTexture),
-    EZ_MEMBER_PROPERTY("Semaphore", m_hSemaphore),
-    EZ_MEMBER_PROPERTY("ProcessId", m_uiProcessId),
-    EZ_MEMBER_PROPERTY("MemoryTypeIndex", m_uiMemoryTypeIndex),
-    EZ_MEMBER_PROPERTY("Size", m_uiSize),
+    W_MEMBER_PROPERTY("SharedTexture", m_hSharedTexture),
+    W_MEMBER_PROPERTY("Semaphore", m_hSemaphore),
+    W_MEMBER_PROPERTY("ProcessId", m_uiProcessId),
+    W_MEMBER_PROPERTY("MemoryTypeIndex", m_uiMemoryTypeIndex),
+    W_MEMBER_PROPERTY("Size", m_uiSize),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderStage, 1)
-  EZ_ENUM_CONSTANTS(ezGALShaderStage::VertexShader, ezGALShaderStage::HullShader, ezGALShaderStage::DomainShader, ezGALShaderStage::GeometryShader, ezGALShaderStage::PixelShader, ezGALShaderStage::ComputeShader)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALShaderStage, 1)
+  W_ENUM_CONSTANTS(WGALShaderStage::VertexShader, WGALShaderStage::HullShader, WGALShaderStage::DomainShader, WGALShaderStage::GeometryShader, WGALShaderStage::PixelShader, WGALShaderStage::ComputeShader)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALShaderStageFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALShaderStageFlags::VertexShader, ezGALShaderStageFlags::HullShader, ezGALShaderStageFlags::DomainShader, ezGALShaderStageFlags::GeometryShader, ezGALShaderStageFlags::PixelShader, ezGALShaderStageFlags::ComputeShader, ezGALShaderStageFlags::Auto)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WGALShaderStageFlags, 1)
+  W_BITFLAGS_CONSTANTS(WGALShaderStageFlags::VertexShader, WGALShaderStageFlags::HullShader, WGALShaderStageFlags::DomainShader, WGALShaderStageFlags::GeometryShader, WGALShaderStageFlags::PixelShader, WGALShaderStageFlags::ComputeShader, WGALShaderStageFlags::Auto)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALResourceState, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::ShaderResource, ezGALResourceState::ConstantBuffer, ezGALResourceState::VertexBuffer, ezGALResourceState::IndexBuffer, ezGALResourceState::DrawIndirect, ezGALResourceState::DepthStencilRead, ezGALResourceState::CopySource, ezGALResourceState::ResolveSource)
-  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::UnorderedAccess, ezGALResourceState::RenderTarget, ezGALResourceState::DepthStencilWrite, ezGALResourceState::CopyDestination, ezGALResourceState::ResolveDestination)
-  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::Discard, ezGALResourceState::Present, ezGALResourceState::CpuRead, ezGALResourceState::CpuWrite)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WGALResourceState, 1)
+  W_BITFLAGS_CONSTANTS(WGALResourceState::ShaderResource, WGALResourceState::ConstantBuffer, WGALResourceState::VertexBuffer, WGALResourceState::IndexBuffer, WGALResourceState::DrawIndirect, WGALResourceState::DepthStencilRead, WGALResourceState::CopySource, WGALResourceState::ResolveSource)
+  W_BITFLAGS_CONSTANTS(WGALResourceState::UnorderedAccess, WGALResourceState::RenderTarget, WGALResourceState::DepthStencilWrite, WGALResourceState::CopyDestination, WGALResourceState::ResolveDestination)
+  W_BITFLAGS_CONSTANTS(WGALResourceState::Discard, WGALResourceState::Present, WGALResourceState::CpuRead, WGALResourceState::CpuWrite)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALShaderResourceCategory, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALShaderResourceCategory::Sampler, ezGALShaderResourceCategory::ConstantBuffer, ezGALShaderResourceCategory::TextureSRV, ezGALShaderResourceCategory::BufferSRV, ezGALShaderResourceCategory::TextureUAV, ezGALShaderResourceCategory::BufferUAV)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WGALShaderResourceCategory, 1)
+  W_BITFLAGS_CONSTANTS(WGALShaderResourceCategory::Sampler, WGALShaderResourceCategory::ConstantBuffer, WGALShaderResourceCategory::TextureSRV, WGALShaderResourceCategory::BufferSRV, WGALShaderResourceCategory::TextureUAV, WGALShaderResourceCategory::BufferUAV)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALPresentMode, 1)
-  EZ_ENUM_CONSTANTS(ezGALPresentMode::Immediate, ezGALPresentMode::VSync)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALPresentMode, 1)
+  W_ENUM_CONSTANTS(WGALPresentMode::Immediate, WGALPresentMode::VSync)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALVertexAttributeSemantic, 1)
-  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::Position, ezGALVertexAttributeSemantic::Normal, ezGALVertexAttributeSemantic::Tangent,
-  ezGALVertexAttributeSemantic::Color0, ezGALVertexAttributeSemantic::Color1, ezGALVertexAttributeSemantic::Color2, ezGALVertexAttributeSemantic::Color3,
-  ezGALVertexAttributeSemantic::Color4, ezGALVertexAttributeSemantic::Color5, ezGALVertexAttributeSemantic::Color6, ezGALVertexAttributeSemantic::Color7)
-  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::TexCoord0, ezGALVertexAttributeSemantic::TexCoord1, ezGALVertexAttributeSemantic::TexCoord2, ezGALVertexAttributeSemantic::TexCoord3,
-  ezGALVertexAttributeSemantic::TexCoord4, ezGALVertexAttributeSemantic::TexCoord5, ezGALVertexAttributeSemantic::TexCoord6, ezGALVertexAttributeSemantic::TexCoord7,
-  ezGALVertexAttributeSemantic::TexCoord8, ezGALVertexAttributeSemantic::TexCoord9)
-  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::BiTangent,
-  ezGALVertexAttributeSemantic::BoneIndices0, ezGALVertexAttributeSemantic::BoneIndices1,
-  ezGALVertexAttributeSemantic::BoneWeights0, ezGALVertexAttributeSemantic::BoneWeights1,
-  ezGALVertexAttributeSemantic::DataOffsets)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALVertexAttributeSemantic, 1)
+  W_ENUM_CONSTANTS(WGALVertexAttributeSemantic::Position, WGALVertexAttributeSemantic::Normal, WGALVertexAttributeSemantic::Tangent,
+  WGALVertexAttributeSemantic::Color0, WGALVertexAttributeSemantic::Color1, WGALVertexAttributeSemantic::Color2, WGALVertexAttributeSemantic::Color3,
+  WGALVertexAttributeSemantic::Color4, WGALVertexAttributeSemantic::Color5, WGALVertexAttributeSemantic::Color6, WGALVertexAttributeSemantic::Color7)
+  W_ENUM_CONSTANTS(WGALVertexAttributeSemantic::TexCoord0, WGALVertexAttributeSemantic::TexCoord1, WGALVertexAttributeSemantic::TexCoord2, WGALVertexAttributeSemantic::TexCoord3,
+  WGALVertexAttributeSemantic::TexCoord4, WGALVertexAttributeSemantic::TexCoord5, WGALVertexAttributeSemantic::TexCoord6, WGALVertexAttributeSemantic::TexCoord7,
+  WGALVertexAttributeSemantic::TexCoord8, WGALVertexAttributeSemantic::TexCoord9)
+  W_ENUM_CONSTANTS(WGALVertexAttributeSemantic::BiTangent,
+  WGALVertexAttributeSemantic::BoneIndices0, WGALVertexAttributeSemantic::BoneIndices1,
+  WGALVertexAttributeSemantic::BoneWeights0, WGALVertexAttributeSemantic::BoneWeights1,
+  WGALVertexAttributeSemantic::DataOffsets)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALBufferUsageFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALBufferUsageFlags::VertexBuffer, ezGALBufferUsageFlags::IndexBuffer, ezGALBufferUsageFlags::ConstantBuffer, ezGALBufferUsageFlags::TexelBuffer, ezGALBufferUsageFlags::StructuredBuffer, ezGALBufferUsageFlags::ByteAddressBuffer)
-  EZ_BITFLAGS_CONSTANTS(ezGALBufferUsageFlags::ShaderResource, ezGALBufferUsageFlags::UnorderedAccess, ezGALBufferUsageFlags::DrawIndirect, ezGALBufferUsageFlags::Transient)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WGALBufferUsageFlags, 1)
+  W_BITFLAGS_CONSTANTS(WGALBufferUsageFlags::VertexBuffer, WGALBufferUsageFlags::IndexBuffer, WGALBufferUsageFlags::ConstantBuffer, WGALBufferUsageFlags::TexelBuffer, WGALBufferUsageFlags::StructuredBuffer, WGALBufferUsageFlags::ByteAddressBuffer)
+  W_BITFLAGS_CONSTANTS(WGALBufferUsageFlags::ShaderResource, WGALBufferUsageFlags::UnorderedAccess, WGALBufferUsageFlags::DrawIndirect, WGALBufferUsageFlags::Transient)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALQueryType, 1)
-  EZ_ENUM_CONSTANTS(ezGALQueryType::NumSamplesPassed, ezGALQueryType::AnySamplesPassed)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALQueryType, 1)
+  W_ENUM_CONSTANTS(WGALQueryType::NumSamplesPassed, WGALQueryType::AnySamplesPassed)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALSharedTextureType, 1)
-  EZ_ENUM_CONSTANTS(ezGALSharedTextureType::None, ezGALSharedTextureType::Exported, ezGALSharedTextureType::Imported)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALSharedTextureType, 1)
+  W_ENUM_CONSTANTS(WGALSharedTextureType::None, WGALSharedTextureType::Exported, WGALSharedTextureType::Imported)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALQueueType, 1)
-  EZ_ENUM_CONSTANTS(ezGALQueueType::Graphics, ezGALQueueType::Compute, ezGALQueueType::Transfer)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WGALQueueType, 1)
+  W_ENUM_CONSTANTS(WGALQueueType::Graphics, WGALQueueType::Compute, WGALQueueType::Transfer)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_RendererReflection);
+W_STATICLINK_FILE(RendererFoundation, RendererFoundation_RendererReflection);

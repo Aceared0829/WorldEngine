@@ -4,41 +4,41 @@
 #include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAssetManager.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetManager, 1, ezRTTIDefaultAllocator<ezVisualScriptClassAssetManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualScriptClassAssetManager, 1, WRTTIDefaultAllocator<WVisualScriptClassAssetManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVisualScriptClassAssetManager::ezVisualScriptClassAssetManager()
+WVisualScriptClassAssetManager::WVisualScriptClassAssetManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptClassAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WVisualScriptClassAssetManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "VisualScriptClass";
-  m_DocTypeDesc.m_sFileExtension = "ezVisualScriptClassAsset";
+  m_DocTypeDesc.m_sFileExtension = "WVisualScriptClassAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/VisualScript.svg";
   m_DocTypeDesc.m_sAssetCategory = "Scripting";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptClassAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WVisualScriptClassAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinVisualScriptClass";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinVisualScriptClass";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("VisualScriptClass", QPixmap(":/AssetIcons/VisualScript.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("VisualScriptClass", QPixmap(":/AssetIcons/VisualScript.svg"));
 }
 
-ezVisualScriptClassAssetManager::~ezVisualScriptClassAssetManager()
+WVisualScriptClassAssetManager::~WVisualScriptClassAssetManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptClassAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WVisualScriptClassAssetManager::OnDocumentManagerEvent, this));
 }
 
-void ezVisualScriptClassAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WVisualScriptClassAssetManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezVisualScriptClassAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WVisualScriptClassAssetDocument>())
       {
-        new ezQtVisualScriptWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WQtVisualScriptWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,13 +48,13 @@ void ezVisualScriptClassAssetManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezVisualScriptClassAssetManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WVisualScriptClassAssetManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezVisualScriptClassAssetDocument(sPath);
+  out_pDocument = new WVisualScriptClassAssetDocument(sPath);
 }
 
-void ezVisualScriptClassAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WVisualScriptClassAssetManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

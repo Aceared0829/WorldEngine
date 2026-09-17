@@ -4,51 +4,51 @@
 #include <RendererFoundation/Device/SwapChain.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALSwapChain, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALSwapChain, WNoBase, 1, WRTTINoAllocator)
 {
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALWindowSwapChain, ezGALSwapChain, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALWindowSwapChain, WGALSwapChain, 1, WRTTINoAllocator)
 {
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGALSwapChainCreationDescription CreateSwapChainCreationDescription(const ezRTTI* pType)
+WGALSwapChainCreationDescription CreateSwapChainCreationDescription(const WRTTI* pType)
 {
-  ezGALSwapChainCreationDescription desc;
+  WGALSwapChainCreationDescription desc;
   desc.m_pSwapChainType = pType;
   return desc;
 }
 
-ezGALSwapChain::ezGALSwapChain(const ezRTTI* pSwapChainType)
-  : ezGALObject(CreateSwapChainCreationDescription(pSwapChainType))
+WGALSwapChain::WGALSwapChain(const WRTTI* pSwapChainType)
+  : WGALObject(CreateSwapChainCreationDescription(pSwapChainType))
 {
 }
 
-ezGALSwapChain::~ezGALSwapChain() = default;
+WGALSwapChain::~WGALSwapChain() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezGALWindowSwapChain::Functor ezGALWindowSwapChain::s_Factory;
+WGALWindowSwapChain::Functor WGALWindowSwapChain::s_Factory;
 
 
-ezGALWindowSwapChain::ezGALWindowSwapChain(const ezGALWindowSwapChainCreationDescription& Description)
-  : ezGALSwapChain(ezGetStaticRTTI<ezGALWindowSwapChain>())
+WGALWindowSwapChain::WGALWindowSwapChain(const WGALWindowSwapChainCreationDescription& Description)
+  : WGALSwapChain(WGetStaticRTTI<WGALWindowSwapChain>())
   , m_WindowDesc(Description)
 {
 }
 
-void ezGALWindowSwapChain::SetFactoryMethod(Functor factory)
+void WGALWindowSwapChain::SetFactoryMethod(Functor factory)
 {
   s_Factory = factory;
 }
 
-ezGALSwapChainHandle ezGALWindowSwapChain::Create(const ezGALWindowSwapChainCreationDescription& desc)
+WGALSwapChainHandle WGALWindowSwapChain::Create(const WGALWindowSwapChainCreationDescription& desc)
 {
-  EZ_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for ezGALWindowSwapChain.");
+  W_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for WGALWindowSwapChain.");
   return s_Factory(desc);
 }
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SwapChain);
+W_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SwapChain);

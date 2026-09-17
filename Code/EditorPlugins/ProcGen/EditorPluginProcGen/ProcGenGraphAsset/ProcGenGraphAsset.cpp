@@ -12,28 +12,28 @@
 
 namespace
 {
-  void DumpAST(const ezExpressionAST& ast, ezStringView sAssetName, ezStringView sOutputName)
+  void DumpAST(const WExpressionAST& ast, WStringView sAssetName, WStringView sOutputName)
   {
-    ezDGMLGraph dgmlGraph;
+    WDGMLGraph dgmlGraph;
     ast.PrintGraph(dgmlGraph);
 
-    ezStringBuilder sFileName;
+    WStringBuilder sFileName;
     sFileName.SetFormat(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
 
-    ezDGMLGraphWriter dgmlGraphWriter;
-    EZ_IGNORE_UNUSED(dgmlGraphWriter);
+    WDGMLGraphWriter dgmlGraphWriter;
+    W_IGNORE_UNUSED(dgmlGraphWriter);
     if (dgmlGraphWriter.WriteGraphToFile(sFileName, dgmlGraph).Succeeded())
     {
-      ezLog::Info("AST was dumped to: {0}", sFileName);
+      WLog::Info("AST was dumped to: {0}", sFileName);
     }
     else
     {
-      ezLog::Error("Failed to dump AST to: {0}", sFileName);
+      WLog::Error("Failed to dump AST to: {0}", sFileName);
     }
   }
 
-  static const char* s_szSphereAssetId = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }";     // Base/Prefabs/Sphere.ezPrefab
-  static const char* s_szBWGradientAssetId = "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.ezColorGradientAsset
+  static const char* s_szSphereAssetId = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }";     // Base/Prefabs/Sphere.WPrefab
+  static const char* s_szBWGradientAssetId = "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.WColorGradientAsset
 
 } // namespace
 
@@ -41,73 +41,73 @@ namespace
 
 struct DocObjAndOutput
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  const ezDocumentObject* m_pObject;
+  const WDocumentObject* m_pObject;
   const char* m_szOutputName;
 };
 
 template <>
-struct ezHashHelper<DocObjAndOutput>
+struct WHashHelper<DocObjAndOutput>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const DocObjAndOutput& value)
+  W_ALWAYS_INLINE static WUInt32 Hash(const DocObjAndOutput& value)
   {
-    const ezUInt32 hashA = ezHashHelper<const void*>::Hash(value.m_pObject);
-    const ezUInt32 hashB = ezHashHelper<const void*>::Hash(value.m_szOutputName);
-    return ezHashingUtils::CombineHashValues32(hashA, hashB);
+    const WUInt32 hashA = WHashHelper<const void*>::Hash(value.m_pObject);
+    const WUInt32 hashB = WHashHelper<const void*>::Hash(value.m_szOutputName);
+    return WHashingUtils::CombineHashValues32(hashA, hashB);
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const DocObjAndOutput& a, const DocObjAndOutput& b)
+  W_ALWAYS_INLINE static bool Equal(const DocObjAndOutput& a, const DocObjAndOutput& b)
   {
     return a.m_pObject == b.m_pObject && a.m_szOutputName == b.m_szOutputName;
   }
 };
 
-struct ezProcGenGraphAssetDocument::GenerateContext
+struct WProcGenGraphAssetDocument::GenerateContext
 {
-  GenerateContext(const ezDocumentObjectManager* pManager)
+  GenerateContext(const WDocumentObjectManager* pManager)
     : m_ObjectWriter(&m_AbstractObjectGraph, pManager)
     , m_RttiConverter(&m_AbstractObjectGraph, &m_RttiConverterContext)
   {
   }
 
-  ezAbstractObjectGraph m_AbstractObjectGraph;
-  ezDocumentObjectConverterWriter m_ObjectWriter;
-  ezRttiConverterContext m_RttiConverterContext;
-  ezRttiConverterReader m_RttiConverter;
-  ezHashTable<const ezDocumentObject*, ezUniquePtr<ezProcGenNodeBase>> m_DocObjToProcGenNodeTable;
-  ezHashTable<DocObjAndOutput, ezExpressionAST::Node*> m_DocObjAndOutputToASTNodeTable;
-  ezProcGenNodeBase::GraphContext m_GraphContext;
+  WAbstractObjectGraph m_AbstractObjectGraph;
+  WDocumentObjectConverterWriter m_ObjectWriter;
+  WRttiConverterContext m_RttiConverterContext;
+  WRttiConverterReader m_RttiConverter;
+  WHashTable<const WDocumentObject*, WUniquePtr<WProcGenNodeBase>> m_DocObjToProcGenNodeTable;
+  WHashTable<DocObjAndOutput, WExpressionAST::Node*> m_DocObjAndOutputToASTNodeTable;
+  WProcGenNodeBase::GraphContext m_GraphContext;
 };
 
 ////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetProperties, 1, ezRTTIDefaultAllocator<ezProcGenGraphAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenGraphAssetProperties, 1, WRTTIDefaultAllocator<WProcGenGraphAssetProperties>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("DebugPrefab", m_sDebugPrefab)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szSphereAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::None)),
-      EZ_MEMBER_PROPERTY("DebugFootprint", m_fDebugFootprint)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-      EZ_MEMBER_PROPERTY("DebugAlignToNormal", m_fDebugAlignToNormal)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-      EZ_MEMBER_PROPERTY("DebugColorGradient", m_sDebugColorGradient)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szBWGradientAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient", ezDependencyFlags::None)),
-      EZ_ENUM_MEMBER_PROPERTY("DebugPlacementPattern", ezProcPlacementPattern, m_DebugPlacementPattern)->AddAttributes(new ezDefaultValueAttribute(ezProcPlacementPattern::RegularGrid)),
-      EZ_MEMBER_PROPERTY("DebugSurface", m_sDebugSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::None)),
+      W_MEMBER_PROPERTY("DebugPrefab", m_sDebugPrefab)->AddAttributes(new WDefaultValueAttribute(WStringView(s_szSphereAssetId)), new WAssetBrowserAttribute("CompatibleAsset_Prefab", WDependencyFlags::None)),
+      W_MEMBER_PROPERTY("DebugFootprint", m_fDebugFootprint)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
+      W_MEMBER_PROPERTY("DebugAlignToNormal", m_fDebugAlignToNormal)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+      W_MEMBER_PROPERTY("DebugColorGradient", m_sDebugColorGradient)->AddAttributes(new WDefaultValueAttribute(WStringView(s_szBWGradientAssetId)), new WAssetBrowserAttribute("CompatibleAsset_Data_Gradient", WDependencyFlags::None)),
+      W_ENUM_MEMBER_PROPERTY("DebugPlacementPattern", WProcPlacementPattern, m_DebugPlacementPattern)->AddAttributes(new WDefaultValueAttribute(WProcPlacementPattern::RegularGrid)),
+      W_MEMBER_PROPERTY("DebugSurface", m_sDebugSurface)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::None)),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 10, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenGraphAssetDocument, 10, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentPath)
-  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::None)
+WProcGenGraphAssetDocument::WProcGenGraphAssetDocument(WStringView sDocumentPath)
+  : WAssetDocument(sDocumentPath, W_DEFAULT_NEW(WProcGenNodeManager), WAssetDocEngineConnection::None)
 {
 }
 
-void ezProcGenGraphAssetDocument::SetDebugPin(const ezVisualGraphPin* pDebugPin)
+void WProcGenGraphAssetDocument::SetDebugPin(const WVisualGraphPin* pDebugPin)
 {
   m_pDebugPin = pDebugPin;
 
@@ -116,90 +116,90 @@ void ezProcGenGraphAssetDocument::SetDebugPin(const ezVisualGraphPin* pDebugPin)
     UpdateDebugNode();
   }
 
-  ezDocumentObjectPropertyEvent e;
-  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertySet;
+  WDocumentObjectPropertyEvent e;
+  e.m_EventType = WDocumentObjectPropertyEvent::Type::PropertySet;
   e.m_sProperty = "DebugPin";
 
   GetObjectManager()->m_PropertyEvents.Broadcast(e);
 }
 
-void ezProcGenGraphAssetDocument::UpdateDebugNode()
+void WProcGenGraphAssetDocument::UpdateDebugNode()
 {
   m_pDebugNode.Clear();
 
   auto pPropertiesObject = GetObjectManager()->GetRootObject()->GetChildren()[0];
-  if (pPropertiesObject->GetType() != ezGetStaticRTTI<ezProcGenGraphAssetProperties>())
+  if (pPropertiesObject->GetType() != WGetStaticRTTI<WProcGenGraphAssetProperties>())
     return;
 
   auto& typeAccessor = pPropertiesObject->GetTypeAccessor();
 
-  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGen_PlacementOutput);
+  m_pDebugNode = W_DEFAULT_NEW(WProcGen_PlacementOutput);
   m_pDebugNode->m_sName = "Debug";
-  m_pDebugNode->m_ObjectsToPlace.PushBack(typeAccessor.GetValue("DebugPrefab").ConvertTo<ezString>());
+  m_pDebugNode->m_ObjectsToPlace.PushBack(typeAccessor.GetValue("DebugPrefab").ConvertTo<WString>());
   m_pDebugNode->m_fFootprint = typeAccessor.GetValue("DebugFootprint").ConvertTo<float>();
   m_pDebugNode->m_fAlignToNormal = typeAccessor.GetValue("DebugAlignToNormal").ConvertTo<float>();
-  m_pDebugNode->m_sColorGradient = typeAccessor.GetValue("DebugColorGradient").ConvertTo<ezString>();
-  m_pDebugNode->m_PlacementPattern = static_cast<ezProcPlacementPattern::Enum>(typeAccessor.GetValue("DebugPlacementPattern").ConvertTo<ezUInt32>());
-  m_pDebugNode->m_sSurface = typeAccessor.GetValue("DebugSurface").ConvertTo<ezString>();
+  m_pDebugNode->m_sColorGradient = typeAccessor.GetValue("DebugColorGradient").ConvertTo<WString>();
+  m_pDebugNode->m_PlacementPattern = static_cast<WProcPlacementPattern::Enum>(typeAccessor.GetValue("DebugPlacementPattern").ConvertTo<WUInt32>());
+  m_pDebugNode->m_sSurface = typeAccessor.GetValue("DebugSurface").ConvertTo<WString>();
 }
 
-ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const
+WStatus WProcGenGraphAssetDocument::WriteAsset(WStreamWriter& inout_stream, const WPlatformProfile* pAssetProfile, bool bAllowDebug) const
 {
   GenerateContext context(GetObjectManager());
 
-  ezDynamicArray<const ezDocumentObject*> placementNodes;
-  ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
+  WDynamicArray<const WDocumentObject*> placementNodes;
+  WDynamicArray<const WDocumentObject*> vertexColorNodes;
   GetAllOutputNodes(placementNodes, vertexColorNodes);
 
   const bool bDebug = bAllowDebug && (m_pDebugPin != nullptr) && (m_pDebugNode != nullptr);
 
-  ezStringDeduplicationWriteContext stringDedupContext(inout_stream);
+  WStringDeduplicationWriteContext stringDedupContext(inout_stream);
 
-  ezChunkStreamWriter chunk(stringDedupContext.Begin());
+  WChunkStreamWriter chunk(stringDedupContext.Begin());
   chunk.BeginStream(1);
 
-  ezExpressionCompiler compiler;
+  WExpressionCompiler compiler;
 
-  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) -> ezStatus
+  auto WriteByteCode = [&](const WDocumentObject* pOutputNode) -> WStatus
   {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
 
-    if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+    if (pOutputNode->GetType()->IsDerivedFrom<WProcGen_PlacementOutput>())
     {
-      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+      context.m_GraphContext.m_OutputType = WProcGenNodeBase::GraphContext::Placement;
     }
-    else if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+    else if (pOutputNode->GetType()->IsDerivedFrom<WProcGen_VertexColorOutput>())
     {
-      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+      context.m_GraphContext.m_OutputType = WProcGenNodeBase::GraphContext::Color;
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return ezStatus("Unknown output type");
+      W_ASSERT_NOT_IMPLEMENTED;
+      return WStatus("Unknown output type");
     }
 
-    ezExpressionAST ast;
+    WExpressionAST ast;
     GenerateExpressionAST(pOutputNode, "", context, ast);
     context.m_DocObjAndOutputToASTNodeTable.Clear();
 
     if (false)
     {
-      ezStringBuilder sDocumentPath = GetDocumentPath();
-      ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
-      ezStringView sOutputName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+      WStringBuilder sDocumentPath = GetDocumentPath();
+      WStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
+      WStringView sOutputName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
 
       DumpAST(ast, sAssetName, sOutputName);
     }
 
-    ezExpressionByteCode byteCode;
+    WExpressionByteCode byteCode;
     if (compiler.Compile(ast, byteCode).Failed())
     {
-      return ezStatus("Compilation failed");
+      return WStatus("Compilation failed");
     }
 
-    EZ_SUCCEED_OR_RETURN(byteCode.Save(chunk));
+    W_SUCCEED_OR_RETURN(byteCode.Save(chunk));
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   };
 
   {
@@ -211,10 +211,10 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
 
       for (auto pPlacementNode : placementNodes)
       {
-        EZ_SUCCEED_OR_RETURN(WriteByteCode(pPlacementNode));
+        W_SUCCEED_OR_RETURN(WriteByteCode(pPlacementNode));
 
         auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pPlacementNode);
-        auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(pPGNode->Borrow());
+        auto pPlacementOutput = WStaticCast<WProcGen_PlacementOutput*>(pPGNode->Borrow());
 
         pPlacementOutput->CopyValuesFromContext(context.m_GraphContext);
         pPlacementOutput->Save(chunk);
@@ -222,24 +222,24 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
     }
     else
     {
-      ezUInt32 uiNumNodes = 1;
+      WUInt32 uiNumNodes = 1;
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
       context.m_GraphContext.m_CurveIndices.Clear();
-      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+      context.m_GraphContext.m_OutputType = WProcGenNodeBase::GraphContext::Placement;
 
-      ezExpressionAST ast;
+      WExpressionAST ast;
       GenerateDebugExpressionAST(context, ast);
       context.m_DocObjAndOutputToASTNodeTable.Clear();
 
-      ezExpressionByteCode byteCode;
+      WExpressionByteCode byteCode;
       if (compiler.Compile(ast, byteCode).Failed())
       {
-        return ezStatus("Debug Compilation failed");
+        return WStatus("Debug Compilation failed");
       }
 
-      EZ_SUCCEED_OR_RETURN(byteCode.Save(chunk));
+      W_SUCCEED_OR_RETURN(byteCode.Save(chunk));
 
       m_pDebugNode->CopyValuesFromContext(context.m_GraphContext);
       m_pDebugNode->Save(chunk);
@@ -255,10 +255,10 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
 
     for (auto pVertexColorNode : vertexColorNodes)
     {
-      EZ_SUCCEED_OR_RETURN(WriteByteCode(pVertexColorNode));
+      W_SUCCEED_OR_RETURN(WriteByteCode(pVertexColorNode));
 
       auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pVertexColorNode);
-      auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(pPGNode->Borrow());
+      auto pVertexColorOutput = WStaticCast<WProcGen_VertexColorOutput*>(pPGNode->Borrow());
 
       pVertexColorOutput->CopyValuesFromContext(context.m_GraphContext);
       pVertexColorOutput->Save(chunk);
@@ -276,53 +276,53 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
   }
 
   chunk.EndStream();
-  EZ_SUCCEED_OR_RETURN(stringDedupContext.End());
+  W_SUCCEED_OR_RETURN(stringDedupContext.End());
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezProcGenGraphAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WProcGenGraphAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   auto pRoot = this->GetObjectManager()->GetRootObject();
-  if (pRoot->GetChildren().IsEmpty() == false && pRoot->GetChildren()[0]->GetType() != ezGetStaticRTTI<ezProcGenGraphAssetProperties>())
+  if (pRoot->GetChildren().IsEmpty() == false && pRoot->GetChildren()[0]->GetType() != WGetStaticRTTI<WProcGenGraphAssetProperties>())
   {
-    ezDocumentObject* pObject = this->GetObjectManager()->CreateObject(ezGetStaticRTTI<ezProcGenGraphAssetProperties>());
+    WDocumentObject* pObject = this->GetObjectManager()->CreateObject(WGetStaticRTTI<WProcGenGraphAssetProperties>());
     this->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
   }
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 }
 
-void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WProcGenGraphAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
   if (m_pDebugPin == nullptr)
   {
-    ezDynamicArray<const ezDocumentObject*> placementNodes;
-    ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
+    WDynamicArray<const WDocumentObject*> placementNodes;
+    WDynamicArray<const WDocumentObject*> vertexColorNodes;
     GetAllOutputNodes(placementNodes, vertexColorNodes);
 
     for (auto pPlacementNode : placementNodes)
     {
       auto& typeAccessor = pPlacementNode->GetTypeAccessor();
 
-      ezUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
-      for (ezUInt32 i = 0; i < uiNumObjects; ++i)
+      WUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
+      for (WUInt32 i = 0; i < uiNumObjects; ++i)
       {
-        ezVariant prefab = typeAccessor.GetValue("Objects", i);
-        if (prefab.IsA<ezString>())
+        WVariant prefab = typeAccessor.GetValue("Objects", i);
+        if (prefab.IsA<WString>())
         {
-          pInfo->m_PackageDependencies.Insert(prefab.Get<ezString>());
-          pInfo->m_ThumbnailDependencies.Insert(prefab.Get<ezString>());
+          pInfo->m_PackageDependencies.Insert(prefab.Get<WString>());
+          pInfo->m_ThumbnailDependencies.Insert(prefab.Get<WString>());
         }
       }
 
-      ezVariant colorGradient = typeAccessor.GetValue("ColorGradient");
-      if (colorGradient.IsA<ezString>())
+      WVariant colorGradient = typeAccessor.GetValue("ColorGradient");
+      if (colorGradient.IsA<WString>())
       {
-        pInfo->m_PackageDependencies.Insert(colorGradient.Get<ezString>());
-        pInfo->m_ThumbnailDependencies.Insert(colorGradient.Get<ezString>());
+        pInfo->m_PackageDependencies.Insert(colorGradient.Get<WString>());
+        pInfo->m_ThumbnailDependencies.Insert(colorGradient.Get<WString>());
       }
     }
   }
@@ -336,60 +336,60 @@ void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
   }
 }
 
-ezTransformStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WProcGenGraphAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_ASSERT_DEV(sOutputTag.IsEmpty(), "Additional output '{0}' not implemented!", sOutputTag);
+  W_ASSERT_DEV(sOutputTag.IsEmpty(), "Additional output '{0}' not implemented!", sOutputTag);
 
   return WriteAsset(stream, pAssetProfile, false);
 }
 
-void ezProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
+void WProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const
 {
-  out_mimeTypes.PushBack("application/ezEditor.ProcGenGraph");
+  out_mimeTypes.PushBack("application/WEditor.ProcGenGraph");
 }
 
-bool ezProcGenGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool WProcGenGraphAssetDocument::CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const
 {
-  out_MimeType = "application/ezEditor.ProcGenGraph";
+  out_MimeType = "application/WEditor.ProcGenGraph";
 
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
+bool WProcGenGraphAssetDocument::Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType)
 {
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, WQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }
 
-void ezProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+void WProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
-void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
+void WProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const
+void WProcGenGraphAssetDocument::GetAllOutputNodes(WDynamicArray<const WDocumentObject*>& placementNodes, WDynamicArray<const WDocumentObject*>& vertexColorNodes) const
 {
-  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGen_PlacementOutput>();
-  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGen_VertexColorOutput>();
+  const WRTTI* pPlacementOutputRtti = WGetStaticRTTI<WProcGen_PlacementOutput>();
+  const WRTTI* pVertexColorOutputRtti = WGetStaticRTTI<WProcGen_VertexColorOutput>();
 
   placementNodes.Clear();
   vertexColorNodes.Clear();
 
   const auto& children = GetObjectManager()->GetRootObject()->GetChildren();
-  for (const ezDocumentObject* pObject : children)
+  for (const WDocumentObject* pObject : children)
   {
     if (pObject->GetTypeAccessor().GetValue("Active").ConvertTo<bool>())
     {
-      const ezRTTI* pRtti = pObject->GetTypeAccessor().GetType();
+      const WRTTI* pRtti = pObject->GetTypeAccessor().GetType();
       if (pRtti->IsDerivedFrom(pPlacementOutputRtti))
       {
         placementNodes.PushBack(pObject);
@@ -402,33 +402,33 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocum
   }
 }
 
-void ezProcGenGraphAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+void WProcGenGraphAssetDocument::InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const
 {
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
-ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, ezExpressionAST& out_Ast) const
+WExpressionAST::Node* WProcGenGraphAssetDocument::GenerateExpressionAST(const WDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, WExpressionAST& out_Ast) const
 {
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
 
   auto inputPins = pManager->GetInputPins(outputNode);
 
-  ezTempHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
+  WTempHybridArray<WExpressionAST::Node*, 8> inputAstNodes;
   inputAstNodes.SetCount(inputPins.GetCount());
 
-  for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
+  for (WUInt32 i = 0; i < inputPins.GetCount(); ++i)
   {
     auto connections = pManager->GetConnections(*inputPins[i]);
-    EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
+    W_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
       continue;
 
-    const ezVisualGraphPin& pinSource = connections[0]->GetSourcePin();
+    const WVisualGraphPin& pinSource = connections[0]->GetSourcePin();
 
     DocObjAndOutput key = {pinSource.GetParent(), pinSource.GetName()};
-    ezExpressionAST::Node* astNode;
+    WExpressionAST::Node* astNode;
     if (!context.m_DocObjAndOutputToASTNodeTable.TryGetValue(key, astNode))
     {
       // recursively generate all dependent code
@@ -440,42 +440,42 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     inputAstNodes[i] = astNode;
   }
 
-  ezProcGenNodeBase* cachedPGNode = nullptr;
+  WProcGenNodeBase* cachedPGNode = nullptr;
   if (auto pCachedPGNode = context.m_DocObjToProcGenNodeTable.GetValue(outputNode))
   {
     cachedPGNode = pCachedPGNode->Borrow();
   }
   else
   {
-    ezAbstractObjectNode* pAbstractNode = context.m_ObjectWriter.AddObjectToGraph(outputNode);
-    auto newPGNode = context.m_RttiConverter.CreateObjectFromNode(pAbstractNode).Cast<ezProcGenNodeBase>();
+    WAbstractObjectNode* pAbstractNode = context.m_ObjectWriter.AddObjectToGraph(outputNode);
+    auto newPGNode = context.m_RttiConverter.CreateObjectFromNode(pAbstractNode).Cast<WProcGenNodeBase>();
     cachedPGNode = newPGNode;
 
     context.m_DocObjToProcGenNodeTable.Insert(outputNode, newPGNode);
   }
 
-  return cachedPGNode->GenerateExpressionASTNode(ezTempHashedString(szOutputName), inputAstNodes, out_Ast, context.m_GraphContext);
+  return cachedPGNode->GenerateExpressionASTNode(WTempHashedString(szOutputName), inputAstNodes, out_Ast, context.m_GraphContext);
 }
 
-ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(GenerateContext& context, ezExpressionAST& out_Ast) const
+WExpressionAST::Node* WProcGenGraphAssetDocument::GenerateDebugExpressionAST(GenerateContext& context, WExpressionAST& out_Ast) const
 {
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
-  EZ_ASSERT_DEV(m_pDebugPin != nullptr, "");
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
+  W_ASSERT_DEV(m_pDebugPin != nullptr, "");
 
-  const ezVisualGraphPin* pPinSource = m_pDebugPin;
-  if (pPinSource->GetType() == ezVisualGraphPin::Type::Input)
+  const WVisualGraphPin* pPinSource = m_pDebugPin;
+  if (pPinSource->GetType() == WVisualGraphPin::Type::Input)
   {
     auto connections = pManager->GetConnections(*pPinSource);
-    EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
+    W_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
       return nullptr;
 
     pPinSource = &connections[0]->GetSourcePin();
-    EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
+    W_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
   }
 
-  ezTempHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
+  WTempHybridArray<WExpressionAST::Node*, 8> inputAstNodes;
   inputAstNodes.SetCount(4); // placement output node has 4 inputs
 
   // Recursively generate all dependent code and pretend it is connected to the color index input of the debug placement output node.
@@ -484,15 +484,15 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(G
   return m_pDebugNode->GenerateExpressionASTNode("", inputAstNodes, out_Ast, context.m_GraphContext);
 }
 
-void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembly) const
+void WProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembly) const
 {
-  const ezDocumentObject* pSelectedNode = nullptr;
+  const WDocumentObject* pSelectedNode = nullptr;
 
   const auto& selection = GetSelectionManager()->GetSelection();
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];
-    if (!pSelectedNode->GetType()->IsDerivedFrom<ezProcGenOutput>())
+    if (!pSelectedNode->GetType()->IsDerivedFrom<WProcGenOutput>())
     {
       pSelectedNode = nullptr;
     }
@@ -500,48 +500,48 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
 
   if (pSelectedNode == nullptr)
   {
-    ezLog::Error("No valid output node selected.");
+    WLog::Error("No valid output node selected.");
     return;
   }
 
   GenerateContext context(GetObjectManager());
-  if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+  if (pSelectedNode->GetType()->IsDerivedFrom<WProcGen_PlacementOutput>())
   {
-    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+    context.m_GraphContext.m_OutputType = WProcGenNodeBase::GraphContext::Placement;
   }
-  else if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+  else if (pSelectedNode->GetType()->IsDerivedFrom<WProcGen_VertexColorOutput>())
   {
-    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+    context.m_GraphContext.m_OutputType = WProcGenNodeBase::GraphContext::Color;
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return;
   }
 
-  ezExpressionAST ast;
+  WExpressionAST ast;
   GenerateExpressionAST(pSelectedNode, "", context, ast);
 
-  ezStringBuilder sDocumentPath = GetDocumentPath();
-  ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
-  ezStringView sOutputName = pSelectedNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+  WStringBuilder sDocumentPath = GetDocumentPath();
+  WStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
+  WStringView sOutputName = pSelectedNode->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
 
   if (bAst)
   {
     DumpAST(ast, sAssetName, sOutputName);
   }
 
-  ezExpressionByteCode byteCode;
-  ezExpressionCompiler compiler;
+  WExpressionByteCode byteCode;
+  WExpressionCompiler compiler;
   if (compiler.Compile(ast, byteCode).Failed())
   {
-    ezLog::Error("Compiling expression failed");
+    WLog::Error("Compiling expression failed");
     return;
   }
 
   if (bAst)
   {
-    ezStringBuilder sOutputName2 = sOutputName;
+    WStringBuilder sOutputName2 = sOutputName;
     sOutputName2.Append("_Opt");
 
     DumpAST(ast, sAssetName, sOutputName2);
@@ -549,22 +549,22 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
 
   if (bDisassembly)
   {
-    ezStringBuilder sDisassembly;
+    WStringBuilder sDisassembly;
     byteCode.Disassemble(sDisassembly);
 
-    ezStringBuilder sFileName;
+    WStringBuilder sFileName;
     sFileName.SetFormat(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
 
-    ezFileWriter fileWriter;
+    WFileWriter fileWriter;
     if (fileWriter.Open(sFileName).Succeeded())
     {
       fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
 
-      ezLog::Info("Disassembly was dumped to: {0}", sFileName);
+      WLog::Info("Disassembly was dumped to: {0}", sFileName);
     }
     else
     {
-      ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
+      WLog::Error("Failed to dump Disassembly to: {0}", sFileName);
     }
   }
 }

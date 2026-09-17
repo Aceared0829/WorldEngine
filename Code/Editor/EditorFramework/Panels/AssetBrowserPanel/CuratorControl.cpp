@@ -6,7 +6,7 @@
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 
-ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
+WQtCuratorControl::WQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
 
 {
@@ -15,23 +15,23 @@ ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   layout()->setContentsMargins(0, 0, 0, 0);
   m_pBackgroundProcess = new QToolButton(this);
   pLayout->addWidget(m_pBackgroundProcess);
-  connect(m_pBackgroundProcess, &QAbstractButton::clicked, this, &ezQtCuratorControl::BackgroundProcessClicked);
+  connect(m_pBackgroundProcess, &QAbstractButton::clicked, this, &WQtCuratorControl::BackgroundProcessClicked);
   pLayout->addSpacing(200);
 
   UpdateBackgroundProcessState();
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetCuratorEvents, this));
-  ezAssetProcessor::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetProcessorEvents, this));
-  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::ProjectEvents, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtCuratorControl::AssetCuratorEvents, this));
+  WAssetProcessor::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtCuratorControl::AssetProcessorEvents, this));
+  WToolsProject::GetSingleton()->s_Events.AddEventHandler(WMakeDelegate(&WQtCuratorControl::ProjectEvents, this));
 }
 
-ezQtCuratorControl::~ezQtCuratorControl()
+WQtCuratorControl::~WQtCuratorControl()
 {
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetCuratorEvents, this));
-  ezAssetProcessor::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetProcessorEvents, this));
-  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::ProjectEvents, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtCuratorControl::AssetCuratorEvents, this));
+  WAssetProcessor::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtCuratorControl::AssetProcessorEvents, this));
+  WToolsProject::GetSingleton()->s_Events.RemoveEventHandler(WMakeDelegate(&WQtCuratorControl::ProjectEvents, this));
 }
 
-void ezQtCuratorControl::paintEvent(QPaintEvent* e)
+void WQtCuratorControl::paintEvent(QPaintEvent* e)
 {
   QRect rect = contentsRect();
   QRect rectButton = m_pBackgroundProcess->geometry();
@@ -40,41 +40,41 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   QPainter painter(this);
   painter.setPen(QPen(Qt::NoPen));
 
-  ezUInt32 uiNumAssets;
-  ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
-  QColor colors[ezAssetInfo::TransformState::COUNT];
-  colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
-  colors[ezAssetInfo::TransformState::NeedsImport] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Yellow));
-  colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
-  colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
-  colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
-  colors[ezAssetInfo::TransformState::MissingTransformDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
-  colors[ezAssetInfo::TransformState::MissingPackageDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));
-  colors[ezAssetInfo::TransformState::MissingThumbnailDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));
-  colors[ezAssetInfo::TransformState::CircularDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
-  colors[ezAssetInfo::TransformState::TransformError] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
+  WUInt32 uiNumAssets;
+  WTempHybridArray<WUInt32, WAssetInfo::TransformState::COUNT> sections;
+  WAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
+  QColor colors[WAssetInfo::TransformState::COUNT];
+  colors[WAssetInfo::TransformState::Unknown] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Gray));
+  colors[WAssetInfo::TransformState::NeedsImport] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Yellow));
+  colors[WAssetInfo::TransformState::NeedsTransform] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Blue));
+  colors[WAssetInfo::TransformState::NeedsThumbnail] = WToQtColor(WColorScheme::DarkUI(float(WColorScheme::Blue + WColorScheme::Green) * 0.5f * WColorScheme::s_fIndexNormalizer));
+  colors[WAssetInfo::TransformState::UpToDate] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Green));
+  colors[WAssetInfo::TransformState::MissingTransformDependency] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Red));
+  colors[WAssetInfo::TransformState::MissingPackageDependency] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Orange));
+  colors[WAssetInfo::TransformState::MissingThumbnailDependency] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Orange));
+  colors[WAssetInfo::TransformState::CircularDependency] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Red));
+  colors[WAssetInfo::TransformState::TransformError] = WToQtColor(WColorScheme::DarkUI(WColorScheme::Red));
 
-  const ezUInt32 uiProblems = sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] + sections[ezAssetInfo::TransformState::MissingPackageDependency] + sections[ezAssetInfo::TransformState::TransformError] + sections[ezAssetInfo::TransformState::CircularDependency];
+  const WUInt32 uiProblems = sections[WAssetInfo::TransformState::MissingTransformDependency] + sections[WAssetInfo::TransformState::MissingThumbnailDependency] + sections[WAssetInfo::TransformState::MissingPackageDependency] + sections[WAssetInfo::TransformState::TransformError] + sections[WAssetInfo::TransformState::CircularDependency];
 
   if (uiProblems > 0)
   {
     for (auto& col : colors)
     {
       col.setRed(255);
-      col.setGreen(ezMath::Min(50, col.green()));
-      col.setBlue(ezMath::Min(50, col.blue()));
+      col.setGreen(WMath::Min(50, col.green()));
+      col.setBlue(WMath::Min(50, col.blue()));
     }
   }
 
   const float fTotalCount = uiNumAssets;
-  const ezInt32 iTargetWidth = rect.width();
-  ezInt32 iCurrentCount = 0;
-  for (ezInt32 i = 0; i < ezAssetInfo::TransformState::COUNT; ++i)
+  const WInt32 iTargetWidth = rect.width();
+  WInt32 iCurrentCount = 0;
+  for (WInt32 i = 0; i < WAssetInfo::TransformState::COUNT; ++i)
   {
-    ezInt32 iStartX = ezInt32((iCurrentCount / fTotalCount) * iTargetWidth);
+    WInt32 iStartX = WInt32((iCurrentCount / fTotalCount) * iTargetWidth);
     iCurrentCount += sections[i];
-    ezInt32 iEndX = ezInt32((iCurrentCount / fTotalCount) * iTargetWidth);
+    WInt32 iEndX = WInt32((iCurrentCount / fTotalCount) * iTargetWidth);
 
     if (sections[i])
     {
@@ -86,7 +86,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
     }
   }
 
-  ezStringBuilder s;
+  WStringBuilder s;
 
   if (uiProblems > 0)
   {
@@ -101,74 +101,74 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
 }
 
-void ezQtCuratorControl::mouseReleaseEvent(QMouseEvent* e)
+void WQtCuratorControl::mouseReleaseEvent(QMouseEvent* e)
 {
   QWidget::mouseReleaseEvent(e);
 
-  ezQtAssetCuratorPanel::GetSingleton()->EnsureVisible();
+  WQtAssetCuratorPanel::GetSingleton()->EnsureVisible();
 }
 
-void ezQtCuratorControl::UpdateBackgroundProcessState()
+void WQtCuratorControl::UpdateBackgroundProcessState()
 {
-  ezAssetProcessor::ProcessorState state = ezAssetProcessor::GetSingleton()->GetProcessorState();
+  WAssetProcessor::ProcessorState state = WAssetProcessor::GetSingleton()->GetProcessorState();
   switch (state)
   {
-    case ezAssetProcessor::ProcessorState::Stopped:
+    case WAssetProcessor::ProcessorState::Stopped:
       m_pBackgroundProcess->setToolTip("Start background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart.svg"));
+      m_pBackgroundProcess->setIcon(WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart.svg"));
       break;
-    case ezAssetProcessor::ProcessorState::Running:
+    case WAssetProcessor::ProcessorState::Running:
       m_pBackgroundProcess->setToolTip("Stop background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause.svg"));
+      m_pBackgroundProcess->setIcon(WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause.svg"));
       break;
-    case ezAssetProcessor::ProcessorState::Stopping:
+    case WAssetProcessor::ProcessorState::Stopping:
       m_pBackgroundProcess->setToolTip("Force stop background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop.svg"));
+      m_pBackgroundProcess->setIcon(WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop.svg"));
       break;
     default:
       break;
   }
 
   m_pBackgroundProcess->setCheckable(true);
-  m_pBackgroundProcess->setChecked(state == ezAssetProcessor::ProcessorState::Running);
+  m_pBackgroundProcess->setChecked(state == WAssetProcessor::ProcessorState::Running);
 }
 
-void ezQtCuratorControl::BackgroundProcessClicked(bool checked)
+void WQtCuratorControl::BackgroundProcessClicked(bool checked)
 {
-  ezAssetProcessor::ProcessorState state = ezAssetProcessor::GetSingleton()->GetProcessorState();
+  WAssetProcessor::ProcessorState state = WAssetProcessor::GetSingleton()->GetProcessorState();
 
-  if (state == ezAssetProcessor::ProcessorState::Stopped)
+  if (state == WAssetProcessor::ProcessorState::Stopped)
   {
-    ezAssetCurator::GetSingleton()->CheckFileSystem();
-    ezAssetProcessor::GetSingleton()->StartProcessor();
+    WAssetCurator::GetSingleton()->CheckFileSystem();
+    WAssetProcessor::GetSingleton()->StartProcessor();
   }
   else
   {
-    bool bForce = state == ezAssetProcessor::ProcessorState::Stopping;
-    ezAssetProcessor::GetSingleton()->StopProcessor(bForce);
+    bool bForce = state == WAssetProcessor::ProcessorState::Stopping;
+    WAssetProcessor::GetSingleton()->StopProcessor(bForce);
   }
 }
 
-void ezQtCuratorControl::SlotUpdateTransformStats()
+void WQtCuratorControl::SlotUpdateTransformStats()
 {
   m_bScheduled = false;
 
-  ezUInt32 uiNumAssets;
-  ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
+  WUInt32 uiNumAssets;
+  WTempHybridArray<WUInt32, WAssetInfo::TransformState::COUNT> sections;
+  WAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
-  ezStringBuilder s;
+  WStringBuilder s;
 
   if (uiNumAssets > 0)
   {
     s.SetFormat("Unknown: {}\nImport Needed: {}\nTransform Needed: {}\nThumbnail Needed: {}\nMissing Dependency: {}\nCircular Dependency: {}\nFailed Transform: {}",
-      sections[ezAssetInfo::TransformState::Unknown],
-      sections[ezAssetInfo::TransformState::NeedsImport],
-      sections[ezAssetInfo::TransformState::NeedsTransform],
-      sections[ezAssetInfo::TransformState::NeedsThumbnail],
-      sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] + sections[ezAssetInfo::TransformState::MissingPackageDependency],
-      sections[ezAssetInfo::TransformState::CircularDependency],
-      sections[ezAssetInfo::TransformState::TransformError]);
+      sections[WAssetInfo::TransformState::Unknown],
+      sections[WAssetInfo::TransformState::NeedsImport],
+      sections[WAssetInfo::TransformState::NeedsTransform],
+      sections[WAssetInfo::TransformState::NeedsThumbnail],
+      sections[WAssetInfo::TransformState::MissingTransformDependency] + sections[WAssetInfo::TransformState::MissingThumbnailDependency] + sections[WAssetInfo::TransformState::MissingPackageDependency],
+      sections[WAssetInfo::TransformState::CircularDependency],
+      sections[WAssetInfo::TransformState::TransformError]);
     setToolTip(s.GetData());
   }
   else
@@ -178,7 +178,7 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
   update();
 }
 
-void ezQtCuratorControl::ScheduleUpdateTransformStats()
+void WQtCuratorControl::ScheduleUpdateTransformStats()
 {
   if (m_bScheduled)
     return;
@@ -188,11 +188,11 @@ void ezQtCuratorControl::ScheduleUpdateTransformStats()
   QTimer::singleShot(200, this, SLOT(SlotUpdateTransformStats()));
 }
 
-void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
+void WQtCuratorControl::AssetCuratorEvents(const WAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezAssetCuratorEvent::Type::AssetUpdated:
+    case WAssetCuratorEvent::Type::AssetUpdated:
       ScheduleUpdateTransformStats();
       break;
     default:
@@ -200,11 +200,11 @@ void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
   }
 }
 
-void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
+void WQtCuratorControl::AssetProcessorEvents(const WAssetProcessorEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezAssetProcessorEvent::Type::AssetProcessorStateChanged:
+    case WAssetProcessorEvent::Type::AssetProcessorStateChanged:
     {
       QMetaObject::invokeMethod(this, "UpdateBackgroundProcessState", Qt::QueuedConnection);
     }
@@ -214,13 +214,13 @@ void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
   }
 }
 
-void ezQtCuratorControl::ProjectEvents(const ezToolsProjectEvent& e)
+void WQtCuratorControl::ProjectEvents(const WToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezToolsProjectEvent::Type::ProjectClosing:
-    case ezToolsProjectEvent::Type::ProjectClosed:
-    case ezToolsProjectEvent::Type::ProjectOpened:
+    case WToolsProjectEvent::Type::ProjectClosing:
+    case WToolsProjectEvent::Type::ProjectClosed:
+    case WToolsProjectEvent::Type::ProjectOpened:
       ScheduleUpdateTransformStats();
       break;
 

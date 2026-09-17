@@ -2,19 +2,19 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezRmlUiDocumentContext;
+class WRmlUiDocumentContext;
 
-class ezRmlUiViewContext : public ezEngineProcessViewContext
+class WRmlUiViewContext : public WEngineProcessViewContext
 {
 public:
-  ezRmlUiViewContext(ezRmlUiDocumentContext* pRmlUiContext);
-  ~ezRmlUiViewContext();
+  WRmlUiViewContext(WRmlUiDocumentContext* pRmlUiContext);
+  ~WRmlUiViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  ezRmlUiDocumentContext* m_pRmlUiContext;
+  WRmlUiDocumentContext* m_pRmlUiContext;
 };

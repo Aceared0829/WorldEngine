@@ -3,27 +3,27 @@
 #include <JoltPlugin/Actors/JoltActorComponent.h>
 #include <JoltPlugin/Resources/JoltMeshResource.h>
 
-struct ezMsgExtractGeometry;
+struct WMsgExtractGeometry;
 
-struct ezMsgPhysicsMakeTemporarilyDynamic;
+struct WMsgPhysicsMakeTemporarilyDynamic;
 
-/// Manager for ezJoltStaticActorComponent.
+/// Manager for WJoltStaticActorComponent.
 ///
 /// Beyond the default component management it keeps track of the static actors that were temporarily turned into
 /// dynamic ones, and copies their simulated transform back onto their owner objects.
-class EZ_JOLTPLUGIN_DLL ezJoltStaticActorComponentManager : public ezComponentManager<class ezJoltStaticActorComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltStaticActorComponentManager : public WComponentManager<class WJoltStaticActorComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltStaticActorComponentManager(ezWorld* pWorld);
-  ~ezJoltStaticActorComponentManager();
+  WJoltStaticActorComponentManager(WWorld* pWorld);
+  ~WJoltStaticActorComponentManager();
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltStaticActorComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltStaticActorComponent;
 
   void UpdateTemporarilyDynamicActors();
 
-  ezDynamicArray<ezComponentHandle> m_TemporarilyDynamicActors;
+  WDynamicArray<WComponentHandle> m_TemporarilyDynamicActors;
 };
 
 /// Turns an object into an immovable obstacle in the physics simulation.
@@ -32,56 +32,56 @@ private:
 /// If that is desired, use a dynamic actor instead and set it to be "kinematic".
 ///
 /// Static actors are the only ones that can use concave collision meshes.
-class EZ_JOLTPLUGIN_DLL ezJoltStaticActorComponent : public ezJoltActorComponent
+class W_JOLTPLUGIN_DLL WJoltStaticActorComponent : public WJoltActorComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltStaticActorComponent, ezJoltActorComponent, ezJoltStaticActorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltStaticActorComponent, WJoltActorComponent, WJoltStaticActorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  void OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg);
+  void OnMsgPhysicsMakeTemporarilyDynamic(WMsgPhysicsMakeTemporarilyDynamic& msg);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltActorComponent
+  // WJoltActorComponent
 protected:
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltStaticActorComponent
+  // WJoltStaticActorComponent
 
 public:
-  ezJoltStaticActorComponent();
-  ~ezJoltStaticActorComponent();
+  WJoltStaticActorComponent();
+  ~WJoltStaticActorComponent();
 
-  /// Searches for a sibling ezMeshComponent and attempts to retrieve information about the ezJoltMaterial to use for each submesh from its ezMaterial information.
-  void PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& ref_materials);
+  /// Searches for a sibling WMeshComponent and attempts to retrieve information about the WJoltMaterial to use for each submesh from its WMaterial information.
+  void PullSurfacesFromGraphicsMesh(WDynamicArray<const WJoltMaterial*>& ref_materials);
 
-  void SetMesh(const ezJoltMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+  void SetMesh(const WJoltMeshResourceHandle& hMesh);
+  W_ALWAYS_INLINE const WJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-  void SetSurfaceFile(ezStringView sFile);      // [ property ]
-  ezStringView GetSurfaceFile() const;          // [ property ]
+  void SetSurfaceFile(WStringView sFile);      // [ property ]
+  WStringView GetSurfaceFile() const;          // [ property ]
 
   bool m_bPullSurfacesFromGraphicsMesh = false; // [ property ]
-  ezSurfaceResourceHandle m_hSurface;           // [ property ]
+  WSurfaceResourceHandle m_hSurface;           // [ property ]
 
 protected:
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
-  const ezJoltMaterial* GetJoltMaterial() const;
+  void OnMsgExtractGeometry(WMsgExtractGeometry& msg) const;
+  const WJoltMaterial* GetJoltMaterial() const;
 
   /// Whether the shapes of this actor could be used for a dynamic body. Triangle meshes can't.
   bool CanBeMadeDynamic();
 
-  ezJoltMeshResourceHandle m_hCollisionMesh;
+  WJoltMeshResourceHandle m_hCollisionMesh;
 
   // array to keep surfaces alive, in case they are pulled from the materials of the render mesh
-  ezDynamicArray<ezSurfaceResourceHandle> m_UsedSurfaces;
+  WDynamicArray<WSurfaceResourceHandle> m_UsedSurfaces;
 };

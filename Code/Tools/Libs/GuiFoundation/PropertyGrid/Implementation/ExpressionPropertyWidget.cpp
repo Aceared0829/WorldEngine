@@ -6,8 +6,8 @@
 #include <Foundation/CodeUtils/Expression/ExpressionParser.h>
 #include <Foundation/Math/ColorScheme.h>
 
-ezQtPropertyEditorExpressionWidget::ezQtPropertyEditorExpressionWidget()
-  : ezQtStandardPropertyWidget()
+WQtPropertyEditorExpressionWidget::WQtPropertyEditorExpressionWidget()
+  : WQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -33,39 +33,39 @@ ezQtPropertyEditorExpressionWidget::ezQtPropertyEditorExpressionWidget()
   connect(m_pWidget, SIGNAL(textChanged()), this, SLOT(on_TextChanged()));
 }
 
-ezQtPropertyEditorExpressionWidget::~ezQtPropertyEditorExpressionWidget()
+WQtPropertyEditorExpressionWidget::~WQtPropertyEditorExpressionWidget()
 {
   delete m_pHighlighter;
 }
 
-void ezQtPropertyEditorExpressionWidget::OnInit()
+void WQtPropertyEditorExpressionWidget::OnInit()
 {
-  if (const ezExpressionWidgetAttribute* pAttr = m_pProp->GetAttributeByType<ezExpressionWidgetAttribute>())
+  if (const WExpressionWidgetAttribute* pAttr = m_pProp->GetAttributeByType<WExpressionWidgetAttribute>())
   {
     const char* szKeywords = pAttr->GetCustomKeywords();
-    if (!ezStringUtils::IsNullOrEmpty(szKeywords))
+    if (!WStringUtils::IsNullOrEmpty(szKeywords))
     {
       QSet<QString> keywords;
-      ezStringBuilder sKeywords = szKeywords;
-      ezHybridArray<ezStringView, 16> parts;
+      WStringBuilder sKeywords = szKeywords;
+      WHybridArray<WStringView, 16> parts;
       sKeywords.Split(false, parts, ";");
-      for (ezStringView part : parts)
+      for (WStringView part : parts)
       {
-        ezStringBuilder sTrimmed = part;
+        WStringBuilder sTrimmed = part;
         sTrimmed.Trim(" \t");
         if (!sTrimmed.IsEmpty())
           keywords.insert(QString::fromUtf8(sTrimmed.GetData()));
       }
 
-      const ezColorGammaUB c = pAttr->GetCustomKeywordColor();
+      const WColorGammaUB c = pAttr->GetCustomKeywordColor();
       static_cast<ExpressionHighlighter*>(m_pHighlighter)->SetCustomKeywords(keywords, QColor(c.r, c.g, c.b));
     }
   }
 }
 
-void ezQtPropertyEditorExpressionWidget::InternalSetValue(const ezVariant& value)
+void WQtPropertyEditorExpressionWidget::InternalSetValue(const WVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
+  WQtScopedBlockSignals b(m_pWidget);
 
   if (!value.IsValid())
   {
@@ -75,7 +75,7 @@ void ezQtPropertyEditorExpressionWidget::InternalSetValue(const ezVariant& value
   {
     m_pWidget->setPlaceholderText(QString());
 
-    QString newText = ezMakeQString(value.ConvertTo<ezString>());
+    QString newText = WMakeQString(value.ConvertTo<WString>());
     if (m_pWidget->toPlainText() != newText)
     {
       m_pWidget->setText(newText);
@@ -83,9 +83,9 @@ void ezQtPropertyEditorExpressionWidget::InternalSetValue(const ezVariant& value
   }
 }
 
-void ezQtPropertyEditorExpressionWidget::on_TextChanged()
+void WQtPropertyEditorExpressionWidget::on_TextChanged()
 {
-  BroadcastValueChanged(ezVariant(qtToEzString(m_pWidget->toPlainText())));
+  BroadcastValueChanged(WVariant(qtToEzString(m_pWidget->toPlainText())));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ ExpressionHighlighter::ExpressionHighlighter(QTextDocument* pParent)
   m_Colors[ExpressionTokenType::Type] = QColor(86, 156, 214);
   m_Colors[ExpressionTokenType::BuiltIn] = QColor(216, 160, 223);
   {
-    const ezColorGammaUB c = ezColorScheme::DarkUI(ezColorScheme::Yellow);
+    const WColorGammaUB c = WColorScheme::DarkUI(WColorScheme::Yellow);
     m_Colors[ExpressionTokenType::Custom] = QColor(c.r, c.g, c.b);
   }
 }
@@ -113,8 +113,8 @@ void ExpressionHighlighter::SetCustomKeywords(const QSet<QString>& keywords, QCo
 
 void ExpressionHighlighter::highlightBlock(const QString& text)
 {
-  auto& knownTypes = ezExpressionParser::GetKnownTypes();
-  auto& builtinFunctions = ezExpressionParser::GetBuiltinFunctions();
+  auto& knownTypes = WExpressionParser::GetKnownTypes();
+  auto& builtinFunctions = WExpressionParser::GetBuiltinFunctions();
 
   // parsing state
   enum
@@ -203,7 +203,7 @@ void ExpressionHighlighter::highlightBlock(const QString& text)
         if (ch.isSpace() || !(ch.isDigit() || ch.isLetter() || ch == '_'))
         {
           QString token = text.mid(start, i - start).trimmed();
-          ezTempHashedString tokenHashed(token.toUtf8().data());
+          WTempHashedString tokenHashed(token.toUtf8().data());
 
           if (knownTypes.Contains(tokenHashed))
           {

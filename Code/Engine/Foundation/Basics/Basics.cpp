@@ -2,14 +2,14 @@
 
 #include <Foundation/Memory/CommonAllocators.h>
 
-#if EZ_ENABLED(EZ_ALLOC_GUARD_ALLOCATIONS)
-using DefaultHeapType = ezGuardingAllocator;
-using DefaultAlignedHeapType = ezGuardingAllocator;
-using DefaultStaticsHeapType = ezAllocatorWithPolicy<ezAllocPolicyGuarding, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
+#if W_ENABLED(W_ALLOC_GUARD_ALLOCATIONS)
+using DefaultHeapType = WGuardingAllocator;
+using DefaultAlignedHeapType = WGuardingAllocator;
+using DefaultStaticsHeapType = WAllocatorWithPolicy<WAllocPolicyGuarding, WAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
 #else
-using DefaultHeapType = ezHeapAllocator;
-using DefaultAlignedHeapType = ezAlignedHeapAllocator;
-using DefaultStaticsHeapType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
+using DefaultHeapType = WHeapAllocator;
+using DefaultAlignedHeapType = WAlignedHeapAllocator;
+using DefaultStaticsHeapType = WAllocatorWithPolicy<WAllocPolicyHeap, WAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
 #endif
 
 enum
@@ -18,22 +18,22 @@ enum
   ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType),
 };
 
-alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
-alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
+alignas(W_ALIGNMENT_MINIMUM) static WUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
+alignas(W_ALIGNMENT_MINIMUM) static WUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
 
-alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
+alignas(W_ALIGNMENT_MINIMUM) static WUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
 
-bool ezFoundation::s_bIsInitialized = false;
-ezAllocator* ezFoundation::s_pDefaultAllocator = nullptr;
-ezAllocator* ezFoundation::s_pAlignedAllocator = nullptr;
+bool WFoundation::s_bIsInitialized = false;
+WAllocator* WFoundation::s_pDefaultAllocator = nullptr;
+WAllocator* WFoundation::s_pAlignedAllocator = nullptr;
 
-void ezFoundation::Initialize()
+void WFoundation::Initialize()
 {
   if (s_bIsInitialized)
     return;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezMemoryUtils::ReserveLower4GBAddressSpace();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  WMemoryUtils::ReserveLower4GBAddressSpace();
 #endif
 
   if (s_pDefaultAllocator == nullptr)
@@ -49,25 +49,25 @@ void ezFoundation::Initialize()
   s_bIsInitialized = true;
 }
 
-#if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
-extern ezAllocator* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+#if defined(W_CUSTOM_STATIC_ALLOCATOR_FUNC)
+extern WAllocator* W_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #endif
 
-ezAllocator* ezFoundation::GetStaticsAllocator()
+WAllocator* WFoundation::GetStaticsAllocator()
 {
-  static ezAllocator* pStaticAllocator = nullptr;
+  static WAllocator* pStaticAllocator = nullptr;
 
   if (pStaticAllocator == nullptr)
   {
-#if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
+#if defined(W_CUSTOM_STATIC_ALLOCATOR_FUNC)
 
-#  if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#  if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
-#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    using GetStaticAllocatorFunc = ezAllocator* (*)();
+#    if W_ENABLED(W_PLATFORM_WINDOWS)
+    using GetStaticAllocatorFunc = WAllocator* (*)();
 
     HMODULE hThisModule = GetModuleHandle(nullptr);
-    GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, EZ_CUSTOM_STATIC_ALLOCATOR_FUNC);
+    GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, W_CUSTOM_STATIC_ALLOCATOR_FUNC);
     if (func != nullptr)
     {
       pStaticAllocator = (*func)();
@@ -78,7 +78,7 @@ ezAllocator* ezFoundation::GetStaticsAllocator()
 #    endif
 
 #  else
-    return EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+    return W_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #  endif
 
 #endif

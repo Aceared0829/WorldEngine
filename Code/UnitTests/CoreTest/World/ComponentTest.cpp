@@ -6,29 +6,29 @@
 namespace
 {
   class TestComponent;
-  class TestComponentManager : public ezComponentManager<TestComponent, ezBlockStorageType::FreeList>
+  class TestComponentManager : public WComponentManager<TestComponent, WBlockStorageType::FreeList>
   {
   public:
-    TestComponentManager(ezWorld* pWorld)
-      : ezComponentManager<TestComponent, ezBlockStorageType::FreeList>(pWorld)
+    TestComponentManager(WWorld* pWorld)
+      : WComponentManager<TestComponent, WBlockStorageType::FreeList>(pWorld)
     {
     }
 
     virtual void Initialize() override
     {
-      auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
-      auto desc2 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);
-      auto desc3 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update3, this);
+      auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
+      auto desc2 = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);
+      auto desc3 = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update3, this);
       desc3.m_fPriority = 1000.0f;
 
-      auto desc4 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::AUpdate3, this);
+      auto desc4 = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::AUpdate3, this);
       desc4.m_fPriority = 1000.0f;
 
-      desc.m_DependsOn.PushBack(ezMakeHashedString("TestComponentManager::Update2")); // update2 will be called before update
-      desc.m_DependsOn.PushBack(ezMakeHashedString("TestComponentManager::Update3")); // update3 will be called before update
+      desc.m_DependsOn.PushBack(WMakeHashedString("TestComponentManager::Update2")); // update2 will be called before update
+      desc.m_DependsOn.PushBack(WMakeHashedString("TestComponentManager::Update3")); // update3 will be called before update
 
-      auto descAsync = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
-      descAsync.m_Phase = ezWorldUpdatePhase::Async;
+      auto descAsync = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
+      descAsync.m_Phase = WWorldUpdatePhase::Async;
       descAsync.m_uiAsyncPhaseBatchSize = 20;
 
       // Update functions are now registered in reverse order, so we can test whether dependencies work.
@@ -39,16 +39,16 @@ namespace
       this->RegisterUpdateFunction(desc);
     }
 
-    void Update(const ezWorldModule::UpdateContext& context);
-    void Update2(const ezWorldModule::UpdateContext& context);
-    void Update3(const ezWorldModule::UpdateContext& context);
-    void AUpdate3(const ezWorldModule::UpdateContext& context);
-    void UpdateAsync(const ezWorldModule::UpdateContext& context);
+    void Update(const WWorldModule::UpdateContext& context);
+    void Update2(const WWorldModule::UpdateContext& context);
+    void Update3(const WWorldModule::UpdateContext& context);
+    void AUpdate3(const WWorldModule::UpdateContext& context);
+    void UpdateAsync(const WWorldModule::UpdateContext& context);
   };
 
-  class TestComponent : public ezComponent
+  class TestComponent : public WComponent
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
+    W_DECLARE_COMPONENT_TYPE(TestComponent, WComponent, TestComponentManager);
 
   public:
     TestComponent() = default;
@@ -74,24 +74,24 @@ namespace
 
     void SpawnOther();
 
-    ezInt32 m_iSomeData = 1;
+    WInt32 m_iSomeData = 1;
 
-    static ezInt32 s_iInitCounter;
-    static ezInt32 s_iActivateCounter;
-    static ezInt32 s_iSimulationStartedCounter;
+    static WInt32 s_iInitCounter;
+    static WInt32 s_iActivateCounter;
+    static WInt32 s_iSimulationStartedCounter;
 
     static bool s_bSpawnOther;
   };
 
-  ezInt32 TestComponent::s_iInitCounter = 0;
-  ezInt32 TestComponent::s_iActivateCounter = 0;
-  ezInt32 TestComponent::s_iSimulationStartedCounter = 0;
+  WInt32 TestComponent::s_iInitCounter = 0;
+  WInt32 TestComponent::s_iActivateCounter = 0;
+  WInt32 TestComponent::s_iSimulationStartedCounter = 0;
   bool TestComponent::s_bSpawnOther = false;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1, ezComponentMode::Static)
-  EZ_END_COMPONENT_TYPE
+  W_BEGIN_COMPONENT_TYPE(TestComponent, 1, WComponentMode::Static)
+  W_END_COMPONENT_TYPE
 
-  void TestComponentManager::Update(const ezWorldModule::UpdateContext& context)
+  void TestComponentManager::Update(const WWorldModule::UpdateContext& context)
   {
     for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
@@ -100,7 +100,7 @@ namespace
     }
   }
 
-  void TestComponentManager::Update2(const ezWorldModule::UpdateContext& context)
+  void TestComponentManager::Update2(const WWorldModule::UpdateContext& context)
   {
     for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
@@ -109,11 +109,11 @@ namespace
     }
   }
 
-  void TestComponentManager::Update3(const ezWorldModule::UpdateContext& context) {}
+  void TestComponentManager::Update3(const WWorldModule::UpdateContext& context) {}
 
-  void TestComponentManager::AUpdate3(const ezWorldModule::UpdateContext& context) {}
+  void TestComponentManager::AUpdate3(const WWorldModule::UpdateContext& context) {}
 
-  void TestComponentManager::UpdateAsync(const ezWorldModule::UpdateContext& context)
+  void TestComponentManager::UpdateAsync(const WWorldModule::UpdateContext& context)
   {
     for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
@@ -122,26 +122,26 @@ namespace
     }
   }
 
-  using TestComponent2Manager = ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList>;
+  using TestComponent2Manager = WComponentManager<class TestComponent2, WBlockStorageType::FreeList>;
 
-  class TestComponent2 : public ezComponent
+  class TestComponent2 : public WComponent
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestComponent2, ezComponent, TestComponent2Manager);
+    W_DECLARE_COMPONENT_TYPE(TestComponent2, WComponent, TestComponent2Manager);
 
     virtual void OnActivated() override { TestComponent::s_iActivateCounter++; }
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1, ezComponentMode::Static)
-  EZ_END_COMPONENT_TYPE
+  W_BEGIN_COMPONENT_TYPE(TestComponent2, 1, WComponentMode::Static)
+  W_END_COMPONENT_TYPE
 
   void TestComponent::SpawnOther()
   {
     if (s_bSpawnOther)
     {
-      ezGameObjectDesc desc;
+      WGameObjectDesc desc;
       desc.m_hParent = GetOwner()->GetHandle();
 
-      ezGameObject* pChild = nullptr;
+      WGameObject* pChild = nullptr;
       GetWorld()->CreateObject(desc, pChild);
 
       TestComponent2* pChildComponent = nullptr;
@@ -151,21 +151,21 @@ namespace
 } // namespace
 
 
-EZ_CREATE_SIMPLE_TEST(World, Components)
+W_CREATE_SIMPLE_TEST(World, Components)
 {
-  ezWorldDesc worldDesc("Test");
-  ezWorld world(worldDesc);
-  EZ_LOCK(world.GetWriteMarker());
+  WWorldDesc worldDesc("Test");
+  WWorld world(worldDesc);
+  W_LOCK(world.GetWriteMarker());
 
   TestComponentManager* pManager = world.GetOrCreateComponentManager<TestComponentManager>();
 
-  ezGameObject* pTestObject1;
-  ezGameObject* pTestObject2;
+  WGameObject* pTestObject1;
+  WGameObject* pTestObject2;
 
   {
-    ezGameObjectDesc desc;
-    ezGameObjectHandle hObject = world.CreateObject(desc, pTestObject1);
-    EZ_TEST_BOOL(!hObject.IsInvalidated());
+    WGameObjectDesc desc;
+    WGameObjectHandle hObject = world.CreateObject(desc, pTestObject1);
+    W_TEST_BOOL(!hObject.IsInvalidated());
     world.CreateObject(desc, pTestObject2);
   }
 
@@ -176,13 +176,13 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
   TestComponent::s_iSimulationStartedCounter = 0;
   TestComponent::s_bSpawnOther = false;
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Init")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Component Init")
   {
     // test recursive write lock
-    EZ_LOCK(world.GetWriteMarker());
+    W_LOCK(world.GetWriteMarker());
 
-    ezTypedComponentHandle<TestComponent> handle;
-    EZ_TEST_BOOL(!world.TryGetComponent(handle, pTestComponent));
+    WTypedComponentHandle<TestComponent> handle;
+    W_TEST_BOOL(!world.TryGetComponent(handle, pTestComponent));
 
     // Update with no components created
     world.Update();
@@ -190,164 +190,164 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     handle = TestComponent::CreateComponent(pTestObject1, pTestComponent);
 
     TestComponent* pTest = nullptr;
-    EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
-    EZ_TEST_BOOL(pTest == pTestComponent);
-    EZ_TEST_BOOL(pTestComponent->GetHandle() == handle);
+    W_TEST_BOOL(world.TryGetComponent(handle, pTest));
+    W_TEST_BOOL(pTest == pTestComponent);
+    W_TEST_BOOL(pTestComponent->GetHandle() == handle);
 
     TestComponent2* pTest2 = nullptr;
-    EZ_TEST_BOOL(!world.TryGetComponent(ezComponentHandle(handle), pTest2));
+    W_TEST_BOOL(!world.TryGetComponent(WComponentHandle(handle), pTest2));
 
-    EZ_TEST_INT(pTestComponent->m_iSomeData, 1);
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
+    W_TEST_INT(pTestComponent->m_iSomeData, 1);
+    W_TEST_INT(TestComponent::s_iInitCounter, 0);
 
-    for (ezUInt32 i = 1; i < 100; ++i)
+    for (WUInt32 i = 1; i < 100; ++i)
     {
       pManager->CreateComponent(pTestObject2, pTestComponent);
       pTestComponent->m_iSomeData = i + 1;
     }
 
-    EZ_TEST_INT(pManager->GetComponentCount(), 100);
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
+    W_TEST_INT(pManager->GetComponentCount(), 100);
+    W_TEST_INT(TestComponent::s_iInitCounter, 0);
 
     // Update with components created
     world.Update();
 
-    EZ_TEST_INT(pManager->GetComponentCount(), 100);
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 100);
+    W_TEST_INT(pManager->GetComponentCount(), 100);
+    W_TEST_INT(TestComponent::s_iInitCounter, 100);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Update")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Component Update")
   {
     // test recursive read lock
-    EZ_LOCK(world.GetReadMarker());
+    W_LOCK(world.GetReadMarker());
 
     world.Update();
 
-    ezUInt32 uiCounter = 0;
+    WUInt32 uiCounter = 0;
     for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
     {
-      EZ_TEST_INT(it->m_iSomeData, (((uiCounter + 4) * 25) + 3) * 25);
+      W_TEST_INT(it->m_iSomeData, (((uiCounter + 4) * 25) + 3) * 25);
       ++uiCounter;
     }
 
-    EZ_TEST_INT(uiCounter, 100);
+    W_TEST_INT(uiCounter, 100);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Component")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Delete Component")
   {
     pManager->DeleteComponent(pTestComponent->GetHandle());
-    EZ_TEST_INT(pManager->GetComponentCount(), 99);
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 99);
+    W_TEST_INT(pManager->GetComponentCount(), 99);
+    W_TEST_INT(TestComponent::s_iInitCounter, 99);
 
     // component should also be removed from the game object
-    EZ_TEST_INT(pTestObject2->GetComponents().GetCount(), 98);
+    W_TEST_INT(pTestObject2->GetComponents().GetCount(), 98);
 
     world.DeleteObjectNow(pTestObject2->GetHandle());
     world.Update();
 
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
+    W_TEST_INT(TestComponent::s_iInitCounter, 1);
 
     world.DeleteComponentManager<TestComponentManager>();
     pManager = nullptr;
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
+    W_TEST_INT(TestComponent::s_iInitCounter, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Objects with Component")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Delete Objects with Component")
   {
-    ezGameObjectDesc desc;
+    WGameObjectDesc desc;
 
-    ezGameObject* pObjectA = nullptr;
-    ezGameObject* pObjectB = nullptr;
-    ezGameObject* pObjectC = nullptr;
+    WGameObject* pObjectA = nullptr;
+    WGameObject* pObjectB = nullptr;
+    WGameObject* pObjectC = nullptr;
 
     desc.m_sName.Assign("A");
-    ezGameObjectHandle hObjectA = world.CreateObject(desc, pObjectA);
+    WGameObjectHandle hObjectA = world.CreateObject(desc, pObjectA);
     desc.m_sName.Assign("B");
-    ezGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
+    WGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
     desc.m_sName.Assign("C");
-    ezGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
+    WGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
 
-    EZ_TEST_BOOL(!hObjectA.IsInvalidated());
-    EZ_TEST_BOOL(!hObjectB.IsInvalidated());
-    EZ_TEST_BOOL(!hObjectC.IsInvalidated());
+    W_TEST_BOOL(!hObjectA.IsInvalidated());
+    W_TEST_BOOL(!hObjectB.IsInvalidated());
+    W_TEST_BOOL(!hObjectC.IsInvalidated());
 
     TestComponent* pComponentA = nullptr;
     TestComponent* pComponentB = nullptr;
     TestComponent* pComponentC = nullptr;
 
-    ezTypedComponentHandle<TestComponent> hComponentA = TestComponent::CreateComponent(pObjectA, pComponentA);
-    ezTypedComponentHandle<TestComponent> hComponentB = TestComponent::CreateComponent(pObjectB, pComponentB);
-    ezTypedComponentHandle<TestComponent> hComponentC = TestComponent::CreateComponent(pObjectC, pComponentC);
+    WTypedComponentHandle<TestComponent> hComponentA = TestComponent::CreateComponent(pObjectA, pComponentA);
+    WTypedComponentHandle<TestComponent> hComponentB = TestComponent::CreateComponent(pObjectB, pComponentB);
+    WTypedComponentHandle<TestComponent> hComponentC = TestComponent::CreateComponent(pObjectC, pComponentC);
 
-    EZ_TEST_BOOL(!hComponentA.IsInvalidated());
-    EZ_TEST_BOOL(!hComponentB.IsInvalidated());
-    EZ_TEST_BOOL(!hComponentC.IsInvalidated());
+    W_TEST_BOOL(!hComponentA.IsInvalidated());
+    W_TEST_BOOL(!hComponentB.IsInvalidated());
+    W_TEST_BOOL(!hComponentC.IsInvalidated());
 
     world.DeleteObjectNow(pObjectB->GetHandle());
 
-    EZ_TEST_BOOL(pObjectA->IsActive());
-    EZ_TEST_BOOL(pComponentA->IsActive());
-    EZ_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
+    W_TEST_BOOL(pObjectA->IsActive());
+    W_TEST_BOOL(pComponentA->IsActive());
+    W_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
 
-    EZ_TEST_BOOL(!pObjectB->IsActive());
-    EZ_TEST_BOOL(!pComponentB->IsActive());
-    EZ_TEST_BOOL(pComponentB->GetOwner() == nullptr);
+    W_TEST_BOOL(!pObjectB->IsActive());
+    W_TEST_BOOL(!pComponentB->IsActive());
+    W_TEST_BOOL(pComponentB->GetOwner() == nullptr);
 
-    EZ_TEST_BOOL(pObjectC->IsActive());
-    EZ_TEST_BOOL(pComponentC->IsActive());
-    EZ_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
+    W_TEST_BOOL(pObjectC->IsActive());
+    W_TEST_BOOL(pComponentC->IsActive());
+    W_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
 
     world.Update();
 
-    EZ_TEST_BOOL(world.TryGetObject(hObjectA, pObjectA));
-    EZ_TEST_BOOL(world.TryGetObject(hObjectC, pObjectC));
+    W_TEST_BOOL(world.TryGetObject(hObjectA, pObjectA));
+    W_TEST_BOOL(world.TryGetObject(hObjectC, pObjectC));
 
     // Since we're not recompacting storage for components, pointer should still be valid.
-    // EZ_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
-    // EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
+    // W_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
+    // W_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
 
-    EZ_TEST_BOOL(pObjectA->IsActive());
-    EZ_TEST_BOOL(pObjectA->GetName() == "A");
-    EZ_TEST_BOOL(pComponentA->IsActive());
-    EZ_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
+    W_TEST_BOOL(pObjectA->IsActive());
+    W_TEST_BOOL(pObjectA->GetName() == "A");
+    W_TEST_BOOL(pComponentA->IsActive());
+    W_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
 
-    EZ_TEST_BOOL(pObjectC->IsActive());
-    EZ_TEST_BOOL(pObjectC->GetName() == "C");
-    EZ_TEST_BOOL(pComponentC->IsActive());
-    EZ_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
+    W_TEST_BOOL(pObjectC->IsActive());
+    W_TEST_BOOL(pObjectC->GetName() == "C");
+    W_TEST_BOOL(pComponentC->IsActive());
+    W_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
 
     // creating a new component should reuse memory from component B
     TestComponent* pComponentB2 = nullptr;
-    ezTypedComponentHandle<TestComponent> hComponentB2 = TestComponent::CreateComponent(pObjectB, pComponentB2);
-    EZ_TEST_BOOL(!hComponentB2.IsInvalidated());
-    EZ_TEST_BOOL(pComponentB2 == pComponentB);
+    WTypedComponentHandle<TestComponent> hComponentB2 = TestComponent::CreateComponent(pObjectB, pComponentB2);
+    W_TEST_BOOL(!hComponentB2.IsInvalidated());
+    W_TEST_BOOL(pComponentB2 == pComponentB);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Get Components")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Get Components")
   {
-    const ezWorld& constWorld = world;
+    const WWorld& constWorld = world;
 
     const TestComponentManager* pConstManager = constWorld.GetComponentManager<TestComponentManager>();
 
     for (auto it = pConstManager->GetComponents(); it.IsValid(); it.Next())
     {
-      ezTypedComponentHandle<TestComponent> hComponent = it->GetHandle();
+      WTypedComponentHandle<TestComponent> hComponent = it->GetHandle();
 
       const TestComponent* pConstComponent = nullptr;
-      EZ_TEST_BOOL(constWorld.TryGetComponent(hComponent, pConstComponent));
-      EZ_TEST_BOOL(pConstComponent == (const TestComponent*)it);
+      W_TEST_BOOL(constWorld.TryGetComponent(hComponent, pConstComponent));
+      W_TEST_BOOL(pConstComponent == (const TestComponent*)it);
 
-      EZ_TEST_BOOL(pConstManager->TryGetComponent(hComponent, pConstComponent));
-      EZ_TEST_BOOL(pConstComponent == (const TestComponent*)it);
+      W_TEST_BOOL(pConstManager->TryGetComponent(hComponent, pConstComponent));
+      W_TEST_BOOL(pConstComponent == (const TestComponent*)it);
     }
 
     world.DeleteComponentManager<TestComponentManager>();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Callbacks")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Component Callbacks")
   {
-    ezGameObjectDesc desc;
-    ezGameObject* pObject = nullptr;
+    WGameObjectDesc desc;
+    WGameObject* pObject = nullptr;
     world.CreateObject(desc, pObject);
 
     // Simulation stopped, component active
@@ -360,35 +360,35 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       TestComponent* pComponent = nullptr;
       TestComponent::CreateComponent(pObject, pComponent);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 0);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.SetWorldSimulationEnabled(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
       pComponent->SetActiveFlag(false);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
       pComponent->SetActiveFlag(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 2);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 2);
 
       pComponent->DeleteComponent();
     }
@@ -404,42 +404,42 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       TestComponent::CreateComponent(pObject, pComponent);
       pComponent->SetActiveFlag(false);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 0);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       pComponent->SetActiveFlag(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       pComponent->SetActiveFlag(false);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.SetWorldSimulationEnabled(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       pComponent->SetActiveFlag(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
       pComponent->DeleteComponent();
     }
@@ -454,15 +454,15 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       TestComponent* pComponent = nullptr;
       TestComponent::CreateComponent(pObject, pComponent);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 0);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
       pComponent->DeleteComponent();
     }
@@ -478,31 +478,31 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       TestComponent::CreateComponent(pObject, pComponent);
       pComponent->SetActiveFlag(false);
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 0);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 0);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
       pComponent->SetActiveFlag(true);
       world.Update();
 
-      EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
-      EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+      W_TEST_INT(TestComponent::s_iInitCounter, 1);
+      W_TEST_INT(TestComponent::s_iActivateCounter, 1);
+      W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
       pComponent->DeleteComponent();
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component dependent initialization")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Component dependent initialization")
   {
-    ezGameObjectDesc desc;
-    ezGameObject* pObject = nullptr;
+    WGameObjectDesc desc;
+    WGameObject* pObject = nullptr;
     world.CreateObject(desc, pObject);
 
     world.SetWorldSimulationEnabled(true);
@@ -517,8 +517,8 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
     world.Update();
 
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
-    EZ_TEST_INT(TestComponent::s_iActivateCounter, 2);
-    EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
+    W_TEST_INT(TestComponent::s_iInitCounter, 1);
+    W_TEST_INT(TestComponent::s_iActivateCounter, 2);
+    W_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
   }
 }

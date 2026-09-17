@@ -1,0 +1,37 @@
+[EXCLUDE]
+
+*.exe
+*.dll
+*.pdb
+*.loaded
+*.WPluginBundle
+*/iconengines/*
+*/imageformats/*
+*/platforms/*
+
+// failed shader compilations
+*/_Failed_*
+
+
+[INCLUDE]
+
+#if PLATFORM_PROFILE_DEFAULT
+/WPlayer.exe
+/WFoundation.dll
+/WCore.dll
+/WGameEngine.dll
+/WRendererCore.dll
+/WRendererDX11.dll
+/WRendererFoundation.dll
+/WShaderCompilerHLSL.dll
+/WTexture.dll
+/WUtilities.dll
+/Imgui.dll
+/Lua.dll
+/ozz.dll
+/zlib.dll
+/zstd.dll
+/stb.dll
+/enet.dll
+/TracyClient.dll
+#endif

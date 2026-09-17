@@ -5,63 +5,63 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObjectHandle, ezNoBase, 1, ezRTTIDefaultAllocator<ezGameObjectHandle>)
-EZ_END_STATIC_REFLECTED_TYPE;
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
+W_BEGIN_STATIC_REFLECTED_TYPE(WGameObjectHandle, WNoBase, 1, WRTTIDefaultAllocator<WGameObjectHandle>)
+W_END_STATIC_REFLECTED_TYPE;
+W_DEFINE_CUSTOM_VARIANT_TYPE(WGameObjectHandle);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezComponentHandle, ezNoBase, 1, ezRTTIDefaultAllocator<ezComponentHandle>)
-EZ_END_STATIC_REFLECTED_TYPE;
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
+W_BEGIN_STATIC_REFLECTED_TYPE(WComponentHandle, WNoBase, 1, WRTTIDefaultAllocator<WComponentHandle>)
+W_END_STATIC_REFLECTED_TYPE;
+W_DEFINE_CUSTOM_VARIANT_TYPE(WComponentHandle);
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMode, 1)
-  EZ_ENUM_CONSTANTS(ezObjectMode::Automatic, ezObjectMode::ForceDynamic)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WObjectMode, 1)
+  W_ENUM_CONSTANTS(WObjectMode::Automatic, WObjectMode::ForceDynamic)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComponentMode, 1)
-  EZ_ENUM_CONSTANTS(ezComponentMode::Static, ezComponentMode::Dynamic)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WComponentMode, 1)
+  W_ENUM_CONSTANTS(WComponentMode::Static, WComponentMode::Dynamic)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMsgQueueType, 1)
-  EZ_ENUM_CONSTANTS(ezObjectMsgQueueType::PostAsync, ezObjectMsgQueueType::PostTransform, ezObjectMsgQueueType::NextFrame, ezObjectMsgQueueType::AfterInitialized)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WObjectMsgQueueType, 1)
+  W_ENUM_CONSTANTS(WObjectMsgQueueType::PostAsync, WObjectMsgQueueType::PostTransform, WObjectMsgQueueType::NextFrame, WObjectMsgQueueType::AfterInitialized)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction, 1)
-  EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction::None, ezOnComponentFinishedAction::DeleteComponent, ezOnComponentFinishedAction::DeleteGameObject)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WOnComponentFinishedAction, 1)
+  W_ENUM_CONSTANTS(WOnComponentFinishedAction::None, WOnComponentFinishedAction::DeleteComponent, WOnComponentFinishedAction::DeleteGameObject)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction2, 1)
-  EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction2::None, ezOnComponentFinishedAction2::DeleteComponent, ezOnComponentFinishedAction2::DeleteGameObject, ezOnComponentFinishedAction2::Restart)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WOnComponentFinishedAction2, 1)
+  W_ENUM_CONSTANTS(WOnComponentFinishedAction2::None, WOnComponentFinishedAction2::DeleteComponent, WOnComponentFinishedAction2::DeleteGameObject, WOnComponentFinishedAction2::Restart)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-void operator<<(ezStreamWriter& inout_stream, const ezGameObjectHandle& hValue)
+void operator<<(WStreamWriter& inout_stream, const WGameObjectHandle& hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(hValue);
-  EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteGameObjectHandle instead.");
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(hValue);
+  W_ASSERT_DEV(false, "This function should not be called. Use WWorldWriter::WriteGameObjectHandle instead.");
 }
 
-void operator>>(ezStreamReader& inout_stream, ezGameObjectHandle& ref_hValue)
+void operator>>(WStreamReader& inout_stream, WGameObjectHandle& ref_hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(ref_hValue);
-  EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadGameObjectHandle instead.");
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(ref_hValue);
+  W_ASSERT_DEV(false, "This function should not be called. Use WWorldReader::ReadGameObjectHandle instead.");
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezComponentHandle& hValue)
+void operator<<(WStreamWriter& inout_stream, const WComponentHandle& hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(hValue);
-  EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteComponentHandle instead.");
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(hValue);
+  W_ASSERT_DEV(false, "This function should not be called. Use WWorldWriter::WriteComponentHandle instead.");
 }
 
-void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue)
+void operator>>(WStreamReader& inout_stream, WComponentHandle& ref_hValue)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
-  EZ_IGNORE_UNUSED(ref_hValue);
-  EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadComponentHandle instead.");
+  W_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(ref_hValue);
+  W_ASSERT_DEV(false, "This function should not be called. Use WWorldReader::ReadComponentHandle instead.");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,16 +69,16 @@ void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue)
 namespace
 {
   template <typename T>
-  void HandleFinishedActionImpl(ezComponent* pComponent, typename T::Enum action)
+  void HandleFinishedActionImpl(WComponent* pComponent, typename T::Enum action)
   {
     if (action == T::DeleteGameObject)
     {
       // Send a message to the owner object to check whether another component wants to delete this object later.
-      // Can't use ezGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be
+      // Can't use WGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be
       // filtered out here.
-      ezMsgDeleteGameObject msg;
+      WMsgDeleteGameObject msg;
 
-      for (ezComponent* pComp : pComponent->GetOwner()->GetComponents())
+      for (WComponent* pComp : pComponent->GetOwner()->GetComponents())
       {
         if (pComp == pComponent)
           continue;
@@ -105,7 +105,7 @@ namespace
   }
 
   template <typename T>
-  void HandleDeleteObjectMsgImpl(ezMsgDeleteGameObject& ref_msg, ezEnum<T>& ref_action)
+  void HandleDeleteObjectMsgImpl(WMsgDeleteGameObject& ref_msg, WEnum<T>& ref_action)
   {
     if (ref_action == T::DeleteComponent)
     {
@@ -121,26 +121,26 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezOnComponentFinishedAction::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action)
+void WOnComponentFinishedAction::HandleFinishedAction(WComponent* pComponent, WOnComponentFinishedAction::Enum action)
 {
-  HandleFinishedActionImpl<ezOnComponentFinishedAction>(pComponent, action);
+  HandleFinishedActionImpl<WOnComponentFinishedAction>(pComponent, action);
 }
 
-void ezOnComponentFinishedAction::HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction>& ref_action)
+void WOnComponentFinishedAction::HandleDeleteObjectMsg(WMsgDeleteGameObject& ref_msg, WEnum<WOnComponentFinishedAction>& ref_action)
 {
   HandleDeleteObjectMsgImpl(ref_msg, ref_action);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezOnComponentFinishedAction2::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action)
+void WOnComponentFinishedAction2::HandleFinishedAction(WComponent* pComponent, WOnComponentFinishedAction2::Enum action)
 {
-  HandleFinishedActionImpl<ezOnComponentFinishedAction2>(pComponent, action);
+  HandleFinishedActionImpl<WOnComponentFinishedAction2>(pComponent, action);
 }
 
-void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction2>& ref_action)
+void WOnComponentFinishedAction2::HandleDeleteObjectMsg(WMsgDeleteGameObject& ref_msg, WEnum<WOnComponentFinishedAction2>& ref_action)
 {
   HandleDeleteObjectMsgImpl(ref_msg, ref_action);
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
+W_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);

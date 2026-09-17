@@ -1,6 +1,6 @@
 #include "../../Scripts/GameDecls.as"
 
-abstract class WeaponBaseClass : ezAngelScriptClass
+abstract class WeaponBaseClass : WAngelScriptClass
 {
     protected bool singleShotPerTrigger = false;
     private bool requireSingleShotReset = false;
@@ -16,7 +16,7 @@ abstract class WeaponBaseClass : ezAngelScriptClass
         {
         case WeaponInteraction::Fire:
             {
-                if (msg.keyState == ezTriggerState::Deactivated)
+                if (msg.keyState == WTriggerState::Deactivated)
                 {
                     requireSingleShotReset = false;
                     return;
@@ -30,7 +30,7 @@ abstract class WeaponBaseClass : ezAngelScriptClass
     
                 if (singleShotPerTrigger)
                 {
-                    if (msg.keyState == ezTriggerState::Activated)
+                    if (msg.keyState == WTriggerState::Activated)
                     {
                         if (!requireSingleShotReset)
                         {
@@ -84,7 +84,7 @@ abstract class WeaponBaseClass : ezAngelScriptClass
         auto node = owner.FindChildByName("ShootSound", true);
         if (@node != null)
         {
-            ezFmodEventComponent@ fmodComp;
+            WFmodEventComponent@ fmodComp;
             if (node.TryGetComponentOfBaseType(@fmodComp))
             {
                 fmodComp.StartOneShot();
@@ -94,7 +94,7 @@ abstract class WeaponBaseClass : ezAngelScriptClass
         @node = owner.FindChildByName("Muzzleflash", true);
         if (@node != null)
         {
-            ezParticleComponent@ particleComp;
+            WParticleComponent@ particleComp;
             if (node.TryGetComponentOfBaseType(@particleComp))
             {
                 particleComp.InterruptEffect();
@@ -129,7 +129,7 @@ abstract class WeaponBaseClass : ezAngelScriptClass
             return;
 
         int needed = msg.weaponInfo.iClipSize - msg.weaponInfo.iAmmoInClip;
-        int take = ezMath::Min(needed, msg.ammoPouch.getAmmoType(msg.weaponInfo.eAmmoType));
+        int take = WMath::Min(needed, msg.ammoPouch.getAmmoType(msg.weaponInfo.eAmmoType));
 
         msg.ammoPouch.getAmmoType(msg.weaponInfo.eAmmoType) -= take;
         msg.weaponInfo.iAmmoInClip += take;
@@ -137,19 +137,19 @@ abstract class WeaponBaseClass : ezAngelScriptClass
 
     void UpdateWeapon(MsgWeaponInteraction@ msg)
     {
-        ezVec2 resolution = ezDebug::GetResolution();
-        ezVec2 screenCenter = resolution;
+        WVec2 resolution = WDebug::GetResolution();
+        WVec2 screenCenter = resolution;
         screenCenter *= 0.5;
 
-        ezColor col = ezColor::White;
+        WColor col = WColor::White;
 
         float w = 10.0f;
-        ezVec3 start = ezVec3(screenCenter.x, screenCenter.y - w, 0);
-        ezVec3 end = ezVec3(screenCenter.x, screenCenter.y + w, 0);
-        ezDebug::Draw2DLine(start, end, col, col);
+        WVec3 start = WVec3(screenCenter.x, screenCenter.y - w, 0);
+        WVec3 end = WVec3(screenCenter.x, screenCenter.y + w, 0);
+        WDebug::Draw2DLine(start, end, col, col);
         
-        start = ezVec3(screenCenter.x - w, screenCenter.y, 0);
-        end = ezVec3(screenCenter.x + w, screenCenter.y, 0);
-        ezDebug::Draw2DLine(start, end, col, col);
+        start = WVec3(screenCenter.x - w, screenCenter.y, 0);
+        end = WVec3(screenCenter.x + w, screenCenter.y, 0);
+        WDebug::Draw2DLine(start, end, col, col);
     }
 }

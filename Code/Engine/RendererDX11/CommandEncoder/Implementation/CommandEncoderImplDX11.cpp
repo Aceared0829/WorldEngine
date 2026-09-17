@@ -20,31 +20,31 @@
 
 #include <d3d11_1.h>
 
-ezGALCommandEncoderImplDX11::ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11)
+WGALCommandEncoderImplDX11::WGALCommandEncoderImplDX11(WGALDeviceDX11& ref_deviceDX11)
   : m_GALDeviceDX11(ref_deviceDX11)
 {
   m_pDXContext = m_GALDeviceDX11.GetDXImmediateContext();
 
   if (FAILED(m_pDXContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void**)&m_pDXAnnotation)))
   {
-    ezLog::Warning("Failed to get annotation interface. GALContext marker will not work");
+    WLog::Warning("Failed to get annotation interface. GALContext marker will not work");
   }
 }
 
-ezGALCommandEncoderImplDX11::~ezGALCommandEncoderImplDX11()
+WGALCommandEncoderImplDX11::~WGALCommandEncoderImplDX11()
 {
-  EZ_GAL_DX11_RELEASE(m_pDXAnnotation);
+  W_GAL_DX11_RELEASE(m_pDXAnnotation);
 }
 
 
-void ezGALCommandEncoderImplDX11::EndFrame()
+void WGALCommandEncoderImplDX11::EndFrame()
 {
   m_AlreadyUpdatedTransientBuffers.Clear();
 }
 
 // State setting functions
 
-void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
+void WGALCommandEncoderImplDX11::SetShader(const WGALShader* pShader)
 {
   m_uiTessellationPatchControlPoints = 0;
   ID3D11VertexShader* pVS = nullptr;
@@ -56,7 +56,7 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
 
   if (pShader != nullptr)
   {
-    const ezGALShaderDX11* pDXShader = static_cast<const ezGALShaderDX11*>(pShader);
+    const WGALShaderDX11* pDXShader = static_cast<const WGALShaderDX11*>(pShader);
 
     pVS = pDXShader->GetDXVertexShader();
     pHS = pDXShader->GetDXHullShader();
@@ -66,19 +66,19 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
     pCS = pDXShader->GetDXComputeShader();
   }
 
-  if (pVS != m_pBoundShaders[ezGALShaderStage::VertexShader])
+  if (pVS != m_pBoundShaders[WGALShaderStage::VertexShader])
   {
     m_pDXContext->VSSetShader(pVS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::VertexShader] = pVS;
+    m_pBoundShaders[WGALShaderStage::VertexShader] = pVS;
   }
 
-  if (pHS != m_pBoundShaders[ezGALShaderStage::HullShader])
+  if (pHS != m_pBoundShaders[WGALShaderStage::HullShader])
   {
     m_pDXContext->HSSetShader(pHS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::HullShader] = pHS;
+    m_pBoundShaders[WGALShaderStage::HullShader] = pHS;
     if (pHS)
     {
-      m_uiTessellationPatchControlPoints = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+      m_uiTessellationPatchControlPoints = pShader->GetDescription().m_ByteCodes[WGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
     }
     else
     {
@@ -86,57 +86,57 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
     }
   }
 
-  if (pDS != m_pBoundShaders[ezGALShaderStage::DomainShader])
+  if (pDS != m_pBoundShaders[WGALShaderStage::DomainShader])
   {
     m_pDXContext->DSSetShader(pDS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::DomainShader] = pDS;
+    m_pBoundShaders[WGALShaderStage::DomainShader] = pDS;
   }
 
-  if (pGS != m_pBoundShaders[ezGALShaderStage::GeometryShader])
+  if (pGS != m_pBoundShaders[WGALShaderStage::GeometryShader])
   {
     m_pDXContext->GSSetShader(pGS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::GeometryShader] = pGS;
+    m_pBoundShaders[WGALShaderStage::GeometryShader] = pGS;
   }
 
-  if (pPS != m_pBoundShaders[ezGALShaderStage::PixelShader])
+  if (pPS != m_pBoundShaders[WGALShaderStage::PixelShader])
   {
     m_pDXContext->PSSetShader(pPS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::PixelShader] = pPS;
+    m_pBoundShaders[WGALShaderStage::PixelShader] = pPS;
   }
 
-  if (pCS != m_pBoundShaders[ezGALShaderStage::ComputeShader])
+  if (pCS != m_pBoundShaders[WGALShaderStage::ComputeShader])
   {
     m_pDXContext->CSSetShader(pCS, nullptr, 0);
-    m_pBoundShaders[ezGALShaderStage::ComputeShader] = pCS;
+    m_pBoundShaders[WGALShaderStage::ComputeShader] = pCS;
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
+void WGALCommandEncoderImplDX11::SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroupCreationDescription& bindGroup)
 {
-  EZ_IGNORE_UNUSED(uiBindGroup);
-  const ezGALBindGroupLayoutDX11* pLayout = static_cast<const ezGALBindGroupLayoutDX11*>(m_GALDeviceDX11.GetBindGroupLayout(bindGroup.m_hBindGroupLayout));
-  ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
-  const ezUInt32 uiBindings = bindings.GetCount();
-  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  W_IGNORE_UNUSED(uiBindGroup);
+  const WGALBindGroupLayoutDX11* pLayout = static_cast<const WGALBindGroupLayoutDX11*>(m_GALDeviceDX11.GetBindGroupLayout(bindGroup.m_hBindGroupLayout));
+  WArrayPtr<const WShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+  const WUInt32 uiBindings = bindings.GetCount();
+  for (WUInt32 i = 0; i < uiBindings; ++i)
   {
-    const ezShaderResourceBinding& binding = bindings[i];
-    const ezGALBindGroupItem& item = bindGroup.m_BindGroupItems[i];
+    const WShaderResourceBinding& binding = bindings[i];
+    const WGALBindGroupItem& item = bindGroup.m_BindGroupItems[i];
 
     switch (binding.m_ResourceType)
     {
-      case ezGALShaderResourceType::ConstantBuffer:
+      case WGALShaderResourceType::ConstantBuffer:
       {
-        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
+        const WGALBufferDX11* pBuffer = static_cast<const WGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(WGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         SetConstantBuffer(binding, pBuffer);
       }
       break;
-      case ezGALShaderResourceType::Texture:
+      case WGALShaderResourceType::Texture:
       {
-        const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
+        const WGALTextureDX11* pTexture = static_cast<const WGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
+        if (item.m_Flags.IsSet(WGALBindGroupItemFlags::EmptyBinding))
           pTexture = nullptr;
 
         if (pTexture != nullptr && UnsetUnorderedAccessViews(pTexture))
@@ -149,10 +149,10 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
         SetResourceView(binding, pTexture, pResourceViewDX11);
       }
       break;
-      case ezGALShaderResourceType::TextureRW:
+      case WGALShaderResourceType::TextureRW:
       {
-        const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
+        const WGALTextureDX11* pTexture = static_cast<const WGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
+        if (item.m_Flags.IsSet(WGALBindGroupItemFlags::EmptyBinding))
           pTexture = nullptr;
 
         if (pTexture != nullptr && UnsetResourceViews(pTexture))
@@ -165,12 +165,12 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       }
       break;
 
-      case ezGALShaderResourceType::TexelBuffer:
-      case ezGALShaderResourceType::StructuredBuffer:
-      case ezGALShaderResourceType::ByteAddressBuffer:
+      case WGALShaderResourceType::TexelBuffer:
+      case WGALShaderResourceType::StructuredBuffer:
+      case WGALShaderResourceType::ByteAddressBuffer:
       {
-        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
+        const WGALBufferDX11* pBuffer = static_cast<const WGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(WGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         if (pBuffer != nullptr && UnsetUnorderedAccessViews(pBuffer))
@@ -184,12 +184,12 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       }
       break;
 
-      case ezGALShaderResourceType::TexelBufferRW:
-      case ezGALShaderResourceType::StructuredBufferRW:
-      case ezGALShaderResourceType::ByteAddressBufferRW:
+      case WGALShaderResourceType::TexelBufferRW:
+      case WGALShaderResourceType::StructuredBufferRW:
+      case WGALShaderResourceType::ByteAddressBufferRW:
       {
-        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
+        const WGALBufferDX11* pBuffer = static_cast<const WGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(WGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         if (pBuffer != nullptr && UnsetResourceViews(pBuffer))
@@ -201,46 +201,46 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
         SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pBuffer);
       }
       break;
-      case ezGALShaderResourceType::Sampler:
+      case WGALShaderResourceType::Sampler:
       {
-        const ezGALSamplerStateDX11* pSampler = static_cast<const ezGALSamplerStateDX11*>(m_GALDeviceDX11.GetSamplerState(item.m_Sampler.m_hSampler));
+        const WGALSamplerStateDX11* pSampler = static_cast<const WGALSamplerStateDX11*>(m_GALDeviceDX11.GetSamplerState(item.m_Sampler.m_hSampler));
         SetSamplerState(binding, pSampler);
       }
       break;
-      case ezGALShaderResourceType::TextureAndSampler:
+      case WGALShaderResourceType::TextureAndSampler:
       default:
         break;
     }
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup)
+void WGALCommandEncoderImplDX11::SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroup* pBindGroup)
 {
   // There is no way to persist bind groups in DX11, so this just redirects to the transient bind group code path.
   SetBindGroupPlatform(uiBindGroup, pBindGroup->GetDescription());
 }
 
-void ezGALCommandEncoderImplDX11::SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)
+void WGALCommandEncoderImplDX11::SetConstantBuffer(const WShaderResourceBinding& binding, const WGALBuffer* pBuffer)
 {
-  EZ_ASSERT_RELEASE(binding.m_iSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
+  W_ASSERT_RELEASE(binding.m_iSlot < W_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
 
-  ID3D11Buffer* pBufferDX11 = pBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
+  ID3D11Buffer* pBufferDX11 = pBuffer != nullptr ? static_cast<const WGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
   if (m_pBoundConstantBuffers[binding.m_iSlot] == pBufferDX11)
     return;
 
   m_pBoundConstantBuffers[binding.m_iSlot] = pBufferDX11;
   // The GAL doesn't care about stages for constant buffer, but we need to handle this internally.
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
     m_BoundConstantBuffersRange[stage].SetToIncludeValue(binding.m_iSlot);
 }
 
-void ezGALCommandEncoderImplDX11::SetSamplerState(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState)
+void WGALCommandEncoderImplDX11::SetSamplerState(const WShaderResourceBinding& binding, const WGALSamplerState* pSamplerState)
 {
-  EZ_ASSERT_RELEASE(binding.m_iSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
+  W_ASSERT_RELEASE(binding.m_iSlot < W_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
 
-  ID3D11SamplerState* pSamplerStateDX11 = pSamplerState != nullptr ? static_cast<const ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
+  ID3D11SamplerState* pSamplerStateDX11 = pSamplerState != nullptr ? static_cast<const WGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
 
-  for (ezGALShaderStage::Enum stage : ezIterateBitIndices<ezUInt16, ezGALShaderStage::Enum>(binding.m_Stages.GetValue()))
+  for (WGALShaderStage::Enum stage : WIterateBitIndices<WUInt16, WGALShaderStage::Enum>(binding.m_Stages.GetValue()))
   {
     if (m_pBoundSamplerStates[stage][binding.m_iSlot] != pSamplerStateDX11)
     {
@@ -251,9 +251,9 @@ void ezGALCommandEncoderImplDX11::SetSamplerState(const ezShaderResourceBinding&
 }
 
 
-void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11)
+void WGALCommandEncoderImplDX11::SetResourceView(const WShaderResourceBinding& binding, const WGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11)
 {
-  for (ezGALShaderStage::Enum stage : ezIterateBitIndices<ezUInt16, ezGALShaderStage::Enum>(binding.m_Stages.GetValue()))
+  for (WGALShaderStage::Enum stage : WIterateBitIndices<WUInt16, WGALShaderStage::Enum>(binding.m_Stages.GetValue()))
   {
     auto& boundShaderResourceViews = m_pBoundShaderResourceViews[stage];
     boundShaderResourceViews.EnsureCount(binding.m_iSlot + 1);
@@ -268,7 +268,7 @@ void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding&
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource)
+void WGALCommandEncoderImplDX11::SetUnorderedAccessView(const WShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const WGALResourceBase* pResource)
 {
   m_BoundUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
   m_ResourcesForUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
@@ -280,61 +280,61 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceB
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data)
+void WGALCommandEncoderImplDX11::SetPushConstantsPlatform(WArrayPtr<const WUInt8> data)
 {
-  EZ_IGNORE_UNUSED(data);
-  EZ_REPORT_FAILURE("DX11 does not support push constants, this function should not have been called.");
+  W_IGNORE_UNUSED(data);
+  W_REPORT_FAILURE("DX11 does not support push constants, this function should not have been called.");
 }
 
 // Query functions
 
-ezGALTimestampHandle ezGALCommandEncoderImplDX11::InsertTimestampPlatform()
+WGALTimestampHandle WGALCommandEncoderImplDX11::InsertTimestampPlatform()
 {
   return m_GALDeviceDX11.GetQueryPool().InsertTimestamp();
 }
 
-ezGALOcclusionHandle ezGALCommandEncoderImplDX11::BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type)
+WGALOcclusionHandle WGALCommandEncoderImplDX11::BeginOcclusionQueryPlatform(WEnum<WGALQueryType> type)
 {
   return m_GALDeviceDX11.GetQueryPool().BeginOcclusionQuery(type);
 }
 
-void ezGALCommandEncoderImplDX11::EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion)
+void WGALCommandEncoderImplDX11::EndOcclusionQueryPlatform(WGALOcclusionHandle hOcclusion)
 {
   m_GALDeviceDX11.GetQueryPool().EndOcclusionQuery(hOcclusion);
 }
 
-ezGALFenceHandle ezGALCommandEncoderImplDX11::InsertFencePlatform()
+WGALFenceHandle WGALCommandEncoderImplDX11::InsertFencePlatform()
 {
   return m_GALDeviceDX11.GetFenceQueue().GetCurrentFenceHandle();
 }
 
 // Resource update functions
 
-void ezGALCommandEncoderImplDX11::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
+void WGALCommandEncoderImplDX11::CopyBufferPlatform(const WGALBuffer* pDestination, const WGALBuffer* pSource)
 {
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferDX11*>(pSource)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const WGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<const WGALBufferDX11*>(pSource)->GetDXBuffer();
 
   m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
-void ezGALCommandEncoderImplDX11::CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
+void WGALCommandEncoderImplDX11::CopyBufferRegionPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, const WGALBuffer* pSource, WUInt32 uiSourceOffset, WUInt32 uiByteCount)
 {
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferDX11*>(pSource)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const WGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<const WGALBufferDX11*>(pSource)->GetDXBuffer();
 
   D3D11_BOX srcBox = {uiSourceOffset, 0, 0, uiSourceOffset + uiByteCount, 1, 1};
   m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXSource, 0, &srcBox);
 }
 
-void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode)
+void WGALCommandEncoderImplDX11::UpdateBufferPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, WArrayPtr<const WUInt8> sourceData, WGALUpdateMode::Enum updateMode)
 {
-  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const WGALBufferDX11*>(pDestination)->GetDXBuffer();
 
   // On DX11 we can treat non-transient and transient constant buffers equally.
-  if (updateMode == ezGALUpdateMode::TransientConstantBuffer || pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
+  if (updateMode == WGALUpdateMode::TransientConstantBuffer || pDestination->GetDescription().m_BufferFlags.IsSet(WGALBufferUsageFlags::ConstantBuffer))
   {
-    EZ_ASSERT_DEV(uiDestOffset == 0 && sourceData.GetCount() == pDestination->GetSize(),
+    W_ASSERT_DEV(uiDestOffset == 0 && sourceData.GetCount() == pDestination->GetSize(),
       "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
 
     D3D11_MAPPED_SUBRESOURCE MapResult;
@@ -347,10 +347,10 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
   }
   else
   {
-    const bool bTransient = pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient);
+    const bool bTransient = pDestination->GetDescription().m_BufferFlags.IsSet(WGALBufferUsageFlags::Transient);
     if (!bTransient)
     {
-      if (ezGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempBuffer(sourceData))
+      if (WGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempBuffer(sourceData))
       {
         m_GALDeviceDX11.UnmapTempResource(tempResource);
 
@@ -359,7 +359,7 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
       }
       else
       {
-        EZ_REPORT_FAILURE("Could not find a temp buffer for update.");
+        W_REPORT_FAILURE("Could not find a temp buffer for update.");
       }
     }
     else
@@ -376,35 +376,35 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
       D3D11_MAPPED_SUBRESOURCE MapResult;
       if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, mapType, 0, &MapResult)))
       {
-        memcpy(ezMemoryUtils::AddByteOffset(MapResult.pData, uiDestOffset), sourceData.GetPtr(), sourceData.GetCount());
+        memcpy(WMemoryUtils::AddByteOffset(MapResult.pData, uiDestOffset), sourceData.GetPtr(), sourceData.GetCount());
 
         m_pDXContext->Unmap(pDXDestination, 0);
       }
       else
       {
-        ezLog::Error("Could not map buffer to update content.");
+        WLog::Error("Could not map buffer to update content.");
       }
     }
   }
 }
 
-void ezGALCommandEncoderImplDX11::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
+void WGALCommandEncoderImplDX11::CopyTexturePlatform(const WGALTexture* pDestination, const WGALTexture* pSource)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const WGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const WGALTextureDX11*>(pSource)->GetDXTexture();
 
   m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
-void ezGALCommandEncoderImplDX11::CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
-  const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box)
+void WGALCommandEncoderImplDX11::CopyTextureRegionPlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource,
+  const WVec3U32& vDestinationPoint, const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource, const WBoundingBoxu32& box)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const WGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const WGALTextureDX11*>(pSource)->GetDXTexture();
 
-  ezUInt32 dstSubResource = D3D11CalcSubresource(
+  WUInt32 dstSubResource = D3D11CalcSubresource(
     destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
-  ezUInt32 srcSubResource =
+  WUInt32 srcSubResource =
     D3D11CalcSubresource(sourceSubResource.m_uiMipLevel, sourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
 
   D3D11_BOX srcBox = {box.m_vMin.x, box.m_vMin.y, box.m_vMin.z, box.m_vMax.x, box.m_vMax.y, box.m_vMax.z};
@@ -412,94 +412,94 @@ void ezGALCommandEncoderImplDX11::CopyTextureRegionPlatform(const ezGALTexture* 
     pDXDestination, dstSubResource, vDestinationPoint.x, vDestinationPoint.y, vDestinationPoint.z, pDXSource, srcSubResource, &srcBox);
 }
 
-void ezGALCommandEncoderImplDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
-  const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData)
+void WGALCommandEncoderImplDX11::UpdateTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource,
+  const WBoundingBoxu32& destinationBox, const WGALSystemMemoryDescription& sourceData)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const WGALTextureDX11*>(pDestination)->GetDXTexture();
 
-  ezUInt32 uiWidth = ezMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u);
-  ezUInt32 uiHeight = ezMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u);
-  ezUInt32 uiDepth = ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u);
-  ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
+  WUInt32 uiWidth = WMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u);
+  WUInt32 uiHeight = WMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u);
+  WUInt32 uiDepth = WMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u);
+  WGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
-  if (ezGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, format))
+  if (WGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, format))
   {
     m_GALDeviceDX11.UnmapTempResource(tempResource);
 
-    ezUInt32 dstSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
+    WUInt32 dstSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
 
     D3D11_BOX srcBox = {0, 0, 0, uiWidth, uiHeight, uiDepth};
     m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, destinationBox.m_vMin.x, destinationBox.m_vMin.y, destinationBox.m_vMin.z, tempResource.m_pResource, 0, &srcBox);
   }
   else
   {
-    EZ_REPORT_FAILURE("Could not find a temp texture for update.");
+    W_REPORT_FAILURE("Could not find a temp texture for update.");
   }
 }
 
-void ezGALCommandEncoderImplDX11::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
-  const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource)
+void WGALCommandEncoderImplDX11::ResolveTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource,
+  const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource)
 {
-  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const WGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const WGALTextureDX11*>(pSource)->GetDXTexture();
 
-  ezUInt32 dstSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
-  ezUInt32 srcSubResource = D3D11CalcSubresource(sourceSubResource.m_uiMipLevel, sourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
+  WUInt32 dstSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
+  WUInt32 srcSubResource = D3D11CalcSubresource(sourceSubResource.m_uiMipLevel, sourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
 
   DXGI_FORMAT DXFormat = m_GALDeviceDX11.GetFormatLookupTable().GetFormatInfo(pDestination->GetDescription().m_Format).m_eResourceViewType;
 
   m_pDXContext->ResolveSubresource(pDXDestination, dstSubResource, pDXSource, srcSubResource, DXFormat);
 }
 
-void ezGALCommandEncoderImplDX11::ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource)
+void WGALCommandEncoderImplDX11::ReadbackTexturePlatform(const WGALReadbackTexture* pDestination, const WGALTexture* pSource)
 {
-  const ezGALReadbackTextureDX11* pDXDestination = static_cast<const ezGALReadbackTextureDX11*>(pDestination);
-  const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pSource);
+  const WGALReadbackTextureDX11* pDXDestination = static_cast<const WGALReadbackTextureDX11*>(pDestination);
+  const WGALTextureDX11* pDXTexture = static_cast<const WGALTextureDX11*>(pSource);
 
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
-  const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
-  EZ_IGNORE_UNUSED(bMSAASourceTexture);
-  EZ_ASSERT_DEV(!bMSAASourceTexture, "MSAA readback is not supported");
+  const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != WGALMSAASampleCount::None;
+  W_IGNORE_UNUSED(bMSAASourceTexture);
+  W_ASSERT_DEV(!bMSAASourceTexture, "MSAA readback is not supported");
   m_pDXContext->CopyResource(pDXDestination->GetDXTexture(), pDXTexture->GetDXTexture());
 }
 
 
-void ezGALCommandEncoderImplDX11::ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource)
+void WGALCommandEncoderImplDX11::ReadbackBufferPlatform(const WGALReadbackBuffer* pDestination, const WGALBuffer* pSource)
 {
-  const ezGALReadbackBufferDX11* pDXDestination = static_cast<const ezGALReadbackBufferDX11*>(pDestination);
-  const ezGALBufferDX11* pDXBuffer = static_cast<const ezGALBufferDX11*>(pSource);
+  const WGALReadbackBufferDX11* pDXDestination = static_cast<const WGALReadbackBufferDX11*>(pDestination);
+  const WGALBufferDX11* pDXBuffer = static_cast<const WGALBufferDX11*>(pSource);
   m_pDXContext->CopyResource(pDXDestination->GetDXBuffer(), pDXBuffer->GetDXBuffer());
 }
 
-void ezGALCommandEncoderImplDX11::FlushPlatform()
+void WGALCommandEncoderImplDX11::FlushPlatform()
 {
   FlushDeferredStateChanges().IgnoreResult();
   m_GALDeviceDX11.GetFenceQueue().SubmitCurrentFence();
   m_pDXContext->Flush();
 }
 
-void ezGALCommandEncoderImplDX11::TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> /*barriers*/)
+void WGALCommandEncoderImplDX11::TextureBarrierPlatform(WArrayPtr<const WGALTextureBarrier> /*barriers*/)
 {
   // DX11 does not support explicit barriers.
 }
 
-void ezGALCommandEncoderImplDX11::BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> /*barriers*/)
+void WGALCommandEncoderImplDX11::BufferBarrierPlatform(WArrayPtr<const WGALBufferBarrier> /*barriers*/)
 {
   // DX11 does not support explicit barriers.
 }
 
 // Debug helper functions
 
-void ezGALCommandEncoderImplDX11::PushMarkerPlatform(const char* szMarker)
+void WGALCommandEncoderImplDX11::PushMarkerPlatform(const char* szMarker)
 {
   if (m_pDXAnnotation != nullptr)
   {
-    ezStringWChar wsMarker(szMarker);
+    WStringWChar wsMarker(szMarker);
     m_pDXAnnotation->BeginEvent(wsMarker.GetData());
   }
 }
 
-void ezGALCommandEncoderImplDX11::PopMarkerPlatform()
+void WGALCommandEncoderImplDX11::PopMarkerPlatform()
 {
   if (m_pDXAnnotation != nullptr)
   {
@@ -507,36 +507,36 @@ void ezGALCommandEncoderImplDX11::PopMarkerPlatform()
   }
 }
 
-void ezGALCommandEncoderImplDX11::InsertEventMarkerPlatform(const char* szMarker)
+void WGALCommandEncoderImplDX11::InsertEventMarkerPlatform(const char* szMarker)
 {
   if (m_pDXAnnotation != nullptr)
   {
-    ezStringWChar wsMarker(szMarker);
+    WStringWChar wsMarker(szMarker);
     m_pDXAnnotation->SetMarker(wsMarker.GetData());
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup)
+void WGALCommandEncoderImplDX11::BeginRenderingPlatform(const WGALRenderingSetup& renderingSetup)
 {
   if (m_RenderTargetSetup != renderingSetup)
   {
     m_RenderTargetSetup = renderingSetup;
 
-    const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
-    const ezGALRenderTargetView* pDepthStencilView = nullptr;
+    const WGALRenderTargetView* pRenderTargetViews[W_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
+    const WGALRenderTargetView* pDepthStencilView = nullptr;
 
-    const ezUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetColorTargetCount();
+    const WUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetColorTargetCount();
 
     bool bFlushNeeded = false;
 
-    for (ezUInt8 uiIndex = 0; uiIndex < uiRenderTargetCount; ++uiIndex)
+    for (WUInt8 uiIndex = 0; uiIndex < uiRenderTargetCount; ++uiIndex)
     {
-      const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetFrameBuffer().m_hColorTarget[uiIndex]);
+      const WGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetFrameBuffer().m_hColorTarget[uiIndex]);
       if (pRenderTargetView != nullptr)
       {
-        const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
+        const WGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
 
         bFlushNeeded |= UnsetResourceViews(pTexture);
         bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
@@ -550,7 +550,7 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
       pDepthStencilView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetFrameBuffer().m_hDepthTarget);
       if (pDepthStencilView != nullptr)
       {
-        const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
+        const WGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
 
         bFlushNeeded |= UnsetResourceViews(pTexture);
         bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
@@ -562,7 +562,7 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
       FlushDeferredStateChanges().IgnoreResult();
     }
 
-    for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
+    for (WUInt32 i = 0; i < W_GAL_MAX_RENDERTARGET_COUNT; i++)
     {
       m_pBoundRenderTargets[i] = nullptr;
     }
@@ -570,21 +570,21 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
 
     if (uiRenderTargetCount != 0 || pDepthStencilView != nullptr)
     {
-      for (ezUInt32 i = 0; i < uiRenderTargetCount; i++)
+      for (WUInt32 i = 0; i < uiRenderTargetCount; i++)
       {
         if (pRenderTargetViews[i] != nullptr)
         {
-          m_pBoundRenderTargets[i] = static_cast<const ezGALRenderTargetViewDX11*>(pRenderTargetViews[i])->GetRenderTargetView();
+          m_pBoundRenderTargets[i] = static_cast<const WGALRenderTargetViewDX11*>(pRenderTargetViews[i])->GetRenderTargetView();
         }
       }
 
       if (pDepthStencilView != nullptr)
       {
-        m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
+        m_pBoundDepthStencilTarget = static_cast<const WGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
       }
 
       // Bind rendertargets, bind max(new rt count, old rt count) to overwrite bound rts if new count < old count
-      m_pDXContext->OMSetRenderTargets(ezMath::Max(uiRenderTargetCount, m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
+      m_pDXContext->OMSetRenderTargets(WMath::Max(uiRenderTargetCount, m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
 
       m_uiBoundRenderTargetCount = uiRenderTargetCount;
     }
@@ -596,45 +596,45 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
     }
   }
 
-  for (ezUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
+  for (WUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
   {
-    if (m_RenderTargetSetup.GetRenderPass().m_ColorLoadOp[i] == ezGALRenderTargetLoadOp::Clear && m_pBoundRenderTargets[i])
+    if (m_RenderTargetSetup.GetRenderPass().m_ColorLoadOp[i] == WGALRenderTargetLoadOp::Clear && m_pBoundRenderTargets[i])
     {
-      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], m_RenderTargetSetup.GetClearColor((ezUInt8)i).GetData());
+      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], m_RenderTargetSetup.GetClearColor((WUInt8)i).GetData());
     }
   }
 
-  bool bClearDepth = m_RenderTargetSetup.GetRenderPass().m_DepthLoadOp == ezGALRenderTargetLoadOp::Clear;
-  bool bClearStencil = m_RenderTargetSetup.GetRenderPass().m_StencilLoadOp == ezGALRenderTargetLoadOp::Clear;
+  bool bClearDepth = m_RenderTargetSetup.GetRenderPass().m_DepthLoadOp == WGALRenderTargetLoadOp::Clear;
+  bool bClearStencil = m_RenderTargetSetup.GetRenderPass().m_StencilLoadOp == WGALRenderTargetLoadOp::Clear;
   if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
   {
-    ezUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
+    WUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
     uiClearFlags |= bClearStencil ? D3D11_CLEAR_STENCIL : 0;
 
     m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, uiClearFlags, m_RenderTargetSetup.GetClearDepth(), m_RenderTargetSetup.GetClearStencil());
   }
 }
 
-void ezGALCommandEncoderImplDX11::EndRenderingPlatform()
+void WGALCommandEncoderImplDX11::EndRenderingPlatform()
 {
 }
 
-void ezGALCommandEncoderImplDX11::BeginComputePlatform()
+void WGALCommandEncoderImplDX11::BeginComputePlatform()
 {
   // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
   // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
-  m_RenderTargetSetup = ezGALRenderingSetup();
+  m_RenderTargetSetup = WGALRenderingSetup();
   m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
-void ezGALCommandEncoderImplDX11::EndComputePlatform()
+void WGALCommandEncoderImplDX11::EndComputePlatform()
 {
 }
 
 // Draw functions
 
-void ezGALCommandEncoderImplDX11::ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
+void WGALCommandEncoderImplDX11::ClearPlatform(const WColor& clearColor, WUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, WUInt8 uiStencilClear)
 {
-  for (ezUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
+  for (WUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
   {
     if (uiRenderTargetClearMask & (1u << i) && m_pBoundRenderTargets[i])
     {
@@ -644,26 +644,26 @@ void ezGALCommandEncoderImplDX11::ClearPlatform(const ezColor& clearColor, ezUIn
 
   if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
   {
-    ezUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
+    WUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
     uiClearFlags |= bClearStencil ? D3D11_CLEAR_STENCIL : 0;
 
     m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, uiClearFlags, fDepthClear, uiStencilClear);
   }
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
+WResult WGALCommandEncoderImplDX11::DrawPlatform(WUInt32 uiVertexCount, WUInt32 uiStartVertex)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
   m_pDXContext->Draw(uiVertexCount, uiStartVertex);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
+WResult WGALCommandEncoderImplDX11::DrawIndexedPlatform(WUInt32 uiIndexCount, WUInt32 uiStartIndex)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   m_pDXContext->DrawIndexed(uiIndexCount, uiStartIndex, 0);
 
   // In debug builds, with a debugger attached, the engine will break on D3D errors
@@ -692,46 +692,46 @@ ezResult ezGALCommandEncoderImplDX11::DrawIndexedPlatform(ezUInt32 uiIndexCount,
 #else
   m_pDXContext->DrawIndexed(uiIndexCount, uiStartIndex, 0);
 #endif
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
+WResult WGALCommandEncoderImplDX11::DrawIndexedInstancedPlatform(WUInt32 uiIndexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartIndex)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
   m_pDXContext->DrawIndexedInstanced(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex, 0, 0);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+WResult WGALCommandEncoderImplDX11::DrawIndexedInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
-  m_pDXContext->DrawIndexedInstancedIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
-  return EZ_SUCCESS;
+  m_pDXContext->DrawIndexedInstancedIndirect(static_cast<const WGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
+WResult WGALCommandEncoderImplDX11::DrawInstancedPlatform(WUInt32 uiVertexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartVertex)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
   m_pDXContext->DrawInstanced(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex, 0);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+WResult WGALCommandEncoderImplDX11::DrawInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
-  m_pDXContext->DrawInstancedIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
-  return EZ_SUCCESS;
+  m_pDXContext->DrawInstancedIndirect(static_cast<const WGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  return W_SUCCESS;
 }
 
-void ezGALCommandEncoderImplDX11::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
+void WGALCommandEncoderImplDX11::SetIndexBufferPlatform(const WGALBuffer* pIndexBuffer)
 {
   if (pIndexBuffer != nullptr)
   {
-    const ezGALBufferDX11* pDX11Buffer = static_cast<const ezGALBufferDX11*>(pIndexBuffer);
+    const WGALBufferDX11* pDX11Buffer = static_cast<const WGALBufferDX11*>(pIndexBuffer);
     m_pDXContext->IASetIndexBuffer(pDX11Buffer->GetDXBuffer(), pDX11Buffer->GetIndexFormat(), 0 /* \todo: Expose */);
   }
   else
@@ -740,28 +740,28 @@ void ezGALCommandEncoderImplDX11::SetIndexBufferPlatform(const ezGALBuffer* pInd
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset)
+void WGALCommandEncoderImplDX11::SetVertexBufferPlatform(WUInt32 uiSlot, const WGALBuffer* pVertexBuffer, WUInt32 uiOffset)
 {
-  EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
+  W_ASSERT_DEV(uiSlot < W_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
 
-  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
+  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const WGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
   m_VertexBufferOffsets[uiSlot] = uiOffset;
   m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
 
-void ezGALCommandEncoderImplDX11::SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline)
+void WGALCommandEncoderImplDX11::SetGraphicsPipelinePlatform(const WGALGraphicsPipeline* pGraphicsPipeline)
 {
-  const ezGALShader* pShader = nullptr;
-  const ezGALVertexDeclaration* pVertexDeclaration = nullptr;
-  const ezGALRasterizerState* pRasterizerState = nullptr;
-  const ezGALBlendState* pBlendState = nullptr;
-  const ezGALDepthStencilState* pDepthStencilState = nullptr;
+  const WGALShader* pShader = nullptr;
+  const WGALVertexDeclaration* pVertexDeclaration = nullptr;
+  const WGALRasterizerState* pRasterizerState = nullptr;
+  const WGALBlendState* pBlendState = nullptr;
+  const WGALDepthStencilState* pDepthStencilState = nullptr;
 
   if (pGraphicsPipeline)
   {
-    const ezGALGraphicsPipelineCreationDescription& desc = pGraphicsPipeline->GetDescription();
+    const WGALGraphicsPipelineCreationDescription& desc = pGraphicsPipeline->GetDescription();
     pShader = m_GALDeviceDX11.GetShader(desc.m_hShader);
-    EZ_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[ezGALShaderStage::ComputeShader] == nullptr, "");
+    W_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[WGALShaderStage::ComputeShader] == nullptr, "");
     pVertexDeclaration = m_GALDeviceDX11.GetVertexDeclaration(desc.m_hVertexDeclaration);
     pRasterizerState = m_GALDeviceDX11.GetRasterizerState(desc.m_hRasterizerState);
     pBlendState = m_GALDeviceDX11.GetBlendState(desc.m_hBlendState);
@@ -776,33 +776,33 @@ void ezGALCommandEncoderImplDX11::SetGraphicsPipelinePlatform(const ezGALGraphic
   SetDepthStencilState(pDepthStencilState);
 }
 
-void ezGALCommandEncoderImplDX11::SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline)
+void WGALCommandEncoderImplDX11::SetComputePipelinePlatform(const WGALComputePipeline* pComputePipeline)
 {
-  const ezGALShader* pShader = nullptr;
+  const WGALShader* pShader = nullptr;
 
   if (pComputePipeline)
   {
-    const ezGALComputePipelineCreationDescription& desc = pComputePipeline->GetDescription();
+    const WGALComputePipelineCreationDescription& desc = pComputePipeline->GetDescription();
     pShader = m_GALDeviceDX11.GetShader(desc.m_hShader);
-    EZ_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[ezGALShaderStage::ComputeShader] != nullptr, "");
+    W_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[WGALShaderStage::ComputeShader] != nullptr, "");
   }
 
   SetShader(pShader);
 }
 
-void ezGALCommandEncoderImplDX11::SetVertexDeclaration(const ezGALVertexDeclaration* pVertexDeclaration)
+void WGALCommandEncoderImplDX11::SetVertexDeclaration(const WGALVertexDeclaration* pVertexDeclaration)
 {
-  ezMemoryUtils::ZeroFill(m_VertexBufferStrides, EZ_ARRAY_SIZE(m_VertexBufferStrides));
-  auto pVertexDeclarationDX11 = static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration);
+  WMemoryUtils::ZeroFill(m_VertexBufferStrides, W_ARRAY_SIZE(m_VertexBufferStrides));
+  auto pVertexDeclarationDX11 = static_cast<const WGALVertexDeclarationDX11*>(pVertexDeclaration);
   if (pVertexDeclaration)
   {
-    ezArrayPtr<const ezUInt32> strides = pVertexDeclarationDX11->GetVertexBufferStrides();
+    WArrayPtr<const WUInt32> strides = pVertexDeclarationDX11->GetVertexBufferStrides();
     if (!strides.IsEmpty())
     {
       m_BoundVertexBuffersRange.SetToIncludeValue(0);
       m_BoundVertexBuffersRange.SetToIncludeValue(strides.GetCount() - 1);
     }
-    ezMemoryUtils::Copy(m_VertexBufferStrides, strides.GetPtr(), strides.GetCount());
+    WMemoryUtils::Copy(m_VertexBufferStrides, strides.GetPtr(), strides.GetCount());
     m_pDXContext->IASetInputLayout(pVertexDeclarationDX11->GetDXInputLayout());
   }
   else
@@ -818,33 +818,33 @@ static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[] = {
   D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
 };
 
-static_assert(EZ_ARRAY_SIZE(GALTopologyToDX11) == ezGALPrimitiveTopology::ENUM_COUNT);
+static_assert(W_ARRAY_SIZE(GALTopologyToDX11) == WGALPrimitiveTopology::ENUM_COUNT);
 
-void ezGALCommandEncoderImplDX11::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)
+void WGALCommandEncoderImplDX11::SetPrimitiveTopology(WGALPrimitiveTopology::Enum topology)
 {
   m_Topology = topology;
 }
 
-void ezGALCommandEncoderImplDX11::SetBlendState(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
+void WGALCommandEncoderImplDX11::SetBlendState(const WGALBlendState* pBlendState, const WColor& blendFactor, WUInt32 uiSampleMask)
 {
   FLOAT BlendFactors[4] = {blendFactor.r, blendFactor.g, blendFactor.b, blendFactor.a};
 
   m_pDXContext->OMSetBlendState(
-    pBlendState != nullptr ? static_cast<const ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
+    pBlendState != nullptr ? static_cast<const WGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
 
-void ezGALCommandEncoderImplDX11::SetDepthStencilState(const ezGALDepthStencilState* pDepthStencilState)
+void WGALCommandEncoderImplDX11::SetDepthStencilState(const WGALDepthStencilState* pDepthStencilState)
 {
-  ID3D11DepthStencilState* pDepthStencilStateDX11 = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr;
+  ID3D11DepthStencilState* pDepthStencilStateDX11 = pDepthStencilState != nullptr ? static_cast<const WGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr;
   m_pDXContext->OMSetDepthStencilState(pDepthStencilStateDX11, m_uiStencilRefValue);
 }
 
-void ezGALCommandEncoderImplDX11::SetRasterizerState(const ezGALRasterizerState* pRasterizerState)
+void WGALCommandEncoderImplDX11::SetRasterizerState(const WGALRasterizerState* pRasterizerState)
 {
-  m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
+  m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<const WGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
 }
 
-void ezGALCommandEncoderImplDX11::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
+void WGALCommandEncoderImplDX11::SetViewportPlatform(const WRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
   D3D11_VIEWPORT Viewport;
   Viewport.TopLeftX = rect.x;
@@ -857,7 +857,7 @@ void ezGALCommandEncoderImplDX11::SetViewportPlatform(const ezRectFloat& rect, f
   m_pDXContext->RSSetViewports(1, &Viewport);
 }
 
-void ezGALCommandEncoderImplDX11::SetScissorRectPlatform(const ezRectU32& rect)
+void WGALCommandEncoderImplDX11::SetScissorRectPlatform(const WRectU32& rect)
 {
   D3D11_RECT ScissorRect;
   ScissorRect.left = rect.x;
@@ -868,7 +868,7 @@ void ezGALCommandEncoderImplDX11::SetScissorRectPlatform(const ezRectU32& rect)
   m_pDXContext->RSSetScissorRects(1, &ScissorRect);
 }
 
-void ezGALCommandEncoderImplDX11::SetStencilReferencePlatform(ezUInt8 uiStencilRefValue)
+void WGALCommandEncoderImplDX11::SetStencilReferencePlatform(WUInt8 uiStencilRefValue)
 {
   if (m_uiStencilRefValue == uiStencilRefValue)
     return;
@@ -877,115 +877,115 @@ void ezGALCommandEncoderImplDX11::SetStencilReferencePlatform(ezUInt8 uiStencilR
   ID3D11DepthStencilState* pState = nullptr;
   m_pDXContext->OMGetDepthStencilState(&pState, nullptr);
   m_pDXContext->OMSetDepthStencilState(pState, m_uiStencilRefValue);
-  EZ_GAL_DX11_RELEASE(pState);
+  W_GAL_DX11_RELEASE(pState);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezGALCommandEncoderImplDX11::DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+WResult WGALCommandEncoderImplDX11::DispatchPlatform(WUInt32 uiThreadGroupCountX, WUInt32 uiThreadGroupCountY, WUInt32 uiThreadGroupCountZ)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
   m_pDXContext->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplDX11::DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+WResult WGALCommandEncoderImplDX11::DispatchIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes)
 {
-  EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
+  W_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
 
-  m_pDXContext->DispatchIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
-  return EZ_SUCCESS;
+  m_pDXContext->DispatchIndirect(static_cast<const WGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-static void SetShaderResources(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots,
+static void SetShaderResources(WGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, WUInt32 uiStartSlot, WUInt32 uiNumSlots,
   ID3D11ShaderResourceView** pShaderResourceViews)
 {
   switch (stage)
   {
-    case ezGALShaderStage::VertexShader:
+    case WGALShaderStage::VertexShader:
       pContext->VSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
-    case ezGALShaderStage::HullShader:
+    case WGALShaderStage::HullShader:
       pContext->HSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
-    case ezGALShaderStage::DomainShader:
+    case WGALShaderStage::DomainShader:
       pContext->DSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
-    case ezGALShaderStage::GeometryShader:
+    case WGALShaderStage::GeometryShader:
       pContext->GSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
-    case ezGALShaderStage::PixelShader:
+    case WGALShaderStage::PixelShader:
       pContext->PSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
-    case ezGALShaderStage::ComputeShader:
+    case WGALShaderStage::ComputeShader:
       pContext->CSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
 static void SetConstantBuffers(
-  ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11Buffer** pConstantBuffers)
+  WGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, WUInt32 uiStartSlot, WUInt32 uiNumSlots, ID3D11Buffer** pConstantBuffers)
 {
   switch (stage)
   {
-    case ezGALShaderStage::VertexShader:
+    case WGALShaderStage::VertexShader:
       pContext->VSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
-    case ezGALShaderStage::HullShader:
+    case WGALShaderStage::HullShader:
       pContext->HSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
-    case ezGALShaderStage::DomainShader:
+    case WGALShaderStage::DomainShader:
       pContext->DSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
-    case ezGALShaderStage::GeometryShader:
+    case WGALShaderStage::GeometryShader:
       pContext->GSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
-    case ezGALShaderStage::PixelShader:
+    case WGALShaderStage::PixelShader:
       pContext->PSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
-    case ezGALShaderStage::ComputeShader:
+    case WGALShaderStage::ComputeShader:
       pContext->CSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
 static void SetSamplers(
-  ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11SamplerState** pSamplerStates)
+  WGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, WUInt32 uiStartSlot, WUInt32 uiNumSlots, ID3D11SamplerState** pSamplerStates)
 {
   switch (stage)
   {
-    case ezGALShaderStage::VertexShader:
+    case WGALShaderStage::VertexShader:
       pContext->VSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
-    case ezGALShaderStage::HullShader:
+    case WGALShaderStage::HullShader:
       pContext->HSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
-    case ezGALShaderStage::DomainShader:
+    case WGALShaderStage::DomainShader:
       pContext->DSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
-    case ezGALShaderStage::GeometryShader:
+    case WGALShaderStage::GeometryShader:
       pContext->GSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
-    case ezGALShaderStage::PixelShader:
+    case WGALShaderStage::PixelShader:
       pContext->PSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
-    case ezGALShaderStage::ComputeShader:
+    case WGALShaderStage::ComputeShader:
       pContext->CSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
 // Some state changes are deferred so they can be updated faster
-ezResult ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
+WResult WGALCommandEncoderImplDX11::FlushDeferredStateChanges()
 {
   if (m_uiTessellationPatchControlPoints == 0)
   {
@@ -998,22 +998,22 @@ ezResult ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
 
   if (m_BoundVertexBuffersRange.IsValid())
   {
-    const ezUInt32 uiStartSlot = m_BoundVertexBuffersRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_BoundVertexBuffersRange.GetCount();
+    const WUInt32 uiStartSlot = m_BoundVertexBuffersRange.m_uiMin;
+    const WUInt32 uiNumSlots = m_BoundVertexBuffersRange.GetCount();
 
     m_pDXContext->IASetVertexBuffers(uiStartSlot, uiNumSlots, m_pBoundVertexBuffers + uiStartSlot, m_VertexBufferStrides + uiStartSlot, m_VertexBufferOffsets + uiStartSlot);
 
     m_BoundVertexBuffersRange.Reset();
   }
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (m_pBoundShaders[stage] != nullptr && m_BoundConstantBuffersRange[stage].IsValid())
     {
-      const ezUInt32 uiStartSlot = m_BoundConstantBuffersRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundConstantBuffersRange[stage].GetCount();
+      const WUInt32 uiStartSlot = m_BoundConstantBuffersRange[stage].m_uiMin;
+      const WUInt32 uiNumSlots = m_BoundConstantBuffersRange[stage].GetCount();
 
-      SetConstantBuffers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+      SetConstantBuffers((WGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
 
       m_BoundConstantBuffersRange[stage].Reset();
     }
@@ -1022,22 +1022,22 @@ ezResult ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
   // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
   if (m_BoundUnorderedAccessViewsRange.IsValid())
   {
-    const ezUInt32 uiStartSlot = m_BoundUnorderedAccessViewsRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_BoundUnorderedAccessViewsRange.GetCount();
+    const WUInt32 uiStartSlot = m_BoundUnorderedAccessViewsRange.m_uiMin;
+    const WUInt32 uiNumSlots = m_BoundUnorderedAccessViewsRange.GetCount();
     m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_BoundUnorderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
 
     m_BoundUnorderedAccessViewsRange.Reset();
   }
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     // Need to do bindings even on inactive shader stages since we might miss unbindings otherwise!
     if (m_BoundShaderResourceViewsRange[stage].IsValid())
     {
-      const ezUInt32 uiStartSlot = m_BoundShaderResourceViewsRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundShaderResourceViewsRange[stage].GetCount();
+      const WUInt32 uiStartSlot = m_BoundShaderResourceViewsRange[stage].m_uiMin;
+      const WUInt32 uiNumSlots = m_BoundShaderResourceViewsRange[stage].GetCount();
 
-      SetShaderResources((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundShaderResourceViews[stage].GetData() + uiStartSlot);
+      SetShaderResources((WGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundShaderResourceViews[stage].GetData() + uiStartSlot);
 
       m_BoundShaderResourceViewsRange[stage].Reset();
     }
@@ -1048,24 +1048,24 @@ ezResult ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
 
     if (m_BoundSamplerStatesRange[stage].IsValid())
     {
-      const ezUInt32 uiStartSlot = m_BoundSamplerStatesRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundSamplerStatesRange[stage].GetCount();
+      const WUInt32 uiStartSlot = m_BoundSamplerStatesRange[stage].m_uiMin;
+      const WUInt32 uiNumSlots = m_BoundSamplerStatesRange[stage].GetCount();
 
-      SetSamplers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundSamplerStates[stage] + uiStartSlot);
+      SetSamplers((WGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundSamplerStates[stage] + uiStartSlot);
 
       m_BoundSamplerStatesRange[stage].Reset();
     }
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezGALCommandEncoderImplDX11::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
+bool WGALCommandEncoderImplDX11::UnsetUnorderedAccessViews(const WGALResourceBase* pResource)
 {
-  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+  W_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
 
   bool bResult = false;
 
-  for (ezUInt32 uiSlot = 0; uiSlot < m_ResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
+  for (WUInt32 uiSlot = 0; uiSlot < m_ResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
   {
     if (m_ResourcesForUnorderedAccessViews[uiSlot] == pResource)
     {
@@ -1078,15 +1078,15 @@ bool ezGALCommandEncoderImplDX11::UnsetUnorderedAccessViews(const ezGALResourceB
 
   return bResult;
 }
-bool ezGALCommandEncoderImplDX11::UnsetResourceViews(const ezGALResourceBase* pResource)
+bool WGALCommandEncoderImplDX11::UnsetResourceViews(const WGALResourceBase* pResource)
 {
-  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+  W_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
 
   bool bResult = false;
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
-    for (ezUInt32 uiSlot = 0; uiSlot < m_ResourcesForResourceViews[stage].GetCount(); ++uiSlot)
+    for (WUInt32 uiSlot = 0; uiSlot < m_ResourcesForResourceViews[stage].GetCount(); ++uiSlot)
     {
       if (m_ResourcesForResourceViews[stage][uiSlot] == pResource)
       {

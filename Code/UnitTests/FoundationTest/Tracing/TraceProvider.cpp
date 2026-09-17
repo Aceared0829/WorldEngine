@@ -3,5 +3,5 @@
 #include <FoundationTest/Tracing/TraceProvider.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: tracing-provider-cpp
-EZ_IMPLEMENT_TRACE_PROVIDER(g_ezTrace_FoundationTest, "ez_FoundationTest");
+W_IMPLEMENT_TRACE_PROVIDER(g_WTrace_FoundationTest, "W_FoundationTest");
 // END-DOCS-CODE-SNIPPET

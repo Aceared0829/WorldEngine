@@ -7,28 +7,28 @@
 #include <Foundation/IO/OSFile.h>
 #include <QFileDialog>
 
-bool ezQtExportAndRunDlg::s_bTransformAll = true;
-bool ezQtExportAndRunDlg::s_bUpdateThumbnail = false;
-bool ezQtExportAndRunDlg::s_bCompileCpp = true;
+bool WQtExportAndRunDlg::s_bTransformAll = true;
+bool WQtExportAndRunDlg::s_bUpdateThumbnail = false;
+bool WQtExportAndRunDlg::s_bCompileCpp = true;
 
 static int s_iLastPlayerApp = 0;
 
-ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtExportAndRunDlg::WQtExportAndRunDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ToolCombo->addItem("ezPlayer", "ezPlayer.exe");
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  ToolCombo->addItem("WPlayer", "WPlayer.exe");
 #else
-  ToolCombo->addItem("ezPlayer", "ezPlayer");
+  ToolCombo->addItem("WPlayer", "WPlayer");
 #endif
 
-  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
 
   for (const auto& app : pPref->m_PlayerApps)
   {
-    ezStringBuilder name = ezPathUtils::GetFileName(app);
+    WStringBuilder name = WPathUtils::GetFileName(app);
 
     ToolCombo->addItem(name.GetData(), QString::fromUtf8(app.GetData()));
   }
@@ -38,26 +38,26 @@ ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* pParent)
   m_CppSettings.Load().IgnoreResult();
 }
 
-void ezQtExportAndRunDlg::PullFromUI()
+void WQtExportAndRunDlg::PullFromUI()
 {
   s_bTransformAll = TransformAll->isChecked();
   s_bUpdateThumbnail = UpdateThumbnail->isChecked();
   s_iLastPlayerApp = ToolCombo->currentIndex();
   s_bCompileCpp = CompileCpp->isChecked();
 
-  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
   pPref->m_PlayerApps.Clear();
 
   for (int i = 1; i < ToolCombo->count(); ++i)
   {
-    ezStringBuilder path = ToolCombo->itemData(i).toString().toUtf8().data();
+    WStringBuilder path = ToolCombo->itemData(i).toString().toUtf8().data();
     path.MakeCleanPath();
 
     pPref->m_PlayerApps.PushBack(path);
   }
 }
 
-void ezQtExportAndRunDlg::showEvent(QShowEvent* e)
+void WQtExportAndRunDlg::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
 
@@ -66,7 +66,7 @@ void ezQtExportAndRunDlg::showEvent(QShowEvent* e)
   UpdateThumbnail->setChecked(s_bUpdateThumbnail);
   PlayerCmdLine->setPlainText(m_sCmdLine.GetData());
 
-  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  if (!WCppProject::ExistsProjectCMakeListsTxt())
   {
     CompileCpp->setEnabled(false);
     CompileCpp->setToolTip("This project doesn't have a C++ plugin.");
@@ -78,14 +78,14 @@ void ezQtExportAndRunDlg::showEvent(QShowEvent* e)
   }
 }
 
-void ezQtExportAndRunDlg::on_ExportOnly_clicked()
+void WQtExportAndRunDlg::on_ExportOnly_clicked()
 {
   PullFromUI();
   m_bRunAfterExport = false;
   accept();
 }
 
-void ezQtExportAndRunDlg::on_ExportAndRun_clicked()
+void WQtExportAndRunDlg::on_ExportAndRun_clicked()
 {
   PullFromUI();
   m_bRunAfterExport = true;
@@ -93,13 +93,13 @@ void ezQtExportAndRunDlg::on_ExportAndRun_clicked()
   accept();
 }
 
-void ezQtExportAndRunDlg::on_AddToolButton_clicked()
+void WQtExportAndRunDlg::on_AddToolButton_clicked()
 {
-  ezStringBuilder appDir = ezOSFile::GetApplicationDirectory();
+  WStringBuilder appDir = WOSFile::GetApplicationDirectory();
   appDir.MakeCleanPath();
   static QString sLastPath = appDir.GetData();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   const QString sFile = QFileDialog::getOpenFileName(this, "Select Program", sLastPath, "Application (*.exe)", nullptr, QFileDialog::Option::DontResolveSymlinks);
 #else
   const QString sFile = QFileDialog::getOpenFileName(this, "Select Program", sLastPath, "Executable (*)", nullptr, QFileDialog::Option::DontResolveSymlinks);
@@ -111,22 +111,22 @@ void ezQtExportAndRunDlg::on_AddToolButton_clicked()
 
   sLastPath = sFile;
 
-  ezStringBuilder path = sFile.toUtf8().data();
+  WStringBuilder path = sFile.toUtf8().data();
   path.MakeCleanPath();
   path.TrimWordStart(appDir);
   path.Trim("/", "");
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   ToolCombo->addItem(QString::fromUtf8(path.GetFileName().GetData(tmp)), QString::fromUtf8(path.GetData()));
   ToolCombo->setCurrentIndex(ToolCombo->count() - 1);
 }
 
-void ezQtExportAndRunDlg::on_RemoveToolButton_clicked()
+void WQtExportAndRunDlg::on_RemoveToolButton_clicked()
 {
   ToolCombo->removeItem(ToolCombo->currentIndex());
 }
 
-void ezQtExportAndRunDlg::on_ToolCombo_currentIndexChanged(int idx)
+void WQtExportAndRunDlg::on_ToolCombo_currentIndexChanged(int idx)
 {
   RemoveToolButton->setEnabled(idx != 0);
 }

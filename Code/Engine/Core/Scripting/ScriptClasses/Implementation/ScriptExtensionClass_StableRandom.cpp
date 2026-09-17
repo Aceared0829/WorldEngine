@@ -6,57 +6,57 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_StableRandom, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_StableRandom, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(IntMinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FloatZeroToOne, Inout, "Position", In, "Seed"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FloatMinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Vec3MinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
+    W_SCRIPT_FUNCTION_PROPERTY(IntMinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
+    W_SCRIPT_FUNCTION_PROPERTY(FloatZeroToOne, Inout, "Position", In, "Seed"),
+    W_SCRIPT_FUNCTION_PROPERTY(FloatMinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
+    W_SCRIPT_FUNCTION_PROPERTY(Vec3MinMax, Inout, "Position", In, "MinValue", In, "MaxValue", In, "Seed"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("StableRandom"),
+    new WScriptExtensionAttribute("StableRandom"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 // static
-int ezScriptExtensionClass_StableRandom::IntMinMax(int& inout_iPosition, int iMinValue, int iMaxValue, ezUInt32 uiSeed)
+int WScriptExtensionClass_StableRandom::IntMinMax(int& inout_iPosition, int iMinValue, int iMaxValue, WUInt32 uiSeed)
 {
-  const ezSimdVec4i result = ezSimdVec4i::Truncate(ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition), ezSimdVec4f((float)iMinValue), ezSimdVec4f((float)iMaxValue), ezSimdVec4u(uiSeed)));
+  const WSimdVec4i result = WSimdVec4i::Truncate(WSimdRandom::FloatMinMax(WSimdVec4i(inout_iPosition), WSimdVec4f((float)iMinValue), WSimdVec4f((float)iMaxValue), WSimdVec4u(uiSeed)));
   ++inout_iPosition;
   return result.x();
 }
 
 // static
-float ezScriptExtensionClass_StableRandom::FloatZeroToOne(int& inout_iPosition, ezUInt32 uiSeed)
+float WScriptExtensionClass_StableRandom::FloatZeroToOne(int& inout_iPosition, WUInt32 uiSeed)
 {
-  const ezSimdVec4f result = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(inout_iPosition), ezSimdVec4u(uiSeed));
+  const WSimdVec4f result = WSimdRandom::FloatZeroToOne(WSimdVec4i(inout_iPosition), WSimdVec4u(uiSeed));
   ++inout_iPosition;
   return result.x();
 }
 
 // static
-float ezScriptExtensionClass_StableRandom::FloatMinMax(int& inout_iPosition, float fMinValue, float fMaxValue, ezUInt32 uiSeed)
+float WScriptExtensionClass_StableRandom::FloatMinMax(int& inout_iPosition, float fMinValue, float fMaxValue, WUInt32 uiSeed)
 {
-  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition), ezSimdVec4f(fMinValue), ezSimdVec4f(fMaxValue), ezSimdVec4u(uiSeed));
+  const WSimdVec4f result = WSimdRandom::FloatMinMax(WSimdVec4i(inout_iPosition), WSimdVec4f(fMinValue), WSimdVec4f(fMaxValue), WSimdVec4u(uiSeed));
   ++inout_iPosition;
   return result.x();
 }
 
 // static
-ezVec3 ezScriptExtensionClass_StableRandom::Vec3MinMax(int& inout_iPosition, const ezVec3& vMinValue, const ezVec3& vMaxValue, ezUInt32 uiSeed)
+WVec3 WScriptExtensionClass_StableRandom::Vec3MinMax(int& inout_iPosition, const WVec3& vMinValue, const WVec3& vMaxValue, WUInt32 uiSeed)
 {
-  const ezSimdVec4i offset(0, 1, 2, 3);
-  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition) + offset, ezSimdConversion::ToVec3(vMinValue), ezSimdConversion::ToVec3(vMaxValue), ezSimdVec4u(uiSeed));
+  const WSimdVec4i offset(0, 1, 2, 3);
+  const WSimdVec4f result = WSimdRandom::FloatMinMax(WSimdVec4i(inout_iPosition) + offset, WSimdConversion::ToVec3(vMinValue), WSimdConversion::ToVec3(vMaxValue), WSimdVec4u(uiSeed));
   inout_iPosition += 4;
-  return ezSimdConversion::ToVec3(result);
+  return WSimdConversion::ToVec3(result);
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);

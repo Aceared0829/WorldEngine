@@ -9,12 +9,12 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Time/Timestamp.h>
 
-struct ezOSFileData;
+struct WOSFileData;
 
 #include <OSFileDecl_Platform.h>
 
 /// Defines in which mode to open a file.
-struct ezFileOpenMode
+struct WFileOpenMode
 {
   enum Enum
   {
@@ -26,45 +26,45 @@ struct ezFileOpenMode
 };
 
 /// Holds the stats for a file.
-struct EZ_FOUNDATION_DLL ezFileStats
+struct W_FOUNDATION_DLL WFileStats
 {
-  ezFileStats();
-  ~ezFileStats();
+  WFileStats();
+  ~WFileStats();
 
   /// Stores the concatenated m_sParentPath and m_sName in \a path.
-  void GetFullPath(ezStringBuilder& ref_sPath) const;
+  void GetFullPath(WStringBuilder& ref_sPath) const;
 
   /// Path to the parent folder.
   /// Append m_sName to m_sParentPath to obtain the full path.
-  ezStringBuilder m_sParentPath;
+  WStringBuilder m_sParentPath;
 
   /// The name of the file or folder that the stats are for. Does not include the parent path to it.
   /// Append m_sName to m_sParentPath to obtain the full path.
-  ezString m_sName;
+  WString m_sName;
 
   /// The last modification time as an UTC timestamp since Unix epoch.
-  ezTimestamp m_LastModificationTime;
+  WTimestamp m_LastModificationTime;
 
   /// The size of the file in bytes.
-  ezUInt64 m_uiFileSize = 0;
+  WUInt64 m_uiFileSize = 0;
 
   /// Whether the file object is a file or folder.
   bool m_bIsDirectory = false;
 };
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS) || defined(W_DOCS)
 
-struct ezFileIterationData;
+struct WFileIterationData;
 
-struct ezFileSystemIteratorFlags
+struct WFileSystemIteratorFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
-    Recursive = EZ_BIT(0),
-    ReportFiles = EZ_BIT(1),
-    ReportFolders = EZ_BIT(2),
+    Recursive = W_BIT(0),
+    ReportFiles = W_BIT(1),
+    ReportFolders = W_BIT(2),
 
     ReportFilesRecursive = Recursive | ReportFiles,
     ReportFoldersRecursive = Recursive | ReportFolders,
@@ -81,18 +81,18 @@ struct ezFileSystemIteratorFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezFileSystemIteratorFlags);
+W_DECLARE_FLAGS_OPERATORS(WFileSystemIteratorFlags);
 
-/// An ezFileSystemIterator allows to iterate over all files in a certain directory.
+/// An WFileSystemIterator allows to iterate over all files in a certain directory.
 ///
 /// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
-class EZ_FOUNDATION_DLL ezFileSystemIterator
+class W_FOUNDATION_DLL WFileSystemIterator
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezFileSystemIterator);
+  W_DISALLOW_COPY_AND_ASSIGN(WFileSystemIterator);
 
 public:
-  ezFileSystemIterator();
-  ~ezFileSystemIterator();
+  WFileSystemIterator();
+  ~WFileSystemIterator();
 
   /// Starts a search at the given folder. Use * and ? as wildcards.
   ///
@@ -102,28 +102,28 @@ public:
   /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
   /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
   ///
-  /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
+  /// If W_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
-  /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  void StartSearch(ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+  /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), W_FAILURE is returned.
+  void StartSearch(WStringView sSearchTerm, WBitflags<WFileSystemIteratorFlags> flags = WFileSystemIteratorFlags::Default); // [tested]
 
   /// The same as StartSearch() but executes the same search on multiple folders.
   ///
   /// The search term is appended to each start folder and they are searched one after the other.
-  void StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  void StartMultiFolderSearch(WArrayPtr<WString> startFolders, WStringView sSearchTerm, WBitflags<WFileSystemIteratorFlags> flags = WFileSystemIteratorFlags::Default);
 
   /// Returns the search string with which StartSearch() was called.
   ///
   /// If StartMultiFolderSearch() is used, every time a new top-level folder is entered, StartSearch() is executed. In this case GetCurrentSearchTerm() can be used to know in which top-level folder the search is currently running.
-  const ezStringView GetCurrentSearchTerm() const { return m_sSearchTerm; }
+  const WStringView GetCurrentSearchTerm() const { return m_sSearchTerm; }
 
   /// Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
   ///
   /// You can use this to get the full path of the current file, by appending this value and the filename from 'GetStats'
-  const ezStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
+  const WStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
 
   /// Returns the file stats of the current object that the iterator points to.
-  const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
+  const WFileStats& GetStats() const { return m_CurFile; } // [tested]
 
   /// Advances the iterator to the next file object. Might recurse into sub-folders.
   void Next(); // [tested]
@@ -135,47 +135,47 @@ public:
   bool IsValid() const;
 
 private:
-  ezInt32 InternalNext();
+  WInt32 InternalNext();
 
   /// The current path of the folder, in which the iterator currently is.
-  ezStringBuilder m_sCurPath;
+  WStringBuilder m_sCurPath;
 
-  ezBitflags<ezFileSystemIteratorFlags> m_Flags;
+  WBitflags<WFileSystemIteratorFlags> m_Flags;
 
   /// The stats about the file that the iterator currently points to.
-  ezFileStats m_CurFile;
+  WFileStats m_CurFile;
 
   /// Platform specific data, required by the implementation.
-  ezFileIterationData m_Data;
+  WFileIterationData m_Data;
 
-  ezString m_sSearchTerm;
-  ezString m_sMultiSearchTerm;
-  ezUInt32 m_uiCurrentStartFolder = 0;
-  ezHybridArray<ezString, 8> m_StartFolders;
+  WString m_sSearchTerm;
+  WString m_sMultiSearchTerm;
+  WUInt32 m_uiCurrentStartFolder = 0;
+  WHybridArray<WString, 8> m_StartFolders;
 };
 
 #endif
 
 /// This is an abstraction for the most important file operations.
 ///
-/// Instances of ezOSFile can be used for reading and writing files.
+/// Instances of WOSFile can be used for reading and writing files.
 /// All paths must be absolute paths, relative paths and current working directories are not supported,
 /// since that cannot be guaranteed to work equally on all platforms under all circumstances.
 /// A few static functions allow to query the most important data about files, to delete files and create directories.
-class EZ_FOUNDATION_DLL ezOSFile
+class W_FOUNDATION_DLL WOSFile
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezOSFile);
+  W_DISALLOW_COPY_AND_ASSIGN(WOSFile);
 
 public:
-  ezOSFile();
-  ~ezOSFile();
+  WOSFile();
+  ~WOSFile();
 
-  /// Opens a file for reading or writing. Returns EZ_SUCCESS if the file could be opened successfully.
+  /// Opens a file for reading or writing. Returns W_SUCCESS if the file could be opened successfully.
   ///
   /// \param sFile Absolute path to the file to open
   /// \param openMode How to open the file (Read, Write, Append)
   /// \param fileShareMode How the file can be shared with other processes (platform-specific)
-  ezResult Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default); // [tested]
+  WResult Open(WStringView sFile, WFileOpenMode::Enum openMode, WFileShareMode::Enum fileShareMode = WFileShareMode::Default); // [tested]
 
   /// Returns true if a file is currently open.
   bool IsOpen() const; // [tested]
@@ -184,101 +184,101 @@ public:
   void Close(); // [tested]
 
   /// Writes the given number of bytes from the buffer into the file. Returns true if all data was successfully written.
-  ezResult Write(const void* pBuffer, ezUInt64 uiBytes); // [tested]
+  WResult Write(const void* pBuffer, WUInt64 uiBytes); // [tested]
 
   /// Reads up to the given number of bytes from the file. Returns the actual number of bytes that was read.
-  ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes); // [tested]
+  WUInt64 Read(void* pBuffer, WUInt64 uiBytes); // [tested]
 
   /// Reads the entire file content into the given array
-  ezUInt64 ReadAll(ezDynamicArray<ezUInt8>& out_fileContent); // [tested]
+  WUInt64 ReadAll(WDynamicArray<WUInt8>& out_fileContent); // [tested]
 
   /// Returns the name of the file that is currently opened. Returns an empty string, if no file is open.
-  ezStringView GetOpenFileName() const { return m_sFileName; } // [tested]
+  WStringView GetOpenFileName() const { return m_sFileName; } // [tested]
 
   /// Returns the position in the file at which read/write operations will occur.
-  ezUInt64 GetFilePosition() const; // [tested]
+  WUInt64 GetFilePosition() const; // [tested]
 
   /// Sets the position where in the file to read/write next.
-  void SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum pos) const; // [tested]
+  void SetFilePosition(WInt64 iDistance, WFileSeekMode::Enum pos) const; // [tested]
 
   /// Returns the current total size of the file.
-  ezUInt64 GetFileSize() const; // [tested]
+  WUInt64 GetFileSize() const; // [tested]
 
   /// This will return the platform specific file data (handles etc.), if you really want to be able to wreak havoc.
-  const ezOSFileData& GetFileData() const { return m_FileData; }
+  const WOSFileData& GetFileData() const { return m_FileData; }
 
   /// Returns the processes current working directory (CWD).
   ///
   /// The value typically depends on the directory from which the application was launched.
   /// Since this is a process wide global variable, other code can modify it at any time.
   ///
-  /// \note ez does not use the CWD for any file resolution. This function is provided to enable
+  /// \note W does not use the CWD for any file resolution. This function is provided to enable
   /// tools to work with relative paths from the command-line, but every application has to implement
   /// such behavior individually.
-  static const ezString GetCurrentWorkingDirectory(); // [tested]
+  static const WString GetCurrentWorkingDirectory(); // [tested]
 
   /// If szPath is a relative path, this function prepends GetCurrentWorkingDirectory().
   ///
   /// In either case, MakeCleanPath() is used before the string is returned.
-  static const ezString MakePathAbsoluteWithCWD(ezStringView sPath); // [tested]
+  static const WString MakePathAbsoluteWithCWD(WStringView sPath); // [tested]
 
   /// Checks whether the given file exists.
-  static bool ExistsFile(ezStringView sFile); // [tested]
+  static bool ExistsFile(WStringView sFile); // [tested]
 
   /// Checks whether the given directory exists.
-  static bool ExistsDirectory(ezStringView sDirectory); // [tested]
+  static bool ExistsDirectory(WStringView sDirectory); // [tested]
 
   /// If the given file already exists, determines a file path that doesn't exist yet.
   ///
   /// If the original file already exists, sSuffix is appended and then a number starting at 1.
   /// Loops until it finds a filename that is not yet taken.
-  static void FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix = "-");
+  static void FindFreeFilename(WStringBuilder& inout_sPath, WStringView sSuffix = "-");
 
-  /// Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
-  static ezResult DeleteFile(ezStringView sFile); // [tested]
+  /// Deletes the given file. Returns W_SUCCESS, if the file was deleted or did not exist in the first place. Returns W_FAILURE
+  static WResult DeleteFile(WStringView sFile); // [tested]
 
   /// Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not
   /// be created.
-  static ezResult CreateDirectoryStructure(ezStringView sDirectory); // [tested]
+  static WResult CreateDirectoryStructure(WStringView sDirectory); // [tested]
 
   /// Renames / Moves an existing directory. The file / directory at szFrom must exist. The parent directory of szTo must exist.
-  /// Returns EZ_FAILURE if the move failed.
-  static ezResult MoveFileOrDirectory(ezStringView sFrom, ezStringView sTo);
+  /// Returns W_FAILURE if the move failed.
+  static WResult MoveFileOrDirectory(WStringView sFrom, WStringView sTo);
 
   /// Copies the source file into the destination file.
-  static ezResult CopyFile(ezStringView sSource, ezStringView sDestination); // [tested]
+  static WResult CopyFile(WStringView sSource, WStringView sDestination); // [tested]
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) || defined(EZ_DOCS)
+#if W_ENABLED(W_SUPPORTS_FILE_STATS) || defined(W_DOCS)
   /// Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
-  static ezResult GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats); // [tested]
+  static WResult GetFileStats(WStringView sFileOrFolder, WFileStats& out_stats); // [tested]
 
-#  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(EZ_DOCS)
+#  if (W_ENABLED(W_SUPPORTS_CASE_INSENSITIVE_PATHS) && W_ENABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(W_DOCS)
   /// Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
-  static ezResult GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
+  static WResult GetFileCasing(WStringView sFileOrFolder, WStringBuilder& out_sCorrectSpelling); // [tested]
 #  endif
 
 #endif
 
-#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
+#if (W_ENABLED(W_SUPPORTS_FILE_ITERATORS) && W_ENABLED(W_SUPPORTS_FILE_STATS)) || defined(W_DOCS)
 
-  /// Returns the ezFileStats for all files and folders in the given folder
-  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_itemList, ezStringView sFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  /// Returns the WFileStats for all files and folders in the given folder
+  static void GatherAllItemsInFolder(WDynamicArray<WFileStats>& out_itemList, WStringView sFolder, WBitflags<WFileSystemIteratorFlags> flags = WFileSystemIteratorFlags::Default);
 
   /// Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
   ///
   /// If \a out_FilesCopied is provided, the destination path of every successfully copied file is appended to it.
-  static ezResult CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_pFilesCopied = nullptr);
+  static WResult CopyFolder(WStringView sSourceFolder, WStringView sDestinationFolder, WDynamicArray<WString>* out_pFilesCopied = nullptr);
 
   /// Deletes all files recursively in \a szFolder.
-  static ezResult DeleteFolder(ezStringView sFolder);
+  static WResult DeleteFolder(WStringView sFolder);
 
 #endif
 
   /// Returns the full path to the application binary.
-  static ezStringView GetApplicationPath();
+  static WStringView GetApplicationPath();
 
   /// Returns the path to the directory in which the application binary is located.
-  static ezStringView GetApplicationDirectory();
+  static WStringView GetApplicationDirectory();
 
   /// Returns the folder into which user data may be safely written.
   /// Append a sub-folder for your application.
@@ -287,7 +287,7 @@ public:
   /// On Posix systems this is the '~' (home) directory.
   ///
   /// If szSubFolder is specified, it will be appended to the result.
-  static ezString GetUserDataFolder(ezStringView sSubFolder = {});
+  static WString GetUserDataFolder(WStringView sSubFolder = {});
 
   /// Returns the folder into which temp data may be written.
   ///
@@ -295,7 +295,7 @@ public:
   /// On Posix systems this is the '~/.cache' directory.
   ///
   /// If szSubFolder is specified, it will be appended to the result.
-  static ezString GetTempDataFolder(ezStringView sSubFolder = {});
+  static WString GetTempDataFolder(WStringView sSubFolder = {});
 
   /// Returns the folder into which the user may want to store documents.
   /// Append a sub-folder for your application.
@@ -304,11 +304,11 @@ public:
   /// On Posix systems this is the '~' (home) directory.
   ///
   /// If szSubFolder is specified, it will be appended to the result.
-  static ezString GetUserDocumentsFolder(ezStringView sSubFolder = {});
+  static WString GetUserDocumentsFolder(WStringView sSubFolder = {});
 
 
 public:
-  /// Describes the types of events that ezOSFile sends.
+  /// Describes the types of events that WOSFile sends.
   struct EventType
   {
     enum Enum
@@ -336,28 +336,28 @@ public:
 
     /// A unique ID for each file access. Reads and writes to the same open file use the same ID. If the same file is opened multiple times,
     /// different IDs are used.
-    ezInt32 m_iFileID = 0;
+    WInt32 m_iFileID = 0;
 
     /// The name of the file that was operated upon.
-    ezStringView m_sFile;
+    WStringView m_sFile;
 
     /// If a second file was operated upon (FileCopy), that is the second file name.
-    ezStringView m_sFile2;
+    WStringView m_sFile2;
 
     /// Mode that a file has been opened in.
-    ezFileOpenMode::Enum m_FileMode = ezFileOpenMode::None;
+    WFileOpenMode::Enum m_FileMode = WFileOpenMode::None;
 
     /// Whether the operation succeeded (reading, writing, etc.)
     bool m_bSuccess = true;
 
     /// How long the operation took.
-    ezTime m_Duration;
+    WTime m_Duration;
 
     /// How many bytes were transfered (reading, writing)
-    ezUInt64 m_uiBytesAccessed = 0;
+    WUInt64 m_uiBytesAccessed = 0;
   };
 
-  using Event = ezEvent<const EventData&, ezMutex>;
+  using Event = WEvent<const EventData&, WMutex>;
 
   /// Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler) { s_FileEvents.AddEventHandler(handler); }
@@ -371,53 +371,53 @@ private:
 
   // *** Internal Functions that do the platform specific work ***
 
-  ezResult InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode);
+  WResult InternalOpen(WStringView sFile, WFileOpenMode::Enum OpenMode, WFileShareMode::Enum FileShareMode);
   void InternalClose();
-  ezResult InternalWrite(const void* pBuffer, ezUInt64 uiBytes);
-  ezUInt64 InternalRead(void* pBuffer, ezUInt64 uiBytes);
-  ezUInt64 InternalGetFilePosition() const;
-  void InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const;
+  WResult InternalWrite(const void* pBuffer, WUInt64 uiBytes);
+  WUInt64 InternalRead(void* pBuffer, WUInt64 uiBytes);
+  WUInt64 InternalGetFilePosition() const;
+  void InternalSetFilePosition(WInt64 iDistance, WFileSeekMode::Enum Pos) const;
 
-  static bool InternalExistsFile(ezStringView sFile);
-  static bool InternalExistsDirectory(ezStringView sDirectory);
-  static ezResult InternalDeleteFile(ezStringView sFile);
-  static ezResult InternalDeleteDirectory(ezStringView sDirectory);
-  static ezResult InternalCreateDirectory(ezStringView sFile);
-  static ezResult InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo);
+  static bool InternalExistsFile(WStringView sFile);
+  static bool InternalExistsDirectory(WStringView sDirectory);
+  static WResult InternalDeleteFile(WStringView sFile);
+  static WResult InternalDeleteDirectory(WStringView sDirectory);
+  static WResult InternalCreateDirectory(WStringView sFile);
+  static WResult InternalMoveFileOrDirectory(WStringView sDirectoryFrom, WStringView sDirectoryTo);
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  static ezResult InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats);
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
+  static WResult InternalGetFileStats(WStringView sFileOrFolder, WFileStats& out_Stats);
 #endif
 
   // *************************************************************
 
   /// Stores the mode with which the file was opened.
-  ezFileOpenMode::Enum m_FileMode;
+  WFileOpenMode::Enum m_FileMode;
 
-  /// [internal] On win32 when a file is already open, and this is true, ezOSFile will wait until the file becomes available
+  /// [internal] On win32 when a file is already open, and this is true, WOSFile will wait until the file becomes available
   bool m_bRetryOnSharingViolation = true;
 
   /// Stores the (cleaned up) filename that was used to open the file.
-  ezStringBuilder m_sFileName;
+  WStringBuilder m_sFileName;
 
-  /// Stores the value of s_FileCounter when the ezOSFile is created.
-  ezInt32 m_iFileID;
+  /// Stores the value of s_FileCounter when the WOSFile is created.
+  WInt32 m_iFileID;
 
   /// Platform specific data about the open file.
-  ezOSFileData m_FileData;
+  WOSFileData m_FileData;
 
   /// The application binary's path.
-  static ezString64 s_sApplicationPath;
+  static WString64 s_sApplicationPath;
 
   /// The path where user data is stored on this OS
-  static ezString64 s_sUserDataPath;
+  static WString64 s_sUserDataPath;
 
   /// The path where temp data is stored on this OS
-  static ezString64 s_sTempDataPath;
+  static WString64 s_sTempDataPath;
 
   /// The path where user data documents are stored on this OS
-  static ezString64 s_sUserDocumentsPath;
+  static WString64 s_sUserDocumentsPath;
 
   /// Counts how many different files are touched.225
-  static ezAtomicInteger32 s_iFileCounter;
+  static WAtomicInteger32 s_iFileCounter;
 };

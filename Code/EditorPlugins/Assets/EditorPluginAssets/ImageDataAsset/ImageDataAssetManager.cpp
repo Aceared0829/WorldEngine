@@ -7,39 +7,39 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezImageDataAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WImageDataAssetDocumentManager, 1, WRTTIDefaultAllocator<WImageDataAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
+WImageDataAssetDocumentManager::WImageDataAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Image Data";
-  m_DocTypeDesc.m_sFileExtension = "ezImageDataAsset";
+  m_DocTypeDesc.m_sFileExtension = "WImageDataAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.svg";
   m_DocTypeDesc.m_sAssetCategory = "Utilities";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezImageDataAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WImageDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinImageData";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinImageData";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoThumbnailOnTransform;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_2D");
 }
 
-ezImageDataAssetDocumentManager::~ezImageDataAssetDocumentManager()
+WImageDataAssetDocumentManager::~WImageDataAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WImageDataAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WImageDataAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezImageDataAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WImageDataAssetDocument>())
       {
-        new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtImageDataAssetDocumentWindow(static_cast<WImageDataAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -49,13 +49,13 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezImageDataAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WImageDataAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(sPath);
+  WImageDataAssetDocument* pDoc = new WImageDataAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 
-void ezImageDataAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WImageDataAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

@@ -7,59 +7,59 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_IMPLEMENT_SINGLETON(ezApplicationServices);
+W_IMPLEMENT_SINGLETON(WApplicationServices);
 
-static ezApplicationServices g_instance;
+static WApplicationServices g_instance;
 
-ezApplicationServices::ezApplicationServices()
+WApplicationServices::WApplicationServices()
   : m_SingletonRegistrar(this)
 {
 }
 
-ezString ezApplicationServices::GetApplicationUserDataFolder() const
+WString WApplicationServices::GetApplicationUserDataFolder() const
 {
-  ezStringBuilder path = ezOSFile::GetUserDataFolder();
-  path.AppendPath("ezEngine Project", ezApplication::GetApplicationInstance()->GetApplicationName());
+  WStringBuilder path = WOSFile::GetUserDataFolder();
+  path.AppendPath("WorldEngine Project", WApplication::GetApplicationInstance()->GetApplicationName());
   path.MakeCleanPath();
 
   return path;
 }
 
-ezString ezApplicationServices::GetApplicationDataFolder() const
+WString WApplicationServices::GetApplicationDataFolder() const
 {
-  ezStringBuilder sAppDir(">sdk/Data/Tools/", ezApplication::GetApplicationInstance()->GetApplicationName());
+  WStringBuilder sAppDir(">sdk/Data/Tools/", WApplication::GetApplicationInstance()->GetApplicationName());
 
-  ezStringBuilder result;
-  ezFileSystem::ResolveSpecialDirectory(sAppDir, result).IgnoreResult();
+  WStringBuilder result;
+  WFileSystem::ResolveSpecialDirectory(sAppDir, result).IgnoreResult();
   result.MakeCleanPath();
 
   return result;
 }
 
-ezString ezApplicationServices::GetApplicationPreferencesFolder() const
+WString WApplicationServices::GetApplicationPreferencesFolder() const
 {
   return GetApplicationUserDataFolder();
 }
 
-ezString ezApplicationServices::GetProjectPreferencesFolder() const
+WString WApplicationServices::GetProjectPreferencesFolder() const
 {
-  return GetProjectPreferencesFolder(ezToolsProject::GetSingleton()->GetProjectDirectory());
+  return GetProjectPreferencesFolder(WToolsProject::GetSingleton()->GetProjectDirectory());
 }
 
-ezString ezApplicationServices::GetProjectPreferencesFolder(ezStringView sProjectFilePath) const
+WString WApplicationServices::GetProjectPreferencesFolder(WStringView sProjectFilePath) const
 {
-  ezStringBuilder path = GetApplicationUserDataFolder();
+  WStringBuilder path = GetApplicationUserDataFolder();
 
-  sProjectFilePath.TrimWordEnd("ezProject");
-  sProjectFilePath.TrimWordEnd("ezRemoteProject");
+  sProjectFilePath.TrimWordEnd("WProject");
+  sProjectFilePath.TrimWordEnd("WRemoteProject");
   sProjectFilePath.Trim("/\\");
 
-  ezStringBuilder ProjectName = sProjectFilePath;
+  WStringBuilder ProjectName = sProjectFilePath;
 
-  ezStringBuilder ProjectPath = ProjectName;
+  WStringBuilder ProjectPath = ProjectName;
   ProjectPath.PathParentDirectory();
 
-  const ezUInt64 uiPathHash = ezHashingUtils::StringHash(ProjectPath.GetData());
+  const WUInt64 uiPathHash = WHashingUtils::StringHash(ProjectPath.GetData());
 
   ProjectName = ProjectName.GetFileName();
 
@@ -69,12 +69,12 @@ ezString ezApplicationServices::GetProjectPreferencesFolder(ezStringView sProjec
   return path;
 }
 
-ezString ezApplicationServices::GetDocumentPreferencesFolder(const ezDocument* pDocument) const
+WString WApplicationServices::GetDocumentPreferencesFolder(const WDocument* pDocument) const
 {
-  ezStringBuilder path = GetProjectPreferencesFolder();
+  WStringBuilder path = GetProjectPreferencesFolder();
 
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(pDocument->GetGuid(), sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(pDocument->GetGuid(), sGuid);
 
   path.AppendPath(sGuid);
 
@@ -82,30 +82,30 @@ ezString ezApplicationServices::GetDocumentPreferencesFolder(const ezDocument* p
   return path;
 }
 
-ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTools) const
+WString WApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTools) const
 {
   if (bUsePrecompiledTools)
   {
     // Don't derive this from the application directory through a fixed number of "../" hops -- that assumes
     // a specific output directory depth (e.g. the default "Output/Bin/<Config>") and breaks for custom
     // build layouts (e.g. a custom -WorkspaceDir with an extra output folder level). The SDK root is already
-    // known reliably (auto-detected by searching upwards for "ezSdkRoot.txt"), so anchor to that instead.
-    ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
+    // known reliably (auto-detected by searching upwards for "WSdkRoot.txt"), so anchor to that instead.
+    WFileSystem::DetectSdkRootDirectory().IgnoreResult();
 
-    ezStringBuilder sPath = ezFileSystem::GetSdkRootDirectory();
+    WStringBuilder sPath = WFileSystem::GetSdkRootDirectory();
     sPath.AppendPath("Data/Tools/Precompiled");
     sPath.MakeCleanPath();
     return sPath;
   }
 
-  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sPath = WOSFile::GetApplicationDirectory();
   sPath.MakeCleanPath();
   return sPath;
 }
 
-ezString ezApplicationServices::GetSampleProjectsFolder() const
+WString WApplicationServices::GetSampleProjectsFolder() const
 {
-  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sPath = WOSFile::GetApplicationDirectory();
 
   sPath.AppendPath("../../../Data/Samples");
 

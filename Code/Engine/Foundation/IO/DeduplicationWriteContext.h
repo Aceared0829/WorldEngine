@@ -9,37 +9,37 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezStreamWriter;
+class WStreamWriter;
 
 /// Serialization Context that de-duplicates objects when writing to a stream. Duplicated objects are identified by their address and
 /// only the first occurrence is written to the stream while all subsequence occurrences are just written as an index.
-class EZ_FOUNDATION_DLL ezDeduplicationWriteContext : public ezSerializationContext<ezDeduplicationWriteContext>
+class W_FOUNDATION_DLL WDeduplicationWriteContext : public WSerializationContext<WDeduplicationWriteContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezDeduplicationWriteContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WDeduplicationWriteContext);
 
 public:
-  ezDeduplicationWriteContext();
-  ~ezDeduplicationWriteContext();
+  WDeduplicationWriteContext();
+  ~WDeduplicationWriteContext();
 
   /// Writes a single object to the stream. Can be either a reference or a pointer to the object.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& inout_stream, const T& obj); // [tested]
+  WResult WriteObject(WStreamWriter& inout_stream, const T& obj); // [tested]
 
   /// Writes a single object to the stream.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& inout_stream, const ezSharedPtr<T>& pObject); // [tested]
+  WResult WriteObject(WStreamWriter& inout_stream, const WSharedPtr<T>& pObject); // [tested]
 
   /// Writes a single object to the stream.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& inout_stream, const ezUniquePtr<T>& pObject); // [tested]
+  WResult WriteObject(WStreamWriter& inout_stream, const WUniquePtr<T>& pObject); // [tested]
 
   /// Writes an array of de-duplicated objects.
   template <typename ArrayType, typename ValueType>
-  ezResult WriteArray(ezStreamWriter& inout_stream, const ezArrayBase<ValueType, ArrayType>& array); // [tested]
+  WResult WriteArray(WStreamWriter& inout_stream, const WArrayBase<ValueType, ArrayType>& array); // [tested]
 
   /// Writes a set of de-duplicated objects.
   template <typename KeyType, typename Comparer>
-  ezResult WriteSet(ezStreamWriter& inout_stream, const ezSetBase<KeyType, Comparer>& set); // [tested]
+  WResult WriteSet(WStreamWriter& inout_stream, const WSetBase<KeyType, Comparer>& set); // [tested]
 
   enum class WriteMapMode
   {
@@ -50,13 +50,13 @@ public:
 
   /// Writes a map. Mode controls whether key or value or both should de-duplicated.
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult WriteMap(ezStreamWriter& inout_stream, const ezMapBase<KeyType, ValueType, Comparer>& map, WriteMapMode mode); // [tested]
+  WResult WriteMap(WStreamWriter& inout_stream, const WMapBase<KeyType, ValueType, Comparer>& map, WriteMapMode mode); // [tested]
 
 private:
   template <typename T>
-  ezResult WriteObjectInternal(ezStreamWriter& stream, const T* pObject);
+  WResult WriteObjectInternal(WStreamWriter& stream, const T* pObject);
 
-  ezHashTable<const void*, ezUInt32> m_Objects;
+  WHashTable<const void*, WUInt32> m_Objects;
 };
 
 #include <Foundation/IO/Implementation/DeduplicationWriteContext_inl.h>

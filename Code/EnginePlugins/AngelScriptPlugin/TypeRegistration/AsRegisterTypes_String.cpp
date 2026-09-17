@@ -8,16 +8,16 @@
 #include <Core/World/World.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezStringBase
+// WStringBase
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 void RegisterStringBase(asIScriptEngine* pEngine, const char* szType)
 {
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool StartsWith(ezStringView) const", asMETHOD(T, StartsWith), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool StartsWith_NoCase(ezStringView) const", asMETHOD(T, StartsWith_NoCase), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool EndsWith(ezStringView) const", asMETHOD(T, EndsWith), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool EndsWith_NoCase(ezStringView) const", asMETHOD(T, EndsWith_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool StartsWith(WStringView) const", asMETHOD(T, StartsWith), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool StartsWith_NoCase(WStringView) const", asMETHOD(T, StartsWith_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool EndsWith(WStringView) const", asMETHOD(T, EndsWith), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool EndsWith_NoCase(WStringView) const", asMETHOD(T, EndsWith_NoCase), asCALL_THISCALL));
 
   // FindSubString
   // FindSubString_NoCase
@@ -26,25 +26,25 @@ void RegisterStringBase(asIScriptEngine* pEngine, const char* szType)
   // FindWholeWord
   // FindWholeWord_NoCase
 
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int Compare(ezStringView) const", asMETHOD(T, Compare), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int Compare_NoCase(ezStringView) const", asMETHOD(T, Compare_NoCase), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int CompareN(ezStringView, uint32) const", asMETHOD(T, CompareN), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int CompareN_NoCase(ezStringView, uint32) const", asMETHOD(T, CompareN_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int Compare(WStringView) const", asMETHOD(T, Compare), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int Compare_NoCase(WStringView) const", asMETHOD(T, Compare_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int CompareN(WStringView, uint32) const", asMETHOD(T, CompareN), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "int CompareN_NoCase(WStringView, uint32) const", asMETHOD(T, CompareN_NoCase), asCALL_THISCALL));
 
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "uint32 GetElementCount() const", asMETHOD(T, GetElementCount), asCALL_THISCALL));
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEmpty() const", asMETHOD(T, IsEmpty), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqual(ezStringView) const", asMETHOD(T, IsEqual), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqual_NoCase(ezStringView) const", asMETHOD(T, IsEqual_NoCase), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqualN(ezStringView, uint32) const", asMETHOD(T, IsEqualN), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqualN_NoCase(ezStringView, uint32) const", asMETHOD(T, IsEqualN_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqual(WStringView) const", asMETHOD(T, IsEqual), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqual_NoCase(WStringView) const", asMETHOD(T, IsEqual_NoCase), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqualN(WStringView, uint32) const", asMETHOD(T, IsEqualN), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsEqualN_NoCase(WStringView, uint32) const", asMETHOD(T, IsEqualN_NoCase), asCALL_THISCALL));
 
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool HasAnyExtension() const", asMETHOD(T, HasAnyExtension), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool HasExtension(ezStringView) const", asMETHOD(T, HasExtension), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool HasExtension(WStringView) const", asMETHOD(T, HasExtension), asCALL_THISCALL));
 
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "ezStringView GetFileExtension(bool full = false) const", asMETHOD(T, GetFileExtension), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "ezStringView GetFileName() const", asMETHOD(T, GetFileName), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "ezStringView GetFileNameAndExtension() const", asMETHOD(T, GetFileNameAndExtension), asCALL_THISCALL));
-  AS_CHECK(pEngine->RegisterObjectMethod(szType, "ezStringView GetFileDirectory() const", asMETHOD(T, GetFileDirectory), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "WStringView GetFileExtension(bool full = false) const", asMETHOD(T, GetFileExtension), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "WStringView GetFileName() const", asMETHOD(T, GetFileName), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "WStringView GetFileNameAndExtension() const", asMETHOD(T, GetFileNameAndExtension), asCALL_THISCALL));
+  AS_CHECK(pEngine->RegisterObjectMethod(szType, "WStringView GetFileDirectory() const", asMETHOD(T, GetFileDirectory), asCALL_THISCALL));
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsAbsolutePath() const", asMETHOD(T, IsAbsolutePath), asCALL_THISCALL));
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsRelativePath() const", asMETHOD(T, IsRelativePath), asCALL_THISCALL));
   AS_CHECK(pEngine->RegisterObjectMethod(szType, "bool IsRootedPath() const", asMETHOD(T, IsRootedPath), asCALL_THISCALL));
@@ -52,10 +52,10 @@ void RegisterStringBase(asIScriptEngine* pEngine, const char* szType)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezStringView
+// WStringView
 //////////////////////////////////////////////////////////////////////////
 
-static int ezStringView_opCmp(ezStringView* lhs, const ezStringView& rhs)
+static int WStringView_opCmp(WStringView* lhs, const WStringView& rhs)
 {
   if (*lhs < rhs)
     return -1;
@@ -65,128 +65,128 @@ static int ezStringView_opCmp(ezStringView* lhs, const ezStringView& rhs)
   return 0;
 }
 
-static void ezStringView_Construct(void* pMemory)
+static void WStringView_Construct(void* pMemory)
 {
-  new (pMemory) ezStringView();
+  new (pMemory) WStringView();
 }
 
-static void ezStringView_ConstructView(void* pMemory, const ezStringView rhs)
+static void WStringView_ConstructView(void* pMemory, const WStringView rhs)
 {
-  new (pMemory) ezStringView(rhs);
+  new (pMemory) WStringView(rhs);
 }
 
-static void ezStringView_ConstructString(void* pMemory, const ezString& rhs)
+static void WStringView_ConstructString(void* pMemory, const WString& rhs)
 {
-  const ezString& str = ezAsStringFactory::GetFactory()->StoreString(rhs);
+  const WString& str = WAsStringFactory::GetFactory()->StoreString(rhs);
 
-  new (pMemory) ezStringView(str);
+  new (pMemory) WStringView(str);
 }
 
-static void ezStringView_opAssignString(ezStringView* lhs, const ezString& rhs)
+static void WStringView_opAssignString(WStringView* lhs, const WString& rhs)
 {
-  const ezString& str = ezAsStringFactory::GetFactory()->StoreString(rhs);
+  const WString& str = WAsStringFactory::GetFactory()->StoreString(rhs);
 
   *lhs = str;
 }
 
-static void ezStringView_ConstructStringBuilder(void* pMemory, const ezStringBuilder& rhs)
+static void WStringView_ConstructStringBuilder(void* pMemory, const WStringBuilder& rhs)
 {
-  const ezString& str = ezAsStringFactory::GetFactory()->StoreString(rhs);
+  const WString& str = WAsStringFactory::GetFactory()->StoreString(rhs);
 
-  new (pMemory) ezStringView(str);
+  new (pMemory) WStringView(str);
 }
 
-static void ezStringView_opAssignStringBuilder(ezStringView* lhs, const ezStringBuilder& rhs)
+static void WStringView_opAssignStringBuilder(WStringView* lhs, const WStringBuilder& rhs)
 {
-  const ezString& str = ezAsStringFactory::GetFactory()->StoreString(rhs);
+  const WString& str = WAsStringFactory::GetFactory()->StoreString(rhs);
 
   *lhs = str;
 }
 
-static void ezStringView_ConstructHS(void* pMemory, const ezHashedString& rhs)
+static void WStringView_ConstructHS(void* pMemory, const WHashedString& rhs)
 {
-  const ezString& str = rhs.GetString();
+  const WString& str = rhs.GetString();
 
-  new (pMemory) ezStringView(str);
+  new (pMemory) WStringView(str);
 }
 
-static void ezStringView_opAssignHS(ezStringView* lhs, const ezHashedString& rhs)
+static void WStringView_opAssignHS(WStringView* lhs, const WHashedString& rhs)
 {
-  const ezString& str = rhs.GetString();
+  const WString& str = rhs.GetString();
 
   *lhs = str;
 }
 
-static bool ezStringView_opEqual(ezStringView* lhs, const ezStringView& rhs)
+static bool WStringView_opEqual(WStringView* lhs, const WStringView& rhs)
 {
   return *lhs == rhs;
 }
 
-void ezAngelScriptEngineSingleton::Register_StringView()
+void WAngelScriptEngineSingleton::Register_StringView()
 {
-  RegisterStringBase<ezStringView>(m_pEngine, "ezStringView");
+  RegisterStringBase<WStringView>(m_pEngine, "WStringView");
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack)", asMETHOD(ezStringView, Shrink), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const", asMETHOD(ezStringView, GetShrunk), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "ezStringView GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const", asMETHOD(ezStringView, GetSubString), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void ChopAwayFirstCharacterUtf8()", asMETHOD(ezStringView, ChopAwayFirstCharacterUtf8), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void ChopAwayFirstCharacterAscii()", asMETHOD(ezStringView, ChopAwayFirstCharacterAscii), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void Shrink(WUInt32 uiShrinkCharsFront, WUInt32 uiShrinkCharsBack)", asMETHOD(WStringView, Shrink), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "WStringView GetShrunk(WUInt32 uiShrinkCharsFront, WUInt32 uiShrinkCharsBack = 0) const", asMETHOD(WStringView, GetShrunk), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "WStringView GetSubString(WUInt32 uiFirstCharacter, WUInt32 uiNumCharacters) const", asMETHOD(WStringView, GetSubString), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void ChopAwayFirstCharacterUtf8()", asMETHOD(WStringView, ChopAwayFirstCharacterUtf8), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void ChopAwayFirstCharacterAscii()", asMETHOD(WStringView, ChopAwayFirstCharacterAscii), asCALL_THISCALL));
   // Trim
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool TrimWordStart(ezStringView sWord)", asMETHOD(ezStringView, TrimWordStart), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool TrimWordEnd(ezStringView sWord)", asMETHOD(ezStringView, TrimWordEnd), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "bool TrimWordStart(WStringView sWord)", asMETHOD(WStringView, TrimWordStart), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "bool TrimWordEnd(WStringView sWord)", asMETHOD(WStringView, TrimWordEnd), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool opEquals(const ezStringView& in) const", asFUNCTIONPR(ezStringView_opEqual, (ezStringView*, const ezStringView&), bool), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "int opCmp(const ezStringView& in) const", asFUNCTIONPR(ezStringView_opCmp, (ezStringView*, const ezStringView&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "bool opEquals(const WStringView& in) const", asFUNCTIONPR(WStringView_opEqual, (WStringView*, const WStringView&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "int opCmp(const WStringView& in) const", asFUNCTIONPR(WStringView_opCmp, (WStringView*, const WStringView&), int), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezStringView_Construct), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezStringView)", asFUNCTION(ezStringView_ConstructView), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezString& in)", asFUNCTION(ezStringView_ConstructString), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezStringView_ConstructHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringView", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(WStringView_Construct), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringView", asBEHAVE_CONSTRUCT, "void f(const WStringView)", asFUNCTION(WStringView_ConstructView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringView", asBEHAVE_CONSTRUCT, "void f(const WString& in)", asFUNCTION(WStringView_ConstructString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringView", asBEHAVE_CONSTRUCT, "void f(const WHashedString& in)", asFUNCTION(WStringView_ConstructHS), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezString& in)", asFUNCTION(ezStringView_opAssignString), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezHashedString& in)", asFUNCTION(ezStringView_opAssignHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void opAssign(const WString& in)", asFUNCTION(WStringView_opAssignString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void opAssign(const WHashedString& in)", asFUNCTION(WStringView_opAssignHS), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezStringBuilder& in)", asFUNCTION(ezStringView_ConstructStringBuilder), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezStringBuilder& in)", asFUNCTION(ezStringView_opAssignStringBuilder), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringView", asBEHAVE_CONSTRUCT, "void f(const WStringBuilder& in)", asFUNCTION(WStringView_ConstructStringBuilder), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WStringView", "void opAssign(const WStringBuilder& in)", asFUNCTION(WStringView_opAssignStringBuilder), asCALL_CDECL_OBJFIRST));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezString
+// WString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezString_Construct(void* pMemory)
+static void WString_Construct(void* pMemory)
 {
-  new (pMemory) ezString();
+  new (pMemory) WString();
 }
 
-static void ezString_Destruct(void* pMemory)
+static void WString_Destruct(void* pMemory)
 {
-  ezString* p = (ezString*)pMemory;
-  p->~ezString();
+  WString* p = (WString*)pMemory;
+  p->~WString();
 }
 
-static void ezString_ConstructView(void* pMemory, ezStringView rhs)
+static void WString_ConstructView(void* pMemory, WStringView rhs)
 {
-  new (pMemory) ezString(rhs);
+  new (pMemory) WString(rhs);
 }
 
-static void ezString_ConstructString(void* pMemory, const ezString& rhs)
+static void WString_ConstructString(void* pMemory, const WString& rhs)
 {
-  new (pMemory) ezString(rhs);
+  new (pMemory) WString(rhs);
 }
 
-static void ezString_ConstructStringBuilder(void* pMemory, const ezStringBuilder& rhs)
+static void WString_ConstructStringBuilder(void* pMemory, const WStringBuilder& rhs)
 {
-  new (pMemory) ezString(rhs);
+  new (pMemory) WString(rhs);
 }
 
-static void ezString_ConstructHS(void* pMemory, const ezHashedString& rhs)
+static void WString_ConstructHS(void* pMemory, const WHashedString& rhs)
 {
-  new (pMemory) ezString(rhs.GetView());
+  new (pMemory) WString(rhs.GetView());
 }
 
-static int ezString_opCmp(const ezString& lhs, const ezString& rhs)
+static int WString_opCmp(const WString& lhs, const WString& rhs)
 {
   if (lhs < rhs)
     return -1;
@@ -196,108 +196,108 @@ static int ezString_opCmp(const ezString& lhs, const ezString& rhs)
   return 0;
 }
 
-static void ezString_opAssignString(ezString* lhs, const ezString& rhs)
+static void WString_opAssignString(WString* lhs, const WString& rhs)
 {
   *lhs = rhs;
 }
 
-static void ezString_opAssignStringView(ezString* lhs, ezStringView rhs)
+static void WString_opAssignStringView(WString* lhs, WStringView rhs)
 {
   *lhs = rhs;
 }
 
-static void ezString_opAssignStringBuilder(ezString* lhs, const ezStringBuilder& rhs)
+static void WString_opAssignStringBuilder(WString* lhs, const WStringBuilder& rhs)
 {
   *lhs = rhs;
 }
 
-static void ezString_opAssignHS(ezString* lhs, const ezHashedString& rhs)
+static void WString_opAssignHS(WString* lhs, const WHashedString& rhs)
 {
   *lhs = rhs.GetView();
 }
 
-void ezAngelScriptEngineSingleton::Register_String()
+void WAngelScriptEngineSingleton::Register_String()
 {
-  RegisterStringBase<ezString>(m_pEngine, "ezString");
+  RegisterStringBase<WString>(m_pEngine, "WString");
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "ezStringView GetView() const", asMETHOD(ezString, GetView), asCALL_THISCALL));
-  // AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "uint32 GetCharacterCount() const", asMETHOD(ezString, GetCharacterCount), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "WStringView GetView() const", asMETHOD(WString, GetView), asCALL_THISCALL));
+  // AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "uint32 GetCharacterCount() const", asMETHOD(WString, GetCharacterCount), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "int opCmp(const ezString& in) const", asFUNCTIONPR(ezString_opCmp, (const ezString&, const ezString&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "int opCmp(const WString& in) const", asFUNCTIONPR(WString_opCmp, (const WString&, const WString&), int), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezString_Construct), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ezString_Destruct), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(WString_Construct), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(WString_Destruct), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f(const ezStringView)", asFUNCTION(ezString_ConstructView), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void opAssign(const ezStringView)", asFUNCTION(ezString_opAssignStringView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_CONSTRUCT, "void f(const WStringView)", asFUNCTION(WString_ConstructView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "void opAssign(const WStringView)", asFUNCTION(WString_opAssignStringView), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f(const ezString& in)", asFUNCTION(ezString_ConstructString), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void opAssign(const ezString& in)", asFUNCTION(ezString_opAssignString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_CONSTRUCT, "void f(const WString& in)", asFUNCTION(WString_ConstructString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "void opAssign(const WString& in)", asFUNCTION(WString_opAssignString), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f(const ezStringBuilder& in)", asFUNCTION(ezString_ConstructStringBuilder), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void opAssign(const ezStringBuilder& in)", asFUNCTION(ezString_opAssignStringBuilder), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_CONSTRUCT, "void f(const WStringBuilder& in)", asFUNCTION(WString_ConstructStringBuilder), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "void opAssign(const WStringBuilder& in)", asFUNCTION(WString_opAssignStringBuilder), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezString_ConstructHS), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void opAssign(const ezHashedString& in)", asFUNCTION(ezString_opAssignHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WString", asBEHAVE_CONSTRUCT, "void f(const WHashedString& in)", asFUNCTION(WString_ConstructHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "void opAssign(const WHashedString& in)", asFUNCTION(WString_opAssignHS), asCALL_CDECL_OBJFIRST));
 
   // Methods
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void Clear()", asMETHOD(ezString, Clear), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WString", "void Clear()", asMETHOD(WString, Clear), asCALL_THISCALL));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezStringBuilder
+// WStringBuilder
 //////////////////////////////////////////////////////////////////////////
 
-static void ezStringBuilder_Construct(void* pMemory)
+static void WStringBuilder_Construct(void* pMemory)
 {
-  new (pMemory) ezStringBuilder();
+  new (pMemory) WStringBuilder();
 }
 
-static void ezStringBuilder_ConstructSV1(void* pMemory, const ezStringView sView)
+static void WStringBuilder_ConstructSV1(void* pMemory, const WStringView sView)
 {
-  new (pMemory) ezStringBuilder(sView);
+  new (pMemory) WStringBuilder(sView);
 }
 
-static void ezStringBuilder_ConstructSV2(void* pMemory, const ezStringView& sV1, const ezStringView& sV2)
+static void WStringBuilder_ConstructSV2(void* pMemory, const WStringView& sV1, const WStringView& sV2)
 {
-  new (pMemory) ezStringBuilder(sV1, sV2);
+  new (pMemory) WStringBuilder(sV1, sV2);
 }
 
-static void ezStringBuilder_ConstructSV3(void* pMemory, const ezStringView& sV1, const ezStringView& sV2, const ezStringView& sV3)
+static void WStringBuilder_ConstructSV3(void* pMemory, const WStringView& sV1, const WStringView& sV2, const WStringView& sV3)
 {
-  new (pMemory) ezStringBuilder(sV1, sV2, sV3);
+  new (pMemory) WStringBuilder(sV1, sV2, sV3);
 }
 
-static void ezStringBuilder_ConstructSV4(void* pMemory, const ezStringView& sV1, const ezStringView& sV2, const ezStringView& sV3, const ezStringView& sV4)
+static void WStringBuilder_ConstructSV4(void* pMemory, const WStringView& sV1, const WStringView& sV2, const WStringView& sV3, const WStringView& sV4)
 {
-  new (pMemory) ezStringBuilder(sV1, sV2, sV3, sV4);
+  new (pMemory) WStringBuilder(sV1, sV2, sV3, sV4);
 }
 
-static void ezStringBuilder_Destruct(void* pMemory)
+static void WStringBuilder_Destruct(void* pMemory)
 {
-  ezStringBuilder* p = (ezStringBuilder*)pMemory;
-  p->~ezStringBuilder();
+  WStringBuilder* p = (WStringBuilder*)pMemory;
+  p->~WStringBuilder();
 }
 
-static void ezStringBuilder_Format(ezStringBuilder& ref_sStr, asIScriptGeneric* pGen)
+static void WStringBuilder_Format(WStringBuilder& ref_sStr, asIScriptGeneric* pGen)
 {
-  const ezUInt32 uiNumArgs = (ezUInt32)pGen->GetArgCount();
-  const ezStringView sText = *((ezStringView*)pGen->GetArgObject(0));
+  const WUInt32 uiNumArgs = (WUInt32)pGen->GetArgCount();
+  const WStringView sText = *((WStringView*)pGen->GetArgObject(0));
 
-  ezTempHybridArray<ezString, 12> stringStorage;
-  ezTempHybridArray<ezStringView, 12> stringViews;
+  WTempHybridArray<WString, 12> stringStorage;
+  WTempHybridArray<WStringView, 12> stringViews;
   stringStorage.Reserve(pGen->GetArgCount() - 1);
 
-  ezVariant res;
-  for (ezUInt32 uiArg = 1; uiArg < uiNumArgs; ++uiArg)
+  WVariant res;
+  for (WUInt32 uiArg = 1; uiArg < uiNumArgs; ++uiArg)
   {
     auto argTypeId = pGen->GetArgTypeId(uiArg);
 
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(uiArg), res).Succeeded())
+    if (WAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(uiArg), res).Succeeded())
     {
-      stringStorage.PushBack(res.ConvertTo<ezString>());
+      stringStorage.PushBack(res.ConvertTo<WString>());
       continue;
     }
 
@@ -307,7 +307,7 @@ static void ezStringBuilder_Format(ezStringBuilder& ref_sStr, asIScriptGeneric* 
       typeName = pInfo->GetName();
     }
 
-    ezLog::Error("Call to 'ezStringBuilder::SetFormat': Argument {} got an unsupported type '{}' ({})", uiArg, typeName, argTypeId);
+    WLog::Error("Call to 'WStringBuilder::SetFormat': Argument {} got an unsupported type '{}' ({})", uiArg, typeName, argTypeId);
     break;
   }
 
@@ -317,244 +317,244 @@ static void ezStringBuilder_Format(ezStringBuilder& ref_sStr, asIScriptGeneric* 
     stringViews.PushBack(s);
   }
 
-  ezFormatString fs(sText);
+  WFormatString fs(sText);
   fs.BuildFormattedText(ref_sStr, stringViews.GetData(), stringViews.GetCount());
 }
 
-static void ezStringBuilder_SetFormat(asIScriptGeneric* pGen)
+static void WStringBuilder_SetFormat(asIScriptGeneric* pGen)
 {
-  ezStringBuilder& sb = *((ezStringBuilder*)pGen->GetObject());
+  WStringBuilder& sb = *((WStringBuilder*)pGen->GetObject());
   sb.Clear();
 
-  ezStringBuilder_Format(sb, pGen);
+  WStringBuilder_Format(sb, pGen);
 }
 
-static void ezStringBuilder_AppendFormat(asIScriptGeneric* pGen)
+static void WStringBuilder_AppendFormat(asIScriptGeneric* pGen)
 {
-  ezStringBuilder& sb = *((ezStringBuilder*)pGen->GetObject());
+  WStringBuilder& sb = *((WStringBuilder*)pGen->GetObject());
 
-  ezStringBuilder tmp;
-  ezStringBuilder_Format(tmp, pGen);
+  WStringBuilder tmp;
+  WStringBuilder_Format(tmp, pGen);
   sb.Append(tmp);
 }
 
-static void ezStringBuilder_PrependFormat(asIScriptGeneric* pGen)
+static void WStringBuilder_PrependFormat(asIScriptGeneric* pGen)
 {
-  ezStringBuilder& sb = *((ezStringBuilder*)pGen->GetObject());
+  WStringBuilder& sb = *((WStringBuilder*)pGen->GetObject());
 
-  ezStringBuilder tmp;
-  ezStringBuilder_Format(tmp, pGen);
+  WStringBuilder tmp;
+  WStringBuilder_Format(tmp, pGen);
   sb.Prepend(tmp);
 }
 
-void ezAngelScriptEngineSingleton::Register_StringBuilder()
+void WAngelScriptEngineSingleton::Register_StringBuilder()
 {
-  RegisterStringBase<ezStringBuilder>(m_pEngine, "ezStringBuilder");
+  RegisterStringBase<WStringBuilder>(m_pEngine, "WStringBuilder");
 
   // Constructors
   {
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ezStringBuilder_Destruct), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(WStringBuilder_Destruct), asCALL_CDECL_OBJFIRST));
 
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezStringBuilder_Construct), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_CONSTRUCT, "void f(const ezStringView s1)", asFUNCTION(ezStringBuilder_ConstructSV1), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_CONSTRUCT, "void f(const ezStringView& in, const ezStringView& in)", asFUNCTION(ezStringBuilder_ConstructSV2), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_CONSTRUCT, "void f(const ezStringView& in, const ezStringView& in, const ezStringView& in)", asFUNCTION(ezStringBuilder_ConstructSV3), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringBuilder", asBEHAVE_CONSTRUCT, "void f(const ezStringView& in, const ezStringView& in, const ezStringView& in, const ezStringView& in)", asFUNCTION(ezStringBuilder_ConstructSV4), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(WStringBuilder_Construct), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_CONSTRUCT, "void f(const WStringView s1)", asFUNCTION(WStringBuilder_ConstructSV1), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_CONSTRUCT, "void f(const WStringView& in, const WStringView& in)", asFUNCTION(WStringBuilder_ConstructSV2), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_CONSTRUCT, "void f(const WStringView& in, const WStringView& in, const WStringView& in)", asFUNCTION(WStringBuilder_ConstructSV3), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectBehaviour("WStringBuilder", asBEHAVE_CONSTRUCT, "void f(const WStringView& in, const WStringView& in, const WStringView& in, const WStringView& in)", asFUNCTION(WStringBuilder_ConstructSV4), asCALL_CDECL_OBJFIRST));
   }
 
   // Operators
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void opAssign(const ezStringBuilder& in rhs)", asMETHODPR(ezStringBuilder, operator=, (const ezStringBuilder&), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void opAssign(ezStringView rhs)", asMETHODPR(ezStringBuilder, operator=, (ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void opAssign(const ezString& in rhs)", asMETHODPR(ezStringBuilder, operator=, (const ezString&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void opAssign(const WStringBuilder& in rhs)", asMETHODPR(WStringBuilder, operator=, (const WStringBuilder&), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void opAssign(WStringView rhs)", asMETHODPR(WStringBuilder, operator=, (WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void opAssign(const WString& in rhs)", asMETHODPR(WStringBuilder, operator=, (const WString&), void), asCALL_THISCALL));
   }
 
   // Methods
   {
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "ezStringView GetView() const", asMETHOD(ezStringBuilder, GetView), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "WStringView GetView() const", asMETHOD(WStringBuilder, GetView), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Clear()", asMETHOD(ezStringBuilder, Clear), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "ezUInt32 GetCharacterCount() const", asMETHOD(ezStringBuilder, GetCharacterCount), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Clear()", asMETHOD(WStringBuilder, Clear), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "WUInt32 GetCharacterCount() const", asMETHOD(WStringBuilder, GetCharacterCount), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void ToUpper()", asMETHOD(ezStringBuilder, ToUpper), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void ToLower()", asMETHOD(ezStringBuilder, ToLower), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void ToUpper()", asMETHOD(WStringBuilder, ToUpper), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void ToLower()", asMETHOD(WStringBuilder, ToLower), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Set(ezStringView sData1)", asMETHODPR(ezStringBuilder, Set, (ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Set(ezStringView sData1, ezStringView sData2)", asMETHODPR(ezStringBuilder, Set, (ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3)", asMETHODPR(ezStringBuilder, Set, (ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)", asMETHODPR(ezStringBuilder, Set, (ezStringView, ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = \"\")", asMETHODPR(ezStringBuilder, Set, (ezStringView, ezStringView, ezStringView, ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Set(WStringView sData1)", asMETHODPR(WStringBuilder, Set, (WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Set(WStringView sData1, WStringView sData2)", asMETHODPR(WStringBuilder, Set, (WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Set(WStringView sData1, WStringView sData2, WStringView sData3)", asMETHODPR(WStringBuilder, Set, (WStringView, WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Set(WStringView sData1, WStringView sData2, WStringView sData3, WStringView sData4)", asMETHODPR(WStringBuilder, Set, (WStringView, WStringView, WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Set(WStringView sData1, WStringView sData2, WStringView sData3, WStringView sData4, WStringView sData5, WStringView sData6 = \"\")", asMETHODPR(WStringBuilder, Set, (WStringView, WStringView, WStringView, WStringView, WStringView, WStringView), void), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3 = \"\", ezStringView sData4 = \"\")", asMETHOD(ezStringBuilder, SetPath), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetPath(WStringView sData1, WStringView sData2, WStringView sData3 = \"\", WStringView sData4 = \"\")", asMETHOD(WStringBuilder, SetPath), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Append(ezStringView sData1)", asMETHODPR(ezStringBuilder, Append, (ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Append(ezStringView sData1, ezStringView sData2)", asMETHODPR(ezStringBuilder, Append, (ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3)", asMETHODPR(ezStringBuilder, Append, (ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)", asMETHODPR(ezStringBuilder, Append, (ezStringView, ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = \"\")", asMETHODPR(ezStringBuilder, Append, (ezStringView, ezStringView, ezStringView, ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Append(WStringView sData1)", asMETHODPR(WStringBuilder, Append, (WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Append(WStringView sData1, WStringView sData2)", asMETHODPR(WStringBuilder, Append, (WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Append(WStringView sData1, WStringView sData2, WStringView sData3)", asMETHODPR(WStringBuilder, Append, (WStringView, WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Append(WStringView sData1, WStringView sData2, WStringView sData3, WStringView sData4)", asMETHODPR(WStringBuilder, Append, (WStringView, WStringView, WStringView, WStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Append(WStringView sData1, WStringView sData2, WStringView sData3, WStringView sData4, WStringView sData5, WStringView sData6 = \"\")", asMETHODPR(WStringBuilder, Append, (WStringView, WStringView, WStringView, WStringView, WStringView, WStringView), void), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Prepend(ezStringView sData1, ezStringView sData2 = \"\", ezStringView sData3 = \"\", ezStringView sData4 = \"\", ezStringView sData5 = \"\", ezStringView sData6 = \"\")", asMETHODPR(ezStringBuilder, Prepend, (ezStringView, ezStringView, ezStringView, ezStringView, ezStringView, ezStringView), void), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Prepend(WStringView sData1, WStringView sData2 = \"\", WStringView sData3 = \"\", WStringView sData4 = \"\", WStringView sData5 = \"\", WStringView sData6 = \"\")", asMETHODPR(WStringBuilder, Prepend, (WStringView, WStringView, WStringView, WStringView, WStringView, WStringView), void), asCALL_THISCALL));
 
     // SetFormat
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(ezStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void SetFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(WStringBuilder_SetFormat), asCALL_GENERIC));
 
     // AppendFormat
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(ezStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(WStringBuilder_AppendFormat), asCALL_GENERIC));
 
     // PrependFormat
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(ezStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PrependFormat(WStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)", asFUNCTION(WStringBuilder_PrependFormat), asCALL_GENERIC));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack)", asMETHOD(ezStringBuilder, Shrink), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void Reserve(ezUInt32 uiNumElements)", asMETHOD(ezStringBuilder, Reserve), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Shrink(WUInt32 uiShrinkCharsFront, WUInt32 uiShrinkCharsBack)", asMETHOD(WStringBuilder, Shrink), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void Reserve(WUInt32 uiNumElements)", asMETHOD(WStringBuilder, Reserve), asCALL_THISCALL));
 
-    // TODO AngelScript: ezStringBuilder::ReplaceFirst
-    // TODO AngelScript: ezStringBuilder::ReplaceLast
+    // TODO AngelScript: WStringBuilder::ReplaceFirst
+    // TODO AngelScript: WStringBuilder::ReplaceLast
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "ezUInt32 ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement)", asMETHOD(ezStringBuilder, ReplaceAll), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "ezUInt32 ReplaceAll_NoCase(ezStringView sSearchFor, ezStringView sReplacement)", asMETHOD(ezStringBuilder, ReplaceAll_NoCase), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "WUInt32 ReplaceAll(WStringView sSearchFor, WStringView sReplacement)", asMETHOD(WStringBuilder, ReplaceAll), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "WUInt32 ReplaceAll_NoCase(WStringView sSearchFor, WStringView sReplacement)", asMETHOD(WStringBuilder, ReplaceAll_NoCase), asCALL_THISCALL));
 
-    // TODO AngelScript: ezStringBuilder::ReplaceWholeWord
-    // TODO AngelScript: ezStringBuilder::ReplaceWholeWordAll
+    // TODO AngelScript: WStringBuilder::ReplaceWholeWord
+    // TODO AngelScript: WStringBuilder::ReplaceWholeWordAll
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void MakeCleanPath()", asMETHOD(ezStringBuilder, MakeCleanPath), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void PathParentDirectory(ezUInt32 uiLevelsUp = 1)", asMETHOD(ezStringBuilder, PathParentDirectory), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendPath(ezStringView sPath1, ezStringView sPath2 = \"\", ezStringView sPath3 = \"\", ezStringView sPath4 = \"\")", asMETHOD(ezStringBuilder, AppendPath), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void MakeCleanPath()", asMETHOD(WStringBuilder, MakeCleanPath), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void PathParentDirectory(WUInt32 uiLevelsUp = 1)", asMETHOD(WStringBuilder, PathParentDirectory), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendPath(WStringView sPath1, WStringView sPath2 = \"\", WStringView sPath3 = \"\", WStringView sPath4 = \"\")", asMETHOD(WStringBuilder, AppendPath), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void AppendWithSeparator(ezStringView sSeparator, ezStringView sData1, ezStringView sData2 = \"\", ezStringView sData3 = \"\", ezStringView sData4 = \"\", ezStringView sData5 = \"\", ezStringView sData6 = \"\")", asMETHOD(ezStringBuilder, AppendWithSeparator), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void AppendWithSeparator(WStringView sSeparator, WStringView sData1, WStringView sData2 = \"\", WStringView sData3 = \"\", WStringView sData4 = \"\", WStringView sData5 = \"\", WStringView sData6 = \"\")", asMETHOD(WStringBuilder, AppendWithSeparator), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void ChangeFileName(ezStringView sNewFileName)", asMETHOD(ezStringBuilder, ChangeFileName), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void ChangeFileNameAndExtension(ezStringView sNewFileNameWithExtension)", asMETHOD(ezStringBuilder, ChangeFileNameAndExtension), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void ChangeFileName(WStringView sNewFileName)", asMETHOD(WStringBuilder, ChangeFileName), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void ChangeFileNameAndExtension(WStringView sNewFileNameWithExtension)", asMETHOD(WStringBuilder, ChangeFileNameAndExtension), asCALL_THISCALL));
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension = false)", asMETHOD(ezStringBuilder, ChangeFileExtension), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "void RemoveFileExtension(bool bFullExtension = false)", asMETHOD(ezStringBuilder, RemoveFileExtension), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void ChangeFileExtension(WStringView sNewExtension, bool bFullExtension = false)", asMETHOD(WStringBuilder, ChangeFileExtension), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "void RemoveFileExtension(bool bFullExtension = false)", asMETHOD(WStringBuilder, RemoveFileExtension), asCALL_THISCALL));
 
-    // TODO AngelScript: ezStringBuilder::MakeRelativeTo
+    // TODO AngelScript: WStringBuilder::MakeRelativeTo
 
     // bool IsPathBelowFolder(const char* szPathToFolder)
     // void Trim(const char* szTrimChars = " \f\n\r\t\v")
     // TrimLeft, TrimRight
 
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "bool TrimWordStart(ezStringView sWord)", asMETHOD(ezStringBuilder, TrimWordStart), asCALL_THISCALL));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringBuilder", "bool TrimWordEnd(ezStringView sWord)", asMETHOD(ezStringBuilder, TrimWordEnd), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "bool TrimWordStart(WStringView sWord)", asMETHOD(WStringBuilder, TrimWordStart), asCALL_THISCALL));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("WStringBuilder", "bool TrimWordEnd(WStringView sWord)", asMETHOD(WStringBuilder, TrimWordEnd), asCALL_THISCALL));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezTempHashedString
+// WTempHashedString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezTempHashedString_Construct(void* pMemory)
+static void WTempHashedString_Construct(void* pMemory)
 {
-  new (pMemory) ezTempHashedString();
+  new (pMemory) WTempHashedString();
 }
 
-static void ezTempHashedString_ConstructView(void* pMemory, ezStringView sView)
+static void WTempHashedString_ConstructView(void* pMemory, WStringView sView)
 {
-  new (pMemory) ezTempHashedString(sView);
+  new (pMemory) WTempHashedString(sView);
 }
 
-static void ezTempHashedString_ConstructTempHashed(void* pMemory, const ezTempHashedString& sString)
+static void WTempHashedString_ConstructTempHashed(void* pMemory, const WTempHashedString& sString)
 {
-  new (pMemory) ezTempHashedString(sString);
+  new (pMemory) WTempHashedString(sString);
 }
 
-static void ezTempHashedString_ConstructHS(void* pMemory, const ezHashedString& sString)
+static void WTempHashedString_ConstructHS(void* pMemory, const WHashedString& sString)
 {
-  new (pMemory) ezTempHashedString(sString);
+  new (pMemory) WTempHashedString(sString);
 }
 
-static void ezTempHashedString_AssignStringView(ezTempHashedString* pStr, ezStringView sView)
+static void WTempHashedString_AssignStringView(WTempHashedString* pStr, WStringView sView)
 {
   *pStr = sView;
 }
 
-static void ezTempHashedString_AssignHS(ezTempHashedString* pStr, const ezHashedString& sString)
+static void WTempHashedString_AssignHS(WTempHashedString* pStr, const WHashedString& sString)
 {
   *pStr = sString;
 }
 
-void ezAngelScriptEngineSingleton::Register_TempHashedString()
+void WAngelScriptEngineSingleton::Register_TempHashedString()
 {
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTempHashedString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezTempHashedString_Construct), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTempHashedString", asBEHAVE_CONSTRUCT, "void f(const ezTempHashedString& in)", asFUNCTION(ezTempHashedString_ConstructTempHashed), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTempHashedString", asBEHAVE_CONSTRUCT, "void f(const ezStringView)", asFUNCTION(ezTempHashedString_ConstructView), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTempHashedString", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezTempHashedString_ConstructHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WTempHashedString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(WTempHashedString_Construct), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WTempHashedString", asBEHAVE_CONSTRUCT, "void f(const WTempHashedString& in)", asFUNCTION(WTempHashedString_ConstructTempHashed), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WTempHashedString", asBEHAVE_CONSTRUCT, "void f(const WStringView)", asFUNCTION(WTempHashedString_ConstructView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WTempHashedString", asBEHAVE_CONSTRUCT, "void f(const WHashedString& in)", asFUNCTION(WTempHashedString_ConstructHS), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTempHashedString", "void opAssign(ezStringView)", asFUNCTION(ezTempHashedString_AssignStringView), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTempHashedString", "void opAssign(const ezHashedString& in)", asFUNCTION(ezTempHashedString_AssignHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTempHashedString", "void opAssign(WStringView)", asFUNCTION(WTempHashedString_AssignStringView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTempHashedString", "void opAssign(const WHashedString& in)", asFUNCTION(WTempHashedString_AssignHS), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTempHashedString", "bool opEquals(ezTempHashedString) const", asMETHODPR(ezTempHashedString, operator==, (const ezTempHashedString&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTempHashedString", "bool opEquals(WTempHashedString) const", asMETHODPR(WTempHashedString, operator==, (const WTempHashedString&) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTempHashedString", "bool IsEmpty() const", asMETHOD(ezTempHashedString, IsEmpty), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTempHashedString", "void Clear()", asMETHOD(ezTempHashedString, Clear), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTempHashedString", "bool IsEmpty() const", asMETHOD(WTempHashedString, IsEmpty), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WTempHashedString", "void Clear()", asMETHOD(WTempHashedString, Clear), asCALL_THISCALL));
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezHashedString
+// WHashedString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezHashedString_Construct(void* pMemory)
+static void WHashedString_Construct(void* pMemory)
 {
-  new (pMemory) ezHashedString();
+  new (pMemory) WHashedString();
 }
 
-static void ezHashedString_ConstructView(void* pMemory, ezStringView sView)
+static void WHashedString_ConstructView(void* pMemory, WStringView sView)
 {
-  ezHashedString* obj = new (pMemory) ezHashedString();
+  WHashedString* obj = new (pMemory) WHashedString();
   obj->Assign(sView);
 }
 
-static void ezHashedString_ConstructHS(void* pMemory, const ezHashedString& sString)
+static void WHashedString_ConstructHS(void* pMemory, const WHashedString& sString)
 {
-  new (pMemory) ezHashedString(sString);
+  new (pMemory) WHashedString(sString);
 }
 
-static void ezHashedString_AssignStringView(ezHashedString* pStr, const ezStringView sView)
+static void WHashedString_AssignStringView(WHashedString* pStr, const WStringView sView)
 {
   pStr->Assign(sView);
 }
 
-static bool ezHashedString_EqualsStringView(ezHashedString* pStr, const ezStringView sView)
+static bool WHashedString_EqualsStringView(WHashedString* pStr, const WStringView sView)
 {
   return *pStr == sView;
 }
 
-void ezAngelScriptEngineSingleton::Register_HashedString()
+void WAngelScriptEngineSingleton::Register_HashedString()
 {
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezHashedString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezHashedString_Construct), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezHashedString", asBEHAVE_CONSTRUCT, "void f(const ezStringView)", asFUNCTION(ezHashedString_ConstructView), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezHashedString", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezHashedString_ConstructHS), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WHashedString", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(WHashedString_Construct), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WHashedString", asBEHAVE_CONSTRUCT, "void f(const WStringView)", asFUNCTION(WHashedString_ConstructView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("WHashedString", asBEHAVE_CONSTRUCT, "void f(const WHashedString& in)", asFUNCTION(WHashedString_ConstructHS), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "void opAssign(const ezStringView)", asFUNCTION(ezHashedString_AssignStringView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "void opAssign(const WStringView)", asFUNCTION(WHashedString_AssignStringView), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "bool IsEmpty() const", asMETHOD(ezHashedString, IsEmpty), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "void Clear()", asMETHOD(ezHashedString, Clear), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "void Assign(const ezStringView)", asMETHODPR(ezHashedString, Assign, (ezStringView), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "bool IsEmpty() const", asMETHOD(WHashedString, IsEmpty), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "void Clear()", asMETHOD(WHashedString, Clear), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "void Assign(const WStringView)", asMETHODPR(WHashedString, Assign, (WStringView), void), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "bool opEquals(const ezHashedString& in) const", asMETHODPR(ezHashedString, operator==, (const ezHashedString&) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "bool opEquals(const ezTempHashedString& in) const", asMETHODPR(ezHashedString, operator==, (const ezTempHashedString&) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "bool opEquals(const ezStringView) const", asFUNCTION(ezHashedString_EqualsStringView), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "bool opEquals(const WHashedString& in) const", asMETHODPR(WHashedString, operator==, (const WHashedString&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "bool opEquals(const WTempHashedString& in) const", asMETHODPR(WHashedString, operator==, (const WTempHashedString&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "bool opEquals(const WStringView) const", asFUNCTION(WHashedString_EqualsStringView), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezHashedString", "ezStringView GetView() const", asMETHOD(ezHashedString, GetView), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WHashedString", "WStringView GetView() const", asMETHOD(WHashedString, GetView), asCALL_THISCALL));
 }

@@ -1,6 +1,6 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QApplication>
 #  include <QPainter>
@@ -8,19 +8,19 @@
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestDelegate public functions
+// WQtTestDelegate public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestDelegate::ezQtTestDelegate(QObject* pParent)
+WQtTestDelegate::WQtTestDelegate(QObject* pParent)
   : QStyledItemDelegate(pParent)
 {
 }
 
-ezQtTestDelegate::~ezQtTestDelegate() = default;
+WQtTestDelegate::~WQtTestDelegate() = default;
 
-void ezQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void WQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  if (index.column() == ezQtTestModel::Columns::Duration)
+  if (index.column() == WQtTestModel::Columns::Duration)
   {
     // We need to draw the alternate background color here because setting it via the model would
     // overwrite our duration bar.
@@ -31,12 +31,12 @@ void ezQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt
     pPainter->restore();
 
     bool bSuccess = false;
-    float fProgress = index.data(ezQtTestModel::UserRoles::Duration).toFloat(&bSuccess);
+    float fProgress = index.data(WQtTestModel::UserRoles::Duration).toFloat(&bSuccess);
 
     // If we got a valid float from the model we can draw a small duration bar on top of the background.
     if (bSuccess)
     {
-      QColor DurationColor = index.data(ezQtTestModel::UserRoles::DurationColor).value<QColor>();
+      QColor DurationColor = index.data(WQtTestModel::UserRoles::DurationColor).value<QColor>();
       QStyleOptionViewItem option2 = option;
       option2.palette.setBrush(QPalette::Base, QBrush(DurationColor));
       option2.rect.setWidth((int)((float)option2.rect.width() * fProgress));

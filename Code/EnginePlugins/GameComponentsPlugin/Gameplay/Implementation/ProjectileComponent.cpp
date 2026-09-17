@@ -11,75 +11,75 @@
 #include <GameEngine/Physics/ImpulseType.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 2)
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Bounce),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProjectileReaction, 2)
+  W_ENUM_CONSTANT(WProjectileReaction::Absorb),
+  W_ENUM_CONSTANT(WProjectileReaction::Reflect),
+  W_ENUM_CONSTANT(WProjectileReaction::Bounce),
+  W_ENUM_CONSTANT(WProjectileReaction::Attach),
+  W_ENUM_CONSTANT(WProjectileReaction::PassThrough)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileBounceOrientation, 1)
-  EZ_ENUM_CONSTANT(ezProjectileBounceOrientation::Reflection),
-  EZ_ENUM_CONSTANT(ezProjectileBounceOrientation::Spinning)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProjectileBounceOrientation, 1)
+  W_ENUM_CONSTANT(WProjectileBounceOrientation::Reflection),
+  W_ENUM_CONSTANT(WProjectileBounceOrientation::Spinning)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WProjectileSurfaceInteraction, WNoBase, 3, WRTTIDefaultAllocator<WProjectileSurfaceInteraction>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
-    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
-    EZ_MEMBER_PROPERTY("ImpulseType", m_uiImpulseType)->AddAttributes(new ezDynamicEnumAttribute("PhysicsImpulseType")),
-    EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
-    EZ_MEMBER_PROPERTY("Damage", m_fDamage),
-    EZ_MEMBER_PROPERTY("InertiaRatio", m_fInertiaRatio)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
+    W_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("Reaction", WProjectileReaction, m_Reaction),
+    W_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new WDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
+    W_MEMBER_PROPERTY("ImpulseType", m_uiImpulseType)->AddAttributes(new WDynamicEnumAttribute("PhysicsImpulseType")),
+    W_MEMBER_PROPERTY("Impulse", m_fImpulse),
+    W_MEMBER_PROPERTY("Damage", m_fDamage),
+    W_MEMBER_PROPERTY("InertiaRatio", m_fInertiaRatio)->AddAttributes(new WDefaultValueAttribute(5.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 8, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WProjectileComponent, 8, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
-    EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_MEMBER_PROPERTY("SpawnPrefabOnStatic", m_bSpawnPrefabOnStatic),
-    EZ_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ENUM_MEMBER_PROPERTY("BounceOrientation", ezProjectileBounceOrientation, m_BounceOrientation)->AddAttributes(new ezDefaultValueAttribute((ezInt8)ezProjectileBounceOrientation::Reflection)),
-    EZ_MEMBER_PROPERTY("StaticVelocityRatio", m_fStaticVelocityRatio)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
-    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
+    W_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
+    W_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new WClampValueAttribute(WTime(), WVariant())),
+    W_MEMBER_PROPERTY("SpawnPrefabOnStatic", m_bSpawnPrefabOnStatic),
+    W_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ENUM_MEMBER_PROPERTY("BounceOrientation", WProjectileBounceOrientation, m_BounceOrientation)->AddAttributes(new WDefaultValueAttribute((WInt8)WProjectileBounceOrientation::Reflection)),
+    W_MEMBER_PROPERTY("StaticVelocityRatio", m_fStaticVelocityRatio)->AddAttributes(new WDefaultValueAttribute(0.05f), new WClampValueAttribute(0.0f, WVariant())),
+    W_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", WPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new WDefaultValueAttribute(WVariant(WPhysicsShapeType::Default & ~(WPhysicsShapeType::Trigger)))),
+    W_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.4f, ezColor::OrangeRed),
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius"),
+    new WCategoryAttribute("Gameplay"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.4f, WColor::OrangeRed),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   /// Helper function to recalculate the sphere position from hit position
   /// \param vOrigin is expected to be the initial position of the particle before SweepTest
-  ezVec3 CalculateSphereCenterPosition(const ezVec3& vOrigin, const ezVec3& vDirection, const ezPhysicsCastResult& castResult, float fPenetrationDepth)
+  WVec3 CalculateSphereCenterPosition(const WVec3& vOrigin, const WVec3& vDirection, const WPhysicsCastResult& castResult, float fPenetrationDepth)
   {
     if (castResult.m_fDistance == 0.0f)
     {
@@ -92,64 +92,64 @@ namespace
   }
 } // namespace
 
-ezProjectileComponent::ezProjectileComponent()
+WProjectileComponent::WProjectileComponent()
 {
   m_fMetersPerSecond = 10.0f;
   m_uiCollisionLayer = 0;
   m_fRadius = 0.0f;
-  m_BounceOrientation = ezProjectileBounceOrientation::Reflection;
+  m_BounceOrientation = WProjectileBounceOrientation::Reflection;
   m_fStaticVelocityRatio = 0.05f;
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
   m_bSpawnPrefabOnStatic = false;
 }
 
-ezProjectileComponent::~ezProjectileComponent() = default;
+WProjectileComponent::~WProjectileComponent() = default;
 
-void ezProjectileComponent::Update()
+void WProjectileComponent::Update()
 {
   const float fPenetrationDepth = m_fRadius * 0.5f;
 
   if (m_fGravityMultiplier == 0.0f && m_fMetersPerSecond == 0.0f)
     return;
 
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
+  WPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModule<WPhysicsWorldModuleInterface>();
 
-  ezGameObject* pEntity = GetOwner();
-  const ezVec3 vCurPosition = pEntity->GetGlobalPosition();
+  WGameObject* pEntity = GetOwner();
+  const WVec3 vCurPosition = pEntity->GetGlobalPosition();
 
   const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-  ezVec3 vNewPosition;
+  WVec3 vNewPosition;
 
   // gravity
   if (m_fGravityMultiplier != 0.0f && m_fMetersPerSecond > 0.0f) // mps == 0 for attached state
   {
-    const ezVec3 vGravity = pPhysicsInterface ? (pPhysicsInterface->GetGravity() * m_fGravityMultiplier) : ezVec3::MakeZero();
+    const WVec3 vGravity = pPhysicsInterface ? (pPhysicsInterface->GetGravity() * m_fGravityMultiplier) : WVec3::MakeZero();
 
     m_vVelocity += vGravity * fTimeDiff;
   }
 
-  ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
+  WVec3 vCurDirection = m_vVelocity * fTimeDiff;
   float fDistance = 0.0f;
 
   if (!vCurDirection.IsZero())
     fDistance = vCurDirection.GetLengthAndNormalize();
 
-  ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
+  WPhysicsQueryParameters queryParams(m_uiCollisionLayer);
   queryParams.m_bIgnoreInitialOverlap = true;
   queryParams.m_ShapeTypes = m_ShapeTypesToHit;
 
-  ezPhysicsCastResult castResult;
+  WPhysicsCastResult castResult;
   if (pPhysicsInterface && QueryCollision(*pPhysicsInterface, castResult, vCurPosition, vCurDirection, fDistance, queryParams))
   {
-    const ezVec3 vNewCenterPosition = (m_fRadius > 0.0f)
+    const WVec3 vNewCenterPosition = (m_fRadius > 0.0f)
                                         ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, castResult, fPenetrationDepth)
                                         : castResult.m_vPosition;
 
-    const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
+    const WSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
 
-    const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
+    const WInt32 iInteraction = FindSurfaceInteraction(hSurface);
 
     if (iInteraction == -1)
     {
@@ -168,14 +168,14 @@ void ezProjectileComponent::Update()
       // if we hit some valid object
       if (!castResult.m_hActorObject.IsInvalidated())
       {
-        ezGameObject* pObject = nullptr;
+        WGameObject* pObject = nullptr;
 
         // apply a physical impulse
-        if (interaction.m_uiImpulseType >= ezImpulseTypeConfig::FirstValidKey || (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey && interaction.m_fImpulse > 0.0f))
+        if (interaction.m_uiImpulseType >= WImpulseTypeConfig::FirstValidKey || (interaction.m_uiImpulseType == WImpulseTypeConfig::CustomValueKey && interaction.m_fImpulse > 0.0f))
         {
           if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
           {
-            ezMsgPhysicsAddImpulse msg;
+            WMsgPhysicsAddImpulse msg;
             msg.m_uiImpulseType = interaction.m_uiImpulseType;
             msg.m_vGlobalPosition = castResult.m_vPosition;
             msg.m_vImpulse = vCurDirection;
@@ -183,7 +183,7 @@ void ezProjectileComponent::Update()
             msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
             msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
 
-            if (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey)
+            if (interaction.m_uiImpulseType == WImpulseTypeConfig::CustomValueKey)
             {
               msg.m_vImpulse *= interaction.m_fImpulse;
             }
@@ -198,12 +198,12 @@ void ezProjectileComponent::Update()
           // skip the TryGetObject if we already did that above
           if (pObject != nullptr || GetWorld()->TryGetObject(castResult.m_hShapeObject, pObject))
           {
-            ezMsgDamage msg;
+            WMsgDamage msg;
             msg.m_fDamage = interaction.m_fDamage;
             msg.m_vGlobalPosition = castResult.m_vPosition;
             msg.m_vImpactDirection = vCurDirection;
 
-            ezGameObject* pHitShape = nullptr;
+            WGameObject* pHitShape = nullptr;
             if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))
             {
               msg.m_sHitObjectName = pHitShape->GetName();
@@ -218,7 +218,7 @@ void ezProjectileComponent::Update()
         }
       }
 
-      if (interaction.m_Reaction == ezProjectileReaction::Absorb)
+      if (interaction.m_Reaction == WProjectileReaction::Absorb)
       {
         SpawnDeathPrefab();
 
@@ -226,20 +226,20 @@ void ezProjectileComponent::Update()
         GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
         vNewPosition = vNewCenterPosition;
       }
-      else if (interaction.m_Reaction == ezProjectileReaction::Reflect || interaction.m_Reaction == ezProjectileReaction::Bounce)
+      else if (interaction.m_Reaction == WProjectileReaction::Reflect || interaction.m_Reaction == WProjectileReaction::Bounce)
       {
         vNewPosition = vCurPosition;
         const float velocityToNormalProj = m_vVelocity.Dot(castResult.m_vNormal);
         if (velocityToNormalProj < 0.0f)
         {
           // the same as m_vVelocity.GetReflectedVector but reuse precalculated velocityToNormalProj
-          ezVec3 vNewVelocity = m_vVelocity - 2.0f * velocityToNormalProj * castResult.m_vNormal;
+          WVec3 vNewVelocity = m_vVelocity - 2.0f * velocityToNormalProj * castResult.m_vNormal;
 
           // Position of the projectile at the moment of reflection
 
-          if (interaction.m_Reaction == ezProjectileReaction::Bounce)
+          if (interaction.m_Reaction == WProjectileReaction::Bounce)
           {
-            ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
+            WResourceLock<WSurfaceResource> pSurface(hSurface, WResourceAcquireMode::BlockTillLoaded);
 
             if (pSurface)
             {
@@ -248,7 +248,7 @@ void ezProjectileComponent::Update()
 
             if (ShouldStopProjectile(*pPhysicsInterface, castResult, vNewVelocity))
             {
-              vNewVelocity = ezVec3::MakeZero();
+              vNewVelocity = WVec3::MakeZero();
               m_fGravityMultiplier = 0.0f;
 
               if (m_bSpawnPrefabOnStatic)
@@ -259,8 +259,8 @@ void ezProjectileComponent::Update()
             }
           }
 
-          const ezVec3 vPositionOnReflection = vCurPosition + castResult.m_fDistance * vCurDirection;
-          if (m_BounceOrientation == ezProjectileBounceOrientation::Reflection)
+          const WVec3 vPositionOnReflection = vCurPosition + castResult.m_fDistance * vCurDirection;
+          if (m_BounceOrientation == WProjectileBounceOrientation::Reflection)
           {
             ApplyReflectionRotation(vCurDirection, castResult.m_vNormal);
           }
@@ -271,7 +271,7 @@ void ezProjectileComponent::Update()
           const float fAbsVelocity = m_vVelocity.GetLength();
           // condition velocityToNormalProj < 0.0f implies fAbsVelocity is non-zero
           const float fTimeBeforeReflection = castResult.m_fDistance / fAbsVelocity;
-          const float fTimeLeft = ezMath::Max(0.0f, fTimeDiff - fTimeBeforeReflection);
+          const float fTimeLeft = WMath::Max(0.0f, fTimeDiff - fTimeBeforeReflection);
           // Path travelled back after the reflection
           vNewPosition = vPositionOnReflection + vNewVelocity * fTimeLeft;
           m_vVelocity = vNewVelocity;
@@ -281,19 +281,19 @@ void ezProjectileComponent::Update()
           vNewPosition += m_vVelocity * fTimeDiff;
         }
       }
-      else if (interaction.m_Reaction == ezProjectileReaction::Attach)
+      else if (interaction.m_Reaction == WProjectileReaction::Attach)
       {
         m_fMetersPerSecond = 0.0f;
         m_fGravityMultiplier = 0.0f;
         vNewPosition = vNewCenterPosition;
 
-        ezGameObject* pObject;
+        WGameObject* pObject;
         if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
         {
-          pObject->AddChild(GetOwner()->GetHandle(), ezTransformPreservation::Enum::PreserveGlobal);
+          pObject->AddChild(GetOwner()->GetHandle(), WTransformPreservation::Enum::PreserveGlobal);
         }
       }
-      else if (interaction.m_Reaction == ezProjectileReaction::PassThrough)
+      else if (interaction.m_Reaction == WProjectileReaction::PassThrough)
       {
         vNewPosition = vCurPosition + fDistance * vCurDirection;
       }
@@ -307,7 +307,7 @@ void ezProjectileComponent::Update()
   GetOwner()->SetGlobalPosition(vNewPosition);
 }
 
-void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProjectileComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -326,7 +326,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   {
     s << ia.m_hSurface;
 
-    ezProjectileReaction::StorageType storage = ia.m_Reaction;
+    WProjectileReaction::StorageType storage = ia.m_Reaction;
     s << storage;
 
     s << ia.m_sInteraction;
@@ -349,7 +349,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   // Version 8
   s << m_fRadius;
-  ezProjectileBounceOrientation::StorageType bounceOrientation = m_BounceOrientation;
+  WProjectileBounceOrientation::StorageType bounceOrientation = m_BounceOrientation;
   s << bounceOrientation;
   s << m_fStaticVelocityRatio;
 
@@ -360,10 +360,10 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   }
 }
 
-void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProjectileComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fMetersPerSecond;
@@ -377,17 +377,17 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_hFallbackSurface;
   }
 
-  ezUInt32 count;
+  WUInt32 count;
   s >> count;
   m_SurfaceInteractions.SetCount(count);
-  for (ezUInt32 i = 0; i < count; ++i)
+  for (WUInt32 i = 0; i < count; ++i)
   {
     auto& ia = m_SurfaceInteractions[i];
     s >> ia.m_hSurface;
 
-    ezProjectileReaction::StorageType storage = 0;
+    WProjectileReaction::StorageType storage = 0;
     s >> storage;
-    ia.m_Reaction = (ezProjectileReaction::Enum)storage;
+    ia.m_Reaction = (WProjectileReaction::Enum)storage;
 
     s >> ia.m_sInteraction;
 
@@ -420,9 +420,9 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 8)
   {
     s >> m_fRadius;
-    ezProjectileBounceOrientation::StorageType bounceOrientation = ezProjectileBounceOrientation::Reflection;
+    WProjectileBounceOrientation::StorageType bounceOrientation = WProjectileBounceOrientation::Reflection;
     s >> bounceOrientation;
-    m_BounceOrientation = (ezProjectileBounceOrientation::Enum)bounceOrientation;
+    m_BounceOrientation = (WProjectileBounceOrientation::Enum)bounceOrientation;
     s >> m_fStaticVelocityRatio;
 
     for (auto& ia : m_SurfaceInteractions)
@@ -433,13 +433,13 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   else
   {
     m_fRadius = 0.0f;
-    m_BounceOrientation = ezProjectileBounceOrientation::Reflection;
+    m_BounceOrientation = WProjectileBounceOrientation::Reflection;
     m_fStaticVelocityRatio = 0.05f;
   }
 }
 
 
-bool ezProjectileComponent::QueryCollision(const ezPhysicsWorldModuleInterface& physicsInterface, ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, const ezPhysicsQueryParameters& queryParams) const
+bool WProjectileComponent::QueryCollision(const WPhysicsWorldModuleInterface& physicsInterface, WPhysicsCastResult& out_result, const WVec3& vStart, const WVec3& vDirection, float fDistance, const WPhysicsQueryParameters& queryParams) const
 {
   if (m_fRadius > 0.0f)
   {
@@ -449,25 +449,25 @@ bool ezProjectileComponent::QueryCollision(const ezPhysicsWorldModuleInterface& 
   return physicsInterface.Raycast(out_result, vStart, vDirection, fDistance, queryParams);
 }
 
-void ezProjectileComponent::ApplyReflectionRotation(const ezVec3& vCurDirection, const ezVec3& vSurfaceNormal)
+void WProjectileComponent::ApplyReflectionRotation(const WVec3& vCurDirection, const WVec3& vSurfaceNormal)
 {
-  const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(vSurfaceNormal);
-  const ezQuat qRot = ezQuat::MakeShortestRotation(vCurDirection, vNewDirection);
+  const WVec3 vNewDirection = vCurDirection.GetReflectedVector(vSurfaceNormal);
+  const WQuat qRot = WQuat::MakeShortestRotation(vCurDirection, vNewDirection);
   GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
 }
 
-void ezProjectileComponent::ApplySpinningRotation(const ezProjectileSurfaceInteraction& interaction,
-  const ezPhysicsCastResult& castResult,
-  const ezVec3& vPositionOnReflection,
-  const ezVec3& vCurDirection,
-  const ezVec3& vNewVelocity)
+void WProjectileComponent::ApplySpinningRotation(const WProjectileSurfaceInteraction& interaction,
+  const WPhysicsCastResult& castResult,
+  const WVec3& vPositionOnReflection,
+  const WVec3& vCurDirection,
+  const WVec3& vNewVelocity)
 {
   if (interaction.m_fInertiaRatio == 0.0f)
     return;
 
-  const ezVec3 vRelativeHitPosOnReflection = castResult.m_vPosition - vPositionOnReflection;
+  const WVec3 vRelativeHitPosOnReflection = castResult.m_vPosition - vPositionOnReflection;
   const float vRelativeHitPosLength = vRelativeHitPosOnReflection.GetLength();
-  ezVec3 vForceRadialVector;
+  WVec3 vForceRadialVector;
   if (m_fRadius > 0.0f && vRelativeHitPosLength > 0.0f)
   {
     // if the projectile has a radius it is natural to assume that the torque is created
@@ -482,28 +482,28 @@ void ezProjectileComponent::ApplySpinningRotation(const ezProjectileSurfaceInter
 
   // Assuming the timeDiff is small we can say that the difference between velocities
   // is proportional to the acting force
-  ezVec3 vEffectiveForce = m_vVelocity - vNewVelocity;
+  WVec3 vEffectiveForce = m_vVelocity - vNewVelocity;
   // We assume that this force is responsible for torque and angular momentum
-  ezVec3 vEffectiveTorque = -vForceRadialVector.CrossRH(vEffectiveForce) / interaction.m_fInertiaRatio;
+  WVec3 vEffectiveTorque = -vForceRadialVector.CrossRH(vEffectiveForce) / interaction.m_fInertiaRatio;
 
-  const float fAngle = ezMath::Min(vEffectiveTorque.GetLength(), ezMath::Pi<float>());
+  const float fAngle = WMath::Min(vEffectiveTorque.GetLength(), WMath::Pi<float>());
   if (fAngle > 0.0f)
   {
-    ezAngle angle = ezAngle::MakeFromRadian(fAngle);
-    ezQuat qRot = ezQuat::MakeFromAxisAndAngle(vEffectiveTorque.GetNormalized(), angle);
+    WAngle angle = WAngle::MakeFromRadian(fAngle);
+    WQuat qRot = WQuat::MakeFromAxisAndAngle(vEffectiveTorque.GetNormalized(), angle);
     GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
   }
 }
 
-bool ezProjectileComponent::ShouldStopProjectile(const ezPhysicsWorldModuleInterface& physicsInterface, const ezPhysicsCastResult& castResult, const ezVec3& vVelocity)
+bool WProjectileComponent::ShouldStopProjectile(const WPhysicsWorldModuleInterface& physicsInterface, const WPhysicsCastResult& castResult, const WVec3& vVelocity)
 {
-  const ezVec3 vGravity = physicsInterface.GetGravity();
+  const WVec3 vGravity = physicsInterface.GetGravity();
   if (!vGravity.IsZero())
   {
-    const ezVec3 vGravityDir = vGravity.GetNormalized();
+    const WVec3 vGravityDir = vGravity.GetNormalized();
     // Check that projectile has hit the ground
     // if not - return false to make sure it won't hang in the air after being stopped
-    if (-vGravityDir.Dot(castResult.m_vNormal) < ezMath::Cos(ezAngle::MakeFromDegree(40.f)))
+    if (-vGravityDir.Dot(castResult.m_vNormal) < WMath::Cos(WAngle::MakeFromDegree(40.f)))
     {
       return false;
     }
@@ -512,13 +512,13 @@ bool ezProjectileComponent::ShouldStopProjectile(const ezPhysicsWorldModuleInter
   return vVelocity.GetLength() < m_fStaticVelocityRatio * m_fMetersPerSecond;
 }
 
-ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const
+WInt32 WProjectileComponent::FindSurfaceInteraction(const WSurfaceResourceHandle& hSurface) const
 {
-  ezSurfaceResourceHandle hCurSurf = hSurface;
+  WSurfaceResourceHandle hCurSurf = hSurface;
 
   while (hCurSurf.IsValid())
   {
-    for (ezUInt32 i = 0; i < m_SurfaceInteractions.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_SurfaceInteractions.GetCount(); ++i)
     {
       if (hCurSurf == m_SurfaceInteractions[i].m_hSurface)
         return i;
@@ -526,7 +526,7 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 
     // get parent surface
     {
-      ezResourceLock<ezSurfaceResource> pSurf(hCurSurf, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WSurfaceResource> pSurf(hCurSurf, WResourceAcquireMode::BlockTillLoaded);
       hCurSurf = pSurf->GetDescriptor().m_hBaseSurface;
     }
   }
@@ -535,19 +535,19 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
-void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
+void WProjectileComponent::TriggerSurfaceInteraction(const WSurfaceResourceHandle& hSurface, WGameObjectHandle hObject, const WVec3& vPos, const WVec3& vNormal, const WVec3& vDirection, const char* szInteraction)
 {
-  ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
-  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
+  WResourceLock<WSurfaceResource> pSurface(hSurface, WResourceAcquireMode::BlockTillLoaded);
+  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, WTempHashedString(szInteraction), &GetOwner()->GetTeamID());
 }
 
-static ezHashedString s_sSuicide = ezMakeHashedString("Suicide");
+static WHashedString s_sSuicide = WMakeHashedString("Suicide");
 
-void ezProjectileComponent::OnSimulationStarted()
+void WProjectileComponent::OnSimulationStarted()
 {
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
-    ezMsgComponentInternalTrigger msg;
+    WMsgComponentInternalTrigger msg;
     msg.m_sMessage = s_sSuicide;
 
     PostMessage(msg, m_MaxLifetime);
@@ -555,14 +555,14 @@ void ezProjectileComponent::OnSimulationStarted()
     // make sure the prefab is available when the projectile dies
     if (m_hDeathPrefab.IsValid())
     {
-      ezResourceManager::PreloadResource(m_hDeathPrefab);
+      WResourceManager::PreloadResource(m_hDeathPrefab);
     }
   }
 
   m_vVelocity = GetOwner()->GetGlobalDirForwards() * m_fMetersPerSecond;
 }
 
-void ezProjectileComponent::SpawnDeathPrefab()
+void WProjectileComponent::SpawnDeathPrefab()
 {
   if (!m_bSpawnPrefabOnStatic)
   {
@@ -571,16 +571,16 @@ void ezProjectileComponent::SpawnDeathPrefab()
 
   if (m_hDeathPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hDeathPrefab, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WPrefabResource> pPrefab(m_hDeathPrefab, WResourceAcquireMode::AllowLoadingFallback);
 
-    ezPrefabInstantiationOptions options;
+    WPrefabInstantiationOptions options;
     options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
 
     pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options, nullptr);
   }
 }
 
-void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
+void WProjectileComponent::OnTriggered(WMsgComponentInternalTrigger& msg)
 {
   if (msg.m_sMessage != s_sSuicide)
     return;
@@ -590,11 +590,11 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
 
-void ezProjectileComponent::SetFallbackSurfaceFile(ezStringView sFile)
+void WProjectileComponent::SetFallbackSurfaceFile(WStringView sFile)
 {
   if (!sFile.IsEmpty())
   {
-    m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+    m_hFallbackSurface = WResourceManager::LoadResource<WSurfaceResource>(sFile);
   }
   else
   {
@@ -602,10 +602,10 @@ void ezProjectileComponent::SetFallbackSurfaceFile(ezStringView sFile)
   }
 
   if (m_hFallbackSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hFallbackSurface);
+    WResourceManager::PreloadResource(m_hFallbackSurface);
 }
 
-ezStringView ezProjectileComponent::GetFallbackSurfaceFile() const
+WStringView WProjectileComponent::GetFallbackSurfaceFile() const
 {
   if (!m_hFallbackSurface.IsValid())
     return "";
@@ -619,15 +619,15 @@ ezStringView ezProjectileComponent::GetFallbackSurfaceFile() const
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezProjectileComponentPatch_1_2 : public ezGraphPatch
+class WProjectileComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezProjectileComponentPatch_1_2()
-    : ezGraphPatch("ezProjectileComponent", 2)
+  WProjectileComponentPatch_1_2()
+    : WGraphPatch("WProjectileComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Gravity Multiplier", "GravityMultiplier");
     pNode->RenameProperty("Max Lifetime", "MaxLifetime");
@@ -636,21 +636,21 @@ public:
   }
 };
 
-class ezProjectileComponentPatch_5_6 : public ezGraphPatch
+class WProjectileComponentPatch_5_6 : public WGraphPatch
 {
 public:
-  ezProjectileComponentPatch_5_6()
-    : ezGraphPatch("ezProjectileComponent", 6)
+  WProjectileComponentPatch_5_6()
+    : WGraphPatch("WProjectileComponent", 6)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("TimeoutPrefab", "DeathPrefab");
   }
 };
 
-ezProjectileComponentPatch_1_2 g_ezProjectileComponentPatch_1_2;
+WProjectileComponentPatch_1_2 g_WProjectileComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_ProjectileComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_ProjectileComponent);

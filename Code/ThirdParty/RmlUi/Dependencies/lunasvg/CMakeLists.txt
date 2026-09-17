@@ -1,13 +1,13 @@
-ez_cmake_init()
+W_cmake_init()
 
-ez_requires_rmlui()
+W_requires_rmlui()
 
 set (PROJECT_NAME "lunasvg")
 
-ez_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_UNITY NO_EZ_PREFIX)
+W_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_UNITY NO_W_PREFIX)
 
 # override the default IDE folder
-ez_set_project_ide_folder(${PROJECT_NAME} "${EZ_ROOT}/Code/ThirdParty/lunasvg")
+W_set_project_ide_folder(${PROJECT_NAME} "${W_ROOT}/Code/ThirdParty/lunasvg")
 
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
@@ -28,6 +28,6 @@ target_include_directories(${PROJECT_NAME}
   "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
-if(EZ_CMAKE_COMPILER_MSVC)
+if(W_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4018 /wd4244 /wd4267 /wd4456 /wd4458 /wd4701)
 endif()

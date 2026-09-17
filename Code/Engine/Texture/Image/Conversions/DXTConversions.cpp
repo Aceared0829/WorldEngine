@@ -6,40 +6,40 @@
 #include <Texture/Image/Conversions/PixelConversions.h>
 #include <Texture/Image/ImageConversion.h>
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41 && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#  define EZ_SUPPORTS_BC4_COMPRESSOR
+#if W_SSE_LEVEL >= W_SSE_41 && W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
+#  define W_SUPPORTS_BC4_COMPRESSOR
 
 #  include <emmintrin.h>
 #  include <smmintrin.h>
 #  include <tmmintrin.h>
 #endif
 
-void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool bForceFourColorMode)
+void WDecompressBlockBC1(const WUInt8* pSource, WColorBaseUB* pTarget, bool bForceFourColorMode)
 {
-  ezUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);
-  ezUInt16 uiColor1 = pSource[2] | (pSource[3] << 8);
+  WUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);
+  WUInt16 uiColor1 = pSource[2] | (pSource[3] << 8);
 
-  ezColorBaseUB colors[4];
+  WColorBaseUB colors[4];
 
-  colors[0] = ezDecompressB5G6R5(pSource[0] | (pSource[1] << 8));
-  colors[1] = ezDecompressB5G6R5(pSource[2] | (pSource[3] << 8));
+  colors[0] = WDecompressB5G6R5(pSource[0] | (pSource[1] << 8));
+  colors[1] = WDecompressB5G6R5(pSource[2] | (pSource[3] << 8));
 
   if (uiColor0 > uiColor1 || bForceFourColorMode)
   {
     colors[2] =
-      ezColorBaseUB((2 * colors[0].r + colors[1].r + 1) / 3, (2 * colors[0].g + colors[1].g + 1) / 3, (2 * colors[0].b + colors[1].b + 1) / 3, 0xFF);
+      WColorBaseUB((2 * colors[0].r + colors[1].r + 1) / 3, (2 * colors[0].g + colors[1].g + 1) / 3, (2 * colors[0].b + colors[1].b + 1) / 3, 0xFF);
     colors[3] =
-      ezColorBaseUB((colors[0].r + 2 * colors[1].r + 1) / 3, (colors[0].g + 2 * colors[1].g + 1) / 3, (colors[0].b + 2 * colors[1].b + 1) / 3, 0xFF);
+      WColorBaseUB((colors[0].r + 2 * colors[1].r + 1) / 3, (colors[0].g + 2 * colors[1].g + 1) / 3, (colors[0].b + 2 * colors[1].b + 1) / 3, 0xFF);
   }
   else
   {
-    colors[2] = ezColorBaseUB((colors[0].r + colors[1].r) / 2, (colors[0].g + colors[1].g) / 2, (colors[0].b + colors[1].b) / 2, 0xFF);
-    colors[3] = ezColorBaseUB(0, 0, 0, 0);
+    colors[2] = WColorBaseUB((colors[0].r + colors[1].r) / 2, (colors[0].g + colors[1].g) / 2, (colors[0].b + colors[1].b) / 2, 0xFF);
+    colors[3] = WColorBaseUB(0, 0, 0, 0);
   }
 
-  for (ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
+  for (WUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
   {
-    ezUInt8 uiIndices = pSource[4 + uiByteIdx];
+    WUInt8 uiIndices = pSource[4 + uiByteIdx];
 
     pTarget[4 * uiByteIdx + 0] = colors[(uiIndices >> 0) & 0x03];
     pTarget[4 * uiByteIdx + 1] = colors[(uiIndices >> 2) & 0x03];
@@ -48,37 +48,37 @@ void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool b
   }
 }
 
-void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiStride, ezUInt8 uiBias)
+void WDecompressBlockBC4(const WUInt8* pSource, WUInt8* pTarget, WUInt32 uiStride, WUInt8 uiBias)
 {
-  ezUInt8 inputPalette[2];
+  WUInt8 inputPalette[2];
   inputPalette[0] = pSource[0] + uiBias;
   inputPalette[1] = pSource[1] + uiBias;
 
-  ezUInt32 alphas[8];
+  WUInt32 alphas[8];
 
-  ezUnpackPaletteBC4(inputPalette[0], inputPalette[1], alphas);
+  WUnpackPaletteBC4(inputPalette[0], inputPalette[1], alphas);
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(alphas); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(alphas); ++i)
   {
-    alphas[i] = ezUInt8(alphas[i] - uiBias);
+    alphas[i] = WUInt8(alphas[i] - uiBias);
   }
 
-  for (ezUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
+  for (WUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
   {
-    ezUInt32 uiIndices = pSource[2 + uiTripleIdx * 3 + 0] << 0 | pSource[2 + uiTripleIdx * 3 + 1] << 8 | pSource[2 + uiTripleIdx * 3 + 2] << 16;
+    WUInt32 uiIndices = pSource[2 + uiTripleIdx * 3 + 0] << 0 | pSource[2 + uiTripleIdx * 3 + 1] << 8 | pSource[2 + uiTripleIdx * 3 + 2] << 16;
 
-    pTarget[(8 * uiTripleIdx + 0) * uiStride] = ezUInt8(alphas[(uiIndices >> 0) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 1) * uiStride] = ezUInt8(alphas[(uiIndices >> 3) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 2) * uiStride] = ezUInt8(alphas[(uiIndices >> 6) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 3) * uiStride] = ezUInt8(alphas[(uiIndices >> 9) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 4) * uiStride] = ezUInt8(alphas[(uiIndices >> 12) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 5) * uiStride] = ezUInt8(alphas[(uiIndices >> 15) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 6) * uiStride] = ezUInt8(alphas[(uiIndices >> 18) & 0x07]);
-    pTarget[(8 * uiTripleIdx + 7) * uiStride] = ezUInt8(alphas[(uiIndices >> 21) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 0) * uiStride] = WUInt8(alphas[(uiIndices >> 0) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 1) * uiStride] = WUInt8(alphas[(uiIndices >> 3) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 2) * uiStride] = WUInt8(alphas[(uiIndices >> 6) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 3) * uiStride] = WUInt8(alphas[(uiIndices >> 9) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 4) * uiStride] = WUInt8(alphas[(uiIndices >> 12) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 5) * uiStride] = WUInt8(alphas[(uiIndices >> 15) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 6) * uiStride] = WUInt8(alphas[(uiIndices >> 18) & 0x07]);
+    pTarget[(8 * uiTripleIdx + 7) * uiStride] = WUInt8(alphas[(uiIndices >> 21) & 0x07]);
   }
 }
 
-void ezUnpackPaletteBC4(ezUInt32 ui0, ezUInt32 ui1, ezUInt32* pAlphas)
+void WUnpackPaletteBC4(WUInt32 ui0, WUInt32 ui1, WUInt32* pAlphas)
 {
   pAlphas[0] = ui0;
   pAlphas[1] = ui1;
@@ -86,8 +86,8 @@ void ezUnpackPaletteBC4(ezUInt32 ui0, ezUInt32 ui1, ezUInt32* pAlphas)
   if (ui0 > ui1)
   {
     // Implement division by 7 in range [0, 7 * 255] as (x * 2341) >> 14
-    ezUInt32 f0 = ui0 * 2341;
-    ezUInt32 f1 = ui1 * 2341;
+    WUInt32 f0 = ui0 * 2341;
+    WUInt32 f1 = ui1 * 2341;
 
     pAlphas[2] = (6 * f0 + 1 * f1 + 3 * 2341) >> 14;
     pAlphas[3] = (5 * f0 + 2 * f1 + 3 * 2341) >> 14;
@@ -99,8 +99,8 @@ void ezUnpackPaletteBC4(ezUInt32 ui0, ezUInt32 ui1, ezUInt32* pAlphas)
   else
   {
     // Implement division by 5 in range [0, 5 * 255] as (x * 1639) >> 13
-    ezUInt32 f0 = ui0 * 1639;
-    ezUInt32 f1 = ui1 * 1639;
+    WUInt32 f0 = ui0 * 1639;
+    WUInt32 f1 = ui1 * 1639;
 
     pAlphas[2] = (4 * f0 + 1 * f1 + 2 * 1639) >> 13;
     pAlphas[3] = (3 * f0 + 2 * f1 + 2 * 1639) >> 13;
@@ -113,8 +113,8 @@ void ezUnpackPaletteBC4(ezUInt32 ui0, ezUInt32 ui1, ezUInt32* pAlphas)
 
 namespace
 {
-#if defined(EZ_SUPPORTS_BC4_COMPRESSOR)
-  ezUInt32 findBestPaletteIndexBC4(ezInt32 iSourceValue, __m128i p0, __m128i p1)
+#if defined(W_SUPPORTS_BC4_COMPRESSOR)
+  WUInt32 findBestPaletteIndexBC4(WInt32 iSourceValue, __m128i p0, __m128i p1)
   {
     __m128i source = _mm_set1_epi32(iSourceValue);
 
@@ -127,8 +127,8 @@ namespace
     __m128i h1 = _mm_min_epi32(e1, _mm_shuffle_epi32(e1, _MM_SHUFFLE(1, 0, 3, 2)));
     h1 = _mm_min_epi32(h1, _mm_shuffle_epi32(h1, _MM_SHUFFLE(2, 3, 0, 1)));
 
-    ezUInt32 s0 = _mm_cvtsi128_si32(h0);
-    ezUInt32 s1 = _mm_cvtsi128_si32(h1);
+    WUInt32 s0 = _mm_cvtsi128_si32(h0);
+    WUInt32 s1 = _mm_cvtsi128_si32(h1);
 
     uint32_t offset;
     __m128i min, minH;
@@ -145,33 +145,33 @@ namespace
       offset = 4;
     }
 
-    ezUInt32 mask = _mm_movemask_ps(_mm_castsi128_ps(_mm_cmpeq_epi32(min, minH)));
+    WUInt32 mask = _mm_movemask_ps(_mm_castsi128_ps(_mm_cmpeq_epi32(min, minH)));
 
-    return ezMath::FirstBitLow(mask) + offset;
+    return WMath::FirstBitLow(mask) + offset;
   }
 
-  void packBlockBC4(const ezUInt8* pSourceData, ezUInt32 ui0, ezUInt32 ui1, ezUInt8* pTargetData)
+  void packBlockBC4(const WUInt8* pSourceData, WUInt32 ui0, WUInt32 ui1, WUInt8* pTargetData)
   {
-    pTargetData[0] = ezUInt8(ui0);
-    pTargetData[1] = ezUInt8(ui1);
+    pTargetData[0] = WUInt8(ui0);
+    pTargetData[1] = WUInt8(ui1);
 
-    ezUInt32 palette[8];
-    ezUnpackPaletteBC4(ui0, ui1, palette);
+    WUInt32 palette[8];
+    WUnpackPaletteBC4(ui0, ui1, palette);
 
     __m128i p0, p1;
     p0 = _mm_loadu_si128(reinterpret_cast<__m128i*>(palette + 0));
     p1 = _mm_loadu_si128(reinterpret_cast<__m128i*>(palette + 4));
 
-    ezUInt64 indices = 0;
-    for (ezUInt32 idx = 0; idx < 16; ++idx)
+    WUInt64 indices = 0;
+    for (WUInt32 idx = 0; idx < 16; ++idx)
     {
-      indices |= ezUInt64(findBestPaletteIndexBC4(pSourceData[idx], p0, p1)) << (3 * idx);
+      indices |= WUInt64(findBestPaletteIndexBC4(pSourceData[idx], p0, p1)) << (3 * idx);
     }
 
     memcpy(pTargetData + 2, &indices, 6);
   }
 
-  ezUInt32 getSquaredErrorBC4_SSE(const ezUInt8* pSourceData, const __m128i* pPaletteAndCopy)
+  WUInt32 getSquaredErrorBC4_SSE(const WUInt8* pSourceData, const __m128i* pPaletteAndCopy)
   {
     // See getSquaredErrorBC4() for what we want to achieve (sum of lowest squared errors).
     // Instead of converting to 32bit ints and actually computing squares, this function finds lowest absolute differences
@@ -253,7 +253,7 @@ namespace
   // Does the same thing as unpackPaletteBC4(), but stores the 8 result numbers twice as bytes
   // (low 8 bytes of alphasAndAlphasCopy will be equal to high 8 bytes)
   // See unpackPaletteBC4 for the explanation regarding magic numbers
-  void unpackPaletteBC4AsBytesTwice(ezUInt32 ui0, ezUInt32 ui1, __m128i* pAlphasAndAlphasCopy)
+  void unpackPaletteBC4AsBytesTwice(WUInt32 ui0, WUInt32 ui1, __m128i* pAlphasAndAlphasCopy)
   {
     const __m128i v0 = _mm_set1_epi32(ui0);
     const __m128i v1 = _mm_set1_epi32(ui1);
@@ -292,31 +292,31 @@ namespace
     }
   }
 
-  ezUInt32 getSquaredErrorBC4_SSE(ezUInt32 ui0, ezUInt32 ui1, const ezUInt8* pSourceData)
+  WUInt32 getSquaredErrorBC4_SSE(WUInt32 ui0, WUInt32 ui1, const WUInt8* pSourceData)
   {
     __m128i paletteAndCopy;
-    unpackPaletteBC4AsBytesTwice(ezUInt8(ui0), ezUInt8(ui1), &paletteAndCopy);
+    unpackPaletteBC4AsBytesTwice(WUInt8(ui0), WUInt8(ui1), &paletteAndCopy);
     return getSquaredErrorBC4_SSE(pSourceData, &paletteAndCopy);
   }
 
-  void findBestPaletteBC4(const ezUInt8* pSourceData, ezUInt32& ref_uiBestA0, ezUInt32& ref_uiBestA1)
+  void findBestPaletteBC4(const WUInt8* pSourceData, WUInt32& ref_uiBestA0, WUInt32& ref_uiBestA1)
   {
-    ezInt32 minA = 255;
-    ezInt32 maxA = 0;
+    WInt32 minA = 255;
+    WInt32 maxA = 0;
 
-    ezInt32 minA_greater8 = 247;
-    ezInt32 maxA_less248 = 9;
+    WInt32 minA_greater8 = 247;
+    WInt32 maxA_less248 = 9;
 
-    for (ezUInt32 idx = 0; idx < 16; ++idx)
+    for (WUInt32 idx = 0; idx < 16; ++idx)
     {
-      ezUInt32 value = pSourceData[idx];
-      minA = ezMath::Min<ezUInt32>(minA, value);
-      maxA = ezMath::Max<ezUInt32>(maxA, value);
+      WUInt32 value = pSourceData[idx];
+      minA = WMath::Min<WUInt32>(minA, value);
+      maxA = WMath::Max<WUInt32>(maxA, value);
 
       if (value > 8 && value < 248)
       {
-        minA_greater8 = ezMath::Min<ezUInt32>(minA_greater8, value);
-        maxA_less248 = ezMath::Max<ezUInt32>(maxA_less248, value);
+        minA_greater8 = WMath::Min<WUInt32>(minA_greater8, value);
+        maxA_less248 = WMath::Max<WUInt32>(maxA_less248, value);
       }
     }
 
@@ -328,21 +328,21 @@ namespace
       return;
     }
 
-    ezUInt32 bestError = ezUInt32(-1);
-    ref_uiBestA0 = ezUInt32(-1);
-    ref_uiBestA1 = ezUInt32(-1);
+    WUInt32 bestError = WUInt32(-1);
+    ref_uiBestA0 = WUInt32(-1);
+    ref_uiBestA1 = WUInt32(-1);
 
     // Try to find optimal values by searching around min and max
     {
-      ezInt32 minA0 = ezMath::Max(1, maxA - 4);
-      ezInt32 maxA0 = ezMath::Min(256, maxA + 8);
-      for (ezInt32 a0 = minA0; a0 < maxA0; ++a0)
+      WInt32 minA0 = WMath::Max(1, maxA - 4);
+      WInt32 maxA0 = WMath::Min(256, maxA + 8);
+      for (WInt32 a0 = minA0; a0 < maxA0; ++a0)
       {
-        ezInt32 minA1 = ezMath::Max(0, minA - 8);
-        ezInt32 maxA1 = ezMath::Min(a0, minA + 4);
-        for (ezInt32 a1 = minA1; a1 < maxA1; ++a1)
+        WInt32 minA1 = WMath::Max(0, minA - 8);
+        WInt32 maxA1 = WMath::Min(a0, minA + 4);
+        for (WInt32 a1 = minA1; a1 < maxA1; ++a1)
         {
-          ezUInt32 error = getSquaredErrorBC4_SSE(a0, a1, pSourceData);
+          WUInt32 error = getSquaredErrorBC4_SSE(a0, a1, pSourceData);
 
           if (error < bestError)
           {
@@ -362,15 +362,15 @@ namespace
     // If we have any values close to 0 or 255, try the flipped palette versions too, searching around the secondary min/max values
     if (minA < 8 || maxA > 248)
     {
-      ezInt32 minA1 = maxA_less248 - 4;
-      ezInt32 maxA1 = maxA_less248 + 8;
-      for (ezInt32 a1 = minA1; a1 < maxA1; ++a1)
+      WInt32 minA1 = maxA_less248 - 4;
+      WInt32 maxA1 = maxA_less248 + 8;
+      for (WInt32 a1 = minA1; a1 < maxA1; ++a1)
       {
-        ezInt32 minA0 = minA_greater8 - 8;
-        ezInt32 maxA0 = ezMath::Min(a1, minA_greater8 + 4);
-        for (ezInt32 a0 = minA0; a0 < maxA0; ++a0)
+        WInt32 minA0 = minA_greater8 - 8;
+        WInt32 maxA0 = WMath::Min(a1, minA_greater8 + 4);
+        for (WInt32 a0 = minA0; a0 < maxA0; ++a0)
         {
-          ezUInt32 error = getSquaredErrorBC4_SSE(a0, a1, pSourceData);
+          WUInt32 error = getSquaredErrorBC4_SSE(a0, a1, pSourceData);
 
           if (error < bestError)
           {
@@ -392,18 +392,18 @@ namespace
 
   // The following BC6 + BC7 decompression implementations were adapted from
   // https://github.com/Microsoft/DirectXTex/blob/master/DirectXTex/BC6HBC7.cpp
-  static const ezUInt32 s_bc67NumPixelsPerBlock = 16;
+  static const WUInt32 s_bc67NumPixelsPerBlock = 16;
 
-  static const ezUInt32 s_bc67WeightMax = 64;
-  static const ezUInt32 s_bc67WeightShift = 6;
-  static const ezUInt32 s_bc67WeightRound = 32;
+  static const WUInt32 s_bc67WeightMax = 64;
+  static const WUInt32 s_bc67WeightShift = 6;
+  static const WUInt32 s_bc67WeightRound = 32;
 
   static const int s_bc67InterpolationWeights2[] = {0, 21, 43, 64};
   static const int s_bc67InterpolationWeights3[] = {0, 9, 18, 27, 37, 46, 55, 64};
   static const int s_bc67InterpolationWeights4[] = {0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64};
 
   // Partition, Shape, Pixel (index into 4x4 block)
-  const ezUInt8 s_bc67PartitionTable[3][64][16] = {
+  const WUInt8 s_bc67PartitionTable[3][64][16] = {
     {// 1 Region case has no subsets (all 0)
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -577,7 +577,7 @@ namespace
     }};
 
   // Partition, Shape, Fixup
-  static const ezUInt8 s_bc67FixUp[3][64][3] = {
+  static const WUInt8 s_bc67FixUp[3][64][3] = {
     {// No fix-ups for 1st subset for BC6H or BC7
       {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
       {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
@@ -603,10 +603,10 @@ namespace
       {0, 3, 15}, {0, 15, 3}, {0, 5, 15}, {0, 5, 15}, {0, 5, 15}, {0, 8, 15}, {0, 5, 15}, {0, 10, 15}, {0, 5, 15}, {0, 10, 15}, {0, 8, 15},
       {0, 13, 15}, {0, 15, 3}, {0, 12, 15}, {0, 3, 15}, {0, 3, 8}}};
 
-  static const ezUInt32 s_bc6MaxRegions = 2;
-  static const ezUInt32 s_bc6MaxIndices = 16;
+  static const WUInt32 s_bc6MaxRegions = 2;
+  static const WUInt32 s_bc6MaxIndices = 16;
 
-  enum BC6EField : ezUInt8
+  enum BC6EField : WUInt8
   {
     NA, // N/A
     M,  // Mode
@@ -628,7 +628,7 @@ namespace
   struct BC6ModeDescriptor
   {
     BC6EField field;
-    ezUInt8 bit;
+    WUInt8 bit;
   };
 
   static const BC6ModeDescriptor s_bc6ModeDescs[][82] = {{
@@ -1837,35 +1837,35 @@ namespace
 
   struct BC6ModeInfo
   {
-    ezUInt8 mode;
-    ezUInt8 partitions;
+    WUInt8 mode;
+    WUInt8 partitions;
     bool transformed;
-    ezUInt8 indexPrec;
-    ezColorBaseUB rgbaPrec[s_bc6MaxRegions][2];
+    WUInt8 indexPrec;
+    WColorBaseUB rgbaPrec[s_bc6MaxRegions][2];
   };
 
   static const BC6ModeInfo s_bc6ModeInfos[] = {
-    {0x00, 1, true, 3, {{ezColorBaseUB(10, 10, 10, 0), ezColorBaseUB(5, 5, 5, 0)}, {ezColorBaseUB(5, 5, 5, 0), ezColorBaseUB(5, 5, 5, 0)}}}, // Mode 1
-    {0x01, 1, true, 3, {{ezColorBaseUB(7, 7, 7, 0), ezColorBaseUB(6, 6, 6, 0)}, {ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}}},    // Mode 2
-    {0x02, 1, true, 3, {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(5, 4, 4, 0)}, {ezColorBaseUB(5, 4, 4, 0), ezColorBaseUB(5, 4, 4, 0)}}}, // Mode 3
-    {0x06, 1, true, 3, {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(4, 5, 4, 0)}, {ezColorBaseUB(4, 5, 4, 0), ezColorBaseUB(4, 5, 4, 0)}}}, // Mode 4
-    {0x0a, 1, true, 3, {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(4, 4, 5, 0)}, {ezColorBaseUB(4, 4, 5, 0), ezColorBaseUB(4, 4, 5, 0)}}}, // Mode 5
-    {0x0e, 1, true, 3, {{ezColorBaseUB(9, 9, 9, 0), ezColorBaseUB(5, 5, 5, 0)}, {ezColorBaseUB(5, 5, 5, 0), ezColorBaseUB(5, 5, 5, 0)}}},    // Mode 6
-    {0x12, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(6, 5, 5, 0)}, {ezColorBaseUB(6, 5, 5, 0), ezColorBaseUB(6, 5, 5, 0)}}},    // Mode 7
-    {0x16, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(5, 6, 5, 0)}, {ezColorBaseUB(5, 6, 5, 0), ezColorBaseUB(5, 6, 5, 0)}}},    // Mode 8
-    {0x1a, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(5, 5, 6, 0)}, {ezColorBaseUB(5, 5, 6, 0), ezColorBaseUB(5, 5, 6, 0)}}},    // Mode 9
-    {0x1e, 1, false, 3, {{ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}, {ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}}},   // Mode 10
+    {0x00, 1, true, 3, {{WColorBaseUB(10, 10, 10, 0), WColorBaseUB(5, 5, 5, 0)}, {WColorBaseUB(5, 5, 5, 0), WColorBaseUB(5, 5, 5, 0)}}}, // Mode 1
+    {0x01, 1, true, 3, {{WColorBaseUB(7, 7, 7, 0), WColorBaseUB(6, 6, 6, 0)}, {WColorBaseUB(6, 6, 6, 0), WColorBaseUB(6, 6, 6, 0)}}},    // Mode 2
+    {0x02, 1, true, 3, {{WColorBaseUB(11, 11, 11, 0), WColorBaseUB(5, 4, 4, 0)}, {WColorBaseUB(5, 4, 4, 0), WColorBaseUB(5, 4, 4, 0)}}}, // Mode 3
+    {0x06, 1, true, 3, {{WColorBaseUB(11, 11, 11, 0), WColorBaseUB(4, 5, 4, 0)}, {WColorBaseUB(4, 5, 4, 0), WColorBaseUB(4, 5, 4, 0)}}}, // Mode 4
+    {0x0a, 1, true, 3, {{WColorBaseUB(11, 11, 11, 0), WColorBaseUB(4, 4, 5, 0)}, {WColorBaseUB(4, 4, 5, 0), WColorBaseUB(4, 4, 5, 0)}}}, // Mode 5
+    {0x0e, 1, true, 3, {{WColorBaseUB(9, 9, 9, 0), WColorBaseUB(5, 5, 5, 0)}, {WColorBaseUB(5, 5, 5, 0), WColorBaseUB(5, 5, 5, 0)}}},    // Mode 6
+    {0x12, 1, true, 3, {{WColorBaseUB(8, 8, 8, 0), WColorBaseUB(6, 5, 5, 0)}, {WColorBaseUB(6, 5, 5, 0), WColorBaseUB(6, 5, 5, 0)}}},    // Mode 7
+    {0x16, 1, true, 3, {{WColorBaseUB(8, 8, 8, 0), WColorBaseUB(5, 6, 5, 0)}, {WColorBaseUB(5, 6, 5, 0), WColorBaseUB(5, 6, 5, 0)}}},    // Mode 8
+    {0x1a, 1, true, 3, {{WColorBaseUB(8, 8, 8, 0), WColorBaseUB(5, 5, 6, 0)}, {WColorBaseUB(5, 5, 6, 0), WColorBaseUB(5, 5, 6, 0)}}},    // Mode 9
+    {0x1e, 1, false, 3, {{WColorBaseUB(6, 6, 6, 0), WColorBaseUB(6, 6, 6, 0)}, {WColorBaseUB(6, 6, 6, 0), WColorBaseUB(6, 6, 6, 0)}}},   // Mode 10
     {0x03, 0, false, 4,
-      {{ezColorBaseUB(10, 10, 10, 0), ezColorBaseUB(10, 10, 10, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},               // Mode 11
+      {{WColorBaseUB(10, 10, 10, 0), WColorBaseUB(10, 10, 10, 0)}, {WColorBaseUB(0, 0, 0, 0), WColorBaseUB(0, 0, 0, 0)}}},               // Mode 11
     {0x07, 0, true, 4,
-      {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(9, 9, 9, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 12
+      {{WColorBaseUB(11, 11, 11, 0), WColorBaseUB(9, 9, 9, 0)}, {WColorBaseUB(0, 0, 0, 0), WColorBaseUB(0, 0, 0, 0)}}},                  // Mode 12
     {0x0b, 0, true, 4,
-      {{ezColorBaseUB(12, 12, 12, 0), ezColorBaseUB(8, 8, 8, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 13
+      {{WColorBaseUB(12, 12, 12, 0), WColorBaseUB(8, 8, 8, 0)}, {WColorBaseUB(0, 0, 0, 0), WColorBaseUB(0, 0, 0, 0)}}},                  // Mode 13
     {0x0f, 0, true, 4,
-      {{ezColorBaseUB(16, 16, 16, 0), ezColorBaseUB(4, 4, 4, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 14
+      {{WColorBaseUB(16, 16, 16, 0), WColorBaseUB(4, 4, 4, 0)}, {WColorBaseUB(0, 0, 0, 0), WColorBaseUB(0, 0, 0, 0)}}},                  // Mode 14
   };
 
-  static const ezInt32 s_bc6ModeToInfo[] = {
+  static const WInt32 s_bc6ModeToInfo[] = {
     0,  // Mode 1   - 0x00
     1,  // Mode 2   - 0x01
     2,  // Mode 3   - 0x02
@@ -1900,81 +1900,81 @@ namespace
     -1, // Resreved - 0x1f
   };
 
-  static const ezUInt32 s_bc7MaxRegions = 3;
-  static const ezUInt32 s_bc7MaxIndices = 16;
-  static const ezUInt32 s_bc7NumChannels = 4;
-  static const ezUInt32 s_bc7MaxShapes = 64;
+  static const WUInt32 s_bc7MaxRegions = 3;
+  static const WUInt32 s_bc7MaxIndices = 16;
+  static const WUInt32 s_bc7NumChannels = 4;
+  static const WUInt32 s_bc7MaxShapes = 64;
 
   struct BC7ModeInfo
   {
-    ezUInt8 partitions;
-    ezUInt8 partitionBits;
-    ezUInt8 pBits;
-    ezUInt8 rotationBits;
-    ezUInt8 indexModeBits;
-    ezUInt8 indexPrec;
-    ezUInt8 indexPrec2;
-    ezColorBaseUB rgbaPrec;
-    ezColorBaseUB rgbaPrecWithP;
+    WUInt8 partitions;
+    WUInt8 partitionBits;
+    WUInt8 pBits;
+    WUInt8 rotationBits;
+    WUInt8 indexModeBits;
+    WUInt8 indexPrec;
+    WUInt8 indexPrec2;
+    WColorBaseUB rgbaPrec;
+    WColorBaseUB rgbaPrecWithP;
   };
 
   static const BC7ModeInfo s_bc7ModeInfos[] = {
     // Mode 0: Color only, 3 Subsets, RGBP 4441 (unique P-bit), 3-bit indecies, 16 partitions
-    {2, 4, 6, 0, 0, 3, 0, ezColorBaseUB(4, 4, 4, 0), ezColorBaseUB(5, 5, 5, 0)},
+    {2, 4, 6, 0, 0, 3, 0, WColorBaseUB(4, 4, 4, 0), WColorBaseUB(5, 5, 5, 0)},
     // Mode 1: Color only, 2 Subsets, RGBP 6661 (shared P-bit), 3-bit indecies, 64 partitions
-    {1, 6, 2, 0, 0, 3, 0, ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(7, 7, 7, 0)},
+    {1, 6, 2, 0, 0, 3, 0, WColorBaseUB(6, 6, 6, 0), WColorBaseUB(7, 7, 7, 0)},
     // Mode 2: Color only, 3 Subsets, RGB 555, 2-bit indecies, 64 partitions
-    {2, 6, 0, 0, 0, 2, 0, ezColorBaseUB(5, 5, 5, 0), ezColorBaseUB(5, 5, 5, 0)},
+    {2, 6, 0, 0, 0, 2, 0, WColorBaseUB(5, 5, 5, 0), WColorBaseUB(5, 5, 5, 0)},
     // Mode 3: Color only, 2 Subsets, RGBP 7771 (unique P-bit), 2-bits indecies, 64 partitions
-    {1, 6, 4, 0, 0, 2, 0, ezColorBaseUB(7, 7, 7, 0), ezColorBaseUB(8, 8, 8, 0)},
+    {1, 6, 4, 0, 0, 2, 0, WColorBaseUB(7, 7, 7, 0), WColorBaseUB(8, 8, 8, 0)},
     // Mode 4: Color w/ Separate Alpha, 1 Subset, RGB 555, A6, 16x2/16x3-bit indices, 2-bit rotation, 1-bit index selector
-    {0, 0, 0, 2, 1, 2, 3, ezColorBaseUB(5, 5, 5, 6), ezColorBaseUB(5, 5, 5, 6)},
+    {0, 0, 0, 2, 1, 2, 3, WColorBaseUB(5, 5, 5, 6), WColorBaseUB(5, 5, 5, 6)},
     // Mode 5: Color w/ Separate Alpha, 1 Subset, RGB 777, A8, 16x2/16x2-bit indices, 2-bit rotation
-    {0, 0, 0, 2, 0, 2, 2, ezColorBaseUB(7, 7, 7, 8), ezColorBaseUB(7, 7, 7, 8)},
+    {0, 0, 0, 2, 0, 2, 2, WColorBaseUB(7, 7, 7, 8), WColorBaseUB(7, 7, 7, 8)},
     // Mode 6: Color+Alpha, 1 Subset, RGBAP 77771 (unique P-bit), 16x4-bit indecies
-    {0, 0, 2, 0, 0, 4, 0, ezColorBaseUB(7, 7, 7, 7), ezColorBaseUB(8, 8, 8, 8)},
+    {0, 0, 2, 0, 0, 4, 0, WColorBaseUB(7, 7, 7, 7), WColorBaseUB(8, 8, 8, 8)},
     // Mode 7: Color+Alpha, 2 Subsets, RGBAP 55551 (unique P-bit), 2-bit indices, 64 partitions
-    {1, 6, 4, 0, 0, 2, 0, ezColorBaseUB(5, 5, 5, 5), ezColorBaseUB(6, 6, 6, 6)}};
+    {1, 6, 4, 0, 0, 2, 0, WColorBaseUB(5, 5, 5, 5), WColorBaseUB(6, 6, 6, 6)}};
 
-  ezUInt8 getBit(const ezUInt8* pBits, ezUInt32& ref_uiStartBit)
+  WUInt8 getBit(const WUInt8* pBits, WUInt32& ref_uiStartBit)
   {
-    EZ_ASSERT_DEV(ref_uiStartBit < 128, "");
+    W_ASSERT_DEV(ref_uiStartBit < 128, "");
 
-    ezUInt32 index = ref_uiStartBit >> 3;
-    ezUInt8 ret = (pBits[index] >> (ref_uiStartBit - (index << 3))) & 0x01;
+    WUInt32 index = ref_uiStartBit >> 3;
+    WUInt8 ret = (pBits[index] >> (ref_uiStartBit - (index << 3))) & 0x01;
     ++ref_uiStartBit;
     return ret;
   }
 
-  ezUInt8 getBits(const ezUInt8* pBits, ezUInt32& ref_uiStartBit, ezUInt32 uiNumBits)
+  WUInt8 getBits(const WUInt8* pBits, WUInt32& ref_uiStartBit, WUInt32 uiNumBits)
   {
     if (uiNumBits == 0)
       return 0;
-    EZ_ASSERT_DEV(ref_uiStartBit + uiNumBits <= 128 && uiNumBits <= 8, "");
+    W_ASSERT_DEV(ref_uiStartBit + uiNumBits <= 128 && uiNumBits <= 8, "");
 
-    ezUInt8 ret;
-    ezUInt32 index = ref_uiStartBit >> 3;
-    ezUInt32 base = ref_uiStartBit - (index << 3);
+    WUInt8 ret;
+    WUInt32 index = ref_uiStartBit >> 3;
+    WUInt32 base = ref_uiStartBit - (index << 3);
     if (base + uiNumBits > 8)
     {
-      ezUInt32 firstIndexBits = 8 - base;
-      ezUInt32 nextIndexBits = uiNumBits - firstIndexBits;
+      WUInt32 firstIndexBits = 8 - base;
+      WUInt32 nextIndexBits = uiNumBits - firstIndexBits;
       ret = (pBits[index] >> base) | ((pBits[index + 1] & ((1 << nextIndexBits) - 1)) << firstIndexBits);
     }
     else
     {
       ret = (pBits[index] >> base) & ((1 << uiNumBits) - 1);
     }
-    EZ_ASSERT_DEV(ret < (1 << uiNumBits), "");
+    W_ASSERT_DEV(ret < (1 << uiNumBits), "");
     ref_uiStartBit += uiNumBits;
     return ret;
   }
 
-  inline bool isFixUpOffset(ezUInt32 uiPartitions, ezUInt32 uiShape, ezUInt32 uiOffset)
+  inline bool isFixUpOffset(WUInt32 uiPartitions, WUInt32 uiShape, WUInt32 uiOffset)
   {
-    EZ_ASSERT_DEV(uiPartitions < 3 && uiShape < 64 && uiOffset < 16, "");
+    W_ASSERT_DEV(uiPartitions < 3 && uiShape < 64 && uiOffset < 16, "");
 
-    for (ezUInt32 p = 0; p <= uiPartitions; ++p)
+    for (WUInt32 p = 0; p <= uiPartitions; ++p)
     {
       if (uiOffset == s_bc67FixUp[uiPartitions][uiShape][p])
       {
@@ -1984,87 +1984,87 @@ namespace
     return false;
   }
 
-  void interpolateRGB(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 uiWc, ezUInt32 uiWcprec, ezColorBaseUB& ref_out)
+  void interpolateRGB(const WColorBaseUB& c0, const WColorBaseUB& c1, WUInt32 uiWc, WUInt32 uiWcprec, WColorBaseUB& ref_out)
   {
     const int* weights = nullptr;
     switch (uiWcprec)
     {
       case 2:
         weights = s_bc67InterpolationWeights2;
-        EZ_ASSERT_DEV(uiWc < 4, "");
+        W_ASSERT_DEV(uiWc < 4, "");
 
         break;
       case 3:
         weights = s_bc67InterpolationWeights3;
-        EZ_ASSERT_DEV(uiWc < 8, "");
+        W_ASSERT_DEV(uiWc < 8, "");
 
         break;
       case 4:
         weights = s_bc67InterpolationWeights4;
-        EZ_ASSERT_DEV(uiWc < 16, "");
+        W_ASSERT_DEV(uiWc < 16, "");
 
         break;
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         ref_out.r = ref_out.g = ref_out.b = 0;
         return;
     }
-    ref_out.r = ezUInt8(
-      (ezUInt32(c0.r) * ezUInt32(s_bc67WeightMax - weights[uiWc]) + ezUInt32(c1.r) * ezUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
-    ref_out.g = ezUInt8(
-      (ezUInt32(c0.g) * ezUInt32(s_bc67WeightMax - weights[uiWc]) + ezUInt32(c1.g) * ezUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
-    ref_out.b = ezUInt8(
-      (ezUInt32(c0.b) * ezUInt32(s_bc67WeightMax - weights[uiWc]) + ezUInt32(c1.b) * ezUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
+    ref_out.r = WUInt8(
+      (WUInt32(c0.r) * WUInt32(s_bc67WeightMax - weights[uiWc]) + WUInt32(c1.r) * WUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
+    ref_out.g = WUInt8(
+      (WUInt32(c0.g) * WUInt32(s_bc67WeightMax - weights[uiWc]) + WUInt32(c1.g) * WUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
+    ref_out.b = WUInt8(
+      (WUInt32(c0.b) * WUInt32(s_bc67WeightMax - weights[uiWc]) + WUInt32(c1.b) * WUInt32(weights[uiWc]) + s_bc67WeightRound) >> s_bc67WeightShift);
   }
 
-  static void interpolateA(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 uiWa, ezUInt32 uiWaprec, ezColorBaseUB& ref_out)
+  static void interpolateA(const WColorBaseUB& c0, const WColorBaseUB& c1, WUInt32 uiWa, WUInt32 uiWaprec, WColorBaseUB& ref_out)
   {
     const int* weights = nullptr;
     switch (uiWaprec)
     {
       case 2:
         weights = s_bc67InterpolationWeights2;
-        EZ_ASSERT_DEV(uiWa < 4, "");
+        W_ASSERT_DEV(uiWa < 4, "");
 
         break;
       case 3:
         weights = s_bc67InterpolationWeights3;
-        EZ_ASSERT_DEV(uiWa < 8, "");
+        W_ASSERT_DEV(uiWa < 8, "");
 
         break;
       case 4:
         weights = s_bc67InterpolationWeights4;
-        EZ_ASSERT_DEV(uiWa < 16, "");
+        W_ASSERT_DEV(uiWa < 16, "");
 
         break;
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         ref_out.a = 0;
         return;
     }
-    ref_out.a = ezUInt8(
-      (ezUInt32(c0.a) * ezUInt32(s_bc67WeightMax - weights[uiWa]) + ezUInt32(c1.a) * ezUInt32(weights[uiWa]) + s_bc67WeightRound) >> s_bc67WeightShift);
+    ref_out.a = WUInt8(
+      (WUInt32(c0.a) * WUInt32(s_bc67WeightMax - weights[uiWa]) + WUInt32(c1.a) * WUInt32(weights[uiWa]) + s_bc67WeightRound) >> s_bc67WeightShift);
   }
 
   static void interpolate(
-    const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 uiWc, ezUInt32 uiWa, ezUInt32 uiWcprec, ezUInt32 uiWaprec, ezColorBaseUB& ref_out)
+    const WColorBaseUB& c0, const WColorBaseUB& c1, WUInt32 uiWc, WUInt32 uiWa, WUInt32 uiWcprec, WUInt32 uiWaprec, WColorBaseUB& ref_out)
   {
     interpolateRGB(c0, c1, uiWc, uiWcprec, ref_out);
     interpolateA(c0, c1, uiWa, uiWaprec, ref_out);
   }
 
-  static const ezUInt16 s_bc6Float16Sign_Mask = 0x8000; // f16 sign mask
-  static const ezUInt16 s_bc6Float16Max = 0x7bff;       // MAXFLT bit pattern
+  static const WUInt16 s_bc6Float16Sign_Mask = 0x8000; // f16 sign mask
+  static const WUInt16 s_bc6Float16Max = 0x7bff;       // MAXFLT bit pattern
 
   class BC6IntColor
   {
   public:
-    ezInt32 r, g, b;
-    ezInt32 pad = 0;
+    WInt32 r, g, b;
+    WInt32 pad = 0;
 
   public:
     BC6IntColor() = default;
-    BC6IntColor(ezInt32 iNr, ezInt32 iNg, ezInt32 iNb)
+    BC6IntColor(WInt32 iNr, WInt32 iNg, WInt32 iNb)
     {
       r = iNr;
       g = iNg;
@@ -2087,15 +2087,15 @@ namespace
       return *this;
     }
 
-    BC6IntColor& clamp(ezInt32 iMin, ezInt32 iMax)
+    BC6IntColor& clamp(WInt32 iMin, WInt32 iMax)
     {
-      r = ezMath::Min(iMax, ezMath::Max(iMin, r));
-      g = ezMath::Min(iMax, ezMath::Max(iMin, g));
-      b = ezMath::Min(iMax, ezMath::Max(iMin, b));
+      r = WMath::Min(iMax, WMath::Max(iMin, r));
+      g = WMath::Min(iMax, WMath::Max(iMin, g));
+      b = WMath::Min(iMax, WMath::Max(iMin, b));
       return *this;
     }
 
-    BC6IntColor& signExtend(const ezColorBaseUB& prec)
+    BC6IntColor& signExtend(const WColorBaseUB& prec)
     {
       r = signExtend(r, prec.r);
       g = signExtend(g, prec.g);
@@ -2103,7 +2103,7 @@ namespace
       return *this;
     }
 
-    void toF16(ezFloat16 p16[4], bool bIsSigned) const
+    void toF16(WFloat16 p16[4], bool bIsSigned) const
     {
       p16[0] = intToF16(r, bIsSigned);
       p16[1] = intToF16(g, bIsSigned);
@@ -2112,12 +2112,12 @@ namespace
     }
 
   private:
-    static ezInt32 signExtend(ezInt32 x, ezInt32 nb) { return ((x & (1 << (nb - 1))) ? (~0 << nb) : 0) | x; }
+    static WInt32 signExtend(WInt32 x, WInt32 nb) { return ((x & (1 << (nb - 1))) ? (~0 << nb) : 0) | x; }
 
-    static ezFloat16 intToF16(ezInt32 input, bool isSigned)
+    static WFloat16 intToF16(WInt32 input, bool isSigned)
     {
-      ezFloat16 h;
-      ezUInt16 out;
+      WFloat16 h;
+      WUInt16 out;
       if (isSigned)
       {
         int s = 0;
@@ -2126,15 +2126,15 @@ namespace
           s = s_bc6Float16Sign_Mask;
           input = -input;
         }
-        out = ezUInt16(s | input);
+        out = WUInt16(s | input);
       }
       else
       {
-        EZ_ASSERT_DEV(input >= 0 && input <= s_bc6Float16Max, "");
-        out = (ezUInt16)input;
+        W_ASSERT_DEV(input >= 0 && input <= s_bc6Float16Max, "");
+        out = (WUInt16)input;
       }
 
-      *((ezUInt16*)&h) = out;
+      *((WUInt16*)&h) = out;
       return h;
     }
   };
@@ -2147,7 +2147,7 @@ namespace
     BC6IntColor B;
   };
 
-  inline void bc6TransformInverse(BC6IntEndPntPair pEndPts[], const ezColorBaseUB& prec, bool bIsSigned)
+  inline void bc6TransformInverse(BC6IntEndPntPair pEndPts[], const WColorBaseUB& prec, bool bIsSigned)
   {
     BC6IntColor wrapMask((1 << prec.r) - 1, (1 << prec.g) - 1, (1 << prec.b) - 1);
     pEndPts[0].B += pEndPts[0].A;
@@ -2164,9 +2164,9 @@ namespace
     }
   }
 
-  static ezInt32 bc6Unquantize(ezInt32 iComp, ezUInt8 uiBitsPerComp, bool bIsSigned)
+  static WInt32 bc6Unquantize(WInt32 iComp, WUInt8 uiBitsPerComp, bool bIsSigned)
   {
-    ezInt32 unq = 0, s = 0;
+    WInt32 unq = 0, s = 0;
     if (bIsSigned)
     {
       if (uiBitsPerComp >= 16)
@@ -2207,7 +2207,7 @@ namespace
     return unq;
   }
 
-  static ezInt32 bc6FinishUnquantize(ezInt32 iComp, bool bIsSigned)
+  static WInt32 bc6FinishUnquantize(WInt32 iComp, bool bIsSigned)
   {
     if (bIsSigned)
     {
@@ -2219,16 +2219,16 @@ namespace
     }
   }
 
-  ezUInt8 bc7Unquantize(ezUInt8 uiComp, ezUInt32 uiPrec)
+  WUInt8 bc7Unquantize(WUInt8 uiComp, WUInt32 uiPrec)
   {
-    EZ_ASSERT_DEV(0 < uiPrec && uiPrec <= 8, "");
+    W_ASSERT_DEV(0 < uiPrec && uiPrec <= 8, "");
     uiComp = uiComp << (8 - uiPrec);
     return uiComp | (uiComp >> uiPrec);
   }
 
-  ezColorBaseUB bc7Unquantize(const ezColorBaseUB& c, const ezColorBaseUB& rgbaPrec)
+  WColorBaseUB bc7Unquantize(const WColorBaseUB& c, const WColorBaseUB& rgbaPrec)
   {
-    ezColorBaseUB q;
+    WColorBaseUB q;
     q.r = bc7Unquantize(c.r, rgbaPrec.r);
     q.g = bc7Unquantize(c.g, rgbaPrec.g);
     q.b = bc7Unquantize(c.b, rgbaPrec.b);
@@ -2236,108 +2236,108 @@ namespace
     return q;
   }
 
-  void fillWithErrorColors(ezColorLinear16f* pOutputRGBA)
+  void fillWithErrorColors(WColorLinear16f* pOutputRGBA)
   {
-    for (ezUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
+    for (WUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
     {
-      pOutputRGBA[i] = ezColorLinear16f(0.0f, 0.0f, 0.0f, 1.0f);
+      pOutputRGBA[i] = WColorLinear16f(0.0f, 0.0f, 0.0f, 1.0f);
     }
   }
 
-  void fillWithErrorColors(ezColorBaseUB* pOutputRGBA)
+  void fillWithErrorColors(WColorBaseUB* pOutputRGBA)
   {
-    for (ezUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
+    for (WUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
     {
-      pOutputRGBA[i] = ezColorBaseUB(0, 0, 0, 255);
+      pOutputRGBA[i] = WColorBaseUB(0, 0, 0, 255);
     }
   }
 } // namespace
 
-void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, bool bIsSigned)
+void WDecompressBlockBC6(const WUInt8* pSource, WColorLinear16f* pTarget, bool bIsSigned)
 {
-  EZ_ASSERT_DEV(pTarget, "");
+  W_ASSERT_DEV(pTarget, "");
 
-  ezUInt32 startBit = 0;
-  ezUInt8 mode = getBits(pSource, startBit, 2);
+  WUInt32 startBit = 0;
+  WUInt8 mode = getBits(pSource, startBit, 2);
   if (mode != 0x00 && mode != 0x01)
   {
     mode = (getBits(pSource, startBit, 3) << 2) | mode;
   }
 
-  EZ_ASSERT_DEV(mode < 32, "");
+  W_ASSERT_DEV(mode < 32, "");
 
 
   if (s_bc6ModeToInfo[mode] >= 0)
   {
-    EZ_ASSERT_DEV(s_bc6ModeToInfo[mode] < EZ_ARRAY_SIZE(s_bc6ModeInfos), "");
+    W_ASSERT_DEV(s_bc6ModeToInfo[mode] < W_ARRAY_SIZE(s_bc6ModeInfos), "");
 
     const BC6ModeDescriptor* desc = s_bc6ModeDescs[s_bc6ModeToInfo[mode]];
 
-    EZ_ASSERT_DEV(s_bc6ModeToInfo[mode] < EZ_ARRAY_SIZE(s_bc6ModeDescs), "");
+    W_ASSERT_DEV(s_bc6ModeToInfo[mode] < W_ARRAY_SIZE(s_bc6ModeDescs), "");
 
     const BC6ModeInfo& info = s_bc6ModeInfos[s_bc6ModeToInfo[mode]];
 
     BC6IntEndPntPair endPts[s_bc6MaxRegions];
     memset(endPts, 0, s_bc6MaxRegions * 2 * sizeof(BC6IntColor));
-    ezUInt32 shape = 0;
+    WUInt32 shape = 0;
 
     // Read header
-    const ezUInt32 headerBits = info.partitions > 0 ? 82 : 65;
+    const WUInt32 headerBits = info.partitions > 0 ? 82 : 65;
     while (startBit < headerBits)
     {
-      ezUInt32 curBit = startBit;
+      WUInt32 curBit = startBit;
       if (getBit(pSource, startBit))
       {
         switch (desc[curBit].field)
         {
           case D:
-            shape |= 1 << ezUInt32(desc[curBit].bit);
+            shape |= 1 << WUInt32(desc[curBit].bit);
             break;
           case RW:
-            endPts[0].A.r |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].A.r |= 1 << WUInt32(desc[curBit].bit);
             break;
           case RX:
-            endPts[0].B.r |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].B.r |= 1 << WUInt32(desc[curBit].bit);
             break;
           case RY:
-            endPts[1].A.r |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].A.r |= 1 << WUInt32(desc[curBit].bit);
             break;
           case RZ:
-            endPts[1].B.r |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].B.r |= 1 << WUInt32(desc[curBit].bit);
             break;
           case GW:
-            endPts[0].A.g |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].A.g |= 1 << WUInt32(desc[curBit].bit);
             break;
           case GX:
-            endPts[0].B.g |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].B.g |= 1 << WUInt32(desc[curBit].bit);
             break;
           case GY:
-            endPts[1].A.g |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].A.g |= 1 << WUInt32(desc[curBit].bit);
             break;
           case GZ:
-            endPts[1].B.g |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].B.g |= 1 << WUInt32(desc[curBit].bit);
             break;
           case BW:
-            endPts[0].A.b |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].A.b |= 1 << WUInt32(desc[curBit].bit);
             break;
           case BX:
-            endPts[0].B.b |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[0].B.b |= 1 << WUInt32(desc[curBit].bit);
             break;
           case BY:
-            endPts[1].A.b |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].A.b |= 1 << WUInt32(desc[curBit].bit);
             break;
           case BZ:
-            endPts[1].B.b |= 1 << ezUInt32(desc[curBit].bit);
+            endPts[1].B.b |= 1 << WUInt32(desc[curBit].bit);
             break;
           default:
-            ezLog::Warning("BC6H: Invalid header bits encountered during decoding.");
+            WLog::Warning("BC6H: Invalid header bits encountered during decoding.");
             fillWithErrorColors(pTarget);
             return;
         }
       }
     }
 
-    EZ_ASSERT_DEV(shape < 64, "");
+    W_ASSERT_DEV(shape < 64, "");
 
 
     // Sign extend necessary end points
@@ -2347,9 +2347,9 @@ void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, boo
     }
     if (bIsSigned || info.transformed)
     {
-      EZ_ASSERT_DEV(info.partitions < s_bc6MaxRegions, "");
+      W_ASSERT_DEV(info.partitions < s_bc6MaxRegions, "");
 
-      for (ezUInt32 p = 0; p <= info.partitions; ++p)
+      for (WUInt32 p = 0; p <= info.partitions; ++p)
       {
         if (p != 0)
         {
@@ -2366,26 +2366,26 @@ void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, boo
     }
 
     // Read indices
-    for (ezUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
+    for (WUInt32 i = 0; i < s_bc67NumPixelsPerBlock; ++i)
     {
-      ezUInt32 numBits = isFixUpOffset(info.partitions, shape, i) ? info.indexPrec - 1 : info.indexPrec;
+      WUInt32 numBits = isFixUpOffset(info.partitions, shape, i) ? info.indexPrec - 1 : info.indexPrec;
       if (startBit + numBits > 128)
       {
-        ezLog::Warning("BC6H: Invalid block encountered during decoding.");
+        WLog::Warning("BC6H: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
-      ezUInt8 index = getBits(pSource, startBit, numBits);
+      WUInt8 index = getBits(pSource, startBit, numBits);
 
       if (index >= ((info.partitions > 0) ? 8 : 16))
       {
-        ezLog::Warning("BC6H: Invalid index encountered during decoding.");
+        WLog::Warning("BC6H: Invalid index encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
 
-      ezUInt32 region = s_bc67PartitionTable[info.partitions][shape][i];
-      EZ_ASSERT_DEV(region < s_bc6MaxRegions, "");
+      WUInt32 region = s_bc67PartitionTable[info.partitions][shape][i];
+      W_ASSERT_DEV(region < s_bc6MaxRegions, "");
 
 
       // Unquantize endpoints and interpolate
@@ -2401,14 +2401,14 @@ void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, boo
       fc.g = bc6FinishUnquantize((g1 * (s_bc67WeightMax - weights[index]) + g2 * weights[index] + s_bc67WeightRound) >> s_bc67WeightShift, bIsSigned);
       fc.b = bc6FinishUnquantize((b1 * (s_bc67WeightMax - weights[index]) + b2 * weights[index] + s_bc67WeightRound) >> s_bc67WeightShift, bIsSigned);
 
-      ezColorLinear16f outColor;
+      WColorLinear16f outColor;
       fc.toF16(outColor.GetData(), bIsSigned);
       pTarget[i] = outColor;
     }
   }
   else
   {
-    ezStringBuilder msg = "BC6H: Invalid mode encountered during decoding.";
+    WStringBuilder msg = "BC6H: Invalid mode encountered during decoding.";
     switch (mode)
     {
       case 0x13:
@@ -2424,58 +2424,58 @@ void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16f* pTarget, boo
         msg = "BC6H: Reserved mode 11111 encountered during decoding.";
         break;
     }
-    ezLog::Warning(msg);
+    WLog::Warning(msg);
 
     // Per the BC6 format spec, we must return opaque black.
     fillWithErrorColors(pTarget);
   }
 }
 
-EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* pTarget)
+W_TEXTURE_DLL void WDecompressBlockBC7(const WUInt8* pSource, WColorBaseUB* pTarget)
 {
-  EZ_ASSERT_DEV(pTarget, "");
+  W_ASSERT_DEV(pTarget, "");
 
-  ezUInt32 first = 0;
+  WUInt32 first = 0;
   while (first < 128 && !getBit(pSource, first))
   { /* intentionally left empty */
   }
-  ezUInt8 mode = ezUInt8(first - 1);
+  WUInt8 mode = WUInt8(first - 1);
 
   if (mode < 8)
   {
-    const ezUInt8 uPartitions = s_bc7ModeInfos[mode].partitions;
-    EZ_ASSERT_DEV(uPartitions < s_bc7MaxRegions, "");
+    const WUInt8 uPartitions = s_bc7ModeInfos[mode].partitions;
+    W_ASSERT_DEV(uPartitions < s_bc7MaxRegions, "");
 
 
-    const ezUInt8 numEndPts = (uPartitions + 1) << 1;
-    const ezUInt8 indexPrec = s_bc7ModeInfos[mode].indexPrec;
-    const ezUInt8 indexPrec2 = s_bc7ModeInfos[mode].indexPrec2;
+    const WUInt8 numEndPts = (uPartitions + 1) << 1;
+    const WUInt8 indexPrec = s_bc7ModeInfos[mode].indexPrec;
+    const WUInt8 indexPrec2 = s_bc7ModeInfos[mode].indexPrec2;
 
-    ezUInt32 startBit = mode + 1;
-    ezUInt8 p[6];
-    ezUInt8 shape = getBits(pSource, startBit, s_bc7ModeInfos[mode].partitionBits);
-    EZ_ASSERT_DEV(shape < s_bc7MaxShapes, "");
+    WUInt32 startBit = mode + 1;
+    WUInt8 p[6];
+    WUInt8 shape = getBits(pSource, startBit, s_bc7ModeInfos[mode].partitionBits);
+    W_ASSERT_DEV(shape < s_bc7MaxShapes, "");
 
 
-    ezUInt8 rotation = getBits(pSource, startBit, s_bc7ModeInfos[mode].rotationBits);
-    EZ_ASSERT_DEV(rotation < 4, "");
+    WUInt8 rotation = getBits(pSource, startBit, s_bc7ModeInfos[mode].rotationBits);
+    W_ASSERT_DEV(rotation < 4, "");
 
-    ezUInt8 indexMode = getBits(pSource, startBit, s_bc7ModeInfos[mode].indexModeBits);
-    EZ_ASSERT_DEV(indexMode < 2, "");
+    WUInt8 indexMode = getBits(pSource, startBit, s_bc7ModeInfos[mode].indexModeBits);
+    W_ASSERT_DEV(indexMode < 2, "");
 
-    ezColorBaseUB c[s_bc7MaxRegions << 1];
-    const ezColorBaseUB RGBAPrec = s_bc7ModeInfos[mode].rgbaPrec;
-    const ezColorBaseUB RGBAPrecWithP = s_bc7ModeInfos[mode].rgbaPrecWithP;
+    WColorBaseUB c[s_bc7MaxRegions << 1];
+    const WColorBaseUB RGBAPrec = s_bc7ModeInfos[mode].rgbaPrec;
+    const WColorBaseUB RGBAPrecWithP = s_bc7ModeInfos[mode].rgbaPrecWithP;
 
-    EZ_ASSERT_DEV(numEndPts <= (s_bc7MaxRegions << 1), "");
-    ezUInt32 i = 0;
+    W_ASSERT_DEV(numEndPts <= (s_bc7MaxRegions << 1), "");
+    WUInt32 i = 0;
 
     // Red channel
     for (i = 0; i < numEndPts; ++i)
     {
       if (startBit + RGBAPrec.r > 128)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2488,7 +2488,7 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     {
       if (startBit + RGBAPrec.g > 128)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2501,7 +2501,7 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     {
       if (startBit + RGBAPrec.b > 128)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2514,7 +2514,7 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     {
       if (startBit + RGBAPrec.a > 128)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2523,13 +2523,13 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     }
 
     // P-bits
-    EZ_ASSERT_DEV(s_bc7ModeInfos[mode].pBits <= 6, "");
+    W_ASSERT_DEV(s_bc7ModeInfos[mode].pBits <= 6, "");
 
     for (i = 0; i < s_bc7ModeInfos[mode].pBits; ++i)
     {
       if (startBit > 127)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2541,8 +2541,8 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     {
       for (i = 0; i < numEndPts; ++i)
       {
-        ezUInt32 pi = i * s_bc7ModeInfos[mode].pBits / numEndPts;
-        for (ezUInt8 ch = 0; ch < s_bc7NumChannels; ++ch)
+        WUInt32 pi = i * s_bc7ModeInfos[mode].pBits / numEndPts;
+        for (WUInt8 ch = 0; ch < s_bc7NumChannels; ++ch)
         {
           if (RGBAPrec.GetData()[ch] != RGBAPrecWithP.GetData()[ch])
           {
@@ -2557,15 +2557,15 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
       c[i] = bc7Unquantize(c[i], RGBAPrecWithP);
     }
 
-    ezUInt8 w1[s_bc67NumPixelsPerBlock], w2[s_bc67NumPixelsPerBlock];
+    WUInt8 w1[s_bc67NumPixelsPerBlock], w2[s_bc67NumPixelsPerBlock];
 
     // read color indices
     for (i = 0; i < s_bc67NumPixelsPerBlock; ++i)
     {
-      ezUInt32 numBits = isFixUpOffset(s_bc7ModeInfos[mode].partitions, shape, i) ? indexPrec - 1 : indexPrec;
+      WUInt32 numBits = isFixUpOffset(s_bc7ModeInfos[mode].partitions, shape, i) ? indexPrec - 1 : indexPrec;
       if (startBit + numBits > 128)
       {
-        ezLog::Warning("BC7: Invalid block encountered during decoding.");
+        WLog::Warning("BC7: Invalid block encountered during decoding.");
         fillWithErrorColors(pTarget);
         return;
       }
@@ -2577,10 +2577,10 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
     {
       for (i = 0; i < s_bc67NumPixelsPerBlock; ++i)
       {
-        ezUInt32 numBits = i ? indexPrec2 : indexPrec2 - 1;
+        WUInt32 numBits = i ? indexPrec2 : indexPrec2 - 1;
         if (startBit + numBits > 128)
         {
-          ezLog::Warning("BC7: Invalid block encountered during decoding.");
+          WLog::Warning("BC7: Invalid block encountered during decoding.");
           fillWithErrorColors(pTarget);
           return;
         }
@@ -2590,8 +2590,8 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
 
     for (i = 0; i < s_bc67NumPixelsPerBlock; ++i)
     {
-      ezUInt8 uRegion = s_bc67PartitionTable[uPartitions][shape][i];
-      ezColorBaseUB outPixel;
+      WUInt8 uRegion = s_bc67PartitionTable[uPartitions][shape][i];
+      WColorBaseUB outPixel;
       if (indexPrec2 == 0)
       {
         interpolate(c[uRegion << 1], c[(uRegion << 1) + 1], w1[i], w1[i], indexPrec, indexPrec, outPixel);
@@ -2611,13 +2611,13 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
       switch (rotation)
       {
         case 1:
-          ezMath::Swap(outPixel.r, outPixel.a);
+          WMath::Swap(outPixel.r, outPixel.a);
           break;
         case 2:
-          ezMath::Swap(outPixel.g, outPixel.a);
+          WMath::Swap(outPixel.g, outPixel.a);
           break;
         case 3:
-          ezMath::Swap(outPixel.b, outPixel.a);
+          WMath::Swap(outPixel.b, outPixel.a);
           break;
       }
 
@@ -2626,88 +2626,88 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* 
   }
   else
   {
-    ezLog::Warning("BC7: Reserved mode 8 encountered during decoding.");
+    WLog::Warning("BC7: Reserved mode 8 encountered during decoding.");
     // Per the BC7 format spec, we must return transparent black.
     fillWithErrorColors(pTarget);
   }
 } // namespace
 
-class ezImageConversion_BC1_RGBA : public ezImageConversionStepDecompressBlocks
+class WImageConversion_BC1_RGBA : public WImageConversionStepDecompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC1_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC1_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC1_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC1_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 elementsPerBlock = 16;
+    const WUInt32 elementsPerBlock = 16;
 
-    ezUInt32 sourceStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
     {
-      ezDecompressBlockBC1(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezColorBaseUB*>(targetPointer), false);
+      WDecompressBlockBC1(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WColorBaseUB*>(targetPointer), false);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_BC2_RGBA : public ezImageConversionStepDecompressBlocks
+class WImageConversion_BC2_RGBA : public WImageConversionStepDecompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC2_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC2_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC2_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC2_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 elementsPerBlock = 16;
+    const WUInt32 elementsPerBlock = 16;
 
-    ezUInt32 sourceStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
     {
-      decompressBlock(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezColorBaseUB*>(targetPointer));
+      decompressBlock(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WColorBaseUB*>(targetPointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static void decompressBlock(const ezUInt8* pSourcePointer, ezColorBaseUB* pTargetPointer)
+  static void decompressBlock(const WUInt8* pSourcePointer, WColorBaseUB* pTargetPointer)
   {
-    ezDecompressBlockBC1(pSourcePointer + 8, pTargetPointer, true);
+    WDecompressBlockBC1(pSourcePointer + 8, pTargetPointer, true);
 
-    for (ezUInt32 uiByteIdx = 0; uiByteIdx < 8; uiByteIdx++)
+    for (WUInt32 uiByteIdx = 0; uiByteIdx < 8; uiByteIdx++)
     {
-      ezUInt8 uiIndices = pSourcePointer[uiByteIdx];
+      WUInt8 uiIndices = pSourcePointer[uiByteIdx];
 
       pTargetPointer[2 * uiByteIdx + 0].a = (uiIndices & 0x0F) | (uiIndices << 4);
       pTargetPointer[2 * uiByteIdx + 1].a = (uiIndices & 0xF0) | (uiIndices >> 4);
@@ -2715,263 +2715,263 @@ public:
   }
 };
 
-class ezImageConversion_BC3_RGBA : public ezImageConversionStepDecompressBlocks
+class WImageConversion_BC3_RGBA : public WImageConversionStepDecompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC3_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC3_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC3_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC3_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 elementsPerBlock = 16;
+    const WUInt32 elementsPerBlock = 16;
 
-    ezUInt32 sourceStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
     {
-      decompressBlock(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezColorBaseUB*>(targetPointer));
+      decompressBlock(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WColorBaseUB*>(targetPointer));
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static void decompressBlock(const ezUInt8* pSourcePointer, ezColorBaseUB* pTargetPointer)
+  static void decompressBlock(const WUInt8* pSourcePointer, WColorBaseUB* pTargetPointer)
   {
-    ezDecompressBlockBC1(pSourcePointer + 8, pTargetPointer, true);
-    ezDecompressBlockBC4(pSourcePointer, reinterpret_cast<ezUInt8*>(pTargetPointer) + 3, 4, 0);
+    WDecompressBlockBC1(pSourcePointer + 8, pTargetPointer, true);
+    WDecompressBlockBC4(pSourcePointer, reinterpret_cast<WUInt8*>(pTargetPointer) + 3, 4, 0);
   }
 };
 
-class ezImageConversion_BC4_R : public ezImageConversionStepDecompressBlocks
+class WImageConversion_BC4_R : public WImageConversionStepDecompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC4_SNORM, ezImageFormat::R8_SNORM, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC4_UNORM, WImageFormat::R8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC4_SNORM, WImageFormat::R8_SNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 elementsPerBlock = 16;
+    const WUInt32 elementsPerBlock = 16;
 
-    ezUInt32 sourceStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
-
-    const void* sourcePointer = source.GetPtr();
-    void* targetPointer = target.GetPtr();
-
-    // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
-    ezUInt8 bias = 0;
-    if (ezImageFormat::GetDataType(sourceFormat) == ezImageFormatDataType::SNORM)
-    {
-      bias = 128;
-    }
-
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
-    {
-      decompressBlock(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezUInt8*>(targetPointer), bias);
-
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-    }
-
-    return EZ_SUCCESS;
-  }
-
-  static void decompressBlock(const ezUInt8* pSourcePointer, ezUInt8* pTargetPointer, ezUInt8 uiBias)
-  {
-    ezDecompressBlockBC4(pSourcePointer, pTargetPointer, 1, uiBias);
-  }
-};
-
-class ezImageConversion_BC5_RG : public ezImageConversionStepDecompressBlocks
-{
-public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
-  {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC5_SNORM, ezImageFormat::R8G8_SNORM, ezImageConversionFlags::Default),
-    };
-    return supportedConversions;
-  }
-
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
-  {
-    const ezUInt32 elementsPerBlock = 16;
-
-    ezUInt32 sourceStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 targetStride = elementsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    WUInt32 sourceStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
     // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
-    ezUInt8 bias = 0;
-    if (ezImageFormat::GetDataType(sourceFormat) == ezImageFormatDataType::SNORM)
+    WUInt8 bias = 0;
+    if (WImageFormat::GetDataType(sourceFormat) == WImageFormatDataType::SNORM)
     {
       bias = 128;
     }
 
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
     {
-      decompressBlock(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezUInt8*>(targetPointer), bias);
+      decompressBlock(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WUInt8*>(targetPointer), bias);
 
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static void decompressBlock(const ezUInt8* pSourcePointer, ezUInt8* pTargetPointer, ezUInt8 uiBias)
+  static void decompressBlock(const WUInt8* pSourcePointer, WUInt8* pTargetPointer, WUInt8 uiBias)
   {
-    ezDecompressBlockBC4(pSourcePointer + 0, pTargetPointer + 0, 2, uiBias);
-    ezDecompressBlockBC4(pSourcePointer + 8, pTargetPointer + 1, 2, uiBias);
+    WDecompressBlockBC4(pSourcePointer, pTargetPointer, 1, uiBias);
   }
 };
 
-
-class ezImageConversion_BC6_RGB : public ezImageConversionStepDecompressBlocks
+class WImageConversion_BC5_RG : public WImageConversionStepDecompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC6H_UF16, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC6H_SF16, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC5_UNORM, WImageFormat::R8G8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC5_SNORM, WImageFormat::R8G8_SNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 targetFormatByteSize = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
-    EZ_ASSERT_DEV(targetFormatByteSize == sizeof(ezColorLinear16f), "");
+    const WUInt32 elementsPerBlock = 16;
 
-    const ezUInt32 sourceStride = s_bc67NumPixelsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    const ezUInt32 targetStride = s_bc67NumPixelsPerBlock * targetFormatByteSize;
+    WUInt32 sourceStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt32 targetStride = elementsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
-
-    const bool isSourceFormatSigned = sourceFormat == ezImageFormat::BC6H_SF16;
-
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; ++blockIndex)
-    {
-      ezDecompressBlockBC6(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezColorLinear16f*>(targetPointer), isSourceFormatSigned);
-
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-    }
-
-    return EZ_SUCCESS;
-  }
-};
-
-class ezImageConversion_BC7_RGBA : public ezImageConversionStepDecompressBlocks
-{
-public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
-  {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::BC7_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::BC7_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default)};
-    return supportedConversions;
-  }
-
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
-  {
-    const ezUInt32 sourceStride = s_bc67NumPixelsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    const ezUInt32 targetStride = s_bc67NumPixelsPerBlock * ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
-
-    const void* sourcePointer = source.GetPtr();
-    void* targetPointer = target.GetPtr();
-
-    for (ezUInt32 blockIndex = 0; blockIndex < uiNumBlocks; ++blockIndex)
-    {
-      ezDecompressBlockBC7(reinterpret_cast<const ezUInt8*>(sourcePointer), reinterpret_cast<ezColorBaseUB*>(targetPointer));
-
-      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
-      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-    }
-
-    return EZ_SUCCESS;
-  }
-};
-
-#if defined(EZ_SUPPORTS_BC4_COMPRESSOR)
-class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
-{
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
-  {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8_UNORM, ezImageFormat::BC4_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8_SNORM, ezImageFormat::BC4_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_UNORM, ezImageFormat::BC4_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SNORM, ezImageFormat::BC4_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC4_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SNORM, ezImageFormat::BC4_SNORM, ezImageConversionFlags::Default),
-    };
-    return supportedConversions;
-  }
-
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
-  {
-    EZ_IGNORE_UNUSED(targetFormat);
-
-    ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 
     // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
-    ezUInt8 bias = 0;
-    if (ezImageFormat::GetDataType(sourceFormat) == ezImageFormatDataType::SNORM)
+    WUInt8 bias = 0;
+    if (WImageFormat::GetDataType(sourceFormat) == WImageFormatDataType::SNORM)
     {
       bias = 128;
     }
 
-    for (ezUInt32 blockY = 0; blockY < numBlocksY; ++blockY)
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; blockIndex++)
     {
-      for (ezUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
+      decompressBlock(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WUInt8*>(targetPointer), bias);
+
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
+    }
+
+    return W_SUCCESS;
+  }
+
+  static void decompressBlock(const WUInt8* pSourcePointer, WUInt8* pTargetPointer, WUInt8 uiBias)
+  {
+    WDecompressBlockBC4(pSourcePointer + 0, pTargetPointer + 0, 2, uiBias);
+    WDecompressBlockBC4(pSourcePointer + 8, pTargetPointer + 1, 2, uiBias);
+  }
+};
+
+
+class WImageConversion_BC6_RGB : public WImageConversionStepDecompressBlocks
+{
+public:
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
+  {
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC6H_UF16, WImageFormat::R16G16B16A16_FLOAT, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC6H_SF16, WImageFormat::R16G16B16A16_FLOAT, WImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
+  {
+    const WUInt32 targetFormatByteSize = WImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    W_ASSERT_DEV(targetFormatByteSize == sizeof(WColorLinear16f), "");
+
+    const WUInt32 sourceStride = s_bc67NumPixelsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    const WUInt32 targetStride = s_bc67NumPixelsPerBlock * targetFormatByteSize;
+
+    const void* sourcePointer = source.GetPtr();
+    void* targetPointer = target.GetPtr();
+
+    const bool isSourceFormatSigned = sourceFormat == WImageFormat::BC6H_SF16;
+
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; ++blockIndex)
+    {
+      WDecompressBlockBC6(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WColorLinear16f*>(targetPointer), isSourceFormatSigned);
+
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
+    }
+
+    return W_SUCCESS;
+  }
+};
+
+class WImageConversion_BC7_RGBA : public WImageConversionStepDecompressBlocks
+{
+public:
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
+  {
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::BC7_UNORM, WImageFormat::R8G8B8A8_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::BC7_UNORM_SRGB, WImageFormat::R8G8B8A8_UNORM_SRGB, WImageConversionFlags::Default)};
+    return supportedConversions;
+  }
+
+  virtual WResult DecompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocks, WImageFormat::Enum sourceFormat,
+    WImageFormat::Enum targetFormat) const override
+  {
+    const WUInt32 sourceStride = s_bc67NumPixelsPerBlock * WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    const WUInt32 targetStride = s_bc67NumPixelsPerBlock * WImageFormat::GetBitsPerPixel(targetFormat) / 8;
+
+    const void* sourcePointer = source.GetPtr();
+    void* targetPointer = target.GetPtr();
+
+    for (WUInt32 blockIndex = 0; blockIndex < uiNumBlocks; ++blockIndex)
+    {
+      WDecompressBlockBC7(reinterpret_cast<const WUInt8*>(sourcePointer), reinterpret_cast<WColorBaseUB*>(targetPointer));
+
+      sourcePointer = WMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = WMemoryUtils::AddByteOffset(targetPointer, targetStride);
+    }
+
+    return W_SUCCESS;
+  }
+};
+
+#if defined(W_SUPPORTS_BC4_COMPRESSOR)
+class WImageConversion_CompressBC4 : public WImageConversionStepCompressBlocks
+{
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
+  {
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8_UNORM, WImageFormat::BC4_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8_SNORM, WImageFormat::BC4_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_UNORM, WImageFormat::BC4_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SNORM, WImageFormat::BC4_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC4_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SNORM, WImageFormat::BC4_SNORM, WImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+
+  virtual WResult CompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 numBlocksX, WUInt32 numBlocksY, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
+  {
+    W_IGNORE_UNUSED(targetFormat);
+
+    WUInt32 stride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt64 rowPitch = WImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
+
+    // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
+    WUInt8 bias = 0;
+    if (WImageFormat::GetDataType(sourceFormat) == WImageFormatDataType::SNORM)
+    {
+      bias = 128;
+    }
+
+    for (WUInt32 blockY = 0; blockY < numBlocksY; ++blockY)
+    {
+      for (WUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
       {
-        ezUInt8 sourceBlock[16];
+        WUInt8 sourceBlock[16];
 
-        for (ezUInt32 y = 0; y < 4; ++y)
+        for (WUInt32 y = 0; y < 4; ++y)
         {
-          const ezUInt8* sourcePointer = static_cast<const ezUInt8*>(source.GetPtr()) + (4 * blockY + y) * rowPitch;
+          const WUInt8* sourcePointer = static_cast<const WUInt8*>(source.GetPtr()) + (4 * blockY + y) * rowPitch;
 
-          for (ezUInt32 x = 0; x < 4; ++x)
+          for (WUInt32 x = 0; x < 4; ++x)
           {
             sourceBlock[4 * y + x] = sourcePointer[(x + 4 * blockX) * stride] + bias;
           }
         }
 
-        ezUInt32 a0, a1;
+        WUInt32 a0, a1;
         findBestPaletteBC4(sourceBlock, a0, a1);
 
-        ezUInt8* targetPointer = static_cast<ezUInt8*>(target.GetPtr()) + (blockY * numBlocksX + blockX) * 8;
+        WUInt8* targetPointer = static_cast<WUInt8*>(target.GetPtr()) + (blockY * numBlocksX + blockX) * 8;
         packBlockBC4(sourceBlock, a0, a1, targetPointer);
 
         targetPointer[0] -= bias;
@@ -2979,59 +2979,59 @@ class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
+class WImageConversion_CompressBC5 : public WImageConversionStepCompressBlocks
 {
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {
-      ezImageConversionEntry(ezImageFormat::R8G8_UNORM, ezImageFormat::BC5_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8_SNORM, ezImageFormat::BC5_SNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC5_UNORM, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SNORM, ezImageFormat::BC5_SNORM, ezImageConversionFlags::Default),
+    static WImageConversionEntry supportedConversions[] = {
+      WImageConversionEntry(WImageFormat::R8G8_UNORM, WImageFormat::BC5_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8_SNORM, WImageFormat::BC5_SNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC5_UNORM, WImageConversionFlags::Default),
+      WImageConversionEntry(WImageFormat::R8G8B8A8_SNORM, WImageFormat::BC5_SNORM, WImageConversionFlags::Default),
     };
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult CompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 numBlocksX, WUInt32 numBlocksY, WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    EZ_IGNORE_UNUSED(targetFormat);
+    W_IGNORE_UNUSED(targetFormat);
 
-    ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
+    WUInt32 stride = WImageFormat::GetBitsPerPixel(sourceFormat) / 8;
+    WUInt64 rowPitch = WImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 
     // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
-    ezUInt8 bias = 0;
-    if (ezImageFormat::GetDataType(sourceFormat) == ezImageFormatDataType::SNORM)
+    WUInt8 bias = 0;
+    if (WImageFormat::GetDataType(sourceFormat) == WImageFormatDataType::SNORM)
     {
       bias = 128;
     }
 
-    for (ezUInt32 blockY = 0; blockY < numBlocksY; ++blockY)
+    for (WUInt32 blockY = 0; blockY < numBlocksY; ++blockY)
     {
-      for (ezUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
+      for (WUInt32 blockX = 0; blockX < numBlocksX; ++blockX)
       {
-        ezUInt8 sourceBlockR[16];
-        ezUInt8 sourceBlockG[16];
+        WUInt8 sourceBlockR[16];
+        WUInt8 sourceBlockG[16];
 
-        for (ezUInt32 y = 0; y < 4; ++y)
+        for (WUInt32 y = 0; y < 4; ++y)
         {
-          const ezUInt8* sourcePointer = static_cast<const ezUInt8*>(source.GetPtr()) + (4 * blockY + y) * rowPitch;
+          const WUInt8* sourcePointer = static_cast<const WUInt8*>(source.GetPtr()) + (4 * blockY + y) * rowPitch;
 
-          for (ezUInt32 x = 0; x < 4; ++x)
+          for (WUInt32 x = 0; x < 4; ++x)
           {
             sourceBlockR[4 * y + x] = sourcePointer[(x + 4 * blockX) * stride + 0] + bias;
             sourceBlockG[4 * y + x] = sourcePointer[(x + 4 * blockX) * stride + 1] + bias;
           }
         }
 
-        ezUInt8* targetPointer = static_cast<ezUInt8*>(target.GetPtr()) + (blockY * numBlocksX + blockX) * 16;
+        WUInt8* targetPointer = static_cast<WUInt8*>(target.GetPtr()) + (blockY * numBlocksX + blockX) * 16;
 
         {
-          ezUInt32 a0, a1;
+          WUInt32 a0, a1;
           findBestPaletteBC4(sourceBlockR, a0, a1);
           packBlockBC4(sourceBlockR, a0, a1, targetPointer);
 
@@ -3041,7 +3041,7 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
         }
 
         {
-          ezUInt32 a0, a1;
+          WUInt32 a0, a1;
           findBestPaletteBC4(sourceBlockG, a0, a1);
           packBlockBC4(sourceBlockG, a0, a1, targetPointer + 8);
 
@@ -3052,24 +3052,24 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-static ezImageConversion_CompressBC4 s_conversion_compressBC4;
-static ezImageConversion_CompressBC5 s_conversion_compressBC5;
+static WImageConversion_CompressBC4 s_conversion_compressBC4;
+static WImageConversion_CompressBC5 s_conversion_compressBC5;
 
 #endif
 
-EZ_STATICLINK_FORCE
-static ezImageConversion_BC1_RGBA s_conversion_BC1_RGBA;
-static ezImageConversion_BC2_RGBA s_conversion_BC2_RGBA;
-static ezImageConversion_BC3_RGBA s_conversion_BC3_RGBA;
-static ezImageConversion_BC4_R s_conversion_BC4_R;
-static ezImageConversion_BC5_RG s_conversion_BC5_RG;
-static ezImageConversion_BC6_RGB s_conversion_BC6_RGB;
-static ezImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
+W_STATICLINK_FORCE
+static WImageConversion_BC1_RGBA s_conversion_BC1_RGBA;
+static WImageConversion_BC2_RGBA s_conversion_BC2_RGBA;
+static WImageConversion_BC3_RGBA s_conversion_BC3_RGBA;
+static WImageConversion_BC4_R s_conversion_BC4_R;
+static WImageConversion_BC5_RG s_conversion_BC5_RG;
+static WImageConversion_BC6_RGB s_conversion_BC6_RGB;
+static WImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTConversions);
+W_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTConversions);

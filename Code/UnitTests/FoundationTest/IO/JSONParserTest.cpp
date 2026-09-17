@@ -56,10 +56,10 @@ struct ParseResult
   }
 };
 
-class TestReader : public ezJSONParser
+class TestReader : public WJSONParser
 {
 private:
-  ezDeque<ParseResult> m_Results;
+  WDeque<ParseResult> m_Results;
 
 public:
   TestReader()
@@ -71,11 +71,11 @@ public:
 
   ~TestReader()
   {
-    EZ_TEST_INT(m_iExpectedParsingErrors, 0);
-    EZ_TEST_INT(m_Results.GetCount(), 0);
+    W_TEST_INT(m_iExpectedParsingErrors, 0);
+    W_TEST_INT(m_Results.GetCount(), 0);
   }
 
-  void ParseStream(ezStreamReader& inout_stream)
+  void ParseStream(WStreamReader& inout_stream)
   {
     SetInputStream(inout_stream);
     ParseAll();
@@ -83,11 +83,11 @@ public:
 
   void Add(ParseResult pr) { m_Results.PushBack(pr); }
 
-  virtual bool OnVariable(ezStringView sVarName) override
+  virtual bool OnVariable(WStringView sVarName) override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == Variable);
-    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, sVarName);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == Variable);
+    W_TEST_STRING(m_Results.PeekFront().m_szValue, sVarName);
 
     m_Results.PopFront();
 
@@ -97,45 +97,45 @@ public:
     return sVarName != "skip_var";
   }
 
-  virtual void OnReadValue(ezStringView sValue) override
+  virtual void OnReadValue(WStringView sValue) override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueString);
-    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, sValue);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == ValueString);
+    W_TEST_STRING(m_Results.PeekFront().m_szValue, sValue);
 
     m_Results.PopFront();
   }
 
   virtual void OnReadValue(double fValue) override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueDouble);
-    EZ_TEST_DOUBLE(m_Results.PeekFront().m_fValue, fValue, 0.0001);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == ValueDouble);
+    W_TEST_DOUBLE(m_Results.PeekFront().m_fValue, fValue, 0.0001);
 
     m_Results.PopFront();
   }
 
   virtual void OnReadValue(bool bValue) override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueBool);
-    EZ_TEST_BOOL(m_Results.PeekFront().m_bValue == bValue);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == ValueBool);
+    W_TEST_BOOL(m_Results.PeekFront().m_bValue == bValue);
 
     m_Results.PopFront();
   }
 
   virtual void OnReadValueNULL() override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueNULL);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == ValueNULL);
 
     m_Results.PopFront();
   }
 
   virtual void OnBeginObject() override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == BeginObject);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == BeginObject);
 
     m_Results.PopFront();
 
@@ -145,16 +145,16 @@ public:
 
   virtual void OnEndObject() override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == EndObject);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == EndObject);
 
     m_Results.PopFront();
   }
 
   virtual void OnBeginArray() override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == BeginArray);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == BeginArray);
 
     m_Results.PopFront();
 
@@ -164,32 +164,32 @@ public:
 
   virtual void OnEndArray() override
   {
-    EZ_TEST_BOOL(!m_Results.IsEmpty());
-    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == EndArray);
+    W_TEST_BOOL(!m_Results.IsEmpty());
+    W_TEST_BOOL(m_Results.PeekFront().m_Function == EndArray);
 
     m_Results.PopFront();
   }
 
-  ezInt32 m_iExpectedParsingErrors;
+  WInt32 m_iExpectedParsingErrors;
 
-  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override
+  virtual void OnParsingError(WStringView sMessage, bool bFatal, WUInt32 uiLine, WUInt32 uiColumn) override
   {
     --m_iExpectedParsingErrors;
 
     if (m_iExpectedParsingErrors >= 0)
       return;
 
-    ezStringBuilder tmp;
-    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, sMessage.GetData(tmp));
+    WStringBuilder tmp;
+    W_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, sMessage.GetData(tmp));
   }
 
   bool m_bSkipObject;
   bool m_bSkipArray;
 };
 
-EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
+W_CREATE_SIMPLE_TEST(IO, JSONParser)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "All Features")
+  W_TEST_BLOCK(WTestBlock::Enabled, "All Features")
   {
     const char* szTestData = "{\n\
 \"myarray2\":[\"\",2.2],\n\
@@ -307,7 +307,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document (string")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Empty Document (string")
   {
     const char* szTestData = "";
 
@@ -318,7 +318,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document (Whitespace)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Empty Document (Whitespace)")
   {
     const char* szTestData = " \n  \t ";
 
@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Empty Document")
   {
     const char* szTestData = "{}";
 
@@ -343,7 +343,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Two Empty Documents")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Two Empty Documents")
   {
     const char* szTestData = "{}{}";
 
@@ -358,7 +358,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Whitespace")
+  W_TEST_BLOCK(WTestBlock::Enabled, "No Whitespace")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{\"a\":4,\"b\":true,\"c\":\"\",\"d\":\"v\"}";
@@ -385,10 +385,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Blocks")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Empty Blocks")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{\"a\":{},\"b\":[],\"c\":[{}],\"d\":{}}";
@@ -421,10 +421,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Superfluous separators")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Superfluous separators")
   {
     // I want C++ 11 raw string literals
 
@@ -460,10 +460,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Too many commas in array")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Too many commas in array")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{\"a\":[,]/**/}";
@@ -483,10 +483,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0); // must fail to parse
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0); // must fail to parse
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comments")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Comments")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{\"a\":tr/**/u/*\n*//**/e/* */, \"b\":234/* adf */56//78\n}";
@@ -508,7 +508,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Object")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Skip Object")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{ \"skip_obj\" : { \"a\" : 1, \"b\" : 2, \"c\" : [ { }, { \"e\" : { } } ] }, \"d\" : 3, \"skip_obj\" : { } }";
@@ -535,7 +535,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Array")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Skip Array")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{ \"skip_array\" : [ \"a\",  1, \"b\",  2, \"c\", [ { }, { \"e\" : { } } ] ], \"d\" : 3, \"skip_array\" : [ ] }";
@@ -562,7 +562,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Variable")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Skip Variable")
   {
     // I want C++ 11 raw string literals
     const char* szTestData = "{ \"skip_var\" : { \"a\" : 1, \"b\" : 2, \"c\" : [ { }, { \"e\" : { } } ] }, \"d\" : 3, \"f\" : { \"g\" : 4, "
@@ -599,7 +599,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.ParseStream(stream);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unicode escape sequence")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Unicode escape sequence")
   {
     const char* szTestData = "{\"a\":\"\\u0061\",\"b\":\"\\u03f6\",\"c\":\"a\\u2AD7z\",\"d\":\"\\ud83e\\uDD86\\uD83D\\uDC96\"}";
 
@@ -629,10 +629,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unicode escape sequence parsing errors")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Unicode escape sequence parsing errors")
   {
     const char* szTestData = "{\"a\":\"\\u006G\",\"b\":\"\\u03f\",\"c\":\"a\\ud83ez\",\"d\":\"\\ud83e\t\"}";
 
@@ -663,10 +663,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.m_iExpectedParsingErrors = 4;
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Document")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Array Document")
   {
     const char* szTestData = "[\"a\",\"b\"]";
 
@@ -681,10 +681,10 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Malformed")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Malformed")
   {
     const char* szTestData = "{\"a\":{\"b\":\" {";
 
@@ -702,6 +702,6 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.m_iExpectedParsingErrors = 1;
     reader.ParseStream(stream);
 
-    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+    W_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
 }

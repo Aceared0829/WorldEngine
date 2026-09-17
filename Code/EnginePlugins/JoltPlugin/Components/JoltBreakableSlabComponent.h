@@ -12,16 +12,16 @@
 
 #include <Jolt/Core/Reference.h>
 
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
+using WMeshResourceHandle = WTypedResourceHandle<class WMeshResource>;
 
-struct ezMsgPhysicsAddImpulse;
-struct ezMsgExtractRenderData;
-struct ezMsgPhysicContact;
-struct ezMsgPhysicCharacterContact;
-class ezGeometry;
-class ezMeshResourceDescriptor;
-class ezJoltMaterial;
+struct WMsgPhysicsAddImpulse;
+struct WMsgExtractRenderData;
+struct WMsgPhysicContact;
+struct WMsgPhysicCharacterContact;
+class WGeometry;
+class WMeshResourceDescriptor;
+class WJoltMaterial;
 
 namespace JPH
 {
@@ -31,16 +31,16 @@ namespace JPH
 
 /// Flags that define which edges of a breakable slab are fixed/anchored in the world.
 /// A fixed edge means that shards adjacent to that edge will remain stationary and not fall under gravity.
-struct EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabFlags
+struct W_JOLTPLUGIN_DLL WJoltBreakableSlabFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    FixedEdgeTop = EZ_BIT(0),    ///< Shards will stick to this edge
-    FixedEdgeRight = EZ_BIT(1),  ///< Shards will stick to this edge
-    FixedEdgeBottom = EZ_BIT(2), ///< Shards will stick to this edge
-    FixedEdgeLeft = EZ_BIT(3),   ///< Shards will stick to this edge
+    FixedEdgeTop = W_BIT(0),    ///< Shards will stick to this edge
+    FixedEdgeRight = W_BIT(1),  ///< Shards will stick to this edge
+    FixedEdgeBottom = W_BIT(2), ///< Shards will stick to this edge
+    FixedEdgeLeft = W_BIT(3),   ///< Shards will stick to this edge
 
     Default = FixedEdgeTop | FixedEdgeRight | FixedEdgeBottom | FixedEdgeLeft
   };
@@ -54,14 +54,14 @@ struct EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabFlags
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltBreakableSlabFlags);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltBreakableSlabFlags);
 
 /// The general shape of the breakable slab.
 ///
 /// Can be extended with further shapes, if desired.
-struct EZ_JOLTPLUGIN_DLL ezJoltBreakableShape
+struct W_JOLTPLUGIN_DLL WJoltBreakableShape
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -73,54 +73,54 @@ struct EZ_JOLTPLUGIN_DLL ezJoltBreakableShape
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltBreakableShape);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltBreakableShape);
 
-class EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabComponentManager : public ezComponentManager<class ezJoltBreakableSlabComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltBreakableSlabComponentManager : public WComponentManager<class WJoltBreakableSlabComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltBreakableSlabComponentManager(ezWorld* pWorld);
-  ~ezJoltBreakableSlabComponentManager();
+  WJoltBreakableSlabComponentManager(WWorld* pWorld);
+  ~WJoltBreakableSlabComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  friend class ezJoltWorldModule;
-  friend class ezJoltBreakableSlabComponent;
+  friend class WJoltWorldModule;
+  friend class WJoltBreakableSlabComponent;
 
-  void PreAsyncUpdate(const ezWorldModule::UpdateContext& context);
-  void ReinitSlabs(const ezWorldModule::UpdateContext& context);
-  void PostAsyncUpdate(const ezWorldModule::UpdateContext& context);
+  void PreAsyncUpdate(const WWorldModule::UpdateContext& context);
+  void ReinitSlabs(const WWorldModule::UpdateContext& context);
+  void PostAsyncUpdate(const WWorldModule::UpdateContext& context);
 
-  ezSet<ezComponentHandle> m_RequireBreakage;
-  ezSet<ezComponentHandle> m_RequireBreakUpdate;
+  WSet<WComponentHandle> m_RequireBreakage;
+  WSet<WComponentHandle> m_RequireBreakUpdate;
 
-  ezAtomicInteger32 m_iTriggerBoundsUpdateSlot;
-  ezDynamicArray<ezJoltBreakableSlabComponent*> m_TriggerBoundsUpdate;
+  WAtomicInteger32 m_iTriggerBoundsUpdateSlot;
+  WDynamicArray<WJoltBreakableSlabComponent*> m_TriggerBoundsUpdate;
 };
 
 /// Represents a point in world space, where the breakable slab should be shattered.
-struct ezShatterPoint
+struct WShatterPoint
 {
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vImpulse;                                                        ///< With which impulse to push aways new, dynamic shards.
-  ezUInt32 m_uiShardIdx = ezInvalidIndex;                                   ///< Which shard to break apart.
+  WVec3 m_vGlobalPosition;
+  WVec3 m_vImpulse;                                                        ///< With which impulse to push aways new, dynamic shards.
+  WUInt32 m_uiShardIdx = WInvalidIndex;                                   ///< Which shard to break apart.
   float m_fImpactRadius = 0.05f;                                            ///< The size of the shatter point. Only relevant for some patterns.
   float m_fCellSize = 0.4f;                                                 ///< For the cellular (voronoi) pattern, how large to make cells.
   float m_fMakeDynamicRadius = 0.25f;                                       ///< In what radius around the shatter position to always make new shards dynamic. Unsupported shards will become dynamic regardless.
-  ezUInt8 m_uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::Cellular; ///< With which pattern to potentially break the shard.
+  WUInt8 m_uiAllowedBreakPatterns = (WUInt8)WBreakablePattern::Cellular; ///< With which pattern to potentially break the shard.
 };
 
 /// Most of the shatter calculation (and physics collider generation) is done in this task, to prevent performance drops.
 ///
 /// The result may be ready only with 1-3 frames delay.
-class ezShatterTask : public ezTask
+class WShatterTask : public WTask
 {
 public:
-  ezJoltBreakableSlabComponent* m_pComponent = nullptr;
-  ezHybridArray<JPH::Ref<JPH::ConvexShape>, 128> m_Shapes;
-  ezMeshResourceHandle m_hShardsMesh;
-  ezHybridArray<ezShatterPoint, 8> m_ShatterPoints;
-  ezVec3 m_vFinalImpulse;
+  WJoltBreakableSlabComponent* m_pComponent = nullptr;
+  WHybridArray<JPH::Ref<JPH::ConvexShape>, 128> m_Shapes;
+  WMeshResourceHandle m_hShardsMesh;
+  WHybridArray<WShatterPoint, 8> m_ShatterPoints;
+  WVec3 m_vFinalImpulse;
 
 protected:
   virtual void Execute() override;
@@ -132,16 +132,16 @@ protected:
 /// This component creates a breakable surface that can shatter into smaller pieces when hit.
 /// The slab can be rectangular, triangular or circular and can be anchored on any of its edges.
 /// When broken, the shards become dynamic physics objects that can collide and fall under gravity.
-class EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabComponent : public ezRenderComponent
+class W_JOLTPLUGIN_DLL WJoltBreakableSlabComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltBreakableSlabComponent, ezRenderComponent, ezJoltBreakableSlabComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltBreakableSlabComponent, WRenderComponent, WJoltBreakableSlabComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -150,13 +150,13 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltBreakableSlabComponent
+  // WJoltBreakableSlabComponent
 
 public:
   void SetWidth(float fWidth);         // [ property ]
@@ -169,19 +169,19 @@ public:
   float GetThickness() const;          // [ property ]
 
   /// Sets the UV scaling factor for texture mapping
-  void SetUvScale(ezVec2 vScale); // [ property ]
-  ezVec2 GetUvScale() const;      // [ property ]
+  void SetUvScale(WVec2 vScale); // [ property ]
+  WVec2 GetUvScale() const;      // [ property ]
 
   /// Sets which edges of the slab are fixed/anchored in the world
-  void SetFlags(ezBitflags<ezJoltBreakableSlabFlags> flags); // [ property ]
-  ezBitflags<ezJoltBreakableSlabFlags> GetFlags() const      // [ property ]
+  void SetFlags(WBitflags<WJoltBreakableSlabFlags> flags); // [ property ]
+  WBitflags<WJoltBreakableSlabFlags> GetFlags() const      // [ property ]
   {
     return m_Flags;
   }
 
   /// Sets the basic shape of the breakable slab (rectangle, triangle, circle)
-  void SetShape(ezEnum<ezJoltBreakableShape> shape); // [ property ]
-  ezEnum<ezJoltBreakableShape> GetShape() const      // [ property ]
+  void SetShape(WEnum<WJoltBreakableShape> shape); // [ property ]
+  WEnum<WJoltBreakableShape> GetShape() const      // [ property ]
   {
     return m_Shape;
   }
@@ -192,85 +192,85 @@ public:
   /// Shatters the entire slab into pieces of roughly the given size
   /// \param fShardSize The approximate size of generated shards
   /// \param vImpulse The impulse to apply to the shards
-  void ShatterAll(float fShardSize, const ezVec3& vImpulse); // [ scriptable ]
+  void ShatterAll(float fShardSize, const WVec3& vImpulse); // [ scriptable ]
 
   /// Shatters the slab using a cellular (Voronoi) pattern around a point
   /// \param vGlobalPosition The world position where to initiate the break
   /// \param fCellSize The approximate size of the cellular shards
   /// \param vImpulse The impulse to apply to the shards
   /// \param fMakeDynamicRadius Radius around the break point where shards become dynamic
-  void ShatterCellular(const ezVec3& vGlobalPosition, float fCellSize, const ezVec3& vImpulse, float fMakeDynamicRadius); // [ scriptable ]
+  void ShatterCellular(const WVec3& vGlobalPosition, float fCellSize, const WVec3& vImpulse, float fMakeDynamicRadius); // [ scriptable ]
 
   /// Shatters the slab in a radial pattern around a point
   /// \param vGlobalPosition The world position where to initiate the break
   /// \param fImpactRadius The radius of the impact area
   /// \param vImpulse The impulse to apply to the shards
   /// \param fMakeDynamicRadius Radius around the break point where shards become dynamic
-  void ShatterRadial(const ezVec3& vGlobalPosition, float fImpactRadius, const ezVec3& vImpulse, float fMakeDynamicRadius); // [ scriptable ]
+  void ShatterRadial(const WVec3& vGlobalPosition, float fImpactRadius, const WVec3& vImpulse, float fMakeDynamicRadius); // [ scriptable ]
 
 private:
-  friend class ezShatterTask;
+  friend class WShatterTask;
 
-  void PrepareBreakAsync(ezDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes, ezArrayPtr<const ezShatterPoint> points);
-  void ApplyBreak(ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes, const ezMeshResourceHandle& hMesh, const ezVec3& vImpulse);
+  void PrepareBreakAsync(WDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes, WArrayPtr<const WShatterPoint> points);
+  void ApplyBreak(WArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes, const WMeshResourceHandle& hMesh, const WVec3& vImpulse);
   void DebugDraw();
   void Cleanup();
   void ReinitMeshes();
-  ezMeshResourceHandle CreateShardsMesh() const;
-  void PrepareShardColliders(ezUInt32 uiFirstShard, ezDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes) const;
-  void CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes);
+  WMeshResourceHandle CreateShardsMesh() const;
+  void PrepareShardColliders(WUInt32 uiFirstShard, WDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes) const;
+  void CreateShardColliders(WUInt32 uiFirstShard, WArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes);
   void DestroyAllShardColliders();
-  void DestroyShardCollider(ezUInt32 uiShardIdx, JPH::BodyInterface& jphBodies, bool bUpdateVis);
+  void DestroyShardCollider(WUInt32 uiShardIdx, JPH::BodyInterface& jphBodies, bool bUpdateVis);
   void RetrieveShardTransforms();
-  void ApplyImpulse(const ezVec3& vImpulse, ezUInt32 uiFirstShard = 0);
+  void ApplyImpulse(const WVec3& vImpulse, WUInt32 uiFirstShard = 0);
   void UpdateShardColliders();
   void WakeUpBodies();
-  bool IsPointOnSlab(const ezVec3& vGlobalPosition) const;
-  ezUInt32 FindClosestShard(const ezVec3& vGlobalPosition) const;
+  bool IsPointOnSlab(const WVec3& vGlobalPosition) const;
+  WUInt32 FindClosestShard(const WVec3& vGlobalPosition) const;
 
-  void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg);                             // [ msg handler ]
-  void OnMsgPhysicContactMsg(ezMsgPhysicContact& ref_msg);                                  // [ msg handler ]
-  void OnMsgPhysicCharacterContact(ezMsgPhysicCharacterContact& ref_msg);                   // [ msg handler ]
-  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
+  void OnMsgPhysicsAddImpulse(WMsgPhysicsAddImpulse& ref_msg);                             // [ msg handler ]
+  void OnMsgPhysicContactMsg(WMsgPhysicContact& ref_msg);                                  // [ msg handler ]
+  void OnMsgPhysicCharacterContact(WMsgPhysicCharacterContact& ref_msg);                   // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
 
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const;
-  const ezJoltMaterial* GetPhysicsMaterial();
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
+  void BuildMeshResourceFromGeometry(WGeometry& Geometry, WMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const;
+  const WJoltMaterial* GetPhysicsMaterial();
 
   float m_fGravityFactor = 1.0f;
   float m_fWidth = 1.0f;
   float m_fHeight = 1.0f;
   float m_fThickness = 0.02f;
-  ezVec2 m_vUvScale = ezVec2(1.0f);
+  WVec2 m_vUvScale = WVec2(1.0f);
   float m_fContactReportForceThreshold = 0.0f;
 
-  ezBreakable2D m_Breakable;
+  WBreakable2D m_Breakable;
 
-  ezMeshResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hMaterial;
-  ezSurfaceResourceHandle m_hSurface;
+  WMeshResourceHandle m_hMesh;
+  WMaterialResourceHandle m_hMaterial;
+  WSurfaceResourceHandle m_hSurface;
 
   bool m_bReinitMeshes = true;
-  mutable ezUInt8 m_uiShardsSleeping = 200;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WUInt8 m_uiShardsSleeping = 200;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 
-  static ezAtomicInteger32 s_iShardMeshCounter;
+  static WAtomicInteger32 s_iShardMeshCounter;
 
-  ezUInt8 m_uiCollisionLayerStatic = 0;
-  ezUInt8 m_uiCollisionLayerDynamic = 0;
+  WUInt8 m_uiCollisionLayerStatic = 0;
+  WUInt8 m_uiCollisionLayerDynamic = 0;
 
-  ezUInt32 m_uiUserDataIndexStatic = ezInvalidIndex;
-  ezUInt32 m_uiUserDataIndexDynamic = ezInvalidIndex;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
+  WUInt32 m_uiUserDataIndexStatic = WInvalidIndex;
+  WUInt32 m_uiUserDataIndexDynamic = WInvalidIndex;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
 
-  ezDynamicArray<ezUInt32> m_ShardBodyIDs;
+  WDynamicArray<WUInt32> m_ShardBodyIDs;
 
-  ezSkinningState m_SkinningState;
-  ezBoundingBoxSphere m_Bounds;
+  WSkinningState m_SkinningState;
+  WBoundingBoxSphere m_Bounds;
 
-  ezEnum<ezJoltBreakableShape> m_Shape;
-  ezBitflags<ezJoltBreakableSlabFlags> m_Flags;
+  WEnum<WJoltBreakableShape> m_Shape;
+  WBitflags<WJoltBreakableSlabFlags> m_Flags;
 
-  ezHybridArray<ezShatterPoint, 2> m_ShatterPoints;
-  ezSharedPtr<ezShatterTask> m_pShatterTask;
+  WHybridArray<WShatterPoint, 2> m_ShatterPoints;
+  WSharedPtr<WShatterTask> m_pShatterTask;
 };

@@ -3,28 +3,28 @@
 #include <Foundation/Communication/Implementation/MessageLoop_Fallback.h>
 #include <Foundation/Communication/IpcChannel.h>
 
-ezMessageLoop_Fallback::ezMessageLoop_Fallback() = default;
+WMessageLoop_Fallback::WMessageLoop_Fallback() = default;
 
-ezMessageLoop_Fallback::~ezMessageLoop_Fallback()
+WMessageLoop_Fallback::~WMessageLoop_Fallback()
 {
   StopUpdateThread();
 }
 
-void ezMessageLoop_Fallback::WakeUp()
+void WMessageLoop_Fallback::WakeUp()
 {
   // nothing to do
 }
 
-bool ezMessageLoop_Fallback::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter)
+bool WMessageLoop_Fallback::WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter)
 {
-  EZ_IGNORE_UNUSED(pFilter);
+  W_IGNORE_UNUSED(pFilter);
 
   // nothing to do
 
   if (iTimeout < 0)
   {
     // if timeout is 'indefinite' wait a little
-    ezThreadUtils::YieldTimeSlice();
+    WThreadUtils::YieldTimeSlice();
   }
 
   return false;

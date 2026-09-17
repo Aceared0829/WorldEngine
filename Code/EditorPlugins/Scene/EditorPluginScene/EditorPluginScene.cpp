@@ -46,21 +46,21 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
-void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezScene2Document>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WScene2Document>())
       {
-        new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtScene2DocumentWindow(static_cast<WScene2Document*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
-      else if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
+      else if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSceneDocument>())
       {
-        new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtSceneDocumentWindow(static_cast<WSceneDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -70,41 +70,41 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
   }
 }
 
-void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+void ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectFirstSetup)
+  if (e.m_Type == WToolsProjectEvent::Type::ProjectFirstSetup)
   {
-    auto project = ezToolsProject::GetSingleton();
+    auto project = WToolsProject::GetSingleton();
 
     project->CreateSubFolder("Scenes");
     project->CreateSubFolder("Prefabs");
 
-    for (auto& dm : ezAssetDocumentManager::GetAllDocumentManagers())
+    for (auto& dm : WAssetDocumentManager::GetAllDocumentManagers())
     {
-      if (dm->IsInstanceOf<ezSceneDocumentManager>())
+      if (dm->IsInstanceOf<WSceneDocumentManager>())
       {
-        ezDocument* doc;
+        WDocument* doc;
 
-        ezStringBuilder path(project->GetProjectDirectory(), "/Scenes/Main.ezScene");
+        WStringBuilder path(project->GetProjectDirectory(), "/Scenes/Main.WScene");
         dm->CreateDocument("Scene", path, doc).IgnoreResult();
       }
     }
   }
 }
 
-void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+void AssetCuratorEventHandler(const WAssetCuratorEvent& e)
 {
-  if (e.m_Type == ezAssetCuratorEvent::Type::ActivePlatformChanged)
+  if (e.m_Type == WAssetCuratorEvent::Type::ActivePlatformChanged)
   {
-    ezSet<ezString> allCamPipes;
+    WSet<WString> allCamPipes;
 
-    auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("CameraPipelines");
+    auto& dynEnum = WDynamicStringEnum::CreateDynamicEnum("CameraPipelines");
 
-    for (ezUInt32 profileIdx = 0; profileIdx < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++profileIdx)
+    for (WUInt32 profileIdx = 0; profileIdx < WAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++profileIdx)
     {
-      const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetAssetProfile(profileIdx);
+      const WPlatformProfile* pProfile = WAssetCurator::GetSingleton()->GetAssetProfile(profileIdx);
 
-      const ezRenderPipelineProfileConfig* pConfig = pProfile->GetTypeConfig<ezRenderPipelineProfileConfig>();
+      const WRenderPipelineProfileConfig* pConfig = pProfile->GetTypeConfig<WRenderPipelineProfileConfig>();
 
       for (auto it = pConfig->m_CameraPipelines.GetIterator(); it.IsValid(); ++it)
       {
@@ -114,28 +114,28 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
   }
 }
 
-void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void WCameraComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WSkyLightComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WGreyBoxComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WLightComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WSceneDocument_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WAreaDamageComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WProjectileSurfaceInteraction_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WOccluderComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WSplineNodeComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WLensFlareComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
+QImage SliderImageGenerator_LightTemperature(WUInt32 uiWidth, WUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
   // can use a 1D image, height doesn't need to be all used
   QImage image = QImage(uiWidth, 1, QImage::Format::Format_RGB32);
 
-  for (ezUInt32 x = 0; x < uiWidth; ++x)
+  for (WUInt32 x = 0; x < uiWidth; ++x)
   {
     const double pos = (double)x / (uiWidth - 1.0);
-    ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * (fMaxValue - fMinValue)) + fMinValue));
+    WColor c = WColor::MakeFromKelvin(static_cast<WUInt32>((pos * (fMaxValue - fMinValue)) + fMinValue));
 
-    ezColorGammaUB cg = c;
+    WColorGammaUB cg = c;
     image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));
   }
 
@@ -144,57 +144,57 @@ QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight
 
 void OnLoadPlugin()
 {
-  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  WToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WSceneDocument_PropertyMetaStateEventHandler);
 
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(OnDocumentManagerEvent));
 
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);
 
   // Add built in tags
   {
-    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "Exclude From Export", true));
-    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
-    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "SkyLight", true));
+    WToolsTagRegistry::AddTag(WToolsTag("Default", "Exclude From Export", true));
+    WToolsTagRegistry::AddTag(WToolsTag("Default", "CastShadow", true));
+    WToolsTagRegistry::AddTag(WToolsTag("Default", "SkyLight", true));
   }
 
-  ezSelectionActions::RegisterActions();
-  ezSceneGizmoActions::RegisterActions();
-  ezSceneActions::RegisterActions();
-  ezLayerActions::RegisterActions();
-  ezMeshPrefabActions::RegisterActions();
+  WSelectionActions::RegisterActions();
+  WSceneGizmoActions::RegisterActions();
+  WSceneActions::RegisterActions();
+  WLayerActions::RegisterActions();
+  WMeshPrefabActions::RegisterActions();
 
   // Lives here rather than with the mesh asset, because what it knows about is prefabs, not meshes.
-  ezMeshPrefabActions::MapActions("AssetBrowserContextMenu", ezAssetBrowserContextMenu::s_sAssetMenu).IgnoreResult();
-  ezMeshPrefabActions::MapActions("MeshAssetMenuBar", "G.Asset", true).IgnoreResult();
-  ezMeshPrefabActions::MapActions("AnimatedMeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+  WMeshPrefabActions::MapActions("AssetBrowserContextMenu", WAssetBrowserContextMenu::s_sAssetMenu).IgnoreResult();
+  WMeshPrefabActions::MapActions("MeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+  WMeshPrefabActions::MapActions("AnimatedMeshAssetMenuBar", "G.Asset", true).IgnoreResult();
 
   // misc
-  ezQtImageSliderWidget::s_ImageGenerators["LightTemperature"] = SliderImageGenerator_LightTemperature;
+  WQtImageSliderWidget::s_ImageGenerators["LightTemperature"] = SliderImageGenerator_LightTemperature;
 
   // Menu Bar
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
   for (const char* szMenuBar : MenuBars)
   {
-    ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
-    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
-    ezDocumentActions::MapToolsActions(szMenuBar);
-    ezTransformGizmoActions::MapMenuActions(szMenuBar);
-    ezSceneGizmoActions::MapMenuActions(szMenuBar);
-    ezGameObjectSelectionActions::MapActions(szMenuBar);
-    ezSelectionActions::MapActions(szMenuBar);
-    ezEditActions::MapActions(szMenuBar, true, true);
-    ezTranslateGizmoAction::MapActions(szMenuBar);
-    ezGameObjectDocumentActions::MapMenuActions(szMenuBar);
-    ezGameObjectDocumentActions::MapMenuSimulationSpeed(szMenuBar);
-    ezSceneActions::MapMenuActions(szMenuBar);
+    WActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
+    WStandardMenus::MapActions(szMenuBar, WStandardMenuTypes::Scene | WStandardMenuTypes::View);
+    WDocumentActions::MapToolsActions(szMenuBar);
+    WTransformGizmoActions::MapMenuActions(szMenuBar);
+    WSceneGizmoActions::MapMenuActions(szMenuBar);
+    WGameObjectSelectionActions::MapActions(szMenuBar);
+    WSelectionActions::MapActions(szMenuBar);
+    WEditActions::MapActions(szMenuBar, true, true);
+    WTranslateGizmoAction::MapActions(szMenuBar);
+    WGameObjectDocumentActions::MapMenuActions(szMenuBar);
+    WGameObjectDocumentActions::MapMenuSimulationSpeed(szMenuBar);
+    WSceneActions::MapMenuActions(szMenuBar);
   }
   // Scene2 Menu bar adjustments
   {
-    ezActionMap* pMap = ezActionMapManager::GetActionMap(MenuBars[1]);
-    pMap->HideAction(ezDocumentActions::s_hSave, "G.File.Common");
-    pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "G.File.Common", 6.5f);
+    WActionMap* pMap = WActionMapManager::GetActionMap(MenuBars[1]);
+    pMap->HideAction(WDocumentActions::s_hSave, "G.File.Common");
+    pMap->MapAction(WLayerActions::s_hSaveActiveLayer, "G.File.Common", 6.5f);
   }
 
 
@@ -202,299 +202,299 @@ void OnLoadPlugin()
   const char* ToolBars[] = {"EditorPluginScene_DocumentToolBar", "EditorPluginScene_Scene2ToolBar"};
   for (const char* szToolBar : ToolBars)
   {
-    ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
+    WActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
 
-    ezTransformGizmoActions::MapToolbarActions(szToolBar);
-    ezSceneGizmoActions::MapToolbarActions(szToolBar);
-    ezGameObjectDocumentActions::MapToolbarActions(szToolBar);
-    ezSceneActions::MapToolbarActions(szToolBar);
+    WTransformGizmoActions::MapToolbarActions(szToolBar);
+    WSceneGizmoActions::MapToolbarActions(szToolBar);
+    WGameObjectDocumentActions::MapToolbarActions(szToolBar);
+    WSceneActions::MapToolbarActions(szToolBar);
   }
   // Scene2 Tool bar adjustments
   {
-    ezActionMap* pMap = ezActionMapManager::GetActionMap(ToolBars[1]);
-    pMap->HideAction(ezDocumentActions::s_hSave, "SaveCategory");
-    pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
+    WActionMap* pMap = WActionMapManager::GetActionMap(ToolBars[1]);
+    pMap->HideAction(WDocumentActions::s_hSave, "SaveCategory");
+    pMap->MapAction(WLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
   }
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar");
-  ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode /*| ezViewActions::ActivateRemoteProcess*/);
-  ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
+  WActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar");
+  WViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", WViewActions::PerspectiveMode | WViewActions::RenderMode /*| WViewActions::ActivateRemoteProcess*/);
+  WQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezDirectionalLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezDirectionalLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
-    { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WPointLightVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WPointLightVisualizerAdapter); });
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WDirectionalLightVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WDirectionalLightVisualizerAdapter); });
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WSpotLightVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WSpotLightVisualizerAdapter); });
+  WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WBoxReflectionProbeVisualizerAttribute>(), [](const WRTTI* pRtti) -> WVisualizerAdapter*
+    { return W_DEFAULT_NEW(WBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
-  ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
-  ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
-  ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
+  WActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
+  WGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
+  WSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
+  WEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
 
   // Layer Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
-  ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
+  WActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
+  WLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
 
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerToolbar");
-  ezLayerActions::MapToolbarActions("EditorPluginScene_LayerToolbar");
+  WActionMapManager::RegisterActionMap("EditorPluginScene_LayerToolbar");
+  WLayerActions::MapToolbarActions("EditorPluginScene_LayerToolbar");
 
   // component property meta states
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WCameraComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WSkyLightComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WGreyBoxComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WLightComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WAreaDamageComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WOccluderComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WSplineNodeComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WLensFlareComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WSceneDocument_PropertyMetaStateEventHandler);
 
-  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
+  WToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(OnDocumentManagerEvent));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WGreyBoxComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WSkyLightComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WCameraComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WLightComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WAreaDamageComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WOccluderComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WSplineNodeComponent_PropertyMetaStateEventHandler);
+  WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WLensFlareComponent_PropertyMetaStateEventHandler);
 
 
-  ezSelectionActions::UnregisterActions();
-  ezSceneGizmoActions::UnregisterActions();
-  ezLayerActions::UnregisterActions();
-  ezSceneActions::UnregisterActions();
-  ezMeshPrefabActions::UnregisterActions();
-  ezMcpToolRegistry::RemoveProvider(ezGetStaticRTTI<ezMcpMeshPrefabTool>());
-  ezMcpToolRegistry::RemoveProvider(ezGetStaticRTTI<ezMcpMeshLodTool>());
+  WSelectionActions::UnregisterActions();
+  WSceneGizmoActions::UnregisterActions();
+  WLayerActions::UnregisterActions();
+  WSceneActions::UnregisterActions();
+  WMeshPrefabActions::UnregisterActions();
+  WMcpToolRegistry::RemoveProvider(WGetStaticRTTI<WMcpMeshPrefabTool>());
+  WMcpToolRegistry::RemoveProvider(WGetStaticRTTI<WMcpMeshLodTool>());
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }
 
-void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WCameraComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezCameraComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WCameraComponent");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
-  const ezInt64 usage = e.m_pObject->GetTypeAccessor().GetValue("UsageHint").ConvertTo<ezInt64>();
-  const bool isRenderTarget = (usage == 3); // ezCameraUsageHint::RenderTarget
+  const WInt64 usage = e.m_pObject->GetTypeAccessor().GetValue("UsageHint").ConvertTo<WInt64>();
+  const bool isRenderTarget = (usage == 3); // WCameraUsageHint::RenderTarget
 
   auto& props = *e.m_pPropertyStates;
 
-  props["RenderTarget"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
-  props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["RenderTarget"].m_Visibility = isRenderTarget ? WPropertyUiState::Default : WPropertyUiState::Disabled;
+  props["RenderTargetOffset"].m_Visibility = isRenderTarget ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["RenderTargetSize"].m_Visibility = isRenderTarget ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 }
 
-void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WSkyLightComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSkyLightComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WSkyLightComponent");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
-  const ezInt64 iReflectionProbeMode = e.m_pObject->GetTypeAccessor().GetValue("ReflectionProbeMode").ConvertTo<ezInt64>();
-  const bool bIsStatic = (iReflectionProbeMode == 0); // ezReflectionProbeMode::Static
+  const WInt64 iReflectionProbeMode = e.m_pObject->GetTypeAccessor().GetValue("ReflectionProbeMode").ConvertTo<WInt64>();
+  const bool bIsStatic = (iReflectionProbeMode == 0); // WReflectionProbeMode::Static
 
   auto& props = *e.m_pPropertyStates;
 
-  props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  // props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  // props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["CubeMap"].m_Visibility = bIsStatic ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  // props["RenderTargetOffset"].m_Visibility = isRenderTarget ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  // props["RenderTargetSize"].m_Visibility = isRenderTarget ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 }
 
-void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WGreyBoxComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezGreyBoxComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WGreyBoxComponent");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
   auto& props = *e.m_pPropertyStates;
 
-  const ezInt64 iShapeType = e.m_pObject->GetTypeAccessor().GetValue("Shape").ConvertTo<ezInt64>();
+  const WInt64 iShapeType = e.m_pObject->GetTypeAccessor().GetValue("Shape").ConvertTo<WInt64>();
 
-  props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Detail"].m_Visibility = WPropertyUiState::Invisible;
   props["Detail"].m_sNewLabelText = "Detail";
-  props["Curvature"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
-  props["SlopedTop"].m_Visibility = ezPropertyUiState::Invisible;
-  props["SlopedBottom"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Curvature"].m_Visibility = WPropertyUiState::Invisible;
+  props["Thickness"].m_Visibility = WPropertyUiState::Invisible;
+  props["SlopedTop"].m_Visibility = WPropertyUiState::Invisible;
+  props["SlopedBottom"].m_Visibility = WPropertyUiState::Invisible;
 
   switch (iShapeType)
   {
-    case ezGreyBoxShape::Box:
+    case WGreyBoxShape::Box:
       break;
-    case ezGreyBoxShape::RampPosX:
-    case ezGreyBoxShape::RampNegX:
-    case ezGreyBoxShape::RampPosY:
-    case ezGreyBoxShape::RampNegY:
+    case WGreyBoxShape::RampPosX:
+    case WGreyBoxShape::RampNegX:
+    case WGreyBoxShape::RampPosY:
+    case WGreyBoxShape::RampNegY:
       break;
-    case ezGreyBoxShape::Column:
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+    case WGreyBoxShape::Column:
+      props["Detail"].m_Visibility = WPropertyUiState::Default;
       break;
-    case ezGreyBoxShape::StairsPosX:
-    case ezGreyBoxShape::StairsNegX:
-    case ezGreyBoxShape::StairsPosY:
-    case ezGreyBoxShape::StairsNegY:
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
-      props["SlopedTop"].m_Visibility = ezPropertyUiState::Default;
+    case WGreyBoxShape::StairsPosX:
+    case WGreyBoxShape::StairsNegX:
+    case WGreyBoxShape::StairsPosY:
+    case WGreyBoxShape::StairsNegY:
+      props["Detail"].m_Visibility = WPropertyUiState::Default;
+      props["Curvature"].m_Visibility = WPropertyUiState::Default;
+      props["SlopedTop"].m_Visibility = WPropertyUiState::Default;
       props["Detail"].m_sNewLabelText = "Steps";
       break;
-    case ezGreyBoxShape::ArchX:
-    case ezGreyBoxShape::ArchY:
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
-      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+    case WGreyBoxShape::ArchX:
+    case WGreyBoxShape::ArchY:
+      props["Detail"].m_Visibility = WPropertyUiState::Default;
+      props["Curvature"].m_Visibility = WPropertyUiState::Default;
+      props["Thickness"].m_Visibility = WPropertyUiState::Default;
       break;
-    case ezGreyBoxShape::SpiralStairs:
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
-      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
-      props["SlopedTop"].m_Visibility = ezPropertyUiState::Default;
-      props["SlopedBottom"].m_Visibility = ezPropertyUiState::Default;
+    case WGreyBoxShape::SpiralStairs:
+      props["Detail"].m_Visibility = WPropertyUiState::Default;
+      props["Curvature"].m_Visibility = WPropertyUiState::Default;
+      props["Thickness"].m_Visibility = WPropertyUiState::Default;
+      props["SlopedTop"].m_Visibility = WPropertyUiState::Default;
+      props["SlopedBottom"].m_Visibility = WPropertyUiState::Default;
       props["Detail"].m_sNewLabelText = "Steps";
       break;
   }
 }
 
-void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WLightComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pLightComponentRtti = ezRTTI::FindTypeByName("ezLightComponent");
-  static const ezRTTI* pFillLightComponentRtti = ezRTTI::FindTypeByName("ezFillLightComponent");
-  EZ_ASSERT_DEBUG(pLightComponentRtti != nullptr && pFillLightComponentRtti != nullptr, "Did the typename change?");
+  static const WRTTI* pLightComponentRtti = WRTTI::FindTypeByName("WLightComponent");
+  static const WRTTI* pFillLightComponentRtti = WRTTI::FindTypeByName("WFillLightComponent");
+  W_ASSERT_DEBUG(pLightComponentRtti != nullptr && pFillLightComponentRtti != nullptr, "Did the typename change?");
 
   auto& props = *e.m_pPropertyStates;
 
-  const ezRTTI* pObjectType = e.m_pObject->GetTypeAccessor().GetType();
+  const WRTTI* pObjectType = e.m_pObject->GetTypeAccessor().GetType();
   const bool bIsLight = pObjectType->IsDerivedFrom(pLightComponentRtti);
   const bool bIsFillLight = pObjectType->IsDerivedFrom(pFillLightComponentRtti);
 
   if (bIsLight || bIsFillLight)
   {
     const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
-    props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["Temperature"].m_Visibility = bUseColorTemperature ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["LightColor"].m_Visibility = bUseColorTemperature ? WPropertyUiState::Invisible : WPropertyUiState::Default;
   }
 
   if (bIsLight)
   {
     const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
-    props["TransparentShadows"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["TransparentShadows"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["PenumbraSize"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["SlopeBias"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["ConstantBias"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
     // Point/Spot light
-    props["ShadowFadeOutRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["ShadowFadeOutRange"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
     // Directional light
-    props["NumCascades"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["MinShadowRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["FadeOutStart"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SplitModeWeight"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["NearPlaneOffset"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["ScreenSpaceShadows"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["NumCascades"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["MinShadowRange"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["FadeOutStart"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["SplitModeWeight"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["NearPlaneOffset"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["ScreenSpaceShadows"].m_Visibility = bCastShadows ? WPropertyUiState::Default : WPropertyUiState::Invisible;
   }
 }
 
-void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WAreaDamageComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezAreaDamageComponent");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WAreaDamageComponent");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
   auto& props = *e.m_pPropertyStates;
 
-  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
+  const WInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<WInt32>();
 
-  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  if (iImpulseType != WImpulseTypeConfig::CustomValueKey)
   {
-    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Impulse"].m_Visibility = WPropertyUiState::Invisible;
   }
 }
 
-void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WProjectileSurfaceInteraction_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezProjectileSurfaceInteraction");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WProjectileSurfaceInteraction");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
   auto& props = *e.m_pPropertyStates;
 
-  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
+  const WInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<WInt32>();
 
-  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  if (iImpulseType != WImpulseTypeConfig::CustomValueKey)
   {
-    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Impulse"].m_Visibility = WPropertyUiState::Invisible;
   }
 }
 
-void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WOccluderComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezOccluderComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WOccluderComponent");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
-  const ezInt64 type = e.m_pObject->GetTypeAccessor().GetValue("Type").ConvertTo<ezInt64>();
-  const bool isMesh = (type == 2); // ezOccluderType::Mesh
+  const WInt64 type = e.m_pObject->GetTypeAccessor().GetValue("Type").ConvertTo<WInt64>();
+  const bool isMesh = (type == 2); // WOccluderType::Mesh
 
   auto& props = *e.m_pPropertyStates;
 
-  props["Extents"].m_Visibility = isMesh ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
-  props["Mesh"].m_Visibility = isMesh ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["Extents"].m_Visibility = isMesh ? WPropertyUiState::Invisible : WPropertyUiState::Default;
+  props["Mesh"].m_Visibility = isMesh ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 }
 
-void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WSplineNodeComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSplineNodeComponent");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WSplineNodeComponent");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
-  const ezInt32 iTangentModeIn = e.m_pObject->GetTypeAccessor().GetValue("TangentModeIn").ConvertTo<ezInt32>();
-  const ezInt32 iTangentModeOut = e.m_pObject->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<ezInt32>();
+  const WInt32 iTangentModeIn = e.m_pObject->GetTypeAccessor().GetValue("TangentModeIn").ConvertTo<WInt32>();
+  const WInt32 iTangentModeOut = e.m_pObject->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<WInt32>();
 
   auto& props = *e.m_pPropertyStates;
-  props["CustomTangentIn"].m_Visibility = iTangentModeIn == ezSplineTangentMode::Custom ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["CustomTangentOut"].m_Visibility = iTangentModeOut == ezSplineTangentMode::Custom ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["CustomTangentIn"].m_Visibility = iTangentModeIn == WSplineTangentMode::Custom ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["CustomTangentOut"].m_Visibility = iTangentModeOut == WSplineTangentMode::Custom ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 }
 
-void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WLensFlareComponent_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLensFlareComponent");
+  static const WRTTI* pRtti = WRTTI::FindTypeByName("WLensFlareComponent");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
@@ -502,5 +502,5 @@ void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent
   const bool bLinkToLightShape = e.m_pObject->GetTypeAccessor().GetValue("LinkToLightShape").ConvertTo<bool>();
 
   auto& props = *e.m_pPropertyStates;
-  props["LightColor"].m_Visibility = bLinkToLightShape ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["LightColor"].m_Visibility = bLinkToLightShape ? WPropertyUiState::Invisible : WPropertyUiState::Default;
 }

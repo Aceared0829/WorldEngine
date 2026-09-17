@@ -19,64 +19,64 @@
 #include <ModelImporter2/ImporterMagicaVoxel/ogt_voxel_meshify.h>
 
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   ImporterMagicaVoxel::ImporterMagicaVoxel() = default;
   ImporterMagicaVoxel::~ImporterMagicaVoxel() = default;
 
-  ezResult ImporterMagicaVoxel::DoImport()
+  WResult ImporterMagicaVoxel::DoImport()
   {
     const char* szFileName = m_Options.m_sSourceFile;
 
-    ezDynamicArray<ezUInt8> fileContent;
+    WDynamicArray<WUInt8> fileContent;
     fileContent.Reserve(1024 * 1024);
 
     // Read the whole file into memory since we map BSP data structures directly to memory content
     {
-      ezFileReader fileReader;
+      WFileReader fileReader;
 
       if (fileReader.Open(szFileName, 1024 * 1024).Failed())
       {
-        ezLog::Error("Couldn't open '{}' for voxel import.", szFileName);
-        return EZ_FAILURE;
+        WLog::Error("Couldn't open '{}' for voxel import.", szFileName);
+        return W_FAILURE;
       }
 
-      ezUInt8 Temp[1024 * 4];
+      WUInt8 Temp[1024 * 4];
 
-      while (ezUInt64 uiRead = fileReader.ReadBytes(Temp, EZ_ARRAY_SIZE(Temp)))
+      while (WUInt64 uiRead = fileReader.ReadBytes(Temp, W_ARRAY_SIZE(Temp)))
       {
-        fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+        fileContent.PushBackRange(WArrayPtr<WUInt8>(Temp, (WUInt32)uiRead));
       }
     }
 
     if (fileContent.IsEmpty())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     const ogt_vox_scene* scene = ogt_vox_read_scene(fileContent.GetData(), fileContent.GetCount());
     if (!scene)
     {
-      ezLog::Error("Couldn't open '{}' for voxel import, read_scene failed.", szFileName);
-      return EZ_FAILURE;
+      WLog::Error("Couldn't open '{}' for voxel import, read_scene failed.", szFileName);
+      return W_FAILURE;
     }
 
-    EZ_SCOPE_EXIT(ogt_vox_destroy_scene(scene));
+    W_SCOPE_EXIT(ogt_vox_destroy_scene(scene));
 
     // Temp storage buffers to build the mesh streams out of
-    ezDynamicArray<ezVec3> positions;
+    WDynamicArray<WVec3> positions;
     positions.Reserve(4096);
 
-    ezDynamicArray<ezVec3> normals;
+    WDynamicArray<WVec3> normals;
     normals.Reserve(4096);
 
-    ezDynamicArray<ezColorGammaUB> colors;
+    WDynamicArray<WColorGammaUB> colors;
     colors.Reserve(4096);
 
-    ezDynamicArray<ezUInt32> indices;
+    WDynamicArray<WUInt32> indices;
     indices.Reserve(8192);
 
-    ezUInt32 uiIndexOffset = 0;
+    WUInt32 uiIndexOffset = 0;
 
     for (uint32_t modelIdx = 0; modelIdx < scene->num_models; ++modelIdx)
     {
@@ -86,12 +86,12 @@ namespace ezModelImporter2
       memset(&ctx, 0, sizeof(ctx));
 
       ogt_mesh* mesh = ogt_mesh_from_paletted_voxels_greedy(&ctx, model->voxel_data, model->size_x, model->size_y, model->size_z, (const ogt_mesh_rgba*)&scene->palette.color[0]);
-      EZ_SCOPE_EXIT(ogt_mesh_destroy(&ctx, mesh));
+      W_SCOPE_EXIT(ogt_mesh_destroy(&ctx, mesh));
 
       if (!mesh)
       {
-        ezLog::Error("Couldn't generate mesh for voxels in file '{}'.", szFileName);
-        return EZ_FAILURE;
+        WLog::Error("Couldn't generate mesh for voxels in file '{}'.", szFileName);
+        return W_FAILURE;
       }
 
       ogt_mesh_remove_duplicate_vertices(&ctx, mesh);
@@ -99,18 +99,18 @@ namespace ezModelImporter2
       // offset mesh vertices so that the center of the mesh (center of the voxel grid) is at (0,0,0)
       // also apply the root transform in the same go
       {
-        const ezVec3 originOffset = ezVec3(-(float)(model->size_x >> 1), (float)(model->size_z >> 1), (float)(model->size_y >> 1));
+        const WVec3 originOffset = WVec3(-(float)(model->size_x >> 1), (float)(model->size_z >> 1), (float)(model->size_y >> 1));
 
         for (uint32_t i = 0; i < mesh->vertex_count; ++i)
         {
-          ezVec3 pos = ezVec3(-mesh->vertices[i].pos.x, mesh->vertices[i].pos.z, mesh->vertices[i].pos.y);
+          WVec3 pos = WVec3(-mesh->vertices[i].pos.x, mesh->vertices[i].pos.z, mesh->vertices[i].pos.y);
           pos -= originOffset;
           positions.ExpandAndGetRef() = (m_Options.m_RootTransform * pos) + m_Options.m_vRootPosition;
 
-          ezVec3 norm = ezVec3(-mesh->vertices[i].normal.x, mesh->vertices[i].normal.z, mesh->vertices[i].normal.y);
+          WVec3 norm = WVec3(-mesh->vertices[i].normal.x, mesh->vertices[i].normal.z, mesh->vertices[i].normal.y);
           normals.ExpandAndGetRef() = m_Options.m_RootTransform.TransformDirection(norm);
 
-          colors.ExpandAndGetRef() = ezColorGammaUB(mesh->vertices[i].color.r, mesh->vertices[i].color.g, mesh->vertices[i].color.b, mesh->vertices[i].color.a);
+          colors.ExpandAndGetRef() = WColorGammaUB(mesh->vertices[i].color.r, mesh->vertices[i].color.g, mesh->vertices[i].color.b, mesh->vertices[i].color.a);
         }
 
         for (uint32_t i = 0; i < mesh->index_count; ++i)
@@ -123,31 +123,31 @@ namespace ezModelImporter2
     }
 
 
-    ezMeshBufferResourceDescriptor& mb = m_Options.m_pMeshOutput->MeshBufferDesc();
+    WMeshBufferResourceDescriptor& mb = m_Options.m_pMeshOutput->MeshBufferDesc();
 
     mb.AddCommonStreams();
-    mb.AddStream(ezMeshVertexStreamType::Color0);
+    mb.AddStream(WMeshVertexStreamType::Color0);
 
-    mb.AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, indices.GetCount() / 3, true);
+    mb.AllocateStreams(positions.GetCount(), WGALPrimitiveTopology::Triangles, indices.GetCount() / 3, true);
 
     // Add triangles
-    ezUInt32 uiFinalTriIdx = 0;
-    for (ezUInt32 i = 0; i < indices.GetCount(); i += 3, ++uiFinalTriIdx)
+    WUInt32 uiFinalTriIdx = 0;
+    for (WUInt32 i = 0; i < indices.GetCount(); i += 3, ++uiFinalTriIdx)
     {
       mb.SetTriangleIndices(uiFinalTriIdx, indices[i + 1], indices[i + 0], indices[i + 2]);
     }
 
-    for (ezUInt32 i = 0; i < positions.GetCount(); ++i)
+    for (WUInt32 i = 0; i < positions.GetCount(); ++i)
     {
       mb.SetPosition(i, positions[i]);
       mb.SetNormal(i, normals[i]);
       mb.SetColor0(i, colors[i]);
     }
 
-    m_Options.m_pMeshOutput->SetMaterial(0, ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit));
+    m_Options.m_pMeshOutput->SetMaterial(0, WMaterialResource::GetDefaultMaterialFileName(WMaterialResource::DefaultMaterialType::Lit));
     m_Options.m_pMeshOutput->AddSubMesh(indices.GetCount() / 3, 0, 0);
     m_Options.m_pMeshOutput->ComputeBounds();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

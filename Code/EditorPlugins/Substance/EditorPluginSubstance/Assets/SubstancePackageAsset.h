@@ -3,9 +3,9 @@
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginSubstance/EditorPluginSubstanceDLL.h>
 
-struct ezSubstanceUsage
+struct WSubstanceUsage
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -27,22 +27,22 @@ struct ezSubstanceUsage
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceUsage);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINSUBSTANCE_DLL, WSubstanceUsage);
 
 
-struct ezSubstanceGraphOutput
+struct WSubstanceGraphOutput
 {
   bool m_bEnabled = true;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode = ezTexConvCompressionMode::High;
-  ezEnum<ezSubstanceUsage> m_Usage;
-  ezUInt8 m_uiNumChannels = 1;
-  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
+  WEnum<WTexConvCompressionMode> m_CompressionMode = WTexConvCompressionMode::High;
+  WEnum<WSubstanceUsage> m_Usage;
+  WUInt8 m_uiNumChannels = 1;
+  WEnum<WTexConvMipmapMode> m_MipmapMode;
   bool m_bPreserveAlphaCoverage = false;
-  ezString m_sName;
-  ezString m_sLabel;
-  ezUuid m_Uuid;
+  WString m_sName;
+  WString m_sLabel;
+  WUuid m_Uuid;
 
-  bool operator==(const ezSubstanceGraphOutput& other) const
+  bool operator==(const WSubstanceGraphOutput& other) const
   {
     return m_bEnabled == other.m_bEnabled &&
            m_CompressionMode == other.m_CompressionMode &&
@@ -56,21 +56,21 @@ struct ezSubstanceGraphOutput
   }
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceGraphOutput);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINSUBSTANCE_DLL, WSubstanceGraphOutput);
 
 
-struct ezSubstanceGraph
+struct WSubstanceGraph
 {
   bool m_bEnabled = true;
 
-  ezString m_sName;
+  WString m_sName;
 
-  ezUInt8 m_uiOutputWidth = 0;  ///< In base 2, e.g. 8 = 2^8 = 256
-  ezUInt8 m_uiOutputHeight = 0; ///< In base 2
+  WUInt8 m_uiOutputWidth = 0;  ///< In base 2, e.g. 8 = 2^8 = 256
+  WUInt8 m_uiOutputHeight = 0; ///< In base 2
 
-  ezHybridArray<ezSubstanceGraphOutput, 8> m_Outputs;
+  WHybridArray<WSubstanceGraphOutput, 8> m_Outputs;
 
-  bool operator==(const ezSubstanceGraph& other) const
+  bool operator==(const WSubstanceGraph& other) const
   {
     return m_bEnabled == other.m_bEnabled &&
            m_sName == other.m_sName &&
@@ -80,58 +80,58 @@ struct ezSubstanceGraph
   }
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceGraph);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINSUBSTANCE_DLL, WSubstanceGraph);
 
 
-class ezSubstancePackageAssetProperties : public ezReflectedClass
+class WSubstancePackageAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSubstancePackageAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSubstancePackageAssetProperties, WReflectedClass);
 
 public:
-  ezSubstancePackageAssetProperties() = default;
+  WSubstancePackageAssetProperties() = default;
 
-  ezString m_sSubstancePackage;
-  ezString m_sOutputPattern;
+  WString m_sSubstancePackage;
+  WString m_sOutputPattern;
 
-  ezHybridArray<ezSubstanceGraph, 2> m_Graphs;
+  WHybridArray<WSubstanceGraph, 2> m_Graphs;
 };
 
 
-class ezSubstancePackageAssetMetaData : public ezReflectedClass
+class WSubstancePackageAssetMetaData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSubstancePackageAssetMetaData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSubstancePackageAssetMetaData, WReflectedClass);
 
 public:
-  ezDynamicArray<ezUuid> m_OutputUuids;
-  ezDynamicArray<ezString> m_OutputNames;
+  WDynamicArray<WUuid> m_OutputUuids;
+  WDynamicArray<WString> m_OutputNames;
 };
 
-class ezTextureAssetProfileConfig;
+class WTextureAssetProfileConfig;
 
-class ezSubstancePackageAssetDocument : public ezSimpleAssetDocument<ezSubstancePackageAssetProperties>
+class WSubstancePackageAssetDocument : public WSimpleAssetDocument<WSubstancePackageAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSubstancePackageAssetDocument, ezSimpleAssetDocument<ezSubstancePackageAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WSubstancePackageAssetDocument, WSimpleAssetDocument<WSubstancePackageAssetProperties>);
 
 public:
-  ezSubstancePackageAssetDocument(ezStringView sDocumentPath);
-  ~ezSubstancePackageAssetDocument();
+  WSubstancePackageAssetDocument(WStringView sDocumentPath);
+  ~WSubstancePackageAssetDocument();
 
   // for previewing purposes
-  ezUuid m_SelectedOutput;
-  ezEnum<ezTextureChannelMode> m_ChannelMode;
-  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
+  WUuid m_SelectedOutput;
+  WEnum<WTextureChannelMode> m_ChannelMode;
+  WInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
 
 private:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override { return WStatus(W_SUCCESS); }
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  void OnPropertyChanged(const ezDocumentObjectPropertyEvent& e);
+  void OnPropertyChanged(const WDocumentObjectPropertyEvent& e);
 
 private:
-  ezResult GetTempDir(ezStringBuilder& out_sTempDir) const;
-  void GenerateOutputName(const ezSubstanceGraph& graph, const ezSubstanceGraphOutput& graphOutput, ezStringBuilder& out_sOutputName) const;
-  ezTransformStatus UpdateGraphOutputs(ezStringView sAbsolutePath, bool bAllowPropertyModifications);
-  ezStatus RunTexConv(const char* szInputFile, const char* szTargetFile, const ezAssetFileHeader& assetHeader, const ezSubstanceGraphOutput& graphOutput, ezStringView sThumbnailFile, const ezTextureAssetProfileConfig* pAssetConfig);
+  WResult GetTempDir(WStringBuilder& out_sTempDir) const;
+  void GenerateOutputName(const WSubstanceGraph& graph, const WSubstanceGraphOutput& graphOutput, WStringBuilder& out_sOutputName) const;
+  WTransformStatus UpdateGraphOutputs(WStringView sAbsolutePath, bool bAllowPropertyModifications);
+  WStatus RunTexConv(const char* szInputFile, const char* szTargetFile, const WAssetFileHeader& assetHeader, const WSubstanceGraphOutput& graphOutput, WStringView sThumbnailFile, const WTextureAssetProfileConfig* pAssetConfig);
 };

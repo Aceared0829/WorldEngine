@@ -8,17 +8,17 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 template <typename Type>
-class ezRectTemplate;
-using ezRectFloat = ezRectTemplate<float>;
+class WRectTemplate;
+using WRectFloat = WRectTemplate<float>;
 
-class ezFormatString;
-class ezFrustum;
-class ezRenderViewContext;
+class WFormatString;
+class WFrustum;
+class WRenderViewContext;
 
 /// Horizontal alignment of debug text
-struct ezDebugTextHAlign
+struct WDebugTextHAlign
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -30,12 +30,12 @@ struct ezDebugTextHAlign
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextHAlign);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WDebugTextHAlign);
 
 /// Vertical alignment of debug text
-struct ezDebugTextVAlign
+struct WDebugTextVAlign
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -47,12 +47,12 @@ struct ezDebugTextVAlign
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextVAlign);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WDebugTextVAlign);
 
 /// Screen placement of debug text
-struct ezDebugTextPlacement
+struct WDebugTextPlacement
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -69,63 +69,63 @@ struct ezDebugTextPlacement
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextPlacement);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WDebugTextPlacement);
 
-struct EZ_RENDERERCORE_DLL ezDebugRendererLine
+struct W_RENDERERCORE_DLL WDebugRendererLine
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezDebugRendererLine();
-  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd);
-  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+  WDebugRendererLine();
+  WDebugRendererLine(const WVec3& vStart, const WVec3& vEnd);
+  WDebugRendererLine(const WVec3& vStart, const WVec3& vEnd, const WColor& color);
 
-  ezVec3 m_start;
-  ezVec3 m_end;
+  WVec3 m_start;
+  WVec3 m_end;
 
-  ezColor m_startColor = ezColor::White;
-  ezColor m_endColor = ezColor::White;
+  WColor m_startColor = WColor::White;
+  WColor m_endColor = WColor::White;
 };
 
-struct EZ_RENDERERCORE_DLL ezDebugRendererTriangle
+struct W_RENDERERCORE_DLL WDebugRendererTriangle
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezDebugRendererTriangle();
-  ezDebugRendererTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
+  WDebugRendererTriangle();
+  WDebugRendererTriangle(const WVec3& v0, const WVec3& v1, const WVec3& v2);
 
-  ezVec3 m_position[3];
-  ezColor m_color = ezColor::White;
+  WVec3 m_position[3];
+  WColor m_color = WColor::White;
 };
 
-struct EZ_RENDERERCORE_DLL ezDebugRendererTexturedTriangle
+struct W_RENDERERCORE_DLL WDebugRendererTexturedTriangle
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezVec3 m_position[3];
-  ezVec2 m_texcoord[3];
-  ezColor m_color = ezColor::White;
+  WVec3 m_position[3];
+  WVec2 m_texcoord[3];
+  WColor m_color = WColor::White;
 };
 
-/// Enables a function to take an ezMat3, ezMat4 or ezTransfrom.
-struct ezMatOrTransform
+/// Enables a function to take an WMat3, WMat4 or WTransfrom.
+struct WMatOrTransform
 {
-  ezMatOrTransform(const ezMat4& mMat4)
+  WMatOrTransform(const WMat4& mMat4)
     : m_Mat4(mMat4)
   {
   }
 
-  ezMatOrTransform(const ezMat3& mMat3)
+  WMatOrTransform(const WMat3& mMat3)
   {
     m_Mat4.SetIdentity();
     m_Mat4.SetRotationalPart(mMat3);
   }
 
-  ezMatOrTransform(const ezTransform& transform)
+  WMatOrTransform(const WTransform& transform)
   {
     m_Mat4 = transform.GetAsMat4();
   }
 
-  ezMat4 m_Mat4;
+  WMat4 m_Mat4;
 };
 
 
@@ -133,13 +133,13 @@ struct ezMatOrTransform
 ///
 /// Shapes can be rendered for a single frame, or 'persistent' for a certain duration.
 /// The 'context' specifies whether shapes are generally visible in a scene, from all views,
-/// or specific to a single view. See the ezDebugRendererContext constructors for what can be implicitly
+/// or specific to a single view. See the WDebugRendererContext constructors for what can be implicitly
 /// used as a context.
-class EZ_RENDERERCORE_DLL ezDebugRenderer
+class W_RENDERERCORE_DLL WDebugRenderer
 {
 public:
   /// Renders the given set of lines for one frame.
-  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLines(const WDebugRendererContext& context, WArrayPtr<const WDebugRendererLine> lines, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders lines that are always visible on top of all geometry (no depth test), with distance-based fade-out.
   ///
@@ -147,52 +147,52 @@ public:
   /// call DrawLines() with the same lines but a different color: the depth-tested DrawLines() result overrides
   /// the always-on-top DrawLinesOccluded() result wherever the lines are not occluded.
   /// Rendering of the occluded layer can be disabled globally via the CVar 'Debug.RenderOccluded'.
-  static void DrawLinesOccluded(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLinesOccluded(const WDebugRendererContext& context, WArrayPtr<const WDebugRendererLine> lines, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders the given set of lines in 2D (screen-space) for one frame.
-  static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color);
+  static void Draw2DLines(const WDebugRendererContext& context, WArrayPtr<const WDebugRendererLine> lines, const WColor& color);
 
   /// Renders a cross for one frame.
-  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawCross(const WDebugRendererContext& context, const WVec3& vGlobalPosition, float fLineLength, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders a wireframe box for one frame.
-  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLineBox(const WDebugRendererContext& context, const WBoundingBox& box, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders the corners of a wireframe box for one frame.
-  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLineBoxCorners(const WDebugRendererContext& context, const WBoundingBox& box, float fCornerFraction, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders a wireframe sphere for one frame.
-  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLineSphere(const WDebugRendererContext& context, const WBoundingSphere& sphere, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders an upright wireframe capsule for one frame.
-  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLineCapsuleZ(const WDebugRendererContext& context, float fLength, float fRadius, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders an upright wireframe cylinder for one frame.
-  static void DrawLineCylinderZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawLineCylinderZ(const WDebugRendererContext& context, float fLength, float fRadius, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders a wireframe frustum for one frame.
-  static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
+  static void DrawLineFrustum(const WDebugRendererContext& context, const WFrustum& frustum, const WColor& color, bool bDrawPlaneNormals = false);
 
   /// Renders a solid box for one frame.
-  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+  static void DrawSolidBox(const WDebugRendererContext& context, const WBoundingBox& box, const WColor& color, WMatOrTransform mTransform = WMat4::MakeIdentity());
 
   /// Renders the set of filled triangles for one frame.
-  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTriangle> triangles, const ezColor& color, bool bTwoSided = false);
+  static void DrawSolidTriangles(const WDebugRendererContext& context, WArrayPtr<WDebugRendererTriangle> triangles, const WColor& color, bool bTwoSided = false);
 
   /// Renders the set of textured triangles for one frame.
-  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided = false);
+  static void DrawTexturedTriangles(const WDebugRendererContext& context, WArrayPtr<WDebugRendererTexturedTriangle> triangles, const WColor& color, const WTexture2DResourceHandle& hTexture, bool bTwoSided = false);
 
   /// Renders a filled 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
+  static void Draw2DRectangle(const WDebugRendererContext& context, const WRectFloat& rectInPixel, float fDepth, const WColor& color);
 
   /// Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const WDebugRendererContext& context, const WRectFloat& rectInPixel, float fDepth, const WColor& color, const WTexture2DResourceHandle& hTexture, WVec2 vScale = WVec2(1, 1));
 
   /// Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const WDebugRendererContext& context, const WRectFloat& rectInPixel, float fDepth, const WColor& color, WGALTextureHandle hResourceView, WVec2 vScale = WVec2(1, 1));
 
   /// Renders a wireframe 2D rectangle in screen-space for one frame.
-  static void Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
+  static void Draw2DLineRectangle(const WDebugRendererContext& context, const WRectFloat& rectInPixel, float fDepth, const WColor& color);
 
   /// Displays a string in screen-space for one frame.
   ///
@@ -204,7 +204,7 @@ public:
   /// "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
   ///
   /// Returns the number of lines that the text was split up into.
-  static ezUInt32 Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, ezDebugTextHAlign::Enum horizontalAlignment = ezDebugTextHAlign::Left, ezDebugTextVAlign::Enum verticalAlignment = ezDebugTextVAlign::Top);
+  static WUInt32 Draw2DText(const WDebugRendererContext& context, const WFormatString& text, const WVec2I32& vPositionInPixel, const WColor& color, WUInt32 uiSizeInPixel = 16, WDebugTextHAlign::Enum horizontalAlignment = WDebugTextHAlign::Left, WDebugTextVAlign::Enum verticalAlignment = WDebugTextVAlign::Top);
 
   /// Draws a piece of text in one of the screen corners.
   ///
@@ -217,56 +217,56 @@ public:
   /// it is not displayed anywhere, though.
   ///
   /// Text size cannot be changed.
-  static void DrawInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, ezStringView sGroupName, const ezFormatString& text, const ezColor& color = ezColor::White);
+  static void DrawInfoText(const WDebugRendererContext& context, WDebugTextPlacement::Enum placement, WStringView sGroupName, const WFormatString& text, const WColor& color = WColor::White);
 
   /// Same as DrawInfoText but displays the text for a certain duration.
-  static void AddPersistentInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, const ezFormatString& text, ezTime duration, const ezColor& color = ezColor::White);
+  static void AddPersistentInfoText(const WDebugRendererContext& context, WDebugTextPlacement::Enum placement, const WFormatString& text, WTime duration, const WColor& color = WColor::White);
 
   /// Displays a string in 3D space for one frame.
-  static ezUInt32 Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, ezDebugTextHAlign::Enum horizontalAlignment = ezDebugTextHAlign::Center, ezDebugTextVAlign::Enum verticalAlignment = ezDebugTextVAlign::Bottom);
+  static WUInt32 Draw3DText(const WDebugRendererContext& context, const WFormatString& text, const WVec3& vGlobalPosition, const WColor& color, WUInt32 uiSizeInPixel = 16, WDebugTextHAlign::Enum horizontalAlignment = WDebugTextHAlign::Center, WDebugTextVAlign::Enum verticalAlignment = WDebugTextVAlign::Bottom);
 
   /// Renders a cross at the given location for as many frames until \a duration has passed.
-  static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
+  static void AddPersistentCross(const WDebugRendererContext& context, float fSize, const WColor& color, WMatOrTransform mTransform, WTime duration);
 
   /// Renders a wireframe sphere at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLineSphere(const ezDebugRendererContext& context, float fRadius, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
+  static void AddPersistentLineSphere(const WDebugRendererContext& context, float fRadius, const WColor& color, WMatOrTransform mTransform, WTime duration);
 
   /// Renders a wireframe box at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
+  static void AddPersistentLineBox(const WDebugRendererContext& context, const WVec3& vHalfSize, const WColor& color, WMatOrTransform mTransform, WTime duration);
 
   /// Renders lines at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
+  static void AddPersistentLines(const WDebugRendererContext& context, WArrayPtr<const WDebugRendererLine> lines, const WColor& color, WMatOrTransform mTransform, WTime duration);
 
   /// Renders a solid 2D cone in a plane with a given angle.
   ///
   /// The rotation goes around the given \a rotationAxis.
   /// An angle of zero is pointing into forwardAxis direction.
   /// Both angles may be negative.
-  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX(), ezVec3 vRotationAxis = ezVec3::MakeAxisZ());
+  static void DrawAngle(const WDebugRendererContext& context, WAngle startAngle, WAngle endAngle, const WColor& solidColor, const WColor& lineColor, WMatOrTransform mTransform, WVec3 vForwardAxis = WVec3::MakeAxisX(), WVec3 vRotationAxis = WVec3::MakeAxisZ());
 
   /// Renders a cone with the tip at the center position, opening up with the given angle.
-  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
+  static void DrawOpeningCone(const WDebugRendererContext& context, WAngle halfAngle, const WColor& colorInside, const WColor& colorOutside, WMatOrTransform mTransform, WVec3 vForwardAxis = WVec3::MakeAxisX());
 
   /// Renders a bent cone with the tip at the center position, pointing into the +X direction opening up with halfAngle1 and halfAngle2 along the Y and Z axis.
   ///
   /// If solidColor.a > 0, the cone is rendered with as solid triangles.
   /// If lineColor.a > 0, the cone is rendered as lines.
   /// Both can be combined.
-  static void DrawLimitCone(const ezDebugRendererContext& context, ezAngle halfAngle1, ezAngle halfAngle2, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform);
+  static void DrawLimitCone(const WDebugRendererContext& context, WAngle halfAngle1, WAngle halfAngle2, const WColor& solidColor, const WColor& lineColor, WMatOrTransform mTransform);
 
   /// Renders a cylinder starting at the center position, along the +X axis.
   ///
   /// If the start and end radius are different, a cone or arrow can be created.
-  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform, bool bCapStart = false, bool bCapEnd = false, ezBasisAxis::Enum cylinderAxis = ezBasisAxis::PositiveX);
+  static void DrawCylinder(const WDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const WColor& solidColor, const WColor& lineColor, WMatOrTransform mTransform, bool bCapStart = false, bool bCapEnd = false, WBasisAxis::Enum cylinderAxis = WBasisAxis::PositiveX);
 
   /// Renders a line arrow.
-  static void DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
+  static void DrawArrow(const WDebugRendererContext& context, float fSize, const WColor& color, WMatOrTransform mTransform, WVec3 vForwardAxis = WVec3::MakeAxisX());
 
   /// Returns the width of single glyph in pixels for the given text size
-  static float GetTextGlyphWidth(ezUInt32 uiSizeInPixel = 16);
+  static float GetTextGlyphWidth(WUInt32 uiSizeInPixel = 16);
 
   /// Returns the line height in pixels for the given text size
-  static float GetTextLineHeight(ezUInt32 uiSizeInPixel = 16);
+  static float GetTextLineHeight(WUInt32 uiSizeInPixel = 16);
 
   /// Returns the global debug text scale
   static float GetTextScale();
@@ -275,46 +275,46 @@ public:
   static void SetTextScale(float fScale);
 
 private:
-  friend class ezSimpleRenderPass;
+  friend class WSimpleRenderPass;
 
-  static void RenderScreenSpace(const ezRenderViewContext& renderViewContext);
-  static void RenderInternalScreenSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
+  static void RenderScreenSpace(const WRenderViewContext& renderViewContext);
+  static void RenderInternalScreenSpace(const WDebugRendererContext& context, const WRenderViewContext& renderViewContext);
 
-  static void RenderWorldSpace(const ezRenderViewContext& renderViewContext);
-  static void RenderInternalWorldSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
+  static void RenderWorldSpace(const WRenderViewContext& renderViewContext);
+  static void RenderInternalWorldSpace(const WDebugRendererContext& context, const WRenderViewContext& renderViewContext);
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, DebugRenderer);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, DebugRenderer);
 };
 
 /// Helper class to expose debug rendering to scripting
-class EZ_RENDERERCORE_DLL ezScriptExtensionClass_Debug
+class W_RENDERERCORE_DLL WScriptExtensionClass_Debug
 {
 public:
   /// Returns the resolution of the first main view that it can find.
-  static ezVec2 GetResolution();
+  static WVec2 GetResolution();
 
-  static void DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform);
-  static void DrawLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform);
-  static void DrawLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform);
+  static void DrawCross(const WWorld* pWorld, const WVec3& vPosition, float fSize, const WColor& color, const WTransform& transform);
+  static void DrawLineBox(const WWorld* pWorld, const WVec3& vPosition, const WVec3& vHalfExtents, const WColor& color, const WTransform& transform);
+  static void DrawLineSphere(const WWorld* pWorld, const WVec3& vPosition, float fRadius, const WColor& color, const WTransform& transform);
 
-  static void DrawSolidBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform);
+  static void DrawSolidBox(const WWorld* pWorld, const WVec3& vPosition, const WVec3& vHalfExtents, const WColor& color, const WTransform& transform);
 
-  static void Draw2DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel, ezEnum<ezDebugTextHAlign> horizontalAlignment);
-  static void Draw3DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPosition, const ezColor& color, ezUInt32 uiSizeInPixel);
-  static void DrawInfoText(const ezWorld* pWorld, ezStringView sText, ezEnum<ezDebugTextPlacement> placement, ezStringView sGroupName, const ezColor& color);
+  static void Draw2DText(const WWorld* pWorld, WStringView sText, const WVec3& vPositionInPixel, const WColor& color, WUInt32 uiSizeInPixel, WEnum<WDebugTextHAlign> horizontalAlignment);
+  static void Draw3DText(const WWorld* pWorld, WStringView sText, const WVec3& vPosition, const WColor& color, WUInt32 uiSizeInPixel);
+  static void DrawInfoText(const WWorld* pWorld, WStringView sText, WEnum<WDebugTextPlacement> placement, WStringView sGroupName, const WColor& color);
 
-  static void AddPersistentCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
-  static void AddPersistentLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform, ezTime duration);
-  static void AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentCross(const WWorld* pWorld, const WVec3& vPosition, float fSize, const WColor& color, const WTransform& transform, WTime duration);
+  static void AddPersistentLineBox(const WWorld* pWorld, const WVec3& vPosition, const WVec3& vHalfExtents, const WColor& color, const WTransform& transform, WTime duration);
+  static void AddPersistentLineSphere(const WWorld* pWorld, const WVec3& vPosition, float fRadius, const WColor& color, const WTransform& transform, WTime duration);
 
-  static void DrawLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
+  static void DrawLine(const WWorld* pWorld, const WVec3& vStart, const WVec3& vEnd, const WColor& startColor, const WColor& endColor);
 
-  static void Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
+  static void Draw2DLine(const WWorld* pWorld, const WVec3& vStart, const WVec3& vEnd, const WColor& startColor, const WColor& endColor);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezScriptExtensionClass_Debug);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WScriptExtensionClass_Debug);
 
 #include <RendererCore/Debug/Implementation/DebugRenderer_inl.h>

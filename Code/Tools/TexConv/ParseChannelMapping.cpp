@@ -2,44 +2,44 @@
 
 #include <TexConv/TexConv.h>
 
-static ezStringView ToString(ezTexConvChannelValue::Enum e)
+static WStringView ToString(WTexConvChannelValue::Enum e)
 {
   switch (e)
   {
-    case ezTexConvChannelValue::Red:
+    case WTexConvChannelValue::Red:
       return "Red";
-    case ezTexConvChannelValue::Green:
+    case WTexConvChannelValue::Green:
       return "Green";
-    case ezTexConvChannelValue::Blue:
+    case WTexConvChannelValue::Blue:
       return "Blue";
-    case ezTexConvChannelValue::Alpha:
+    case WTexConvChannelValue::Alpha:
       return "Alpha";
-    case ezTexConvChannelValue::Black:
+    case WTexConvChannelValue::Black:
       return "Black";
-    case ezTexConvChannelValue::White:
+    case WTexConvChannelValue::White:
       return "White";
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return "";
 }
 
-ezResult ezTexConv::ParseChannelMappings()
+WResult WTexConv::ParseChannelMappings()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
-    return EZ_SUCCESS;
+  if (m_Processor.m_Descriptor.m_OutputType == WTexConvOutputType::Atlas)
+    return W_SUCCESS;
 
   auto& mappings = m_Processor.m_Descriptor.m_ChannelMappings;
 
-  EZ_SUCCEED_OR_RETURN(ParseChannelSliceMapping(-1));
+  W_SUCCEED_OR_RETURN(ParseChannelSliceMapping(-1));
 
-  for (ezUInt32 slice = 0; slice < 64; ++slice)
+  for (WUInt32 slice = 0; slice < 64; ++slice)
   {
-    const ezUInt32 uiPrevMappings = mappings.GetCount();
+    const WUInt32 uiPrevMappings = mappings.GetCount();
 
-    EZ_SUCCEED_OR_RETURN(ParseChannelSliceMapping(slice));
+    W_SUCCEED_OR_RETURN(ParseChannelSliceMapping(slice));
 
     if (uiPrevMappings == mappings.GetCount())
     {
@@ -50,26 +50,26 @@ ezResult ezTexConv::ParseChannelMappings()
 
   if (!mappings.IsEmpty())
   {
-    ezLog::Info("Custom output channel mapping:");
-    for (ezUInt32 m = 0; m < mappings.GetCount(); ++m)
+    WLog::Info("Custom output channel mapping:");
+    for (WUInt32 m = 0; m < mappings.GetCount(); ++m)
     {
-      ezLog::Info("Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex, ToString(mappings[m].m_Channel[0].m_ChannelValue));
-      ezLog::Info("Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex, ToString(mappings[m].m_Channel[1].m_ChannelValue));
-      ezLog::Info("Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex, ToString(mappings[m].m_Channel[2].m_ChannelValue));
-      ezLog::Info("Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex, ToString(mappings[m].m_Channel[3].m_ChannelValue));
+      WLog::Info("Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex, ToString(mappings[m].m_Channel[0].m_ChannelValue));
+      WLog::Info("Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex, ToString(mappings[m].m_Channel[1].m_ChannelValue));
+      WLog::Info("Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex, ToString(mappings[m].m_Channel[2].m_ChannelValue));
+      WLog::Info("Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex, ToString(mappings[m].m_Channel[3].m_ChannelValue));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
+WResult WTexConv::ParseChannelSliceMapping(WInt32 iSlice)
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+  const auto pCmd = WCommandLineUtils::GetGlobalInstance();
   auto& mappings = m_Processor.m_Descriptor.m_ChannelMappings;
-  ezStringBuilder tmp, param;
+  WStringBuilder tmp, param;
 
-  const ezUInt32 uiMappingIdx = iSlice < 0 ? 0 : iSlice;
+  const WUInt32 uiMappingIdx = iSlice < 0 ? 0 : iSlice;
 
   // input to output mappings
   {
@@ -81,10 +81,10 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[3], tmp, 3, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[3], tmp, 3, false));
     }
 
     param = "-rgb";
@@ -95,9 +95,9 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, false));
     }
 
     param = "-rg";
@@ -108,8 +108,8 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, false));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, false));
     }
 
     param = "-r";
@@ -120,7 +120,7 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, true));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[0], tmp, 0, true));
     }
 
     param = "-g";
@@ -131,7 +131,7 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, true));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[1], tmp, 1, true));
     }
 
     param = "-b";
@@ -142,7 +142,7 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, true));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[2], tmp, 2, true));
     }
 
     param = "-a";
@@ -153,31 +153,31 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
     if (!tmp.IsEmpty())
     {
       mappings.EnsureCount(uiMappingIdx + 1);
-      EZ_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[3], tmp, 3, true));
+      W_SUCCEED_OR_RETURN(ParseChannelMappingConfig(mappings[uiMappingIdx].m_Channel[3], tmp, 3, true));
     }
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, ezStringView sCfg, ezInt32 iChannelIndex, bool bSingleChannel)
+WResult WTexConv::ParseChannelMappingConfig(WTexConvChannelMapping& out_mapping, WStringView sCfg, WInt32 iChannelIndex, bool bSingleChannel)
 {
   out_mapping.m_iInputImageIndex = -1;
-  out_mapping.m_ChannelValue = ezTexConvChannelValue::White;
+  out_mapping.m_ChannelValue = WTexConvChannelValue::White;
 
-  ezStringBuilder tmp = sCfg;
+  WStringBuilder tmp = sCfg;
 
   // '-r black' for setting it to zero
   if (tmp.IsEqual_NoCase("black"))
   {
-    out_mapping.m_ChannelValue = ezTexConvChannelValue::Black;
-    return EZ_SUCCESS;
+    out_mapping.m_ChannelValue = WTexConvChannelValue::Black;
+    return W_SUCCESS;
   }
 
   // '-r white' for setting it to 255
   if (tmp.IsEqual_NoCase("white"))
   {
-    out_mapping.m_ChannelValue = ezTexConvChannelValue::White;
-    return EZ_SUCCESS;
+    out_mapping.m_ChannelValue = WTexConvChannelValue::White;
+    return W_SUCCESS;
   }
 
   // skip the 'in', if found
@@ -194,26 +194,26 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
   }
   else
   {
-    ezInt32 num = -1;
+    WInt32 num = -1;
     const char* szLastPos = nullptr;
-    if (ezConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
+    if (WConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
     {
-      ezLog::Error("Could not parse channel mapping '{0}'", sCfg);
-      return EZ_FAILURE;
+      WLog::Error("Could not parse channel mapping '{0}'", sCfg);
+      return W_FAILURE;
     }
 
     // valid index after the 'in'
-    if (num >= 0 && num < (ezInt32)m_Processor.m_Descriptor.m_InputFiles.GetCount())
+    if (num >= 0 && num < (WInt32)m_Processor.m_Descriptor.m_InputFiles.GetCount())
     {
-      out_mapping.m_iInputImageIndex = (ezInt8)num;
+      out_mapping.m_iInputImageIndex = (WInt8)num;
     }
     else
     {
-      ezLog::Error("Invalid channel mapping input file index '{0}'", num);
-      return EZ_FAILURE;
+      WLog::Error("Invalid channel mapping input file index '{0}'", num);
+      return W_FAILURE;
     }
 
-    ezStringBuilder dummy = szLastPos;
+    WStringBuilder dummy = szLastPos;
 
     // continue after the index
     tmp = dummy;
@@ -222,14 +222,14 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
   // no additional info, e.g. '-g in2' is identical to '-g in2.g' (same channel)
   if (tmp.IsEmpty())
   {
-    out_mapping.m_ChannelValue = (ezTexConvChannelValue::Enum)((ezInt32)ezTexConvChannelValue::Red + iChannelIndex);
-    return EZ_SUCCESS;
+    out_mapping.m_ChannelValue = (WTexConvChannelValue::Enum)((WInt32)WTexConvChannelValue::Red + iChannelIndex);
+    return W_SUCCESS;
   }
 
   if (!tmp.StartsWith("."))
   {
-    ezLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", sCfg);
-    return EZ_FAILURE;
+    WLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", sCfg);
+    return W_FAILURE;
   }
 
   tmp.Shrink(1, 0);
@@ -245,37 +245,37 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
   // no additional info, e.g. '-rgb in2.rg'
   if (tmp.IsEmpty())
   {
-    ezLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", sCfg);
-    return EZ_FAILURE;
+    WLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", sCfg);
+    return W_FAILURE;
   }
 
   {
-    const ezUInt32 uiChar = tmp.GetIteratorFront().GetCharacter();
+    const WUInt32 uiChar = tmp.GetIteratorFront().GetCharacter();
 
     if (uiChar == 'r')
     {
-      out_mapping.m_ChannelValue = ezTexConvChannelValue::Red;
+      out_mapping.m_ChannelValue = WTexConvChannelValue::Red;
     }
     else if (uiChar == 'g')
     {
-      out_mapping.m_ChannelValue = ezTexConvChannelValue::Green;
+      out_mapping.m_ChannelValue = WTexConvChannelValue::Green;
     }
     else if (uiChar == 'b')
     {
-      out_mapping.m_ChannelValue = ezTexConvChannelValue::Blue;
+      out_mapping.m_ChannelValue = WTexConvChannelValue::Blue;
     }
     else if (uiChar == 'a')
     {
-      out_mapping.m_ChannelValue = ezTexConvChannelValue::Alpha;
+      out_mapping.m_ChannelValue = WTexConvChannelValue::Alpha;
     }
     else
     {
-      ezLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", sCfg);
-      return EZ_FAILURE;
+      WLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", sCfg);
+      return W_FAILURE;
     }
 
     tmp.Shrink(1, 0);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

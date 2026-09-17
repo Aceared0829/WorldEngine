@@ -3,20 +3,20 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void WTelemetry::QueueOutgoingMessage(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes)
 {
   // unreliable packages can just be dropped
-  if (tm == ezTelemetry::Unreliable)
+  if (tm == WTelemetry::Unreliable)
     return;
 
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   // add a new message to the queue
   MessageQueue& Queue = s_SystemMessages[uiSystemID];
   Queue.m_OutgoingQueue.PushBack();
 
   // and fill it out properly
-  ezTelemetryMessage& msg = Queue.m_OutgoingQueue.PeekBack();
+  WTelemetryMessage& msg = Queue.m_OutgoingQueue.PeekBack();
   msg.SetMessageID(uiSystemID, uiMsgID);
 
   if (uiDataBytes > 0)
@@ -29,7 +29,7 @@ void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezU
     Queue.m_OutgoingQueue.PopFront(Queue.m_OutgoingQueue.GetCount() - Queue.m_uiMaxQueuedOutgoing);
 }
 
-void ezTelemetry::FlushOutgoingQueues()
+void WTelemetry::FlushOutgoingQueues()
 {
   static bool bRecursion = false;
 
@@ -42,7 +42,7 @@ void ezTelemetry::FlushOutgoingQueues()
 
   bRecursion = true;
 
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   // go through all system types
   for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
@@ -50,14 +50,14 @@ void ezTelemetry::FlushOutgoingQueues()
     if (it.Value().m_OutgoingQueue.IsEmpty())
       continue;
 
-    const ezUInt32 uiCurCount = it.Value().m_OutgoingQueue.GetCount();
+    const WUInt32 uiCurCount = it.Value().m_OutgoingQueue.GetCount();
 
     // send all messages that are queued for this system
-    for (ezUInt32 i = 0; i < uiCurCount; ++i)
-      Send(ezTelemetry::Reliable, it.Value().m_OutgoingQueue[i]); // Send() will already update the network
+    for (WUInt32 i = 0; i < uiCurCount; ++i)
+      Send(WTelemetry::Reliable, it.Value().m_OutgoingQueue[i]); // Send() will already update the network
 
     // check that they have not been queue again
-    EZ_ASSERT_DEV(it.Value().m_OutgoingQueue.GetCount() == uiCurCount, "Implementation Error: When queued messages are flushed, they should not get queued again.");
+    W_ASSERT_DEV(it.Value().m_OutgoingQueue.GetCount() == uiCurCount, "Implementation Error: When queued messages are flushed, they should not get queued again.");
 
     it.Value().m_OutgoingQueue.Clear();
   }
@@ -66,43 +66,43 @@ void ezTelemetry::FlushOutgoingQueues()
 }
 
 
-ezResult ezTelemetry::ConnectToServer(ezStringView sConnectTo)
+WResult WTelemetry::ConnectToServer(WStringView sConnectTo)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return OpenConnection(Client, sConnectTo);
 #else
-  EZ_IGNORE_UNUSED(sConnectTo);
-  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::ConnectToServer() will be ignored.");
-  return EZ_FAILURE;
+  W_IGNORE_UNUSED(sConnectTo);
+  WLog::SeriousWarning("Enet is not compiled into this build, WTelemetry::ConnectToServer() will be ignored.");
+  return W_FAILURE;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::CreateServer()
+void WTelemetry::CreateServer()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   if (OpenConnection(Server).Failed())
   {
-    ezLog::Error("ezTelemetry: Failed to open a connection as a server.");
+    WLog::Error("WTelemetry: Failed to open a connection as a server.");
     s_ConnectionMode = ConnectionMode::None;
   }
 #else
-  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::CreateServer() will be ignored.");
+  WLog::SeriousWarning("Enet is not compiled into this build, WTelemetry::CreateServer() will be ignored.");
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback, void* pPassThrough)
+void WTelemetry::AcceptMessagesForSystem(WUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback, void* pPassThrough)
 {
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   s_SystemMessages[uiSystemID].m_bAcceptMessages = bAccept;
   s_SystemMessages[uiSystemID].m_Callback = callback;
   s_SystemMessages[uiSystemID].m_pPassThrough = pPassThrough;
 }
 
-void ezTelemetry::PerFrameUpdate()
+void WTelemetry::PerFrameUpdate()
 {
-  EZ_PROFILE_SCOPE("Telemetry.PerFrameUpdate");
-  EZ_LOCK(GetTelemetryMutex());
+  W_PROFILE_SCOPE("Telemetry.PerFrameUpdate");
+  W_LOCK(GetTelemetryMutex());
 
   // Call each callback to process the incoming messages
   for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
@@ -120,68 +120,68 @@ void ezTelemetry::PerFrameUpdate()
   s_bAllowNetworkUpdate = bAllowUpdate;
 }
 
-void ezTelemetry::SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued)
+void WTelemetry::SetOutgoingQueueSize(WUInt32 uiSystemID, WUInt16 uiMaxQueued)
 {
-  EZ_LOCK(GetTelemetryMutex());
+  W_LOCK(GetTelemetryMutex());
 
   s_SystemMessages[uiSystemID].m_uiMaxQueuedOutgoing = uiMaxQueued;
 }
 
 
-bool ezTelemetry::IsConnectedToOther()
+bool WTelemetry::IsConnectedToOther()
 {
   return ((s_ConnectionMode == Client && IsConnectedToServer()) || (s_ConnectionMode == Server && IsConnectedToClient()));
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void WTelemetry::Broadcast(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes)
 {
-  if (s_ConnectionMode != ezTelemetry::Server)
+  if (s_ConnectionMode != WTelemetry::Server)
     return;
 
   Send(tm, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes)
+void WTelemetry::Broadcast(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& inout_stream, WInt32 iDataBytes)
 {
-  if (s_ConnectionMode != ezTelemetry::Server)
+  if (s_ConnectionMode != WTelemetry::Server)
     return;
 
   Send(tm, uiSystemID, uiMsgID, inout_stream, iDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezTelemetryMessage& ref_msg)
+void WTelemetry::Broadcast(TransmitMode tm, WTelemetryMessage& ref_msg)
 {
-  if (s_ConnectionMode != ezTelemetry::Server)
+  if (s_ConnectionMode != WTelemetry::Server)
     return;
 
   Send(tm, ref_msg);
 }
 
-void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void WTelemetry::SendToServer(WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes)
 {
-  if (s_ConnectionMode != ezTelemetry::Client)
+  if (s_ConnectionMode != WTelemetry::Client)
     return;
 
-  Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, pData, uiDataBytes);
+  Send(WTelemetry::Reliable, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes)
+void WTelemetry::SendToServer(WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& inout_stream, WInt32 iDataBytes)
 {
-  if (s_ConnectionMode != ezTelemetry::Client)
+  if (s_ConnectionMode != WTelemetry::Client)
     return;
 
-  Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, inout_stream, iDataBytes);
+  Send(WTelemetry::Reliable, uiSystemID, uiMsgID, inout_stream, iDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezTelemetryMessage& ref_msg)
+void WTelemetry::SendToServer(WTelemetryMessage& ref_msg)
 {
-  if (s_ConnectionMode != ezTelemetry::Client)
+  if (s_ConnectionMode != WTelemetry::Client)
     return;
 
-  Send(ezTelemetry::Reliable, ref_msg);
+  Send(WTelemetry::Reliable, ref_msg);
 }
 
-void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
+void WTelemetry::Send(TransmitMode tm, WTelemetryMessage& msg)
 {
-  Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.GetReader(), (ezInt32)msg.m_Storage.GetStorageSize32());
+  Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.GetReader(), (WInt32)msg.m_Storage.GetStorageSize32());
 }

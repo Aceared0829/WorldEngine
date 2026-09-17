@@ -14,7 +14,7 @@
 #include <RendererFoundation/Utils/ResourceStateTracker.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderGraphManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderGraphManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -23,55 +23,55 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderGraphManager)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezRenderGraphManager::OnEngineStartup();
+    WRenderGraphManager::OnEngineStartup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezRenderGraphManager::OnEngineShutdown();
+    WRenderGraphManager::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezEvent<const ezRenderGraphRenderEvent&, ezMutex> ezRenderGraphManager::s_RenderEvent;
-ezMutex ezRenderGraphManager::s_Mutex;
-ezDynamicArray<ezSharedPtr<ezRenderGraph>> ezRenderGraphManager::s_EnqueuedRenderGraphs[3];
-ezDynamicArray<ezRenderGraph*> ezRenderGraphManager::s_AllRenderGraphs[3];
-ezUniquePtr<ezRenderGraphResourcePool> ezRenderGraphManager::s_pPool;
-ezUniquePtr<ezGALResourceStateTracker> ezRenderGraphManager::s_pStateTracker;
-ezDynamicArray<ezSharedPtr<ezRenderGraphPassObserver>> ezRenderGraphManager::s_Observers;
-ezSharedPtr<ezRenderGraph> ezRenderGraphManager::s_pObserverGraph;
-ezDynamicArray<ezRenderGraph*> ezRenderGraphManager::s_ExecutingGraphs;
-ezDynamicArray<ezRenderGraphPassObserver*> ezRenderGraphManager::s_ExecutingObservers;
-ezUInt32 ezRenderGraphManager::s_uiCurrentGraphIndex = 0;
-ezUInt32 ezRenderGraphManager::s_uiCurrentPassIndex = 0;
+WEvent<const WRenderGraphRenderEvent&, WMutex> WRenderGraphManager::s_RenderEvent;
+WMutex WRenderGraphManager::s_Mutex;
+WDynamicArray<WSharedPtr<WRenderGraph>> WRenderGraphManager::s_EnqueuedRenderGraphs[3];
+WDynamicArray<WRenderGraph*> WRenderGraphManager::s_AllRenderGraphs[3];
+WUniquePtr<WRenderGraphResourcePool> WRenderGraphManager::s_pPool;
+WUniquePtr<WGALResourceStateTracker> WRenderGraphManager::s_pStateTracker;
+WDynamicArray<WSharedPtr<WRenderGraphPassObserver>> WRenderGraphManager::s_Observers;
+WSharedPtr<WRenderGraph> WRenderGraphManager::s_pObserverGraph;
+WDynamicArray<WRenderGraph*> WRenderGraphManager::s_ExecutingGraphs;
+WDynamicArray<WRenderGraphPassObserver*> WRenderGraphManager::s_ExecutingObservers;
+WUInt32 WRenderGraphManager::s_uiCurrentGraphIndex = 0;
+WUInt32 WRenderGraphManager::s_uiCurrentPassIndex = 0;
 
 
-void ezRenderGraphManager::OnEngineStartup()
+void WRenderGraphManager::OnEngineStartup()
 {
-  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::GALDeviceEventHandler));
-  ezGALCommandEncoder::s_TextureBarrierValidationFailed.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintTextureResourceHistory));
-  ezGALCommandEncoder::s_BufferBarrierValidationFailed.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintBufferResourceHistory));
-  InitPool(ezGALDevice::GetDefaultDevice());
+  WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WRenderGraphManager::GALDeviceEventHandler));
+  WGALCommandEncoder::s_TextureBarrierValidationFailed.AddEventHandler(WMakeDelegate(&WRenderGraphManager::PrintTextureResourceHistory));
+  WGALCommandEncoder::s_BufferBarrierValidationFailed.AddEventHandler(WMakeDelegate(&WRenderGraphManager::PrintBufferResourceHistory));
+  InitPool(WGALDevice::GetDefaultDevice());
 }
 
-void ezRenderGraphManager::OnEngineShutdown()
+void WRenderGraphManager::OnEngineShutdown()
 {
   s_pObserverGraph = nullptr;
 
-  DeinitPool(ezGALDevice::GetDefaultDevice());
-  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::GALDeviceEventHandler));
-  ezGALCommandEncoder::s_TextureBarrierValidationFailed.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintTextureResourceHistory));
-  ezGALCommandEncoder::s_BufferBarrierValidationFailed.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintBufferResourceHistory));
+  DeinitPool(WGALDevice::GetDefaultDevice());
+  WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WRenderGraphManager::GALDeviceEventHandler));
+  WGALCommandEncoder::s_TextureBarrierValidationFailed.RemoveEventHandler(WMakeDelegate(&WRenderGraphManager::PrintTextureResourceHistory));
+  WGALCommandEncoder::s_BufferBarrierValidationFailed.RemoveEventHandler(WMakeDelegate(&WRenderGraphManager::PrintBufferResourceHistory));
   s_pPool.Clear();
   for (auto& bucket : s_EnqueuedRenderGraphs)
     bucket.Clear();
-  EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::PreRender].IsEmpty(), "Not all PreRender-phase render graphs were destroyed before shutdown.");
-  EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::Render].IsEmpty(), "Not all render-phase render graphs were destroyed before shutdown.");
-  EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::PostRender].IsEmpty(), "Not all post-render-phase render graphs were destroyed before shutdown.");
+  W_ASSERT_DEV(s_AllRenderGraphs[WRenderGraphPhase::PreRender].IsEmpty(), "Not all PreRender-phase render graphs were destroyed before shutdown.");
+  W_ASSERT_DEV(s_AllRenderGraphs[WRenderGraphPhase::Render].IsEmpty(), "Not all render-phase render graphs were destroyed before shutdown.");
+  W_ASSERT_DEV(s_AllRenderGraphs[WRenderGraphPhase::PostRender].IsEmpty(), "Not all post-render-phase render graphs were destroyed before shutdown.");
 
-  for (ezUInt32 i = s_Observers.GetCount(); i > 0; --i)
+  for (WUInt32 i = s_Observers.GetCount(); i > 0; --i)
   {
     if (s_Observers[i - 1]->GetRefCount() == 1)
     {
@@ -80,19 +80,19 @@ void ezRenderGraphManager::OnEngineShutdown()
     }
   }
 
-  EZ_ASSERT_DEV(s_Observers.IsEmpty(), "Not render graph observers were destroyed before shutdown.");
+  W_ASSERT_DEV(s_Observers.IsEmpty(), "Not render graph observers were destroyed before shutdown.");
 }
 
-void ezRenderGraphManager::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WRenderGraphManager::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGALDeviceEvent::BeforeBeginFrame:
+    case WGALDeviceEvent::BeforeBeginFrame:
       BeginFrame();
       break;
-    case ezGALDeviceEvent::AfterEndFrame:
+    case WGALDeviceEvent::AfterEndFrame:
     {
-      EZ_ASSERT_DEV(s_EnqueuedRenderGraphs[0].IsEmpty() && s_EnqueuedRenderGraphs[1].IsEmpty() && s_EnqueuedRenderGraphs[2].IsEmpty(),
+      W_ASSERT_DEV(s_EnqueuedRenderGraphs[0].IsEmpty() && s_EnqueuedRenderGraphs[1].IsEmpty() && s_EnqueuedRenderGraphs[2].IsEmpty(),
         "RenderAllGraphs must be called before end frame or a graph was registered after rendering finished.");
     }
     break;
@@ -101,14 +101,14 @@ void ezRenderGraphManager::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-void ezRenderGraphManager::InitPool(ezGALDevice* pDevice)
+void WRenderGraphManager::InitPool(WGALDevice* pDevice)
 {
-  EZ_ASSERT_DEBUG(s_pPool == nullptr, "Render graph resource pool already initialized");
-  s_pPool = EZ_DEFAULT_NEW(ezRenderGraphResourcePool, pDevice);
-  s_pStateTracker = EZ_DEFAULT_NEW(ezGALResourceStateTracker, pDevice);
+  W_ASSERT_DEBUG(s_pPool == nullptr, "Render graph resource pool already initialized");
+  s_pPool = W_DEFAULT_NEW(WRenderGraphResourcePool, pDevice);
+  s_pStateTracker = W_DEFAULT_NEW(WGALResourceStateTracker, pDevice);
 }
 
-void ezRenderGraphManager::DeinitPool(ezGALDevice* pDevice)
+void WRenderGraphManager::DeinitPool(WGALDevice* pDevice)
 {
   s_pStateTracker.Clear();
   for (auto& bucket : s_EnqueuedRenderGraphs)
@@ -116,48 +116,48 @@ void ezRenderGraphManager::DeinitPool(ezGALDevice* pDevice)
   s_pPool.Clear();
 }
 
-void ezRenderGraphManager::EnqueueRenderGraph(const ezSharedPtr<ezRenderGraph>& pRenderGraph)
+void WRenderGraphManager::EnqueueRenderGraph(const WSharedPtr<WRenderGraph>& pRenderGraph)
 {
-  EZ_LOCK(s_Mutex);
-  EZ_ASSERT_DEV(pRenderGraph->m_pCurrentPass == nullptr, "Can't enqueue a render graph that still has a pass open for recording");
-  EZ_ASSERT_DEV(pRenderGraph->m_RenderGraphState == ezRenderGraph::RenderGraphState::Recording, "Only graphs in the recording state can be enqueued");
-  pRenderGraph->m_RenderGraphState = ezRenderGraph::RenderGraphState::Enqueued;
+  W_LOCK(s_Mutex);
+  W_ASSERT_DEV(pRenderGraph->m_pCurrentPass == nullptr, "Can't enqueue a render graph that still has a pass open for recording");
+  W_ASSERT_DEV(pRenderGraph->m_RenderGraphState == WRenderGraph::RenderGraphState::Recording, "Only graphs in the recording state can be enqueued");
+  pRenderGraph->m_RenderGraphState = WRenderGraph::RenderGraphState::Enqueued;
   s_EnqueuedRenderGraphs[pRenderGraph->m_Phase.GetValue()].PushBack(pRenderGraph);
 }
 
-ezSharedPtr<ezRenderGraph> ezRenderGraphManager::CreateRenderGraph(ezStringView sName, ezEnum<ezRenderGraphPhase> phase)
+WSharedPtr<WRenderGraph> WRenderGraphManager::CreateRenderGraph(WStringView sName, WEnum<WRenderGraphPhase> phase)
 {
-  EZ_LOCK(s_Mutex);
-  ezSharedPtr<ezRenderGraph> pGraph = EZ_DEFAULT_NEW(ezRenderGraph, ezGALDevice::GetDefaultDevice(), sName, phase);
+  W_LOCK(s_Mutex);
+  WSharedPtr<WRenderGraph> pGraph = W_DEFAULT_NEW(WRenderGraph, WGALDevice::GetDefaultDevice(), sName, phase);
   s_AllRenderGraphs[phase.GetValue()].PushBack(pGraph.Borrow());
   return pGraph;
 }
 
-void ezRenderGraphManager::BeginFrame()
+void WRenderGraphManager::BeginFrame()
 {
-  EZ_LOCK(s_Mutex);
-  EZ_PROFILE_SCOPE("ezRenderGraphManager::BeginFrame");
+  W_LOCK(s_Mutex);
+  W_PROFILE_SCOPE("WRenderGraphManager::BeginFrame");
   for (auto& bucket : s_EnqueuedRenderGraphs)
     bucket.Clear();
   s_pStateTracker->Clear();
 }
 
-void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
+void WRenderGraphManager::ExecuteRenderGraphs(WGALDevice* pDevice)
 {
-  EZ_PROFILE_SCOPE("ezRenderGraphManager::ExecuteRenderGraphs");
+  W_PROFILE_SCOPE("WRenderGraphManager::ExecuteRenderGraphs");
   if (!s_pPool)
     return;
 
   {
-    ezRenderGraphRenderEvent ev;
-    ev.m_Type = ezRenderGraphRenderEvent::Type::BeginRender;
+    WRenderGraphRenderEvent ev;
+    ev.m_Type = WRenderGraphRenderEvent::Type::BeginRender;
     s_RenderEvent.Broadcast(ev);
   }
 
   s_ExecutingGraphs.Clear();
   {
-    EZ_PROFILE_SCOPE("CompileRenderGraphs");
-    EZ_LOCK(s_Mutex);
+    W_PROFILE_SCOPE("CompileRenderGraphs");
+    W_LOCK(s_Mutex);
     // Compile all registered graphs in phase order.
     for (auto& bucket : s_EnqueuedRenderGraphs)
     {
@@ -169,7 +169,7 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
       }
     }
     s_ExecutingObservers.Clear();
-    for (ezUInt32 i = s_Observers.GetCount(); i > 0; --i)
+    for (WUInt32 i = s_Observers.GetCount(); i > 0; --i)
     {
       if (s_Observers[i - 1]->GetRefCount() == 1)
       {
@@ -187,7 +187,7 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
     {
       if (s_pObserverGraph == nullptr)
       {
-        s_pObserverGraph = CreateRenderGraph("__OBSERVER__", ezRenderGraphPhase::PostRender);
+        s_pObserverGraph = CreateRenderGraph("__OBSERVER__", WRenderGraphPhase::PostRender);
       }
 
       for (auto* pObserver : s_ExecutingObservers)
@@ -201,11 +201,11 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
   }
 
   {
-    EZ_PROFILE_SCOPE("ComputeBarriers");
+    W_PROFILE_SCOPE("ComputeBarriers");
     for (auto pRenderGraph : s_ExecutingGraphs)
     {
       // Collect observers for this graph.
-      ezHybridArray<ezRenderGraphPassObserver*, 4, ezTempAllocatorWrapper> graphObservers;
+      WHybridArray<WRenderGraphPassObserver*, 4, WTempAllocatorWrapper> graphObservers;
       for (auto* pObserver : s_ExecutingObservers)
       {
         if (pObserver->m_pGraph == pRenderGraph)
@@ -221,20 +221,20 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
 
 
 
-  ezHybridArray<ezGALTextureBarrier, 8, ezTempAllocatorWrapper> textureBarriers;
-  s_pStateTracker->RevertTextureState([&](const ezGALTextureBarrier& barrier)
+  WHybridArray<WGALTextureBarrier, 8, WTempAllocatorWrapper> textureBarriers;
+  s_pStateTracker->RevertTextureState([&](const WGALTextureBarrier& barrier)
     { textureBarriers.PushBack(barrier); });
-  ezHybridArray<ezGALBufferBarrier, 8, ezTempAllocatorWrapper> bufferBarriers;
-  s_pStateTracker->RevertBufferState([&](const ezGALBufferBarrier& barrier)
+  WHybridArray<WGALBufferBarrier, 8, WTempAllocatorWrapper> bufferBarriers;
+  s_pStateTracker->RevertBufferState([&](const WGALBufferBarrier& barrier)
     { bufferBarriers.PushBack(barrier); });
 
   // Execute all registered graphs.
   auto pEncoder = pDevice->BeginCommands("RenderGraph");
-  ezRenderGraphContext ctx(pEncoder, pDevice, ezRenderContext::GetDefaultInstance());
+  WRenderGraphContext ctx(pEncoder, pDevice, WRenderContext::GetDefaultInstance());
   for (s_uiCurrentGraphIndex = 0; s_uiCurrentGraphIndex < s_ExecutingGraphs.GetCount(); ++s_uiCurrentGraphIndex)
   {
     // Collect valid observers for this graph.
-    ezHybridArray<ezRenderGraphPassObserver*, 4, ezTempAllocatorWrapper> graphObservers;
+    WHybridArray<WRenderGraphPassObserver*, 4, WTempAllocatorWrapper> graphObservers;
     for (auto* pObserver : s_ExecutingObservers)
     {
       if (pObserver->m_bValid && pObserver->m_pGraph == s_ExecutingGraphs[s_uiCurrentGraphIndex])
@@ -251,15 +251,15 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
   s_pStateTracker->Clear();
 
   {
-    ezRenderGraphRenderEvent ev;
-    ev.m_Type = ezRenderGraphRenderEvent::Type::EndRender;
+    WRenderGraphRenderEvent ev;
+    ev.m_Type = WRenderGraphRenderEvent::Type::EndRender;
     s_RenderEvent.Broadcast(ev);
   }
 
   for (s_uiCurrentGraphIndex = 0; s_uiCurrentGraphIndex < s_ExecutingGraphs.GetCount(); ++s_uiCurrentGraphIndex)
   {
     // Graphs can only be executed once and then need to be re-recorded.
-    s_ExecutingGraphs[s_uiCurrentGraphIndex]->ResetInternal(ezRenderGraph::RenderGraphState::Recording);
+    s_ExecutingGraphs[s_uiCurrentGraphIndex]->ResetInternal(WRenderGraph::RenderGraphState::Recording);
   }
   s_ExecutingGraphs.Clear();
 
@@ -267,44 +267,44 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
     bucket.Clear();
 }
 
-void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& out_summary)
+void WRenderGraphManager::GetExecutionSummary(WRenderGraphInspectionSummary& out_summary)
 {
   out_summary.m_RenderGraphs.Clear();
   out_summary.m_AvailableSwapChains.Clear();
 
-  if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
+  if (WGALDevice* pDevice = WGALDevice::GetDefaultDevice())
   {
-    ezTempArray<ezGALSwapChainHandle> swapChains;
+    WTempArray<WGALSwapChainHandle> swapChains;
     pDevice->GetAllSwapChains(swapChains);
     out_summary.m_AvailableSwapChains.Reserve(swapChains.GetCount());
-    for (ezGALSwapChainHandle hSwapChain : swapChains)
+    for (WGALSwapChainHandle hSwapChain : swapChains)
     {
-      ezRenderGraphSwapChainSummary& swapChainSummary = out_summary.m_AvailableSwapChains.ExpandAndGetRef();
+      WRenderGraphSwapChainSummary& swapChainSummary = out_summary.m_AvailableSwapChains.ExpandAndGetRef();
       swapChainSummary.m_uiSwapChainId = GetSwapChainId(hSwapChain);
 
-      if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(hSwapChain))
+      if (const WGALSwapChain* pSwapChain = pDevice->GetSwapChain(hSwapChain))
       {
-        const ezSizeU32 size = pSwapChain->GetCurrentSize();
+        const WSizeU32 size = pSwapChain->GetCurrentSize();
         swapChainSummary.m_uiWidth = size.width;
         swapChainSummary.m_uiHeight = size.height;
       }
     }
   }
 
-  for (ezUInt32 i = 0; i < 3; ++i)
+  for (WUInt32 i = 0; i < 3; ++i)
   {
-    for (ezRenderGraph* pGraph : s_AllRenderGraphs[i])
+    for (WRenderGraph* pGraph : s_AllRenderGraphs[i])
     {
       if (pGraph == s_pObserverGraph.Borrow())
         continue;
-      ezRenderGraphExecutionSummary& summary = out_summary.m_RenderGraphs.ExpandAndGetRef();
+      WRenderGraphExecutionSummary& summary = out_summary.m_RenderGraphs.ExpandAndGetRef();
       summary.m_uiRenderGraphId = GetRenderGraphId(pGraph);
       summary.m_sGraphName = pGraph->GetGraphName();
       summary.m_sUserName = pGraph->GetUserName();
       summary.m_Phase = pGraph->m_Phase;
 
       summary.m_uiExecutionOrder = -1;
-      for (ezUInt32 j = 0; j < s_EnqueuedRenderGraphs[i].GetCount(); ++j)
+      for (WUInt32 j = 0; j < s_EnqueuedRenderGraphs[i].GetCount(); ++j)
       {
         if (s_EnqueuedRenderGraphs[i][j].Borrow() == pGraph)
         {
@@ -316,26 +316,26 @@ void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& o
   }
 }
 
-ezResult ezRenderGraphManager::GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_inspectionInfo)
+WResult WRenderGraphManager::GetRenderGraphInspectionInfo(WUInt64 uiRenderGraphId, WRenderGraphInspectionInfo& out_inspectionInfo)
 {
-  if (ezRenderGraph* pGraph = GetRenderGraphById(uiRenderGraphId))
+  if (WRenderGraph* pGraph = GetRenderGraphById(uiRenderGraphId))
   {
     return pGraph->GetInspectionInfo(out_inspectionInfo);
   }
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezUInt64 ezRenderGraphManager::GetRenderGraphId(ezRenderGraph* pGraph)
+WUInt64 WRenderGraphManager::GetRenderGraphId(WRenderGraph* pGraph)
 {
-  return reinterpret_cast<ezUInt64>(pGraph);
+  return reinterpret_cast<WUInt64>(pGraph);
 }
 
-ezRenderGraph* ezRenderGraphManager::GetRenderGraphById(ezUInt64 uiRenderGraphId)
+WRenderGraph* WRenderGraphManager::GetRenderGraphById(WUInt64 uiRenderGraphId)
 {
-  ezRenderGraph* pGraph = reinterpret_cast<ezRenderGraph*>(uiRenderGraphId);
-  for (ezUInt32 i = 0; i < 3; ++i)
+  WRenderGraph* pGraph = reinterpret_cast<WRenderGraph*>(uiRenderGraphId);
+  for (WUInt32 i = 0; i < 3; ++i)
   {
-    for (ezRenderGraph* pGraph2 : s_AllRenderGraphs[i])
+    for (WRenderGraph* pGraph2 : s_AllRenderGraphs[i])
     {
       if (pGraph == pGraph2)
       {
@@ -346,61 +346,61 @@ ezRenderGraph* ezRenderGraphManager::GetRenderGraphById(ezUInt64 uiRenderGraphId
   return nullptr;
 }
 
-ezUInt32 ezRenderGraphManager::GetSwapChainId(ezGALSwapChainHandle hSwapChain)
+WUInt32 WRenderGraphManager::GetSwapChainId(WGALSwapChainHandle hSwapChain)
 {
   return hSwapChain.GetInternalID().m_Data;
 }
 
-ezGALSwapChainHandle ezRenderGraphManager::GetSwapChainById(ezUInt32 uiSwapChainId)
+WGALSwapChainHandle WRenderGraphManager::GetSwapChainById(WUInt32 uiSwapChainId)
 {
-  ezGALSwapChainHandle hSwapChain{ezGALSwapChainHandle::IdType(uiSwapChainId)};
-  if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
+  WGALSwapChainHandle hSwapChain{WGALSwapChainHandle::IdType(uiSwapChainId)};
+  if (WGALDevice* pDevice = WGALDevice::GetDefaultDevice())
   {
     if (pDevice->GetSwapChain(hSwapChain) != nullptr)
     {
       return hSwapChain;
     }
   }
-  return ezGALSwapChainHandle();
+  return WGALSwapChainHandle();
 }
 
-ezSharedPtr<ezRenderGraphPassObserver> ezRenderGraphManager::CreateObserver()
+WSharedPtr<WRenderGraphPassObserver> WRenderGraphManager::CreateObserver()
 {
-  ezSharedPtr<ezRenderGraphPassObserver> observer = EZ_DEFAULT_NEW(ezRenderGraphPassObserver, ezGALDevice::GetDefaultDevice());
+  WSharedPtr<WRenderGraphPassObserver> observer = W_DEFAULT_NEW(WRenderGraphPassObserver, WGALDevice::GetDefaultDevice());
   s_Observers.PushBack(observer);
   return observer;
 }
 
-void ezRenderGraphManager::OnGraphDestroyed(ezRenderGraph* pGraph)
+void WRenderGraphManager::OnGraphDestroyed(WRenderGraph* pGraph)
 {
   s_AllRenderGraphs[pGraph->m_Phase.GetValue()].RemoveAndSwap(pGraph);
 }
 
-ezRenderGraphResourcePool* ezRenderGraphManager::GetResourcePool()
+WRenderGraphResourcePool* WRenderGraphManager::GetResourcePool()
 {
   return s_pPool.Borrow();
 }
 
 namespace
 {
-  bool RangesOverlap(const ezGALTextureRange& a, const ezGALTextureSubresource& subResource)
+  bool RangesOverlap(const WGALTextureRange& a, const WGALTextureSubresource& subResource)
   {
-    const ezUInt32 uiSliceEnd = (ezUInt32)a.m_uiBaseArraySlice + (ezUInt32)a.m_uiArraySlices - 1;
-    if (subResource.m_uiArraySlice < (ezUInt32)a.m_uiBaseArraySlice || subResource.m_uiArraySlice > uiSliceEnd)
+    const WUInt32 uiSliceEnd = (WUInt32)a.m_uiBaseArraySlice + (WUInt32)a.m_uiArraySlices - 1;
+    if (subResource.m_uiArraySlice < (WUInt32)a.m_uiBaseArraySlice || subResource.m_uiArraySlice > uiSliceEnd)
       return false;
 
-    const ezUInt32 uiMipEnd = (ezUInt32)a.m_uiBaseMipLevel + (ezUInt32)a.m_uiMipLevels - 1;
-    if (subResource.m_uiMipLevel < (ezUInt32)a.m_uiBaseMipLevel || subResource.m_uiMipLevel > uiMipEnd)
+    const WUInt32 uiMipEnd = (WUInt32)a.m_uiBaseMipLevel + (WUInt32)a.m_uiMipLevels - 1;
+    if (subResource.m_uiMipLevel < (WUInt32)a.m_uiBaseMipLevel || subResource.m_uiMipLevel > uiMipEnd)
       return false;
 
     return true;
   }
 } // namespace
 
-void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidationError& error)
+void WRenderGraphManager::PrintTextureResourceHistory(const WTextureValidationError& error)
 {
-  ezLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+  WLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
+    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, WArgEnum(error.m_actualState), WArgEnum(error.m_actualStages), WArgEnum(error.m_expectedState), WArgEnum(error.m_expectedStages));
 
 
   if (s_ExecutingGraphs.IsEmpty())
@@ -409,11 +409,11 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
   // First check if the texture is known to any graphs.
 
 
-  ezLog::Error("=== Texture Resource History (handle {}, range=[mip={}, slice={}]) ===", error.m_hTexture.GetInternalID().m_Data, error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice);
+  WLog::Error("=== Texture Resource History (handle {}, range=[mip={}, slice={}]) ===", error.m_hTexture.GetInternalID().m_Data, error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice);
 
-  for (ezUInt32 uiGraph = 0; uiGraph < s_ExecutingGraphs.GetCount(); ++uiGraph)
+  for (WUInt32 uiGraph = 0; uiGraph < s_ExecutingGraphs.GetCount(); ++uiGraph)
   {
-    const ezRenderGraph* pGraph = s_ExecutingGraphs[uiGraph];
+    const WRenderGraph* pGraph = s_ExecutingGraphs[uiGraph];
 
     auto it = pGraph->m_ImportTextureToHandle.Find(error.m_hTexture);
     if (!it.IsValid())
@@ -423,29 +423,29 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
         const auto& compiled = pGraph->m_CompiledPasses[s_uiCurrentPassIndex];
         const auto& pass = pGraph->m_Passes[compiled.m_uiOriginalPassIndex];
         const char* szPassName = pGraph->m_PassNames[compiled.m_uiOriginalPassIndex].GetData();
-        ezLog::Error("{} Graph {} ({})", uiGraph == s_uiCurrentGraphIndex ? ">" : " ", pGraph->m_sGraphName, pGraph->m_sUserName);
-        ezLog::Error("  {} Pass[{}] '{}' ", ">", s_uiCurrentPassIndex, szPassName);
+        WLog::Error("{} Graph {} ({})", uiGraph == s_uiCurrentGraphIndex ? ">" : " ", pGraph->m_sGraphName, pGraph->m_sUserName);
+        WLog::Error("  {} Pass[{}] '{}' ", ">", s_uiCurrentPassIndex, szPassName);
       }
       continue;
     }
-    ezStringBuilder sBlock;
+    WStringBuilder sBlock;
     sBlock.SetFormat("{} Graph {} ({})", uiGraph == s_uiCurrentGraphIndex ? ">" : " ", pGraph->m_sGraphName, pGraph->m_sUserName);
 
-    for (ezUInt32 uiPass = 0; uiPass < pGraph->m_CompiledPasses.GetCount(); ++uiPass)
+    for (WUInt32 uiPass = 0; uiPass < pGraph->m_CompiledPasses.GetCount(); ++uiPass)
     {
       const auto& compiled = pGraph->m_CompiledPasses[uiPass];
       const auto& pass = pGraph->m_Passes[compiled.m_uiOriginalPassIndex];
       const char* szPassName = pGraph->m_PassNames[compiled.m_uiOriginalPassIndex].GetData();
 
       bool bHasActivity = false;
-      ezStringBuilder sOps;
+      WStringBuilder sOps;
 
-      ezHybridArray<ezRenderGraph::TextureInfo, 1> overlapped;
-      ezHybridArray<ezGALTextureBarrier, 1> overlappedBarriers;
+      WHybridArray<WRenderGraph::TextureInfo, 1> overlapped;
+      WHybridArray<WGALTextureBarrier, 1> overlappedBarriers;
       // Check read textures
-      for (const ezRenderGraph::TextureInfo& info : pass.GetReadTextures(pGraph))
+      for (const WRenderGraph::TextureInfo& info : pass.GetReadTextures(pGraph))
       {
-        const ezUInt16 resolvedIdx = pGraph->m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
+        const WUInt16 resolvedIdx = pGraph->m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
         if (pGraph->m_ResolvedTextures[resolvedIdx] == error.m_hTexture && RangesOverlap(info.m_range, error.m_failedSubResource))
         {
           overlapped.PushBack(info);
@@ -454,9 +454,9 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
       }
 
       // Check write textures
-      for (const ezRenderGraph::TextureInfo& info : pass.GetWriteTextures(pGraph))
+      for (const WRenderGraph::TextureInfo& info : pass.GetWriteTextures(pGraph))
       {
-        const ezUInt16 resolvedIdx = pGraph->m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
+        const WUInt16 resolvedIdx = pGraph->m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
         if (pGraph->m_ResolvedTextures[resolvedIdx] == error.m_hTexture && RangesOverlap(info.m_range, error.m_failedSubResource))
         {
           overlapped.PushBack(info);
@@ -465,7 +465,7 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
       }
 
       // Check barriers for this pass
-      for (const ezGALTextureBarrier& barrier : compiled.GetTextureBarriers(pGraph))
+      for (const WGALTextureBarrier& barrier : compiled.GetTextureBarriers(pGraph))
       {
         if (barrier.m_hTexture != error.m_hTexture)
           continue;
@@ -477,9 +477,9 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
         }
         else
         {
-          const ezGALTextureRange barrierRange = {
-            static_cast<ezUInt16>(barrier.m_Subresource.m_uiArraySlice), 1,
-            static_cast<ezUInt8>(barrier.m_Subresource.m_uiMipLevel), 1};
+          const WGALTextureRange barrierRange = {
+            static_cast<WUInt16>(barrier.m_Subresource.m_uiArraySlice), 1,
+            static_cast<WUInt8>(barrier.m_Subresource.m_uiMipLevel), 1};
           if (RangesOverlap(barrierRange, error.m_failedSubResource))
           {
             overlappedBarriers.PushBack(barrier);
@@ -492,55 +492,55 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
       {
         if (!sBlock.IsEmpty())
         {
-          ezLog::Error("{}", sBlock);
+          WLog::Error("{}", sBlock);
           sBlock.Clear();
         }
-        // EZ_ASSERT_DEBUG(overlapped.GetCount() == 1, ""); // overlappedBarriers.GetCount(), "");
-        ezStringBuilder sText;
+        // W_ASSERT_DEBUG(overlapped.GetCount() == 1, ""); // overlappedBarriers.GetCount(), "");
+        WStringBuilder sText;
         const bool bIsCurrent = (uiGraph == s_uiCurrentGraphIndex && uiPass == s_uiCurrentPassIndex);
         sText.SetFormat("  {} Pass[{}] '{}' ", bIsCurrent ? ">" : " ", uiPass, szPassName);
-        for (const ezRenderGraph::TextureInfo& info : overlapped)
+        for (const WRenderGraph::TextureInfo& info : overlapped)
         {
           sText.AppendFormat(", OP: state={}, stage={}, range=[mip={}+{}, slice={}+{}]",
-            ezArgEnum(info.m_access), ezArgEnum(info.m_stage),
+            WArgEnum(info.m_access), WArgEnum(info.m_stage),
             info.m_range.m_uiBaseMipLevel, info.m_range.m_uiMipLevels,
             info.m_range.m_uiBaseArraySlice, info.m_range.m_uiArraySlices);
         }
-        for (const ezGALTextureBarrier& barrier : overlappedBarriers)
+        for (const WGALTextureBarrier& barrier : overlappedBarriers)
         {
           sText.AppendFormat(", BARRIER: {} -> {}, stages: {} -> {} (mip={}, slice={})",
-            ezArgEnum(barrier.m_StateBefore), ezArgEnum(barrier.m_StateAfter),
-            ezArgEnum(barrier.m_StagesBefore), ezArgEnum(barrier.m_StagesAfter),
+            WArgEnum(barrier.m_StateBefore), WArgEnum(barrier.m_StateAfter),
+            WArgEnum(barrier.m_StagesBefore), WArgEnum(barrier.m_StagesAfter),
             barrier.m_Subresource.m_uiMipLevel, barrier.m_Subresource.m_uiArraySlice);
         }
 
-        ezLog::Error("{}", sText.GetView());
+        WLog::Error("{}", sText.GetView());
       }
     }
 
 
     if (!sBlock.IsEmpty())
     {
-      ezLog::Error("{} : Imported but no barrier found", sBlock);
+      WLog::Error("{} : Imported but no barrier found", sBlock);
     }
   }
 
-  ezLog::Error("=== End Texture Resource History ===");
+  WLog::Error("=== End Texture Resource History ===");
 }
 
-void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationError& error)
+void WRenderGraphManager::PrintBufferResourceHistory(const WBufferValidationError& error)
 {
-  ezLog::Error("Bind group '{}' binding '{}': buffer state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-    error.m_uiBindGroup, error.m_sBinding.GetData(), ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+  WLog::Error("Bind group '{}' binding '{}': buffer state mismatch. Tracked: {} [{}], Expected: {} [{}]",
+    error.m_uiBindGroup, error.m_sBinding.GetData(), WArgEnum(error.m_actualState), WArgEnum(error.m_actualStages), WArgEnum(error.m_expectedState), WArgEnum(error.m_expectedStages));
 
   if (s_ExecutingGraphs.IsEmpty())
     return;
 
-  ezLog::Error("=== Buffer Resource History (handle {}) ===", error.m_hBuffer.GetInternalID().m_Data);
+  WLog::Error("=== Buffer Resource History (handle {}) ===", error.m_hBuffer.GetInternalID().m_Data);
 
-  for (ezUInt32 uiGraph = 0; uiGraph < s_ExecutingGraphs.GetCount(); ++uiGraph)
+  for (WUInt32 uiGraph = 0; uiGraph < s_ExecutingGraphs.GetCount(); ++uiGraph)
   {
-    const ezRenderGraph* pGraph = s_ExecutingGraphs[uiGraph];
+    const WRenderGraph* pGraph = s_ExecutingGraphs[uiGraph];
 
     auto it = pGraph->m_ImportBufferToHandle.Find(error.m_hBuffer);
     if (!it.IsValid())
@@ -549,28 +549,28 @@ void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationEr
       {
         const auto& compiled = pGraph->m_CompiledPasses[s_uiCurrentPassIndex];
         const char* szPassName = pGraph->m_PassNames[compiled.m_uiOriginalPassIndex].GetData();
-        ezLog::Error("{} Graph {} ({})", ">", pGraph->m_sGraphName, pGraph->m_sUserName);
-        ezLog::Error("  {} Pass[{}] '{}' ", ">", s_uiCurrentPassIndex, szPassName);
+        WLog::Error("{} Graph {} ({})", ">", pGraph->m_sGraphName, pGraph->m_sUserName);
+        WLog::Error("  {} Pass[{}] '{}' ", ">", s_uiCurrentPassIndex, szPassName);
       }
       continue;
     }
 
-    ezStringBuilder sBlock;
+    WStringBuilder sBlock;
     sBlock.SetFormat("{} Graph {} ({})", uiGraph == s_uiCurrentGraphIndex ? ">" : " ", pGraph->m_sGraphName, pGraph->m_sUserName);
 
-    for (ezUInt32 uiPass = 0; uiPass < pGraph->m_CompiledPasses.GetCount(); ++uiPass)
+    for (WUInt32 uiPass = 0; uiPass < pGraph->m_CompiledPasses.GetCount(); ++uiPass)
     {
       const auto& compiled = pGraph->m_CompiledPasses[uiPass];
       const auto& pass = pGraph->m_Passes[compiled.m_uiOriginalPassIndex];
       const char* szPassName = pGraph->m_PassNames[compiled.m_uiOriginalPassIndex].GetData();
 
       bool bHasActivity = false;
-      ezHybridArray<ezRenderGraph::BufferInfo, 1> overlapped;
-      ezHybridArray<ezGALBufferBarrier, 1> overlappedBarriers;
+      WHybridArray<WRenderGraph::BufferInfo, 1> overlapped;
+      WHybridArray<WGALBufferBarrier, 1> overlappedBarriers;
 
       for (const auto& info : pass.GetReadBuffers(pGraph))
       {
-        const ezUInt16 resolvedIdx = pGraph->m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
+        const WUInt16 resolvedIdx = pGraph->m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
         if (pGraph->m_ResolvedBuffers[resolvedIdx] == error.m_hBuffer)
         {
           overlapped.PushBack(info);
@@ -580,7 +580,7 @@ void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationEr
 
       for (const auto& info : pass.GetWriteBuffers(pGraph))
       {
-        const ezUInt16 resolvedIdx = pGraph->m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
+        const WUInt16 resolvedIdx = pGraph->m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
         if (pGraph->m_ResolvedBuffers[resolvedIdx] == error.m_hBuffer)
         {
           overlapped.PushBack(info);
@@ -601,37 +601,37 @@ void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationEr
       {
         if (!sBlock.IsEmpty())
         {
-          ezLog::Error("{}", sBlock);
+          WLog::Error("{}", sBlock);
           sBlock.Clear();
         }
 
-        ezStringBuilder sText;
+        WStringBuilder sText;
         const bool bIsCurrent = (uiGraph == s_uiCurrentGraphIndex && uiPass == s_uiCurrentPassIndex);
         sText.SetFormat("  {} Pass[{}] '{}' ", bIsCurrent ? ">" : " ", uiPass, szPassName);
         for (const auto& info : overlapped)
         {
           sText.AppendFormat(", OP: state={}, stage={}",
-            ezArgEnum(info.m_access), ezArgEnum(info.m_stage));
+            WArgEnum(info.m_access), WArgEnum(info.m_stage));
         }
         for (const auto& barrier : overlappedBarriers)
         {
           sText.AppendFormat(", BARRIER: {} -> {}, stages: {} -> {}",
-            ezArgEnum(barrier.m_StateBefore), ezArgEnum(barrier.m_StateAfter),
-            ezArgEnum(barrier.m_StagesBefore), ezArgEnum(barrier.m_StagesAfter));
+            WArgEnum(barrier.m_StateBefore), WArgEnum(barrier.m_StateAfter),
+            WArgEnum(barrier.m_StagesBefore), WArgEnum(barrier.m_StagesAfter));
         }
 
-        ezLog::Error("{}", sText.GetView());
+        WLog::Error("{}", sText.GetView());
       }
     }
 
     if (!sBlock.IsEmpty())
     {
-      ezLog::Error("{} : Imported but no barrier found", sBlock);
+      WLog::Error("{} : Imported but no barrier found", sBlock);
     }
   }
 
-  ezLog::Error("=== End Buffer Resource History ===");
+  WLog::Error("=== End Buffer Resource History ===");
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderGraph_Implementation_RenderGraphManager);
+W_STATICLINK_FILE(RendererCore, RendererCore_RenderGraph_Implementation_RenderGraphManager);

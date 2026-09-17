@@ -4,61 +4,61 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
-struct ezMsgExtractRenderData;
-struct ezMsgSetColor;
-struct ezMsgSetMeshMaterial;
-struct ezMsgRopePoseUpdated;
-class ezShaderTransform;
+struct WMsgExtractRenderData;
+struct WMsgSetColor;
+struct WMsgSetMeshMaterial;
+struct WMsgRopePoseUpdated;
+class WShaderTransform;
 
-using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
+using WRopeRenderComponentManager = WComponentManager<class WRopeRenderComponent, WBlockStorageType::Compact>;
 
 /// Used to render a rope or cable.
 ///
-/// This is needed to visualize the ezFakeRopeComponent or ezJoltRopeComponent.
-/// The component handles the message ezMsgRopePoseUpdated to generate an animated mesh and apply the pose.
+/// This is needed to visualize the WFakeRopeComponent or WJoltRopeComponent.
+/// The component handles the message WMsgRopePoseUpdated to generate an animated mesh and apply the pose.
 /// The component has to be attached to the same object as the rope simulation component.
-class EZ_RENDERERCORE_DLL ezRopeRenderComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WRopeRenderComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRopeRenderComponent, ezRenderComponent, ezRopeRenderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRopeRenderComponent, WRenderComponent, WRopeRenderComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg) override;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const; // [ msg handler ]
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRopeRenderComponent
+  // WRopeRenderComponent
 
 public:
-  ezRopeRenderComponent();
-  ~ezRopeRenderComponent();
+  WRopeRenderComponent();
+  ~WRopeRenderComponent();
 
-  ezColor m_Color = ezColor::White;                                                        // [ property ]
+  WColor m_Color = WColor::White;                                                        // [ property ]
 
 
-  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; } // [ property ]
-  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }              // [ property ]
+  void SetMaterial(const WMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; } // [ property ]
+  const WMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }              // [ property ]
 
   /// Changes how thick the rope visualization is. This is independent of the simulated rope thickness.
   void SetThickness(float fThickness);                // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
   /// Sets how round the rope shall be.
-  void SetDetail(ezUInt32 uiDetail);                // [ property ]
-  ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
+  void SetDetail(WUInt32 uiDetail);                // [ property ]
+  WUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
   /// If enabled, the rendered mesh will be slightly more detailed along the rope.
   void SetSubdivide(bool bSubdivide);                // [ property ]
@@ -68,28 +68,28 @@ public:
   void SetUScale(float fUScale);                                                        // [ property ]
   float GetUScale() const { return m_fUScale; }                                         // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);                                           // [ msg handler ]
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg);                             // [ msg handler ]
+  void OnMsgSetColor(WMsgSetColor& ref_msg);                                           // [ msg handler ]
+  void OnMsgSetMeshMaterial(WMsgSetMeshMaterial& ref_msg);                             // [ msg handler ]
 
 private:
-  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg);                                    // [ msg handler ]
-  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
+  void OnRopePoseUpdated(WMsgRopePoseUpdated& msg);                                    // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
 
-  void GenerateRenderMesh(ezUInt32 uiNumRopePieces);
-  void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
+  void GenerateRenderMesh(WUInt32 uiNumRopePieces);
+  void UpdateSkinningTransformBuffer(WArrayPtr<const WTransform> skinningTransforms);
 
-  ezBoundingBoxSphere m_LocalBounds;
+  WBoundingBoxSphere m_LocalBounds;
 
-  ezSkinningState m_SkinningState;
+  WSkinningState m_SkinningState;
 
-  ezMeshResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hMaterial;
+  WMeshResourceHandle m_hMesh;
+  WMaterialResourceHandle m_hMaterial;
 
   float m_fThickness = 0.05f;
-  ezUInt32 m_uiDetail = 6;
+  WUInt32 m_uiDetail = 6;
   bool m_bSubdivide = false;
 
   float m_fUScale = 1.0f;
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

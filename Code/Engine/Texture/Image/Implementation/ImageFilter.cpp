@@ -2,24 +2,24 @@
 
 #include <Texture/Image/ImageFilter.h>
 
-ezSimdFloat ezImageFilter::GetWidth() const
+WSimdFloat WImageFilter::GetWidth() const
 {
   return m_fWidth;
 }
 
-ezImageFilter::ezImageFilter(float width)
+WImageFilter::WImageFilter(float width)
   : m_fWidth(width)
 {
 }
 
-ezImageFilterBox::ezImageFilterBox(float fWidth)
-  : ezImageFilter(fWidth)
+WImageFilterBox::WImageFilterBox(float fWidth)
+  : WImageFilter(fWidth)
 {
 }
 
-ezSimdFloat ezImageFilterBox::SamplePoint(const ezSimdFloat& x) const
+WSimdFloat WImageFilterBox::SamplePoint(const WSimdFloat& x) const
 {
-  ezSimdFloat absX = x.Abs();
+  WSimdFloat absX = x.Abs();
 
   if (absX <= GetWidth())
   {
@@ -31,16 +31,16 @@ ezSimdFloat ezImageFilterBox::SamplePoint(const ezSimdFloat& x) const
   }
 }
 
-ezImageFilterTriangle::ezImageFilterTriangle(float fWidth)
-  : ezImageFilter(fWidth)
+WImageFilterTriangle::WImageFilterTriangle(float fWidth)
+  : WImageFilter(fWidth)
 {
 }
 
-ezSimdFloat ezImageFilterTriangle::SamplePoint(const ezSimdFloat& x) const
+WSimdFloat WImageFilterTriangle::SamplePoint(const WSimdFloat& x) const
 {
-  ezSimdFloat absX = x.Abs();
+  WSimdFloat absX = x.Abs();
 
-  ezSimdFloat width = GetWidth();
+  WSimdFloat width = GetWidth();
 
   if (absX <= width)
   {
@@ -52,54 +52,54 @@ ezSimdFloat ezImageFilterTriangle::SamplePoint(const ezSimdFloat& x) const
   }
 }
 
-static ezSimdFloat sinc(const ezSimdFloat& x)
+static WSimdFloat sinc(const WSimdFloat& x)
 {
-  ezSimdFloat absX = x.Abs();
+  WSimdFloat absX = x.Abs();
 
   // Use Taylor expansion for small values to avoid division
   if (absX < 0.0001f)
   {
     // sin(x) / x = (x - x^3/6 + x^5/120 - ...) / x = 1 - x^2/6 + x^4/120 - ...
-    return ezSimdFloat(1.0f) - x * x * ezSimdFloat(1.0f / 6.0f);
+    return WSimdFloat(1.0f) - x * x * WSimdFloat(1.0f / 6.0f);
   }
   else
   {
-    return ezMath::Sin(ezAngle::MakeFromRadian(x)) / x;
+    return WMath::Sin(WAngle::MakeFromRadian(x)) / x;
   }
 }
 
-static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
+static WSimdFloat modifiedBessel0(const WSimdFloat& x)
 {
   // Implementation as I0(x) = sum((1/4 * x * x) ^ k / (k!)^2, k, 0, inf), see
   // http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
 
-  ezSimdFloat sum = 1.0f;
+  WSimdFloat sum = 1.0f;
 
-  ezSimdFloat xSquared = x * x * ezSimdFloat(0.25f);
+  WSimdFloat xSquared = x * x * WSimdFloat(0.25f);
 
-  ezSimdFloat currentTerm = xSquared;
+  WSimdFloat currentTerm = xSquared;
 
-  for (ezUInt32 i = 2; currentTerm > 0.001f; ++i)
+  for (WUInt32 i = 2; currentTerm > 0.001f; ++i)
   {
     sum += currentTerm;
-    currentTerm *= xSquared / ezSimdFloat(i * i);
+    currentTerm *= xSquared / WSimdFloat(i * i);
   }
 
   return sum;
 }
 
-ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float fWidth, float fBeta)
-  : ezImageFilter(fWidth)
+WImageFilterSincWithKaiserWindow::WImageFilterSincWithKaiserWindow(float fWidth, float fBeta)
+  : WImageFilter(fWidth)
   , m_fBeta(fBeta)
   , m_fInvBesselBeta(1.0f / modifiedBessel0(m_fBeta))
 {
 }
 
-ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x) const
+WSimdFloat WImageFilterSincWithKaiserWindow::SamplePoint(const WSimdFloat& x) const
 {
-  ezSimdFloat scaledX = x / GetWidth();
+  WSimdFloat scaledX = x / GetWidth();
 
-  ezSimdFloat xSq = 1.0f - scaledX * scaledX;
+  WSimdFloat xSq = 1.0f - scaledX * scaledX;
 
   if (xSq <= 0.0f)
   {
@@ -107,14 +107,14 @@ ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x)
   }
   else
   {
-    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_fBeta * xSq.GetSqrt()) * m_fInvBesselBeta;
+    return sinc(x * WSimdFloat(WMath::Pi<float>())) * modifiedBessel0(m_fBeta * xSq.GetSqrt()) * m_fInvBesselBeta;
   }
 }
 
-ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 uiSrcSamples, ezUInt32 uiDstSamples)
+WImageFilterWeights::WImageFilterWeights(const WImageFilter& filter, WUInt32 uiSrcSamples, WUInt32 uiDstSamples)
 {
   // Filter weights repeat after the common phase
-  ezUInt32 commonPhase = ezMath::GreatestCommonDivisor(uiSrcSamples, uiDstSamples);
+  WUInt32 commonPhase = WMath::GreatestCommonDivisor(uiSrcSamples, uiDstSamples);
 
   uiSrcSamples /= commonPhase;
   uiDstSamples /= commonPhase;
@@ -124,7 +124,7 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
   m_fSourceToDestScale = float(uiDstSamples) / float(uiSrcSamples);
   m_fDestToSourceScale = float(uiSrcSamples) / float(uiDstSamples);
 
-  ezSimdFloat filterScale, invFilterScale;
+  WSimdFloat filterScale, invFilterScale;
 
   if (uiDstSamples > uiSrcSamples)
   {
@@ -142,45 +142,45 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
 
   m_fWidthInSourceSpace = filter.GetWidth() * filterScale;
 
-  m_uiNumWeights = ezUInt32(ezMath::Ceil(m_fWidthInSourceSpace * ezSimdFloat(2.0f))) + 1;
+  m_uiNumWeights = WUInt32(WMath::Ceil(m_fWidthInSourceSpace * WSimdFloat(2.0f))) + 1;
 
   m_Weights.SetCountUninitialized(uiDstSamples * m_uiNumWeights);
 
-  for (ezUInt32 dstSample = 0; dstSample < uiDstSamples; ++dstSample)
+  for (WUInt32 dstSample = 0; dstSample < uiDstSamples; ++dstSample)
   {
-    ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_fDestToSourceScale;
+    WSimdFloat dstSampleInSourceSpace = (WSimdFloat(dstSample) + WSimdFloat(0.5f)) * m_fDestToSourceScale;
 
-    ezInt32 firstSourceIdx = GetFirstSourceSampleIndex(dstSample);
+    WInt32 firstSourceIdx = GetFirstSourceSampleIndex(dstSample);
 
-    ezSimdFloat totalWeight = 0.0f;
+    WSimdFloat totalWeight = 0.0f;
 
-    for (ezUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
+    for (WUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
     {
-      ezSimdFloat sourceSample = ezSimdFloat(firstSourceIdx + ezInt32(weightIdx)) + ezSimdFloat(0.5f);
+      WSimdFloat sourceSample = WSimdFloat(firstSourceIdx + WInt32(weightIdx)) + WSimdFloat(0.5f);
 
-      ezSimdFloat weight = filter.SamplePoint((dstSampleInSourceSpace - sourceSample) * invFilterScale);
+      WSimdFloat weight = filter.SamplePoint((dstSampleInSourceSpace - sourceSample) * invFilterScale);
       totalWeight += weight;
       m_Weights[dstSample * m_uiNumWeights + weightIdx] = weight;
     }
 
     // Normalize weights
-    ezSimdFloat invWeight = 1.0f / totalWeight;
+    WSimdFloat invWeight = 1.0f / totalWeight;
 
-    for (ezUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
+    for (WUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
     {
       m_Weights[dstSample * m_uiNumWeights + weightIdx] *= invWeight;
     }
   }
 }
 
-ezUInt32 ezImageFilterWeights::GetNumWeights() const
+WUInt32 WImageFilterWeights::GetNumWeights() const
 {
   return m_uiNumWeights;
 }
 
-ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 uiWeightIndex) const
+WSimdFloat WImageFilterWeights::GetWeight(WUInt32 uiDstSampleIndex, WUInt32 uiWeightIndex) const
 {
-  EZ_ASSERT_DEBUG(uiWeightIndex < m_uiNumWeights, "Invalid weight index {} (should be < {})", uiWeightIndex, m_uiNumWeights);
+  W_ASSERT_DEBUG(uiWeightIndex < m_uiNumWeights, "Invalid weight index {} (should be < {})", uiWeightIndex, m_uiNumWeights);
 
-  return ezSimdFloat(m_Weights[(uiDstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + uiWeightIndex]);
+  return WSimdFloat(m_Weights[(uiDstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + uiWeightIndex]);
 }

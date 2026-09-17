@@ -8,9 +8,9 @@
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 
-ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
+WQtQuadViewWidget::WQtQuadViewWidget(WAssetDocument* pDocument, WQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
 {
-  setObjectName("ezQtQuadViewWidget");
+  setObjectName("WQtQuadViewWidget");
 
   m_pDocument = pDocument;
   m_pWindow = pWindow;
@@ -27,12 +27,12 @@ ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDoc
   LoadViewConfigs();
 }
 
-ezQtQuadViewWidget::~ezQtQuadViewWidget()
+WQtQuadViewWidget::~WQtQuadViewWidget()
 {
   SaveViewConfigs();
 }
 
-void ezQtQuadViewWidget::SaveViewConfig(const ezEngineViewConfig& cfg, ezEngineViewPreferences& pref) const
+void WQtQuadViewWidget::SaveViewConfig(const WEngineViewConfig& cfg, WEngineViewPreferences& pref) const
 {
   pref.m_vCamPos = cfg.m_Camera.GetPosition();
   pref.m_vCamDir = cfg.m_Camera.GetDirForwards();
@@ -42,15 +42,15 @@ void ezQtQuadViewWidget::SaveViewConfig(const ezEngineViewConfig& cfg, ezEngineV
   pref.m_fFov = cfg.m_Camera.GetFovOrDim();
 }
 
-void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPreferences& pref)
+void WQtQuadViewWidget::LoadViewConfig(WEngineViewConfig& cfg, WEngineViewPreferences& pref)
 {
-  cfg.m_Perspective = (ezSceneViewPerspective::Enum)pref.m_PerspectiveMode;
-  cfg.m_RenderMode = (ezViewRenderMode::Enum)pref.m_RenderMode;
-  cfg.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  cfg.m_Perspective = (WSceneViewPerspective::Enum)pref.m_PerspectiveMode;
+  cfg.m_RenderMode = (WViewRenderMode::Enum)pref.m_RenderMode;
+  cfg.m_Camera.LookAt(WVec3(0), WVec3(1, 0, 0), WVec3(0, 0, 1));
 
-  if (cfg.m_Perspective == ezSceneViewPerspective::Perspective)
+  if (cfg.m_Perspective == WSceneViewPerspective::Perspective)
   {
-    ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    WEditorPreferencesUser* pPref = WPreferences::QueryPreferences<WEditorPreferencesUser>();
     cfg.ApplyPerspectiveSetting(pPref->m_fPerspectiveFieldOfView);
   }
   else
@@ -58,16 +58,16 @@ void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPre
     cfg.ApplyPerspectiveSetting(pref.m_fFov);
   }
 
-  pref.m_vCamDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
+  pref.m_vCamDir.NormalizeIfNotZero(WVec3(1, 0, 0)).IgnoreResult();
   pref.m_vCamUp.MakeOrthogonalTo(pref.m_vCamDir);
   pref.m_vCamUp.NormalizeIfNotZero(pref.m_vCamDir.GetOrthogonalVector().GetNormalized()).IgnoreResult();
 
   cfg.m_Camera.LookAt(pref.m_vCamPos, pref.m_vCamPos + pref.m_vCamDir, pref.m_vCamUp);
 }
 
-void ezQtQuadViewWidget::SaveViewConfigs() const
+void WQtQuadViewWidget::SaveViewConfigs() const
 {
-  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(m_pDocument);
+  WQuadViewPreferencesUser* pPreferences = WPreferences::QueryPreferences<WQuadViewPreferencesUser>(m_pDocument);
   pPreferences->m_bQuadView = m_ActiveMainViews.GetCount() == 4;
 
   SaveViewConfig(m_ViewConfigSingle, pPreferences->m_ViewSingle);
@@ -77,9 +77,9 @@ void ezQtQuadViewWidget::SaveViewConfigs() const
   SaveViewConfig(m_ViewConfigQuad[3], pPreferences->m_ViewQuad3);
 }
 
-void ezQtQuadViewWidget::LoadViewConfigs()
+void WQtQuadViewWidget::LoadViewConfigs()
 {
-  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(m_pDocument);
+  WQuadViewPreferencesUser* pPreferences = WPreferences::QueryPreferences<WQuadViewPreferencesUser>(m_pDocument);
 
   LoadViewConfig(m_ViewConfigSingle, pPreferences->m_ViewSingle);
   LoadViewConfig(m_ViewConfigQuad[0], pPreferences->m_ViewQuad0);
@@ -90,9 +90,9 @@ void ezQtQuadViewWidget::LoadViewConfigs()
   CreateViews(pPreferences->m_bQuadView);
 }
 
-void ezQtQuadViewWidget::CreateViews(bool bQuad)
+void WQtQuadViewWidget::CreateViews(bool bQuad)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
   for (auto pContainer : m_ActiveMainViews)
   {
     delete pContainer;
@@ -101,27 +101,27 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
 
   if (bQuad)
   {
-    for (ezUInt32 i = 0; i < 4; ++i)
+    for (WUInt32 i = 0; i < 4; ++i)
     {
-      ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigQuad[i]);
-      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
+      WQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigQuad[i]);
+      WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
     }
   }
   else
   {
-    ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigSingle);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
+    WQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigSingle);
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
   }
 }
 
-void ezQtQuadViewWidget::ToggleViews(QWidget* pView)
+void WQtQuadViewWidget::ToggleViews(QWidget* pView)
 {
-  ezQtEngineViewWidget* pViewport = qobject_cast<ezQtEngineViewWidget*>(pView);
-  EZ_ASSERT_DEV(pViewport != nullptr, "ezQtSceneDocumentWindow::ToggleViews must be called with a ezQtSceneViewWidget as parameter!");
+  WQtEngineViewWidget* pViewport = qobject_cast<WQtEngineViewWidget*>(pView);
+  W_ASSERT_DEV(pViewport != nullptr, "WQtSceneDocumentWindow::ToggleViews must be called with a WQtSceneViewWidget as parameter!");
   bool bIsQuad = m_ActiveMainViews.GetCount() == 4;
   if (bIsQuad)
   {

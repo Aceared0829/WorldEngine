@@ -4,16 +4,16 @@
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
-  : ezEngineProcessViewContext(pDecalContext)
+WDecalViewContext::WDecalViewContext(WDecalContext* pDecalContext)
+  : WEngineProcessViewContext(pDecalContext)
 {
   m_pDecalContext = pDecalContext;
 }
 
-ezDecalViewContext::~ezDecalViewContext() = default;
+WDecalViewContext::~WDecalViewContext() = default;
 
-ezViewHandle ezDecalViewContext::CreateView()
+WViewHandle WDecalViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Decal Editor - View");
+  WView* pView = CreateDefaultView("Decal Editor - View");
   return pView->GetHandle();
 }

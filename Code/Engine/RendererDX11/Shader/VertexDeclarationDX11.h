@@ -7,26 +7,26 @@
 
 struct ID3D11InputLayout;
 
-class ezGALVertexDeclarationDX11 : public ezGALVertexDeclaration
+class WGALVertexDeclarationDX11 : public WGALVertexDeclaration
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11InputLayout* GetDXInputLayout() const;
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> GetVertexBufferStrides() const;
+  W_ALWAYS_INLINE ID3D11InputLayout* GetDXInputLayout() const;
+  W_ALWAYS_INLINE WArrayPtr<const WUInt32> GetVertexBufferStrides() const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description);
+  WGALVertexDeclarationDX11(const WGALVertexDeclarationCreationDescription& Description);
 
-  virtual ~ezGALVertexDeclarationDX11();
+  virtual ~WGALVertexDeclarationDX11();
 
   ID3D11InputLayout* m_pDXInputLayout = nullptr;
-  ezHybridArray<ezUInt32, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBufferStrides;
+  WHybridArray<WUInt32, W_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBufferStrides;
 };
 
 #include <RendererDX11/Shader/Implementation/VertexDeclarationDX11_inl.h>

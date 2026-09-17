@@ -8,27 +8,27 @@
 #include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTTIDefaultAllocator<ezStateMachineState_NestedStateMachine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineState_NestedStateMachine, 1, WRTTIDefaultAllocator<WStateMachineState_NestedStateMachine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
-    EZ_MEMBER_PROPERTY("KeepCurrentStateOnExit", m_bKeepCurrentStateOnExit),
+    W_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_StateMachine", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
+    W_MEMBER_PROPERTY("KeepCurrentStateOnExit", m_bKeepCurrentStateOnExit),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_NestedStateMachine::ezStateMachineState_NestedStateMachine(ezStringView sName)
-  : ezStateMachineState(sName)
+WStateMachineState_NestedStateMachine::WStateMachineState_NestedStateMachine(WStringView sName)
+  : WStateMachineState(sName)
 {
 }
 
-ezStateMachineState_NestedStateMachine::~ezStateMachineState_NestedStateMachine() = default;
+WStateMachineState_NestedStateMachine::~WStateMachineState_NestedStateMachine() = default;
 
-void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void WStateMachineState_NestedStateMachine::OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const
 {
   auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
 
@@ -37,10 +37,10 @@ void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& ref
     if (m_hResource.IsValid() == false)
       return;
 
-    ezResourceLock<ezStateMachineResource> pStateMachineResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pStateMachineResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+    WResourceLock<WStateMachineResource> pStateMachineResource(m_hResource, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pStateMachineResource.GetAcquireResult() != WResourceAcquireResult::Final)
     {
-      ezLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
+      WLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
       return;
     }
 
@@ -54,7 +54,7 @@ void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& ref
   }
 }
 
-void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void WStateMachineState_NestedStateMachine::OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const
 {
   if (m_bKeepCurrentStateOnExit == false)
   {
@@ -66,7 +66,7 @@ void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& ref_
   }
 }
 
-void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const
+void WStateMachineState_NestedStateMachine::Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const
 {
   auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
   if (pStateMachineInstance != nullptr)
@@ -75,40 +75,40 @@ void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& ref_
   }
 }
 
-ezResult ezStateMachineState_NestedStateMachine::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineState_NestedStateMachine::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_hResource;
   inout_stream << m_sInitialState;
   inout_stream << m_bKeepCurrentStateOnExit;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineState_NestedStateMachine::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_hResource;
   inout_stream >> m_sInitialState;
   inout_stream >> m_bKeepCurrentStateOnExit;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
+bool WStateMachineState_NestedStateMachine::GetInstanceDataDesc(WInstanceDataDesc& out_desc)
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
-void ezStateMachineState_NestedStateMachine::SetResource(const ezStateMachineResourceHandle& hResource)
+void WStateMachineState_NestedStateMachine::SetResource(const WStateMachineResourceHandle& hResource)
 {
   m_hResource = hResource;
 }
 
-void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
+void WStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
 {
   m_sInitialState.Assign(szName);
 }
@@ -116,23 +116,23 @@ void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineState_Compound>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineState_Compound, 1, WRTTIDefaultAllocator<WStateMachineState_Compound>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("SubStates", m_SubStates)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ARRAY_MEMBER_PROPERTY("SubStates", m_SubStates)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_Compound::ezStateMachineState_Compound(ezStringView sName)
-  : ezStateMachineState(sName)
+WStateMachineState_Compound::WStateMachineState_Compound(WStringView sName)
+  : WStateMachineState(sName)
 {
 }
 
-ezStateMachineState_Compound::~ezStateMachineState_Compound()
+WStateMachineState_Compound::~WStateMachineState_Compound()
 {
   for (auto pSubState : m_SubStates)
   {
@@ -141,91 +141,91 @@ ezStateMachineState_Compound::~ezStateMachineState_Compound()
   }
 }
 
-void ezStateMachineState_Compound::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void WStateMachineState_Compound::OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const
 {
-  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  auto pData = static_cast<WStateMachineInternal::Compound::InstanceData*>(pInstanceData);
   m_Compound.Initialize(pData);
 
-  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
     void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
     m_SubStates[i]->OnEnter(ref_instance, pSubInstanceData, pFromState);
   }
 }
 
-void ezStateMachineState_Compound::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void WStateMachineState_Compound::OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const
 {
-  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  auto pData = static_cast<WStateMachineInternal::Compound::InstanceData*>(pInstanceData);
 
-  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
     void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
     m_SubStates[i]->OnExit(ref_instance, pSubInstanceData, pToState);
   }
 }
 
-void ezStateMachineState_Compound::Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const
+void WStateMachineState_Compound::Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const
 {
-  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  auto pData = static_cast<WStateMachineInternal::Compound::InstanceData*>(pInstanceData);
 
-  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
     void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
     m_SubStates[i]->Update(ref_instance, pSubInstanceData, deltaTime);
   }
 }
 
-ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineState_Compound::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
-  const ezUInt32 uiNumSubStates = m_SubStates.GetCount();
+  const WUInt32 uiNumSubStates = m_SubStates.GetCount();
   inout_stream << uiNumSubStates;
 
   for (auto pSubState : m_SubStates)
   {
     auto pStateType = pSubState->GetDynamicRTTI();
-    ezTypeVersionWriteContext::GetContext()->AddType(pStateType);
+    WTypeVersionWriteContext::GetContext()->AddType(pStateType);
 
     inout_stream << pStateType->GetTypeName();
-    EZ_SUCCEED_OR_RETURN(pSubState->Serialize(inout_stream));
+    W_SUCCEED_OR_RETURN(pSubState->Serialize(inout_stream));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineState_Compound::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
 
-  ezUInt32 uiNumSubStates = 0;
+  WUInt32 uiNumSubStates = 0;
   inout_stream >> uiNumSubStates;
   m_SubStates.Reserve(uiNumSubStates);
 
-  ezStringBuilder sTypeName;
-  for (ezUInt32 i = 0; i < uiNumSubStates; ++i)
+  WStringBuilder sTypeName;
+  for (WUInt32 i = 0; i < uiNumSubStates; ++i)
   {
     inout_stream >> sTypeName;
-    if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+    if (const WRTTI* pType = WRTTI::FindTypeByName(sTypeName))
     {
-      ezUniquePtr<ezStateMachineState> pSubState = pType->GetAllocator()->Allocate<ezStateMachineState>();
-      EZ_SUCCEED_OR_RETURN(pSubState->Deserialize(inout_stream));
+      WUniquePtr<WStateMachineState> pSubState = pType->GetAllocator()->Allocate<WStateMachineState>();
+      W_SUCCEED_OR_RETURN(pSubState->Deserialize(inout_stream));
 
       m_SubStates.PushBack(pSubState.Release());
     }
     else
     {
-      ezLog::Error("Unknown state machine state type '{}'", sTypeName);
-      return EZ_FAILURE;
+      WLog::Error("Unknown state machine state type '{}'", sTypeName);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezStateMachineState_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
+bool WStateMachineState_Compound::GetInstanceDataDesc(WInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubStates.GetArrayPtr(), out_desc);
 }
@@ -233,30 +233,30 @@ bool ezStateMachineState_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_d
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezStateMachineLogicOperator, 1)
-  EZ_ENUM_CONSTANTS(ezStateMachineLogicOperator::And, ezStateMachineLogicOperator::Or)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WStateMachineLogicOperator, 1)
+  W_ENUM_CONSTANTS(WStateMachineLogicOperator::And, WStateMachineLogicOperator::Or)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_BlackboardConditions, 2, ezRTTIDefaultAllocator<ezStateMachineTransition_BlackboardConditions>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineTransition_BlackboardConditions, 2, WRTTIDefaultAllocator<WStateMachineTransition_BlackboardConditions>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Operator", ezStateMachineLogicOperator, m_Operator),
-    EZ_ARRAY_MEMBER_PROPERTY("Conditions", m_Conditions),
+    W_ENUM_MEMBER_PROPERTY("Operator", WStateMachineLogicOperator, m_Operator),
+    W_ARRAY_MEMBER_PROPERTY("Conditions", m_Conditions),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineTransition_BlackboardConditions::ezStateMachineTransition_BlackboardConditions() = default;
-ezStateMachineTransition_BlackboardConditions::~ezStateMachineTransition_BlackboardConditions() = default;
+WStateMachineTransition_BlackboardConditions::WStateMachineTransition_BlackboardConditions() = default;
+WStateMachineTransition_BlackboardConditions::~WStateMachineTransition_BlackboardConditions() = default;
 
-bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+bool WStateMachineTransition_BlackboardConditions::IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const
 {
   if (m_Conditions.IsEmpty())
     return true;
@@ -265,7 +265,7 @@ bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachin
   if (pBlackboard == nullptr)
     return false;
 
-  const bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
+  const bool bCheckFor = (m_Operator == WStateMachineLogicOperator::Or) ? true : false;
   for (auto& condition : m_Conditions)
   {
     if (condition.IsConditionMet(*pBlackboard) == bCheckFor)
@@ -275,66 +275,66 @@ bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachin
   return !bCheckFor;
 }
 
-ezResult ezStateMachineTransition_BlackboardConditions::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineTransition_BlackboardConditions::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_Operator;
   return inout_stream.WriteArray(m_Conditions);
 }
 
-ezResult ezStateMachineTransition_BlackboardConditions::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineTransition_BlackboardConditions::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
   inout_stream >> m_Operator;
   return inout_stream.ReadArray(m_Conditions);
 }
 
-// Before version 2 each ezBlackboardCondition was a reflected class, so the "Conditions" array stored references to
-// separate sub-nodes. ezBlackboardCondition is now a custom variant type, so the conditions are inlined as values into
+// Before version 2 each WBlackboardCondition was a reflected class, so the "Conditions" array stored references to
+// separate sub-nodes. WBlackboardCondition is now a custom variant type, so the conditions are inlined as values into
 // the array. This patch rebuilds the condition objects from the referenced sub-nodes and removes those nodes.
-class ezStateMachineTransition_BlackboardConditions_1_2 : public ezGraphPatch
+class WStateMachineTransition_BlackboardConditions_1_2 : public WGraphPatch
 {
 public:
-  ezStateMachineTransition_BlackboardConditions_1_2()
-    : ezGraphPatch("ezStateMachineTransition_BlackboardConditions", 2)
+  WStateMachineTransition_BlackboardConditions_1_2()
+    : WGraphPatch("WStateMachineTransition_BlackboardConditions", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pConditions = pNode->FindProperty("Conditions");
-    if (pConditions == nullptr || !pConditions->m_Value.IsA<ezVariantArray>())
+    if (pConditions == nullptr || !pConditions->m_Value.IsA<WVariantArray>())
       return;
 
-    const ezVariantArray oldArray = pConditions->m_Value.Get<ezVariantArray>();
+    const WVariantArray oldArray = pConditions->m_Value.Get<WVariantArray>();
 
-    ezVariantArray newArray;
+    WVariantArray newArray;
     newArray.Reserve(oldArray.GetCount());
 
-    for (const ezVariant& element : oldArray)
+    for (const WVariant& element : oldArray)
     {
-      if (!element.IsA<ezUuid>())
+      if (!element.IsA<WUuid>())
       {
         // Already inlined (e.g. patched before), keep as-is.
         newArray.PushBack(element);
         continue;
       }
 
-      const ezUuid guid = element.Get<ezUuid>();
-      ezAbstractObjectNode* pConditionNode = pGraph->GetNode(guid);
+      const WUuid guid = element.Get<WUuid>();
+      WAbstractObjectNode* pConditionNode = pGraph->GetNode(guid);
       if (pConditionNode == nullptr)
         continue;
 
-      ezRttiConverterContext context;
-      ezRttiConverterReader reader(pGraph, &context);
+      WRttiConverterContext context;
+      WRttiConverterReader reader(pGraph, &context);
       void* pObject = reader.CreateObjectFromNode(pConditionNode);
       if (pObject == nullptr)
         continue;
 
-      ezVariant value;
-      value.MoveTypedObject(pObject, ezGetStaticRTTI<ezBlackboardCondition>());
+      WVariant value;
+      value.MoveTypedObject(pObject, WGetStaticRTTI<WBlackboardCondition>());
       newArray.PushBack(value);
 
       pGraph->RemoveNode(guid);
@@ -344,64 +344,64 @@ public:
   }
 };
 
-ezStateMachineTransition_BlackboardConditions_1_2 g_ezStateMachineTransition_BlackboardConditions_1_2;
+WStateMachineTransition_BlackboardConditions_1_2 g_WStateMachineTransition_BlackboardConditions_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_Timeout, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_Timeout>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineTransition_Timeout, 1, WRTTIDefaultAllocator<WStateMachineTransition_Timeout>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Timeout", m_Timeout),
+    W_MEMBER_PROPERTY("Timeout", m_Timeout),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineTransition_Timeout::ezStateMachineTransition_Timeout() = default;
-ezStateMachineTransition_Timeout::~ezStateMachineTransition_Timeout() = default;
+WStateMachineTransition_Timeout::WStateMachineTransition_Timeout() = default;
+WStateMachineTransition_Timeout::~WStateMachineTransition_Timeout() = default;
 
-bool ezStateMachineTransition_Timeout::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+bool WStateMachineTransition_Timeout::IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const
 {
   return ref_instance.GetTimeInCurrentState() >= m_Timeout;
 }
 
-ezResult ezStateMachineTransition_Timeout::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineTransition_Timeout::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_Timeout;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineTransition_Timeout::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineTransition_Timeout::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
   inout_stream >> m_Timeout;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_Compound>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineTransition_Compound, 1, WRTTIDefaultAllocator<WStateMachineTransition_Compound>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Operator", ezStateMachineLogicOperator, m_Operator),
-    EZ_ARRAY_MEMBER_PROPERTY("SubTransitions", m_SubTransitions)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ENUM_MEMBER_PROPERTY("Operator", WStateMachineLogicOperator, m_Operator),
+    W_ARRAY_MEMBER_PROPERTY("SubTransitions", m_SubTransitions)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineTransition_Compound::ezStateMachineTransition_Compound() = default;
+WStateMachineTransition_Compound::WStateMachineTransition_Compound() = default;
 
-ezStateMachineTransition_Compound::~ezStateMachineTransition_Compound()
+WStateMachineTransition_Compound::~WStateMachineTransition_Compound()
 {
   for (auto pSubState : m_SubTransitions)
   {
@@ -410,13 +410,13 @@ ezStateMachineTransition_Compound::~ezStateMachineTransition_Compound()
   }
 }
 
-bool ezStateMachineTransition_Compound::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+bool WStateMachineTransition_Compound::IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const
 {
-  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  auto pData = static_cast<WStateMachineInternal::Compound::InstanceData*>(pInstanceData);
   m_Compound.Initialize(pData);
 
-  const bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
-  for (ezUInt32 i = 0; i < m_SubTransitions.GetCount(); ++i)
+  const bool bCheckFor = (m_Operator == WStateMachineLogicOperator::Or) ? true : false;
+  for (WUInt32 i = 0; i < m_SubTransitions.GetCount(); ++i)
   {
     void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
     if (m_SubTransitions[i]->IsConditionMet(ref_instance, pSubInstanceData) == bCheckFor)
@@ -426,61 +426,61 @@ bool ezStateMachineTransition_Compound::IsConditionMet(ezStateMachineInstance& r
   return !bCheckFor;
 }
 
-ezResult ezStateMachineTransition_Compound::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineTransition_Compound::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_Operator;
 
-  const ezUInt32 uiNumSubTransitions = m_SubTransitions.GetCount();
+  const WUInt32 uiNumSubTransitions = m_SubTransitions.GetCount();
   inout_stream << uiNumSubTransitions;
 
   for (auto pSubTransition : m_SubTransitions)
   {
     auto pStateType = pSubTransition->GetDynamicRTTI();
-    ezTypeVersionWriteContext::GetContext()->AddType(pStateType);
+    WTypeVersionWriteContext::GetContext()->AddType(pStateType);
 
     inout_stream << pStateType->GetTypeName();
-    EZ_SUCCEED_OR_RETURN(pSubTransition->Serialize(inout_stream));
+    W_SUCCEED_OR_RETURN(pSubTransition->Serialize(inout_stream));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineTransition_Compound::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_Operator;
 
-  ezUInt32 uiNumSubTransitions = 0;
+  WUInt32 uiNumSubTransitions = 0;
   inout_stream >> uiNumSubTransitions;
   m_SubTransitions.Reserve(uiNumSubTransitions);
 
-  ezStringBuilder sTypeName;
-  for (ezUInt32 i = 0; i < uiNumSubTransitions; ++i)
+  WStringBuilder sTypeName;
+  for (WUInt32 i = 0; i < uiNumSubTransitions; ++i)
   {
     inout_stream >> sTypeName;
-    if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+    if (const WRTTI* pType = WRTTI::FindTypeByName(sTypeName))
     {
-      ezUniquePtr<ezStateMachineTransition> pSubTransition = pType->GetAllocator()->Allocate<ezStateMachineTransition>();
-      EZ_SUCCEED_OR_RETURN(pSubTransition->Deserialize(inout_stream));
+      WUniquePtr<WStateMachineTransition> pSubTransition = pType->GetAllocator()->Allocate<WStateMachineTransition>();
+      W_SUCCEED_OR_RETURN(pSubTransition->Deserialize(inout_stream));
 
       m_SubTransitions.PushBack(pSubTransition.Release());
     }
     else
     {
-      ezLog::Error("Unknown state machine state type '{}'", sTypeName);
-      return EZ_FAILURE;
+      WLog::Error("Unknown state machine state type '{}'", sTypeName);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
+bool WStateMachineTransition_Compound::GetInstanceDataDesc(WInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
 }
@@ -489,40 +489,40 @@ bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezInstanceDataDesc& 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_TransitionEvent, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_TransitionEvent>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineTransition_TransitionEvent, 1, WRTTIDefaultAllocator<WStateMachineTransition_TransitionEvent>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+    W_MEMBER_PROPERTY("EventName", m_sEventName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineTransition_TransitionEvent::ezStateMachineTransition_TransitionEvent() = default;
-ezStateMachineTransition_TransitionEvent::~ezStateMachineTransition_TransitionEvent() = default;
+WStateMachineTransition_TransitionEvent::WStateMachineTransition_TransitionEvent() = default;
+WStateMachineTransition_TransitionEvent::~WStateMachineTransition_TransitionEvent() = default;
 
-bool ezStateMachineTransition_TransitionEvent::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+bool WStateMachineTransition_TransitionEvent::IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const
 {
   return ref_instance.GetCurrentTransitionEvent() == m_sEventName;
 }
 
-ezResult ezStateMachineTransition_TransitionEvent::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineTransition_TransitionEvent::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_sEventName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineTransition_TransitionEvent::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineTransition_TransitionEvent::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
   inout_stream >> m_sEventName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineBuiltins);
+W_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineBuiltins);

@@ -7,38 +7,38 @@
 
 #include <QWidget>
 
-class EZ_GUIFOUNDATION_DLL ezQtCurve1DEditorWidget : public QWidget, public Ui_Curve1DEditorWidget
+class W_GUIFOUNDATION_DLL WQtCurve1DEditorWidget : public QWidget, public Ui_Curve1DEditorWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtCurve1DEditorWidget(QWidget* pParent);
-  ~ezQtCurve1DEditorWidget();
+  explicit WQtCurve1DEditorWidget(QWidget* pParent);
+  ~WQtCurve1DEditorWidget();
 
   void SetCurveExtents(double fLowerBound, double fUpperBound, bool bLowerIsFixed, bool bUpperIsFixed);
   void SetCurveRanges(double fLowerRange, double fUpperRange);
 
-  void SetCurves(const ezCurveGroupData& curveData);
-  void SetScrubberPosition(ezUInt64 uiTick);
-  void SetScrubberPosition(ezTime time);
+  void SetCurves(const WCurveGroupData& curveData);
+  void SetScrubberPosition(WUInt64 uiTick);
+  void SetScrubberPosition(WTime time);
   void ClearSelection();
 
   void FrameCurve();
   void FrameSelection();
   void MakeRepeatable(bool bAdjustLastPoint);
-  void NormalizeCurveX(ezUInt32 uiActiveCurve);
-  void NormalizeCurveY(ezUInt32 uiActiveCurve);
+  void NormalizeCurveX(WUInt32 uiActiveCurve);
+  void NormalizeCurveY(WUInt32 uiActiveCurve);
   void ClearAllPoints();
-  void MirrorHorizontally(ezUInt32 uiActiveCurve);
-  void MirrorVertically(ezUInt32 uiActiveCurve);
+  void MirrorHorizontally(WUInt32 uiActiveCurve);
+  void MirrorVertically(WUInt32 uiActiveCurve);
 
 Q_SIGNALS:
-  void CpMovedEvent(ezUInt32 uiCurveIdx, ezUInt32 uiIdx, ezInt64 iTickX, double fNewPosY);
-  void CpDeletedEvent(ezUInt32 uiCurveIdx, ezUInt32 uiIdx);
-  void TangentMovedEvent(ezUInt32 uiCurveIdx, ezUInt32 uiIdx, float fNewPosX, float fNewPosY, bool bRightTangent);
-  void InsertCpEvent(ezUInt32 uiCurveIdx, ezInt64 iTickX, double value);
-  void TangentLinkEvent(ezUInt32 uiCurveIdx, ezUInt32 uiIdx, bool bLink);
-  void CpTangentModeEvent(ezUInt32 uiCurveIdx, ezUInt32 uiIdx, bool bRightTangent, int iMode); // ezCurveTangentMode
+  void CpMovedEvent(WUInt32 uiCurveIdx, WUInt32 uiIdx, WInt64 iTickX, double fNewPosY);
+  void CpDeletedEvent(WUInt32 uiCurveIdx, WUInt32 uiIdx);
+  void TangentMovedEvent(WUInt32 uiCurveIdx, WUInt32 uiIdx, float fNewPosX, float fNewPosY, bool bRightTangent);
+  void InsertCpEvent(WUInt32 uiCurveIdx, WInt64 iTickX, double value);
+  void TangentLinkEvent(WUInt32 uiCurveIdx, WUInt32 uiIdx, bool bLink);
+  void CpTangentModeEvent(WUInt32 uiCurveIdx, WUInt32 uiIdx, bool bRightTangent, int iMode); // WCurveTangentMode
 
   void BeginCpChangesEvent(QString sName);
   void EndCpChangesEvent();
@@ -62,29 +62,29 @@ private Q_SLOTS:
   void onBreakTangents();
   void onFlattenTangents();
   void onSelectionChanged();
-  void onMoveCurve(ezInt32 iCurve, double moveY);
-  void onGenerateCurve(ezCurveFunction::Enum function, bool inverse);
+  void onMoveCurve(WInt32 iCurve, double moveY);
+  void onGenerateCurve(WCurveFunction::Enum function, bool inverse);
   void onSaveAsPreset();
   void onLoadPreset();
 
 private:
-  void InsertCpAt(double posX, double value, ezVec2d epsilon);
-  bool PickCurveAt(double x, double y, double fMaxDistanceY, ezInt32& out_iCurveIdx, double& out_ValueY) const;
-  bool PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
+  void InsertCpAt(double posX, double value, WVec2d epsilon);
+  bool PickCurveAt(double x, double y, double fMaxDistanceY, WInt32& out_iCurveIdx, double& out_ValueY) const;
+  bool PickControlPointAt(double x, double y, WVec2d vMaxDistance, WInt32& out_iCurveIdx, WInt32& out_iCpIdx) const;
   void UpdateSpinBoxes();
-  void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
+  void SetTangentMode(WCurveTangentMode::Enum mode, bool bLeft, bool bRight);
   void ClampPoint(double& x, double& y) const;
   void SaveCurvePreset(const char* szFile) const;
-  ezResult LoadCurvePreset(const char* szFile);
+  WResult LoadCurvePreset(const char* szFile);
   void FindAllPresets();
 
   double m_fCurveDuration;
-  ezVec2 m_vTangentMove;
-  ezVec2d m_vControlPointMove;
+  WVec2 m_vTangentMove;
+  WVec2d m_vControlPointMove;
   bool m_bControlPointsScaled = false;
-  ezCurveGroupData m_Curves;
-  ezCurveGroupData m_CurvesBackup;
+  WCurveGroupData m_Curves;
+  WCurveGroupData m_CurvesBackup;
   QPointF m_ContextMenuScenePos;
 
-  static ezDynamicArray<ezString> s_CurvePresets;
+  static WDynamicArray<WString> s_CurvePresets;
 };

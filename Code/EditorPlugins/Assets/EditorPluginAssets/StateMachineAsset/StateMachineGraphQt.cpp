@@ -5,11 +5,11 @@
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraphQt.moc.h>
 #include <Foundation/Math/ColorScheme.h>
 
-ezQtStateMachinePin::ezQtStateMachinePin() = default;
+WQtStateMachinePin::WQtStateMachinePin() = default;
 
-void ezQtStateMachinePin::SetPin(const ezVisualGraphPin& pin)
+void WQtStateMachinePin::SetPin(const WVisualGraphPin& pin)
 {
-  ezQtVisualGraphPin::SetPin(pin);
+  WQtVisualGraphPin::SetPin(pin);
 
   constexpr int padding = 3;
 
@@ -23,7 +23,7 @@ void ezQtStateMachinePin::SetPin(const ezVisualGraphPin& pin)
   p.addRect(bounds);
   setPath(p);
 
-  if (pin.GetType() == ezVisualGraphPin::Type::Input)
+  if (pin.GetType() == WVisualGraphPin::Type::Input)
   {
     m_pLabel->setPlainText("");
   }
@@ -33,7 +33,7 @@ void ezQtStateMachinePin::SetPin(const ezVisualGraphPin& pin)
   }
 }
 
-QRectF ezQtStateMachinePin::GetPinRect() const
+QRectF WQtStateMachinePin::GetPinRect() const
 {
   auto rect = path().boundingRect();
   rect.translate(pos());
@@ -42,23 +42,23 @@ QRectF ezQtStateMachinePin::GetPinRect() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineConnection::ezQtStateMachineConnection()
+WQtStateMachineConnection::WQtStateMachineConnection()
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineNode::ezQtStateMachineNode() = default;
+WQtStateMachineNode::WQtStateMachineNode() = default;
 
-void ezQtStateMachineNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
+void WQtStateMachineNode::InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject)
 {
-  ezQtVisualGraphNode::InitNode(pManager, pObject);
+  WQtVisualGraphNode::InitNode(pManager, pObject);
 
   UpdateHeaderColor();
 }
 
-void ezQtStateMachineNode::UpdateGeometry()
+void WQtStateMachineNode::UpdateGeometry()
 {
   prepareGeometryChange();
 
@@ -71,18 +71,18 @@ void ezQtStateMachineNode::UpdateGeometry()
   int h = headerHeight;
   int w = headerWidth;
 
-  for (ezQtVisualGraphPin* pQtPin : GetInputPins())
+  for (WQtVisualGraphPin* pQtPin : GetInputPins())
   {
     auto rectPin = pQtPin->GetPinRect();
-    w = ezMath::Max(w, (int)rectPin.width());
+    w = WMath::Max(w, (int)rectPin.width());
 
     pQtPin->setPos((w - rectPin.width()) / 2.0, h);
   }
 
-  for (ezQtVisualGraphPin* pQtPin : GetOutputPins())
+  for (WQtVisualGraphPin* pQtPin : GetOutputPins())
   {
     auto rectPin = pQtPin->GetPinRect();
-    w = ezMath::Max(w, (int)rectPin.width());
+    w = WMath::Max(w, (int)rectPin.width());
 
     pQtPin->setPos((w - rectPin.width()) / 2.0, h);
     h += rectPin.height();
@@ -100,7 +100,7 @@ void ezQtStateMachineNode::UpdateGeometry()
   }
 }
 
-void ezQtStateMachineNode::UpdateState()
+void WQtStateMachineNode::UpdateState()
 {
   UpdateHeaderColor();
 
@@ -110,14 +110,14 @@ void ezQtStateMachineNode::UpdateState()
   }
   else
   {
-    ezStringBuilder sName;
+    WStringBuilder sName;
 
     auto& typeAccessor = GetObject()->GetTypeAccessor();
 
-    ezVariant name = typeAccessor.GetValue("Name");
-    if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+    WVariant name = typeAccessor.GetValue("Name");
+    if (name.IsA<WString>() && name.Get<WString>().IsEmpty() == false)
     {
-      sName = name.Get<ezString>();
+      sName = name.Get<WString>();
     }
     else
     {
@@ -133,7 +133,7 @@ void ezQtStateMachineNode::UpdateState()
   }
 }
 
-void ezQtStateMachineNode::ExtendContextMenu(QMenu& ref_menu)
+void WQtStateMachineNode::ExtendContextMenu(QMenu& ref_menu)
 {
   if (IsAnyState())
     return;
@@ -143,63 +143,63 @@ void ezQtStateMachineNode::ExtendContextMenu(QMenu& ref_menu)
   pAction->connect(pAction, &QAction::triggered,
     [this]()
     {
-      auto pScene = static_cast<ezQtStateMachineAssetScene*>(scene());
+      auto pScene = static_cast<WQtStateMachineAssetScene*>(scene());
       pScene->SetInitialState(this);
     });
 
   ref_menu.addAction(pAction);
 }
 
-bool ezQtStateMachineNode::IsInitialState() const
+bool WQtStateMachineNode::IsInitialState() const
 {
-  auto pManager = static_cast<const ezStateMachineNodeManager*>(GetObject()->GetDocumentObjectManager());
+  auto pManager = static_cast<const WStateMachineNodeManager*>(GetObject()->GetDocumentObjectManager());
   return pManager->IsInitialState(GetObject());
 }
 
-bool ezQtStateMachineNode::IsAnyState() const
+bool WQtStateMachineNode::IsAnyState() const
 {
-  auto pManager = static_cast<const ezStateMachineNodeManager*>(GetObject()->GetDocumentObjectManager());
+  auto pManager = static_cast<const WStateMachineNodeManager*>(GetObject()->GetDocumentObjectManager());
   return pManager->IsAnyState(GetObject());
 }
 
-void ezQtStateMachineNode::UpdateHeaderColor()
+void WQtStateMachineNode::UpdateHeaderColor()
 {
-  ezColorScheme::Enum schemeColor = ezColorScheme::Gray;
+  WColorScheme::Enum schemeColor = WColorScheme::Gray;
 
   if (IsAnyState())
   {
-    schemeColor = ezColorScheme::Violet;
+    schemeColor = WColorScheme::Violet;
   }
   else if (IsInitialState())
   {
-    schemeColor = ezColorScheme::Teal;
+    schemeColor = WColorScheme::Teal;
   }
 
-  m_HeaderColor = ezToQtColor(ezColorScheme::DarkUI(schemeColor));
+  m_HeaderColor = WToQtColor(WColorScheme::DarkUI(schemeColor));
 
   update();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineAssetScene::ezQtStateMachineAssetScene(QObject* pParent /*= nullptr*/)
-  : ezQtVisualGraphScene(pParent)
+WQtStateMachineAssetScene::WQtStateMachineAssetScene(QObject* pParent /*= nullptr*/)
+  : WQtVisualGraphScene(pParent)
 {
-  SetConnectionStyle(ezQtVisualGraphScene::ConnectionStyle::StraightLine);
-  SetConnectionDecorationFlags(ezQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows);
+  SetConnectionStyle(WQtVisualGraphScene::ConnectionStyle::StraightLine);
+  SetConnectionDecorationFlags(WQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows);
 }
 
-ezQtStateMachineAssetScene::~ezQtStateMachineAssetScene() = default;
+WQtStateMachineAssetScene::~WQtStateMachineAssetScene() = default;
 
-void ezQtStateMachineAssetScene::SetInitialState(ezQtStateMachineNode* pNode)
+void WQtStateMachineAssetScene::SetInitialState(WQtStateMachineNode* pNode)
 {
-  ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Set Initial State");
 
-  ezStateMachine_SetInitialStateCommand cmd;
+  WStateMachine_SetInitialStateCommand cmd;
   cmd.m_NewInitialStateObject = pNode->GetObject()->GetGuid();
 
-  ezStatus res = history->AddCommand(cmd);
+  WStatus res = history->AddCommand(cmd);
 
   if (res.Failed())
     history->CancelTransaction();
@@ -207,16 +207,16 @@ void ezQtStateMachineAssetScene::SetInitialState(ezQtStateMachineNode* pNode)
     history->FinishTransaction();
 }
 
-ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtVisualGraphNode* pNode)
+WStatus WQtStateMachineAssetScene::RemoveNode(WQtVisualGraphNode* pNode)
 {
-  auto pManager = static_cast<const ezStateMachineNodeManager*>(GetDocumentNodeManager());
+  auto pManager = static_cast<const WStateMachineNodeManager*>(GetDocumentNodeManager());
   const bool bWasInitialState = pManager->IsInitialState(pNode->GetObject());
 
-  auto res = ezQtVisualGraphScene::RemoveNode(pNode);
+  auto res = WQtVisualGraphScene::RemoveNode(pNode);
   if (res.Succeeded() && bWasInitialState)
   {
     // Find another node
-    ezUuid newInitialStateObject;
+    WUuid newInitialStateObject;
     for (auto it : m_Nodes)
     {
       if (it.Value() != pNode && pManager->IsAnyState(it.Key()) == false)
@@ -227,9 +227,9 @@ ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtVisualGraphNode* pNode)
 
     if (newInitialStateObject.IsValid())
     {
-      ezCommandHistory* history = pManager->GetDocument()->GetCommandHistory();
+      WCommandHistory* history = pManager->GetDocument()->GetCommandHistory();
 
-      ezStateMachine_SetInitialStateCommand cmd;
+      WStateMachine_SetInitialStateCommand cmd;
       cmd.m_NewInitialStateObject = newInitialStateObject;
 
       res = history->AddCommand(cmd);

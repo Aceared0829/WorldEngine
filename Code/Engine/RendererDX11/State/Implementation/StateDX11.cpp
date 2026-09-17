@@ -8,89 +8,89 @@
 #include <d3d11_3.h>
 
 
-// Mapping tables to map ezGAL constants to DX11 constants
+// Mapping tables to map WGAL constants to DX11 constants
 #include <RendererDX11/State/Implementation/StateDX11_MappingTables.inl>
 
 // Blend state
 
-ezGALBlendStateDX11::ezGALBlendStateDX11(const ezGALBlendStateCreationDescription& Description)
-  : ezGALBlendState(Description)
+WGALBlendStateDX11::WGALBlendStateDX11(const WGALBlendStateCreationDescription& Description)
+  : WGALBlendState(Description)
 
 {
 }
 
-ezGALBlendStateDX11::~ezGALBlendStateDX11() = default;
+WGALBlendStateDX11::~WGALBlendStateDX11() = default;
 
-static D3D11_BLEND_OP ToD3DBlendOp(ezGALBlendOp::Enum e)
+static D3D11_BLEND_OP ToD3DBlendOp(WGALBlendOp::Enum e)
 {
   switch (e)
   {
-    case ezGALBlendOp::Add:
+    case WGALBlendOp::Add:
       return D3D11_BLEND_OP_ADD;
-    case ezGALBlendOp::Max:
+    case WGALBlendOp::Max:
       return D3D11_BLEND_OP_MAX;
-    case ezGALBlendOp::Min:
+    case WGALBlendOp::Min:
       return D3D11_BLEND_OP_MIN;
-    case ezGALBlendOp::RevSubtract:
+    case WGALBlendOp::RevSubtract:
       return D3D11_BLEND_OP_REV_SUBTRACT;
-    case ezGALBlendOp::Subtract:
+    case WGALBlendOp::Subtract:
       return D3D11_BLEND_OP_SUBTRACT;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return D3D11_BLEND_OP_ADD;
 }
 
-static D3D11_BLEND ToD3DBlend(ezGALBlend::Enum e)
+static D3D11_BLEND ToD3DBlend(WGALBlend::Enum e)
 {
   switch (e)
   {
-    case ezGALBlend::BlendFactor:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      // if this is used, it also must be implemented in ezGALContextDX11::SetBlendStatePlatform
+    case WGALBlend::BlendFactor:
+      W_ASSERT_NOT_IMPLEMENTED;
+      // if this is used, it also must be implemented in WGALContextDX11::SetBlendStatePlatform
       return D3D11_BLEND_BLEND_FACTOR;
-    case ezGALBlend::DestAlpha:
+    case WGALBlend::DestAlpha:
       return D3D11_BLEND_DEST_ALPHA;
-    case ezGALBlend::DestColor:
+    case WGALBlend::DestColor:
       return D3D11_BLEND_DEST_COLOR;
-    case ezGALBlend::InvBlendFactor:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      // if this is used, it also must be implemented in ezGALContextDX11::SetBlendStatePlatform
+    case WGALBlend::InvBlendFactor:
+      W_ASSERT_NOT_IMPLEMENTED;
+      // if this is used, it also must be implemented in WGALContextDX11::SetBlendStatePlatform
       return D3D11_BLEND_INV_BLEND_FACTOR;
-    case ezGALBlend::InvDestAlpha:
+    case WGALBlend::InvDestAlpha:
       return D3D11_BLEND_INV_DEST_ALPHA;
-    case ezGALBlend::InvDestColor:
+    case WGALBlend::InvDestColor:
       return D3D11_BLEND_INV_DEST_COLOR;
-    case ezGALBlend::InvSrcAlpha:
+    case WGALBlend::InvSrcAlpha:
       return D3D11_BLEND_INV_SRC_ALPHA;
-    case ezGALBlend::InvSrcColor:
+    case WGALBlend::InvSrcColor:
       return D3D11_BLEND_INV_SRC_COLOR;
-    case ezGALBlend::One:
+    case WGALBlend::One:
       return D3D11_BLEND_ONE;
-    case ezGALBlend::SrcAlpha:
+    case WGALBlend::SrcAlpha:
       return D3D11_BLEND_SRC_ALPHA;
-    case ezGALBlend::SrcAlphaSaturated:
+    case WGALBlend::SrcAlphaSaturated:
       return D3D11_BLEND_SRC_ALPHA_SAT;
-    case ezGALBlend::SrcColor:
+    case WGALBlend::SrcColor:
       return D3D11_BLEND_SRC_COLOR;
-    case ezGALBlend::Zero:
+    case WGALBlend::Zero:
       return D3D11_BLEND_ZERO;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return D3D11_BLEND_ONE;
 }
 
-ezResult ezGALBlendStateDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALBlendStateDX11::InitPlatform(WGALDevice* pDevice)
 {
   D3D11_BLEND_DESC DXDesc;
   DXDesc.AlphaToCoverageEnable = m_Description.m_bAlphaToCoverage;
   DXDesc.IndependentBlendEnable = m_Description.m_bIndependentBlend;
 
-  for (ezInt32 i = 0; i < 8; ++i)
+  for (WInt32 i = 0; i < 8; ++i)
   {
     DXDesc.RenderTarget[i].BlendEnable = m_Description.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled;
     DXDesc.RenderTarget[i].BlendOp = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOp);
@@ -103,33 +103,33 @@ ezResult ezGALBlendStateDX11::InitPlatform(ezGALDevice* pDevice)
                                                    0x0F; // D3D11: RenderTargetWriteMask can only have the least significant 4 bits set.
   }
 
-  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateBlendState(&DXDesc, &m_pDXBlendState)))
+  if (FAILED(static_cast<WGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateBlendState(&DXDesc, &m_pDXBlendState)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALBlendStateDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXBlendState);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXBlendState);
+  return W_SUCCESS;
 }
 
 // Depth Stencil state
 
-ezGALDepthStencilStateDX11::ezGALDepthStencilStateDX11(const ezGALDepthStencilStateCreationDescription& Description)
-  : ezGALDepthStencilState(Description)
+WGALDepthStencilStateDX11::WGALDepthStencilStateDX11(const WGALDepthStencilStateCreationDescription& Description)
+  : WGALDepthStencilState(Description)
 
 {
 }
 
-ezGALDepthStencilStateDX11::~ezGALDepthStencilStateDX11() = default;
+WGALDepthStencilStateDX11::~WGALDepthStencilStateDX11() = default;
 
-ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALDepthStencilStateDX11::InitPlatform(WGALDevice* pDevice)
 {
   D3D11_DEPTH_STENCIL_DESC DXDesc;
   DXDesc.DepthEnable = m_Description.m_bDepthEnable;
@@ -144,45 +144,45 @@ ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.FrontFace.StencilPassOp = GALStencilOpTableIndexToDX11[m_Description.m_FrontFaceStencilOp.m_PassOp];
   DXDesc.FrontFace.StencilFunc = GALCompareFuncToDX11[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
 
-  const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
+  const WGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
   DXDesc.BackFace.StencilFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_FailOp];
   DXDesc.BackFace.StencilDepthFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_DepthFailOp];
   DXDesc.BackFace.StencilPassOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_PassOp];
   DXDesc.BackFace.StencilFunc = GALCompareFuncToDX11[backFaceStencilOp.m_StencilFunc];
 
 
-  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateDepthStencilState(&DXDesc, &m_pDXDepthStencilState)))
+  if (FAILED(static_cast<WGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateDepthStencilState(&DXDesc, &m_pDXDepthStencilState)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-ezResult ezGALDepthStencilStateDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALDepthStencilStateDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXDepthStencilState);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXDepthStencilState);
+  return W_SUCCESS;
 }
 
 
 // Rasterizer state
 
-ezGALRasterizerStateDX11::ezGALRasterizerStateDX11(const ezGALRasterizerStateCreationDescription& Description)
-  : ezGALRasterizerState(Description)
+WGALRasterizerStateDX11::WGALRasterizerStateDX11(const WGALRasterizerStateCreationDescription& Description)
+  : WGALRasterizerState(Description)
 
 {
 }
 
-ezGALRasterizerStateDX11::~ezGALRasterizerStateDX11() = default;
+WGALRasterizerStateDX11::~WGALRasterizerStateDX11() = default;
 
 
 
-ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALRasterizerStateDX11::InitPlatform(WGALDevice* pDevice)
 {
   const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
 
@@ -205,20 +205,20 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (!pDevice->GetCapabilities().m_bSupportsConservativeRasterization && m_Description.m_bConservativeRasterization)
     {
-      ezLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
-      return EZ_FAILURE;
+      WLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
+      return W_FAILURE;
     }
 
     ID3D11RasterizerState2* pDXRasterizerState2 = nullptr;
 
-    if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice3()->CreateRasterizerState2(&DXDesc2, &pDXRasterizerState2)))
+    if (FAILED(static_cast<WGALDeviceDX11*>(pDevice)->GetDXDevice3()->CreateRasterizerState2(&DXDesc2, &pDXRasterizerState2)))
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
     else
     {
       m_pDXRasterizerState = pDXRasterizerState2;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
   else
@@ -235,43 +235,43 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
     DXDesc.ScissorEnable = m_Description.m_bScissorTest;
     DXDesc.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
 
-    if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
+    if (FAILED(static_cast<WGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
     else
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 }
 
 
-ezResult ezGALRasterizerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALRasterizerStateDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXRasterizerState);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXRasterizerState);
+  return W_SUCCESS;
 }
 
 
 // Sampler state
 
-ezGALSamplerStateDX11::ezGALSamplerStateDX11(const ezGALSamplerStateCreationDescription& Description)
-  : ezGALSamplerState(Description)
+WGALSamplerStateDX11::WGALSamplerStateDX11(const WGALSamplerStateCreationDescription& Description)
+  : WGALSamplerState(Description)
 
 {
 }
 
-ezGALSamplerStateDX11::~ezGALSamplerStateDX11() = default;
+WGALSamplerStateDX11::~WGALSamplerStateDX11() = default;
 
 /*
  */
 
-ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALSamplerStateDX11::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALSamplerStateCreationDescription desc = this->GetDescription();
+  WGALSamplerStateCreationDescription desc = this->GetDescription();
   pDevice->AdjustSamplerStateDescription(desc);
 
   D3D11_SAMPLER_DESC DXDesc;
@@ -284,28 +284,28 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.BorderColor[3] = desc.m_BorderColor.a;
   DXDesc.ComparisonFunc = GALCompareFuncToDX11[desc.m_SampleCompareFunc];
 
-  if (desc.m_MagFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MinFilter == ezGALTextureFilterMode::Anisotropic ||
-      desc.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  if (desc.m_MagFilter == WGALTextureFilterMode::Anisotropic || desc.m_MinFilter == WGALTextureFilterMode::Anisotropic ||
+      desc.m_MipFilter == WGALTextureFilterMode::Anisotropic)
   {
-    if (desc.m_SampleCompareFunc == ezGALCompareFunc::Never)
+    if (desc.m_SampleCompareFunc == WGALCompareFunc::Never)
       DXDesc.Filter = D3D11_FILTER_ANISOTROPIC;
     else
       DXDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
   }
   else
   {
-    ezUInt32 uiTableIndex = 0;
+    WUInt32 uiTableIndex = 0;
 
-    if (desc.m_MipFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MipFilter == WGALTextureFilterMode::Linear)
       uiTableIndex |= 1;
 
-    if (desc.m_MagFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MagFilter == WGALTextureFilterMode::Linear)
       uiTableIndex |= 2;
 
-    if (desc.m_MinFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MinFilter == WGALTextureFilterMode::Linear)
       uiTableIndex |= 4;
 
-    if (desc.m_SampleCompareFunc != ezGALCompareFunc::Never)
+    if (desc.m_SampleCompareFunc != WGALCompareFunc::Never)
       uiTableIndex |= 8;
 
     DXDesc.Filter = GALFilterTableIndexToDX11[uiTableIndex];
@@ -316,21 +316,21 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.MinLOD = desc.m_fMinMip;
   DXDesc.MipLODBias = desc.m_fMipLodBias;
 
-  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateSamplerState(&DXDesc, &m_pDXSamplerState)))
+  if (FAILED(static_cast<WGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateSamplerState(&DXDesc, &m_pDXSamplerState)))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
 
-ezResult ezGALSamplerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALSamplerStateDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXSamplerState);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXSamplerState);
+  return W_SUCCESS;
 }

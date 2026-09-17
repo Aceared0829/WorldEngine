@@ -1,23 +1,23 @@
 
-ezGALBindGroupItem::ezGALBindGroupItem()
+WGALBindGroupItem::WGALBindGroupItem()
 {
 }
 
-ezGALBindGroupItem::ezGALBindGroupItem(const ezGALBindGroupItem& rhs)
+WGALBindGroupItem::WGALBindGroupItem(const WGALBindGroupItem& rhs)
 {
   *this = rhs;
 }
 
-void ezGALBindGroupItem::operator=(const ezGALBindGroupItem& rhs)
+void WGALBindGroupItem::operator=(const WGALBindGroupItem& rhs)
 {
-  ezHashableStruct<ezGALBindGroupItem>& thisBase = *this;
-  const ezHashableStruct<ezGALBindGroupItem>& rhsBase = rhs;
+  WHashableStruct<WGALBindGroupItem>& thisBase = *this;
+  const WHashableStruct<WGALBindGroupItem>& rhsBase = rhs;
   thisBase = rhsBase;
 }
 
-ezGALBindGroup::ezGALBindGroup(const ezGALBindGroupCreationDescription& Description)
-  : ezGALResource(Description)
+WGALBindGroup::WGALBindGroup(const WGALBindGroupCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALBindGroup::~ezGALBindGroup() = default;
+WGALBindGroup::~WGALBindGroup() = default;

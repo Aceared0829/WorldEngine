@@ -7,13 +7,13 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
-ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtCollectionAssetDocumentWindow::WQtCollectionAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "CollectionAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -22,8 +22,8 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "CollectionAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -33,12 +33,12 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("CollectionAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collection Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -46,7 +46,7 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -59,4 +59,4 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
   FinishWindowCreation();
 }
 
-ezQtCollectionAssetDocumentWindow::~ezQtCollectionAssetDocumentWindow() = default;
+WQtCollectionAssetDocumentWindow::~WQtCollectionAssetDocumentWindow() = default;

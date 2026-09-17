@@ -8,70 +8,70 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezCustomData::Load(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode)
+void WCustomData::Load(WAbstractObjectGraph& ref_graph, WRttiConverterContext& ref_context, const WAbstractObjectNode* pRootNode)
 {
-  ezRttiConverterReader convRead(&ref_graph, &ref_context);
+  WRttiConverterReader convRead(&ref_graph, &ref_context);
   convRead.ApplyPropertiesToObject(pRootNode, GetDynamicRTTI(), this);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataResourceBase, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomDataResourceBase, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCustomDataResourceBase::ezCustomDataResourceBase()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WCustomDataResourceBase::WCustomDataResourceBase()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezCustomDataResourceBase::~ezCustomDataResourceBase() = default;
+WCustomDataResourceBase::~WCustomDataResourceBase() = default;
 
-ezResourceLoadDesc ezCustomDataResourceBase::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WCustomDataResourceBase::UnloadData(Unload WhatToUnload)
 {
-  EZ_IGNORE_UNUSED(WhatToUnload);
+  W_IGNORE_UNUSED(WhatToUnload);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
   return res;
 }
 
-ezResourceLoadDesc ezCustomDataResourceBase::UpdateContent_Internal(ezStreamReader* Stream, const ezRTTI& rtti)
+WResourceLoadDesc WCustomDataResourceBase::UpdateContent_Internal(WStreamReader* Stream, const WRTTI& rtti)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
 
-  ezAbstractGraphBinarySerializer::Read(*Stream, &graph);
+  WAbstractGraphBinarySerializer::Read(*Stream, &graph);
 
-  const ezAbstractObjectNode* pRootNode = graph.GetNodeByName("root");
+  const WAbstractObjectNode* pRootNode = graph.GetNodeByName("root");
 
   if (pRootNode != nullptr && pRootNode->GetType() != rtti.GetTypeName())
   {
-    ezLog::Error("Expected ezCustomData type '{}' but resource is of type '{}' ('{}')", rtti.GetTypeName(), pRootNode->GetType(), GetResourceIdOrDescription());
+    WLog::Error("Expected WCustomData type '{}' but resource is of type '{}' ('{}')", rtti.GetTypeName(), pRootNode->GetType(), GetResourceIdOrDescription());
 
     // make sure we create a default-initialized object and don't deserialize data that happens to match
     pRootNode = nullptr;
@@ -79,8 +79,8 @@ ezResourceLoadDesc ezCustomDataResourceBase::UpdateContent_Internal(ezStreamRead
 
   CreateAndLoadData(graph, context, pRootNode);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_CustomData);
+W_STATICLINK_FILE(Core, Core_Utils_Implementation_CustomData);

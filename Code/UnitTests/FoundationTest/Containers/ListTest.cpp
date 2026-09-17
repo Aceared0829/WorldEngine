@@ -2,251 +2,251 @@
 
 #include <Foundation/Containers/List.h>
 
-EZ_CREATE_SIMPLE_TEST(Containers, List)
+W_CREATE_SIMPLE_TEST(Containers, List)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PushBack() / PeekBack")
   {
-    ezList<ezInt32> l;
-    ezInt32& val = l.PushBack();
+    WList<WInt32> l;
+    WInt32& val = l.PushBack();
 
-    EZ_TEST_INT(val, 0);
-    EZ_TEST_INT(l.GetCount(), 1);
-    EZ_TEST_INT(l.PeekBack(), 0);
+    W_TEST_INT(val, 0);
+    W_TEST_INT(l.GetCount(), 1);
+    W_TEST_INT(l.PeekBack(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack(i) / GetCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PushBack(i) / GetCount")
   {
-    ezList<ezInt32> l;
-    EZ_TEST_BOOL(l.GetHeapMemoryUsage() == 0);
+    WList<WInt32> l;
+    W_TEST_BOOL(l.GetHeapMemoryUsage() == 0);
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       l.PushBack(i);
 
-      EZ_TEST_INT(l.GetCount(), i + 1);
-      EZ_TEST_INT(l.PeekBack(), i);
+      W_TEST_INT(l.GetCount(), i + 1);
+      W_TEST_INT(l.PeekBack(), i);
     }
 
-    EZ_TEST_BOOL(l.GetHeapMemoryUsage() >= sizeof(ezInt32) * 1000);
+    W_TEST_BOOL(l.GetHeapMemoryUsage() >= sizeof(WInt32) * 1000);
 
-    ezUInt32 i = 0;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    WUInt32 i = 0;
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, i);
+      W_TEST_INT(*it, i);
       ++i;
     }
 
-    EZ_TEST_INT(i, 1000);
+    W_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PopBack()")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PopBack()")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    ezInt32 i = 0;
+    WInt32 i = 0;
     for (; i < 1000; ++i)
       l.PushBack(i);
 
     while (!l.IsEmpty())
     {
       --i;
-      EZ_TEST_INT(l.PeekBack(), i);
+      W_TEST_INT(l.PeekBack(), i);
       l.PopBack();
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushFront() / PeekFront")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PushFront() / PeekFront")
   {
-    ezList<ezInt32> l;
-    ezInt32& val = l.PushFront();
+    WList<WInt32> l;
+    WInt32& val = l.PushFront();
 
-    EZ_TEST_INT(val, 0);
-    EZ_TEST_INT(l.GetCount(), 1);
-    EZ_TEST_INT(l.PeekFront(), 0);
+    W_TEST_INT(val, 0);
+    W_TEST_INT(l.GetCount(), 1);
+    W_TEST_INT(l.PeekFront(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushFront(i) / PeekFront")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PushFront(i) / PeekFront")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       l.PushFront(i);
 
-      EZ_TEST_INT(l.GetCount(), i + 1);
-      EZ_TEST_INT(l.PeekFront(), i);
+      W_TEST_INT(l.GetCount(), i + 1);
+      W_TEST_INT(l.PeekFront(), i);
     }
 
-    ezUInt32 i2 = 1000;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    WUInt32 i2 = 1000;
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
       --i2;
-      EZ_TEST_INT(*it, i2);
+      W_TEST_INT(*it, i2);
     }
 
-    EZ_TEST_INT(i2, 0);
+    W_TEST_INT(i2, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PopFront()")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PopFront()")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    ezInt32 i = 0;
+    WInt32 i = 0;
     for (; i < 1000; ++i)
       l.PushFront(i);
 
     while (!l.IsEmpty())
     {
       --i;
-      EZ_TEST_INT(l.PeekFront(), i);
+      W_TEST_INT(l.PeekFront(), i);
       l.PopFront();
     }
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear / IsEmpty")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear / IsEmpty")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    EZ_TEST_BOOL(l.IsEmpty());
+    W_TEST_BOOL(l.IsEmpty());
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
-    EZ_TEST_BOOL(!l.IsEmpty());
+    W_TEST_BOOL(!l.IsEmpty());
 
     l.Clear();
-    EZ_TEST_BOOL(l.IsEmpty());
+    W_TEST_BOOL(l.IsEmpty());
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
     {
       l.PushBack(i);
-      EZ_TEST_BOOL(!l.IsEmpty());
+      W_TEST_BOOL(!l.IsEmpty());
 
       l.Clear();
-      EZ_TEST_BOOL(l.IsEmpty());
+      W_TEST_BOOL(l.IsEmpty());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator=")
   {
-    ezList<ezInt32> l, l2;
+    WList<WInt32> l, l2;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
     l2 = l;
 
-    ezUInt32 i = 0;
-    for (ezList<ezInt32>::Iterator it = l2.GetIterator(); it != l2.GetEndIterator(); ++it)
+    WUInt32 i = 0;
+    for (WList<WInt32>::Iterator it = l2.GetIterator(); it != l2.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, i);
+      W_TEST_INT(*it, i);
       ++i;
     }
 
-    EZ_TEST_INT(i, 1000);
+    W_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy Constructor")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
-    ezList<ezInt32> l2(l);
+    WList<WInt32> l2(l);
 
-    ezUInt32 i = 0;
-    for (ezList<ezInt32>::Iterator it = l2.GetIterator(); it != l2.GetEndIterator(); ++it)
+    WUInt32 i = 0;
+    for (WList<WInt32>::Iterator it = l2.GetIterator(); it != l2.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, i);
+      W_TEST_INT(*it, i);
       ++i;
     }
 
-    EZ_TEST_INT(i, 1000);
+    W_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetCount")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
     l.SetCount(1000);
-    EZ_TEST_INT(l.GetCount(), 1000);
+    W_TEST_INT(l.GetCount(), 1000);
 
-    ezInt32 i = 1;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    WInt32 i = 1;
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, 0);
+      W_TEST_INT(*it, 0);
       *it = i;
       ++i;
     }
 
     l.SetCount(2000);
     i = 1;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
       if (i > 1000)
-        EZ_TEST_INT(*it, 0);
+        W_TEST_INT(*it, 0);
       else
-        EZ_TEST_INT(*it, i);
+        W_TEST_INT(*it, i);
 
       ++i;
     }
 
     l.SetCount(500);
     i = 1;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, i);
+      W_TEST_INT(*it, i);
       ++i;
     }
 
-    EZ_TEST_INT(i, 501);
+    W_TEST_INT(i, 501);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert(item)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Insert(item)")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    for (ezUInt32 i = 1; i < 1000; ++i)
+    for (WUInt32 i = 1; i < 1000; ++i)
       l.PushBack(i);
 
     // create an interleaved array of values of i and i+10000
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
       // insert before this element
       l.Insert(it, *it + 10000);
     }
 
-    ezInt32 i = 1;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    WInt32 i = 1;
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
-      EZ_TEST_INT(*it, i + 10000);
+      W_TEST_INT(*it, i + 10000);
       ++it;
 
-      EZ_TEST_BOOL(it.IsValid());
-      EZ_TEST_INT(*it, i);
+      W_TEST_BOOL(it.IsValid());
+      W_TEST_INT(*it, i);
 
       ++i;
     }
 
-    EZ_TEST_INT(i, 1000);
+    W_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove(item)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Remove(item)")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    ezUInt32 i = 1;
+    WUInt32 i = 1;
     for (; i < 1000; ++i)
       l.PushBack(i);
 
     // create an interleaved array of values of i and i+10000
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
       // insert before this element
       l.Insert(it, *it + 10000);
@@ -255,9 +255,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     i = 1;
 
     // now remove every second element and only keep the larger values
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid();)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it.IsValid();)
     {
-      EZ_TEST_INT(*it, i + 10000);
+      W_TEST_INT(*it, i + 10000);
 
       ++it;
       it = l.Remove(it);
@@ -265,69 +265,69 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     }
 
     i = 1;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid(); ++it)
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it.IsValid(); ++it)
     {
-      EZ_TEST_INT(*it, i + 10000);
+      W_TEST_INT(*it, i + 10000);
       ++i;
     }
 
-    EZ_TEST_INT(i, 1000);
+    W_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator::IsValid")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Iterator::IsValid")
   {
-    ezList<ezInt32> l;
+    WList<WInt32> l;
 
-    for (ezUInt32 i = 0; i < 1000; ++i)
+    for (WUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
-    ezUInt32 i = 0;
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid(); ++it)
+    WUInt32 i = 0;
+    for (WList<WInt32>::Iterator it = l.GetIterator(); it.IsValid(); ++it)
     {
-      EZ_TEST_INT(*it, i);
+      W_TEST_INT(*it, i);
       ++i;
     }
 
-    EZ_TEST_BOOL(!l.GetEndIterator().IsValid());
+    W_TEST_BOOL(!l.GetEndIterator().IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Element Constructions / Destructions")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Element Constructions / Destructions")
   {
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
-    ezList<ezConstructionCounter> l;
+    WList<WConstructionCounter> l;
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
     l.PushBack();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(1, 0));
 
-    l.PushBack(ezConstructionCounter(1));
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
+    l.PushBack(WConstructionCounter(1));
+    W_TEST_BOOL(WConstructionCounter::HasDone(2, 1));
 
     l.SetCount(4);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(2, 0));
 
     l.Clear();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 4));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 4));
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator == / !=")
   {
-    ezList<ezInt32> l, l2;
+    WList<WInt32> l, l2;
 
-    EZ_TEST_BOOL(l == l2);
+    W_TEST_BOOL(l == l2);
 
-    ezInt32 i = 0;
+    WInt32 i = 0;
     for (; i < 1000; ++i)
       l.PushBack(i);
 
-    EZ_TEST_BOOL(l != l2);
+    W_TEST_BOOL(l != l2);
 
     l2 = l;
 
-    EZ_TEST_BOOL(l == l2);
+    W_TEST_BOOL(l == l2);
   }
 }

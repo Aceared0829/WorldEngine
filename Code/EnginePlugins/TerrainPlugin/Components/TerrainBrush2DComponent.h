@@ -3,10 +3,10 @@
 #include <TerrainPlugin/Components/TerrainBrushBaseComponent.h>
 
 /// Brush modes available on a 2D (heightfield-style) terrain brush.
-struct EZ_TERRAINPLUGIN_DLL ezTerrainModifyMode2D
+struct W_TERRAINPLUGIN_DLL WTerrainModifyMode2D
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Max = 0,         ///< Only raises terrain toward the brush height.
     Min = 1,         ///< Only lowers terrain toward the brush height.
@@ -15,9 +15,9 @@ struct EZ_TERRAINPLUGIN_DLL ezTerrainModifyMode2D
     Default = Max,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainModifyMode2D);
+W_DECLARE_REFLECTABLE_TYPE(W_TERRAINPLUGIN_DLL, WTerrainModifyMode2D);
 
-using ezTerrainBrush2DComponentManager = ezComponentManager<class ezTerrainBrush2DComponent, ezBlockStorageType::Compact>;
+using WTerrainBrush2DComponentManager = WComponentManager<class WTerrainBrush2DComponent, WBlockStorageType::Compact>;
 
 /// 2D terrain brush: raises, lowers, or sets the heightfield surface.
 ///
@@ -25,35 +25,35 @@ using ezTerrainBrush2DComponentManager = ezComponentManager<class ezTerrainBrush
 /// HalfSizeX/HalfSizeY control the straight-edge lengths; OuterRadius is the corner rounding radius.
 /// Setting HalfSizeX=HalfSizeY=0 produces a circle; OuterRadius=0 gives a plain rectangle.
 ///
-/// If an ezSplineComponent exists on the same game object the brush stamps along the spline instead of
+/// If an WSplineComponent exists on the same game object the brush stamps along the spline instead of
 /// acting as a single point.
-class EZ_TERRAINPLUGIN_DLL ezTerrainBrush2DComponent : public ezTerrainBrushBaseComponent
+class W_TERRAINPLUGIN_DLL WTerrainBrush2DComponent : public WTerrainBrushBaseComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezTerrainBrush2DComponent, ezTerrainBrushBaseComponent, ezTerrainBrush2DComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WTerrainBrush2DComponent, WTerrainBrushBaseComponent, WTerrainBrush2DComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTerrainBrush2DComponent
+  // WTerrainBrush2DComponent
 
 public:
-  ezTerrainBrush2DComponent();
-  ~ezTerrainBrush2DComponent();
+  WTerrainBrush2DComponent();
+  ~WTerrainBrush2DComponent();
 
-  void SetModifyMode(ezEnum<ezTerrainModifyMode2D> mode);                      //< [ property ]
-  ezEnum<ezTerrainModifyMode2D> GetModifyMode() const { return m_ModifyMode; } //< [ property ]
+  void SetModifyMode(WEnum<WTerrainModifyMode2D> mode);                      //< [ property ]
+  WEnum<WTerrainModifyMode2D> GetModifyMode() const { return m_ModifyMode; } //< [ property ]
 
   void SetHalfSizeY(float fSize);                                              //< [ property ]
   float GetHalfSizeY() const { return m_fHalfSizeY; }                          //< [ property ]
 
 protected:
-  virtual void FillBrushSpecificProperties(ezTerrainData_Brush& brush, float fHalfSizeX) override;
+  virtual void FillBrushSpecificProperties(WTerrainData_Brush& brush, float fHalfSizeX) override;
 
-  ezEnum<ezTerrainModifyMode2D> m_ModifyMode;
+  WEnum<WTerrainModifyMode2D> m_ModifyMode;
   float m_fHalfSizeY = 0.0f;
 };

@@ -15,92 +15,92 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.1")
   cmake_policy(SET CMP0194 OLD)
 endif()
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/ezCMakeConfig.cmake")
-get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
-get_property(EZ_CMAKE_RELPATH_CODE GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE)
+include("${CMAKE_CURRENT_SOURCE_DIR}/WCMakeConfig.cmake")
+get_property(W_CMAKE_RELPATH GLOBAL PROPERTY W_CMAKE_RELPATH)
+get_property(W_CMAKE_RELPATH_CODE GLOBAL PROPERTY W_CMAKE_RELPATH_CODE)
 
 # Required to find cmake modules like 'FindDirectX.cmake'
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/${EZ_CMAKE_RELPATH}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/${W_CMAKE_RELPATH}")
 
-include("ezUtils")
+include("WUtils")
 
-file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH ${EZ_SUBMODULE_PREFIX_PATH})
+file(RELATIVE_PATH W_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(GLOBAL PROPERTY W_SUBMODULE_PREFIX_PATH ${W_SUBMODULE_PREFIX_PATH})
 
-if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
-	set(EZ_SUBMODULE_MODE FALSE)
+if(W_SUBMODULE_PREFIX_PATH STREQUAL "")
+	set(W_SUBMODULE_MODE FALSE)
 else()
-	set(EZ_SUBMODULE_MODE TRUE)
+	set(W_SUBMODULE_MODE TRUE)
 
-	if (NOT DEFINED EZ_SUBMODULE_ROOT_IDE_FOLDER)
-		set(EZ_SUBMODULE_ROOT_IDE_FOLDER "ezEngine")
+	if (NOT DEFINED W_SUBMODULE_ROOT_IDE_FOLDER)
+		set(W_SUBMODULE_ROOT_IDE_FOLDER "WorldEngine")
 	endif()
 endif()
 
-set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
+set_property(GLOBAL PROPERTY W_SUBMODULE_MODE ${W_SUBMODULE_MODE})
 
-# Set a global variable pointing to the root of the EZ source tree
-set(EZ_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(GLOBAL PROPERTY EZ_ROOT ${EZ_ROOT})
+# Set a global variable pointing to the root of the W source tree
+set(W_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(GLOBAL PROPERTY W_ROOT ${W_ROOT})
 
-ez_build_filter_init()
+W_build_filter_init()
 
-ez_detect_project_name(DETECTED_NAME)
+W_detect_project_name(DETECTED_NAME)
 
-if(NOT EZ_SUBMODULE_MODE)
-	ez_detect_languages()
+if(NOT W_SUBMODULE_MODE)
+	W_detect_languages()
 
-	set(EZ_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
-	project(${EZ_SOLUTION_NAME}
+	set(W_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
+	project(${W_SOLUTION_NAME}
 		VERSION 1.0
 		DESCRIPTION "An open-source game engine"
 		HOMEPAGE_URL "https://ezengine.net"
-		LANGUAGES ${EZ_LANGUAGES})
+		LANGUAGES ${W_LANGUAGES})
 
 	# Enable CTest support for unit testing
 	enable_testing()
 endif()
 
-include("ezPlatform")
+include("WPlatform")
 
-ez_set_build_types()
-ez_check_build_type()
-ez_write_configuration_txt()
+W_set_build_types()
+W_check_build_type()
+W_write_configuration_txt()
 
-if(EZ_CUSTOM_TOOLCHAIN_FILE)
-	message(STATUS "Including EZ_CUSTOM_TOOLCHAIN_FILE: '${EZ_CUSTOM_TOOLCHAIN_FILE}'")
-	include("${EZ_CUSTOM_TOOLCHAIN_FILE}")
+if(W_CUSTOM_TOOLCHAIN_FILE)
+	message(STATUS "Including W_CUSTOM_TOOLCHAIN_FILE: '${W_CUSTOM_TOOLCHAIN_FILE}'")
+	include("${W_CUSTOM_TOOLCHAIN_FILE}")
 endif()
 
-ez_pull_all_vars()
+W_pull_all_vars()
 
-set(EZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code")
+set(W_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code")
 
-ez_find_qt()
-ez_init_projects()
+W_find_qt()
+W_init_projects()
 
-get_property(SELECTED_FILTER_NAME GLOBAL PROPERTY EZ_BUILD_FILTER_SELECTED)
+get_property(SELECTED_FILTER_NAME GLOBAL PROPERTY W_BUILD_FILTER_SELECTED)
 if (NOT ${SELECTED_FILTER_NAME} MATCHES "Everything")
 	set(CMAKE_SUPPRESS_REGENERATION true)
 endif()
-add_subdirectory(${EZ_CMAKE_RELPATH_CODE})
+add_subdirectory(${W_CMAKE_RELPATH_CODE})
 add_subdirectory(Data)
 
-ez_add_external_projects_folder("_1")
-ez_add_external_projects_folder("_2")
-ez_add_external_projects_folder("_3")
+W_add_external_projects_folder("_1")
+W_add_external_projects_folder("_2")
+W_add_external_projects_folder("_3")
 
-if(NOT EZ_SUBMODULE_MODE)
+if(NOT W_SUBMODULE_MODE)
 	if(TARGET Editor)
 		# sets the Editor project as the default startup project in Visual Studio
 		set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
 
 		get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
 		if(EXTERNAL_PROJECTS)
-		  message(STATUS "External Projects (ezEditor): ${EXTERNAL_PROJECTS}")
+		  message(STATUS "External Projects (WEditor): ${EXTERNAL_PROJECTS}")
 		  add_dependencies(Editor ${EXTERNAL_PROJECTS})
 
-		  message(STATUS "External Projects (ezPlayer): ${EXTERNAL_PROJECTS}")
+		  message(STATUS "External Projects (WPlayer): ${EXTERNAL_PROJECTS}")
 		  add_dependencies(Player ${EXTERNAL_PROJECTS})
 		  endif()		
 	endif()
@@ -110,18 +110,18 @@ endif()
 # however, they aren't needed there, since CI will always build all projects
 # and finalizers are typically only needed to set up build dependencies
 if (${SELECTED_FILTER_NAME} MATCHES "Everything")
-ez_finalize_projects()
+W_finalize_projects()
 endif()
 
 get_property(EXPORT_PROJECTS GLOBAL PROPERTY "EXPORT_PROJECTS")
-ez_get_export_location(EZ_EXPORT_LOCATION)
-export(TARGETS ${EXPORT_PROJECTS} FILE "${EZ_EXPORT_LOCATION}")
+W_get_export_location(W_EXPORT_LOCATION)
+export(TARGETS ${EXPORT_PROJECTS} FILE "${W_EXPORT_LOCATION}")
 
 set(EXPORT_INFO "
-set(EXPINP_OUTPUT_DIRECTORY_DLL ${EZ_OUTPUT_DIRECTORY_DLL})
-set(EXPINP_OUTPUT_DIRECTORY_LIB ${EZ_OUTPUT_DIRECTORY_LIB})
+set(EXPINP_OUTPUT_DIRECTORY_DLL ${W_OUTPUT_DIRECTORY_DLL})
+set(EXPINP_OUTPUT_DIRECTORY_LIB ${W_OUTPUT_DIRECTORY_LIB})
 set(EXPINP_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(EXPINP_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 ")
 
-file(WRITE "${EZ_OUTPUT_DIRECTORY_DLL}/ezExportInfo.cmake" ${EXPORT_INFO})
+file(WRITE "${W_OUTPUT_DIRECTORY_DLL}/WExportInfo.cmake" ${EXPORT_INFO})

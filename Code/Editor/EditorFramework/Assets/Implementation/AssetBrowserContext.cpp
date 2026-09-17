@@ -6,35 +6,35 @@
 
 namespace
 {
-  ezAssetBrowserSelection s_CurrentAssetBrowserSelection;
+  WAssetBrowserSelection s_CurrentAssetBrowserSelection;
 } // namespace
 
-const ezAssetBrowserSelection& ezAssetBrowserSelection::GetCurrent()
+const WAssetBrowserSelection& WAssetBrowserSelection::GetCurrent()
 {
   return s_CurrentAssetBrowserSelection;
 }
 
-void ezAssetBrowserSelection::SetCurrent(ezAssetBrowserSelection&& selection)
+void WAssetBrowserSelection::SetCurrent(WAssetBrowserSelection&& selection)
 {
   s_CurrentAssetBrowserSelection = std::move(selection);
 }
 
-ezActionDescriptorHandle ezAssetBrowserContextMenu::s_hAssetMenu;
+WActionDescriptorHandle WAssetBrowserContextMenu::s_hAssetMenu;
 
-void ezAssetBrowserContextMenu::RegisterActions()
+void WAssetBrowserContextMenu::RegisterActions()
 {
-  s_hAssetMenu = EZ_REGISTER_MENU_WITH_ICON("AssetBrowser.AssetMenu", ":/GuiFoundation/Icons/Document.svg");
+  s_hAssetMenu = W_REGISTER_MENU_WITH_ICON("AssetBrowser.AssetMenu", ":/GuiFoundation/Icons/Document.svg");
 }
 
-void ezAssetBrowserContextMenu::MapActions()
+void WAssetBrowserContextMenu::MapActions()
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("AssetBrowserContextMenu");
-  EZ_ASSERT_DEV(pMap != nullptr, "The action map 'AssetBrowserContextMenu' does not exist.");
+  WActionMap* pMap = WActionMapManager::GetActionMap("AssetBrowserContextMenu");
+  W_ASSERT_DEV(pMap != nullptr, "The action map 'AssetBrowserContextMenu' does not exist.");
 
   pMap->MapAction(s_hAssetMenu, "", 1.0f);
 }
 
-void ezAssetBrowserContextMenu::UnregisterActions()
+void WAssetBrowserContextMenu::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hAssetMenu);
+  WActionManager::UnregisterAction(s_hAssetMenu);
 }

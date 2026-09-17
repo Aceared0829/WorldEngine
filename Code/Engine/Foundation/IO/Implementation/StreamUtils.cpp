@@ -2,17 +2,17 @@
 
 #include <Foundation/IO/StreamUtils.h>
 
-void ezStreamUtils::ReadAllAndAppend(ezStreamReader& inout_stream, ezDynamicArray<ezUInt8>& ref_destination)
+void WStreamUtils::ReadAllAndAppend(WStreamReader& inout_stream, WDynamicArray<WUInt8>& ref_destination)
 {
-  ezUInt8 temp[1024 * 4];
+  WUInt8 temp[1024 * 4];
 
   while (true)
   {
-    const ezUInt32 uiRead = (ezUInt32)inout_stream.ReadBytes(temp, EZ_ARRAY_SIZE(temp));
+    const WUInt32 uiRead = (WUInt32)inout_stream.ReadBytes(temp, W_ARRAY_SIZE(temp));
 
     if (uiRead == 0)
       return;
 
-    ref_destination.PushBackRange(ezArrayPtr<ezUInt8>(temp, uiRead));
+    ref_destination.PushBackRange(WArrayPtr<WUInt8>(temp, uiRead));
   }
 }

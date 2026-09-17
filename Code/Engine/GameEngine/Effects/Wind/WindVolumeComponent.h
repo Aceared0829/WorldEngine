@@ -6,23 +6,23 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgComponentInternalTrigger;
-struct ezMsgDeleteGameObject;
+struct WMsgUpdateLocalBounds;
+struct WMsgComponentInternalTrigger;
+struct WMsgDeleteGameObject;
 
 /// Base class for components that define wind volumes.
 ///
 /// These components define the shape in which to apply wind to objects that support this functionality.
-class EZ_GAMEENGINE_DLL ezWindVolumeComponent : public ezComponent
+class W_GAMEENGINE_DLL WWindVolumeComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WWindVolumeComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -30,20 +30,20 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezWindVolumeComponent
+  // WWindVolumeComponent
 
 public:
-  ezWindVolumeComponent();
-  ~ezWindVolumeComponent();
+  WWindVolumeComponent();
+  ~WWindVolumeComponent();
 
   /// The spatial category to use to find all wind volume components through the spatial system.
-  static ezSpatialData::Category SpatialDataCategory;
+  static WSpatialData::Category SpatialDataCategory;
 
   /// If non-zero, the wind will only last for a limited amount of time.
-  ezTime m_BurstDuration; // [ property ]
+  WTime m_BurstDuration; // [ property ]
 
   /// How strong the wind shall blow at the strongest point of the volume.
-  ezEnum<ezWindStrength> m_Strength; // [ property ]
+  WEnum<WWindStrength> m_Strength; // [ property ]
 
   /// Factor to scale the wind strength. Negative values can be used to reverse the wind direction.
   float m_fStrengthFactor = 1.0f;
@@ -51,16 +51,16 @@ public:
   /// Computes the wind force at a global position.
   ///
   /// Only the x,y,z components are used, they are a wind direction vector scaled to the wind speed.
-  ezSimdVec4f ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
+  WSimdVec4f ComputeForceAtGlobalPosition(const WSimdVec4f& vGlobalPos) const;
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
+  virtual WSimdVec4f ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const = 0;
 
   /// What happens after the wind burst is over.
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
+  WEnum<WOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
 protected:
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+  void OnTriggered(WMsgComponentInternalTrigger& msg);
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg);
 
   float GetWindInMetersPerSecond() const;
 };
@@ -69,39 +69,39 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-using ezWindVolumeSphereComponentManager = ezComponentManager<class ezWindVolumeSphereComponent, ezBlockStorageType::Compact>;
+using WWindVolumeSphereComponentManager = WComponentManager<class WWindVolumeSphereComponent, WBlockStorageType::Compact>;
 
 /// A spherical shape in which wind shall be applied to objects.
 ///
 /// The wind blows outwards from the center of the sphere. If the wind direction is reversed, it pulls objects inwards.
-class EZ_GAMEENGINE_DLL ezWindVolumeSphereComponent : public ezWindVolumeComponent
+class W_GAMEENGINE_DLL WWindVolumeSphereComponent : public WWindVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezWindVolumeSphereComponent, ezWindVolumeComponent, ezWindVolumeSphereComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WWindVolumeSphereComponent, WWindVolumeComponent, WWindVolumeSphereComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezWindVolumeSphereComponent
+  // WWindVolumeSphereComponent
 
 public:
-  ezWindVolumeSphereComponent();
-  ~ezWindVolumeSphereComponent();
+  WWindVolumeSphereComponent();
+  ~WWindVolumeSphereComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
+  virtual WSimdVec4f ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; } // [ property ]
   void SetRadius(float fVal);                   // [ property ]
 
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
 
   float m_fRadius = 1.0f;
-  ezSimdFloat m_fOneDivRadius;
+  WSimdFloat m_fOneDivRadius;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,9 +109,9 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 /// How the wind direction shall be calculated in a cylindrical wind volume.
-struct ezWindVolumeCylinderMode
+struct WWindVolumeCylinderMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -122,32 +122,32 @@ struct ezWindVolumeCylinderMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezWindVolumeCylinderMode);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WWindVolumeCylinderMode);
 
-using ezWindVolumeCylinderComponentManager = ezComponentManager<class ezWindVolumeCylinderComponent, ezBlockStorageType::Compact>;
+using WWindVolumeCylinderComponentManager = WComponentManager<class WWindVolumeCylinderComponent, WBlockStorageType::Compact>;
 
 /// A cylindrical volume in which wind shall be applied.
 ///
 /// The wind direction may be either outwards from the cylinder center, or tangential (a vortex).
-class EZ_GAMEENGINE_DLL ezWindVolumeCylinderComponent : public ezWindVolumeComponent
+class W_GAMEENGINE_DLL WWindVolumeCylinderComponent : public WWindVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezWindVolumeCylinderComponent, ezWindVolumeComponent, ezWindVolumeCylinderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WWindVolumeCylinderComponent, WWindVolumeComponent, WWindVolumeCylinderComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezWindVolumeCylinderComponent
+  // WWindVolumeCylinderComponent
 
 public:
-  ezWindVolumeCylinderComponent();
-  ~ezWindVolumeCylinderComponent();
+  WWindVolumeCylinderComponent();
+  ~WWindVolumeCylinderComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
+  virtual WSimdVec4f ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; }                   // [ property ]
   void SetRadius(float fVal);                                     // [ property ]
@@ -164,10 +164,10 @@ public:
   float GetNegativeFalloff() const { return m_fNegativeFalloff; } // [ property ]
   void SetNegativeFalloff(float fVal);                            // [ property ]
 
-  ezEnum<ezWindVolumeCylinderMode> m_Mode;                        // [ property ]
+  WEnum<WWindVolumeCylinderMode> m_Mode;                        // [ property ]
 
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
 
   void ComputeScaleBiasValues();
 
@@ -177,49 +177,49 @@ private:
   float m_fPositiveFalloff = 0.0f;
   float m_fNegativeFalloff = 0.0f;
 
-  ezSimdVec4f m_vScaleValues;
-  ezSimdVec4f m_vBiasValues;
+  WSimdVec4f m_vScaleValues;
+  WSimdVec4f m_vBiasValues;
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-using ezWindVolumeConeComponentManager = ezComponentManager<class ezWindVolumeConeComponent, ezBlockStorageType::Compact>;
+using WWindVolumeConeComponentManager = WComponentManager<class WWindVolumeConeComponent, WBlockStorageType::Compact>;
 
 /// A conical shape in which wind shall be applied to objects.
 ///
 /// The wind is applied from the tip of the cone along the cone axis.
 /// Strength falloff is only by distance along the cone main axis.
-class EZ_GAMEENGINE_DLL ezWindVolumeConeComponent : public ezWindVolumeComponent
+class W_GAMEENGINE_DLL WWindVolumeConeComponent : public WWindVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezWindVolumeConeComponent, ezWindVolumeComponent, ezWindVolumeConeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WWindVolumeConeComponent, WWindVolumeComponent, WWindVolumeConeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezWindVolumeCylinderComponent
+  // WWindVolumeCylinderComponent
 
 public:
-  ezWindVolumeConeComponent();
-  ~ezWindVolumeConeComponent();
+  WWindVolumeConeComponent();
+  ~WWindVolumeConeComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
+  virtual WSimdVec4f ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const override;
 
   float GetLength() const { return m_fLength; } // [ property ]
   void SetLength(float fVal);                   // [ property ]
 
-  ezAngle GetAngle() const { return m_Angle; }  // [ property ]
-  void SetAngle(ezAngle val);                   // [ property ]
+  WAngle GetAngle() const { return m_Angle; }  // [ property ]
+  void SetAngle(WAngle val);                   // [ property ]
 
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
 
   float m_fLength = 1.0f;
-  ezAngle m_Angle = ezAngle::MakeFromDegree(45);
+  WAngle m_Angle = WAngle::MakeFromDegree(45);
 };

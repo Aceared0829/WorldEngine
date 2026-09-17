@@ -12,13 +12,13 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpProjectTool, 1, ezRTTIDefaultAllocator<ezMcpProjectTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpProjectTool, 1, WRTTIDefaultAllocator<WMcpProjectTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMcpProjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpProjectTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
-  ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
   desc.m_sName = "project_info";
   desc.m_sDescription = "Returns which project the editor currently has open: its name, the project directory, the configured "
                         "data directories, the asset profiles and the loaded plugins. Call this first - paths returned by other "
@@ -26,7 +26,7 @@ void ezMcpProjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tool
                         "the loaded plugins determine which reflected types exist.";
   desc.m_sInputSchema = R"({"type":"object","properties":{}})";
 
-  ezMcpToolDesc& exp = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& exp = out_tools.ExpandAndGetRef();
   exp.m_sName = "project_export";
   exp.m_sDescription = "Exports the open project into a standalone, runnable directory - the same operation as the editor's "
                        "'Export Project' dialog, which cannot be used through action_execute. Builds the project's C++ plugin, "
@@ -47,7 +47,7 @@ void ezMcpProjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tool
                        R"("required":["targetDirectory"]})";
 }
 
-void ezMcpProjectTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpProjectTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "project_info")
   {
@@ -59,14 +59,14 @@ void ezMcpProjectTool::Execute(ezStringView sToolName, const ezVariantDictionary
   }
 }
 
-void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpProjectTool::ExecuteProjectInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   // Reported explicitly rather than as an error, because "no project open" is a legitimate state that
   // the agent has to be able to observe - it explains why every other tool returns nothing.
-  const bool bProjectOpen = ezToolsProject::IsProjectOpen();
+  const bool bProjectOpen = WToolsProject::IsProjectOpen();
   writer.AddVariableBool("projectOpen", bProjectOpen);
 
   if (!bProjectOpen)
@@ -76,7 +76,7 @@ void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, 
     return;
   }
 
-  const ezToolsProject* pProject = ezToolsProject::GetSingleton();
+  const WToolsProject* pProject = WToolsProject::GetSingleton();
 
   writer.AddVariableString("projectName", pProject->GetProjectName(false));
   writer.AddVariableString("projectDirectory", pProject->GetProjectDirectory());
@@ -86,7 +86,7 @@ void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, 
   // The configured directories, not the mounted ones: these are what asset paths are expressed
   // relative to, and the root name is the '>rootname/...' prefix that shows up in those paths.
   writer.BeginArray("dataDirectories");
-  for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+  for (const auto& dd : WQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
   {
     writer.BeginObject();
     writer.AddVariableString("path", dd.m_sDataDirSpecialPath);
@@ -98,17 +98,17 @@ void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, 
   }
   writer.EndArray();
 
-  if (const ezAssetCurator* pCurator = ezAssetCurator::GetSingleton())
+  if (const WAssetCurator* pCurator = WAssetCurator::GetSingleton())
   {
-    if (const ezPlatformProfile* pActive = pCurator->GetActiveAssetProfile())
+    if (const WPlatformProfile* pActive = pCurator->GetActiveAssetProfile())
     {
       writer.AddVariableString("activeAssetProfile", pActive->GetConfigName());
     }
 
     writer.BeginArray("assetProfiles");
-    for (ezUInt32 i = 0; i < pCurator->GetNumAssetProfiles(); ++i)
+    for (WUInt32 i = 0; i < pCurator->GetNumAssetProfiles(); ++i)
     {
-      if (const ezPlatformProfile* pProfile = pCurator->GetAssetProfile(i))
+      if (const WPlatformProfile* pProfile = pCurator->GetAssetProfile(i))
       {
         writer.WriteString(pProfile->GetConfigName());
       }
@@ -118,17 +118,17 @@ void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, 
 
   // Which plugins are loaded determines which reflected types exist at all, so this is the companion
   // to the 'plugin' field that rtti_type_info returns for a type.
-  ezDynamicArray<ezPlugin::PluginInfo> pluginInfos;
-  ezPlugin::GetAllPluginInfos(pluginInfos);
+  WDynamicArray<WPlugin::PluginInfo> pluginInfos;
+  WPlugin::GetAllPluginInfos(pluginInfos);
 
   writer.BeginArray("loadedPlugins");
-  for (const ezPlugin::PluginInfo& info : pluginInfos)
+  for (const WPlugin::PluginInfo& info : pluginInfos)
   {
     writer.BeginObject();
     writer.AddVariableString("name", info.m_sName);
 
     writer.BeginArray("dependencies");
-    for (const ezString& sDep : info.m_sDependencies)
+    for (const WString& sDep : info.m_sDependencies)
     {
       writer.WriteString(sDep);
     }
@@ -143,15 +143,15 @@ void ezMcpProjectTool::ExecuteProjectInfo(const ezVariantDictionary& arguments, 
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpProjectTool::ExecuteProjectExport(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpProjectTool::ExecuteProjectExport(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
   {
     out_result.SetError("No project is open, so there is nothing to export.");
     return;
   }
 
-  ezStringBuilder sTargetDir = ezMcpJson::GetString(arguments, "targetDirectory");
+  WStringBuilder sTargetDir = WMcpJson::GetString(arguments, "targetDirectory");
   sTargetDir.MakeCleanPath();
   sTargetDir.Trim("", "/");
 
@@ -163,7 +163,7 @@ void ezMcpProjectTool::ExecuteProjectExport(const ezVariantDictionary& arguments
 
   if (!sTargetDir.IsAbsolutePath())
   {
-    out_result.SetError(ezStringBuilder("'", sTargetDir, "' is not an absolute path. The export target is not resolved against "
+    out_result.SetError(WStringBuilder("'", sTargetDir, "' is not an absolute path. The export target is not resolved against "
                                                          "the project or any data directory, so it has to be a full path."));
     return;
   }
@@ -171,26 +171,26 @@ void ezMcpProjectTool::ExecuteProjectExport(const ezVariantDictionary& arguments
   // The export clears the target directory first, so an unlucky path would delete the project. Checked
   // here rather than deeper down because this is the only caller whose argument comes from a model that
   // has never seen the folder it is naming.
-  ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sProjectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
   sProjectDir.MakeCleanPath();
   sProjectDir.Trim("", "/");
 
-  if (ezPathUtils::IsSubPath_NoCase(sTargetDir, sProjectDir) || ezPathUtils::IsSubPath_NoCase(sProjectDir, sTargetDir))
+  if (WPathUtils::IsSubPath_NoCase(sTargetDir, sProjectDir) || WPathUtils::IsSubPath_NoCase(sProjectDir, sTargetDir))
   {
-    out_result.SetError(ezStringBuilder("Refusing to export to '", sTargetDir, "', because it overlaps with the project directory '",
+    out_result.SetError(WStringBuilder("Refusing to export to '", sTargetDir, "', because it overlaps with the project directory '",
       sProjectDir, "'. The target directory is deleted before the export, which would destroy the project. Pick a directory outside of it."));
     return;
   }
 
-  ezProjectExportOptions options;
-  options.m_bCompileCppPlugin = ezMcpJson::GetBool(arguments, "compileCppPlugin", true);
-  options.m_bTransformAssets = ezMcpJson::GetBool(arguments, "transformAssets", true);
-  options.m_bCreateLaunchScripts = ezMcpJson::GetBool(arguments, "createLaunchScripts", true);
+  WProjectExportOptions options;
+  options.m_bCompileCppPlugin = WMcpJson::GetBool(arguments, "compileCppPlugin", true);
+  options.m_bTransformAssets = WMcpJson::GetBool(arguments, "transformAssets", true);
+  options.m_bCreateLaunchScripts = WMcpJson::GetBool(arguments, "createLaunchScripts", true);
 
-  ezStringBuilder sLog;
-  const ezStatus status = ezProjectExport::ExportProjectComplete(sTargetDir, options, &sLog);
+  WStringBuilder sLog;
+  const WStatus status = WProjectExport::ExportProjectComplete(sTargetDir, options, &sLog);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableBool("exported", status.Succeeded());

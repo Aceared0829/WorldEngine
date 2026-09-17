@@ -5,11 +5,11 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+WParticleEffectHandle WParticleWorldModule::InternalCreateEffectInstance(const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, bool bIsShared, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezParticleEffectInstance* pInstance = nullptr;
+  WParticleEffectInstance* pInstance = nullptr;
 
   if (!m_ParticleEffectsFreeList.IsEmpty())
   {
@@ -21,23 +21,23 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const
     pInstance = &m_ParticleEffects.ExpandAndGetRef();
   }
 
-  ezParticleEffectHandle hEffectHandle(m_ActiveEffects.Insert(pInstance));
+  WParticleEffectHandle hEffectHandle(m_ActiveEffects.Insert(pInstance));
   pInstance->Construct(hEffectHandle, hResource, GetWorld(), this, uiRandomSeed, bIsShared, floatParams, colorParams);
 
   return hEffectHandle;
 }
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance(
-  const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
+WParticleEffectHandle WParticleWorldModule::InternalCreateSharedEffectInstance(
+  const char* szSharedName, const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezStringBuilder fullName;
+  WStringBuilder fullName;
   fullName.SetFormat("{{0}}-{{1}}[{2}]", szSharedName, hResource.GetResourceID(), uiRandomSeed);
 
   bool bExisted = false;
   auto it = m_SharedEffects.FindOrAdd(fullName, &bExisted);
-  ezParticleEffectInstance* pEffect = nullptr;
+  WParticleEffectInstance* pEffect = nullptr;
 
   if (bExisted)
   {
@@ -47,26 +47,26 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
   if (!pEffect)
   {
     it.Value() =
-      InternalCreateEffectInstance(hResource, uiRandomSeed, true, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      InternalCreateEffectInstance(hResource, uiRandomSeed, true, WArrayPtr<WParticleEffectFloatParam>(), WArrayPtr<WParticleEffectColorParam>());
     TryGetEffectInstance(it.Value(), pEffect);
   }
 
-  EZ_ASSERT_DEBUG(pEffect != nullptr, "Invalid effect pointer");
+  W_ASSERT_DEBUG(pEffect != nullptr, "Invalid effect pointer");
   pEffect->AddSharedInstance(pSharedInstanceOwner);
 
   return it.Value();
 }
 
 
-ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+WParticleEffectHandle WParticleWorldModule::CreateEffectInstance(const WParticleEffectResourceHandle& hResource, WUInt64 uiRandomSeed, const char* szSharedName, const void*& inout_pSharedInstanceOwner, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams)
 {
-  EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
+  W_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
 
-  bool bIsShared = !ezStringUtils::IsNullOrEmpty(szSharedName) && (inout_pSharedInstanceOwner != nullptr);
+  bool bIsShared = !WStringUtils::IsNullOrEmpty(szSharedName) && (inout_pSharedInstanceOwner != nullptr);
 
   if (!bIsShared)
   {
-    ezResourceLock<ezParticleEffectResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WParticleEffectResource> pResource(hResource, WResourceAcquireMode::BlockTillLoaded);
     bIsShared |= pResource->GetDescriptor().m_Effect.m_bAlwaysShared;
   }
 
@@ -81,11 +81,11 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   }
 }
 
-void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
+void WParticleWorldModule::DestroyEffectInstance(const WParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezParticleEffectInstance* pInstance = nullptr;
+  WParticleEffectInstance* pInstance = nullptr;
   if (TryGetEffectInstance(hEffect, pInstance))
   {
     if (pSharedInstanceOwner != nullptr)
@@ -114,52 +114,52 @@ void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& 
   }
 }
 
-bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect)
+bool WParticleWorldModule::TryGetEffectInstance(const WParticleEffectHandle& hEffect, WParticleEffectInstance*& out_pEffect)
 {
   return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
 }
 
-bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const
+bool WParticleWorldModule::TryGetEffectInstance(const WParticleEffectHandle& hEffect, const WParticleEffectInstance*& out_pEffect) const
 {
-  ezParticleEffectInstance* pEffect = nullptr;
+  WParticleEffectInstance* pEffect = nullptr;
   bool bResult = m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), pEffect);
   out_pEffect = pEffect;
   return bResult;
 }
 
-void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
+void WParticleWorldModule::UpdateEffects(const WWorldModule::UpdateContext& context)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   DestroyFinishedEffects();
   ReconfigureEffects();
 
-  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LateThisFrame);
+  m_EffectUpdateTaskGroup = WTaskSystem::CreateTaskGroup(WTaskPriority::LateThisFrame);
 
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-  for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
+  const WTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  for (WUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
   {
     if (!m_ParticleEffects[i].ShouldBeUpdated())
       continue;
 
     m_ParticleEffects[i].ProcessEventQueues();
 
-    const ezSharedPtr<ezTask>& pTask = m_ParticleEffects[i].GetUpdateTask();
-    static_cast<ezParticleEffectUpdateTask*>(pTask.Borrow())->m_UpdateDiff = tDiff;
+    const WSharedPtr<WTask>& pTask = m_ParticleEffects[i].GetUpdateTask();
+    static_cast<WParticleEffectUpdateTask*>(pTask.Borrow())->m_UpdateDiff = tDiff;
 
-    ezTaskSystem::AddTaskToGroup(m_EffectUpdateTaskGroup, pTask);
+    WTaskSystem::AddTaskToGroup(m_EffectUpdateTaskGroup, pTask);
   }
 
-  ezTaskSystem::StartTaskGroup(m_EffectUpdateTaskGroup);
+  WTaskSystem::StartTaskGroup(m_EffectUpdateTaskGroup);
 }
 
-void ezParticleWorldModule::DestroyFinishedEffects()
+void WParticleWorldModule::DestroyFinishedEffects()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < m_FinishingEffects.GetCount();)
+  for (WUInt32 i = 0; i < m_FinishingEffects.GetCount();)
   {
-    ezParticleEffectInstance* pEffect = m_FinishingEffects[i];
+    WParticleEffectInstance* pEffect = m_FinishingEffects[i];
 
     if (!pEffect->HasActiveParticles())
     {
@@ -178,9 +178,9 @@ void ezParticleWorldModule::DestroyFinishedEffects()
     }
   }
 
-  for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
   {
-    ezParticleEffectInstance* pEffect = m_NeedFinisherComponent[i];
+    WParticleEffectInstance* pEffect = m_NeedFinisherComponent[i];
 
     CreateFinisherComponent(pEffect);
   }
@@ -188,13 +188,13 @@ void ezParticleWorldModule::DestroyFinishedEffects()
   m_NeedFinisherComponent.Clear();
 }
 
-void ezParticleWorldModule::ReconfigureEffects()
+void WParticleWorldModule::ReconfigureEffects()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto pEffect : m_EffectsToReconfigure)
   {
-    pEffect->Reconfigure(false, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+    pEffect->Reconfigure(false, WArrayPtr<WParticleEffectFloatParam>(), WArrayPtr<WParticleEffectColorParam>());
   }
 
   m_EffectsToReconfigure.Clear();

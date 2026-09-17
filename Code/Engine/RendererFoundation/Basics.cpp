@@ -2,13 +2,13 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-const ezUInt8 ezGALIndexType::s_Size[ezGALIndexType::ENUM_COUNT] = {
+const WUInt8 WGALIndexType::s_Size[WGALIndexType::ENUM_COUNT] = {
   0,               // None
-  sizeof(ezInt16), // UShort
-  sizeof(ezInt32)  // UInt
+  sizeof(WInt16), // UShort
+  sizeof(WInt32)  // UInt
 };
 
-const char* ezGALShaderStage::Names[ENUM_COUNT] = {
+const char* WGALShaderStage::Names[ENUM_COUNT] = {
   "VertexShader",
   "HullShader",
   "DomainShader",

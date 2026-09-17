@@ -17,26 +17,26 @@ enum BotState
     Patrol,
 }
 
-class Bot : ezAngelScriptClass
+class Bot : WAngelScriptClass
 {
     int Health = 50;
     float MaxShootDistance = 15.0f;
     bool ShowState = true;
     private BotState _botState = BotState::Idle;
     private bool _hasTargetPosition = false;
-    private ezGameObjectHandle _player;
-    private ezGameObjectHandle _visiblePlayer;
+    private WGameObjectHandle _player;
+    private WGameObjectHandle _visiblePlayer;
     private bool _canSeePlayer = false;
     private bool _lastPlayerPosValid = false;
-    private ezVec3 _lastPlayerPos;
-    private ezVec3 _randomPositionReferencePoint;
-    private ezVec3 _vStatusTextPos;
+    private WVec3 _lastPlayerPos;
+    private WVec3 _randomPositionReferencePoint;
+    private WVec3 _vStatusTextPos;
     private int _iSearchAttempt = 0;
-    private ezTime _lastIdleAction;
+    private WTime _lastIdleAction;
 
-    void DeactivateGO(ezStringView object)
+    void DeactivateGO(WStringView object)
     {
-        ezGameObject@ obj = GetOwner().FindChildByName(object, true);
+        WGameObject@ obj = GetOwner().FindChildByName(object, true);
         if (@obj != null)
         {
             obj.SetActiveFlag(false);
@@ -48,13 +48,13 @@ class Bot : ezAngelScriptClass
         DeactivateGO("OnDeathDeactivate");
 
         // disable the navigation component, so that it doesn't update the position any further
-        ezAiNavigationComponent@ navComp;
+        WAiNavigationComponent@ navComp;
         if (GetOwner().TryGetComponentOfBaseType(@navComp))
         {
             navComp.Active = false;
         }
 
-        ezJoltHitboxComponent@ hitComp;
+        WJoltHitboxComponent@ hitComp;
         if (GetOwner().TryGetComponentOfBaseType(@hitComp))
         {
             hitComp.Active = false;
@@ -64,7 +64,7 @@ class Bot : ezAngelScriptClass
     void OnSimulationStarted()
     {
         EnterState_Idle();
-        _lastIdleAction = GetWorld().GetClock().GetAccumulatedTime() - ezTime::MakeFromSeconds(8);
+        _lastIdleAction = GetWorld().GetClock().GetAccumulatedTime() - WTime::MakeFromSeconds(8);
     }
 
     void EnterState_Idle()
@@ -75,21 +75,21 @@ class Bot : ezAngelScriptClass
         _lastIdleAction = GetWorld().GetClock().GetAccumulatedTime();
     }
 
-    void EnterState_ClosingDistance(ezLocalBlackboardComponent@ bbComp)
+    void EnterState_ClosingDistance(WLocalBlackboardComponent@ bbComp)
     {
         _botState = BotState::ClosingDistance;
         _hasTargetPosition = false;
         bbComp.SetEntryValue("PlayIdleAction", -1);
     }
 
-    void EnterState_ShootTarget(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void EnterState_ShootTarget(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         _botState = BotState::ShootTarget;
         navComp.StopWalking(0.5f);
         bbComp.SetEntryValue("PlayIdleAction", -1);
     }
 
-    void EnterState_FollowTarget(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void EnterState_FollowTarget(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         _botState = BotState::FollowTarget;
         bbComp.SetEntryValue("PlayIdleAction", -1);
@@ -110,7 +110,7 @@ class Bot : ezAngelScriptClass
         DeactivateAll();
     }
 
-    void EnterState_Searching(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void EnterState_Searching(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         _botState = BotState::Searching;
         _canSeePlayer = false;
@@ -125,18 +125,18 @@ class Bot : ezAngelScriptClass
         }
     }
 
-    void EnterState_Patrol(ezLocalBlackboardComponent@ bbComp)
+    void EnterState_Patrol(WLocalBlackboardComponent@ bbComp)
     {
         _botState = BotState::Patrol;
         _hasTargetPosition = false;
         bbComp.SetEntryValue("PlayIdleAction", -1);
     }
 
-    void UpdateState_Idle(ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_Idle(WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("Idle", _vStatusTextPos, ezColor::LightGrey, 32);
+            WDebug::Draw3DText("Idle", _vStatusTextPos, WColor::LightGrey, 32);
         }
 
         if (_canSeePlayer)
@@ -145,11 +145,11 @@ class Bot : ezAngelScriptClass
             return;
         }
 
-        if (GetWorld().GetClock().GetAccumulatedTime() - _lastIdleAction > ezTime::Seconds(5.0))
+        if (GetWorld().GetClock().GetAccumulatedTime() - _lastIdleAction > WTime::Seconds(5.0))
         {
             _lastIdleAction = GetWorld().GetClock().GetAccumulatedTime();
 
-            ezUInt32 rnd = GetWorld().GetRandomNumberGenerator().UIntInRange(10);
+            WUInt32 rnd = GetWorld().GetRandomNumberGenerator().UIntInRange(10);
 
             if (rnd < 4)
             {
@@ -162,11 +162,11 @@ class Bot : ezAngelScriptClass
         }
     }
 
-    void UpdateState_ClosingDistance(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_ClosingDistance(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("ClosingDistance", _vStatusTextPos, ezColor::Yellow, 32);
+            WDebug::Draw3DText("ClosingDistance", _vStatusTextPos, WColor::Yellow, 32);
         }
 
         bbComp.SetEntryValue("Shoot", -1);
@@ -192,8 +192,8 @@ class Bot : ezAngelScriptClass
         {
             _randomPositionReferencePoint = _lastPlayerPos;
 
-            ezVec3 point;
-            if (navComp.FindRandomPointAroundCircle(_lastPlayerPos, ezMath::Min(10.0f, MaxShootDistance * 0.5f), point))
+            WVec3 point;
+            if (navComp.FindRandomPointAroundCircle(_lastPlayerPos, WMath::Min(10.0f, MaxShootDistance * 0.5f), point))
             {
                 if (point.GetDistanceTo(_lastPlayerPos) < MaxShootDistance * 0.9f)
                 {
@@ -205,8 +205,8 @@ class Bot : ezAngelScriptClass
                 {
                     if (ShowState)
                     {
-                        ezDebug::AddPersistentLineSphere(point + ezVec3(0, 0, 1), 0.25f, ezColor::DarkRed, ezTransform::MakeIdentity(), ezTime::MakeFromSeconds(5));
-                        ezLog::Info("Random point is too far away, try again.");
+                        WDebug::AddPersistentLineSphere(point + WVec3(0, 0, 1), 0.25f, WColor::DarkRed, WTransform::MakeIdentity(), WTime::MakeFromSeconds(5));
+                        WLog::Info("Random point is too far away, try again.");
                     }
                 }
             }
@@ -216,33 +216,33 @@ class Bot : ezAngelScriptClass
 
         switch (navComp.GetState())
         {
-        case ezAiNavigationComponentState::Falling:
+        case WAiNavigationComponentState::Falling:
             return;
 
-        case ezAiNavigationComponentState::Failed:
-        case ezAiNavigationComponentState::Fallen:
+        case WAiNavigationComponentState::Failed:
+        case WAiNavigationComponentState::Fallen:
             // try another point
             EnterState_ClosingDistance(bbComp);
             return;
 
-        case ezAiNavigationComponentState::Idle:
+        case WAiNavigationComponentState::Idle:
             EnterState_Searching(navComp, bbComp);
             return;
         }
     }
 
-    void UpdateState_FollowTarget(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_FollowTarget(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("FollowTarget", _vStatusTextPos, ezColor::GreenYellow, 32);
+            WDebug::Draw3DText("FollowTarget", _vStatusTextPos, WColor::GreenYellow, 32);
         }
 
         switch (navComp.GetState())
         {
-        case ezAiNavigationComponentState::Failed:
-        case ezAiNavigationComponentState::Fallen:
-        case ezAiNavigationComponentState::Idle:
+        case WAiNavigationComponentState::Failed:
+        case WAiNavigationComponentState::Fallen:
+        case WAiNavigationComponentState::Idle:
             EnterState_Searching(navComp, bbComp);
             return;
         }
@@ -258,11 +258,11 @@ class Bot : ezAngelScriptClass
         navComp.Speed = 1.5;
     }
 
-    void UpdateState_Searching(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_Searching(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("Searching", _vStatusTextPos, ezColor::Orange, 32);
+            WDebug::Draw3DText("Searching", _vStatusTextPos, WColor::Orange, 32);
         }
 
         if (_canSeePlayer)
@@ -276,9 +276,9 @@ class Bot : ezAngelScriptClass
 
         switch (navComp.GetState())
         {
-        case ezAiNavigationComponentState::Failed:
-        case ezAiNavigationComponentState::Fallen:
-        case ezAiNavigationComponentState::Idle:
+        case WAiNavigationComponentState::Failed:
+        case WAiNavigationComponentState::Fallen:
+        case WAiNavigationComponentState::Idle:
             // failure or nothing to do -> search for another target
             _hasTargetPosition = false;
             break;
@@ -304,7 +304,7 @@ class Bot : ezAngelScriptClass
 
         if (!_hasTargetPosition)
         {
-            ezVec3 point;
+            WVec3 point;
             if (navComp.FindRandomPointAroundCircle(GetOwner().GetGlobalPosition(), 10.0f + _iSearchAttempt * 3.0f, point))
             {
                 _hasTargetPosition = true;
@@ -314,11 +314,11 @@ class Bot : ezAngelScriptClass
         }
     }
 
-    void UpdateState_ShootTarget(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_ShootTarget(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("ShootTarget", _vStatusTextPos, ezColor::Red, 32);
+            WDebug::Draw3DText("ShootTarget", _vStatusTextPos, WColor::Red, 32);
         }
 
         if (bbComp.GetEntryValue_asInt32("Melee") == -2)
@@ -354,9 +354,9 @@ class Bot : ezAngelScriptClass
         navComp.Speed = 1.5;
         navComp.TurnTowards(_lastPlayerPos.GetAsVec2());
 
-        const ezAngle angle = navComp.GetTurnAngleTowards(_lastPlayerPos.GetAsVec2());
+        const WAngle angle = navComp.GetTurnAngleTowards(_lastPlayerPos.GetAsVec2());
 
-        if (ezMath::Abs(angle.GetDegree()) < 20)
+        if (WMath::Abs(angle.GetDegree()) < 20)
         {
             if (dist < 2.5f)
             {
@@ -369,11 +369,11 @@ class Bot : ezAngelScriptClass
         }
     }
 
-    void UpdateState_Patrol(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
+    void UpdateState_Patrol(WAiNavigationComponent@ navComp, WLocalBlackboardComponent@ bbComp)
     {
         if (ShowState) 
         {
-            ezDebug::Draw3DText("Patroling", _vStatusTextPos, ezColor::Green, 32);
+            WDebug::Draw3DText("Patroling", _vStatusTextPos, WColor::Green, 32);
         }
 
         if (_canSeePlayer)
@@ -387,7 +387,7 @@ class Bot : ezAngelScriptClass
 
         if (!_hasTargetPosition)
         {
-            ezVec3 point;
+            WVec3 point;
             if (navComp.FindRandomPointAroundCircle(GetOwner().GetGlobalPosition(), 20.0f, point))
             {
                 _hasTargetPosition = true;
@@ -399,9 +399,9 @@ class Bot : ezAngelScriptClass
 
         switch (navComp.GetState())
         {
-        case ezAiNavigationComponentState::Failed:
-        case ezAiNavigationComponentState::Fallen:
-        case ezAiNavigationComponentState::Idle:
+        case WAiNavigationComponentState::Failed:
+        case WAiNavigationComponentState::Fallen:
+        case WAiNavigationComponentState::Idle:
             // failure or nothing to do -> go idle
             _hasTargetPosition = false;
             EnterState_Idle();
@@ -418,11 +418,11 @@ class Bot : ezAngelScriptClass
         if (_botState == BotState::Dead)
             return;
 
-        ezLocalBlackboardComponent@ bbComp;
+        WLocalBlackboardComponent@ bbComp;
         if (!GetOwner().TryGetComponentOfBaseType(@bbComp))
             return;
 
-        ezAiNavigationComponent@ navComp;
+        WAiNavigationComponent@ navComp;
         if (!GetOwner().TryGetComponentOfBaseType(@navComp))
             return;
 
@@ -430,7 +430,7 @@ class Bot : ezAngelScriptClass
 
         if (_canSeePlayer)
         {
-            ezGameObject@ playerObj;
+            WGameObject@ playerObj;
             if (GetWorld().TryGetObject(_visiblePlayer, @playerObj))
             {
                 _lastPlayerPos = playerObj.GetGlobalPosition();
@@ -449,18 +449,18 @@ class Bot : ezAngelScriptClass
             const float fAnimSpeed = 3.0f;
 
             // tell the walk animation how fast to play
-            ezVec3 vVelocity = GetOwner().GetLinearVelocity();
+            WVec3 vVelocity = GetOwner().GetLinearVelocity();
             vVelocity.z = 0.0f;
             float fSpeed = vVelocity.GetLength();
-            bbComp.SetEntryValue("MoveForwards", ezMath::Clamp(fSpeed / fAnimSpeed, 0.0f, 1.0f));
+            bbComp.SetEntryValue("MoveForwards", WMath::Clamp(fSpeed / fAnimSpeed, 0.0f, 1.0f));
         }        
 
         if (_lastPlayerPosValid && ShowState)
         {
-            ezDebug::DrawLine(_lastPlayerPos + ezVec3(0, 0, 1), _lastPlayerPos, ezColor::BlueViolet, ezColor::BlueViolet);
+            WDebug::DrawLine(_lastPlayerPos + WVec3(0, 0, 1), _lastPlayerPos, WColor::BlueViolet, WColor::BlueViolet);
         }
 
-        _vStatusTextPos = GetOwner().GetGlobalPosition() + ezVec3(0, 0, 1);
+        _vStatusTextPos = GetOwner().GetGlobalPosition() + WVec3(0, 0, 1);
 
         switch(_botState)
         {
@@ -490,12 +490,12 @@ class Bot : ezAngelScriptClass
         }
     }
     
-    void OnMsgDamage(ezMsgDamage@ msg) 
+    void OnMsgDamage(WMsgDamage@ msg) 
     {
         if (_botState == BotState::Dead)
             return;
 
-        ezLocalBlackboardComponent@ bbComp;
+        WLocalBlackboardComponent@ bbComp;
         if (!GetOwner().TryGetComponentOfBaseType(@bbComp))
             return;
 
@@ -506,10 +506,10 @@ class Bot : ezAngelScriptClass
             // if we get damage (of any kind ...) let the bot directly to the player
             // this is cheating a bit, the damage could come from something else
 
-            ezGameObject@ playerObj;
+            WGameObject@ playerObj;
             if (GetWorld().TryGetObjectWithGlobalKey("Player", @playerObj))
             {
-                ezAiNavigationComponent@ navComp;
+                WAiNavigationComponent@ navComp;
                 if (GetOwner().TryGetComponentOfBaseType(@navComp))
                 {
                     EnterState_ClosingDistance(bbComp);
@@ -533,14 +533,14 @@ class Bot : ezAngelScriptClass
             bbComp.SetEntryValue("IsAlive", false);
 
             // also enable the ragdoll, if we have one
-            ezJoltRagdollComponent@ ragComp;
+            WJoltRagdollComponent@ ragComp;
             if (GetOwner().TryGetComponentOfBaseType(@ragComp))
             {
                 // enable the ragdoll component to have it take over the animation process
                 ragComp.Active = true;
                 
                 // fade out the death animation over a short time
-                ragComp.FadeJointMotorStrength(0.0f, ezTime::MakeFromSeconds(1.6f));
+                ragComp.FadeJointMotorStrength(0.0f, WTime::MakeFromSeconds(1.6f));
 
                 // add a start impulse, to push the ragdoll procedurally
                 ragComp.SetInitialImpulse(msg.GlobalPosition, msg.ImpactDirection * msg.Damage * 50 * 10);
@@ -551,15 +551,15 @@ class Bot : ezAngelScriptClass
     /////////////////////////////////////////////////////////////
     // Generic Events
 
-    void OnMsgGenericEvent(ezMsgGenericEvent@ msg)
+    void OnMsgGenericEvent(WMsgGenericEvent@ msg)
     {
         // if the playing (death) animation has a marker to switch to "powered" mode, forward that request to the ragdoll
         if (msg.Message == "AnimMode-Powered")
         {
-            ezJoltRagdollComponent@ ragComp;
+            WJoltRagdollComponent@ ragComp;
             if (GetOwner().TryGetComponentOfBaseType(@ragComp))
             {
-                ragComp.AnimMode = ezJoltRagdollAnimMode::Powered;
+                ragComp.AnimMode = WJoltRagdollAnimMode::Powered;
             }
 
             return;
@@ -568,10 +568,10 @@ class Bot : ezAngelScriptClass
         // if the playing (death) animation has a marker to switch to "limp" mode, forward that request to the ragdoll
         if (msg.Message == "AnimMode-Limp")
         {
-            ezJoltRagdollComponent@ ragComp;
+            WJoltRagdollComponent@ ragComp;
             if (GetOwner().TryGetComponentOfBaseType(@ragComp))
             {
-                ragComp.AnimMode = ezJoltRagdollAnimMode::Limp;
+                ragComp.AnimMode = WJoltRagdollAnimMode::Limp;
             }
 
             return;
@@ -582,29 +582,29 @@ class Bot : ezAngelScriptClass
 
         if (msg.Message == "gun.shoot")
         {
-            ezGameObject@ muzzleObj = GetOwner().FindChildByName("Muzzle", true);
+            WGameObject@ muzzleObj = GetOwner().FindChildByName("Muzzle", true);
             if (@muzzleObj != null)
             {
-                ezParticleComponent@ particleComp;
+                WParticleComponent@ particleComp;
                 if (muzzleObj.TryGetComponentOfBaseType(@particleComp))
                 {
                     particleComp.StartEffect();
                 }
 
-                ezFmodEventComponent@ fmodComp;
+                WFmodEventComponent@ fmodComp;
                 if (muzzleObj.TryGetComponentOfBaseType(@fmodComp))
                 {
                     fmodComp.StartOneShot();
                 }
             }
 
-            ezGameObject@ spawnerObj = GetOwner().FindChildByName("BulletSpawner", true);
+            WGameObject@ spawnerObj = GetOwner().FindChildByName("BulletSpawner", true);
             if (@spawnerObj != null)
             {
-                ezSpawnComponent@ spawnComp;
+                WSpawnComponent@ spawnComp;
                 if (spawnerObj.TryGetComponentOfBaseType(@spawnComp))
                 {
-                    spawnComp.TriggerManualSpawn(true, ezVec3::MakeZero());
+                    spawnComp.TriggerManualSpawn(true, WVec3::MakeZero());
                 }
             }
 
@@ -613,22 +613,22 @@ class Bot : ezAngelScriptClass
 
         if (msg.Message == "Melee-Hit")
         {
-            ezGameObject@ spawnerObj = GetOwner().FindChildByName("Melee-Damage", true);
+            WGameObject@ spawnerObj = GetOwner().FindChildByName("Melee-Damage", true);
             if (@spawnerObj != null)
             {
-                ezAreaDamageComponent@ dmgComp;
+                WAreaDamageComponent@ dmgComp;
                 if (spawnerObj.TryGetComponentOfBaseType(@dmgComp))
                 {
                     dmgComp.ApplyAreaDamage();
                 }
-                ezSound::PlaySound("{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }", GetOwner().GetGlobalPosition() + ezVec3(0, 0, 1.5), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+                WSound::PlaySound("{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }", GetOwner().GetGlobalPosition() + WVec3(0, 0, 1.5), WQuat::MakeIdentity(), 1.0f, 1.0f, false);
             }
         }
 
         if (msg.Message == "walk.foot.l" || msg.Message == "walk.foot.r" || msg.Message == "run.foot.l" || msg.Message == "run.foot.r")
         {
             auto pos = GetOwner().GetGlobalPosition();
-            ezPhysics::RaycastSurfaceInteraction(pos + ezVec3(0, 0, 0.1f), ezVec3(0, 0, -0.5f), 0, ezPhysicsShapeType::Static, "{ 0a105955-e069-4523-80ce-7b9867bde687 }", "Footstep");
+            WPhysics::RaycastSurfaceInteraction(pos + WVec3(0, 0, 0.1f), WVec3(0, 0, -0.5f), 0, WPhysicsShapeType::Static, "{ 0a105955-e069-4523-80ce-7b9867bde687 }", "Footstep");
         }
         
     }
@@ -636,15 +636,15 @@ class Bot : ezAngelScriptClass
     /////////////////////////////////////////////////////////////
     // Sensor
 
-    void OnMsgSensorDetectedObjectsChanged(ezMsgSensorDetectedObjectsChanged@ msg)
+    void OnMsgSensorDetectedObjectsChanged(WMsgSensorDetectedObjectsChanged@ msg)
     {
         _canSeePlayer = false;
         _visiblePlayer.Invalidate();
 
-        ezGameObject@ sensorObj = GetOwner().FindChildByName("FeelSensor", true);
+        WGameObject@ sensorObj = GetOwner().FindChildByName("FeelSensor", true);
         if (@sensorObj != null)
         {
-            ezSensorComponent@ sensorComp;
+            WSensorComponent@ sensorComp;
             if (sensorObj.TryGetComponentOfBaseType(@sensorComp))
             {
                 if (sensorComp.GetDetectedObjectsCount() > 0)
@@ -659,7 +659,7 @@ class Bot : ezAngelScriptClass
         @sensorObj = GetOwner().FindChildByName("VisionSensor", true);
         if (@sensorObj != null)
         {
-            ezSensorComponent@ sensorComp;
+            WSensorComponent@ sensorComp;
             if (sensorObj.TryGetComponentOfBaseType(@sensorComp))
             {
                 if (sensorComp.GetDetectedObjectsCount() > 0)

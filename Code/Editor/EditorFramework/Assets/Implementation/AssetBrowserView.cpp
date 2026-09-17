@@ -7,11 +7,11 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 
-ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
-  : ezQtItemView<QListView>(pParent)
+WQtAssetBrowserView::WQtAssetBrowserView(QWidget* pParent)
+  : WQtItemView<QListView>(pParent)
 {
   m_iIconSizePercentage = 100;
-  m_pDelegate = new ezQtIconViewDelegate(this);
+  m_pDelegate = new WQtIconViewDelegate(this);
 
   SetDialogMode(false);
 
@@ -24,7 +24,7 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   SetIconScale(m_iIconSizePercentage);
 }
 
-void ezQtAssetBrowserView::startDrag(Qt::DropActions supportedActions)
+void WQtAssetBrowserView::startDrag(Qt::DropActions supportedActions)
 {
   // overridden so that we can get rid of the preview image
 
@@ -44,7 +44,7 @@ void ezQtAssetBrowserView::startDrag(Qt::DropActions supportedActions)
   }
 }
 
-void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
+void WQtAssetBrowserView::SetDialogMode(bool bDialogMode)
 {
   m_bDialogMode = bDialogMode;
 
@@ -64,7 +64,7 @@ void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
   }
 }
 
-void ezQtAssetBrowserView::SetIconMode(bool bIconMode)
+void WQtAssetBrowserView::SetIconMode(bool bIconMode)
 {
   if (bIconMode)
   {
@@ -78,9 +78,9 @@ void ezQtAssetBrowserView::SetIconMode(bool bIconMode)
   }
 }
 
-void ezQtAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
+void WQtAssetBrowserView::SetIconScale(WInt32 iIconSizePercentage)
 {
-  m_iIconSizePercentage = ezMath::Clamp(iIconSizePercentage, 10, 100);
+  m_iIconSizePercentage = WMath::Clamp(iIconSizePercentage, 10, 100);
   m_pDelegate->SetIconScale(m_iIconSizePercentage);
 
   if (viewMode() != QListView::ViewMode::IconMode)
@@ -89,58 +89,58 @@ void ezQtAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
   setGridSize(m_pDelegate->sizeHint(QStyleOptionViewItem(), QModelIndex()));
 }
 
-ezInt32 ezQtAssetBrowserView::GetIconScale() const
+WInt32 WQtAssetBrowserView::GetIconScale() const
 {
   return m_iIconSizePercentage;
 }
 
-void ezQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* pEvent)
+void WQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* pEvent)
 {
   if (pEvent->source())
     pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* pEvent)
+void WQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* pEvent)
 {
   pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* pEvent)
+void WQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* pEvent)
 {
   pEvent->accept();
 }
 
-static void NotifyFileChanges(ezArrayPtr<ezString> files)
+static void NotifyFileChanges(WArrayPtr<WString> files)
 {
   for (const auto& file : files)
   {
-    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
+    WFileSystemModel::GetSingleton()->NotifyOfChange(file);
   }
 }
 
-void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
+void WQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
 {
   if (!pEvent->mimeData()->hasUrls())
     return;
 
   QList<QUrl> paths = pEvent->mimeData()->urls();
-  const ezString targetDirectory = indexAt(pEvent->position().toPoint()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  const WString targetDirectory = indexAt(pEvent->position().toPoint()).data(WQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   if (targetDirectory.IsEmpty())
   {
     return;
   }
 
-  ezTempHybridArray<ezString, 32> touchedFiles;
+  WTempHybridArray<WString, 32> touchedFiles;
   // make sure to notify the filesystem of files and folders that were touched
-  EZ_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
+  W_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
 
   for (auto it = paths.begin(); it != paths.end(); it++)
   {
-    ezStringBuilder src = it->path().toUtf8().constData();
+    WStringBuilder src = it->path().toUtf8().constData();
     src.TrimWordStart("/"); // remove '/' at start
     src.MakeCleanPath();
 
-    ezStringBuilder dst = targetDirectory;
+    WStringBuilder dst = targetDirectory;
     dst.MakeCleanPath();
 
     // prevent moving stuff into itself
@@ -148,16 +148,16 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
       continue;
 
     // don't allow dropping anything onto an existing file
-    if (ezOSFile::ExistsFile(dst))
+    if (WOSFile::ExistsFile(dst))
       continue;
 
     dst.AppendPath(qtToEzString(it->fileName()));
 
-    if (ezOSFile::ExistsDirectory(src))
+    if (WOSFile::ExistsDirectory(src))
     {
-      if (ezOSFile::ExistsDirectory(dst)) // ask to overwrite if target already exists
+      if (WOSFile::ExistsDirectory(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
+        const int res = WQtUiServices::MessageBoxQuestion(WFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
 
         if (res == QMessageBox::Cancel)
           return;
@@ -166,25 +166,25 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
           continue;
       }
 
-      if (ezOSFile::CopyFolder(src, dst, &touchedFiles).Failed())
+      if (WOSFile::CopyFolder(src, dst, &touchedFiles).Failed())
       {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy folder:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
+        WQtUiServices::MessageBoxWarning(WFmt("Failed to copy folder:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
         return;
       }
 
       touchedFiles.PushBack(dst);
 
-      if (ezOSFile::DeleteFolder(src).Failed())
+      if (WOSFile::DeleteFolder(src).Failed())
       {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to remove folder:\n\n'{}'\n\nAborting operation.", src));
+        WQtUiServices::MessageBoxWarning(WFmt("Failed to remove folder:\n\n'{}'\n\nAborting operation.", src));
         return;
       }
     }
-    else if (ezOSFile::ExistsFile(src))
+    else if (WOSFile::ExistsFile(src))
     {
-      if (ezOSFile::ExistsFile(dst)) // ask to overwrite if target already exists
+      if (WOSFile::ExistsFile(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
+        const int res = WQtUiServices::MessageBoxQuestion(WFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
 
         if (res == QMessageBox::Cancel)
           return;
@@ -192,29 +192,29 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
         if (res == QMessageBox::No)
           continue;
 
-        ezOSFile::DeleteFile(dst).IgnoreResult();
+        WOSFile::DeleteFile(dst).IgnoreResult();
       }
 
       touchedFiles.PushBack(src);
       touchedFiles.PushBack(dst);
 
-      if (ezOSFile::MoveFileOrDirectory(src, dst).Failed())
+      if (WOSFile::MoveFileOrDirectory(src, dst).Failed())
       {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to move file:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
+        WQtUiServices::MessageBoxWarning(WFmt("Failed to move file:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
         return;
       }
     }
   }
 }
 
-void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
+void WQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
   if (pEvent->modifiers() == Qt::CTRL)
   {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    ezInt32 iDelta = pEvent->angleDelta().y() > 0 ? 5 : -5;
+    WInt32 iDelta = pEvent->angleDelta().y() > 0 ? 5 : -5;
 #else
-    ezInt32 iDelta = pEvent->delta() > 0 ? 5 : -5;
+    WInt32 iDelta = pEvent->delta() > 0 ? 5 : -5;
 #endif
     SetIconScale(m_iIconSizePercentage + iDelta);
     Q_EMIT ViewZoomed(m_iIconSizePercentage);
@@ -224,7 +224,7 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   QListView::wheelEvent(pEvent);
 }
 
-void ezQtAssetBrowserView::mouseDoubleClickEvent(QMouseEvent* pEvent)
+void WQtAssetBrowserView::mouseDoubleClickEvent(QMouseEvent* pEvent)
 {
   if (pEvent->button() == Qt::MouseButton::BackButton)
   {
@@ -235,7 +235,7 @@ void ezQtAssetBrowserView::mouseDoubleClickEvent(QMouseEvent* pEvent)
   QListView::mouseDoubleClickEvent(pEvent);
 }
 
-void ezQtAssetBrowserView::mousePressEvent(QMouseEvent* pEvent)
+void WQtAssetBrowserView::mousePressEvent(QMouseEvent* pEvent)
 {
   if (pEvent->button() == Qt::MouseButton::BackButton)
   {
@@ -246,7 +246,7 @@ void ezQtAssetBrowserView::mousePressEvent(QMouseEvent* pEvent)
   QListView::mousePressEvent(pEvent);
 }
 
-void ezQtAssetBrowserView::mouseMoveEvent(QMouseEvent* pEvent)
+void WQtAssetBrowserView::mouseMoveEvent(QMouseEvent* pEvent)
 {
   // only allow dragging with left mouse button
   if (state() == DraggingState && !pEvent->buttons().testFlag(Qt::MouseButton::LeftButton))
@@ -257,26 +257,26 @@ void ezQtAssetBrowserView::mouseMoveEvent(QMouseEvent* pEvent)
   QListView::mouseMoveEvent(pEvent);
 }
 
-ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent)
-  : ezQtItemDelegate(pParent)
+WQtIconViewDelegate::WQtIconViewDelegate(WQtAssetBrowserView* pParent)
+  : WQtItemDelegate(pParent)
 {
   m_bDrawTransformState = true;
   m_iIconSizePercentage = 100;
   m_pView = pParent;
 }
 
-void ezQtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
+void WQtIconViewDelegate::SetIconScale(WInt32 iIconSizePercentage)
 {
   m_iIconSizePercentage = iIconSizePercentage;
 }
 
-bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool WQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
-  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-  if (!itemType.IsSet(ezAssetBrowserItemFlags::Asset))
+  const WBitflags<WAssetBrowserItemFlags> itemType = (WAssetBrowserItemFlags::Enum)index.data(WQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  if (!itemType.IsSet(WAssetBrowserItemFlags::Asset))
     return false;
 
-  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  const WUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
   if (thumbnailRect.contains(pEvent->position().toPoint()))
@@ -287,29 +287,29 @@ bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOpti
   return false;
 }
 
-bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool WQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
-  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-  if (!itemType.IsSet(ezAssetBrowserItemFlags::Asset))
+  const WBitflags<WAssetBrowserItemFlags> itemType = (WAssetBrowserItemFlags::Enum)index.data(WQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  if (!itemType.IsSet(WAssetBrowserItemFlags::Asset))
     return false;
 
-  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  const WUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
   if (thumbnailRect.contains(pEvent->position().toPoint()))
   {
-    ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    WUuid guid = index.data(WQtAssetBrowserModel::UserRoles::AssetGuid).value<WUuid>();
 
-    ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
+    WTransformStatus ret = WAssetCurator::GetSingleton()->TransformAsset(guid, WTransformFlags::TriggeredManually);
 
     if (ret.Failed())
     {
-      QString path = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
-      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, path.toUtf8().data());
+      QString path = index.data(WQtAssetBrowserModel::UserRoles::RelativePath).toString();
+      WLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, path.toUtf8().data());
     }
     else
     {
-      ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+      WAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
     }
 
     pEvent->accept();
@@ -318,42 +318,42 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOp
   return false;
 }
 
-QWidget* ezQtIconViewDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+QWidget* WQtIconViewDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  ezStringBuilder sAbsPath = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().constData();
+  WStringBuilder sAbsPath = index.data(WQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().constData();
 
   QLineEdit* editor = new QLineEdit(pParent);
-  editor->setValidator(new ezFileNameValidator(editor, sAbsPath.GetFileDirectory(), sAbsPath.GetFileNameAndExtension()));
+  editor->setValidator(new WFileNameValidator(editor, sAbsPath.GetFileDirectory(), sAbsPath.GetFileNameAndExtension()));
   return editor;
 }
 
-void ezQtIconViewDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
+void WQtIconViewDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
 {
-  QString sOldName = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+  QString sOldName = index.data(WQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
   QLineEdit* pLineEdit = qobject_cast<QLineEdit*>(pEditor);
   pModel->setData(index, pLineEdit->text());
 }
 
-void ezQtIconViewDelegate::updateEditorGeometry(QWidget* pEditor, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void WQtIconViewDelegate::updateEditorGeometry(QWidget* pEditor, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
   if (!pEditor)
     return;
 
-  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  const WUInt32 uiThumbnailSize = ThumbnailSize();
   const QRect textRect = option.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
   pEditor->setGeometry(textRect);
 }
 
-void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
+void WQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (!IsInIconMode())
   {
-    ezQtItemDelegate::paint(pPainter, opt, index);
+    WQtItemDelegate::paint(pPainter, opt, index);
     return;
   }
 
-  const ezUInt32 uiThumbnailSize = ThumbnailSize();
-  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  const WUInt32 uiThumbnailSize = ThumbnailSize();
+  const WBitflags<WAssetBrowserItemFlags> itemType = (WAssetBrowserItemFlags::Enum)index.data(WQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
 
   // Prepare painter.
   {
@@ -365,13 +365,13 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
   }
 
   // Draw assets with a background to distinguish them easily from normal files / folders.
-  if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+  if (itemType.IsAnySet(WAssetBrowserItemFlags::Asset | WAssetBrowserItemFlags::SubAsset))
   {
     QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled ? QPalette::Normal : QPalette::Disabled;
     if (cg == QPalette::Normal && !(opt.state & QStyle::State_Active))
       cg = QPalette::Inactive;
 
-    ezInt32 border = ItemSideMargin - HighlightBorderWidth;
+    WInt32 border = ItemSideMargin - HighlightBorderWidth;
     QRect assetRect = opt.rect.adjusted(border, border, -border, -border);
     pPainter->fillRect(assetRect, opt.palette.brush(cg, QPalette::AlternateBase));
   }
@@ -403,7 +403,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
     }
   }
 
-  if (itemType.IsAnySet(ezAssetBrowserItemFlags::File) && !itemType.IsAnySet(ezAssetBrowserItemFlags::Asset))
+  if (itemType.IsAnySet(WAssetBrowserItemFlags::File) && !itemType.IsAnySet(WAssetBrowserItemFlags::Asset))
   {
     // Draw thumbnail.
     {
@@ -417,17 +417,17 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
     {
       QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
       thumbnailRect.setSize(QSize(16, 16));
-      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      QIcon icon = qvariant_cast<QIcon>(index.data(WQtAssetBrowserModel::UserRoles::AssetIcon));
       icon.paint(pPainter, thumbnailRect);
     }
   }
-  else if (itemType.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
+  else if (itemType.IsAnySet(WAssetBrowserItemFlags::Folder | WAssetBrowserItemFlags::DataDirectory))
   {
     // Draw icon.
     {
       QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
       thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
-      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      QIcon icon = qvariant_cast<QIcon>(index.data(WQtAssetBrowserModel::UserRoles::AssetIcon));
       icon.paint(pPainter, thumbnailRect);
     }
   }
@@ -445,7 +445,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
     {
       QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
       thumbnailRect.setSize(QSize(16, 16));
-      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      QIcon icon = qvariant_cast<QIcon>(index.data(WQtAssetBrowserModel::UserRoles::AssetIcon));
       icon.paint(pPainter, thumbnailRect);
     }
 
@@ -455,41 +455,41 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
       QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
       thumbnailRect.setSize(QSize(16, 16));
 
-      ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
+      WAssetInfo::TransformState state = (WAssetInfo::TransformState)index.data(WQtAssetBrowserModel::UserRoles::TransformState).toInt();
 
       switch (state)
       {
-        case ezAssetInfo::TransformState::Unknown:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::Unknown:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::NeedsThumbnail:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::NeedsThumbnail:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::NeedsTransform:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::NeedsTransform:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::UpToDate:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::UpToDate:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::MissingTransformDependency:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::MissingTransformDependency:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::MissingPackageDependency:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::MissingPackageDependency:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::MissingThumbnailDependency:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::MissingThumbnailDependency:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::CircularDependency:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::CircularDependency:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::TransformError:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::TransformError:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::NeedsImport:
-          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport.svg").paint(pPainter, thumbnailRect);
+        case WAssetInfo::TransformState::NeedsImport:
+          WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport.svg").paint(pPainter, thumbnailRect);
           break;
-        case ezAssetInfo::TransformState::COUNT:
+        case WAssetInfo::TransformState::COUNT:
           break;
       }
     }
@@ -508,7 +508,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
   pPainter->restore();
 }
 
-QSize ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
+QSize WQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (IsInIconMode())
   {
@@ -516,38 +516,38 @@ QSize ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QMod
   }
   else
   {
-    return ezQtItemDelegate::sizeHint(opt, index);
+    return WQtItemDelegate::sizeHint(opt, index);
   }
 }
 
-QSize ezQtIconViewDelegate::ItemSize() const
+QSize WQtIconViewDelegate::ItemSize() const
 {
   QFont font = GetFont();
   QFontMetrics fm(font);
 
-  ezUInt32 iThumbnail = ThumbnailSize();
-  const ezUInt32 iItemWidth = iThumbnail + 2 * ItemSideMargin;
-  const ezUInt32 iItemHeight = iThumbnail + 2 * (ItemSideMargin + fm.height() + TextSpacing);
+  WUInt32 iThumbnail = ThumbnailSize();
+  const WUInt32 iItemWidth = iThumbnail + 2 * ItemSideMargin;
+  const WUInt32 iItemHeight = iThumbnail + 2 * (ItemSideMargin + fm.height() + TextSpacing);
 
   return QSize(iItemWidth, iItemHeight);
 }
 
-QFont ezQtIconViewDelegate::GetFont() const
+QFont WQtIconViewDelegate::GetFont() const
 {
   QFont font = QApplication::font();
 
-  float fScaleFactor = ezMath::Clamp((1.0f + (m_iIconSizePercentage / 100.0f)) * 0.75f, 0.75f, 1.25f);
+  float fScaleFactor = WMath::Clamp((1.0f + (m_iIconSizePercentage / 100.0f)) * 0.75f, 0.75f, 1.25f);
 
   font.setPointSizeF(font.pointSizeF() * fScaleFactor);
   return font;
 }
 
-ezUInt32 ezQtIconViewDelegate::ThumbnailSize() const
+WUInt32 WQtIconViewDelegate::ThumbnailSize() const
 {
-  return static_cast<ezUInt32>((float)MaxSize * (float)m_iIconSizePercentage / 100.0f);
+  return static_cast<WUInt32>((float)MaxSize * (float)m_iIconSizePercentage / 100.0f);
 }
 
-bool ezQtIconViewDelegate::IsInIconMode() const
+bool WQtIconViewDelegate::IsInIconMode() const
 {
   return m_pView->viewMode() == QListView::ViewMode::IconMode;
 }

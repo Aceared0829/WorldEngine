@@ -4,10 +4,10 @@
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 
-namespace ezBakingInternal
+namespace WBakingInternal
 {
   struct Volume
   {
-    ezSimdMat4f m_GlobalToLocalTransform;
+    WSimdMat4f m_GlobalToLocalTransform;
   };
-} // namespace ezBakingInternal
+} // namespace WBakingInternal

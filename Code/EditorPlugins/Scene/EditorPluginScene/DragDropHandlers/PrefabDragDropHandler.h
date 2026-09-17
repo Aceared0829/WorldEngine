@@ -2,15 +2,15 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-class ezPrefabComponentDragDropHandler : public ezComponentDragDropHandler
+class WPrefabComponentDragDropHandler : public WComponentDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabComponentDragDropHandler, ezComponentDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WPrefabComponentDragDropHandler, WComponentDragDropHandler);
 
 protected:
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
-  virtual void OnDragUpdate(const ezDragDropInfo* pInfo) override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
+  virtual void OnDragUpdate(const WDragDropInfo* pInfo) override;
 
 private:
-  void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent, ezInt32 iInsertChildIndex);
+  void CreatePrefab(const WVec3& vPosition, const WUuid& AssetGuid, WUuid parent, WInt32 iInsertChildIndex);
 };

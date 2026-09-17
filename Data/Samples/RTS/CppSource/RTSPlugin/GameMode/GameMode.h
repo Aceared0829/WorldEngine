@@ -1,21 +1,21 @@
 #pragma once
 
-class ezWorld;
-class ezCamera;
+class WWorld;
+class WCamera;
 class RTSGameState;
-class ezRmlUiContext;
+class WRmlUiContext;
 
 struct RtsMouseInputState
 {
-  ezVec2U32 m_MousePos;
-  ezVec2U32 m_MousePosLeftClick;
-  ezVec2U32 m_MousePosRightClick;
-  ezKeyState::Enum m_LeftClickState;
-  ezKeyState::Enum m_RightClickState;
+  WVec2U32 m_MousePos;
+  WVec2U32 m_MousePosLeftClick;
+  WVec2U32 m_MousePosRightClick;
+  WKeyState::Enum m_LeftClickState;
+  WKeyState::Enum m_RightClickState;
   bool m_bLeftMouseMoved = false;
   bool m_bRightMouseMoved = false;
 
-  static bool HasMouseMoved(ezVec2U32 vStart, ezVec2U32 vNow);
+  static bool HasMouseMoved(WVec2U32 vStart, WVec2U32 vNow);
 };
 
 class RtsGameMode
@@ -24,7 +24,7 @@ public:
   RtsGameMode();
   virtual ~RtsGameMode();
 
-  void ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera);
+  void ActivateMode(WWorld* pMainWorld, WViewHandle hView, WCamera* pMainCamera);
   void DeactivateMode();
   void ProcessInput(const RtsMouseInputState& mouseInput);
   void BeforeWorldUpdate();
@@ -42,8 +42,8 @@ protected:
   virtual void OnBeforeWorldUpdate() {}
 
   RTSGameState* m_pGameState = nullptr;
-  ezWorld* m_pMainWorld = nullptr;
-  ezViewHandle m_hMainView;
+  WWorld* m_pMainWorld = nullptr;
+  WViewHandle m_hMainView;
 
 private:
   bool m_bFirstActivation = true;
@@ -53,16 +53,16 @@ private:
 protected:
   void DoDefaultCameraInput(const RtsMouseInputState& MouseInput);
 
-  ezCamera* m_pMainCamera = nullptr;
+  WCamera* m_pMainCamera = nullptr;
 
   //////////////////////////////////////////////////////////////////////////
   // User Interface
 public:
-  static ezColor GetTeamColor(ezUInt16 uiTeam);
-  static ezRmlUiContext* SetUiActive(ezWorld* pWorld, ezTempHashedString sName, bool bActive);
+  static WColor GetTeamColor(WUInt16 uiTeam);
+  static WRmlUiContext* SetUiActive(WWorld* pWorld, WTempHashedString sName, bool bActive);
 
 protected:
   void SetupSelectModeUI();
 
-  ezComponentHandle m_hSelectModeUIComponent;
+  WComponentHandle m_hSelectModeUIComponent;
 };

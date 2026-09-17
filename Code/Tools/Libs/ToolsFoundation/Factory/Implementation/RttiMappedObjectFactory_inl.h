@@ -1,15 +1,15 @@
 
 
 template <typename Object>
-ezRttiMappedObjectFactory<Object>::ezRttiMappedObjectFactory() = default;
+WRttiMappedObjectFactory<Object>::WRttiMappedObjectFactory() = default;
 
 template <typename Object>
-ezRttiMappedObjectFactory<Object>::~ezRttiMappedObjectFactory() = default;
+WRttiMappedObjectFactory<Object>::~WRttiMappedObjectFactory() = default;
 
 template <typename Object>
-void ezRttiMappedObjectFactory<Object>::RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator)
+void WRttiMappedObjectFactory<Object>::RegisterCreator(const WRTTI* pType, CreateObjectFunc creator)
 {
-  EZ_ASSERT_DEV(!m_Creators.Contains(pType), "Type already registered.");
+  W_ASSERT_DEV(!m_Creators.Contains(pType), "Type already registered.");
 
   m_Creators.Insert(pType, creator);
   Event e;
@@ -19,9 +19,9 @@ void ezRttiMappedObjectFactory<Object>::RegisterCreator(const ezRTTI* pType, Cre
 }
 
 template <typename Object>
-void ezRttiMappedObjectFactory<Object>::UnregisterCreator(const ezRTTI* pType)
+void WRttiMappedObjectFactory<Object>::UnregisterCreator(const WRTTI* pType)
 {
-  EZ_ASSERT_DEV(m_Creators.Contains(pType), "Type was never registered.");
+  W_ASSERT_DEV(m_Creators.Contains(pType), "Type was never registered.");
   m_Creators.Remove(pType);
 
   Event e;
@@ -31,7 +31,7 @@ void ezRttiMappedObjectFactory<Object>::UnregisterCreator(const ezRTTI* pType)
 }
 
 template <typename Object>
-Object* ezRttiMappedObjectFactory<Object>::CreateObject(const ezRTTI* pType)
+Object* WRttiMappedObjectFactory<Object>::CreateObject(const WRTTI* pType)
 {
   CreateObjectFunc* creator = nullptr;
   while (pType != nullptr)

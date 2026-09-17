@@ -3,14 +3,14 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezOpenDdlReaderElement;
+class WOpenDdlReaderElement;
 
 /// High-level serialization interface for reflected objects using DDL and binary formats.
 ///
 /// This class provides convenient functions for serializing/deserializing individual objects or their
-/// properties using ezEngine's reflection system. It supports both DDL (Data Definition Language) and
+/// properties using WorldEngine's reflection system. It supports both DDL (Data Definition Language) and
 /// binary formats with the same interface.
-class EZ_FOUNDATION_DLL ezReflectionSerializer
+class W_FOUNDATION_DLL WReflectionSerializer
 {
 public:
   /// Writes all property values of the reflected object to stream in DDL format.
@@ -24,14 +24,14 @@ public:
   ///
   /// Use ReadObjectPropertiesFromDDL() to restore properties into an existing object,
   /// or ReadObjectFromDDL() to create a new object and restore its properties.
-  static void WriteObjectToDDL(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
-    ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
+  static void WriteObjectToDDL(WStreamWriter& inout_stream, const WRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
+    WOpenDdlWriter::TypeStringMode typeMode = WOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
   /// Overload of WriteObjectToDDL that takes an existing DDL writer to output to.
-  static void WriteObjectToDDL(ezOpenDdlWriter& ref_ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid = ezUuid()); // [tested]
+  static void WriteObjectToDDL(WOpenDdlWriter& ref_ddl, const WRTTI* pRtti, const void* pObject, WUuid guid = WUuid()); // [tested]
 
   /// Same as WriteObjectToDDL but binary.
-  static void WriteObjectToBinary(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject); // [tested]
+  static void WriteObjectToBinary(WStreamWriter& inout_stream, const WRTTI* pRtti, const void* pObject); // [tested]
 
   /// Reads DDL data from stream and creates a new reflected object with restored properties.
   ///
@@ -42,12 +42,12 @@ public:
   ///
   /// \param ref_pRtti Outputs the RTTI type of the created object
   /// \return Pointer to the newly created object, or nullptr on failure
-  static void* ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti);               // [tested]
+  static void* ReadObjectFromDDL(WStreamReader& inout_stream, const WRTTI*& ref_pRtti);               // [tested]
 
-  static void* ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& ref_pRtti); // [tested]
+  static void* ReadObjectFromDDL(const WOpenDdlReaderElement* pRootElement, const WRTTI*& ref_pRtti); // [tested]
 
   /// Same as ReadObjectFromDDL but binary.
-  static void* ReadObjectFromBinary(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti); // [tested]
+  static void* ReadObjectFromBinary(WStreamReader& inout_stream, const WRTTI*& ref_pRtti); // [tested]
 
   /// Reads DDL data and applies property values to an existing object.
   ///
@@ -59,30 +59,30 @@ public:
   ///
   /// The object should ideally be of the same type that was serialized, but type mismatches are
   /// handled gracefully - compatible properties will be restored, incompatible ones ignored.
-  static void ReadObjectPropertiesFromDDL(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject); // [tested]
+  static void ReadObjectPropertiesFromDDL(WStreamReader& inout_stream, const WRTTI& rtti, void* pObject); // [tested]
 
   /// Same as ReadObjectPropertiesFromDDL but binary.
-  static void ReadObjectPropertiesFromBinary(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject); // [tested]
+  static void ReadObjectPropertiesFromBinary(WStreamReader& inout_stream, const WRTTI& rtti, void* pObject); // [tested]
 
   /// Clones pObject of type pType and returns it.
   ///
-  /// In case a class derived from ezReflectedClass is passed in the correct derived type
+  /// In case a class derived from WReflectedClass is passed in the correct derived type
   /// will automatically be determined so it is not necessary to put the exact type into pType,
   /// any derived class type will do.
-  static void* Clone(const void* pObject, const ezRTTI* pType); // [tested]
+  static void* Clone(const void* pObject, const WRTTI* pType); // [tested]
 
   /// Clones pObject of type pType into the already existing pClone.
   ///
-  /// In case a class derived from ezReflectedClass is passed in the correct derived type
+  /// In case a class derived from WReflectedClass is passed in the correct derived type
   /// will automatically be determined so it is not necessary to put the exact type into pType,
   /// any derived class type will do. However, the function will assert if pObject and pClone
   /// actually have a different type.
-  static void Clone(const void* pObject, void* pClone, const ezRTTI* pType); // [tested]
+  static void Clone(const void* pObject, void* pClone, const WRTTI* pType); // [tested]
 
   /// Templated convenience function that calls Clone and automatically deduces the type.
   template <typename T>
   static T* Clone(const T* pObject)
   {
-    return static_cast<T*>(Clone(pObject, ezGetStaticRTTI<T>()));
+    return static_cast<T*>(Clone(pObject, WGetStaticRTTI<T>()));
   }
 };

@@ -3,15 +3,15 @@
 #include <Foundation/SimdMath/SimdSwizzle.h>
 #include <Foundation/SimdMath/SimdTypes.h>
 
-class EZ_FOUNDATION_DLL ezSimdVec4b
+class W_FOUNDATION_DLL WSimdVec4b
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezSimdVec4b();                               // [tested]
-  ezSimdVec4b(bool b);                         // [tested]
-  ezSimdVec4b(bool x, bool y, bool z, bool w); // [tested]
-  ezSimdVec4b(ezInternal::QuadBool b);         // [tested]
+  WSimdVec4b();                               // [tested]
+  WSimdVec4b(bool b);                         // [tested]
+  WSimdVec4b(bool x, bool y, bool z, bool w); // [tested]
+  WSimdVec4b(WInternal::QuadBool b);         // [tested]
 
 public:
   template <int N>
@@ -22,16 +22,16 @@ public:
   bool z() const;                                                                                          // [tested]
   bool w() const;                                                                                          // [tested]
 
-  template <ezSwizzle::Enum s>
-  ezSimdVec4b Get() const;                                                                                 // [tested]
+  template <WSwizzle::Enum s>
+  WSimdVec4b Get() const;                                                                                 // [tested]
 
 public:
-  ezSimdVec4b operator&&(const ezSimdVec4b& rhs) const;                                                    // [tested]
-  ezSimdVec4b operator||(const ezSimdVec4b& rhs) const;                                                    // [tested]
-  ezSimdVec4b operator!() const;                                                                           // [tested]
+  WSimdVec4b operator&&(const WSimdVec4b& rhs) const;                                                    // [tested]
+  WSimdVec4b operator||(const WSimdVec4b& rhs) const;                                                    // [tested]
+  WSimdVec4b operator!() const;                                                                           // [tested]
 
-  ezSimdVec4b operator==(const ezSimdVec4b& rhs) const;                                                    // [tested]
-  ezSimdVec4b operator!=(const ezSimdVec4b& rhs) const;                                                    // [tested]
+  WSimdVec4b operator==(const WSimdVec4b& rhs) const;                                                    // [tested]
+  WSimdVec4b operator!=(const WSimdVec4b& rhs) const;                                                    // [tested]
 
   template <int N = 4>
   bool AllSet() const;                                                                                     // [tested]
@@ -42,17 +42,17 @@ public:
   template <int N = 4>
   bool NoneSet() const;                                                                                    // [tested]
 
-  static ezSimdVec4b Select(const ezSimdVec4b& vCmp, const ezSimdVec4b& vTrue, const ezSimdVec4b& vFalse); // [tested]
+  static WSimdVec4b Select(const WSimdVec4b& vCmp, const WSimdVec4b& vTrue, const WSimdVec4b& vFalse); // [tested]
 
 public:
-  ezInternal::QuadBool m_v;
+  WInternal::QuadBool m_v;
 };
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
 #  include <Foundation/SimdMath/Implementation/SSE/SSEVec4b_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUVec4b_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_NEON
 #  include <Foundation/SimdMath/Implementation/NEON/NEONVec4b_inl.h>
 #else
 #  error "Unknown SIMD implementation."

@@ -4,30 +4,30 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezDocument;
+class WDocument;
 
-class ezEditorTestGenerateCompile : public ezEditorTest
+class WEditorTestGenerateCompile : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
 protected:
-  ezStatus PrepareCompile(ezStringBuilder& dllPath);
+  WStatus PrepareCompile(WStringBuilder& dllPath);
 
-  ezStatus GenerateAndCompile();
-  ezStatus EditorProcessorCompileOnly();
-  ezStatus EditorProcessorCompileAndTransform();
+  WStatus GenerateAndCompile();
+  WStatus EditorProcessorCompileOnly();
+  WStatus EditorProcessorCompileAndTransform();
 
-  ezString m_sProjectName;
-  ezDocument* m_pDocument = nullptr;
+  WString m_sProjectName;
+  WDocument* m_pDocument = nullptr;
 };
 
-class ezEditorTestGenerateCompilePacMan : public ezEditorTestGenerateCompile
+class WEditorTestGenerateCompilePacMan : public WEditorTestGenerateCompile
 {
 public:
-  using SUPER = ezEditorTestGenerateCompile;
+  using SUPER = WEditorTestGenerateCompile;
 
-  ezEditorTestGenerateCompilePacMan()
+  WEditorTestGenerateCompilePacMan()
   {
     m_sProjectName = "PacMan";
   }
@@ -36,12 +36,12 @@ public:
 
 private:
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
   enum SubTests
   {

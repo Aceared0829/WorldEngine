@@ -3,9 +3,9 @@
 #include <Foundation/Strings/StringView.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezStringBuilder;
+class WStringBuilder;
 
-namespace ezStringAlgorithms
+namespace WStringAlgorithms
 {
   /// Computes an ordered name for an item inserted between sLeft and sRight.
   ///
@@ -18,5 +18,5 @@ namespace ezStringAlgorithms
   /// Either neighbor may be empty: an empty sLeft means prepend (goes one below sRight's
   /// root integer, potentially negative), an empty sRight means append (goes one above
   /// sLeft's root integer).
-  EZ_TOOLSFOUNDATION_DLL void ComputeNameBetween(ezStringView sLeft, ezStringView sRight, ezStringBuilder& ref_sName);
-} // namespace ezStringAlgorithms
+  W_TOOLSFOUNDATION_DLL void ComputeNameBetween(WStringView sLeft, WStringView sRight, WStringBuilder& ref_sName);
+} // namespace WStringAlgorithms

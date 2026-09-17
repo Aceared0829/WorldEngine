@@ -3,41 +3,41 @@
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 /// Initializer that spawns particles in a box volume
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_BoxPosition final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_BoxPosition final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_BoxPosition, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_BoxPosition, WParticleInitializerFactory);
 
 public:
-  ezParticleInitializerFactory_BoxPosition();
+  WParticleInitializerFactory_BoxPosition();
 
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
-  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual float GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
 public:
-  ezVec3 m_vPositionOffset;    ///< Center of the spawn box
-  ezVec3 m_vSize;              ///< Size of the spawn box (full size, not half extents)
-  ezString m_sScaleXParameter; ///< Optional parameter name to scale box width
-  ezString m_sScaleYParameter; ///< Optional parameter name to scale box depth
-  ezString m_sScaleZParameter; ///< Optional parameter name to scale box height
+  WVec3 m_vPositionOffset;    ///< Center of the spawn box
+  WVec3 m_vSize;              ///< Size of the spawn box (full size, not half extents)
+  WString m_sScaleXParameter; ///< Optional parameter name to scale box width
+  WString m_sScaleYParameter; ///< Optional parameter name to scale box depth
+  WString m_sScaleZParameter; ///< Optional parameter name to scale box height
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_BoxPosition final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_BoxPosition, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_BoxPosition, WParticleInitializer);
 
 public:
-  ezVec3 m_vPositionOffset;
-  ezVec3 m_vSize;
+  WVec3 m_vPositionOffset;
+  WVec3 m_vSize;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
+  WProcessingStream* m_pStreamPosition;
 };

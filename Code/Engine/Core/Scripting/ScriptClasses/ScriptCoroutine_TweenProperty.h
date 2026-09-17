@@ -9,22 +9,22 @@
 /// Provides smooth interpolation between the current and target property values
 /// using configurable easing curves. Supports any property type that can be
 /// represented as a variant and interpolated.
-class EZ_CORE_DLL ezScriptCoroutine_TweenProperty : public ezTypedScriptCoroutine<ezScriptCoroutine_TweenProperty, ezComponentHandle, ezStringView, ezVariant, ezTime, ezEnum<ezCurveFunction>>
+class W_CORE_DLL WScriptCoroutine_TweenProperty : public WTypedScriptCoroutine<WScriptCoroutine_TweenProperty, WComponentHandle, WStringView, WVariant, WTime, WEnum<WCurveFunction>>
 {
 public:
   /// Initiates the property animation to the specified target value.
-  void Start(ezComponentHandle hComponent, ezStringView sPropertyName, ezVariant targetValue, ezTime duration, ezEnum<ezCurveFunction> easing);
-  virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
+  void Start(WComponentHandle hComponent, WStringView sPropertyName, WVariant targetValue, WTime duration, WEnum<WCurveFunction> easing);
+  virtual Result Update(WTime deltaTimeSinceLastUpdate) override;
 
 private:
-  const ezAbstractMemberProperty* m_pProperty = nullptr;
-  ezComponentHandle m_hComponent;
-  ezVariant m_SourceValue;
-  ezVariant m_TargetValue;
-  ezEnum<ezCurveFunction> m_Easing;
+  const WAbstractMemberProperty* m_pProperty = nullptr;
+  WComponentHandle m_hComponent;
+  WVariant m_SourceValue;
+  WVariant m_TargetValue;
+  WEnum<WCurveFunction> m_Easing;
 
-  ezTime m_Duration;
-  ezTime m_TimePassed;
+  WTime m_Duration;
+  WTime m_TimePassed;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutine_TweenProperty);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptCoroutine_TweenProperty);

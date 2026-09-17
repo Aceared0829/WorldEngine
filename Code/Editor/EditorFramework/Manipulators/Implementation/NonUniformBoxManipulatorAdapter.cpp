@@ -5,43 +5,43 @@
 #include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() = default;
-ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter() = default;
+WNonUniformBoxManipulatorAdapter::WNonUniformBoxManipulatorAdapter() = default;
+WNonUniformBoxManipulatorAdapter::~WNonUniformBoxManipulatorAdapter() = default;
 
-void ezNonUniformBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEngine& out_gridSettings)
+void WNonUniformBoxManipulatorAdapter::QueryGridSettings(WGridSettingsMsgToEngine& out_gridSettings)
 {
   out_gridSettings.m_vGridCenter = m_Gizmo.GetTransformation().m_vPosition;
 
   // if density != 0, it is enabled at least in ortho mode
-  out_gridSettings.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+  out_gridSettings.m_fGridDensity = WSnapProvider::GetTranslationSnapValue();
 
   // to be active in perspective mode, tangents have to be non-zero
   out_gridSettings.m_vGridTangent1.SetZero();
   out_gridSettings.m_vGridTangent2.SetZero();
 }
 
-void ezNonUniformBoxManipulatorAdapter::Finalize()
+void WNonUniformBoxManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
 
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform());
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
-  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezNonUniformBoxManipulatorAdapter::GizmoEventHandler, this));
+  m_Gizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WNonUniformBoxManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezNonUniformBoxManipulatorAdapter::Update()
+void WNonUniformBoxManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezNonUniformBoxManipulatorAttribute* pAttr = static_cast<const ezNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WNonUniformBoxManipulatorAttribute* pAttr = static_cast<const WNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (pAttr->HasSixAxis())
   {
@@ -52,7 +52,7 @@ void ezNonUniformBoxManipulatorAdapter::Update()
     const float fNegZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetNegZProperty()));
     const float fPosZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetPosZProperty()));
 
-    m_Gizmo.SetSize(ezVec3(fNegX, fNegY, fNegZ), ezVec3(fPosX, fPosY, fPosZ));
+    m_Gizmo.SetSize(WVec3(fNegX, fNegY, fNegZ), WVec3(fPosX, fPosY, fPosZ));
   }
   else
   {
@@ -60,34 +60,34 @@ void ezNonUniformBoxManipulatorAdapter::Update()
     const float fSizeY = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeYProperty()));
     const float fSizeZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeZProperty()));
 
-    m_Gizmo.SetSize(ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, true);
+    m_Gizmo.SetSize(WVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, WVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, true);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
-void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void WNonUniformBoxManipulatorAdapter::GizmoEventHandler(const WGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      const ezNonUniformBoxManipulatorAttribute* pAttr = static_cast<const ezNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
+      const WNonUniformBoxManipulatorAttribute* pAttr = static_cast<const WNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
-      const ezVec3 neg = m_Gizmo.GetNegSize();
-      const ezVec3 pos = m_Gizmo.GetPosSize();
+      const WVec3 neg = m_Gizmo.GetNegSize();
+      const WVec3 pos = m_Gizmo.GetPosSize();
 
       if (pAttr->HasSixAxis())
       {
@@ -103,7 +103,7 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
-void ezNonUniformBoxManipulatorAdapter::UpdateGizmoTransform()
+void WNonUniformBoxManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }

@@ -12,26 +12,26 @@ class PrintInterface
 public:
   virtual ~PrintInterface() = default;
 
-  virtual void Print(const ezFormatString& text) = 0;
+  virtual void Print(const WFormatString& text) = 0;
 };
 // END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: singleton-impl-declaration
-/// Implementation of the PrintInterface, just forwards the text to ezLog::Info()
+/// Implementation of the PrintInterface, just forwards the text to WLog::Info()
 ///
 /// This would typically be in a different plugin than the interface and would be allocated by that plugin on startup.
 class PrintImplementation : public PrintInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(PrintImplementation, PrintInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(PrintImplementation, PrintInterface);
 
 public:
   PrintImplementation();
 
-  virtual void Print(const ezFormatString& text) override;
+  virtual void Print(const WFormatString& text) override;
 
 private:
   // needed for the startup system to be able to call the private function below
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(SampleGamePluginStartupGroup, SampleGamePluginMainStartup);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(SampleGamePluginStartupGroup, SampleGamePluginMainStartup);
 
   void OnCoreSystemsStartup()
   {

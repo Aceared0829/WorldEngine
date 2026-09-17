@@ -2,17 +2,17 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
-class EZ_CORE_DLL ezInputDeviceMouseKeyboard_NoImpl : public ezInputDeviceMouseKeyboard
+class W_CORE_DLL WInputDeviceMouseKeyboard_NoImpl : public WInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_NoImpl, ezInputDeviceMouseKeyboard);
+  W_ADD_DYNAMIC_REFLECTION(WInputDeviceMouseKeyboard_NoImpl, WInputDeviceMouseKeyboard);
 
 public:
-  ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber);
-  ~ezInputDeviceMouseKeyboard_NoImpl();
+  WInputDeviceMouseKeyboard_NoImpl(WUInt32 uiWindowNumber);
+  ~WInputDeviceMouseKeyboard_NoImpl();
 
 private:
   virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
-  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+  virtual void ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode) override;
 
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;

@@ -1,12 +1,12 @@
 
-bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp)
+bool WDefaultAssertHandler_Platform(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp)
 {
-  EZ_IGNORE_UNUSED(szSourceFile);
-  EZ_IGNORE_UNUSED(uiLine);
-  EZ_IGNORE_UNUSED(szFunction);
-  EZ_IGNORE_UNUSED(szExpression);
-  EZ_IGNORE_UNUSED(szAssertMsg);
-  EZ_IGNORE_UNUSED(szTemp);
+  W_IGNORE_UNUSED(szSourceFile);
+  W_IGNORE_UNUSED(uiLine);
+  W_IGNORE_UNUSED(szFunction);
+  W_IGNORE_UNUSED(szExpression);
+  W_IGNORE_UNUSED(szAssertMsg);
+  W_IGNORE_UNUSED(szTemp);
 
   // always do a debug-break
   // in release-builds this will just crash the app

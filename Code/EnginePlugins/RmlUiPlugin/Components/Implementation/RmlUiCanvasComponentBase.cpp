@@ -10,42 +10,42 @@
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, 2)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WRmlUiCanvasComponentBase, 2)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards),
-    EZ_ACCESSOR_PROPERTY("SendEventMessage", GetSendEventMessage, SetSendEventMessage),
-    EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Rml_UI"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards),
+    W_ACCESSOR_PROPERTY("SendEventMessage", GetSendEventMessage, SetSendEventMessage),
+    W_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgRmlUiReload, OnMsgReload)
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgRmlUiReload, OnMsgReload)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Input/RmlUi"),
+    new WCategoryAttribute("Input/RmlUi"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-static ezAtomicInteger32 s_RmlContextIdCounter;
+static WAtomicInteger32 s_RmlContextIdCounter;
 
-ezRmlUiCanvasComponentBase::ezRmlUiCanvasComponentBase() = default;
-ezRmlUiCanvasComponentBase::~ezRmlUiCanvasComponentBase() = default;
-ezRmlUiCanvasComponentBase& ezRmlUiCanvasComponentBase::operator=(ezRmlUiCanvasComponentBase&& rhs) = default;
+WRmlUiCanvasComponentBase::WRmlUiCanvasComponentBase() = default;
+WRmlUiCanvasComponentBase::~WRmlUiCanvasComponentBase() = default;
+WRmlUiCanvasComponentBase& WRmlUiCanvasComponentBase::operator=(WRmlUiCanvasComponentBase&& rhs) = default;
 
-void ezRmlUiCanvasComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
+void WRmlUiCanvasComponentBase::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s << m_bAutobindBlackboards;
@@ -53,11 +53,11 @@ void ezRmlUiCanvasComponentBase::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_bOnDemandUpdate;
 }
 
-void ezRmlUiCanvasComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
+void WRmlUiCanvasComponentBase::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s >> m_bAutobindBlackboards;
@@ -70,40 +70,40 @@ void ezRmlUiCanvasComponentBase::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_bOnDemandUpdate;
 }
 
-void ezRmlUiCanvasComponentBase::Initialize()
+void WRmlUiCanvasComponentBase::Initialize()
 {
   SUPER::Initialize();
 
   UpdateAutobinding();
 }
 
-void ezRmlUiCanvasComponentBase::Deinitialize()
+void WRmlUiCanvasComponentBase::Deinitialize()
 {
   SUPER::Deinitialize();
 
   if (m_pContext != nullptr)
   {
-    ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
+    WRmlUi::GetSingleton()->DeleteContext(m_pContext);
     m_pContext = nullptr;
   }
 
   m_DataBindings.Clear();
 }
 
-void ezRmlUiCanvasComponentBase::OnDeactivated()
+void WRmlUiCanvasComponentBase::OnDeactivated()
 {
   m_pContext->HideDocument();
 
   SUPER::OnDeactivated();
 }
 
-void ezRmlUiCanvasComponentBase::Update()
+void WRmlUiCanvasComponentBase::Update()
 {
   if (m_pContext == nullptr)
     return;
 
-  const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
-  m_bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
+  const WTime tDiff = WClock::GetGlobalClock()->GetTimeDiff();
+  m_bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < WMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -121,7 +121,7 @@ void ezRmlUiCanvasComponentBase::Update()
   }
 }
 
-bool ezRmlUiCanvasComponentBase::ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input)
+bool WRmlUiCanvasComponentBase::ReceiveInput(const WVec2& vMousePosInsideCanvas, WRmlUiInputSnapshot input)
 {
   if (m_pContext == nullptr)
     return false;
@@ -132,7 +132,7 @@ bool ezRmlUiCanvasComponentBase::ReceiveInput(const ezVec2& vMousePosInsideCanva
   return true;
 }
 
-void ezRmlUiCanvasComponentBase::SetRmlResource(const ezRmlUiResourceHandle& hResource)
+void WRmlUiCanvasComponentBase::SetRmlResource(const WRmlUiResourceHandle& hResource)
 {
   if (m_hResource != hResource)
   {
@@ -150,7 +150,7 @@ void ezRmlUiCanvasComponentBase::SetRmlResource(const ezRmlUiResourceHandle& hRe
   }
 }
 
-void ezRmlUiCanvasComponentBase::SetAutobindBlackboards(bool bAutobind)
+void WRmlUiCanvasComponentBase::SetAutobindBlackboards(bool bAutobind)
 {
   if (m_bAutobindBlackboards != bAutobind)
   {
@@ -160,7 +160,7 @@ void ezRmlUiCanvasComponentBase::SetAutobindBlackboards(bool bAutobind)
   }
 }
 
-void ezRmlUiCanvasComponentBase::SetSendEventMessage(bool bSendEventMessage)
+void WRmlUiCanvasComponentBase::SetSendEventMessage(bool bSendEventMessage)
 {
   if (m_bSendEventMessage != bSendEventMessage)
   {
@@ -170,13 +170,13 @@ void ezRmlUiCanvasComponentBase::SetSendEventMessage(bool bSendEventMessage)
   }
 }
 
-void ezRmlUiCanvasComponentBase::SetOnDemandUpdate(bool bOnDemandUpdate)
+void WRmlUiCanvasComponentBase::SetOnDemandUpdate(bool bOnDemandUpdate)
 {
   m_bOnDemandUpdate = bOnDemandUpdate;
   m_bNeedsUpdate = true;
 }
 
-ezUInt32 ezRmlUiCanvasComponentBase::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding)
+WUInt32 WRmlUiCanvasComponentBase::AddDataBinding(WUniquePtr<WRmlUiDataBinding>&& pDataBinding)
 {
   // Document needs to be loaded again since data bindings have to be set before document load
   if (m_pContext != nullptr)
@@ -190,7 +190,7 @@ ezUInt32 ezRmlUiCanvasComponentBase::AddDataBinding(ezUniquePtr<ezRmlUiDataBindi
     }
   }
 
-  for (ezUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
   {
     if (pDataBinding == nullptr)
     {
@@ -199,12 +199,12 @@ ezUInt32 ezRmlUiCanvasComponentBase::AddDataBinding(ezUniquePtr<ezRmlUiDataBindi
     }
   }
 
-  ezUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
+  WUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
   m_DataBindings.PushBack(std::move(pDataBinding));
   return uiDataBindingIndex;
 }
 
-void ezRmlUiCanvasComponentBase::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
+void WRmlUiCanvasComponentBase::RemoveDataBinding(WUInt32 uiDataBindingIndex)
 {
   auto& pDataBinding = m_DataBindings[uiDataBindingIndex];
 
@@ -216,36 +216,36 @@ void ezRmlUiCanvasComponentBase::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
   m_DataBindings[uiDataBindingIndex] = nullptr;
 }
 
-ezUInt32 ezRmlUiCanvasComponentBase::AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
+WUInt32 WRmlUiCanvasComponentBase::AddBlackboardBinding(const WSharedPtr<WBlackboard>& pBlackboard)
 {
-  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, pBlackboard);
+  auto pDataBinding = W_DEFAULT_NEW(WRmlUiInternal::BlackboardDataBinding, pBlackboard);
   return AddDataBinding(pDataBinding);
 }
 
-void ezRmlUiCanvasComponentBase::RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex)
+void WRmlUiCanvasComponentBase::RemoveBlackboardBinding(WUInt32 uiDataBindingIndex)
 {
   RemoveDataBinding(uiDataBindingIndex);
 }
 
-ezResult ezRmlUiCanvasComponentBase::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WRmlUiCanvasComponentBase::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
+WRmlUiContext* WRmlUiCanvasComponentBase::GetOrCreateRmlContext()
 {
   if (m_pContext != nullptr)
   {
     return m_pContext;
   }
 
-  ezStringBuilder sName = "RmlUi_";
+  WStringBuilder sName = "RmlUi_";
   if (m_hResource.IsValid())
   {
-    ezResourceLock<ezRmlUiResource> pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WRmlUiResource> pResource(m_hResource, WResourceAcquireMode::BlockTillLoaded);
 
-    ezStringView sResourceID = pResource->GetResourceDescription();
+    WStringView sResourceID = pResource->GetResourceDescription();
     sName.Append(sResourceID.GetFileName());
   }
 
@@ -256,8 +256,8 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
 
   sName.AppendFormat("_{}", m_uiContextID);
 
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_vSize);
-  EZ_ASSERT_DEV(m_pContext != nullptr, "RML UI context creation failed");
+  m_pContext = WRmlUi::GetSingleton()->CreateContext(sName, m_vSize);
+  W_ASSERT_DEV(m_pContext != nullptr, "RML UI context creation failed");
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -272,7 +272,7 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
   return m_pContext;
 }
 
-void ezRmlUiCanvasComponentBase::OnMsgReload(ezMsgRmlUiReload& msg)
+void WRmlUiCanvasComponentBase::OnMsgReload(WMsgRmlUiReload& msg)
 {
   if (m_pContext != nullptr)
   {
@@ -283,35 +283,35 @@ void ezRmlUiCanvasComponentBase::OnMsgReload(ezMsgRmlUiReload& msg)
   }
 }
 
-void ezRmlUiCanvasComponentBase::UpdateCachedValues()
+void WRmlUiCanvasComponentBase::UpdateCachedValues()
 {
   m_ResourceEventUnsubscriber.Unsubscribe();
   m_vReferenceResolution.SetZero();
 
   if (m_hResource.IsValid())
   {
-    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock pResource(m_hResource, WResourceAcquireMode::BlockTillLoaded);
 
-    if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+    if (pResource->GetScaleMode() == WRmlUiScaleMode::WithScreenSize)
     {
       m_vReferenceResolution = pResource->GetReferenceResolution();
     }
 
     pResource->m_ResourceEvents.AddEventHandler(
-      [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
+      [hComponent = GetHandle(), pWorld = GetWorld()](const WResourceEvent& e)
       {
-        if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+        if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading)
         {
-          pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
+          pWorld->PostMessage(hComponent, WMsgRmlUiReload(), WTime::MakeZero());
         }
       },
       m_ResourceEventUnsubscriber);
   }
 }
 
-void ezRmlUiCanvasComponentBase::UpdateAutobinding()
+void WRmlUiCanvasComponentBase::UpdateAutobinding()
 {
-  for (ezUInt32 uiIndex : m_AutoBindings)
+  for (WUInt32 uiIndex : m_AutoBindings)
   {
     RemoveDataBinding(uiIndex);
   }
@@ -320,9 +320,9 @@ void ezRmlUiCanvasComponentBase::UpdateAutobinding()
 
   if (m_bAutobindBlackboards)
   {
-    ezTempHybridArray<ezBlackboardComponent*, 4> blackboardComponents;
+    WTempHybridArray<WBlackboardComponent*, 4> blackboardComponents;
 
-    ezGameObject* pObject = GetOwner();
+    WGameObject* pObject = GetOwner();
     while (pObject != nullptr)
     {
       pObject->TryGetComponentsOfBaseType(blackboardComponents);
@@ -339,17 +339,17 @@ void ezRmlUiCanvasComponentBase::UpdateAutobinding()
   }
 }
 
-void ezRmlUiCanvasComponentBase::UpdateEventHandler()
+void WRmlUiCanvasComponentBase::UpdateEventHandler()
 {
   if (m_pContext != nullptr)
   {
     if (m_bSendEventMessage)
     {
       m_pContext->RegisterFallbackEventHandler(
-        [hComponent = GetHandle()](const ezHashedString& sIdentifier, Rml::Event& event)
+        [hComponent = GetHandle()](const WHashedString& sIdentifier, Rml::Event& event)
         {
-          ezRmlUiCanvasComponentBase* pComponent = nullptr;
-          if (ezWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
+          WRmlUiCanvasComponentBase* pComponent = nullptr;
+          if (WWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
           {
             pComponent->EventHandler(sIdentifier, event);
           }
@@ -362,14 +362,14 @@ void ezRmlUiCanvasComponentBase::UpdateEventHandler()
   }
 }
 
-void ezRmlUiCanvasComponentBase::EventHandler(const ezHashedString& sIdentifier, Rml::Event& event)
+void WRmlUiCanvasComponentBase::EventHandler(const WHashedString& sIdentifier, Rml::Event& event)
 {
-  ezMsgRmlUiEvent msg;
+  WMsgRmlUiEvent msg;
   msg.m_sIdentifier = sIdentifier;
-  msg.m_sType.Assign(ezRmlUiConversionUtils::ToStringView(event.GetType()));
+  msg.m_sType.Assign(WRmlUiConversionUtils::ToStringView(event.GetType()));
 
   m_EventMessageSender.SendEventMessage(msg, this, GetOwner());
 }
 
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvasComponentBase);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvasComponentBase);

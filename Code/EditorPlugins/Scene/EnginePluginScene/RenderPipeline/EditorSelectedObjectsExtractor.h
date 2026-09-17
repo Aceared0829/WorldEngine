@@ -5,35 +5,35 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/Extractor.h>
 
-class ezSceneContext;
-class ezCameraComponent;
+class WSceneContext;
+class WCameraComponent;
 
-class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
+class WEditorSelectedObjectsExtractor : public WSelectedObjectsExtractorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractorBase);
+  W_ADD_DYNAMIC_REFLECTION(WEditorSelectedObjectsExtractor, WSelectedObjectsExtractorBase);
 
 public:
-  ezEditorSelectedObjectsExtractor();
-  ~ezEditorSelectedObjectsExtractor();
+  WEditorSelectedObjectsExtractor();
+  ~WEditorSelectedObjectsExtractor();
 
-  virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
+  virtual const WDeque<WGameObjectHandle>* GetSelection() override;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
-  ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
+  void SetSceneContext(WSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
+  WSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  void CreateRenderTargetTexture(const ezView& view);
-  void CreateRenderTargetView(const ezView& view);
-  void UpdateRenderTargetCamera(const ezCameraComponent* pCamComp);
+  void CreateRenderTargetTexture(const WView& view);
+  void CreateRenderTargetView(const WView& view);
+  void UpdateRenderTargetCamera(const WCameraComponent* pCamComp);
 
-  ezSceneContext* m_pSceneContext;
-  ezViewHandle m_hRenderTargetView;
-  ezRenderToTexture2DResourceHandle m_hRenderTarget;
-  ezCamera m_RenderTargetCamera;
+  WSceneContext* m_pSceneContext;
+  WViewHandle m_hRenderTargetView;
+  WRenderToTexture2DResourceHandle m_hRenderTarget;
+  WCamera m_RenderTargetCamera;
 };

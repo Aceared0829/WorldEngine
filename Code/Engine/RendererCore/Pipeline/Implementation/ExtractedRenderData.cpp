@@ -8,11 +8,11 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
-ezExtractedRenderData::ezExtractedRenderData() = default;
+WExtractedRenderData::WExtractedRenderData() = default;
 
-ezExtractedRenderData::~ezExtractedRenderData()
+WExtractedRenderData::~WExtractedRenderData()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   for (auto& dataPerCategory : m_DataPerCategory)
   {
@@ -20,20 +20,20 @@ ezExtractedRenderData::~ezExtractedRenderData()
   }
 }
 
-void ezExtractedRenderData::AddSamplerBinding(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler)
+void WExtractedRenderData::AddSamplerBinding(WTempHashedString sSlotName, WGALSamplerStateHandle hSampler)
 {
   if (hSampler.IsInvalidated())
     return;
-  ezSamplerBinding& sampler = m_SamplerBindings.ExpandAndGetRef();
+  WSamplerBinding& sampler = m_SamplerBindings.ExpandAndGetRef();
   sampler.m_sSlotName = sSlotName;
   sampler.m_Sampler.m_hSampler = hSampler;
 }
 
-void ezExtractedRenderData::AddBufferBinding(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat)
+void WExtractedRenderData::AddBufferBinding(WTempHashedString sSlotName, WGALBufferHandle hBuffer, WGALBufferRange bufferRange, WEnum<WGALResourceFormat> overrideTexelBufferFormat)
 {
   if (hBuffer.IsInvalidated())
     return;
-  ezBufferBinding& buffer = m_BufferBindings.ExpandAndGetRef();
+  WBufferBinding& buffer = m_BufferBindings.ExpandAndGetRef();
   buffer.m_sSlotName = sSlotName;
   buffer.m_Buffer.m_hBuffer = hBuffer;
   buffer.m_Buffer.m_BufferRange = bufferRange;
@@ -41,11 +41,11 @@ void ezExtractedRenderData::AddBufferBinding(ezTempHashedString sSlotName, ezGAL
 }
 
 
-void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WExtractedRenderData::AddTextureBinding(WTempHashedString sSlotName, WGALTextureHandle hTexture, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsInvalidated())
     return;
-  ezTextureBinding& texture = m_TextureBindings.ExpandAndGetRef();
+  WTextureBinding& texture = m_TextureBindings.ExpandAndGetRef();
   texture.m_sSlotName = sSlotName;
   texture.m_Texture.m_hTexture = hTexture;
   texture.m_Texture.m_TextureRange = textureRange;
@@ -53,51 +53,51 @@ void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, ezGA
   texture.m_Texture.m_OverrideViewType = overrideViewType;
 }
 
-void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WExtractedRenderData::AddTextureBinding(WTempHashedString sSlotName, const WTexture2DResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTexture2DResource> pTexture(hTexture, acquireMode);
+    WResourceLock<WTexture2DResource> pTexture(hTexture, acquireMode);
     AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
     AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
   }
 }
 
-void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WExtractedRenderData::AddTextureBinding(WTempHashedString sSlotName, const WTexture3DResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTexture3DResource> pTexture(hTexture, acquireMode);
+    WResourceLock<WTexture3DResource> pTexture(hTexture, acquireMode);
     AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
     AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
   }
 }
 
-void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WExtractedRenderData::AddTextureBinding(WTempHashedString sSlotName, const WTextureCubeResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(hTexture, acquireMode);
+    WResourceLock<WTextureCubeResource> pTexture(hTexture, acquireMode);
     AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
     AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
   }
 }
 
-void ezExtractedRenderData::SortAndBatch()
+void WExtractedRenderData::SortAndBatch()
 {
-  EZ_PROFILE_SCOPE("ezExtractedRenderData::SortAndBatch");
+  W_PROFILE_SCOPE("WExtractedRenderData::SortAndBatch");
 
-  for (ezUInt32 i = 0; i < m_DataPerCategory.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DataPerCategory.GetCount(); ++i)
   {
     auto& dataPerCategory = m_DataPerCategory[i];
     if (dataPerCategory.m_SortableRenderData.IsEmpty())
       continue;
 
-    SortAndBatchCategory(dataPerCategory, ezRenderData::Category(i));
+    SortAndBatchCategory(dataPerCategory, WRenderData::Category(i));
   }
 }
 
-void ezExtractedRenderData::Clear()
+void WExtractedRenderData::Clear()
 {
   for (auto& dataPerCategory : m_DataPerCategory)
   {
@@ -117,20 +117,20 @@ void ezExtractedRenderData::Clear()
   m_SamplerBindings.Clear();
 }
 
-ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
+WRenderDataBatchList WExtractedRenderData::GetRenderDataBatchesWithCategory(WRenderData::Category category) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
-    ezRenderDataBatchList list;
+    WRenderDataBatchList list;
     list.m_Batches = m_DataPerCategory[category.m_uiValue].m_Batches;
 
     return list;
   }
 
-  return ezRenderDataBatchList();
+  return WRenderDataBatchList();
 }
 
-ezArrayPtr<const ezRenderDataBatch::SortableRenderData> ezExtractedRenderData::GetRawRenderDataWithCategory(ezRenderData::Category category) const
+WArrayPtr<const WRenderDataBatch::SortableRenderData> WExtractedRenderData::GetRawRenderDataWithCategory(WRenderData::Category category) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
@@ -140,7 +140,7 @@ ezArrayPtr<const ezRenderDataBatch::SortableRenderData> ezExtractedRenderData::G
   return {};
 }
 
-ezArrayPtr<const ezTextureDependency> ezExtractedRenderData::GetTextureDependenciesWithCategory(ezRenderData::Category category) const
+WArrayPtr<const WTextureDependency> WExtractedRenderData::GetTextureDependenciesWithCategory(WRenderData::Category category) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
@@ -150,7 +150,7 @@ ezArrayPtr<const ezTextureDependency> ezExtractedRenderData::GetTextureDependenc
   return {};
 }
 
-ezArrayPtr<const ezBufferDependency> ezExtractedRenderData::GetBufferDependenciesWithCategory(ezRenderData::Category category) const
+WArrayPtr<const WBufferDependency> WExtractedRenderData::GetBufferDependenciesWithCategory(WRenderData::Category category) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
@@ -160,7 +160,7 @@ ezArrayPtr<const ezBufferDependency> ezExtractedRenderData::GetBufferDependencie
   return {};
 }
 
-const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) const
+const WRenderData* WExtractedRenderData::GetFrameData(const WRTTI* pRtti) const
 {
   for (auto pData : m_FrameData)
   {
@@ -173,11 +173,11 @@ const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) con
   return nullptr;
 }
 
-void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategory, ezRenderData::Category category)
+void WExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategory, WRenderData::Category category)
 {
   struct RenderDataComparer
   {
-    EZ_FORCE_INLINE bool Less(const ezRenderDataBatch::SortableRenderData& a, const ezRenderDataBatch::SortableRenderData& b) const
+    W_FORCE_INLINE bool Less(const WRenderDataBatch::SortableRenderData& a, const WRenderDataBatch::SortableRenderData& b) const
     {
       if (a.m_uiSortingKey != b.m_uiSortingKey)
       {
@@ -188,26 +188,26 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
     }
   };
 
-  EZ_PROFILE_SCOPE("SortCategory");
+  W_PROFILE_SCOPE("SortCategory");
 
   auto& data = dataPerCategory.m_SortableRenderData;
 
   // Sort
   data.Sort(RenderDataComparer());
 
-  const bool bIsStereo = m_Camera.GetCameraMode() == ezCameraMode::Stereo;
-  const ezUInt32 uiStereoCorrectionShift = bIsStereo ? 1 : 0;
+  const bool bIsStereo = m_Camera.GetCameraMode() == WCameraMode::Stereo;
+  const WUInt32 uiStereoCorrectionShift = bIsStereo ? 1 : 0;
 
-  auto FillDataOffsets = [&](const ezRenderData* pRenderData, const ezRTTI* pType)
+  auto FillDataOffsets = [&](const WRenderData* pRenderData, const WRTTI* pType)
   {
-    if (!pType->IsDerivedFrom<ezInstanceableRenderData>())
+    if (!pType->IsDerivedFrom<WInstanceableRenderData>())
       return;
 
-    auto pInstanceableRenderData = static_cast<const ezInstanceableRenderData*>(pRenderData);
+    auto pInstanceableRenderData = static_cast<const WInstanceableRenderData*>(pRenderData);
     if (pInstanceableRenderData->m_uiNumInstances > 0)
     {
       auto& dataOffsets = pInstanceableRenderData->m_DataOffsets;
-      for (ezUInt32 uiInstanceIndex = 0; uiInstanceIndex < pInstanceableRenderData->m_uiNumInstances; ++uiInstanceIndex)
+      for (WUInt32 uiInstanceIndex = 0; uiInstanceIndex < pInstanceableRenderData->m_uiNumInstances; ++uiInstanceIndex)
       {
         auto& instanceDataOffset = dataPerCategory.m_DataOffsets.ExpandAndGetRef();
         instanceDataOffset.m_uiInstance = dataOffsets.m_uiInstance + uiInstanceIndex;
@@ -225,21 +225,21 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
   };
 
   // Find batches
-  const ezRenderData* pCurrentBatchRenderData = data[0].m_pRenderData;
-  const ezRTTI* pCurrentBatchType = pCurrentBatchRenderData->GetDynamicRTTI();
-  ezUInt32 uiCurrentBatchStartIndex = 0;
-  ezUInt32 uiCurrentDataOffsetIndex = 0;
+  const WRenderData* pCurrentBatchRenderData = data[0].m_pRenderData;
+  const WRTTI* pCurrentBatchType = pCurrentBatchRenderData->GetDynamicRTTI();
+  WUInt32 uiCurrentBatchStartIndex = 0;
+  WUInt32 uiCurrentDataOffsetIndex = 0;
   FillDataOffsets(pCurrentBatchRenderData, pCurrentBatchType);
 
-  for (ezUInt32 uiRenderDataIndex = 1; uiRenderDataIndex < data.GetCount(); ++uiRenderDataIndex)
+  for (WUInt32 uiRenderDataIndex = 1; uiRenderDataIndex < data.GetCount(); ++uiRenderDataIndex)
   {
-    const ezRenderData* pRenderData = data[uiRenderDataIndex].m_pRenderData;
-    const ezRTTI* pRenderDataType = pRenderData->GetDynamicRTTI();
+    const WRenderData* pRenderData = data[uiRenderDataIndex].m_pRenderData;
+    const WRTTI* pRenderDataType = pRenderData->GetDynamicRTTI();
 
     if (pRenderDataType != pCurrentBatchType || pRenderData->CanBatch(*pCurrentBatchRenderData) == false)
     {
       auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
-      batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], uiRenderDataIndex - uiCurrentBatchStartIndex);
+      batch.m_Data = WMakeArrayPtr(&data[uiCurrentBatchStartIndex], uiRenderDataIndex - uiCurrentBatchStartIndex);
       batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
       batch.m_uiInstanceCount = (dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex) >> uiStereoCorrectionShift;
 
@@ -253,42 +253,42 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
   }
 
   auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
-  batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
+  batch.m_Data = WMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
   batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
   batch.m_uiInstanceCount = (dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex) >> uiStereoCorrectionShift;
 
   // Create or update data offsets buffer
   if (dataPerCategory.m_DataOffsets.IsEmpty() == false)
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
     if (!dataPerCategory.m_hDataOffsetsBuffer.IsInvalidated())
     {
       auto& bufferDesc = pDevice->GetBuffer(dataPerCategory.m_hDataOffsetsBuffer)->GetDescription();
-      if (bufferDesc.m_uiTotalSize < dataPerCategory.m_DataOffsets.GetCount() * sizeof(ezInstanceableRenderData::DataOffsets))
+      if (bufferDesc.m_uiTotalSize < dataPerCategory.m_DataOffsets.GetCount() * sizeof(WInstanceableRenderData::DataOffsets))
       {
         pDevice->DestroyBuffer(dataPerCategory.m_hDataOffsetsBuffer);
       }
     }
 
-    const ezUInt32 uiNumDataOffsets = ezMemoryUtils::AlignSize(dataPerCategory.m_DataOffsets.GetCount(), 64u);
+    const WUInt32 uiNumDataOffsets = WMemoryUtils::AlignSize(dataPerCategory.m_DataOffsets.GetCount(), 64u);
 
     if (dataPerCategory.m_hDataOffsetsBuffer.IsInvalidated())
     {
       dataPerCategory.m_DataOffsets.SetCount(uiNumDataOffsets); // make sure the buffer is large enough
 
-      ezGALBufferCreationDescription bufferDesc;
-      bufferDesc.m_uiStructSize = sizeof(ezInstanceableRenderData::DataOffsets);
+      WGALBufferCreationDescription bufferDesc;
+      bufferDesc.m_uiStructSize = sizeof(WInstanceableRenderData::DataOffsets);
       bufferDesc.m_uiTotalSize = uiNumDataOffsets * bufferDesc.m_uiStructSize;
-      bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+      bufferDesc.m_BufferFlags = WGALBufferUsageFlags::VertexBuffer;
       bufferDesc.m_ResourceAccess.m_bImmutable = false;
 
       dataPerCategory.m_hDataOffsetsBuffer = pDevice->CreateBuffer(bufferDesc, dataPerCategory.m_DataOffsets.GetByteArrayPtr());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      ezStringBuilder sb = m_ViewData.m_sName.GetView();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+      WStringBuilder sb = m_ViewData.m_sName.GetView();
       sb.Append(" - ");
-      sb.Append(ezRenderData::GetCategoryName(category).GetView());
+      sb.Append(WRenderData::GetCategoryName(category).GetView());
       sb.Append(" - Data Offsets");
 
       pDevice->GetBuffer(dataPerCategory.m_hDataOffsetsBuffer)->SetDebugName(sb);

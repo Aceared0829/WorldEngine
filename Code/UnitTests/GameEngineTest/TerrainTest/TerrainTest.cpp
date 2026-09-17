@@ -2,28 +2,28 @@
 
 #include "TerrainTest.h"
 
-static ezGameEngineTestTerrain s_GameEngineTestEffects;
+static WGameEngineTestTerrain s_GameEngineTestEffects;
 
-const char* ezGameEngineTestTerrain::GetTestName() const
+const char* WGameEngineTestTerrain::GetTestName() const
 {
   return "Terrain Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestTerrain::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestTerrain::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "Terrain");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "Terrain");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestTerrain::SetupSubTests()
+void WGameEngineTestTerrain::SetupSubTests()
 {
   AddSubTest("Heightfields", SubTests::HeightfieldTerrain);
   AddSubTest("Voxels", SubTests::VoxelTerrain);
 }
 
-ezResult ezGameEngineTestTerrain::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestTerrain::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -36,7 +36,7 @@ ezResult ezGameEngineTestTerrain::InitializeSubTest(ezInt32 iIdentifier)
       // due to how the system works, frame 3 is the first one that will see terrain
       m_ImgCompFrames.PushBack({3});
 
-      return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Heightfields.ezBinScene");
+      return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Heightfields.WBinScene");
     }
 
     case SubTests::VoxelTerrain:
@@ -44,35 +44,35 @@ ezResult ezGameEngineTestTerrain::InitializeSubTest(ezInt32 iIdentifier)
       // due to how the system works, frame 3 is the first one that will see terrain
       m_ImgCompFrames.PushBack({3});
 
-      return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Voxels.ezBinScene");
+      return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Voxels.WBinScene");
     }
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestTerrain::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestTerrain::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   ++m_iFrame;
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   m_pOwnApplication->SwitchToCamera(m_iFrame);
 
   if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, m_ImgCompFrames[m_uiImgCompIdx].m_uiThreshold);
+    W_TEST_IMAGE(m_uiImgCompIdx, m_ImgCompFrames[m_uiImgCompIdx].m_uiThreshold);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

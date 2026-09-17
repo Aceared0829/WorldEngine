@@ -5,21 +5,21 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezQtEditorApp::StoreEnginePluginModificationTimes()
+void WQtEditorApp::StoreEnginePluginModificationTimes()
 {
   for (auto it : m_PluginBundles.m_Plugins)
   {
-    ezPluginBundle& plugin = it.Value();
+    WPluginBundle& plugin = it.Value();
 
-    for (const ezString& rt : plugin.m_RuntimePlugins)
+    for (const WString& rt : plugin.m_RuntimePlugins)
     {
-      ezStringBuilder sPath, sCopy;
-      ezPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
+      WStringBuilder sPath, sCopy;
+      WPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
 
-      ezFileStats stats;
-      if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
+      WFileStats stats;
+      if (WOSFile::GetFileStats(sPath, stats).Succeeded())
       {
-        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, ezTimestamp::CompareMode::Newer))
+        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, WTimestamp::CompareMode::Newer))
         {
           // store the maximum (latest) modification timestamp
           plugin.m_LastModificationTime = stats.m_LastModificationTime;
@@ -29,20 +29,20 @@ void ezQtEditorApp::StoreEnginePluginModificationTimes()
   }
 }
 
-bool ezQtEditorApp::CheckForEnginePluginModifications()
+bool WQtEditorApp::CheckForEnginePluginModifications()
 {
   for (auto it : m_PluginBundles.m_Plugins)
   {
-    ezPluginBundle& plugin = it.Value();
+    WPluginBundle& plugin = it.Value();
 
     if (plugin.m_bMissing)
     {
-      DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+      DetectAvailablePluginBundles(WOSFile::GetApplicationDirectory());
 
-      ezCppSettings cppSettings;
+      WCppSettings cppSettings;
       if (cppSettings.Load().Succeeded())
       {
-        ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings));
+        WQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(WCppProject::GetPluginSourceDir(cppSettings));
       }
 
       break;
@@ -51,20 +51,20 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
 
   for (auto it : m_PluginBundles.m_Plugins)
   {
-    ezPluginBundle& plugin = it.Value();
+    WPluginBundle& plugin = it.Value();
 
     if (!plugin.m_bSelected || !plugin.m_bLoadCopy)
       continue;
 
-    for (const ezString& rt : plugin.m_RuntimePlugins)
+    for (const WString& rt : plugin.m_RuntimePlugins)
     {
-      ezStringBuilder sPath, sCopy;
-      ezPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
+      WStringBuilder sPath, sCopy;
+      WPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
 
-      ezFileStats stats;
-      if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
+      WFileStats stats;
+      if (WOSFile::GetFileStats(sPath, stats).Succeeded())
       {
-        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, ezTimestamp::CompareMode::Newer))
+        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, WTimestamp::CompareMode::Newer))
         {
           return true;
         }
@@ -75,22 +75,22 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
   return false;
 }
 
-void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
+void WQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
 {
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
     return;
 
   if (!bForce)
   {
-    if (m_LastPluginModificationCheck + ezTime::MakeFromSeconds(2) > ezTime::Now())
+    if (m_LastPluginModificationCheck + WTime::MakeFromSeconds(2) > WTime::Now())
       return;
   }
 
-  m_LastPluginModificationCheck = ezTime::Now();
+  m_LastPluginModificationCheck = WTime::Now();
 
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
+    for (auto pDoc : pMan->WDocumentManager::GetAllOpenDocuments())
     {
       if (!pDoc->CanEngineProcessBeRestarted())
       {
@@ -103,9 +103,9 @@ void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
   if (!CheckForEnginePluginModifications())
     return;
 
-  ezLog::Info("Engine plugins have changed, restarting engine process.");
+  WLog::Info("Engine plugins have changed, restarting engine process.");
 
   StoreEnginePluginModificationTimes();
-  ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
-  ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
+  WEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
+  WEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
 }

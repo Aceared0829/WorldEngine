@@ -1,11 +1,11 @@
 <RCC>
   <qresource prefix="AiPlugin">
-    <file>ezAiPlugin.svg</file>
+    <file>WAiPlugin.svg</file>
   </qresource>  
   <qresource prefix="TypeIcons">
-    <file>ezAiNavMeshPathTestComponent.svg</file>
-	<file>ezAiNavigationComponent.svg</file>
-	<file>ezNavMeshObstacleComponent.svg</file>
+    <file>WAiNavMeshPathTestComponent.svg</file>
+	<file>WAiNavigationComponent.svg</file>
+	<file>WNavMeshObstacleComponent.svg</file>
   </qresource>  
 </RCC>
 

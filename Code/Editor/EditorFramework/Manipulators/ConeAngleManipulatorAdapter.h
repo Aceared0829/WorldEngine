@@ -4,20 +4,20 @@
 #include <EditorFramework/Gizmos/ConeAngleGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezConeAngleManipulatorAdapter : public ezManipulatorAdapter
+class WConeAngleManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezConeAngleManipulatorAdapter();
-  ~ezConeAngleManipulatorAdapter();
+  WConeAngleManipulatorAdapter();
+  ~WConeAngleManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezConeAngleGizmo m_Gizmo;
+  WConeAngleGizmo m_Gizmo;
 };

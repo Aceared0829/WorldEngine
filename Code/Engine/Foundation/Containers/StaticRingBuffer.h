@@ -4,28 +4,28 @@
 
 /// A ring-buffer container that will use a static array of a given capacity to cycle through elements.
 ///
-/// If you need a dynamic ring-buffer, use an ezDeque.
-template <typename T, ezUInt32 Capacity>
-class ezStaticRingBuffer
+/// If you need a dynamic ring-buffer, use an WDeque.
+template <typename T, WUInt32 Capacity>
+class WStaticRingBuffer
 {
 public:
   static_assert(Capacity > 1, "ORLY?");
 
   /// Constructs an empty ring-buffer.
-  ezStaticRingBuffer(); // [tested]
+  WStaticRingBuffer(); // [tested]
 
   /// Copies the content from rhs into this ring-buffer.
-  ezStaticRingBuffer(const ezStaticRingBuffer<T, Capacity>& rhs); // [tested]
+  WStaticRingBuffer(const WStaticRingBuffer<T, Capacity>& rhs); // [tested]
 
   /// Destructs all remaining elements.
-  ~ezStaticRingBuffer(); // [tested]
+  ~WStaticRingBuffer(); // [tested]
 
   /// Copies the content from rhs into this ring-buffer.
-  void operator=(const ezStaticRingBuffer<T, Capacity>& rhs); // [tested]
+  void operator=(const WStaticRingBuffer<T, Capacity>& rhs); // [tested]
 
   /// Compares two ring-buffers for equality.
-  bool operator==(const ezStaticRingBuffer<T, Capacity>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezStaticRingBuffer<T, Capacity>&);
+  bool operator==(const WStaticRingBuffer<T, Capacity>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WStaticRingBuffer<T, Capacity>&);
 
   /// Appends an element at the end of the ring-buffer. Asserts that CanAppend() is true.
   void PushBack(const T& element); // [tested]
@@ -40,7 +40,7 @@ public:
   const T& PeekBack() const; // [tested]
 
   /// Removes the oldest element from the ring-buffer.
-  void PopFront(ezUInt32 uiElements = 1); // [tested]
+  void PopFront(WUInt32 uiElements = 1); // [tested]
 
   /// Accesses the oldest element in the ring-buffer.
   const T& PeekFront() const; // [tested]
@@ -49,19 +49,19 @@ public:
   T& PeekFront(); // [tested]
 
   /// Accesses the n-th element in the ring-buffer.
-  const T& operator[](ezUInt32 uiIndex) const; // [tested]
+  const T& operator[](WUInt32 uiIndex) const; // [tested]
 
   /// Accesses the n-th element in the ring-buffer.
-  T& operator[](ezUInt32 uiIndex); // [tested]
+  T& operator[](WUInt32 uiIndex); // [tested]
 
   /// Returns the number of elements that are currently in the ring-buffer.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Returns true if the ring-buffer currently contains no elements.
   bool IsEmpty() const; // [tested]
 
   /// Returns true, if the ring-buffer can store at least uiElements additional elements.
-  bool CanAppend(ezUInt32 uiElements = 1); // [tested]
+  bool CanAppend(WUInt32 uiElements = 1); // [tested]
 
   /// Destructs all elements in the ring-buffer.
   void Clear(); // [tested]
@@ -72,12 +72,12 @@ private:
   /// The fixed size array.
   struct alignas(alignof(T))
   {
-    ezUInt8 m_Data[Capacity * sizeof(T)];
+    WUInt8 m_Data[Capacity * sizeof(T)];
   };
 
   T* m_pElements;
-  ezUInt32 m_uiCount;
-  ezUInt32 m_uiFirstElement;
+  WUInt32 m_uiCount;
+  WUInt32 m_uiFirstElement;
 };
 
 #include <Foundation/Containers/Implementation/StaticRingBuffer_inl.h>

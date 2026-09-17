@@ -2,19 +2,19 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezAnimatedMeshContext;
+class WAnimatedMeshContext;
 
-class ezAnimatedMeshViewContext : public ezEngineProcessViewContext
+class WAnimatedMeshViewContext : public WEngineProcessViewContext
 {
 public:
-  ezAnimatedMeshViewContext(ezAnimatedMeshContext* pMeshContext);
-  ~ezAnimatedMeshViewContext();
+  WAnimatedMeshViewContext(WAnimatedMeshContext* pMeshContext);
+  ~WAnimatedMeshViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  ezAnimatedMeshContext* m_pContext = nullptr;
+  WAnimatedMeshContext* m_pContext = nullptr;
 };

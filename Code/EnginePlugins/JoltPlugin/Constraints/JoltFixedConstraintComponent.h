@@ -2,19 +2,19 @@
 
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 
-using ezJoltFixedConstraintComponentManager = ezComponentManager<class ezJoltFixedConstraintComponent, ezBlockStorageType::Compact>;
+using WJoltFixedConstraintComponentManager = WComponentManager<class WJoltFixedConstraintComponent, WBlockStorageType::Compact>;
 
 /// Implements a fixed physics constraint.
 ///
 /// Actors constrained this way may not move apart, at all.
 /// This is mainly useful for adding constraints dynamically, for example to attach a dynamic object to another one once it hits it,
 /// or to make it breakable, such that it gets removed when too much force acts on it.
-class EZ_JOLTPLUGIN_DLL ezJoltFixedConstraintComponent : public ezJoltConstraintComponent
+class W_JOLTPLUGIN_DLL WJoltFixedConstraintComponent : public WJoltConstraintComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltFixedConstraintComponent, ezJoltConstraintComponent, ezJoltFixedConstraintComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltFixedConstraintComponent, WJoltConstraintComponent, WJoltFixedConstraintComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltFixedConstraintComponent
+  // WJoltFixedConstraintComponent
 
 protected:
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
@@ -22,9 +22,9 @@ protected:
   virtual bool ExceededBreakingPoint() final override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltFixedConstraintComponent
+  // WJoltFixedConstraintComponent
 
 public:
-  ezJoltFixedConstraintComponent();
-  ~ezJoltFixedConstraintComponent();
+  WJoltFixedConstraintComponent();
+  ~WJoltFixedConstraintComponent();
 };

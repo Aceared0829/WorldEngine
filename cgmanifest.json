@@ -4,7 +4,7 @@
       "component": {
         "type": "git",
         "git": {
-          "name": "ezEngine",
+          "name": "WorldEngine",
           "repositoryUrl": "https://github.com/ezEngine/ezEngine",
           "commitHash": "f6e1b0674082ee7ded3f704f61189f95f5092029"
         }

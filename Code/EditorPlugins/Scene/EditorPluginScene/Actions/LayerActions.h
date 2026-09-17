@@ -4,33 +4,33 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezScene2Document;
-struct ezScene2LayerEvent;
+class WScene2Document;
+struct WScene2LayerEvent;
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezLayerActions
+class W_EDITORPLUGINSCENE_DLL WLayerActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapContextMenuActions(ezStringView sMapping);
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapContextMenuActions(WStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hLayerCategory;
-  static ezActionDescriptorHandle s_hCreateLayer;
-  static ezActionDescriptorHandle s_hDeleteLayer;
-  static ezActionDescriptorHandle s_hSaveLayer;
-  static ezActionDescriptorHandle s_hSaveActiveLayer;
-  static ezActionDescriptorHandle s_hLayerLoaded;
-  static ezActionDescriptorHandle s_hLayerVisible;
-  static ezActionDescriptorHandle s_hSwitchOnSelection;
+  static WActionDescriptorHandle s_hLayerCategory;
+  static WActionDescriptorHandle s_hCreateLayer;
+  static WActionDescriptorHandle s_hDeleteLayer;
+  static WActionDescriptorHandle s_hSaveLayer;
+  static WActionDescriptorHandle s_hSaveActiveLayer;
+  static WActionDescriptorHandle s_hLayerLoaded;
+  static WActionDescriptorHandle s_hLayerVisible;
+  static WActionDescriptorHandle s_hSwitchOnSelection;
 };
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezLayerAction : public ezButtonAction
+class W_EDITORPLUGINSCENE_DLL WLayerAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WLayerAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -44,19 +44,19 @@ public:
     SwitchOnSelection,
   };
 
-  ezLayerAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezLayerAction();
+  WLayerAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WLayerAction();
 
-  static void ToggleLayerLoaded(ezScene2Document* pM_pSceneDocument, ezUuid layerGuid);
-  virtual void Execute(const ezVariant& value) override;
+  static void ToggleLayerLoaded(WScene2Document* pM_pSceneDocument, WUuid layerGuid);
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void LayerEventHandler(const ezScene2LayerEvent& e);
-  void DocumentEventHandler(const ezDocumentEvent& e);
+  void LayerEventHandler(const WScene2LayerEvent& e);
+  void DocumentEventHandler(const WDocumentEvent& e);
   void UpdateEnableState();
-  ezUuid GetCurrentSelectedLayer() const;
+  WUuid GetCurrentSelectedLayer() const;
 
 private:
-  ezScene2Document* m_pSceneDocument;
+  WScene2Document* m_pSceneDocument;
   ActionType m_Type;
 };

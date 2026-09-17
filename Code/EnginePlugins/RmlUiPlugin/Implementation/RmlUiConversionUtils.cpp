@@ -3,11 +3,11 @@
 #include <Foundation/Types/Variant.h>
 #include <RmlUiPlugin/RmlUiConversionUtils.h>
 
-namespace ezRmlUiConversionUtils
+namespace WRmlUiConversionUtils
 {
-  ezVariant ToVariant(const Rml::Variant& value, ezVariant::Type::Enum targetType /*= ezVariant::Type::Invalid*/)
+  WVariant ToVariant(const Rml::Variant& value, WVariant::Type::Enum targetType /*= WVariant::Type::Invalid*/)
   {
-    ezVariant result;
+    WVariant result;
 
     switch (value.GetType())
     {
@@ -28,7 +28,7 @@ namespace ezRmlUiConversionUtils
         break;
 
       case Rml::Variant::INT64:
-        result = value.Get<ezInt64>();
+        result = value.Get<WInt64>();
         break;
 
       case Rml::Variant::FLOAT:
@@ -47,61 +47,61 @@ namespace ezRmlUiConversionUtils
         break;
     }
 
-    if (targetType != ezVariant::Type::Invalid && result.IsValid())
+    if (targetType != WVariant::Type::Invalid && result.IsValid())
     {
-      ezResult conversionResult = EZ_SUCCESS;
+      WResult conversionResult = W_SUCCESS;
       result = result.ConvertTo(targetType, &conversionResult);
 
       if (conversionResult.Failed())
       {
-        ezLog::Warning("Failed to convert rml variant to target type '{}'", targetType);
+        WLog::Warning("Failed to convert rml variant to target type '{}'", targetType);
       }
     }
 
     return result;
   }
 
-  Rml::Variant ToVariant(const ezVariant& value)
+  Rml::Variant ToVariant(const WVariant& value)
   {
     switch (value.GetType())
     {
-      case ezVariant::Type::Invalid:
+      case WVariant::Type::Invalid:
         return Rml::Variant("&lt;Invalid&gt;");
 
-      case ezVariant::Type::Bool:
+      case WVariant::Type::Bool:
         return Rml::Variant(value.Get<bool>());
 
-      case ezVariant::Type::Int8:
-        return Rml::Variant(value.Get<ezInt8>());
+      case WVariant::Type::Int8:
+        return Rml::Variant(value.Get<WInt8>());
 
-      case ezVariant::Type::UInt8:
-        return Rml::Variant(value.Get<ezUInt8>());
+      case WVariant::Type::UInt8:
+        return Rml::Variant(value.Get<WUInt8>());
 
-      case ezVariant::Type::Int16:
-      case ezVariant::Type::UInt16:
-      case ezVariant::Type::Int32:
+      case WVariant::Type::Int16:
+      case WVariant::Type::UInt16:
+      case WVariant::Type::Int32:
         return Rml::Variant(value.ConvertTo<int>());
 
-      case ezVariant::Type::UInt32:
-      case ezVariant::Type::Int64:
-        return Rml::Variant(static_cast<int64_t>(value.ConvertTo<ezInt64>()));
+      case WVariant::Type::UInt32:
+      case WVariant::Type::Int64:
+        return Rml::Variant(static_cast<int64_t>(value.ConvertTo<WInt64>()));
 
-      case ezVariant::Type::Float:
+      case WVariant::Type::Float:
         return Rml::Variant(value.Get<float>());
 
-      case ezVariant::Type::Double:
+      case WVariant::Type::Double:
         return Rml::Variant(value.Get<double>());
 
-      case ezVariant::Type::String:
-        return Rml::Variant(value.Get<ezString>());
+      case WVariant::Type::String:
+        return Rml::Variant(value.Get<WString>());
 
-      case ezVariant::Type::HashedString:
-        return Rml::Variant(value.Get<ezHashedString>().GetString());
+      case WVariant::Type::HashedString:
+        return Rml::Variant(value.Get<WHashedString>().GetString());
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         return Rml::Variant();
     }
   }
 
-} // namespace ezRmlUiConversionUtils
+} // namespace WRmlUiConversionUtils

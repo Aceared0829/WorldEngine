@@ -6,32 +6,32 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezAngelScriptActions::s_hCategory;
-ezActionDescriptorHandle ezAngelScriptActions::s_hOpenInVSC;
-ezActionDescriptorHandle ezAngelScriptActions::s_hSyncExposedParams;
+WActionDescriptorHandle WAngelScriptActions::s_hCategory;
+WActionDescriptorHandle WAngelScriptActions::s_hOpenInVSC;
+WActionDescriptorHandle WAngelScriptActions::s_hSyncExposedParams;
 
-void ezAngelScriptActions::RegisterActions()
+void WAngelScriptActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("AngelScriptCategory");
-  s_hOpenInVSC = EZ_REGISTER_ACTION_1("AngelScript.OpenInVSC", ezActionScope::Document, "AngelScript", "", ezAngelScriptAction, ezAngelScriptAction::ActionType::OpenInVSC);
-  s_hSyncExposedParams = EZ_REGISTER_ACTION_1("AngelScript.SyncExposedParams", ezActionScope::Document, "AngelScript", "", ezAngelScriptAction, ezAngelScriptAction::ActionType::SyncExposedParameters);
+  s_hCategory = W_REGISTER_CATEGORY("AngelScriptCategory");
+  s_hOpenInVSC = W_REGISTER_ACTION_1("AngelScript.OpenInVSC", WActionScope::Document, "AngelScript", "", WAngelScriptAction, WAngelScriptAction::ActionType::OpenInVSC);
+  s_hSyncExposedParams = W_REGISTER_ACTION_1("AngelScript.SyncExposedParams", WActionScope::Document, "AngelScript", "", WAngelScriptAction, WAngelScriptAction::ActionType::SyncExposedParameters);
 }
 
-void ezAngelScriptActions::UnregisterActions()
+void WAngelScriptActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hOpenInVSC);
-  ezActionManager::UnregisterAction(s_hSyncExposedParams);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hOpenInVSC);
+  WActionManager::UnregisterAction(s_hSyncExposedParams);
 }
 
-void ezAngelScriptActions::MapActionsMenu(ezStringView sMapping)
+void WAngelScriptActions::MapActionsMenu(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "G.Asset", 5.0f);
 
@@ -39,10 +39,10 @@ void ezAngelScriptActions::MapActionsMenu(ezStringView sMapping)
   pMap->MapAction(s_hSyncExposedParams, "AngelScriptCategory", 2.0f);
 }
 
-void ezAngelScriptActions::MapActionsToolbar(ezStringView sMapping)
+void WAngelScriptActions::MapActionsToolbar(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -52,12 +52,12 @@ void ezAngelScriptActions::MapActionsToolbar(ezStringView sMapping)
   pMap->MapAction(s_hSyncExposedParams, szSubPath, 2.0f);
 }
 
-ezAngelScriptAction::ezAngelScriptAction(const ezActionContext& context, const char* szName, ezAngelScriptAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WAngelScriptAction::WAngelScriptAction(const WActionContext& context, const char* szName, WAngelScriptAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
-  m_pDocument = const_cast<ezAngelScriptAssetDocument*>(static_cast<const ezAngelScriptAssetDocument*>(context.m_pDocument));
+  m_pDocument = const_cast<WAngelScriptAssetDocument*>(static_cast<const WAngelScriptAssetDocument*>(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -71,7 +71,7 @@ ezAngelScriptAction::ezAngelScriptAction(const ezActionContext& context, const c
 }
 
 
-void ezAngelScriptAction::Execute(const ezVariant& value)
+void WAngelScriptAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {

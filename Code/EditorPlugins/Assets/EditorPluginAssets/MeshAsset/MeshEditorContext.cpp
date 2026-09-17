@@ -6,33 +6,33 @@
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshEditorContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshEditorInputContext, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshEditorInputContext, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezMeshEditorInputContext::ezMeshEditorInputContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+WMeshEditorInputContext::WMeshEditorInputContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   SetOwner(pOwnerWindow, pOwnerView);
 }
 
-ezEditorInput ezMeshEditorInputContext::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WMeshEditorInputContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::MiddleButton && (e->modifiers() & Qt::KeyboardModifier::ControlModifier))
   {
-    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+    const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
-    auto* pMeshDoc = static_cast<ezMeshAssetDocument*>(GetOwnerWindow()->GetDocument());
+    auto* pMeshDoc = static_cast<WMeshAssetDocument*>(GetOwnerWindow()->GetDocument());
     auto& allSlots = pMeshDoc->GetProperties()->m_Slots;
 
-    if (res.m_uiPartIndex < (ezUInt32)allSlots.GetCount())
+    if (res.m_uiPartIndex < (WUInt32)allSlots.GetCount())
     {
       if (!allSlots[res.m_uiPartIndex].m_sResource.IsEmpty())
       {
-        for (auto* pDocMan : ezDocumentManager::GetAllDocumentManagers())
+        for (auto* pDocMan : WDocumentManager::GetAllDocumentManagers())
         {
-          if (auto* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocMan))
+          if (auto* pAssetMan = WDynamicCast<WAssetDocumentManager*>(pDocMan))
           {
             if (pAssetMan->TryOpenAssetDocument(allSlots[res.m_uiPartIndex].m_sResource).Succeeded())
-              return ezEditorInput::WasExclusivelyHandled;
+              return WEditorInput::WasExclusivelyHandled;
           }
         }
         GetOwnerWindow()->ShowTemporaryStatusBarMsg("Could not open material document.");
@@ -42,7 +42,7 @@ ezEditorInput ezMeshEditorInputContext::DoMouseReleaseEvent(QMouseEvent* e)
         GetOwnerWindow()->ShowTemporaryStatusBarMsg("No material assigned to this mesh surface.");
       }
     }
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }

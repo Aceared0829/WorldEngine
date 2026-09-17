@@ -6,7 +6,7 @@
 
 /// Condition variables are used to put threads to sleep and wake them up upon certain events
 ///
-/// The ezConditionVariable works in conjunction with a mutex. When waiting for a signal,
+/// The WConditionVariable works in conjunction with a mutex. When waiting for a signal,
 /// the OS typically puts the waiting thread to sleep.
 /// Using SignalOne() or SignalAll() other threads can wake up one or all threads that are
 /// currently waiting on the condition variable.
@@ -14,13 +14,13 @@
 /// When a thread is woken up, it automatically holds the lock on the condition variable's mutex,
 /// which can be used to safely access or modify certain state.
 ///
-/// ezConditionVariable is a low-level threading construct. Higher level functionality such as
-/// ezThreadSignal may be more suitable for most use cases.
+/// WConditionVariable is a low-level threading construct. Higher level functionality such as
+/// WThreadSignal may be more suitable for most use cases.
 ///
-/// \sa ezThreadSignal, ezMutex
-class EZ_FOUNDATION_DLL ezConditionVariable
+/// \sa WThreadSignal, WMutex
+class W_FOUNDATION_DLL WConditionVariable
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezConditionVariable);
+  W_DISALLOW_COPY_AND_ASSIGN(WConditionVariable);
 
 public:
   enum class WaitResult
@@ -29,14 +29,14 @@ public:
     Timeout   ///< The timeout period elapsed without receiving a signal
   };
 
-  ezConditionVariable();
-  ~ezConditionVariable();
+  WConditionVariable();
+  ~WConditionVariable();
 
   /// Locks the internal mutex. Recursive locking is allowed.
   void Lock();
 
   /// Tries to lock the internal mutex. Recursive locking is allowed.
-  ezResult TryLock();
+  WResult TryLock();
 
   /// Unlocks the internal mutex. Must be called as often as it was locked.
   void Unlock();
@@ -54,7 +54,7 @@ public:
 
   /// Puts the calling thread to sleep and waits for the variable to get signaled.
   ///
-  /// Asserts that the ezConditionVariable is locked when the function is called.
+  /// Asserts that the WConditionVariable is locked when the function is called.
   /// The mutex will be unlocked and the thread is put to sleep.
   /// When the signal arrives, the thread is woken up and the mutex is locked again.
   void UnlockWaitForSignalAndLock() const;
@@ -65,10 +65,10 @@ public:
   /// WaitResult::Timeout.
   ///
   /// \note If the timeout is reached, the mutex will still get locked!
-  WaitResult UnlockWaitForSignalAndLock(ezTime timeout) const;
+  WaitResult UnlockWaitForSignalAndLock(WTime timeout) const;
 
 private:
-  mutable ezInt32 m_iLockCount = 0;
-  mutable ezMutex m_Mutex;
-  mutable ezConditionVariableData m_Data;
+  mutable WInt32 m_iLockCount = 0;
+  mutable WMutex m_Mutex;
+  mutable WConditionVariableData m_Data;
 };

@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER)
 #  include <Foundation/IO/DirectoryWatcher.h>
 #endif
 #include <Foundation/Types/UniquePtr.h>
@@ -10,19 +10,19 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-class ezWindow;
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-class ezDirectoryWatcher;
+class WWindow;
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER)
+class WDirectoryWatcher;
 #endif
 
 /// Uses shader reloading mechanism of the ShaderExplorer sample for quick prototyping.
-class ezComputeShaderHistogramApp : public ezGameApplication
+class WComputeShaderHistogramApp : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
-  ezComputeShaderHistogramApp();
-  ~ezComputeShaderHistogramApp();
+  WComputeShaderHistogramApp();
+  ~WComputeShaderHistogramApp();
 
   virtual void Run() override;
 
@@ -32,29 +32,29 @@ public:
 private:
   void CreateHistogramQuad();
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-  void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER)
+  void OnFileChanged(WStringView sFilename, WDirectoryWatcherAction action, WDirectoryWatcherType type);
 #endif
 
-  ezGALTextureHandle m_hScreenTexture;
-  ezGALRenderTargetViewHandle m_hScreenRTV;
+  WGALTextureHandle m_hScreenTexture;
+  WGALRenderTargetViewHandle m_hScreenRTV;
 
   // Could use buffer, but access and organisation with texture is more straight forward.
-  ezGALTextureHandle m_hHistogramTexture;
+  WGALTextureHandle m_hHistogramTexture;
 
-  ezWindowBase* m_pWindow = nullptr;
-  ezGALSwapChainHandle m_hSwapChain;
+  WWindowBase* m_pWindow = nullptr;
+  WGALSwapChainHandle m_hSwapChain;
 
-  ezShaderResourceHandle m_hRenderScreenShader;
-  ezShaderResourceHandle m_hDisplayScreenShader;
-  ezShaderResourceHandle m_hClearHistogramShader;
-  ezShaderResourceHandle m_hComputeHistogramShader;
-  ezShaderResourceHandle m_hDisplayHistogramShader;
+  WShaderResourceHandle m_hRenderScreenShader;
+  WShaderResourceHandle m_hDisplayScreenShader;
+  WShaderResourceHandle m_hClearHistogramShader;
+  WShaderResourceHandle m_hComputeHistogramShader;
+  WShaderResourceHandle m_hDisplayHistogramShader;
 
-  ezMeshBufferResourceHandle m_hHistogramQuadMeshBuffer;
+  WMeshBufferResourceHandle m_hHistogramQuadMeshBuffer;
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER)
+  WUniquePtr<WDirectoryWatcher> m_pDirectoryWatcher;
 #endif
   bool m_bStuffChanged = false;
 };

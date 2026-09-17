@@ -6,87 +6,87 @@
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerContext, 1, ezRTTIDefaultAllocator<ezLayerContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLayerContext, 1, WRTTIDefaultAllocator<WLayerContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Layer"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Layer"),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(AllocateContext),
+    W_FUNCTION_PROPERTY(AllocateContext),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezEngineProcessDocumentContext* ezLayerContext::AllocateContext(const ezDocumentOpenMsgToEngine* pMsg)
+WEngineProcessDocumentContext* WLayerContext::AllocateContext(const WDocumentOpenMsgToEngine* pMsg)
 {
-  if (pMsg->m_DocumentMetaData.IsA<ezUuid>())
+  if (pMsg->m_DocumentMetaData.IsA<WUuid>())
   {
-    return ezGetStaticRTTI<ezLayerContext>()->GetAllocator()->Allocate<ezEngineProcessDocumentContext>();
+    return WGetStaticRTTI<WLayerContext>()->GetAllocator()->Allocate<WEngineProcessDocumentContext>();
   }
   else
   {
-    return ezGetStaticRTTI<ezSceneContext>()->GetAllocator()->Allocate<ezEngineProcessDocumentContext>();
+    return WGetStaticRTTI<WSceneContext>()->GetAllocator()->Allocate<WEngineProcessDocumentContext>();
   }
 }
 
-ezLayerContext::ezLayerContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::None)
+WLayerContext::WLayerContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::None)
 {
 }
 
-ezLayerContext::~ezLayerContext() = default;
+WLayerContext::~WLayerContext() = default;
 
-void ezLayerContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WLayerContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
   // Everything in the picking buffer needs a unique ID. As layers and scene share the same world we need to make sure no id is used twice.
   // To achieve this the scene's next ID is retrieved on every change and written back in base new IDs were used up.
   m_Context.m_uiNextComponentPickingID = m_pParentSceneContext->m_Context.m_uiNextComponentPickingID;
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
   m_pParentSceneContext->m_Context.m_uiNextComponentPickingID = m_Context.m_uiNextComponentPickingID;
 
-  if (pMsg->IsInstanceOf<ezEntityMsgToEngine>())
+  if (pMsg->IsInstanceOf<WEntityMsgToEngine>())
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
-    m_pParentSceneContext->AddLayerIndexTag(*static_cast<const ezEntityMsgToEngine*>(pMsg), m_Context, m_LayerTag);
+    W_LOCK(m_pWorld->GetWriteMarker());
+    m_pParentSceneContext->AddLayerIndexTag(*static_cast<const WEntityMsgToEngine*>(pMsg), m_Context, m_LayerTag);
   }
 }
 
-void ezLayerContext::SceneDeinitialized()
+void WLayerContext::SceneDeinitialized()
 {
   // If the scene is deinitialized the world is destroyed so there is no use tracking anything further.
   m_pWorld = nullptr;
   m_Context.Clear();
 }
 
-const ezTag& ezLayerContext::GetLayerTag() const
+const WTag& WLayerContext::GetLayerTag() const
 {
   return m_LayerTag;
 }
 
-void ezLayerContext::OnInitialize()
+void WLayerContext::OnInitialize()
 {
-  ezUuid parentScene = m_MetaData.Get<ezUuid>();
-  ezEngineProcessDocumentContext* pContext = GetDocumentContext(parentScene);
-  m_pParentSceneContext = ezDynamicCast<ezSceneContext*>(pContext);
+  WUuid parentScene = m_MetaData.Get<WUuid>();
+  WEngineProcessDocumentContext* pContext = GetDocumentContext(parentScene);
+  m_pParentSceneContext = WDynamicCast<WSceneContext*>(pContext);
 
   m_pWorld = m_pParentSceneContext->GetWorld();
   m_Context.m_pWorld = m_pWorld;
   m_Mirror.InitReceiver(&m_Context);
 
-  ezUInt32 uiLayerID = m_pParentSceneContext->RegisterLayer(this);
-  ezStringBuilder sVisibilityTag;
+  WUInt32 uiLayerID = m_pParentSceneContext->RegisterLayer(this);
+  WStringBuilder sVisibilityTag;
   sVisibilityTag.SetFormat("Layer_{}", uiLayerID);
-  m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag(sVisibilityTag);
+  m_LayerTag = WTagRegistry::GetGlobalRegistry().RegisterTag(sVisibilityTag);
 
-  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
+  WShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
-void ezLayerContext::OnDeinitialize()
+void WLayerContext::OnDeinitialize()
 {
   if (m_pWorld)
   {
@@ -95,29 +95,29 @@ void ezLayerContext::OnDeinitialize()
     m_Context.DeleteExistingObjects();
   }
 
-  m_LayerTag = ezTag();
+  m_LayerTag = WTag();
   m_pParentSceneContext->UnregisterLayer(this);
   m_pParentSceneContext = nullptr;
 }
 
-ezEngineProcessViewContext* ezLayerContext::CreateViewContext()
+WEngineProcessViewContext* WLayerContext::CreateViewContext()
 {
-  EZ_REPORT_FAILURE("Layers should not create views.");
+  W_REPORT_FAILURE("Layers should not create views.");
   return nullptr;
 }
 
-void ezLayerContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WLayerContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_REPORT_FAILURE("Layers should not create views.");
+  W_REPORT_FAILURE("Layers should not create views.");
 }
 
-ezStatus ezLayerContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+WStatus WLayerContext::ExportDocument(const WExportDocumentMsgToEngine* pMsg)
 {
-  EZ_REPORT_FAILURE("Layers do not support export yet. THe layer content is baked into the main scene instead.");
-  return ezStatus("Nope");
+  W_REPORT_FAILURE("Layers do not support export yet. THe layer content is baked into the main scene instead.");
+  return WStatus("Nope");
 }
 
-void ezLayerContext::UpdateDocumentContext()
+void WLayerContext::UpdateDocumentContext()
 {
   SUPER::UpdateDocumentContext();
 }

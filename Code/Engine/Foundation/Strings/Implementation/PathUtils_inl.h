@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE bool ezPathUtils::IsPathSeparator(ezUInt32 c)
+W_ALWAYS_INLINE bool WPathUtils::IsPathSeparator(WUInt32 c)
 {
   return (c == '/' || c == '\\');
 }

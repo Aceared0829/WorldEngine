@@ -4,38 +4,38 @@
 #include <Core/World/CoordinateSystem.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-class RemapCoordinateSystemProvider : public ezCoordinateSystemProvider
+class RemapCoordinateSystemProvider : public WCoordinateSystemProvider
 {
 public:
   RemapCoordinateSystemProvider()
-    : ezCoordinateSystemProvider(nullptr)
+    : WCoordinateSystemProvider(nullptr)
   {
   }
 
-  virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
+  virtual void GetCoordinateSystem(const WVec3& vGlobalPosition, WCoordinateSystem& out_coordinateSystem) const override
   {
-    EZ_IGNORE_UNUSED(vGlobalPosition);
+    W_IGNORE_UNUSED(vGlobalPosition);
 
-    out_coordinateSystem.m_vForwardDir = ezBasisAxis::GetBasisVector(m_ForwardAxis);
-    out_coordinateSystem.m_vRightDir = ezBasisAxis::GetBasisVector(m_RightAxis);
-    out_coordinateSystem.m_vUpDir = ezBasisAxis::GetBasisVector(m_UpAxis);
+    out_coordinateSystem.m_vForwardDir = WBasisAxis::GetBasisVector(m_ForwardAxis);
+    out_coordinateSystem.m_vRightDir = WBasisAxis::GetBasisVector(m_RightAxis);
+    out_coordinateSystem.m_vUpDir = WBasisAxis::GetBasisVector(m_UpAxis);
   }
 
-  ezBasisAxis::Enum m_ForwardAxis = ezBasisAxis::PositiveX;
-  ezBasisAxis::Enum m_RightAxis = ezBasisAxis::PositiveY;
-  ezBasisAxis::Enum m_UpAxis = ezBasisAxis::PositiveZ;
+  WBasisAxis::Enum m_ForwardAxis = WBasisAxis::PositiveX;
+  WBasisAxis::Enum m_RightAxis = WBasisAxis::PositiveY;
+  WBasisAxis::Enum m_UpAxis = WBasisAxis::PositiveZ;
 };
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraMode, 1)
-  EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovX),
-  EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovY),
-  EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedWidth),
-  EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedHeight),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WCameraMode, 1)
+  W_ENUM_CONSTANT(WCameraMode::PerspectiveFixedFovX),
+  W_ENUM_CONSTANT(WCameraMode::PerspectiveFixedFovY),
+  W_ENUM_CONSTANT(WCameraMode::OrthoFixedWidth),
+  W_ENUM_CONSTANT(WCameraMode::OrthoFixedHeight),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezCamera::ezCamera()
+WCamera::WCamera()
 {
   m_vCameraPosition[0].SetZero();
   m_vCameraPosition[1].SetZero();
@@ -44,12 +44,12 @@ ezCamera::ezCamera()
   m_mStereoProjectionMatrix[0].SetIdentity();
   m_mStereoProjectionMatrix[1].SetIdentity();
 
-  SetCoordinateSystem(ezBasisAxis::PositiveX, ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ);
+  SetCoordinateSystem(WBasisAxis::PositiveX, WBasisAxis::PositiveY, WBasisAxis::PositiveZ);
 }
 
-void ezCamera::SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::Enum rightAxis, ezBasisAxis::Enum axis)
+void WCamera::SetCoordinateSystem(WBasisAxis::Enum forwardAxis, WBasisAxis::Enum rightAxis, WBasisAxis::Enum axis)
 {
-  auto provider = EZ_DEFAULT_NEW(RemapCoordinateSystemProvider);
+  auto provider = W_DEFAULT_NEW(RemapCoordinateSystemProvider);
   provider->m_ForwardAxis = forwardAxis;
   provider->m_RightAxis = rightAxis;
   provider->m_UpAxis = axis;
@@ -57,77 +57,77 @@ void ezCamera::SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::E
   m_pCoordinateSystem = provider;
 }
 
-void ezCamera::SetCoordinateSystem(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
+void WCamera::SetCoordinateSystem(const WSharedPtr<WCoordinateSystemProvider>& pProvider)
 {
   m_pCoordinateSystem = pProvider;
 }
 
-ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
+WVec3 WCamera::GetPosition(WCameraEye eye) const
 {
   return MapInternalToExternal(m_vCameraPosition[static_cast<int>(eye)]);
 }
 
-ezVec3 ezCamera::GetDirForwards(ezCameraEye eye) const
+WVec3 WCamera::GetDirForwards(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return MapInternalToExternal(decFwd);
 }
 
-ezVec3 ezCamera::GetDirUp(ezCameraEye eye) const
+WVec3 WCamera::GetDirUp(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return MapInternalToExternal(decUp);
 }
 
-ezVec3 ezCamera::GetDirRight(ezCameraEye eye) const
+WVec3 WCamera::GetDirRight(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return MapInternalToExternal(decRight);
 }
 
-ezVec3 ezCamera::InternalGetPosition(ezCameraEye eye) const
+WVec3 WCamera::InternalGetPosition(WCameraEye eye) const
 {
   return m_vCameraPosition[static_cast<int>(eye)];
 }
 
-ezVec3 ezCamera::InternalGetDirForwards(ezCameraEye eye) const
+WVec3 WCamera::InternalGetDirForwards(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return decFwd;
 }
 
-ezVec3 ezCamera::InternalGetDirUp(ezCameraEye eye) const
+WVec3 WCamera::InternalGetDirUp(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return decUp;
 }
 
-ezVec3 ezCamera::InternalGetDirRight(ezCameraEye eye) const
+WVec3 WCamera::InternalGetDirRight(WCameraEye eye) const
 {
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
   return -decRight;
 }
 
-ezVec3 ezCamera::MapExternalToInternal(const ezVec3& v) const
+WVec3 WCamera::MapExternalToInternal(const WVec3& v) const
 {
   if (m_pCoordinateSystem)
   {
-    ezCoordinateSystem system;
+    WCoordinateSystem system;
     m_pCoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
 
-    ezMat3 m;
+    WMat3 m;
     m.SetRow(0, system.m_vForwardDir);
     m.SetRow(1, system.m_vRightDir);
     m.SetRow(2, system.m_vUpDir);
@@ -138,14 +138,14 @@ ezVec3 ezCamera::MapExternalToInternal(const ezVec3& v) const
   return v;
 }
 
-ezVec3 ezCamera::MapInternalToExternal(const ezVec3& v) const
+WVec3 WCamera::MapInternalToExternal(const WVec3& v) const
 {
   if (m_pCoordinateSystem)
   {
-    ezCoordinateSystem system;
+    WCoordinateSystem system;
     m_pCoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
 
-    ezMat3 m;
+    WMat3 m;
     m.SetColumn(0, system.m_vForwardDir);
     m.SetColumn(1, system.m_vRightDir);
     m.SetColumn(2, system.m_vUpDir);
@@ -156,65 +156,65 @@ ezVec3 ezCamera::MapInternalToExternal(const ezVec3& v) const
   return v;
 }
 
-ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
+WAngle WCamera::GetFovX(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
-    return ezAngle::MakeFromDegree(m_fFovOrDim);
+  if (m_Mode == WCameraMode::PerspectiveFixedFovX)
+    return WAngle::MakeFromDegree(m_fFovOrDim);
 
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
-    return ezMath::ATan(ezMath::Tan(ezAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) * fAspectRatioWidthDivHeight) * 2.0f;
+  if (m_Mode == WCameraMode::PerspectiveFixedFovY)
+    return WMath::ATan(WMath::Tan(WAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) * fAspectRatioWidthDivHeight) * 2.0f;
 
   // TODO: HACK
-  if (m_Mode == ezCameraMode::Stereo)
-    return ezAngle::MakeFromDegree(90);
+  if (m_Mode == WCameraMode::Stereo)
+    return WAngle::MakeFromDegree(90);
 
-  EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
-  return ezAngle();
+  W_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
+  return WAngle();
 }
 
-ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
+WAngle WCamera::GetFovY(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
-    return ezMath::ATan(ezMath::Tan(ezAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) / fAspectRatioWidthDivHeight) * 2.0f;
+  if (m_Mode == WCameraMode::PerspectiveFixedFovX)
+    return WMath::ATan(WMath::Tan(WAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) / fAspectRatioWidthDivHeight) * 2.0f;
 
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
-    return ezAngle::MakeFromDegree(m_fFovOrDim);
+  if (m_Mode == WCameraMode::PerspectiveFixedFovY)
+    return WAngle::MakeFromDegree(m_fFovOrDim);
 
   // TODO: HACK
-  if (m_Mode == ezCameraMode::Stereo)
-    return ezAngle::MakeFromDegree(90);
+  if (m_Mode == WCameraMode::Stereo)
+    return WAngle::MakeFromDegree(90);
 
-  EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
-  return ezAngle();
+  W_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
+  return WAngle();
 }
 
 
-float ezCamera::GetDimensionX(float fAspectRatioWidthDivHeight) const
+float WCamera::GetDimensionX(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == ezCameraMode::OrthoFixedWidth)
+  if (m_Mode == WCameraMode::OrthoFixedWidth)
     return m_fFovOrDim;
 
-  if (m_Mode == ezCameraMode::OrthoFixedHeight)
+  if (m_Mode == WCameraMode::OrthoFixedHeight)
     return m_fFovOrDim * fAspectRatioWidthDivHeight;
 
-  EZ_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
+  W_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
   return 0;
 }
 
 
-float ezCamera::GetDimensionY(float fAspectRatioWidthDivHeight) const
+float WCamera::GetDimensionY(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == ezCameraMode::OrthoFixedWidth)
+  if (m_Mode == WCameraMode::OrthoFixedWidth)
     return m_fFovOrDim / fAspectRatioWidthDivHeight;
 
-  if (m_Mode == ezCameraMode::OrthoFixedHeight)
+  if (m_Mode == WCameraMode::OrthoFixedHeight)
     return m_fFovOrDim;
 
-  EZ_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
+  W_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
   return 0;
 }
 
-void ezCamera::SetCameraMode(ezCameraMode::Enum mode, float fFovOrDim, float fNearPlane, float fFarPlane)
+void WCamera::SetCameraMode(WCameraMode::Enum mode, float fFovOrDim, float fNearPlane, float fFarPlane)
 {
   // early out if no change
   if (m_Mode == mode && m_fFovOrDim == fFovOrDim && m_fNearPlane == fNearPlane && m_fFarPlane == fFarPlane)
@@ -232,50 +232,50 @@ void ezCamera::SetCameraMode(ezCameraMode::Enum mode, float fFovOrDim, float fNe
   CameraSettingsChanged();
 }
 
-void ezCamera::SetStereoProjection(const ezMat4& mProjectionLeftEye, const ezMat4& mProjectionRightEye, float fAspectRatioWidthDivHeight)
+void WCamera::SetStereoProjection(const WMat4& mProjectionLeftEye, const WMat4& mProjectionRightEye, float fAspectRatioWidthDivHeight)
 {
-  if (m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Left)] == mProjectionLeftEye && m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Right)] == mProjectionRightEye && m_fAspectOfPrecomputedStereoProjection == fAspectRatioWidthDivHeight)
+  if (m_mStereoProjectionMatrix[static_cast<int>(WCameraEye::Left)] == mProjectionLeftEye && m_mStereoProjectionMatrix[static_cast<int>(WCameraEye::Right)] == mProjectionRightEye && m_fAspectOfPrecomputedStereoProjection == fAspectRatioWidthDivHeight)
   {
     return;
   }
 
-  m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Left)] = mProjectionLeftEye;
-  m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Right)] = mProjectionRightEye;
+  m_mStereoProjectionMatrix[static_cast<int>(WCameraEye::Left)] = mProjectionLeftEye;
+  m_mStereoProjectionMatrix[static_cast<int>(WCameraEye::Right)] = mProjectionRightEye;
   m_fAspectOfPrecomputedStereoProjection = fAspectRatioWidthDivHeight;
 
   CameraSettingsChanged();
 }
 
-void ezCamera::LookAt(const ezVec3& vCameraPos0, const ezVec3& vTargetPos0, const ezVec3& vUp0)
+void WCamera::LookAt(const WVec3& vCameraPos0, const WVec3& vTargetPos0, const WVec3& vUp0)
 {
-  const ezVec3 vCameraPos = MapExternalToInternal(vCameraPos0);
-  const ezVec3 vTargetPos = MapExternalToInternal(vTargetPos0);
-  const ezVec3 vUp = MapExternalToInternal(vUp0);
+  const WVec3 vCameraPos = MapExternalToInternal(vCameraPos0);
+  const WVec3 vTargetPos = MapExternalToInternal(vTargetPos0);
+  const WVec3 vUp = MapExternalToInternal(vUp0);
 
-  if (m_Mode == ezCameraMode::Stereo)
+  if (m_Mode == WCameraMode::Stereo)
   {
-    EZ_REPORT_FAILURE("ezCamera::LookAt is not possible for stereo cameras.");
+    W_REPORT_FAILURE("WCamera::LookAt is not possible for stereo cameras.");
     return;
   }
 
-  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vCameraPos, vTargetPos, vUp, ezHandedness::LeftHanded);
+  m_mViewMatrix[0] = WGraphicsUtils::CreateLookAtViewMatrix(vCameraPos, vTargetPos, vUp, WHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
   m_vCameraPosition[1] = m_vCameraPosition[0] = vCameraPos;
 
   CameraOrientationChanged();
 }
 
-void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
+void WCamera::SetViewMatrix(const WMat4& mLookAtMatrix, WCameraEye eye)
 {
   const int iEyeIdx = static_cast<int>(eye);
 
   m_mViewMatrix[iEyeIdx] = mLookAtMatrix;
 
-  ezVec3 decFwd, decRight, decUp;
-  ezGraphicsUtils::DecomposeViewMatrix(
-    m_vCameraPosition[iEyeIdx], decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp;
+  WGraphicsUtils::DecomposeViewMatrix(
+    m_vCameraPosition[iEyeIdx], decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], WHandedness::LeftHanded);
 
-  if (m_Mode != ezCameraMode::Stereo)
+  if (m_Mode != WCameraMode::Stereo)
   {
     m_mViewMatrix[1 - iEyeIdx] = m_mViewMatrix[iEyeIdx];
     m_vCameraPosition[1 - iEyeIdx] = m_vCameraPosition[iEyeIdx];
@@ -284,89 +284,89 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   CameraOrientationChanged();
 }
 
-void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_mProjectionMatrix, ezCameraEye eye, ezClipSpaceDepthRange::Enum depthRange) const
+void WCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, WMat4& out_mProjectionMatrix, WCameraEye eye, WClipSpaceDepthRange::Enum depthRange) const
 {
   switch (m_Mode)
   {
-    case ezCameraMode::PerspectiveFixedFovX:
-      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    case WCameraMode::PerspectiveFixedFovX:
+      out_mProjectionMatrix = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(WAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+        m_fNearPlane, m_fFarPlane, depthRange, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
       break;
 
-    case ezCameraMode::PerspectiveFixedFovY:
-      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    case WCameraMode::PerspectiveFixedFovY:
+      out_mProjectionMatrix = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(WAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+        m_fNearPlane, m_fFarPlane, depthRange, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
       break;
 
-    case ezCameraMode::OrthoFixedWidth:
-      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane,
-        m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    case WCameraMode::OrthoFixedWidth:
+      out_mProjectionMatrix = WGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane,
+        m_fFarPlane, depthRange, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
       break;
 
-    case ezCameraMode::OrthoFixedHeight:
-      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane,
-        m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    case WCameraMode::OrthoFixedHeight:
+      out_mProjectionMatrix = WGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane,
+        m_fFarPlane, depthRange, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
       break;
 
-    case ezCameraMode::Stereo:
-      if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::LargeEpsilon<float>()))
+    case WCameraMode::Stereo:
+      if (WMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, WMath::LargeEpsilon<float>()))
         out_mProjectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
       else
       {
         // Evade to FixedFovY
-        out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-          m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        out_mProjectionMatrix = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(WAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+          m_fNearPlane, m_fFarPlane, depthRange, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
       }
       break;
 
     default:
-      EZ_REPORT_FAILURE("Invalid Camera Mode {0}", (int)m_Mode);
+      W_REPORT_FAILURE("Invalid Camera Mode {0}", (int)m_Mode);
   }
 }
 
-void ezCamera::CameraSettingsChanged()
+void WCamera::CameraSettingsChanged()
 {
-  EZ_ASSERT_DEV(m_Mode != ezCameraMode::None, "Invalid Camera Mode.");
-  EZ_ASSERT_DEV(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
-  EZ_ASSERT_DEV(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
+  W_ASSERT_DEV(m_Mode != WCameraMode::None, "Invalid Camera Mode.");
+  W_ASSERT_DEV(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
+  W_ASSERT_DEV(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
 
   ++m_uiSettingsModificationCounter;
 }
 
-void ezCamera::MoveLocally(float fForward, float fRight, float fUp)
+void WCamera::MoveLocally(float fForward, float fRight, float fUp)
 {
-  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - ezVec3(fRight, fUp, fForward));
+  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - WVec3(fRight, fUp, fForward));
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], WHandedness::LeftHanded);
 
   m_vCameraPosition[0] = m_vCameraPosition[1] = decPos;
 
   CameraOrientationChanged();
 }
 
-void ezCamera::MoveGlobally(float fForward, float fRight, float fUp)
+void WCamera::MoveGlobally(float fForward, float fRight, float fUp)
 {
-  ezVec3 vMove(fForward, fRight, fUp);
+  WVec3 vMove(fForward, fRight, fUp);
 
-  ezVec3 decFwd, decRight, decUp, decPos;
-  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], ezHandedness::LeftHanded);
+  WVec3 decFwd, decRight, decUp, decPos;
+  WGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], WHandedness::LeftHanded);
 
   m_vCameraPosition[0] += vMove;
   m_vCameraPosition[1] = m_vCameraPosition[0];
 
-  m_mViewMatrix[0] = ezGraphicsUtils::CreateViewMatrix(m_vCameraPosition[0], decFwd, decRight, decUp, ezHandedness::LeftHanded);
+  m_mViewMatrix[0] = WGraphicsUtils::CreateViewMatrix(m_vCameraPosition[0], decFwd, decRight, decUp, WHandedness::LeftHanded);
 
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
   CameraOrientationChanged();
 }
 
-void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAngle& rightAxis, ezAngle& upAxis)
+void WCamera::ClampRotationAngles(bool bLocalSpace, WAngle& forwardAxis, WAngle& rightAxis, WAngle& upAxis)
 {
-  EZ_IGNORE_UNUSED(forwardAxis);
-  EZ_IGNORE_UNUSED(upAxis);
+  W_IGNORE_UNUSED(forwardAxis);
+  W_IGNORE_UNUSED(upAxis);
 
   if (bLocalSpace)
   {
@@ -374,28 +374,28 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAng
     {
       // Limit how much the camera can look up and down, to prevent it from overturning
 
-      const float fDot = InternalGetDirForwards().Dot(ezVec3(0, 0, -1));
-      const ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::MakeFromDegree(90.0f);
-      const ezAngle fNewAngle = fCurAngle + rightAxis;
+      const float fDot = InternalGetDirForwards().Dot(WVec3(0, 0, -1));
+      const WAngle fCurAngle = WMath::ACos(fDot) - WAngle::MakeFromDegree(90.0f);
+      const WAngle fNewAngle = fCurAngle + rightAxis;
 
-      const ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::MakeFromDegree(-85.0f), ezAngle::MakeFromDegree(85.0f));
+      const WAngle fAllowedAngle = WMath::Clamp(fNewAngle, WAngle::MakeFromDegree(-85.0f), WAngle::MakeFromDegree(85.0f));
 
       rightAxis = fAllowedAngle - fCurAngle;
     }
   }
 }
 
-void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axis)
+void WCamera::RotateLocally(WAngle forwardAxis, WAngle rightAxis, WAngle axis)
 {
   ClampRotationAngles(true, forwardAxis, rightAxis, axis);
 
-  ezVec3 vDirForwards = InternalGetDirForwards();
-  ezVec3 vDirUp = InternalGetDirUp();
-  ezVec3 vDirRight = InternalGetDirRight();
+  WVec3 vDirForwards = InternalGetDirForwards();
+  WVec3 vDirUp = InternalGetDirUp();
+  WVec3 vDirRight = InternalGetDirRight();
 
   if (forwardAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m = ezMat3::MakeAxisRotation(vDirForwards, forwardAxis);
+    WMat3 m = WMat3::MakeAxisRotation(vDirForwards, forwardAxis);
 
     vDirUp = m * vDirUp;
     vDirRight = m * vDirRight;
@@ -403,7 +403,7 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
 
   if (rightAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m = ezMat3::MakeAxisRotation(vDirRight, rightAxis);
+    WMat3 m = WMat3::MakeAxisRotation(vDirRight, rightAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -411,32 +411,32 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
 
   if (axis.GetRadian() != 0.0f)
   {
-    ezMat3 m = ezMat3::MakeAxisRotation(vDirUp, axis);
+    WMat3 m = WMat3::MakeAxisRotation(vDirUp, axis);
 
     vDirRight = m * vDirRight;
     vDirForwards = m * vDirForwards;
   }
 
-  // Using ezGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
+  // Using WGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
   // vectors.
   auto vPos = InternalGetPosition();
-  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
+  m_mViewMatrix[0] = WGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, WHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged();
 }
 
-void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axis)
+void WCamera::RotateGlobally(WAngle forwardAxis, WAngle rightAxis, WAngle axis)
 {
   ClampRotationAngles(false, forwardAxis, rightAxis, axis);
 
-  ezVec3 vDirForwards = InternalGetDirForwards();
-  ezVec3 vDirUp = InternalGetDirUp();
+  WVec3 vDirForwards = InternalGetDirForwards();
+  WVec3 vDirUp = InternalGetDirUp();
 
   if (forwardAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m = ezMat3::MakeRotationX(forwardAxis);
+    WMat3 m;
+    m = WMat3::MakeRotationX(forwardAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -444,8 +444,8 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
 
   if (rightAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m = ezMat3::MakeRotationY(rightAxis);
+    WMat3 m;
+    m = WMat3::MakeRotationY(rightAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -453,17 +453,17 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
 
   if (axis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m = ezMat3::MakeRotationZ(axis);
+    WMat3 m;
+    m = WMat3::MakeRotationZ(axis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
   }
 
-  // Using ezGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
+  // Using WGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
   // vectors.
   auto vPos = InternalGetPosition();
-  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
+  m_mViewMatrix[0] = WGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, WHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged();
@@ -471,4 +471,4 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);
+W_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);

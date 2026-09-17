@@ -2,63 +2,63 @@
 
 #include <RTSPlugin/RTSPluginDLL.h>
 
-struct RtsMsgNavigateTo : public ezMessage
+struct RtsMsgNavigateTo : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgNavigateTo, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgNavigateTo, WMessage);
 
-  ezVec2 m_vTargetPosition;
+  WVec2 m_vTargetPosition;
 };
 
 /// Tell the unit to stop and stay where it currently is
-struct RtsMsgStopNavigation : public ezMessage
+struct RtsMsgStopNavigation : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgStopNavigation, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgStopNavigation, WMessage);
 };
 
-struct RtsMsgArrivedAtLocation : public ezMessage
+struct RtsMsgArrivedAtLocation : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgArrivedAtLocation, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgArrivedAtLocation, WMessage);
 };
 
-struct RtsMsgAssignPosition : public ezMessage
+struct RtsMsgAssignPosition : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgAssignPosition, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgAssignPosition, WMessage);
 
-  ezVec2 m_vTargetPosition;
+  WVec2 m_vTargetPosition;
 };
 
-struct RtsMsgSetTarget : public ezMessage
+struct RtsMsgSetTarget : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgSetTarget, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgSetTarget, WMessage);
 
-  ezGameObjectHandle m_hObject;
+  WGameObjectHandle m_hObject;
 };
 
-struct RtsMsgApplyDamage : public ezMessage
+struct RtsMsgApplyDamage : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgApplyDamage, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgApplyDamage, WMessage);
 
-  ezInt16 m_iDamage;
+  WInt16 m_iDamage;
 };
 
 /// Used to inform sub-systems (child nodes etc.) when health changes (taking damage etc.)
 /// m_uiCurHealth == 0 means the unit is destroyed now
-struct RtsMsgUnitHealthStatus : public ezMessage
+struct RtsMsgUnitHealthStatus : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgUnitHealthStatus, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgUnitHealthStatus, WMessage);
 
-  ezUInt16 m_uiCurHealth;
-  ezUInt16 m_uiMaxHealth;
-  ezInt16 m_iDifference;
+  WUInt16 m_uiCurHealth;
+  WUInt16 m_uiMaxHealth;
+  WInt16 m_iDifference;
 };
 
 /// Used to query the health/shields status for display
-struct RtsMsgGatherUnitStats : public ezMessage
+struct RtsMsgGatherUnitStats : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(RtsMsgGatherUnitStats, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(RtsMsgGatherUnitStats, WMessage);
 
-  ezUInt16 m_uiCurHealth = 0;
-  ezUInt16 m_uiMaxHealth = 0;
-  ezUInt16 m_uiCurShields = 0;
-  ezUInt16 m_uiMaxShields = 0;
+  WUInt16 m_uiCurHealth = 0;
+  WUInt16 m_uiMaxHealth = 0;
+  WUInt16 m_uiCurShields = 0;
+  WUInt16 m_uiMaxShields = 0;
 };

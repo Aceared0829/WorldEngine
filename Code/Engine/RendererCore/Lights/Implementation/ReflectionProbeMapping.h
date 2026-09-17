@@ -6,17 +6,17 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 /// Event generated on mapping changes.
-/// \sa ezReflectionProbeMapping::m_Events
-struct ezReflectionProbeMappingEvent
+/// \sa WReflectionProbeMapping::m_Events
+struct WReflectionProbeMappingEvent
 {
   enum class Type
   {
     ProbeMapped,          ///< The given probe was mapped to the atlas.
     ProbeUnmapped,        ///<  The given probe was unmapped from the atlas.
-    ProbeUpdateRequested, ///< The given probe needs to be updated after which ezReflectionProbeMapping::ProbeUpdateFinished must be called.
+    ProbeUpdateRequested, ///< The given probe needs to be updated after which WReflectionProbeMapping::ProbeUpdateFinished must be called.
   };
 
-  ezReflectionProbeId m_Id;
+  WReflectionProbeId m_Id;
   Type m_Type;
 
   /// Only valid for ProbeUpdateRequested. The probe's priority this frame. Used to order pending updates.
@@ -28,29 +28,29 @@ struct ezReflectionProbeMappingEvent
 };
 
 /// This class creates a reflection probe atlas and controls the mapping of added probes to the available atlas indices.
-class ezReflectionProbeMapping
+class WReflectionProbeMapping
 {
 public:
   /// Creates a reflection probe atlas and mapping of the given size.
   /// \param uiAtlasSize How many probes the atlas can contain.
-  ezReflectionProbeMapping(ezUInt32 uiAtlasSize);
-  ~ezReflectionProbeMapping();
+  WReflectionProbeMapping(WUInt32 uiAtlasSize);
+  ~WReflectionProbeMapping();
 
   /// \name Probe management
   ///@{
 
   /// Adds a probe that will be considered for mapping into the atlas.
-  void AddProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags);
+  void AddProbe(WReflectionProbeId probe, WBitflags<WProbeFlags> flags);
 
   /// Marks previously added probe as dirty and potentially changes its flags.
-  void UpdateProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags);
+  void UpdateProbe(WReflectionProbeId probe, WBitflags<WProbeFlags> flags);
 
-  /// Should be called once a requested ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested event has been completed.
+  /// Should be called once a requested WReflectionProbeMappingEvent::Type::ProbeUpdateRequested event has been completed.
   /// \param probe The probe that has finished its update.
-  void ProbeUpdateFinished(ezReflectionProbeId probe);
+  void ProbeUpdateFinished(WReflectionProbeId probe);
 
-  /// Removes a probe. If the probe was mapped, ezReflectionProbeMappingEvent::Type::ProbeUnmapped will be fired when calling this function.
-  void RemoveProbe(ezReflectionProbeId probe);
+  /// Removes a probe. If the probe was mapped, WReflectionProbeMappingEvent::Type::ProbeUnmapped will be fired when calling this function.
+  void RemoveProbe(WReflectionProbeId probe);
 
   ///@}
   /// \name Render helpers
@@ -60,11 +60,11 @@ public:
   /// \param probe The probe that is being queried.
   /// \param bForExtraction If set, returns whether the index can be used for using the probe during rendering. If the probe was just mapped but not updated yet, -1 will be returned for bForExtraction = true but a valid index for bForExtraction = false so that the index can be rendered into.
   /// \return Returns the mapped index in the atlas or -1 of the probe is not mapped.
-  ezInt32 GetReflectionIndex(ezReflectionProbeId probe, bool bForExtraction = false) const;
+  WInt32 GetReflectionIndex(WReflectionProbeId probe, bool bForExtraction = false) const;
 
   /// Returns the atlas texture.
   /// \return The texture handle of the cube map atlas.
-  ezGALTextureHandle GetTexture() const { return m_hReflectionSpecularTexture; }
+  WGALTextureHandle GetTexture() const { return m_hReflectionSpecularTexture; }
 
   ///@}
   /// \name Compute atlas mapping
@@ -74,30 +74,30 @@ public:
   void PreExtraction();
 
   /// Adds weight to a probe. Should be called during extraction of the probe. The mapping will map the probes with the highest weights in the atlas over time. This can be called multiple times in a frame for a probe if it is visible in multiple views. The maximum weight is then taken.
-  void AddWeight(ezReflectionProbeId probe, float fPriority);
+  void AddWeight(WReflectionProbeId probe, float fPriority);
 
-  /// Should be called in the PostExtraction phase. This will compute the best probe mapping and potentially fire ezReflectionProbeMappingEvent events to map / unmap or request updates of probes.
+  /// Should be called in the PostExtraction phase. This will compute the best probe mapping and potentially fire WReflectionProbeMappingEvent events to map / unmap or request updates of probes.
   void PostExtraction();
 
   ///@}
 
 public:
-  ezEvent<const ezReflectionProbeMappingEvent&> m_Events;
+  WEvent<const WReflectionProbeMappingEvent&> m_Events;
 
 private:
-  struct ezProbeMappingFlags
+  struct WProbeMappingFlags
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
-      SkyLight = ezProbeFlags::SkyLight,
-      HasCustomCubeMap = ezProbeFlags::HasCustomCubeMap,
-      Sphere = ezProbeFlags::Sphere,
-      Box = ezProbeFlags::Box,
-      Dynamic = ezProbeFlags::Dynamic,
-      Dirty = EZ_BIT(5),
-      Usable = EZ_BIT(6),
+      SkyLight = WProbeFlags::SkyLight,
+      HasCustomCubeMap = WProbeFlags::HasCustomCubeMap,
+      Sphere = WProbeFlags::Sphere,
+      Box = WProbeFlags::Box,
+      Dynamic = WProbeFlags::Dynamic,
+      Dirty = W_BIT(5),
+      Usable = W_BIT(6),
       Default = 0
     };
 
@@ -113,13 +113,13 @@ private:
     };
   };
 
-  // EZ_DECLARE_FLAGS_OPERATORS(ezProbeMappingFlags);
+  // W_DECLARE_FLAGS_OPERATORS(WProbeMappingFlags);
 
   struct SortedProbes
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    EZ_ALWAYS_INLINE bool operator<(const SortedProbes& other) const
+    W_ALWAYS_INLINE bool operator<(const SortedProbes& other) const
     {
       if (m_fPriority != other.m_fPriority) // we want to sort descending (higher priority first)
         return m_fPriority > other.m_fPriority;
@@ -127,42 +127,42 @@ private:
       return m_uiIndex < other.m_uiIndex;
     }
 
-    ezReflectionProbeId m_uiIndex;
+    WReflectionProbeId m_uiIndex;
     float m_fPriority = 0.0f;
   };
 
   struct ProbeDataInternal
   {
-    ezBitflags<ezProbeMappingFlags> m_Flags;
-    ezInt32 m_uiReflectionIndex = -1;
+    WBitflags<WProbeMappingFlags> m_Flags;
+    WInt32 m_uiReflectionIndex = -1;
     float m_fPriority = 0.0f;
-    ezReflectionProbeId m_id;
+    WReflectionProbeId m_id;
   };
 
 private:
-  void MapProbe(ezReflectionProbeId id, ezInt32 iReflectionIndex);
-  void UnmapProbe(ezReflectionProbeId id);
+  void MapProbe(WReflectionProbeId id, WInt32 iReflectionIndex);
+  void UnmapProbe(WReflectionProbeId id);
   void RequestUpdate(const ProbeDataInternal& probeData);
   bool IsSkyLightRefreshDue() const;
 
 private:
-  ezDynamicArray<ProbeDataInternal> m_RegisteredProbes;
-  ezReflectionProbeId m_SkyLight;
+  WDynamicArray<ProbeDataInternal> m_RegisteredProbes;
+  WReflectionProbeId m_SkyLight;
 
   // Frame in which the sky light last completed an update. Its completion marks every other probe dirty,
   // so refreshing it every frame would keep the entire scene from ever settling.
-  ezUInt64 m_uiLastSkyLightUpdateFrame = 0;
+  WUInt64 m_uiLastSkyLightUpdateFrame = 0;
   bool m_bSkyLightUpdatedOnce = false;
 
-  ezUInt32 m_uiAtlasSize = 32;
-  ezDynamicArray<ezReflectionProbeId> m_MappedCubes;
+  WUInt32 m_uiAtlasSize = 32;
+  WDynamicArray<WReflectionProbeId> m_MappedCubes;
 
   // GPU Data
-  ezGALTextureHandle m_hReflectionSpecularTexture;
+  WGALTextureHandle m_hReflectionSpecularTexture;
 
   // Cleared every frame:
-  ezDynamicArray<SortedProbes> m_SortedProbes; // All probes exiting in the scene, sorted by priority.
-  ezDynamicArray<SortedProbes> m_ActiveProbes; // Probes that are currently mapped in the atlas.
-  ezDynamicArray<ezInt32> m_UnusedProbeSlots;  // Probe slots are are currently unused in the atlas.
-  ezDynamicArray<SortedProbes> m_AddProbes;    // Probes that should be added to the atlas
+  WDynamicArray<SortedProbes> m_SortedProbes; // All probes exiting in the scene, sorted by priority.
+  WDynamicArray<SortedProbes> m_ActiveProbes; // Probes that are currently mapped in the atlas.
+  WDynamicArray<WInt32> m_UnusedProbeSlots;  // Probe slots are are currently unused in the atlas.
+  WDynamicArray<SortedProbes> m_AddProbes;    // Probes that should be added to the atlas
 };

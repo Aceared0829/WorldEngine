@@ -5,28 +5,28 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleSystemInstance;
-class ezProcessingStream;
-class ezParticleEmitter;
+class WParticleSystemInstance;
+class WProcessingStream;
+class WParticleEmitter;
 
 /// Base class for all particle emitters
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleEmitterFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitterFactory, WReflectedClass);
 
 public:
-  virtual const ezRTTI* GetEmitterType() const = 0;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const = 0;
+  virtual const WRTTI* GetEmitterType() const = 0;
+  virtual void CopyEmitterProperties(WParticleEmitter* pEmitter, bool bFirstTime) const = 0;
 
-  ezParticleEmitter* CreateEmitter(ezParticleSystemInstance* pOwner) const;
-  virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const = 0;
+  WParticleEmitter* CreateEmitter(WParticleSystemInstance* pOwner) const;
+  virtual void QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const = 0;
 
-  virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
+  virtual void Save(WStreamWriter& inout_stream) const = 0;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 };
 
 /// Current state of a particle emitter
-enum class ezParticleEmitterState
+enum class WParticleEmitterState
 {
   Active,       ///< Emitter is actively spawning particles
   Finished,     ///< Emitter will not spawn more particles
@@ -36,22 +36,22 @@ enum class ezParticleEmitterState
 /// Base class for particle emitters
 ///
 /// Emitters control when and how many particles are spawned.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule
+class W_PARTICLEPLUGIN_DLL WParticleEmitter : public WParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezParticleModule);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitter, WParticleModule);
 
-  friend class ezParticleSystemInstance;
-  friend class ezParticleEmitterFactory;
+  friend class WParticleSystemInstance;
+  friend class WParticleEmitterFactory;
 
 protected:
   virtual bool IsContinuous() const;
-  virtual void Process(ezUInt64 uiNumElements) final override;
+  virtual void Process(WUInt64 uiNumElements) final override;
 
   /// Called once per update. Must return how many new particles to spawn.
-  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;
+  virtual WUInt32 ComputeSpawnCount(const WTime& tDiff) = 0;
 
   /// Called before ComputeSpawnCount(). Returns whether the emitter will spawn more particles.
-  virtual ezParticleEmitterState IsFinished() = 0;
+  virtual WParticleEmitterState IsFinished() = 0;
 
-  virtual void ProcessEventQueue(ezParticleEventQueue queue);
+  virtual void ProcessEventQueue(WParticleEventQueue queue);
 };

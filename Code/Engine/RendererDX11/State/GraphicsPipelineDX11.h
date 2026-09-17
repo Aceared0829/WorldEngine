@@ -4,16 +4,16 @@
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/State/GraphicsPipeline.h>
 
-class ezGALDeviceDX11;
+class WGALDeviceDX11;
 
-class EZ_RENDERERDX11_DLL ezGALGraphicsPipelineDX11 : public ezGALGraphicsPipeline
+class W_RENDERERDX11_DLL WGALGraphicsPipelineDX11 : public WGALGraphicsPipeline
 {
 public:
-  ezGALGraphicsPipelineDX11(const ezGALGraphicsPipelineCreationDescription& description);
-  ~ezGALGraphicsPipelineDX11();
+  WGALGraphicsPipelineDX11(const WGALGraphicsPipelineCreationDescription& description);
+  ~WGALGraphicsPipelineDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugName(const char* szName) override;
 
 private:

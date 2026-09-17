@@ -3,10 +3,10 @@
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <ProcGenPlugin/Declarations.h>
 
-class ezPhysicsWorldModuleInterface;
-class ezVolumeCollection;
+class WPhysicsWorldModuleInterface;
+class WVolumeCollection;
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   struct PlacementData
   {
@@ -15,17 +15,17 @@ namespace ezProcGenInternal
 
     void Clear();
 
-    const ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
-    const ezWorld* m_pWorld = nullptr;
+    const WPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
+    const WWorld* m_pWorld = nullptr;
 
-    ezSharedPtr<const PlacementOutput> m_pOutput;
-    ezUInt32 m_uiTileSeed = 0;
-    ezBoundingBox m_TileBoundingBox;
+    WSharedPtr<const PlacementOutput> m_pOutput;
+    WUInt32 m_uiTileSeed = 0;
+    WBoundingBox m_TileBoundingBox;
     bool m_bDebugVisualization = false;
 
-    ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
+    WDynamicArray<WSimdMat4f, WAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 
-    ezDeque<ezVolumeCollection> m_VolumeCollections;
-    ezExpression::GlobalData m_GlobalData;
+    WDeque<WVolumeCollection> m_VolumeCollections;
+    WExpression::GlobalData m_GlobalData;
   };
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

@@ -4,25 +4,25 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/IO/Stream.h>
 
-class ezLogInterface;
+class WLogInterface;
 
 /// A low level JSON parser that can incrementally parse the structure of a JSON document.
 ///
 /// The document structure is returned through virtual functions that need to be overridden.
-class EZ_FOUNDATION_DLL ezJSONParser
+class W_FOUNDATION_DLL WJSONParser
 {
 public:
   /// Constructor.
-  ezJSONParser();
+  WJSONParser();
 
-  virtual ~ezJSONParser() = default;
+  virtual ~WJSONParser() = default;
 
-  /// Allows to specify an ezLogInterface through which errors and warnings are reported.
-  void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
+  /// Allows to specify an WLogInterface through which errors and warnings are reported.
+  void SetLogInterface(WLogInterface* pLog) { m_pLogInterface = pLog; }
 
 protected:
   /// Resets the parser to the start state and configures it to read from the given stream.
-  void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0);
+  void SetInputStream(WStreamReader& stream, WUInt32 uiFirstLineOffset = 0);
 
   /// Does one parsing step.
   ///
@@ -44,9 +44,9 @@ protected:
   void SkipArray();
 
   /// Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
-  void ParsingError(ezStringView sMessage, bool bFatal);
+  void ParsingError(WStringView sMessage, bool bFatal);
 
-  ezLogInterface* m_pLogInterface = nullptr;
+  WLogInterface* m_pLogInterface = nullptr;
 
 private:
   /// Called whenever a new variable is encountered. The variable name is passed along.
@@ -54,21 +54,21 @@ private:
   ///
   /// The entire variable (independent of whether it is a simple value, an array or an object) can
   /// be skipped by returning false.
-  virtual bool OnVariable(ezStringView sVarName) = 0;
+  virtual bool OnVariable(WStringView sVarName) = 0;
 
   /// Called whenever a new value is read.
   ///
   /// Directly following a call to OnVariable(), this means that the variable is a simple variable.
   /// In between calls to OnBeginArray() and OnEndArray() it is another value in the array.
-  virtual void OnReadValue(ezStringView sValue) = 0;
+  virtual void OnReadValue(WStringView sValue) = 0;
 
-  /// \copydoc ezJSONParser::OnReadValue()
+  /// \copydoc WJSONParser::OnReadValue()
   virtual void OnReadValue(double fValue) = 0;
 
-  /// \copydoc ezJSONParser::OnReadValue()
+  /// \copydoc WJSONParser::OnReadValue()
   virtual void OnReadValue(bool bValue) = 0;
 
-  /// \copydoc ezJSONParser::OnReadValue()
+  /// \copydoc WJSONParser::OnReadValue()
   virtual void OnReadValueNULL() = 0;
 
   /// Called when a new object is encountered.
@@ -95,12 +95,12 @@ private:
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further OnEndObject() / OnEndArray() will be called.
   /// If bFatal is false, the document does not contain valid JSON, but the parser is able to continue still.
-  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+  virtual void OnParsingError(WStringView sMessage, bool bFatal, WUInt32 uiLine, WUInt32 uiColumn)
   {
-    EZ_IGNORE_UNUSED(sMessage);
-    EZ_IGNORE_UNUSED(bFatal);
-    EZ_IGNORE_UNUSED(uiLine);
-    EZ_IGNORE_UNUSED(uiColumn);
+    W_IGNORE_UNUSED(sMessage);
+    W_IGNORE_UNUSED(bFatal);
+    W_IGNORE_UNUSED(uiLine);
+    W_IGNORE_UNUSED(uiColumn);
   }
 
 private:
@@ -141,14 +141,14 @@ private:
   void SkipStack(State s);
   void PopStack();
 
-  ezUInt8 m_uiCurByte;
-  ezUInt8 m_uiNextByte;
-  ezUInt32 m_uiCurLine;
-  ezUInt32 m_uiCurColumn;
+  WUInt8 m_uiCurByte;
+  WUInt8 m_uiNextByte;
+  WUInt32 m_uiCurLine;
+  WUInt32 m_uiCurColumn;
 
-  ezStreamReader* m_pInput;
-  ezHybridArray<JSONState, 32> m_StateStack;
-  ezHybridArray<ezUInt8, 4096> m_TempString;
+  WStreamReader* m_pInput;
+  WHybridArray<JSONState, 32> m_StateStack;
+  WHybridArray<WUInt8, 4096> m_TempString;
 
   bool m_bSkippingMode;
 };

@@ -2,33 +2,33 @@
 
 #include <Core/Platform/NoImpl/Window_NoImpl.h>
 
-ezWindowNoImpl::~ezWindowNoImpl()
+WWindowNoImpl::~WWindowNoImpl()
 {
 }
 
-ezResult ezWindowNoImpl::InitializeWindow()
+WResult WWindowNoImpl::InitializeWindow()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  W_ASSERT_NOT_IMPLEMENTED;
+  return W_FAILURE;
 }
 
-void ezWindowNoImpl::DestroyWindow()
+void WWindowNoImpl::DestroyWindow()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezResult ezWindowNoImpl::Resize(const ezSizeU32& newWindowSize)
+WResult WWindowNoImpl::Resize(const WSizeU32& newWindowSize)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  W_ASSERT_NOT_IMPLEMENTED;
+  return W_FAILURE;
 }
 
-void ezWindowNoImpl::ProcessWindowMessages()
+void WWindowNoImpl::ProcessWindowMessages()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezWindowHandle ezWindowNoImpl::GetNativeWindowHandle() const
+WWindowHandle WWindowNoImpl::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

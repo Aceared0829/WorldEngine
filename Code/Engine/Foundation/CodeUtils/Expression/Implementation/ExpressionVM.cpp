@@ -6,25 +6,25 @@
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionVMOperations.h>
 #include <Foundation/Logging/Log.h>
 
-ezExpressionVM::ezExpressionVM()
+WExpressionVM::WExpressionVM()
 {
   RegisterDefaultFunctions();
 }
-ezExpressionVM::~ezExpressionVM() = default;
+WExpressionVM::~WExpressionVM() = default;
 
-void ezExpressionVM::RegisterFunction(const ezExpressionFunction& func)
+void WExpressionVM::RegisterFunction(const WExpressionFunction& func)
 {
-  EZ_ASSERT_DEV(func.m_Desc.m_uiNumRequiredInputs <= func.m_Desc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", func.m_Desc.m_uiNumRequiredInputs, func.m_Desc.m_InputTypes.GetCount());
+  W_ASSERT_DEV(func.m_Desc.m_uiNumRequiredInputs <= func.m_Desc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", func.m_Desc.m_uiNumRequiredInputs, func.m_Desc.m_InputTypes.GetCount());
 
-  ezUInt32 uiFunctionIndex = m_Functions.GetCount();
+  WUInt32 uiFunctionIndex = m_Functions.GetCount();
   m_FunctionNamesToIndex.Insert(func.m_Desc.GetMangledName(), uiFunctionIndex);
 
   m_Functions.PushBack(func);
 }
 
-void ezExpressionVM::UnregisterFunction(const ezExpressionFunction& func)
+void WExpressionVM::UnregisterFunction(const WExpressionFunction& func)
 {
-  ezUInt32 uiFunctionIndex = 0;
+  WUInt32 uiFunctionIndex = 0;
   if (m_FunctionNamesToIndex.Remove(func.m_Desc.GetMangledName(), &uiFunctionIndex))
   {
     m_Functions.RemoveAtAndSwap(uiFunctionIndex);
@@ -35,18 +35,18 @@ void ezExpressionVM::UnregisterFunction(const ezExpressionFunction& func)
   }
 }
 
-ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs,
-  ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData, ezBitflags<Flags> flags)
+WResult WExpressionVM::Execute(const WExpressionByteCode& byteCode, WArrayPtr<const WProcessingStream> inputs,
+  WArrayPtr<WProcessingStream> outputs, WUInt32 uiNumInstances, const WExpression::GlobalData& globalData, WBitflags<Flags> flags)
 {
   if (flags.IsSet(Flags::ScalarizeStreams))
   {
-    EZ_SUCCEED_OR_RETURN(ScalarizeStreams(inputs, m_ScalarizedInputs));
-    EZ_SUCCEED_OR_RETURN(ScalarizeStreams(outputs, m_ScalarizedOutputs));
+    W_SUCCEED_OR_RETURN(ScalarizeStreams(inputs, m_ScalarizedInputs));
+    W_SUCCEED_OR_RETURN(ScalarizeStreams(outputs, m_ScalarizedOutputs));
 
     inputs = m_ScalarizedInputs;
     outputs = m_ScalarizedOutputs;
   }
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   else
   {
     AreStreamsScalarized(inputs).AssertSuccess("Input streams are not scalarized");
@@ -54,17 +54,17 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   }
 #endif
 
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), inputs, "Input", uiNumInstances, flags, m_MappedInputs));
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), outputs, "Output", uiNumInstances, flags, m_MappedOutputs));
+  W_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), inputs, "Input", uiNumInstances, flags, m_MappedInputs));
+  W_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), outputs, "Output", uiNumInstances, flags, m_MappedOutputs));
 
-  EZ_SUCCEED_OR_RETURN(MapFunctions(byteCode.GetFunctions(), globalData));
+  W_SUCCEED_OR_RETURN(MapFunctions(byteCode.GetFunctions(), globalData));
 
-  const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * ((uiNumInstances + 3) / 4);
+  const WUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * ((uiNumInstances + 3) / 4);
   m_Registers.SetCountUninitialized(uiTotalNumRegisters);
 
   // Execute bytecode
-  const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCodeStart();
-  const ezExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
+  const WExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCodeStart();
+  const WExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
 
   ExecutionContext context;
   context.m_pRegisters = m_Registers.GetData();
@@ -77,7 +77,7 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
 
   while (pByteCode < pByteCodeEnd)
   {
-    ezExpressionByteCode::OpCode::Enum opCode = ezExpressionByteCode::GetOpCode(pByteCode);
+    WExpressionByteCode::OpCode::Enum opCode = WExpressionByteCode::GetOpCode(pByteCode);
 
     OpFunc func = s_Simd4Funcs[opCode];
     if (func != nullptr)
@@ -86,93 +86,93 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      ezLog::Error("Unknown OpCode '{}'. Execution aborted.", opCode);
-      return EZ_FAILURE;
+      W_ASSERT_NOT_IMPLEMENTED;
+      WLog::Error("Unknown OpCode '{}'. Execution aborted.", opCode);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezExpressionVM::RegisterDefaultFunctions()
+void WExpressionVM::RegisterDefaultFunctions()
 {
-  RegisterFunction(ezDefaultExpressionFunctions::s_RandomFunc);
-  RegisterFunction(ezDefaultExpressionFunctions::s_PerlinNoiseFunc);
+  RegisterFunction(WDefaultExpressionFunctions::s_RandomFunc);
+  RegisterFunction(WDefaultExpressionFunctions::s_PerlinNoiseFunc);
 }
 
-ezResult ezExpressionVM::ScalarizeStreams(ezArrayPtr<const ezProcessingStream> streams, ezDynamicArray<ezProcessingStream>& out_ScalarizedStreams)
+WResult WExpressionVM::ScalarizeStreams(WArrayPtr<const WProcessingStream> streams, WDynamicArray<WProcessingStream>& out_ScalarizedStreams)
 {
   out_ScalarizedStreams.Clear();
 
   for (auto& stream : streams)
   {
-    const ezUInt32 uiNumElements = ezExpressionAST::DataType::GetElementCount(ezExpressionAST::DataType::FromStreamType(stream.GetDataType()));
+    const WUInt32 uiNumElements = WExpressionAST::DataType::GetElementCount(WExpressionAST::DataType::FromStreamType(stream.GetDataType()));
     if (uiNumElements == 1)
     {
       out_ScalarizedStreams.PushBack(stream);
     }
     else
     {
-      ezStringBuilder sNewName;
-      ezHashedString sNewNameHashed;
-      auto data = ezMakeArrayPtr((ezUInt8*)(stream.GetData()), static_cast<ezUInt32>(stream.GetDataSize()));
-      auto elementDataType = static_cast<ezProcessingStream::DataType>((ezUInt32)stream.GetDataType() & ~3u);
+      WStringBuilder sNewName;
+      WHashedString sNewNameHashed;
+      auto data = WMakeArrayPtr((WUInt8*)(stream.GetData()), static_cast<WUInt32>(stream.GetDataSize()));
+      auto elementDataType = static_cast<WProcessingStream::DataType>((WUInt32)stream.GetDataType() & ~3u);
 
-      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      for (WUInt32 i = 0; i < uiNumElements; ++i)
       {
-        sNewName.Set(stream.GetName(), ".", ezExpressionAST::VectorComponent::GetName(static_cast<ezExpressionAST::VectorComponent::Enum>(i)));
+        sNewName.Set(stream.GetName(), ".", WExpressionAST::VectorComponent::GetName(static_cast<WExpressionAST::VectorComponent::Enum>(i)));
         sNewNameHashed.Assign(sNewName);
 
-        auto newData = data.GetSubArray(i * ezProcessingStream::GetDataTypeSize(elementDataType));
+        auto newData = data.GetSubArray(i * WProcessingStream::GetDataTypeSize(elementDataType));
 
-        out_ScalarizedStreams.PushBack(ezProcessingStream(sNewNameHashed, newData, elementDataType, stream.GetElementStride()));
+        out_ScalarizedStreams.PushBack(WProcessingStream(sNewNameHashed, newData, elementDataType, stream.GetElementStride()));
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezExpressionVM::AreStreamsScalarized(ezArrayPtr<const ezProcessingStream> streams)
+WResult WExpressionVM::AreStreamsScalarized(WArrayPtr<const WProcessingStream> streams)
 {
   for (auto& stream : streams)
   {
-    const ezUInt32 uiNumElements = ezExpressionAST::DataType::GetElementCount(ezExpressionAST::DataType::FromStreamType(stream.GetDataType()));
+    const WUInt32 uiNumElements = WExpressionAST::DataType::GetElementCount(WExpressionAST::DataType::FromStreamType(stream.GetDataType()));
     if (uiNumElements > 1)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-ezResult ezExpressionVM::ValidateStream(const ezProcessingStream& stream, const ezExpression::StreamDesc& streamDesc, ezStringView sStreamType, ezUInt32 uiNumInstances)
+WResult WExpressionVM::ValidateStream(const WProcessingStream& stream, const WExpression::StreamDesc& streamDesc, WStringView sStreamType, WUInt32 uiNumInstances)
 {
   // verify stream data type
   if (stream.GetDataType() != streamDesc.m_DataType)
   {
-    ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", sStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
-    return EZ_FAILURE;
+    WLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", sStreamType, streamDesc.m_sName, WProcessingStream::GetDataTypeName(streamDesc.m_DataType), WProcessingStream::GetDataTypeName(stream.GetDataType()));
+    return W_FAILURE;
   }
 
   // verify stream size
-  ezUInt32 uiElementSize = stream.GetElementSize();
-  ezUInt32 uiExpectedSize = stream.GetElementStride() * (uiNumInstances - 1) + uiElementSize;
+  WUInt32 uiElementSize = stream.GetElementSize();
+  WUInt32 uiExpectedSize = stream.GetElementStride() * (uiNumInstances - 1) + uiElementSize;
 
   if (stream.GetDataSize() < uiExpectedSize)
   {
-    ezLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", sStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
-    return EZ_FAILURE;
+    WLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", sStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<T> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezBitflags<Flags> flags, ezDynamicArray<T*>& out_MappedStreams)
+WResult WExpressionVM::MapStreams(WArrayPtr<const WExpression::StreamDesc> streamDescs, WArrayPtr<T> streams, WStringView sStreamType, WUInt32 uiNumInstances, WBitflags<Flags> flags, WDynamicArray<T*>& out_MappedStreams)
 {
   out_MappedStreams.Clear();
   out_MappedStreams.Reserve(streamDescs.GetCount());
@@ -183,12 +183,12 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
     {
       bool bFound = false;
 
-      for (ezUInt32 i = 0; i < streams.GetCount(); ++i)
+      for (WUInt32 i = 0; i < streams.GetCount(); ++i)
       {
         auto& stream = streams[i];
         if (stream.GetName() == streamDesc.m_sName)
         {
-          EZ_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
+          W_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
 
           out_MappedStreams.PushBack(&stream);
           bFound = true;
@@ -198,44 +198,44 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
 
       if (!bFound)
       {
-        ezLog::Error("Bytecode expects an {} stream '{}'", sStreamType, streamDesc.m_sName);
-        return EZ_FAILURE;
+        WLog::Error("Bytecode expects an {} stream '{}'", sStreamType, streamDesc.m_sName);
+        return W_FAILURE;
       }
     }
   }
   else
   {
     if (streams.GetCount() != streamDescs.GetCount())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    for (ezUInt32 i = 0; i < streams.GetCount(); ++i)
+    for (WUInt32 i = 0; i < streams.GetCount(); ++i)
     {
       auto& stream = streams.GetPtr()[i];
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       auto& streamDesc = streamDescs.GetPtr()[i];
-      EZ_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
+      W_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
 #endif
 
       out_MappedStreams.PushBack(&stream);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezExpressionVM::MapFunctions(ezArrayPtr<const ezExpression::FunctionDesc> functionDescs, const ezExpression::GlobalData& globalData)
+WResult WExpressionVM::MapFunctions(WArrayPtr<const WExpression::FunctionDesc> functionDescs, const WExpression::GlobalData& globalData)
 {
   m_MappedFunctions.Clear();
   m_MappedFunctions.Reserve(functionDescs.GetCount());
 
   for (auto& functionDesc : functionDescs)
   {
-    ezUInt32 uiFunctionIndex = 0;
+    WUInt32 uiFunctionIndex = 0;
     if (!m_FunctionNamesToIndex.TryGetValue(functionDesc.m_sName, uiFunctionIndex))
     {
-      ezLog::Error("Bytecode expects a function called '{0}' but it was not registered for this VM", functionDesc.m_sName);
-      return EZ_FAILURE;
+      WLog::Error("Bytecode expects a function called '{0}' but it was not registered for this VM", functionDesc.m_sName);
+      return W_FAILURE;
     }
 
     auto& registeredFunction = m_Functions[uiFunctionIndex];
@@ -243,21 +243,21 @@ ezResult ezExpressionVM::MapFunctions(ezArrayPtr<const ezExpression::FunctionDes
     // verify signature
     if (functionDesc.m_InputTypes != registeredFunction.m_Desc.m_InputTypes || functionDesc.m_OutputType != registeredFunction.m_Desc.m_OutputType)
     {
-      ezLog::Error("Signature for registered function '{}' does not match the expected signature from bytecode", functionDesc.m_sName);
-      return EZ_FAILURE;
+      WLog::Error("Signature for registered function '{}' does not match the expected signature from bytecode", functionDesc.m_sName);
+      return W_FAILURE;
     }
 
     if (registeredFunction.m_ValidateGlobalDataFunc != nullptr)
     {
       if (registeredFunction.m_ValidateGlobalDataFunc(globalData).Failed())
       {
-        ezLog::Error("Global data validation for function '{0}' failed.", functionDesc.m_sName);
-        return EZ_FAILURE;
+        WLog::Error("Global data validation for function '{0}' failed.", functionDesc.m_sName);
+        return W_FAILURE;
       }
     }
 
     m_MappedFunctions.PushBack(&registeredFunction);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

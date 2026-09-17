@@ -6,45 +6,45 @@
 #include <QApplication>
 #include <QRect>
 
-QScreen& ezWidgetUtils::GetClosestScreen(const QPoint& point)
+QScreen& WWidgetUtils::GetClosestScreen(const QPoint& point)
 {
   QScreen* pClosestScreen = QApplication::screenAt(point);
   if (pClosestScreen == nullptr)
   {
     QList<QScreen*> screens = QApplication::screens();
-    float fShortestDistance = ezMath::Infinity<float>();
+    float fShortestDistance = WMath::Infinity<float>();
     for (QScreen* pScreen : screens)
     {
       const QRect geom = pScreen->geometry();
-      ezBoundingBox ezGeom = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(geom.center().x(), geom.center().y(), 0), ezVec3(geom.width() / 2.0f, geom.height() / 2.0f, 0));
-      const ezVec3 ezPoint(point.x(), point.y(), 0);
-      if (ezGeom.Contains(ezPoint))
+      WBoundingBox WGeom = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3(geom.center().x(), geom.center().y(), 0), WVec3(geom.width() / 2.0f, geom.height() / 2.0f, 0));
+      const WVec3 WPoint(point.x(), point.y(), 0);
+      if (WGeom.Contains(WPoint))
       {
         return *pScreen;
       }
-      float fDistance = ezGeom.GetDistanceSquaredTo(ezPoint);
+      float fDistance = WGeom.GetDistanceSquaredTo(WPoint);
       if (fDistance < fShortestDistance)
       {
         fShortestDistance = fDistance;
         pClosestScreen = pScreen;
       }
     }
-    EZ_ASSERT_DEV(pClosestScreen != nullptr, "There are no screens connected, UI cannot function.");
+    W_ASSERT_DEV(pClosestScreen != nullptr, "There are no screens connected, UI cannot function.");
   }
   return *pClosestScreen;
 }
 
-void ezWidgetUtils::AdjustGridDensity(
-  double& ref_fFinestDensity, double& ref_fRoughDensity, ezUInt32 uiWindowWidth, double fViewportSceneWidth, ezUInt32 uiMinPixelsForStep)
+void WWidgetUtils::AdjustGridDensity(
+  double& ref_fFinestDensity, double& ref_fRoughDensity, WUInt32 uiWindowWidth, double fViewportSceneWidth, WUInt32 uiMinPixelsForStep)
 {
   const double fMaxStepsFitInWindow = (double)uiWindowWidth / (double)uiMinPixelsForStep;
 
   const double fStartDensity = ref_fFinestDensity;
 
-  ezInt32 iFactor = 1;
+  WInt32 iFactor = 1;
   double fNewDensity = ref_fFinestDensity;
-  ezInt32 iFactors[2] = {5, 2};
-  ezInt32 iLastFactor = 0;
+  WInt32 iFactors[2] = {5, 2};
+  WInt32 iLastFactor = 0;
 
   while (true)
   {
@@ -65,14 +65,14 @@ void ezWidgetUtils::AdjustGridDensity(
   ref_fRoughDensity = fStartDensity * iFactor;
 }
 
-void ezWidgetUtils::ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
+void WWidgetUtils::ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
 {
-  out_fMinX = ezMath::RoundDown((double)viewportSceneRect.left(), fGridStops);
-  out_fMaxX = ezMath::RoundUp((double)viewportSceneRect.right(), fGridStops);
+  out_fMinX = WMath::RoundDown((double)viewportSceneRect.left(), fGridStops);
+  out_fMaxX = WMath::RoundUp((double)viewportSceneRect.right(), fGridStops);
 }
 
-void ezWidgetUtils::ComputeGridExtentsY(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinY, double& out_fMaxY)
+void WWidgetUtils::ComputeGridExtentsY(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinY, double& out_fMaxY)
 {
-  out_fMinY = ezMath::RoundDown((double)viewportSceneRect.top(), fGridStops);
-  out_fMaxY = ezMath::RoundUp((double)viewportSceneRect.bottom(), fGridStops);
+  out_fMinY = WMath::RoundDown((double)viewportSceneRect.top(), fGridStops);
+  out_fMaxY = WMath::RoundUp((double)viewportSceneRect.bottom(), fGridStops);
 }

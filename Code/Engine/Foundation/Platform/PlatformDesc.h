@@ -4,12 +4,12 @@
 
 #include <Foundation/Utilities/EnumerableClass.h>
 
-class EZ_FOUNDATION_DLL ezPlatformDesc : public ezEnumerable<ezPlatformDesc>
+class W_FOUNDATION_DLL WPlatformDesc : public WEnumerable<WPlatformDesc>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezPlatformDesc);
+  W_DECLARE_ENUMERABLE_CLASS(WPlatformDesc);
 
 public:
-  ezPlatformDesc(const char* szName, const char* szType)
+  WPlatformDesc(const char* szName, const char* szType)
   {
     m_szName = szName;
     m_szType = szType;
@@ -25,13 +25,13 @@ public:
     return m_szType;
   }
 
-  static const ezPlatformDesc& GetThisPlatformDesc()
+  static const WPlatformDesc& GetThisPlatformDesc()
   {
     return *s_pThisPlatform;
   }
 
 private:
-  static const ezPlatformDesc* s_pThisPlatform;
+  static const WPlatformDesc* s_pThisPlatform;
 
   const char* m_szName;
   const char* m_szType;

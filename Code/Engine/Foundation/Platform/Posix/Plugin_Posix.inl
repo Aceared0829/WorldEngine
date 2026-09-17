@@ -6,20 +6,20 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/System/Process.h>
 
-using ezPluginModule = void*;
+using WPluginModule = void*;
 
-bool ezPlugin::PlatformNeedsPluginCopy()
+bool WPlugin::PlatformNeedsPluginCopy()
 {
   return false;
 }
 
-void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
+void WPlugin::GetPluginPaths(WStringView sPluginName, WStringBuilder& sOriginalFile, WStringBuilder& sCopiedFile, WUInt8 uiFileCopyNumber)
 {
-  sOriginalFile = ezOSFile::GetApplicationDirectory();
+  sOriginalFile = WOSFile::GetApplicationDirectory();
   sOriginalFile.AppendPath(sPluginName);
   sOriginalFile.Append(".so");
 
-  sCopiedFile = ezOSFile::GetApplicationDirectory();
+  sCopiedFile = WOSFile::GetApplicationDirectory();
   sCopiedFile.AppendPath(sPluginName);
 
   if (uiFileCopyNumber > 0)
@@ -28,26 +28,26 @@ void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOrigin
   sCopiedFile.Append(".loaded");
 }
 
-ezResult UnloadPluginModule(ezPluginModule& Module, ezStringView sPluginFile)
+WResult UnloadPluginModule(WPluginModule& Module, WStringView sPluginFile)
 {
   if (dlclose(Module) != 0)
   {
-    ezStringBuilder tmp;
-    ezLog::Error("Could not unload plugin '{0}'. Error {1}", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
-    return EZ_FAILURE;
+    WStringBuilder tmp;
+    WLog::Error("Could not unload plugin '{0}'. Error {1}", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& Module, ezStringView sPluginFile)
+WResult LoadPluginModule(WStringView sFileToLoad, WPluginModule& Module, WStringView sPluginFile)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   Module = dlopen(sFileToLoad.GetData(tmp), RTLD_NOW | RTLD_GLOBAL);
   if (Module == nullptr)
   {
-    ezLog::Error("Could not load plugin '{0}'. Error {1}.\nSet the environment variable LD_DEBUG=all to get more information.", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
-    return EZ_FAILURE;
+    WLog::Error("Could not load plugin '{0}'. Error {1}.\nSet the environment variable LD_DEBUG=all to get more information.", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
+    return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

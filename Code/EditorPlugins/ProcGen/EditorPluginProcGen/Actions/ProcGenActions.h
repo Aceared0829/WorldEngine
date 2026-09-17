@@ -4,9 +4,9 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezPreferences;
+class WPreferences;
 
-class EZ_EDITORPLUGINPROCGEN_DLL ezProcGenActions
+class W_EDITORPLUGINPROCGEN_DLL WProcGenActions
 {
 public:
   static void RegisterActions();
@@ -14,14 +14,14 @@ public:
 
   static void MapMenuActions();
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hDumpAST;
-  static ezActionDescriptorHandle s_hDumpDisassembly;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hDumpAST;
+  static WActionDescriptorHandle s_hDumpDisassembly;
 };
 
-class EZ_EDITORPLUGINPROCGEN_DLL ezProcGenAction : public ezButtonAction
+class W_EDITORPLUGINPROCGEN_DLL WProcGenAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WProcGenAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -30,13 +30,13 @@ public:
     DumpDisassembly,
   };
 
-  ezProcGenAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezProcGenAction();
+  WProcGenAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WProcGenAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void OnPreferenceChange(ezPreferences* pref);
+  void OnPreferenceChange(WPreferences* pref);
 
   ActionType m_Type;
 };

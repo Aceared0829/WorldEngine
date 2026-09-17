@@ -6,35 +6,35 @@
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
 /// The world rtti converter context tracks created objects and is capable of also handling
-///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
+///  components / game objects. Used by the WIPCObjectMirror to create / destroy objects.
 ///
 /// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.
 /// As requests to dead objects shouldn't generally happen this is for the time being not a problem.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public ezRttiConverterContext
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WWorldRttiConverterContext : public WRttiConverterContext
 {
 public:
   virtual void Clear() override;
   void DeleteExistingObjects();
 
-  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
-  virtual void DeleteObject(const ezUuid& guid) override;
+  virtual WInternal::NewInstance<void> CreateObject(const WUuid& guid, const WRTTI* pRtti) override;
+  virtual void DeleteObject(const WUuid& guid) override;
 
-  virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
-  virtual void UnregisterObject(const ezUuid& guid) override;
+  virtual void RegisterObject(const WUuid& guid, const WRTTI* pRtti, void* pObject) override;
+  virtual void UnregisterObject(const WUuid& guid) override;
 
-  virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const override;
-  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const override;
+  virtual WRttiConverterObject GetObjectByGUID(const WUuid& guid) const override;
+  virtual WUuid GetObjectGUID(const WRTTI* pRtti, const void* pObject) const override;
 
-  virtual void OnUnknownTypeError(ezStringView sTypeName) override;
+  virtual void OnUnknownTypeError(WStringView sTypeName) override;
 
-  ezWorld* m_pWorld = nullptr;
-  ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
-  ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
+  WWorld* m_pWorld = nullptr;
+  WEditorGuidEngineHandleMap<WGameObjectHandle> m_GameObjectMap;
+  WEditorGuidEngineHandleMap<WComponentHandle> m_ComponentMap;
 
-  ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
-  ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
-  ezUInt32 m_uiNextComponentPickingID = 1;
-  ezUInt32 m_uiHighlightID = 1;
+  WEditorGuidEngineHandleMap<WUInt32> m_OtherPickingMap;
+  WEditorGuidEngineHandleMap<WUInt32> m_ComponentPickingMap;
+  WUInt32 m_uiNextComponentPickingID = 1;
+  WUInt32 m_uiHighlightID = 1;
 
   struct Event
   {
@@ -45,10 +45,10 @@ public:
     };
 
     Type m_Type;
-    ezUuid m_ObjectGuid;
+    WUuid m_ObjectGuid;
   };
 
-  ezEvent<const Event&> m_Events;
+  WEvent<const Event&> m_Events;
 
-  ezSet<ezString> m_UnknownTypes;
+  WSet<WString> m_UnknownTypes;
 };

@@ -5,7 +5,7 @@
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(World);
+W_CREATE_SIMPLE_TEST_GROUP(World);
 
 namespace
 {
@@ -13,26 +13,26 @@ namespace
   {
     struct
     {
-      ezGameObject* pParent1;
-      ezGameObject* pParent2;
-      ezGameObject* pChild11;
-      ezGameObject* pChild21;
+      WGameObject* pParent1;
+      WGameObject* pParent2;
+      WGameObject* pChild11;
+      WGameObject* pChild21;
     };
-    ezGameObject* pObjects[4];
+    WGameObject* pObjects[4];
   };
 
-  TestWorldObjects CreateTestWorld(ezWorld& ref_world, bool bDynamic)
+  TestWorldObjects CreateTestWorld(WWorld& ref_world, bool bDynamic)
   {
     TestWorldObjects testWorldObjects;
-    ezMemoryUtils::ZeroFill(&testWorldObjects, 1);
+    WMemoryUtils::ZeroFill(&testWorldObjects, 1);
 
-    ezQuat q = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
+    WQuat q = WQuat::MakeFromAxisAndAngle(WVec3(0.0f, 0.0f, 1.0f), WAngle::MakeFromDegree(90.0f));
 
-    ezGameObjectDesc desc;
+    WGameObjectDesc desc;
     desc.m_bDynamic = bDynamic;
-    desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
+    desc.m_LocalPosition = WVec3(100.0f, 0.0f, 0.0f);
     desc.m_LocalRotation = q;
-    desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
+    desc.m_LocalScaling = WVec3(1.5f, 1.5f, 1.5f);
     desc.m_sName.Assign("Parent1");
 
     ref_world.CreateObject(desc, testWorldObjects.pParent1);
@@ -51,77 +51,77 @@ namespace
     return testWorldObjects;
   }
 
-  void TestTransforms(const TestWorldObjects& o, ezVec3 vOffset = ezVec3(100.0f, 0.0f, 0.0f))
+  void TestTransforms(const TestWorldObjects& o, WVec3 vOffset = WVec3(100.0f, 0.0f, 0.0f))
   {
-    const float eps = ezMath::DefaultEpsilon<float>();
-    ezQuat q = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
+    const float eps = WMath::DefaultEpsilon<float>();
+    WQuat q = WQuat::MakeFromAxisAndAngle(WVec3(0.0f, 0.0f, 1.0f), WAngle::MakeFromDegree(90.0f));
 
-    for (ezUInt32 i = 0; i < 2; ++i)
+    for (WUInt32 i = 0; i < 2; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset, 0);
-      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
+      W_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset, 0);
+      W_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
+      W_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), WVec3(1.5f, 1.5f, 1.5f), 0);
     }
 
-    for (ezUInt32 i = 2; i < 4; ++i)
+    for (WUInt32 i = 2; i < 4; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset + ezVec3(0.0f, 150.0f, 0.0f), eps * 2.0f);
-      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q * q, eps * 10.0f));
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(2.25f, 2.25f, 2.25f), 0);
+      W_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset + WVec3(0.0f, 150.0f, 0.0f), eps * 2.0f);
+      W_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q * q, eps * 10.0f));
+      W_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), WVec3(2.25f, 2.25f, 2.25f), 0);
     }
   }
 
-  void SanityCheckWorld(ezWorld& ref_world)
+  void SanityCheckWorld(WWorld& ref_world)
   {
     struct Traverser
     {
-      Traverser(ezWorld& ref_world)
+      Traverser(WWorld& ref_world)
         : m_World(ref_world)
       {
       }
 
-      ezWorld& m_World;
-      ezSet<ezGameObject*> m_Found;
+      WWorld& m_World;
+      WSet<WGameObject*> m_Found;
 
-      ezVisitorExecution::Enum Visit(ezGameObject* pObject)
+      WVisitorExecution::Enum Visit(WGameObject* pObject)
       {
-        ezGameObject* pObject2 = nullptr;
-        EZ_TEST_BOOL_MSG(m_World.TryGetObject(pObject->GetHandle(), pObject2), "Visited object that is not part of the world!");
-        EZ_TEST_BOOL_MSG(pObject2 == pObject, "Handle did not resolve to the same object!");
-        EZ_TEST_BOOL_MSG(!m_Found.Contains(pObject), "Object visited twice!");
+        WGameObject* pObject2 = nullptr;
+        W_TEST_BOOL_MSG(m_World.TryGetObject(pObject->GetHandle(), pObject2), "Visited object that is not part of the world!");
+        W_TEST_BOOL_MSG(pObject2 == pObject, "Handle did not resolve to the same object!");
+        W_TEST_BOOL_MSG(!m_Found.Contains(pObject), "Object visited twice!");
         m_Found.Insert(pObject);
 
-        const ezUInt32 uiChildren = pObject->GetChildCount();
-        ezUInt32 uiChildren2 = 0;
+        const WUInt32 uiChildren = pObject->GetChildCount();
+        WUInt32 uiChildren2 = 0;
         for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
         {
           uiChildren2++;
           auto handle = it->GetHandle();
-          ezGameObject* pChild = nullptr;
-          EZ_TEST_BOOL_MSG(m_World.TryGetObject(handle, pChild), "Could not resolve child!");
-          ezGameObject* pParent = pChild->GetParent();
-          EZ_TEST_BOOL_MSG(pParent == pObject, "pObject's child's parent does not point to pObject!");
+          WGameObject* pChild = nullptr;
+          W_TEST_BOOL_MSG(m_World.TryGetObject(handle, pChild), "Could not resolve child!");
+          WGameObject* pParent = pChild->GetParent();
+          W_TEST_BOOL_MSG(pParent == pObject, "pObject's child's parent does not point to pObject!");
         }
-        EZ_TEST_INT(uiChildren, uiChildren2);
-        return ezVisitorExecution::Continue;
+        W_TEST_INT(uiChildren, uiChildren2);
+        return WVisitorExecution::Continue;
       }
     };
 
     Traverser traverser(ref_world);
-    ref_world.Traverse(ezWorld::VisitorFunc(&Traverser::Visit, &traverser), ezWorld::TraversalMethod::BreadthFirst);
+    ref_world.Traverse(WWorld::VisitorFunc(&Traverser::Visit, &traverser), WWorld::TraversalMethod::BreadthFirst);
   }
 
-  class CustomCoordinateSystemProvider : public ezCoordinateSystemProvider
+  class CustomCoordinateSystemProvider : public WCoordinateSystemProvider
   {
   public:
-    CustomCoordinateSystemProvider(const ezWorld* pWorld)
-      : ezCoordinateSystemProvider(pWorld)
+    CustomCoordinateSystemProvider(const WWorld* pWorld)
+      : WCoordinateSystemProvider(pWorld)
     {
     }
 
-    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
+    virtual void GetCoordinateSystem(const WVec3& vGlobalPosition, WCoordinateSystem& out_coordinateSystem) const override
     {
-      const ezMat3 mTmp = ezGraphicsUtils::CreateLookAtViewMatrix(-vGlobalPosition, ezVec3(0, 0, 1), ezHandedness::LeftHanded);
+      const WMat3 mTmp = WGraphicsUtils::CreateLookAtViewMatrix(-vGlobalPosition, WVec3(0, 0, 1), WHandedness::LeftHanded);
 
       out_coordinateSystem.m_vRightDir = mTmp.GetRow(0);
       out_coordinateSystem.m_vUpDir = mTmp.GetRow(1);
@@ -129,26 +129,26 @@ namespace
     }
   };
 
-  class VelocityTestModule : public ezWorldModule
+  class VelocityTestModule : public WWorldModule
   {
-    EZ_ADD_DYNAMIC_REFLECTION(VelocityTestModule, ezWorldModule);
-    EZ_DECLARE_WORLD_MODULE();
+    W_ADD_DYNAMIC_REFLECTION(VelocityTestModule, WWorldModule);
+    W_DECLARE_WORLD_MODULE();
 
   public:
-    VelocityTestModule(ezWorld* pWorld)
-      : ezWorldModule(pWorld)
+    VelocityTestModule(WWorld* pWorld)
+      : WWorldModule(pWorld)
     {
     }
 
     virtual void Initialize() override
     {
       {
-        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::SetLocalPos, this);
+        auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::SetLocalPos, this);
         RegisterUpdateFunction(desc);
       }
 
       {
-        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::ResetGlobalPos, this);
+        auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::ResetGlobalPos, this);
         RegisterUpdateFunction(desc);
       }
     }
@@ -160,12 +160,12 @@ namespace
 
       for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
       {
-        ezUInt32 i = it->GetHandle().GetInternalID().m_InstanceIndex;
+        WUInt32 i = it->GetHandle().GetInternalID().m_InstanceIndex;
 
-        ezVec3 newPos = ezVec3(i * 10.0f, 0, 0);
+        WVec3 newPos = WVec3(i * 10.0f, 0, 0);
         it->SetLocalPosition(newPos);
 
-        ezQuat newRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(i * 30.0f));
+        WQuat newRot = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromDegree(i * 30.0f));
         it->SetLocalRotation(newRot);
 
         if (i > 5)
@@ -186,7 +186,7 @@ namespace
 
       for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
       {
-        it->SetGlobalPosition(ezVec3::MakeZero());
+        it->SetGlobalPosition(WVec3::MakeZero());
       }
     }
 
@@ -195,18 +195,18 @@ namespace
   };
 
   // clang-format off
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(VelocityTestModule, 1, ezRTTINoAllocator)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
-  EZ_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(VelocityTestModule, 1, WRTTINoAllocator)
+  W_END_DYNAMIC_REFLECTED_TYPE;
+  W_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
   // clang-format on
 
-  ezGameObject* CreateObj(ezWorld* pWorld, ezStringView sName, ezGameObject* pParent = nullptr, ezStringView sGlobalkey = {})
+  WGameObject* CreateObj(WWorld* pWorld, WStringView sName, WGameObject* pParent = nullptr, WStringView sGlobalkey = {})
   {
-    ezGameObjectDesc gd;
+    WGameObjectDesc gd;
     gd.m_sName.Assign(sName);
-    gd.m_hParent = pParent ? pParent->GetHandle() : ezGameObjectHandle();
+    gd.m_hParent = pParent ? pParent->GetHandle() : WGameObjectHandle();
 
-    ezGameObject* go;
+    WGameObject* go;
     pWorld->CreateObject(gd, go);
 
     if (!sGlobalkey.IsEmpty())
@@ -218,35 +218,35 @@ namespace
   }
 } // namespace
 
-class ezGameObjectTest
+class WGameObjectTest
 {
 public:
-  static void TestInternals(ezGameObject* pObject, ezGameObject* pParent, ezUInt32 uiHierarchyLevel)
+  static void TestInternals(WGameObject* pObject, WGameObject* pParent, WUInt32 uiHierarchyLevel)
   {
-    EZ_TEST_INT(pObject->m_uiHierarchyLevel, uiHierarchyLevel);
-    EZ_TEST_BOOL(pObject->m_pTransformationData->m_pObject == pObject);
+    W_TEST_INT(pObject->m_uiHierarchyLevel, uiHierarchyLevel);
+    W_TEST_BOOL(pObject->m_pTransformationData->m_pObject == pObject);
 
     if (pParent)
     {
-      EZ_TEST_BOOL(pObject->m_pTransformationData->m_pParentData->m_pObject == pParent);
+      W_TEST_BOOL(pObject->m_pTransformationData->m_pParentData->m_pObject == pParent);
     }
 
-    EZ_TEST_BOOL(pObject->m_pTransformationData->m_pParentData == (pParent != nullptr ? pParent->m_pTransformationData : nullptr));
-    EZ_TEST_BOOL(pObject->GetParent() == pParent);
+    W_TEST_BOOL(pObject->m_pTransformationData->m_pParentData == (pParent != nullptr ? pParent->m_pTransformationData : nullptr));
+    W_TEST_BOOL(pObject->GetParent() == pParent);
   }
 };
 
-EZ_CREATE_SIMPLE_TEST(World, World)
+W_CREATE_SIMPLE_TEST(World, World)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transforms dynamic")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Transforms dynamic")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, true);
 
-    ezVec3 offset = ezVec3(200.0f, 0.0f, 0.0f);
+    WVec3 offset = WVec3(200.0f, 0.0f, 0.0f);
     o.pParent1->SetLocalPosition(offset);
     o.pParent2->SetLocalPosition(offset);
 
@@ -255,17 +255,17 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     TestTransforms(o, offset);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transforms static")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Transforms static")
   {
-    ezWorldDesc worldDesc("Test");
+    WWorldDesc worldDesc("Test");
     worldDesc.m_bReportErrorWhenStaticObjectMoves = false;
 
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, false);
 
-    ezVec3 offset = ezVec3(200.0f, 0.0f, 0.0f);
+    WVec3 offset = WVec3(200.0f, 0.0f, 0.0f);
     o.pParent1->SetLocalPosition(offset);
     o.pParent2->SetLocalPosition(offset);
 
@@ -275,141 +275,141 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     TestTransforms(o, offset);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GameObject parenting")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
-    const float eps = ezMath::DefaultEpsilon<float>();
-    ezQuat q = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
+    const float eps = WMath::DefaultEpsilon<float>();
+    WQuat q = WQuat::MakeFromAxisAndAngle(WVec3(0.0f, 0.0f, 1.0f), WAngle::MakeFromDegree(90.0f));
 
-    ezGameObjectDesc desc;
-    desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
+    WGameObjectDesc desc;
+    desc.m_LocalPosition = WVec3(100.0f, 0.0f, 0.0f);
     desc.m_LocalRotation = q;
-    desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
+    desc.m_LocalScaling = WVec3(1.5f, 1.5f, 1.5f);
     desc.m_sName.Assign("Parent");
 
-    ezGameObject* pParentObject;
-    ezGameObjectHandle parentObject = world.CreateObject(desc, pParentObject);
+    WGameObject* pParentObject;
+    WGameObjectHandle parentObject = world.CreateObject(desc, pParentObject);
 
-    EZ_TEST_VEC3(pParentObject->GetLocalPosition(), desc.m_LocalPosition, 0);
-    EZ_TEST_BOOL(pParentObject->GetLocalRotation() == desc.m_LocalRotation);
-    EZ_TEST_VEC3(pParentObject->GetLocalScaling(), desc.m_LocalScaling, 0);
+    W_TEST_VEC3(pParentObject->GetLocalPosition(), desc.m_LocalPosition, 0);
+    W_TEST_BOOL(pParentObject->GetLocalRotation() == desc.m_LocalRotation);
+    W_TEST_VEC3(pParentObject->GetLocalScaling(), desc.m_LocalScaling, 0);
 
-    EZ_TEST_VEC3(pParentObject->GetGlobalPosition(), desc.m_LocalPosition, 0);
-    EZ_TEST_BOOL(pParentObject->GetGlobalRotation().IsEqualRotation(desc.m_LocalRotation, eps * 10.0f));
-    EZ_TEST_VEC3(pParentObject->GetGlobalScaling(), desc.m_LocalScaling, 0);
+    W_TEST_VEC3(pParentObject->GetGlobalPosition(), desc.m_LocalPosition, 0);
+    W_TEST_BOOL(pParentObject->GetGlobalRotation().IsEqualRotation(desc.m_LocalRotation, eps * 10.0f));
+    W_TEST_VEC3(pParentObject->GetGlobalScaling(), desc.m_LocalScaling, 0);
 
-    EZ_TEST_BOOL(pParentObject->GetName() == desc.m_sName.GetString());
+    W_TEST_BOOL(pParentObject->GetName() == desc.m_sName.GetString());
 
     desc.m_LocalRotation.SetIdentity();
     desc.m_LocalScaling.Set(1.0f);
     desc.m_hParent = parentObject;
 
-    ezGameObjectHandle childObjects[10];
-    for (ezUInt32 i = 0; i < 10; ++i)
+    WGameObjectHandle childObjects[10];
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      ezStringBuilder sb;
+      WStringBuilder sb;
       sb.AppendFormat("Child_{0}", i);
       desc.m_sName.Assign(sb.GetData());
 
-      desc.m_LocalPosition = ezVec3(i * 10.0f, 0.0f, 0.0f);
+      desc.m_LocalPosition = WVec3(i * 10.0f, 0.0f, 0.0f);
 
       childObjects[i] = world.CreateObject(desc);
     }
 
-    ezUInt32 uiCounter = 0;
+    WUInt32 uiCounter = 0;
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
-      ezStringBuilder sb;
+      WStringBuilder sb;
       sb.AppendFormat("Child_{0}", uiCounter);
 
-      EZ_TEST_BOOL(it->GetName() == sb);
+      W_TEST_BOOL(it->GetName() == sb);
 
-      EZ_TEST_VEC3(it->GetGlobalPosition(), ezVec3(100.0f, uiCounter * 15.0f, 0.0f), eps * 2.0f); // 15 because parent is scaled by 1.5
-      EZ_TEST_BOOL(it->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
-      EZ_TEST_VEC3(it->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0.0f);
+      W_TEST_VEC3(it->GetGlobalPosition(), WVec3(100.0f, uiCounter * 15.0f, 0.0f), eps * 2.0f); // 15 because parent is scaled by 1.5
+      W_TEST_BOOL(it->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
+      W_TEST_VEC3(it->GetGlobalScaling(), WVec3(1.5f, 1.5f, 1.5f), 0.0f);
 
       ++uiCounter;
     }
 
-    EZ_TEST_INT(uiCounter, 10);
-    EZ_TEST_INT(pParentObject->GetChildCount(), 10);
+    W_TEST_INT(uiCounter, 10);
+    W_TEST_INT(pParentObject->GetChildCount(), 10);
 
     world.DeleteObjectNow(childObjects[0]);
     world.DeleteObjectNow(childObjects[3]);
     world.DeleteObjectNow(childObjects[9]);
 
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[0]));
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[9]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[0]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[3]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[9]));
 
-    ezUInt32 indices[7] = {1, 2, 4, 5, 6, 7, 8};
+    WUInt32 indices[7] = {1, 2, 4, 5, 6, 7, 8};
 
     uiCounter = 0;
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
-      ezStringBuilder sb;
+      WStringBuilder sb;
       sb.AppendFormat("Child_{0}", indices[uiCounter]);
 
-      EZ_TEST_BOOL(it->GetName() == sb);
+      W_TEST_BOOL(it->GetName() == sb);
 
       ++uiCounter;
     }
 
-    EZ_TEST_INT(uiCounter, 7);
-    EZ_TEST_INT(pParentObject->GetChildCount(), 7);
+    W_TEST_INT(uiCounter, 7);
+    W_TEST_INT(pParentObject->GetChildCount(), 7);
 
     // do one update step so dead objects get deleted
     world.Update();
     SanityCheckWorld(world);
 
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[0]));
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
-    EZ_TEST_BOOL(!world.IsValidObject(childObjects[9]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[0]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[3]));
+    W_TEST_BOOL(!world.IsValidObject(childObjects[9]));
 
     uiCounter = 0;
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
-      ezStringBuilder sb;
+      WStringBuilder sb;
       sb.AppendFormat("Child_{0}", indices[uiCounter]);
 
-      EZ_TEST_BOOL(it->GetName() == sb);
+      W_TEST_BOOL(it->GetName() == sb);
 
       ++uiCounter;
     }
 
-    EZ_TEST_INT(uiCounter, 7);
-    EZ_TEST_INT(pParentObject->GetChildCount(), 7);
+    W_TEST_INT(uiCounter, 7);
+    W_TEST_INT(pParentObject->GetChildCount(), 7);
 
     world.DeleteObjectDelayed(parentObject);
-    EZ_TEST_BOOL(world.IsValidObject(parentObject));
+    W_TEST_BOOL(world.IsValidObject(parentObject));
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indices); ++i)
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(indices); ++i)
     {
-      EZ_TEST_BOOL(world.IsValidObject(childObjects[indices[i]]));
+      W_TEST_BOOL(world.IsValidObject(childObjects[indices[i]]));
     }
 
     // do one update step so dead objects get deleted
     world.Update();
     SanityCheckWorld(world);
 
-    EZ_TEST_BOOL(!world.IsValidObject(parentObject));
+    W_TEST_BOOL(!world.IsValidObject(parentObject));
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(!world.IsValidObject(childObjects[i]));
+      W_TEST_BOOL(!world.IsValidObject(childObjects[i]));
     }
 
-    EZ_TEST_INT(world.GetObjectCount(), 0);
+    W_TEST_INT(world.GetObjectCount(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 1")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Re-parenting 1")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, true);
 
@@ -421,60 +421,60 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     TestTransforms(o);
 
-    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
-    ezGameObjectTest::TestInternals(o.pParent2, o.pParent1, 1);
-    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
-    ezGameObjectTest::TestInternals(o.pChild21, o.pParent2, 2);
+    WGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
+    WGameObjectTest::TestInternals(o.pParent2, o.pParent1, 1);
+    WGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
+    WGameObjectTest::TestInternals(o.pChild21, o.pParent2, 2);
 
-    EZ_TEST_INT(o.pParent1->GetChildCount(), 2);
+    W_TEST_INT(o.pParent1->GetChildCount(), 2);
     auto it = o.pParent1->GetChildren();
-    EZ_TEST_BOOL(o.pChild11 == it);
+    W_TEST_BOOL(o.pChild11 == it);
     ++it;
-    EZ_TEST_BOOL(o.pParent2 == it);
+    W_TEST_BOOL(o.pParent2 == it);
     ++it;
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
 
     it = o.pParent2->GetChildren();
-    EZ_TEST_BOOL(o.pChild21 == it);
+    W_TEST_BOOL(o.pChild21 == it);
     ++it;
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 2")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Re-parenting 2")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, true);
 
-    o.pChild21->SetParent(ezGameObjectHandle());
+    o.pChild21->SetParent(WGameObjectHandle());
     SanityCheckWorld(world);
     // No need to update the world since re-parenting is now done immediately.
     // world.Update();
 
     TestTransforms(o);
 
-    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
-    ezGameObjectTest::TestInternals(o.pParent2, nullptr, 0);
-    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
-    ezGameObjectTest::TestInternals(o.pChild21, nullptr, 0);
+    WGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
+    WGameObjectTest::TestInternals(o.pParent2, nullptr, 0);
+    WGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
+    WGameObjectTest::TestInternals(o.pChild21, nullptr, 0);
 
     auto it = o.pParent1->GetChildren();
-    EZ_TEST_BOOL(o.pChild11 == it);
+    W_TEST_BOOL(o.pChild11 == it);
     ++it;
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
 
-    EZ_TEST_INT(o.pParent2->GetChildCount(), 0);
+    W_TEST_INT(o.pParent2->GetChildCount(), 0);
     it = o.pParent2->GetChildren();
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 3")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Re-parenting 3")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, true);
     SanityCheckWorld(world);
@@ -486,7 +486,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pParent2->SetParent(o.pParent1->GetHandle());
     SanityCheckWorld(world);
     // pChild21 has a previous (pChild11) and next (pParent2) sibling.
-    o.pChild21->SetParent(ezGameObjectHandle());
+    o.pChild21->SetParent(WGameObjectHandle());
     SanityCheckWorld(world);
     // pChild21 has no siblings.
     o.pChild21->SetParent(o.pParent1->GetHandle());
@@ -494,11 +494,11 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     // pChild21 has a previous (pChild11) sibling again.
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Traversal")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world, false);
 
@@ -507,217 +507,217 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       {
         BreadthFirstTest() { m_uiCounter = 0; }
 
-        ezVisitorExecution::Enum Visit(ezGameObject* pObject)
+        WVisitorExecution::Enum Visit(WGameObject* pObject)
         {
-          if (m_uiCounter < EZ_ARRAY_SIZE(m_o.pObjects))
+          if (m_uiCounter < W_ARRAY_SIZE(m_o.pObjects))
           {
-            EZ_TEST_BOOL(pObject == m_o.pObjects[m_uiCounter]);
+            W_TEST_BOOL(pObject == m_o.pObjects[m_uiCounter]);
           }
 
           ++m_uiCounter;
-          return ezVisitorExecution::Continue;
+          return WVisitorExecution::Continue;
         }
 
-        ezUInt32 m_uiCounter;
+        WUInt32 m_uiCounter;
         TestWorldObjects m_o;
       };
 
       BreadthFirstTest bft;
       bft.m_o = o;
 
-      world.Traverse(ezWorld::VisitorFunc(&BreadthFirstTest::Visit, &bft), ezWorld::BreadthFirst);
-      EZ_TEST_INT(bft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
+      world.Traverse(WWorld::VisitorFunc(&BreadthFirstTest::Visit, &bft), WWorld::BreadthFirst);
+      W_TEST_INT(bft.m_uiCounter, W_ARRAY_SIZE(o.pObjects));
     }
 
     {
-      world.CreateObject(ezGameObjectDesc());
+      world.CreateObject(WGameObjectDesc());
 
       struct DepthFirstTest
       {
         DepthFirstTest() { m_uiCounter = 0; }
 
-        ezVisitorExecution::Enum Visit(ezGameObject* pObject)
+        WVisitorExecution::Enum Visit(WGameObject* pObject)
         {
           if (m_uiCounter == 0)
           {
-            EZ_TEST_BOOL(pObject == m_o.pParent1);
+            W_TEST_BOOL(pObject == m_o.pParent1);
           }
           else if (m_uiCounter == 1)
           {
-            EZ_TEST_BOOL(pObject == m_o.pChild11);
+            W_TEST_BOOL(pObject == m_o.pChild11);
           }
           else if (m_uiCounter == 2)
           {
-            EZ_TEST_BOOL(pObject == m_o.pParent2);
+            W_TEST_BOOL(pObject == m_o.pParent2);
           }
           else if (m_uiCounter == 3)
           {
-            EZ_TEST_BOOL(pObject == m_o.pChild21);
+            W_TEST_BOOL(pObject == m_o.pChild21);
           }
 
           ++m_uiCounter;
-          if (m_uiCounter >= EZ_ARRAY_SIZE(m_o.pObjects))
-            return ezVisitorExecution::Stop;
+          if (m_uiCounter >= W_ARRAY_SIZE(m_o.pObjects))
+            return WVisitorExecution::Stop;
 
-          return ezVisitorExecution::Continue;
+          return WVisitorExecution::Continue;
         }
 
-        ezUInt32 m_uiCounter;
+        WUInt32 m_uiCounter;
         TestWorldObjects m_o;
       };
 
       DepthFirstTest dft;
       dft.m_o = o;
 
-      world.Traverse(ezWorld::VisitorFunc(&DepthFirstTest::Visit, &dft), ezWorld::DepthFirst);
-      EZ_TEST_INT(dft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
+      world.Traverse(WWorld::VisitorFunc(&DepthFirstTest::Visit, &dft), WWorld::DepthFirst);
+      W_TEST_INT(dft.m_uiCounter, W_ARRAY_SIZE(o.pObjects));
     }
 
     {
-      EZ_TEST_INT(world.GetObjectCount(), 5);
+      W_TEST_INT(world.GetObjectCount(), 5);
       world.DeleteObjectNow(o.pChild11->GetHandle(), false);
-      EZ_TEST_INT(world.GetObjectCount(), 4);
+      W_TEST_INT(world.GetObjectCount(), 4);
 
       for (auto it = world.GetObjects(); it.IsValid(); ++it)
       {
-        EZ_TEST_BOOL(!it->GetHandle().IsInvalidated());
+        W_TEST_BOOL(!it->GetHandle().IsInvalidated());
       }
 
-      const ezWorld& constWorld = world;
+      const WWorld& constWorld = world;
       for (auto it = constWorld.GetObjects(); it.IsValid(); ++it)
       {
-        EZ_TEST_BOOL(!it->GetHandle().IsInvalidated());
+        W_TEST_BOOL(!it->GetHandle().IsInvalidated());
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiple Worlds")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Multiple Worlds")
   {
-    ezWorldDesc worldDesc1("Test1");
-    ezWorld world1(worldDesc1);
-    EZ_LOCK(world1.GetWriteMarker());
+    WWorldDesc worldDesc1("Test1");
+    WWorld world1(worldDesc1);
+    W_LOCK(world1.GetWriteMarker());
 
-    ezWorldDesc worldDesc2("Test2");
-    ezWorld world2(worldDesc2);
-    EZ_LOCK(world2.GetWriteMarker());
+    WWorldDesc worldDesc2("Test2");
+    WWorld world2(worldDesc2);
+    W_LOCK(world2.GetWriteMarker());
 
-    ezGameObjectDesc desc;
+    WGameObjectDesc desc;
     desc.m_sName.Assign("Obj1");
 
-    ezGameObjectHandle hObj1 = world1.CreateObject(desc);
-    EZ_TEST_BOOL(world1.IsValidObject(hObj1));
+    WGameObjectHandle hObj1 = world1.CreateObject(desc);
+    W_TEST_BOOL(world1.IsValidObject(hObj1));
 
     desc.m_sName.Assign("Obj2");
 
-    ezGameObjectHandle hObj2 = world2.CreateObject(desc);
-    EZ_TEST_BOOL(world2.IsValidObject(hObj2));
+    WGameObjectHandle hObj2 = world2.CreateObject(desc);
+    W_TEST_BOOL(world2.IsValidObject(hObj2));
 
-    ezGameObject* pObj1 = nullptr;
-    const ezGameObject* pObjConst = nullptr;
-    EZ_TEST_BOOL(world1.TryGetObject(hObj1, pObj1));
-    EZ_TEST_BOOL(pObj1 != nullptr);
+    WGameObject* pObj1 = nullptr;
+    const WGameObject* pObjConst = nullptr;
+    W_TEST_BOOL(world1.TryGetObject(hObj1, pObj1));
+    W_TEST_BOOL(pObj1 != nullptr);
 
     pObj1->SetGlobalKey("Obj1");
     pObj1 = nullptr;
-    EZ_TEST_BOOL(world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj1"), pObj1));
-    EZ_TEST_BOOL(!world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj2"), pObj1));
-    EZ_TEST_BOOL(pObj1 != nullptr);
-    EZ_TEST_BOOL(world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj1"), pObjConst));
-    EZ_TEST_BOOL(pObj1 == pObjConst);
+    W_TEST_BOOL(world1.TryGetObjectWithGlobalKey(WTempHashedString("Obj1"), pObj1));
+    W_TEST_BOOL(!world1.TryGetObjectWithGlobalKey(WTempHashedString("Obj2"), pObj1));
+    W_TEST_BOOL(pObj1 != nullptr);
+    W_TEST_BOOL(world1.TryGetObjectWithGlobalKey(WTempHashedString("Obj1"), pObjConst));
+    W_TEST_BOOL(pObj1 == pObjConst);
 
-    ezGameObject* pObj2 = nullptr;
-    EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
-    EZ_TEST_BOOL(pObj2 != nullptr);
+    WGameObject* pObj2 = nullptr;
+    W_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
+    W_TEST_BOOL(pObj2 != nullptr);
 
     pObj2->SetGlobalKey("Obj2");
     pObj2 = nullptr;
-    EZ_TEST_BOOL(world2.TryGetObjectWithGlobalKey(ezTempHashedString("Obj2"), pObj2));
-    EZ_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(ezTempHashedString("Obj1"), pObj2));
-    EZ_TEST_BOOL(pObj2 != nullptr);
+    W_TEST_BOOL(world2.TryGetObjectWithGlobalKey(WTempHashedString("Obj2"), pObj2));
+    W_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(WTempHashedString("Obj1"), pObj2));
+    W_TEST_BOOL(pObj2 != nullptr);
 
     pObj2->SetGlobalKey("Deschd");
-    EZ_TEST_BOOL(world2.TryGetObjectWithGlobalKey(ezTempHashedString("Deschd"), pObj2));
-    EZ_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(ezTempHashedString("Obj2"), pObj2));
+    W_TEST_BOOL(world2.TryGetObjectWithGlobalKey(WTempHashedString("Deschd"), pObj2));
+    W_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(WTempHashedString("Obj2"), pObj2));
 
     world2.DeleteObjectNow(hObj2);
 
-    EZ_TEST_BOOL(!world2.IsValidObject(hObj2));
-    EZ_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(ezTempHashedString("Deschd"), pObj2));
+    W_TEST_BOOL(!world2.IsValidObject(hObj2));
+    W_TEST_BOOL(!world2.TryGetObjectWithGlobalKey(WTempHashedString("Deschd"), pObj2));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom coordinate system")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Custom coordinate system")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
 
-    ezSharedPtr<CustomCoordinateSystemProvider> pProvider = EZ_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
+    WSharedPtr<CustomCoordinateSystemProvider> pProvider = W_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
     CustomCoordinateSystemProvider* pProviderBackup = pProvider.Borrow();
 
     world.SetCoordinateSystemProvider(pProvider);
-    EZ_TEST_BOOL(&world.GetCoordinateSystemProvider() == pProviderBackup);
+    W_TEST_BOOL(&world.GetCoordinateSystemProvider() == pProviderBackup);
 
-    ezVec3 pos = ezVec3(2, 3, 0);
+    WVec3 pos = WVec3(2, 3, 0);
 
-    ezCoordinateSystem coordSys;
+    WCoordinateSystem coordSys;
     world.GetCoordinateSystem(pos, coordSys);
 
-    EZ_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), ezMath::SmallEpsilon<float>());
-    EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::SmallEpsilon<float>());
+    W_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), WMath::SmallEpsilon<float>());
+    W_TEST_VEC3(coordSys.m_vUpDir, WVec3(0, 0, 1), WMath::SmallEpsilon<float>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Active Flag / Active State")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Active Flag / Active State")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
-    ezGameObjectHandle hParent;
-    ezGameObjectDesc desc;
-    ezGameObjectHandle hObjects[10];
-    ezGameObject* pObjects[10];
+    WGameObjectHandle hParent;
+    WGameObjectDesc desc;
+    WGameObjectHandle hObjects[10];
+    WGameObject* pObjects[10];
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
       desc.m_hParent = hParent;
       hObjects[i] = world.CreateObject(desc, pObjects[i]);
       hParent = hObjects[i];
 
-      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag());
-      EZ_TEST_BOOL(pObjects[i]->IsActive());
+      W_TEST_BOOL(pObjects[i]->GetActiveFlag());
+      W_TEST_BOOL(pObjects[i]->IsActive());
     }
 
-    ezUInt32 iTopDisabled = 1;
+    WUInt32 iTopDisabled = 1;
     pObjects[iTopDisabled]->SetActiveFlag(false);
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
-      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
 
     pObjects[iTopDisabled]->SetActiveFlag(true);
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == true);
-      EZ_TEST_BOOL(pObjects[i]->IsActive() == true);
+      W_TEST_BOOL(pObjects[i]->GetActiveFlag() == true);
+      W_TEST_BOOL(pObjects[i]->IsActive() == true);
     }
 
     iTopDisabled = 5;
     pObjects[iTopDisabled]->SetActiveFlag(false);
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
-      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
 
     iTopDisabled = 3;
     pObjects[iTopDisabled]->SetActiveFlag(false);
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
 
     pObjects[iTopDisabled]->SetActiveFlag(true);
@@ -725,32 +725,32 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     iTopDisabled = 5;
     pObjects[iTopDisabled]->SetActiveFlag(false);
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    for (WUInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+      W_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
   }
 
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Velocity")
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
+  W_TEST_BLOCK(WTestBlock::Enabled, "Velocity")
   {
-    constexpr ezUInt32 numObjects = 10;
+    constexpr WUInt32 numObjects = 10;
 
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     auto pModule = world.GetOrCreateModule<VelocityTestModule>();
 
-    ezGameObjectDesc objectDesc;
+    WGameObjectDesc objectDesc;
     objectDesc.m_bDynamic = true;
 
-    ezGameObjectHandle hObjects[numObjects];
-    ezGameObject* pObjects[numObjects];
-    for (ezUInt32 i = 0; i < numObjects; ++i)
+    WGameObjectHandle hObjects[numObjects];
+    WGameObject* pObjects[numObjects];
+    for (WUInt32 i = 0; i < numObjects; ++i)
     {
-      objectDesc.m_LocalPosition = ezVec3(0, 0, 5);
-      objectDesc.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(90));
+      objectDesc.m_LocalPosition = WVec3(0, 0, 5);
+      objectDesc.m_LocalRotation = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromDegree(90));
 
       hObjects[i] = world.CreateObject(objectDesc, pObjects[i]);
     }
@@ -758,22 +758,22 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     pModule->m_bSetLocalPos = true;
     pModule->m_bResetGlobalPos = false;
 
-    world.GetClock().SetFixedTimeStep(ezTime::MakeFromMilliseconds(100));
+    world.GetClock().SetFixedTimeStep(WTime::MakeFromMilliseconds(100));
     world.Update();
 
     for (auto& pObject : pObjects)
     {
-      ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
-      ezVec3 expectedLastPos = ezVec3(0, 0, 5);
-      ezVec3 expectedPos = ezVec3(i * 10.0f, 0, 0);
-      ezVec3 expectedLinearVelocity = ezVec3(i * 100.0f, 0, -50);
-      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
+      WUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
+      WVec3 expectedLastPos = WVec3(0, 0, 5);
+      WVec3 expectedPos = WVec3(i * 10.0f, 0, 0);
+      WVec3 expectedLinearVelocity = WVec3(i * 100.0f, 0, -50);
+      W_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, WMath::DefaultEpsilon<float>());
+      W_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, WMath::DefaultEpsilon<float>());
+      W_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, WMath::DefaultEpsilon<float>());
 
-      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30.0f) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
-      ezVec3 angularVelocity = pObject->GetAngularVelocity();
-      EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
+      WVec3 expectedAngularVelocity = WVec3(0, 0, (WAngle::MakeFromDegree(i * 30.0f) - WAngle::MakeFromDegree(90)).GetRadian() * 10);
+      WVec3 angularVelocity = pObject->GetAngularVelocity();
+      W_TEST_VEC3(angularVelocity, expectedAngularVelocity, WMath::DefaultEpsilon<float>());
     }
 
     pModule->m_bSetLocalPos = false;
@@ -783,21 +783,21 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     for (auto& pObject : pObjects)
     {
-      ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
-      ezVec3 expectedLastPos = ezVec3(i * 10.0f, 0, 0);
-      ezVec3 expectedLinearVelocity = ezVec3(i * -100.0f, 0, 0);
-      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());
-      EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
+      WUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
+      WVec3 expectedLastPos = WVec3(i * 10.0f, 0, 0);
+      WVec3 expectedLinearVelocity = WVec3(i * -100.0f, 0, 0);
+      W_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, WMath::DefaultEpsilon<float>());
+      W_TEST_VEC3(pObject->GetGlobalPosition(), WVec3::MakeZero(), WMath::DefaultEpsilon<float>());
+      W_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, WMath::DefaultEpsilon<float>());
     }
   }
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindChildByName / FindChildByPath / SearchForChildByNameSequence")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindChildByName / FindChildByPath / SearchForChildByNameSequence")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     auto pRoot1 = CreateObj(&world, "Root1");
     auto pRoot2 = CreateObj(&world, "Root2");
@@ -810,60 +810,60 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     auto pB2 = CreateObj(&world, "B2", pA1);
     auto pC2 = CreateObj(&world, "C2", pA1);
 
-    ezCollectionComponent* pCol;
-    ezCollectionComponent::CreateComponent(pC2, pCol);
+    WCollectionComponent* pCol;
+    WCollectionComponent::CreateComponent(pC2, pCol);
 
     // FindChildByName
 
-    EZ_TEST_BOOL(pRoot1->FindChildByName("A1", false) == pA1);
-    EZ_TEST_BOOL(pRoot1->FindChildByName("B1", false) == pB1);
+    W_TEST_BOOL(pRoot1->FindChildByName("A1", false) == pA1);
+    W_TEST_BOOL(pRoot1->FindChildByName("B1", false) == pB1);
 
-    EZ_TEST_BOOL(pRoot2->FindChildByName("A1", false) == nullptr);
+    W_TEST_BOOL(pRoot2->FindChildByName("A1", false) == nullptr);
 
-    EZ_TEST_BOOL(pRoot1->FindChildByName("A2", false) == nullptr);
-    EZ_TEST_BOOL(pRoot1->FindChildByName("B2", false) == nullptr);
+    W_TEST_BOOL(pRoot1->FindChildByName("A2", false) == nullptr);
+    W_TEST_BOOL(pRoot1->FindChildByName("B2", false) == nullptr);
 
-    EZ_TEST_BOOL(pRoot1->FindChildByName("A2", true) == pA2);
-    EZ_TEST_BOOL(pRoot1->FindChildByName("B2", true) == pB2);
+    W_TEST_BOOL(pRoot1->FindChildByName("A2", true) == pA2);
+    W_TEST_BOOL(pRoot1->FindChildByName("B2", true) == pB2);
 
     // FindChildByPath
 
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("") == pRoot1);
-    EZ_TEST_BOOL(pA1->FindChildByPath("") == pA1);
+    W_TEST_BOOL(pRoot1->FindChildByPath("") == pRoot1);
+    W_TEST_BOOL(pA1->FindChildByPath("") == pA1);
 
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1") == pA1);
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("B1") == pB1);
+    W_TEST_BOOL(pRoot1->FindChildByPath("A1") == pA1);
+    W_TEST_BOOL(pRoot1->FindChildByPath("B1") == pB1);
 
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("A2") == nullptr);
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("B2") == nullptr);
+    W_TEST_BOOL(pRoot1->FindChildByPath("A2") == nullptr);
+    W_TEST_BOOL(pRoot1->FindChildByPath("B2") == nullptr);
 
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1/A2") == pA2);
-    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1/B2") == pB2);
+    W_TEST_BOOL(pRoot1->FindChildByPath("A1/A2") == pA2);
+    W_TEST_BOOL(pRoot1->FindChildByPath("A1/B2") == pB2);
 
     // SearchForChildByNameSequence
 
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("") == pRoot1);
-    EZ_TEST_BOOL(pA1->SearchForChildByNameSequence("") == pA1);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("") == pRoot1);
+    W_TEST_BOOL(pA1->SearchForChildByNameSequence("") == pA1);
 
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1") == pA1);
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B1") == pB1);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1") == pA1);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B1") == pB1);
 
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A2") == pA2);
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B2") == pB2);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A2") == pA2);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B2") == pB2);
 
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/A2") == pA2);
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2") == pB2);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/A2") == pA2);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2") == pB2);
 
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2", ezGetStaticRTTI<ezComponent>()) == nullptr);
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("", ezGetStaticRTTI<ezCollectionComponent>()) == nullptr);
-    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("C2", ezGetStaticRTTI<ezCollectionComponent>()) == pC2);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2", WGetStaticRTTI<WComponent>()) == nullptr);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("", WGetStaticRTTI<WCollectionComponent>()) == nullptr);
+    W_TEST_BOOL(pRoot1->SearchForChildByNameSequence("C2", WGetStaticRTTI<WCollectionComponent>()) == pC2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SearchForObject")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SearchForObject")
   {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
+    WWorldDesc worldDesc("Test");
+    WWorld world(worldDesc);
+    W_LOCK(world.GetWriteMarker());
 
     auto pKey1 = CreateObj(&world, "Key1", nullptr, "Key1");
     auto pKey2 = CreateObj(&world, "Key2", nullptr, "Key2");
@@ -877,44 +877,44 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     auto pB2 = CreateObj(&world, "B", pA2, "B2");
     auto pC2 = CreateObj(&world, "C", pB2, "C2");
 
-    ezCollectionComponent* pCol;
-    ezCollectionComponent::CreateComponent(pC2, pCol);
+    WCollectionComponent* pCol;
+    WCollectionComponent::CreateComponent(pC2, pCol);
 
-    EZ_TEST_BOOL(world.SearchForObject("G:Key1") == pKey1);
-    EZ_TEST_BOOL(world.SearchForObject("G:Key2") == pKey2);
-    EZ_TEST_BOOL(world.SearchForObject("G:Key3/") == pKey3);
-    EZ_TEST_BOOL(world.SearchForObject("G:key3/") == nullptr); // case sensitive
-    EZ_TEST_BOOL(world.SearchForObject("G:B2") == pB2);
-    EZ_TEST_BOOL(world.SearchForObject("G:none") == nullptr);
+    W_TEST_BOOL(world.SearchForObject("G:Key1") == pKey1);
+    W_TEST_BOOL(world.SearchForObject("G:Key2") == pKey2);
+    W_TEST_BOOL(world.SearchForObject("G:Key3/") == pKey3);
+    W_TEST_BOOL(world.SearchForObject("G:key3/") == nullptr); // case sensitive
+    W_TEST_BOOL(world.SearchForObject("G:B2") == pB2);
+    W_TEST_BOOL(world.SearchForObject("G:none") == nullptr);
 
-    EZ_TEST_BOOL(world.SearchForObject("A", pKey1) == pA1);
-    EZ_TEST_BOOL(world.SearchForObject("B", pKey1) == pB1);
-    EZ_TEST_BOOL(world.SearchForObject("A/B", pKey1) == pB1);
-    EZ_TEST_BOOL(world.SearchForObject("A/C", pKey1) == pC1);
-    EZ_TEST_BOOL(world.SearchForObject("B/C", pA1) == pC1);
-    EZ_TEST_BOOL(world.SearchForObject("B/C", pA1, ezGetStaticRTTI<ezCollectionComponent>()) == nullptr);
-    EZ_TEST_BOOL(world.SearchForObject("A", pA1) == nullptr); // A has to be a child
+    W_TEST_BOOL(world.SearchForObject("A", pKey1) == pA1);
+    W_TEST_BOOL(world.SearchForObject("B", pKey1) == pB1);
+    W_TEST_BOOL(world.SearchForObject("A/B", pKey1) == pB1);
+    W_TEST_BOOL(world.SearchForObject("A/C", pKey1) == pC1);
+    W_TEST_BOOL(world.SearchForObject("B/C", pA1) == pC1);
+    W_TEST_BOOL(world.SearchForObject("B/C", pA1, WGetStaticRTTI<WCollectionComponent>()) == nullptr);
+    W_TEST_BOOL(world.SearchForObject("A", pA1) == nullptr); // A has to be a child
 
-    EZ_TEST_BOOL(world.SearchForObject("G:A2/C") == pC2);
+    W_TEST_BOOL(world.SearchForObject("G:A2/C") == pC2);
 
-    EZ_TEST_BOOL(world.SearchForObject("P:A", pC2) == pA2);
-    EZ_TEST_BOOL(world.SearchForObject("P:D", pC2) == nullptr);
-    EZ_TEST_BOOL(world.SearchForObject("P:A/C", pC2) == pC2);
-    EZ_TEST_BOOL(world.SearchForObject("P:A/C", pC2, ezGetStaticRTTI<ezCollectionComponent>()) == pC2);
+    W_TEST_BOOL(world.SearchForObject("P:A", pC2) == pA2);
+    W_TEST_BOOL(world.SearchForObject("P:D", pC2) == nullptr);
+    W_TEST_BOOL(world.SearchForObject("P:A/C", pC2) == pC2);
+    W_TEST_BOOL(world.SearchForObject("P:A/C", pC2, WGetStaticRTTI<WCollectionComponent>()) == pC2);
 
-    EZ_TEST_BOOL(world.SearchForObject("", pA1) == pA1);
-    EZ_TEST_BOOL(world.SearchForObject("") == nullptr);
+    W_TEST_BOOL(world.SearchForObject("", pA1) == pA1);
+    W_TEST_BOOL(world.SearchForObject("") == nullptr);
 
-    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:A/B", pKey3) == pB2);
-    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:a/B", pKey3) == nullptr);  // case sensitive
-    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:A//B", pKey3) == nullptr); // malformed path
+    W_TEST_BOOL(world.SearchForObject("G:C2/P:A/B", pKey3) == pB2);
+    W_TEST_BOOL(world.SearchForObject("G:C2/P:a/B", pKey3) == nullptr);  // case sensitive
+    W_TEST_BOOL(world.SearchForObject("G:C2/P:A//B", pKey3) == nullptr); // malformed path
 
-    EZ_TEST_BOOL(world.SearchForObject("..", pC1) == pB1);
-    EZ_TEST_BOOL(world.SearchForObject("../../", pC1) == pA1);
-    EZ_TEST_BOOL(world.SearchForObject("../..", pC1) == pA1);
+    W_TEST_BOOL(world.SearchForObject("..", pC1) == pB1);
+    W_TEST_BOOL(world.SearchForObject("../../", pC1) == pA1);
+    W_TEST_BOOL(world.SearchForObject("../..", pC1) == pA1);
 
-    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:B/../../A", pKey3) == pA2);
+    W_TEST_BOOL(world.SearchForObject("G:C2/P:B/../../A", pKey3) == pA2);
 
-    EZ_TEST_BOOL(world.SearchForObject("G:B2/C/..") == nullptr); // malformed path
+    W_TEST_BOOL(world.SearchForObject("G:B2/C/..") == nullptr); // malformed path
   }
 }

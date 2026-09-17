@@ -2,7 +2,7 @@
 
 #include <OpenXRPlugin/Graphics/OpenXRGraphicsBindingD3D11.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Logging/Log.h>
 #  include <OpenXRPlugin/OpenXRDeclarations.h>
@@ -11,19 +11,19 @@
 #  include <RendererFoundation/Device/Device.h>
 #  include <Texture/Image/Formats/ImageFormatMappings.h>
 
-ezOpenXRGraphicsBindingD3D11::ezOpenXRGraphicsBindingD3D11() = default;
+WOpenXRGraphicsBindingD3D11::WOpenXRGraphicsBindingD3D11() = default;
 
-ezOpenXRGraphicsBindingD3D11::~ezOpenXRGraphicsBindingD3D11()
+WOpenXRGraphicsBindingD3D11::~WOpenXRGraphicsBindingD3D11()
 {
   Deinitialize();
 }
 
-XrResult ezOpenXRGraphicsBindingD3D11::SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
+XrResult WOpenXRGraphicsBindingD3D11::SelectExtension(WDynamicArray<const char*>& extensions, const WDynamicArray<XrExtensionProperties>& extensionProperties)
 {
   bool bFound = false;
   for (const XrExtensionProperties& prop : extensionProperties)
   {
-    if (ezStringUtils::IsEqual(prop.extensionName, XR_KHR_D3D11_ENABLE_EXTENSION_NAME))
+    if (WStringUtils::IsEqual(prop.extensionName, XR_KHR_D3D11_ENABLE_EXTENSION_NAME))
     {
       bFound = true;
       break;
@@ -33,26 +33,26 @@ XrResult ezOpenXRGraphicsBindingD3D11::SelectExtension(ezDynamicArray<const char
   if (bFound)
   {
     extensions.PushBack(XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
-    ezLog::Info("OpenXR: Enabled {} extension", XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
+    WLog::Info("OpenXR: Enabled {} extension", XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
     return XR_SUCCESS;
   }
 
-  ezLog::Error("OpenXR: {} extension not supported", XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
+  WLog::Error("OpenXR: {} extension not supported", XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
   return XR_ERROR_EXTENSION_NOT_PRESENT;
 }
 
-void ezOpenXRGraphicsBindingD3D11::LoadFunctionPointers(XrInstance instance)
+void WOpenXRGraphicsBindingD3D11::LoadFunctionPointers(XrInstance instance)
 {
   xrGetInstanceProcAddr(instance, "xrGetD3D11GraphicsRequirementsKHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_pfnGetD3D11GraphicsRequirementsKHR));
 }
 
-XrResult ezOpenXRGraphicsBindingD3D11::Initialize(XrInstance instance, XrSystemId systemId, ezGALDevice* pDevice)
+XrResult WOpenXRGraphicsBindingD3D11::Initialize(XrInstance instance, XrSystemId systemId, WGALDevice* pDevice)
 {
-  EZ_ASSERT_DEV(m_GraphicsBinding.device == nullptr, "D3D11 graphics binding already initialized");
+  W_ASSERT_DEV(m_GraphicsBinding.device == nullptr, "D3D11 graphics binding already initialized");
 
   if (!m_pfnGetD3D11GraphicsRequirementsKHR)
   {
-    ezLog::Error("OpenXR: xrGetD3D11GraphicsRequirementsKHR function pointer not loaded");
+    WLog::Error("OpenXR: xrGetD3D11GraphicsRequirementsKHR function pointer not loaded");
     return XR_ERROR_FUNCTION_UNSUPPORTED;
   }
 
@@ -61,40 +61,40 @@ XrResult ezOpenXRGraphicsBindingD3D11::Initialize(XrInstance instance, XrSystemI
   XrResult result = m_pfnGetD3D11GraphicsRequirementsKHR(instance, systemId, &graphicsRequirements);
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrGetD3D11GraphicsRequirementsKHR failed: {}", (int)result);
+    WLog::Error("OpenXR: xrGetD3D11GraphicsRequirementsKHR failed: {}", (int)result);
     return result;
   }
 
   // Get the D3D11 device
-  ezGALDeviceDX11* pD3dDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pD3dDevice = static_cast<WGALDeviceDX11*>(pDevice);
   m_GraphicsBinding.device = pD3dDevice->GetDXDevice();
 
-  ezLog::Info("OpenXR D3D11 binding initialized");
+  WLog::Info("OpenXR D3D11 binding initialized");
   return XR_SUCCESS;
 }
 
-void ezOpenXRGraphicsBindingD3D11::Deinitialize()
+void WOpenXRGraphicsBindingD3D11::Deinitialize()
 {
   m_GraphicsBinding.device = nullptr;
   CleanupSwapchainImages();
 }
 
-const void* ezOpenXRGraphicsBindingD3D11::GetGraphicsBinding() const
+const void* WOpenXRGraphicsBindingD3D11::GetGraphicsBinding() const
 {
   return &m_GraphicsBinding;
 }
 
-XrResult ezOpenXRGraphicsBindingD3D11::SelectSwapchainFormats(XrSession session, bool bDepthComposition, int64_t& out_colorFormat, int64_t& out_depthFormat)
+XrResult WOpenXRGraphicsBindingD3D11::SelectSwapchainFormats(XrSession session, bool bDepthComposition, int64_t& out_colorFormat, int64_t& out_depthFormat)
 {
   // Enumerate available formats
   uint32_t formatCount;
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(session, 0, &formatCount, nullptr));
-  ezDynamicArray<int64_t> swapchainFormats;
+  WDynamicArray<int64_t> swapchainFormats;
   swapchainFormats.SetCountUninitialized(formatCount);
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(session, formatCount, &formatCount, swapchainFormats.GetData()));
 
   // Build a set for fast lookup
-  ezSet<int64_t> availableFormats;
+  WSet<int64_t> availableFormats;
   for (int64_t format : swapchainFormats)
   {
     availableFormats.Insert(format);
@@ -119,7 +119,7 @@ XrResult ezOpenXRGraphicsBindingD3D11::SelectSwapchainFormats(XrSession session,
 
   if (out_colorFormat == 0)
   {
-    ezLog::Error("OpenXR D3D11: No supported color swapchain format found");
+    WLog::Error("OpenXR D3D11: No supported color swapchain format found");
     return XR_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -144,7 +144,7 @@ XrResult ezOpenXRGraphicsBindingD3D11::SelectSwapchainFormats(XrSession session,
 
     if (out_depthFormat == 0)
     {
-      ezLog::Error("OpenXR D3D11: No supported depth swapchain format found");
+      WLog::Error("OpenXR D3D11: No supported depth swapchain format found");
       return XR_ERROR_INITIALIZATION_FAILED;
     }
   }
@@ -152,7 +152,7 @@ XrResult ezOpenXRGraphicsBindingD3D11::SelectSwapchainFormats(XrSession session,
   return XR_SUCCESS;
 }
 
-XrResult ezOpenXRGraphicsBindingD3D11::CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, ezUInt32 imageCount, ezSizeU32 size, ezGALMSAASampleCount::Enum msaaCount, bool bIsDepth, ezGALDevice* pDevice, ezDynamicArray<ezGALTextureHandle>& out_textures)
+XrResult WOpenXRGraphicsBindingD3D11::CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, WUInt32 imageCount, WSizeU32 size, WGALMSAASampleCount::Enum msaaCount, bool bIsDepth, WGALDevice* pDevice, WDynamicArray<WGALTextureHandle>& out_textures)
 {
   // Select the appropriate image storage
   auto& imageStorage = bIsDepth ? m_DepthSwapchainImages : m_ColorSwapchainImages;
@@ -163,25 +163,25 @@ XrResult ezOpenXRGraphicsBindingD3D11::CreateSwapchainImages(XrSwapchain swapcha
 
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR D3D11: xrEnumerateSwapchainImages failed: {}", (int)result);
+    WLog::Error("OpenXR D3D11: xrEnumerateSwapchainImages failed: {}", (int)result);
     return result;
   }
 
   // Create texture handles for each swapchain image
-  for (ezUInt32 i = 0; i < imageCount; i++)
+  for (WUInt32 i = 0; i < imageCount; i++)
   {
     ID3D11Texture2D* pTex = imageStorage[i].texture;
 
     D3D11_TEXTURE2D_DESC backBufferDesc;
     pTex->GetDesc(&backBufferDesc);
 
-    ezGALTextureCreationDescription textureDesc;
-    textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, ConvertTextureFormat(format), ezGALMSAASampleCount::Enum(backBufferDesc.SampleDesc.Count));
+    WGALTextureCreationDescription textureDesc;
+    textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, ConvertTextureFormat(format), WGALMSAASampleCount::Enum(backBufferDesc.SampleDesc.Count));
     textureDesc.m_uiArraySize = backBufferDesc.ArraySize;
     textureDesc.m_pExisitingNativeObject = pTex;
-    textureDesc.m_Type = ezGALTextureType::Texture2DArray;
+    textureDesc.m_Type = WGALTextureType::Texture2DArray;
 
-    // Need to add a ref as the EZ texture will always remove one on destruction
+    // Need to add a ref as the W texture will always remove one on destruction
     pTex->AddRef();
 
     out_textures.PushBack(pDevice->CreateTexture(textureDesc));
@@ -190,27 +190,27 @@ XrResult ezOpenXRGraphicsBindingD3D11::CreateSwapchainImages(XrSwapchain swapcha
   return XR_SUCCESS;
 }
 
-ezGALResourceFormat::Enum ezOpenXRGraphicsBindingD3D11::ConvertTextureFormat(int64_t format) const
+WGALResourceFormat::Enum WOpenXRGraphicsBindingD3D11::ConvertTextureFormat(int64_t format) const
 {
   switch (format)
   {
     case DXGI_FORMAT_D32_FLOAT:
-      return ezGALResourceFormat::DFloat;
+      return WGALResourceFormat::DFloat;
     case DXGI_FORMAT_D16_UNORM:
-      return ezGALResourceFormat::D16;
+      return WGALResourceFormat::D16;
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
-      return ezGALResourceFormat::D24S8;
+      return WGALResourceFormat::D24S8;
     default:
-      ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(static_cast<ezUInt32>(format));
-      ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);
+      WImageFormat::Enum imageFormat = WImageFormatMappings::FromDxgiFormat(static_cast<WUInt32>(format));
+      WGALResourceFormat::Enum galFormat = WTextureUtils::ImageFormatToGalFormat(imageFormat, false);
       return galFormat;
   }
 }
 
-void ezOpenXRGraphicsBindingD3D11::CleanupSwapchainImages()
+void WOpenXRGraphicsBindingD3D11::CleanupSwapchainImages()
 {
   m_ColorSwapchainImages.Clear();
   m_DepthSwapchainImages.Clear();
 }
 
-#endif // EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#endif // W_ENABLED(W_PLATFORM_WINDOWS)

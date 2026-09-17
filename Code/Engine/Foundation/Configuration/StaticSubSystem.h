@@ -4,7 +4,7 @@
 
 /// *** Example Subsystem declarations ***
 ///
-/// EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)
+/// W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)
 ///
 ///  BEGIN_SUBSYSTEM_DEPENDENCIES
 ///    "SomeOtherSubSystem",
@@ -13,49 +13,49 @@
 ///
 ///  ON_CORESYSTEMS_STARTUP
 ///  {
-///    ezExampleSubSystem::BasicStartup();
+///    WExampleSubSystem::BasicStartup();
 ///  }
 ///
 ///  ON_CORESYSTEMS_SHUTDOWN
 ///  {
-///    ezExampleSubSystem::BasicShutdown();
+///    WExampleSubSystem::BasicShutdown();
 ///  }
 ///
 ///  ON_HIGHLEVELSYSTEMS_STARTUP
 ///  {
-///    ezExampleSubSystem::EngineStartup();
+///    WExampleSubSystem::EngineStartup();
 ///  }
 ///
 ///  ON_HIGHLEVELSYSTEMS_SHUTDOWN
 ///  {
-///    ezExampleSubSystem::EngineShutdown();
+///    WExampleSubSystem::EngineShutdown();
 ///  }
 ///
-/// EZ_END_SUBSYSTEM_DECLARATION;
+/// W_END_SUBSYSTEM_DECLARATION;
 
 /// Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
 /// The first parameter is the name of the group, in which the subsystem resides, the second is the name of the subsystem itself.
-#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName) \
+#define W_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName) \
   class GroupName##SubsystemName##SubSystem;                     \
-  class GroupName##SubsystemName##SubSystem : public ezSubSystem \
+  class GroupName##SubsystemName##SubSystem : public WSubSystem \
   {                                                              \
   public:                                                        \
-    virtual ezStringView GetGroupName() const override           \
+    virtual WStringView GetGroupName() const override           \
     {                                                            \
       return #GroupName;                                         \
     }                                                            \
                                                                  \
   public:                                                        \
-    virtual ezStringView GetSubSystemName() const override       \
+    virtual WStringView GetSubSystemName() const override       \
     {                                                            \
       return #SubsystemName;                                     \
     }
 
 /// Finishes a subsystem's startup / shutdown sequence declaration.
-#define EZ_END_SUBSYSTEM_DECLARATION \
+#define W_END_SUBSYSTEM_DECLARATION \
   }                                  \
-  static EZ_PP_CONCAT(s_SubSystem, EZ_SOURCE_LINE)
+  static W_PP_CONCAT(s_SubSystem, W_SOURCE_LINE)
 
 /// Defines what code is to be executed upon base startup.
 ///
@@ -97,9 +97,9 @@ private:                             \
 /// Must be followed by a series of strings with the names of the dependencies.
 #define BEGIN_SUBSYSTEM_DEPENDENCIES                        \
 public:                                                     \
-  virtual ezStringView GetDependency(ezInt32 iDep) override \
+  virtual WStringView GetDependency(WInt32 iDep) override \
   {                                                         \
-    ezStringView szDeps[] = {
+    WStringView szDeps[] = {
 
 /// Ends the list of subsystems, on which the currently declared system depends on.
 #define END_SUBSYSTEM_DEPENDENCIES \
@@ -110,4 +110,4 @@ public:                                                     \
   }
 
 /// This inserts a friend declaration into a class, such that the given group/subsystem can access private functions which it might need.
-#define EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GroupName, SubsystemName) friend class GroupName##SubsystemName##SubSystem;
+#define W_MAKE_SUBSYSTEM_STARTUP_FRIEND(GroupName, SubsystemName) friend class GroupName##SubsystemName##SubSystem;

@@ -10,27 +10,27 @@
 // #include <RendererFoundation/Device/Device.h>
 //
 //// clang-format off
-// EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
+// W_BEGIN_COMPONENT_TYPE(WMotionMatchingComponent, 2, WComponentMode::Dynamic);
 //{
-//   EZ_BEGIN_PROPERTIES
+//   W_BEGIN_PROPERTIES
 //   {
-//     EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+//     W_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
 //   }
-//   EZ_END_PROPERTIES;
+//   W_END_PROPERTIES;
 //
-//   EZ_BEGIN_ATTRIBUTES
+//   W_BEGIN_ATTRIBUTES
 //   {
-//       new ezCategoryAttribute("Animation"),
+//       new WCategoryAttribute("Animation"),
 //   }
-//   EZ_END_ATTRIBUTES;
+//   W_END_ATTRIBUTES;
 // }
-// EZ_END_COMPONENT_TYPE
+// W_END_COMPONENT_TYPE
 //// clang-format on
 //
-// ezMotionMatchingComponent::ezMotionMatchingComponent() = default;
-// ezMotionMatchingComponent::~ezMotionMatchingComponent() = default;
+// WMotionMatchingComponent::WMotionMatchingComponent() = default;
+// WMotionMatchingComponent::~WMotionMatchingComponent() = default;
 //
-// void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
+// void WMotionMatchingComponent::SerializeComponent(WWorldWriter& stream) const
 //{
 //  SUPER::SerializeComponent(stream);
 //  auto& s = stream.GetStream();
@@ -38,10 +38,10 @@
 //  s.WriteArray(m_Animations);
 //}
 //
-// void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
+// void WMotionMatchingComponent::DeserializeComponent(WWorldReader& stream)
 //{
 //  SUPER::DeserializeComponent(stream);
-//  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+//  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 //  auto& s = stream.GetStream();
 //
 //  if (uiVersion >= 2)
@@ -50,24 +50,24 @@
 //  }
 //}
 //
-// void ezMotionMatchingComponent::OnSimulationStarted()
+// void WMotionMatchingComponent::OnSimulationStarted()
 //{
 //  SUPER::OnSimulationStarted();
 //
 //  // make sure the skinning buffer is deleted
-//  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
+//  W_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 //
 //  if (m_hMesh.IsValid())
 //  {
-//    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+//    WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
 //    m_hSkeleton = pMesh->GetSkeleton();
 //  }
 //
 //  if (m_hSkeleton.IsValid())
 //  {
-//    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+//    WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
 //
-//    const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+//    const WSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 //    m_AnimationPose.Configure(skeleton);
 //    m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 //    m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
@@ -75,15 +75,15 @@
 //    // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 //
 //    // Create the buffer for the skinning matrices
-//    ezGALBufferCreationDescription BufferDesc;
-//    BufferDesc.m_uiStructSize = sizeof(ezMat4);
+//    WGALBufferCreationDescription BufferDesc;
+//    BufferDesc.m_uiStructSize = sizeof(WMat4);
 //    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
 //    BufferDesc.m_bUseAsStructuredBuffer = true;
 //    BufferDesc.m_bAllowShaderResourceView = true;
 //    BufferDesc.m_ResourceAccess.m_bImmutable = false;
 //
-//    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-//      BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+//    m_hSkinningTransformsBuffer = WGALDevice::GetDefaultDevice()->CreateBuffer(
+//      BufferDesc, WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
 //  }
 //
 //  // m_AnimationClipSampler.RestartAnimation();
@@ -96,10 +96,10 @@
 //  m_Keyframe1.m_uiAnimClip = 0;
 //  m_Keyframe1.m_uiKeyframe = 1;
 //
-//  for (ezUInt32 anim = 0; anim < m_Animations.GetCount(); ++anim)
+//  for (WUInt32 anim = 0; anim < m_Animations.GetCount(); ++anim)
 //  {
-//    ezResourceLock<ezAnimationClipResource> pClip(m_Animations[anim], ezResourceAcquireMode::BlockTillLoaded);
-//    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
+//    WResourceLock<WAnimationClipResource> pClip(m_Animations[anim], WResourceAcquireMode::BlockTillLoaded);
+//    WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::AllowLoadingFallback);
 //
 //    PrecomputeMotion(m_MotionData, "Bip01_L_Foot", "Bip01_R_Foot", pClip->GetDescriptor(), anim, pSkeleton->GetDescriptor().m_Skeleton);
 //  }
@@ -109,91 +109,91 @@
 //
 //  ConfigureInput();
 //}
-// void ezMotionMatchingComponent::ConfigureInput()
+// void WMotionMatchingComponent::ConfigureInput()
 //{
-//  ezInputActionConfig iac;
+//  WInputActionConfig iac;
 //  iac.m_bApplyTimeScaling = false;
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_PosY;
-//  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyUp;
-//  ezInputManager::SetInputActionConfig("mm", "forward", iac, true);
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_LeftStick_PosY;
+//  iac.m_sInputSlotTrigger[1] = WInputSlot_KeyUp;
+//  WInputManager::SetInputActionConfig("mm", "forward", iac, true);
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_NegY;
-//  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyDown;
-//  ezInputManager::SetInputActionConfig("mm", "backward", iac, true);
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_LeftStick_NegY;
+//  iac.m_sInputSlotTrigger[1] = WInputSlot_KeyDown;
+//  WInputManager::SetInputActionConfig("mm", "backward", iac, true);
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_NegX;
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_LeftStick_NegX;
 //  iac.m_sInputSlotTrigger[1].Clear();
-//  ezInputManager::SetInputActionConfig("mm", "left", iac, true);
+//  WInputManager::SetInputActionConfig("mm", "left", iac, true);
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_PosX;
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_LeftStick_PosX;
 //  iac.m_sInputSlotTrigger[1].Clear();
-//  ezInputManager::SetInputActionConfig("mm", "right", iac, true);
+//  WInputManager::SetInputActionConfig("mm", "right", iac, true);
 //
 //  iac.m_bApplyTimeScaling = true;
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_PosX;
-//  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
-//  // iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
-//  ezInputManager::SetInputActionConfig("mm", "turnright", iac, true);
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_RightStick_PosX;
+//  iac.m_sInputSlotTrigger[1] = WInputSlot_KeyRight;
+//  // iac.m_sInputSlotTrigger[1] = WInputSlot_KeyRight;
+//  WInputManager::SetInputActionConfig("mm", "turnright", iac, true);
 //
-//  iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_NegX;
-//  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyLeft;
-//  // iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
-//  ezInputManager::SetInputActionConfig("mm", "turnleft", iac, true);
+//  iac.m_sInputSlotTrigger[0] = WInputSlot_Controller0_RightStick_NegX;
+//  iac.m_sInputSlotTrigger[1] = WInputSlot_KeyLeft;
+//  // iac.m_sInputSlotTrigger[1] = WInputSlot_KeyRight;
+//  WInputManager::SetInputActionConfig("mm", "turnleft", iac, true);
 //}
 //
-// ezVec3 ezMotionMatchingComponent::GetInputDirection() const
+// WVec3 WMotionMatchingComponent::GetInputDirection() const
 //{
 //  float fw, bw, l, r;
 //
-//  ezInputManager::GetInputActionState("mm", "forward", &fw);
-//  ezInputManager::GetInputActionState("mm", "backward", &bw);
-//  ezInputManager::GetInputActionState("mm", "left", &l);
-//  ezInputManager::GetInputActionState("mm", "right", &r);
+//  WInputManager::GetInputActionState("mm", "forward", &fw);
+//  WInputManager::GetInputActionState("mm", "backward", &bw);
+//  WInputManager::GetInputActionState("mm", "left", &l);
+//  WInputManager::GetInputActionState("mm", "right", &r);
 //
-//  ezVec3 dir;
+//  WVec3 dir;
 //  dir.y = -(fw - bw);
 //  dir.x = r - l;
 //  dir.z = 0;
 //
-//  // dir.NormalizeIfNotZero(ezVec3::MakeZero());
+//  // dir.NormalizeIfNotZero(WVec3::MakeZero());
 //  return dir * 3.0f;
 //}
 //
-// ezQuat ezMotionMatchingComponent::GetInputRotation() const
+// WQuat WMotionMatchingComponent::GetInputRotation() const
 //{
 //  float tl, tr;
 //
-//  ezInputManager::GetInputActionState("mm", "turnleft", &tl);
-//  ezInputManager::GetInputActionState("mm", "turnright", &tr);
+//  WInputManager::GetInputActionState("mm", "turnleft", &tl);
+//  WInputManager::GetInputActionState("mm", "turnright", &tr);
 //
-//  const ezAngle turn = ezAngle::MakeFromDegree((tr - tl) * 90.0f);
+//  const WAngle turn = WAngle::MakeFromDegree((tr - tl) * 90.0f);
 //
-//  ezQuat q;
-//  q = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), turn);
+//  WQuat q;
+//  q = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), turn);
 //  return q;
 //}
 //
-// void ezMotionMatchingComponent::Update()
+// void WMotionMatchingComponent::Update()
 //{
 //  if (!m_hSkeleton.IsValid() || m_Animations.IsEmpty())
 //    return;
 //
-//  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
-//  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+//  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::AllowLoadingFallback);
+//  const WSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 //
-//  // ezTransform rootMotion;
+//  // WTransform rootMotion;
 //  // rootMotion.SetIdentity();
 //
 //  const float fKeyframeFraction = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * 24.0f; // assuming 24 FPS in the animations
 //
 //  {
-//    const ezVec3 vTargetDir = GetInputDirection() / GetOwner()->GetGlobalScaling().x;
+//    const WVec3 vTargetDir = GetInputDirection() / GetOwner()->GetGlobalScaling().x;
 //
-//    ezStringBuilder tmp;
-//    tmp.SetFormat("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
-//    ezDebugRenderer::DrawInfoText(GetWorld(), tmp, ezVec2I32(10, 10), ezColor::White);
+//    WStringBuilder tmp;
+//    tmp.SetFormat("Gamepad: {0} / {1}", WArgF(vTargetDir.x, 1), WArgF(vTargetDir.y, 1));
+//    WDebugRenderer::DrawInfoText(GetWorld(), tmp, WVec2I32(10, 10), WColor::White);
 //
 //    m_fKeyframeLerp += fKeyframeFraction;
 //    while (m_fKeyframeLerp > 1.0f)
@@ -202,42 +202,42 @@
 //      m_Keyframe0 = m_Keyframe1;
 //      m_Keyframe1 = FindNextKeyframe(m_Keyframe1, vTargetDir);
 //
-//      // ezLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
+//      // WLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
 //      m_fKeyframeLerp -= 1.0f;
-//      // ezLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
+//      // WLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
 //    }
 //  }
 //
 //  m_AnimationPose.SetToBindPoseInLocalSpace(skeleton);
 //
 //  {
-//    ezResourceLock<ezAnimationClipResource> pAnimClip0(m_Animations[m_Keyframe0.m_uiAnimClip], ezResourceAcquireMode::BlockTillLoaded);
-//    ezResourceLock<ezAnimationClipResource> pAnimClip1(m_Animations[m_Keyframe1.m_uiAnimClip], ezResourceAcquireMode::BlockTillLoaded);
+//    WResourceLock<WAnimationClipResource> pAnimClip0(m_Animations[m_Keyframe0.m_uiAnimClip], WResourceAcquireMode::BlockTillLoaded);
+//    WResourceLock<WAnimationClipResource> pAnimClip1(m_Animations[m_Keyframe1.m_uiAnimClip], WResourceAcquireMode::BlockTillLoaded);
 //
 //    const auto& animDesc0 = pAnimClip0->GetDescriptor();
 //    const auto& animDesc1 = pAnimClip1->GetDescriptor();
 //
 //    const auto& animatedJoints0 = animDesc0.GetAllJointIndices();
 //
-//    for (ezUInt32 b = 0; b < animatedJoints0.GetCount(); ++b)
+//    for (WUInt32 b = 0; b < animatedJoints0.GetCount(); ++b)
 //    {
-//      const ezHashedString sJointName = animatedJoints0.GetKey(b);
-//      const ezUInt32 uiAnimJointIdx0 = animatedJoints0.GetValue(b);
-//      const ezUInt32 uiAnimJointIdx1 = animDesc1.FindJointIndexByName(sJointName);
+//      const WHashedString sJointName = animatedJoints0.GetKey(b);
+//      const WUInt32 uiAnimJointIdx0 = animatedJoints0.GetValue(b);
+//      const WUInt32 uiAnimJointIdx1 = animDesc1.FindJointIndexByName(sJointName);
 //
-//      const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
-//      if (uiSkeletonJointIdx != ezInvalidJointIndex)
+//      const WUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
+//      if (uiSkeletonJointIdx != WInvalidJointIndex)
 //      {
-//        ezArrayPtr<const ezTransform> pTransforms0 = animDesc0.GetJointKeyframes(uiAnimJointIdx0);
-//        ezArrayPtr<const ezTransform> pTransforms1 = animDesc1.GetJointKeyframes(uiAnimJointIdx1);
+//        WArrayPtr<const WTransform> pTransforms0 = animDesc0.GetJointKeyframes(uiAnimJointIdx0);
+//        WArrayPtr<const WTransform> pTransforms1 = animDesc1.GetJointKeyframes(uiAnimJointIdx1);
 //
-//        const ezTransform jointTransform1 = pTransforms0[m_Keyframe0.m_uiKeyframe];
-//        const ezTransform jointTransform2 = pTransforms1[m_Keyframe1.m_uiKeyframe];
+//        const WTransform jointTransform1 = pTransforms0[m_Keyframe0.m_uiKeyframe];
+//        const WTransform jointTransform2 = pTransforms1[m_Keyframe1.m_uiKeyframe];
 //
-//        ezTransform res;
-//        res.m_vPosition = ezMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, m_fKeyframeLerp);
+//        WTransform res;
+//        res.m_vPosition = WMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, m_fKeyframeLerp);
 //        res.m_qRotation.SetSlerp(jointTransform1.m_qRotation, jointTransform2.m_qRotation, m_fKeyframeLerp);
-//        res.m_vScale = ezMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, m_fKeyframeLerp);
+//        res.m_vScale = WMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, m_fKeyframeLerp);
 //
 //        m_AnimationPose.SetTransform(uiSkeletonJointIdx, res.GetAsMat4());
 //      }
@@ -247,7 +247,7 @@
 //    {
 //      auto* pOwner = GetOwner();
 //
-//      ezVec3 vRootMotion0, vRootMotion1;
+//      WVec3 vRootMotion0, vRootMotion1;
 //      vRootMotion0.SetZero();
 //      vRootMotion1.SetZero();
 //
@@ -256,13 +256,13 @@
 //      if (animDesc1.HasRootMotion())
 //        vRootMotion1 = animDesc1.GetJointKeyframes(animDesc1.GetRootMotionJoint())[m_Keyframe1.m_uiKeyframe].m_vPosition;
 //
-//      const ezVec3 vRootMotion = ezMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
+//      const WVec3 vRootMotion = WMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
 //
-//      const ezQuat qRotate = GetInputRotation();
+//      const WQuat qRotate = GetInputRotation();
 //
-//      const ezQuat qOldRot = pOwner->GetLocalRotation();
-//      const ezVec3 vNewPos = qOldRot * vRootMotion + pOwner->GetLocalPosition();
-//      const ezQuat qNewRot = qRotate * qOldRot;
+//      const WQuat qOldRot = pOwner->GetLocalRotation();
+//      const WVec3 vNewPos = qOldRot * vRootMotion + pOwner->GetLocalPosition();
+//      const WQuat qNewRot = qRotate * qOldRot;
 //
 //      pOwner->SetLocalPosition(vNewPos);
 //      pOwner->SetLocalRotation(qNewRot);
@@ -271,12 +271,12 @@
 //
 //  m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 //
-//  const ezUInt16 uiLeftFootJoint = skeleton.FindJointByName("Bip01_L_Foot");
-//  const ezUInt16 uiRightFootJoint = skeleton.FindJointByName("Bip01_R_Foot");
-//  if (uiLeftFootJoint != ezInvalidJointIndex && uiRightFootJoint != ezInvalidJointIndex)
+//  const WUInt16 uiLeftFootJoint = skeleton.FindJointByName("Bip01_L_Foot");
+//  const WUInt16 uiRightFootJoint = skeleton.FindJointByName("Bip01_R_Foot");
+//  if (uiLeftFootJoint != WInvalidJointIndex && uiRightFootJoint != WInvalidJointIndex)
 //  {
-//    ezTransform tLeft, tRight;
-//    ezBoundingSphere sphere(ezVec3::MakeZero(), 0.5f);
+//    WTransform tLeft, tRight;
+//    WBoundingSphere sphere(WVec3::MakeZero(), 0.5f);
 //
 //    tLeft.SetFromMat4(m_AnimationPose.GetTransform(uiLeftFootJoint));
 //    tRight.SetFromMat4(m_AnimationPose.GetTransform(uiRightFootJoint));
@@ -286,8 +286,8 @@
 //
 //    // const float fScaleToPerSec = (float)(1.0 / GetWorld()->GetClock().GetTimeDiff().GetSeconds());
 //
-//    // const ezVec3 vLeftFootVel = (tLeft.m_vPosition - m_vLeftFootPos) * fScaleToPerSec;
-//    // const ezVec3 vRightFootVel = (tRight.m_vPosition - m_vRightFootPos) * fScaleToPerSec;
+//    // const WVec3 vLeftFootVel = (tLeft.m_vPosition - m_vLeftFootPos) * fScaleToPerSec;
+//    // const WVec3 vRightFootVel = (tRight.m_vPosition - m_vRightFootPos) * fScaleToPerSec;
 //
 //    m_vLeftFootPos = tLeft.m_vPosition;
 //    m_vRightFootPos = tRight.m_vPosition;
@@ -295,33 +295,33 @@
 //
 //  m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 //
-//  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
-//  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
+//  WArrayPtr<WMat4> pRenderMatrices = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WMat4, m_AnimationPose.GetTransformCount());
+//  WMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
 //
 //  m_SkinningMatrices = pRenderMatrices;
 //}
 //
-// void ezMotionMatchingComponent::SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource)
+// void WMotionMatchingComponent::SetAnimation(WUInt32 uiIndex, const WAnimationClipResourceHandle& hResource)
 //{
 //  m_Animations.EnsureCount(uiIndex + 1);
 //
 //  m_Animations[uiIndex] = hResource;
 //}
 //
-// ezAnimationClipResourceHandle ezMotionMatchingComponent::GetAnimation(ezUInt32 uiIndex) const
+// WAnimationClipResourceHandle WMotionMatchingComponent::GetAnimation(WUInt32 uiIndex) const
 //{
 //  if (uiIndex >= m_Animations.GetCount())
-//    return ezAnimationClipResourceHandle();
+//    return WAnimationClipResourceHandle();
 //
 //  return m_Animations[uiIndex];
 //}
 //
-// ezUInt32 ezMotionMatchingComponent::Animations_GetCount() const
+// WUInt32 WMotionMatchingComponent::Animations_GetCount() const
 //{
 //  return m_Animations.GetCount();
 //}
 //
-// const char* ezMotionMatchingComponent::Animations_GetValue(ezUInt32 uiIndex) const
+// const char* WMotionMatchingComponent::Animations_GetValue(WUInt32 uiIndex) const
 //{
 //  const auto& hMat = GetAnimation(uiIndex);
 //
@@ -331,49 +331,49 @@
 //  return hMat.GetResourceID();
 //}
 //
-// void ezMotionMatchingComponent::Animations_SetValue(ezUInt32 uiIndex, const char* value)
+// void WMotionMatchingComponent::Animations_SetValue(WUInt32 uiIndex, const char* value)
 //{
-//  if (ezStringUtils::IsNullOrEmpty(value))
-//    SetAnimation(uiIndex, ezAnimationClipResourceHandle());
+//  if (WStringUtils::IsNullOrEmpty(value))
+//    SetAnimation(uiIndex, WAnimationClipResourceHandle());
 //  else
 //  {
-//    auto hMat = ezResourceManager::LoadResource<ezAnimationClipResource>(value);
+//    auto hMat = WResourceManager::LoadResource<WAnimationClipResource>(value);
 //    SetAnimation(uiIndex, hMat);
 //  }
 //}
 //
-// void ezMotionMatchingComponent::Animations_Insert(ezUInt32 uiIndex, const char* value)
+// void WMotionMatchingComponent::Animations_Insert(WUInt32 uiIndex, const char* value)
 //{
-//  ezAnimationClipResourceHandle hMat;
+//  WAnimationClipResourceHandle hMat;
 //
-//  if (!ezStringUtils::IsNullOrEmpty(value))
-//    hMat = ezResourceManager::LoadResource<ezAnimationClipResource>(value);
+//  if (!WStringUtils::IsNullOrEmpty(value))
+//    hMat = WResourceManager::LoadResource<WAnimationClipResource>(value);
 //
 //  m_Animations.Insert(hMat, uiIndex);
 //}
 //
-// void ezMotionMatchingComponent::Animations_Remove(ezUInt32 uiIndex)
+// void WMotionMatchingComponent::Animations_Remove(WUInt32 uiIndex)
 //{
 //  m_Animations.RemoveAtAndCopy(uiIndex);
 //}
 //
-// ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current, const ezVec3& vTargetDir) const
+// WMotionMatchingComponent::TargetKeyframe WMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current, const WVec3& vTargetDir) const
 //{
 //  TargetKeyframe kf;
 //  kf.m_uiAnimClip = current.m_uiAnimClip;
 //  kf.m_uiKeyframe = current.m_uiKeyframe + 1;
 //
 //  {
-//    // ezResourceLock<ezAnimationClipResource> pAnimClipCur(m_Animations[current.m_uiAnimClip], ezResourceAcquireMode::NoFallback);
+//    // WResourceLock<WAnimationClipResource> pAnimClipCur(m_Animations[current.m_uiAnimClip], WResourceAcquireMode::NoFallback);
 //    // const auto& animClip = pAnimClipCur->GetDescriptor();
 //
-//    // const ezUInt32 uiLeftFootJoint = animClip.FindJointIndexByName("Bip01_L_Foot");
-//    // const ezUInt32 uiRightFootJoint = animClip.FindJointIndexByName("Bip01_R_Foot");
+//    // const WUInt32 uiLeftFootJoint = animClip.FindJointIndexByName("Bip01_L_Foot");
+//    // const WUInt32 uiRightFootJoint = animClip.FindJointIndexByName("Bip01_R_Foot");
 //
-//    const ezVec3 vLeftFootPos = m_vLeftFootPos;   // animClip.GetJointKeyframes(uiLeftFootJoint)[current.m_uiKeyframe].m_vPosition;
-//    const ezVec3 vRightFootPos = m_vRightFootPos; // animClip.GetJointKeyframes(uiRightFootJoint)[current.m_uiKeyframe].m_vPosition;
+//    const WVec3 vLeftFootPos = m_vLeftFootPos;   // animClip.GetJointKeyframes(uiLeftFootJoint)[current.m_uiKeyframe].m_vPosition;
+//    const WVec3 vRightFootPos = m_vRightFootPos; // animClip.GetJointKeyframes(uiRightFootJoint)[current.m_uiKeyframe].m_vPosition;
 //
-//    const ezUInt32 uiBestMM = FindBestKeyframe(current, vLeftFootPos, vRightFootPos, vTargetDir);
+//    const WUInt32 uiBestMM = FindBestKeyframe(current, vLeftFootPos, vRightFootPos, vTargetDir);
 //
 //    TargetKeyframe nkf;
 //    nkf.m_uiAnimClip = m_MotionData[uiBestMM].m_uiAnimClipIndex;
@@ -385,7 +385,7 @@
 //    }
 //  }
 //
-//  ezResourceLock<ezAnimationClipResource> pAnimClip(m_Animations[kf.m_uiAnimClip], ezResourceAcquireMode::BlockTillLoaded);
+//  WResourceLock<WAnimationClipResource> pAnimClip(m_Animations[kf.m_uiAnimClip], WResourceAcquireMode::BlockTillLoaded);
 //
 //  if (kf.m_uiKeyframe >= pAnimClip->GetDescriptor().GetNumFrames())
 //  {
@@ -396,38 +396,38 @@
 //  return kf;
 //}
 //
-// void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
-//  const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton)
+// void WMotionMatchingComponent::PrecomputeMotion(WDynamicArray<MotionData>& motionData, WTempHashedString jointName1, WTempHashedString jointName2,
+//  const WAnimationClipResourceDescriptor& animClip, WUInt16 uiAnimClipIndex, const WSkeleton& skeleton)
 //{
-//  const ezUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFu;
-//  // const ezUInt16 uiJoint1IndexInAnim = animClip.FindJointIndexByName(jointName1);
-//  // const ezUInt16 uiJoint2IndexInAnim = animClip.FindJointIndexByName(jointName2);
+//  const WUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFu;
+//  // const WUInt16 uiJoint1IndexInAnim = animClip.FindJointIndexByName(jointName1);
+//  // const WUInt16 uiJoint2IndexInAnim = animClip.FindJointIndexByName(jointName2);
 //
-//  const ezUInt16 uiJoint1IndexInSkeleton = skeleton.FindJointByName(jointName1);
-//  const ezUInt16 uiJoint2IndexInSkeleton = skeleton.FindJointByName(jointName2);
-//  if (uiJoint1IndexInSkeleton == ezInvalidJointIndex || uiJoint2IndexInSkeleton == ezInvalidJointIndex)
+//  const WUInt16 uiJoint1IndexInSkeleton = skeleton.FindJointByName(jointName1);
+//  const WUInt16 uiJoint2IndexInSkeleton = skeleton.FindJointByName(jointName2);
+//  if (uiJoint1IndexInSkeleton == WInvalidJointIndex || uiJoint2IndexInSkeleton == WInvalidJointIndex)
 //    return;
 //
 //  const auto& jointNamesToIndices = animClip.GetAllJointIndices();
 //
-//  const ezUInt32 uiFirstMotionDataIdx = motionData.GetCount();
+//  const WUInt32 uiFirstMotionDataIdx = motionData.GetCount();
 //  motionData.Reserve(uiFirstMotionDataIdx + animClip.GetNumFrames());
 //
 //  const float fRootMotionToVelocity = animClip.GetFramesPerSecond();
 //
-//  ezAnimationPose pose;
+//  WAnimationPose pose;
 //  pose.Configure(skeleton);
 //
-//  for (ezUInt16 uiFrameIdx = 0; uiFrameIdx < animClip.GetNumFrames(); ++uiFrameIdx)
+//  for (WUInt16 uiFrameIdx = 0; uiFrameIdx < animClip.GetNumFrames(); ++uiFrameIdx)
 //  {
 //    pose.SetToBindPoseInLocalSpace(skeleton);
 //
-//    for (ezUInt32 b = 0; b < jointNamesToIndices.GetCount(); ++b)
+//    for (WUInt32 b = 0; b < jointNamesToIndices.GetCount(); ++b)
 //    {
-//      const ezUInt16 uiJointIndexInPose = skeleton.FindJointByName(jointNamesToIndices.GetKey(b));
-//      if (uiJointIndexInPose != ezInvalidJointIndex)
+//      const WUInt16 uiJointIndexInPose = skeleton.FindJointByName(jointNamesToIndices.GetKey(b));
+//      if (uiJointIndexInPose != WInvalidJointIndex)
 //      {
-//        const ezTransform jointTransform = animClip.GetJointKeyframes(jointNamesToIndices.GetValue(b))[uiFrameIdx];
+//        const WTransform jointTransform = animClip.GetJointKeyframes(jointNamesToIndices.GetValue(b))[uiFrameIdx];
 //
 //        pose.SetTransform(uiJointIndexInPose, jointTransform.GetAsMat4());
 //      }
@@ -443,23 +443,23 @@
 //    md.m_vLeftFootVelocity.SetZero();
 //    md.m_vRightFootVelocity.SetZero();
 //    md.m_vRootVelocity =
-//      animClip.HasRootMotion() ? fRootMotionToVelocity * animClip.GetJointKeyframes(uiRootJoint)[uiFrameIdx].m_vPosition : ezVec3::MakeZero();
+//      animClip.HasRootMotion() ? fRootMotionToVelocity * animClip.GetJointKeyframes(uiRootJoint)[uiFrameIdx].m_vPosition : WVec3::MakeZero();
 //  }
 //
 //  // now compute the velocity
 //  {
 //    const float fScaleToVelPerSec = animClip.GetFramesPerSecond();
 //
-//    ezUInt32 uiPrevMdIdx = motionData.GetCount() - 1;
+//    WUInt32 uiPrevMdIdx = motionData.GetCount() - 1;
 //
-//    for (ezUInt32 uiMotionDataIdx = uiFirstMotionDataIdx; uiMotionDataIdx < motionData.GetCount(); ++uiMotionDataIdx)
+//    for (WUInt32 uiMotionDataIdx = uiFirstMotionDataIdx; uiMotionDataIdx < motionData.GetCount(); ++uiMotionDataIdx)
 //    {
 //      {
-//        ezVec3 vel = motionData[uiMotionDataIdx].m_vLeftFootPosition - motionData[uiPrevMdIdx].m_vLeftFootPosition;
+//        WVec3 vel = motionData[uiMotionDataIdx].m_vLeftFootPosition - motionData[uiPrevMdIdx].m_vLeftFootPosition;
 //        motionData[uiMotionDataIdx].m_vLeftFootVelocity = vel * fScaleToVelPerSec;
 //      }
 //      {
-//        ezVec3 vel = motionData[uiMotionDataIdx].m_vRightFootPosition - motionData[uiPrevMdIdx].m_vRightFootPosition;
+//        WVec3 vel = motionData[uiMotionDataIdx].m_vRightFootPosition - motionData[uiPrevMdIdx].m_vRightFootPosition;
 //        motionData[uiMotionDataIdx].m_vRightFootVelocity = vel * fScaleToVelPerSec;
 //      }
 //
@@ -468,15 +468,15 @@
 //  }
 //}
 //
-// ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(
-//  const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition, ezVec3 vTargetDir) const
+// WUInt32 WMotionMatchingComponent::FindBestKeyframe(
+//  const TargetKeyframe& current, WVec3 vLeftFootPosition, WVec3 vRightFootPosition, WVec3 vTargetDir) const
 //{
 //  float fClosest = 1000000000.0f;
-//  ezUInt32 uiClosest = 0xFFFFFFFFu;
+//  WUInt32 uiClosest = 0xFFFFFFFFu;
 //
 //  const float fDirWeight = 3.0f;
 //
-//  for (ezUInt32 i = 0; i < m_MotionData.GetCount(); ++i)
+//  for (WUInt32 i = 0; i < m_MotionData.GetCount(); ++i)
 //  {
 //    const auto& md = m_MotionData[i];
 //
@@ -498,7 +498,7 @@
 //      }
 //    }
 //
-//    const float dirDist = ezMath::Pow((md.m_vRootVelocity - vTargetDir).GetLength(), fDirWeight);
+//    const float dirDist = WMath::Pow((md.m_vRootVelocity - vTargetDir).GetLength(), fDirWeight);
 //    const float leftFootDist = (md.m_vLeftFootPosition - vLeftFootPosition).GetLengthSquared();
 //    const float rightFootDist = (md.m_vRightFootPosition - vRightFootPosition).GetLengthSquared();
 //
@@ -514,4 +514,4 @@
 //  return uiClosest;
 //}
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_MotionMatchingComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_MotionMatchingComponent);

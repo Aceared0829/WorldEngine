@@ -6,20 +6,20 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezDecalAssetDocument;
-class ezQtOrbitCamViewWidget;
+class WDecalAssetDocument;
+class WQtOrbitCamViewWidget;
 
-class ezQtDecalAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtDecalAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument);
+  WQtDecalAssetDocumentWindow(WDecalAssetDocument* pDocument);
 
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
 };

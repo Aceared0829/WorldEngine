@@ -4,41 +4,41 @@
 #include <EditorPluginAssets/BlackboardTemplateAsset/BlackboardTemplateAssetManager.h>
 #include <EditorPluginAssets/BlackboardTemplateAsset/BlackboardTemplateAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlackboardTemplateAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezBlackboardTemplateAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBlackboardTemplateAssetDocumentManager, 1, WRTTIDefaultAllocator<WBlackboardTemplateAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezBlackboardTemplateAssetDocumentManager::ezBlackboardTemplateAssetDocumentManager()
+WBlackboardTemplateAssetDocumentManager::WBlackboardTemplateAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "BlackboardTemplate";
-  m_DocTypeDesc.m_sFileExtension = "ezBlackboardTemplateAsset";
+  m_DocTypeDesc.m_sFileExtension = "WBlackboardTemplateAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/BlackboardTemplate.svg";
   m_DocTypeDesc.m_sAssetCategory = "Logic";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezBlackboardTemplateAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WBlackboardTemplateAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_BlackboardTemplate");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinBlackboardTemplate";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinBlackboardTemplate";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("BlackboardTemplate", QPixmap(":/AssetIcons/BlackboardTemplate.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("BlackboardTemplate", QPixmap(":/AssetIcons/BlackboardTemplate.svg"));
 }
 
-ezBlackboardTemplateAssetDocumentManager::~ezBlackboardTemplateAssetDocumentManager()
+WBlackboardTemplateAssetDocumentManager::~WBlackboardTemplateAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezBlackboardTemplateAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WBlackboardTemplateAssetDocument>())
       {
-        new ezQtBlackboardTemplateAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
+        new WQtBlackboardTemplateAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;
@@ -48,12 +48,12 @@ void ezBlackboardTemplateAssetDocumentManager::OnDocumentManagerEvent(const ezDo
   }
 }
 
-void ezBlackboardTemplateAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WBlackboardTemplateAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezBlackboardTemplateAssetDocument(sPath);
+  out_pDocument = new WBlackboardTemplateAssetDocument(sPath);
 }
 
-void ezBlackboardTemplateAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WBlackboardTemplateAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

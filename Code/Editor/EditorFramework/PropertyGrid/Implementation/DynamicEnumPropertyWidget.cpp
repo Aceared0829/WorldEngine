@@ -5,10 +5,10 @@
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 
-ezMap<ezString, QString> ezQtDynamicEnumPropertyWidget::s_LastSearch;
+WMap<WString, QString> WQtDynamicEnumPropertyWidget::s_LastSearch;
 
-ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
-  : ezQtStandardPropertyWidget()
+WQtDynamicEnumPropertyWidget::WQtDynamicEnumPropertyWidget()
+  : WQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -25,48 +25,48 @@ ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
   m_pLayout->addWidget(m_pButton);
 }
 
-void ezQtDynamicEnumPropertyWidget::OnInit()
+void WQtDynamicEnumPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(
-    m_pProp->GetAttributeByType<ezDynamicEnumAttribute>() != nullptr, "ezQtDynamicEnumPropertyWidget was created without a ezDynamicEnumAttribute!");
+  W_ASSERT_DEV(
+    m_pProp->GetAttributeByType<WDynamicEnumAttribute>() != nullptr, "WQtDynamicEnumPropertyWidget was created without a WDynamicEnumAttribute!");
 
-  ezVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
-  EZ_IGNORE_UNUSED(type);
-  EZ_ASSERT_DEV(type != ezVariantType::String && type != ezVariantType::HashedString && type != ezVariantType::StringView, "ezDynamicEnumAttribute can't be used with string types");
+  WVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
+  W_IGNORE_UNUSED(type);
+  W_ASSERT_DEV(type != WVariantType::String && type != WVariantType::HashedString && type != WVariantType::StringView, "WDynamicEnumAttribute can't be used with string types");
 
-  const ezDynamicEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicEnumAttribute>();
+  const WDynamicEnumAttribute* pAttr = m_pProp->GetAttributeByType<WDynamicEnumAttribute>();
 
   m_sEnumAttribute = pAttr->GetDynamicEnumName();
 
-  m_pEnum = &ezDynamicEnum::GetDynamicEnum(m_sEnumAttribute);
+  m_pEnum = &WDynamicEnum::GetDynamicEnum(m_sEnumAttribute);
 
 
 
   m_pMenu = new QMenu(m_pButton);
   m_pMenu->setToolTipsVisible(false);
-  connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtDynamicEnumPropertyWidget::onMenuAboutToShow);
+  connect(m_pMenu, &QMenu::aboutToShow, this, &WQtDynamicEnumPropertyWidget::onMenuAboutToShow);
   m_pButton->setMenu(m_pMenu);
 }
 
-void ezQtDynamicEnumPropertyWidget::InternalSetValue(const ezVariant& value)
+void WQtDynamicEnumPropertyWidget::InternalSetValue(const WVariant& value)
 {
 
-  m_pButton->setText(ezMakeQString(m_pEnum->GetValueName(value.ConvertTo<ezInt64>())));
+  m_pButton->setText(WMakeQString(m_pEnum->GetValueName(value.ConvertTo<WInt64>())));
 }
 
-void ezQtDynamicEnumPropertyWidget::onMenuAboutToShow()
+void WQtDynamicEnumPropertyWidget::onMenuAboutToShow()
 {
   m_pMenu->clear();
 
-  m_pSearchableMenu = new ezQtSearchableMenu(m_pMenu);
+  m_pSearchableMenu = new WQtSearchableMenu(m_pMenu);
 
-  connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+  connect(m_pSearchableMenu, &WQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
     {
       if (variant.typeId() == QMetaType::QString)
       {
         if (variant.toString() == "<cmd>")
         {
-          ezActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), m_pEnum->GetEditCommandValue()).AssertSuccess();
+          WActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), WActionContext(const_cast<WDocument*>(m_pGrid->GetDocument())), m_pEnum->GetEditCommandValue()).AssertSuccess();
         }
       }
       else
@@ -79,7 +79,7 @@ void ezQtDynamicEnumPropertyWidget::onMenuAboutToShow()
       //
     });
 
-  connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
+  connect(m_pSearchableMenu, &WQtSearchableMenu::SearchTextChanged, m_pMenu,
     [this](const QString& sText)
     { s_LastSearch[m_sEnumAttribute] = sText; });
 

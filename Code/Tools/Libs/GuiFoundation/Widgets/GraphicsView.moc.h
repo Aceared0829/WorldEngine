@@ -7,14 +7,14 @@
 class QWheelEvent;
 class QMouseEvent;
 class QKeyEvent;
-class ezQGridBarWidget;
+class WQGridBarWidget;
 
-class EZ_GUIFOUNDATION_DLL ezQtGraphicsView : public QGraphicsView
+class W_GUIFOUNDATION_DLL WQtGraphicsView : public QGraphicsView
 {
   Q_OBJECT
 
 public:
-  ezQtGraphicsView(QWidget* pParent = nullptr);
+  WQtGraphicsView(QWidget* pParent = nullptr);
 
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void mousePressEvent(QMouseEvent* e) override;

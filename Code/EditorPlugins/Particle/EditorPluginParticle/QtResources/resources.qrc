@@ -4,8 +4,8 @@
     <file>Particle_Effect.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezParticleComponent.svg</file>
-    <file>ezParticleAttractorComponent.svg</file>
+    <file>WParticleComponent.svg</file>
+    <file>WParticleAttractorComponent.svg</file>
   </qresource>  
 </RCC>
 

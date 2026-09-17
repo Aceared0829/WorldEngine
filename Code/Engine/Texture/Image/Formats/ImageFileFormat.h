@@ -6,73 +6,73 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Texture/TextureDLL.h>
 
-class ezStreamReader;
-class ezStreamWriter;
-class ezImage;
-class ezImageView;
-class ezStringBuilder;
-class ezImageHeader;
+class WStreamReader;
+class WStreamWriter;
+class WImage;
+class WImageView;
+class WStringBuilder;
+class WImageHeader;
 
-class EZ_TEXTURE_DLL ezImageFileFormat
+class W_TEXTURE_DLL WImageFileFormat
 {
 public:
   /// Reads only the header information for an image and ignores the data. Much faster than reading the entire image, if the pixel data is not needed.
-  virtual ezResult ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const = 0;
+  virtual WResult ReadImageHeader(WStreamReader& inout_stream, WImageHeader& ref_header, WStringView sFileExtension) const = 0;
 
-  /// Reads the data from the given stream and creates the image from it. Errors are written to the given ezLogInterface.
-  virtual ezResult ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const = 0;
+  /// Reads the data from the given stream and creates the image from it. Errors are written to the given WLogInterface.
+  virtual WResult ReadImage(WStreamReader& inout_stream, WImage& ref_image, WStringView sFileExtension) const = 0;
 
-  /// Writes the data to the given stream in this format. Errors are written to the given ezLogInterface.
-  virtual ezResult WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const = 0;
+  /// Writes the data to the given stream in this format. Errors are written to the given WLogInterface.
+  virtual WResult WriteImage(WStreamWriter& inout_stream, const WImageView& image, WStringView sFileExtension) const = 0;
 
   /// Should return true, if files with the given extension can be read.
-  virtual bool CanReadFileType(ezStringView sExtension) const = 0;
+  virtual bool CanReadFileType(WStringView sExtension) const = 0;
 
   /// Should return true, if files with the given extension can be written.
-  virtual bool CanWriteFileType(ezStringView sExtension) const = 0;
+  virtual bool CanWriteFileType(WStringView sExtension) const = 0;
 
-  /// Returns an ezImageFileFormat that can read the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
-  static const ezImageFileFormat* GetReaderFormat(ezStringView sExtension);
+  /// Returns an WImageFileFormat that can read the given extension. Returns nullptr if there is no appropriate WImageFileFormat.
+  static const WImageFileFormat* GetReaderFormat(WStringView sExtension);
 
-  /// Returns an ezImageFileFormat that can write the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
-  static const ezImageFileFormat* GetWriterFormat(ezStringView sExtension);
+  /// Returns an WImageFileFormat that can write the given extension. Returns nullptr if there is no appropriate WImageFileFormat.
+  static const WImageFileFormat* GetWriterFormat(WStringView sExtension);
 
-  static ezResult ReadImageHeader(ezStringView sFileName, ezImageHeader& ref_header);
+  static WResult ReadImageHeader(WStringView sFileName, WImageHeader& ref_header);
 };
 
-/// Base class for a registered (globally known) ezImageFileFormat.
+/// Base class for a registered (globally known) WImageFileFormat.
 ///
-/// This is an enumerable class, so all known formats can be retrieved through the ezEnumerable interface.
+/// This is an enumerable class, so all known formats can be retrieved through the WEnumerable interface.
 /// For example:
 ///
-///   for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
+///   for (auto format = WRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
 ///   {
 ///     auto& type = format->GetFormatType();
 ///   }
-class EZ_TEXTURE_DLL ezRegisteredImageFileFormat : public ezEnumerable<ezRegisteredImageFileFormat>
+class W_TEXTURE_DLL WRegisteredImageFileFormat : public WEnumerable<WRegisteredImageFileFormat>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisteredImageFileFormat);
+  W_DECLARE_ENUMERABLE_CLASS(WRegisteredImageFileFormat);
 
 public:
-  ezRegisteredImageFileFormat();
-  ~ezRegisteredImageFileFormat();
+  WRegisteredImageFileFormat();
+  ~WRegisteredImageFileFormat();
 
-  virtual const ezImageFileFormat& GetFormatType() const = 0;
+  virtual const WImageFileFormat& GetFormatType() const = 0;
 };
 
-/// Template used to automatically register an ezImageFileFormat globally.
+/// Template used to automatically register an WImageFileFormat globally.
 ///
 /// Place a global variable of the desired type in some CPP file to register the type:
 ///
-///   ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
+///   WImageFileFormatRegistrator<WDdsFileFormat> g_ddsFormat;
 ///
 /// For the format to be available on platforms that use static linking, you may also need to add
-///   EZ_STATICLINK_FORCE
+///   W_STATICLINK_FORCE
 template <class TYPE>
-class ezImageFileFormatRegistrator : public ezRegisteredImageFileFormat
+class WImageFileFormatRegistrator : public WRegisteredImageFileFormat
 {
 public:
-  virtual const ezImageFileFormat& GetFormatType() const override
+  virtual const WImageFileFormat& GetFormatType() const override
   {
     return m_Format;
   }

@@ -8,14 +8,14 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezEditorEngineConnection;
-class ezEditorEngineSyncObject;
-class ezAssetDocumentManager;
-class ezPlatformProfile;
+class WEditorEngineConnection;
+class WEditorEngineSyncObject;
+class WAssetDocumentManager;
+class WPlatformProfile;
 class QImage;
 
 /// Describes whether the asset document on the editor side also needs a rendering context on the engine side
-enum class ezAssetDocEngineConnection : ezUInt8
+enum class WAssetDocEngineConnection : WUInt8
 {
   None,               ///< Use this when the document is fully self-contained and any UI is handled by Qt only. This is very common for 'data only' assets and everything that can't be visualized in 3D.
   Simple,             ///< Use this when the asset should be visualized in 3D. This requires a 'context' to be set up on the engine side that implements custom rendering. This is the most common type for anything that can be visualized in 3D, though can also be used for 2D data.
@@ -23,40 +23,40 @@ enum class ezAssetDocEngineConnection : ezUInt8
 };
 
 /// Frequently needed asset document states, to prevent code duplication
-struct ezCommonAssetUiState
+struct WCommonAssetUiState
 {
-  enum Enum : ezUInt32
+  enum Enum : WUInt32
   {
-    Pause = EZ_BIT(0),
-    Restart = EZ_BIT(1),
-    Loop = EZ_BIT(2),
-    SimulationSpeed = EZ_BIT(3),
-    Grid = EZ_BIT(4),
-    Visualizers = EZ_BIT(5),
+    Pause = W_BIT(0),
+    Restart = W_BIT(1),
+    Loop = W_BIT(2),
+    SimulationSpeed = W_BIT(3),
+    Grid = W_BIT(4),
+    Visualizers = W_BIT(5),
   };
 
   Enum m_State;
   double m_fValue = 0;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
+class W_EDITORFRAMEWORK_DLL WAssetDocument : public WDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
+  W_ADD_DYNAMIC_REFLECTION(WAssetDocument, WDocument);
 
 public:
   /// The thumbnail info containing the hash of the file is appended to assets.
   /// The serialized size of this class can't change since it is found by seeking to the end of the file.
-  class EZ_EDITORFRAMEWORK_DLL ThumbnailInfo
+  class W_EDITORFRAMEWORK_DLL ThumbnailInfo
   {
   public:
-    ezResult Deserialize(ezStreamReader& inout_reader);
-    ezResult Serialize(ezStreamWriter& inout_writer) const;
+    WResult Deserialize(WStreamReader& inout_reader);
+    WResult Serialize(WStreamWriter& inout_writer) const;
 
     /// Checks whether the stored file contains the same hash.
-    bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
+    bool IsThumbnailUpToDate(WUInt64 uiExpectedHash, WUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
 
     /// Sets the asset file hash
-    void SetFileHashAndVersion(ezUInt64 uiHash, ezUInt16 v)
+    void SetFileHashAndVersion(WUInt64 uiHash, WUInt16 v)
     {
       m_uiHash = uiHash;
       m_uiVersion = v;
@@ -64,52 +64,52 @@ public:
 
     /// Returns the serialized size of the thumbnail info.
     /// Used to seek to the end of the file and find the thumbnail info struct.
-    constexpr ezUInt32 GetSerializedSize() const { return 19; }
+    constexpr WUInt32 GetSerializedSize() const { return 19; }
 
   private:
-    ezUInt64 m_uiHash = 0;
-    ezUInt16 m_uiVersion = 0;
-    ezUInt16 m_uiReserved = 0;
+    WUInt64 m_uiHash = 0;
+    WUInt16 m_uiVersion = 0;
+    WUInt16 m_uiReserved = 0;
   };
 
-  ezAssetDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType);
-  ~ezAssetDocument();
+  WAssetDocument(WStringView sDocumentPath, WDocumentObjectManager* pObjectManager, WAssetDocEngineConnection engineConnectionType);
+  ~WAssetDocument();
 
   /// \name Asset Functions
   ///@{
 
-  ezAssetDocumentManager* GetAssetDocumentManager() const;
-  const ezAssetDocumentInfo* GetAssetDocumentInfo() const;
+  WAssetDocumentManager* GetAssetDocumentManager() const;
+  const WAssetDocumentInfo* GetAssetDocumentInfo() const;
 
-  ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
+  WBitflags<WAssetDocumentFlags> GetAssetFlags() const;
 
-  const ezAssetDocumentTypeDescriptor* GetAssetDocumentTypeDescriptor() const
+  const WAssetDocumentTypeDescriptor* GetAssetDocumentTypeDescriptor() const
   {
-    return static_cast<const ezAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor());
+    return static_cast<const WAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor());
   }
 
   /// Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
   ///
-  /// If ezTransformFlags::ForceTransform is set, it will try to transform the asset, ignoring whether the transform is up to date.
-  /// If ezTransformFlags::TriggeredManually is set, transform produced changes will be saved back to the document.
-  /// If ezTransformFlags::BackgroundProcessing is set and transforming the asset would require re-saving it, nothing is done.
-  ezTransformStatus TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
+  /// If WTransformFlags::ForceTransform is set, it will try to transform the asset, ignoring whether the transform is up to date.
+  /// If WTransformFlags::TriggeredManually is set, transform produced changes will be saved back to the document.
+  /// If WTransformFlags::BackgroundProcessing is set and transforming the asset would require re-saving it, nothing is done.
+  WTransformStatus TransformAsset(WBitflags<WTransformFlags> transformFlags, const WPlatformProfile* pAssetProfile = nullptr);
 
   /// Updates the thumbnail of the asset.
   ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
-  ezTransformStatus CreateThumbnail();
+  WTransformStatus CreateThumbnail();
 
   /// Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
-  ezUInt16 GetAssetTypeVersion() const;
+  WUInt16 GetAssetTypeVersion() const;
 
-  /// Values that InternalTransformAsset() may fill out, to record facts only known after the transform. \see ezAssetInfoFile
+  /// Values that InternalTransformAsset() may fill out, to record facts only known after the transform. \see WAssetInfoFile
   ///
   /// Cleared before each output is generated. Leaving it empty means that no file is written, which is the case for most
   /// asset types. An asset whose output is produced by an external tool may instead have that tool write the file.
-  ezAssetInfoFile& GetTransformInfo() { return m_TransformInfo; }
-  const ezAssetInfoFile& GetTransformInfo() const { return m_TransformInfo; }
+  WAssetInfoFile& GetTransformInfo() { return m_TransformInfo; }
+  const WAssetInfoFile& GetTransformInfo() const { return m_TransformInfo; }
 
   ///@}
   /// \name IPC Functions
@@ -126,40 +126,40 @@ public:
   /// Returns the current state of the engine process side of this document.
   EngineStatus GetEngineStatus() const { return m_EngineStatus; }
   /// Waits for GetEngineStatus to return Loaded or returns a failure reason.
-  ezStatus WaitForEngineStatusLoaded() const;
+  WStatus WaitForEngineStatusLoaded() const;
 
-  /// Passed into ezEngineProcessDocumentContext::Initialize on the engine process side. Allows the document to provide additional data to the engine process during context creation.
-  virtual ezVariant GetCreateEngineMetaData() const { return ezVariant(); }
+  /// Passed into WEngineProcessDocumentContext::Initialize on the engine process side. Allows the document to provide additional data to the engine process during context creation.
+  virtual WVariant GetCreateEngineMetaData() const { return WVariant(); }
 
-  /// Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
-  bool SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+  /// Sends a message to the corresponding WEngineProcessDocumentContext on the engine process.
+  bool SendMessageToEngine(WEditorEngineDocumentMsg* pMessage) const;
 
-  /// Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
+  /// Handles all messages received from the corresponding WEngineProcessDocumentContext on the engine process.
+  virtual void HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg);
 
   struct AssetUsage
   {
-    ezString m_sObjectName;
-    ezUuid m_ObjectGuid;
+    WString m_sObjectName;
+    WUuid m_ObjectGuid;
   };
 
   /// Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const {}
+  virtual void FindAssetUsages(WStringView sAssetToFind, WDynamicArray<AssetUsage>& out_usages, WUInt32 uiMaxResults) const {}
 
-  /// Returns the ezEditorEngineConnection for this document.
-  ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
+  /// Returns the WEditorEngineConnection for this document.
+  WEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
 
-  /// Registers a sync object for this document. It will be mirrored to the ezEngineProcessDocumentContext on the engine process.
-  void AddSyncObject(ezEditorEngineSyncObject* pSync) const;
+  /// Registers a sync object for this document. It will be mirrored to the WEngineProcessDocumentContext on the engine process.
+  void AddSyncObject(WEditorEngineSyncObject* pSync) const;
 
   /// Removes a previously registered sync object. It will be removed on the engine process side.
-  void RemoveSyncObject(ezEditorEngineSyncObject* pSync) const;
+  void RemoveSyncObject(WEditorEngineSyncObject* pSync) const;
 
   /// Returns the sync object registered under the given guid.
-  ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid) const;
+  WEditorEngineSyncObject* FindSyncObject(const WUuid& guid) const;
 
   /// Returns the first sync object registered with the given type.
-  ezEditorEngineSyncObject* FindSyncObject(const ezRTTI* pType) const;
+  WEditorEngineSyncObject* FindSyncObject(const WRTTI* pType) const;
 
   /// Sends messages to sync all sync objects to the engine process side.
   void SyncObjectsToEngine() const;
@@ -172,29 +172,29 @@ public:
 
   ///@}
 
-  ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
+  WEvent<const WEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
 protected:
-  void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void EngineConnectionEventHandler(const WEditorEngineProcessConnection::Event& e);
 
   /// \name Hash Functions
   ///@{
 
   /// Computes the hash from all document objects
-  ezUInt64 GetDocumentHash() const;
+  WUInt64 GetDocumentHash() const;
 
   /// Computes the hash for one document object and combines it with the given hash
-  void GetChildHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const;
+  void GetChildHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const;
 
   /// Computes the hash for transform relevant meta data of the given document object and combines it with the given hash.
-  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const {}
+  virtual void InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const {}
 
   ///@}
   /// \name Reimplemented Base Functions
   ///@{
 
   /// Overrides the base function to call UpdateAssetDocumentInfo() to update the settings hash
-  virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
+  virtual WTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
 
   /// Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;
@@ -210,60 +210,60 @@ protected:
   ///
   /// \note ALWAYS call the base function! It automatically fills out references that it can determine.
   ///       In most cases that is already sufficient.
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const;
 
   /// Override this and write the transformed file for the given szOutputTag into the given stream.
   ///
-  /// The stream already contains the ezAssetFileHeader. This is the function to prefer when the asset can be written
+  /// The stream already contains the WAssetFileHeader. This is the function to prefer when the asset can be written
   /// directly from the editor process. AssetHeader is already written to the stream, but provided as reference.
   ///
   /// \param stream Data stream to write the asset to.
-  /// \param szOutputTag Either empty for the default output or matches one of the tags defined in ezAssetDocumentInfo::m_Outputs.
+  /// \param szOutputTag Either empty for the default output or matches one of the tags defined in WAssetDocumentInfo::m_Outputs.
   /// \param szPlatform Platform for which is the output is to be created. Default is 'Default'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
-  /// \param transformFlags flags that affect the transform process, see ezTransformFlags.
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
+  /// \param transformFlags flags that affect the transform process, see WTransformFlags.
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) = 0;
 
   /// Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
-  /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
-  /// See ezTransformFlags for definition of transform flags.
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
+  /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom WAssetDocumentManager::IsOutputUpToDate function.
+  /// See WTransformFlags for definition of transform flags.
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags);
 
-  ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
+  WStatus RemoteExport(const WAssetFileHeader& header, const char* szOutputTarget) const;
 
   ///@}
   /// \name Thumbnail Functions
   ///@{
 
-  /// Override this function to generate a thumbnail. Only called if GetAssetFlags returns ezAssetDocumentFlags::SupportsThumbnail.
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
+  /// Override this function to generate a thumbnail. Only called if GetAssetFlags returns WAssetDocumentFlags::SupportsThumbnail.
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
 
   /// Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
-  ezString GetThumbnailFilePath(ezStringView sSubAssetName = ezStringView()) const;
+  WString GetThumbnailFilePath(WStringView sSubAssetName = WStringView()) const;
 
   /// Should be called after manually changing the thumbnail, such that the system will reload it
-  void InvalidateAssetThumbnail(ezStringView sSubAssetName = ezStringView()) const;
+  void InvalidateAssetThumbnail(WStringView sSubAssetName = WStringView()) const;
 
   /// Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
-  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags /*= ezStringView("SkyLight")*/) const;
-  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const
+  WStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, WArrayPtr<WStringView> viewExclusionTags /*= WStringView("SkyLight")*/) const;
+  WStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const
   {
-    ezStringView defVal("SkyLight");
+    WStringView defVal("SkyLight");
     return RemoteCreateThumbnail(thumbnailInfo, {&defVal, 1});
   }
 
   /// Saves the given image as the new thumbnail for the asset
-  ezStatus SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const;
+  WStatus SaveThumbnail(const WImage& img, const ThumbnailInfo& thumbnailInfo) const;
 
   /// Saves the given image as the new thumbnail for the asset
-  ezStatus SaveThumbnail(const QImage& img, const ThumbnailInfo& thumbnailInfo) const;
+  WStatus SaveThumbnail(const QImage& img, const ThumbnailInfo& thumbnailInfo) const;
 
   /// Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
-  void AppendThumbnailInfo(ezStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
+  void AppendThumbnailInfo(WStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
 
   ///@}
   /// \name Common Asset States
@@ -274,43 +274,43 @@ public:
   ///
   /// By default an on-off flag for every state is tracked, but nothing else.
   /// Also this automatically broadcasts the m_CommonAssetUiChangeEvent event.
-  virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value);
+  virtual void SetCommonAssetUiState(WCommonAssetUiState::Enum state, double value);
 
   /// Override this to return custom values for a common asset state.
-  virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const;
+  virtual double GetCommonAssetUiState(WCommonAssetUiState::Enum state) const;
 
   /// Used to broadcast state change events for common asset states.
-  ezEvent<const ezCommonAssetUiState&> m_CommonAssetUiChangeEvent;
+  WEvent<const WCommonAssetUiState&> m_CommonAssetUiChangeEvent;
 
 protected:
-  ezUInt32 m_uiCommonAssetStateFlags = 0;
+  WUInt32 m_uiCommonAssetStateFlags = 0;
 
   ///@}
 
 protected:
-  /// Adds all prefab dependencies to the ezAssetDocumentInfo object. Called automatically by UpdateAssetDocumentInfo()
-  void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
+  /// Adds all prefab dependencies to the WAssetDocumentInfo object. Called automatically by UpdateAssetDocumentInfo()
+  void AddPrefabDependencies(const WDocumentObject* pObject, WAssetDocumentInfo* pInfo) const;
 
-  /// Crawls through all asset properties of pObject and adds all string properties that have a ezAssetBrowserAttribute as a dependency to
+  /// Crawls through all asset properties of pObject and adds all string properties that have a WAssetBrowserAttribute as a dependency to
   /// pInfo. Automatically called by UpdateAssetDocumentInfo()
-  void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
+  void AddReferences(const WDocumentObject* pObject, WAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 protected:
-  ezUniquePtr<ezIPCObjectMirrorEditor> m_pMirror;
+  WUniquePtr<WIPCObjectMirrorEditor> m_pMirror;
 
-  virtual ezDocumentInfo* CreateDocumentInfo() override;
+  virtual WDocumentInfo* CreateDocumentInfo() override;
 
-  ezTransformStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
+  WTransformStatus DoTransformAsset(const WPlatformProfile* pAssetProfile, WBitflags<WTransformFlags> transformFlags);
 
   EngineStatus m_EngineStatus;
-  ezAssetDocEngineConnection m_EngineConnectionType = ezAssetDocEngineConnection::None;
+  WAssetDocEngineConnection m_EngineConnectionType = WAssetDocEngineConnection::None;
 
-  ezEditorEngineConnection* m_pEngineConnection;
+  WEditorEngineConnection* m_pEngineConnection;
 
-  mutable ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;
-  mutable ezDeque<ezEditorEngineSyncObject*> m_SyncObjects;
+  mutable WHashTable<WUuid, WEditorEngineSyncObject*> m_AllSyncObjects;
+  mutable WDeque<WEditorEngineSyncObject*> m_SyncObjects;
 
-  mutable ezHybridArray<ezUuid, 32> m_DeletedObjects;
+  mutable WHybridArray<WUuid, 32> m_DeletedObjects;
 
-  ezAssetInfoFile m_TransformInfo;
+  WAssetInfoFile m_TransformInfo;
 };

@@ -5,7 +5,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 
-ezQtAssetStatusIndicator::ezQtAssetStatusIndicator(ezAssetDocument* pDoc, QWidget* pParent)
+WQtAssetStatusIndicator::WQtAssetStatusIndicator(WAssetDocument* pDoc, QWidget* pParent)
   : QFrame(pParent)
 {
   m_pAsset = pDoc;
@@ -17,50 +17,50 @@ ezQtAssetStatusIndicator::ezQtAssetStatusIndicator(ezAssetDocument* pDoc, QWidge
 
   m_pLabel = new QPushButton();
   m_pLabel->setFlat(true);
-  connect(m_pLabel, &QPushButton::clicked, this, &ezQtAssetStatusIndicator::onClick);
+  connect(m_pLabel, &QPushButton::clicked, this, &WQtAssetStatusIndicator::onClick);
 
   layout()->addWidget(m_pLabel);
 
   m_pHelp = new QPushButton();
-  connect(m_pHelp, &QPushButton::clicked, this, &ezQtAssetStatusIndicator::onHelp);
+  connect(m_pHelp, &QPushButton::clicked, this, &WQtAssetStatusIndicator::onHelp);
   m_pHelp->setFlat(true);
   m_pHelp->setIcon(QIcon(":/GuiFoundation/Icons/Help.svg"));
   m_pHelp->setMaximumWidth(32);
-  m_pHelp->setToolTip(ezMakeQString(ezTranslateTooltip("Asset.Help")));
+  m_pHelp->setToolTip(WMakeQString(WTranslateTooltip("Asset.Help")));
   layout()->addWidget(m_pHelp);
 
-  m_pAsset->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::DocumentEventHandler, this));
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::AssetEventHandler, this));
+  m_pAsset->m_EventsOne.AddEventHandler(WMakeDelegate(&WQtAssetStatusIndicator::DocumentEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtAssetStatusIndicator::AssetEventHandler, this));
 
   UpdateDisplay();
 }
 
-ezQtAssetStatusIndicator::~ezQtAssetStatusIndicator()
+WQtAssetStatusIndicator::~WQtAssetStatusIndicator()
 {
-  m_pAsset->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::DocumentEventHandler, this));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::AssetEventHandler, this));
+  m_pAsset->m_EventsOne.RemoveEventHandler(WMakeDelegate(&WQtAssetStatusIndicator::DocumentEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtAssetStatusIndicator::AssetEventHandler, this));
 }
 
-void ezQtAssetStatusIndicator::DocumentEventHandler(const ezDocumentEvent& e)
+void WQtAssetStatusIndicator::DocumentEventHandler(const WDocumentEvent& e)
 {
-  if (e.m_Type == ezDocumentEvent::Type::ModifiedChanged)
+  if (e.m_Type == WDocumentEvent::Type::ModifiedChanged)
   {
     UpdateDisplay();
   }
 }
 
-void ezQtAssetStatusIndicator::AssetEventHandler(const ezAssetCuratorEvent& e)
+void WQtAssetStatusIndicator::AssetEventHandler(const WAssetCuratorEvent& e)
 {
   if (e.m_AssetGuid == m_pAsset->GetGuid())
   {
-    if (e.m_Type == ezAssetCuratorEvent::Type::AssetUpdated)
+    if (e.m_Type == WAssetCuratorEvent::Type::AssetUpdated)
     {
       UpdateDisplay();
     }
   }
 }
 
-void ezQtAssetStatusIndicator::UpdateDisplay()
+void WQtAssetStatusIndicator::UpdateDisplay()
 {
   // states:
   // all good
@@ -73,8 +73,8 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
   if (m_pAsset->IsModified())
   {
     auto flags = m_pAsset->GetAssetFlags();
-    const bool bTransformOnSave = flags.IsSet(ezAssetDocumentFlags::AutoTransformOnSave);
-    const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
+    const bool bTransformOnSave = flags.IsSet(WAssetDocumentFlags::AutoTransformOnSave);
+    const bool bBgRunning = WAssetProcessor::GetSingleton()->GetProcessorState() == WAssetProcessor::ProcessorState::Running;
 
     // no flag for live preview available (ignore)
 
@@ -93,11 +93,11 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
   }
   else
   {
-    auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(m_pAsset->GetGuid());
+    auto assetInfo = WAssetCurator::GetSingleton()->GetSubAsset(m_pAsset->GetGuid());
     switch (assetInfo->m_pAssetInfo->m_TransformState)
     {
-      case ezAssetInfo::TransformState::UpToDate:
-      case ezAssetInfo::TransformState::NeedsThumbnail:
+      case WAssetInfo::TransformState::UpToDate:
+      case WAssetInfo::TransformState::NeedsThumbnail:
       {
         m_pLabel->setText("Asset State: All Good");
         m_pLabel->setIcon(QIcon(":/EditorFramework/Icons/AssetOk.svg"));
@@ -105,10 +105,10 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
         break;
       }
 
-      case ezAssetInfo::TransformState::NeedsImport:
-      case ezAssetInfo::TransformState::NeedsTransform:
+      case WAssetInfo::TransformState::NeedsImport:
+      case WAssetInfo::TransformState::NeedsTransform:
       {
-        const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
+        const bool bBgRunning = WAssetProcessor::GetSingleton()->GetProcessorState() == WAssetProcessor::ProcessorState::Running;
 
         if (bBgRunning)
         {
@@ -125,11 +125,11 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
         break;
       }
 
-      case ezAssetInfo::TransformState::TransformError:
-      case ezAssetInfo::TransformState::MissingTransformDependency:
-      case ezAssetInfo::TransformState::MissingThumbnailDependency:
-      case ezAssetInfo::TransformState::MissingPackageDependency:
-      case ezAssetInfo::TransformState::CircularDependency:
+      case WAssetInfo::TransformState::TransformError:
+      case WAssetInfo::TransformState::MissingTransformDependency:
+      case WAssetInfo::TransformState::MissingThumbnailDependency:
+      case WAssetInfo::TransformState::MissingPackageDependency:
+      case WAssetInfo::TransformState::CircularDependency:
         m_pLabel->setText("Asset Error: Click for Details");
         m_pLabel->setIcon(QIcon(":/EditorFramework/Icons/AssetFailedTransform.svg"));
         m_Action = Action::ShowErrors;
@@ -141,7 +141,7 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
   }
 }
 
-void ezQtAssetStatusIndicator::onClick(bool)
+void WQtAssetStatusIndicator::onClick(bool)
 {
   switch (m_Action)
   {
@@ -154,41 +154,41 @@ void ezQtAssetStatusIndicator::onClick(bool)
       [[fallthrough]];
 
     case Action::Transform:
-      m_pAsset->TransformAsset(ezTransformFlags::TriggeredManually | ezTransformFlags::ForceTransform);
+      m_pAsset->TransformAsset(WTransformFlags::TriggeredManually | WTransformFlags::ForceTransform);
       break;
 
     case Action::ShowErrors:
     {
-      auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(m_pAsset->GetGuid());
+      auto assetInfo = WAssetCurator::GetSingleton()->GetSubAsset(m_pAsset->GetGuid());
 
-      ezStringBuilder output;
+      WStringBuilder output;
       output.Set("Asset transform failed.\n\n");
 
       if (!assetInfo->m_pAssetInfo->m_LogEntries.IsEmpty())
       {
         output.Append("Errors:\n\n");
 
-        for (const ezLogEntry& logEntry : assetInfo->m_pAssetInfo->m_LogEntries)
+        for (const WLogEntry& logEntry : assetInfo->m_pAssetInfo->m_LogEntries)
         {
           output.AppendFormat("{}\n", logEntry.m_sMsg);
         }
       }
 
-      auto getNiceName = [](const ezString& sDep) -> ezStringBuilder
+      auto getNiceName = [](const WString& sDep) -> WStringBuilder
       {
-        if (ezConversionUtils::IsStringUuid(sDep))
+        if (WConversionUtils::IsStringUuid(sDep))
         {
-          ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
-          auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+          WUuid guid = WConversionUtils::ConvertStringToUuid(sDep);
+          auto assetInfoDep = WAssetCurator::GetSingleton()->GetSubAsset(guid);
           if (assetInfoDep)
           {
             return assetInfoDep->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
           }
 
-          ezUInt64 uiLow;
-          ezUInt64 uiHigh;
+          WUInt64 uiLow;
+          WUInt64 uiHigh;
           guid.GetValues(uiLow, uiHigh);
-          ezStringBuilder sTmp;
+          WStringBuilder sTmp;
           sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
 
           return sTmp;
@@ -197,11 +197,11 @@ void ezQtAssetStatusIndicator::onClick(bool)
         return sDep;
       };
 
-      ezSet<ezString> missingDeps;
+      WSet<WString> missingDeps;
 
       if (!assetInfo->m_pAssetInfo->m_MissingTransformDeps.IsEmpty())
       {
-        for (const ezString& dep : assetInfo->m_pAssetInfo->m_MissingTransformDeps)
+        for (const WString& dep : assetInfo->m_pAssetInfo->m_MissingTransformDeps)
         {
           missingDeps.Insert(getNiceName(dep));
         }
@@ -209,7 +209,7 @@ void ezQtAssetStatusIndicator::onClick(bool)
 
       if (!assetInfo->m_pAssetInfo->m_MissingPackageDeps.IsEmpty())
       {
-        for (const ezString& dep : assetInfo->m_pAssetInfo->m_MissingPackageDeps)
+        for (const WString& dep : assetInfo->m_pAssetInfo->m_MissingPackageDeps)
         {
           missingDeps.Insert(getNiceName(dep));
         }
@@ -217,7 +217,7 @@ void ezQtAssetStatusIndicator::onClick(bool)
 
       if (!assetInfo->m_pAssetInfo->m_MissingThumbnailDeps.IsEmpty())
       {
-        for (const ezString& dep : assetInfo->m_pAssetInfo->m_MissingThumbnailDeps)
+        for (const WString& dep : assetInfo->m_pAssetInfo->m_MissingThumbnailDeps)
         {
           missingDeps.Insert(getNiceName(dep));
         }
@@ -227,30 +227,30 @@ void ezQtAssetStatusIndicator::onClick(bool)
       {
         output.Append("Missing Dependencies:\n\n");
 
-        for (const ezString& dep : missingDeps)
+        for (const WString& dep : missingDeps)
         {
           output.AppendFormat("{}\n", dep);
         }
       }
 
-      ezQtUiServices::GetSingleton()->MessageBoxInformation(output);
+      WQtUiServices::GetSingleton()->MessageBoxInformation(output);
 
       break;
     }
   }
 }
 
-void ezQtAssetStatusIndicator::onHelp(bool)
+void WQtAssetStatusIndicator::onHelp(bool)
 {
-  ezStringView sType = m_pAsset->GetDocumentTypeName();
-  ezString sURL = ezTranslateHelpURL(sType);
+  WStringView sType = m_pAsset->GetDocumentTypeName();
+  WString sURL = WTranslateHelpURL(sType);
 
   if (!sURL.IsEmpty())
   {
-    QDesktopServices::openUrl(QUrl(ezMakeQString(sURL)));
+    QDesktopServices::openUrl(QUrl(WMakeQString(sURL)));
   }
   else
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("There is no known online documentation for the asset type '{}'.\n\nPlease report this to the developers.", sType));
+    WQtUiServices::GetSingleton()->MessageBoxInformation(WFmt("There is no known online documentation for the asset type '{}'.\n\nPlease report this to the developers.", sType));
   }
 }

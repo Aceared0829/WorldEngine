@@ -3,13 +3,13 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 
-class ezMaterialAssetDocument;
-struct ezPropertyMetaStateEvent;
-struct ezEditorAppEvent;
+class WMaterialAssetDocument;
+struct WPropertyMetaStateEvent;
+struct WEditorAppEvent;
 
-struct ezMaterialShaderMode
+struct WMaterialShaderMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -21,7 +21,7 @@ struct ezMaterialShaderMode
   };
 };
 
-struct ezMaterialVisualShaderEvent
+struct WMaterialVisualShaderEvent
 {
   enum Type
   {
@@ -31,14 +31,14 @@ struct ezMaterialVisualShaderEvent
   };
 
   Type m_Type;
-  ezString m_sTransformError;
+  WString m_sTransformError;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialShaderMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WMaterialShaderMode);
 
-struct ezMaterialAssetPreview
+struct WMaterialAssetPreview
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -50,14 +50,14 @@ struct ezMaterialAssetPreview
     Default = Ball
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialAssetPreview);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WMaterialAssetPreview);
 
-class ezMaterialAssetProperties : public ezReflectedClass
+class WMaterialAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialAssetProperties, WReflectedClass);
 
 public:
-  ezMaterialAssetProperties() = default;
+  WMaterialAssetProperties() = default;
 
   void SetBaseMaterial(const char* szBaseMaterial);
   const char* GetBaseMaterial() const;
@@ -67,12 +67,12 @@ public:
 
   void SetShader(const char* szShader);
   const char* GetShader() const;
-  void SetShaderProperties(ezReflectedClass* pProperties);
-  ezReflectedClass* GetShaderProperties() const;
-  void SetShaderMode(ezEnum<ezMaterialShaderMode> mode);
-  ezEnum<ezMaterialShaderMode> GetShaderMode() const { return m_ShaderMode; }
+  void SetShaderProperties(WReflectedClass* pProperties);
+  WReflectedClass* GetShaderProperties() const;
+  void SetShaderMode(WEnum<WMaterialShaderMode> mode);
+  WEnum<WMaterialShaderMode> GetShaderMode() const { return m_ShaderMode; }
 
-  void SetDocument(ezMaterialAssetDocument* pDocument);
+  void SetDocument(WMaterialAssetDocument* pDocument);
   void UpdateShader(bool bForce = false);
 
   void DeleteProperties();
@@ -81,85 +81,85 @@ public:
   void SaveOldValues();
   void LoadOldValues();
 
-  ezString ResolveRelativeShaderPath() const;
-  ezString GetAutoGenShaderPathAbs() const;
+  WString ResolveRelativeShaderPath() const;
+  WString GetAutoGenShaderPathAbs() const;
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
 public:
-  ezString m_sBaseMaterial;
-  ezString m_sSurface;
-  ezString m_sShader;
-  ezString m_sAssetFilterTags;
+  WString m_sBaseMaterial;
+  WString m_sSurface;
+  WString m_sShader;
+  WString m_sAssetFilterTags;
 
-  ezMap<ezString, ezVariant> m_CachedProperties;
-  ezMaterialAssetDocument* m_pDocument = nullptr;
-  ezEnum<ezMaterialShaderMode> m_ShaderMode;
+  WMap<WString, WVariant> m_CachedProperties;
+  WMaterialAssetDocument* m_pDocument = nullptr;
+  WEnum<WMaterialShaderMode> m_ShaderMode;
 };
 
-class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
+class WMaterialAssetDocument : public WSimpleAssetDocument<WMaterialAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocument, ezSimpleAssetDocument<ezMaterialAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialAssetDocument, WSimpleAssetDocument<WMaterialAssetProperties>);
 
 public:
-  ezMaterialAssetDocument(ezStringView sDocumentPath);
-  ~ezMaterialAssetDocument();
+  WMaterialAssetDocument(WStringView sDocumentPath);
+  ~WMaterialAssetDocument();
 
-  ezDocumentObject* GetShaderPropertyObject();
-  const ezDocumentObject* GetShaderPropertyObject() const;
+  WDocumentObject* GetShaderPropertyObject();
+  const WDocumentObject* GetShaderPropertyObject() const;
 
   void SetBaseMaterial(const char* szBaseMaterial);
 
-  ezStatus WriteMaterialAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const;
+  WStatus WriteMaterialAsset(WStreamWriter& inout_stream, const WPlatformProfile* pAssetProfile, bool bEmbedLowResData) const;
 
   /// Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
-  ezStatus RecreateVisualShaderFile(const ezAssetFileHeader& assetHeader);
+  WStatus RecreateVisualShaderFile(const WAssetFileHeader& assetHeader);
 
   /// If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
   /// regeneration Otherwise the AssetCurator would early out
-  void TagVisualShaderFileInvalid(const ezPlatformProfile* pAssetProfile, const char* szError);
+  void TagVisualShaderFileInvalid(const WPlatformProfile* pAssetProfile, const char* szError);
 
   /// Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
 
-  static ezUuid GetLitBaseMaterial();
-  static ezUuid GetLitAlphaTestBaseMaterial();
-  static ezUuid GetNeutralNormalMap();
+  static WUuid GetLitBaseMaterial();
+  static WUuid GetLitAlphaTestBaseMaterial();
+  static WUuid GetNeutralNormalMap();
 
-  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+  virtual void GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_sMimeType) const override;
+  virtual bool Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType) override;
 
-  ezEvent<const ezMaterialVisualShaderEvent&> m_VisualShaderEvents;
-  ezEnum<ezMaterialAssetPreview> m_PreviewModel;
+  WEvent<const WMaterialVisualShaderEvent&> m_VisualShaderEvents;
+  WEnum<WMaterialAssetPreview> m_PreviewModel;
 
 protected:
-  ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
-  static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
-  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab) override;
+  WUuid GetSeedFromBaseMaterial(const WAbstractObjectGraph* pBaseGraph);
+  static WUuid GetMaterialNodeGuid(const WAbstractObjectGraph& graph);
+  virtual void UpdatePrefabObject(WDocumentObject* pObject, const WUuid& PrefabAsset, const WUuid& PrefabSeed, WStringView sBasePrefab) override;
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
+  virtual void InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const override;
+  virtual void AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable) override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 
   void InvalidateCachedShader();
-  void EditorEventHandler(const ezEditorAppEvent& e);
+  void EditorEventHandler(const WEditorAppEvent& e);
 
 private:
-  ezStringBuilder m_sCheckPermutations;
-  static ezUuid s_LitBaseMaterial;
-  static ezUuid s_LitAlphaTextBaseMaterial;
-  static ezUuid s_NeutralNormalMap;
+  WStringBuilder m_sCheckPermutations;
+  static WUuid s_LitBaseMaterial;
+  static WUuid s_LitAlphaTextBaseMaterial;
+  static WUuid s_NeutralNormalMap;
 };
 
-class ezMaterialObjectManager : public ezVisualShaderNodeManager
+class WMaterialObjectManager : public WVisualShaderNodeManager
 {
 };

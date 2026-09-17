@@ -4,12 +4,12 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 /// Manages window layout save/restore using ADS perspective management.
-class EZ_EDITORFRAMEWORK_DLL ezWindowLayoutActions
+class W_EDITORFRAMEWORK_DLL WWindowLayoutActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
   /// Automatically restores the default layout at startup.
   static void RestoreUserLayout();
@@ -17,17 +17,17 @@ public:
   /// Automatically saves the current layout as default at shutdown.
   static void SaveUserLayout();
 
-  static ezActionDescriptorHandle s_hCatWindowLayout;
-  static ezActionDescriptorHandle s_hSetToDefaultPinned;
-  static ezActionDescriptorHandle s_hSetToDefaultUnpinned;
-  static ezActionDescriptorHandle s_hSetToAbBottom;
-  static ezActionDescriptorHandle s_hSaveLayout;
-  static ezActionDescriptorHandle s_hLoadLayout;
+  static WActionDescriptorHandle s_hCatWindowLayout;
+  static WActionDescriptorHandle s_hSetToDefaultPinned;
+  static WActionDescriptorHandle s_hSetToDefaultUnpinned;
+  static WActionDescriptorHandle s_hSetToAbBottom;
+  static WActionDescriptorHandle s_hSaveLayout;
+  static WActionDescriptorHandle s_hLoadLayout;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezWindowLayoutAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WWindowLayoutAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezWindowLayoutAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WWindowLayoutAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -37,31 +37,31 @@ public:
     SetToAbBottom,
   };
 
-  ezWindowLayoutAction(const ezActionContext& context, const char* szName, ButtonType button);
-  virtual void Execute(const ezVariant& value) override;
+  WWindowLayoutAction(const WActionContext& context, const char* szName, ButtonType button);
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ButtonType m_ButtonType;
 };
 
 /// Dynamic menu listing the 3 user layout slots for saving the current panel arrangement.
-class EZ_EDITORFRAMEWORK_DLL ezSaveLayoutMenuAction : public ezDynamicMenuAction
+class W_EDITORFRAMEWORK_DLL WSaveLayoutMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSaveLayoutMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WSaveLayoutMenuAction, WDynamicMenuAction);
 
 public:
-  ezSaveLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  WSaveLayoutMenuAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 /// Dynamic menu listing the 3 user layout slots for restoring a previously saved panel arrangement.
-class EZ_EDITORFRAMEWORK_DLL ezLoadLayoutMenuAction : public ezDynamicMenuAction
+class W_EDITORFRAMEWORK_DLL WLoadLayoutMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLoadLayoutMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WLoadLayoutMenuAction, WDynamicMenuAction);
 
 public:
-  ezLoadLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  WLoadLayoutMenuAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };

@@ -2,36 +2,36 @@
 
 #include <RendererCore/Declarations.h>
 
-class ezDirectionalLightComponent;
-class ezPointLightComponent;
-class ezSpotLightComponent;
-class ezGALTextureHandle;
-class ezGALBufferHandle;
-class ezView;
-struct ezRenderWorldExtractionEvent;
-struct ezRenderWorldRenderEvent;
+class WDirectionalLightComponent;
+class WPointLightComponent;
+class WSpotLightComponent;
+class WGALTextureHandle;
+class WGALBufferHandle;
+class WView;
+struct WRenderWorldExtractionEvent;
+struct WRenderWorldRenderEvent;
 
-class EZ_RENDERERCORE_DLL ezShadowPool
+class W_RENDERERCORE_DLL WShadowPool
 {
 public:
-  static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView);
-  static ezUInt32 AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView);
-  static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView);
+  static WUInt32 AddDirectionalLight(const WDirectionalLightComponent* pDirLight, const WView* pReferenceView);
+  static WUInt32 AddPointLight(const WPointLightComponent* pPointLight, float fScreenSpaceSize, const WView* pReferenceView);
+  static WUInt32 AddSpotLight(const WSpotLightComponent* pSpotLight, float fScreenSpaceSize, const WView* pReferenceView);
 
-  static ezGALTextureHandle GetShadowAtlasTexture();
-  static ezGALBufferHandle GetShadowDataBuffer();
+  static WGALTextureHandle GetShadowAtlasTexture();
+  static WGALBufferHandle GetShadowDataBuffer();
 
   /// All exclude tags on this white list are copied from the reference views to the shadow views.
-  static void AddExcludeTagToWhiteList(const ezTag& tag);
+  static void AddExcludeTagToWhiteList(const WTag& tag);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ShadowPool);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ShadowPool);
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
-  static void OnRenderEvent(const ezRenderWorldRenderEvent& e);
+  static void OnExtractionEvent(const WRenderWorldExtractionEvent& e);
+  static void OnRenderEvent(const WRenderWorldRenderEvent& e);
 
   struct Data;
   static Data* s_pData;

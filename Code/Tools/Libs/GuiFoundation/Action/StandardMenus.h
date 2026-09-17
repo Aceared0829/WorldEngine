@@ -3,21 +3,21 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-struct ezStandardMenuTypes
+struct WStandardMenuTypes
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
-    Project = EZ_BIT(0),
-    File = EZ_BIT(1),
-    Edit = EZ_BIT(2),
-    Panels = EZ_BIT(3),
-    Scene = EZ_BIT(4),
-    Asset = EZ_BIT(5),
-    View = EZ_BIT(6),
-    Tools = EZ_BIT(7),
-    Help = EZ_BIT(8),
+    Project = W_BIT(0),
+    File = W_BIT(1),
+    Edit = W_BIT(2),
+    Panels = W_BIT(3),
+    Scene = W_BIT(4),
+    Asset = W_BIT(5),
+    View = W_BIT(6),
+    Tools = W_BIT(7),
+    Help = W_BIT(8),
 
     Default = Project | File | Panels | Tools | Help
   };
@@ -36,51 +36,51 @@ struct ezStandardMenuTypes
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezStandardMenuTypes);
+W_DECLARE_FLAGS_OPERATORS(WStandardMenuTypes);
 
 ///
-class EZ_GUIFOUNDATION_DLL ezStandardMenus
+class W_GUIFOUNDATION_DLL WStandardMenus
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes>& menus);
+  static void MapActions(WStringView sMapping, const WBitflags<WStandardMenuTypes>& menus);
 
-  static ezActionDescriptorHandle s_hMenuProject;
-  static ezActionDescriptorHandle s_hMenuFile;
-  static ezActionDescriptorHandle s_hMenuEdit;
-  static ezActionDescriptorHandle s_hMenuPanels;
-  static ezActionDescriptorHandle s_hMenuPanelsAll;
-  static ezActionDescriptorHandle s_hMenuScene;
-  static ezActionDescriptorHandle s_hMenuAsset;
-  static ezActionDescriptorHandle s_hMenuView;
-  static ezActionDescriptorHandle s_hMenuTools;
-  static ezActionDescriptorHandle s_hMenuHelp;
-  static ezActionDescriptorHandle s_hCheckForUpdates;
-  static ezActionDescriptorHandle s_hReportProblem;
-  static ezActionDescriptorHandle s_hAskQuestion;
+  static WActionDescriptorHandle s_hMenuProject;
+  static WActionDescriptorHandle s_hMenuFile;
+  static WActionDescriptorHandle s_hMenuEdit;
+  static WActionDescriptorHandle s_hMenuPanels;
+  static WActionDescriptorHandle s_hMenuPanelsAll;
+  static WActionDescriptorHandle s_hMenuScene;
+  static WActionDescriptorHandle s_hMenuAsset;
+  static WActionDescriptorHandle s_hMenuView;
+  static WActionDescriptorHandle s_hMenuTools;
+  static WActionDescriptorHandle s_hMenuHelp;
+  static WActionDescriptorHandle s_hCheckForUpdates;
+  static WActionDescriptorHandle s_hReportProblem;
+  static WActionDescriptorHandle s_hAskQuestion;
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezDynamicMenuAction
+class W_GUIFOUNDATION_DLL WApplicationPanelsMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WApplicationPanelsMenuAction, WDynamicMenuAction);
 
 public:
-  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WApplicationPanelsMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GUIFOUNDATION_DLL ezHelpActions : public ezButtonAction
+class W_GUIFOUNDATION_DLL WHelpActions : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHelpActions, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WHelpActions, WButtonAction);
 
 public:
   enum class ButtonType
@@ -90,10 +90,10 @@ public:
     AskQuestion,
   };
 
-  ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezHelpActions();
+  WHelpActions(const WActionContext& context, const char* szName, ButtonType button);
+  ~WHelpActions();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ButtonType m_ButtonType;

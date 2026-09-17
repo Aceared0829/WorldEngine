@@ -3,14 +3,14 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
-struct ezVisualScriptVariableType
+struct WVisualScriptVariableType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    Invalid = ezVisualScriptDataType::Invalid,
-    Bool = ezVisualScriptDataType::Bool,
+    Invalid = WVisualScriptDataType::Invalid,
+    Bool = WVisualScriptDataType::Bool,
     Byte,
     Int,
     Int64,
@@ -31,19 +31,19 @@ struct ezVisualScriptVariableType
     TypedPointer,
     Variant,
 
-    Resource = ezVisualScriptDataType::Resource,
+    Resource = WVisualScriptDataType::Resource,
 
     Default = Int,
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariableType);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptVariableType);
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ezVisualScriptVariableCategory
+struct WVisualScriptVariableCategory
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -53,81 +53,81 @@ struct ezVisualScriptVariableCategory
     Default = Member,
   };
 
-  static ezPropertyCategory::Enum GetPropertyCategory(Enum category);
+  static WPropertyCategory::Enum GetPropertyCategory(Enum category);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariableCategory);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptVariableCategory);
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ezVisualScriptVariableTypeDeclaration
+struct WVisualScriptVariableTypeDeclaration
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezEnum<ezVisualScriptVariableType> m_Type;
-  ezEnum<ezVisualScriptVariableCategory> m_Category;
+  WEnum<WVisualScriptVariableType> m_Type;
+  WEnum<WVisualScriptVariableCategory> m_Category;
   bool m_bPublic = false;
-  ezUInt8 m_uiPadding = 0;
+  WUInt8 m_uiPadding = 0;
 
-  bool operator==(const ezVisualScriptVariableTypeDeclaration& other) const
+  bool operator==(const WVisualScriptVariableTypeDeclaration& other) const
   {
     return m_Type == other.m_Type && m_Category == other.m_Category && m_bPublic == other.m_bPublic;
   }
 
-  ezVisualScriptDataType::Enum GetDataType() const;
+  WVisualScriptDataType::Enum GetDataType() const;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariableTypeDeclaration);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVisualScriptVariableTypeDeclaration);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptVariableTypeDeclaration);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WVisualScriptVariableTypeDeclaration);
 
-class ezStreamWriter;
-class ezStreamReader;
+class WStreamWriter;
+class WStreamReader;
 
-void operator<<(ezStreamWriter& inout_stream, const ezVisualScriptVariableTypeDeclaration& value);
-void operator>>(ezStreamReader& inout_stream, ezVisualScriptVariableTypeDeclaration& value);
+void operator<<(WStreamWriter& inout_stream, const WVisualScriptVariableTypeDeclaration& value);
+void operator>>(WStreamReader& inout_stream, WVisualScriptVariableTypeDeclaration& value);
 
 template <>
-struct ezHashHelper<ezVisualScriptVariableTypeDeclaration>
+struct WHashHelper<WVisualScriptVariableTypeDeclaration>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezVisualScriptVariableTypeDeclaration& value) { return ezHashHelper<ezUInt32>::Hash(*(const ezUInt32*)&value); }
+  W_ALWAYS_INLINE static WUInt32 Hash(const WVisualScriptVariableTypeDeclaration& value) { return WHashHelper<WUInt32>::Hash(*(const WUInt32*)&value); }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezVisualScriptVariableTypeDeclaration& a, const ezVisualScriptVariableTypeDeclaration& b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(const WVisualScriptVariableTypeDeclaration& a, const WVisualScriptVariableTypeDeclaration& b) { return a == b; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezVisualScriptVariableAttribute : public ezTypeWidgetAttribute
+class WVisualScriptVariableAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptVariableAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WVisualScriptVariableAttribute, WTypeWidgetAttribute);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezQtVisualScriptVariableWidget : public ezQtVariantPropertyWidget
+class WQtVisualScriptVariableWidget : public WQtVariantPropertyWidget
 {
   Q_OBJECT;
 
 public:
-  ezQtVisualScriptVariableWidget();
-  virtual ~ezQtVisualScriptVariableWidget();
+  WQtVisualScriptVariableWidget();
+  virtual ~WQtVisualScriptVariableWidget();
 
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
-  virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const override;
+  virtual WResult GetVariantTypeDisplayName(WVariantType::Enum type, WStringBuilder& out_sName) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezQtVisualScriptVariableTypeDeclarationWidget : public ezQtStandardPropertyWidget
+class WQtVisualScriptVariableTypeDeclarationWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT;
 
 public:
-  ezQtVisualScriptVariableTypeDeclarationWidget();
-  virtual ~ezQtVisualScriptVariableTypeDeclarationWidget();
+  WQtVisualScriptVariableTypeDeclarationWidget();
+  virtual ~WQtVisualScriptVariableTypeDeclarationWidget();
 
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 private:
   void ChangeType();
@@ -141,26 +141,26 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ezVisualScriptVariable
+struct WVisualScriptVariable
 {
-  ezHashedString m_sName;
-  ezVisualScriptVariableTypeDeclaration m_TypeDecl;
-  ezVariant m_DefaultValue;
+  WHashedString m_sName;
+  WVisualScriptVariableTypeDeclaration m_TypeDecl;
+  WVariant m_DefaultValue;
 
   bool m_bClampRange = false;
   double m_fMinValue = 0.0;
   double m_fMaxValue = 1.0;
 
-  static void ConvertDefaultValue(ezVariant& inout_defaultValue, ezVisualScriptVariableTypeDeclaration targetTypeDecl);
+  static void ConvertDefaultValue(WVariant& inout_defaultValue, WVisualScriptVariableTypeDeclaration targetTypeDecl);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariable);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptVariable);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezVisualScriptExpressionDataType
+struct WVisualScriptExpressionDataType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -174,15 +174,15 @@ struct ezVisualScriptExpressionDataType
     Default = Float
   };
 
-  static ezVisualScriptDataType::Enum GetVisualScriptDataType(Enum dataType);
+  static WVisualScriptDataType::Enum GetVisualScriptDataType(Enum dataType);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptExpressionDataType);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptExpressionDataType);
 
-struct ezVisualScriptExpressionVariable
+struct WVisualScriptExpressionVariable
 {
-  ezHashedString m_sName;
-  ezEnum<ezVisualScriptExpressionDataType> m_Type;
+  WHashedString m_sName;
+  WEnum<WVisualScriptExpressionDataType> m_Type;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptExpressionVariable);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINVISUALSCRIPT_DLL, WVisualScriptExpressionVariable);

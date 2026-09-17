@@ -7,28 +7,28 @@
 
 #include <QTimer>
 
-struct ezLongOpControllerEvent;
+struct WLongOpControllerEvent;
 
-/// This panel listens to events from ezLongOpControllerManager and displays all currently known long operations
-class EZ_EDITORFRAMEWORK_DLL ezQtLongOpsPanel : public ezQtApplicationPanel, public Ui_LongOpsPanel
+/// This panel listens to events from WLongOpControllerManager and displays all currently known long operations
+class W_EDITORFRAMEWORK_DLL WQtLongOpsPanel : public WQtApplicationPanel, public Ui_LongOpsPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtLongOpsPanel);
+  W_DECLARE_SINGLETON(WQtLongOpsPanel);
 
 public:
-  ezQtLongOpsPanel(ads::CDockManager* pDockManager);
-  ~ezQtLongOpsPanel();
+  WQtLongOpsPanel(ads::CDockManager* pDockManager);
+  ~WQtLongOpsPanel();
 
 private:
-  void LongOpsEventHandler(const ezLongOpControllerEvent& e);
+  void LongOpsEventHandler(const WLongOpControllerEvent& e);
   void RebuildTable();
   void UpdateTable();
 
   bool m_bUpdateTimerRunning = false;
   bool m_bRebuildTable = true;
   bool m_bUpdateTable = false;
-  ezHashTable<ezUuid, ezUInt32> m_LongOpGuidToRow;
+  WHashTable<WUuid, WUInt32> m_LongOpGuidToRow;
 
 
 private Q_SLOTS:

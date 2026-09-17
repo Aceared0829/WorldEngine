@@ -5,7 +5,7 @@
 #include <RendererFoundation/State/PipelineCache.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, PipelineCache)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, PipelineCache)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -14,39 +14,39 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, PipelineCache)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezGALPipelineCache);
+    W_DEFAULT_NEW(WGALPipelineCache);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezGALPipelineCache* pDummy = ezGALPipelineCache::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WGALPipelineCache* pDummy = WGALPipelineCache::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_IMPLEMENT_SINGLETON(ezGALPipelineCache);
+W_IMPLEMENT_SINGLETON(WGALPipelineCache);
 
-ezGALPipelineCache::ezGALPipelineCache()
+WGALPipelineCache::WGALPipelineCache()
   : m_SingletonRegistrar(this)
 {
-  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALPipelineCache::GALDeviceEventHandler, this));
+  WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WGALPipelineCache::GALDeviceEventHandler, this));
 }
 
-ezGALPipelineCache::~ezGALPipelineCache()
+WGALPipelineCache::~WGALPipelineCache()
 {
-  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezGALPipelineCache::GALDeviceEventHandler, this));
+  WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WGALPipelineCache::GALDeviceEventHandler, this));
 }
 
-void ezGALPipelineCache::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WGALPipelineCache::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGALDeviceEvent::AfterInit:
+    case WGALDeviceEvent::AfterInit:
       m_pDevice = e.m_pDevice;
       break;
-    case ezGALDeviceEvent::BeforeShutdown:
+    case WGALDeviceEvent::BeforeShutdown:
       Clear();
       break;
     default:
@@ -54,9 +54,9 @@ void ezGALPipelineCache::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-void ezGALPipelineCache::Clear()
+void WGALPipelineCache::Clear()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto it = m_GraphicsPipelines.GetIterator(); it.IsValid(); ++it)
   {
@@ -71,11 +71,11 @@ void ezGALPipelineCache::Clear()
   m_ComputePipelines.Clear();
 }
 
-ezGALGraphicsPipelineHandle ezGALPipelineCache::GetPipeline(const ezGALGraphicsPipelineCreationDescription& description)
+WGALGraphicsPipelineHandle WGALPipelineCache::GetPipeline(const WGALGraphicsPipelineCreationDescription& description)
 {
-  ezGALPipelineCache* pCache = ezGALPipelineCache::GetSingleton();
+  WGALPipelineCache* pCache = WGALPipelineCache::GetSingleton();
 
-  ezGALGraphicsPipelineHandle hGraphicsPipeline = pCache->TryGetPipeline<ezGALGraphicsPipelineHandle>(description, pCache->m_GraphicsPipelines);
+  WGALGraphicsPipelineHandle hGraphicsPipeline = pCache->TryGetPipeline<WGALGraphicsPipelineHandle>(description, pCache->m_GraphicsPipelines);
 
   if (hGraphicsPipeline.IsInvalidated())
   {
@@ -85,7 +85,7 @@ ezGALGraphicsPipelineHandle ezGALPipelineCache::GetPipeline(const ezGALGraphicsP
       return {};
     }
 
-    if (pCache->TryInsertPipeline<ezGALGraphicsPipelineHandle>(description, hGraphicsPipeline, pCache->m_GraphicsPipelines).Failed())
+    if (pCache->TryInsertPipeline<WGALGraphicsPipelineHandle>(description, hGraphicsPipeline, pCache->m_GraphicsPipelines).Failed())
     {
       // Already created and inserted, reduce ref count again.
       pCache->m_pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
@@ -95,11 +95,11 @@ ezGALGraphicsPipelineHandle ezGALPipelineCache::GetPipeline(const ezGALGraphicsP
   return hGraphicsPipeline;
 }
 
-ezGALComputePipelineHandle ezGALPipelineCache::GetPipeline(const ezGALComputePipelineCreationDescription& description)
+WGALComputePipelineHandle WGALPipelineCache::GetPipeline(const WGALComputePipelineCreationDescription& description)
 {
-  ezGALPipelineCache* pCache = ezGALPipelineCache::GetSingleton();
+  WGALPipelineCache* pCache = WGALPipelineCache::GetSingleton();
 
-  ezGALComputePipelineHandle hComputePipeline = pCache->TryGetPipeline<ezGALComputePipelineHandle>(description, pCache->m_ComputePipelines);
+  WGALComputePipelineHandle hComputePipeline = pCache->TryGetPipeline<WGALComputePipelineHandle>(description, pCache->m_ComputePipelines);
 
   if (hComputePipeline.IsInvalidated())
   {
@@ -109,7 +109,7 @@ ezGALComputePipelineHandle ezGALPipelineCache::GetPipeline(const ezGALComputePip
       return {};
     }
 
-    if (pCache->TryInsertPipeline<ezGALComputePipelineHandle>(description, hComputePipeline, pCache->m_ComputePipelines).Failed())
+    if (pCache->TryInsertPipeline<WGALComputePipelineHandle>(description, hComputePipeline, pCache->m_ComputePipelines).Failed())
     {
       // Already created and inserted, reduce ref count again.
       pCache->m_pDevice->DestroyComputePipeline(hComputePipeline);
@@ -119,25 +119,25 @@ ezGALComputePipelineHandle ezGALPipelineCache::GetPipeline(const ezGALComputePip
   return hComputePipeline;
 }
 
-ezUInt32 ezGALPipelineCache::CacheKeyHasher::Hash(const ezGALPipelineCache::GraphicsPipelineCacheKey& a)
+WUInt32 WGALPipelineCache::CacheKeyHasher::Hash(const WGALPipelineCache::GraphicsPipelineCacheKey& a)
 {
   return a.m_uiHash;
 }
 
-bool ezGALPipelineCache::CacheKeyHasher::Equal(const ezGALPipelineCache::GraphicsPipelineCacheKey& a, const ezGALPipelineCache::GraphicsPipelineCacheKey& b)
+bool WGALPipelineCache::CacheKeyHasher::Equal(const WGALPipelineCache::GraphicsPipelineCacheKey& a, const WGALPipelineCache::GraphicsPipelineCacheKey& b)
 {
   return a.m_uiHash == b.m_uiHash && a.m_Desc == b.m_Desc;
 }
 
-ezUInt32 ezGALPipelineCache::CacheKeyHasher::Hash(const ezGALPipelineCache::ComputePipelineCacheKey& a)
+WUInt32 WGALPipelineCache::CacheKeyHasher::Hash(const WGALPipelineCache::ComputePipelineCacheKey& a)
 {
   return a.m_uiHash;
 }
 
-bool ezGALPipelineCache::CacheKeyHasher::Equal(const ezGALPipelineCache::ComputePipelineCacheKey& a, const ezGALPipelineCache::ComputePipelineCacheKey& b)
+bool WGALPipelineCache::CacheKeyHasher::Equal(const WGALPipelineCache::ComputePipelineCacheKey& a, const WGALPipelineCache::ComputePipelineCacheKey& b)
 {
   return a.m_uiHash == b.m_uiHash && a.m_Desc == b.m_Desc;
 }
 
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_PipelineCache);
+W_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_PipelineCache);

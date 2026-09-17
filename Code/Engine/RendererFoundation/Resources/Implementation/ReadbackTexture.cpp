@@ -2,9 +2,9 @@
 
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 
-ezGALReadbackTexture::ezGALReadbackTexture(const ezGALTextureCreationDescription& Description)
-  : ezGALResource(Description)
+WGALReadbackTexture::WGALReadbackTexture(const WGALTextureCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALReadbackTexture::~ezGALReadbackTexture() = default;
+WGALReadbackTexture::~WGALReadbackTexture() = default;

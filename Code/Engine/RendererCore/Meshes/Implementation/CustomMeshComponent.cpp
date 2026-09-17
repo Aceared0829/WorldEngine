@@ -11,23 +11,23 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomMeshRenderData, 1, ezRTTIDefaultAllocator<ezCustomMeshRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomMeshRenderData, 1, WRTTIDefaultAllocator<WCustomMeshRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezCustomMeshRenderData::FillSortingKey()
+void WCustomMeshRenderData::FillSortingKey()
 {
-  const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hDynamicMeshBuffer.GetResourceIDHash());
-  const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
-  const ezUInt32 uiFlipWinding = m_Flags.IsSet(Flags::FlipWinding) ? 1 : 0;
+  const WUInt32 uiMeshIDHash = WHashingUtils::StringHashTo32(m_hDynamicMeshBuffer.GetResourceIDHash());
+  const WUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? WHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
+  const WUInt32 uiFlipWinding = m_Flags.IsSet(Flags::FlipWinding) ? 1 : 0;
 
   // Sort by material and then by mesh
   m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash) & 0xFFFE) | uiFlipWinding;
 }
 
-bool ezCustomMeshRenderData::CanBatch(const ezRenderData& other0) const
+bool WCustomMeshRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezCustomMeshRenderData&>(other0);
+  const auto& other = WStaticCast<const WCustomMeshRenderData&>(other0);
 
   return m_hDynamicMeshBuffer == other.m_hDynamicMeshBuffer &&
          m_hMaterial == other.m_hMaterial &&
@@ -37,57 +37,57 @@ bool ezCustomMeshRenderData::CanBatch(const ezRenderData& other0) const
 /////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WCustomMeshComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_PROPERTIES
+  W_END_ATTRIBUTES;
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
-  } EZ_END_MESSAGEHANDLERS;
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetMeshMaterial, OnMsgSetMeshMaterial),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgSetCustomData, OnMsgSetCustomData),
+  } W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezAtomicInteger32 s_iCustomMeshResources;
+WAtomicInteger32 s_iCustomMeshResources;
 
-ezCustomMeshComponent::ezCustomMeshComponent() = default;
-ezCustomMeshComponent::~ezCustomMeshComponent() = default;
+WCustomMeshComponent::WCustomMeshComponent() = default;
+WCustomMeshComponent::~WCustomMeshComponent() = default;
 
-void ezCustomMeshComponent::OnActivated()
+void WCustomMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   if (false)
   {
-    ezGeometry geo;
+    WGeometry geo;
     geo.AddTorus(1.0f, 1.5f, 32, 16, false);
     geo.TriangulatePolygons();
     geo.ComputeTangents();
 
-    auto hMesh = CreateMeshResource(ezGALPrimitiveTopology::Triangles, geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), ezGALIndexType::UInt);
+    auto hMesh = CreateMeshResource(WGALPrimitiveTopology::Triangles, geo.GetVertices().GetCount(), geo.GetPolygons().GetCount(), WGALIndexType::UInt);
 
-    ezResourceLock<ezDynamicMeshBufferResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WDynamicMeshBufferResource> pMesh(hMesh, WResourceAcquireMode::BlockTillLoaded);
 
     auto positions = pMesh->AccessPositionData();
     auto ntts = pMesh->AccessNormalTangentTexCoord0Data();
     auto cols = pMesh->AccessColorData();
 
-    for (ezUInt32 v = 0; v < positions.GetCount(); ++v)
+    for (WUInt32 v = 0; v < positions.GetCount(); ++v)
     {
       positions[v] = geo.GetVertices()[v].m_vPosition;
 
@@ -95,34 +95,34 @@ void ezCustomMeshComponent::OnActivated()
       ntts[v].EncodeTangent(geo.GetVertices()[v].m_vTangent, 1.0f);
       ntts[v].m_vTexCoord.SetZero();
 
-      cols[v] = ezColor::CornflowerBlue;
+      cols[v] = WColor::CornflowerBlue;
     }
 
     auto ind = pMesh->AccessIndex32Data();
 
-    for (ezUInt32 i = 0; i < geo.GetPolygons().GetCount(); ++i)
+    for (WUInt32 i = 0; i < geo.GetPolygons().GetCount(); ++i)
     {
       ind[i * 3 + 0] = geo.GetPolygons()[i].m_Vertices[0];
       ind[i * 3 + 1] = geo.GetPolygons()[i].m_Vertices[1];
       ind[i * 3 + 2] = geo.GetPolygons()[i].m_Vertices[2];
     }
 
-    SetBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 1.5f));
+    SetBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 1.5f));
   }
 }
 
-void ezCustomMeshComponent::OnDeactivated()
+void WCustomMeshComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }
 
-void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCustomMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_Color;
   s << m_hMaterial;
@@ -131,19 +131,19 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fSortingDepthOffset;
 }
 
-void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCustomMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_hMaterial;
 
   if (uiVersion < 2)
   {
-    ezUInt32 uiCategory = 0;
+    WUInt32 uiCategory = 0;
     s >> uiCategory;
   }
 
@@ -158,84 +158,84 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WCustomMeshComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_Bounds.IsValid())
   {
     ref_bounds = m_Bounds;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiMaxVertices, ezUInt32 uiMaxPrimitives, ezGALIndexType::Enum indexType)
+WDynamicMeshBufferResourceHandle WCustomMeshComponent::CreateMeshResource(WGALPrimitiveTopology::Enum topology, WUInt32 uiMaxVertices, WUInt32 uiMaxPrimitives, WGALIndexType::Enum indexType)
 {
-  ezDynamicMeshBufferResourceDescriptor desc;
+  WDynamicMeshBufferResourceDescriptor desc;
   desc.m_Topology = topology;
   desc.m_uiMaxVertices = uiMaxVertices;
   desc.m_uiMaxPrimitives = uiMaxPrimitives;
   desc.m_IndexType = indexType;
   desc.m_bColorStream = true;
 
-  ezStringBuilder sGuid;
+  WStringBuilder sGuid;
   sGuid.SetFormat("CustomMesh_{}", s_iCustomMeshResources.Increment());
 
-  m_hDynamicMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
+  m_hDynamicMesh = WResourceManager::CreateResource<WDynamicMeshBufferResource>(sGuid, std::move(desc));
 
   InvalidateCachedRenderData();
 
   return m_hDynamicMesh;
 }
 
-void ezCustomMeshComponent::SetMeshResource(const ezDynamicMeshBufferResourceHandle& hMesh)
+void WCustomMeshComponent::SetMeshResource(const WDynamicMeshBufferResourceHandle& hMesh)
 {
   m_hDynamicMesh = hMesh;
   InvalidateCachedRenderData();
 }
 
-void ezCustomMeshComponent::SetBounds(const ezBoundingBoxSphere& bounds)
+void WCustomMeshComponent::SetBounds(const WBoundingBoxSphere& bounds)
 {
   m_Bounds = bounds;
   TriggerLocalBoundsUpdate();
 }
 
-void ezCustomMeshComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial)
+void WCustomMeshComponent::SetMaterial(const WMaterialResourceHandle& hMaterial)
 {
   m_hMaterial = hMaterial;
   InvalidateCachedRenderData();
 }
 
-ezMaterialResourceHandle ezCustomMeshComponent::GetMaterial() const
+WMaterialResourceHandle WCustomMeshComponent::GetMaterial() const
 {
   return m_hMaterial;
 }
 
-void ezCustomMeshComponent::SetColor(const ezColor& color)
+void WCustomMeshComponent::SetColor(const WColor& color)
 {
   m_Color = color;
 
   InvalidateCachedRenderData();
 }
 
-const ezColor& ezCustomMeshComponent::GetColor() const
+const WColor& WCustomMeshComponent::GetColor() const
 {
   return m_Color;
 }
 
-void ezCustomMeshComponent::SetCustomData(const ezVec4& vData)
+void WCustomMeshComponent::SetCustomData(const WVec4& vData)
 {
   m_vCustomData = vData;
 
   InvalidateCachedRenderData();
 }
 
-const ezVec4& ezCustomMeshComponent::GetCustomData() const
+const WVec4& WCustomMeshComponent::GetCustomData() const
 {
   return m_vCustomData;
 }
 
-void ezCustomMeshComponent::SetSortingDepthOffset(float fOffset)
+void WCustomMeshComponent::SetSortingDepthOffset(float fOffset)
 {
   if (m_fSortingDepthOffset != fOffset)
   {
@@ -245,26 +245,26 @@ void ezCustomMeshComponent::SetSortingDepthOffset(float fOffset)
   }
 }
 
-void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
+void WCustomMeshComponent::OnMsgSetMeshMaterial(WMsgSetMeshMaterial& ref_msg)
 {
   SetMaterial(ref_msg.m_hMaterial);
 }
 
-void ezCustomMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WCustomMeshComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
 
   InvalidateCachedRenderData();
 }
 
-void ezCustomMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+void WCustomMeshComponent::OnMsgSetCustomData(WMsgSetCustomData& ref_msg)
 {
   m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
 
-void ezCustomMeshComponent::SetUsePrimitiveRange(ezUInt32 uiFirstPrimitive /*= 0*/, ezUInt32 uiNumPrimitives /*= ezMath::MaxValue<ezUInt32>()*/)
+void WCustomMeshComponent::SetUsePrimitiveRange(WUInt32 uiFirstPrimitive /*= 0*/, WUInt32 uiNumPrimitives /*= WMath::MaxValue<WUInt32>()*/)
 {
   m_uiFirstPrimitive = uiFirstPrimitive;
   m_uiNumPrimitives = uiNumPrimitives;
@@ -272,7 +272,7 @@ void ezCustomMeshComponent::SetUsePrimitiveRange(ezUInt32 uiFirstPrimitive /*= 0
   InvalidateCachedRenderData();
 }
 
-void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WCustomMeshComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hDynamicMesh.IsValid() || !m_hMaterial.IsValid())
     return;
@@ -280,9 +280,9 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   const bool bDynamic = GetOwner()->IsDynamic();
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
 
-  ezResourceLock<ezDynamicMeshBufferResource> pMesh(m_hDynamicMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WDynamicMeshBufferResource> pMesh(m_hDynamicMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  ezCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
+  WCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WCustomMeshRenderData>(GetOwner());
   {
     pRenderData->m_uiNumInstances = 1;
     pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
@@ -291,21 +291,21 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     pRenderData->m_hMaterial = m_hMaterial;
     pRenderData->m_hDynamicMeshBuffer = m_hDynamicMesh;
-    pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
-    pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
+    pRenderData->m_uiFirstPrimitive = WMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
+    pRenderData->m_uiNumPrimitives = WMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
 #endif
 
     pRenderData->FillSortingKey();
   }
 
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-  ezRenderData::Category category = pMaterial->GetRenderDataCategory();
-  bool bDontCacheYet = pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback;
+  WResourceLock<WMaterialResource> pMaterial(m_hMaterial, WResourceAcquireMode::AllowLoadingFallback);
+  WRenderData::Category category = pMaterial->GetRenderDataCategory();
+  bool bDontCacheYet = pMaterial.GetAcquireResult() == WResourceAcquireResult::LoadingFallback;
 
-  msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, category, bDontCacheYet ? WRenderData::Caching::Never : WRenderData::Caching::IfStatic);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CustomMeshComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CustomMeshComponent);

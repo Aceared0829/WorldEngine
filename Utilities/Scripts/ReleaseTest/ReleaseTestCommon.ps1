@@ -126,9 +126,9 @@ function global:Get-EzBinDir
 
 	if ($BinDir)
 	{
-		if (-not (Test-Path (Join-Path $BinDir "ezPlayer.exe")))
+		if (-not (Test-Path (Join-Path $BinDir "WPlayer.exe")))
 		{
-			throw "'$BinDir' contains no ezPlayer.exe."
+			throw "'$BinDir' contains no WPlayer.exe."
 		}
 
 		return (Resolve-Path $BinDir).Path
@@ -138,7 +138,7 @@ function global:Get-EzBinDir
 
 	if (-not (Test-Path $binRoot))
 	{
-		throw "'$SdkDir' does not look like an ezEngine SDK, '$binRoot' is missing."
+		throw "'$SdkDir' does not look like an WorldEngine SDK, '$binRoot' is missing."
 	}
 
 	# prefer the newest compiler and the fastest configuration that is actually present
@@ -147,14 +147,14 @@ function global:Get-EzBinDir
 		foreach ($vs in @("2026", "2022"))
 		{
 			$dir = Join-Path $binRoot ("WinVs{0}{1}64" -f $vs, $config)
-			if (Test-Path (Join-Path $dir "ezPlayer.exe"))
+			if (Test-Path (Join-Path $dir "WPlayer.exe"))
 			{
 				return (Resolve-Path $dir).Path
 			}
 		}
 	}
 
-	throw "No binary folder with ezPlayer.exe found below '$binRoot'."
+	throw "No binary folder with WPlayer.exe found below '$binRoot'."
 }
 
 function global:Get-EzExe
@@ -358,7 +358,7 @@ function global:Get-LeftoverEzProcesses
 {
 	param([string]$BinDir)
 
-	$names = @("ezEditor", "ezEditorEngineProcess", "ezEditorProcessor", "ezPlayer")
+	$names = @("WEditor", "WEditorEngineProcess", "WEditorProcessor", "WPlayer")
 
 	# a prefix comparison, not -like: a '[' anywhere in the path would be a wildcard character there
 	$prefix = (Join-Path $BinDir "")
@@ -372,7 +372,7 @@ function global:Get-LeftoverEzProcesses
 # Log file inspection
 # --------------------------------------------------------------------------------------
 
-# Returns the error/serious warning lines of a player log file. ezPlayer -failonerror already
+# Returns the error/serious warning lines of a player log file. WPlayer -failonerror already
 # fails the run for these, this is only for reporting what went wrong.
 function global:Get-LogErrors
 {

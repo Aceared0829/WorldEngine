@@ -57,7 +57,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 
-  ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  WBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
   UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
   ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
 
@@ -65,18 +65,18 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 #  if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
 
-  ezBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
+  WBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
   UNPACKHALF2(rotationOffset, rotationSpeed, billboardData.RotationOffsetAndSpeed);
   quad = CalcQuadOutputPositionAsBillboard(vertexIndex, billboardData.Position, rotationOffset, rotationSpeed, particleSize);
 
 #  elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_TANGENTS
 
-  ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
+  WTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
   quad = CalcQuadOutputPositionWithTangents(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
 #  elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
 
-  ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
+  WTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
   quad = CalcQuadOutputPositionWithAlignedAxis(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
 #  endif

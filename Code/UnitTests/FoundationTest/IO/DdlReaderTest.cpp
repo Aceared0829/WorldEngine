@@ -9,20 +9,20 @@
 #include <FoundationTest/IO/JSONTestHelpers.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
 
-// Since ezOpenDdlReader is implemented by deriving from ezOpenDdlParser, this tests both classes
+// Since WOpenDdlReader is implemented by deriving from WOpenDdlParser, this tests both classes
 
-static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWriter& ref_writer)
+static void WriteObjectToDDL(const WOpenDdlReaderElement* pElement, WOpenDdlWriter& ref_writer)
 {
   if (pElement->HasName())
   {
-    EZ_TEST_BOOL(!pElement->GetName().IsEmpty());
+    W_TEST_BOOL(!pElement->GetName().IsEmpty());
   }
 
   if (pElement->IsCustomType())
   {
     ref_writer.BeginObject(pElement->GetCustomType(), pElement->GetName(), pElement->IsNameGlobal());
 
-    ezUInt32 uiChildren = 0;
+    WUInt32 uiChildren = 0;
     auto pChild = pElement->GetFirstChild();
     while (pChild)
     {
@@ -30,10 +30,10 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
 
       if (pChild->HasName())
       {
-        ezString sNameCopy = pChild->GetName();
-        const ezOpenDdlReaderElement* pChild2 = pElement->FindChild(sNameCopy);
+        WString sNameCopy = pChild->GetName();
+        const WOpenDdlReaderElement* pChild2 = pElement->FindChild(sNameCopy);
 
-        EZ_TEST_BOOL(pChild == pChild2);
+        W_TEST_BOOL(pChild == pChild2);
       }
 
       WriteObjectToDDL(pChild, ref_writer);
@@ -42,72 +42,72 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
 
     ref_writer.EndObject();
 
-    EZ_TEST_INT(uiChildren, pElement->GetNumChildObjects());
+    W_TEST_INT(uiChildren, pElement->GetNumChildObjects());
   }
   else
   {
-    const ezOpenDdlPrimitiveType type = pElement->GetPrimitivesType();
+    const WOpenDdlPrimitiveType type = pElement->GetPrimitivesType();
 
     ref_writer.BeginPrimitiveList(type, pElement->GetName(), pElement->IsNameGlobal());
 
     switch (type)
     {
-      case ezOpenDdlPrimitiveType::Bool:
+      case WOpenDdlPrimitiveType::Bool:
         ref_writer.WriteBool(pElement->GetPrimitivesBool(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Int8:
+      case WOpenDdlPrimitiveType::Int8:
         ref_writer.WriteInt8(pElement->GetPrimitivesInt8(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Int16:
+      case WOpenDdlPrimitiveType::Int16:
         ref_writer.WriteInt16(pElement->GetPrimitivesInt16(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Int32:
+      case WOpenDdlPrimitiveType::Int32:
         ref_writer.WriteInt32(pElement->GetPrimitivesInt32(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Int64:
+      case WOpenDdlPrimitiveType::Int64:
         ref_writer.WriteInt64(pElement->GetPrimitivesInt64(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::UInt8:
+      case WOpenDdlPrimitiveType::UInt8:
         ref_writer.WriteUInt8(pElement->GetPrimitivesUInt8(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::UInt16:
+      case WOpenDdlPrimitiveType::UInt16:
         ref_writer.WriteUInt16(pElement->GetPrimitivesUInt16(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::UInt32:
+      case WOpenDdlPrimitiveType::UInt32:
         ref_writer.WriteUInt32(pElement->GetPrimitivesUInt32(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::UInt64:
+      case WOpenDdlPrimitiveType::UInt64:
         ref_writer.WriteUInt64(pElement->GetPrimitivesUInt64(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Float:
+      case WOpenDdlPrimitiveType::Float:
         ref_writer.WriteFloat(pElement->GetPrimitivesFloat(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::Double:
+      case WOpenDdlPrimitiveType::Double:
         ref_writer.WriteDouble(pElement->GetPrimitivesDouble(), pElement->GetNumPrimitives());
         break;
 
-      case ezOpenDdlPrimitiveType::String:
+      case WOpenDdlPrimitiveType::String:
       {
-        for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+        for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
         {
           ref_writer.WriteString(pElement->GetPrimitivesString()[i]);
         }
       }
       break;
 
-      case ezOpenDdlPrimitiveType::Custom:
+      case WOpenDdlPrimitiveType::Custom:
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
 
@@ -115,15 +115,15 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
   }
 }
 
-static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& ref_output)
+static void WriteToDDL(const WOpenDdlReader& doc, WStreamWriter& ref_output)
 {
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&ref_output);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
-  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetFloatPrecisionMode(WOpenDdlWriter::FloatPrecisionMode::Readable);
 
   const auto* pRoot = doc.GetRootElement();
-  EZ_ASSERT_DEV(pRoot != nullptr, "Invalid root");
+  W_ASSERT_DEV(pRoot != nullptr, "Invalid root");
 
   if (pRoot == nullptr)
     return;
@@ -136,30 +136,30 @@ static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& ref_output)
   }
 }
 
-static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& ref_sString)
+static void WriteToString(const WOpenDdlReader& doc, WStringBuilder& ref_sString)
 {
-  ezContiguousMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
+  WContiguousMemoryStreamStorage storage;
+  WMemoryStreamWriter writer(&storage);
 
   WriteToDDL(doc, writer);
 
-  ezUInt8 term = 0;
+  WUInt8 term = 0;
   writer.WriteBytes(&term, 1).IgnoreResult();
   ref_sString = (const char*)storage.GetData();
 }
 
 static void TestEqual(const char* szOriginal, const char* szRecreation)
 {
-  ezUInt32 uiChar = 0;
+  WUInt32 uiChar = 0;
 
   do
   {
-    const ezUInt8 cOrg = szOriginal[uiChar];
-    const ezUInt8 cAlt = szRecreation[uiChar];
+    const WUInt8 cOrg = szOriginal[uiChar];
+    const WUInt8 cAlt = szRecreation[uiChar];
 
     if (cOrg != cAlt)
     {
-      EZ_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg, cAlt);
+      W_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg, cAlt);
       return;
     }
 
@@ -170,17 +170,17 @@ static void TestEqual(const char* szOriginal, const char* szRecreation)
 // These functions test the reader by doing a round trip from string -> reader -> writer -> string and then comparing the string to the
 // original Therefore the original must be formatted exactly as the writer would format it (mostly regarding indentation, newlines, spaces
 // and floats) and may not contain things that get removed (ie. comments)
-static void TestDoc(const ezOpenDdlReader& doc, const char* szOriginal)
+static void TestDoc(const WOpenDdlReader& doc, const char* szOriginal)
 {
-  ezStringBuilder recreation;
+  WStringBuilder recreation;
   WriteToString(doc, recreation);
 
   TestEqual(szOriginal, recreation);
 }
 
-EZ_CREATE_SIMPLE_TEST(IO, DdlReader)
+W_CREATE_SIMPLE_TEST(IO, DdlReader)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics and Comments")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Basics and Comments")
   {
     const char* szTestData = "Node{\
   Name{ string{ \"ConstantColor\" } }\
@@ -208,15 +208,15 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlReader)
 
     StringStream stream(szTestData);
 
-    ezOpenDdlReader doc;
-    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
-    EZ_TEST_BOOL(!doc.HadFatalParsingError());
+    WOpenDdlReader doc;
+    W_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+    W_TEST_BOOL(!doc.HadFatalParsingError());
 
     auto pRoot = doc.GetRootElement();
-    EZ_TEST_INT(pRoot->GetNumChildObjects(), 1);
+    W_TEST_INT(pRoot->GetNumChildObjects(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Structure")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Structure")
   {
     const char* szTestData = "Node\n\
 {\n\
@@ -251,24 +251,24 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlReader)
 
     StringStream stream(szTestData);
 
-    ezOpenDdlReader doc;
-    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+    WOpenDdlReader doc;
+    W_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
 
     auto pElement = doc.FindElement("MyDoubles");
-    EZ_TEST_BOOL(pElement != nullptr);
+    W_TEST_BOOL(pElement != nullptr);
     if (pElement)
     {
-      EZ_TEST_STRING(pElement->GetName(), "MyDoubles");
+      W_TEST_STRING(pElement->GetName(), "MyDoubles");
     }
 
-    EZ_TEST_BOOL(doc.FindElement("MyFloats") == nullptr);
-    EZ_TEST_BOOL(doc.FindElement("Node") == nullptr);
+    W_TEST_BOOL(doc.FindElement("MyFloats") == nullptr);
+    W_TEST_BOOL(doc.FindElement("Node") == nullptr);
 
     TestDoc(doc, szTestData);
-    EZ_TEST_BOOL(!doc.HadFatalParsingError());
+    W_TEST_BOOL(!doc.HadFatalParsingError());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "All Primitives")
+  W_TEST_BLOCK(WTestBlock::Enabled, "All Primitives")
   {
     const char* szTestData = "\
 bool{true,false,true,true,false}\n\
@@ -287,14 +287,14 @@ unsigned_int64{0,100002111,300040222,560000003333,70000844444,1000009555555,1000
 
     StringStream stream(szTestData);
 
-    ezOpenDdlReader doc;
-    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+    WOpenDdlReader doc;
+    W_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
 
     TestDoc(doc, szTestData);
-    EZ_TEST_BOOL(!doc.HadFatalParsingError());
+    W_TEST_BOOL(!doc.HadFatalParsingError());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Errors")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Errors")
   {
     const char* szTestData = "\
 string{\"s1\",\"back\\slash\"}\n\
@@ -303,17 +303,17 @@ string{\"s\\2\",\"bla\"}\n\
 
     StringStream stream(szTestData);
 
-    ezTestLogInterface log;
-    ezTestLogSystemScope logSystemScope(&log);
+    WTestLogInterface log;
+    WTestLogSystemScope logSystemScope(&log);
 
-    log.ExpectMessage("Unknown escape-sequence '\\s'", ezLogMsgType::WarningMsg);
-    log.ExpectMessage("Unknown escape-sequence '\\2'", ezLogMsgType::WarningMsg);
+    log.ExpectMessage("Unknown escape-sequence '\\s'", WLogMsgType::WarningMsg);
+    log.ExpectMessage("Unknown escape-sequence '\\2'", WLogMsgType::WarningMsg);
 
-    ezOpenDdlReader doc;
-    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded()); // no fatal error
+    WOpenDdlReader doc;
+    W_TEST_BOOL(doc.ParseDocument(stream).Succeeded()); // no fatal error
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fatal Errors")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Fatal Errors")
   {
     const char* szTestData = "\
 string{\"s1\",\"back\\slash\"\n\
@@ -322,13 +322,13 @@ string{\"s\\2\",\"bla\"}\n\
 
     StringStream stream(szTestData);
 
-    ezTestLogInterface log;
-    ezTestLogSystemScope logSystemScope(&log);
+    WTestLogInterface log;
+    WTestLogSystemScope logSystemScope(&log);
 
-    log.ExpectMessage("Unknown escape-sequence '\\s'", ezLogMsgType::WarningMsg);
-    log.ExpectMessage("Line 2 (2): Expected , or } or a \"", ezLogMsgType::ErrorMsg);
+    log.ExpectMessage("Unknown escape-sequence '\\s'", WLogMsgType::WarningMsg);
+    log.ExpectMessage("Line 2 (2): Expected , or } or a \"", WLogMsgType::ErrorMsg);
 
-    ezOpenDdlReader doc;
-    EZ_TEST_BOOL(doc.ParseDocument(stream).Failed());
+    WOpenDdlReader doc;
+    W_TEST_BOOL(doc.ParseDocument(stream).Failed());
   }
 }

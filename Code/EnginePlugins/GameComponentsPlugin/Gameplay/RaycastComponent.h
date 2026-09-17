@@ -7,18 +7,18 @@
 #include <Core/World/World.h>
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
-class ezRaycastComponentManager : public ezComponentManager<class ezRaycastComponent, ezBlockStorageType::Compact>
+class WRaycastComponentManager : public WComponentManager<class WRaycastComponent, WBlockStorageType::Compact>
 {
-  using SUPER = ezComponentManager<class ezRaycastComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<class WRaycastComponent, WBlockStorageType::Compact>;
 
 public:
-  ezRaycastComponentManager(ezWorld* pWorld);
+  WRaycastComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 };
 
 /// A component which does a ray cast and positions a target object there.
@@ -38,43 +38,43 @@ public:
 /// This will lead to trigger messages being sent when a physics actor on the 'Player' layer comes between
 /// the original hit on the default layer and the ray cast origin.
 ///
-class EZ_GAMECOMPONENTS_DLL ezRaycastComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WRaycastComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRaycastComponent, ezComponent, ezRaycastComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRaycastComponent, WComponent, WRaycastComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
   virtual void OnSimulationStarted() override;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   void Deinitialize() override;
   void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRaycastComponent
+  // WRaycastComponent
 
 public:
-  ezRaycastComponent();
-  ~ezRaycastComponent();
+  WRaycastComponent();
+  ~WRaycastComponent();
 
   float GetCurrentDistance() const { return m_fCurrentDistance; }     // [ scriptable ]
-  ezVec3 GetCurrentEndPosition() const;                               // [ scriptable ]
+  WVec3 GetCurrentEndPosition() const;                               // [ scriptable ]
   bool HasHit() const { return m_fCurrentDistance < m_fMaxDistance; } // [ scriptable ]
 
   void SetRaycastEndObject(const char* szReference);                  // [ property ]
 
-  ezGameObjectHandle m_hRaycastEndObject;                             // [ property ]
+  WGameObjectHandle m_hRaycastEndObject;                             // [ property ]
   float m_fMaxDistance = 100.0f;                                      // [ property ]
   bool m_bForceTargetParentless = false;                              // [ property ]
   bool m_bDisableTargetObjectOnNoHit = false;                         // [ property ]
-  ezUInt8 m_uiCollisionLayerEndPoint = 0;                             // [ property ]
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit;                   // [ property ]
-  ezHashedString m_sChangeNotificationMsg;                            // [ property ]
+  WUInt8 m_uiCollisionLayerEndPoint = 0;                             // [ property ]
+  WBitflags<WPhysicsShapeType> m_ShapeTypesToHit;                   // [ property ]
+  WHashedString m_sChangeNotificationMsg;                            // [ property ]
 
 private:
   void Update();
@@ -82,5 +82,5 @@ private:
   const char* DummyGetter() const { return nullptr; }
 
   float m_fCurrentDistance = 0.0f;
-  ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
+  WPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
 };

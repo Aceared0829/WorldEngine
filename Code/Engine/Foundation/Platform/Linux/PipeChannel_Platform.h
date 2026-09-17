@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/IpcChannel.h>
@@ -12,15 +12,15 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <sys/types.h>
 
 
-class EZ_FOUNDATION_DLL ezPipeChannel_linux : public ezIpcChannel
+class W_FOUNDATION_DLL WPipeChannel_linux : public WIpcChannel
 {
 public:
-  ezPipeChannel_linux(ezStringView sAddress, Mode::Enum mode);
-  ~ezPipeChannel_linux();
+  WPipeChannel_linux(WStringView sAddress, Mode::Enum mode);
+  ~WPipeChannel_linux();
 
 private:
-  friend class ezMessageLoop;
-  friend class ezMessageLoop_linux;
+  friend class WMessageLoop;
+  friend class WMessageLoop_linux;
 
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;
@@ -34,15 +34,15 @@ private:
   void ProcessConnectSuccessfull();
 
 private:
-  ezString m_serverSocketPath;
-  ezString m_clientSocketPath;
+  WString m_serverSocketPath;
+  WString m_clientSocketPath;
   int m_serverSocketFd = -1;
   int m_clientSocketFd = -1;
 
-  ezUInt8 m_InputBuffer[4096];
-  ezUInt64 m_previousSendOffset = 0;
+  WUInt8 m_InputBuffer[4096];
+  WUInt64 m_previousSendOffset = 0;
 };
 
-using ezPipeChannel_Platform = ezPipeChannel_linux;
+using WPipeChannel_Platform = WPipeChannel_linux;
 
 #endif

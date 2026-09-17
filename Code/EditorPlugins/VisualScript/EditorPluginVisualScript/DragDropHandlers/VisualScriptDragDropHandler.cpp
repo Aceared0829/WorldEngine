@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginVisualScript/DragDropHandlers/VisualScriptDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezVisualScriptComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualScriptComponentDragDropHandler, 1, WRTTIDefaultAllocator<WVisualScriptComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezVisualScriptComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WVisualScriptComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "VisualScriptClass") ? 1.0f : 0.0f;
 }
 
-void ezVisualScriptComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WVisualScriptComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezScriptComponent";
+  constexpr const char* szComponentType = "WScriptComponent";
   constexpr const char* szPropertyName = "ScriptClass";
 
   if (pInfo->m_sTargetContext == "viewport")

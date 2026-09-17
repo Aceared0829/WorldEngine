@@ -1,18 +1,18 @@
 #include <Core/World/GameObject.h>
 
-EZ_ALWAYS_INLINE ezRenderData::Category::Category() = default;
+W_ALWAYS_INLINE WRenderData::Category::Category() = default;
 
-EZ_ALWAYS_INLINE ezRenderData::Category::Category(ezUInt16 uiValue)
+W_ALWAYS_INLINE WRenderData::Category::Category(WUInt16 uiValue)
   : m_uiValue(uiValue)
 {
 }
 
-EZ_ALWAYS_INLINE bool ezRenderData::Category::operator==(const Category& other) const
+W_ALWAYS_INLINE bool WRenderData::Category::operator==(const Category& other) const
 {
   return m_uiValue == other.m_uiValue;
 }
 
-EZ_ALWAYS_INLINE bool ezRenderData::Category::operator!=(const Category& other) const
+W_ALWAYS_INLINE bool WRenderData::Category::operator!=(const Category& other) const
 {
   return m_uiValue != other.m_uiValue;
 }
@@ -20,41 +20,41 @@ EZ_ALWAYS_INLINE bool ezRenderData::Category::operator!=(const Category& other) 
 //////////////////////////////////////////////////////////////////////////
 
 // static
-EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
+W_FORCE_INLINE WHashedString WRenderData::GetCategoryName(Category category)
 {
   if (category.m_uiValue < s_CategoryData.GetCount())
   {
     return s_CategoryData[category.m_uiValue].m_sName;
   }
 
-  return ezHashedString();
+  return WHashedString();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE bool ezRenderData::IsDynamic() const
+W_ALWAYS_INLINE bool WRenderData::IsDynamic() const
 {
   return m_Flags.IsSet(Flags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezRenderData::IsStatic() const
+W_ALWAYS_INLINE bool WRenderData::IsStatic() const
 {
   return !m_Flags.IsSet(Flags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezRenderData::FlipWinding() const
+W_ALWAYS_INLINE bool WRenderData::FlipWinding() const
 {
   return m_Flags.IsSet(Flags::FlipWinding);
 }
 
-EZ_FORCE_INLINE ezUInt64 ezRenderData::GetFinalSortingKey(Category category, const ezCamera& camera) const
+W_FORCE_INLINE WUInt64 WRenderData::GetFinalSortingKey(Category category, const WCamera& camera) const
 {
   return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, camera);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_FORCE_INLINE bool ezInstanceableRenderData::CanBatchByBaseValues(const ezInstanceableRenderData& other) const
+W_FORCE_INLINE bool WInstanceableRenderData::CanBatchByBaseValues(const WInstanceableRenderData& other) const
 {
   return FlipWinding() == other.FlipWinding() && m_hInstanceDataBuffer == other.m_hInstanceDataBuffer;
 }

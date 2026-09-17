@@ -3,49 +3,49 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentInfo final : public ezDocumentInfo
+class W_EDITORFRAMEWORK_DLL WAssetDocumentInfo final : public WDocumentInfo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentInfo, ezDocumentInfo);
+  W_ADD_DYNAMIC_REFLECTION(WAssetDocumentInfo, WDocumentInfo);
 
 public:
-  ezAssetDocumentInfo();
-  virtual ~ezAssetDocumentInfo();
-  ezAssetDocumentInfo(ezAssetDocumentInfo&& rhs);
-  void operator=(ezAssetDocumentInfo&& rhs);
+  WAssetDocumentInfo();
+  virtual ~WAssetDocumentInfo();
+  WAssetDocumentInfo(WAssetDocumentInfo&& rhs);
+  void operator=(WAssetDocumentInfo&& rhs);
   /// Creates a clone without meta data.
-  void CreateShallowClone(ezAssetDocumentInfo& out_docInfo) const;
+  void CreateShallowClone(WAssetDocumentInfo& out_docInfo) const;
   void ClearMetaData();
 
-  ezUInt64 m_uiSettingsHash;                    ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination with dependency hashes.
+  WUInt64 m_uiSettingsHash;                    ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination with dependency hashes.
 
-  ezSet<ezString> m_TransformDependencies;      ///< [Data dir relative path or GUID] Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
-  ezSet<ezString> m_ThumbnailDependencies;      ///< [Data dir relative path or GUID] Files that are used to generate the thumbnail.
-  ezSet<ezString> m_PackageDependencies;        ///< [Data dir relative path or GUID] Files that are needed at runtime and should be packaged with the game.
+  WSet<WString> m_TransformDependencies;      ///< [Data dir relative path or GUID] Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
+  WSet<WString> m_ThumbnailDependencies;      ///< [Data dir relative path or GUID] Files that are used to generate the thumbnail.
+  WSet<WString> m_PackageDependencies;        ///< [Data dir relative path or GUID] Files that are needed at runtime and should be packaged with the game.
 
-  ezSet<ezString> m_Outputs;                    ///< Additional output this asset produces besides the default one. These are tags like VISUAL_SHADER that are resolved
-                                                ///< by the ezAssetDocumentManager into paths.
-  ezHashedString m_sAssetsDocumentTypeName;
-  ezString m_sAssetsDocumentTags;
-  ezDynamicArray<ezReflectedClass*> m_MetaInfo; ///< Holds arbitrary objects that store meta-data for the asset document. Mainly used for exposed parameters, but can be any reflected
+  WSet<WString> m_Outputs;                    ///< Additional output this asset produces besides the default one. These are tags like VISUAL_SHADER that are resolved
+                                                ///< by the WAssetDocumentManager into paths.
+  WHashedString m_sAssetsDocumentTypeName;
+  WString m_sAssetsDocumentTags;
+  WDynamicArray<WReflectedClass*> m_MetaInfo; ///< Holds arbitrary objects that store meta-data for the asset document. Mainly used for exposed parameters, but can be any reflected
                                                 ///< type. This array takes ownership of all objects and deallocates them on shutdown.
 
   const char* GetAssetsDocumentTypeName() const;
   void SetAssetsDocumentTypeName(const char* szSz);
 
-  const ezString& GetAssetsDocumentTags() const;
-  void SetAssetsDocumentTags(const ezString& sTags);
+  const WString& GetAssetsDocumentTags() const;
+  void SetAssetsDocumentTags(const WString& sTags);
 
   /// Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
-  const ezReflectedClass* GetMetaInfo(const ezRTTI* pType) const;
+  const WReflectedClass* GetMetaInfo(const WRTTI* pType) const;
 
   /// Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
   template <typename T>
   const T* GetMetaInfo() const
   {
-    return static_cast<const T*>(GetMetaInfo(ezGetStaticRTTI<T>()));
+    return static_cast<const T*>(GetMetaInfo(WGetStaticRTTI<T>()));
   }
 
 private:
-  ezAssetDocumentInfo(const ezAssetDocumentInfo&);
-  void operator=(const ezAssetDocumentInfo&) = delete;
+  WAssetDocumentInfo(const WAssetDocumentInfo&);
+  void operator=(const WAssetDocumentInfo&) = delete;
 };

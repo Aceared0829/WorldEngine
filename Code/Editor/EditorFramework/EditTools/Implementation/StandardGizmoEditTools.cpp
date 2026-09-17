@@ -9,25 +9,25 @@
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezTranslateGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTranslateGizmoEditTool, 1, WRTTIDefaultAllocator<WTranslateGizmoEditTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTranslateGizmoEditTool::ezTranslateGizmoEditTool()
+WTranslateGizmoEditTool::WTranslateGizmoEditTool()
 {
-  m_TranslateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_TranslateGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-ezTranslateGizmoEditTool::~ezTranslateGizmoEditTool()
+WTranslateGizmoEditTool::~WTranslateGizmoEditTool()
 {
-  m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 
-  auto& events = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent;
+  auto& events = WPreferences::QueryPreferences<WScenePreferencesUser>(GetDocument())->m_ChangedEvent;
 
-  if (events.HasEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this)))
-    events.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this));
+  if (events.HasEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::OnPreferenceChange, this)))
+    events.RemoveEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::OnPreferenceChange, this));
 }
 
-void ezTranslateGizmoEditTool::OnActiveChanged(bool bIsActive)
+void WTranslateGizmoEditTool::OnActiveChanged(bool bIsActive)
 {
   if (bIsActive)
   {
@@ -35,38 +35,38 @@ void ezTranslateGizmoEditTool::OnActiveChanged(bool bIsActive)
   }
 }
 
-void ezTranslateGizmoEditTool::OnConfigured()
+void WTranslateGizmoEditTool::OnConfigured()
 {
   SUPER::OnConfigured();
 
   m_TranslateGizmo.SetOwner(GetWindow(), nullptr);
 
-  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())
-    ->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this));
+  WPreferences::QueryPreferences<WScenePreferencesUser>(GetDocument())
+    ->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::OnPreferenceChange, this));
 }
 
-void ezTranslateGizmoEditTool::ApplyGizmoVisibleState(bool visible)
+void WTranslateGizmoEditTool::ApplyGizmoVisibleState(bool visible)
 {
   m_TranslateGizmo.SetVisible(visible);
 }
 
-void ezTranslateGizmoEditTool::ApplyGizmoTransformation(const ezTransform& transform)
+void WTranslateGizmoEditTool::ApplyGizmoTransformation(const WTransform& transform)
 {
   m_TranslateGizmo.SetTransformation(transform);
 }
 
-void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e)
+void WTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const WGizmoEvent& e)
 {
-  ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
     {
       const bool bDuplicate =
         (QApplication::keyboardModifiers() == Qt::KeyboardModifier::ControlModifier) && GetGizmoInterface()->CanDuplicateSelection();
 
       // duplicate the object when CTRL is held while dragging the item
-      if (bDuplicate && (e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>()))
+      if (bDuplicate && (e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<WOrthoGizmoContext>()))
       {
         m_bMergeTransactions = true;
         GetGizmoInterface()->DuplicateSelection();
@@ -76,21 +76,21 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
       // could be re-enabled, but doesn't feel useful
       // if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
       //{
-      //   m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::MouseDiff);
+      //   m_TranslateGizmo.SetMovementMode(WTranslateGizmo::MovementMode::MouseDiff);
       // }
     }
     break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
-      ezTransform tNew;
+      WTransform tNew;
 
       if (e.m_pGizmo == &m_TranslateGizmo)
       {
-        const ezVec3 vTranslate = m_TranslateGizmo.GetTranslationResult();
+        const WVec3 vTranslate = m_TranslateGizmo.GetTranslationResult();
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 
@@ -107,28 +107,28 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
         // could be re-enabled, but doesn't feel useful
         // if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
         //{
-        //   m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::MouseDiff);
+        //   m_TranslateGizmo.SetMovementMode(WTranslateGizmo::MovementMode::MouseDiff);
 
         //  auto* pFocusedView = GetWindow()->GetFocusedViewWidget();
         //  if (pFocusedView != nullptr)
         //  {
-        //    const ezVec3 d = m_TranslateGizmo.GetTranslationDiff();
+        //    const WVec3 d = m_TranslateGizmo.GetTranslationDiff();
         //    pFocusedView->m_pViewConfig->m_Camera.MoveGlobally(d.x, d.y, d.z);
         //  }
         //}
         // else
         {
-          m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::ScreenProjection);
+          m_TranslateGizmo.SetMovementMode(WTranslateGizmo::MovementMode::ScreenProjection);
         }
       }
 
-      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
+      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<WOrthoGizmoContext>())
       {
-        const ezOrthoGizmoContext* pOrtho = static_cast<const ezOrthoGizmoContext*>(e.m_pGizmo);
+        const WOrthoGizmoContext* pOrtho = static_cast<const WOrthoGizmoContext*>(e.m_pGizmo);
 
-        const ezVec3 vTranslate = pOrtho->GetTranslationResult();
+        const WVec3 vTranslate = pOrtho->GetTranslationResult();
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 
@@ -146,7 +146,7 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
         //  auto* pFocusedView = GetWindow()->GetFocusedViewWidget();
         //  if (pFocusedView != nullptr)
         //  {
-        //    const ezVec3 d = pOrtho->GetTranslationDiff();
+        //    const WVec3 d = pOrtho->GetTranslationDiff();
         //    pFocusedView->m_pViewConfig->m_Camera.MoveGlobally(d.x, d.y, d.z);
         //  }
         //}
@@ -161,26 +161,26 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
   }
 }
 
-void ezTranslateGizmoEditTool::OnPreferenceChange(ezPreferences* pref)
+void WTranslateGizmoEditTool::OnPreferenceChange(WPreferences* pref)
 {
-  ezScenePreferencesUser* pPref = ezDynamicCast<ezScenePreferencesUser*>(pref);
+  WScenePreferencesUser* pPref = WDynamicCast<WScenePreferencesUser*>(pref);
 
-  m_TranslateGizmo.SetCameraSpeed(ezCameraMoveContext::ConvertCameraSpeed(pPref->GetCameraSpeed()));
+  m_TranslateGizmo.SetCameraSpeed(WCameraMoveContext::ConvertCameraSpeed(pPref->GetCameraSpeed()));
 }
 
-void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
+void WTranslateGizmoEditTool::GetGridSettings(WGridSettingsMsgToEngine& ref_msg)
 {
   auto pSceneDoc = GetDocument();
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+  WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(GetDocument());
 
   // if density != 0, it is enabled at least in ortho mode
-  ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
+  ref_msg.m_fGridDensity = WSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
 
   // to be active in perspective mode, tangents have to be non-zero
   ref_msg.m_vGridTangent1.SetZero();
   ref_msg.m_vGridTangent2.SetZero();
 
-  ezTranslateGizmo& translateGizmo = m_TranslateGizmo;
+  WTranslateGizmo& translateGizmo = m_TranslateGizmo;
 
   if (pPreferences->GetShowGrid() && translateGizmo.IsVisible())
   {
@@ -188,28 +188,28 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_ms
 
     switch (translateGizmo.GetLastHandleInteraction())
     {
-      case ezTranslateGizmo::HandleInteraction::AxisX:
+      case WTranslateGizmo::HandleInteraction::AxisX:
         if (m_GridPlane == GridPlane::X)
           ref_msg.m_vGridCenter = translateGizmo.GetTransformation().m_vPosition;
         break;
-      case ezTranslateGizmo::HandleInteraction::AxisY:
+      case WTranslateGizmo::HandleInteraction::AxisY:
         if (m_GridPlane == GridPlane::Y)
           ref_msg.m_vGridCenter = translateGizmo.GetTransformation().m_vPosition;
         break;
-      case ezTranslateGizmo::HandleInteraction::AxisZ:
+      case WTranslateGizmo::HandleInteraction::AxisZ:
         if (m_GridPlane == GridPlane::Z)
           ref_msg.m_vGridCenter = translateGizmo.GetTransformation().m_vPosition;
         break;
-      case ezTranslateGizmo::HandleInteraction::PlaneX:
+      case WTranslateGizmo::HandleInteraction::PlaneX:
         m_GridPlane = GridPlane::X;
         break;
-      case ezTranslateGizmo::HandleInteraction::PlaneY:
+      case WTranslateGizmo::HandleInteraction::PlaneY:
         m_GridPlane = GridPlane::Y;
         break;
-      case ezTranslateGizmo::HandleInteraction::PlaneZ:
+      case WTranslateGizmo::HandleInteraction::PlaneZ:
         m_GridPlane = GridPlane::Z;
         break;
-      case ezTranslateGizmo::HandleInteraction::None:
+      case WTranslateGizmo::HandleInteraction::None:
         break;
     }
 
@@ -218,16 +218,16 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_ms
       switch (m_GridPlane)
       {
         case GridPlane::X:
-          ref_msg.m_vGridCenter.y = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
-          ref_msg.m_vGridCenter.z = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.y = WMath::RoundToMultiple(ref_msg.m_vGridCenter.y, WSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.z = WMath::RoundToMultiple(ref_msg.m_vGridCenter.z, WSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case GridPlane::Y:
-          ref_msg.m_vGridCenter.x = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          ref_msg.m_vGridCenter.z = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.x = WMath::RoundToMultiple(ref_msg.m_vGridCenter.x, WSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.z = WMath::RoundToMultiple(ref_msg.m_vGridCenter.z, WSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case GridPlane::Z:
-          ref_msg.m_vGridCenter.x = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          ref_msg.m_vGridCenter.y = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.x = WMath::RoundToMultiple(ref_msg.m_vGridCenter.x, WSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.y = WMath::RoundToMultiple(ref_msg.m_vGridCenter.y, WSnapProvider::GetTranslationSnapValue() * 10);
           break;
       }
     }
@@ -235,16 +235,16 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_ms
     switch (m_GridPlane)
     {
       case GridPlane::X:
-        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
-        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * WVec3(0, 1, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * WVec3(0, 0, 1);
         break;
       case GridPlane::Y:
-        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * WVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * WVec3(0, 0, 1);
         break;
       case GridPlane::Z:
-        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * WVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * WVec3(0, 1, 0);
         break;
     }
   }
@@ -252,42 +252,42 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_ms
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezRotateGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRotateGizmoEditTool, 1, WRTTIDefaultAllocator<WRotateGizmoEditTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRotateGizmoEditTool::ezRotateGizmoEditTool()
+WRotateGizmoEditTool::WRotateGizmoEditTool()
 {
-  m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-ezRotateGizmoEditTool::~ezRotateGizmoEditTool()
+WRotateGizmoEditTool::~WRotateGizmoEditTool()
 {
-  m_RotateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.RemoveEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-void ezRotateGizmoEditTool::OnConfigured()
+void WRotateGizmoEditTool::OnConfigured()
 {
   SUPER::OnConfigured();
 
   m_RotateGizmo.SetOwner(GetWindow(), nullptr);
 }
 
-void ezRotateGizmoEditTool::ApplyGizmoVisibleState(bool visible)
+void WRotateGizmoEditTool::ApplyGizmoVisibleState(bool visible)
 {
   m_RotateGizmo.SetVisible(visible);
 }
 
-void ezRotateGizmoEditTool::ApplyGizmoTransformation(const ezTransform& transform)
+void WRotateGizmoEditTool::ApplyGizmoTransformation(const WTransform& transform)
 {
   m_RotateGizmo.SetTransformation(transform);
 }
 
-void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e)
+void WRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const WGizmoEvent& e)
 {
-  ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
     {
       const bool bDuplicate =
         QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier) && GetGizmoInterface()->CanDuplicateSelection();
@@ -301,17 +301,17 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
     }
     break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
-      ezTransform tNew;
+      WTransform tNew;
 
       if (e.m_pGizmo == &m_RotateGizmo)
       {
-        const ezQuat qRotation = m_RotateGizmo.GetRotationResult();
-        const ezVec3 vPivot = m_RotateGizmo.GetTransformation().m_vPosition;
+        const WQuat qRotation = m_RotateGizmo.GetRotationResult();
+        const WVec3 vPivot = m_RotateGizmo.GetTransformation().m_vPosition;
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 
@@ -326,13 +326,13 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
         }
       }
 
-      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
+      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<WOrthoGizmoContext>())
       {
-        const ezOrthoGizmoContext* pOrtho = static_cast<const ezOrthoGizmoContext*>(e.m_pGizmo);
+        const WOrthoGizmoContext* pOrtho = static_cast<const WOrthoGizmoContext*>(e.m_pGizmo);
 
-        const ezQuat qRotation = pOrtho->GetRotationResult();
+        const WQuat qRotation = pOrtho->GetRotationResult();
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 
@@ -352,7 +352,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
   }
 }
 
-void ezRotateGizmoEditTool::OnActiveChanged(bool bIsActive)
+void WRotateGizmoEditTool::OnActiveChanged(bool bIsActive)
 {
   if (bIsActive)
   {
@@ -362,20 +362,20 @@ void ezRotateGizmoEditTool::OnActiveChanged(bool bIsActive)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoEditTool, 1, ezRTTIDefaultAllocator<ezScaleGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScaleGizmoEditTool, 1, WRTTIDefaultAllocator<WScaleGizmoEditTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezScaleGizmoEditTool::ezScaleGizmoEditTool()
+WScaleGizmoEditTool::WScaleGizmoEditTool()
 {
-  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-ezScaleGizmoEditTool::~ezScaleGizmoEditTool()
+WScaleGizmoEditTool::~WScaleGizmoEditTool()
 {
-  m_ScaleGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.RemoveEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-void ezScaleGizmoEditTool::OnActiveChanged(bool bIsActive)
+void WScaleGizmoEditTool::OnActiveChanged(bool bIsActive)
 {
   if (bIsActive)
   {
@@ -383,40 +383,40 @@ void ezScaleGizmoEditTool::OnActiveChanged(bool bIsActive)
   }
 }
 
-void ezScaleGizmoEditTool::OnConfigured()
+void WScaleGizmoEditTool::OnConfigured()
 {
   SUPER::OnConfigured();
 
   m_ScaleGizmo.SetOwner(GetWindow(), nullptr);
 }
 
-void ezScaleGizmoEditTool::ApplyGizmoVisibleState(bool visible)
+void WScaleGizmoEditTool::ApplyGizmoVisibleState(bool visible)
 {
   m_ScaleGizmo.SetVisible(visible);
 }
 
-void ezScaleGizmoEditTool::ApplyGizmoTransformation(const ezTransform& transform)
+void WScaleGizmoEditTool::ApplyGizmoTransformation(const WTransform& transform)
 {
   m_ScaleGizmo.SetTransformation(transform);
 }
 
-void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e)
+void WScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const WGizmoEvent& e)
 {
-  ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      ezTransform tNew;
+      WTransform tNew;
 
       bool bCancel = false;
 
       if (e.m_pGizmo == &m_ScaleGizmo)
       {
-        const ezVec3 vScale = m_ScaleGizmo.GetScalingResult();
+        const WVec3 vScale = m_ScaleGizmo.GetScalingResult();
         if (vScale.x == vScale.y && vScale.x == vScale.z)
         {
-          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
             const auto& obj = m_GizmoSelection[sel];
             float fNewScale = obj.m_fLocalUniformScaling * vScale.x;
@@ -430,10 +430,10 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
         }
         else
         {
-          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
             const auto& obj = m_GizmoSelection[sel];
-            ezVec3 vNewScale = obj.m_vLocalScaling.CompMul(vScale);
+            WVec3 vNewScale = obj.m_vLocalScaling.CompMul(vScale);
 
             if (pAccessor->SetValueByName(obj.m_pObject, "LocalScaling", vNewScale).Failed())
             {
@@ -444,12 +444,12 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
         }
       }
 
-      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
+      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<WOrthoGizmoContext>())
       {
-        const ezOrthoGizmoContext* pOrtho = static_cast<const ezOrthoGizmoContext*>(e.m_pGizmo);
+        const WOrthoGizmoContext* pOrtho = static_cast<const WOrthoGizmoContext*>(e.m_pGizmo);
 
         const float fScale = pOrtho->GetScalingResult();
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
           const float fNewScale = obj.m_fLocalUniformScaling * fScale;
@@ -476,21 +476,21 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmoEditTool, 1, ezRTTIDefaultAllocator<ezDragToPositionGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDragToPositionGizmoEditTool, 1, WRTTIDefaultAllocator<WDragToPositionGizmoEditTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDragToPositionGizmoEditTool::ezDragToPositionGizmoEditTool()
+WDragToPositionGizmoEditTool::WDragToPositionGizmoEditTool()
 {
 
-  m_DragToPosGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_DragToPosGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-ezDragToPositionGizmoEditTool::~ezDragToPositionGizmoEditTool()
+WDragToPositionGizmoEditTool::~WDragToPositionGizmoEditTool()
 {
-  m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+  m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(WMakeDelegate(&WTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
 }
 
-void ezDragToPositionGizmoEditTool::OnActiveChanged(bool bIsActive)
+void WDragToPositionGizmoEditTool::OnActiveChanged(bool bIsActive)
 {
   if (bIsActive)
   {
@@ -498,29 +498,29 @@ void ezDragToPositionGizmoEditTool::OnActiveChanged(bool bIsActive)
   }
 }
 
-void ezDragToPositionGizmoEditTool::OnConfigured()
+void WDragToPositionGizmoEditTool::OnConfigured()
 {
   SUPER::OnConfigured();
 
   m_DragToPosGizmo.SetOwner(GetWindow(), nullptr);
 }
 
-void ezDragToPositionGizmoEditTool::ApplyGizmoVisibleState(bool visible)
+void WDragToPositionGizmoEditTool::ApplyGizmoVisibleState(bool visible)
 {
   m_DragToPosGizmo.SetVisible(visible);
 }
 
-void ezDragToPositionGizmoEditTool::ApplyGizmoTransformation(const ezTransform& transform)
+void WDragToPositionGizmoEditTool::ApplyGizmoTransformation(const WTransform& transform)
 {
   m_DragToPosGizmo.SetTransformation(transform);
 }
 
-void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e)
+void WDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const WGizmoEvent& e)
 {
-  ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
     {
       const bool bDuplicate =
         QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier) && GetGizmoInterface()->CanDuplicateSelection();
@@ -534,17 +534,17 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
     }
     break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
-      ezTransform tNew;
+      WTransform tNew;
 
       if (e.m_pGizmo == &m_DragToPosGizmo)
       {
-        const ezVec3 vTranslate = m_DragToPosGizmo.GetTranslationResult();
-        const ezQuat qRot = m_DragToPosGizmo.GetRotationResult();
+        const WVec3 vTranslate = m_DragToPosGizmo.GetTranslationResult();
+        const WQuat qRot = m_DragToPosGizmo.GetRotationResult();
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        for (WUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 

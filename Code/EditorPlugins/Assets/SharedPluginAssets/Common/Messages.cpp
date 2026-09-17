@@ -3,27 +3,27 @@
 #include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineRestartSimulationMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineRestartSimulationMsg>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineRestartSimulationMsg, 1, WRTTIDefaultAllocator<WEditorEngineRestartSimulationMsg>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineLoopAnimationMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineLoopAnimationMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineLoopAnimationMsg, 1, WRTTIDefaultAllocator<WEditorEngineLoopAnimationMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Loop", m_bLoop),
+    W_MEMBER_PROPERTY("Loop", m_bLoop),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSetMaterialsMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSetMaterialsMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineSetMaterialsMsg, 1, WRTTIDefaultAllocator<WEditorEngineSetMaterialsMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Materials),
-    EZ_ARRAY_MEMBER_PROPERTY("SlotNames", m_SlotNames),
+    W_ARRAY_MEMBER_PROPERTY("Materials", m_Materials),
+    W_ARRAY_MEMBER_PROPERTY("SlotNames", m_SlotNames),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

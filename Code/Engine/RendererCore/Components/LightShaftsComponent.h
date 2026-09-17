@@ -4,47 +4,47 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
-class EZ_RENDERERCORE_DLL ezLightShaftsRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WLightShaftsRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLightShaftsRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WLightShaftsRenderData, WRenderData);
 
 public:
-  ezVec3 m_vDirection;
+  WVec3 m_vDirection;
   float m_fIntensity;
   float m_fMaxBrightness;
   float m_fBrightnessThreshold;
   float m_fDiskMaskRadius;
-  ezColorGammaUB m_TintColor;
+  WColorGammaUB m_TintColor;
 };
 
-using ezLightShaftsComponentManager = ezSettingsComponentManager<class ezLightShaftsComponent>;
+using WLightShaftsComponentManager = WSettingsComponentManager<class WLightShaftsComponent>;
 
 /// Adds a light shaft effect to the scene. Usually, this component is attached to the same game object as a directional light.
-class EZ_RENDERERCORE_DLL ezLightShaftsComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WLightShaftsComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLightShaftsComponent, ezRenderComponent, ezLightShaftsComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLightShaftsComponent, WRenderComponent, WLightShaftsComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLightShaftsComponent
+  // WLightShaftsComponent
 
 public:
-  ezLightShaftsComponent();
-  ~ezLightShaftsComponent();
+  WLightShaftsComponent();
+  ~WLightShaftsComponent();
 
   /// Sets the intensity of the light shafts.
   void SetIntensity(float fIntensity);                // [ property ]
@@ -66,16 +66,16 @@ public:
   float GetDiskMaskRadius() const { return m_fDiskMaskRadius; } // [ property ]
 
   /// The light shafts pick its color from the sky pixels at the center. The tint color can be used to add an additional color tint to the light shafts.
-  void SetTintColor(const ezColorGammaUB& color);                    // [ property ]
-  const ezColorGammaUB& GetTintColor() const { return m_TintColor; } // [ property ]
+  void SetTintColor(const WColorGammaUB& color);                    // [ property ]
+  const WColorGammaUB& GetTintColor() const { return m_TintColor; } // [ property ]
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   float m_fIntensity = 1.0f;
   float m_fMaxBrightness = 10.0f;
   float m_fBrightnessThreshold = 0.0f;
   float m_fDiskMaskRadius = 0.1f;
 
-  ezColorGammaUB m_TintColor = ezColor::White;
+  WColorGammaUB m_TintColor = WColor::White;
 };

@@ -8,17 +8,17 @@
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtCompilerPreferencesWidget::ezQtCompilerPreferencesWidget()
-  : ezQtPropertyTypeWidget(true)
+WQtCompilerPreferencesWidget::WQtCompilerPreferencesWidget()
+  : WQtPropertyTypeWidget(true)
 {
   m_pCompilerPreset = new QComboBox();
   int counter = 0;
-  for (auto& compiler : ezCppProject::GetMachineSpecificCompilers())
+  for (auto& compiler : WCppProject::GetMachineSpecificCompilers())
   {
-    m_pCompilerPreset->addItem(ezMakeQString(compiler.m_sNiceName), counter);
+    m_pCompilerPreset->addItem(WMakeQString(compiler.m_sNiceName), counter);
     ++counter;
   }
-  connect(m_pCompilerPreset, &QComboBox::currentIndexChanged, this, &ezQtCompilerPreferencesWidget::on_compiler_preset_changed);
+  connect(m_pCompilerPreset, &QComboBox::currentIndexChanged, this, &WQtCompilerPreferencesWidget::on_compiler_preset_changed);
 
   auto gridLayout = new QGridLayout();
   gridLayout->setColumnStretch(0, 1);
@@ -28,11 +28,11 @@ ezQtCompilerPreferencesWidget::ezQtCompilerPreferencesWidget()
   gridLayout->setContentsMargins(0, 0, 0, 0);
   gridLayout->setSpacing(0);
 
-  ezStringBuilder fmt;
-  QLabel* versionText = new QLabel(ezMakeQString(
-    ezFmt("This SDK was compiled with {} version {}. Select a compatible compiler.",
-      ezCppProject::CompilerToString(ezCppProject::GetSdkCompiler()),
-      ezCppProject::GetSdkCompilerMajorVersion())
+  WStringBuilder fmt;
+  QLabel* versionText = new QLabel(WMakeQString(
+    WFmt("This SDK was compiled with {} version {}. Select a compatible compiler.",
+      WCppProject::CompilerToString(WCppProject::GetSdkCompiler()),
+      WCppProject::GetSdkCompilerMajorVersion())
       .GetText(fmt)));
   versionText->setWordWrap(true);
   gridLayout->addWidget(versionText, 0, 0, 1, 3);
@@ -42,43 +42,43 @@ ezQtCompilerPreferencesWidget::ezQtCompilerPreferencesWidget()
   m_pGroupLayout->addLayout(gridLayout);
 }
 
-ezQtCompilerPreferencesWidget::~ezQtCompilerPreferencesWidget() = default;
+WQtCompilerPreferencesWidget::~WQtCompilerPreferencesWidget() = default;
 
-void ezQtCompilerPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtCompilerPreferencesWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
 
-  ezQtPropertyTypeWidget::SetSelection(items);
+  WQtPropertyTypeWidget::SetSelection(items);
 
   if (m_pTypeWidget)
   {
     const auto& selection = m_pTypeWidget->GetSelection();
 
-    EZ_ASSERT_DEBUG(selection.GetCount() == 1, "Expected exactly one object");
+    W_ASSERT_DEBUG(selection.GetCount() == 1, "Expected exactly one object");
     auto pObj = selection[0].m_pObject;
 
-    ezEnum<ezCompiler> m_Compiler;
+    WEnum<WCompiler> m_Compiler;
     bool bIsCustomCompiler;
-    ezString m_sCCompiler, m_sCppCompiler;
+    WString m_sCCompiler, m_sCppCompiler;
 
     {
-      ezVariant varCompiler, varIsCustomCompiler, varCCompiler, varCppCompiler;
+      WVariant varCompiler, varIsCustomCompiler, varCCompiler, varCppCompiler;
 
       m_pObjectAccessor->GetValueByName(pObj, "Compiler", varCompiler).AssertSuccess();
       m_pObjectAccessor->GetValueByName(pObj, "CustomCompiler", varIsCustomCompiler).AssertSuccess();
       m_pObjectAccessor->GetValueByName(pObj, "CCompiler", varCCompiler).AssertSuccess();
       m_pObjectAccessor->GetValueByName(pObj, "CppCompiler", varCppCompiler).AssertSuccess();
 
-      m_Compiler.SetValue(static_cast<ezCompiler::StorageType>(varCompiler.Get<ezInt64>()));
+      m_Compiler.SetValue(static_cast<WCompiler::StorageType>(varCompiler.Get<WInt64>()));
       bIsCustomCompiler = varIsCustomCompiler.Get<decltype(bIsCustomCompiler)>();
       m_sCCompiler = varCCompiler.Get<decltype(m_sCCompiler)>();
       m_sCppCompiler = varCppCompiler.Get<decltype(m_sCppCompiler)>();
     }
 
-    ezInt32 selectedIndex = -1;
-    const auto& machineSpecificCompilers = ezCppProject::GetMachineSpecificCompilers();
+    WInt32 selectedIndex = -1;
+    const auto& machineSpecificCompilers = WCppProject::GetMachineSpecificCompilers();
     // first look for non custom compilers
-    for (ezUInt32 i = 0; i < machineSpecificCompilers.GetCount(); ++i)
+    for (WUInt32 i = 0; i < machineSpecificCompilers.GetCount(); ++i)
     {
       const auto& curCompiler = machineSpecificCompilers[i];
       if ((curCompiler.m_bIsCustom == false) &&
@@ -94,7 +94,7 @@ void ezQtCompilerPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySele
     if (selectedIndex == -1)
     {
       // If we didn't find a system default compiler, look for custom compilers next
-      for (ezUInt32 i = 0; i < machineSpecificCompilers.GetCount(); ++i)
+      for (WUInt32 i = 0; i < machineSpecificCompilers.GetCount(); ++i)
       {
         const auto& curCompiler = machineSpecificCompilers[i];
         if (curCompiler.m_bIsCustom == true && curCompiler.m_Compiler == m_Compiler)
@@ -114,16 +114,16 @@ void ezQtCompilerPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySele
   }
 }
 
-void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
+void WQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
 {
-  auto compilerPresets = ezCppProject::GetMachineSpecificCompilers();
+  auto compilerPresets = WCppProject::GetMachineSpecificCompilers();
 
   if (index >= 0 && index < (int)compilerPresets.GetCount())
   {
     const auto& preset = compilerPresets[index];
 
     const auto& selection = m_pTypeWidget->GetSelection();
-    EZ_ASSERT_DEV(selection.GetCount() == 1, "This Widget does not support multi selection");
+    W_ASSERT_DEV(selection.GetCount() == 1, "This Widget does not support multi selection");
 
     auto obj = selection[0].m_pObject;
     m_pObjectAccessor->StartTransaction("Change Compiler Preset");
@@ -135,27 +135,27 @@ void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
   }
 }
 
-void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WCompilerPreferences_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezCompilerPreferences>();
+  const WRTTI* pRtti = WGetStaticRTTI<WCompilerPreferences>();
 
   auto& typeAccessor = e.m_pObject->GetTypeAccessor();
 
   if (typeAccessor.GetType() != pRtti)
     return;
 
-  ezPropertyUiState::Visibility compilerFieldsVisibility = ezPropertyUiState::Default;
+  WPropertyUiState::Visibility compilerFieldsVisibility = WPropertyUiState::Default;
 
   bool bCustomCompiler = typeAccessor.GetValue("CustomCompiler").Get<bool>();
   if (!bCustomCompiler)
   {
-    compilerFieldsVisibility = ezPropertyUiState::Disabled;
+    compilerFieldsVisibility = WPropertyUiState::Disabled;
   }
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  auto compiler = typeAccessor.GetValue("Compiler").Get<ezInt64>();
-  if (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  auto compiler = typeAccessor.GetValue("Compiler").Get<WInt64>();
+  if (compiler == WCompiler::Vs2022 || compiler == WCompiler::Vs2026)
   {
-    compilerFieldsVisibility = ezPropertyUiState::Invisible;
+    compilerFieldsVisibility = WPropertyUiState::Invisible;
   }
 #endif
 
@@ -163,9 +163,9 @@ void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 
   props["CCompiler"].m_Visibility = compilerFieldsVisibility;
   props["CppCompiler"].m_Visibility = compilerFieldsVisibility;
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  props["RcCompiler"].m_Visibility = ezPropertyUiState::Invisible;
+#if W_ENABLED(W_PLATFORM_LINUX)
+  props["RcCompiler"].m_Visibility = WPropertyUiState::Invisible;
 #else
-  props["RcCompiler"].m_Visibility = (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["RcCompiler"].m_Visibility = (compiler == WCompiler::Vs2022 || compiler == WCompiler::Vs2026) ? WPropertyUiState::Invisible : WPropertyUiState::Default;
 #endif
 }

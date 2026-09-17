@@ -9,15 +9,15 @@ namespace JPH
   class PhysicsSystem;
 } // namespace JPH
 
-class EZ_JOLTPLUGIN_DLL ezJoltWaterVolumeComponentManager : public ezComponentManager<class ezJoltWaterVolumeComponent, ezBlockStorageType::FreeList>
+class W_JOLTPLUGIN_DLL WJoltWaterVolumeComponentManager : public WComponentManager<class WJoltWaterVolumeComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezJoltWaterVolumeComponentManager(ezWorld* pWorld);
-  ~ezJoltWaterVolumeComponentManager();
+  WJoltWaterVolumeComponentManager(WWorld* pWorld);
+  ~WJoltWaterVolumeComponentManager();
 
-  void UpdateWaterVolumes(ezTime deltaTime);
+  void UpdateWaterVolumes(WTime deltaTime);
 
-  ezSimdPerlinNoise m_Noise;
+  WSimdPerlinNoise m_Noise;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,51 +25,51 @@ public:
 /// Creates a water volume that applies a buoyancy force to submerged dynamic actors and triggers surface interactions.
 ///
 /// This component needs a trigger component besides it to detect when actors enter or leave the water volume.
-class EZ_JOLTPLUGIN_DLL ezJoltWaterVolumeComponent : public ezJoltShapeComponent
+class W_JOLTPLUGIN_DLL WJoltWaterVolumeComponent : public WJoltShapeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltWaterVolumeComponent, ezJoltShapeComponent, ezJoltWaterVolumeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltWaterVolumeComponent, WJoltShapeComponent, WJoltWaterVolumeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
   virtual void OnSimulationStarted() override;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltWaterVolumeComponent
+  // WJoltWaterVolumeComponent
 
 public:
-  ezJoltWaterVolumeComponent();
-  ~ezJoltWaterVolumeComponent();
+  WJoltWaterVolumeComponent();
+  ~WJoltWaterVolumeComponent();
 
-  ezVec3 m_vExtents = ezVec3(10.0f); // [ property ]
+  WVec3 m_vExtents = WVec3(10.0f); // [ property ]
 
   /// Direction and speed of the water flow in local space.
-  ezVec3 m_vFlow = ezVec3::MakeZero(); // [ property ]
+  WVec3 m_vFlow = WVec3::MakeZero(); // [ property ]
 
   /// Strength of the noise that is added to vary the water surface height.
   float m_fNoiseStrength = 0.0f; // [ property ]
 
   /// The surface resource that defines the water surface interaction. No other properties of the surface are used.
-  ezSurfaceResourceHandle m_hSurface; // [ property ]
+  WSurfaceResourceHandle m_hSurface; // [ property ]
 
-  /// Which interaction should be triggered when an actor enters the water volume. See ezSurfaceResource.
-  ezHashedString m_sInteraction;                          // [ property ]
+  /// Which interaction should be triggered when an actor enters the water volume. See WSurfaceResource.
+  WHashedString m_sInteraction;                          // [ property ]
 
 private:
-  void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg); // [ msg handler ]
+  void OnMsgTriggerTriggered(WMsgTriggerTriggered& msg); // [ msg handler ]
 
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
-  void Update(JPH::PhysicsSystem& joltSystem, ezTime deltaTime);
-  void UpdateWaterPlane(const ezVec3& vGravity);
+  void Update(JPH::PhysicsSystem& joltSystem, WTime deltaTime);
+  void UpdateWaterPlane(const WVec3& vGravity);
 
-  ezPlane m_SurfacePlane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), ezVec3::MakeZero());
-  ezVec3 m_vGravity = ezVec3::MakeZero();
+  WPlane m_SurfacePlane = WPlane::MakeFromNormalAndPoint(WVec3::MakeAxisZ(), WVec3::MakeZero());
+  WVec3 m_vGravity = WVec3::MakeZero();
   float m_fNoiseTime = 0.0f;
 
-  ezHashSet<ezComponentHandle> m_SubmergedActors;
+  WHashSet<WComponentHandle> m_SubmergedActors;
 };

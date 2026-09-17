@@ -15,14 +15,14 @@ class QHideEvent;
 class QShowEvent;
 
 /// Dock widget that coordinates render graph inspection telemetry and preview controls.
-class ezQtRenderGraphWidget : public ads::CDockWidget, public Ui_RenderGraphWidget
+class WQtRenderGraphWidget : public ads::CDockWidget, public Ui_RenderGraphWidget
 {
   Q_OBJECT
 
 public:
-  ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QWidget* pParent = nullptr);
+  WQtRenderGraphWidget(ads::CDockManager* pDockManager, QWidget* pParent = nullptr);
 
-  static ezQtRenderGraphWidget* s_pWidget;
+  static WQtRenderGraphWidget* s_pWidget;
   static void ProcessTelemetry(void* pUnused);
 
   void ResetStats();
@@ -36,7 +36,7 @@ private:
   void SendSummaryRequest();
   void SendInfoRequest();
   void SendObserverRequest();
-  void SendObserverRequest(const ezRenderGraphObserverRequest& request);
+  void SendObserverRequest(const WRenderGraphObserverRequest& request);
   void PauseObservation();
   void ResumeObservation();
   void UpdateObservationVisibility();
@@ -44,21 +44,21 @@ private:
   void UpdateSwapChainList();
   void UpdateInfoWidgets();
   void UpdateRequestControls();
-  void SelectAccess(ezUInt16 uiPassIndex, ezUInt16 uiAccessIndex);
+  void SelectAccess(WUInt16 uiPassIndex, WUInt16 uiAccessIndex);
   void ClearAccessSelection();
-  void UpdatePreviewRequest(float fZoom, ezVec2 panCenter, ezVec2I32 pixel, bool bUpdatePixelPosition, bool bHighlightPixel);
+  void UpdatePreviewRequest(float fZoom, WVec2 panCenter, WVec2I32 pixel, bool bUpdatePixelPosition, bool bHighlightPixel);
   void SetRequestFromControls();
 
 private:
-  ezRenderGraphInspectionSummary m_Summary;
-  ezRenderGraphInspectionInfo m_Info;
-  ezRenderGraphObserverRequest m_Request;
-  ezRenderGraphObserverResponse m_Response;
-  ezString m_sLastPixelValue;
-  ezVec2I32 m_vLastPixelPosition = ezVec2I32(-1, -1);
-  ezStaticArray<ezUInt8, 1024> m_LastHistogram;
-  ezUInt64 m_uiSelectedGraphId = 0;
-  ezUInt32 m_uiSelectedSwapChainId = 0xFFFFFFFF;
+  WRenderGraphInspectionSummary m_Summary;
+  WRenderGraphInspectionInfo m_Info;
+  WRenderGraphObserverRequest m_Request;
+  WRenderGraphObserverResponse m_Response;
+  WString m_sLastPixelValue;
+  WVec2I32 m_vLastPixelPosition = WVec2I32(-1, -1);
+  WStaticArray<WUInt8, 1024> m_LastHistogram;
+  WUInt64 m_uiSelectedGraphId = 0;
+  WUInt32 m_uiSelectedSwapChainId = 0xFFFFFFFF;
   bool m_bHasLastPixelValue = false;
   bool m_bHasLastHistogram = false;
   bool m_bInfoValid = false;

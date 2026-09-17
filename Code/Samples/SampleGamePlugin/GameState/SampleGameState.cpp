@@ -9,32 +9,32 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <SampleGamePlugin/GameState/SampleGameState.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, WRTTIDefaultAllocator<SampleGameState>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 // BEGIN-DOCS-CODE-SNIPPET: confunc-impl
 SampleGameState::SampleGameState()
-  : m_ConFunc_Print("Print", "(string arg1): Prints 'arg1' to the log", ezMakeDelegate(&SampleGameState::ConFunc_Print, this))
+  : m_ConFunc_Print("Print", "(string arg1): Prints 'arg1' to the log", WMakeDelegate(&SampleGameState::ConFunc_Print, this))
 {
 }
 
-void SampleGameState::ConFunc_Print(ezString sText)
+void SampleGameState::ConFunc_Print(WString sText)
 {
-  ezLog::Info("Text: '{}'", sText);
+  WLog::Info("Text: '{}'", sText);
 }
 // END-DOCS-CODE-SNIPPET
 
-void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void SampleGameState::OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
-  EZ_LOG_BLOCK("GameState::Activate");
+  W_LOG_BLOCK("GameState::Activate");
 
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
 // BEGIN-DOCS-CODE-SNIPPET: imgui-alloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
-  if (ezImgui::GetSingleton() == nullptr)
+  if (WImgui::GetSingleton() == nullptr)
   {
-    EZ_DEFAULT_NEW(ezImgui);
+    W_DEFAULT_NEW(WImgui);
   }
 #endif
   // END-DOCS-CODE-SNIPPET
@@ -42,7 +42,7 @@ void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition,
 
 void SampleGameState::OnDeactivation()
 {
-  EZ_LOG_BLOCK("GameState::Deactivate");
+  W_LOG_BLOCK("GameState::Deactivate");
 
   SUPER::OnDeactivation();
 }
@@ -50,7 +50,7 @@ void SampleGameState::OnDeactivation()
 // BEGIN-DOCS-CODE-SNIPPET: cvar-1
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarBool cvar_DebugDisplay("Game.DebugDisplay", false, ezCVarFlags::Default, "Whether the game should display debug geometry.");
+WCVarBool cvar_DebugDisplay("Game.DebugDisplay", false, WCVarFlags::Default, "Whether the game should display debug geometry.");
 // END-DOCS-CODE-SNIPPET
 
 void SampleGameState::AfterWorldUpdate()
@@ -60,20 +60,20 @@ void SampleGameState::AfterWorldUpdate()
   // BEGIN-DOCS-CODE-SNIPPET: cvar-2
   if (cvar_DebugDisplay)
   {
-    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 1.0f), ezColor::Orange);
+    WDebugRenderer::DrawLineSphere(m_pMainWorld, WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 1.0f), WColor::Orange);
   }
   // END-DOCS-CODE-SNIPPET
 
-  ezDebugRenderer::Draw2DText(m_pMainWorld, "Press 'O' to spawn objects", ezVec2I32(10, 10), ezColor::White);
-  ezDebugRenderer::Draw2DText(m_pMainWorld, "Press 'P' to remove objects", ezVec2I32(10, 30), ezColor::White);
+  WDebugRenderer::Draw2DText(m_pMainWorld, "Press 'O' to spawn objects", WVec2I32(10, 10), WColor::White);
+  WDebugRenderer::Draw2DText(m_pMainWorld, "Press 'P' to remove objects", WVec2I32(10, 30), WColor::White);
 }
 
 void SampleGameState::BeforeWorldUpdate()
 {
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+  W_LOCK(m_pMainWorld->GetWriteMarker());
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
-  if (ezImgui::GetSingleton() != nullptr)
+  if (WImgui::GetSingleton() != nullptr)
   {
     static bool stats = false;
     static bool window = true;
@@ -81,10 +81,10 @@ void SampleGameState::BeforeWorldUpdate()
     static float slider = 0.5f;
 
     // BEGIN-DOCS-CODE-SNIPPET: imgui-activate
-    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+    WImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
     // END-DOCS-CODE-SNIPPET
 
-    ezImgui::GetSingleton()->SetPassInputToImgui(false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
+    WImgui::GetSingleton()->SetPassInputToImgui(false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
     // BEGIN-DOCS-CODE-SNIPPET: imgui-panel
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
@@ -110,7 +110,7 @@ void SampleGameState::BeforeWorldUpdate()
 #endif
 }
 
-void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
+void SampleGameState::ConfigureMainWindowInputDevices(WWindow* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
 
@@ -120,98 +120,98 @@ void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 // BEGIN-DOCS-CODE-SNIPPET: input-config
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
-  ezInputActionConfig cfg;
+  WInputActionConfig cfg;
   cfg.m_bApplyTimeScaling = true;
   cfg.m_sInputSlotTrigger[0] = szKey1;
   cfg.m_sInputSlotTrigger[1] = szKey2;
   cfg.m_sInputSlotTrigger[2] = szKey3;
 
-  ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
+  WInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
 
 void SampleGameState::ConfigureInputActions()
 {
   SUPER::ConfigureInputActions();
 
-  RegisterInputAction("SamplePlugin", "SpawnObject", ezInputSlot_KeyO, ezInputSlot_Controller0_ButtonA, ezInputSlot_MouseButton2);
-  RegisterInputAction("SamplePlugin", "DeleteObject", ezInputSlot_KeyP, ezInputSlot_Controller0_ButtonB);
+  RegisterInputAction("SamplePlugin", "SpawnObject", WInputSlot_KeyO, WInputSlot_Controller0_ButtonA, WInputSlot_MouseButton2);
+  RegisterInputAction("SamplePlugin", "DeleteObject", WInputSlot_KeyP, WInputSlot_Controller0_ButtonB);
 }
 // END-DOCS-CODE-SNIPPET
 
 void SampleGameState::ProcessInput()
 {
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
-  if (ezImgui::GetSingleton())
+  if (WImgui::GetSingleton())
   {
     // SampleGameState::ProcessInput() isn't necessary called each frame, if the application decides that the game-state
-    // should not get any input at the moment (this happens for instance, when the ezConsole is open)
+    // should not get any input at the moment (this happens for instance, when the WConsole is open)
     // so only enable it when the game state gets input (and reset it in BeforeWorldUpdate())
-    ezImgui::GetSingleton()->SetPassInputToImgui(true);
+    WImgui::GetSingleton()->SetPassInputToImgui(true);
 
     // if the UI wants input, do not process other game state input
-    if (ezImgui::GetSingleton()->WantsInput())
+    if (WImgui::GetSingleton()->WantsInput())
       return;
   }
 #endif
 
   SUPER::ProcessInput();
 
-  ezWorld* pWorld = m_pMainWorld;
+  WWorld* pWorld = m_pMainWorld;
 
-  if (ezInputManager::GetInputActionState("SamplePlugin", "SpawnObject") == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("SamplePlugin", "SpawnObject") == WKeyState::Pressed)
   {
-    const ezVec3 pos = GetMainCamera()->GetCenterPosition() + GetMainCamera()->GetCenterDirForwards();
+    const WVec3 pos = GetMainCamera()->GetCenterPosition() + GetMainCamera()->GetCenterDirForwards();
 
     // make sure we are allowed to modify the world
-    EZ_LOCK(pWorld->GetWriteMarker());
+    W_LOCK(pWorld->GetWriteMarker());
 
     // create a game object at the desired position
-    ezGameObjectDesc desc;
+    WGameObjectDesc desc;
     desc.m_LocalPosition = pos;
 
-    ezGameObject* pObject = nullptr;
-    ezGameObjectHandle hObject = pWorld->CreateObject(desc, pObject);
+    WGameObject* pObject = nullptr;
+    WGameObjectHandle hObject = pWorld->CreateObject(desc, pObject);
 
     m_SpawnedObjects.PushBack(hObject);
 
     // attach a mesh component to the object
     // BEGIN-DOCS-CODE-SNIPPET: create-component
-    ezMeshComponent* pMesh;
-    pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
+    WMeshComponent* pMesh;
+    pWorld->GetOrCreateComponentManager<WMeshComponentManager>()->CreateComponent(pObject, pMesh);
     // END-DOCS-CODE-SNIPPET
 
     // Set the mesh to use.
     // Here we use a path relative to the project directory.
     // We have to reference the 'transformed' file, not the source file.
     // This would break if the source asset is moved or renamed.
-    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezBinMesh");
+    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.WBinMesh");
 
     // here we use the asset GUID to reference the transformed asset
     // we can copy the GUID from the asset browser
     // the GUID is stable even if the source asset gets moved or renamed
     // using asset collections we could also give a nice name like 'Blue Material' to this asset
-    ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }");
+    WMaterialResourceHandle hMaterial = WResourceManager::LoadResource<WMaterialResource>("{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }");
 
     // override the mesh material in the first slot with something different
     pMesh->SetMaterial(0, hMaterial);
   }
 
-  if (ezInputManager::GetInputActionState("SamplePlugin", "DeleteObject") == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("SamplePlugin", "DeleteObject") == WKeyState::Pressed)
   {
     if (!m_SpawnedObjects.IsEmpty())
     {
       // make sure we are allowed to modify the world
-      EZ_LOCK(pWorld->GetWriteMarker());
+      W_LOCK(pWorld->GetWriteMarker());
 
-      ezGameObjectHandle hObject = m_SpawnedObjects.PeekBack();
+      WGameObjectHandle hObject = m_SpawnedObjects.PeekBack();
       m_SpawnedObjects.PopBack();
 
       // this is only for demonstration purposes, removing the object will delete all attached components as well
-      ezGameObject* pObject = nullptr;
+      WGameObject* pObject = nullptr;
       if (pWorld->TryGetObject(hObject, pObject))
       {
         // BEGIN-DOCS-CODE-SNIPPET: find-component
-        ezMeshComponent* pMesh = nullptr;
+        WMeshComponent* pMesh = nullptr;
         if (pObject->TryGetComponentOfBaseType(pMesh))
         {
           pMesh->DeleteComponent();

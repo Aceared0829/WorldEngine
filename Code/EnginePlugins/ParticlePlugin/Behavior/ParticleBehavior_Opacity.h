@@ -8,40 +8,40 @@
 /// Behavior that modifies particle alpha over their lifetime using a curve
 ///
 /// The curve is sampled based on the particle's normalized lifetime (0-1).
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Opacity final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Opacity final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Opacity, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Opacity, WParticleBehaviorFactory);
 
 public:
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   // ************************************* PROPERTIES ***********************************
 
-  ezEnum<ezCurveSource> m_CurveSource;
-  ezSingleCurveData m_Curve;
-  ezCurve1DResourceHandle m_hSharedCurve;
-  mutable ezCurve1D m_RuntimeCurve;
+  WEnum<WCurveSource> m_CurveSource;
+  WSingleCurveData m_Curve;
+  WCurve1DResourceHandle m_hSharedCurve;
+  mutable WCurve1D m_RuntimeCurve;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Opacity final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Opacity final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Opacity, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Opacity, WParticleBehavior);
 
 public:
-  const ezCurve1D* m_pCurve = nullptr;
+  const WCurve1D* m_pCurve = nullptr;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezUInt8 m_uiFirstToUpdate = 0;
-  ezUInt8 m_uiCurrentUpdateInterval = 2;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamColor = nullptr;
+  WUInt8 m_uiFirstToUpdate = 0;
+  WUInt8 m_uiCurrentUpdateInterval = 2;
 };

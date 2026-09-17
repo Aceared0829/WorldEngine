@@ -7,49 +7,49 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WHeadBoneComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("VerticalRotation", m_MaxVerticalRotation)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(80)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(89.0f))),
+    W_MEMBER_PROPERTY("VerticalRotation", m_MaxVerticalRotation)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(80)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(89.0f))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Animation"),
+    new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_ATTRIBUTES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetVerticalRotation, In, "Radians"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ChangeVerticalRotation, In, "Radians"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetVerticalRotation, In, "Radians"),
+    W_SCRIPT_FUNCTION_PROPERTY(ChangeVerticalRotation, In, "Radians"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHeadBoneComponent::ezHeadBoneComponent() = default;
-ezHeadBoneComponent::~ezHeadBoneComponent() = default;
+WHeadBoneComponent::WHeadBoneComponent() = default;
+WHeadBoneComponent::~WHeadBoneComponent() = default;
 
-void ezHeadBoneComponent::Update()
+void WHeadBoneComponent::Update()
 {
-  m_NewVerticalRotation = ezMath::Clamp(m_NewVerticalRotation, -m_MaxVerticalRotation, m_MaxVerticalRotation);
+  m_NewVerticalRotation = WMath::Clamp(m_NewVerticalRotation, -m_MaxVerticalRotation, m_MaxVerticalRotation);
 
-  ezQuat qOld, qNew;
-  qOld = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_CurVerticalRotation);
-  qNew = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_NewVerticalRotation);
+  WQuat qOld, qNew;
+  qOld = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), m_CurVerticalRotation);
+  qNew = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), m_NewVerticalRotation);
 
-  const ezQuat qChange = qNew * qOld.GetInverse();
+  const WQuat qChange = qNew * qOld.GetInverse();
 
-  const ezQuat qFinalNew = qChange * GetOwner()->GetLocalRotation();
+  const WQuat qFinalNew = qChange * GetOwner()->GetLocalRotation();
 
   GetOwner()->SetLocalRotation(qFinalNew);
 
   m_CurVerticalRotation = m_NewVerticalRotation;
 }
 
-void ezHeadBoneComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WHeadBoneComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -60,10 +60,10 @@ void ezHeadBoneComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_CurVerticalRotation;
 }
 
-void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WHeadBoneComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -72,15 +72,15 @@ void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_CurVerticalRotation;
 }
 
-void ezHeadBoneComponent::SetVerticalRotation(float fRadians)
+void WHeadBoneComponent::SetVerticalRotation(float fRadians)
 {
-  m_NewVerticalRotation = ezAngle::MakeFromRadian(fRadians);
+  m_NewVerticalRotation = WAngle::MakeFromRadian(fRadians);
 }
 
-void ezHeadBoneComponent::ChangeVerticalRotation(float fRadians)
+void WHeadBoneComponent::ChangeVerticalRotation(float fRadians)
 {
-  m_NewVerticalRotation += ezAngle::MakeFromRadian(fRadians);
+  m_NewVerticalRotation += WAngle::MakeFromRadian(fRadians);
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_HeadBoneComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_HeadBoneComponent);

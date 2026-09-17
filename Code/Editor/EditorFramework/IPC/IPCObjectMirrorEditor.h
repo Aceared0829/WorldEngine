@@ -8,18 +8,18 @@
 ///
 /// One instance on the editor side needs to be initialized as sender and another
 /// one on the engine side as receiver.
-class EZ_EDITORFRAMEWORK_DLL ezIPCObjectMirrorEditor : public ezDocumentObjectMirror
+class W_EDITORFRAMEWORK_DLL WIPCObjectMirrorEditor : public WDocumentObjectMirror
 {
 public:
-  ezIPCObjectMirrorEditor();
-  ~ezIPCObjectMirrorEditor();
+  WIPCObjectMirrorEditor();
+  ~WIPCObjectMirrorEditor();
 
-  void SetIPC(ezEditorEngineConnection* pIPC);
-  ezEditorEngineConnection* GetIPC();
-  virtual void ApplyOp(ezObjectChange& ref_change) override;
+  void SetIPC(WEditorEngineConnection* pIPC);
+  WEditorEngineConnection* GetIPC();
+  virtual void ApplyOp(WObjectChange& ref_change) override;
 
 private:
-  void SendOp(ezObjectChange& change);
+  void SendOp(WObjectChange& change);
 
-  ezEditorEngineConnection* m_pIPC;
+  WEditorEngineConnection* m_pIPC;
 };

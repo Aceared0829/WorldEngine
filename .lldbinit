@@ -1,4 +1,4 @@
-# ezEngine GDB initialization file
+# WorldEngine GDB initialization file
 # For automatic loading, add this line to your ~/.lldbinit file:
 # settings set target.load-cwd-lldbinit true
-command script import ./Code/Engine/Foundation/ezEngine.py
+command script import ./Code/Engine/Foundation/WorldEngine.py

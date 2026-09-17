@@ -9,26 +9,26 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezBlackboard;
+class WBlackboard;
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   class RenderInterface;
   class EventListener;
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Context
+class W_RMLUIPLUGIN_DLL WRmlUiContext final : public Rml::Context
 {
 public:
-  ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler);
-  ~ezRmlUiContext();
+  WRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler);
+  ~WRmlUiContext();
 
 public:
-  ezResult LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
-  ezResult LoadDocumentFromString(const ezStringView& sContent);
+  WResult LoadDocumentFromResource(const WRmlUiResourceHandle& hResource);
+  WResult LoadDocumentFromString(const WStringView& sContent);
 
   void UnloadDocument();
-  ezResult ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
+  WResult ReloadDocumentFromResource(const WRmlUiResourceHandle& hResource);
 
   bool HasDocument() { return GetNumDocuments() > 0; }
 
@@ -36,13 +36,13 @@ public:
   void HideDocument();
 
   /// Returns true if the input was consumed
-  bool UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input);
+  bool UpdateInput(const WVec2& vMousePos, const WRmlUiInputProvider& input);
   bool WantsInput() const { return m_bWantsInput; }
 
-  void SetSize(const ezVec2U32& vSize);
+  void SetSize(const WVec2U32& vSize);
   void SetDpiScale(float fScale);
 
-  using EventHandler = ezDelegate<void(Rml::Event&)>;
+  using EventHandler = WDelegate<void(Rml::Event&)>;
 
   /// Registers an event handler for a RmlUI event (such as 'onclick')
   ///
@@ -53,7 +53,7 @@ public:
   /// Removes a previously registered RmlUI event handler.
   void DeregisterEventHandler(const char* szIdentifier);
 
-  using FallbackEventHandler = ezDelegate<void(const ezHashedString&, Rml::Event&)>;
+  using FallbackEventHandler = WDelegate<void(const WHashedString&, Rml::Event&)>;
 
   /// Registers a fallback event handler for RmlUI events which is called when no specific event handler is registered for the event's type.
   void RegisterFallbackEventHandler(FallbackEventHandler handler);
@@ -64,22 +64,22 @@ public:
   void Update();
 
 private:
-  friend class ezRmlUi;
-  void ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture);
+  friend class WRmlUi;
+  void ExtractRenderData(WRmlUiInternal::RenderInterface& renderInterface, WGALTextureHandle hTexture);
 
-  friend class ezRmlUiInternal::EventListener;
-  void ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event);
+  friend class WRmlUiInternal::EventListener;
+  void ProcessEvent(const WHashedString& sIdentifier, Rml::Event& event);
 
-  ezHashTable<ezHashedString, EventHandler> m_EventHandler;
+  WHashTable<WHashedString, EventHandler> m_EventHandler;
   FallbackEventHandler m_FallbackEventHandler;
 
-  ezUInt64 m_uiUpdatedFrame = ezUInt64(-1);
-  ezUInt64 m_uiExtractedFrame = ezUInt64(-1);
+  WUInt64 m_uiUpdatedFrame = WUInt64(-1);
+  WUInt64 m_uiExtractedFrame = WUInt64(-1);
 
   bool m_bWantsInput = false;
 };
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   class ContextInstancer : public Rml::ContextInstancer
   {
@@ -90,4 +90,4 @@ namespace ezRmlUiInternal
   private:
     virtual void Release() override;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

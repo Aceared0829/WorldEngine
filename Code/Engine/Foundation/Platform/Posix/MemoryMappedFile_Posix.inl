@@ -7,17 +7,17 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-struct ezMemoryMappedFileImpl
+struct WMemoryMappedFileImpl
 {
-  ezMemoryMappedFile::Mode m_Mode = ezMemoryMappedFile::Mode::None;
+  WMemoryMappedFile::Mode m_Mode = WMemoryMappedFile::Mode::None;
   void* m_pMappedFilePtr = nullptr;
-  ezUInt64 m_uiFileSize = 0;
+  WUInt64 m_uiFileSize = 0;
   int m_hFile = -1;
-  ezString m_sSharedMemoryName;
+  WString m_sSharedMemoryName;
 
-  ~ezMemoryMappedFileImpl()
+  ~WMemoryMappedFileImpl()
   {
-#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
+#if W_ENABLED(W_SUPPORTS_MEMORY_MAPPED_FILE)
     if (m_pMappedFilePtr != nullptr)
     {
       munmap(m_pMappedFilePtr, m_uiFileSize);
@@ -28,7 +28,7 @@ struct ezMemoryMappedFileImpl
       close(m_hFile);
       m_hFile = -1;
     }
-#  ifdef EZ_POSIX_MMAP_SKIPUNLINK
+#  ifdef W_POSIX_MMAP_SKIPUNLINK
     // shm_open / shm_unlink deprecated.
     // There is an alternative in ASharedMemory_create but that is only
     // available in API 26 upwards.
@@ -44,25 +44,25 @@ struct ezMemoryMappedFileImpl
   }
 };
 
-ezMemoryMappedFile::ezMemoryMappedFile()
+WMemoryMappedFile::WMemoryMappedFile()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = W_DEFAULT_NEW(WMemoryMappedFileImpl);
 }
 
-ezMemoryMappedFile::~ezMemoryMappedFile()
+WMemoryMappedFile::~WMemoryMappedFile()
 {
   Close();
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
-ezResult ezMemoryMappedFile::Open(ezStringView sAbsolutePath, Mode mode)
+#if W_ENABLED(W_SUPPORTS_MEMORY_MAPPED_FILE)
+WResult WMemoryMappedFile::Open(WStringView sAbsolutePath, Mode mode)
 {
-  EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
-  EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(sAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
+  W_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
+  W_ASSERT_DEV(WPathUtils::IsAbsolutePath(sAbsolutePath), "WMemoryMappedFile::Open() can only be used with absolute file paths");
 
-  EZ_LOG_BLOCK("MemoryMapFile", sAbsolutePath);
+  W_LOG_BLOCK("MemoryMapFile", sAbsolutePath);
 
-  const ezStringBuilder sPath = sAbsolutePath;
+  const WStringBuilder sPath = sAbsolutePath;
 
   Close();
 
@@ -78,47 +78,47 @@ ezResult ezMemoryMappedFile::Open(ezStringView sAbsolutePath, Mode mode)
     flags = MAP_SHARED;
   }
 
-#  ifdef EZ_POSIX_MMAP_MAP_POPULATE
+#  ifdef W_POSIX_MMAP_MAP_POPULATE
   flags |= MAP_POPULATE;
 #  endif
 
   m_pImpl->m_hFile = open(sPath, access | O_CLOEXEC, 0);
   if (m_pImpl->m_hFile == -1)
   {
-    ezLog::Error("Could not open file for memory mapping - {}", strerror(errno));
+    WLog::Error("Could not open file for memory mapping - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   struct stat sb;
   if (stat(sPath, &sb) == -1 || sb.st_size == 0)
   {
-    ezLog::Error("File for memory mapping is empty - {}", strerror(errno));
+    WLog::Error("File for memory mapping is empty - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   m_pImpl->m_uiFileSize = sb.st_size;
 
   m_pImpl->m_pMappedFilePtr = mmap(nullptr, m_pImpl->m_uiFileSize, prot, flags, m_pImpl->m_hFile, 0);
   if (m_pImpl->m_pMappedFilePtr == nullptr)
   {
-    ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
+    WLog::Error("Could not create memory mapping of file - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 #endif
 
-#if EZ_ENABLED(EZ_SUPPORTS_SHARED_MEMORY)
-ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSize, Mode mode)
+#if W_ENABLED(W_SUPPORTS_SHARED_MEMORY)
+WResult WMemoryMappedFile::OpenShared(WStringView sSharedName, WUInt64 uiSize, Mode mode)
 {
-  EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
-  EZ_ASSERT_DEV(uiSize > 0, "ezMemoryMappedFile::OpenShared() needs a valid file size to map");
+  W_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
+  W_ASSERT_DEV(uiSize > 0, "WMemoryMappedFile::OpenShared() needs a valid file size to map");
 
-  const ezStringBuilder sName = sSharedName;
+  const WStringBuilder sName = sSharedName;
 
-  EZ_LOG_BLOCK("MemoryMapFile", sName);
+  W_LOG_BLOCK("MemoryMapFile", sName);
 
   Close();
 
@@ -128,7 +128,7 @@ ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSiz
   int oflag = O_RDONLY;
   int flags = MAP_SHARED;
 
-#  ifdef EZ_POSIX_MMAP_MAP_POPULATE
+#  ifdef W_POSIX_MMAP_MAP_POPULATE
   flags |= MAP_POPULATE;
 #  endif
 
@@ -142,72 +142,72 @@ ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSiz
   m_pImpl->m_hFile = shm_open(sName, oflag, 0666);
   if (m_pImpl->m_hFile == -1)
   {
-    ezLog::Error("Could not open shared memory mapping - {}", strerror(errno));
+    WLog::Error("Could not open shared memory mapping - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   m_pImpl->m_sSharedMemoryName = sName;
 
   if (ftruncate(m_pImpl->m_hFile, uiSize) == -1)
   {
-    ezLog::Error("Could not open shared memory mapping - {}", strerror(errno));
+    WLog::Error("Could not open shared memory mapping - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   m_pImpl->m_uiFileSize = uiSize;
 
   m_pImpl->m_pMappedFilePtr = mmap(nullptr, m_pImpl->m_uiFileSize, prot, flags, m_pImpl->m_hFile, 0);
   if (m_pImpl->m_pMappedFilePtr == nullptr)
   {
-    ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
+    WLog::Error("Could not create memory mapping of file - {}", strerror(errno));
     Close();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 #endif
 
-void ezMemoryMappedFile::Close()
+void WMemoryMappedFile::Close()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = W_DEFAULT_NEW(WMemoryMappedFileImpl);
 }
 
-ezMemoryMappedFile::Mode ezMemoryMappedFile::GetMode() const
+WMemoryMappedFile::Mode WMemoryMappedFile::GetMode() const
 {
   return m_pImpl->m_Mode;
 }
 
-const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
+const void* WMemoryMappedFile::GetReadPointer(WUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
 {
-  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
-  EZ_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+  W_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
+  W_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
+    return WMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
+    return WMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
   }
 }
 
-void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
+void* WMemoryMappedFile::GetWritePointer(WUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
 {
-  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
-  EZ_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+  W_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
+  W_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
+    return WMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
+    return WMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
   }
 }
 
-ezUInt64 ezMemoryMappedFile::GetFileSize() const
+WUInt64 WMemoryMappedFile::GetFileSize() const
 {
   return m_pImpl->m_uiFileSize;
 }

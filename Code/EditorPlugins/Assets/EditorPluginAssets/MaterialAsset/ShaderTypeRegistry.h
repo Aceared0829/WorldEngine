@@ -7,39 +7,39 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Timestamp.h>
 
-struct ezPhantomRttiManagerEvent;
-struct ezPluginEvent;
+struct WPhantomRttiManagerEvent;
+struct WPluginEvent;
 
-class ezShaderTypeRegistry
+class WShaderTypeRegistry
 {
-  EZ_DECLARE_SINGLETON(ezShaderTypeRegistry);
+  W_DECLARE_SINGLETON(WShaderTypeRegistry);
 
 public:
-  ezShaderTypeRegistry();
-  ~ezShaderTypeRegistry();
+  WShaderTypeRegistry();
+  ~WShaderTypeRegistry();
 
-  const ezRTTI* GetShaderType(ezStringView sShaderPath);
-  const ezRTTI* GetShaderBaseType() const { return m_pBaseType; }
+  const WRTTI* GetShaderType(WStringView sShaderPath);
+  const WRTTI* GetShaderBaseType() const { return m_pBaseType; }
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, ShaderTypeRegistry);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, ShaderTypeRegistry);
 
   struct ShaderData
   {
     ShaderData() = default;
 
-    ezString m_sShaderPath;
-    ezString m_sAbsShaderPath;
-    ezTimestamp m_fileModifiedTime;
-    const ezRTTI* m_pType = nullptr;
+    WString m_sShaderPath;
+    WString m_sAbsShaderPath;
+    WTimestamp m_fileModifiedTime;
+    const WRTTI* m_pType = nullptr;
   };
   void UpdateShaderType(ShaderData& data);
 
   void RegisterBaseType();
-  void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
+  void PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e);
 
-  void PluginEventHandler(const ezPluginEvent& e);
+  void PluginEventHandler(const WPluginEvent& e);
 
-  ezMap<ezString, ShaderData> m_ShaderTypes;
-  const ezRTTI* m_pBaseType = nullptr;
+  WMap<WString, ShaderData> m_ShaderTypes;
+  const WRTTI* m_pBaseType = nullptr;
 };

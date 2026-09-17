@@ -7,17 +7,17 @@
 
 namespace
 {
-  static ezStaticArray<ezDynamicArray<ezComponentHandle>*, 64> s_GlobalEventHandlerPerWorld;
+  static WStaticArray<WDynamicArray<WComponentHandle>*, 64> s_GlobalEventHandlerPerWorld;
 
-  static void RegisterGlobalEventHandler(ezComponent* pComponent)
+  static void RegisterGlobalEventHandler(WComponent* pComponent)
   {
-    const ezUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
+    const WUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
     s_GlobalEventHandlerPerWorld.EnsureCount(uiWorldIndex + 1);
 
     auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex];
     if (globalEventHandler == nullptr)
     {
-      globalEventHandler = EZ_NEW(ezStaticsAllocatorWrapper::GetAllocator(), ezDynamicArray<ezComponentHandle>);
+      globalEventHandler = W_NEW(WStaticsAllocatorWrapper::GetAllocator(), WDynamicArray<WComponentHandle>);
 
       s_GlobalEventHandlerPerWorld[uiWorldIndex] = globalEventHandler;
     }
@@ -25,11 +25,11 @@ namespace
     globalEventHandler->PushBack(pComponent->GetHandle());
   }
 
-  static void DeregisterGlobalEventHandler(ezComponent* pComponent)
+  static void DeregisterGlobalEventHandler(WComponent* pComponent)
   {
-    ezUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
+    WUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
     auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex];
-    EZ_ASSERT_DEV(globalEventHandler != nullptr, "Implementation error.");
+    W_ASSERT_DEV(globalEventHandler != nullptr, "Implementation error.");
 
     globalEventHandler->RemoveAndSwap(pComponent->GetHandle());
   }
@@ -38,22 +38,22 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 3)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WEventMessageHandlerComponent, 3)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetGlobalEventHandlerMode, SetGlobalEventHandlerMode),
-    EZ_ACCESSOR_PROPERTY("PassThroughUnhandledEvents", GetPassThroughUnhandledEvents, SetPassThroughUnhandledEvents),
+    W_ACCESSOR_PROPERTY("HandleGlobalEvents", GetGlobalEventHandlerMode, SetGlobalEventHandlerMode),
+    W_ACCESSOR_PROPERTY("PassThroughUnhandledEvents", GetPassThroughUnhandledEvents, SetPassThroughUnhandledEvents),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezEventMessageHandlerComponent::ezEventMessageHandlerComponent() = default;
-ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() = default;
+WEventMessageHandlerComponent::WEventMessageHandlerComponent() = default;
+WEventMessageHandlerComponent::~WEventMessageHandlerComponent() = default;
 
-void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WEventMessageHandlerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -65,10 +65,10 @@ void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& inout_str
   s << m_bPassThroughUnhandledEvents;
 }
 
-void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WEventMessageHandlerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   if (uiVersion >= 2)
@@ -85,24 +85,24 @@ void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& inout_s
   }
 }
 
-void ezEventMessageHandlerComponent::Deinitialize()
+void WEventMessageHandlerComponent::Deinitialize()
 {
   SetGlobalEventHandlerMode(false);
 
   SUPER::Deinitialize();
 }
 
-void ezEventMessageHandlerComponent::SetDebugOutput(bool bEnable)
+void WEventMessageHandlerComponent::SetDebugOutput(bool bEnable)
 {
   m_bDebugOutput = bEnable;
 }
 
-bool ezEventMessageHandlerComponent::GetDebugOutput() const
+bool WEventMessageHandlerComponent::GetDebugOutput() const
 {
   return m_bDebugOutput;
 }
 
-void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool bEnable)
+void WEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool bEnable)
 {
   if (m_bIsGlobalEventHandler == bEnable)
     return;
@@ -119,15 +119,15 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool bEnable)
   }
 }
 
-void ezEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
+void WEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
 {
   m_bPassThroughUnhandledEvents = bPassThrough;
 }
 
 // static
-ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventHandler(const ezWorld* pWorld)
+WArrayPtr<WComponentHandle> WEventMessageHandlerComponent::GetAllGlobalEventHandler(const WWorld* pWorld)
 {
-  ezUInt32 uiWorldIndex = pWorld->GetIndex();
+  WUInt32 uiWorldIndex = pWorld->GetIndex();
 
   if (uiWorldIndex < s_GlobalEventHandlerPerWorld.GetCount())
   {
@@ -137,13 +137,13 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
     }
   }
 
-  return ezArrayPtr<ezComponentHandle>();
+  return WArrayPtr<WComponentHandle>();
 }
 
 
-void ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(const ezWorld* pWorld)
+void WEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(const WWorld* pWorld)
 {
-  ezUInt32 uiWorldIndex = pWorld->GetIndex();
+  WUInt32 uiWorldIndex = pWorld->GetIndex();
 
   if (uiWorldIndex < s_GlobalEventHandlerPerWorld.GetCount())
   {
@@ -151,4 +151,4 @@ void ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(const ezWo
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
+W_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);

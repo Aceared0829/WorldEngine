@@ -8,35 +8,35 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic);
+W_BEGIN_COMPONENT_TYPE(WJointAttachmentComponent, 1, WComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
-    EZ_MEMBER_PROPERTY("PositionOffset", m_vLocalPositionOffset),
-    EZ_MEMBER_PROPERTY("RotationOffset", m_vLocalRotationOffset),
+    W_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
+    W_MEMBER_PROPERTY("PositionOffset", m_vLocalPositionOffset),
+    W_MEMBER_PROPERTY("RotationOffset", m_vLocalRotationOffset),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated)
+    W_MESSAGE_HANDLER(WMsgAnimationPoseUpdated, OnAnimationPoseUpdated)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezJointAttachmentComponent::ezJointAttachmentComponent() = default;
-ezJointAttachmentComponent::~ezJointAttachmentComponent() = default;
+WJointAttachmentComponent::WJointAttachmentComponent() = default;
+WJointAttachmentComponent::~WJointAttachmentComponent() = default;
 
-void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJointAttachmentComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -46,48 +46,48 @@ void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_vLocalRotationOffset;
 }
 
-void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJointAttachmentComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sJointToAttachTo;
   s >> m_vLocalPositionOffset;
   s >> m_vLocalRotationOffset;
 
-  m_uiJointIndex = ezInvalidJointIndex;
+  m_uiJointIndex = WInvalidJointIndex;
 }
 
-void ezJointAttachmentComponent::SetJointName(const char* szName)
+void WJointAttachmentComponent::SetJointName(const char* szName)
 {
   m_sJointToAttachTo.Assign(szName);
-  m_uiJointIndex = ezInvalidJointIndex;
+  m_uiJointIndex = WInvalidJointIndex;
 }
 
-const char* ezJointAttachmentComponent::GetJointName() const
+const char* WJointAttachmentComponent::GetJointName() const
 {
   return m_sJointToAttachTo.GetData();
 }
 
-void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+void WJointAttachmentComponent::OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg)
 {
-  if (m_uiJointIndex == ezInvalidJointIndex)
+  if (m_uiJointIndex == WInvalidJointIndex)
   {
     m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToAttachTo);
   }
 
-  if (m_uiJointIndex == ezInvalidJointIndex)
+  if (m_uiJointIndex == WInvalidJointIndex)
     return;
 
-  ezMat4 bone;
-  ezQuat boneRot;
+  WMat4 bone;
+  WQuat boneRot;
 
   msg.ComputeFullBoneTransform(m_uiJointIndex, bone, boneRot);
 
-  ezGameObject* pOwner = GetOwner();
+  WGameObject* pOwner = GetOwner();
   pOwner->SetLocalPosition(bone.GetTranslationVector() + bone.TransformDirection(m_vLocalPositionOffset));
   pOwner->SetLocalRotation(boneRot * m_vLocalRotationOffset);
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);

@@ -13,74 +13,74 @@
 #include <Jolt/Math/Vec3.h>
 #include <Jolt/Math/Vec4.h>
 
-EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
+W_DEFINE_AS_POD_TYPE(JPH::Vec3);
 
-namespace ezJoltConversionUtils
+namespace WJoltConversionUtils
 {
-  EZ_ALWAYS_INLINE ezVec3 ToVec3(const JPH::Vec3& v)
+  W_ALWAYS_INLINE WVec3 ToVec3(const JPH::Vec3& v)
   {
-    return ezVec3(v.mF32[0], v.mF32[1], v.mF32[2]);
+    return WVec3(v.mF32[0], v.mF32[1], v.mF32[2]);
   }
 
-  EZ_ALWAYS_INLINE ezVec3 ToVec3(const JPH::Float3& v)
+  W_ALWAYS_INLINE WVec3 ToVec3(const JPH::Float3& v)
   {
-    return reinterpret_cast<const ezVec3&>(v);
+    return reinterpret_cast<const WVec3&>(v);
   }
 
-  EZ_ALWAYS_INLINE ezColor ToColor(const JPH::ColorArg& c)
+  W_ALWAYS_INLINE WColor ToColor(const JPH::ColorArg& c)
   {
     const JPH::Vec4 v4 = c.ToVec4();
-    return reinterpret_cast<const ezColor&>(v4);
+    return reinterpret_cast<const WColor&>(v4);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToSimdVec3(const JPH::Vec3& v)
+  W_ALWAYS_INLINE WSimdVec4f ToSimdVec3(const JPH::Vec3& v)
   {
-    return ezSimdVec4f(v.mF32[0], v.mF32[1], v.mF32[2], v.mF32[3]);
+    return WSimdVec4f(v.mF32[0], v.mF32[1], v.mF32[2], v.mF32[3]);
   }
 
-  EZ_ALWAYS_INLINE JPH::Vec3 ToVec3(const ezVec3& v)
+  W_ALWAYS_INLINE JPH::Vec3 ToVec3(const WVec3& v)
   {
     return JPH::Vec3(v.x, v.y, v.z);
   }
 
-  EZ_ALWAYS_INLINE JPH::Float3 ToFloat3(const ezVec3& v)
+  W_ALWAYS_INLINE JPH::Float3 ToFloat3(const WVec3& v)
   {
     return reinterpret_cast<const JPH::Float3&>(v);
   }
 
-  EZ_ALWAYS_INLINE JPH::Vec3 ToVec3(const ezSimdVec4f& v)
+  W_ALWAYS_INLINE JPH::Vec3 ToVec3(const WSimdVec4f& v)
   {
     return reinterpret_cast<const JPH::Vec3&>(v);
   }
 
-  EZ_ALWAYS_INLINE ezQuat ToQuat(const JPH::Quat& q)
+  W_ALWAYS_INLINE WQuat ToQuat(const JPH::Quat& q)
   {
-    return reinterpret_cast<const ezQuat&>(q);
+    return reinterpret_cast<const WQuat&>(q);
   }
 
-  EZ_ALWAYS_INLINE ezSimdQuat ToSimdQuat(const JPH::Quat& q)
+  W_ALWAYS_INLINE WSimdQuat ToSimdQuat(const JPH::Quat& q)
   {
-    return reinterpret_cast<const ezSimdQuat&>(q);
+    return reinterpret_cast<const WSimdQuat&>(q);
   }
 
-  EZ_ALWAYS_INLINE JPH::Quat ToQuat(const ezQuat& q)
+  W_ALWAYS_INLINE JPH::Quat ToQuat(const WQuat& q)
   {
     return JPH::Quat(q.x, q.y, q.z, q.w);
   }
 
-  EZ_ALWAYS_INLINE JPH::Quat ToQuat(const ezSimdQuat& q)
+  W_ALWAYS_INLINE JPH::Quat ToQuat(const WSimdQuat& q)
   {
     return reinterpret_cast<const JPH::Quat&>(q);
   }
 
-  EZ_ALWAYS_INLINE ezTransform ToTransform(const JPH::Vec3& pos, const JPH::Quat& rot)
+  W_ALWAYS_INLINE WTransform ToTransform(const JPH::Vec3& pos, const JPH::Quat& rot)
   {
-    return ezTransform(ToVec3(pos), ToQuat(rot));
+    return WTransform(ToVec3(pos), ToQuat(rot));
   }
 
-  EZ_ALWAYS_INLINE ezTransform ToTransform(const JPH::Vec3& pos)
+  W_ALWAYS_INLINE WTransform ToTransform(const JPH::Vec3& pos)
   {
-    return ezTransform(ToVec3(pos));
+    return WTransform(ToVec3(pos));
   }
 
-} // namespace ezJoltConversionUtils
+} // namespace WJoltConversionUtils

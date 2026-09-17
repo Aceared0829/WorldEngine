@@ -7,15 +7,15 @@
 #include <Inspector/ui_FileWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtFileWidget : public ads::CDockWidget, public Ui_FileWidget
+class WQtFileWidget : public ads::CDockWidget, public Ui_FileWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
-  ~ezQtFileWidget();
-  static ezQtFileWidget* s_pWidget;
+  WQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  ~WQtFileWidget();
+  static WQtFileWidget* s_pWidget;
 
 private Q_SLOTS:
 
@@ -58,12 +58,12 @@ private:
 
   struct FileOpData
   {
-    ezString m_sFile;
+    WString m_sFile;
     FileOpState m_State;
-    ezTime m_StartTime;
-    ezTime m_BlockedDuration;
-    ezUInt64 m_uiBytesAccessed;
-    ezUInt8 m_uiThreadTypes; // 1 = Main, 2 = Task: Loading, 4 = Other
+    WTime m_StartTime;
+    WTime m_BlockedDuration;
+    WUInt64 m_uiBytesAccessed;
+    WUInt8 m_uiThreadTypes; // 1 = Main, 2 = Task: Loading, 4 = Other
 
     FileOpData()
     {
@@ -75,8 +75,8 @@ private:
 
   QTableWidgetItem* GetStateString(FileOpState State) const;
 
-  ezInt32 m_iMaxID;
-  ezTime m_LastTableUpdate;
+  WInt32 m_iMaxID;
+  WTime m_LastTableUpdate;
   bool m_bUpdateTable;
-  ezHashTable<ezUInt32, FileOpData> m_FileOps;
+  WHashTable<WUInt32, FileOpData> m_FileOps;
 };

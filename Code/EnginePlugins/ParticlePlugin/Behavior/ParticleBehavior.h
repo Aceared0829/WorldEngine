@@ -5,37 +5,37 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezProcessingStream;
-class ezParticleSystemInstance;
-class ezParticleBehavior;
+class WProcessingStream;
+class WParticleSystemInstance;
+class WParticleBehavior;
 
 /// Base class for all particle behaviors
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory, WReflectedClass);
 
 public:
-  virtual const ezRTTI* GetBehaviorType() const = 0;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const = 0;
+  virtual const WRTTI* GetBehaviorType() const = 0;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const = 0;
 
-  ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const;
+  WParticleBehavior* CreateBehavior(WParticleSystemInstance* pOwner) const;
 
-  virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
+  virtual void Save(WStreamWriter& inout_stream) const = 0;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const {}
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule
+class W_PARTICLEPLUGIN_DLL WParticleBehavior : public WParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezParticleModule);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior, WParticleModule);
 
-  friend class ezParticleSystemInstance;
+  friend class WParticleSystemInstance;
 
 protected:
-  ezParticleBehavior();
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-  virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
+  WParticleBehavior();
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
+  virtual void StepParticleSystem(const WTime& tDiff, WUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
 
-  ezTime m_TimeDiff;
+  WTime m_TimeDiff;
 };

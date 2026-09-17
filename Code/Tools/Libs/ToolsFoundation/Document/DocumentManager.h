@@ -4,59 +4,59 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentManager : public ezReflectedClass
+class W_TOOLSFOUNDATION_DLL WDocumentManager : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManager, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentManager, WReflectedClass);
 
 public:
-  virtual ~ezDocumentManager() = default;
+  virtual ~WDocumentManager() = default;
 
-  static const ezHybridArray<ezDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
+  static const WHybridArray<WDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
-  static ezResult FindDocumentTypeFromPath(ezStringView sPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc);
+  static WResult FindDocumentTypeFromPath(WStringView sPath, bool bForCreation, const WDocumentTypeDescriptor*& out_pTypeDesc);
 
-  ezStatus CanOpenDocument(ezStringView sFilePath) const;
+  WStatus CanOpenDocument(WStringView sFilePath) const;
 
   /// Creates a new document.
-  /// \param szDocumentTypeName Document type to create. See ezDocumentTypeDescriptor.
+  /// \param szDocumentTypeName Document type to create. See WDocumentTypeDescriptor.
   /// \param szPath Absolute path to the document to be created.
-  /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
+  /// \param out_pDocument Out parameter for the resulting WDocument. Will be nullptr on failure.
   /// \param flags Flags to define various options like whether a window should be created.
   /// \param pOpenContext An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
   /// \return Returns the error in case the operations failed.
-  ezStatus CreateDocument(
-    ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
+  WStatus CreateDocument(
+    WStringView sDocumentTypeName, WStringView sPath, WDocument*& out_pDocument, WBitflags<WDocumentFlags> flags = WDocumentFlags::None, const WDocumentObject* pOpenContext = nullptr);
 
   /// Opens an existing document.
-  /// \param szDocumentTypeName Document type to open. See ezDocumentTypeDescriptor.
+  /// \param szDocumentTypeName Document type to open. See WDocumentTypeDescriptor.
   /// \param szPath Absolute path to the document to be opened.
-  /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
+  /// \param out_pDocument Out parameter for the resulting WDocument. Will be nullptr on failure.
   /// \param flags Flags to define various options like whether a window should be created.
   /// \param pOpenContext  An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
   /// \return Returns the error in case the operations failed.
   /// \return Returns the error in case the operations failed.
-  ezStatus OpenDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
-    ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow,
-    const ezDocumentObject* pOpenContext = nullptr);
-  virtual ezStatus CloneDocument(ezStringView sPath, ezStringView sClonePath, ezUuid& inout_cloneGuid);
-  void CloseDocument(ezDocument* pDocument);
-  void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
+  WStatus OpenDocument(WStringView sDocumentTypeName, WStringView sPath, WDocument*& out_pDocument,
+    WBitflags<WDocumentFlags> flags = WDocumentFlags::AddToRecentFilesList | WDocumentFlags::RequestWindow,
+    const WDocumentObject* pOpenContext = nullptr);
+  virtual WStatus CloneDocument(WStringView sPath, WStringView sClonePath, WUuid& inout_cloneGuid);
+  void CloseDocument(WDocument* pDocument);
+  void EnsureWindowRequested(WDocument* pDocument, const WDocumentObject* pOpenContext = nullptr);
 
   /// Returns a list of all currently open documents that are managed by this document manager
-  const ezDynamicArray<ezDocument*>& GetAllOpenDocuments() const { return m_AllOpenDocuments; }
+  const WDynamicArray<WDocument*>& GetAllOpenDocuments() const { return m_AllOpenDocuments; }
 
-  ezDocument* GetDocumentByPath(ezStringView sPath) const;
+  WDocument* GetDocumentByPath(WStringView sPath) const;
 
-  static ezDocument* GetDocumentByGuid(const ezUuid& guid);
+  static WDocument* GetDocumentByGuid(const WUuid& guid);
 
   /// If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed.
-  static bool EnsureDocumentIsClosedInAllManagers(ezStringView sPath);
+  static bool EnsureDocumentIsClosedInAllManagers(WStringView sPath);
 
   /// If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed. This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to
   /// close documents of any type.
-  bool EnsureDocumentIsClosed(ezStringView sPath);
+  bool EnsureDocumentIsClosed(WStringView sPath);
 
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();
@@ -79,8 +79,8 @@ public:
     };
 
     Type m_Type;
-    ezDocument* m_pDocument = nullptr;
-    const ezDocumentObject* m_pOpenContext = nullptr;
+    WDocument* m_pDocument = nullptr;
+    const WDocumentObject* m_pOpenContext = nullptr;
   };
 
   struct Request
@@ -91,45 +91,45 @@ public:
     };
 
     Type m_Type;
-    ezString m_sDocumentType;
-    ezString m_sDocumentPath;
-    ezStatus m_RequestStatus = EZ_SUCCESS;
+    WString m_sDocumentType;
+    WString m_sDocumentPath;
+    WStatus m_RequestStatus = W_SUCCESS;
   };
 
-  static ezCopyOnBroadcastEvent<const Event&> s_Events;
-  static ezEvent<Request&> s_Requests;
+  static WCopyOnBroadcastEvent<const Event&> s_Events;
+  static WEvent<Request&> s_Requests;
 
-  static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(ezStringView sDocumentType);
-  static const ezMap<ezString, const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
+  static const WDocumentTypeDescriptor* GetDescriptorForDocumentType(WStringView sDocumentType);
+  static const WMap<WString, const WDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
-  void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const;
+  void GetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_documentTypes) const;
 
-  using CustomAction = ezVariant (*)(const ezDocument*);
-  static ezMap<ezString, CustomAction> s_CustomActions;
+  using CustomAction = WVariant (*)(const WDocument*);
+  static WMap<WString, CustomAction> s_CustomActions;
 
 protected:
-  virtual void InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes);
+  virtual void InternalCloneDocument(WStringView sPath, WStringView sClonePath, const WUuid& documentId, const WUuid& seedGuid, const WUuid& cloneGuid, WAbstractObjectGraph* pHeader, WAbstractObjectGraph* pObjects, WAbstractObjectGraph* pTypes);
 
 private:
-  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) = 0;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
+  virtual void InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) = 0;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
-  ezStatus CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
-    ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
+  WStatus CreateOrOpenDocument(bool bCreate, WStringView sDocumentTypeName, WStringView sPath, WDocument*& out_pDocument,
+    WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext = nullptr);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
 
-  static void OnPluginEvent(const ezPluginEvent& e);
+  static void OnPluginEvent(const WPluginEvent& e);
 
-  static void UpdateBeforeUnloadingPlugins(const ezPluginEvent& e);
+  static void UpdateBeforeUnloadingPlugins(const WPluginEvent& e);
   static void UpdatedAfterLoadingPlugins();
 
-  ezDynamicArray<ezDocument*> m_AllOpenDocuments;
+  WDynamicArray<WDocument*> m_AllOpenDocuments;
 
-  static ezSet<const ezRTTI*> s_KnownManagers;
-  static ezHybridArray<ezDocumentManager*, 16> s_AllDocumentManagers;
+  static WSet<const WRTTI*> s_KnownManagers;
+  static WHybridArray<WDocumentManager*, 16> s_AllDocumentManagers;
 
-  static ezMap<ezString, const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
+  static WMap<WString, const WDocumentTypeDescriptor*> s_AllDocumentDescriptors;
 };

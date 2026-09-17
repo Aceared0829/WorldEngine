@@ -18,20 +18,20 @@
 
 #include <Foundation/Math/Declarations.h>
 
-using ezMathTestType = float;
+using WMathTestType = float;
 
-using ezVec2T = ezVec2Template<ezMathTestType>;                           ///< This is only for testing purposes
-using ezVec3T = ezVec3Template<ezMathTestType>;                           ///< This is only for testing purposes
-using ezVec4T = ezVec4Template<ezMathTestType>;                           ///< This is only for testing purposes
-using ezMat3T = ezMat3Template<ezMathTestType>;                           ///< This is only for testing purposes
-using ezMat4T = ezMat4Template<ezMathTestType>;                           ///< This is only for testing purposes
-using ezQuatT = ezQuatTemplate<ezMathTestType>;                           ///< This is only for testing purposes
-using ezAngleT = ezAngleTemplate<ezMathTestType>;                         ///< This is only for testing purposes
-using ezPlaneT = ezPlaneTemplate<ezMathTestType>;                         ///< This is only for testing purposes
-using ezBoundingBoxT = ezBoundingBoxTemplate<ezMathTestType>;             ///< This is only for testing purposes
-using ezBoundingBoxSphereT = ezBoundingBoxSphereTemplate<ezMathTestType>; ///< This is only for testing purposes
-using ezBoundingSphereT = ezBoundingSphereTemplate<ezMathTestType>;       ///< This is only for testing purposes
-using ezTransformT = ezTransformTemplate<ezMathTestType>;
+using WVec2T = WVec2Template<WMathTestType>;                           ///< This is only for testing purposes
+using WVec3T = WVec3Template<WMathTestType>;                           ///< This is only for testing purposes
+using WVec4T = WVec4Template<WMathTestType>;                           ///< This is only for testing purposes
+using WMat3T = WMat3Template<WMathTestType>;                           ///< This is only for testing purposes
+using WMat4T = WMat4Template<WMathTestType>;                           ///< This is only for testing purposes
+using WQuatT = WQuatTemplate<WMathTestType>;                           ///< This is only for testing purposes
+using WAngleT = WAngleTemplate<WMathTestType>;                         ///< This is only for testing purposes
+using WPlaneT = WPlaneTemplate<WMathTestType>;                         ///< This is only for testing purposes
+using WBoundingBoxT = WBoundingBoxTemplate<WMathTestType>;             ///< This is only for testing purposes
+using WBoundingBoxSphereT = WBoundingBoxSphereTemplate<WMathTestType>; ///< This is only for testing purposes
+using WBoundingSphereT = WBoundingSphereTemplate<WMathTestType>;       ///< This is only for testing purposes
+using WTransformT = WTransformTemplate<WMathTestType>;
 
-#define ezFoundationTest_Plugin1 "ezFoundationTest_Plugin1"
-#define ezFoundationTest_Plugin2 "ezFoundationTest_Plugin2"
+#define WFoundationTest_Plugin1 "WFoundationTest_Plugin1"
+#define WFoundationTest_Plugin2 "WFoundationTest_Plugin2"

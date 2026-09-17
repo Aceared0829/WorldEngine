@@ -4,66 +4,66 @@
 
 /// Helper base class to iterate over the bit indices or bit values of an integer.
 /// \tparam DataType The type of data that is being iterated over.
-/// \tparam ReturnsIndex If set, returns the index of the bit. Otherwise returns the value of the bit, i.e. EZ_BIT(value).
+/// \tparam ReturnsIndex If set, returns the index of the bit. Otherwise returns the value of the bit, i.e. W_BIT(value).
 /// \tparam ReturnType Returned value type of the iterator.
-/// \sa ezIterateBitValues, ezIterateBitIndices
+/// \sa WIterateBitValues, WIterateBitIndices
 template <typename DataType, bool ReturnsIndex, typename ReturnType = DataType>
-struct ezIterateBits
+struct WIterateBits
 {
-  explicit ezIterateBits(DataType data)
+  explicit WIterateBits(DataType data)
   {
     m_Data = data;
   }
 
-  ezBitIterator<DataType, ReturnsIndex, ReturnType> begin() const
+  WBitIterator<DataType, ReturnsIndex, ReturnType> begin() const
   {
-    return ezBitIterator<DataType, ReturnsIndex, ReturnType>(m_Data);
+    return WBitIterator<DataType, ReturnsIndex, ReturnType>(m_Data);
   };
 
-  ezBitIterator<DataType, ReturnsIndex, ReturnType> end() const
+  WBitIterator<DataType, ReturnsIndex, ReturnType> end() const
   {
-    return ezBitIterator<DataType, ReturnsIndex, ReturnType>();
+    return WBitIterator<DataType, ReturnsIndex, ReturnType>();
   };
 
   DataType m_Data = {};
 };
 
 /// Helper class to iterate over the bit values of an integer.
-/// The class can iterate over the bits of any unsigned integer type that is equal to or smaller than ezUInt64.
+/// The class can iterate over the bits of any unsigned integer type that is equal to or smaller than WUInt64.
 /// \code{.cpp}
-///    ezUInt64 bits = 0b1101;
-///    for (auto bit : ezIterateBitValues(bits))
+///    WUInt64 bits = 0b1101;
+///    for (auto bit : WIterateBitValues(bits))
 ///    {
-///      ezLog::Info("{}", bit); // Outputs 1, 4, 8
+///      WLog::Info("{}", bit); // Outputs 1, 4, 8
 ///    }
 /// \endcode
 /// \tparam DataType The type of data that is being iterated over.
 /// \tparam ReturnType Returned value type of the iterator. Defaults to same as DataType.
 template <typename DataType, typename ReturnType = DataType>
-struct ezIterateBitValues : public ezIterateBits<DataType, false, ReturnType>
+struct WIterateBitValues : public WIterateBits<DataType, false, ReturnType>
 {
-  explicit ezIterateBitValues(DataType data)
-    : ezIterateBits<DataType, false, ReturnType>(data)
+  explicit WIterateBitValues(DataType data)
+    : WIterateBits<DataType, false, ReturnType>(data)
   {
   }
 };
 
 /// Helper class to iterate over the bit indices of an integer.
-/// The class can iterate over the bits of any unsigned integer type that is equal to or smaller than ezUInt64.
+/// The class can iterate over the bits of any unsigned integer type that is equal to or smaller than WUInt64.
 /// \code{.cpp}
-///    ezUInt64 bits = 0b1101;
-///    for (auto bit : ezIterateBitIndices(bits))
+///    WUInt64 bits = 0b1101;
+///    for (auto bit : WIterateBitIndices(bits))
 ///    {
-///      ezLog::Info("{}", bit); // Outputs 0, 2, 3
+///      WLog::Info("{}", bit); // Outputs 0, 2, 3
 ///    }
 /// \endcode
 /// \tparam DataType The type of data that is being iterated over.
 /// \tparam ReturnType Returned value type of the iterator. Defaults to same as DataType.
 template <typename DataType, typename ReturnType = DataType>
-struct ezIterateBitIndices : public ezIterateBits<DataType, true, ReturnType>
+struct WIterateBitIndices : public WIterateBits<DataType, true, ReturnType>
 {
-  explicit ezIterateBitIndices(DataType data)
-    : ezIterateBits<DataType, true, ReturnType>(data)
+  explicit WIterateBitIndices(DataType data)
+    : WIterateBits<DataType, true, ReturnType>(data)
   {
   }
 };

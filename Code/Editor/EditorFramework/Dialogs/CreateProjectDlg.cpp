@@ -6,17 +6,17 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateProjectDlg::WQtCreateProjectDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
   Prev->setVisible(false);
 
-  m_sTargetFolder = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder().GetData();
+  m_sTargetFolder = WApplicationServices::GetSingleton()->GetSampleProjectsFolder().GetData();
 
-  ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
-  m_LocalPluginSet = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+  WQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(WOSFile::GetApplicationDirectory());
+  m_LocalPluginSet = WQtEditorApp::GetSingleton()->GetPluginBundles();
   m_LocalPluginSet.SetFromTemplate("General3D");
 
   Plugins->SetPluginSet(&m_LocalPluginSet);
@@ -31,25 +31,25 @@ ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
   FillProjectTemplatesList();
 }
 
-ezString ezQtCreateProjectDlg::GetFullTargetPath() const
+WString WQtCreateProjectDlg::GetFullTargetPath() const
 {
-  ezStringBuilder name = m_sTargetName;
+  WStringBuilder name = m_sTargetName;
 
   name.Trim();
 
   if (name.IsEmpty())
     return {};
 
-  ezStringBuilder path;
+  WStringBuilder path;
   path.SetPath(m_sTargetFolder, m_sTargetName);
 
   return path;
 }
 
-void ezQtCreateProjectDlg::UpdateUI()
+void WQtCreateProjectDlg::UpdateUI()
 {
-  ezQtScopedBlockSignals _1(ProjectFolder);
-  ezQtScopedBlockSignals _2(ProjectName);
+  WQtScopedBlockSignals _1(ProjectFolder);
+  WQtScopedBlockSignals _2(ProjectName);
 
   ProjectFolder->setText(m_sTargetFolder.GetData());
 
@@ -57,21 +57,21 @@ void ezQtCreateProjectDlg::UpdateUI()
     ChosenTemplate->setText("<none>");
   else
   {
-    ezStringBuilder tmp = m_sProjectTemplate;
+    WStringBuilder tmp = m_sProjectTemplate;
     tmp.PathParentDirectory();
     tmp.TrimRight("/\\");
 
-    ChosenTemplate->setText(ezMakeQString(tmp.GetFileName()));
+    ChosenTemplate->setText(WMakeQString(tmp.GetFileName()));
   }
 
-  ezString sFullPath = GetFullTargetPath();
+  WString sFullPath = GetFullTargetPath();
 
   if (sFullPath.IsEmpty() || !sFullPath.IsAbsolutePath())
   {
     ResultPath->setText("<Choose a name and parent folder>");
     Next->setEnabled(false);
   }
-  else if (ezOSFile::ExistsDirectory(sFullPath))
+  else if (WOSFile::ExistsDirectory(sFullPath))
   {
     // ResultPath->setColor(qRgb(255, 0, 0));
     ResultPath->setText("Directory already exists");
@@ -116,16 +116,16 @@ void ezQtCreateProjectDlg::UpdateUI()
   }
 }
 
-void ezQtCreateProjectDlg::FillProjectTemplatesList()
+void WQtCreateProjectDlg::FillProjectTemplatesList()
 {
-  ezDynamicArray<ezString> templateNames;
-  ezProjectCreation::FindProjectTemplates(templateNames);
+  WDynamicArray<WString> templateNames;
+  WProjectCreation::FindProjectTemplates(templateNames);
 
-  ezTempHybridArray<ezString, 32> templates;
-  for (const ezString& sName : templateNames)
+  WTempHybridArray<WString, 32> templates;
+  for (const WString& sName : templateNames)
   {
-    ezStringBuilder sProjectFile;
-    if (ezProjectCreation::FindProjectTemplate(sName, sProjectFile).Succeeded())
+    WStringBuilder sProjectFile;
+    if (WProjectCreation::FindProjectTemplate(sName, sProjectFile).Succeeded())
     {
       templates.PushBack(sProjectFile);
     }
@@ -133,14 +133,14 @@ void ezQtCreateProjectDlg::FillProjectTemplatesList()
 
   ProjectTemplates->clear();
 
-  ezStringBuilder tmp, iconPath;
+  WStringBuilder tmp, iconPath;
 
-  ezStringBuilder samplesIcon = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  WStringBuilder samplesIcon = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
   samplesIcon.AppendPath("ProjectTemplates/Thumbnail.jpg");
 
   QIcon fallbackIcon;
 
-  if (ezOSFile::ExistsFile(samplesIcon))
+  if (WOSFile::ExistsFile(samplesIcon))
   {
     fallbackIcon.addFile(samplesIcon.GetData());
   }
@@ -159,18 +159,18 @@ void ezQtCreateProjectDlg::FillProjectTemplatesList()
     pItem->setSelected(true);
   }
 
-  for (const ezString& path : templates)
+  for (const WString& path : templates)
   {
     tmp = path;
-    const bool bIsLocal = tmp.TrimWordEnd("/ezProject");
-    // const bool bIsRemote = tmp.TrimWordEnd("/ezRemoteProject");
+    const bool bIsLocal = tmp.TrimWordEnd("/WProject");
+    // const bool bIsRemote = tmp.TrimWordEnd("/WRemoteProject");
 
     QIcon projectIcon;
 
     iconPath = tmp;
     iconPath.AppendPath("Thumbnail.jpg");
 
-    if (ezOSFile::ExistsFile(iconPath))
+    if (WOSFile::ExistsFile(iconPath))
     {
       projectIcon.addFile(iconPath.GetData());
     }
@@ -188,7 +188,7 @@ void ezQtCreateProjectDlg::FillProjectTemplatesList()
   }
 }
 
-void ezQtCreateProjectDlg::on_BrowseFolder_clicked()
+void WQtCreateProjectDlg::on_BrowseFolder_clicked()
 {
   QString sFile = QFileDialog::getExistingDirectory(QApplication::activeWindow(), "Choose Folder", m_sTargetFolder.GetData(), QFileDialog::Option::DontResolveSymlinks);
 
@@ -200,14 +200,14 @@ void ezQtCreateProjectDlg::on_BrowseFolder_clicked()
   UpdateUI();
 }
 
-void ezQtCreateProjectDlg::on_ProjectName_textChanged(QString text)
+void WQtCreateProjectDlg::on_ProjectName_textChanged(QString text)
 {
   m_sTargetName = ProjectName->text().toUtf8().data();
 
   UpdateUI();
 }
 
-void ezQtCreateProjectDlg::on_Prev_clicked()
+void WQtCreateProjectDlg::on_Prev_clicked()
 {
   switch (m_State)
   {
@@ -233,7 +233,7 @@ void ezQtCreateProjectDlg::on_Prev_clicked()
   UpdateUI();
 }
 
-void ezQtCreateProjectDlg::on_Next_clicked()
+void WQtCreateProjectDlg::on_Next_clicked()
 {
   switch (m_State)
   {
@@ -273,11 +273,11 @@ void ezQtCreateProjectDlg::on_Next_clicked()
 
   if (m_State == State::Create)
   {
-    const ezStatus res = CreateProject();
+    const WStatus res = CreateProject();
 
     if (res.Failed())
     {
-      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the project failed.");
+      WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the project failed.");
 
       // back to the summary page, so that the user can change the name or folder and try again
       m_State = State::Summary;
@@ -289,23 +289,23 @@ void ezQtCreateProjectDlg::on_Next_clicked()
   }
 }
 
-ezStatus ezQtCreateProjectDlg::CreateProject()
+WStatus WQtCreateProjectDlg::CreateProject()
 {
-  ezProjectCreationOptions options;
+  WProjectCreationOptions options;
   options.m_sTargetDirectory = GetFullTargetPath();
 
   if (m_sProjectTemplate.IsEmpty())
   {
     // the plugin page wrote its state into m_LocalPluginSet, so pass that on as it is rather than
     // letting the creation apply a plugin template again
-    return ezProjectCreation::CreateProject(options, m_LocalPluginSet);
+    return WProjectCreation::CreateProject(options, m_LocalPluginSet);
   }
 
-  // m_sProjectTemplate is the path of the template's 'ezProject' file, the creation takes the name
-  ezStringBuilder sTemplateName = m_sProjectTemplate;
+  // m_sProjectTemplate is the path of the template's 'WProject' file, the creation takes the name
+  WStringBuilder sTemplateName = m_sProjectTemplate;
   sTemplateName.PathParentDirectory();
   sTemplateName.TrimRight("/\\");
   options.m_sProjectTemplate = sTemplateName.GetFileName();
 
-  return ezProjectCreation::CreateProject(options, m_LocalPluginSet);
+  return WProjectCreation::CreateProject(options, m_LocalPluginSet);
 }

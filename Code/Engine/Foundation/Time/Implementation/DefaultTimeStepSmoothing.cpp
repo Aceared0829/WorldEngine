@@ -2,21 +2,21 @@
 
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
-ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
+WDefaultTimeStepSmoothing::WDefaultTimeStepSmoothing()
 {
   m_fLerpFactor = 0.2f;
 }
 
-void ezDefaultTimeStepSmoothing::Reset(const ezClock* pClock)
+void WDefaultTimeStepSmoothing::Reset(const WClock* pClock)
 {
-  EZ_IGNORE_UNUSED(pClock);
+  W_IGNORE_UNUSED(pClock);
 
   m_LastTimeSteps.Clear();
 }
 
-ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock)
+WTime WDefaultTimeStepSmoothing::GetSmoothedTimeStep(WTime rawTimeStep, const WClock* pClock)
 {
-  rawTimeStep = ezMath::Clamp(rawTimeStep * pClock->GetSpeed(), pClock->GetMinimumTimeStep(), pClock->GetMaximumTimeStep());
+  rawTimeStep = WMath::Clamp(rawTimeStep * pClock->GetSpeed(), pClock->GetMinimumTimeStep(), pClock->GetMaximumTimeStep());
 
   if (m_LastTimeSteps.GetCount() < 10)
   {
@@ -30,20 +30,20 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const
 
   m_LastTimeSteps.PushBack(rawTimeStep);
 
-  ezStaticArray<ezTime, 11> Sorted;
+  WStaticArray<WTime, 11> Sorted;
   Sorted.SetCountUninitialized(m_LastTimeSteps.GetCount());
 
-  for (ezUInt32 i = 0; i < m_LastTimeSteps.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_LastTimeSteps.GetCount(); ++i)
     Sorted[i] = m_LastTimeSteps[i];
 
   Sorted.Sort();
 
-  ezUInt32 uiFirstSample = 2;
-  ezUInt32 uiLastSample = 8;
+  WUInt32 uiFirstSample = 2;
+  WUInt32 uiLastSample = 8;
 
-  ezTime tAvg;
+  WTime tAvg;
 
-  for (ezUInt32 i = uiFirstSample; i <= uiLastSample; ++i)
+  for (WUInt32 i = uiFirstSample; i <= uiLastSample; ++i)
   {
     tAvg = tAvg + Sorted[i];
   }
@@ -51,7 +51,7 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const
   tAvg = tAvg / (double)((uiLastSample - uiFirstSample) + 1.0);
 
 
-  m_LastTimeStepTaken = ezMath::Lerp(m_LastTimeStepTaken, tAvg, m_fLerpFactor);
+  m_LastTimeStepTaken = WMath::Lerp(m_LastTimeStepTaken, tAvg, m_fLerpFactor);
 
   return m_LastTimeStepTaken;
 }

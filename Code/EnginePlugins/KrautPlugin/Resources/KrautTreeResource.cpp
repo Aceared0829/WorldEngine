@@ -12,54 +12,54 @@
 #endif
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WKrautTreeResource, 1, WRTTIDefaultAllocator<WKrautTreeResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezKrautTreeResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WKrautTreeResource);
 // clang-format on
 
-ezKrautTreeResource::ezKrautTreeResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WKrautTreeResource::WKrautTreeResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
-  m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  m_Details.m_Bounds = WBoundingBoxSphere::MakeInvalid();
 }
 
-ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WKrautTreeResource::UnloadData(Unload WhatToUnload)
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
 
-  m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  m_Details.m_Bounds = WBoundingBoxSphere::MakeInvalid();
   m_Materials.Clear();
   m_TreeLODs.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WKrautTreeResource::UpdateContent(WStreamReader* Stream)
 {
   // Tree meshes are generated at runtime; there is no stream-based loading path.
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = (Stream == nullptr) ? ezResourceState::LoadedResourceMissing : ezResourceState::Loaded;
+  res.m_State = (Stream == nullptr) ? WResourceState::LoadedResourceMissing : WResourceState::Loaded;
   return res;
 }
 
-void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   // TODO
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WKrautTreeResource, WKrautTreeResourceDescriptor)
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
 
   m_TreeLODs.Clear();
   m_Details = descriptor.m_Details;
@@ -67,11 +67,11 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
   // Create skeleton slots: distance/type info only, no mesh data yet.
   // Meshes are generated on demand via SetLodMesh().
-  for (ezUInt32 lodIdx = 0; lodIdx < descriptor.m_Lods.GetCount(); ++lodIdx)
+  for (WUInt32 lodIdx = 0; lodIdx < descriptor.m_Lods.GetCount(); ++lodIdx)
   {
     const auto& lodSrc = descriptor.m_Lods[lodIdx];
 
-    if (lodSrc.m_LodType != ezKrautLodType::Mesh)
+    if (lodSrc.m_LodType != WKrautLodType::Mesh)
       break;
 
     auto& lodDst = m_TreeLODs.ExpandAndGetRef();
@@ -79,34 +79,34 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     lodDst.m_fMinLodDistance = lodSrc.m_fMinLodDistance;
     lodDst.m_fMaxLodDistance = lodSrc.m_fMaxLodDistance;
     lodDst.m_uiNumBones = lodSrc.m_uiNumBones;
-    lodDst.m_State = ezKrautLodState::NotGenerated;
+    lodDst.m_State = WKrautLodState::NotGenerated;
   }
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-void ezKrautTreeResource::SetDetails(const ezKrautTreeResourceDetails& details, ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials)
+void WKrautTreeResource::SetDetails(const WKrautTreeResourceDetails& details, WArrayPtr<const WKrautTreeResourceDescriptor::MaterialData> materials)
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
   m_Details = details;
   m_Materials = materials;
 }
 
-void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResourceDescriptor::LodData& lodSrc, ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials)
+void WKrautTreeResource::SetLodMesh(WUInt32 uiLodIndex, const WKrautTreeResourceDescriptor::LodData& lodSrc, WArrayPtr<const WKrautTreeResourceDescriptor::MaterialData> materials)
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
 
   if (uiLodIndex >= m_TreeLODs.GetCount())
     return;
 
   auto& lodDst = m_TreeLODs[uiLodIndex];
 
-  if (lodDst.m_State == ezKrautLodState::Ready)
+  if (lodDst.m_State == WKrautLodState::Ready)
     return; // already set
 
   lodDst.m_Materials = materials;
@@ -120,16 +120,16 @@ void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResou
   {
     if (subMesh.m_uiMaterialIndex < materials.GetCount())
     {
-      const ezUInt32 uiTris = subMesh.m_uiNumTriangles;
+      const WUInt32 uiTris = subMesh.m_uiNumTriangles;
       switch (materials[subMesh.m_uiMaterialIndex].m_MaterialType)
       {
-        case ezKrautMaterialType::Branch:
+        case WKrautMaterialType::Branch:
           lodDst.m_uiNumTrianglesBranch += uiTris;
           break;
-        case ezKrautMaterialType::Frond:
+        case WKrautMaterialType::Frond:
           lodDst.m_uiNumTrianglesFrond += uiTris;
           break;
-        case ezKrautMaterialType::Leaf:
+        case WKrautMaterialType::Leaf:
           lodDst.m_uiNumTrianglesLeaf += uiTris;
           break;
         default:
@@ -138,48 +138,48 @@ void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResou
     }
   }
 
-  const ezUInt32 uiNumVertices = lodSrc.m_Vertices.GetCount();
-  const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
-  const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
+  const WUInt32 uiNumVertices = lodSrc.m_Vertices.GetCount();
+  const WUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
+  const WUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
-  ezMeshResourceDescriptor md;
+  WMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
 
   buffer.AddCommonStreams();
-  buffer.AddStream(ezMeshVertexStreamType::TexCoord1);
+  buffer.AddStream(WMeshVertexStreamType::TexCoord1);
 
   const bool bFullPrecision = true;
-  buffer.AddStream(ezMeshVertexStreamType::Color0, bFullPrecision);
-  buffer.AddStream(ezMeshVertexStreamType::Color1, bFullPrecision);
-  buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+  buffer.AddStream(WMeshVertexStreamType::Color0, bFullPrecision);
+  buffer.AddStream(WMeshVertexStreamType::Color1, bFullPrecision);
+  buffer.AllocateStreams(uiNumVertices, WGALPrimitiveTopology::Triangles, uiNumTriangles);
 
-  for (ezUInt32 v = 0; v < uiNumVertices; ++v)
+  for (WUInt32 v = 0; v < uiNumVertices; ++v)
   {
     const auto& vtx = lodSrc.m_Vertices[v];
 
     buffer.SetPosition(v, vtx.m_vPosition);
-    buffer.SetTexCoord0(v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
-    buffer.SetTexCoord1(v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
+    buffer.SetTexCoord0(v, WVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
+    buffer.SetTexCoord1(v, WVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
     buffer.SetNormal(v, vtx.m_vNormal);
     buffer.SetTangent(v, vtx.m_vTangent.GetAsVec4(1.0f));
 
-    ezColor color;
+    WColor color;
     color.r = vtx.m_fBendAndFlutterStrength;
     color.g = (float)vtx.m_uiBranchLevel;
-    color.b = ezMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
-    color.a = ezMath::ColorByteToFloat(vtx.m_uiColorVariation);
+    color.b = WMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
+    color.a = WMath::ColorByteToFloat(vtx.m_uiColorVariation);
 
     buffer.SetColor0(v, color);
-    buffer.SetColor1(v, ezColor(vtx.m_vBendAnchor.x, vtx.m_vBendAnchor.y, vtx.m_vBendAnchor.z, vtx.m_fAnchorBendStrength));
+    buffer.SetColor1(v, WColor(vtx.m_vBendAnchor.x, vtx.m_vBendAnchor.y, vtx.m_vBendAnchor.z, vtx.m_fAnchorBendStrength));
   }
 
-  for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
+  for (WUInt32 t = 0; t < uiNumTriangles; ++t)
   {
     const auto& tri = lodSrc.m_Triangles[t];
     buffer.SetTriangleIndices(t, tri.m_uiVertexIndex[0], tri.m_uiVertexIndex[1], tri.m_uiVertexIndex[2]);
   }
 
-  for (ezUInt32 sm = 0; sm < uiSubMeshes; ++sm)
+  for (WUInt32 sm = 0; sm < uiSubMeshes; ++sm)
   {
     const auto& subMesh = lodSrc.m_SubMeshes[sm];
     md.AddSubMesh(subMesh.m_uiNumTriangles, subMesh.m_uiFirstTriangle, subMesh.m_uiMaterialIndex);
@@ -187,12 +187,12 @@ void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResou
 
   md.ComputeBounds();
 
-  for (ezUInt32 mat = 0; mat < materials.GetCount(); ++mat)
+  for (WUInt32 mat = 0; mat < materials.GetCount(); ++mat)
   {
     md.SetMaterial(mat, materials[mat].m_sMaterial);
   }
 
-  ezStringBuilder sResName, sResDesc;
+  WStringBuilder sResName, sResDesc;
   sResName.SetFormat("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), uiLodIndex);
 
   if (GetResourceDescription().IsEmpty())
@@ -200,59 +200,59 @@ void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResou
   else
     sResDesc.SetFormat("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), uiLodIndex);
 
-  lodDst.m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResName);
+  lodDst.m_hMesh = WResourceManager::GetExistingResource<WMeshResource>(sResName);
 
   if (!lodDst.m_hMesh.IsValid())
-    lodDst.m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
+    lodDst.m_hMesh = WResourceManager::GetOrCreateResource<WMeshResource>(sResName, std::move(md), sResDesc);
 
-  lodDst.m_State = ezKrautLodState::Ready;
+  lodDst.m_State = WKrautLodState::Ready;
 }
 
-void ezKrautTreeResource::SetLodState(ezUInt32 uiLodIndex, ezKrautLodState state)
+void WKrautTreeResource::SetLodState(WUInt32 uiLodIndex, WKrautLodState state)
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
 
   if (uiLodIndex < m_TreeLODs.GetCount())
     m_TreeLODs[uiLodIndex].m_State = state;
 }
 
-ezKrautLodState ezKrautTreeResource::GetLodState(ezUInt32 uiLodIndex) const
+WKrautLodState WKrautTreeResource::GetLodState(WUInt32 uiLodIndex) const
 {
-  EZ_LOCK(m_LodMutex);
+  W_LOCK(m_LodMutex);
 
   if (uiLodIndex < m_TreeLODs.GetCount())
     return m_TreeLODs[uiLodIndex].m_State;
 
-  return ezKrautLodState::NotGenerated;
+  return WKrautLodState::NotGenerated;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
+void WKrautTreeResourceDescriptor::Save(WStreamWriter& inout_stream0) const
 {
-  ezUInt8 uiVersion = 17;
+  WUInt8 uiVersion = 17;
 
   inout_stream0 << uiVersion;
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd stream(&inout_stream0, 0, ezCompressedStreamWriterZstd::Compression::Average);
+  WCompressedStreamWriterZstd stream(&inout_stream0, 0, WCompressedStreamWriterZstd::Compression::Average);
 #else
-  ezStreamWriter& stream = stream0;
+  WStreamWriter& stream = stream0;
 #endif
 
   inout_stream0 << uiCompressionMode;
 
-  const ezUInt8 uiNumLods = static_cast<ezUInt8>(m_Lods.GetCount());
+  const WUInt8 uiNumLods = static_cast<WUInt8>(m_Lods.GetCount());
   stream << uiNumLods;
 
-  for (ezUInt8 lodIdx = 0; lodIdx < uiNumLods; ++lodIdx)
+  for (WUInt8 lodIdx = 0; lodIdx < uiNumLods; ++lodIdx)
   {
     const auto& lod = m_Lods[lodIdx];
 
-    stream << static_cast<ezUInt8>(lod.m_LodType);
+    stream << static_cast<WUInt8>(lod.m_LodType);
     stream << lod.m_fMinLodDistance;
     stream << lod.m_fMaxLodDistance;
     stream << lod.m_Vertices.GetCount();
@@ -291,13 +291,13 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
     stream << lod.m_uiNumBones;
   }
 
-  const ezUInt8 uiNumMats = static_cast<ezUInt8>(m_Materials.GetCount());
+  const WUInt8 uiNumMats = static_cast<WUInt8>(m_Materials.GetCount());
   stream << uiNumMats;
 
   for (const auto& mat : m_Materials)
   {
-    stream << static_cast<ezUInt8>(mat.m_MaterialType);
-    stream << static_cast<ezUInt8>(mat.m_BranchType);
+    stream << static_cast<WUInt8>(mat.m_MaterialType);
+    stream << static_cast<WUInt8>(mat.m_BranchType);
     stream << mat.m_sMaterial;
     stream << mat.m_VariationColor;
   }
@@ -310,32 +310,32 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   stream.FinishCompressedStream().IgnoreResult();
 
-  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+  WLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", WArgF((float)stream.GetUncompressedSize() / 1024.0f, 1), WArgF((float)stream.GetCompressedSize() / 1024.0f, 1), WArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
 }
 
-ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
+WResult WKrautTreeResourceDescriptor::Load(WStreamReader& inout_stream0)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream0 >> uiVersion;
 
   if (uiVersion < 15)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (uiVersion > 17)
   {
-    ezLog::Error("Unsupported Kraut tree resource version {0}. Maximum supported version is 17.", uiVersion);
-    return EZ_FAILURE;
+    WLog::Error("Unsupported Kraut tree resource version {0}. Maximum supported version is 17.", uiVersion);
+    return W_FAILURE;
   }
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
   inout_stream0 >> uiCompressionMode;
 
-  ezStreamReader* pCompressor = &inout_stream0;
+  WStreamReader* pCompressor = &inout_stream0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd;
+  WCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -349,31 +349,31 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
       pCompressor = &decompressorZstd;
       break;
 #else
-      ezLog::Error("Kraut tree is compressed with zstandard, but support for this compressor is not compiled in.");
-      return EZ_FAILURE;
+      WLog::Error("Kraut tree is compressed with zstandard, but support for this compressor is not compiled in.");
+      return W_FAILURE;
 #endif
 
     default:
-      ezLog::Error("Kraut tree is compressed with an unknown algorithm.");
-      return EZ_FAILURE;
+      WLog::Error("Kraut tree is compressed with an unknown algorithm.");
+      return W_FAILURE;
   }
 
-  ezStreamReader& stream = *pCompressor;
+  WStreamReader& stream = *pCompressor;
 
-  ezUInt8 uiNumLods = 0;
+  WUInt8 uiNumLods = 0;
   stream >> uiNumLods;
 
-  for (ezUInt8 lodIdx = 0; lodIdx < uiNumLods; ++lodIdx)
+  for (WUInt8 lodIdx = 0; lodIdx < uiNumLods; ++lodIdx)
   {
     auto& lod = m_Lods.ExpandAndGetRef();
 
-    ezUInt8 lodType;
+    WUInt8 lodType;
     stream >> lodType;
-    lod.m_LodType = static_cast<ezKrautLodType>(lodType);
+    lod.m_LodType = static_cast<WKrautLodType>(lodType);
     stream >> lod.m_fMinLodDistance;
     stream >> lod.m_fMaxLodDistance;
 
-    ezUInt32 numVertices, numTriangles, numSubMeshes;
+    WUInt32 numVertices, numTriangles, numSubMeshes;
 
     stream >> numVertices;
     stream >> numTriangles;
@@ -418,22 +418,22 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
     }
   }
 
-  ezUInt8 uiNumMats = 0;
+  WUInt8 uiNumMats = 0;
 
   stream >> uiNumMats;
   m_Materials.SetCount(uiNumMats);
 
   for (auto& mat : m_Materials)
   {
-    ezUInt8 matType = 0;
+    WUInt8 matType = 0;
     stream >> matType;
-    mat.m_MaterialType = static_cast<ezKrautMaterialType>(matType);
+    mat.m_MaterialType = static_cast<WKrautMaterialType>(matType);
 
     if (uiVersion >= 16)
     {
-      ezUInt8 branchType = 0;
+      WUInt8 branchType = 0;
       stream >> branchType;
-      mat.m_BranchType = static_cast<ezKrautBranchType>(branchType);
+      mat.m_BranchType = static_cast<WKrautBranchType>(branchType);
     }
 
     if (uiVersion >= 14)
@@ -442,7 +442,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
     }
     else
     {
-      ezStringBuilder tmp;
+      WStringBuilder tmp;
       stream >> tmp;
       stream >> tmp;
     }
@@ -459,14 +459,14 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
   {
     stream >> uiNumMats;
 
-    for (ezUInt32 i = 0; i < uiNumMats; ++i)
+    for (WUInt32 i = 0; i < uiNumMats; ++i)
     {
       stream >> m_Materials[i].m_sMaterial;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautTreeResource);
+W_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautTreeResource);

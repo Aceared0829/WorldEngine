@@ -5,29 +5,29 @@
 #include <RendererCore/Pipeline/SortingFunctions.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderSortingFunctions, 1)
-  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByRenderDataThenFrontToBack, ezRenderSortingFunctions::BackToFrontThenByRenderData)
-  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByDepthOffsetOnly, ezRenderSortingFunctions::BySortingKeyOnly)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRenderSortingFunctions, 1)
+  W_ENUM_CONSTANTS(WRenderSortingFunctions::ByRenderDataThenFrontToBack, WRenderSortingFunctions::BackToFrontThenByRenderData)
+  W_ENUM_CONSTANTS(WRenderSortingFunctions::ByDepthOffsetOnly, WRenderSortingFunctions::BySortingKeyOnly)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 namespace
 {
-  EZ_ALWAYS_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
+  W_ALWAYS_INLINE WUInt32 CalculateTypeHash(const WRenderData* pRenderData)
   {
-    ezUInt32 uiTypeHash = ezHashingUtils::StringHashTo32(pRenderData->GetDynamicRTTI()->GetTypeNameHash());
+    WUInt32 uiTypeHash = WHashingUtils::StringHashTo32(pRenderData->GetDynamicRTTI()->GetTypeNameHash());
     return (uiTypeHash >> 16) ^ (uiTypeHash & 0xFFFF);
   }
 
-  template <ezUInt32 Bits>
-  EZ_ALWAYS_INLINE ezUInt64 NormalizeDistance(float fDistance, float fMaxDistance)
+  template <WUInt32 Bits>
+  W_ALWAYS_INLINE WUInt64 NormalizeDistance(float fDistance, float fMaxDistance)
   {
-    const float fNormalizedDistance = ezMath::Saturate(fDistance / fMaxDistance);
-    return static_cast<ezUInt64>(fNormalizedDistance * static_cast<float>(EZ_BIT(Bits) - 1));
+    const float fNormalizedDistance = WMath::Saturate(fDistance / fMaxDistance);
+    return static_cast<WUInt64>(fNormalizedDistance * static_cast<float>(W_BIT(Bits) - 1));
   }
 
-  template <ezUInt32 Bits>
-  EZ_FORCE_INLINE ezUInt64 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
+  template <WUInt32 Bits>
+  W_FORCE_INLINE WUInt64 CalculateDistance(const WRenderData* pRenderData, const WCamera& camera)
   {
     ///\todo far-plane is not enough to normalize distance
     const float fDistance = (camera.GetPosition() - pRenderData->m_vGlobalPosition).GetLength() + pRenderData->m_fSortingDepthOffset;
@@ -36,45 +36,45 @@ namespace
 } // namespace
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc(const ezRenderData* pRenderData, const ezCamera& camera)
+WUInt64 WRenderSortingFunctions::ByRenderDataThenFrontToBackFunc(const WRenderData* pRenderData, const WCamera& camera)
 {
-  const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
-  const ezUInt64 uiDistance = CalculateDistance<16>(pRenderData, camera);
+  const WUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
+  const WUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
+  const WUInt64 uiDistance = CalculateDistance<16>(pRenderData, camera);
 
-  const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;
+  const WUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;
   return uiSortingKey;
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc(const ezRenderData* pRenderData, const ezCamera& camera)
+WUInt64 WRenderSortingFunctions::BackToFrontThenByRenderDataFunc(const WRenderData* pRenderData, const WCamera& camera)
 {
-  const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
-  const ezUInt64 uiInvDistance = 0xFFFF - CalculateDistance<16>(pRenderData, camera);
+  const WUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
+  const WUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
+  const WUInt64 uiInvDistance = 0xFFFF - CalculateDistance<16>(pRenderData, camera);
 
-  const ezUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiRenderDataSortingKey64;
+  const WUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiRenderDataSortingKey64;
   return uiSortingKey;
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByDepthOffsetOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera)
+WUInt64 WRenderSortingFunctions::ByDepthOffsetOnlyFunc(const WRenderData* pRenderData, const WCamera& camera)
 {
   const float fMidDistance = camera.GetFarPlane() * 0.5f;
   const float fDistance = fMidDistance + pRenderData->m_fSortingDepthOffset;
-  const ezUInt64 uiInvDistance = 0xFFFFFFFF - NormalizeDistance<32>(fDistance, camera.GetFarPlane());
+  const WUInt64 uiInvDistance = 0xFFFFFFFF - NormalizeDistance<32>(fDistance, camera.GetFarPlane());
 
   return uiInvDistance;
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::BySortingKeyOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera)
+WUInt64 WRenderSortingFunctions::BySortingKeyOnlyFunc(const WRenderData* pRenderData, const WCamera& camera)
 {
   return pRenderData->m_uiSortingKey;
 }
 
 // static
-ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortingFunction)
+WRenderSortingFunctions::Func WRenderSortingFunctions::GetFunction(Enum sortingFunction)
 {
   switch (sortingFunction)
   {
@@ -87,11 +87,11 @@ ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortin
     case BySortingKeyOnly:
       return &BySortingKeyOnlyFunc;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return nullptr;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);

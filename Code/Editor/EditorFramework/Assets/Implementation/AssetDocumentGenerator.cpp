@@ -6,24 +6,24 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetDocumentGenerator, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocumentGenerator::ezAssetDocumentGenerator() = default;
+WAssetDocumentGenerator::WAssetDocumentGenerator() = default;
 
-ezAssetDocumentGenerator::~ezAssetDocumentGenerator() = default;
+WAssetDocumentGenerator::~WAssetDocumentGenerator() = default;
 
-void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
+void WAssetDocumentGenerator::AddSupportedFileType(WStringView sExtension)
 {
-  ezStringBuilder tmp = sExtension;
+  WStringBuilder tmp = sExtension;
   tmp.ToLower();
 
   m_SupportedFileTypes.PushBack(tmp);
 }
 
-bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
+bool WAssetDocumentGenerator::SupportsFileType(WStringView sFile) const
 {
-  ezStringBuilder tmp = ezPathUtils::GetFileExtension(sFile);
+  WStringBuilder tmp = WPathUtils::GetFileExtension(sFile);
 
   if (tmp.IsEmpty())
     tmp = sFile;
@@ -33,7 +33,7 @@ bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
   return m_SupportedFileTypes.Contains(tmp);
 }
 
-void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const
+void WAssetDocumentGenerator::BuildFileDialogFilterString(WStringBuilder& out_sFilter) const
 {
   bool semicolon = false;
   out_sFilter.SetFormat("{0} (", GetDocumentExtension());
@@ -41,11 +41,11 @@ void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_
   out_sFilter.Append(")");
 }
 
-void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const
+void WAssetDocumentGenerator::AppendFileFilterStrings(WStringBuilder& out_sFilter, bool& ref_bSemicolon) const
 {
-  for (const ezString& ext : m_SupportedFileTypes)
+  for (const WString& ext : m_SupportedFileTypes)
   {
-    ezStringBuilder extWithStarDot;
+    WStringBuilder extWithStarDot;
     extWithStarDot.AppendFormat("*.{0}", ext);
 
     if (const char* pos = out_sFilter.FindSubString(extWithStarDot.GetData()))
@@ -68,37 +68,37 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
   }
 }
 
-void ezAssetDocumentGenerator::CreateGenerators(ezDynamicArray<ezAssetDocumentGenerator*>& out_generators)
+void WAssetDocumentGenerator::CreateGenerators(WDynamicArray<WAssetDocumentGenerator*>& out_generators)
 {
-  ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WAssetDocumentGenerator>(
+    [&](const WRTTI* pRtti)
     {
-      out_generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
+      out_generators.PushBack(pRtti->GetAllocator()->Allocate<WAssetDocumentGenerator>());
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // sort by name
-  out_generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool
+  out_generators.Sort([](WAssetDocumentGenerator* lhs, WAssetDocumentGenerator* rhs) -> bool
     { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
-void ezAssetDocumentGenerator::DestroyGenerators(const ezDynamicArray<ezAssetDocumentGenerator*>& generators)
+void WAssetDocumentGenerator::DestroyGenerators(const WDynamicArray<WAssetDocumentGenerator*>& generators)
 {
-  for (ezAssetDocumentGenerator* pGen : generators)
+  for (WAssetDocumentGenerator* pGen : generators)
   {
     pGen->GetDynamicRTTI()->GetAllocator()->Deallocate(pGen);
   }
 }
 
-void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& filesToImport)
+void WAssetDocumentGenerator::ImportAssets(const WDynamicArray<WString>& filesToImport)
 {
-  ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Increment();
-  EZ_SCOPE_EXIT(ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Decrement());
+  WAssetProcessor::GetSingleton()->m_iPauseProcessing.Increment();
+  W_SCOPE_EXIT(WAssetProcessor::GetSingleton()->m_iPauseProcessing.Decrement());
 
-  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  WTempHybridArray<WAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
 
-  ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions> allImports;
+  WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions> allImports;
   allImports.Reserve(filesToImport.GetCount());
 
   CreateImportOptionList(filesToImport, allImports, generators);
@@ -107,22 +107,22 @@ void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& file
 
   if (!allImports.IsEmpty())
   {
-    ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
+    WQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
     dlg.exec();
   }
 
   DestroyGenerators(generators);
 }
 
-void ezAssetDocumentGenerator::GetSupportsFileTypes(ezSet<ezString>& out_extensions)
+void WAssetDocumentGenerator::GetSupportsFileTypes(WSet<WString>& out_extensions)
 {
   out_extensions.Clear();
 
-  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  WTempHybridArray<WAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
   for (auto pGen : generators)
   {
-    for (const ezString& ext : pGen->m_SupportedFileTypes)
+    for (const WString& ext : pGen->m_SupportedFileTypes)
     {
       out_extensions.Insert(ext);
     }
@@ -130,17 +130,17 @@ void ezAssetDocumentGenerator::GetSupportsFileTypes(ezSet<ezString>& out_extensi
   DestroyGenerators(generators);
 }
 
-void ezAssetDocumentGenerator::ImportAssets()
+void WAssetDocumentGenerator::ImportAssets()
 {
-  // The file picker below is a native window, so it is not covered by ezQtDialog and would block
+  // The file picker below is a native window, so it is not covered by WQtDialog and would block
   // indefinitely. Use the overload taking the file list when there is no user to pick them.
-  if (ezQtUiServices::SuppressModalWindow("Import Assets (file picker)"))
+  if (WQtUiServices::SuppressModalWindow("Import Assets (file picker)"))
     return;
 
-  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  WTempHybridArray<WAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
 
-  ezStringBuilder singleFilter, fullFilter, allExtensions;
+  WStringBuilder singleFilter, fullFilter, allExtensions;
   bool semicolon = false;
 
   for (auto pGen : generators)
@@ -153,10 +153,10 @@ void ezAssetDocumentGenerator::ImportAssets()
   fullFilter.Append("All files (*.*)");
   fullFilter.Prepend("All asset files (", allExtensions, ")\n");
 
-  static ezStringBuilder s_StartDir;
+  static WStringBuilder s_StartDir;
   if (s_StartDir.IsEmpty())
   {
-    s_StartDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    s_StartDir = WToolsProject::GetSingleton()->GetProjectDirectory();
   }
 
   QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", s_StartDir.GetData(),
@@ -170,7 +170,7 @@ void ezAssetDocumentGenerator::ImportAssets()
   s_StartDir = filenames[0].toUtf8().data();
   s_StartDir.PathParentDirectory();
 
-  ezTempHybridArray<ezString, 16> filesToImport;
+  WTempHybridArray<WString, 16> filesToImport;
   for (QString s : filenames)
   {
     filesToImport.PushBack(s.toUtf8().data());
@@ -179,12 +179,12 @@ void ezAssetDocumentGenerator::ImportAssets()
   ImportAssets(filesToImport);
 }
 
-void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports, const ezDynamicArray<ezAssetDocumentGenerator*>& generators)
+void WAssetDocumentGenerator::CreateImportOptionList(const WDynamicArray<WString>& filesToImport, WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions>& allImports, const WDynamicArray<WAssetDocumentGenerator*>& generators)
 {
-  ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
-  ezStringBuilder sInputRelative, sGroup;
+  WQtEditorApp* pApp = WQtEditorApp::GetSingleton();
+  WStringBuilder sInputRelative, sGroup;
 
-  for (const ezString& sInputAbsolute : filesToImport)
+  for (const WString& sInputAbsolute : filesToImport)
   {
     sInputRelative = sInputAbsolute;
 
@@ -194,7 +194,7 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezStr
       continue;
     }
 
-    for (ezAssetDocumentGenerator* pGen : generators)
+    for (WAssetDocumentGenerator* pGen : generators)
     {
       if (pGen->SupportsFileType(sInputRelative))
       {
@@ -217,7 +217,7 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezStr
           pData->m_sInputFileRelative = sInputRelative;
         }
 
-        ezTempHybridArray<ezAssetDocumentGenerator::ImportMode, 4> options;
+        WTempHybridArray<WAssetDocumentGenerator::ImportMode, 4> options;
         pGen->GetImportModes(sInputAbsolute, options);
 
         for (auto& option : options)
@@ -231,27 +231,27 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezStr
   }
 }
 
-void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports)
+void WAssetDocumentGenerator::SortAndSelectBestImportOption(WDynamicArray<WAssetDocumentGenerator::ImportGroupOptions>& allImports)
 {
-  allImports.Sort([](const ezAssetDocumentGenerator::ImportGroupOptions& lhs, const ezAssetDocumentGenerator::ImportGroupOptions& rhs) -> bool
+  allImports.Sort([](const WAssetDocumentGenerator::ImportGroupOptions& lhs, const WAssetDocumentGenerator::ImportGroupOptions& rhs) -> bool
     { return lhs.m_sInputFileRelative < rhs.m_sInputFileRelative; });
 
   for (auto& singleImport : allImports)
   {
-    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::ImportMode& lhs, const ezAssetDocumentGenerator::ImportMode& rhs) -> bool
-      { return ezTranslate(lhs.m_sName).Compare_NoCase(ezTranslate(rhs.m_sName)) < 0; });
+    singleImport.m_ImportOptions.Sort([](const WAssetDocumentGenerator::ImportMode& lhs, const WAssetDocumentGenerator::ImportMode& rhs) -> bool
+      { return WTranslate(lhs.m_sName).Compare_NoCase(WTranslate(rhs.m_sName)) < 0; });
 
-    ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
-    ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
+    WUInt32 uiNumPrios[(WUInt32)WAssetDocGeneratorPriority::ENUM_COUNT] = {0};
+    WUInt32 uiBestPrio[(WUInt32)WAssetDocGeneratorPriority::ENUM_COUNT] = {0};
 
-    for (ezUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
+    for (WUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
     {
-      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
-      uiBestPrio[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
+      uiNumPrios[(WUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
+      uiBestPrio[(WUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
     }
 
     singleImport.m_iSelectedOption = -1;
-    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided; --prio)
+    for (WUInt32 prio = (WUInt32)WAssetDocGeneratorPriority::HighPriority; prio > (WUInt32)WAssetDocGeneratorPriority::Undecided; --prio)
     {
       if (uiNumPrios[prio] == 1)
       {
@@ -265,43 +265,43 @@ void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAs
   }
 }
 
-ezStringBuilder ezAssetDocumentGenerator::GetImportTargetPath(ezStringView sInputFileAbs) const
+WStringBuilder WAssetDocumentGenerator::GetImportTargetPath(WStringView sInputFileAbs) const
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
+  WStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
   return sOutFile;
 }
 
-bool ezAssetDocumentGenerator::NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const
+bool WAssetDocumentGenerator::NeedsImport(WStringView sInputFileAbs, WStringView sMode) const
 {
-  return !ezOSFile::ExistsFile(GetImportTargetPath(sInputFileAbs));
+  return !WOSFile::ExistsFile(GetImportTargetPath(sInputFileAbs));
 }
 
-ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringView sMode, bool bOpenDocument, ImportResult* out_pResult, ezStringBuilder* out_pDocumentPath)
+WStatus WAssetDocumentGenerator::Import(WStringView sInputFileAbs, WStringView sMode, bool bOpenDocument, ImportResult* out_pResult, WStringBuilder* out_pDocumentPath)
 {
-  ezStringBuilder ext = sInputFileAbs.GetFileExtension();
+  WStringBuilder ext = sInputFileAbs.GetFileExtension();
   ext.ToLower();
 
   if (!m_SupportedFileTypes.Contains(ext))
-    return ezStatus(ezFmt("Files of type '{}' cannot be imported as '{}' documents.", ext, GetDocumentExtension()));
+    return WStatus(WFmt("Files of type '{}' cannot be imported as '{}' documents.", ext, GetDocumentExtension()));
 
-  const ezStringBuilder sTargetPath = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sTargetPath = GetImportTargetPath(sInputFileAbs);
 
   if (out_pDocumentPath != nullptr)
     *out_pDocumentPath = sTargetPath;
 
   if (!NeedsImport(sInputFileAbs, sMode))
   {
-    ezLog::Info("Skipping import, file has been imported before: '{}'", sTargetPath);
+    WLog::Info("Skipping import, file has been imported before: '{}'", sTargetPath);
 
     if (out_pResult != nullptr)
       *out_pResult = ImportResult::AlreadyExists;
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
-  ezTempHybridArray<ezDocument*, 16> pGeneratedDocs;
-  EZ_SUCCEED_OR_RETURN(Generate(sInputFileAbs, sMode, pGeneratedDocs));
+  WTempHybridArray<WDocument*, 16> pGeneratedDocs;
+  W_SUCCEED_OR_RETURN(Generate(sInputFileAbs, sMode, pGeneratedDocs));
 
   if (out_pResult != nullptr)
   {
@@ -315,18 +315,18 @@ ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringVi
   if (out_pDocumentPath != nullptr && !pGeneratedDocs.IsEmpty())
     *out_pDocumentPath = pGeneratedDocs[0]->GetDocumentPath();
 
-  for (ezDocument* pDoc : pGeneratedDocs)
+  for (WDocument* pDoc : pGeneratedDocs)
   {
-    const ezString sDocPath = pDoc->GetDocumentPath();
+    const WString sDocPath = pDoc->GetDocumentPath();
 
     pDoc->SaveDocument(true).LogFailure();
     pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
     if (bOpenDocument)
     {
-      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sDocPath);
+      WQtEditorApp::GetSingleton()->OpenDocumentQueued(sDocPath);
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

@@ -5,15 +5,15 @@
 #include <GuiFoundation/VisualGraph/Node.h>
 
 class QGraphicsTextItem;
-class ezVisualGraphObjectManager;
+class WVisualGraphObjectManager;
 
 /// Qt graphics item for comment boxes in visual graphs, similar to Blueprint comments.
-class EZ_GUIFOUNDATION_DLL ezQtVisualGraphCommentNode : public ezQtVisualGraphNode
+class W_GUIFOUNDATION_DLL WQtVisualGraphCommentNode : public WQtVisualGraphNode
 {
 public:
-  ezQtVisualGraphCommentNode();
+  WQtVisualGraphCommentNode();
 
-  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject) override;
   virtual void UpdateGeometry() override;
   virtual void UpdateState() override;
 
@@ -26,32 +26,32 @@ protected:
   virtual void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
 
 private:
-  enum ResizeEdge : ezUInt8
+  enum ResizeEdge : WUInt8
   {
     None = 0,
-    Left = EZ_BIT(0),
-    Right = EZ_BIT(1),
-    Top = EZ_BIT(2),
-    Bottom = EZ_BIT(3),
+    Left = W_BIT(0),
+    Right = W_BIT(1),
+    Top = W_BIT(2),
+    Bottom = W_BIT(3),
   };
 
-  ezUInt8 DetectResizeEdge(const QPointF& localPos) const;
-  void UpdateCursorForEdge(ezUInt8 uiEdge);
+  WUInt8 DetectResizeEdge(const QPointF& localPos) const;
+  void UpdateCursorForEdge(WUInt8 uiEdge);
 
-  const ezVisualGraphObjectManager* m_pManager = nullptr;
+  const WVisualGraphObjectManager* m_pManager = nullptr;
   QGraphicsTextItem* m_pCommentLabel = nullptr;
   QColor m_CommentColor;
 
   // Resize state
-  ezUInt8 m_uiActiveResizeEdge = None;
+  WUInt8 m_uiActiveResizeEdge = None;
   QPointF m_ResizeStartMouseScene;
   QPointF m_ResizeStartPos;
-  ezVec2 m_vResizeStartSize;
-  ezVec2 m_vCurrentSize = ezVec2(300, 200);
+  WVec2 m_vResizeStartSize;
+  WVec2 m_vCurrentSize = WVec2(300, 200);
 
   // Containment tracking: when moving the comment, contained nodes move with it
   QPointF m_PrevPos;
-  ezDynamicArray<QGraphicsItem*> m_ContainedNodes;
+  WDynamicArray<QGraphicsItem*> m_ContainedNodes;
 
   static constexpr float s_fEdgeThreshold = 10.0f;
   static constexpr float s_fHeaderHeight = 26.0f;

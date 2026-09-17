@@ -5,18 +5,18 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializerFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializer, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticleSystemInstance* pOwner) const
+WParticleInitializer* WParticleInitializerFactory::CreateInitializer(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetInitializerType();
+  const WRTTI* pRtti = GetInitializerType();
 
-  ezParticleInitializer* pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializer>();
+  WParticleInitializer* pInitializer = pRtti->GetAllocator()->Allocate<WParticleInitializer>();
   pInitializer->Reset(pOwner);
 
   CopyInitializerProperties(pInitializer, true);
@@ -25,15 +25,15 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
   return pInitializer;
 }
 
-float ezParticleInitializerFactory::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+float WParticleInitializerFactory::GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const
 {
   return 1.0f;
 }
 
-ezParticleInitializer::ezParticleInitializer()
+WParticleInitializer::WParticleInitializer()
 {
   // run these early, but after the stream default initializers
   m_fPriority = -500.0f;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer);

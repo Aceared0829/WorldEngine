@@ -9,15 +9,15 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Types/UniquePtr.h>
 
-namespace ezDataDirectory
+namespace WDataDirectory
 {
   class FileserveDataDirectoryReader : public FolderReader
   {
   public:
-    FileserveDataDirectoryReader(ezInt32 iDataDirUserData);
+    FileserveDataDirectoryReader(WInt32 iDataDirUserData);
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
   };
 
   class FileserveDataDirectoryWriter : public FolderWriter
@@ -27,11 +27,11 @@ namespace ezDataDirectory
   };
 
   /// A data directory type to handle access to files that are served from a network host.
-  class EZ_FILESERVEPLUGIN_DLL FileserveType : public FolderType
+  class W_FILESERVEPLUGIN_DLL FileserveType : public FolderType
   {
   public:
-    /// The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
+    /// The factory that can be registered at WFileSystem to create data directories of this type.
+    static WDataDirectoryType* Factory(WStringView sDataDirectory, WStringView sGroup, WStringView sRootName, WDataDirUsage usage);
 
     /// [internal] Makes sure the redirection config files are up to date and then reloads them.
     virtual void ReloadExternalConfigs() override;
@@ -40,18 +40,18 @@ namespace ezDataDirectory
     void FinishedWriting(FolderWriter* pWriter);
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode) override;
-    virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
+    virtual WDataDirectoryReader* OpenFileToRead(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual WDataDirectoryWriter* OpenFileToWrite(WStringView sFile, WFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalInitializeDataDirectory(WStringView sDirectory) override;
     virtual void RemoveDataDirectory() override;
-    virtual void DeleteFile(ezStringView sFile) override;
-    virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir) override;
+    virtual void DeleteFile(WStringView sFile) override;
+    virtual bool ExistsFile(WStringView sFile, bool bOneSpecificDataDir) override;
     /// Limitation: Fileserve does not handle folders, only files. If someone stats a folder, this will fail.
-    virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual WResult GetFileStats(WStringView sFileOrFolder, bool bOneSpecificDataDir, WFileStats& out_Stats) override;
     virtual FolderReader* CreateFolderReader() const override;
     virtual FolderWriter* CreateFolderWriter() const override;
 
-    ezUInt16 m_uiDataDirID = 0xffff;
-    ezString128 m_sFileserveCacheMetaFolder;
+    WUInt16 m_uiDataDirID = 0xffff;
+    WString128 m_sFileserveCacheMetaFolder;
   };
-} // namespace ezDataDirectory
+} // namespace WDataDirectory

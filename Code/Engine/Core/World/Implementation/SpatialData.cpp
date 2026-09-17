@@ -2,32 +2,32 @@
 
 #include <Core/World/SpatialData.h>
 
-ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
+WHybridArray<WSpatialData::CategoryData, 32>& WSpatialData::GetCategoryData()
 {
-  static ezHybridArray<ezSpatialData::CategoryData, 32> CategoryData;
+  static WHybridArray<WSpatialData::CategoryData, 32> CategoryData;
   return CategoryData;
 }
 
 // static
-ezSpatialData::Category ezSpatialData::RegisterCategory(ezStringView sCategoryName, const ezBitflags<Flags>& flags)
+WSpatialData::Category WSpatialData::RegisterCategory(WStringView sCategoryName, const WBitflags<Flags>& flags)
 {
   if (sCategoryName.IsEmpty())
-    return ezInvalidSpatialDataCategory;
+    return WInvalidSpatialDataCategory;
 
   Category oldCategory = FindCategory(sCategoryName);
-  if (oldCategory != ezInvalidSpatialDataCategory)
+  if (oldCategory != WInvalidSpatialDataCategory)
   {
-    EZ_ASSERT_DEV(GetCategoryFlags(oldCategory) == flags, "Category registered with different flags");
+    W_ASSERT_DEV(GetCategoryFlags(oldCategory) == flags, "Category registered with different flags");
     return oldCategory;
   }
 
   if (GetCategoryData().GetCount() == 32)
   {
-    EZ_REPORT_FAILURE("Too many spatial data categories");
-    return ezInvalidSpatialDataCategory;
+    W_REPORT_FAILURE("Too many spatial data categories");
+    return WInvalidSpatialDataCategory;
   }
 
-  Category newCategory = Category(static_cast<ezUInt16>(GetCategoryData().GetCount()));
+  Category newCategory = Category(static_cast<WUInt16>(GetCategoryData().GetCount()));
 
   auto& data = GetCategoryData().ExpandAndGetRef();
   data.m_sName.Assign(sCategoryName);
@@ -37,40 +37,40 @@ ezSpatialData::Category ezSpatialData::RegisterCategory(ezStringView sCategoryNa
 }
 
 // static
-ezSpatialData::Category ezSpatialData::FindCategory(ezStringView sCategoryName)
+WSpatialData::Category WSpatialData::FindCategory(WStringView sCategoryName)
 {
-  ezTempHashedString categoryName(sCategoryName);
+  WTempHashedString categoryName(sCategoryName);
 
-  for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < GetCategoryData().GetCount(); ++uiCategoryIndex)
+  for (WUInt32 uiCategoryIndex = 0; uiCategoryIndex < GetCategoryData().GetCount(); ++uiCategoryIndex)
   {
     if (GetCategoryData()[uiCategoryIndex].m_sName == categoryName)
-      return Category(static_cast<ezUInt16>(uiCategoryIndex));
+      return Category(static_cast<WUInt16>(uiCategoryIndex));
   }
 
-  return ezInvalidSpatialDataCategory;
+  return WInvalidSpatialDataCategory;
 }
 
 // static
-const ezHashedString& ezSpatialData::GetCategoryName(Category category)
+const WHashedString& WSpatialData::GetCategoryName(Category category)
 {
   if (category.m_uiValue < GetCategoryData().GetCount())
   {
     return GetCategoryData()[category.m_uiValue].m_sName;
   }
 
-  static ezHashedString sInvalidSpatialDataCategoryName;
+  static WHashedString sInvalidSpatialDataCategoryName;
   return sInvalidSpatialDataCategoryName;
 }
 
 // static
-const ezBitflags<ezSpatialData::Flags>& ezSpatialData::GetCategoryFlags(Category category)
+const WBitflags<WSpatialData::Flags>& WSpatialData::GetCategoryFlags(Category category)
 {
   return GetCategoryData()[category.m_uiValue].m_Flags;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatialData::RegisterCategory("RenderStatic", ezSpatialData::Flags::None);
-ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic", ezSpatialData::Flags::FrequentChanges);
-ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionStatic = ezSpatialData::RegisterCategory("OcclusionStatic", ezSpatialData::Flags::None);
-ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionDynamic = ezSpatialData::RegisterCategory("OcclusionDynamic", ezSpatialData::Flags::FrequentChanges);
+WSpatialData::Category WDefaultSpatialDataCategories::RenderStatic = WSpatialData::RegisterCategory("RenderStatic", WSpatialData::Flags::None);
+WSpatialData::Category WDefaultSpatialDataCategories::RenderDynamic = WSpatialData::RegisterCategory("RenderDynamic", WSpatialData::Flags::FrequentChanges);
+WSpatialData::Category WDefaultSpatialDataCategories::OcclusionStatic = WSpatialData::RegisterCategory("OcclusionStatic", WSpatialData::Flags::None);
+WSpatialData::Category WDefaultSpatialDataCategories::OcclusionDynamic = WSpatialData::RegisterCategory("OcclusionDynamic", WSpatialData::Flags::FrequentChanges);

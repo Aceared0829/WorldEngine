@@ -3,41 +3,41 @@
 #include <Foundation/Communication/Message.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMessage, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMessage, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 // clang-format on
 
-ezMessageId ezMessage::s_NextMsgId = 0;
+WMessageId WMessage::s_NextMsgId = 0;
 
 
-void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& inout_stream)
+void WMessage::PackageForTransfer(const WMessage& msg, WStreamWriter& inout_stream)
 {
-  const ezRTTI* pRtti = msg.GetDynamicRTTI();
+  const WRTTI* pRtti = msg.GetDynamicRTTI();
 
   inout_stream << pRtti->GetTypeNameHash();
-  inout_stream << (ezUInt8)pRtti->GetTypeVersion();
+  inout_stream << (WUInt8)pRtti->GetTypeVersion();
 
   msg.Serialize(inout_stream);
 }
 
-ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& inout_stream)
+WUniquePtr<WMessage> WMessage::ReplicatePackedMessage(WStreamReader& inout_stream)
 {
-  ezUInt64 uiTypeHash = 0;
+  WUInt64 uiTypeHash = 0;
   inout_stream >> uiTypeHash;
 
-  ezUInt8 uiTypeVersion = 0;
+  WUInt8 uiTypeVersion = 0;
   inout_stream >> uiTypeVersion;
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(uiTypeHash);
+  const WRTTI* pRtti = WRTTI::FindTypeByNameHash(uiTypeHash);
   if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  auto pMsg = pRtti->GetAllocator()->Allocate<ezMessage>();
+  auto pMsg = pRtti->GetAllocator()->Allocate<WMessage>();
 
   pMsg->Deserialize(inout_stream, uiTypeVersion);
 
   return pMsg;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Message);
+W_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Message);

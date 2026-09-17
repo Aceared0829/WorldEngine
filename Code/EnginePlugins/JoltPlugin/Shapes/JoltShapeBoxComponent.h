@@ -2,41 +2,41 @@
 
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 
-using ezJoltShapeBoxComponentManager = ezComponentManager<class ezJoltShapeBoxComponent, ezBlockStorageType::FreeList>;
+using WJoltShapeBoxComponentManager = WComponentManager<class WJoltShapeBoxComponent, WBlockStorageType::FreeList>;
 
 /// Adds a Jolt box shape to a Jolt actor.
-class EZ_JOLTPLUGIN_DLL ezJoltShapeBoxComponent : public ezJoltShapeComponent
+class W_JOLTPLUGIN_DLL WJoltShapeBoxComponent : public WJoltShapeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeBoxComponent, ezJoltShapeComponent, ezJoltShapeBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltShapeBoxComponent, WJoltShapeComponent, WJoltShapeBoxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeComponent
+  // WJoltShapeComponent
 
 protected:
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeBoxComponent
+  // WJoltShapeBoxComponent
 
 public:
-  ezJoltShapeBoxComponent();
-  ~ezJoltShapeBoxComponent();
+  WJoltShapeBoxComponent();
+  ~WJoltShapeBoxComponent();
 
-  void SetHalfExtents(const ezVec3& value);                       // [ property ]
-  const ezVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
+  void SetHalfExtents(const WVec3& value);                       // [ property ]
+  const WVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const override;
+  virtual void ExtractGeometry(WMsgExtractGeometry& ref_msg) const override;
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
 
-  ezVec3 m_vHalfExtents = ezVec3(0.5f);
+  WVec3 m_vHalfExtents = WVec3(0.5f);
 };

@@ -4,16 +4,16 @@
 #include <RendererFoundation/State/ComputePipeline.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
-class EZ_RENDERERVULKAN_DLL ezGALComputePipelineVulkan : public ezGALComputePipeline
+class W_RENDERERVULKAN_DLL WGALComputePipelineVulkan : public WGALComputePipeline
 {
 public:
-  ezGALComputePipelineVulkan(const ezGALComputePipelineCreationDescription& description);
-  ~ezGALComputePipelineVulkan();
+  WGALComputePipelineVulkan(const WGALComputePipelineCreationDescription& description);
+  ~WGALComputePipelineVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   const vk::Pipeline& GetPipeline() const { return m_Pipeline; }
 

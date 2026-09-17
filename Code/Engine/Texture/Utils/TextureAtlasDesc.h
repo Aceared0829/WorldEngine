@@ -13,17 +13,17 @@
 /// (individual images to pack) that will be combined.
 ///
 /// **Workflow:**
-/// 1. Create ezTextureAtlasCreationDesc with desired layers and items
+/// 1. Create WTextureAtlasCreationDesc with desired layers and items
 /// 2. Use texture conversion system to generate the actual atlas
-/// 3. Load the resulting ezTextureAtlasRuntimeDesc for runtime access
+/// 3. Load the resulting WTextureAtlasRuntimeDesc for runtime access
 ///
 /// **Example:**
 /// ```cpp
-/// ezTextureAtlasCreationDesc desc;
+/// WTextureAtlasCreationDesc desc;
 ///
 /// // Add a diffuse layer
 /// auto& diffuseLayer = desc.m_Layers.ExpandAndGetRef();
-/// diffuseLayer.m_Usage = ezTexConvUsage::Color;
+/// diffuseLayer.m_Usage = WTexConvUsage::Color;
 /// diffuseLayer.m_uiNumChannels = 4;
 ///
 /// // Add an item (sprite/icon)
@@ -31,39 +31,39 @@
 /// item.m_uiUniqueID = 100;
 /// item.m_sLayerInput[0] = "icon_sword.png";
 /// ```
-struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
+struct W_TEXTURE_DLL WTextureAtlasCreationDesc
 {
   /// Defines a single layer in the texture atlas (e.g., diffuse, normal, roughness).
   struct Layer
   {
-    ezEnum<ezTexConvUsage> m_Usage;
-    ezUInt8 m_uiNumChannels = 4;
+    WEnum<WTexConvUsage> m_Usage;
+    WUInt8 m_uiNumChannels = 4;
   };
 
   /// Represents one item (image) to be packed into the atlas.
   struct Item
   {
-    ezUInt32 m_uiUniqueID;
-    ezUInt32 m_uiFlags;
-    ezString m_sAlphaInput;
-    ezString m_sLayerInput[4];
+    WUInt32 m_uiUniqueID;
+    WUInt32 m_uiFlags;
+    WString m_sAlphaInput;
+    WString m_sLayerInput[4];
 
     /// Number of columns and rows of equally sized variations that the input images contain.
     ///
     /// The images are packed into the atlas as a whole, the subdivision is only stored as meta data
     /// for the runtime to select a single cell. A value of 1 means the image is used as-is.
-    ezUInt8 m_uiNumVariationsX = 1;
-    ezUInt8 m_uiNumVariationsY = 1;
+    WUInt8 m_uiNumVariationsX = 1;
+    WUInt8 m_uiNumVariationsY = 1;
   };
 
-  ezHybridArray<Layer, 4> m_Layers;
-  ezDynamicArray<Item> m_Items;
+  WHybridArray<Layer, 4> m_Layers;
+  WDynamicArray<Item> m_Items;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
-  ezResult Save(ezStringView sFile) const;
-  ezResult Load(ezStringView sFile);
+  WResult Save(WStringView sFile) const;
+  WResult Load(WStringView sFile);
 };
 
 /// Runtime data for efficiently accessing items within a generated texture atlas.
@@ -74,37 +74,37 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
 ///
 /// **Runtime Usage:**
 /// ```cpp
-/// ezTextureAtlasRuntimeDesc atlas;
-/// atlas.Load("MyAtlas.ezAtlas");
+/// WTextureAtlasRuntimeDesc atlas;
+/// atlas.Load("MyAtlas.WAtlas");
 ///
 /// // Find an item by ID
 /// auto item = atlas.m_Items.Find(itemID);
 /// if (item.IsValid())
 /// {
 ///   // Get UV coordinates for diffuse layer (layer 0)
-///   ezRectU32 rect = item.Value().m_LayerRects[0];
+///   WRectU32 rect = item.Value().m_LayerRects[0];
 ///   // Convert to UV coordinates based on atlas texture size
 /// }
 /// ```
-struct EZ_TEXTURE_DLL ezTextureAtlasRuntimeDesc
+struct W_TEXTURE_DLL WTextureAtlasRuntimeDesc
 {
   struct Item
   {
-    ezUInt32 m_uiFlags;
-    ezRectU32 m_LayerRects[4];
+    WUInt32 m_uiFlags;
+    WRectU32 m_LayerRects[4];
 
     /// Into how many columns and rows the layer rects are subdivided.
     ///
     /// Each cell holds an independent variation of the image. A value of 1 means the entire rect is one image.
-    ezUInt8 m_uiNumVariationsX = 1;
-    ezUInt8 m_uiNumVariationsY = 1;
+    WUInt8 m_uiNumVariationsX = 1;
+    WUInt8 m_uiNumVariationsY = 1;
   };
 
-  ezUInt32 m_uiNumLayers = 0;
-  ezArrayMap<ezUInt32, Item> m_Items;
+  WUInt32 m_uiNumLayers = 0;
+  WArrayMap<WUInt32, Item> m_Items;
 
   void Clear();
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };

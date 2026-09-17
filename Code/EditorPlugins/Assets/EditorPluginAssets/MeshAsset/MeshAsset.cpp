@@ -8,42 +8,42 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 16, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshAssetDocument, 16, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
+static WMat3 CalculateTransformationMatrix(const WMeshAssetProperties* pProp)
 {
-  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  const float us = WMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
-  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
-  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
+  auto rightDir = WMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = WMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = WMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
 
-  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
+  const WBasisAxis::Enum forwardDir = WBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
 
-  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, us);
+  return WBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, us);
 }
 
-ezMeshAssetDocument::ezMeshAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WMeshAssetDocument::WMeshAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WMeshAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WMeshAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezProgressRange range("Transforming Asset", 2, false);
+  WProgressRange range("Transforming Asset", 2, false);
 
-  ezMeshAssetProperties* pProp = GetProperties();
+  WMeshAssetProperties* pProp = GetProperties();
 
-  ezMeshResourceDescriptor desc;
+  WMeshResourceDescriptor desc;
 
   range.SetStepWeighting(0, 0.9f);
   range.BeginNextStep("Importing Mesh");
 
-  if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
+  if (pProp->m_PrimitiveType == WMeshPrimitive::File)
   {
-    EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc, !transformFlags.IsSet(ezTransformFlags::BackgroundProcessing)));
+    W_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc, !transformFlags.IsSet(WTransformFlags::BackgroundProcessing)));
   }
   else
   {
@@ -51,11 +51,11 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   }
 
   // if there is no material set for a slot, use the "Pattern" material as a fallback
-  for (ezUInt32 matIdx = 0; matIdx < desc.GetMaterials().GetCount(); ++matIdx)
+  for (WUInt32 matIdx = 0; matIdx < desc.GetMaterials().GetCount(); ++matIdx)
   {
     if (desc.GetMaterials()[matIdx].m_sPath.IsEmpty())
     {
-      // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+      // Data/Base/Materials/Common/Pattern.WMaterialAsset
       desc.SetMaterial(matIdx, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
     }
   }
@@ -63,29 +63,29 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   range.BeginNextStep("Writing Result");
   desc.Save(stream);
 
-  ezMeshImportUtils::RecordMeshTransformInfo(GetTransformInfo(), desc);
+  WMeshImportUtils::RecordMeshTransformInfo(GetTransformInfo(), desc);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
+void WMeshAssetDocument::CreateMeshFromGeom(WMeshAssetProperties* pProp, WMeshResourceDescriptor& desc)
 {
-  const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
+  const WMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
-  ezGeometry geom;
-  // const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
+  WGeometry geom;
+  // const WMat4 mTrans(mTransformation, WVec3::MakeZero());
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4(mTransformation, pProp->m_vPositionOffset);
+  WGeometry::GeoOptions opt;
+  opt.m_Transform = WMat4(mTransformation, pProp->m_vPositionOffset);
 
   auto detail1 = pProp->m_uiDetail;
   auto detail2 = pProp->m_uiDetail2;
 
-  if (pProp->m_PrimitiveType == ezMeshPrimitive::Box)
+  if (pProp->m_PrimitiveType == WMeshPrimitive::Box)
   {
-    geom.AddBox(ezVec3(1.0f), true, opt);
+    geom.AddBox(WVec3(1.0f), true, opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Capsule)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Capsule)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
@@ -93,33 +93,33 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail2 == 0)
       detail2 = 16;
 
-    geom.AddCapsule(pProp->m_fRadius, ezMath::Max(0.0f, pProp->m_fHeight), ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
+    geom.AddCapsule(pProp->m_fRadius, WMath::Max(0.0f, pProp->m_fHeight), WMath::Max<WUInt16>(3, detail1), WMath::Max<WUInt16>(1, detail2), opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Cone)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Cone)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
       detail1 = 32;
 
-    geom.AddCone(pProp->m_fRadius, pProp->m_fHeight, pProp->m_bCap, ezMath::Max<ezUInt16>(3, detail1), opt);
+    geom.AddCone(pProp->m_fRadius, pProp->m_fHeight, pProp->m_bCap, WMath::Max<WUInt16>(3, detail1), opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Cylinder)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Cylinder)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
       detail1 = 32;
 
-    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, ezMath::Max<ezUInt16>(3, detail1), opt, ezMath::Clamp(pProp->m_Angle, ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f)));
+    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, WMath::Max<WUInt16>(3, detail1), opt, WMath::Clamp(pProp->m_Angle, WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(360.0f)));
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::GeodesicSphere)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::GeodesicSphere)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
       detail1 = 2;
 
-    geom.AddGeodesicSphere(pProp->m_fRadius, ezMath::Clamp<ezUInt16>(detail1, 0, 6), opt);
+    geom.AddGeodesicSphere(pProp->m_fRadius, WMath::Clamp<WUInt16>(detail1, 0, 6), opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::HalfSphere)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::HalfSphere)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
@@ -127,21 +127,21 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail2 == 0)
       detail2 = 16;
 
-    geom.AddHalfSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(1, detail2), pProp->m_bCap, opt);
+    geom.AddHalfSphere(pProp->m_fRadius, WMath::Max<WUInt16>(3, detail1), WMath::Max<WUInt16>(1, detail2), pProp->m_bCap, opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Pyramid)
   {
     geom.AddPyramid(1.0f, 1.0f, pProp->m_bCap, opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Rect)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Rect)
   {
     opt.m_Transform.Element(2, 0) = -opt.m_Transform.Element(2, 0);
     opt.m_Transform.Element(2, 1) = -opt.m_Transform.Element(2, 1);
     opt.m_Transform.Element(2, 2) = -opt.m_Transform.Element(2, 2);
 
-    geom.AddRect(ezVec2(1.0f), ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
+    geom.AddRect(WVec2(1.0f), WMath::Max<WUInt16>(1, detail1), WMath::Max<WUInt16>(1, detail2), opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Sphere)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Sphere)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
@@ -149,9 +149,9 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail2 == 0)
       detail2 = 32;
 
-    geom.AddStackedSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), opt);
+    geom.AddStackedSphere(pProp->m_fRadius, WMath::Max<WUInt16>(3, detail1), WMath::Max<WUInt16>(2, detail2), opt);
   }
-  else if (pProp->m_PrimitiveType == ezMeshPrimitive::Torus)
+  else if (pProp->m_PrimitiveType == WMeshPrimitive::Torus)
   {
     // use decent default values, if the user hasn't provided anything themselves
     if (detail1 == 0)
@@ -165,7 +165,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (r1 == r2)
       r1 = r2 * 0.5f;
 
-    geom.AddTorus(r1, ezMath::Max(r1 + 0.01f, r2), ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(3, detail2), true, opt);
+    geom.AddTorus(r1, WMath::Max(r1 + 0.01f, r2), WMath::Max<WUInt16>(3, detail1), WMath::Max<WUInt16>(3, detail2), true, opt);
   }
 
   geom.TriangulatePolygons(4);
@@ -200,28 +200,28 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   auto& mbd = desc.MeshBufferDesc();
   mbd.AddCommonStreams();
 
-  mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  mbd.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
 }
 
-ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc, bool bAllowMaterialImport)
+WTransformStatus WMeshAssetDocument::CreateMeshFromFile(WMeshAssetProperties* pProp, WMeshResourceDescriptor& desc, bool bAllowMaterialImport)
 {
-  ezProgressRange range("Mesh Import", 5, false);
+  WProgressRange range("Mesh Import", 5, false);
 
   range.SetStepWeighting(0, 0.7f);
   range.BeginNextStep("Importing Mesh Data");
 
-  ezStringBuilder sAbsFilename = pProp->m_sMeshFile;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  WStringBuilder sAbsFilename = pProp->m_sMeshFile;
+  if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
   {
-    return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+    return WStatus(WFmt("Couldn't make path absolute: '{0};", sAbsFilename));
   }
 
-  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  WUniquePtr<WModelImporter2::Importer> pImporter = WModelImporter2::RequestImporterForFileType(sAbsFilename);
   if (pImporter == nullptr)
-    return ezStatus("No known importer for this file type.");
+    return WStatus("No known importer for this file type.");
 
-  ezModelImporter2::ImportOptions opt;
+  WModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
   opt.m_bRecomputeTangents = pProp->m_bRecalculateTangents;
@@ -233,9 +233,9 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   // include tags
   {
-    ezTempHybridArray<ezStringView, 8> tags;
+    WTempHybridArray<WStringView, 8> tags;
     pProp->m_sMeshIncludeTags.Split(false, tags, ";");
-    for (ezStringView tag : tags)
+    for (WStringView tag : tags)
     {
       tag.Trim();
       opt.m_MeshIncludeTags.PushBack(tag);
@@ -244,9 +244,9 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   // exclude tags
   {
-    ezTempHybridArray<ezStringView, 8> tags;
+    WTempHybridArray<WStringView, 8> tags;
     pProp->m_sMeshExcludeTags.Split(false, tags, ";");
-    for (ezStringView tag : tags)
+    for (WStringView tag : tags)
     {
       tag.Trim();
       opt.m_MeshExcludeTags.PushBack(tag);
@@ -262,18 +262,18 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   }
 
   if (pImporter->Import(opt).Failed())
-    return ezStatus("Model importer was unable to read this asset.");
+    return WStatus("Model importer was unable to read this asset.");
 
-  ezMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
+  WMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
 
   if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
-    return ezStatus("Imported mesh is empty.");
+    return WStatus("Imported mesh is empty.");
 
   for (auto& sm : desc.GetSubMeshes())
   {
     if (sm.m_uiPrimitiveCount == 0)
     {
-      return ezStatus("Imported mesh is empty.");
+      return WStatus("Imported mesh is empty.");
     }
   }
 
@@ -285,16 +285,16 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   {
     if (!bAllowMaterialImport && bSlotCountMissmatch)
     {
-      return ezTransformStatus(ezTransformResult::NeedsImport);
+      return WTransformStatus(WTransformResult::NeedsImport);
     }
 
     GetObjectAccessor()->StartTransaction("Update Mesh Materials");
 
-    ezMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());
+    WMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());
 
     if (pProp->m_bImportMaterials)
     {
-      ezMeshImportUtils::ImportMeshAssetMaterials(pProp->m_Slots, GetDocumentPath(), pImporter.Borrow());
+      WMeshImportUtils::ImportMeshAssetMaterials(pProp->m_Slots, GetDocumentPath(), pImporter.Borrow());
     }
 
     ApplyNativePropertyChangesToObjectManager();
@@ -304,22 +304,22 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
     pProp = GetProperties();
   }
 
-  ezMeshImportUtils::CopyMeshAssetMaterialSlotToResource(desc, pProp->m_Slots);
+  WMeshImportUtils::CopyMeshAssetMaterialSlotToResource(desc, pProp->m_Slots);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
-void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WMeshAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  if (GetProperties()->m_PrimitiveType != ezMeshPrimitive::File)
+  if (GetProperties()->m_PrimitiveType != WMeshPrimitive::File)
   {
     // remove the mesh file dependency, if it is not actually used
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
@@ -328,6 +328,6 @@ void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) co
   else
   {
     // For glTF files, add any referenced external buffer files as dependencies
-    ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
+    WMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
   }
 }

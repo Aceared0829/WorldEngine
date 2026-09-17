@@ -3,40 +3,40 @@
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetManager.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimatedMeshAssetDocumentManager, 1, WRTTIDefaultAllocator<WAnimatedMeshAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
+WAnimatedMeshAssetDocumentManager::WAnimatedMeshAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Animated Mesh";
-  m_DocTypeDesc.m_sFileExtension = "ezAnimatedMeshAsset";
+  m_DocTypeDesc.m_sFileExtension = "WAnimatedMeshAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WAnimatedMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Static");
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skinned");
 
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAnimatedMesh";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinAnimatedMesh";
 }
 
-ezAnimatedMeshAssetDocumentManager::~ezAnimatedMeshAssetDocumentManager()
+WAnimatedMeshAssetDocumentManager::~WAnimatedMeshAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimatedMeshAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WAnimatedMeshAssetDocument>())
       {
-        new ezQtAnimatedMeshAssetDocumentWindow(static_cast<ezAnimatedMeshAssetDocument*>(e.m_pDocument)); // NOLINT
+        new WQtAnimatedMeshAssetDocumentWindow(static_cast<WAnimatedMeshAssetDocument*>(e.m_pDocument)); // NOLINT
       }
     }
     break;
@@ -46,18 +46,18 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WAnimatedMeshAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAnimatedMeshAssetDocument(sPath);
+  out_pDocument = new WAnimatedMeshAssetDocument(sPath);
 }
 
-void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-void ezAnimatedMeshAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+void WAnimatedMeshAssetDocumentManager::AppendAssetInfoSummary(WStringBuilder& ref_sOut, const WAssetInfoFile& info, WStringView sLinePrefix) const
 {
-  const ezStringView keys[] = {ezAssetInfoFile::Keys::NumTriangles, ezAssetInfoFile::Keys::BoundsHalfExtents};
+  const WStringView keys[] = {WAssetInfoFile::Keys::NumTriangles, WAssetInfoFile::Keys::BoundsHalfExtents};
   info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
 }

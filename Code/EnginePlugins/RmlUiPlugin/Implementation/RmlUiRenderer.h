@@ -6,22 +6,22 @@
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
-using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
+using WShaderResourceHandle = WTypedResourceHandle<class WShaderResource>;
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiRenderer : public ezRenderer
+class W_RMLUIPLUGIN_DLL WRmlUiRenderer : public WRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezRmlUiRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiRenderer, WRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WRmlUiRenderer);
 
 public:
-  ezRmlUiRenderer();
-  ~ezRmlUiRenderer();
+  WRmlUiRenderer();
+  ~WRmlUiRenderer();
 
-  // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  // WRenderer implementation
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
+  virtual void RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
 private:
-  ezShaderResourceHandle m_hShader;
-  ezConstantBufferStorageHandle m_hConstantBuffer;
+  WShaderResourceHandle m_hShader;
+  WConstantBufferStorageHandle m_hConstantBuffer;
 };

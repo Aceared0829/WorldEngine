@@ -7,86 +7,86 @@
 #include <Foundation/Types/RefCounted.h>
 
 // Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_RENDERERFOUNDATION_LIB
-#    define EZ_RENDERERFOUNDATION_DLL EZ_DECL_EXPORT
+#    define W_RENDERERFOUNDATION_DLL W_DECL_EXPORT
 #  else
-#    define EZ_RENDERERFOUNDATION_DLL EZ_DECL_IMPORT
+#    define W_RENDERERFOUNDATION_DLL W_DECL_IMPORT
 #  endif
 #else
-#  define EZ_RENDERERFOUNDATION_DLL
+#  define W_RENDERERFOUNDATION_DLL
 #endif
 
 // #TODO_SHADER obsolete, DX11 only
-#define EZ_GAL_MAX_CONSTANT_BUFFER_COUNT 16
-#define EZ_GAL_MAX_SAMPLER_COUNT 16
+#define W_GAL_MAX_CONSTANT_BUFFER_COUNT 16
+#define W_GAL_MAX_SAMPLER_COUNT 16
 
 // Necessary array sizes
-#define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 8
-#define EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
-#define EZ_GAL_MAX_RENDERTARGET_COUNT 8
-#define EZ_GAL_MAX_BIND_GROUPS 4
+#define W_GAL_MAX_VERTEX_BUFFER_COUNT 8
+#define W_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
+#define W_GAL_MAX_RENDERTARGET_COUNT 8
+#define W_GAL_MAX_BIND_GROUPS 4
 
-#define EZ_GAL_ALL_MIP_LEVELS 0xFFu
-#define EZ_GAL_ALL_ARRAY_SLICES 0xFFFFu
-#define EZ_GAL_WHOLE_SIZE 0xFFFFFFFFu
+#define W_GAL_ALL_MIP_LEVELS 0xFFu
+#define W_GAL_ALL_ARRAY_SLICES 0xFFFFu
+#define W_GAL_WHOLE_SIZE 0xFFFFFFFFu
 
-#define EZ_GAL_BIND_GROUP_FRAME 0
-#define EZ_GAL_BIND_GROUP_RENDER_PASS 1
-#define EZ_GAL_BIND_GROUP_MATERIAL 2
-#define EZ_GAL_BIND_GROUP_DRAW_CALL 3
+#define W_GAL_BIND_GROUP_FRAME 0
+#define W_GAL_BIND_GROUP_RENDER_PASS 1
+#define W_GAL_BIND_GROUP_MATERIAL 2
+#define W_GAL_BIND_GROUP_DRAW_CALL 3
 
 // Forward declarations
 
-struct ezGALDeviceCreationDescription;
-struct ezGALSwapChainCreationDescription;
-struct ezGALWindowSwapChainCreationDescription;
-struct ezGALShaderCreationDescription;
-struct ezGALTextureCreationDescription;
-struct ezGALBufferCreationDescription;
-struct ezGALDepthStencilStateCreationDescription;
-struct ezGALBlendStateCreationDescription;
-struct ezGALRasterizerStateCreationDescription;
-struct ezGALVertexDeclarationCreationDescription;
-struct ezGALSamplerStateCreationDescription;
-struct ezGALRenderTargetViewCreationDescription;
-struct ezGALBindGroupLayoutCreationDescription;
-struct ezGALBindGroupCreationDescription;
-struct ezGALPipelineLayoutCreationDescription;
-struct ezGALGraphicsPipelineCreationDescription;
-struct ezGALComputePipelineCreationDescription;
+struct WGALDeviceCreationDescription;
+struct WGALSwapChainCreationDescription;
+struct WGALWindowSwapChainCreationDescription;
+struct WGALShaderCreationDescription;
+struct WGALTextureCreationDescription;
+struct WGALBufferCreationDescription;
+struct WGALDepthStencilStateCreationDescription;
+struct WGALBlendStateCreationDescription;
+struct WGALRasterizerStateCreationDescription;
+struct WGALVertexDeclarationCreationDescription;
+struct WGALSamplerStateCreationDescription;
+struct WGALRenderTargetViewCreationDescription;
+struct WGALBindGroupLayoutCreationDescription;
+struct WGALBindGroupCreationDescription;
+struct WGALPipelineLayoutCreationDescription;
+struct WGALGraphicsPipelineCreationDescription;
+struct WGALComputePipelineCreationDescription;
 
 
-class ezGALSwapChain;
-class ezGALShader;
-class ezGALResourceBase;
-class ezGALTexture;
-class ezGALSharedTexture;
-class ezGALBuffer;
-class ezGALDynamicBuffer;
-class ezGALReadbackBuffer;
-class ezGALReadbackTexture;
-class ezGALDepthStencilState;
-class ezGALBlendState;
-class ezGALRasterizerState;
-class ezGALVertexDeclaration;
-class ezGALSamplerState;
-class ezGALRenderTargetView;
-class ezGALDevice;
-class ezGALCommandEncoder;
-class ezGALBindGroup;
-class ezGALBindGroupLayout;
-class ezGALPipelineLayout;
-class ezGALGraphicsPipeline;
-class ezGALComputePipeline;
+class WGALSwapChain;
+class WGALShader;
+class WGALResourceBase;
+class WGALTexture;
+class WGALSharedTexture;
+class WGALBuffer;
+class WGALDynamicBuffer;
+class WGALReadbackBuffer;
+class WGALReadbackTexture;
+class WGALDepthStencilState;
+class WGALBlendState;
+class WGALRasterizerState;
+class WGALVertexDeclaration;
+class WGALSamplerState;
+class WGALRenderTargetView;
+class WGALDevice;
+class WGALCommandEncoder;
+class WGALBindGroup;
+class WGALBindGroupLayout;
+class WGALPipelineLayout;
+class WGALGraphicsPipeline;
+class WGALComputePipeline;
 
 // Basic enums
-struct ezGALPrimitiveTopology
+struct WGALPrimitiveTopology
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
-    // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
+    // keep this order, it is used to allocate the desired number of indices in WMeshBufferResourceDescriptor::AllocateStreams
     Points,        // 1 index per primitive
     Lines,         // 2 indices per primitive
     Triangles,     // 3 indices per primitive
@@ -97,19 +97,19 @@ struct ezGALPrimitiveTopology
     Default = Triangles
   };
 
-  static ezUInt32 GetIndexCount(Enum e, ezUInt32 uiPrimitiveCount)
+  static WUInt32 GetIndexCount(Enum e, WUInt32 uiPrimitiveCount)
   {
     if (e <= Triangles)
-      return uiPrimitiveCount * ((ezUInt32)e + 1);
+      return uiPrimitiveCount * ((WUInt32)e + 1);
 
     // TriangleStrip
     return uiPrimitiveCount > 0 ? uiPrimitiveCount + 2 : 0;
   }
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
+struct W_RENDERERFOUNDATION_DLL WGALIndexType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -124,19 +124,19 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 
 
   /// The size in bytes of a single element of the given index format.
-  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return s_Size[format]; }
+  static WUInt8 GetSize(WGALIndexType::Enum format) { return s_Size[format]; }
 
 private:
-  static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
+  static const WUInt8 s_Size[WGALIndexType::ENUM_COUNT];
 };
 
 /// The stage of a shader. A complete shader can consist of multiple stages.
-/// \sa ezGALShaderStageFlags, ezGALShaderCreationDescription
-struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
+/// \sa WGALShaderStageFlags, WGALShaderCreationDescription
+struct W_RENDERERFOUNDATION_DLL WGALShaderStage
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     VertexShader,
     HullShader,
@@ -162,30 +162,30 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 };
 
 /// A set of shader stages.
-/// \sa ezGALShaderStage, ezShaderResourceBinding
-struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
+/// \sa WGALShaderStage, WShaderResourceBinding
+struct W_RENDERERFOUNDATION_DLL WGALShaderStageFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
-  enum Enum : ezUInt16
+  enum Enum : WUInt16
   {
-    VertexShader = EZ_BIT(0),
-    HullShader = EZ_BIT(1),
-    DomainShader = EZ_BIT(2),
-    GeometryShader = EZ_BIT(3),
-    PixelShader = EZ_BIT(4),
-    ComputeShader = EZ_BIT(5),
+    VertexShader = W_BIT(0),
+    HullShader = W_BIT(1),
+    DomainShader = W_BIT(2),
+    GeometryShader = W_BIT(3),
+    PixelShader = W_BIT(4),
+    ComputeShader = W_BIT(5),
     /*
     // #TODO_SHADER: Future work:
-    TaskShader = EZ_BIT(6),
-    MeshShader = EZ_BIT(7),
-    RayGenShader = EZ_BIT(8),
-    RayAnyHitShader = EZ_BIT(9),
-    RayClosestHitShader = EZ_BIT(10),
-    RayMissShader = EZ_BIT(11),
-    RayIntersectionShader = EZ_BIT(12),
+    TaskShader = W_BIT(6),
+    MeshShader = W_BIT(7),
+    RayGenShader = W_BIT(8),
+    RayAnyHitShader = W_BIT(9),
+    RayClosestHitShader = W_BIT(10),
+    RayMissShader = W_BIT(11),
+    RayIntersectionShader = W_BIT(12),
     */
-    Auto = EZ_BIT(15), ///< Used by the render graph to infer the stage from the ezGALResourceState
+    Auto = W_BIT(15), ///< Used by the render graph to infer the stage from the WGALResourceState
     Default = 0
   };
 
@@ -202,17 +202,17 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
     StorageType Auto : 1;
   };
 
-  inline static ezGALShaderStageFlags::Enum MakeFromShaderStage(ezGALShaderStage::Enum stage)
+  inline static WGALShaderStageFlags::Enum MakeFromShaderStage(WGALShaderStage::Enum stage)
   {
-    return static_cast<ezGALShaderStageFlags::Enum>(EZ_BIT(stage));
+    return static_cast<WGALShaderStageFlags::Enum>(W_BIT(stage));
   }
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALShaderStageFlags);
+W_DECLARE_FLAGS_OPERATORS(WGALShaderStageFlags);
 
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
+struct W_RENDERERFOUNDATION_DLL WGALMSAASampleCount
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -227,9 +227,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
   };
 };
 
-struct ezGALTextureType
+struct WGALTextureType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -248,9 +248,9 @@ struct ezGALTextureType
   };
 };
 
-struct ezGALBlend
+struct WGALBlend
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -274,9 +274,9 @@ struct ezGALBlend
   };
 };
 
-struct ezGALBlendOp
+struct WGALBlendOp
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -291,9 +291,9 @@ struct ezGALBlendOp
   };
 };
 
-struct ezGALStencilOp
+struct WGALStencilOp
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -312,9 +312,9 @@ struct ezGALStencilOp
   };
 };
 
-struct ezGALCompareFunc
+struct WGALCompareFunc
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -334,18 +334,18 @@ struct ezGALCompareFunc
 };
 
 /// Defines which sides of a polygon gets culled by the graphics card
-struct ezGALCullMode
+struct WGALCullMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   /// Defines which sides of a polygon gets culled by the graphics card
   enum Enum
   {
     None = 0,  ///< Triangles do not get culled
     Front = 1, ///< When the 'front' of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See
-               ///< ezGALRasterizerStateCreationDescription for details.
+               ///< WGALRasterizerStateCreationDescription for details.
     Back = 2,  ///< When the 'back'  of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See
-               ///< ezGALRasterizerStateCreationDescription for details.
+               ///< WGALRasterizerStateCreationDescription for details.
 
     ENUM_COUNT,
 
@@ -353,9 +353,9 @@ struct ezGALCullMode
   };
 };
 
-struct ezGALTextureFilterMode
+struct WGALTextureFilterMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -371,10 +371,10 @@ struct ezGALTextureFilterMode
 ///
 /// Used to scale all quality-adjustable samplers simultaneously. The actual quality applied to each sampler
 /// depends on which quality mode slot it uses and what quality level is mapped to that slot.
-/// \see ezGALDevice::SetTextureQualityMode, ezRenderContext::SetDefaultTextureQuality
-struct ezGALTextureQuality
+/// \see WGALDevice::SetTextureQualityMode, WRenderContext::SetDefaultTextureQuality
+struct WGALTextureQuality
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -392,12 +392,12 @@ struct ezGALTextureQuality
 
 /// Identifies one of the five abstract quality tiers used by the texture quality system.
 ///
-/// Samplers that opt in via ezGALSamplerStateCreationDescription::m_useTextureQualitySlot reference one of these slots.
-/// Each slot is assigned an ezGALTextureQuality value through ezGALDevice::SetTextureQualityMode, and the device maps
+/// Samplers that opt in via WGALSamplerStateCreationDescription::m_useTextureQualitySlot reference one of these slots.
+/// Each slot is assigned an WGALTextureQuality value through WGALDevice::SetTextureQualityMode, and the device maps
 /// the requested tier to a concrete filter based on the current global quality setting.
-struct ezGALTextureQualitySlot
+struct WGALTextureQualitySlot
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum : StorageType
   {
@@ -413,7 +413,7 @@ struct ezGALTextureQualitySlot
   };
 };
 
-struct ezGALUpdateMode
+struct WGALUpdateMode
 {
   enum Enum
   {
@@ -422,10 +422,10 @@ struct ezGALUpdateMode
   };
 };
 
-/// Used by ezGALVertexDeclarationCreationDescription -> ezGALVertexBinding to define whether the data in a vertex buffer is indexed via vertex or instance index.
-struct ezGALVertexBindingRate
+/// Used by WGALVertexDeclarationCreationDescription -> WGALVertexBinding to define whether the data in a vertex buffer is indexed via vertex or instance index.
+struct WGALVertexBindingRate
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
     Vertex,
@@ -435,9 +435,9 @@ struct ezGALVertexBindingRate
 };
 
 /// The initial state of a render target when starting to render to it.
-struct ezGALRenderTargetLoadOp
+struct WGALRenderTargetLoadOp
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
     Load,     ///< The previous contents of the render target are preserved when starting to render to it.
@@ -448,9 +448,9 @@ struct ezGALRenderTargetLoadOp
 };
 
 /// The state of a render target after finishing to render to it.
-struct ezGALRenderTargetStoreOp
+struct WGALRenderTargetStoreOp
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
     Store,   ///< The render result is written back to the render target's memory.
@@ -460,9 +460,9 @@ struct ezGALRenderTargetStoreOp
 };
 
 /// The current state of an async operations in the renderer
-struct ezGALAsyncResult
+struct WGALAsyncResult
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -474,56 +474,56 @@ struct ezGALAsyncResult
 };
 
 /// Used to define a texture sub-resource, i.e. a single slice.
-struct ezGALTextureSubresource
+struct WGALTextureSubresource
 {
-  EZ_DECLARE_POD_TYPE();
-  ezUInt32 m_uiMipLevel = 0;
-  ezUInt32 m_uiArraySlice = 0;
+  W_DECLARE_POD_TYPE();
+  WUInt32 m_uiMipLevel = 0;
+  WUInt32 m_uiArraySlice = 0;
 };
 
 /// Helper to map linear system memory to a 2D texture sub-resource.
-struct ezGALSystemMemoryDescription
+struct WGALSystemMemoryDescription
 {
-  EZ_DECLARE_POD_TYPE();
-  ezConstByteBlobPtr m_pData;
-  ezUInt32 m_uiRowPitch = 0;
-  ezUInt32 m_uiSlicePitch = 0;
+  W_DECLARE_POD_TYPE();
+  WConstByteBlobPtr m_pData;
+  WUInt32 m_uiRowPitch = 0;
+  WUInt32 m_uiSlicePitch = 0;
 };
 
 /// Defines the sub-resources a render target view is rendering to.
 /// Used by the render graph to define a render target. Views can't be used as the render graph works on virtual handles that only later are converted to actual resources.
-struct ezGALRenderTargetRange
+struct WGALRenderTargetRange
 {
-  EZ_DECLARE_POD_TYPE();
-  static ezGALRenderTargetRange MakeFromMipLevel(ezUInt8 uiMipLevel = 0)
+  W_DECLARE_POD_TYPE();
+  static WGALRenderTargetRange MakeFromMipLevel(WUInt8 uiMipLevel = 0)
   {
-    return {0, EZ_GAL_ALL_ARRAY_SLICES, uiMipLevel};
+    return {0, W_GAL_ALL_ARRAY_SLICES, uiMipLevel};
   }
-  ezUInt16 m_uiBaseArraySlice = 0;
-  ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES;
-  ezUInt8 m_uiBaseMipLevel = 0;
+  WUInt16 m_uiBaseArraySlice = 0;
+  WUInt16 m_uiArraySlices = W_GAL_ALL_ARRAY_SLICES;
+  WUInt8 m_uiBaseMipLevel = 0;
 };
 
 /// Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
-/// Mainly used in ezBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
-struct ezGALTextureRange
+/// Mainly used in WBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
+struct WGALTextureRange
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
   /// Helper to just set mip levels without also having to set the array slice fields.
-  static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
+  static WGALTextureRange MakeFromMipRange(WUInt8 uiBaseMipLevel = 0, WUInt8 uiMipLevels = W_GAL_ALL_MIP_LEVELS)
   {
     return {0, 1, uiBaseMipLevel, uiMipLevels};
   }
-  static ezGALTextureRange MakeFromRenderTargetRange(const ezGALRenderTargetRange& range)
+  static WGALTextureRange MakeFromRenderTargetRange(const WGALRenderTargetRange& range)
   {
     return {range.m_uiBaseArraySlice, range.m_uiArraySlices, range.m_uiBaseMipLevel, 1};
   }
-  ezUInt16 m_uiBaseArraySlice = 0;                    ///< Index of the first array slice to be used.
-  ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES; ///< Number of array slices to be used. If set to EZ_GAL_ALL_ARRAY_SLICES, the maximum number of allowed slices is used dependent on texture size and binding contraints.
-  ezUInt8 m_uiBaseMipLevel = 0;                       ///< The first mip level to be used.
-  ezUInt8 m_uiMipLevels = EZ_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to EZ_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
+  WUInt16 m_uiBaseArraySlice = 0;                    ///< Index of the first array slice to be used.
+  WUInt16 m_uiArraySlices = W_GAL_ALL_ARRAY_SLICES; ///< Number of array slices to be used. If set to W_GAL_ALL_ARRAY_SLICES, the maximum number of allowed slices is used dependent on texture size and binding contraints.
+  WUInt8 m_uiBaseMipLevel = 0;                       ///< The first mip level to be used.
+  WUInt8 m_uiMipLevels = W_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to W_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
 
-  bool operator==(const ezGALTextureRange& rhs) const
+  bool operator==(const WGALTextureRange& rhs) const
   {
     return m_uiBaseArraySlice == rhs.m_uiBaseArraySlice &&
            m_uiArraySlices == rhs.m_uiArraySlices &&
@@ -531,20 +531,20 @@ struct ezGALTextureRange
            m_uiMipLevels == rhs.m_uiMipLevels;
   }
 
-  bool operator!=(const ezGALTextureRange& rhs) const { return !(*this == rhs); }
+  bool operator!=(const WGALTextureRange& rhs) const { return !(*this == rhs); }
 
   /// Returns true if this range and the other range overlap in both the array-slice and mip-level dimensions.
-  bool Overlaps(const ezGALTextureRange& other) const
+  bool Overlaps(const WGALTextureRange& other) const
   {
-    // Cast to ezUInt32 to avoid overflow when base + count exceeds the ezUInt16/ezUInt8 range.
-    const ezUInt32 aSliceEnd = (ezUInt32)m_uiBaseArraySlice + (ezUInt32)m_uiArraySlices;
-    const ezUInt32 bSliceEnd = (ezUInt32)other.m_uiBaseArraySlice + (ezUInt32)other.m_uiArraySlices;
-    if ((ezUInt32)m_uiBaseArraySlice >= bSliceEnd || (ezUInt32)other.m_uiBaseArraySlice >= aSliceEnd)
+    // Cast to WUInt32 to avoid overflow when base + count exceeds the WUInt16/WUInt8 range.
+    const WUInt32 aSliceEnd = (WUInt32)m_uiBaseArraySlice + (WUInt32)m_uiArraySlices;
+    const WUInt32 bSliceEnd = (WUInt32)other.m_uiBaseArraySlice + (WUInt32)other.m_uiArraySlices;
+    if ((WUInt32)m_uiBaseArraySlice >= bSliceEnd || (WUInt32)other.m_uiBaseArraySlice >= aSliceEnd)
       return false;
 
-    const ezUInt32 aMipEnd = (ezUInt32)m_uiBaseMipLevel + (ezUInt32)m_uiMipLevels;
-    const ezUInt32 bMipEnd = (ezUInt32)other.m_uiBaseMipLevel + (ezUInt32)other.m_uiMipLevels;
-    if ((ezUInt32)m_uiBaseMipLevel >= bMipEnd || (ezUInt32)other.m_uiBaseMipLevel >= aMipEnd)
+    const WUInt32 aMipEnd = (WUInt32)m_uiBaseMipLevel + (WUInt32)m_uiMipLevels;
+    const WUInt32 bMipEnd = (WUInt32)other.m_uiBaseMipLevel + (WUInt32)other.m_uiMipLevels;
+    if ((WUInt32)m_uiBaseMipLevel >= bMipEnd || (WUInt32)other.m_uiBaseMipLevel >= aMipEnd)
       return false;
 
     return true;
@@ -552,207 +552,207 @@ struct ezGALTextureRange
 
   /// Computes a flat sub-resource index for the given mip level and array layer within a texture whose full range is described by this instance.
   /// Index = uiMipLevel + uiLayer * m_uiMipLevels.
-  EZ_ALWAYS_INLINE static ezUInt32 ComputeSubResourceIndex(ezUInt32 uiMipLevel, ezUInt32 uiLayer, const ezGALTextureRange& fullRange)
+  W_ALWAYS_INLINE static WUInt32 ComputeSubResourceIndex(WUInt32 uiMipLevel, WUInt32 uiLayer, const WGALTextureRange& fullRange)
   {
     return uiMipLevel + uiLayer * fullRange.m_uiMipLevels;
   }
 };
 
 /// Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
-/// Mainly used in ezBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
-struct ezGALBufferRange
+/// Mainly used in WBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
+struct WGALBufferRange
 {
-  EZ_DECLARE_POD_TYPE();
-  ezUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
-  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless EZ_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
+  W_DECLARE_POD_TYPE();
+  WUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
+  WUInt32 m_uiByteCount = W_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless W_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
 };
 
 /// Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
 template <typename CreationDescription>
-class ezGALObject : public ezRefCounted
+class WGALObject : public WRefCounted
 {
 public:
-  ezGALObject(const CreationDescription& description)
+  WGALObject(const CreationDescription& description)
     : m_Description(description)
   {
   }
 
-  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const { return m_Description; }
+  W_ALWAYS_INLINE const CreationDescription& GetDescription() const { return m_Description; }
 
 protected:
   const CreationDescription m_Description;
 };
 
 // Handles
-namespace ezGAL
+namespace WGAL
 {
-  using ez16_16Id = ezGenericId<16, 16>;
-  using ez18_14Id = ezGenericId<18, 14>;
-  using ez20_12Id = ezGenericId<20, 12>;
-  using ez20_44Id = ezGenericId<20, 44>;
-} // namespace ezGAL
+  using ez16_16Id = WGenericId<16, 16>;
+  using ez18_14Id = WGenericId<18, 14>;
+  using ez20_12Id = WGenericId<20, 12>;
+  using ez20_44Id = WGenericId<20, 44>;
+} // namespace WGAL
 
-class ezGALSwapChainHandle
+class WGALSwapChainHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALSwapChainHandle, ezGAL::ez16_16Id);
+  W_DECLARE_HANDLE_TYPE(WGALSwapChainHandle, WGAL::ez16_16Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALShaderHandle
+class WGALShaderHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALShaderHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALShaderHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALTextureHandle
+class WGALTextureHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALTextureHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALTextureHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALReadbackTextureHandle
+class WGALReadbackTextureHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackTextureHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALReadbackTextureHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALBufferHandle
+class WGALBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALBufferHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALDynamicBufferHandle
+class WGALDynamicBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALDynamicBufferHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALDynamicBufferHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALReadbackBufferHandle
+class WGALReadbackBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackBufferHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALReadbackBufferHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALRenderTargetViewHandle
+class WGALRenderTargetViewHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALRenderTargetViewHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALRenderTargetViewHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALDepthStencilStateHandle
+class WGALDepthStencilStateHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALDepthStencilStateHandle, ezGAL::ez16_16Id);
+  W_DECLARE_HANDLE_TYPE(WGALDepthStencilStateHandle, WGAL::ez16_16Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALBlendStateHandle
+class WGALBlendStateHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALBlendStateHandle, ezGAL::ez16_16Id);
+  W_DECLARE_HANDLE_TYPE(WGALBlendStateHandle, WGAL::ez16_16Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALRasterizerStateHandle
+class WGALRasterizerStateHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALRasterizerStateHandle, ezGAL::ez16_16Id);
+  W_DECLARE_HANDLE_TYPE(WGALRasterizerStateHandle, WGAL::ez16_16Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALSamplerStateHandle
+class WGALSamplerStateHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALSamplerStateHandle, ezGAL::ez16_16Id);
+  W_DECLARE_HANDLE_TYPE(WGALSamplerStateHandle, WGAL::ez16_16Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALVertexDeclarationHandle
+class WGALVertexDeclarationHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALVertexDeclarationHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALVertexDeclarationHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-/// Handle to ezGALBindGroupLayout, created via ezGALDevice::CreateBindGroupLayout
-class ezGALBindGroupLayoutHandle
+/// Handle to WGALBindGroupLayout, created via WGALDevice::CreateBindGroupLayout
+class WGALBindGroupLayoutHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALBindGroupLayoutHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-/// Handle to ezGALBindGroup, created via ezGALDevice::CreateBindGroup
-class ezGALBindGroupHandle
+/// Handle to WGALBindGroup, created via WGALDevice::CreateBindGroup
+class WGALBindGroupHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALBindGroupHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-/// Handle to ezGALPipelineLayout, created via ezGALDevice::CreatePipelineLayout
-class ezGALPipelineLayoutHandle
+/// Handle to WGALPipelineLayout, created via WGALDevice::CreatePipelineLayout
+class WGALPipelineLayoutHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALPipelineLayoutHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALGraphicsPipelineHandle
+class WGALGraphicsPipelineHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALGraphicsPipelineHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALGraphicsPipelineHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-class ezGALComputePipelineHandle
+class WGALComputePipelineHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALComputePipelineHandle, ezGAL::ez18_14Id);
+  W_DECLARE_HANDLE_TYPE(WGALComputePipelineHandle, WGAL::ez18_14Id);
 
-  friend class ezGALDevice;
+  friend class WGALDevice;
 };
 
-using ezGALPoolHandle = ezGAL::ez20_44Id;
-using ezGALTimestampHandle = ezGALPoolHandle;
-using ezGALOcclusionHandle = ezGALPoolHandle;
-using ezGALFenceHandle = ezUInt64;
+using WGALPoolHandle = WGAL::ez20_44Id;
+using WGALTimestampHandle = WGALPoolHandle;
+using WGALOcclusionHandle = WGALPoolHandle;
+using WGALFenceHandle = WUInt64;
 
-namespace ezGAL
+namespace WGAL
 {
   struct ModifiedRange
   {
-    EZ_ALWAYS_INLINE void Reset()
+    W_ALWAYS_INLINE void Reset()
     {
-      m_uiMin = ezInvalidIndex;
+      m_uiMin = WInvalidIndex;
       m_uiMax = 0;
     }
 
-    EZ_FORCE_INLINE void SetToIncludeValue(ezUInt32 value)
+    W_FORCE_INLINE void SetToIncludeValue(WUInt32 value)
     {
-      m_uiMin = ezMath::Min(m_uiMin, value);
-      m_uiMax = ezMath::Max(m_uiMax, value);
+      m_uiMin = WMath::Min(m_uiMin, value);
+      m_uiMax = WMath::Max(m_uiMax, value);
     }
 
-    EZ_FORCE_INLINE void SetToIncludeRange(ezUInt32 uiMin, ezUInt32 uiMax)
+    W_FORCE_INLINE void SetToIncludeRange(WUInt32 uiMin, WUInt32 uiMax)
     {
-      m_uiMin = ezMath::Min(m_uiMin, uiMin);
-      m_uiMax = ezMath::Max(m_uiMax, uiMax);
+      m_uiMin = WMath::Min(m_uiMin, uiMin);
+      m_uiMax = WMath::Max(m_uiMax, uiMax);
     }
 
-    EZ_ALWAYS_INLINE bool IsValid() const { return m_uiMin <= m_uiMax; }
+    W_ALWAYS_INLINE bool IsValid() const { return m_uiMin <= m_uiMax; }
 
-    EZ_ALWAYS_INLINE ezUInt32 GetCount() const { return m_uiMax - m_uiMin + 1; }
+    W_ALWAYS_INLINE WUInt32 GetCount() const { return m_uiMax - m_uiMin + 1; }
 
-    ezUInt32 m_uiMin = ezInvalidIndex;
-    ezUInt32 m_uiMax = 0;
+    WUInt32 m_uiMin = WInvalidIndex;
+    WUInt32 m_uiMax = 0;
   };
-} // namespace ezGAL
+} // namespace WGAL

@@ -7,9 +7,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
-ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
+WQtInputWidget* WQtInputWidget::s_pWidget = nullptr;
 
-ezQtInputWidget::ezQtInputWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtInputWidget::WQtInputWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Input Widget", pParent)
 {
   s_pWidget = this;
@@ -22,13 +22,13 @@ ezQtInputWidget::ezQtInputWidget(ads::CDockManager* pDockManager, QWidget* pPare
   ResetStats();
 }
 
-void ezQtInputWidget::ResetStats()
+void WQtInputWidget::ResetStats()
 {
   ClearSlots();
   ClearActions();
 }
 
-void ezQtInputWidget::ClearSlots()
+void WQtInputWidget::ClearSlots()
 {
   m_InputSlots.Clear();
   TableInputSlots->clear();
@@ -49,7 +49,7 @@ void ezQtInputWidget::ClearSlots()
   }
 }
 
-void ezQtInputWidget::ClearActions()
+void WQtInputWidget::ClearActions()
 {
   m_InputActions.Clear();
   TableInputActions->clear();
@@ -61,7 +61,7 @@ void ezQtInputWidget::ClearActions()
     Headers.append(" State ");
     Headers.append(" Value ");
 
-    for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
+    for (WInt32 slot = 0; slot < WInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
 
     TableInputActions->setColumnCount(static_cast<int>(Headers.size()));
@@ -71,32 +71,32 @@ void ezQtInputWidget::ClearActions()
   }
 }
 
-void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
+void WQtInputWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
 
   bool bUpdateSlotTable = false;
   bool bFillSlotTable = false;
   bool bUpdateActionTable = false;
   bool bFillActionTable = false;
 
-  while (ezTelemetry::RetrieveMessage('INPT', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('INPT', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == 'SLOT')
     {
-      ezString sSlotName;
+      WString sSlotName;
       msg.GetReader() >> sSlotName;
 
       SlotData& sd = s_pWidget->m_InputSlots[sSlotName];
 
       msg.GetReader() >> sd.m_uiSlotFlags;
 
-      ezUInt8 uiKeyState = 0;
+      WUInt8 uiKeyState = 0;
       msg.GetReader() >> uiKeyState;
-      sd.m_KeyState = (ezKeyState::Enum)uiKeyState;
+      sd.m_KeyState = (WKeyState::Enum)uiKeyState;
 
       msg.GetReader() >> sd.m_fValue;
       msg.GetReader() >> sd.m_fDeadZone;
@@ -109,26 +109,26 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'ACTN')
     {
-      ezString sInputSetName;
+      WString sInputSetName;
       msg.GetReader() >> sInputSetName;
 
-      ezString sActionName;
+      WString sActionName;
       msg.GetReader() >> sActionName;
 
-      ezStringBuilder sFinalName = sInputSetName.GetData();
+      WStringBuilder sFinalName = sInputSetName.GetData();
       sFinalName.Append("::");
       sFinalName.Append(sActionName.GetData());
 
       ActionData& sd = s_pWidget->m_InputActions[sFinalName.GetData()];
 
-      ezUInt8 uiKeyState = 0;
+      WUInt8 uiKeyState = 0;
       msg.GetReader() >> uiKeyState;
-      sd.m_KeyState = (ezKeyState::Enum)uiKeyState;
+      sd.m_KeyState = (WKeyState::Enum)uiKeyState;
 
       msg.GetReader() >> sd.m_fValue;
       msg.GetReader() >> sd.m_bUseTimeScaling;
 
-      for (ezUInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+      for (WUInt32 i = 0; i < WInputActionConfig::MaxInputSlotAlternatives; ++i)
       {
         msg.GetReader() >> sd.m_sTrigger[i];
         msg.GetReader() >> sd.m_fTriggerScaling[i];
@@ -152,9 +152,9 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->UpdateActionTable(false);
 }
 
-void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
+void WQtInputWidget::UpdateSlotTable(bool bRecreate)
 {
-  ezQtScopedUpdatesDisabled _1(TableInputSlots);
+  WQtScopedUpdatesDisabled _1(TableInputSlots);
 
   if (bRecreate)
   {
@@ -174,17 +174,17 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     TableInputSlots->setHorizontalHeaderLabels(Headers);
     TableInputSlots->horizontalHeader()->show();
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
     {
       it.Value().m_iTableRow = iRow;
 
       sTemp.SetFormat("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
-      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/InputSlots.svg");
+      QIcon icon = WQtUiServices::GetCachedIconResource(":/Icons/Icons/InputSlots.svg");
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputSlots->setCellWidget(iRow, 0, pIcon);
@@ -195,11 +195,11 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       TableInputSlots->setCellWidget(iRow, 4, new QLabel("????????"));
       TableInputSlots->setCellWidget(iRow, 5, new QLabel("????????????????"));
 
-      const ezUInt32 uiFlags = it.Value().m_uiSlotFlags;
+      const WUInt32 uiFlags = it.Value().m_uiSlotFlags;
 
       // Flags
       {
-        ezStringBuilder sFlags;
+        WStringBuilder sFlags;
         sFlags.SetPrintf("  %16b  ", uiFlags);
 
         QLabel* pFlags = (QLabel*)TableInputSlots->cellWidget(iRow, 5);
@@ -213,19 +213,19 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
         const char* szYes = "<b>yes</b>";
         const char* szNo = "no";
 
-        ezStringBuilder tt("<p>");
-        tt.AppendFormat("ReportsRelativeValues: {0}<br>", (uiFlags & ezInputSlotFlags::ReportsRelativeValues) ? szYes : szNo);
-        tt.AppendFormat("ValueBinaryZeroOrOne: {0}<br>", (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne) ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToOne: {0}<br>", (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne) ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToInf: {0}<br>", (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf) ? szYes : szNo);
-        tt.AppendFormat("Pressable: {0}<br>", (uiFlags & ezInputSlotFlags::Pressable) ? szYes : szNo);
-        tt.AppendFormat("Holdable: {0}<br>", (uiFlags & ezInputSlotFlags::Holdable) ? szYes : szNo);
-        tt.AppendFormat("HalfAxis: {0}<br>", (uiFlags & ezInputSlotFlags::HalfAxis) ? szYes : szNo);
-        tt.AppendFormat("FullAxis: {0}<br>", (uiFlags & ezInputSlotFlags::FullAxis) ? szYes : szNo);
-        tt.AppendFormat("RequiresDeadZone: {0}<br>", (uiFlags & ezInputSlotFlags::RequiresDeadZone) ? szYes : szNo);
-        tt.AppendFormat("ValuesAreNonContinuous: {0}<br>", (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous) ? szYes : szNo);
-        tt.AppendFormat("ActivationDependsOnOthers: {0}<br>", (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
-        tt.AppendFormat("NeverTimeScale: {0}<br>", (uiFlags & ezInputSlotFlags::NeverTimeScale) ? szYes : szNo);
+        WStringBuilder tt("<p>");
+        tt.AppendFormat("ReportsRelativeValues: {0}<br>", (uiFlags & WInputSlotFlags::ReportsRelativeValues) ? szYes : szNo);
+        tt.AppendFormat("ValueBinaryZeroOrOne: {0}<br>", (uiFlags & WInputSlotFlags::ValueBinaryZeroOrOne) ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToOne: {0}<br>", (uiFlags & WInputSlotFlags::ValueRangeZeroToOne) ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToInf: {0}<br>", (uiFlags & WInputSlotFlags::ValueRangeZeroToInf) ? szYes : szNo);
+        tt.AppendFormat("Pressable: {0}<br>", (uiFlags & WInputSlotFlags::Pressable) ? szYes : szNo);
+        tt.AppendFormat("Holdable: {0}<br>", (uiFlags & WInputSlotFlags::Holdable) ? szYes : szNo);
+        tt.AppendFormat("HalfAxis: {0}<br>", (uiFlags & WInputSlotFlags::HalfAxis) ? szYes : szNo);
+        tt.AppendFormat("FullAxis: {0}<br>", (uiFlags & WInputSlotFlags::FullAxis) ? szYes : szNo);
+        tt.AppendFormat("RequiresDeadZone: {0}<br>", (uiFlags & WInputSlotFlags::RequiresDeadZone) ? szYes : szNo);
+        tt.AppendFormat("ValuesAreNonContinuous: {0}<br>", (uiFlags & WInputSlotFlags::ValuesAreNonContinuous) ? szYes : szNo);
+        tt.AppendFormat("ActivationDependsOnOthers: {0}<br>", (uiFlags & WInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
+        tt.AppendFormat("NeverTimeScale: {0}<br>", (uiFlags & WInputSlotFlags::NeverTimeScale) ? szYes : szNo);
         tt.Append("</p>");
 
         TableInputSlots->cellWidget(iRow, 5)->setToolTip(tt.GetData());
@@ -238,26 +238,26 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
   }
 
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pState = (QLabel*)TableInputSlots->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
       {
-        case ezKeyState::Down:
+        case WKeyState::Down:
           pState->setText("Down");
           break;
-        case ezKeyState::Pressed:
+        case WKeyState::Pressed:
           pState->setText("Pressed");
           break;
-        case ezKeyState::Released:
+        case WKeyState::Released:
           pState->setText("Released");
           break;
-        case ezKeyState::Up:
+        case WKeyState::Up:
           pState->setText("");
           break;
       }
@@ -271,7 +271,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
           pValue->setText("");
         else
         {
-          sTemp.SetFormat(" {0} ", ezArgF(it.Value().m_fValue, 4));
+          sTemp.SetFormat(" {0} ", WArgF(it.Value().m_fValue, 4));
           pValue->setText(sTemp.GetData());
         }
       }
@@ -292,9 +292,9 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
   }
 }
 
-void ezQtInputWidget::UpdateActionTable(bool bRecreate)
+void WQtInputWidget::UpdateActionTable(bool bRecreate)
 {
-  ezQtScopedUpdatesDisabled _1(TableInputActions);
+  WQtScopedUpdatesDisabled _1(TableInputActions);
 
   if (bRecreate)
   {
@@ -307,7 +307,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     Headers.append(" State ");
     Headers.append(" Value ");
 
-    for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
+    for (WInt32 slot = 0; slot < WInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
 
     TableInputActions->setColumnCount(static_cast<int>(Headers.size()));
@@ -315,17 +315,17 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     TableInputActions->setHorizontalHeaderLabels(Headers);
     TableInputActions->horizontalHeader()->show();
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
     {
       it.Value().m_iTableRow = iRow;
 
       sTemp.SetFormat("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
-      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/InputActions.svg");
+      QIcon icon = WQtUiServices::GetCachedIconResource(":/Icons/Icons/InputActions.svg");
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputActions->setCellWidget(iRow, 0, pIcon);
@@ -339,12 +339,12 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
 
       // Trigger Slots
 
-      for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
+      for (WInt32 slot = 0; slot < WInputActionConfig::MaxInputSlotAlternatives; ++slot)
       {
         if (it.Value().m_sTrigger[slot].IsEmpty())
           sTemp = "  ";
         else
-          sTemp.SetFormat("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
+          sTemp.SetFormat("  [Scale: {0}] {1}  ", WArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
 
         QLabel* pValue = (QLabel*)TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
@@ -357,26 +357,26 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
   }
 
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pState = (QLabel*)TableInputActions->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
       {
-        case ezKeyState::Down:
+        case WKeyState::Down:
           pState->setText("Down");
           break;
-        case ezKeyState::Pressed:
+        case WKeyState::Pressed:
           pState->setText("Pressed");
           break;
-        case ezKeyState::Released:
+        case WKeyState::Released:
           pState->setText("Released");
           break;
-        case ezKeyState::Up:
+        case WKeyState::Up:
           pState->setText("");
           break;
       }
@@ -391,9 +391,9 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         else
         {
           if (it.Value().m_bUseTimeScaling)
-            sTemp.SetFormat(" {0} (Time-Scaled) ", ezArgF(it.Value().m_fValue, 4));
+            sTemp.SetFormat(" {0} (Time-Scaled) ", WArgF(it.Value().m_fValue, 4));
           else
-            sTemp.SetFormat(" {0} (Absolute) ", ezArgF(it.Value().m_fValue, 4));
+            sTemp.SetFormat(" {0} (Absolute) ", WArgF(it.Value().m_fValue, 4));
 
           pValue->setText(sTemp.GetData());
         }
@@ -405,12 +405,12 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
   }
 }
 
-void ezQtInputWidget::on_ButtonClearSlots_clicked()
+void WQtInputWidget::on_ButtonClearSlots_clicked()
 {
   ClearSlots();
 }
 
-void ezQtInputWidget::on_ButtonClearActions_clicked()
+void WQtInputWidget::on_ButtonClearActions_clicked()
 {
   ClearActions();
 }

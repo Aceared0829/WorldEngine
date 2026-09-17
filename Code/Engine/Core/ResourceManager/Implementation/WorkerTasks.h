@@ -6,39 +6,39 @@
 #include <Foundation/Types/UniquePtr.h>
 
 /// [internal] Worker task for loading resources (typically from disk).
-class EZ_CORE_DLL ezResourceManagerWorkerDataLoad final : public ezTask
+class W_CORE_DLL WResourceManagerWorkerDataLoad final : public WTask
 {
 public:
-  ~ezResourceManagerWorkerDataLoad();
+  ~WResourceManagerWorkerDataLoad();
 
 private:
-  friend class ezResourceManager;
-  friend class ezResourceManagerState;
+  friend class WResourceManager;
+  friend class WResourceManagerState;
 
-  ezResourceManagerWorkerDataLoad();
+  WResourceManagerWorkerDataLoad();
 
   virtual void Execute() override;
 };
 
 /// [internal] Worker task for uploading resource data.
 /// Depending on the resource type, this may get scheduled to run on the main thread or on any thread.
-class EZ_CORE_DLL ezResourceManagerWorkerUpdateContent final : public ezTask
+class W_CORE_DLL WResourceManagerWorkerUpdateContent final : public WTask
 {
 public:
-  ~ezResourceManagerWorkerUpdateContent();
+  ~WResourceManagerWorkerUpdateContent();
 
-  ezResourceLoadData m_LoaderData;
-  ezResource* m_pResourceToLoad = nullptr;
-  ezResourceTypeLoader* m_pLoader = nullptr;
+  WResourceLoadData m_LoaderData;
+  WResource* m_pResourceToLoad = nullptr;
+  WResourceTypeLoader* m_pLoader = nullptr;
   // this is only used to clean up a custom loader at the right time, if one is used
   // m_pLoader is always set, no need to go through m_pCustomLoader
-  ezUniquePtr<ezResourceTypeLoader> m_pCustomLoader;
+  WUniquePtr<WResourceTypeLoader> m_pCustomLoader;
 
 private:
-  friend class ezResourceManager;
-  friend class ezResourceManagerState;
-  friend class ezResourceManagerWorkerDataLoad;
-  ezResourceManagerWorkerUpdateContent();
+  friend class WResourceManager;
+  friend class WResourceManagerState;
+  friend class WResourceManagerWorkerDataLoad;
+  WResourceManagerWorkerUpdateContent();
 
   virtual void Execute() override;
 };

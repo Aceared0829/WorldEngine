@@ -8,9 +8,9 @@
 /// Used for debugging and inspecting various rendering aspects like wireframe, normals,
 /// texture coordinates, lighting components, etc. The render mode affects shader selection
 /// through permutation variables.
-struct EZ_RENDERERCORE_DLL ezViewRenderMode
+struct W_RENDERERCORE_DLL WViewRenderMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -44,12 +44,12 @@ struct EZ_RENDERERCORE_DLL ezViewRenderMode
   };
 
   /// Returns the shader permutation variable value for the given render mode.
-  static ezTempHashedString GetPermutationValue(Enum renderMode);
+  static WTempHashedString GetPermutationValue(Enum renderMode);
 
   /// Returns which render pass should be used for the given render mode.
   static int GetRenderPassForShader(Enum renderMode);
 
   /// Returns a debug text description for the given render mode.
-  static void GetDebugText(Enum renderMode, ezStringBuilder& out_sDebugText);
+  static void GetDebugText(Enum renderMode, WStringBuilder& out_sDebugText);
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezViewRenderMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WViewRenderMode);

@@ -9,8 +9,8 @@
 #include <Foundation/Tracks/EventTrack.h>
 #include <ozz/base/memory/unique_ptr.h>
 
-class ezSkeletonResource;
-class ezSkeleton;
+class WSkeletonResource;
+class WSkeleton;
 
 namespace ozz::animation
 {
@@ -18,107 +18,107 @@ namespace ozz::animation
 }
 
 /// A single named float curve stored inside an animation clip.
-struct EZ_RENDERERCORE_DLL ezAnimationClipCustomCurve
+struct W_RENDERERCORE_DLL WAnimationClipCustomCurve
 {
-  ezHashedString m_sName;
-  ezCurve1D m_Curve;
+  WHashedString m_sName;
+  WCurve1D m_Curve;
 };
 
-struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
+struct W_RENDERERCORE_DLL WAnimationClipResourceDescriptor
 {
 public:
-  ezAnimationClipResourceDescriptor();
-  ezAnimationClipResourceDescriptor(ezAnimationClipResourceDescriptor&& rhs);
-  ~ezAnimationClipResourceDescriptor();
+  WAnimationClipResourceDescriptor();
+  WAnimationClipResourceDescriptor(WAnimationClipResourceDescriptor&& rhs);
+  ~WAnimationClipResourceDescriptor();
 
-  void operator=(ezAnimationClipResourceDescriptor&& rhs) noexcept;
+  void operator=(WAnimationClipResourceDescriptor&& rhs) noexcept;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
-  ezUInt64 GetHeapMemoryUsage() const;
+  WUInt64 GetHeapMemoryUsage() const;
 
-  ezUInt16 GetNumJoints() const;
-  ezTime GetDuration() const;
-  void SetDuration(ezTime duration);
+  WUInt16 GetNumJoints() const;
+  WTime GetDuration() const;
+  void SetDuration(WTime duration);
 
-  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& out_pOzzAnim, const ezSkeleton& skeleton) const;
-  const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
+  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& out_pOzzAnim, const WSkeleton& skeleton) const;
+  const ozz::animation::Animation& GetMappedOzzAnimation(const WSkeletonResource& skeleton) const;
 
   struct JointInfo
   {
-    ezUInt32 m_uiPositionIdx = 0;
-    ezUInt32 m_uiRotationIdx = 0;
-    ezUInt32 m_uiScaleIdx = 0;
-    ezUInt16 m_uiPositionCount = 0;
-    ezUInt16 m_uiRotationCount = 0;
-    ezUInt16 m_uiScaleCount = 0;
+    WUInt32 m_uiPositionIdx = 0;
+    WUInt32 m_uiRotationIdx = 0;
+    WUInt32 m_uiScaleIdx = 0;
+    WUInt16 m_uiPositionCount = 0;
+    WUInt16 m_uiRotationCount = 0;
+    WUInt16 m_uiScaleCount = 0;
   };
 
   struct KeyframeVec3
   {
     float m_fTimeInSec;
-    ezVec3 m_Value;
+    WVec3 m_Value;
   };
 
   struct KeyframeQuat
   {
     float m_fTimeInSec;
-    ezQuat m_Value;
+    WQuat m_Value;
   };
 
-  JointInfo CreateJoint(const ezHashedString& sJointName, ezUInt16 uiNumPositions, ezUInt16 uiNumRotations, ezUInt16 uiNumScales);
-  const JointInfo* GetJointInfo(const ezTempHashedString& sJointName) const;
+  JointInfo CreateJoint(const WHashedString& sJointName, WUInt16 uiNumPositions, WUInt16 uiNumRotations, WUInt16 uiNumScales);
+  const JointInfo* GetJointInfo(const WTempHashedString& sJointName) const;
   void AllocateJointTransforms();
 
-  ezArrayPtr<KeyframeVec3> GetPositionKeyframes(const JointInfo& jointInfo);
-  ezArrayPtr<KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo);
-  ezArrayPtr<KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo);
+  WArrayPtr<KeyframeVec3> GetPositionKeyframes(const JointInfo& jointInfo);
+  WArrayPtr<KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo);
+  WArrayPtr<KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo);
 
-  ezArrayPtr<const KeyframeVec3> GetPositionKeyframes(const JointInfo& jointInfo) const;
-  ezArrayPtr<const KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo) const;
-  ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
+  WArrayPtr<const KeyframeVec3> GetPositionKeyframes(const JointInfo& jointInfo) const;
+  WArrayPtr<const KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo) const;
+  WArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
 
-  ezVec3 m_vConstantRootMotion = ezVec3::MakeZero();
+  WVec3 m_vConstantRootMotion = WVec3::MakeZero();
 
-  ezDynamicArray<ezAnimationClipCustomCurve> m_CustomCurves;
+  WDynamicArray<WAnimationClipCustomCurve> m_CustomCurves;
 
-  ezEventTrack m_EventTrack;
+  WEventTrack m_EventTrack;
 
   bool m_bAdditive = false;
 
 private:
-  mutable ezMutex m_Mutex; ///< Guards m_JointInfos and m_pOzzImpl against concurrent access during async animation sampling.
-  ezArrayMap<ezHashedString, JointInfo> m_JointInfos;
-  ezDataBuffer m_Transforms;
-  ezUInt32 m_uiNumTotalPositions = 0;
-  ezUInt32 m_uiNumTotalRotations = 0;
-  ezUInt32 m_uiNumTotalScales = 0;
-  ezTime m_Duration;
+  mutable WMutex m_Mutex; ///< Guards m_JointInfos and m_pOzzImpl against concurrent access during async animation sampling.
+  WArrayMap<WHashedString, JointInfo> m_JointInfos;
+  WDataBuffer m_Transforms;
+  WUInt32 m_uiNumTotalPositions = 0;
+  WUInt32 m_uiNumTotalRotations = 0;
+  WUInt32 m_uiNumTotalScales = 0;
+  WTime m_Duration;
 
   struct OzzImpl;
-  ezUniquePtr<OzzImpl> m_pOzzImpl;
+  WUniquePtr<OzzImpl> m_pOzzImpl;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
+using WAnimationClipResourceHandle = WTypedResourceHandle<class WAnimationClipResource>;
 
-class EZ_RENDERERCORE_DLL ezAnimationClipResource : public ezResource
+class W_RENDERERCORE_DLL WAnimationClipResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezAnimationClipResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezAnimationClipResource, ezAnimationClipResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WAnimationClipResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WAnimationClipResource, WAnimationClipResourceDescriptor);
 
 public:
-  ezAnimationClipResource();
+  WAnimationClipResource();
 
-  const ezAnimationClipResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
+  const WAnimationClipResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezUniquePtr<ezAnimationClipResourceDescriptor> m_pDescriptor;
+  WUniquePtr<WAnimationClipResourceDescriptor> m_pDescriptor;
 };

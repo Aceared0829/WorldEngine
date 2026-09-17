@@ -2,68 +2,68 @@
 
 /// \file
 
-/// Global settings for how to to compile EZ.
+/// Global settings for how to to compile W.
 /// Modify these settings as you needed in your project.
 
 
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
-#  undef EZ_COMPILE_ENGINE_AS_DLL
-#  define EZ_COMPILE_ENGINE_AS_DLL EZ_ON
+#  undef W_COMPILE_ENGINE_AS_DLL
+#  define W_COMPILE_ENGINE_AS_DLL W_ON
 #else
-#  undef EZ_COMPILE_ENGINE_AS_DLL
-#  define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
+#  undef W_COMPILE_ENGINE_AS_DLL
+#  define W_COMPILE_ENGINE_AS_DLL W_OFF
 #endif
 
 #if defined(BUILDSYSTEM_BUILDTYPE_Shipping)
 
 // Development checks like assert.
-#  undef EZ_COMPILE_FOR_DEVELOPMENT
-#  define EZ_COMPILE_FOR_DEVELOPMENT EZ_OFF
+#  undef W_COMPILE_FOR_DEVELOPMENT
+#  define W_COMPILE_FOR_DEVELOPMENT W_OFF
 
 // Performance profiling features
-#  undef EZ_USE_PROFILING
-#  define EZ_USE_PROFILING EZ_OFF
+#  undef W_USE_PROFILING
+#  define W_USE_PROFILING W_OFF
 
 // OS tracing features (ETW / LTTNG / Perfetto)
-#  undef EZ_USE_TRACING
-#  define EZ_USE_TRACING EZ_OFF
+#  undef W_USE_TRACING
+#  define W_USE_TRACING W_OFF
 
 // Tracking of memory allocations.
-#  undef EZ_ALLOC_TRACKING_DEFAULT
-#  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
+#  undef W_ALLOC_TRACKING_DEFAULT
+#  define W_ALLOC_TRACKING_DEFAULT WAllocatorTrackingMode::Nothing
 
 #else
 
 // Development checks like assert.
-#  undef EZ_COMPILE_FOR_DEVELOPMENT
-#  define EZ_COMPILE_FOR_DEVELOPMENT EZ_ON
+#  undef W_COMPILE_FOR_DEVELOPMENT
+#  define W_COMPILE_FOR_DEVELOPMENT W_ON
 
 // Performance profiling features
-#  undef EZ_USE_PROFILING
-#  define EZ_USE_PROFILING EZ_ON
+#  undef W_USE_PROFILING
+#  define W_USE_PROFILING W_ON
 
 // OS tracing features (ETW / LTTNG / Perfetto)
-#  undef EZ_USE_TRACING
-#  define EZ_USE_TRACING EZ_ON
+#  undef W_USE_TRACING
+#  define W_USE_TRACING W_ON
 
 // Tracking of memory allocations.
-#  undef EZ_ALLOC_TRACKING_DEFAULT
+#  undef W_ALLOC_TRACKING_DEFAULT
 
-#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks
+#  if W_ENABLED(W_PLATFORM_ANDROID)
+#    define W_ALLOC_TRACKING_DEFAULT WAllocatorTrackingMode::AllocationStatsIgnoreLeaks
 #  else
-#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
+#    define W_ALLOC_TRACKING_DEFAULT WAllocatorTrackingMode::AllocationStatsAndStacktraces
 #  endif
 
 #endif
 
 #if defined(BUILDSYSTEM_BUILDTYPE_Debug)
-#  undef EZ_MATH_CHECK_FOR_NAN
-#  define EZ_MATH_CHECK_FOR_NAN EZ_ON
-#  undef EZ_USE_STRING_VALIDATION
-#  define EZ_USE_STRING_VALIDATION EZ_ON
+#  undef W_MATH_CHECK_FOR_NAN
+#  define W_MATH_CHECK_FOR_NAN W_ON
+#  undef W_USE_STRING_VALIDATION
+#  define W_USE_STRING_VALIDATION W_ON
 #endif
 
 
 /// Whether game objects compute and store their velocity since the last frame (increases object size)
-#define EZ_GAMEOBJECT_VELOCITY EZ_ON
+#define W_GAMEOBJECT_VELOCITY W_ON

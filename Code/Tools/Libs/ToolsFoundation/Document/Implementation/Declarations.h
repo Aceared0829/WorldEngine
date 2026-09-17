@@ -1,21 +1,21 @@
 #pragma once
 
-class ezDocument;
-class ezDocumentManager;
-class ezDocumentObjectManager;
-class ezAbstractObjectGraph;
+class WDocument;
+class WDocumentManager;
+class WDocumentObjectManager;
+class WAbstractObjectGraph;
 
-struct ezDocumentFlags
+struct WDocumentFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     None = 0,
-    RequestWindow = EZ_BIT(0),        ///< Open the document visibly (not just internally)
-    AddToRecentFilesList = EZ_BIT(1), ///< Add the document path to the recently used list for users
-    AsyncSave = EZ_BIT(2),            ///<
-    EmptyDocument = EZ_BIT(3),        ///< Don't populate a new document with default state (templates etc)
+    RequestWindow = W_BIT(0),        ///< Open the document visibly (not just internally)
+    AddToRecentFilesList = W_BIT(1), ///< Add the document path to the recently used list for users
+    AsyncSave = W_BIT(2),            ///<
+    EmptyDocument = W_BIT(3),        ///< Don't populate a new document with default state (templates etc)
     Default = None,
   };
 
@@ -28,29 +28,29 @@ struct ezDocumentFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezDocumentFlags);
+W_DECLARE_FLAGS_OPERATORS(WDocumentFlags);
 
 
-struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
+struct W_TOOLSFOUNDATION_DLL WDocumentTypeDescriptor
 {
-  ezString m_sFileExtension;
-  ezString m_sDocumentTypeName;
+  WString m_sFileExtension;
+  WString m_sDocumentTypeName;
   bool m_bCanCreate = true;
-  ezString m_sIcon;
-  const ezRTTI* m_pDocumentType = nullptr;
-  ezDocumentManager* m_pManager = nullptr;
-  ezStringView m_sAssetCategory; // passed to ezColorScheme::GetCategoryColor() with CategoryColorUsage::AssetMenuIcon
+  WString m_sIcon;
+  const WRTTI* m_pDocumentType = nullptr;
+  WDocumentManager* m_pManager = nullptr;
+  WStringView m_sAssetCategory; // passed to WColorScheme::GetCategoryColor() with CategoryColorUsage::AssetMenuIcon
 
   /// This list is used to decide which asset types can be picked from the asset browser for a property.
   /// The strings are arbitrary and don't need to be registered anywhere else.
   /// An asset may be compatible for multiple scenarios, e.g. a skinned mesh may also be used as a static mesh, but not the other way round.
   /// In such a case the skinned mesh is set to be compatible to both "CompatibleAsset_Mesh_Static" and "CompatibleAsset_Mesh_Skinned", but the non-skinned mesh only to "CompatibleAsset_Mesh_Static".
   /// A component then only needs to specify that it takes an "CompatibleAsset_Mesh_Static" as input, and all asset types that are compatible to that will be browseable.
-  ezHybridArray<ezString, 1> m_CompatibleTypes;
+  WHybridArray<WString, 1> m_CompatibleTypes;
 };
 
 
-struct ezDocumentEvent
+struct WDocumentEvent
 {
   enum class Type
   {
@@ -63,17 +63,17 @@ struct ezDocumentEvent
   };
 
   Type m_Type;
-  const ezDocument* m_pDocument;
+  const WDocument* m_pDocument;
 
-  ezStringView m_sStatusMsg;
+  WStringView m_sStatusMsg;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
+class W_TOOLSFOUNDATION_DLL WDocumentInfo : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentInfo, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentInfo, WReflectedClass);
 
 public:
-  ezDocumentInfo();
+  WDocumentInfo();
 
-  ezUuid m_DocumentID;
+  WUuid m_DocumentID;
 };

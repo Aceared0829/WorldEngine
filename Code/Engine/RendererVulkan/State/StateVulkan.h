@@ -5,82 +5,82 @@
 
 #include <RendererFoundation/State/State.h>
 
-class EZ_RENDERERVULKAN_DLL ezGALBlendStateVulkan : public ezGALBlendState
+class W_RENDERERVULKAN_DLL WGALBlendStateVulkan : public WGALBlendState
 {
 public:
-  EZ_ALWAYS_INLINE const vk::PipelineColorBlendStateCreateInfo* GetBlendState() const;
+  W_ALWAYS_INLINE const vk::PipelineColorBlendStateCreateInfo* GetBlendState() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALBlendStateVulkan(const ezGALBlendStateCreationDescription& Description);
+  WGALBlendStateVulkan(const WGALBlendStateCreationDescription& Description);
 
-  ~ezGALBlendStateVulkan();
+  ~WGALBlendStateVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   vk::PipelineColorBlendStateCreateInfo m_BlendState = {};
   vk::PipelineColorBlendAttachmentState m_blendAttachmentState[8] = {};
 };
 
-class EZ_RENDERERVULKAN_DLL ezGALDepthStencilStateVulkan : public ezGALDepthStencilState
+class W_RENDERERVULKAN_DLL WGALDepthStencilStateVulkan : public WGALDepthStencilState
 {
 public:
-  EZ_ALWAYS_INLINE const vk::PipelineDepthStencilStateCreateInfo* GetDepthStencilState() const;
+  W_ALWAYS_INLINE const vk::PipelineDepthStencilStateCreateInfo* GetDepthStencilState() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALDepthStencilStateVulkan(const ezGALDepthStencilStateCreationDescription& Description);
+  WGALDepthStencilStateVulkan(const WGALDepthStencilStateCreationDescription& Description);
 
-  ~ezGALDepthStencilStateVulkan();
+  ~WGALDepthStencilStateVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   vk::PipelineDepthStencilStateCreateInfo m_DepthStencilState = {};
 };
 
-class EZ_RENDERERVULKAN_DLL ezGALRasterizerStateVulkan : public ezGALRasterizerState
+class W_RENDERERVULKAN_DLL WGALRasterizerStateVulkan : public WGALRasterizerState
 {
 public:
-  EZ_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* GetRasterizerState() const;
+  W_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* GetRasterizerState() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALRasterizerStateVulkan(const ezGALRasterizerStateCreationDescription& Description);
+  WGALRasterizerStateVulkan(const WGALRasterizerStateCreationDescription& Description);
 
-  ~ezGALRasterizerStateVulkan();
+  ~WGALRasterizerStateVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   vk::PipelineRasterizationStateCreateInfo m_RasterizerState = {};
   vk::PipelineRasterizationConservativeStateCreateInfoEXT m_ConservativeRasterState = {}; ///< Only chained into m_RasterizerState::pNext when conservative rasterization is requested.
 };
 
-class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState
+class W_RENDERERVULKAN_DLL WGALSamplerStateVulkan : public WGALSamplerState
 {
 public:
-  EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
+  W_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description);
-  ~ezGALSamplerStateVulkan();
+  WGALSamplerStateVulkan(const WGALSamplerStateCreationDescription& Description);
+  ~WGALSamplerStateVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   vk::DescriptorImageInfo m_ResourceImageInfo;
 };

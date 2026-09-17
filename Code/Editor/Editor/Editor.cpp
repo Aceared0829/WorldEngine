@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <shellscalingapi.h>
 #endif
@@ -16,11 +16,11 @@ namespace
   /// nowhere by default. Attaching to the parent's console is what makes the output visible when it
   /// was started from a shell. When there is no console - the double-clicked case - the text is
   /// silently dropped, because there is nowhere to put it that would not block waiting for a click.
-  void PrintToParentConsole(ezStringView sText)
+  void PrintToParentConsole(WStringView sText)
   {
-    const ezStringBuilder sOut(sText);
+    const WStringBuilder sOut(sText);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
     // Fails when the parent has no console, and also when one is already attached - the latter is not
     // an error, that console can be written to just as well, so only the handle below decides.
     ::AttachConsole(ATTACH_PARENT_PROCESS);
@@ -42,36 +42,36 @@ namespace
   }
 } // namespace
 
-class ezEditorApplication : public ezApplication
+class WEditorApplication : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezEditorApplication()
-    : ezApplication("ezEditor")
+  WEditorApplication()
+    : WApplication("WEditor")
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
     SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 #endif
     EnableMemoryLeakReporting(true);
 
-    m_pEditorApp = new ezQtEditorApp;
+    m_pEditorApp = new WQtEditorApp;
   }
 
-  virtual ezResult BeforeCoreSystemsStartup() override
+  virtual WResult BeforeCoreSystemsStartup() override
   {
-    ezStartup::AddApplicationTag("tool");
-    ezStartup::AddApplicationTag("editor");
-    ezStartup::AddApplicationTag("editorapp");
+    WStartup::AddApplicationTag("tool");
+    WStartup::AddApplicationTag("editor");
+    WStartup::AddApplicationTag("editorapp");
 
-    ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+    WQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   virtual void AfterCoreSystemsShutdown() override
   {
-    ezQtEditorApp::GetSingleton()->DeInitQt();
+    WQtEditorApp::GetSingleton()->DeInitQt();
 
     delete m_pEditorApp;
     m_pEditorApp = nullptr;
@@ -80,8 +80,8 @@ public:
   virtual void Run() override
   {
     {
-      ezStringBuilder cmdHelp;
-      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_Editor;cvar"))
+      WStringBuilder cmdHelp;
+      if (WCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, WCommandLineOption::LogAvailableModes::IfHelpRequested, "_Editor;cvar"))
       {
         PrintToParentConsole(cmdHelp);
 
@@ -90,18 +90,18 @@ public:
       }
     }
 
-    ezQtEditorApp::GetSingleton()->StartupEditor();
+    WQtEditorApp::GetSingleton()->StartupEditor();
     {
-      const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
+      const WInt32 iReturnCode = WQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);
     }
-    ezQtEditorApp::GetSingleton()->ShutdownEditor();
+    WQtEditorApp::GetSingleton()->ShutdownEditor();
 
     QuitApplication();
   }
 
 private:
-  ezQtEditorApp* m_pEditorApp;
+  WQtEditorApp* m_pEditorApp;
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
+W_APPLICATION_ENTRY_POINT(WEditorApplication);

@@ -10,33 +10,33 @@
 #  include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BakeScene, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BakeScene>);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpWorker_BakeScene, 1, WRTTIDefaultAllocator<WLongOpWorker_BakeScene>);
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezLongOpWorker_BakeScene::InitializeExecution(ezStreamReader& config, const ezUuid& DocumentGuid)
+WResult WLongOpWorker_BakeScene::InitializeExecution(WStreamReader& config, const WUuid& DocumentGuid)
 {
-  ezEngineProcessDocumentContext* pDocContext = ezEngineProcessDocumentContext::GetDocumentContext(DocumentGuid);
+  WEngineProcessDocumentContext* pDocContext = WEngineProcessDocumentContext::GetDocumentContext(DocumentGuid);
 
   if (pDocContext == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   config >> m_sOutputPath;
 
   {
-    m_pScene = ezBaking::GetSingleton()->GetOrCreateScene(*pDocContext->GetWorld());
+    m_pScene = WBaking::GetSingleton()->GetOrCreateScene(*pDocContext->GetWorld());
 
-    EZ_SUCCEED_OR_RETURN(m_pScene->Extract());
+    W_SUCCEED_OR_RETURN(m_pScene->Extract());
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLongOpWorker_BakeScene::Execute(ezProgress& progress, ezStreamWriter& proxydata)
+WResult WLongOpWorker_BakeScene::Execute(WProgress& progress, WStreamWriter& proxydata)
 {
-  EZ_SUCCEED_OR_RETURN(m_pScene->Bake(m_sOutputPath, progress));
+  W_SUCCEED_OR_RETURN(m_pScene->Bake(m_sOutputPath, progress));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

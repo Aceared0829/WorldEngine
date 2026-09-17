@@ -4,16 +4,16 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-struct ezResourceEvent;
+struct WResourceEvent;
 
-class ezKrautLodInfo;
-class ezKrautRenderData;
+class WKrautLodInfo;
+class WKrautRenderData;
 
-class ezKrautTreeComponent;
-class ezKrautTreeComponentManager;
+class WKrautTreeComponent;
+class WKrautTreeComponentManager;
 
-/// Tracks the async generation state of a single LOD slot inside an ezKrautTreeResource.
-enum class ezKrautLodState : ezUInt8
+/// Tracks the async generation state of a single LOD slot inside an WKrautTreeResource.
+enum class WKrautLodState : WUInt8
 {
   NotGenerated = 0,
   Generating = 1,
@@ -21,7 +21,7 @@ enum class ezKrautLodState : ezUInt8
 };
 
 /// Describes the rendering technique used for a LOD.
-enum class ezKrautLodType : ezUInt8
+enum class WKrautLodType : WUInt8
 {
   None = 0xFF,
   Mesh = 0,              ///< Standard triangle mesh.
@@ -30,7 +30,7 @@ enum class ezKrautLodType : ezUInt8
 };
 
 /// Identifies the material category of a sub-mesh within a tree LOD.
-enum class ezKrautMaterialType : ezUInt8
+enum class WKrautMaterialType : WUInt8
 {
   None = 0xFF,
   Branch = 0, ///< Cylindrical branch/trunk geometry.
@@ -43,7 +43,7 @@ enum class ezKrautMaterialType : ezUInt8
 /// Each branch type maps to one slot in the tree's hierarchical structure
 /// (trunk, main branches, sub-branches, twigs), with up to three parallel
 /// variants per level. The value 0xFF (None) is used as a sentinel.
-enum class ezKrautBranchType : ezUInt8
+enum class WKrautBranchType : WUInt8
 {
   None = 0xFF,
   Trunk1 = 0,
@@ -65,24 +65,24 @@ enum class ezKrautBranchType : ezUInt8
 /// Used by the editor preview to show or hide individual branch types while
 /// inspecting a LOD. The Default value enables all bits so that every branch
 /// type is visible unless explicitly masked out.
-struct ezKrautTreeTypeBits
+struct WKrautTreeTypeBits
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
-  enum Enum : ezUInt32
+  enum Enum : WUInt32
   {
-    Trunk1 = EZ_BIT(0),
-    Trunk2 = EZ_BIT(1),
-    Trunk3 = EZ_BIT(2),
-    MainBranches1 = EZ_BIT(3),
-    MainBranches2 = EZ_BIT(4),
-    MainBranches3 = EZ_BIT(5),
-    SubBranches1 = EZ_BIT(6),
-    SubBranches2 = EZ_BIT(7),
-    SubBranches3 = EZ_BIT(8),
-    Twigs1 = EZ_BIT(9),
-    Twigs2 = EZ_BIT(10),
-    Twigs3 = EZ_BIT(11),
+    Trunk1 = W_BIT(0),
+    Trunk2 = W_BIT(1),
+    Trunk3 = W_BIT(2),
+    MainBranches1 = W_BIT(3),
+    MainBranches2 = W_BIT(4),
+    MainBranches3 = W_BIT(5),
+    SubBranches1 = W_BIT(6),
+    SubBranches2 = W_BIT(7),
+    SubBranches3 = W_BIT(8),
+    Twigs1 = W_BIT(9),
+    Twigs2 = W_BIT(10),
+    Twigs3 = W_BIT(11),
 
     Default = 0xFFFFFFFF ///< All branch types enabled.
   };
@@ -104,6 +104,6 @@ struct ezKrautTreeTypeBits
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezKrautTreeTypeBits);
+W_DECLARE_FLAGS_OPERATORS(WKrautTreeTypeBits);
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_KRAUTPLUGIN_DLL, ezKrautTreeTypeBits);
+W_DECLARE_REFLECTABLE_TYPE(W_KRAUTPLUGIN_DLL, WKrautTreeTypeBits);

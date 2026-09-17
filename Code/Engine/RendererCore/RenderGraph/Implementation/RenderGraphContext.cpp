@@ -2,33 +2,33 @@
 
 #include <RendererCore/RenderGraph/RenderGraphContext.h>
 
-ezGALTextureHandle ezRenderGraphContext::ResolveTexture(ezRenderGraphTextureHandle hTexture) const
+WGALTextureHandle WRenderGraphContext::ResolveTexture(WRenderGraphTextureHandle hTexture) const
 {
-  ezUInt32 uiInstanceId = hTexture.GetInternalID().m_InstanceIndex;
-  EZ_ASSERT_DEBUG(uiInstanceId < m_pTextureToResolvedTexture->GetCount(), "Invalid texture ID");
-  const ezUInt16 uiResolvedTextureIndex = (*m_pTextureToResolvedTexture)[uiInstanceId];
+  WUInt32 uiInstanceId = hTexture.GetInternalID().m_InstanceIndex;
+  W_ASSERT_DEBUG(uiInstanceId < m_pTextureToResolvedTexture->GetCount(), "Invalid texture ID");
+  const WUInt16 uiResolvedTextureIndex = (*m_pTextureToResolvedTexture)[uiInstanceId];
   return (*m_pResolvedTextures)[uiResolvedTextureIndex];
 }
 
-ezGALBufferHandle ezRenderGraphContext::ResolveBuffer(ezRenderGraphBufferHandle hBuffer) const
+WGALBufferHandle WRenderGraphContext::ResolveBuffer(WRenderGraphBufferHandle hBuffer) const
 {
-  ezUInt32 uiInstanceId = hBuffer.GetInternalID().m_InstanceIndex;
-  EZ_ASSERT_DEBUG(uiInstanceId < m_pBufferToResolvedBuffer->GetCount(), "Invalid Buffer ID");
-  const ezUInt16 uiResolvedBufferIndex = (*m_pBufferToResolvedBuffer)[uiInstanceId];
+  WUInt32 uiInstanceId = hBuffer.GetInternalID().m_InstanceIndex;
+  W_ASSERT_DEBUG(uiInstanceId < m_pBufferToResolvedBuffer->GetCount(), "Invalid Buffer ID");
+  const WUInt16 uiResolvedBufferIndex = (*m_pBufferToResolvedBuffer)[uiInstanceId];
   return (*m_pResolvedBuffers)[uiResolvedBufferIndex];
 }
 
-ezGALCommandEncoder* ezRenderGraphContext::GetCommandEncoder() const
+WGALCommandEncoder* WRenderGraphContext::GetCommandEncoder() const
 {
   return m_pCommandEncoder;
 }
 
-ezGALDevice* ezRenderGraphContext::GetDevice() const
+WGALDevice* WRenderGraphContext::GetDevice() const
 {
   return m_pDevice;
 }
 
-ezRenderContext* ezRenderGraphContext::GetRenderContext() const
+WRenderContext* WRenderGraphContext::GetRenderContext() const
 {
   return m_pRenderContext;
 }

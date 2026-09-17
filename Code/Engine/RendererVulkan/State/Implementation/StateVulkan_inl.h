@@ -1,20 +1,20 @@
 
-EZ_ALWAYS_INLINE const vk::PipelineColorBlendStateCreateInfo* ezGALBlendStateVulkan::GetBlendState() const
+W_ALWAYS_INLINE const vk::PipelineColorBlendStateCreateInfo* WGALBlendStateVulkan::GetBlendState() const
 {
   return &m_BlendState;
 }
 
-EZ_ALWAYS_INLINE const vk::PipelineDepthStencilStateCreateInfo* ezGALDepthStencilStateVulkan::GetDepthStencilState() const
+W_ALWAYS_INLINE const vk::PipelineDepthStencilStateCreateInfo* WGALDepthStencilStateVulkan::GetDepthStencilState() const
 {
   return &m_DepthStencilState;
 }
 
-EZ_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* ezGALRasterizerStateVulkan::GetRasterizerState() const
+W_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* WGALRasterizerStateVulkan::GetRasterizerState() const
 {
   return &m_RasterizerState;
 }
 
-EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& ezGALSamplerStateVulkan::GetImageInfo() const
+W_ALWAYS_INLINE const vk::DescriptorImageInfo& WGALSamplerStateVulkan::GetImageInfo() const
 {
   return m_ResourceImageInfo;
 }

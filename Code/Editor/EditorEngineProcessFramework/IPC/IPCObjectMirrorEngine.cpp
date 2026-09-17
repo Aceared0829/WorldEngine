@@ -2,21 +2,21 @@
 
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
-ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine()
-  : ezDocumentObjectMirror()
+WIPCObjectMirrorEngine::WIPCObjectMirrorEngine()
+  : WDocumentObjectMirror()
 {
 }
 
-ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine() = default;
+WIPCObjectMirrorEngine::~WIPCObjectMirrorEngine() = default;
 
-void ezIPCObjectMirrorEngine::ApplyOp(ezObjectChange& inout_change)
+void WIPCObjectMirrorEngine::ApplyOp(WObjectChange& inout_change)
 {
   if (m_pContext)
   {
-    ezDocumentObjectMirror::ApplyOp(inout_change);
+    WDocumentObjectMirror::ApplyOp(inout_change);
   }
   else
   {
-    EZ_REPORT_FAILURE("ezIPCObjectMirrorEngine not set up for sender nor receiver!");
+    W_REPORT_FAILURE("WIPCObjectMirrorEngine not set up for sender nor receiver!");
   }
 }

@@ -5,29 +5,29 @@
 #include <Foundation/Types/Variant.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezDocumentObject;
+class WDocumentObject;
 
-struct EZ_GUIFOUNDATION_DLL ezPropertySelection
+struct W_GUIFOUNDATION_DLL WPropertySelection
 {
-  const ezDocumentObject* m_pObject;
-  ezVariant m_Index;
+  const WDocumentObject* m_pObject;
+  WVariant m_Index;
 
-  bool operator==(const ezPropertySelection& rhs) const { return m_pObject == rhs.m_pObject && m_Index == rhs.m_Index; }
+  bool operator==(const WPropertySelection& rhs) const { return m_pObject == rhs.m_pObject && m_Index == rhs.m_Index; }
 
-  bool operator<(const ezPropertySelection& rhs) const
+  bool operator<(const WPropertySelection& rhs) const
   {
     // Qt6 requires the less than operator but never calls it, so we use this dummy for now.
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return false;
   }
 };
 
-struct EZ_GUIFOUNDATION_DLL ezPropertyClipboard
+struct W_GUIFOUNDATION_DLL WPropertyClipboard
 {
-  ezString m_Type;
-  ezVariant m_Value;
-  /// When set, contains a DDL serialized ezAbstractObjectGraph of an entire object (e.g. a component).
+  WString m_Type;
+  WVariant m_Value;
+  /// When set, contains a DDL serialized WAbstractObjectGraph of an entire object (e.g. a component).
   /// In that case m_Value is empty and m_Type is the RTTI type name of the serialized object.
-  ezString m_ObjectGraph;
+  WString m_ObjectGraph;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezPropertyClipboard)
+W_DECLARE_REFLECTABLE_TYPE(W_GUIFOUNDATION_DLL, WPropertyClipboard)

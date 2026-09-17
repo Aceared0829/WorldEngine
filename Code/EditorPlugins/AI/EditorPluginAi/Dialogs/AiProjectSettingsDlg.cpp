@@ -10,14 +10,14 @@
 
 void UpdateGroundTypeDynamicEnumValues();
 
-ezQtAiProjectSettingsDlg::ezQtAiProjectSettingsDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtAiProjectSettingsDlg::WQtAiProjectSettingsDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
   EnsureConfigFileExists();
 
-  ezDynamicEnum& col = ezDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
+  WDynamicEnum& col = WDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
   for (auto it : col.GetAllValidValues())
   {
     const int iLayer = it.Key();
@@ -27,7 +27,7 @@ ezQtAiProjectSettingsDlg::ezQtAiProjectSettingsDlg(QWidget* pParent)
   ResetState();
 }
 
-void ezQtAiProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
+void WQtAiProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
 {
   if (pButton == DefaultButtons->button(QDialogButtonBox::Reset))
   {
@@ -55,9 +55,9 @@ void ezQtAiProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButto
   }
 }
 
-void ezQtAiProjectSettingsDlg::EnsureConfigFileExists()
+void WQtAiProjectSettingsDlg::EnsureConfigFileExists()
 {
-  ezAiNavigationConfig cfg;
+  WAiNavigationConfig cfg;
 
   if (cfg.Load().Failed())
   {
@@ -65,7 +65,7 @@ void ezQtAiProjectSettingsDlg::EnsureConfigFileExists()
   }
 }
 
-void ezQtAiProjectSettingsDlg::ResetState()
+void WQtAiProjectSettingsDlg::ResetState()
 {
   m_Config.Load().IgnoreResult();
 
@@ -87,7 +87,7 @@ void ezQtAiProjectSettingsDlg::ResetState()
   ApplyNavmeshConfig(SelectedMeshCfg->currentIndex());
 }
 
-void ezQtAiProjectSettingsDlg::SaveState()
+void WQtAiProjectSettingsDlg::SaveState()
 {
   RetrieveGroundTypeTable();
   RetrievePathConfig(SelectedPathCfg->currentIndex());
@@ -96,13 +96,13 @@ void ezQtAiProjectSettingsDlg::SaveState()
   UpdateGroundTypeDynamicEnumValues();
 }
 
-void ezQtAiProjectSettingsDlg::UpdateGroundTypeTable()
+void WQtAiProjectSettingsDlg::UpdateGroundTypeTable()
 {
   GroundTypes->clear();
 
-  for (ezUInt32 i = 0; i < ezAiNumGroundTypes; ++i)
+  for (WUInt32 i = 0; i < WAiNumGroundTypes; ++i)
   {
-    const ezAiNavigationConfig::GroundType gt = m_Config.m_GroundTypes[i];
+    const WAiNavigationConfig::GroundType gt = m_Config.m_GroundTypes[i];
 
     QListWidgetItem* pItem = new QListWidgetItem(GroundTypes);
     pItem->setText(gt.m_sName.GetData());
@@ -119,9 +119,9 @@ void ezQtAiProjectSettingsDlg::UpdateGroundTypeTable()
   }
 }
 
-void ezQtAiProjectSettingsDlg::RetrieveGroundTypeTable()
+void WQtAiProjectSettingsDlg::RetrieveGroundTypeTable()
 {
-  for (ezUInt32 i = 2; i < ezAiNumGroundTypes; ++i)
+  for (WUInt32 i = 2; i < WAiNumGroundTypes; ++i)
   {
     auto& gt = m_Config.m_GroundTypes[i];
 
@@ -132,7 +132,7 @@ void ezQtAiProjectSettingsDlg::RetrieveGroundTypeTable()
   }
 }
 
-void ezQtAiProjectSettingsDlg::on_AddPathCfg_clicked()
+void WQtAiProjectSettingsDlg::on_AddPathCfg_clicked()
 {
   QString name = "NewPathSearch";
 
@@ -145,7 +145,7 @@ retry:
 
   if (name.isEmpty())
   {
-    ezQtUiServices::MessageBoxInformation("The name can't be empty.");
+    WQtUiServices::MessageBoxInformation("The name can't be empty.");
     goto retry;
   }
 
@@ -153,7 +153,7 @@ retry:
   {
     if (cfg.m_sName == name.toUtf8().data())
     {
-      ezQtUiServices::MessageBoxInformation("A Path Search Config with this name already exists.");
+      WQtUiServices::MessageBoxInformation("A Path Search Config with this name already exists.");
       goto retry;
     }
   }
@@ -170,14 +170,14 @@ retry:
   SelectedPathCfg->setCurrentText(name);
 }
 
-void ezQtAiProjectSettingsDlg::on_RemovePathCfg_clicked()
+void WQtAiProjectSettingsDlg::on_RemovePathCfg_clicked()
 {
   int cur = SelectedPathCfg->currentIndex();
 
   if (cur < 0 || cur >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
 
-  if (ezQtUiServices::MessageBoxQuestion("Remove the current Path Search Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
+  if (WQtUiServices::MessageBoxQuestion("Remove the current Path Search Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
   {
     return;
   }
@@ -186,17 +186,17 @@ void ezQtAiProjectSettingsDlg::on_RemovePathCfg_clicked()
   m_Config.m_PathSearchConfigs.RemoveAtAndCopy(cur);
 
   FillPathSearchTypeComboBox();
-  SelectedPathCfg->setCurrentIndex(ezMath::Min(cur, SelectedPathCfg->count() - 1));
+  SelectedPathCfg->setCurrentIndex(WMath::Min(cur, SelectedPathCfg->count() - 1));
 }
 
-void ezQtAiProjectSettingsDlg::on_SelectedPathCfg_currentIndexChanged(int index)
+void WQtAiProjectSettingsDlg::on_SelectedPathCfg_currentIndexChanged(int index)
 {
   RetrievePathConfig(m_iSelectedPathSearchConfig);
 
   ApplyPathConfig(index);
 }
 
-void ezQtAiProjectSettingsDlg::ApplyPathConfig(int index)
+void WQtAiProjectSettingsDlg::ApplyPathConfig(int index)
 {
   m_iSelectedPathSearchConfig = index;
   PathConfig->setRowCount(0);
@@ -211,7 +211,7 @@ void ezQtAiProjectSettingsDlg::ApplyPathConfig(int index)
   PathConfig->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
   PathConfig->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::ResizeToContents);
 
-  for (ezUInt32 i = 1; i < ezAiNumGroundTypes; ++i)
+  for (WUInt32 i = 1; i < WAiNumGroundTypes; ++i)
   {
     const auto& gt = m_Config.m_GroundTypes[i];
     if (!gt.m_bUsed)
@@ -223,7 +223,7 @@ void ezQtAiProjectSettingsDlg::ApplyPathConfig(int index)
     QCheckBox* pCB = new QCheckBox();
     pCB->setCheckState(ps.m_bGroundTypeAllowed[i] ? Qt::Checked : Qt::Unchecked);
 
-    ezQtDoubleSpinBox* pVal = new ezQtDoubleSpinBox(PathConfig);
+    WQtDoubleSpinBox* pVal = new WQtDoubleSpinBox(PathConfig);
     pVal->setValue(ps.m_fGroundTypeCost[i]);
 
     PathConfig->setItem(row, 0, new QTableWidgetItem(gt.m_sName.GetData()));
@@ -231,12 +231,12 @@ void ezQtAiProjectSettingsDlg::ApplyPathConfig(int index)
     PathConfig->setCellWidget(row, 2, pVal);
   }
 }
-void ezQtAiProjectSettingsDlg::FillPathSearchTypeComboBox()
+void WQtAiProjectSettingsDlg::FillPathSearchTypeComboBox()
 {
   RetrievePathConfig(m_iSelectedPathSearchConfig);
   m_iSelectedPathSearchConfig = -1;
 
-  ezQtScopedBlockSignals _1(SelectedPathCfg);
+  WQtScopedBlockSignals _1(SelectedPathCfg);
 
   SelectedPathCfg->clear();
 
@@ -250,7 +250,7 @@ void ezQtAiProjectSettingsDlg::FillPathSearchTypeComboBox()
   SelectedPathCfg->setCurrentIndex(-1);
 }
 
-void ezQtAiProjectSettingsDlg::RetrievePathConfig(int index)
+void WQtAiProjectSettingsDlg::RetrievePathConfig(int index)
 {
   if (index < 0 || index >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
@@ -261,11 +261,11 @@ void ezQtAiProjectSettingsDlg::RetrievePathConfig(int index)
   {
     const QTableWidgetItem* pText = PathConfig->item(row, 0);
     const QCheckBox* pCB = qobject_cast<QCheckBox*>(PathConfig->cellWidget(row, 1));
-    const ezQtDoubleSpinBox* pSB = qobject_cast<ezQtDoubleSpinBox*>(PathConfig->cellWidget(row, 2));
+    const WQtDoubleSpinBox* pSB = qobject_cast<WQtDoubleSpinBox*>(PathConfig->cellWidget(row, 2));
 
-    const ezString sGroundType = pText->text().toUtf8().data();
+    const WString sGroundType = pText->text().toUtf8().data();
 
-    for (ezUInt32 gt = 0; gt < ezAiNumGroundTypes; ++gt)
+    for (WUInt32 gt = 0; gt < WAiNumGroundTypes; ++gt)
     {
       if (m_Config.m_GroundTypes[gt].m_sName == sGroundType)
       {
@@ -277,7 +277,7 @@ void ezQtAiProjectSettingsDlg::RetrievePathConfig(int index)
   }
 }
 
-void ezQtAiProjectSettingsDlg::on_AddMeshCfg_clicked()
+void WQtAiProjectSettingsDlg::on_AddMeshCfg_clicked()
 {
   QString name = "New Navmesh";
 
@@ -290,7 +290,7 @@ retry:
 
   if (name.isEmpty())
   {
-    ezQtUiServices::MessageBoxInformation("The name can't be empty.");
+    WQtUiServices::MessageBoxInformation("The name can't be empty.");
     goto retry;
   }
 
@@ -298,7 +298,7 @@ retry:
   {
     if (cfg.m_sName == name.toUtf8().data())
     {
-      ezQtUiServices::MessageBoxInformation("A Navmesh Config with this name already exists.");
+      WQtUiServices::MessageBoxInformation("A Navmesh Config with this name already exists.");
       goto retry;
     }
   }
@@ -315,14 +315,14 @@ retry:
   SelectedMeshCfg->setCurrentText(name);
 }
 
-void ezQtAiProjectSettingsDlg::on_RemoveMeshCfg_clicked()
+void WQtAiProjectSettingsDlg::on_RemoveMeshCfg_clicked()
 {
   int cur = SelectedMeshCfg->currentIndex();
 
   if (cur < 0 || cur >= (int)m_Config.m_NavmeshConfigs.GetCount())
     return;
 
-  if (ezQtUiServices::MessageBoxQuestion("Remove the current Navmesh Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
+  if (WQtUiServices::MessageBoxQuestion("Remove the current Navmesh Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
   {
     return;
   }
@@ -331,17 +331,17 @@ void ezQtAiProjectSettingsDlg::on_RemoveMeshCfg_clicked()
   m_Config.m_NavmeshConfigs.RemoveAtAndCopy(cur);
 
   FillNavmeshTypeComboBox();
-  SelectedMeshCfg->setCurrentIndex(ezMath::Min(cur, SelectedMeshCfg->count() - 1));
+  SelectedMeshCfg->setCurrentIndex(WMath::Min(cur, SelectedMeshCfg->count() - 1));
 }
 
-void ezQtAiProjectSettingsDlg::on_SelectedMeshCfg_currentIndexChanged(int index)
+void WQtAiProjectSettingsDlg::on_SelectedMeshCfg_currentIndexChanged(int index)
 {
   RetrieveNavmeshConfig(m_iSelectedNavmeshConfig);
 
   ApplyNavmeshConfig(index);
 }
 
-void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
+void WQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
 {
   m_iSelectedNavmeshConfig = index;
 
@@ -372,7 +372,7 @@ void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
   NavDetailSampleDistance->setValue(ps.m_fDetailMeshSampleDistanceFactor);
   NavDetailSampleError->setValue(ps.m_fDetailMeshSampleErrorFactor);
 
-  for (ezInt32 i = 0; i < CollisionLayer->count(); ++i)
+  for (WInt32 i = 0; i < CollisionLayer->count(); ++i)
   {
     if (CollisionLayer->itemData(i, Qt::UserRole).toInt() == (int)ps.m_uiCollisionLayer)
     {
@@ -381,12 +381,12 @@ void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
     }
   }
 }
-void ezQtAiProjectSettingsDlg::FillNavmeshTypeComboBox()
+void WQtAiProjectSettingsDlg::FillNavmeshTypeComboBox()
 {
   RetrieveNavmeshConfig(m_iSelectedNavmeshConfig);
   m_iSelectedNavmeshConfig = -1;
 
-  ezQtScopedBlockSignals _1(SelectedMeshCfg);
+  WQtScopedBlockSignals _1(SelectedMeshCfg);
 
   SelectedMeshCfg->clear();
 
@@ -400,14 +400,14 @@ void ezQtAiProjectSettingsDlg::FillNavmeshTypeComboBox()
   SelectedMeshCfg->setCurrentIndex(-1);
 }
 
-void ezQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
+void WQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
 {
   if (index < 0 || index >= (int)m_Config.m_NavmeshConfigs.GetCount())
     return;
 
   auto& cfg = m_Config.m_NavmeshConfigs[index];
 
-  cfg.m_uiCollisionLayer = (ezUInt32)CollisionLayer->currentData(Qt::UserRole).toInt();
+  cfg.m_uiCollisionLayer = (WUInt32)CollisionLayer->currentData(Qt::UserRole).toInt();
 
   cfg.m_uiNumSectorsX = NumSectorsX->value();
   cfg.m_uiNumSectorsY = NumSectorsY->value();
@@ -418,7 +418,7 @@ void ezQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
   cfg.m_fAgentRadius = NavAgentRadius->value();
   cfg.m_fAgentHeight = NavAgentHeight->value();
   cfg.m_fAgentStepHeight = NavAgentStep->value();
-  cfg.m_WalkableSlope = ezAngle::MakeFromDegree(NavAgentSlope->value());
+  cfg.m_WalkableSlope = WAngle::MakeFromDegree(NavAgentSlope->value());
 
   cfg.m_fMaxEdgeLength = NavMaxEdgeLength->value();
   cfg.m_fMaxSimplificationError = NavSimplificationError->value();

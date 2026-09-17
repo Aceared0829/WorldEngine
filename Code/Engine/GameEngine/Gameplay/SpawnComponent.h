@@ -6,19 +6,19 @@
 #include <Core/World/World.h>
 #include <Foundation/Types/RangeView.h>
 
-struct ezMsgComponentInternalTrigger;
+struct WMsgComponentInternalTrigger;
 
-struct ezSpawnComponentFlags
+struct WSpawnComponentFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
     None = 0,
-    SpawnAtStart = EZ_BIT(0),      ///< The component will schedule a spawn once at creation time
-    SpawnContinuously = EZ_BIT(1), ///< Every time a scheduled spawn was done, a new one is scheduled
-    AttachAsChild = EZ_BIT(2),     ///< All objects spawned will be attached as children to this node
-    SpawnInFlight = EZ_BIT(3),     ///< [internal] A spawn trigger message has been posted.
+    SpawnAtStart = W_BIT(0),      ///< The component will schedule a spawn once at creation time
+    SpawnContinuously = W_BIT(1), ///< Every time a scheduled spawn was done, a new one is scheduled
+    AttachAsChild = W_BIT(2),     ///< All objects spawned will be attached as children to this node
+    SpawnInFlight = W_BIT(3),     ///< [internal] A spawn trigger message has been posted.
 
     Default = None
   };
@@ -32,9 +32,9 @@ struct ezSpawnComponentFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
+W_DECLARE_FLAGS_OPERATORS(WSpawnComponentFlags);
 
-using ezSpawnComponentManager = ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact>;
+using WSpawnComponentManager = WComponentManager<class WSpawnComponent, WBlockStorageType::Compact>;
 
 /// Spawns instances of prefabs dynamically at runtime.
 ///
@@ -43,16 +43,16 @@ using ezSpawnComponentManager = ezComponentManager<class ezSpawnComponent, ezBlo
 ///
 /// It keeps track of when it spawned an object and can ignore spawn requests that come in too early. Thus it can
 /// also be used to take care of the logic that certain actions are only allowed every once in a while.
-class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
+class W_GAMEENGINE_DLL WSpawnComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSpawnComponent, ezComponent, ezSpawnComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSpawnComponent, WComponent, WSpawnComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -60,11 +60,11 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSpawnComponent
+  // WSpawnComponent
 
 public:
-  ezSpawnComponent();
-  ~ezSpawnComponent();
+  WSpawnComponent();
+  ~WSpawnComponent();
 
   /// Checks whether the last spawn time was long enough ago that a call to TriggerManualSpawn() would succeed.
   bool CanTriggerManualSpawn() const; // [ scriptable ]
@@ -74,7 +74,7 @@ public:
   /// Manual spawns and continuous (scheduled) spawns are independent from each other regarding minimum spawn delays.
   /// If this function is called in too short intervals, it is ignored and false is returned.
   /// Returns true, if an object was spawned.
-  bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const ezVec3& vLocalOffset = ezVec3::MakeZero()); // [ scriptable ]
+  bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const WVec3& vLocalOffset = WVec3::MakeZero()); // [ scriptable ]
 
   /// Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///
@@ -94,31 +94,31 @@ public:
   void SetAttachAsChild(bool b);    // [ property ]
   bool GetAttachAsChild() const;    // [ property ]
 
-  ezPrefabResourceHandle m_hPrefab; // [ property ]
+  WPrefabResourceHandle m_hPrefab; // [ property ]
 
   /// The minimum delay between spawning objects. This is also enforced for manually spawning things.
-  ezTime m_MinDelay; // [ property ]
+  WTime m_MinDelay; // [ property ]
 
   /// For scheduled spawns (continuous / at start) this is an additional random range on top of the minimum spawn delay.
-  ezTime m_DelayRange; // [ property ]
+  WTime m_DelayRange; // [ property ]
 
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
-  ezAngle m_MaxDeviation;                                           // [ property ]
+  WAngle m_MaxDeviation;                                           // [ property ]
 
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
-  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
+  const WRangeView<const char*, WUInt32> GetParameters() const;   // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const WVariant& value);     // [ property ] (exposed parameter)
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
-  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, WVariant& out_value) const; // [ property ] (exposed parameter)
 
   /// Key/value pairs of parameters to pass to the prefab instantiation.
-  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  WArrayMap<WHashedString, WVariant> m_Parameters;
 
 protected:
-  ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;
+  WBitflags<WSpawnComponentFlags> m_SpawnFlags;
 
-  virtual void DoSpawn(const ezTransform& tLocalSpawn);
-  bool SpawnOnce(const ezVec3& vLocalOffset);
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
+  virtual void DoSpawn(const WTransform& tLocalSpawn);
+  bool SpawnOnce(const WVec3& vLocalOffset);
+  void OnTriggered(WMsgComponentInternalTrigger& msg);
 
-  ezTime m_LastManualSpawn;
+  WTime m_LastManualSpawn;
 };

@@ -2,32 +2,32 @@ include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
 
 message(STATUS "Configuring Platform: Linux")
 
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX ON)
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_LINUX ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_POSIX ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_VULKAN ON)
 
 # #####################################
 # ## General settings
 # #####################################
-set(EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
+set(W_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
+mark_as_advanced(FORCE W_COMPILE_ENGINE_AS_DLL)
 
 # #####################################
 # ## Experimental Editor support on Linux
 # #####################################
-set (EZ_EXPERIMENTAL_EDITOR_ON_LINUX OFF CACHE BOOL "Wether or not to build the editor on linux")
+set (W_EXPERIMENTAL_EDITOR_ON_LINUX OFF CACHE BOOL "Wether or not to build the editor on linux")
 
-if (EZ_EXPERIMENTAL_EDITOR_ON_LINUX)
-    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_EDITOR ON)
+if (W_EXPERIMENTAL_EDITOR_ON_LINUX)
+    set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_EDITOR ON)
 endif()
 
-macro(ez_platform_pull_properties)
+macro(W_platform_pull_properties)
 
-    get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
+    get_property(W_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY W_CMAKE_PLATFORM_LINUX)
 
 endmacro()
 
-macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
+macro(W_platformhook_set_build_flags_clang TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
@@ -62,7 +62,7 @@ macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 	endif()
 endmacro()
 
-macro(ez_platformhook_set_application_properties TARGET_NAME)
+macro(W_platformhook_set_application_properties TARGET_NAME)
 
     # We need to link against pthread and rt last or linker errors will occur.
 	target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
@@ -75,35 +75,35 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
 
 endmacro()
 
-macro(ez_platform_detect_generator)
+macro(W_platform_detect_generator)
     if(CMAKE_GENERATOR MATCHES "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
-        message(STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
+        message(STATUS "Buildsystem is Make (W_CMAKE_GENERATOR_MAKE)")
 
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_MAKE ON)
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX "Make")
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 
     elseif(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-        message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+        message(STATUS "Buildsystem is Ninja (W_CMAKE_GENERATOR_NINJA)")
 
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_NINJA ON)
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX "Ninja")
+        set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
     else()
-        message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_platform_detect_generator()")
+        message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend W_platform_detect_generator()")
     endif()
 endmacro()
 
 
-macro(ez_platformhook_set_library_properties TARGET_NAME)
+macro(W_platformhook_set_library_properties TARGET_NAME)
     # c = libc.so (the C standard library)
     # m = libm.so (the C standard library math portion)
     # pthread = libpthread.so (thread support)
     # rt = librt.so (compiler runtime functions)
     target_link_libraries(${TARGET_NAME} PRIVATE pthread rt c m)
 
-    get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
-    if(EZ_CMAKE_COMPILER_GCC)
+    get_property(W_CMAKE_COMPILER_GCC GLOBAL PROPERTY W_CMAKE_COMPILER_GCC)
+    if(W_CMAKE_COMPILER_GCC)
         # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
 	target_link_libraries(${TARGET_NAME} PRIVATE -lgcc)
     endif()
@@ -115,21 +115,21 @@ macro(ez_platformhook_set_library_properties TARGET_NAME)
     )
 endmacro()
 
-macro(ez_platformhook_find_vulkan)
-    if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
-        set(EZ_DXC_DIR "${EZ_ROOT}/Workspace/shared/DXC-LinuxX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
-        ez_download_and_extract("${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL}" "${EZ_DXC_DIR}" "DXC-LinuxX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
+macro(W_platformhook_find_vulkan)
+    if(W_CMAKE_ARCHITECTURE_64BIT AND W_CMAKE_ARCHITECTURE_X86)
+        set(W_DXC_DIR "${W_ROOT}/Workspace/shared/DXC-LinuxX64-${W_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
+        W_download_and_extract("${W_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL}" "${W_DXC_DIR}" "DXC-LinuxX64-${W_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
     else()
         message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
     endif()
 
     include(FindPackageHandleStandardArgs)
-    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_DXC_DIR)
+    find_package_handle_standard_args(WVulkan DEFAULT_MSG W_DXC_DIR)
     
-	if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
-		add_library(EzVulkan::DXC SHARED IMPORTED)
-		set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_DXC_DIR}/lib/libdxcompiler.so")
-		set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_DXC_DIR}/include/dxc")
+	if(W_CMAKE_ARCHITECTURE_64BIT AND W_CMAKE_ARCHITECTURE_X86)
+		add_library(WVulkan::DXC SHARED IMPORTED)
+		set_target_properties(WVulkan::DXC PROPERTIES IMPORTED_LOCATION "${W_DXC_DIR}/lib/libdxcompiler.so")
+		set_target_properties(WVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${W_DXC_DIR}/include/dxc")
 	else()
 		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
 	endif()

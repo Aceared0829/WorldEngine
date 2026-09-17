@@ -8,56 +8,56 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-class ezAssetProfilesObjectManager : public ezDocumentObjectManager
+class WAssetProfilesObjectManager : public WDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override { out_types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override { out_types.PushBack(WGetStaticRTTI<WPlatformProfile>()); }
 };
 
-class ezAssetProfilesDocument : public ezDocument
+class WAssetProfilesDocument : public WDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetProfilesDocument, ezDocument);
+  W_ADD_DYNAMIC_REFLECTION(WAssetProfilesDocument, WDocument);
 
 public:
-  ezAssetProfilesDocument(ezStringView sDocumentPath)
-    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
+  WAssetProfilesDocument(WStringView sDocumentPath)
+    : WDocument(sDocumentPath, W_DEFAULT_NEW(WAssetProfilesObjectManager))
   {
   }
 
 public:
-  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
+  virtual WDocumentInfo* CreateDocumentInfo() override { return W_DEFAULT_NEW(WDocumentInfo); }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetProfilesDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetProfilesDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-class ezQtAssetConfigAdapter : public ezQtNameableAdapter
+class WQtAssetConfigAdapter : public WQtNameableAdapter
 {
 public:
-  ezQtAssetConfigAdapter(const ezQtAssetProfilesDlg* pDialog, const ezDocumentObjectManager* pTree, const ezRTTI* pType)
-    : ezQtNameableAdapter(pTree, pType, "", "Name")
+  WQtAssetConfigAdapter(const WQtAssetProfilesDlg* pDialog, const WDocumentObjectManager* pTree, const WRTTI* pType)
+    : WQtNameableAdapter(pTree, pType, "", "Name")
   {
     m_pDialog = pDialog;
   }
 
-  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override
+  virtual QVariant data(const WDocumentObject* pObject, int iRow, int iColumn, int iRole) const override
   {
     if (iColumn == 0)
     {
       if (iRole == Qt::DecorationRole)
       {
-        const ezString sTargetPlatform = pObject->GetTypeAccessor().GetValue("TargetPlatform").ConvertTo<ezString>();
+        const WString sTargetPlatform = pObject->GetTypeAccessor().GetValue("TargetPlatform").ConvertTo<WString>();
 
-        const ezStringBuilder sIconName(":Platforms/Icons/Platform", sTargetPlatform, ".svg");
+        const WStringBuilder sIconName(":Platforms/Icons/Platform", sTargetPlatform, ".svg");
 
-        return ezQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
+        return WQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
       }
 
       if (iRole == Qt::DisplayRole)
       {
-        QString name = ezQtNameableAdapter::data(pObject, iRow, iColumn, iRole).toString();
+        QString name = WQtNameableAdapter::data(pObject, iRow, iColumn, iRole).toString();
 
-        if (iRow == ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex())
+        if (iRow == WAssetCurator::GetSingleton()->GetActiveAssetProfileIndex())
         {
           name += " (active)";
         }
@@ -70,15 +70,15 @@ public:
       }
     }
 
-    return ezQtNameableAdapter::data(pObject, iRow, iColumn, iRole);
+    return WQtNameableAdapter::data(pObject, iRow, iColumn, iRole);
   }
 
 private:
-  const ezQtAssetProfilesDlg* m_pDialog = nullptr;
+  const WQtAssetProfilesDlg* m_pDialog = nullptr;
 };
 
-ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtAssetProfilesDlg::WQtAssetProfilesDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -90,21 +90,21 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
   RenameButton->setEnabled(false);
 
   {
-    auto& platEnum = ezDynamicStringEnum::CreateDynamicEnum("TargetPlatformNames");
+    auto& platEnum = WDynamicStringEnum::CreateDynamicEnum("TargetPlatformNames");
     platEnum.Clear();
 
-    for (auto pDesc = ezPlatformDesc::GetFirstInstance(); pDesc != nullptr; pDesc = pDesc->GetNextInstance())
+    for (auto pDesc = WPlatformDesc::GetFirstInstance(); pDesc != nullptr; pDesc = pDesc->GetNextInstance())
     {
       platEnum.AddValidValue(pDesc->GetName(), true);
     }
   }
 
-  m_pDocument = EZ_DEFAULT_NEW(ezAssetProfilesDocument, "<none>");
-  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetProfilesDlg::SelectionEventHandler, this));
+  m_pDocument = W_DEFAULT_NEW(WAssetProfilesDocument, "<none>");
+  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WQtAssetProfilesDlg::SelectionEventHandler, this));
 
-  std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
-  pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezPlatformProfile::GetStaticRTTI()));
+  std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtDocumentTreeModel(m_pDocument->GetObjectManager()));
+  pModel->AddAdapter(new WQtDummyAdapter(m_pDocument->GetObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "Children"));
+  pModel->AddAdapter(new WQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), WPlatformProfile::GetStaticRTTI()));
 
   Tree->Initialize(m_pDocument, std::move(pModel));
   Tree->SetAllowDragDrop(false);
@@ -112,7 +112,7 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   Tree->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 
-  connect(Tree, &QTreeView::doubleClicked, this, &ezQtAssetProfilesDlg::OnItemDoubleClicked);
+  connect(Tree, &QTreeView::doubleClicked, this, &WQtAssetProfilesDlg::OnItemDoubleClicked);
 
   AllAssetProfilesToObject();
 
@@ -122,11 +122,11 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
 
   if (!rootChildArray.IsEmpty())
   {
-    m_pDocument->GetSelectionManager()->SetSelection(rootChildArray[ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex()]);
+    m_pDocument->GetSelectionManager()->SetSelection(rootChildArray[WAssetCurator::GetSingleton()->GetActiveAssetProfileIndex()]);
   }
 }
 
-ezQtAssetProfilesDlg::~ezQtAssetProfilesDlg()
+WQtAssetProfilesDlg::~WQtAssetProfilesDlg()
 {
   delete Tree;
   Tree = nullptr;
@@ -134,57 +134,57 @@ ezQtAssetProfilesDlg::~ezQtAssetProfilesDlg()
   delete Properties;
   Properties = nullptr;
 
-  EZ_DEFAULT_DELETE(m_pDocument);
+  W_DEFAULT_DELETE(m_pDocument);
 }
 
-ezUuid ezQtAssetProfilesDlg::NativeToObject(ezPlatformProfile* pProfile)
+WUuid WQtAssetProfilesDlg::NativeToObject(WPlatformProfile* pProfile)
 {
-  const ezRTTI* pType = pProfile->GetDynamicRTTI();
+  const WRTTI* pType = pProfile->GetDynamicRTTI();
   // Write properties to graph.
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter conv(&graph, &context, true, true);
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
+  WRttiConverterWriter conv(&graph, &context, true, true);
 
-  const ezUuid guid = ezUuid::MakeUuid();
+  const WUuid guid = WUuid::MakeUuid();
   context.RegisterObject(guid, pType, pProfile);
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pProfile, "root");
+  WAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pProfile, "root");
 
   // Read from graph and write into matching document object.
   auto pRoot = m_pDocument->GetObjectManager()->GetRootObject();
-  ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
+  WDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  WDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();
 }
 
-void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezPlatformProfile* pProfile)
+void WQtAssetProfilesDlg::ObjectToNative(WUuid objectGuid, WPlatformProfile* pProfile)
 {
-  ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
-  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+  WDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
+  const WRTTI* pType = pObject->GetTypeAccessor().GetType();
 
   // Write object to graph.
-  ezAbstractObjectGraph graph;
-  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  WAbstractObjectGraph graph;
+  auto filter = [](const WDocumentObject*, const WAbstractProperty* pProp) -> bool
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    if (pProp->GetFlags().IsSet(WPropertyFlags::ReadOnly))
       return false;
     return true;
   };
-  ezDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), filter);
-  ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pObject, "root");
+  WDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), filter);
+  WAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pObject, "root");
 
   // Read from graph and write to native object.
-  ezRttiConverterContext context;
-  ezRttiConverterReader conv(&graph, &context);
+  WRttiConverterContext context;
+  WRttiConverterReader conv(&graph, &context);
 
   conv.ApplyPropertiesToObject(pNode, pType, pProfile);
 }
 
 
-void ezQtAssetProfilesDlg::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtAssetProfilesDlg::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   const auto& selection = m_pDocument->GetSelectionManager()->GetSelection();
 
@@ -194,34 +194,34 @@ void ezQtAssetProfilesDlg::SelectionEventHandler(const ezSelectionManagerEvent& 
   RenameButton->setEnabled(bAllowModification);
 }
 
-void ezQtAssetProfilesDlg::on_ButtonOk_clicked()
+void WQtAssetProfilesDlg::on_ButtonOk_clicked()
 {
   ApplyAllChanges();
 
   // SaveAssetProfileRuntimeConfig
-  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
+  for (WUInt32 i = 0; i < WAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
   {
-    ezStringBuilder sProfileRuntimeDataFile;
+    WStringBuilder sProfileRuntimeDataFile;
 
-    ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetAssetProfile(i);
+    WPlatformProfile* pProfile = WAssetCurator::GetSingleton()->GetAssetProfile(i);
 
-    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".ezProfile");
+    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".WProfile");
 
     pProfile->SaveForRuntime(sProfileRuntimeDataFile).IgnoreResult();
   }
 
   accept();
 
-  ezAssetCurator::GetSingleton()->SaveAssetProfiles().IgnoreResult();
+  WAssetCurator::GetSingleton()->SaveAssetProfiles().IgnoreResult();
 }
 
-void ezQtAssetProfilesDlg::on_ButtonCancel_clicked()
+void WQtAssetProfilesDlg::on_ButtonCancel_clicked()
 {
-  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
+  m_uiActiveConfig = WAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
   reject();
 }
 
-void ezQtAssetProfilesDlg::OnItemDoubleClicked(QModelIndex idx)
+void WQtAssetProfilesDlg::OnItemDoubleClicked(QModelIndex idx)
 {
   if (m_uiActiveConfig == idx.row())
     return;
@@ -236,26 +236,26 @@ void ezQtAssetProfilesDlg::OnItemDoubleClicked(QModelIndex idx)
   Tree->model()->dataChanged(oldIdx, oldIdx, roles);
 }
 
-bool ezQtAssetProfilesDlg::CheckProfileNameUniqueness(const char* szName)
+bool WQtAssetProfilesDlg::CheckProfileNameUniqueness(const char* szName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szName))
+  if (WStringUtils::IsNullOrEmpty(szName))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("Empty strings are not allowed as profile names.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("Empty strings are not allowed as profile names.");
     return false;
   }
 
-  if (!ezStringUtils::IsValidIdentifierName(szName))
+  if (!WStringUtils::IsValidIdentifierName(szName))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("Profile names may only contain characters, digits and underscores.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("Profile names may only contain characters, digits and underscores.");
     return false;
   }
 
   const auto& objects = m_pDocument->GetObjectManager()->GetRootObject()->GetChildren();
-  for (const ezDocumentObject* pObject : objects)
+  for (const WDocumentObject* pObject : objects)
   {
-    if (pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>().IsEqual_NoCase(szName))
+    if (pObject->GetTypeAccessor().GetValue("Name").ConvertTo<WString>().IsEqual_NoCase(szName))
     {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation("A profile with this name already exists.");
+      WQtUiServices::GetSingleton()->MessageBoxInformation("A profile with this name already exists.");
       return false;
     }
   }
@@ -263,7 +263,7 @@ bool ezQtAssetProfilesDlg::CheckProfileNameUniqueness(const char* szName)
   return true;
 }
 
-bool ezQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, ezString& result)
+bool WQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, WString& result)
 {
   while (true)
   {
@@ -278,13 +278,13 @@ bool ezQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, ezString& re
   }
 }
 
-void ezQtAssetProfilesDlg::on_AddButton_clicked()
+void WQtAssetProfilesDlg::on_AddButton_clicked()
 {
-  ezString sProfileName;
+  WString sProfileName;
   if (!DetermineNewProfileName(this, sProfileName))
     return;
 
-  ezPlatformProfile profile;
+  WPlatformProfile profile;
   profile.SetConfigName(sProfileName);
   profile.AddMissingConfigs();
 
@@ -296,7 +296,7 @@ void ezQtAssetProfilesDlg::on_AddButton_clicked()
   m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren().PeekBack());
 }
 
-void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
+void WQtAssetProfilesDlg::on_DeleteButton_clicked()
 {
   const auto& sel = m_pDocument->GetSelectionManager()->GetSelection();
   if (sel.IsEmpty())
@@ -306,14 +306,14 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   if (sel[0] == m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0])
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion(WFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
     return;
 
   m_ProfileBindings[sel[0]->GetGuid()].m_State = Binding::State::Deleted;
 
   m_pDocument->GetCommandHistory()->StartTransaction("Delete Profile");
 
-  ezRemoveObjectCommand cmd;
+  WRemoveObjectCommand cmd;
   cmd.m_Object = sel[0]->GetGuid();
 
   m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
@@ -321,7 +321,7 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }
 
-void ezQtAssetProfilesDlg::on_RenameButton_clicked()
+void WQtAssetProfilesDlg::on_RenameButton_clicked()
 {
   const auto& sel = m_pDocument->GetSelectionManager()->GetSelection();
   if (sel.IsEmpty())
@@ -331,13 +331,13 @@ void ezQtAssetProfilesDlg::on_RenameButton_clicked()
   if (sel[0] == m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0])
     return;
 
-  ezString sProfileName;
+  WString sProfileName;
   if (!DetermineNewProfileName(this, sProfileName))
     return;
 
   m_pDocument->GetCommandHistory()->StartTransaction("Rename Profile");
 
-  ezSetObjectPropertyCommand cmd;
+  WSetObjectPropertyCommand cmd;
   cmd.m_Object = sel[0]->GetGuid();
   cmd.m_sProperty = "Name";
   cmd.m_NewValue = sProfileName;
@@ -347,7 +347,7 @@ void ezQtAssetProfilesDlg::on_RenameButton_clicked()
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }
 
-void ezQtAssetProfilesDlg::on_SwitchToButton_clicked()
+void WQtAssetProfilesDlg::on_SwitchToButton_clicked()
 {
   const auto& sel = Tree->selectionModel()->selectedRows();
   if (sel.isEmpty())
@@ -356,46 +356,46 @@ void ezQtAssetProfilesDlg::on_SwitchToButton_clicked()
   OnItemDoubleClicked(sel[0]);
 }
 
-void ezQtAssetProfilesDlg::AllAssetProfilesToObject()
+void WQtAssetProfilesDlg::AllAssetProfilesToObject()
 {
-  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
+  m_uiActiveConfig = WAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
 
   m_ProfileBindings.Clear();
 
-  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
+  for (WUInt32 i = 0; i < WAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
   {
-    auto* pProfile = ezAssetCurator::GetSingleton()->GetAssetProfile(i);
+    auto* pProfile = WAssetCurator::GetSingleton()->GetAssetProfile(i);
 
     m_ProfileBindings[NativeToObject(pProfile)].m_pProfile = pProfile;
   }
 }
 
-void ezQtAssetProfilesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtAssetProfilesDlg::PropertyChangedEventHandler(const WDocumentObjectPropertyEvent& e)
 {
-  const ezUuid guid = e.m_pObject->GetGuid();
-  EZ_ASSERT_DEV(m_ProfileBindings.Contains(guid), "Object GUID is not in the known list!");
+  const WUuid guid = e.m_pObject->GetGuid();
+  W_ASSERT_DEV(m_ProfileBindings.Contains(guid), "Object GUID is not in the known list!");
 
   ObjectToNative(guid, m_ProfileBindings[guid].m_pProfile);
 }
 
-void ezQtAssetProfilesDlg::ApplyAllChanges()
+void WQtAssetProfilesDlg::ApplyAllChanges()
 {
   for (auto it = m_ProfileBindings.GetIterator(); it.IsValid(); ++it)
   {
     const auto& binding = it.Value();
 
-    ezPlatformProfile* pProfile = binding.m_pProfile;
+    WPlatformProfile* pProfile = binding.m_pProfile;
 
     if (binding.m_State == Binding::State::Deleted)
     {
-      ezAssetCurator::GetSingleton()->DeleteAssetProfile(pProfile).IgnoreResult();
+      WAssetCurator::GetSingleton()->DeleteAssetProfile(pProfile).IgnoreResult();
       continue;
     }
 
     if (binding.m_State == Binding::State::Added)
     {
       // create a new profile object and synchronize the state directly into that
-      pProfile = ezAssetCurator::GetSingleton()->CreateAssetProfile();
+      pProfile = WAssetCurator::GetSingleton()->CreateAssetProfile();
     }
 
     ObjectToNative(it.Key(), pProfile);

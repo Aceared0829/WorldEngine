@@ -95,7 +95,7 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: --preset linux-gcc-dev -DEZ_QT_DIR=$(qtdir) -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) ../
+      cmakeArgs: --preset linux-gcc-dev -DW_QT_DIR=$(qtdir) -DW_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) ../
   
   - task: Bash@3
     displayName: Build

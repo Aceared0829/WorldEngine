@@ -3,17 +3,17 @@
 #include <Core/Configuration/PlatformProfile.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class EZ_GAMEENGINE_DLL ezRenderPipelineProfileConfig : public ezProfileConfigData
+class W_GAMEENGINE_DLL WRenderPipelineProfileConfig : public WProfileConfigData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineProfileConfig, ezProfileConfigData);
+  W_ADD_DYNAMIC_REFLECTION(WRenderPipelineProfileConfig, WProfileConfigData);
 
 public:
-  virtual void SaveRuntimeData(ezChunkStreamWriter& inout_stream) const override;
-  virtual void LoadRuntimeData(ezChunkStreamReader& inout_stream) override;
+  virtual void SaveRuntimeData(WChunkStreamWriter& inout_stream) const override;
+  virtual void LoadRuntimeData(WChunkStreamReader& inout_stream) override;
 
-  ezString m_sMainRenderPipeline;
-  // ezString m_sEditorRenderPipeline;
-  // ezString m_sDebugRenderPipeline;
+  WString m_sMainRenderPipeline;
+  // WString m_sEditorRenderPipeline;
+  // WString m_sDebugRenderPipeline;
 
-  ezMap<ezString, ezString> m_CameraPipelines;
+  WMap<WString, WString> m_CameraPipelines;
 };

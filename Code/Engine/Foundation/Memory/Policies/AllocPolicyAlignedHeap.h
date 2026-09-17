@@ -5,17 +5,17 @@
 
 /// Aligned Heap memory allocation policy.
 ///
-/// \see ezAllocatorWithPolicy
-class ezAllocPolicyAlignedHeap
+/// \see WAllocatorWithPolicy
+class WAllocPolicyAlignedHeap
 {
 public:
-  EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) { EZ_IGNORE_UNUSED(pParent); }
-  EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
+  W_ALWAYS_INLINE WAllocPolicyAlignedHeap(WAllocator* pParent) { W_IGNORE_UNUSED(pParent); }
+  W_ALWAYS_INLINE ~WAllocPolicyAlignedHeap() = default;
 
   void* Allocate(size_t uiSize, size_t uiAlign);
   void Deallocate(void* pPtr);
 
-  EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
+  W_ALWAYS_INLINE WAllocator* GetParent() const { return nullptr; }
 };
 
 // include the platform specific implementation

@@ -10,29 +10,29 @@
 
 namespace
 {
-  ezString GetProjectTemplatesFolder()
+  WString GetProjectTemplatesFolder()
   {
-    ezStringBuilder sFolder = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    WStringBuilder sFolder = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
     sFolder.AppendPath("ProjectTemplates");
     return sFolder;
   }
 } // namespace
 
-void ezProjectCreation::FindProjectTemplates(ezDynamicArray<ezString>& out_templateNames)
+void WProjectCreation::FindProjectTemplates(WDynamicArray<WString>& out_templateNames)
 {
   out_templateNames.Clear();
 
-  ezFileSystemIterator fsIt;
-  fsIt.StartSearch(GetProjectTemplatesFolder(), ezFileSystemIteratorFlags::ReportFolders);
+  WFileSystemIterator fsIt;
+  fsIt.StartSearch(GetProjectTemplatesFolder(), WFileSystemIteratorFlags::ReportFolders);
 
-  ezStringBuilder path;
+  WStringBuilder path;
 
   while (fsIt.IsValid())
   {
     fsIt.GetStats().GetFullPath(path);
-    path.AppendPath("ezProject");
+    path.AppendPath("WProject");
 
-    if (ezOSFile::ExistsFile(path))
+    if (WOSFile::ExistsFile(path))
     {
       out_templateNames.PushBack(fsIt.GetStats().m_sName);
     }
@@ -41,31 +41,31 @@ void ezProjectCreation::FindProjectTemplates(ezDynamicArray<ezString>& out_templ
   }
 }
 
-ezResult ezProjectCreation::FindProjectTemplate(ezStringView sTemplateName, ezStringBuilder& out_sProjectFile)
+WResult WProjectCreation::FindProjectTemplate(WStringView sTemplateName, WStringBuilder& out_sProjectFile)
 {
   if (sTemplateName.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_sProjectFile = GetProjectTemplatesFolder();
   out_sProjectFile.AppendPath(sTemplateName);
-  out_sProjectFile.AppendPath("ezProject");
+  out_sProjectFile.AppendPath("WProject");
 
-  if (!ezOSFile::ExistsFile(out_sProjectFile))
+  if (!WOSFile::ExistsFile(out_sProjectFile))
   {
     out_sProjectFile.Clear();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezProjectCreation::FindPluginTemplates(const ezPluginBundleSet& pluginBundles, ezDynamicArray<ezString>& out_templateNames)
+void WProjectCreation::FindPluginTemplates(const WPluginBundleSet& pluginBundles, WDynamicArray<WString>& out_templateNames)
 {
   out_templateNames.Clear();
 
   for (auto it : pluginBundles.m_Plugins)
   {
-    for (const ezString& sTemplate : it.Value().m_EnabledInTemplates)
+    for (const WString& sTemplate : it.Value().m_EnabledInTemplates)
     {
       if (!out_templateNames.Contains(sTemplate))
       {
@@ -75,35 +75,35 @@ void ezProjectCreation::FindPluginTemplates(const ezPluginBundleSet& pluginBundl
   }
 }
 
-ezStatus ezProjectCreation::CreateProject(const ezProjectCreationOptions& options, const ezPluginBundleSet& pluginBundles)
+WStatus WProjectCreation::CreateProject(const WProjectCreationOptions& options, const WPluginBundleSet& pluginBundles)
 {
-  ezStringBuilder sTargetDir = options.m_sTargetDirectory;
+  WStringBuilder sTargetDir = options.m_sTargetDirectory;
   sTargetDir.MakeCleanPath();
 
-  if (sTargetDir.IsEmpty() || !ezPathUtils::IsAbsolutePath(sTargetDir))
-    return ezStatus(ezFmt("The project path '{}' is not an absolute path.", sTargetDir));
+  if (sTargetDir.IsEmpty() || !WPathUtils::IsAbsolutePath(sTargetDir))
+    return WStatus(WFmt("The project path '{}' is not an absolute path.", sTargetDir));
 
-  if (ezOSFile::ExistsDirectory(sTargetDir))
+  if (WOSFile::ExistsDirectory(sTargetDir))
   {
     // an existing but empty folder is fine - a folder with files in it might be a project, and creating
     // one on top of it would mix two projects into one
-    ezFileSystemIterator fsIt;
-    fsIt.StartSearch(sTargetDir, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
+    WFileSystemIterator fsIt;
+    fsIt.StartSearch(sTargetDir, WFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
 
     if (fsIt.IsValid())
-      return ezStatus(ezFmt("The directory '{}' already exists and is not empty.", sTargetDir));
+      return WStatus(WFmt("The directory '{}' already exists and is not empty.", sTargetDir));
   }
 
   // resolve the template before anything is written, so that a bad name does not leave a folder behind
-  ezStringBuilder sTemplateProjectFile;
+  WStringBuilder sTemplateProjectFile;
 
   if (!options.m_sProjectTemplate.IsEmpty() && FindProjectTemplate(options.m_sProjectTemplate, sTemplateProjectFile).Failed())
   {
-    ezStringBuilder sAvailable;
-    ezDynamicArray<ezString> templates;
+    WStringBuilder sAvailable;
+    WDynamicArray<WString> templates;
     FindProjectTemplates(templates);
 
-    for (const ezString& sName : templates)
+    for (const WString& sName : templates)
     {
       sAvailable.AppendWithSeparator(", ", "'", sName, "'");
     }
@@ -111,47 +111,47 @@ ezStatus ezProjectCreation::CreateProject(const ezProjectCreationOptions& option
     if (sAvailable.IsEmpty())
       sAvailable = "<none>";
 
-    return ezStatus(ezFmt("There is no project template called '{}'. Available templates: {}", options.m_sProjectTemplate, sAvailable));
+    return WStatus(WFmt("There is no project template called '{}'. Available templates: {}", options.m_sProjectTemplate, sAvailable));
   }
 
-  if (ezOSFile::CreateDirectoryStructure(sTargetDir).Failed())
-    return ezStatus(ezFmt("Failed to create the directory '{}'.", sTargetDir));
+  if (WOSFile::CreateDirectoryStructure(sTargetDir).Failed())
+    return WStatus(WFmt("Failed to create the directory '{}'.", sTargetDir));
 
   if (options.m_sProjectTemplate.IsEmpty())
   {
-    ezPluginBundleSet localSet = pluginBundles;
+    WPluginBundleSet localSet = pluginBundles;
 
     if (!options.m_sPluginTemplate.IsEmpty())
     {
       localSet.SetFromTemplate(options.m_sPluginTemplate);
     }
 
-    ezStringBuilder sPluginSelection = sTargetDir;
+    WStringBuilder sPluginSelection = sTargetDir;
     sPluginSelection.AppendPath("Editor/PluginSelection.ddl");
 
-    ezFileWriter file;
+    WFileWriter file;
     if (file.Open(sPluginSelection).Failed())
-      return ezStatus(ezFmt("Failed to write the plugin selection to '{}'.", sPluginSelection));
+      return WStatus(WFmt("Failed to write the plugin selection to '{}'.", sPluginSelection));
 
-    ezOpenDdlWriter ddl;
+    WOpenDdlWriter ddl;
     ddl.SetOutputStream(&file);
 
     localSet.WriteStateToDDL(ddl);
   }
   else
   {
-    ezStringBuilder sSrcFolder = sTemplateProjectFile;
+    WStringBuilder sSrcFolder = sTemplateProjectFile;
     sSrcFolder.PathParentDirectory();
 
-    if (ezOSFile::CopyFolder(sSrcFolder, sTargetDir).Failed())
-      return ezStatus(ezFmt("Failed to copy the project template from '{}' to '{}'.", sSrcFolder, sTargetDir));
+    if (WOSFile::CopyFolder(sSrcFolder, sTargetDir).Failed())
+      return WStatus(WFmt("Failed to copy the project template from '{}' to '{}'.", sSrcFolder, sTargetDir));
 
     // in case the template folder contained an AssetCache, delete it, so that the new project starts
     // out with no transformed assets, rather than with outputs of unknown age
-    ezStringBuilder sAssetCache(sTargetDir, "/AssetCache");
-    if (ezOSFile::ExistsDirectory(sAssetCache) && ezOSFile::DeleteFolder(sAssetCache).Failed())
-      return ezStatus(ezFmt("Failed to delete the copied asset cache '{}'.", sAssetCache));
+    WStringBuilder sAssetCache(sTargetDir, "/AssetCache");
+    if (WOSFile::ExistsDirectory(sAssetCache) && WOSFile::DeleteFolder(sAssetCache).Failed())
+      return WStatus(WFmt("Failed to delete the copied asset cache '{}'.", sAssetCache));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

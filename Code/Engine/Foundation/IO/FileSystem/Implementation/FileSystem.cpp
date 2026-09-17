@@ -8,61 +8,61 @@
 #include <Foundation/Strings/StringView.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezFileSystem::Startup();
+    WFileSystem::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezFileSystem::Shutdown();
+    WFileSystem::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezFileSystem::FileSystemData* ezFileSystem::s_pData = nullptr;
-ezString ezFileSystem::s_sSdkRootDir;
-ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
+WFileSystem::FileSystemData* WFileSystem::s_pData = nullptr;
+WString WFileSystem::s_sSdkRootDir;
+WMap<WString, WString> WFileSystem::s_SpecialDirectories;
 
 
-void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority /*= 0*/)
+void WFileSystem::RegisterDataDirectoryFactory(WDataDirFactory factory, float fPriority /*= 0*/)
 {
-  // This assert helps finding cases where the ezFileSystem is used without ez being properly initialized or already shutdown.
+  // This assert helps finding cases where the WFileSystem is used without W being properly initialized or already shutdown.
   // The code would crash below anyways but asserts are easier to see in automated testing on e.g. CI.
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
   auto& data = s_pData->m_DataDirFactories.ExpandAndGetRef();
   data.m_Factory = factory;
   data.m_fPriority = fPriority;
 }
 
-ezEventSubscriptionID ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
+WEventSubscriptionID WFileSystem::RegisterEventHandler(WEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   return s_pData->m_Event.AddEventHandler(handler);
 }
 
-void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
+void WFileSystem::UnregisterEventHandler(WEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   s_pData->m_Event.RemoveEventHandler(handler);
 }
 
-void ezFileSystem::UnregisterEventHandler(ezEventSubscriptionID subscriptionId)
+void WFileSystem::UnregisterEventHandler(WEventSubscriptionID subscriptionId)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   s_pData->m_Event.RemoveEventHandler(subscriptionId);
 }
 
-void ezFileSystem::CleanUpRootName(ezStringBuilder& sRoot)
+void WFileSystem::CleanUpRootName(WStringBuilder& sRoot)
 {
   // this cleaning might actually make the root name empty
   // e.g. ":" becomes ""
@@ -78,26 +78,26 @@ void ezFileSystem::CleanUpRootName(ezStringBuilder& sRoot)
   sRoot.ToUpper();
 }
 
-ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
+WResult WFileSystem::AddDataDirectory(WStringView sDataDirectory, WStringView sGroup, WStringView sRootName, WDataDirUsage usage)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_ASSERT_DEV(usage != ezDataDirUsage::AllowWrites || !sRootName.IsEmpty(), "A data directory must have a non-empty, unique name to be mounted for write access");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(usage != WDataDirUsage::AllowWrites || !sRootName.IsEmpty(), "A data directory must have a non-empty, unique name to be mounted for write access");
 
-  ezStringBuilder sPath = sDataDirectory;
+  WStringBuilder sPath = sDataDirectory;
   sPath.MakeCleanPath();
 
   if (!sPath.IsEmpty() && !sPath.EndsWith("/"))
     sPath.Append("/");
 
-  ezStringBuilder sCleanRootName = sRootName;
+  WStringBuilder sCleanRootName = sRootName;
   CleanUpRootName(sCleanRootName);
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
   bool failed = false;
   if (FindDataDirectoryWithRoot(sCleanRootName) != nullptr)
   {
-    ezLog::Error("A data directory with root name '{0}' already exists.", sCleanRootName);
+    WLog::Error("A data directory with root name '{0}' already exists.", sCleanRootName);
     failed = true;
   }
 
@@ -107,13 +107,13 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
       { return a.m_fPriority < b.m_fPriority; });
 
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
-    for (ezInt32 i = s_pData->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
+    for (WInt32 i = s_pData->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
     {
-      ezDataDirectoryType* pDataDir = s_pData->m_DataDirFactories[i].m_Factory(sPath, sGroup, sRootName, usage);
+      WDataDirectoryType* pDataDir = s_pData->m_DataDirFactories[i].m_Factory(sPath, sGroup, sRootName, usage);
 
       if (pDataDir != nullptr)
       {
-        ezDataDirectoryInfo dd;
+        WDataDirectoryInfo dd;
         dd.m_Usage = usage;
         dd.m_pDataDirType = pDataDir;
         dd.m_sRootName = sCleanRootName;
@@ -131,8 +131,8 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
           s_pData->m_Event.Broadcast(fe);
         }
 
-        ezLog::Dev("Added Data Directory '{}' -> '{}'", sRootName, sDataDirectory);
-        return EZ_SUCCESS;
+        WLog::Dev("Added Data Directory '{}' -> '{}'", sRootName, sDataDirectory);
+        return W_SUCCESS;
       }
     }
   }
@@ -146,20 +146,20 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
     s_pData->m_Event.Broadcast(fe);
   }
 
-  ezLog::Error("Adding Data Directory '{0}' failed.", ezArgSensitive(sDataDirectory, "Path"));
-  return EZ_FAILURE;
+  WLog::Error("Adding Data Directory '{0}' failed.", WArgSensitive(sDataDirectory, "Path"));
+  return W_FAILURE;
 }
 
 
-bool ezFileSystem::RemoveDataDirectory(ezStringView sRootName)
+bool WFileSystem::RemoveDataDirectory(WStringView sRootName)
 {
-  ezStringBuilder sCleanRootName = sRootName;
+  WStringBuilder sCleanRootName = sRootName;
   CleanUpRootName(sCleanRootName);
 
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
-  for (ezUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
+  for (WUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
   {
     const auto& directory = s_pData->m_DataDirectories[i];
 
@@ -187,16 +187,16 @@ bool ezFileSystem::RemoveDataDirectory(ezStringView sRootName)
   return false;
 }
 
-ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(ezStringView sGroup)
+WUInt32 WFileSystem::RemoveDataDirectoryGroup(WStringView sGroup)
 {
   if (s_pData == nullptr)
     return 0;
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  ezUInt32 uiRemoved = 0;
+  WUInt32 uiRemoved = 0;
 
-  for (ezUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
+  for (WUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
   {
     if (s_pData->m_DataDirectories[i].m_sGroup == sGroup)
     {
@@ -222,13 +222,13 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(ezStringView sGroup)
   return uiRemoved;
 }
 
-void ezFileSystem::ClearAllDataDirectories()
+void WFileSystem::ClearAllDataDirectories()
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  for (ezInt32 i = s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     {
       // Broadcast that a data directory is about to be removed
@@ -246,13 +246,13 @@ void ezFileSystem::ClearAllDataDirectories()
   s_pData->m_DataDirectories.Clear();
 }
 
-const ezDataDirectoryInfo* ezFileSystem::FindDataDirectoryWithRoot(ezStringView sRootName)
+const WDataDirectoryInfo* WFileSystem::FindDataDirectoryWithRoot(WStringView sRootName)
 {
   if (sRootName.IsEmpty())
     return nullptr;
 
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
   for (const auto& dd : s_pData->m_DataDirectories)
   {
@@ -265,45 +265,45 @@ const ezDataDirectoryInfo* ezFileSystem::FindDataDirectoryWithRoot(ezStringView 
   return nullptr;
 }
 
-ezUInt32 ezFileSystem::GetNumDataDirectories()
+WUInt32 WFileSystem::GetNumDataDirectories()
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   return s_pData->m_DataDirectories.GetCount();
 }
 
-ezDataDirectoryType* ezFileSystem::GetDataDirectory(ezUInt32 uiDataDirIndex)
+WDataDirectoryType* WFileSystem::GetDataDirectory(WUInt32 uiDataDirIndex)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   return s_pData->m_DataDirectories[uiDataDirIndex].m_pDataDirType;
 }
 
-const ezDataDirectoryInfo& ezFileSystem::GetDataDirectoryInfo(ezUInt32 uiDataDirIndex)
+const WDataDirectoryInfo& WFileSystem::GetDataDirectoryInfo(WUInt32 uiDataDirIndex)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   return s_pData->m_DataDirectories[uiDataDirIndex];
 }
 
-ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 uiDataDir)
+WStringView WFileSystem::GetDataDirRelativePath(WStringView sPath, WUInt32 uiDataDir)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
   // if an absolute path is given, this will check whether the absolute path would fall into this data directory
   // if yes, the prefix path is removed and then only the relative path is given to the data directory type
   // otherwise the data directory would prepend its own path and thus create an invalid path to work with
 
   // first check the redirected directory
-  const ezString128& sRedDirPath = s_pData->m_DataDirectories[uiDataDir].m_pDataDirType->GetRedirectedDataDirectoryPath();
+  const WString128& sRedDirPath = s_pData->m_DataDirectories[uiDataDir].m_pDataDirType->GetRedirectedDataDirectoryPath();
 
   if (!sRedDirPath.IsEmpty() && sPath.StartsWith_NoCase(sRedDirPath))
   {
-    ezStringView sRelPath(sPath.GetStartPointer() + sRedDirPath.GetElementCount(), sPath.GetEndPointer());
+    WStringView sRelPath(sPath.GetStartPointer() + sRedDirPath.GetElementCount(), sPath.GetEndPointer());
 
     // if the relative path still starts with a path-separator, skip it
-    if (ezPathUtils::IsPathSeparator(sRelPath.GetCharacter()))
+    if (WPathUtils::IsPathSeparator(sRelPath.GetCharacter()))
     {
       sRelPath.ChopAwayFirstCharacterUtf8();
     }
@@ -312,16 +312,16 @@ ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 u
   }
 
   // then check the original mount path
-  const ezString128& sDirPath = s_pData->m_DataDirectories[uiDataDir].m_pDataDirType->GetDataDirectoryPath();
+  const WString128& sDirPath = s_pData->m_DataDirectories[uiDataDir].m_pDataDirType->GetDataDirectoryPath();
 
   // If the data dir is empty we return the paths as is or the code below would remove the '/' in front of an
   // absolute path.
   if (!sDirPath.IsEmpty() && sPath.StartsWith_NoCase(sDirPath))
   {
-    ezStringView sRelPath(sPath.GetStartPointer() + sDirPath.GetElementCount(), sPath.GetEndPointer());
+    WStringView sRelPath(sPath.GetStartPointer() + sDirPath.GetElementCount(), sPath.GetEndPointer());
 
     // if the relative path still starts with a path-separator, skip it
-    if (ezPathUtils::IsPathSeparator(sRelPath.GetCharacter()))
+    if (WPathUtils::IsPathSeparator(sRelPath.GetCharacter()))
     {
       sRelPath.ChopAwayFirstCharacterUtf8();
     }
@@ -333,12 +333,12 @@ ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 u
 }
 
 
-ezDataDirectoryInfo* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
+WDataDirectoryInfo* WFileSystem::GetDataDirForRoot(const WString& sRoot)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (s_pData->m_DataDirectories[i].m_sRootName == sRoot)
       return &s_pData->m_DataDirectories[i];
@@ -348,36 +348,36 @@ ezDataDirectoryInfo* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
 }
 
 
-void ezFileSystem::DeleteFile(ezStringView sFile)
+void WFileSystem::DeleteFile(WStringView sFile)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  if (ezPathUtils::IsAbsolutePath(sFile))
+  if (WPathUtils::IsAbsolutePath(sFile))
   {
-    ezOSFile::DeleteFile(sFile).IgnoreResult();
+    WOSFile::DeleteFile(sFile).IgnoreResult();
     return;
   }
 
-  ezString sRootName;
+  WString sRootName;
   sFile = ExtractRootName(sFile, sRootName);
 
-  EZ_ASSERT_DEV(!sRootName.IsEmpty(), "Files can only be deleted with a rooted path name.");
+  W_ASSERT_DEV(!sRootName.IsEmpty(), "Files can only be deleted with a rooted path name.");
 
   if (sRootName.IsEmpty())
     return;
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     // do not delete data from directories that are mounted as read only
-    if (s_pData->m_DataDirectories[i].m_Usage != ezDataDirUsage::AllowWrites)
+    if (s_pData->m_DataDirectories[i].m_Usage != WDataDirUsage::AllowWrites)
       continue;
 
     if (s_pData->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    ezStringView sRelPath = GetDataDirRelativePath(sFile, i);
+    WStringView sRelPath = GetDataDirRelativePath(sFile, i);
 
     {
       // Broadcast that a file is about to be deleted
@@ -394,23 +394,23 @@ void ezFileSystem::DeleteFile(ezStringView sFile)
   }
 }
 
-bool ezFileSystem::ExistsFile(ezStringView sFile)
+bool WFileSystem::ExistsFile(WStringView sFile)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  ezString sRootName;
+  WString sRootName;
   sFile = ExtractRootName(sFile, sRootName);
 
   const bool bOneSpecificDataDir = !sRootName.IsEmpty();
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (!sRootName.IsEmpty() && s_pData->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    ezStringView sRelPath = GetDataDirRelativePath(sFile, i);
+    WStringView sRelPath = GetDataDirRelativePath(sFile, i);
 
     if (s_pData->m_DataDirectories[i].m_pDataDirType->ExistsFile(sRelPath, bOneSpecificDataDir))
       return true;
@@ -420,73 +420,73 @@ bool ezFileSystem::ExistsFile(ezStringView sFile)
 }
 
 
-ezResult ezFileSystem::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats)
+WResult WFileSystem::GetFileStats(WStringView sFileOrFolder, WFileStats& out_stats)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
   if (sFileOrFolder.IsEmpty())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezString sRootName;
+  WString sRootName;
   sFileOrFolder = ExtractRootName(sFileOrFolder, sRootName);
 
   const bool bOneSpecificDataDir = !sRootName.IsEmpty();
 
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (!sRootName.IsEmpty() && s_pData->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    ezStringView sRelPath = GetDataDirRelativePath(sFileOrFolder, i);
+    WStringView sRelPath = GetDataDirRelativePath(sFileOrFolder, i);
 
     if (s_pData->m_DataDirectories[i].m_pDataDirType->GetFileStats(sRelPath, bOneSpecificDataDir, out_stats).Succeeded())
-      return EZ_SUCCESS;
+      return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezStringView ezFileSystem::ExtractRootName(ezStringView sPath, ezString& rootName)
+WStringView WFileSystem::ExtractRootName(WStringView sPath, WString& rootName)
 {
-  ezStringView root, path;
-  ezPathUtils::GetRootedPathParts(sPath, root, path);
+  WStringView root, path;
+  WPathUtils::GetRootedPathParts(sPath, root, path);
 
-  ezStringBuilder rootUpr = root;
+  WStringBuilder rootUpr = root;
   rootUpr.ToUpper();
   rootName = rootUpr;
   return path;
 }
 
-ezDataDirectoryReader* ezFileSystem::GetFileReader(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
+WDataDirectoryReader* WFileSystem::GetFileReader(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   if (sFile.IsEmpty())
     return nullptr;
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  ezString sRootName;
+  WString sRootName;
   sFile = ExtractRootName(sFile, sRootName);
 
   // clean up the path to get rid of ".." etc.
-  ezStringBuilder sPath = sFile;
+  WStringBuilder sPath = sFile;
   sPath.MakeCleanPath();
 
   const bool bOneSpecificDataDir = !sRootName.IsEmpty();
 
   // the last added data directory has the highest priority
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     // if a root is used, ignore all directories that do not have the same root name
     if (bOneSpecificDataDir && s_pData->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    ezStringView sRelPath = GetDataDirRelativePath(sPath, i);
+    WStringView sRelPath = GetDataDirRelativePath(sPath, i);
 
     if (bAllowFileEvents)
     {
@@ -501,7 +501,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(ezStringView sFile, ezFileSha
     }
 
     // Let the data directory try to open the file.
-    ezDataDirectoryReader* pReader = s_pData->m_DataDirectories[i].m_pDataDirType->OpenFileToRead(sRelPath, FileShareMode, bOneSpecificDataDir);
+    WDataDirectoryReader* pReader = s_pData->m_DataDirectories[i].m_pDataDirType->OpenFileToRead(sRelPath, FileShareMode, bOneSpecificDataDir);
 
     if (pReader != nullptr)
     {
@@ -532,20 +532,20 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(ezStringView sFile, ezFileSha
   return nullptr;
 }
 
-ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
+WDataDirectoryWriter* WFileSystem::GetFileWriter(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   if (sFile.IsEmpty())
     return nullptr;
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  ezString sRootName;
+  WString sRootName;
 
-  if (!ezPathUtils::IsAbsolutePath(sFile))
+  if (!WPathUtils::IsAbsolutePath(sFile))
   {
-    EZ_ASSERT_DEV(sFile.StartsWith(":"),
+    W_ASSERT_DEV(sFile.StartsWith(":"),
       "Only native absolute paths or rooted paths (starting with a colon and then the data dir root name) are allowed for "
       "writing to files. This path is neither: '{0}'",
       sFile);
@@ -553,20 +553,20 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileSha
   }
 
   // clean up the path to get rid of ".." etc.
-  ezStringBuilder sPath = sFile;
+  WStringBuilder sPath = sFile;
   sPath.MakeCleanPath();
 
   // the last added data directory has the highest priority
-  for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
-    if (s_pData->m_DataDirectories[i].m_Usage != ezDataDirUsage::AllowWrites)
+    if (s_pData->m_DataDirectories[i].m_Usage != WDataDirUsage::AllowWrites)
       continue;
 
     // ignore all directories that have not the category that is currently requested
     if (s_pData->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
-    ezStringView sRelPath = GetDataDirRelativePath(sPath, i);
+    WStringView sRelPath = GetDataDirRelativePath(sPath, i);
 
     if (bAllowFileEvents)
     {
@@ -580,7 +580,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileSha
       s_pData->m_Event.Broadcast(fe);
     }
 
-    ezDataDirectoryWriter* pWriter = s_pData->m_DataDirectories[i].m_pDataDirType->OpenFileToWrite(sRelPath, FileShareMode);
+    WDataDirectoryWriter* pWriter = s_pData->m_DataDirectories[i].m_pDataDirType->OpenFileToWrite(sRelPath, FileShareMode);
 
     if (pWriter != nullptr)
     {
@@ -611,24 +611,24 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileSha
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, const ezDataDirectoryInfo** out_pDataDir /*= nullptr*/)
+WResult WFileSystem::ResolvePath(WStringView sPath, WStringBuilder* out_pAbsolutePath, WStringBuilder* out_pDataDirRelativePath, const WDataDirectoryInfo** out_pDataDir /*= nullptr*/)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_LOCK(s_pData->m_FsMutex);
 
-  ezStringBuilder absPath, relPath;
+  WStringBuilder absPath, relPath;
 
   if (sPath.StartsWith(":"))
   {
     // writing is only allowed using rooted paths
-    ezString sRootName;
+    WString sRootName;
     ExtractRootName(sPath, sRootName);
 
-    const ezDataDirectoryInfo* pDataDir = GetDataDirForRoot(sRootName);
+    const WDataDirectoryInfo* pDataDir = GetDataDirForRoot(sRootName);
 
     if (pDataDir == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (out_pDataDir != nullptr)
       *out_pDataDir = pDataDir;
@@ -638,16 +638,16 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbs
     absPath = pDataDir->m_pDataDirType->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
   }
-  else if (ezPathUtils::IsAbsolutePath(sPath))
+  else if (WPathUtils::IsAbsolutePath(sPath))
   {
     absPath = sPath;
     absPath.MakeCleanPath();
 
-    for (ezUInt32 dd = s_pData->m_DataDirectories.GetCount(); dd > 0; --dd)
+    for (WUInt32 dd = s_pData->m_DataDirectories.GetCount(); dd > 0; --dd)
     {
       auto& dir = s_pData->m_DataDirectories[dd - 1];
 
-      if (ezPathUtils::IsSubPath(dir.m_pDataDirType->GetRedirectedDataDirectoryPath(), absPath))
+      if (WPathUtils::IsSubPath(dir.m_pDataDirType->GetRedirectedDataDirectoryPath(), absPath))
       {
         if (out_pAbsolutePath)
           *out_pAbsolutePath = absPath;
@@ -661,23 +661,23 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbs
         if (out_pDataDir)
           *out_pDataDir = &dir;
 
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   else
   {
     // try to get a reader -> if we get one, the file does indeed exist
-    ezDataDirectoryReader* pReader = ezFileSystem::GetFileReader(sPath, ezFileShareMode::SharedReads, true);
+    WDataDirectoryReader* pReader = WFileSystem::GetFileReader(sPath, WFileShareMode::SharedReads, true);
 
     if (!pReader)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (out_pDataDir != nullptr)
     {
-      for (ezUInt32 dd = s_pData->m_DataDirectories.GetCount(); dd > 0; --dd)
+      for (WUInt32 dd = s_pData->m_DataDirectories.GetCount(); dd > 0; --dd)
       {
         auto& dir = s_pData->m_DataDirectories[dd - 1];
 
@@ -702,12 +702,12 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbs
   if (out_pDataDirRelativePath)
     *out_pDataDirRelativePath = relPath;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName /*= nullptr*/)
+WResult WFileSystem::FindFolderWithSubPath(WStringBuilder& out_sResult, WStringView sStartDirectory, WStringView sSubPath, WStringView sRedirectionFileName /*= nullptr*/)
 {
-  ezStringBuilder sStartDirAbs = sStartDirectory;
+  WStringBuilder sStartDirAbs = sStartDirectory;
   sStartDirAbs.MakeCleanPath();
 
   // in this case the given path and the absolute path are different
@@ -716,11 +716,11 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
   // ":MyRoot\blub", rather than "C:\Game\blub"
   if (sStartDirAbs.StartsWith(":"))
   {
-    ezStringBuilder abs;
+    WStringBuilder abs;
     if (ResolvePath(sStartDirAbs, &abs, nullptr).Failed())
     {
       out_sResult.Clear();
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     sStartDirAbs = abs;
@@ -729,7 +729,7 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
   out_sResult = sStartDirectory;
   out_sResult.MakeCleanPath();
 
-  ezStringBuilder FullPath, sRedirection;
+  WStringBuilder FullPath, sRedirection;
 
   while (!out_sResult.IsEmpty())
   {
@@ -740,12 +740,12 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
       FullPath = sStartDirAbs;
       FullPath.AppendPath(sRedirectionFileName);
 
-      ezOSFile f;
-      if (f.Open(FullPath, ezFileOpenMode::Read).Succeeded())
+      WOSFile f;
+      if (f.Open(FullPath, WFileOpenMode::Read).Succeeded())
       {
-        ezDataBuffer db;
+        WDataBuffer db;
         f.ReadAll(db);
-        sRedirection.Set(ezStringView((const char*)db.GetData(), db.GetCount()));
+        sRedirection.Set(WStringView((const char*)db.GetData(), db.GetCount()));
       }
     }
 
@@ -757,11 +757,11 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
       FullPath.AppendPath(sSubPath);
       FullPath.MakeCleanPath();
 
-      if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+      if (WOSFile::ExistsDirectory(FullPath) || WOSFile::ExistsFile(FullPath))
       {
         out_sResult.AppendPath(sRedirection);
         out_sResult.MakeCleanPath();
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
     }
 
@@ -770,22 +770,22 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
     FullPath.AppendPath(sSubPath);
     FullPath.MakeCleanPath();
 
-    if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+    if (WOSFile::ExistsDirectory(FullPath) || WOSFile::ExistsFile(FullPath))
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     out_sResult.PathParentDirectory();
     sStartDirAbs.PathParentDirectory();
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-bool ezFileSystem::ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
+bool WFileSystem::ResolveAssetRedirection(WStringView sPathOrAssetGuid, WStringBuilder& out_sRedirection)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
   for (auto& dd : s_pData->m_DataDirectories)
   {
@@ -797,9 +797,9 @@ bool ezFileSystem::ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStri
   return false;
 }
 
-ezStringView ezFileSystem::MigrateFileLocation(ezStringView sOldLocation, ezStringView sNewLocation)
+WStringView WFileSystem::MigrateFileLocation(WStringView sOldLocation, WStringView sNewLocation)
 {
-  ezStringBuilder sOldPathFull, sNewPathFull;
+  WStringBuilder sOldPathFull, sNewPathFull;
 
   if (ResolvePath(sOldLocation, &sOldPathFull, nullptr).Failed() || sOldPathFull.IsEmpty())
   {
@@ -825,7 +825,7 @@ ezStringView ezFileSystem::MigrateFileLocation(ezStringView sOldLocation, ezStri
   }
 
   // new one doesn't exist -> try to move old to new
-  if (ezOSFile::MoveFileOrDirectory(sOldPathFull, sNewPathFull).Failed())
+  if (WOSFile::MoveFileOrDirectory(sOldPathFull, sNewPathFull).Failed())
   {
     // if the old location exists, but we can't move the file, return the old location to use
     return sOldLocation;
@@ -839,12 +839,12 @@ ezStringView ezFileSystem::MigrateFileLocation(ezStringView sOldLocation, ezStri
   return sNewLocation;
 }
 
-void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()
+void WFileSystem::ReloadAllExternalDataDirectoryConfigs()
 {
-  EZ_LOG_BLOCK("ReloadAllExternalDataDirectoryConfigs");
+  W_LOG_BLOCK("ReloadAllExternalDataDirectoryConfigs");
 
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
   for (auto& dd : s_pData->m_DataDirectories)
   {
@@ -852,66 +852,66 @@ void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()
   }
 }
 
-void ezFileSystem::Startup()
+void WFileSystem::Startup()
 {
-  s_pData = EZ_DEFAULT_NEW(FileSystemData);
+  s_pData = W_DEFAULT_NEW(FileSystemData);
 }
 
-void ezFileSystem::Shutdown()
+void WFileSystem::Shutdown()
 {
   {
-    EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-    EZ_LOCK(s_pData->m_FsMutex);
+    W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+    W_LOCK(s_pData->m_FsMutex);
 
     s_pData->m_DataDirFactories.Clear();
 
     ClearAllDataDirectories();
   }
 
-  EZ_DEFAULT_DELETE(s_pData);
+  W_DEFAULT_DELETE(s_pData);
 }
 
-ezResult ezFileSystem::DetectSdkRootDirectory(ezStringView sExpectedSubFolder /*= "Data/Base"*/)
+WResult WFileSystem::DetectSdkRootDirectory(WStringView sExpectedSubFolder /*= "Data/Base"*/)
 {
-  EZ_IGNORE_UNUSED(sExpectedSubFolder);
+  W_IGNORE_UNUSED(sExpectedSubFolder);
 
   if (!s_sSdkRootDir.IsEmpty())
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezStringBuilder sdkRoot;
+  WStringBuilder sdkRoot;
 
-#if EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-  if (ezFileSystem::FindFolderWithSubPath(sdkRoot, ezOSFile::GetApplicationDirectory(), sExpectedSubFolder, "ezSdkRoot.txt").Failed())
+#if W_ENABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  if (WFileSystem::FindFolderWithSubPath(sdkRoot, WOSFile::GetApplicationDirectory(), sExpectedSubFolder, "WSdkRoot.txt").Failed())
   {
-    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with '{1}' sub-folder.", ezOSFile::GetApplicationDirectory(), sExpectedSubFolder);
-    return EZ_FAILURE;
+    WLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with '{1}' sub-folder.", WOSFile::GetApplicationDirectory(), sExpectedSubFolder);
+    return W_FAILURE;
   }
 #else
   // mobile platforms
-  sdkRoot = ezOSFile::GetApplicationDirectory();
+  sdkRoot = WOSFile::GetApplicationDirectory();
 #endif
 
-  ezFileSystem::SetSdkRootDirectory(sdkRoot);
-  return EZ_SUCCESS;
+  WFileSystem::SetSdkRootDirectory(sdkRoot);
+  return W_SUCCESS;
 }
 
-void ezFileSystem::SetSdkRootDirectory(ezStringView sSdkDir)
+void WFileSystem::SetSdkRootDirectory(WStringView sSdkDir)
 {
-  ezStringBuilder s = sSdkDir;
+  WStringBuilder s = sSdkDir;
   s.MakeCleanPath();
 
   s_sSdkRootDir = s;
 }
 
-ezStringView ezFileSystem::GetSdkRootDirectory()
+WStringView WFileSystem::GetSdkRootDirectory()
 {
-  EZ_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetSdkRootDirectory'.");
+  W_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'WFileSystem::SetSdkRootDirectory'.");
   return s_sSdkRootDir;
 }
 
-void ezFileSystem::SetSpecialDirectory(ezStringView sName, ezStringView sReplacement)
+void WFileSystem::SetSpecialDirectory(WStringView sName, WStringView sReplacement)
 {
-  ezStringBuilder tmp = sName;
+  WStringBuilder tmp = sName;
   tmp.ToLower();
 
   if (sReplacement.IsEmpty())
@@ -921,16 +921,16 @@ void ezFileSystem::SetSpecialDirectory(ezStringView sName, ezStringView sReplace
   else
   {
     s_SpecialDirectories[tmp] = sReplacement;
-    ezLog::Dev("Setting special directory '{}' to '{}'", sName, sReplacement);
+    WLog::Dev("Setting special directory '{}' to '{}'", sName, sReplacement);
   }
 }
 
-ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_sPath)
+WResult WFileSystem::ResolveSpecialDirectory(WStringView sDirectory, WStringBuilder& out_sPath)
 {
   if (sDirectory.IsEmpty() || !sDirectory.StartsWith(">"))
   {
     out_sPath = sDirectory;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   // skip the '>'
@@ -940,9 +940,9 @@ ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezString
   const char* szEnd = sDirectory.FindSubString("/");
 
   if (szEnd == nullptr)
-    szEnd = szStart + ezStringUtils::GetStringElementCount(szStart);
+    szEnd = szStart + WStringUtils::GetStringElementCount(szStart);
 
-  ezStringBuilder sName;
+  WStringBuilder sName;
   sName.SetSubString_FromTo(szStart, szEnd);
   sName.ToLower();
 
@@ -952,7 +952,7 @@ ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezString
     out_sPath = it.Value();
     out_sPath.AppendPath(szEnd); // szEnd might be on \0 or a slash
     out_sPath.MakeCleanPath();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (sName == "sdk")
@@ -961,61 +961,61 @@ ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezString
     out_sPath = GetSdkRootDirectory();
     out_sPath.AppendPath(sDirectory);
     out_sPath.MakeCleanPath();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (sName == "user")
   {
     sDirectory.Shrink(4, 0);
-    out_sPath = ezOSFile::GetUserDataFolder();
+    out_sPath = WOSFile::GetUserDataFolder();
     out_sPath.AppendPath(sDirectory);
     out_sPath.MakeCleanPath();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (sName == "temp")
   {
     sDirectory.Shrink(4, 0);
-    out_sPath = ezOSFile::GetTempDataFolder();
+    out_sPath = WOSFile::GetTempDataFolder();
     out_sPath.AppendPath(sDirectory);
     out_sPath.MakeCleanPath();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (sName == "appdir")
   {
     sDirectory.Shrink(6, 0);
-    out_sPath = ezOSFile::GetApplicationDirectory();
+    out_sPath = WOSFile::GetApplicationDirectory();
     out_sPath.AppendPath(sDirectory);
     out_sPath.MakeCleanPath();
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-ezMutex& ezFileSystem::GetMutex()
+WMutex& WFileSystem::GetMutex()
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   return s_pData->m_FsMutex;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
 
-void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+void WFileSystem::StartSearch(WFileSystemIterator& ref_iterator, WStringView sSearchTerm, WBitflags<WFileSystemIteratorFlags> flags /*= WFileSystemIteratorFlags::Default*/)
 {
-  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_LOCK(s_pData->m_FsMutex);
+  W_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+  W_LOCK(s_pData->m_FsMutex);
 
-  ezTempHybridArray<ezString, 16> folders;
-  ezStringBuilder sDdPath, sRelPath;
+  WTempHybridArray<WString, 16> folders;
+  WStringBuilder sDdPath, sRelPath;
 
   if (sSearchTerm.IsRootedPath())
   {
-    const ezStringView root = sSearchTerm.GetRootedPathRootName();
+    const WStringView root = sSearchTerm.GetRootedPathRootName();
 
-    const ezDataDirectoryInfo* pDataDir = FindDataDirectoryWithRoot(root);
+    const WDataDirectoryInfo* pDataDir = FindDataDirectoryWithRoot(root);
     if (pDataDir == nullptr)
       return;
 
@@ -1031,7 +1031,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   }
   else if (sSearchTerm.IsAbsolutePath())
   {
-    for (ezUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
+    for (WUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
     {
       const auto& dd = s_pData->m_DataDirectories[idx - 1];
 
@@ -1057,7 +1057,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   }
   else
   {
-    for (ezUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
+    for (WUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
     {
       const auto& dd = s_pData->m_DataDirectories[idx - 1];
 
@@ -1072,20 +1072,20 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
 
 #endif
 
-ezResult ezFileSystem::CreateDirectoryStructure(ezStringView sPath)
+WResult WFileSystem::CreateDirectoryStructure(WStringView sPath)
 {
-  ezStringBuilder sRedir;
-  EZ_SUCCEED_OR_RETURN(ResolveSpecialDirectory(sPath, sRedir));
+  WStringBuilder sRedir;
+  W_SUCCEED_OR_RETURN(ResolveSpecialDirectory(sPath, sRedir));
 
   if (sRedir.IsRootedPath())
   {
-    ezFileSystem::ResolvePath(sRedir, &sRedir, nullptr).AssertSuccess();
+    WFileSystem::ResolvePath(sRedir, &sRedir, nullptr).AssertSuccess();
   }
 
   if (!sRedir.IsAbsolutePath())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return ezOSFile::CreateDirectoryStructure(sRedir);
+  return WOSFile::CreateDirectoryStructure(sRedir);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);
+W_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);

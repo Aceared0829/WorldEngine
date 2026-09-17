@@ -4,20 +4,20 @@
 #include <EditorFramework/Gizmos/CapsuleGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezCapsuleManipulatorAdapter : public ezManipulatorAdapter
+class WCapsuleManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezCapsuleManipulatorAdapter();
-  ~ezCapsuleManipulatorAdapter();
+  WCapsuleManipulatorAdapter();
+  ~WCapsuleManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezCapsuleGizmo m_Gizmo;
+  WCapsuleGizmo m_Gizmo;
 };

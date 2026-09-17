@@ -11,32 +11,32 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpSelectionTool, 1, ezRTTIDefaultAllocator<ezMcpSelectionTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpSelectionTool, 1, WRTTIDefaultAllocator<WMcpSelectionTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMcpSelectionTool::WriteObject(ezMcpJsonWriter& ref_writer, const ezDocumentObject* pObject)
+void WMcpSelectionTool::WriteObject(WMcpJsonWriter& ref_writer, const WDocumentObject* pObject)
 {
   ref_writer.BeginObject();
 
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(pObject->GetGuid(), sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(pObject->GetGuid(), sGuid);
   ref_writer.AddVariableString("guid", sGuid);
 
-  const ezString sName = ezMcpDocument::GetObjectName(pObject);
+  const WString sName = WMcpDocument::GetObjectName(pObject);
   if (!sName.IsEmpty())
     ref_writer.AddVariableString("name", sName);
 
-  const ezRTTI* pType = pObject->GetType();
-  ref_writer.AddVariableString("type", pType != nullptr ? pType->GetTypeName() : ezStringView());
+  const WRTTI* pType = pObject->GetType();
+  ref_writer.AddVariableString("type", pType != nullptr ? pType->GetTypeName() : WStringView());
 
   ref_writer.EndObject();
 }
 
-void ezMcpSelectionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpSelectionTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "selection_get";
     desc.m_sDescription =
       "Returns which objects are selected in an open document, with their guid, name and type. Use it to find out what a user means "
@@ -50,7 +50,7 @@ void ezMcpSelectionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_to
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "selection_set";
     desc.m_sDescription =
       "Selects objects in an open document, which is how to show a user what is being talked about instead of describing it - the "
@@ -66,7 +66,7 @@ void ezMcpSelectionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_to
   }
 }
 
-void ezMcpSelectionTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpSelectionTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "selection_get")
     ExecuteGet(arguments, out_result);
@@ -74,19 +74,19 @@ void ezMcpSelectionTool::Execute(ezStringView sToolName, const ezVariantDictiona
     ExecuteSet(arguments, out_result);
 }
 
-void ezMcpSelectionTool::ExecuteGet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpSelectionTool::ExecuteGet(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
+  const WStringView sDocument = WMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  WDocument* pDocument = WMcpDocument::Find(sDocument);
 
   if (pDocument == nullptr)
   {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
+    WMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
   }
 
-  const ezSelectionManager* pSelection = pDocument->GetSelectionManager();
+  const WSelectionManager* pSelection = pDocument->GetSelectionManager();
 
   if (pSelection == nullptr)
   {
@@ -94,24 +94,24 @@ void ezMcpSelectionTool::ExecuteGet(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  ezDynamicArray<ezSelectionEntry> topLevel;
+  WDynamicArray<WSelectionEntry> topLevel;
   pSelection->GetTopLevelSelection(topLevel);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("document", pDocument->GetDocumentPath());
   writer.AddVariableUInt32("count", pSelection->GetSelection().GetCount());
 
   writer.BeginArray("selection");
-  for (const ezDocumentObject* pObject : pSelection->GetSelection())
+  for (const WDocumentObject* pObject : pSelection->GetSelection())
   {
     WriteObject(writer, pObject);
   }
   writer.EndArray();
 
   writer.BeginArray("topLevelSelection");
-  for (const ezSelectionEntry& entry : topLevel)
+  for (const WSelectionEntry& entry : topLevel)
   {
     WriteObject(writer, entry.m_pObject);
   }
@@ -122,19 +122,19 @@ void ezMcpSelectionTool::ExecuteGet(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpSelectionTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpSelectionTool::ExecuteSet(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
+  const WStringView sDocument = WMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  WDocument* pDocument = WMcpDocument::Find(sDocument);
 
   if (pDocument == nullptr)
   {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
+    WMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
   }
 
-  ezSelectionManager* pSelection = pDocument->GetSelectionManager();
+  WSelectionManager* pSelection = pDocument->GetSelectionManager();
 
   if (pSelection == nullptr)
   {
@@ -142,33 +142,33 @@ void ezMcpSelectionTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  ezDynamicArray<ezString> objectGuids;
+  WDynamicArray<WString> objectGuids;
 
   // An absent 'objects' is a mistake worth reporting; an empty one is the documented way to clear the
   // selection, and the two are indistinguishable once the list is in hand.
-  if (!ezMcpJson::GetStringArray(arguments, "objects", objectGuids))
+  if (!WMcpJson::GetStringArray(arguments, "objects", objectGuids))
   {
     out_result.SetError("Argument 'objects' is required and has to be an array of object guids. Pass an empty array to clear the "
                         "selection.");
     return;
   }
 
-  const ezDocumentObjectManager* pManager = pDocument->GetObjectManager();
+  const WDocumentObjectManager* pManager = pDocument->GetObjectManager();
 
-  ezDeque<const ezDocumentObject*> selection;
-  ezHybridArray<ezString, 4> unknown;
+  WDeque<const WDocumentObject*> selection;
+  WHybridArray<WString, 4> unknown;
 
-  for (const ezString& sGuid : objectGuids)
+  for (const WString& sGuid : objectGuids)
   {
     // IsStringUuid() first: ConvertStringToUuid() asserts on anything that is not one, and this input
     // comes straight from a language model.
-    if (!ezConversionUtils::IsStringUuid(sGuid))
+    if (!WConversionUtils::IsStringUuid(sGuid))
     {
       unknown.PushBack(sGuid);
       continue;
     }
 
-    const ezDocumentObject* pObject = pManager->GetObject(ezConversionUtils::ConvertStringToUuid(sGuid));
+    const WDocumentObject* pObject = pManager->GetObject(WConversionUtils::ConvertStringToUuid(sGuid));
 
     if (pObject == nullptr)
     {
@@ -181,7 +181,7 @@ void ezMcpSelectionTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpT
 
   pSelection->SetSelection(selection);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("document", pDocument->GetDocumentPath());
@@ -192,7 +192,7 @@ void ezMcpSelectionTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpT
     // Named individually: with a partial match the caller needs to know which of its guids went
     // nowhere, and a count would send it back to object_tree for all of them.
     writer.BeginArray("unknownObjects");
-    for (const ezString& sGuid : unknown)
+    for (const WString& sGuid : unknown)
     {
       writer.WriteString(sGuid);
     }

@@ -10,19 +10,19 @@
 
 #include <RendererFoundation/Resources/ReadbackHelper.h>
 
-class ezXRInterface;
-class ezRenderGraph;
+class WXRInterface;
+class WRenderGraph;
 
 /// XR Window base implementation. Optionally wraps a companion window.
-class EZ_GAMEENGINE_DLL ezWindowXR : public ezWindowBase
+class W_GAMEENGINE_DLL WWindowXR : public WWindowBase
 {
 public:
-  ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow);
-  virtual ~ezWindowXR();
+  WWindowXR(WXRInterface* pVrInterface, WUniquePtr<WWindowBase> pCompanionWindow);
+  virtual ~WWindowXR();
 
-  virtual ezSizeU32 GetClientAreaSize() const override;
+  virtual WSizeU32 GetClientAreaSize() const override;
 
-  virtual ezWindowHandle GetNativeWindowHandle() const override;
+  virtual WWindowHandle GetNativeWindowHandle() const override;
 
   virtual bool IsVisible() const override { return true; }
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode) const override;
@@ -33,43 +33,43 @@ public:
   virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
   /// Returns the companion window if present.
-  const ezWindowBase* GetCompanionWindow() const;
+  const WWindowBase* GetCompanionWindow() const;
 
 private:
-  ezXRInterface* m_pVrInterface = nullptr;
-  ezUniquePtr<ezWindowBase> m_pCompanionWindow;
-  ezAtomicInteger32 m_iReferenceCount = 0;
+  WXRInterface* m_pVrInterface = nullptr;
+  WUniquePtr<WWindowBase> m_pCompanionWindow;
+  WAtomicInteger32 m_iReferenceCount = 0;
 };
 
 /// XR Window output target base implementation. Optionally wraps a companion window output target.
-class EZ_GAMEENGINE_DLL ezWindowOutputTargetXR : public ezWindowOutputTargetBase
+class W_GAMEENGINE_DLL WWindowOutputTargetXR : public WWindowOutputTargetBase
 {
 public:
-  ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget);
-  ~ezWindowOutputTargetXR();
+  WWindowOutputTargetXR(WXRInterface* pVrInterface, WUniquePtr<WWindowOutputTargetGAL> pCompanionWindowOutputTarget);
+  ~WWindowOutputTargetXR();
 
   virtual void AcquireImage() override {}
   virtual void PresentImage(bool bEnableVSync) override;
   void CompanionViewBeginFrame(bool bThrottleCompanionView = true);
-  virtual ezResult StartCaptureImage() override;
-  virtual ezEnum<ezCaptureImageResult> WaitCaptureImage(ezImage& out_image) override;
+  virtual WResult StartCaptureImage() override;
+  virtual WEnum<WCaptureImageResult> WaitCaptureImage(WImage& out_image) override;
 
   /// Returns the companion window output target if present.
-  const ezWindowOutputTargetBase* GetCompanionWindowOutputTarget() const;
+  const WWindowOutputTargetBase* GetCompanionWindowOutputTarget() const;
 
 private:
   void RenderCompanionView();
-  void OnGALEvent(const ezGALDeviceEvent& e);
+  void OnGALEvent(const WGALDeviceEvent& e);
 
-  ezXRInterface* m_pXrInterface = nullptr;
-  ezTime m_LastPresent;
-  ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
-  ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
-  ezShaderResourceHandle m_hCompanionShader;
+  WXRInterface* m_pXrInterface = nullptr;
+  WTime m_LastPresent;
+  WUniquePtr<WWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
+  WConstantBufferStorageHandle m_hCompanionConstantBuffer;
+  WShaderResourceHandle m_hCompanionShader;
   bool m_bRender = false;
-  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  WSharedPtr<WRenderGraph> m_pRenderGraph;
   bool m_bCaptureRequested = false;
   bool m_bCaptureInFlight = false;
-  ezGALReadbackTextureHelper m_Readback;
-  ezGALTextureCreationDescription m_CaptureBackbufferDesc;
+  WGALReadbackTextureHelper m_Readback;
+  WGALTextureCreationDescription m_CaptureBackbufferDesc;
 };

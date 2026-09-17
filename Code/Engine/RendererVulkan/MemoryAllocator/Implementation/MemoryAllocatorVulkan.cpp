@@ -13,9 +13,9 @@
 // #define VMA_DEBUG_LOG(format, ...)   \
 //  do                                 \
 //  {                                  \
-//    ezStringBuilder tmp;             \
+//    WStringBuilder tmp;             \
 //    tmp.Printf(format, __VA_ARGS__); \
-//    ezLog::Error("{}", tmp);         \
+//    WLog::Error("{}", tmp);         \
 //  } while (false)
 
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
@@ -30,55 +30,55 @@
 
 #include VA_INCLUDE_HIDDEN
 
-static_assert(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::DedicatedMemory);
-static_assert(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::NeverAllocate);
-static_assert(VMA_ALLOCATION_CREATE_MAPPED_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::Mapped);
-static_assert(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::CanAlias);
-static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
-static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessRandom);
-static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::AllowTransferInstead);
-static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinMemory);
-static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinTime);
+static_assert(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == (WUInt32)WVulkanAllocationCreateFlags::DedicatedMemory);
+static_assert(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == (WUInt32)WVulkanAllocationCreateFlags::NeverAllocate);
+static_assert(VMA_ALLOCATION_CREATE_MAPPED_BIT == (WUInt32)WVulkanAllocationCreateFlags::Mapped);
+static_assert(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (WUInt32)WVulkanAllocationCreateFlags::CanAlias);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (WUInt32)WVulkanAllocationCreateFlags::HostAccessSequentialWrite);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (WUInt32)WVulkanAllocationCreateFlags::HostAccessRandom);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT == (WUInt32)WVulkanAllocationCreateFlags::AllowTransferInstead);
+static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (WUInt32)WVulkanAllocationCreateFlags::StrategyMinMemory);
+static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (WUInt32)WVulkanAllocationCreateFlags::StrategyMinTime);
 
-static_assert(VMA_MEMORY_USAGE_UNKNOWN == (ezUInt32)ezVulkanMemoryUsage::Unknown);
-static_assert(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == (ezUInt32)ezVulkanMemoryUsage::GpuLazilyAllocated);
-static_assert(VMA_MEMORY_USAGE_AUTO == (ezUInt32)ezVulkanMemoryUsage::Auto);
-static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == (ezUInt32)ezVulkanMemoryUsage::AutoPreferDevice);
-static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == (ezUInt32)ezVulkanMemoryUsage::AutoPreferHost);
+static_assert(VMA_MEMORY_USAGE_UNKNOWN == (WUInt32)WVulkanMemoryUsage::Unknown);
+static_assert(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == (WUInt32)WVulkanMemoryUsage::GpuLazilyAllocated);
+static_assert(VMA_MEMORY_USAGE_AUTO == (WUInt32)WVulkanMemoryUsage::Auto);
+static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == (WUInt32)WVulkanMemoryUsage::AutoPreferDevice);
+static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == (WUInt32)WVulkanMemoryUsage::AutoPreferHost);
 
-static_assert(sizeof(ezVulkanAllocation) == sizeof(VmaAllocation));
+static_assert(sizeof(WVulkanAllocation) == sizeof(VmaAllocation));
 
-static_assert(sizeof(ezVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
+static_assert(sizeof(WVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
 
-EZ_DEFINE_AS_POD_TYPE(VkExportMemoryAllocateInfo);
+W_DEFINE_AS_POD_TYPE(VkExportMemoryAllocateInfo);
 
-namespace ezMemoryAllocatorVulkanInternal
+namespace WMemoryAllocatorVulkanInternal
 {
   struct ExportedSharedPool
   {
     VmaPool m_pool = nullptr;
-    ezUniquePtr<vk::ExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezUniquePtr<vk::ExportMemoryWin32HandleInfoKHR> m_exportInfoWin32;
+    WUniquePtr<vk::ExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    WUniquePtr<vk::ExportMemoryWin32HandleInfoKHR> m_exportInfoWin32;
 #endif
   };
 } // namespace
 
-struct ezMemoryAllocatorVulkan::Impl
+struct WMemoryAllocatorVulkan::Impl
 {
   VmaAllocator m_allocator;
-  ezMutex m_exportedSharedPoolsMutex;
-  ezHashTable<uint32_t, ezMemoryAllocatorVulkanInternal::ExportedSharedPool> m_exportedSharedPools;
+  WMutex m_exportedSharedPoolsMutex;
+  WHashTable<uint32_t, WMemoryAllocatorVulkanInternal::ExportedSharedPool> m_exportedSharedPools;
 };
 
-using ExportedSharedPool = ezMemoryAllocatorVulkanInternal::ExportedSharedPool;
+using ExportedSharedPool = WMemoryAllocatorVulkanInternal::ExportedSharedPool;
 
-ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::s_pImpl = nullptr;
+WMemoryAllocatorVulkan::Impl* WMemoryAllocatorVulkan::s_pImpl = nullptr;
 
-vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr)
+vk::Result WMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr)
 {
-  EZ_ASSERT_DEV(s_pImpl == nullptr, "ezMemoryAllocatorVulkan::Initialize was already called");
-  s_pImpl = EZ_DEFAULT_NEW(Impl);
+  W_ASSERT_DEV(s_pImpl == nullptr, "WMemoryAllocatorVulkan::Initialize was already called");
+  s_pImpl = W_DEFAULT_NEW(Impl);
 
   VmaVulkanFunctions vulkanFunctions = {};
   vulkanFunctions.vkGetInstanceProcAddr = instanceProcAddr;
@@ -94,15 +94,15 @@ vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice
   vk::Result res = (vk::Result)vmaCreateAllocator(&allocatorCreateInfo, &s_pImpl->m_allocator);
   if (res != vk::Result::eSuccess)
   {
-    EZ_DEFAULT_DELETE(s_pImpl);
+    W_DEFAULT_DELETE(s_pImpl);
   }
 
   return res;
 }
 
-void ezMemoryAllocatorVulkan::DeInitialize()
+void WMemoryAllocatorVulkan::DeInitialize()
 {
-  EZ_ASSERT_DEV(s_pImpl != nullptr, "ezMemoryAllocatorVulkan is not initialized.");
+  W_ASSERT_DEV(s_pImpl != nullptr, "WMemoryAllocatorVulkan is not initialized.");
 
   for (auto it : s_pImpl->m_exportedSharedPools)
   {
@@ -116,10 +116,10 @@ void ezMemoryAllocatorVulkan::DeInitialize()
   vmaBuildStatsString(s_pImpl->m_allocator, &pStats, true);
 
   vmaDestroyAllocator(s_pImpl->m_allocator);
-  EZ_DEFAULT_DELETE(s_pImpl);
+  W_DEFAULT_DELETE(s_pImpl);
 }
 
-vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, ezVulkanAllocation& out_pAlloc, ezVulkanAllocationInfo* pAllocInfo)
+vk::Result WMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const WVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, WVulkanAllocation& out_pAlloc, WVulkanAllocationInfo* pAllocInfo)
 {
   VmaAllocationCreateInfo allocCreateInfo = {};
   allocCreateInfo.usage = (VmaMemoryUsage)allocationCreateInfo.m_usage.GetValue();
@@ -130,7 +130,7 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
   {
     allocCreateInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
 
-    EZ_LOCK(s_pImpl->m_exportedSharedPoolsMutex);
+    W_LOCK(s_pImpl->m_exportedSharedPoolsMutex);
 
     uint32_t memoryTypeIndex = 0;
     if (auto res = vmaFindMemoryTypeIndexForImageInfo(s_pImpl->m_allocator, reinterpret_cast<const VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, &memoryTypeIndex); res != VK_SUCCESS)
@@ -143,19 +143,19 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
     {
       ExportedSharedPool newPool;
       {
-        newPool.m_exportInfo = EZ_DEFAULT_NEW(vk::ExportMemoryAllocateInfo);
+        newPool.m_exportInfo = W_DEFAULT_NEW(vk::ExportMemoryAllocateInfo);
         vk::ExportMemoryAllocateInfo& exportInfo = *newPool.m_exportInfo.Borrow();
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
         exportInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-        newPool.m_exportInfoWin32 = EZ_DEFAULT_NEW(vk::ExportMemoryWin32HandleInfoKHR);
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
+        newPool.m_exportInfoWin32 = W_DEFAULT_NEW(vk::ExportMemoryWin32HandleInfoKHR);
         vk::ExportMemoryWin32HandleInfoKHR& exportInfoWin = *newPool.m_exportInfoWin32.Borrow();
         exportInfoWin.dwAccess = GENERIC_ALL;
 
         exportInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
         exportInfo.pNext = &exportInfoWin;
 #else
-        EZ_ASSERT_NOT_IMPLEMENTED
+        W_ASSERT_NOT_IMPLEMENTED
 #endif
       }
 
@@ -177,7 +177,7 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
   return (vk::Result)vmaCreateImage(s_pImpl->m_allocator, reinterpret_cast<const VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&out_image), reinterpret_cast<VmaAllocation*>(&out_pAlloc), reinterpret_cast<VmaAllocationInfo*>(pAllocInfo));
 }
 
-void ezMemoryAllocatorVulkan::DestroyImage(vk::Image& ref_image, ezVulkanAllocation& ref_pAlloc)
+void WMemoryAllocatorVulkan::DestroyImage(vk::Image& ref_image, WVulkanAllocation& ref_pAlloc)
 {
   vmaSetAllocationUserData(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(ref_pAlloc), nullptr);
   vmaDestroyImage(s_pImpl->m_allocator, reinterpret_cast<VkImage&>(ref_image), reinterpret_cast<VmaAllocation&>(ref_pAlloc));
@@ -185,7 +185,7 @@ void ezMemoryAllocatorVulkan::DestroyImage(vk::Image& ref_image, ezVulkanAllocat
   ref_pAlloc = nullptr;
 }
 
-vk::Result ezMemoryAllocatorVulkan::CreateBuffer(const vk::BufferCreateInfo& bufferCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Buffer& out_buffer, ezVulkanAllocation& out_pAlloc, ezVulkanAllocationInfo* pAllocInfo)
+vk::Result WMemoryAllocatorVulkan::CreateBuffer(const vk::BufferCreateInfo& bufferCreateInfo, const WVulkanAllocationCreateInfo& allocationCreateInfo, vk::Buffer& out_buffer, WVulkanAllocation& out_pAlloc, WVulkanAllocationInfo* pAllocInfo)
 {
   VmaAllocationCreateInfo allocCreateInfo = {};
   allocCreateInfo.usage = (VmaMemoryUsage)allocationCreateInfo.m_usage.GetValue();
@@ -195,7 +195,7 @@ vk::Result ezMemoryAllocatorVulkan::CreateBuffer(const vk::BufferCreateInfo& buf
   return (vk::Result)vmaCreateBuffer(s_pImpl->m_allocator, reinterpret_cast<const VkBufferCreateInfo*>(&bufferCreateInfo), &allocCreateInfo, reinterpret_cast<VkBuffer*>(&out_buffer), reinterpret_cast<VmaAllocation*>(&out_pAlloc), reinterpret_cast<VmaAllocationInfo*>(pAllocInfo));
 }
 
-void ezMemoryAllocatorVulkan::DestroyBuffer(vk::Buffer& ref_buffer, ezVulkanAllocation& ref_pAlloc)
+void WMemoryAllocatorVulkan::DestroyBuffer(vk::Buffer& ref_buffer, WVulkanAllocation& ref_pAlloc)
 {
   vmaSetAllocationUserData(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(ref_pAlloc), nullptr);
   vmaDestroyBuffer(s_pImpl->m_allocator, reinterpret_cast<VkBuffer&>(ref_buffer), reinterpret_cast<VmaAllocation&>(ref_pAlloc));
@@ -203,62 +203,62 @@ void ezMemoryAllocatorVulkan::DestroyBuffer(vk::Buffer& ref_buffer, ezVulkanAllo
   ref_pAlloc = nullptr;
 }
 
-ezVulkanAllocationInfo ezMemoryAllocatorVulkan::GetAllocationInfo(ezVulkanAllocation pAlloc)
+WVulkanAllocationInfo WMemoryAllocatorVulkan::GetAllocationInfo(WVulkanAllocation pAlloc)
 {
   VmaAllocationInfo info;
   vmaGetAllocationInfo(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), &info);
 
-  return reinterpret_cast<ezVulkanAllocationInfo&>(info);
+  return reinterpret_cast<WVulkanAllocationInfo&>(info);
 }
 
-vk::MemoryPropertyFlags ezMemoryAllocatorVulkan::GetAllocationFlags(ezVulkanAllocation pAlloc)
+vk::MemoryPropertyFlags WMemoryAllocatorVulkan::GetAllocationFlags(WVulkanAllocation pAlloc)
 {
   VkMemoryPropertyFlags memPropFlags;
   vmaGetAllocationMemoryProperties(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), &memPropFlags);
   return reinterpret_cast<vk::MemoryPropertyFlags&>(memPropFlags);
 }
 
-void ezMemoryAllocatorVulkan::SetAllocationUserData(ezVulkanAllocation pAlloc, const char* pUserData)
+void WMemoryAllocatorVulkan::SetAllocationUserData(WVulkanAllocation pAlloc, const char* pUserData)
 {
   vmaSetAllocationUserData(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), (void*)pUserData);
 }
 
-vk::Result ezMemoryAllocatorVulkan::MapMemory(ezVulkanAllocation pAlloc, void** pData)
+vk::Result WMemoryAllocatorVulkan::MapMemory(WVulkanAllocation pAlloc, void** pData)
 {
   return (vk::Result)vmaMapMemory(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), pData);
 }
 
-void ezMemoryAllocatorVulkan::UnmapMemory(ezVulkanAllocation pAlloc)
+void WMemoryAllocatorVulkan::UnmapMemory(WVulkanAllocation pAlloc)
 {
   vmaUnmapMemory(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc));
 }
 
-vk::Result ezMemoryAllocatorVulkan::FlushAllocation(ezVulkanAllocation pAlloc, vk::DeviceSize offset, vk::DeviceSize size)
+vk::Result WMemoryAllocatorVulkan::FlushAllocation(WVulkanAllocation pAlloc, vk::DeviceSize offset, vk::DeviceSize size)
 {
   return (vk::Result)vmaFlushAllocation(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), offset, size);
 }
 
-vk::Result ezMemoryAllocatorVulkan::InvalidateAllocation(ezVulkanAllocation pAlloc, vk::DeviceSize offset, vk::DeviceSize size)
+vk::Result WMemoryAllocatorVulkan::InvalidateAllocation(WVulkanAllocation pAlloc, vk::DeviceSize offset, vk::DeviceSize size)
 {
   return (vk::Result)vmaInvalidateAllocation(s_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(pAlloc), offset, size);
 }
 
-EZ_DEFINE_AS_POD_TYPE(VmaBudget);
+W_DEFINE_AS_POD_TYPE(VmaBudget);
 
-ezVulkanMemoryStatistics ezMemoryAllocatorVulkan::GetStats()
+WVulkanMemoryStatistics WMemoryAllocatorVulkan::GetStats()
 {
-  ezVulkanMemoryStatistics stats;
-  const ezUInt32 uiHeapCount = s_pImpl->m_allocator->GetMemoryHeapCount();
-  ezHybridArray<VmaBudget, 4> budgets;
+  WVulkanMemoryStatistics stats;
+  const WUInt32 uiHeapCount = s_pImpl->m_allocator->GetMemoryHeapCount();
+  WHybridArray<VmaBudget, 4> budgets;
   budgets.SetCount(uiHeapCount);
   vmaGetHeapBudgets(s_pImpl->m_allocator, budgets.GetData());
-  for (ezUInt32 i = 0; i < uiHeapCount; ++i)
+  for (WUInt32 i = 0; i < uiHeapCount; ++i)
   {
     const VmaBudget& budget = budgets[i];
     stats.m_uiBlockCount += budget.statistics.blockCount;
     stats.m_uiAllocationCount += budget.statistics.allocationCount;
-    stats.m_uiBlockBytes += (ezUInt64)budget.statistics.blockBytes;
-    stats.m_uiAllocationBytes += (ezUInt64)budget.statistics.allocationBytes;
+    stats.m_uiBlockBytes += (WUInt64)budget.statistics.blockBytes;
+    stats.m_uiAllocationBytes += (WUInt64)budget.statistics.allocationBytes;
   }
   return stats;
 }

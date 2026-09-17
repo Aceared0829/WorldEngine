@@ -5,9 +5,9 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezMessage;
-class ezWorldWriter;
-class ezWorldReader;
+class WMessage;
+class WWorldWriter;
+class WWorldReader;
 
 // TODO: windows.h workaround
 #ifdef SendMessage
@@ -16,19 +16,19 @@ class ezWorldReader;
 
 /// Base class of all component types.
 ///
-/// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
-/// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message
-/// handlers. Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple
+/// Derive from this class to implement custom component types. Also add the W_DECLARE_COMPONENT_TYPE macro to your class declaration.
+/// Also add a W_BEGIN_COMPONENT_TYPE/W_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message
+/// handlers. Note that every component type needs a corresponding manager type. Take a look at WComponentManagerSimple for a simple
 /// manager implementation that calls an update method on its components every frame. To create a component instance call CreateComponent on
-/// the corresponding manager. Never store a direct pointer to a component but store an ezComponentHandle instead.
-class EZ_CORE_DLL ezComponent : public ezReflectedClass
+/// the corresponding manager. Never store a direct pointer to a component but store an WComponentHandle instead.
+class W_CORE_DLL WComponent : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezComponent, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WComponent, WReflectedClass);
 
 protected:
   /// Keep the constructor private or protected in derived classes, so it cannot be called manually.
-  ezComponent();
-  virtual ~ezComponent();
+  WComponent();
+  virtual ~WComponent();
 
 public:
   /// Sets the active flag of the component, which affects its active state.
@@ -39,7 +39,7 @@ public:
   ///
   /// Note that it is up to the component manager though, whether it differentiates between active and inactive components.
   ///
-  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
+  /// \sa WGameObject::IsActive(), WGameObject::SetActiveFlag()
   void SetActiveFlag(bool bEnabled);
 
   /// Checks whether the 'active flag' is set on this component. Note that this does not mean that the component is also 'active'.
@@ -53,7 +53,7 @@ public:
   /// Only if the owning game object is active (and thus all of its parent objects as well) and the component has the active flag set,
   /// will this component be active.
   ///
-  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
+  /// \sa WGameObject::IsActive(), WGameObject::SetActiveFlag()
   bool IsActive() const;
 
   /// Returns whether this component is active and initialized.
@@ -67,42 +67,42 @@ public:
   bool IsActiveAndSimulating() const;
 
   /// Returns the corresponding manager for this component.
-  ezComponentManagerBase* GetOwningManager();
+  WComponentManagerBase* GetOwningManager();
 
   /// Returns the corresponding manager for this component.
-  const ezComponentManagerBase* GetOwningManager() const;
+  const WComponentManagerBase* GetOwningManager() const;
 
   /// Returns the owner game object if the component is attached to one or nullptr.
-  ezGameObject* GetOwner();
+  WGameObject* GetOwner();
 
   /// Returns the owner game object if the component is attached to one or nullptr.
-  const ezGameObject* GetOwner() const;
+  const WGameObject* GetOwner() const;
 
   /// Returns the corresponding world for this component.
-  ezWorld* GetWorld();
+  WWorld* GetWorld();
 
   /// Returns the corresponding world for this component.
-  const ezWorld* GetWorld() const;
+  const WWorld* GetWorld() const;
 
 
   /// Returns a handle to this component.
-  ezComponentHandle GetHandle() const;
+  WComponentHandle GetHandle() const;
 
   /// Returns the unique id for this component.
-  ezUInt32 GetUniqueID() const;
+  WUInt32 GetUniqueID() const;
 
   /// Sets the unique id for this component.
-  void SetUniqueID(ezUInt32 uiUniqueID);
+  void SetUniqueID(WUInt32 uiUniqueID);
 
 
   /// Override this to save the current state of the component to the given stream.
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const;
 
   /// Override this to load the current state of the component from the given stream.
   ///
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
-  virtual void DeserializeComponent(ezWorldReader& inout_stream);
+  virtual void DeserializeComponent(WWorldReader& inout_stream);
 
 
   /// Ensures that the component is initialized. Must only be called from another component's Initialize callback.
@@ -114,48 +114,48 @@ public:
 
 
   /// Sends a message to this component.
-  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& ref_msg) { return SendMessageInternal(ref_msg, false); }
-  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& ref_msg) const { return SendMessageInternal(ref_msg, false); }
+  W_ALWAYS_INLINE bool SendMessage(WMessage& ref_msg) { return SendMessageInternal(ref_msg, false); }
+  W_ALWAYS_INLINE bool SendMessage(WMessage& ref_msg) const { return SendMessageInternal(ref_msg, false); }
 
   /// Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const WMessage& msg, WTime delay = WTime::MakeZero(), WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame) const;
 
   /// Returns whether the given Message is handled by this component.
-  virtual bool HandlesMessage(const ezMessage& msg) const;
+  virtual bool HandlesMessage(const WMessage& msg) const;
 
   /// Be careful to check which flags may already be in use by base classes.
-  void SetUserFlag(ezUInt8 uiFlagIndex, bool bSet);
+  void SetUserFlag(WUInt8 uiFlagIndex, bool bSet);
 
   /// Retrieves a custom flag. Index must be between 0 and 7.
-  bool GetUserFlag(ezUInt8 uiFlagIndex) const;
+  bool GetUserFlag(WUInt8 uiFlagIndex) const;
 
-  /// Adds ezObjectFlags::CreatedByPrefab to the component. See the flag for details.
-  void SetCreatedByPrefab() { m_ComponentFlags.Add(ezObjectFlags::CreatedByPrefab); }
+  /// Adds WObjectFlags::CreatedByPrefab to the component. See the flag for details.
+  void SetCreatedByPrefab() { m_ComponentFlags.Add(WObjectFlags::CreatedByPrefab); }
 
-  /// Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this component.
-  bool WasCreatedByPrefab() const { return m_ComponentFlags.IsSet(ezObjectFlags::CreatedByPrefab); }
+  /// Checks whether the WObjectFlags::CreatedByPrefab flag is set on this component.
+  bool WasCreatedByPrefab() const { return m_ComponentFlags.IsSet(WObjectFlags::CreatedByPrefab); }
 
 
   /// Deletes this component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent();
 
 protected:
-  friend class ezWorld;
-  friend class ezGameObject;
-  friend class ezComponentManagerBase;
+  friend class WWorld;
+  friend class WGameObject;
+  friend class WComponentManagerBase;
 
   /// Returns whether this component is dynamic and thus can only be attached to dynamic game objects.
   bool IsDynamic() const;
 
-  virtual ezWorldModuleTypeId GetTypeId() const = 0;
-  virtual ezComponentMode::Enum GetMode() const = 0;
+  virtual WWorldModuleTypeId GetTypeId() const = 0;
+  virtual WComponentMode::Enum GetMode() const = 0;
 
   /// Can be overridden for basic initialization that depends on a valid hierarchy and position.
   ///
   /// All trivial initialization should be done in the constructor.
   /// For typical game code, you should prefer to use OnSimulationStarted().
   /// This method is called once for every component, after creation but only at the start of the next world update.
-  /// Therefore the global position has already been computed and the owner ezGameObject is set.
+  /// Therefore the global position has already been computed and the owner WGameObject is set.
   /// Contrary to OnActivated() and OnSimulationStarted(), this function is always called for all components.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
@@ -200,7 +200,7 @@ protected:
   /// editor. If instead the sound gets started in OnSimulationStarted(), it will only play once the user starts the game mode inside the
   /// editor.
   ///
-  /// Additionally, OnSimulationStarted() is only executed once, even if the ezWorld pauses and resumes world simulation multiple times.
+  /// Additionally, OnSimulationStarted() is only executed once, even if the WWorld pauses and resumes world simulation multiple times.
   /// However, note that it will be called again after the component has been deactivated and is activated again.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
@@ -212,16 +212,16 @@ protected:
   /// When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
   ///
   /// \return Should return true if the given message was handled, false otherwise.
-  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);
+  virtual bool OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg);
 
   /// When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
   ///
   /// \return Should return true if the given message was handled, false otherwise.
-  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const;
+  virtual bool OnUnhandledMessage(WMessage& msg, bool bWasPostedMsg) const;
 
 protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
-  const ezRTTI* m_pMessageDispatchType = nullptr;
+  const WRTTI* m_pMessageDispatchType = nullptr;
 
   bool IsInitialized() const;
   bool IsInitializing() const;
@@ -231,24 +231,24 @@ private:
   // updates the component's active state depending on the owner object's active state
   void UpdateActiveState(bool bOwnerActive);
 
-  ezGameObject* Reflection_GetOwner() const;
-  ezWorld* Reflection_GetWorld() const;
-  void Reflection_Update(ezTime deltaTime);
+  WGameObject* Reflection_GetOwner() const;
+  WWorld* Reflection_GetWorld() const;
+  void Reflection_Update(WTime deltaTime);
 
-  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
-  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
+  bool SendMessageInternal(WMessage& msg, bool bWasPostedMsg);
+  bool SendMessageInternal(WMessage& msg, bool bWasPostedMsg) const;
 
-  ezComponentId m_InternalId;
-  ezBitflags<ezObjectFlags> m_ComponentFlags = ezObjectFlags::ActiveFlag;
-  ezUInt32 m_uiUniqueID = ezInvalidIndex;
+  WComponentId m_InternalId;
+  WBitflags<WObjectFlags> m_ComponentFlags = WObjectFlags::ActiveFlag;
+  WUInt32 m_uiUniqueID = WInvalidIndex;
 
-  ezComponentManagerBase* m_pManager = nullptr;
-  ezGameObject* m_pOwner = nullptr;
+  WComponentManagerBase* m_pManager = nullptr;
+  WGameObject* m_pOwner = nullptr;
 
-  static ezWorldModuleTypeId s_TypeId;
+  static WWorldModuleTypeId s_TypeId;
 };
 
-struct ezComponent_ScriptBaseClassFunctions
+struct WComponent_ScriptBaseClassFunctions
 {
   enum Enum
   {

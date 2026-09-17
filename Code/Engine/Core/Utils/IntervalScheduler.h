@@ -3,9 +3,9 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
-struct EZ_CORE_DLL ezUpdateRate
+struct W_CORE_DLL WUpdateRate
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -21,10 +21,10 @@ struct EZ_CORE_DLL ezUpdateRate
     Default = Max30fps
   };
 
-  static ezTime GetInterval(Enum updateRate);
+  static WTime GetInterval(Enum updateRate);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezUpdateRate);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WUpdateRate);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -32,56 +32,56 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezUpdateRate);
 ///
 /// Tries to maintain an even workload per frame and also keep the given interval for a work as best as possible.
 /// A typical use case would be e.g. component update functions that don't need to be called every frame.
-class EZ_CORE_DLL ezIntervalSchedulerBase
+class W_CORE_DLL WIntervalSchedulerBase
 {
 protected:
-  ezIntervalSchedulerBase(ezTime minInterval, ezTime maxInterval);
-  ~ezIntervalSchedulerBase();
+  WIntervalSchedulerBase(WTime minInterval, WTime maxInterval);
+  ~WIntervalSchedulerBase();
 
-  ezUInt32 GetHistogramIndex(ezTime value);
-  ezTime GetHistogramSlotValue(ezUInt32 uiIndex);
+  WUInt32 GetHistogramIndex(WTime value);
+  WTime GetHistogramSlotValue(WUInt32 uiIndex);
 
-  static float GetRandomZeroToOne(int pos, ezUInt32& seed);
-  static ezTime GetRandomTimeJitter(int pos, ezUInt32& seed);
+  static float GetRandomZeroToOne(int pos, WUInt32& seed);
+  static WTime GetRandomTimeJitter(int pos, WUInt32& seed);
 
-  ezTime m_MinInterval;
-  ezTime m_MaxInterval;
+  WTime m_MinInterval;
+  WTime m_MaxInterval;
   double m_fInvIntervalRange;
 
-  ezTime m_CurrentTime;
+  WTime m_CurrentTime;
 
-  ezUInt32 m_uiSeed = 0;
+  WUInt32 m_uiSeed = 0;
 
-  static constexpr ezUInt32 HistogramSize = 32;
-  ezUInt32 m_Histogram[HistogramSize] = {};
-  ezTime m_HistogramSlotValues[HistogramSize] = {};
+  static constexpr WUInt32 HistogramSize = 32;
+  WUInt32 m_Histogram[HistogramSize] = {};
+  WTime m_HistogramSlotValues[HistogramSize] = {};
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \see ezIntervalSchedulerBase
+/// \see WIntervalSchedulerBase
 template <typename T>
-class ezIntervalScheduler : public ezIntervalSchedulerBase
+class WIntervalScheduler : public WIntervalSchedulerBase
 {
-  using SUPER = ezIntervalSchedulerBase;
+  using SUPER = WIntervalSchedulerBase;
 
 public:
-  EZ_ALWAYS_INLINE ezIntervalScheduler(ezTime minInterval = ezTime::MakeFromMilliseconds(1), ezTime maxInterval = ezTime::MakeFromSeconds(1))
+  W_ALWAYS_INLINE WIntervalScheduler(WTime minInterval = WTime::MakeFromMilliseconds(1), WTime maxInterval = WTime::MakeFromSeconds(1))
     : SUPER(minInterval, maxInterval)
   {
   }
 
-  void AddOrUpdateWork(const T& work, ezTime interval);
+  void AddOrUpdateWork(const T& work, WTime interval);
   void RemoveWork(const T& work);
 
-  ezTime GetInterval(const T& work) const;
+  WTime GetInterval(const T& work) const;
 
   // reference to the work that should be run and time passed since this work has been last run.
-  using RunWorkCallback = ezDelegate<void(const T&, ezTime)>;
+  using RunWorkCallback = WDelegate<void(const T&, WTime)>;
 
   /// Advances the scheduler by deltaTime and triggers runWorkCallback for each work that should be run during this update step.
   /// Since it is not possible to maintain the exact interval all the time the actual delta time for the work is also passed to runWorkCallback.
-  void Update(ezTime deltaTime, RunWorkCallback runWorkCallback);
+  void Update(WTime deltaTime, RunWorkCallback runWorkCallback);
 
   void Clear();
 
@@ -89,20 +89,20 @@ private:
   struct Data
   {
     T m_Work;
-    ezTime m_Interval;
-    ezTime m_DueTime;
-    ezTime m_LastScheduledTime;
+    WTime m_Interval;
+    WTime m_DueTime;
+    WTime m_LastScheduledTime;
 
     bool IsValid() const;
     void MarkAsInvalid();
   };
 
-  using DataMap = ezMap<ezTime, Data>;
+  using DataMap = WMap<WTime, Data>;
   DataMap m_Data;
-  ezHashTable<T, typename DataMap::Iterator> m_WorkIdToData;
+  WHashTable<T, typename DataMap::Iterator> m_WorkIdToData;
 
   typename DataMap::Iterator InsertData(Data& data);
-  ezDynamicArray<typename DataMap::Iterator> m_ScheduledWork;
+  WDynamicArray<typename DataMap::Iterator> m_ScheduledWork;
 };
 
 #include <Core/Utils/Implementation/IntervalScheduler_inl.h>

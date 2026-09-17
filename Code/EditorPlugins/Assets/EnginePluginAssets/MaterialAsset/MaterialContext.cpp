@@ -7,46 +7,46 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMaterialContext, 1, WRTTIDefaultAllocator<WMaterialContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Material"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Material"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMaterialContext::ezMaterialContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WMaterialContext::WMaterialContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WMaterialContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WCreateThumbnailMsgToEngine>())
   {
-    ezResourceManager::RestoreResource(m_hMaterial);
+    WResourceManager::RestoreResource(m_hMaterial);
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WDocumentConfigMsgToEngine>())
   {
-    const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
+    const WDocumentConfigMsgToEngine* pMsg2 = static_cast<const WDocumentConfigMsgToEngine*>(pMsg);
 
     if (pMsg2->m_sWhatToDo == "InvalidateCache")
     {
       // make sure all scenes etc rebuild their render cache
-      ezRenderWorld::DeleteAllCachedRenderData();
+      WRenderWorld::DeleteAllCachedRenderData();
     }
     else if (pMsg2->m_sWhatToDo == "PreviewModel" && m_PreviewModel != (PreviewModel)pMsg2->m_iValue)
     {
       m_PreviewModel = (PreviewModel)pMsg2->m_iValue;
 
       auto pWorld = m_pWorld;
-      EZ_LOCK(pWorld->GetWriteMarker());
+      W_LOCK(pWorld->GetWriteMarker());
 
-      ezMeshComponent* pMeshComp = nullptr;
+      WMeshComponent* pMeshComp = nullptr;
       if (pWorld->TryGetComponent(m_hMeshComponent, pMeshComp))
       {
         switch (m_PreviewModel)
@@ -68,189 +68,189 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezMaterialContext::OnInitialize()
+void WMaterialContext::OnInitialize()
 {
   {
     const char* szSphereMeshName = "SphereMaterialPreviewMesh";
-    m_hSphereMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szSphereMeshName);
+    m_hSphereMesh = WResourceManager::GetExistingResource<WMeshResource>(szSphereMeshName);
 
     if (!m_hSphereMesh.IsValid())
     {
       const char* szMeshBufferName = "SphereMaterialPreviewMeshBuffer";
 
-      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+      WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szMeshBufferName);
 
       if (!hMeshBuffer.IsValid())
       {
         // Build geometry
-        ezGeometry geom;
+        WGeometry geom;
 
-        ezGeometry::GeoOptions opt;
-        opt.m_Color = ezColor::Red;
-        opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+        WGeometry::GeoOptions opt;
+        opt.m_Color = WColor::Red;
+        opt.m_Transform = WMat4::MakeRotationZ(WAngle::MakeFromDegree(90));
         geom.AddStackedSphere(1.0f, 64, 64, opt);
         geom.ComputeTangents();
 
-        ezMeshBufferResourceDescriptor desc;
+        WMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
-        desc.AddStream(ezMeshVertexStreamType::Color0);
-        desc.AddStream(ezMeshVertexStreamType::Color1);
-        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+        desc.AddStream(WMeshVertexStreamType::TexCoord1);
+        desc.AddStream(WMeshVertexStreamType::Color0);
+        desc.AddStream(WMeshVertexStreamType::Color1);
+        desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+        hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
       }
 
       {
-        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+        WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-        ezMeshResourceDescriptor md;
+        WMeshResourceDescriptor md;
         md.UseExistingMeshBuffer(hMeshBuffer);
         md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
         md.SetMaterial(0, "");
         md.ComputeBounds();
 
-        m_hSphereMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szSphereMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+        m_hSphereMesh = WResourceManager::GetOrCreateResource<WMeshResource>(szSphereMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
   }
 
   {
     const char* szBoxMeshName = "BoxMaterialPreviewMesh";
-    m_hBoxMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szBoxMeshName);
+    m_hBoxMesh = WResourceManager::GetExistingResource<WMeshResource>(szBoxMeshName);
 
     if (!m_hBoxMesh.IsValid())
     {
       const char* szMeshBufferName = "BoxMaterialPreviewMeshBuffer";
 
-      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+      WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szMeshBufferName);
 
       if (!hMeshBuffer.IsValid())
       {
-        ezGeometry::GeoOptions opt;
-        opt.m_Color = ezColor::Red;
+        WGeometry::GeoOptions opt;
+        opt.m_Color = WColor::Red;
 
         // Build geometry
-        ezGeometry geom;
+        WGeometry geom;
 
-        geom.AddBox(ezVec3(1.5f), true, opt);
+        geom.AddBox(WVec3(1.5f), true, opt);
         geom.ComputeTangents();
 
-        ezMeshBufferResourceDescriptor desc;
+        WMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
-        desc.AddStream(ezMeshVertexStreamType::Color0);
-        desc.AddStream(ezMeshVertexStreamType::Color1);
-        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+        desc.AddStream(WMeshVertexStreamType::TexCoord1);
+        desc.AddStream(WMeshVertexStreamType::Color0);
+        desc.AddStream(WMeshVertexStreamType::Color1);
+        desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+        hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
       }
 
       {
-        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+        WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-        ezMeshResourceDescriptor md;
+        WMeshResourceDescriptor md;
         md.UseExistingMeshBuffer(hMeshBuffer);
         md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
         md.SetMaterial(0, "");
         md.ComputeBounds();
 
-        m_hBoxMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szBoxMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+        m_hBoxMesh = WResourceManager::GetOrCreateResource<WMeshResource>(szBoxMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
   }
 
   {
     const char* szPlaneMeshName = "PlaneMaterialPreviewMesh";
-    m_hPlaneMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szPlaneMeshName);
+    m_hPlaneMesh = WResourceManager::GetExistingResource<WMeshResource>(szPlaneMeshName);
 
     if (!m_hPlaneMesh.IsValid())
     {
       const char* szMeshBufferName = "PlaneMaterialPreviewMeshBuffer";
 
-      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+      WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szMeshBufferName);
 
       if (!hMeshBuffer.IsValid())
       {
         // Build geometry
-        ezGeometry geom;
+        WGeometry geom;
 
-        ezGeometry::GeoOptions opt;
-        opt.m_Color = ezColor::Red;
-        opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90));
-        geom.AddRect(ezVec2(2.0f), 64, 64, opt);
+        WGeometry::GeoOptions opt;
+        opt.m_Color = WColor::Red;
+        opt.m_Transform = WMat4::MakeRotationZ(WAngle::MakeFromDegree(-90));
+        geom.AddRect(WVec2(2.0f), 64, 64, opt);
         geom.ComputeTangents();
 
-        ezMeshBufferResourceDescriptor desc;
+        WMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
-        desc.AddStream(ezMeshVertexStreamType::Color0);
-        desc.AddStream(ezMeshVertexStreamType::Color1);
-        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+        desc.AddStream(WMeshVertexStreamType::TexCoord1);
+        desc.AddStream(WMeshVertexStreamType::Color0);
+        desc.AddStream(WMeshVertexStreamType::Color1);
+        desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-        hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+        hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
       }
 
       {
-        ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+        WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-        ezMeshResourceDescriptor md;
+        WMeshResourceDescriptor md;
         md.UseExistingMeshBuffer(hMeshBuffer);
         md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
         md.SetMaterial(0, "");
         md.ComputeBounds();
 
-        m_hPlaneMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(szPlaneMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+        m_hPlaneMesh = WResourceManager::GetOrCreateResource<WMeshResource>(szPlaneMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
   }
 
   {
-    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezBinMesh");
+    m_hBallMesh = WResourceManager::LoadResource<WMeshResource>("Editor/Meshes/MaterialBall.WBinMesh");
   }
 
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  ezGameObject* pObj;
+  WGameObjectDesc obj;
+  WGameObject* pObj;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
     m_hMeshObject = pWorld->CreateObject(obj, pObj);
 
-    ezMeshComponent* pMesh;
-    m_hMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);
+    WMeshComponent* pMesh;
+    m_hMeshComponent = WMeshComponent::CreateComponent(pObj, pMesh);
     pMesh->SetMesh(m_hBallMesh);
-    ezStringBuilder sMaterialGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
+    WStringBuilder sMaterialGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
+    m_hMaterial = WResourceManager::LoadResource<WMaterialResource>(sMaterialGuid);
 
     // 20 material overrides should be enough for any mesh.
-    for (ezUInt32 i = 0; i < 20; ++i)
+    for (WUInt32 i = 0; i < 20; ++i)
     {
       pMesh->SetMaterial(i, m_hMaterial);
     }
   }
 }
 
-ezEngineProcessViewContext* ezMaterialContext::CreateViewContext()
+WEngineProcessViewContext* WMaterialContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezMaterialViewContext, this);
+  return W_DEFAULT_NEW(WMaterialViewContext, this);
 }
 
-void ezMaterialContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WMaterialContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezMaterialContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WMaterialContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezMaterialViewContext* pMaterialViewContext = static_cast<ezMaterialViewContext*>(pThumbnailViewContext);
+  WMaterialViewContext* pMaterialViewContext = static_cast<WMaterialViewContext*>(pThumbnailViewContext);
   pMaterialViewContext->PositionThumbnailCamera();
   return true;
 }

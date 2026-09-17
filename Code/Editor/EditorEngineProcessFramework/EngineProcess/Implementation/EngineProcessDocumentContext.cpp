@@ -19,27 +19,27 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEngineProcessDocumentContext, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;
+WHashTable<WUuid, WEngineProcessDocumentContext*> WEngineProcessDocumentContext::s_DocumentContexts;
 
-ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentContext(ezUuid guid)
+WEngineProcessDocumentContext* WEngineProcessDocumentContext::GetDocumentContext(WUuid guid)
 {
-  ezEngineProcessDocumentContext* pResult = nullptr;
+  WEngineProcessDocumentContext* pResult = nullptr;
   s_DocumentContexts.TryGetValue(guid, pResult);
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
+void WEngineProcessDocumentContext::AddDocumentContext(WUuid guid, const WVariant& metaData, WEngineProcessDocumentContext* pContext, WEngineProcessCommunicationChannel* pIPC, WStringView sDocumentType)
 {
-  EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
+  W_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
 
   pContext->Initialize(guid, metaData, pIPC, sDocumentType);
 }
 
-bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
+bool WEngineProcessDocumentContext::PendingOperationsInProgress()
 {
   for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
   {
@@ -49,18 +49,18 @@ bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
   return false;
 }
 
-void ezEngineProcessDocumentContext::UpdateDocumentContexts()
+void WEngineProcessDocumentContext::UpdateDocumentContexts()
 {
-  EZ_PROFILE_SCOPE("UpdateDocumentContexts");
+  W_PROFILE_SCOPE("UpdateDocumentContexts");
   for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
   {
     it.Value()->UpdateDocumentContext();
   }
 }
 
-void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
+void WEngineProcessDocumentContext::DestroyDocumentContext(WUuid guid)
 {
-  ezEngineProcessDocumentContext* pContext = nullptr;
+  WEngineProcessDocumentContext* pContext = nullptr;
   if (s_DocumentContexts.Remove(guid, &pContext))
   {
     pContext->Deinitialize();
@@ -71,11 +71,11 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
 namespace
 {
   /// \brief Searches all document contexts for the one whose world matches the world index that is baked into the handle.
-  const ezEngineProcessDocumentContext* FindContextForWorld(ezUInt32 uiWorldIndex, const ezHashTable<ezUuid, ezEngineProcessDocumentContext*>& contexts)
+  const WEngineProcessDocumentContext* FindContextForWorld(WUInt32 uiWorldIndex, const WHashTable<WUuid, WEngineProcessDocumentContext*>& contexts)
   {
     for (auto it = contexts.GetIterator(); it.IsValid(); ++it)
     {
-      const ezWorld* pWorld = it.Value()->GetWorld();
+      const WWorld* pWorld = it.Value()->GetWorld();
 
       if (pWorld != nullptr && pWorld->GetIndex() == uiWorldIndex)
         return it.Value();
@@ -85,20 +85,20 @@ namespace
   }
 } // namespace
 
-bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessage)
+bool WEngineProcessDocumentContext::ResolveLogLinks(WStringBuilder& ref_sMessage)
 {
   if (ref_sMessage.FindSubString("[[") == nullptr)
     return false;
 
   // The document contexts may only be accessed from the main thread. Log messages from other threads
   // therefore keep their handle based links, which the editor will simply not be able to navigate to.
-  if (!ezThreadUtils::IsMainThread())
+  if (!WThreadUtils::IsMainThread())
     return false;
 
   bool bModified = false;
-  ezStringBuilder sResult;
-  ezStringBuilder sTarget;
-  ezStringView sRemaining = ref_sMessage;
+  WStringBuilder sResult;
+  WStringBuilder sTarget;
+  WStringView sRemaining = ref_sMessage;
 
   while (const char* szStart = sRemaining.FindSubString("[["))
   {
@@ -108,26 +108,26 @@ bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessa
     if (szSeparator == nullptr || szEnd == nullptr || szSeparator > szEnd)
     {
       // Not a well formed link, keep everything up to and including this '[[' as is and continue behind it.
-      sResult.Append(ezStringView(sRemaining.GetStartPointer(), szStart + 2));
-      sRemaining = ezStringView(szStart + 2, sRemaining.GetEndPointer());
+      sResult.Append(WStringView(sRemaining.GetStartPointer(), szStart + 2));
+      sRemaining = WStringView(szStart + 2, sRemaining.GetEndPointer());
       continue;
     }
 
-    ezStringView sText = ezStringView(szStart + 2, szSeparator);
-    sTarget = ezStringView(szSeparator + 1, szEnd);
+    WStringView sText = WStringView(szStart + 2, szSeparator);
+    sTarget = WStringView(szSeparator + 1, szEnd);
     sText.Trim();
     sTarget.Trim();
 
     // Everything in front of the link is copied unchanged.
-    sResult.Append(ezStringView(sRemaining.GetStartPointer(), szStart));
+    sResult.Append(WStringView(sRemaining.GetStartPointer(), szStart));
 
-    ezUuid documentGuid;
-    ezUuid objectGuid;
+    WUuid documentGuid;
+    WUuid objectGuid;
 
-    ezGameObjectHandle hObject;
-    ezComponentHandle hComponent;
+    WGameObjectHandle hObject;
+    WComponentHandle hComponent;
 
-    if (ezWorldLogLinkUtils::ParseGameObjectLink(sTarget, hObject))
+    if (WWorldLogLinkUtils::ParseGameObjectLink(sTarget, hObject))
     {
       if (auto pContext = FindContextForWorld(hObject.GetInternalID().m_WorldIndex, s_DocumentContexts))
       {
@@ -137,7 +137,7 @@ bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessa
 
       bModified = true;
     }
-    else if (ezWorldLogLinkUtils::ParseComponentLink(sTarget, hComponent))
+    else if (WWorldLogLinkUtils::ParseComponentLink(sTarget, hComponent))
     {
       if (auto pContext = FindContextForWorld(hComponent.GetInternalID().m_WorldIndex, s_DocumentContexts))
       {
@@ -150,16 +150,16 @@ bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessa
     else
     {
       // Some other link scheme (e.g. an already resolved 'asset:' link), leave it untouched.
-      sResult.Append(ezStringView(szStart, szEnd + 2));
-      sRemaining = ezStringView(szEnd + 2, sRemaining.GetEndPointer());
+      sResult.Append(WStringView(szStart, szEnd + 2));
+      sRemaining = WStringView(szEnd + 2, sRemaining.GetEndPointer());
       continue;
     }
 
     if (documentGuid.IsValid() && objectGuid.IsValid())
     {
-      ezStringBuilder sDocGuid, sObjGuid;
-      ezConversionUtils::ToString(documentGuid, sDocGuid);
-      ezConversionUtils::ToString(objectGuid, sObjGuid);
+      WStringBuilder sDocGuid, sObjGuid;
+      WConversionUtils::ToString(documentGuid, sDocGuid);
+      WConversionUtils::ToString(objectGuid, sObjGuid);
 
       sResult.AppendFormat("[[{}|asset:{}#{}]]", sText, sDocGuid, sObjGuid);
     }
@@ -170,7 +170,7 @@ bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessa
       sResult.Append(sText);
     }
 
-    sRemaining = ezStringView(szEnd + 2, sRemaining.GetEndPointer());
+    sRemaining = WStringView(szEnd + 2, sRemaining.GetEndPointer());
   }
 
   if (!bModified)
@@ -181,19 +181,19 @@ bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessa
   return true;
 }
 
-ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWorld)
+WBoundingBoxSphere WEngineProcessDocumentContext::GetWorldBounds(WWorld* pWorld)
 {
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(pWorld->GetReadMarker());
+    W_LOCK(pWorld->GetReadMarker());
 
-    EZ_ASSERT_DEV(!pWorld->GetWorldSimulationEnabled(), "World simulation must be disabled to get bounds!");
+    W_ASSERT_DEV(!pWorld->GetWorldSimulationEnabled(), "World simulation must be disabled to get bounds!");
 
-    const ezWorld* pConstWorld = pWorld;
+    const WWorld* pConstWorld = pWorld;
     for (auto it = pConstWorld->GetObjects(); it.IsValid(); ++it)
     {
-      const ezGameObject* pObj = it;
+      const WGameObject* pObj = it;
 
       const auto& b = pObj->GetGlobalBounds();
 
@@ -203,28 +203,28 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   }
 
   if (!bounds.IsValid())
-    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(1, 1, 1), 2);
+    bounds = WBoundingBoxSphere::MakeFromCenterExtents(WVec3::MakeZero(), WVec3(1, 1, 1), 2);
 
   return bounds;
 }
 
-ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags)
+WEngineProcessDocumentContext::WEngineProcessDocumentContext(WBitflags<WEngineProcessDocumentContextFlags> flags)
   : m_Flags(flags)
 {
-  GetContext().m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
-  m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("Thumbnail", ezRenderGraphPhase::PostRender);
-  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::OnGALEvent, this));
+  GetContext().m_Events.AddEventHandler(WMakeDelegate(&WEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+  m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("Thumbnail", WRenderGraphPhase::PostRender);
+  WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WEngineProcessDocumentContext::OnGALEvent, this));
 }
 
-ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
+WEngineProcessDocumentContext::~WEngineProcessDocumentContext()
 {
-  EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
+  W_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'WEngineProcessDocumentContext::DestroyDocumentContext'");
 
-  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::OnGALEvent, this));
-  GetContext().m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+  WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WEngineProcessDocumentContext::OnGALEvent, this));
+  GetContext().m_Events.RemoveEventHandler(WMakeDelegate(&WEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
+void WEngineProcessDocumentContext::Initialize(const WUuid& documentGuid, const WVariant& metaData, WEngineProcessCommunicationChannel* pIPC, WStringView sDocumentType)
 {
   m_DocumentGuid = documentGuid;
   m_MetaData = metaData;
@@ -235,14 +235,14 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, cons
     m_sDocumentType = sDocumentType;
   }
 
-  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(WEngineProcessDocumentContextFlags::CreateWorld))
   {
-    ezStringBuilder tmp;
-    ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
+    WStringBuilder tmp;
+    WWorldDesc desc(WConversionUtils::ToString(m_DocumentGuid, tmp));
     desc.m_bReportErrorWhenStaticObjectMoves = false;
 
-    m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-    m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
+    m_pWorld = W_DEFAULT_NEW(WWorld, desc);
+    m_pWorld->SetGameObjectReferenceResolver(WMakeDelegate(&WEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
 
     GetContext().m_pWorld = m_pWorld;
     m_Mirror.InitReceiver(&GetContext());
@@ -250,7 +250,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, cons
   OnInitialize();
 }
 
-void ezEngineProcessDocumentContext::Deinitialize()
+void WEngineProcessDocumentContext::Deinitialize()
 {
   OnDeinitialize();
 
@@ -260,16 +260,16 @@ void ezEngineProcessDocumentContext::Deinitialize()
   GetContext().Clear();
 
   CleanUpContextSyncObjects();
-  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(WEngineProcessDocumentContextFlags::CreateWorld))
   {
-    EZ_DEFAULT_DELETE(m_pWorld);
+    W_DEFAULT_DELETE(m_pWorld);
   }
   m_pWorld = nullptr;
 }
 
-void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
+void WEngineProcessDocumentContext::SendProcessMessage(WProcessMessage* pMsg)
 {
-  if (ezEditorEngineDocumentMsg* pEngineMsg = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg))
+  if (WEditorEngineDocumentMsg* pEngineMsg = WDynamicCast<WEditorEngineDocumentMsg*>(pMsg))
   {
     if (!pEngineMsg->m_DocumentGuid.IsValid())
     {
@@ -281,109 +281,109 @@ void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
   m_pIPC->SendMessage(pMsg);
 }
 
-void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WEngineProcessDocumentContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  const bool bIsRemoteProcess = ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode();
+  const bool bIsRemoteProcess = WEditorEngineProcessApp::GetSingleton()->IsRemoteMode();
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEntityMsgToEngine>())
   {
-    const ezEntityMsgToEngine* pMsg2 = static_cast<const ezEntityMsgToEngine*>(pMsg);
-    m_Mirror.ApplyOp(const_cast<ezObjectChange&>(pMsg2->m_change));
+    const WEntityMsgToEngine* pMsg2 = static_cast<const WEntityMsgToEngine*>(pMsg);
+    m_Mirror.ApplyOp(const_cast<WObjectChange&>(pMsg2->m_change));
 
-    ezRttiConverterObject target = GetContext().GetObjectByGUID(pMsg2->m_change.m_Root);
+    WRttiConverterObject target = GetContext().GetObjectByGUID(pMsg2->m_change.m_Root);
 
     if (target.m_pType == nullptr || target.m_pObject == nullptr)
       return;
 
-    if (target.m_pType == ezGetStaticRTTI<ezGameObject>())
+    if (target.m_pType == WGetStaticRTTI<WGameObject>())
     {
-      ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);
+      WGameObject* pObject = static_cast<WGameObject*>(target.m_pObject);
       if (pObject != nullptr && pObject->IsStatic())
       {
-        ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(pObject);
+        WRenderWorld::DeleteCachedRenderDataForObjectRecursive(pObject);
       }
     }
-    else if (target.m_pType->IsDerivedFrom<ezComponent>())
+    else if (target.m_pType->IsDerivedFrom<WComponent>())
     {
-      ezComponent* pComponent = static_cast<ezComponent*>(target.m_pObject);
+      WComponent* pComponent = static_cast<WComponent*>(target.m_pObject);
       if (pComponent != nullptr && pComponent->GetOwner()->IsStatic())
       {
-        ezRenderWorld::DeleteCachedRenderData(pComponent->GetOwner()->GetHandle(), pComponent->GetHandle());
+        WRenderWorld::DeleteCachedRenderData(pComponent->GetOwner()->GetHandle(), pComponent->GetHandle());
       }
     }
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineSyncObjectMsg>())
   {
-    const ezEditorEngineSyncObjectMsg* pMsg2 = static_cast<const ezEditorEngineSyncObjectMsg*>(pMsg);
+    const WEditorEngineSyncObjectMsg* pMsg2 = static_cast<const WEditorEngineSyncObjectMsg*>(pMsg);
 
     ProcessEditorEngineSyncObjectMsg(*pMsg2);
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectTagMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WObjectTagMsgToEngine>())
   {
-    const ezObjectTagMsgToEngine* pMsg2 = static_cast<const ezObjectTagMsgToEngine*>(pMsg);
+    const WObjectTagMsgToEngine* pMsg2 = static_cast<const WObjectTagMsgToEngine*>(pMsg);
 
     SetTagOnObject(pMsg2->m_ObjectGuid, pMsg2->m_sTag, pMsg2->m_bSetTag, pMsg2->m_bApplyOnAllChildren);
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportDocumentMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WExportDocumentMsgToEngine>())
   {
     // ignore when this is a remote process
     if (bIsRemoteProcess)
       return;
 
-    const ezExportDocumentMsgToEngine* pMsg2 = static_cast<const ezExportDocumentMsgToEngine*>(pMsg);
-    ezExportDocumentMsgToEditor ret;
+    const WExportDocumentMsgToEngine* pMsg2 = static_cast<const WExportDocumentMsgToEngine*>(pMsg);
+    WExportDocumentMsgToEditor ret;
     ret.m_DocumentGuid = pMsg->m_DocumentGuid;
 
-    ezStatus res = ExportDocument(pMsg2);
+    WStatus res = ExportDocument(pMsg2);
     ret.m_bOutputSuccess = res.Succeeded();
     ret.m_sFailureMsg = res.GetMessageString();
 
     if (!ret.m_bOutputSuccess)
     {
-      ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile);
+      WLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile);
     }
 
     SendProcessMessage(&ret);
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WCreateThumbnailMsgToEngine>())
   {
     // ignore when this is a remote process
     if (bIsRemoteProcess)
       return;
 
-    ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
-    ezResourceManager::ReloadAllResources(false);
+    WFileSystem::ReloadAllExternalDataDirectoryConfigs();
+    WResourceManager::ReloadAllResources(false);
     UpdateSyncObjects();
-    const ezCreateThumbnailMsgToEngine* pMsg2 = static_cast<const ezCreateThumbnailMsgToEngine*>(pMsg);
+    const WCreateThumbnailMsgToEngine* pMsg2 = static_cast<const WCreateThumbnailMsgToEngine*>(pMsg);
     // As long as the thumbnail context is alive, we will trigger UpdateThumbnailViewContext
     // inside the UpdateDocumentContext function until the thumbnail rendering has converged and
     // the data is send back as a response.
     CreateThumbnailViewContext(pMsg2);
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineViewMsg>())
   {
-    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewRedrawMsgToEngine>())
     {
       UpdateSyncObjects();
     }
 
-    const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
-    EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
+    const WEditorEngineViewMsg* pViewMsg = static_cast<const WEditorEngineViewMsg*>(pMsg);
+    W_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
 
     m_ViewContexts.EnsureCount(pViewMsg->m_uiViewID + 1);
 
-    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewDestroyedMsgToEngine>())
+    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewDestroyedMsgToEngine>())
     {
       if (m_ViewContexts[pViewMsg->m_uiViewID] != nullptr)
       {
         DestroyViewContext(m_ViewContexts[pViewMsg->m_uiViewID]);
         m_ViewContexts[pViewMsg->m_uiViewID] = nullptr;
 
-        ezLog::Debug("Destroyed View {0}", pViewMsg->m_uiViewID);
+        WLog::Debug("Destroyed View {0}", pViewMsg->m_uiViewID);
       }
-      ezViewDestroyedResponseMsgToEditor response;
+      WViewDestroyedResponseMsgToEditor response;
       response.m_DocumentGuid = pViewMsg->m_DocumentGuid;
       response.m_uiViewID = pViewMsg->m_uiViewID;
       m_pIPC->SendMessage(&response);
@@ -392,13 +392,13 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     {
       if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
       {
-        if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+        if (!WEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
         {
           m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
         }
         else
         {
-          m_ViewContexts[pViewMsg->m_uiViewID] = EZ_DEFAULT_NEW(ezRemoteEngineProcessViewContext, this);
+          m_ViewContexts[pViewMsg->m_uiViewID] = W_DEFAULT_NEW(WRemoteEngineProcessViewContext, this);
         }
 
         m_ViewContexts[pViewMsg->m_uiViewID]->SetViewID(pViewMsg->m_uiViewID);
@@ -409,13 +409,13 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     return;
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewHighlightMsgToEngine>())
   {
     // ignore when this is a remote process
     if (bIsRemoteProcess)
       return;
 
-    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
+    const WViewHighlightMsgToEngine* pMsg2 = static_cast<const WViewHighlightMsgToEngine*>(pMsg);
 
     GetContext().m_uiHighlightID = GetContext().m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
 
@@ -424,25 +424,25 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   }
 }
 
-void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
+void WEngineProcessDocumentContext::AddSyncObject(WEditorEngineSyncObject* pSync)
 {
-  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync)
+  pSync->Configure(m_DocumentGuid, [this](WEditorEngineSyncObject* pSync)
     { RemoveSyncObject(pSync); });
 
   m_SyncObjects[pSync->GetGuid()] = pSync;
 }
 
-void ezEngineProcessDocumentContext::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
+void WEngineProcessDocumentContext::RemoveSyncObject(WEditorEngineSyncObject* pSync)
 {
   m_SyncObjects.Remove(pSync->GetGuid());
 }
 
-ezEditorEngineSyncObject* ezEngineProcessDocumentContext::FindSyncObject(const ezUuid& guid)
+WEditorEngineSyncObject* WEngineProcessDocumentContext::FindSyncObject(const WUuid& guid)
 {
   return m_SyncObjects.GetValueOrDefault(guid, nullptr);
 }
 
-void ezEngineProcessDocumentContext::ClearViewContexts()
+void WEngineProcessDocumentContext::ClearViewContexts()
 {
   for (auto* pContext : m_ViewContexts)
   {
@@ -453,7 +453,7 @@ void ezEngineProcessDocumentContext::ClearViewContexts()
 }
 
 
-void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
+void WEngineProcessDocumentContext::CleanUpContextSyncObjects()
 {
   while (!m_SyncObjects.IsEmpty())
   {
@@ -462,7 +462,7 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
   }
 }
 
-void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
+void WEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const WEditorEngineSyncObjectMsg& msg)
 {
   auto it = m_SyncObjects.Find(msg.m_ObjectGuid);
 
@@ -477,23 +477,23 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     return;
   }
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(msg.m_sObjectType);
-  ezEditorEngineSyncObject* pSyncObject = nullptr;
+  const WRTTI* pRtti = WRTTI::FindTypeByName(msg.m_sObjectType);
+  WEditorEngineSyncObject* pSyncObject = nullptr;
   bool bSetOwner = false;
 
   if (pRtti == nullptr)
   {
-    ezLog::Error("Cannot sync object of type unknown '{0}' to engine process", msg.m_sObjectType);
+    WLog::Error("Cannot sync object of type unknown '{0}' to engine process", msg.m_sObjectType);
     return;
   }
 
   if (!it.IsValid())
   {
     // object does not yet exist
-    EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType);
+    W_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType);
     void* pObject = pRtti->GetAllocator()->Allocate<void>();
 
-    pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
+    pSyncObject = static_cast<WEditorEngineSyncObject*>(pObject);
     bSetOwner = true;
   }
   else
@@ -501,9 +501,9 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     pSyncObject = it.Value();
   }
 
-  ezRawMemoryStreamReader reader(msg.m_ObjectData);
+  WRawMemoryStreamReader reader(msg.m_ObjectData);
 
-  ezReflectionSerializer::ReadObjectPropertiesFromBinary(reader, *pRtti, pSyncObject);
+  WReflectionSerializer::ReadObjectPropertiesFromBinary(reader, *pRtti, pSyncObject);
 
   if (bSetOwner)
   {
@@ -513,9 +513,9 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   pSyncObject->SetModified(true);
 }
 
-void ezEngineProcessDocumentContext::Reset()
+void WEngineProcessDocumentContext::Reset()
 {
-  ezUuid guid = m_DocumentGuid;
+  WUuid guid = m_DocumentGuid;
   auto ipc = m_pIPC;
 
   Deinitialize();
@@ -523,17 +523,17 @@ void ezEngineProcessDocumentContext::Reset()
   Initialize(guid, m_MetaData, ipc, m_sDocumentType);
 }
 
-void ezEngineProcessDocumentContext::ClearExistingObjects()
+void WEngineProcessDocumentContext::ClearExistingObjects()
 {
   GetContext().DeleteExistingObjects();
 }
 
-void ezEngineProcessDocumentContext::OnInitialize() {}
-void ezEngineProcessDocumentContext::OnDeinitialize() {}
+void WEngineProcessDocumentContext::OnInitialize() {}
+void WEngineProcessDocumentContext::OnDeinitialize() {}
 
-bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
+bool WEngineProcessDocumentContext::PendingOperationInProgress() const
 {
-  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
+  auto pState = WGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
   bool bPendingViewOperationInProgress = false;
   for (auto pView : m_ViewContexts)
   {
@@ -547,9 +547,9 @@ bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
   return m_pThumbnailViewContext != nullptr || m_bThumbnailReadbackInFlight || pState != nullptr || bPendingViewOperationInProgress;
 }
 
-void ezEngineProcessDocumentContext::UpdateDocumentContext()
+void WEngineProcessDocumentContext::UpdateDocumentContext()
 {
-  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+  if (WEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
     // in remote mode simply redraw all views every time a context is updated
     for (auto pView : m_ViewContexts)
@@ -562,43 +562,43 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   // Poll a pending thumbnail readback.
   if (m_bThumbnailReadbackInFlight)
   {
-    ezEnum<ezGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(ezTime::MakeZero());
-    if (res == ezGALAsyncResult::Ready)
+    WEnum<WGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(WTime::MakeZero());
+    if (res == WGALAsyncResult::Ready)
     {
       m_bThumbnailReadbackInFlight = false;
 
-      ezCreateThumbnailMsgToEditor ret;
+      WCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
-      ezGALTextureSubresource sourceSubResource;
-      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-      ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+      WGALTextureSubresource sourceSubResource;
+      WArrayPtr<WGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
 
-      ezReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
-      EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+      WReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
+      W_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
 
-      ezImage tmp;
-      ezImageView imageView = ezTextureUtils::MakeImageViewFromSubResource(m_ThumbnailColorDesc, sourceSubResource, memory[0], tmp, true);
+      WImage tmp;
+      WImageView imageView = WTextureUtils::MakeImageViewFromSubResource(m_ThumbnailColorDesc, sourceSubResource, memory[0], tmp, true);
 
-      ezImage imageSwap;
-      ezImage* pImage = &tmp;
-      ezImage* pImageSwap = &imageSwap;
-      for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
+      WImage imageSwap;
+      WImage* pImage = &tmp;
+      WImage* pImageSwap = &imageSwap;
+      for (WUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
       {
-        ezImageView& sourceView = uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage;
-        ezImageUtils::Scale(sourceView, *pImageSwap, sourceView.GetWidth() / 2, sourceView.GetHeight() / 2).IgnoreResult();
-        ezMath::Swap(pImage, pImageSwap);
+        WImageView& sourceView = uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage;
+        WImageUtils::Scale(sourceView, *pImageSwap, sourceView.GetWidth() / 2, sourceView.GetHeight() / 2).IgnoreResult();
+        WMath::Swap(pImage, pImageSwap);
       }
 
       ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
-      ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
+      WMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<WUInt8>(), ret.m_ThumbnailData.GetCount());
 
       DestroyThumbnailViewContext();
 
       // Send response.
       SendProcessMessage(&ret);
     }
-    else if (res == ezGALAsyncResult::Expired)
+    else if (res == WGALAsyncResult::Expired)
     {
       m_bThumbnailReadbackInFlight = false;
       DestroyThumbnailViewContext();
@@ -609,7 +609,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
   if (m_pThumbnailViewContext)
   {
-    ezResourceManager::ForceNoFallbackAcquisition(3);
+    WResourceManager::ForceNoFallbackAcquisition(3);
     m_uiThumbnailConvergenceFrames++;
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
@@ -620,7 +620,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
       // Request async readback. The render graph will be created in OnGALEvent.
-      const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
+      const WGALTexture* pThumbnailColor = WGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
       m_ThumbnailColorDesc = pThumbnailColor->GetDescription();
       m_bThumbnailReadbackRequested = true;
     }
@@ -631,9 +631,9 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   }
 }
 
-void ezEngineProcessDocumentContext::OnGALEvent(const ezGALDeviceEvent& e)
+void WEngineProcessDocumentContext::OnGALEvent(const WGALDeviceEvent& e)
 {
-  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
+  if (e.m_Type != WGALDeviceEvent::AfterBeginFrame)
     return;
 
   if (!m_bThumbnailReadbackRequested)
@@ -643,29 +643,29 @@ void ezEngineProcessDocumentContext::OnGALEvent(const ezGALDeviceEvent& e)
 
   m_pRenderGraph->Reset();
 
-  ezRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(m_hThumbnailColorRT);
+  WRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(m_hThumbnailColorRT);
 
   {
     auto pass = m_pRenderGraph->AddTransferPass("Thumbnail Readback");
-    pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
+    pass.ReadTexture(hTex, {}, WGALResourceState::CopySource);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hTex](const WRenderGraphContext& ctx)
       { m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
   }
-  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  WRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bThumbnailReadbackInFlight = true;
 }
 
-ezStatus ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+WStatus WEngineProcessDocumentContext::ExportDocument(const WExportDocumentMsgToEngine* pMsg)
 {
-  return ezStatus(ezFmt("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName()));
+  return WStatus(WFmt("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName()));
 }
 
 
-void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
+void WEngineProcessDocumentContext::CreateThumbnailViewContext(const WCreateThumbnailMsgToEngine* pMsg)
 {
-  EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
-  EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
+  W_ASSERT_DEV(!WEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
+  W_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
   static_assert((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
@@ -674,24 +674,24 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   // make sure the world is not simulating while making a screenshot
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
     m_bWorldSimStateBeforeThumbnail = m_pWorld->GetWorldSimulationEnabled();
     m_pWorld->SetWorldSimulationEnabled(false);
   }
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Create render target for picking
-  ezGALTextureCreationDescription tcd;
-  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource;
-  tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  tcd.m_Type = ezGALTextureType::Texture2D;
+  WGALTextureCreationDescription tcd;
+  tcd.m_TextureFlags = WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::ShaderResource;
+  tcd.m_Format = WGALResourceFormat::RGBAUByteNormalizedsRGB;
+  tcd.m_Type = WGALTextureType::Texture2D;
   tcd.m_uiWidth = m_uiThumbnailWidth;
   tcd.m_uiHeight = m_uiThumbnailHeight;
 
   m_hThumbnailColorRT = pDevice->CreateTexture(tcd);
 
-  tcd.m_Format = ezGALResourceFormat::DFloat;
+  tcd.m_Format = WGALResourceFormat::DFloat;
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
@@ -699,21 +699,21 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_ThumbnailRenderTargets.m_hDSTarget = m_hThumbnailDepthRT;
   m_pThumbnailViewContext->SetupRenderTarget({}, &m_ThumbnailRenderTargets, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
-  ezResourceManager::ForceNoFallbackAcquisition(3);
+  WResourceManager::ForceNoFallbackAcquisition(3);
   OnThumbnailViewContextRequested();
   UpdateThumbnailViewContext(m_pThumbnailViewContext);
 
   // disable editor specific render passes in the thumbnail view
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_pThumbnailViewContext->GetViewHandle(), pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_pThumbnailViewContext->GetViewHandle(), pView))
   {
-    pView->SetViewRenderMode(ezViewRenderMode::Default);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.Active"), false);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), false);
+    pView->SetViewRenderMode(WViewRenderMode::Default);
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorSelectionPass.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorShapeIconsExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorGridExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorPickingPass.Active"), false);
 
-    for (const ezString& sTag : pMsg->m_ViewExcludeTags)
+    for (const WString& sTag : pMsg->m_ViewExcludeTags)
     {
       pView->m_ExcludeTags.SetByName(sTag);
     }
@@ -724,11 +724,11 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   OnThumbnailViewContextCreated();
 }
 
-void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
+void WEngineProcessDocumentContext::DestroyThumbnailViewContext()
 {
   OnDestroyThumbnailViewContext();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   DestroyViewContext(m_pThumbnailViewContext);
   m_pThumbnailViewContext = nullptr;
@@ -748,22 +748,22 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
   m_pWorld->SetWorldSimulationEnabled(m_bWorldSimStateBeforeThumbnail);
 }
 
-bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WEngineProcessDocumentContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezLog::Error("UpdateThumbnailViewContext not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
+  WLog::Error("UpdateThumbnailViewContext not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
   return true;
 }
 
-void ezEngineProcessDocumentContext::OnThumbnailViewContextCreated() {}
-void ezEngineProcessDocumentContext::OnDestroyThumbnailViewContext() {}
+void WEngineProcessDocumentContext::OnThumbnailViewContextCreated() {}
+void WEngineProcessDocumentContext::OnDestroyThumbnailViewContext() {}
 
-void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive)
+void WEngineProcessDocumentContext::SetTagOnObject(const WUuid& object, const char* szTag, bool bSet, bool recursive)
 {
-  ezGameObjectHandle hObject = GetContext().m_GameObjectMap.GetHandle(object);
+  WGameObjectHandle hObject = GetContext().m_GameObjectMap.GetHandle(object);
 
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+  const WTag& tag = WTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
 
-  ezGameObject* pObject;
+  WGameObject* pObject;
   if (m_pWorld->TryGetObject(hObject, pObject))
   {
     if (recursive)
@@ -783,7 +783,7 @@ void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const 
   }
 }
 
-void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, const ezTag& tag)
+void WEngineProcessDocumentContext::SetTagRecursive(WGameObject* pObject, const WTag& tag)
 {
   pObject->SetTag(tag);
 
@@ -794,7 +794,7 @@ void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, cons
   }
 }
 
-void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, const ezTag& tag)
+void WEngineProcessDocumentContext::ClearTagRecursive(WGameObject* pObject, const WTag& tag)
 {
   pObject->RemoveTag(tag);
 
@@ -804,31 +804,31 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
   }
 }
 
-void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const ezWorldRttiConverterContext::Event& e)
+void WEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const WWorldRttiConverterContext::Event& e)
 {
-  if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectCreated)
+  if (e.m_Type == WWorldRttiConverterContext::Event::Type::GameObjectCreated)
   {
     // see whether the newly created object is already referenced by other objects
     auto it = m_GoRef_ReferencedBy.Find(e.m_ObjectGuid);
     if (!it.IsValid())
       return;
 
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     // iterate over all objects that may reference the new object
     for (const auto& ref : it.Value())
     {
-      const ezUuid compGuid = ref.m_ReferencedByComponent;
+      const WUuid compGuid = ref.m_ReferencedByComponent;
       if (!compGuid.IsValid())
         continue;
 
       // check whether the object that references the new object is already known (may be dead or not yet created as well)
-      ezComponentHandle hRefComp = GetContext().m_ComponentMap.GetHandle(compGuid);
+      WComponentHandle hRefComp = GetContext().m_ComponentMap.GetHandle(compGuid);
 
       if (hRefComp.IsInvalidated())
         continue;
 
-      ezComponent* pRefComp = nullptr;
+      WComponent* pRefComp = nullptr;
       if (!GetWorld()->TryGetComponent(hRefComp, pRefComp))
         continue;
 
@@ -838,16 +838,16 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
         // so we can just re-apply the reference (by setting the property again)
         // and thus trigger that the other object updates/fixes its internal state
 
-        const ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_sComponentProperty);
+        const WAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_sComponentProperty);
         if (pAbsProp == nullptr)
           continue;
 
-        if (pAbsProp->GetCategory() != ezPropertyCategory::Member)
+        if (pAbsProp->GetCategory() != WPropertyCategory::Member)
           continue;
 
-        ezConversionUtils::ToString(e.m_ObjectGuid, tmp);
+        WConversionUtils::ToString(e.m_ObjectGuid, tmp);
 
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
+        WReflectionUtils::SetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
       }
       else
       {
@@ -857,28 +857,28 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
         // and since we have no GUIDs for the internal objects, we cannot directly update those internal references
         // we can, however, just update the entire prefab, which will kill all internal objects and recreate them
 
-        ezPrefabReferenceComponent* pPrefab = ezDynamicCast<ezPrefabReferenceComponent*>(pRefComp);
-        EZ_ASSERT_DEV(pPrefab != nullptr, "Game-Object reference update: Expected an ezPrefabReferenceComponent");
+        WPrefabReferenceComponent* pPrefab = WDynamicCast<WPrefabReferenceComponent*>(pRefComp);
+        W_ASSERT_DEV(pPrefab != nullptr, "Game-Object reference update: Expected an WPrefabReferenceComponent");
 
-        ezPrefabReferenceComponentManager* pManager = ezStaticCast<ezPrefabReferenceComponentManager*>(pPrefab->GetOwningManager());
+        WPrefabReferenceComponentManager* pManager = WStaticCast<WPrefabReferenceComponentManager*>(pPrefab->GetOwningManager());
         pManager->AddToUpdateList(pPrefab);
       }
     }
   }
-  else if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectDeleted)
+  else if (e.m_Type == WWorldRttiConverterContext::Event::Type::GameObjectDeleted)
   {
     m_GoRef_ReferencesTo.Remove(e.m_ObjectGuid);
   }
 }
 
-/// Tries to resolve a 'reference' (given in pData) to an ezGameObject.
+/// Tries to resolve a 'reference' (given in pData) to an WGameObject.
 /// hThis is the 'owner' of the reference and szComponentProperty is the name of the reference property in that component.
 ///
 /// There are two different use cases:
 ///
 ///  1) hThis is invalid and szComponentProperty is null:
 ///
-///     This is used by ezPrefabReferenceComponent::SerializeComponent() to check whether a string represents a game object reference.
+///     This is used by WPrefabReferenceComponent::SerializeComponent() to check whether a string represents a game object reference.
 ///     It may be any arbitrary string and thus must not assert.
 ///     In this case a reference is always a stringyfied GUID.
 ///     Since this is only used for scene export, only the lookup shall be done and nothing else.
@@ -892,37 +892,37 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
 ///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
 ///
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, ezStringView sComponentProperty) const
+WGameObjectHandle WEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, WComponentHandle hThis, WStringView sComponentProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
   if (hThis.IsInvalidated() && sComponentProperty.IsEmpty())
   {
-    // This code path is used by ezPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
+    // This code path is used by WPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
     // represent a game object reference. References will always be stringyfied GUIDs.
 
-    if (!ezConversionUtils::IsStringUuid(szTargetGuid))
-      return ezGameObjectHandle();
+    if (!WConversionUtils::IsStringUuid(szTargetGuid))
+      return WGameObjectHandle();
 
     // convert string to GUID and check if references a known object
-    return GetContext().m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
+    return GetContext().m_GameObjectMap.GetHandle(WConversionUtils::ConvertStringToUuid(szTargetGuid));
   }
 
 
 
-  ezUuid srcComponentGuid = GetContext().m_ComponentMap.GetGuid(hThis);
+  WUuid srcComponentGuid = GetContext().m_ComponentMap.GetGuid(hThis);
   if (!srcComponentGuid.IsValid())
   {
     // if we do not know hThis, it is usually a component that was created by a prefab instance
     // since we need hThis/srcComponentGuid to update our tables who references whom, we now try to walk up the node hierarchy
     // until we find a known game object
-    // there, currently, we assume to find an ezPrefabReferenceComponent, which will be used as srcComponentGuid
+    // there, currently, we assume to find an WPrefabReferenceComponent, which will be used as srcComponentGuid
 
-    ezComponent* pComponent = nullptr;
+    WComponent* pComponent = nullptr;
     if (!m_pWorld->TryGetComponent(hThis, pComponent))
-      return ezGameObjectHandle();
+      return WGameObjectHandle();
 
-    ezGameObject* pOwner = pComponent->GetOwner();
+    WGameObject* pOwner = pComponent->GetOwner();
 
     // search the parents for a known game object
     while (pOwner)
@@ -937,15 +937,15 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
 
     // currently we assume all these conditions should be met
     // have to check with reality, though
-    EZ_ASSERT_DEV(pOwner != nullptr, "Expected a known top level object");
-    EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "Expected a known top level object");
+    W_ASSERT_DEV(pOwner != nullptr, "Expected a known top level object");
+    W_ASSERT_DEV(srcComponentGuid.IsValid(), "Expected a known top level object");
 
     // for the time being we assume to find a prefab component here, but this may change if new use cases come up
-    ezPrefabReferenceComponent* pPrefabComponent;
+    WPrefabReferenceComponent* pPrefabComponent;
     if (pOwner->TryGetComponentOfBaseType(pPrefabComponent))
     {
       srcComponentGuid = GetContext().m_ComponentMap.GetGuid(pPrefabComponent->GetHandle());
-      EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "");
+      W_ASSERT_DEV(srcComponentGuid.IsValid(), "");
 
       // tag this reference as being special
       sComponentProperty = {};
@@ -955,22 +955,22 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
       // this could probably happen if we have a component that creates sub-objects even at edit time
       // and is not a prefab reference component
       // and uses game object references
-      EZ_ASSERT_DEV(false, "Expected a known ezPrefabReferenceComponent as top-level object");
-      return ezGameObjectHandle();
+      W_ASSERT_DEV(false, "Expected a known WPrefabReferenceComponent as top-level object");
+      return WGameObjectHandle();
     }
   }
 
 
-  ezUuid newTargetGuid;
-  ezUuid oldTargetGuid;
+  WUuid newTargetGuid;
+  WUuid oldTargetGuid;
 
-  if (ezConversionUtils::IsStringUuid(szTargetGuid))
+  if (WConversionUtils::IsStringUuid(szTargetGuid))
   {
-    newTargetGuid = ezConversionUtils::ConvertStringToUuid(szTargetGuid);
+    newTargetGuid = WConversionUtils::ConvertStringToUuid(szTargetGuid);
   }
   else
   {
-    EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
+    W_ASSERT_DEV(WStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
   }
 
   if (sComponentProperty.IsEmpty())
@@ -993,7 +993,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     auto& referencesTo = m_GoRef_ReferencesTo[srcComponentGuid];
 
     // check all references from the src component
-    for (ezUInt32 i = 0; i < referencesTo.GetCount(); ++i)
+    for (WUInt32 i = 0; i < referencesTo.GetCount(); ++i)
     {
       // if this is the desired property, update it
       if (referencesTo[i].m_sComponentProperty == sComponentProperty)
@@ -1034,7 +1034,7 @@ ref_to_is_updated:
     {
       auto& referencedBy = m_GoRef_ReferencedBy[oldTargetGuid];
 
-      for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
+      for (WUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
         if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && referencedBy[i].m_sComponentProperty == sComponentProperty)
         {
@@ -1050,11 +1050,11 @@ ref_to_is_updated:
       auto& referencedBy = m_GoRef_ReferencedBy[newTargetGuid];
 
       // this loop is currently only to validate that no bugs creeped in
-      for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
+      for (WUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
         if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && referencedBy[i].m_sComponentProperty == sComponentProperty)
         {
-          EZ_REPORT_FAILURE("Go-reference was not updated correctly");
+          W_REPORT_FAILURE("Go-reference was not updated correctly");
         }
       }
 
@@ -1067,12 +1067,12 @@ ref_to_is_updated:
 
   // just an optimization for the common case
   if (!newTargetGuid.IsValid())
-    return ezGameObjectHandle();
+    return WGameObjectHandle();
 
   return GetContext().m_GameObjectMap.GetHandle(newTargetGuid);
 }
 
-void ezEngineProcessDocumentContext::UpdateSyncObjects()
+void WEngineProcessDocumentContext::UpdateSyncObjects()
 {
   for (auto it : m_SyncObjects)
   {
@@ -1083,7 +1083,7 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
       // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
       pSyncObject->SetModified(false);
 
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
 
       if (pSyncObject->SetupForEngine(m_pWorld, GetContext().m_uiNextComponentPickingID))
       {

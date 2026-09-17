@@ -11,18 +11,18 @@
 
 namespace ComponentSerializationTestDetail
 {
-  /// Message of the mismatch that ezWorldReader reported during the current round trip, empty if it
+  /// Message of the mismatch that WWorldReader reported during the current round trip, empty if it
   /// did not report one.
-  static ezStringBuilder g_sReportedFailure;
-  static ezAssertHandler g_PreviousAssertHandler = nullptr;
+  static WStringBuilder g_sReportedFailure;
+  static WAssertHandler g_PreviousAssertHandler = nullptr;
 
-  /// Catches the failure that ezWorldReader::InstantiationContext::DeserializeComponents() reports
+  /// Catches the failure that WWorldReader::InstantiationContext::DeserializeComponents() reports
   /// when a component type read a different number of bytes than were stored for it.
   ///
   /// The report goes through the assert handler, which the test framework normally turns into a
   /// failed test and a debug break. Routing it here instead keeps the test running so that all
   /// remaining component types are still checked, and turns the message into a regular test failure.
-  static bool SerializationAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+  static bool SerializationAssertHandler(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
   {
     g_sReportedFailure = szAssertMsg;
 
@@ -48,31 +48,31 @@ namespace ComponentSerializationTestDetail
 
   /// Serializes a single component of the given type into a world of its own and reads it back.
   ///
-  /// ezWorldReader compares, per component type, how many bytes were stored against how many
-  /// DeserializeComponent() consumed, and reports a failure through EZ_REPORT_FAILURE if they differ.
+  /// WWorldReader compares, per component type, how many bytes were stored against how many
+  /// DeserializeComponent() consumed, and reports a failure through W_REPORT_FAILURE if they differ.
   /// That macro is active in every build configuration and goes through the assert handler, which is
   /// replaced here for the duration of the read. Without that the test framework would turn the
   /// report into a debug break and abort the run, so the component types after a broken one would
   /// never be checked.
-  static Result RoundTripComponentType(const ezRTTI* pRtti, ezStringBuilder& out_sFailure)
+  static Result RoundTripComponentType(const WRTTI* pRtti, WStringBuilder& out_sFailure)
   {
     out_sFailure.Clear();
     g_sReportedFailure.Clear();
 
-    ezDefaultMemoryStreamStorage storage;
+    WDefaultMemoryStreamStorage storage;
 
     // Write a world that contains a single component of the type under test.
     {
-      ezWorldDesc desc("ComponentSerializationTest - Write");
-      ezWorld world(desc);
-      EZ_LOCK(world.GetWriteMarker());
+      WWorldDesc desc("ComponentSerializationTest - Write");
+      WWorld world(desc);
+      W_LOCK(world.GetWriteMarker());
 
-      ezComponentManagerBase* pManager = world.GetOrCreateManagerForComponentType(pRtti);
+      WComponentManagerBase* pManager = world.GetOrCreateManagerForComponentType(pRtti);
       if (pManager == nullptr)
         return Result::Skipped;
 
-      ezGameObject* pObject = nullptr;
-      ezGameObjectDesc objectDesc;
+      WGameObject* pObject = nullptr;
+      WGameObjectDesc objectDesc;
       objectDesc.m_bDynamic = true;
       objectDesc.m_sName.Assign("TestObject");
       world.CreateObject(objectDesc, pObject);
@@ -80,19 +80,19 @@ namespace ComponentSerializationTestDetail
       if (pManager->CreateComponent(pObject).IsInvalidated())
         return Result::Skipped;
 
-      ezMemoryStreamWriter writer(&storage);
-      ezWorldWriter worldWriter;
+      WMemoryStreamWriter writer(&storage);
+      WWorldWriter worldWriter;
       worldWriter.WriteWorld(writer, world);
     }
 
     // Read it back into a fresh world, watching for the reader's own size check.
     {
-      ezWorldDesc desc("ComponentSerializationTest - Read");
-      ezWorld world(desc);
-      EZ_LOCK(world.GetWriteMarker());
+      WWorldDesc desc("ComponentSerializationTest - Read");
+      WWorld world(desc);
+      W_LOCK(world.GetWriteMarker());
 
-      ezMemoryStreamReader reader(&storage);
-      ezWorldReader worldReader;
+      WMemoryStreamReader reader(&storage);
+      WWorldReader worldReader;
       if (worldReader.ReadWorldDescription(reader).Failed())
         return Result::Skipped;
 
@@ -100,9 +100,9 @@ namespace ComponentSerializationTestDetail
       if (!worldReader.HasComponentOfType(pRtti))
         return Result::Skipped;
 
-      g_PreviousAssertHandler = ezGetAssertHandler();
-      ezSetAssertHandler(SerializationAssertHandler);
-      EZ_SCOPE_EXIT(ezSetAssertHandler(g_PreviousAssertHandler));
+      g_PreviousAssertHandler = WGetAssertHandler();
+      WSetAssertHandler(SerializationAssertHandler);
+      W_SCOPE_EXIT(WSetAssertHandler(g_PreviousAssertHandler));
 
       worldReader.InstantiateWorld(world);
     }
@@ -117,55 +117,55 @@ namespace ComponentSerializationTestDetail
   }
 } // namespace ComponentSerializationTestDetail
 
-static ezGameEngineTestComponentSerialization s_GameEngineTestComponentSerialization;
+static WGameEngineTestComponentSerialization s_GameEngineTestComponentSerialization;
 
-const char* ezGameEngineTestComponentSerialization::GetTestName() const
+const char* WGameEngineTestComponentSerialization::GetTestName() const
 {
   return "Component Serialization Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestComponentSerialization::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestComponentSerialization::CreateApplication()
 {
   // Uses a project without any plugin configuration: this test only needs a running application with
   // a graphics device, because creating a component also creates its manager and some managers
   // allocate GPU resources.
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "DynamicTextureAtlas");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "DynamicTextureAtlas");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestComponentSerialization::SetupSubTests()
+void WGameEngineTestComponentSerialization::SetupSubTests()
 {
   AddSubTest("Serialize / Deserialize Roundtrip", SubTests::SerializeDeserializeRoundtrip);
 }
 
-ezTestAppRun ezGameEngineTestComponentSerialization::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestComponentSerialization::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  EZ_IGNORE_UNUSED(iIdentifier);
-  EZ_IGNORE_UNUSED(uiInvocationCount);
+  W_IGNORE_UNUSED(iIdentifier);
+  W_IGNORE_UNUSED(uiInvocationCount);
 
-  ezDynamicArray<const ezRTTI*> componentTypes;
+  WDynamicArray<const WRTTI*> componentTypes;
 
-  ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WComponent>(
+    [&](const WRTTI* pRtti)
     {
       componentTypes.PushBack(pRtti);
     },
     // Components are constructed through their component manager, not through the RTTI allocator
-    // (EZ_BEGIN_COMPONENT_TYPE uses ezRTTINoAllocator), so ExcludeNonAllocatable must not be used here.
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    // (W_BEGIN_COMPONENT_TYPE uses WRTTINoAllocator), so ExcludeNonAllocatable must not be used here.
+    WRTTI::ForEachOptions::ExcludeAbstract);
 
   // Sort by name so that the output is stable between runs.
-  componentTypes.Sort([](const ezRTTI* a, const ezRTTI* b)
+  componentTypes.Sort([](const WRTTI* a, const WRTTI* b)
     { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
 
-  EZ_TEST_BOOL_MSG(!componentTypes.IsEmpty(), "No component types found, the test would silently pass.");
+  W_TEST_BOOL_MSG(!componentTypes.IsEmpty(), "No component types found, the test would silently pass.");
 
-  ezUInt32 uiTested = 0;
-  ezUInt32 uiSkipped = 0;
+  WUInt32 uiTested = 0;
+  WUInt32 uiSkipped = 0;
 
-  for (const ezRTTI* pRtti : componentTypes)
+  for (const WRTTI* pRtti : componentTypes)
   {
-    ezStringBuilder sFailure;
+    WStringBuilder sFailure;
 
     const auto res = ComponentSerializationTestDetail::RoundTripComponentType(pRtti, sFailure);
 
@@ -180,13 +180,13 @@ ezTestAppRun ezGameEngineTestComponentSerialization::RunSubTest(ezInt32 iIdentif
     if (res != ComponentSerializationTestDetail::Result::Ok)
     {
       // The reported message already names the type and its version.
-      EZ_TEST_FAILURE("Component serialization mismatch", "%s", sFailure.GetData());
+      W_TEST_FAILURE("Component serialization mismatch", "%s", sFailure.GetData());
     }
   }
 
-  ezLog::Info("Tested {} component types, skipped {}.", uiTested, uiSkipped);
+  WLog::Info("Tested {} component types, skipped {}.", uiTested, uiSkipped);
 
-  EZ_TEST_BOOL_MSG(uiTested > 0, "No component type could actually be tested.");
+  W_TEST_BOOL_MSG(uiTested > 0, "No component type could actually be tested.");
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }

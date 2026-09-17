@@ -8,21 +8,21 @@
 #include <Inspector/ui_CVarsWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtCVarsWidget : public ads::CDockWidget, public Ui_CVarsWidget
+class WQtCVarsWidget : public ads::CDockWidget, public Ui_CVarsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtCVarsWidget* s_pWidget;
+  static WQtCVarsWidget* s_pWidget;
 
 private Q_SLOTS:
-  void BoolChanged(ezStringView sCVar, bool newValue);
-  void FloatChanged(ezStringView sCVar, float newValue);
-  void IntChanged(ezStringView sCVar, int newValue);
-  void StringChanged(ezStringView sCVar, ezStringView sNewValue);
+  void BoolChanged(WStringView sCVar, bool newValue);
+  void FloatChanged(WStringView sCVar, float newValue);
+  void IntChanged(WStringView sCVar, int newValue);
+  void StringChanged(WStringView sCVar, WStringView sNewValue);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -34,9 +34,9 @@ private:
   // void UpdateCVarsTable(bool bRecreate);
 
 
-  void SendCVarUpdateToServer(ezStringView sName, const ezCVarWidgetData& cvd);
+  void SendCVarUpdateToServer(WStringView sName, const WCVarWidgetData& cvd);
   void SyncAllCVarsToServer();
 
-  ezMap<ezString, ezCVarWidgetData> m_CVars;
-  ezMap<ezString, ezCVarWidgetData> m_CVarsBackup;
+  WMap<WString, WCVarWidgetData> m_CVars;
+  WMap<WString, WCVarWidgetData> m_CVarsBackup;
 };

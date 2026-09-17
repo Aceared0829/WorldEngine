@@ -4,46 +4,46 @@
 
 namespace
 {
-  ezGALTextureCreationDescription MakeProxyDesc(const ezGALTextureCreationDescription& parentDesc)
+  WGALTextureCreationDescription MakeProxyDesc(const WGALTextureCreationDescription& parentDesc)
   {
-    ezGALTextureCreationDescription desc = parentDesc;
-    desc.m_Type = ezGALTextureType::Texture2DProxy;
+    WGALTextureCreationDescription desc = parentDesc;
+    desc.m_Type = WGALTextureType::Texture2DProxy;
     return desc;
   }
 } // namespace
 
-ezGALProxyTexture::ezGALProxyTexture(ezGALTextureHandle hParentTexture, const ezGALTexture& parentTexture, ezUInt16 uiSlice)
-  : ezGALTexture(MakeProxyDesc(parentTexture.GetDescription()))
+WGALProxyTexture::WGALProxyTexture(WGALTextureHandle hParentTexture, const WGALTexture& parentTexture, WUInt16 uiSlice)
+  : WGALTexture(MakeProxyDesc(parentTexture.GetDescription()))
   , m_hParentTexture(hParentTexture)
   , m_pParentTexture(&parentTexture)
   , m_uiSlice(uiSlice)
 {
 }
 
-ezGALProxyTexture::~ezGALProxyTexture() = default;
+WGALProxyTexture::~WGALProxyTexture() = default;
 
 
-const ezGALResourceBase* ezGALProxyTexture::GetParentResource() const
+const WGALResourceBase* WGALProxyTexture::GetParentResource() const
 {
   return m_pParentTexture;
 }
 
-ezResult ezGALProxyTexture::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+WResult WGALProxyTexture::InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData)
 {
-  EZ_IGNORE_UNUSED(pDevice);
-  EZ_IGNORE_UNUSED(pInitialData);
+  W_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pInitialData);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALProxyTexture::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const
+void WGALProxyTexture::SetDebugNamePlatform(const char* szName) const
 {
-  EZ_IGNORE_UNUSED(szName);
+  W_IGNORE_UNUSED(szName);
 }

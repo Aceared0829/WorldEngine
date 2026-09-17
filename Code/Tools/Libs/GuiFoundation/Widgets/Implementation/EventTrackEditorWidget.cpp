@@ -10,7 +10,7 @@
 #include <QMenu>
 #include <QPainterPath>
 
-ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
+WQtEventTrackEditorWidget::WQtEventTrackEditorWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
@@ -20,26 +20,26 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
   // make sure the track is visible and not completely squashed
   EventTrackEdit->setMinimumHeight(50);
 
-  connect(EventTrackEdit, &ezQtEventTrackWidget::DeleteControlPointsEvent, this, &ezQtEventTrackEditorWidget::onDeleteControlPoints);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::DoubleClickEvent, this, &ezQtEventTrackEditorWidget::onDoubleClick);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::BeginOperationEvent, this, &ezQtEventTrackEditorWidget::onBeginOperation);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::EndOperationEvent, this, &ezQtEventTrackEditorWidget::onEndOperation);
-  // connect(EventTrackEdit, &ezQtEventTrackWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
-  connect(EventTrackEdit, &ezQtEventTrackWidget::SelectionChangedEvent, this, &ezQtEventTrackEditorWidget::onSelectionChanged);
+  connect(EventTrackEdit, &WQtEventTrackWidget::DeleteControlPointsEvent, this, &WQtEventTrackEditorWidget::onDeleteControlPoints);
+  connect(EventTrackEdit, &WQtEventTrackWidget::DoubleClickEvent, this, &WQtEventTrackEditorWidget::onDoubleClick);
+  connect(EventTrackEdit, &WQtEventTrackWidget::MoveControlPointsEvent, this, &WQtEventTrackEditorWidget::onMoveControlPoints);
+  connect(EventTrackEdit, &WQtEventTrackWidget::BeginOperationEvent, this, &WQtEventTrackEditorWidget::onBeginOperation);
+  connect(EventTrackEdit, &WQtEventTrackWidget::EndOperationEvent, this, &WQtEventTrackEditorWidget::onEndOperation);
+  // connect(EventTrackEdit, &WQtEventTrackWidget::ScaleControlPointsEvent, this, &WQtEventTrackEditorWidget::onScaleControlPoints);
+  connect(EventTrackEdit, &WQtEventTrackWidget::ContextMenuEvent, this, &WQtEventTrackEditorWidget::onContextMenu);
+  connect(EventTrackEdit, &WQtEventTrackWidget::SelectionChangedEvent, this, &WQtEventTrackEditorWidget::onSelectionChanged);
 
   LinePosition->setEnabled(false);
 
   DetermineAvailableEvents();
 }
 
-ezQtEventTrackEditorWidget::~ezQtEventTrackEditorWidget() = default;
+WQtEventTrackEditorWidget::~WQtEventTrackEditorWidget() = default;
 
-void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& trackData, double fMinCurveLength)
+void WQtEventTrackEditorWidget::SetData(const WEventTrackData& trackData, double fMinCurveLength)
 {
-  ezQtScopedUpdatesDisabled ud(this);
-  ezQtScopedBlockSignals bs(this);
+  WQtScopedUpdatesDisabled ud(this);
+  WQtScopedBlockSignals bs(this);
 
   m_pData = &trackData;
   EventTrackEdit->SetData(&trackData, fMinCurveLength);
@@ -47,27 +47,27 @@ void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& trackData, doub
   UpdateSpinBoxes();
 }
 
-void ezQtEventTrackEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
+void WQtEventTrackEditorWidget::SetScrubberPosition(WUInt64 uiTick)
 {
   EventTrackEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
-void ezQtEventTrackEditorWidget::SetScrubberPosition(ezTime time)
+void WQtEventTrackEditorWidget::SetScrubberPosition(WTime time)
 {
   EventTrackEdit->SetScrubberPosition(time.GetSeconds());
 }
 
-void ezQtEventTrackEditorWidget::ClearSelection()
+void WQtEventTrackEditorWidget::ClearSelection()
 {
   EventTrackEdit->ClearSelection();
 }
 
-void ezQtEventTrackEditorWidget::FrameCurve()
+void WQtEventTrackEditorWidget::FrameCurve()
 {
   EventTrackEdit->FrameCurve();
 }
 
-void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
+void WQtEventTrackEditorWidget::on_AddEventButton_clicked()
 {
   QString name = QInputDialog::getText(this, "Add Type", "Event Type Name:");
 
@@ -81,17 +81,17 @@ void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
   }
 }
 
-void ezQtEventTrackEditorWidget::on_InsertEventButton_clicked()
+void WQtEventTrackEditorWidget::on_InsertEventButton_clicked()
 {
   int curveIdx = 0, cpIdx = 0;
-  double posX = ezMath::Max(EventTrackEdit->GetScrubberPosition(), 0.0);
+  double posX = WMath::Max(EventTrackEdit->GetScrubberPosition(), 0.0);
 
-  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
+  Q_EMIT InsertCpEvent(m_pData->TickFromTime(WTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
 }
 
-void ezQtEventTrackEditorWidget::onDeleteControlPoints()
+void WQtEventTrackEditorWidget::onDeleteControlPoints()
 {
-  ezTempHybridArray<ezUInt32, 32> selection;
+  WTempHybridArray<WUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (selection.IsEmpty())
@@ -101,11 +101,11 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 
   Q_EMIT BeginCpChangesEvent("Delete Events");
 
-  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool
+  selection.Sort([](WUInt32 lhs, WUInt32 rhs) -> bool
     { return lhs > rhs; });
 
   // delete sorted from back to front to prevent point indices becoming invalidated
-  for (ezUInt32 pt : selection)
+  for (WUInt32 pt : selection)
   {
     Q_EMIT CpDeletedEvent(pt);
   }
@@ -113,16 +113,16 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
   Q_EMIT EndCpChangesEvent();
 }
 
-void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
+void WQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
 {
-  InsertCpAt(scenePosX, ezMath::Abs(epsilon));
+  InsertCpAt(scenePosX, WMath::Abs(epsilon));
 }
 
-void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
+void WQtEventTrackEditorWidget::onMoveControlPoints(double x)
 {
   m_fControlPointMove += x;
 
-  ezTempHybridArray<ezUInt32, 32> selection;
+  WTempHybridArray<WUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (selection.IsEmpty())
@@ -135,32 +135,32 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
     auto& cp = m_DataCopy.m_ControlPoints[cpSel];
 
     double newPos = cp.GetTickAsTime().GetSeconds() + m_fControlPointMove;
-    newPos = ezMath::Max(newPos, 0.0);
+    newPos = WMath::Max(newPos, 0.0);
 
-    Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::MakeFromSeconds(newPos)));
+    Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(WTime::MakeFromSeconds(newPos)));
   }
 
   Q_EMIT EndCpChangesEvent();
 }
 
-// void ezQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
+// void WQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
 //{
 //  const auto selection = EventTrackEdit->GetSelection();
 //
 //  if (selection.IsEmpty())
 //    return;
 //
-//  const ezVec2d ref(refPt.x(), refPt.y());
-//  const ezVec2d scale(scaleX, scaleY);
+//  const WVec2d ref(refPt.x(), refPt.y());
+//  const WVec2d scale(scaleX, scaleY);
 //
 //  Q_EMIT BeginCpChangesEvent("Scale Points");
 //
 //  for (const auto& cpSel : selection)
 //  {
 //    const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-//    ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime(), cp.m_fValue) - ref).CompMul(scale);
-//    newPos.x = ezMath::Max(newPos.x, 0.0);
-//    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
+//    WVec2d newPos = ref + (WVec2d(cp.GetTickAsTime(), cp.m_fValue) - ref).CompMul(scale);
+//    newPos.x = WMath::Max(newPos.x, 0.0);
+//    newPos.y = WMath::Clamp(newPos.y, -100000.0, +100000.0);
 //
 //    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
 //  }
@@ -168,7 +168,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 //  Q_EMIT EndCpChangesEvent();
 //}
 
-void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
+void WQtEventTrackEditorWidget::onBeginOperation(QString name)
 {
   m_fControlPointMove = 0;
   m_DataCopy = *m_pData;
@@ -176,19 +176,19 @@ void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
   Q_EMIT BeginOperationEvent(name);
 }
 
-void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
+void WQtEventTrackEditorWidget::onEndOperation(bool commit)
 {
   Q_EMIT EndOperationEvent(commit);
 }
 
-void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
+void WQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 {
   m_ContextMenuScenePos = scenePos;
 
   QMenu m(this);
   m.setDefaultAction(m.addAction("Add Event", this, SLOT(onAddPoint())));
 
-  ezTempHybridArray<ezUInt32, 32> selection;
+  WTempHybridArray<WUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (!selection.IsEmpty())
@@ -204,30 +204,30 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   m.exec(pos);
 }
 
-void ezQtEventTrackEditorWidget::onAddPoint()
+void WQtEventTrackEditorWidget::onAddPoint()
 {
   InsertCpAt(m_ContextMenuScenePos.x(), 0.0f);
 }
 
-void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
+void WQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
 {
   int curveIdx = 0, cpIdx = 0;
-  posX = ezMath::Max(posX, 0.0);
+  posX = WMath::Max(posX, 0.0);
 
-  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
+  Q_EMIT InsertCpEvent(m_pData->TickFromTime(WTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
 }
 
-void ezQtEventTrackEditorWidget::onSelectionChanged()
+void WQtEventTrackEditorWidget::onSelectionChanged()
 {
   UpdateSpinBoxes();
 }
 
-void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
+void WQtEventTrackEditorWidget::UpdateSpinBoxes()
 {
-  ezTempHybridArray<ezUInt32, 32> selection;
+  WTempHybridArray<WUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
-  ezQtScopedBlockSignals _1(LinePosition, SelectedTypeLabel);
+  WQtScopedBlockSignals _1(LinePosition, SelectedTypeLabel);
 
   if (selection.IsEmpty())
   {
@@ -241,12 +241,12 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 
   LinePosition->setEnabled(true);
 
-  ezStringBuilder labelText("Event: ", m_pData->m_ControlPoints[selection[0]].m_sEvent.GetString());
+  WStringBuilder labelText("Event: ", m_pData->m_ControlPoints[selection[0]].m_sEvent.GetString());
 
   bool bMultipleTicks = false;
-  for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
+  for (WUInt32 i = 1; i < selection.GetCount(); ++i)
   {
-    const ezString& sName = m_pData->m_ControlPoints[selection[i]].m_sEvent.GetString();
+    const WString& sName = m_pData->m_ControlPoints[selection[i]].m_sEvent.GetString();
     const double fPos2 = m_pData->m_ControlPoints[selection[i]].GetTickAsTime().GetSeconds();
 
     if (!labelText.FindSubString(sName))
@@ -265,14 +265,14 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
   SelectedTypeLabel->setText(labelText.GetData());
 }
 
-void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
+void WQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
   m_EventSet.ReadFromDDL(":project/Editor/Events.ddl").IgnoreResult();
 
   FillEventComboBox(nullptr);
 }
 
-void ezQtEventTrackEditorWidget::FillEventComboBox(const char* szCurrent)
+void WQtEventTrackEditorWidget::FillEventComboBox(const char* szCurrent)
 {
   QString prev = szCurrent;
 
@@ -281,7 +281,7 @@ void ezQtEventTrackEditorWidget::FillEventComboBox(const char* szCurrent)
 
   ComboType->clear();
 
-  for (const ezString& type : m_EventSet.GetAvailableEvents())
+  for (const WString& type : m_EventSet.GetAvailableEvents())
   {
     ComboType->addItem(type.GetData());
   }
@@ -289,7 +289,7 @@ void ezQtEventTrackEditorWidget::FillEventComboBox(const char* szCurrent)
   ComboType->setCurrentText(prev);
 }
 
-void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
+void WQtEventTrackEditorWidget::on_LinePosition_editingFinished()
 {
   QString sValue = LinePosition->text();
 
@@ -301,14 +301,14 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
   if (value < 0)
     return;
 
-  ezTempHybridArray<ezUInt32, 32> selection;
+  WTempHybridArray<WUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
   if (selection.IsEmpty())
     return;
 
   Q_EMIT BeginCpChangesEvent("Set Event Time");
 
-  ezInt64 tick = m_pData->TickFromTime(ezTime::MakeFromSeconds(value));
+  WInt64 tick = m_pData->TickFromTime(WTime::MakeFromSeconds(value));
 
   for (const auto& cpSel : selection)
   {

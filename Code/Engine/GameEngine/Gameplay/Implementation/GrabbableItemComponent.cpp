@@ -17,56 +17,56 @@ struct GICFlags
 };
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGrabbableItemGrabPoint, ezNoBase, 1, ezRTTIDefaultAllocator<ezGrabbableItemGrabPoint>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGrabbableItemGrabPoint, WNoBase, 1, WRTTIDefaultAllocator<WGrabbableItemGrabPoint>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("LocalPosition", m_vLocalPosition),
-    EZ_MEMBER_PROPERTY("LocalRotation", m_qLocalRotation),
+    W_MEMBER_PROPERTY("LocalPosition", m_vLocalPosition),
+    W_MEMBER_PROPERTY("LocalRotation", m_qLocalRotation),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezTransformManipulatorAttribute("LocalPosition", "LocalRotation"),
+    new WTransformManipulatorAttribute("LocalPosition", "LocalRotation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+W_END_STATIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_COMPONENT_TYPE(ezGrabbableItemComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WGrabbableItemComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("DebugShowPoints", GetDebugShowPoints, SetDebugShowPoints),
-    EZ_ARRAY_MEMBER_PROPERTY("GrabPoints", m_GrabPoints),
+    W_ACCESSOR_PROPERTY("DebugShowPoints", GetDebugShowPoints, SetDebugShowPoints),
+    W_ARRAY_MEMBER_PROPERTY("GrabPoints", m_GrabPoints),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Input"),
+    new WCategoryAttribute("Input"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGrabbableItemComponent::ezGrabbableItemComponent() = default;
-ezGrabbableItemComponent::~ezGrabbableItemComponent() = default;
+WGrabbableItemComponent::WGrabbableItemComponent() = default;
+WGrabbableItemComponent::~WGrabbableItemComponent() = default;
 
-void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WGrabbableItemComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
-  const ezUInt8 uiNumGrabPoints = static_cast<ezUInt8>(m_GrabPoints.GetCount());
+  const WUInt8 uiNumGrabPoints = static_cast<WUInt8>(m_GrabPoints.GetCount());
   s << uiNumGrabPoints;
   for (const auto& gb : m_GrabPoints)
   {
@@ -75,13 +75,13 @@ void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   }
 }
 
-void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WGrabbableItemComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  ezUInt8 uiNumGrabPoints;
+  WUInt8 uiNumGrabPoints;
   s >> uiNumGrabPoints;
   m_GrabPoints.SetCount(uiNumGrabPoints);
   for (auto& gb : m_GrabPoints)
@@ -91,7 +91,7 @@ void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezGrabbableItemComponent::SetDebugShowPoints(bool bShow)
+void WGrabbableItemComponent::SetDebugShowPoints(bool bShow)
 {
   SetUserFlag(GICFlags::DebugShowPoints, bShow);
 
@@ -101,47 +101,47 @@ void ezGrabbableItemComponent::SetDebugShowPoints(bool bShow)
   }
 }
 
-bool ezGrabbableItemComponent::GetDebugShowPoints() const
+bool WGrabbableItemComponent::GetDebugShowPoints() const
 {
   return GetUserFlag(GICFlags::DebugShowPoints);
 }
 
-void ezGrabbableItemComponent::DebugDrawGrabPoint(const ezWorld& world, const ezTransform& globalGrabPointTransform)
+void WGrabbableItemComponent::DebugDrawGrabPoint(const WWorld& world, const WTransform& globalGrabPointTransform)
 {
-  ezDebugRenderer::DrawArrow(&world, 0.75f, ezColorScheme::LightUI(ezColorScheme::Red), globalGrabPointTransform, ezVec3::MakeAxisX());
-  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Green), globalGrabPointTransform, ezVec3::MakeAxisY());
-  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Blue), globalGrabPointTransform, ezVec3::MakeAxisZ());
+  WDebugRenderer::DrawArrow(&world, 0.75f, WColorScheme::LightUI(WColorScheme::Red), globalGrabPointTransform, WVec3::MakeAxisX());
+  WDebugRenderer::DrawArrow(&world, 0.3f, WColorScheme::LightUI(WColorScheme::Green), globalGrabPointTransform, WVec3::MakeAxisY());
+  WDebugRenderer::DrawArrow(&world, 0.3f, WColorScheme::LightUI(WColorScheme::Blue), globalGrabPointTransform, WVec3::MakeAxisZ());
 }
 
-void ezGrabbableItemComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WGrabbableItemComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
   if (GetDebugShowPoints())
   {
-    msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 1.0f), ezDefaultSpatialDataCategories::RenderDynamic);
+    msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 1.0f), WDefaultSpatialDataCategories::RenderDynamic);
   }
 }
 
-void ezGrabbableItemComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void WGrabbableItemComponent::OnExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!GetDebugShowPoints() || m_GrabPoints.IsEmpty())
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+  if (msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::MainView &&
+      msg.m_pView->GetCameraUsageHint() != WCameraUsageHint::EditorView)
     return;
 
   // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory)
     return;
 
-  const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
+  const WTransform globalTransform = GetOwner()->GetGlobalTransform();
 
   for (auto& grabPoint : m_GrabPoints)
   {
-    ezTransform grabPointTransform = ezTransform::MakeGlobalTransform(globalTransform, ezTransform(grabPoint.m_vLocalPosition, grabPoint.m_qLocalRotation));
+    WTransform grabPointTransform = WTransform::MakeGlobalTransform(globalTransform, WTransform(grabPoint.m_vLocalPosition, grabPoint.m_qLocalRotation));
     DebugDrawGrabPoint(*GetWorld(), grabPointTransform);
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GrabbableItemComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GrabbableItemComponent);

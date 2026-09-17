@@ -2,7 +2,7 @@
 
 #include <RTSPlugin/GameMode/GameMode.h>
 
-class ezBlackboard;
+class WBlackboard;
 
 class RtsEditLevelMode : public RtsGameMode
 {
@@ -22,7 +22,7 @@ protected:
 private:
   void SetupEditUI();
 
-  ezComponentHandle m_hEditUIComponent;
+  WComponentHandle m_hEditUIComponent;
 
-  ezSharedPtr<ezBlackboard> m_pBlackboard;
+  WSharedPtr<WBlackboard> m_pBlackboard;
 };

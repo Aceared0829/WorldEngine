@@ -5,45 +5,45 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 
-ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
+WConstantBufferStorageBase::WConstantBufferStorageBase(WUInt32 uiSizeInBytes)
 {
-  m_Data = ezMakeArrayPtr(static_cast<ezUInt8*>(ezFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
-  ezMemoryUtils::ZeroFill(m_Data.GetPtr(), m_Data.GetCount());
+  m_Data = WMakeArrayPtr(static_cast<WUInt8*>(WFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
+  WMemoryUtils::ZeroFill(m_Data.GetPtr(), m_Data.GetCount());
 
-  m_hGALConstantBuffer = ezGALDevice::GetDefaultDevice()->CreateConstantBuffer(uiSizeInBytes);
+  m_hGALConstantBuffer = WGALDevice::GetDefaultDevice()->CreateConstantBuffer(uiSizeInBytes);
 }
 
-ezConstantBufferStorageBase::~ezConstantBufferStorageBase()
+WConstantBufferStorageBase::~WConstantBufferStorageBase()
 {
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
+  WGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
 
-  ezFoundation::GetAlignedAllocator()->Deallocate(m_Data.GetPtr());
+  WFoundation::GetAlignedAllocator()->Deallocate(m_Data.GetPtr());
   m_Data.Clear();
 }
 
-ezArrayPtr<ezUInt8> ezConstantBufferStorageBase::GetRawDataForWriting()
+WArrayPtr<WUInt8> WConstantBufferStorageBase::GetRawDataForWriting()
 {
   m_bHasBeenModified = true;
-  ezRenderContext::MarktConstantBufferStorageModified(this);
+  WRenderContext::MarktConstantBufferStorageModified(this);
   return m_Data;
 }
 
-ezArrayPtr<const ezUInt8> ezConstantBufferStorageBase::GetRawDataForReading() const
+WArrayPtr<const WUInt8> WConstantBufferStorageBase::GetRawDataForReading() const
 {
   return m_Data;
 }
 
-void ezConstantBufferStorageBase::UploadData(ezGALCommandEncoder* pCommandEncoder)
+void WConstantBufferStorageBase::UploadData(WGALCommandEncoder* pCommandEncoder)
 {
   if (!m_bHasBeenModified && !m_bStartOfFrame)
     return;
 
   m_bHasBeenModified = false;
 
-  ezUInt32 uiNewHash = ezHashingUtils::xxHash32(m_Data.GetPtr(), m_Data.GetCount());
+  WUInt32 uiNewHash = WHashingUtils::xxHash32(m_Data.GetPtr(), m_Data.GetCount());
   if (m_uiLastHash != uiNewHash || m_bStartOfFrame)
   {
-    pCommandEncoder->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data, ezGALUpdateMode::TransientConstantBuffer);
+    pCommandEncoder->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data, WGALUpdateMode::TransientConstantBuffer);
     m_uiLastHash = uiNewHash;
   }
   m_bStartOfFrame = false;

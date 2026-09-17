@@ -3,15 +3,15 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <TestFramework/Framework/TestFramework.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterTestHelper);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WRegisterTestHelper);
 
-void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc testFunc)
+void WSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc testFunc)
 {
   SimpleTestEntry e;
   e.m_szName = szName;
   e.m_Func = testFunc;
 
-  for (ezUInt32 i = 0; i < m_SimpleTests.size(); ++i)
+  for (WUInt32 i = 0; i < m_SimpleTests.size(); ++i)
   {
     if ((strcmp(m_SimpleTests[i].m_szName, e.m_szName) == 0) && (m_SimpleTests[i].m_Func == e.m_Func))
       return;
@@ -20,37 +20,37 @@ void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc testFun
   m_SimpleTests.push_back(e);
 }
 
-void ezSimpleTestGroup::SetupSubTests()
+void WSimpleTestGroup::SetupSubTests()
 {
-  for (ezUInt32 i = 0; i < m_SimpleTests.size(); ++i)
+  for (WUInt32 i = 0; i < m_SimpleTests.size(); ++i)
   {
     AddSubTest(m_SimpleTests[i].m_szName, i);
   }
 }
 
-ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WSimpleTestGroup::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   // until the block name is properly set, use the test name instead
-  ezTestFramework::s_szTestBlockName = m_SimpleTests[iIdentifier].m_szName;
+  WTestFramework::s_szTestBlockName = m_SimpleTests[iIdentifier].m_szName;
 
-  EZ_PROFILE_SCOPE(m_SimpleTests[iIdentifier].m_szName);
+  W_PROFILE_SCOPE(m_SimpleTests[iIdentifier].m_szName);
   m_SimpleTests[iIdentifier].m_Func();
 
-  ezTestFramework::s_szTestBlockName = "";
-  return ezTestAppRun::Quit;
+  WTestFramework::s_szTestBlockName = "";
+  return WTestAppRun::Quit;
 }
 
-ezResult ezSimpleTestGroup::InitializeSubTest(ezInt32 iIdentifier)
+WResult WSimpleTestGroup::InitializeSubTest(WInt32 iIdentifier)
 {
   // initialize everything up to 'core'
-  ezStartup::StartupCoreSystems();
-  return EZ_SUCCESS;
+  WStartup::StartupCoreSystems();
+  return W_SUCCESS;
 }
 
-ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WSimpleTestGroup::DeInitializeSubTest(WInt32 iIdentifier)
 {
   // shut down completely
-  ezStartup::ShutdownCoreSystems();
-  ezMemoryTracker::DumpMemoryLeaks();
-  return EZ_SUCCESS;
+  WStartup::ShutdownCoreSystems();
+  WMemoryTracker::DumpMemoryLeaks();
+  return W_SUCCESS;
 }

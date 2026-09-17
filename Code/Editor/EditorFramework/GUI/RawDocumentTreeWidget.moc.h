@@ -9,27 +9,27 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <memory>
 
-class ezQtTreeSearchFilterModel;
-class ezSelectionManager;
-class ezGameObjectFilter;
+class WQtTreeSearchFilterModel;
+class WSelectionManager;
+class WGameObjectFilter;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public ezQtItemView<QTreeView>
+class W_EDITORFRAMEWORK_DLL WQtDocumentTreeView : public WQtItemView<QTreeView>
 {
   Q_OBJECT
 
 public:
-  ezQtDocumentTreeView(QWidget* pParent);
-  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
-  ~ezQtDocumentTreeView();
+  WQtDocumentTreeView(QWidget* pParent);
+  WQtDocumentTreeView(QWidget* pParent, WDocument* pDocument, std::unique_ptr<WQtDocumentTreeModel> pCustomModel, WSelectionManager* pSelection = nullptr);
+  ~WQtDocumentTreeView();
 
-  void Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
+  void Initialize(WDocument* pDocument, std::unique_ptr<WQtDocumentTreeModel> pCustomModel, WSelectionManager* pSelection = nullptr);
 
   void EnsureLastSelectedItemVisible();
 
   void SetAllowDragDrop(bool bAllow);
   void SetAllowDeleteObjects(bool bAllow);
 
-  ezQtTreeSearchFilterModel* GetProxyFilterModel() const { return m_pFilterModel.get(); }
+  WQtTreeSearchFilterModel* GetProxyFilterModel() const { return m_pFilterModel.get(); }
 
 protected:
   virtual bool event(QEvent* pEvent) override;
@@ -38,14 +38,14 @@ private Q_SLOTS:
   void on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
 private:
-  std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
-  std::unique_ptr<ezQtTreeSearchFilterModel> m_pFilterModel;
-  std::unique_ptr<ezGameObjectFilter> m_pGameObjectFilter;
-  ezSelectionManager* m_pSelectionManager = nullptr;
-  ezDocument* m_pDocument = nullptr;
+  std::unique_ptr<WQtDocumentTreeModel> m_pModel;
+  std::unique_ptr<WQtTreeSearchFilterModel> m_pFilterModel;
+  std::unique_ptr<WGameObjectFilter> m_pGameObjectFilter;
+  WSelectionManager* m_pSelectionManager = nullptr;
+  WDocument* m_pDocument = nullptr;
   bool m_bBlockSelectionSignal = false;
   bool m_bAllowDeleteObjects = false;
 };

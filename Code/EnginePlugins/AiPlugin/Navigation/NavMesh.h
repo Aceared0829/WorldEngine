@@ -13,48 +13,48 @@
 #include <Recast.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 
-using ezDataBuffer = ezDynamicArray<ezUInt8>;
+using WDataBuffer = WDynamicArray<WUInt8>;
 
-class ezNavmeshGeoWorldModuleInterface;
+class WNavmeshGeoWorldModuleInterface;
 class dtNavMesh;
 
 /// Stores indices for a triangle.
-struct ezAiNavMeshTriangle final
+struct WAiNavMeshTriangle final
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezAiNavMeshTriangle() = default;
-  ezAiNavMeshTriangle(ezInt32 a, ezInt32 b, ezInt32 c)
+  WAiNavMeshTriangle() = default;
+  WAiNavMeshTriangle(WInt32 a, WInt32 b, WInt32 c)
   {
     m_VertexIdx[0] = a;
     m_VertexIdx[1] = b;
     m_VertexIdx[2] = c;
   }
 
-  ezInt32 m_VertexIdx[3];
+  WInt32 m_VertexIdx[3];
 };
 
 /// Stores the geometry from which a navmesh should be generated.
-struct ezAiNavMeshInputGeo final
+struct WAiNavMeshInputGeo final
 {
-  ezDynamicArray<ezVec3> m_Vertices;
-  ezDynamicArray<ezAiNavMeshTriangle> m_Triangles;
-  ezDynamicArray<ezUInt8> m_TriangleAreaIDs;
+  WDynamicArray<WVec3> m_Vertices;
+  WDynamicArray<WAiNavMeshTriangle> m_Triangles;
+  WDynamicArray<WUInt8> m_TriangleAreaIDs;
 };
 
-/// State about a single sector (tile / cell) of an ezAiNavMesh
-struct ezAiNavMeshSector final
+/// State about a single sector (tile / cell) of an WAiNavMesh
+struct WAiNavMeshSector final
 {
-  ezAiNavMeshSector();
-  ~ezAiNavMeshSector();
+  WAiNavMeshSector();
+  ~WAiNavMeshSector();
 
-  ezUInt8 m_FlagRequested : 1;
-  ezUInt8 m_FlagInvalidate : 1;
-  ezUInt8 m_FlagUpdateAvailable : 1;
-  ezUInt8 m_FlagUsable : 1;
+  WUInt8 m_FlagRequested : 1;
+  WUInt8 m_FlagInvalidate : 1;
+  WUInt8 m_FlagUpdateAvailable : 1;
+  WUInt8 m_FlagUsable : 1;
 
-  ezDataBuffer m_NavmeshDataCur;
-  ezDataBuffer m_NavmeshDataNew;
+  WDataBuffer m_NavmeshDataCur;
+  WDataBuffer m_NavmeshDataNew;
   dtTileRef m_TileRef = 0;
 };
 
@@ -62,29 +62,29 @@ struct ezAiNavMeshSector final
 ///
 /// Each game may use multiple navmeshes for different character types (large, small, etc).
 /// All navmeshes always exist, but only some may contain data.
-/// You get access to a navmesh through the ezAiNavMeshWorldModule.
+/// You get access to a navmesh through the WAiNavMeshWorldModule.
 ///
-/// To do a path search, use ezAiNavigation.
+/// To do a path search, use WAiNavigation.
 /// Since the navmesh is built in the background, a path search may need to run for multiple frames,
 /// before it can return any result.
-class EZ_AIPLUGIN_DLL ezAiNavMesh final
+class W_AIPLUGIN_DLL WAiNavMesh final
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAiNavMesh);
+  W_DISALLOW_COPY_AND_ASSIGN(WAiNavMesh);
 
 public:
-  ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig);
-  ~ezAiNavMesh();
+  WAiNavMesh(const WAiNavmeshConfig& navmeshConfig);
+  ~WAiNavMesh();
 
-  using SectorID = ezUInt32;
+  using SectorID = WUInt32;
 
-  ezVec2I32 CalculateSectorCoord(float fPositionX, float fPositionY) const;
-  ezVec2 GetSectorPositionOffset(ezVec2I32 vCoord) const;
-  ezBoundingBox GetSectorBounds(ezVec2I32 vCoord, float fMinZ = 0.0f, float fMaxZ = 1.0f) const;
+  WVec2I32 CalculateSectorCoord(float fPositionX, float fPositionY) const;
+  WVec2 GetSectorPositionOffset(WVec2I32 vCoord) const;
+  WBoundingBox GetSectorBounds(WVec2I32 vCoord, float fMinZ = 0.0f, float fMaxZ = 1.0f) const;
   float GetSectorSize() const { return m_fSectorMetersXY; }
-  SectorID CalculateSectorID(ezVec2I32 vCoord) const { return vCoord.y * m_uiNumSectorsX + vCoord.x; }
-  ezVec2I32 CalculateSectorCoord(SectorID sectorID) const;
+  SectorID CalculateSectorID(WVec2I32 vCoord) const { return vCoord.y * m_uiNumSectorsX + vCoord.x; }
+  WVec2I32 CalculateSectorCoord(SectorID sectorID) const;
 
-  const ezAiNavMeshSector* GetSector(SectorID sectorID) const;
+  const WAiNavMeshSector* GetSector(SectorID sectorID) const;
 
   /// Marks the sector as requested.
   ///
@@ -94,7 +94,7 @@ public:
   /// Marks all sectors within the given rectangle as requested.
   ///
   /// Returns true, if all the sectors are already available, false when any of them needs to be built first.
-  bool RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
+  bool RequestSector(const WVec2& vCenter, const WVec2& vHalfExtents);
 
   /// Marks the sector as invalidated.
   ///
@@ -108,35 +108,35 @@ public:
   /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
   /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
   /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
-  void InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible);
+  void InvalidateSector(const WVec2& vCenter, const WVec2& vHalfExtents, bool bRebuildAsSoonAsPossible);
 
   void FinalizeSectorUpdates();
 
   SectorID RetrieveRequestedSector();
-  void BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleInterface* pGeo);
+  void BuildSector(SectorID sectorID, const WNavmeshGeoWorldModuleInterface* pGeo);
 
   const dtNavMesh* GetDetourNavMesh() const { return m_pNavMesh; }
 
-  void DebugDraw(ezDebugRendererContext context, const ezAiNavigationConfig& config);
+  void DebugDraw(WDebugRendererContext context, const WAiNavigationConfig& config);
 
-  const ezAiNavmeshConfig& GetConfig() const { return m_NavmeshConfig; }
+  const WAiNavmeshConfig& GetConfig() const { return m_NavmeshConfig; }
 
 private:
-  void DebugDrawSector(ezDebugRendererContext context, const ezAiNavigationConfig& config, int iTileIdx);
+  void DebugDrawSector(WDebugRendererContext context, const WAiNavigationConfig& config, int iTileIdx);
 
-  ezAiNavmeshConfig m_NavmeshConfig;
+  WAiNavmeshConfig m_NavmeshConfig;
 
-  ezUInt32 m_uiNumSectorsX = 0;
-  ezUInt32 m_uiNumSectorsY = 0;
+  WUInt32 m_uiNumSectorsX = 0;
+  WUInt32 m_uiNumSectorsY = 0;
   float m_fSectorMetersXY = 0;
   float m_fInvSectorMetersXY = 0;
 
   dtNavMesh* m_pNavMesh = nullptr;
-  ezMap<SectorID, ezAiNavMeshSector> m_Sectors;
-  ezDeque<SectorID> m_RequestedSectors;
+  WMap<SectorID, WAiNavMeshSector> m_Sectors;
+  WDeque<SectorID> m_RequestedSectors;
 
-  ezMutex m_Mutex;
-  ezDynamicArray<SectorID> m_UpdatingSectors;
+  WMutex m_Mutex;
+  WDynamicArray<SectorID> m_UpdatingSectors;
 
-  ezDynamicArray<SectorID> m_UnloadingSectors;
+  WDynamicArray<SectorID> m_UnloadingSectors;
 };

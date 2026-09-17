@@ -3,70 +3,70 @@
 #include <Core/Messages/SetColorMessage.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSetColorMode, 1)
-EZ_ENUM_CONSTANTS(ezSetColorMode::SetRGBA, ezSetColorMode::SetRGB, ezSetColorMode::SetAlpha, ezSetColorMode::AlphaBlend, ezSetColorMode::Additive, ezSetColorMode::Modulate)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSetColorMode, 1)
+W_ENUM_CONSTANTS(WSetColorMode::SetRGBA, WSetColorMode::SetRGB, WSetColorMode::SetAlpha, WSetColorMode::AlphaBlend, WSetColorMode::Additive, WSetColorMode::Modulate)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetColor);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSetColor>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSetColor);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSetColor, 1, WRTTIDefaultAllocator<WMsgSetColor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezSetColorMode, m_Mode)
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_ENUM_MEMBER_PROPERTY("Mode", WSetColorMode, m_Mode)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMsgSetColor::ModifyColor(ezColor& ref_color) const
+void WMsgSetColor::ModifyColor(WColor& ref_color) const
 {
   switch (m_Mode)
   {
-    case ezSetColorMode::SetRGB:
+    case WSetColorMode::SetRGB:
       ref_color.SetRGB(m_Color.r, m_Color.g, m_Color.b);
       break;
 
-    case ezSetColorMode::SetAlpha:
+    case WSetColorMode::SetAlpha:
       ref_color.a = m_Color.a;
       break;
 
-    case ezSetColorMode::AlphaBlend:
-      ref_color = ezMath::Lerp(ref_color, m_Color, m_Color.a);
+    case WSetColorMode::AlphaBlend:
+      ref_color = WMath::Lerp(ref_color, m_Color, m_Color.a);
       break;
 
-    case ezSetColorMode::Additive:
+    case WSetColorMode::Additive:
       ref_color += m_Color;
       break;
 
-    case ezSetColorMode::Modulate:
+    case WSetColorMode::Modulate:
       ref_color *= m_Color;
       break;
 
-    case ezSetColorMode::SetRGBA:
+    case WSetColorMode::SetRGBA:
     default:
       ref_color = m_Color;
       break;
   }
 }
 
-void ezMsgSetColor::ModifyColor(ezColorGammaUB& ref_color) const
+void WMsgSetColor::ModifyColor(WColorGammaUB& ref_color) const
 {
-  ezColor temp = ref_color;
+  WColor temp = ref_color;
   ModifyColor(temp);
   ref_color = temp;
 }
 
-void ezMsgSetColor::Serialize(ezStreamWriter& inout_stream) const
+void WMsgSetColor::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_Color;
   inout_stream << m_Mode;
 }
 
-void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
+void WMsgSetColor::Deserialize(WStreamReader& inout_stream, WUInt8 uiTypeVersion)
 {
-  EZ_IGNORE_UNUSED(uiTypeVersion);
+  W_IGNORE_UNUSED(uiTypeVersion);
 
   inout_stream >> m_Color;
   inout_stream >> m_Mode;
@@ -75,29 +75,29 @@ void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVers
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetCustomData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetCustomData, 1, ezRTTIDefaultAllocator<ezMsgSetCustomData>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSetCustomData);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSetCustomData, 1, WRTTIDefaultAllocator<WMsgSetCustomData>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Data", m_vData),
-    } EZ_END_PROPERTIES;
+      W_MEMBER_PROPERTY("Data", m_vData),
+    } W_END_PROPERTIES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMsgSetCustomData::Serialize(ezStreamWriter& inout_stream) const
+void WMsgSetCustomData::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_vData;
 }
 
-void ezMsgSetCustomData::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
+void WMsgSetCustomData::Deserialize(WStreamReader& inout_stream, WUInt8 uiTypeVersion)
 {
-  EZ_IGNORE_UNUSED(uiTypeVersion);
+  W_IGNORE_UNUSED(uiTypeVersion);
 
   inout_stream >> m_vData;
 }
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_SetColorMessage);
+W_STATICLINK_FILE(Core, Core_Messages_Implementation_SetColorMessage);

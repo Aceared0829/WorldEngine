@@ -5,7 +5,7 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-EZ_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, ezHasReallocate);
+W_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, WHasReallocate);
 
 #include <Foundation/Memory/Implementation/AllocatorMixin_inl.h>
 
@@ -13,14 +13,14 @@ EZ_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, ezHasReallocate);
 ///
 /// AllocationPolicy defines how the actual memory is allocated.\n
 /// TrackingFlags defines how stats about allocations are tracked.\n
-template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
-class ezAllocatorWithPolicy : public ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
-                                ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
+template <typename AllocationPolicy, WAllocatorTrackingMode TrackingMode = WAllocatorTrackingMode::Default>
+class WAllocatorWithPolicy : public WInternal::WAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
+                                WHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
 {
 public:
-  ezAllocatorWithPolicy(ezStringView sName, ezAllocator* pParent = nullptr)
-    : ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
-        ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>(sName, pParent)
+  WAllocatorWithPolicy(WStringView sName, WAllocator* pParent = nullptr)
+    : WInternal::WAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
+        WHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>(sName, pParent)
   {
   }
 };

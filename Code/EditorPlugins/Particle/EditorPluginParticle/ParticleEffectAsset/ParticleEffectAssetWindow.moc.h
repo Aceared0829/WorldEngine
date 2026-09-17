@@ -7,22 +7,22 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezParticleEffectAssetDocument;
+class WQtOrbitCamViewWidget;
+class WParticleEffectAssetDocument;
 class QComboBox;
 class QToolButton;
-class ezQtPropertyGridWidget;
+class WQtPropertyGridWidget;
 
 
-class ezQtParticleEffectAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtParticleEffectAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
-  ~ezQtParticleEffectAssetDocumentWindow();
+  WQtParticleEffectAssetDocumentWindow(WAssetDocument* pDocument);
+  ~WQtParticleEffectAssetDocumentWindow();
 
-  ezParticleEffectAssetDocument* GetParticleDocument();
+  WParticleEffectAssetDocument* GetParticleDocument();
 
 private Q_SLOTS:
   void onSystemSelected(int index);
@@ -37,29 +37,29 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void SendLiveResourcePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void ParticleEventHandler(const ezParticleEffectAssetEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void ParticleEventHandler(const WParticleEffectAssetEvent& e);
   void UpdateSystemList();
-  void SelectSystem(const ezDocumentObject* pObject);
-  ezStatus SetupSystem(ezStringView sName);
+  void SelectSystem(const WDocumentObject* pObject);
+  WStatus SetupSystem(WStringView sName);
 
-  ezParticleEffectAssetDocument* m_pAssetDoc;
+  WParticleEffectAssetDocument* m_pAssetDoc;
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
 
   QComboBox* m_pSystemsCombo = nullptr;
   QToolButton* m_pAddSystem = nullptr;
   QToolButton* m_pRemoveSystem = nullptr;
   QToolButton* m_pRenameSystem = nullptr;
-  ezQtPropertyGridWidget* m_pPropertyGridSystems = nullptr;
-  ezQtPropertyGridWidget* m_pPropertyGridEmitter = nullptr;
-  ezQtPropertyGridWidget* m_pPropertyGridInitializer = nullptr;
-  ezQtPropertyGridWidget* m_pPropertyGridBehavior = nullptr;
-  ezQtPropertyGridWidget* m_pPropertyGridType = nullptr;
+  WQtPropertyGridWidget* m_pPropertyGridSystems = nullptr;
+  WQtPropertyGridWidget* m_pPropertyGridEmitter = nullptr;
+  WQtPropertyGridWidget* m_pPropertyGridInitializer = nullptr;
+  WQtPropertyGridWidget* m_pPropertyGridBehavior = nullptr;
+  WQtPropertyGridWidget* m_pPropertyGridType = nullptr;
 
-  ezString m_sSelectedSystem;
-  ezMap<ezString, ezDocumentObject*> m_ParticleSystems;
+  WString m_sSelectedSystem;
+  WMap<WString, WDocumentObject*> m_ParticleSystems;
   bool m_bDoLiveResourceUpdate = true;
 };

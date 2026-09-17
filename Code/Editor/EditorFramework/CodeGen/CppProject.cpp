@@ -13,115 +13,115 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <Shlobj.h>
 #endif
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezIDE, 1)
-  EZ_ENUM_CONSTANT(ezIDE::DefaultProgram),
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  EZ_ENUM_CONSTANT(ezIDE::VisualStudio),
+W_BEGIN_STATIC_REFLECTED_ENUM(WIDE, 1)
+  W_ENUM_CONSTANT(WIDE::DefaultProgram),
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  W_ENUM_CONSTANT(WIDE::VisualStudio),
 #endif
-  EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
-  EZ_ENUM_CONSTANT(ezIDE::Rider),
-EZ_END_STATIC_REFLECTED_ENUM;
+  W_ENUM_CONSTANT(WIDE::VisualStudioCode),
+  W_ENUM_CONSTANT(WIDE::Rider),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCompiler, 1)
-  EZ_ENUM_CONSTANT(ezCompiler::Clang),
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ENUM_CONSTANT(ezCompiler::Gcc),
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  EZ_ENUM_CONSTANT(ezCompiler::Vs2022),
-  EZ_ENUM_CONSTANT(ezCompiler::Vs2026),
+W_BEGIN_STATIC_REFLECTED_ENUM(WCompiler, 1)
+  W_ENUM_CONSTANT(WCompiler::Clang),
+#if W_ENABLED(W_PLATFORM_LINUX)
+  W_ENUM_CONSTANT(WCompiler::Gcc),
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
+  W_ENUM_CONSTANT(WCompiler::Vs2022),
+  W_ENUM_CONSTANT(WCompiler::Vs2026),
 #endif
-EZ_END_STATIC_REFLECTED_ENUM;
+W_END_STATIC_REFLECTED_ENUM;
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 #define CPP_COMPILER_DEFAULT "g++"
 #define C_COMPILER_DEFAULT "gcc"
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
 #define CPP_COMPILER_DEFAULT ""
 #define C_COMPILER_DEFAULT ""
 #else
 #error Platform not implemented
 #endif
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCompilerPreferences, ezNoBase, 1, ezRTTIDefaultAllocator<ezCompilerPreferences>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WCompilerPreferences, WNoBase, 1, WRTTIDefaultAllocator<WCompilerPreferences>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Compiler", ezCompiler, m_Compiler)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("CustomCompiler", m_bCustomCompiler)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("CppCompiler", m_sCppCompiler)->AddAttributes(new ezDefaultValueAttribute(CPP_COMPILER_DEFAULT)),
-    EZ_MEMBER_PROPERTY("CCompiler", m_sCCompiler)->AddAttributes(new ezDefaultValueAttribute(C_COMPILER_DEFAULT)),
-    EZ_MEMBER_PROPERTY("RcCompiler", m_sRcCompiler),
+    W_ENUM_MEMBER_PROPERTY("Compiler", WCompiler, m_Compiler)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("CustomCompiler", m_bCustomCompiler)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("CppCompiler", m_sCppCompiler)->AddAttributes(new WDefaultValueAttribute(CPP_COMPILER_DEFAULT)),
+    W_MEMBER_PROPERTY("CCompiler", m_sCCompiler)->AddAttributes(new WDefaultValueAttribute(C_COMPILER_DEFAULT)),
+    W_MEMBER_PROPERTY("RcCompiler", m_sRcCompiler),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCodeEditorPreferences, ezNoBase, 1, ezRTTIDefaultAllocator<ezCodeEditorPreferences>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WCodeEditorPreferences, WNoBase, 1, WRTTIDefaultAllocator<WCodeEditorPreferences>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath)->AddAttributes(new ezExternalFileBrowserAttribute("Select Editor", "*.exe"_ezsv)),
-    EZ_MEMBER_PROPERTY("CodeEditorArgs", m_sEditorArgs)->AddAttributes(new ezDefaultValueAttribute("{file} {line}")),
-    EZ_MEMBER_PROPERTY("IsVisualStudio", m_bIsVisualStudio)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath)->AddAttributes(new WExternalFileBrowserAttribute("Select Editor", "*.exe"_wsv)),
+    W_MEMBER_PROPERTY("CodeEditorArgs", m_sEditorArgs)->AddAttributes(new WDefaultValueAttribute("{file} {line}")),
+    W_MEMBER_PROPERTY("IsVisualStudio", m_bIsVisualStudio)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCppProject, 1, ezRTTIDefaultAllocator<ezCppProject>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCppProject, 1, WRTTIDefaultAllocator<WCppProject>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("CppIDE", ezIDE, m_Ide),
-    EZ_MEMBER_PROPERTY("CompilerPreferences", m_CompilerPreferences),
-    EZ_MEMBER_PROPERTY("CodeEditorPreferences", m_CodeEditorPreferences),
+    W_ENUM_MEMBER_PROPERTY("CppIDE", WIDE, m_Ide),
+    W_MEMBER_PROPERTY("CompilerPreferences", m_CompilerPreferences),
+    W_MEMBER_PROPERTY("CodeEditorPreferences", m_CodeEditorPreferences),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezEvent<const ezCppSettings&> ezCppProject::s_ChangeEvents;
+WEvent<const WCppSettings&> WCppProject::s_ChangeEvents;
 
-ezDynamicArray<ezCppProject::MachineSpecificCompilerPaths> ezCppProject::s_MachineSpecificCompilers;
+WDynamicArray<WCppProject::MachineSpecificCompilerPaths> WCppProject::s_MachineSpecificCompilers;
 
 namespace
 {
-  static constexpr ezUInt32 minGccVersion = 10;
-  static constexpr ezUInt32 maxGccVersion = 20;
-  static constexpr ezUInt32 minClangVersion = 10;
-  static constexpr ezUInt32 maxClangVersion = 20;
+  static constexpr WUInt32 minGccVersion = 10;
+  static constexpr WUInt32 maxGccVersion = 20;
+  static constexpr WUInt32 minClangVersion = 10;
+  static constexpr WUInt32 maxClangVersion = 20;
 
-  ezResult TestCompilerExecutable(ezStringView sName, ezString* out_pVersion = nullptr)
+  WResult TestCompilerExecutable(WStringView sName, WString* out_pVersion = nullptr)
   {
-    ezStringBuilder sStdout;
-    ezProcessOptions po;
+    WStringBuilder sStdout;
+    WProcessOptions po;
     po.AddArgument("--version");
     po.m_sProcess = sName;
-    po.m_onStdOut = [&sStdout](ezStringView out)
+    po.m_onStdOut = [&sStdout](WStringView out)
     { sStdout.Append(out); };
 
-    if (ezProcess::Execute(po).Failed())
-      return EZ_FAILURE;
+    if (WProcess::Execute(po).Failed())
+      return W_FAILURE;
 
-    ezTempHybridArray<ezStringView, 8> lines;
+    WTempHybridArray<WStringView, 8> lines;
     sStdout.Split(false, lines, "\r", "\n");
     if (lines.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    ezTempHybridArray<ezStringView, 4> splitResult;
+    WTempHybridArray<WStringView, 4> splitResult;
     lines[0].Split(false, splitResult, " ");
 
     if (splitResult.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    ezStringView version;
+    WStringView version;
     do
     {
       version = splitResult.PeekBack();
@@ -135,7 +135,7 @@ namespace
     version.Split(false, splitResult, ".");
     if (splitResult.GetCount() < 3)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     if (out_pVersion)
@@ -143,42 +143,42 @@ namespace
       *out_pVersion = version;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  void AddCompilerVersions(ezDynamicArray<ezCppProject::MachineSpecificCompilerPaths>& inout_compilers, ezCompiler::Enum compiler, ezStringView sRequiredMajorVersion)
+  void AddCompilerVersions(WDynamicArray<WCppProject::MachineSpecificCompilerPaths>& inout_compilers, WCompiler::Enum compiler, WStringView sRequiredMajorVersion)
   {
-    ezStringView compilerBaseName;
-    ezStringView compilerBaseNameCpp;
+    WStringView compilerBaseName;
+    WStringView compilerBaseNameCpp;
     switch (compiler)
     {
-      case ezCompiler::Clang:
+      case WCompiler::Clang:
         compilerBaseName = "clang";
         compilerBaseNameCpp = "clang++";
         break;
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-      case ezCompiler::Gcc:
+#if W_ENABLED(W_PLATFORM_LINUX)
+      case WCompiler::Gcc:
         compilerBaseName = "gcc";
         compilerBaseNameCpp = "g++";
         break;
 #endif
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED
+        W_ASSERT_NOT_IMPLEMENTED
     }
 
 
-    ezString compilerVersion;
-    ezStringBuilder requiredVersion = sRequiredMajorVersion;
+    WString compilerVersion;
+    WStringBuilder requiredVersion = sRequiredMajorVersion;
     requiredVersion.Append('.');
-    ezStringBuilder fmt;
+    WStringBuilder fmt;
     if (TestCompilerExecutable(compilerBaseName, &compilerVersion).Succeeded() && TestCompilerExecutable(compilerBaseNameCpp).Succeeded() && compilerVersion.StartsWith(requiredVersion))
     {
       fmt.SetFormat("{} (system default = {})", compilerBaseName, compilerVersion);
       inout_compilers.PushBack({fmt.GetView(), compiler, compilerBaseName, compilerBaseNameCpp, false});
     }
 
-    ezStringBuilder compilerExecutable;
-    ezStringBuilder compilerExecutableCpp;
+    WStringBuilder compilerExecutable;
+    WStringBuilder compilerExecutableCpp;
     compilerExecutable.SetFormat("{}-{}", compilerBaseName, sRequiredMajorVersion);
     compilerExecutableCpp.SetFormat("{}-{}", compilerBaseNameCpp, sRequiredMajorVersion);
     if (TestCompilerExecutable(compilerExecutable, &compilerVersion).Succeeded() && TestCompilerExecutable(compilerExecutableCpp).Succeeded() && compilerVersion.StartsWith(requiredVersion))
@@ -189,95 +189,95 @@ namespace
   }
 } // namespace
 
-ezString ezCppProject::GetTargetSourceDir(ezStringView sProjectDirectory /*= {}*/)
+WString WCppProject::GetTargetSourceDir(WStringView sProjectDirectory /*= {}*/)
 {
-  ezStringBuilder sTargetDir = sProjectDirectory;
+  WStringBuilder sTargetDir = sProjectDirectory;
 
   if (sTargetDir.IsEmpty())
   {
-    sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sTargetDir = WToolsProject::GetSingleton()->GetProjectDirectory();
   }
 
   sTargetDir.AppendPath("CppSource");
   return sTargetDir;
 }
 
-ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
+WString WCppProject::GetGeneratorFolderName(const WCppSettings& cfg)
 {
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
   switch (preferences->m_CompilerPreferences.m_Compiler.GetValue())
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    case ezCompiler::Vs2022:
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    case WCompiler::Vs2022:
       return "Vs2022x64";
-    case ezCompiler::Vs2026:
+    case WCompiler::Vs2026:
       return "Vs2026x64";
 #endif
-    case ezCompiler::Clang:
+    case WCompiler::Clang:
       return "Clangx64";
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-    case ezCompiler::Gcc:
+#if W_ENABLED(W_PLATFORM_LINUX)
+    case WCompiler::Gcc:
       return "Gccx64";
 #endif
   }
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
+WString WCppProject::GetCMakeGeneratorName(const WCppSettings& cfg)
 {
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
   switch (preferences->m_CompilerPreferences.m_Compiler.GetValue())
   {
-    case ezCompiler::Vs2022:
+    case WCompiler::Vs2022:
       return "Visual Studio 17 2022";
-    case ezCompiler::Vs2026:
+    case WCompiler::Vs2026:
       return "Visual Studio 18 2026";
-    case ezCompiler::Clang:
+    case WCompiler::Clang:
       return "Ninja";
   }
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
   return "Ninja";
 #else
 #  error Platform not implemented
 #endif
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
-ezString ezCppProject::GetPluginSourceDir(const ezCppSettings& cfg, ezStringView sProjectDirectory /*= {}*/)
+WString WCppProject::GetPluginSourceDir(const WCppSettings& cfg, WStringView sProjectDirectory /*= {}*/)
 {
-  ezStringBuilder sDir = GetTargetSourceDir(sProjectDirectory);
+  WStringBuilder sDir = GetTargetSourceDir(sProjectDirectory);
   sDir.AppendPath(cfg.m_sPluginName);
   sDir.Append("Plugin");
   return sDir;
 }
 
-ezString ezCppProject::GetBuildDir(const ezCppSettings& cfg)
+WString WCppProject::GetBuildDir(const WCppSettings& cfg)
 {
-  ezStringBuilder sBuildDir;
+  WStringBuilder sBuildDir;
   sBuildDir.SetFormat("{}/Build/{}", GetTargetSourceDir(), GetGeneratorFolderName(cfg));
   return sBuildDir;
 }
 
-ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
+WString WCppProject::GetSolutionPath(const WCppSettings& cfg)
 {
-  ezStringBuilder sSolutionFile;
+  WStringBuilder sSolutionFile;
   sSolutionFile = GetBuildDir(cfg);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
-  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
+  if (preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2022)
   {
     sSolutionFile.AppendPath(cfg.m_sPluginName);
     sSolutionFile.Append(".sln");
     return sSolutionFile;
   }
-  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+  if (preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2026)
   {
     sSolutionFile.AppendPath(cfg.m_sPluginName);
     sSolutionFile.Append(".slnx");
@@ -289,92 +289,92 @@ ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
   return sSolutionFile;
 }
 
-ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
+WStatus WCppProject::OpenSolution(const WCppSettings& cfg)
 {
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
   switch (preferences->m_Ide.GetValue())
   {
-    case ezIDE::DefaultProgram:
+    case WIDE::DefaultProgram:
     {
-      if (ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)).Failed())
+      if (WQtUiServices::OpenFileInDefaultProgram(WCppProject::GetSolutionPath(cfg)).Failed())
       {
-        return ezStatus("Failed to open solution with default program.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+        return WStatus("Failed to open solution with default program.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    case ezIDE::VisualStudio:
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    case WIDE::VisualStudio:
     {
-      if (ezQtUiServices::OpenInVisualStudio(ezCppProject::GetSolutionPath(cfg)).Failed())
+      if (WQtUiServices::OpenInVisualStudio(WCppProject::GetSolutionPath(cfg)).Failed())
       {
-        return ezStatus("Failed to open solution with Visual Studio.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+        return WStatus("Failed to open solution with Visual Studio.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
 #endif
 
-    case ezIDE::Rider:
+    case WIDE::Rider:
     {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      auto solutionPath = ezCppProject::GetSolutionPath(cfg);
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+      auto solutionPath = WCppProject::GetSolutionPath(cfg);
 #else
-      auto solutionPath = ezCppProject::GetTargetSourceDir();
+      auto solutionPath = WCppProject::GetTargetSourceDir();
 #endif
 
-      if (ezQtUiServices::OpenInRider(solutionPath).Failed())
+      if (WQtUiServices::OpenInRider(solutionPath).Failed())
       {
-        return ezStatus("Failed to open solution with Rider.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+        return WStatus("Failed to open solution with Rider.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
 
-    case ezIDE::VisualStudioCode:
+    case WIDE::VisualStudioCode:
     {
-      auto solutionPath = ezCppProject::GetTargetSourceDir();
+      auto solutionPath = WCppProject::GetTargetSourceDir();
       QStringList args;
       args.push_back(QString::fromUtf8(solutionPath.GetData(), solutionPath.GetElementCount()));
-      if (ezStatus status = ezQtUiServices::OpenInVsCode(args); status.Failed())
+      if (WStatus status = WQtUiServices::OpenInVsCode(args); status.Failed())
       {
-        return ezStatus(ezFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.GetMessageString()));
+        return WStatus(WFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.GetMessageString()));
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
 
-  return ezStatus("Failed to open solution: Unknown error");
+  return WStatus("Failed to open solution: Unknown error");
 }
 
-ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 iLineNumber)
+WStatus WCppProject::OpenInCodeEditor(const WStringView& sFileName, WInt32 iLineNumber)
 {
-  if (!ezOSFile::ExistsFile(sFileName))
+  if (!WOSFile::ExistsFile(sFileName))
   {
-    return ezStatus("Failed finding filename");
+    return WStatus("Failed finding filename");
   }
 
-  ezStringBuilder sLineNumber;
-  ezConversionUtils::ToString(iLineNumber, sLineNumber);
+  WStringBuilder sLineNumber;
+  WConversionUtils::ToString(iLineNumber, sLineNumber);
 
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
   // Visual Studio does not expose a CLI command to open a file/line in all use-cases directly
   // therefore run a custom .vbs script which controls VS and performs the needed actions for us. This avoids pulling COM interfacing into the project.
   if (preferences->m_CodeEditorPreferences.m_bIsVisualStudio)
   {
-    ezStringBuilder dir;
-    if (ezFileSystem::ResolveSpecialDirectory(">sdk/Utilities/Scripts/open-in-msvs.vbs", dir).Failed())
+    WStringBuilder dir;
+    if (WFileSystem::ResolveSpecialDirectory(">sdk/Utilities/Scripts/open-in-msvs.vbs", dir).Failed())
     {
-      return ezStatus("Failed resolving path to \">sdk/Utilities/Scripts/open-in-msvs.vbs\"");
+      return WStatus("Failed resolving path to \">sdk/Utilities/Scripts/open-in-msvs.vbs\"");
     }
 
-    if (!ezOSFile::ExistsFile(dir))
+    if (!WOSFile::ExistsFile(dir))
     {
-      return ezStatus(ezFmt("File does not exist '{0}'", dir));
+      return WStatus(WFmt("File does not exist '{0}'", dir));
     }
 
     QStringList args;
@@ -386,17 +386,17 @@ ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 i
     QProcess proc;
     if (proc.startDetached("cscript", args) == false)
     {
-      return ezStatus("Failed to launch code editor");
+      return WStatus("Failed to launch code editor");
     }
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
 
-  ezStringBuilder sFormatString = preferences->m_CodeEditorPreferences.m_sEditorArgs;
+  WStringBuilder sFormatString = preferences->m_CodeEditorPreferences.m_sEditorArgs;
   if (sFormatString.IsEmpty())
   {
-    return ezStatus("Code editor is not configured");
+    return WStatus("Code editor is not configured");
   }
 
   sFormatString.ReplaceAll("{line}", sLineNumber);
@@ -408,207 +408,207 @@ ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 i
   QProcess proc;
   if (proc.startDetached(sProgramPath, args) == false)
   {
-    return ezStatus("Failed to launch code editor");
+    return WStatus("Failed to launch code editor");
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStringView ezCppProject::CompilerToString(ezCompiler::Enum compiler)
+WStringView WCppProject::CompilerToString(WCompiler::Enum compiler)
 {
   switch (compiler)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    case ezCompiler::Vs2022:
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    case WCompiler::Vs2022:
       return "Vs2022";
-    case ezCompiler::Vs2026:
+    case WCompiler::Vs2026:
       return "Vs2026";
 #endif
-    case ezCompiler::Clang:
+    case WCompiler::Clang:
       return "Clang";
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-    case ezCompiler::Gcc:
+#if W_ENABLED(W_PLATFORM_LINUX)
+    case WCompiler::Gcc:
       return "Gcc";
 #endif
     default:
       break;
   }
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return "<not implemented>";
 }
 
-ezCompiler::Enum ezCppProject::GetSdkCompiler()
+WCompiler::Enum WCppProject::GetSdkCompiler()
 {
-#if EZ_ENABLED(EZ_COMPILER_CLANG)
-  return ezCompiler::Clang;
-#elif EZ_ENABLED(EZ_COMPILER_GCC)
-  return ezCompiler::Gcc;
-#elif EZ_ENABLED(EZ_COMPILER_MSVC)
+#if W_ENABLED(W_COMPILER_CLANG)
+  return WCompiler::Clang;
+#elif W_ENABLED(W_COMPILER_GCC)
+  return WCompiler::Gcc;
+#elif W_ENABLED(W_COMPILER_MSVC)
 #  if _MSC_VER >= 1950
-  return ezCompiler::Vs2026;
+  return WCompiler::Vs2026;
 #  else
-  return ezCompiler::Vs2022;
+  return WCompiler::Vs2022;
 #  endif
 #else
 #  error Unknown compiler
 #endif
 }
 
-ezString ezCppProject::GetSdkCompilerMajorVersion()
+WString WCppProject::GetSdkCompilerMajorVersion()
 {
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
-  ezStringBuilder fmt;
+#if W_ENABLED(W_COMPILER_MSVC)
+  WStringBuilder fmt;
   fmt.SetFormat("{}.{}", _MSC_VER / 100, _MSC_VER % 100);
   return fmt;
-#elif EZ_ENABLED(EZ_COMPILER_CLANG)
-  return EZ_PP_STRINGIFY(__clang_major__);
-#elif EZ_ENABLED(EZ_COMPILER_GCC)
-  return EZ_PP_STRINGIFY(__GNUC__);
+#elif W_ENABLED(W_COMPILER_CLANG)
+  return W_PP_STRINGIFY(__clang_major__);
+#elif W_ENABLED(W_COMPILER_GCC)
+  return W_PP_STRINGIFY(__GNUC__);
 #else
 #  error Unsupported compiler
 #endif
 }
 
-ezStatus ezCppProject::TestCompiler()
+WStatus WCppProject::TestCompiler()
 {
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
   if (preferences->m_CompilerPreferences.m_Compiler != GetSdkCompiler())
   {
-    return ezStatus(ezFmt("The currently configured compiler is incompatible with this SDK. The SDK was built with '{}' but the currently configured compiler is '{}'.",
+    return WStatus(WFmt("The currently configured compiler is incompatible with this SDK. The SDK was built with '{}' but the currently configured compiler is '{}'.",
       CompilerToString(GetSdkCompiler()),
       CompilerToString(preferences->m_CompilerPreferences.m_Compiler)));
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   // As CMake is selecting the compiler it is hard to do a version check, for now just assume they are compatible.
-  if (GetSdkCompiler() == ezCompiler::Vs2022 || GetSdkCompiler() == ezCompiler::Vs2026)
+  if (GetSdkCompiler() == WCompiler::Vs2022 || GetSdkCompiler() == WCompiler::Vs2026)
   {
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
-  if (GetSdkCompiler() == ezCompiler::Clang)
+  if (GetSdkCompiler() == WCompiler::Clang)
   {
-    if (!ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler))
+    if (!WOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler))
     {
-      return ezStatus(ezFmt("The selected RC compiler '{}' does not exist on disk.", preferences->m_CompilerPreferences.m_sRcCompiler));
+      return WStatus(WFmt("The selected RC compiler '{}' does not exist on disk.", preferences->m_CompilerPreferences.m_sRcCompiler));
     }
   }
 #endif
 
-  ezString cCompilerVersion, cppCompilerVersion;
+  WString cCompilerVersion, cppCompilerVersion;
   if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_sCCompiler, &cCompilerVersion).Failed())
   {
-    return ezStatus("The selected C Compiler doesn't work or doesn't exist.");
+    return WStatus("The selected C Compiler doesn't work or doesn't exist.");
   }
   if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_sCppCompiler, &cppCompilerVersion).Failed())
   {
-    return ezStatus("The selected C++ Compiler doesn't work or doesn't exist.");
+    return WStatus("The selected C++ Compiler doesn't work or doesn't exist.");
   }
 
-  ezStringBuilder sdkCompilerMajorVersion = GetSdkCompilerMajorVersion();
+  WStringBuilder sdkCompilerMajorVersion = GetSdkCompilerMajorVersion();
   sdkCompilerMajorVersion.Append('.');
   if (!cCompilerVersion.StartsWith(sdkCompilerMajorVersion))
   {
-    return ezStatus(ezFmt("The selected C Compiler has an incompatible version. The SDK was built with version {} but the compiler has version {}.", GetSdkCompilerMajorVersion(), cCompilerVersion));
+    return WStatus(WFmt("The selected C Compiler has an incompatible version. The SDK was built with version {} but the compiler has version {}.", GetSdkCompilerMajorVersion(), cCompilerVersion));
   }
   if (!cppCompilerVersion.StartsWith(sdkCompilerMajorVersion))
   {
-    return ezStatus(ezFmt("The selected C++ Compiler has an incompatible version. The SDK was built with version {} but the compiler has version {}.", GetSdkCompilerMajorVersion(), cppCompilerVersion));
+    return WStatus(WFmt("The selected C++ Compiler has an incompatible version. The SDK was built with version {} but the compiler has version {}.", GetSdkCompilerMajorVersion(), cppCompilerVersion));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-const char* ezCppProject::GetCMakePath()
+const char* WCppProject::GetCMakePath()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   return "cmake/bin/cmake";
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
   return "cmake";
 #else
 #  error Platform not implemented
 #endif
 }
 
-ezResult ezCppProject::CheckCMakeCache(const ezCppSettings& cfg)
+WResult WCppProject::CheckCMakeCache(const WCppSettings& cfg)
 {
-  ezStringBuilder sCacheFile;
+  WStringBuilder sCacheFile;
   sCacheFile = GetBuildDir(cfg);
   sCacheFile.AppendPath("CMakeCache.txt");
 
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sCacheFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sCacheFile));
 
-  ezStringBuilder content;
+  WStringBuilder content;
   content.ReadAll(file);
 
-  const ezStringView sSearchFor = "CMAKE_CONFIGURATION_TYPES:STRING="_ezsv;
+  const WStringView sSearchFor = "CMAKE_CONFIGURATION_TYPES:STRING="_wsv;
 
   const char* pConfig = content.FindSubString(sSearchFor);
   if (pConfig == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   pConfig += sSearchFor.GetElementCount();
 
   const char* pEndConfig = content.FindSubString("\n", pConfig);
   if (pEndConfig == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezStringBuilder sUsedCfg;
+  WStringBuilder sUsedCfg;
   sUsedCfg.SetSubString_FromTo(pConfig, pEndConfig);
   sUsedCfg.Trim("\t\n\r ");
 
   if (sUsedCfg != BUILDSYSTEM_BUILDTYPE)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezCppProject::ModifyResult ezCppProject::CheckCMakeUserPresets(const ezCppSettings& cfg, bool bWriteResult)
+WCppProject::ModifyResult WCppProject::CheckCMakeUserPresets(const WCppSettings& cfg, bool bWriteResult)
 {
-  ezStringBuilder configureJsonPath = ezCppProject::GetPluginSourceDir(cfg).GetFileDirectory();
+  WStringBuilder configureJsonPath = WCppProject::GetPluginSourceDir(cfg).GetFileDirectory();
   configureJsonPath.AppendPath("CMakeUserPresets.json");
 
-  if (ezOSFile::ExistsFile(configureJsonPath))
+  if (WOSFile::ExistsFile(configureJsonPath))
   {
-    ezFileReader fileReader;
+    WFileReader fileReader;
     if (fileReader.Open(configureJsonPath).Failed())
     {
-      ezLog::Error("Failed to open '{}' for reading", configureJsonPath);
+      WLog::Error("Failed to open '{}' for reading", configureJsonPath);
       return ModifyResult::FAILURE;
     }
-    ezJSONReader reader;
+    WJSONReader reader;
     if (reader.Parse(fileReader).Failed())
     {
-      ezLog::Error("Failed to parse JSON of '{}'", configureJsonPath);
+      WLog::Error("Failed to parse JSON of '{}'", configureJsonPath);
       return ModifyResult::FAILURE;
     }
     fileReader.Close();
 
-    if (reader.GetTopLevelElementType() != ezJSONReader::ElementType::Dictionary)
+    if (reader.GetTopLevelElementType() != WJSONReader::ElementType::Dictionary)
     {
-      ezLog::Error("Top level element of '{}' is expected to be a dictionary. Please manually fix, rename or delete the file.", configureJsonPath);
+      WLog::Error("Top level element of '{}' is expected to be a dictionary. Please manually fix, rename or delete the file.", configureJsonPath);
       return ModifyResult::FAILURE;
     }
 
-    ezVariantDictionary json = reader.GetTopLevelObject();
+    WVariantDictionary json = reader.GetTopLevelObject();
     auto modifyResult = ModifyCMakeUserPresetsJson(cfg, json);
     if (modifyResult == ModifyResult::FAILURE)
     {
-      ezLog::Error("Failed to modify '{}' in place. Please manually fix, rename or delete the file.", configureJsonPath);
+      WLog::Error("Failed to modify '{}' in place. Please manually fix, rename or delete the file.", configureJsonPath);
       return ModifyResult::FAILURE;
     }
 
     if (bWriteResult && modifyResult == ModifyResult::MODIFIED)
     {
-      ezStandardJSONWriter jsonWriter;
-      ezDeferredFileWriter fileWriter;
+      WStandardJSONWriter jsonWriter;
+      WDeferredFileWriter fileWriter;
       fileWriter.SetOutput(configureJsonPath);
       jsonWriter.SetOutputStream(&fileWriter);
 
-      jsonWriter.WriteVariant(ezVariant(json));
+      jsonWriter.WriteVariant(WVariant(json));
       if (fileWriter.Close().Failed())
       {
-        ezLog::Error("Failed to write CMakeUserPresets.json to '{}'", configureJsonPath);
+        WLog::Error("Failed to write CMakeUserPresets.json to '{}'", configureJsonPath);
         return ModifyResult::FAILURE;
       }
     }
@@ -619,15 +619,15 @@ ezCppProject::ModifyResult ezCppProject::CheckCMakeUserPresets(const ezCppSettin
   {
     if (bWriteResult)
     {
-      ezStandardJSONWriter jsonWriter;
-      ezDeferredFileWriter fileWriter;
+      WStandardJSONWriter jsonWriter;
+      WDeferredFileWriter fileWriter;
       fileWriter.SetOutput(configureJsonPath);
       jsonWriter.SetOutputStream(&fileWriter);
 
-      jsonWriter.WriteVariant(ezVariant(CreateEmptyCMakeUserPresetsJson(cfg)));
+      jsonWriter.WriteVariant(WVariant(CreateEmptyCMakeUserPresetsJson(cfg)));
       if (fileWriter.Close().Failed())
       {
-        ezLog::Error("Failed to write CMakeUserPresets.json to '{}'", configureJsonPath);
+        WLog::Error("Failed to write CMakeUserPresets.json to '{}'", configureJsonPath);
         return ModifyResult::FAILURE;
       }
     }
@@ -636,54 +636,54 @@ ezCppProject::ModifyResult ezCppProject::CheckCMakeUserPresets(const ezCppSettin
   return ModifyResult::MODIFIED;
 }
 
-bool ezCppProject::ExistsSolution(const ezCppSettings& cfg)
+bool WCppProject::ExistsSolution(const WCppSettings& cfg)
 {
-  return ezOSFile::ExistsFile(GetSolutionPath(cfg));
+  return WOSFile::ExistsFile(GetSolutionPath(cfg));
 }
 
-bool ezCppProject::ExistsProjectCMakeListsTxt()
+bool WCppProject::ExistsProjectCMakeListsTxt()
 {
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
     return false;
 
-  ezStringBuilder sPath = GetTargetSourceDir();
+  WStringBuilder sPath = GetTargetSourceDir();
   sPath.AppendPath("CMakeLists.txt");
-  return ezOSFile::ExistsFile(sPath);
+  return WOSFile::ExistsFile(sPath);
 }
 
-bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
+bool WCppProject::ShouldOverwriteExisting(WStringView sSrc, WStringView sDst)
 {
-  const ezStringView sFilename = sDst.GetFileNameAndExtension();
+  const WStringView sFilename = sDst.GetFileNameAndExtension();
 
   // only check certain files
-  // they use a "#ez-version" tag to identify when a file got modified in such a way
+  // they use a "#W-version" tag to identify when a file got modified in such a way
   // that existing files should be overwritten
   if (sFilename != "CMakeLists.txt" && sFilename != ".clang-format" && sFilename != ".editorconfig" && sFilename != ".gitattributes" && sFilename != ".gitignore")
   {
     return false;
   }
 
-  ezOSFile srcFile;
-  if (srcFile.Open(sSrc, ezFileOpenMode::Read).Failed())
+  WOSFile srcFile;
+  if (srcFile.Open(sSrc, WFileOpenMode::Read).Failed())
     return false;
 
-  ezOSFile dstFile;
-  if (dstFile.Open(sDst, ezFileOpenMode::Read).Failed())
+  WOSFile dstFile;
+  if (dstFile.Open(sDst, WFileOpenMode::Read).Failed())
     return true;
 
-  ezDataBuffer sc, dc;
+  WDataBuffer sc, dc;
   srcFile.ReadAll(sc);
   dstFile.ReadAll(dc);
 
   if (sc == dc)
     return false;
 
-  ezStringView srcContent = ezStringView((const char*)sc.GetData(), sc.GetCount());
-  ezStringView dstContent = ezStringView((const char*)dc.GetData(), dc.GetCount());
+  WStringView srcContent = WStringView((const char*)sc.GetData(), sc.GetCount());
+  WStringView dstContent = WStringView((const char*)dc.GetData(), dc.GetCount());
 
-  ezStringView sVersionSrc, sVersionDst;
+  WStringView sVersionSrc, sVersionDst;
 
-  if (const char* vSrc = srcContent.FindSubString("#ez-version"))
+  if (const char* vSrc = srcContent.FindSubString("#W-version"))
   {
     const char* srcEnd = srcContent.FindSubString("\n", vSrc);
 
@@ -692,11 +692,11 @@ bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
       srcEnd = srcContent.GetEndPointer();
     }
 
-    sVersionSrc = ezStringView(vSrc + 8, srcEnd);
+    sVersionSrc = WStringView(vSrc + 8, srcEnd);
     sVersionSrc.Trim();
   }
 
-  if (const char* vDst = dstContent.FindSubString("#ez-version"))
+  if (const char* vDst = dstContent.FindSubString("#W-version"))
   {
     const char* dstEnd = dstContent.FindSubString("\n", vDst);
 
@@ -705,7 +705,7 @@ bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
       dstEnd = dstContent.GetEndPointer();
     }
 
-    sVersionDst = ezStringView(vDst + 8, dstEnd);
+    sVersionDst = WStringView(vDst + 8, dstEnd);
     sVersionDst.Trim();
   }
 
@@ -716,31 +716,31 @@ bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
   return true;
 }
 
-ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUInt32* pNumFilesCopied /*= nullptr*/)
+WResult WCppProject::PopulateWithDefaultSources(const WCppSettings& cfg, WUInt32* pNumFilesCopied /*= nullptr*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+  W_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
-  const ezString sProjectName = cfg.m_sPluginName;
+  const WString sProjectName = cfg.m_sPluginName;
 
-  ezStringBuilder sProjectNameUpper = cfg.m_sPluginName;
+  WStringBuilder sProjectNameUpper = cfg.m_sPluginName;
   sProjectNameUpper.ToUpper();
 
-  const ezStringBuilder sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  const WStringBuilder sTargetDir = WToolsProject::GetSingleton()->GetProjectDirectory();
 
-  ezStringBuilder sSourceDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  WStringBuilder sSourceDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSourceDir.AppendPath("CppProject");
 
-  ezDynamicArray<ezFileStats> items;
-  ezOSFile::GatherAllItemsInFolder(items, sSourceDir, ezFileSystemIteratorFlags::ReportFilesRecursive);
+  WDynamicArray<WFileStats> items;
+  WOSFile::GatherAllItemsInFolder(items, sSourceDir, WFileSystemIteratorFlags::ReportFilesRecursive);
 
   struct FileToCopy
   {
-    ezString m_sSource;
-    ezString m_sDestination;
+    WString m_sSource;
+    WString m_sDestination;
   };
 
-  ezTempHybridArray<FileToCopy, 32> filesCopied;
+  WTempHybridArray<FileToCopy, 32> filesCopied;
 
   // gather files
   {
@@ -748,7 +748,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
 
     for (const auto& item : items)
     {
-      ezStringBuilder srcPath, dstPath;
+      WStringBuilder srcPath, dstPath;
       item.GetFullPath(srcPath);
 
       dstPath = srcPath;
@@ -759,7 +759,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
       dstPath.MakeCleanPath();
 
       // don't copy files over that already exist (and may have edits)
-      if (ezOSFile::ExistsFile(dstPath))
+      if (WOSFile::ExistsFile(dstPath))
       {
         // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
         if (!bCheckOverwrite)
@@ -796,10 +796,10 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
   {
     for (const auto& ftc : filesCopied)
     {
-      if (ezOSFile::CopyFile(ftc.m_sSource, ftc.m_sDestination).Failed())
+      if (WOSFile::CopyFile(ftc.m_sSource, ftc.m_sDestination).Failed())
       {
-        ezLog::Error("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
-        return EZ_FAILURE;
+        WLog::Error("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
+        return W_FAILURE;
       }
     }
   }
@@ -808,14 +808,14 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
   {
     for (const auto& filePath : filesCopied)
     {
-      ezStringBuilder content;
+      WStringBuilder content;
 
       {
-        ezFileReader file;
+        WFileReader file;
         if (file.Open(filePath.m_sDestination).Failed())
         {
-          ezLog::Error("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
-          return EZ_FAILURE;
+          WLog::Error("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
+          return W_FAILURE;
         }
 
         content.ReadAll(file);
@@ -825,11 +825,11 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
       content.ReplaceAll("CPPPROJECT", sProjectNameUpper);
 
       {
-        ezFileWriter file;
+        WFileWriter file;
         if (file.Open(filePath.m_sDestination).Failed())
         {
-          ezLog::Error("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
-          return EZ_FAILURE;
+          WLog::Error("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
+          return W_FAILURE;
         }
 
         file.WriteBytes(content.GetData(), content.GetElementCount()).IgnoreResult();
@@ -837,152 +837,152 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+  W_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
 
   s_ChangeEvents.Broadcast(cfg);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCppProject::CleanBuildDir(const ezCppSettings& cfg)
+WResult WCppProject::CleanBuildDir(const WCppSettings& cfg)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+  W_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
-  const ezString sBuildDir = GetBuildDir(cfg);
+  const WString sBuildDir = GetBuildDir(cfg);
 
-  if (!ezOSFile::ExistsDirectory(sBuildDir))
-    return EZ_SUCCESS;
+  if (!WOSFile::ExistsDirectory(sBuildDir))
+    return W_SUCCESS;
 
-  return ezOSFile::DeleteFolder(sBuildDir);
+  return WOSFile::DeleteFolder(sBuildDir);
 }
 
-ezStatus ezCppProject::CheckBuildPathLength(const ezCppSettings& cfg)
+WStatus WCppProject::CheckBuildPathLength(const WCppSettings& cfg)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   // Longest relative path observed below the build directory, e.g.
   // "CMakeFiles/<version>/VCTargetsPath.tlog/ParallelCustomBuild.read.1.tlog". Targets nested deeper than
   // that exist, so this is rounded up rather than taken as an exact bound. MSBuild writes these paths
-  // through .NET APIs that enforce MAX_PATH, which is why ezOSFile's long path support does not help.
-  constexpr ezUInt32 uiReservedForGeneratedFiles = 100;
-  constexpr ezUInt32 uiMaxPath = 260;
+  // through .NET APIs that enforce MAX_PATH, which is why WOSFile's long path support does not help.
+  constexpr WUInt32 uiReservedForGeneratedFiles = 100;
+  constexpr WUInt32 uiMaxPath = 260;
 
-  const ezStringBuilder sBuildDir = GetBuildDir(cfg);
-  const ezUInt32 uiBuildDirLength = sBuildDir.GetElementCount();
+  const WStringBuilder sBuildDir = GetBuildDir(cfg);
+  const WUInt32 uiBuildDirLength = sBuildDir.GetElementCount();
 
   if (uiBuildDirLength + uiReservedForGeneratedFiles <= uiMaxPath)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
-  return ezStatus(ezFmt("The C++ build directory is too long for this system:\n\n{}\n\nIt uses {} of the {} characters Windows allows, leaving too little room for the files the build system creates below it. Move the project to a shorter directory.", sBuildDir, uiBuildDirLength, uiMaxPath));
+  return WStatus(WFmt("The C++ build directory is too long for this system:\n\n{}\n\nIt uses {} of the {} characters Windows allows, leaving too little room for the files the build system creates below it. Move the project to a shorter directory.", sBuildDir, uiBuildDirLength, uiMaxPath));
 #else
-  EZ_IGNORE_UNUSED(cfg);
-  return ezStatus(EZ_SUCCESS);
+  W_IGNORE_UNUSED(cfg);
+  return WStatus(W_SUCCESS);
 #endif
 }
 
-ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
+WResult WCppProject::RunCMake(const WCppSettings& cfg)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+  W_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
   if (!ExistsProjectCMakeListsTxt())
   {
-    ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
-    return EZ_FAILURE;
+    WLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
+    return W_FAILURE;
   }
 
   if (auto pathLength = CheckBuildPathLength(cfg); pathLength.Failed())
   {
     pathLength.LogFailure();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+  W_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
 
   if (auto compilerWorking = TestCompiler(); compilerWorking.Failed())
   {
     compilerWorking.LogFailure();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (CheckCMakeUserPresets(cfg, true) == ModifyResult::FAILURE)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   QStringList args;
   args << "--preset";
-  args << "ezEngine";
+  args << "WorldEngine";
 
-  ezLogSystemToBuffer log;
+  WLogSystemToBuffer log;
 
 
-  const ezString sTargetSourceDir = ezCppProject::GetTargetSourceDir();
+  const WString sTargetSourceDir = WCppProject::GetTargetSourceDir();
 
-  ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool(GetCMakePath(), args, 120, &log, ezLogMsgType::InfoMsg, sTargetSourceDir);
+  WStatus res = WQtEditorApp::GetSingleton()->ExecuteTool(GetCMakePath(), args, 120, &log, WLogMsgType::InfoMsg, sTargetSourceDir);
 
   if (res.Failed())
   {
-    ezLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.GetMessageString());
-    return EZ_FAILURE;
+    WLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.GetMessageString());
+    return W_FAILURE;
   }
 
   if (!ExistsSolution(cfg))
   {
-    ezLog::Error("CMake did not generate the expected output. Did you attempt to rename it? If so, you may need to delete the top-level CMakeLists.txt file and set up the C++ project again.");
-    return EZ_FAILURE;
+    WLog::Error("CMake did not generate the expected output. Did you attempt to rename it? If so, you may need to delete the top-level CMakeLists.txt file and set up the C++ project again.");
+    return W_FAILURE;
   }
 
-  ezLog::Success("CMake generation successful.\n\n{}\n", log.m_sBuffer);
+  WLog::Success("CMake generation successful.\n\n{}\n", log.m_sBuffer);
   s_ChangeEvents.Broadcast(cfg);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
+WResult WCppProject::RunCMakeIfNecessary(const WCppSettings& cfg)
 {
-  if (!ezCppProject::ExistsProjectCMakeListsTxt())
-    return EZ_SUCCESS;
+  if (!WCppProject::ExistsProjectCMakeListsTxt())
+    return W_SUCCESS;
 
   auto userPresetResult = CheckCMakeUserPresets(cfg, false);
   if (userPresetResult == ModifyResult::FAILURE)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg).Succeeded() && userPresetResult == ModifyResult::NOT_MODIFIED)
-    return EZ_SUCCESS;
+  if (WCppProject::ExistsSolution(cfg) && WCppProject::CheckCMakeCache(cfg).Succeeded() && userPresetResult == ModifyResult::NOT_MODIFIED)
+    return W_SUCCESS;
 
-  return ezCppProject::RunCMake(cfg);
+  return WCppProject::RunCMake(cfg);
 }
 
-ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
+WResult WCppProject::CompileSolution(const WCppSettings& cfg)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+  W_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
-  EZ_LOG_BLOCK("Compile C++ Plugin");
+  W_LOG_BLOCK("Compile C++ Plugin");
 
-  ezTempHybridArray<ezString, 32> errors;
-  ezInt32 iReturnCode = 0;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  if (ezSystemInformation::IsDebuggerAttached())
+  WTempHybridArray<WString, 32> errors;
+  WInt32 iReturnCode = 0;
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  if (WSystemInformation::IsDebuggerAttached())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, MSBuild usually fails to compile the project.\n\nDetach the debugger now, then press OK to continue.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, MSBuild usually fails to compile the project.\n\nDetach the debugger now, then press OK to continue.");
   }
 #endif
 
-  ezProcessOptions po;
+  WProcessOptions po;
 
-  ezString cmakePath = ezQtEditorApp::GetSingleton()->FindToolApplication(ezCppProject::GetCMakePath());
+  WString cmakePath = WQtEditorApp::GetSingleton()->FindToolApplication(WCppProject::GetCMakePath());
 
   po.m_sProcess = cmakePath;
   po.AddArgument("--build");
   po.AddArgument(GetBuildDir(cfg));
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
-  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+  if (preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2026)
   {
     po.AddArgument("--config");
     po.AddArgument(BUILDSYSTEM_BUILDTYPE);
@@ -990,62 +990,62 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #endif
   po.m_sWorkingDirectory = GetBuildDir(cfg);
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView sText)
+  po.m_onStdOut = [&](WStringView sText)
   {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
-  po.m_onStdError = [&](ezStringView sText)
+  po.m_onStdError = [&](WStringView sText)
   {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
 
-  ezStringBuilder sCMakeBuildCmd;
+  WStringBuilder sCMakeBuildCmd;
   po.BuildCommandLineString(sCMakeBuildCmd);
-  ezLog::Dev("Running {} {}", cmakePath, sCMakeBuildCmd);
-  if (ezProcess::Execute(po, &iReturnCode).Failed())
+  WLog::Dev("Running {} {}", cmakePath, sCMakeBuildCmd);
+  if (WProcess::Execute(po, &iReturnCode).Failed())
   {
-    ezLog::Error("Failed to start CMake.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to start CMake.");
+    return W_FAILURE;
   }
 
   if (iReturnCode == 0)
   {
-    ezLog::Success("Compiled C++ code.");
-    return EZ_SUCCESS;
+    WLog::Success("Compiled C++ code.");
+    return W_SUCCESS;
   }
 
-  ezLog::Error("CMake --build failed with return code {}", iReturnCode);
+  WLog::Error("CMake --build failed with return code {}", iReturnCode);
 
   for (const auto& err : errors)
   {
-    ezLog::Error(err);
+    WLog::Error(err);
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
+WResult WCppProject::BuildCodeIfNecessary(const WCppSettings& cfg)
 {
-  if (!ezCppProject::ExistsProjectCMakeListsTxt())
-    return EZ_SUCCESS;
+  if (!WCppProject::ExistsProjectCMakeListsTxt())
+    return W_SUCCESS;
 
   // Also re-runs CMake when the generated CMakeUserPresets.json no longer matches the current
   // configuration - a missing solution and a stale cache are not the only reasons to regenerate, e.g.
   // the SDK's output directories change when the editor is started from a different build.
-  EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMakeIfNecessary(cfg));
+  W_SUCCEED_OR_RETURN(WCppProject::RunCMakeIfNecessary(cfg));
 
   return CompileSolution(cfg);
 }
 
-ezVariantDictionary ezCppProject::CreateEmptyCMakeUserPresetsJson(const ezCppSettings& cfg)
+WVariantDictionary WCppProject::CreateEmptyCMakeUserPresetsJson(const WCppSettings& cfg)
 {
-  ezVariantDictionary json;
+  WVariantDictionary json;
   json.Insert("version", 3);
 
   {
-    ezVariantDictionary cmakeMinimumRequired;
+    WVariantDictionary cmakeMinimumRequired;
     cmakeMinimumRequired.Insert("major", 3);
     cmakeMinimumRequired.Insert("minor", 21);
     cmakeMinimumRequired.Insert("patch", 0);
@@ -1054,50 +1054,50 @@ ezVariantDictionary ezCppProject::CreateEmptyCMakeUserPresetsJson(const ezCppSet
   }
 
   {
-    ezVariantArray configurePresets;
-    ezVariantDictionary ezEnginePreset;
-    ezEnginePreset.Insert("name", "ezEngine");
-    ezEnginePreset.Insert("displayName", "Build the ezEngine Plugin");
+    WVariantArray configurePresets;
+    WVariantDictionary WEnginePreset;
+    WEnginePreset.Insert("name", "WorldEngine");
+    WEnginePreset.Insert("displayName", "Build the WorldEngine Plugin");
 
     {
-      ezVariantDictionary cacheVariables;
-      ezEnginePreset.Insert("cacheVariables", std::move(cacheVariables));
+      WVariantDictionary cacheVariables;
+      WEnginePreset.Insert("cacheVariables", std::move(cacheVariables));
     }
 
-    configurePresets.PushBack(std::move(ezEnginePreset));
+    configurePresets.PushBack(std::move(WEnginePreset));
     json.Insert("configurePresets", std::move(configurePresets));
   }
 
   {
-    ezVariantArray buildPresets;
+    WVariantArray buildPresets;
     {
-      ezVariantDictionary ezEngineBuildPreset;
-      ezEngineBuildPreset.Insert("name", "ezEngine");
-      ezEngineBuildPreset.Insert("configurePreset", "ezEngine");
-      buildPresets.PushBack(std::move(ezEngineBuildPreset));
+      WVariantDictionary WEngineBuildPreset;
+      WEngineBuildPreset.Insert("name", "WorldEngine");
+      WEngineBuildPreset.Insert("configurePreset", "WorldEngine");
+      buildPresets.PushBack(std::move(WEngineBuildPreset));
     }
     json.Insert("buildPresets", std::move(buildPresets));
   }
 
-  EZ_VERIFY(ModifyCMakeUserPresetsJson(cfg, json) == ModifyResult::MODIFIED, "Freshly created user presets file should always be modified");
+  W_VERIFY(ModifyCMakeUserPresetsJson(cfg, json) == ModifyResult::MODIFIED, "Freshly created user presets file should always be modified");
 
   return json;
 }
 
-void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
+void WCppProject::UpdatePluginConfig(const WCppSettings& cfg)
 {
-  const ezStringBuilder sPluginName(cfg.m_sPluginName, "Plugin");
+  const WStringBuilder sPluginName(cfg.m_sPluginName, "Plugin");
 
-  ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+  WPluginBundleSet& bundles = WQtEditorApp::GetSingleton()->GetPluginBundles();
 
-  ezStringBuilder txt;
+  WStringBuilder txt;
   bundles.m_Plugins.Remove(sPluginName);
-  ezPluginBundle& plugin = bundles.m_Plugins[sPluginName];
+  WPluginBundle& plugin = bundles.m_Plugins[sPluginName];
   plugin.m_bLoadCopy = true;
   plugin.m_bAllowEnableReload = true;
   plugin.m_bSelected = true;
   plugin.m_bMissing = true;
-  plugin.m_LastModificationTime = ezTimestamp::MakeInvalid();
+  plugin.m_LastModificationTime = WTimestamp::MakeInvalid();
   plugin.m_ExclusiveFeatures.PushBack("ProjectPlugin");
   txt.Set("'", cfg.m_sPluginName, "' project plugin");
   plugin.m_sDisplayName = txt;
@@ -1105,22 +1105,22 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   plugin.m_sDescription = txt;
   plugin.m_RuntimePlugins.PushBack(sPluginName);
 
-  ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
+  WQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
 }
 
-ezResult ezCppProject::UpdateEnginePluginDependencies()
+WResult WCppProject::UpdateEnginePluginDependencies()
 {
   // Only update if project has custom C++ code
   if (!ExistsProjectCMakeListsTxt())
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  const ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+  const WPluginBundleSet& bundles = WQtEditorApp::GetSingleton()->GetPluginBundles();
 
   // Collect selected engine plugin target names
-  ezDynamicArray<ezString> selectedPlugins;
+  WDynamicArray<WString> selectedPlugins;
   for (auto it = bundles.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
-    const ezPluginBundle& bundle = it.Value();
+    const WPluginBundle& bundle = it.Value();
 
     // Filter: selected, not mandatory, not a project plugin, has CMake target name
     if (bundle.m_bSelected &&
@@ -1136,9 +1136,9 @@ ezResult ezCppProject::UpdateEnginePluginDependencies()
   selectedPlugins.Sort();
 
   // Build the CMake file content
-  ezStringBuilder content;
+  WStringBuilder content;
   content.AppendWithSeparator("# This file is auto-generated, do not modify.\n", "");
-  content.Append("# The ezEditor may modify this file to add build configuration options.\n");
+  content.Append("# The WEditor may modify this file to add build configuration options.\n");
   content.Append("\n");
 
   // Only add target_link_libraries if there are selected plugins
@@ -1148,7 +1148,7 @@ ezResult ezCppProject::UpdateEnginePluginDependencies()
     content.Append("# Link against selected engine plugins\n");
     content.Append("target_link_libraries(${PROJECT_NAME} PRIVATE\n");
 
-    for (const ezString& plugin : selectedPlugins)
+    for (const WString& plugin : selectedPlugins)
     {
       content.Append("  ", plugin, "\n");
     }
@@ -1157,91 +1157,91 @@ ezResult ezCppProject::UpdateEnginePluginDependencies()
   }
 
   // Write to file
-  ezStringBuilder sFilePath = GetTargetSourceDir();
+  WStringBuilder sFilePath = GetTargetSourceDir();
   sFilePath.AppendPath("Configs/CMakeEngineExtensions.txt");
 
   // Ensure directory exists
-  ezStringBuilder sDir = sFilePath.GetFileDirectory();
-  if (ezOSFile::CreateDirectoryStructure(sDir).Failed())
+  WStringBuilder sDir = sFilePath.GetFileDirectory();
+  if (WOSFile::CreateDirectoryStructure(sDir).Failed())
   {
-    ezLog::Error("Failed to create directory for CMakeEngineExtensions.txt: '{}'", sDir);
-    return EZ_FAILURE;
+    WLog::Error("Failed to create directory for CMakeEngineExtensions.txt: '{}'", sDir);
+    return W_FAILURE;
   }
 
   // Write file
-  ezDeferredFileWriter fileWriter;
+  WDeferredFileWriter fileWriter;
   fileWriter.SetOutput(sFilePath);
 
   if (fileWriter.WriteBytes(content.GetData(), content.GetElementCount()).Failed())
   {
-    ezLog::Error("Failed to write CMakeEngineExtensions.txt: '{}'", sFilePath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to write CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return W_FAILURE;
   }
 
   if (fileWriter.Close().Failed())
   {
-    ezLog::Error("Failed to close CMakeEngineExtensions.txt: '{}'", sFilePath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to close CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCppProject::EnsureCppPluginReady()
+WResult WCppProject::EnsureCppPluginReady()
 {
   if (!ExistsProjectCMakeListsTxt())
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezCppSettings cppSettings;
+  WCppSettings cppSettings;
   if (cppSettings.Load().Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to load the C++ plugin settings."));
-    return EZ_FAILURE;
+    WQtUiServices::GetSingleton()->MessageBoxWarning(WFmt("Failed to load the C++ plugin settings."));
+    return W_FAILURE;
   }
 
-  if (ezCppProject::PopulateWithDefaultSources(cppSettings).Failed())
+  if (WCppProject::PopulateWithDefaultSources(cppSettings).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to update the default source files of the plugin. See log for details."));
-    return EZ_FAILURE;
+    WQtUiServices::GetSingleton()->MessageBoxWarning(WFmt("Failed to update the default source files of the plugin. See log for details."));
+    return W_FAILURE;
   }
 
-  if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
+  if (WCppProject::BuildCodeIfNecessary(cppSettings).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to build the C++ code. See log for details."));
-    return EZ_FAILURE;
+    WQtUiServices::GetSingleton()->MessageBoxWarning(WFmt("Failed to build the C++ code. See log for details."));
+    return W_FAILURE;
   }
 
-  ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
-  return EZ_SUCCESS;
+  WQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+  return W_SUCCESS;
 }
 
-bool ezCppProject::IsBuildRequired()
+bool WCppProject::IsBuildRequired()
 {
   if (!ExistsProjectCMakeListsTxt())
     return false;
 
-  ezCppSettings cfg;
+  WCppSettings cfg;
   if (cfg.Load().Failed())
     return false;
 
-  if (!ezCppProject::ExistsSolution(cfg))
+  if (!WCppProject::ExistsSolution(cfg))
     return true;
 
-  if (ezCppProject::CheckCMakeCache(cfg).Failed())
+  if (WCppProject::CheckCMakeCache(cfg).Failed())
     return true;
 
-  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sPath = WOSFile::GetApplicationDirectory();
   sPath.AppendPath(cfg.m_sPluginName);
 
   sPath.Append("Plugin");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   sPath.Append(".dll");
 #else
   sPath.Append(".so");
 #endif
 
-  if (!ezOSFile::ExistsFile(sPath))
+  if (!WOSFile::ExistsFile(sPath))
     return true;
 
   return false;
@@ -1250,9 +1250,9 @@ bool ezCppProject::IsBuildRequired()
 namespace
 {
   template <typename T>
-  T* Expect(ezVariantDictionary& inout_json, ezStringView sName)
+  T* Expect(WVariantDictionary& inout_json, WStringView sName)
   {
-    ezVariant* var = nullptr;
+    WVariant* var = nullptr;
     if (inout_json.TryGetValue(sName, var) && var->IsA<T>())
     {
       return &var->GetWritable<T>();
@@ -1260,21 +1260,21 @@ namespace
     return nullptr;
   }
 
-  void Modify(ezVariantDictionary& inout_json, ezStringView sName, ezStringView sValue, ezCppProject::ModifyResult& inout_modified)
+  void Modify(WVariantDictionary& inout_json, WStringView sName, WStringView sValue, WCppProject::ModifyResult& inout_modified)
   {
-    ezVariant* currentValue = nullptr;
-    if (inout_json.TryGetValue(sName, currentValue) && currentValue->IsA<ezString>() && currentValue->Get<ezString>() == sValue)
+    WVariant* currentValue = nullptr;
+    if (inout_json.TryGetValue(sName, currentValue) && currentValue->IsA<WString>() && currentValue->Get<WString>() == sValue)
       return;
 
     inout_json[sName] = sValue;
-    inout_modified = ezCppProject::ModifyResult::MODIFIED;
+    inout_modified = WCppProject::ModifyResult::MODIFIED;
   }
 
-  void Remove(ezVariantDictionary& inout_json, ezStringView sName, ezCppProject::ModifyResult& inout_modified)
+  void Remove(WVariantDictionary& inout_json, WStringView sName, WCppProject::ModifyResult& inout_modified)
   {
     if (inout_json.Remove(sName))
     {
-      inout_modified = ezCppProject::ModifyResult::MODIFIED;
+      inout_modified = WCppProject::ModifyResult::MODIFIED;
     }
   }
 
@@ -1287,65 +1287,65 @@ namespace
   ///
   /// The DLL directory is therefore taken from where this application actually runs - the parent of
   /// the '<platform><compiler><config>' folder that the executable sits in. It must NOT be taken from
-  /// 'ezExportInfo.cmake': the paths in that file are those of the machine that built the SDK, and
-  /// serve as the patterns that ez_include_ezExport() replaces. In a release package they point at the
+  /// 'WExportInfo.cmake': the paths in that file are those of the machine that built the SDK, and
+  /// serve as the patterns that W_include_WExport() replaces. In a release package they point at the
   /// build server and nothing exists there.
   ///
   /// The file is still needed for the LIB directory, which cannot be observed at runtime. Only the
   /// position of that directory *relative to* the DLL directory is used from it, so that a build with
   /// an unusual layout keeps its layout.
   ///
-  /// Returns EZ_FAILURE when the file is missing or unreadable, in which case the caller should not
+  /// Returns W_FAILURE when the file is missing or unreadable, in which case the caller should not
   /// specify the directories at all and let the plugin's CMakeLists.txt fall back to its default.
-  ezResult ReadSdkOutputDirectories(ezStringBuilder& out_sDllDir, ezStringBuilder& out_sLibDir)
+  WResult ReadSdkOutputDirectories(WStringBuilder& out_sDllDir, WStringBuilder& out_sLibDir)
   {
-    ezStringBuilder sDllDir = ezOSFile::GetApplicationDirectory();
+    WStringBuilder sDllDir = WOSFile::GetApplicationDirectory();
     sDllDir.MakeCleanPath();
     sDllDir.PathParentDirectory(); // strip the '<platform><compiler><config>' folder
     sDllDir.Trim(nullptr, "/");
 
-    ezStringBuilder sFile = sDllDir;
-    sFile.AppendPath("ezExportInfo.cmake");
+    WStringBuilder sFile = sDllDir;
+    sFile.AppendPath("WExportInfo.cmake");
     sFile.MakeCleanPath();
 
-    ezOSFile file;
-    EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileOpenMode::Read));
+    WOSFile file;
+    W_SUCCEED_OR_RETURN(file.Open(sFile, WFileOpenMode::Read));
 
-    ezStringBuilder sContent;
+    WStringBuilder sContent;
     {
-      ezDataBuffer content;
+      WDataBuffer content;
       file.ReadAll(content);
-      sContent = ezStringView((const char*)content.GetData(), content.GetCount());
+      sContent = WStringView((const char*)content.GetData(), content.GetCount());
     }
 
-    auto ReadValue = [&](ezStringView sVariable, ezStringBuilder& out_sValue) -> ezResult
+    auto ReadValue = [&](WStringView sVariable, WStringBuilder& out_sValue) -> WResult
     {
-      ezStringBuilder sPrefix("set(", sVariable, " ");
+      WStringBuilder sPrefix("set(", sVariable, " ");
 
       const char* szStart = sContent.FindSubString(sPrefix);
       if (szStart == nullptr)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       szStart += sPrefix.GetElementCount();
 
       const char* szEnd = sContent.FindSubString(")", szStart);
       if (szEnd == nullptr)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_sValue.SetSubString_FromTo(szStart, szEnd);
       out_sValue.Trim(" \t\r\n\"");
-      return out_sValue.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
+      return out_sValue.IsEmpty() ? W_FAILURE : W_SUCCESS;
     };
 
-    ezStringBuilder sBuildDllDir, sBuildLibDir;
-    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_DLL", sBuildDllDir));
-    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_LIB", sBuildLibDir));
+    WStringBuilder sBuildDllDir, sBuildLibDir;
+    W_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_DLL", sBuildDllDir));
+    W_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_LIB", sBuildLibDir));
 
     sBuildDllDir.MakeCleanPath();
     sBuildLibDir.MakeCleanPath();
 
     // typically '../Lib'
-    EZ_SUCCEED_OR_RETURN(sBuildLibDir.MakeRelativeTo(sBuildDllDir));
+    W_SUCCEED_OR_RETURN(sBuildLibDir.MakeRelativeTo(sBuildDllDir));
 
     out_sDllDir = sDllDir;
 
@@ -1353,57 +1353,57 @@ namespace
     out_sLibDir.AppendPath(sBuildLibDir);
     out_sLibDir.MakeCleanPath();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 } // namespace
 
-ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppSettings& cfg, ezVariantDictionary& inout_json)
+WCppProject::ModifyResult WCppProject::ModifyCMakeUserPresetsJson(const WCppSettings& cfg, WVariantDictionary& inout_json)
 {
   auto result = ModifyResult::NOT_MODIFIED;
-  auto configurePresets = Expect<ezVariantArray>(inout_json, "configurePresets");
+  auto configurePresets = Expect<WVariantArray>(inout_json, "configurePresets");
   if (!configurePresets)
     return ModifyResult::FAILURE;
 
-  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  const WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
   for (auto& preset : *configurePresets)
   {
-    if (!preset.IsA<ezVariantDictionary>())
+    if (!preset.IsA<WVariantDictionary>())
       continue;
 
-    auto& presetDict = preset.GetWritable<ezVariantDictionary>();
+    auto& presetDict = preset.GetWritable<WVariantDictionary>();
 
-    auto name = Expect<ezString>(presetDict, "name");
-    if (!name || *name != "ezEngine")
+    auto name = Expect<WString>(presetDict, "name");
+    if (!name || *name != "WorldEngine")
     {
       continue;
     }
 
-    auto cacheVariables = Expect<ezVariantDictionary>(presetDict, "cacheVariables");
+    auto cacheVariables = Expect<WVariantDictionary>(presetDict, "cacheVariables");
     if (!cacheVariables)
       return ModifyResult::FAILURE;
 
-    Modify(*cacheVariables, "EZ_SDK_DIR", ezFileSystem::GetSdkRootDirectory(), result);
+    Modify(*cacheVariables, "W_SDK_DIR", WFileSystem::GetSdkRootDirectory(), result);
 
     // Without these the plugin is built into '<sdk>/Output/Bin', which is not where this application
     // was loaded from when the SDK was built into a custom output directory. The plugin would compile
     // and the editor would still not find it.
     {
-      ezStringBuilder sDllDir, sLibDir;
+      WStringBuilder sDllDir, sLibDir;
       if (ReadSdkOutputDirectories(sDllDir, sLibDir).Succeeded())
       {
-        Modify(*cacheVariables, "EZ_OUTPUT_DIRECTORY_DLL", sDllDir, result);
-        Modify(*cacheVariables, "EZ_OUTPUT_DIRECTORY_LIB", sLibDir, result);
+        Modify(*cacheVariables, "W_OUTPUT_DIRECTORY_DLL", sDllDir, result);
+        Modify(*cacheVariables, "W_OUTPUT_DIRECTORY_LIB", sLibDir, result);
       }
     }
 
-    Modify(*cacheVariables, "EZ_BUILDTYPE_ONLY", BUILDSYSTEM_BUILDTYPE, result);
+    Modify(*cacheVariables, "W_BUILDTYPE_ONLY", BUILDSYSTEM_BUILDTYPE, result);
     Modify(*cacheVariables, "CMAKE_BUILD_TYPE", BUILDSYSTEM_BUILDTYPE, result);
 
     bool needsCompilerPaths = true;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    if (preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2026)
     {
       needsCompilerPaths = false;
     }
@@ -1413,7 +1413,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     {
       Modify(*cacheVariables, "CMAKE_C_COMPILER", preferences->m_CompilerPreferences.m_sCCompiler, result);
       Modify(*cacheVariables, "CMAKE_CXX_COMPILER", preferences->m_CompilerPreferences.m_sCppCompiler, result);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
       Modify(*cacheVariables, "CMAKE_RC_COMPILER", preferences->m_CompilerPreferences.m_sRcCompiler, result);
       Modify(*cacheVariables, "CMAKE_RC_COMPILER_INIT", "rc", result);
 #endif
@@ -1422,7 +1422,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     {
       cacheVariables->Remove("CMAKE_C_COMPILER");
       cacheVariables->Remove("CMAKE_CXX_COMPILER");
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
       cacheVariables->Remove("CMAKE_RC_COMPILER");
       cacheVariables->Remove("CMAKE_RC_COMPILER_INIT");
 #endif
@@ -1430,8 +1430,8 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 
     Modify(presetDict, "generator", GetCMakeGeneratorName(cfg), result);
     Modify(presetDict, "binaryDir", GetBuildDir(cfg), result);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    if (preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == WCompiler::Vs2026)
     {
       Modify(presetDict, "architecture", "x64", result);
     }
@@ -1445,56 +1445,56 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
   return result;
 }
 
-ezCppProject::ezCppProject()
-  : ezPreferences(ezPreferences::Domain::Application, "C++ Projects")
+WCppProject::WCppProject()
+  : WPreferences(WPreferences::Domain::Application, "C++ Projects")
 {
   m_CompilerPreferences.m_Compiler = GetSdkCompiler();
 }
-void ezCppProject::LoadPreferences()
+void WCppProject::LoadPreferences()
 {
-  EZ_PROFILE_SCOPE("Preferences");
-  auto preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  W_PROFILE_SCOPE("Preferences");
+  auto preferences = WPreferences::QueryPreferences<WCppProject>();
 
-  ezCompiler::Enum sdkCompiler = GetSdkCompiler();
+  WCompiler::Enum sdkCompiler = GetSdkCompiler();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (sdkCompiler == ezCompiler::Vs2022)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  if (sdkCompiler == WCompiler::Vs2022)
   {
-    s_MachineSpecificCompilers.PushBack({"Visual Studio 2022 (system default)", ezCompiler::Vs2022, "", "", false});
+    s_MachineSpecificCompilers.PushBack({"Visual Studio 2022 (system default)", WCompiler::Vs2022, "", "", false});
   }
-  if (sdkCompiler == ezCompiler::Vs2026)
+  if (sdkCompiler == WCompiler::Vs2026)
   {
-    s_MachineSpecificCompilers.PushBack({"Visual Studio 2026 (system default)", ezCompiler::Vs2026, "", "", false});
+    s_MachineSpecificCompilers.PushBack({"Visual Studio 2026 (system default)", WCompiler::Vs2026, "", "", false});
   }
 
-#  if EZ_ENABLED(EZ_COMPILER_CLANG)
+#  if W_ENABLED(W_COMPILER_CLANG)
   // if the rcCompiler path is empty or points to a non existant file, try to autodetect it
-  if ((preferences->m_CompilerPreferences.m_sRcCompiler.IsEmpty() || !ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler)))
+  if ((preferences->m_CompilerPreferences.m_sRcCompiler.IsEmpty() || !WOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler)))
   {
-    ezStringBuilder rcPath;
+    WStringBuilder rcPath;
     HKEY hInstalledRoots = nullptr;
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots", 0, KEY_READ, &hInstalledRoots) == ERROR_SUCCESS)
     {
-      EZ_SCOPE_EXIT(RegCloseKey(hInstalledRoots));
+      W_SCOPE_EXIT(RegCloseKey(hInstalledRoots));
       DWORD pathLengthInBytes = 0;
-      ezDynamicArray<wchar_t> path;
+      WDynamicArray<wchar_t> path;
       if (RegGetValueW(hInstalledRoots, nullptr, L"KitsRoot10", RRF_RT_REG_SZ, nullptr, nullptr, &pathLengthInBytes) == ERROR_SUCCESS)
       {
         path.SetCount(pathLengthInBytes / sizeof(wchar_t));
         if (RegGetValueW(hInstalledRoots, nullptr, L"KitsRoot10", RRF_RT_REG_SZ, nullptr, path.GetData(), &pathLengthInBytes) == ERROR_SUCCESS)
         {
-          ezStringBuilder windowsSdkBinPath;
-          windowsSdkBinPath = ezStringWChar(path.GetData());
+          WStringBuilder windowsSdkBinPath;
+          windowsSdkBinPath = WStringWChar(path.GetData());
           windowsSdkBinPath.MakeCleanPath();
           windowsSdkBinPath.AppendPath("bin");
 
-          ezDynamicArray<ezFileStats> folders;
-          ezOSFile::GatherAllItemsInFolder(folders, windowsSdkBinPath, ezFileSystemIteratorFlags::ReportFolders);
+          WDynamicArray<WFileStats> folders;
+          WOSFile::GatherAllItemsInFolder(folders, windowsSdkBinPath, WFileSystemIteratorFlags::ReportFolders);
 
-          folders.Sort([](const ezFileStats& a, const ezFileStats& b)
+          folders.Sort([](const WFileStats& a, const WFileStats& b)
             { return a.m_sName > b.m_sName; });
 
-          for (const ezFileStats& folder : folders)
+          for (const WFileStats& folder : folders)
           {
             if (!folder.m_sName.StartsWith("10."))
             {
@@ -1503,7 +1503,7 @@ void ezCppProject::LoadPreferences()
             rcPath = windowsSdkBinPath;
             rcPath.AppendPath(folder.m_sName);
             rcPath.AppendPath("x64/rc.exe");
-            if (ezOSFile::ExistsFile(rcPath))
+            if (WOSFile::ExistsFile(rcPath))
             {
               break;
             }
@@ -1518,49 +1518,49 @@ void ezCppProject::LoadPreferences()
     }
   }
 
-  ezString clangVersion;
+  WString clangVersion;
 
   wchar_t* pProgramFiles = nullptr;
   if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_ProgramFiles, KF_FLAG_DEFAULT, nullptr, &pProgramFiles)))
   {
-    ezStringBuilder clangDefaultPath;
-    clangDefaultPath = ezStringWChar(pProgramFiles);
+    WStringBuilder clangDefaultPath;
+    clangDefaultPath = WStringWChar(pProgramFiles);
     CoTaskMemFree(pProgramFiles);
     pProgramFiles = nullptr;
 
     clangDefaultPath.AppendPath("LLVM/bin/clang.exe");
     clangDefaultPath.MakeCleanPath();
-    ezStringBuilder clangCppDefaultPath = clangDefaultPath;
+    WStringBuilder clangCppDefaultPath = clangDefaultPath;
     clangCppDefaultPath.ReplaceLast(".exe", "++.exe");
 
-    ezStringView clangMajorSdkVersion = EZ_PP_STRINGIFY(__clang_major__) ".";
+    WStringView clangMajorSdkVersion = W_PP_STRINGIFY(__clang_major__) ".";
     if (TestCompilerExecutable(clangDefaultPath, &clangVersion).Succeeded() && TestCompilerExecutable(clangCppDefaultPath).Succeeded() && clangVersion.StartsWith(clangMajorSdkVersion))
     {
-      ezStringBuilder clangNiceName;
+      WStringBuilder clangNiceName;
       clangNiceName.SetFormat("Clang (system default = {})", clangVersion);
-      s_MachineSpecificCompilers.PushBack({clangNiceName, ezCompiler::Clang, clangDefaultPath, clangCppDefaultPath, false});
+      s_MachineSpecificCompilers.PushBack({clangNiceName, WCompiler::Clang, clangDefaultPath, clangCppDefaultPath, false});
     }
   }
 #  endif
 #endif
 
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  AddCompilerVersions(s_MachineSpecificCompilers, ezCppProject::GetSdkCompiler(), ezCppProject::GetSdkCompilerMajorVersion());
+#if W_ENABLED(W_PLATFORM_LINUX)
+  AddCompilerVersions(s_MachineSpecificCompilers, WCppProject::GetSdkCompiler(), WCppProject::GetSdkCompilerMajorVersion());
 #endif
 
-#if EZ_ENABLED(EZ_COMPILER_CLANG)
-  s_MachineSpecificCompilers.PushBack({"Clang (Custom)", ezCompiler::Clang, "", "", true});
+#if W_ENABLED(W_COMPILER_CLANG)
+  s_MachineSpecificCompilers.PushBack({"Clang (Custom)", WCompiler::Clang, "", "", true});
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX) && EZ_ENABLED(EZ_COMPILER_GCC)
-  s_MachineSpecificCompilers.PushBack({"Gcc (Custom)", ezCompiler::Gcc, "", "", true});
+#if W_ENABLED(W_PLATFORM_LINUX) && W_ENABLED(W_COMPILER_GCC)
+  s_MachineSpecificCompilers.PushBack({"Gcc (Custom)", WCompiler::Gcc, "", "", true});
 #endif
 
   if (preferences->m_CompilerPreferences.m_Compiler != sdkCompiler)
   {
-    ezStringBuilder incompatibleCompilerName = u8"⚠ ";
-    incompatibleCompilerName.SetFormat(u8"⚠ {} (incompatible)", ezCppProject::CompilerToString(preferences->m_CompilerPreferences.m_Compiler));
+    WStringBuilder incompatibleCompilerName = u8"⚠ ";
+    incompatibleCompilerName.SetFormat(u8"⚠ {} (incompatible)", WCppProject::CompilerToString(preferences->m_CompilerPreferences.m_Compiler));
     s_MachineSpecificCompilers.PushBack(
       {incompatibleCompilerName,
         preferences->m_CompilerPreferences.m_Compiler,
@@ -1570,11 +1570,11 @@ void ezCppProject::LoadPreferences()
   }
 }
 
-ezResult ezCppProject::ForceSdkCompatibleCompiler()
+WResult WCppProject::ForceSdkCompatibleCompiler()
 {
-  ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  WCppProject* preferences = WPreferences::QueryPreferences<WCppProject>();
 
-  ezCompiler::Enum sdkCompiler = GetSdkCompiler();
+  WCompiler::Enum sdkCompiler = GetSdkCompiler();
   for (auto& compiler : s_MachineSpecificCompilers)
   {
     if (!compiler.m_bIsCustom && compiler.m_Compiler == sdkCompiler)
@@ -1584,11 +1584,11 @@ ezResult ezCppProject::ForceSdkCompatibleCompiler()
       preferences->m_CompilerPreferences.m_sCppCompiler = compiler.m_sCppCompiler;
       preferences->m_CompilerPreferences.m_bCustomCompiler = compiler.m_bIsCustom;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezCppProject::~ezCppProject() = default;
+WCppProject::~WCppProject() = default;

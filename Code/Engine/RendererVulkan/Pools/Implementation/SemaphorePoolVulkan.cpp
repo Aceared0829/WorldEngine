@@ -2,15 +2,15 @@
 
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 
-vk::Device ezSemaphorePoolVulkan::s_Device;
-ezHybridArray<vk::Semaphore, 4> ezSemaphorePoolVulkan::s_Semaphores;
+vk::Device WSemaphorePoolVulkan::s_Device;
+WHybridArray<vk::Semaphore, 4> WSemaphorePoolVulkan::s_Semaphores;
 
-void ezSemaphorePoolVulkan::Initialize(vk::Device device)
+void WSemaphorePoolVulkan::Initialize(vk::Device device)
 {
   s_Device = device;
 }
 
-void ezSemaphorePoolVulkan::DeInitialize()
+void WSemaphorePoolVulkan::DeInitialize()
 {
   for (vk::Semaphore& semaphore : s_Semaphores)
   {
@@ -22,9 +22,9 @@ void ezSemaphorePoolVulkan::DeInitialize()
   s_Device = nullptr;
 }
 
-vk::Semaphore ezSemaphorePoolVulkan::RequestSemaphore()
+vk::Semaphore WSemaphorePoolVulkan::RequestSemaphore()
 {
-  EZ_ASSERT_DEBUG(s_Device, "ezSemaphorePoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(s_Device, "WSemaphorePoolVulkan::Initialize not called");
   if (!s_Semaphores.IsEmpty())
   {
     vk::Semaphore semaphore = s_Semaphores.PeekBack();
@@ -40,8 +40,8 @@ vk::Semaphore ezSemaphorePoolVulkan::RequestSemaphore()
   }
 }
 
-void ezSemaphorePoolVulkan::ReclaimSemaphore(vk::Semaphore& ref_semaphore)
+void WSemaphorePoolVulkan::ReclaimSemaphore(vk::Semaphore& ref_semaphore)
 {
-  EZ_ASSERT_DEBUG(s_Device, "ezSemaphorePoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(s_Device, "WSemaphorePoolVulkan::Initialize not called");
   s_Semaphores.PushBack(ref_semaphore);
 }

@@ -3,26 +3,26 @@
 
 #include <RendererFoundation/Resources/Texture.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALProxyTexture : public ezGALTexture
+class W_RENDERERFOUNDATION_DLL WGALProxyTexture : public WGALTexture
 {
 public:
-  virtual ~ezGALProxyTexture();
+  virtual ~WGALProxyTexture();
 
-  virtual const ezGALResourceBase* GetParentResource() const override;
-  ezGALTextureHandle GetParentTextureHandle() const { return m_hParentTexture; }
-  ezUInt16 GetSlice() const { return m_uiSlice; }
+  virtual const WGALResourceBase* GetParentResource() const override;
+  WGALTextureHandle GetParentTextureHandle() const { return m_hParentTexture; }
+  WUInt16 GetSlice() const { return m_uiSlice; }
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  ezGALProxyTexture(ezGALTextureHandle hParentTexture, const ezGALTexture& parentTexture, ezUInt16 uiSlice);
+  WGALProxyTexture(WGALTextureHandle hParentTexture, const WGALTexture& parentTexture, WUInt16 uiSlice);
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  ezGALTextureHandle m_hParentTexture;
-  const ezGALTexture* m_pParentTexture;
-  ezUInt16 m_uiSlice = 0;
+  WGALTextureHandle m_hParentTexture;
+  const WGALTexture* m_pParentTexture;
+  WUInt16 m_uiSlice = 0;
 };

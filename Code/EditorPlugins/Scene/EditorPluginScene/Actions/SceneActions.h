@@ -5,41 +5,41 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezPreferences;
+class WPreferences;
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSceneActions
+class W_EDITORPLUGINSCENE_DLL WSceneActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapToolbarActions(ezStringView sMapping);
-  static void MapViewContextMenuActions(ezStringView sMapping);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
+  static void MapViewContextMenuActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hSceneCategory;
-  static ezActionDescriptorHandle s_hSceneUtilsMenu;
-  static ezActionDescriptorHandle s_hExportScene;
-  static ezActionDescriptorHandle s_hGameModeSimulate;
-  static ezActionDescriptorHandle s_hGameModePlay;
-  static ezActionDescriptorHandle s_hGameModePlayFromHere;
-  static ezActionDescriptorHandle s_hGameModeStop;
-  static ezActionDescriptorHandle s_hGameModePause;
-  static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
-  static ezActionDescriptorHandle s_hKeepSimulationChanges;
-  static ezActionDescriptorHandle s_hCreateThumbnail;
-  static ezActionDescriptorHandle s_hFavoriteCamsMenu;
-  static ezActionDescriptorHandle s_hStoreEditorCamera[10];
-  static ezActionDescriptorHandle s_hRestoreEditorCamera[10];
-  static ezActionDescriptorHandle s_hJumpToCamera[10];
-  static ezActionDescriptorHandle s_hCreateLevelCamera[10];
+  static WActionDescriptorHandle s_hSceneCategory;
+  static WActionDescriptorHandle s_hSceneUtilsMenu;
+  static WActionDescriptorHandle s_hExportScene;
+  static WActionDescriptorHandle s_hGameModeSimulate;
+  static WActionDescriptorHandle s_hGameModePlay;
+  static WActionDescriptorHandle s_hGameModePlayFromHere;
+  static WActionDescriptorHandle s_hGameModeStop;
+  static WActionDescriptorHandle s_hGameModePause;
+  static WActionDescriptorHandle s_hUtilExportSceneToOBJ;
+  static WActionDescriptorHandle s_hKeepSimulationChanges;
+  static WActionDescriptorHandle s_hCreateThumbnail;
+  static WActionDescriptorHandle s_hFavoriteCamsMenu;
+  static WActionDescriptorHandle s_hStoreEditorCamera[10];
+  static WActionDescriptorHandle s_hRestoreEditorCamera[10];
+  static WActionDescriptorHandle s_hJumpToCamera[10];
+  static WActionDescriptorHandle s_hCreateLevelCamera[10];
 };
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSceneAction : public ezButtonAction
+class W_EDITORPLUGINSCENE_DLL WSceneAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WSceneAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -99,18 +99,18 @@ public:
     CreateLevelCamera9,
   };
 
-  ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezSceneAction();
+  WSceneAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WSceneAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
   void LaunchPlayer(const char* szPlayerApp);
-  QStringList GetPlayerCommandLine(ezStringBuilder& out_sSingleLine) const;
+  QStringList GetPlayerCommandLine(WStringBuilder& out_sSingleLine) const;
 
 private:
-  void SceneEventHandler(const ezGameObjectEvent& e);
+  void SceneEventHandler(const WGameObjectEvent& e);
   void UpdateState();
 
-  ezSceneDocument* m_pSceneDocument;
+  WSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };

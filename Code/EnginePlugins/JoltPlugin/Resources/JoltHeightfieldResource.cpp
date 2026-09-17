@@ -12,21 +12,21 @@
 #include <JoltPlugin/Utilities/JoltStreamUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltHeightfieldResource, 1, ezRTTIDefaultAllocator<ezJoltHeightfieldResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltHeightfieldResource, 1, WRTTIDefaultAllocator<WJoltHeightfieldResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezJoltHeightfieldResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WJoltHeightfieldResource);
 // clang-format on
 
-ezJoltHeightfieldResource::ezJoltHeightfieldResource()
-  : ezResource(DoUpdate::OnMainThread, 1)
+WJoltHeightfieldResource::WJoltHeightfieldResource()
+  : WResource(DoUpdate::OnMainThread, 1)
 {
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezJoltHeightfieldResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WJoltHeightfieldResource);
 }
 
-ezJoltHeightfieldResource::~ezJoltHeightfieldResource() = default;
+WJoltHeightfieldResource::~WJoltHeightfieldResource() = default;
 
-ezResourceLoadDesc ezJoltHeightfieldResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WJoltHeightfieldResource::UnloadData(Unload WhatToUnload)
 {
   m_uiContentHash = 0;
   m_uiCollisionLayer = 0;
@@ -34,48 +34,48 @@ ezResourceLoadDesc ezJoltHeightfieldResource::UnloadData(Unload WhatToUnload)
   m_ShapeData.Clear();
   m_ShapeData.Compact();
 
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezJoltHeightfieldResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WJoltHeightfieldResource);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
   return res;
 }
 
-ezResourceLoadDesc ezJoltHeightfieldResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WJoltHeightfieldResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezJoltHeightfieldResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WJoltHeightfieldResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // resource loader prepends the absolute file path
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   {
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.Read(*Stream).IgnoreResult();
   }
 
-  ezUInt8 uiVersion = 0;
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiVersion = 0;
+  WUInt8 uiCompressionMode = 0;
   *Stream >> uiVersion;
   *Stream >> uiCompressionMode;
   *Stream >> m_uiContentHash;
 
-  ezStreamReader* pChunkSource = Stream;
+  WStreamReader* pChunkSource = Stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd;
+  WCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -88,32 +88,32 @@ ezResourceLoadDesc ezJoltHeightfieldResource::UpdateContent(ezStreamReader* Stre
       pChunkSource = &decompressorZstd;
       break;
 #else
-      ezLog::Error("Heightfield file '{}' uses zstd compression but support is not compiled in.", GetResourceID());
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      WLog::Error("Heightfield file '{}' uses zstd compression but support is not compiled in.", GetResourceID());
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
 #endif
     default:
-      ezLog::Error("Heightfield file '{}' uses unknown compression mode {}.", GetResourceID(), uiCompressionMode);
-      res.m_State = ezResourceState::LoadedResourceMissing;
+      WLog::Error("Heightfield file '{}' uses unknown compression mode {}.", GetResourceID(), uiCompressionMode);
+      res.m_State = WResourceState::LoadedResourceMissing;
       return res;
   }
 
-  ezChunkStreamReader chunk(*pChunkSource);
-  chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);
+  WChunkStreamReader chunk(*pChunkSource);
+  chunk.SetEndChunkFileMode(WChunkStreamReader::EndChunkFileMode::JustClose);
   chunk.BeginStream();
 
   while (chunk.GetCurrentChunk().m_bValid)
   {
     if (chunk.GetCurrentChunk().m_sChunkName == "Surfaces")
     {
-      ezUInt32 uiNumSurfaces = 0;
+      WUInt32 uiNumSurfaces = 0;
       chunk >> uiNumSurfaces;
       m_Surfaces.SetCount(uiNumSurfaces);
-      ezStringBuilder sTemp;
-      for (ezUInt32 i = 0; i < uiNumSurfaces; ++i)
+      WStringBuilder sTemp;
+      for (WUInt32 i = 0; i < uiNumSurfaces; ++i)
       {
         chunk >> sTemp;
-        m_Surfaces[i] = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
+        m_Surfaces[i] = WResourceManager::LoadResource<WSurfaceResource>(sTemp);
       }
     }
 
@@ -121,7 +121,7 @@ ezResourceLoadDesc ezJoltHeightfieldResource::UpdateContent(ezStreamReader* Stre
     {
       chunk >> m_uiCollisionLayer;
 
-      ezUInt32 uiShapeDataSize = 0;
+      WUInt32 uiShapeDataSize = 0;
       chunk >> uiShapeDataSize;
       m_ShapeData.SetCountUninitialized(uiShapeDataSize);
       chunk.ReadBytes(m_ShapeData.GetData(), uiShapeDataSize);
@@ -134,47 +134,47 @@ ezResourceLoadDesc ezJoltHeightfieldResource::UpdateContent(ezStreamReader* Stre
 
   if (m_ShapeData.IsEmpty())
   {
-    ezLog::Error("No 'Heightfield' chunk found in heightfield file '{}'", GetResourceID());
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    WLog::Error("No 'Heightfield' chunk found in heightfield file '{}'", GetResourceID());
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezJoltHeightfieldResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WJoltHeightfieldResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezJoltHeightfieldResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WJoltHeightfieldResource);
   out_NewMemoryUsage.m_uiMemoryCPU += m_Surfaces.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryCPU += m_ShapeData.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezJoltHeightfieldResource, ezJoltHeightfieldResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WJoltHeightfieldResource, WJoltHeightfieldResourceDescriptor)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
-  const ezUInt32 N = descriptor.m_uiResolution;
+  const WUInt32 N = descriptor.m_uiResolution;
   const float halfX = descriptor.m_vHalfExtents.x;
   const float halfY = descriptor.m_vHalfExtents.y;
 
   if (N < 4 || (N % 2) != 0 || descriptor.m_Heights.GetCount() != N * N)
   {
-    ezLog::Error("ezJoltHeightfieldResource: invalid height data (N={}, count={}).", N, descriptor.m_Heights.GetCount());
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    WLog::Error("WJoltHeightfieldResource: invalid height data (N={}, count={}).", N, descriptor.m_Heights.GetCount());
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  const ezUInt32 uiCellCount = (N - 1) * (N - 1);
+  const WUInt32 uiCellCount = (N - 1) * (N - 1);
   const bool bHasMaterials = !descriptor.m_Surfaces.IsEmpty() && !descriptor.m_MaterialIndices.IsEmpty();
 
   if (bHasMaterials && descriptor.m_MaterialIndices.GetCount() != uiCellCount)
   {
-    ezLog::Error("ezJoltHeightfieldResource: material indices count ({}) must be (N-1)^2 = {}.", descriptor.m_MaterialIndices.GetCount(), uiCellCount);
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    WLog::Error("WJoltHeightfieldResource: material indices count ({}) must be (N-1)^2 = {}.", descriptor.m_MaterialIndices.GetCount(), uiCellCount);
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
@@ -182,33 +182,33 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezJoltHeightfieldResource, ezJoltHeightfieldRes
   m_uiCollisionLayer = descriptor.m_uiCollisionLayer;
 
   // Resolve surface handles to Jolt material pointers.
-  ezDynamicArray<const ezJoltMaterial*> materialPtrs;
+  WDynamicArray<const WJoltMaterial*> materialPtrs;
   materialPtrs.SetCount(descriptor.m_Surfaces.GetCount(), nullptr);
-  for (ezUInt32 i = 0; i < descriptor.m_Surfaces.GetCount(); ++i)
+  for (WUInt32 i = 0; i < descriptor.m_Surfaces.GetCount(); ++i)
   {
     if (descriptor.m_Surfaces[i].IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pSurface(descriptor.m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pSurface.GetAcquireResult() == ezResourceAcquireResult::Final && pSurface->m_pPhysicsMaterialJolt != nullptr)
-        materialPtrs[i] = reinterpret_cast<const ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+      WResourceLock<WSurfaceResource> pSurface(descriptor.m_Surfaces[i], WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pSurface.GetAcquireResult() == WResourceAcquireResult::Final && pSurface->m_pPhysicsMaterialJolt != nullptr)
+        materialPtrs[i] = reinterpret_cast<const WJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
     }
   }
 
-  // Row order must be flipped so that Jolt's row axis maps to +Y in ezEngine space after the +90° X rotation.
-  ezDynamicArray<float> flippedSamples;
+  // Row order must be flipped so that Jolt's row axis maps to +Y in WorldEngine space after the +90° X rotation.
+  WDynamicArray<float> flippedSamples;
   flippedSamples.SetCountUninitialized(N * N);
-  for (ezUInt32 row = 0; row < N; ++row)
+  for (WUInt32 row = 0; row < N; ++row)
   {
-    const ezUInt32 srcRow = N - 1 - row;
-    for (ezUInt32 col = 0; col < N; ++col)
+    const WUInt32 srcRow = N - 1 - row;
+    for (WUInt32 col = 0; col < N; ++col)
       flippedSamples[row * N + col] = descriptor.m_Heights[srcRow * N + col];
   }
 
   JPH::PhysicsMaterialList joltMaterials;
   if (bHasMaterials)
   {
-    for (const ezJoltMaterial* pMat : materialPtrs)
-      joltMaterials.push_back(pMat != nullptr ? pMat : ezJoltCore::GetDefaultMaterial());
+    for (const WJoltMaterial* pMat : materialPtrs)
+      joltMaterials.push_back(pMat != nullptr ? pMat : WJoltCore::GetDefaultMaterial());
   }
 
   JPH::HeightFieldShapeSettings settings(
@@ -222,23 +222,23 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezJoltHeightfieldResource, ezJoltHeightfieldRes
   JPH::ShapeSettings::ShapeResult result = settings.Create();
   if (result.HasError())
   {
-    ezLog::Error("ezJoltHeightfieldResource: failed to create JPH::HeightFieldShape: {}", result.GetError().c_str());
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    WLog::Error("WJoltHeightfieldResource: failed to create JPH::HeightFieldShape: {}", result.GetError().c_str());
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // Serialize the shape to binary state so OnSimulationStarted can use sRestoreFromBinaryState,
   // the same path used for file-loaded resources.
-  ezContiguousMemoryStreamStorage storage;
-  ezMemoryStreamWriter memWriter(&storage);
-  ezJoltStreamOut joltOut(&memWriter);
+  WContiguousMemoryStreamStorage storage;
+  WMemoryStreamWriter memWriter(&storage);
+  WJoltStreamOut joltOut(&memWriter);
   result.Get()->SaveBinaryState(joltOut);
 
   m_ShapeData.SetCountUninitialized(storage.GetStorageSize32());
-  ezMemoryUtils::Copy(m_ShapeData.GetData(), storage.GetData(), storage.GetStorageSize32());
+  WMemoryUtils::Copy(m_ShapeData.GetData(), storage.GetData(), storage.GetStorageSize32());
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Resources_JoltHeightfieldResource);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Resources_JoltHeightfieldResource);

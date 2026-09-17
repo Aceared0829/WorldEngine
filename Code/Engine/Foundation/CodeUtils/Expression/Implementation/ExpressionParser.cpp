@@ -7,27 +7,27 @@ namespace
 {
   struct AssignOperator
   {
-    ezStringView m_sName;
-    ezExpressionAST::NodeType::Enum m_NodeType;
+    WStringView m_sName;
+    WExpressionAST::NodeType::Enum m_NodeType;
   };
 
   static constexpr AssignOperator s_assignOperators[] = {
-    {"+="_ezsv, ezExpressionAST::NodeType::Add},
-    {"-="_ezsv, ezExpressionAST::NodeType::Subtract},
-    {"*="_ezsv, ezExpressionAST::NodeType::Multiply},
-    {"/="_ezsv, ezExpressionAST::NodeType::Divide},
-    {"%="_ezsv, ezExpressionAST::NodeType::Modulo},
-    {"<<="_ezsv, ezExpressionAST::NodeType::BitshiftLeft},
-    {">>="_ezsv, ezExpressionAST::NodeType::BitshiftRight},
-    {"&="_ezsv, ezExpressionAST::NodeType::BitwiseAnd},
-    {"^="_ezsv, ezExpressionAST::NodeType::BitwiseXor},
-    {"|="_ezsv, ezExpressionAST::NodeType::BitwiseOr},
+    {"+="_wsv, WExpressionAST::NodeType::Add},
+    {"-="_wsv, WExpressionAST::NodeType::Subtract},
+    {"*="_wsv, WExpressionAST::NodeType::Multiply},
+    {"/="_wsv, WExpressionAST::NodeType::Divide},
+    {"%="_wsv, WExpressionAST::NodeType::Modulo},
+    {"<<="_wsv, WExpressionAST::NodeType::BitshiftLeft},
+    {">>="_wsv, WExpressionAST::NodeType::BitshiftRight},
+    {"&="_wsv, WExpressionAST::NodeType::BitwiseAnd},
+    {"^="_wsv, WExpressionAST::NodeType::BitwiseXor},
+    {"|="_wsv, WExpressionAST::NodeType::BitwiseOr},
   };
 
   struct BinaryOperator
   {
-    ezStringView m_sName;
-    ezExpressionAST::NodeType::Enum m_NodeType;
+    WStringView m_sName;
+    WExpressionAST::NodeType::Enum m_NodeType;
     int m_iPrecedence;
   };
 
@@ -35,44 +35,44 @@ namespace
   // lower value means higher precedence
   // sorted by string length to simplify the test against a token stream
   static constexpr BinaryOperator s_binaryOperators[] = {
-    {"&&"_ezsv, ezExpressionAST::NodeType::LogicalAnd, 14},
-    {"||"_ezsv, ezExpressionAST::NodeType::LogicalOr, 15},
-    {"<<"_ezsv, ezExpressionAST::NodeType::BitshiftLeft, 7},
-    {">>"_ezsv, ezExpressionAST::NodeType::BitshiftRight, 7},
-    {"=="_ezsv, ezExpressionAST::NodeType::Equal, 10},
-    {"!="_ezsv, ezExpressionAST::NodeType::NotEqual, 10},
-    {"<="_ezsv, ezExpressionAST::NodeType::LessEqual, 9},
-    {">="_ezsv, ezExpressionAST::NodeType::GreaterEqual, 9},
-    {"<"_ezsv, ezExpressionAST::NodeType::Less, 9},
-    {">"_ezsv, ezExpressionAST::NodeType::Greater, 9},
-    {"&"_ezsv, ezExpressionAST::NodeType::BitwiseAnd, 11},
-    {"^"_ezsv, ezExpressionAST::NodeType::BitwiseXor, 12},
-    {"|"_ezsv, ezExpressionAST::NodeType::BitwiseOr, 13},
-    {"?"_ezsv, ezExpressionAST::NodeType::Select, 16},
-    {"+"_ezsv, ezExpressionAST::NodeType::Add, 6},
-    {"-"_ezsv, ezExpressionAST::NodeType::Subtract, 6},
-    {"*"_ezsv, ezExpressionAST::NodeType::Multiply, 5},
-    {"/"_ezsv, ezExpressionAST::NodeType::Divide, 5},
-    {"%"_ezsv, ezExpressionAST::NodeType::Modulo, 5},
+    {"&&"_wsv, WExpressionAST::NodeType::LogicalAnd, 14},
+    {"||"_wsv, WExpressionAST::NodeType::LogicalOr, 15},
+    {"<<"_wsv, WExpressionAST::NodeType::BitshiftLeft, 7},
+    {">>"_wsv, WExpressionAST::NodeType::BitshiftRight, 7},
+    {"=="_wsv, WExpressionAST::NodeType::Equal, 10},
+    {"!="_wsv, WExpressionAST::NodeType::NotEqual, 10},
+    {"<="_wsv, WExpressionAST::NodeType::LessEqual, 9},
+    {">="_wsv, WExpressionAST::NodeType::GreaterEqual, 9},
+    {"<"_wsv, WExpressionAST::NodeType::Less, 9},
+    {">"_wsv, WExpressionAST::NodeType::Greater, 9},
+    {"&"_wsv, WExpressionAST::NodeType::BitwiseAnd, 11},
+    {"^"_wsv, WExpressionAST::NodeType::BitwiseXor, 12},
+    {"|"_wsv, WExpressionAST::NodeType::BitwiseOr, 13},
+    {"?"_wsv, WExpressionAST::NodeType::Select, 16},
+    {"+"_wsv, WExpressionAST::NodeType::Add, 6},
+    {"-"_wsv, WExpressionAST::NodeType::Subtract, 6},
+    {"*"_wsv, WExpressionAST::NodeType::Multiply, 5},
+    {"/"_wsv, WExpressionAST::NodeType::Divide, 5},
+    {"%"_wsv, WExpressionAST::NodeType::Modulo, 5},
   };
 
-  static ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>> s_KnownTypes;
-  static ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> s_BuiltinFunctions;
+  static WHashTable<WHashedString, WEnum<WExpressionAST::DataType>> s_KnownTypes;
+  static WHashTable<WHashedString, WEnum<WExpressionAST::NodeType>> s_BuiltinFunctions;
 
 } // namespace
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-ezExpressionParser::ezExpressionParser()
+WExpressionParser::WExpressionParser()
 {
   RegisterKnownTypes();
   RegisterBuiltinFunctions();
 }
 
-ezExpressionParser::~ezExpressionParser() = default;
+WExpressionParser::~WExpressionParser() = default;
 
 // static
-const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>>& ezExpressionParser::GetKnownTypes()
+const WHashTable<WHashedString, WEnum<WExpressionAST::DataType>>& WExpressionParser::GetKnownTypes()
 {
   RegisterKnownTypes();
 
@@ -80,16 +80,16 @@ const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>>& ezExpressi
 }
 
 // static
-const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>>& ezExpressionParser::GetBuiltinFunctions()
+const WHashTable<WHashedString, WEnum<WExpressionAST::NodeType>>& WExpressionParser::GetBuiltinFunctions()
 {
   RegisterBuiltinFunctions();
 
   return s_BuiltinFunctions;
 }
 
-void ezExpressionParser::RegisterFunction(const ezExpression::FunctionDesc& funcDesc)
+void WExpressionParser::RegisterFunction(const WExpression::FunctionDesc& funcDesc)
 {
-  EZ_ASSERT_DEV(funcDesc.m_uiNumRequiredInputs <= funcDesc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", funcDesc.m_uiNumRequiredInputs, funcDesc.m_InputTypes.GetCount());
+  W_ASSERT_DEV(funcDesc.m_uiNumRequiredInputs <= funcDesc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", funcDesc.m_uiNumRequiredInputs, funcDesc.m_InputTypes.GetCount());
 
   auto& functionDescs = m_FunctionDescs[funcDesc.m_sName];
   if (functionDescs.Contains(funcDesc) == false)
@@ -98,7 +98,7 @@ void ezExpressionParser::RegisterFunction(const ezExpression::FunctionDesc& func
   }
 }
 
-void ezExpressionParser::UnregisterFunction(const ezExpression::FunctionDesc& funcDesc)
+void WExpressionParser::UnregisterFunction(const WExpression::FunctionDesc& funcDesc)
 {
   if (auto pFunctionDescs = m_FunctionDescs.GetValue(funcDesc.m_sName))
   {
@@ -106,123 +106,123 @@ void ezExpressionParser::UnregisterFunction(const ezExpression::FunctionDesc& fu
   }
 }
 
-ezResult ezExpressionParser::Parse(ezStringView sCode, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast)
+WResult WExpressionParser::Parse(WStringView sCode, WArrayPtr<WExpression::StreamDesc> inputs, WArrayPtr<WExpression::StreamDesc> outputs, const Options& options, WExpressionAST& out_ast)
 {
   if (sCode.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Options = options;
 
   m_pAST = &out_ast;
   SetupInAndOutputs(inputs, outputs);
 
-  ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)sCode.GetStartPointer(), sCode.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  WTokenizer tokenizer;
+  tokenizer.Tokenize(WArrayPtr<const WUInt8>((const WUInt8*)sCode.GetStartPointer(), sCode.GetElementCount()), WLog::GetThreadLocalLogSystem());
 
-  ezUInt32 readTokens = 0;
+  WUInt32 readTokens = 0;
   while (tokenizer.GetNextLine(readTokens, m_TokenStream).Succeeded())
   {
     m_uiCurrentToken = 0;
 
     while (m_uiCurrentToken < m_TokenStream.GetCount())
     {
-      EZ_SUCCEED_OR_RETURN(ParseStatement());
+      W_SUCCEED_OR_RETURN(ParseStatement());
 
       if (m_uiCurrentToken < m_TokenStream.GetCount() && AcceptStatementTerminator() == false)
       {
         auto pCurrentToken = m_TokenStream[m_uiCurrentToken];
-        ReportError(pCurrentToken, ezFmt("Syntax error, unexpected token '{}'", pCurrentToken->m_DataView));
-        return EZ_FAILURE;
+        ReportError(pCurrentToken, WFmt("Syntax error, unexpected token '{}'", pCurrentToken->m_DataView));
+        return W_FAILURE;
       }
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(CheckOutputs());
+  W_SUCCEED_OR_RETURN(CheckOutputs());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // static
-void ezExpressionParser::RegisterKnownTypes()
+void WExpressionParser::RegisterKnownTypes()
 {
   if (s_KnownTypes.IsEmpty() == false)
     return;
 
-  s_KnownTypes.Insert(ezMakeHashedString("var"), ezExpressionAST::DataType::Unknown);
+  s_KnownTypes.Insert(WMakeHashedString("var"), WExpressionAST::DataType::Unknown);
 
-  s_KnownTypes.Insert(ezMakeHashedString("vec2"), ezExpressionAST::DataType::Float2);
-  s_KnownTypes.Insert(ezMakeHashedString("vec3"), ezExpressionAST::DataType::Float3);
-  s_KnownTypes.Insert(ezMakeHashedString("vec4"), ezExpressionAST::DataType::Float4);
+  s_KnownTypes.Insert(WMakeHashedString("vec2"), WExpressionAST::DataType::Float2);
+  s_KnownTypes.Insert(WMakeHashedString("vec3"), WExpressionAST::DataType::Float3);
+  s_KnownTypes.Insert(WMakeHashedString("vec4"), WExpressionAST::DataType::Float4);
 
-  s_KnownTypes.Insert(ezMakeHashedString("vec2i"), ezExpressionAST::DataType::Int2);
-  s_KnownTypes.Insert(ezMakeHashedString("vec3i"), ezExpressionAST::DataType::Int3);
-  s_KnownTypes.Insert(ezMakeHashedString("vec4i"), ezExpressionAST::DataType::Int4);
+  s_KnownTypes.Insert(WMakeHashedString("vec2i"), WExpressionAST::DataType::Int2);
+  s_KnownTypes.Insert(WMakeHashedString("vec3i"), WExpressionAST::DataType::Int3);
+  s_KnownTypes.Insert(WMakeHashedString("vec4i"), WExpressionAST::DataType::Int4);
 
-  ezStringBuilder sTypeName;
-  for (ezUInt32 type = ezExpressionAST::DataType::Bool; type < ezExpressionAST::DataType::Count; ++type)
+  WStringBuilder sTypeName;
+  for (WUInt32 type = WExpressionAST::DataType::Bool; type < WExpressionAST::DataType::Count; ++type)
   {
-    sTypeName = ezExpressionAST::DataType::GetName(static_cast<ezExpressionAST::DataType::Enum>(type));
+    sTypeName = WExpressionAST::DataType::GetName(static_cast<WExpressionAST::DataType::Enum>(type));
     sTypeName.ToLower();
 
-    ezHashedString sTypeNameHashed;
+    WHashedString sTypeNameHashed;
     sTypeNameHashed.Assign(sTypeName);
 
-    s_KnownTypes.Insert(sTypeNameHashed, static_cast<ezExpressionAST::DataType::Enum>(type));
+    s_KnownTypes.Insert(sTypeNameHashed, static_cast<WExpressionAST::DataType::Enum>(type));
   }
 }
 
-void ezExpressionParser::RegisterBuiltinFunctions()
+void WExpressionParser::RegisterBuiltinFunctions()
 {
   if (s_BuiltinFunctions.IsEmpty() == false)
     return;
 
   // Unary
-  s_BuiltinFunctions.Insert(ezMakeHashedString("abs"), ezExpressionAST::NodeType::Absolute);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("saturate"), ezExpressionAST::NodeType::Saturate);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("sqrt"), ezExpressionAST::NodeType::Sqrt);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("exp"), ezExpressionAST::NodeType::Exp);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("ln"), ezExpressionAST::NodeType::Ln);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("log2"), ezExpressionAST::NodeType::Log2);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("log10"), ezExpressionAST::NodeType::Log10);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("pow2"), ezExpressionAST::NodeType::Pow2);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("sin"), ezExpressionAST::NodeType::Sin);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("cos"), ezExpressionAST::NodeType::Cos);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("tan"), ezExpressionAST::NodeType::Tan);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("asin"), ezExpressionAST::NodeType::ASin);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("acos"), ezExpressionAST::NodeType::ACos);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("atan"), ezExpressionAST::NodeType::ATan);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("radToDeg"), ezExpressionAST::NodeType::RadToDeg);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("rad_to_deg"), ezExpressionAST::NodeType::RadToDeg);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("degToRad"), ezExpressionAST::NodeType::DegToRad);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("deg_to_rad"), ezExpressionAST::NodeType::DegToRad);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("round"), ezExpressionAST::NodeType::Round);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("floor"), ezExpressionAST::NodeType::Floor);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("ceil"), ezExpressionAST::NodeType::Ceil);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("trunc"), ezExpressionAST::NodeType::Trunc);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("frac"), ezExpressionAST::NodeType::Frac);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("length"), ezExpressionAST::NodeType::Length);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("normalize"), ezExpressionAST::NodeType::Normalize);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("all"), ezExpressionAST::NodeType::All);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("any"), ezExpressionAST::NodeType::Any);
+  s_BuiltinFunctions.Insert(WMakeHashedString("abs"), WExpressionAST::NodeType::Absolute);
+  s_BuiltinFunctions.Insert(WMakeHashedString("saturate"), WExpressionAST::NodeType::Saturate);
+  s_BuiltinFunctions.Insert(WMakeHashedString("sqrt"), WExpressionAST::NodeType::Sqrt);
+  s_BuiltinFunctions.Insert(WMakeHashedString("exp"), WExpressionAST::NodeType::Exp);
+  s_BuiltinFunctions.Insert(WMakeHashedString("ln"), WExpressionAST::NodeType::Ln);
+  s_BuiltinFunctions.Insert(WMakeHashedString("log2"), WExpressionAST::NodeType::Log2);
+  s_BuiltinFunctions.Insert(WMakeHashedString("log10"), WExpressionAST::NodeType::Log10);
+  s_BuiltinFunctions.Insert(WMakeHashedString("pow2"), WExpressionAST::NodeType::Pow2);
+  s_BuiltinFunctions.Insert(WMakeHashedString("sin"), WExpressionAST::NodeType::Sin);
+  s_BuiltinFunctions.Insert(WMakeHashedString("cos"), WExpressionAST::NodeType::Cos);
+  s_BuiltinFunctions.Insert(WMakeHashedString("tan"), WExpressionAST::NodeType::Tan);
+  s_BuiltinFunctions.Insert(WMakeHashedString("asin"), WExpressionAST::NodeType::ASin);
+  s_BuiltinFunctions.Insert(WMakeHashedString("acos"), WExpressionAST::NodeType::ACos);
+  s_BuiltinFunctions.Insert(WMakeHashedString("atan"), WExpressionAST::NodeType::ATan);
+  s_BuiltinFunctions.Insert(WMakeHashedString("radToDeg"), WExpressionAST::NodeType::RadToDeg);
+  s_BuiltinFunctions.Insert(WMakeHashedString("rad_to_deg"), WExpressionAST::NodeType::RadToDeg);
+  s_BuiltinFunctions.Insert(WMakeHashedString("degToRad"), WExpressionAST::NodeType::DegToRad);
+  s_BuiltinFunctions.Insert(WMakeHashedString("deg_to_rad"), WExpressionAST::NodeType::DegToRad);
+  s_BuiltinFunctions.Insert(WMakeHashedString("round"), WExpressionAST::NodeType::Round);
+  s_BuiltinFunctions.Insert(WMakeHashedString("floor"), WExpressionAST::NodeType::Floor);
+  s_BuiltinFunctions.Insert(WMakeHashedString("ceil"), WExpressionAST::NodeType::Ceil);
+  s_BuiltinFunctions.Insert(WMakeHashedString("trunc"), WExpressionAST::NodeType::Trunc);
+  s_BuiltinFunctions.Insert(WMakeHashedString("frac"), WExpressionAST::NodeType::Frac);
+  s_BuiltinFunctions.Insert(WMakeHashedString("length"), WExpressionAST::NodeType::Length);
+  s_BuiltinFunctions.Insert(WMakeHashedString("normalize"), WExpressionAST::NodeType::Normalize);
+  s_BuiltinFunctions.Insert(WMakeHashedString("all"), WExpressionAST::NodeType::All);
+  s_BuiltinFunctions.Insert(WMakeHashedString("any"), WExpressionAST::NodeType::Any);
 
   // Binary
-  s_BuiltinFunctions.Insert(ezMakeHashedString("mod"), ezExpressionAST::NodeType::Modulo);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("log"), ezExpressionAST::NodeType::Log);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("pow"), ezExpressionAST::NodeType::Pow);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("dot"), ezExpressionAST::NodeType::Dot);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("cross"), ezExpressionAST::NodeType::Cross);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("reflect"), ezExpressionAST::NodeType::Reflect);
+  s_BuiltinFunctions.Insert(WMakeHashedString("mod"), WExpressionAST::NodeType::Modulo);
+  s_BuiltinFunctions.Insert(WMakeHashedString("log"), WExpressionAST::NodeType::Log);
+  s_BuiltinFunctions.Insert(WMakeHashedString("pow"), WExpressionAST::NodeType::Pow);
+  s_BuiltinFunctions.Insert(WMakeHashedString("min"), WExpressionAST::NodeType::Min);
+  s_BuiltinFunctions.Insert(WMakeHashedString("max"), WExpressionAST::NodeType::Max);
+  s_BuiltinFunctions.Insert(WMakeHashedString("dot"), WExpressionAST::NodeType::Dot);
+  s_BuiltinFunctions.Insert(WMakeHashedString("cross"), WExpressionAST::NodeType::Cross);
+  s_BuiltinFunctions.Insert(WMakeHashedString("reflect"), WExpressionAST::NodeType::Reflect);
 
   // Ternary
-  s_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("lerp"), ezExpressionAST::NodeType::Lerp);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("smoothstep"), ezExpressionAST::NodeType::SmoothStep);
-  s_BuiltinFunctions.Insert(ezMakeHashedString("smootherstep"), ezExpressionAST::NodeType::SmootherStep);
+  s_BuiltinFunctions.Insert(WMakeHashedString("clamp"), WExpressionAST::NodeType::Clamp);
+  s_BuiltinFunctions.Insert(WMakeHashedString("lerp"), WExpressionAST::NodeType::Lerp);
+  s_BuiltinFunctions.Insert(WMakeHashedString("smoothstep"), WExpressionAST::NodeType::SmoothStep);
+  s_BuiltinFunctions.Insert(WMakeHashedString("smootherstep"), WExpressionAST::NodeType::SmootherStep);
 }
 
-void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs)
+void WExpressionParser::SetupInAndOutputs(WArrayPtr<WExpression::StreamDesc> inputs, WArrayPtr<WExpression::StreamDesc> outputs)
 {
   m_KnownVariables.Clear();
 
@@ -241,26 +241,26 @@ void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> 
   }
 }
 
-ezResult ezExpressionParser::ParseStatement()
+WResult WExpressionParser::ParseStatement()
 {
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
 
   if (AcceptStatementTerminator())
   {
     // empty statement
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (m_uiCurrentToken >= m_TokenStream.GetCount())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezToken* pIdentifierToken = m_TokenStream[m_uiCurrentToken];
-  if (pIdentifierToken->m_iType != ezTokenType::Identifier)
+  const WToken* pIdentifierToken = m_TokenStream[m_uiCurrentToken];
+  if (pIdentifierToken->m_iType != WTokenType::Identifier)
   {
     ReportError(pIdentifierToken, "Syntax error, expected type or variable");
   }
 
-  ezEnum<ezExpressionAST::DataType> type;
+  WEnum<WExpressionAST::DataType> type;
   if (ParseType(pIdentifierToken->m_DataView, type).Succeeded())
   {
     return ParseVariableDefinition(type);
@@ -269,75 +269,75 @@ ezResult ezExpressionParser::ParseStatement()
   return ParseAssignment();
 }
 
-ezResult ezExpressionParser::ParseType(ezStringView sTypeName, ezEnum<ezExpressionAST::DataType>& out_type)
+WResult WExpressionParser::ParseType(WStringView sTypeName, WEnum<WExpressionAST::DataType>& out_type)
 {
-  ezTempHashedString sTypeNameHashed(sTypeName);
+  WTempHashedString sTypeNameHashed(sTypeName);
   if (s_KnownTypes.TryGetValue(sTypeNameHashed, out_type))
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezExpressionParser::ParseVariableDefinition(ezEnum<ezExpressionAST::DataType> type)
+WResult WExpressionParser::ParseVariableDefinition(WEnum<WExpressionAST::DataType> type)
 {
   // skip type
-  EZ_SUCCEED_OR_RETURN(Expect(ezTokenType::Identifier));
+  W_SUCCEED_OR_RETURN(Expect(WTokenType::Identifier));
 
-  const ezToken* pIdentifierToken = nullptr;
-  EZ_SUCCEED_OR_RETURN(Expect(ezTokenType::Identifier, &pIdentifierToken));
+  const WToken* pIdentifierToken = nullptr;
+  W_SUCCEED_OR_RETURN(Expect(WTokenType::Identifier, &pIdentifierToken));
 
-  ezHashedString sHashedVarName;
+  WHashedString sHashedVarName;
   sHashedVarName.Assign(pIdentifierToken->m_DataView);
 
-  ezExpressionAST::Node* pVariableNode;
+  WExpressionAST::Node* pVariableNode;
   if (m_KnownVariables.TryGetValue(sHashedVarName, pVariableNode))
   {
     const char* szExisting = "a variable";
-    if (ezExpressionAST::NodeType::IsInput(pVariableNode->m_Type))
+    if (WExpressionAST::NodeType::IsInput(pVariableNode->m_Type))
     {
       szExisting = "an input";
     }
-    else if (ezExpressionAST::NodeType::IsOutput(pVariableNode->m_Type))
+    else if (WExpressionAST::NodeType::IsOutput(pVariableNode->m_Type))
     {
       szExisting = "an output";
     }
 
-    ReportError(pIdentifierToken, ezFmt("Local variable '{}' cannot be defined because {} of the same name already exists", pIdentifierToken->m_DataView, szExisting));
-    return EZ_FAILURE;
+    ReportError(pIdentifierToken, WFmt("Local variable '{}' cannot be defined because {} of the same name already exists", pIdentifierToken->m_DataView, szExisting));
+    return W_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(Expect("="));
-  ezExpressionAST::Node* pExpression = ParseExpression();
+  W_SUCCEED_OR_RETURN(Expect("="));
+  WExpressionAST::Node* pExpression = ParseExpression();
   if (pExpression == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_KnownVariables.Insert(sHashedVarName, EnsureExpectedType(pExpression, type));
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezExpressionParser::ParseAssignment()
+WResult WExpressionParser::ParseAssignment()
 {
-  const ezToken* pIdentifierToken = nullptr;
-  EZ_SUCCEED_OR_RETURN(Expect(ezTokenType::Identifier, &pIdentifierToken));
+  const WToken* pIdentifierToken = nullptr;
+  W_SUCCEED_OR_RETURN(Expect(WTokenType::Identifier, &pIdentifierToken));
 
-  const ezStringView sIdentifier = pIdentifierToken->m_DataView;
-  ezExpressionAST::Node* pVarNode = GetVariable(sIdentifier);
+  const WStringView sIdentifier = pIdentifierToken->m_DataView;
+  WExpressionAST::Node* pVarNode = GetVariable(sIdentifier);
   if (pVarNode == nullptr)
   {
     ReportError(pIdentifierToken, "Syntax error, expected a valid variable");
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezStringView sPartialAssignmentMask;
+  WStringView sPartialAssignmentMask;
   if (Accept(m_TokenStream, m_uiCurrentToken, "."))
   {
-    const ezToken* pSwizzleToken = nullptr;
-    if (Expect(ezTokenType::Identifier, &pSwizzleToken).Failed())
+    const WToken* pSwizzleToken = nullptr;
+    if (Expect(WTokenType::Identifier, &pSwizzleToken).Failed())
     {
       ReportError(m_TokenStream[m_uiCurrentToken], "Invalid partial assignment");
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     sPartialAssignmentMask = pSwizzleToken->m_DataView;
@@ -345,8 +345,8 @@ ezResult ezExpressionParser::ParseAssignment()
 
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
 
-  ezExpressionAST::NodeType::Enum assignOperator = ezExpressionAST::NodeType::Invalid;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_assignOperators); ++i)
+  WExpressionAST::NodeType::Enum assignOperator = WExpressionAST::NodeType::Invalid;
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_assignOperators); ++i)
   {
     auto& op = s_assignOperators[i];
     if (AcceptOperator(op.m_sName))
@@ -357,16 +357,16 @@ ezResult ezExpressionParser::ParseAssignment()
     }
   }
 
-  if (assignOperator == ezExpressionAST::NodeType::Invalid)
+  if (assignOperator == WExpressionAST::NodeType::Invalid)
   {
-    EZ_SUCCEED_OR_RETURN(Expect("="));
+    W_SUCCEED_OR_RETURN(Expect("="));
   }
 
-  ezExpressionAST::Node* pExpression = ParseExpression();
+  WExpressionAST::Node* pExpression = ParseExpression();
   if (pExpression == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (assignOperator != ezExpressionAST::NodeType::Invalid)
+  if (assignOperator != WExpressionAST::NodeType::Invalid)
   {
     pExpression = m_pAST->CreateBinaryOperator(assignOperator, Unpack(pVarNode), pExpression);
   }
@@ -376,38 +376,38 @@ ezResult ezExpressionParser::ParseAssignment()
     auto pConstructor = m_pAST->CreateConstructorCall(Unpack(pVarNode, false), pExpression, sPartialAssignmentMask);
     if (pConstructor == nullptr)
     {
-      ReportError(pIdentifierToken, ezFmt("Invalid partial assignment .{} = {}", sPartialAssignmentMask, ezExpressionAST::DataType::GetName(pExpression->m_ReturnType)));
-      return EZ_FAILURE;
+      ReportError(pIdentifierToken, WFmt("Invalid partial assignment .{} = {}", sPartialAssignmentMask, WExpressionAST::DataType::GetName(pExpression->m_ReturnType)));
+      return W_FAILURE;
     }
 
     pExpression = pConstructor;
   }
 
-  if (ezExpressionAST::NodeType::IsInput(pVarNode->m_Type))
+  if (WExpressionAST::NodeType::IsInput(pVarNode->m_Type))
   {
-    ReportError(pIdentifierToken, ezFmt("Input '{}' is not assignable", sIdentifier));
-    return EZ_FAILURE;
+    ReportError(pIdentifierToken, WFmt("Input '{}' is not assignable", sIdentifier));
+    return W_FAILURE;
   }
-  else if (ezExpressionAST::NodeType::IsOutput(pVarNode->m_Type))
+  else if (WExpressionAST::NodeType::IsOutput(pVarNode->m_Type))
   {
-    auto pOutput = static_cast<ezExpressionAST::Output*>(pVarNode);
+    auto pOutput = static_cast<WExpressionAST::Output*>(pVarNode);
     pOutput->m_pExpression = pExpression;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezHashedString sHashedVarName;
+  WHashedString sHashedVarName;
   sHashedVarName.Assign(sIdentifier);
   m_KnownVariables[sHashedVarName] = EnsureExpectedType(pExpression, pVarNode->m_ReturnType);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezExpressionAST::Node* ezExpressionParser::ParseFactor()
+WExpressionAST::Node* WExpressionParser::ParseFactor()
 {
-  ezUInt32 uiIdentifierToken = 0;
-  if (Accept(m_TokenStream, m_uiCurrentToken, ezTokenType::Identifier, &uiIdentifierToken))
+  WUInt32 uiIdentifierToken = 0;
+  if (Accept(m_TokenStream, m_uiCurrentToken, WTokenType::Identifier, &uiIdentifierToken))
   {
     auto pIdentifierToken = m_TokenStream[uiIdentifierToken];
-    const ezStringView sIdentifier = pIdentifierToken->m_DataView;
+    const WStringView sIdentifier = pIdentifierToken->m_DataView;
 
     if (Accept(m_TokenStream, m_uiCurrentToken, "("))
     {
@@ -415,55 +415,55 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
     }
     else if (sIdentifier == "true")
     {
-      return m_pAST->CreateConstant(true, ezExpressionAST::DataType::Bool);
+      return m_pAST->CreateConstant(true, WExpressionAST::DataType::Bool);
     }
     else if (sIdentifier == "false")
     {
-      return m_pAST->CreateConstant(false, ezExpressionAST::DataType::Bool);
+      return m_pAST->CreateConstant(false, WExpressionAST::DataType::Bool);
     }
     else if (sIdentifier == "PI")
     {
-      return m_pAST->CreateConstant(ezMath::Pi<float>(), ezExpressionAST::DataType::Float);
+      return m_pAST->CreateConstant(WMath::Pi<float>(), WExpressionAST::DataType::Float);
     }
     else
     {
       auto pVariable = GetVariable(sIdentifier);
       if (pVariable == nullptr)
       {
-        ReportError(pIdentifierToken, ezFmt("Undeclared identifier '{}'", sIdentifier));
+        ReportError(pIdentifierToken, WFmt("Undeclared identifier '{}'", sIdentifier));
         return nullptr;
       }
       return ParseSwizzle(Unpack(pVariable));
     }
   }
 
-  ezUInt32 uiValueToken = 0;
-  if (Accept(m_TokenStream, m_uiCurrentToken, ezTokenType::Integer, &uiValueToken))
+  WUInt32 uiValueToken = 0;
+  if (Accept(m_TokenStream, m_uiCurrentToken, WTokenType::Integer, &uiValueToken))
   {
-    const ezString sVal = m_TokenStream[uiValueToken]->m_DataView;
+    const WString sVal = m_TokenStream[uiValueToken]->m_DataView;
 
-    ezInt64 iConstant = 0;
+    WInt64 iConstant = 0;
     if (sVal.StartsWith_NoCase("0x"))
     {
-      ezUInt64 uiHexConstant = 0;
-      ezConversionUtils::ConvertHexStringToUInt64(sVal, uiHexConstant).IgnoreResult();
+      WUInt64 uiHexConstant = 0;
+      WConversionUtils::ConvertHexStringToUInt64(sVal, uiHexConstant).IgnoreResult();
       iConstant = uiHexConstant;
     }
     else
     {
-      ezConversionUtils::StringToInt64(sVal, iConstant).IgnoreResult();
+      WConversionUtils::StringToInt64(sVal, iConstant).IgnoreResult();
     }
 
-    return m_pAST->CreateConstant((int)iConstant, ezExpressionAST::DataType::Int);
+    return m_pAST->CreateConstant((int)iConstant, WExpressionAST::DataType::Int);
   }
-  else if (Accept(m_TokenStream, m_uiCurrentToken, ezTokenType::Float, &uiValueToken))
+  else if (Accept(m_TokenStream, m_uiCurrentToken, WTokenType::Float, &uiValueToken))
   {
-    const ezString sVal = m_TokenStream[uiValueToken]->m_DataView;
+    const WString sVal = m_TokenStream[uiValueToken]->m_DataView;
 
     double fConstant = 0;
-    ezConversionUtils::StringToFloat(sVal, fConstant).IgnoreResult();
+    WConversionUtils::StringToFloat(sVal, fConstant).IgnoreResult();
 
-    return m_pAST->CreateConstant((float)fConstant, ezExpressionAST::DataType::Float);
+    return m_pAST->CreateConstant((float)fConstant, WExpressionAST::DataType::Float);
   }
 
   if (Accept(m_TokenStream, m_uiCurrentToken, "("))
@@ -480,15 +480,15 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
 
 // Parsing the expression - recursive parser using "precedence climbing".
 // http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
-ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = s_iLowestPrecedence*/)
+WExpressionAST::Node* WExpressionParser::ParseExpression(int iPrecedence /* = s_iLowestPrecedence*/)
 {
   auto pExpression = ParseUnaryExpression();
   if (pExpression == nullptr)
     return nullptr;
 
-  ezExpressionAST::NodeType::Enum binaryOp;
+  WExpressionAST::NodeType::Enum binaryOp;
   int iBinaryOpPrecedence = 0;
-  ezUInt32 uiOperatorLength = 0;
+  WUInt32 uiOperatorLength = 0;
   while (AcceptBinaryOperator(binaryOp, iBinaryOpPrecedence, uiOperatorLength) && iBinaryOpPrecedence < iPrecedence)
   {
     // Consume token.
@@ -498,7 +498,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = 
     if (pSecondOperand == nullptr)
       return nullptr;
 
-    if (binaryOp == ezExpressionAST::NodeType::Select)
+    if (binaryOp == WExpressionAST::NodeType::Select)
     {
       if (Expect(":").Failed())
         return nullptr;
@@ -507,7 +507,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = 
       if (pThirdOperand == nullptr)
         return nullptr;
 
-      pExpression = m_pAST->CreateTernaryOperator(ezExpressionAST::NodeType::Select, pExpression, pSecondOperand, pThirdOperand);
+      pExpression = m_pAST->CreateTernaryOperator(WExpressionAST::NodeType::Select, pExpression, pSecondOperand, pThirdOperand);
     }
     else
     {
@@ -518,7 +518,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseExpression(int iPrecedence /* = 
   return pExpression;
 }
 
-ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
+WExpressionAST::Node* WExpressionParser::ParseUnaryExpression()
 {
   while (Accept(m_TokenStream, m_uiCurrentToken, "+"))
   {
@@ -530,7 +530,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
     if (pOperand == nullptr)
       return nullptr;
 
-    return m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::Negate, pOperand);
+    return m_pAST->CreateUnaryOperator(WExpressionAST::NodeType::Negate, pOperand);
   }
   else if (Accept(m_TokenStream, m_uiCurrentToken, "~"))
   {
@@ -538,7 +538,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
     if (pOperand == nullptr)
       return nullptr;
 
-    return m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::BitwiseNot, pOperand);
+    return m_pAST->CreateUnaryOperator(WExpressionAST::NodeType::BitwiseNot, pOperand);
   }
   else if (Accept(m_TokenStream, m_uiCurrentToken, "!"))
   {
@@ -546,18 +546,18 @@ ezExpressionAST::Node* ezExpressionParser::ParseUnaryExpression()
     if (pOperand == nullptr)
       return nullptr;
 
-    return m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::LogicalNot, pOperand);
+    return m_pAST->CreateUnaryOperator(WExpressionAST::NodeType::LogicalNot, pOperand);
   }
 
   return ParseFactor();
 }
 
-ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunctionName)
+WExpressionAST::Node* WExpressionParser::ParseFunctionCall(WStringView sFunctionName)
 {
   // "(" of the function call
-  const ezToken* pFunctionToken = m_TokenStream[m_uiCurrentToken - 1];
+  const WToken* pFunctionToken = m_TokenStream[m_uiCurrentToken - 1];
 
-  ezSmallArray<ezExpressionAST::Node*, 8> arguments;
+  WSmallArray<WExpressionAST::Node*, 8> arguments;
   if (Accept(m_TokenStream, m_uiCurrentToken, ")") == false)
   {
     do
@@ -565,7 +565,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       auto pExpression = ParseExpression();
       if (pExpression == nullptr)
       {
-        ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument {} for '{}'", arguments.GetCount(), sFunctionName));
+        ReportError(m_TokenStream[m_uiCurrentToken], WFmt("Invalid argument {} for '{}'", arguments.GetCount(), sFunctionName));
         return nullptr;
       }
 
@@ -576,50 +576,50 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return nullptr;
   }
 
-  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
+  auto CheckArgumentCount = [&](WUInt32 uiExpectedArgumentCount) -> WResult
   {
     if (arguments.GetCount() != uiExpectedArgumentCount)
     {
-      ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
-      return EZ_FAILURE;
+      ReportError(pFunctionToken, WFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
+      return W_FAILURE;
     }
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   };
 
-  ezHashedString sHashedFuncName;
+  WHashedString sHashedFuncName;
   sHashedFuncName.Assign(sFunctionName);
 
-  ezEnum<ezExpressionAST::DataType> dataType;
+  WEnum<WExpressionAST::DataType> dataType;
   if (s_KnownTypes.TryGetValue(sHashedFuncName, dataType))
   {
-    ezUInt32 uiElementCount = ezExpressionAST::DataType::GetElementCount(dataType);
+    WUInt32 uiElementCount = WExpressionAST::DataType::GetElementCount(dataType);
     if (arguments.GetCount() > uiElementCount)
     {
-      ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 0 - {} but got {}", sFunctionName, uiElementCount, arguments.GetCount()));
+      ReportError(pFunctionToken, WFmt("Invalid argument count for '{}'. Expected 0 - {} but got {}", sFunctionName, uiElementCount, arguments.GetCount()));
       return nullptr;
     }
 
     return m_pAST->CreateConstructorCall(dataType, arguments);
   }
 
-  ezEnum<ezExpressionAST::NodeType> builtinType;
+  WEnum<WExpressionAST::NodeType> builtinType;
   if (s_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
   {
-    if (ezExpressionAST::NodeType::IsUnary(builtinType))
+    if (WExpressionAST::NodeType::IsUnary(builtinType))
     {
       if (CheckArgumentCount(1).Failed())
         return nullptr;
 
       return m_pAST->CreateUnaryOperator(builtinType, arguments[0]);
     }
-    else if (ezExpressionAST::NodeType::IsBinary(builtinType))
+    else if (WExpressionAST::NodeType::IsBinary(builtinType))
     {
       if (CheckArgumentCount(2).Failed())
         return nullptr;
 
       return m_pAST->CreateBinaryOperator(builtinType, arguments[0], arguments[1]);
     }
-    else if (ezExpressionAST::NodeType::IsTernary(builtinType))
+    else if (WExpressionAST::NodeType::IsTernary(builtinType))
     {
       if (CheckArgumentCount(3).Failed())
         return nullptr;
@@ -627,45 +627,45 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return m_pAST->CreateTernaryOperator(builtinType, arguments[0], arguments[1], arguments[2]);
     }
 
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return nullptr;
   }
 
   // external function
-  const ezHybridArray<ezExpression::FunctionDesc, 1>* pFunctionDescs = nullptr;
+  const WHybridArray<WExpression::FunctionDesc, 1>* pFunctionDescs = nullptr;
   if (m_FunctionDescs.TryGetValue(sHashedFuncName, pFunctionDescs))
   {
-    ezUInt32 uiMinArgumentCount = ezInvalidIndex;
+    WUInt32 uiMinArgumentCount = WInvalidIndex;
     for (auto& funcDesc : *pFunctionDescs)
     {
-      uiMinArgumentCount = ezMath::Min<ezUInt32>(uiMinArgumentCount, funcDesc.m_uiNumRequiredInputs);
+      uiMinArgumentCount = WMath::Min<WUInt32>(uiMinArgumentCount, funcDesc.m_uiNumRequiredInputs);
     }
 
     if (arguments.GetCount() < uiMinArgumentCount)
     {
-      ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected at least {} but got {}", sFunctionName, uiMinArgumentCount, arguments.GetCount()));
+      ReportError(pFunctionToken, WFmt("Invalid argument count for '{}'. Expected at least {} but got {}", sFunctionName, uiMinArgumentCount, arguments.GetCount()));
       return nullptr;
     }
 
     return m_pAST->CreateFunctionCall(*pFunctionDescs, arguments);
   }
 
-  ReportError(pFunctionToken, ezFmt("Undeclared function '{}'", sFunctionName));
+  ReportError(pFunctionToken, WFmt("Undeclared function '{}'", sFunctionName));
   return nullptr;
 }
 
-ezExpressionAST::Node* ezExpressionParser::ParseSwizzle(ezExpressionAST::Node* pExpression)
+WExpressionAST::Node* WExpressionParser::ParseSwizzle(WExpressionAST::Node* pExpression)
 {
   if (pExpression != nullptr && Accept(m_TokenStream, m_uiCurrentToken, "."))
   {
-    const ezToken* pSwizzleToken = nullptr;
-    if (Expect(ezTokenType::Identifier, &pSwizzleToken).Failed())
+    const WToken* pSwizzleToken = nullptr;
+    if (Expect(WTokenType::Identifier, &pSwizzleToken).Failed())
       return nullptr;
 
     pExpression = m_pAST->CreateSwizzle(pSwizzleToken->m_DataView, pExpression);
     if (pExpression == nullptr)
     {
-      ReportError(pSwizzleToken, ezFmt("Invalid swizzle '{}'", pSwizzleToken->m_DataView));
+      ReportError(pSwizzleToken, WFmt("Invalid swizzle '{}'", pSwizzleToken->m_DataView));
     }
   }
 
@@ -673,16 +673,16 @@ ezExpressionAST::Node* ezExpressionParser::ParseSwizzle(ezExpressionAST::Node* p
 }
 
 // Does NOT advance the current token beyond the operator!
-bool ezExpressionParser::AcceptOperator(ezStringView sName)
+bool WExpressionParser::AcceptOperator(WStringView sName)
 {
-  const ezUInt32 uiOperatorLength = sName.GetElementCount();
+  const WUInt32 uiOperatorLength = sName.GetElementCount();
 
   if (m_uiCurrentToken + uiOperatorLength - 1 >= m_TokenStream.GetCount())
     return false;
 
-  for (ezUInt32 charIndex = 0; charIndex < uiOperatorLength; ++charIndex)
+  for (WUInt32 charIndex = 0; charIndex < uiOperatorLength; ++charIndex)
   {
-    const ezUInt32 c = sName.GetStartPointer()[charIndex];
+    const WUInt32 c = sName.GetStartPointer()[charIndex];
     if (m_TokenStream[m_uiCurrentToken + charIndex]->m_DataView.GetCharacter() != c)
     {
       return false;
@@ -693,11 +693,11 @@ bool ezExpressionParser::AcceptOperator(ezStringView sName)
 }
 
 // Does NOT advance the current token beyond the binary operator!
-bool ezExpressionParser::AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, ezUInt32& out_uiOperatorLength)
+bool WExpressionParser::AcceptBinaryOperator(WExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, WUInt32& out_uiOperatorLength)
 {
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_binaryOperators); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_binaryOperators); ++i)
   {
     auto& op = s_binaryOperators[i];
     if (AcceptOperator(op.m_sName))
@@ -712,51 +712,51 @@ bool ezExpressionParser::AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& o
   return false;
 }
 
-ezExpressionAST::Node* ezExpressionParser::GetVariable(ezStringView sVarName)
+WExpressionAST::Node* WExpressionParser::GetVariable(WStringView sVarName)
 {
-  ezHashedString sHashedVarName;
+  WHashedString sHashedVarName;
   sHashedVarName.Assign(sVarName);
 
-  ezExpressionAST::Node* pVariableNode = nullptr;
+  WExpressionAST::Node* pVariableNode = nullptr;
   if (m_KnownVariables.TryGetValue(sHashedVarName, pVariableNode) == false && m_Options.m_bTreatUnknownVariablesAsInputs)
   {
-    pVariableNode = m_pAST->CreateInput({sHashedVarName, ezProcessingStream::DataType::Float});
+    pVariableNode = m_pAST->CreateInput({sHashedVarName, WProcessingStream::DataType::Float});
     m_KnownVariables.Insert(sHashedVarName, pVariableNode);
   }
 
   return pVariableNode;
 }
 
-ezExpressionAST::Node* ezExpressionParser::EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType)
+WExpressionAST::Node* WExpressionParser::EnsureExpectedType(WExpressionAST::Node* pNode, WExpressionAST::DataType::Enum expectedType)
 {
-  if (expectedType != ezExpressionAST::DataType::Unknown)
+  if (expectedType != WExpressionAST::DataType::Unknown)
   {
-    const auto nodeRegisterType = ezExpressionAST::DataType::GetRegisterType(pNode->m_ReturnType);
-    const auto expectedRegisterType = ezExpressionAST::DataType::GetRegisterType(expectedType);
+    const auto nodeRegisterType = WExpressionAST::DataType::GetRegisterType(pNode->m_ReturnType);
+    const auto expectedRegisterType = WExpressionAST::DataType::GetRegisterType(expectedType);
     if (nodeRegisterType != expectedRegisterType)
     {
-      pNode = m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::TypeConversion, pNode, expectedType);
+      pNode = m_pAST->CreateUnaryOperator(WExpressionAST::NodeType::TypeConversion, pNode, expectedType);
     }
 
-    const ezUInt32 nodeElementCount = ezExpressionAST::DataType::GetElementCount(pNode->m_ReturnType);
-    const ezUInt32 expectedElementCount = ezExpressionAST::DataType::GetElementCount(expectedType);
+    const WUInt32 nodeElementCount = WExpressionAST::DataType::GetElementCount(pNode->m_ReturnType);
+    const WUInt32 expectedElementCount = WExpressionAST::DataType::GetElementCount(expectedType);
     if (nodeElementCount < expectedElementCount)
     {
-      pNode = m_pAST->CreateConstructorCall(expectedType, ezMakeArrayPtr(&pNode, 1));
+      pNode = m_pAST->CreateConstructorCall(expectedType, WMakeArrayPtr(&pNode, 1));
     }
   }
 
   return pNode;
 }
 
-ezExpressionAST::Node* ezExpressionParser::Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError /*= true*/)
+WExpressionAST::Node* WExpressionParser::Unpack(WExpressionAST::Node* pNode, bool bUnassignedError /*= true*/)
 {
-  if (ezExpressionAST::NodeType::IsOutput(pNode->m_Type))
+  if (WExpressionAST::NodeType::IsOutput(pNode->m_Type))
   {
-    auto pOutput = static_cast<ezExpressionAST::Output*>(pNode);
+    auto pOutput = static_cast<WExpressionAST::Output*>(pNode);
     if (pOutput->m_pExpression == nullptr && bUnassignedError)
     {
-      ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Output '{}' has not been assigned yet", pOutput->m_Desc.m_sName));
+      ReportError(m_TokenStream[m_uiCurrentToken], WFmt("Output '{}' has not been assigned yet", pOutput->m_Desc.m_sName));
     }
 
     return pOutput->m_pExpression;
@@ -765,16 +765,16 @@ ezExpressionAST::Node* ezExpressionParser::Unpack(ezExpressionAST::Node* pNode, 
   return pNode;
 }
 
-ezResult ezExpressionParser::CheckOutputs()
+WResult WExpressionParser::CheckOutputs()
 {
   for (auto pOutputNode : m_pAST->m_OutputNodes)
   {
     if (pOutputNode->m_pExpression == nullptr)
     {
-      ezLog::Error("Output '{}' was never written", pOutputNode->m_Desc.m_sName);
-      return EZ_FAILURE;
+      WLog::Error("Output '{}' was never written", pOutputNode->m_Desc.m_sName);
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

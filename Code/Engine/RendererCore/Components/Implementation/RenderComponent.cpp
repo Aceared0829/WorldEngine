@@ -5,37 +5,37 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WRenderComponent, 1)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezRenderComponent::ezRenderComponent() = default;
-ezRenderComponent::~ezRenderComponent() = default;
+WRenderComponent::WRenderComponent() = default;
+WRenderComponent::~WRenderComponent() = default;
 
-void ezRenderComponent::OnActivated()
+void WRenderComponent::OnActivated()
 {
   // Ensure that the render data manager exists.
-  GetWorld()->GetOrCreateModule<ezRenderDataManager>();
+  GetWorld()->GetOrCreateModule<WRenderDataManager>();
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezRenderComponent::OnDeactivated()
+void WRenderComponent::OnDeactivated()
 {
   // Can't call InvalidateCachedRenderData because it checks whether we are active, which is not the case anymore.
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 
   // Only update the local bounds if the owner is still active, if not no other components are active anymore and the bounds update would be pointless.
   // The bounds will be updated when the owner is re-activated anyway.
@@ -46,15 +46,15 @@ void ezRenderComponent::OnDeactivated()
   }
 }
 
-void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WRenderComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   bool bAlwaysVisible = false;
 
   if (GetLocalBounds(bounds, bAlwaysVisible, msg).Succeeded())
   {
-    ezSpatialData::Category category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+    WSpatialData::Category category = GetOwner()->IsDynamic() ? WDefaultSpatialDataCategories::RenderDynamic : WDefaultSpatialDataCategories::RenderStatic;
 
     if (bounds.IsValid())
     {
@@ -68,15 +68,15 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   }
 }
 
-void ezRenderComponent::InvalidateCachedRenderData()
+void WRenderComponent::InvalidateCachedRenderData()
 {
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-void ezRenderComponent::TriggerLocalBoundsUpdate()
+void WRenderComponent::TriggerLocalBoundsUpdate()
 {
   if (IsActiveAndInitialized())
   {
@@ -84,7 +84,7 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
-void ezRenderComponent::QueueLocalBoundsUpdate()
+void WRenderComponent::QueueLocalBoundsUpdate()
 {
   if (IsActiveAndInitialized())
   {
@@ -93,17 +93,17 @@ void ezRenderComponent::QueueLocalBoundsUpdate()
 }
 
 // static
-ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent& component)
+WUInt32 WRenderComponent::GetUniqueIdForRendering(const WComponent& component)
 {
-  ezUInt32 uniqueId = component.GetUniqueID();
-  if (uniqueId == ezInvalidIndex)
+  WUInt32 uniqueId = component.GetUniqueID();
+  if (uniqueId == WInvalidIndex)
   {
     uniqueId = component.GetOwner()->GetHandle().GetInternalID().m_InstanceIndex;
   }
 
-  const ezUInt32 dynamicBit = (1 << 31);
-  const ezUInt32 dynamicBitMask = ~dynamicBit;
+  const WUInt32 dynamicBit = (1 << 31);
+  const WUInt32 dynamicBitMask = ~dynamicBit;
   return (uniqueId & dynamicBitMask) | (component.GetOwner()->IsDynamic() ? dynamicBit : 0);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);

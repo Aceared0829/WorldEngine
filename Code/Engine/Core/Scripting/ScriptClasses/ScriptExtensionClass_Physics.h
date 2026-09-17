@@ -5,49 +5,49 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Bitflags.h>
 
-class ezWorld;
-class ezGameObject;
+class WWorld;
+class WGameObject;
 
 /// Script extension class providing physics world queries and utilities for scripts.
 ///
 /// Exposes physics system functionality to scripts including collision detection,
 /// raycasting, and shape overlap testing. All functions require a valid world
 /// and may return no results if no physics world module is active.
-class EZ_CORE_DLL ezScriptExtensionClass_Physics
+class W_CORE_DLL WScriptExtensionClass_Physics
 {
 public:
   /// Gets the current gravity vector for the physics world.
-  static ezVec3 GetGravity(ezWorld* pWorld);
+  static WVec3 GetGravity(WWorld* pWorld);
 
   /// Finds collision layer index by name, returns invalid index if not found.
-  static ezUInt8 GetCollisionLayerByName(ezWorld* pWorld, ezStringView sLayerName);
+  static WUInt8 GetCollisionLayerByName(WWorld* pWorld, WStringView sLayerName);
 
   /// Finds weight category index by name, returns invalid key if not found.
-  static ezUInt8 GetWeightCategoryByName(ezWorld* pWorld, ezStringView sCategoryName);
+  static WUInt8 GetWeightCategoryByName(WWorld* pWorld, WStringView sCategoryName);
 
   /// Finds impulse type index by name, returns invalid key if not found.
-  static ezUInt8 GetImpulseTypeByName(ezWorld* pWorld, ezStringView sImpulseTypeName);
+  static WUInt8 GetImpulseTypeByName(WWorld* pWorld, WStringView sImpulseTypeName);
 
   /// Performs raycast and returns hit information if collision is found.
-  static bool Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreObjectID = ezInvalidIndex);
+  static bool Raycast(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, const WVec3& vStart, const WVec3& vDirection, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic, WUInt32 uiIgnoreObjectID = WInvalidIndex);
 
   /// Tests if a line segment intersects with any physics shapes.
-  static bool OverlapTestLine(ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreObjectID = ezInvalidIndex);
+  static bool OverlapTestLine(WWorld* pWorld, const WVec3& vStart, const WVec3& vEnd, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic, WUInt32 uiIgnoreObjectID = WInvalidIndex);
 
   /// Tests if a sphere at the given position overlaps with any physics shapes.
-  static bool OverlapTestSphere(ezWorld* pWorld, float fRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  static bool OverlapTestSphere(WWorld* pWorld, float fRadius, const WVec3& vPosition, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic);
 
   /// Tests if a capsule with the given transform overlaps with any physics shapes.
-  static bool OverlapTestCapsule(ezWorld* pWorld, float fRadius, float fHeight, const ezTransform& transform, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  static bool OverlapTestCapsule(WWorld* pWorld, float fRadius, float fHeight, const WTransform& transform, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic);
 
   /// Sweeps a sphere along a direction and returns hit information if collision is found.
-  static bool SweepTestSphere(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, float fRadius, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  static bool SweepTestSphere(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, float fRadius, const WVec3& vStart, const WVec3& vDirection, float fDistance, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic);
 
   /// Sweeps a capsule along a direction and returns hit information if collision is found.
-  static bool SweepTestCapsule(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, float fRadius, float fHeight, const ezTransform& start, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  static bool SweepTestCapsule(WVec3& out_vHitPosition, WVec3& out_vHitNormal, WGameObjectHandle& out_hHitObject, WWorld* pWorld, float fRadius, float fHeight, const WTransform& start, const WVec3& vDirection, float fDistance, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes = WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic);
 
   /// Performs raycast and triggers surface interaction at hit point if collision is found.
-  static bool RaycastSurfaceInteraction(ezWorld* pWorld, const ezVec3& vRayStart, const ezVec3& vRayDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, ezStringView sFallbackSurface, const ezTempHashedString& sInteraction, float fInteractionImpulse, ezUInt32 uiIgnoreObjectID = ezInvalidIndex);
+  static bool RaycastSurfaceInteraction(WWorld* pWorld, const WVec3& vRayStart, const WVec3& vRayDirection, WUInt8 uiCollisionLayer, WBitflags<WPhysicsShapeType> shapeTypes, WStringView sFallbackSurface, const WTempHashedString& sInteraction, float fInteractionImpulse, WUInt32 uiIgnoreObjectID = WInvalidIndex);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Physics);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WScriptExtensionClass_Physics);

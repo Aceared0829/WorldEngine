@@ -12,36 +12,36 @@
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WProcVolumeComponent, 1)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Value", GetValue, SetValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
-    EZ_ENUM_ACCESSOR_PROPERTY("BlendMode", ezProcGenBlendMode, GetBlendMode, SetBlendMode)->AddAttributes(new ezDefaultValueAttribute(ezProcGenBlendMode::Set)),
+    W_ACCESSOR_PROPERTY("Value", GetValue, SetValue)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new WClampValueAttribute(-64.0f, 64.0f)),
+    W_ENUM_ACCESSOR_PROPERTY("BlendMode", WProcGenBlendMode, GetBlendMode, SetBlendMode)->AddAttributes(new WDefaultValueAttribute(WProcGenBlendMode::Set)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnTransformChanged)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Construction/Procedural Generation"),
+    new WCategoryAttribute("Construction/Procedural Generation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezProcVolumeComponent::AreaInvalidatedEvent ezProcVolumeComponent::s_AreaInvalidatedEvent;
-ezSpatialData::Category ezProcVolumeComponent::s_SpatialCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
+WProcVolumeComponent::AreaInvalidatedEvent WProcVolumeComponent::s_AreaInvalidatedEvent;
+WSpatialData::Category WProcVolumeComponent::s_SpatialCategory = WSpatialData::RegisterCategory("ProcVolume", WSpatialData::Flags::None);
 
-ezProcVolumeComponent::ezProcVolumeComponent() = default;
-ezProcVolumeComponent::~ezProcVolumeComponent() = default;
+WProcVolumeComponent::WProcVolumeComponent() = default;
+WProcVolumeComponent::~WProcVolumeComponent() = default;
 
-void ezProcVolumeComponent::OnActivated()
+void WProcVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -49,21 +49,21 @@ void ezProcVolumeComponent::OnActivated()
 
   GetOwner()->UpdateLocalBounds();
 
-  if (GetUniqueID() != ezInvalidIndex)
+  if (GetUniqueID() != WInvalidIndex)
   {
     // Only necessary in Editor
     InvalidateArea();
   }
 }
 
-void ezProcVolumeComponent::OnDeactivated()
+void WProcVolumeComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  if (GetUniqueID() != ezInvalidIndex)
+  if (GetUniqueID() != WInvalidIndex)
   {
     // Only necessary in Editor
-    ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
+    WBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
     if (globalBounds.IsValid())
     {
       InvalidateArea(globalBounds.GetBox());
@@ -76,7 +76,7 @@ void ezProcVolumeComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezProcVolumeComponent::SetValue(float fValue)
+void WProcVolumeComponent::SetValue(float fValue)
 {
   if (m_fValue != fValue)
   {
@@ -86,9 +86,9 @@ void ezProcVolumeComponent::SetValue(float fValue)
   }
 }
 
-void ezProcVolumeComponent::SetSortOrder(float fOrder)
+void WProcVolumeComponent::SetSortOrder(float fOrder)
 {
-  fOrder = ezMath::Clamp(fOrder, -64.0f, 64.0f);
+  fOrder = WMath::Clamp(fOrder, -64.0f, 64.0f);
 
   if (m_fSortOrder != fOrder)
   {
@@ -98,7 +98,7 @@ void ezProcVolumeComponent::SetSortOrder(float fOrder)
   }
 }
 
-void ezProcVolumeComponent::SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode)
+void WProcVolumeComponent::SetBlendMode(WEnum<WProcGenBlendMode> blendMode)
 {
   if (m_BlendMode != blendMode)
   {
@@ -108,31 +108,31 @@ void ezProcVolumeComponent::SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode)
   }
 }
 
-void ezProcVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProcVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fValue;
   s << m_fSortOrder;
   s << m_BlendMode;
 }
 
-void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProcVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fValue;
   s >> m_fSortOrder;
   s >> m_BlendMode;
 }
 
-void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
+void WProcVolumeComponent::OnTransformChanged(WMsgTransformChanged& ref_msg)
 {
-  ezBoundingBoxSphere combined = GetOwner()->GetLocalBounds();
+  WBoundingBoxSphere combined = GetOwner()->GetLocalBounds();
   if (!combined.IsValid())
     return;
 
@@ -143,21 +143,21 @@ void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
   InvalidateArea(combined.GetBox());
 }
 
-void ezProcVolumeComponent::InvalidateArea()
+void WProcVolumeComponent::InvalidateArea()
 {
   if (!IsActiveAndInitialized())
     return;
 
-  ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
+  WBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
   if (globalBounds.IsValid())
   {
     InvalidateArea(globalBounds.GetBox());
   }
 }
 
-void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& box)
+void WProcVolumeComponent::InvalidateArea(const WBoundingBox& box)
 {
-  ezProcGenInternal::InvalidatedArea area;
+  WProcGenInternal::InvalidatedArea area;
   area.m_Box = box;
   area.m_pWorld = GetWorld();
 
@@ -167,34 +167,34 @@ void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& box)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WProcVolumeSphereComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnExtractVolumes)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractVolumes, OnExtractVolumes)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius", WColorScheme::GetCategoryColor("Construction", WColorScheme::CategoryColorUsage::ViewportIcon)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezProcVolumeSphereComponent::ezProcVolumeSphereComponent() = default;
-ezProcVolumeSphereComponent::~ezProcVolumeSphereComponent() = default;
+WProcVolumeSphereComponent::WProcVolumeSphereComponent() = default;
+WProcVolumeSphereComponent::~WProcVolumeSphereComponent() = default;
 
-void ezProcVolumeSphereComponent::SetRadius(float fRadius)
+void WProcVolumeSphereComponent::SetRadius(float fRadius)
 {
   if (m_fRadius != fRadius)
   {
@@ -209,7 +209,7 @@ void ezProcVolumeSphereComponent::SetRadius(float fRadius)
   }
 }
 
-void ezProcVolumeSphereComponent::SetFalloff(float fFalloff)
+void WProcVolumeSphereComponent::SetFalloff(float fFalloff)
 {
   if (m_fFalloff != fFalloff)
   {
@@ -219,21 +219,21 @@ void ezProcVolumeSphereComponent::SetFalloff(float fFalloff)
   }
 }
 
-void ezProcVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProcVolumeSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFalloff;
 }
 
-void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProcVolumeSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
@@ -244,12 +244,12 @@ void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stre
   }
 }
 
-void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WProcVolumeSphereComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_SpatialCategory);
+  ref_msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), s_SpatialCategory);
 }
 
-void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
+void WProcVolumeSphereComponent::OnExtractVolumes(WMsgExtractVolumes& ref_msg) const
 {
   ref_msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFalloff);
 }
@@ -257,35 +257,35 @@ void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 3, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WProcVolumeBoxComponent, 3, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
-    EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
+    W_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new WDefaultValueAttribute(WVec3(10.0f)), new WClampValueAttribute(WVec3(0), WVariant())),
+    W_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new WDefaultValueAttribute(WVec3(0.5f)), new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f))),
+    W_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new WDefaultValueAttribute(WVec3(0.5f)), new WClampValueAttribute(WVec3(0.0f), WVec3(1.0f))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnExtractVolumes)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractVolumes, OnExtractVolumes)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColorScheme::GetCategoryColor("Construction", WColorScheme::CategoryColorUsage::ViewportIcon)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezProcVolumeBoxComponent::ezProcVolumeBoxComponent() = default;
-ezProcVolumeBoxComponent::~ezProcVolumeBoxComponent() = default;
+WProcVolumeBoxComponent::WProcVolumeBoxComponent() = default;
+WProcVolumeBoxComponent::~WProcVolumeBoxComponent() = default;
 
-void ezProcVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
+void WProcVolumeBoxComponent::SetExtents(const WVec3& vExtents)
 {
   if (m_vExtents != vExtents)
   {
@@ -300,7 +300,7 @@ void ezProcVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
   }
 }
 
-void ezProcVolumeBoxComponent::SetPositiveFalloff(const ezVec3& vFalloff)
+void WProcVolumeBoxComponent::SetPositiveFalloff(const WVec3& vFalloff)
 {
   if (m_vPositiveFalloff != vFalloff)
   {
@@ -310,7 +310,7 @@ void ezProcVolumeBoxComponent::SetPositiveFalloff(const ezVec3& vFalloff)
   }
 }
 
-void ezProcVolumeBoxComponent::SetNegativeFalloff(const ezVec3& vFalloff)
+void WProcVolumeBoxComponent::SetNegativeFalloff(const WVec3& vFalloff)
 {
   if (m_vNegativeFalloff != vFalloff)
   {
@@ -320,22 +320,22 @@ void ezProcVolumeBoxComponent::SetNegativeFalloff(const ezVec3& vFalloff)
   }
 }
 
-void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProcVolumeBoxComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_vPositiveFalloff;
   s << m_vNegativeFalloff;
 }
 
-void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProcVolumeBoxComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vPositiveFalloff;
@@ -350,17 +350,17 @@ void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   if (uiVersion < 2)
   {
-    m_vPositiveFalloff = ezVec3(1.0f) - m_vPositiveFalloff;
-    m_vNegativeFalloff = ezVec3(1.0f) - m_vNegativeFalloff;
+    m_vPositiveFalloff = WVec3(1.0f) - m_vPositiveFalloff;
+    m_vNegativeFalloff = WVec3(1.0f) - m_vNegativeFalloff;
   }
 }
 
-void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
+void WProcVolumeBoxComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_SpatialCategory);
+  ref_msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_SpatialCategory);
 }
 
-void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
+void WProcVolumeBoxComponent::OnExtractVolumes(WMsgExtractVolumes& ref_msg) const
 {
   ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vPositiveFalloff, m_vNegativeFalloff);
 }
@@ -368,49 +368,49 @@ void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) co
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeImageComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WProcVolumeImageComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D"), new ezRequiredAttribute()),
+    W_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_2D"), new WRequiredAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnExtractVolumes)
+    W_MESSAGE_HANDLER(WMsgExtractVolumes, OnExtractVolumes)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezProcVolumeImageComponent::ezProcVolumeImageComponent() = default;
-ezProcVolumeImageComponent::~ezProcVolumeImageComponent() = default;
+WProcVolumeImageComponent::WProcVolumeImageComponent() = default;
+WProcVolumeImageComponent::~WProcVolumeImageComponent() = default;
 
-void ezProcVolumeImageComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WProcVolumeImageComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hImage;
 }
 
-void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WProcVolumeImageComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hImage;
 }
 
-void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
+void WProcVolumeImageComponent::OnExtractVolumes(WMsgExtractVolumes& ref_msg) const
 {
   ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vPositiveFalloff, m_vNegativeFalloff, m_hImage);
 }
 
-void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hResource)
+void WProcVolumeImageComponent::SetImage(const WImageDataResourceHandle& hResource)
 {
   m_hImage = hResource;
 }
@@ -419,15 +419,15 @@ void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hReso
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezProcVolumeSphereComponent_1_2 : public ezGraphPatch
+class WProcVolumeSphereComponent_1_2 : public WGraphPatch
 {
 public:
-  ezProcVolumeSphereComponent_1_2()
-    : ezGraphPatch("ezProcVolumeSphereComponent", 2)
+  WProcVolumeSphereComponent_1_2()
+    : WGraphPatch("WProcVolumeSphereComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
     if (pFadeOutStart && pFadeOutStart->m_Value.IsA<float>())
@@ -438,49 +438,49 @@ public:
   }
 };
 
-ezProcVolumeSphereComponent_1_2 g_ezProcVolumeSphereComponent_1_2;
+WProcVolumeSphereComponent_1_2 g_WProcVolumeSphereComponent_1_2;
 
-class ezProcVolumeBoxComponent_1_2 : public ezGraphPatch
+class WProcVolumeBoxComponent_1_2 : public WGraphPatch
 {
 public:
-  ezProcVolumeBoxComponent_1_2()
-    : ezGraphPatch("ezProcVolumeBoxComponent", 2)
+  WProcVolumeBoxComponent_1_2()
+    : WGraphPatch("WProcVolumeBoxComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
-    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<ezVec3>())
+    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<WVec3>())
     {
-      ezVec3 vFalloff = ezVec3(1.0f) - pFadeOutStart->m_Value.Get<ezVec3>();
+      WVec3 vFalloff = WVec3(1.0f) - pFadeOutStart->m_Value.Get<WVec3>();
       pNode->AddProperty("Falloff", vFalloff);
     }
   }
 };
 
-ezProcVolumeBoxComponent_1_2 g_ezProcVolumeBoxComponent_1_2;
+WProcVolumeBoxComponent_1_2 g_WProcVolumeBoxComponent_1_2;
 
-class ezProcVolumeBoxComponent_2_3 : public ezGraphPatch
+class WProcVolumeBoxComponent_2_3 : public WGraphPatch
 {
 public:
-  ezProcVolumeBoxComponent_2_3()
-    : ezGraphPatch("ezProcVolumeBoxComponent", 3)
+  WProcVolumeBoxComponent_2_3()
+    : WGraphPatch("WProcVolumeBoxComponent", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pFalloff = pNode->FindProperty("Falloff");
-    if (pFalloff && pFalloff->m_Value.IsA<ezVec3>())
+    if (pFalloff && pFalloff->m_Value.IsA<WVec3>())
     {
-      pNode->AddProperty("PositiveFalloff", pFalloff->m_Value.Get<ezVec3>());
-      pNode->AddProperty("NegativeFalloff", pFalloff->m_Value.Get<ezVec3>());
+      pNode->AddProperty("PositiveFalloff", pFalloff->m_Value.Get<WVec3>());
+      pNode->AddProperty("NegativeFalloff", pFalloff->m_Value.Get<WVec3>());
     }
   }
 };
 
-ezProcVolumeBoxComponent_2_3 g_ezProcVolumeBoxComponent_2_3;
+WProcVolumeBoxComponent_2_3 g_WProcVolumeBoxComponent_2_3;
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeComponent);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeComponent);

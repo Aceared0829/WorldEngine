@@ -3,9 +3,9 @@
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezRendererTestShaderCompiler : public ezGraphicsTest
+class WRendererTestShaderCompiler : public WGraphicsTest
 {
-  using SUPER = ezGraphicsTest;
+  using SUPER = WGraphicsTest;
 
   enum SubTests
   {
@@ -18,10 +18,10 @@ public:
 private:
   virtual void SetupSubTests() override;
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
 private:
-  ezShaderResourceHandle m_hUVColorShader;
+  WShaderResourceHandle m_hUVColorShader;
 };

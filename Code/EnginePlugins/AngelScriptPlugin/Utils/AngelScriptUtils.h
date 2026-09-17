@@ -6,60 +6,60 @@
 #include <Foundation/Types/VariantType.h>
 
 class asIScriptEngine;
-class ezVariant;
+class WVariant;
 class asIScriptGeneric;
-class ezAbstractFunctionProperty;
+class WAbstractFunctionProperty;
 class asIScriptModule;
 class asIScriptFunction;
-class ezWorld;
+class WWorld;
 
-struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
+struct W_ANGELSCRIPTPLUGIN_DLL WAsInfos
 {
-  ezSet<ezString> m_Types;
-  ezSet<ezString> m_Namespaces;
-  ezSet<ezString> m_GlobalFunctions;
-  ezSet<ezString> m_Methods;
-  ezSet<ezString> m_AllDeclarations;
-  ezSet<ezString> m_Properties;
-  ezSet<ezString> m_EnumValues;
+  WSet<WString> m_Types;
+  WSet<WString> m_Namespaces;
+  WSet<WString> m_GlobalFunctions;
+  WSet<WString> m_Methods;
+  WSet<WString> m_AllDeclarations;
+  WSet<WString> m_Properties;
+  WSet<WString> m_EnumValues;
 };
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptUtils
 {
 public:
-  static void SetThreadLocalWorld(ezWorld* pWorld);
-  static ezWorld* GetThreadLocalWorld();
+  static void SetThreadLocalWorld(WWorld* pWorld);
+  static WWorld* GetThreadLocalWorld();
 
-  static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_byteCode);
+  static void SaveByteCode(asIScriptModule* pModule, WDynamicArray<WUInt8>& out_byteCode);
 
   static const char* GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID);
 
-  static ezString GetNiceFunctionDeclaration(const asIScriptFunction* pFunc, bool bIncludeObjectName = false, bool bIncludeNamespace = false);
+  static WString GetNiceFunctionDeclaration(const asIScriptFunction* pFunc, bool bIncludeObjectName = false, bool bIncludeNamespace = false);
 
-  static asIScriptModule* LoadFromByteCode(asIScriptEngine* pEngine, ezStringView sModuleName, ezArrayPtr<ezUInt8> byteCode);
+  static asIScriptModule* LoadFromByteCode(asIScriptEngine* pEngine, WStringView sModuleName, WArrayPtr<WUInt8> byteCode);
 
-  static const ezRTTI* MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine);
+  static const WRTTI* MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine);
 
-  static ezResult WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value);
-  static ezResult ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_value);
+  static WResult WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const WVariant& value);
+  static WResult ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, WVariant& out_value);
 
-  static const char* VariantTypeToString(ezVariantType::Enum type);
+  static const char* VariantTypeToString(WVariantType::Enum type);
 
-  static ezString DefaultValueToString(const ezVariant& value, ezVariantType::Enum expectedType);
+  static WString DefaultValueToString(const WVariant& value, WVariantType::Enum expectedType);
 
-  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& ref_iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveArg(asIScriptGeneric* pGen, WUInt32 uiRealArg, WInt32& ref_iSkippedArg, const WAbstractFunctionProperty* pAbstractFuncProp, WVariant& out_arg);
 
-  static void RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveVarArgs(asIScriptGeneric* pGen, WUInt32 uiStartArg, const WAbstractFunctionProperty* pAbstractFuncProp, WVariant& out_arg);
 
   static void MakeGenericFunctionCall(asIScriptGeneric* pGen);
 
-  static void DefaultConstructInPlace(void* pPtr, const ezRTTI* pRtti);
+  static void DefaultConstructInPlace(void* pPtr, const WRTTI* pRtti);
 
-  static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_infos);
+  static void RetrieveAsInfos(asIScriptEngine* pEngine, WAsInfos& out_infos);
 
-  static void GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezStringBuilder& out_sContent);
+  static void GenerateAsPredefinedFile(asIScriptEngine* pEngine, WStringBuilder& out_sContent);
 
-  static ezString RegisterEnumType(asIScriptEngine* pEngine, const ezRTTI* pEnumType);
+  static WString RegisterEnumType(asIScriptEngine* pEngine, const WRTTI* pEnumType);
 
-  static void RegisterTypeProperties(asIScriptEngine* pEngine, const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited);
+  static void RegisterTypeProperties(asIScriptEngine* pEngine, const char* szTypeName, const WRTTI* pRtti, bool bIsInherited);
 };

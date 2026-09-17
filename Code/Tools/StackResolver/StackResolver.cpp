@@ -15,39 +15,39 @@
 
 struct Module
 {
-  ezString m_sFilePath;
-  ezUInt64 m_uiBaseAddress;
-  ezUInt32 m_uiSize;
+  WString m_sFilePath;
+  WUInt64 m_uiBaseAddress;
+  WUInt32 m_uiSize;
 };
 
 struct Stackframe
 {
-  ezUInt32 m_uiModuleIndex = 0xFFFFFFFF;
-  ezUInt32 m_uiLineNumber = 0;
-  ezString m_sFilename;
-  ezString m_sSymbol;
+  WUInt32 m_uiModuleIndex = 0xFFFFFFFF;
+  WUInt32 m_uiLineNumber = 0;
+  WString m_sFilename;
+  WString m_sSymbol;
 };
 
-ezCommandLineOptionString opt_ModuleList("_app", "-ModuleList", "List of modules as a string in this format:\n\n\
+WCommandLineOptionString opt_ModuleList("_app", "-ModuleList", "List of modules as a string in this format:\n\n\
 File1Path?File1BaseAddressHEX?File1Size|File2Path?File2BaseAddressHEX?File2Size|...\n\n\
 For example:\n\
   $[A]/app.exe?7FF7E5540000?106496|$[S]/System32/KERNELBASE.dll?7FFE2B780000?2920448\n\n\
   $[A] represents the application directory and will be adjusted as necessary.\n\
   $[S] represents the system root directory and will be adjusted as necessary.",
   "");
-ezCommandLineOptionString opt_Callstack("_app", "-Callstack", "Callstack in this format:\n\n7FFE2DD6CE74|7FFE2B7AAA86|7FFE034C22D1", "");
+WCommandLineOptionString opt_Callstack("_app", "-Callstack", "Callstack in this format:\n\n7FFE2DD6CE74|7FFE2B7AAA86|7FFE034C22D1", "");
 
-ezCommandLineOptionEnum opt_OutputFormat("_app", "-Format", "How to output the resolved callstack.", "Text=0|JSON=1", 0);
+WCommandLineOptionEnum opt_OutputFormat("_app", "-Format", "How to output the resolved callstack.", "Text=0|JSON=1", 0);
 
-ezCommandLineOptionPath opt_OutputFile("_app", "-File", "The target file where to write the output to.\nIf left empty, the output is printed to the console.", "");
+WCommandLineOptionPath opt_OutputFile("_app", "-File", "The target file where to write the output to.\nIf left empty, the output is printed to the console.", "");
 
-class ezStackResolver : public ezApplication
+class WStackResolver : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezStackResolver()
-    : ezApplication("ezStackResolver")
+  WStackResolver()
+    : WApplication("WStackResolver")
   {
   }
 
@@ -56,67 +56,67 @@ public:
 
   virtual void Run() override;
 
-  ezResult LoadModules();
-  ezResult ParseModules();
-  ezResult ParseCallstack();
+  WResult LoadModules();
+  WResult ParseModules();
+  WResult ParseCallstack();
 
   void ResolveStackFrames();
-  void FormatAsText(ezStringBuilder& ref_sOutput);
-  void FormatAsJSON(ezStringBuilder& ref_sOutput);
+  void FormatAsText(WStringBuilder& ref_sOutput);
+  void FormatAsJSON(WStringBuilder& ref_sOutput);
 
   HANDLE m_hProcess;
-  ezDynamicArray<Module> m_Modules;
-  ezDynamicArray<ezUInt64> m_Callstack;
-  ezDynamicArray<Stackframe> m_Stackframes;
-  ezStringBuilder m_SystemRootDir;
-  ezStringBuilder m_ApplicationDir;
+  WDynamicArray<Module> m_Modules;
+  WDynamicArray<WUInt64> m_Callstack;
+  WDynamicArray<Stackframe> m_Stackframes;
+  WStringBuilder m_SystemRootDir;
+  WStringBuilder m_ApplicationDir;
 };
 
-void ezStackResolver::AfterCoreSystemsStartup()
+void WStackResolver::AfterCoreSystemsStartup()
 {
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
   m_Modules.Reserve(128);
   m_Callstack.Reserve(128);
   m_Stackframes.Reserve(128);
 }
 
-void ezStackResolver::BeforeCoreSystemsShutdown()
+void WStackResolver::BeforeCoreSystemsShutdown()
 {
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 }
 
-ezResult ezStackResolver::ParseModules()
+WResult WStackResolver::ParseModules()
 {
-  const ezStringBuilder sModules = opt_ModuleList.GetOptionValue(ezCommandLineOption::LogMode::Never);
+  const WStringBuilder sModules = opt_ModuleList.GetOptionValue(WCommandLineOption::LogMode::Never);
 
-  ezDynamicArray<ezStringView> parts;
+  WDynamicArray<WStringView> parts;
   sModules.Split(false, parts, "|");
 
-  for (ezStringView sModView : parts)
+  for (WStringView sModView : parts)
   {
-    ezStringBuilder sMod = sModView;
-    ezDynamicArray<ezStringView> parts2;
+    WStringBuilder sMod = sModView;
+    WDynamicArray<WStringView> parts2;
     sMod.Split(false, parts2, "?");
 
-    ezUInt64 base;
-    if (ezConversionUtils::ConvertHexStringToUInt64(parts2[1], base).Failed())
+    WUInt64 base;
+    if (WConversionUtils::ConvertHexStringToUInt64(parts2[1], base).Failed())
     {
-      ezLog::Error("Failed to convert HEX string '{}' to UINT64", parts2[1]);
-      return EZ_FAILURE;
+      WLog::Error("Failed to convert HEX string '{}' to UINT64", parts2[1]);
+      return W_FAILURE;
     }
 
-    ezStringBuilder sSize = parts2[2];
-    ezUInt32 size;
-    if (ezConversionUtils::StringToUInt(sSize, size).Failed())
+    WStringBuilder sSize = parts2[2];
+    WUInt32 size;
+    if (WConversionUtils::StringToUInt(sSize, size).Failed())
     {
-      ezLog::Error("Failed to convert string '{}' to UINT32", sSize);
-      return EZ_FAILURE;
+      WLog::Error("Failed to convert string '{}' to UINT32", sSize);
+      return W_FAILURE;
     }
 
-    ezStringBuilder sModuleName = parts2[0];
+    WStringBuilder sModuleName = parts2[0];
     sModuleName.ReplaceFirst_NoCase("$[S]", m_SystemRootDir);
     sModuleName.ReplaceFirst_NoCase("$[A]", m_ApplicationDir);
     sModuleName.MakeCleanPath();
@@ -127,66 +127,66 @@ ezResult ezStackResolver::ParseModules()
     mod.m_uiSize = size;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStackResolver::ParseCallstack()
+WResult WStackResolver::ParseCallstack()
 {
-  ezStringBuilder sCallstack = opt_Callstack.GetOptionValue(ezCommandLineOption::LogMode::Never);
+  WStringBuilder sCallstack = opt_Callstack.GetOptionValue(WCommandLineOption::LogMode::Never);
 
-  ezDynamicArray<ezStringView> parts;
+  WDynamicArray<WStringView> parts;
   sCallstack.Split(false, parts, "|");
-  for (ezStringView sModView : parts)
+  for (WStringView sModView : parts)
   {
-    ezUInt64 base;
-    if (ezConversionUtils::ConvertHexStringToUInt64(sModView, base).Failed())
+    WUInt64 base;
+    if (WConversionUtils::ConvertHexStringToUInt64(sModView, base).Failed())
     {
-      ezLog::Error("Failed to convert HEX string '{}' to UINT64", sModView);
-      return EZ_FAILURE;
+      WLog::Error("Failed to convert HEX string '{}' to UINT64", sModView);
+      return W_FAILURE;
     }
 
     m_Callstack.PushBack(base);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStackResolver::LoadModules()
+WResult WStackResolver::LoadModules()
 {
   if (SymInitialize(m_hProcess, nullptr, FALSE) != TRUE) // TODO specify PDB search path as second parameter?
   {
-    ezLog::Error("SymInitialize failed");
-    return EZ_FAILURE;
+    WLog::Error("SymInitialize failed");
+    return W_FAILURE;
   }
 
   for (const auto& curModule : m_Modules)
   {
-    if (SymLoadModuleExW(m_hProcess, nullptr, ezStringWChar(curModule.m_sFilePath), nullptr, curModule.m_uiBaseAddress, curModule.m_uiSize, nullptr, 0) == 0)
+    if (SymLoadModuleExW(m_hProcess, nullptr, WStringWChar(curModule.m_sFilePath), nullptr, curModule.m_uiBaseAddress, curModule.m_uiSize, nullptr, 0) == 0)
     {
-      ezLog::Warning("Couldn't load module '{}'", curModule.m_sFilePath);
+      WLog::Warning("Couldn't load module '{}'", curModule.m_sFilePath);
     }
     else
     {
-      ezLog::Success("Loaded module '{}'", curModule.m_sFilePath);
+      WLog::Success("Loaded module '{}'", curModule.m_sFilePath);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezStackResolver::ResolveStackFrames()
+void WStackResolver::ResolveStackFrames()
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   char buffer[1024];
-  for (ezUInt32 i = 0; i < m_Callstack.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Callstack.GetCount(); i++)
   {
     DWORD64 symbolAddress = m_Callstack[i];
 
     _SYMBOL_INFOW& symbolInfo = *(_SYMBOL_INFOW*)buffer;
-    ezMemoryUtils::ZeroFill(&symbolInfo, 1);
+    WMemoryUtils::ZeroFill(&symbolInfo, 1);
     symbolInfo.SizeOfStruct = sizeof(_SYMBOL_INFOW);
-    symbolInfo.MaxNameLen = (EZ_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
+    symbolInfo.MaxNameLen = (W_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
 
     DWORD64 displacement = 0;
     BOOL result = SymFromAddrW(m_hProcess, symbolAddress, &displacement, &symbolInfo);
@@ -197,50 +197,50 @@ void ezStackResolver::ResolveStackFrames()
 
     IMAGEHLP_LINEW64 lineInfo;
     DWORD displacement2 = static_cast<DWORD>(displacement);
-    ezMemoryUtils::ZeroFill(&lineInfo, 1);
+    WMemoryUtils::ZeroFill(&lineInfo, 1);
     lineInfo.SizeOfStruct = sizeof(lineInfo);
     SymGetLineFromAddrW64(m_hProcess, symbolAddress, &displacement2, &lineInfo);
 
     auto& frame = m_Stackframes.ExpandAndGetRef();
 
-    for (ezUInt32 modIndex = 0; modIndex < m_Modules.GetCount(); modIndex++)
+    for (WUInt32 modIndex = 0; modIndex < m_Modules.GetCount(); modIndex++)
     {
-      if (m_Modules[modIndex].m_uiBaseAddress == (ezUInt64)symbolInfo.ModBase)
+      if (m_Modules[modIndex].m_uiBaseAddress == (WUInt64)symbolInfo.ModBase)
       {
         frame.m_uiModuleIndex = modIndex;
         break;
       }
     }
 
-    frame.m_uiLineNumber = (ezUInt32)lineInfo.LineNumber;
-    frame.m_sSymbol = ezStringUtf8(symbolInfo.Name).GetView();
+    frame.m_uiLineNumber = (WUInt32)lineInfo.LineNumber;
+    frame.m_sSymbol = WStringUtf8(symbolInfo.Name).GetView();
 
-    tmp = ezStringUtf8(lineInfo.FileName).GetView();
+    tmp = WStringUtf8(lineInfo.FileName).GetView();
     tmp.MakeCleanPath();
     frame.m_sFilename = tmp;
   }
 }
 
-void ezStackResolver::FormatAsText(ezStringBuilder& ref_sOutput)
+void WStackResolver::FormatAsText(WStringBuilder& ref_sOutput)
 {
-  ezLog::Info("Formatting callstack as text.");
+  WLog::Info("Formatting callstack as text.");
 
   for (const auto& frame : m_Stackframes)
   {
-    ezStringView sModuleName = "<unknown module>";
+    WStringView sModuleName = "<unknown module>";
 
     if (frame.m_uiModuleIndex < m_Modules.GetCount())
     {
       sModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
     }
 
-    ezStringView sFileName = "<unknown file>";
+    WStringView sFileName = "<unknown file>";
     if (!frame.m_sFilename.IsEmpty())
     {
       sFileName = frame.m_sFilename;
     }
 
-    ezStringView sSymbol = "<unknown symbol>";
+    WStringView sSymbol = "<unknown symbol>";
     if (!frame.m_sSymbol.IsEmpty())
     {
       sSymbol = frame.m_sSymbol;
@@ -250,36 +250,36 @@ void ezStackResolver::FormatAsText(ezStringBuilder& ref_sOutput)
   }
 }
 
-void ezStackResolver::FormatAsJSON(ezStringBuilder& ref_sOutput)
+void WStackResolver::FormatAsJSON(WStringBuilder& ref_sOutput)
 {
-  ezLog::Info("Formatting callstack as JSON.");
+  WLog::Info("Formatting callstack as JSON.");
 
-  ezContiguousMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
+  WContiguousMemoryStreamStorage storage;
+  WMemoryStreamWriter writer(&storage);
 
-  ezStandardJSONWriter json;
+  WStandardJSONWriter json;
   json.SetOutputStream(&writer);
-  json.SetWhitespaceMode(ezJSONWriter::WhitespaceMode::LessIndentation);
+  json.SetWhitespaceMode(WJSONWriter::WhitespaceMode::LessIndentation);
 
   json.BeginObject();
   json.BeginArray("Stackframes");
 
   for (const auto& frame : m_Stackframes)
   {
-    ezStringView sModuleName = "<unknown>";
+    WStringView sModuleName = "<unknown>";
 
     if (frame.m_uiModuleIndex < m_Modules.GetCount())
     {
       sModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
     }
 
-    ezStringView sFileName = "<unknown>";
+    WStringView sFileName = "<unknown>";
     if (!frame.m_sFilename.IsEmpty())
     {
       sFileName = frame.m_sFilename;
     }
 
-    ezStringView sSymbol = "<unknown>";
+    WStringView sSymbol = "<unknown>";
     if (!frame.m_sSymbol.IsEmpty())
     {
       sSymbol = frame.m_sSymbol;
@@ -296,36 +296,36 @@ void ezStackResolver::FormatAsJSON(ezStringBuilder& ref_sOutput)
   json.EndArray();
   json.EndObject();
 
-  ezStringView text((const char*)storage.GetData(), storage.GetStorageSize32());
+  WStringView text((const char*)storage.GetData(), storage.GetStorageSize32());
 
   ref_sOutput.Append(text);
 }
 
-void ezStackResolver::Run()
+void WStackResolver::Run()
 {
-  if (ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_app"))
+  if (WCommandLineOption::LogAvailableOptions(WCommandLineOption::LogAvailableModes::IfHelpRequested, "_app"))
   {
     QuitApplication();
     return;
   }
 
-  ezString sMissingOpt;
-  if (ezCommandLineOption::RequireOptions("-ModuleList;-Callstack", &sMissingOpt).Failed())
+  WString sMissingOpt;
+  if (WCommandLineOption::RequireOptions("-ModuleList;-Callstack", &sMissingOpt).Failed())
   {
-    ezLog::Error("Command line option '{}' was not specified.", sMissingOpt);
+    WLog::Error("Command line option '{}' was not specified.", sMissingOpt);
 
-    ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::Always, "_app");
+    WCommandLineOption::LogAvailableOptions(WCommandLineOption::LogAvailableModes::Always, "_app");
     QuitApplication();
     return;
   }
 
   m_hProcess = GetCurrentProcess();
 
-  m_ApplicationDir = ezOSFile::GetApplicationDirectory();
+  m_ApplicationDir = WOSFile::GetApplicationDirectory();
   m_ApplicationDir.MakeCleanPath();
   m_ApplicationDir.Trim("", "/");
 
-  m_SystemRootDir = ezEnvironmentVariableUtils::GetValueString("SystemRoot");
+  m_SystemRootDir = WEnvironmentVariableUtils::GetValueString("SystemRoot");
   m_SystemRootDir.MakeCleanPath();
   m_SystemRootDir.Trim("", "/");
 
@@ -349,25 +349,25 @@ void ezStackResolver::Run()
 
   ResolveStackFrames();
 
-  ezStringBuilder output;
+  WStringBuilder output;
 
-  if (opt_OutputFormat.GetOptionValue(ezCommandLineOption::LogMode::Never) == 0)
+  if (opt_OutputFormat.GetOptionValue(WCommandLineOption::LogMode::Never) == 0)
   {
     FormatAsText(output);
   }
-  else if (opt_OutputFormat.GetOptionValue(ezCommandLineOption::LogMode::Never) == 1)
+  else if (opt_OutputFormat.GetOptionValue(WCommandLineOption::LogMode::Never) == 1)
   {
     FormatAsJSON(output);
   }
 
   if (opt_OutputFile.IsOptionSpecified())
   {
-    ezLog::Info("Writing output to '{}'.", opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never));
+    WLog::Info("Writing output to '{}'.", opt_OutputFile.GetOptionValue(WCommandLineOption::LogMode::Never));
 
-    ezOSFile file;
-    if (file.Open(opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never), ezFileOpenMode::Write).Failed())
+    WOSFile file;
+    if (file.Open(opt_OutputFile.GetOptionValue(WCommandLineOption::LogMode::Never), WFileOpenMode::Write).Failed())
     {
-      ezLog::Error("Could not open file for writing: '{}'", opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never));
+      WLog::Error("Could not open file for writing: '{}'", opt_OutputFile.GetOptionValue(WCommandLineOption::LogMode::Never));
       QuitApplication();
       return;
     }
@@ -376,20 +376,20 @@ void ezStackResolver::Run()
   }
   else
   {
-    ezLog::Info("Writing output to console.");
+    WLog::Info("Writing output to console.");
 
-    EZ_LOG_BLOCK("Resolved callstack");
+    W_LOG_BLOCK("Resolved callstack");
 
-    ezDynamicArray<ezStringView> lines;
+    WDynamicArray<WStringView> lines;
     output.Split(true, lines, "\n");
 
     for (auto l : lines)
     {
-      ezLog::Info("{}", l);
+      WLog::Info("{}", l);
     }
   }
 
   QuitApplication();
 }
 
-EZ_APPLICATION_ENTRY_POINT(ezStackResolver);
+W_APPLICATION_ENTRY_POINT(WStackResolver);

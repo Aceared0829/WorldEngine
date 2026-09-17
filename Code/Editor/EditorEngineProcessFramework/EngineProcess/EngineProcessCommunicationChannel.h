@@ -2,13 +2,13 @@
 
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessCommunicationChannel : public ezProcessCommunicationChannel
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineProcessCommunicationChannel : public WProcessCommunicationChannel
 {
 public:
-  ezResult ConnectToHostProcess();
+  WResult ConnectToHostProcess();
 
   bool IsHostAlive() const;
 
 private:
-  ezInt64 m_iHostPID = 0;
+  WInt64 m_iHostPID = 0;
 };

@@ -5,23 +5,23 @@
 
 #include <Foundation/Basics.h>
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_ENABLED(EZ_PLATFORM_64BIT)
-#  define EZ_RASTERIZER_SUPPORTED EZ_ON
+#if W_ENABLED(W_COMPILER_MSVC_PURE) && W_ENABLED(W_PLATFORM_64BIT)
+#  define W_RASTERIZER_SUPPORTED W_ON
 #else
-#  define EZ_RASTERIZER_SUPPORTED EZ_OFF
+#  define W_RASTERIZER_SUPPORTED W_OFF
 #endif
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 #  include <intrin.h>
 #endif
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 
 struct Occluder
 {
   ~Occluder();
 
-  void bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin, __m128 refMax);
+  void bake(const __m128* vertices, WUInt32 numVertices, __m128 refMin, __m128 refMax);
 
   __m128 m_center;
 

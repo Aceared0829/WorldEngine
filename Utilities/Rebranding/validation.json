@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-17",
+  "project": "WorldEngine",
+  "local_root": "D:/WorldEngine",
+  "environment": "Windows x64, Visual Studio 2026, Debug, DX11",
+  "build": {"result": "passed", "log": "Workspace/worldengine-final-build.log"},
+  "tests": {
+    "migration_python_tests": 8,
+    "FoundationTest": "All tests passed",
+    "ToolsFoundationTest": "All tests passed",
+    "CoreTest": "All tests passed",
+    "native_log_pattern": "Workspace/worldengine-verified-<test>.log"
+  },
+  "assets": {
+    "project_markers": 22,
+    "runtime_profiles": 20,
+    "mesh_assets": 2,
+    "prefab_assets": 1,
+    "binary_comparison": "Converted fixtures match conversion of original backup; profiles retain scalar data",
+    "sample": "Testing Chambers",
+    "cold_transform_exit_code": 0,
+    "warm_transform_exit_code": 0,
+    "warm_logs": "Workspace/worldengine-asset-warm/Logs",
+    "warm_script_load_errors": 0
+  },
+  "runtime": [
+    {"scene": "Scenes/Main.WScene", "frames": 120, "exit_code": 0, "log": "Workspace/worldengine-player-main.log"},
+    {"scene": "Scenes/Perf-AnimGraph.WScene", "frames": 120, "exit_code": 0, "log": "Workspace/worldengine-player-animation.log"}
+  ],
+  "limitations": [
+    "Cold thumbnail generation emitted script loading errors; warm conversion and subsequent player runs did not reproduce them.",
+    "Existing source asset import warnings and shader warning X3571 remain.",
+    "Native tests were rerun serially after the asset processor released network port 1050.",
+    "Other platforms, graphics backends and external legacy projects were not validated.",
+    "Legacy archives need conversion or repacking; plugins need rebuilding and old asset caches need regeneration."
+  ]
+}

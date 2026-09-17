@@ -4,7 +4,7 @@
 #include <Foundation/Math/Vec2.h>
 
 /// Specifies how to restrict movement of the Operating System mouse
-struct ezMouseCursorClipMode
+struct WMouseCursorClipMode
 {
   enum Enum
   {
@@ -21,20 +21,20 @@ struct ezMouseCursorClipMode
 
 /// This is the base class for all input devices that handle mouse and keyboard input.
 ///
-/// This class is derived from ezInputDevice but adds interface functions to handle mouse and keyboard input.
+/// This class is derived from WInputDevice but adds interface functions to handle mouse and keyboard input.
 /// It is typically instantiated on a per-window basis.
-class EZ_CORE_DLL ezInputDeviceMouseKeyboard : public ezInputDevice
+class W_CORE_DLL WInputDeviceMouseKeyboard : public WInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard, ezInputDevice);
+  W_ADD_DYNAMIC_REFLECTION(WInputDeviceMouseKeyboard, WInputDevice);
 
 public:
-  ezInputDeviceMouseKeyboard() { m_vMouseScale.Set(1.0f); }
+  WInputDeviceMouseKeyboard() { m_vMouseScale.Set(1.0f); }
 
   /// Shows or hides the mouse cursor inside the application window.
   ///
   /// This only stores what the application wants. Overlay UI (such as the in-game console) may
-  /// temporarily override this through ezInputManager::PushMouseCursorOverride(), and a custom
-  /// ('software') cursor (see ezInputManager::SetMouseCursor()) hides the OS cursor as well.
+  /// temporarily override this through WInputManager::PushMouseCursorOverride(), and a custom
+  /// ('software') cursor (see WInputManager::SetMouseCursor()) hides the OS cursor as well.
   /// Once those no longer apply, the state set here is restored automatically, so callers never
   /// need to save and restore it themselves.
   void SetShowMouseCursor(bool bShow);
@@ -52,9 +52,9 @@ public:
   ///
   /// Returns 0 if the platform can't report it.
   ///
-  /// Querying this involves system calls. Prefer ezInputManager::GetHardwareCursorSize(),
+  /// Querying this involves system calls. Prefer WInputManager::GetHardwareCursorSize(),
   /// which caches the value and provides a fallback.
-  virtual ezUInt32 GetHardwareCursorSize() const { return 0; }
+  virtual WUInt32 GetHardwareCursorSize() const { return 0; }
 
   /// Will trap the mouse inside the application window. Should usually be enabled, to prevent accidental task switches.
   ///
@@ -62,15 +62,15 @@ public:
   /// Do NOT use this function when you have multiple windows and require absolute mouse positions.
   ///
   /// Like SetShowMouseCursor(), this only stores what the application wants. Overlay UI may
-  /// temporarily force ezMouseCursorClipMode::NoClip.
+  /// temporarily force WMouseCursorClipMode::NoClip.
   ///
-  /// \sa ezMouseCursorClipMode
-  void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode);
+  /// \sa WMouseCursorClipMode
+  void SetClipMouseCursor(WMouseCursorClipMode::Enum mode);
 
   /// Returns how the application wants the mouse to be confined to the window.
   ///
   /// This ignores any overrides, ie. it returns exactly what was passed to SetClipMouseCursor().
-  ezMouseCursorClipMode::Enum GetClipMouseCursor() const { return m_ClipModeDesired; }
+  WMouseCursorClipMode::Enum GetClipMouseCursor() const { return m_ClipModeDesired; }
 
   /// If enabled, the OS will not handle system hotkeys (e.g. the Windows key) while this device is active.
   ///
@@ -82,24 +82,24 @@ public:
   bool GetDisableOSHotkeys() const { return m_bDisableOSHotkeys; }
 
   /// Sets the scaling factor that is applied on all (relative) mouse input.
-  virtual void SetMouseSpeed(const ezVec2& vScale) { m_vMouseScale = vScale; }
+  virtual void SetMouseSpeed(const WVec2& vScale) { m_vMouseScale = vScale; }
 
   /// Returns the scaling factor that is applied on all (relative) mouse input.
-  ezVec2 GetMouseSpeed() const { return m_vMouseScale; }
+  WVec2 GetMouseSpeed() const { return m_vMouseScale; }
 
-  /// Returns the number of the ezWindow over which the mouse moved last.
+  /// Returns the number of the WWindow over which the mouse moved last.
   bool IsMouseOver() const { return s_pMouseOver == this; }
 
-  /// Returns if the associated ezWindow has focus
+  /// Returns if the associated WWindow has focus
   bool IsFocused() { return m_bIsFocused; }
 
   /// Returns the current (normalized) mouse position within the window.
   ///
   /// Coordinates are in [0; 1] range ([0,0] = top left, [1,1] = bottom right of the window).
-  ezVec2 GetLocalMouseCoordinates() const { return m_vLocalMouseCoordinates; }
+  WVec2 GetLocalMouseCoordinates() const { return m_vLocalMouseCoordinates; }
 
 protected:
-  friend class ezInputManager;
+  friend class WInputManager;
 
   virtual void UpdateInputSlotValues() override;
 
@@ -115,34 +115,34 @@ protected:
   virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) = 0;
 
   /// Platform implementation of confining the OS cursor. \sa ApplyShowMouseCursor()
-  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) = 0;
+  virtual void ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode) = 0;
 
   /// Recomputes the effective cursor state from the desired state and the overrides that are
-  /// registered at the ezInputManager, and forwards it to the platform, if it changed.
+  /// registered at the WInputManager, and forwards it to the platform, if it changed.
   void UpdateEffectiveMouseCursorState();
 
-  static ezInputDevice* s_pMouseOver;
+  static WInputDevice* s_pMouseOver;
 
-  ezTime m_DoubleClickTime = ezTime::MakeFromMilliseconds(500);
-  ezVec2 m_vLocalMouseCoordinates = ezVec2(0.0f);
+  WTime m_DoubleClickTime = WTime::MakeFromMilliseconds(500);
+  WVec2 m_vLocalMouseCoordinates = WVec2(0.0f);
   bool m_bDisableOSHotkeys = false;
 
   // What the application requested, see SetShowMouseCursor() / SetClipMouseCursor().
   bool m_bShowMouseCursorDesired = true;
-  ezMouseCursorClipMode::Enum m_ClipModeDesired = ezMouseCursorClipMode::NoClip;
+  WMouseCursorClipMode::Enum m_ClipModeDesired = WMouseCursorClipMode::NoClip;
 
   // What was last forwarded to Apply*(), used to filter out redundant calls.
   // These must match the state that the platforms start out with (cursor visible, not confined),
   // otherwise the first real state change would be swallowed.
-  // Note that ezWindowCreationDesc::m_bShowMouseCursor defaults to false, ie. window creation
+  // Note that WWindowCreationDesc::m_bShowMouseCursor defaults to false, ie. window creation
   // usually performs that first state change.
   bool m_bShowMouseCursorEffective = true;
-  ezMouseCursorClipMode::Enum m_ClipModeEffective = ezMouseCursorClipMode::NoClip;
+  WMouseCursorClipMode::Enum m_ClipModeEffective = WMouseCursorClipMode::NoClip;
 
 private:
-  ezVec2 m_vMouseScale = ezVec2(1.0f);
+  WVec2 m_vMouseScale = WVec2(1.0f);
   bool m_bIsFocused = true;
 
-  ezTime m_LastMouseClick[3];
+  WTime m_LastMouseClick[3];
   bool m_bMouseDown[3] = {false, false, false};
 };

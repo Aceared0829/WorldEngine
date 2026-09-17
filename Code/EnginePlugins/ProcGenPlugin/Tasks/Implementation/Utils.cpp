@@ -8,59 +8,59 @@
 
 namespace
 {
-  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
-  static ezHashedString s_sVolumes = ezMakeHashedString("Volumes");
+  WSpatialData::Category s_ProcVolumeCategory = WSpatialData::RegisterCategory("ProcVolume", WSpatialData::Flags::None);
+  static WHashedString s_sVolumes = WMakeHashedString("Volumes");
 
-  static const ezEnum<ezExpression::RegisterType> s_ApplyVolumesTypes[] = {
-    ezExpression::RegisterType::Float, // PosX
-    ezExpression::RegisterType::Float, // PosY
-    ezExpression::RegisterType::Float, // PosZ
-    ezExpression::RegisterType::Float, // InitialValue
-    ezExpression::RegisterType::Int,   // TagSetIndex
-    ezExpression::RegisterType::Int,   // ImageMode
-    ezExpression::RegisterType::Float, // RefColorR
-    ezExpression::RegisterType::Float, // RefColorG
-    ezExpression::RegisterType::Float, // RefColorB
-    ezExpression::RegisterType::Float, // RefColorA
+  static const WEnum<WExpression::RegisterType> s_ApplyVolumesTypes[] = {
+    WExpression::RegisterType::Float, // PosX
+    WExpression::RegisterType::Float, // PosY
+    WExpression::RegisterType::Float, // PosZ
+    WExpression::RegisterType::Float, // InitialValue
+    WExpression::RegisterType::Int,   // TagSetIndex
+    WExpression::RegisterType::Int,   // ImageMode
+    WExpression::RegisterType::Float, // RefColorR
+    WExpression::RegisterType::Float, // RefColorG
+    WExpression::RegisterType::Float, // RefColorB
+    WExpression::RegisterType::Float, // RefColorA
   };
 
-  static void ApplyVolumes(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  static void ApplyVolumes(WExpression::Inputs inputs, WExpression::Output output, const WExpression::GlobalData& globalData)
   {
-    const ezVariantArray& volumes = globalData.GetValue(s_sVolumes)->Get<ezVariantArray>();
+    const WVariantArray& volumes = globalData.GetValue(s_sVolumes)->Get<WVariantArray>();
     if (volumes.IsEmpty())
       return;
 
-    ezUInt32 uiTagSetIndex = inputs[4].GetPtr()->i.x();
-    auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiTagSetIndex].Get<ezReflectedClass*>());
+    WUInt32 uiTagSetIndex = inputs[4].GetPtr()->i.x();
+    auto pVolumeCollection = WDynamicCast<const WVolumeCollection*>(volumes[uiTagSetIndex].Get<WReflectedClass*>());
     if (pVolumeCollection == nullptr)
       return;
 
-    const ezExpression::Register* pPosX = inputs[0].GetPtr();
-    const ezExpression::Register* pPosY = inputs[1].GetPtr();
-    const ezExpression::Register* pPosZ = inputs[2].GetPtr();
-    const ezExpression::Register* pPosXEnd = inputs[0].GetEndPtr();
+    const WExpression::Register* pPosX = inputs[0].GetPtr();
+    const WExpression::Register* pPosY = inputs[1].GetPtr();
+    const WExpression::Register* pPosZ = inputs[2].GetPtr();
+    const WExpression::Register* pPosXEnd = inputs[0].GetEndPtr();
 
-    const ezExpression::Register* pInitialValues = inputs[3].GetPtr();
+    const WExpression::Register* pInitialValues = inputs[3].GetPtr();
 
-    ezProcVolumeImageMode::Enum imgMode = ezProcVolumeImageMode::Default;
-    ezColor refColor = ezColor::White;
+    WProcVolumeImageMode::Enum imgMode = WProcVolumeImageMode::Default;
+    WColor refColor = WColor::White;
     if (inputs.GetCount() >= 10)
     {
-      imgMode = static_cast<ezProcVolumeImageMode::Enum>(inputs[5].GetPtr()->i.x());
+      imgMode = static_cast<WProcVolumeImageMode::Enum>(inputs[5].GetPtr()->i.x());
 
       const float refColR = inputs[6].GetPtr()->f.x();
       const float refColG = inputs[7].GetPtr()->f.x();
       const float refColB = inputs[8].GetPtr()->f.x();
       const float refColA = inputs[9].GetPtr()->f.x();
-      refColor = ezColor(refColR, refColG, refColB, refColA);
+      refColor = WColor(refColR, refColG, refColB, refColA);
     }
 
-    ezExpression::Register* pOutput = output.GetPtr();
+    WExpression::Register* pOutput = output.GetPtr();
 
-    ezSimdMat4f helperMat;
+    WSimdMat4f helperMat;
     while (pPosX < pPosXEnd)
     {
-      helperMat.SetRows(pPosX->f, pPosY->f, pPosZ->f, ezSimdVec4f::MakeZero());
+      helperMat.SetRows(pPosX->f, pPosY->f, pPosZ->f, WSimdVec4f::MakeZero());
 
       const float x = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col0, pInitialValues->f.x(), imgMode, refColor);
       const float y = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col1, pInitialValues->f.y(), imgMode, refColor);
@@ -76,32 +76,32 @@ namespace
     }
   }
 
-  static ezResult ApplyVolumesValidate(const ezExpression::GlobalData& globalData)
+  static WResult ApplyVolumesValidate(const WExpression::GlobalData& globalData)
   {
     if (!globalData.IsEmpty())
     {
-      if (const ezVariant* pValue = globalData.GetValue("Volumes"))
+      if (const WVariant* pValue = globalData.GetValue("Volumes"))
       {
-        if (pValue->GetType() == ezVariantType::VariantArray)
+        if (pValue->GetType() == WVariantType::VariantArray)
         {
-          return EZ_SUCCESS;
+          return W_SUCCESS;
         }
       }
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ezHashedString s_sInstanceSeed = ezMakeHashedString("InstanceSeed");
+  static WHashedString s_sInstanceSeed = WMakeHashedString("InstanceSeed");
 
-  static void GetInstanceSeed(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  static void GetInstanceSeed(WExpression::Inputs inputs, WExpression::Output output, const WExpression::GlobalData& globalData)
   {
     int instanceSeed = globalData.GetValue(s_sInstanceSeed)->Get<int>();
 
-    ezExpression::Register* pOutput = output.GetPtr();
-    ezExpression::Register* pOutputEnd = output.GetEndPtr();
+    WExpression::Register* pOutput = output.GetPtr();
+    WExpression::Register* pOutputEnd = output.GetEndPtr();
 
     while (pOutput < pOutputEnd)
     {
@@ -111,31 +111,31 @@ namespace
     }
   }
 
-  static ezResult GetInstanceSeedValidate(const ezExpression::GlobalData& globalData)
+  static WResult GetInstanceSeedValidate(const WExpression::GlobalData& globalData)
   {
     if (!globalData.IsEmpty())
     {
-      if (const ezVariant* pValue = globalData.GetValue(s_sInstanceSeed))
+      if (const WVariant* pValue = globalData.GetValue(s_sInstanceSeed))
       {
-        if (pValue->GetType() == ezVariantType::Int32)
+        if (pValue->GetType() == WVariantType::Int32)
         {
-          return EZ_SUCCESS;
+          return W_SUCCESS;
         }
       }
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 } // namespace
 
-ezExpressionFunction ezProcGenExpressionFunctions::s_ApplyVolumesFunc = {
-  {ezMakeHashedString("applyVolumes"), ezExpression::FunctionDesc::TypeList(s_ApplyVolumesTypes), 5, ezExpression::RegisterType::Float},
+WExpressionFunction WProcGenExpressionFunctions::s_ApplyVolumesFunc = {
+  {WMakeHashedString("applyVolumes"), WExpression::FunctionDesc::TypeList(s_ApplyVolumesTypes), 5, WExpression::RegisterType::Float},
   &ApplyVolumes,
   &ApplyVolumesValidate,
 };
 
-ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
-  {ezMakeHashedString("getInstanceSeed"), ezExpression::FunctionDesc::TypeList(), 0, ezExpression::RegisterType::Int},
+WExpressionFunction WProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
+  {WMakeHashedString("getInstanceSeed"), WExpression::FunctionDesc::TypeList(), 0, WExpression::RegisterType::Int},
   &GetInstanceSeed,
   &GetInstanceSeedValidate,
 };
@@ -143,71 +143,71 @@ ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
 //////////////////////////////////////////////////////////////////////////
 
 // static
-void ezProcGenGlobalData::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const ezProcGenInternal::Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData)
+void WProcGenGlobalData::ExtractVolumeCollections(const WWorld& world, const WBoundingBox& box, const WProcGenInternal::Output& output, WDeque<WVolumeCollection>& ref_volumeCollections, WExpression::GlobalData& ref_globalData)
 {
   auto& volumeTagSetIndices = output.m_VolumeTagSetIndices;
   if (volumeTagSetIndices.IsEmpty())
     return;
 
-  ezVariantArray volumes;
-  if (ezVariant* volumesVar = ref_globalData.GetValue(s_sVolumes))
+  WVariantArray volumes;
+  if (WVariant* volumesVar = ref_globalData.GetValue(s_sVolumes))
   {
-    volumes = volumesVar->Get<ezVariantArray>();
+    volumes = volumesVar->Get<WVariantArray>();
   }
 
-  for (ezUInt8 tagSetIndex : volumeTagSetIndices)
+  for (WUInt8 tagSetIndex : volumeTagSetIndices)
   {
     if (tagSetIndex < volumes.GetCount() && volumes[tagSetIndex].IsValid())
     {
       continue;
     }
 
-    auto pGraphSharedData = static_cast<const ezProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
+    auto pGraphSharedData = static_cast<const WProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
     auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
 
     auto& volumeCollection = ref_volumeCollections.ExpandAndGetRef();
-    ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
+    WVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, WGetStaticRTTI<WProcVolumeComponent>());
 
     volumes.EnsureCount(tagSetIndex + 1);
-    volumes[tagSetIndex] = ezVariant(&volumeCollection);
+    volumes[tagSetIndex] = WVariant(&volumeCollection);
   }
 
   ref_globalData.Insert(s_sVolumes, volumes);
 }
 
 // static
-void ezProcGenGlobalData::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData)
+void WProcGenGlobalData::SetInstanceSeed(WUInt32 uiSeed, WExpression::GlobalData& ref_globalData)
 {
   ref_globalData.Insert(s_sInstanceSeed, (int)uiSeed);
 }
 
 // static
-void ezProcGenGlobalData::SetCurves(const ezProcGenInternal::Output& output, ezExpression::GlobalData& ref_globalData)
+void WProcGenGlobalData::SetCurves(const WProcGenInternal::Output& output, WExpression::GlobalData& ref_globalData)
 {
   auto& curveIndices = output.m_CurveIndices;
   if (curveIndices.IsEmpty())
     return;
 
-  const ezHashedString sCurves = ezMakeHashedString("Curves");
+  const WHashedString sCurves = WMakeHashedString("Curves");
 
-  ezVariantArray curves;
-  if (ezVariant* curvesVar = ref_globalData.GetValue(sCurves))
+  WVariantArray curves;
+  if (WVariant* curvesVar = ref_globalData.GetValue(sCurves))
   {
-    curves = curvesVar->Get<ezVariantArray>();
+    curves = curvesVar->Get<WVariantArray>();
   }
 
-  for (ezUInt8 curveIndex : curveIndices)
+  for (WUInt8 curveIndex : curveIndices)
   {
     if (curveIndex < curves.GetCount() && curves[curveIndex].IsValid())
     {
       continue;
     }
 
-    auto pGraphSharedData = static_cast<const ezProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
+    auto pGraphSharedData = static_cast<const WProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
     auto& curveData = pGraphSharedData->GetCurve(curveIndex);
 
     curves.EnsureCount(curveIndex + 1);
-    curves[curveIndex] = ezVariant(&curveData);
+    curves[curveIndex] = WVariant(&curveData);
   }
 
   ref_globalData.Insert(sCurves, curves);

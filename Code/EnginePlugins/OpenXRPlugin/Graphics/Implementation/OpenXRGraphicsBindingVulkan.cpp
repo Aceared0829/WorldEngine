@@ -10,11 +10,11 @@
 #  include <RendererFoundation/Device/Device.h>
 #  include <RendererVulkan/Device/DeviceVulkan.h>
 
-EZ_IMPLEMENT_SINGLETON(ezOpenXRGraphicsBindingVulkan);
+W_IMPLEMENT_SINGLETON(WOpenXRGraphicsBindingVulkan);
 
 namespace
 {
-  vk::Result AddExtIfSupported(ezStringView sExtensionName, const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions)
+  vk::Result AddExtIfSupported(WStringView sExtensionName, const WDynamicArray<vk::ExtensionProperties>& availableExtensions, WDynamicArray<WString>& ref_extensions)
   {
     auto it = std::find_if(begin(availableExtensions), end(availableExtensions), [&](const vk::ExtensionProperties& prop)
       { return sExtensionName == prop.extensionName.data(); });
@@ -22,7 +22,7 @@ namespace
     {
       for (const char* existingExt : ref_extensions)
       {
-        if (ezStringUtils::IsEqual(existingExt, it->extensionName))
+        if (WStringUtils::IsEqual(existingExt, it->extensionName))
         {
           return vk::Result::eSuccess;
         }
@@ -30,7 +30,7 @@ namespace
       ref_extensions.PushBack(sExtensionName);
       return vk::Result::eSuccess;
     }
-    ezLog::Error("OpenXR: The required Vulkan extension '{}' is not supported.", sExtensionName);
+    WLog::Error("OpenXR: The required Vulkan extension '{}' is not supported.", sExtensionName);
     return vk::Result::eErrorExtensionNotPresent;
   };
 } // namespace
@@ -52,18 +52,18 @@ PFN_vkVoidFunction vkGetInstanceProcAddr(VkInstance instance, const char* pName)
 #  endif
 
 
-ezOpenXRGraphicsBindingVulkan::ezOpenXRGraphicsBindingVulkan(ezOpenXR* pOpenXR)
+WOpenXRGraphicsBindingVulkan::WOpenXRGraphicsBindingVulkan(WOpenXR* pOpenXR)
   : m_SingletonRegistrar(this)
   , m_pOpenXR(pOpenXR)
 {
 }
 
-ezOpenXRGraphicsBindingVulkan::~ezOpenXRGraphicsBindingVulkan()
+WOpenXRGraphicsBindingVulkan::~WOpenXRGraphicsBindingVulkan()
 {
   Deinitialize();
 }
 
-XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
+XrResult WOpenXRGraphicsBindingVulkan::SelectExtension(WDynamicArray<const char*>& extensions, const WDynamicArray<XrExtensionProperties>& extensionProperties)
 {
   // Hardcoded preference: set to false to prefer XR_KHR_vulkan_enable (v1) over v2
   // TODO: Make this configurable via settings
@@ -73,11 +73,11 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezDynamicArray<const cha
   bool bFoundV2 = false;
   for (const XrExtensionProperties& prop : extensionProperties)
   {
-    if (ezStringUtils::IsEqual(prop.extensionName, XR_KHR_VULKAN_ENABLE_EXTENSION_NAME))
+    if (WStringUtils::IsEqual(prop.extensionName, XR_KHR_VULKAN_ENABLE_EXTENSION_NAME))
     {
       bFoundV1 = true;
     }
-    else if (ezStringUtils::IsEqual(prop.extensionName, XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME))
+    else if (WStringUtils::IsEqual(prop.extensionName, XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME))
     {
       bFoundV2 = true;
     }
@@ -85,7 +85,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezDynamicArray<const cha
 
   if (!bFoundV1 && !bFoundV2)
   {
-    ezLog::Error("OpenXR: Neither {} nor {} extension found", XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME, XR_KHR_VULKAN_ENABLE_EXTENSION_NAME);
+    WLog::Error("OpenXR: Neither {} nor {} extension found", XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME, XR_KHR_VULKAN_ENABLE_EXTENSION_NAME);
     return XR_ERROR_EXTENSION_NOT_PRESENT;
   }
 
@@ -94,17 +94,17 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezDynamicArray<const cha
   {
     extensions.PushBack(XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME);
     m_bUsingVulkanEnable2 = true;
-    ezLog::Info("OpenXR: Enabled {} extension", XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME);
+    WLog::Info("OpenXR: Enabled {} extension", XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME);
     return XR_SUCCESS;
   }
 
   extensions.PushBack(XR_KHR_VULKAN_ENABLE_EXTENSION_NAME);
   m_bUsingVulkanEnable2 = false;
-  ezLog::Info("OpenXR: Enabled {} extension", XR_KHR_VULKAN_ENABLE_EXTENSION_NAME);
+  WLog::Info("OpenXR: Enabled {} extension", XR_KHR_VULKAN_ENABLE_EXTENSION_NAME);
   return XR_SUCCESS;
 }
 
-void ezOpenXRGraphicsBindingVulkan::LoadFunctionPointers(XrInstance instance)
+void WOpenXRGraphicsBindingVulkan::LoadFunctionPointers(XrInstance instance)
 {
   if (m_bUsingVulkanEnable2)
   {
@@ -124,9 +124,9 @@ void ezOpenXRGraphicsBindingVulkan::LoadFunctionPointers(XrInstance instance)
   }
 }
 
-XrResult ezOpenXRGraphicsBindingVulkan::Initialize(XrInstance instance, XrSystemId systemId, ezGALDevice* pDevice)
+XrResult WOpenXRGraphicsBindingVulkan::Initialize(XrInstance instance, XrSystemId systemId, WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
   // Fill in the Vulkan graphics binding
   m_GraphicsBinding.type = XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR;
   m_GraphicsBinding.next = nullptr;
@@ -138,7 +138,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::Initialize(XrInstance instance, XrSystem
   return XR_SUCCESS;
 }
 
-void ezOpenXRGraphicsBindingVulkan::Deinitialize()
+void WOpenXRGraphicsBindingVulkan::Deinitialize()
 {
   m_GraphicsBinding.instance = VK_NULL_HANDLE;
   m_GraphicsBinding.physicalDevice = VK_NULL_HANDLE;
@@ -154,22 +154,22 @@ void ezOpenXRGraphicsBindingVulkan::Deinitialize()
   CleanupSwapchainImages();
 }
 
-const void* ezOpenXRGraphicsBindingVulkan::GetGraphicsBinding() const
+const void* WOpenXRGraphicsBindingVulkan::GetGraphicsBinding() const
 {
   return &m_GraphicsBinding;
 }
 
-XrResult ezOpenXRGraphicsBindingVulkan::SelectSwapchainFormats(XrSession session, bool bDepthComposition, int64_t& out_colorFormat, int64_t& out_depthFormat)
+XrResult WOpenXRGraphicsBindingVulkan::SelectSwapchainFormats(XrSession session, bool bDepthComposition, int64_t& out_colorFormat, int64_t& out_depthFormat)
 {
   // Enumerate available formats
   uint32_t formatCount;
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(session, 0, &formatCount, nullptr));
-  ezDynamicArray<int64_t> swapchainFormats;
+  WDynamicArray<int64_t> swapchainFormats;
   swapchainFormats.SetCountUninitialized(formatCount);
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(session, formatCount, &formatCount, swapchainFormats.GetData()));
 
   // Build a set for fast lookup
-  ezSet<int64_t> availableFormats;
+  WSet<int64_t> availableFormats;
   for (int64_t format : swapchainFormats)
   {
     availableFormats.Insert(format);
@@ -196,7 +196,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectSwapchainFormats(XrSession session
 
   if (out_colorFormat == 0)
   {
-    ezLog::Error("OpenXR Vulkan: No supported color swapchain format found");
+    WLog::Error("OpenXR Vulkan: No supported color swapchain format found");
     return XR_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -222,7 +222,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectSwapchainFormats(XrSession session
 
     if (out_depthFormat == 0)
     {
-      ezLog::Error("OpenXR Vulkan: No supported depth swapchain format found");
+      WLog::Error("OpenXR Vulkan: No supported depth swapchain format found");
       return XR_ERROR_INITIALIZATION_FAILED;
     }
   }
@@ -230,7 +230,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::SelectSwapchainFormats(XrSession session
   return XR_SUCCESS;
 }
 
-XrResult ezOpenXRGraphicsBindingVulkan::CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, ezUInt32 imageCount, ezSizeU32 size, ezGALMSAASampleCount::Enum msaaCount, bool bIsDepth, ezGALDevice* pDevice, ezDynamicArray<ezGALTextureHandle>& out_textures)
+XrResult WOpenXRGraphicsBindingVulkan::CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, WUInt32 imageCount, WSizeU32 size, WGALMSAASampleCount::Enum msaaCount, bool bIsDepth, WGALDevice* pDevice, WDynamicArray<WGALTextureHandle>& out_textures)
 {
   // Select the appropriate image storage
   auto& imageStorage = bIsDepth ? m_DepthSwapchainImages : m_ColorSwapchainImages;
@@ -241,62 +241,62 @@ XrResult ezOpenXRGraphicsBindingVulkan::CreateSwapchainImages(XrSwapchain swapch
 
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR Vulkan: xrEnumerateSwapchainImages failed: {}", (int)result);
+    WLog::Error("OpenXR Vulkan: xrEnumerateSwapchainImages failed: {}", (int)result);
     return result;
   }
 
   // Create texture handles for each swapchain image
-  for (ezUInt32 i = 0; i < imageCount; i++)
+  for (WUInt32 i = 0; i < imageCount; i++)
   {
     VkImage vkImage = imageStorage[i].image;
 
-    ezGALTextureCreationDescription textureDesc;
+    WGALTextureCreationDescription textureDesc;
     textureDesc.SetAsRenderTarget(size.width, size.height, ConvertTextureFormat(format), msaaCount);
     textureDesc.m_uiArraySize = 2;
     textureDesc.m_pExisitingNativeObject = (void*)vkImage;
-    textureDesc.m_Type = ezGALTextureType::Texture2DArray;
-    textureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+    textureDesc.m_Type = WGALTextureType::Texture2DArray;
+    textureDesc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget);
     textureDesc.m_ResourceAccess.m_bImmutable = true;
 
-    out_textures.PushBack(pDevice->CreateTexture(textureDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
+    out_textures.PushBack(pDevice->CreateTexture(textureDesc, WArrayPtr<WGALSystemMemoryDescription>()));
   }
 
   return XR_SUCCESS;
 }
 
-ezGALResourceFormat::Enum ezOpenXRGraphicsBindingVulkan::ConvertTextureFormat(int64_t format) const
+WGALResourceFormat::Enum WOpenXRGraphicsBindingVulkan::ConvertTextureFormat(int64_t format) const
 {
   switch (static_cast<VkFormat>(format))
   {
     case VK_FORMAT_D32_SFLOAT:
-      return ezGALResourceFormat::DFloat;
+      return WGALResourceFormat::DFloat;
     case VK_FORMAT_D16_UNORM:
-      return ezGALResourceFormat::D16;
+      return WGALResourceFormat::D16;
     case VK_FORMAT_D24_UNORM_S8_UINT:
-      return ezGALResourceFormat::D24S8;
+      return WGALResourceFormat::D24S8;
     case VK_FORMAT_D32_SFLOAT_S8_UINT:
-      return ezGALResourceFormat::D24S8; // Closest match
+      return WGALResourceFormat::D24S8; // Closest match
     case VK_FORMAT_B8G8R8A8_SRGB:
-      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      return WGALResourceFormat::BGRAUByteNormalizedsRGB;
     case VK_FORMAT_R8G8B8A8_SRGB:
-      return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      return WGALResourceFormat::RGBAUByteNormalizedsRGB;
     case VK_FORMAT_B8G8R8A8_UNORM:
-      return ezGALResourceFormat::BGRAUByteNormalized;
+      return WGALResourceFormat::BGRAUByteNormalized;
     case VK_FORMAT_R8G8B8A8_UNORM:
-      return ezGALResourceFormat::RGBAUByteNormalized;
+      return WGALResourceFormat::RGBAUByteNormalized;
     default:
-      ezLog::Warning("Unknown Vulkan format {} for OpenXR texture", static_cast<ezUInt32>(format));
-      return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      WLog::Warning("Unknown Vulkan format {} for OpenXR texture", static_cast<WUInt32>(format));
+      return WGALResourceFormat::RGBAUByteNormalizedsRGB;
   }
 }
 
-void ezOpenXRGraphicsBindingVulkan::CleanupSwapchainImages()
+void WOpenXRGraphicsBindingVulkan::CleanupSwapchainImages()
 {
   m_ColorSwapchainImages.Clear();
   m_DepthSwapchainImages.Clear();
 }
 
-void ezOpenXRGraphicsBindingVulkan::ExtendInstanceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions)
+void WOpenXRGraphicsBindingVulkan::ExtendInstanceExtensions(const WDynamicArray<vk::ExtensionProperties>& availableExtensions, WDynamicArray<WString>& ref_extensions)
 {
   if (m_bUsingVulkanEnable2)
   {
@@ -309,31 +309,31 @@ void ezOpenXRGraphicsBindingVulkan::ExtendInstanceExtensions(const ezDynamicArra
   XrResult result = m_pfnGetVulkanInstanceExtensionsKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), 0, &extensionNamesSize, nullptr);
   if (result != XR_SUCCESS || extensionNamesSize == 0)
   {
-    ezLog::Warning("OpenXR: xrGetVulkanInstanceExtensionsKHR returned no extensions");
+    WLog::Warning("OpenXR: xrGetVulkanInstanceExtensionsKHR returned no extensions");
     return;
   }
 
-  ezDynamicArray<char> extensionNames;
+  WDynamicArray<char> extensionNames;
   extensionNames.SetCountUninitialized(extensionNamesSize);
   result = m_pfnGetVulkanInstanceExtensionsKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), extensionNamesSize, &extensionNamesSize, extensionNames.GetData());
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrGetVulkanInstanceExtensionsKHR failed: {}", (int)result);
+    WLog::Error("OpenXR: xrGetVulkanInstanceExtensionsKHR failed: {}", (int)result);
     return;
   }
 
   // Parse space-separated extension names
-  ezStringBuilder extensionString(ezStringView(extensionNames.GetData(), extensionNamesSize));
-  ezHybridArray<ezStringView, 8> extensionList;
+  WStringBuilder extensionString(WStringView(extensionNames.GetData(), extensionNamesSize));
+  WHybridArray<WStringView, 8> extensionList;
   extensionString.Split(false, extensionList, " ");
 
-  for (const ezStringView& ext : extensionList)
+  for (const WStringView& ext : extensionList)
   {
     AddExtIfSupported(ext, availableExtensions, ref_extensions);
   }
 }
 
-void ezOpenXRGraphicsBindingVulkan::ExtendDeviceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions)
+void WOpenXRGraphicsBindingVulkan::ExtendDeviceExtensions(const WDynamicArray<vk::ExtensionProperties>& availableExtensions, WDynamicArray<WString>& ref_extensions)
 {
   if (m_bUsingVulkanEnable2)
   {
@@ -344,7 +344,7 @@ void ezOpenXRGraphicsBindingVulkan::ExtendDeviceExtensions(const ezDynamicArray<
   // For vulkan_enable (v1), query required device extensions
   if (!m_pfnGetVulkanDeviceExtensionsKHR)
   {
-    ezLog::Error("OpenXR: xrGetVulkanDeviceExtensionsKHR function pointer not loaded");
+    WLog::Error("OpenXR: xrGetVulkanDeviceExtensionsKHR function pointer not loaded");
     return;
   }
 
@@ -352,37 +352,37 @@ void ezOpenXRGraphicsBindingVulkan::ExtendDeviceExtensions(const ezDynamicArray<
   XrResult result = m_pfnGetVulkanDeviceExtensionsKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), 0, &extensionNamesSize, nullptr);
   if (result != XR_SUCCESS || extensionNamesSize == 0)
   {
-    ezLog::Warning("OpenXR: xrGetVulkanDeviceExtensionsKHR returned no extensions");
+    WLog::Warning("OpenXR: xrGetVulkanDeviceExtensionsKHR returned no extensions");
     return;
   }
 
-  ezDynamicArray<char> extensionNames;
+  WDynamicArray<char> extensionNames;
   extensionNames.SetCountUninitialized(extensionNamesSize);
   result = m_pfnGetVulkanDeviceExtensionsKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), extensionNamesSize, &extensionNamesSize, extensionNames.GetData());
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrGetVulkanDeviceExtensionsKHR failed: {}", (int)result);
+    WLog::Error("OpenXR: xrGetVulkanDeviceExtensionsKHR failed: {}", (int)result);
     return;
   }
 
   // Parse space-separated extension names
-  ezStringBuilder extensionString(ezStringView(extensionNames.GetData(), extensionNamesSize));
-  ezHybridArray<ezStringView, 8> extensionList;
+  WStringBuilder extensionString(WStringView(extensionNames.GetData(), extensionNamesSize));
+  WHybridArray<WStringView, 8> extensionList;
   extensionString.Split(false, extensionList, " ");
 
-  for (const ezStringView& ext : extensionList)
+  for (const WStringView& ext : extensionList)
   {
     AddExtIfSupported(ext, availableExtensions, ref_extensions);
   }
 }
 
-vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCreateInfo& createInfo)
+vk::Instance WOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCreateInfo& createInfo)
 {
   if (!m_bUsingVulkanEnable2)
   {
     if (!m_pfnGetVulkanGraphicsRequirementsKHR)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsRequirementsKHR function pointer not loaded");
+      WLog::Error("OpenXR: xrGetVulkanGraphicsRequirementsKHR function pointer not loaded");
       return nullptr;
     }
 
@@ -391,14 +391,14 @@ vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCre
     XrResult result = m_pfnGetVulkanGraphicsRequirementsKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), &graphicsRequirements);
     if (result != XR_SUCCESS)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR failed: {}", (int)result);
+      WLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR failed: {}", (int)result);
       return nullptr;
     }
     return {};
   }
   if (m_pOpenXR->GetInstance() == XR_NULL_HANDLE || m_pOpenXR->GetSystemId() == XR_NULL_SYSTEM_ID)
   {
-    ezLog::Error("OpenXR: XR context not set before Vulkan instance creation");
+    WLog::Error("OpenXR: XR context not set before Vulkan instance creation");
     return nullptr;
   }
 
@@ -408,13 +408,13 @@ vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCre
   // Use XR_KHR_vulkan_enable2
   if (!m_pfnCreateVulkanInstanceKHR)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanInstanceKHR function pointer not loaded");
+    WLog::Error("OpenXR: xrCreateVulkanInstanceKHR function pointer not loaded");
     return nullptr;
   }
 
   if (!m_pfnGetVulkanGraphicsRequirements2KHR)
   {
-    ezLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR function pointer not loaded");
+    WLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR function pointer not loaded");
     return nullptr;
   }
 
@@ -423,11 +423,11 @@ vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCre
   XrResult result = m_pfnGetVulkanGraphicsRequirements2KHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), &graphicsRequirements);
   if (result != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR failed: {}", (int)result);
+    WLog::Error("OpenXR: xrGetVulkanGraphicsRequirements2KHR failed: {}", (int)result);
     return nullptr;
   }
 
-  ezLog::Info("OpenXR Vulkan requirements: minApiVersion={}.{}.{}, maxApiVersion={}.{}.{}",
+  WLog::Info("OpenXR Vulkan requirements: minApiVersion={}.{}.{}, maxApiVersion={}.{}.{}",
     VK_API_VERSION_MAJOR(graphicsRequirements.minApiVersionSupported),
     VK_API_VERSION_MINOR(graphicsRequirements.minApiVersionSupported),
     VK_API_VERSION_PATCH(graphicsRequirements.minApiVersionSupported),
@@ -450,13 +450,13 @@ vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCre
   XrResult xrResult = m_pfnCreateVulkanInstanceKHR(m_pOpenXR->GetInstance(), &xrCreateInfo, &vkInstance, &vkResult);
   if (xrResult != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanInstanceKHR failed with XrResult: {}", (int)xrResult);
+    WLog::Error("OpenXR: xrCreateVulkanInstanceKHR failed with XrResult: {}", (int)xrResult);
     return nullptr;
   }
 
   if (vkResult != VK_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanInstanceKHR returned VkResult: {}", (int)vkResult);
+    WLog::Error("OpenXR: xrCreateVulkanInstanceKHR returned VkResult: {}", (int)vkResult);
     return nullptr;
   }
 
@@ -464,24 +464,24 @@ vk::Instance ezOpenXRGraphicsBindingVulkan::CreateInstance(const vk::InstanceCre
 #  if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
   vk::detail::defaultDispatchLoaderDynamic.init(m_VulkanInstance);
 #  endif
-  ezLog::Info("OpenXR: Created Vulkan instance via xrCreateVulkanInstanceKHR (vulkan_enable2)");
+  WLog::Info("OpenXR: Created Vulkan instance via xrCreateVulkanInstanceKHR (vulkan_enable2)");
   return m_VulkanInstance;
 }
 
-vk::PhysicalDevice ezOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance instance)
+vk::PhysicalDevice WOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance instance)
 {
   if (m_bUsingVulkanEnable2)
   {
     // Use XR_KHR_vulkan_enable2
     if (!m_pfnGetVulkanGraphicsDevice2KHR)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsDevice2KHR function pointer not loaded");
+      WLog::Error("OpenXR: xrGetVulkanGraphicsDevice2KHR function pointer not loaded");
       return nullptr;
     }
 
     if (!m_VulkanInstance)
     {
-      ezLog::Error("OpenXR: Vulkan instance not created before getting physical device");
+      WLog::Error("OpenXR: Vulkan instance not created before getting physical device");
       return nullptr;
     }
 
@@ -494,7 +494,7 @@ vk::PhysicalDevice ezOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance
     XrResult xrResult = m_pfnGetVulkanGraphicsDevice2KHR(m_pOpenXR->GetInstance(), &getInfo, &vkPhysicalDevice);
     if (xrResult != XR_SUCCESS)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsDevice2KHR failed: {}", (int)xrResult);
+      WLog::Error("OpenXR: xrGetVulkanGraphicsDevice2KHR failed: {}", (int)xrResult);
       return nullptr;
     }
 
@@ -506,7 +506,7 @@ vk::PhysicalDevice ezOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance
     // Use XR_KHR_vulkan_enable (v1)
     if (!m_pfnGetVulkanGraphicsDeviceKHR)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsDeviceKHR function pointer not loaded");
+      WLog::Error("OpenXR: xrGetVulkanGraphicsDeviceKHR function pointer not loaded");
       return nullptr;
     }
 
@@ -519,7 +519,7 @@ vk::PhysicalDevice ezOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance
     XrResult xrResult = m_pfnGetVulkanGraphicsDeviceKHR(m_pOpenXR->GetInstance(), m_pOpenXR->GetSystemId(), static_cast<VkInstance>(instance), &vkPhysicalDevice);
     if (xrResult != XR_SUCCESS)
     {
-      ezLog::Error("OpenXR: xrGetVulkanGraphicsDeviceKHR failed: {}", (int)xrResult);
+      WLog::Error("OpenXR: xrGetVulkanGraphicsDeviceKHR failed: {}", (int)xrResult);
       return nullptr;
     }
 
@@ -528,7 +528,7 @@ vk::PhysicalDevice ezOpenXRGraphicsBindingVulkan::GetPhysicalDevice(vk::Instance
   }
 }
 
-vk::Device ezOpenXRGraphicsBindingVulkan::CreateDevice(const vk::DeviceCreateInfo& createInfo)
+vk::Device WOpenXRGraphicsBindingVulkan::CreateDevice(const vk::DeviceCreateInfo& createInfo)
 {
   if (!m_bUsingVulkanEnable2)
     return {};
@@ -536,7 +536,7 @@ vk::Device ezOpenXRGraphicsBindingVulkan::CreateDevice(const vk::DeviceCreateInf
   // Use XR_KHR_vulkan_enable2
   if (!m_pfnCreateVulkanDeviceKHR)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanDeviceKHR function pointer not loaded");
+    WLog::Error("OpenXR: xrCreateVulkanDeviceKHR function pointer not loaded");
     return nullptr;
   }
 
@@ -555,13 +555,13 @@ vk::Device ezOpenXRGraphicsBindingVulkan::CreateDevice(const vk::DeviceCreateInf
   XrResult xrResult = m_pfnCreateVulkanDeviceKHR(m_pOpenXR->GetInstance(), &xrCreateInfo, &vkDevice, &vkResult);
   if (xrResult != XR_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanDeviceKHR failed with XrResult: {}", (int)xrResult);
+    WLog::Error("OpenXR: xrCreateVulkanDeviceKHR failed with XrResult: {}", (int)xrResult);
     return nullptr;
   }
 
   if (vkResult != VK_SUCCESS)
   {
-    ezLog::Error("OpenXR: xrCreateVulkanDeviceKHR returned VkResult: {}", (int)vkResult);
+    WLog::Error("OpenXR: xrCreateVulkanDeviceKHR returned VkResult: {}", (int)vkResult);
     return nullptr;
   }
 
@@ -569,7 +569,7 @@ vk::Device ezOpenXRGraphicsBindingVulkan::CreateDevice(const vk::DeviceCreateInf
 #  if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
   vk::detail::defaultDispatchLoaderDynamic.init(m_VulkanDevice);
 #  endif
-  ezLog::Info("OpenXR: Created Vulkan device via xrCreateVulkanDeviceKHR (vulkan_enable2)");
+  WLog::Info("OpenXR: Created Vulkan device via xrCreateVulkanDeviceKHR (vulkan_enable2)");
   return m_VulkanDevice;
 }
 

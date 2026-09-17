@@ -4,50 +4,50 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 
-ezCollisionFilterConfig::ezCollisionFilterConfig()
+WCollisionFilterConfig::WCollisionFilterConfig()
 {
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_GroupMasks); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(m_GroupMasks); ++i)
   {
     m_GroupMasks[i] = 0;
   }
 }
 
-ezCollisionFilterConfig::~ezCollisionFilterConfig() = default;
+WCollisionFilterConfig::~WCollisionFilterConfig() = default;
 
-void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, ezStringView sName)
+void WCollisionFilterConfig::SetGroupName(WUInt32 uiGroup, WStringView sName)
 {
   m_GroupNames[uiGroup] = sName;
 }
 
-ezStringView ezCollisionFilterConfig::GetGroupName(ezUInt32 uiGroup) const
+WStringView WCollisionFilterConfig::GetGroupName(WUInt32 uiGroup) const
 {
   return m_GroupNames[uiGroup];
 }
 
-void ezCollisionFilterConfig::EnableCollision(ezUInt32 uiGroup1, ezUInt32 uiGroup2, bool bEnable)
+void WCollisionFilterConfig::EnableCollision(WUInt32 uiGroup1, WUInt32 uiGroup2, bool bEnable)
 {
   if (bEnable)
   {
-    m_GroupMasks[uiGroup1] |= EZ_BIT(uiGroup2);
-    m_GroupMasks[uiGroup2] |= EZ_BIT(uiGroup1);
+    m_GroupMasks[uiGroup1] |= W_BIT(uiGroup2);
+    m_GroupMasks[uiGroup2] |= W_BIT(uiGroup1);
   }
   else
   {
-    m_GroupMasks[uiGroup1] &= ~EZ_BIT(uiGroup2);
-    m_GroupMasks[uiGroup2] &= ~EZ_BIT(uiGroup1);
+    m_GroupMasks[uiGroup1] &= ~W_BIT(uiGroup2);
+    m_GroupMasks[uiGroup2] &= ~W_BIT(uiGroup1);
   }
 }
 
-bool ezCollisionFilterConfig::IsCollisionEnabled(ezUInt32 uiGroup1, ezUInt32 uiGroup2) const
+bool WCollisionFilterConfig::IsCollisionEnabled(WUInt32 uiGroup1, WUInt32 uiGroup2) const
 {
-  return (m_GroupMasks[uiGroup1] & EZ_BIT(uiGroup2)) != 0;
+  return (m_GroupMasks[uiGroup1] & W_BIT(uiGroup2)) != 0;
 }
 
-ezUInt32 ezCollisionFilterConfig::GetNumNamedGroups() const
+WUInt32 WCollisionFilterConfig::GetNumNamedGroups() const
 {
-  ezUInt32 count = 0;
+  WUInt32 count = 0;
 
-  for (ezUInt32 i = 0; i < 32; ++i)
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     if (!m_GroupNames[i].IsEmpty())
       ++count;
@@ -56,9 +56,9 @@ ezUInt32 ezCollisionFilterConfig::GetNumNamedGroups() const
   return count;
 }
 
-ezUInt32 ezCollisionFilterConfig::GetNamedGroupIndex(ezUInt32 uiGroup) const
+WUInt32 WCollisionFilterConfig::GetNamedGroupIndex(WUInt32 uiGroup) const
 {
-  for (ezUInt32 i = 0; i < 32; ++i)
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     if (!m_GroupNames[i].IsEmpty())
     {
@@ -69,90 +69,90 @@ ezUInt32 ezCollisionFilterConfig::GetNamedGroupIndex(ezUInt32 uiGroup) const
     }
   }
 
-  EZ_REPORT_FAILURE("Invalid index, there are not so many named collision filter groups");
-  return ezInvalidIndex;
+  W_REPORT_FAILURE("Invalid index, there are not so many named collision filter groups");
+  return WInvalidIndex;
 }
 
-ezUInt32 ezCollisionFilterConfig::GetFilterGroupByName(ezStringView sName) const
+WUInt32 WCollisionFilterConfig::GetFilterGroupByName(WStringView sName) const
 {
-  for (ezUInt32 i = 0; i < 32; ++i)
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     if (sName.IsEqual_NoCase(m_GroupNames[i]))
       return i;
   }
 
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
-ezUInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
+WUInt32 WCollisionFilterConfig::FindUnnamedGroup() const
 {
-  for (ezUInt32 i = 0; i < 32; ++i)
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     if (m_GroupNames[i].IsEmpty())
       return i;
   }
 
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
-ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const
+WResult WCollisionFilterConfig::Save(WStringView sFile) const
 {
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   Save(file);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
+WResult WCollisionFilterConfig::Load(WStringView sFile)
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   Load(file);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezCollisionFilterConfig::Save(ezStreamWriter& inout_stream) const
+void WCollisionFilterConfig::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const WUInt8 uiVersion = 2;
 
   inout_stream << uiVersion;
 
-  inout_stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).AssertSuccess();
+  inout_stream.WriteBytes(m_GroupMasks, sizeof(WUInt32) * 32).AssertSuccess();
 
-  for (ezUInt32 i = 0; i < 32; ++i)
+  for (WUInt32 i = 0; i < 32; ++i)
   {
     inout_stream << m_GroupNames[i];
   }
 }
 
 
-void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
+void WCollisionFilterConfig::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
+  W_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid version {0} for WCollisionFilterConfig file", uiVersion);
 
-  inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
+  inout_stream.ReadBytes(m_GroupMasks, sizeof(WUInt32) * 32);
 
-  for (ezUInt32 i1 = 0; i1 < 32; ++i1)
+  for (WUInt32 i1 = 0; i1 < 32; ++i1)
   {
-    for (ezUInt32 i2 = 0; i2 < 32; ++i2)
+    for (WUInt32 i2 = 0; i2 < 32; ++i2)
     {
-      const bool b1 = (m_GroupMasks[i1] & EZ_BIT(i2)) != 0;
-      const bool b2 = (m_GroupMasks[i2] & EZ_BIT(i1)) != 0;
+      const bool b1 = (m_GroupMasks[i1] & W_BIT(i2)) != 0;
+      const bool b2 = (m_GroupMasks[i2] & W_BIT(i1)) != 0;
 
       if (b1 != b2)
       {
         // reset group masks that differ due to previously uninitialized memory
-        m_GroupMasks[i1] &= ~EZ_BIT(i2);
-        m_GroupMasks[i2] &= ~EZ_BIT(i1);
+        m_GroupMasks[i1] &= ~W_BIT(i2);
+        m_GroupMasks[i2] &= ~W_BIT(i1);
       }
     }
   }
@@ -162,14 +162,14 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
     char groupNames[32][32];
     inout_stream.ReadBytes(groupNames, sizeof(char) * 32 * 32);
 
-    for (ezUInt32 i = 0; i < 32; ++i)
+    for (WUInt32 i = 0; i < 32; ++i)
     {
       m_GroupNames[i] = groupNames[i];
     }
   }
   else
   {
-    for (ezUInt32 i = 0; i < 32; ++i)
+    for (WUInt32 i = 0; i < 32; ++i)
     {
       inout_stream >> m_GroupNames[i];
     }

@@ -15,11 +15,11 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+    <normaloff>:/GuiFoundation/W-logo.svg</normaloff>:/GuiFoundation/W-logo.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezQtColorGradientEditorWidget" name="GradientEditor" native="true"/>
+    <widget class="WQtColorGradientEditorWidget" name="GradientEditor" native="true"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -96,7 +96,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtColorGradientEditorWidget</class>
+   <class>WQtColorGradientEditorWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h</header>
    <container>1</container>

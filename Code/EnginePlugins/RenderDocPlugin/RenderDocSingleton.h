@@ -7,33 +7,33 @@
 
 struct RENDERDOC_API_1_4_1;
 
-/// RenderDoc implementation of the ezFrameCaptureInterface interface
+/// RenderDoc implementation of the WFrameCaptureInterface interface
 ///
 /// Adds support for capturing frames through RenderDoc.
-/// When the plugin gets loaded, an ezRenderDoc instance is created and initialized.
+/// When the plugin gets loaded, an WRenderDoc instance is created and initialized.
 /// It tries to find a RenderDoc DLL dynamically, so for initialization to succeed,
 /// the DLL has to be available in some search directory (e.g. binary folder or PATH).
 /// If an outdated RenderDoc DLL is found, initialization will fail and the plugin will be deactivated.
 ///
-/// For interface documentation see \ref ezFrameCaptureInterface
-class EZ_RENDERDOCPLUGIN_DLL ezRenderDoc : public ezFrameCaptureInterface
+/// For interface documentation see \ref WFrameCaptureInterface
+class W_RENDERDOCPLUGIN_DLL WRenderDoc : public WFrameCaptureInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezRenderDoc, ezFrameCaptureInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(WRenderDoc, WFrameCaptureInterface);
 
 public:
-  ezRenderDoc();
-  virtual ~ezRenderDoc();
+  WRenderDoc();
+  virtual ~WRenderDoc();
 
   virtual bool IsInitialized() const override;
-  virtual void SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate) override;
-  virtual ezStringView GetAbsCaptureFilePathTemplate() const override;
-  virtual void StartFrameCapture(ezWindowHandle hWnd) override;
+  virtual void SetAbsCaptureFilePathTemplate(WStringView sFilePathTemplate) override;
+  virtual WStringView GetAbsCaptureFilePathTemplate() const override;
+  virtual void StartFrameCapture(WWindowHandle hWnd) override;
   virtual bool IsFrameCapturing() const override;
-  virtual void EndFrameCaptureAndWriteOutput(ezWindowHandle hWnd) override;
-  virtual void EndFrameCaptureAndDiscardResult(ezWindowHandle hWnd) override;
-  virtual ezResult GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const override;
+  virtual void EndFrameCaptureAndWriteOutput(WWindowHandle hWnd) override;
+  virtual void EndFrameCaptureAndDiscardResult(WWindowHandle hWnd) override;
+  virtual WResult GetLastAbsCaptureFileName(WStringBuilder& out_sFileName) const override;
 
 private:
   RENDERDOC_API_1_4_1* m_pRenderDocAPI = nullptr;
-  ezMinWindows::HMODULE m_pHandleToFree = nullptr;
+  WMinWindows::HMODULE m_pHandleToFree = nullptr;
 };

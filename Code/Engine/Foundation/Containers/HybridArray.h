@@ -6,65 +6,65 @@
 ///
 /// It is often more efficient to use a hybrid array, rather than a dynamic array, when the number of needed elements is typically low or when the array is used only temporarily. In this case costly allocations can often be prevented entirely.
 /// However, if the number of elements is unpredictable or usually very large, prefer a dynamic array, to avoid wasting (stack) memory for a hybrid array that is rarely large enough to be used.
-/// The ezHybridArray is derived from ezDynamicArray and can therefore be passed to functions that expect an ezDynamicArray, even for output.
-template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezHybridArray : public ezDynamicArray<T, AllocatorWrapper>
+/// The WHybridArray is derived from WDynamicArray and can therefore be passed to functions that expect an WDynamicArray, even for output.
+template <typename T, WUInt32 Size, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WHybridArray : public WDynamicArray<T, AllocatorWrapper>
 {
 public:
   /// Creates an empty array. Does not allocate any data yet.
-  ezHybridArray(); // [tested]
+  WHybridArray(); // [tested]
 
   /// Creates an empty array. Does not allocate any data yet.
-  explicit ezHybridArray(ezAllocator* pAllocator); // [tested]
+  explicit WHybridArray(WAllocator* pAllocator); // [tested]
 
   /// Creates a copy of the given array.
-  ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other); // [tested]
+  WHybridArray(const WHybridArray<T, Size, AllocatorWrapper>& other); // [tested]
 
   /// Creates a copy of the given array.
-  explicit ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
+  explicit WHybridArray(const WArrayPtr<const T>& other); // [tested]
 
   /// Moves the given array.
-  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other) noexcept; // [tested]
+  WHybridArray(WHybridArray<T, Size, AllocatorWrapper>&& other) noexcept; // [tested]
 
   /// Copies the data from some other contiguous array into this one.
-  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs); // [tested]
+  void operator=(const WHybridArray<T, Size, AllocatorWrapper>& rhs); // [tested]
 
   /// Copies the data from some other contiguous array into this one.
-  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
+  void operator=(const WArrayPtr<const T>& rhs); // [tested]
 
   /// Moves the data from some other contiguous array into this one.
-  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept; // [tested]
+  void operator=(WHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept; // [tested]
 
 protected:
   /// The fixed size array.
   struct alignas(alignof(T))
   {
-    ezUInt8 m_StaticData[Size * sizeof(T)];
+    WUInt8 m_StaticData[Size * sizeof(T)];
   };
 
-  EZ_ALWAYS_INLINE T* GetStaticArray() { return reinterpret_cast<T*>(m_StaticData); }
+  W_ALWAYS_INLINE T* GetStaticArray() { return reinterpret_cast<T*>(m_StaticData); }
 
-  EZ_ALWAYS_INLINE const T* GetStaticArray() const { return reinterpret_cast<const T*>(m_StaticData); }
+  W_ALWAYS_INLINE const T* GetStaticArray() const { return reinterpret_cast<const T*>(m_StaticData); }
 };
 
 /// A hybrid array that uses the temp allocator if it exceeds the in-place storage.
 /// This is ideal for temporary arrays that are only used within a short scope and are not expected to grow beyond the in-place storage size in most cases.
 /// The temp allocator is optimized for short-lived allocations and can be more efficient than the default allocator for this use case.
-template <typename T, ezUInt32 Size>
-class ezTempHybridArray : public ezHybridArray<T, Size>
+template <typename T, WUInt32 Size>
+class WTempHybridArray : public WHybridArray<T, Size>
 {
 public:
-  ezTempHybridArray();
+  WTempHybridArray();
 
   template <typename AllocatorWrapper>
-  ezTempHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
-  explicit ezTempHybridArray(const ezArrayPtr<const T>& other);
+  WTempHybridArray(const WHybridArray<T, Size, AllocatorWrapper>& other);
+  explicit WTempHybridArray(const WArrayPtr<const T>& other);
 
   template <typename AllocatorWrapper>
-  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
-  void operator=(const ezArrayPtr<const T>& rhs);
+  void operator=(const WHybridArray<T, Size, AllocatorWrapper>& rhs);
+  void operator=(const WArrayPtr<const T>& rhs);
 
-  void operator=(ezHybridArray<T, Size>&& rhs) noexcept;
+  void operator=(WHybridArray<T, Size>&& rhs) noexcept;
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>

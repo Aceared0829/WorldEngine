@@ -4,9 +4,9 @@
 #include <Core/World/ComponentManager.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-struct ezMsgPhysicsAddImpulse;
-struct ezJoltMsgDisconnectConstraints;
-class ezJoltMaterial;
+struct WMsgPhysicsAddImpulse;
+struct WJoltMsgDisconnectConstraints;
+class WJoltMaterial;
 
 namespace JPH
 {
@@ -14,12 +14,12 @@ namespace JPH
   class Ragdoll;
 }
 
-using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using WSurfaceResourceHandle = WTypedResourceHandle<class WSurfaceResource>;
 
 /// How a rope end gets attached to the anchor point.
-struct ezJoltRopeAnchorConstraintMode
+struct WJoltRopeAnchorConstraintMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -32,20 +32,20 @@ struct ezJoltRopeAnchorConstraintMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRopeAnchorConstraintMode);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltRopeAnchorConstraintMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_JOLTPLUGIN_DLL ezJoltRopeComponentManager : public ezComponentManager<class ezJoltRopeComponent, ezBlockStorageType::Compact>
+class W_JOLTPLUGIN_DLL WJoltRopeComponentManager : public WComponentManager<class WJoltRopeComponent, WBlockStorageType::Compact>
 {
 public:
-  ezJoltRopeComponentManager(ezWorld* pWorld);
-  ~ezJoltRopeComponentManager();
+  WJoltRopeComponentManager(WWorld* pWorld);
+  ~WJoltRopeComponentManager();
 
   virtual void Initialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,16 +57,16 @@ private:
 ///
 /// If the anchors themselves are physically simulated bodies, the rope will attach to those bodies,
 /// making it possible to constrain physics objects with a rope.
-class EZ_JOLTPLUGIN_DLL ezJoltRopeComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltRopeComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltRopeComponent, ezComponent, ezJoltRopeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltRopeComponent, WComponent, WJoltRopeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -74,25 +74,25 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltRopeComponent
+  // WJoltRopeComponent
 
 public:
-  ezJoltRopeComponent();
-  ~ezJoltRopeComponent();
+  WJoltRopeComponent();
+  ~WJoltRopeComponent();
 
   /// How strongly gravity pulls the rope down.
   void SetGravityFactor(float fGravity);                      // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  /// The ezSurfaceResource to be used on the rope physics bodies.
-  void SetSurfaceFile(ezStringView sFile); // [ property ]
-  ezStringView GetSurfaceFile() const;     // [ property ]
+  /// The WSurfaceResource to be used on the rope physics bodies.
+  void SetSurfaceFile(WStringView sFile); // [ property ]
+  WStringView GetSurfaceFile() const;     // [ property ]
 
   /// Defines which other physics objects the rope collides with.
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  WUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   /// Of how many pieces the rope is made up.
-  ezUInt16 m_uiPieces = 16; // [ property ]
+  WUInt16 m_uiPieces = 16; // [ property ]
 
   /// How thick the simulated rope is. This is independent of the rope render thickness.
   float m_fThickness = 0.05f; // [ property ]
@@ -105,14 +105,14 @@ public:
   bool m_bCCD = false; // [ property ]
 
   /// How much each rope segment may bend.
-  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30); // [ property ]
+  WAngle m_MaxBend = WAngle::MakeFromDegree(30); // [ property ]
 
   /// How much each rope segment may twist.
-  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
+  WAngle m_MaxTwist = WAngle::MakeFromDegree(15); // [ property ]
 
-  ezUInt8 m_uiWeightCategory = 0;                   // [ property ]
-  ezFloat16 m_fWeightScale = 1.0f;                  // [ property ]
-  ezFloat16 m_fWeightMass = 5.0f;                   // [ property ]
+  WUInt8 m_uiWeightCategory = 0;                   // [ property ]
+  WFloat16 m_fWeightScale = 1.0f;                  // [ property ]
+  WFloat16 m_fWeightMass = 5.0f;                   // [ property ]
 
   /// Sets the anchor 1 references by object GUID.
   void SetAnchor1Reference(const char* szReference); // [ property ]
@@ -121,33 +121,33 @@ public:
   void SetAnchor2Reference(const char* szReference); // [ property ]
 
   /// Sets the anchor 1 reference.
-  void SetAnchor1(ezGameObjectHandle hActor);
+  void SetAnchor1(WGameObjectHandle hActor);
 
   /// Sets the anchor 2 reference.
-  void SetAnchor2(ezGameObjectHandle hActor);
+  void SetAnchor2(WGameObjectHandle hActor);
 
   /// Adds an impulse (like an impact) to the rope.
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
+  void AddImpulseAtPos(WMsgPhysicsAddImpulse& ref_msg);
 
   /// Configures how the rope is attached at anchor 1.
-  void SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
-  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor1ConstraintMode() const { return m_Anchor1ConstraintMode; } // [ property ]
+  void SetAnchor1ConstraintMode(WEnum<WJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
+  WEnum<WJoltRopeAnchorConstraintMode> GetAnchor1ConstraintMode() const { return m_Anchor1ConstraintMode; } // [ property ]
 
   /// Configures how the rope is attached at anchor 2.
-  void SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
-  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor2ConstraintMode() const { return m_Anchor2ConstraintMode; } // [ property ]
+  void SetAnchor2ConstraintMode(WEnum<WJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
+  WEnum<WJoltRopeAnchorConstraintMode> GetAnchor2ConstraintMode() const { return m_Anchor2ConstraintMode; } // [ property ]
 
   /// Makes sure that the rope's connection to a removed body also gets removed.
-  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
+  void OnJoltMsgDisconnectConstraints(WJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
 
 private:
   void CreateRope();
-  ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength, ezGameObjectHandle hAnchor1, ezGameObjectHandle hAnchor2);
+  WResult CreateSegmentTransforms(WDynamicArray<WTransform>& transforms, float& out_fPieceLength, WGameObjectHandle hAnchor1, WGameObjectHandle hAnchor2);
   void DestroyPhysicsShapes();
   void Update();
   void SendPreviewPose();
-  const ezJoltMaterial* GetJoltMaterial();
-  JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
+  const WJoltMaterial* GetJoltMaterial();
+  JPH::Constraint* CreateConstraint(const WGameObjectHandle& hTarget, const WTransform& dstLoc, WUInt32 uiBodyID, WJoltRopeAnchorConstraintMode::Enum mode, WUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
   float GetWeight_Scale() const { return m_fWeightScale; }
@@ -155,27 +155,27 @@ private:
   void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
   void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
 
-  ezSurfaceResourceHandle m_hSurface;
+  WSurfaceResourceHandle m_hSurface;
 
-  ezGameObjectHandle m_hAnchor1;
-  ezGameObjectHandle m_hAnchor2;
+  WGameObjectHandle m_hAnchor1;
+  WGameObjectHandle m_hAnchor2;
 
-  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
-  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
+  WEnum<WJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
+  WEnum<WJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
 
   float m_fMaxForcePerFrame = 0.0f;
   float m_fBendStiffness = 0.0f;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
   bool m_bSelfCollision = false;
   float m_fGravityFactor = 1.0f;
-  ezUInt32 m_uiPreviewHash = 0;
+  WUInt32 m_uiPreviewHash = 0;
 
   JPH::Ragdoll* m_pRagdoll = nullptr;
   JPH::Constraint* m_pConstraintAnchor1 = nullptr;
   JPH::Constraint* m_pConstraintAnchor2 = nullptr;
-  ezUInt32 m_uiAnchor1BodyID = ezInvalidIndex;
-  ezUInt32 m_uiAnchor2BodyID = ezInvalidIndex;
+  WUInt32 m_uiAnchor1BodyID = WInvalidIndex;
+  WUInt32 m_uiAnchor2BodyID = WInvalidIndex;
 
 private:
   const char* DummyGetter() const { return nullptr; }

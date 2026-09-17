@@ -10,14 +10,14 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 // Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_GUIFOUNDATION_LIB
-#    define EZ_GUIFOUNDATION_DLL EZ_DECL_EXPORT
+#    define W_GUIFOUNDATION_DLL W_DECL_EXPORT
 #  else
-#    define EZ_GUIFOUNDATION_DLL EZ_DECL_IMPORT
+#    define W_GUIFOUNDATION_DLL W_DECL_IMPORT
 #  endif
 #else
-#  define EZ_GUIFOUNDATION_DLL
+#  define W_GUIFOUNDATION_DLL
 #endif
 
 class QWidget;
@@ -25,15 +25,15 @@ class QObject;
 class QKeyEvent;
 
 
-Q_DECLARE_METATYPE(ezUuid);
+Q_DECLARE_METATYPE(WUuid);
 
 /// Calls setUpdatesEnabled(false) on all given QObjects, and the reverse in the destructor. Can be nested.
-class EZ_GUIFOUNDATION_DLL ezQtScopedUpdatesDisabled
+class W_GUIFOUNDATION_DLL WQtScopedUpdatesDisabled
 {
 public:
-  ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr,
+  WQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr,
     QWidget* pWidget5 = nullptr, QWidget* pWidget6 = nullptr);
-  ~ezQtScopedUpdatesDisabled();
+  ~WQtScopedUpdatesDisabled();
 
 private:
   QWidget* m_pWidgets[6];
@@ -41,34 +41,34 @@ private:
 
 
 /// Calls blockSignals(true) on all given QObjects, and the reverse in the destructor. Can be nested.
-class EZ_GUIFOUNDATION_DLL ezQtScopedBlockSignals
+class W_GUIFOUNDATION_DLL WQtScopedBlockSignals
 {
 public:
-  ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr,
+  WQtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr,
     QObject* pObject5 = nullptr, QObject* pObject6 = nullptr);
-  ~ezQtScopedBlockSignals();
+  ~WQtScopedBlockSignals();
 
 private:
   QObject* m_pObjects[6];
 };
 
-EZ_ALWAYS_INLINE QColor ezToQtColor(const ezColorGammaUB& c)
+W_ALWAYS_INLINE QColor WToQtColor(const WColorGammaUB& c)
 {
   return QColor(c.r, c.g, c.b, c.a);
 }
 
-EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
+W_ALWAYS_INLINE WColorGammaUB qtToEzColor(const QColor& c)
 {
-  return ezColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
+  return WColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
 }
 
-EZ_ALWAYS_INLINE ezString qtToEzString(const QString& sString)
+W_ALWAYS_INLINE WString qtToEzString(const QString& sString)
 {
   QByteArray data = sString.toUtf8();
-  return ezString(ezStringView(data.data(), static_cast<ezUInt32>(data.size())));
+  return WString(WStringView(data.data(), static_cast<WUInt32>(data.size())));
 }
 
-EZ_ALWAYS_INLINE QString ezMakeQString(ezStringView sString)
+W_ALWAYS_INLINE QString WMakeQString(WStringView sString)
 {
   return QString::fromUtf8(sString.GetStartPointer(), sString.GetElementCount());
 }
@@ -90,14 +90,14 @@ void operator<<(QDataStream& inout_stream, T* rhs)
 }
 
 template <typename T>
-void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
+void operator>>(QDataStream& inout_stream, WDynamicArray<T>& rhs)
 {
-  ezUInt32 uiIndices = 0;
+  WUInt32 uiIndices = 0;
   inout_stream >> uiIndices;
   rhs.Clear();
   rhs.Reserve(uiIndices);
 
-  for (ezUInt32 i = 0; i < uiIndices; ++i)
+  for (WUInt32 i = 0; i < uiIndices; ++i)
   {
     T obj = {};
     inout_stream >> obj;
@@ -106,18 +106,18 @@ void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 }
 
 template <typename T>
-void operator<<(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
+void operator<<(QDataStream& inout_stream, WDynamicArray<T>& rhs)
 {
-  ezUInt32 uiIndices = rhs.GetCount();
+  WUInt32 uiIndices = rhs.GetCount();
   inout_stream << uiIndices;
 
-  for (ezUInt32 i = 0; i < uiIndices; ++i)
+  for (WUInt32 i = 0; i < uiIndices; ++i)
   {
     inout_stream << rhs[i];
   }
 }
 
-namespace ezQtUtils
+namespace WQtUtils
 {
   /// Uses keyboard layout independent scan-codes to check whether the key of the QKeyEvent represents the desired key.
   ///
@@ -125,6 +125,6 @@ namespace ezQtUtils
   /// For example for navigation (WSAD) in a viewport.
   ///
   /// Assumes the standard US keyboard layout for the reference keys.
-  EZ_GUIFOUNDATION_DLL bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference);
+  W_GUIFOUNDATION_DLL bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference);
 
-} // namespace ezQtUtils
+} // namespace WQtUtils

@@ -7,32 +7,32 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezEngineProcessDocumentContext;
-class ezEditorEngineDocumentMsg;
-class ezViewRedrawMsgToEngine;
-class ezEditorEngineViewMsg;
-struct ezGALRenderTargets;
+class WEngineProcessDocumentContext;
+class WEditorEngineDocumentMsg;
+class WViewRedrawMsgToEngine;
+class WEditorEngineViewMsg;
+struct WGALRenderTargets;
 
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
 
 /// Represents the window inside the editor process, into which the engine process renders
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorProcessViewWindow : public ezWindowBase
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorProcessViewWindow : public WWindowBase
 {
 public:
-  ezEditorProcessViewWindow()
+  WEditorProcessViewWindow()
   {
     m_hWnd = INVALID_WINDOW_HANDLE_VALUE;
     m_uiWidth = 0;
     m_uiHeight = 0;
   }
 
-  ~ezEditorProcessViewWindow();
+  ~WEditorProcessViewWindow();
 
-  ezResult UpdateWindow(ezWindowHandle hParentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  WResult UpdateWindow(WWindowHandle hParentWindow, WUInt16 uiWidth, WUInt16 uiHeight);
 
-  // Inherited via ezWindowBase
-  virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
-  virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
+  // Inherited via WWindowBase
+  virtual WSizeU32 GetClientAreaSize() const override { return WSizeU32(m_uiWidth, m_uiHeight); }
+  virtual WWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
   virtual void ProcessWindowMessages() override {}
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
   virtual bool IsVisible() const override { return true; }
@@ -40,63 +40,63 @@ public:
   virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
 
-  ezUInt16 m_uiWidth;
-  ezUInt16 m_uiHeight;
+  WUInt16 m_uiWidth;
+  WUInt16 m_uiHeight;
 
 private:
-  ezWindowHandle m_hWnd;
-  ezAtomicInteger32 m_iReferenceCount = 0;
+  WWindowHandle m_hWnd;
+  WAtomicInteger32 m_iReferenceCount = 0;
 };
 
 /// Represents the view/window on the engine process side, holds all data necessary for rendering
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessViewContext
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineProcessViewContext
 {
 public:
-  ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext);
-  virtual ~ezEngineProcessViewContext();
+  WEngineProcessViewContext(WEngineProcessDocumentContext* pContext);
+  virtual ~WEngineProcessViewContext();
 
-  void SetViewID(ezUInt32 uiId);
+  void SetViewID(WUInt32 uiId);
 
-  ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
+  WEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
-  virtual void SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  virtual void HandleViewMessage(const WEditorEngineViewMsg* pMsg);
+  virtual void SetupRenderTarget(WGALSwapChainHandle hSwapChain, const WGALRenderTargets* pRenderTargets, WUInt16 uiWidth, WUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
   virtual bool PendingOperationInProgress() const;
 
   /// Focuses camera on the given object
-  static bool FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
+  static bool FocusCameraOnObject(WCamera& inout_camera, const WBoundingBoxSphere& objectBounds, float fFov, const WVec3& vViewDir);
 
-  ezViewHandle GetViewHandle() const { return m_hView; }
+  WViewHandle GetViewHandle() const { return m_hView; }
 
   void DrawSimpleGrid() const;
 
 protected:
-  void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
-  void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
-  void OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size);
+  void SendViewMessage(WEditorEngineViewMsg* pViewMsg);
+  void HandleWindowUpdate(WWindowHandle hWnd, WUInt16 uiWidth, WUInt16 uiHeight);
+  void OnSwapChainChanged(WGALSwapChainHandle hSwapChain, WSizeU32 size);
 
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
-  virtual void SetViewProperties(ezView* pView);
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg);
+  virtual void SetViewProperties(WView* pView);
 
   /// Returns the handle to the default render pipeline.
-  virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
+  virtual WRenderPipelineResourceHandle CreateDefaultRenderPipeline();
 
   /// Returns the handle to the debug render pipeline.
-  virtual ezRenderPipelineResourceHandle CreateDebugRenderPipeline();
+  virtual WRenderPipelineResourceHandle CreateDebugRenderPipeline();
 
   /// Create the actual view.
-  virtual ezViewHandle CreateView() = 0;
+  virtual WViewHandle CreateView() = 0;
 
 private:
-  ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezRegisteredWndHandle m_hEditorWindow;
-  ezString m_sPendingScreenshotPath;
+  WEngineProcessDocumentContext* m_pDocumentContext;
+  WRegisteredWndHandle m_hEditorWindow;
+  WString m_sPendingScreenshotPath;
 
 protected:
-  ezView* CreateDefaultView(ezStringView sName);
+  WView* CreateDefaultView(WStringView sName);
 
-  ezCamera m_Camera;
-  ezViewHandle m_hView;
-  ezUInt32 m_uiViewID;
+  WCamera m_Camera;
+  WViewHandle m_hView;
+  WUInt32 m_uiViewID;
 };

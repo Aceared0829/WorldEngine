@@ -2,13 +2,13 @@
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropInfo, 1, ezRTTIDefaultAllocator<ezDragDropInfo>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDragDropInfo, 1, WRTTIDefaultAllocator<WDragDropInfo>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDragDropInfo::ezDragDropInfo()
+WDragDropInfo::WDragDropInfo()
 {
-  m_vDropPosition.Set(ezMath::NaN<float>());
-  m_vDropNormal.Set(ezMath::NaN<float>());
+  m_vDropPosition.Set(WMath::NaN<float>());
+  m_vDropNormal.Set(WMath::NaN<float>());
   m_iTargetObjectSubID = -1;
   m_iTargetObjectInsertChildIndex = -1;
   m_bShiftKeyDown = false;
@@ -16,10 +16,10 @@ ezDragDropInfo::ezDragDropInfo()
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropConfig, 1, ezRTTIDefaultAllocator<ezDragDropConfig>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDragDropConfig, 1, WRTTIDefaultAllocator<WDragDropConfig>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDragDropConfig::ezDragDropConfig()
+WDragDropConfig::WDragDropConfig()
 {
   m_bPickSelectedObjects = false;
 }

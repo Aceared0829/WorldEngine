@@ -8,53 +8,53 @@
 #include <RendererCore/Debug/DebugRendererContext.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVisualizeHandComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WVisualizeHandComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("XR"),
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
+    new WCategoryAttribute("XR"),
+    new WInDevelopmentAttribute(WInDevelopmentAttribute::Phase::Beta),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezVisualizeHandComponent::ezVisualizeHandComponent() = default;
-ezVisualizeHandComponent::~ezVisualizeHandComponent() = default;
+WVisualizeHandComponent::WVisualizeHandComponent() = default;
+WVisualizeHandComponent::~WVisualizeHandComponent() = default;
 
-void ezVisualizeHandComponent::Update()
+void WVisualizeHandComponent::Update()
 {
-  ezXRHandTrackingInterface* pXRHand = ezSingletonRegistry::GetSingletonInstance<ezXRHandTrackingInterface>();
+  WXRHandTrackingInterface* pXRHand = WSingletonRegistry::GetSingletonInstance<WXRHandTrackingInterface>();
 
   if (!pXRHand)
     return;
 
-  ezTempHybridArray<ezXRHandBone, 6> bones;
-  for (ezXRHand::Enum hand : {ezXRHand::Left, ezXRHand::Right})
+  WTempHybridArray<WXRHandBone, 6> bones;
+  for (WXRHand::Enum hand : {WXRHand::Left, WXRHand::Right})
   {
-    for (ezUInt32 uiPart = 0; uiPart < ezXRHandPart::COUNT; ++uiPart)
+    for (WUInt32 uiPart = 0; uiPart < WXRHandPart::COUNT; ++uiPart)
     {
-      ezXRHandPart::Enum part = static_cast<ezXRHandPart::Enum>(uiPart);
-      if (pXRHand->TryGetBoneTransforms(hand, part, ezXRTransformSpace::Global, bones) == ezXRHandTrackingInterface::HandPartTrackingState::Tracked)
+      WXRHandPart::Enum part = static_cast<WXRHandPart::Enum>(uiPart);
+      if (pXRHand->TryGetBoneTransforms(hand, part, WXRTransformSpace::Global, bones) == WXRHandTrackingInterface::HandPartTrackingState::Tracked)
       {
-        ezTempHybridArray<ezDebugRendererLine, 6> m_Lines;
-        for (ezUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
+        WTempHybridArray<WDebugRendererLine, 6> m_Lines;
+        for (WUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
         {
-          const ezXRHandBone& bone = bones[uiBone];
-          ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), bone.m_fRadius);
-          ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::Aquamarine, bone.m_Transform);
+          const WXRHandBone& bone = bones[uiBone];
+          WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), bone.m_fRadius);
+          WDebugRenderer::DrawLineSphere(GetWorld(), sphere, WColor::Aquamarine, bone.m_Transform);
 
           if (uiBone + 1 < bones.GetCount())
           {
-            const ezXRHandBone& nextBone = bones[uiBone + 1];
-            m_Lines.PushBack(ezDebugRendererLine(bone.m_Transform.m_vPosition, nextBone.m_Transform.m_vPosition));
+            const WXRHandBone& nextBone = bones[uiBone + 1];
+            m_Lines.PushBack(WDebugRendererLine(bone.m_Transform.m_vPosition, nextBone.m_Transform.m_vPosition));
           }
         }
-        ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::IndianRed);
+        WDebugRenderer::DrawLines(GetWorld(), m_Lines, WColor::IndianRed);
       }
     }
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_VisualizeHandComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_VisualizeHandComponent);

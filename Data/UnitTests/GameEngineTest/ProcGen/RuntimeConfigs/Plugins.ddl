@@ -1,5 +1,5 @@
 Plugin
 {
-	string %Path{"ezProcGenPlugin"}
+	string %Path{"WProcGenPlugin"}
 	bool %LoadCopy{false}
 }

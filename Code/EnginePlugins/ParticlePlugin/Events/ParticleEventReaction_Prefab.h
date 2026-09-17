@@ -5,58 +5,58 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
-using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
+using WPrefabResourceHandle = WTypedResourceHandle<class WPrefabResource>;
 
 /// Factory for creating prefab spawn reactions.
 ///
 /// Configures reactions that instantiate a prefab at the event location.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab final : public ezParticleEventReactionFactory
+class W_PARTICLEPLUGIN_DLL WParticleEventReactionFactory_Prefab final : public WParticleEventReactionFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Prefab, ezParticleEventReactionFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEventReactionFactory_Prefab, WParticleEventReactionFactory);
 
 public:
-  ezParticleEventReactionFactory_Prefab();
+  WParticleEventReactionFactory_Prefab();
 
-  virtual const ezRTTI* GetEventReactionType() const override;
-  virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetEventReactionType() const override;
+  virtual void CopyReactionProperties(WParticleEventReaction* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream) override;
 
-  ezString m_sPrefab;
-  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
+  WString m_sPrefab;
+  WEnum<WSurfaceInteractionAlignment> m_Alignment;
 
-  ezPrefabResourceHandle m_hPrefab;
+  WPrefabResourceHandle m_hPrefab;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:
-  // const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  // void SetParameter(const char* szKey, const ezVariant& value);
+  // const WRangeView<const char*, WUInt32> GetParameters() const;
+  // void SetParameter(const char* szKey, const WVariant& value);
   // void RemoveParameter(const char* szKey);
-  // bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  // bool GetParameter(const char* szKey, WVariant& out_value) const;
 
 private:
-  // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
+  // WSharedPtr<WParticlePrefabParameters> m_Parameters;
 };
 
 /// Event reaction that instantiates a prefab.
 ///
 /// When triggered, spawns the configured prefab at the event's position and orientation.
 /// The prefab can be aligned according to the event's direction and normal vectors.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab final : public ezParticleEventReaction
+class W_PARTICLEPLUGIN_DLL WParticleEventReaction_Prefab final : public WParticleEventReaction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Prefab, ezParticleEventReaction);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEventReaction_Prefab, WParticleEventReaction);
 
 public:
-  ezParticleEventReaction_Prefab();
-  ~ezParticleEventReaction_Prefab();
+  WParticleEventReaction_Prefab();
+  ~WParticleEventReaction_Prefab();
 
-  ezPrefabResourceHandle m_hPrefab;
-  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
+  WPrefabResourceHandle m_hPrefab;
+  WEnum<WSurfaceInteractionAlignment> m_Alignment;
 
-  // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
+  // WSharedPtr<WParticlePrefabParameters> m_Parameters;
 
 protected:
-  virtual void ProcessEvent(const ezParticleEvent& e) override;
+  virtual void ProcessEvent(const WParticleEvent& e) override;
 };

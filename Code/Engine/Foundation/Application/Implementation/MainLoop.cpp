@@ -9,43 +9,43 @@ inline bool allow_hotreload = false;
 inline lpp::LppDefaultAgent lppAgent;
 #endif
 
-ezResult ezRun_Startup(ezApplication* pApplicationInstance)
+WResult WRun_Startup(WApplication* pApplicationInstance)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // create a synchronized agent, loading the Live++ agent from the given path, e.g. "ThirdParty/LivePP"
   lppAgent = lpp::LppCreateDefaultAgent(nullptr, L"LivePP");
   // bail out in case the agent is not valid
   if (!lpp::LppIsValidDefaultAgent(&lppAgent))
   {
-    ezLog::Warning("Failed to create Live++ agent.");
+    WLog::Warning("Failed to create Live++ agent.");
   }
   else
   {
-    ezLog::Info("Live++ agent created.");
+    WLog::Info("Live++ agent created.");
     allow_hotreload = true;
     lppAgent.EnableModule(lpp::LppGetCurrentModulePath(), lpp::LPP_MODULES_OPTION_NONE, nullptr, nullptr);
     // make Live++ handle dynamically loaded modules automatically, enabling them on load, disabling them on unload
     lppAgent.EnableAutomaticHandlingOfDynamicallyLoadedModules(nullptr, nullptr);
   }
 #endif
-  EZ_ASSERT_ALWAYS(pApplicationInstance != nullptr, "ezRun() requires a valid non-null application instance pointer.");
-  EZ_ASSERT_ALWAYS(ezApplication::s_pApplicationInstance == nullptr, "There can only be one ezApplication.");
+  W_ASSERT_ALWAYS(pApplicationInstance != nullptr, "WRun() requires a valid non-null application instance pointer.");
+  W_ASSERT_ALWAYS(WApplication::s_pApplicationInstance == nullptr, "There can only be one WApplication.");
 
   // Set application instance pointer to the supplied instance
-  ezApplication::s_pApplicationInstance = pApplicationInstance;
+  WApplication::s_pApplicationInstance = pApplicationInstance;
 
-  EZ_SUCCEED_OR_RETURN(pApplicationInstance->BeforeCoreSystemsStartup());
+  W_SUCCEED_OR_RETURN(pApplicationInstance->BeforeCoreSystemsStartup());
 
   // this will startup all base and core systems
   // 'StartupHighLevelSystems' must not be done before a window is available (if at all)
   // so we don't do that here
-  ezStartup::StartupCoreSystems();
+  WStartup::StartupCoreSystems();
 
   pApplicationInstance->AfterCoreSystemsStartup();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRun_MainLoop(ezApplication* pApplicationInstance)
+void WRun_MainLoop(WApplication* pApplicationInstance)
 {
   while (!pApplicationInstance->ShouldApplicationQuit())
   {
@@ -53,20 +53,20 @@ void ezRun_MainLoop(ezApplication* pApplicationInstance)
   }
 }
 
-void ezRun_Shutdown(ezApplication* pApplicationInstance)
+void WRun_Shutdown(WApplication* pApplicationInstance)
 {
   // high level systems shutdown
   // may do nothing, if the high level systems were never initialized
   {
     pApplicationInstance->BeforeHighLevelSystemsShutdown();
-    ezStartup::ShutdownHighLevelSystems();
+    WStartup::ShutdownHighLevelSystems();
     pApplicationInstance->AfterHighLevelSystemsShutdown();
   }
 
   // core systems shutdown
   {
     pApplicationInstance->BeforeCoreSystemsShutdown();
-    ezStartup::ShutdownCoreSystems();
+    WStartup::ShutdownCoreSystems();
     pApplicationInstance->AfterCoreSystemsShutdown();
   }
 
@@ -76,9 +76,9 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
 
   // Reset application instance so code running after the app will trigger asserts etc. to be cleaned up
   // Destructor is called by entry point function
-  ezApplication::s_pApplicationInstance = nullptr;
+  WApplication::s_pApplicationInstance = nullptr;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // destroy the Live++ agent
   lpp::LppDestroyDefaultAgent(&lppAgent);
 #endif
@@ -87,19 +87,19 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
   // to be freed first
 }
 
-void ezRun(ezApplication* pApplicationInstance)
+void WRun(WApplication* pApplicationInstance)
 {
-  if (ezRun_Startup(pApplicationInstance).Succeeded())
+  if (WRun_Startup(pApplicationInstance).Succeeded())
   {
-    ezRun_MainLoop(pApplicationInstance);
-    ezRun_Shutdown(pApplicationInstance);
+    WRun_MainLoop(pApplicationInstance);
+    WRun_Shutdown(pApplicationInstance);
   }
   else
   {
-    // nothing was started up, so only the bookkeeping at the end of ezRun_Shutdown() applies
+    // nothing was started up, so only the bookkeeping at the end of WRun_Shutdown() applies
     fflush(stdout);
     fflush(stderr);
 
-    ezApplication::s_pApplicationInstance = nullptr;
+    WApplication::s_pApplicationInstance = nullptr;
   }
 }

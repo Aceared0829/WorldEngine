@@ -3,12 +3,12 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-struct ezAssetCuratorEvent;
+struct WAssetCuratorEvent;
 
 /// Declares the type of pin to prevent connecting textures to buffers.
-struct ezRenderPipelineResourceType
+struct WRenderPipelineResourceType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -17,39 +17,39 @@ struct ezRenderPipelineResourceType
     Default = Texture,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRenderPipelineResourceType);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WRenderPipelineResourceType);
 
 
-/// Stored inside ezRenderPipelineAssetMetaData to declare an input / output pin of a sub-graph.
-struct ezRenderPipelineAssetPinInfo
+/// Stored inside WRenderPipelineAssetMetaData to declare an input / output pin of a sub-graph.
+struct WRenderPipelineAssetPinInfo
 {
-  ezEnum<ezRenderPipelineResourceType> m_ResourceType;
-  ezString m_sName;
+  WEnum<WRenderPipelineResourceType> m_ResourceType;
+  WString m_sName;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRenderPipelineAssetPinInfo);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WRenderPipelineAssetPinInfo);
 
 
-// Metadata attached to a ezRenderPipelineAssetDocument to declare a sub-graph's input / output.
-class ezRenderPipelineAssetMetaData : public ezReflectedClass
+// Metadata attached to a WRenderPipelineAssetDocument to declare a sub-graph's input / output.
+class WRenderPipelineAssetMetaData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineAssetMetaData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WRenderPipelineAssetMetaData, WReflectedClass);
 
 public:
-  ezDynamicArray<ezRenderPipelineAssetPinInfo> m_Inputs;
-  ezDynamicArray<ezRenderPipelineAssetPinInfo> m_Outputs;
+  WDynamicArray<WRenderPipelineAssetPinInfo> m_Inputs;
+  WDynamicArray<WRenderPipelineAssetPinInfo> m_Outputs;
 };
 
 
 /// Custom pin class so that InternalCanConnect can prevent connecting textures to buffers.
-class ezRenderPipelineNodeGraphPin : public ezVisualGraphPin
+class WRenderPipelineNodeGraphPin : public WVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineNodeGraphPin, ezVisualGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WRenderPipelineNodeGraphPin, WVisualGraphPin);
 
 public:
-  ezRenderPipelineNodeGraphPin(ezVisualGraphPin::Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject, ezRenderPipelineResourceType::Enum resourceType);
-  ~ezRenderPipelineNodeGraphPin();
+  WRenderPipelineNodeGraphPin(WVisualGraphPin::Type type, const char* szName, const WColorGammaUB& color, const WDocumentObject* pObject, WRenderPipelineResourceType::Enum resourceType);
+  ~WRenderPipelineNodeGraphPin();
 
-  ezRenderPipelineResourceType::Enum m_ResourceType = ezRenderPipelineResourceType::Texture;
+  WRenderPipelineResourceType::Enum m_ResourceType = WRenderPipelineResourceType::Texture;
 };
 
 
@@ -57,58 +57,58 @@ public:
 ///
 /// Manages the node graph that defines a rendering pipeline, including render passes, resources, and their connections.
 /// Validates connections to ensure render pipeline integrity.
-class ezRenderPipelineNodeManager : public ezVisualGraphObjectManager
+class WRenderPipelineNodeManager : public WVisualGraphObjectManager
 {
 public:
-  ezRenderPipelineNodeManager();
-  ~ezRenderPipelineNodeManager();
+  WRenderPipelineNodeManager();
+  ~WRenderPipelineNodeManager();
 
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  virtual bool InternalIsNode(const WDocumentObject* pObject) const override;
+  virtual void InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node) override;
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override;
 
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const override;
-  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
+  virtual WStatus InternalCanAdd(const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const override;
+  virtual WStatus InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const override;
 
-  virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;
+  virtual bool InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const override;
 
 private:
   struct SubGraphCache
   {
-    const ezDocumentObject* m_pObject = nullptr;
-    ezUuid m_SourceAssetGuid;
-    ezUInt64 m_uiMetaDataHash = 0;
+    const WDocumentObject* m_pObject = nullptr;
+    WUuid m_SourceAssetGuid;
+    WUInt64 m_uiMetaDataHash = 0;
   };
 
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
-  void NodeEventHandler(const ezVisualGraphObjectManagerEvent& e);
+  void AssetCuratorEventHandler(const WAssetCuratorEvent& e);
+  void NodeEventHandler(const WVisualGraphObjectManagerEvent& e);
 
-  ezMap<ezUuid, SubGraphCache> m_SubGraphs;
+  WMap<WUuid, SubGraphCache> m_SubGraphs;
 };
 
 
-class ezRenderPipelineAssetDocument : public ezAssetDocument
+class WRenderPipelineAssetDocument : public WAssetDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineAssetDocument, ezAssetDocument);
+  W_ADD_DYNAMIC_REFLECTION(WRenderPipelineAssetDocument, WAssetDocument);
 
 public:
-  ezRenderPipelineAssetDocument(ezStringView sDocumentPath);
-  ~ezRenderPipelineAssetDocument();
+  WRenderPipelineAssetDocument(WStringView sDocumentPath);
+  ~WRenderPipelineAssetDocument();
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
   // Copy & Paste support
-  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+  virtual void GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const override;
+  virtual bool Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType) override;
 
-  ezStatus Validate() const;
+  WStatus Validate() const;
 
   // meta data stores node positions and the pipeline's input/output interface
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual void InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const override;
+  virtual void AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable) override;
 };

@@ -1,76 +1,76 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(ezInternal::QuadFloat v)
+W_ALWAYS_INLINE WSimdVec4f::WSimdVec4f(WInternal::QuadFloat v)
 {
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MakeZero()
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::MakeZero()
 {
-  return ezSimdVec4f(ezSimdFloat::MakeZero());
+  return WSimdVec4f(WSimdFloat::MakeZero());
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MakeNaN()
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::MakeNaN()
 {
-  return ezSimdVec4f(ezSimdFloat::MakeNaN());
+  return WSimdVec4f(WSimdFloat::MakeNaN());
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetLength() const
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::GetLength() const
 {
-  const ezSimdFloat squaredLen = GetLengthSquared<N>();
+  const WSimdFloat squaredLen = GetLengthSquared<N>();
   return squaredLen.GetSqrt<acc>();
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetInvLength() const
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::GetInvLength() const
 {
-  const ezSimdFloat squaredLen = GetLengthSquared<N>();
+  const WSimdFloat squaredLen = GetLengthSquared<N>();
   return squaredLen.GetInvSqrt<acc>();
 }
 
 template <int N>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetLengthSquared() const
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::GetLengthSquared() const
 {
   return Dot<N>(*this);
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetLengthAndNormalize()
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::GetLengthAndNormalize()
 {
-  const ezSimdFloat squaredLen = GetLengthSquared<N>();
-  const ezSimdFloat reciprocalLen = squaredLen.GetInvSqrt<acc>();
+  const WSimdFloat squaredLen = GetLengthSquared<N>();
+  const WSimdFloat reciprocalLen = squaredLen.GetInvSqrt<acc>();
   *this = (*this) * reciprocalLen;
   return squaredLen * reciprocalLen;
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetNormalized() const
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::GetNormalized() const
 {
   return (*this) * GetInvLength<N, acc>();
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE void ezSimdVec4f::Normalize()
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE void WSimdVec4f::Normalize()
 {
   *this = GetNormalized<N, acc>();
 }
 
-template <int N, ezMathAcc::Enum acc>
-EZ_ALWAYS_INLINE void ezSimdVec4f::NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon)
+template <int N, WMathAcc::Enum acc>
+W_ALWAYS_INLINE void WSimdVec4f::NormalizeIfNotZero(const WSimdVec4f& vFallback, const WSimdFloat& fEpsilon)
 {
-  ezSimdVec4b bIsZero = IsZero<N>(fEpsilon);
+  WSimdVec4b bIsZero = IsZero<N>(fEpsilon);
   *this = Select(bIsZero, vFallback, GetNormalized<N, acc>());
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNormalized(const ezSimdFloat& fEpsilon) const
+W_ALWAYS_INLINE bool WSimdVec4f::IsNormalized(const WSimdFloat& fEpsilon) const
 {
-  const ezSimdFloat sqLength = GetLengthSquared<N>();
+  const WSimdFloat sqLength = GetLengthSquared<N>();
   return sqLength.IsEqual(1.0f, fEpsilon);
 }
 
-inline ezSimdFloat ezSimdVec4f::GetComponent(int i) const
+inline WSimdFloat WSimdVec4f::GetComponent(int i) const
 {
   switch (i)
   {
@@ -88,49 +88,49 @@ inline ezSimdFloat ezSimdVec4f::GetComponent(int i) const
   }
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Fraction() const
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::Fraction() const
 {
   return *this - Trunc();
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t)
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::Lerp(const WSimdVec4f& a, const WSimdVec4f& b, const WSimdVec4f& t)
 {
   return a + t.CompMul(b - a);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4f::IsEqual(const WSimdVec4f& rhs, const WSimdFloat& fEpsilon) const
 {
-  ezSimdVec4f minusEps = rhs - ezSimdVec4f(fEpsilon);
-  ezSimdVec4f plusEps = rhs + ezSimdVec4f(fEpsilon);
+  WSimdVec4f minusEps = rhs - WSimdVec4f(fEpsilon);
+  WSimdVec4f plusEps = rhs + WSimdVec4f(fEpsilon);
   return (*this >= minusEps) && (*this <= plusEps);
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<1>() const
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::HorizontalSum<1>() const
 {
   return GetComponent<0>();
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<1>() const
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::HorizontalMin<1>() const
 {
   return GetComponent<0>();
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<1>() const
+W_ALWAYS_INLINE WSimdFloat WSimdVec4f::HorizontalMax<1>() const
 {
   return GetComponent<0>();
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
+W_ALWAYS_INLINE WSimdVec4f WSimdVec4f::GetOrthogonalVector() const
 {
-  const ezSimdVec4b bIsLessThan = Get<ezSwizzle::YYYY>() < ezSimdVec4f(0.99f);
-  return CrossRH(Select(bIsLessThan, ezSimdVec4f(0, 1, 0, 0), ezSimdVec4f(1, 0, 0, 0)));
+  const WSimdVec4b bIsLessThan = Get<WSwizzle::YYYY>() < WSimdVec4f(0.99f);
+  return CrossRH(Select(bIsLessThan, WSimdVec4f(0, 1, 0, 0), WSimdVec4f(1, 0, 0, 0)));
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4f operator*(const ezSimdFloat& f, const ezSimdVec4f& v)
+W_ALWAYS_INLINE const WSimdVec4f operator*(const WSimdFloat& f, const WSimdVec4f& v)
 {
   return v * f;
 }

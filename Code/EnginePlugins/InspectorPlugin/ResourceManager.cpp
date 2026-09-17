@@ -7,66 +7,66 @@
 namespace ResourceManagerDetail
 {
 
-  static void SendFullResourceInfo(const ezResource* pRes)
+  static void SendFullResourceInfo(const WResource* pRes)
   {
-    ezTelemetryMessage Msg;
+    WTelemetryMessage Msg;
 
     Msg.SetMessageID('RESM', ' SET');
 
     Msg.GetWriter() << pRes->GetResourceIDHash();
     Msg.GetWriter() << pRes->GetResourceID();
     Msg.GetWriter() << pRes->GetDynamicRTTI()->GetTypeName();
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetBaseResourceFlags().GetValue());
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetLoadingState());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetPriority());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetBaseResourceFlags().GetValue());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetLoadingState());
     Msg.GetWriter() << pRes->GetNumQualityLevelsDiscardable();
     Msg.GetWriter() << pRes->GetNumQualityLevelsLoadable();
     Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryCPU;
     Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryGPU;
     Msg.GetWriter() << pRes->GetResourceDescription();
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, Msg);
   }
 
-  static void SendSmallResourceInfo(const ezResource* pRes)
+  static void SendSmallResourceInfo(const WResource* pRes)
   {
-    ezTelemetryMessage Msg;
+    WTelemetryMessage Msg;
 
     Msg.SetMessageID('RESM', 'UPDT');
 
     Msg.GetWriter() << pRes->GetResourceIDHash();
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetBaseResourceFlags().GetValue());
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetLoadingState());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetPriority());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetBaseResourceFlags().GetValue());
+    Msg.GetWriter() << static_cast<WUInt8>(pRes->GetLoadingState());
     Msg.GetWriter() << pRes->GetNumQualityLevelsDiscardable();
     Msg.GetWriter() << pRes->GetNumQualityLevelsLoadable();
     Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryCPU;
     Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryGPU;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, Msg);
   }
 
-  static void SendDeleteResourceInfo(const ezResource* pRes)
+  static void SendDeleteResourceInfo(const WResource* pRes)
   {
-    ezTelemetryMessage Msg;
+    WTelemetryMessage Msg;
 
     Msg.SetMessageID('RESM', ' DEL');
 
     Msg.GetWriter() << pRes->GetResourceIDHash();
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, Msg);
   }
 
   static void SendAllResourceTelemetry()
   {
-    ezResourceManager::BroadcastExistsEvent();
+    WResourceManager::BroadcastExistsEvent();
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllResourceTelemetry();
         break;
 
@@ -75,42 +75,42 @@ namespace ResourceManagerDetail
     }
   }
 
-  static void ResourceManagerEventHandler(const ezResourceEvent& e)
+  static void ResourceManagerEventHandler(const WResourceEvent& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_Type)
     {
-      case ezResourceEvent::Type::ResourceCreated:
-      case ezResourceEvent::Type::ResourceExists:
+      case WResourceEvent::Type::ResourceCreated:
+      case WResourceEvent::Type::ResourceExists:
         SendFullResourceInfo(e.m_pResource);
         return;
 
-      case ezResourceEvent::Type::ResourceDeleted:
+      case WResourceEvent::Type::ResourceDeleted:
         SendDeleteResourceInfo(e.m_pResource);
         return;
 
-      case ezResourceEvent::Type::ResourceContentUpdated:
-      case ezResourceEvent::Type::ResourceContentUnloading:
-      case ezResourceEvent::Type::ResourcePriorityChanged:
+      case WResourceEvent::Type::ResourceContentUpdated:
+      case WResourceEvent::Type::ResourceContentUnloading:
+      case WResourceEvent::Type::ResourcePriorityChanged:
         SendSmallResourceInfo(e.m_pResource);
         return;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 } // namespace ResourceManagerDetail
 
 void AddResourceManagerEventHandler()
 {
-  ezTelemetry::AddEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
-  ezResourceManager::GetResourceEvents().AddEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
+  WTelemetry::AddEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
+  WResourceManager::GetResourceEvents().AddEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
 }
 
 void RemoveResourceManagerEventHandler()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
-  ezTelemetry::RemoveEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
+  WResourceManager::GetResourceEvents().RemoveEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
+  WTelemetry::RemoveEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
 }

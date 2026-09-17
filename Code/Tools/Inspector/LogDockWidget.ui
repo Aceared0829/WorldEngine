@@ -15,13 +15,13 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="ezQtLogWidget" name="LogWidget" native="true"/>
+    <widget class="WQtLogWidget" name="LogWidget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtLogWidget</class>
+   <class>WQtLogWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
    <container>1</container>

@@ -2,16 +2,16 @@
 
 #include <Mcp/McpToolRegistry.h>
 
-ezSet<const ezRTTI*> ezMcpToolRegistry::s_KnownTypes;
-ezDynamicArray<ezMcpToolProvider*> ezMcpToolRegistry::s_Providers;
-ezDynamicArray<ezMcpToolDesc> ezMcpToolRegistry::s_Tools;
-ezMap<ezString, ezMcpToolProvider*> ezMcpToolRegistry::s_ToolLookup;
-ezMcpExecuteWrapper ezMcpToolRegistry::s_ExecuteWrapper;
+WSet<const WRTTI*> WMcpToolRegistry::s_KnownTypes;
+WDynamicArray<WMcpToolProvider*> WMcpToolRegistry::s_Providers;
+WDynamicArray<WMcpToolDesc> WMcpToolRegistry::s_Tools;
+WMap<WString, WMcpToolProvider*> WMcpToolRegistry::s_ToolLookup;
+WMcpExecuteWrapper WMcpToolRegistry::s_ExecuteWrapper;
 
-void ezMcpToolRegistry::UpdateProviders()
+void WMcpToolRegistry::UpdateProviders()
 {
-  ezRTTI::ForEachDerivedType<ezMcpToolProvider>(
-    [](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WMcpToolProvider>(
+    [](const WRTTI* pRtti)
     {
       // remember the type even if it can't be allocated, so we don't look at it again
       if (s_KnownTypes.Contains(pRtti))
@@ -24,21 +24,21 @@ void ezMcpToolRegistry::UpdateProviders()
       if (!pRtti->GetAllocator()->CanAllocate())
         return;
 
-      ezMcpToolProvider* pProvider = pRtti->GetAllocator()->Allocate<ezMcpToolProvider>();
+      WMcpToolProvider* pProvider = pRtti->GetAllocator()->Allocate<WMcpToolProvider>();
       s_Providers.PushBack(pProvider);
 
       pProvider->OnActivate();
 
-      ezDynamicArray<ezMcpToolDesc> tools;
+      WDynamicArray<WMcpToolDesc> tools;
       pProvider->GetSupportedTools(tools);
 
-      for (const ezMcpToolDesc& tool : tools)
+      for (const WMcpToolDesc& tool : tools)
       {
         if (s_ToolLookup.Contains(tool.m_sName))
         {
           // two providers claiming the same name would make dispatch ambiguous, and the client would
           // see a duplicate entry in its tool list
-          ezLog::Error("MCP: Tool name '{}' is already in use, the one from '{}' is ignored.", tool.m_sName, pRtti->GetTypeName());
+          WLog::Error("MCP: Tool name '{}' is already in use, the one from '{}' is ignored.", tool.m_sName, pRtti->GetTypeName());
           continue;
         }
 
@@ -46,23 +46,23 @@ void ezMcpToolRegistry::UpdateProviders()
         s_Tools.PushBack(tool);
       }
     },
-    ezRTTI::ForEachOptions::ExcludeNotConcrete);
+    WRTTI::ForEachOptions::ExcludeNotConcrete);
 }
 
-void ezMcpToolRegistry::RemoveProvider(const ezRTTI* pProviderType)
+void WMcpToolRegistry::RemoveProvider(const WRTTI* pProviderType)
 {
-  for (ezUInt32 i = s_Providers.GetCount(); i > 0; --i)
+  for (WUInt32 i = s_Providers.GetCount(); i > 0; --i)
   {
-    ezMcpToolProvider* pProvider = s_Providers[i - 1];
+    WMcpToolProvider* pProvider = s_Providers[i - 1];
 
     // GetDynamicRTTI() reads the vtable, so this must run before the module is actually unmapped
-    const ezRTTI* pRtti = pProvider->GetDynamicRTTI();
+    const WRTTI* pRtti = pProvider->GetDynamicRTTI();
     if (pRtti != pProviderType)
       continue;
 
-    for (ezUInt32 uiTool = s_Tools.GetCount(); uiTool > 0; --uiTool)
+    for (WUInt32 uiTool = s_Tools.GetCount(); uiTool > 0; --uiTool)
     {
-      const ezString& sToolName = s_Tools[uiTool - 1].m_sName;
+      const WString& sToolName = s_Tools[uiTool - 1].m_sName;
 
       if (s_ToolLookup.GetValueOrDefault(sToolName, nullptr) == pProvider)
       {
@@ -79,9 +79,9 @@ void ezMcpToolRegistry::RemoveProvider(const ezRTTI* pProviderType)
   }
 }
 
-void ezMcpToolRegistry::Clear()
+void WMcpToolRegistry::Clear()
 {
-  for (ezMcpToolProvider* pProvider : s_Providers)
+  for (WMcpToolProvider* pProvider : s_Providers)
   {
     pProvider->OnDeactivate();
     pProvider->GetDynamicRTTI()->GetAllocator()->Deallocate(pProvider);
@@ -93,16 +93,16 @@ void ezMcpToolRegistry::Clear()
   s_KnownTypes.Clear();
 }
 
-ezResult ezMcpToolRegistry::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+WResult WMcpToolRegistry::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   auto it = s_ToolLookup.Find(sToolName);
 
   if (!it.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezMcpToolProvider* pProvider = it.Value();
+  WMcpToolProvider* pProvider = it.Value();
 
-  ezDelegate<void()> execute = [&]()
+  WDelegate<void()> execute = [&]()
   {
     pProvider->Execute(sToolName, arguments, out_result);
   };
@@ -116,5 +116,5 @@ ezResult ezMcpToolRegistry::Execute(ezStringView sToolName, const ezVariantDicti
     execute();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

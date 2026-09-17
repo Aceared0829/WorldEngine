@@ -7,23 +7,23 @@
 #include <RendererDX11/State/GraphicsPipelineDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 
-ezGALGraphicsPipelineDX11::ezGALGraphicsPipelineDX11(const ezGALGraphicsPipelineCreationDescription& description)
-  : ezGALGraphicsPipeline(description)
+WGALGraphicsPipelineDX11::WGALGraphicsPipelineDX11(const WGALGraphicsPipelineCreationDescription& description)
+  : WGALGraphicsPipeline(description)
 {
 }
 
-ezGALGraphicsPipelineDX11::~ezGALGraphicsPipelineDX11() = default;
+WGALGraphicsPipelineDX11::~WGALGraphicsPipelineDX11() = default;
 
-ezResult ezGALGraphicsPipelineDX11::InitPlatform(ezGALDevice*)
+WResult WGALGraphicsPipelineDX11::InitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALGraphicsPipelineDX11::DeInitPlatform(ezGALDevice*)
+WResult WGALGraphicsPipelineDX11::DeInitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALGraphicsPipelineDX11::SetDebugName(const char*)
+void WGALGraphicsPipelineDX11::SetDebugName(const char*)
 {
 }

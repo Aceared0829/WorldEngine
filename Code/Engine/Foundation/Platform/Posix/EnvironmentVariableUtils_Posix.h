@@ -1,36 +1,36 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/EnvironmentVariableUtils.h>
 #include <stdlib.h>
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
+WString WEnvironmentVariableUtils::GetValueStringImpl(WStringView sName, WStringView sDefault)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   const char* value = getenv(sName.GetData(tmp));
   return value != nullptr ? value : sDefault;
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView sValue)
+WResult WEnvironmentVariableUtils::SetValueStringImpl(WStringView sName, WStringView sValue)
 {
-  ezStringBuilder tmp, tmp2;
+  WStringBuilder tmp, tmp2;
   if (setenv(sName.GetData(tmp), sValue.GetData(tmp2), 1) == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   else
-    return EZ_FAILURE;
+    return W_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
+bool WEnvironmentVariableUtils::IsVariableSetImpl(WStringView sName)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   return getenv(sName.GetData(tmp)) != nullptr;
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
+WResult WEnvironmentVariableUtils::UnsetVariableImpl(WStringView sName)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   if (unsetenv(sName.GetData(tmp)) == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   else
-    return EZ_FAILURE;
+    return W_FAILURE;
 }

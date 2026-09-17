@@ -7,9 +7,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <qgraphicsitem.h>
 
-ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
+WQtFileWidget* WQtFileWidget::s_pWidget = nullptr;
 
-ezQtFileWidget::ezQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtFileWidget::WQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "File Operations", pParent)
 {
   s_pWidget = this;
@@ -23,15 +23,15 @@ ezQtFileWidget::ezQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent
 }
 
 
-ezQtFileWidget::~ezQtFileWidget() = default;
+WQtFileWidget::~WQtFileWidget() = default;
 
-void ezQtFileWidget::ResetStats()
+void WQtFileWidget::ResetStats()
 {
   m_iMaxID = 0;
   m_bUpdateTable = true;
   m_FileOps.Clear();
   m_FileOps.Reserve(10000);
-  m_LastTableUpdate = ezTime::MakeFromSeconds(0);
+  m_LastTableUpdate = WTime::MakeFromSeconds(0);
 
   Table->clear();
 
@@ -53,31 +53,31 @@ void ezQtFileWidget::ResetStats()
   Table->sortByColumn(0, Qt::DescendingOrder);
 }
 
-void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
+void WQtFileWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('FILE', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('FILE', Msg) == W_SUCCESS)
   {
     s_pWidget->m_bUpdateTable = true;
 
-    ezInt32 iFileID = 0;
+    WInt32 iFileID = 0;
     Msg.GetReader() >> iFileID;
 
-    s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
+    s_pWidget->m_iMaxID = WMath::Max(s_pWidget->m_iMaxID, iFileID);
     FileOpData& data = s_pWidget->m_FileOps[iFileID];
 
     if (data.m_StartTime.GetSeconds() == 0.0)
-      data.m_StartTime = ezTime::Now();
+      data.m_StartTime = WTime::Now();
 
     switch (Msg.GetMessageID())
     {
       case 'OPEN':
       {
-        ezUInt8 uiMode = 0;
+        WUInt8 uiMode = 0;
         bool bSuccess = false;
 
         Msg.GetReader() >> data.m_sFile;
@@ -86,15 +86,15 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
         switch (uiMode)
         {
-          case ezFileOpenMode::Write:
-          case ezFileOpenMode::Append:
+          case WFileOpenMode::Write:
+          case WFileOpenMode::Append:
             data.m_State = bSuccess ? OpenWriting : OpenWritingFailed;
             break;
-          case ezFileOpenMode::Read:
+          case WFileOpenMode::Read:
             data.m_State = bSuccess ? OpenReading : OpenReadingFailed;
             break;
           default:
-            EZ_REPORT_FAILURE("Unknown File Open Mode {0}", uiMode);
+            W_REPORT_FAILURE("Unknown File Open Mode {0}", uiMode);
             break;
         }
       }
@@ -119,7 +119,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       break;
       case 'WRIT':
       {
-        ezUInt64 uiSize;
+        WUInt64 uiSize;
         bool bSuccess = false;
 
         Msg.GetReader() >> uiSize;
@@ -136,7 +136,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       break;
       case 'READ':
       {
-        ezUInt64 uiRead;
+        WUInt64 uiRead;
         Msg.GetReader() >> uiRead;
 
         data.m_uiBytesAccessed += uiRead;
@@ -182,13 +182,13 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       case 'COPY':
       {
         bool bSuccess;
-        ezString sFile1, sFile2;
+        WString sFile1, sFile2;
 
         Msg.GetReader() >> sFile1;
         Msg.GetReader() >> sFile2;
         Msg.GetReader() >> bSuccess;
 
-        ezStringBuilder s;
+        WStringBuilder s;
         s.SetFormat("'{0}' -> '{1}'", sFile1, sFile2);
         data.m_sFile = s.GetData();
 
@@ -221,15 +221,15 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
     double dTime = 0.0;
     Msg.GetReader() >> dTime;
-    data.m_BlockedDuration += ezTime::MakeFromSeconds(dTime);
+    data.m_BlockedDuration += WTime::MakeFromSeconds(dTime);
 
-    ezUInt8 uiThreadTypes = 0;
+    WUInt8 uiThreadTypes = 0;
     Msg.GetReader() >> uiThreadTypes;
     data.m_uiThreadTypes |= uiThreadTypes;
   }
 }
 
-QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
+QTableWidgetItem* WQtFileWidget::GetStateString(FileOpState State) const
 {
   QTableWidgetItem* pItem = new QTableWidgetItem();
   pItem->setTextAlignment(Qt::AlignCenter);
@@ -313,26 +313,26 @@ QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
       pItem->setForeground(Qt::red);
       break;
     default:
-      EZ_REPORT_FAILURE("Unknown File Operation {0}", (ezInt32)State);
+      W_REPORT_FAILURE("Unknown File Operation {0}", (WInt32)State);
       break;
   }
 
   return pItem;
 }
 
-void ezQtFileWidget::UpdateTable()
+void WQtFileWidget::UpdateTable()
 {
   if (!m_bUpdateTable)
     return;
 
-  if (ezTime::Now() - m_LastTableUpdate < ezTime::MakeFromSeconds(0.3))
+  if (WTime::Now() - m_LastTableUpdate < WTime::MakeFromSeconds(0.3))
     return;
 
-  m_LastTableUpdate = ezTime::Now();
+  m_LastTableUpdate = WTime::Now();
 
   m_bUpdateTable = false;
 
-  ezQtScopedUpdatesDisabled _1(Table);
+  WQtScopedUpdatesDisabled _1(Table);
 
   Table->setSortingEnabled(false);
   Table->clear();
@@ -352,14 +352,14 @@ void ezQtFileWidget::UpdateTable()
   }
 
   const double fMinDuration = SpinMinDuration->value();
-  const ezUInt32 uiMMaxElements = SpinLimitToRecent->value();
-  ezString sFilter = LineFilterByName->text().toUtf8().data();
+  const WUInt32 uiMMaxElements = SpinLimitToRecent->value();
+  WString sFilter = LineFilterByName->text().toUtf8().data();
 
-  const ezUInt32 iThread = ComboThread->currentIndex();
-  const ezUInt8 uiThreadFilter = (iThread == 0) ? 0xFF : (1 << (iThread - 1));
+  const WUInt32 iThread = ComboThread->currentIndex();
+  const WUInt8 uiThreadFilter = (iThread == 0) ? 0xFF : (1 << (iThread - 1));
 
-  ezUInt32 uiRow = 0;
-  for (ezHashTable<ezUInt32, FileOpData>::Iterator it = m_FileOps.GetIterator(); it.IsValid(); ++it)
+  WUInt32 uiRow = 0;
+  for (WHashTable<WUInt32, FileOpData>::Iterator it = m_FileOps.GetIterator(); it.IsValid(); ++it)
   {
     if ((uiThreadFilter & it.Value().m_uiThreadTypes) == 0)
       continue;
@@ -373,13 +373,13 @@ void ezQtFileWidget::UpdateTable()
     if (!sFilter.IsEmpty() && (it.Value().m_sFile.FindSubString_NoCase(sFilter.GetData()) == nullptr))
       continue;
 
-    if (uiRow >= (ezUInt32)Table->rowCount())
+    if (uiRow >= (WUInt32)Table->rowCount())
       Table->insertRow(Table->rowCount());
 
     QTableWidgetItem* pItem;
 
     pItem = new QTableWidgetItem();
-    pItem->setData(Qt::DisplayRole, QVariant((ezUInt64)it.Value().m_StartTime.GetMicroseconds()));
+    pItem->setData(Qt::DisplayRole, QVariant((WUInt64)it.Value().m_StartTime.GetMicroseconds()));
     Table->setItem(uiRow, 0, pItem);
 
     pItem = GetStateString(it.Value().m_State);
@@ -396,7 +396,7 @@ void ezQtFileWidget::UpdateTable()
     pItem = new QTableWidgetItem();
     pItem->setTextAlignment(Qt::AlignCenter);
 
-    ezStringBuilder sThread;
+    WStringBuilder sThread;
 
     if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0)      // Main Thread
       pItem->setForeground(QColor::fromRgb(255, 64, 0));
@@ -426,7 +426,7 @@ void ezQtFileWidget::UpdateTable()
   Table->setSortingEnabled(true);
 }
 
-void ezQtFileWidget::UpdateStats()
+void WQtFileWidget::UpdateStats()
 {
   if (!m_bUpdateTable)
     return;
@@ -434,22 +434,22 @@ void ezQtFileWidget::UpdateStats()
   UpdateTable();
 }
 
-void ezQtFileWidget::on_SpinLimitToRecent_valueChanged(int val)
+void WQtFileWidget::on_SpinLimitToRecent_valueChanged(int val)
 {
   m_bUpdateTable = true;
 }
 
-void ezQtFileWidget::on_SpinMinDuration_valueChanged(double val)
+void WQtFileWidget::on_SpinMinDuration_valueChanged(double val)
 {
   m_bUpdateTable = true;
 }
 
-void ezQtFileWidget::on_LineFilterByName_textChanged()
+void WQtFileWidget::on_LineFilterByName_textChanged()
 {
   m_bUpdateTable = true;
 }
 
-void ezQtFileWidget::on_ComboThread_currentIndexChanged(int state)
+void WQtFileWidget::on_ComboThread_currentIndexChanged(int state)
 {
   m_bUpdateTable = true;
 }

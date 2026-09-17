@@ -5,25 +5,25 @@
 #include <RendererCore/Components/AlwaysVisibleComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAlwaysVisibleComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WAlwaysVisibleComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezAlwaysVisibleComponent::ezAlwaysVisibleComponent() = default;
-ezAlwaysVisibleComponent::~ezAlwaysVisibleComponent() = default;
+WAlwaysVisibleComponent::WAlwaysVisibleComponent() = default;
+WAlwaysVisibleComponent::~WAlwaysVisibleComponent() = default;
 
-ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WAlwaysVisibleComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_AlwaysVisibleComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_AlwaysVisibleComponent);

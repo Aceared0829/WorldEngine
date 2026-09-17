@@ -8,7 +8,7 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 
-static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+static void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
@@ -17,14 +17,14 @@ void OnLoadPlugin()
     // Menu Bar
     {
       const char* szMenuBar = "ProcGenAssetMenuBar";
-      ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
-      ezEditActions::MapActions(szMenuBar, false, false);
+      WActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
+      WEditActions::MapActions(szMenuBar, false, false);
     }
 
     // Tool Bar
     {
       const char* szToolBar = "ProcGenAssetToolBar";
-      ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
+      WActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
     }
   }
 
@@ -32,8 +32,8 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezProcGenActions::RegisterActions();
-      ezProcGenActions::MapMenuActions();
+      WProcGenActions::RegisterActions();
+      WProcGenActions::MapMenuActions();
     }
 
     // Tool Bar
@@ -44,15 +44,15 @@ void OnLoadPlugin()
 
 void OnUnloadPlugin()
 {
-  ezProcGenActions::UnregisterActions();
+  WProcGenActions::UnregisterActions();
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

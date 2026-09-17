@@ -4,18 +4,18 @@
 #include <Foundation/Basics.h>
 #include <QWidget>
 
-struct ezAssetCuratorEvent;
-struct ezToolsProjectEvent;
-struct ezAssetProcessorEvent;
+struct WAssetCuratorEvent;
+struct WToolsProjectEvent;
+struct WAssetProcessorEvent;
 class QToolButton;
 
 /// \brief
-class EZ_EDITORFRAMEWORK_DLL ezQtCuratorControl : public QWidget
+class W_EDITORFRAMEWORK_DLL WQtCuratorControl : public QWidget
 {
   Q_OBJECT
 public:
-  explicit ezQtCuratorControl(QWidget* pParent);
-  ~ezQtCuratorControl();
+  explicit WQtCuratorControl(QWidget* pParent);
+  ~WQtCuratorControl();
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -28,9 +28,9 @@ private Q_SLOTS:
 
 private:
   void ScheduleUpdateTransformStats();
-  void AssetCuratorEvents(const ezAssetCuratorEvent& e);
-  void AssetProcessorEvents(const ezAssetProcessorEvent& e);
-  void ProjectEvents(const ezToolsProjectEvent& e);
+  void AssetCuratorEvents(const WAssetCuratorEvent& e);
+  void AssetProcessorEvents(const WAssetProcessorEvent& e);
+  void ProjectEvents(const WToolsProjectEvent& e);
 
   bool m_bScheduled = false;
   QToolButton* m_pBackgroundProcess = nullptr;

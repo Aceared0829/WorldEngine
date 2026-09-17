@@ -9,51 +9,51 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleSphereOutOfBoundsMode, 1)
-  EZ_ENUM_CONSTANT(ezParticleSphereOutOfBoundsMode::Kill),
-  EZ_ENUM_CONSTANT(ezParticleSphereOutOfBoundsMode::Constrain),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WParticleSphereOutOfBoundsMode, 1)
+  W_ENUM_CONSTANT(WParticleSphereOutOfBoundsMode::Kill),
+  W_ENUM_CONSTANT(WParticleSphereOutOfBoundsMode::Constrain),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_BoundsSphere, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_BoundsSphere>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_BoundsSphere, 1, WRTTIDefaultAllocator<WParticleBehaviorFactory_BoundsSphere>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CenterOffset", m_vCenterOffset),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.01f, {})),
-    EZ_ENUM_MEMBER_PROPERTY("OutOfBoundsMode", ezParticleSphereOutOfBoundsMode, m_OutOfBoundsMode),
+    W_MEMBER_PROPERTY("CenterOffset", m_vCenterOffset),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(3.0f), new WClampValueAttribute(0.01f, {})),
+    W_ENUM_MEMBER_PROPERTY("OutOfBoundsMode", WParticleSphereOutOfBoundsMode, m_OutOfBoundsMode),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius", ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3::MakeZero(), "CenterOffset")
+    new WSphereVisualizerAttribute("Radius", WColor::LightGreen, nullptr, WVisualizerAnchor::Center, WVec3::MakeZero(), "CenterOffset")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_BoundsSphere, 1, ezRTTIDefaultAllocator<ezParticleBehavior_BoundsSphere>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_BoundsSphere, 1, WRTTIDefaultAllocator<WParticleBehavior_BoundsSphere>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_BoundsSphere::ezParticleBehaviorFactory_BoundsSphere() = default;
+WParticleBehaviorFactory_BoundsSphere::WParticleBehaviorFactory_BoundsSphere() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_BoundsSphere::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_BoundsSphere::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_BoundsSphere>();
+  return WGetStaticRTTI<WParticleBehavior_BoundsSphere>();
 }
 
-void ezParticleBehaviorFactory_BoundsSphere::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_BoundsSphere::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_BoundsSphere* pBehavior = static_cast<ezParticleBehavior_BoundsSphere*>(pObject);
+  WParticleBehavior_BoundsSphere* pBehavior = static_cast<WParticleBehavior_BoundsSphere*>(pObject);
 
   pBehavior->m_vCenterOffset = m_vCenterOffset;
   pBehavior->m_fRadius = m_fRadius;
   pBehavior->m_OutOfBoundsMode = m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_BoundsSphere::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_BoundsSphere::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
   inout_stream << uiVersion;
 
   inout_stream << m_vCenterOffset;
@@ -61,41 +61,41 @@ void ezParticleBehaviorFactory_BoundsSphere::Save(ezStreamWriter& inout_stream) 
   inout_stream << m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_BoundsSphere::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_BoundsSphere::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= 1, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= 1, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_vCenterOffset;
   inout_stream >> m_fRadius;
   inout_stream >> m_OutOfBoundsMode;
 }
 
-void ezParticleBehavior_BoundsSphere::CreateRequiredStreams()
+void WParticleBehavior_BoundsSphere::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
 }
 
-void ezParticleBehavior_BoundsSphere::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_BoundsSphere::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: BoundsSphere");
+  W_PROFILE_SCOPE("PFX: BoundsSphere");
 
-  const ezSimdTransform trans = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
-  const ezSimdVec4f center = trans.TransformPosition(ezSimdConversion::ToVec3(m_vCenterOffset));
+  const WSimdTransform trans = WSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
+  const WSimdVec4f center = trans.TransformPosition(WSimdConversion::ToVec3(m_vCenterOffset));
   const float fRadiusSqr = m_fRadius * m_fRadius;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
 
-  if (m_OutOfBoundsMode == ezParticleSphereOutOfBoundsMode::Kill)
+  if (m_OutOfBoundsMode == WParticleSphereOutOfBoundsMode::Kill)
   {
-    ezUInt32 idx = 0;
+    WUInt32 idx = 0;
 
     while (!itPosition.HasReachedEnd())
     {
-      const ezSimdVec4f pos = itPosition.Current();
-      const ezSimdVec4f diff = pos - center;
+      const WSimdVec4f pos = itPosition.Current();
+      const WSimdVec4f diff = pos - center;
       const float distSqr = diff.Dot<3>(diff);
 
       if (distSqr > fRadiusSqr)
@@ -111,16 +111,16 @@ void ezParticleBehavior_BoundsSphere::Process(ezUInt64 uiNumElements)
   {
     while (!itPosition.HasReachedEnd())
     {
-      const ezSimdVec4f pos = itPosition.Current();
-      const ezSimdVec4f diff = pos - center;
+      const WSimdVec4f pos = itPosition.Current();
+      const WSimdVec4f diff = pos - center;
       const float distSqr = diff.Dot<3>(diff);
 
       if (distSqr > fRadiusSqr)
       {
         // Push particle back to the sphere surface
-        const float dist = ezMath::Sqrt(distSqr);
-        const ezSimdVec4f normalized = diff / ezSimdFloat(dist);
-        itPosition.Current() = center + normalized * ezSimdFloat(m_fRadius);
+        const float dist = WMath::Sqrt(distSqr);
+        const WSimdVec4f normalized = diff / WSimdFloat(dist);
+        itPosition.Current() = center + normalized * WSimdFloat(m_fRadius);
       }
 
       itPosition.Advance();
@@ -129,4 +129,4 @@ void ezParticleBehavior_BoundsSphere::Process(ezUInt64 uiNumElements)
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_BoundsSphere);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_BoundsSphere);

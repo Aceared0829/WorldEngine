@@ -4,24 +4,24 @@
 
 #include <RendererFoundation/Device/SwapChain.h>
 
-class ezXRInterface;
+class WXRInterface;
 
-class EZ_GAMEENGINE_DLL ezGALXRSwapChain : public ezGALSwapChain
+class W_GAMEENGINE_DLL WGALXRSwapChain : public WGALSwapChain
 {
 public:
-  using Functor = ezDelegate<ezGALSwapChainHandle(ezXRInterface*)>;
+  using Functor = WDelegate<WGALSwapChainHandle(WXRInterface*)>;
   static void SetFactoryMethod(Functor factory);
 
-  static ezGALSwapChainHandle Create(ezXRInterface* pXrInterface);
+  static WGALSwapChainHandle Create(WXRInterface* pXrInterface);
 
 public:
-  ezGALXRSwapChain(ezXRInterface* pXrInterface);
-  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) override;
+  WGALXRSwapChain(WXRInterface* pXrInterface);
+  virtual WResult UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode) override;
 
 protected:
   static Functor s_Factory;
 
 protected:
-  ezXRInterface* m_pXrInterface = nullptr;
+  WXRInterface* m_pXrInterface = nullptr;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGALXRSwapChain);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WGALXRSwapChain);

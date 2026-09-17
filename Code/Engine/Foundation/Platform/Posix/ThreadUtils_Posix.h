@@ -1,5 +1,5 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Threading/ThreadUtils.h>
@@ -11,40 +11,40 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 static pthread_t g_MainThread = (pthread_t)0;
 
-void ezThreadUtils::Initialize()
+void WThreadUtils::Initialize()
 {
   g_MainThread = pthread_self();
 }
 
-void ezThreadUtils::YieldTimeSlice()
+void WThreadUtils::YieldTimeSlice()
 {
   sched_yield();
 }
 
-void ezThreadUtils::YieldHardwareThread()
+void WThreadUtils::YieldHardwareThread()
 {
   // No equivalent to mm_pause on linux
 }
 
-void ezThreadUtils::Sleep(const ezTime& duration)
+void WThreadUtils::Sleep(const WTime& duration)
 {
   timespec SleepTime;
   SleepTime.tv_sec = duration.GetSeconds();
-  SleepTime.tv_nsec = ((ezInt64)duration.GetMilliseconds() * 1000000LL) % 1000000000LL;
+  SleepTime.tv_nsec = ((WInt64)duration.GetMilliseconds() * 1000000LL) % 1000000000LL;
   nanosleep(&SleepTime, nullptr);
 }
 
-// ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
+// WThreadHandle WThreadUtils::GetCurrentThreadHandle()
 //{
 //  return pthread_self();
 //}
 
-ezThreadID ezThreadUtils::GetCurrentThreadID()
+WThreadID WThreadUtils::GetCurrentThreadID()
 {
   return pthread_self();
 }
 
-bool ezThreadUtils::IsMainThread()
+bool WThreadUtils::IsMainThread()
 {
   return pthread_self() == g_MainThread;
 }

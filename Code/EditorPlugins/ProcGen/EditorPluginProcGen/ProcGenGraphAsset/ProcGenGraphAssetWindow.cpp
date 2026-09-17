@@ -13,17 +13,17 @@
 #include <GuiFoundation/VisualGraph/View.moc.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
-ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WProcGenGraphAssetDocumentWindow::WProcGenGraphAssetDocumentWindow(WProcGenGraphAssetDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "ProcGenAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -32,8 +32,8 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "ProcGenAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -44,13 +44,13 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
 
   // Central Widget
   {
-    m_pScene = new ezQtProcGenScene(this);
-    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+    m_pScene = new WQtProcGenScene(this);
+    m_pScene->InitScene(static_cast<const WVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pView = new ezQtVisualGraphView(this);
+    m_pView = new WQtVisualGraphView(this);
     m_pView->SetScene(m_pScene);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ProcGenGraphView");
     pCentral->setWindowTitle("Graph");
     pCentral->setWidget(m_pView);
@@ -59,12 +59,12 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -72,7 +72,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -84,92 +84,92 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
 
   FinishWindowCreation();
 
-  SelectionEventHandler(ezSelectionManagerEvent());
+  SelectionEventHandler(WSelectionManagerEvent());
 }
 
-ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
+WProcGenGraphAssetDocumentWindow::~WProcGenGraphAssetDocumentWindow()
 {
   if (GetDocument() != nullptr)
   {
-    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
-    GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
-    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
+    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
+    GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
   }
 
   RestoreResource();
 }
 
-ezProcGenGraphAssetDocument* ezProcGenGraphAssetDocumentWindow::GetProcGenGraphDocument()
+WProcGenGraphAssetDocument* WProcGenGraphAssetDocumentWindow::GetProcGenGraphDocument()
 {
-  return static_cast<ezProcGenGraphAssetDocument*>(GetDocument());
+  return static_cast<WProcGenGraphAssetDocument*>(GetDocument());
 }
 
-void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
+void WProcGenGraphAssetDocumentWindow::UpdatePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "ProcGen Graph";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
-  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezProcGenGraph");
+  WStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WProcGenGraph");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetProcGenGraphDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
-  if (GetProcGenGraphDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), true).Succeeded())
+  if (GetProcGenGraphDocument()->WriteAsset(memoryWriter, WAssetCurator::GetSingleton()->GetActiveAssetProfile(), true).Succeeded())
   {
-    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+    msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
-void ezProcGenGraphAssetDocumentWindow::RestoreResource()
+void WProcGenGraphAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "ProcGen Graph";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezProcGenGraphAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WProcGenGraphAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   // this event is only needed for changes to the DebugPin
   if (e.m_sProperty == "DebugPin")
   {
     UpdatePreview();
   }
-  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezProcGenGraphAssetProperties>())
+  else if (e.m_pObject->GetType() == WGetStaticRTTI<WProcGenGraphAssetProperties>())
   {
     GetProcGenGraphDocument()->UpdateDebugNode();
     UpdatePreview();
   }
 }
 
-void ezProcGenGraphAssetDocumentWindow::TransactionEventHandler(const ezCommandHistoryEvent& e)
+void WProcGenGraphAssetDocumentWindow::TransactionEventHandler(const WCommandHistoryEvent& e)
 {
-  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+  if (e.m_Type == WCommandHistoryEvent::Type::TransactionEnded || e.m_Type == WCommandHistoryEvent::Type::UndoEnded || e.m_Type == WCommandHistoryEvent::Type::RedoEnded)
   {
     UpdatePreview();
   }
 }
 
-void ezProcGenGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WProcGenGraphAssetDocumentWindow::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
@@ -183,9 +183,9 @@ void ezProcGenGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionM
         // Check again if the selection is empty. This could have changed due to the delayed execution.
         if (pSelectionManager->IsSelectionEmpty())
         {
-          EZ_ASSERT_DEV(pDocument, "");
-          EZ_ASSERT_DEV(pDocument->GetObjectManager(), "");
-          EZ_ASSERT_DEV(pDocument->GetObjectManager()->GetRootObject(), "");
+          W_ASSERT_DEV(pDocument, "");
+          W_ASSERT_DEV(pDocument->GetObjectManager(), "");
+          W_ASSERT_DEV(pDocument->GetObjectManager()->GetRootObject(), "");
           if (pDocument->GetObjectManager()->GetRootObject()->GetChildren().IsEmpty() == false)
           {
             pSelectionManager->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);

@@ -4,28 +4,28 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/BoxGizmo.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxGizmo, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoxGizmo, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezBoxGizmo::ezBoxGizmo()
+WBoxGizmo::WBoxGizmo()
 {
   m_vSize.Set(1.0f);
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_hCorners.ConfigureHandle(this, ezEngineGizmoHandleType::BoxCorners, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+  m_hCorners.ConfigureHandle(this, WEngineGizmoHandleType::BoxCorners, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
 
   for (int i = 0; i < 3; ++i)
   {
-    m_Edges[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxEdges, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
-    m_Faces[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxFaces, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+    m_Edges[i].ConfigureHandle(this, WEngineGizmoHandleType::BoxEdges, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
+    m_Faces[i].ConfigureHandle(this, WEngineGizmoHandleType::BoxFaces, WColorLinearUB(200, 200, 200, 128), WGizmoFlags::Pickable);
   }
 
   SetVisible(false);
-  SetTransformation(ezTransform::MakeIdentity());
+  SetTransformation(WTransform::MakeIdentity());
 }
 
-void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void WBoxGizmo::OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hCorners);
 
@@ -36,7 +36,7 @@ void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineVi
   }
 }
 
-void ezBoxGizmo::OnVisibleChanged(bool bVisible)
+void WBoxGizmo::OnVisibleChanged(bool bVisible)
 {
   m_hCorners.SetVisible(bVisible);
 
@@ -47,55 +47,55 @@ void ezBoxGizmo::OnVisibleChanged(bool bVisible)
   }
 }
 
-void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
+void WBoxGizmo::OnTransformationChanged(const WTransform& transform)
 {
-  ezMat4 scale, rot;
-  scale = ezMat4::MakeScaling(m_vSize);
+  WMat4 scale, rot;
+  scale = WMat4::MakeScaling(m_vSize);
   scale = transform.GetAsMat4() * scale;
 
   m_hCorners.SetTransformation(scale);
 
-  rot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+  rot = WMat4::MakeRotationX(WAngle::MakeFromDegree(90));
   m_Edges[0].SetTransformation(scale * rot);
 
-  rot = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
+  rot = WMat4::MakeRotationY(WAngle::MakeFromDegree(90));
   m_Faces[0].SetTransformation(scale * rot);
 
   rot.SetIdentity();
   m_Edges[1].SetTransformation(scale * rot);
 
-  rot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+  rot = WMat4::MakeRotationX(WAngle::MakeFromDegree(90));
   m_Faces[1].SetTransformation(scale * rot);
 
-  rot = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+  rot = WMat4::MakeRotationZ(WAngle::MakeFromDegree(90));
   m_Edges[2].SetTransformation(scale * rot);
 
   rot.SetIdentity();
   m_Faces[2].SetTransformation(scale * rot);
 }
 
-void ezBoxGizmo::DoFocusLost(bool bCancel)
+void WBoxGizmo::DoFocusLost(bool bCancel)
 {
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? WGizmoEvent::Type::CancelInteractions : WGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInput ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   if (e->modifiers() != 0 && e->modifiers() != Qt::KeyboardModifier::ShiftModifier) // allow shift for toggling snapping
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_hCorners)
   {
@@ -126,56 +126,56 @@ ezEditorInput ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
     m_ManipulateMode = ManipulateMode::PlaneYZ;
   }
   else
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_LastInteraction = ezTime::Now();
+  m_LastInteraction = WTime::Now();
 
-  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(WEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
+  ev.m_Type = WGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
+WEditorInput WBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
-    return ezEditorInput::WasExclusivelyHandled;
+  if (tNow - m_LastInteraction < WTime::MakeFromSeconds(1.0 / 25.0))
+    return WEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
   const QPoint mousePosition = e->globalPosition().toPoint();
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(mousePosition.x(), mousePosition.y());
-  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
+  const WVec2I32 vNewMousePos = WVec2I32(mousePosition.x(), mousePosition.y());
+  const WVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vLastMousePos = UpdateMouseMode(e);
 
@@ -187,7 +187,7 @@ ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
     fChange -= vDiff.y * fSpeed;
   }
 
-  ezVec3 vChange(0);
+  WVec3 vChange(0);
 
   if (m_ManipulateMode == ManipulateMode::Uniform)
     vChange.Set(fChange);
@@ -205,22 +205,22 @@ ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
     vChange.Set(0, 0, fChange);
 
   m_vSize += vChange;
-  m_vSize.x = ezMath::Max(m_vSize.x, 0.0f);
-  m_vSize.y = ezMath::Max(m_vSize.y, 0.0f);
-  m_vSize.z = ezMath::Max(m_vSize.z, 0.0f);
+  m_vSize.x = WMath::Max(m_vSize.x, 0.0f);
+  m_vSize.y = WMath::Max(m_vSize.y, 0.0f);
+  m_vSize.z = WMath::Max(m_vSize.z, 0.0f);
 
   // update the scale
   OnTransformationChanged(GetTransformation());
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
+  ev.m_Type = WGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-void ezBoxGizmo::SetSize(const ezVec3& vSize)
+void WBoxGizmo::SetSize(const WVec3& vSize)
 {
   m_vSize = vSize;
 

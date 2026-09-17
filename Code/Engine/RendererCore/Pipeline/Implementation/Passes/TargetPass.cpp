@@ -6,43 +6,43 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTargetPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTargetPass, 1, WRTTIDefaultAllocator<WTargetPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color0", m_PinColor0),
-    EZ_MEMBER_PROPERTY("Color1", m_PinColor1),
-    EZ_MEMBER_PROPERTY("Color2", m_PinColor2),
-    EZ_MEMBER_PROPERTY("Color3", m_PinColor3),
-    EZ_MEMBER_PROPERTY("Color4", m_PinColor4),
-    EZ_MEMBER_PROPERTY("Color5", m_PinColor5),
-    EZ_MEMBER_PROPERTY("Color6", m_PinColor6),
-    EZ_MEMBER_PROPERTY("Color7", m_PinColor7),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    W_MEMBER_PROPERTY("Color0", m_PinColor0),
+    W_MEMBER_PROPERTY("Color1", m_PinColor1),
+    W_MEMBER_PROPERTY("Color2", m_PinColor2),
+    W_MEMBER_PROPERTY("Color3", m_PinColor3),
+    W_MEMBER_PROPERTY("Color4", m_PinColor4),
+    W_MEMBER_PROPERTY("Color5", m_PinColor5),
+    W_MEMBER_PROPERTY("Color6", m_PinColor6),
+    W_MEMBER_PROPERTY("Color7", m_PinColor7),
+    W_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Output")
+    new WCategoryAttribute("Output")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTargetPass::ezTargetPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WTargetPass::WTargetPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezTargetPass::~ezTargetPass() = default;
+WTargetPass::~WTargetPass() = default;
 
-ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WTargetPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
   m_hSwapChain = viewData.m_hSwapChain;
   m_RenderTargets = viewData.m_RenderTargets;
 
-  ezTempHashedString pinNames[] = {
+  WTempHashedString pinNames[] = {
     "Color0",
     "Color1",
     "Color2",
@@ -54,29 +54,29 @@ ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamer
     "DepthStencil",
   };
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pinNames); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(pinNames); ++i)
   {
-    EZ_SUCCEED_OR_RETURN(VerifyInput(ref_graph, inputs, pinNames[i]));
+    W_SUCCEED_OR_RETURN(VerifyInput(ref_graph, inputs, pinNames[i]));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
+WGALTextureHandle WTargetPass::QueryTextureProvider(const WRenderPipelineNodePin* pPin, const WGALTextureCreationDescription& desc)
 {
-  EZ_ASSERT_DEV(pPin->m_pParent == this, "ezTargetPass::QueryTextureProvider: The given pin is not part of this pass!");
+  W_ASSERT_DEV(pPin->m_pParent == this, "WTargetPass::QueryTextureProvider: The given pin is not part of this pass!");
 
-  auto GetActiveRenderTargets = [&]() -> const ezGALRenderTargets&
+  auto GetActiveRenderTargets = [&]() -> const WGALRenderTargets&
   {
-    if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
+    if (const WGALSwapChain* pSwapChain = WGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
     {
       return pSwapChain->GetRenderTargets();
     }
     return m_RenderTargets;
   };
-  const ezGALRenderTargets& renderTargets = GetActiveRenderTargets();
+  const WGALRenderTargets& renderTargets = GetActiveRenderTargets();
 
-  ezGALTextureHandle hTarget;
+  WGALTextureHandle hTarget;
   if (pPin->m_uiInputIndex == 8)
   {
     return renderTargets.m_hDSTarget;
@@ -87,18 +87,18 @@ ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNode
   }
 }
 
-ezStatus ezTargetPass::VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezTempHashedString sPinName)
+WStatus WTargetPass::VerifyInput(WRenderGraph& graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WTempHashedString sPinName)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  const ezRenderPipelineNodePin* pPin = GetPinByName(sPinName);
-  if (inputs[pPin->m_uiInputIndex].m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture)
+  const WRenderPipelineNodePin* pPin = GetPinByName(sPinName);
+  if (inputs[pPin->m_uiInputIndex].m_Connectivity == WRenderPipelinePinConnection::Connectivity::Texture)
   {
-    const ezGALTextureCreationDescription& desc = graph.GetTextureDesc(inputs[pPin->m_uiInputIndex].m_TextureHandle);
-    const ezGALTextureHandle handle = QueryTextureProvider(pPin, desc);
+    const WGALTextureCreationDescription& desc = graph.GetTextureDesc(inputs[pPin->m_uiInputIndex].m_TextureHandle);
+    const WGALTextureHandle handle = QueryTextureProvider(pPin, desc);
     if (!handle.IsInvalidated())
     {
-      const ezGALTexture* pTexture = pDevice->GetTexture(handle);
+      const WGALTexture* pTexture = pDevice->GetTexture(handle);
       if (pTexture)
       {
         // TODO: Need a more sophisticated check here what is considered 'matching'
@@ -108,9 +108,9 @@ ezStatus ezTargetPass::VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const 
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TargetPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TargetPass);

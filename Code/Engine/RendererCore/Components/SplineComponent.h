@@ -7,23 +7,23 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Types/Bitflags.h>
 
-struct ezMsgTransformChanged;
-struct ezMsgParentChanged;
-struct ezMsgExtractRenderData;
-class ezAbstractObjectNode;
-class ezSplineComponent;
-class ezSplineNodeComponent;
+struct WMsgTransformChanged;
+struct WMsgParentChanged;
+struct WMsgExtractRenderData;
+class WAbstractObjectNode;
+class WSplineComponent;
+class WSplineNodeComponent;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_DECLARE_FLAGS(ezUInt8, ezSplineComponentFlags, VisualizeSpline, VisualizeUpDir, VisualizeTangents);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentFlags);
+W_DECLARE_FLAGS(WUInt8, WSplineComponentFlags, VisualizeSpline, VisualizeUpDir, VisualizeTangents);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WSplineComponentFlags);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezSplineComponentSpace
+struct WSplineComponentSpace
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -34,145 +34,145 @@ struct ezSplineComponentSpace
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentSpace);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WSplineComponentSpace);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezMsgSplineChanged : public ezMessage
+struct W_RENDERERCORE_DLL WMsgSplineChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSplineChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSplineChanged, WMessage);
 
-  ezUInt32 m_uiChangeCounter = ezInvalidIndex;
+  WUInt32 m_uiChangeCounter = WInvalidIndex;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSplineComponentManager : public ezComponentManager<class ezSplineComponent, ezBlockStorageType::FreeList>
+class WSplineComponentManager : public WComponentManager<class WSplineComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezSplineComponentManager(ezWorld* pWorld);
+  WSplineComponentManager(WWorld* pWorld);
 
-  void SetEnableUpdate(ezSplineComponent* pThis, bool bEnable);
+  void SetEnableUpdate(WSplineComponent* pThis, bool bEnable);
 
 protected:
   void Initialize() override;
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 
-  ezHybridArray<ezSplineComponent*, 32> m_NeedUpdate;
+  WHybridArray<WSplineComponent*, 32> m_NeedUpdate;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Describes a Spline shape.
 ///
-/// This can be used for moving things along the spline (see ezFollowSplineComponent) or to describe the (complex) shape of an object, for example a rope.
+/// This can be used for moving things along the spline (see WFollowSplineComponent) or to describe the (complex) shape of an object, for example a rope.
 ///
-/// The ezSplineComponent stores the shape as nodes with positions and tangents.
+/// The WSplineComponent stores the shape as nodes with positions and tangents.
 /// It additionally creates a remapping from distance along the spline to spline key (segment index + t) for easier evaluation by distance.
 ///
-/// To set up the shape, attach child objects and attach an ezSplineNodeComponent to each. Also give each child object a distinct name.
+/// To set up the shape, attach child objects and attach an WSplineNodeComponent to each. Also give each child object a distinct name.
 /// Then reference these child objects by name through the "Nodes" property on the spline shape.
 ///
 /// During scene export, typically the child objects are automatically deleted (if they have no children and no other components).
-/// Instead, the ezSplineComponent stores all necessary information in a more compact representation.
-class EZ_RENDERERCORE_DLL ezSplineComponent : public ezComponent
+/// Instead, the WSplineComponent stores all necessary information in a more compact representation.
+class W_RENDERERCORE_DLL WSplineComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSplineComponent, ezComponent, ezSplineComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSplineComponent, WComponent, WSplineComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& ref_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& ref_stream) override;
+  virtual void SerializeComponent(WWorldWriter& ref_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& ref_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSplineComponent
+  // WSplineComponent
 
 public:
-  ezSplineComponent();
-  ~ezSplineComponent();
+  WSplineComponent();
+  ~WSplineComponent();
 
   /// Whether the spline end connects to the beginning.
   void SetClosed(bool bClosed);                                                       // [ property ]
   bool GetClosed() const { return m_Spline.m_bClosed; }                               // [ property ]
 
-  void SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags);                      // [ property ]
-  ezBitflags<ezSplineComponentFlags> GetSplineFlags() const { return m_SplineFlags; } // [ property ]
+  void SetSplineFlags(WBitflags<WSplineComponentFlags> flags);                      // [ property ]
+  WBitflags<WSplineComponentFlags> GetSplineFlags() const { return m_SplineFlags; } // [ property ]
 
   /// Returns the position of the spline at the given key (segment index + t).
-  ezVec3 GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetPositionAtKey(float fKey, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the forward direction of the spline at the given key (segment index + t).
-  ezVec3 GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetForwardDirAtKey(float fKey, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the up direction of the spline at the given key (segment index + t).
-  ezVec3 GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetUpDirAtKey(float fKey, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the scale of the spline at the given key (segment index + t).
-  ezVec3 GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetScaleAtKey(float fKey, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the transform of the spline at the given key (segment index + t).
-  ezTransform GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WTransform GetTransformAtKey(float fKey, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
 
   /// Returns the total length of the spline (in local space)
   float GetTotalLength() const { return m_fTotalLength; } // [ scriptable ]
 
   /// Returns the segment length for the given segment index (in local space)
-  float GetSegmentLength(ezUInt32 uiSegmentIndex) const; // [ scriptable ]
+  float GetSegmentLength(WUInt32 uiSegmentIndex) const; // [ scriptable ]
 
 
   /// Returns the spline key (segment index + t) for the given distance along the spline
   float GetKeyAtDistance(float fDistance) const { return GetKeyAtDistanceHelper(m_DistanceToKey, fDistance); } // [ scriptable ]
 
   /// Returns the position of the spline at the given distance along the spline.
-  ezVec3 GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetPositionAtDistance(float fDistance, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the forward direction of the spline at the given distance along the spline.
-  ezVec3 GetForwardDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetForwardDirAtDistance(float fDistance, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the up direction of the spline at the given distance along the spline.
-  ezVec3 GetUpDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetUpDirAtDistance(float fDistance, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the scale of the spline at the given distance along the spline.
-  ezVec3 GetScaleAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WVec3 GetScaleAtDistance(float fDistance, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// Returns the full transform of the spline at the given distance along the spline.
-  ezTransform GetTransformAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+  WTransform GetTransformAtDistance(float fDistance, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default) const; // [ scriptable ]
 
 
   /// Finds the closest point on the spline to the given point in space.
-  float FindKeyClosestToPoint(const ezVec3& vPoint, float& out_fDistanceToPoint, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default, float fMaxError = 0.1f) const; // [ scriptable ]
+  float FindKeyClosestToPoint(const WVec3& vPoint, float& out_fDistanceToPoint, WEnum<WSplineComponentSpace> space = WSplineComponentSpace::Default, float fMaxError = 0.1f) const; // [ scriptable ]
 
 
   /// Access to the underlying spline object
-  const ezSpline& GetSpline() const { return m_Spline; }
-  void SetSpline(ezSpline&& spline);
-  ezSpline& BeginModifySpline() { return m_Spline; }
+  const WSpline& GetSpline() const { return m_Spline; }
+  void SetSpline(WSpline&& spline);
+  WSpline& BeginModifySpline() { return m_Spline; }
   void EndModifySpline(bool bRecreateDistanceToKeyMapping = true);
 
   /// Returns the underlying mapping of distances to spline keys.
-  const ezArrayMap<float, float>& GetDistanceToKeyRemapping() const { return m_DistanceToKey; }
-  static float GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance);
+  const WArrayMap<float, float>& GetDistanceToKeyRemapping() const { return m_DistanceToKey; }
+  static float GetKeyAtDistanceHelper(const WArrayMap<float, float>& distanceToKey, float fDistance);
 
-  ezUInt32 GetChangeCounter() const { return m_Spline.m_uiChangeCounter; } // [ scriptable ]
+  WUInt32 GetChangeCounter() const { return m_Spline.m_uiChangeCounter; } // [ scriptable ]
 
   /// Returns the unique identifier of this spline component. This is only valid for spline components created in the editor.
-  const ezUuid& GetUuid() const { return m_Uuid; }
+  const WUuid& GetUuid() const { return m_Uuid; }
 
 protected:
-  friend class ezSplineNodeComponent;
+  friend class WSplineNodeComponent;
 
   /// Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
-  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
+  void OnMsgSplineChanged(WMsgSplineChanged& ref_msg); // [ message handler ]
 
   /// Sets the order of spline nodes. Called directly via reflection to avoid message routing timing constraints.
-  void SetChildOrder(const ezVariantArray& handles); // [ editor function ]
+  void SetChildOrder(const WVariantArray& handles); // [ editor function ]
 
   void SendSplineChangedEvent();
 
@@ -180,94 +180,94 @@ protected:
 
   void UpdateFromNodeObjects();
 
-  void InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const;
+  void InsertHalfPoint(WDynamicArray<float>& ref_Ts, WUInt32 uiCp0, float fLowerT, float fUpperT, const WSimdVec4f& vLowerPos, const WSimdVec4f& vUpperPos, float fDistSqr, WInt32 iMinSteps, WInt32 iMaxSteps) const;
 
   void CreateDistanceToKeyRemapping();
 
-  void DrawDebugVisualizations(ezBitflags<ezSplineComponentFlags> flags) const;
-  void DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangentMode::Enum tangentModeIn = ezSplineTangentMode::Default, ezSplineTangentMode::Enum tangentModeOut = ezSplineTangentMode::Default) const;
+  void DrawDebugVisualizations(WBitflags<WSplineComponentFlags> flags) const;
+  void DrawDebugTangents(WUInt32 uiPointIndex, WSplineTangentMode::Enum tangentModeIn = WSplineTangentMode::Default, WSplineTangentMode::Enum tangentModeOut = WSplineTangentMode::Default) const;
   bool DrawSplineOnSelection() const;
 
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  void OnObjectCreated(const ezAbstractObjectNode& node);
+  void OnObjectCreated(const WAbstractObjectNode& node);
 
-  ezSpline m_Spline;
+  WSpline m_Spline;
 
-  ezSmallArray<ezGameObjectHandle, 1> m_Nodes;
+  WSmallArray<WGameObjectHandle, 1> m_Nodes;
 
-  ezArrayMap<float, float> m_DistanceToKey;
+  WArrayMap<float, float> m_DistanceToKey;
   float m_fTotalLength = 0.0f;
 
-  ezBitflags<ezSplineComponentFlags> m_SplineFlags; // [ property ]
+  WBitflags<WSplineComponentFlags> m_SplineFlags; // [ property ]
   bool m_bEditDummy = false;
-  mutable ezUInt16 m_uiExtractedFrame = 0;
+  mutable WUInt16 m_uiExtractedFrame = 0;
 
-  ezUuid m_Uuid;
+  WUuid m_Uuid;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezSplineNodeComponentManager = ezComponentManager<class ezSplineNodeComponent, ezBlockStorageType::Compact>;
+using WSplineNodeComponentManager = WComponentManager<class WSplineNodeComponent, WBlockStorageType::Compact>;
 
-/// Attach this to child object of an ezSplineComponent to turn them into viable spline nodes.
+/// Attach this to child object of an WSplineComponent to turn them into viable spline nodes.
 ///
-/// See ezSplineComponent for details on how to create a spline.
+/// See WSplineComponent for details on how to create a spline.
 ///
 /// This component allows to specify the mode of the tangents (linear, auto),
 /// and also to adjust the 'roll' that the spline will have at this location (rotation around the forward axis).
-class EZ_RENDERERCORE_DLL ezSplineNodeComponent : public ezComponent
+class W_RENDERERCORE_DLL WSplineNodeComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSplineNodeComponent, ezComponent, ezSplineNodeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSplineNodeComponent, WComponent, WSplineNodeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSplineNodeComponent
+  // WSplineNodeComponent
 
 public:
-  ezSplineNodeComponent();
-  ~ezSplineNodeComponent();
+  WSplineNodeComponent();
+  ~WSplineNodeComponent();
 
   /// Sets the rotation along the forward axis, that the spline shall have at this location.
-  void SetRoll(ezAngle roll);                                                        // [ property ]
-  ezAngle GetRoll() const { return m_Roll; }                                         // [ property ]
+  void SetRoll(WAngle roll);                                                        // [ property ]
+  WAngle GetRoll() const { return m_Roll; }                                         // [ property ]
                                                                                      //
-  void SetTangentModeIn(ezEnum<ezSplineTangentMode> mode);                           // [ property ]
-  ezEnum<ezSplineTangentMode> GetTangentModeIn() const { return m_TangentModeIn; }   // [ property ]
+  void SetTangentModeIn(WEnum<WSplineTangentMode> mode);                           // [ property ]
+  WEnum<WSplineTangentMode> GetTangentModeIn() const { return m_TangentModeIn; }   // [ property ]
                                                                                      //
-  void SetTangentModeOut(ezEnum<ezSplineTangentMode> mode);                          // [ property ]
-  ezEnum<ezSplineTangentMode> GetTangentModeOut() const { return m_TangentModeOut; } // [ property ]
+  void SetTangentModeOut(WEnum<WSplineTangentMode> mode);                          // [ property ]
+  WEnum<WSplineTangentMode> GetTangentModeOut() const { return m_TangentModeOut; } // [ property ]
 
-  void SetCustomTangentIn(const ezVec3& vTangent);                                   // [ property ]
-  const ezVec3& GetCustomTangentIn() const { return m_vCustomTangentIn; }            // [ property ]
+  void SetCustomTangentIn(const WVec3& vTangent);                                   // [ property ]
+  const WVec3& GetCustomTangentIn() const { return m_vCustomTangentIn; }            // [ property ]
 
-  void SetCustomTangentOut(const ezVec3& vTangent);                                  // [ property ]
-  const ezVec3& GetCustomTangentOut() const { return m_vCustomTangentOut; }          // [ property ]
+  void SetCustomTangentOut(const WVec3& vTangent);                                  // [ property ]
+  const WVec3& GetCustomTangentOut() const { return m_vCustomTangentOut; }          // [ property ]
 
   void SetLinkCustomTangents(bool bLink);                                            // [ property ]
   bool GetLinkCustomTangents() const { return m_bLinkCustomTangents; }               // [ property ]
 
 protected:
-  friend class ezSplineComponent;
+  friend class WSplineComponent;
 
-  void OnMsgTransformChanged(ezMsgTransformChanged& msg);
-  void OnMsgParentChanged(ezMsgParentChanged& msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgTransformChanged(WMsgTransformChanged& msg);
+  void OnMsgParentChanged(WMsgParentChanged& msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   virtual void OnActivated() override;
 
   void SplineChanged();
 
-  ezSimdVec4f GetFinalCustomTangentIn() const;
-  ezSimdVec4f GetFinalCustomTangentOut() const;
+  WSimdVec4f GetFinalCustomTangentIn() const;
+  WSimdVec4f GetFinalCustomTangentOut() const;
 
-  ezAngle m_Roll;
-  ezEnum<ezSplineTangentMode> m_TangentModeIn;
-  ezEnum<ezSplineTangentMode> m_TangentModeOut;
+  WAngle m_Roll;
+  WEnum<WSplineTangentMode> m_TangentModeIn;
+  WEnum<WSplineTangentMode> m_TangentModeOut;
 
-  ezUInt16 m_uiNodeIndex = ezSmallInvalidIndex; // Internal, set by ezSplineComponent
+  WUInt16 m_uiNodeIndex = WSmallInvalidIndex; // Internal, set by WSplineComponent
 
-  ezVec3 m_vCustomTangentIn = ezVec3::MakeZero();
-  ezVec3 m_vCustomTangentOut = ezVec3::MakeZero();
+  WVec3 m_vCustomTangentIn = WVec3::MakeZero();
+  WVec3 m_vCustomTangentOut = WVec3::MakeZero();
 
   bool m_bLinkCustomTangents = false;
   bool m_bEditDummy = false;

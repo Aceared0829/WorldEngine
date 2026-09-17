@@ -2,855 +2,855 @@
 
 #include <Foundation/Strings/String.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Strings);
+W_CREATE_SIMPLE_TEST_GROUP(Strings);
 
-EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
+W_CREATE_SIMPLE_TEST(Strings, StringUtils)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNullOrEmpty")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsNullOrEmpty")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty((char*)nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty("") == true);
+    W_TEST_BOOL(WStringUtils::IsNullOrEmpty((char*)nullptr) == true);
+    W_TEST_BOOL(WStringUtils::IsNullOrEmpty("") == true);
 
     // all other characters are not empty
-    for (ezUInt8 c = 1; c < 255; c++)
-      EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty(&c) == false);
+    for (WUInt8 c = 1; c < 255; c++)
+      W_TEST_BOOL(WStringUtils::IsNullOrEmpty(&c) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringElementCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetStringElementCount")
   {
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount((char*)nullptr), 0);
+    W_TEST_INT(WStringUtils::GetStringElementCount((char*)nullptr), 0);
 
     // Counts the Bytes
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(""), 0);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount("a"), 1);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount("ab"), 2);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount("abc"), 3);
+    W_TEST_INT(WStringUtils::GetStringElementCount(""), 0);
+    W_TEST_INT(WStringUtils::GetStringElementCount("a"), 1);
+    W_TEST_INT(WStringUtils::GetStringElementCount("ab"), 2);
+    W_TEST_INT(WStringUtils::GetStringElementCount("abc"), 3);
 
     // Counts the number of wchar_t's
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(L""), 0);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(L"a"), 1);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(L"ab"), 2);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(L"abc"), 3);
+    W_TEST_INT(WStringUtils::GetStringElementCount(L""), 0);
+    W_TEST_INT(WStringUtils::GetStringElementCount(L"a"), 1);
+    W_TEST_INT(WStringUtils::GetStringElementCount(L"ab"), 2);
+    W_TEST_INT(WStringUtils::GetStringElementCount(L"abc"), 3);
 
     // test with a sub-string
     const char* sz = "abc def ghi";
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(sz, sz + 0), 0);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(sz, sz + 3), 3);
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(sz, sz + 6), 6);
+    W_TEST_INT(WStringUtils::GetStringElementCount(sz, sz + 0), 0);
+    W_TEST_INT(WStringUtils::GetStringElementCount(sz, sz + 3), 3);
+    W_TEST_INT(WStringUtils::GetStringElementCount(sz, sz + 6), 6);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UpdateStringEnd")
+  W_TEST_BLOCK(WTestBlock::Enabled, "UpdateStringEnd")
   {
     const char* sz = "Test test";
-    const char* szEnd = ezUnicodeUtils::GetMaxStringEnd<char>();
+    const char* szEnd = WUnicodeUtils::GetMaxStringEnd<char>();
 
-    ezStringUtils::UpdateStringEnd(sz, szEnd);
-    EZ_TEST_BOOL(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
+    WStringUtils::UpdateStringEnd(sz, szEnd);
+    W_TEST_BOOL(szEnd == sz + WStringUtils::GetStringElementCount(sz));
 
-    ezStringUtils::UpdateStringEnd(sz, szEnd);
-    EZ_TEST_BOOL(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
+    WStringUtils::UpdateStringEnd(sz, szEnd);
+    W_TEST_BOOL(szEnd == sz + WStringUtils::GetStringElementCount(sz));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacterCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetCharacterCount")
   {
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(nullptr), 0);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(""), 0);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount("a"), 1);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount("abc"), 3);
+    W_TEST_INT(WStringUtils::GetCharacterCount(nullptr), 0);
+    W_TEST_INT(WStringUtils::GetCharacterCount(""), 0);
+    W_TEST_INT(WStringUtils::GetCharacterCount("a"), 1);
+    W_TEST_INT(WStringUtils::GetCharacterCount("abc"), 3);
 
-    ezStringUtf8 s(L"äöü"); // 6 Bytes
+    WStringUtf8 s(L"äöü"); // 6 Bytes
 
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount(s.GetData()), 6);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData()), 3);
+    W_TEST_INT(WStringUtils::GetStringElementCount(s.GetData()), 6);
+    W_TEST_INT(WStringUtils::GetCharacterCount(s.GetData()), 3);
 
     // test with a sub-string
     const char* sz = "abc def ghi";
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(sz, sz + 0), 0);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(sz, sz + 3), 3);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(sz, sz + 6), 6);
+    W_TEST_INT(WStringUtils::GetCharacterCount(sz, sz + 0), 0);
+    W_TEST_INT(WStringUtils::GetCharacterCount(sz, sz + 3), 3);
+    W_TEST_INT(WStringUtils::GetCharacterCount(sz, sz + 6), 6);
 
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 0), 0);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 2), 1);
-    EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 4), 2);
+    W_TEST_INT(WStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 0), 0);
+    W_TEST_INT(WStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 2), 1);
+    W_TEST_INT(WStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 4), 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacterAndElementCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetCharacterAndElementCount")
   {
-    ezUInt32 uiCC, uiEC;
+    WUInt32 uiCC, uiEC;
 
-    ezStringUtils::GetCharacterAndElementCount(nullptr, uiCC, uiEC);
-    EZ_TEST_INT(uiCC, 0);
-    EZ_TEST_INT(uiEC, 0);
+    WStringUtils::GetCharacterAndElementCount(nullptr, uiCC, uiEC);
+    W_TEST_INT(uiCC, 0);
+    W_TEST_INT(uiEC, 0);
 
-    ezStringUtils::GetCharacterAndElementCount("", uiCC, uiEC);
-    EZ_TEST_INT(uiCC, 0);
-    EZ_TEST_INT(uiEC, 0);
+    WStringUtils::GetCharacterAndElementCount("", uiCC, uiEC);
+    W_TEST_INT(uiCC, 0);
+    W_TEST_INT(uiEC, 0);
 
-    ezStringUtils::GetCharacterAndElementCount("a", uiCC, uiEC);
-    EZ_TEST_INT(uiCC, 1);
-    EZ_TEST_INT(uiEC, 1);
+    WStringUtils::GetCharacterAndElementCount("a", uiCC, uiEC);
+    W_TEST_INT(uiCC, 1);
+    W_TEST_INT(uiEC, 1);
 
-    ezStringUtils::GetCharacterAndElementCount("abc", uiCC, uiEC);
-    EZ_TEST_INT(uiCC, 3);
-    EZ_TEST_INT(uiEC, 3);
+    WStringUtils::GetCharacterAndElementCount("abc", uiCC, uiEC);
+    W_TEST_INT(uiCC, 3);
+    W_TEST_INT(uiEC, 3);
 
-    ezStringUtf8 s(L"äöü"); // 6 Bytes
+    WStringUtf8 s(L"äöü"); // 6 Bytes
 
-    ezStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC);
-    EZ_TEST_INT(uiCC, 3);
-    EZ_TEST_INT(uiEC, 6);
+    WStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC);
+    W_TEST_INT(uiCC, 3);
+    W_TEST_INT(uiEC, 6);
 
-    ezStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC, s.GetData() + 0);
-    EZ_TEST_INT(uiCC, 0);
-    EZ_TEST_INT(uiEC, 0);
+    WStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC, s.GetData() + 0);
+    W_TEST_INT(uiCC, 0);
+    W_TEST_INT(uiEC, 0);
 
-    ezStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC, s.GetData() + 4);
-    EZ_TEST_INT(uiCC, 2);
-    EZ_TEST_INT(uiEC, 4);
+    WStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC, s.GetData() + 4);
+    W_TEST_INT(uiCC, 2);
+    W_TEST_INT(uiEC, 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy (full)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy (full)")
   {
     char szDest[256] = "";
 
     // large enough
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 256, "Test ABC"), 8);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, "Test ABC"));
+    W_TEST_INT(WStringUtils::Copy(szDest, 256, "Test ABC"), 8);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, "Test ABC"));
 
     // exactly fitting
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 13, "Humpf, humpf"), 12);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, "Humpf, humpf"));
+    W_TEST_INT(WStringUtils::Copy(szDest, 13, "Humpf, humpf"), 12);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, "Humpf, humpf"));
 
     // too small
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 8, "Test ABC"), 7);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, "Test AB"));
+    W_TEST_INT(WStringUtils::Copy(szDest, 8, "Test ABC"), 7);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, "Test AB"));
 
     const char* szUTF8 = "ABC \xe6\x97\xa5\xd1\x88"; // contains 'ABC ' + two UTF-8 chars (first is three bytes, second is two bytes)
 
     // large enough
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 256, szUTF8), 9);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, szUTF8));
+    W_TEST_INT(WStringUtils::Copy(szDest, 256, szUTF8), 9);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, szUTF8));
 
     // exactly fitting
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 10, szUTF8), 9);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, szUTF8));
+    W_TEST_INT(WStringUtils::Copy(szDest, 10, szUTF8), 9);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, szUTF8));
 
     // These tests are disabled as previously valid behavior was now turned into an assert.
     // Comment them in to test the assert.
     // too small 1
-    /*EZ_TEST_INT(ezStringUtils::Copy(szDest, 9, szUTF8), 7);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 5)); // one character less
+    /*W_TEST_INT(WStringUtils::Copy(szDest, 9, szUTF8), 7);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 5)); // one character less
 
     // too small 2
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 7, szUTF8), 4);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 4)); // two characters less*/
+    W_TEST_INT(WStringUtils::Copy(szDest, 7, szUTF8), 4);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 4)); // two characters less*/
 
 
     // copy only from a subset
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 256, szUTF8, szUTF8 + 7), 7);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 5)); // two characters less
+    W_TEST_INT(WStringUtils::Copy(szDest, 256, szUTF8, szUTF8 + 7), 7);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 5)); // two characters less
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CopyN")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CopyN")
   {
     char szDest[256] = "";
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, "Test ABC", 4), 4);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, "Test"));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, "Test ABC", 4), 4);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, "Test"));
 
     const char* szUTF8 = "ABC \xe6\x97\xa5\xd1\x88"; // contains 'ABC ' + two UTF-8 chars (first is three bytes, second is two bytes)
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 6), 9);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 6));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 6), 9);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 6));
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 5), 7);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 5));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 5), 7);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 5));
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 4), 4);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 4));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 4), 4);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 4));
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 1), 1);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 1));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 1), 1);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 1));
 
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 0), 0);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, ""));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 0), 0);
+    W_TEST_BOOL(WStringUtils::IsEqual(szDest, ""));
 
     // copy only from a subset
-    EZ_TEST_INT(ezStringUtils::CopyN(szDest, 256, szUTF8, 6, szUTF8 + 7), 7);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 5));
+    W_TEST_INT(WStringUtils::CopyN(szDest, 256, szUTF8, 6, szUTF8 + 7), 7);
+    W_TEST_BOOL(WStringUtils::IsEqualN(szDest, szUTF8, 5));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpperChar")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ToUpperChar")
   {
     // this only tests the ASCII range
-    for (ezInt32 i = 0; i < 128; ++i)
-      EZ_TEST_INT(ezStringUtils::ToUpperChar(i), toupper(i));
+    for (WInt32 i = 0; i < 128; ++i)
+      W_TEST_INT(WStringUtils::ToUpperChar(i), toupper(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToLowerChar")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ToLowerChar")
   {
     // this only tests the ASCII range
-    for (ezInt32 i = 0; i < 128; ++i)
-      EZ_TEST_INT(ezStringUtils::ToLowerChar(i), tolower(i));
+    for (WInt32 i = 0; i < 128; ++i)
+      W_TEST_INT(WStringUtils::ToLowerChar(i), tolower(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpperString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ToUpperString")
   {
-    ezStringUtf8 sL(L"abc öäü ß €");
-    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
+    WStringUtf8 sL(L"abc öäü ß €");
+    WStringUtf8 sU(L"ABC ÖÄÜ ß €");
 
     char szCopy[256];
-    ezStringUtils::Copy(szCopy, 256, sL.GetData());
+    WStringUtils::Copy(szCopy, 256, sL.GetData());
 
-    ezStringUtils::ToUpperString(szCopy);
+    WStringUtils::ToUpperString(szCopy);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szCopy, sU.GetData()));
+    W_TEST_BOOL(WStringUtils::IsEqual(szCopy, sU.GetData()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToLowerString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ToLowerString")
   {
-    ezStringUtf8 sL(L"abc öäü ß €");
-    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
+    WStringUtf8 sL(L"abc öäü ß €");
+    WStringUtf8 sU(L"ABC ÖÄÜ ß €");
 
     char szCopy[256];
-    ezStringUtils::Copy(szCopy, 256, sU.GetData());
+    WStringUtils::Copy(szCopy, 256, sU.GetData());
 
-    ezStringUtils::ToLowerString(szCopy);
+    WStringUtils::ToLowerString(szCopy);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szCopy, sL.GetData()));
+    W_TEST_BOOL(WStringUtils::IsEqual(szCopy, sL.GetData()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareChars")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareChars('a', 'a') == 0); // make sure the order is right
-    EZ_TEST_BOOL(ezStringUtils::CompareChars('a', 'b') < 0);  // a smaller than b -> negative
-    EZ_TEST_BOOL(ezStringUtils::CompareChars('b', 'a') > 0);  // b bigger than a  -> positive
+    W_TEST_BOOL(WStringUtils::CompareChars('a', 'a') == 0); // make sure the order is right
+    W_TEST_BOOL(WStringUtils::CompareChars('a', 'b') < 0);  // a smaller than b -> negative
+    W_TEST_BOOL(WStringUtils::CompareChars('b', 'a') > 0);  // b bigger than a  -> positive
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars(utf8)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareChars(utf8)")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareChars("a", "a") == 0); // make sure the order is right
-    EZ_TEST_BOOL(ezStringUtils::CompareChars("a", "b") < 0);  // a smaller than b -> negative
-    EZ_TEST_BOOL(ezStringUtils::CompareChars("b", "a") > 0);  // b bigger than a  -> positive
+    W_TEST_BOOL(WStringUtils::CompareChars("a", "a") == 0); // make sure the order is right
+    W_TEST_BOOL(WStringUtils::CompareChars("a", "b") < 0);  // a smaller than b -> negative
+    W_TEST_BOOL(WStringUtils::CompareChars("b", "a") > 0);  // b bigger than a  -> positive
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareChars_NoCase")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('a', 'A') == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('a', 'B') < 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('B', 'a') > 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('a', 'A') == 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('a', 'B') < 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('B', 'a') > 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('A', 'a') == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('A', 'b') < 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase('b', 'A') > 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('A', 'a') == 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('A', 'b') < 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase('b', 'A') > 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase(L'ä', L'Ä') == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase(L'ä', L'Ö') < 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase(L'ö', L'Ä') > 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase(L'ä', L'Ä') == 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase(L'ä', L'Ö') < 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase(L'ö', L'Ä') > 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars_NoCase(utf8)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareChars_NoCase(utf8)")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("a", "A") == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("a", "B") < 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("B", "a") > 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("a", "A") == 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("a", "B") < 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("B", "a") > 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("A", "a") == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("A", "b") < 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareChars_NoCase("b", "A") > 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("A", "a") == 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("A", "b") < 0);
+    W_TEST_BOOL(WStringUtils::CompareChars_NoCase("b", "A") > 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqual")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("", "") == true);
+    W_TEST_BOOL(WStringUtils::IsEqual(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::IsEqual(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::IsEqual("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::IsEqual("", "") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("abc", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("abc", "abcd") == false);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("abcd", "abc") == false);
+    W_TEST_BOOL(WStringUtils::IsEqual("abc", "abc") == true);
+    W_TEST_BOOL(WStringUtils::IsEqual("abc", "abcd") == false);
+    W_TEST_BOOL(WStringUtils::IsEqual("abcd", "abc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual("a", nullptr) == false);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(nullptr, "a") == false);
+    W_TEST_BOOL(WStringUtils::IsEqual("a", nullptr) == false);
+    W_TEST_BOOL(WStringUtils::IsEqual(nullptr, "a") == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqualN")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(nullptr, nullptr, 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(nullptr, "", 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("", nullptr, 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("", "", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN(nullptr, nullptr, 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN(nullptr, "", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("", nullptr, 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("", "", 1) == true);
 
     // as long as we compare 'nothing' the strings must be equal
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", nullptr, 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", "", 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(nullptr, "abc", 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("", "abc", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", nullptr, 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", "", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN(nullptr, "abc", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("", "abc", 0) == true);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", "abcdef", 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", "abcdef", 2) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", "abcdef", 3) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abc", "abcdef", 4) == false);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", "abcdef", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", "abcdef", 2) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", "abcdef", 3) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abc", "abcdef", 4) == false);
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abcdef", "abc", 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abcdef", "abc", 2) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abcdef", "abc", 3) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN("abcdef", "abc", 4) == false);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abcdef", "abc", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abcdef", "abc", 2) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abcdef", "abc", 3) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN("abcdef", "abc", 4) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqual_NoCase")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase("", "") == true);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase("", "") == true);
 
 
-    ezStringUtf8 sL(L"abc öäü ß €");
-    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
-    ezStringUtf8 sU2(L"ABC ÖÄÜ ß € ");
+    WStringUtf8 sL(L"abc öäü ß €");
+    WStringUtf8 sU(L"ABC ÖÄÜ ß €");
+    WStringUtf8 sU2(L"ABC ÖÄÜ ß € ");
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase(sL.GetData(), sU.GetData()) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase(sL.GetData(), sU2.GetData()) == false);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual_NoCase(sU2.GetData(), sL.GetData()) == false);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase(sL.GetData(), sU.GetData()) == true);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase(sL.GetData(), sU2.GetData()) == false);
+    W_TEST_BOOL(WStringUtils::IsEqual_NoCase(sU2.GetData(), sL.GetData()) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqualN_NoCase")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(nullptr, nullptr, 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(nullptr, "", 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase("", nullptr, 1) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase("", "", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(nullptr, nullptr, 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(nullptr, "", 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase("", nullptr, 1) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase("", "", 1) == true);
 
     // as long as we compare 'nothing' the strings must be equal
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase("abc", nullptr, 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase("abc", "", 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(nullptr, "abc", 0) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase("", "abc", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase("abc", nullptr, 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase("abc", "", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(nullptr, "abc", 0) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase("", "abc", 0) == true);
 
-    ezStringUtf8 sL(L"abc öäü ß €");
-    ezStringUtf8 sU(L"ABC ÖÄÜ ß € moep");
+    WStringUtf8 sL(L"abc öäü ß €");
+    WStringUtf8 sU(L"ABC ÖÄÜ ß € moep");
 
-    for (ezInt32 i = 0; i < 12; ++i)
-      EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(sL.GetData(), sU.GetData(), i) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(sL.GetData(), sU.GetData(), 12) == false);
+    for (WInt32 i = 0; i < 12; ++i)
+      W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(sL.GetData(), sU.GetData(), i) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(sL.GetData(), sU.GetData(), 12) == false);
 
-    for (ezInt32 i = 0; i < 12; ++i)
-      EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(sU.GetData(), sL.GetData(), i) == true);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN_NoCase(sU.GetData(), sL.GetData(), 12) == false);
+    for (WInt32 i = 0; i < 12; ++i)
+      W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(sU.GetData(), sL.GetData(), i) == true);
+    W_TEST_BOOL(WStringUtils::IsEqualN_NoCase(sU.GetData(), sL.GetData(), 12) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compare")
   {
-    EZ_TEST_BOOL(ezStringUtils::Compare(nullptr, nullptr) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(nullptr, "") == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare("", nullptr) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare("", "") == 0);
+    W_TEST_BOOL(WStringUtils::Compare(nullptr, nullptr) == 0);
+    W_TEST_BOOL(WStringUtils::Compare(nullptr, "") == 0);
+    W_TEST_BOOL(WStringUtils::Compare("", nullptr) == 0);
+    W_TEST_BOOL(WStringUtils::Compare("", "") == 0);
 
-    EZ_TEST_BOOL(ezStringUtils::Compare("abc", "abc") == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare("abc", "abcd") < 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare("abcd", "abc") > 0);
+    W_TEST_BOOL(WStringUtils::Compare("abc", "abc") == 0);
+    W_TEST_BOOL(WStringUtils::Compare("abc", "abcd") < 0);
+    W_TEST_BOOL(WStringUtils::Compare("abcd", "abc") > 0);
 
-    EZ_TEST_BOOL(ezStringUtils::Compare("a", nullptr) > 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(nullptr, "a") < 0);
+    W_TEST_BOOL(WStringUtils::Compare("a", nullptr) > 0);
+    W_TEST_BOOL(WStringUtils::Compare(nullptr, "a") < 0);
 
     // substring compare
     const char* sz = "abc def ghi bla";
-    EZ_TEST_BOOL(ezStringUtils::Compare(sz, "abc", sz + 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(sz, "abc def", sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(sz, sz, sz + 7, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(sz, sz, sz + 7, sz + 6) > 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare(sz, sz, sz + 7, sz + 8) < 0);
+    W_TEST_BOOL(WStringUtils::Compare(sz, "abc", sz + 3) == 0);
+    W_TEST_BOOL(WStringUtils::Compare(sz, "abc def", sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::Compare(sz, sz, sz + 7, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::Compare(sz, sz, sz + 7, sz + 6) > 0);
+    W_TEST_BOOL(WStringUtils::Compare(sz, sz, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareN")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareN(nullptr, nullptr, 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(nullptr, "", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("", nullptr, 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("", "", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(nullptr, nullptr, 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(nullptr, "", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("", nullptr, 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("", "", 1) == 0);
 
     // as long as we compare 'nothing' the strings must be equal
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", nullptr, 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", "", 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(nullptr, "abc", 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("", "abc", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", nullptr, 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", "", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(nullptr, "abc", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("", "abc", 0) == 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", "abcdef", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", "abcdef", 2) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", "abcdef", 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abc", "abcdef", 4) < 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", "abcdef", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", "abcdef", 2) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", "abcdef", 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abc", "abcdef", 4) < 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abcdef", "abc", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abcdef", "abc", 2) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abcdef", "abc", 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN("abcdef", "abc", 4) > 0);
-
-    // substring compare
-    const char* sz = "abc def ghi bla";
-    EZ_TEST_BOOL(ezStringUtils::CompareN(sz, "abc", 10, sz + 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(sz, "abc def", 10, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 6) > 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 8) < 0);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare_NoCase")
-  {
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(nullptr, nullptr) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(nullptr, "") == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("", nullptr) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("", "") == 0);
-
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("abc", "aBc") == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("ABC", "abcd") < 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("abcd", "ABC") > 0);
-
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase("a", nullptr) > 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(nullptr, "a") < 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abcdef", "abc", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abcdef", "abc", 2) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abcdef", "abc", 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN("abcdef", "abc", 4) > 0);
 
     // substring compare
     const char* sz = "abc def ghi bla";
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(sz, "ABC", sz + 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(sz, "ABC def", sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 6) > 0);
-    EZ_TEST_BOOL(ezStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 8) < 0);
+    W_TEST_BOOL(WStringUtils::CompareN(sz, "abc", 10, sz + 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(sz, "abc def", 10, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 6) > 0);
+    W_TEST_BOOL(WStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compare_NoCase")
   {
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(nullptr, nullptr, 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(nullptr, "", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("", nullptr, 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("", "", 1) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(nullptr, nullptr) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(nullptr, "") == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("", nullptr) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("", "") == 0);
+
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("abc", "aBc") == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("ABC", "abcd") < 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("abcd", "ABC") > 0);
+
+    W_TEST_BOOL(WStringUtils::Compare_NoCase("a", nullptr) > 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(nullptr, "a") < 0);
+
+    // substring compare
+    const char* sz = "abc def ghi bla";
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(sz, "ABC", sz + 3) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(sz, "ABC def", sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 6) > 0);
+    W_TEST_BOOL(WStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 8) < 0);
+  }
+
+  W_TEST_BLOCK(WTestBlock::Enabled, "CompareN_NoCase")
+  {
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(nullptr, nullptr, 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(nullptr, "", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("", nullptr, 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("", "", 1) == 0);
 
     // as long as we compare 'nothing' the strings must be equal
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abc", nullptr, 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abc", "", 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(nullptr, "abc", 0) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("", "abc", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abc", nullptr, 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abc", "", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(nullptr, "abc", 0) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("", "abc", 0) == 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("aBc", "abcdef", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("aBc", "abcdef", 2) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("aBc", "abcdef", 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("aBc", "abcdef", 4) < 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("aBc", "abcdef", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("aBc", "abcdef", 2) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("aBc", "abcdef", 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("aBc", "abcdef", 4) < 0);
 
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abcdef", "Abc", 1) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abcdef", "Abc", 2) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abcdef", "Abc", 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase("abcdef", "Abc", 4) > 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abcdef", "Abc", 1) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abcdef", "Abc", 2) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abcdef", "Abc", 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase("abcdef", "Abc", 4) > 0);
 
     // substring compare
     const char* sz = "abc def ghi bla";
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(sz, "ABC", 10, sz + 3) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(sz, "ABC def", 10, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 7) == 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 6) > 0);
-    EZ_TEST_BOOL(ezStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 8) < 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(sz, "ABC", 10, sz + 3) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(sz, "ABC def", 10, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 7) == 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 6) > 0);
+    W_TEST_BOOL(WStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "snprintf")
+  W_TEST_BLOCK(WTestBlock::Enabled, "snprintf")
   {
     // This function has been tested to death during its implementation.
     // That test-code would require several pages, if one would try to test it properly.
     // I am not going to do that here, I am quite confident the function works as expected with pure ASCII strings.
     // So I'm only testing a bit of Utf8 stuff.
 
-    ezStringUtf8 s(L"Abc %s äöü ß %i %s %.4f");
-    ezStringUtf8 s2(L"ÄÖÜ");
+    WStringUtf8 s(L"Abc %s äöü ß %i %s %.4f");
+    WStringUtf8 s2(L"ÄÖÜ");
 
     char sz[256];
-    ezStringUtils::snprintf(sz, 256, s.GetData(), "ASCII", 42, s2.GetData(), 23.31415);
+    WStringUtils::snprintf(sz, 256, s.GetData(), "ASCII", 42, s2.GetData(), 23.31415);
 
-    ezStringUtf8 sC(L"Abc ASCII äöü ß 42 ÄÖÜ 23.3142"); // notice the correct float rounding ;-)
+    WStringUtf8 sC(L"Abc ASCII äöü ß 42 ÄÖÜ 23.3142"); // notice the correct float rounding ;-)
 
-    EZ_TEST_STRING(sz, sC.GetData());
+    W_TEST_STRING(sz, sC.GetData());
 
 
     // NaN and Infinity
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2f", ezMath::NaN<float>());
-    EZ_TEST_STRING(sz, "NaN Value: NaN");
+    WStringUtils::snprintf(sz, 256, "NaN Value: %.2f", WMath::NaN<float>());
+    W_TEST_STRING(sz, "NaN Value: NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", +ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value: Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %.2f", +WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value: Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", -ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value: -Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %.2f", -WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value: -Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2e", ezMath::NaN<float>());
-    EZ_TEST_STRING(sz, "NaN Value: NaN");
+    WStringUtils::snprintf(sz, 256, "NaN Value: %.2e", WMath::NaN<float>());
+    W_TEST_STRING(sz, "NaN Value: NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", +ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value: Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %.2e", +WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value: Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", -ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value: -Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %.2e", -WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value: -Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %+10.2f", ezMath::NaN<float>());
-    EZ_TEST_STRING(sz, "NaN Value:       +NaN");
+    WStringUtils::snprintf(sz, 256, "NaN Value: %+10.2f", WMath::NaN<float>());
+    W_TEST_STRING(sz, "NaN Value:       +NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", +ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value:  +Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", +WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value:  +Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -ezMath::Infinity<float>());
-    EZ_TEST_STRING(sz, "Inf Value:  -Infinity");
+    WStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -WMath::Infinity<float>());
+    W_TEST_STRING(sz, "Inf Value:  -Infinity");
 
     // extended stuff
-    ezStringUtils::snprintf(sz, 256, "size: %zu", (size_t)12345678);
-    EZ_TEST_STRING(sz, "size: 12345678");
+    WStringUtils::snprintf(sz, 256, "size: %zu", (size_t)12345678);
+    W_TEST_STRING(sz, "size: 12345678");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith")
+  W_TEST_BLOCK(WTestBlock::Enabled, "StartsWith")
   {
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("", "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith("", "") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("abc", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("abc", "") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(nullptr, "abc") == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("", "abc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith("abc", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith("abc", "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith(nullptr, "abc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith("", "abc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("abc", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("abcdef", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith("abcdef", "Abc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith("abc", "abc") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith("abcdef", "abc") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith("abcdef", "Abc") == false);
 
     // substring test
     const char* sz = (const char*)u8"äbc def ghi";
-    const ezUInt32 uiByteCount = ezStringUtils::GetStringElementCount(u8"äbc");
+    const WUInt32 uiByteCount = WStringUtils::GetStringElementCount(u8"äbc");
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount - 1) == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + 0) == false);
+    W_TEST_BOOL(WStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount - 1) == false);
+    W_TEST_BOOL(WStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + 0) == false);
 
     const char* sz2 = (const char*)u8"äbc def";
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "StartsWith_NoCase")
   {
-    ezStringUtf8 sL(L"äöü");
-    ezStringUtf8 sU(L"ÄÖÜ");
+    WStringUtf8 sL(L"äöü");
+    WStringUtf8 sU(L"ÄÖÜ");
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("", "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("", "") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("abc", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("abc", "") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(nullptr, "abc") == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("", "abc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("abc", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("abc", "") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(nullptr, "abc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("", "abc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("abc", "ABC") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("aBCdef", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase("aBCdef", "bc") == false);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("abc", "ABC") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("aBCdef", "abc") == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase("aBCdef", "bc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sL.GetData(), sU.GetData()) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(sL.GetData(), sU.GetData()) == true);
 
     // substring test
     const char* sz = (const char*)u8"äbc def ghi";
-    const ezUInt32 uiByteCount = ezStringUtils::GetStringElementCount(u8"äbc");
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount - 1) == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + 0) == false);
+    const WUInt32 uiByteCount = WStringUtils::GetStringElementCount(u8"äbc");
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount - 1) == false);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + 0) == false);
 
     const char* sz2 = (const char*)u8"Äbc def";
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
+    W_TEST_BOOL(WStringUtils::StartsWith_NoCase(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndsWith")
   {
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("", "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith("", "") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("abc", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("abc", "") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(nullptr, "abc") == false);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("", "abc") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith("abc", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith("abc", "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith(nullptr, "abc") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith("", "abc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("abc", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("abcdef", "def") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("abcdef", "Def") == false);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith("def", "abcdef") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith("abc", "abc") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith("abcdef", "def") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith("abcdef", "Def") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith("def", "abcdef") == false);
 
     // substring test
     const char* sz = "abc def ghi";
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(sz, "abc", sz + 3) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(sz, "def", sz + 7) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith(sz, "def", sz + 8) == false);
+    W_TEST_BOOL(WStringUtils::EndsWith(sz, "abc", sz + 3) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith(sz, "def", sz + 7) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith(sz, "def", sz + 8) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EndsWith_NoCase")
   {
-    ezStringUtf8 sL(L"äöü");
-    ezStringUtf8 sU(L"ÄÖÜ");
+    WStringUtf8 sL(L"äöü");
+    WStringUtf8 sU(L"ÄÖÜ");
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(nullptr, nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(nullptr, "") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("", "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(nullptr, nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(nullptr, "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("", "") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("abc", nullptr) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("abc", "") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(nullptr, "abc") == false);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("", "abc") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("abc", nullptr) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("abc", "") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(nullptr, "abc") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("", "abc") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("abc", "abc") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("abcdef", "def") == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("abcdef", "Def") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("abc", "abc") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("abcdef", "def") == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("abcdef", "Def") == true);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase("def", "abcdef") == false);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase("def", "abcdef") == false);
 
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(sL.GetData(), sU.GetData()) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(sL.GetData(), sU.GetData()) == true);
 
     // substring test
     const char* sz = "abc def ghi";
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(sz, "ABC", sz + 3) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(sz, "DEF", sz + 7) == true);
-    EZ_TEST_BOOL(ezStringUtils::EndsWith_NoCase(sz, "DEF", sz + 8) == false);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(sz, "ABC", sz + 3) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(sz, "DEF", sz + 7) == true);
+    W_TEST_BOOL(WStringUtils::EndsWith_NoCase(sz, "DEF", sz + 8) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindSubString")
   {
-    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
-    ezStringUtf8 s2(L"äöü");
-    ezStringUtf8 s3(L"äöü2");
+    WStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    WStringUtf8 s2(L"äöü");
+    WStringUtf8 s3(L"äöü2");
 
     const char* szABC = "abc";
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(szABC, szABC) == szABC);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString("abc", "") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString("abc", nullptr) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(nullptr, "abc") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString("", "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString(szABC, szABC) == szABC);
+    W_TEST_BOOL(WStringUtils::FindSubString("abc", "") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString("abc", nullptr) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString(nullptr, "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString("", "abc") == nullptr);
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "abc") == s.GetData());
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "def") == &s.GetData()[4]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "ghi") == &s.GetData()[8]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), s2.GetData()) == &s.GetData()[12]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "abc") == s.GetData());
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "def") == &s.GetData()[4]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "ghi") == &s.GetData()[8]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), s2.GetData()) == &s.GetData()[12]);
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "abc2") == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "def2") == &s.GetData()[35]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "ghi2") == &s.GetData()[40]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), s3.GetData()) == &s.GetData()[45]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "abc2") == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "def2") == &s.GetData()[35]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "ghi2") == &s.GetData()[40]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), s3.GetData()) == &s.GetData()[45]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "abc2", s.GetData() + 34) == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString(s.GetData(), "abc2", s.GetData() + 33) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "abc2", s.GetData() + 34) == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindSubString(s.GetData(), "abc2", s.GetData() + 33) == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindSubString_NoCase")
   {
-    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
-    ezStringUtf8 s2(L"äÖü");
-    ezStringUtf8 s3(L"ÄöÜ2");
+    WStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    WStringUtf8 s2(L"äÖü");
+    WStringUtf8 s3(L"ÄöÜ2");
 
     const char* szABC = "abc";
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(szABC, "aBc") == szABC);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase("abc", "") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase("abc", nullptr) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(nullptr, "abc") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase("", "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(szABC, "aBc") == szABC);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase("abc", "") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase("abc", nullptr) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(nullptr, "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase("", "abc") == nullptr);
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "Abc") == s.GetData());
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "dEf") == &s.GetData()[4]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "ghI") == &s.GetData()[8]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), s2.GetData()) == &s.GetData()[12]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "Abc") == s.GetData());
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "dEf") == &s.GetData()[4]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "ghI") == &s.GetData()[8]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), s2.GetData()) == &s.GetData()[12]);
 
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "abC2") == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "dEf2") == &s.GetData()[35]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "Ghi2") == &s.GetData()[40]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), s3.GetData()) == &s.GetData()[45]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "abC2") == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "dEf2") == &s.GetData()[35]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "Ghi2") == &s.GetData()[40]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), s3.GetData()) == &s.GetData()[45]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "aBc2", s.GetData() + 34) == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindSubString_NoCase(s.GetData(), "abC2", s.GetData() + 33) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "aBc2", s.GetData() + 34) == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindSubString_NoCase(s.GetData(), "abC2", s.GetData() + 33) == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindLastSubString")
   {
-    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
-    ezStringUtf8 s2(L"äöü");
-    ezStringUtf8 s3(L"äöü2");
+    WStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    WStringUtf8 s2(L"äöü");
+    WStringUtf8 s3(L"äöü2");
 
     const char* szABC = "abc";
 
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(szABC, szABC) == szABC);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString("abc", "") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString("abc", nullptr) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(nullptr, "abc") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString("", "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(szABC, szABC) == szABC);
+    W_TEST_BOOL(WStringUtils::FindLastSubString("abc", "") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString("abc", nullptr) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(nullptr, "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString("", "abc") == nullptr);
 
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), "abc") == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), "def") == &s.GetData()[35]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), "ghi") == &s.GetData()[40]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), s2.GetData()) == &s.GetData()[45]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), "abc") == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), "def") == &s.GetData()[35]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), "ghi") == &s.GetData()[40]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), s2.GetData()) == &s.GetData()[45]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), "abc", nullptr, s.GetData() + 33) == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString(s.GetData(), "abc", nullptr, s.GetData() + 32) == &s.GetData()[0]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), "abc", nullptr, s.GetData() + 33) == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString(s.GetData(), "abc", nullptr, s.GetData() + 32) == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindLastSubString_NoCase")
   {
-    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
-    ezStringUtf8 s2(L"äÖü");
-    ezStringUtf8 s3(L"ÄöÜ2");
+    WStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    WStringUtf8 s2(L"äÖü");
+    WStringUtf8 s3(L"ÄöÜ2");
 
     const char* szABC = "abc";
 
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(szABC, "aBC") == szABC);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase("abc", "") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase("abc", nullptr) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(nullptr, "abc") == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase("", "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(szABC, "aBC") == szABC);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase("abc", "") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase("abc", nullptr) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(nullptr, "abc") == nullptr);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase("", "abc") == nullptr);
 
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "Abc") == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "dEf") == &s.GetData()[35]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "ghI") == &s.GetData()[40]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), s2.GetData()) == &s.GetData()[45]);
-
-    // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "ABC", nullptr, s.GetData() + 33) == &s.GetData()[30]);
-    EZ_TEST_BOOL(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "ABC", nullptr, s.GetData() + 32) == &s.GetData()[0]);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord")
-  {
-    ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
-
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "def", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "mompfh", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]); // ü is not english
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), "Abc") == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), "dEf") == &s.GetData()[35]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), "ghI") == &s.GetData()[40]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), s2.GetData()) == &s.GetData()[45]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) == s.GetData() + 27);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), "ABC", nullptr, s.GetData() + 33) == &s.GetData()[30]);
+    W_TEST_BOOL(WStringUtils::FindLastSubString_NoCase(s.GetData(), "ABC", nullptr, s.GetData() + 32) == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindWholeWord")
   {
-    ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
+    WStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "DEF", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "momPFH", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "abc", WStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "def", WStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "mompfh", WStringUtils::IsWordDelimiter_English) == &s.GetData()[0]); // ü is not english
 
     // substring test
-    EZ_TEST_BOOL(
-      ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "abc", WStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "abc", WStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
+    W_TEST_BOOL(WStringUtils::FindWholeWord(s.GetData(), "abc", WStringUtils::IsWordDelimiter_English, s.GetData() + 30) == s.GetData() + 27);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindUIntAtTheEnd")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindWholeWord_NoCase")
   {
-    ezUInt32 uiTestValue = 0;
-    ezUInt32 uiCharactersFromStart = 0;
+    WStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(nullptr, uiTestValue, &uiCharactersFromStart).Failed());
+    W_TEST_BOOL(WStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", WStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord_NoCase(s.GetData(), "DEF", WStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord_NoCase(s.GetData(), "momPFH", WStringUtils::IsWordDelimiter_English) == &s.GetData()[0]);
 
-    ezStringUtf8 noNumberAtTheEnd(L"ThisStringContainsNoNumberAtTheEnd");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
+    // substring test
+    W_TEST_BOOL(
+      WStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", WStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
+    W_TEST_BOOL(WStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", WStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
+  }
 
-    ezStringUtf8 noNumberAtTheEnd2(L"ThisStringContainsNoNumberAtTheEndBut42InBetween");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindUIntAtTheEnd")
+  {
+    WUInt32 uiTestValue = 0;
+    WUInt32 uiCharactersFromStart = 0;
 
-    ezStringUtf8 aNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd1");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
-    EZ_TEST_INT(uiTestValue, 1);
-    EZ_TEST_INT(uiCharactersFromStart, aNumberAtTheEnd.GetElementCount() - 1);
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(nullptr, uiTestValue, &uiCharactersFromStart).Failed());
 
-    ezStringUtf8 aZeroLeadingNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd011129");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aZeroLeadingNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
-    EZ_TEST_INT(uiTestValue, 11129);
-    EZ_TEST_INT(uiCharactersFromStart, aZeroLeadingNumberAtTheEnd.GetElementCount() - 6);
+    WStringUtf8 noNumberAtTheEnd(L"ThisStringContainsNoNumberAtTheEnd");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
 
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, nullptr).Succeeded());
-    EZ_TEST_INT(uiTestValue, 1);
+    WStringUtf8 noNumberAtTheEnd2(L"ThisStringContainsNoNumberAtTheEndBut42InBetween");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
 
-    ezStringUtf8 twoNumbersInOneString(L"FirstANumber23AndThen42");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(twoNumbersInOneString.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
-    EZ_TEST_INT(uiTestValue, 42);
+    WStringUtf8 aNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd1");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    W_TEST_INT(uiTestValue, 1);
+    W_TEST_INT(uiCharactersFromStart, aNumberAtTheEnd.GetElementCount() - 1);
 
-    ezStringUtf8 onlyANumber(L"55566553");
-    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(onlyANumber.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
-    EZ_TEST_INT(uiTestValue, 55566553);
-    EZ_TEST_INT(uiCharactersFromStart, 0);
+    WStringUtf8 aZeroLeadingNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd011129");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(aZeroLeadingNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    W_TEST_INT(uiTestValue, 11129);
+    W_TEST_INT(uiCharactersFromStart, aZeroLeadingNumberAtTheEnd.GetElementCount() - 6);
+
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, nullptr).Succeeded());
+    W_TEST_INT(uiTestValue, 1);
+
+    WStringUtf8 twoNumbersInOneString(L"FirstANumber23AndThen42");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(twoNumbersInOneString.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    W_TEST_INT(uiTestValue, 42);
+
+    WStringUtf8 onlyANumber(L"55566553");
+    W_TEST_BOOL(WStringUtils::FindUIntAtTheEnd(onlyANumber.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    W_TEST_INT(uiTestValue, 55566553);
+    W_TEST_INT(uiCharactersFromStart, 0);
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipCharacters")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SkipCharacters")
   {
-    ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
+    WStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
     const char* szEmpty = "";
 
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[0]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, true) == &s.GetData()[1]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[8]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true) == &s.GetData()[8]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, true) == szEmpty);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(s.GetData(), WStringUtils::IsWhiteSpace, false) == &s.GetData()[0]);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(s.GetData(), WStringUtils::IsWhiteSpace, true) == &s.GetData()[1]);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(&s.GetData()[5], WStringUtils::IsWhiteSpace, false) == &s.GetData()[8]);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(&s.GetData()[5], WStringUtils::IsWhiteSpace, true) == &s.GetData()[8]);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(szEmpty, WStringUtils::IsWhiteSpace, false) == szEmpty);
+    W_TEST_BOOL(WStringUtils::SkipCharacters(szEmpty, WStringUtils::IsWhiteSpace, true) == szEmpty);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWordEnd")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindWordEnd")
   {
-    ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
+    WStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
     const char* szEmpty = "";
 
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, true) == &s.GetData()[5]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true) == &s.GetData()[6]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, true) == szEmpty);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(s.GetData(), WStringUtils::IsWhiteSpace, true) == &s.GetData()[5]);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(s.GetData(), WStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(&s.GetData()[5], WStringUtils::IsWhiteSpace, true) == &s.GetData()[6]);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(&s.GetData()[5], WStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(szEmpty, WStringUtils::IsWhiteSpace, true) == szEmpty);
+    W_TEST_BOOL(WStringUtils::FindWordEnd(szEmpty, WStringUtils::IsWhiteSpace, false) == szEmpty);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWhitespace")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsWhitespace")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace(' '));
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\t'));
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\n'));
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\r'));
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\v'));
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace(' '));
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace('\t'));
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace('\n'));
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace('\r'));
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace('\v'));
 
-    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\0') == false);
+    W_TEST_BOOL(WStringUtils::IsWhiteSpace('\0') == false);
 
-    for (ezUInt32 i = 33; i < 256; ++i)
+    for (WUInt32 i = 33; i < 256; ++i)
     {
-      EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace(i) == false);
+      W_TEST_BOOL(WStringUtils::IsWhiteSpace(i) == false);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsDecimalDigit / IsHexDigit")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsDecimalDigit / IsHexDigit")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('0'));
-    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('4'));
-    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('9'));
-    EZ_TEST_BOOL(!ezStringUtils::IsDecimalDigit('/'));
-    EZ_TEST_BOOL(!ezStringUtils::IsDecimalDigit('A'));
+    W_TEST_BOOL(WStringUtils::IsDecimalDigit('0'));
+    W_TEST_BOOL(WStringUtils::IsDecimalDigit('4'));
+    W_TEST_BOOL(WStringUtils::IsDecimalDigit('9'));
+    W_TEST_BOOL(!WStringUtils::IsDecimalDigit('/'));
+    W_TEST_BOOL(!WStringUtils::IsDecimalDigit('A'));
 
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('0'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('4'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('9'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('A'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('E'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('a'));
-    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('f'));
-    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('g'));
-    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('/'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('0'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('4'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('9'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('A'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('E'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('a'));
+    W_TEST_BOOL(WStringUtils::IsHexDigit('f'));
+    W_TEST_BOOL(!WStringUtils::IsHexDigit('g'));
+    W_TEST_BOOL(!WStringUtils::IsHexDigit('/'));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWordDelimiter_English / IsIdentifierDelimiter_C_Code")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsWordDelimiter_English / IsIdentifierDelimiter_C_Code")
   {
-    for (ezUInt32 i = 0; i < 256; ++i)
+    for (WUInt32 i = 0; i < 256; ++i)
     {
       const bool alpha = (i >= 'a' && i <= 'z');
       const bool alpha2 = (i >= 'A' && i <= 'Z');
@@ -862,19 +862,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
       const bool bWord = bCode || dash;
 
 
-      EZ_TEST_BOOL(ezStringUtils::IsWordDelimiter_English(i) == !bWord);
-      EZ_TEST_BOOL(ezStringUtils::IsIdentifierDelimiter_C_Code(i) == !bCode);
+      W_TEST_BOOL(WStringUtils::IsWordDelimiter_English(i) == !bWord);
+      W_TEST_BOOL(WStringUtils::IsIdentifierDelimiter_C_Code(i) == !bCode);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValidIdentifierName")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsValidIdentifierName")
   {
-    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName(""));
-    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("1asdf"));
-    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("as df"));
-    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("asdf!"));
+    W_TEST_BOOL(!WStringUtils::IsValidIdentifierName(""));
+    W_TEST_BOOL(!WStringUtils::IsValidIdentifierName("1asdf"));
+    W_TEST_BOOL(!WStringUtils::IsValidIdentifierName("as df"));
+    W_TEST_BOOL(!WStringUtils::IsValidIdentifierName("asdf!"));
 
-    EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("asdf1"));
-    EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("_asdf"));
+    W_TEST_BOOL(WStringUtils::IsValidIdentifierName("asdf1"));
+    W_TEST_BOOL(WStringUtils::IsValidIdentifierName("_asdf"));
   }
 }

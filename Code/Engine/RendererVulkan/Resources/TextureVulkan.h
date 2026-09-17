@@ -4,70 +4,70 @@
 
 #include <RendererFoundation/Resources/Texture.h>
 
-class ezGALBufferVulkan;
-class ezGALDeviceVulkan;
+class WGALBufferVulkan;
+class WGALDeviceVulkan;
 
-class ezGALTextureVulkan : public ezGALTexture
+class WGALTextureVulkan : public WGALTexture
 {
 public:
   struct SubResourceOffset
   {
-    EZ_DECLARE_POD_TYPE();
-    ezUInt32 m_uiOffset;
-    ezUInt32 m_uiSize;
-    ezUInt32 m_uiRowLength;
-    ezUInt32 m_uiImageHeight;
+    W_DECLARE_POD_TYPE();
+    WUInt32 m_uiOffset;
+    WUInt32 m_uiSize;
+    WUInt32 m_uiRowLength;
+    WUInt32 m_uiImageHeight;
   };
 
-  static vk::Format ComputeImageFormat(const ezGALDeviceVulkan* pDevice, ezEnum<ezGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats);
-  static void ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo);
-  static void ComputeAllocInfo(ezVulkanAllocationCreateInfo& ref_allocInfo);
-  static ezUInt32 ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& ref_subResourceSizes);
-  static vk::Extent3D GetMipLevelSize(const ezGALTextureCreationDescription& description, ezUInt32 uiMipLevel);
+  static vk::Format ComputeImageFormat(const WGALDeviceVulkan* pDevice, WEnum<WGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats);
+  static void ComputeCreateInfo(const WGALDeviceVulkan* pDevice, const WGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo);
+  static void ComputeAllocInfo(WVulkanAllocationCreateInfo& ref_allocInfo);
+  static WUInt32 ComputeSubResourceOffsets(const WGALDeviceVulkan* pDevice, const WGALTextureCreationDescription& description, WDynamicArray<SubResourceOffset>& ref_subResourceSizes);
+  static vk::Extent3D GetMipLevelSize(const WGALTextureCreationDescription& description, WUInt32 uiMipLevel);
 
 public:
-  EZ_ALWAYS_INLINE vk::Image GetImage() const;
-  EZ_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_ImageFormat; }
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
-  EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
+  W_ALWAYS_INLINE vk::Image GetImage() const;
+  W_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_ImageFormat; }
+  W_ALWAYS_INLINE WVulkanAllocation GetAllocation() const;
+  W_ALWAYS_INLINE const WVulkanAllocationInfo& GetAllocationInfo() const;
 
-  vk::Extent3D GetMipLevelSize(ezUInt32 uiMipLevel) const { return GetMipLevelSize(m_Description, uiMipLevel); }
+  vk::Extent3D GetMipLevelSize(WUInt32 uiMipLevel) const { return GetMipLevelSize(m_Description, uiMipLevel); }
   vk::ImageSubresourceRange GetFullRange() const;
   vk::ImageAspectFlags GetAspectMask() const;
 
-  vk::DescriptorImageInfo GetDescriptorImageInfo(ezGALTextureRange textureRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+  vk::DescriptorImageInfo GetDescriptorImageInfo(WGALTextureRange textureRange, WEnum<WGALShaderResourceType> resourceType, WEnum<WGALShaderTextureType> textureType, WEnum<WGALResourceFormat> overrideViewFormat) const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description);
-  ~ezGALTextureVulkan();
+  WGALTextureVulkan(const WGALTextureCreationDescription& Description);
+  ~WGALTextureVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
   vk::Image m_Image = {};
   vk::Format m_ImageFormat = vk::Format::eUndefined;
-  ezVulkanAllocation m_pAlloc = nullptr;
-  ezVulkanAllocationInfo m_AllocInfo;
+  WVulkanAllocation m_pAlloc = nullptr;
+  WVulkanAllocationInfo m_AllocInfo;
 
   // Views
-  struct View : ezHashableStruct<View>
+  struct View : WHashableStruct<View>
   {
-    ezGALTextureRange m_TextureRange;
-    ezEnum<ezGALShaderResourceType> m_ResourceType;
-    ezEnum<ezGALShaderTextureType> m_TextureType;
-    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+    WGALTextureRange m_TextureRange;
+    WEnum<WGALShaderResourceType> m_ResourceType;
+    WEnum<WGALShaderTextureType> m_TextureType;
+    WEnum<WGALResourceFormat> m_OverrideViewFormat;
 
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
-    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+    W_ALWAYS_INLINE static WUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    W_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
   };
-  mutable ezHashTable<View, vk::DescriptorImageInfo, View> m_TextureViews;
+  mutable WHashTable<View, vk::DescriptorImageInfo, View> m_TextureViews;
 
-  ezGALDeviceVulkan* m_pDevice = nullptr;
+  WGALDeviceVulkan* m_pDevice = nullptr;
 };
 
 #include <RendererVulkan/Resources/Implementation/TextureVulkan_inl.h>

@@ -1,11 +1,11 @@
 #include <Foundation/Platform/PlatformDesc.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezPlatformDesc);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WPlatformDesc);
 
-ezPlatformDesc g_PlatformDescWin("Windows", "Desktop");
+WPlatformDesc g_PlatformDescWin("Windows", "Desktop");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
-const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescWin;
+const WPlatformDesc* WPlatformDesc::s_pThisPlatform = &g_PlatformDescWin;
 
 #endif

@@ -6,11 +6,11 @@
 /// A simple rectangle class templated on the type for x, y and width, height.
 ///
 template <typename Type>
-class ezRectTemplate
+class WRectTemplate
 {
 public:
   // Means this object can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   // *** Data ***
 public:
@@ -23,36 +23,36 @@ public:
   // *** Constructors ***
 public:
   /// Default constructor does not initialize the data.
-  ezRectTemplate();
+  WRectTemplate();
 
   /// Constructor to set all values.
-  ezRectTemplate(Type x, Type y, Type width, Type height);
+  WRectTemplate(Type x, Type y, Type width, Type height);
 
   /// Initializes x and y with zero, width and height with the given values.
-  ezRectTemplate(Type width, Type height);
+  WRectTemplate(Type width, Type height);
 
   /// Initializes x and y from pos, width and height from vSize.
-  ezRectTemplate<Type>(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize);
+  WRectTemplate<Type>(const WVec2Template<Type>& vTopLeftPosition, const WVec2Template<Type>& vSize);
 
   /// Creates an 'invalid' rect.
   ///
   /// IsValid() will return false.
   /// It is possible to make an invalid rect valid using ExpandToInclude().
-  [[nodiscard]] static ezRectTemplate<Type> MakeInvalid();
+  [[nodiscard]] static WRectTemplate<Type> MakeInvalid();
 
   /// Creates a rect that is located at the origin and has zero size. This is a 'valid' rect.
-  [[nodiscard]] static ezRectTemplate<Type> MakeZero();
+  [[nodiscard]] static WRectTemplate<Type> MakeZero();
 
   /// Creates a rect that is the intersection of the two provided rects.
   ///
   /// If the two rects don't overlap, the result will be a valid rect, but have zero area.
   /// See IsValid() and HasNonZeroArea().
-  [[nodiscard]] static ezRectTemplate<Type> MakeIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  [[nodiscard]] static WRectTemplate<Type> MakeIntersection(const WRectTemplate<Type>& r0, const WRectTemplate<Type>& r1);
 
   /// Creates a rect that is the union of the two provided rects.
   ///
   /// This is the same as constructing a bounding box around the two rects.
-  [[nodiscard]] static ezRectTemplate<Type> MakeUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  [[nodiscard]] static WRectTemplate<Type> MakeUnion(const WRectTemplate<Type>& r0, const WRectTemplate<Type>& r1);
 
   /// The smaller value along x.
   Type Left() const { return x; }
@@ -79,39 +79,39 @@ public:
   Type GetY2() const { return y + height; }
 
   /// Returns the minimum corner position. Same as GetTopLeft().
-  ezVec2Template<Type> GetMinCorner() const { return ezVec2Template<Type>(x, y); }
+  WVec2Template<Type> GetMinCorner() const { return WVec2Template<Type>(x, y); }
 
   /// Returns the maximum corner position. Same as GetBottomRight().
-  ezVec2Template<Type> GetMaxCorner() const { return ezVec2Template<Type>(x + width, y + height); }
+  WVec2Template<Type> GetMaxCorner() const { return WVec2Template<Type>(x + width, y + height); }
 
   /// Returns the top left corner. Same as GetMinCorner().
-  ezVec2Template<Type> GetTopLeft() const { return ezVec2Template<Type>(x, y); }
+  WVec2Template<Type> GetTopLeft() const { return WVec2Template<Type>(x, y); }
 
   /// Returns the top right corner.
-  ezVec2Template<Type> GetTopRight() const { return ezVec2Template<Type>(x + width, y); }
+  WVec2Template<Type> GetTopRight() const { return WVec2Template<Type>(x + width, y); }
 
   /// Returns the bottom left corner.
-  ezVec2Template<Type> GetBottomLeft() const { return ezVec2Template<Type>(x, y + height); }
+  WVec2Template<Type> GetBottomLeft() const { return WVec2Template<Type>(x, y + height); }
 
   /// Returns the bottom right corner. Same as GetMaxCorner().
-  ezVec2Template<Type> GetBottomRight() const { return ezVec2Template<Type>(x + width, y + height); }
+  WVec2Template<Type> GetBottomRight() const { return WVec2Template<Type>(x + width, y + height); }
 
   /// Returns the center point of the rectangle.
-  ezVec2Template<Type> GetCenter() const { return ezVec2Template<Type>(x + width / 2, y + height / 2); }
+  WVec2Template<Type> GetCenter() const { return WVec2Template<Type>(x + width / 2, y + height / 2); }
 
   /// Returns the width and height as a vec2.
-  ezVec2Template<Type> GetExtents() const { return ezVec2Template<Type>(width, height); }
+  WVec2Template<Type> GetExtents() const { return WVec2Template<Type>(width, height); }
 
   /// Returns the half width and half height as a vec2.
-  ezVec2Template<Type> GetHalfExtents() const { return ezVec2Template<Type>(width / 2, height / 2); }
+  WVec2Template<Type> GetHalfExtents() const { return WVec2Template<Type>(width / 2, height / 2); }
 
   /// Increases the size of the rect in all directions.
   void Grow(Type xy);
 
   // *** Common Functions ***
 public:
-  [[nodiscard]] bool operator==(const ezRectTemplate<Type>& rhs) const;
-  [[nodiscard]] bool operator!=(const ezRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator==(const WRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator!=(const WRectTemplate<Type>& rhs) const;
 
   /// Checks whether the position and size contain valid values.
   [[nodiscard]] bool IsValid() const;
@@ -120,35 +120,35 @@ public:
   [[nodiscard]] bool HasNonZeroArea() const;
 
   /// Returns true if the rectangle contains the provided point
-  [[nodiscard]] bool Contains(const ezVec2Template<Type>& vPoint) const;
+  [[nodiscard]] bool Contains(const WVec2Template<Type>& vPoint) const;
 
-  [[nodiscard]] bool Contains(const ezRectTemplate<Type>& r) const;
+  [[nodiscard]] bool Contains(const WRectTemplate<Type>& r) const;
 
   /// Returns true if the rectangle overlaps the provided rectangle.
   /// Also returns true if the rectangles are contained within each other completely(no intersecting edges).
-  [[nodiscard]] bool Overlaps(const ezRectTemplate<Type>& other) const;
+  [[nodiscard]] bool Overlaps(const WRectTemplate<Type>& other) const;
 
   /// Extends this rectangle so that the provided rectangle is completely contained within it.
-  void ExpandToInclude(const ezRectTemplate<Type>& other);
+  void ExpandToInclude(const WRectTemplate<Type>& other);
 
   /// Extends this rectangle so that the provided point is contained within it.
-  void ExpandToInclude(const ezVec2Template<Type>& other);
+  void ExpandToInclude(const WVec2Template<Type>& other);
 
   /// Clips this rect so that it is fully inside the provided rectangle.
-  void Clip(const ezRectTemplate<Type>& clipRect);
+  void Clip(const WRectTemplate<Type>& clipRect);
 
   /// The given point is clamped to the area of the rect, i.e. it will be either inside the rect or on its edge and it will have the closest
   /// possible distance to the original point.
-  [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
+  [[nodiscard]] const WVec2Template<Type> GetClampedPoint(const WVec2Template<Type>& vPoint) const;
 
   /// Clamps the given rect to the area of this rect and returns it.
   ///
   /// If the input rect is entirely outside this rect, the result will be reduced to a point or a line closest to the input rect.
-  [[nodiscard]] const ezRectTemplate<Type> GetClampedRect(const ezRectTemplate<Type>& r) const
+  [[nodiscard]] const WRectTemplate<Type> GetClampedRect(const WRectTemplate<Type>& r) const
   {
-    const ezVec2Template<Type> vNewMin = GetClampedPoint(r.GetMinCorner());
-    const ezVec2Template<Type> vNewMax = GetClampedPoint(r.GetMaxCorner());
-    return ezRectTemplate<Type>(vNewMin, vNewMax - vNewMin);
+    const WVec2Template<Type> vNewMin = GetClampedPoint(r.GetMinCorner());
+    const WVec2Template<Type> vNewMax = GetClampedPoint(r.GetMaxCorner());
+    return WRectTemplate<Type>(vNewMin, vNewMax - vNewMin);
   }
 
   /// Sets the center of the rectangle.
@@ -163,9 +163,9 @@ public:
 
 #include <Foundation/Math/Implementation/Rect_inl.h>
 
-using ezRectU32 = ezRectTemplate<ezUInt32>;
-using ezRectU16 = ezRectTemplate<ezUInt16>;
-using ezRectI32 = ezRectTemplate<ezInt32>;
-using ezRectI16 = ezRectTemplate<ezInt16>;
-using ezRectFloat = ezRectTemplate<float>;
-using ezRectDouble = ezRectTemplate<double>;
+using WRectU32 = WRectTemplate<WUInt32>;
+using WRectU16 = WRectTemplate<WUInt16>;
+using WRectI32 = WRectTemplate<WInt32>;
+using WRectI16 = WRectTemplate<WInt16>;
+using WRectFloat = WRectTemplate<float>;
+using WRectDouble = WRectTemplate<double>;

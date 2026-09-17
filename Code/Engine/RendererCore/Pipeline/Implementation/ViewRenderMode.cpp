@@ -5,35 +5,35 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
-  EZ_ENUM_CONSTANT(ezViewRenderMode::None)->AddAttributes(new ezGroupAttribute("Default")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeColor)->AddAttributes(new ezGroupAttribute("Wireframe")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeMonochrome),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseLitOnly)->AddAttributes(new ezGroupAttribute("Lighting")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::SpecularLitOnly),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::LightCount)->AddAttributes(new ezGroupAttribute("Performance")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::DecalCount),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::StaticVsDynamic),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::TexCoordsUV0)->AddAttributes(new ezGroupAttribute("TexCoords")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::TexCoordsUV1),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexColors0)->AddAttributes(new ezGroupAttribute("VertexColors")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexColors1),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexNormals)->AddAttributes(new ezGroupAttribute("Normals")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexTangents),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::PixelNormals),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseColor)->AddAttributes(new ezGroupAttribute("PixelColors")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseColorRange),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::SpecularColor),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::EmissiveColor),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::Roughness)->AddAttributes(new ezGroupAttribute("Surface")),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::Occlusion),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::Depth),
-  EZ_ENUM_CONSTANT(ezViewRenderMode::BoneWeights)->AddAttributes(new ezGroupAttribute("Animation")),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WViewRenderMode, 1)
+  W_ENUM_CONSTANT(WViewRenderMode::None)->AddAttributes(new WGroupAttribute("Default")),
+  W_ENUM_CONSTANT(WViewRenderMode::WireframeColor)->AddAttributes(new WGroupAttribute("Wireframe")),
+  W_ENUM_CONSTANT(WViewRenderMode::WireframeMonochrome),
+  W_ENUM_CONSTANT(WViewRenderMode::DiffuseLitOnly)->AddAttributes(new WGroupAttribute("Lighting")),
+  W_ENUM_CONSTANT(WViewRenderMode::SpecularLitOnly),
+  W_ENUM_CONSTANT(WViewRenderMode::LightCount)->AddAttributes(new WGroupAttribute("Performance")),
+  W_ENUM_CONSTANT(WViewRenderMode::DecalCount),
+  W_ENUM_CONSTANT(WViewRenderMode::StaticVsDynamic),
+  W_ENUM_CONSTANT(WViewRenderMode::TexCoordsUV0)->AddAttributes(new WGroupAttribute("TexCoords")),
+  W_ENUM_CONSTANT(WViewRenderMode::TexCoordsUV1),
+  W_ENUM_CONSTANT(WViewRenderMode::VertexColors0)->AddAttributes(new WGroupAttribute("VertexColors")),
+  W_ENUM_CONSTANT(WViewRenderMode::VertexColors1),
+  W_ENUM_CONSTANT(WViewRenderMode::VertexNormals)->AddAttributes(new WGroupAttribute("Normals")),
+  W_ENUM_CONSTANT(WViewRenderMode::VertexTangents),
+  W_ENUM_CONSTANT(WViewRenderMode::PixelNormals),
+  W_ENUM_CONSTANT(WViewRenderMode::DiffuseColor)->AddAttributes(new WGroupAttribute("PixelColors")),
+  W_ENUM_CONSTANT(WViewRenderMode::DiffuseColorRange),
+  W_ENUM_CONSTANT(WViewRenderMode::SpecularColor),
+  W_ENUM_CONSTANT(WViewRenderMode::EmissiveColor),
+  W_ENUM_CONSTANT(WViewRenderMode::Roughness)->AddAttributes(new WGroupAttribute("Surface")),
+  W_ENUM_CONSTANT(WViewRenderMode::Occlusion),
+  W_ENUM_CONSTANT(WViewRenderMode::Depth),
+  W_ENUM_CONSTANT(WViewRenderMode::BoneWeights)->AddAttributes(new WGroupAttribute("Animation")),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static
-ezTempHashedString ezViewRenderMode::GetPermutationValue(Enum renderMode)
+WTempHashedString WViewRenderMode::GetPermutationValue(Enum renderMode)
 {
   if (renderMode >= WireframeColor && renderMode <= WireframeMonochrome)
   {
@@ -48,87 +48,87 @@ ezTempHashedString ezViewRenderMode::GetPermutationValue(Enum renderMode)
 }
 
 // static
-int ezViewRenderMode::GetRenderPassForShader(Enum renderMode)
+int WViewRenderMode::GetRenderPassForShader(Enum renderMode)
 {
   switch (renderMode)
   {
-    case ezViewRenderMode::None:
+    case WViewRenderMode::None:
       return -1;
 
-    case ezViewRenderMode::WireframeColor:
+    case WViewRenderMode::WireframeColor:
       return WIREFRAME_RENDER_PASS_COLOR;
 
-    case ezViewRenderMode::WireframeMonochrome:
+    case WViewRenderMode::WireframeMonochrome:
       return WIREFRAME_RENDER_PASS_MONOCHROME;
 
-    case ezViewRenderMode::DiffuseLitOnly:
+    case WViewRenderMode::DiffuseLitOnly:
       return EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY;
 
-    case ezViewRenderMode::SpecularLitOnly:
+    case WViewRenderMode::SpecularLitOnly:
       return EDITOR_RENDER_PASS_SPECULAR_LIT_ONLY;
 
-    case ezViewRenderMode::LightCount:
+    case WViewRenderMode::LightCount:
       return EDITOR_RENDER_PASS_LIGHT_COUNT;
 
-    case ezViewRenderMode::DecalCount:
+    case WViewRenderMode::DecalCount:
       return EDITOR_RENDER_PASS_DECAL_COUNT;
 
-    case ezViewRenderMode::TexCoordsUV0:
+    case WViewRenderMode::TexCoordsUV0:
       return EDITOR_RENDER_PASS_TEXCOORDS_UV0;
 
-    case ezViewRenderMode::TexCoordsUV1:
+    case WViewRenderMode::TexCoordsUV1:
       return EDITOR_RENDER_PASS_TEXCOORDS_UV1;
 
-    case ezViewRenderMode::VertexColors0:
+    case WViewRenderMode::VertexColors0:
       return EDITOR_RENDER_PASS_VERTEX_COLORS0;
 
-    case ezViewRenderMode::VertexColors1:
+    case WViewRenderMode::VertexColors1:
       return EDITOR_RENDER_PASS_VERTEX_COLORS1;
 
-    case ezViewRenderMode::VertexNormals:
+    case WViewRenderMode::VertexNormals:
       return EDITOR_RENDER_PASS_VERTEX_NORMALS;
 
-    case ezViewRenderMode::VertexTangents:
+    case WViewRenderMode::VertexTangents:
       return EDITOR_RENDER_PASS_VERTEX_TANGENTS;
 
-    case ezViewRenderMode::PixelNormals:
+    case WViewRenderMode::PixelNormals:
       return EDITOR_RENDER_PASS_PIXEL_NORMALS;
 
-    case ezViewRenderMode::DiffuseColor:
+    case WViewRenderMode::DiffuseColor:
       return EDITOR_RENDER_PASS_DIFFUSE_COLOR;
 
-    case ezViewRenderMode::DiffuseColorRange:
+    case WViewRenderMode::DiffuseColorRange:
       return EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE;
 
-    case ezViewRenderMode::SpecularColor:
+    case WViewRenderMode::SpecularColor:
       return EDITOR_RENDER_PASS_SPECULAR_COLOR;
 
-    case ezViewRenderMode::EmissiveColor:
+    case WViewRenderMode::EmissiveColor:
       return EDITOR_RENDER_PASS_EMISSIVE_COLOR;
 
-    case ezViewRenderMode::Roughness:
+    case WViewRenderMode::Roughness:
       return EDITOR_RENDER_PASS_ROUGHNESS;
 
-    case ezViewRenderMode::Occlusion:
+    case WViewRenderMode::Occlusion:
       return EDITOR_RENDER_PASS_OCCLUSION;
 
-    case ezViewRenderMode::Depth:
+    case WViewRenderMode::Depth:
       return EDITOR_RENDER_PASS_DEPTH;
 
-    case ezViewRenderMode::StaticVsDynamic:
+    case WViewRenderMode::StaticVsDynamic:
       return EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC;
 
-    case ezViewRenderMode::BoneWeights:
+    case WViewRenderMode::BoneWeights:
       return EDITOR_RENDER_PASS_BONE_WEIGHTS;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       return -1;
   }
 }
 
 // static
-void ezViewRenderMode::GetDebugText(Enum renderMode, ezStringBuilder& out_sDebugText)
+void WViewRenderMode::GetDebugText(Enum renderMode, WStringBuilder& out_sDebugText)
 {
   if (renderMode == DiffuseColorRange)
   {
@@ -142,4 +142,4 @@ void ezViewRenderMode::GetDebugText(Enum renderMode, ezStringBuilder& out_sDebug
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ViewRenderMode);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ViewRenderMode);

@@ -2,32 +2,32 @@
 
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 
-struct ezMsgApplyRootMotion;
+struct WMsgApplyRootMotion;
 
 namespace JPH
 {
   class CharacterContactListener;
 }
 
-using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
+using WJoltDefaultCharacterComponentManager = WComponentManager<class WJoltDefaultCharacterComponent, WBlockStorageType::FreeList>;
 
-/// An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent
+/// An example character controller (CC) implementation build upon WJoltCharacterControllerComponent
 ///
 /// This component implements typical behavior for an FPS type of game.
 /// It is mainly meant as an example, as most games would rather implement their own CC to control the exact details.
 ///
 /// It is also possible to derive from this component and override some virtual functions to just tweak the behavior of this
 /// sample implementation, in case you only need minor tweaks.
-class EZ_JOLTPLUGIN_DLL ezJoltDefaultCharacterComponent : public ezJoltCharacterControllerComponent
+class W_JOLTPLUGIN_DLL WJoltDefaultCharacterComponent : public WJoltCharacterControllerComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, ezJoltCharacterControllerComponent, ezJoltDefaultCharacterComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltDefaultCharacterComponent, WJoltCharacterControllerComponent, WJoltDefaultCharacterComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -35,13 +35,13 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltCharacterControllerComponent
+  // WJoltCharacterControllerComponent
 
 public:
-  ezJoltDefaultCharacterComponent();
-  ~ezJoltDefaultCharacterComponent();
+  WJoltDefaultCharacterComponent();
+  ~WJoltDefaultCharacterComponent();
 
-  enum class GroundState : ezUInt8
+  enum class GroundState : WUInt8
   {
     OnGround, ///< Character is touching the ground
     Sliding,  ///< Character is touching a steep surface and therefore slides downwards
@@ -49,7 +49,7 @@ public:
   };
 
   /// How many degrees per second the character turns
-  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); // [ property ]
+  WAngle m_RotateSpeed = WAngle::MakeFromDegree(90.0f); // [ property ]
 
   /// The radius of the capsule shape
   float m_fShapeRadius = 0.25f;
@@ -82,10 +82,10 @@ public:
   float m_fJumpImpulse = 5.0f;
 
   /// The surface interaction to spawn regularly when walking.
-  ezHashedString m_sWalkSurfaceInteraction; // [ property ]
+  WHashedString m_sWalkSurfaceInteraction; // [ property ]
 
   /// The surface type to use for interactions, when no other surface type is available.
-  ezSurfaceResourceHandle m_hFallbackWalkSurface; // [ property ]
+  WSurfaceResourceHandle m_hFallbackWalkSurface; // [ property ]
 
   /// How far the CC has to walk for spawning another surface interaction
   float m_fWalkInteractionDistance = 1.0f; // [ property ]
@@ -96,8 +96,8 @@ public:
   void SetWalkSurfaceInteraction(const char* szName) { m_sWalkSurfaceInteraction.Assign(szName); } // [ property ]
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }    // [ property ]
 
-  void SetFallbackWalkSurfaceFile(ezStringView sFile);                                             // [ property ]
-  ezStringView GetFallbackWalkSurfaceFile() const;                                                 // [ property ]
+  void SetFallbackWalkSurfaceFile(WStringView sFile);                                             // [ property ]
+  WStringView GetFallbackWalkSurfaceFile() const;                                                 // [ property ]
 
   /// How fast to move while falling. The higher, the more "air control" the player has.
   float m_fAirSpeed = 2.5f; // [ property ]
@@ -109,7 +109,7 @@ public:
   void SetHeadObjectReference(const char* szReference); // [ property ]
 
   /// This message is used to steer the CC.
-  void SetInputState(ezMsgMoveCharacterController& ref_msg); // [ msg handler ]
+  void SetInputState(WMsgMoveCharacterController& ref_msg); // [ msg handler ]
 
   /// Returns the current height of the entire capsule (crouching or standing).
   float GetCurrentCapsuleHeight() const;
@@ -147,24 +147,24 @@ public:
   void RotateZ(float fAmount); // [ scriptable ]
 
   /// Instantly teleports the character to the target position. Doesn't change its rotation.
-  void TeleportCharacter(const ezVec3& vGlobalFootPosition);
+  void TeleportCharacter(const WVec3& vGlobalFootPosition);
 
   struct Config
   {
     bool m_bAllowJump = true;
     bool m_bAllowCrouch = true;
     bool m_bApplyGroundVelocity = true;
-    ezVec3 m_vVelocity = ezVec3::MakeZero();
+    WVec3 m_vVelocity = WVec3::MakeZero();
     float m_fPushDownForce = 0;
-    ezHashedString m_sGroundInteraction;
+    WHashedString m_sGroundInteraction;
     float m_fGroundInteractionDistanceThreshold = 1.0f;
     float m_fMaxStepUp = 0;
     float m_fMaxStepDown = 0;
   };
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
+  virtual void OnApplyRootMotion(WMsgApplyRootMotion& msg);
 
   virtual void DetermineConfig(Config& out_inputs);
 
@@ -192,31 +192,31 @@ protected:
 
   GroundState m_LastGroundState = GroundState::InAir;
 
-  ezUInt8 m_uiInputJumpBit : 1;
-  ezUInt8 m_uiInputCrouchBit : 1;
-  ezUInt8 m_uiInputRunBit : 1;
-  ezUInt8 m_uiIsCrouchingBit : 1;
-  ezAngle m_InputRotateZ;
-  ezVec2 m_vInputDirection = ezVec2::MakeZero();
+  WUInt8 m_uiInputJumpBit : 1;
+  WUInt8 m_uiInputCrouchBit : 1;
+  WUInt8 m_uiInputRunBit : 1;
+  WUInt8 m_uiIsCrouchingBit : 1;
+  WAngle m_InputRotateZ;
+  WVec2 m_vInputDirection = WVec2::MakeZero();
   float m_fVelocityUp = 0.0f;
   float m_fNextCylinderHeight = 0;
   float m_fAccumulatedWalkDistance = 0.0f;
-  ezVec2 m_vVelocityLateral = ezVec2::MakeZero();
-  ezTransform m_PreviousTransform;
+  WVec2 m_vVelocityLateral = WVec2::MakeZero();
+  WTransform m_PreviousTransform;
   bool m_bFeetOnSolidGround = false;
 
   float m_fCurrentCylinderHeight = 0;
 
   float m_fHeadHeightOffset = 0.0f;
   float m_fHeadTargetHeight = 0.0f;
-  ezGameObjectHandle m_hHeadObject;
+  WGameObjectHandle m_hHeadObject;
 
-  ezVec3 m_vAbsoluteRootMotion = ezVec3::MakeZero();
+  WVec3 m_vAbsoluteRootMotion = WVec3::MakeZero();
 
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
+  WUInt32 m_uiJoltBodyID = WInvalidIndex;
 
-  ezUniquePtr<JPH::CharacterContactListener> m_pContactListener;
+  WUniquePtr<JPH::CharacterContactListener> m_pContactListener;
 
 private:
   const char* DummyGetter() const { return nullptr; }

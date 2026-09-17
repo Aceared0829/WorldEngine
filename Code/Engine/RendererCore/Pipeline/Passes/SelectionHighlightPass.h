@@ -8,25 +8,25 @@
 ///
 /// Reads from the depth-stencil buffer to identify selected objects and renders
 /// a colored outline and optional overlay. Used in editors and tools to show selection state.
-class EZ_RENDERERCORE_DLL ezSelectionHighlightPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WSelectionHighlightPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectionHighlightPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WSelectionHighlightPass, WRenderPipelinePass);
 
 public:
-  ezSelectionHighlightPass(const char* szName = "SelectionHighlightPass");
-  ~ezSelectionHighlightPass();
+  WSelectionHighlightPass(const char* szName = "SelectionHighlightPass");
+  ~WSelectionHighlightPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodePassThroughPin m_PinColor;                            ///< Pass-through for color buffer with highlight rendered on top.
-  ezRenderPipelineNodeInputPin m_PinDepthStencil;                           ///< Depth-stencil input used to identify selected objects.
+  WRenderPipelineNodePassThroughPin m_PinColor;                            ///< Pass-through for color buffer with highlight rendered on top.
+  WRenderPipelineNodeInputPin m_PinDepthStencil;                           ///< Depth-stencil input used to identify selected objects.
 
-  ezShaderResourceHandle m_hShader;                                         ///< Shader for rendering the highlight effect.
-  ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for highlight parameters.
+  WShaderResourceHandle m_hShader;                                         ///< Shader for rendering the highlight effect.
+  WConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for highlight parameters.
 
-  ezColor m_HighlightColor = ezColorScheme::LightUI(ezColorScheme::Yellow); ///< Color of the highlight outline.
+  WColor m_HighlightColor = WColorScheme::LightUI(WColorScheme::Yellow); ///< Color of the highlight outline.
   float m_fOverlayOpacity = 0.1f;                                           ///< Opacity of the overlay drawn over selected objects.
 };

@@ -1,6 +1,6 @@
 # Skeletal Animation System Overview
 
-The skeletal animation system in ezEngine provides a complete solution for animating characters and objects with skeletal meshes.
+The skeletal animation system in WorldEngine provides a complete solution for animating characters and objects with skeletal meshes.
 It is built on the excellent [Ozz Animation library](https://github.com/guillaumeblanc/ozz-animation) and provides a layered architecture that separates data, pose generation, and animation logic.
 
 This system supports:
@@ -24,8 +24,8 @@ The skeletal animation system is organized into **four main layers**:
 │                   AnimGraph Layer                       │
 │  (High-level animation logic, blending, state machines) │
 │                                                          │
-│  ezAnimController, ezAnimGraph, ezAnimGraphInstance     │
-│  ezAnimGraphNode subclasses (SampleClip, Blend, etc.)   │
+│  WAnimController, WAnimGraph, WAnimGraphInstance     │
+│  WAnimGraphNode subclasses (SampleClip, Blend, etc.)   │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
@@ -33,7 +33,7 @@ The skeletal animation system is organized into **four main layers**:
 │              Pose Generation Layer                      │
 │    (Command-based DAG for efficient pose computation)   │
 │                                                          │
-│  ezAnimPoseGenerator (commands: Sample, Combine, IK)    │
+│  WAnimPoseGenerator (commands: Sample, Combine, IK)    │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
@@ -41,8 +41,8 @@ The skeletal animation system is organized into **four main layers**:
 │                 Resource Layer                          │
 │          (Skeleton structure and animation data)        │
 │                                                          │
-│  ezSkeleton, ezSkeletonResource                         │
-│  ezAnimationClipResource, ezAnimationPose               │
+│  WSkeleton, WSkeletonResource                         │
+│  WAnimationClipResource, WAnimationPose               │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
@@ -50,8 +50,8 @@ The skeletal animation system is organized into **four main layers**:
 │                Rendering Layer                          │
 │              (GPU skinning and visualization)           │
 │                                                          │
-│  ezSkinnedMeshComponent, ezSkinningState                │
-│  ezSkinnedMeshRenderer                                  │
+│  WSkinnedMeshComponent, WSkinningState                │
+│  WSkinnedMeshRenderer                                  │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -62,25 +62,25 @@ The skeletal animation system is organized into **four main layers**:
 A typical animation frame flows through the system as follows:
 
 ```
-1. ezAnimController::Update() called
+1. WAnimController::Update() called
    │
-   ├─→ Update all ezAnimGraphInstance objects
+   ├─→ Update all WAnimGraphInstance objects
    │   │
-   │   └─→ Each ezAnimGraphNode::Step() is called
+   │   └─→ Each WAnimGraphNode::Step() is called
    │       ├─→ Sample animation clips (SampleAnimClipAnimNode)
    │       ├─→ Blend poses (LerpPosesAnimNode)
    │       ├─→ Switch between poses (SwitchPoseAnimNode)
    │       └─→ Output final result (PoseResultAnimNode)
    │
-   ├─→ Build command graph in ezAnimPoseGenerator
+   ├─→ Build command graph in WAnimPoseGenerator
    │   │
    │   └─→ AnimGraph nodes allocate commands:
-   │       ├─→ ezAnimPoseGeneratorCommandSampleTrack
-   │       ├─→ ezAnimPoseGeneratorCommandCombinePoses
-   │       ├─→ ezAnimPoseGeneratorCommandLocalToModelPose
-   │       └─→ ezAnimPoseGeneratorCommandAimIK / TwoBoneIK
+   │       ├─→ WAnimPoseGeneratorCommandSampleTrack
+   │       ├─→ WAnimPoseGeneratorCommandCombinePoses
+   │       ├─→ WAnimPoseGeneratorCommandLocalToModelPose
+   │       └─→ WAnimPoseGeneratorCommandAimIK / TwoBoneIK
    │
-   ├─→ ezAnimPoseGenerator::UpdatePose()
+   ├─→ WAnimPoseGenerator::UpdatePose()
    │   │
    │   └─→ Execute commands in dependency order
    │       ├─→ Sample animation clips from resources
@@ -90,11 +90,11 @@ A typical animation frame flows through the system as follows:
    │
    ├─→ Extract and accumulate root motion
    │
-   └─→ Final pose available as array of ezMat4 transforms
+   └─→ Final pose available as array of WMat4 transforms
        │
-       └─→ ezSkinningState uploads to GPU
+       └─→ WSkinningState uploads to GPU
            │
-           └─→ ezSkinnedMeshRenderer applies vertex skinning
+           └─→ WSkinnedMeshRenderer applies vertex skinning
 ```
 
 ---
@@ -127,7 +127,7 @@ A typical animation frame flows through the system as follows:
 - Transform relative to skeleton root
 - Used for IK and final rendering
 - Computed by concatenating local transforms down the hierarchy
-- Format: `ezMat4` (4x4 transformation matrix)
+- Format: `WMat4` (4x4 transformation matrix)
 
 **World Space**
 - Transform in world coordinates
@@ -140,7 +140,7 @@ A typical animation frame flows through the system as follows:
 - A single animation sequence (walk, run, jump, etc.)
 - Contains keyframe data for joint transforms over time
 - Can be sampled at any time position
-- Stored in `ezAnimationClipResource`
+- Stored in `WAnimationClipResource`
 
 **Pose**
 - A snapshot of all joint transforms at a specific moment
@@ -154,23 +154,23 @@ A typical animation frame flows through the system as follows:
 
 ### Animation Graph
 
-**ezAnimGraph**
+**WAnimGraph**
 - Node-based graph definition (shared across instances)
 - Defines animation logic (sampling, blending, state machines)
 - Must call `PrepareForUse()` before creating instances
 
-**ezAnimGraphInstance**
+**WAnimGraphInstance**
 - Runtime instance of a graph for a specific entity
 - Holds per-instance state (playback times, blend weights)
 - Multiple instances can share one graph definition
 
-**ezAnimController**
+**WAnimController**
 - Top-level orchestrator for an animated entity
 - Owns AnimGraphInstance(s), pose generator, and clip mappings
 - Updates graphs and generates final pose each frame
 - Accumulates root motion
 
-**ezAnimGraphNode**
+**WAnimGraphNode**
 - Base class for all graph nodes
 - Implements `Step()` called each frame
 - Can have input/output pins of various types
@@ -207,12 +207,12 @@ A typical animation frame flows through the system as follows:
 
 1. Create a skeleton resource (imported from FBX/GLTF)
 2. Create animation clip resources (imported from same file)
-3. Create an `ezAnimController`
-4. Add a simple `ezAnimGraph` with:
+3. Create an `WAnimController`
+4. Add a simple `WAnimGraph` with:
    - `SampleAnimClipAnimNode` to play the clip
    - `PoseResultAnimNode` to output the final pose
-5. Call `ezAnimController::Update()` each frame
-6. Apply pose to `ezSkinnedMeshComponent`
+5. Call `WAnimController::Update()` each frame
+6. Apply pose to `WSkinnedMeshComponent`
 
 ### Blending Two Animations
 
@@ -231,15 +231,15 @@ Use `SampleBlendSpace2DAnimNode`:
 ### Root Motion Character Movement
 
 1. Set `m_fRootMotionAmount` on `SampleAnimClipAnimNode`
-2. Extract motion via `ezAnimController::GetRootMotion()`
+2. Extract motion via `WAnimController::GetRootMotion()`
 3. Apply translation and rotation to character controller
-4. Send `ezMsgApplyRootMotion` for automated handling
+4. Send `WMsgApplyRootMotion` for automated handling
 
 ### Inverse Kinematics (IK)
 
 1. Generate base pose (sample and blend animations)
 2. Convert to model space (`LocalToModelPose` command)
-3. Inject IK via `ezMsgInjectPoseCommands` message
+3. Inject IK via `WMsgInjectPoseCommands` message
 4. Add `AimIK` or `TwoBoneIK` commands to pose generator
 5. Final pose includes IK adjustments
 
@@ -250,7 +250,7 @@ Use bone weight masks to blend different animations on different body parts:
 - Lower body: Locomotion animation
 
 Steps:
-1. Create shared bone weights via `ezAnimController::CreateBoneWeights()`
+1. Create shared bone weights via `WAnimController::CreateBoneWeights()`
 2. Set weights for specific bones (0-1)
 3. Pass weights to `CombinePoses` command or `PoseResultAnimNode`
 
@@ -260,17 +260,17 @@ Steps:
 
 ### Scene Components
 
-**ezSkinnedMeshComponent**
+**WSkinnedMeshComponent**
 - Renders an animated skinned mesh
-- Receives pose updates via `ezMsgAnimationPoseUpdated`
-- Manages `ezSkinningState` for GPU upload
+- Receives pose updates via `WMsgAnimationPoseUpdated`
+- Manages `WSkinningState` for GPU upload
 
-**ezSkeletonComponent**
+**WSkeletonComponent**
 - Debug visualization of skeleton
 - Renders bones, joints, collision shapes
 - Can highlight specific bones
 
-**ezSkeletonPoseComponent**
+**WSkeletonPoseComponent**
 - Sets static poses on animated meshes
 - Options: rest pose, custom pose, disabled
 
@@ -280,35 +280,35 @@ Steps:
 
 Components communicate via messages during animation updates:
 
-**ezMsgAnimationPosePreparing**
+**WMsgAnimationPosePreparing**
 - Sent before converting local → model space
 - Transforms still in SoA format (ozz internal)
 - Allows per-bone modifications before final pose
 
-**ezMsgInjectPoseCommands**
+**WMsgInjectPoseCommands**
 - Sent during pose generation to inject additional commands
 - Used for inverse kinematics
 - Allows components to add IK commands to the pose generator
 
-**ezMsgAnimationPoseUpdated**
+**WMsgAnimationPoseUpdated**
 - Sent after pose computation (in model space)
-- Contains final bone transforms as `ezMat4[]`
+- Contains final bone transforms as `WMat4[]`
 - Skinned mesh components listen to this to update rendering
 
-**ezMsgApplyRootMotion**
+**WMsgApplyRootMotion**
 - Sent when root motion data is available
 - Contains translation and rotation for the frame
 - Character controllers listen to this for movement
 
-**ezMsgQueryAnimationSkeleton**
+**WMsgQueryAnimationSkeleton**
 - Query message to find skeleton resource
 - Animated mesh components respond with their skeleton handle
 
-**ezMsgRetrieveBoneState**
+**WMsgRetrieveBoneState**
 - Query current bone transforms (from ragdoll, etc.)
 - Used when external system controls the pose
 
-**ezMsgRopePoseUpdated**
+**WMsgRopePoseUpdated**
 - Specialized message for rope simulation
 - Similar to animation pose but for rope segments
 
@@ -316,22 +316,22 @@ Components communicate via messages during animation updates:
 
 ## Resource Types
 
-**ezSkeletonResource**
+**WSkeletonResource**
 - Runtime skeleton data
 - Contains joint hierarchy, rest pose, collision geometry
-- Wraps `ezSkeleton` (which wraps `ozz::animation::Skeleton`)
+- Wraps `WSkeleton` (which wraps `ozz::animation::Skeleton`)
 
-**ezEditableSkeleton**
+**WEditableSkeleton**
 - Editor-friendly representation with full metadata
 - Used during import and editing
 - Converted to runtime format for game use
 
-**ezAnimationClipResource**
+**WAnimationClipResource**
 - Runtime animation clip data
 - Contains keyframe data compiled into ozz format
 - Supports animation events, additive animations, root motion
 
-**ezAnimGraphResource**
+**WAnimGraphResource**
 - Serialized animation graph
 - Contains node definitions and connections
 - Includes animation clip name mappings
@@ -345,7 +345,7 @@ Components communicate via messages during animation updates:
 The system uses `ozz::math::SoaTransform` (Structure of Arrays):
 - Stores 4 bone transforms in SIMD registers
 - Much faster to blend than Array of Structures
-- Conversion to `ezMat4[]` only happens once per frame
+- Conversion to `WMat4[]` only happens once per frame
 
 ### Command DAG Efficiency
 
@@ -355,7 +355,7 @@ Commands are only executed if reachable from final command:
 
 ### Caching
 
-`ezAnimPoseGenerator` caches `ozz::animation::SamplingJob::Context`:
+`WAnimPoseGenerator` caches `ozz::animation::SamplingJob::Context`:
 - Reused across frames for the same animation clips
 - Speeds up sampling significantly
 

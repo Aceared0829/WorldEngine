@@ -4,38 +4,38 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/Resource.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALResource<ezGALTextureCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALTexture : public WGALResource<WGALTextureCreationDescription>
 {
 public:
-  ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
-  /// Replaced EZ_GAL_ALL_MIP_LEVELS and EZ_GAL_ALL_ARRAY_SLICES with the correct upper bounds for this texture.
-  ezGALTextureRange ClampRange(ezGALTextureRange range) const;
+  WVec3U32 GetMipMapSize(WUInt32 uiMipLevel) const;
+  /// Replaced W_GAL_ALL_MIP_LEVELS and W_GAL_ALL_ARRAY_SLICES with the correct upper bounds for this texture.
+  WGALTextureRange ClampRange(WGALTextureRange range) const;
 
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  ezGALTexture(const ezGALTextureCreationDescription& Description);
-  virtual ~ezGALTexture();
+  WGALTexture(const WGALTextureCreationDescription& Description);
+  virtual ~WGALTexture();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
 protected:
-  ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;
-  ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
+  WGALRenderTargetViewHandle m_hDefaultRenderTargetView;
+  WHashTable<WUInt32, WGALRenderTargetViewHandle> m_RenderTargetViews;
 };
 
-/// Optional interface for ezGALTexture if it was created via ezGALDevice::CreateSharedTexture.
-/// A ezGALTexture can be a shared texture, but doesn't have to be. Access through ezGALDevice::GetSharedTexture.
-class EZ_RENDERERFOUNDATION_DLL ezGALSharedTexture
+/// Optional interface for WGALTexture if it was created via WGALDevice::CreateSharedTexture.
+/// A WGALTexture can be a shared texture, but doesn't have to be. Access through WGALDevice::GetSharedTexture.
+class W_RENDERERFOUNDATION_DLL WGALSharedTexture
 {
 public:
-  /// Returns the handle that can be used to open this texture on another device / process. Call  ezGALDevice::OpenSharedTexture to do so.
-  virtual ezGALPlatformSharedHandle GetSharedHandle() const = 0;
+  /// Returns the handle that can be used to open this texture on another device / process. Call  WGALDevice::OpenSharedTexture to do so.
+  virtual WGALPlatformSharedHandle GetSharedHandle() const = 0;
   /// Before the current render pipeline is executed, the GPU will wait for the semaphore to have the given value.
   /// \param iValue Value the semaphore needs to have before the texture can be used.
-  virtual void WaitSemaphoreGPU(ezUInt64 uiValue) const = 0;
+  virtual void WaitSemaphoreGPU(WUInt64 uiValue) const = 0;
   /// Once the current render pipeline is done on the GPU, the semaphore will be signaled with the given value.
   /// \param iValue Value the semaphore is set to once we are done using the texture (after the current render pipeline).
-  virtual void SignalSemaphoreGPU(ezUInt64 uiValue) const = 0;
+  virtual void SignalSemaphoreGPU(WUInt64 uiValue) const = 0;
 };

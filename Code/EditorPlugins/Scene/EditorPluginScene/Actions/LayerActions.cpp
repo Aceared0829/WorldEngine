@@ -9,59 +9,59 @@
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLayerAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezLayerActions::s_hLayerCategory;
-ezActionDescriptorHandle ezLayerActions::s_hCreateLayer;
-ezActionDescriptorHandle ezLayerActions::s_hDeleteLayer;
-ezActionDescriptorHandle ezLayerActions::s_hSaveLayer;
-ezActionDescriptorHandle ezLayerActions::s_hSaveActiveLayer;
-ezActionDescriptorHandle ezLayerActions::s_hLayerLoaded;
-ezActionDescriptorHandle ezLayerActions::s_hLayerVisible;
-ezActionDescriptorHandle ezLayerActions::s_hSwitchOnSelection;
+WActionDescriptorHandle WLayerActions::s_hLayerCategory;
+WActionDescriptorHandle WLayerActions::s_hCreateLayer;
+WActionDescriptorHandle WLayerActions::s_hDeleteLayer;
+WActionDescriptorHandle WLayerActions::s_hSaveLayer;
+WActionDescriptorHandle WLayerActions::s_hSaveActiveLayer;
+WActionDescriptorHandle WLayerActions::s_hLayerLoaded;
+WActionDescriptorHandle WLayerActions::s_hLayerVisible;
+WActionDescriptorHandle WLayerActions::s_hSwitchOnSelection;
 
-void ezLayerActions::RegisterActions()
+void WLayerActions::RegisterActions()
 {
-  s_hLayerCategory = EZ_REGISTER_CATEGORY("LayerCategory");
+  s_hLayerCategory = W_REGISTER_CATEGORY("LayerCategory");
 
-  s_hCreateLayer = EZ_REGISTER_ACTION_1("Layer.CreateLayer", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::CreateLayer);
-  s_hDeleteLayer = EZ_REGISTER_ACTION_1("Layer.DeleteLayer", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::DeleteLayer);
-  s_hSaveLayer = EZ_REGISTER_ACTION_1("Layer.SaveLayer", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::SaveLayer);
-  s_hSaveActiveLayer = EZ_REGISTER_ACTION_1("Layer.SaveActiveLayer", ezActionScope::Document, "Scene - Layer", "Ctrl+S",
-    ezLayerAction, ezLayerAction::ActionType::SaveActiveLayer);
-  s_hLayerLoaded = EZ_REGISTER_ACTION_1("Layer.LayerLoaded", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::LayerLoaded);
-  s_hLayerVisible = EZ_REGISTER_ACTION_1("Layer.LayerVisible", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::LayerVisible);
-  s_hSwitchOnSelection = EZ_REGISTER_ACTION_1("Layer.SwitchOnSelection", ezActionScope::Document, "Scene - Layer", "",
-    ezLayerAction, ezLayerAction::ActionType::SwitchOnSelection);
+  s_hCreateLayer = W_REGISTER_ACTION_1("Layer.CreateLayer", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::CreateLayer);
+  s_hDeleteLayer = W_REGISTER_ACTION_1("Layer.DeleteLayer", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::DeleteLayer);
+  s_hSaveLayer = W_REGISTER_ACTION_1("Layer.SaveLayer", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::SaveLayer);
+  s_hSaveActiveLayer = W_REGISTER_ACTION_1("Layer.SaveActiveLayer", WActionScope::Document, "Scene - Layer", "Ctrl+S",
+    WLayerAction, WLayerAction::ActionType::SaveActiveLayer);
+  s_hLayerLoaded = W_REGISTER_ACTION_1("Layer.LayerLoaded", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::LayerLoaded);
+  s_hLayerVisible = W_REGISTER_ACTION_1("Layer.LayerVisible", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::LayerVisible);
+  s_hSwitchOnSelection = W_REGISTER_ACTION_1("Layer.SwitchOnSelection", WActionScope::Document, "Scene - Layer", "",
+    WLayerAction, WLayerAction::ActionType::SwitchOnSelection);
 }
 
-void ezLayerActions::UnregisterActions()
+void WLayerActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hLayerCategory);
-  ezActionManager::UnregisterAction(s_hCreateLayer);
-  ezActionManager::UnregisterAction(s_hDeleteLayer);
-  ezActionManager::UnregisterAction(s_hSaveLayer);
-  ezActionManager::UnregisterAction(s_hSaveActiveLayer);
-  ezActionManager::UnregisterAction(s_hLayerLoaded);
-  ezActionManager::UnregisterAction(s_hLayerVisible);
-  ezActionManager::UnregisterAction(s_hSwitchOnSelection);
+  WActionManager::UnregisterAction(s_hLayerCategory);
+  WActionManager::UnregisterAction(s_hCreateLayer);
+  WActionManager::UnregisterAction(s_hDeleteLayer);
+  WActionManager::UnregisterAction(s_hSaveLayer);
+  WActionManager::UnregisterAction(s_hSaveActiveLayer);
+  WActionManager::UnregisterAction(s_hLayerLoaded);
+  WActionManager::UnregisterAction(s_hLayerVisible);
+  WActionManager::UnregisterAction(s_hSwitchOnSelection);
 }
 
-void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
+void WLayerActions::MapContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hLayerCategory, "", 0.0f);
 
-  const ezStringView sSubPath = "LayerCategory";
+  const WStringView sSubPath = "LayerCategory";
   pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
   pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveLayer, sSubPath, 3.0f);
@@ -69,24 +69,24 @@ void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
   pMap->MapAction(s_hLayerVisible, sSubPath, 5.0f);
 }
 
-void ezLayerActions::MapToolbarActions(ezStringView sMapping)
+void WLayerActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hLayerCategory, "", 0.0f);
 
-  const ezStringView sSubPath = "LayerCategory";
+  const WStringView sSubPath = "LayerCategory";
   pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
   pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
   pMap->MapAction(s_hSwitchOnSelection, sSubPath, 3.0f);
 }
 
-ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName, ezLayerAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WLayerAction::WLayerAction(const WActionContext& context, const char* szName, WLayerAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  m_pSceneDocument = const_cast<ezScene2Document*>(static_cast<const ezScene2Document*>(context.m_pDocument));
+  m_pSceneDocument = const_cast<WScene2Document*>(static_cast<const WScene2Document*>(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -113,47 +113,47 @@ ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName,
   }
 
   UpdateEnableState();
-  m_pSceneDocument->m_LayerEvents.AddEventHandler(ezMakeDelegate(&ezLayerAction::LayerEventHandler, this));
+  m_pSceneDocument->m_LayerEvents.AddEventHandler(WMakeDelegate(&WLayerAction::LayerEventHandler, this));
   if (m_Type == ActionType::SaveActiveLayer)
   {
-    m_pSceneDocument->s_EventsAny.AddEventHandler(ezMakeDelegate(&ezLayerAction::DocumentEventHandler, this));
+    m_pSceneDocument->s_EventsAny.AddEventHandler(WMakeDelegate(&WLayerAction::DocumentEventHandler, this));
   }
 }
 
 
-ezLayerAction::~ezLayerAction()
+WLayerAction::~WLayerAction()
 {
-  m_pSceneDocument->m_LayerEvents.RemoveEventHandler(ezMakeDelegate(&ezLayerAction::LayerEventHandler, this));
+  m_pSceneDocument->m_LayerEvents.RemoveEventHandler(WMakeDelegate(&WLayerAction::LayerEventHandler, this));
   if (m_Type == ActionType::SaveActiveLayer)
   {
-    m_pSceneDocument->s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezLayerAction::DocumentEventHandler, this));
+    m_pSceneDocument->s_EventsAny.RemoveEventHandler(WMakeDelegate(&WLayerAction::DocumentEventHandler, this));
   }
 }
 
-void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid layerGuid)
+void WLayerAction::ToggleLayerLoaded(WScene2Document* pSceneDocument, WUuid layerGuid)
 {
   bool bLoad = !pSceneDocument->IsLayerLoaded(layerGuid);
   if (!bLoad)
   {
-    ezSceneDocument* pLayer = pSceneDocument->GetLayerDocument(layerGuid);
+    WSceneDocument* pLayer = pSceneDocument->GetLayerDocument(layerGuid);
     if (pLayer && pLayer->IsModified())
     {
-      ezStringBuilder sMsg;
-      ezStringBuilder sLayerName = "<Unknown>";
+      WStringBuilder sMsg;
+      WStringBuilder sLayerName = "<Unknown>";
       {
-        const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
+        const WAssetCurator::WLockedSubAsset subAsset = WAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
         if (subAsset.isValid())
         {
           sLayerName = subAsset->GetName();
         }
       }
       sMsg.SetFormat("The layer '{}' has been modified.\nSave before unloading?", sLayerName);
-      QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion(sMsg, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes);
+      QMessageBox::StandardButton res = WQtUiServices::MessageBoxQuestion(sMsg, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes);
       switch (res)
       {
         case QMessageBox::Yes:
         {
-          ezStatus saveRes = pLayer->SaveDocument();
+          WStatus saveRes = pLayer->SaveDocument();
           if (saveRes.Failed())
           {
             saveRes.LogFailure();
@@ -179,31 +179,31 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
   }
 }
 
-void ezLayerAction::Execute(const ezVariant& value)
+void WLayerAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
     case ActionType::CreateLayer:
     {
-      ezUuid layerGuid;
+      WUuid layerGuid;
       QString name = QInputDialog::getText(GetContext().m_pWindow, "Add Layer", "Layer Name:");
       name = name.trimmed();
       if (name.isEmpty())
         return;
-      ezStatus res = m_pSceneDocument->CreateLayer(name.toUtf8().data(), layerGuid);
+      WStatus res = m_pSceneDocument->CreateLayer(name.toUtf8().data(), layerGuid);
       res.LogFailure();
       return;
     }
     case ActionType::DeleteLayer:
     {
-      ezUuid layerGuid = GetCurrentSelectedLayer();
+      WUuid layerGuid = GetCurrentSelectedLayer();
       m_pSceneDocument->DeleteLayer(layerGuid).LogFailure();
       return;
     }
     case ActionType::SaveLayer:
     {
-      ezUuid layerGuid = GetCurrentSelectedLayer();
-      if (ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid))
+      WUuid layerGuid = GetCurrentSelectedLayer();
+      if (WSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid))
       {
         pLayer->SaveDocument().LogFailure();
       }
@@ -211,8 +211,8 @@ void ezLayerAction::Execute(const ezVariant& value)
     }
     case ActionType::SaveActiveLayer:
     {
-      ezUuid layerGuid = m_pSceneDocument->GetActiveLayer();
-      if (ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid))
+      WUuid layerGuid = m_pSceneDocument->GetActiveLayer();
+      if (WSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid))
       {
         pLayer->SaveDocument().LogFailure();
       }
@@ -220,13 +220,13 @@ void ezLayerAction::Execute(const ezVariant& value)
     }
     case ActionType::LayerLoaded:
     {
-      ezUuid layerGuid = GetCurrentSelectedLayer();
+      WUuid layerGuid = GetCurrentSelectedLayer();
       ToggleLayerLoaded(m_pSceneDocument, layerGuid);
       return;
     }
     case ActionType::LayerVisible:
     {
-      ezUuid layerGuid = GetCurrentSelectedLayer();
+      WUuid layerGuid = GetCurrentSelectedLayer();
       bool bVisible = !m_pSceneDocument->IsLayerVisible(layerGuid);
       m_pSceneDocument->SetLayerVisible(layerGuid, bVisible).LogFailure();
       return;
@@ -239,19 +239,19 @@ void ezLayerAction::Execute(const ezVariant& value)
   }
 }
 
-void ezLayerAction::LayerEventHandler(const ezScene2LayerEvent& e)
+void WLayerAction::LayerEventHandler(const WScene2LayerEvent& e)
 {
   UpdateEnableState();
 }
 
-void ezLayerAction::DocumentEventHandler(const ezDocumentEvent& e)
+void WLayerAction::DocumentEventHandler(const WDocumentEvent& e)
 {
   UpdateEnableState();
 }
 
-void ezLayerAction::UpdateEnableState()
+void WLayerAction::UpdateEnableState()
 {
-  ezUuid layerGuid = GetCurrentSelectedLayer();
+  WUuid layerGuid = GetCurrentSelectedLayer();
 
   switch (m_Type)
   {
@@ -276,13 +276,13 @@ void ezLayerAction::UpdateEnableState()
     }
     case ActionType::SaveLayer:
     {
-      ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid);
+      WSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(layerGuid);
       SetEnabled(pLayer && pLayer->IsModified());
       return;
     }
     case ActionType::SaveActiveLayer:
     {
-      ezSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(m_pSceneDocument->GetActiveLayer());
+      WSceneDocument* pLayer = m_pSceneDocument->GetLayerDocument(m_pSceneDocument->GetActiveLayer());
       SetEnabled(pLayer && pLayer->IsModified());
       return;
     }
@@ -301,16 +301,16 @@ void ezLayerAction::UpdateEnableState()
   }
 }
 
-ezUuid ezLayerAction::GetCurrentSelectedLayer() const
+WUuid WLayerAction::GetCurrentSelectedLayer() const
 {
-  ezSelectionManager* pSelection = m_pSceneDocument->GetLayerSelectionManager();
-  ezUuid layerGuid;
-  if (const ezDocumentObject* pObject = pSelection->GetCurrentObject())
+  WSelectionManager* pSelection = m_pSceneDocument->GetLayerSelectionManager();
+  WUuid layerGuid;
+  if (const WDocumentObject* pObject = pSelection->GetCurrentObject())
   {
-    ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
-    if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayer>()))
+    WObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
+    if (pObject->GetType()->IsDerivedFrom(WGetStaticRTTI<WSceneLayer>()))
     {
-      layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
+      layerGuid = pAccessor->GetByName<WUuid>(pObject, "Layer");
     }
   }
   return layerGuid;

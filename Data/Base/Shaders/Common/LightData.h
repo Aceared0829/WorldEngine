@@ -15,7 +15,7 @@
 #define LIGHT_TYPE_FILL_ADDITIVE 3
 #define LIGHT_TYPE_FILL_MODULATE_INDIRECT 4
 
-struct EZ_SHADER_STRUCT ezPerLightData
+struct W_SHADER_STRUCT WPerLightData
 {
   UINT1(colorAndType);
   FLOAT1(intensity);
@@ -31,41 +31,41 @@ struct EZ_SHADER_STRUCT ezPerLightData
   UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats
 };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerLightData> perLightDataBuffer;
+#if W_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<WPerLightData> perLightDataBuffer;
 
-  uint GetLightType(ezPerLightData data)
+  uint GetLightType(WPerLightData data)
   {
     return (data.colorAndType >> 24) & 0xFF;
   }
 
-  float3 GetLightColor(ezPerLightData data)
+  float3 GetLightColor(WPerLightData data)
   {
     return RGB8ToFloat3(data.colorAndType);
   }
 
-  float3 GetLightDirection(ezPerLightData data)
+  float3 GetLightDirection(WPerLightData data)
   {
     return normalize(RGB10ToFloat3(data.direction) * 2.0 - 1.0);
   }
 
-  float GetPointLightHalfLength(ezPerLightData data)
+  float GetPointLightHalfLength(WPerLightData data)
   {
     return RG16FToFloat2(data.auxParams).y;
   }
 
   // Returns .x = specular multiplier, .y = area-light source radius.
-  float2 GetSpecularMultiplierAndRadius(ezPerLightData data)
+  float2 GetSpecularMultiplierAndRadius(WPerLightData data)
   {
     return RG16FToFloat2(data.specularMultiplierAndRadius);
   }
 
-  float GetSpecularMultiplier(ezPerLightData data)
+  float GetSpecularMultiplier(WPerLightData data)
   {
     return GetSpecularMultiplierAndRadius(data).x;
   }
 
-  float GetLightRadius(ezPerLightData data)
+  float GetLightRadius(WPerLightData data)
   {
     return GetSpecularMultiplierAndRadius(data).y;
   }
@@ -73,28 +73,28 @@ struct EZ_SHADER_STRUCT ezPerLightData
   // For directional lights the 'radius' slot is reused to store sin(halfAngle) of the
   // emitter disc (angular size of the "sun disc"), since there is no meaningful metric
   // radius at infinite distance. A value of 0 means a point light source (hard specular).
-  float GetDirLightSinHalfAngle(ezPerLightData data)
+  float GetDirLightSinHalfAngle(WPerLightData data)
   {
     return GetSpecularMultiplierAndRadius(data).y;
   }
 
 #else
-  static_assert(sizeof(ezPerLightData) == 48);
+  static_assert(sizeof(WPerLightData) == 48);
 #endif
 
-struct EZ_SHADER_STRUCT ezPointShadowData
+struct W_SHADER_STRUCT WPointShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix)[6];
 };
 
-struct EZ_SHADER_STRUCT ezSpotShadowData
+struct W_SHADER_STRUCT WSpotShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix);
 };
 
-struct EZ_SHADER_STRUCT ezDirShadowData
+struct W_SHADER_STRUCT WDirShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = last cascade index
   MAT4(worldToLightMatrix);
@@ -113,7 +113,7 @@ struct EZ_SHADER_STRUCT ezDirShadowData
 #define GET_CASCADE_OFFSET_INDEX(baseOffset, index) ((baseOffset) + 8 + 2 * (index))
 #define GET_ATLAS_SCALE_OFFSET_INDEX(baseOffset, index) ((baseOffset) + 13 + (index))
 
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
@@ -124,7 +124,7 @@ struct EZ_SHADER_STRUCT ezDirShadowData
 #define DECAL_WRAP_AROUND (1 << 8)
 #define DECAL_MAP_NORMAL_TO_GEOMETRY (1 << 9)
 
-struct EZ_SHADER_STRUCT ezPerDecalData
+struct W_SHADER_STRUCT WPerDecalData
 {
   TRANSFORM(worldToDecalMatrix);
 
@@ -146,22 +146,22 @@ struct EZ_SHADER_STRUCT ezPerDecalData
   UINT1(ormAtlasOffset); // xy as 16 bit floats
 };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
+#if W_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<WPerDecalData> perDecalDataBuffer;
 #else // C++
-  static_assert(sizeof(ezPerDecalData) == 96);
+  static_assert(sizeof(WPerDecalData) == 96);
 #endif
 
-struct ezPerDecalAtlasData
+struct WPerDecalAtlasData
 {
   UINT1(scale);
   UINT1(offset);
 };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerDecalAtlasData> perDecalAtlasDataBuffer;
+#if W_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<WPerDecalAtlasData> perDecalAtlasDataBuffer;
 #else // C++
-  static_assert(sizeof(ezPerDecalAtlasData) == 8);
+  static_assert(sizeof(WPerDecalAtlasData) == 8);
 #endif
 
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)
@@ -169,7 +169,7 @@ struct ezPerDecalAtlasData
 #define REFLECTION_PROBE_INDEX_BITMASK 0x3FFFFFFF
 #define GET_REFLECTION_PROBE_INDEX(index) ((index) & REFLECTION_PROBE_INDEX_BITMASK)
 
-  struct EZ_SHADER_STRUCT ezPerReflectionProbeData
+  struct W_SHADER_STRUCT WPerReflectionProbeData
   {
     TRANSFORM(WorldToProbeProjectionMatrix);
     FLOAT4(Scale);
@@ -184,13 +184,13 @@ struct ezPerDecalAtlasData
     UINT1(Padding3);
   };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
+#if W_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<WPerReflectionProbeData> perPerReflectionProbeDataBuffer;
 #else // C++
-  static_assert(sizeof(ezPerReflectionProbeData) == 160);
+  static_assert(sizeof(WPerReflectionProbeData) == 160);
 #endif
 
-  CONSTANT_BUFFER(ezClusteredDataConstants, 3)
+  CONSTANT_BUFFER(WClusteredDataConstants, 3)
   {
     FLOAT1(DepthSliceScale);
     FLOAT1(DepthSliceBias);
@@ -227,24 +227,24 @@ struct ezPerDecalAtlasData
 #define GET_DECAL_INDEX(index) ((index >> DECAL_SHIFT) & DECAL_BITMASK)
 #define GET_PROBE_INDEX(index) ((index >> PROBE_SHIFT) & PROBE_BITMASK)
 
-struct ezPerClusterData
+struct WPerClusterData
 {
   UINT1(offset);
   UINT1(counts);
 };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
+#if W_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<WPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
 
-  ezPerLightData GetBrightestDirectionalLightData()
+  WPerLightData GetBrightestDirectionalLightData()
   {
     if (BrightestDirectionalLightIndex != 0xFFFFFFFF)
     {
       return perLightDataBuffer[BrightestDirectionalLightIndex];
     }
     
-    return (ezPerLightData)0;
+    return (WPerLightData)0;
   }
 #endif
 

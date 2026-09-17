@@ -1,25 +1,25 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Time/Timestamp.h>
 
 // Helper function to shift windows file time into Unix epoch (in microseconds).
-ezInt64 FileTimeToEpoch(FILETIME fileTime)
+WInt64 FileTimeToEpoch(FILETIME fileTime)
 {
   ULARGE_INTEGER currentTime;
   currentTime.LowPart = fileTime.dwLowDateTime;
   currentTime.HighPart = fileTime.dwHighDateTime;
 
-  ezInt64 iTemp = currentTime.QuadPart / 10;
+  WInt64 iTemp = currentTime.QuadPart / 10;
   iTemp -= 11644473600000000LL;
   return iTemp;
 }
 
 // Helper function to shift Unix epoch (in microseconds) into windows file time.
-FILETIME EpochToFileTime(ezInt64 iFileTime)
+FILETIME EpochToFileTime(WInt64 iFileTime)
 {
-  ezInt64 iTemp = iFileTime + 11644473600000000LL;
+  WInt64 iTemp = iFileTime + 11644473600000000LL;
   iTemp *= 10;
 
   FILETIME fileTime;
@@ -30,14 +30,14 @@ FILETIME EpochToFileTime(ezInt64 iFileTime)
   return fileTime;
 }
 
-const ezTimestamp ezTimestamp::CurrentTimestamp()
+const WTimestamp WTimestamp::CurrentTimestamp()
 {
   FILETIME fileTime;
   GetSystemTimeAsFileTime(&fileTime);
-  return ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+  return WTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), WSIUnitOfTime::Microsecond);
 }
 
-const ezTimestamp ezDateTime::GetTimestamp() const
+const WTimestamp WDateTime::GetTimestamp() const
 {
   SYSTEMTIME st;
   FILETIME fileTime;
@@ -51,31 +51,31 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   st.wSecond = m_uiSecond;
   st.wMilliseconds = (WORD)(m_uiMicroseconds / 1000);
   BOOL res = SystemTimeToFileTime(&st, &fileTime);
-  ezTimestamp timestamp;
+  WTimestamp timestamp;
   if (res != 0)
-    timestamp = ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+    timestamp = WTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), WSIUnitOfTime::Microsecond);
 
   return timestamp;
 }
 
-ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
+WResult WDateTime::SetFromTimestamp(WTimestamp timestamp)
 {
-  FILETIME fileTime = EpochToFileTime(timestamp.GetInt64(ezSIUnitOfTime::Microsecond));
+  FILETIME fileTime = EpochToFileTime(timestamp.GetInt64(WSIUnitOfTime::Microsecond));
 
   SYSTEMTIME st;
   BOOL res = FileTimeToSystemTime(&fileTime, &st);
   if (res == 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  m_iYear = (ezInt16)st.wYear;
-  m_uiMonth = (ezUInt8)st.wMonth;
-  m_uiDay = (ezUInt8)st.wDay;
-  m_uiDayOfWeek = (ezUInt8)st.wDayOfWeek;
-  m_uiHour = (ezUInt8)st.wHour;
-  m_uiMinute = (ezUInt8)st.wMinute;
-  m_uiSecond = (ezUInt8)st.wSecond;
-  m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
-  return EZ_SUCCESS;
+  m_iYear = (WInt16)st.wYear;
+  m_uiMonth = (WUInt8)st.wMonth;
+  m_uiDay = (WUInt8)st.wDay;
+  m_uiDayOfWeek = (WUInt8)st.wDayOfWeek;
+  m_uiHour = (WUInt8)st.wHour;
+  m_uiMinute = (WUInt8)st.wMinute;
+  m_uiSecond = (WUInt8)st.wSecond;
+  m_uiMicroseconds = WUInt32(st.wMilliseconds * 1000);
+  return W_SUCCESS;
 }
 
 #endif

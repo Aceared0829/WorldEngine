@@ -1,56 +1,56 @@
 
 ///
-/// Implements ezProcessGroup by using ezProcess
+/// Implements WProcessGroup by using WProcess
 ///
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/ProcessGroup.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
 
-struct ezProcessGroupImpl
+struct WProcessGroupImpl
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 };
 
-ezProcessGroup::ezProcessGroup(ezStringView sGroupName)
+WProcessGroup::WProcessGroup(WStringView sGroupName)
 {
 }
 
-ezProcessGroup::~ezProcessGroup()
+WProcessGroup::~WProcessGroup()
 {
   TerminateAll().IgnoreResult();
 }
 
-ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
+WResult WProcessGroup::Launch(const WProcessOptions& opt)
 {
-  ezProcess& process = m_Processes.ExpandAndGetRef();
+  WProcess& process = m_Processes.ExpandAndGetRef();
   return process.Launch(opt);
 }
 
-ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
+WResult WProcessGroup::WaitToFinish(WTime timeout /*= WTime::MakeZero()*/)
 {
   for (auto& process : m_Processes)
   {
-    if (process.GetState() != ezProcessState::Finished && process.WaitToFinish(timeout).Failed())
+    if (process.GetState() != WProcessState::Finished && process.WaitToFinish(timeout).Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
+WResult WProcessGroup::TerminateAll(WInt32 iForcedExitCode /*= -2*/)
 {
-  auto result = EZ_SUCCESS;
+  auto result = W_SUCCESS;
   for (auto& process : m_Processes)
   {
-    if (process.GetState() == ezProcessState::Running && process.Terminate().Failed())
+    if (process.GetState() == WProcessState::Running && process.Terminate().Failed())
     {
-      result = EZ_FAILURE;
+      result = W_FAILURE;
     }
   }
 

@@ -6,50 +6,50 @@
 namespace InputDetail
 {
 
-  static void SendInputSlotData(ezStringView sInputSlot)
+  static void SendInputSlotData(WStringView sInputSlot)
   {
     float fValue = 0.0f;
 
-    ezTelemetryMessage msg;
+    WTelemetryMessage msg;
     msg.SetMessageID('INPT', 'SLOT');
     msg.GetWriter() << sInputSlot;
-    msg.GetWriter() << ezInputManager::GetInputSlotFlags(sInputSlot).GetValue();
-    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputSlotState(sInputSlot, &fValue);
+    msg.GetWriter() << WInputManager::GetInputSlotFlags(sInputSlot).GetValue();
+    msg.GetWriter() << (WUInt8)WInputManager::GetInputSlotState(sInputSlot, &fValue);
     msg.GetWriter() << fValue;
-    msg.GetWriter() << ezInputManager::GetInputSlotDeadZone(sInputSlot);
+    msg.GetWriter() << WInputManager::GetInputSlotDeadZone(sInputSlot);
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, msg);
   }
 
-  static void SendInputActionData(ezStringView sInputSet, ezStringView sInputAction)
+  static void SendInputActionData(WStringView sInputSet, WStringView sInputAction)
   {
     float fValue = 0.0f;
 
-    const ezInputActionConfig cfg = ezInputManager::GetInputActionConfig(sInputSet, sInputAction);
+    const WInputActionConfig cfg = WInputManager::GetInputActionConfig(sInputSet, sInputAction);
 
-    ezTelemetryMessage msg;
+    WTelemetryMessage msg;
     msg.SetMessageID('INPT', 'ACTN');
     msg.GetWriter() << sInputSet;
     msg.GetWriter() << sInputAction;
-    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputActionState(sInputSet, sInputAction, &fValue);
+    msg.GetWriter() << (WUInt8)WInputManager::GetInputActionState(sInputSet, sInputAction, &fValue);
     msg.GetWriter() << fValue;
     msg.GetWriter() << cfg.m_bApplyTimeScaling;
 
-    for (ezUInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+    for (WUInt32 i = 0; i < WInputActionConfig::MaxInputSlotAlternatives; ++i)
     {
       msg.GetWriter() << cfg.m_sInputSlotTrigger[i];
       msg.GetWriter() << cfg.m_fInputSlotScale[i];
     }
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    WTelemetry::Broadcast(WTelemetry::Reliable, msg);
   }
 
   static void SendAllInputSlots()
   {
-    ezDynamicArray<ezStringView> InputSlots;
-    ezInputManager::RetrieveAllKnownInputSlots(InputSlots);
+    WDynamicArray<WStringView> InputSlots;
+    WInputManager::RetrieveAllKnownInputSlots(InputSlots);
 
-    for (ezUInt32 i = 0; i < InputSlots.GetCount(); ++i)
+    for (WUInt32 i = 0; i < InputSlots.GetCount(); ++i)
     {
       SendInputSlotData(InputSlots[i]);
     }
@@ -57,28 +57,28 @@ namespace InputDetail
 
   static void SendAllInputActions()
   {
-    ezDynamicArray<ezString> InputSetNames;
-    ezInputManager::GetAllInputSets(InputSetNames);
+    WDynamicArray<WString> InputSetNames;
+    WInputManager::GetAllInputSets(InputSetNames);
 
-    for (ezUInt32 s = 0; s < InputSetNames.GetCount(); ++s)
+    for (WUInt32 s = 0; s < InputSetNames.GetCount(); ++s)
     {
-      ezTempHybridArray<ezString, 24> InputActions;
+      WTempHybridArray<WString, 24> InputActions;
 
-      ezInputManager::GetAllInputActions(InputSetNames[s].GetData(), InputActions);
+      WInputManager::GetAllInputActions(InputSetNames[s].GetData(), InputActions);
 
-      for (ezUInt32 a = 0; a < InputActions.GetCount(); ++a)
+      for (WUInt32 a = 0; a < InputActions.GetCount(); ++a)
         SendInputActionData(InputSetNames[s].GetData(), InputActions[a].GetData());
     }
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllInputSlots();
         SendAllInputActions();
         break;
@@ -88,17 +88,17 @@ namespace InputDetail
     }
   }
 
-  static void InputManagerEventHandler(const ezInputManager::InputEventData& e)
+  static void InputManagerEventHandler(const WInputManager::InputEventData& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezInputManager::InputEventData::InputActionChanged:
+      case WInputManager::InputEventData::InputActionChanged:
         SendInputActionData(e.m_sInputSet, e.m_sInputAction);
         break;
-      case ezInputManager::InputEventData::InputSlotChanged:
+      case WInputManager::InputEventData::InputSlotChanged:
         SendInputSlotData(e.m_sInputSlot);
         break;
 
@@ -110,14 +110,14 @@ namespace InputDetail
 
 void AddInputEventHandler()
 {
-  ezTelemetry::AddEventHandler(InputDetail::TelemetryEventsHandler);
-  ezInputManager::AddEventHandler(InputDetail::InputManagerEventHandler);
+  WTelemetry::AddEventHandler(InputDetail::TelemetryEventsHandler);
+  WInputManager::AddEventHandler(InputDetail::InputManagerEventHandler);
 }
 
 void RemoveInputEventHandler()
 {
-  ezInputManager::RemoveEventHandler(InputDetail::InputManagerEventHandler);
-  ezTelemetry::RemoveEventHandler(InputDetail::TelemetryEventsHandler);
+  WInputManager::RemoveEventHandler(InputDetail::InputManagerEventHandler);
+  WTelemetry::RemoveEventHandler(InputDetail::TelemetryEventsHandler);
 }
 
 

@@ -3,7 +3,7 @@
 #include "StandardMacros.h"
 
 #ifndef PLATFORM_SHADER
-#  define PLATFORM_SHADER EZ_OFF
+#  define PLATFORM_SHADER W_OFF
 #endif
 
 #include "Platform_D3D.h"

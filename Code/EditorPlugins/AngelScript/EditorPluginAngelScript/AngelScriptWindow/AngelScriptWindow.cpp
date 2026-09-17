@@ -23,15 +23,15 @@ static QSet<QString> g_BuiltIn;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelScriptAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtAngelScriptAssetDocumentWindow::WQtAngelScriptAssetDocumentWindow(WAngelScriptAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   m_pAssetDoc = pDocument;
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "AngelScriptAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -40,8 +40,8 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "AngelScriptAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -67,11 +67,11 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
     auto stopWidth = 4 * fm.averageCharWidth();
     m_pSourceLabel->setTabStopDistance(ceil(stopWidth));
 
-    connect(m_pSourceLabel, &QTextEdit::textChanged, this, &ezQtAngelScriptAssetDocumentWindow::onTextEditTextChanged);
+    connect(m_pSourceLabel, &QTextEdit::textChanged, this, &WQtAngelScriptAssetDocumentWindow::onTextEditTextChanged);
 
     m_pHighlighter = new ASHighlighter(m_pSourceLabel->document());
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("AngelScriptView");
     pCentral->setWindowTitle("Script");
     pCentral->setWidget(m_pSourceLabel);
@@ -83,12 +83,12 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AngelScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("Angel Script Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -96,7 +96,7 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -106,27 +106,27 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_LastEdit = ezTime::MakeZero();
+  m_LastEdit = WTime::MakeZero();
   m_EditTimer.setInterval(100);
-  connect(&m_EditTimer, &QTimer::timeout, this, &ezQtAngelScriptAssetDocumentWindow::onEditTimer);
+  connect(&m_EditTimer, &QTimer::timeout, this, &WQtAngelScriptAssetDocumentWindow::onEditTimer);
 
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAngelScriptAssetDocumentWindow::AssetEventHandler, this));
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtAngelScriptAssetDocumentWindow::AssetEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler, this));
 
   FinishWindowCreation();
 
   RetrieveScriptInfos();
 }
 
-ezQtAngelScriptAssetDocumentWindow::~ezQtAngelScriptAssetDocumentWindow()
+WQtAngelScriptAssetDocumentWindow::~WQtAngelScriptAssetDocumentWindow()
 {
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler, this));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAngelScriptAssetDocumentWindow::AssetEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtAngelScriptAssetDocumentWindow::AssetEventHandler, this));
 }
 
-void ezQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler(const WDocumentObjectPropertyEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
+  if (e.m_EventType == WDocumentObjectPropertyEvent::Type::PropertySet)
   {
     if (!m_bIgnoreCodeChange && (e.m_sProperty == "Source" || e.m_sProperty == "Code"))
     {
@@ -135,20 +135,20 @@ void ezQtAngelScriptAssetDocumentWindow::DocumentObjectEventHandler(const ezDocu
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::StoreInlineDocState()
+void WQtAngelScriptAssetDocumentWindow::StoreInlineDocState()
 {
-  ezStringBuilder sContent = m_pSourceLabel->toPlainText().toUtf8().data();
+  WStringBuilder sContent = m_pSourceLabel->toPlainText().toUtf8().data();
   // sContent.ReplaceAll("\t", "    ");
 
-  if (m_pAssetDoc->GetProperties()->m_CodeMode == ezAngelScriptCodeMode::Inline && m_pAssetDoc->GetProperties()->m_sCode != sContent)
+  if (m_pAssetDoc->GetProperties()->m_CodeMode == WAngelScriptCodeMode::Inline && m_pAssetDoc->GetProperties()->m_sCode != sContent)
   {
     m_bIgnoreCodeChange = true;
-    EZ_SCOPE_EXIT(m_bIgnoreCodeChange = false);
+    W_SCOPE_EXIT(m_bIgnoreCodeChange = false);
 
-    ezObjectCommandAccessor accessor(m_pAssetDoc->GetCommandHistory());
+    WObjectCommandAccessor accessor(m_pAssetDoc->GetCommandHistory());
     accessor.StartTransaction("Edit Code");
 
-    const ezDocumentObject* pProps = m_pAssetDoc->GetPropertyObject();
+    const WDocumentObject* pProps = m_pAssetDoc->GetPropertyObject();
     if (pProps)
     {
       accessor.SetValueByName(pProps, "Code", sContent.GetView()).AssertSuccess();
@@ -158,26 +158,26 @@ void ezQtAngelScriptAssetDocumentWindow::StoreInlineDocState()
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::onTextEditTextChanged()
+void WQtAngelScriptAssetDocumentWindow::onTextEditTextChanged()
 {
-  if (m_pAssetDoc->GetProperties()->m_CodeMode == ezAngelScriptCodeMode::Inline)
+  if (m_pAssetDoc->GetProperties()->m_CodeMode == WAngelScriptCodeMode::Inline)
   {
     if (!m_EditTimer.isActive())
     {
       m_EditTimer.start();
     }
 
-    m_LastEdit = ezTime::Now();
+    m_LastEdit = WTime::Now();
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::onEditTimer()
+void WQtAngelScriptAssetDocumentWindow::onEditTimer()
 {
   if (m_LastEdit > m_LastSave)
   {
-    if (ezTime::Now() - m_LastSave > ezTime::Seconds(0.5))
+    if (WTime::Now() - m_LastSave > WTime::Seconds(0.5))
     {
-      m_LastSave = ezTime::Now();
+      m_LastSave = WTime::Now();
       StoreInlineDocState();
     }
   }
@@ -187,20 +187,20 @@ void ezQtAngelScriptAssetDocumentWindow::onEditTimer()
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::AssetEventHandler(const ezAssetCuratorEvent& e)
+void WQtAngelScriptAssetDocumentWindow::AssetEventHandler(const WAssetCuratorEvent& e)
 {
   if (e.m_AssetGuid == m_pAssetDoc->GetGuid())
   {
-    if (e.m_Type == ezAssetCuratorEvent::Type::AssetUpdated)
+    if (e.m_Type == WAssetCuratorEvent::Type::AssetUpdated)
     {
       UpdateFileContentDisplay();
     }
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::UpdateFileContentDisplay()
+void WQtAngelScriptAssetDocumentWindow::UpdateFileContentDisplay()
 {
-  if (m_pAssetDoc->GetProperties()->m_CodeMode == ezAngelScriptCodeMode::Inline)
+  if (m_pAssetDoc->GetProperties()->m_CodeMode == WAngelScriptCodeMode::Inline)
   {
     const auto& sCode = m_pAssetDoc->GetProperties()->m_sCode;
 
@@ -220,23 +220,23 @@ void ezQtAngelScriptAssetDocumentWindow::UpdateFileContentDisplay()
       return;
     }
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sFile).Failed())
     {
       m_pSourceLabel->setText(QString("Script file '%1' doesn't exist.").arg(sFile.GetData()));
       return;
     }
 
-    ezStringBuilder content;
+    WStringBuilder content;
     content.ReadAll(file);
 
     m_pSourceLabel->setText(content.GetData());
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg0)
+void WQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg0)
 {
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEditor*>(pMsg0))
   {
     if (pMsg->m_sWhatToDo == "SyncExposedParams_Clear")
     {
@@ -258,28 +258,28 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
 
     if (pMsg->m_sWhatToDo == "SyncExposedParams_Finish")
     {
-      ezCommandHistory* history = m_pAssetDoc->GetCommandHistory();
+      WCommandHistory* history = m_pAssetDoc->GetCommandHistory();
 
-      ezObjectCommandAccessor accessor(history);
+      WObjectCommandAccessor accessor(history);
 
       auto pProps = m_pAssetDoc->GetPropertyObject();
 
-      const ezInt32 uiNum = accessor.GetCountByName(pProps, "Parameters");
+      const WInt32 uiNum = accessor.GetCountByName(pProps, "Parameters");
 
       bool bAnyChange = (uiNum != m_ExposedParams.GetCount());
 
-      ezStringBuilder sDecl;
+      WStringBuilder sDecl;
 
-      for (ezInt32 ui = 0; ui < uiNum; ++ui)
+      for (WInt32 ui = 0; ui < uiNum; ++ui)
       {
-        const ezDocumentObject* pArgObj = accessor.GetChildObjectByName(pProps, "Parameters", ui);
+        const WDocumentObject* pArgObj = accessor.GetChildObjectByName(pProps, "Parameters", ui);
 
-        ezVariant name, expose, def;
+        WVariant name, expose, def;
         accessor.GetValueByName(pArgObj, "Name", name).AssertSuccess();
         accessor.GetValueByName(pArgObj, "Expose", expose).AssertSuccess();
         accessor.GetValueByName(pArgObj, "DefaultValue", def).AssertSuccess();
 
-        const ezString sName = name.ConvertTo<ezString>();
+        const WString sName = name.ConvertTo<WString>();
         bool bExpose = expose.ConvertTo<bool>();
         bool bFound = false;
 
@@ -314,14 +314,14 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
         accessor.ClearByName(pProps, "Parameters").AssertSuccess();
 
         // and fill it again
-        for (ezUInt32 clip = 0; clip < m_ExposedParams.GetCount(); ++clip)
+        for (WUInt32 clip = 0; clip < m_ExposedParams.GetCount(); ++clip)
         {
-          ezUuid newItemGuid = ezUuid::MakeUuid();
-          accessor.AddObjectByName(pProps, "Parameters", -1, ezGetStaticRTTI<ezAngelScriptParameter>(), newItemGuid).AssertSuccess();
+          WUuid newItemGuid = WUuid::MakeUuid();
+          accessor.AddObjectByName(pProps, "Parameters", -1, WGetStaticRTTI<WAngelScriptParameter>(), newItemGuid).AssertSuccess();
 
-          const ezDocumentObject* pNewItem = accessor.GetObject(newItemGuid);
+          const WDocumentObject* pNewItem = accessor.GetObject(newItemGuid);
 
-          sDecl.SetFormat("{} {} = {}", ezAngelScriptUtils::VariantTypeToString(m_ExposedParams[clip].m_DefaultValue.GetType()), m_ExposedParams[clip].m_sName, m_ExposedParams[clip].m_DefaultValue);
+          sDecl.SetFormat("{} {} = {}", WAngelScriptUtils::VariantTypeToString(m_ExposedParams[clip].m_DefaultValue.GetType()), m_ExposedParams[clip].m_sName, m_ExposedParams[clip].m_DefaultValue);
 
           accessor.SetValueByName(pNewItem, "Name", m_ExposedParams[clip].m_sName).AssertSuccess();
           accessor.SetValueByName(pNewItem, "Declaration", sDecl.GetData()).AssertSuccess();
@@ -332,10 +332,10 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
         // clear the entire array
         accessor.ClearByName(pProps, "Dependencies").AssertSuccess();
 
-        const ezAbstractProperty* pPropDeps = accessor.FindPropertyByName(pProps, "Dependencies");
+        const WAbstractProperty* pPropDeps = accessor.FindPropertyByName(pProps, "Dependencies");
 
         // and fill it again
-        for (ezUInt32 clip = 0; clip < m_Dependencies.GetCount(); ++clip)
+        for (WUInt32 clip = 0; clip < m_Dependencies.GetCount(); ++clip)
         {
           accessor.InsertValue(pProps, pPropDeps, m_Dependencies[clip], -1).AssertSuccess();
         }
@@ -346,42 +346,42 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
   }
 }
 
-static void ReadSet(ezStringView sBasePath, ezStringView sFile, QSet<QString>& inout_set)
+static void ReadSet(WStringView sBasePath, WStringView sFile, QSet<QString>& inout_set)
 {
-  const ezStringBuilder fullPath(sBasePath, "/", sFile);
+  const WStringBuilder fullPath(sBasePath, "/", sFile);
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(fullPath).Failed())
     return;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   tmp.ReadAll(file);
 
-  ezDynamicArray<ezStringView> lines;
+  WDynamicArray<WStringView> lines;
   tmp.Split(false, lines, "\n", "\r");
 
-  for (ezStringView line : lines)
+  for (WStringView line : lines)
   {
     line.Trim();
 
     if (!line.IsEmpty())
     {
-      inout_set.insert(ezMakeQString(line));
+      inout_set.insert(WMakeQString(line));
     }
   }
 }
 
-void ezQtAngelScriptAssetDocumentWindow::RetrieveScriptInfos()
+void WQtAngelScriptAssetDocumentWindow::RetrieveScriptInfos()
 {
   if (g_bRetrievedScriptInfos)
     return;
 
   g_bRetrievedScriptInfos = true;
 
-  ezStringBuilder sBasePath = ezToolsProject::GetSingleton()->GetProjectDataFolder();
+  WStringBuilder sBasePath = WToolsProject::GetSingleton()->GetProjectDataFolder();
   sBasePath.AppendPath("AngelScript");
 
-  ezDocumentConfigMsgToEngine msg;
+  WDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "RetrieveScriptInfos";
   msg.m_sValue = sBasePath;
   GetDocument()->SendMessageToEngine(&msg);
@@ -422,7 +422,7 @@ ASHighlighter::ASHighlighter(QTextDocument* pParent)
   g_KeywordsPink << "out";
   g_KeywordsPink << "inout";
   g_KeywordsPink << "is";
-  g_KeywordsPink << "ezAngelScriptClass";
+  g_KeywordsPink << "WAngelScriptClass";
 
   g_KeywordsBlue << "function";
   g_KeywordsBlue << "funcdef";

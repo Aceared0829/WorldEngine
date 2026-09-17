@@ -9,11 +9,11 @@
 /// Path states carry information about the current state of a pathfinding agent at a specific node.
 /// This includes costs accumulated so far and can be extended to include custom state like facing direction,
 /// remaining fuel, unlocked abilities, or any other data that affects movement possibilities.
-struct ezPathState
+struct WPathState
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezPathState()
+  WPathState()
   {
     m_iReachedThroughNode = 0;
     m_fCostToNode = 0.0f;
@@ -24,11 +24,11 @@ struct ezPathState
   ///
   /// Set automatically by the path searcher during the search process.
   /// Used to reconstruct the final path once the target is found.
-  ezInt64 m_iReachedThroughNode;
+  WInt64 m_iReachedThroughNode;
 
   /// The accumulated cost to reach this node from the start.
   ///
-  /// Must be updated by ezPathStateGenerator implementations by taking the cost
+  /// Must be updated by WPathStateGenerator implementations by taking the cost
   /// from the predecessor state and adding the movement cost to reach this node.
   /// Should always be non-negative and increase along the path.
   float m_fCostToNode;
@@ -43,7 +43,7 @@ struct ezPathState
 };
 
 template <typename PathStateType>
-class ezPathSearch;
+class WPathSearch;
 
 /// Base class for path state generators that define how pathfinding expands from one node to adjacent nodes.
 ///
@@ -55,9 +55,9 @@ class ezPathSearch;
 /// The 'state' that is then carried is the current orientation of the unit at that point along the path, which determines into which
 /// directions the path search can be expanded.
 ///
-/// PathStateType needs to be derived from ezPathState.
+/// PathStateType needs to be derived from WPathState.
 template <typename PathStateType>
-class ezPathStateGenerator
+class WPathStateGenerator
 {
 public:
   /// Generates all valid adjacent states from the current node and state.
@@ -80,17 +80,17 @@ public:
   ///   pPathSearch->AddPathNode(neighbor.index, newState);
   /// }
   /// ```
-  virtual void GenerateAdjacentStates(ezInt64 iCurrentNodeIndex, const PathStateType& currentState, ezPathSearch<PathStateType>* pPathSearch) = 0;
+  virtual void GenerateAdjacentStates(WInt64 iCurrentNodeIndex, const PathStateType& currentState, WPathSearch<PathStateType>* pPathSearch) = 0;
 
-  /// Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindClosest).
+  /// Automatically called by WPathSearch objects when a new path search is about to start (WPathSearch::FindClosest).
   /// Allows the generator to do some initial setup.
-  virtual void StartSearchForClosest(ezInt64 iStartNodeIndex, const PathStateType* pStartState) {}
+  virtual void StartSearchForClosest(WInt64 iStartNodeIndex, const PathStateType* pStartState) {}
 
-  /// Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindPath).
+  /// Automatically called by WPathSearch objects when a new path search is about to start (WPathSearch::FindPath).
   /// Allows the generator to do some initial setup.
-  virtual void StartSearch(ezInt64 iStartNodeIndex, const PathStateType* pStartState, ezInt64 iTargetNodeIndex) {}
+  virtual void StartSearch(WInt64 iStartNodeIndex, const PathStateType* pStartState, WInt64 iTargetNodeIndex) {}
 
-  /// Automatically called by ezPathSearch objects when a path search was finished.
+  /// Automatically called by WPathSearch objects when a path search was finished.
   /// Allows the generator to do some cleanup.
-  virtual void SearchFinished(ezResult res) {}
+  virtual void SearchFinished(WResult res) {}
 };

@@ -5,32 +5,32 @@
 #include <Foundation/Threading/AtomicUtils.h>
 
 template <int T>
-struct ezAtomicStorageType
+struct WAtomicStorageType
 {
 };
 
 template <>
-struct ezAtomicStorageType<1>
+struct WAtomicStorageType<1>
 {
-  using Type = ezInt32;
+  using Type = WInt32;
 };
 
 template <>
-struct ezAtomicStorageType<2>
+struct WAtomicStorageType<2>
 {
-  using Type = ezInt32;
+  using Type = WInt32;
 };
 
 template <>
-struct ezAtomicStorageType<4>
+struct WAtomicStorageType<4>
 {
-  using Type = ezInt32;
+  using Type = WInt32;
 };
 
 template <>
-struct ezAtomicStorageType<8>
+struct WAtomicStorageType<8>
 {
-  using Type = ezInt64;
+  using Type = WInt64;
 };
 
 /// Thread-safe atomic integer with lock-free operations
@@ -39,29 +39,29 @@ struct ezAtomicStorageType<8>
 /// All operations are lock-free and use hardware atomic instructions where available.
 /// Supports common atomic operations like increment, decrement, compare-and-swap, and bitwise operations.
 /// The class is templated to work with various integer types while ensuring proper atomic alignment.
-/// Use ezAtomicInteger32 or ezAtomicInteger64 typedefs for common cases.
+/// Use WAtomicInteger32 or WAtomicInteger64 typedefs for common cases.
 template <typename T>
-class ezAtomicInteger
+class WAtomicInteger
 {
-  using UnderlyingType = typename ezAtomicStorageType<sizeof(T)>::Type;
+  using UnderlyingType = typename WAtomicStorageType<sizeof(T)>::Type;
 
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Initializes the value to zero.
-  ezAtomicInteger(); // [tested]
+  WAtomicInteger(); // [tested]
 
   /// Initializes the object with a value
-  ezAtomicInteger(const T value); // [tested]
+  WAtomicInteger(const T value); // [tested]
 
   /// Copy-constructor
-  ezAtomicInteger(const ezAtomicInteger<T>& value); // [tested]
+  WAtomicInteger(const WAtomicInteger<T>& value); // [tested]
 
   /// Assigns a new integer value to this object
-  ezAtomicInteger& operator=(T value); // [tested]
+  WAtomicInteger& operator=(T value); // [tested]
 
   /// Assignment operator
-  ezAtomicInteger& operator=(const ezAtomicInteger& value); // [tested]
+  WAtomicInteger& operator=(const WAtomicInteger& value); // [tested]
 
   /// Increments the internal value and returns the incremented value
   T Increment(); // [tested]
@@ -108,18 +108,18 @@ private:
 };
 
 /// An atomic boolean variable. This is just a wrapper around an atomic int32 for convenience.
-class ezAtomicBool
+class WAtomicBool
 {
 public:
   /// Initializes the bool to 'false'.
-  ezAtomicBool(); // [tested]
-  ~ezAtomicBool();
+  WAtomicBool(); // [tested]
+  ~WAtomicBool();
 
   /// Initializes the object with a value
-  ezAtomicBool(bool value); // [tested]
+  WAtomicBool(bool value); // [tested]
 
   /// Copy-constructor
-  ezAtomicBool(const ezAtomicBool& rhs);
+  WAtomicBool(const WAtomicBool& rhs);
 
   /// Sets the bool to the given value and returns its previous value.
   bool Set(bool value); // [tested]
@@ -128,7 +128,7 @@ public:
   void operator=(bool value); // [tested]
 
   /// Sets the bool to the given value.
-  void operator=(const ezAtomicBool& rhs);
+  void operator=(const WAtomicBool& rhs);
 
   /// Returns the current value.
   operator bool() const; // [tested]
@@ -140,13 +140,13 @@ public:
   bool TestAndSet(bool bExpected, bool bNewValue);
 
 private:
-  ezAtomicInteger<ezInt32> m_iAtomicInt;
+  WAtomicInteger<WInt32> m_iAtomicInt;
 };
 
 // Include inline file
 #include <Foundation/Threading/Implementation/AtomicInteger_inl.h>
 
-using ezAtomicInteger32 = ezAtomicInteger<ezInt32>; // [tested]
-using ezAtomicInteger64 = ezAtomicInteger<ezInt64>; // [tested]
-static_assert(sizeof(ezAtomicInteger32) == sizeof(ezInt32));
-static_assert(sizeof(ezAtomicInteger64) == sizeof(ezInt64));
+using WAtomicInteger32 = WAtomicInteger<WInt32>; // [tested]
+using WAtomicInteger64 = WAtomicInteger<WInt64>; // [tested]
+static_assert(sizeof(WAtomicInteger32) == sizeof(WInt32));
+static_assert(sizeof(WAtomicInteger64) == sizeof(WInt64));

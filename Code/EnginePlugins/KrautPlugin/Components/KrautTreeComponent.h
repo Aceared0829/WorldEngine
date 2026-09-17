@@ -8,37 +8,37 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
-struct ezMsgExtractGeometry;
-struct ezMsgBuildStaticMesh;
-struct ezResourceEvent;
-class ezKrautRenderData;
-class ezAbstractObjectNode;
+struct WMsgExtractGeometry;
+struct WMsgBuildStaticMesh;
+struct WResourceEvent;
+class WKrautRenderData;
+class WAbstractObjectNode;
 
-using ezKrautTreeResourceHandle = ezTypedResourceHandle<class ezKrautTreeResource>;
-using ezKrautGeneratorResourceHandle = ezTypedResourceHandle<class ezKrautGeneratorResource>;
+using WKrautTreeResourceHandle = WTypedResourceHandle<class WKrautTreeResource>;
+using WKrautGeneratorResourceHandle = WTypedResourceHandle<class WKrautGeneratorResource>;
 
-/// Component manager for ezKrautTreeComponent.
+/// Component manager for WKrautTreeComponent.
 ///
 /// Drives per-frame LOD updates and wind simulation for all active tree components.
-class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponentManager : public ezComponentManager<class ezKrautTreeComponent, ezBlockStorageType::Compact>
+class W_KRAUTPLUGIN_DLL WKrautTreeComponentManager : public WComponentManager<class WKrautTreeComponent, WBlockStorageType::Compact>
 {
 public:
-  using SUPER = ezComponentManager<ezKrautTreeComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<WKrautTreeComponent, WBlockStorageType::Compact>;
 
-  ezKrautTreeComponentManager(ezWorld* pWorld)
+  WKrautTreeComponentManager(WWorld* pWorld)
     : SUPER(pWorld)
   {
   }
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void UpdateWind(const ezWorldModule::UpdateContext& context);
-  void EnqueueUpdate(ezComponentHandle hComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void UpdateWind(const WWorldModule::UpdateContext& context);
+  void EnqueueUpdate(WComponentHandle hComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  mutable ezMutex m_Mutex;
-  ezDeque<ezComponentHandle> m_RequireUpdate;
+  mutable WMutex m_Mutex;
+  WDeque<WComponentHandle> m_RequireUpdate;
 
 protected:
   virtual void Initialize() override;
@@ -47,7 +47,7 @@ protected:
 
 /// Instantiates a Kraut tree model.
 ///
-/// References an ezKrautGeneratorResource and selects a random seed to determine the tree's
+/// References an WKrautGeneratorResource and selects a random seed to determine the tree's
 /// visual variation. The component requests LOD meshes on demand via the generator resource
 /// and renders the tree using the appropriate LOD for the current camera distance.
 ///
@@ -58,41 +58,41 @@ protected:
 ///
 /// The local bounds are scaled by s_iLocalBoundsScale to give the renderer early visibility
 /// even when only a rough bounding box is available before full mesh generation.
-class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponent : public ezRenderComponent
+class W_KRAUTPLUGIN_DLL WKrautTreeComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezKrautTreeComponent, ezRenderComponent, ezKrautTreeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WKrautTreeComponent, WRenderComponent, WKrautTreeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg) override;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezKrautTreeComponent
+  // WKrautTreeComponent
 
 public:
-  ezKrautTreeComponent();
-  ~ezKrautTreeComponent();
+  WKrautTreeComponent();
+  ~WKrautTreeComponent();
 
-  // see ezKrautTreeComponent::GetLocalBounds for details
+  // see WKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
   /// Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const;
+  void OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const;
   /// Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
-  void OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const;
+  void OnBuildStaticMesh(WMsgBuildStaticMesh& ref_msg) const;
 
   /// Selects a variation from the generator resource's curated "good seeds" list.
   ///
@@ -102,48 +102,48 @@ public:
   /// VariationIndex and CustomRandomSeed are mutually exclusive.
   /// If neither is set, a random variation is used, using the owner object's stable random seed.
   /// This is the preferred method to place trees and get a good random set, but requires that a tree model has defined "good seeds".
-  void SetVariationIndex(ezUInt16 uiIndex); // [ property ]
-  ezUInt16 GetVariationIndex() const;       // [ property ]
+  void SetVariationIndex(WUInt16 uiIndex); // [ property ]
+  WUInt16 GetVariationIndex() const;       // [ property ]
 
   /// Overrides the seed used for tree generation with a fixed value.
   ///
   /// Trees with the same random seed look identical; different seeds produce different trees.
   /// Mutually exclusive with SetVariationIndex().
-  void SetCustomRandomSeed(ezUInt16 uiSeed); // [ property ]
-  ezUInt16 GetCustomRandomSeed() const;      // [ property ]
+  void SetCustomRandomSeed(WUInt16 uiSeed); // [ property ]
+  WUInt16 GetCustomRandomSeed() const;      // [ property ]
 
   /// Sets the Kraut resource that is used to generate the tree mesh.
-  void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);                          // [ property ]
-  const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; } // [ property ]
+  void SetKrautGeneratorResource(const WKrautGeneratorResourceHandle& hTree);                          // [ property ]
+  const WKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; } // [ property ]
 
   // Development options for the Kraut asset preview
-  ezInt8 m_iLodOverride = -1;             ///< When >= 0, forces a specific LOD index regardless of camera distance. -1 = automatic.
+  WInt8 m_iLodOverride = -1;             ///< When >= 0, forces a specific LOD index regardless of camera distance. -1 = automatic.
   bool m_bHideFrondsAndLeafs = false;     ///< When true, frond and leaf sub-meshes are skipped during rendering.
   bool m_bForceGenerateImmediate = false; ///< When true, LOD generation runs synchronously instead of via background tasks.
 
-  const ezKrautTreeResourceHandle& GetKrautTreeResource() const { return m_hKrautTree; }
+  const WKrautTreeResourceHandle& GetKrautTreeResource() const { return m_hKrautTree; }
 
 private:
   /// Currently this adds a cylinder mesh as a rough approximation of the tree trunk for collision.
-  ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
+  WResult CreateGeometry(WGeometry& geo, WWorldGeoExtractionUtil::ExtractionMode mode) const;
   void EnsureTreeIsGenerated();
 
-  ezUInt16 m_uiVariationIndex = 0xFFFF;
-  ezUInt16 m_uiCustomRandomSeed = 0xFFFF;
-  ezUInt32 m_uiCurrentSeed = 0;
+  WUInt16 m_uiVariationIndex = 0xFFFF;
+  WUInt16 m_uiCustomRandomSeed = 0xFFFF;
+  WUInt32 m_uiCurrentSeed = 0;
 
   /// The LOD index rendered in the most recent frame, or -1 if nothing has been rendered yet.
   /// Used by EnsureTreeIsGenerated() to delay switching to a regenerated tree until that LOD is ready,
   /// so the old tree continues to render without flickering.
-  mutable ezInt8 m_iLastRenderedLod = -1;
+  mutable WInt8 m_iLastRenderedLod = -1;
 
-  ezKrautTreeResourceHandle m_hKrautTree;
-  ezKrautGeneratorResourceHandle m_hKrautGenerator;
+  WKrautTreeResourceHandle m_hKrautTree;
+  WKrautGeneratorResourceHandle m_hKrautGenerator;
 
   void ComputeWind();
 
-  ezVec3 m_vWindSpringPos;
-  ezVec3 m_vWindSpringVel;
+  WVec3 m_vWindSpringPos;
+  WVec3 m_vWindSpringVel;
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

@@ -17,8 +17,8 @@ IndentPPDirectives: AfterHash
 NamespaceIndentation: All
 BreakConstructorInitializers: BeforeComma
 AlwaysBreakTemplateDeclarations: true
-MacroBlockBegin: "^EZ_BEGIN_.*|BEGIN_SUBSYSTEM_DEPENDENCIES$"
-MacroBlockEnd: "^EZ_END_.*|END_SUBSYSTEM_DEPENDENCIES$"
+MacroBlockBegin: "^W_BEGIN_.*|BEGIN_SUBSYSTEM_DEPENDENCIES$"
+MacroBlockEnd: "^W_END_.*|END_SUBSYSTEM_DEPENDENCIES$"
 FixNamespaceComments: true
 AlignEscapedNewlines: Left
 CompactNamespaces: true

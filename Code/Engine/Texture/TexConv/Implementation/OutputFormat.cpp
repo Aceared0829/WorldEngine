@@ -3,125 +3,125 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-static ezImageFormat::Enum DetermineOutputFormatPC(
-  ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
+static WImageFormat::Enum DetermineOutputFormatPC(
+  WTexConvUsage::Enum targetFormat, WTexConvCompressionMode::Enum compressionMode, WUInt32 uiNumChannels)
 {
-  if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted || targetFormat == ezTexConvUsage::BumpMap)
+  if (targetFormat == WTexConvUsage::NormalMap || targetFormat == WTexConvUsage::NormalMap_Inverted || targetFormat == WTexConvUsage::BumpMap)
   {
-    if (compressionMode >= ezTexConvCompressionMode::High)
-      return ezImageFormat::BC5_UNORM;
+    if (compressionMode >= WTexConvCompressionMode::High)
+      return WImageFormat::BC5_UNORM;
 
-    if (compressionMode >= ezTexConvCompressionMode::Medium)
-      return ezImageFormat::R8G8_UNORM;
+    if (compressionMode >= WTexConvCompressionMode::Medium)
+      return WImageFormat::R8G8_UNORM;
 
     // TODO: in the rare case that the input texture has higher precision, we could use R16G16_UNORM or R16G16_FLOAT here
     // R16G16_UNORM isn't supported on all platforms, so R16G16_FLOAT may be better
-    // return ezImageFormat::R16G16_FLOAT;
-    return ezImageFormat::R8G8_UNORM;
+    // return WImageFormat::R16G16_FLOAT;
+    return WImageFormat::R8G8_UNORM;
   }
 
-  if (targetFormat == ezTexConvUsage::Color)
+  if (targetFormat == WTexConvUsage::Color)
   {
-    if (compressionMode >= ezTexConvCompressionMode::High && uiNumChannels < 4)
-      return ezImageFormat::BC1_UNORM_SRGB;
+    if (compressionMode >= WTexConvCompressionMode::High && uiNumChannels < 4)
+      return WImageFormat::BC1_UNORM_SRGB;
 
-    if (compressionMode >= ezTexConvCompressionMode::Medium)
-      return ezImageFormat::BC7_UNORM_SRGB;
+    if (compressionMode >= WTexConvCompressionMode::Medium)
+      return WImageFormat::BC7_UNORM_SRGB;
 
-    return ezImageFormat::R8G8B8A8_UNORM_SRGB;
+    return WImageFormat::R8G8B8A8_UNORM_SRGB;
   }
 
-  if (targetFormat == ezTexConvUsage::Linear)
+  if (targetFormat == WTexConvUsage::Linear)
   {
     switch (uiNumChannels)
     {
       case 1:
-        if (compressionMode >= ezTexConvCompressionMode::Medium)
-          return ezImageFormat::BC4_UNORM;
+        if (compressionMode >= WTexConvCompressionMode::Medium)
+          return WImageFormat::BC4_UNORM;
 
-        return ezImageFormat::R8_UNORM;
+        return WImageFormat::R8_UNORM;
 
       case 2:
-        if (compressionMode >= ezTexConvCompressionMode::Medium)
-          return ezImageFormat::BC5_UNORM;
+        if (compressionMode >= WTexConvCompressionMode::Medium)
+          return WImageFormat::BC5_UNORM;
 
-        return ezImageFormat::R8G8_UNORM;
+        return WImageFormat::R8G8_UNORM;
 
       case 3:
-        if (compressionMode >= ezTexConvCompressionMode::High)
-          return ezImageFormat::BC1_UNORM;
+        if (compressionMode >= WTexConvCompressionMode::High)
+          return WImageFormat::BC1_UNORM;
 
-        if (compressionMode >= ezTexConvCompressionMode::Medium)
-          return ezImageFormat::BC7_UNORM;
+        if (compressionMode >= WTexConvCompressionMode::Medium)
+          return WImageFormat::BC7_UNORM;
 
-        return ezImageFormat::R8G8B8A8_UNORM;
+        return WImageFormat::R8G8B8A8_UNORM;
 
       case 4:
-        if (compressionMode >= ezTexConvCompressionMode::Medium)
-          return ezImageFormat::BC7_UNORM;
+        if (compressionMode >= WTexConvCompressionMode::Medium)
+          return WImageFormat::BC7_UNORM;
 
-        return ezImageFormat::R8G8B8A8_UNORM;
+        return WImageFormat::R8G8B8A8_UNORM;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  if (targetFormat == ezTexConvUsage::Hdr)
+  if (targetFormat == WTexConvUsage::Hdr)
   {
     switch (uiNumChannels)
     {
       case 1:
-        if (compressionMode >= ezTexConvCompressionMode::High)
-          return ezImageFormat::BC6H_UF16;
+        if (compressionMode >= WTexConvCompressionMode::High)
+          return WImageFormat::BC6H_UF16;
 
-        return ezImageFormat::R16_FLOAT;
+        return WImageFormat::R16_FLOAT;
 
       case 2:
-        return ezImageFormat::R16G16_FLOAT;
+        return WImageFormat::R16G16_FLOAT;
 
       case 3:
-        if (compressionMode >= ezTexConvCompressionMode::High)
-          return ezImageFormat::BC6H_UF16;
+        if (compressionMode >= WTexConvCompressionMode::High)
+          return WImageFormat::BC6H_UF16;
 
-        if (compressionMode >= ezTexConvCompressionMode::Medium)
-          return ezImageFormat::R11G11B10_FLOAT;
+        if (compressionMode >= WTexConvCompressionMode::Medium)
+          return WImageFormat::R11G11B10_FLOAT;
 
-        return ezImageFormat::R16G16B16A16_FLOAT;
+        return WImageFormat::R16G16B16A16_FLOAT;
 
       case 4:
-        return ezImageFormat::R16G16B16A16_FLOAT;
+        return WImageFormat::R16G16B16A16_FLOAT;
     }
   }
 
-  return ezImageFormat::UNKNOWN;
+  return WImageFormat::UNKNOWN;
 }
 
-ezResult ezTexConvProcessor::ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const
+WResult WTexConvProcessor::ChooseOutputFormat(WEnum<WImageFormat>& out_Format, WEnum<WTexConvUsage> usage, WUInt32 uiNumChannels) const
 {
-  EZ_PROFILE_SCOPE("ChooseOutputFormat");
+  W_PROFILE_SCOPE("ChooseOutputFormat");
 
-  EZ_ASSERT_DEV(out_Format == ezImageFormat::UNKNOWN, "Output format already set");
+  W_ASSERT_DEV(out_Format == WImageFormat::UNKNOWN, "Output format already set");
 
   switch (m_Descriptor.m_TargetPlatform)
   {
-      // case  ezTexConvTargetPlatform::Android:
+      // case  WTexConvTargetPlatform::Android:
       //  out_Format = DetermineOutputFormatAndroid(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
       //  break;
 
-    case ezTexConvTargetPlatform::PC:
+    case WTexConvTargetPlatform::PC:
       out_Format = DetermineOutputFormatPC(usage, m_Descriptor.m_CompressionMode, uiNumChannels);
       break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  if (out_Format == ezImageFormat::UNKNOWN)
+  if (out_Format == WImageFormat::UNKNOWN)
   {
-    ezLog::Error("Failed to decide for an output image format.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to decide for an output image format.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

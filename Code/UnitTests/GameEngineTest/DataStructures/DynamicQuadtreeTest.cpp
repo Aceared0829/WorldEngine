@@ -5,13 +5,13 @@
 
 namespace DynamicQuadtreeTestDetail
 {
-  static ezInt32 g_iSearchInstance = 0;
+  static WInt32 g_iSearchInstance = 0;
   static bool g_bFoundSearched = false;
-  static ezUInt32 g_iReturned = 0;
+  static WUInt32 g_iReturned = 0;
 
-  static bool ObjectFound(void* pPassThrough, ezDynamicTreeObjectConst object)
+  static bool ObjectFound(void* pPassThrough, WDynamicTreeObjectConst object)
   {
-    EZ_TEST_BOOL(pPassThrough == nullptr);
+    W_TEST_BOOL(pPassThrough == nullptr);
 
     ++g_iReturned;
 
@@ -23,33 +23,33 @@ namespace DynamicQuadtreeTestDetail
   }
 } // namespace DynamicQuadtreeTestDetail
 
-EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
+W_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateTree / GetBoundingBox")
+  W_TEST_BLOCK(WTestBlock::Enabled, "CreateTree / GetBoundingBox")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3(100, 200, 300), ezVec3(300, 400, 500), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3(100, 200, 300), WVec3(300, 400, 500), 1.0f);
 
-    const ezBoundingBox& bb = o.GetBoundingBox();
+    const WBoundingBox& bb = o.GetBoundingBox();
 
-    ezVec3 c = bb.GetCenter();
+    WVec3 c = bb.GetCenter();
     c.y = 200.0f;
 
-    EZ_TEST_VEC3(c, ezVec3(100, 200, 300), 0.01f);
+    W_TEST_VEC3(c, WVec3(100, 200, 300), 0.01f);
 
-    ezVec3 h = bb.GetHalfExtents();
+    WVec3 h = bb.GetHalfExtents();
     h.y = 500.0f;
-    EZ_TEST_VEC3(h, ezVec3(500), 0.01f);
+    W_TEST_VEC3(h, WVec3(500), 0.01f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert Inside / Outside")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Insert Inside / Outside")
   {
-    const ezVec3 c(100, 200, 300);
+    const WVec3 c(100, 200, 300);
     const float e = 50;
 
-    ezDynamicQuadtree o;
-    o.CreateTree(c, ezVec3(e), 1.0f);
-    ezInt32 iInstance = 0;
+    WDynamicQuadtree o;
+    o.CreateTree(c, WVec3(e), 1.0f);
+    WInt32 iInstance = 0;
 
     for (float z = -e - 99; z < e + 100; z += 10.0f)
     {
@@ -57,8 +57,8 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
       {
         const bool bInside = (z > -e) && (z < e) && (x > -e) && (x < e);
 
-        EZ_TEST_BOOL(o.InsertObject(c + ezVec3(x, 0, z), ezVec3(1.0f), 0, iInstance, nullptr, true) == (bInside ? EZ_SUCCESS : EZ_FAILURE));
-        EZ_TEST_BOOL(o.InsertObject(c + ezVec3(x, 0, z), ezVec3(1.0f), 0, iInstance, nullptr, false) == EZ_SUCCESS);
+        W_TEST_BOOL(o.InsertObject(c + WVec3(x, 0, z), WVec3(1.0f), 0, iInstance, nullptr, true) == (bInside ? W_SUCCESS : W_FAILURE));
+        W_TEST_BOOL(o.InsertObject(c + WVec3(x, 0, z), WVec3(1.0f), 0, iInstance, nullptr, false) == W_SUCCESS);
 
         ++iInstance;
       }
@@ -67,12 +67,12 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
 
   struct TestObject
   {
-    ezVec3 m_vPos;
-    ezVec3 m_vExtents;
-    ezDynamicTreeObject m_hObject;
+    WVec3 m_vPos;
+    WVec3 m_vExtents;
+    WDynamicTreeObject m_hObject;
   };
 
-  ezDeque<TestObject> Objects;
+  WDeque<TestObject> Objects;
 
   {
     TestObject to;
@@ -120,57 +120,57 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
     Objects.PushBack(to);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Point)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindObjectsInRange(Point)")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
       DynamicQuadtreeTestDetail::g_iSearchInstance = i;
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Radius)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindObjectsInRange(Radius)")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
       DynamicQuadtreeTestDetail::g_iSearchInstance = i;
 
@@ -179,154 +179,154 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       // point outside object
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + WVec3(2, 0, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - WVec3(0, 2, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(handle)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveObject(handle)")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
       DynamicQuadtreeTestDetail::g_iSearchInstance = i;
 
       o.RemoveObject(Objects[i].m_hObject);
 
       // one less in the tree
-      EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
+      W_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(index)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveObject(index)")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
       DynamicQuadtreeTestDetail::g_iSearchInstance = i;
 
       o.RemoveObject(i, i + 1);
 
       // one less in the tree
-      EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
+      W_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObjectsOfType")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveObjectsOfType")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
       DynamicQuadtreeTestDetail::g_iSearchInstance = i + 1;
 
       o.RemoveObjectsOfType(i);
 
       // one less in the tree
-      EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
+      W_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
       o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
-      EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
+      W_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == false);
     }
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, 0, i, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
     o.RemoveObjectsOfType(0);
 
-    EZ_TEST_BOOL(o.IsEmpty());
+    W_TEST_BOOL(o.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAllObjects")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveAllObjects")
   {
-    ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
+    WDynamicQuadtree o;
+    o.CreateTree(WVec3::MakeZero(), WVec3(100), 1.0f);
 
-    for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
+    for (WUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      EZ_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == EZ_SUCCESS);
+      W_TEST_BOOL(o.InsertObject(Objects[i].m_vPos, Objects[i].m_vExtents, i, i + 1, &Objects[i].m_hObject, false) == W_SUCCESS);
 
-      EZ_TEST_BOOL(o.IsEmpty() == false);
-      EZ_TEST_INT(o.GetCount(), i + 1);
+      W_TEST_BOOL(o.IsEmpty() == false);
+      W_TEST_INT(o.GetCount(), i + 1);
     }
 
     o.RemoveAllObjects();
-    EZ_TEST_BOOL(o.IsEmpty());
-    EZ_TEST_INT(o.GetCount(), 0);
+    W_TEST_BOOL(o.IsEmpty());
+    W_TEST_INT(o.GetCount(), 0);
   }
 }

@@ -2,34 +2,34 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-/// Base class for drag and drop handler that drop on a ezSceneLayer.
-class ezLayerDragDropHandler : public ezDragDropHandler
+/// Base class for drag and drop handler that drop on a WSceneLayer.
+class WLayerDragDropHandler : public WDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerDragDropHandler, ezDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WLayerDragDropHandler, WDragDropHandler);
 
 public:
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override {}
-  virtual void OnDragUpdate(const ezDragDropInfo* pInfo) override {}
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override {}
+  virtual void OnDragUpdate(const WDragDropInfo* pInfo) override {}
   virtual void OnDragCancel() override {}
 
 protected:
-  const ezRTTI* GetCommonBaseType(const ezDragDropInfo* pInfo) const;
+  const WRTTI* GetCommonBaseType(const WDragDropInfo* pInfo) const;
 };
 
-class ezLayerOnLayerDragDropHandler : public ezLayerDragDropHandler
+class WLayerOnLayerDragDropHandler : public WLayerDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerOnLayerDragDropHandler, ezLayerDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WLayerOnLayerDragDropHandler, WLayerDragDropHandler);
 
 public:
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
-  virtual void OnDrop(const ezDragDropInfo* pInfo) override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
+  virtual void OnDrop(const WDragDropInfo* pInfo) override;
 };
 
-class ezGameObjectOnLayerDragDropHandler : public ezLayerDragDropHandler
+class WGameObjectOnLayerDragDropHandler : public WLayerDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectOnLayerDragDropHandler, ezLayerDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectOnLayerDragDropHandler, WLayerDragDropHandler);
 
 public:
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
-  virtual void OnDrop(const ezDragDropInfo* pInfo) override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
+  virtual void OnDrop(const WDragDropInfo* pInfo) override;
 };

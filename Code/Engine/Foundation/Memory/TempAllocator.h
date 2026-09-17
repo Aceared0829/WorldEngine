@@ -5,22 +5,22 @@
 /// Stack-based allocator for temporary allocations.
 ///
 /// This allocator is designed for short-lived allocations that ideally follow a LIFO pattern but can also handle out-of-order deallocations.
-class EZ_FOUNDATION_DLL ezTempAllocator
+class W_FOUNDATION_DLL WTempAllocator
 {
 public:
-  EZ_ALWAYS_INLINE static ezAllocator* Get() { return s_pAllocator; }
+  W_ALWAYS_INLINE static WAllocator* Get() { return s_pAllocator; }
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TempAllocator);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TempAllocator);
 
   static void Startup();
   static void Shutdown();
 
-  static ezAllocator* s_pAllocator;
+  static WAllocator* s_pAllocator;
 };
 
 /// Wrapper for the allocator that is used for temporary allocations.
-struct ezTempAllocatorWrapper
+struct WTempAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return ezTempAllocator::Get(); }
+  W_ALWAYS_INLINE static WAllocator* GetAllocator() { return WTempAllocator::Get(); }
 };

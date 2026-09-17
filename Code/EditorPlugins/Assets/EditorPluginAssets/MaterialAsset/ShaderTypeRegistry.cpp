@@ -3,10 +3,10 @@
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
-EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);
+W_IMPLEMENT_SINGLETON(WShaderTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, ShaderTypeRegistry)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, ShaderTypeRegistry)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
   "ReflectedTypeManager"
@@ -14,13 +14,13 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORESYSTEMS_STARTUP
 {
-  EZ_DEFAULT_NEW(ezShaderTypeRegistry);
+  W_DEFAULT_NEW(WShaderTypeRegistry);
 }
 
 ON_CORESYSTEMS_SHUTDOWN
 {
-  ezShaderTypeRegistry* pDummy = ezShaderTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
+  WShaderTypeRegistry* pDummy = WShaderTypeRegistry::GetSingleton();
+  W_DEFAULT_DELETE(pDummy);
 }
 
 ON_HIGHLEVELSYSTEMS_STARTUP
@@ -31,19 +31,19 @@ ON_HIGHLEVELSYSTEMS_SHUTDOWN
 {
 }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 namespace
 {
   struct PermutationVarConfig
   {
-    ezVariant m_DefaultValue;
-    const ezRTTI* m_pType;
+    WVariant m_DefaultValue;
+    const WRTTI* m_pType;
   };
 
-  static ezHashTable<ezString, PermutationVarConfig> s_PermutationVarConfigs;
-  static ezHashTable<ezString, const ezRTTI*> s_EnumTypes;
+  static WHashTable<WString, PermutationVarConfig> s_PermutationVarConfigs;
+  static WHashTable<WString, const WRTTI*> s_EnumTypes;
 
   void ClearCachedTypes()
   {
@@ -51,9 +51,9 @@ namespace
     s_EnumTypes.Clear();
   }
 
-  const ezRTTI* GetPermutationType(const ezShaderParser::ParameterDefinition& def)
+  const WRTTI* GetPermutationType(const WShaderParser::ParameterDefinition& def)
   {
-    EZ_ASSERT_DEV(def.m_sType.IsEqual("Permutation"), "");
+    W_ASSERT_DEV(def.m_sType.IsEqual("Permutation"), "");
 
     PermutationVarConfig* pConfig = nullptr;
     if (s_PermutationVarConfigs.TryGetValue(def.m_sName, pConfig))
@@ -61,13 +61,13 @@ namespace
       return pConfig->m_pType;
     }
 
-    ezStringBuilder sTemp;
-    sTemp.SetFormat("Shaders/PermutationVars/{0}.ezPermVar", def.m_sName);
+    WStringBuilder sTemp;
+    sTemp.SetFormat("Shaders/PermutationVars/{0}.WPermVar", def.m_sName);
 
-    ezString sPath = sTemp;
-    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    WString sPath = sTemp;
+    WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sPath).Failed())
     {
       return nullptr;
@@ -75,10 +75,10 @@ namespace
 
     sTemp.ReadAll(file);
 
-    ezVariant defaultValue;
-    ezShaderParser::EnumDefinition enumDefinition;
+    WVariant defaultValue;
+    WShaderParser::EnumDefinition enumDefinition;
 
-    ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDefinition);
+    WShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDefinition);
     if (defaultValue.IsValid())
     {
       pConfig = &(s_PermutationVarConfigs[def.m_sName]);
@@ -86,33 +86,33 @@ namespace
 
       if (defaultValue.IsA<bool>())
       {
-        pConfig->m_pType = ezGetStaticRTTI<bool>();
+        pConfig->m_pType = WGetStaticRTTI<bool>();
       }
       else
       {
-        ezReflectedTypeDescriptor descEnum;
+        WReflectedTypeDescriptor descEnum;
         descEnum.m_sTypeName = def.m_sName;
         descEnum.m_sPluginName = "ShaderTypes";
-        descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
-        descEnum.m_Flags = ezTypeFlags::IsEnum;
+        descEnum.m_sParentTypeName = WGetStaticRTTI<WEnumBase>()->GetTypeName();
+        descEnum.m_Flags = WTypeFlags::IsEnum;
         descEnum.m_uiTypeVersion = 1;
 
-        ezArrayPtr<ezPropertyAttribute* const> noAttributes;
+        WArrayPtr<WPropertyAttribute* const> noAttributes;
 
-        ezStringBuilder sEnumName;
+        WStringBuilder sEnumName;
         sEnumName.SetFormat("{0}::Default", def.m_sName);
 
-        descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
+        descEnum.m_Properties.PushBack(WReflectedPropertyDescriptor(sEnumName, defaultValue.Get<WUInt32>(), noAttributes));
 
         for (const auto& ev : enumDefinition.m_Values)
         {
-          ezStringBuilder sEnumName;
+          WStringBuilder sEnumName;
           sEnumName.SetFormat("{0}::{1}", def.m_sName, ev.m_sValueName);
 
-          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
+          descEnum.m_Properties.PushBack(WReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
         }
 
-        pConfig->m_pType = ezPhantomRttiManager::RegisterType(descEnum);
+        pConfig->m_pType = WPhantomRttiManager::RegisterType(descEnum);
       }
 
       return pConfig->m_pType;
@@ -121,44 +121,44 @@ namespace
     return nullptr;
   }
 
-  const ezRTTI* GetEnumType(const ezShaderParser::EnumDefinition& def)
+  const WRTTI* GetEnumType(const WShaderParser::EnumDefinition& def)
   {
-    const ezRTTI* pType = nullptr;
+    const WRTTI* pType = nullptr;
     if (s_EnumTypes.TryGetValue(def.m_sName, pType))
     {
       return pType;
     }
 
-    ezReflectedTypeDescriptor descEnum;
+    WReflectedTypeDescriptor descEnum;
     descEnum.m_sTypeName = def.m_sName;
     descEnum.m_sPluginName = "ShaderTypes";
-    descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
-    descEnum.m_Flags = ezTypeFlags::IsEnum;
+    descEnum.m_sParentTypeName = WGetStaticRTTI<WEnumBase>()->GetTypeName();
+    descEnum.m_Flags = WTypeFlags::IsEnum;
     descEnum.m_uiTypeVersion = 1;
 
-    ezArrayPtr<ezPropertyAttribute* const> noAttributes;
+    WArrayPtr<WPropertyAttribute* const> noAttributes;
 
-    ezStringBuilder sEnumName;
+    WStringBuilder sEnumName;
     sEnumName.SetFormat("{0}::Default", def.m_sName);
 
-    descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, def.m_uiDefaultValue, noAttributes));
+    descEnum.m_Properties.PushBack(WReflectedPropertyDescriptor(sEnumName, def.m_uiDefaultValue, noAttributes));
 
     for (const auto& ev : def.m_Values)
     {
-      ezStringBuilder sEnumName;
+      WStringBuilder sEnumName;
       sEnumName.SetFormat("{0}::{1}", def.m_sName, ev.m_sValueName);
 
-      descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
+      descEnum.m_Properties.PushBack(WReflectedPropertyDescriptor(sEnumName, ev.m_iValueValue, noAttributes));
     }
 
-    pType = ezPhantomRttiManager::RegisterType(descEnum);
+    pType = WPhantomRttiManager::RegisterType(descEnum);
 
     s_EnumTypes.Insert(def.m_sName, pType);
 
     return pType;
   }
 
-  const ezRTTI* GetType(const ezShaderParser::ParameterDefinition& def)
+  const WRTTI* GetType(const WShaderParser::ParameterDefinition& def)
   {
     if (def.m_pType != nullptr)
     {
@@ -170,119 +170,119 @@ namespace
       return GetPermutationType(def);
     }
 
-    const ezRTTI* pType = nullptr;
+    const WRTTI* pType = nullptr;
     s_EnumTypes.TryGetValue(def.m_sType, pType);
 
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezDynamicArray<const ezPropertyAttribute*>& ref_attributes)
+  void AddAttributes(WShaderParser::ParameterDefinition& ref_def, const WRTTI* pType, WDynamicArray<const WPropertyAttribute*>& ref_attributes)
   {
     if (ref_def.m_sType.StartsWith_NoCase("texture"))
     {
       if (ref_def.m_sType.IsEqual("Texture2D"))
       {
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Texture 2D"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
       }
       else if (ref_def.m_sType.IsEqual("Texture2DArray"))
       {
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D Array"));
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Texture 2D Array"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
       }
       else if (ref_def.m_sType.IsEqual("Texture3D"))
       {
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_3D"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Texture 3D"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WAssetBrowserAttribute, "CompatibleAsset_Texture_3D"));
       }
       else if (ref_def.m_sType.IsEqual("TextureCube"))
       {
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_Cube"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Texture Cube"));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WAssetBrowserAttribute, "CompatibleAsset_Texture_Cube"));
       }
     }
     else if (ref_def.m_sType.StartsWith_NoCase("permutation"))
     {
-      ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Permutation"));
+      ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Permutation"));
     }
     else
     {
-      ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
+      ref_attributes.PushBack(W_DEFAULT_NEW(WCategoryAttribute, "Constant"));
     }
 
     for (auto& attributeDef : ref_def.m_Attributes)
     {
       if (attributeDef.m_sType.IsEqual("Default") && attributeDef.m_Values.GetCount() >= 1)
       {
-        if (pType == ezGetStaticRTTI<ezColor>())
+        if (pType == WGetStaticRTTI<WColor>())
         {
           // always expose the alpha channel for color properties
-          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
+          ref_attributes.PushBack(W_DEFAULT_NEW(WExposeColorAlphaAttribute));
 
           // patch default type, VSE writes float4 instead of color
-          if (attributeDef.m_Values[0].GetType() == ezVariantType::Vector4)
+          if (attributeDef.m_Values[0].GetType() == WVariantType::Vector4)
           {
-            ezVec4 v = attributeDef.m_Values[0].Get<ezVec4>();
-            attributeDef.m_Values[0] = ezColor(v.x, v.y, v.z, v.w);
+            WVec4 v = attributeDef.m_Values[0].Get<WVec4>();
+            attributeDef.m_Values[0] = WColor(v.x, v.y, v.z, v.w);
           }
         }
 
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WDefaultValueAttribute, attributeDef.m_Values[0]));
       }
       else if (attributeDef.m_sType.IsEqual("Clamp") && attributeDef.m_Values.GetCount() >= 2)
       {
-        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
+        ref_attributes.PushBack(W_DEFAULT_NEW(WClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
       }
       else if (attributeDef.m_sType.IsEqual("Group"))
       {
-        if (attributeDef.m_Values.GetCount() >= 1 && attributeDef.m_Values[0].CanConvertTo<ezString>())
+        if (attributeDef.m_Values.GetCount() >= 1 && attributeDef.m_Values[0].CanConvertTo<WString>())
         {
-          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute, attributeDef.m_Values[0].ConvertTo<ezString>()));
+          ref_attributes.PushBack(W_DEFAULT_NEW(WGroupAttribute, attributeDef.m_Values[0].ConvertTo<WString>()));
         }
         else
         {
-          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute));
+          ref_attributes.PushBack(W_DEFAULT_NEW(WGroupAttribute));
         }
       }
     }
   }
 } // namespace
 
-ezShaderTypeRegistry::ezShaderTypeRegistry()
+WShaderTypeRegistry::WShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-  ezShaderTypeRegistry::GetSingleton();
+  WShaderTypeRegistry::GetSingleton();
 
   RegisterBaseType();
 
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
-  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PluginEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WPlugin::Events().AddEventHandler(WMakeDelegate(&WShaderTypeRegistry::PluginEventHandler, this));
 }
 
 
-ezShaderTypeRegistry::~ezShaderTypeRegistry()
+WShaderTypeRegistry::~WShaderTypeRegistry()
 {
-  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PluginEventHandler, this));
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WPlugin::Events().RemoveEventHandler(WMakeDelegate(&WShaderTypeRegistry::PluginEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-void ezShaderTypeRegistry::RegisterBaseType()
+void WShaderTypeRegistry::RegisterBaseType()
 {
-  ezReflectedTypeDescriptor desc;
-  desc.m_sTypeName = "ezShaderTypeBase";
+  WReflectedTypeDescriptor desc;
+  desc.m_sTypeName = "WShaderTypeBase";
   desc.m_sPluginName = "ShaderTypes";
-  desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
+  desc.m_sParentTypeName = WGetStaticRTTI<WReflectedClass>()->GetTypeName();
+  desc.m_Flags = WTypeFlags::Abstract | WTypeFlags::Class;
   desc.m_uiTypeVersion = 2;
 
-  m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+  m_pBaseType = WPhantomRttiManager::RegisterType(desc);
 }
 
-void ezShaderTypeRegistry::PluginEventHandler(const ezPluginEvent& e)
+void WShaderTypeRegistry::PluginEventHandler(const WPluginEvent& e)
 {
-  // ezPhantomRttiManager deletes all phantom types on this event, regardless of which plugin unloads,
+  // WPhantomRttiManager deletes all phantom types on this event, regardless of which plugin unloads,
   // so every cached type has to go, not just those belonging to e.m_sPluginBinary.
-  if (e.m_EventType == ezPluginEvent::Type::BeforeUnloading)
+  if (e.m_EventType == WPluginEvent::Type::BeforeUnloading)
   {
     ClearCachedTypes();
     m_ShaderTypes.Clear();
@@ -290,45 +290,45 @@ void ezShaderTypeRegistry::PluginEventHandler(const ezPluginEvent& e)
   }
 
   // This object outlives the types, so the base type has to be restored before it is used again.
-  if (e.m_EventType == ezPluginEvent::Type::AfterPluginChanges && m_pBaseType == nullptr)
+  if (e.m_EventType == WPluginEvent::Type::AfterPluginChanges && m_pBaseType == nullptr)
   {
     RegisterBaseType();
   }
 }
 
-const ezRTTI* ezShaderTypeRegistry::GetShaderType(ezStringView sShaderPath0)
+const WRTTI* WShaderTypeRegistry::GetShaderType(WStringView sShaderPath0)
 {
   if (sShaderPath0.IsEmpty())
     return nullptr;
 
-  ezStringBuilder sShaderPath = sShaderPath0;
+  WStringBuilder sShaderPath = sShaderPath0;
   sShaderPath.MakeCleanPath();
 
   if (sShaderPath.IsAbsolutePath())
   {
-    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sShaderPath))
+    if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sShaderPath))
     {
-      ezLog::Error("Could not make shader path '{0}' relative!", sShaderPath);
+      WLog::Error("Could not make shader path '{0}' relative!", sShaderPath);
     }
   }
 
   auto it = m_ShaderTypes.Find(sShaderPath);
   if (it.IsValid())
   {
-    ezFileStats Stats;
-    if (ezOSFile::GetFileStats(it.Value().m_sAbsShaderPath, Stats).Succeeded() &&
-        !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
+    WFileStats Stats;
+    if (WOSFile::GetFileStats(it.Value().m_sAbsShaderPath, Stats).Succeeded() &&
+        !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, WTimestamp::CompareMode::FileTimeEqual))
     {
       UpdateShaderType(it.Value());
     }
   }
   else
   {
-    ezStringBuilder sAbsPath = sShaderPath0;
+    WStringBuilder sAbsPath = sShaderPath0;
     {
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+      if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
-        ezLog::Warning("Can't make path absolute: '{0}'", sShaderPath0);
+        WLog::Warning("Can't make path absolute: '{0}'", sShaderPath0);
         return nullptr;
       }
       sAbsPath.MakeCleanPath();
@@ -343,40 +343,40 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(ezStringView sShaderPath0)
   return it.Value().m_pType;
 }
 
-void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
+void WShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 {
-  EZ_LOG_BLOCK("Updating Shader Parameters", data.m_sShaderPath.GetData());
+  W_LOG_BLOCK("Updating Shader Parameters", data.m_sShaderPath.GetData());
 
-  ezTempHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
-  ezTempHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  WTempHybridArray<WShaderParser::ParameterDefinition, 16> parameters;
+  WTempHybridArray<WShaderParser::EnumDefinition, 4> enumDefinitions;
 
   {
-    ezFileStats Stats;
-    bool bStat = ezOSFile::GetFileStats(data.m_sAbsShaderPath, Stats).Succeeded();
+    WFileStats Stats;
+    bool bStat = WOSFile::GetFileStats(data.m_sAbsShaderPath, Stats).Succeeded();
 
-    ezFileReader file;
+    WFileReader file;
     if (!bStat || file.Open(data.m_sAbsShaderPath).Failed())
     {
-      ezLog::Error("Can't update shader '{0}' type information, the file can't be opened.", data.m_sShaderPath);
+      WLog::Error("Can't update shader '{0}' type information, the file can't be opened.", data.m_sShaderPath);
       return;
     }
 
-    ezString sContent;
+    WString sContent;
     sContent.ReadAll(file);
-    ezShaderHelper::ezTextSectionizer sections;
-    ezShaderHelper::GetShaderSections(sContent, sections);
-    ezUInt32 uiFirstLine = 0;
-    ezStringView sSectionContent = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+    WShaderHelper::WTextSectionizer sections;
+    WShaderHelper::GetShaderSections(sContent, sections);
+    WUInt32 uiFirstLine = 0;
+    WStringView sSectionContent = sections.GetSectionContent(WShaderHelper::WShaderSections::MATERIALPARAMETER, uiFirstLine);
 
-    ezShaderParser::ParseMaterialParameterSection(sSectionContent, parameters, enumDefinitions);
+    WShaderParser::ParseMaterialParameterSection(sSectionContent, parameters, enumDefinitions);
     data.m_fileModifiedTime = Stats.m_LastModificationTime;
   }
 
-  ezReflectedTypeDescriptor desc;
+  WReflectedTypeDescriptor desc;
   desc.m_sTypeName = data.m_sShaderPath;
   desc.m_sPluginName = "ShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Class;
+  desc.m_Flags = WTypeFlags::Class;
   desc.m_uiTypeVersion = 2;
 
   for (auto& enumDef : enumDefinitions)
@@ -386,21 +386,21 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 
   for (auto& parameter : parameters)
   {
-    const ezRTTI* pType = GetType(parameter);
+    const WRTTI* pType = GetType(parameter);
     if (pType == nullptr)
     {
       continue;
     }
 
-    ezBitflags<ezPropertyFlags> flags;
-    if (pType->IsDerivedFrom<ezEnumBase>())
-      flags |= ezPropertyFlags::IsEnum;
-    if (pType->IsDerivedFrom<ezBitflagsBase>())
-      flags |= ezPropertyFlags::Bitflags;
-    if (ezReflectionUtils::IsBasicType(pType))
-      flags |= ezPropertyFlags::StandardType;
+    WBitflags<WPropertyFlags> flags;
+    if (pType->IsDerivedFrom<WEnumBase>())
+      flags |= WPropertyFlags::IsEnum;
+    if (pType->IsDerivedFrom<WBitflagsBase>())
+      flags |= WPropertyFlags::Bitflags;
+    if (WReflectionUtils::IsBasicType(pType))
+      flags |= WPropertyFlags::StandardType;
 
-    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, pType->GetTypeName(), flags);
+    WReflectedPropertyDescriptor propDesc(WPropertyCategory::Member, parameter.m_sName, pType->GetTypeName(), flags);
 
     AddAttributes(parameter, pType, propDesc.m_Attributes);
 
@@ -409,17 +409,17 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 
   // Register and return the phantom type. If the type already exists this will update the type
   // and patch any existing instances of it so they should show up in the prop grid right away.
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
   {
     // We do not want to listen to type changes that we triggered ourselves.
-    data.m_pType = ezPhantomRttiManager::RegisterType(desc);
+    data.m_pType = WPhantomRttiManager::RegisterType(desc);
   }
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+void WShaderTypeRegistry::PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e)
 {
-  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded)
+  if (e.m_Type == WPhantomRttiManagerEvent::Type::TypeAdded)
   {
     if (e.m_pChangedType->GetParentType() == m_pBaseType)
     {
@@ -432,36 +432,36 @@ void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiMa
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-/// Changes the base class of all shader types to ezShaderTypeBase (version 1) and
+/// Changes the base class of all shader types to WShaderTypeBase (version 1) and
 /// sets their own version to 2.
-class ezShaderTypePatch_1_2 : public ezGraphPatch
+class WShaderTypePatch_1_2 : public WGraphPatch
 {
 public:
-  ezShaderTypePatch_1_2()
-    : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch)
+  WShaderTypePatch_1_2()
+    : WGraphPatch(nullptr, 2, WGraphPatch::PatchType::GraphPatch)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode*) const override
   {
-    ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
+    WString sDescTypeName = WGetStaticRTTI<WReflectedTypeDescriptor>()->GetTypeName();
 
     auto& nodes = pGraph->GetAllNodes();
     bool bNeedAddBaseClass = false;
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
-      ezAbstractObjectNode* pNode = it.Value();
+      WAbstractObjectNode* pNode = it.Value();
       if (pNode->GetType() == sDescTypeName)
       {
         auto* pTypeProperty = pNode->FindProperty("TypeName");
-        if (ezStringUtils::EndsWith(pTypeProperty->m_Value.Get<ezString>(), ".ezShader"))
+        if (WStringUtils::EndsWith(pTypeProperty->m_Value.Get<WString>(), ".WShader"))
         {
           auto* pTypeVersionProperty = pNode->FindProperty("TypeVersion");
           auto* pParentTypeProperty = pNode->FindProperty("ParentTypeName");
           if (pTypeVersionProperty->m_Value == 1)
           {
-            pParentTypeProperty->m_Value = "ezShaderTypeBase";
-            pTypeVersionProperty->m_Value = (ezUInt32)2;
+            pParentTypeProperty->m_Value = "WShaderTypeBase";
+            pTypeVersionProperty->m_Value = (WUInt32)2;
             bNeedAddBaseClass = true;
           }
         }
@@ -470,43 +470,43 @@ public:
 
     if (bNeedAddBaseClass)
     {
-      ezRttiConverterContext context;
-      ezRttiConverterWriter rttiConverter(pGraph, &context, true, true);
+      WRttiConverterContext context;
+      WRttiConverterWriter rttiConverter(pGraph, &context, true, true);
 
-      ezReflectedTypeDescriptor desc;
-      desc.m_sTypeName = "ezShaderTypeBase";
+      WReflectedTypeDescriptor desc;
+      desc.m_sTypeName = "WShaderTypeBase";
       desc.m_sPluginName = "ShaderTypes";
-      desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-      desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
+      desc.m_sParentTypeName = WGetStaticRTTI<WReflectedClass>()->GetTypeName();
+      desc.m_Flags = WTypeFlags::Abstract | WTypeFlags::Class;
       desc.m_uiTypeVersion = 1;
 
-      context.RegisterObject(ezUuid::MakeStableUuidFromString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-      rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+      context.RegisterObject(WUuid::MakeStableUuidFromString(desc.m_sTypeName.GetData()), WGetStaticRTTI<WReflectedTypeDescriptor>(), &desc);
+      rttiConverter.AddObjectToGraph(WGetStaticRTTI<WReflectedTypeDescriptor>(), &desc);
     }
   }
 };
 
-ezShaderTypePatch_1_2 g_ezShaderTypePatch_1_2;
+WShaderTypePatch_1_2 g_WShaderTypePatch_1_2;
 
-// TODO: Increase ezShaderTypeBase version to 2 and implement enum renames, see ezReflectedPropertyDescriptorPatch_1_2
-class ezShaderBaseTypePatch_1_2 : public ezGraphPatch
+// TODO: Increase WShaderTypeBase version to 2 and implement enum renames, see WReflectedPropertyDescriptorPatch_1_2
+class WShaderBaseTypePatch_1_2 : public WGraphPatch
 {
 public:
-  ezShaderBaseTypePatch_1_2()
-    : ezGraphPatch("ezShaderTypeBase", 2)
+  WShaderBaseTypePatch_1_2()
+    : WGraphPatch("WShaderTypeBase", 2)
   {
   }
 
-  static void FixEnumString(ezStringBuilder& ref_sValue, const char* szName)
+  static void FixEnumString(WStringBuilder& ref_sValue, const char* szName)
   {
     if (ref_sValue.StartsWith(szName))
-      ref_sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+      ref_sValue.Shrink(WStringUtils::GetCharacterCount(szName), 0);
 
     if (ref_sValue.StartsWith("::"))
       ref_sValue.Shrink(2, 0);
 
     if (ref_sValue.StartsWith(szName))
-      ref_sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+      ref_sValue.Shrink(WStringUtils::GetCharacterCount(szName), 0);
 
     if (ref_sValue.StartsWith("_"))
       ref_sValue.Shrink(1, 0);
@@ -514,17 +514,17 @@ public:
     ref_sValue.PrependFormat("{0}::{0}_", szName);
   }
 
-  void FixEnum(ezAbstractObjectNode* pNode, const char* szEnum) const
+  void FixEnum(WAbstractObjectNode* pNode, const char* szEnum) const
   {
-    if (ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szEnum))
+    if (WAbstractObjectNode::Property* pProp = pNode->FindProperty(szEnum))
     {
-      ezStringBuilder sValue = pProp->m_Value.Get<ezString>();
+      WStringBuilder sValue = pProp->m_Value.Get<WString>();
       FixEnumString(sValue, szEnum);
       pProp->m_Value = sValue.GetData();
     }
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     FixEnum(pNode, "SHADING_MODE");
     FixEnum(pNode, "BLEND_MODE");
@@ -532,4 +532,4 @@ public:
   }
 };
 
-ezShaderBaseTypePatch_1_2 g_ezShaderBaseTypePatch_1_2;
+WShaderBaseTypePatch_1_2 g_WShaderBaseTypePatch_1_2;

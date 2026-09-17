@@ -3,7 +3,7 @@
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezRendererTestSwapChain : public ezGraphicsTest
+class WRendererTestSwapChain : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "SwapChain"; }
@@ -29,15 +29,15 @@ private:
     AddSubTest("Resize Window", SubTests::ST_ResizeWindow);
   }
 
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
-  void ResizeTest(ezUInt32 uiInvocationCount);
-  ezTestAppRun BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount);
+  void ResizeTest(WUInt32 uiInvocationCount);
+  WTestAppRun BasicRenderLoop(WInt32 iIdentifier, WUInt32 uiInvocationCount);
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override
   {
     m_iFrame = uiInvocationCount;
 
@@ -53,11 +53,11 @@ private:
       case SubTests::ST_VSync:
         return BasicRenderLoop(iIdentifier, uiInvocationCount);
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  ezSizeU32 m_CurrentWindowSize = ezSizeU32(320, 240);
+  WSizeU32 m_CurrentWindowSize = WSizeU32(320, 240);
 };

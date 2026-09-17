@@ -4,10 +4,10 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
 
-static ezUniquePtr<ezBaking> s_Baking;
+static WUniquePtr<WBaking> s_Baking;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -24,7 +24,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    s_Baking = EZ_DEFAULT_NEW(ezBaking);
+    s_Baking = W_DEFAULT_NEW(WBaking);
     s_Baking->Startup();
   }
 
@@ -34,5 +34,5 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Baking, BakingPlugin)
     s_Baking = nullptr;
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on

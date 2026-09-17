@@ -1,0 +1,172 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{11924368860829727140,5581436357550346013}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{11924368860829727140,5581436357550346013}}
+		u4 %Hash{3914622660387079471}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{9204926669362486323,17771993592409975347}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9204926669362486323,17771993592409975347}}
+	s %t{"WExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{6615797245188414349,5671895068088588818}}
+	s %t{"WAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"HealthPickup"}
+		s %Code{"class HealthPickup :  WAngelScriptClass\n{\n    void OnMsgGenericEvent(WMsgGenericEvent@ msg)\n    {\n        if (msg.Message != \"Animation Cue 1\")\n           return;\n\n        WGameObject@ pfxObj = GetOwner().FindChildByName(\"Particle\", true);\n\n        if (@pfxObj !is null)\n        {\n            WParticleComponent@ pfxComp;\n            if (pfxObj.TryGetComponentOfBaseType(@pfxComp))\n            {\n                pfxComp.StartEffect();\n            }\n        }\n    }\n\n    void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg)\n    {\n        if (msg.TriggerState == WTriggerState::Activated && msg.Message == \"Pickup\")\n        {\n            WGameObject@ owner = GetOwner();\n\n            WParticleComponent@ pfxComp;\n            if (owner.TryGetComponentOfBaseType(@pfxComp))\n            {\n                pfxComp.StartEffect();\n            }\n\n            WMsgDeleteGameObject msgDel;\n            owner.PostMessage(msgDel, WTime::MakeFromSeconds(0.1));\n        }\n    }\n} "}
+		VarArray %Dependencies{}
+		VarArray %Parameters{}
+		s %Source{"WAngelScriptCodeMode::Inline"}
+		s %SourceFile{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6615797245188414349,5671895068088588818}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

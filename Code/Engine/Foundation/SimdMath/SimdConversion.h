@@ -8,130 +8,130 @@
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 
-namespace ezSimdConversion
+namespace WSimdConversion
 {
-  EZ_ALWAYS_INLINE ezVec3 ToVec3(const ezSimdVec4f& v)
+  W_ALWAYS_INLINE WVec3 ToVec3(const WSimdVec4f& v)
   {
-    ezVec4 tmp;
+    WVec4 tmp;
     v.Store<4>(&tmp.x);
-    return *reinterpret_cast<ezVec3*>(&tmp.x);
+    return *reinterpret_cast<WVec3*>(&tmp.x);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezVec3& v)
+  W_ALWAYS_INLINE WSimdVec4f ToVec3(const WVec3& v)
   {
-    ezSimdVec4f tmp;
+    WSimdVec4f tmp;
     tmp.Load<3>(&v.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezVec3I32 ToVec3i(const ezSimdVec4i& v)
+  W_ALWAYS_INLINE WVec3I32 ToVec3i(const WSimdVec4i& v)
   {
-    ezVec4I32 tmp;
+    WVec4I32 tmp;
     v.Store<4>(&tmp.x);
-    return *reinterpret_cast<ezVec3I32*>(&tmp.x);
+    return *reinterpret_cast<WVec3I32*>(&tmp.x);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4i ToVec3i(const ezVec3I32& v)
+  W_ALWAYS_INLINE WSimdVec4i ToVec3i(const WVec3I32& v)
   {
-    ezSimdVec4i tmp;
+    WSimdVec4i tmp;
     tmp.Load<3>(&v.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezVec4 ToVec4(const ezSimdVec4f& v)
+  W_ALWAYS_INLINE WVec4 ToVec4(const WSimdVec4f& v)
   {
-    ezVec4 tmp;
+    WVec4 tmp;
     v.Store<4>(&tmp.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToVec4(const ezVec4& v)
+  W_ALWAYS_INLINE WSimdVec4f ToVec4(const WVec4& v)
   {
-    ezSimdVec4f tmp;
+    WSimdVec4f tmp;
     tmp.Load<4>(&v.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezVec4I32 ToVec4i(const ezSimdVec4i& v)
+  W_ALWAYS_INLINE WVec4I32 ToVec4i(const WSimdVec4i& v)
   {
-    ezVec4I32 tmp;
+    WVec4I32 tmp;
     v.Store<4>(&tmp.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4i ToVec4i(const ezVec4I32& v)
+  W_ALWAYS_INLINE WSimdVec4i ToVec4i(const WVec4I32& v)
   {
-    ezSimdVec4i tmp;
+    WSimdVec4i tmp;
     tmp.Load<4>(&v.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezQuat ToQuat(const ezSimdQuat& q)
+  W_ALWAYS_INLINE WQuat ToQuat(const WSimdQuat& q)
   {
-    ezQuat tmp;
+    WQuat tmp;
     q.m_v.Store<4>(&tmp.x);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezSimdQuat ToQuat(const ezQuat& q)
+  W_ALWAYS_INLINE WSimdQuat ToQuat(const WQuat& q)
   {
-    ezSimdVec4f tmp;
+    WSimdVec4f tmp;
     tmp.Load<4>(&q.x);
-    return ezSimdQuat(tmp);
+    return WSimdQuat(tmp);
   }
 
-  EZ_ALWAYS_INLINE ezTransform ToTransform(const ezSimdTransform& t)
+  W_ALWAYS_INLINE WTransform ToTransform(const WSimdTransform& t)
   {
-    return ezTransform(ToVec3(t.m_Position), ToQuat(t.m_Rotation), ToVec3(t.m_Scale));
+    return WTransform(ToVec3(t.m_Position), ToQuat(t.m_Rotation), ToVec3(t.m_Scale));
   }
 
-  inline ezSimdTransform ToTransform(const ezTransform& t)
+  inline WSimdTransform ToTransform(const WTransform& t)
   {
-    return ezSimdTransform(ToVec3(t.m_vPosition), ToQuat(t.m_qRotation), ToVec3(t.m_vScale));
+    return WSimdTransform(ToVec3(t.m_vPosition), ToQuat(t.m_qRotation), ToVec3(t.m_vScale));
   }
 
-  EZ_ALWAYS_INLINE ezMat4 ToMat4(const ezSimdMat4f& m)
+  W_ALWAYS_INLINE WMat4 ToMat4(const WSimdMat4f& m)
   {
-    ezMat4 tmp;
-    m.GetAsArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+    WMat4 tmp;
+    m.GetAsArray(tmp.m_fElementsCM, WMatrixLayout::ColumnMajor);
     return tmp;
   }
 
-  EZ_ALWAYS_INLINE ezSimdMat4f ToMat4(const ezMat4& m)
+  W_ALWAYS_INLINE WSimdMat4f ToMat4(const WMat4& m)
   {
-    return ezSimdMat4f::MakeFromColumnMajorArray(m.m_fElementsCM);
+    return WSimdMat4f::MakeFromColumnMajorArray(m.m_fElementsCM);
   }
 
-  EZ_ALWAYS_INLINE ezBoundingBoxSphere ToBBoxSphere(const ezSimdBBoxSphere& b)
+  W_ALWAYS_INLINE WBoundingBoxSphere ToBBoxSphere(const WSimdBBoxSphere& b)
   {
-    ezVec4 centerAndRadius = ToVec4(b.m_CenterAndRadius);
-    return ezBoundingBoxSphere::MakeFromCenterExtents(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
+    WVec4 centerAndRadius = ToVec4(b.m_CenterAndRadius);
+    return WBoundingBoxSphere::MakeFromCenterExtents(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
   }
 
-  EZ_ALWAYS_INLINE ezSimdBBoxSphere ToBBoxSphere(const ezBoundingBoxSphere& b)
+  W_ALWAYS_INLINE WSimdBBoxSphere ToBBoxSphere(const WBoundingBoxSphere& b)
   {
-    return ezSimdBBoxSphere::MakeFromCenterExtents(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtents), b.m_fSphereRadius);
+    return WSimdBBoxSphere::MakeFromCenterExtents(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtents), b.m_fSphereRadius);
   }
 
-  EZ_ALWAYS_INLINE ezBoundingSphere ToBSphere(const ezSimdBSphere& s)
+  W_ALWAYS_INLINE WBoundingSphere ToBSphere(const WSimdBSphere& s)
   {
-    ezVec4 centerAndRadius = ToVec4(s.m_CenterAndRadius);
-    return ezBoundingSphere::MakeFromCenterAndRadius(centerAndRadius.GetAsVec3(), centerAndRadius.w);
+    WVec4 centerAndRadius = ToVec4(s.m_CenterAndRadius);
+    return WBoundingSphere::MakeFromCenterAndRadius(centerAndRadius.GetAsVec3(), centerAndRadius.w);
   }
 
-  EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s)
+  W_ALWAYS_INLINE WSimdBSphere ToBSphere(const WBoundingSphere& s)
   {
-    return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
+    return WSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
   }
 
-  EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b)
+  W_ALWAYS_INLINE WSimdBBox ToBBox(const WBoundingBox& b)
   {
-    return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
+    return WSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
   }
 
-  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b)
+  W_ALWAYS_INLINE WBoundingBox ToBBox(const WSimdBBox& b)
   {
-    return ezBoundingBox::MakeFromMinMax(ToVec3(b.m_Min), ToVec3(b.m_Max));
+    return WBoundingBox::MakeFromMinMax(ToVec3(b.m_Min), ToVec3(b.m_Max));
   }
 
-}; // namespace ezSimdConversion
+}; // namespace WSimdConversion

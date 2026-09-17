@@ -18,53 +18,53 @@ struct ID3D11UnorderedAccessView;
 struct ID3D11SamplerState;
 struct ID3D11Query;
 
-class ezGALDeviceDX11;
-struct ezGALBindGroupCreationDescription;
+class WGALDeviceDX11;
+struct WGALBindGroupCreationDescription;
 
-class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface
+class W_RENDERERDX11_DLL WGALCommandEncoderImplDX11 final : public WGALCommandEncoderCommonPlatformInterface
 {
 public:
-  ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
-  ~ezGALCommandEncoderImplDX11();
+  WGALCommandEncoderImplDX11(WGALDeviceDX11& ref_deviceDX11);
+  ~WGALCommandEncoderImplDX11();
 
   void EndFrame();
 
-  // ezGALCommandEncoderCommonPlatformInterface
+  // WGALCommandEncoderCommonPlatformInterface
   // State setting functions
-  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
-  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup) override;
-  virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
+  virtual void SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroupCreationDescription& bindGroup) override;
+  virtual void SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroup* pBindGroup) override;
+  virtual void SetPushConstantsPlatform(WArrayPtr<const WUInt8> data) override;
 
   // GPU -> CPU query functions
 
-  virtual ezGALTimestampHandle InsertTimestampPlatform() override;
-  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) override;
-  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) override;
-  virtual ezGALFenceHandle InsertFencePlatform() override;
+  virtual WGALTimestampHandle InsertTimestampPlatform() override;
+  virtual WGALOcclusionHandle BeginOcclusionQueryPlatform(WEnum<WGALQueryType> type) override;
+  virtual void EndOcclusionQueryPlatform(WGALOcclusionHandle hOcclusion) override;
+  virtual WGALFenceHandle InsertFencePlatform() override;
 
 
   // Resource update functions
-  virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
-  virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
+  virtual void CopyBufferPlatform(const WGALBuffer* pDestination, const WGALBuffer* pSource) override;
+  virtual void CopyBufferRegionPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, const WGALBuffer* pSource, WUInt32 uiSourceOffset, WUInt32 uiByteCount) override;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode) override;
+  virtual void UpdateBufferPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, WArrayPtr<const WUInt8> sourceData, WGALUpdateMode::Enum updateMode) override;
 
-  virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box) override;
+  virtual void CopyTexturePlatform(const WGALTexture* pDestination, const WGALTexture* pSource) override;
+  virtual void CopyTextureRegionPlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource, const WVec3U32& vDestinationPoint, const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource, const WBoundingBoxu32& box) override;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
-    const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData) override;
+  virtual void UpdateTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource,
+    const WBoundingBoxu32& destinationBox, const WGALSystemMemoryDescription& sourceData) override;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
-    const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) override;
+  virtual void ResolveTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource,
+    const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource) override;
 
-  virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
+  virtual void ReadbackTexturePlatform(const WGALReadbackTexture* pDestination, const WGALTexture* pSource) override;
+  virtual void ReadbackBufferPlatform(const WGALReadbackBuffer* pDestination, const WGALBuffer* pSource) override;
 
   // Barriers
 
-  virtual void TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers) override;
-  virtual void BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers) override;
+  virtual void TextureBarrierPlatform(WArrayPtr<const WGALTextureBarrier> barriers) override;
+  virtual void BufferBarrierPlatform(WArrayPtr<const WGALBufferBarrier> barriers) override;
 
   // Misc
 
@@ -76,96 +76,96 @@ public:
   virtual void PopMarkerPlatform() override;
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
-  // ezGALCommandEncoderComputePlatformInterface
+  // WGALCommandEncoderComputePlatformInterface
   // Dispatch
   virtual void BeginComputePlatform() override;
   virtual void EndComputePlatform() override;
 
-  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DispatchPlatform(WUInt32 uiThreadGroupCountX, WUInt32 uiThreadGroupCountY, WUInt32 uiThreadGroupCountZ) override;
+  virtual WResult DispatchIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
 
-  // ezGALCommandEncoderRenderPlatformInterface
-  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) override;
+  // WGALCommandEncoderRenderPlatformInterface
+  virtual void BeginRenderingPlatform(const WGALRenderingSetup& renderingSetup) override;
   virtual void EndRenderingPlatform() override;
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+  virtual void ClearPlatform(const WColor& clearColor, WUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, WUInt8 uiStencilClear) override;
 
-  virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
-  virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
-  virtual ezResult DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
-  virtual ezResult DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual ezResult DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
-  virtual ezResult DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DrawPlatform(WUInt32 uiVertexCount, WUInt32 uiStartVertex) override;
+  virtual WResult DrawIndexedPlatform(WUInt32 uiIndexCount, WUInt32 uiStartIndex) override;
+  virtual WResult DrawIndexedInstancedPlatform(WUInt32 uiIndexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartIndex) override;
+  virtual WResult DrawIndexedInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DrawInstancedPlatform(WUInt32 uiVertexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartVertex) override;
+  virtual WResult DrawInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
 
   // State functions
 
-  virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
-  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) override;
+  virtual void SetIndexBufferPlatform(const WGALBuffer* pIndexBuffer) override;
+  virtual void SetVertexBufferPlatform(WUInt32 uiSlot, const WGALBuffer* pVertexBuffer, WUInt32 uiOffset) override;
 
-  virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) override;
-  virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) override;
+  virtual void SetGraphicsPipelinePlatform(const WGALGraphicsPipeline* pGraphicsPipeline) override;
+  virtual void SetComputePipelinePlatform(const WGALComputePipeline* pComputePipeline) override;
 
-  virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
-  virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
-  virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) override;
+  virtual void SetViewportPlatform(const WRectFloat& rect, float fMinDepth, float fMaxDepth) override;
+  virtual void SetScissorRectPlatform(const WRectU32& rect) override;
+  virtual void SetStencilReferencePlatform(WUInt8 uiStencilRefValue) override;
 
 private:
-  friend class ezGALDeviceDX11;
-  void SetShader(const ezGALShader* pShader);
-  void SetVertexDeclaration(const ezGALVertexDeclaration* pVertexDeclaration);
-  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology);
-  void SetBlendState(const ezGALBlendState* pBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
-  void SetDepthStencilState(const ezGALDepthStencilState* pDepthStencilState);
-  void SetRasterizerState(const ezGALRasterizerState* pRasterizerState);
+  friend class WGALDeviceDX11;
+  void SetShader(const WGALShader* pShader);
+  void SetVertexDeclaration(const WGALVertexDeclaration* pVertexDeclaration);
+  void SetPrimitiveTopology(WGALPrimitiveTopology::Enum topology);
+  void SetBlendState(const WGALBlendState* pBlendState, const WColor& blendFactor = WColor::White, WUInt32 uiSampleMask = 0xFFFFFFFFu);
+  void SetDepthStencilState(const WGALDepthStencilState* pDepthStencilState);
+  void SetRasterizerState(const WGALRasterizerState* pRasterizerState);
 
-  bool UnsetResourceViews(const ezGALResourceBase* pResource);
-  bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
+  bool UnsetResourceViews(const WGALResourceBase* pResource);
+  bool UnsetUnorderedAccessViews(const WGALResourceBase* pResource);
 
-  void SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
-  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource);
-  void SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer);
-  void SetSamplerState(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState);
+  void SetResourceView(const WShaderResourceBinding& binding, const WGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
+  void SetUnorderedAccessView(const WShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const WGALResourceBase* pResource);
+  void SetConstantBuffer(const WShaderResourceBinding& binding, const WGALBuffer* pBuffer);
+  void SetSamplerState(const WShaderResourceBinding& binding, const WGALSamplerState* pSamplerState);
 
-  ezResult FlushDeferredStateChanges();
+  WResult FlushDeferredStateChanges();
 
-  ezGALDeviceDX11& m_GALDeviceDX11;
+  WGALDeviceDX11& m_GALDeviceDX11;
 
   ID3D11DeviceContext* m_pDXContext = nullptr;
   ID3DUserDefinedAnnotation* m_pDXAnnotation = nullptr;
 
   // Bound objects for deferred state flushes
-  ezEnum<ezGALPrimitiveTopology> m_Topology;
-  ezUInt8 m_uiTessellationPatchControlPoints = 0;
+  WEnum<WGALPrimitiveTopology> m_Topology;
+  WUInt8 m_uiTessellationPatchControlPoints = 0;
 
-  ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
-  ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
+  ID3D11Buffer* m_pBoundConstantBuffers[W_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
+  WGAL::ModifiedRange m_BoundConstantBuffersRange[WGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
-  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT];
-  ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
+  WHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[WGALShaderStage::ENUM_COUNT] = {};
+  WHybridArray<const WGALResourceBase*, 16> m_ResourcesForResourceViews[WGALShaderStage::ENUM_COUNT];
+  WGAL::ModifiedRange m_BoundShaderResourceViewsRange[WGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnorderedAccessViews;
-  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForUnorderedAccessViews;
-  ezGAL::ModifiedRange m_BoundUnorderedAccessViewsRange;
+  WHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnorderedAccessViews;
+  WHybridArray<const WGALResourceBase*, 16> m_ResourcesForUnorderedAccessViews;
+  WGAL::ModifiedRange m_BoundUnorderedAccessViewsRange;
 
-  ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
-  ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
+  ID3D11SamplerState* m_pBoundSamplerStates[WGALShaderStage::ENUM_COUNT][W_GAL_MAX_SAMPLER_COUNT] = {};
+  WGAL::ModifiedRange m_BoundSamplerStatesRange[WGALShaderStage::ENUM_COUNT];
 
-  ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT] = {};
-  ezUInt8 m_uiStencilRefValue = 0;
+  ID3D11DeviceChild* m_pBoundShaders[WGALShaderStage::ENUM_COUNT] = {};
+  WUInt8 m_uiStencilRefValue = 0;
 
-  ezGALRenderingSetup m_RenderTargetSetup;
-  ID3D11RenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
-  ezUInt32 m_uiBoundRenderTargetCount = 0;
+  WGALRenderingSetup m_RenderTargetSetup;
+  ID3D11RenderTargetView* m_pBoundRenderTargets[W_GAL_MAX_RENDERTARGET_COUNT] = {};
+  WUInt32 m_uiBoundRenderTargetCount = 0;
   ID3D11DepthStencilView* m_pBoundDepthStencilTarget = nullptr;
 
-  ID3D11Buffer* m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
-  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
+  ID3D11Buffer* m_pBoundVertexBuffers[W_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  WGAL::ModifiedRange m_BoundVertexBuffersRange;
 
-  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
-  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  WUInt32 m_VertexBufferStrides[W_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  WUInt32 m_VertexBufferOffsets[W_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  ezHashSet<const ezGALBuffer*> m_AlreadyUpdatedTransientBuffers;
+  WHashSet<const WGALBuffer*> m_AlreadyUpdatedTransientBuffers;
 };

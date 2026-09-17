@@ -3,24 +3,24 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedParameter, ezNoBase, 3, ezRTTIDefaultAllocator<ezExposedParameter>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WExposedParameter, WNoBase, 3, WRTTIDefaultAllocator<WExposedParameter>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Type", m_sType),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
-    EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category)->AddAttributes(new ezDefaultValueAttribute(ezPropertyCategory::Member)),
-    EZ_ARRAY_MEMBER_PROPERTY("Attributes", m_Attributes)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_MEMBER_PROPERTY("Type", m_sType),
+    W_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
+    W_ENUM_MEMBER_PROPERTY("Category", WPropertyCategory, m_Category)->AddAttributes(new WDefaultValueAttribute(WPropertyCategory::Member)),
+    W_ARRAY_MEMBER_PROPERTY("Attributes", m_Attributes)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-ezExposedParameter::ezExposedParameter()
+WExposedParameter::WExposedParameter()
 = default;
 
-ezExposedParameter::~ezExposedParameter()
+WExposedParameter::~WExposedParameter()
 {
   for (auto pAttr : m_Attributes)
   {
@@ -28,31 +28,31 @@ ezExposedParameter::~ezExposedParameter()
   }
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameters, 3, ezRTTIDefaultAllocator<ezExposedParameters>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExposedParameters, 3, WRTTIDefaultAllocator<WExposedParameters>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Parameters", m_Parameters)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ARRAY_MEMBER_PROPERTY("Parameters", m_Parameters)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExposedParameters::ezExposedParameters() = default;
+WExposedParameters::WExposedParameters() = default;
 
-ezExposedParameters::~ezExposedParameters()
+WExposedParameters::~WExposedParameters()
 {
   for (auto pAttr : m_Parameters)
   {
-    ezGetStaticRTTI<ezExposedParameter>()->GetAllocator()->Deallocate(pAttr);
+    WGetStaticRTTI<WExposedParameter>()->GetAllocator()->Deallocate(pAttr);
   }
 }
 
-const ezExposedParameter* ezExposedParameters::Find(const char* szParamName) const
+const WExposedParameter* WExposedParameters::Find(const char* szParamName) const
 {
-  const ezExposedParameter* const* pParam =
-    std::find_if(cbegin(m_Parameters), cend(m_Parameters), [szParamName](const ezExposedParameter* pParam)
+  const WExposedParameter* const* pParam =
+    std::find_if(cbegin(m_Parameters), cend(m_Parameters), [szParamName](const WExposedParameter* pParam)
       { return pParam->m_sName == szParamName; });
   return pParam != cend(m_Parameters) ? *pParam : nullptr;
 }

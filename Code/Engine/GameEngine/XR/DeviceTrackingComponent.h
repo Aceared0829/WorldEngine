@@ -6,57 +6,57 @@
 #include <GameEngine/XR/XRInputDevice.h>
 #include <GameEngine/XR/XRInterface.h>
 
-struct ezXRPoseLocation
+struct WXRPoseLocation
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Grip,
     Aim,
     Default = Grip,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRPoseLocation);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WXRPoseLocation);
 
 //////////////////////////////////////////////////////////////////////////
 
 
-using ezDeviceTrackingComponentManager = ezComponentManagerSimple<class ezDeviceTrackingComponent, ezComponentUpdateType::WhenSimulating>;
+using WDeviceTrackingComponentManager = WComponentManagerSimple<class WDeviceTrackingComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Tracks the position of a XR device and applies it to the owner.
-class EZ_GAMEENGINE_DLL ezDeviceTrackingComponent : public ezComponent
+class W_GAMEENGINE_DLL WDeviceTrackingComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezDeviceTrackingComponent, ezComponent, ezDeviceTrackingComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WDeviceTrackingComponent, WComponent, WDeviceTrackingComponentManager);
 
 public:
-  ezDeviceTrackingComponent();
-  ~ezDeviceTrackingComponent();
+  WDeviceTrackingComponent();
+  ~WDeviceTrackingComponent();
 
   /// Sets the type of device this component is going to track.
-  void SetDeviceType(ezEnum<ezXRDeviceType> type);
-  ezEnum<ezXRDeviceType> GetDeviceType() const;
+  void SetDeviceType(WEnum<WXRDeviceType> type);
+  WEnum<WXRDeviceType> GetDeviceType() const;
 
-  void SetPoseLocation(ezEnum<ezXRPoseLocation> poseLocation);
-  ezEnum<ezXRPoseLocation> GetPoseLocation() const;
+  void SetPoseLocation(WEnum<WXRPoseLocation> poseLocation);
+  WEnum<WXRPoseLocation> GetPoseLocation() const;
 
-  /// Whether to set the owner's local or global transform, see ezXRTransformSpace.
-  void SetTransformSpace(ezEnum<ezXRTransformSpace> space);
-  ezEnum<ezXRTransformSpace> GetTransformSpace() const;
+  /// Whether to set the owner's local or global transform, see WXRTransformSpace.
+  void SetTransformSpace(WEnum<WXRTransformSpace> space);
+  WEnum<WXRTransformSpace> GetTransformSpace() const;
 
   //
-  // ezComponent Interface
+  // WComponent Interface
   //
 
 protected:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
 
 protected:
   void Update();
 
-  ezEnum<ezXRDeviceType> m_DeviceType;
-  ezEnum<ezXRPoseLocation> m_PoseLocation;
-  ezEnum<ezXRTransformSpace> m_Space;
+  WEnum<WXRDeviceType> m_DeviceType;
+  WEnum<WXRPoseLocation> m_PoseLocation;
+  WEnum<WXRTransformSpace> m_Space;
   bool m_bRotation = true;
   bool m_bScale = true;
 };

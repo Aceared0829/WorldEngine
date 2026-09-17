@@ -4,45 +4,45 @@
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 
-void ezStagingBufferPoolVulkan::Initialize(ezGALDeviceVulkan* pDevice, ezUInt64 uiStartingPoolSize)
+void WStagingBufferPoolVulkan::Initialize(WGALDeviceVulkan* pDevice, WUInt64 uiStartingPoolSize)
 {
   m_pDevice = pDevice;
   m_Device = pDevice->GetVulkanDevice();
 
   const vk::PhysicalDeviceProperties& properties = m_pDevice->GetPhysicalDeviceProperties();
-  m_uiAlignment = ezMath::Max<ezUInt64>(16ull, m_uiAlignment, (ezUInt64)properties.limits.nonCoherentAtomSize);
-  m_uiAlignment = ezMath::Max(m_uiAlignment, (ezUInt64)properties.limits.optimalBufferCopyOffsetAlignment);
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
-  m_uiStartingPoolSize = ezMemoryUtils::AlignSize(uiStartingPoolSize, m_uiAlignment);
+  m_uiAlignment = WMath::Max<WUInt64>(16ull, m_uiAlignment, (WUInt64)properties.limits.nonCoherentAtomSize);
+  m_uiAlignment = WMath::Max(m_uiAlignment, (WUInt64)properties.limits.optimalBufferCopyOffsetAlignment);
+  W_ASSERT_DEBUG(WMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
+  m_uiStartingPoolSize = WMemoryUtils::AlignSize(uiStartingPoolSize, m_uiAlignment);
 }
 
-void ezStagingBufferPoolVulkan::DeInitialize()
+void WStagingBufferPoolVulkan::DeInitialize()
 {
   // We assume the device makes sure no buffers are still in use before calling this.
   m_Device = nullptr;
   for (StagingBufferPool* pPool : m_Pools)
   {
-    EZ_DELETE(m_pDevice->GetAllocator(), pPool);
+    W_DELETE(m_pDevice->GetAllocator(), pPool);
   }
   m_Pools.Clear();
 
-  ezLog::Info("StagingBufferPoolVulkan#{}: high water mark: {}", ezArgP(this), ezArgHumanReadable((ezInt64)m_uiHighWatermark));
+  WLog::Info("StagingBufferPoolVulkan#{}: high water mark: {}", WArgP(this), WArgHumanReadable((WInt64)m_uiHighWatermark));
 }
 
-void ezStagingBufferPoolVulkan::AfterBeginFrame()
+void WStagingBufferPoolVulkan::AfterBeginFrame()
 {
-  ezUInt64 m_uiTotalAllocatedSize = 0;
-  const ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
+  WUInt64 m_uiTotalAllocatedSize = 0;
+  const WUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
   if (uiSafeFrame >= 1)
   {
     for (StagingBufferPool* pPool : m_Pools)
     {
       m_uiTotalAllocatedSize += pPool->m_Tracker.GetUsedMemory();
-      // The -1 is necessary because we use some staging buffers for two frames, see comments in ezGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform.
+      // The -1 is necessary because we use some staging buffers for two frames, see comments in WGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform.
       pPool->Free(uiSafeFrame - 1);
     }
   }
-  m_uiHighWatermark = ezMath::Max<ezUInt64>(m_uiTotalAllocatedSize, m_uiHighWatermark);
+  m_uiHighWatermark = WMath::Max<WUInt64>(m_uiTotalAllocatedSize, m_uiHighWatermark);
 
   // Keep one pool around at all times.
   while (m_Pools.GetCount() > 1 && m_Pools.PeekBack()->m_uiFramesWithoutAllocations > s_uiNumberOfFramesToKeepUnusedPoolsAlive)
@@ -50,11 +50,11 @@ void ezStagingBufferPoolVulkan::AfterBeginFrame()
     // It is safe to delete the pool here as there can't be any usage on the GPU of the buffer if the pool is unused.
     StagingBufferPool* pPool = m_Pools.PeekBack();
     m_Pools.PopBack();
-    EZ_DELETE(m_pDevice->GetAllocator(), pPool);
+    W_DELETE(m_pDevice->GetAllocator(), pPool);
   }
 }
 
-void ezStagingBufferPoolVulkan::BeforeCommandBufferSubmit()
+void WStagingBufferPoolVulkan::BeforeCommandBufferSubmit()
 {
   for (StagingBufferPool* pPool : m_Pools)
   {
@@ -62,16 +62,16 @@ void ezStagingBufferPoolVulkan::BeforeCommandBufferSubmit()
   }
 }
 
-ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 uiSize)
+WStagingBufferVulkan WStagingBufferPoolVulkan::AllocateBuffer(WUInt64 uiSize)
 {
-  EZ_ASSERT_DEBUG(m_Device, "ezStagingBufferPoolVulkan::Initialize not called");
-  ezStagingBufferVulkan buffer;
+  W_ASSERT_DEBUG(m_Device, "WStagingBufferPoolVulkan::Initialize not called");
+  WStagingBufferVulkan buffer;
 
-  ezUInt32 uiOffset = 0;
-  ezByteArrayPtr allocation;
+  WUInt32 uiOffset = 0;
+  WByteArrayPtr allocation;
   for (StagingBufferPool* pPool : m_Pools)
   {
-    if (pPool->Allocate((ezUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).Succeeded())
+    if (pPool->Allocate((WUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).Succeeded())
     {
       buffer.m_alloc = pPool->m_Alloc;
       buffer.m_buffer = pPool->m_Buffer;
@@ -82,7 +82,7 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 uiSize)
   if (allocation.IsEmpty())
   {
     StagingBufferPool* pPool = GetFreePool(uiSize);
-    pPool->Allocate((ezUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).AssertSuccess("Newly created pool should be able to allocate requested size");
+    pPool->Allocate((WUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).AssertSuccess("Newly created pool should be able to allocate requested size");
     buffer.m_alloc = pPool->m_Alloc;
     buffer.m_buffer = pPool->m_Buffer;
   }
@@ -92,19 +92,19 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 uiSize)
   return buffer;
 }
 
-ezStagingBufferPoolVulkan::StagingBufferPool* ezStagingBufferPoolVulkan::GetFreePool(ezUInt64 uiSize)
+WStagingBufferPoolVulkan::StagingBufferPool* WStagingBufferPoolVulkan::GetFreePool(WUInt64 uiSize)
 {
-  ezUInt64 uiNewPoolSize = m_Pools.IsEmpty() ? m_uiStartingPoolSize : m_Pools.PeekBack()->m_Tracker.GetTotalMemory() * 2;
+  WUInt64 uiNewPoolSize = m_Pools.IsEmpty() ? m_uiStartingPoolSize : m_Pools.PeekBack()->m_Tracker.GetTotalMemory() * 2;
 
-  m_uiStartingPoolSize = ezMemoryUtils::AlignSize(ezMath::Max(uiNewPoolSize, uiSize), m_uiAlignment);
+  m_uiStartingPoolSize = WMemoryUtils::AlignSize(WMath::Max(uiNewPoolSize, uiSize), m_uiAlignment);
 
-  StagingBufferPool* pPool = EZ_NEW(m_pDevice->GetAllocator(), StagingBufferPool, (ezUInt32)m_uiAlignment, (ezUInt32)m_uiStartingPoolSize);
+  StagingBufferPool* pPool = W_NEW(m_pDevice->GetAllocator(), StagingBufferPool, (WUInt32)m_uiAlignment, (WUInt32)m_uiStartingPoolSize);
   m_Pools.PushBack(pPool);
   return pPool;
 }
 
 
-ezStagingBufferPoolVulkan::StagingBufferPool::StagingBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize)
+WStagingBufferPoolVulkan::StagingBufferPool::StagingBufferPool(WUInt32 uiAlignment, WUInt32 uiTotalSize)
   : m_Tracker(uiAlignment, uiTotalSize)
 {
   vk::BufferCreateInfo bufferCreateInfo = {};
@@ -115,42 +115,42 @@ ezStagingBufferPoolVulkan::StagingBufferPool::StagingBufferPool(ezUInt32 uiAlign
   bufferCreateInfo.queueFamilyIndexCount = 0;
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
 
-  ezVulkanAllocationCreateInfo allocInfo;
-  allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  allocInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite | ezVulkanAllocationCreateFlags::Mapped;
+  WVulkanAllocationCreateInfo allocInfo;
+  allocInfo.m_usage = WVulkanMemoryUsage::Auto;
+  allocInfo.m_flags = WVulkanAllocationCreateFlags::HostAccessSequentialWrite | WVulkanAllocationCreateFlags::Mapped;
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocInfo, m_Buffer, m_Alloc, &m_AllocInfo));
-  m_Data = ezMakeArrayPtr(reinterpret_cast<ezUInt8*>(m_AllocInfo.m_pMappedData), uiTotalSize);
+  VK_ASSERT_DEV(WMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocInfo, m_Buffer, m_Alloc, &m_AllocInfo));
+  m_Data = WMakeArrayPtr(reinterpret_cast<WUInt8*>(m_AllocInfo.m_pMappedData), uiTotalSize);
 }
 
-ezStagingBufferPoolVulkan::StagingBufferPool::~StagingBufferPool()
+WStagingBufferPoolVulkan::StagingBufferPool::~StagingBufferPool()
 {
-  ezMemoryAllocatorVulkan::DestroyBuffer(m_Buffer, m_Alloc);
+  WMemoryAllocatorVulkan::DestroyBuffer(m_Buffer, m_Alloc);
 }
 
-ezResult ezStagingBufferPoolVulkan::StagingBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation)
+WResult WStagingBufferPoolVulkan::StagingBufferPool::Allocate(WUInt32 uiSize, WUInt64 uiCurrentFrame, WUInt32& out_uiStartOffset, WByteArrayPtr& out_allocation)
 {
   if (m_Tracker.Allocate(uiSize, uiCurrentFrame, out_uiStartOffset).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezStagingBufferPoolVulkan::StagingBufferPool::Free(ezUInt64 uiUpToFrame)
+void WStagingBufferPoolVulkan::StagingBufferPool::Free(WUInt64 uiUpToFrame)
 {
   m_uiFramesWithoutAllocations = m_Tracker.GetUsedMemory() == 0 ? ++m_uiFramesWithoutAllocations : 0;
   m_Tracker.Free(uiUpToFrame);
 }
 
-void ezStagingBufferPoolVulkan::StagingBufferPool::Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame)
+void WStagingBufferPoolVulkan::StagingBufferPool::Submit(WGALDeviceVulkan* pDevice, WUInt64 uiFrame)
 {
-  ezHybridArray<ezRingBufferTracker::FrameData, 4> frameData;
+  WHybridArray<WRingBufferTracker::FrameData, 4> frameData;
   if (m_Tracker.SubmitFrame(uiFrame, frameData).Failed())
     return;
 
-  for (ezRingBufferTracker::FrameData& frame : frameData)
+  for (WRingBufferTracker::FrameData& frame : frameData)
   {
-    VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(m_Alloc, frame.m_uiStartOffset, frame.m_uiSize));
+    VK_ASSERT_DEBUG(WMemoryAllocatorVulkan::FlushAllocation(m_Alloc, frame.m_uiStartOffset, frame.m_uiSize));
   }
 }

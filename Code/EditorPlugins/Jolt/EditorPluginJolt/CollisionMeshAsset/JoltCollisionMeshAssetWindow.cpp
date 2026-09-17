@@ -12,13 +12,13 @@
 
 #include <QLayout>
 
-ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtJoltCollisionMeshAssetDocumentWindow::WQtJoltCollisionMeshAssetDocumentWindow(WAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "JoltCollisionMeshAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -27,8 +27,8 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "JoltCollisionMeshAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -38,33 +38,33 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
   }
 
   // 3D View
-  ezQtViewWidgetContainer* pContainer = nullptr;
+  WQtViewWidgetContainer* pContainer = nullptr;
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-1.6f, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureRelative(WVec3(0), WVec3(5.0f), WVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
 
-    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext = W_DEFAULT_NEW(WCameraMoveContext, this, m_pViewWidget);
     m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
     m_pCameraFlyContext->LoadState();
 
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "JoltCollisionMeshAssetViewToolBar");
+    pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "JoltCollisionMeshAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("JoltCollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -72,7 +72,7 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -88,10 +88,10 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
 }
 
 
-void ezQtJoltCollisionMeshAssetDocumentWindow::SendRedrawMsg()
+void WQtJoltCollisionMeshAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   for (auto pView : m_ViewWidgets)
@@ -104,15 +104,15 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::SendRedrawMsg()
   QueryObjectBBox();
 }
 
-void ezQtJoltCollisionMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
+void WQtJoltCollisionMeshAssetDocumentWindow::QueryObjectBBox(WInt32 iPurpose /*= 0*/)
 {
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
+void WQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
 {
   if (m_iCameraMode == iMode)
     return;
@@ -125,22 +125,22 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
     m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
-void ezQtJoltCollisionMeshAssetDocumentWindow::InternalRedraw()
+void WQtJoltCollisionMeshAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtJoltCollisionMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtJoltCollisionMeshAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxResultMsgToEditor>())
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(WVec3(0.1f)));
     }
     else
     {
@@ -151,5 +151,5 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::ProcessMessageEventHandler(const 
     return;
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
 }

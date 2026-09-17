@@ -7,8 +7,8 @@
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
-ezQtSkeletonPanel::ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSkeletonAssetDocument* pDocument)
-  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
+WQtSkeletonPanel::WQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, WSkeletonAssetDocument* pDocument)
+  : WQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   m_pSkeletonDocument = pDocument;
 
@@ -19,19 +19,19 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* p
   m_pMainWidget->setLayout(new QVBoxLayout());
   m_pMainWidget->setContentsMargins(0, 0, 0, 0);
   m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
-  m_pFilterWidget = new ezQtSearchWidget(this);
-  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this,
+  m_pFilterWidget = new WQtSearchWidget(this);
+  connect(m_pFilterWidget, &WQtSearchWidget::textChanged, this,
     [this](const QString& sText)
     { m_pTreeWidget->GetProxyFilterModel()->SetFilterText(sText); });
 
   m_pMainWidget->layout()->addWidget(m_pFilterWidget);
 
-  std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(pDocument->GetObjectManager()));
-  pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeleton>(), "Children"));
-  pModel->AddAdapter(new ezQtJointAdapter(pDocument));
+  std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtDocumentTreeModel(pDocument->GetObjectManager()));
+  pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "Children"));
+  pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetObjectManager(), WGetStaticRTTI<WEditableSkeleton>(), "Children"));
+  pModel->AddAdapter(new WQtJointAdapter(pDocument));
 
-  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pModel));
+  m_pTreeWidget = new WQtDocumentTreeView(this, pDocument, std::move(pModel));
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(false);
   m_pTreeWidget->expandAll();
@@ -40,4 +40,4 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* p
   setWidget(m_pMainWidget);
 }
 
-ezQtSkeletonPanel::~ezQtSkeletonPanel() = default;
+WQtSkeletonPanel::~WQtSkeletonPanel() = default;

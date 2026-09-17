@@ -1,6 +1,6 @@
 #include <RendererTest/TestClass/SimpleRendererTest.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) || W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileWriter.h>
@@ -9,39 +9,39 @@
 #  include <RendererCore/ShaderCompiler/ShaderParser.h>
 #  include <RendererFoundation/Shader/Shader.h>
 
-void CompareLayouts(const ezShaderConstantBufferLayout& layoutA, const ezShaderConstantBufferLayout& layoutB)
+void CompareLayouts(const WShaderConstantBufferLayout& layoutA, const WShaderConstantBufferLayout& layoutB)
 {
-  if (EZ_TEST_INT(layoutA.m_Constants.GetCount(), layoutB.m_Constants.GetCount()))
+  if (W_TEST_INT(layoutA.m_Constants.GetCount(), layoutB.m_Constants.GetCount()))
   {
-    for (ezUInt32 i = 0; i < layoutA.m_Constants.GetCount(); ++i)
+    for (WUInt32 i = 0; i < layoutA.m_Constants.GetCount(); ++i)
     {
       const auto& constantA = layoutA.m_Constants[i];
       const auto& constantB = layoutB.m_Constants[i];
 
-      EZ_TEST_STRING(constantA.m_sName.GetData(), constantB.m_sName.GetData());
-      if (constantA.m_Type == ezShaderConstant::Type::Bool || constantB.m_Type == ezShaderConstant::Type::Bool)
+      W_TEST_STRING(constantA.m_sName.GetData(), constantB.m_sName.GetData());
+      if (constantA.m_Type == WShaderConstant::Type::Bool || constantB.m_Type == WShaderConstant::Type::Bool)
       {
-        EZ_TEST_BOOL(constantA.m_Type == ezShaderConstant::Type::Bool || constantA.m_Type == ezShaderConstant::Type::UInt1);
-        EZ_TEST_BOOL(constantB.m_Type == ezShaderConstant::Type::Bool || constantB.m_Type == ezShaderConstant::Type::UInt1);
+        W_TEST_BOOL(constantA.m_Type == WShaderConstant::Type::Bool || constantA.m_Type == WShaderConstant::Type::UInt1);
+        W_TEST_BOOL(constantB.m_Type == WShaderConstant::Type::Bool || constantB.m_Type == WShaderConstant::Type::UInt1);
       }
       else
       {
-        EZ_TEST_INT(constantA.m_Type.GetValue(), constantB.m_Type.GetValue());
+        W_TEST_INT(constantA.m_Type.GetValue(), constantB.m_Type.GetValue());
       }
-      EZ_TEST_INT(constantA.m_uiArrayElements, constantB.m_uiArrayElements);
-      EZ_TEST_INT(constantA.m_uiOffset, constantB.m_uiOffset);
+      W_TEST_INT(constantA.m_uiArrayElements, constantB.m_uiArrayElements);
+      W_TEST_INT(constantA.m_uiOffset, constantB.m_uiOffset);
     }
   }
-  EZ_TEST_INT(layoutA.m_uiTotalSize, layoutB.m_uiTotalSize);
+  W_TEST_INT(layoutA.m_uiTotalSize, layoutB.m_uiTotalSize);
 }
 
-void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMaterialUsage, ezStringView sShaderName, ezUInt32 uiParameterCount)
+void TestMaterialConstants(WStringView sMaterialConstants, WStringView sMaterialUsage, WStringView sShaderName, WUInt32 uiParameterCount)
 {
   // Read template
-  ezStringBuilder sEzFileContent;
+  WStringBuilder sEzFileContent;
   {
-    ezFileReader fileEz;
-    if (!EZ_TEST_RESULT(fileEz.Open("RendererTest/Shaders/ShaderParserTest.ezShader.template")))
+    WFileReader fileEz;
+    if (!W_TEST_RESULT(fileEz.Open("RendererTest/Shaders/ShaderParserTest.WShader.template")))
     {
       return;
     }
@@ -53,35 +53,35 @@ void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMateri
   sEzFileContent.ReplaceFirst("{{MATERIAL_USAGE}}", sMaterialUsage);
 
   // Write temp shader
-  ezStringBuilder sTempFile(":imgout/", sShaderName);
+  WStringBuilder sTempFile(":imgout/", sShaderName);
   {
-    ezFileWriter TempFile;
-    EZ_TEST_BOOL(TempFile.Open(sTempFile) == EZ_SUCCESS);
+    WFileWriter TempFile;
+    W_TEST_BOOL(TempFile.Open(sTempFile) == W_SUCCESS);
     TempFile.WriteBytes(sEzFileContent.GetData(), sEzFileContent.GetElementCount()).IgnoreResult();
     TempFile.Close();
   }
 
   // Load / compile shader permutation
-  auto m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>(sShaderName);
-  ezResourceLock<ezShaderResource> pShaderResource(m_hUVColorShader, ezResourceAcquireMode::BlockTillLoaded);
+  auto m_hUVColorShader = WResourceManager::LoadResource<WShaderResource>(sShaderName);
+  WResourceLock<WShaderResource> pShaderResource(m_hUVColorShader, WResourceAcquireMode::BlockTillLoaded);
 
-  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
-  ezShaderPermutationResourceHandle m_hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(m_hUVColorShader, m_PermutationVariables, false);
+  WHashTable<WHashedString, WHashedString> m_PermutationVariables;
+  WShaderPermutationResourceHandle m_hActiveShaderPermutation = WShaderManager::PreloadSinglePermutation(m_hUVColorShader, m_PermutationVariables, false);
 
-  if (!EZ_TEST_BOOL(m_hActiveShaderPermutation.IsValid()))
+  if (!W_TEST_BOOL(m_hActiveShaderPermutation.IsValid()))
     return;
 
-  ezShaderPermutationResource* pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
-  const ezGALShader* pGalShader = ezGALDevice::GetDefaultDevice()->GetShader(pShaderPermutation->GetGALShader());
+  WShaderPermutationResource* pShaderPermutation = WResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, WResourceAcquireMode::BlockTillLoaded);
+  const WGALShader* pGalShader = WGALDevice::GetDefaultDevice()->GetShader(pShaderPermutation->GetGALShader());
 
-  if (EZ_TEST_BOOL(pGalShader))
+  if (W_TEST_BOOL(pGalShader))
   {
-    ezTempHashedString sConstantBufferName("materialData");
-    EZ_TEST_BOOL(pGalShader->GetBindGroupCount() > EZ_GAL_BIND_GROUP_MATERIAL);
-    ezArrayPtr<const ezShaderResourceBinding> bindings = pGalShader->GetBindings(EZ_GAL_BIND_GROUP_MATERIAL);
+    WTempHashedString sConstantBufferName("materialData");
+    W_TEST_BOOL(pGalShader->GetBindGroupCount() > W_GAL_BIND_GROUP_MATERIAL);
+    WArrayPtr<const WShaderResourceBinding> bindings = pGalShader->GetBindings(W_GAL_BIND_GROUP_MATERIAL);
 
-    const ezShaderResourceBinding* pBinding = nullptr;
-    for (const ezShaderResourceBinding& binding : bindings)
+    const WShaderResourceBinding* pBinding = nullptr;
+    for (const WShaderResourceBinding& binding : bindings)
     {
       if (binding.m_sName == sConstantBufferName)
       {
@@ -89,24 +89,24 @@ void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMateri
         break;
       }
     }
-    EZ_TEST_BOOL(pBinding != nullptr);
+    W_TEST_BOOL(pBinding != nullptr);
 
     // Compared parsed vs compiled layout
-    if (EZ_TEST_BOOL(pBinding && pBinding->m_pLayout && pShaderResource->GetMaterialLayout()))
+    if (W_TEST_BOOL(pBinding && pBinding->m_pLayout && pShaderResource->GetMaterialLayout()))
     {
-      EZ_TEST_INT(uiParameterCount, pBinding->m_pLayout->m_Constants.GetCount());
-      EZ_TEST_INT(uiParameterCount, pShaderResource->GetMaterialLayout()->m_Constants.GetCount());
+      W_TEST_INT(uiParameterCount, pBinding->m_pLayout->m_Constants.GetCount());
+      W_TEST_INT(uiParameterCount, pShaderResource->GetMaterialLayout()->m_Constants.GetCount());
       CompareLayouts(*pShaderResource->GetMaterialLayout(), *pBinding->m_pLayout);
     }
   }
-  ezResourceManager::EndAcquireResource(pShaderPermutation);
+  WResourceManager::EndAcquireResource(pShaderPermutation);
 }
 
-EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, ShaderParser)
+W_CREATE_SIMPLE_RENDERER_TEST(DataStructures, ShaderParser)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Default")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  COLOR4F(BaseColor);\n"
       "  COLOR4F(EmissiveColor);\n"
       "  FLOAT1(MetallicValue);\n"
@@ -119,12 +119,12 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, ShaderParser)
       "  BOOL1(UseEmissiveTexture);\n"
       "  BOOL1(UseOcclusionTexture);\n"
       "  BOOL1(UseOrmTexture);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(BaseColor).r", "Temp_Default.ezShader", 12);
+    TestMaterialConstants(shaderSection, "GetMaterialData(BaseColor).r", "Temp_Default.WShader", 12);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Zoo")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Zoo")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  FLOAT2(Value2);\n"
       "  FLOAT3(Value3);\n"
@@ -142,92 +142,92 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, ShaderParser)
       "  TRANSFORM(Value15);\n"
       "  COLOR4F(Value16);\n"
       "  BOOL1(Value17);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Zoo.ezShader", 17);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Zoo.WShader", 17);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PoorPacking1")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PoorPacking1")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  BOOL1(Value2);\n"
       "  COLOR4F(Value3);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking1.ezShader", 3);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking1.WShader", 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PoorPacking2")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PoorPacking2")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  COLOR4F(Value2);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking2.ezShader", 2);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking2.WShader", 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PoorPacking3")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PoorPacking3")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  MAT3(Value2);\n"
       "  FLOAT2(Value3);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking3.ezShader", 3);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking3.WShader", 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PoorPacking4")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PoorPacking4")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  MAT4(Value2);\n"
       "  INT1(Value3);\n"
       "  UINT2(Value4);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking4.ezShader", 4);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking4.WShader", 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PoorPacking5")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PoorPacking5")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  UINT2(Value1);\n"
       "  TRANSFORM(Value2);\n"
       "  INT2(Value3);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking5.ezShader", 3);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_PoorPacking5.WShader", 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float2a")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Float2a")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT2(Value1);\n"
       "  UINT2(Value2);\n"
       "  FLOAT1(Value3);\n"
       "  INT1(Value4);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2a.ezShader", 4);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2a.WShader", 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float2b")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Float2b")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT2(Value1);\n"
       "  FLOAT1(Value2);\n"
       "  FLOAT2(Value3);\n"
       "  FLOAT1(Value4);\n"
       "  FLOAT1(Value5);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2b.ezShader", 5);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2b.WShader", 5);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float2c")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Float2c")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT1(Value1);\n"
       "  FLOAT1(Value2);\n"
       "  FLOAT2(Value3);\n"
       "  FLOAT2(Value4);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2c.ezShader", 4);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float2c.WShader", 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float3")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Float3")
   {
-    ezStringView shaderSection =
+    WStringView shaderSection =
       "  FLOAT3(Value1);\n"
       "  FLOAT3(Value2);\n"
       "  FLOAT3(Value3);\n";
-    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float3.ezShader", 3);
+    TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float3.WShader", 3);
   }
 }
 #endif

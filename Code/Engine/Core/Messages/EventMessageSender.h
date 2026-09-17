@@ -3,51 +3,51 @@
 #include <Core/World/World.h>
 #include <Foundation/Communication/Message.h>
 
-namespace ezInternal
+namespace WInternal
 {
-  struct EZ_CORE_DLL EventMessageSenderHelper
+  struct W_CORE_DLL EventMessageSenderHelper
   {
-    static bool SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers);
-    static bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers);
-    static void PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType);
+    static bool SendEventMessage(WMessage& ref_msg, WComponent* pSenderComponent, WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers);
+    static bool SendEventMessage(WMessage& ref_msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers);
+    static void PostEventMessage(const WMessage& msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject, WSmallArray<WComponentHandle, 1>& inout_cachedReceivers, WTime delay, WObjectMsgQueueType::Enum queueType);
   };
-} // namespace ezInternal
+} // namespace WInternal
 
-/// A message sender that sends all messages to the next component derived from ezEventMessageHandlerComponent
+/// A message sender that sends all messages to the next component derived from WEventMessageHandlerComponent
 ///   up in the hierarchy starting with the given search object. If none is found the message is sent to
 ///   all components registered as global event message handler. The receiver is cached after the first send/post call.
 template <typename EventMessageType>
-class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
+class WEventMessageSender : public WMessageSenderBase<EventMessageType>
 {
 public:
-  EZ_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
+  W_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, WComponent* pSenderComponent, WGameObject* pSearchObject)
   {
-    return ezInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
+    return WInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
-  EZ_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
+  W_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject) const
   {
-    return ezInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
+    return WInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
-  EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject,
-    ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame)
+  W_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, WComponent* pSenderComponent, WGameObject* pSearchObject,
+    WTime delay, WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame)
   {
-    ezInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
+    WInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 
-  EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const
+  W_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject,
+    WTime delay, WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame) const
   {
-    ezInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
+    WInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 
-  EZ_ALWAYS_INLINE void Invalidate()
+  W_ALWAYS_INLINE void Invalidate()
   {
     m_CachedReceivers.Clear();
-    m_CachedReceivers.GetUserData<ezUInt32>() = 0;
+    m_CachedReceivers.GetUserData<WUInt32>() = 0;
   }
 
 private:
-  mutable ezSmallArray<ezComponentHandle, 1> m_CachedReceivers;
+  mutable WSmallArray<WComponentHandle, 1> m_CachedReceivers;
 };

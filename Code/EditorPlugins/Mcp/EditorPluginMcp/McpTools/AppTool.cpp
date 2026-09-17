@@ -17,18 +17,18 @@
 #include <QTimer>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpEditorAppTool, 1, ezRTTIDefaultAllocator<ezMcpEditorAppTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpEditorAppTool, 1, WRTTIDefaultAllocator<WMcpEditorAppTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStringView ezMcpEditorAppTool::GetBuildTimestamp() const
+WStringView WMcpEditorAppTool::GetBuildTimestamp() const
 {
   return __DATE__ " " __TIME__;
 }
 
-ezStringView ezMcpEditorAppTool::GetRelaunchHint() const
+WStringView WMcpEditorAppTool::GetRelaunchHint() const
 {
-  return "To start an editor again afterwards, run the ezEditor executable with "
+  return "To start an editor again afterwards, run the WEditor executable with "
          "'-project <path-to-project-folder> -unattended -editor-mcpport <port>'. Pass '-unattended', or the editor may "
          "open a dialog while opening the project - before any tool call can suppress it - and hang there. "
          "It serves MCP at http://127.0.0.1:<port>/mcp "
@@ -37,25 +37,25 @@ ezStringView ezMcpEditorAppTool::GetRelaunchHint() const
          "Call app_info for this editor's own port and executable path.";
 }
 
-void ezMcpEditorAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
+void WMcpEditorAppTool::AddHostInfo(WMcpJsonWriter& ref_writer)
 {
   // Where the editor writes its log. Reported as an absolute path because the location is otherwise
   // undiscoverable: it lives in the user data directory under a name derived from '-appid', and
   // nothing in the tool list or in '-help' points at it. It matters most when the editor dies - a
   // crash takes the MCP server with it, so the file is all that is left to read afterwards.
-  const ezInt32 iApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0);
+  const WInt32 iApplicationID = WCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0);
 
-  ezStringBuilder sLogFile;
+  WStringBuilder sLogFile;
   sLogFile.SetFormat(":appdata/Logs/LogEditor_{}.htm", iApplicationID);
 
-  ezStringBuilder sAbsLogFile;
-  if (ezFileSystem::ResolvePath(sLogFile, &sAbsLogFile, nullptr).Succeeded())
+  WStringBuilder sAbsLogFile;
+  if (WFileSystem::ResolvePath(sLogFile, &sAbsLogFile, nullptr).Succeeded())
   {
     ref_writer.AddVariableString("logFile", sAbsLogFile);
 
     // The engine runs as a separate process and logs separately, which is why log_read cannot see
     // it. Naming the pattern is the only way an agent can find those files at all.
-    ezStringBuilder sEngineLogPattern = sAbsLogFile;
+    WStringBuilder sEngineLogPattern = sAbsLogFile;
     sEngineLogPattern.PathParentDirectory();
     sEngineLogPattern.AppendFormat("LogEditor_{}_Engine_<pid>.htm", iApplicationID);
     sEngineLogPattern.MakeCleanPath();
@@ -66,23 +66,23 @@ void ezMcpEditorAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
   // is answered - screenshots, input, frames. An agent should not be expected to know the '+1' rule, so
   // the port is reported rather than implied.
   {
-    const ezEditorEngineProcessConnection* pCon = ezEditorEngineProcessConnection::GetSingleton();
+    const WEditorEngineProcessConnection* pCon = WEditorEngineProcessConnection::GetSingleton();
     const bool bEngineRunning = pCon != nullptr && pCon->IsEngineSetup();
 
     // The engine process' port cannot be queried from here - that would need an IPC message this
     // feature does not have - so it is resolved exactly the way the engine plugin resolves it. That
     // works because the editor forwards its whole command line, so both processes see the same options:
     // an explicit '-mcpport' wins, otherwise the engine takes our port + 1.
-    const ezInt32 iExplicitPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-mcpport", 0);
+    const WInt32 iExplicitPort = WCommandLineUtils::GetGlobalInstance()->GetIntOption("-mcpport", 0);
 
-    const ezMcpServer* pServer = ezMcpServer::GetInstance();
-    const ezUInt16 uiOwnPort = pServer != nullptr ? pServer->GetPort() : 0;
+    const WMcpServer* pServer = WMcpServer::GetInstance();
+    const WUInt16 uiOwnPort = pServer != nullptr ? pServer->GetPort() : 0;
 
-    ezUInt16 uiEnginePort = 0;
+    WUInt16 uiEnginePort = 0;
 
     if (iExplicitPort > 0 && iExplicitPort <= 0xFFFF)
     {
-      uiEnginePort = static_cast<ezUInt16>(iExplicitPort);
+      uiEnginePort = static_cast<WUInt16>(iExplicitPort);
     }
     else if (uiOwnPort > 0 && uiOwnPort < 0xFFFF)
     {
@@ -93,7 +93,7 @@ void ezMcpEditorAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
     {
       ref_writer.AddVariableUInt32("engineMcpPort", uiEnginePort);
 
-      ezStringBuilder sEngineUrl;
+      WStringBuilder sEngineUrl;
       sEngineUrl.SetFormat("http://127.0.0.1:{}/mcp", uiEnginePort);
       ref_writer.AddVariableString("engineMcpUrl", sEngineUrl);
     }
@@ -122,11 +122,11 @@ void ezMcpEditorAppTool::AddHostInfo(ezMcpJsonWriter& ref_writer)
     "note that a crash may lose the last messages, as the log is not flushed on the way down.");
 }
 
-void ezMcpEditorAppTool::CollectModifiedDocuments(ezDynamicArray<ezString>& out_documents)
+void WMcpEditorAppTool::CollectModifiedDocuments(WDynamicArray<WString>& out_documents)
 {
-  for (const ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (const WDocumentManager* pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    for (const ezDocument* pDoc : pMan->GetAllOpenDocuments())
+    for (const WDocument* pDoc : pMan->GetAllOpenDocuments())
     {
       if (pDoc->IsModified())
       {
@@ -136,9 +136,9 @@ void ezMcpEditorAppTool::CollectModifiedDocuments(ezDynamicArray<ezString>& out_
   }
 }
 
-ezResult ezMcpEditorAppTool::CanQuit(bool bDiscardChanges)
+WResult WMcpEditorAppTool::CanQuit(bool bDiscardChanges)
 {
-  // Checked here rather than through ezToolsProject::CanCloseProject(), which asks the *user* about
+  // Checked here rather than through WToolsProject::CanCloseProject(), which asks the *user* about
   // unsaved documents through a modal dialog. With no one at the keyboard - which is the entire point
   // of this tool - that dialog never returns and the editor hangs, holding its port, unreachable and
   // unkillable through MCP. So the decision is made without any dialog at all.
@@ -146,29 +146,29 @@ ezResult ezMcpEditorAppTool::CanQuit(bool bDiscardChanges)
   CollectModifiedDocuments(m_ModifiedDocuments);
 
   if (!m_ModifiedDocuments.IsEmpty() && !bDiscardChanges)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMcpEditorAppTool::AddQuitRefusalInfo(ezMcpJsonWriter& ref_writer)
+void WMcpEditorAppTool::AddQuitRefusalInfo(WMcpJsonWriter& ref_writer)
 {
   ref_writer.AddVariableString("reason", "Documents have unsaved changes. Save them, or call again with discardChanges=true to lose them.");
 
   ref_writer.BeginArray("modifiedDocuments");
-  for (const ezString& sDoc : m_ModifiedDocuments)
+  for (const WString& sDoc : m_ModifiedDocuments)
   {
     ref_writer.WriteString(sDoc);
   }
   ref_writer.EndArray();
 }
 
-void ezMcpEditorAppTool::AddQuitInfo(ezMcpJsonWriter& ref_writer)
+void WMcpEditorAppTool::AddQuitInfo(WMcpJsonWriter& ref_writer)
 {
   ref_writer.AddVariableUInt32("discardedDocuments", m_ModifiedDocuments.GetCount());
 }
 
-void ezMcpEditorAppTool::RequestQuit(bool bDiscardChanges)
+void WMcpEditorAppTool::RequestQuit(bool bDiscardChanges)
 {
   // Deferred to the next event loop iteration, because this runs inside the request handler: the
   // response has not been written to the socket yet, and quitting here would drop it, leaving the
@@ -178,7 +178,7 @@ void ezMcpEditorAppTool::RequestQuit(bool bDiscardChanges)
       // Closes the documents first, discarding unsaved changes without asking. Otherwise the shutdown
       // path finds modified documents and raises the modal save dialog that this tool exists to avoid.
       // Reaching this point means that was either unnecessary or explicitly requested.
-      ezDocumentManager::CloseAllDocuments();
+      WDocumentManager::CloseAllDocuments();
 
       QApplication::closeAllWindows(); });
 }

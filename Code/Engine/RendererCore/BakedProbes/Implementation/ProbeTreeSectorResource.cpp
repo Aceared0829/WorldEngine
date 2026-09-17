@@ -4,26 +4,26 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 
-ezProbeTreeSectorResourceDescriptor::ezProbeTreeSectorResourceDescriptor() = default;
-ezProbeTreeSectorResourceDescriptor::~ezProbeTreeSectorResourceDescriptor() = default;
-ezProbeTreeSectorResourceDescriptor& ezProbeTreeSectorResourceDescriptor::operator=(ezProbeTreeSectorResourceDescriptor&& other) = default;
+WProbeTreeSectorResourceDescriptor::WProbeTreeSectorResourceDescriptor() = default;
+WProbeTreeSectorResourceDescriptor::~WProbeTreeSectorResourceDescriptor() = default;
+WProbeTreeSectorResourceDescriptor& WProbeTreeSectorResourceDescriptor::operator=(WProbeTreeSectorResourceDescriptor&& other) = default;
 
-void ezProbeTreeSectorResourceDescriptor::Clear()
+void WProbeTreeSectorResourceDescriptor::Clear()
 {
   m_ProbePositions.Clear();
   m_SkyVisibility.Clear();
 }
 
-ezUInt64 ezProbeTreeSectorResourceDescriptor::GetHeapMemoryUsage() const
+WUInt64 WProbeTreeSectorResourceDescriptor::GetHeapMemoryUsage() const
 {
-  ezUInt64 uiMemUsage = 0;
+  WUInt64 uiMemUsage = 0;
   uiMemUsage += m_ProbePositions.GetHeapMemoryUsage();
   uiMemUsage += m_SkyVisibility.GetHeapMemoryUsage();
   return uiMemUsage;
 }
 
-static ezTypeVersion s_ProbeTreeResourceDescriptorVersion = 1;
-ezResult ezProbeTreeSectorResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
+static WTypeVersion s_ProbeTreeResourceDescriptorVersion = 1;
+WResult WProbeTreeSectorResourceDescriptor::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(s_ProbeTreeResourceDescriptorVersion);
 
@@ -31,99 +31,99 @@ ezResult ezProbeTreeSectorResourceDescriptor::Serialize(ezStreamWriter& inout_st
   inout_stream << m_vProbeSpacing;
   inout_stream << m_vProbeCount;
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_ProbePositions));
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_SkyVisibility));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_ProbePositions));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_SkyVisibility));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProbeTreeSectorResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
+WResult WProbeTreeSectorResourceDescriptor::Deserialize(WStreamReader& inout_stream)
 {
   Clear();
 
-  const ezTypeVersion version = inout_stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
-  EZ_IGNORE_UNUSED(version);
+  const WTypeVersion version = inout_stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
+  W_IGNORE_UNUSED(version);
 
   inout_stream >> m_vGridOrigin;
   inout_stream >> m_vProbeSpacing;
   inout_stream >> m_vProbeCount;
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_ProbePositions));
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_SkyVisibility));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_ProbePositions));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_SkyVisibility));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProbeTreeSectorResource, 1, ezRTTIDefaultAllocator<ezProbeTreeSectorResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProbeTreeSectorResource, 1, WRTTIDefaultAllocator<WProbeTreeSectorResource>);
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezProbeTreeSectorResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WProbeTreeSectorResource);
 // clang-format on
 
-ezProbeTreeSectorResource::ezProbeTreeSectorResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WProbeTreeSectorResource::WProbeTreeSectorResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezProbeTreeSectorResource::~ezProbeTreeSectorResource() = default;
+WProbeTreeSectorResource::~WProbeTreeSectorResource() = default;
 
-ezResourceLoadDesc ezProbeTreeSectorResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WProbeTreeSectorResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   m_Desc.Clear();
 
   return res;
 }
 
-ezResourceLoadDesc ezProbeTreeSectorResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WProbeTreeSectorResource::UpdateContent(WStreamReader* Stream)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezString sAbsFilePath;
+  WString sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezProbeTreeSectorResourceDescriptor descriptor;
+  WProbeTreeSectorResourceDescriptor descriptor;
   if (descriptor.Deserialize(*Stream).Failed())
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   return CreateResource(std::move(descriptor));
 }
 
-void ezProbeTreeSectorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WProbeTreeSectorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezProbeTreeSectorResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WProbeTreeSectorResource);
   out_NewMemoryUsage.m_uiMemoryCPU += m_Desc.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezProbeTreeSectorResource::CreateResource(ezProbeTreeSectorResourceDescriptor&& descriptor)
+WResourceLoadDesc WProbeTreeSectorResource::CreateResource(WProbeTreeSectorResourceDescriptor&& descriptor)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   m_Desc = std::move(descriptor);
 
@@ -131,4 +131,4 @@ ezResourceLoadDesc ezProbeTreeSectorResource::CreateResource(ezProbeTreeSectorRe
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_ProbeTreeSectorResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_ProbeTreeSectorResource);

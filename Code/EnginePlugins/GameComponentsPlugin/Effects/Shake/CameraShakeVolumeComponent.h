@@ -5,23 +5,23 @@
 #include <Core/World/World.h>
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgComponentInternalTrigger;
-struct ezMsgDeleteGameObject;
+struct WMsgUpdateLocalBounds;
+struct WMsgComponentInternalTrigger;
+struct WMsgDeleteGameObject;
 
 /// Base class for components that define volumes in which a camera shake effect shall be applied.
 ///
 /// Derived classes implement different shape types and how the shake strength is calculated.
-class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WCameraShakeVolumeComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezCameraShakeVolumeComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WCameraShakeVolumeComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -29,73 +29,73 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCameraShakeVolumeComponent
+  // WCameraShakeVolumeComponent
 
 public:
-  ezCameraShakeVolumeComponent();
-  ~ezCameraShakeVolumeComponent();
+  WCameraShakeVolumeComponent();
+  ~WCameraShakeVolumeComponent();
 
   /// The spatial category used to find camera shake volume components through the spatial system.
-  static ezSpatialData::Category SpatialDataCategory;
+  static WSpatialData::Category SpatialDataCategory;
 
   /// How long a shake burst should last. Zero for constant shaking.
-  ezTime m_BurstDuration; // [ property ]
+  WTime m_BurstDuration; // [ property ]
 
   /// How strong the shake should be at the strongest point. Typically a value between one and zero.
   float m_fStrength; // [ property ]
 
   /// Calculates the shake strength at the given global position.
-  float ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
+  float ComputeForceAtGlobalPosition(const WSimdVec4f& vGlobalPos) const;
 
   /// Calculates the shake strength in local space of the component.
-  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
+  virtual float ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const = 0;
 
   /// In case of a burst shake, defines whether the component should delete itself afterwards.
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
+  WEnum<WOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
 protected:
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+  void OnTriggered(WMsgComponentInternalTrigger& msg);
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg);
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-using ezCameraShakeVolumeSphereComponentManager = ezComponentManager<class ezCameraShakeVolumeSphereComponent, ezBlockStorageType::Compact>;
+using WCameraShakeVolumeSphereComponentManager = WComponentManager<class WCameraShakeVolumeSphereComponent, WBlockStorageType::Compact>;
 
 /// A spherical volume in which a camera shake will be applied.
 ///
 /// The shake strength is strongest at the center of the sphere and gradually weaker towards the sphere radius.
 ///
-/// \see ezCameraShakeVolumeComponent
-/// \see ezCameraShakeComponent
-class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeSphereComponent : public ezCameraShakeVolumeComponent
+/// \see WCameraShakeVolumeComponent
+/// \see WCameraShakeComponent
+class W_GAMECOMPONENTS_DLL WCameraShakeVolumeSphereComponent : public WCameraShakeVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezCameraShakeVolumeSphereComponent, ezCameraShakeVolumeComponent, ezCameraShakeVolumeSphereComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WCameraShakeVolumeSphereComponent, WCameraShakeVolumeComponent, WCameraShakeVolumeSphereComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCameraShakeVolumeSphereComponent
+  // WCameraShakeVolumeSphereComponent
 
 public:
-  ezCameraShakeVolumeSphereComponent();
-  ~ezCameraShakeVolumeSphereComponent();
+  WCameraShakeVolumeSphereComponent();
+  ~WCameraShakeVolumeSphereComponent();
 
-  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
+  virtual float ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; } // [ property ]
   void SetRadius(float fVal);                   // [ property ]
 
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
 
   float m_fRadius = 1.0f;
-  ezSimdFloat m_fOneDivRadius;
+  WSimdFloat m_fOneDivRadius;
 };

@@ -5,27 +5,27 @@
 #include <Foundation/Serialization/GraphVersioning.h>
 #include <Foundation/Serialization/RttiConverter.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezGraphPatch);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WGraphPatch);
 
-ezGraphPatch::ezGraphPatch(const char* szType, ezUInt32 uiTypeVersion, PatchType type)
+WGraphPatch::WGraphPatch(const char* szType, WUInt32 uiTypeVersion, PatchType type)
   : m_szType(szType)
   , m_uiTypeVersion(uiTypeVersion)
   , m_PatchType(type)
 {
 }
 
-const char* ezGraphPatch::GetType() const
+const char* WGraphPatch::GetType() const
 {
   return m_szType;
 }
 
-ezUInt32 ezGraphPatch::GetTypeVersion() const
+WUInt32 WGraphPatch::GetTypeVersion() const
 {
   return m_uiTypeVersion;
 }
 
 
-ezGraphPatch::PatchType ezGraphPatch::GetPatchType() const
+WGraphPatch::PatchType WGraphPatch::GetPatchType() const
 {
   return m_PatchType;
 }

@@ -8,11 +8,11 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezWorld;
-class ezUuid;
+class WWorld;
+class WUuid;
 
 /// Event data for surface resource lifecycle notifications.
-struct ezSurfaceResourceEvent
+struct WSurfaceResourceEvent
 {
   enum class Type
   {
@@ -21,7 +21,7 @@ struct ezSurfaceResourceEvent
   };
 
   Type m_Type;
-  ezSurfaceResource* m_pSurface = nullptr;
+  WSurfaceResource* m_pSurface = nullptr;
 };
 
 /// Resource representing a physics surface with material properties and interaction behaviors.
@@ -29,46 +29,46 @@ struct ezSurfaceResourceEvent
 /// Defines how objects interact with a surface through collision responses, sound effects,
 /// particle effects, and other configurable behaviors. Supports inheritance from base surfaces
 /// and provides integration with physics engines through material pointers.
-class EZ_CORE_DLL ezSurfaceResource : public ezResource
+class W_CORE_DLL WSurfaceResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezSurfaceResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WSurfaceResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WSurfaceResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WSurfaceResource, WSurfaceResourceDescriptor);
 
 public:
-  ezSurfaceResource();
-  ~ezSurfaceResource();
+  WSurfaceResource();
+  ~WSurfaceResource();
 
-  const ezSurfaceResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  const WSurfaceResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
-  static ezEvent<const ezSurfaceResourceEvent&, ezMutex> s_Events;
+  static WEvent<const WSurfaceResourceEvent&, WMutex> s_Events;
 
   void* m_pPhysicsMaterialPhysX = nullptr;
   void* m_pPhysicsMaterialJolt = nullptr;
 
   /// Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
-  bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f) const;
+  bool InteractWithSurface(WWorld* pWorld, WGameObjectHandle hObject, const WVec3& vPosition, const WVec3& vSurfaceNormal, const WVec3& vIncomingDirection, const WTempHashedString& sInteraction, const WUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f) const;
 
-  bool IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const;
+  bool IsBasedOn(const WSurfaceResource* pThisOrBaseSurface) const;
 
-  bool IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurface) const;
+  bool IsBasedOn(const WSurfaceResourceHandle hThisOrBaseSurface) const;
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  static const ezSurfaceInteraction* FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue);
+  static const WSurfaceInteraction* FindInteraction(const WSurfaceResource* pCurSurf, WUInt64 uiHash, float fImpulseSqr, float& out_fImpulseParamValue);
 
-  ezSurfaceResourceDescriptor m_Descriptor;
+  WSurfaceResourceDescriptor m_Descriptor;
 
   struct SurfInt
   {
-    ezUInt64 m_uiInteractionTypeHash = 0;
-    const ezSurfaceInteraction* m_pInteraction;
+    WUInt64 m_uiInteractionTypeHash = 0;
+    const WSurfaceInteraction* m_pInteraction;
   };
 
-  ezDynamicArray<SurfInt> m_Interactions;
+  WDynamicArray<SurfInt> m_Interactions;
 };

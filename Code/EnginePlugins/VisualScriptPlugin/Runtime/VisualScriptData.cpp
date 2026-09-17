@@ -10,26 +10,26 @@ namespace
     "Instance",
     "Constant",
   };
-  static_assert(EZ_ARRAY_SIZE(s_DataOffsetSourceNames) == (size_t)ezVisualScriptDataDescription::DataOffset::Source::Count);
+  static_assert(W_ARRAY_SIZE(s_DataOffsetSourceNames) == (size_t)WVisualScriptDataDescription::DataOffset::Source::Count);
 } // namespace
 
 // Check that DataOffset fits in one uint32 and also check that we have enough bits for dataType and source.
-static_assert(sizeof(ezVisualScriptDataDescription::DataOffset) == sizeof(ezUInt32));
-static_assert(ezVisualScriptDataType::Count <= EZ_BIT(ezVisualScriptDataDescription::DataOffset::TYPE_BITS));
-static_assert(ezVisualScriptDataDescription::DataOffset::Source::Count <= EZ_BIT(ezVisualScriptDataDescription::DataOffset::SOURCE_BITS));
+static_assert(sizeof(WVisualScriptDataDescription::DataOffset) == sizeof(WUInt32));
+static_assert(WVisualScriptDataType::Count <= W_BIT(WVisualScriptDataDescription::DataOffset::TYPE_BITS));
+static_assert(WVisualScriptDataDescription::DataOffset::Source::Count <= W_BIT(WVisualScriptDataDescription::DataOffset::SOURCE_BITS));
 
 // static
-const char* ezVisualScriptDataDescription::DataOffset::Source::GetName(Enum source)
+const char* WVisualScriptDataDescription::DataOffset::Source::GetName(Enum source)
 {
-  EZ_ASSERT_DEBUG(source >= 0 && static_cast<ezUInt32>(source) < EZ_ARRAY_SIZE(s_DataOffsetSourceNames), "Out of bounds access");
+  W_ASSERT_DEBUG(source >= 0 && static_cast<WUInt32>(source) < W_ARRAY_SIZE(s_DataOffsetSourceNames), "Out of bounds access");
   return s_DataOffsetSourceNames[source];
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-static const ezTypeVersion s_uiVisualScriptDataDescriptionVersion = 2;
+static const WTypeVersion s_uiVisualScriptDataDescriptionVersion = 2;
 
-ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) const
+WResult WVisualScriptDataDescription::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(s_uiVisualScriptDataDescriptionVersion);
 
@@ -38,16 +38,16 @@ ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) 
     inout_stream << typeInfo.m_uiCount;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream)
+WResult WVisualScriptDataDescription::Deserialize(WStreamReader& inout_stream)
 {
-  ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptDataDescriptionVersion);
+  WTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptDataDescriptionVersion);
   if (uiVersion < 2)
   {
-    ezLog::Error("Invalid visual script data desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
-    return EZ_FAILURE;
+    WLog::Error("Invalid visual script data desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
+    return W_FAILURE;
   }
 
   for (auto& typeInfo : m_PerTypeInfo)
@@ -57,29 +57,29 @@ ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream
 
   CalculatePerTypeStartOffsets();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezVisualScriptDataDescription::Clear()
+void WVisualScriptDataDescription::Clear()
 {
-  ezMemoryUtils::ZeroFillArray(m_PerTypeInfo);
+  WMemoryUtils::ZeroFillArray(m_PerTypeInfo);
   m_uiStorageSizeNeeded = 0;
 }
 
-void ezVisualScriptDataDescription::CalculatePerTypeStartOffsets()
+void WVisualScriptDataDescription::CalculatePerTypeStartOffsets()
 {
-  ezUInt32 uiOffset = 0;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerTypeInfo); ++i)
+  WUInt32 uiOffset = 0;
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(m_PerTypeInfo); ++i)
   {
-    auto dataType = static_cast<ezVisualScriptDataType::Enum>(i);
+    auto dataType = static_cast<WVisualScriptDataType::Enum>(i);
     auto& typeInfo = m_PerTypeInfo[i];
 
     if (typeInfo.m_uiCount > 0)
     {
-      uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
+      uiOffset = WMemoryUtils::AlignSize(uiOffset, WVisualScriptDataType::GetStorageAlignment(dataType));
       typeInfo.m_uiStartOffset = uiOffset;
 
-      uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
+      uiOffset += WVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
     }
   }
 
@@ -88,117 +88,117 @@ void ezVisualScriptDataDescription::CalculatePerTypeStartOffsets()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptDataStorage::ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc)
+WVisualScriptDataStorage::WVisualScriptDataStorage(const WSharedPtr<const WVisualScriptDataDescription>& pDesc)
   : m_pDesc(pDesc)
 {
 }
 
-ezVisualScriptDataStorage::~ezVisualScriptDataStorage()
+WVisualScriptDataStorage::~WVisualScriptDataStorage()
 {
   DeallocateStorage();
 }
 
-void ezVisualScriptDataStorage::AllocateStorage(ezAllocator* pAllocator)
+void WVisualScriptDataStorage::AllocateStorage(WAllocator* pAllocator)
 {
-  EZ_ASSERT_DEV(IsAllocated() == false, "Storage already allocated");
+  W_ASSERT_DEV(IsAllocated() == false, "Storage already allocated");
 
-  m_Storage = EZ_NEW_ARRAY(pAllocator, ezUInt8, m_pDesc->m_uiStorageSizeNeeded);
-  ezMemoryUtils::ZeroFill(m_Storage.GetPtr(), m_Storage.GetCount());
+  m_Storage = W_NEW_ARRAY(pAllocator, WUInt8, m_pDesc->m_uiStorageSizeNeeded);
+  WMemoryUtils::ZeroFill(m_Storage.GetPtr(), m_Storage.GetCount());
   m_pAllocator = pAllocator;
 
   auto pData = m_Storage.GetPtr();
 
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  for (WUInt32 scriptDataType = 0; scriptDataType < WVisualScriptDataType::Count; ++scriptDataType)
   {
     const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
     if (typeInfo.m_uiCount == 0)
       continue;
 
-    if (scriptDataType == ezVisualScriptDataType::String)
+    if (scriptDataType == WVisualScriptDataType::String)
     {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
+      auto pStrings = reinterpret_cast<WString*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
-    if (scriptDataType == ezVisualScriptDataType::HashedString)
+    if (scriptDataType == WVisualScriptDataType::HashedString)
     {
-      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
+      auto pStrings = reinterpret_cast<WHashedString*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
+    else if (scriptDataType == WVisualScriptDataType::Variant)
     {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariants, typeInfo.m_uiCount);
+      auto pVariants = reinterpret_cast<WVariant*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Construct<SkipTrivialTypes>(pVariants, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
+    else if (scriptDataType == WVisualScriptDataType::Array)
     {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantArrays, typeInfo.m_uiCount);
+      auto pVariantArrays = reinterpret_cast<WVariantArray*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Construct<SkipTrivialTypes>(pVariantArrays, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
+    else if (scriptDataType == WVisualScriptDataType::Map)
     {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantMaps, typeInfo.m_uiCount);
+      auto pVariantMaps = reinterpret_cast<WVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Construct<SkipTrivialTypes>(pVariantMaps, typeInfo.m_uiCount);
     }
   }
 }
 
-void ezVisualScriptDataStorage::DeallocateStorage()
+void WVisualScriptDataStorage::DeallocateStorage()
 {
   if (IsAllocated() == false)
     return;
 
   auto pData = m_Storage.GetPtr();
 
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  for (WUInt32 scriptDataType = 0; scriptDataType < WVisualScriptDataType::Count; ++scriptDataType)
   {
     const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
     if (typeInfo.m_uiCount == 0)
       continue;
 
-    if (scriptDataType == ezVisualScriptDataType::String)
+    if (scriptDataType == WVisualScriptDataType::String)
     {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
+      auto pStrings = reinterpret_cast<WString*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    else if (scriptDataType == WVisualScriptDataType::HashedString)
     {
-      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
+      auto pStrings = reinterpret_cast<WHashedString*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
+    else if (scriptDataType == WVisualScriptDataType::Variant)
     {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariants, typeInfo.m_uiCount);
+      auto pVariants = reinterpret_cast<WVariant*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Destruct(pVariants, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
+    else if (scriptDataType == WVisualScriptDataType::Array)
     {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariantArrays, typeInfo.m_uiCount);
+      auto pVariantArrays = reinterpret_cast<WVariantArray*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Destruct(pVariantArrays, typeInfo.m_uiCount);
     }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
+    else if (scriptDataType == WVisualScriptDataType::Map)
     {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariantMaps, typeInfo.m_uiCount);
+      auto pVariantMaps = reinterpret_cast<WVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
+      WMemoryUtils::Destruct(pVariantMaps, typeInfo.m_uiCount);
     }
   }
 
-  EZ_DELETE_ARRAY(m_pAllocator, m_Storage);
+  W_DELETE_ARRAY(m_pAllocator, m_Storage);
   m_pAllocator = nullptr;
 }
 
-ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) const
+WResult WVisualScriptDataStorage::Serialize(WStreamWriter& inout_stream) const
 {
   auto pData = m_Storage.GetPtr();
 
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  for (WUInt32 scriptDataType = 0; scriptDataType < WVisualScriptDataType::Count; ++scriptDataType)
   {
     const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
     if (typeInfo.m_uiCount == 0)
       continue;
 
-    if (scriptDataType == ezVisualScriptDataType::String)
+    if (scriptDataType == WVisualScriptDataType::String)
     {
-      auto pStrings = reinterpret_cast<const ezString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStrings = reinterpret_cast<const WString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -206,9 +206,9 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
         ++pStrings;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    else if (scriptDataType == WVisualScriptDataType::HashedString)
     {
-      auto pStrings = reinterpret_cast<const ezHashedString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStrings = reinterpret_cast<const WHashedString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -216,9 +216,9 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
         ++pStrings;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
+    else if (scriptDataType == WVisualScriptDataType::Variant)
     {
-      auto pVariants = reinterpret_cast<const ezVariant*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariants = reinterpret_cast<const WVariant*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantsEnd = pVariants + typeInfo.m_uiCount;
       while (pVariants < pVariantsEnd)
       {
@@ -226,45 +226,45 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
         ++pVariants;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
+    else if (scriptDataType == WVisualScriptDataType::Array)
     {
-      auto pVariantArrays = reinterpret_cast<const ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariantArrays = reinterpret_cast<const WVariantArray*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantArraysEnd = pVariantArrays + typeInfo.m_uiCount;
       while (pVariantArrays < pVariantArraysEnd)
       {
-        EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(*pVariantArrays));
+        W_SUCCEED_OR_RETURN(inout_stream.WriteArray(*pVariantArrays));
         ++pVariantArrays;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
+    else if (scriptDataType == WVisualScriptDataType::Map)
     {
-      auto pVariantMaps = reinterpret_cast<const ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariantMaps = reinterpret_cast<const WVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantMapsEnd = pVariantMaps + typeInfo.m_uiCount;
       while (pVariantMaps < pVariantMapsEnd)
       {
-        EZ_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(*pVariantMaps));
+        W_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(*pVariantMaps));
         ++pVariantMaps;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::GameObject ||
-             scriptDataType == ezVisualScriptDataType::Component ||
-             scriptDataType == ezVisualScriptDataType::TypedPointer ||
-             scriptDataType == ezVisualScriptDataType::Coroutine)
+    else if (scriptDataType == WVisualScriptDataType::GameObject ||
+             scriptDataType == WVisualScriptDataType::Component ||
+             scriptDataType == WVisualScriptDataType::TypedPointer ||
+             scriptDataType == WVisualScriptDataType::Coroutine)
     {
-      ezLog::Error("Cannot serialize visual script data type '{}'", ezVisualScriptDataType::GetName(static_cast<ezVisualScriptDataType::Enum>(scriptDataType)));
-      return EZ_FAILURE;
+      WLog::Error("Cannot serialize visual script data type '{}'", WVisualScriptDataType::GetName(static_cast<WVisualScriptDataType::Enum>(scriptDataType)));
+      return W_FAILURE;
     }
     else
     {
-      const ezUInt32 uiBytesToWrite = typeInfo.m_uiCount * ezVisualScriptDataType::GetStorageSize(static_cast<ezVisualScriptDataType::Enum>(scriptDataType));
-      EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(pData + typeInfo.m_uiStartOffset, uiBytesToWrite));
+      const WUInt32 uiBytesToWrite = typeInfo.m_uiCount * WVisualScriptDataType::GetStorageSize(static_cast<WVisualScriptDataType::Enum>(scriptDataType));
+      W_SUCCEED_OR_RETURN(inout_stream.WriteBytes(pData + typeInfo.m_uiStartOffset, uiBytesToWrite));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ezAllocator* pAllocator)
+WResult WVisualScriptDataStorage::Deserialize(WStreamReader& inout_stream, WAllocator* pAllocator)
 {
   if (IsAllocated() == false)
   {
@@ -273,15 +273,15 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ez
 
   auto pData = m_Storage.GetPtr();
 
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  for (WUInt32 scriptDataType = 0; scriptDataType < WVisualScriptDataType::Count; ++scriptDataType)
   {
     const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
     if (typeInfo.m_uiCount == 0)
       continue;
 
-    if (scriptDataType == ezVisualScriptDataType::String)
+    if (scriptDataType == WVisualScriptDataType::String)
     {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStrings = reinterpret_cast<WString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -289,9 +289,9 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ez
         ++pStrings;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    else if (scriptDataType == WVisualScriptDataType::HashedString)
     {
-      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStrings = reinterpret_cast<WHashedString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -299,9 +299,9 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ez
         ++pStrings;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
+    else if (scriptDataType == WVisualScriptDataType::Variant)
     {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariants = reinterpret_cast<WVariant*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantsEnd = pVariants + typeInfo.m_uiCount;
       while (pVariants < pVariantsEnd)
       {
@@ -309,261 +309,261 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ez
         ++pVariants;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
+    else if (scriptDataType == WVisualScriptDataType::Array)
     {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariantArrays = reinterpret_cast<WVariantArray*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantArraysEnd = pVariantArrays + typeInfo.m_uiCount;
       while (pVariantArrays < pVariantArraysEnd)
       {
-        EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(*pVariantArrays));
+        W_SUCCEED_OR_RETURN(inout_stream.ReadArray(*pVariantArrays));
         ++pVariantArrays;
       }
     }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
+    else if (scriptDataType == WVisualScriptDataType::Map)
     {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
+      auto pVariantMaps = reinterpret_cast<WVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
       auto pVariantMapsEnd = pVariantMaps + typeInfo.m_uiCount;
       while (pVariantMaps < pVariantMapsEnd)
       {
-        EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(*pVariantMaps));
+        W_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(*pVariantMaps));
         ++pVariantMaps;
       }
     }
     else
     {
-      const ezUInt32 uiBytesToRead = typeInfo.m_uiCount * ezVisualScriptDataType::GetStorageSize(static_cast<ezVisualScriptDataType::Enum>(scriptDataType));
+      const WUInt32 uiBytesToRead = typeInfo.m_uiCount * WVisualScriptDataType::GetStorageSize(static_cast<WVisualScriptDataType::Enum>(scriptDataType));
       inout_stream.ReadBytes(pData + typeInfo.m_uiStartOffset, uiBytesToRead);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezTypedPointer ezVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, ezUInt32 uiExecutionCounter) const
+WTypedPointer WVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, WUInt32 uiExecutionCounter) const
 {
   m_pDesc->CheckOffset(dataOffset, nullptr);
   auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
-  if (dataOffset.m_uiType == ezVisualScriptDataType::GameObject)
+  if (dataOffset.m_uiType == WVisualScriptDataType::GameObject)
   {
-    auto& gameObjectHandle = *reinterpret_cast<const ezVisualScriptGameObjectHandle*>(pData);
-    return ezTypedPointer(gameObjectHandle.GetPtr(uiExecutionCounter), ezGetStaticRTTI<ezGameObject>());
+    auto& gameObjectHandle = *reinterpret_cast<const WVisualScriptGameObjectHandle*>(pData);
+    return WTypedPointer(gameObjectHandle.GetPtr(uiExecutionCounter), WGetStaticRTTI<WGameObject>());
   }
-  else if (dataOffset.m_uiType == ezVisualScriptDataType::Component)
+  else if (dataOffset.m_uiType == WVisualScriptDataType::Component)
   {
-    auto& componentHandle = *reinterpret_cast<const ezVisualScriptComponentHandle*>(pData);
-    ezComponent* pComponent = componentHandle.GetPtr(uiExecutionCounter);
-    return ezTypedPointer(pComponent, pComponent != nullptr ? pComponent->GetDynamicRTTI() : nullptr);
+    auto& componentHandle = *reinterpret_cast<const WVisualScriptComponentHandle*>(pData);
+    WComponent* pComponent = componentHandle.GetPtr(uiExecutionCounter);
+    return WTypedPointer(pComponent, pComponent != nullptr ? pComponent->GetDynamicRTTI() : nullptr);
   }
-  else if (dataOffset.m_uiType == ezVisualScriptDataType::TypedPointer)
+  else if (dataOffset.m_uiType == WVisualScriptDataType::TypedPointer)
   {
-    return *reinterpret_cast<const ezTypedPointer*>(pData);
+    return *reinterpret_cast<const WTypedPointer*>(pData);
   }
 
-  ezTypedPointer t;
-  t.m_pObject = const_cast<ezUInt8*>(pData);
-  t.m_pType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiType));
+  WTypedPointer t;
+  t.m_pObject = const_cast<WUInt8*>(pData);
+  t.m_pType = WVisualScriptDataType::GetRtti(static_cast<WVisualScriptDataType::Enum>(dataOffset.m_uiType));
   return t;
 }
 
-ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType, ezUInt32 uiExecutionCounter) const
+WVariant WVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, const WRTTI* pExpectedType, WUInt32 uiExecutionCounter) const
 {
   auto scriptDataType = dataOffset.GetType();
 
-  // pExpectedType == nullptr means that the caller expects an ezVariant so we decide solely based on the scriptDataType.
-  if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVariant>())
+  // pExpectedType == nullptr means that the caller expects an WVariant so we decide solely based on the scriptDataType.
+  if (pExpectedType == nullptr || pExpectedType == WGetStaticRTTI<WVariant>())
   {
-    pExpectedType = ezVisualScriptDataType::GetRtti(scriptDataType);
+    pExpectedType = WVisualScriptDataType::GetRtti(scriptDataType);
   }
 
   switch (scriptDataType)
   {
-    case ezVisualScriptDataType::Invalid:
-      return ezVariant();
+    case WVisualScriptDataType::Invalid:
+      return WVariant();
 
-    case ezVisualScriptDataType::Bool:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<bool>(), "");
+    case WVisualScriptDataType::Bool:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<bool>(), "");
       return GetData<bool>(dataOffset);
 
-    case ezVisualScriptDataType::Byte:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezUInt8>(), "");
-      return GetData<ezUInt8>(dataOffset);
+    case WVisualScriptDataType::Byte:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WUInt8>(), "");
+      return GetData<WUInt8>(dataOffset);
 
-    case ezVisualScriptDataType::Int:
-      if (pExpectedType == ezGetStaticRTTI<ezInt32>())
+    case WVisualScriptDataType::Int:
+      if (pExpectedType == WGetStaticRTTI<WInt32>())
       {
-        return GetData<ezInt32>(dataOffset);
+        return GetData<WInt32>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezInt16>())
+      else if (pExpectedType == WGetStaticRTTI<WInt16>())
       {
-        return static_cast<ezInt16>(GetData<ezInt32>(dataOffset));
+        return static_cast<WInt16>(GetData<WInt32>(dataOffset));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezUInt16>())
+      else if (pExpectedType == WGetStaticRTTI<WUInt16>())
       {
-        return static_cast<ezUInt16>(GetData<ezInt32>(dataOffset));
+        return static_cast<WUInt16>(GetData<WInt32>(dataOffset));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezUInt32>())
+      else if (pExpectedType == WGetStaticRTTI<WUInt32>())
       {
-        return static_cast<ezUInt32>(GetData<ezInt32>(dataOffset));
+        return static_cast<WUInt32>(GetData<WInt32>(dataOffset));
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::Int64:
-      EZ_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) || pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags) || pExpectedType == ezGetStaticRTTI<ezInt64>(), "");
-      return GetData<ezInt64>(dataOffset);
+    case WVisualScriptDataType::Int64:
+      W_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(WTypeFlags::IsEnum) || pExpectedType->GetTypeFlags().IsSet(WTypeFlags::Bitflags) || pExpectedType == WGetStaticRTTI<WInt64>(), "");
+      return GetData<WInt64>(dataOffset);
 
-    case ezVisualScriptDataType::Float:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<float>(), "");
+    case WVisualScriptDataType::Float:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<float>(), "");
       return GetData<float>(dataOffset);
 
-    case ezVisualScriptDataType::Double:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<double>(), "");
+    case WVisualScriptDataType::Double:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<double>(), "");
       return GetData<double>(dataOffset);
 
-    case ezVisualScriptDataType::Color:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezColor>(), "");
-      return GetData<ezColor>(dataOffset);
+    case WVisualScriptDataType::Color:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WColor>(), "");
+      return GetData<WColor>(dataOffset);
 
-    case ezVisualScriptDataType::Vector2:
-      if (pExpectedType == ezGetStaticRTTI<ezVec2>())
+    case WVisualScriptDataType::Vector2:
+      if (pExpectedType == WGetStaticRTTI<WVec2>())
       {
-        return GetData<ezVec2>(dataOffset);
+        return GetData<WVec2>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec2I32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec2I32>())
       {
-        auto& v = GetData<ezVec2>(dataOffset);
-        return ezVec2I32(int(v.x), int(v.y));
+        auto& v = GetData<WVec2>(dataOffset);
+        return WVec2I32(int(v.x), int(v.y));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec2U32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec2U32>())
       {
-        auto& v = GetData<ezVec2>(dataOffset);
-        return ezVec2U32(ezUInt32(v.x), ezUInt32(v.y));
+        auto& v = GetData<WVec2>(dataOffset);
+        return WVec2U32(WUInt32(v.x), WUInt32(v.y));
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::Vector3:
-      if (pExpectedType == ezGetStaticRTTI<ezVec3>())
+    case WVisualScriptDataType::Vector3:
+      if (pExpectedType == WGetStaticRTTI<WVec3>())
       {
-        return GetData<ezVec3>(dataOffset);
+        return GetData<WVec3>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec3I32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec3I32>())
       {
-        auto& v = GetData<ezVec3>(dataOffset);
-        return ezVec3I32(int(v.x), int(v.y), int(v.z));
+        auto& v = GetData<WVec3>(dataOffset);
+        return WVec3I32(int(v.x), int(v.y), int(v.z));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec3U32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec3U32>())
       {
-        auto& v = GetData<ezVec3>(dataOffset);
-        return ezVec3U32(ezUInt32(v.x), ezUInt32(v.y), ezUInt32(v.z));
+        auto& v = GetData<WVec3>(dataOffset);
+        return WVec3U32(WUInt32(v.x), WUInt32(v.y), WUInt32(v.z));
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::Vector4:
-      if (pExpectedType == ezGetStaticRTTI<ezVec4>())
+    case WVisualScriptDataType::Vector4:
+      if (pExpectedType == WGetStaticRTTI<WVec4>())
       {
-        return GetData<ezVec4>(dataOffset);
+        return GetData<WVec4>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec4I32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec4I32>())
       {
-        auto& v = GetData<ezVec4>(dataOffset);
-        return ezVec4I32(int(v.x), int(v.y), int(v.z), int(v.w));
+        auto& v = GetData<WVec4>(dataOffset);
+        return WVec4I32(int(v.x), int(v.y), int(v.z), int(v.w));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezVec4U32>())
+      else if (pExpectedType == WGetStaticRTTI<WVec4U32>())
       {
-        auto& v = GetData<ezVec4>(dataOffset);
-        return ezVec4U32(ezUInt32(v.x), ezUInt32(v.y), ezUInt32(v.z), ezUInt32(v.w));
+        auto& v = GetData<WVec4>(dataOffset);
+        return WVec4U32(WUInt32(v.x), WUInt32(v.y), WUInt32(v.z), WUInt32(v.w));
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::Quaternion:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezQuat>(), "");
-      return GetData<ezQuat>(dataOffset);
+    case WVisualScriptDataType::Quaternion:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WQuat>(), "");
+      return GetData<WQuat>(dataOffset);
 
-    case ezVisualScriptDataType::Transform:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezTransform>(), "");
-      return GetData<ezTransform>(dataOffset);
+    case WVisualScriptDataType::Transform:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WTransform>(), "");
+      return GetData<WTransform>(dataOffset);
 
-    case ezVisualScriptDataType::Time:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezTime>(), "");
-      return GetData<ezTime>(dataOffset);
+    case WVisualScriptDataType::Time:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WTime>(), "");
+      return GetData<WTime>(dataOffset);
 
-    case ezVisualScriptDataType::Angle:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezAngle>(), "");
-      return GetData<ezAngle>(dataOffset);
+    case WVisualScriptDataType::Angle:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WAngle>(), "");
+      return GetData<WAngle>(dataOffset);
 
-    case ezVisualScriptDataType::String:
-      if (pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
+    case WVisualScriptDataType::String:
+      if (pExpectedType == WGetStaticRTTI<WString>() || pExpectedType == WGetStaticRTTI<const char*>())
       {
-        return GetData<ezString>(dataOffset);
+        return GetData<WString>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezStringView>())
+      else if (pExpectedType == WGetStaticRTTI<WStringView>())
       {
-        return ezVariant(GetData<ezString>(dataOffset).GetView(), false);
+        return WVariant(GetData<WString>(dataOffset).GetView(), false);
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::HashedString:
-      if (pExpectedType == ezGetStaticRTTI<ezHashedString>())
+    case WVisualScriptDataType::HashedString:
+      if (pExpectedType == WGetStaticRTTI<WHashedString>())
       {
-        return GetData<ezHashedString>(dataOffset);
+        return GetData<WHashedString>(dataOffset);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezTempHashedString>())
+      else if (pExpectedType == WGetStaticRTTI<WTempHashedString>())
       {
-        return ezTempHashedString(GetData<ezHashedString>(dataOffset));
+        return WTempHashedString(GetData<WHashedString>(dataOffset));
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::GameObject:
-      if (pExpectedType == ezGetStaticRTTI<ezGameObject>())
+    case WVisualScriptDataType::GameObject:
+      if (pExpectedType == WGetStaticRTTI<WGameObject>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezGameObjectHandle>())
+      else if (pExpectedType == WGetStaticRTTI<WGameObjectHandle>())
       {
-        return GetData<ezGameObjectHandle>(dataOffset);
+        return GetData<WGameObjectHandle>(dataOffset);
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::Component:
-      if (pExpectedType->IsDerivedFrom<ezComponent>())
+    case WVisualScriptDataType::Component:
+      if (pExpectedType->IsDerivedFrom<WComponent>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezComponentHandle>())
+      else if (pExpectedType == WGetStaticRTTI<WComponentHandle>())
       {
-        return GetData<ezComponentHandle>(dataOffset);
+        return GetData<WComponentHandle>(dataOffset);
       }
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
 
-    case ezVisualScriptDataType::TypedPointer:
+    case WVisualScriptDataType::TypedPointer:
       return GetPointerData(dataOffset, uiExecutionCounter);
 
-    case ezVisualScriptDataType::Variant:
-      return GetData<ezVariant>(dataOffset);
+    case WVisualScriptDataType::Variant:
+      return GetData<WVariant>(dataOffset);
 
-    case ezVisualScriptDataType::Array:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezVariantArray>(), "");
-      return GetData<ezVariantArray>(dataOffset);
+    case WVisualScriptDataType::Array:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WVariantArray>(), "");
+      return GetData<WVariantArray>(dataOffset);
 
-    case ezVisualScriptDataType::Map:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezVariantDictionary>(), "");
-      return GetData<ezVariantDictionary>(dataOffset);
+    case WVisualScriptDataType::Map:
+      W_ASSERT_DEBUG(pExpectedType == WGetStaticRTTI<WVariantDictionary>(), "");
+      return GetData<WVariantDictionary>(dataOffset);
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  return ezVariant();
+  return WVariant();
 }
 
-void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const ezVariant& value, ezUInt32 uiExecutionCounter)
+void WVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const WVariant& value, WUInt32 uiExecutionCounter)
 {
   if (dataOffset.IsValid() == false)
     return;
@@ -571,175 +571,175 @@ void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const 
   auto scriptDataType = dataOffset.GetType();
   switch (scriptDataType)
   {
-    case ezVisualScriptDataType::Bool:
+    case WVisualScriptDataType::Bool:
       SetData(dataOffset, value.Get<bool>());
       break;
-    case ezVisualScriptDataType::Byte:
-      if (value.IsA<ezInt8>())
+    case WVisualScriptDataType::Byte:
+      if (value.IsA<WInt8>())
       {
-        SetData(dataOffset, ezUInt8(value.Get<ezInt8>()));
+        SetData(dataOffset, WUInt8(value.Get<WInt8>()));
       }
       else
       {
-        SetData(dataOffset, value.Get<ezUInt8>());
+        SetData(dataOffset, value.Get<WUInt8>());
       }
       break;
-    case ezVisualScriptDataType::Int:
-      if (value.IsA<ezInt16>())
+    case WVisualScriptDataType::Int:
+      if (value.IsA<WInt16>())
       {
-        SetData(dataOffset, ezInt32(value.Get<ezInt16>()));
+        SetData(dataOffset, WInt32(value.Get<WInt16>()));
       }
-      else if (value.IsA<ezUInt16>())
+      else if (value.IsA<WUInt16>())
       {
-        SetData(dataOffset, ezInt32(value.Get<ezUInt16>()));
+        SetData(dataOffset, WInt32(value.Get<WUInt16>()));
       }
-      else if (value.IsA<ezInt32>())
+      else if (value.IsA<WInt32>())
       {
-        SetData(dataOffset, value.Get<ezInt32>());
+        SetData(dataOffset, value.Get<WInt32>());
       }
       else
       {
-        SetData(dataOffset, ezInt32(value.Get<ezUInt32>()));
+        SetData(dataOffset, WInt32(value.Get<WUInt32>()));
       }
       break;
-    case ezVisualScriptDataType::Int64:
-      if (value.IsA<ezInt64>())
+    case WVisualScriptDataType::Int64:
+      if (value.IsA<WInt64>())
       {
-        SetData(dataOffset, value.Get<ezInt64>());
+        SetData(dataOffset, value.Get<WInt64>());
       }
       else
       {
-        SetData(dataOffset, ezInt64(value.Get<ezUInt64>()));
+        SetData(dataOffset, WInt64(value.Get<WUInt64>()));
       }
       break;
-    case ezVisualScriptDataType::Float:
+    case WVisualScriptDataType::Float:
       SetData(dataOffset, value.Get<float>());
       break;
-    case ezVisualScriptDataType::Double:
+    case WVisualScriptDataType::Double:
       SetData(dataOffset, value.Get<double>());
       break;
-    case ezVisualScriptDataType::Color:
-      SetData(dataOffset, value.Get<ezColor>());
+    case WVisualScriptDataType::Color:
+      SetData(dataOffset, value.Get<WColor>());
       break;
-    case ezVisualScriptDataType::Vector2:
-      if (value.IsA<ezVec2I32>())
+    case WVisualScriptDataType::Vector2:
+      if (value.IsA<WVec2I32>())
       {
-        auto& v = value.Get<ezVec2I32>();
-        SetData(dataOffset, ezVec2(float(v.x), float(v.y)));
+        auto& v = value.Get<WVec2I32>();
+        SetData(dataOffset, WVec2(float(v.x), float(v.y)));
       }
-      else if (value.IsA<ezVec2U32>())
+      else if (value.IsA<WVec2U32>())
       {
-        auto& v = value.Get<ezVec2U32>();
-        SetData(dataOffset, ezVec2(float(v.x), float(v.y)));
+        auto& v = value.Get<WVec2U32>();
+        SetData(dataOffset, WVec2(float(v.x), float(v.y)));
       }
       else
       {
-        SetData(dataOffset, value.Get<ezVec2>());
+        SetData(dataOffset, value.Get<WVec2>());
       }
       break;
-    case ezVisualScriptDataType::Vector3:
-      if (value.IsA<ezVec3I32>())
+    case WVisualScriptDataType::Vector3:
+      if (value.IsA<WVec3I32>())
       {
-        auto& v = value.Get<ezVec3I32>();
-        SetData(dataOffset, ezVec3(float(v.x), float(v.y), float(v.z)));
+        auto& v = value.Get<WVec3I32>();
+        SetData(dataOffset, WVec3(float(v.x), float(v.y), float(v.z)));
       }
-      else if (value.IsA<ezVec3U32>())
+      else if (value.IsA<WVec3U32>())
       {
-        auto& v = value.Get<ezVec3U32>();
-        SetData(dataOffset, ezVec3(float(v.x), float(v.y), float(v.z)));
+        auto& v = value.Get<WVec3U32>();
+        SetData(dataOffset, WVec3(float(v.x), float(v.y), float(v.z)));
       }
       else
       {
-        SetData(dataOffset, value.Get<ezVec3>());
+        SetData(dataOffset, value.Get<WVec3>());
       }
       break;
-    case ezVisualScriptDataType::Vector4:
-      if (value.IsA<ezVec4I32>())
+    case WVisualScriptDataType::Vector4:
+      if (value.IsA<WVec4I32>())
       {
-        auto& v = value.Get<ezVec4I32>();
-        SetData(dataOffset, ezVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
+        auto& v = value.Get<WVec4I32>();
+        SetData(dataOffset, WVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
       }
-      else if (value.IsA<ezVec4U32>())
+      else if (value.IsA<WVec4U32>())
       {
-        auto& v = value.Get<ezVec4U32>();
-        SetData(dataOffset, ezVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
+        auto& v = value.Get<WVec4U32>();
+        SetData(dataOffset, WVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
       }
       else
       {
-        SetData(dataOffset, value.Get<ezVec4>());
+        SetData(dataOffset, value.Get<WVec4>());
       }
       break;
-    case ezVisualScriptDataType::Quaternion:
-      SetData(dataOffset, value.Get<ezQuat>());
+    case WVisualScriptDataType::Quaternion:
+      SetData(dataOffset, value.Get<WQuat>());
       break;
-    case ezVisualScriptDataType::Transform:
-      SetData(dataOffset, value.Get<ezTransform>());
+    case WVisualScriptDataType::Transform:
+      SetData(dataOffset, value.Get<WTransform>());
       break;
-    case ezVisualScriptDataType::Time:
-      SetData(dataOffset, value.Get<ezTime>());
+    case WVisualScriptDataType::Time:
+      SetData(dataOffset, value.Get<WTime>());
       break;
-    case ezVisualScriptDataType::Angle:
-      SetData(dataOffset, value.Get<ezAngle>());
+    case WVisualScriptDataType::Angle:
+      SetData(dataOffset, value.Get<WAngle>());
       break;
-    case ezVisualScriptDataType::String:
-      if (value.IsA<ezStringView>())
+    case WVisualScriptDataType::String:
+      if (value.IsA<WStringView>())
       {
-        SetData(dataOffset, ezString(value.Get<ezStringView>()));
+        SetData(dataOffset, WString(value.Get<WStringView>()));
       }
       else
       {
-        SetData(dataOffset, value.Get<ezString>());
+        SetData(dataOffset, value.Get<WString>());
       }
       break;
-    case ezVisualScriptDataType::HashedString:
-      if (value.IsA<ezTempHashedString>())
+    case WVisualScriptDataType::HashedString:
+      if (value.IsA<WTempHashedString>())
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
       }
       else
       {
-        SetData(dataOffset, value.Get<ezHashedString>());
+        SetData(dataOffset, value.Get<WHashedString>());
       }
       break;
-    case ezVisualScriptDataType::GameObject:
-      if (value.IsA<ezGameObjectHandle>())
+    case WVisualScriptDataType::GameObject:
+      if (value.IsA<WGameObjectHandle>())
       {
-        SetData(dataOffset, value.Get<ezGameObjectHandle>());
+        SetData(dataOffset, value.Get<WGameObjectHandle>());
       }
       else
       {
-        SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
+        SetPointerData(dataOffset, value.Get<WGameObject*>(), WGetStaticRTTI<WGameObject>(), uiExecutionCounter);
       }
       break;
-    case ezVisualScriptDataType::Component:
-      if (value.IsA<ezComponentHandle>())
+    case WVisualScriptDataType::Component:
+      if (value.IsA<WComponentHandle>())
       {
-        SetData(dataOffset, value.Get<ezComponentHandle>());
+        SetData(dataOffset, value.Get<WComponentHandle>());
       }
       else
       {
-        SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
+        SetPointerData(dataOffset, value.Get<WComponent*>(), WGetStaticRTTI<WComponent>(), uiExecutionCounter);
       }
       break;
-    case ezVisualScriptDataType::TypedPointer:
+    case WVisualScriptDataType::TypedPointer:
     {
-      ezTypedPointer typedPtr = value.Get<ezTypedPointer>();
+      WTypedPointer typedPtr = value.Get<WTypedPointer>();
       SetPointerData(dataOffset, typedPtr.m_pObject, typedPtr.m_pType, uiExecutionCounter);
     }
     break;
-    case ezVisualScriptDataType::Variant:
+    case WVisualScriptDataType::Variant:
       SetData(dataOffset, value);
       break;
-    case ezVisualScriptDataType::Array:
-      SetData(dataOffset, value.Get<ezVariantArray>());
+    case WVisualScriptDataType::Array:
+      SetData(dataOffset, value.Get<WVariantArray>());
       break;
-    case ezVisualScriptDataType::Map:
-      SetData(dataOffset, value.Get<ezVariantDictionary>());
+    case WVisualScriptDataType::Map:
+      SetData(dataOffset, value.Get<WVariantDictionary>());
       break;
-    case ezVisualScriptDataType::Coroutine:
-      SetData(dataOffset, value.Get<ezScriptCoroutineHandle>());
+    case WVisualScriptDataType::Coroutine:
+      SetData(dataOffset, value.Get<WScriptCoroutineHandle>());
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }

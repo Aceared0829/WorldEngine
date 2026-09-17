@@ -5,74 +5,74 @@
 #include <RendererFoundation/Resources/ReadbackHelper.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezPickingRenderPass : public ezRenderPipelinePass
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WPickingRenderPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPickingRenderPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WPickingRenderPass, WRenderPipelinePass);
 
 public:
-  ezPickingRenderPass();
-  ~ezPickingRenderPass();
+  WPickingRenderPass();
+  ~WPickingRenderPass();
 
-  ezGALTextureHandle GetPickingIdRT() const;
-  ezGALTextureHandle GetPickingDepthRT() const;
+  WGALTextureHandle GetPickingIdRT() const;
+  WGALTextureHandle GetPickingDepthRT() const;
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
-  virtual void ReadBackProperties(ezView* pView) override;
+  virtual void ReadBackProperties(WView* pView) override;
 
   bool m_bPickSelected = true;
   bool m_bPickTransparent = true;
 
-  ezVec2 m_PickingPosition = ezVec2(-1);
-  ezUInt32 m_PickingIdOut = 0;
+  WVec2 m_PickingPosition = WVec2(-1);
+  WUInt32 m_PickingIdOut = 0;
   float m_PickingDepthOut = 0.0f;
-  ezVec2 m_MarqueePickPosition0 = ezVec2(-1);
-  ezVec2 m_MarqueePickPosition1 = ezVec2(-1);
-  ezUInt32 m_uiMarqueeActionID = 0xFFFFFFFF; // used to prevent reusing an old result for a new marquee action
-  ezUInt32 m_uiWindowWidth = 0;
-  ezUInt32 m_uiWindowHeight = 0;
+  WVec2 m_MarqueePickPosition0 = WVec2(-1);
+  WVec2 m_MarqueePickPosition1 = WVec2(-1);
+  WUInt32 m_uiMarqueeActionID = 0xFFFFFFFF; // used to prevent reusing an old result for a new marquee action
+  WUInt32 m_uiWindowWidth = 0;
+  WUInt32 m_uiWindowHeight = 0;
 
 private:
   void CreateTarget();
   void DestroyTarget();
 
-  void ReadBackPropertiesSinglePick(ezView* pView);
-  void ReadBackPropertiesMarqueePick(ezView* pView);
+  void ReadBackPropertiesSinglePick(WView* pView);
+  void ReadBackPropertiesMarqueePick(WView* pView);
 
-  void ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData);
+  void ProcessPickingRenderData(WExtractedRenderData& extractedRenderData);
 
 private:
-  ezRectFloat m_TargetRect;
-  const ezRTTI* m_pGridRenderDataType = nullptr;
+  WRectFloat m_TargetRect;
+  const WRTTI* m_pGridRenderDataType = nullptr;
 
-  ezGALTextureHandle m_hPickingIdRT;
-  ezGALTextureHandle m_hPickingDepthRT;
-  ezRenderGraphTextureHandle m_hPickingIdGraphRT;
-  ezRenderGraphTextureHandle m_hPickingDepthGraphRT;
+  WGALTextureHandle m_hPickingIdRT;
+  WGALTextureHandle m_hPickingDepthRT;
+  WRenderGraphTextureHandle m_hPickingIdGraphRT;
+  WRenderGraphTextureHandle m_hPickingDepthGraphRT;
 
-  ezHashSet<ezGameObjectHandle> m_SelectionSet;
+  WHashSet<WGameObjectHandle> m_SelectionSet;
 
   // Readback
   struct PickingReadback
   {
-    ezGALReadbackTextureHelper m_PickingReadback;
-    ezGALReadbackTextureHelper m_PickingDepthReadback;
+    WGALReadbackTextureHelper m_PickingReadback;
+    WGALReadbackTextureHelper m_PickingDepthReadback;
 
     bool m_bReadbackInProgress = false;
-    ezUInt32 m_uiWindowWidth = 0;
-    ezUInt32 m_uiWindowHeight = 0;
+    WUInt32 m_uiWindowWidth = 0;
+    WUInt32 m_uiWindowHeight = 0;
     /// we need this matrix to compute the world space position of picked pixels
-    ezMat4 m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
+    WMat4 m_mPickingInverseViewProjectionMatrix = WMat4::MakeZero();
   };
 
   PickingReadback m_PendingReadback;
 
   // Picking Results
-  ezMat4 m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
+  WMat4 m_mPickingInverseViewProjectionMatrix = WMat4::MakeZero();
   /// stores the 2D depth buffer image (32 Bit depth precision), to compute pixel positions from
-  ezDynamicArray<float> m_PickingResultsDepth;
-  /// Stores the 32 Bit picking ID values of each pixel. This can lead back to the ezComponent, etc. that rendered to that pixel
-  ezDynamicArray<ezUInt32> m_PickingResultsID;
+  WDynamicArray<float> m_PickingResultsDepth;
+  /// Stores the 32 Bit picking ID values of each pixel. This can lead back to the WComponent, etc. that rendered to that pixel
+  WDynamicArray<WUInt32> m_PickingResultsID;
 
-  ezUInt32 m_uiProcessorId = ezInvalidIndex;
+  WUInt32 m_uiProcessorId = WInvalidIndex;
 };

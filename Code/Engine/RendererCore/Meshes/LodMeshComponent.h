@@ -3,60 +3,60 @@
 #include <Core/World/World.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-struct ezMsgExtractGeometry;
+struct WMsgExtractGeometry;
 
-using ezLodMeshComponentManager = ezComponentManager<class ezLodMeshComponent, ezBlockStorageType::Compact>;
+using WLodMeshComponentManager = WComponentManager<class WLodMeshComponent, WBlockStorageType::Compact>;
 
-struct ezLodMeshLod
+struct WLodMeshLod
 {
-  ezMeshResourceHandle m_hMesh; // [ property ]
+  WMeshResourceHandle m_hMesh; // [ property ]
   float m_fThreshold;           // [ property ]
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLodMeshLod);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WLodMeshLod);
 
 /// Renders one of several level-of-detail meshes depending on the distance to the camera.
 ///
-/// This component is very similar to the ezLodComponent, please read it's description for details.
+/// This component is very similar to the WLodComponent, please read it's description for details.
 /// The difference is, that this component doesn't switch child object on and off, but rather only selects between different render-meshes.
 /// As such there is less performance impact for switching between meshes and also the memory overhead for storing LOD information is smaller.
 /// If it is only desired to switch between meshes, it is also more convenient to work with just a single component.
 ///
 /// The component does not allow to place the LOD meshes differently, they all need to have the same origin.
-/// Compared with the regular ezMeshComponent there is also no way to override the used materials, since each LOD mesh may use different materials.
-class EZ_RENDERERCORE_DLL ezLodMeshComponent : public ezRenderComponent
+/// Compared with the regular WMeshComponent there is also no way to override the used materials, since each LOD mesh may use different materials.
+class W_RENDERERCORE_DLL WLodMeshComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLodMeshComponent, ezRenderComponent, ezLodMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLodMeshComponent, WRenderComponent, WLodMeshComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
   virtual void OnDeactivated() override;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLodMeshComponent
+  // WLodMeshComponent
 
 public:
-  ezLodMeshComponent();
-  ~ezLodMeshComponent();
+  WLodMeshComponent();
+  ~WLodMeshComponent();
 
   /// An additional tint color passed to the renderer to modify the mesh.
-  void SetColor(const ezColor& color); // [ property ]
-  const ezColor& GetColor() const;     // [ property ]
+  void SetColor(const WColor& color); // [ property ]
+  const WColor& GetColor() const;     // [ property ]
 
   /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
-  void SetCustomData(const ezVec4& vData); // [ property ]
-  const ezVec4& GetCustomData() const;     // [ property ]
+  void SetCustomData(const WVec4& vData); // [ property ]
+  const WVec4& GetCustomData() const;     // [ property ]
 
   /// The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
@@ -72,25 +72,25 @@ public:
   void SetOverlapRanges(bool bOverlap);                 // [ property ]
   bool GetOverlapRanges() const;                        // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);           // [ msg handler ]
-  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(WMsgSetColor& ref_msg);           // [ msg handler ]
+  void OnMsgSetCustomData(WMsgSetCustomData& ref_msg); // [ msg handler ]
 
   /// Provides the coarsest LOD that actually has a mesh, since the geometry is wanted for things like
   /// exporting the scene, where the close-up detail is not useful. Only answers a request for render
   /// geometry; collision geometry is expected to come from a dedicated collider component.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
+  void OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 
 protected:
-  void UpdateSelectedLod(const ezView& view) const;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void UpdateSelectedLod(const WView& view) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezDynamicArray<ezLodMeshLod> m_Meshes;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  WDynamicArray<WLodMeshLod> m_Meshes;
+  WColor m_Color = WColor::White;
+  WVec4 m_vCustomData = WVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
-  ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
+  WVec3 m_vBoundsOffset = WVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;
 
-  mutable ezInt32 m_iCurLod = 0;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInt32 m_iCurLod = 0;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

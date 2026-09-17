@@ -4,9 +4,9 @@
 #include <Foundation/IO/DependencyFile.h>
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
-struct EZ_RMLUIPLUGIN_DLL ezRmlUiScaleMode
+struct W_RMLUIPLUGIN_DLL WRmlUiScaleMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -17,47 +17,47 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiScaleMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RMLUIPLUGIN_DLL, ezRmlUiScaleMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RMLUIPLUGIN_DLL, WRmlUiScaleMode);
 
-struct EZ_RMLUIPLUGIN_DLL ezRmlUiResourceDescriptor
+struct W_RMLUIPLUGIN_DLL WRmlUiResourceDescriptor
 {
-  ezResult Save(ezStreamWriter& inout_stream);
-  ezResult Load(ezStreamReader& inout_stream);
+  WResult Save(WStreamWriter& inout_stream);
+  WResult Load(WStreamReader& inout_stream);
 
-  ezDependencyFile m_DependencyFile;
+  WDependencyFile m_DependencyFile;
 
-  ezString m_sRmlFile;
-  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
-  ezVec2U32 m_ReferenceResolution;
+  WString m_sRmlFile;
+  WEnum<WRmlUiScaleMode> m_ScaleMode;
+  WVec2U32 m_ReferenceResolution;
 };
 
-using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
+using WRmlUiResourceHandle = WTypedResourceHandle<class WRmlUiResource>;
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiResource : public ezResource
+class W_RMLUIPLUGIN_DLL WRmlUiResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezRmlUiResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezRmlUiResource, ezRmlUiResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WRmlUiResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WRmlUiResource, WRmlUiResourceDescriptor);
 
 public:
-  ezRmlUiResource();
+  WRmlUiResource();
 
-  const ezString& GetRmlFile() const { return m_sRmlFile; }
-  const ezEnum<ezRmlUiScaleMode>& GetScaleMode() const { return m_ScaleMode; }
-  const ezVec2U32& GetReferenceResolution() const { return m_vReferenceResolution; }
+  const WString& GetRmlFile() const { return m_sRmlFile; }
+  const WEnum<WRmlUiScaleMode>& GetScaleMode() const { return m_ScaleMode; }
+  const WVec2U32& GetReferenceResolution() const { return m_vReferenceResolution; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezString m_sRmlFile;
-  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
-  ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
+  WString m_sRmlFile;
+  WEnum<WRmlUiScaleMode> m_ScaleMode;
+  WVec2U32 m_vReferenceResolution = WVec2U32::MakeZero();
 };
 
-class ezRmlUiResourceLoader : public ezResourceLoaderFromFile
+class WRmlUiResourceLoader : public WResourceLoaderFromFile
 {
 public:
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 };

@@ -10,33 +10,33 @@
 /// Extracts bright pixels above a threshold, blurs them, and outputs them to a separate render target.
 /// This render target can then be combined with the original image to create a glow effect which is typically done in the tone mapping pass.
 /// Supports configurable radius, threshold, intensity, and tint colors for inner, mid, and outer bloom regions.
-class EZ_RENDERERCORE_DLL ezBloomPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WBloomPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBloomPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WBloomPass, WRenderPipelinePass);
 
 public:
-  ezBloomPass();
-  ~ezBloomPass();
+  WBloomPass();
+  ~WBloomPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezStatus AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPassesInactive(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  void UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor);
+  void UpdateConstantBuffer(WVec2 pixelSize, const WColor& tintColor);
 
-  ezRenderPipelineNodeInputPin m_PinInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
   float m_fRadius = 0.2f;
   float m_fThreshold = 1.0f;
   float m_fIntensity = 0.3f;
-  ezEnum<ezGALResourceFormat> m_TextureFormat;
-  ezColorGammaUB m_InnerTintColor = ezColor::White;
-  ezColorGammaUB m_MidTintColor = ezColor::White;
-  ezColorGammaUB m_OuterTintColor = ezColor::White;
-  ezConstantBufferStorageHandle m_hConstantBuffer;
-  ezShaderResourceHandle m_hShader;
+  WEnum<WGALResourceFormat> m_TextureFormat;
+  WColorGammaUB m_InnerTintColor = WColor::White;
+  WColorGammaUB m_MidTintColor = WColor::White;
+  WColorGammaUB m_OuterTintColor = WColor::White;
+  WConstantBufferStorageHandle m_hConstantBuffer;
+  WShaderResourceHandle m_hShader;
 };

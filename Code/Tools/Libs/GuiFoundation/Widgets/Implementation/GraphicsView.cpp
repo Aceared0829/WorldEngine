@@ -7,7 +7,7 @@
 #include <QTextOption>
 #include <qevent.h>
 
-ezQtGraphicsView::ezQtGraphicsView(QWidget* pParent /*= nullptr*/)
+WQtGraphicsView::WQtGraphicsView(QWidget* pParent /*= nullptr*/)
   : QGraphicsView(pParent)
 {
   m_fZoom = 50.0f;
@@ -25,7 +25,7 @@ ezQtGraphicsView::ezQtGraphicsView(QWidget* pParent /*= nullptr*/)
   UpdateTransform();
 }
 
-void ezQtGraphicsView::wheelEvent(QWheelEvent* e)
+void WQtGraphicsView::wheelEvent(QWheelEvent* e)
 {
   if (e->angleDelta().y() > 0)
   {
@@ -40,7 +40,7 @@ void ezQtGraphicsView::wheelEvent(QWheelEvent* e)
 }
 
 
-void ezQtGraphicsView::mousePressEvent(QMouseEvent* e)
+void WQtGraphicsView::mousePressEvent(QMouseEvent* e)
 {
   if (e->buttons() == Qt::RightButton) // right button only
   {
@@ -64,7 +64,7 @@ void ezQtGraphicsView::mousePressEvent(QMouseEvent* e)
   QGraphicsView::mousePressEvent(e);
 }
 
-void ezQtGraphicsView::mouseReleaseEvent(QMouseEvent* e)
+void WQtGraphicsView::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!e->buttons().testFlag(Qt::RightButton))
   {
@@ -92,7 +92,7 @@ void ezQtGraphicsView::mouseReleaseEvent(QMouseEvent* e)
   }
 }
 
-void ezQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
+void WQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
 {
   if (m_bPanning)
   {
@@ -116,7 +116,7 @@ void ezQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
   QGraphicsView::mouseMoveEvent(e);
 }
 
-void ezQtGraphicsView::keyPressEvent(QKeyEvent* e)
+void WQtGraphicsView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
@@ -127,23 +127,23 @@ void ezQtGraphicsView::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQtGraphicsView::SetZoom(float fZoom)
+void WQtGraphicsView::SetZoom(float fZoom)
 {
   m_fZoom = fZoom;
   UpdateTransform();
 }
 
-void ezQtGraphicsView::SetZoomLimits(float fMinZoom, float fMaxZoom)
+void WQtGraphicsView::SetZoomLimits(float fMinZoom, float fMaxZoom)
 {
-  m_fMinZoom = ezMath::Min(fMinZoom, fMaxZoom);
-  m_fMaxZoom = ezMath::Max(fMinZoom, fMaxZoom);
+  m_fMinZoom = WMath::Min(fMinZoom, fMaxZoom);
+  m_fMaxZoom = WMath::Max(fMinZoom, fMaxZoom);
 
   UpdateTransform();
 }
 
-void ezQtGraphicsView::UpdateTransform()
+void WQtGraphicsView::UpdateTransform()
 {
-  m_fZoom = ezMath::Clamp(m_fZoom, m_fMinZoom, m_fMaxZoom);
+  m_fZoom = WMath::Clamp(m_fZoom, m_fMinZoom, m_fMaxZoom);
 
   setTransform(QTransform::fromScale(m_fZoom, -m_fZoom));
 }

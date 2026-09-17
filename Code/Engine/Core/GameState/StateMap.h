@@ -8,37 +8,37 @@
 ///
 /// Provides type-safe storage and retrieval of common data types used in game state management.
 /// Values are stored by name and can be retrieved with optional default values.
-class EZ_CORE_DLL ezStateMap
+class W_CORE_DLL WStateMap
 {
 public:
-  ezStateMap();
-  ~ezStateMap();
+  WStateMap();
+  ~WStateMap();
 
-  /// void Load(ezStreamReader& stream);
-  /// void Save(ezStreamWriter& stream) const;
+  /// void Load(WStreamReader& stream);
+  /// void Save(WStreamWriter& stream) const;
   /// Lock / Unlock
 
   void Clear();
 
-  void StoreBool(const ezTempHashedString& sName, bool value);
-  void StoreInteger(const ezTempHashedString& sName, ezInt64 value);
-  void StoreDouble(const ezTempHashedString& sName, double value);
-  void StoreVec3(const ezTempHashedString& sName, const ezVec3& value);
-  void StoreColor(const ezTempHashedString& sName, const ezColor& value);
-  void StoreString(const ezTempHashedString& sName, const ezString& value);
+  void StoreBool(const WTempHashedString& sName, bool value);
+  void StoreInteger(const WTempHashedString& sName, WInt64 value);
+  void StoreDouble(const WTempHashedString& sName, double value);
+  void StoreVec3(const WTempHashedString& sName, const WVec3& value);
+  void StoreColor(const WTempHashedString& sName, const WColor& value);
+  void StoreString(const WTempHashedString& sName, const WString& value);
 
-  void RetrieveBool(const ezTempHashedString& sName, bool& out_bValue, bool bDefaultValue = false);
-  void RetrieveInteger(const ezTempHashedString& sName, ezInt64& out_iValue, ezInt64 iDefaultValue = 0);
-  void RetrieveDouble(const ezTempHashedString& sName, double& out_fValue, double fDefaultValue = 0);
-  void RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValue, ezVec3 vDefaultValue = ezVec3(0));
-  void RetrieveColor(const ezTempHashedString& sName, ezColor& out_value, ezColor defaultValue = ezColor::White);
-  void RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, ezStringView sDefaultValue = {});
+  void RetrieveBool(const WTempHashedString& sName, bool& out_bValue, bool bDefaultValue = false);
+  void RetrieveInteger(const WTempHashedString& sName, WInt64& out_iValue, WInt64 iDefaultValue = 0);
+  void RetrieveDouble(const WTempHashedString& sName, double& out_fValue, double fDefaultValue = 0);
+  void RetrieveVec3(const WTempHashedString& sName, WVec3& out_vValue, WVec3 vDefaultValue = WVec3(0));
+  void RetrieveColor(const WTempHashedString& sName, WColor& out_value, WColor defaultValue = WColor::White);
+  void RetrieveString(const WTempHashedString& sName, WString& out_sValue, WStringView sDefaultValue = {});
 
 private:
-  ezHashTable<ezTempHashedString, bool> m_Bools;
-  ezHashTable<ezTempHashedString, ezInt64> m_Integers;
-  ezHashTable<ezTempHashedString, double> m_Doubles;
-  ezHashTable<ezTempHashedString, ezVec3> m_Vec3s;
-  ezHashTable<ezTempHashedString, ezColor> m_Colors;
-  ezHashTable<ezTempHashedString, ezString> m_Strings;
+  WHashTable<WTempHashedString, bool> m_Bools;
+  WHashTable<WTempHashedString, WInt64> m_Integers;
+  WHashTable<WTempHashedString, double> m_Doubles;
+  WHashTable<WTempHashedString, WVec3> m_Vec3s;
+  WHashTable<WTempHashedString, WColor> m_Colors;
+  WHashTable<WTempHashedString, WString> m_Strings;
 };

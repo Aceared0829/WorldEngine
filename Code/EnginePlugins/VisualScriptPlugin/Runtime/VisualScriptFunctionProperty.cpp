@@ -5,55 +5,55 @@
 #include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
-ezVisualScriptFunctionProperty::ezVisualScriptFunctionProperty(ezStringView sName, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
-  : ezScriptFunctionProperty(sName)
+WVisualScriptFunctionProperty::WVisualScriptFunctionProperty(WStringView sName, const WSharedPtr<const WVisualScriptGraphDescription>& pDesc)
+  : WScriptFunctionProperty(sName)
   , m_pDesc(pDesc)
 {
-  EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
+  W_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
 }
 
-ezVisualScriptFunctionProperty::~ezVisualScriptFunctionProperty() = default;
+WVisualScriptFunctionProperty::~WVisualScriptFunctionProperty() = default;
 
-void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
+void WVisualScriptFunctionProperty::Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const
 {
-  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
-  auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pInstance);
+  W_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
+  auto pVisualScriptInstance = static_cast<WVisualScriptInstance*>(pInstance);
 
-  ezVisualScriptExecutionContext context(m_pDesc, ezTempAllocator::Get());
+  WVisualScriptExecutionContext context(m_pDesc, WTempAllocator::Get());
   context.Initialize(*pVisualScriptInstance, arguments);
 
-  auto result = context.Execute(ezTime::MakeZero());
-  EZ_ASSERT_DEBUG(result.m_NextExecAndState != ezVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
+  auto result = context.Execute(WTime::MakeZero());
+  W_ASSERT_DEBUG(result.m_NextExecAndState != WVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
 
   // TODO: return value
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptMessageHandler::ezVisualScriptMessageHandler(const ezScriptMessageDesc& desc, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
-  : ezScriptMessageHandler(desc)
+WVisualScriptMessageHandler::WVisualScriptMessageHandler(const WScriptMessageDesc& desc, const WSharedPtr<const WVisualScriptGraphDescription>& pDesc)
+  : WScriptMessageHandler(desc)
   , m_pDesc(pDesc)
 {
-  EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
+  W_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
 
   m_DispatchFunc = &Dispatch;
 }
 
-ezVisualScriptMessageHandler::~ezVisualScriptMessageHandler() = default;
+WVisualScriptMessageHandler::~WVisualScriptMessageHandler() = default;
 
 // static
-void ezVisualScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+void WVisualScriptMessageHandler::Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg)
 {
-  auto pHandler = static_cast<ezVisualScriptMessageHandler*>(pSelf);
-  auto pComponent = static_cast<ezScriptComponent*>(pInstance);
-  auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pComponent->GetScriptInstance());
+  auto pHandler = static_cast<WVisualScriptMessageHandler*>(pSelf);
+  auto pComponent = static_cast<WScriptComponent*>(pInstance);
+  auto pVisualScriptInstance = static_cast<WVisualScriptInstance*>(pComponent->GetScriptInstance());
 
-  ezTempHybridArray<ezVariant, 8> arguments;
+  WTempHybridArray<WVariant, 8> arguments;
   pHandler->FillMessagePropertyValues(ref_msg, arguments);
 
-  ezVisualScriptExecutionContext context(pHandler->m_pDesc, ezTempAllocator::Get());
+  WVisualScriptExecutionContext context(pHandler->m_pDesc, WTempAllocator::Get());
   context.Initialize(*pVisualScriptInstance, arguments);
 
-  auto result = context.Execute(ezTime::MakeZero());
-  EZ_ASSERT_DEBUG(result.m_NextExecAndState != ezVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
+  auto result = context.Execute(WTime::MakeZero());
+  W_ASSERT_DEBUG(result.m_NextExecAndState != WVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
 }

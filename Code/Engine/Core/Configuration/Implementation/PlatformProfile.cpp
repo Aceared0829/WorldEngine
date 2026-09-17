@@ -9,47 +9,47 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProfileConfigData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProfileConfigData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
 
-ezProfileConfigData::ezProfileConfigData() = default;
-ezProfileConfigData::~ezProfileConfigData() = default;
+WProfileConfigData::WProfileConfigData() = default;
+WProfileConfigData::~WProfileConfigData() = default;
 
-void ezProfileConfigData::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const
+void WProfileConfigData::SaveRuntimeData(WChunkStreamWriter& inout_stream) const
 {
-  EZ_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(inout_stream);
 }
 
-void ezProfileConfigData::LoadRuntimeData(ezChunkStreamReader& inout_stream)
+void WProfileConfigData::LoadRuntimeData(WChunkStreamReader& inout_stream)
 {
-  EZ_IGNORE_UNUSED(inout_stream);
+  W_IGNORE_UNUSED(inout_stream);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlatformProfile, 1, ezRTTIDefaultAllocator<ezPlatformProfile>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPlatformProfile, 1, WRTTIDefaultAllocator<WPlatformProfile>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("TargetPlatform", m_sTargetPlatform)->AddAttributes(new ezDynamicStringEnumAttribute("TargetPlatformNames"), new ezDefaultValueAttribute("Windows")),
-    EZ_ARRAY_MEMBER_PROPERTY("Configs", m_Configs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
+    W_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("TargetPlatform", m_sTargetPlatform)->AddAttributes(new WDynamicStringEnumAttribute("TargetPlatformNames"), new WDefaultValueAttribute("Windows")),
+    W_ARRAY_MEMBER_PROPERTY("Configs", m_Configs)->AddFlags(WPropertyFlags::PointerOwner)->AddAttributes(new WContainerAttribute(false, false, false)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPlatformProfile::ezPlatformProfile() = default;
+WPlatformProfile::WPlatformProfile() = default;
 
-ezPlatformProfile::~ezPlatformProfile()
+WPlatformProfile::~WPlatformProfile()
 {
   Clear();
 }
 
-void ezPlatformProfile::Clear()
+void WPlatformProfile::Clear()
 {
   for (auto pType : m_Configs)
   {
@@ -59,12 +59,12 @@ void ezPlatformProfile::Clear()
   m_Configs.Clear();
 }
 
-void ezPlatformProfile::AddMissingConfigs()
+void WPlatformProfile::AddMissingConfigs()
 {
-  ezRTTI::ForEachDerivedType<ezProfileConfigData>(
-    [this](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WProfileConfigData>(
+    [this](const WRTTI* pRtti)
     {
-      // find all types derived from ezProfileConfigData
+      // find all types derived from WProfileConfigData
       bool bHasTypeAlready = false;
 
       // check whether we already have an instance of this type
@@ -80,24 +80,24 @@ void ezPlatformProfile::AddMissingConfigs()
       if (!bHasTypeAlready)
       {
         // if not, allocate one
-        ezProfileConfigData* pObject = pRtti->GetAllocator()->Allocate<ezProfileConfigData>();
-        EZ_ASSERT_DEV(pObject != nullptr, "Invalid profile config");
-        ezReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
+        WProfileConfigData* pObject = pRtti->GetAllocator()->Allocate<WProfileConfigData>();
+        W_ASSERT_DEV(pObject != nullptr, "Invalid profile config");
+        WReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
 
         m_Configs.PushBack(pObject);
       }
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // in case unknown configs were loaded from disk, remove them
   m_Configs.RemoveAndSwap(nullptr);
 
   // sort all configs alphabetically
-  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool
+  m_Configs.Sort([](const WProfileConfigData* lhs, const WProfileConfigData* rhs) -> bool
     { return lhs->GetDynamicRTTI()->GetTypeName().Compare(rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
 }
 
-const ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti) const
+const WProfileConfigData* WPlatformProfile::GetTypeConfig(const WRTTI* pRtti) const
 {
   for (const auto* pConfig : m_Configs)
   {
@@ -108,18 +108,18 @@ const ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti)
   return nullptr;
 }
 
-ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti)
+WProfileConfigData* WPlatformProfile::GetTypeConfig(const WRTTI* pRtti)
 {
   // reuse the const-version
-  return const_cast<ezProfileConfigData*>(((const ezPlatformProfile*)this)->GetTypeConfig(pRtti));
+  return const_cast<WProfileConfigData*>(((const WPlatformProfile*)this)->GetTypeConfig(pRtti));
 }
 
-ezResult ezPlatformProfile::SaveForRuntime(ezStringView sFile) const
+WResult WPlatformProfile::SaveForRuntime(WStringView sFile) const
 {
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileWriter file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezChunkStreamWriter chunk(file);
+  WChunkStreamWriter chunk(file);
 
   chunk.BeginStream(1);
 
@@ -130,15 +130,15 @@ ezResult ezPlatformProfile::SaveForRuntime(ezStringView sFile) const
 
   chunk.EndStream();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPlatformProfile::LoadForRuntime(ezStringView sFile)
+WResult WPlatformProfile::LoadForRuntime(WStringView sFile)
 {
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  ezChunkStreamReader chunk(file);
+  WChunkStreamReader chunk(file);
 
   chunk.BeginStream();
 
@@ -155,9 +155,9 @@ ezResult ezPlatformProfile::LoadForRuntime(ezStringView sFile)
   chunk.EndStream();
 
   ++m_uiLastModificationCounter;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Configuration_Implementation_PlatformProfile);
+W_STATICLINK_FILE(Core, Core_Configuration_Implementation_PlatformProfile);

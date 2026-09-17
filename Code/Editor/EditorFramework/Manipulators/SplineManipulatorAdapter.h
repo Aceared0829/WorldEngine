@@ -6,33 +6,33 @@
 #include <EditorFramework/Gizmos/ClickGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
 /// Makes spline nodes editable in the editor by providing small helper gizmos to easily add new nodes.
 ///
-/// Enabled by attaching the ezSplineManipulatorAttribute.
-class ezSplineManipulatorAdapter : public ezManipulatorAdapter
+/// Enabled by attaching the WSplineManipulatorAttribute.
+class WSplineManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezSplineManipulatorAdapter();
-  ~ezSplineManipulatorAdapter();
+  WSplineManipulatorAdapter();
+  ~WSplineManipulatorAdapter();
 
-  static ezResult BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName = ezStringView(), ezUInt32* out_pNodeIndex = nullptr);
-  static ezResult FillControlPointFromNodeComponent(const ezDocumentObject* pNodeComponent, ezSpline::ControlPoint& out_cp);
+  static WResult BuildSpline(const WDocumentObject* pSplineComponent, WStringView sClosedPropertyName, WSpline& out_spline, WStringView sNodeName = WStringView(), WUInt32* out_pNodeIndex = nullptr);
+  static WResult FillControlPointFromNodeComponent(const WDocumentObject* pNodeComponent, WSpline::ControlPoint& out_cp);
 
 protected:
   virtual void Finalize() override;
 
   virtual void Update() override;
-  void ClickGizmoEventHandler(const ezGizmoEvent& e);
+  void ClickGizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
   void BuildSpline();
   void ConfigureGizmos();
-  void MakeUniqueName(ezInt32 iIndex, ezStringBuilder& ref_sName);
+  void MakeUniqueName(WInt32 iIndex, WStringBuilder& ref_sName);
 
-  ezSpline m_Spline;
+  WSpline m_Spline;
 
-  ezDeque<ezClickGizmo> m_Gizmos;
+  WDeque<WClickGizmo> m_Gizmos;
 };

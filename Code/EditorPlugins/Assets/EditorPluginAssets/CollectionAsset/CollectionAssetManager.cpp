@@ -4,47 +4,47 @@
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCollectionAssetDocumentManager, 1, WRTTIDefaultAllocator<WCollectionAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
+WCollectionAssetDocumentManager::WCollectionAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Collection";
-  m_DocTypeDesc.m_sFileExtension = "ezCollectionAsset";
+  m_DocTypeDesc.m_sFileExtension = "WCollectionAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collection.svg";
   m_DocTypeDesc.m_sAssetCategory = "Utilities";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WCollectionAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_AssetCollection");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinCollection";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinCollection";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.svg"));
 }
 
-ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
+WCollectionAssetDocumentManager::~WCollectionAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
 
-void ezCollectionAssetDocumentManager::GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_assetTypes)
+void WCollectionAssetDocumentManager::GetAssetTypesRequiringTransformForSceneExport(WSet<WTempHashedString>& inout_assetTypes)
 {
-  inout_assetTypes.Insert(ezTempHashedString(m_DocTypeDesc.m_sDocumentTypeName));
+  inout_assetTypes.Insert(WTempHashedString(m_DocTypeDesc.m_sDocumentTypeName));
 }
 
-void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WCollectionAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollectionAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WCollectionAssetDocument>())
       {
-        new ezQtCollectionAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
+        new WQtCollectionAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;
@@ -54,13 +54,13 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezCollectionAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WCollectionAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezCollectionAssetDocument(sPath);
+  out_pDocument = new WCollectionAssetDocument(sPath);
 }
 
-void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

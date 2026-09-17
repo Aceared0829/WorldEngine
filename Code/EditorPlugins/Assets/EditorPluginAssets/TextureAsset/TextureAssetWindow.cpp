@@ -12,96 +12,96 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezTextureChannelModeAction
+// WTextureChannelModeAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureChannelModeAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureChannelModeAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTextureChannelModeAction::ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+WTextureChannelModeAction::WTextureChannelModeAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WEnumerationMenuAction(context, szName, szIconPath)
 {
   auto pDocument = context.m_pDocument;
-  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "ChannelMode");
+  m_pValueProperty = WReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "ChannelMode");
 
-  const ezRTTI* pEnumRTTI = m_pValueProperty != nullptr ? m_pValueProperty->GetSpecificType() : ezGetStaticRTTI<ezTextureChannelMode>();
+  const WRTTI* pEnumRTTI = m_pValueProperty != nullptr ? m_pValueProperty->GetSpecificType() : WGetStaticRTTI<WTextureChannelMode>();
   InitEnumerationType(pEnumRTTI);
 }
 
-ezInt64 ezTextureChannelModeAction::GetValue() const
+WInt64 WTextureChannelModeAction::GetValue() const
 {
-  ezVariant value = 0;
+  WVariant value = 0;
   if (m_pValueProperty)
   {
-    value = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument);
+    value = WReflectionUtils::GetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument);
   }
-  return value.ConvertTo<ezInt64>();
+  return value.ConvertTo<WInt64>();
 }
 
-void ezTextureChannelModeAction::Execute(const ezVariant& value)
+void WTextureChannelModeAction::Execute(const WVariant& value)
 {
   if (m_pValueProperty)
   {
-    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+    WReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezTextureLodSliderAction
+// WTextureLodSliderAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureLodSliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
-  : ezSliderAction(context, szName)
+WTextureLodSliderAction::WTextureLodSliderAction(const WActionContext& context, const char* szName)
+  : WSliderAction(context, szName)
 {
   auto pDocument = context.m_pDocument;
-  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "TextureLod");
+  m_pValueProperty = WReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "TextureLod");
 
-  ezVariant currentValue = -1;
+  WVariant currentValue = -1;
   if (m_pValueProperty)
   {
-    currentValue = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, pDocument);
+    currentValue = WReflectionUtils::GetMemberPropertyValue(m_pValueProperty, pDocument);
   }
 
   SetRange(-1, 13);
   SetValue(currentValue.ConvertTo<int>());
 }
 
-void ezTextureLodSliderAction::Execute(const ezVariant& value)
+void WTextureLodSliderAction::Execute(const WVariant& value)
 {
   if (m_pValueProperty)
   {
-    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+    WReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
   }
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezTextureAssetActions
+// WTextureAssetActions
 //////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezTextureAssetActions::s_hTextureChannelMode;
-ezActionDescriptorHandle ezTextureAssetActions::s_hLodSlider;
+WActionDescriptorHandle WTextureAssetActions::s_hTextureChannelMode;
+WActionDescriptorHandle WTextureAssetActions::s_hLodSlider;
 
-void ezTextureAssetActions::RegisterActions()
+void WTextureAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
-  s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture 2D", "", ezTextureLodSliderAction);
+  s_hTextureChannelMode = W_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", WTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
+  s_hLodSlider = W_REGISTER_ACTION_0("TextureAsset.LodSlider", WActionScope::Document, "Texture 2D", "", WTextureLodSliderAction);
 }
 
-void ezTextureAssetActions::UnregisterActions()
+void WTextureAssetActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hTextureChannelMode);
-  ezActionManager::UnregisterAction(s_hLodSlider);
+  WActionManager::UnregisterAction(s_hTextureChannelMode);
+  WActionManager::UnregisterAction(s_hLodSlider);
 }
 
-void ezTextureAssetActions::MapToolbarActions(ezStringView sMapping)
+void WTextureAssetActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hLodSlider, "", 14.0f);
   pMap->MapAction(s_hTextureChannelMode, "", 15.0f);
@@ -109,16 +109,16 @@ void ezTextureAssetActions::MapToolbarActions(ezStringView sMapping)
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtTextureAssetDocumentWindow
+// WQtTextureAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
-ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtTextureAssetDocumentWindow::WQtTextureAssetDocumentWindow(WTextureAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "TextureAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -127,8 +127,8 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "TextureAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -141,24 +141,24 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-2, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureFixed(WVec3(0), WVec3(0.0f), WVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
 
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("TextureAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -166,7 +166,7 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -179,25 +179,25 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
   FinishWindowCreation();
 }
 
-void ezQtTextureAssetDocumentWindow::InternalRedraw()
+void WQtTextureAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
+void WQtTextureAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    const ezTextureAssetDocument* pDoc = static_cast<const ezTextureAssetDocument*>(GetDocument());
-    const ezTextureAssetProperties* pProps = pDoc->GetProperties();
+    const WTextureAssetDocument* pDoc = static_cast<const WTextureAssetDocument*>(GetDocument());
+    const WTextureAssetProperties* pProps = pDoc->GetProperties();
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetChannelMode";
       msg.m_iValue = pDoc->m_ChannelMode.GetValue();
       msg.m_fValue = pProps->m_fAlphaThreshold;
@@ -205,7 +205,7 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
     }
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetLodLevel";
       msg.m_iValue = pDoc->m_iTextureLod;
       GetEditorEngineConnection()->SendMessage(&msg);

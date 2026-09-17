@@ -5,7 +5,7 @@
 #include <SharedPluginAssets/StateMachineAsset/StateMachineGraphTypes.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager"
@@ -13,28 +13,28 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachinePin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtStateMachinePin(); });
-    ezQtVisualGraphScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineConnection>(), [](const ezRTTI* pRtti)->ezQtVisualGraphConnection* { return new ezQtStateMachineConnection(); });    
-    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>(), [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtStateMachineNode(); });
+    WQtVisualGraphScene::GetPinFactory().RegisterCreator(WGetStaticRTTI<WStateMachinePin>(), [](const WRTTI* pRtti)->WQtVisualGraphPin* { return new WQtStateMachinePin(); });
+    WQtVisualGraphScene::GetConnectionFactory().RegisterCreator(WGetStaticRTTI<WStateMachineConnection>(), [](const WRTTI* pRtti)->WQtVisualGraphConnection* { return new WQtStateMachineConnection(); });
+    WQtVisualGraphScene::GetNodeFactory().RegisterCreator(WGetStaticRTTI<WStateMachineNodeBase>(), [](const WRTTI* pRtti)->WQtVisualGraphNode* { return new WQtStateMachineNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachinePin>());
-    ezQtVisualGraphScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineConnection>());
-    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>());
+    WQtVisualGraphScene::GetPinFactory().UnregisterCreator(WGetStaticRTTI<WStateMachinePin>());
+    WQtVisualGraphScene::GetConnectionFactory().UnregisterCreator(WGetStaticRTTI<WStateMachineConnection>());
+    WQtVisualGraphScene::GetNodeFactory().UnregisterCreator(WGetStaticRTTI<WStateMachineNodeBase>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachinePin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachinePin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachinePin::ezStateMachinePin(Type type, const ezDocumentObject* pObject)
-  : ezVisualGraphPin(type, type == Type::Input ? "Enter" : "Exit", ezColor::Grey, pObject)
+WStateMachinePin::WStateMachinePin(Type type, const WDocumentObject* pObject)
+  : WVisualGraphPin(type, type == Type::Input ? "Enter" : "Exit", WColor::Grey, pObject)
 {
 }
 
@@ -42,19 +42,19 @@ ezStateMachinePin::ezStateMachinePin(Type type, const ezDocumentObject* pObject)
 
 constexpr const char* s_szIsInitialState = "IsInitialState";
 
-ezStateMachineNodeManager::ezStateMachineNodeManager()
+WStateMachineNodeManager::WStateMachineNodeManager()
 {
-  m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::StructureEventHandler, this));
+  m_StructureEvents.AddEventHandler(WMakeDelegate(&WStateMachineNodeManager::StructureEventHandler, this));
 }
 
-ezStateMachineNodeManager::~ezStateMachineNodeManager()
+WStateMachineNodeManager::~WStateMachineNodeManager()
 {
-  m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::StructureEventHandler, this));
+  m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WStateMachineNodeManager::StructureEventHandler, this));
 }
 
-bool ezStateMachineNodeManager::IsInitialState(const ezDocumentObject* pObject) const
+bool WStateMachineNodeManager::IsInitialState(const WDocumentObject* pObject) const
 {
-  ezVariant val = pObject->GetTypeAccessor().GetValue(s_szIsInitialState);
+  WVariant val = pObject->GetTypeAccessor().GetValue(s_szIsInitialState);
   if (val.IsValid())
   {
     return val.Get<bool>() == true;
@@ -63,7 +63,7 @@ bool ezStateMachineNodeManager::IsInitialState(const ezDocumentObject* pObject) 
   return false;
 }
 
-const ezDocumentObject* ezStateMachineNodeManager::GetInitialState() const
+const WDocumentObject* WStateMachineNodeManager::GetInitialState() const
 {
   for (auto pObject : GetRootObject()->GetChildren())
   {
@@ -76,61 +76,61 @@ const ezDocumentObject* ezStateMachineNodeManager::GetInitialState() const
   return nullptr;
 }
 
-bool ezStateMachineNodeManager::IsAnyState(const ezDocumentObject* pObject) const
+bool WStateMachineNodeManager::IsAnyState(const WDocumentObject* pObject) const
 {
   if (pObject != nullptr)
   {
     auto pType = pObject->GetTypeAccessor().GetType();
-    return pType->IsDerivedFrom<ezStateMachineNodeAny>();
+    return pType->IsDerivedFrom<WStateMachineNodeAny>();
   }
   return false;
 }
 
-bool ezStateMachineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WStateMachineNodeManager::InternalIsNode(const WDocumentObject* pObject) const
 {
   if (pObject != nullptr)
   {
     auto pType = pObject->GetTypeAccessor().GetType();
-    return pType->IsDerivedFrom<ezStateMachineNodeBase>();
+    return pType->IsDerivedFrom<WStateMachineNodeBase>();
   }
   return false;
 }
 
-ezStatus ezStateMachineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const
+WStatus WStateMachineNodeManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNtoN;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezStateMachineNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
+void WStateMachineNodeManager::InternalCreatePins(const WDocumentObject* pObject, NodeInternal& node)
 {
   if (IsNode(pObject) == false)
     return;
 
   if (IsAnyState(pObject) == false)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezVisualGraphPin::Type::Input, pObject);
+    auto pPin = W_DEFAULT_NEW(WStateMachinePin, WVisualGraphPin::Type::Input, pObject);
     node.m_Inputs.PushBack(pPin);
   }
 
   {
-    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezVisualGraphPin::Type::Output, pObject);
+    auto pPin = W_DEFAULT_NEW(WStateMachinePin, WVisualGraphPin::Type::Output, pObject);
     node.m_Outputs.PushBack(pPin);
   }
 }
 
-void ezStateMachineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WStateMachineNodeManager::GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNode>());
-  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNodeAny>());
+  out_types.PushBack(WGetStaticRTTI<WStateMachineNode>());
+  out_types.PushBack(WGetStaticRTTI<WStateMachineNodeAny>());
 }
 
-const ezRTTI* ezStateMachineNodeManager::GetConnectionType() const
+const WRTTI* WStateMachineNodeManager::GetConnectionType() const
 {
-  return ezGetStaticRTTI<ezStateMachineConnection>();
+  return WGetStaticRTTI<WStateMachineConnection>();
 }
 
-void ezStateMachineNodeManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WStateMachineNodeManager::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   if (IsNode(e.m_pObject) == false || IsAnyState(e.m_pObject))
     return;
@@ -139,39 +139,39 @@ void ezStateMachineNodeManager::StructureEventHandler(const ezDocumentObjectStru
   if (pCommandHistory == nullptr || pCommandHistory->IsInTransaction() == false)
     return;
 
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded &&
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::AfterObjectAdded &&
       e.m_pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == false &&
       GetInitialState() == nullptr)
   {
-    ezSetObjectPropertyCommand propCmd;
+    WSetObjectPropertyCommand propCmd;
     propCmd.m_Object = e.m_pObject->GetGuid();
     propCmd.m_sProperty = s_szIsInitialState;
-    propCmd.m_NewValue = ezVariant(true);
+    propCmd.m_NewValue = WVariant(true);
 
-    EZ_VERIFY(pCommandHistory->AddCommand(propCmd).Succeeded(), "");
+    W_VERIFY(pCommandHistory->AddCommand(propCmd).Succeeded(), "");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachine_SetInitialStateCommand, 1, ezRTTIDefaultAllocator<ezStateMachine_SetInitialStateCommand>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachine_SetInitialStateCommand, 1, WRTTIDefaultAllocator<WStateMachine_SetInitialStateCommand>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("NewInitialStateObject", m_NewInitialStateObject),
+    W_MEMBER_PROPERTY("NewInitialStateObject", m_NewInitialStateObject),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachine_SetInitialStateCommand::ezStateMachine_SetInitialStateCommand() = default;
+WStateMachine_SetInitialStateCommand::WStateMachine_SetInitialStateCommand() = default;
 
-ezStatus ezStateMachine_SetInitialStateCommand::DoInternal(bool bRedo)
+WStatus WStateMachine_SetInitialStateCommand::DoInternal(bool bRedo)
 {
-  ezDocument* pDocument = GetDocument();
-  auto pManager = static_cast<ezStateMachineNodeManager*>(pDocument->GetObjectManager());
+  WDocument* pDocument = GetDocument();
+  auto pManager = static_cast<WStateMachineNodeManager*>(pDocument->GetObjectManager());
 
   if (!bRedo)
   {
@@ -183,24 +183,24 @@ ezStatus ezStateMachine_SetInitialStateCommand::DoInternal(bool bRedo)
   }
 
   if (m_pNewInitialStateObject)
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, ezVariant(true)));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, WVariant(true)));
 
   if (m_pOldInitialStateObject)
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, ezVariant(false)));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, WVariant(false)));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezStateMachine_SetInitialStateCommand::UndoInternal(bool bFireEvents)
+WStatus WStateMachine_SetInitialStateCommand::UndoInternal(bool bFireEvents)
 {
-  ezDocument* pDocument = GetDocument();
-  auto pManager = static_cast<ezStateMachineNodeManager*>(pDocument->GetObjectManager());
+  WDocument* pDocument = GetDocument();
+  auto pManager = static_cast<WStateMachineNodeManager*>(pDocument->GetObjectManager());
 
   if (m_pNewInitialStateObject)
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, ezVariant(false)));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, WVariant(false)));
 
   if (m_pOldInitialStateObject)
-    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, ezVariant(true)));
+    W_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, WVariant(true)));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

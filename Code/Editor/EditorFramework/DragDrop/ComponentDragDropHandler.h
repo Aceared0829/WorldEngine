@@ -2,21 +2,21 @@
 
 #include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 
-class ezDocument;
-class ezDragDropInfo;
+class WDocument;
+class WDragDropInfo;
 
-class EZ_EDITORFRAMEWORK_DLL ezComponentDragDropHandler : public ezAssetDragDropHandler
+class W_EDITORFRAMEWORK_DLL WComponentDragDropHandler : public WAssetDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezComponentDragDropHandler, ezAssetDragDropHandler);
+  W_ADD_DYNAMIC_REFLECTION(WComponentDragDropHandler, WAssetDragDropHandler);
 
 protected:
-  void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex);
+  void CreateDropObject(const WVec3& vPosition, const char* szType, const char* szProperty, const WVariant& value, WUuid parent, WInt32 iInsertChildIndex);
 
-  void AttachComponentToObject(const char* szType, const char* szProperty, const ezVariant& value, ezUuid ObjectGuid);
+  void AttachComponentToObject(const char* szType, const char* szProperty, const WVariant& value, WUuid ObjectGuid);
 
-  void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition, const ezQuat& qRotation);
+  void MoveObjectToPosition(const WUuid& guid, const WVec3& vPosition, const WQuat& qRotation);
 
-  void MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap, const ezVec3& normal);
+  void MoveDraggedObjectsToPosition(WVec3 vPosition, bool bAllowSnap, const WVec3& normal);
 
   void SelectCreatedObjects();
 
@@ -26,19 +26,19 @@ protected:
 
   void CancelTemporaryCommands();
 
-  ezDocument* m_pDocument;
-  ezHybridArray<ezUuid, 16> m_DraggedObjects;
+  WDocument* m_pDocument;
+  WHybridArray<WUuid, 16> m_DraggedObjects;
 
-  virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
+  virtual void OnDragBegin(const WDragDropInfo* pInfo) override;
 
-  virtual void OnDragUpdate(const ezDragDropInfo* pInfo) override;
+  virtual void OnDragUpdate(const WDragDropInfo* pInfo) override;
 
   virtual void OnDragCancel() override;
 
-  virtual void OnDrop(const ezDragDropInfo* pInfo) override;
+  virtual void OnDrop(const WDragDropInfo* pInfo) override;
 
-  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
+  virtual float CanHandle(const WDragDropInfo* pInfo) const override;
 
-  ezVec3 m_vAlignAxisWithNormal = ezVec3::MakeZero();
+  WVec3 m_vAlignAxisWithNormal = WVec3::MakeZero();
   bool m_bSelectionAsRuntimeOverride = true;
 };

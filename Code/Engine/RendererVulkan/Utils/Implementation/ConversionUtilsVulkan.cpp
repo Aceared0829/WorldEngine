@@ -2,13 +2,13 @@
 
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags& out_stages, vk::AccessFlags& out_access)
+void WConversionUtilsVulkan::ConvertResourceState(WBitflags<WGALResourceState> state, vk::PipelineStageFlags& out_stages, vk::AccessFlags& out_access)
 {
   out_stages = {};
   out_access = {};
 
   // All shader stages that can access resources. Unsupported stages must be masked
-  // out by the caller using ezGALDeviceVulkan::GetSupportedStages().
+  // out by the caller using WGALDeviceVulkan::GetSupportedStages().
   constexpr vk::PipelineStageFlags allShaderStages =
     vk::PipelineStageFlagBits::eVertexShader |
     vk::PipelineStageFlagBits::eTessellationControlShader |
@@ -21,87 +21,87 @@ void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState
   {
     switch (flag)
     {
-      case ezGALResourceState::ShaderResource:
+      case WGALResourceState::ShaderResource:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits::eShaderRead;
         break;
 
-      case ezGALResourceState::ConstantBuffer:
+      case WGALResourceState::ConstantBuffer:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits::eUniformRead;
         break;
 
-      case ezGALResourceState::VertexBuffer:
+      case WGALResourceState::VertexBuffer:
         out_stages |= vk::PipelineStageFlagBits::eVertexInput;
         out_access |= vk::AccessFlagBits::eVertexAttributeRead;
         break;
 
-      case ezGALResourceState::IndexBuffer:
+      case WGALResourceState::IndexBuffer:
         out_stages |= vk::PipelineStageFlagBits::eVertexInput;
         out_access |= vk::AccessFlagBits::eIndexRead;
         break;
 
-      case ezGALResourceState::DrawIndirect:
+      case WGALResourceState::DrawIndirect:
         out_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
         out_access |= vk::AccessFlagBits::eIndirectCommandRead;
         break;
 
-      case ezGALResourceState::DepthStencilRead:
+      case WGALResourceState::DepthStencilRead:
         out_stages |= vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
         out_access |= vk::AccessFlagBits::eDepthStencilAttachmentRead;
         break;
 
-      case ezGALResourceState::CopySource:
+      case WGALResourceState::CopySource:
         out_stages |= vk::PipelineStageFlagBits::eTransfer;
         out_access |= vk::AccessFlagBits::eTransferRead;
         break;
 
-      case ezGALResourceState::ResolveSource:
+      case WGALResourceState::ResolveSource:
         out_stages |= vk::PipelineStageFlagBits::eTransfer;
         out_access |= vk::AccessFlagBits::eTransferRead;
         break;
 
-      case ezGALResourceState::UnorderedAccess:
+      case WGALResourceState::UnorderedAccess:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
         break;
 
-      case ezGALResourceState::RenderTarget:
+      case WGALResourceState::RenderTarget:
         out_stages |= vk::PipelineStageFlagBits::eColorAttachmentOutput;
         out_access |= vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
         break;
 
-      case ezGALResourceState::DepthStencilWrite:
+      case WGALResourceState::DepthStencilWrite:
         out_stages |= vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
         out_access |= vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
         break;
 
-      case ezGALResourceState::CopyDestination:
+      case WGALResourceState::CopyDestination:
         out_stages |= vk::PipelineStageFlagBits::eTransfer;
         out_access |= vk::AccessFlagBits::eTransferWrite;
         break;
 
-      case ezGALResourceState::ResolveDestination:
+      case WGALResourceState::ResolveDestination:
         out_stages |= vk::PipelineStageFlagBits::eTransfer;
         out_access |= vk::AccessFlagBits::eTransferWrite;
         break;
 
-      case ezGALResourceState::Present:
+      case WGALResourceState::Present:
         // No stage/access needed — presentation is handled outside the render pipeline.
         break;
 
-      case ezGALResourceState::CpuRead:
+      case WGALResourceState::CpuRead:
         out_stages |= vk::PipelineStageFlagBits::eHost;
         out_access |= vk::AccessFlagBits::eHostRead;
         break;
 
-      case ezGALResourceState::CpuWrite:
+      case WGALResourceState::CpuWrite:
         out_stages |= vk::PipelineStageFlagBits::eHost;
         out_access |= vk::AccessFlagBits::eHostWrite;
         break;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
   }
@@ -111,7 +111,7 @@ void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState
     out_stages = vk::PipelineStageFlagBits::eTopOfPipe;
 }
 
-void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags2& out_stages, vk::AccessFlags2& out_access)
+void WConversionUtilsVulkan::ConvertResourceState(WBitflags<WGALResourceState> state, vk::PipelineStageFlags2& out_stages, vk::AccessFlags2& out_access)
 {
   out_stages = {};
   out_access = {};
@@ -128,86 +128,86 @@ void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState
   {
     switch (flag)
     {
-      case ezGALResourceState::ShaderResource:
+      case WGALResourceState::ShaderResource:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits2::eShaderRead;
         break;
 
-      case ezGALResourceState::ConstantBuffer:
+      case WGALResourceState::ConstantBuffer:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits2::eUniformRead;
         break;
 
-      case ezGALResourceState::VertexBuffer:
+      case WGALResourceState::VertexBuffer:
         out_stages |= vk::PipelineStageFlagBits2::eVertexAttributeInput;
         out_access |= vk::AccessFlagBits2::eVertexAttributeRead;
         break;
 
-      case ezGALResourceState::IndexBuffer:
+      case WGALResourceState::IndexBuffer:
         out_stages |= vk::PipelineStageFlagBits2::eIndexInput;
         out_access |= vk::AccessFlagBits2::eIndexRead;
         break;
 
-      case ezGALResourceState::DrawIndirect:
+      case WGALResourceState::DrawIndirect:
         out_stages |= vk::PipelineStageFlagBits2::eDrawIndirect;
         out_access |= vk::AccessFlagBits2::eIndirectCommandRead;
         break;
 
-      case ezGALResourceState::DepthStencilRead:
+      case WGALResourceState::DepthStencilRead:
         out_stages |= vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests;
         out_access |= vk::AccessFlagBits2::eDepthStencilAttachmentRead;
         break;
 
-      case ezGALResourceState::CopySource:
+      case WGALResourceState::CopySource:
         out_stages |= vk::PipelineStageFlagBits2::eCopy;
         out_access |= vk::AccessFlagBits2::eTransferRead;
         break;
 
-      case ezGALResourceState::ResolveSource:
+      case WGALResourceState::ResolveSource:
         out_stages |= vk::PipelineStageFlagBits2::eResolve;
         out_access |= vk::AccessFlagBits2::eTransferRead;
         break;
 
-      case ezGALResourceState::UnorderedAccess:
+      case WGALResourceState::UnorderedAccess:
         out_stages |= allShaderStages;
         out_access |= vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite;
         break;
 
-      case ezGALResourceState::RenderTarget:
+      case WGALResourceState::RenderTarget:
         out_stages |= vk::PipelineStageFlagBits2::eColorAttachmentOutput;
         out_access |= vk::AccessFlagBits2::eColorAttachmentRead | vk::AccessFlagBits2::eColorAttachmentWrite;
         break;
 
-      case ezGALResourceState::DepthStencilWrite:
+      case WGALResourceState::DepthStencilWrite:
         out_stages |= vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests;
         out_access |= vk::AccessFlagBits2::eDepthStencilAttachmentRead | vk::AccessFlagBits2::eDepthStencilAttachmentWrite;
         break;
 
-      case ezGALResourceState::CopyDestination:
+      case WGALResourceState::CopyDestination:
         out_stages |= vk::PipelineStageFlagBits2::eCopy;
         out_access |= vk::AccessFlagBits2::eTransferWrite;
         break;
 
-      case ezGALResourceState::ResolveDestination:
+      case WGALResourceState::ResolveDestination:
         out_stages |= vk::PipelineStageFlagBits2::eResolve;
         out_access |= vk::AccessFlagBits2::eTransferWrite;
         break;
 
-      case ezGALResourceState::Present:
+      case WGALResourceState::Present:
         break;
 
-      case ezGALResourceState::CpuRead:
+      case WGALResourceState::CpuRead:
         out_stages |= vk::PipelineStageFlagBits2::eHost;
         out_access |= vk::AccessFlagBits2::eHostRead;
         break;
 
-      case ezGALResourceState::CpuWrite:
+      case WGALResourceState::CpuWrite:
         out_stages |= vk::PipelineStageFlagBits2::eHost;
         out_access |= vk::AccessFlagBits2::eHostWrite;
         break;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
   }
@@ -216,44 +216,44 @@ void ezConversionUtilsVulkan::ConvertResourceState(ezBitflags<ezGALResourceState
     out_stages = vk::PipelineStageFlagBits2::eNone;
 }
 
-vk::ImageLayout ezConversionUtilsVulkan::GetTextureLayout(ezBitflags<ezGALResourceState> state)
+vk::ImageLayout WConversionUtilsVulkan::GetTextureLayout(WBitflags<WGALResourceState> state)
 {
   // Write states require a specific layout.
-  if (state.IsSet(ezGALResourceState::RenderTarget))
+  if (state.IsSet(WGALResourceState::RenderTarget))
     return vk::ImageLayout::eColorAttachmentOptimal;
 
-  if (state.IsSet(ezGALResourceState::DepthStencilWrite))
+  if (state.IsSet(WGALResourceState::DepthStencilWrite))
     return vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
-  if (state.IsSet(ezGALResourceState::UnorderedAccess))
+  if (state.IsSet(WGALResourceState::UnorderedAccess))
     return vk::ImageLayout::eGeneral;
 
-  if (state.IsSet(ezGALResourceState::CopyDestination))
+  if (state.IsSet(WGALResourceState::CopyDestination))
     return vk::ImageLayout::eTransferDstOptimal;
 
-  if (state.IsSet(ezGALResourceState::ResolveDestination))
+  if (state.IsSet(WGALResourceState::ResolveDestination))
     return vk::ImageLayout::eTransferDstOptimal;
 
   // Read-only states.
   // If multiple read flags are set, different layouts would conflict — fall back to eGeneral.
-  const ezBitflags<ezGALResourceState> readStates = state & ezGALResourceState::AllReadStates;
+  const WBitflags<WGALResourceState> readStates = state & WGALResourceState::AllReadStates;
   if (readStates.GetValue() & (readStates.GetValue() - 1))
     return vk::ImageLayout::eGeneral;
 
-  if (state.IsSet(ezGALResourceState::DepthStencilRead))
+  if (state.IsSet(WGALResourceState::DepthStencilRead))
     return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
 
-  if (state.IsSet(ezGALResourceState::ShaderResource))
+  if (state.IsSet(WGALResourceState::ShaderResource))
     return vk::ImageLayout::eShaderReadOnlyOptimal;
 
-  if (state.IsSet(ezGALResourceState::CopySource))
+  if (state.IsSet(WGALResourceState::CopySource))
     return vk::ImageLayout::eTransferSrcOptimal;
 
-  if (state.IsSet(ezGALResourceState::ResolveSource))
+  if (state.IsSet(WGALResourceState::ResolveSource))
     return vk::ImageLayout::eTransferSrcOptimal;
 
   // Special states.
-  if (state.IsSet(ezGALResourceState::Present))
+  if (state.IsSet(WGALResourceState::Present))
     return vk::ImageLayout::ePresentSrcKHR;
 
   // Unknown or no state.

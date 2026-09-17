@@ -54,12 +54,12 @@ namespace HybridArrayTestDetail
   };
 
   template <typename T>
-  static ezHybridArray<T, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  static WHybridArray<T, 16> CreateArray(WUInt32 uiSize, WUInt32 uiOffset)
   {
-    ezHybridArray<T, 16> a;
+    WHybridArray<T, 16> a;
     a.SetCount(uiSize);
 
-    for (ezUInt32 i = 0; i < uiSize; ++i)
+    for (WUInt32 i = 0; i < uiSize; ++i)
       a[i] = T(uiOffset + i);
 
     return a;
@@ -67,7 +67,7 @@ namespace HybridArrayTestDetail
 
   struct ExternalCounter
   {
-    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+    W_DECLARE_MEM_RELOCATABLE_TYPE();
 
     ExternalCounter() = default;
 
@@ -86,309 +86,309 @@ namespace HybridArrayTestDetail
   };
 } // namespace HybridArrayTestDetail
 
-static void TakesDynamicArray(ezDynamicArray<int>& ref_ar, int iNum, int iStart);
+static void TakesDynamicArray(WDynamicArray<int>& ref_ar, int iNum, int iStart);
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
-static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 32);
+#if W_ENABLED(W_PLATFORM_64BIT)
+static_assert(sizeof(WHybridArray<WInt32, 1>) == 32);
 #else
-static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 20);
+static_assert(sizeof(WHybridArray<WInt32, 1>) == 20);
 #endif
 
-static_assert(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsClass::value);
-static_assert(ezGetTypeClass<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == ezTypeIsClass::value);
+static_assert(WGetTypeClass<WHybridArray<WInt32, 1>>::value == WTypeIsClass::value);
+static_assert(WGetTypeClass<WHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == WTypeIsClass::value);
 
-EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
+W_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
-  ezConstructionCounter::Reset();
+  WConstructionCounter::Reset();
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-    ezHybridArray<ezInt32, 16> a1;
-    ezHybridArray<ezConstructionCounter, 16> a2;
+    WHybridArray<WInt32, 16> a1;
+    WHybridArray<WConstructionCounter, 16> a2;
 
-    EZ_TEST_BOOL(a1.GetCount() == 0);
-    EZ_TEST_BOOL(a2.GetCount() == 0);
-    EZ_TEST_BOOL(a1.IsEmpty());
-    EZ_TEST_BOOL(a2.IsEmpty());
+    W_TEST_BOOL(a1.GetCount() == 0);
+    W_TEST_BOOL(a2.GetCount() == 0);
+    W_TEST_BOOL(a1.IsEmpty());
+    W_TEST_BOOL(a2.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy Constructor")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    EZ_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
+    W_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
 
-    for (ezInt32 i = 0; i < 32; ++i)
+    for (WInt32 i = 0; i < 32; ++i)
     {
       a1.PushBack(rand() % 100000);
 
       if (i < 16)
       {
-        EZ_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
+        W_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
       }
       else
       {
-        EZ_TEST_BOOL(a1.GetHeapMemoryUsage() >= i * sizeof(ezInt32));
+        W_TEST_BOOL(a1.GetHeapMemoryUsage() >= i * sizeof(WInt32));
       }
     }
 
-    ezHybridArray<ezInt32, 16> a2 = a1;
-    ezHybridArray<ezInt32, 16> a3(a1);
+    WHybridArray<WInt32, 16> a2 = a1;
+    WHybridArray<WInt32, 16> a3(a1);
 
-    EZ_TEST_BOOL(a1 == a2);
-    EZ_TEST_BOOL(a1 == a3);
-    EZ_TEST_BOOL(a2 == a3);
+    W_TEST_BOOL(a1 == a2);
+    W_TEST_BOOL(a1 == a3);
+    W_TEST_BOOL(a2 == a3);
 
-    ezInt32 test[] = {1, 2, 3, 4};
-    ezArrayPtr<ezInt32> aptr(test);
+    WInt32 test[] = {1, 2, 3, 4};
+    WArrayPtr<WInt32> aptr(test);
 
-    ezHybridArray<ezInt32, 16> a4(aptr);
+    WHybridArray<WInt32, 16> a4(aptr);
 
-    EZ_TEST_BOOL(a4 == aptr);
+    W_TEST_BOOL(a4 == aptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move Constructor / Operator")
   {
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
     {
       // move constructor external storage
-      ezHybridArray<ezConstructionCounter, 16> a1(HybridArrayTestDetail::CreateArray<ezConstructionCounter>(100, 20));
+      WHybridArray<WConstructionCounter, 16> a1(HybridArrayTestDetail::CreateArray<WConstructionCounter>(100, 20));
 
-      EZ_TEST_INT(a1.GetCount(), 100);
-      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i].m_iData, 20 + i);
+      W_TEST_INT(a1.GetCount(), 100);
+      for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+        W_TEST_INT(a1[i].m_iData, 20 + i);
 
       // move operator external storage
-      a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounter>(200, 50);
+      a1 = HybridArrayTestDetail::CreateArray<WConstructionCounter>(200, 50);
 
-      EZ_TEST_INT(a1.GetCount(), 200);
-      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i].m_iData, 50 + i);
+      W_TEST_INT(a1.GetCount(), 200);
+      for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+        W_TEST_INT(a1[i].m_iData, 50 + i);
     }
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
-    ezConstructionCounter::Reset();
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
+    WConstructionCounter::Reset();
 
     {
       // move constructor internal storage
-      ezHybridArray<ezConstructionCounter, 16> a2(HybridArrayTestDetail::CreateArray<ezConstructionCounter>(10, 30));
+      WHybridArray<WConstructionCounter, 16> a2(HybridArrayTestDetail::CreateArray<WConstructionCounter>(10, 30));
 
-      EZ_TEST_INT(a2.GetCount(), 10);
-      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
-        EZ_TEST_INT(a2[i].m_iData, 30 + i);
+      W_TEST_INT(a2.GetCount(), 10);
+      for (WUInt32 i = 0; i < a2.GetCount(); ++i)
+        W_TEST_INT(a2[i].m_iData, 30 + i);
 
       // move operator internal storage
-      a2 = HybridArrayTestDetail::CreateArray<ezConstructionCounter>(8, 70);
+      a2 = HybridArrayTestDetail::CreateArray<WConstructionCounter>(8, 70);
 
-      EZ_TEST_INT(a2.GetCount(), 8);
-      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
-        EZ_TEST_INT(a2[i].m_iData, 70 + i);
+      W_TEST_INT(a2.GetCount(), 8);
+      for (WUInt32 i = 0; i < a2.GetCount(); ++i)
+        W_TEST_INT(a2[i].m_iData, 70 + i);
     }
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
-    ezConstructionCounter::Reset();
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
+    WConstructionCounter::Reset();
 
-    ezConstructionCounterRelocatable::Reset();
+    WConstructionCounterRelocatable::Reset();
     {
       // move constructor external storage relocatable
-      ezHybridArray<ezConstructionCounterRelocatable, 16> a1(HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(100, 20));
+      WHybridArray<WConstructionCounterRelocatable, 16> a1(HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(100, 20));
 
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(100, 0));
+      W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(100, 0));
 
-      EZ_TEST_INT(a1.GetCount(), 100);
-      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i].m_iData, 20 + i);
+      W_TEST_INT(a1.GetCount(), 100);
+      for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+        W_TEST_INT(a1[i].m_iData, 20 + i);
 
       // move operator external storage
-      a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(200, 50);
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(200, 100));
+      a1 = HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(200, 50);
+      W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(200, 100));
 
-      EZ_TEST_INT(a1.GetCount(), 200);
-      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-        EZ_TEST_INT(a1[i].m_iData, 50 + i);
+      W_TEST_INT(a1.GetCount(), 200);
+      for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+        W_TEST_INT(a1[i].m_iData, 50 + i);
     }
 
-    EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
-    ezConstructionCounterRelocatable::Reset();
+    W_TEST_BOOL(WConstructionCounterRelocatable::HasAllDestructed());
+    WConstructionCounterRelocatable::Reset();
 
     {
       // move constructor internal storage relocatable
-      ezHybridArray<ezConstructionCounterRelocatable, 16> a2(HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(10, 30));
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(10, 0));
+      WHybridArray<WConstructionCounterRelocatable, 16> a2(HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(10, 30));
+      W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(10, 0));
 
-      EZ_TEST_INT(a2.GetCount(), 10);
-      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
-        EZ_TEST_INT(a2[i].m_iData, 30 + i);
+      W_TEST_INT(a2.GetCount(), 10);
+      for (WUInt32 i = 0; i < a2.GetCount(); ++i)
+        W_TEST_INT(a2[i].m_iData, 30 + i);
 
       // move operator internal storage
-      a2 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 10));
+      a2 = HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(8, 70);
+      W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(8, 10));
 
-      EZ_TEST_INT(a2.GetCount(), 8);
-      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
-        EZ_TEST_INT(a2[i].m_iData, 70 + i);
+      W_TEST_INT(a2.GetCount(), 8);
+      for (WUInt32 i = 0; i < a2.GetCount(); ++i)
+        W_TEST_INT(a2[i].m_iData, 70 + i);
     }
 
-    EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
-    ezConstructionCounterRelocatable::Reset();
+    W_TEST_BOOL(WConstructionCounterRelocatable::HasAllDestructed());
+    WConstructionCounterRelocatable::Reset();
 
     {
       // move constructor with different allocators
-      ezProxyAllocator proxyAllocator("test allocator", ezFoundation::GetDefaultAllocator());
+      WProxyAllocator proxyAllocator("test allocator", WFoundation::GetDefaultAllocator());
       {
-        ezHybridArray<ezConstructionCounterRelocatable, 16> a1(&proxyAllocator);
+        WHybridArray<WConstructionCounterRelocatable, 16> a1(&proxyAllocator);
 
-        a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
-        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 0));
-        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+        a1 = HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(8, 70);
+        W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(8, 0));
+        W_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
 
-        EZ_TEST_INT(a1.GetCount(), 8);
-        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-          EZ_TEST_INT(a1[i].m_iData, 70 + i);
+        W_TEST_INT(a1.GetCount(), 8);
+        for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+          W_TEST_INT(a1[i].m_iData, 70 + i);
 
-        a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(32, 100);
-        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(32, 8));
-        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+        a1 = HybridArrayTestDetail::CreateArray<WConstructionCounterRelocatable>(32, 100);
+        W_TEST_BOOL(WConstructionCounterRelocatable::HasDone(32, 8));
+        W_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
 
-        EZ_TEST_INT(a1.GetCount(), 32);
-        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-          EZ_TEST_INT(a1[i].m_iData, 100 + i);
+        W_TEST_INT(a1.GetCount(), 32);
+        for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+          W_TEST_INT(a1[i].m_iData, 100 + i);
       }
 
-      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
-      ezConstructionCounterRelocatable::Reset();
+      W_TEST_BOOL(WConstructionCounterRelocatable::HasAllDestructed());
+      WConstructionCounterRelocatable::Reset();
 
       auto allocatorStats = proxyAllocator.GetStats();
-      EZ_TEST_BOOL(allocatorStats.m_uiNumAllocations == allocatorStats.m_uiNumDeallocations); // check for memory leak?
+      W_TEST_BOOL(allocatorStats.m_uiNumAllocations == allocatorStats.m_uiNumDeallocations); // check for memory leak?
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Convert to ArrayPtr")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
     {
-      ezInt32 r = rand() % 100000;
+      WInt32 r = rand() % 100000;
       a1.PushBack(r);
     }
 
-    ezArrayPtr<ezInt32> ap = a1;
+    WArrayPtr<WInt32> ap = a1;
 
-    EZ_TEST_BOOL(ap.GetCount() == a1.GetCount());
+    W_TEST_BOOL(ap.GetCount() == a1.GetCount());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator =")
   {
-    ezHybridArray<ezInt32, 16> a1, a2;
+    WHybridArray<WInt32, 16> a1, a2;
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
       a1.PushBack(i);
 
     a2 = a1;
 
-    EZ_TEST_BOOL(a1 == a2);
+    W_TEST_BOOL(a1 == a2);
 
-    ezArrayPtr<ezInt32> arrayPtr(a1);
+    WArrayPtr<WInt32> arrayPtr(a1);
 
     a2 = arrayPtr;
 
-    EZ_TEST_BOOL(a2 == arrayPtr);
+    W_TEST_BOOL(a2 == arrayPtr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator == / !=")
   {
-    ezHybridArray<ezInt32, 16> a1, a2;
+    WHybridArray<WInt32, 16> a1, a2;
 
-    EZ_TEST_BOOL(a1 == a1);
-    EZ_TEST_BOOL(a2 == a2);
-    EZ_TEST_BOOL(a1 == a2);
+    W_TEST_BOOL(a1 == a1);
+    W_TEST_BOOL(a2 == a2);
+    W_TEST_BOOL(a1 == a2);
 
-    EZ_TEST_BOOL((a1 != a1) == false);
-    EZ_TEST_BOOL((a2 != a2) == false);
-    EZ_TEST_BOOL((a1 != a2) == false);
+    W_TEST_BOOL((a1 != a1) == false);
+    W_TEST_BOOL((a2 != a2) == false);
+    W_TEST_BOOL((a1 != a2) == false);
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
     {
-      ezInt32 r = rand() % 100000;
+      WInt32 r = rand() % 100000;
       a1.PushBack(r);
       a2.PushBack(r);
     }
 
-    EZ_TEST_BOOL(a1 == a1);
-    EZ_TEST_BOOL(a2 == a2);
-    EZ_TEST_BOOL(a1 == a2);
+    W_TEST_BOOL(a1 == a1);
+    W_TEST_BOOL(a2 == a2);
+    W_TEST_BOOL(a1 == a2);
 
-    EZ_TEST_BOOL((a1 != a2) == false);
+    W_TEST_BOOL((a1 != a2) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Index operator")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
     a1.SetCountUninitialized(100);
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
       a1[i] = i;
 
-    for (ezInt32 i = 0; i < 100; ++i)
-      EZ_TEST_INT(a1[i], i);
+    for (WInt32 i = 0; i < 100; ++i)
+      W_TEST_INT(a1[i], i);
 
-    const ezHybridArray<ezInt32, 16> ca1 = a1;
+    const WHybridArray<WInt32, 16> ca1 = a1;
 
-    for (ezInt32 i = 0; i < 100; ++i)
-      EZ_TEST_INT(ca1[i], i);
+    for (WInt32 i = 0; i < 100; ++i)
+      W_TEST_INT(ca1[i], i);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / GetCount / IsEmpty")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetCount / GetCount / IsEmpty")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    EZ_TEST_BOOL(a1.IsEmpty());
+    W_TEST_BOOL(a1.IsEmpty());
 
-    for (ezInt32 i = 0; i < 128; ++i)
+    for (WInt32 i = 0; i < 128; ++i)
     {
       a1.SetCount(i + 1);
-      EZ_TEST_INT(a1[i], 0);
+      W_TEST_INT(a1[i], 0);
       a1[i] = i;
 
-      EZ_TEST_INT(a1.GetCount(), i + 1);
-      EZ_TEST_BOOL(!a1.IsEmpty());
+      W_TEST_INT(a1.GetCount(), i + 1);
+      W_TEST_BOOL(!a1.IsEmpty());
     }
 
-    for (ezInt32 i = 0; i < 128; ++i)
-      EZ_TEST_INT(a1[i], i);
+    for (WInt32 i = 0; i < 128; ++i)
+      W_TEST_INT(a1[i], i);
 
-    for (ezInt32 i = 128; i >= 0; --i)
+    for (WInt32 i = 128; i >= 0; --i)
     {
       a1.SetCount(i);
 
-      EZ_TEST_INT(a1.GetCount(), i);
+      W_TEST_INT(a1.GetCount(), i);
 
-      for (ezInt32 i2 = 0; i2 < i; ++i2)
-        EZ_TEST_INT(a1[i2], i2);
+      for (WInt32 i2 = 0; i2 < i; ++i2)
+        W_TEST_INT(a1[i2], i2);
     }
 
-    EZ_TEST_BOOL(a1.IsEmpty());
+    W_TEST_BOOL(a1.IsEmpty());
 
     a1.SetCountUninitialized(32);
-    EZ_TEST_INT(a1.GetCount(), 32);
+    W_TEST_INT(a1.GetCount(), 32);
     a1[31] = 45;
-    EZ_TEST_INT(a1[31], 45);
+    W_TEST_INT(a1[31], 45);
 
     // Test SetCount with fill value
     {
-      ezHybridArray<ezInt32, 2> a2;
+      WHybridArray<WInt32, 2> a2;
       a2.PushBack(5);
       a2.PushBack(3);
       a2.SetCount(10, 42);
 
-      if (EZ_TEST_INT(a2.GetCount(), 10))
+      if (W_TEST_INT(a2.GetCount(), 10))
       {
-        EZ_TEST_INT(a2[0], 5);
-        EZ_TEST_INT(a2[1], 3);
-        EZ_TEST_INT(a2[4], 42);
-        EZ_TEST_INT(a2[9], 42);
+        W_TEST_INT(a2[0], 5);
+        W_TEST_INT(a2[1], 3);
+        W_TEST_INT(a2[4], 42);
+        W_TEST_INT(a2[9], 42);
       }
 
       a2.Clear();
@@ -397,27 +397,27 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       a2.PushBack(3);
 
       a2.SetCount(2, 10);
-      if (EZ_TEST_INT(a2.GetCount(), 2))
+      if (W_TEST_INT(a2.GetCount(), 2))
       {
-        EZ_TEST_INT(a2[0], 1);
-        EZ_TEST_INT(a2[1], 2);
+        W_TEST_INT(a2[0], 1);
+        W_TEST_INT(a2[1], 2);
       }
     }
   }
 
   // Test SetCount with fill value
   {
-    ezHybridArray<ezInt32, 2> a2;
+    WHybridArray<WInt32, 2> a2;
     a2.PushBack(5);
     a2.PushBack(3);
     a2.SetCount(10, 42);
 
-    if (EZ_TEST_INT(a2.GetCount(), 10))
+    if (W_TEST_INT(a2.GetCount(), 10))
     {
-      EZ_TEST_INT(a2[0], 5);
-      EZ_TEST_INT(a2[1], 3);
-      EZ_TEST_INT(a2[4], 42);
-      EZ_TEST_INT(a2[9], 42);
+      W_TEST_INT(a2[0], 5);
+      W_TEST_INT(a2[1], 3);
+      W_TEST_INT(a2[4], 42);
+      W_TEST_INT(a2[9], 42);
     }
 
     a2.Clear();
@@ -426,76 +426,76 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a2.PushBack(3);
 
     a2.SetCount(2, 10);
-    if (EZ_TEST_INT(a2.GetCount(), 2))
+    if (W_TEST_INT(a2.GetCount(), 2))
     {
-      EZ_TEST_INT(a2[0], 1);
-      EZ_TEST_INT(a2[1], 2);
+      W_TEST_INT(a2[0], 1);
+      W_TEST_INT(a2[1], 2);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Clear")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
     a1.Clear();
 
     a1.PushBack(3);
     a1.Clear();
 
-    EZ_TEST_BOOL(a1.IsEmpty());
+    W_TEST_BOOL(a1.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains / IndexOf / LastIndexOf")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Contains / IndexOf / LastIndexOf")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = -100; i < 100; ++i)
-      EZ_TEST_BOOL(!a1.Contains(i));
+    for (WInt32 i = -100; i < 100; ++i)
+      W_TEST_BOOL(!a1.Contains(i));
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
       a1.PushBack(i);
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
     {
-      EZ_TEST_BOOL(a1.Contains(i));
-      EZ_TEST_INT(a1.IndexOf(i), i);
-      EZ_TEST_INT(a1.LastIndexOf(i), i);
+      W_TEST_BOOL(a1.Contains(i));
+      W_TEST_INT(a1.IndexOf(i), i);
+      W_TEST_INT(a1.LastIndexOf(i), i);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "InsertAt")
+  W_TEST_BLOCK(WTestBlock::Enabled, "InsertAt")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
     // always inserts at the front
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
       a1.InsertAt(0, i);
 
-    for (ezInt32 i = 0; i < 100; ++i)
-      EZ_TEST_INT(a1[i], 99 - i);
+    for (WInt32 i = 0; i < 100; ++i)
+      W_TEST_INT(a1[i], 99 - i);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndCopy")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveAndCopy")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 100; ++i)
+    for (WInt32 i = 0; i < 100; ++i)
       a1.PushBack(i % 2);
 
     while (a1.RemoveAndCopy(1))
     {
     }
 
-    EZ_TEST_BOOL(a1.GetCount() == 50);
+    W_TEST_BOOL(a1.GetCount() == 50);
 
-    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-      EZ_TEST_INT(a1[i], 0);
+    for (WUInt32 i = 0; i < a1.GetCount(); ++i)
+      W_TEST_INT(a1[i], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndSwap")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveAndSwap")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
       a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAndSwap(9);
@@ -504,17 +504,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a1.RemoveAndSwap(3);
     a1.RemoveAndSwap(1);
 
-    EZ_TEST_INT(a1.GetCount(), 5);
+    W_TEST_INT(a1.GetCount(), 5);
 
-    for (ezInt32 i = 0; i < 5; ++i)
-      EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
+    for (WInt32 i = 0; i < 5; ++i)
+      W_TEST_BOOL(WMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtAndCopy")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveAtAndCopy")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
       a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndCopy(9);
@@ -523,17 +523,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a1.RemoveAtAndCopy(3);
     a1.RemoveAtAndCopy(1);
 
-    EZ_TEST_INT(a1.GetCount(), 5);
+    W_TEST_INT(a1.GetCount(), 5);
 
-    for (ezInt32 i = 0; i < 5; ++i)
-      EZ_TEST_INT(a1[i], i * 2);
+    for (WInt32 i = 0; i < 5; ++i)
+      W_TEST_INT(a1[i], i * 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtAndSwap")
+  W_TEST_BLOCK(WTestBlock::Enabled, "RemoveAtAndSwap")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
       a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndSwap(9);
@@ -542,25 +542,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a1.RemoveAtAndSwap(3);
     a1.RemoveAtAndSwap(1);
 
-    EZ_TEST_INT(a1.GetCount(), 5);
+    W_TEST_INT(a1.GetCount(), 5);
 
-    for (ezInt32 i = 0; i < 5; ++i)
-      EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
+    for (WInt32 i = 0; i < 5; ++i)
+      W_TEST_BOOL(WMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / PopBack / PeekBack")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PushBack / PopBack / PeekBack")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 10; ++i)
+    for (WInt32 i = 0; i < 10; ++i)
     {
       a1.PushBack(i);
-      EZ_TEST_INT(a1.PeekBack(), i);
+      W_TEST_INT(a1.PeekBack(), i);
     }
 
-    for (ezInt32 i = 9; i >= 0; --i)
+    for (WInt32 i = 9; i >= 0; --i)
     {
-      EZ_TEST_INT(a1.PeekBack(), i);
+      W_TEST_INT(a1.PeekBack(), i);
       a1.PopBack();
     }
 
@@ -569,148 +569,148 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a1.PushBack(3);
 
     a1.PopBack(2);
-    EZ_TEST_INT(a1.PeekBack(), 23);
+    W_TEST_INT(a1.PeekBack(), 23);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandAndGetRef")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExpandAndGetRef")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 20; ++i)
+    for (WInt32 i = 0; i < 20; ++i)
     {
-      ezInt32& intRef = a1.ExpandAndGetRef();
+      WInt32& intRef = a1.ExpandAndGetRef();
       intRef = i * 5;
     }
 
 
-    EZ_TEST_BOOL(a1.GetCount() == 20);
+    W_TEST_BOOL(a1.GetCount() == 20);
 
-    for (ezInt32 i = 0; i < 20; ++i)
+    for (WInt32 i = 0; i < 20; ++i)
     {
-      EZ_TEST_INT(a1[i], i * 5);
+      W_TEST_INT(a1[i], i * 5);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction / Destruction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Construction / Destruction")
   {
     {
-      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+      W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
-      ezHybridArray<ezConstructionCounter, 16> a1;
-      ezHybridArray<ezConstructionCounter, 16> a2;
+      WHybridArray<WConstructionCounter, 16> a1;
+      WHybridArray<WConstructionCounter, 16> a2;
 
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
-      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+      W_TEST_BOOL(WConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
+      W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
-      a1.PushBack(ezConstructionCounter(1));
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.PushBack(WConstructionCounter(1));
+      W_TEST_BOOL(WConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.InsertAt(0, ezConstructionCounter(2));
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.InsertAt(0, WConstructionCounter(2));
+      W_TEST_BOOL(WConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 0)); // two copies
+      W_TEST_BOOL(WConstructionCounter::HasDone(2, 0)); // two copies
 
       a1.Clear();
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
+      W_TEST_BOOL(WConstructionCounter::HasDone(0, 2));
 
-      a1.PushBack(ezConstructionCounter(3));
-      a1.PushBack(ezConstructionCounter(4));
-      a1.PushBack(ezConstructionCounter(5));
-      a1.PushBack(ezConstructionCounter(6));
+      a1.PushBack(WConstructionCounter(3));
+      a1.PushBack(WConstructionCounter(4));
+      a1.PushBack(WConstructionCounter(5));
+      a1.PushBack(WConstructionCounter(6));
 
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(8, 4)); // four temporaries
+      W_TEST_BOOL(WConstructionCounter::HasDone(8, 4)); // four temporaries
 
-      a1.RemoveAndCopy(ezConstructionCounter(3));
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 2)); // one temporary, one destroyed
+      a1.RemoveAndCopy(WConstructionCounter(3));
+      W_TEST_BOOL(WConstructionCounter::HasDone(1, 2)); // one temporary, one destroyed
 
-      a1.RemoveAndCopy(ezConstructionCounter(3));
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // one temporary, none destroyed
+      a1.RemoveAndCopy(WConstructionCounter(3));
+      W_TEST_BOOL(WConstructionCounter::HasDone(1, 1)); // one temporary, none destroyed
 
       a1.RemoveAtAndCopy(0);
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 1)); // one destroyed
+      W_TEST_BOOL(WConstructionCounter::HasDone(0, 1)); // one destroyed
 
       a1.RemoveAtAndSwap(0);
-      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 1)); // one destroyed
+      W_TEST_BOOL(WConstructionCounter::HasDone(0, 1)); // one destroyed
     }
 
     // tests the destructor of a2 and a1
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compact")
   {
-    ezHybridArray<ezInt32, 16> a;
+    WHybridArray<WInt32, 16> a;
 
-    for (ezInt32 i = 0; i < 1008; ++i)
+    for (WInt32 i = 0; i < 1008; ++i)
     {
       a.PushBack(i);
-      EZ_TEST_INT(a.GetCount(), i + 1);
+      W_TEST_INT(a.GetCount(), i + 1);
     }
 
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
     a.Compact();
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
 
-    for (ezInt32 i = 0; i < 1008; ++i)
-      EZ_TEST_INT(a[i], i);
+    for (WInt32 i = 0; i < 1008; ++i)
+      W_TEST_INT(a[i], i);
 
-    // this tests whether the static array is reused properly (not the case anymore with new implementation that derives from ezDynamicArray)
+    // this tests whether the static array is reused properly (not the case anymore with new implementation that derives from WDynamicArray)
     a.SetCount(15);
     a.Compact();
-    // EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
+    // W_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
 
-    for (ezInt32 i = 0; i < 15; ++i)
-      EZ_TEST_INT(a[i], i);
+    for (WInt32 i = 0; i < 15; ++i)
+      W_TEST_INT(a[i], i);
 
     a.Clear();
     a.Compact();
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    W_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SortingPrimitives")
   {
-    ezHybridArray<ezUInt32, 16> list;
+    WHybridArray<WUInt32, 16> list;
 
     list.Sort();
 
-    for (ezUInt32 i = 0; i < 45; i++)
+    for (WUInt32 i = 0; i < 45; i++)
     {
       list.PushBack(std::rand());
     }
     list.Sort();
 
-    ezUInt32 last = 0;
-    for (ezUInt32 i = 0; i < list.GetCount(); i++)
+    WUInt32 last = 0;
+    for (WUInt32 i = 0; i < list.GetCount(); i++)
     {
-      EZ_TEST_BOOL(last <= list[i]);
+      W_TEST_BOOL(last <= list[i]);
       last = list[i];
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingObjects")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SortingObjects")
   {
-    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
+    WHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     list.Reserve(128);
 
-    for (ezUInt32 i = 0; i < 100; i++)
+    for (WUInt32 i = 0; i < 100; i++)
     {
       list.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
     list.Sort();
 
     HybridArrayTestDetail::Dummy last = 0;
-    for (ezUInt32 i = 0; i < list.GetCount(); i++)
+    for (WUInt32 i = 0; i < list.GetCount(); i++)
     {
-      EZ_TEST_BOOL(last <= list[i]);
+      W_TEST_BOOL(last <= list[i]);
       last = list[i];
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Various")
   {
-    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
+    WHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
@@ -718,56 +718,56 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     list.InsertAt(1, 0);
     list.InsertAt(5, 0);
 
-    EZ_TEST_BOOL(list[0].a == 1);
-    EZ_TEST_BOOL(list[1].a == 0);
-    EZ_TEST_BOOL(list[2].a == 2);
-    EZ_TEST_BOOL(list[3].a == 3);
-    EZ_TEST_BOOL(list[4].a == 4);
-    EZ_TEST_BOOL(list[5].a == 0);
-    EZ_TEST_BOOL(list.GetCount() == 6);
+    W_TEST_BOOL(list[0].a == 1);
+    W_TEST_BOOL(list[1].a == 0);
+    W_TEST_BOOL(list[2].a == 2);
+    W_TEST_BOOL(list[3].a == 3);
+    W_TEST_BOOL(list[4].a == 4);
+    W_TEST_BOOL(list[5].a == 0);
+    W_TEST_BOOL(list.GetCount() == 6);
 
     list.RemoveAtAndCopy(3);
     list.RemoveAtAndSwap(2);
 
-    EZ_TEST_BOOL(list[0].a == 1);
-    EZ_TEST_BOOL(list[1].a == 0);
-    EZ_TEST_BOOL(list[2].a == 0);
-    EZ_TEST_BOOL(list[3].a == 4);
-    EZ_TEST_BOOL(list.GetCount() == 4);
-    EZ_TEST_BOOL(list.IndexOf(0) == 1);
-    EZ_TEST_BOOL(list.LastIndexOf(0) == 2);
+    W_TEST_BOOL(list[0].a == 1);
+    W_TEST_BOOL(list[1].a == 0);
+    W_TEST_BOOL(list[2].a == 0);
+    W_TEST_BOOL(list[3].a == 4);
+    W_TEST_BOOL(list.GetCount() == 4);
+    W_TEST_BOOL(list.IndexOf(0) == 1);
+    W_TEST_BOOL(list.LastIndexOf(0) == 2);
 
     list.PushBack(5);
-    EZ_TEST_BOOL(list[4].a == 5);
+    W_TEST_BOOL(list[4].a == 5);
     HybridArrayTestDetail::Dummy d = list.PeekBack();
     list.PopBack();
-    EZ_TEST_BOOL(d.a == 5);
-    EZ_TEST_BOOL(list.GetCount() == 4);
+    W_TEST_BOOL(d.a == 5);
+    W_TEST_BOOL(list.GetCount() == 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Assignment")
   {
-    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
+    WHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
       list.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
 
-    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list2;
+    WHybridArray<HybridArrayTestDetail::Dummy, 16> list2;
     for (int i = 0; i < 8; i++)
     {
       list2.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
-    EZ_TEST_BOOL(list.GetCount() == list2.GetCount());
+    W_TEST_BOOL(list.GetCount() == list2.GetCount());
 
     list2.Clear();
-    EZ_TEST_BOOL(list2.GetCount() == 0);
+    W_TEST_BOOL(list2.GetCount() == 0);
 
     list2 = list;
-    EZ_TEST_BOOL(list.PeekBack() == list2.PeekBack());
-    EZ_TEST_BOOL(list == list2);
+    W_TEST_BOOL(list.PeekBack() == list2.PeekBack());
+    W_TEST_BOOL(list == list2);
 
     for (int i = 0; i < 16; i++)
     {
@@ -775,13 +775,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     }
 
     list = list2;
-    EZ_TEST_BOOL(list.PeekBack() == list2.PeekBack());
-    EZ_TEST_BOOL(list == list2);
+    W_TEST_BOOL(list.PeekBack() == list2.PeekBack());
+    W_TEST_BOOL(list == list2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Count")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Count")
   {
-    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
+    WHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
       list.PushBack(HybridArrayTestDetail::Dummy(rand()));
@@ -792,337 +792,337 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     list.Compact();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Reserve")
   {
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
-    ezHybridArray<ezConstructionCounter, 16> a;
+    WHybridArray<WConstructionCounter, 16> a;
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
     a.Reserve(100);
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
     a.SetCount(10);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(10, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(10, 0));
 
     a.Reserve(100);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 0));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(90, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(90, 0));
 
     a.Reserve(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 100)); // had to copy some elements over
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 100)); // had to copy some elements over
 
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 0));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compact")
   {
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
-    ezHybridArray<ezConstructionCounter, 16> a;
+    WHybridArray<WConstructionCounter, 16> a;
 
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    W_TEST_BOOL(WConstructionCounter::HasAllDestructed());
 
     a.SetCount(100);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 0));
 
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(200, 100));
+    W_TEST_BOOL(WConstructionCounter::HasDone(200, 100));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 190));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 190));
 
     // no reallocations and copying, if the memory is already available
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(190, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(190, 0));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 190));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 190));
 
     // now we remove the spare memory
     a.Compact();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(10, 10));
+    W_TEST_BOOL(WConstructionCounter::HasDone(10, 10));
 
     // this time the array needs to be relocated, and thus the already present elements need to be copied
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(200, 10));
+    W_TEST_BOOL(WConstructionCounter::HasDone(200, 10));
 
     // this does not deallocate memory
     a.Clear();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 200));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 200));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 0));
 
     // therefore no object relocation
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 0));
 
     a.Clear();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 200));
+    W_TEST_BOOL(WConstructionCounter::HasDone(0, 200));
 
     // this will deallocate ALL memory
     a.Compact();
 
     a.SetCount(100);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(100, 0));
+    W_TEST_BOOL(WConstructionCounter::HasDone(100, 0));
 
     // this time objects need to be relocated
     a.SetCount(200);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(200, 100));
+    W_TEST_BOOL(WConstructionCounter::HasDone(200, 100));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "STL Iterator")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (WInt32 i = 0; i < 1000; ++i)
       a1.PushBack(1000 - i - 1);
 
     // STL sort
     std::sort(begin(a1), end(a1));
 
-    for (ezInt32 i = 1; i < 1000; ++i)
+    for (WInt32 i = 1; i < 1000; ++i)
     {
-      EZ_TEST_BOOL(a1[i - 1] <= a1[i]);
+      W_TEST_BOOL(a1[i - 1] <= a1[i]);
     }
 
     // foreach
-    ezUInt32 prev = 0;
-    for (ezUInt32 val : a1)
+    WUInt32 prev = 0;
+    for (WUInt32 val : a1)
     {
-      EZ_TEST_BOOL(prev <= val);
+      W_TEST_BOOL(prev <= val);
       prev = val;
     }
 
     // const array
-    const ezHybridArray<ezInt32, 16>& a2 = a1;
+    const WHybridArray<WInt32, 16>& a2 = a1;
 
     // STL lower bound
     auto lb = std::lower_bound(begin(a2), end(a2), 400);
-    EZ_TEST_BOOL(*lb == a2[400]);
+    W_TEST_BOOL(*lb == a2[400]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Reverse Iterator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "STL Reverse Iterator")
   {
-    ezHybridArray<ezInt32, 16> a1;
+    WHybridArray<WInt32, 16> a1;
 
-    for (ezInt32 i = 0; i < 1000; ++i)
+    for (WInt32 i = 0; i < 1000; ++i)
       a1.PushBack(1000 - i - 1);
 
     // STL sort
     std::sort(rbegin(a1), rend(a1));
 
-    for (ezInt32 i = 1; i < 1000; ++i)
+    for (WInt32 i = 1; i < 1000; ++i)
     {
-      EZ_TEST_BOOL(a1[i - 1] >= a1[i]);
+      W_TEST_BOOL(a1[i - 1] >= a1[i]);
     }
 
     // foreach
-    ezUInt32 prev = 1000;
-    for (ezUInt32 val : a1)
+    WUInt32 prev = 1000;
+    for (WUInt32 val : a1)
     {
-      EZ_TEST_BOOL(prev >= val);
+      W_TEST_BOOL(prev >= val);
       prev = val;
     }
 
     // const array
-    const ezHybridArray<ezInt32, 16>& a2 = a1;
+    const WHybridArray<WInt32, 16>& a2 = a1;
 
     // STL lower bound
     auto lb = std::lower_bound(rbegin(a2), rend(a2), 400);
-    EZ_TEST_BOOL(*lb == a2[1000 - 400 - 1]);
+    W_TEST_BOOL(*lb == a2[1000 - 400 - 1]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Swap")
   {
 
-    ezInt32 content1[] = {1, 2, 3, 4};
-    ezInt32 content2[] = {5, 6, 7, 8, 9};
-    ezInt32 contentHeap1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-    ezInt32 contentHeap2[] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113};
+    WInt32 content1[] = {1, 2, 3, 4};
+    WInt32 content2[] = {5, 6, 7, 8, 9};
+    WInt32 contentHeap1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+    WInt32 contentHeap2[] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113};
 
     {
       // local <-> local
-      ezHybridArray<ezInt32, 8> a1;
-      ezHybridArray<ezInt32, 16> a2;
-      a1 = ezMakeArrayPtr(content1);
-      a2 = ezMakeArrayPtr(content2);
+      WHybridArray<WInt32, 8> a1;
+      WHybridArray<WInt32, 16> a2;
+      a1 = WMakeArrayPtr(content1);
+      a2 = WMakeArrayPtr(content2);
 
-      ezInt32* a1Ptr = a1.GetData();
-      ezInt32* a2Ptr = a2.GetData();
+      WInt32* a1Ptr = a1.GetData();
+      WInt32* a2Ptr = a2.GetData();
 
       a1.Swap(a2);
 
       // Because the data points to the internal storage the pointers shouldn't change when swapping
-      EZ_TEST_BOOL(a1Ptr == a1.GetData());
-      EZ_TEST_BOOL(a2Ptr == a2.GetData());
+      W_TEST_BOOL(a1Ptr == a1.GetData());
+      W_TEST_BOOL(a2Ptr == a2.GetData());
 
       // The data however should be swapped
-      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
-      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+      W_TEST_BOOL(a1.GetArrayPtr() == WMakeArrayPtr(content2));
+      W_TEST_BOOL(a2.GetArrayPtr() == WMakeArrayPtr(content1));
 
-      EZ_TEST_INT(a1.GetCapacity(), 8);
-      EZ_TEST_INT(a2.GetCapacity(), 16);
+      W_TEST_INT(a1.GetCapacity(), 8);
+      W_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // local <-> heap
-      ezHybridArray<ezInt32, 8> a1;
-      ezDynamicArray<ezInt32> a2;
-      a1 = ezMakeArrayPtr(content1);
-      a2 = ezMakeArrayPtr(contentHeap1);
-      ezInt32* a1Ptr = a1.GetData();
-      ezInt32* a2Ptr = a2.GetData();
+      WHybridArray<WInt32, 8> a1;
+      WDynamicArray<WInt32> a2;
+      a1 = WMakeArrayPtr(content1);
+      a2 = WMakeArrayPtr(contentHeap1);
+      WInt32* a1Ptr = a1.GetData();
+      WInt32* a2Ptr = a2.GetData();
       a1.Swap(a2);
-      EZ_TEST_BOOL(a1Ptr != a1.GetData());
-      EZ_TEST_BOOL(a2Ptr != a2.GetData());
-      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
-      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+      W_TEST_BOOL(a1Ptr != a1.GetData());
+      W_TEST_BOOL(a2Ptr != a2.GetData());
+      W_TEST_BOOL(a1.GetArrayPtr() == WMakeArrayPtr(contentHeap1));
+      W_TEST_BOOL(a2.GetArrayPtr() == WMakeArrayPtr(content1));
 
-      EZ_TEST_INT(a1.GetCapacity(), 16);
-      EZ_TEST_INT(a2.GetCapacity(), 16);
+      W_TEST_INT(a1.GetCapacity(), 16);
+      W_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // heap <-> local
-      ezHybridArray<ezInt32, 8> a1;
-      ezHybridArray<ezInt32, 7> a2;
-      a1 = ezMakeArrayPtr(content1);
-      a2 = ezMakeArrayPtr(contentHeap1);
-      ezInt32* a1Ptr = a1.GetData();
-      ezInt32* a2Ptr = a2.GetData();
+      WHybridArray<WInt32, 8> a1;
+      WHybridArray<WInt32, 7> a2;
+      a1 = WMakeArrayPtr(content1);
+      a2 = WMakeArrayPtr(contentHeap1);
+      WInt32* a1Ptr = a1.GetData();
+      WInt32* a2Ptr = a2.GetData();
       a2.Swap(a1); // Swap is opposite direction as before
-      EZ_TEST_BOOL(a1Ptr != a1.GetData());
-      EZ_TEST_BOOL(a2Ptr != a2.GetData());
-      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
-      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+      W_TEST_BOOL(a1Ptr != a1.GetData());
+      W_TEST_BOOL(a2Ptr != a2.GetData());
+      W_TEST_BOOL(a1.GetArrayPtr() == WMakeArrayPtr(contentHeap1));
+      W_TEST_BOOL(a2.GetArrayPtr() == WMakeArrayPtr(content1));
 
-      EZ_TEST_INT(a1.GetCapacity(), 16);
-      EZ_TEST_INT(a2.GetCapacity(), 16);
+      W_TEST_INT(a1.GetCapacity(), 16);
+      W_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // heap <-> heap
-      ezDynamicArray<ezInt32> a1;
-      ezHybridArray<ezInt32, 8> a2;
-      a1 = ezMakeArrayPtr(contentHeap1);
-      a2 = ezMakeArrayPtr(contentHeap2);
-      ezInt32* a1Ptr = a1.GetData();
-      ezInt32* a2Ptr = a2.GetData();
+      WDynamicArray<WInt32> a1;
+      WHybridArray<WInt32, 8> a2;
+      a1 = WMakeArrayPtr(contentHeap1);
+      a2 = WMakeArrayPtr(contentHeap2);
+      WInt32* a1Ptr = a1.GetData();
+      WInt32* a2Ptr = a2.GetData();
       a2.Swap(a1);
-      EZ_TEST_BOOL(a1Ptr != a1.GetData());
-      EZ_TEST_BOOL(a2Ptr != a2.GetData());
-      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap2));
-      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
+      W_TEST_BOOL(a1Ptr != a1.GetData());
+      W_TEST_BOOL(a2Ptr != a2.GetData());
+      W_TEST_BOOL(a1.GetArrayPtr() == WMakeArrayPtr(contentHeap2));
+      W_TEST_BOOL(a2.GetArrayPtr() == WMakeArrayPtr(contentHeap1));
 
-      EZ_TEST_INT(a1.GetCapacity(), 16);
-      EZ_TEST_INT(a2.GetCapacity(), 16);
+      W_TEST_INT(a1.GetCapacity(), 16);
+      W_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // empty <-> local
-      ezHybridArray<ezInt32, 8> a1, a2;
-      a2 = ezMakeArrayPtr(content2);
+      WHybridArray<WInt32, 8> a1, a2;
+      a2 = WMakeArrayPtr(content2);
       a1.Swap(a2);
-      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
-      EZ_TEST_BOOL(a2.IsEmpty());
+      W_TEST_BOOL(a1.GetArrayPtr() == WMakeArrayPtr(content2));
+      W_TEST_BOOL(a2.IsEmpty());
 
-      EZ_TEST_INT(a1.GetCapacity(), 8);
-      EZ_TEST_INT(a2.GetCapacity(), 8);
+      W_TEST_INT(a1.GetCapacity(), 8);
+      W_TEST_INT(a2.GetCapacity(), 8);
     }
 
     {
       // empty <-> empty
-      ezHybridArray<ezInt32, 8> a1, a2;
+      WHybridArray<WInt32, 8> a1, a2;
       a1.Swap(a2);
-      EZ_TEST_BOOL(a1.IsEmpty());
-      EZ_TEST_BOOL(a2.IsEmpty());
+      W_TEST_BOOL(a1.IsEmpty());
+      W_TEST_BOOL(a2.IsEmpty());
 
-      EZ_TEST_INT(a1.GetCapacity(), 8);
-      EZ_TEST_INT(a2.GetCapacity(), 8);
+      W_TEST_INT(a1.GetCapacity(), 8);
+      W_TEST_INT(a2.GetCapacity(), 8);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move")
   {
     int counter = 0;
     {
-      ezHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
-      EZ_TEST_BOOL(counter == 0);
+      WHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
+      W_TEST_BOOL(counter == 0);
 
       a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
-      EZ_TEST_BOOL(counter == 1);
+      W_TEST_BOOL(counter == 1);
 
       b = std::move(a);
-      EZ_TEST_BOOL(counter == 1);
+      W_TEST_BOOL(counter == 1);
     }
-    EZ_TEST_BOOL(counter == 2);
+    W_TEST_BOOL(counter == 2);
 
     counter = 0;
     {
-      ezHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
-      EZ_TEST_BOOL(counter == 0);
+      WHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
+      W_TEST_BOOL(counter == 0);
 
       a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
       a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
       a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
       a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
-      EZ_TEST_BOOL(counter == 4);
+      W_TEST_BOOL(counter == 4);
 
       b = std::move(a);
-      EZ_TEST_BOOL(counter == 4);
+      W_TEST_BOOL(counter == 4);
     }
-    EZ_TEST_BOOL(counter == 8);
+    W_TEST_BOOL(counter == 8);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Use ezHybridArray with ezDynamicArray")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Use WHybridArray with WDynamicArray")
   {
-    ezHybridArray<int, 16> a;
+    WHybridArray<int, 16> a;
 
     TakesDynamicArray(a, 4, a.GetCount());
-    EZ_TEST_INT(a.GetCount(), 4);
-    EZ_TEST_INT(a.GetCapacity(), 16);
+    W_TEST_INT(a.GetCount(), 4);
+    W_TEST_INT(a.GetCapacity(), 16);
 
     for (int i = 0; i < (int)a.GetCount(); ++i)
     {
-      EZ_TEST_INT(a[i], i);
+      W_TEST_INT(a[i], i);
     }
 
     TakesDynamicArray(a, 12, a.GetCount());
-    EZ_TEST_INT(a.GetCount(), 16);
-    EZ_TEST_INT(a.GetCapacity(), 16);
+    W_TEST_INT(a.GetCount(), 16);
+    W_TEST_INT(a.GetCapacity(), 16);
 
     for (int i = 0; i < (int)a.GetCount(); ++i)
     {
-      EZ_TEST_INT(a[i], i);
+      W_TEST_INT(a[i], i);
     }
 
     TakesDynamicArray(a, 8, a.GetCount());
-    EZ_TEST_INT(a.GetCount(), 24);
-    EZ_TEST_INT(a.GetCapacity(), 32);
+    W_TEST_INT(a.GetCount(), 24);
+    W_TEST_INT(a.GetCapacity(), 32);
 
     for (int i = 0; i < (int)a.GetCount(); ++i)
     {
-      EZ_TEST_INT(a[i], i);
+      W_TEST_INT(a[i], i);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Nested arrays")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Nested arrays")
   {
-    ezDynamicArray<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 4>> a;
+    WDynamicArray<WHybridArray<HybridArrayTestDetail::NonMovableClass, 4>> a;
 
     for (int i = 0; i < 100; ++i)
     {
-      ezHybridArray<HybridArrayTestDetail::NonMovableClass, 4> b;
+      WHybridArray<HybridArrayTestDetail::NonMovableClass, 4> b;
       b.PushBack(HybridArrayTestDetail::NonMovableClass(i));
 
       a.PushBack(std::move(b));
@@ -1132,13 +1132,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     {
       auto& nonMoveable = a[i][0];
 
-      EZ_TEST_INT(nonMoveable.m_val, i);
-      EZ_TEST_BOOL(nonMoveable.m_pVal == &nonMoveable.m_val);
+      W_TEST_INT(nonMoveable.m_val, i);
+      W_TEST_BOOL(nonMoveable.m_pVal == &nonMoveable.m_val);
     }
   }
 }
 
-void TakesDynamicArray(ezDynamicArray<int>& ref_ar, int iNum, int iStart)
+void TakesDynamicArray(WDynamicArray<int>& ref_ar, int iNum, int iStart)
 {
   for (int i = 0; i < iNum; ++i)
   {

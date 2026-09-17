@@ -9,56 +9,56 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-class ezEditorEngineConnection;
-class ezDocument;
-class ezDocumentObject;
-struct ezDocumentObjectPropertyEvent;
-struct ezDocumentObjectStructureEvent;
-class ezQtEngineDocumentWindow;
-class ezAssetDocument;
+class WEditorEngineConnection;
+class WDocument;
+class WDocumentObject;
+struct WDocumentObjectPropertyEvent;
+struct WDocumentObjectStructureEvent;
+class WQtEngineDocumentWindow;
+class WAssetDocument;
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
+class W_EDITORFRAMEWORK_DLL WEditorEngineProcessConnection
 {
-  EZ_DECLARE_SINGLETON(ezEditorEngineProcessConnection);
+  W_DECLARE_SINGLETON(WEditorEngineProcessConnection);
 
 public:
-  ezEditorEngineProcessConnection();
-  ~ezEditorEngineProcessConnection();
+  WEditorEngineProcessConnection();
+  ~WEditorEngineProcessConnection();
 
   /// The given file system configuration will be used by the engine process to setup the runtime data directories.
   ///        This only takes effect if the editor process is restarted.
-  void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
+  void SetFileSystemConfig(const WApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
 
   /// The given plugin configuration will be used by the engine process to load runtime plugins.
   ///        This only takes effect if the editor process is restarted.
-  void SetPluginConfig(const ezApplicationPluginConfig& cfg) { m_PluginConfig = cfg; }
+  void SetPluginConfig(const WApplicationPluginConfig& cfg) { m_PluginConfig = cfg; }
 
   void Update();
-  ezResult RestartProcess();
+  WResult RestartProcess();
   void ShutdownProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
-  ezEditorEngineConnection* CreateEngineConnection(ezAssetDocument* pDocument);
-  void DestroyEngineConnection(ezAssetDocument* pDocument);
+  WEditorEngineConnection* CreateEngineConnection(WAssetDocument* pDocument);
+  void DestroyEngineConnection(WAssetDocument* pDocument);
 
-  bool SendMessage(ezProcessMessage* pMessage);
+  bool SendMessage(WProcessMessage* pMessage);
 
   /// Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
-  /// and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
+  /// and is it, W_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
   /// and the return values decides whether the message is to be accepted and the waiting has ended.
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel ::WaitForMessageCallback* pCallback = nullptr);
+  WResult WaitForMessage(const WRTTI* pMessageType, WTime timeout, WProcessCommunicationChannel ::WaitForMessageCallback* pCallback = nullptr);
   /// Same as WaitForMessage but the message must be to a specific document. Therefore,
-  /// pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
+  /// pMessageType must be derived from WEditorEngineDocumentMsg and the function will only return if the received
   /// message matches both type, document and is accepted by pCallback.
-  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
+  WResult WaitForDocumentMessage(const WUuid& assetGuid, const WRTTI* pMessageType, WTime timeout, WProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
 
   bool IsEngineSetup() const { return m_bClientIsConfigured; }
 
-  ezOsProcessID GetEngineProcessID() const { return m_IPC.GetProcessId(); }
+  WOsProcessID GetEngineProcessID() const { return m_IPC.GetProcessId(); }
 
-  void ActivateRemoteProcess(const ezAssetDocument* pDocument, ezUInt32 uiViewID);
+  void ActivateRemoteProcess(const WAssetDocument* pDocument, WUInt32 uiViewID);
 
-  ezProcessCommunicationChannel& GetCommunicationChannel() { return m_IPC; }
+  WProcessCommunicationChannel& GetCommunicationChannel() { return m_IPC; }
 
   struct Event
   {
@@ -81,46 +81,46 @@ public:
     }
 
     Type m_Type;
-    const ezProcessMessage* m_pMsg;
+    const WProcessMessage* m_pMsg;
   };
 
-  static ezEvent<const Event&> s_Events;
+  static WEvent<const Event&> s_Events;
 
 private:
-  void Initialize(const ezRTTI* pFirstAllowedMessageType);
-  void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);
-  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
+  void Initialize(const WRTTI* pFirstAllowedMessageType);
+  void HandleIPCEvent(const WProcessCommunicationChannel::Event& e);
+  void UIServicesTickEventHandler(const WQtUiServices::TickEvent& e);
   bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
-  static constexpr ezUInt32 s_uiMaxFailedRedrawCount = 5 * 60;
+  static constexpr WUInt32 s_uiMaxFailedRedrawCount = 5 * 60;
   bool m_bProcessShouldBeRunning = false;
   bool m_bProcessCrashed = false;
   bool m_bClientIsConfigured = false;
-  ezEventSubscriptionID m_TickEventSubscriptionID = 0;
-  ezUInt32 m_uiRedrawCountSent = 0;
-  ezUInt32 m_uiRedrawCountReceived = 0;
-  ezUInt32 m_uiFailedRedrawCount = 0;
+  WEventSubscriptionID m_TickEventSubscriptionID = 0;
+  WUInt32 m_uiRedrawCountSent = 0;
+  WUInt32 m_uiRedrawCountReceived = 0;
+  WUInt32 m_uiFailedRedrawCount = 0;
 
-  ezEditorProcessCommunicationChannel m_IPC;
-  ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;
-  ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezApplicationPluginConfig m_PluginConfig;
-  ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;
+  WEditorProcessCommunicationChannel m_IPC;
+  WUniquePtr<WEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;
+  WApplicationFileSystemConfig m_FileSystemConfig;
+  WApplicationPluginConfig m_PluginConfig;
+  WHashTable<WUuid, WAssetDocument*> m_DocumentByGuid;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
+class W_EDITORFRAMEWORK_DLL WEditorEngineConnection
 {
 public:
-  bool SendMessage(ezEditorEngineDocumentMsg* pMessage);
-  void SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage);
+  bool SendMessage(WEditorEngineDocumentMsg* pMessage);
+  void SendHighlightObjectMessage(WViewHighlightMsgToEngine* pMessage);
 
-  ezDocument* GetDocument() const { return m_pDocument; }
+  WDocument* GetDocument() const { return m_pDocument; }
 
 private:
-  friend class ezEditorEngineProcessConnection;
-  ezEditorEngineConnection(ezDocument* pDocument) { m_pDocument = pDocument; }
-  ~ezEditorEngineConnection() = default;
+  friend class WEditorEngineProcessConnection;
+  WEditorEngineConnection(WDocument* pDocument) { m_pDocument = pDocument; }
+  ~WEditorEngineConnection() = default;
 
-  ezDocument* m_pDocument;
+  WDocument* m_pDocument;
 };

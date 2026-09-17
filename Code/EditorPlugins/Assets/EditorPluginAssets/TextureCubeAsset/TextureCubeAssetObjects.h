@@ -5,11 +5,11 @@
 #include <Texture/TexConv/TexConvEnums.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
-struct ezTextureCubeChannelMappingEnum
+struct WTextureCubeChannelMappingEnum
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -23,17 +23,17 @@ struct ezTextureCubeChannelMappingEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureCubeChannelMappingEnum);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WTextureCubeChannelMappingEnum);
 
 
-class ezTextureCubeAssetProperties : public ezReflectedClass
+class WTextureCubeAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WTextureCubeAssetProperties, WReflectedClass);
 
 public:
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  const char* GetInputFile(ezInt32 iInput) const { return m_Input[iInput]; }
+  const char* GetInputFile(WInt32 iInput) const { return m_Input[iInput]; }
 
   void SetInputFile0(const char* szFile) { m_Input[0] = szFile; }
   const char* GetInputFile0() const { return m_Input[0]; }
@@ -48,18 +48,18 @@ public:
   void SetInputFile5(const char* szFile) { m_Input[5] = szFile; }
   const char* GetInputFile5() const { return m_Input[5]; }
 
-  ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
-  ezInt32 GetNumInputFiles() const;
+  WString GetAbsoluteInputFilePath(WInt32 iInput) const;
+  WInt32 GetNumInputFiles() const;
 
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
-  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
+  WEnum<WTexConvCompressionMode> m_CompressionMode;
+  WEnum<WTexConvMipmapMode> m_MipmapMode;
 
-  ezEnum<ezTextureFilterSetting> m_TextureFilter;
-  ezEnum<ezTexConvUsage> m_TextureUsage;
-  ezEnum<ezTextureCubeChannelMappingEnum> m_ChannelMapping;
+  WEnum<WTextureFilterSetting> m_TextureFilter;
+  WEnum<WTexConvUsage> m_TextureUsage;
+  WEnum<WTextureCubeChannelMappingEnum> m_ChannelMapping;
 
   float m_fHdrExposureBias = 0;
 
 private:
-  ezString m_Input[6];
+  WString m_Input[6];
 };

@@ -8,58 +8,58 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezTextureAssetDocument;
+class WQtOrbitCamViewWidget;
+class WTextureAssetDocument;
 
-class ezQtTextureAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtTextureAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument);
+  WQtTextureAssetDocumentWindow(WTextureAssetDocument* pDocument);
 
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
 };
 
-class EZ_EDITORPLUGINASSETS_DLL ezTextureChannelModeAction : public ezEnumerationMenuAction
+class W_EDITORPLUGINASSETS_DLL WTextureChannelModeAction : public WEnumerationMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureChannelModeAction, ezEnumerationMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WTextureChannelModeAction, WEnumerationMenuAction);
 
 public:
-  ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual ezInt64 GetValue() const override;
-  virtual void Execute(const ezVariant& value) override;
+  WTextureChannelModeAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual WInt64 GetValue() const override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  const ezAbstractMemberProperty* m_pValueProperty = nullptr;
+  const WAbstractMemberProperty* m_pValueProperty = nullptr;
 };
 
-class EZ_EDITORPLUGINASSETS_DLL ezTextureLodSliderAction : public ezSliderAction
+class W_EDITORPLUGINASSETS_DLL WTextureLodSliderAction : public WSliderAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureLodSliderAction, ezSliderAction);
+  W_ADD_DYNAMIC_REFLECTION(WTextureLodSliderAction, WSliderAction);
 
 public:
-  ezTextureLodSliderAction(const ezActionContext& context, const char* szName);
+  WTextureLodSliderAction(const WActionContext& context, const char* szName);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  const ezAbstractMemberProperty* m_pValueProperty = nullptr;
+  const WAbstractMemberProperty* m_pValueProperty = nullptr;
 };
 
-class ezTextureAssetActions
+class WTextureAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hTextureChannelMode;
-  static ezActionDescriptorHandle s_hLodSlider;
+  static WActionDescriptorHandle s_hTextureChannelMode;
+  static WActionDescriptorHandle s_hLodSlider;
 };

@@ -3,7 +3,7 @@
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezRendererTestBasics : public ezGraphicsTest
+class WRendererTestBasics : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "Basics"; }
@@ -31,21 +31,21 @@ private:
     AddSubTest("Line Rendering", SubTests::ST_LineRendering);
   }
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
-  ezTestAppRun SubtestClearScreen();
-  ezTestAppRun SubtestRasterizerStates();
-  ezTestAppRun SubtestBlendStates();
-  ezTestAppRun SubtestTextures2D();
-  ezTestAppRun SubtestTextures3D();
-  ezTestAppRun SubtestTexturesCube();
-  ezTestAppRun SubtestLineRendering();
+  WTestAppRun SubtestClearScreen();
+  WTestAppRun SubtestRasterizerStates();
+  WTestAppRun SubtestBlendStates();
+  WTestAppRun SubtestTextures2D();
+  WTestAppRun SubtestTextures3D();
+  WTestAppRun SubtestTexturesCube();
+  WTestAppRun SubtestLineRendering();
 
-  void RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags);
-  void RenderLineObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags);
+  void RenderObjects(WBitflags<WShaderBindFlags> ShaderBindFlags);
+  void RenderLineObjects(WBitflags<WShaderBindFlags> ShaderBindFlags);
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override
   {
     m_iFrame = uiInvocationCount;
 
@@ -70,14 +70,14 @@ private:
     if (iIdentifier == SubTests::ST_LineRendering)
       return SubtestLineRendering();
 
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  ezMeshBufferResourceHandle m_hSphere;
-  ezMeshBufferResourceHandle m_hSphere2;
-  ezMeshBufferResourceHandle m_hTorus;
-  ezMeshBufferResourceHandle m_hLongBox;
-  ezMeshBufferResourceHandle m_hLineBox;
-  ezTexture2DResourceHandle m_hTexture2D;
-  ezTextureCubeResourceHandle m_hTextureCube;
+  WMeshBufferResourceHandle m_hSphere;
+  WMeshBufferResourceHandle m_hSphere2;
+  WMeshBufferResourceHandle m_hTorus;
+  WMeshBufferResourceHandle m_hLongBox;
+  WMeshBufferResourceHandle m_hLineBox;
+  WTexture2DResourceHandle m_hTexture2D;
+  WTextureCubeResourceHandle m_hTextureCube;
 };

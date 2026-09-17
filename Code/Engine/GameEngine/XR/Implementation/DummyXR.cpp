@@ -13,123 +13,123 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 
-EZ_IMPLEMENT_SINGLETON(ezDummyXR);
+W_IMPLEMENT_SINGLETON(WDummyXR);
 
-ezDummyXR::ezDummyXR()
+WDummyXR::WDummyXR()
   : m_SingletonRegistrar(this)
 {
 }
 
-bool ezDummyXR::IsHmdPresent() const
+bool WDummyXR::IsHmdPresent() const
 {
   return true;
 }
 
-ezResult ezDummyXR::Initialize()
+WResult WDummyXR::Initialize()
 {
   if (m_bInitialized)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_Info.m_sDeviceName = "Dummy VR device";
-  m_Info.m_vEyeRenderTargetSize = ezSizeU32(640, 720);
+  m_Info.m_vEyeRenderTargetSize = WSizeU32(640, 720);
 
-  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezDummyXR::GALDeviceEventHandler, this));
-  m_ExecutionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezDummyXR::GameApplicationEventHandler, this));
+  m_GALdeviceEventsId = WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WDummyXR::GALDeviceEventHandler, this));
+  m_ExecutionEventsId = WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(WMakeDelegate(&WDummyXR::GameApplicationEventHandler, this));
 
   m_bInitialized = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezDummyXR::Deinitialize()
+void WDummyXR::Deinitialize()
 {
-  ezWindowManager::GetSingleton()->CloseAll(this);
+  WWindowManager::GetSingleton()->CloseAll(this);
 
   m_bInitialized = false;
   if (m_GALdeviceEventsId != 0)
   {
-    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
+    WGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
   if (m_ExecutionEventsId != 0)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_ExecutionEventsId);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_ExecutionEventsId);
   }
 }
 
-bool ezDummyXR::IsInitialized() const
+bool WDummyXR::IsInitialized() const
 {
   return m_bInitialized;
 }
 
-const ezHMDInfo& ezDummyXR::GetHmdInfo() const
+const WHMDInfo& WDummyXR::GetHmdInfo() const
 {
   return m_Info;
 }
 
-ezXRInputDevice& ezDummyXR::GetXRInput() const
+WXRInputDevice& WDummyXR::GetXRInput() const
 {
   return m_Input;
 }
 
-bool ezDummyXR::SupportsCompanionView()
+bool WDummyXR::SupportsCompanionView()
 {
   return true;
 }
 
-ezRegisteredWndHandle ezDummyXR::CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
+WRegisteredWndHandle WDummyXR::CreateXRWindow(WView* pView, WGALMSAASampleCount::Enum msaaCount, WUniquePtr<WWindowBase> pCompanionWindow, WUniquePtr<WWindowOutputTargetGAL> pCompanionWindowOutput)
 {
-  EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  W_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Create dummy swap chain
   {
-    ezGALTextureCreationDescription textureDesc;
-    textureDesc.SetAsRenderTarget(m_Info.m_vEyeRenderTargetSize.width, m_Info.m_vEyeRenderTargetSize.height, ezGALResourceFormat::RGBAUByteNormalizedsRGB, msaaCount);
-    textureDesc.m_Type = ezGALTextureType::Texture2DArray;
+    WGALTextureCreationDescription textureDesc;
+    textureDesc.SetAsRenderTarget(m_Info.m_vEyeRenderTargetSize.width, m_Info.m_vEyeRenderTargetSize.height, WGALResourceFormat::RGBAUByteNormalizedsRGB, msaaCount);
+    textureDesc.m_Type = WGALTextureType::Texture2DArray;
     textureDesc.m_uiArraySize = 2;
 
     m_hColorRT = pDevice->CreateTexture(textureDesc);
 
-    textureDesc.m_Format = ezGALResourceFormat::D24S8;
+    textureDesc.m_Format = WGALResourceFormat::D24S8;
     m_hDepthRT = pDevice->CreateTexture(textureDesc);
   }
 
   // SetHMDCamera
   {
     m_pCameraToSynchronize = pView->GetCamera();
-    m_pCameraToSynchronize->SetCameraMode(ezCameraMode::Stereo, m_pCameraToSynchronize->GetFovOrDim(), m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
+    m_pCameraToSynchronize->SetCameraMode(WCameraMode::Stereo, m_pCameraToSynchronize->GetFovOrDim(), m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
   }
 
-  EZ_ASSERT_DEV((pCompanionWindow != nullptr) == (pCompanionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
+  W_ASSERT_DEV((pCompanionWindow != nullptr) == (pCompanionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
 
-  ezUniquePtr<ezWindowXR> pXRWindow = EZ_DEFAULT_NEW(ezWindowXR, this, std::move(pCompanionWindow));
-  ezUniquePtr<ezWindowOutputTargetXR> pXRWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, this, std::move(pCompanionWindowOutput));
+  WUniquePtr<WWindowXR> pXRWindow = W_DEFAULT_NEW(WWindowXR, this, std::move(pCompanionWindow));
+  WUniquePtr<WWindowOutputTargetXR> pXRWindowOutputTarget = W_DEFAULT_NEW(WWindowOutputTargetXR, this, std::move(pCompanionWindowOutput));
 
-  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pXRWindowOutputTarget.Borrow());
+  m_pCompanion = static_cast<WWindowOutputTargetXR*>(pXRWindowOutputTarget.Borrow());
 
   m_hView = pView->GetHandle();
 
-  ezGALRenderTargets renderTargets;
+  WGALRenderTargets renderTargets;
   renderTargets.m_hRTs[0] = m_hColorRT;
   renderTargets.m_hDSTarget = m_hDepthRT;
   pView->SetRenderTargets(renderTargets);
 
-  pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
+  pView->SetViewport(WRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 
-  auto pWinMan = ezWindowManager::GetSingleton();
-  ezRegisteredWndHandle id = pWinMan->Register("DummyXR", this, std::move(pXRWindow));
+  auto pWinMan = WWindowManager::GetSingleton();
+  WRegisteredWndHandle id = pWinMan->Register("DummyXR", this, std::move(pXRWindow));
   pWinMan->SetOutputTarget(id, std::move(pXRWindowOutputTarget));
-  pWinMan->SetDestroyCallback(id, [this](ezRegisteredWndHandle)
+  pWinMan->SetDestroyCallback(id, [this](WRegisteredWndHandle)
     { this->OnActorDestroyed(); });
 
   return id;
 }
 
-ezGALTextureHandle ezDummyXR::GetCurrentTexture()
+WGALTextureHandle WDummyXR::GetCurrentTexture()
 {
   return m_hColorRT;
 }
 
-void ezDummyXR::OnActorDestroyed()
+void WDummyXR::OnActorDestroyed()
 {
   if (m_hView.IsInvalidated())
     return;
@@ -137,18 +137,18 @@ void ezDummyXR::OnActorDestroyed()
   m_pCompanion = nullptr;
   m_pCameraToSynchronize = nullptr;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   pDevice->DestroyTexture(m_hColorRT);
   pDevice->DestroyTexture(m_hDepthRT);
 
-  ezRenderWorld::RemoveMainView(m_hView);
+  WRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
 }
 
-void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WDummyXR::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
-  if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
+  if (e.m_Type == WGALDeviceEvent::Type::BeforeBeginFrame)
   {
     if (m_pCompanion)
     {
@@ -156,59 +156,59 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       m_pCompanion->CompanionViewBeginFrame(false);
     }
   }
-  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
+  else if (e.m_Type == WGALDeviceEvent::Type::BeforeEndFrame)
   {
   }
 }
 
-void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
+void WDummyXR::GameApplicationEventHandler(const WGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforePresent)
+  if (e.m_Type == WGameApplicationExecutionEvent::Type::BeforePresent)
   {
   }
-  else if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
+  else if (e.m_Type == WGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
-    ezView* pView0 = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView0))
+    WView* pView0 = nullptr;
+    if (WRenderWorld::TryGetView(m_hView, pView0))
     {
-      if (ezWorld* pWorld0 = pView0->GetWorld())
+      if (WWorld* pWorld0 = pView0->GetWorld())
       {
-        EZ_LOCK(pWorld0->GetWriteMarker());
-        ezCameraComponentManager* pCameraComponentManager = pWorld0->GetComponentManager<ezCameraComponentManager>();
+        W_LOCK(pWorld0->GetWriteMarker());
+        WCameraComponentManager* pCameraComponentManager = pWorld0->GetComponentManager<WCameraComponentManager>();
         if (!pCameraComponentManager)
           return;
 
-        ezCameraComponent* pCameraComponent = pCameraComponentManager->GetCameraByUsageHint(ezCameraUsageHint::MainView);
+        WCameraComponent* pCameraComponent = pCameraComponentManager->GetCameraByUsageHint(WCameraUsageHint::MainView);
         if (!pCameraComponent)
           return;
 
-        pCameraComponent->SetCameraMode(ezCameraMode::Stereo);
+        pCameraComponent->SetCameraMode(WCameraMode::Stereo);
 
         // Projection
         {
           const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
 
-          ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(pCameraComponent->GetFieldOfView()), fAspectRatio,
-            pCameraComponent->GetNearPlane(), ezMath::Max(pCameraComponent->GetNearPlane() + 0.00001f, pCameraComponent->GetFarPlane()));
+          WMat4 mProj = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(WAngle::MakeFromDegree(pCameraComponent->GetFieldOfView()), fAspectRatio,
+            pCameraComponent->GetNearPlane(), WMath::Max(pCameraComponent->GetNearPlane() + 0.00001f, pCameraComponent->GetFarPlane()));
 
           m_pCameraToSynchronize->SetStereoProjection(mProj, mProj, fAspectRatio);
         }
 
         // Update camera view
         {
-          ezTransform add;
+          WTransform add;
           add.SetIdentity();
-          ezView* pView = nullptr;
-          if (ezRenderWorld::TryGetView(m_hView, pView))
+          WView* pView = nullptr;
+          if (WRenderWorld::TryGetView(m_hView, pView))
           {
-            if (const ezWorld* pWorld = pView->GetWorld())
+            if (const WWorld* pWorld = pView->GetWorld())
             {
-              EZ_LOCK(pWorld->GetReadMarker());
-              if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+              W_LOCK(pWorld->GetReadMarker());
+              if (const WStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<WStageSpaceComponentManager>())
               {
-                if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+                if (const WStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
                 {
-                  ezEnum<ezXRStageSpace> stageSpace = pStage->GetStageSpace();
+                  WEnum<WXRStageSpace> stageSpace = pStage->GetStageSpace();
                   if (m_StageSpace != stageSpace)
                     m_StageSpace = pStage->GetStageSpace();
                   add = pStage->GetOwner()->GetGlobalTransform();
@@ -219,10 +219,10 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 
           {
             // Update device state
-            ezQuat rot;
+            WQuat rot;
             rot.SetIdentity();
-            ezVec3 pos = ezVec3::MakeZero();
-            if (m_StageSpace == ezXRStageSpace::Standing)
+            WVec3 pos = WVec3::MakeZero();
+            if (m_StageSpace == WXRStageSpace::Standing)
             {
               pos.z = m_fHeadHeight;
             }
@@ -231,7 +231,7 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
             m_Input.m_DeviceState[0].m_qGripRotation = rot;
             m_Input.m_DeviceState[0].m_vAimPosition = pos;
             m_Input.m_DeviceState[0].m_qAimRotation = rot;
-            m_Input.m_DeviceState[0].m_Type = ezXRDeviceType::HMD;
+            m_Input.m_DeviceState[0].m_Type = WXRDeviceType::HMD;
             m_Input.m_DeviceState[0].m_bGripPoseIsValid = true;
             m_Input.m_DeviceState[0].m_bAimPoseIsValid = true;
             m_Input.m_DeviceState[0].m_bDeviceIsConnected = true;
@@ -239,18 +239,18 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 
           // Set view matrix
           {
-            const float fHeight = m_StageSpace == ezXRStageSpace::Standing ? m_fHeadHeight : 0.0f;
-            const ezMat4 mStageTransform = add.GetInverse().GetAsMat4();
-            ezMat4 poseLeft = ezMat4::MakeTranslation(ezVec3(0, -m_fEyeOffset, fHeight));
-            ezMat4 poseRight = ezMat4::MakeTranslation(ezVec3(0, m_fEyeOffset, fHeight));
+            const float fHeight = m_StageSpace == WXRStageSpace::Standing ? m_fHeadHeight : 0.0f;
+            const WMat4 mStageTransform = add.GetInverse().GetAsMat4();
+            WMat4 poseLeft = WMat4::MakeTranslation(WVec3(0, -m_fEyeOffset, fHeight));
+            WMat4 poseRight = WMat4::MakeTranslation(WVec3(0, m_fEyeOffset, fHeight));
 
-            // EZ Forward is +X, need to add this to align the forward projection
-            const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
-            const ezMat4 mViewTransformLeft = viewMatrix * mStageTransform * poseLeft.GetInverse();
-            const ezMat4 mViewTransformRight = viewMatrix * mStageTransform * poseRight.GetInverse();
+            // W Forward is +X, need to add this to align the forward projection
+            const WMat4 viewMatrix = WGraphicsUtils::CreateLookAtViewMatrix(WVec3::MakeZero(), WVec3(1, 0, 0), WVec3(0, 0, 1));
+            const WMat4 mViewTransformLeft = viewMatrix * mStageTransform * poseLeft.GetInverse();
+            const WMat4 mViewTransformRight = viewMatrix * mStageTransform * poseRight.GetInverse();
 
-            m_pCameraToSynchronize->SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
-            m_pCameraToSynchronize->SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+            m_pCameraToSynchronize->SetViewMatrix(mViewTransformLeft, WCameraEye::Left);
+            m_pCameraToSynchronize->SetViewMatrix(mViewTransformRight, WCameraEye::Right);
           }
         }
       }
@@ -261,17 +261,17 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezDummyXRInput::GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_devices) const
+void WDummyXRInput::GetDeviceList(WHybridArray<WXRDeviceID, 64>& out_devices) const
 {
   out_devices.PushBack(0);
 }
 
-ezXRDeviceID ezDummyXRInput::GetDeviceIDByType(ezXRDeviceType::Enum type) const
+WXRDeviceID WDummyXRInput::GetDeviceIDByType(WXRDeviceType::Enum type) const
 {
-  ezXRDeviceID deviceID = -1;
+  WXRDeviceID deviceID = -1;
   switch (type)
   {
-    case ezXRDeviceType::HMD:
+    case WXRDeviceType::HMD:
       deviceID = 0;
       break;
     default:
@@ -281,32 +281,32 @@ ezXRDeviceID ezDummyXRInput::GetDeviceIDByType(ezXRDeviceType::Enum type) const
   return deviceID;
 }
 
-const ezXRDeviceState& ezDummyXRInput::GetDeviceState(ezXRDeviceID deviceID) const
+const WXRDeviceState& WDummyXRInput::GetDeviceState(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
+  W_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
   return m_DeviceState[deviceID];
 }
 
-ezString ezDummyXRInput::GetDeviceName(ezXRDeviceID deviceID) const
+WString WDummyXRInput::GetDeviceName(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
+  W_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
   return "Dummy HMD";
 }
 
-ezBitflags<ezXRDeviceFeatures> ezDummyXRInput::GetDeviceFeatures(ezXRDeviceID deviceID) const
+WBitflags<WXRDeviceFeatures> WDummyXRInput::GetDeviceFeatures(WXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
-  return ezXRDeviceFeatures::AimPose | ezXRDeviceFeatures::GripPose;
+  W_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
+  return WXRDeviceFeatures::AimPose | WXRDeviceFeatures::GripPose;
 }
 
-void ezDummyXRInput::InitializeDevice()
-{
-}
-
-void ezDummyXRInput::UpdateInputSlotValues()
+void WDummyXRInput::InitializeDevice()
 {
 }
 
-void ezDummyXRInput::RegisterInputSlots()
+void WDummyXRInput::UpdateInputSlotValues()
+{
+}
+
+void WDummyXRInput::RegisterInputSlots()
 {
 }

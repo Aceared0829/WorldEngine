@@ -4,8 +4,8 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* pParent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
-  : ezQtDialog(pParent)
+WQtPickDocumentObjectDlg::WQtPickDocumentObjectDlg(QWidget* pParent, const WArrayPtr<Element>& objects, const WUuid& currentObject)
+  : WQtDialog(pParent)
   , m_Objects(objects)
   , m_CurrentObject(currentObject)
 {
@@ -15,20 +15,20 @@ ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* pParent, const ezA
 }
 
 
-void ezQtPickDocumentObjectDlg::UpdateTable()
+void WQtPickDocumentObjectDlg::UpdateTable()
 {
   QTreeWidget* pTree = ObjectTree;
   pTree->clear();
   pTree->setExpandsOnDoubleClick(false);
 
-  ezMap<const ezDocumentObjectManager*, QTreeWidgetItem*> roots;
+  WMap<const WDocumentObjectManager*, QTreeWidgetItem*> roots;
 
-  ezStringBuilder name, temp;
+  WStringBuilder name, temp;
   QTreeWidgetItem* pSelected = nullptr;
 
   for (auto& e : m_Objects)
   {
-    const ezDocumentObjectManager* pManager = e.m_pObject->GetDocumentObjectManager();
+    const WDocumentObjectManager* pManager = e.m_pObject->GetDocumentObjectManager();
 
     bool existed = false;
     auto itRootItem = roots.FindOrAdd(pManager, &existed);
@@ -67,7 +67,7 @@ void ezQtPickDocumentObjectDlg::UpdateTable()
   }
 }
 
-void ezQtPickDocumentObjectDlg::on_ObjectTree_itemDoubleClicked(QTreeWidgetItem* pItem, int column)
+void WQtPickDocumentObjectDlg::on_ObjectTree_itemDoubleClicked(QTreeWidgetItem* pItem, int column)
 {
   if (pItem->parent() == nullptr)
     return;
@@ -76,7 +76,7 @@ void ezQtPickDocumentObjectDlg::on_ObjectTree_itemDoubleClicked(QTreeWidgetItem*
   if (!var.isValid())
     return;
 
-  m_pPickedObject = reinterpret_cast<const ezDocumentObject*>(var.value<void*>());
+  m_pPickedObject = reinterpret_cast<const WDocumentObject*>(var.value<void*>());
 
   if (m_pPickedObject != nullptr)
   {

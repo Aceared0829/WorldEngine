@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Strings/StringBuilder.h>
@@ -12,68 +12,68 @@
 #  include <sys/wait.h>
 #  include <unistd.h>
 
-ezCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
+WCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteExternalProcessMiniDump(WStringView sDumpFile, WUInt32 uiProcessID, WDumpType dumpTypeOverride)
 {
   // Create the output directory if needed
   {
-    ezStringBuilder folder = sDumpFile;
+    WStringBuilder folder = sDumpFile;
     folder.PathParentDirectory();
-    if (ezOSFile::CreateDirectoryStructure(folder).Failed())
-      return ezStatus("Failed to create output directory structure.");
+    if (WOSFile::CreateDirectoryStructure(folder).Failed())
+      return WStatus("Failed to create output directory structure.");
   }
 
   // gcore outputs to <dumpfile>.<pid> format, so we need to handle the filename
-  ezStringBuilder sCoreName = sDumpFile;
+  WStringBuilder sCoreName = sDumpFile;
   sCoreName.RemoveFileExtension();
 
   // Run gcore to generate the core dump
   // gcore -o <output_prefix> <pid>
-  ezProcessOptions procOpt;
+  WProcessOptions procOpt;
   procOpt.m_bHideConsoleWindow = true;
   procOpt.m_sProcess = "gcore";
   procOpt.m_Arguments.PushBack("-o");
   procOpt.m_Arguments.PushBack(sCoreName);
   procOpt.AddArgument("{}", uiProcessID);
 
-  ezInt32 iExitCode = -1;
-  if (ezProcess::Execute(procOpt, &iExitCode).Failed())
+  WInt32 iExitCode = -1;
+  if (WProcess::Execute(procOpt, &iExitCode).Failed())
   {
-    return ezStatus("gcore not found. Install gdb package to enable crash dump support.");
+    return WStatus("gcore not found. Install gdb package to enable crash dump support.");
   }
 
   if (iExitCode != 0)
   {
-    return ezStatus(ezFmt("gcore failed with exit code {}", iExitCode));
+    return WStatus(WFmt("gcore failed with exit code {}", iExitCode));
   }
 
   // gcore creates file as <prefix>.<pid>, rename to requested name
-  ezStringBuilder sGcoreOutput;
+  WStringBuilder sGcoreOutput;
   sGcoreOutput.SetFormat("{}.{}", sCoreName, uiProcessID);
 
-  if (ezOSFile::ExistsFile(sGcoreOutput))
+  if (WOSFile::ExistsFile(sGcoreOutput))
   {
     if (sGcoreOutput != sDumpFile)
     {
-      ezOSFile::MoveFileOrDirectory(sGcoreOutput, sDumpFile).IgnoreResult();
+      WOSFile::MoveFileOrDirectory(sGcoreOutput, sDumpFile).IgnoreResult();
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, void* pOsSpecificData, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::WriteOwnProcessMiniDump(WStringView sDumpFile, void* pOsSpecificData, WDumpType dumpTypeOverride)
 {
   // Writing a dump of our own process is tricky because we're potentially in a crashed state.
   // The preferred approach is LaunchMiniDumpTool. This function is a fallback.
 
   // Create the output directory if needed
   {
-    ezStringBuilder folder = sDumpFile;
+    WStringBuilder folder = sDumpFile;
     folder.PathParentDirectory();
-    if (ezOSFile::CreateDirectoryStructure(folder).Failed())
-      return ezStatus("Failed to create output directory structure.");
+    if (WOSFile::CreateDirectoryStructure(folder).Failed())
+      return WStatus("Failed to create output directory structure.");
   }
 
   pid_t myPid = getpid();
@@ -83,10 +83,10 @@ ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, void* 
   if (childPid == 0)
   {
     // Child process - run gcore on parent
-    ezStringBuilder sCoreName = sDumpFile;
+    WStringBuilder sCoreName = sDumpFile;
     sCoreName.RemoveFileExtension();
 
-    ezStringBuilder sPidArg;
+    WStringBuilder sPidArg;
     sPidArg.SetFormat("{}", myPid);
 
     execlp("gcore", "gcore", "-o", sCoreName.GetData(), sPidArg.GetData(), nullptr);
@@ -101,57 +101,57 @@ ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, void* 
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
     {
       // gcore succeeded, rename file from <prefix>.<pid> to requested name
-      ezStringBuilder sCoreName = sDumpFile;
+      WStringBuilder sCoreName = sDumpFile;
       sCoreName.RemoveFileExtension();
 
-      ezStringBuilder sGcoreOutput;
+      WStringBuilder sGcoreOutput;
       sGcoreOutput.SetFormat("{}.{}", sCoreName, myPid);
 
-      if (ezOSFile::ExistsFile(sGcoreOutput))
+      if (WOSFile::ExistsFile(sGcoreOutput))
       {
         if (sGcoreOutput != sDumpFile)
         {
-          ezOSFile::MoveFileOrDirectory(sGcoreOutput, sDumpFile).IgnoreResult();
+          WOSFile::MoveFileOrDirectory(sGcoreOutput, sDumpFile).IgnoreResult();
         }
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
     }
   }
 
-  return ezStatus("Could not write mini dump - gcore not available or failed.");
+  return WStatus("Could not write mini dump - gcore not available or failed.");
 }
 
-ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride)
+WStatus WMiniDumpUtils::LaunchMiniDumpTool(WStringView sDumpFile, WDumpType dumpTypeOverride)
 {
-  ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
-  sDumpToolPath.AppendPath("ezMiniDumpTool");
+  WStringBuilder sDumpToolPath = WOSFile::GetApplicationDirectory();
+  sDumpToolPath.AppendPath("WMiniDumpTool");
   sDumpToolPath.MakeCleanPath();
 
-  if (!ezOSFile::ExistsFile(sDumpToolPath))
-    return ezStatus(ezFmt("ezMiniDumpTool not found in '{}'", sDumpToolPath));
+  if (!WOSFile::ExistsFile(sDumpToolPath))
+    return WStatus(WFmt("WMiniDumpTool not found in '{}'", sDumpToolPath));
 
-  ezProcessOptions procOpt;
+  WProcessOptions procOpt;
   procOpt.m_bHideConsoleWindow = true;
   procOpt.m_sProcess = sDumpToolPath;
   procOpt.m_Arguments.PushBack("-PID");
-  procOpt.AddArgument("{}", ezProcess::GetCurrentProcessID());
+  procOpt.AddArgument("{}", WProcess::GetCurrentProcessID());
   procOpt.m_Arguments.PushBack("-f");
   procOpt.m_Arguments.PushBack(sDumpFile);
 
-  if ((opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always) && dumpTypeOverride == ezDumpType::Auto) || dumpTypeOverride == ezDumpType::MiniDumpWithFullMemory)
+  if ((opt_FullCrashDumps.GetOptionValue(WCommandLineOption::LogMode::Always) && dumpTypeOverride == WDumpType::Auto) || dumpTypeOverride == WDumpType::MiniDumpWithFullMemory)
   {
     // Forward the '-fullcrashdumps' command line argument
     procOpt.AddArgument("-fullcrashdumps");
   }
 
-  ezProcessGroup proc;
+  WProcessGroup proc;
   if (proc.Launch(procOpt).Failed())
-    return ezStatus(ezFmt("Failed to launch '{}'", sDumpToolPath));
+    return WStatus(WFmt("Failed to launch '{}'", sDumpToolPath));
 
   if (proc.WaitToFinish().Failed())
-    return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
+    return WStatus("Waiting for WMiniDumpTool to finish failed.");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

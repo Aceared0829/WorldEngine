@@ -4,15 +4,15 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-/// Visualizer adapter for ezPointLightComponent.
+/// Visualizer adapter for WPointLightComponent.
 ///
 /// Always shows a sphere gizmo at the light's range. If either Length or Radius is non-zero, also
 /// shows a wireframe capsule so that tube (capsule) area lights are distinguishable from plain point lights.
-class ezPointLightVisualizerAdapter : public ezVisualizerAdapter
+class WPointLightVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezPointLightVisualizerAdapter();
-  ~ezPointLightVisualizerAdapter();
+  WPointLightVisualizerAdapter();
+  ~WPointLightVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -25,8 +25,8 @@ protected:
   float m_fRadius = 0.0f;
   bool m_bIsTube = false;
 
-  ezEngineGizmoHandle m_hRangeGizmo;
-  ezEngineGizmoHandle m_hCapsuleL;
-  ezEngineGizmoHandle m_hCapsuleM;
-  ezEngineGizmoHandle m_hCapsuleR;
+  WEngineGizmoHandle m_hRangeGizmo;
+  WEngineGizmoHandle m_hCapsuleL;
+  WEngineGizmoHandle m_hCapsuleM;
+  WEngineGizmoHandle m_hCapsuleR;
 };

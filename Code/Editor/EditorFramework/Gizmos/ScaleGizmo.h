@@ -4,29 +4,29 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WScaleGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WScaleGizmo, WGizmo);
 
 public:
-  ezScaleGizmo();
+  WScaleGizmo();
 
-  const ezVec3& GetScalingResult() const { return m_vScalingResult; }
+  const WVec3& GetScalingResult() const { return m_vScalingResult; }
 
-  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+  virtual void UpdateStatusBarText(WQtEngineDocumentWindow* pWindow) override;
 
   void EnableAxis(bool x, bool y, bool z, bool bXyz);
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
 protected:
   bool m_bEnableAxisX = true;
@@ -34,32 +34,32 @@ protected:
   bool m_bEnableAxisZ = true;
   bool m_bEnableAxisXYZ = true;
 
-  ezEngineGizmoHandle m_hAxisX;
-  ezEngineGizmoHandle m_hAxisY;
-  ezEngineGizmoHandle m_hAxisZ;
-  ezEngineGizmoHandle m_hAxisXYZ;
+  WEngineGizmoHandle m_hAxisX;
+  WEngineGizmoHandle m_hAxisY;
+  WEngineGizmoHandle m_hAxisZ;
+  WEngineGizmoHandle m_hAxisXYZ;
 
 private:
-  ezVec3 m_vScalingResult;
-  ezVec3 m_vScaleMouseMove;
+  WVec3 m_vScalingResult;
+  WVec3 m_vScaleMouseMove;
 
-  ezVec2I32 m_vLastMousePos;
+  WVec2I32 m_vLastMousePos;
 
-  ezTime m_LastInteraction;
-  ezVec3 m_vMoveAxis;
-  ezMat4 m_mInvViewProj;
+  WTime m_LastInteraction;
+  WVec3 m_vMoveAxis;
+  WMat4 m_mInvViewProj;
 };
 
 /// Scale gizmo version that only uses boxes that can be composited with
 /// rotate and translate gizmos without major overlap.
-/// Used by the ezTransformManipulatorAdapter.
-class EZ_EDITORFRAMEWORK_DLL ezManipulatorScaleGizmo : public ezScaleGizmo
+/// Used by the WTransformManipulatorAdapter.
+class W_EDITORFRAMEWORK_DLL WManipulatorScaleGizmo : public WScaleGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorScaleGizmo, ezScaleGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WManipulatorScaleGizmo, WScaleGizmo);
 
 public:
-  ezManipulatorScaleGizmo();
+  WManipulatorScaleGizmo();
 
 protected:
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 };

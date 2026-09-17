@@ -1,15 +1,15 @@
 
 template <typename HandleType, typename DescType, typename KeyType>
-HandleType ezGALPipelineCache::TryGetPipeline(const DescType& description, ezHashTable<KeyType, HandleType, ezGALPipelineCache::CacheKeyHasher>& table)
+HandleType WGALPipelineCache::TryGetPipeline(const DescType& description, WHashTable<KeyType, HandleType, WGALPipelineCache::CacheKeyHasher>& table)
 {
-  EZ_ASSERT_DEV(m_pDevice != nullptr, "GAL device not initialized");
+  W_ASSERT_DEV(m_pDevice != nullptr, "GAL device not initialized");
 
   KeyType key;
   key.m_Desc = description;
   key.m_uiHash = description.CalculateHash();
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     HandleType* pExistingPipeline = table.GetValue(key);
     if (pExistingPipeline != nullptr)
@@ -21,19 +21,19 @@ HandleType ezGALPipelineCache::TryGetPipeline(const DescType& description, ezHas
 }
 
 template <typename HandleType, typename DescType, typename KeyType>
-EZ_ALWAYS_INLINE ezResult ezGALPipelineCache::TryInsertPipeline(const DescType& description, HandleType hNewPipeline, ezHashTable<KeyType, HandleType, ezGALPipelineCache::CacheKeyHasher>& table)
+W_ALWAYS_INLINE WResult WGALPipelineCache::TryInsertPipeline(const DescType& description, HandleType hNewPipeline, WHashTable<KeyType, HandleType, WGALPipelineCache::CacheKeyHasher>& table)
 {
   KeyType key;
   key.m_Desc = description;
   key.m_uiHash = description.CalculateHash();
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   HandleType existingPipeline;
   if (table.Insert(key, hNewPipeline, &existingPipeline))
   {
-    EZ_ASSERT_DEBUG(existingPipeline == hNewPipeline, "On collision, both pipelines must be the same (create should have just increased the ref count)");
-    return EZ_FAILURE;
+    W_ASSERT_DEBUG(existingPipeline == hNewPipeline, "On collision, both pipelines must be the same (create should have just increased the ref count)");
+    return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

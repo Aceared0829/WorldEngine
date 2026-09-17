@@ -7,9 +7,9 @@
 #include <Inspector/MainWindow.moc.h>
 #include <qlistwidget.h>
 
-ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
+WQtGlobalEventsWidget* WQtGlobalEventsWidget::s_pWidget = nullptr;
 
-ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtGlobalEventsWidget::WQtGlobalEventsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Global Events", pParent)
 {
   s_pWidget = this;
@@ -22,7 +22,7 @@ ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(ads::CDockManager* pDockManager, 
   ResetStats();
 }
 
-void ezQtGlobalEventsWidget::ResetStats()
+void WQtGlobalEventsWidget::ResetStats()
 {
   m_Events.Clear();
   TableEvents->clear();
@@ -41,17 +41,17 @@ void ezQtGlobalEventsWidget::ResetStats()
   }
 }
 
-void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
+void WQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
 
   bool bUpdateTable = false;
   bool bFillTable = false;
 
-  while (ezTelemetry::RetrieveMessage('EVNT', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('EVNT', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == ' CLR')
     {
@@ -60,7 +60,7 @@ void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'DATA')
     {
-      ezString sName;
+      WString sName;
       msg.GetReader() >> sName;
 
       GlobalEventsData& sd = s_pWidget->m_Events[sName];
@@ -82,9 +82,9 @@ void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->UpdateTable(false);
 }
 
-void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
+void WQtGlobalEventsWidget::UpdateTable(bool bRecreate)
 {
-  ezQtScopedUpdatesDisabled _1(TableEvents);
+  WQtScopedUpdatesDisabled _1(TableEvents);
 
   if (bRecreate)
   {
@@ -103,15 +103,15 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
     TableEvents->setHorizontalHeaderLabels(Headers);
     TableEvents->horizontalHeader()->show();
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
     {
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/GlobalEvent.svg");
+      QIcon icon = WQtUiServices::GetCachedIconResource(":/Icons/Icons/GlobalEvent.svg");
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
@@ -135,10 +135,10 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
   }
   else
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezInt32 iRow = 0;
-    for (ezMap<ezString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
+    WInt32 iRow = 0;
+    for (WMap<WString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
     {
       sTemp.SetFormat("  {0}  ", it.Value().m_uiTimesFired);
       ((QLabel*)TableEvents->cellWidget(iRow, 2))->setText(sTemp.GetData());

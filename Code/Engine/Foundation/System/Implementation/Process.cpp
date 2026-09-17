@@ -1,25 +1,25 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
 
 // Include platform specific implementation
 #  include <Process_Platform.inl>
 
 #  include <Foundation/Strings/Implementation/StringIterator.h>
 
-ezProcess::ezProcess(ezProcess&& rhs) = default;
+WProcess::WProcess(WProcess&& rhs) = default;
 
-void ezProcessOptions::AddArgument(const ezFormatString& arg)
+void WProcessOptions::AddArgument(const WFormatString& arg)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   m_Arguments.PushBack(arg.GetText(tmp));
 }
 
-void ezProcessOptions::AddCommandLine(ezStringView sCmdLine)
+void WProcessOptions::AddCommandLine(WStringView sCmdLine)
 {
-  ezStringBuilder curArg;
+  WStringBuilder curArg;
 
-  ezStringView cmdView = sCmdLine;
+  WStringView cmdView = sCmdLine;
 
   bool isInString = false;
 
@@ -72,7 +72,7 @@ void ezProcessOptions::AddCommandLine(ezStringView sCmdLine)
   }
 }
 
-ezInt32 ezProcess::GetExitCode() const
+WInt32 WProcess::GetExitCode() const
 {
   if (m_iExitCode == -0xFFFF)
   {
@@ -83,11 +83,11 @@ ezInt32 ezProcess::GetExitCode() const
   return m_iExitCode;
 }
 
-void ezProcessOptions::BuildCommandLineString(ezStringBuilder& ref_sCmd) const
+void WProcessOptions::BuildCommandLineString(WStringBuilder& ref_sCmd) const
 {
   for (const auto& arg0 : m_Arguments)
   {
-    ezStringView arg = arg0;
+    WStringView arg = arg0;
 
     while (arg.StartsWith("\""))
       arg.ChopAwayFirstCharacterAscii();
@@ -112,7 +112,7 @@ void ezProcessOptions::BuildCommandLineString(ezStringBuilder& ref_sCmd) const
   ref_sCmd.Trim(" ");
 }
 
-void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, ezStringView sProcess, ezStringBuilder& cmd) const
+void WProcess::BuildFullCommandLineString(const WProcessOptions& opt, WStringView sProcess, WStringBuilder& cmd) const
 {
   // have to set the full path to the process as the very first argument
   cmd.Set("\"", sProcess, "\"");

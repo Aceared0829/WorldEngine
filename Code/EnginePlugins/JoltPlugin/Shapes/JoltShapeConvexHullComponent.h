@@ -3,43 +3,43 @@
 #include <JoltPlugin/Resources/JoltMeshResource.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 
-using ezJoltShapeConvexHullComponentManager = ezComponentManager<class ezJoltShapeConvexHullComponent, ezBlockStorageType::FreeList>;
+using WJoltShapeConvexHullComponentManager = WComponentManager<class WJoltShapeConvexHullComponent, WBlockStorageType::FreeList>;
 
 /// Adds a Jolt convex hull shape to a Jolt actor.
 ///
 /// A convex hull is a simple convex shape. It can be used for simulating dynamic rigid bodies.
 /// Often the convex hull of a complex mesh is used to approximate the mesh and make it possible to use it as a dynamic actor.
-class EZ_JOLTPLUGIN_DLL ezJoltShapeConvexHullComponent : public ezJoltShapeComponent
+class W_JOLTPLUGIN_DLL WJoltShapeConvexHullComponent : public WJoltShapeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeConvexHullComponent, ezJoltShapeComponent, ezJoltShapeConvexHullComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltShapeConvexHullComponent, WJoltShapeComponent, WJoltShapeConvexHullComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeComponent
+  // WJoltShapeComponent
 
 protected:
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezConvexShapeConvexComponent
+  // WConvexShapeConvexComponent
 
 public:
-  ezJoltShapeConvexHullComponent();
-  ~ezJoltShapeConvexHullComponent();
+  WJoltShapeConvexHullComponent();
+  ~WJoltShapeConvexHullComponent();
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const override;
+  virtual void ExtractGeometry(WMsgExtractGeometry& ref_msg) const override;
 
-  ezJoltMeshResourceHandle GetMesh() const { return m_hCollisionMesh; }
+  WJoltMeshResourceHandle GetMesh() const { return m_hCollisionMesh; }
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
 
-  ezJoltMeshResourceHandle m_hCollisionMesh;
+  WJoltMeshResourceHandle m_hCollisionMesh;
 };

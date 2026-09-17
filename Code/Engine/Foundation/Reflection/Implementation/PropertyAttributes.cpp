@@ -3,60 +3,60 @@
 #include <Foundation/Reflection/Reflection.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAttribute, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReadOnlyAttribute, 1, ezRTTIDefaultAllocator<ezReadOnlyAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WReadOnlyAttribute, 1, WRTTIDefaultAllocator<WReadOnlyAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHiddenAttribute, 1, ezRTTIDefaultAllocator<ezHiddenAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WHiddenAttribute, 1, WRTTIDefaultAllocator<WHiddenAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRequiredAttribute, 1, ezRTTIDefaultAllocator<ezRequiredAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRequiredAttribute, 1, WRTTIDefaultAllocator<WRequiredAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTemporaryAttribute, 1, ezRTTIDefaultAllocator<ezTemporaryAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTemporaryAttribute, 1, WRTTIDefaultAllocator<WTemporaryAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezDependencyFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezDependencyFlags::Package, ezDependencyFlags::Thumbnail, ezDependencyFlags::Transform)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WDependencyFlags, 1)
+W_BITFLAGS_CONSTANTS(WDependencyFlags::Package, WDependencyFlags::Thumbnail, WDependencyFlags::Transform)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShapeIconAlwaysVisibleAttribute, 1, ezRTTIDefaultAllocator<ezShapeIconAlwaysVisibleAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WShapeIconAlwaysVisibleAttribute, 1, WRTTIDefaultAllocator<WShapeIconAlwaysVisibleAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCategoryAttribute, 1, WRTTIDefaultAllocator<WCategoryAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Category", m_sCategory),
+    W_MEMBER_PROPERTY("Category", m_sCategory),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInDevelopmentAttribute, 1, ezRTTIDefaultAllocator<ezInDevelopmentAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInDevelopmentAttribute, 1, WRTTIDefaultAllocator<WInDevelopmentAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Phase", m_Phase),
+    W_MEMBER_PROPERTY("Phase", m_Phase),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezInt32),
+    W_CONSTRUCTOR_PROPERTY(WInt32),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-const char* ezInDevelopmentAttribute::GetString() const
+const char* WInDevelopmentAttribute::GetString() const
 {
   switch (m_Phase)
   {
@@ -66,346 +66,346 @@ const char* ezInDevelopmentAttribute::GetString() const
   case Phase::Beta:
     return "BETA";
 
-    EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return "";
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTitleAttribute, 1, ezRTTIDefaultAllocator<ezTitleAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTitleAttribute, 1, WRTTIDefaultAllocator<WTitleAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Title", m_sTitle),
+    W_MEMBER_PROPERTY("Title", m_sTitle),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorAttribute, 1, ezRTTIDefaultAllocator<ezColorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WColorAttribute, 1, WRTTIDefaultAllocator<WColorAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezColor),
+    W_CONSTRUCTOR_PROPERTY(WColor),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposeColorAlphaAttribute, 1, ezRTTIDefaultAllocator<ezExposeColorAlphaAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExposeColorAlphaAttribute, 1, WRTTIDefaultAllocator<WExposeColorAlphaAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSuffixAttribute, 1, ezRTTIDefaultAllocator<ezSuffixAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSuffixAttribute, 1, WRTTIDefaultAllocator<WSuffixAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Suffix", m_sSuffix),
+    W_MEMBER_PROPERTY("Suffix", m_sSuffix),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMinValueTextAttribute, 1, ezRTTIDefaultAllocator<ezMinValueTextAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMinValueTextAttribute, 1, WRTTIDefaultAllocator<WMinValueTextAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Text", m_sText),
+    W_MEMBER_PROPERTY("Text", m_sText),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDefaultValueAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDefaultValueAttribute, 1, WRTTIDefaultAllocator<WDefaultValueAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const ezVariant&),
+    W_CONSTRUCTOR_PROPERTY(const WVariant&),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageSliderUiAttribute, 1, ezRTTIDefaultAllocator<ezImageSliderUiAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WImageSliderUiAttribute, 1, WRTTIDefaultAllocator<WImageSliderUiAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ImageGenerator", m_sImageGenerator),
+    W_MEMBER_PROPERTY("ImageGenerator", m_sImageGenerator),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator<ezClampValueAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WClampValueAttribute, 1, WRTTIDefaultAllocator<WClampValueAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Min", m_MinValue),
-    EZ_MEMBER_PROPERTY("Max", m_MaxValue),
+    W_MEMBER_PROPERTY("Min", m_MinValue),
+    W_MEMBER_PROPERTY("Max", m_MaxValue),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const ezVariant&, const ezVariant&),
+    W_CONSTRUCTOR_PROPERTY(const WVariant&, const WVariant&),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGroupAttribute, 1, ezRTTIDefaultAllocator<ezGroupAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGroupAttribute, 1, WRTTIDefaultAllocator<WGroupAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Group", m_sGroup),
+    W_MEMBER_PROPERTY("Group", m_sGroup),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, float),
+    W_CONSTRUCTOR_PROPERTY(const char*, float),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, float),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGroupAttribute::ezGroupAttribute()
+WGroupAttribute::WGroupAttribute()
 = default;
 
-ezGroupAttribute::ezGroupAttribute(const char* szGroup, float fOrder)
+WGroupAttribute::WGroupAttribute(const char* szGroup, float fOrder)
   : m_sGroup(szGroup)
   , m_fOrder(fOrder)
 {
 }
 
-ezGroupAttribute::ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder)
+WGroupAttribute::WGroupAttribute(const char* szGroup, const char* szIconName, float fOrder)
   : m_sGroup(szGroup)
   , m_sIconName(szIconName)
   , m_fOrder(fOrder)
 {
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeWidgetAttribute, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTypeWidgetAttribute, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWidgetAttribute, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WContainerWidgetAttribute, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTagSetWidgetAttribute, 1, ezRTTIDefaultAllocator<ezTagSetWidgetAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTagSetWidgetAttribute, 1, WRTTIDefaultAllocator<WTagSetWidgetAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Filter", m_sTagFilter),
+    W_MEMBER_PROPERTY("Filter", m_sTagFilter),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNoTemporaryTransactionsAttribute, 1, ezRTTIDefaultAllocator<ezNoTemporaryTransactionsAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WNoTemporaryTransactionsAttribute, 1, WRTTIDefaultAllocator<WNoTemporaryTransactionsAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAttribute, 1, ezRTTIDefaultAllocator<ezExposedParametersAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExposedParametersAttribute, 1, WRTTIDefaultAllocator<WExposedParametersAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ParametersSource", m_sParametersSource),
+    W_MEMBER_PROPERTY("ParametersSource", m_sParametersSource),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDynamicDefaultValueAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicDefaultValueAttribute, 1, WRTTIDefaultAllocator<WDynamicDefaultValueAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ClassSource", m_sClassSource),
-    EZ_MEMBER_PROPERTY("ClassType", m_sClassType),
+    W_MEMBER_PROPERTY("ClassSource", m_sClassSource),
+    W_MEMBER_PROPERTY("ClassType", m_sClassType),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WContainerAttribute, 1, WRTTIDefaultAllocator<WContainerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CanAdd", m_bCanAdd),
-    EZ_MEMBER_PROPERTY("CanDelete", m_bCanDelete),
-    EZ_MEMBER_PROPERTY("CanMove", m_bCanMove),
+    W_MEMBER_PROPERTY("CanAdd", m_bCanAdd),
+    W_MEMBER_PROPERTY("CanDelete", m_bCanDelete),
+    W_MEMBER_PROPERTY("CanMove", m_bCanMove),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(bool, bool, bool),
+    W_CONSTRUCTOR_PROPERTY(bool, bool, bool),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezFileBrowserAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFileBrowserAttribute, 1, WRTTIDefaultAllocator<WFileBrowserAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
-    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
-    EZ_MEMBER_PROPERTY("CustomAction", m_sCustomAction),
-    EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
+    W_MEMBER_PROPERTY("Title", m_sDialogTitle),
+    W_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    W_MEMBER_PROPERTY("CustomAction", m_sCustomAction),
+    W_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", WDependencyFlags, m_DependencyFlags),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView),
-    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView, ezStringView),
+    W_CONSTRUCTOR_PROPERTY(WStringView, WStringView),
+    W_CONSTRUCTOR_PROPERTY(WStringView, WStringView, WStringView),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExternalFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezExternalFileBrowserAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExternalFileBrowserAttribute, 1, WRTTIDefaultAllocator<WExternalFileBrowserAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
-    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    W_MEMBER_PROPERTY("Title", m_sDialogTitle),
+    W_MEMBER_PROPERTY("Filter", m_sTypeFilter),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView),
+    W_CONSTRUCTOR_PROPERTY(WStringView, WStringView),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocator<ezAssetBrowserAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetBrowserAttribute, 1, WRTTIDefaultAllocator<WAssetBrowserAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
-    EZ_MEMBER_PROPERTY("RequiredTag", m_sRequiredTag),
-    EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
+    W_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    W_MEMBER_PROPERTY("RequiredTag", m_sRequiredTag),
+    W_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", WDependencyFlags, m_DependencyFlags),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, ezBitflags<ezDependencyFlags>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, ezBitflags<ezDependencyFlags>),
+    W_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, WBitflags<WDependencyFlags>),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, WBitflags<WDependencyFlags>),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicEnumAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicEnumAttribute, 1, WRTTIDefaultAllocator<WDynamicEnumAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-   EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
+   W_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-   EZ_CONSTRUCTOR_PROPERTY(const char*),
+   W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicStringEnumAttribute, 1, WRTTIDefaultAllocator<WDynamicStringEnumAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
+    W_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicBitflagsAttribute, 1, ezRTTIDefaultAllocator<ezDynamicBitflagsAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicBitflagsAttribute, 1, WRTTIDefaultAllocator<WDynamicBitflagsAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-   EZ_MEMBER_PROPERTY("DynamicBitflags", m_sDynamicBitflagsName),
+   W_MEMBER_PROPERTY("DynamicBitflags", m_sDynamicBitflagsName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-   EZ_CONSTRUCTOR_PROPERTY(ezStringView),
+   W_CONSTRUCTOR_PROPERTY(WStringView),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorAttribute, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WManipulatorAttribute, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
-    EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
-    EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
-    EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
-    EZ_MEMBER_PROPERTY("Property5", m_sProperty5),
-    EZ_MEMBER_PROPERTY("Property6", m_sProperty6),
+    W_MEMBER_PROPERTY("Property1", m_sProperty1),
+    W_MEMBER_PROPERTY("Property2", m_sProperty2),
+    W_MEMBER_PROPERTY("Property3", m_sProperty3),
+    W_MEMBER_PROPERTY("Property4", m_sProperty4),
+    W_MEMBER_PROPERTY("Property5", m_sProperty5),
+    W_MEMBER_PROPERTY("Property6", m_sProperty6),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
+WManipulatorAttribute::WManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
   const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
   : m_sProperty1(szProperty1)
   , m_sProperty2(szProperty2)
@@ -419,49 +419,49 @@ ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const ch
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSphereManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSphereManipulatorAttribute, 1, WRTTIDefaultAllocator<WSphereManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSphereManipulatorAttribute::ezSphereManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WSphereManipulatorAttribute::WSphereManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius)
-  : ezManipulatorAttribute(szOuterRadius, szInnerRadius)
+WSphereManipulatorAttribute::WSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius)
+  : WManipulatorAttribute(szOuterRadius, szInnerRadius)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCapsuleManipulatorAttribute, 1, WRTTIDefaultAllocator<WCapsuleManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WCapsuleManipulatorAttribute::WCapsuleManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius)
-  : ezManipulatorAttribute(szLength, szRadius)
+WCapsuleManipulatorAttribute::WCapsuleManipulatorAttribute(const char* szLength, const char* szRadius)
+  : WManipulatorAttribute(szLength, szRadius)
 {
 }
 
@@ -469,32 +469,32 @@ ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLengt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoxManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoxManipulatorAttribute, 1, WRTTIDefaultAllocator<WBoxManipulatorAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("scale", m_fSizeScale),
-    EZ_MEMBER_PROPERTY("recenter", m_bRecenterParent),
+    W_MEMBER_PROPERTY("scale", m_fSizeScale),
+    W_MEMBER_PROPERTY("recenter", m_bRecenterParent),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, bool),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoxManipulatorAttribute::ezBoxManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WBoxManipulatorAttribute::WBoxManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty, const char* szRotationProperty)
-  : ezManipulatorAttribute(szSizeProperty, szOffsetProperty, szRotationProperty)
+WBoxManipulatorAttribute::WBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty, const char* szRotationProperty)
+  : WManipulatorAttribute(szSizeProperty, szOffsetProperty, szRotationProperty)
 {
   m_bRecenterParent = bRecenterParent;
   m_fSizeScale = fSizeScale;
@@ -503,87 +503,87 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSizeProperty,
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezNonUniformBoxManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WNonUniformBoxManipulatorAttribute, 1, WRTTIDefaultAllocator<WNonUniformBoxManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WNonUniformBoxManipulatorAttribute::WNonUniformBoxManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(
+WNonUniformBoxManipulatorAttribute::WNonUniformBoxManipulatorAttribute(
   const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp)
-  : ezManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
+  : WManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
 {
 }
 
-ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ)
-  : ezManipulatorAttribute(szSizeX, szSizeY, szSizeZ)
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeLengthManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeLengthManipulatorAttribute>)
-{
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
-  }
-  EZ_END_FUNCTIONS;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
-{
-}
-
-ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute(const char* szRadiusProperty)
-  : ezManipulatorAttribute(szRadiusProperty)
+WNonUniformBoxManipulatorAttribute::WNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ)
+  : WManipulatorAttribute(szSizeX, szSizeY, szSizeZ)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeAngleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeAngleManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WConeLengthManipulatorAttribute, 1, WRTTIDefaultAllocator<WConeLengthManipulatorAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_FUNCTIONS
   {
-    EZ_MEMBER_PROPERTY("scale", m_fScale),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const char*),
-  }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WConeLengthManipulatorAttribute::WConeLengthManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
+{
+}
+
+WConeLengthManipulatorAttribute::WConeLengthManipulatorAttribute(const char* szRadiusProperty)
+  : WManipulatorAttribute(szRadiusProperty)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WConeAngleManipulatorAttribute, 1, WRTTIDefaultAllocator<WConeAngleManipulatorAttribute>)
+{
+  W_BEGIN_PROPERTIES
+  {
+    W_MEMBER_PROPERTY("scale", m_fScale),
+  }
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
+  {
+    W_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const char*),
+  }
+  W_END_FUNCTIONS;
+}
+W_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+WConeAngleManipulatorAttribute::WConeAngleManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
   m_fScale = 1.0f;
 }
 
-ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale, const char* szRadiusProperty)
-  : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
+WConeAngleManipulatorAttribute::WConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale, const char* szRadiusProperty)
+  : WManipulatorAttribute(szAngleProperty, szRadiusProperty)
 {
   m_fScale = fScale;
 }
@@ -591,129 +591,129 @@ ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute(const char* szA
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezTransformManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTransformManipulatorAttribute, 1, WRTTIDefaultAllocator<WTransformManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTransformManipulatorAttribute::ezTransformManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WTransformManipulatorAttribute::WTransformManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(
+WTransformManipulatorAttribute::WTransformManipulatorAttribute(
   const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty, const char* szOffsetTranslation, const char* szOffsetRotation)
-  : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty, szOffsetTranslation, szOffsetRotation)
+  : WManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty, szOffsetTranslation, szOffsetRotation)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoneManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoneManipulatorAttribute, 1, WRTTIDefaultAllocator<WBoneManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoneManipulatorAttribute::ezBoneManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WBoneManipulatorAttribute::WBoneManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezBoneManipulatorAttribute::ezBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo)
-  : ezManipulatorAttribute(szTransformProperty, szBindTo)
+WBoneManipulatorAttribute::WBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo)
+  : WManipulatorAttribute(szTransformProperty, szBindTo)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSplineManipulatorAttribute, 1, WRTTIDefaultAllocator<WSplineManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSplineManipulatorAttribute::ezSplineManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WSplineManipulatorAttribute::WSplineManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezSplineManipulatorAttribute::ezSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty)
-  : ezManipulatorAttribute(szBindTo, szClosedProperty)
+WSplineManipulatorAttribute::WSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty)
+  : WManipulatorAttribute(szBindTo, szClosedProperty)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineTangentManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineTangentManipulatorAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSplineTangentManipulatorAttribute, 1, WRTTIDefaultAllocator<WSplineTangentManipulatorAttribute>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSplineTangentManipulatorAttribute::ezSplineTangentManipulatorAttribute()
-  : ezManipulatorAttribute(nullptr)
+WSplineTangentManipulatorAttribute::WSplineTangentManipulatorAttribute()
+  : WManipulatorAttribute(nullptr)
 {
 }
 
-ezSplineTangentManipulatorAttribute::ezSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent)
-  : ezManipulatorAttribute(szTangentMode, szCustomTangent)
+WSplineTangentManipulatorAttribute::WSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent)
+  : WManipulatorAttribute(szTangentMode, szCustomTangent)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezVisualizerAnchor, 1)
-EZ_BITFLAGS_CONSTANTS(ezVisualizerAnchor::Center, ezVisualizerAnchor::PosX, ezVisualizerAnchor::NegX, ezVisualizerAnchor::PosY, ezVisualizerAnchor::NegY, ezVisualizerAnchor::PosZ, ezVisualizerAnchor::NegZ)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WVisualizerAnchor, 1)
+W_BITFLAGS_CONSTANTS(WVisualizerAnchor::Center, WVisualizerAnchor::PosX, WVisualizerAnchor::NegX, WVisualizerAnchor::PosY, WVisualizerAnchor::NegY, WVisualizerAnchor::PosZ, WVisualizerAnchor::NegZ)
+W_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualizerAttribute, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
-    EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
-    EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
-    EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
-    EZ_MEMBER_PROPERTY("Property5", m_sProperty5),
-    EZ_MEMBER_PROPERTY("Property6", m_sProperty6),
-    EZ_BITFLAGS_MEMBER_PROPERTY("Anchor", ezVisualizerAnchor, m_Anchor),
+    W_MEMBER_PROPERTY("Property1", m_sProperty1),
+    W_MEMBER_PROPERTY("Property2", m_sProperty2),
+    W_MEMBER_PROPERTY("Property3", m_sProperty3),
+    W_MEMBER_PROPERTY("Property4", m_sProperty4),
+    W_MEMBER_PROPERTY("Property5", m_sProperty5),
+    W_MEMBER_PROPERTY("Property6", m_sProperty6),
+    W_BITFLAGS_MEMBER_PROPERTY("Anchor", WVisualizerAnchor, m_Anchor),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
+WVisualizerAttribute::WVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
   const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
   : m_sProperty1(szProperty1)
   , m_sProperty2(szProperty2)
@@ -727,38 +727,38 @@ ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoxVisualizerAttribute, 1, WRTTIDefaultAllocator<WBoxVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
-    EZ_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
+    W_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*, WBitflags<WVisualizerAnchor>),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*, float),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WBoxVisualizerAttribute::WBoxVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 vOffsetOrScale /*= ezVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/, const char* szRotationProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty, szRotationProperty)
+WBoxVisualizerAttribute::WBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, WBitflags<WVisualizerAnchor> anchor /*= WVisualizerAnchor::Center*/, WVec3 vOffsetOrScale /*= WVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/, const char* szRotationProperty /*= nullptr*/)
+  : WVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty, szRotationProperty)
   , m_Color(fixedColor)
   , m_vOffsetOrScale(vOffsetOrScale)
 {
@@ -769,35 +769,35 @@ ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, f
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSphereVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSphereVisualizerAttribute, 1, WRTTIDefaultAllocator<WSphereVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3),
+    W_CONSTRUCTOR_PROPERTY(const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>),
+    W_CONSTRUCTOR_PROPERTY(const char*, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSphereVisualizerAttribute::ezSphereVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WSphereVisualizerAttribute::WSphereVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 vOffsetOrScale /*= ezVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szRadiusProperty, szColorProperty, szOffsetProperty)
+WSphereVisualizerAttribute::WSphereVisualizerAttribute(const char* szRadiusProperty, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, WBitflags<WVisualizerAnchor> anchor /*= WVisualizerAnchor::Center*/, WVec3 vOffsetOrScale /*= WVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/)
+  : WVisualizerAttribute(szRadiusProperty, szColorProperty, szOffsetProperty)
   , m_Color(fixedColor)
   , m_vOffsetOrScale(vOffsetOrScale)
 {
@@ -807,32 +807,32 @@ ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusPro
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCapsuleVisualizerAttribute, 1, WRTTIDefaultAllocator<WCapsuleVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WCapsuleVisualizerAttribute::WCapsuleVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/)
-  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty)
+WCapsuleVisualizerAttribute::WCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, WBitflags<WVisualizerAnchor> anchor /*= WVisualizerAnchor::Center*/)
+  : WVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty)
   , m_Color(fixedColor)
 {
   m_Anchor = anchor;
@@ -841,42 +841,42 @@ ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightP
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCylinderVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCylinderVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCylinderVisualizerAttribute, 1, WRTTIDefaultAllocator<WCylinderVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
+    W_ENUM_MEMBER_PROPERTY("Axis", WBasisAxis, m_Axis),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>, WVec3),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&, const char*, WBitflags<WVisualizerAnchor>),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WCylinderVisualizerAttribute::WCylinderVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 vOffsetOrScale /*= ezVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty)
+WCylinderVisualizerAttribute::WCylinderVisualizerAttribute(WEnum<WBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, WBitflags<WVisualizerAnchor> anchor /*= WVisualizerAnchor::Center*/, WVec3 vOffsetOrScale /*= WVec3::MakeZero*/, const char* szOffsetProperty /*= nullptr*/)
+  : WVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty)
   , m_Color(fixedColor)
   , m_vOffsetOrScale(vOffsetOrScale)
   , m_Axis(axis)
@@ -884,62 +884,62 @@ ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis>
   m_Anchor = anchor;
 }
 
-ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 vOffsetOrScale /*= ezVec3::MakeZero()*/, const char* szOffsetProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty, szAxisProperty)
+WCylinderVisualizerAttribute::WCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, WBitflags<WVisualizerAnchor> anchor /*= WVisualizerAnchor::Center*/, WVec3 vOffsetOrScale /*= WVec3::MakeZero()*/, const char* szOffsetProperty /*= nullptr*/)
+  : WVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty, szAxisProperty)
   , m_Color(fixedColor)
   , m_vOffsetOrScale(vOffsetOrScale)
 {
-  m_Axis = ezBasisAxis::Default;
+  m_Axis = WBasisAxis::Default;
   m_Anchor = anchor;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDirectionVisualizerAttribute, 1, WRTTIDefaultAllocator<WDirectionVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("Scale", m_fScale)
+    W_ENUM_MEMBER_PROPERTY("Axis", WBasisAxis, m_Axis),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("Scale", m_fScale)
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, float, const ezColor&, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, float, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, float, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, float, const WColor&, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, float, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, float, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, float),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*, float),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WDirectionVisualizerAttribute::WDirectionVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
-  m_Axis = ezBasisAxis::PositiveX;
+  m_Axis = WBasisAxis::PositiveX;
   m_fScale = 1.0f;
-  m_Color = ezColor::White;
+  m_Color = WColor::White;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, const char* szLengthProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szColorProperty, szLengthProperty)
+WDirectionVisualizerAttribute::WDirectionVisualizerAttribute(WEnum<WBasisAxis> axis, float fScale, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, const char* szLengthProperty /*= nullptr*/)
+  : WVisualizerAttribute(szColorProperty, szLengthProperty)
   , m_Axis(axis)
   , m_Color(fixedColor)
   , m_fScale(fScale)
 {
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, const char* szLengthProperty /*= nullptr*/)
-  : ezVisualizerAttribute(szColorProperty, szLengthProperty, szAxisProperty)
-  , m_Axis(ezBasisAxis::PositiveX)
+WDirectionVisualizerAttribute::WDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty /*= nullptr*/, const char* szLengthProperty /*= nullptr*/)
+  : WVisualizerAttribute(szColorProperty, szLengthProperty, szAxisProperty)
+  , m_Axis(WBasisAxis::PositiveX)
   , m_Color(fixedColor)
   , m_fScale(fScale)
 {
@@ -948,37 +948,37 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(const char* szAxi
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezConeVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WConeVisualizerAttribute, 1, WRTTIDefaultAllocator<WConeVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("Scale", m_fScale),
+    W_ENUM_MEMBER_PROPERTY("Axis", WBasisAxis, m_Axis),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("Scale", m_fScale),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, float, const char*, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, float, const char*, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(WEnum<WBasisAxis>, const char*, float, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezConeVisualizerAttribute::ezConeVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
-  , m_Axis(ezBasisAxis::PositiveX)
-  , m_Color(ezColor::Red)
+WConeVisualizerAttribute::WConeVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
+  , m_Axis(WBasisAxis::PositiveX)
+  , m_Color(WColor::Red)
   , m_fScale(1.0f)
 {
 }
 
-ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale,
-  const char* szRadiusProperty, const ezColor& fixedColor /*= ezColorScheme::LightUI(ezColorScheme::Grape)*/, const char* szColorProperty)
-  : ezVisualizerAttribute(szAngleProperty, szRadiusProperty, szColorProperty)
+WConeVisualizerAttribute::WConeVisualizerAttribute(WEnum<WBasisAxis> axis, const char* szAngleProperty, float fScale,
+  const char* szRadiusProperty, const WColor& fixedColor /*= WColorScheme::LightUI(WColorScheme::Grape)*/, const char* szColorProperty)
+  : WVisualizerAttribute(szAngleProperty, szRadiusProperty, szColorProperty)
   , m_Axis(axis)
   , m_Color(fixedColor)
   , m_fScale(fScale)
@@ -988,60 +988,60 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, c
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCameraVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCameraVisualizerAttribute, 1, WRTTIDefaultAllocator<WCameraVisualizerAttribute>)
 {
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  //W_BEGIN_PROPERTIES
+  //W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCameraVisualizerAttribute::ezCameraVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WCameraVisualizerAttribute::WCameraVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezCameraVisualizerAttribute::ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty,
+WCameraVisualizerAttribute::WCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty,
   const char* szNearPlaneProperty, const char* szFarPlaneProperty)
-  : ezVisualizerAttribute(szModeProperty, szFovProperty, szOrthoDimProperty, szNearPlaneProperty, szFarPlaneProperty)
+  : WVisualizerAttribute(szModeProperty, szFovProperty, szOrthoDimProperty, szNearPlaneProperty, szFarPlaneProperty)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPositionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezPositionVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPositionVisualizerAttribute, 1, WRTTIDefaultAllocator<WPositionVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
+    W_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, float, const WColor&),
+    W_CONSTRUCTOR_PROPERTY(const char*, float),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPositionVisualizerAttribute::ezPositionVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WPositionVisualizerAttribute::WPositionVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezPositionVisualizerAttribute::ezPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale, const ezColor& fixedColor, const char* szColorProperty)
-  : ezVisualizerAttribute(szPositionProperty, szColorProperty)
+WPositionVisualizerAttribute::WPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale, const WColor& fixedColor, const char* szColorProperty)
+  : WVisualizerAttribute(szPositionProperty, szColorProperty)
   , m_fSizeScale(fSizeScale)
   , m_Color(fixedColor)
 {
@@ -1050,53 +1050,53 @@ ezPositionVisualizerAttribute::ezPositionVisualizerAttribute(const char* szPosit
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaxArraySizeAttribute, 1, ezRTTIDefaultAllocator<ezMaxArraySizeAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMaxArraySizeAttribute, 1, WRTTIDefaultAllocator<WMaxArraySizeAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MaxSize", m_uiMaxSize),
+    W_MEMBER_PROPERTY("MaxSize", m_uiMaxSize),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezUInt32),
+    W_CONSTRUCTOR_PROPERTY(WUInt32),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreventDuplicatesAttribute, 1, ezRTTIDefaultAllocator<ezPreventDuplicatesAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPreventDuplicatesAttribute, 1, WRTTIDefaultAllocator<WPreventDuplicatesAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExcludeFromScript, 1, ezRTTIDefaultAllocator<ezExcludeFromScript>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExcludeFromScript, 1, WRTTIDefaultAllocator<WExcludeFromScript>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptableFunctionAttribute, 1, ezRTTIDefaultAllocator<ezScriptableFunctionAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScriptableFunctionAttribute, 1, WRTTIDefaultAllocator<WScriptableFunctionAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("ArgNames", m_ArgNames),
-    EZ_ARRAY_MEMBER_PROPERTY("ArgTypes", m_ArgTypes),
+    W_ARRAY_MEMBER_PROPERTY("ArgNames", m_ArgNames),
+    W_ARRAY_MEMBER_PROPERTY("ArgTypes", m_ArgTypes),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*= In*/, const char* szArg1 /*= nullptr*/,
+WScriptableFunctionAttribute::WScriptableFunctionAttribute(ArgType argType1 /*= In*/, const char* szArg1 /*= nullptr*/,
   ArgType argType2 /*= In*/, const char* szArg2 /*= nullptr*/,
   ArgType argType3 /*= In*/, const char* szArg3 /*= nullptr*/,
   ArgType argType4 /*= In*/, const char* szArg4 /*= nullptr*/,
@@ -1110,84 +1110,84 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
   ArgType argType12 /*= In*/, const char* szArg12 /*= nullptr*/)
 {
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg1))
+    if (WStringUtils::IsNullOrEmpty(szArg1))
       return;
 
     m_ArgNames.PushBack(szArg1);
     m_ArgTypes.PushBack(argType1);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg2))
+    if (WStringUtils::IsNullOrEmpty(szArg2))
       return;
 
     m_ArgNames.PushBack(szArg2);
     m_ArgTypes.PushBack(argType2);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg3))
+    if (WStringUtils::IsNullOrEmpty(szArg3))
       return;
 
     m_ArgNames.PushBack(szArg3);
     m_ArgTypes.PushBack(argType3);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg4))
+    if (WStringUtils::IsNullOrEmpty(szArg4))
       return;
 
     m_ArgNames.PushBack(szArg4);
     m_ArgTypes.PushBack(argType4);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg5))
+    if (WStringUtils::IsNullOrEmpty(szArg5))
       return;
 
     m_ArgNames.PushBack(szArg5);
     m_ArgTypes.PushBack(argType5);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg6))
+    if (WStringUtils::IsNullOrEmpty(szArg6))
       return;
 
     m_ArgNames.PushBack(szArg6);
     m_ArgTypes.PushBack(argType6);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg7))
+    if (WStringUtils::IsNullOrEmpty(szArg7))
       return;
 
     m_ArgNames.PushBack(szArg7);
     m_ArgTypes.PushBack(argType7);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg8))
+    if (WStringUtils::IsNullOrEmpty(szArg8))
       return;
 
     m_ArgNames.PushBack(szArg8);
     m_ArgTypes.PushBack(argType8);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg9))
+    if (WStringUtils::IsNullOrEmpty(szArg9))
       return;
 
     m_ArgNames.PushBack(szArg9);
     m_ArgTypes.PushBack(argType9);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg10))
+    if (WStringUtils::IsNullOrEmpty(szArg10))
       return;
 
     m_ArgNames.PushBack(szArg10);
     m_ArgTypes.PushBack(argType10);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg11))
+    if (WStringUtils::IsNullOrEmpty(szArg11))
       return;
 
     m_ArgNames.PushBack(szArg11);
     m_ArgTypes.PushBack(argType11);
   }
   {
-    if (ezStringUtils::IsNullOrEmpty(szArg12))
+    if (WStringUtils::IsNullOrEmpty(szArg12))
       return;
 
     m_ArgNames.PushBack(szArg12);
@@ -1198,19 +1198,19 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFunctionArgumentAttributes, 1, ezRTTIDefaultAllocator<ezFunctionArgumentAttributes>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFunctionArgumentAttributes, 1, WRTTIDefaultAllocator<WFunctionArgumentAttributes>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ArgIndex", m_uiArgIndex),
-    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("ArgIndex", m_uiArgIndex),
+    W_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 /*= nullptr*/, const ezPropertyAttribute* pAttribute3 /*= nullptr*/, const ezPropertyAttribute* pAttribute4 /*= nullptr*/)
+WFunctionArgumentAttributes::WFunctionArgumentAttributes(WUInt32 uiArgIndex, const WPropertyAttribute* pAttribute1, const WPropertyAttribute* pAttribute2 /*= nullptr*/, const WPropertyAttribute* pAttribute3 /*= nullptr*/, const WPropertyAttribute* pAttribute4 /*= nullptr*/)
   : m_uiArgIndex(uiArgIndex)
 {
   m_bUsesGlobalNew = true;
@@ -1240,18 +1240,18 @@ ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, 
   }
 }
 
-ezFunctionArgumentAttributes::~ezFunctionArgumentAttributes()
+WFunctionArgumentAttributes::~WFunctionArgumentAttributes()
 {
   for (auto pAttribute : m_ArgAttributes)
   {
-    auto pAttributeNonConst = const_cast<ezPropertyAttribute*>(pAttribute);
+    auto pAttributeNonConst = const_cast<WPropertyAttribute*>(pAttribute);
     if (m_bUsesGlobalNew)
     {
       delete pAttributeNonConst;
     }
     else
     {
-      EZ_DEFAULT_DELETE(pAttributeNonConst);
+      W_DEFAULT_DELETE(pAttributeNonConst);
     }
   }
 }
@@ -1259,18 +1259,18 @@ ezFunctionArgumentAttributes::~ezFunctionArgumentAttributes()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicPinAttribute, 1, ezRTTIDefaultAllocator<ezDynamicPinAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicPinAttribute, 1, WRTTIDefaultAllocator<WDynamicPinAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Property", m_sProperty)
+    W_MEMBER_PROPERTY("Property", m_sProperty)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDynamicPinAttribute::ezDynamicPinAttribute(const char* szProperty)
+WDynamicPinAttribute::WDynamicPinAttribute(const char* szProperty)
   : m_sProperty(szProperty)
 {
 }
@@ -1278,54 +1278,54 @@ ezDynamicPinAttribute::ezDynamicPinAttribute(const char* szProperty)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpAttribute, 1, ezRTTIDefaultAllocator<ezLongOpAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpAttribute, 1, WRTTIDefaultAllocator<WLongOpAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_sOpTypeName),
+    W_MEMBER_PROPERTY("Type", m_sOpTypeName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(),
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectReferenceAttribute, 1, ezRTTIDefaultAllocator<ezGameObjectReferenceAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectReferenceAttribute, 1, WRTTIDefaultAllocator<WGameObjectReferenceAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRttiTypeStringAttribute, 1, ezRTTIDefaultAllocator<ezRttiTypeStringAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRttiTypeStringAttribute, 1, WRTTIDefaultAllocator<WRttiTypeStringAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("BaseType", m_sBaseType),
+    W_MEMBER_PROPERTY("BaseType", m_sBaseType),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncChildOrderAttribute, 1, ezRTTIDefaultAllocator<ezSyncChildOrderAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSyncChildOrderAttribute, 1, WRTTIDefaultAllocator<WSyncChildOrderAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
+W_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);

@@ -2,13 +2,13 @@
 #include <Foundation/Types/Implementation/DelegateHelper_inl.h>
 
 template <typename Function>
-EZ_ALWAYS_INLINE ezDelegate<Function> ezMakeDelegate(Function* pFunction)
+W_ALWAYS_INLINE WDelegate<Function> WMakeDelegate(Function* pFunction)
 {
-  return ezDelegate<Function>(pFunction);
+  return WDelegate<Function>(pFunction);
 }
 
 template <typename Method, typename Class>
-EZ_ALWAYS_INLINE typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass)
+W_ALWAYS_INLINE typename WMakeDelegateHelper<Method>::DelegateType WMakeDelegate(Method method, Class* pClass)
 {
-  return typename ezMakeDelegateHelper<Method>::DelegateType(method, pClass);
+  return typename WMakeDelegateHelper<Method>::DelegateType(method, pClass);
 }

@@ -7,24 +7,24 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-class ezJoltVisColMeshComponentManager : public ezComponentManager<class ezJoltVisColMeshComponent, ezBlockStorageType::Compact>
+class WJoltVisColMeshComponentManager : public WComponentManager<class WJoltVisColMeshComponent, WBlockStorageType::Compact>
 {
 public:
-  using SUPER = ezComponentManager<ezJoltVisColMeshComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<WJoltVisColMeshComponent, WBlockStorageType::Compact>;
 
-  ezJoltVisColMeshComponentManager(ezWorld* pWorld)
+  WJoltVisColMeshComponentManager(WWorld* pWorld)
     : SUPER(pWorld)
   {
   }
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void EnqueueUpdate(ezComponentHandle hComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void EnqueueUpdate(WComponentHandle hComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  mutable ezMutex m_Mutex;
-  ezDeque<ezComponentHandle> m_RequireUpdate;
+  mutable WMutex m_Mutex;
+  WDeque<WComponentHandle> m_RequireUpdate;
 
 protected:
   virtual void Initialize() override;
@@ -33,49 +33,49 @@ protected:
 
 /// Visualizes a Jolt collision mesh that is attached to the same game object.
 ///
-/// When attached to a game object where a ezJoltStaticActorComponent or a ezJoltShapeConvexHullComponent is attached as well,
+/// When attached to a game object where a WJoltStaticActorComponent or a WJoltShapeConvexHullComponent is attached as well,
 /// this component will retrieve the triangle mesh and turn it into a render mesh.
 ///
 /// This is used for displaying the collision mesh of a single object.
 /// It doesn't work for non-mesh shape types (sphere, box, capsule).
-class EZ_JOLTPLUGIN_DLL ezJoltVisColMeshComponent : public ezRenderComponent
+class W_JOLTPLUGIN_DLL WJoltVisColMeshComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltVisColMeshComponent, ezRenderComponent, ezJoltVisColMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltVisColMeshComponent, WRenderComponent, WJoltVisColMeshComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltVisColMeshComponent
+  // WJoltVisColMeshComponent
 
 public:
-  ezJoltVisColMeshComponent();
-  ~ezJoltVisColMeshComponent();
+  WJoltVisColMeshComponent();
+  ~WJoltVisColMeshComponent();
 
   /// If this is set directly, the mesh is not taken from the sibling components.
-  void SetMesh(const ezJoltMeshResourceHandle& hMesh);                                          // [ property ]
-  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; } // [ property ]
+  void SetMesh(const WJoltMeshResourceHandle& hMesh);                                          // [ property ]
+  W_ALWAYS_INLINE const WJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; } // [ property ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
   void CreateCollisionRenderMesh();
 
-  ezJoltMeshResourceHandle m_hCollisionMesh;
-  ezMeshResourceHandle m_hMesh;
+  WJoltMeshResourceHandle m_hCollisionMesh;
+  WMeshResourceHandle m_hMesh;
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

@@ -1,13 +1,13 @@
 #include <Core/CorePCH.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#if W_ENABLED(W_SUPPORTS_GLFW)
 
 #  include <Core/System/Window.h>
 #  include <Foundation/Configuration/Startup.h>
 
 #  include <GLFW/glfw3.h>
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #    ifdef APIENTRY
 #      undef APIENTRY
 #    endif
@@ -21,13 +21,13 @@ namespace
 {
   void glfwErrorCallback(int errorCode, const char* msg)
   {
-    ezLog::Error("GLFW error {}: {}", errorCode, msg);
+    WLog::Error("GLFW error {}: {}", errorCode, msg);
   }
 } // namespace
 
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
+W_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -39,7 +39,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
     {
       const char* szErrorDesc = nullptr;
       int iErrorCode = glfwGetError(&szErrorDesc);
-      ezLog::Warning("Failed to initialize glfw. Window and input related functionality will not be available. Error Code {}. GLFW Error Message: {}", iErrorCode, szErrorDesc);
+      WLog::Warning("Failed to initialize glfw. Window and input related functionality will not be available. Error Code {}. GLFW Error Message: {}", iErrorCode, szErrorDesc);
     }
     else
     {
@@ -62,87 +62,87 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 namespace
 {
-  ezResult ezGlfwError(const char* file, size_t line)
+  WResult WGlfwError(const char* file, size_t line)
   {
     const char* desc;
     int errorCode = glfwGetError(&desc);
     if (errorCode != GLFW_NO_ERROR)
     {
-      ezLog::Error("GLFW error {} ({}): {} - {}", file, line, errorCode, desc);
-      return EZ_FAILURE;
+      WLog::Error("GLFW error {} ({}): {} - {}", file, line, errorCode, desc);
+      return W_FAILURE;
     }
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 } // namespace
 
-#  define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
+#  define W_GLFW_RETURN_FAILURE_ON_ERROR()         \
     do                                              \
     {                                               \
-      if (ezGlfwError(__FILE__, __LINE__).Failed()) \
-        return EZ_FAILURE;                          \
+      if (WGlfwError(__FILE__, __LINE__).Failed()) \
+        return W_FAILURE;                          \
     } while (false)
 
-ezWindowGLFW::~ezWindowGLFW()
+WWindowGLFW::~WWindowGLFW()
 {
   DestroyWindow();
 }
 
-ezResult ezWindowGLFW::InitializeWindow()
+WResult WWindowGLFW::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindowGLFW::Initialize", m_CreationDescription.m_Title.GetData());
+  W_LOG_BLOCK("WWindowGLFW::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
     DestroyWindow();
   }
 
-  EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
+  W_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
 
   GLFWmonitor* pMonitor = nullptr; // nullptr for windowed, fullscreen otherwise
 
   switch (m_CreationDescription.m_WindowMode)
   {
-    case ezWindowMode::WindowResizable:
+    case WWindowMode::WindowResizable:
       glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-      EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+      W_GLFW_RETURN_FAILURE_ON_ERROR();
       break;
-    case ezWindowMode::WindowFixedResolution:
+    case WWindowMode::WindowFixedResolution:
       glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-      EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+      W_GLFW_RETURN_FAILURE_ON_ERROR();
       break;
-    case ezWindowMode::FullscreenFixedResolution:
-    case ezWindowMode::FullscreenBorderlessNativeResolution:
+    case WWindowMode::FullscreenFixedResolution:
+    case WWindowMode::FullscreenBorderlessNativeResolution:
       if (m_CreationDescription.m_iMonitor == -1)
       {
         pMonitor = glfwGetPrimaryMonitor();
-        EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+        W_GLFW_RETURN_FAILURE_ON_ERROR();
       }
       else
       {
         int iMonitorCount = 0;
         GLFWmonitor** pMonitors = glfwGetMonitors(&iMonitorCount);
-        EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+        W_GLFW_RETURN_FAILURE_ON_ERROR();
         if (m_CreationDescription.m_iMonitor >= iMonitorCount)
         {
-          ezLog::Error("Can not create window on monitor {} only {} monitors connected", m_CreationDescription.m_iMonitor, iMonitorCount);
-          return EZ_FAILURE;
+          WLog::Error("Can not create window on monitor {} only {} monitors connected", m_CreationDescription.m_iMonitor, iMonitorCount);
+          return W_FAILURE;
         }
         pMonitor = pMonitors[m_CreationDescription.m_iMonitor];
       }
 
-      if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenBorderlessNativeResolution)
+      if (m_CreationDescription.m_WindowMode == WWindowMode::FullscreenBorderlessNativeResolution)
       {
         const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
-        EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+        W_GLFW_RETURN_FAILURE_ON_ERROR();
         if (pVideoMode == nullptr)
         {
-          ezLog::Error("Failed to get video mode for monitor");
-          return EZ_FAILURE;
+          WLog::Error("Failed to get video mode for monitor");
+          return W_FAILURE;
         }
         m_CreationDescription.m_Resolution.width = pVideoMode->width;
         m_CreationDescription.m_Resolution.height = pVideoMode->height;
@@ -150,7 +150,7 @@ ezResult ezWindowGLFW::InitializeWindow()
         m_CreationDescription.m_Position.y = 0;
 
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-        EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+        W_GLFW_RETURN_FAILURE_ON_ERROR();
       }
 
       break;
@@ -158,73 +158,73 @@ ezResult ezWindowGLFW::InitializeWindow()
 
 
   glfwWindowHint(GLFW_FOCUS_ON_SHOW, m_CreationDescription.m_bSetForegroundOnInit ? GLFW_TRUE : GLFW_FALSE);
-  EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+  W_GLFW_RETURN_FAILURE_ON_ERROR();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+  W_GLFW_RETURN_FAILURE_ON_ERROR();
 
   GLFWwindow* pWindow = glfwCreateWindow(m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height, m_CreationDescription.m_Title.GetData(), pMonitor, NULL);
-  EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+  W_GLFW_RETURN_FAILURE_ON_ERROR();
 
   if (pWindow == nullptr)
   {
-    ezLog::Error("Failed to create glfw window");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create glfw window");
+    return W_FAILURE;
   }
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_hWindowHandle.type = ezWindowHandle::Type::GLFW;
+#  if W_ENABLED(W_PLATFORM_LINUX)
+  m_hWindowHandle.type = WWindowHandle::Type::GLFW;
   m_hWindowHandle.glfwWindow = pWindow;
 #  else
   m_hWindowHandle = pWindow;
 #  endif
 
-  if (m_CreationDescription.m_Position != ezVec2I32(0x80000000, 0x80000000))
+  if (m_CreationDescription.m_Position != WVec2I32(0x80000000, 0x80000000))
   {
     glfwSetWindowPos(pWindow, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
-    EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+    W_GLFW_RETURN_FAILURE_ON_ERROR();
   }
 
   glfwSetWindowUserPointer(pWindow, this);
-  glfwSetWindowIconifyCallback(pWindow, &ezWindowGLFW::IconifyCallback);
-  glfwSetWindowSizeCallback(pWindow, &ezWindowGLFW::SizeCallback);
-  glfwSetWindowPosCallback(pWindow, &ezWindowGLFW::PositionCallback);
-  glfwSetWindowCloseCallback(pWindow, &ezWindowGLFW::CloseCallback);
-  glfwSetWindowFocusCallback(pWindow, &ezWindowGLFW::FocusCallback);
-  glfwSetKeyCallback(pWindow, &ezWindowGLFW::KeyCallback);
-  glfwSetCharCallback(pWindow, &ezWindowGLFW::CharacterCallback);
-  glfwSetCursorPosCallback(pWindow, &ezWindowGLFW::CursorPositionCallback);
-  glfwSetMouseButtonCallback(pWindow, &ezWindowGLFW::MouseButtonCallback);
-  glfwSetScrollCallback(pWindow, &ezWindowGLFW::ScrollCallback);
-  EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+  glfwSetWindowIconifyCallback(pWindow, &WWindowGLFW::IconifyCallback);
+  glfwSetWindowSizeCallback(pWindow, &WWindowGLFW::SizeCallback);
+  glfwSetWindowPosCallback(pWindow, &WWindowGLFW::PositionCallback);
+  glfwSetWindowCloseCallback(pWindow, &WWindowGLFW::CloseCallback);
+  glfwSetWindowFocusCallback(pWindow, &WWindowGLFW::FocusCallback);
+  glfwSetKeyCallback(pWindow, &WWindowGLFW::KeyCallback);
+  glfwSetCharCallback(pWindow, &WWindowGLFW::CharacterCallback);
+  glfwSetCursorPosCallback(pWindow, &WWindowGLFW::CursorPositionCallback);
+  glfwSetMouseButtonCallback(pWindow, &WWindowGLFW::MouseButtonCallback);
+  glfwSetScrollCallback(pWindow, &WWindowGLFW::ScrollCallback);
+  W_GLFW_RETURN_FAILURE_ON_ERROR();
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
-  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_GLFW, m_hWindowHandle.glfwWindow);
+#  if W_ENABLED(W_PLATFORM_LINUX)
+  W_ASSERT_DEV(m_hWindowHandle.type == WWindowHandle::Type::GLFW, "not a GLFW handle");
+  auto pInput = W_DEFAULT_NEW(WInputDeviceMouseKeyboard_GLFW, m_hWindowHandle.glfwWindow);
 #  else
-  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, m_hWindowHandle);
+  auto pInput = W_DEFAULT_NEW(WInputDeviceMouseKeyboard_Win, m_hWindowHandle);
 #  endif
 
-  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
+  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? WMouseCursorClipMode::ClipToWindowImmediate : WMouseCursorClipMode::NoClip);
   pInput->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   m_pInputDevice = std::move(pInput);
 
   m_bInitialized = true;
-  ezLog::Success("Created glfw window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
+  WLog::Success("Created glfw window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowGLFW::DestroyWindow()
+void WWindowGLFW::DestroyWindow()
 {
   if (m_bInitialized)
   {
-    EZ_LOG_BLOCK("ezWindowGLFW::Destroy");
+    W_LOG_BLOCK("WWindowGLFW::Destroy");
 
     m_pInputDevice = nullptr;
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-    EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "GLFW handle expected");
+#  if W_ENABLED(W_PLATFORM_LINUX)
+    W_ASSERT_DEV(m_hWindowHandle.type == WWindowHandle::Type::GLFW, "GLFW handle expected");
     glfwDestroyWindow(m_hWindowHandle.glfwWindow);
 #  else
     glfwDestroyWindow(m_hWindowHandle);
@@ -235,23 +235,23 @@ void ezWindowGLFW::DestroyWindow()
   }
 }
 
-ezResult ezWindowGLFW::Resize(const ezSizeU32& newWindowSize)
+WResult WWindowGLFW::Resize(const WSizeU32& newWindowSize)
 {
   if (!m_bInitialized)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
+#  if W_ENABLED(W_PLATFORM_LINUX)
+  W_ASSERT_DEV(m_hWindowHandle.type == WWindowHandle::Type::GLFW, "Expected GLFW handle");
   glfwSetWindowSize(m_hWindowHandle.glfwWindow, newWindowSize.width, newWindowSize.height);
 #  else
   glfwSetWindowSize(m_hWindowHandle, newWindowSize.width, newWindowSize.height);
 #  endif
-  EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+  W_GLFW_RETURN_FAILURE_ON_ERROR();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowGLFW::ProcessWindowMessages()
+void WWindowGLFW::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -262,8 +262,8 @@ void ezWindowGLFW::ProcessWindowMessages()
     glfwPollEvents();
   }
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
+#  if W_ENABLED(W_PLATFORM_LINUX)
+  W_ASSERT_DEV(m_hWindowHandle.type == WWindowHandle::Type::GLFW, "Expected GLFW handle");
   if (glfwWindowShouldClose(m_hWindowHandle.glfwWindow))
   {
     DestroyWindow();
@@ -276,113 +276,113 @@ void ezWindowGLFW::ProcessWindowMessages()
 #  endif
 }
 
-void ezWindowGLFW::IconifyCallback(GLFWwindow* window, int iconified)
+void WWindowGLFW::IconifyCallback(GLFWwindow* window, int iconified)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
     self->OnVisibleChange(!iconified);
 }
 
-void ezWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
+void WWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self && width > 0 && height > 0)
   {
-    self->OnResize(ezSizeU32(static_cast<ezUInt32>(width), static_cast<ezUInt32>(height)));
+    self->OnResize(WSizeU32(static_cast<WUInt32>(width), static_cast<WUInt32>(height)));
   }
 }
 
-void ezWindowGLFW::PositionCallback(GLFWwindow* window, int xpos, int ypos)
+void WWindowGLFW::PositionCallback(GLFWwindow* window, int xpos, int ypos)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnWindowMove(xpos, ypos);
   }
 }
 
-void ezWindowGLFW::CloseCallback(GLFWwindow* window)
+void WWindowGLFW::CloseCallback(GLFWwindow* window)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnClickClose();
   }
 }
 
-void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
+void WWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnFocus(focused ? true : false);
   }
 }
 
-void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void WWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnKey(key, scancode, action, mods);
     }
   }
 }
 
-void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
+void WWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnCharacter(codepoint);
     }
   }
 }
 
-void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+void WWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnCursorPosition(xpos, ypos);
     }
   }
 }
 
-void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+void WWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnMouseButton(button, action, mods);
     }
   }
 }
 
-void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+void WWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<WWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnScroll(xoffset, yoffset);
     }
   }
 }
 
-ezWindowHandle ezWindowGLFW::GetNativeWindowHandle() const
+WWindowHandle WWindowGLFW::GetNativeWindowHandle() const
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  return WMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));
 #  else
   return m_hWindowHandle;
 #  endif
@@ -391,4 +391,4 @@ ezWindowHandle ezWindowGLFW::GetNativeWindowHandle() const
 #endif
 
 
-EZ_STATICLINK_FILE(Core, Core_Platform_GLFW_Window_GLFW);
+W_STATICLINK_FILE(Core, Core_Platform_GLFW_Window_GLFW);

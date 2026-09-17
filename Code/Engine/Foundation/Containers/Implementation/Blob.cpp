@@ -4,9 +4,9 @@
 
 #include <Foundation/Memory/AllocatorWithPolicy.h>
 
-ezBlob::ezBlob() = default;
+WBlob::WBlob() = default;
 
-ezBlob::ezBlob(ezBlob&& other)
+WBlob::WBlob(WBlob&& other)
 {
   m_pStorage = other.m_pStorage;
   m_uiSize = other.m_uiSize;
@@ -15,7 +15,7 @@ ezBlob::ezBlob(ezBlob&& other)
   other.m_uiSize = 0;
 }
 
-void ezBlob::operator=(ezBlob&& rhs)
+void WBlob::operator=(WBlob&& rhs)
 {
   Clear();
 
@@ -26,47 +26,47 @@ void ezBlob::operator=(ezBlob&& rhs)
   rhs.m_uiSize = 0;
 }
 
-ezBlob::~ezBlob()
+WBlob::~WBlob()
 {
   Clear();
 }
 
-void ezBlob::SetFrom(const void* pSource, ezUInt64 uiSize)
+void WBlob::SetFrom(const void* pSource, WUInt64 uiSize)
 {
   SetCountUninitialized(uiSize);
-  ezMemoryUtils::Copy(static_cast<ezUInt8*>(m_pStorage), static_cast<const ezUInt8*>(pSource), static_cast<size_t>(uiSize));
+  WMemoryUtils::Copy(static_cast<WUInt8*>(m_pStorage), static_cast<const WUInt8*>(pSource), static_cast<size_t>(uiSize));
 }
 
-void ezBlob::Clear()
+void WBlob::Clear()
 {
   if (m_pStorage)
   {
-    ezFoundation::GetAlignedAllocator()->Deallocate(m_pStorage);
+    WFoundation::GetAlignedAllocator()->Deallocate(m_pStorage);
     m_pStorage = nullptr;
     m_uiSize = 0;
   }
 }
 
-void ezBlob::SetCountUninitialized(ezUInt64 uiCount)
+void WBlob::SetCountUninitialized(WUInt64 uiCount)
 {
   if (m_uiSize != uiCount)
   {
     Clear();
 
-    m_pStorage = ezFoundation::GetAlignedAllocator()->Allocate(ezMath::SafeConvertToSizeT(uiCount), 64u);
+    m_pStorage = WFoundation::GetAlignedAllocator()->Allocate(WMath::SafeConvertToSizeT(uiCount), 64u);
     m_uiSize = uiCount;
   }
 }
 
-void ezBlob::ZeroFill()
+void WBlob::ZeroFill()
 {
   if (m_pStorage)
   {
-    ezMemoryUtils::ZeroFill(static_cast<ezUInt8*>(m_pStorage), static_cast<size_t>(m_uiSize));
+    WMemoryUtils::ZeroFill(static_cast<WUInt8*>(m_pStorage), static_cast<size_t>(m_uiSize));
   }
 }
 
-bool ezBlob::IsEmpty() const
+bool WBlob::IsEmpty() const
 {
   return 0 == m_uiSize;
 }

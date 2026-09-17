@@ -4,35 +4,35 @@
 #include <Foundation/SimdMath/SimdVec4b.h>
 
 /// A 4-component SIMD vector class
-class EZ_FOUNDATION_DLL ezSimdVec4f
+class W_FOUNDATION_DLL WSimdVec4f
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezSimdVec4f();                                          // [tested]
+  WSimdVec4f();                                          // [tested]
 
-  explicit ezSimdVec4f(float fXyzw);                      // [tested]
+  explicit WSimdVec4f(float fXyzw);                      // [tested]
 
-  explicit ezSimdVec4f(const ezSimdFloat& fXyzw);         // [tested]
+  explicit WSimdVec4f(const WSimdFloat& fXyzw);         // [tested]
 
-  ezSimdVec4f(float x, float y, float z, float w = 1.0f); // [tested]
+  WSimdVec4f(float x, float y, float z, float w = 1.0f); // [tested]
 
-  ezSimdVec4f(ezInternal::QuadFloat v);                   // [tested]
+  WSimdVec4f(WInternal::QuadFloat v);                   // [tested]
 
-  /// Creates an ezSimdVec4f that is initialized to zero.
-  [[nodiscard]] static ezSimdVec4f MakeZero(); // [tested]
+  /// Creates an WSimdVec4f that is initialized to zero.
+  [[nodiscard]] static WSimdVec4f MakeZero(); // [tested]
 
-  /// Creates an ezSimdVec4f that is initialized to Not-A-Number (NaN).
-  [[nodiscard]] static ezSimdVec4f MakeNaN();   // [tested]
+  /// Creates an WSimdVec4f that is initialized to Not-A-Number (NaN).
+  [[nodiscard]] static WSimdVec4f MakeNaN();   // [tested]
 
   void Set(float fXyzw);                        // [tested]
 
   void Set(float x, float y, float z, float w); // [tested]
 
-  void SetX(const ezSimdFloat& f);              // [tested]
-  void SetY(const ezSimdFloat& f);              // [tested]
-  void SetZ(const ezSimdFloat& f);              // [tested]
-  void SetW(const ezSimdFloat& f);              // [tested]
+  void SetX(const WSimdFloat& f);              // [tested]
+  void SetY(const WSimdFloat& f);              // [tested]
+  void SetZ(const WSimdFloat& f);              // [tested]
+  void SetW(const WSimdFloat& f);              // [tested]
 
   void SetZero();                               // [tested]
 
@@ -47,49 +47,49 @@ public:
   void Store(float* pFloats) const;             // [tested]
 
 public:
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetReciprocal() const;                                                                                  // [tested]
+  template <WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdVec4f GetReciprocal() const;                                                                                  // [tested]
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetSqrt() const;                                                                                        // [tested]
+  template <WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdVec4f GetSqrt() const;                                                                                        // [tested]
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetInvSqrt() const;                                                                                     // [tested]
+  template <WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdVec4f GetInvSqrt() const;                                                                                     // [tested]
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLength() const;                                                                                      // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdFloat GetLength() const;                                                                                      // [tested]
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetInvLength() const;                                                                                   // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdFloat GetInvLength() const;                                                                                   // [tested]
 
   template <int N>
-  ezSimdFloat GetLengthSquared() const;                                                                               // [tested]
+  WSimdFloat GetLengthSquared() const;                                                                               // [tested]
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLengthAndNormalize();                                                                                // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdFloat GetLengthAndNormalize();                                                                                // [tested]
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetNormalized() const;                                                                                  // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  WSimdVec4f GetNormalized() const;                                                                                  // [tested]
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
   void Normalize();                                                                                                   // [tested]
 
   /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>());                               // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  void NormalizeIfNotZero(const WSimdFloat& fEpsilon = WMath::SmallEpsilon<float>());                               // [tested]
 
   /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
+  template <int N, WMathAcc::Enum acc = WMathAcc::FULL>
+  void NormalizeIfNotZero(const WSimdVec4f& vFallback, const WSimdFloat& fEpsilon = WMath::SmallEpsilon<float>()); // [tested]
 
   template <int N>
   bool IsZero() const;                                                                                                // [tested]
 
   template <int N>
-  bool IsZero(const ezSimdFloat& fEpsilon) const;                                                                     // [tested]
+  bool IsZero(const WSimdFloat& fEpsilon) const;                                                                     // [tested]
 
   template <int N>
-  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::HugeEpsilon<float>()) const;                                // [tested]
+  bool IsNormalized(const WSimdFloat& fEpsilon = WMath::HugeEpsilon<float>()) const;                                // [tested]
 
   template <int N>
   bool IsNaN() const;                                                                                                 // [tested]
@@ -98,115 +98,115 @@ public:
   bool IsValid() const;                                                                                               // [tested]
 
 public:
-  /// Creates an ezSimdFloat with all elements set to the given component
+  /// Creates an WSimdFloat with all elements set to the given component
   template <int N>
-  ezSimdFloat GetComponent() const;      // [tested]
+  WSimdFloat GetComponent() const;      // [tested]
 
-  /// Creates an ezSimdFloat with all elements set to the given component
-  ezSimdFloat GetComponent(int i) const; // [tested]
+  /// Creates an WSimdFloat with all elements set to the given component
+  WSimdFloat GetComponent(int i) const; // [tested]
 
-  ezSimdFloat x() const;                 // [tested]
-  ezSimdFloat y() const;                 // [tested]
-  ezSimdFloat z() const;                 // [tested]
-  ezSimdFloat w() const;                 // [tested]
+  WSimdFloat x() const;                 // [tested]
+  WSimdFloat y() const;                 // [tested]
+  WSimdFloat z() const;                 // [tested]
+  WSimdFloat w() const;                 // [tested]
 
-  template <ezSwizzle::Enum s>
-  ezSimdVec4f Get() const;               // [tested]
+  template <WSwizzle::Enum s>
+  WSimdVec4f Get() const;               // [tested]
 
   ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
-  template <ezSwizzle::Enum s>
-  [[nodiscard]] ezSimdVec4f GetCombined(const ezSimdVec4f& other) const;                                                 // [tested]
+  template <WSwizzle::Enum s>
+  [[nodiscard]] WSimdVec4f GetCombined(const WSimdVec4f& other) const;                                                 // [tested]
 
 public:
-  [[nodiscard]] ezSimdVec4f operator-() const;                                                                           // [tested]
-  [[nodiscard]] ezSimdVec4f operator+(const ezSimdVec4f& v) const;                                                       // [tested]
-  [[nodiscard]] ezSimdVec4f operator-(const ezSimdVec4f& v) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f operator-() const;                                                                           // [tested]
+  [[nodiscard]] WSimdVec4f operator+(const WSimdVec4f& v) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f operator-(const WSimdVec4f& v) const;                                                       // [tested]
 
-  [[nodiscard]] ezSimdVec4f operator*(const ezSimdFloat& f) const;                                                       // [tested]
-  [[nodiscard]] ezSimdVec4f operator/(const ezSimdFloat& f) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f operator*(const WSimdFloat& f) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f operator/(const WSimdFloat& f) const;                                                       // [tested]
 
-  [[nodiscard]] ezSimdVec4f CompMul(const ezSimdVec4f& v) const;                                                         // [tested]
+  [[nodiscard]] WSimdVec4f CompMul(const WSimdVec4f& v) const;                                                         // [tested]
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  [[nodiscard]] ezSimdVec4f CompDiv(const ezSimdVec4f& v) const;                                                         // [tested]
+  template <WMathAcc::Enum acc = WMathAcc::FULL>
+  [[nodiscard]] WSimdVec4f CompDiv(const WSimdVec4f& v) const;                                                         // [tested]
 
-  [[nodiscard]] ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const;                                                       // [tested]
-  [[nodiscard]] ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f CompMin(const WSimdVec4f& rhs) const;                                                       // [tested]
+  [[nodiscard]] WSimdVec4f CompMax(const WSimdVec4f& rhs) const;                                                       // [tested]
 
-  [[nodiscard]] ezSimdVec4f Abs() const;                                                                                 // [tested]
-  [[nodiscard]] ezSimdVec4f Round() const;                                                                               // [tested]
-  [[nodiscard]] ezSimdVec4f Floor() const;                                                                               // [tested]
-  [[nodiscard]] ezSimdVec4f Ceil() const;                                                                                // [tested]
-  [[nodiscard]] ezSimdVec4f Trunc() const;                                                                               // [tested]
-  [[nodiscard]] ezSimdVec4f Fraction() const;                                                                            // [tested]
+  [[nodiscard]] WSimdVec4f Abs() const;                                                                                 // [tested]
+  [[nodiscard]] WSimdVec4f Round() const;                                                                               // [tested]
+  [[nodiscard]] WSimdVec4f Floor() const;                                                                               // [tested]
+  [[nodiscard]] WSimdVec4f Ceil() const;                                                                                // [tested]
+  [[nodiscard]] WSimdVec4f Trunc() const;                                                                               // [tested]
+  [[nodiscard]] WSimdVec4f Fraction() const;                                                                            // [tested]
 
-  [[nodiscard]] ezSimdVec4f FlipSign(const ezSimdVec4b& vCmp) const;                                                     // [tested]
+  [[nodiscard]] WSimdVec4f FlipSign(const WSimdVec4b& vCmp) const;                                                     // [tested]
 
-  [[nodiscard]] static ezSimdVec4f Select(const ezSimdVec4b& vCmp, const ezSimdVec4f& vTrue, const ezSimdVec4f& vFalse); // [tested]
+  [[nodiscard]] static WSimdVec4f Select(const WSimdVec4b& vCmp, const WSimdVec4f& vTrue, const WSimdVec4f& vFalse); // [tested]
 
-  [[nodiscard]] static ezSimdVec4f Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t);
+  [[nodiscard]] static WSimdVec4f Lerp(const WSimdVec4f& a, const WSimdVec4f& b, const WSimdVec4f& t);
 
-  ezSimdVec4f& operator+=(const ezSimdVec4f& v);                                  // [tested]
-  ezSimdVec4f& operator-=(const ezSimdVec4f& v);                                  // [tested]
+  WSimdVec4f& operator+=(const WSimdVec4f& v);                                  // [tested]
+  WSimdVec4f& operator-=(const WSimdVec4f& v);                                  // [tested]
 
-  ezSimdVec4f& operator*=(const ezSimdFloat& f);                                  // [tested]
-  ezSimdVec4f& operator/=(const ezSimdFloat& f);                                  // [tested]
+  WSimdVec4f& operator*=(const WSimdFloat& f);                                  // [tested]
+  WSimdVec4f& operator/=(const WSimdFloat& f);                                  // [tested]
 
-  ezSimdVec4b IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const; // [tested]
+  WSimdVec4b IsEqual(const WSimdVec4f& rhs, const WSimdFloat& fEpsilon) const; // [tested]
 
-  [[nodiscard]] ezSimdVec4b operator==(const ezSimdVec4f& v) const;               // [tested]
-  [[nodiscard]] ezSimdVec4b operator!=(const ezSimdVec4f& v) const;               // [tested]
-  [[nodiscard]] ezSimdVec4b operator<=(const ezSimdVec4f& v) const;               // [tested]
-  [[nodiscard]] ezSimdVec4b operator<(const ezSimdVec4f& v) const;                // [tested]
-  [[nodiscard]] ezSimdVec4b operator>=(const ezSimdVec4f& v) const;               // [tested]
-  [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4f& v) const;                // [tested]
+  [[nodiscard]] WSimdVec4b operator==(const WSimdVec4f& v) const;               // [tested]
+  [[nodiscard]] WSimdVec4b operator!=(const WSimdVec4f& v) const;               // [tested]
+  [[nodiscard]] WSimdVec4b operator<=(const WSimdVec4f& v) const;               // [tested]
+  [[nodiscard]] WSimdVec4b operator<(const WSimdVec4f& v) const;                // [tested]
+  [[nodiscard]] WSimdVec4b operator>=(const WSimdVec4f& v) const;               // [tested]
+  [[nodiscard]] WSimdVec4b operator>(const WSimdVec4f& v) const;                // [tested]
 
   /// Returns the sum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalSum() const;                                // [tested]
+  [[nodiscard]] WSimdFloat HorizontalSum() const;                                // [tested]
 
   /// Returns the minimum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalMin() const;                                // [tested]
+  [[nodiscard]] WSimdFloat HorizontalMin() const;                                // [tested]
 
   /// Returns the maximum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalMax() const;                                // [tested]
+  [[nodiscard]] WSimdFloat HorizontalMax() const;                                // [tested]
 
   /// Returns the dot product of the first N components of this vector and v.
   template <int N>
-  [[nodiscard]] ezSimdFloat Dot(const ezSimdVec4f& v) const;                      // [tested]
+  [[nodiscard]] WSimdFloat Dot(const WSimdVec4f& v) const;                      // [tested]
 
   ///3D cross product, w is ignored.
-  [[nodiscard]] ezSimdVec4f CrossRH(const ezSimdVec4f& v) const; // [tested]
+  [[nodiscard]] WSimdVec4f CrossRH(const WSimdVec4f& v) const; // [tested]
 
   ///Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
-  [[nodiscard]] ezSimdVec4f GetOrthogonalVector() const;                                                     // [tested]
+  [[nodiscard]] WSimdVec4f GetOrthogonalVector() const;                                                     // [tested]
 
   /// Returns a * b + c
-  [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
-  [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
+  [[nodiscard]] static WSimdVec4f MulAdd(const WSimdVec4f& a, const WSimdVec4f& b, const WSimdVec4f& c); // [tested]
+  [[nodiscard]] static WSimdVec4f MulAdd(const WSimdVec4f& a, const WSimdFloat& b, const WSimdVec4f& c); // [tested]
 
   /// Returns a * b - c
-  [[nodiscard]] static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
-  [[nodiscard]] static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
+  [[nodiscard]] static WSimdVec4f MulSub(const WSimdVec4f& a, const WSimdVec4f& b, const WSimdVec4f& c); // [tested]
+  [[nodiscard]] static WSimdVec4f MulSub(const WSimdVec4f& a, const WSimdFloat& b, const WSimdVec4f& c); // [tested]
 
   /// Returns a vector with the magnitude from vMagnitude and the sign from vSign.
-  [[nodiscard]] static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign);        // [tested]
+  [[nodiscard]] static WSimdVec4f CopySign(const WSimdVec4f& vMagnitude, const WSimdVec4f& vSign);        // [tested]
 
 public:
-  ezInternal::QuadFloat m_v;
+  WInternal::QuadFloat m_v;
 };
 
-const ezSimdVec4f operator*(const ezSimdFloat& f, const ezSimdVec4f& v);
+const WSimdVec4f operator*(const WSimdFloat& f, const WSimdVec4f& v);
 
 #include <Foundation/SimdMath/Implementation/SimdVec4f_inl.h>
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
 #  include <Foundation/SimdMath/Implementation/SSE/SSEVec4f_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUVec4f_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#elif W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_NEON
 #  include <Foundation/SimdMath/Implementation/NEON/NEONVec4f_inl.h>
 #else
 #  error "Unknown SIMD implementation."

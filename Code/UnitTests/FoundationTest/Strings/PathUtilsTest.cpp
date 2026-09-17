@@ -2,275 +2,275 @@
 
 #include <Foundation/Strings/String.h>
 
-EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
+W_CREATE_SIMPLE_TEST(Strings, PathUtils)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPathSeparator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsPathSeparator")
   {
     for (int i = 0; i < 0xFFFF; ++i)
     {
       if (i == '/')
       {
-        EZ_TEST_BOOL(ezPathUtils::IsPathSeparator(i));
+        W_TEST_BOOL(WPathUtils::IsPathSeparator(i));
       }
       else if (i == '\\')
       {
-        EZ_TEST_BOOL(ezPathUtils::IsPathSeparator(i));
+        W_TEST_BOOL(WPathUtils::IsPathSeparator(i));
       }
       else
       {
-        EZ_TEST_BOOL(!ezPathUtils::IsPathSeparator(i));
+        W_TEST_BOOL(!WPathUtils::IsPathSeparator(i));
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindPreviousSeparator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindPreviousSeparator")
   {
     const char* szPath = "This/Is\\My//Path.dot\\file.extension";
 
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 35) == szPath + 20);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 20) == szPath + 11);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 11) == szPath + 10);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 10) == szPath + 7);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 7) == szPath + 4);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 4) == nullptr);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath) == nullptr);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(nullptr, nullptr) == nullptr);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 35) == szPath + 20);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 20) == szPath + 11);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 11) == szPath + 10);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 10) == szPath + 7);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 7) == szPath + 4);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath + 4) == nullptr);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(szPath, szPath) == nullptr);
+    W_TEST_BOOL(WPathUtils::FindPreviousSeparator(nullptr, nullptr) == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileExtension")
   {
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("") == "");
 
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt") == "txt");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.cc") == "cc");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.hidden") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..bar") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar.txt") == "txt");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar.") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar.txt/bar.cc") == "cc");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar.txt/bar.") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/bar.txt/bar") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/.") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/..") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/.hidden") == "");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("/foo/..bar") == "");
 
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz.tar") == "tar");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz") == "baz");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("foo.bar.baz.tar") == "tar");
+    W_TEST_BOOL(WPathUtils::GetFileExtension("foo.bar.baz") == "baz");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "HasAnyExtension")
   {
-    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file.extension"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file_no_extension"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension(""));
+    W_TEST_BOOL(WPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file.extension"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file_no_extension"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension(""));
 
-    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar"));
-    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt/bar.cc"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar.txt/bar."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar.txt/bar"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension(".."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.."));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.hidden"));
-    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/..bar"));
+    W_TEST_BOOL(WPathUtils::HasAnyExtension("/foo/bar.txt"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/bar."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/bar"));
+    W_TEST_BOOL(WPathUtils::HasAnyExtension("/foo/bar.txt/bar.cc"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/bar.txt/bar."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/bar.txt/bar"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension(".."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/.."));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/.hidden"));
+    W_TEST_BOOL(!WPathUtils::HasAnyExtension("/foo/..bar"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "HasExtension")
   {
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Extension"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.ext", "EXT"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.ext", "NEXT"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Ext"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", "sion"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("", "ext"));
+    W_TEST_BOOL(WPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Extension"));
+    W_TEST_BOOL(WPathUtils::HasExtension("This/Is\\My//Path.dot\\file.ext", "EXT"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("This/Is\\My//Path.dot\\file.ext", "NEXT"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Ext"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", "sion"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("", "ext"));
 
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt", "txt"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar.cc", "cc"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar.", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/.", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/..", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/.hidden", ""));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/..bar", ""));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension(".file", ".file"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension(".file", "file"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("folder/.file", ".file"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("folder/.file", "file"));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar.txt", "txt"));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar.", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar.txt/bar.cc", "cc"));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar.txt/bar.", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/bar.txt/bar", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/.", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/..", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/.hidden", ""));
+    W_TEST_BOOL(WPathUtils::HasExtension("/foo/..bar", ""));
+    W_TEST_BOOL(!WPathUtils::HasExtension(".file", ".file"));
+    W_TEST_BOOL(!WPathUtils::HasExtension(".file", "file"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("folder/.file", ".file"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("folder/.file", "file"));
 
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("foo.bar.baz.tar", "tar"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("foo.bar.baz", "baz"));
+    W_TEST_BOOL(WPathUtils::HasExtension("foo.bar.baz.tar", "tar"));
+    W_TEST_BOOL(WPathUtils::HasExtension("foo.bar.baz", "baz"));
 
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.txt", "txt"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.txt", ".txt"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", ".b"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", "a.b"));
-    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", ".a.b"));
-    EZ_TEST_BOOL(!ezPathUtils::HasExtension("file.a.b", "file.a.b"));
+    W_TEST_BOOL(WPathUtils::HasExtension("file.txt", "txt"));
+    W_TEST_BOOL(WPathUtils::HasExtension("file.txt", ".txt"));
+    W_TEST_BOOL(WPathUtils::HasExtension("file.a.b", ".b"));
+    W_TEST_BOOL(WPathUtils::HasExtension("file.a.b", "a.b"));
+    W_TEST_BOOL(WPathUtils::HasExtension("file.a.b", ".a.b"));
+    W_TEST_BOOL(!WPathUtils::HasExtension("file.a.b", "file.a.b"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileNameAndExtension")
   {
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\file.extension") == "file.extension");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\.extension") == ".extension");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\file") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("\\file") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("/") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("file") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("file.ext") == "file.ext");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension(".stupidfile") == ".stupidfile");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("folder/.") == ".");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("folder/..") == "..");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension(".") == ".");
-    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("..") == "..");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\file.extension") == "file.extension");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\.extension") == ".extension");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\file") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("\\file") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("") == "");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("/") == "");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\") == "");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("file") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("file.ext") == "file.ext");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension(".stupidfile") == ".stupidfile");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("folder/.") == ".");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("folder/..") == "..");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension(".") == ".");
+    W_TEST_BOOL(WPathUtils::GetFileNameAndExtension("..") == "..");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileName")
   {
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\file.extension") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\file") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("\\file") == "file");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("/") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\") == "");
+    W_TEST_BOOL(WPathUtils::GetFileName("This/Is\\My//Path.dot\\file.extension") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileName("This/Is\\My//Path.dot\\file") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileName("\\file") == "file");
+    W_TEST_BOOL(WPathUtils::GetFileName("") == "");
+    W_TEST_BOOL(WPathUtils::GetFileName("/") == "");
+    W_TEST_BOOL(WPathUtils::GetFileName("This/Is\\My//Path.dot\\") == "");
 
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\.stupidfile") == ".stupidfile");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName(".stupidfile") == ".stupidfile");
+    W_TEST_BOOL(WPathUtils::GetFileName("This/Is\\My//Path.dot\\.stupidfile") == ".stupidfile");
+    W_TEST_BOOL(WPathUtils::GetFileName(".stupidfile") == ".stupidfile");
 
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.ext") == "File");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.") == "File.");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.ext.") == "File.ext.");
+    W_TEST_BOOL(WPathUtils::GetFileName("File.ext") == "File");
+    W_TEST_BOOL(WPathUtils::GetFileName("File.") == "File.");
+    W_TEST_BOOL(WPathUtils::GetFileName("File.ext.") == "File.ext.");
 
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("folder/.") == ".");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("folder/..") == "..");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName(".") == ".");
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("..") == "..");
+    W_TEST_BOOL(WPathUtils::GetFileName("folder/.") == ".");
+    W_TEST_BOOL(WPathUtils::GetFileName("folder/..") == "..");
+    W_TEST_BOOL(WPathUtils::GetFileName(".") == ".");
+    W_TEST_BOOL(WPathUtils::GetFileName("..") == "..");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileDirectory")
   {
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\file.extension") == "This/Is\\My//Path.dot\\");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\.extension") == "This/Is\\My//Path.dot\\");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\file") == "This/Is\\My//Path.dot\\");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("\\file") == "\\");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("/") == "/");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\") == "This/Is\\My//Path.dot\\");
-    EZ_TEST_BOOL(ezPathUtils::GetFileDirectory("This") == "");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\file.extension") == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\.extension") == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\file") == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("\\file") == "\\");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("") == "");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("/") == "/");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\") == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(WPathUtils::GetFileDirectory("This") == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsAbsolutePath")
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:\\temp.stuff"));
-    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:/temp.stuff"));
-    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("\\\\myserver\\temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\myserver\\temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("/temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    W_TEST_BOOL(WPathUtils::IsAbsolutePath("C:\\temp.stuff"));
+    W_TEST_BOOL(WPathUtils::IsAbsolutePath("C:/temp.stuff"));
+    W_TEST_BOOL(WPathUtils::IsAbsolutePath("\\\\myserver\\temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("\\myserver\\temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("/temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("\\temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("..\\temp.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath(".\\temp.stuff"));
 #else
-    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
-    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));
-    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("file.stuff"));
+    W_TEST_BOOL(WPathUtils::IsAbsolutePath("/usr/local/.stuff"));
+    W_TEST_BOOL(WPathUtils::IsAbsolutePath("/file.test"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("./file.stuff"));
+    W_TEST_BOOL(!WPathUtils::IsAbsolutePath("file.stuff"));
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathParts")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetRootedPathParts")
   {
-    ezStringView root, relPath;
-    ezPathUtils::GetRootedPathParts(":MyRoot\\folder\\file.txt", root, relPath);
-    EZ_TEST_BOOL(ezPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
-    EZ_TEST_BOOL(root == "MyRoot");
-    EZ_TEST_BOOL(relPath == "folder\\file.txt");
+    WStringView root, relPath;
+    WPathUtils::GetRootedPathParts(":MyRoot\\folder\\file.txt", root, relPath);
+    W_TEST_BOOL(WPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
+    W_TEST_BOOL(root == "MyRoot");
+    W_TEST_BOOL(relPath == "folder\\file.txt");
 
-    ezPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
-    EZ_TEST_BOOL(root.IsEmpty());
-    EZ_TEST_BOOL(relPath == "folder\\file2.txt");
+    WPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
+    W_TEST_BOOL(root.IsEmpty());
+    W_TEST_BOOL(relPath == "folder\\file2.txt");
 
-    ezPathUtils::GetRootedPathParts(":root", root, relPath);
-    EZ_TEST_BOOL(root == "root");
-    EZ_TEST_BOOL(relPath == "");
+    WPathUtils::GetRootedPathParts(":root", root, relPath);
+    W_TEST_BOOL(root == "root");
+    W_TEST_BOOL(relPath == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeWindowsDriveLetter")
+  W_TEST_BLOCK(WTestBlock::Enabled, "NormalizeWindowsDriveLetter")
   {
-    auto Normalized = [](const char* szPath) -> ezStringBuilder
+    auto Normalized = [](const char* szPath) -> WStringBuilder
     {
-      ezStringBuilder s = szPath;
-      ezPathUtils::NormalizeWindowsDriveLetter(s);
+      WStringBuilder s = szPath;
+      WPathUtils::NormalizeWindowsDriveLetter(s);
       return s;
     };
 
-    EZ_TEST_STRING(Normalized("c:/DataDir/File.txt"), "C:/DataDir/File.txt");
-    EZ_TEST_STRING(Normalized("C:/DataDir/File.txt"), "C:/DataDir/File.txt");
-    EZ_TEST_STRING(Normalized("z:"), "Z:");
-    EZ_TEST_STRING(Normalized("c:"), "C:");
+    W_TEST_STRING(Normalized("c:/DataDir/File.txt"), "C:/DataDir/File.txt");
+    W_TEST_STRING(Normalized("C:/DataDir/File.txt"), "C:/DataDir/File.txt");
+    W_TEST_STRING(Normalized("z:"), "Z:");
+    W_TEST_STRING(Normalized("c:"), "C:");
 
     // the rest of the path is not touched
-    EZ_TEST_STRING(Normalized("c:/dataDIR/fILE.txt"), "C:/dataDIR/fILE.txt");
+    W_TEST_STRING(Normalized("c:/dataDIR/fILE.txt"), "C:/dataDIR/fILE.txt");
 
     // nothing that looks like a drive letter
-    EZ_TEST_STRING(Normalized(""), "");
-    EZ_TEST_STRING(Normalized("c"), "c");
-    EZ_TEST_STRING(Normalized("/usr/local"), "/usr/local");
-    EZ_TEST_STRING(Normalized("relative/path.txt"), "relative/path.txt");
-    EZ_TEST_STRING(Normalized("1:/foo"), "1:/foo");
+    W_TEST_STRING(Normalized(""), "");
+    W_TEST_STRING(Normalized("c"), "c");
+    W_TEST_STRING(Normalized("/usr/local"), "/usr/local");
+    W_TEST_STRING(Normalized("relative/path.txt"), "relative/path.txt");
+    W_TEST_STRING(Normalized("1:/foo"), "1:/foo");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsSubPath")
   {
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir2"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:/DataDir", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:/DataDir", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir\\", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir2"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/"));
+    W_TEST_BOOL(WPathUtils::IsSubPath("C:\\DataDir\\", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir2"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:/DataDir/SomeFolder", "C:/DataDir"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath("C:/DataDir/SomeFolder", "C:/DataDir"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsSubPath_NoCase")
   {
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir2"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir\\", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir2"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDir\\", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir/"));
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir2"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir/SomeFolder"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir"));
+    W_TEST_BOOL(WPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir/"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath_NoCase("C:\\DataDiR", "C:/DataDir2"));
 
-    EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:/DataDir/SomeFolder", "C:/DataDir"));
+    W_TEST_BOOL(!WPathUtils::IsSubPath_NoCase("C:/DataDir/SomeFolder", "C:/DataDir"));
   }
 }

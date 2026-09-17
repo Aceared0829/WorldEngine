@@ -7,23 +7,23 @@
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
 /// Output of ParseShaderResources. A shader resource definition found inside the shader source code.
-struct ezShaderResourceDefinition
+struct WShaderResourceDefinition
 {
   /// Just the declaration inside the shader source, e.g. "Texture1D Texture".
-  ezStringView m_sDeclaration;
+  WStringView m_sDeclaration;
   /// The declaration with any optional register mappings, e.g. "Texture1D Texture : register(12t, space3)"
-  ezStringView m_sDeclarationAndRegister;
+  WStringView m_sDeclarationAndRegister;
   /// The extracted reflection of the resource containing type, slot, set etc.
-  ezShaderResourceBinding m_Binding;
+  WShaderResourceBinding m_Binding;
 };
 
 /// Flags that affect the compilation process of a shader
-struct ezShaderCompilerFlags
+struct WShaderCompilerFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
-    Debug = EZ_BIT(0),
+    Debug = W_BIT(0),
     Default = 0,
   };
 
@@ -32,17 +32,17 @@ struct ezShaderCompilerFlags
     StorageType Debug : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezShaderCompilerFlags);
+W_DECLARE_FLAGS_OPERATORS(WShaderCompilerFlags);
 
 /// Storage used during the shader compilation process.
-struct EZ_RENDERERCORE_DLL ezShaderProgramData
+struct W_RENDERERCORE_DLL WShaderProgramData
 {
-  ezShaderProgramData()
+  WShaderProgramData()
   {
     m_sPlatform = {};
     m_sSourceFile = {};
 
-    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
     {
       m_bWriteToDisk[stage] = true;
       m_sShaderSource[stage].Clear();
@@ -52,13 +52,13 @@ struct EZ_RENDERERCORE_DLL ezShaderProgramData
     }
   }
 
-  ezBitflags<ezShaderCompilerFlags> m_Flags;
-  ezStringView m_sPlatform;
-  ezStringView m_sSourceFile;
-  ezString m_sShaderSource[ezGALShaderStage::ENUM_COUNT];
-  ezHybridArray<ezShaderResourceDefinition, 8> m_Resources[ezGALShaderStage::ENUM_COUNT];
-  ezUInt32 m_uiSourceHash[ezGALShaderStage::ENUM_COUNT];
-  ezSharedPtr<ezGALShaderByteCode> m_ByteCode[ezGALShaderStage::ENUM_COUNT];
-  bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
-  ezSet<ezString> m_MaterialParameters; ///< Any resource matching these names will be forced into the material bind group.
+  WBitflags<WShaderCompilerFlags> m_Flags;
+  WStringView m_sPlatform;
+  WStringView m_sSourceFile;
+  WString m_sShaderSource[WGALShaderStage::ENUM_COUNT];
+  WHybridArray<WShaderResourceDefinition, 8> m_Resources[WGALShaderStage::ENUM_COUNT];
+  WUInt32 m_uiSourceHash[WGALShaderStage::ENUM_COUNT];
+  WSharedPtr<WGALShaderByteCode> m_ByteCode[WGALShaderStage::ENUM_COUNT];
+  bool m_bWriteToDisk[WGALShaderStage::ENUM_COUNT];
+  WSet<WString> m_MaterialParameters; ///< Any resource matching these names will be forced into the material bind group.
 };

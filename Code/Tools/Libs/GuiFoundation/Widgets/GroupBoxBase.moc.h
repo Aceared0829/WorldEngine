@@ -6,13 +6,13 @@
 
 class QMimeData;
 
-class EZ_GUIFOUNDATION_DLL ezQtGroupBoxBase : public QWidget
+class W_GUIFOUNDATION_DLL WQtGroupBoxBase : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible);
+  WQtGroupBoxBase(QWidget* pParent, bool bCollapsible);
 
-  virtual void SetTitle(ezStringView sTitle);
+  virtual void SetTitle(WStringView sTitle);
   QString GetTitle() const;
 
   virtual void SetBoldTitle(bool bBold);

@@ -8,16 +8,16 @@
 /// The search text is split into multiple parts by spaces. A text passes the filter if it contains all parts.
 /// The check is always case insensitive and the order of the parts does not matter.
 /// It is also possible to exclude parts by prefixing them with a minus.
-/// E.g. "com mesh" would pass all texts that contain "com" and "mesh" like ezMeshComponent.
-/// "com -mesh" would pass ezLightComponent but would fail ezMeshComponent.
-class EZ_TOOLSFOUNDATION_DLL ezSearchPatternFilter
+/// E.g. "com mesh" would pass all texts that contain "com" and "mesh" like WMeshComponent.
+/// "com -mesh" would pass WLightComponent but would fail WMeshComponent.
+class W_TOOLSFOUNDATION_DLL WSearchPatternFilter
 {
 public:
   /// Sets the search text and splits it into its part for faster checks.
-  void SetSearchText(ezStringView sSearchText);
+  void SetSearchText(WStringView sSearchText);
 
   /// Returns the current search text.
-  const ezString& GetSearchText() const { return m_sSearchText; }
+  const WString& GetSearchText() const { return m_sSearchText; }
   /// Returns true if the search text is empty.
   bool IsEmpty() const { return m_sSearchText.IsEmpty(); }
 
@@ -25,16 +25,16 @@ public:
   bool ContainsExclusions() const;
 
   /// Determines whether the given text matches the filter patterns.
-  bool PassesFilters(ezStringView sText) const;
+  bool PassesFilters(WStringView sText) const;
 
 private:
-  ezString m_sSearchText;
+  WString m_sSearchText;
 
   struct Part
   {
-    ezStringView m_sPart;
+    WStringView m_sPart;
     bool m_bExclude = false;
   };
 
-  ezHybridArray<Part, 4> m_Parts;
+  WHybridArray<Part, 4> m_Parts;
 };

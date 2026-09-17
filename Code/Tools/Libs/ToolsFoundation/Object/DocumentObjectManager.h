@@ -7,8 +7,8 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocumentObjectManager;
-class ezDocument;
+class WDocumentObjectManager;
+class WDocument;
 
 // Prevent conflicts with windows.h
 #ifdef GetObject
@@ -17,36 +17,36 @@ class ezDocument;
 
 /// Standard root object for most documents.
 /// m_RootObjects stores what is in the document and m_TempObjects stores transient data used during editing which is not part of the document.
-class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
+class W_TOOLSFOUNDATION_DLL WDocumentRoot : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentRoot, WReflectedClass);
 
-  ezHybridArray<ezReflectedClass*, 1> m_RootObjects;
-  ezHybridArray<ezReflectedClass*, 1> m_TempObjects;
+  WHybridArray<WReflectedClass*, 1> m_RootObjects;
+  WHybridArray<WReflectedClass*, 1> m_TempObjects;
 };
 
-/// Implementation detail of ezDocumentObjectManager.
-class ezDocumentRootObject : public ezDocumentStorageObject
+/// Implementation detail of WDocumentObjectManager.
+class WDocumentRootObject : public WDocumentStorageObject
 {
 public:
-  ezDocumentRootObject(const ezRTTI* pRootType)
-    : ezDocumentStorageObject(pRootType)
+  WDocumentRootObject(const WRTTI* pRootType)
+    : WDocumentStorageObject(pRootType)
   {
-    m_Guid = ezUuid::MakeStableUuidFromString("DocumentRoot");
+    m_Guid = WUuid::MakeStableUuidFromString("DocumentRoot");
   }
 
 public:
-  virtual void InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index) override;
-  virtual void RemoveSubObject(ezDocumentObject* pObject) override;
+  virtual void InsertSubObject(WDocumentObject* pObject, WStringView sProperty, const WVariant& index) override;
+  virtual void RemoveSubObject(WDocumentObject* pObject) override;
 };
 
-/// Used by ezDocumentObjectManager::m_StructureEvents.
-struct ezDocumentObjectStructureEvent
+/// Used by WDocumentObjectManager::m_StructureEvents.
+struct WDocumentObjectStructureEvent
 {
-  ezDocumentObjectStructureEvent() = default;
+  WDocumentObjectStructureEvent() = default;
 
-  const ezAbstractProperty* GetProperty() const;
-  ezVariant getInsertIndex() const;
+  const WAbstractProperty* GetProperty() const;
+  WVariant getInsertIndex() const;
   enum class Type
   {
     BeforeReset,
@@ -61,20 +61,20 @@ struct ezDocumentObjectStructureEvent
   };
 
   Type m_EventType;
-  const ezDocument* m_pDocument = nullptr;
-  const ezDocumentObject* m_pObject = nullptr;
-  const ezDocumentObject* m_pPreviousParent = nullptr;
-  const ezDocumentObject* m_pNewParent = nullptr;
-  ezString m_sParentProperty;
-  ezVariant m_OldPropertyIndex;
-  ezVariant m_NewPropertyIndex;
+  const WDocument* m_pDocument = nullptr;
+  const WDocumentObject* m_pObject = nullptr;
+  const WDocumentObject* m_pPreviousParent = nullptr;
+  const WDocumentObject* m_pNewParent = nullptr;
+  WString m_sParentProperty;
+  WVariant m_OldPropertyIndex;
+  WVariant m_NewPropertyIndex;
 };
 
-/// Used by ezDocumentObjectManager::m_PropertyEvents.
-struct ezDocumentObjectPropertyEvent
+/// Used by WDocumentObjectManager::m_PropertyEvents.
+struct WDocumentObjectPropertyEvent
 {
-  ezDocumentObjectPropertyEvent() { m_pObject = nullptr; }
-  ezVariant getInsertIndex() const;
+  WDocumentObjectPropertyEvent() { m_pObject = nullptr; }
+  WVariant getInsertIndex() const;
 
   enum class Type
   {
@@ -85,18 +85,18 @@ struct ezDocumentObjectPropertyEvent
   };
 
   Type m_EventType;
-  const ezDocumentObject* m_pObject;
-  ezVariant m_OldValue;
-  ezVariant m_NewValue;
-  ezString m_sProperty;
-  ezVariant m_OldIndex;
-  ezVariant m_NewIndex;
+  const WDocumentObject* m_pObject;
+  WVariant m_OldValue;
+  WVariant m_NewValue;
+  WString m_sProperty;
+  WVariant m_OldIndex;
+  WVariant m_NewIndex;
 };
 
-/// Used by ezDocumentObjectManager::m_ObjectEvents.
-struct ezDocumentObjectEvent
+/// Used by WDocumentObjectManager::m_ObjectEvents.
+struct WDocumentObjectEvent
 {
-  ezDocumentObjectEvent() { m_pObject = nullptr; }
+  WDocumentObjectEvent() { m_pObject = nullptr; }
 
   enum class Type
   {
@@ -106,110 +106,110 @@ struct ezDocumentObjectEvent
   };
 
   Type m_EventType = Type::Invalid;
-  const ezDocumentObject* m_pObject;
+  const WDocumentObject* m_pObject;
 };
 
-/// Represents to content of a document. Every document has exactly one root object under which all objects need to be parented. The default root object is ezDocumentRoot.
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManager
+/// Represents to content of a document. Every document has exactly one root object under which all objects need to be parented. The default root object is WDocumentRoot.
+class W_TOOLSFOUNDATION_DLL WDocumentObjectManager
 {
 public:
   // Storage for the object manager so it can be swapped when using multiple sub documents.
-  class Storage : public ezRefCounted
+  class Storage : public WRefCounted
   {
   public:
-    Storage(const ezRTTI* pRootType);
+    Storage(const WRTTI* pRootType);
 
-    ezDocument* m_pDocument = nullptr;
-    ezDocumentRootObject m_RootObject;
+    WDocument* m_pDocument = nullptr;
+    WDocumentRootObject m_RootObject;
 
-    ezHashTable<ezUuid, const ezDocumentObject*> m_GuidToObject;
+    WHashTable<WUuid, const WDocumentObject*> m_GuidToObject;
 
-    mutable ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
-    mutable ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
-    ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
+    mutable WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&> m_StructureEvents;
+    mutable WCopyOnBroadcastEvent<const WDocumentObjectPropertyEvent&> m_PropertyEvents;
+    WEvent<const WDocumentObjectEvent&> m_ObjectEvents;
   };
 
 public:
-  mutable ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
-  mutable ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
-  ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
+  mutable WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&> m_StructureEvents;
+  mutable WCopyOnBroadcastEvent<const WDocumentObjectPropertyEvent&> m_PropertyEvents;
+  WEvent<const WDocumentObjectEvent&> m_ObjectEvents;
 
-  ezDocumentObjectManager(const ezRTTI* pRootType = ezDocumentRoot::GetStaticRTTI());
-  virtual ~ezDocumentObjectManager();
-  void SetDocument(ezDocument* pDocument) { m_pObjectStorage->m_pDocument = pDocument; }
+  WDocumentObjectManager(const WRTTI* pRootType = WDocumentRoot::GetStaticRTTI());
+  virtual ~WDocumentObjectManager();
+  void SetDocument(WDocument* pDocument) { m_pObjectStorage->m_pDocument = pDocument; }
 
   // Object Construction / Destruction
   // holds object data
-  ezDocumentObject* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
+  WDocumentObject* CreateObject(const WRTTI* pRtti, WUuid guid = WUuid());
 
-  void DestroyObject(ezDocumentObject* pObject);
+  void DestroyObject(WDocumentObject* pObject);
   virtual void DestroyAllObjects();
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const {};
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const {};
 
-  void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
+  void PatchEmbeddedClassObjects(const WDocumentObject* pObject) const;
 
-  const ezDocumentObject* GetRootObject() const { return &m_pObjectStorage->m_RootObject; }
-  ezDocumentObject* GetRootObject() { return &m_pObjectStorage->m_RootObject; }
-  const ezDocumentObject* GetObject(const ezUuid& guid) const;
-  ezDocumentObject* GetObject(const ezUuid& guid);
-  const ezDocument* GetDocument() const { return m_pObjectStorage->m_pDocument; }
-  ezDocument* GetDocument() { return m_pObjectStorage->m_pDocument; }
+  const WDocumentObject* GetRootObject() const { return &m_pObjectStorage->m_RootObject; }
+  WDocumentObject* GetRootObject() { return &m_pObjectStorage->m_RootObject; }
+  const WDocumentObject* GetObject(const WUuid& guid) const;
+  WDocumentObject* GetObject(const WUuid& guid);
+  const WDocument* GetDocument() const { return m_pObjectStorage->m_pDocument; }
+  WDocument* GetDocument() { return m_pObjectStorage->m_pDocument; }
 
   // Property Change
-  ezStatus SetValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus InsertValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus RemoveValue(ezDocumentObject* pObject, ezStringView sProperty, ezVariant index = ezVariant());
-  ezStatus MoveValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& oldIndex, const ezVariant& newIndex);
+  WStatus SetValue(WDocumentObject* pObject, WStringView sProperty, const WVariant& newValue, WVariant index = WVariant());
+  WStatus InsertValue(WDocumentObject* pObject, WStringView sProperty, const WVariant& newValue, WVariant index = WVariant());
+  WStatus RemoveValue(WDocumentObject* pObject, WStringView sProperty, WVariant index = WVariant());
+  WStatus MoveValue(WDocumentObject* pObject, WStringView sProperty, const WVariant& oldIndex, const WVariant& newIndex);
 
   // Structure Change
-  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index);
-  void RemoveObject(ezDocumentObject* pObject);
-  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, ezStringView sParentProperty, ezVariant index);
+  void AddObject(WDocumentObject* pObject, WDocumentObject* pParent, WStringView sParentProperty, WVariant index);
+  void RemoveObject(WDocumentObject* pObject);
+  void MoveObject(WDocumentObject* pObject, WDocumentObject* pNewParent, WStringView sParentProperty, WVariant index);
 
   // Structure Change Test
-  ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const;
-  ezStatus CanRemove(const ezDocumentObject* pObject) const;
-  ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const;
-  ezStatus CanSelect(const ezDocumentObject* pObject) const;
+  WStatus CanAdd(const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const;
+  WStatus CanRemove(const WDocumentObject* pObject) const;
+  WStatus CanMove(const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProperty, const WVariant& index) const;
+  WStatus CanSelect(const WDocumentObject* pObject) const;
 
-  bool IsUnderRootProperty(ezStringView sRootProperty, const ezDocumentObject* pObject) const;
-  bool IsUnderRootProperty(ezStringView sRootProperty, const ezDocumentObject* pParent, ezStringView sParentProperty) const;
-  bool IsTemporary(const ezDocumentObject* pObject) const;
-  bool IsTemporary(const ezDocumentObject* pParent, ezStringView sParentProperty) const;
+  bool IsUnderRootProperty(WStringView sRootProperty, const WDocumentObject* pObject) const;
+  bool IsUnderRootProperty(WStringView sRootProperty, const WDocumentObject* pParent, WStringView sParentProperty) const;
+  bool IsTemporary(const WDocumentObject* pObject) const;
+  bool IsTemporary(const WDocumentObject* pParent, WStringView sParentProperty) const;
 
-  ezSharedPtr<ezDocumentObjectManager::Storage> SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage);
-  ezSharedPtr<ezDocumentObjectManager::Storage> GetStorage() { return m_pObjectStorage; }
-
-private:
-  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
-  virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
-
-  void InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index);
-  void InternalRemoveObject(ezDocumentObject* pObject);
-  void InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, ezStringView sParentProperty, ezVariant index);
-
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
-  {
-    return ezStatus(EZ_SUCCESS);
-  };
-  virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
-  virtual ezStatus InternalCanMove(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const
-  {
-    return ezStatus(EZ_SUCCESS);
-  };
-  virtual ezStatus InternalCanSelect(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
-
-  void RecursiveAddGuids(ezDocumentObject* pObject);
-  void RecursiveRemoveGuids(ezDocumentObject* pObject);
-  void PatchEmbeddedClassObjectsInternal(ezDocumentObject* pObject, const ezRTTI* pType, bool addToDoc);
+  WSharedPtr<WDocumentObjectManager::Storage> SwapStorage(WSharedPtr<WDocumentObjectManager::Storage> pNewStorage);
+  WSharedPtr<WDocumentObjectManager::Storage> GetStorage() { return m_pObjectStorage; }
 
 private:
-  friend class ezObjectAccessorBase;
+  virtual WDocumentObject* InternalCreateObject(const WRTTI* pRtti) { return W_DEFAULT_NEW(WDocumentStorageObject, pRtti); }
+  virtual void InternalDestroyObject(WDocumentObject* pObject) { W_DEFAULT_DELETE(pObject); }
 
-  ezSharedPtr<ezDocumentObjectManager::Storage> m_pObjectStorage;
+  void InternalAddObject(WDocumentObject* pObject, WDocumentObject* pParent, WStringView sParentProperty, WVariant index);
+  void InternalRemoveObject(WDocumentObject* pObject);
+  void InternalMoveObject(WDocumentObject* pNewParent, WDocumentObject* pObject, WStringView sParentProperty, WVariant index);
 
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventsUnsubscriber;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_PropertyEventsUnsubscriber;
-  ezEvent<const ezDocumentObjectEvent&>::Unsubscriber m_ObjectEventsUnsubscriber;
+  virtual WStatus InternalCanAdd(const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const
+  {
+    return WStatus(W_SUCCESS);
+  };
+  virtual WStatus InternalCanRemove(const WDocumentObject* pObject) const { return WStatus(W_SUCCESS); };
+  virtual WStatus InternalCanMove(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProperty, const WVariant& index) const
+  {
+    return WStatus(W_SUCCESS);
+  };
+  virtual WStatus InternalCanSelect(const WDocumentObject* pObject) const { return WStatus(W_SUCCESS); };
+
+  void RecursiveAddGuids(WDocumentObject* pObject);
+  void RecursiveRemoveGuids(WDocumentObject* pObject);
+  void PatchEmbeddedClassObjectsInternal(WDocumentObject* pObject, const WRTTI* pType, bool addToDoc);
+
+private:
+  friend class WObjectAccessorBase;
+
+  WSharedPtr<WDocumentObjectManager::Storage> m_pObjectStorage;
+
+  WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventsUnsubscriber;
+  WCopyOnBroadcastEvent<const WDocumentObjectPropertyEvent&>::Unsubscriber m_PropertyEventsUnsubscriber;
+  WEvent<const WDocumentObjectEvent&>::Unsubscriber m_ObjectEventsUnsubscriber;
 };

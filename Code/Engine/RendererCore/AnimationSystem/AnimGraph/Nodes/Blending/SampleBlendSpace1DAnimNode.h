@@ -4,9 +4,9 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
-struct EZ_RENDERERCORE_DLL ezAnimationClip1D
+struct W_RENDERERCORE_DLL WAnimationClip1D
 {
-  ezHashedString m_sClip;
+  WHashedString m_sClip;
   float m_fPosition = 0.0f;
   float m_fSpeed = 1.0f;
 
@@ -14,51 +14,51 @@ struct EZ_RENDERERCORE_DLL ezAnimationClip1D
   const char* GetAnimationFile() const;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimationClip1D);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WAnimationClip1D);
 
 /// Blends between animation clips based on a single parameter (1D blend space).
 ///
 /// This node defines clips at different parameter values (e.g., 0=idle, 0.5=walk, 1=run) and automatically
 /// interpolates between them based on input. Commonly used for speed-based locomotion where movement speed
 /// determines the animation blend.
-class EZ_RENDERERCORE_DLL ezSampleBlendSpace1DAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSampleBlendSpace1DAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSampleBlendSpace1DAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSampleBlendSpace1DAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSampleBlendSpace1DAnimNode
+  // WSampleBlendSpace1DAnimNode
 
 public:
-  ezSampleBlendSpace1DAnimNode();
-  ~ezSampleBlendSpace1DAnimNode();
+  WSampleBlendSpace1DAnimNode();
+  ~WSampleBlendSpace1DAnimNode();
 
 private:
-  ezHybridArray<ezAnimationClip1D, 4> m_Clips; // [ property ]
+  WHybridArray<WAnimationClip1D, 4> m_Clips; // [ property ]
   bool m_bLoop = true;                         // [ property ]
   float m_fRootMotionAmount = 0.0f;            // [ property ]
   float m_fPlaybackSpeed = 1.0f;               // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;        // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;            // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;         // [ property ]
-  ezAnimGraphNumberInputPin m_InLerp;          // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnStarted;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFinished; // [ property ]
+  WAnimGraphTriggerInputPin m_InStart;        // [ property ]
+  WAnimGraphBoolInputPin m_InLoop;            // [ property ]
+  WAnimGraphNumberInputPin m_InSpeed;         // [ property ]
+  WAnimGraphNumberInputPin m_InLerp;          // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnStarted;  // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFinished; // [ property ]
 
 
   struct InstanceData
   {
-    ezTime m_PlaybackTime = ezTime::MakeFromHours(1000);
+    WTime m_PlaybackTime = WTime::MakeFromHours(1000);
   };
 };

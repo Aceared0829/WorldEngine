@@ -11,44 +11,44 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
-// ezEditActions
+// WEditActions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezEditActions::s_hEditCategory;
-ezActionDescriptorHandle ezEditActions::s_hCopy;
-ezActionDescriptorHandle ezEditActions::s_hPaste;
-ezActionDescriptorHandle ezEditActions::s_hPasteAsChild;
-ezActionDescriptorHandle ezEditActions::s_hPasteAtOriginalLocation;
-ezActionDescriptorHandle ezEditActions::s_hDelete;
+WActionDescriptorHandle WEditActions::s_hEditCategory;
+WActionDescriptorHandle WEditActions::s_hCopy;
+WActionDescriptorHandle WEditActions::s_hPaste;
+WActionDescriptorHandle WEditActions::s_hPasteAsChild;
+WActionDescriptorHandle WEditActions::s_hPasteAtOriginalLocation;
+WActionDescriptorHandle WEditActions::s_hDelete;
 
-void ezEditActions::RegisterActions()
+void WEditActions::RegisterActions()
 {
-  s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
-  s_hCopy = EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
-  s_hPaste = EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
-  s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
-  s_hPasteAtOriginalLocation = EZ_REGISTER_ACTION_1("Selection.PasteAtOriginalLocation", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAtOriginalLocation);
-  s_hDelete = EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
+  s_hEditCategory = W_REGISTER_CATEGORY("EditCategory");
+  s_hCopy = W_REGISTER_ACTION_1("Selection.Copy", WActionScope::Document, "Document", "Ctrl+C", WEditAction, WEditAction::ButtonType::Copy);
+  s_hPaste = W_REGISTER_ACTION_1("Selection.Paste", WActionScope::Document, "Document", "Ctrl+V", WEditAction, WEditAction::ButtonType::Paste);
+  s_hPasteAsChild = W_REGISTER_ACTION_1("Selection.PasteAsChild", WActionScope::Document, "Document", "", WEditAction, WEditAction::ButtonType::PasteAsChild);
+  s_hPasteAtOriginalLocation = W_REGISTER_ACTION_1("Selection.PasteAtOriginalLocation", WActionScope::Document, "Document", "", WEditAction, WEditAction::ButtonType::PasteAtOriginalLocation);
+  s_hDelete = W_REGISTER_ACTION_1("Selection.Delete", WActionScope::Document, "Document", "", WEditAction, WEditAction::ButtonType::Delete);
 }
 
-void ezEditActions::UnregisterActions()
+void WEditActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hEditCategory);
-  ezActionManager::UnregisterAction(s_hCopy);
-  ezActionManager::UnregisterAction(s_hPaste);
-  ezActionManager::UnregisterAction(s_hPasteAsChild);
-  ezActionManager::UnregisterAction(s_hPasteAtOriginalLocation);
-  ezActionManager::UnregisterAction(s_hDelete);
+  WActionManager::UnregisterAction(s_hEditCategory);
+  WActionManager::UnregisterAction(s_hCopy);
+  WActionManager::UnregisterAction(s_hPaste);
+  WActionManager::UnregisterAction(s_hPasteAsChild);
+  WActionManager::UnregisterAction(s_hPasteAtOriginalLocation);
+  WActionManager::UnregisterAction(s_hDelete);
 }
 
-void ezEditActions::MapActions(ezStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions)
+void WEditActions::MapActions(WStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
   pMap->MapAction(s_hEditCategory, "G.Edit", 3.5f);
 
@@ -66,10 +66,10 @@ void ezEditActions::MapActions(ezStringView sMapping, bool bDeleteAction, bool b
 }
 
 
-void ezEditActions::MapContextMenuActions(ezStringView sMapping)
+void WEditActions::MapContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
   pMap->MapAction(s_hEditCategory, "", 10.0f);
 
@@ -79,10 +79,10 @@ void ezEditActions::MapContextMenuActions(ezStringView sMapping)
 }
 
 
-void ezEditActions::MapViewContextMenuActions(ezStringView sMapping)
+void WEditActions::MapViewContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
   pMap->MapAction(s_hEditCategory, "", 10.0f);
 
@@ -93,34 +93,34 @@ void ezEditActions::MapViewContextMenuActions(ezStringView sMapping)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezEditAction
+// WEditAction
 ////////////////////////////////////////////////////////////////////////
 
-ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WEditAction::WEditAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-    case ezEditAction::ButtonType::Copy:
+    case WEditAction::ButtonType::Copy:
       SetIconPath(":/GuiFoundation/Icons/Copy.svg");
       break;
-    case ezEditAction::ButtonType::Paste:
+    case WEditAction::ButtonType::Paste:
       SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
-    case ezEditAction::ButtonType::PasteAsChild:
+    case WEditAction::ButtonType::PasteAsChild:
       SetIconPath(":/GuiFoundation/Icons/Paste.svg"); /// TODO Icon
       break;
-    case ezEditAction::ButtonType::PasteAtOriginalLocation:
+    case WEditAction::ButtonType::PasteAtOriginalLocation:
       SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
-    case ezEditAction::ButtonType::Delete:
+    case WEditAction::ButtonType::Delete:
       SetIconPath(":/GuiFoundation/Icons/Delete.svg");
       break;
   }
 
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezEditAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WEditAction::SelectionEventHandler, this));
 
   if (m_ButtonType == ButtonType::Copy || m_ButtonType == ButtonType::Delete)
   {
@@ -128,30 +128,30 @@ ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, B
   }
 }
 
-ezEditAction::~ezEditAction()
+WEditAction::~WEditAction()
 {
   if (m_Context.m_pDocument)
   {
-    m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditAction::SelectionEventHandler, this));
+    m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WEditAction::SelectionEventHandler, this));
   }
 }
 
-void ezEditAction::Execute(const ezVariant& value)
+void WEditAction::Execute(const WVariant& value)
 {
   switch (m_ButtonType)
   {
-    case ezEditAction::ButtonType::Copy:
+    case WEditAction::ButtonType::Copy:
     {
-      ezStringBuilder sMimeType;
+      WStringBuilder sMimeType;
 
-      ezAbstractObjectGraph graph;
+      WAbstractObjectGraph graph;
       if (!m_Context.m_pDocument->CopySelectedObjects(graph, sMimeType))
         break;
 
       // Serialize to string
-      ezContiguousMemoryStreamStorage streamStorage;
-      ezMemoryStreamWriter memoryWriter(&streamStorage);
-      ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
+      WContiguousMemoryStreamStorage streamStorage;
+      WMemoryStreamWriter memoryWriter(&streamStorage);
+      WAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
       memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
 
       // Write to clipboard
@@ -165,20 +165,20 @@ void ezEditAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezEditAction::ButtonType::Paste:
-    case ezEditAction::ButtonType::PasteAsChild:
-    case ezEditAction::ButtonType::PasteAtOriginalLocation:
+    case WEditAction::ButtonType::Paste:
+    case WEditAction::ButtonType::PasteAsChild:
+    case WEditAction::ButtonType::PasteAtOriginalLocation:
     {
       // Check for clipboard data of the correct type.
       QClipboard* clipboard = QApplication::clipboard();
       auto mimedata = clipboard->mimeData();
 
-      ezTempHybridArray<ezString, 4> MimeTypes;
+      WTempHybridArray<WString, 4> MimeTypes;
       m_Context.m_pDocument->GetSupportedMimeTypesForPasting(MimeTypes);
 
-      ezInt32 iFormat = -1;
+      WInt32 iFormat = -1;
       {
-        for (ezUInt32 i = 0; i < MimeTypes.GetCount(); ++i)
+        for (WUInt32 i = 0; i < MimeTypes.GetCount(); ++i)
         {
           if (mimedata->hasFormat(MimeTypes[i].GetData()))
           {
@@ -192,13 +192,13 @@ void ezEditAction::Execute(const ezVariant& value)
       }
 
       // Paste at current selected object.
-      ezPasteObjectsCommand cmd;
+      WPasteObjectsCommand cmd;
       cmd.m_sMimeType = MimeTypes[iFormat];
 
       QByteArray ba = mimedata->data(MimeTypes[iFormat].GetData());
       cmd.m_sGraphTextFormat = ba.data();
 
-      const ezDocumentObject* pNewParent = m_Context.m_pDocument->GetSelectionManager()->GetCurrentObject();
+      const WDocumentObject* pNewParent = m_Context.m_pDocument->GetSelectionManager()->GetCurrentObject();
       if (pNewParent && m_ButtonType != ButtonType::PasteAsChild)
       {
         // default behavior copied from Unity: paste as a sibling of the currently selected item
@@ -228,7 +228,7 @@ void ezEditAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezEditAction::ButtonType::Delete:
+    case WEditAction::ButtonType::Delete:
     {
       m_Context.m_pDocument->DeleteSelectedObjects();
     }
@@ -236,7 +236,7 @@ void ezEditAction::Execute(const ezVariant& value)
   }
 }
 
-void ezEditAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WEditAction::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   if (m_ButtonType == ButtonType::Copy || m_ButtonType == ButtonType::Delete)
   {

@@ -6,12 +6,12 @@
 #include <QPushButton>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-ezInt32 ezQtCreateMeshPrefabDlg::s_iPhysicsMode = ezMeshPrefabPhysics::None;
-ezInt32 ezQtCreateMeshPrefabDlg::s_iCollisionLayer = 0;
-bool ezQtCreateMeshPrefabDlg::s_bOpenAfterCreate = true;
+WInt32 WQtCreateMeshPrefabDlg::s_iPhysicsMode = WMeshPrefabPhysics::None;
+WInt32 WQtCreateMeshPrefabDlg::s_iCollisionLayer = 0;
+bool WQtCreateMeshPrefabDlg::s_bOpenAfterCreate = true;
 
-ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& source, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshPrefabDlg::WQtCreateMeshPrefabDlg(const WMeshPrefabSource& source, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_pSource(&source)
 {
   Setup();
@@ -21,17 +21,17 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
   {
     // The animated components need a skeleton, which only an animated mesh asset has. The other way
     // round is fine: an animated mesh can be rendered by a static component.
-    RenderComponent->addItem("ezMeshComponent", QVariant("ezMeshComponent"));
-    RenderComponent->addItem("ezLodMeshComponent", QVariant("ezLodMeshComponent"));
+    RenderComponent->addItem("WMeshComponent", QVariant("WMeshComponent"));
+    RenderComponent->addItem("WLodMeshComponent", QVariant("WLodMeshComponent"));
 
     if (source.m_bAnimated)
     {
-      RenderComponent->addItem("ezAnimatedMeshComponent", QVariant("ezAnimatedMeshComponent"));
-      RenderComponent->addItem("ezLodAnimatedMeshComponent", QVariant("ezLodAnimatedMeshComponent"));
+      RenderComponent->addItem("WAnimatedMeshComponent", QVariant("WAnimatedMeshComponent"));
+      RenderComponent->addItem("WLodAnimatedMeshComponent", QVariant("WLodAnimatedMeshComponent"));
     }
 
-    const ezStringView sDefault = source.GetDefaultRenderComponentType();
-    RenderComponent->setCurrentIndex(RenderComponent->findData(QVariant(ezMakeQString(sDefault))));
+    const WStringView sDefault = source.GetDefaultRenderComponentType();
+    RenderComponent->setCurrentIndex(RenderComponent->findData(QVariant(WMakeQString(sDefault))));
   }
 
   UpdateLodInfo();
@@ -43,7 +43,7 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
     {
       const char* szReason = "The bounds of this mesh are unknown. Transform the mesh asset to make this available.";
 
-      for (ezInt32 i : {(ezInt32)ezMeshPrefabPhysics::StaticBox, (ezInt32)ezMeshPrefabPhysics::DynamicBox})
+      for (WInt32 i : {(WInt32)WMeshPrefabPhysics::StaticBox, (WInt32)WMeshPrefabPhysics::DynamicBox})
       {
         const int idx = PhysicsMode->findData(QVariant(i));
         PhysicsMode->setItemData(idx, QVariant(0), Qt::UserRole - 1); // disables the item
@@ -56,7 +56,7 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
     {
       const char* szReason = "The source file of this mesh asset could not be read, so no collision mesh can be generated from it.";
 
-      for (ezInt32 i : {(ezInt32)ezMeshPrefabPhysics::StaticTriangleMesh, (ezInt32)ezMeshPrefabPhysics::StaticConvexHull, (ezInt32)ezMeshPrefabPhysics::DynamicConvexHull})
+      for (WInt32 i : {(WInt32)WMeshPrefabPhysics::StaticTriangleMesh, (WInt32)WMeshPrefabPhysics::StaticConvexHull, (WInt32)WMeshPrefabPhysics::DynamicConvexHull})
       {
         const int idx = PhysicsMode->findData(QVariant(i));
         PhysicsMode->setItemData(idx, QVariant(0), Qt::UserRole - 1);
@@ -65,8 +65,8 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
     }
 
     // what was decided for this mesh beats what was picked for some other mesh last time
-    const ezEnum<ezMeshPrefabPhysics> detected = source.GetDefaultPhysics();
-    const ezInt32 iPreferred = (detected != ezMeshPrefabPhysics::None) ? (ezInt32)detected.GetValue() : s_iPhysicsMode;
+    const WEnum<WMeshPrefabPhysics> detected = source.GetDefaultPhysics();
+    const WInt32 iPreferred = (detected != WMeshPrefabPhysics::None) ? (WInt32)detected.GetValue() : s_iPhysicsMode;
 
     const int idxPreferred = PhysicsMode->findData(QVariant(iPreferred));
     if (idxPreferred >= 0 && (PhysicsMode->itemData(idxPreferred, Qt::UserRole - 1).isNull() || PhysicsMode->itemData(idxPreferred, Qt::UserRole - 1).toBool()))
@@ -74,7 +74,7 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
       PhysicsMode->setCurrentIndex(idxPreferred);
     }
 
-    if (detected != ezMeshPrefabPhysics::None)
+    if (detected != WMeshPrefabPhysics::None)
     {
       PhysicsMode->setToolTip("A collision mesh built from this model already exists and will be reused.");
     }
@@ -83,8 +83,8 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(const ezMeshPrefabSource& sourc
   UpdateWarnings();
 }
 
-ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(ezUInt32 uiMeshCount, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshPrefabDlg::WQtCreateMeshPrefabDlg(WUInt32 uiMeshCount, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_uiMeshCount(uiMeshCount)
 {
   Setup();
@@ -122,22 +122,22 @@ ezQtCreateMeshPrefabDlg::ezQtCreateMeshPrefabDlg(ezUInt32 uiMeshCount, QWidget* 
   UpdateWarnings();
 }
 
-void ezQtCreateMeshPrefabDlg::Setup()
+void WQtCreateMeshPrefabDlg::Setup()
 {
   setupUi(this);
 
-  if (!ezMeshPrefabCreator::IsPhysicsAvailable())
+  if (!WMeshPrefabCreator::IsPhysicsAvailable())
   {
     PhysicsGroup->setVisible(false);
   }
   else
   {
-    PhysicsMode->addItem("None", QVariant(ezMeshPrefabPhysics::None));
-    PhysicsMode->addItem("Static - triangle collision mesh", QVariant(ezMeshPrefabPhysics::StaticTriangleMesh));
-    PhysicsMode->addItem("Static - convex hull collision mesh", QVariant(ezMeshPrefabPhysics::StaticConvexHull));
-    PhysicsMode->addItem("Static - box from mesh bounds", QVariant(ezMeshPrefabPhysics::StaticBox));
-    PhysicsMode->addItem("Dynamic - convex hull collision mesh", QVariant(ezMeshPrefabPhysics::DynamicConvexHull));
-    PhysicsMode->addItem("Dynamic - box from mesh bounds", QVariant(ezMeshPrefabPhysics::DynamicBox));
+    PhysicsMode->addItem("None", QVariant(WMeshPrefabPhysics::None));
+    PhysicsMode->addItem("Static - triangle collision mesh", QVariant(WMeshPrefabPhysics::StaticTriangleMesh));
+    PhysicsMode->addItem("Static - convex hull collision mesh", QVariant(WMeshPrefabPhysics::StaticConvexHull));
+    PhysicsMode->addItem("Static - box from mesh bounds", QVariant(WMeshPrefabPhysics::StaticBox));
+    PhysicsMode->addItem("Dynamic - convex hull collision mesh", QVariant(WMeshPrefabPhysics::DynamicConvexHull));
+    PhysicsMode->addItem("Dynamic - box from mesh bounds", QVariant(WMeshPrefabPhysics::DynamicBox));
 
     CollisionLayer->setValue(s_iCollisionLayer);
   }
@@ -145,14 +145,14 @@ void ezQtCreateMeshPrefabDlg::Setup()
   OpenAfterCreate->setChecked(s_bOpenAfterCreate);
 }
 
-void ezQtCreateMeshPrefabDlg::UpdateLodInfo()
+void WQtCreateMeshPrefabDlg::UpdateLodInfo()
 {
   if (m_pSource == nullptr)
     return;
 
   // only the LOD components use the extra meshes
-  const ezString sRenderType = qtToEzString(RenderComponent->currentData().toString());
-  const bool bLodComponent = (sRenderType == "ezLodMeshComponent") || (sRenderType == "ezLodAnimatedMeshComponent");
+  const WString sRenderType = qtToEzString(RenderComponent->currentData().toString());
+  const bool bLodComponent = (sRenderType == "WLodMeshComponent") || (sRenderType == "WLodAnimatedMeshComponent");
 
   if (m_pSource->m_LodGuids.IsEmpty())
   {
@@ -168,44 +168,44 @@ void ezQtCreateMeshPrefabDlg::UpdateLodInfo()
   }
 }
 
-void ezQtCreateMeshPrefabDlg::UpdateSuggestedPath()
+void WQtCreateMeshPrefabDlg::UpdateSuggestedPath()
 {
   if (m_pSource == nullptr || !m_bPathIsSuggestion)
     return;
 
-  const ezString sPath = ezMeshPrefabCreator::MakeDisplayPath(
-    ezMeshPrefabCreator::SuggestPrefabPath(*m_pSource, OverwriteExisting->isChecked()));
+  const WString sPath = WMeshPrefabCreator::MakeDisplayPath(
+    WMeshPrefabCreator::SuggestPrefabPath(*m_pSource, OverwriteExisting->isChecked()));
 
   // the change is our own, so the text handler must not treat it as the user typing a path
   m_bSettingPath = true;
-  PrefabPath->setText(ezMakeQString(sPath));
+  PrefabPath->setText(WMakeQString(sPath));
   m_bSettingPath = false;
 }
 
-void ezQtCreateMeshPrefabDlg::UpdateWarnings()
+void WQtCreateMeshPrefabDlg::UpdateWarnings()
 {
-  ezStringBuilder sWarning;
+  WStringBuilder sWarning;
 
   if (m_pSource != nullptr)
   {
-    const ezString sTyped = qtToEzString(PrefabPath->text());
+    const WString sTyped = qtToEzString(PrefabPath->text());
 
-    ezStringBuilder sAbsolute;
+    WStringBuilder sAbsolute;
     if (sTyped.IsEmpty())
     {
       sWarning = "Enter a path for the prefab.";
     }
-    else if (ezMeshPrefabCreator::ResolveDisplayPath(sTyped, sAbsolute).Failed())
+    else if (WMeshPrefabCreator::ResolveDisplayPath(sTyped, sAbsolute).Failed())
     {
       sWarning = "This path does not start with the name of a data directory.";
     }
-    else if (ezOSFile::ExistsFile(sAbsolute) && !OverwriteExisting->isChecked())
+    else if (WOSFile::ExistsFile(sAbsolute) && !OverwriteExisting->isChecked())
     {
       sWarning = "This file already exists. Tick the box below to overwrite it, or choose a different name.";
     }
   }
 
-  WarningLabel->setText(ezMakeQString(sWarning));
+  WarningLabel->setText(WMakeQString(sWarning));
 
   if (QPushButton* pOk = ButtonBox->button(QDialogButtonBox::Ok))
   {
@@ -213,7 +213,7 @@ void ezQtCreateMeshPrefabDlg::UpdateWarnings()
   }
 }
 
-void ezQtCreateMeshPrefabDlg::on_PrefabPath_textChanged(const QString& text)
+void WQtCreateMeshPrefabDlg::on_PrefabPath_textChanged(const QString& text)
 {
   if (!m_bSettingPath)
   {
@@ -223,28 +223,28 @@ void ezQtCreateMeshPrefabDlg::on_PrefabPath_textChanged(const QString& text)
   UpdateWarnings();
 }
 
-void ezQtCreateMeshPrefabDlg::on_RenderComponent_currentIndexChanged(int index)
+void WQtCreateMeshPrefabDlg::on_RenderComponent_currentIndexChanged(int index)
 {
   UpdateLodInfo();
 }
 
-void ezQtCreateMeshPrefabDlg::on_OverwriteExisting_toggled(bool checked)
+void WQtCreateMeshPrefabDlg::on_OverwriteExisting_toggled(bool checked)
 {
   // the suggestion dodges an existing file by appending a number, which overwriting no longer wants
   UpdateSuggestedPath();
   UpdateWarnings();
 }
 
-void ezQtCreateMeshPrefabDlg::on_BrowseButton_clicked()
+void WQtCreateMeshPrefabDlg::on_BrowseButton_clicked()
 {
   // the file dialog needs a real path, the line edit holds a data directory relative one
-  ezStringBuilder sStart;
-  if (ezMeshPrefabCreator::ResolveDisplayPath(qtToEzString(PrefabPath->text()), sStart).Failed() && m_pSource != nullptr)
+  WStringBuilder sStart;
+  if (WMeshPrefabCreator::ResolveDisplayPath(qtToEzString(PrefabPath->text()), sStart).Failed() && m_pSource != nullptr)
   {
-    sStart = ezMeshPrefabCreator::SuggestPrefabPath(*m_pSource);
+    sStart = WMeshPrefabCreator::SuggestPrefabPath(*m_pSource);
   }
 
-  QString sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Prefab"), ezMakeQString(sStart), QLatin1String("Prefab (*.ezPrefab)"),
+  QString sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Prefab"), WMakeQString(sStart), QLatin1String("Prefab (*.WPrefab)"),
     nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
@@ -252,10 +252,10 @@ void ezQtCreateMeshPrefabDlg::on_BrowseButton_clicked()
 
   // a path the user browsed to must survive a change of the overwrite box
   m_bPathIsSuggestion = false;
-  PrefabPath->setText(ezMakeQString(ezMeshPrefabCreator::MakeDisplayPath(qtToEzString(sFile))));
+  PrefabPath->setText(WMakeQString(WMeshPrefabCreator::MakeDisplayPath(qtToEzString(sFile))));
 }
 
-void ezQtCreateMeshPrefabDlg::on_ButtonBox_accepted()
+void WQtCreateMeshPrefabDlg::on_ButtonBox_accepted()
 {
   // Both are left empty for several meshes, which is what makes the creator decide them per mesh.
   if (m_pSource != nullptr)
@@ -271,8 +271,8 @@ void ezQtCreateMeshPrefabDlg::on_ButtonBox_accepted()
     s_iPhysicsMode = PhysicsMode->currentData().toInt();
     s_iCollisionLayer = CollisionLayer->value();
 
-    m_Options.m_Physics = (ezMeshPrefabPhysics::Enum)s_iPhysicsMode;
-    m_Options.m_uiCollisionLayer = (ezUInt8)s_iCollisionLayer;
+    m_Options.m_Physics = (WMeshPrefabPhysics::Enum)s_iPhysicsMode;
+    m_Options.m_uiCollisionLayer = (WUInt8)s_iCollisionLayer;
   }
 
   // Not remembered for a large selection, where the box was unticked by us rather than by the user.
@@ -286,7 +286,7 @@ void ezQtCreateMeshPrefabDlg::on_ButtonBox_accepted()
   accept();
 }
 
-void ezQtCreateMeshPrefabDlg::on_ButtonBox_rejected()
+void WQtCreateMeshPrefabDlg::on_ButtonBox_rejected()
 {
   reject();
 }

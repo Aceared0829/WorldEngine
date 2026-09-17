@@ -4,16 +4,16 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWindWorldModuleInterface, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WWindWorldModuleInterface, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezWindStrength, 1)
-  EZ_ENUM_CONSTANTS(ezWindStrength::None, ezWindStrength::Calm, ezWindStrength::LightBreeze, ezWindStrength::GentleBreeze, ezWindStrength::ModerateBreeze, ezWindStrength::StrongBreeze, ezWindStrength::Storm)
-  EZ_ENUM_CONSTANTS(ezWindStrength::WeakShockwave, ezWindStrength::MediumShockwave, ezWindStrength::StrongShockwave, ezWindStrength::ExtremeShockwave)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WWindStrength, 1)
+  W_ENUM_CONSTANTS(WWindStrength::None, WWindStrength::Calm, WWindStrength::LightBreeze, WWindStrength::GentleBreeze, WWindStrength::ModerateBreeze, WWindStrength::StrongBreeze, WWindStrength::Storm)
+  W_ENUM_CONSTANTS(WWindStrength::WeakShockwave, WWindStrength::MediumShockwave, WWindStrength::StrongShockwave, WWindStrength::ExtremeShockwave)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-float ezWindStrength::GetInMetersPerSecond(Enum strength)
+float WWindStrength::GetInMetersPerSecond(Enum strength)
 {
   // inspired by the Beaufort scale
   // https://en.wikipedia.org/wiki/Beaufort_scale
@@ -53,44 +53,44 @@ float ezWindStrength::GetInMetersPerSecond(Enum strength)
     case ExtremeShockwave:
       return 150.0f;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return 0;
 }
 
-ezWindWorldModuleInterface::ezWindWorldModuleInterface(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WWindWorldModuleInterface::WWindWorldModuleInterface(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
 }
 
-ezSimdVec4f ezWindWorldModuleInterface::GetWindAtSimd(const ezSimdVec4f& vPosition) const
+WSimdVec4f WWindWorldModuleInterface::GetWindAtSimd(const WSimdVec4f& vPosition) const
 {
-  return ezSimdConversion::ToVec3(GetWindAt(ezSimdConversion::ToVec3(vPosition)));
+  return WSimdConversion::ToVec3(GetWindAt(WSimdConversion::ToVec3(vPosition)));
 }
 
-ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const
+WVec3 WWindWorldModuleInterface::ComputeWindFlutter(const WVec3& vWind, const WVec3& vObjectDir, float fFlutterSpeed, WUInt32 uiFlutterRandomOffset) const
 {
   if (vWind.IsZero(0.001f))
-    return ezVec3::MakeZero();
+    return WVec3::MakeZero();
 
-  ezVec3 windDir = vWind;
+  WVec3 windDir = vWind;
   const float fWindStrength = windDir.GetLengthAndNormalize();
 
   if (fWindStrength <= 0.01f)
-    return ezVec3::MakeZero();
+    return WVec3::MakeZero();
 
-  ezVec3 mainDir = vObjectDir;
-  mainDir.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+  WVec3 mainDir = vObjectDir;
+  mainDir.NormalizeIfNotZero(WVec3::MakeAxisZ()).IgnoreResult();
 
-  ezVec3 flutterDir = windDir.CrossRH(mainDir);
-  flutterDir.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+  WVec3 flutterDir = windDir.CrossRH(mainDir);
+  flutterDir.NormalizeIfNotZero(WVec3::MakeAxisZ()).IgnoreResult();
 
   const float fFlutterOffset = (uiFlutterRandomOffset & 1023u) / 256.0f;
 
-  const float fFlutter = ezMath::Sin(ezAngle::MakeFromRadian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
+  const float fFlutter = WMath::Sin(WAngle::MakeFromRadian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
 
   return flutterDir * fFlutter;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Interfaces_WindWorldModule);
+W_STATICLINK_FILE(Core, Core_Interfaces_WindWorldModule);

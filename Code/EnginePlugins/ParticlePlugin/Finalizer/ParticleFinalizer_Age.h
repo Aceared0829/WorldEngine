@@ -3,22 +3,22 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// Factory for age finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age final : public ezParticleFinalizerFactory
+class W_PARTICLEPLUGIN_DLL WParticleFinalizerFactory_Age final : public WParticleFinalizerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Age, ezParticleFinalizerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizerFactory_Age, WParticleFinalizerFactory);
 
 public:
-  ezParticleFinalizerFactory_Age();
+  WParticleFinalizerFactory_Age();
 
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetFinalizerType() const override;
+  virtual void CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const override;
 
-  ezVarianceTypeTime m_LifeTime;
-  ezString m_sOnDeathEvent;
-  ezString m_sLifeScaleParameter;
+  WVarianceTypeTime m_LifeTime;
+  WString m_sOnDeathEvent;
+  WString m_sLifeScaleParameter;
 };
 
 
@@ -28,29 +28,29 @@ public:
 /// lifetime reaches zero, it is removed from the system. If an on-death event is configured,
 /// the event is triggered at the particle's position with its velocity as the direction.
 /// The lifetime is initialized with optional variance and can be scaled by an effect parameter.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age final : public ezParticleFinalizer
+class W_PARTICLEPLUGIN_DLL WParticleFinalizer_Age final : public WParticleFinalizer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Age, ezParticleFinalizer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizer_Age, WParticleFinalizer);
 
 public:
-  ezParticleFinalizer_Age();
-  ~ezParticleFinalizer_Age();
+  WParticleFinalizer_Age();
+  ~WParticleFinalizer_Age();
 
   virtual void CreateRequiredStreams() override;
 
-  ezVarianceTypeTime m_LifeTime;
-  ezTempHashedString m_sOnDeathEvent;
-  ezTempHashedString m_sLifeScaleParameter;
+  WVarianceTypeTime m_LifeTime;
+  WTempHashedString m_sOnDeathEvent;
+  WTempHashedString m_sLifeScaleParameter;
 
 protected:
-  friend class ezParticleFinalizerFactory_Age;
+  friend class WParticleFinalizerFactory_Age;
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override;
-  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
+  void OnParticleDeath(const WStreamGroupElementRemovedEvent& e);
 
   bool m_bHasOnDeathEventHandler = false;
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
 };

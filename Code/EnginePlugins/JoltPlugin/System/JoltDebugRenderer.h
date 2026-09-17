@@ -7,15 +7,15 @@
 #  include <Jolt/Jolt.h>
 #  include <Jolt/Renderer/DebugRenderer.h>
 
-class ezJoltDebugRenderer : public JPH::DebugRenderer
+class WJoltDebugRenderer : public JPH::DebugRenderer
 {
 public:
-  ezDynamicArray<ezDebugRendererLine> m_Lines;
-  ezDynamicArray<ezDebugRendererTriangle> m_Triangles;
+  WDynamicArray<WDebugRendererLine> m_Lines;
+  WDynamicArray<WDebugRendererTriangle> m_Triangles;
 
   struct TriangleBatch : public JPH::RefTargetVirtual
   {
-    ezDynamicArray<ezDebugRendererTriangle> m_Triangles;
+    WDynamicArray<WDebugRendererTriangle> m_Triangles;
 
     int m_iRefCount = 0;
 
@@ -24,7 +24,7 @@ public:
     virtual void Release() override;
   };
 
-  ezJoltDebugRenderer();
+  WJoltDebugRenderer();
 
   virtual void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
 

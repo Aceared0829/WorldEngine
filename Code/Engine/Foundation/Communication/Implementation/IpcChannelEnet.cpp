@@ -9,26 +9,26 @@
 #  include <Foundation/Communication/RemoteMessage.h>
 #  include <Foundation/Logging/Log.h>
 
-ezIpcChannelEnet::ezIpcChannelEnet(ezStringView sAddress, Mode::Enum mode)
-  : ezIpcChannel(sAddress, mode)
+WIpcChannelEnet::WIpcChannelEnet(WStringView sAddress, Mode::Enum mode)
+  : WIpcChannel(sAddress, mode)
   , m_sAddress(sAddress)
 {
-  m_pNetwork = ezRemoteInterfaceEnet::Make();
-  m_pNetwork->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));
-  m_pNetwork->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
+  m_pNetwork = WRemoteInterfaceEnet::Make();
+  m_pNetwork->SetMessageHandler(0, WMakeDelegate(&WIpcChannelEnet::NetworkMessageHandler, this));
+  m_pNetwork->m_RemoteEvents.AddEventHandler(WMakeDelegate(&WIpcChannelEnet::EnetEventHandler, this));
 
   m_pOwner->AddChannel(this);
 }
 
-ezIpcChannelEnet::~ezIpcChannelEnet()
+WIpcChannelEnet::~WIpcChannelEnet()
 {
-  m_pNetwork->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
+  m_pNetwork->m_RemoteEvents.RemoveEventHandler(WMakeDelegate(&WIpcChannelEnet::EnetEventHandler, this));
   m_pNetwork->ShutdownConnection();
 
   m_pOwner->RemoveChannel(this);
 }
 
-void ezIpcChannelEnet::InternalConnect()
+void WIpcChannelEnet::InternalConnect()
 {
   if (GetConnectionState() != ConnectionState::Connecting)
     return;
@@ -48,26 +48,26 @@ void ezIpcChannelEnet::InternalConnect()
       SetConnectionState(ConnectionState::Disconnected);
       return;
     }
-    m_LastConnectAttempt = ezTime::Now();
+    m_LastConnectAttempt = WTime::Now();
   }
 }
 
-void ezIpcChannelEnet::InternalDisconnect()
+void WIpcChannelEnet::InternalDisconnect()
 {
   m_pNetwork->ShutdownConnection();
   SetConnectionState(ConnectionState::Disconnected);
 }
 
-void ezIpcChannelEnet::InternalSend()
+void WIpcChannelEnet::InternalSend()
 {
   {
-    EZ_LOCK(m_OutputQueueMutex);
+    W_LOCK(m_OutputQueueMutex);
 
     while (!m_OutputQueue.IsEmpty())
     {
-      ezContiguousMemoryStreamStorage& storage = m_OutputQueue.PeekFront();
+      WContiguousMemoryStreamStorage& storage = m_OutputQueue.PeekFront();
 
-      m_pNetwork->Send(ezRemoteTransmitMode::Reliable, 0, 0, storage);
+      m_pNetwork->Send(WRemoteTransmitMode::Reliable, 0, 0, storage);
 
       m_OutputQueue.PopFront();
     }
@@ -76,12 +76,12 @@ void ezIpcChannelEnet::InternalSend()
   m_pNetwork->UpdateRemoteInterface();
 }
 
-bool ezIpcChannelEnet::NeedWakeup() const
+bool WIpcChannelEnet::NeedWakeup() const
 {
   return true;
 }
 
-void ezIpcChannelEnet::Tick()
+void WIpcChannelEnet::Tick()
 {
   m_pNetwork->UpdateRemoteInterface();
 
@@ -89,12 +89,12 @@ void ezIpcChannelEnet::Tick()
   {
     if (m_pNetwork->IsConnectedToOther())
     {
-      m_LastConnectAttempt = ezTime::MakeZero();
+      m_LastConnectAttempt = WTime::MakeZero();
       SetConnectionState(ConnectionState::Connected);
     }
-    else if (m_Mode == Mode::Client && !m_LastConnectAttempt.IsZero() && ezTime::Now() - m_LastConnectAttempt > ezTime::MakeFromSeconds(2))
+    else if (m_Mode == Mode::Client && !m_LastConnectAttempt.IsZero() && WTime::Now() - m_LastConnectAttempt > WTime::MakeFromSeconds(2))
     {
-      m_LastConnectAttempt = ezTime::MakeZero();
+      m_LastConnectAttempt = WTime::MakeZero();
       SetConnectionState(ConnectionState::Disconnected);
     }
   }
@@ -109,31 +109,31 @@ void ezIpcChannelEnet::Tick()
   m_pNetwork->ExecuteAllMessageHandlers();
 }
 
-void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)
+void WIpcChannelEnet::NetworkMessageHandler(WRemoteMessage& msg)
 {
   ReceiveData(msg.GetMessageData());
 }
 
-void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
+void WIpcChannelEnet::EnetEventHandler(const WRemoteEvent& e)
 {
-  if (e.m_Type == ezRemoteEvent::ConnectedToClient)
+  if (e.m_Type == WRemoteEvent::ConnectedToClient)
   {
     SetConnectionState(ConnectionState::Connected);
   }
 
-  if (e.m_Type == ezRemoteEvent::DisconnectedFromServer)
+  if (e.m_Type == WRemoteEvent::DisconnectedFromServer)
   {
     Disconnect();
   }
 
-  if (e.m_Type == ezRemoteEvent::DisconnectedFromClient)
+  if (e.m_Type == WRemoteEvent::DisconnectedFromClient)
   {
     SetConnectionState(ConnectionState::Disconnected);
   }
 
-  if (e.m_Type == ezRemoteEvent::ConnectedToServer)
+  if (e.m_Type == WRemoteEvent::ConnectedToServer)
   {
-    m_LastConnectAttempt = ezTime::MakeZero();
+    m_LastConnectAttempt = WTime::MakeZero();
     SetConnectionState(ConnectionState::Connected);
   }
 }

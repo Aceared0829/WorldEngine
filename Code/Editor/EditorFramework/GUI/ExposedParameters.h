@@ -3,28 +3,28 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
-struct EZ_EDITORFRAMEWORK_DLL ezExposedParameter
+struct W_EDITORFRAMEWORK_DLL WExposedParameter
 {
-  ezExposedParameter();
-  virtual ~ezExposedParameter();
+  WExposedParameter();
+  virtual ~WExposedParameter();
 
-  ezString m_sName;
-  ezString m_sType;
-  ezVariant m_DefaultValue;
-  ezEnum<ezPropertyCategory> m_Category;
-  ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
+  WString m_sName;
+  WString m_sType;
+  WVariant m_DefaultValue;
+  WEnum<WPropertyCategory> m_Category;
+  WHybridArray<WPropertyAttribute*, 2> m_Attributes;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezExposedParameter)
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORFRAMEWORK_DLL, WExposedParameter)
 
-class EZ_EDITORFRAMEWORK_DLL ezExposedParameters : public ezReflectedClass
+class W_EDITORFRAMEWORK_DLL WExposedParameters : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposedParameters, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WExposedParameters, WReflectedClass);
 
 public:
-  ezExposedParameters();
-  virtual ~ezExposedParameters();
+  WExposedParameters();
+  virtual ~WExposedParameters();
 
-  const ezExposedParameter* Find(const char* szParamName) const;
+  const WExposedParameter* Find(const char* szParamName) const;
 
-  ezDynamicArray<ezExposedParameter*> m_Parameters;
+  WDynamicArray<WExposedParameter*> m_Parameters;
 };

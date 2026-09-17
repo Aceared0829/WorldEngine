@@ -1,6 +1,6 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_WINDOWS) || W_ENABLED(W_PLATFORM_LINUX)
 
 //-------------------------------------------------------------------------------------
 // BC.cpp
@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#if EZ_DISABLED(EZ_PLATFORM_LINUX)
+#if W_DISABLED(W_PLATFORM_LINUX)
 #include "DirectXTexP.h"
 #endif
 

@@ -6,11 +6,11 @@
 
 #include <SampleGamePlugin/Interface/SingletonInterface.h>
 
-static ezUniquePtr<PrintImplementation> s_PrintInterface;
+static WUniquePtr<PrintImplementation> s_PrintInterface;
 
 // BEGIN-DOCS-CODE-SNIPPET: startup-block
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGamePluginStartupGroup, SampleGamePluginMainStartup)
+W_BEGIN_SUBSYSTEM_DECLARATION(SampleGamePluginStartupGroup, SampleGamePluginMainStartup)
 
   // list all the subsystems that we want to be initialized first
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -22,7 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGamePluginStartupGroup, SampleGamePluginMai
   ON_CORESYSTEMS_STARTUP
   {
     // allocate an implementation of PrintInterface
-    s_PrintInterface = EZ_DEFAULT_NEW(PrintImplementation);
+    s_PrintInterface = W_DEFAULT_NEW(PrintImplementation);
 
     s_PrintInterface->OnCoreSystemsStartup();
     s_PrintInterface->Print("Called ON_CORESYSTEMS_STARTUP");
@@ -41,9 +41,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGamePluginStartupGroup, SampleGamePluginMai
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    // we can query 'an implementation of PrintInterface' through the ezSingletonRegistry
+    // we can query 'an implementation of PrintInterface' through the WSingletonRegistry
     // BEGIN-DOCS-CODE-SNIPPET: singleton-query-interface
-    ezSingletonRegistry::GetSingletonInstance<PrintInterface>()->Print("Called ON_HIGHLEVELSYSTEMS_STARTUP");
+    WSingletonRegistry::GetSingletonInstance<PrintInterface>()->Print("Called ON_HIGHLEVELSYSTEMS_STARTUP");
     // END-DOCS-CODE-SNIPPET
   }
 
@@ -55,6 +55,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGamePluginStartupGroup, SampleGamePluginMai
     // END-DOCS-CODE-SNIPPET
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // END-DOCS-CODE-SNIPPET
 // clang-format on

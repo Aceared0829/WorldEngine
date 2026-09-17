@@ -5,43 +5,43 @@
 #include <Core/World/SpatialData.h>
 #include <Foundation/Types/Variant.h>
 
-class ezBlackboard;
+class WBlackboard;
 
 /// A volume sampler is used to sample the registered values from volumes at a given position. It also takes care of interpolation over time of those values.
-class EZ_GAMEENGINE_DLL ezVolumeSampler
+class W_GAMEENGINE_DLL WVolumeSampler
 {
 public:
-  ezVolumeSampler();
-  ~ezVolumeSampler();
+  WVolumeSampler();
+  ~WVolumeSampler();
 
-  void RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration = ezTime::MakeZero());
-  void DeregisterValue(ezHashedString sName);
+  void RegisterValue(WHashedString sName, WVariant defaultValue, WTime interpolationDuration = WTime::MakeZero());
+  void DeregisterValue(WHashedString sName);
   void DeregisterAllValues();
 
-  void SampleAtPosition(const ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime, ezBlackboard* pTargetBlackboard = nullptr);
+  void SampleAtPosition(const WWorld& world, WSpatialData::Category spatialCategory, const WVec3& vGlobalPosition, WTime deltaTime, WBlackboard* pTargetBlackboard = nullptr);
 
-  ezVariant GetValue(ezTempHashedString sName) const
+  WVariant GetValue(WTempHashedString sName) const
   {
     if (const Value* pValue = m_Values.GetValue(sName))
     {
       return pValue->m_CurrentValue;
     }
 
-    return ezVariant();
+    return WVariant();
   }
 
-  static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
+  static WUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
 
 private:
   struct Value
   {
-    ezVariant m_DefaultValue;
-    ezVariant m_CurrentValue;
+    WVariant m_DefaultValue;
+    WVariant m_CurrentValue;
     double m_fInterpolationFactor = -1.0;
 
-    ezHashedString m_sStrengthName;
+    WHashedString m_sStrengthName;
     float m_fCurrentStrength = 0.0f;
   };
 
-  ezHashTable<ezHashedString, Value> m_Values;
+  WHashTable<WHashedString, Value> m_Values;
 };

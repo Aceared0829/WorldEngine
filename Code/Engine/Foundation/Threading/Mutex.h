@@ -6,16 +6,16 @@
 /// Provides a simple mechanism for mutual exclusion to prevent multiple threads from accessing a shared resource simultaneously.
 ///
 /// This can be used to protect code that is not thread-safe against race conditions.
-/// To ensure that mutexes are always properly released, use the ezLock class or EZ_LOCK macro.
+/// To ensure that mutexes are always properly released, use the WLock class or W_LOCK macro.
 ///
-/// \sa ezSemaphore, ezConditionVariable
-class EZ_FOUNDATION_DLL ezMutex
+/// \sa WSemaphore, WConditionVariable
+class W_FOUNDATION_DLL WMutex
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezMutex);
+  W_DISALLOW_COPY_AND_ASSIGN(WMutex);
 
 public:
-  ezMutex();
-  ~ezMutex();
+  WMutex();
+  ~WMutex();
 
   /// Acquires an exclusive lock for this mutex object
   void Lock();
@@ -23,7 +23,7 @@ public:
   /// Attempts to acquire an exclusive lock for this mutex object. Returns true on success.
   ///
   /// If the mutex is already acquired by another thread, the function returns immediately and returns false.
-  ezResult TryLock();
+  WResult TryLock();
 
   /// Releases a lock that has been previously acquired
   void Unlock();
@@ -32,35 +32,35 @@ public:
   ///
   /// Obviously, this check is not thread-safe and should not be used to check whether a mutex could be locked without blocking.
   /// Use TryLock for that instead.
-  EZ_ALWAYS_INLINE bool IsLocked() const { return m_iLockCount > 0; }
+  W_ALWAYS_INLINE bool IsLocked() const { return m_iLockCount > 0; }
 
-  ezMutexHandle& GetMutexHandle() { return m_hHandle; }
+  WMutexHandle& GetMutexHandle() { return m_hHandle; }
 
 private:
-  ezMutexHandle m_hHandle;
-  ezInt32 m_iLockCount = 0;
+  WMutexHandle m_hHandle;
+  WInt32 m_iLockCount = 0;
 };
 
 /// A dummy mutex that does no locking.
 ///
 /// Used when a mutex object needs to be passed to some code (such as allocators), but thread-synchronization
 /// is actually not necessary.
-class EZ_FOUNDATION_DLL ezNoMutex
+class W_FOUNDATION_DLL WNoMutex
 {
 public:
   /// Implements the 'Acquire' interface function, but does nothing.
-  EZ_ALWAYS_INLINE void Lock() {}
+  W_ALWAYS_INLINE void Lock() {}
 
   /// Implements the 'TryLock' interface function, but does nothing.
-  EZ_ALWAYS_INLINE ezResult TryLock()
+  W_ALWAYS_INLINE WResult TryLock()
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   /// Implements the 'Release' interface function, but does nothing.
-  EZ_ALWAYS_INLINE void Unlock() {}
+  W_ALWAYS_INLINE void Unlock() {}
 
-  EZ_ALWAYS_INLINE bool IsLocked() const
+  W_ALWAYS_INLINE bool IsLocked() const
   {
     return false;
   }

@@ -5,102 +5,102 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameEngineDLL.h>
-struct ezMsgSetPlaying;
+struct WMsgSetPlaying;
 
-using ezPropertyAnimComponentManager = ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating>;
+using WPropertyAnimComponentManager = WComponentManagerSimple<class WPropertyAnimComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Animates properties on other objects and components according to the property animation resource
 ///
 /// Notes:
 ///  - There is no messages to change speed, simply modify the speed property.
-class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
+class W_GAMEENGINE_DLL WPropertyAnimComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPropertyAnimComponent, ezComponent, ezPropertyAnimComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WPropertyAnimComponent, WComponent, WPropertyAnimComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPropertyAnimComponent
+  // WPropertyAnimComponent
 
 public:
-  ezPropertyAnimComponent();
-  ~ezPropertyAnimComponent();
+  WPropertyAnimComponent();
+  ~WPropertyAnimComponent();
 
-  void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);                                     // [ property ]
-  EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
+  void SetPropertyAnim(const WPropertyAnimResourceHandle& hResource);                                     // [ property ]
+  W_ALWAYS_INLINE const WPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
   /// Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
-  void PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh); // [ scriptable ]
+  void PlayAnimationRange(WTime rangeLow, WTime rangeHigh); // [ scriptable ]
 
   /// Pauses or resumes animation playback. Does not reset any state.
-  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg);                       // [ msg handler ]
+  void OnMsgSetPlaying(WMsgSetPlaying& ref_msg);                       // [ msg handler ]
 
-  ezEnum<ezPropertyAnimMode> m_AnimationMode;                           // [ property ]
-  ezTime m_RandomOffset;                                                // [ property ]
+  WEnum<WPropertyAnimMode> m_AnimationMode;                           // [ property ]
+  WTime m_RandomOffset;                                                // [ property ]
   float m_fSpeed = 1.0f;                                                // [ property ]
-  ezTime m_AnimationRangeLow;                                           // [ property ]
-  ezTime m_AnimationRangeHigh;                                          // [ property ]
+  WTime m_AnimationRangeLow;                                           // [ property ]
+  WTime m_AnimationRangeHigh;                                          // [ property ]
   bool m_bPlaying = true;                                               // [ property ]
 
 protected:
-  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
-  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
+  WEventMessageSender<WMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
+  WEventMessageSender<WMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
 
   struct Binding
   {
-    const ezAbstractMemberProperty* m_pMemberProperty = nullptr;
+    const WAbstractMemberProperty* m_pMemberProperty = nullptr;
     mutable void* m_pObject = nullptr; // needs to be updated in case components / objects get relocated in memory
   };
 
   struct FloatBinding : public Binding
   {
-    const ezFloatPropertyAnimEntry* m_pAnimation[4] = {nullptr, nullptr, nullptr, nullptr};
+    const WFloatPropertyAnimEntry* m_pAnimation[4] = {nullptr, nullptr, nullptr, nullptr};
   };
 
   struct ComponentFloatBinding : public FloatBinding
   {
-    ezComponentHandle m_hComponent;
+    WComponentHandle m_hComponent;
   };
 
   struct GameObjectBinding : public FloatBinding
   {
-    ezGameObjectHandle m_hObject;
+    WGameObjectHandle m_hObject;
   };
 
   struct ColorBinding : public Binding
   {
-    ezComponentHandle m_hComponent;
-    const ezColorPropertyAnimEntry* m_pAnimation = nullptr;
+    WComponentHandle m_hComponent;
+    const WColorPropertyAnimEntry* m_pAnimation = nullptr;
   };
 
   void Update();
   void CreatePropertyBindings();
-  void CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezGameObjectHandle& hGameObject);
-  void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
-  void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
-  void ApplyAnimations(const ezTime& tDiff);
-  void ApplyFloatAnimation(const FloatBinding& binding, ezTime lookupTime);
-  void ApplySingleFloatAnimation(const FloatBinding& binding, ezTime lookupTime);
-  void ApplyColorAnimation(const ColorBinding& binding, ezTime lookupTime);
-  ezTime ComputeAnimationLookup(ezTime tDiff);
-  void EvaluateEventTrack(ezTime startTime, ezTime endTime);
+  void CreateGameObjectBinding(const WFloatPropertyAnimEntry* pAnim, const WRTTI* pRtti, void* pObject, const WGameObjectHandle& hGameObject);
+  void CreateFloatPropertyBinding(const WFloatPropertyAnimEntry* pAnim, const WRTTI* pRtti, void* pObject, const WComponentHandle& hComponent);
+  void CreateColorPropertyBinding(const WColorPropertyAnimEntry* pAnim, const WRTTI* pRtti, void* pObject, const WComponentHandle& hComponent);
+  void ApplyAnimations(const WTime& tDiff);
+  void ApplyFloatAnimation(const FloatBinding& binding, WTime lookupTime);
+  void ApplySingleFloatAnimation(const FloatBinding& binding, WTime lookupTime);
+  void ApplyColorAnimation(const ColorBinding& binding, WTime lookupTime);
+  WTime ComputeAnimationLookup(WTime tDiff);
+  void EvaluateEventTrack(WTime startTime, WTime endTime);
   void StartPlayback();
 
   bool m_bReverse = false;
 
-  ezTime m_AnimationTime;
-  ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
-  ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
-  ezHybridArray<ColorBinding, 4> m_ColorBindings;
-  ezPropertyAnimResourceHandle m_hPropertyAnim;
+  WTime m_AnimationTime;
+  WHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
+  WHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
+  WHybridArray<ColorBinding, 4> m_ColorBindings;
+  WPropertyAnimResourceHandle m_hPropertyAnim;
 
   // we do not want to recreate the binding when the resource changes at runtime
   // therefore we use a sharedptr to keep the data around as long as necessary
@@ -110,5 +110,5 @@ protected:
   // when the animation resource is reloaded
   // instead we go with one animation state until this component is reset entirely
   // that means you need to restart a level to see the updated animation
-  ezSharedPtr<ezPropertyAnimResourceDescriptor> m_pAnimDesc;
+  WSharedPtr<WPropertyAnimResourceDescriptor> m_pAnimDesc;
 };

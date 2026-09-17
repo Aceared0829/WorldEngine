@@ -5,57 +5,57 @@
 #include <assimp/types.h>
 #include <assimp/vector3.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
-  ezColor ConvertAssimpType(const aiColor4D& value, bool bInvert /*= false*/)
+  WColor ConvertAssimpType(const aiColor4D& value, bool bInvert /*= false*/)
   {
     if (bInvert)
-      return ezColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b, 1.0f - value.a);
+      return WColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b, 1.0f - value.a);
     else
-      return ezColor(value.r, value.g, value.b, value.a);
+      return WColor(value.r, value.g, value.b, value.a);
   }
 
-  ezColor ConvertAssimpType(const aiColor3D& value, bool bInvert /*= false*/)
+  WColor ConvertAssimpType(const aiColor3D& value, bool bInvert /*= false*/)
   {
     if (bInvert)
-      return ezColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b);
+      return WColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b);
     else
-      return ezColor(value.r, value.g, value.b);
+      return WColor(value.r, value.g, value.b);
   }
 
-  ezMat4 ConvertAssimpType(const aiMatrix4x4& value, bool bDummy /*= false*/)
+  WMat4 ConvertAssimpType(const aiMatrix4x4& value, bool bDummy /*= false*/)
   {
-    EZ_ASSERT_DEBUG(!bDummy, "not implemented");
+    W_ASSERT_DEBUG(!bDummy, "not implemented");
 
-    return ezMat4::MakeFromRowMajorArray(&value.a1);
+    return WMat4::MakeFromRowMajorArray(&value.a1);
   }
 
-  ezVec3 ConvertAssimpType(const aiVector3D& value, bool bDummy /*= false*/)
+  WVec3 ConvertAssimpType(const aiVector3D& value, bool bDummy /*= false*/)
   {
-    EZ_ASSERT_DEBUG(!bDummy, "not implemented");
+    W_ASSERT_DEBUG(!bDummy, "not implemented");
 
-    return ezVec3(value.x, value.y, value.z);
+    return WVec3(value.x, value.y, value.z);
   }
 
-  ezQuat ConvertAssimpType(const aiQuaternion& value, bool bDummy /*= false*/)
+  WQuat ConvertAssimpType(const aiQuaternion& value, bool bDummy /*= false*/)
   {
-    EZ_ASSERT_DEBUG(!bDummy, "not implemented");
+    W_ASSERT_DEBUG(!bDummy, "not implemented");
 
-    return ezQuat(value.x, value.y, value.z, value.w);
+    return WQuat(value.x, value.y, value.z, value.w);
   }
 
   float ConvertAssimpType(float value, bool bDummy /*= false*/)
   {
-    EZ_ASSERT_DEBUG(!bDummy, "not implemented");
+    W_ASSERT_DEBUG(!bDummy, "not implemented");
 
     return value;
   }
 
   int ConvertAssimpType(int value, bool bDummy /*= false*/)
   {
-    EZ_ASSERT_DEBUG(!bDummy, "not implemented");
+    W_ASSERT_DEBUG(!bDummy, "not implemented");
 
     return value;
   }
 
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

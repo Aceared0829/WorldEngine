@@ -4,41 +4,41 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
+using WCurve1DResourceHandle = WTypedResourceHandle<class WCurve1DResource>;
 
 /// Initializer that sets random particle sizes
 ///
 /// Sizes can be picked from a variance value or sampled from a curve.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomSize final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_RandomSize final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomSize, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_RandomSize, WParticleInitializerFactory);
 
 public:
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezVarianceTypeFloat m_Size;
-  ezCurve1DResourceHandle m_hCurve;
-  ezHashedString m_sSizeScaleParameter;
+  WVarianceTypeFloat m_Size;
+  WCurve1DResourceHandle m_hCurve;
+  WHashedString m_sSizeScaleParameter;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_RandomSize final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomSize, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_RandomSize, WParticleInitializer);
 
 public:
-  ezVarianceTypeFloat m_Size;
-  ezCurve1DResourceHandle m_hCurve;
-  ezTempHashedString m_sSizeScaleParameter;
+  WVarianceTypeFloat m_Size;
+  WCurve1DResourceHandle m_hCurve;
+  WTempHashedString m_sSizeScaleParameter;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamSize = nullptr;
+  WProcessingStream* m_pStreamSize = nullptr;
 };

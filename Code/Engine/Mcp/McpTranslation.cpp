@@ -13,19 +13,19 @@ namespace
   /// the key tells the caller nothing it did not send.
   ///
   /// Missing-translation logging is off for the duration: these tools ask about reflection data wholesale,
-  /// where most keys are expected to have no entry, and ezTranslatorLogMissing would fill the editor log
+  /// where most keys are expected to have no entry, and WTranslatorLogMissing would fill the editor log
   /// with a warning per property. The property grid disables it for the same reason.
-  ezStringView Lookup(ezStringView sKey, ezTranslationUsage usage)
+  WStringView Lookup(WStringView sKey, WTranslationUsage usage)
   {
     if (sKey.IsEmpty())
       return {};
 
-    const bool bLogMissing = ezTranslatorLogMissing::s_bActive;
-    ezTranslatorLogMissing::s_bActive = false;
+    const bool bLogMissing = WTranslatorLogMissing::s_bActive;
+    WTranslatorLogMissing::s_bActive = false;
 
-    const ezStringView sResult = ezTranslationLookup::Translate(sKey, ezHashingUtils::StringHash(sKey), usage);
+    const WStringView sResult = WTranslationLookup::Translate(sKey, WHashingUtils::StringHash(sKey), usage);
 
-    ezTranslatorLogMissing::s_bActive = bLogMissing;
+    WTranslatorLogMissing::s_bActive = bLogMissing;
 
     if (sResult == sKey)
       return {};
@@ -33,13 +33,13 @@ namespace
     return sResult;
   }
 
-  /// True when the translation is what ezTranslatorMakeMoreReadable derives from the key itself: the
+  /// True when the translation is what WTranslatorMakeMoreReadable derives from the key itself: the
   /// part behind the last '::' with spaces inserted at CamelCase boundaries. That translator is
   /// registered in the editor, so a key with no entry anywhere still comes back as readable text - and
   /// 'Projection Axis' for 'ProjectionAxis' is a token per property that tells the reader nothing it
   /// could not have written down itself. Genuine overrides ('Base Color Texture' for 'BaseColor')
   /// survive the comparison.
-  bool IsDerivableFromKey(ezStringView sTranslation, ezStringView sKey)
+  bool IsDerivableFromKey(WStringView sTranslation, WStringView sKey)
   {
     const char* szScope = sKey.FindLastSubString("::");
 
@@ -48,7 +48,7 @@ namespace
       sKey.SetStartPosition(szScope + 2);
     }
 
-    ezStringBuilder sStripped = sTranslation;
+    WStringBuilder sStripped = sTranslation;
     sStripped.ReplaceAll(" ", "");
 
     return sStripped.IsEqual_NoCase(sKey);
@@ -56,18 +56,18 @@ namespace
 
   /// Walks up the type hierarchy because the entry sits on the type that declares the property, which for
   /// an inherited property is not the type the caller asked about.
-  ezStringView LookupProperty(const ezRTTI* pType, ezStringView sPropertyName, ezTranslationUsage usage)
+  WStringView LookupProperty(const WRTTI* pType, WStringView sPropertyName, WTranslationUsage usage)
   {
     if (sPropertyName.IsEmpty())
       return {};
 
-    ezStringBuilder sKey;
+    WStringBuilder sKey;
 
-    for (const ezRTTI* pCurrent = pType; pCurrent != nullptr; pCurrent = pCurrent->GetParentType())
+    for (const WRTTI* pCurrent = pType; pCurrent != nullptr; pCurrent = pCurrent->GetParentType())
     {
       sKey.Set(pCurrent->GetTypeName(), "::", sPropertyName);
 
-      const ezStringView sResult = Lookup(sKey, usage);
+      const WStringView sResult = Lookup(sKey, usage);
 
       // A readable-ified key is not an entry: it is produced for every key, so accepting it here would
       // stop the walk on the first type and never reach the base type that declares the property.
@@ -79,9 +79,9 @@ namespace
   }
 } // namespace
 
-ezStringView ezMcpTranslation::GetDisplayName(ezStringView sKey)
+WStringView WMcpTranslation::GetDisplayName(WStringView sKey)
 {
-  const ezStringView sResult = Lookup(sKey, ezTranslationUsage::Default);
+  const WStringView sResult = Lookup(sKey, WTranslationUsage::Default);
 
   if (IsDerivableFromKey(sResult, sKey))
     return {};
@@ -89,27 +89,27 @@ ezStringView ezMcpTranslation::GetDisplayName(ezStringView sKey)
   return sResult;
 }
 
-ezStringView ezMcpTranslation::GetTooltip(ezStringView sKey)
+WStringView WMcpTranslation::GetTooltip(WStringView sKey)
 {
-  return Lookup(sKey, ezTranslationUsage::Tooltip);
+  return Lookup(sKey, WTranslationUsage::Tooltip);
 }
 
-ezStringView ezMcpTranslation::GetHelpURL(ezStringView sKey)
+WStringView WMcpTranslation::GetHelpURL(WStringView sKey)
 {
-  return Lookup(sKey, ezTranslationUsage::HelpURL);
+  return Lookup(sKey, WTranslationUsage::HelpURL);
 }
 
-ezStringView ezMcpTranslation::GetPropertyDisplayName(const ezRTTI* pType, ezStringView sPropertyName)
+WStringView WMcpTranslation::GetPropertyDisplayName(const WRTTI* pType, WStringView sPropertyName)
 {
-  return LookupProperty(pType, sPropertyName, ezTranslationUsage::Default);
+  return LookupProperty(pType, sPropertyName, WTranslationUsage::Default);
 }
 
-ezStringView ezMcpTranslation::GetPropertyTooltip(const ezRTTI* pType, ezStringView sPropertyName)
+WStringView WMcpTranslation::GetPropertyTooltip(const WRTTI* pType, WStringView sPropertyName)
 {
-  return LookupProperty(pType, sPropertyName, ezTranslationUsage::Tooltip);
+  return LookupProperty(pType, sPropertyName, WTranslationUsage::Tooltip);
 }
 
-void ezMcpTranslation::AddOptionalString(ezMcpJsonWriter& ref_writer, ezStringView sFieldName, ezStringView sValue)
+void WMcpTranslation::AddOptionalString(WMcpJsonWriter& ref_writer, WStringView sFieldName, WStringView sValue)
 {
   if (sValue.IsEmpty())
     return;

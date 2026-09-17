@@ -6,37 +6,37 @@
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshContext, 1, ezRTTIDefaultAllocator<ezAnimatedMeshContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimatedMeshContext, 1, WRTTIDefaultAllocator<WAnimatedMeshContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Animated Mesh"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Animated Mesh"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimatedMeshContext::ezAnimatedMeshContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WAnimatedMeshContext::WAnimatedMeshContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
   m_pAnimatedMeshObject = nullptr;
 }
 
-void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
+void WAnimatedMeshContext::HandleMessage(const WEditorEngineDocumentMsg* pDocMsg)
 {
-  if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
+  if (auto* pMsg = WDynamicCast<const WEditorEngineSetMaterialsMsg*>(pDocMsg))
   {
-    ezAnimatedMeshComponent* pAnimatedMesh;
+    WAnimatedMeshComponent* pAnimatedMesh;
     if (m_pAnimatedMeshObject && m_pAnimatedMeshObject->TryGetComponentOfBaseType(pAnimatedMesh))
     {
-      for (ezUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
+      for (WUInt32 i = 0; i < pMsg->m_Materials.GetCount(); ++i)
       {
-        ezMaterialResourceHandle hMat;
+        WMaterialResourceHandle hMat;
 
         if (!pMsg->m_Materials[i].IsEmpty())
         {
-          hMat = ezResourceManager::LoadResource<ezMaterialResource>(pMsg->m_Materials[i]);
+          hMat = WResourceManager::LoadResource<WMaterialResource>(pMsg->m_Materials[i]);
         }
 
         pAnimatedMesh->SetMaterial(i, hMat);
@@ -46,13 +46,13 @@ void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocM
     return;
   }
 
-  if (auto* pMsg = ezDynamicCast<const ezQuerySelectionBBoxMsgToEngine*>(pDocMsg))
+  if (auto* pMsg = WDynamicCast<const WQuerySelectionBBoxMsgToEngine*>(pDocMsg))
   {
     QuerySelectionBBox(pMsg);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEngine*>(pDocMsg))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEngine*>(pDocMsg))
   {
     if (pMsg->m_sWhatToDo == "CommonAssetUiState")
     {
@@ -64,62 +64,62 @@ void ezAnimatedMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocM
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
+  WEngineProcessDocumentContext::HandleMessage(pDocMsg);
 }
 
-void ezAnimatedMeshContext::OnInitialize()
+void WAnimatedMeshContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezAnimatedMeshComponent* pAnimatedMesh;
+  WAnimatedMeshComponent* pAnimatedMesh;
 
   // Preview AnimatedMesh
   {
-    ezGameObjectDesc obj;
+    WGameObjectDesc obj;
     obj.m_bDynamic = true;
     obj.m_sName.Assign("AnimatedMeshPreview");
     pWorld->CreateObject(obj, m_pAnimatedMeshObject);
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    const WTag& tagCastShadows = WTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     m_pAnimatedMeshObject->SetTag(tagCastShadows);
 
-    ezAnimatedMeshComponent::CreateComponent(m_pAnimatedMeshObject, pAnimatedMesh);
-    ezStringBuilder sAnimatedMeshGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sAnimatedMeshGuid);
-    m_hAnimatedMesh = ezResourceManager::LoadResource<ezMeshResource>(sAnimatedMeshGuid);
+    WAnimatedMeshComponent::CreateComponent(m_pAnimatedMeshObject, pAnimatedMesh);
+    WStringBuilder sAnimatedMeshGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sAnimatedMeshGuid);
+    m_hAnimatedMesh = WResourceManager::LoadResource<WMeshResource>(sAnimatedMeshGuid);
     pAnimatedMesh->SetMesh(m_hAnimatedMesh);
   }
 }
 
-ezEngineProcessViewContext* ezAnimatedMeshContext::CreateViewContext()
+WEngineProcessViewContext* WAnimatedMeshContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezAnimatedMeshViewContext, this);
+  return W_DEFAULT_NEW(WAnimatedMeshViewContext, this);
 }
 
-void ezAnimatedMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WAnimatedMeshContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-bool ezAnimatedMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WAnimatedMeshContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  WBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
-  ezAnimatedMeshViewContext* pAnimatedMeshViewContext = static_cast<ezAnimatedMeshViewContext*>(pThumbnailViewContext);
+  WAnimatedMeshViewContext* pAnimatedMeshViewContext = static_cast<WAnimatedMeshViewContext*>(pThumbnailViewContext);
   return pAnimatedMeshViewContext->UpdateThumbnailCamera(bounds);
 }
 
 
-void ezAnimatedMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+void WAnimatedMeshContext::QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg)
 {
   if (m_pAnimatedMeshObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere bounds = WBoundingBoxSphere::MakeInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     m_pAnimatedMeshObject->UpdateLocalBounds();
     m_pAnimatedMeshObject->UpdateGlobalTransformAndBounds();
@@ -129,9 +129,9 @@ void ezAnimatedMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* 
       bounds.ExpandToInclude(b);
   }
 
-  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+  const WQuerySelectionBBoxMsgToEngine* msg = static_cast<const WQuerySelectionBBoxMsgToEngine*>(pMsg);
 
-  ezQuerySelectionBBoxResultMsgToEditor res;
+  WQuerySelectionBBoxResultMsgToEditor res;
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;

@@ -4,31 +4,31 @@
 
 #include <GameEngine/Animation/TransformComponent.h>
 
-using ezSliderComponentManager = ezComponentManagerSimple<class ezSliderComponent, ezComponentUpdateType::WhenSimulating>;
+using WSliderComponentManager = WComponentManagerSimple<class WSliderComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Applies a sliding transform to the game object that it is attached to.
 ///
 /// The object is moved along a local axis either once or back and forth.
-class EZ_GAMEENGINE_DLL ezSliderComponent : public ezTransformComponent
+class W_GAMEENGINE_DLL WSliderComponent : public WTransformComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, ezSliderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSliderComponent, WTransformComponent, WSliderComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSliderComponent
+  // WSliderComponent
 
 public:
-  ezSliderComponent();
-  ~ezSliderComponent();
+  WSliderComponent();
+  ~WSliderComponent();
 
   /// How far to move the object along the axis before reaching the end point.
   float m_fDistanceToTravel = 1.0f; // [ property ]
@@ -40,10 +40,10 @@ public:
   float m_fDeceleration = 0.0; // [ property ]
 
   /// The axis along which to move the object.
-  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
+  WEnum<WBasisAxis> m_Axis = WBasisAxis::PositiveZ; // [ property ]
 
   /// If non-zero, the slider starts at a random offset as if it had already been moving for up to this amount of time.
-  ezTime m_RandomStart; // [ property ]
+  WTime m_RandomStart; // [ property ]
 
 protected:
   void Update();

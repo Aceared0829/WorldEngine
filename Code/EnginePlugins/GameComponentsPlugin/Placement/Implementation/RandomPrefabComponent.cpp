@@ -7,29 +7,29 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GameComponentsPlugin/Placement/RandomPrefabComponent.h>
 
-ezRandomPrefabComponentManager::ezRandomPrefabComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezRandomPrefabComponent, ezBlockStorageType::Compact>(pWorld)
+WRandomPrefabComponentManager::WRandomPrefabComponentManager(WWorld* pWorld)
+  : WComponentManager<WRandomPrefabComponent, WBlockStorageType::Compact>(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezRandomPrefabComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WRandomPrefabComponentManager::ResourceEventHandler, this));
 }
 
-ezRandomPrefabComponentManager::~ezRandomPrefabComponentManager()
+WRandomPrefabComponentManager::~WRandomPrefabComponentManager()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezRandomPrefabComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WRandomPrefabComponentManager::ResourceEventHandler, this));
 }
 
-void ezRandomPrefabComponentManager::Initialize()
+void WRandomPrefabComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRandomPrefabComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WRandomPrefabComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
 }
 
-void ezRandomPrefabComponentManager::Update(const ezWorldModule::UpdateContext& /*context*/)
+void WRandomPrefabComponentManager::Update(const WWorldModule::UpdateContext& /*context*/)
 {
   for (auto hComp : m_ComponentsToUpdate)
   {
-    ezRandomPrefabComponent* pComponent;
+    WRandomPrefabComponent* pComponent;
     if (!TryGetComponent(hComp, pComponent))
       continue;
 
@@ -42,16 +42,16 @@ void ezRandomPrefabComponentManager::Update(const ezWorldModule::UpdateContext& 
   m_ComponentsToUpdate.Clear();
 }
 
-void ezRandomPrefabComponentManager::AddToUpdateList(ezRandomPrefabComponent* pComponent)
+void WRandomPrefabComponentManager::AddToUpdateList(WRandomPrefabComponent* pComponent)
 {
   m_ComponentsToUpdate.Insert(pComponent->GetHandle());
 }
 
-void ezRandomPrefabComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WRandomPrefabComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WPrefabResource>())
   {
-    ezPrefabResourceHandle hUpdatedPrefab((ezPrefabResource*)(e.m_pResource));
+    WPrefabResourceHandle hUpdatedPrefab((WPrefabResource*)(e.m_pResource));
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
@@ -70,36 +70,36 @@ void ezRandomPrefabComponentManager::ResourceEventHandler(const ezResourceEvent&
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRandomPrefabComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WRandomPrefabComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Preview", GetPreview, SetPreview)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("Count", GetCount, SetCount)->AddAttributes(new ezDefaultValueAttribute(1)),
-    EZ_ACCESSOR_PROPERTY("InstantiateAsChildren", GetInstantiateAsChildren, SetInstantiateAsChildren),
-    EZ_ACCESSOR_PROPERTY("Position", GetPositionDeviation, SetPositionDeviation)->AddAttributes(new ezGroupAttribute("Random Transform"), new ezClampValueAttribute(ezVec3::MakeZero(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Rotation", GetRotationDeviation, SetRotationDeviation)->AddAttributes(new ezGroupAttribute("Random Transform"), new ezSuffixAttribute("°"), new ezClampValueAttribute(ezVec3::MakeZero(), ezVec3(180.0f))),
-    EZ_ACCESSOR_PROPERTY("MinScale", GetMinUniformScale, SetMinUniformScale)->AddAttributes(new ezGroupAttribute("Random Transform"), new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("MaxScale", GetMaxUniformScale, SetMaxUniformScale)->AddAttributes(new ezGroupAttribute("Random Transform"), new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("Color1", GetColor1, SetColor1)->AddAttributes(new ezExposeColorAlphaAttribute(), new ezGroupAttribute("Random Color")),
-    EZ_ACCESSOR_PROPERTY("Color2", GetColor2, SetColor2)->AddAttributes(new ezExposeColorAlphaAttribute(), new ezGroupAttribute("Random Color")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Prefabs", Prefabs_GetCount, Prefabs_GetValue, Prefabs_SetValue, Prefabs_Insert, Prefabs_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab"), new ezRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("Preview", GetPreview, SetPreview)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("Count", GetCount, SetCount)->AddAttributes(new WDefaultValueAttribute(1)),
+    W_ACCESSOR_PROPERTY("InstantiateAsChildren", GetInstantiateAsChildren, SetInstantiateAsChildren),
+    W_ACCESSOR_PROPERTY("Position", GetPositionDeviation, SetPositionDeviation)->AddAttributes(new WGroupAttribute("Random Transform"), new WClampValueAttribute(WVec3::MakeZero(), WVariant())),
+    W_ACCESSOR_PROPERTY("Rotation", GetRotationDeviation, SetRotationDeviation)->AddAttributes(new WGroupAttribute("Random Transform"), new WSuffixAttribute("°"), new WClampValueAttribute(WVec3::MakeZero(), WVec3(180.0f))),
+    W_ACCESSOR_PROPERTY("MinScale", GetMinUniformScale, SetMinUniformScale)->AddAttributes(new WGroupAttribute("Random Transform"), new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_ACCESSOR_PROPERTY("MaxScale", GetMaxUniformScale, SetMaxUniformScale)->AddAttributes(new WGroupAttribute("Random Transform"), new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_ACCESSOR_PROPERTY("Color1", GetColor1, SetColor1)->AddAttributes(new WExposeColorAlphaAttribute(), new WGroupAttribute("Random Color")),
+    W_ACCESSOR_PROPERTY("Color2", GetColor2, SetColor2)->AddAttributes(new WExposeColorAlphaAttribute(), new WGroupAttribute("Random Color")),
+    W_ARRAY_ACCESSOR_PROPERTY("Prefabs", Prefabs_GetCount, Prefabs_GetValue, Prefabs_SetValue, Prefabs_Insert, Prefabs_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab"), new WRequiredAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Construction"),
+    new WCategoryAttribute("Construction"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+W_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
 
-ezRandomPrefabComponent::ezRandomPrefabComponent() = default;
-ezRandomPrefabComponent::~ezRandomPrefabComponent() = default;
+WRandomPrefabComponent::WRandomPrefabComponent() = default;
+WRandomPrefabComponent::~WRandomPrefabComponent() = default;
 
-void ezRandomPrefabComponent::OnActivated()
+void WRandomPrefabComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -108,7 +108,7 @@ void ezRandomPrefabComponent::OnActivated()
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::OnDeactivated()
+void WRandomPrefabComponent::OnDeactivated()
 {
   // if this was created procedurally during editor runtime, we do not need to clear specific nodes
   // after simulation, the scene is deleted anyway
@@ -118,14 +118,14 @@ void ezRandomPrefabComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-enum class RandomPrefabComponentFlags : ezUInt8
+enum class RandomPrefabComponentFlags : WUInt8
 {
   SelfDeletion = 1
 };
 
-void ezRandomPrefabComponent::Deinitialize()
+void WRandomPrefabComponent::Deinitialize()
 {
-  if (GetUserFlag((ezUInt8)RandomPrefabComponentFlags::SelfDeletion))
+  if (GetUserFlag((WUInt8)RandomPrefabComponentFlags::SelfDeletion))
   {
     // do nothing, ie do not call OnDeactivated()
     // we do want to keep the created child objects around when this component gets destroyed during simulation
@@ -137,14 +137,14 @@ void ezRandomPrefabComponent::Deinitialize()
   OnDeactivated();
 }
 
-void ezRandomPrefabComponent::OnSimulationStarted()
+void WRandomPrefabComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   // at runtime, not in editor
-  if (GetUniqueID() == ezInvalidIndex)
+  if (GetUniqueID() == WInvalidIndex)
   {
-    SetUserFlag((ezUInt8)RandomPrefabComponentFlags::SelfDeletion, true);
+    SetUserFlag((WUInt8)RandomPrefabComponentFlags::SelfDeletion, true);
 
     // remove the prefab reference component, to prevent issues after another serialization/deserialization
     // and also to save some memory
@@ -180,11 +180,11 @@ void ezRandomPrefabComponent::OnSimulationStarted()
   }
 }
 
-void ezRandomPrefabComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WRandomPrefabComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_uiCount;
 
@@ -202,11 +202,11 @@ void ezRandomPrefabComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s.WriteArray(m_Prefabs).AssertSuccess();
 }
 
-void ezRandomPrefabComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WRandomPrefabComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_uiCount;
 
@@ -224,71 +224,71 @@ void ezRandomPrefabComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s.ReadArray(m_Prefabs).AssertSuccess();
 }
 
-void ezRandomPrefabComponent::SetCount(ezUInt16 uiCount)
+void WRandomPrefabComponent::SetCount(WUInt16 uiCount)
 {
   m_uiCount = uiCount;
 
   InstantiatePrefabs();
 }
 
-ezUInt16 ezRandomPrefabComponent::GetCount() const
+WUInt16 WRandomPrefabComponent::GetCount() const
 {
   return m_uiCount;
 }
 
-void ezRandomPrefabComponent::SetPositionDeviation(const ezVec3& vValue)
+void WRandomPrefabComponent::SetPositionDeviation(const WVec3& vValue)
 {
   m_vPositionDeviation = vValue;
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetRotationDeviation(const ezVec3& vValue)
+void WRandomPrefabComponent::SetRotationDeviation(const WVec3& vValue)
 {
   m_vRotationDeviation = vValue;
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetMinUniformScale(float fValue)
+void WRandomPrefabComponent::SetMinUniformScale(float fValue)
 {
   m_fMinUniformScale = fValue;
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetMaxUniformScale(float fValue)
+void WRandomPrefabComponent::SetMaxUniformScale(float fValue)
 {
   m_fMaxUniformScale = fValue;
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetColor1(const ezColor& value)
+void WRandomPrefabComponent::SetColor1(const WColor& value)
 {
   m_Color1 = value;
 
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetColor2(const ezColor& value)
+void WRandomPrefabComponent::SetColor2(const WColor& value)
 {
   m_Color2 = value;
 
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetPreview(bool bValue)
+void WRandomPrefabComponent::SetPreview(bool bValue)
 {
   m_bPreview = bValue;
 
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::SetInstantiateAsChildren(bool bValue)
+void WRandomPrefabComponent::SetInstantiateAsChildren(bool bValue)
 {
   m_bInstantiateAsChildren = bValue;
 
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::ClearCreatedInstances()
+void WRandomPrefabComponent::ClearCreatedInstances()
 {
   // we assume all children are our created instances
   // if the user attaches any other children, there will be collateral damage
@@ -299,7 +299,7 @@ void ezRandomPrefabComponent::ClearCreatedInstances()
   }
 }
 
-void ezRandomPrefabComponent::InstantiatePrefabs()
+void WRandomPrefabComponent::InstantiatePrefabs()
 {
   if (!IsActiveAndInitialized())
     return;
@@ -309,8 +309,8 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
   if (m_Prefabs.IsEmpty())
     return;
 
-  const ezUInt32 uiUniqueID = GetUniqueID();
-  const bool bIsInEditor = (uiUniqueID != ezInvalidIndex);
+  const WUInt32 uiUniqueID = GetUniqueID();
+  const bool bIsInEditor = (uiUniqueID != WInvalidIndex);
 
   if (bIsInEditor && !m_bPreview)
   {
@@ -320,7 +320,7 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
     }
   }
 
-  auto MarkAsCreatedByPrefab = [](ezGameObject* pChild, ezUInt32 uiUniqueID)
+  auto MarkAsCreatedByPrefab = [](WGameObject* pChild, WUInt32 uiUniqueID)
   {
     // while exporting a scene all game objects with this flag are ignored and not exported
     // set this flag on all game objects that were created by instantiating this prefab
@@ -336,117 +336,117 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
     }
   };
 
-  ezTempHybridArray<ezGameObject*, 64> allCreatedRootObjects;
-  ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
-  ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
+  WTempHybridArray<WGameObject*, 64> allCreatedRootObjects;
+  WTempHybridArray<WGameObject*, 8> createdRootObjects;
+  WTempHybridArray<WGameObject*, 8> createdChildObjects;
 
   const bool bAttachAsChildren = m_bInstantiateAsChildren || bIsInEditor;
 
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
   if (bAttachAsChildren)
   {
     options.m_hParent = GetOwner()->GetHandle();
-    options.m_RandomSeedMode = ezPrefabInstantiationOptions::RandomSeedMode::DeterministicFromParent;
+    options.m_RandomSeedMode = WPrefabInstantiationOptions::RandomSeedMode::DeterministicFromParent;
   }
   else
   {
-    options.m_RandomSeedMode = ezPrefabInstantiationOptions::RandomSeedMode::CustomRootValue;
+    options.m_RandomSeedMode = WPrefabInstantiationOptions::RandomSeedMode::CustomRootValue;
     options.m_uiCustomRandomSeedRootValue = GetOwner()->GetStableRandomSeed();
   }
   options.m_pCreatedRootObjectsOut = &createdRootObjects;
   options.m_pCreatedChildObjectsOut = &createdChildObjects;
 
-  const ezSimdVec4f half(0.5f);
+  const WSimdVec4f half(0.5f);
 
-  const ezSimdVec4f minOffset = ezSimdConversion::ToVec3(-m_vPositionDeviation);
-  const ezSimdVec4f maxOffset = ezSimdConversion::ToVec3(m_vPositionDeviation);
+  const WSimdVec4f minOffset = WSimdConversion::ToVec3(-m_vPositionDeviation);
+  const WSimdVec4f maxOffset = WSimdConversion::ToVec3(m_vPositionDeviation);
   // position step currently not exposed
-  // const ezSimdVec4f offsetStep = ezSimdConversion::ToVec3(m_vPositionStep);
+  // const WSimdVec4f offsetStep = WSimdConversion::ToVec3(m_vPositionStep);
 
-  const ezSimdVec4f minRotAndIndex = ezSimdConversion::ToVec4(-m_vRotationDeviation.GetAsVec4(0.0f));
-  const ezSimdVec4f maxRotAndIndex = ezSimdConversion::ToVec4(m_vRotationDeviation.GetAsVec4(static_cast<float>(m_Prefabs.GetCount())));
+  const WSimdVec4f minRotAndIndex = WSimdConversion::ToVec4(-m_vRotationDeviation.GetAsVec4(0.0f));
+  const WSimdVec4f maxRotAndIndex = WSimdConversion::ToVec4(m_vRotationDeviation.GetAsVec4(static_cast<float>(m_Prefabs.GetCount())));
   // rotation step currently not exposed
-  // const ezSimdVec4f rotStep = ezSimdConversion::ToVec3(m_vRotationStep);
+  // const WSimdVec4f rotStep = WSimdConversion::ToVec3(m_vRotationStep);
 
-  const ezSimdVec4f minScaleAndColorIndex = ezSimdConversion::ToVec4(ezVec4(m_fMinUniformScale, 1, 1, 0));
-  const ezSimdVec4f maxScaleAndColorIndex = ezSimdConversion::ToVec4(ezVec4(m_fMaxUniformScale, 1, 1, 1));
+  const WSimdVec4f minScaleAndColorIndex = WSimdConversion::ToVec4(WVec4(m_fMinUniformScale, 1, 1, 0));
+  const WSimdVec4f maxScaleAndColorIndex = WSimdConversion::ToVec4(WVec4(m_fMaxUniformScale, 1, 1, 1));
   // scale step currently not exposed
-  // const ezSimdVec4f minScaleAndColorIndex = ezSimdConversion::ToVec4(m_vMinScale.GetAsVec4(0.0f));
-  // const ezSimdVec4f maxScaleAndColorIndex = ezSimdConversion::ToVec4(m_vMaxScale.GetAsVec4(1.0f));
-  // const ezSimdVec4f scaleStep = ezSimdConversion::ToVec3(m_vScaleStep);
+  // const WSimdVec4f minScaleAndColorIndex = WSimdConversion::ToVec4(m_vMinScale.GetAsVec4(0.0f));
+  // const WSimdVec4f maxScaleAndColorIndex = WSimdConversion::ToVec4(m_vMaxScale.GetAsVec4(1.0f));
+  // const WSimdVec4f scaleStep = WSimdConversion::ToVec3(m_vScaleStep);
 
-  const bool bRandomColor = (m_Color1 != ezColor::White || m_Color2 != ezColor::White);
+  const bool bRandomColor = (m_Color1 != WColor::White || m_Color2 != WColor::White);
 
-  for (ezUInt32 i = 0; i < m_uiCount; ++i)
+  for (WUInt32 i = 0; i < m_uiCount; ++i)
   {
-    ezSimdVec4i randPos = ezSimdVec4i(0, 1, 2, 3);
-    ezSimdVec4u seed = ezSimdVec4u(GetOwner()->GetStableRandomSeed() + i * 137);
+    WSimdVec4i randPos = WSimdVec4i(0, 1, 2, 3);
+    WSimdVec4u seed = WSimdVec4u(GetOwner()->GetStableRandomSeed() + i * 137);
 
-    ezSimdVec4f rotAndIndex = ezSimdRandom::FloatMinMax(randPos, minRotAndIndex.CompMin(maxRotAndIndex), minRotAndIndex.CompMax(maxRotAndIndex), seed);
+    WSimdVec4f rotAndIndex = WSimdRandom::FloatMinMax(randPos, minRotAndIndex.CompMin(maxRotAndIndex), minRotAndIndex.CompMax(maxRotAndIndex), seed);
 
     const auto& entry = m_Prefabs[static_cast<int>(rotAndIndex.w())];
     if (!entry.IsValid())
       continue;
 
-    ezTransform transform;
+    WTransform transform;
 
     // position
     {
-      randPos += ezSimdVec4i(13);
+      randPos += WSimdVec4i(13);
 
-      ezSimdVec4f offset = ezSimdRandom::FloatMinMax(randPos, minOffset.CompMin(maxOffset), minOffset.CompMax(maxOffset), seed);
+      WSimdVec4f offset = WSimdRandom::FloatMinMax(randPos, minOffset.CompMin(maxOffset), minOffset.CompMax(maxOffset), seed);
 
       // position step currently not exposed
-      // ezSimdVec4f roundedOffset = (offset.CompDiv(offsetStep) + half).Floor().CompMul(offsetStep);
-      // offset = ezSimdVec4f::Select(offsetStep == ezSimdVec4f::MakeZero(), offset, roundedOffset);
+      // WSimdVec4f roundedOffset = (offset.CompDiv(offsetStep) + half).Floor().CompMul(offsetStep);
+      // offset = WSimdVec4f::Select(offsetStep == WSimdVec4f::MakeZero(), offset, roundedOffset);
 
-      transform.m_vPosition = ezSimdConversion::ToVec3(offset);
+      transform.m_vPosition = WSimdConversion::ToVec3(offset);
     }
 
     // rotation
     {
-      ezSimdVec4f rot = rotAndIndex;
+      WSimdVec4f rot = rotAndIndex;
 
       // rotation step currently not exposed
-      // ezSimdVec4f roundedRot = (rot.CompDiv(rotStep) + half).Floor().CompMul(rotStep);
-      // rot = ezSimdVec4f::Select(rotStep == ezSimdVec4f::MakeZero(), rot, roundedRot);
+      // WSimdVec4f roundedRot = (rot.CompDiv(rotStep) + half).Floor().CompMul(rotStep);
+      // rot = WSimdVec4f::Select(rotStep == WSimdVec4f::MakeZero(), rot, roundedRot);
 
-      transform.m_qRotation = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(rot.x()), ezAngle::MakeFromDegree(rot.y()), ezAngle::MakeFromDegree(rot.z()));
+      transform.m_qRotation = WQuat::MakeFromEulerAngles(WAngle::MakeFromDegree(rot.x()), WAngle::MakeFromDegree(rot.y()), WAngle::MakeFromDegree(rot.z()));
     }
 
     float colorIndex = 0.0f;
 
     // scale + color
     {
-      randPos += ezSimdVec4i(11);
+      randPos += WSimdVec4i(11);
 
-      ezSimdVec4f scaleAndColorIndex = ezSimdRandom::FloatMinMax(randPos, minScaleAndColorIndex.CompMin(maxScaleAndColorIndex), minScaleAndColorIndex.CompMax(maxScaleAndColorIndex), seed);
-      ezSimdVec4f scale = scaleAndColorIndex;
+      WSimdVec4f scaleAndColorIndex = WSimdRandom::FloatMinMax(randPos, minScaleAndColorIndex.CompMin(maxScaleAndColorIndex), minScaleAndColorIndex.CompMax(maxScaleAndColorIndex), seed);
+      WSimdVec4f scale = scaleAndColorIndex;
       colorIndex = scaleAndColorIndex.w();
 
       // scale step currently not exposed
-      // ezSimdVec4f roundedScale = (scale.CompDiv(scaleStep) + half).Floor().CompMul(scaleStep);
-      // scale = ezSimdVec4f::Select(scaleStep == ezSimdVec4f::MakeZero(), scale, roundedScale);
+      // WSimdVec4f roundedScale = (scale.CompDiv(scaleStep) + half).Floor().CompMul(scaleStep);
+      // scale = WSimdVec4f::Select(scaleStep == WSimdVec4f::MakeZero(), scale, roundedScale);
 
-      scale = ezSimdVec4f::Select(scale == ezSimdVec4f::MakeZero(), ezSimdVec4f(1.0f), scale);
+      scale = WSimdVec4f::Select(scale == WSimdVec4f::MakeZero(), WSimdVec4f(1.0f), scale);
 
       // only use the scale value for uniform scaling
       transform.m_vScale.Set(scale.x());
 
       // non-uniform scaling not exposed
-      // transform.m_vScale = ezSimdConversion::ToVec3(scale);
+      // transform.m_vScale = WSimdConversion::ToVec3(scale);
     }
 
     if (!bAttachAsChildren)
     {
-      transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), transform);
+      transform = WTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), transform);
     }
 
     {
       createdRootObjects.Clear();
       createdChildObjects.Clear();
 
-      ezResourceLock<ezPrefabResource> pResource(entry, ezResourceAcquireMode::AllowLoadingFallback);
+      WResourceLock<WPrefabResource> pResource(entry, WResourceAcquireMode::AllowLoadingFallback);
 
       pResource->InstantiatePrefab(*GetWorld(), transform, options);
 
@@ -455,23 +455,23 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
 
     if (bRandomColor)
     {
-      ezMsgSetColor msg;
-      msg.m_Color = ezMath::Lerp(m_Color1, m_Color2, colorIndex);
+      WMsgSetColor msg;
+      msg.m_Color = WMath::Lerp(m_Color1, m_Color2, colorIndex);
 
       for (auto pObject : createdRootObjects)
       {
-        pObject->PostMessageRecursive(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+        pObject->PostMessageRecursive(msg, WTime::MakeZero(), WObjectMsgQueueType::AfterInitialized);
       }
     }
 
     if (bIsInEditor)
     {
-      for (ezGameObject* pChild : createdRootObjects)
+      for (WGameObject* pChild : createdRootObjects)
       {
         MarkAsCreatedByPrefab(pChild, uiUniqueID);
       }
 
-      for (ezGameObject* pChild : createdChildObjects)
+      for (WGameObject* pChild : createdChildObjects)
       {
         MarkAsCreatedByPrefab(pChild, uiUniqueID);
       }
@@ -479,12 +479,12 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
   }
 }
 
-ezUInt32 ezRandomPrefabComponent::Prefabs_GetCount() const
+WUInt32 WRandomPrefabComponent::Prefabs_GetCount() const
 {
   return m_Prefabs.GetCount();
 }
 
-ezString ezRandomPrefabComponent::Prefabs_GetValue(ezUInt32 uiIndex) const
+WString WRandomPrefabComponent::Prefabs_GetValue(WUInt32 uiIndex) const
 {
   if (uiIndex >= m_Prefabs.GetCount())
   {
@@ -494,14 +494,14 @@ ezString ezRandomPrefabComponent::Prefabs_GetValue(ezUInt32 uiIndex) const
   return m_Prefabs[uiIndex].GetResourceID();
 }
 
-void ezRandomPrefabComponent::Prefabs_SetValue(ezUInt32 uiIndex, ezString sValue)
+void WRandomPrefabComponent::Prefabs_SetValue(WUInt32 uiIndex, WString sValue)
 {
   m_Prefabs.EnsureCount(uiIndex + 1);
 
   if (!sValue.IsEmpty())
   {
-    m_Prefabs[uiIndex] = ezResourceManager::LoadResource<ezPrefabResource>(sValue);
-    ezResourceManager::PreloadResource(m_Prefabs[uiIndex]);
+    m_Prefabs[uiIndex] = WResourceManager::LoadResource<WPrefabResource>(sValue);
+    WResourceManager::PreloadResource(m_Prefabs[uiIndex]);
   }
   else
   {
@@ -511,14 +511,14 @@ void ezRandomPrefabComponent::Prefabs_SetValue(ezUInt32 uiIndex, ezString sValue
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::Prefabs_Insert(ezUInt32 uiIndex, ezString sValue)
+void WRandomPrefabComponent::Prefabs_Insert(WUInt32 uiIndex, WString sValue)
 {
-  ezPrefabResourceHandle hResource;
+  WPrefabResourceHandle hResource;
 
   if (!sValue.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(sValue);
-    ezResourceManager::PreloadResource(hResource);
+    hResource = WResourceManager::LoadResource<WPrefabResource>(sValue);
+    WResourceManager::PreloadResource(hResource);
   }
 
   m_Prefabs.InsertAt(uiIndex, hResource);
@@ -526,7 +526,7 @@ void ezRandomPrefabComponent::Prefabs_Insert(ezUInt32 uiIndex, ezString sValue)
   InstantiatePrefabs();
 }
 
-void ezRandomPrefabComponent::Prefabs_Remove(ezUInt32 uiIndex)
+void WRandomPrefabComponent::Prefabs_Remove(WUInt32 uiIndex)
 {
   m_Prefabs.RemoveAtAndCopy(uiIndex);
 
@@ -534,4 +534,4 @@ void ezRandomPrefabComponent::Prefabs_Remove(ezUInt32 uiIndex)
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Placement_Implementation_RandomPrefabComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Placement_Implementation_RandomPrefabComponent);

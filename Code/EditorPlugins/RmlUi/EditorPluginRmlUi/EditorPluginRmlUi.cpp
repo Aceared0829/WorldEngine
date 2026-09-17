@@ -13,33 +13,33 @@ void OnLoadPlugin()
 {
   // RmlUi
   {
-    ezRmlUiActions::RegisterActions();
+    WRmlUiActions::RegisterActions();
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar", "AssetMenuBar");
-      ezRmlUiActions::MapActionsMenu("RmlUiAssetMenuBar");
+      WActionMapManager::RegisterActionMap("RmlUiAssetMenuBar", "AssetMenuBar");
+      WRmlUiActions::MapActionsMenu("RmlUiAssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar", "AssetToolbar");
-      ezRmlUiActions::MapActionsToolbar("RmlUiAssetToolBar");
+      WActionMapManager::RegisterActionMap("RmlUiAssetToolBar", "AssetToolbar");
+      WRmlUiActions::MapActionsToolbar("RmlUiAssetToolBar");
     }
   }
 }
 
 void OnUnloadPlugin()
 {
-  ezRmlUiActions::UnregisterActions();
+  WRmlUiActions::UnregisterActions();
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

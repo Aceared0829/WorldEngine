@@ -4,41 +4,41 @@
 #include <EditorPluginAssets/CustomDataAsset/CustomDataAssetManager.h>
 #include <EditorPluginAssets/CustomDataAsset/CustomDataAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCustomDataAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCustomDataAssetDocumentManager, 1, WRTTIDefaultAllocator<WCustomDataAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
+WCustomDataAssetDocumentManager::WCustomDataAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "CustomData";
-  m_DocTypeDesc.m_sFileExtension = "ezCustomDataAsset";
+  m_DocTypeDesc.m_sFileExtension = "WCustomDataAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/CustomData.svg";
   m_DocTypeDesc.m_sAssetCategory = "Logic";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCustomDataAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WCustomDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinCustomData";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinCustomData";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/CustomData.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/CustomData.svg"));
 }
 
-ezCustomDataAssetDocumentManager::~ezCustomDataAssetDocumentManager()
+WCustomDataAssetDocumentManager::~WCustomDataAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezCustomDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WCustomDataAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCustomDataAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WCustomDataAssetDocument>())
       {
-        new ezQtCustomDataAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WQtCustomDataAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,12 +48,12 @@ void ezCustomDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezCustomDataAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WCustomDataAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezCustomDataAssetDocument(sPath);
+  out_pDocument = new WCustomDataAssetDocument(sPath);
 }
 
-void ezCustomDataAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WCustomDataAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

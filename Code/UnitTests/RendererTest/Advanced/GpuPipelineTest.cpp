@@ -18,24 +18,24 @@
 
 namespace
 {
-  using Connectivity = ezRenderPipelinePinConnection::Connectivity;
+  using Connectivity = WRenderPipelinePinConnection::Connectivity;
 
   struct RecordedPin
   {
     Connectivity m_Connectivity = Connectivity::None;
-    ezUInt32 m_uiHandleId = 0;
+    WUInt32 m_uiHandleId = 0;
   };
 
   struct RecordedPass
   {
-    ezString m_sName;
-    ezHybridArray<RecordedPin, 4> m_Inputs;
-    ezHybridArray<RecordedPin, 4> m_Outputs;
+    WString m_sName;
+    WHybridArray<RecordedPin, 4> m_Inputs;
+    WHybridArray<RecordedPin, 4> m_Outputs;
   };
 
-  ezDynamicArray<RecordedPass>* s_pExecutionOrder = nullptr;
+  WDynamicArray<RecordedPass>* s_pExecutionOrder = nullptr;
 
-  RecordedPin MakeRecordedPin(const ezRenderPipelinePinConnection& connection)
+  RecordedPin MakeRecordedPin(const WRenderPipelinePinConnection& connection)
   {
     RecordedPin pin;
     pin.m_Connectivity = connection.m_Connectivity;
@@ -47,185 +47,185 @@ namespace
     return pin;
   }
 
-  void RecordPass(ezStringView sName, ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<const ezRenderPipelinePinConnection> outputs)
+  void RecordPass(WStringView sName, WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<const WRenderPipelinePinConnection> outputs)
   {
     RecordedPass& recorded = s_pExecutionOrder->ExpandAndGetRef();
     recorded.m_sName = sName;
 
-    for (const ezRenderPipelinePinConnection& connection : inputs)
+    for (const WRenderPipelinePinConnection& connection : inputs)
     {
       recorded.m_Inputs.PushBack(MakeRecordedPin(connection));
     }
-    for (const ezRenderPipelinePinConnection& connection : outputs)
+    for (const WRenderPipelinePinConnection& connection : outputs)
     {
       recorded.m_Outputs.PushBack(MakeRecordedPin(connection));
     }
   }
 
-  class ezGpuPipelineTestSourcePass : public ezRenderPipelinePass
+  class WGpuPipelineTestSourcePass : public WRenderPipelinePass
   {
-    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestSourcePass, ezRenderPipelinePass);
+    W_ADD_DYNAMIC_REFLECTION(WGpuPipelineTestSourcePass, WRenderPipelinePass);
 
   public:
-    ezGpuPipelineTestSourcePass()
-      : ezRenderPipelinePass("Source", true)
+    WGpuPipelineTestSourcePass()
+      : WRenderPipelinePass("Source", true)
     {
     }
 
     // Creates a real resource per output so that pass-through forwarding can be verified by handle identity.
-    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
+    virtual WStatus AddRenderPasses(const WViewData&, const WCamera&, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override
     {
-      for (ezRenderPipelinePinConnection& output : outputs)
+      for (WRenderPipelinePinConnection& output : outputs)
       {
         if (output.m_Connectivity == Connectivity::Texture)
         {
-          ezGALTextureCreationDescription desc;
-          desc.SetAsRenderTarget(4, 4, ezGALResourceFormat::RGBAUByteNormalized);
-          output = ezRenderPipelinePinConnection(Connectivity::Texture, ref_graph.CreateTexture(desc));
+          WGALTextureCreationDescription desc;
+          desc.SetAsRenderTarget(4, 4, WGALResourceFormat::RGBAUByteNormalized);
+          output = WRenderPipelinePinConnection(Connectivity::Texture, ref_graph.CreateTexture(desc));
         }
         else if (output.m_Connectivity == Connectivity::Buffer)
         {
-          ezGALBufferCreationDescription desc;
+          WGALBufferCreationDescription desc;
           desc.m_uiTotalSize = 256;
-          output = ezRenderPipelinePinConnection(Connectivity::Buffer, ref_graph.CreateBuffer(desc));
+          output = WRenderPipelinePinConnection(Connectivity::Buffer, ref_graph.CreateBuffer(desc));
         }
       }
 
       RecordPass(GetName(), inputs, outputs);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    ezRenderPipelineNodeOutputPin m_Output;
-    ezRenderPipelineNodeBufferOutputPin m_BufferOutput;
+    WRenderPipelineNodeOutputPin m_Output;
+    WRenderPipelineNodeBufferOutputPin m_BufferOutput;
   };
 
-  class ezGpuPipelineTestPass : public ezRenderPipelinePass
+  class WGpuPipelineTestPass : public WRenderPipelinePass
   {
-    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestPass, ezRenderPipelinePass);
+    W_ADD_DYNAMIC_REFLECTION(WGpuPipelineTestPass, WRenderPipelinePass);
 
   public:
-    ezGpuPipelineTestPass()
-      : ezRenderPipelinePass("Pass", true)
+    WGpuPipelineTestPass()
+      : WRenderPipelinePass("Pass", true)
     {
     }
 
-    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph&, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
+    virtual WStatus AddRenderPasses(const WViewData&, const WCamera&, WRenderGraph&, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override
     {
       RecordPass(GetName(), inputs, outputs);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    ezRenderPipelineNodeInputPin m_Input;
-    ezRenderPipelineNodeOutputPin m_Output;
-    ezRenderPipelineNodeBufferInputPin m_BufferInput;
-    ezRenderPipelineNodeBufferOutputPin m_BufferOutput;
+    WRenderPipelineNodeInputPin m_Input;
+    WRenderPipelineNodeOutputPin m_Output;
+    WRenderPipelineNodeBufferInputPin m_BufferInput;
+    WRenderPipelineNodeBufferOutputPin m_BufferOutput;
   };
 
-  class ezGpuPipelineTestSinkPass : public ezRenderPipelinePass
+  class WGpuPipelineTestSinkPass : public WRenderPipelinePass
   {
-    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestSinkPass, ezRenderPipelinePass);
+    W_ADD_DYNAMIC_REFLECTION(WGpuPipelineTestSinkPass, WRenderPipelinePass);
 
   public:
-    ezGpuPipelineTestSinkPass()
-      : ezRenderPipelinePass("Sink", true)
+    WGpuPipelineTestSinkPass()
+      : WRenderPipelinePass("Sink", true)
     {
     }
 
-    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph&, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
+    virtual WStatus AddRenderPasses(const WViewData&, const WCamera&, WRenderGraph&, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override
     {
       RecordPass(GetName(), inputs, outputs);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    ezRenderPipelineNodeInputPin m_InputA;
-    ezRenderPipelineNodeInputPin m_InputB;
-    ezRenderPipelineNodeBufferInputPin m_BufferInputA;
-    ezRenderPipelineNodeBufferInputPin m_BufferInputB;
-    ezInt32 m_iValue = 0;
+    WRenderPipelineNodeInputPin m_InputA;
+    WRenderPipelineNodeInputPin m_InputB;
+    WRenderPipelineNodeBufferInputPin m_BufferInputA;
+    WRenderPipelineNodeBufferInputPin m_BufferInputB;
+    WInt32 m_iValue = 0;
   };
 
-  class ezGpuPipelineTestPassThroughPass : public ezRenderPipelinePass
+  class WGpuPipelineTestPassThroughPass : public WRenderPipelinePass
   {
-    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestPassThroughPass, ezRenderPipelinePass);
+    W_ADD_DYNAMIC_REFLECTION(WGpuPipelineTestPassThroughPass, WRenderPipelinePass);
 
   public:
-    ezGpuPipelineTestPassThroughPass()
-      : ezRenderPipelinePass("PassThrough", true)
+    WGpuPipelineTestPassThroughPass()
+      : WRenderPipelinePass("PassThrough", true)
     {
     }
 
-    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph&, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
+    virtual WStatus AddRenderPasses(const WViewData&, const WCamera&, WRenderGraph&, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override
     {
       RecordPass(GetName(), inputs, outputs);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    ezRenderPipelineNodePassThroughPin m_Pin;
-    ezRenderPipelineNodeBufferPassThroughPin m_BufferPin;
+    WRenderPipelineNodePassThroughPin m_Pin;
+    WRenderPipelineNodeBufferPassThroughPin m_BufferPin;
   };
 
   // clang-format off
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestSourcePass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestSourcePass>)
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGpuPipelineTestSourcePass, 1, WRTTIDefaultAllocator<WGpuPipelineTestSourcePass>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Output", m_Output),
-      EZ_MEMBER_PROPERTY("BufferOutput", m_BufferOutput),
+      W_MEMBER_PROPERTY("Output", m_Output),
+      W_MEMBER_PROPERTY("BufferOutput", m_BufferOutput),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_END_DYNAMIC_REFLECTED_TYPE;
 
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestPass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestPass>)
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGpuPipelineTestPass, 1, WRTTIDefaultAllocator<WGpuPipelineTestPass>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Input", m_Input),
-      EZ_MEMBER_PROPERTY("Output", m_Output),
-      EZ_MEMBER_PROPERTY("BufferInput", m_BufferInput),
-      EZ_MEMBER_PROPERTY("BufferOutput", m_BufferOutput),
+      W_MEMBER_PROPERTY("Input", m_Input),
+      W_MEMBER_PROPERTY("Output", m_Output),
+      W_MEMBER_PROPERTY("BufferInput", m_BufferInput),
+      W_MEMBER_PROPERTY("BufferOutput", m_BufferOutput),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_END_DYNAMIC_REFLECTED_TYPE;
 
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestSinkPass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestSinkPass>)
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGpuPipelineTestSinkPass, 1, WRTTIDefaultAllocator<WGpuPipelineTestSinkPass>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("InputA", m_InputA),
-      EZ_MEMBER_PROPERTY("InputB", m_InputB),
-      EZ_MEMBER_PROPERTY("BufferInputA", m_BufferInputA),
-      EZ_MEMBER_PROPERTY("BufferInputB", m_BufferInputB),
-      EZ_MEMBER_PROPERTY("Value", m_iValue),
+      W_MEMBER_PROPERTY("InputA", m_InputA),
+      W_MEMBER_PROPERTY("InputB", m_InputB),
+      W_MEMBER_PROPERTY("BufferInputA", m_BufferInputA),
+      W_MEMBER_PROPERTY("BufferInputB", m_BufferInputB),
+      W_MEMBER_PROPERTY("Value", m_iValue),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_END_DYNAMIC_REFLECTED_TYPE;
 
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestPassThroughPass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestPassThroughPass>)
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGpuPipelineTestPassThroughPass, 1, WRTTIDefaultAllocator<WGpuPipelineTestPassThroughPass>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Pin", m_Pin),
-      EZ_MEMBER_PROPERTY("BufferPin", m_BufferPin),
+      W_MEMBER_PROPERTY("Pin", m_Pin),
+      W_MEMBER_PROPERTY("BufferPin", m_BufferPin),
     }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
   }
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  W_END_DYNAMIC_REFLECTED_TYPE;
   // clang-format on
 
   template <typename PassType>
-  ezUInt32 AddPass(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes, const char* szName)
+  WUInt32 AddPass(WDynamicArray<WUniquePtr<WRenderPipelinePass>>& ref_passes, const char* szName)
   {
-    ezUniquePtr<PassType> pPass = EZ_DEFAULT_NEW(PassType);
+    WUniquePtr<PassType> pPass = W_DEFAULT_NEW(PassType);
     pPass->SetName(szName);
-    const ezUInt32 uiIndex = ref_passes.GetCount();
+    const WUInt32 uiIndex = ref_passes.GetCount();
     ref_passes.PushBack(std::move(pPass));
     return uiIndex;
   }
 
-  void Connect(ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& ref_connections, ezUInt32 uiSource, const char* szSourcePin, ezUInt32 uiTarget, const char* szTargetPin)
+  void Connect(WDynamicArray<WRenderPipelineResourceLoaderConnection>& ref_connections, WUInt32 uiSource, const char* szSourcePin, WUInt32 uiTarget, const char* szTargetPin)
   {
     auto& connection = ref_connections.ExpandAndGetRef();
     connection.m_uiSource = uiSource;
@@ -234,67 +234,67 @@ namespace
     connection.m_sTargetPin = szTargetPin;
   }
 
-  ezUniquePtr<ezRenderPipelinePassGraph> CreatePipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& ref_connections)
+  WUniquePtr<WRenderPipelinePassGraph> CreatePipeline(WDynamicArray<WUniquePtr<WRenderPipelinePass>>&& passes, WDynamicArray<WRenderPipelineResourceLoaderConnection>& ref_connections)
   {
-    ezDynamicArray<ezUniquePtr<ezExtractor>> extractors;
-    return EZ_DEFAULT_NEW(ezRenderPipelinePassGraph, std::move(passes), std::move(extractors), ref_connections);
+    WDynamicArray<WUniquePtr<WExtractor>> extractors;
+    return W_DEFAULT_NEW(WRenderPipelinePassGraph, std::move(passes), std::move(extractors), ref_connections);
   }
 
-  void CompileAndExecute(ezRenderPipelinePassGraph& ref_pipeline, ezRenderGraph& ref_graph, ezDynamicArray<RecordedPass>& ref_executionOrder)
+  void CompileAndExecute(WRenderPipelinePassGraph& ref_pipeline, WRenderGraph& ref_graph, WDynamicArray<RecordedPass>& ref_executionOrder)
   {
-    EZ_TEST_RESULT(ref_pipeline.CullDeadPasses());
-    EZ_TEST_RESULT(ref_pipeline.SortPasses());
+    W_TEST_RESULT(ref_pipeline.CullDeadPasses());
+    W_TEST_RESULT(ref_pipeline.SortPasses());
 
     ref_executionOrder.Clear();
     s_pExecutionOrder = &ref_executionOrder;
-    ezViewData viewData;
-    ezCamera camera;
-    EZ_TEST_BOOL(ref_pipeline.AddRenderPasses(viewData, camera, ref_graph).Succeeded());
+    WViewData viewData;
+    WCamera camera;
+    W_TEST_BOOL(ref_pipeline.AddRenderPasses(viewData, camera, ref_graph).Succeeded());
     s_pExecutionOrder = nullptr;
   }
 
-  void TestExecutionOrder(const ezDynamicArray<RecordedPass>& executionOrder, ezArrayPtr<const char* const> expectedOrder)
+  void TestExecutionOrder(const WDynamicArray<RecordedPass>& executionOrder, WArrayPtr<const char* const> expectedOrder)
   {
-    EZ_TEST_INT(executionOrder.GetCount(), expectedOrder.GetCount());
+    W_TEST_INT(executionOrder.GetCount(), expectedOrder.GetCount());
     if (executionOrder.GetCount() != expectedOrder.GetCount())
       return;
 
-    for (ezUInt32 i = 0; i < expectedOrder.GetCount(); ++i)
+    for (WUInt32 i = 0; i < expectedOrder.GetCount(); ++i)
     {
-      EZ_TEST_STRING(executionOrder[i].m_sName, expectedOrder[i]);
+      W_TEST_STRING(executionOrder[i].m_sName, expectedOrder[i]);
     }
   }
 
-  ezUInt32 GetPassIndex(const ezDynamicArray<RecordedPass>& executionOrder, const char* szName)
+  WUInt32 GetPassIndex(const WDynamicArray<RecordedPass>& executionOrder, const char* szName)
   {
-    for (ezUInt32 i = 0; i < executionOrder.GetCount(); ++i)
+    for (WUInt32 i = 0; i < executionOrder.GetCount(); ++i)
     {
       if (executionOrder[i].m_sName == szName)
         return i;
     }
 
-    EZ_TEST_FAILURE("Pass not found", "No pass named '{}' was executed.", szName);
-    return ezInvalidIndex;
+    W_TEST_FAILURE("Pass not found", "No pass named '{}' was executed.", szName);
+    return WInvalidIndex;
   }
 
-  void TestExecutedBefore(const ezDynamicArray<RecordedPass>& executionOrder, const char* szFirst, const char* szSecond)
+  void TestExecutedBefore(const WDynamicArray<RecordedPass>& executionOrder, const char* szFirst, const char* szSecond)
   {
-    EZ_TEST_BOOL(GetPassIndex(executionOrder, szFirst) < GetPassIndex(executionOrder, szSecond));
+    W_TEST_BOOL(GetPassIndex(executionOrder, szFirst) < GetPassIndex(executionOrder, szSecond));
   }
 
-  RecordedPin GetInput(const ezDynamicArray<RecordedPass>& executionOrder, const char* szName, ezUInt32 uiPin)
+  RecordedPin GetInput(const WDynamicArray<RecordedPass>& executionOrder, const char* szName, WUInt32 uiPin)
   {
-    const ezUInt32 uiPass = GetPassIndex(executionOrder, szName);
-    if (uiPass == ezInvalidIndex || !EZ_TEST_BOOL(uiPin < executionOrder[uiPass].m_Inputs.GetCount()))
+    const WUInt32 uiPass = GetPassIndex(executionOrder, szName);
+    if (uiPass == WInvalidIndex || !W_TEST_BOOL(uiPin < executionOrder[uiPass].m_Inputs.GetCount()))
       return {};
 
     return executionOrder[uiPass].m_Inputs[uiPin];
   }
 
-  RecordedPin GetOutput(const ezDynamicArray<RecordedPass>& executionOrder, const char* szName, ezUInt32 uiPin)
+  RecordedPin GetOutput(const WDynamicArray<RecordedPass>& executionOrder, const char* szName, WUInt32 uiPin)
   {
-    const ezUInt32 uiPass = GetPassIndex(executionOrder, szName);
-    if (uiPass == ezInvalidIndex || !EZ_TEST_BOOL(uiPin < executionOrder[uiPass].m_Outputs.GetCount()))
+    const WUInt32 uiPass = GetPassIndex(executionOrder, szName);
+    if (uiPass == WInvalidIndex || !W_TEST_BOOL(uiPin < executionOrder[uiPass].m_Outputs.GetCount()))
       return {};
 
     return executionOrder[uiPass].m_Outputs[uiPin];
@@ -302,9 +302,9 @@ namespace
 
   void TestPinsEqual(const RecordedPin& lhs, const RecordedPin& rhs, Connectivity expectedConnectivity)
   {
-    EZ_TEST_BOOL(lhs.m_Connectivity == expectedConnectivity);
-    EZ_TEST_BOOL(rhs.m_Connectivity == expectedConnectivity);
-    EZ_TEST_INT(lhs.m_uiHandleId, rhs.m_uiHandleId);
+    W_TEST_BOOL(lhs.m_Connectivity == expectedConnectivity);
+    W_TEST_BOOL(rhs.m_Connectivity == expectedConnectivity);
+    W_TEST_INT(lhs.m_uiHandleId, rhs.m_uiHandleId);
   }
 
   struct InlineTestData
@@ -323,97 +323,97 @@ namespace
 
     Mode m_Mode = Mode::Basic;
 
-    ezStatus Import(ezStringView, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& out_passes, ezDynamicArray<ezUniquePtr<ezExtractor>>& out_extractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& out_connections)
+    WStatus Import(WStringView, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& out_passes, WDynamicArray<WUniquePtr<WExtractor>>& out_extractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& out_connections)
     {
-      EZ_IGNORE_UNUSED(out_extractors);
+      W_IGNORE_UNUSED(out_extractors);
 
       if (m_Mode == Mode::Failure)
-        return ezStatus("Test failure");
+        return WStatus("Test failure");
 
       if (m_Mode == Mode::Extractors)
       {
-        out_extractors.PushBack(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
-        out_extractors.PushBack(EZ_DEFAULT_NEW(ezSelectedObjectsExtractor));
-        return EZ_SUCCESS;
+        out_extractors.PushBack(W_DEFAULT_NEW(WVisibleObjectsExtractor));
+        out_extractors.PushBack(W_DEFAULT_NEW(WSelectedObjectsExtractor));
+        return W_SUCCESS;
       }
 
-      auto AddImportedPass = [&out_passes](ezRenderPipelinePass* pPass, const char* szName)
+      auto AddImportedPass = [&out_passes](WRenderPipelinePass* pPass, const char* szName)
       {
         pPass->SetName(szName);
-        out_passes.PushBack(ezUniquePtr<ezRenderPipelinePass>(pPass, ezFoundation::GetDefaultAllocator()));
+        out_passes.PushBack(WUniquePtr<WRenderPipelinePass>(pPass, WFoundation::GetDefaultAllocator()));
       };
 
       if (m_Mode == Mode::Forward)
       {
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureInputNode), "Input");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureOutputNode), "Output");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureInputNode), "Input");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureOutputNode), "Output");
         Connect(out_connections, 0, "Value", 1, "Value");
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
       if (m_Mode == Mode::BufferForward)
       {
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphBufferInputNode), "Input");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphBufferOutputNode), "Output");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphBufferInputNode), "Input");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphBufferOutputNode), "Output");
         Connect(out_connections, 0, "Value", 1, "Value");
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
       if (m_Mode == Mode::MixedBoundaries)
       {
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureInputNode), "TextureInput");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphBufferInputNode), "BufferInput");
-        AddImportedPass(EZ_DEFAULT_NEW(ezGpuPipelineTestPass), "Internal");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureOutputNode), "TextureOutput");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphBufferOutputNode), "BufferOutput");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureInputNode), "TextureInput");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphBufferInputNode), "BufferInput");
+        AddImportedPass(W_DEFAULT_NEW(WGpuPipelineTestPass), "Internal");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureOutputNode), "TextureOutput");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphBufferOutputNode), "BufferOutput");
         Connect(out_connections, 0, "Value", 2, "Input");
         Connect(out_connections, 1, "Value", 2, "BufferInput");
         Connect(out_connections, 2, "Output", 3, "Value");
         Connect(out_connections, 2, "BufferOutput", 4, "Value");
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
       if (m_Mode == Mode::Mixed)
       {
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureInputNode), "Input");
-        AddImportedPass(EZ_DEFAULT_NEW(ezGpuPipelineTestPass), "Internal");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureOutputNode), "Forwarded");
-        AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureOutputNode), "Processed");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureInputNode), "Input");
+        AddImportedPass(W_DEFAULT_NEW(WGpuPipelineTestPass), "Internal");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureOutputNode), "Forwarded");
+        AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureOutputNode), "Processed");
         Connect(out_connections, 0, "Value", 1, "Input");
         Connect(out_connections, 0, "Value", 2, "Value");
         Connect(out_connections, 1, "Output", 3, "Value");
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
-      AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureInputNode), "Input");
-      AddImportedPass(EZ_DEFAULT_NEW(ezGpuPipelineTestPass), "First");
-      AddImportedPass(EZ_DEFAULT_NEW(ezGpuPipelineTestPass), "Second");
-      AddImportedPass(EZ_DEFAULT_NEW(ezSubGraphTextureOutputNode), "Output");
+      AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureInputNode), "Input");
+      AddImportedPass(W_DEFAULT_NEW(WGpuPipelineTestPass), "First");
+      AddImportedPass(W_DEFAULT_NEW(WGpuPipelineTestPass), "Second");
+      AddImportedPass(W_DEFAULT_NEW(WSubGraphTextureOutputNode), "Output");
 
       if (m_Mode == Mode::InvalidConnection)
       {
         Connect(out_connections, 0, "Value", 10, "Input");
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
       Connect(out_connections, 0, "Value", 1, "Input");
       Connect(out_connections, 0, "Value", 2, "Input");
       Connect(out_connections, 1, "Output", 3, "Value");
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   };
 
-  ezUniquePtr<ezSubGraphNode> CreateSubGraph(const char* szPipeline)
+  WUniquePtr<WSubGraphNode> CreateSubGraph(const char* szPipeline)
   {
-    ezUniquePtr<ezSubGraphNode> pSubGraph = EZ_DEFAULT_NEW(ezSubGraphNode);
+    WUniquePtr<WSubGraphNode> pSubGraph = W_DEFAULT_NEW(WSubGraphNode);
     pSubGraph->m_sPipeline = szPipeline;
     return pSubGraph;
   }
 } // namespace
 
-static ezGpuPipelineTest s_GpuPipelineTest;
+static WGpuPipelineTest s_GpuPipelineTest;
 
-void ezGpuPipelineTest::SetupSubTests()
+void WGpuPipelineTest::SetupSubTests()
 {
   AddSubTest("DeadPassCulling", SubTests::ST_DeadPassCulling);
   AddSubTest("DependencySorting", SubTests::ST_DependencySorting);
@@ -432,20 +432,20 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("SharedSourceSwitch", SubTests::ST_SharedSourceSwitch);
 }
 
-ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGpuPipelineTest::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("GpuPipelineTest");
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(WGraphicsTest::InitializeSubTest(iIdentifier));
+  m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("GpuPipelineTest");
+  return W_SUCCESS;
 }
 
-ezResult ezGpuPipelineTest::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WGpuPipelineTest::DeInitializeSubTest(WInt32 iIdentifier)
 {
   m_pRenderGraph = nullptr;
-  return ezGraphicsTest::DeInitializeSubTest(iIdentifier);
+  return WGraphicsTest::DeInitializeSubTest(iIdentifier);
 }
 
-ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGpuPipelineTest::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   switch (iIdentifier)
   {
@@ -495,371 +495,371 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       SharedSourceSwitch();
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
-void ezGpuPipelineTest::DeadPassCulling()
+void WGpuPipelineTest::DeadPassCulling()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiDeadSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "DeadSource");
-  const ezUInt32 uiDeadPass = AddPass<ezGpuPipelineTestPass>(passes, "DeadPass");
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiLivePass = AddPass<ezGpuPipelineTestPass>(passes, "LivePass");
-  const ezUInt32 uiLiveSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "LiveSource");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiDeadSource = AddPass<WGpuPipelineTestSourcePass>(passes, "DeadSource");
+  const WUInt32 uiDeadPass = AddPass<WGpuPipelineTestPass>(passes, "DeadPass");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiLivePass = AddPass<WGpuPipelineTestPass>(passes, "LivePass");
+  const WUInt32 uiLiveSource = AddPass<WGpuPipelineTestSourcePass>(passes, "LiveSource");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiDeadSource, "Output", uiDeadPass, "Input");
   Connect(connections, uiLiveSource, "Output", uiLivePass, "Input");
   Connect(connections, uiLivePass, "Output", uiSink, "InputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"LiveSource", "LivePass", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
 }
 
-void ezGpuPipelineTest::DependencySorting()
+void WGpuPipelineTest::DependencySorting()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiBranchB = AddPass<ezGpuPipelineTestPass>(passes, "BranchB");
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
-  const ezUInt32 uiBranchA = AddPass<ezGpuPipelineTestPass>(passes, "BranchA");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiBranchB = AddPass<WGpuPipelineTestPass>(passes, "BranchB");
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
+  const WUInt32 uiBranchA = AddPass<WGpuPipelineTestPass>(passes, "BranchA");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiBranchA, "Input");
   Connect(connections, uiSource, "Output", uiBranchB, "Input");
   Connect(connections, uiBranchA, "Output", uiSink, "InputA");
   Connect(connections, uiBranchB, "Output", uiSink, "InputB");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"Source", "BranchA", "BranchB", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
 }
 
-void ezGpuPipelineTest::PassThroughSorting()
+void WGpuPipelineTest::PassThroughSorting()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiPassThrough = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "PassThrough");
-  const ezUInt32 uiReader = AddPass<ezGpuPipelineTestSinkPass>(passes, "Reader");
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiPassThrough = AddPass<WGpuPipelineTestPassThroughPass>(passes, "PassThrough");
+  const WUInt32 uiReader = AddPass<WGpuPipelineTestSinkPass>(passes, "Reader");
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiPassThrough, "Pin");
   Connect(connections, uiSource, "Output", uiReader, "InputA");
   Connect(connections, uiPassThrough, "Pin", uiSink, "InputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"Source", "Reader", "PassThrough", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
 }
 
-void ezGpuPipelineTest::CycleDetection()
+void WGpuPipelineTest::CycleDetection()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiPassA = AddPass<ezGpuPipelineTestPass>(passes, "PassA");
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiPassB = AddPass<ezGpuPipelineTestPass>(passes, "PassB");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiPassA = AddPass<WGpuPipelineTestPass>(passes, "PassA");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiPassB = AddPass<WGpuPipelineTestPass>(passes, "PassB");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiPassA, "Output", uiPassB, "Input");
   Connect(connections, uiPassB, "Output", uiPassA, "Input");
   Connect(connections, uiPassB, "Output", uiSink, "InputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  W_TEST_RESULT(pPipeline->CullDeadPasses());
 
-  ezTestLogInterface log;
-  ezTestLogSystemScope logSystemScope(&log, true);
-  log.ExpectMessage("GPU pipeline contains a cycle", ezLogMsgType::ErrorMsg);
-  log.ExpectMessage("Failed to sort pass", ezLogMsgType::ErrorMsg, 3);
-  EZ_TEST_BOOL(pPipeline->SortPasses().Failed());
+  WTestLogInterface log;
+  WTestLogSystemScope logSystemScope(&log, true);
+  log.ExpectMessage("GPU pipeline contains a cycle", WLogMsgType::ErrorMsg);
+  log.ExpectMessage("Failed to sort pass", WLogMsgType::ErrorMsg, 3);
+  W_TEST_BOOL(pPipeline->SortPasses().Failed());
 }
 
-void ezGpuPipelineTest::TextureSwitch()
+void WGpuPipelineTest::TextureSwitch()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSourceA = AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceA");
-  const ezUInt32 uiSourceB = AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceB");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSourceA = AddPass<WGpuPipelineTestSourcePass>(passes, "SourceA");
+  const WUInt32 uiSourceB = AddPass<WGpuPipelineTestSourcePass>(passes, "SourceB");
 
-  ezUniquePtr<ezTextureSwitchPass> pSwitch = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+  WUniquePtr<WTextureSwitchPass> pSwitch = W_DEFAULT_NEW(WTextureSwitchPass);
   pSwitch->SetName("Switch");
   pSwitch->m_sBlackboardProperty = "Quality";
   pSwitch->m_Values.PushBack(10);
   pSwitch->m_Values.PushBack(20);
-  const ezUInt32 uiSwitch = passes.GetCount();
+  const WUInt32 uiSwitch = passes.GetCount();
   passes.PushBack(std::move(pSwitch));
 
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSourceA, "Output", uiSwitch, "10");
   Connect(connections, uiSourceB, "Output", uiSwitch, "20");
   Connect(connections, uiSwitch, "Output", uiSink, "InputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  EZ_TEST_INT(pPipeline->GetSwitches().GetCount(), 1);
-  EZ_TEST_STRING(pPipeline->GetSwitches()[0].m_sBlackboardProperty.GetString(), "Quality");
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  W_TEST_INT(pPipeline->GetSwitches().GetCount(), 1);
+  W_TEST_STRING(pPipeline->GetSwitches()[0].m_sBlackboardProperty.GetString(), "Quality");
 
-  ezDynamicArray<RecordedPass> executionOrder;
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedDefaultOrder[] = {"SourceA", "Sink"};
   TestExecutionOrder(executionOrder, expectedDefaultOrder);
 
-  EZ_TEST_BOOL(pPipeline->SetSwitchValue(0, 20));
+  W_TEST_BOOL(pPipeline->SetSwitchValue(0, 20));
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedSwitchedOrder[] = {"SourceB", "Sink"};
   TestExecutionOrder(executionOrder, expectedSwitchedOrder);
-  EZ_TEST_BOOL(!pPipeline->SetSwitchValue(0, 20));
+  W_TEST_BOOL(!pPipeline->SetSwitchValue(0, 20));
 
-  EZ_TEST_BOOL(pPipeline->SetSwitchValue(0, 42));
+  W_TEST_BOOL(pPipeline->SetSwitchValue(0, 42));
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   TestExecutionOrder(executionOrder, expectedDefaultOrder);
-  EZ_TEST_BOOL(!pPipeline->SetSwitchToDefault(0));
+  W_TEST_BOOL(!pPipeline->SetSwitchToDefault(0));
 }
 
-void ezGpuPipelineTest::SharedSourceSwitch()
+void WGpuPipelineTest::SharedSourceSwitch()
 {
   // One source feeding two switches. This graph has no cycle, so sorting must succeed.
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
 
-  ezUniquePtr<ezTextureSwitchPass> pSwitchX = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+  WUniquePtr<WTextureSwitchPass> pSwitchX = W_DEFAULT_NEW(WTextureSwitchPass);
   pSwitchX->SetName("SwitchX");
   pSwitchX->m_sBlackboardProperty = "QualityX";
   pSwitchX->m_Values.PushBack(10);
-  const ezUInt32 uiSwitchX = passes.GetCount();
+  const WUInt32 uiSwitchX = passes.GetCount();
   passes.PushBack(std::move(pSwitchX));
 
-  ezUniquePtr<ezTextureSwitchPass> pSwitchY = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+  WUniquePtr<WTextureSwitchPass> pSwitchY = W_DEFAULT_NEW(WTextureSwitchPass);
   pSwitchY->SetName("SwitchY");
   pSwitchY->m_sBlackboardProperty = "QualityY";
   pSwitchY->m_Values.PushBack(10);
-  const ezUInt32 uiSwitchY = passes.GetCount();
+  const WUInt32 uiSwitchY = passes.GetCount();
   passes.PushBack(std::move(pSwitchY));
 
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiSwitchX, "10");
   Connect(connections, uiSource, "Output", uiSwitchY, "10");
   Connect(connections, uiSwitchX, "Output", uiSink, "InputA");
   Connect(connections, uiSwitchY, "Output", uiSink, "InputB");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
 
-  ezDynamicArray<RecordedPass> executionOrder;
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedOrder[] = {"Source", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
 }
 
-void ezGpuPipelineTest::SubGraphInlining()
+void WGpuPipelineTest::SubGraphInlining()
 {
   {
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> rootPasses;
-    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(rootPasses, "Source");
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("Basic");
-    const ezUInt32 uiSubGraph = 1;
-    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(rootPasses, "Sink");
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> rootPasses;
+    const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(rootPasses, "Source");
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("Basic");
+    const WUInt32 uiSubGraph = 1;
+    const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(rootPasses, "Sink");
 
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(rootPasses[uiSource].Borrow());
     nodes.PushBack(pSubGraph.Borrow());
     nodes.PushBack(rootPasses[uiSink].Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, uiSource, "Output", uiSubGraph, "Input");
     Connect(connections, uiSubGraph, "Output", 2, "InputA");
 
     InlineTestData data;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 4);
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[0])->GetName(), "Source");
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[1])->GetName(), "Sink");
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[2])->GetName(), "First");
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[3])->GetName(), "Second");
-    EZ_TEST_INT(ownedPasses.GetCount(), 4);
-    EZ_TEST_INT(connections.GetCount(), 3);
-    EZ_TEST_INT(connections[0].m_uiSource, 0);
-    EZ_TEST_INT(connections[0].m_uiTarget, 2);
-    EZ_TEST_STRING(connections[0].m_sTargetPin, "Input");
-    EZ_TEST_INT(connections[1].m_uiSource, 2);
-    EZ_TEST_INT(connections[1].m_uiTarget, 1);
-    EZ_TEST_STRING(connections[1].m_sSourcePin, "Output");
+    W_TEST_INT(nodes.GetCount(), 4);
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[0])->GetName(), "Source");
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[1])->GetName(), "Sink");
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[2])->GetName(), "First");
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[3])->GetName(), "Second");
+    W_TEST_INT(ownedPasses.GetCount(), 4);
+    W_TEST_INT(connections.GetCount(), 3);
+    W_TEST_INT(connections[0].m_uiSource, 0);
+    W_TEST_INT(connections[0].m_uiTarget, 2);
+    W_TEST_STRING(connections[0].m_sTargetPin, "Input");
+    W_TEST_INT(connections[1].m_uiSource, 2);
+    W_TEST_INT(connections[1].m_uiTarget, 1);
+    W_TEST_STRING(connections[1].m_sSourcePin, "Output");
   }
 
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("Forward");
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("Forward");
+    WUniquePtr<WGpuPipelineTestSinkPass> pSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pSubGraph.Borrow());
     nodes.PushBack(pSink.Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 1, "Input");
     Connect(connections, 1, "Output", 2, "InputA");
 
     InlineTestData data;
     data.m_Mode = InlineTestData::Mode::Forward;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 2);
-    EZ_TEST_INT(connections.GetCount(), 1);
-    EZ_TEST_INT(connections[0].m_uiSource, 0);
-    EZ_TEST_INT(connections[0].m_uiTarget, 1);
-    EZ_TEST_STRING(connections[0].m_sSourcePin, "Output");
-    EZ_TEST_STRING(connections[0].m_sTargetPin, "InputA");
+    W_TEST_INT(nodes.GetCount(), 2);
+    W_TEST_INT(connections.GetCount(), 1);
+    W_TEST_INT(connections[0].m_uiSource, 0);
+    W_TEST_INT(connections[0].m_uiTarget, 1);
+    W_TEST_STRING(connections[0].m_sSourcePin, "Output");
+    W_TEST_STRING(connections[0].m_sTargetPin, "InputA");
   }
 
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("Mixed");
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pForwardSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pProcessedSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("Mixed");
+    WUniquePtr<WGpuPipelineTestSinkPass> pForwardSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WUniquePtr<WGpuPipelineTestSinkPass> pProcessedSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pSubGraph.Borrow());
     nodes.PushBack(pForwardSink.Borrow());
     nodes.PushBack(pProcessedSink.Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 1, "Input");
     Connect(connections, 1, "Forwarded", 2, "InputA");
     Connect(connections, 1, "Processed", 3, "InputA");
 
     InlineTestData data;
     data.m_Mode = InlineTestData::Mode::Mixed;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 4);
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[3])->GetName(), "Internal");
-    EZ_TEST_INT(connections.GetCount(), 3);
-    EZ_TEST_INT(connections[0].m_uiSource, 0);
-    EZ_TEST_INT(connections[0].m_uiTarget, 3);
-    EZ_TEST_INT(connections[1].m_uiSource, 0);
-    EZ_TEST_INT(connections[1].m_uiTarget, 1);
-    EZ_TEST_INT(connections[2].m_uiSource, 3);
-    EZ_TEST_INT(connections[2].m_uiTarget, 2);
+    W_TEST_INT(nodes.GetCount(), 4);
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[3])->GetName(), "Internal");
+    W_TEST_INT(connections.GetCount(), 3);
+    W_TEST_INT(connections[0].m_uiSource, 0);
+    W_TEST_INT(connections[0].m_uiTarget, 3);
+    W_TEST_INT(connections[1].m_uiSource, 0);
+    W_TEST_INT(connections[1].m_uiTarget, 1);
+    W_TEST_INT(connections[2].m_uiSource, 3);
+    W_TEST_INT(connections[2].m_uiTarget, 2);
   }
 
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pFirstSubGraph = CreateSubGraph("First");
-    ezUniquePtr<ezSubGraphNode> pSecondSubGraph = CreateSubGraph("Second");
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pFirstSubGraph = CreateSubGraph("First");
+    WUniquePtr<WSubGraphNode> pSecondSubGraph = CreateSubGraph("Second");
+    WUniquePtr<WGpuPipelineTestSinkPass> pSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pFirstSubGraph.Borrow());
     nodes.PushBack(pSecondSubGraph.Borrow());
     nodes.PushBack(pSink.Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 1, "Input");
     Connect(connections, 1, "Output", 2, "Input");
     Connect(connections, 2, "Output", 3, "InputA");
 
     InlineTestData data;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 6);
-    EZ_TEST_INT(ownedPasses.GetCount(), 8);
-    EZ_TEST_INT(connections.GetCount(), 5);
-    for (ezRenderPipelineNode* pNode : nodes)
+    W_TEST_INT(nodes.GetCount(), 6);
+    W_TEST_INT(ownedPasses.GetCount(), 8);
+    W_TEST_INT(connections.GetCount(), 5);
+    for (WRenderPipelineNode* pNode : nodes)
     {
-      EZ_TEST_BOOL(ezDynamicCast<ezSubGraphNode*>(pNode) == nullptr);
+      W_TEST_BOOL(WDynamicCast<WSubGraphNode*>(pNode) == nullptr);
     }
   }
 
   {
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("Extractors");
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("Extractors");
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSubGraph.Borrow());
 
-    ezUniquePtr<ezVisibleObjectsExtractor> pRootExtractor = EZ_DEFAULT_NEW(ezVisibleObjectsExtractor);
-    ezDynamicArray<ezExtractor*> extractors;
+    WUniquePtr<WVisibleObjectsExtractor> pRootExtractor = W_DEFAULT_NEW(WVisibleObjectsExtractor);
+    WDynamicArray<WExtractor*> extractors;
     extractors.PushBack(pRootExtractor.Borrow());
 
     InlineTestData data;
     data.m_Mode = InlineTestData::Mode::Extractors;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 0);
-    EZ_TEST_INT(extractors.GetCount(), 2);
-    EZ_TEST_BOOL(extractors[0] == pRootExtractor.Borrow());
-    EZ_TEST_BOOL(extractors[1]->GetDynamicRTTI() == ezGetStaticRTTI<ezSelectedObjectsExtractor>());
-    EZ_TEST_INT(ownedExtractors.GetCount(), 1);
-    EZ_TEST_BOOL(ownedExtractors[0].Borrow() == extractors[1]);
+    W_TEST_INT(nodes.GetCount(), 0);
+    W_TEST_INT(extractors.GetCount(), 2);
+    W_TEST_BOOL(extractors[0] == pRootExtractor.Borrow());
+    W_TEST_BOOL(extractors[1]->GetDynamicRTTI() == WGetStaticRTTI<WSelectedObjectsExtractor>());
+    W_TEST_INT(ownedExtractors.GetCount(), 1);
+    W_TEST_BOOL(ownedExtractors[0].Borrow() == extractors[1]);
   }
 }
 
-void ezGpuPipelineTest::SubGraphInliningErrors()
+void WGpuPipelineTest::SubGraphInliningErrors()
 {
   auto Run = [](InlineTestData::Mode mode, const char* szInputPin)
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("Error");
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("Error");
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pSubGraph.Borrow());
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 1, szInputPin);
 
     InlineTestData data;
     data.m_Mode = mode;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    return ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data));
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    return WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data));
   };
 
-  EZ_TEST_BOOL(Run(InlineTestData::Mode::Failure, "Input").Failed());
-  EZ_TEST_BOOL(Run(InlineTestData::Mode::InvalidConnection, "Input").Failed());
-  EZ_TEST_BOOL(Run(InlineTestData::Mode::Basic, "Missing").Failed());
+  W_TEST_BOOL(Run(InlineTestData::Mode::Failure, "Input").Failed());
+  W_TEST_BOOL(Run(InlineTestData::Mode::InvalidConnection, "Input").Failed());
+  W_TEST_BOOL(Run(InlineTestData::Mode::Basic, "Missing").Failed());
 }
 
-void ezGpuPipelineTest::ViewBlackboard()
+void WGpuPipelineTest::ViewBlackboard()
 {
   // SourceA -> Switch("10") , SourceB -> Switch("20") , Switch -> Sink.InputA
   // "Sink.Value" drives a regular property mapping, "Quality" drives the switch mapping.
-  ezRenderPipelineResourceDescriptor desc;
+  WRenderPipelineResourceDescriptor desc;
   {
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-    AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceA");
-    AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceB");
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+    AddPass<WGpuPipelineTestSourcePass>(passes, "SourceA");
+    AddPass<WGpuPipelineTestSourcePass>(passes, "SourceB");
 
     {
-      ezUniquePtr<ezTextureSwitchPass> pSwitch = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+      WUniquePtr<WTextureSwitchPass> pSwitch = W_DEFAULT_NEW(WTextureSwitchPass);
       pSwitch->SetName("Switch");
       pSwitch->m_sBlackboardProperty = "Quality";
       pSwitch->m_Values.PushBack(10);
@@ -867,39 +867,39 @@ void ezGpuPipelineTest::ViewBlackboard()
       passes.PushBack(std::move(pSwitch));
     }
 
-    AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+    AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-    ezDynamicArray<const ezRenderPipelinePass*> passPointers;
-    for (const ezUniquePtr<ezRenderPipelinePass>& pPass : passes)
+    WDynamicArray<const WRenderPipelinePass*> passPointers;
+    for (const WUniquePtr<WRenderPipelinePass>& pPass : passes)
     {
       passPointers.PushBack(pPass.Borrow());
     }
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 2, "10");
     Connect(connections, 1, "Output", 2, "20");
     Connect(connections, 2, "Output", 3, "InputA");
 
-    ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
-    ezMemoryStreamWriter writer(&storage);
-    EZ_TEST_RESULT(ezRenderPipelineResourceLoader::ExportPipeline(passPointers, {}, connections, writer));
+    WMemoryStreamContainerWrapperStorage<WDynamicArray<WUInt8>> storage(&desc.m_SerializedPipeline);
+    WMemoryStreamWriter writer(&storage);
+    W_TEST_RESULT(WRenderPipelineResourceLoader::ExportPipeline(passPointers, {}, connections, writer));
   }
 
-  ezRenderPipelineResourceHandle hPipeline = ezResourceManager::CreateResource<ezRenderPipelineResource>("ViewBlackboardTestPipeline", std::move(desc), "ViewBlackboardTestPipeline");
+  WRenderPipelineResourceHandle hPipeline = WResourceManager::CreateResource<WRenderPipelineResource>("ViewBlackboardTestPipeline", std::move(desc), "ViewBlackboardTestPipeline");
 
-  ezWorldDesc worldDesc("ViewBlackboardTestWorld");
-  ezWorld world(worldDesc);
+  WWorldDesc worldDesc("ViewBlackboardTestWorld");
+  WWorld world(worldDesc);
 
-  ezView* pView = nullptr;
-  const ezViewHandle hView = ezRenderWorld::CreateView("ViewBlackboardTest", pView);
-  EZ_TEST_BOOL(pView != nullptr);
+  WView* pView = nullptr;
+  const WViewHandle hView = WRenderWorld::CreateView("ViewBlackboardTest", pView);
+  W_TEST_BOOL(pView != nullptr);
   if (pView == nullptr)
     return;
 
-  EZ_SCOPE_EXIT(ezRenderWorld::DeleteView(hView));
+  W_SCOPE_EXIT(WRenderWorld::DeleteView(hView));
 
-  const ezSharedPtr<ezBlackboard>& pWorldBlackboard = world.GetBlackboard();
-  ezSharedPtr<ezBlackboard> pViewBlackboard = ezBlackboard::Create("ViewBlackboardTestView");
+  const WSharedPtr<WBlackboard>& pWorldBlackboard = world.GetBlackboard();
+  WSharedPtr<WBlackboard> pViewBlackboard = WBlackboard::Create("ViewBlackboardTestView");
 
   pWorldBlackboard->SetEntryValue("Sink.Value", 1);
   pWorldBlackboard->SetEntryValue("Quality", 20);
@@ -908,117 +908,117 @@ void ezGpuPipelineTest::ViewBlackboard()
   pView->SetBlackboard(pViewBlackboard);
   pView->SetRenderPipelineResource(hPipeline);
 
-  if (!EZ_TEST_BOOL(pView->m_pRenderPipeline != nullptr))
+  if (!W_TEST_BOOL(pView->m_pRenderPipeline != nullptr))
     return;
 
-  auto GetPropertyValue = [&]() -> ezInt32
+  auto GetPropertyValue = [&]() -> WInt32
   {
-    auto* pSink = static_cast<ezGpuPipelineTestSinkPass*>(pView->m_pRenderPipeline->GetPassByName("Sink"));
+    auto* pSink = static_cast<WGpuPipelineTestSinkPass*>(pView->m_pRenderPipeline->GetPassByName("Sink"));
     return pSink != nullptr ? pSink->m_iValue : -1;
   };
 
-  auto GetSwitchIndex = [&]() -> ezInt32
+  auto GetSwitchIndex = [&]() -> WInt32
   {
-    auto* pSwitch = static_cast<ezSwitchBasePass*>(pView->m_pRenderPipeline->GetPassByName("Switch"));
-    return pSwitch != nullptr ? static_cast<ezInt32>(pSwitch->m_uiSelectedValueIndex) : -1;
+    auto* pSwitch = static_cast<WSwitchBasePass*>(pView->m_pRenderPipeline->GetPassByName("Switch"));
+    return pSwitch != nullptr ? static_cast<WInt32>(pSwitch->m_uiSelectedValueIndex) : -1;
   };
 
-  auto RemoveEntry = [](const ezSharedPtr<ezBlackboard>& pBlackboard, const char* szName)
+  auto RemoveEntry = [](const WSharedPtr<WBlackboard>& pBlackboard, const char* szName)
   {
-    ezHashedString sName;
+    WHashedString sName;
     sName.Assign(szName);
     pBlackboard->RemoveEntry(sName);
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "World blackboard only")
+  W_TEST_BLOCK(WTestBlock::Enabled, "World blackboard only")
   {
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 1);
-    EZ_TEST_INT(GetSwitchIndex(), 1);
+    W_TEST_INT(GetPropertyValue(), 1);
+    W_TEST_INT(GetSwitchIndex(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "View blackboard overrides world blackboard")
+  W_TEST_BLOCK(WTestBlock::Enabled, "View blackboard overrides world blackboard")
   {
     pViewBlackboard->SetEntryValue("Sink.Value", 2);
     pViewBlackboard->SetEntryValue("Quality", 10);
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 2);
-    EZ_TEST_INT(GetSwitchIndex(), 0);
+    W_TEST_INT(GetPropertyValue(), 2);
+    W_TEST_INT(GetSwitchIndex(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "View blackboard value change")
+  W_TEST_BLOCK(WTestBlock::Enabled, "View blackboard value change")
   {
     pViewBlackboard->SetEntryValue("Sink.Value", 3);
     pViewBlackboard->SetEntryValue("Quality", 20);
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 3);
-    EZ_TEST_INT(GetSwitchIndex(), 1);
+    W_TEST_INT(GetPropertyValue(), 3);
+    W_TEST_INT(GetSwitchIndex(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "World blackboard does not override view blackboard")
+  W_TEST_BLOCK(WTestBlock::Enabled, "World blackboard does not override view blackboard")
   {
     pWorldBlackboard->SetEntryValue("Sink.Value", 100);
     pWorldBlackboard->SetEntryValue("Quality", 10);
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 3);
-    EZ_TEST_INT(GetSwitchIndex(), 1);
+    W_TEST_INT(GetPropertyValue(), 3);
+    W_TEST_INT(GetSwitchIndex(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Removing view entries falls back to world blackboard")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Removing view entries falls back to world blackboard")
   {
     RemoveEntry(pViewBlackboard, "Sink.Value");
     RemoveEntry(pViewBlackboard, "Quality");
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 100);
-    EZ_TEST_INT(GetSwitchIndex(), 0);
+    W_TEST_INT(GetPropertyValue(), 100);
+    W_TEST_INT(GetSwitchIndex(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Detaching the view blackboard falls back to world blackboard")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Detaching the view blackboard falls back to world blackboard")
   {
     pViewBlackboard->SetEntryValue("Sink.Value", 7);
     pViewBlackboard->SetEntryValue("Quality", 20);
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 7);
-    EZ_TEST_INT(GetSwitchIndex(), 1);
+    W_TEST_INT(GetPropertyValue(), 7);
+    W_TEST_INT(GetSwitchIndex(), 1);
 
-    pView->SetBlackboard(ezSharedPtr<ezBlackboard>());
+    pView->SetBlackboard(WSharedPtr<WBlackboard>());
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 100);
-    EZ_TEST_INT(GetSwitchIndex(), 0);
+    W_TEST_INT(GetPropertyValue(), 100);
+    W_TEST_INT(GetSwitchIndex(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Removing world entries restores the default value")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Removing world entries restores the default value")
   {
     RemoveEntry(pWorldBlackboard, "Sink.Value");
     RemoveEntry(pWorldBlackboard, "Quality");
 
     pView->EnsureUpToDate();
-    EZ_TEST_INT(GetPropertyValue(), 0);
-    EZ_TEST_INT(GetSwitchIndex(), 0);
+    W_TEST_INT(GetPropertyValue(), 0);
+    W_TEST_INT(GetSwitchIndex(), 0);
   }
 }
 
-void ezGpuPipelineTest::BufferPassThroughSorting()
+void WGpuPipelineTest::BufferPassThroughSorting()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiPassThrough = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "PassThrough");
-  const ezUInt32 uiReader = AddPass<ezGpuPipelineTestSinkPass>(passes, "Reader");
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiPassThrough = AddPass<WGpuPipelineTestPassThroughPass>(passes, "PassThrough");
+  const WUInt32 uiReader = AddPass<WGpuPipelineTestSinkPass>(passes, "Reader");
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "BufferOutput", uiPassThrough, "BufferPin");
   Connect(connections, uiSource, "BufferOutput", uiReader, "BufferInputA");
   Connect(connections, uiPassThrough, "BufferPin", uiSink, "BufferInputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"Source", "Reader", "PassThrough", "Sink"};
@@ -1031,16 +1031,16 @@ void ezGpuPipelineTest::BufferPassThroughSorting()
   TestPinsEqual(sourceBuffer, GetInput(executionOrder, "Sink", 2), Connectivity::Buffer);
 }
 
-void ezGpuPipelineTest::MixedPassThrough()
+void WGpuPipelineTest::MixedPassThrough()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
-  const ezUInt32 uiPassThrough = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "PassThrough");
-  const ezUInt32 uiTextureReader = AddPass<ezGpuPipelineTestSinkPass>(passes, "TextureReader");
-  const ezUInt32 uiBufferReader = AddPass<ezGpuPipelineTestSinkPass>(passes, "BufferReader");
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiPassThrough = AddPass<WGpuPipelineTestPassThroughPass>(passes, "PassThrough");
+  const WUInt32 uiTextureReader = AddPass<WGpuPipelineTestSinkPass>(passes, "TextureReader");
+  const WUInt32 uiBufferReader = AddPass<WGpuPipelineTestSinkPass>(passes, "BufferReader");
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiPassThrough, "Pin");
   Connect(connections, uiSource, "Output", uiTextureReader, "InputA");
   Connect(connections, uiSource, "BufferOutput", uiPassThrough, "BufferPin");
@@ -1048,11 +1048,11 @@ void ezGpuPipelineTest::MixedPassThrough()
   Connect(connections, uiPassThrough, "Pin", uiSink, "InputA");
   Connect(connections, uiPassThrough, "BufferPin", uiSink, "BufferInputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
-  EZ_TEST_INT(executionOrder.GetCount(), 5);
+  W_TEST_INT(executionOrder.GetCount(), 5);
 
   // Both resources may be modified in place, so both readers have to run before the pass-through.
   TestExecutedBefore(executionOrder, "Source", "TextureReader");
@@ -1072,21 +1072,21 @@ void ezGpuPipelineTest::MixedPassThrough()
   TestPinsEqual(sourceBuffer, GetInput(executionOrder, "Sink", 2), Connectivity::Buffer);
 }
 
-void ezGpuPipelineTest::MixedPinIndexing()
+void WGpuPipelineTest::MixedPinIndexing()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
-  const ezUInt32 uiPass = AddPass<ezGpuPipelineTestPass>(passes, "Pass");
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
+  const WUInt32 uiPass = AddPass<WGpuPipelineTestPass>(passes, "Pass");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiPass, "Input");
   Connect(connections, uiSource, "BufferOutput", uiPass, "BufferInput");
   Connect(connections, uiPass, "Output", uiSink, "InputA");
   Connect(connections, uiPass, "BufferOutput", uiSink, "BufferInputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  ezDynamicArray<RecordedPass> executionOrder;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"Source", "Pass", "Sink"};
@@ -1095,93 +1095,93 @@ void ezGpuPipelineTest::MixedPinIndexing()
   // Texture and buffer pins are indexed independently, in declaration order.
   TestPinsEqual(GetOutput(executionOrder, "Source", 0), GetInput(executionOrder, "Pass", 0), Connectivity::Texture);
   TestPinsEqual(GetOutput(executionOrder, "Source", 1), GetInput(executionOrder, "Pass", 1), Connectivity::Buffer);
-  EZ_TEST_BOOL(GetOutput(executionOrder, "Pass", 0).m_Connectivity == Connectivity::Texture);
-  EZ_TEST_BOOL(GetOutput(executionOrder, "Pass", 1).m_Connectivity == Connectivity::Buffer);
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::Texture);
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 1).m_Connectivity == Connectivity::None);
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::Buffer);
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 3).m_Connectivity == Connectivity::None);
+  W_TEST_BOOL(GetOutput(executionOrder, "Pass", 0).m_Connectivity == Connectivity::Texture);
+  W_TEST_BOOL(GetOutput(executionOrder, "Pass", 1).m_Connectivity == Connectivity::Buffer);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::Texture);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 1).m_Connectivity == Connectivity::None);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::Buffer);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 3).m_Connectivity == Connectivity::None);
 }
 
-void ezGpuPipelineTest::BufferSwitch()
+void WGpuPipelineTest::BufferSwitch()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSourceA = AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceA");
-  const ezUInt32 uiSourceB = AddPass<ezGpuPipelineTestSourcePass>(passes, "SourceB");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSourceA = AddPass<WGpuPipelineTestSourcePass>(passes, "SourceA");
+  const WUInt32 uiSourceB = AddPass<WGpuPipelineTestSourcePass>(passes, "SourceB");
 
-  ezUniquePtr<ezBufferSwitchPass> pSwitch = EZ_DEFAULT_NEW(ezBufferSwitchPass);
+  WUniquePtr<WBufferSwitchPass> pSwitch = W_DEFAULT_NEW(WBufferSwitchPass);
   pSwitch->SetName("Switch");
   pSwitch->m_sBlackboardProperty = "Quality";
   pSwitch->m_Values.PushBack(10);
   pSwitch->m_Values.PushBack(20);
-  const ezUInt32 uiSwitch = passes.GetCount();
+  const WUInt32 uiSwitch = passes.GetCount();
   passes.PushBack(std::move(pSwitch));
 
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSourceA, "BufferOutput", uiSwitch, "10");
   Connect(connections, uiSourceB, "BufferOutput", uiSwitch, "20");
   Connect(connections, uiSwitch, "Output", uiSink, "BufferInputA");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
-  EZ_TEST_INT(pPipeline->GetSwitches().GetCount(), 1);
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+  W_TEST_INT(pPipeline->GetSwitches().GetCount(), 1);
 
-  ezDynamicArray<RecordedPass> executionOrder;
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedDefaultOrder[] = {"SourceA", "Sink"};
   TestExecutionOrder(executionOrder, expectedDefaultOrder);
   TestPinsEqual(GetOutput(executionOrder, "SourceA", 1), GetInput(executionOrder, "Sink", 2), Connectivity::Buffer);
 
-  EZ_TEST_BOOL(pPipeline->SetSwitchValue(0, 20));
+  W_TEST_BOOL(pPipeline->SetSwitchValue(0, 20));
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedSwitchedOrder[] = {"SourceB", "Sink"};
   TestExecutionOrder(executionOrder, expectedSwitchedOrder);
   TestPinsEqual(GetOutput(executionOrder, "SourceB", 1), GetInput(executionOrder, "Sink", 2), Connectivity::Buffer);
 }
 
-void ezGpuPipelineTest::SubGraphBufferInlining()
+void WGpuPipelineTest::SubGraphBufferInlining()
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Buffer boundary forwarded directly")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Buffer boundary forwarded directly")
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("BufferForward");
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("BufferForward");
+    WUniquePtr<WGpuPipelineTestSinkPass> pSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pSubGraph.Borrow());
     nodes.PushBack(pSink.Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "BufferOutput", 1, "Input");
     Connect(connections, 1, "Output", 2, "BufferInputA");
 
     InlineTestData data;
     data.m_Mode = InlineTestData::Mode::BufferForward;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 2);
-    EZ_TEST_INT(connections.GetCount(), 1);
-    EZ_TEST_INT(connections[0].m_uiSource, 0);
-    EZ_TEST_INT(connections[0].m_uiTarget, 1);
-    EZ_TEST_STRING(connections[0].m_sSourcePin, "BufferOutput");
-    EZ_TEST_STRING(connections[0].m_sTargetPin, "BufferInputA");
+    W_TEST_INT(nodes.GetCount(), 2);
+    W_TEST_INT(connections.GetCount(), 1);
+    W_TEST_INT(connections[0].m_uiSource, 0);
+    W_TEST_INT(connections[0].m_uiTarget, 1);
+    W_TEST_STRING(connections[0].m_sSourcePin, "BufferOutput");
+    W_TEST_STRING(connections[0].m_sTargetPin, "BufferInputA");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Texture and buffer boundaries in one sub-graph")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Texture and buffer boundaries in one sub-graph")
   {
-    ezUniquePtr<ezGpuPipelineTestSourcePass> pSource = EZ_DEFAULT_NEW(ezGpuPipelineTestSourcePass);
-    ezUniquePtr<ezSubGraphNode> pSubGraph = CreateSubGraph("MixedBoundaries");
-    ezUniquePtr<ezGpuPipelineTestSinkPass> pSink = EZ_DEFAULT_NEW(ezGpuPipelineTestSinkPass);
-    ezDynamicArray<ezRenderPipelineNode*> nodes;
+    WUniquePtr<WGpuPipelineTestSourcePass> pSource = W_DEFAULT_NEW(WGpuPipelineTestSourcePass);
+    WUniquePtr<WSubGraphNode> pSubGraph = CreateSubGraph("MixedBoundaries");
+    WUniquePtr<WGpuPipelineTestSinkPass> pSink = W_DEFAULT_NEW(WGpuPipelineTestSinkPass);
+    WDynamicArray<WRenderPipelineNode*> nodes;
     nodes.PushBack(pSource.Borrow());
     nodes.PushBack(pSubGraph.Borrow());
     nodes.PushBack(pSink.Borrow());
 
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
     Connect(connections, 0, "Output", 1, "TextureInput");
     Connect(connections, 0, "BufferOutput", 1, "BufferInput");
     Connect(connections, 1, "TextureOutput", 2, "InputA");
@@ -1189,19 +1189,19 @@ void ezGpuPipelineTest::SubGraphBufferInlining()
 
     InlineTestData data;
     data.m_Mode = InlineTestData::Mode::MixedBoundaries;
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> ownedPasses;
-    ezDynamicArray<ezExtractor*> extractors;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> ownedExtractors;
-    EZ_TEST_BOOL(ezRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, ezMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> ownedPasses;
+    WDynamicArray<WExtractor*> extractors;
+    WDynamicArray<WUniquePtr<WExtractor>> ownedExtractors;
+    W_TEST_BOOL(WRenderPipelineResourceLoader::InlineImportedSubGraphs(nodes, ownedPasses, extractors, ownedExtractors, connections, WMakeDelegate(&InlineTestData::Import, &data)).Succeeded());
 
-    EZ_TEST_INT(nodes.GetCount(), 3);
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[1])->GetName(), "Sink");
-    EZ_TEST_STRING(ezDynamicCast<ezRenderPipelinePass*>(nodes[2])->GetName(), "Internal");
-    EZ_TEST_INT(connections.GetCount(), 4);
+    W_TEST_INT(nodes.GetCount(), 3);
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[1])->GetName(), "Sink");
+    W_TEST_STRING(WDynamicCast<WRenderPipelinePass*>(nodes[2])->GetName(), "Internal");
+    W_TEST_INT(connections.GetCount(), 4);
 
-    auto HasConnection = [&connections](ezUInt32 uiSource, const char* szSourcePin, ezUInt32 uiTarget, const char* szTargetPin) -> bool
+    auto HasConnection = [&connections](WUInt32 uiSource, const char* szSourcePin, WUInt32 uiTarget, const char* szTargetPin) -> bool
     {
-      for (const ezRenderPipelineResourceLoaderConnection& connection : connections)
+      for (const WRenderPipelineResourceLoaderConnection& connection : connections)
       {
         if (connection.m_uiSource == uiSource && connection.m_sSourcePin == szSourcePin && connection.m_uiTarget == uiTarget && connection.m_sTargetPin == szTargetPin)
           return true;
@@ -1209,41 +1209,41 @@ void ezGpuPipelineTest::SubGraphBufferInlining()
       return false;
     };
 
-    EZ_TEST_BOOL(HasConnection(0, "Output", 2, "Input"));
-    EZ_TEST_BOOL(HasConnection(0, "BufferOutput", 2, "BufferInput"));
-    EZ_TEST_BOOL(HasConnection(2, "Output", 1, "InputA"));
-    EZ_TEST_BOOL(HasConnection(2, "BufferOutput", 1, "BufferInputA"));
+    W_TEST_BOOL(HasConnection(0, "Output", 2, "Input"));
+    W_TEST_BOOL(HasConnection(0, "BufferOutput", 2, "BufferInput"));
+    W_TEST_BOOL(HasConnection(2, "Output", 1, "InputA"));
+    W_TEST_BOOL(HasConnection(2, "BufferOutput", 1, "BufferInputA"));
   }
 }
 
-void ezGpuPipelineTest::IncompatiblePinConnection()
+void WGpuPipelineTest::IncompatiblePinConnection()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
-  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  const WUInt32 uiSource = AddPass<WGpuPipelineTestSourcePass>(passes, "Source");
+  const WUInt32 uiSink = AddPass<WGpuPipelineTestSinkPass>(passes, "Sink");
 
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
   Connect(connections, uiSource, "Output", uiSink, "BufferInputA");
   Connect(connections, uiSource, "BufferOutput", uiSink, "InputA");
   Connect(connections, uiSource, "Output", uiSink, "InputB");
 
-  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline;
+  WUniquePtr<WRenderPipelinePassGraph> pPipeline;
   {
-    ezTestLogInterface log;
-    ezTestLogSystemScope logSystemScope(&log, true);
-    log.ExpectMessage("texture pins can't be connected to buffer pins", ezLogMsgType::ErrorMsg, 2);
+    WTestLogInterface log;
+    WTestLogSystemScope logSystemScope(&log, true);
+    log.ExpectMessage("texture pins can't be connected to buffer pins", WLogMsgType::ErrorMsg, 2);
 
     pPipeline = CreatePipeline(std::move(passes), connections);
   }
 
   // The mismatched connections are dropped, the compatible one still works.
-  ezDynamicArray<RecordedPass> executionOrder;
+  WDynamicArray<RecordedPass> executionOrder;
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
 
   const char* expectedOrder[] = {"Source", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
 
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::None);
-  EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::None);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::None);
+  W_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::None);
   TestPinsEqual(GetOutput(executionOrder, "Source", 0), GetInput(executionOrder, "Sink", 1), Connectivity::Texture);
 }

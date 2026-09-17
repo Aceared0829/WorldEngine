@@ -4,13 +4,13 @@
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
 
-ezQtFileLineEdit::ezQtFileLineEdit(ezQtFilePropertyWidget* pParent)
+WQtFileLineEdit::WQtFileLineEdit(WQtFilePropertyWidget* pParent)
   : QLineEdit(pParent)
 {
   m_pOwner = pParent;
 }
 
-void ezQtFileLineEdit::dragMoveEvent(QDragMoveEvent* e)
+void WQtFileLineEdit::dragMoveEvent(QDragMoveEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -25,7 +25,7 @@ void ezQtFileLineEdit::dragMoveEvent(QDragMoveEvent* e)
   QLineEdit::dragMoveEvent(e);
 }
 
-void ezQtFileLineEdit::dragEnterEvent(QDragEnterEvent* e)
+void WQtFileLineEdit::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -40,7 +40,7 @@ void ezQtFileLineEdit::dragEnterEvent(QDragEnterEvent* e)
   QLineEdit::dragEnterEvent(e);
 }
 
-void ezQtFileLineEdit::dropEvent(QDropEvent* e)
+void WQtFileLineEdit::dropEvent(QDropEvent* e)
 {
   if (e->source() == this)
   {
@@ -52,10 +52,10 @@ void ezQtFileLineEdit::dropEvent(QDropEvent* e)
   {
     QString str = e->mimeData()->urls()[0].toLocalFile();
 
-    ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    WString sPath = str.toUtf8().data();
+    if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
-      setText(ezMakeQString(sPath));
+      setText(WMakeQString(sPath));
     }
     else
       setText(QString());
@@ -68,8 +68,8 @@ void ezQtFileLineEdit::dropEvent(QDropEvent* e)
   {
     QString str = e->mimeData()->text();
 
-    ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    WString sPath = str.toUtf8().data();
+    if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
       setText(QString::fromUtf8(sPath.GetData()));
     }

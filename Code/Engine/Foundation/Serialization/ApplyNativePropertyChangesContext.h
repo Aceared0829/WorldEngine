@@ -5,7 +5,7 @@
 /// Specialized context for tracking and applying native object changes to abstract object graphs.
 ///
 /// This context enables a sophisticated bidirectional synchronization workflow between native
-/// C++ objects and their serialized representations in ezAbstractObjectGraph form. It ensures
+/// C++ objects and their serialized representations in WAbstractObjectGraph form. It ensures
 /// that modifications made to native objects can be properly tracked and applied back to the
 /// abstract representation while maintaining object identity through consistent GUID generation.
 ///
@@ -26,15 +26,15 @@
 /// - Network synchronization where changes need to be transmitted efficiently
 /// - Asset pipeline where native modifications need to be persisted
 ///
-/// \sa ezAbstractObjectGraph::ModifyNodeViaNativeCounterpart
-class EZ_FOUNDATION_DLL ezApplyNativePropertyChangesContext : public ezRttiConverterContext
+/// \sa WAbstractObjectGraph::ModifyNodeViaNativeCounterpart
+class W_FOUNDATION_DLL WApplyNativePropertyChangesContext : public WRttiConverterContext
 {
 public:
-  ezApplyNativePropertyChangesContext(ezRttiConverterContext& ref_source, const ezAbstractObjectGraph& originalGraph);
+  WApplyNativePropertyChangesContext(WRttiConverterContext& ref_source, const WAbstractObjectGraph& originalGraph);
 
-  virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const override;
+  virtual WUuid GenerateObjectGuid(const WUuid& parentGuid, const WAbstractProperty* pProp, WVariant index, void* pObject) const override;
 
 private:
-  ezRttiConverterContext& m_NativeContext;
-  const ezAbstractObjectGraph& m_OriginalGraph;
+  WRttiConverterContext& m_NativeContext;
+  const WAbstractObjectGraph& m_OriginalGraph;
 };

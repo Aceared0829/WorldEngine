@@ -6,9 +6,9 @@
 /// Defines the strength / speed of wind. Inspired by the Beaufort Scale.
 ///
 /// See https://en.wikipedia.org/wiki/Beaufort_scale
-struct EZ_CORE_DLL ezWindStrength
+struct W_CORE_DLL WWindStrength
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -31,21 +31,21 @@ struct EZ_CORE_DLL ezWindStrength
   ///
   /// The value only defines how fast wind moves, how much it affects an object, like bending it, depends
   /// on additional factors like stiffness and is thus object specific.
-  static float GetInMetersPerSecond(ezWindStrength::Enum strength);
+  static float GetInMetersPerSecond(WWindStrength::Enum strength);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezWindStrength);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WWindStrength);
 
-class EZ_CORE_DLL ezWindWorldModuleInterface : public ezWorldModule
+class W_CORE_DLL WWindWorldModuleInterface : public WWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezWindWorldModuleInterface, ezWorldModule);
+  W_ADD_DYNAMIC_REFLECTION(WWindWorldModuleInterface, WWorldModule);
 
 protected:
-  ezWindWorldModuleInterface(ezWorld* pWorld);
+  WWindWorldModuleInterface(WWorld* pWorld);
 
 public:
-  virtual ezVec3 GetWindAt(const ezVec3& vPosition) const = 0;
-  virtual ezSimdVec4f GetWindAtSimd(const ezSimdVec4f& vPosition) const;
+  virtual WVec3 GetWindAt(const WVec3& vPosition) const = 0;
+  virtual WSimdVec4f GetWindAtSimd(const WSimdVec4f& vPosition) const;
 
   /// Computes a 'fluttering' wind motion orthogonal to an object direction.
   ///
@@ -56,5 +56,5 @@ public:
   /// \param vObjectDir The main direction of the object. For example the (average) direction of a tree branch, or the direction of a rope or cable. The flutter value will be orthogonal to the object direction and the wind direction. So when wind blows sideways onto a branch, the branch would flutter upwards and downwards. For a rope hanging downwards, wind blowing against it would make it flutter sideways.
   /// \param fFlutterSpeed How fast the object shall flutter (frequency).
   /// \param uiFlutterRandomOffset A random number that adds an offset to the flutter, such that multiple objects next to each other will flutter out of phase.
-  ezVec3 ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const;
+  WVec3 ComputeWindFlutter(const WVec3& vWind, const WVec3& vObjectDir, float fFlutterSpeed, WUInt32 uiFlutterRandomOffset) const;
 };

@@ -3,26 +3,26 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <Foundation/Tracks/CurveEditData.h>
 
-class ezCurve1D;
+class WCurve1D;
 
-class ezCurve1DAssetDocument : public ezSimpleAssetDocument<ezCurveGroupData>
+class WCurve1DAssetDocument : public WSimpleAssetDocument<WCurveGroupData>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetDocument, ezSimpleAssetDocument<ezCurveGroupData>);
+  W_ADD_DYNAMIC_REFLECTION(WCurve1DAssetDocument, WSimpleAssetDocument<WCurveGroupData>);
 
 public:
-  ezCurve1DAssetDocument(ezStringView sDocumentPath);
-  ~ezCurve1DAssetDocument();
+  WCurve1DAssetDocument(WStringView sDocumentPath);
+  ~WCurve1DAssetDocument();
 
-  /// Fills out the ezCurve1D structure with an exact copy of the data in the asset.
+  /// Fills out the WCurve1D structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the curve, that must be called manually.
-  void FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const;
+  void FillCurve(WUInt32 uiCurveIdx, WCurve1D& out_result) const;
 
-  ezUInt32 GetCurveCount() const;
+  WUInt32 GetCurveCount() const;
 
-  void WriteResource(ezStreamWriter& inout_stream) const;
+  void WriteResource(WStreamWriter& inout_stream) const;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };

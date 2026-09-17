@@ -6,42 +6,42 @@
 #include <Foundation/Strings/String.h>
 #include <QWidget>
 
-class ezAssetDocument;
-class ezQtEngineDocumentWindow;
+class WAssetDocument;
+class WQtEngineDocumentWindow;
 class QGridLayout;
-class ezQtViewWidgetContainer;
-class ezQtEngineViewWidget;
-struct ezEngineViewConfig;
-struct ezEngineViewPreferences;
+class WQtViewWidgetContainer;
+class WQtEngineViewWidget;
+struct WEngineViewConfig;
+struct WEngineViewPreferences;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtQuadViewWidget : public QWidget
+class W_EDITORFRAMEWORK_DLL WQtQuadViewWidget : public QWidget
 {
   Q_OBJECT
 public:
-  using ViewFactory = ezDelegate<ezQtEngineViewWidget*(ezQtEngineDocumentWindow*, ezEngineViewConfig*)>;
-  ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping);
-  ~ezQtQuadViewWidget();
+  using ViewFactory = WDelegate<WQtEngineViewWidget*(WQtEngineDocumentWindow*, WEngineViewConfig*)>;
+  WQtQuadViewWidget(WAssetDocument* pDocument, WQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping);
+  ~WQtQuadViewWidget();
 
-  const ezHybridArray<ezQtViewWidgetContainer*, 4>& GetActiveMainViews() { return m_ActiveMainViews; }
+  const WHybridArray<WQtViewWidgetContainer*, 4>& GetActiveMainViews() { return m_ActiveMainViews; }
 
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
 protected:
-  void SaveViewConfig(const ezEngineViewConfig& cfg, ezEngineViewPreferences& pref) const;
-  void LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPreferences& pref);
+  void SaveViewConfig(const WEngineViewConfig& cfg, WEngineViewPreferences& pref) const;
+  void LoadViewConfig(WEngineViewConfig& cfg, WEngineViewPreferences& pref);
   void SaveViewConfigs() const;
   void LoadViewConfigs();
   void CreateViews(bool bQuad);
 
 private:
-  ezAssetDocument* m_pDocument;
-  ezQtEngineDocumentWindow* m_pWindow;
+  WAssetDocument* m_pDocument;
+  WQtEngineDocumentWindow* m_pWindow;
   ViewFactory m_ViewFactory;
-  ezString m_sViewToolBarMapping;
+  WString m_sViewToolBarMapping;
 
-  ezEngineViewConfig m_ViewConfigSingle;
-  ezEngineViewConfig m_ViewConfigQuad[4];
-  ezHybridArray<ezQtViewWidgetContainer*, 4> m_ActiveMainViews;
+  WEngineViewConfig m_ViewConfigSingle;
+  WEngineViewConfig m_ViewConfigQuad[4];
+  WHybridArray<WQtViewWidgetContainer*, 4> m_ActiveMainViews;
   QGridLayout* m_pViewLayout;
 };

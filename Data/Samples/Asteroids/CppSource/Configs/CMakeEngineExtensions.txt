@@ -1,4 +1,4 @@
-# The ezEditor may modify this file to add build configuration options.
+# The WEditor may modify this file to add build configuration options.
 
 
 # Link against selected engine plugins

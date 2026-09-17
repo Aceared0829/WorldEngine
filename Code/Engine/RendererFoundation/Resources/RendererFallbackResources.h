@@ -3,44 +3,44 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezGALDevice;
+class WGALDevice;
 
 /// Creates fallback resources in case the high-level renderer did not map a resource to a binding slot.
-class EZ_RENDERERFOUNDATION_DLL ezGALRendererFallbackResources
+class W_RENDERERFOUNDATION_DLL WGALRendererFallbackResources
 {
 public:
-  static const ezGALBufferHandle GetFallbackBuffer(ezEnum<ezGALShaderResourceType> resourceType);
-  static const ezGALTextureHandle GetFallbackTexture(ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, bool bDepth);
+  static const WGALBufferHandle GetFallbackBuffer(WEnum<WGALShaderResourceType> resourceType);
+  static const WGALTextureHandle GetFallbackTexture(WEnum<WGALShaderResourceType> resourceType, WEnum<WGALShaderTextureType> textureType, bool bDepth);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, FallbackResources)
-  static void GALDeviceEventHandler(const ezGALDeviceEvent& e);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, FallbackResources)
+  static void GALDeviceEventHandler(const WGALDeviceEvent& e);
   static void Initialize();
   static void DeInitialize();
 
-  static ezGALDevice* s_pDevice;
-  static ezEventSubscriptionID s_EventID;
+  static WGALDevice* s_pDevice;
+  static WEventSubscriptionID s_EventID;
 
   struct Key
   {
-    EZ_DECLARE_POD_TYPE();
-    ezEnum<ezGALShaderResourceType> m_ResourceType;
-    ezEnum<ezGALShaderTextureType> m_ezType;
+    W_DECLARE_POD_TYPE();
+    WEnum<WGALShaderResourceType> m_ResourceType;
+    WEnum<WGALShaderTextureType> m_WType;
     bool m_bDepth = false;
   };
 
   struct KeyHash
   {
-    static ezUInt32 Hash(const Key& a);
+    static WUInt32 Hash(const Key& a);
     static bool Equal(const Key& a, const Key& b);
 
-    static ezUInt32 Hash(const ezEnum<ezGALShaderResourceType>& a);
-    static bool Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b);
+    static WUInt32 Hash(const WEnum<WGALShaderResourceType>& a);
+    static bool Equal(const WEnum<WGALShaderResourceType>& a, const WEnum<WGALShaderResourceType>& b);
   };
 
-  static ezHashTable<Key, ezGALTextureHandle, KeyHash> s_TextureResourceViews;
-  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferHandle, KeyHash> s_BufferResourceViews;
+  static WHashTable<Key, WGALTextureHandle, KeyHash> s_TextureResourceViews;
+  static WHashTable<WEnum<WGALShaderResourceType>, WGALBufferHandle, KeyHash> s_BufferResourceViews;
 
-  static ezDynamicArray<ezGALBufferHandle> s_Buffers;
-  static ezDynamicArray<ezGALTextureHandle> s_Textures;
+  static WDynamicArray<WGALBufferHandle> s_Buffers;
+  static WDynamicArray<WGALTextureHandle> s_Textures;
 };

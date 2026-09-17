@@ -1,18 +1,18 @@
-class Turret : ezAngelScriptClass
+class Turret : WAngelScriptClass
 {
     float Range = 3;
 
-    private array<ezGameObjectHandle> allTargets;
-    private ezTime lastDamageTime;
+    private array<WGameObjectHandle> allTargets;
+    private WTime lastDamageTime;
 
     void OnSimulationStarted()
     {
         // update this component every frame
-        SetUpdateInterval(ezTime::MakeZero());
+        SetUpdateInterval(WTime::MakeZero());
         lastDamageTime = GetWorld().GetClock().GetAccumulatedTime();
     }
 
-    bool FoundTargetCallback(ezGameObject@ go)
+    bool FoundTargetCallback(WGameObject@ go)
     {
         allTargets.PushBack(go.GetHandle());
         return true;
@@ -24,13 +24,13 @@ class Turret : ezAngelScriptClass
 
         // find all objects with the 'TurretTarget' marker that are close by
         allTargets.Clear();
-        ezSpatial::FindObjectsInSphere("TurretTarget", owner.GetGlobalPosition(), Range, ReportObjectCB(FoundTargetCallback));
+        WSpatial::FindObjectsInSphere("TurretTarget", owner.GetGlobalPosition(), Range, ReportObjectCB(FoundTargetCallback));
 
         DrawLinesToTargets();
 
-        const ezTime gameTime = GetWorld().GetClock().GetAccumulatedTime();
+        const WTime gameTime = GetWorld().GetClock().GetAccumulatedTime();
 
-        if (gameTime - lastDamageTime > ezTime::Milliseconds(40))
+        if (gameTime - lastDamageTime > WTime::Milliseconds(40))
         {
             lastDamageTime = gameTime;
             DamageAllTargets(4);
@@ -39,15 +39,15 @@ class Turret : ezAngelScriptClass
 
     void DrawLinesToTargets()
     {
-        ezVec3 startPos = GetOwner().GetGlobalPosition();
+        WVec3 startPos = GetOwner().GetGlobalPosition();
 
         for (uint i = 0; i < allTargets.GetCount(); ++i)
         {
-            ezGameObject@ obj;
+            WGameObject@ obj;
             if (GetWorld().TryGetObject(allTargets[i], obj))
             {
-                ezVec3 endPos = obj.GetGlobalPosition();
-                ezDebug::DrawLine(startPos, endPos, ezColor::OrangeRed, ezColor::OrangeRed);
+                WVec3 endPos = obj.GetGlobalPosition();
+                WDebug::DrawLine(startPos, endPos, WColor::OrangeRed, WColor::OrangeRed);
             }
         }
 
@@ -55,7 +55,7 @@ class Turret : ezAngelScriptClass
 
     void DamageAllTargets(float damage)
     {
-        ezMsgDamage dmgMsg;
+        WMsgDamage dmgMsg;
         dmgMsg.Damage = damage;
 
         for (uint i = 0; i < allTargets.GetCount(); ++i)

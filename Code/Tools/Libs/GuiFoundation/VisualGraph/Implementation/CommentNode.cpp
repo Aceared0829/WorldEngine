@@ -13,7 +13,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
-ezQtVisualGraphCommentNode::ezQtVisualGraphCommentNode()
+WQtVisualGraphCommentNode::WQtVisualGraphCommentNode()
 {
   m_CommentColor = QColor(70, 70, 70, 200);
 
@@ -21,7 +21,7 @@ ezQtVisualGraphCommentNode::ezQtVisualGraphCommentNode()
   setAcceptHoverEvents(true);
 }
 
-void ezQtVisualGraphCommentNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
+void WQtVisualGraphCommentNode::InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject)
 {
   m_pManager = pManager;
 
@@ -35,7 +35,7 @@ void ezQtVisualGraphCommentNode::InitNode(const ezVisualGraphObjectManager* pMan
   m_pCommentLabel->setTextWidth(-1); // single line, no wrap
 
   // Call base to hook up document object and flags
-  ezQtVisualGraphNode::InitNode(pManager, pObject);
+  WQtVisualGraphNode::InitNode(pManager, pObject);
 
   // Hide base class title/subtitle/icon since we render our own text
   m_pTitleLabel->setVisible(false);
@@ -43,22 +43,22 @@ void ezQtVisualGraphCommentNode::InitNode(const ezVisualGraphObjectManager* pMan
   m_pIcon->setVisible(false);
 }
 
-void ezQtVisualGraphCommentNode::UpdateGeometry()
+void WQtVisualGraphCommentNode::UpdateGeometry()
 {
   prepareGeometryChange();
 
-  const ezDocumentObject* pObject = GetObject();
+  const WDocumentObject* pObject = GetObject();
   if (pObject)
   {
-    ezVariant sizeVar = pObject->GetTypeAccessor().GetValue("Size");
-    if (sizeVar.IsA<ezVec2>())
+    WVariant sizeVar = pObject->GetTypeAccessor().GetValue("Size");
+    if (sizeVar.IsA<WVec2>())
     {
-      m_vCurrentSize = sizeVar.Get<ezVec2>();
+      m_vCurrentSize = sizeVar.Get<WVec2>();
     }
   }
 
-  m_vCurrentSize.x = ezMath::Max(m_vCurrentSize.x, s_fMinWidth);
-  m_vCurrentSize.y = ezMath::Max(m_vCurrentSize.y, s_fMinHeight);
+  m_vCurrentSize.x = WMath::Max(m_vCurrentSize.x, s_fMinWidth);
+  m_vCurrentSize.y = WMath::Max(m_vCurrentSize.y, s_fMinHeight);
 
   const float padding = 8.0f;
 
@@ -70,28 +70,28 @@ void ezQtVisualGraphCommentNode::UpdateGeometry()
   m_pCommentLabel->setTextWidth(m_vCurrentSize.x - padding * 2);
 }
 
-void ezQtVisualGraphCommentNode::UpdateState()
+void WQtVisualGraphCommentNode::UpdateState()
 {
-  const ezDocumentObject* pObject = GetObject();
+  const WDocumentObject* pObject = GetObject();
   if (!pObject)
     return;
 
-  ezVariant commentVar = pObject->GetTypeAccessor().GetValue("Comment");
-  if (commentVar.IsA<ezString>())
+  WVariant commentVar = pObject->GetTypeAccessor().GetValue("Comment");
+  if (commentVar.IsA<WString>())
   {
-    m_pCommentLabel->setPlainText(commentVar.Get<ezString>().GetData());
+    m_pCommentLabel->setPlainText(commentVar.Get<WString>().GetData());
   }
 
-  ezVariant colorVar = pObject->GetTypeAccessor().GetValue("Color");
-  if (colorVar.IsA<ezColorGammaUB>())
+  WVariant colorVar = pObject->GetTypeAccessor().GetValue("Color");
+  if (colorVar.IsA<WColorGammaUB>())
   {
-    m_CommentColor = ezToQtColor(colorVar.Get<ezColorGammaUB>());
+    m_CommentColor = WToQtColor(colorVar.Get<WColorGammaUB>());
   }
 }
 
-void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void WQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  if (GetFlags().IsSet(ezQtVisualGraphNodeFlags::UpdateTitle))
+  if (GetFlags().IsSet(WQtVisualGraphNodeFlags::UpdateTitle))
   {
     UpdateState();
     // Only rebuild geometry from document if we're not actively resizing
@@ -151,10 +151,10 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
   m_pCommentLabel->setDefaultTextColor(textColor);
 }
 
-ezUInt8 ezQtVisualGraphCommentNode::DetectResizeEdge(const QPointF& localPos) const
+WUInt8 WQtVisualGraphCommentNode::DetectResizeEdge(const QPointF& localPos) const
 {
   const QRectF bounds = path().boundingRect();
-  ezUInt8 uiEdge = None;
+  WUInt8 uiEdge = None;
 
   if (localPos.x() < bounds.left() + s_fEdgeThreshold)
     uiEdge |= Left;
@@ -169,7 +169,7 @@ ezUInt8 ezQtVisualGraphCommentNode::DetectResizeEdge(const QPointF& localPos) co
   return uiEdge;
 }
 
-void ezQtVisualGraphCommentNode::UpdateCursorForEdge(ezUInt8 uiEdge)
+void WQtVisualGraphCommentNode::UpdateCursorForEdge(WUInt8 uiEdge)
 {
   if (uiEdge == (Left | Top) || uiEdge == (Right | Bottom))
     setCursor(Qt::SizeFDiagCursor);
@@ -183,21 +183,21 @@ void ezQtVisualGraphCommentNode::UpdateCursorForEdge(ezUInt8 uiEdge)
     unsetCursor();
 }
 
-void ezQtVisualGraphCommentNode::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
+void WQtVisualGraphCommentNode::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
   UpdateCursorForEdge(DetectResizeEdge(event->pos()));
   QGraphicsPathItem::hoverMoveEvent(event);
 }
 
-void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void WQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   if (event->button() != Qt::LeftButton)
   {
-    ezQtVisualGraphNode::mousePressEvent(event);
+    WQtVisualGraphNode::mousePressEvent(event);
     return;
   }
 
-  ezUInt8 uiEdge = DetectResizeEdge(event->pos());
+  WUInt8 uiEdge = DetectResizeEdge(event->pos());
 
   if (uiEdge != None)
   {
@@ -227,7 +227,7 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
         continue;
 
       // Only include top-level items that are our node type
-      if (pItem->type() != ezQtVisualGraphScene::Node)
+      if (pItem->type() != WQtVisualGraphScene::Node)
         continue;
 
       // Only if the node's center is inside the comment bounds
@@ -241,28 +241,28 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
     }
   }
 
-  ezQtVisualGraphNode::mousePressEvent(event);
+  WQtVisualGraphNode::mousePressEvent(event);
 }
 
-void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+void WQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   if (m_uiActiveResizeEdge != None)
   {
     QPointF delta = event->scenePos() - m_ResizeStartMouseScene;
 
-    ezVec2 newSize = m_vResizeStartSize;
+    WVec2 newSize = m_vResizeStartSize;
     QPointF newPos = m_ResizeStartPos;
 
     if (m_uiActiveResizeEdge & Right)
-      newSize.x = ezMath::Max(m_vResizeStartSize.x + (float)delta.x(), s_fMinWidth);
+      newSize.x = WMath::Max(m_vResizeStartSize.x + (float)delta.x(), s_fMinWidth);
 
     if (m_uiActiveResizeEdge & Bottom)
-      newSize.y = ezMath::Max(m_vResizeStartSize.y + (float)delta.y(), s_fMinHeight);
+      newSize.y = WMath::Max(m_vResizeStartSize.y + (float)delta.y(), s_fMinHeight);
 
     if (m_uiActiveResizeEdge & Left)
     {
       float maxDeltaX = m_vResizeStartSize.x - s_fMinWidth;
-      float dx = ezMath::Clamp((float)delta.x(), -10000.0f, maxDeltaX);
+      float dx = WMath::Clamp((float)delta.x(), -10000.0f, maxDeltaX);
       newSize.x = m_vResizeStartSize.x - dx;
       newPos.setX(m_ResizeStartPos.x() + dx);
     }
@@ -270,7 +270,7 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     if (m_uiActiveResizeEdge & Top)
     {
       float maxDeltaY = m_vResizeStartSize.y - s_fMinHeight;
-      float dy = ezMath::Clamp((float)delta.y(), -10000.0f, maxDeltaY);
+      float dy = WMath::Clamp((float)delta.y(), -10000.0f, maxDeltaY);
       newSize.y = m_vResizeStartSize.y - dy;
       newPos.setY(m_ResizeStartPos.y() + dy);
     }
@@ -292,10 +292,10 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     return;
   }
 
-  ezQtVisualGraphNode::mouseMoveEvent(event);
+  WQtVisualGraphNode::mouseMoveEvent(event);
 }
 
-void ezQtVisualGraphCommentNode::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void WQtVisualGraphCommentNode::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
   if (m_uiActiveResizeEdge != None && event->button() == Qt::LeftButton)
   {
@@ -305,14 +305,14 @@ void ezQtVisualGraphCommentNode::mouseReleaseEvent(QGraphicsSceneMouseEvent* eve
     // Commit size and position changes to the document
     if (m_pManager && GetObject())
     {
-      ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
+      WCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
       pHistory->StartTransaction("Resize Comment");
 
-      ezStatus res(EZ_SUCCESS);
+      WStatus res(W_SUCCESS);
 
       // Commit new size
       {
-        ezSetObjectPropertyCommand cmd;
+        WSetObjectPropertyCommand cmd;
         cmd.m_Object = GetObject()->GetGuid();
         cmd.m_sProperty = "Size";
         cmd.m_NewValue = m_vCurrentSize;
@@ -322,9 +322,9 @@ void ezQtVisualGraphCommentNode::mouseReleaseEvent(QGraphicsSceneMouseEvent* eve
       // Commit new position if it changed (left/top edge resize)
       if (res.Succeeded())
       {
-        ezMoveNodeCommand move;
+        WMoveNodeCommand move;
         move.m_Object = GetObject()->GetGuid();
-        move.m_NewPos = ezVec2((float)pos().x(), (float)pos().y());
+        move.m_NewPos = WVec2((float)pos().x(), (float)pos().y());
         res = pHistory->AddCommand(move);
       }
 
@@ -341,17 +341,17 @@ void ezQtVisualGraphCommentNode::mouseReleaseEvent(QGraphicsSceneMouseEvent* eve
   // Clear contained nodes after the base class and scene process the move
   m_ContainedNodes.Clear();
 
-  ezQtVisualGraphNode::mouseReleaseEvent(event);
+  WQtVisualGraphNode::mouseReleaseEvent(event);
 }
 
-QVariant ezQtVisualGraphCommentNode::itemChange(GraphicsItemChange change, const QVariant& value)
+QVariant WQtVisualGraphCommentNode::itemChange(GraphicsItemChange change, const QVariant& value)
 {
   if (change == QGraphicsItem::ItemPositionHasChanged && !m_ContainedNodes.IsEmpty())
   {
     // Only move contained nodes during interactive dragging, not during undo/redo
     if (m_pManager)
     {
-      ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
+      WCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
       {
         QPointF newPos = value.toPointF();
@@ -366,5 +366,5 @@ QVariant ezQtVisualGraphCommentNode::itemChange(GraphicsItemChange change, const
     }
   }
 
-  return ezQtVisualGraphNode::itemChange(change, value);
+  return WQtVisualGraphNode::itemChange(change, value);
 }

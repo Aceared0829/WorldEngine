@@ -8,65 +8,65 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Tracing/TraceProvider.h>
 
-ezIpcProcessMessageProtocol::ezIpcProcessMessageProtocol(ezIpcChannel* pChannel)
+WIpcProcessMessageProtocol::WIpcProcessMessageProtocol(WIpcChannel* pChannel)
 {
-  ezStringView sAddress = pChannel->GetAddress();
+  WStringView sAddress = pChannel->GetAddress();
 
-  m_uiReceiveChannelId = ezHashingUtils::xxHash64String(sAddress);
-  m_uiSendChannelId = ezHashingUtils::xxHash64String(sAddress, 1337);
+  m_uiReceiveChannelId = WHashingUtils::xxHash64String(sAddress);
+  m_uiSendChannelId = WHashingUtils::xxHash64String(sAddress, 1337);
 
-  if (pChannel->GetMode() == ezIpcChannel::Mode::Client)
+  if (pChannel->GetMode() == WIpcChannel::Mode::Client)
   {
     // To make sure telemetry events can be correlated, the client swaps the stable channel IDs.
     std::swap(m_uiReceiveChannelId, m_uiSendChannelId);
   }
 
   m_pChannel = pChannel;
-  m_pChannel->SetReceiveCallback(ezMakeDelegate(&ezIpcProcessMessageProtocol::ReceiveMessageData, this));
+  m_pChannel->SetReceiveCallback(WMakeDelegate(&WIpcProcessMessageProtocol::ReceiveMessageData, this));
 }
 
-ezIpcProcessMessageProtocol::~ezIpcProcessMessageProtocol()
+WIpcProcessMessageProtocol::~WIpcProcessMessageProtocol()
 {
   m_pChannel->SetReceiveCallback({});
 
-  while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
+  while (WUniquePtr<WProcessMessage> msg = PopMessage())
   {
   }
 }
 
-bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
+bool WIpcProcessMessageProtocol::Send(WProcessMessage* pMsg)
 {
-  ezStringBuilder sTypeName = pMsg->GetDynamicRTTI()->GetTypeName();
-  ezUInt64 uiMessageId = (ezUInt64)m_iSendMessageId.Increment();
-  [[maybe_unused]] ezUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
+  WStringBuilder sTypeName = pMsg->GetDynamicRTTI()->GetTypeName();
+  WUInt64 uiMessageId = (WUInt64)m_iSendMessageId.Increment();
+  [[maybe_unused]] WUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
   pMsg->m_uiMessageId = uiMessageId;
 
-  ezContiguousMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
+  WContiguousMemoryStreamStorage storage;
+  WMemoryStreamWriter writer(&storage);
+  WReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
 
-  EZ_TRACE_ASYNC_BEGIN("IpcProtocol_Send", uiRequestId, ezTraceLevel::Info,
-    EZ_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is ezString
-    EZ_TRACE_VALUE("MessageId", uiMessageId),
-    EZ_TRACE_VALUE("Type", sTypeName.GetData()));
+  W_TRACE_ASYNC_BEGIN("IpcProtocol_Send", uiRequestId, WTraceLevel::Info,
+    W_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is WString
+    W_TRACE_VALUE("MessageId", uiMessageId),
+    W_TRACE_VALUE("Type", sTypeName.GetData()));
 
-  return m_pChannel->Send(ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize32()));
+  return m_pChannel->Send(WArrayPtr<const WUInt8>(storage.GetData(), storage.GetStorageSize32()));
 }
 
-bool ezIpcProcessMessageProtocol::ProcessMessages()
+bool WIpcProcessMessageProtocol::ProcessMessages()
 {
   bool messagesPresent = false;
 
-  while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
+  while (WUniquePtr<WProcessMessage> msg = PopMessage())
   {
-    [[maybe_unused]] ezUInt64 uiRequestId = m_uiReceiveChannelId + msg->m_uiMessageId;
-    ezStringBuilder sTypeName = msg->GetDynamicRTTI()->GetTypeName();
-    EZ_TRACE_ASYNC_END("IpcProtocol_Send", uiRequestId);
+    [[maybe_unused]] WUInt64 uiRequestId = m_uiReceiveChannelId + msg->m_uiMessageId;
+    WStringBuilder sTypeName = msg->GetDynamicRTTI()->GetTypeName();
+    W_TRACE_ASYNC_END("IpcProtocol_Send", uiRequestId);
 
-    EZ_TRACE_EVENT("IpcProtocol_Receive", ezTraceLevel::Info,
-      EZ_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is ezString
-      EZ_TRACE_VALUE("MessageId", msg->m_uiMessageId),
-      EZ_TRACE_VALUE("Type", sTypeName.GetData()));
+    W_TRACE_EVENT("IpcProtocol_Receive", WTraceLevel::Info,
+      W_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is WString
+      W_TRACE_VALUE("MessageId", msg->m_uiMessageId),
+      W_TRACE_VALUE("Type", sTypeName.GetData()));
     messagesPresent = true;
     Event e;
     e.m_pMessage = msg.Borrow();
@@ -79,15 +79,15 @@ bool ezIpcProcessMessageProtocol::ProcessMessages()
   return messagesPresent;
 }
 
-ezResult ezIpcProcessMessageProtocol::WaitForMessages(ezTime timeout)
+WResult WIpcProcessMessageProtocol::WaitForMessages(WTime timeout)
 {
   // Message processing can be interrupted via the m_bInterruptMessageProcessing flag. Thus, there is no guarantee that the queue is empty at this point. Only wait if the queue is empty.
   if (ProcessMessages())
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult res = m_pChannel->WaitForMessages(timeout);
+  WResult res = m_pChannel->WaitForMessages(timeout);
   if (res.Succeeded())
   {
     ProcessMessages();
@@ -95,37 +95,37 @@ ezResult ezIpcProcessMessageProtocol::WaitForMessages(ezTime timeout)
   return res;
 }
 
-void ezIpcProcessMessageProtocol::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
+void WIpcProcessMessageProtocol::ReceiveMessageData(WArrayPtr<const WUInt8> data)
 {
   // Message complete, de-serialize
-  ezRawMemoryStreamReader reader(data.GetPtr(), data.GetCount());
-  const ezRTTI* pRtti = nullptr;
+  WRawMemoryStreamReader reader(data.GetPtr(), data.GetCount());
+  const WRTTI* pRtti = nullptr;
 
-  ezProcessMessage* pMsg = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
-  ezUniquePtr<ezProcessMessage> msg(pMsg, ezFoundation::GetDefaultAllocator());
+  WProcessMessage* pMsg = (WProcessMessage*)WReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
+  WUniquePtr<WProcessMessage> msg(pMsg, WFoundation::GetDefaultAllocator());
   if (msg != nullptr)
   {
     EnqueueMessage(std::move(msg));
   }
   else
   {
-    ezLog::Error("Channel received invalid Message!");
+    WLog::Error("Channel received invalid Message!");
   }
 }
 
-void ezIpcProcessMessageProtocol::EnqueueMessage(ezUniquePtr<ezProcessMessage>&& msg)
+void WIpcProcessMessageProtocol::EnqueueMessage(WUniquePtr<WProcessMessage>&& msg)
 {
-  EZ_LOCK(m_IncomingQueueMutex);
+  W_LOCK(m_IncomingQueueMutex);
   m_IncomingQueue.PushBack(std::move(msg));
 }
 
-ezUniquePtr<ezProcessMessage> ezIpcProcessMessageProtocol::PopMessage()
+WUniquePtr<WProcessMessage> WIpcProcessMessageProtocol::PopMessage()
 {
-  EZ_LOCK(m_IncomingQueueMutex);
+  W_LOCK(m_IncomingQueueMutex);
   if (m_IncomingQueue.IsEmpty())
     return {};
 
-  ezUniquePtr<ezProcessMessage> front = std::move(m_IncomingQueue.PeekFront());
+  WUniquePtr<WProcessMessage> front = std::move(m_IncomingQueue.PeekFront());
   m_IncomingQueue.PopFront();
   return front;
 }

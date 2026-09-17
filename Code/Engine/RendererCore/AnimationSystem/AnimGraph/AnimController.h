@@ -14,68 +14,68 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
-class ezGameObject;
-class ezAnimGraph;
+class WGameObject;
+class WAnimGraph;
 
-using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResource>;
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
+using WAnimGraphResourceHandle = WTypedResourceHandle<class WAnimGraphResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
 
-EZ_DEFINE_AS_POD_TYPE(ozz::math::SimdFloat4);
+W_DEFINE_AS_POD_TYPE(ozz::math::SimdFloat4);
 
 /// Runtime data for bone weight pins, controlling which bones are affected by animations.
 ///
 /// Used to mask out specific bones from animation influence, allowing selective animation blending.
-struct ezAnimGraphPinDataBoneWeights
+struct WAnimGraphPinDataBoneWeights
 {
-  ezUInt16 m_uiOwnIndex = 0xFFFF;
+  WUInt16 m_uiOwnIndex = 0xFFFF;
   float m_fOverallWeight = 1.0f;
-  const ezAnimGraphSharedBoneWeights* m_pSharedBoneWeights = nullptr;
+  const WAnimGraphSharedBoneWeights* m_pSharedBoneWeights = nullptr;
 };
 
 /// A single named float value sampled from a custom curve in an animation clip.
-struct ezAnimGraphCustomCurveData
+struct WAnimGraphCustomCurveData
 {
-  ezHashedString m_sName;
+  WHashedString m_sName;
   float m_fValue = 0.0f;
 };
 
 /// Runtime data for local pose pins, containing bone transforms in local space (relative to parent).
 ///
 /// Local poses are the output of pose sampling and blending nodes before forward kinematics is applied.
-struct ezAnimGraphPinDataLocalTransforms
+struct WAnimGraphPinDataLocalTransforms
 {
-  ezUInt16 m_uiOwnIndex = 0xFFFF;
-  ezAnimPoseGeneratorCommandID m_CommandID;
-  const ezAnimGraphPinDataBoneWeights* m_pWeights = nullptr;
+  WUInt16 m_uiOwnIndex = 0xFFFF;
+  WAnimPoseGeneratorCommandID m_CommandID;
+  const WAnimGraphPinDataBoneWeights* m_pWeights = nullptr;
   float m_fOverallWeight = 1.0f;
-  ezVec3 m_vRootMotion = ezVec3::MakeZero();
+  WVec3 m_vRootMotion = WVec3::MakeZero();
   bool m_bUseRootMotion = false;
-  ezSmallArray<ezAnimGraphCustomCurveData, 2> m_CustomCurveValues;
+  WSmallArray<WAnimGraphCustomCurveData, 2> m_CustomCurveValues;
 };
 
 /// Runtime data for model pose pins, containing bone transforms in model space (relative to skeleton root).
 ///
 /// Model poses are the output after forward kinematics has been applied, ready for final rendering.
-struct ezAnimGraphPinDataModelTransforms
+struct WAnimGraphPinDataModelTransforms
 {
-  ezUInt16 m_uiOwnIndex = 0xFFFF;
-  ezAnimPoseGeneratorCommandID m_CommandID;
-  ezVec3 m_vRootMotion = ezVec3::MakeZero();
-  ezAngle m_RootRotationX;
-  ezAngle m_RootRotationY;
-  ezAngle m_RootRotationZ;
+  WUInt16 m_uiOwnIndex = 0xFFFF;
+  WAnimPoseGeneratorCommandID m_CommandID;
+  WVec3 m_vRootMotion = WVec3::MakeZero();
+  WAngle m_RootRotationX;
+  WAngle m_RootRotationY;
+  WAngle m_RootRotationZ;
   bool m_bUseRootMotion = false;
 };
 
 /// Manages and updates animation graph instances to generate animation poses.
 ///
-/// This is the runtime bridge between animation graphs (ezAnimGraph) and the pose generation system
-/// (ezAnimPoseGenerator). It owns graph instances, manages their execution, handles data flow between
+/// This is the runtime bridge between animation graphs (WAnimGraph) and the pose generation system
+/// (WAnimPoseGenerator). It owns graph instances, manages their execution, handles data flow between
 /// graph nodes, and forwards the final pose to the renderer.
 ///
 /// ## Responsibilities
 ///
-/// - Creates and updates an ezAnimGraphInstance object for each loaded graph
+/// - Creates and updates an WAnimGraphInstance object for each loaded graph
 /// - Allocates and manages pin data storage (bone weights, local poses, model poses)
 /// - Accumulates root motion from animations for character movement
 /// - Forwards the provided blackboard for data sharing between graph nodes and gameplay code
@@ -84,12 +84,12 @@ struct ezAnimGraphPinDataModelTransforms
 ///
 /// ## Usage Pattern
 ///
-/// Typically owned by ezAnimationControllerComponent. The component calls Initialize() once,
+/// Typically owned by WAnimationControllerComponent. The component calls Initialize() once,
 /// then Update() every frame to generate new animation poses.
 ///
 /// **Basic workflow:**
 /// ```cpp
-/// ezAnimController controller;
+/// WAnimController controller;
 /// controller.Initialize(skeletonHandle, poseGenerator, blackboard);
 /// controller.AddAnimGraph(animGraphHandle);
 /// controller.SetAnimationClipInfo("Walk", walkClipInfo);
@@ -109,127 +109,127 @@ struct ezAnimGraphPinDataModelTransforms
 ///
 /// Multiple animation graphs can be added to create layered animations (e.g., base locomotion
 /// + upper body aim).
-class EZ_RENDERERCORE_DLL ezAnimController
+class W_RENDERERCORE_DLL WAnimController
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimController);
+  W_DISALLOW_COPY_AND_ASSIGN(WAnimController);
 
 public:
-  ezAnimController();
-  ~ezAnimController();
+  WAnimController();
+  ~WAnimController();
 
   /// Initializes the controller with a skeleton and pose generator.
   ///
   /// Must be called before adding graphs or updating. The optional blackboard is used for
   /// data sharing between animation graphs and gameplay code.
-  void Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
+  void Initialize(const WSkeletonResourceHandle& hSkeleton, WAnimPoseGenerator& ref_poseGenerator, const WSharedPtr<WBlackboard>& pBlackboard = nullptr);
 
   /// Updates all animation graph instances and generates the final pose.
   ///
   /// Steps all nodes in all graphs, accumulates results, forwards the final pose to the pose generator,
-  /// and sends ezMsgAnimationPoseUpdated to the target object and its children.
+  /// and sends WMsgAnimationPoseUpdated to the target object and its children.
   ///
   /// Returns false if the target requested to stop animating via msg.m_bContinueAnimating.
-  bool Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK);
+  bool Update(WTime diff, WGameObject* pTarget, bool bEnableIK);
 
   /// Retrieves accumulated root motion from the last Update().
   ///
   /// Root motion is the translation and rotation extracted from animations, used to move characters
   /// based on their animation. This could be applied to the character controller or entity.
-  void GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const;
+  void GetRootMotion(WVec3& ref_vTranslation, WAngle& ref_rotationX, WAngle& ref_rotationY, WAngle& ref_rotationZ) const;
 
-  const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
+  const WSharedPtr<WBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
-  ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
+  WAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
 
   /// Creates or retrieves a shared bone weight mask.
   ///
   /// Bone weights are shared globally across all characters to save memory. The fill delegate is called
   /// only once when the weights are first created. Subsequent calls with the same name return the cached weights.
-  static ezSharedPtr<ezAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill);
+  static WSharedPtr<WAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const WSkeletonResource& skeleton, WDelegate<void(WAnimGraphSharedBoneWeights&)> fill);
 
-  void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
-  void SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
+  void SetOutputModelTransform(WAnimGraphPinDataModelTransforms* pModelTransform);
+  void SetRootMotion(const WVec3& vTranslation, WAngle rotationX, WAngle rotationY, WAngle rotationZ);
 
-  void AddOutputLocalTransforms(ezAnimGraphPinDataLocalTransforms* pLocalTransforms);
+  void AddOutputLocalTransforms(WAnimGraphPinDataLocalTransforms* pLocalTransforms);
 
-  ezAnimGraphPinDataBoneWeights* AddPinDataBoneWeights();
-  ezAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
-  ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
+  WAnimGraphPinDataBoneWeights* AddPinDataBoneWeights();
+  WAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
+  WAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
 
   /// Loads an animation graph and creates a runtime instance for it.
   ///
   /// Multiple graphs can be added to layer animations. They are evaluated in the order added.
-  void AddAnimGraph(const ezAnimGraphResourceHandle& hGraph);
+  void AddAnimGraph(const WAnimGraphResourceHandle& hGraph);
 
   struct AnimClipInfo
   {
-    ezAnimationClipResourceHandle m_hClip;
+    WAnimationClipResourceHandle m_hClip;
   };
 
-  const AnimClipInfo& GetAnimationClipInfo(ezTempHashedString sClipName) const;
+  const AnimClipInfo& GetAnimationClipInfo(WTempHashedString sClipName) const;
 
   /// Sets which animation clip is used for the named animation.
   ///
   /// Should only be called right at the start or when it is absolutely certain that an animation clip isn't in use right now,
   /// otherwise the running animation playback may produce weird results.
-  void SetAnimationClipInfo(const ezHashedString& sClipName, const AnimClipInfo& info);
+  void SetAnimationClipInfo(const WHashedString& sClipName, const AnimClipInfo& info);
 
 private:
-  void GenerateLocalResultProcessors(const ezSkeletonResource* pSkeleton);
+  void GenerateLocalResultProcessors(const WSkeletonResource* pSkeleton);
 
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
+  WSkeletonResourceHandle m_hSkeleton;
+  WAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 
-  ezVec3 m_vRootMotion = ezVec3::MakeZero();
-  ezAngle m_RootRotationX;
-  ezAngle m_RootRotationY;
-  ezAngle m_RootRotationZ;
+  WVec3 m_vRootMotion = WVec3::MakeZero();
+  WAngle m_RootRotationX;
+  WAngle m_RootRotationY;
+  WAngle m_RootRotationZ;
 
-  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_BlendMask;
+  WDynamicArray<ozz::math::SimdFloat4, WAlignedAllocatorWrapper> m_BlendMask;
 
-  ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
-  ezSharedPtr<ezBlackboard> m_pBlackboard = nullptr;
+  WAnimPoseGenerator* m_pPoseGenerator = nullptr;
+  WSharedPtr<WBlackboard> m_pBlackboard = nullptr;
 
-  ezSmallArray<ezUInt32, 8> m_CurrentLocalTransformOutputs;
+  WSmallArray<WUInt32, 8> m_CurrentLocalTransformOutputs;
 
-  static ezMutex s_SharedDataMutex;
-  static ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
+  static WMutex s_SharedDataMutex;
+  static WHashTable<WString, WSharedPtr<WAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
 
   struct GraphInstance
   {
-    ezAnimGraphResourceHandle m_hAnimGraph;
-    ezUniquePtr<ezAnimGraphInstance> m_pInstance;
+    WAnimGraphResourceHandle m_hAnimGraph;
+    WUniquePtr<WAnimGraphInstance> m_pInstance;
   };
 
-  ezSmallArray<GraphInstance, 2> m_Instances;
+  WSmallArray<GraphInstance, 2> m_Instances;
 
   AnimClipInfo m_InvalidClipInfo;
-  ezHashTable<ezHashedString, AnimClipInfo> m_AnimationClipMapping;
+  WHashTable<WHashedString, AnimClipInfo> m_AnimationClipMapping;
 
 private:
-  friend class ezAnimGraphTriggerOutputPin;
-  friend class ezAnimGraphTriggerInputPin;
-  friend class ezAnimGraphBoneWeightsInputPin;
-  friend class ezAnimGraphBoneWeightsOutputPin;
-  friend class ezAnimGraphLocalPoseInputPin;
-  friend class ezAnimGraphLocalPoseOutputPin;
-  friend class ezAnimGraphNumberInputPin;
-  friend class ezAnimGraphNumberOutputPin;
-  friend class ezAnimGraphBoolInputPin;
-  friend class ezAnimGraphBoolOutputPin;
+  friend class WAnimGraphTriggerOutputPin;
+  friend class WAnimGraphTriggerInputPin;
+  friend class WAnimGraphBoneWeightsInputPin;
+  friend class WAnimGraphBoneWeightsOutputPin;
+  friend class WAnimGraphLocalPoseInputPin;
+  friend class WAnimGraphLocalPoseOutputPin;
+  friend class WAnimGraphNumberInputPin;
+  friend class WAnimGraphNumberOutputPin;
+  friend class WAnimGraphBoolInputPin;
+  friend class WAnimGraphBoolOutputPin;
 
-  ezSmallArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
-  ezSmallArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
-  ezSmallArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
+  WSmallArray<WAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
+  WSmallArray<WAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
+  WSmallArray<WAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
 
   /// Accumulates weighted custom curve samples across all active pins for a single named curve.
   struct FinalCurveValue
   {
-    ezHashedString m_sName;
+    WHashedString m_sName;
     float m_fWeightedSum = 0.0f; ///< Sum of (value * pinWeight) across all contributing pins.
     float m_fTotalWeight = 0.0f; ///< Sum of pin weights. Divide m_fWeightedSum by this to get the weighted average.
     float m_fMin = 0.0f;
     float m_fMax = 0.0f;
   };
-  ezSmallArray<FinalCurveValue, 4> m_FinalCurveValues;
+  WSmallArray<FinalCurveValue, 4> m_FinalCurveValues;
 };

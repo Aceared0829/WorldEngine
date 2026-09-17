@@ -1,0 +1,11 @@
+# Asset Types
+
+Collection;Collection;;https://ezengine.net/pages/docs/performance/asset-collections.html
+
+# Component Types
+
+WCollectionComponent;Collection;;https://ezengine.net/pages/docs/performance/collection-component.html
+
+# Properties
+
+WCollectionAssetEntry::Name;Lookup Name

@@ -9,86 +9,86 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlendConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlendPass, 1, ezRTTIDefaultAllocator<ezBlendPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBlendPass, 1, WRTTIDefaultAllocator<WBlendPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputA", m_PinInputA),
-    EZ_MEMBER_PROPERTY("InputB", m_PinInputB),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_MEMBER_PROPERTY("BlendFactor", m_fBlendFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    W_MEMBER_PROPERTY("InputA", m_PinInputA),
+    W_MEMBER_PROPERTY("InputB", m_PinInputB),
+    W_MEMBER_PROPERTY("Output", m_PinOutput),
+    W_MEMBER_PROPERTY("BlendFactor", m_fBlendFactor)->AddAttributes(new WDefaultValueAttribute(0.5f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities")
+    new WCategoryAttribute("Utilities")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBlendPass::ezBlendPass()
-  : ezRenderPipelinePass("BlendPass")
+WBlendPass::WBlendPass()
+  : WRenderPipelinePass("BlendPass")
 {
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Blend.ezShader");
-  EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load blend shader!");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/Blend.WShader");
+  W_ASSERT_DEV(m_hShader.IsValid(), "Could not load blend shader!");
 }
 
-ezBlendPass::~ezBlendPass() = default;
+WBlendPass::~WBlendPass() = default;
 
-ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WBlendPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hInputA = inputs[m_PinInputA.m_uiInputIndex].m_TextureHandle;
-  ezRenderGraphTextureHandle hInputB = inputs[m_PinInputB.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hInputA = inputs[m_PinInputA.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hInputB = inputs[m_PinInputB.m_uiInputIndex].m_TextureHandle;
   if (hInputA.IsInvalidated() || hInputB.IsInvalidated())
-    return ezStatus(ezFmt("Input: Not connected"));
+    return WStatus(WFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDescA = ref_graph.GetTextureDesc(hInputA);
-  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(inputDescA);
+  const WGALTextureCreationDescription inputDescA = ref_graph.GetTextureDesc(hInputA);
+  WRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(inputDescA);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   auto pass = ref_graph.AddGraphicsPass("Blend");
-  pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
-  pass.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
-  pass.ReadTexture(hInputA, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
-  pass.ReadTexture(hInputB, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.AddColorTarget(hOutput, {}, WGALRenderTargetLoadOp::Clear);
+  pass.SetClearColor(0, WColor(1.0f, 0.0f, 0.0f));
+  pass.ReadTexture(hInputA, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
+  pass.ReadTexture(hInputB, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     renderViewContext.UpdateViewport();
 
-    ezBlendConstants cb = {};
+    WBlendConstants cb = {};
     cb.BlendFactor = m_fBlendFactor;
-    renderViewContext.m_pRenderContext->SetPushConstants("ezBlendConstants", cb);
+    renderViewContext.m_pRenderContext->SetPushConstants("WBlendConstants", cb);
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    WBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("InputA", ctx.ResolveTexture(hInputA));
     bindGroup.BindTexture("InputB", ctx.ResolveTexture(hInputB));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezBlendPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WBlendPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_fBlendFactor;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezBlendPass::Deserialize(ezStreamReader& inout_stream)
+WResult WBlendPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_fBlendFactor;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlendPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlendPass);

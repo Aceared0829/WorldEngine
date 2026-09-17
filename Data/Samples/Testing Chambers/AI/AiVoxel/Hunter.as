@@ -10,11 +10,11 @@ enum HunterState
 
 class Hunter : AiShipBase
 {
-    ezString PreyMarker = "Prey";
+    WString PreyMarker = "Prey";
 
     private HunterState m_State = HunterState::Wandering;
-    private ezGameObjectHandle m_hTrackedPrey;
-    private ezVec3 m_vLastKnownPreyPos;
+    private WGameObjectHandle m_hTrackedPrey;
+    private WVec3 m_vLastKnownPreyPos;
     private bool m_bHasLastKnownPos = false;
 
     private float m_fDetectionRange = 40.0f;
@@ -26,24 +26,24 @@ class Hunter : AiShipBase
         m_vHomePos = GetOwner().GetGlobalPosition();
         m_fWanderRadius = 150.0f;
         m_fLife = 10.0f;
-        SetUpdateInterval(ezTime::Milliseconds(60));
+        SetUpdateInterval(WTime::Milliseconds(60));
     }
 
-    void Update(ezTime deltaTime)
+    void Update(WTime deltaTime)
     {
-        ezAiVoxelNavigationComponent@ navComp;
+        WAiVoxelNavigationComponent@ navComp;
         if (!GetOwner().TryGetComponentOfBaseType(@navComp))
             return;
 
-        ezVec3 vOwnPos    = GetOwner().GetGlobalPosition();
-        ezVec3 vStatusPos = vOwnPos + ezVec3(0, 0, 2.2f);
+        WVec3 vOwnPos    = GetOwner().GetGlobalPosition();
+        WVec3 vStatusPos = vOwnPos + WVec3(0, 0, 2.2f);
 
         if (TryRecoverFromFailedState(navComp, vOwnPos))
             return;
 
         // Re-check the prey we're already committed to (if any) - as long as it stays in
         // range, keep pursuing it exclusively, even if another prey gets closer meanwhile.
-        ezGameObject@ trackedObj;
+        WGameObject@ trackedObj;
         if (!m_hTrackedPrey.IsInvalidated())
         {
             GetWorld().TryGetObject(m_hTrackedPrey, @trackedObj);
@@ -95,7 +95,7 @@ class Hunter : AiShipBase
 
             if (ShowDebugInfo)
             {
-                ezDebug::DrawLine(vOwnPos, m_vLastKnownPreyPos, ezColor::OrangeRed, ezColor::Orange);
+                WDebug::DrawLine(vOwnPos, m_vLastKnownPreyPos, WColor::OrangeRed, WColor::Orange);
             }
         }
         else if (m_bHasLastKnownPos)
@@ -130,7 +130,7 @@ class Hunter : AiShipBase
 
             if (ShowDebugInfo)
             {
-                ezDebug::DrawLine(vOwnPos, m_vLastKnownPreyPos, ezColor::Yellow, ezColor::OrangeRed);
+                WDebug::DrawLine(vOwnPos, m_vLastKnownPreyPos, WColor::Yellow, WColor::OrangeRed);
             }
 
             // No longer directly pursuing anyone - look for a new, reachable prey to commit to.
@@ -161,9 +161,9 @@ class Hunter : AiShipBase
 
     /// Enables the "Gun" child object while we have a target and it is within 30 degrees
     /// of our forward axis, disables it otherwise.
-    void UpdateGun(ezVec3 vOwnPos)
+    void UpdateGun(WVec3 vOwnPos)
     {
-        ezGameObject@ gunObj = GetOwner().FindChildByName("Gun");
+        WGameObject@ gunObj = GetOwner().FindChildByName("Gun");
         if (@gunObj == null)
             return;
 
@@ -171,10 +171,10 @@ class Hunter : AiShipBase
 
         if (m_bHasLastKnownPos)
         {
-            ezVec3 dirToTarget = m_vLastKnownPreyPos - vOwnPos;
+            WVec3 dirToTarget = m_vLastKnownPreyPos - vOwnPos;
             dirToTarget.Normalize();
 
-            bAimedAtTarget = dirToTarget.Dot(GetOwner().GetGlobalDirForwards()) > ezMath::Cos(ezAngle::MakeFromDegree(30));
+            bAimedAtTarget = dirToTarget.Dot(GetOwner().GetGlobalDirForwards()) > WMath::Cos(WAngle::MakeFromDegree(30));
         }
 
         gunObj.SetActiveFlag(bAimedAtTarget);
@@ -182,16 +182,16 @@ class Hunter : AiShipBase
 
     /// Center of the prey-detection sphere. Pushed half the detection range forward along the
     /// hunter's facing, so it mostly sees prey ahead of it and barely notices prey directly behind.
-    ezVec3 GetDetectionCenter(ezVec3 vOwnPos)
+    WVec3 GetDetectionCenter(WVec3 vOwnPos)
     {
         return vOwnPos + GetOwner().GetGlobalDirForwards() * (m_fDetectionRange * 0.5f);
     }
 
     /// Looks for the closest prey in range and, if found, commits to pursuing it. Returns true if a
     /// prey was acquired.
-    bool TryAcquireNewPrey(ezAiVoxelNavigationComponent@ navComp, ezVec3 vOwnPos)
+    bool TryAcquireNewPrey(WAiVoxelNavigationComponent@ navComp, WVec3 vOwnPos)
     {
-        ezGameObject@ preyObj = ezSpatial::FindClosestObjectInSphere(PreyMarker, GetDetectionCenter(vOwnPos), m_fDetectionRange);
+        WGameObject@ preyObj = WSpatial::FindClosestObjectInSphere(PreyMarker, GetDetectionCenter(vOwnPos), m_fDetectionRange);
         if (@preyObj == null)
             return false;
 
@@ -204,39 +204,39 @@ class Hunter : AiShipBase
     }
 
     /// Rotates the owner towards vTargetPos, without moving.
-    void RotateTowards(ezVec3 vOwnPos, ezVec3 vTargetPos)
+    void RotateTowards(WVec3 vOwnPos, WVec3 vTargetPos)
     {
-        ezVec3 dirToTarget = vTargetPos - vOwnPos;
+        WVec3 dirToTarget = vTargetPos - vOwnPos;
         if (dirToTarget.GetLength() < 0.01f)
             return;
 
         dirToTarget.Normalize();
 
-        ezQuat targetRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), dirToTarget);
-        ezQuat newRotation    = ezQuat::MakeSlerp(GetOwner().GetGlobalRotation(), targetRotation, 0.1f);
+        WQuat targetRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), dirToTarget);
+        WQuat newRotation    = WQuat::MakeSlerp(GetOwner().GetGlobalRotation(), targetRotation, 0.1f);
 
         GetOwner().SetGlobalRotation(newRotation);
     }
 
-    void DrawDebugState(ezVec3 vTextPos, ezVec3 vOwnPos)
+    void DrawDebugState(WVec3 vTextPos, WVec3 vOwnPos)
     {
         if (m_State == HunterState::Wandering)
         {
-            ezDebug::Draw3DText("Hunter: Wandering", vTextPos, ezColor::LightGrey, 24);
+            WDebug::Draw3DText("Hunter: Wandering", vTextPos, WColor::LightGrey, 24);
         }
         else if (m_State == HunterState::Pursuing)
         {
-            ezDebug::Draw3DText("Hunter: Pursuing!", vTextPos, ezColor::OrangeRed, 28);
+            WDebug::Draw3DText("Hunter: Pursuing!", vTextPos, WColor::OrangeRed, 28);
         }
         else if (m_State == HunterState::Tracking)
         {
-            ezDebug::Draw3DText("Hunter: Tracking...", vTextPos, ezColor::Yellow, 28);
+            WDebug::Draw3DText("Hunter: Tracking...", vTextPos, WColor::Yellow, 28);
         }
         else
         {
-            ezDebug::Draw3DText("Hunter: Too Close!", vTextPos, ezColor::Red, 36);
+            WDebug::Draw3DText("Hunter: Too Close!", vTextPos, WColor::Red, 36);
         }
 
-        ezDebug::DrawLineSphere(GetDetectionCenter(vOwnPos), m_fDetectionRange, ezColor(1, 0.3f, 0, 0.3f));
+        WDebug::DrawLineSphere(GetDetectionCenter(vOwnPos), m_fDetectionRange, WColor(1, 0.3f, 0, 0.3f));
     }
 }

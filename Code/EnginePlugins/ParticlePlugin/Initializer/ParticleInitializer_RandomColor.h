@@ -4,43 +4,43 @@
 #include <Foundation/Tracks/ColorGradient.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
+using WColorGradientResourceHandle = WTypedResourceHandle<class WColorGradientResource>;
 
 /// Initializer that sets random particle colors
 ///
 /// Colors are picked randomly between Color1 and Color2, or sampled from a gradient.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_RandomColor final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_RandomColor, WParticleInitializerFactory);
 
 public:
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezColor m_Color1;
-  ezColor m_Color2;
-  ezEnum<ezGradientSource> m_GradientSource;
-  ezColorGradient m_Gradient;
-  ezColorGradientResourceHandle m_hSharedGradient;
+  WColor m_Color1;
+  WColor m_Color2;
+  WEnum<WGradientSource> m_GradientSource;
+  WColorGradient m_Gradient;
+  WColorGradientResourceHandle m_hSharedGradient;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomColor final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_RandomColor final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomColor, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_RandomColor, WParticleInitializer);
 
 public:
-  ezColor m_Color1;
-  ezColor m_Color2;
-  const ezColorGradient* m_pGradient = nullptr;
+  WColor m_Color1;
+  WColor m_Color2;
+  const WColorGradient* m_pGradient = nullptr;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamColor = nullptr;
+  WProcessingStream* m_pStreamColor = nullptr;
 };

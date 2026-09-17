@@ -5,23 +5,23 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezProcessingStream;
-class ezParticleSystemInstance;
-class ezParticleFinalizer;
+class WProcessingStream;
+class WParticleSystemInstance;
+class WParticleFinalizer;
 
 /// Factory class for creating particle finalizer instances.
 ///
 /// Finalizer factories hold the configuration properties and create the corresponding
 /// finalizer instances when a particle system is instantiated.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleFinalizerFactory : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizerFactory, WReflectedClass);
 
 public:
-  virtual const ezRTTI* GetFinalizerType() const = 0;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const = 0;
+  virtual const WRTTI* GetFinalizerType() const = 0;
+  virtual void CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const = 0;
 
-  ezParticleFinalizer* CreateFinalizer(ezParticleSystemInstance* pOwner) const;
+  WParticleFinalizer* CreateFinalizer(WParticleSystemInstance* pOwner) const;
 };
 
 /// Base class for particle finalizers.
@@ -30,17 +30,17 @@ public:
 /// perform cleanup operations. They execute after all behaviors have been processed.
 /// Examples include updating particle age, applying velocity to position, or computing
 /// bounding volumes.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer : public ezParticleModule
+class W_PARTICLEPLUGIN_DLL WParticleFinalizer : public WParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer, ezParticleModule);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizer, WParticleModule);
 
-  friend class ezParticleSystemInstance;
+  friend class WParticleSystemInstance;
 
 protected:
-  ezParticleFinalizer();
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-  virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
+  WParticleFinalizer();
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
+  virtual void StepParticleSystem(const WTime& tDiff, WUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
 
   /// Time delta for the current simulation step.
-  ezTime m_TimeDiff;
+  WTime m_TimeDiff;
 };

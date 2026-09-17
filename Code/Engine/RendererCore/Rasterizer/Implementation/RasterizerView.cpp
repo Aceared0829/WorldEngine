@@ -10,20 +10,20 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
-ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
-ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
+WCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, WCVarFlags::Default, "Max resolution for occlusion buffers.");
+WCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, WCVarFlags::Default, "Max number of occluders to rasterize per frame.");
 
-ezRasterizerView::ezRasterizerView() = default;
-ezRasterizerView::~ezRasterizerView() = default;
+WRasterizerView::WRasterizerView() = default;
+WRasterizerView::~WRasterizerView() = default;
 
-void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
+void WRasterizerView::SetResolution(WUInt32 uiWidth, WUInt32 uiHeight, float fAspectRatio)
 {
   if (m_uiResolutionX != uiWidth || m_uiResolutionY != uiHeight)
   {
     m_uiResolutionX = uiWidth;
     m_uiResolutionY = uiHeight;
 
-    m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
+    m_pRasterizer = W_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
   }
 
   if (fAspectRatio == 0.0f)
@@ -32,32 +32,32 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
     m_fAspectRation = fAspectRatio;
 }
 
-void ezRasterizerView::BeginScene()
+void WRasterizerView::BeginScene()
 {
-  EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
+  W_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
 
-  EZ_PROFILE_SCOPE("ezRasterizerView::BeginScene");
+  W_PROFILE_SCOPE("WRasterizerView::BeginScene");
 
   m_pRasterizer->clear();
   m_bAnyOccludersRasterized = false;
 }
 
-void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const
+void WRasterizerView::ReadBackFrame(WArrayPtr<WColorLinearUB> targetBuffer) const
 {
-  EZ_PROFILE_SCOPE("ezRasterizerView::ReadBackFrame");
+  W_PROFILE_SCOPE("WRasterizerView::ReadBackFrame");
 
-  EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
-  EZ_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
+  W_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
+  W_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
 
   m_pRasterizer->readBackDepth(targetBuffer.GetPtr());
 }
 
-void ezRasterizerView::EndScene()
+void WRasterizerView::EndScene()
 {
   if (m_Instances.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("ezRasterizerView::EndScene");
+  W_PROFILE_SCOPE("WRasterizerView::EndScene");
 
   SortObjectsFrontToBack();
 
@@ -71,11 +71,11 @@ void ezRasterizerView::EndScene()
   m_pRasterizer->setModelViewProjection(m_mViewProjection.m_fElementsCM);
 }
 
-void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
+void WRasterizerView::RasterizeObjects(WUInt32 uiMaxObjects)
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 
-  EZ_PROFILE_SCOPE("ezRasterizerView::RasterizeObjects");
+  W_PROFILE_SCOPE("WRasterizerView::RasterizeObjects");
 
   for (const Instance& inst : m_Instances)
   {
@@ -104,28 +104,28 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 #endif
 }
 
-void ezRasterizerView::UpdateViewProjectionMatrix()
+void WRasterizerView::UpdateViewProjectionMatrix()
 {
-  ezMat4 mProjection;
-  m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection, ezCameraEye::Left, ezClipSpaceDepthRange::ZeroToOne);
+  WMat4 mProjection;
+  m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection, WCameraEye::Left, WClipSpaceDepthRange::ZeroToOne);
 
   m_mViewProjection = mProjection * m_pCamera->GetViewMatrix();
 }
 
-void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTransform)
+void WRasterizerView::ApplyModelViewProjectionMatrix(const WTransform& modelTransform)
 {
-  const ezMat4 mModel = modelTransform.GetAsMat4();
-  const ezMat4 mMVP = m_mViewProjection * mModel;
+  const WMat4 mModel = modelTransform.GetAsMat4();
+  const WMat4 mMVP = m_mViewProjection * mModel;
 
   m_pRasterizer->setModelViewProjection(mMVP.m_fElementsCM);
 }
 
-void ezRasterizerView::SortObjectsFrontToBack()
+void WRasterizerView::SortObjectsFrontToBack()
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  EZ_PROFILE_SCOPE("ezRasterizerView::SortObjectsFrontToBack");
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
+  W_PROFILE_SCOPE("WRasterizerView::SortObjectsFrontToBack");
 
-  const ezVec3 camPos = m_pCamera->GetCenterPosition();
+  const WVec3 camPos = m_pCamera->GetCenterPosition();
 
   m_Instances.Sort([&](const Instance& i1, const Instance& i2)
     {
@@ -136,16 +136,16 @@ void ezRasterizerView::SortObjectsFrontToBack()
 #endif
 }
 
-bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
+bool WRasterizerView::IsVisible(const WSimdBBox& aabb) const
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
 
-  ezSimdVec4f vmin = aabb.m_Min;
-  ezSimdVec4f vmax = aabb.m_Max;
+  WSimdVec4f vmin = aabb.m_Min;
+  WSimdVec4f vmax = aabb.m_Max;
 
-  // ezSimdBBox makes no guarantees what's in the W component
+  // WSimdBBox makes no guarantees what's in the W component
   // but the SW rasterizer requires them to be 1
   vmin.SetW(1);
   vmax.SetW(1);
@@ -157,27 +157,27 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 #endif
 }
 
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
+WRasterizerView* WRasterizerViewPool::GetRasterizerView(WUInt32 uiWidth, WUInt32 uiHeight, float fAspectRatio)
 {
-  EZ_PROFILE_SCOPE("ezRasterizerViewPool::GetRasterizerView");
+  W_PROFILE_SCOPE("WRasterizerViewPool::GetRasterizerView");
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   const float divX = (float)uiWidth / (float)cvar_SpatialCullingOcclusionMaxResolution;
   const float divY = (float)uiHeight / (float)cvar_SpatialCullingOcclusionMaxResolution;
-  const float div = ezMath::Max(divX, divY);
+  const float div = WMath::Max(divX, divY);
 
   if (div > 1.0)
   {
-    uiWidth = (ezUInt32)(uiWidth / div);
-    uiHeight = (ezUInt32)(uiHeight / div);
+    uiWidth = (WUInt32)(uiWidth / div);
+    uiHeight = (WUInt32)(uiHeight / div);
   }
 
-  uiWidth = ezMath::RoundDown(uiWidth, 8);
-  uiHeight = ezMath::RoundDown(uiHeight, 8);
+  uiWidth = WMath::RoundDown(uiWidth, 8);
+  uiHeight = WMath::RoundDown(uiHeight, 8);
 
-  uiWidth = ezMath::Clamp<ezUInt32>(uiWidth, 32u, cvar_SpatialCullingOcclusionMaxResolution);
-  uiHeight = ezMath::Clamp<ezUInt32>(uiHeight, 32u, cvar_SpatialCullingOcclusionMaxResolution);
+  uiWidth = WMath::Clamp<WUInt32>(uiWidth, 32u, cvar_SpatialCullingOcclusionMaxResolution);
+  uiHeight = WMath::Clamp<WUInt32>(uiHeight, 32u, cvar_SpatialCullingOcclusionMaxResolution);
 
   for (PoolEntry& entry : m_Entries)
   {
@@ -199,16 +199,16 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUI
   return &ne.m_RasterizerView;
 }
 
-void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
+void WRasterizerViewPool::ReturnRasterizerView(WRasterizerView* pView)
 {
   if (pView == nullptr)
     return;
 
-  EZ_PROFILE_SCOPE("ezRasterizerViewPool::ReturnRasterizerView");
+  W_PROFILE_SCOPE("WRasterizerViewPool::ReturnRasterizerView");
 
   pView->SetCamera(nullptr);
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (PoolEntry& entry : m_Entries)
   {
@@ -219,8 +219,8 @@ void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
     }
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Implementation_RasterizerView);
+W_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Implementation_RasterizerView);

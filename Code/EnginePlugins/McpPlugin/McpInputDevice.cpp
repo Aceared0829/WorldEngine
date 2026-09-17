@@ -3,15 +3,15 @@
 #include <McpPlugin/McpInputDevice.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpInputDevice, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpInputDevice, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMcpInputDevice* ezMcpInputDevice::s_pInstance = nullptr;
+WMcpInputDevice* WMcpInputDevice::s_pInstance = nullptr;
 
-ezMcpInputDevice::ezMcpInputDevice()
+WMcpInputDevice::WMcpInputDevice()
 {
-  // ezInputDevice is an ezEnumerable, so constructing this is all it takes for the input manager to
+  // WInputDevice is an WEnumerable, so constructing this is all it takes for the input manager to
   // start asking it for values. There is no registration call.
   s_pInstance = this;
 
@@ -20,7 +20,7 @@ ezMcpInputDevice::ezMcpInputDevice()
   m_bOverridesAbsoluteInput = true;
 }
 
-ezMcpInputDevice::~ezMcpInputDevice()
+WMcpInputDevice::~WMcpInputDevice()
 {
   if (s_pInstance == this)
   {
@@ -28,9 +28,9 @@ ezMcpInputDevice::~ezMcpInputDevice()
   }
 }
 
-void ezMcpInputDevice::SetSlotValue(ezStringView sSlot, float fValue, ezUInt32 uiFrames)
+void WMcpInputDevice::SetSlotValue(WStringView sSlot, float fValue, WUInt32 uiFrames)
 {
-  const ezString sKey = sSlot;
+  const WString sKey = sSlot;
 
   m_InputSlotValues[sKey] = fValue;
 
@@ -45,9 +45,9 @@ void ezMcpInputDevice::SetSlotValue(ezStringView sSlot, float fValue, ezUInt32 u
   }
 }
 
-void ezMcpInputDevice::ClearSlot(ezStringView sSlot)
+void WMcpInputDevice::ClearSlot(WStringView sSlot)
 {
-  const ezString sKey = sSlot;
+  const WString sKey = sSlot;
 
   // Erased rather than set to zero: a zero written by this device still takes part in the Max merge,
   // which is harmless, but leaving it in would report the slot as held by GetHeldSlots().
@@ -55,18 +55,18 @@ void ezMcpInputDevice::ClearSlot(ezStringView sSlot)
   m_RemainingFrames.Remove(sKey);
 }
 
-void ezMcpInputDevice::ClearAllSlots()
+void WMcpInputDevice::ClearAllSlots()
 {
   m_InputSlotValues.Clear();
   m_RemainingFrames.Clear();
 }
 
-void ezMcpInputDevice::QueueText(ezStringView sText)
+void WMcpInputDevice::QueueText(WStringView sText)
 {
   m_sLastCharacters.Append(sText);
 }
 
-void ezMcpInputDevice::GetHeldSlots(ezDynamicArray<HeldSlot>& out_slots) const
+void WMcpInputDevice::GetHeldSlots(WDynamicArray<HeldSlot>& out_slots) const
 {
   for (auto it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
   {
@@ -74,20 +74,20 @@ void ezMcpInputDevice::GetHeldSlots(ezDynamicArray<HeldSlot>& out_slots) const
     slot.m_sSlot = it.Key();
     slot.m_fValue = it.Value();
 
-    if (const ezUInt32* pFrames = m_RemainingFrames.GetValue(it.Key()))
+    if (const WUInt32* pFrames = m_RemainingFrames.GetValue(it.Key()))
     {
       slot.m_uiFramesRemaining = *pFrames;
     }
   }
 }
 
-void ezMcpInputDevice::UpdateInputSlotValues()
+void WMcpInputDevice::UpdateInputSlotValues()
 {
   // Called once per input update, which is what makes it the place to count frames down. The values
   // themselves need no work - they are already in m_InputSlotValues and stay there until changed.
   for (auto it = m_RemainingFrames.GetIterator(); it.IsValid();)
   {
-    ezUInt32& uiRemaining = it.Value();
+    WUInt32& uiRemaining = it.Value();
 
     if (uiRemaining > 1)
     {

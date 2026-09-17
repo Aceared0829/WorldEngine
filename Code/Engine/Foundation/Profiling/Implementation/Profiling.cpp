@@ -11,61 +11,61 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
+#if W_ENABLED(W_USE_PROFILING)
 
-class ezProfileCaptureDataTransfer : public ezDataTransfer
+class WProfileCaptureDataTransfer : public WDataTransfer
 {
 private:
   virtual void OnTransferRequest() override
   {
-    ezDataTransferObject dto(*this, "Capture", "application/json", "json");
+    WDataTransferObject dto(*this, "Capture", "application/json", "json");
 
-    ezProfilingSystem::ProfilingData profilingData;
-    ezProfilingSystem::Capture(profilingData);
+    WProfilingSystem::ProfilingData profilingData;
+    WProfilingSystem::Capture(profilingData);
     profilingData.Write(dto.GetWriter()).IgnoreResult();
 
     dto.Transmit();
   }
 };
 
-static ezProfileCaptureDataTransfer s_ProfileCaptureDataTransfer;
+static WProfileCaptureDataTransfer s_ProfileCaptureDataTransfer;
 
 namespace
 {
-  static ezEventSubscriptionID s_PluginEventSubscription = 0;
-  void PluginEvent(const ezPluginEvent& e)
+  static WEventSubscriptionID s_PluginEventSubscription = 0;
+  void PluginEvent(const WPluginEvent& e)
   {
-    if (e.m_EventType == ezPluginEvent::AfterUnloading)
+    if (e.m_EventType == WPluginEvent::AfterUnloading)
     {
       // When a plugin is unloaded we need to clear all profiling data
       // since they can contain pointers to function names that don't exist anymore.
-      ezProfilingSystem::Clear();
+      WProfilingSystem::Clear();
     }
   }
 } // namespace
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
   // no dependencies
 
   ON_BASESYSTEMS_STARTUP
   {
-    ezProfilingSystem::Initialize();
+    WProfilingSystem::Initialize();
   }
   ON_CORESYSTEMS_STARTUP
   { 
-    s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
+    s_PluginEventSubscription = WPlugin::Events().AddEventHandler(&PluginEvent);
     s_ProfileCaptureDataTransfer.EnableDataTransfer("Profiling Capture");
   }
   ON_CORESYSTEMS_SHUTDOWN
   {
     s_ProfileCaptureDataTransfer.DisableDataTransfer();
-    ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
-    ezProfilingSystem::Reset();
+    WPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
+    WProfilingSystem::Reset();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 namespace
@@ -81,59 +81,59 @@ namespace
     BUFFER_SIZE_FRAMES = 120 * 60,
   };
 
-  using GPUScopesBuffer = ezStaticRingBuffer<ezProfilingSystem::GPUScope, BUFFER_SIZE_OTHER_THREAD / sizeof(ezProfilingSystem::GPUScope)>;
+  using GPUScopesBuffer = WStaticRingBuffer<WProfilingSystem::GPUScope, BUFFER_SIZE_OTHER_THREAD / sizeof(WProfilingSystem::GPUScope)>;
 
-  static ezUInt64 s_MainThreadId = 0;
+  static WUInt64 s_MainThreadId = 0;
 
   struct CpuScopesBufferBase
   {
     virtual ~CpuScopesBufferBase() = default;
 
-    ezUInt64 m_uiThreadId = 0;
+    WUInt64 m_uiThreadId = 0;
     bool IsMainThread() const { return m_uiThreadId == s_MainThreadId; }
   };
 
-  template <ezUInt32 SizeInBytes>
+  template <WUInt32 SizeInBytes>
   struct CpuScopesBuffer : public CpuScopesBufferBase
   {
-    ezStaticRingBuffer<ezProfilingSystem::CPUScope, SizeInBytes / sizeof(ezProfilingSystem::CPUScope)> m_Data;
+    WStaticRingBuffer<WProfilingSystem::CPUScope, SizeInBytes / sizeof(WProfilingSystem::CPUScope)> m_Data;
   };
 
   CpuScopesBuffer<BUFFER_SIZE_MAIN_THREAD>* CastToMainThreadEventBuffer(CpuScopesBufferBase* pEventBuffer)
   {
-    EZ_ASSERT_DEV(pEventBuffer->IsMainThread(), "Implementation error");
+    W_ASSERT_DEV(pEventBuffer->IsMainThread(), "Implementation error");
     return static_cast<CpuScopesBuffer<BUFFER_SIZE_MAIN_THREAD>*>(pEventBuffer);
   }
 
   CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>* CastToOtherThreadEventBuffer(CpuScopesBufferBase* pEventBuffer)
   {
-    EZ_ASSERT_DEV(!pEventBuffer->IsMainThread(), "Implementation error");
+    W_ASSERT_DEV(!pEventBuffer->IsMainThread(), "Implementation error");
     return static_cast<CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>*>(pEventBuffer);
   }
 
-  ezCVarFloat cvar_ProfilingDiscardThresholdMS("Profiling.DiscardThresholdMS", 0.1f, ezCVarFlags::Default, "Discard profiling scopes if their duration is shorter than this in milliseconds.");
+  WCVarFloat cvar_ProfilingDiscardThresholdMS("Profiling.DiscardThresholdMS", 0.1f, WCVarFlags::Default, "Discard profiling scopes if their duration is shorter than this in milliseconds.");
 
-  ezStaticRingBuffer<ezTime, BUFFER_SIZE_FRAMES> s_FrameStartTimes;
-  ezUInt64 s_uiFrameCount = 0;
+  WStaticRingBuffer<WTime, BUFFER_SIZE_FRAMES> s_FrameStartTimes;
+  WUInt64 s_uiFrameCount = 0;
 
-  static ezHybridArray<ezProfilingSystem::ThreadInfo, 16> s_ThreadInfos;
-  static ezHybridArray<ezUInt64, 16> s_DeadThreadIDs;
-  static ezMutex s_ThreadInfosMutex;
+  static WHybridArray<WProfilingSystem::ThreadInfo, 16> s_ThreadInfos;
+  static WHybridArray<WUInt64, 16> s_DeadThreadIDs;
+  static WMutex s_ThreadInfosMutex;
 
-#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  static_assert(sizeof(ezProfilingSystem::CPUScope) == 64);
-  static_assert(sizeof(ezProfilingSystem::GPUScope) == 64);
+#  if W_ENABLED(W_PLATFORM_64BIT)
+  static_assert(sizeof(WProfilingSystem::CPUScope) == 64);
+  static_assert(sizeof(WProfilingSystem::GPUScope) == 64);
 #  endif
 
   static thread_local CpuScopesBufferBase* s_CpuScopes = nullptr;
-  static ezDynamicArray<CpuScopesBufferBase*> s_AllCpuScopes;
-  static ezMutex s_AllCpuScopesMutex;
-  static ezProfilingSystem::ScopeTimeoutDelegate s_ScopeTimeoutCallback;
+  static WDynamicArray<CpuScopesBufferBase*> s_AllCpuScopes;
+  static WMutex s_AllCpuScopesMutex;
+  static WProfilingSystem::ScopeTimeoutDelegate s_ScopeTimeoutCallback;
 
-  static ezDynamicArray<ezUniquePtr<GPUScopesBuffer>> s_GPUScopes;
+  static WDynamicArray<WUniquePtr<GPUScopesBuffer>> s_GPUScopes;
 } // namespace
 
-void ezProfilingSystem::ProfilingData::Clear()
+void WProfilingSystem::ProfilingData::Clear()
 {
   m_uiFramesThreadID = 0;
   m_uiProcessID = 0;
@@ -145,7 +145,7 @@ void ezProfilingSystem::ProfilingData::Clear()
   m_ThreadInfos.Clear();
 }
 
-void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayPtr<const ProfilingData*> inputs)
+void WProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, WArrayPtr<const ProfilingData*> inputs)
 {
   out_merged.Clear();
 
@@ -157,8 +157,8 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
 
   // concatenate m_FrameStartTimes and m_GPUScopes and m_uiFrameCount
   {
-    ezUInt32 uiNumFrameStartTimes = 0;
-    ezUInt32 uiNumGpuScopes = 0;
+    WUInt32 uiNumFrameStartTimes = 0;
+    WUInt32 uiNumGpuScopes = 0;
 
     for (const auto& pd : inputs)
     {
@@ -180,7 +180,7 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
 
   // merge m_ThreadInfos
   {
-    auto threadInfoAlreadyKnown = [out_merged](ezUInt64 uiThreadId) -> bool
+    auto threadInfoAlreadyKnown = [out_merged](WUInt64 uiThreadId) -> bool
     {
       for (const auto& ti : out_merged.m_ThreadInfos)
       {
@@ -207,11 +207,11 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
   {
     struct CountAndIndex
     {
-      ezUInt32 m_uiCount = 0;
-      ezUInt32 m_uiIndex = 0xFFFFFFFF;
+      WUInt32 m_uiCount = 0;
+      WUInt32 m_uiIndex = 0xFFFFFFFF;
     };
 
-    ezMap<ezUInt64, CountAndIndex> eventBufferInfos;
+    WMap<WUInt64, CountAndIndex> eventBufferInfos;
 
     // gather info about required size of the output array
     for (const auto& pd : inputs)
@@ -220,7 +220,7 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
       {
         auto& ebInfo = eventBufferInfos[eb.m_uiThreadId];
 
-        ebInfo.m_uiIndex = ezMath::Min(ebInfo.m_uiIndex, eventBufferInfos.GetCount() - 1);
+        ebInfo.m_uiIndex = WMath::Min(ebInfo.m_uiIndex, eventBufferInfos.GetCount() - 1);
         ebInfo.m_uiCount += eb.m_Data.GetCount();
       }
     }
@@ -250,10 +250,10 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
   }
 }
 
-ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStream) const
+WResult WProfilingSystem::ProfilingData::Write(WStreamWriter& ref_outputStream) const
 {
-  ezStandardJSONWriter writer;
-  writer.SetWhitespaceMode(ezJSONWriter::WhitespaceMode::None);
+  WStandardJSONWriter writer;
+  writer.SetWhitespaceMode(WJSONWriter::WhitespaceMode::None);
   writer.SetOutputStream(&ref_outputStream);
 
   writer.BeginObject();
@@ -262,7 +262,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
 
     // Process metadata
     {
-      ezApplication::GetApplicationInstance()->GetApplicationName();
+      WApplication::GetApplicationInstance()->GetApplicationName();
 
       writer.BeginObject();
       {
@@ -272,7 +272,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         writer.AddVariableString("ph", "M");
 
         writer.BeginObject("args");
-        writer.AddVariableString("name", ezApplication::GetApplicationInstance() ? ezApplication::GetApplicationInstance()->GetApplicationName().GetData() : "ezEngine");
+        writer.AddVariableString("name", WApplication::GetApplicationInstance() ? WApplication::GetApplicationInstance()->GetApplicationName().GetData() : "WorldEngine");
         writer.EndObject();
       }
       writer.EndObject();
@@ -323,14 +323,14 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
 
       if (writer.HadWriteError())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
-    const ezUInt32 uiGpuCount = m_GPUScopes.GetCount();
+    const WUInt32 uiGpuCount = m_GPUScopes.GetCount();
     // GPU thread metadata
     // Since there are no actual threads, we assign 1..uiGpuCount as the respective threadID
-    for (ezUInt32 gpuIndex = 1; gpuIndex <= uiGpuCount; ++gpuIndex)
+    for (WUInt32 gpuIndex = 1; gpuIndex <= uiGpuCount; ++gpuIndex)
     {
       writer.BeginObject();
       {
@@ -340,7 +340,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         writer.AddVariableUInt64("tid", gpuIndex);
         writer.AddVariableString("ph", "M");
 
-        ezStringBuilder gpuNameBuilder;
+        WStringBuilder gpuNameBuilder;
         gpuNameBuilder.AppendFormat("GPU {}", gpuIndex - 1);
 
         writer.BeginObject("args");
@@ -364,13 +364,13 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
       writer.EndObject();
       if (writer.HadWriteError())
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
     // thread metadata
     {
-      for (ezUInt32 threadIndex = 0; threadIndex < m_ThreadInfos.GetCount(); ++threadIndex)
+      for (WUInt32 threadIndex = 0; threadIndex < m_ThreadInfos.GetCount(); ++threadIndex)
       {
         const ThreadInfo& info = m_ThreadInfos[threadIndex];
         writer.BeginObject();
@@ -403,17 +403,17 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
 
         if (writer.HadWriteError())
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
 
     // scoped events
-    ezDynamicArray<CPUScope> sortedScopes;
+    WDynamicArray<CPUScope> sortedScopes;
     for (const auto& eventBuffer : m_AllEventBuffers)
     {
       // Since we introduced fake thread IDs via the GPUs, we simply shift all real thread IDs to be in a different range to avoid collisions.
-      const ezUInt64 uiThreadId = eventBuffer.m_uiThreadId + uiGpuCount + 1;
+      const WUInt64 uiThreadId = eventBuffer.m_uiThreadId + uiGpuCount + 1;
 
       // It seems that chrome does a stable sort by scope begin time. Now that we write complete scopes at the end of a scope
       // we actually write nested scopes before their corresponding parent scope to the file. If both start at the same quantized time stamp
@@ -429,7 +429,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
         writer.AddVariableUInt32("pid", m_uiProcessID);
         writer.AddVariableUInt64("tid", uiThreadId);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
+        writer.AddVariableUInt64("ts", static_cast<WUInt64>(e.m_BeginTime.GetMicroseconds()));
         writer.AddVariableString("ph", "B");
 
         if (e.m_szFunctionName != nullptr)
@@ -447,36 +447,36 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
           writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", uiThreadId);
-          writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
+          writer.AddVariableUInt64("ts", static_cast<WUInt64>(e.m_EndTime.GetMicroseconds()));
           writer.AddVariableString("ph", "E");
           writer.EndObject();
         }
 
         if (writer.HadWriteError())
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
 
     // frame start/end
     {
-      ezStringBuilder sFrameName;
+      WStringBuilder sFrameName;
 
-      const ezUInt32 uiNumFrames = m_FrameStartTimes.GetCount();
-      for (ezUInt32 i = 1; i < uiNumFrames; ++i)
+      const WUInt32 uiNumFrames = m_FrameStartTimes.GetCount();
+      for (WUInt32 i = 1; i < uiNumFrames; ++i)
       {
-        const ezTime t0 = m_FrameStartTimes[i - 1];
-        const ezTime t1 = m_FrameStartTimes[i];
+        const WTime t0 = m_FrameStartTimes[i - 1];
+        const WTime t1 = m_FrameStartTimes[i];
 
-        const ezUInt64 localFrameID = uiNumFrames - i + 1;
+        const WUInt64 localFrameID = uiNumFrames - i + 1;
         sFrameName.SetFormat("Frame {}", m_uiFrameCount - localFrameID);
 
         writer.BeginObject();
         writer.AddVariableString("name", sFrameName);
         writer.AddVariableUInt32("pid", m_uiProcessID);
         writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t0.GetMicroseconds()));
+        writer.AddVariableUInt64("ts", static_cast<WUInt64>(t0.GetMicroseconds()));
         writer.AddVariableString("ph", "B");
         writer.EndObject();
 
@@ -484,12 +484,12 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         writer.AddVariableString("name", sFrameName);
         writer.AddVariableUInt32("pid", m_uiProcessID);
         writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t1.GetMicroseconds()));
+        writer.AddVariableUInt64("ts", static_cast<WUInt64>(t1.GetMicroseconds()));
         writer.AddVariableString("ph", "E");
         writer.EndObject();
         if (writer.HadWriteError())
         {
-          return EZ_FAILURE;
+          return W_FAILURE;
         }
       }
     }
@@ -498,14 +498,14 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
     // Since there are no actual threads, we assign 1..gpuCount as the respective threadID
     {
       // See comment on sortedScopes above.
-      ezDynamicArray<GPUScope> sortedGpuScopes;
-      for (ezUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
+      WDynamicArray<GPUScope> sortedGpuScopes;
+      for (WUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
       {
         sortedGpuScopes = m_GPUScopes[gpuIndex - 1];
         sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b)
           { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
-        for (ezUInt32 i = 0; i < sortedGpuScopes.GetCount(); ++i)
+        for (WUInt32 i = 0; i < sortedGpuScopes.GetCount(); ++i)
         {
           const auto& e = sortedGpuScopes[i];
 
@@ -513,7 +513,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
           writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", gpuIndex);
-          writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
+          writer.AddVariableUInt64("ts", static_cast<WUInt64>(e.m_BeginTime.GetMicroseconds()));
           writer.AddVariableString("ph", "B");
           writer.EndObject();
 
@@ -521,12 +521,12 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
           writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", gpuIndex);
-          writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
+          writer.AddVariableUInt64("ts", static_cast<WUInt64>(e.m_EndTime.GetMicroseconds()));
           writer.AddVariableString("ph", "E");
           writer.EndObject();
           if (writer.HadWriteError())
           {
-            return EZ_FAILURE;
+            return W_FAILURE;
           }
         }
       }
@@ -537,14 +537,14 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
 
   writer.EndObject();
 
-  return writer.HadWriteError() ? EZ_FAILURE : EZ_SUCCESS;
+  return writer.HadWriteError() ? W_FAILURE : W_SUCCESS;
 }
 
 // static
-void ezProfilingSystem::Clear()
+void WProfilingSystem::Clear()
 {
   {
-    EZ_LOCK(s_AllCpuScopesMutex);
+    W_LOCK(s_AllCpuScopesMutex);
     for (auto pEventBuffer : s_AllCpuScopes)
     {
       if (pEventBuffer->IsMainThread())
@@ -570,19 +570,19 @@ void ezProfilingSystem::Clear()
 }
 
 // static
-void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingData, bool bClearAfterCapture)
+void WProfilingSystem::Capture(WProfilingSystem::ProfilingData& ref_profilingData, bool bClearAfterCapture)
 {
   ref_profilingData.Clear();
 
   ref_profilingData.m_uiFramesThreadID = 0;
-#  if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-  ref_profilingData.m_uiProcessID = ezProcess::GetCurrentProcessID();
+#  if W_ENABLED(W_SUPPORTS_PROCESSES)
+  ref_profilingData.m_uiProcessID = WProcess::GetCurrentProcessID();
 #  else
   ref_profilingData.m_uiProcessID = 0;
 #  endif
 
   {
-    EZ_LOCK(s_ThreadInfosMutex);
+    W_LOCK(s_ThreadInfosMutex);
 
     if (bClearAfterCapture)
     {
@@ -595,19 +595,19 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingD
   }
 
   {
-    EZ_LOCK(s_AllCpuScopesMutex);
+    W_LOCK(s_AllCpuScopesMutex);
 
     ref_profilingData.m_AllEventBuffers.Reserve(s_AllCpuScopes.GetCount());
-    for (ezUInt32 i = 0; i < s_AllCpuScopes.GetCount(); ++i)
+    for (WUInt32 i = 0; i < s_AllCpuScopes.GetCount(); ++i)
     {
       const auto& sourceEventBuffer = s_AllCpuScopes[i];
       CPUScopesBufferFlat& targetEventBuffer = ref_profilingData.m_AllEventBuffers.ExpandAndGetRef();
 
       targetEventBuffer.m_uiThreadId = sourceEventBuffer->m_uiThreadId;
 
-      ezUInt32 uiSourceCount = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount() : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount();
+      WUInt32 uiSourceCount = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount() : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount();
       targetEventBuffer.m_Data.SetCountUninitialized(uiSourceCount);
-      for (ezUInt32 j = 0; j < uiSourceCount; ++j)
+      for (WUInt32 j = 0; j < uiSourceCount; ++j)
       {
         const CPUScope& sourceEvent = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data[j] : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data[j];
 
@@ -615,7 +615,7 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingD
         copiedEvent.m_szFunctionName = sourceEvent.m_szFunctionName;
         copiedEvent.m_BeginTime = sourceEvent.m_BeginTime;
         copiedEvent.m_EndTime = sourceEvent.m_EndTime;
-        ezStringUtils::Copy(copiedEvent.m_szName, CPUScope::NAME_SIZE, sourceEvent.m_szName);
+        WStringUtils::Copy(copiedEvent.m_szName, CPUScope::NAME_SIZE, sourceEvent.m_szName);
       }
     }
   }
@@ -623,7 +623,7 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingD
   ref_profilingData.m_uiFrameCount = s_uiFrameCount;
 
   ref_profilingData.m_FrameStartTimes.SetCountUninitialized(s_FrameStartTimes.GetCount());
-  for (ezUInt32 i = 0; i < s_FrameStartTimes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_FrameStartTimes.GetCount(); ++i)
   {
     ref_profilingData.m_FrameStartTimes[i] = s_FrameStartTimes[i];
   }
@@ -634,16 +634,16 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingD
     {
       if (gpuScopes != nullptr)
       {
-        ezDynamicArray<GPUScope>& gpuScopesCopy = ref_profilingData.m_GPUScopes.ExpandAndGetRef();
+        WDynamicArray<GPUScope>& gpuScopesCopy = ref_profilingData.m_GPUScopes.ExpandAndGetRef();
         gpuScopesCopy.SetCountUninitialized(gpuScopes->GetCount());
-        for (ezUInt32 i = 0; i < gpuScopes->GetCount(); ++i)
+        for (WUInt32 i = 0; i < gpuScopes->GetCount(); ++i)
         {
           const GPUScope& sourceGpuDat = (*gpuScopes)[i];
 
           GPUScope& copiedGpuData = gpuScopesCopy[i];
           copiedGpuData.m_BeginTime = sourceGpuDat.m_BeginTime;
           copiedGpuData.m_EndTime = sourceGpuDat.m_EndTime;
-          ezStringUtils::Copy(copiedGpuData.m_szName, GPUScope::NAME_SIZE, sourceGpuDat.m_szName);
+          WStringUtils::Copy(copiedGpuData.m_szName, GPUScope::NAME_SIZE, sourceGpuDat.m_szName);
         }
       }
     }
@@ -656,24 +656,24 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& ref_profilingD
 }
 
 // static
-void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
+void WProfilingSystem::SetDiscardThreshold(WTime threshold)
 {
   cvar_ProfilingDiscardThresholdMS = static_cast<float>(threshold.GetMilliseconds());
 }
 
-void ezProfilingSystem::SetScopeTimeoutCallback(ScopeTimeoutDelegate callback)
+void WProfilingSystem::SetScopeTimeoutCallback(ScopeTimeoutDelegate callback)
 {
   s_ScopeTimeoutCallback = callback;
 }
 
 // static
-ezUInt64 ezProfilingSystem::GetFrameCount()
+WUInt64 WProfilingSystem::GetFrameCount()
 {
   return s_uiFrameCount;
 }
 
 // static
-void ezProfilingSystem::StartNewFrame()
+void WProfilingSystem::StartNewFrame()
 {
   ++s_uiFrameCount;
 
@@ -682,38 +682,38 @@ void ezProfilingSystem::StartNewFrame()
     s_FrameStartTimes.PopFront();
   }
 
-  s_FrameStartTimes.PushBack(ezTime::Now());
+  s_FrameStartTimes.PushBack(WTime::Now());
 
-  EZ_PROFILER_FRAME_MARKER();
+  W_PROFILER_FRAME_MARKER();
 }
 
 // static
-void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
+void WProfilingSystem::AddCPUScope(WStringView sName, const char* szFunctionName, WTime beginTime, WTime endTime, WTime scopeTimeout)
 {
-  const ezTime duration = endTime - beginTime;
+  const WTime duration = endTime - beginTime;
 
   // discard?
-  if (duration < ezTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
+  if (duration < WTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   ::CpuScopesBufferBase* pScopes = s_CpuScopes;
 
   if (pScopes == nullptr)
   {
-    if (ezThreadUtils::IsMainThread())
+    if (WThreadUtils::IsMainThread())
     {
-      pScopes = EZ_DEFAULT_NEW(::CpuScopesBuffer<BUFFER_SIZE_MAIN_THREAD>);
+      pScopes = W_DEFAULT_NEW(::CpuScopesBuffer<BUFFER_SIZE_MAIN_THREAD>);
     }
     else
     {
-      pScopes = EZ_DEFAULT_NEW(::CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>);
+      pScopes = W_DEFAULT_NEW(::CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>);
     }
 
-    pScopes->m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
+    pScopes->m_uiThreadId = (WUInt64)WThreadUtils::GetCurrentThreadID();
     s_CpuScopes = pScopes;
 
     {
-      EZ_LOCK(s_AllCpuScopesMutex);
+      W_LOCK(s_AllCpuScopesMutex);
       s_AllCpuScopes.PushBack(pScopes);
     }
   }
@@ -722,9 +722,9 @@ void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionNa
   scope.m_szFunctionName = szFunctionName;
   scope.m_BeginTime = beginTime;
   scope.m_EndTime = endTime;
-  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
+  WStringUtils::Copy(scope.m_szName, W_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
 
-  if (ezThreadUtils::IsMainThread())
+  if (WThreadUtils::IsMainThread())
   {
     auto pMainThreadBuffer = CastToMainThreadEventBuffer(pScopes);
     if (!pMainThreadBuffer->m_Data.CanAppend())
@@ -752,22 +752,22 @@ void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionNa
 }
 
 // static
-void ezProfilingSystem::Initialize()
+void WProfilingSystem::Initialize()
 {
   SetThreadName("Main Thread");
 
-  s_MainThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
+  s_MainThreadId = (WUInt64)WThreadUtils::GetCurrentThreadID();
 }
 
 // static
-void ezProfilingSystem::Reset()
+void WProfilingSystem::Reset()
 {
-  EZ_LOCK(s_ThreadInfosMutex);
-  EZ_LOCK(s_AllCpuScopesMutex);
-  for (ezUInt32 i = 0; i < s_DeadThreadIDs.GetCount(); i++)
+  W_LOCK(s_ThreadInfosMutex);
+  W_LOCK(s_AllCpuScopesMutex);
+  for (WUInt32 i = 0; i < s_DeadThreadIDs.GetCount(); i++)
   {
-    ezUInt64 uiThreadId = s_DeadThreadIDs[i];
-    for (ezUInt32 k = 0; k < s_ThreadInfos.GetCount(); k++)
+    WUInt64 uiThreadId = s_DeadThreadIDs[i];
+    for (WUInt32 k = 0; k < s_ThreadInfos.GetCount(); k++)
     {
       if (s_ThreadInfos[k].m_uiThreadId == uiThreadId)
       {
@@ -778,12 +778,12 @@ void ezProfilingSystem::Reset()
         break;
       }
     }
-    for (ezUInt32 k = 0; k < s_AllCpuScopes.GetCount(); k++)
+    for (WUInt32 k = 0; k < s_AllCpuScopes.GetCount(); k++)
     {
       CpuScopesBufferBase* pEventBuffer = s_AllCpuScopes[k];
       if (pEventBuffer->m_uiThreadId == uiThreadId)
       {
-        EZ_DEFAULT_DELETE(pEventBuffer);
+        W_DEFAULT_DELETE(pEventBuffer);
         // Forward order and no swap important, see comment above.
         s_AllCpuScopes.RemoveAtAndCopy(k);
       }
@@ -793,25 +793,25 @@ void ezProfilingSystem::Reset()
 }
 
 // static
-void ezProfilingSystem::SetThreadName(ezStringView sThreadName)
+void WProfilingSystem::SetThreadName(WStringView sThreadName)
 {
-  EZ_LOCK(s_ThreadInfosMutex);
+  W_LOCK(s_ThreadInfosMutex);
 
   ThreadInfo& info = s_ThreadInfos.ExpandAndGetRef();
-  info.m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
+  info.m_uiThreadId = (WUInt64)WThreadUtils::GetCurrentThreadID();
   info.m_sName = sThreadName;
 }
 
 // static
-void ezProfilingSystem::RemoveThread()
+void WProfilingSystem::RemoveThread()
 {
-  EZ_LOCK(s_ThreadInfosMutex);
+  W_LOCK(s_ThreadInfosMutex);
 
-  s_DeadThreadIDs.PushBack((ezUInt64)ezThreadUtils::GetCurrentThreadID());
+  s_DeadThreadIDs.PushBack((WUInt64)WThreadUtils::GetCurrentThreadID());
 }
 
 // static
-void ezProfilingSystem::InitializeGPUData(ezUInt32 uiGpuCount)
+void WProfilingSystem::InitializeGPUData(WUInt32 uiGpuCount)
 {
   if (s_GPUScopes.GetCount() < uiGpuCount)
   {
@@ -822,15 +822,15 @@ void ezProfilingSystem::InitializeGPUData(ezUInt32 uiGpuCount)
   {
     if (gpuScopes == nullptr)
     {
-      gpuScopes = EZ_DEFAULT_NEW(GPUScopesBuffer);
+      gpuScopes = W_DEFAULT_NEW(GPUScopesBuffer);
     }
   }
 }
 
-void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 uiGpuIndex)
+void WProfilingSystem::AddGPUScope(WStringView sName, WTime beginTime, WTime endTime, WUInt32 uiGpuIndex)
 {
   // discard?
-  if (endTime - beginTime < ezTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
+  if (endTime - beginTime < WTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   if (!s_GPUScopes[uiGpuIndex]->CanAppend())
@@ -841,34 +841,34 @@ void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime
   GPUScope scope;
   scope.m_BeginTime = beginTime;
   scope.m_EndTime = endTime;
-  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
+  WStringUtils::Copy(scope.m_szName, W_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
 
   s_GPUScopes[uiGpuIndex]->PushBack(scope);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProfilingScope::ezProfilingScope(ezStringView sName, const char* szFunctionName, ezTime timeout)
+WProfilingScope::WProfilingScope(WStringView sName, const char* szFunctionName, WTime timeout)
   : m_sName(sName)
   , m_szFunction(szFunctionName)
-  , m_BeginTime(ezTime::Now())
+  , m_BeginTime(WTime::Now())
   , m_Timeout(timeout)
 {
 }
 
-ezProfilingScope::~ezProfilingScope()
+WProfilingScope::~WProfilingScope()
 {
-  ezProfilingSystem::AddCPUScope(m_sName, m_szFunction, m_BeginTime, ezTime::Now(), m_Timeout);
+  WProfilingSystem::AddCPUScope(m_sName, m_szFunction, m_BeginTime, WTime::Now(), m_Timeout);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-thread_local ezProfilingListScope* ezProfilingListScope::s_pCurrentList = nullptr;
+thread_local WProfilingListScope* WProfilingListScope::s_pCurrentList = nullptr;
 
-ezProfilingListScope::ezProfilingListScope(ezStringView sListName, ezStringView sFirstSectionName, const char* szFunctionName)
+WProfilingListScope::WProfilingListScope(WStringView sListName, WStringView sFirstSectionName, const char* szFunctionName)
   : m_sListName(sListName)
   , m_szListFunction(szFunctionName)
-  , m_ListBeginTime(ezTime::Now())
+  , m_ListBeginTime(WTime::Now())
   , m_sCurSectionName(sFirstSectionName)
   , m_CurSectionBeginTime(m_ListBeginTime)
 {
@@ -876,22 +876,22 @@ ezProfilingListScope::ezProfilingListScope(ezStringView sListName, ezStringView 
   s_pCurrentList = this;
 }
 
-ezProfilingListScope::~ezProfilingListScope()
+WProfilingListScope::~WProfilingListScope()
 {
-  ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(m_sCurSectionName, nullptr, m_CurSectionBeginTime, now, ezTime::MakeZero());
-  ezProfilingSystem::AddCPUScope(m_sListName, m_szListFunction, m_ListBeginTime, now, ezTime::MakeZero());
+  WTime now = WTime::Now();
+  WProfilingSystem::AddCPUScope(m_sCurSectionName, nullptr, m_CurSectionBeginTime, now, WTime::MakeZero());
+  WProfilingSystem::AddCPUScope(m_sListName, m_szListFunction, m_ListBeginTime, now, WTime::MakeZero());
 
   s_pCurrentList = m_pPreviousList;
 }
 
 // static
-void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
+void WProfilingListScope::StartNextSection(WStringView sNextSectionName)
 {
-  ezProfilingListScope* pCurScope = s_pCurrentList;
+  WProfilingListScope* pCurScope = s_pCurrentList;
 
-  ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(pCurScope->m_sCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, ezTime::MakeZero());
+  WTime now = WTime::Now();
+  WProfilingSystem::AddCPUScope(pCurScope->m_sCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, WTime::MakeZero());
 
   pCurScope->m_sCurSectionName = sNextSectionName;
   pCurScope->m_CurSectionBeginTime = now;
@@ -899,67 +899,67 @@ void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
 
 #else
 
-ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const
+WResult WProfilingSystem::ProfilingData::Write(WStreamWriter& outputStream) const
 {
-  EZ_IGNORE_UNUSED(outputStream);
+  W_IGNORE_UNUSED(outputStream);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezProfilingSystem::Clear() {}
+void WProfilingSystem::Clear() {}
 
-void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture)
+void WProfilingSystem::Capture(WProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture)
 {
-  EZ_IGNORE_UNUSED(out_Capture);
-  EZ_IGNORE_UNUSED(bClearAfterCapture);
+  W_IGNORE_UNUSED(out_Capture);
+  W_IGNORE_UNUSED(bClearAfterCapture);
 }
 
-void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
+void WProfilingSystem::SetDiscardThreshold(WTime threshold)
 {
-  EZ_IGNORE_UNUSED(threshold);
+  W_IGNORE_UNUSED(threshold);
 }
 
-void ezProfilingSystem::StartNewFrame() {}
+void WProfilingSystem::StartNewFrame() {}
 
-void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
+void WProfilingSystem::AddCPUScope(WStringView sName, const char* szFunctionName, WTime beginTime, WTime endTime, WTime scopeTimeout)
 {
-  EZ_IGNORE_UNUSED(sName);
-  EZ_IGNORE_UNUSED(szFunctionName);
-  EZ_IGNORE_UNUSED(beginTime);
-  EZ_IGNORE_UNUSED(endTime);
-  EZ_IGNORE_UNUSED(scopeTimeout);
+  W_IGNORE_UNUSED(sName);
+  W_IGNORE_UNUSED(szFunctionName);
+  W_IGNORE_UNUSED(beginTime);
+  W_IGNORE_UNUSED(endTime);
+  W_IGNORE_UNUSED(scopeTimeout);
 }
 
-void ezProfilingSystem::Initialize() {}
+void WProfilingSystem::Initialize() {}
 
-void ezProfilingSystem::Reset() {}
+void WProfilingSystem::Reset() {}
 
-void ezProfilingSystem::SetThreadName(ezStringView sThreadName)
+void WProfilingSystem::SetThreadName(WStringView sThreadName)
 {
-  EZ_IGNORE_UNUSED(sThreadName);
+  W_IGNORE_UNUSED(sThreadName);
 }
 
-void ezProfilingSystem::RemoveThread() {}
+void WProfilingSystem::RemoveThread() {}
 
-void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount)
+void WProfilingSystem::InitializeGPUData(WUInt32 gpuCount)
 {
-  EZ_IGNORE_UNUSED(gpuCount);
+  W_IGNORE_UNUSED(gpuCount);
 }
 
-void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex)
+void WProfilingSystem::AddGPUScope(WStringView sName, WTime beginTime, WTime endTime, WUInt32 gpuIndex)
 {
-  EZ_IGNORE_UNUSED(sName);
-  EZ_IGNORE_UNUSED(beginTime);
-  EZ_IGNORE_UNUSED(endTime);
-  EZ_IGNORE_UNUSED(gpuIndex);
+  W_IGNORE_UNUSED(sName);
+  W_IGNORE_UNUSED(beginTime);
+  W_IGNORE_UNUSED(endTime);
+  W_IGNORE_UNUSED(gpuIndex);
 }
 
-void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs)
+void WProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, WArrayPtr<const ProfilingData*> inputs)
 {
-  EZ_IGNORE_UNUSED(out_Merged);
-  EZ_IGNORE_UNUSED(inputs);
+  W_IGNORE_UNUSED(out_Merged);
+  W_IGNORE_UNUSED(inputs);
 }
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);
+W_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);

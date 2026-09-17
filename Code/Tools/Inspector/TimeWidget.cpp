@@ -6,9 +6,9 @@
 #include <QGraphicsPathItem>
 #include <QGraphicsView>
 
-ezQtTimeWidget* ezQtTimeWidget::s_pWidget = nullptr;
+WQtTimeWidget* WQtTimeWidget::s_pWidget = nullptr;
 
-static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] = {
+static QColor s_Colors[WQtTimeWidget::s_uiMaxColors] = {
   QColor(255, 106, 0), // orange
   QColor(182, 255, 0), // lime green
   QColor(255, 0, 255), // pink
@@ -20,7 +20,7 @@ static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] = {
   QColor(72, 0, 255),  // lilac
 };
 
-ezQtTimeWidget::ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtTimeWidget::WQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Time Widget", pParent)
 {
   s_pWidget = this;
@@ -31,7 +31,7 @@ ezQtTimeWidget::ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent
   setIcon(QIcon(":/Icons/Icons/Time.svg"));
 
   {
-    ezQtScopedUpdatesDisabled _1(ComboTimeframe);
+    WQtScopedUpdatesDisabled _1(ComboTimeframe);
 
     ComboTimeframe->addItem("Timeframe: 10 seconds");
     ComboTimeframe->addItem("Timeframe: 30 seconds");
@@ -44,7 +44,7 @@ ezQtTimeWidget::ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent
 
   m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(64, 64, 64)), 0));
 
-  for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
+  for (WUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i] = m_Scene.addPath(QPainterPath(), QPen(QBrush(s_Colors[i]), 0));
 
   QTransform t = TimeView->transform();
@@ -61,24 +61,24 @@ ezQtTimeWidget::ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent
   ResetStats();
 }
 
-void ezQtTimeWidget::ResetStats()
+void WQtTimeWidget::ResetStats()
 {
   m_ClockData.Clear();
 
   m_uiMaxSamples = 40000;
-  m_DisplayInterval = ezTime::MakeFromSeconds(60.0);
+  m_DisplayInterval = WTime::MakeFromSeconds(60.0);
   m_uiColorsUsed = 1;
   m_bClocksChanged = true;
 
   ListClocks->clear();
 }
 
-void ezQtTimeWidget::UpdateStats()
+void WQtTimeWidget::UpdateStats()
 {
   if (!isVisible())
     return;
 
-  if (!ezTelemetry::IsConnectedToServer())
+  if (!WTelemetry::IsConnectedToServer())
   {
     ListClocks->setEnabled(false);
     return;
@@ -90,11 +90,11 @@ void ezQtTimeWidget::UpdateStats()
   {
     m_bClocksChanged = false;
 
-    ezQtScopedUpdatesDisabled _1(ListClocks);
+    WQtScopedUpdatesDisabled _1(ListClocks);
 
     ListClocks->clear();
 
-    for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
+    for (WMap<WString, WQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
     {
       ListClocks->addItem(it.Key().GetData());
 
@@ -111,19 +111,19 @@ void ezQtTimeWidget::UpdateStats()
 
   QPainterPath pp[s_uiMaxColors];
 
-  ezTime tMin = ezTime::MakeFromSeconds(100.0);
-  ezTime tMax = ezTime::MakeFromSeconds(0.0);
+  WTime tMin = WTime::MakeFromSeconds(100.0);
+  WTime tMax = WTime::MakeFromSeconds(0.0);
 
-  for (ezMap<ezString, ClockData>::Iterator it = s_pWidget->m_ClockData.GetIterator(); it.IsValid(); ++it)
+  for (WMap<WString, ClockData>::Iterator it = s_pWidget->m_ClockData.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_TimeSamples.IsEmpty() || !it.Value().m_bDisplay)
       continue;
 
-    const ezUInt32 uiColorPath = it.Value().m_uiColor % s_uiMaxColors;
+    const WUInt32 uiColorPath = it.Value().m_uiColor % s_uiMaxColors;
     ClockData& Clock = it.Value();
-    const ezDeque<TimeSample>& Samples = Clock.m_TimeSamples;
+    const WDeque<TimeSample>& Samples = Clock.m_TimeSamples;
 
-    ezUInt32 uiFirstSample = 0;
+    WUInt32 uiFirstSample = 0;
 
     while ((uiFirstSample < Samples.GetCount()) && (m_MaxGlobalTime - Samples[uiFirstSample].m_AtGlobalTime > m_DisplayInterval))
       ++uiFirstSample;
@@ -133,37 +133,37 @@ void ezQtTimeWidget::UpdateStats()
       pp[uiColorPath].moveTo(
         QPointF((Samples[uiFirstSample].m_AtGlobalTime - m_MaxGlobalTime).GetSeconds(), Samples[uiFirstSample].m_Timestep.GetSeconds()));
 
-      for (ezUInt32 i = uiFirstSample + 1; i < Samples.GetCount(); ++i)
+      for (WUInt32 i = uiFirstSample + 1; i < Samples.GetCount(); ++i)
       {
         pp[uiColorPath].lineTo(QPointF((Samples[i].m_AtGlobalTime - m_MaxGlobalTime).GetSeconds(), Samples[i].m_Timestep.GetSeconds()));
 
-        tMin = ezMath::Min(tMin, Samples[i].m_Timestep);
-        tMax = ezMath::Max(tMax, Samples[i].m_Timestep);
+        tMin = WMath::Min(tMin, Samples[i].m_Timestep);
+        tMax = WMath::Max(tMax, Samples[i].m_Timestep);
       }
     }
   }
 
-  for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
+  for (WUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i]->setPath(pp[i]);
 
   // render the helper lines for time values
   {
     QPainterPath pMax;
 
-    for (ezUInt32 i = 1; i < 10; ++i)
+    for (WUInt32 i = 1; i < 10; ++i)
     {
-      pMax.moveTo(QPointF(-m_DisplayInterval.GetSeconds(), ezTime::MakeFromMilliseconds(10.0 * i).GetSeconds()));
-      pMax.lineTo(QPointF(0, ezTime::MakeFromMilliseconds(10.0 * i).GetSeconds()));
+      pMax.moveTo(QPointF(-m_DisplayInterval.GetSeconds(), WTime::MakeFromMilliseconds(10.0 * i).GetSeconds()));
+      pMax.lineTo(QPointF(0, WTime::MakeFromMilliseconds(10.0 * i).GetSeconds()));
     }
 
     m_pPathMax->setPath(pMax);
   }
 
-  ezTime tShowMax = ezTime::MakeFromSeconds(1.0 / 10.0);
+  WTime tShowMax = WTime::MakeFromSeconds(1.0 / 10.0);
 
-  for (ezUInt32 t = 25; t < 100; t += 25)
+  for (WUInt32 t = 25; t < 100; t += 25)
   {
-    tShowMax = ezTime::MakeFromMilliseconds(1) * t;
+    tShowMax = WTime::MakeFromMilliseconds(1) * t;
 
     if (tMax < tShowMax)
       break;
@@ -175,42 +175,42 @@ void ezQtTimeWidget::UpdateStats()
   }
 
   // once a second update the display of the clocks in the list
-  if (ezTime::Now() - m_LastUpdatedClockList > ezTime::MakeFromSeconds(1))
+  if (WTime::Now() - m_LastUpdatedClockList > WTime::MakeFromSeconds(1))
   {
-    m_LastUpdatedClockList = ezTime::Now();
+    m_LastUpdatedClockList = WTime::Now();
 
-    ezStringBuilder s;
-    s.SetFormat("Max: {0}ms", ezArgF(tShowMax.GetMilliseconds(), 0));
+    WStringBuilder s;
+    s.SetFormat("Max: {0}ms", WArgF(tShowMax.GetMilliseconds(), 0));
     LabelMaxTime->setText(s.GetData());
 
-    for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
+    for (WMap<WString, WQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
     {
-      const ezQtTimeWidget::ClockData& Clock = it.Value();
+      const WQtTimeWidget::ClockData& Clock = it.Value();
 
       if (!Clock.m_pListItem || Clock.m_TimeSamples.IsEmpty())
         continue;
 
-      ezStringBuilder sTooltip;
+      WStringBuilder sTooltip;
       sTooltip.SetFormat("<p>Clock: {0}<br>Max Time Step: <b>{1}ms</b><br>Min Time Step: <b>{2}ms</b><br></p>", it.Key().GetData(),
-        ezArgF(Clock.m_MaxTimestep.GetMilliseconds(), 2), ezArgF(Clock.m_MinTimestep.GetMilliseconds(), 2));
+        WArgF(Clock.m_MaxTimestep.GetMilliseconds(), 2), WArgF(Clock.m_MinTimestep.GetMilliseconds(), 2));
 
       Clock.m_pListItem->setToolTip(sTooltip.GetData());
     }
   }
 }
 
-void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
+void WQtTimeWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (s_pWidget == nullptr)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
-  while (ezTelemetry::RetrieveMessage('TIME', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('TIME', Msg) == W_SUCCESS)
   {
-    ezString sClockName;
+    WString sClockName;
     Msg.GetReader() >> sClockName;
 
     sTemp.SetFormat("{0} [smoothed]", sClockName);
@@ -227,24 +227,24 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
     SampleSmooth.m_AtGlobalTime = Sample.m_AtGlobalTime;
     Msg.GetReader() >> SampleSmooth.m_Timestep;
 
-    s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
+    s_pWidget->m_MaxGlobalTime = WMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
 
-    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::MakeFromMicroseconds(100))))
+    if (ad.m_TimeSamples.GetCount() > 1 && (WMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, WTime::MakeFromMicroseconds(100))))
       ad.m_TimeSamples.PeekBack() = Sample;
     else
       ad.m_TimeSamples.PushBack(Sample);
 
     if (ads.m_TimeSamples.GetCount() > 1 &&
-        (ezMath::IsEqual(ads.m_TimeSamples.PeekBack().m_Timestep, SampleSmooth.m_Timestep, ezTime::MakeFromMicroseconds(100))))
+        (WMath::IsEqual(ads.m_TimeSamples.PeekBack().m_Timestep, SampleSmooth.m_Timestep, WTime::MakeFromMicroseconds(100))))
       ads.m_TimeSamples.PeekBack() = SampleSmooth;
     else
       ads.m_TimeSamples.PushBack(SampleSmooth);
 
-    ad.m_MinTimestep = ezMath::Min(ad.m_MinTimestep, Sample.m_Timestep);
-    ad.m_MaxTimestep = ezMath::Max(ad.m_MaxTimestep, Sample.m_Timestep);
+    ad.m_MinTimestep = WMath::Min(ad.m_MinTimestep, Sample.m_Timestep);
+    ad.m_MaxTimestep = WMath::Max(ad.m_MaxTimestep, Sample.m_Timestep);
 
-    ads.m_MinTimestep = ezMath::Min(ads.m_MinTimestep, SampleSmooth.m_Timestep);
-    ads.m_MaxTimestep = ezMath::Max(ads.m_MaxTimestep, SampleSmooth.m_Timestep);
+    ads.m_MinTimestep = WMath::Min(ads.m_MinTimestep, SampleSmooth.m_Timestep);
+    ads.m_MaxTimestep = WMath::Max(ads.m_MaxTimestep, SampleSmooth.m_Timestep);
 
     if (ad.m_uiColor == 0xFF)
     {
@@ -268,14 +268,14 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
+void WQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
 {
   m_ClockData[item->data(Qt::UserRole).toString().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
 }
 
-void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
+void WQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] = {
+  const WUInt32 uiSeconds[] = {
     10,
     30,
     60 * 1,
@@ -284,5 +284,5 @@ void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
     60 * 10,
   };
 
-  m_DisplayInterval = ezTime::MakeFromSeconds(uiSeconds[index]);
+  m_DisplayInterval = WTime::MakeFromSeconds(uiSeconds[index]);
 }

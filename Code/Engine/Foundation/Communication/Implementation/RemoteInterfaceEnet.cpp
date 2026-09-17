@@ -9,44 +9,44 @@
 #  include <Foundation/Types/ScopeExit.h>
 #  include <enet/enet.h>
 
-class ezRemoteInterfaceEnetImpl : public ezRemoteInterfaceEnet
+class WRemoteInterfaceEnetImpl : public WRemoteInterfaceEnet
 {
 
 protected:
   virtual void InternalUpdateRemoteInterface() override;
-  virtual ezResult InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress) override;
+  virtual WResult InternalCreateConnection(WRemoteMode mode, WStringView sServerAddress) override;
   virtual void InternalShutdownConnection() override;
-  virtual ezTime InternalGetPingToServer() override;
-  virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) override;
+  virtual WTime InternalGetPingToServer() override;
+  virtual WResult InternalTransmit(WRemoteTransmitMode tm, const WArrayPtr<const WUInt8>& data) override;
 
 private:
   ENetAddress m_EnetServerAddress;
   ENetHost* m_pEnetHost = nullptr;
   ENetPeer* m_pEnetConnectionToServer = nullptr;
   bool m_bAllowNetworkUpdates = true;
-  ezMap<void*, ezUInt32> m_EnetPeerToClientID;
+  WMap<void*, WUInt32> m_EnetPeerToClientID;
 
   static bool s_bEnetInitialized;
 };
 
-ezInternal::NewInstance<ezRemoteInterfaceEnet> ezRemoteInterfaceEnet::Make(ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+WInternal::NewInstance<WRemoteInterfaceEnet> WRemoteInterfaceEnet::Make(WAllocator* pAllocator /*= WFoundation::GetDefaultAllocator()*/)
 {
-  return EZ_NEW(pAllocator, ezRemoteInterfaceEnetImpl);
+  return W_NEW(pAllocator, WRemoteInterfaceEnetImpl);
 }
 
-ezRemoteInterfaceEnet::ezRemoteInterfaceEnet() = default;
-ezRemoteInterfaceEnet::~ezRemoteInterfaceEnet() = default;
+WRemoteInterfaceEnet::WRemoteInterfaceEnet() = default;
+WRemoteInterfaceEnet::~WRemoteInterfaceEnet() = default;
 
-bool ezRemoteInterfaceEnetImpl::s_bEnetInitialized = false;
+bool WRemoteInterfaceEnetImpl::s_bEnetInitialized = false;
 
-ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress)
+WResult WRemoteInterfaceEnetImpl::InternalCreateConnection(WRemoteMode mode, WStringView sServerAddress)
 {
   if (!s_bEnetInitialized)
   {
     if (enet_initialize() != 0)
     {
-      ezLog::Error("Failed to initialize Enet");
-      return EZ_FAILURE;
+      WLog::Error("Failed to initialize Enet");
+      return W_FAILURE;
     }
 
     s_bEnetInitialized = true;
@@ -55,14 +55,14 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
   {
     // Extract port from address
     const char* szPortStart = sServerAddress.FindLastSubString(":");
-    ezStringView sPort = (szPortStart != nullptr) ? ezStringView(szPortStart + 1, sServerAddress.GetEndPointer()) : sServerAddress;
-    ezInt32 iPort = 0;
-    if (ezConversionUtils::StringToInt(sPort, iPort).Failed())
+    WStringView sPort = (szPortStart != nullptr) ? WStringView(szPortStart + 1, sServerAddress.GetEndPointer()) : sServerAddress;
+    WInt32 iPort = 0;
+    if (WConversionUtils::StringToInt(sPort, iPort).Failed())
     {
-      ezLog::Error("Failed to extract port from server address: {0}", sServerAddress);
-      return EZ_FAILURE;
+      WLog::Error("Failed to extract port from server address: {0}", sServerAddress);
+      return W_FAILURE;
     }
-    m_uiPort = static_cast<ezUInt16>(iPort);
+    m_uiPort = static_cast<WUInt16>(iPort);
   }
 
   m_pEnetConnectionToServer = nullptr;
@@ -73,7 +73,7 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
   const enet_uint32 incomingBandwidth = 0; // unlimited
   const enet_uint32 outgoingBandwidth = 0; // unlimited
 
-  if (mode == ezRemoteMode::Server)
+  if (mode == WRemoteMode::Server)
   {
     m_EnetServerAddress.host = ENET_HOST_ANY;
     m_EnetServerAddress.port = m_uiPort;
@@ -85,7 +85,7 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
   {
     if (DetermineTargetAddress(sServerAddress, m_EnetServerAddress.host, m_EnetServerAddress.port).Failed())
     {
-      ezStringBuilder tmp;
+      WStringBuilder tmp;
       enet_address_set_host(&m_EnetServerAddress, sServerAddress.GetData(tmp));
     }
 
@@ -96,34 +96,34 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
 
   if (m_pEnetHost == nullptr)
   {
-    ezLog::Error("Failed to create an Enet server");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create an Enet server");
+    return W_FAILURE;
   }
 
-  if (mode == ezRemoteMode::Client)
+  if (mode == WRemoteMode::Client)
   {
     m_pEnetConnectionToServer = enet_host_connect(m_pEnetHost, &m_EnetServerAddress, maxChannels, GetConnectionToken());
 
     if (m_pEnetConnectionToServer == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
+void WRemoteInterfaceEnetImpl::InternalShutdownConnection()
 {
   m_uiPort = 0;
 
   if (m_pEnetHost)
   {
     // send all peers that we are disconnecting
-    for (ezUInt32 i = (ezUInt32)m_pEnetHost->connectedPeers; i > 0; --i)
+    for (WUInt32 i = (WUInt32)m_pEnetHost->connectedPeers; i > 0; --i)
       enet_peer_disconnect(&m_pEnetHost->peers[i - 1], 0);
 
     // process the network messages (e.g. send the disconnect messages)
     UpdateRemoteInterface();
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
 
   // finally close the network connection
@@ -138,26 +138,26 @@ void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
   m_EnetPeerToClientID.Clear();
 }
 
-ezTime ezRemoteInterfaceEnetImpl::InternalGetPingToServer()
+WTime WRemoteInterfaceEnetImpl::InternalGetPingToServer()
 {
-  EZ_ASSERT_DEV(m_pEnetConnectionToServer != nullptr, "Client has not connected to server");
+  W_ASSERT_DEV(m_pEnetConnectionToServer != nullptr, "Client has not connected to server");
 
   enet_peer_ping(m_pEnetConnectionToServer);
-  return ezTime::MakeFromMilliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
+  return WTime::MakeFromMilliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
 }
 
-ezResult ezRemoteInterfaceEnetImpl::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+WResult WRemoteInterfaceEnetImpl::InternalTransmit(WRemoteTransmitMode tm, const WArrayPtr<const WUInt8>& data)
 {
   if (m_pEnetHost == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ENetPacket* pPacket = enet_packet_create(data.GetPtr(), data.GetCount(), (tm == ezRemoteTransmitMode::Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
+  ENetPacket* pPacket = enet_packet_create(data.GetPtr(), data.GetCount(), (tm == WRemoteTransmitMode::Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
   enet_host_broadcast(m_pEnetHost, 0, pPacket);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
+void WRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 {
   if (!m_pEnetHost)
     return;
@@ -166,13 +166,13 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
     return;
 
   m_bAllowNetworkUpdates = false;
-  EZ_SCOPE_EXIT(m_bAllowNetworkUpdates = true);
+  W_SCOPE_EXIT(m_bAllowNetworkUpdates = true);
 
   ENetEvent NetworkEvent;
 
   while (true)
   {
-    const ezInt32 iStatus = enet_host_service(m_pEnetHost, &NetworkEvent, 0);
+    const WInt32 iStatus = enet_host_service(m_pEnetHost, &NetworkEvent, 0);
 
     if (iStatus <= 0)
       return;
@@ -181,7 +181,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
     {
       case ENET_EVENT_TYPE_CONNECT:
       {
-        if ((GetRemoteMode() == ezRemoteMode::Server) && (NetworkEvent.peer->eventData != GetConnectionToken()))
+        if ((GetRemoteMode() == WRemoteMode::Server) && (NetworkEvent.peer->eventData != GetConnectionToken()))
         {
           // do not accept connections that don't have the correct password
           enet_peer_disconnect(NetworkEvent.peer, 0);
@@ -192,7 +192,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
         // enet_peer_timeout(NetworkEvent.peer, 0xFFFFFF, 32000, 0xFFFFFF);
 
 
-        if (GetRemoteMode() == ezRemoteMode::Client)
+        if (GetRemoteMode() == WRemoteMode::Client)
         {
           // Querying host IP and name can take a lot of time
           // Do not do this in the other case, as it may result in timeouts while establishing the connection.
@@ -209,9 +209,9 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
         }
         else
         {
-          const ezUInt32 uiAppID = GetApplicationID();
-          Send(ezRemoteTransmitMode::Reliable, GetConnectionToken(), 'EZID',
-            ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
+          const WUInt32 uiAppID = GetApplicationID();
+          Send(WRemoteTransmitMode::Reliable, GetConnectionToken(), 'EZID',
+            WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(&uiAppID), sizeof(WUInt32)));
 
           // then wait for its acknowledgment message
         }
@@ -220,7 +220,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 
       case ENET_EVENT_TYPE_DISCONNECT:
       {
-        if (GetRemoteMode() == ezRemoteMode::Client)
+        if (GetRemoteMode() == WRemoteMode::Client)
         {
           ReportDisconnectedFromServer();
         }
@@ -238,10 +238,10 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 
       case ENET_EVENT_TYPE_RECEIVE:
       {
-        const ezUInt32 uiApplicationID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
-        const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
-        const ezUInt32 uiMsgID = *((ezUInt32*)&NetworkEvent.packet->data[8]);
-        const ezUInt8* pData = &NetworkEvent.packet->data[12];
+        const WUInt32 uiApplicationID = *((WUInt32*)&NetworkEvent.packet->data[0]);
+        const WUInt32 uiSystemID = *((WUInt32*)&NetworkEvent.packet->data[4]);
+        const WUInt32 uiMsgID = *((WUInt32*)&NetworkEvent.packet->data[8]);
+        const WUInt8* pData = &NetworkEvent.packet->data[12];
 
         if (uiSystemID == GetConnectionToken())
         {
@@ -253,7 +253,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
               Send(GetConnectionToken(), 'AKID');
 
               // go tell the others about it
-              ezUInt32 uiServerID = *((ezUInt32*)pData);
+              WUInt32 uiServerID = *((WUInt32*)pData);
               ReportConnectionToServer(uiServerID);
             }
             break;
@@ -273,7 +273,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
         }
         else
         {
-          ReportMessage(uiApplicationID, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(pData, (ezUInt32)NetworkEvent.packet->dataLength - 12));
+          ReportMessage(uiApplicationID, uiSystemID, uiMsgID, WArrayPtr<const WUInt8>(pData, (WUInt32)NetworkEvent.packet->dataLength - 12));
         }
 
         enet_packet_destroy(NetworkEvent.packet);

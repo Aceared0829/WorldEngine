@@ -6,26 +6,26 @@
 
 #include <d3d11.h>
 
-ezGALReadbackTextureDX11::ezGALReadbackTextureDX11(const ezGALTextureCreationDescription& Description)
-  : ezGALReadbackTexture(Description)
+WGALReadbackTextureDX11::WGALReadbackTextureDX11(const WGALTextureCreationDescription& Description)
+  : WGALReadbackTexture(Description)
 {
 }
 
-ezGALReadbackTextureDX11::~ezGALReadbackTextureDX11() = default;
+WGALReadbackTextureDX11::~WGALReadbackTextureDX11() = default;
 
-ezResult ezGALReadbackTextureDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackTextureDX11::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
 
   switch (m_Description.m_Type)
   {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
+    case WGALTextureType::Texture2D:
+    case WGALTextureType::Texture2DArray:
+    case WGALTextureType::TextureCube:
+    case WGALTextureType::TextureCubeArray:
     {
       D3D11_TEXTURE2D_DESC Tex2DDesc = {};
-      EZ_SUCCEED_OR_RETURN(ezGALTextureDX11::Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
+      W_SUCCEED_OR_RETURN(WGALTextureDX11::Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
       Tex2DDesc.BindFlags = 0;
       Tex2DDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
       // Need to remove this flag on the staging resource or texture readback no longer works.
@@ -34,15 +34,15 @@ ezResult ezGALReadbackTextureDX11::InitPlatform(ezGALDevice* pDevice)
 
       if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
     break;
 
-    case ezGALTextureType::Texture3D:
+    case WGALTextureType::Texture3D:
     {
       D3D11_TEXTURE3D_DESC Tex3DDesc = {};
-      EZ_SUCCEED_OR_RETURN(ezGALTextureDX11::Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
+      W_SUCCEED_OR_RETURN(WGALTextureDX11::Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
       Tex3DDesc.BindFlags = 0;
       Tex3DDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
       // Need to remove this flag on the staging resource or texture readback no longer works.
@@ -51,30 +51,30 @@ ezResult ezGALReadbackTextureDX11::InitPlatform(ezGALDevice* pDevice)
 
       if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(&Tex3DDesc, nullptr, reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
     break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return EZ_FAILURE;
+      W_ASSERT_NOT_IMPLEMENTED;
+      return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALReadbackTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackTextureDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pDXTexture);
-  return EZ_SUCCESS;
+  W_GAL_DX11_RELEASE(m_pDXTexture);
+  return W_SUCCESS;
 }
 
-void ezGALReadbackTextureDX11::SetDebugNamePlatform(const char* szName) const
+void WGALReadbackTextureDX11::SetDebugNamePlatform(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  WUInt32 uiLength = WStringUtils::GetStringElementCount(szName);
 
   if (m_pDXTexture != nullptr)
   {

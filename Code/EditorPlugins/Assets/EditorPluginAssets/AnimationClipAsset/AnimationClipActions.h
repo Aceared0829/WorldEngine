@@ -5,23 +5,23 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezQtAnimationClipAssetDocumentWindow;
+class WQtAnimationClipAssetDocumentWindow;
 
-class ezAnimationClipActions
+class WAnimationClipActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sActionMap, ezStringView sSubPath);
+  static void MapActions(WStringView sActionMap, WStringView sSubPath);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hRootMotionFromFeet;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hRootMotionFromFeet;
 };
 
-class ezAnimationClipAction : public ezButtonAction
+class WAnimationClipAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -29,12 +29,12 @@ public:
     RootMotionFromFeet,
   };
 
-  ezAnimationClipAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezAnimationClipAction();
+  WAnimationClipAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WAnimationClipAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  ezQtAnimationClipAssetDocumentWindow* m_pAssetWindow = nullptr;
+  WQtAnimationClipAssetDocumentWindow* m_pAssetWindow = nullptr;
   ActionType m_Type;
 };

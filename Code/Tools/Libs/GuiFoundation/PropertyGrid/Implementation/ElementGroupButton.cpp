@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 
-ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGroupButton::ElementAction action, ezQtPropertyWidget* pGroupWidget)
+WQtElementGroupButton::WQtElementGroupButton(QWidget* pParent, WQtElementGroupButton::ElementAction action, WQtPropertyWidget* pGroupWidget)
   : QToolButton(pParent)
 {
   m_Action = action;
@@ -14,17 +14,17 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
 
   switch (action)
   {
-    case ezQtElementGroupButton::ElementAction::MoveElementUp:
+    case WQtElementGroupButton::ElementAction::MoveElementUp:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveUp.svg")));
       break;
-    case ezQtElementGroupButton::ElementAction::MoveElementDown:
+    case WQtElementGroupButton::ElementAction::MoveElementDown:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveDown.svg")));
       break;
-    case ezQtElementGroupButton::ElementAction::DeleteElement:
+    case WQtElementGroupButton::ElementAction::DeleteElement:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Delete.svg")));
       setToolTip("Remove this element.");
       break;
-    case ezQtElementGroupButton::ElementAction::Help:
+    case WQtElementGroupButton::ElementAction::Help:
       setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Help-BW.svg")));
       setToolTip("Open the online help for this.");
       break;

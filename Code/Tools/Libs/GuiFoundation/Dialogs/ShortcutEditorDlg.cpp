@@ -8,24 +8,24 @@
 #include <QTreeWidget>
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
-ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtShortcutEditorDlg::WQtShortcutEditorDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-  EZ_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr, "signal/slot connection failed");
 
   m_iSelectedAction = -1;
   KeyEditor->setEnabled(false);
 
-  ezMap<ezString, ezMap<ezString, ezInt32>> SortedItems;
+  WMap<WString, WMap<WString, WInt32>> SortedItems;
 
   {
-    auto itActions = ezActionManager::GetActionIterator();
+    auto itActions = WActionManager::GetActionIterator();
 
     while (itActions.IsValid())
     {
-      if (itActions.Value()->m_Type == ezActionType::Action)
+      if (itActions.Value()->m_Type == WActionType::Action)
       {
         SortedItems[itActions.Value()->m_sCategoryPath][itActions.Value()->m_sActionName] = m_ActionDescs.GetCount();
         m_ActionDescs.PushBack(itActions.Value());
@@ -36,14 +36,14 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
   }
 
   {
-    ezQtScopedBlockSignals bs(Shortcuts);
-    ezQtScopedUpdatesDisabled ud(Shortcuts);
+    WQtScopedBlockSignals bs(Shortcuts);
+    WQtScopedUpdatesDisabled ud(Shortcuts);
 
     Shortcuts->setAlternatingRowColors(true);
     Shortcuts->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
     Shortcuts->setExpandsOnDoubleClick(true);
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
     for (auto it = SortedItems.GetIterator(); it.IsValid(); ++it)
     {
@@ -66,14 +66,14 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
         auto pItem = new QTreeWidgetItem(pParent);
 
         /// \todo Instead of removing &, replace it by underlined text (requires formatted text output)
-        sTemp = ezTranslate(item->m_sActionName);
+        sTemp = WTranslate(item->m_sActionName);
         sTemp.ReplaceAll("&", "");
 
         pItem->setData(0, Qt::UserRole, it2.Value());
         pItem->setData(0, Qt::DisplayRole, item->m_sActionName.GetData());
         pItem->setData(1, Qt::DisplayRole, sTemp.GetData());
         pItem->setData(2, Qt::DisplayRole, item->m_sShortcut.GetData());
-        pItem->setData(3, Qt::DisplayRole, ezMakeQString(ezTranslateTooltip(item->m_sActionName)));
+        pItem->setData(3, Qt::DisplayRole, WMakeQString(WTranslateTooltip(item->m_sActionName)));
 
         if (item->m_sShortcut == item->m_sDefaultShortcut)
           pItem->setBackground(2, QBrush());
@@ -95,22 +95,22 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
   ButtonReset->setEnabled(false);
 }
 
-ezQtShortcutEditorDlg::~ezQtShortcutEditorDlg()
+WQtShortcutEditorDlg::~WQtShortcutEditorDlg()
 {
-  ezActionManager::SaveShortcutAssignment();
+  WActionManager::SaveShortcutAssignment();
 }
 
-void ezQtShortcutEditorDlg::UpdateTable()
+void WQtShortcutEditorDlg::UpdateTable()
 {
-  for (ezInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
+  for (WInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
   {
     auto pTopItem = Shortcuts->topLevelItem(iTop);
 
-    for (ezInt32 iChild = 0; iChild < pTopItem->childCount(); ++iChild)
+    for (WInt32 iChild = 0; iChild < pTopItem->childCount(); ++iChild)
     {
       auto pChild = pTopItem->child(iChild);
 
-      ezInt32 idx = pChild->data(0, Qt::UserRole).toInt();
+      WInt32 idx = pChild->data(0, Qt::UserRole).toInt();
 
       const auto& item = m_ActionDescs[idx];
 
@@ -133,7 +133,7 @@ void ezQtShortcutEditorDlg::UpdateTable()
   ButtonAssign->setEnabled(!sText.isEmpty());
 }
 
-void ezQtShortcutEditorDlg::SlotSelectionChanged()
+void WQtShortcutEditorDlg::SlotSelectionChanged()
 {
   auto selection = Shortcuts->selectedItems();
   if (selection.size() == 1)
@@ -156,12 +156,12 @@ void ezQtShortcutEditorDlg::SlotSelectionChanged()
   }
 }
 
-void ezQtShortcutEditorDlg::on_KeyEditor_editingFinished()
+void WQtShortcutEditorDlg::on_KeyEditor_editingFinished()
 {
   UpdateKeyEdit();
 }
 
-void ezQtShortcutEditorDlg::UpdateKeyEdit()
+void WQtShortcutEditorDlg::UpdateKeyEdit()
 {
   if (m_iSelectedAction < 0)
     return;
@@ -170,12 +170,12 @@ void ezQtShortcutEditorDlg::UpdateKeyEdit()
   ButtonAssign->setEnabled(!sText.isEmpty());
 }
 
-void ezQtShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence& keySequence)
+void WQtShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence& keySequence)
 {
   UpdateKeyEdit();
 }
 
-void ezQtShortcutEditorDlg::on_ButtonAssign_clicked()
+void WQtShortcutEditorDlg::on_ButtonAssign_clicked()
 {
   QString sText = KeyEditor->keySequence().toString(QKeySequence::SequenceFormat::NativeText);
   KeyEditor->clear();
@@ -186,7 +186,7 @@ void ezQtShortcutEditorDlg::on_ButtonAssign_clicked()
   UpdateTable();
 }
 
-void ezQtShortcutEditorDlg::on_ButtonRemove_clicked()
+void WQtShortcutEditorDlg::on_ButtonRemove_clicked()
 {
   KeyEditor->clear();
 
@@ -196,7 +196,7 @@ void ezQtShortcutEditorDlg::on_ButtonRemove_clicked()
   UpdateTable();
 }
 
-void ezQtShortcutEditorDlg::on_ButtonReset_clicked()
+void WQtShortcutEditorDlg::on_ButtonReset_clicked()
 {
   KeyEditor->clear();
 
@@ -206,23 +206,23 @@ void ezQtShortcutEditorDlg::on_ButtonReset_clicked()
   UpdateTable();
 }
 
-void ezQtShortcutEditorDlg::on_Search_textChanged(const QString& sText)
+void WQtShortcutEditorDlg::on_Search_textChanged(const QString& sText)
 {
-  ezSearchPatternFilter filter;
+  WSearchPatternFilter filter;
   filter.SetSearchText(sText.toUtf8().data());
 
-  ezQtScopedUpdatesDisabled ud(Shortcuts);
+  WQtScopedUpdatesDisabled ud(Shortcuts);
 
-  for (ezInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
+  for (WInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
   {
     auto pTopItem = Shortcuts->topLevelItem(iTop);
     bool bAnyCategoryChildVisible = false;
 
-    for (ezInt32 iChild = 0; iChild < pTopItem->childCount(); ++iChild)
+    for (WInt32 iChild = 0; iChild < pTopItem->childCount(); ++iChild)
     {
       auto pChild = pTopItem->child(iChild);
-      const ezString sActionName = pChild->data(0, Qt::DisplayRole).toString().toUtf8().data();
-      const ezString sShortcut = pChild->data(2, Qt::DisplayRole).toString().toUtf8().data();
+      const WString sActionName = pChild->data(0, Qt::DisplayRole).toString().toUtf8().data();
+      const WString sShortcut = pChild->data(2, Qt::DisplayRole).toString().toUtf8().data();
 
       const bool bVisible = filter.PassesFilters(sActionName) || filter.PassesFilters(sShortcut);
       pChild->setHidden(!bVisible);

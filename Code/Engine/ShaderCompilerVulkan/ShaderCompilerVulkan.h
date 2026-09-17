@@ -4,18 +4,18 @@
 #include <ShaderCompilerDXC/ShaderCompilerDXC.h>
 #include <ShaderCompilerVulkan/ShaderCompilerVulkanDLL.h>
 
-class EZ_SHADERCOMPILERVULKAN_DLL ezShaderCompilerVulkan : public ezShaderCompilerDXC
+class W_SHADERCOMPILERVULKAN_DLL WShaderCompilerVulkan : public WShaderCompilerDXC
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerVulkan, ezShaderCompilerDXC);
+  W_ADD_DYNAMIC_REFLECTION(WShaderCompilerVulkan, WShaderCompilerDXC);
 
 public:
-  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) override
+  virtual void GetSupportedPlatforms(WHybridArray<WString, 4>& out_platforms) override
   {
     out_platforms.PushBack("VULKAN");
   }
 
-  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const override
+  virtual WEnum<WGALBufferLayout> GetMaterialBufferLayout(WStringView sPlatform) const override
   {
-    return ezGALBufferLayout::Vulkan_Std430_relaxed;
+    return WGALBufferLayout::Vulkan_Std430_relaxed;
   }
 };

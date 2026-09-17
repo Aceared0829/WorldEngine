@@ -7,33 +7,33 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Thread.h>
 
-class ezProcessMessage;
-class ezIpcChannel;
-class ezLoopThread;
+class WProcessMessage;
+class WIpcChannel;
+class WLoopThread;
 
-/// Internal sub-system used by ezIpcChannel.
+/// Internal sub-system used by WIpcChannel.
 ///
-/// This sub-system creates a background thread as soon as the first ezIpcChannel
+/// This sub-system creates a background thread as soon as the first WIpcChannel
 /// is added to it. This class should never be needed to be accessed outside
-/// of ezIpcChannel implementations.
-class EZ_FOUNDATION_DLL ezMessageLoop
+/// of WIpcChannel implementations.
+class W_FOUNDATION_DLL WMessageLoop
 {
-  EZ_DECLARE_SINGLETON(ezMessageLoop);
+  W_DECLARE_SINGLETON(WMessageLoop);
 
 public:
-  ezMessageLoop();
-  virtual ~ezMessageLoop() = default;
+  WMessageLoop();
+  virtual ~WMessageLoop() = default;
   ;
 
   /// Needs to be called by newly created channels' constructors.
-  void AddChannel(ezIpcChannel* pChannel);
+  void AddChannel(WIpcChannel* pChannel);
 
-  void RemoveChannel(ezIpcChannel* pChannel);
+  void RemoveChannel(WIpcChannel* pChannel);
 
 protected:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, MessageLoop);
-  friend class ezLoopThread;
-  friend class ezIpcChannel;
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, MessageLoop);
+  friend class WLoopThread;
+  friend class WIpcChannel;
 
   void StartUpdateThread();
   void StopUpdateThread();
@@ -47,23 +47,23 @@ protected:
   /// \param timeout If negative, wait indefinitely.
   /// \param pFilter If not null, wait for a message for the specific channel.
   /// \return Returns whether a message was received or the timeout was reached.
-  virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) = 0;
+  virtual bool WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter) = 0;
 
-  ezThreadID m_ThreadId = 0;
-  mutable ezMutex m_Mutex;
+  WThreadID m_ThreadId = 0;
+  mutable WMutex m_Mutex;
   bool m_bShouldQuit = false;
   bool m_bCallTickFunction = false;
-  class ezLoopThread* m_pUpdateThread = nullptr;
+  class WLoopThread* m_pUpdateThread = nullptr;
 
-  ezMutex m_TasksMutex;
-  ezDynamicArray<ezIpcChannel*> m_ConnectQueue;
-  ezDynamicArray<ezIpcChannel*> m_DisconnectQueue;
-  ezDynamicArray<ezIpcChannel*> m_SendQueue;
+  WMutex m_TasksMutex;
+  WDynamicArray<WIpcChannel*> m_ConnectQueue;
+  WDynamicArray<WIpcChannel*> m_DisconnectQueue;
+  WDynamicArray<WIpcChannel*> m_SendQueue;
 
   // Thread local copies of the different queues for the ProcessTasks method
-  ezDynamicArray<ezIpcChannel*> m_ConnectQueueTask;
-  ezDynamicArray<ezIpcChannel*> m_DisconnectQueueTask;
-  ezDynamicArray<ezIpcChannel*> m_SendQueueTask;
+  WDynamicArray<WIpcChannel*> m_ConnectQueueTask;
+  WDynamicArray<WIpcChannel*> m_DisconnectQueueTask;
+  WDynamicArray<WIpcChannel*> m_SendQueueTask;
 
-  ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
+  WDynamicArray<WIpcChannel*> m_AllAddedChannels;
 };

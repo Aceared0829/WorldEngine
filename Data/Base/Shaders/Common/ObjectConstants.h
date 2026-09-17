@@ -3,7 +3,7 @@
 #include "ConstantBufferMacros.h"
 #include "Platforms.h"
 
-struct EZ_SHADER_STRUCT ezPerInstanceData
+struct W_SHADER_STRUCT WPerInstanceData
 {
   TRANSFORM(ObjectToWorld);
   TRANSFORM(ObjectToWorldNormal);
@@ -16,9 +16,9 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
   FLOAT4(CustomData);
 };
 
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 #  include "Common.h"
-StructuredBuffer<ezPerInstanceData> perInstanceData BIND_GROUP(BG_DRAW_CALL);
+StructuredBuffer<WPerInstanceData> perInstanceData BIND_GROUP(BG_DRAW_CALL);
 
 #  if defined(USE_SKINNING)
 StructuredBuffer<Transform> skinningTransforms BIND_GROUP(BG_DRAW_CALL);
@@ -26,12 +26,12 @@ StructuredBuffer<Transform> skinningTransforms BIND_GROUP(BG_DRAW_CALL);
 
 #else // C++
 
-EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
+W_DEFINE_AS_POD_TYPE(WPerInstanceData);
 
-static_assert(sizeof(ezPerInstanceData) == 144);
+static_assert(sizeof(WPerInstanceData) == 144);
 #endif
 
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 
 // Access to instance should usually go through this macro!
 // It's a macro so it can work with arbitrary input structs (for VS/GS/PS...)

@@ -36,106 +36,106 @@
  */
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltRagdollStartMode, 1)
-  EZ_ENUM_CONSTANTS(ezJoltRagdollStartMode::WithBindPose, ezJoltRagdollStartMode::WithNextAnimPose, ezJoltRagdollStartMode::WithCurrentMeshPose)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltRagdollStartMode, 1)
+  W_ENUM_CONSTANTS(WJoltRagdollStartMode::WithBindPose, WJoltRagdollStartMode::WithNextAnimPose, WJoltRagdollStartMode::WithCurrentMeshPose)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltRagdollAnimMode, 1)
-  EZ_ENUM_CONSTANTS(ezJoltRagdollAnimMode::Off, ezJoltRagdollAnimMode::Limp, ezJoltRagdollAnimMode::Powered, ezJoltRagdollAnimMode::Controlled)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltRagdollAnimMode, 1)
+  W_ENUM_CONSTANTS(WJoltRagdollAnimMode::Off, WJoltRagdollAnimMode::Limp, WJoltRagdollAnimMode::Powered, WJoltRagdollAnimMode::Controlled)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 5, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WJoltRagdollComponent, 5, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
-    EZ_ENUM_ACCESSOR_PROPERTY("StartMode", ezJoltRagdollStartMode, GetStartMode, SetStartMode),
-    EZ_ENUM_ACCESSOR_PROPERTY("AnimMode", ezJoltRagdollAnimMode, GetAnimMode, SetAnimMode),
-    EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-    EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("StiffnessFactor", m_fStiffnessFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("OwnerVelocityScale", m_fOwnerVelocityScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("CenterPosition", m_vCenterPosition),
-    EZ_MEMBER_PROPERTY("CenterVelocity", m_fCenterVelocity)->AddAttributes(new ezDefaultValueAttribute(0.0f)),
-    EZ_MEMBER_PROPERTY("CenterAngularVelocity", m_fCenterAngularVelocity)->AddAttributes(new ezDefaultValueAttribute(0.0f)),
+    W_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
+    W_ENUM_ACCESSOR_PROPERTY("StartMode", WJoltRagdollStartMode, GetStartMode, SetStartMode),
+    W_ENUM_ACCESSOR_PROPERTY("AnimMode", WJoltRagdollAnimMode, GetAnimMode, SetAnimMode),
+    W_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new WDynamicEnumAttribute("PhysicsWeightCategory")),
+    W_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 10.0f)),
+    W_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new WSuffixAttribute(" kg"), new WDefaultValueAttribute(50.0f), new WClampValueAttribute(1.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("StiffnessFactor", m_fStiffnessFactor)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("OwnerVelocityScale", m_fOwnerVelocityScale)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("CenterPosition", m_vCenterPosition),
+    W_MEMBER_PROPERTY("CenterVelocity", m_fCenterVelocity)->AddAttributes(new WDefaultValueAttribute(0.0f)),
+    W_MEMBER_PROPERTY("CenterAngularVelocity", m_fCenterAngularVelocity)->AddAttributes(new WDefaultValueAttribute(0.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
-    EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
-    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands),
+    W_MESSAGE_HANDLER(WMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    W_MESSAGE_HANDLER(WMsgRetrieveBoneState, OnRetrieveBoneState),
+    W_MESSAGE_HANDLER(WMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
+    W_MESSAGE_HANDLER(WMsgInjectPoseCommands, OnInjectPoseCommands),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Animation"),
+    new WCategoryAttribute("Physics/Jolt/Animation"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_ATTRIBUTES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(AddInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetJointTypeOverride, In, "sJointName", In, "overrideType"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetJointMotorStrength, In, "fStrength"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetJointMotorStrength),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FadeJointMotorStrength, In, "fTargetStrength", In, "tDuration"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
+    W_SCRIPT_FUNCTION_PROPERTY(SetInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
+    W_SCRIPT_FUNCTION_PROPERTY(AddInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetJointTypeOverride, In, "sJointName", In, "overrideType"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetJointMotorStrength, In, "fStrength"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetJointMotorStrength),
+    W_SCRIPT_FUNCTION_PROPERTY(FadeJointMotorStrength, In, "fTargetStrength", In, "tDuration"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltRagdollComponentManager::ezJoltRagdollComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezJoltRagdollComponent, ezBlockStorageType::FreeList>(pWorld)
+WJoltRagdollComponentManager::WJoltRagdollComponentManager(WWorld* pWorld)
+  : WComponentManager<WJoltRagdollComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezJoltRagdollComponentManager::~ezJoltRagdollComponentManager() = default;
+WJoltRagdollComponentManager::~WJoltRagdollComponentManager() = default;
 
-void ezJoltRagdollComponentManager::Initialize()
+void WJoltRagdollComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltRagdollComponentManager::Update, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltRagdollComponentManager::Update, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezJoltRagdollComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WJoltRagdollComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE_SCOPE("UpdateRagdolls");
+  W_PROFILE_SCOPE("UpdateRagdolls");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
   for (auto it : pModule->GetActiveRagdolls())
   {
-    ezJoltRagdollComponent* pComponent = it.Key();
+    WJoltRagdollComponent* pComponent = it.Key();
 
     pComponent->Update(false);
   }
 
-  for (ezJoltRagdollComponent* pComponent : pModule->GetRagdollsPutToSleep())
+  for (WJoltRagdollComponent* pComponent : pModule->GetRagdollsPutToSleep())
   {
     pComponent->Update(true);
   }
 }
 
-void ezJoltRagdollComponentManager::DriveAnimatedRagdolls(ezTime deltaTime)
+void WJoltRagdollComponentManager::DriveAnimatedRagdolls(WTime deltaTime)
 {
-  EZ_PROFILE_SCOPE("DriveAnimatedRagdolls");
+  W_PROFILE_SCOPE("DriveAnimatedRagdolls");
 
   for (auto it = GetComponents(0); it.IsValid(); it.Next())
   {
@@ -147,10 +147,10 @@ void ezJoltRagdollComponentManager::DriveAnimatedRagdolls(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltRagdollComponent::ezJoltRagdollComponent() = default;
-ezJoltRagdollComponent::~ezJoltRagdollComponent() = default;
+WJoltRagdollComponent::WJoltRagdollComponent() = default;
+WJoltRagdollComponent::~WJoltRagdollComponent() = default;
 
-void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltRagdollComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -170,13 +170,13 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_AnimMode;
 }
 
-void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltRagdollComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  EZ_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
+  W_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
   if (uiVersion < 4)
     return;
 
@@ -207,31 +207,31 @@ void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezJoltRagdollComponent::OnSimulationStarted()
+void WJoltRagdollComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  m_pJoltWorldModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  m_pJoltWorldModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  if (m_StartMode == ezJoltRagdollStartMode::WithBindPose)
+  if (m_StartMode == WJoltRagdollStartMode::WithBindPose)
   {
     CreateLimbsFromBindPose();
   }
-  if (m_StartMode == ezJoltRagdollStartMode::WithCurrentMeshPose)
+  if (m_StartMode == WJoltRagdollStartMode::WithCurrentMeshPose)
   {
     CreateLimbsFromCurrentMeshPose();
   }
 }
 
-void ezJoltRagdollComponent::OnDeactivated()
+void WJoltRagdollComponent::OnDeactivated()
 {
   DestroyAllLimbs();
 
   if (m_pSkeletonPose)
   {
-    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
+    auto pMan = static_cast<WJoltRagdollComponentManager*>(GetOwningManager());
 
-    EZ_LOCK(pMan->m_SkeletonsMutex);
+    W_LOCK(pMan->m_SkeletonsMutex);
     pMan->m_FreeSkeletonPoses.PushBack(std::move(m_pSkeletonPose));
     m_pSkeletonPose.Clear();
   }
@@ -239,25 +239,25 @@ void ezJoltRagdollComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltRagdollComponent::Update(bool bForce)
+void WJoltRagdollComponent::Update(bool bForce)
 {
   if (!HasCreatedLimbs())
     return;
 
-  if (m_AnimMode != ezJoltRagdollAnimMode::Powered && m_bIsPowered)
+  if (m_AnimMode != WJoltRagdollAnimMode::Powered && m_bIsPowered)
   {
     ResetJointMotors();
   }
 
   if (m_MotorLerpDuration.IsPositive())
   {
-    const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
-    const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-    const ezTime tStart = tNow - tDiff;
-    const ezTime tFinish = tStart + m_MotorLerpDuration;
+    const WTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+    const WTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+    const WTime tStart = tNow - tDiff;
+    const WTime tFinish = tStart + m_MotorLerpDuration;
 
-    const float fLerpFactor = ezMath::Saturate(ezMath::Unlerp(tStart.GetSeconds(), tFinish.GetSeconds(), tNow.GetSeconds()));
-    const float fNewStrength = ezMath::Lerp(m_fMotorStrength, m_fMotorTargetStrength, fLerpFactor);
+    const float fLerpFactor = WMath::Saturate(WMath::Unlerp(tStart.GetSeconds(), tFinish.GetSeconds(), tNow.GetSeconds()));
+    const float fNewStrength = WMath::Lerp(m_fMotorStrength, m_fMotorTargetStrength, fLerpFactor);
 
     if (m_fMotorStrength != fNewStrength)
     {
@@ -265,65 +265,65 @@ void ezJoltRagdollComponent::Update(bool bForce)
       m_MotorLerpDuration -= tDiff;
 
       if (m_MotorLerpDuration.IsNegative())
-        m_MotorLerpDuration = ezTime::MakeZero();
+        m_MotorLerpDuration = WTime::MakeZero();
 
       ApplyJointMotorStrength(fNewStrength);
     }
   }
 
-  if (m_pSkeletonPose && (m_AnimMode != ezJoltRagdollAnimMode::Controlled) && (m_AnimMode != ezJoltRagdollAnimMode::Powered || m_fMotorStrength <= 0.0f))
+  if (m_pSkeletonPose && (m_AnimMode != WJoltRagdollAnimMode::Controlled) && (m_AnimMode != WJoltRagdollAnimMode::Powered || m_fMotorStrength <= 0.0f))
   {
-    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
+    auto pMan = static_cast<WJoltRagdollComponentManager*>(GetOwningManager());
 
-    EZ_LOCK(pMan->m_SkeletonsMutex);
+    W_LOCK(pMan->m_SkeletonsMutex);
     pMan->m_FreeSkeletonPoses.PushBack(std::move(m_pSkeletonPose));
     m_pSkeletonPose.Clear();
   }
 
-  const ezVisibilityState::Enum visState = GetOwner()->GetVisibilityState();
-  if (!bForce && visState != ezVisibilityState::Direct)
+  const WVisibilityState::Enum visState = GetOwner()->GetVisibilityState();
+  if (!bForce && visState != WVisibilityState::Direct)
   {
-    m_ElapsedTimeSinceUpdate += ezClock::GetGlobalClock()->GetTimeDiff();
+    m_ElapsedTimeSinceUpdate += WClock::GetGlobalClock()->GetTimeDiff();
 
-    if (visState == ezVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(200))
+    if (visState == WVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < WTime::MakeFromMilliseconds(200))
     {
       // when the ragdoll is only visible by shadows or reflections, update it infrequently
       return;
     }
 
-    if (visState == ezVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(500))
+    if (visState == WVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < WTime::MakeFromMilliseconds(500))
     {
       // when the ragdoll is entirely invisible, update it very rarely
       return;
     }
   }
 
-  const ezVec3 vRootPos = RetrieveRagdollPose();
+  const WVec3 vRootPos = RetrieveRagdollPose();
   GetOwner()->SetGlobalPosition(vRootPos);
 
   SendAnimationPoseMsg();
 
-  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 }
 
-void ezJoltRagdollComponent::DriveAnimated(ezTime deltaTime)
+void WJoltRagdollComponent::DriveAnimated(WTime deltaTime)
 {
   if (m_pSkeletonPose)
   {
     m_pSkeletonPose->CalculateJointStates();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     for (auto& joint : m_pSkeletonPose->GetJoints())
     {
       joint.mRotation = joint.mRotation.Normalized();
     }
 #endif
 
-    if (m_AnimMode == ezJoltRagdollAnimMode::Controlled)
+    if (m_AnimMode == WJoltRagdollAnimMode::Controlled)
     {
       m_pRagdoll->DriveToPoseUsingKinematics(*m_pSkeletonPose, deltaTime.AsFloatInSeconds());
     }
-    else if (m_AnimMode == ezJoltRagdollAnimMode::Powered && m_fMotorStrength > 0.0f)
+    else if (m_AnimMode == WJoltRagdollAnimMode::Powered && m_fMotorStrength > 0.0f)
     {
       m_bIsPowered = true;
       m_pRagdoll->DriveToPoseUsingMotors(*m_pSkeletonPose);
@@ -335,49 +335,49 @@ void ezJoltRagdollComponent::DriveAnimated(ezTime deltaTime)
   }
 }
 
-ezResult ezJoltRagdollComponent::EnsureSkeletonIsKnown()
+WResult WJoltRagdollComponent::EnsureSkeletonIsKnown()
 {
   if (!m_hSkeleton.IsValid())
   {
-    ezMsgQueryAnimationSkeleton msg;
+    WMsgQueryAnimationSkeleton msg;
     GetOwner()->SendMessage(msg);
     m_hSkeleton = msg.m_hSkeleton;
   }
 
   if (!m_hSkeleton.IsValid())
   {
-    ezLog::Error("No skeleton available for ragdoll on object '{}'.", GetOwner()->GetName());
-    return EZ_FAILURE;
+    WLog::Error("No skeleton available for ragdoll on object '{}'.", GetOwner()->GetName());
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezJoltRagdollComponent::HasCreatedLimbs() const
+bool WJoltRagdollComponent::HasCreatedLimbs() const
 {
   return m_pRagdoll != nullptr;
 }
 
-void ezJoltRagdollComponent::CreateLimbsFromBindPose()
+void WJoltRagdollComponent::CreateLimbsFromBindPose()
 {
   DestroyAllLimbs();
 
   if (EnsureSkeletonIsKnown().Failed())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
   const auto& desc = pSkeleton->GetDescriptor();
 
   m_CurrentLimbTransforms.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4
+  auto ComputeFullJointTransform = [&](WUInt32 uiJointIdx, auto self) -> WMat4
   {
     const auto& joint = desc.m_Skeleton.GetJointByIndex(uiJointIdx);
-    const ezMat4 jointTransform = joint.GetRestPoseLocalTransform().GetAsMat4();
+    const WMat4 jointTransform = joint.GetRestPoseLocalTransform().GetAsMat4();
 
-    if (joint.GetParentIndex() != ezInvalidJointIndex)
+    if (joint.GetParentIndex() != WInvalidJointIndex)
     {
-      const ezMat4 parentTransform = self(joint.GetParentIndex(), self);
+      const WMat4 parentTransform = self(joint.GetParentIndex(), self);
 
       return parentTransform * jointTransform;
     }
@@ -385,12 +385,12 @@ void ezJoltRagdollComponent::CreateLimbsFromBindPose()
     return jointTransform;
   };
 
-  for (ezUInt32 i = 0; i < m_CurrentLimbTransforms.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_CurrentLimbTransforms.GetCount(); ++i)
   {
     m_CurrentLimbTransforms[i] = ComputeFullJointTransform(i, ComputeFullJointTransform);
   }
 
-  ezMsgAnimationPoseUpdated msg;
+  WMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &desc.m_Skeleton;
   msg.m_ModelTransforms = m_CurrentLimbTransforms;
@@ -398,23 +398,23 @@ void ezJoltRagdollComponent::CreateLimbsFromBindPose()
   CreateLimbsFromPose(msg);
 }
 
-void ezJoltRagdollComponent::CreateLimbsFromCurrentMeshPose()
+void WJoltRagdollComponent::CreateLimbsFromCurrentMeshPose()
 {
   DestroyAllLimbs();
 
   if (EnsureSkeletonIsKnown().Failed())
     return;
 
-  ezAnimatedMeshComponent* pMesh = nullptr;
-  if (!GetOwner()->TryGetComponentOfBaseType<ezAnimatedMeshComponent>(pMesh))
+  WAnimatedMeshComponent* pMesh = nullptr;
+  if (!GetOwner()->TryGetComponentOfBaseType<WAnimatedMeshComponent>(pMesh))
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  ezTransform tRoot;
+  WTransform tRoot;
   pMesh->RetrievePose(m_CurrentLimbTransforms, tRoot, pSkeleton->GetDescriptor().m_Skeleton);
 
-  ezMsgAnimationPoseUpdated msg;
+  WMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &tRoot;
   msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
   msg.m_ModelTransforms = m_CurrentLimbTransforms;
@@ -422,7 +422,7 @@ void ezJoltRagdollComponent::CreateLimbsFromCurrentMeshPose()
   CreateLimbsFromPose(msg);
 }
 
-void ezJoltRagdollComponent::DestroyAllLimbs()
+void WJoltRagdollComponent::DestroyAllLimbs()
 {
   if (m_pRagdoll)
   {
@@ -431,7 +431,7 @@ void ezJoltRagdollComponent::DestroyAllLimbs()
     m_pRagdoll = nullptr;
   }
 
-  if (ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>())
+  if (WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>())
   {
     pModule->DeallocateUserData(m_uiJoltUserDataIndex);
     pModule->DeleteObjectFilterID(m_uiObjectFilterID);
@@ -442,7 +442,7 @@ void ezJoltRagdollComponent::DestroyAllLimbs()
   m_Limbs.Clear();
 }
 
-void ezJoltRagdollComponent::SetGravityFactor(float fFactor)
+void WJoltRagdollComponent::SetGravityFactor(float fFactor)
 {
   if (m_fGravityFactor == fFactor)
     return;
@@ -452,7 +452,7 @@ void ezJoltRagdollComponent::SetGravityFactor(float fFactor)
   if (!m_pRagdoll)
     return;
 
-  for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+  for (WUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
   {
     m_pJoltWorldModule->GetJoltSystem()->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), m_fGravityFactor);
   }
@@ -460,7 +460,7 @@ void ezJoltRagdollComponent::SetGravityFactor(float fFactor)
   m_pRagdoll->Activate();
 }
 
-void ezJoltRagdollComponent::SetStartMode(ezEnum<ezJoltRagdollStartMode> mode)
+void WJoltRagdollComponent::SetStartMode(WEnum<WJoltRagdollStartMode> mode)
 {
   if (m_StartMode == mode)
     return;
@@ -468,7 +468,7 @@ void ezJoltRagdollComponent::SetStartMode(ezEnum<ezJoltRagdollStartMode> mode)
   m_StartMode = mode;
 }
 
-void ezJoltRagdollComponent::SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode)
+void WJoltRagdollComponent::SetAnimMode(WEnum<WJoltRagdollAnimMode> mode)
 {
   if (m_AnimMode == mode)
     return;
@@ -477,9 +477,9 @@ void ezJoltRagdollComponent::SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode)
 
   if (m_pRagdoll)
   {
-    if (m_AnimMode == ezJoltRagdollAnimMode::Controlled)
+    if (m_AnimMode == WJoltRagdollAnimMode::Controlled)
     {
-      for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+      for (WUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
       {
         // in the 'Controlled' mode, disable gravity, so that it doesn't affect the pose
         m_pJoltWorldModule->GetJoltSystem()->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), 0.0f);
@@ -487,7 +487,7 @@ void ezJoltRagdollComponent::SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode)
     }
     else
     {
-      for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+      for (WUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
       {
         m_pJoltWorldModule->GetJoltSystem()->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), m_fGravityFactor);
       }
@@ -495,9 +495,9 @@ void ezJoltRagdollComponent::SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode)
   }
 }
 
-void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg)
+void WJoltRagdollComponent::OnMsgPhysicsAddImpulse(WMsgPhysicsAddImpulse& ref_msg)
 {
-  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
+  const float fImpulse = WJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
 
   if (!HasCreatedLimbs())
   {
@@ -508,11 +508,11 @@ void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_
   }
 
   // TODO: normalize by number of limbs
-  const ezUInt32 uiBodyId = reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
-  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(uiBodyId, ref_msg.m_vImpulse * fImpulse, ref_msg.m_vGlobalPosition);
+  const WUInt32 uiBodyId = reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
+  GetWorld()->GetModule<WJoltWorldModule>()->AddImpulse(uiBodyId, ref_msg.m_vImpulse * fImpulse, ref_msg.m_vGlobalPosition);
 }
 
-void ezJoltRagdollComponent::SetInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength)
+void WJoltRagdollComponent::SetInitialImpulse(const WVec3& vPosition, const WVec3& vDirectionAndStrength)
 {
   if (vDirectionAndStrength.IsZero())
   {
@@ -528,18 +528,18 @@ void ezJoltRagdollComponent::SetInitialImpulse(const ezVec3& vPosition, const ez
   }
 }
 
-void ezJoltRagdollComponent::AddInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength)
+void WJoltRagdollComponent::AddInitialImpulse(const WVec3& vPosition, const WVec3& vDirectionAndStrength)
 {
   m_vInitialImpulsePosition += vPosition;
   m_vInitialImpulseDirection += vDirectionAndStrength;
   m_uiNumInitialImpulses++;
 }
 
-void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type)
+void WJoltRagdollComponent::SetJointTypeOverride(WStringView sJointName, WEnum<WSkeletonJointType> type)
 {
-  const ezTempHashedString sJointNameHashed(sJointName);
+  const WTempHashedString sJointNameHashed(sJointName);
 
-  for (ezUInt32 i = 0; i < m_JointOverrides.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_JointOverrides.GetCount(); ++i)
   {
     if (m_JointOverrides[i].m_sJointName == sJointNameHashed)
     {
@@ -553,7 +553,7 @@ void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnu
   jo.m_JointType = type;
 }
 
-void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_poseMsg)
+void WJoltRagdollComponent::OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& ref_poseMsg)
 {
   if (!IsActiveAndSimulating())
     return;
@@ -561,7 +561,7 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& r
   if (HasCreatedLimbs())
   {
     // Note: if this code is reached, although the ragdoll is supposed to use the animation (controlled or powered anim mode)
-    // then the component that generates the animation doesn't have "Apply IK" enabled, ie it doesn't send ezMsgInjectPoseCommands
+    // then the component that generates the animation doesn't have "Apply IK" enabled, ie it doesn't send WMsgInjectPoseCommands
     ref_poseMsg.m_bContinueAnimating = false;
 
     // TODO: if at some point we can layer ragdolls with detail animations, we should
@@ -569,7 +569,7 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& r
     return;
   }
 
-  if (m_StartMode != ezJoltRagdollStartMode::WithNextAnimPose)
+  if (m_StartMode != WJoltRagdollStartMode::WithNextAnimPose)
     return;
 
   m_CurrentLimbTransforms = ref_poseMsg.m_ModelTransforms;
@@ -577,24 +577,24 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& r
   CreateLimbsFromPose(ref_poseMsg);
 }
 
-void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const
+void WJoltRagdollComponent::OnRetrieveBoneState(WMsgRetrieveBoneState& ref_msg) const
 {
   if (!HasCreatedLimbs())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  for (ezUInt32 uiJointIdx = 0; uiJointIdx < skeleton.GetJointCount(); ++uiJointIdx)
+  for (WUInt32 uiJointIdx = 0; uiJointIdx < skeleton.GetJointCount(); ++uiJointIdx)
   {
-    ezMat4 mJoint = m_CurrentLimbTransforms[uiJointIdx];
+    WMat4 mJoint = m_CurrentLimbTransforms[uiJointIdx];
 
     const auto& joint = skeleton.GetJointByIndex(uiJointIdx);
-    const ezUInt16 uiParentIdx = joint.GetParentIndex();
-    if (uiParentIdx != ezInvalidJointIndex)
+    const WUInt16 uiParentIdx = joint.GetParentIndex();
+    if (uiParentIdx != WInvalidJointIndex)
     {
       // remove the parent transform to get the pure local transform
-      const ezMat4 mParent = m_CurrentLimbTransforms[uiParentIdx].GetInverse();
+      const WMat4 mParent = m_CurrentLimbTransforms[uiParentIdx].GetInverse();
 
       mJoint = mParent * mJoint;
     }
@@ -606,18 +606,18 @@ void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg
   }
 }
 
-static void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezTransform& out_transform)
+static void ComputeFullBoneTransform(const WMat4& mRootTransform, const WMat4& mModelTransform, WTransform& out_transform)
 {
-  ezMat4 mFullTransform = mRootTransform * mModelTransform;
+  WMat4 mFullTransform = mRootTransform * mModelTransform;
 
   out_transform.m_qRotation.ReconstructFromMat4(mFullTransform);
   out_transform.m_vScale.Set(1);
   out_transform.m_vPosition = mFullTransform.GetTranslationVector();
 }
 
-void ezJoltRagdollComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg)
+void WJoltRagdollComponent::OnInjectPoseCommands(WMsgInjectPoseCommands& ref_msg)
 {
-  if (m_AnimMode == ezJoltRagdollAnimMode::Limp)
+  if (m_AnimMode == WJoltRagdollAnimMode::Limp)
     return;
 
   if (!HasCreatedLimbs())
@@ -630,26 +630,26 @@ void ezJoltRagdollComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_m
   // if we haven't reached this yet, put it in the queue
   if (ref_msg.m_uiOrderNow < 0xFF00)
   {
-    ref_msg.m_uiOrderNext = ezMath::Min<ezUInt16>(ref_msg.m_uiOrderNext, 0xFF00);
+    ref_msg.m_uiOrderNext = WMath::Min<WUInt16>(ref_msg.m_uiOrderNext, 0xFF00);
     return;
   }
 
-  if (m_AnimMode == ezJoltRagdollAnimMode::Powered && m_fMotorStrength == 0.0f)
+  if (m_AnimMode == WJoltRagdollAnimMode::Powered && m_fMotorStrength == 0.0f)
   {
     // basically the same as Limp mode, but we don't want to deactivate animations, because motor strength can still be changed
     return;
   }
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  const ezMat4 mRootTransform = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
+  const WMat4 mRootTransform = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
 
-  const ezTransform tGlobal = GetOwner()->GetGlobalTransform();
+  const WTransform tGlobal = GetOwner()->GetGlobalTransform();
   const auto& curPose = ref_msg.m_pGenerator->GetCurrentPose();
 
   if (m_pSkeletonPose == nullptr)
   {
-    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
-    EZ_LOCK(pMan->m_SkeletonsMutex);
+    auto pMan = static_cast<WJoltRagdollComponentManager*>(GetOwningManager());
+    W_LOCK(pMan->m_SkeletonsMutex);
     if (!pMan->m_FreeSkeletonPoses.IsEmpty())
     {
       m_pSkeletonPose = std::move(pMan->m_FreeSkeletonPoses.PeekBack());
@@ -657,34 +657,34 @@ void ezJoltRagdollComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_m
     }
     else
     {
-      m_pSkeletonPose = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::SkeletonPose);
+      m_pSkeletonPose = W_NEW(WFoundation::GetAlignedAllocator(), JPH::SkeletonPose);
     }
   }
 
   m_pSkeletonPose->SetSkeleton(m_pRagdoll->GetRagdollSettings()->GetSkeleton());
 
-  ezVec3 vRootOffset(0);
+  WVec3 vRootOffset(0);
 
-  for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+  for (WUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
   {
-    if (m_Limbs[uiLimbIdx].m_uiPartIndex != ezInvalidJointIndex)
+    if (m_Limbs[uiLimbIdx].m_uiPartIndex != WInvalidJointIndex)
     {
       JPH::Mat44& jointMat = m_pSkeletonPose->GetJointMatrix(m_Limbs[uiLimbIdx].m_uiPartIndex);
 
-      ezTransform trans;
+      WTransform trans;
       ComputeFullBoneTransform(mRootTransform, curPose[uiLimbIdx], trans);
 
-      trans = ezTransform::MakeGlobalTransform(tGlobal, trans);
+      trans = WTransform::MakeGlobalTransform(tGlobal, trans);
 
-      ezMat4 mGlobal = trans.GetAsMat4();
+      WMat4 mGlobal = trans.GetAsMat4();
       jointMat = JPH::Mat44::sLoadFloat4x4((const JPH::Float4*)mGlobal.m_fElementsCM);
     }
   }
 
-  m_pSkeletonPose->SetRootOffset(ezJoltConversionUtils::ToVec3(vRootOffset));
+  m_pSkeletonPose->SetRootOffset(WJoltConversionUtils::ToVec3(vRootOffset));
 }
 
-void ezJoltRagdollComponent::SetJointMotorStrength(float fStrength)
+void WJoltRagdollComponent::SetJointMotorStrength(float fStrength)
 {
   if (m_fMotorStrength != fStrength)
   {
@@ -693,26 +693,26 @@ void ezJoltRagdollComponent::SetJointMotorStrength(float fStrength)
 
   m_fMotorStrength = fStrength;
   m_fMotorTargetStrength = fStrength;
-  m_MotorLerpDuration = ezTime::MakeZero();
+  m_MotorLerpDuration = WTime::MakeZero();
 }
 
-float ezJoltRagdollComponent::GetJointMotorStrength() const
+float WJoltRagdollComponent::GetJointMotorStrength() const
 {
   return m_fMotorStrength;
 }
 
-void ezJoltRagdollComponent::FadeJointMotorStrength(float fTargetStrength, ezTime duration)
+void WJoltRagdollComponent::FadeJointMotorStrength(float fTargetStrength, WTime duration)
 {
   m_fMotorTargetStrength = fTargetStrength;
   m_MotorLerpDuration = duration;
 }
 
-void ezJoltRagdollComponent::SendAnimationPoseMsg()
+void WJoltRagdollComponent::SendAnimationPoseMsg()
 {
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
+  const WTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
 
-  ezMsgAnimationPoseUpdated poseMsg;
+  WMsgAnimationPoseUpdated poseMsg;
   poseMsg.m_ModelTransforms = m_CurrentLimbTransforms;
   poseMsg.m_pRootTransform = &rootTransform;
   poseMsg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
@@ -720,11 +720,11 @@ void ezJoltRagdollComponent::SendAnimationPoseMsg()
   GetOwner()->SendMessageRecursive(poseMsg);
 }
 
-ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
+WVec3 WJoltRagdollComponent::RetrieveRagdollPose()
 {
-  const float fLerpToPos = (m_AnimMode != ezJoltRagdollAnimMode::Controlled) ? 0.1f : 0.0f;
+  const float fLerpToPos = (m_AnimMode != WJoltRagdollAnimMode::Controlled) ? 0.1f : 0.0f;
 
-  const JPH::RVec3 vCurPosition = ezJoltConversionUtils::ToVec3(GetOwner()->GetGlobalPosition());
+  const JPH::RVec3 vCurPosition = WJoltConversionUtils::ToVec3(GetOwner()->GetGlobalPosition());
 
   const int body_count = (int)m_pRagdoll->GetBodyCount();
   JPH::BodyLockMultiRead lock(static_cast<const JPH::BodyLockInterface&>(m_pJoltWorldModule->GetJoltSystem()->GetBodyLockInterface()), m_pRagdoll->GetBodyIDs().data(), body_count);
@@ -735,19 +735,19 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
   vRootOffset = vCurPosition + (vRootOffset - vCurPosition) * fLerpToPos; // interpolate the object position towards the root bone position
 
 
-  const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
-  const float fObjectScale = ezMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
+  const WVec3 vObjectScale = GetOwner()->GetGlobalScaling();
+  const float fObjectScale = WMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-  const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
-  const ezQuat qGlobalRot = GetOwner()->GetGlobalRotation();
-  const ezMat4 mInvScale = ezMat4::MakeScaling(ezVec3(1.0f).CompDiv(ezVec3(fObjectScale)));
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
+  const WSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+  const WTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+  const WQuat qGlobalRot = GetOwner()->GetGlobalRotation();
+  const WMat4 mInvScale = WMat4::MakeScaling(WVec3(1.0f).CompDiv(WVec3(fObjectScale)));
 
-  const ezMat4 mInv = m_mInvSkeletonRootTransform * qGlobalRot.GetInverse().GetAsMat4() * mInvScale;
-  const ezMat4 mScale = ezMat4::MakeScaling(rootTransform.m_vScale * fObjectScale);
+  const WMat4 mInv = m_mInvSkeletonRootTransform * qGlobalRot.GetInverse().GetAsMat4() * mInvScale;
+  const WMat4 mScale = WMat4::MakeScaling(rootTransform.m_vScale * fObjectScale);
 
-  ezTempHybridArray<ezMat4, 128> relativeTransforms;
+  WTempHybridArray<WMat4, 128> relativeTransforms;
 
   {
     // m_CurrentLimbTransforms is stored in model space
@@ -758,35 +758,35 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
     // and then later we take their new parent transform (which may come from the ragdoll)
     // to set their final new transform
 
-    for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+    for (WUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
     {
-      if (m_Limbs[uiLimbIdx].m_uiPartIndex != ezInvalidJointIndex)
+      if (m_Limbs[uiLimbIdx].m_uiPartIndex != WInvalidJointIndex)
         continue;
 
       const auto& joint = skeleton.GetJointByIndex(uiLimbIdx);
-      const ezUInt16 uiParentIdx = joint.GetParentIndex();
+      const WUInt16 uiParentIdx = joint.GetParentIndex();
 
-      if (uiParentIdx == ezInvalidJointIndex)
+      if (uiParentIdx == WInvalidJointIndex)
         continue;
 
-      const ezMat4 mJoint = m_CurrentLimbTransforms[uiLimbIdx];
+      const WMat4 mJoint = m_CurrentLimbTransforms[uiLimbIdx];
 
       // remove the parent transform to get the pure local transform
-      const ezMat4 mParentInv = m_CurrentLimbTransforms[uiParentIdx].GetInverse();
+      const WMat4 mParentInv = m_CurrentLimbTransforms[uiParentIdx].GetInverse();
 
       relativeTransforms.PushBack(mParentInv * mJoint);
     }
   }
 
-  ezUInt32 uiNextRelativeIdx = 0;
-  for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+  WUInt32 uiNextRelativeIdx = 0;
+  for (WUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
   {
-    if (m_Limbs[uiLimbIdx].m_uiPartIndex == ezInvalidJointIndex)
+    if (m_Limbs[uiLimbIdx].m_uiPartIndex == WInvalidJointIndex)
     {
       const auto& joint = skeleton.GetJointByIndex(uiLimbIdx);
-      const ezUInt16 uiParentIdx = joint.GetParentIndex();
+      const WUInt16 uiParentIdx = joint.GetParentIndex();
 
-      if (uiParentIdx != ezInvalidJointIndex)
+      if (uiParentIdx != WInvalidJointIndex)
       {
         m_CurrentLimbTransforms[uiLimbIdx] = m_CurrentLimbTransforms[uiParentIdx] * relativeTransforms[uiNextRelativeIdx];
         ++uiNextRelativeIdx;
@@ -798,30 +798,30 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
       const JPH::RMat44 transform = pBody->GetWorldTransform();
       const JPH::Mat44 jointMatrix = JPH::Mat44(transform.GetColumn4(0), transform.GetColumn4(1), transform.GetColumn4(2), JPH::Vec4(JPH::Vec3(transform.GetTranslation() - vRootOffset), 1));
 
-      const ezMat4& mPose = (const ezMat4&)jointMatrix;
+      const WMat4& mPose = (const WMat4&)jointMatrix;
 
       m_CurrentLimbTransforms[uiLimbIdx] = (mInv * mPose) * mScale;
     }
   }
 
-  return ezJoltConversionUtils::ToVec3(vRootOffset);
+  return WJoltConversionUtils::ToVec3(vRootOffset);
 }
 
-void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated& pose)
+void WJoltRagdollComponent::CreateLimbsFromPose(const WMsgAnimationPoseUpdated& pose)
 {
-  EZ_ASSERT_DEBUG(!HasCreatedLimbs(), "Limbs are already created.");
+  W_ASSERT_DEBUG(!HasCreatedLimbs(), "Limbs are already created.");
 
   if (EnsureSkeletonIsKnown().Failed())
     return;
 
-  const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
-  const float fObjectScale = ezMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
+  const WVec3 vObjectScale = GetOwner()->GetGlobalScaling();
+  const float fObjectScale = WMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
 
   m_uiObjectFilterID = m_pJoltWorldModule->CreateObjectFilterID();
   m_uiJoltUserDataIndex = m_pJoltWorldModule->AllocateUserData(m_pJoltUserData);
   m_pJoltUserData->Init(this);
 
-  ezResourceLock<ezSkeletonResource> pSkeletonResource(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSkeletonResource> pSkeletonResource(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
 
   m_mInvSkeletonRootTransform = pSkeletonResource->GetDescriptor().m_RootTransform.GetAsMat4().GetInverse();
 
@@ -837,7 +837,7 @@ void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated
   CreateAllLimbs(*pSkeletonResource.GetPointer(), pose, *m_pJoltWorldModule, fObjectScale, ragdollSettings);
 
   {
-    const float fInitialMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 50.0f, m_fWeightMass, m_fWeightScale);
+    const float fInitialMass = WJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 50.0f, m_fWeightMass, m_fWeightScale);
 
     ApplyBodyMass(ragdollSettings, fInitialMass);
   }
@@ -855,7 +855,7 @@ void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated
   ragdollSettings->CalculateBodyIndexToConstraintIndex();
   ragdollSettings->CalculateConstraintIndexToBodyIdxPair();
 
-  m_pRagdoll = ragdollSettings->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<ezUInt64>(m_pJoltUserData), m_pJoltWorldModule->GetJoltSystem());
+  m_pRagdoll = ragdollSettings->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<WUInt64>(m_pJoltUserData), m_pJoltWorldModule->GetJoltSystem());
 
   m_pRagdoll->AddRef();
   m_pRagdoll->AddToPhysicsSystem(JPH::EActivation::Activate);
@@ -863,28 +863,28 @@ void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated
   ApplyInitialImpulse(*m_pJoltWorldModule, pSkeletonResource->GetDescriptor().m_fMaxImpulse);
 }
 
-void ezJoltRagdollComponent::ConfigureRagdollPart(void* pRagdollSettingsPart, const ezTransform& globalTransform, ezUInt8 uiCollisionLayer, ezJoltWorldModule& worldModule)
+void WJoltRagdollComponent::ConfigureRagdollPart(void* pRagdollSettingsPart, const WTransform& globalTransform, WUInt8 uiCollisionLayer, WJoltWorldModule& worldModule)
 {
   JPH::RagdollSettings::Part* pPart = reinterpret_cast<JPH::RagdollSettings::Part*>(pRagdollSettingsPart);
 
-  pPart->mPosition = ezJoltConversionUtils::ToVec3(globalTransform.m_vPosition);
-  pPart->mRotation = ezJoltConversionUtils::ToQuat(globalTransform.m_qRotation).Normalized();
+  pPart->mPosition = WJoltConversionUtils::ToVec3(globalTransform.m_vPosition);
+  pPart->mRotation = WJoltConversionUtils::ToQuat(globalTransform.m_qRotation).Normalized();
   pPart->mMotionQuality = JPH::EMotionQuality::LinearCast;
-  pPart->mGravityFactor = m_AnimMode == ezJoltRagdollAnimMode::Controlled ? 0.0f : m_fGravityFactor;
-  pPart->mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
-  pPart->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(uiCollisionLayer, ezJoltBroadphaseLayer::Ragdoll);
+  pPart->mGravityFactor = m_AnimMode == WJoltRagdollAnimMode::Controlled ? 0.0f : m_fGravityFactor;
+  pPart->mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
+  pPart->mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(uiCollisionLayer, WJoltBroadphaseLayer::Ragdoll);
   pPart->mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   pPart->mCollisionGroup.SetGroupFilter(worldModule.GetGroupFilterIgnoreSame()); // this is used if m_bSelfCollision is off, otherwise it gets overridden below
 }
 
-void ezJoltRagdollComponent::ApplyPartInitialVelocity(JPH::RagdollSettings* pRagdollSettings)
+void WJoltRagdollComponent::ApplyPartInitialVelocity(JPH::RagdollSettings* pRagdollSettings)
 {
-  JPH::Vec3 vCommonVelocity = ezJoltConversionUtils::ToVec3(GetOwner()->GetLinearVelocity() * m_fOwnerVelocityScale);
-  const JPH::Vec3 vCenterPos = ezJoltConversionUtils::ToVec3(GetOwner()->GetGlobalTransform() * m_vCenterPosition);
+  JPH::Vec3 vCommonVelocity = WJoltConversionUtils::ToVec3(GetOwner()->GetLinearVelocity() * m_fOwnerVelocityScale);
+  const JPH::Vec3 vCenterPos = WJoltConversionUtils::ToVec3(GetOwner()->GetGlobalTransform() * m_vCenterPosition);
 
-  ezCoordinateSystem coord;
+  WCoordinateSystem coord;
   GetWorld()->GetCoordinateSystem(GetOwner()->GetGlobalPosition(), coord);
-  ezRandom& rng = GetOwner()->GetWorld()->GetRandomNumberGenerator();
+  WRandom& rng = GetOwner()->GetWorld()->GetRandomNumberGenerator();
 
   for (JPH::RagdollSettings::Part& part : pRagdollSettings->mParts)
   {
@@ -893,34 +893,34 @@ void ezJoltRagdollComponent::ApplyPartInitialVelocity(JPH::RagdollSettings* pRag
     if (m_fCenterVelocity != 0.0f)
     {
       const JPH::Vec3 vVelocityDir = (part.mPosition - vCenterPos).NormalizedOr(JPH::Vec3::sZero());
-      part.mLinearVelocity += vVelocityDir * ezMath::Min(part.mMaxLinearVelocity, m_fCenterVelocity);
+      part.mLinearVelocity += vVelocityDir * WMath::Min(part.mMaxLinearVelocity, m_fCenterVelocity);
     }
 
     if (m_fCenterAngularVelocity != 0.0f)
     {
-      const ezVec3 vVelocityDir = ezJoltConversionUtils::ToVec3(part.mPosition - vCenterPos);
-      ezVec3 vRotationDir = vVelocityDir.CrossRH(coord.m_vUpDir);
+      const WVec3 vVelocityDir = WJoltConversionUtils::ToVec3(part.mPosition - vCenterPos);
+      WVec3 vRotationDir = vVelocityDir.CrossRH(coord.m_vUpDir);
       vRotationDir.NormalizeIfNotZero(coord.m_vUpDir).IgnoreResult();
 
-      ezVec3 vRotationAxis = ezVec3::MakeRandomDeviation(rng, ezAngle::MakeFromDegree(30.0f), vRotationDir);
+      WVec3 vRotationAxis = WVec3::MakeRandomDeviation(rng, WAngle::MakeFromDegree(30.0f), vRotationDir);
       vRotationAxis *= rng.Bool() ? 1.0f : -1.0f;
 
       float fSpeed = rng.FloatVariance(m_fCenterAngularVelocity, 0.5f);
-      fSpeed = ezMath::Min(fSpeed, part.mMaxAngularVelocity * 0.95f);
+      fSpeed = WMath::Min(fSpeed, part.mMaxAngularVelocity * 0.95f);
 
-      part.mAngularVelocity = ezJoltConversionUtils::ToVec3(vRotationAxis) * fSpeed;
+      part.mAngularVelocity = WJoltConversionUtils::ToVec3(vRotationAxis) * fSpeed;
     }
   }
 }
 
-void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse)
+void WJoltRagdollComponent::ApplyInitialImpulse(WJoltWorldModule& worldModule, float fMaxImpulse)
 {
   if (m_uiNumInitialImpulses == 0)
     return;
 
   if (m_uiNumInitialImpulses > 1)
   {
-    ezLog::Info("Impulses: {} - {}", m_uiNumInitialImpulses, m_vInitialImpulseDirection.GetLength());
+    WLog::Info("Impulses: {} - {}", m_uiNumInitialImpulses, m_vInitialImpulseDirection.GetLength());
   }
 
   auto pJoltSystem = worldModule.GetJoltSystem();
@@ -935,12 +935,12 @@ void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule,
     m_vInitialImpulseDirection.SetLength(fImpulse).AssertSuccess();
   }
 
-  const JPH::Vec3 vImpulsePosition = ezJoltConversionUtils::ToVec3(m_vInitialImpulsePosition);
+  const JPH::Vec3 vImpulsePosition = WJoltConversionUtils::ToVec3(m_vInitialImpulsePosition);
   float fLowestDistanceSqr = 100000;
 
   JPH::BodyID closestBody;
 
-  for (ezUInt32 uiBodyIdx = 0; uiBodyIdx < m_pRagdoll->GetBodyCount(); ++uiBodyIdx)
+  for (WUInt32 uiBodyIdx = 0; uiBodyIdx < m_pRagdoll->GetBodyCount(); ++uiBodyIdx)
   {
     const JPH::BodyID bodyId = m_pRagdoll->GetBodyID(uiBodyIdx);
     JPH::BodyLockRead bodyRead(pJoltSystem->GetBodyLockInterface(), bodyId);
@@ -956,11 +956,11 @@ void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule,
 
   if (pJoltSystem->GetBodyInterface().IsAdded(closestBody))
   {
-    pJoltSystem->GetBodyInterface().AddImpulse(closestBody, ezJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
+    pJoltSystem->GetBodyInterface().AddImpulse(closestBody, WJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
   }
 }
 
-void ezJoltRagdollComponent::ResetJointMotors()
+void WJoltRagdollComponent::ResetJointMotors()
 {
   if (!m_bIsPowered)
     return;
@@ -984,7 +984,7 @@ void ezJoltRagdollComponent::ResetJointMotors()
   }
 }
 
-void ezJoltRagdollComponent::ApplyJointMotorStrength(float fStrength)
+void WJoltRagdollComponent::ApplyJointMotorStrength(float fStrength)
 {
   if (!m_pRagdoll)
     return;
@@ -1008,7 +1008,7 @@ void ezJoltRagdollComponent::ApplyJointMotorStrength(float fStrength)
   }
 }
 
-void ezJoltRagdollComponent::ApplyBodyMass(JPH::RagdollSettings* pRagdollSettings, float fMass)
+void WJoltRagdollComponent::ApplyBodyMass(JPH::RagdollSettings* pRagdollSettings, float fMass)
 {
   if (fMass <= 0.0f)
     return;
@@ -1022,9 +1022,9 @@ void ezJoltRagdollComponent::ApplyBodyMass(JPH::RagdollSettings* pRagdollSetting
   }
 }
 
-void ezJoltRagdollComponent::ComputeLimbModelSpaceTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex)
+void WJoltRagdollComponent::ComputeLimbModelSpaceTransform(WTransform& transform, const WMsgAnimationPoseUpdated& pose, WUInt32 uiPoseJointIndex)
 {
-  ezMat4 mFullTransform;
+  WMat4 mFullTransform;
   pose.ComputeFullBoneTransform(uiPoseJointIndex, mFullTransform, transform.m_qRotation);
 
   transform.m_vScale.Set(1);
@@ -1032,24 +1032,24 @@ void ezJoltRagdollComponent::ComputeLimbModelSpaceTransform(ezTransform& transfo
 }
 
 
-void ezJoltRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex)
+void WJoltRagdollComponent::ComputeLimbGlobalTransform(WTransform& transform, const WMsgAnimationPoseUpdated& pose, WUInt32 uiPoseJointIndex)
 {
-  ezTransform local;
+  WTransform local;
   ComputeLimbModelSpaceTransform(local, pose, uiPoseJointIndex);
-  transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
+  transform = WTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
 }
 
-void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
+void WJoltRagdollComponent::CreateAllLimbs(const WSkeletonResource& skeletonResource, const WMsgAnimationPoseUpdated& pose, WJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
 {
-  ezMap<ezUInt16, LimbConstructionInfo> limbConstructionInfos(ezTempAllocator::Get());
-  limbConstructionInfos.FindOrAdd(ezInvalidJointIndex); // dummy root link
+  WMap<WUInt16, LimbConstructionInfo> limbConstructionInfos(WTempAllocator::Get());
+  limbConstructionInfos.FindOrAdd(WInvalidJointIndex); // dummy root link
 
-  ezUInt16 uiLastLimbIdx = ezInvalidJointIndex;
-  ezTempHybridArray<const ezSkeletonResourceGeometry*, 8> geometries;
+  WUInt16 uiLastLimbIdx = WInvalidJointIndex;
+  WTempHybridArray<const WSkeletonResourceGeometry*, 8> geometries;
 
   for (const auto& geo : skeletonResource.GetDescriptor().m_Geometry)
   {
-    if (geo.m_Type == ezSkeletonJointGeometryType::None)
+    if (geo.m_Type == WSkeletonJointGeometryType::None)
       continue;
 
     if (geo.m_uiAttachedToJoint != uiLastLimbIdx)
@@ -1065,40 +1065,40 @@ void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonRe
   CreateLimb(skeletonResource, limbConstructionInfos, geometries, pose, worldModule, fObjectScale, pRagdollSettings);
 }
 
-void ezJoltRagdollComponent::CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
+void WJoltRagdollComponent::CreateLimb(const WSkeletonResource& skeletonResource, WMap<WUInt16, LimbConstructionInfo>& limbConstructionInfos, WArrayPtr<const WSkeletonResourceGeometry*> geometries, const WMsgAnimationPoseUpdated& pose, WJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
 {
   if (geometries.IsEmpty())
     return;
 
-  const ezSkeleton& skeleton = skeletonResource.GetDescriptor().m_Skeleton;
+  const WSkeleton& skeleton = skeletonResource.GetDescriptor().m_Skeleton;
 
-  const ezUInt16 uiThisJointIdx = geometries[0]->m_uiAttachedToJoint;
-  const ezSkeletonJoint& thisLimbJoint = skeleton.GetJointByIndex(uiThisJointIdx);
-  ezUInt16 uiParentJointIdx = thisLimbJoint.GetParentIndex();
+  const WUInt16 uiThisJointIdx = geometries[0]->m_uiAttachedToJoint;
+  const WSkeletonJoint& thisLimbJoint = skeleton.GetJointByIndex(uiThisJointIdx);
+  WUInt16 uiParentJointIdx = thisLimbJoint.GetParentIndex();
 
   // find the parent joint that is also part of the ragdoll
   while (!limbConstructionInfos.Contains(uiParentJointIdx))
   {
     uiParentJointIdx = skeleton.GetJointByIndex(uiParentJointIdx).GetParentIndex();
   }
-  // now uiParentJointIdx is either the index of a limb that has been created before, or ezInvalidJointIndex
+  // now uiParentJointIdx is either the index of a limb that has been created before, or WInvalidJointIndex
 
   LimbConstructionInfo& thisLimbInfo = limbConstructionInfos[uiThisJointIdx];
   const LimbConstructionInfo& parentLimbInfo = limbConstructionInfos[uiParentJointIdx];
 
-  thisLimbInfo.m_uiJoltPartIndex = (ezUInt16)pRagdollSettings->mParts.size();
+  thisLimbInfo.m_uiJoltPartIndex = (WUInt16)pRagdollSettings->mParts.size();
   pRagdollSettings->mParts.resize(pRagdollSettings->mParts.size() + 1);
 
   m_Limbs[uiThisJointIdx].m_uiPartIndex = thisLimbInfo.m_uiJoltPartIndex;
 
-  pRagdollSettings->mSkeleton->AddJoint(thisLimbJoint.GetName().GetData(), parentLimbInfo.m_uiJoltPartIndex != ezInvalidJointIndex ? parentLimbInfo.m_uiJoltPartIndex : -1);
+  pRagdollSettings->mSkeleton->AddJoint(thisLimbJoint.GetName().GetData(), parentLimbInfo.m_uiJoltPartIndex != WInvalidJointIndex ? parentLimbInfo.m_uiJoltPartIndex : -1);
 
   ComputeLimbGlobalTransform(thisLimbInfo.m_GlobalTransform, pose, uiThisJointIdx);
   ConfigureRagdollPart(&pRagdollSettings->mParts[thisLimbInfo.m_uiJoltPartIndex], thisLimbInfo.m_GlobalTransform, thisLimbJoint.GetCollisionLayer(), worldModule);
   CreateAllLimbGeoShapes(thisLimbInfo, geometries, thisLimbJoint, skeletonResource, fObjectScale, pRagdollSettings);
 }
 
-JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const ezSkeletonResourceGeometry& geo, const ezJoltMaterial* pJoltMaterial, const ezQuat& qBoneDirAdjustment, const ezTransform& skeletonRootTransform, ezTransform& out_shapeTransform, float fObjectScale)
+JPH::Shape* WJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const WSkeletonResourceGeometry& geo, const WJoltMaterial* pJoltMaterial, const WQuat& qBoneDirAdjustment, const WTransform& skeletonRootTransform, WTransform& out_shapeTransform, float fObjectScale)
 {
   out_shapeTransform.SetIdentity();
   out_shapeTransform.m_vPosition = qBoneDirAdjustment * geo.m_Transform.m_vPosition * fObjectScale;
@@ -1108,10 +1108,10 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
 
   switch (geo.m_Type)
   {
-    case ezSkeletonJointGeometryType::Sphere:
+    case WSkeletonJointGeometryType::Sphere:
     {
       JPH::SphereShapeSettings shape;
-      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
@@ -1119,82 +1119,82 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
     }
     break;
 
-    case ezSkeletonJointGeometryType::Box:
+    case WSkeletonJointGeometryType::Box:
     {
       JPH::BoxShapeSettings shape;
-      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
-      ezVec3 vHalfSize = geo.m_Transform.m_vScale * 0.5f * fObjectScale;
-      vHalfSize.x = ezMath::Max(vHalfSize.x, JPH::cDefaultConvexRadius);
-      vHalfSize.y = ezMath::Max(vHalfSize.y, JPH::cDefaultConvexRadius);
-      vHalfSize.z = ezMath::Max(vHalfSize.z, JPH::cDefaultConvexRadius);
-      shape.mHalfExtent = ezJoltConversionUtils::ToVec3(vHalfSize);
+      WVec3 vHalfSize = geo.m_Transform.m_vScale * 0.5f * fObjectScale;
+      vHalfSize.x = WMath::Max(vHalfSize.x, JPH::cDefaultConvexRadius);
+      vHalfSize.y = WMath::Max(vHalfSize.y, JPH::cDefaultConvexRadius);
+      vHalfSize.z = WMath::Max(vHalfSize.z, JPH::cDefaultConvexRadius);
+      shape.mHalfExtent = WJoltConversionUtils::ToVec3(vHalfSize);
 
-      out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
+      out_shapeTransform.m_vPosition += qBoneDirAdjustment * WVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
       pShape = shape.Create().Get();
     }
     break;
 
-    case ezSkeletonJointGeometryType::Capsule:
+    case WSkeletonJointGeometryType::Capsule:
     {
       JPH::CapsuleShapeSettings shape;
-      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
       shape.mHalfHeightOfCylinder = geo.m_Transform.m_vScale.x * 0.5f * fObjectScale;
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
-      ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(-90));
+      WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation * qRot;
-      out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
+      out_shapeTransform.m_vPosition += qBoneDirAdjustment * WVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
       pShape = shape.Create().Get();
     }
     break;
 
-    case ezSkeletonJointGeometryType::CapsuleSideways:
+    case WSkeletonJointGeometryType::CapsuleSideways:
     {
       JPH::CapsuleShapeSettings shape;
-      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
       shape.mHalfHeightOfCylinder = geo.m_Transform.m_vScale.x * 0.5f * fObjectScale;
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
-      // ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(-90));
+      // WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation; // *qRot;
-      // out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
+      // out_shapeTransform.m_vPosition += qBoneDirAdjustment * WVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
       pShape = shape.Create().Get();
     }
     break;
 
-    case ezSkeletonJointGeometryType::ConvexMesh:
+    case WSkeletonJointGeometryType::ConvexMesh:
     {
       // convex mesh vertices are in "global space" of the mesh file format
-      // so first move them into global space of the EZ convention (skeletonRootTransform)
+      // so first move them into global space of the W convention (skeletonRootTransform)
       // then move them to the global position of the ragdoll object
       // then apply the inverse global transform of the limb, to move everything into local space of the limb
 
       out_shapeTransform = limbConstructionInfo.m_GlobalTransform.GetInverse() * GetOwner()->GetGlobalTransform() * skeletonRootTransform;
       out_shapeTransform.m_vPosition *= fObjectScale;
 
-      ezTempHybridArray<JPH::Vec3, 256> verts;
+      WTempHybridArray<JPH::Vec3, 256> verts;
       verts.SetCountUninitialized(geo.m_VertexPositions.GetCount());
 
-      for (ezUInt32 i = 0; i < verts.GetCount(); ++i)
+      for (WUInt32 i = 0; i < verts.GetCount(); ++i)
       {
-        verts[i] = ezJoltConversionUtils::ToVec3(geo.m_VertexPositions[i] * fObjectScale);
+        verts[i] = WJoltConversionUtils::ToVec3(geo.m_VertexPositions[i] * fObjectScale);
       }
 
       JPH::ConvexHullShapeSettings shape(verts.GetData(), (int)verts.GetCount());
-      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
 
       const auto shapeRes = shape.Create();
 
       if (shapeRes.HasError())
       {
-        ezLog::Error("Cooking convex ragdoll piece failed: {}", shapeRes.GetError().c_str());
+        WLog::Error("Cooking convex ragdoll piece failed: {}", shapeRes.GetError().c_str());
         return nullptr;
       }
 
@@ -1202,31 +1202,31 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
     }
     break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   pShape->AddRef();
   return pShape;
 }
 
-void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezSkeletonJoint& thisLimbJoint, const ezSkeletonResource& skeletonResource, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
+void WJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, WArrayPtr<const WSkeletonResourceGeometry*> geometries, const WSkeletonJoint& thisLimbJoint, const WSkeletonResource& skeletonResource, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
 {
-  const ezJoltMaterial* pJoltMaterial = ezJoltCore::GetDefaultMaterial();
+  const WJoltMaterial* pJoltMaterial = WJoltCore::GetDefaultMaterial();
 
   if (thisLimbJoint.GetSurface().IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pSurface(thisLimbJoint.GetSurface(), ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WSurfaceResource> pSurface(thisLimbJoint.GetSurface(), WResourceAcquireMode::BlockTillLoaded);
 
     if (pSurface->m_pPhysicsMaterialJolt != nullptr)
     {
-      pJoltMaterial = static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+      pJoltMaterial = static_cast<WJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
     }
   }
 
-  const ezTransform& skeletonRootTransform = skeletonResource.GetDescriptor().m_RootTransform;
+  const WTransform& skeletonRootTransform = skeletonResource.GetDescriptor().m_RootTransform;
 
   const auto srcBoneDir = skeletonResource.GetDescriptor().m_Skeleton.m_BoneDirection;
-  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  const WQuat qBoneDirAdjustment = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveX, srcBoneDir);
 
   JPH::RagdollSettings::Part* pBodyDesc = &pRagdollSettings->mParts[limbConstructionInfo.m_uiJoltPartIndex];
 
@@ -1234,12 +1234,12 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
   {
     JPH::StaticCompoundShapeSettings compound;
 
-    for (const ezSkeletonResourceGeometry* pGeo : geometries)
+    for (const WSkeletonResourceGeometry* pGeo : geometries)
     {
-      ezTransform shapeTransform;
+      WTransform shapeTransform;
       if (JPH::Shape* pSubShape = CreateLimbGeoShape(limbConstructionInfo, *pGeo, pJoltMaterial, qBoneDirAdjustment, skeletonRootTransform, shapeTransform, fObjectScale))
       {
-        compound.AddShape(ezJoltConversionUtils::ToVec3(shapeTransform.m_vPosition), ezJoltConversionUtils::ToQuat(shapeTransform.m_qRotation), pSubShape);
+        compound.AddShape(WJoltConversionUtils::ToVec3(shapeTransform.m_vPosition), WJoltConversionUtils::ToQuat(shapeTransform.m_qRotation), pSubShape);
         pSubShape->Release(); // had to manual AddRef once
       }
     }
@@ -1247,7 +1247,7 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
     const auto compoundRes = compound.Create();
     if (!compoundRes.IsValid())
     {
-      ezLog::Error("Creating a compound shape for a ragdoll failed: {}", compoundRes.GetError().c_str());
+      WLog::Error("Creating a compound shape for a ragdoll failed: {}", compoundRes.GetError().c_str());
       return;
     }
 
@@ -1255,16 +1255,16 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
   }
   else
   {
-    ezTransform shapeTransform;
+    WTransform shapeTransform;
     JPH::Shape* pSubShape = CreateLimbGeoShape(limbConstructionInfo, *geometries[0], pJoltMaterial, qBoneDirAdjustment, skeletonRootTransform, shapeTransform, fObjectScale);
 
-    if (!shapeTransform.IsEqual(ezTransform::MakeIdentity(), 0.001f))
+    if (!shapeTransform.IsEqual(WTransform::MakeIdentity(), 0.001f))
     {
       JPH::RotatedTranslatedShapeSettings outerShape;
       outerShape.mInnerShapePtr = pSubShape;
-      outerShape.mPosition = ezJoltConversionUtils::ToVec3(shapeTransform.m_vPosition);
-      outerShape.mRotation = ezJoltConversionUtils::ToQuat(shapeTransform.m_qRotation);
-      outerShape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      outerShape.mPosition = WJoltConversionUtils::ToVec3(shapeTransform.m_vPosition);
+      outerShape.mRotation = WJoltConversionUtils::ToQuat(shapeTransform.m_qRotation);
+      outerShape.mUserData = reinterpret_cast<WUInt64>(m_pJoltUserData);
 
       pBodyDesc->SetShape(outerShape.Create().Get());
     }
@@ -1286,31 +1286,31 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
 //////////////////////////////////////////////////////////////////////////
 
 
-void ezJoltRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton, JPH::RagdollSettings* pRagdollSettings)
+void WJoltRagdollComponent::SetupLimbJoints(const WSkeletonResource* pSkeleton, JPH::RagdollSettings* pRagdollSettings)
 {
   // TODO: still needed ? (it should be)
   // the main direction of Jolt bones is +X (for bone limits and such)
   // therefore the main direction of the source bones has to be adjusted
   // const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  // const ezQuat qBoneDirAdjustment = -ezBasisAxis::GetBasisRotation(srcBoneDir, ezBasisAxis::PositiveX);
+  // const WQuat qBoneDirAdjustment = -WBasisAxis::GetBasisRotation(srcBoneDir, WBasisAxis::PositiveX);
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+  for (WUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
   {
     const auto& thisLimb = m_Limbs[uiLimbIdx];
 
-    if (thisLimb.m_uiPartIndex == ezInvalidJointIndex)
+    if (thisLimb.m_uiPartIndex == WInvalidJointIndex)
       continue;
 
-    const ezSkeletonJoint& thisJoint = skeleton.GetJointByIndex(uiLimbIdx);
-    ezUInt16 uiParentLimb = thisJoint.GetParentIndex();
-    while (uiParentLimb != ezInvalidJointIndex && m_Limbs[uiParentLimb].m_uiPartIndex == ezInvalidJointIndex)
+    const WSkeletonJoint& thisJoint = skeleton.GetJointByIndex(uiLimbIdx);
+    WUInt16 uiParentLimb = thisJoint.GetParentIndex();
+    while (uiParentLimb != WInvalidJointIndex && m_Limbs[uiParentLimb].m_uiPartIndex == WInvalidJointIndex)
     {
       uiParentLimb = skeleton.GetJointByIndex(uiParentLimb).GetParentIndex();
     }
 
-    if (uiParentLimb == ezInvalidJointIndex)
+    if (uiParentLimb == WInvalidJointIndex)
       continue;
 
     const auto& parentLimb = m_Limbs[uiParentLimb];
@@ -1319,11 +1319,11 @@ void ezJoltRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton
   }
 }
 
-void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc)
+void WJoltRagdollComponent::CreateLimbJoint(const WSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc)
 {
-  ezEnum<ezSkeletonJointType> jointType = thisJoint.GetJointType();
+  WEnum<WSkeletonJointType> jointType = thisJoint.GetJointType();
 
-  for (ezUInt32 i = 0; i < m_JointOverrides.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_JointOverrides.GetCount(); ++i)
   {
     if (m_JointOverrides[i].m_sJointName == thisJoint.GetName())
     {
@@ -1332,16 +1332,16 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     }
   }
 
-  if (jointType == ezSkeletonJointType::None)
+  if (jointType == WSkeletonJointType::None)
     return;
 
   JPH::RagdollSettings::Part* pLink = reinterpret_cast<JPH::RagdollSettings::Part*>(pThisBodyDesc);
   JPH::RagdollSettings::Part* pParentLink = reinterpret_cast<JPH::RagdollSettings::Part*>(pParentBodyDesc);
 
-  ezTransform tParent = ezJoltConversionUtils::ToTransform(pParentLink->mPosition, pParentLink->mRotation);
-  ezTransform tThis = ezJoltConversionUtils::ToTransform(pLink->mPosition, pLink->mRotation);
+  WTransform tParent = WJoltConversionUtils::ToTransform(pParentLink->mPosition, pParentLink->mRotation);
+  WTransform tThis = WJoltConversionUtils::ToTransform(pLink->mPosition, pLink->mRotation);
 
-  if (jointType == ezSkeletonJointType::Fixed)
+  if (jointType == WSkeletonJointType::Fixed)
   {
     JPH::FixedConstraintSettings* pJoint = new JPH::FixedConstraintSettings();
     pLink->mToParent = pJoint;
@@ -1351,12 +1351,12 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mPoint2 = pLink->mPosition;
   }
 
-  if (jointType == ezSkeletonJointType::SwingTwist)
+  if (jointType == WSkeletonJointType::SwingTwist)
   {
     JPH::SwingTwistConstraintSettings* pJoint = new JPH::SwingTwistConstraintSettings();
     pLink->mToParent = pJoint;
 
-    const ezQuat offsetRot = thisJoint.GetLocalOrientation();
+    const WQuat offsetRot = thisJoint.GetLocalOrientation();
 
     pJoint->mSpace = JPH::EConstraintSpace::WorldSpace;
     pJoint->mDrawConstraintSize = 0.15f;
@@ -1367,10 +1367,10 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mTwistMinAngle = thisJoint.GetTwistLimitLow().GetRadian();
     pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHigh().GetRadian();
     pJoint->mMaxFrictionTorque = m_fStiffnessFactor * thisJoint.GetStiffness();
-    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisZ()).Normalized();
-    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisZ()).Normalized();
-    pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisY()).Normalized();
-    pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisY()).Normalized();
+    pJoint->mPlaneAxis1 = WJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * WVec3::MakeAxisZ()).Normalized();
+    pJoint->mPlaneAxis2 = WJoltConversionUtils::ToVec3(tThis.m_qRotation * WVec3::MakeAxisZ()).Normalized();
+    pJoint->mTwistAxis1 = WJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * WVec3::MakeAxisY()).Normalized();
+    pJoint->mTwistAxis2 = WJoltConversionUtils::ToVec3(tThis.m_qRotation * WVec3::MakeAxisY()).Normalized();
 
     pJoint->mSwingMotorSettings.mSpringSettings.mFrequency = 20;
     pJoint->mSwingMotorSettings.mSpringSettings.mStiffness = 20;
@@ -1385,4 +1385,4 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
   }
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRagdollComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRagdollComponent);

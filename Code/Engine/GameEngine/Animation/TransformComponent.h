@@ -6,18 +6,18 @@
 #include <GameEngine/GameEngineDLL.h>
 
 /// Internal flags for the current state of a transform component
-struct ezTransformComponentFlags
+struct WTransformComponentFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
     None = 0,
-    Running = EZ_BIT(0),           ///< Start state for the CurrentlyRunning flag
-    AutoReturnStart = EZ_BIT(1),   ///< When reaching the start point, the transform should automatically turn around
-    AutoReturnEnd = EZ_BIT(2),     ///< When reaching the end point, the transform should automatically turn around
-    CurrentlyRunning = EZ_BIT(3),  ///< The component is currently modifying the transform
-    AnimationReversed = EZ_BIT(5), ///< The animation playback is currently in reverse
+    Running = W_BIT(0),           ///< Start state for the CurrentlyRunning flag
+    AutoReturnStart = W_BIT(1),   ///< When reaching the start point, the transform should automatically turn around
+    AutoReturnEnd = W_BIT(2),     ///< When reaching the end point, the transform should automatically turn around
+    CurrentlyRunning = W_BIT(3),  ///< The component is currently modifying the transform
+    AnimationReversed = W_BIT(5), ///< The animation playback is currently in reverse
     Default = Running | AutoReturnStart | AutoReturnEnd
   };
 
@@ -32,29 +32,29 @@ struct ezTransformComponentFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezTransformComponentFlags);
+W_DECLARE_FLAGS_OPERATORS(WTransformComponentFlags);
 
 /// Base class for some components that modify an object's transform.
-class EZ_GAMEENGINE_DLL ezTransformComponent : public ezComponent
+class W_GAMEENGINE_DLL WTransformComponent : public WComponent
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTransformComponent, ezComponent);
+  W_ADD_DYNAMIC_REFLECTION(WTransformComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTransformComponent
+  // WTransformComponent
 
 public:
-  ezTransformComponent();
-  ~ezTransformComponent();
+  WTransformComponent();
+  ~WTransformComponent();
 
   /// Sets the animation to be played forwards or backwards.
   ///
@@ -87,6 +87,6 @@ public:
   float m_fAnimationSpeed = 1.0f; // [ property ]
 
 protected:
-  ezBitflags<ezTransformComponentFlags> m_Flags;
-  ezTime m_AnimationTime;
+  WBitflags<WTransformComponentFlags> m_Flags;
+  WTime m_AnimationTime;
 };

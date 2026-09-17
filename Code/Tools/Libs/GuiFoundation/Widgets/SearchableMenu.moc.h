@@ -5,10 +5,10 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QWidgetAction>
 
-class ezQtSearchWidget;
+class WQtSearchWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
-class ezQtTreeSearchFilterModel;
+class WQtTreeSearchFilterModel;
 class QStandardItemModel;
 class QTreeView;
 class QStandardItem;
@@ -18,15 +18,15 @@ class QStandardItem;
 /// Fill the searchable menu object with items (use slashes to indicate hierarchy) then use QMenu::addAction to insert it
 /// into another QMenu.
 /// Connect to MenuItemTriggered() to handle the item activation and also call QMenu::close() on the parent menu.
-class EZ_GUIFOUNDATION_DLL ezQtSearchableMenu : public QWidgetAction
+class W_GUIFOUNDATION_DLL WQtSearchableMenu : public QWidgetAction
 {
   Q_OBJECT
 public:
   /// The parent should usually be a QMenu into which this QWidgetAction is inserted as an action.
-  ezQtSearchableMenu(QObject* pParent);
+  WQtSearchableMenu(QObject* pParent);
 
   /// Use slashes in the szInternalPath to separate sub-items.
-  void AddItem(ezStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon = QIcon());
+  void AddItem(WStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon = QIcon());
 
   /// Returns the currently entered search text.
   QString GetSearchText() const;
@@ -52,13 +52,13 @@ protected:
   virtual bool eventFilter(QObject*, QEvent*) override;
 
 private:
-  QStandardItem* CreateCategoryMenu(ezStringView sCategory);
+  QStandardItem* CreateCategoryMenu(WStringView sCategory);
   bool SelectFirstLeaf(QModelIndex parent);
 
   QWidget* m_pGroup;
-  ezQtSearchWidget* m_pSearch;
-  ezQtTreeSearchFilterModel* m_pFilterModel;
+  WQtSearchWidget* m_pSearch;
+  WQtTreeSearchFilterModel* m_pFilterModel;
   QTreeView* m_pTreeView;
   QStandardItemModel* m_pItemModel;
-  ezMap<ezString, QStandardItem*> m_Hierarchy;
+  WMap<WString, QStandardItem*> m_Hierarchy;
 };

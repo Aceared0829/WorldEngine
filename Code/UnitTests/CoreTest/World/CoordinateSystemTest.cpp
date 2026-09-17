@@ -2,65 +2,65 @@
 
 #include <Core/World/CoordinateSystem.h>
 
-void TestLength(const ezCoordinateSystemConversion& atoB, const ezCoordinateSystemConversion& btoA, float fSourceLength, float fTargetLength)
+void TestLength(const WCoordinateSystemConversion& atoB, const WCoordinateSystemConversion& btoA, float fSourceLength, float fTargetLength)
 {
-  EZ_TEST_FLOAT(atoB.ConvertSourceLength(fSourceLength), fTargetLength, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_FLOAT(atoB.ConvertTargetLength(fTargetLength), fSourceLength, ezMath::DefaultEpsilon<float>());
+  W_TEST_FLOAT(atoB.ConvertSourceLength(fSourceLength), fTargetLength, WMath::DefaultEpsilon<float>());
+  W_TEST_FLOAT(atoB.ConvertTargetLength(fTargetLength), fSourceLength, WMath::DefaultEpsilon<float>());
 
-  EZ_TEST_FLOAT(btoA.ConvertTargetLength(fSourceLength), fTargetLength, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_FLOAT(btoA.ConvertSourceLength(fTargetLength), fSourceLength, ezMath::DefaultEpsilon<float>());
+  W_TEST_FLOAT(btoA.ConvertTargetLength(fSourceLength), fTargetLength, WMath::DefaultEpsilon<float>());
+  W_TEST_FLOAT(btoA.ConvertSourceLength(fTargetLength), fSourceLength, WMath::DefaultEpsilon<float>());
 }
 
 void TestPosition(
-  const ezCoordinateSystemConversion& atoB, const ezCoordinateSystemConversion& btoA, const ezVec3& vSourcePos, const ezVec3& vTargetPos)
+  const WCoordinateSystemConversion& atoB, const WCoordinateSystemConversion& btoA, const WVec3& vSourcePos, const WVec3& vTargetPos)
 {
   TestLength(atoB, btoA, vSourcePos.GetLength(), vTargetPos.GetLength());
 
-  EZ_TEST_VEC3(atoB.ConvertSourcePosition(vSourcePos), vTargetPos, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_VEC3(atoB.ConvertTargetPosition(vTargetPos), vSourcePos, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_VEC3(btoA.ConvertSourcePosition(vTargetPos), vSourcePos, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_VEC3(btoA.ConvertTargetPosition(vSourcePos), vTargetPos, ezMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(atoB.ConvertSourcePosition(vSourcePos), vTargetPos, WMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(atoB.ConvertTargetPosition(vTargetPos), vSourcePos, WMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(btoA.ConvertSourcePosition(vTargetPos), vSourcePos, WMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(btoA.ConvertTargetPosition(vSourcePos), vTargetPos, WMath::DefaultEpsilon<float>());
 }
 
-void TestRotation(const ezCoordinateSystemConversion& atoB, const ezCoordinateSystemConversion& btoA, const ezVec3& vSourceStartDir,
-  const ezVec3& vSourceEndDir, const ezQuat& qSourceRot, const ezVec3& vTargetStartDir, const ezVec3& vTargetEndDir, const ezQuat& qTargetRot)
+void TestRotation(const WCoordinateSystemConversion& atoB, const WCoordinateSystemConversion& btoA, const WVec3& vSourceStartDir,
+  const WVec3& vSourceEndDir, const WQuat& qSourceRot, const WVec3& vTargetStartDir, const WVec3& vTargetEndDir, const WQuat& qTargetRot)
 {
   TestPosition(atoB, btoA, vSourceStartDir, vTargetStartDir);
   TestPosition(atoB, btoA, vSourceEndDir, vTargetEndDir);
 
-  EZ_TEST_BOOL(atoB.ConvertSourceRotation(qSourceRot).IsEqualRotation(qTargetRot, ezMath::DefaultEpsilon<float>()));
-  EZ_TEST_BOOL(atoB.ConvertTargetRotation(qTargetRot).IsEqualRotation(qSourceRot, ezMath::DefaultEpsilon<float>()));
-  EZ_TEST_BOOL(btoA.ConvertSourceRotation(qTargetRot).IsEqualRotation(qSourceRot, ezMath::DefaultEpsilon<float>()));
-  EZ_TEST_BOOL(btoA.ConvertTargetRotation(qSourceRot).IsEqualRotation(qTargetRot, ezMath::DefaultEpsilon<float>()));
+  W_TEST_BOOL(atoB.ConvertSourceRotation(qSourceRot).IsEqualRotation(qTargetRot, WMath::DefaultEpsilon<float>()));
+  W_TEST_BOOL(atoB.ConvertTargetRotation(qTargetRot).IsEqualRotation(qSourceRot, WMath::DefaultEpsilon<float>()));
+  W_TEST_BOOL(btoA.ConvertSourceRotation(qTargetRot).IsEqualRotation(qSourceRot, WMath::DefaultEpsilon<float>()));
+  W_TEST_BOOL(btoA.ConvertTargetRotation(qSourceRot).IsEqualRotation(qTargetRot, WMath::DefaultEpsilon<float>()));
 
-  EZ_TEST_VEC3(qSourceRot * vSourceStartDir, vSourceEndDir, ezMath::DefaultEpsilon<float>());
-  EZ_TEST_VEC3(qTargetRot * vTargetStartDir, vTargetEndDir, ezMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(qSourceRot * vSourceStartDir, vSourceEndDir, WMath::DefaultEpsilon<float>());
+  W_TEST_VEC3(qTargetRot * vTargetStartDir, vTargetEndDir, WMath::DefaultEpsilon<float>());
 }
 
-ezQuat FromAxisAndAngle(const ezVec3& vAxis, ezAngle angle)
+WQuat FromAxisAndAngle(const WVec3& vAxis, WAngle angle)
 {
-  ezQuat q = ezQuat::MakeFromAxisAndAngle(vAxis.GetNormalized(), angle);
+  WQuat q = WQuat::MakeFromAxisAndAngle(vAxis.GetNormalized(), angle);
   return q;
 }
 
-bool IsRightHanded(const ezCoordinateSystem& cs)
+bool IsRightHanded(const WCoordinateSystem& cs)
 {
-  ezVec3 vF = cs.m_vUpDir.CrossRH(cs.m_vRightDir);
+  WVec3 vF = cs.m_vUpDir.CrossRH(cs.m_vRightDir);
 
   return vF.Dot(cs.m_vForwardDir) > 0;
 }
 
-void TestCoordinateSystemConversion(const ezCoordinateSystem& a, const ezCoordinateSystem& b)
+void TestCoordinateSystemConversion(const WCoordinateSystem& a, const WCoordinateSystem& b)
 {
   const bool bAisRH = IsRightHanded(a);
   const bool bBisRH = IsRightHanded(b);
-  const ezAngle A_CWRot = bAisRH ? ezAngle::MakeFromDegree(-90.0f) : ezAngle::MakeFromDegree(90.0f);
-  const ezAngle B_CWRot = bBisRH ? ezAngle::MakeFromDegree(-90.0f) : ezAngle::MakeFromDegree(90.0f);
+  const WAngle A_CWRot = bAisRH ? WAngle::MakeFromDegree(-90.0f) : WAngle::MakeFromDegree(90.0f);
+  const WAngle B_CWRot = bBisRH ? WAngle::MakeFromDegree(-90.0f) : WAngle::MakeFromDegree(90.0f);
 
-  ezCoordinateSystemConversion AtoB;
+  WCoordinateSystemConversion AtoB;
   AtoB.SetConversion(a, b);
 
-  ezCoordinateSystemConversion BtoA;
+  WCoordinateSystemConversion BtoA;
   BtoA.SetConversion(b, a);
 
   TestPosition(AtoB, BtoA, a.m_vForwardDir, b.m_vForwardDir);
@@ -76,101 +76,101 @@ void TestCoordinateSystemConversion(const ezCoordinateSystem& a, const ezCoordin
 }
 
 
-EZ_CREATE_SIMPLE_TEST(World, CoordinateSystem)
+W_CREATE_SIMPLE_TEST(World, CoordinateSystem)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EZ / OpenXR")
+  W_TEST_BLOCK(WTestBlock::Enabled, "W / OpenXR")
   {
-    ezCoordinateSystem ezCoordSysLH;
-    ezCoordSysLH.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-    ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-    ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+    WCoordinateSystem WCoordSysLH;
+    WCoordSysLH.m_vForwardDir = WVec3(1.0f, 0.0f, 0.0f);
+    WCoordSysLH.m_vRightDir = WVec3(0.0f, 1.0f, 0.0f);
+    WCoordSysLH.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
 
-    ezCoordinateSystem openXrRH;
-    openXrRH.m_vForwardDir = ezVec3(0.0f, 0.0f, -1.0f);
-    openXrRH.m_vRightDir = ezVec3(1.0f, 0.0f, 0.0f);
-    openXrRH.m_vUpDir = ezVec3(0.0f, 1.0f, 0.0f);
+    WCoordinateSystem openXrRH;
+    openXrRH.m_vForwardDir = WVec3(0.0f, 0.0f, -1.0f);
+    openXrRH.m_vRightDir = WVec3(1.0f, 0.0f, 0.0f);
+    openXrRH.m_vUpDir = WVec3(0.0f, 1.0f, 0.0f);
 
-    TestCoordinateSystemConversion(ezCoordSysLH, openXrRH);
+    TestCoordinateSystemConversion(WCoordSysLH, openXrRH);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scaled EZ / Scaled OpenXR")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Scaled W / Scaled OpenXR")
   {
-    ezCoordinateSystem ezCoordSysLH;
-    ezCoordSysLH.m_vForwardDir = ezVec3(0.1f, 0.0f, 0.0f);
-    ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 0.1f, 0.0f);
-    ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 0.1f);
+    WCoordinateSystem WCoordSysLH;
+    WCoordSysLH.m_vForwardDir = WVec3(0.1f, 0.0f, 0.0f);
+    WCoordSysLH.m_vRightDir = WVec3(0.0f, 0.1f, 0.0f);
+    WCoordSysLH.m_vUpDir = WVec3(0.0f, 0.0f, 0.1f);
 
-    ezCoordinateSystem openXrRH;
-    openXrRH.m_vForwardDir = ezVec3(0.0f, 0.0f, -20.0f);
-    openXrRH.m_vRightDir = ezVec3(20.0f, 0.0f, 0.0f);
-    openXrRH.m_vUpDir = ezVec3(0.0f, 20.0f, 0.0f);
+    WCoordinateSystem openXrRH;
+    openXrRH.m_vForwardDir = WVec3(0.0f, 0.0f, -20.0f);
+    openXrRH.m_vRightDir = WVec3(20.0f, 0.0f, 0.0f);
+    openXrRH.m_vUpDir = WVec3(0.0f, 20.0f, 0.0f);
 
-    TestCoordinateSystemConversion(ezCoordSysLH, openXrRH);
+    TestCoordinateSystemConversion(WCoordSysLH, openXrRH);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EZ / Flipped EZ")
+  W_TEST_BLOCK(WTestBlock::Enabled, "W / Flipped W")
   {
-    ezCoordinateSystem ezCoordSysLH;
-    ezCoordSysLH.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-    ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-    ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+    WCoordinateSystem WCoordSysLH;
+    WCoordSysLH.m_vForwardDir = WVec3(1.0f, 0.0f, 0.0f);
+    WCoordSysLH.m_vRightDir = WVec3(0.0f, 1.0f, 0.0f);
+    WCoordSysLH.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
 
-    ezCoordinateSystem ezCoordSysFlippedLH;
-    ezCoordSysFlippedLH.m_vForwardDir = ezVec3(-1.0f, 0.0f, 0.0f);
-    ezCoordSysFlippedLH.m_vRightDir = ezVec3(0.0f, -1.0f, 0.0f);
-    ezCoordSysFlippedLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+    WCoordinateSystem WCoordSysFlippedLH;
+    WCoordSysFlippedLH.m_vForwardDir = WVec3(-1.0f, 0.0f, 0.0f);
+    WCoordSysFlippedLH.m_vRightDir = WVec3(0.0f, -1.0f, 0.0f);
+    WCoordSysFlippedLH.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
 
-    TestCoordinateSystemConversion(ezCoordSysLH, ezCoordSysFlippedLH);
+    TestCoordinateSystemConversion(WCoordSysLH, WCoordSysFlippedLH);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "OpenXR / Flipped OpenXR")
+  W_TEST_BLOCK(WTestBlock::Enabled, "OpenXR / Flipped OpenXR")
   {
-    ezCoordinateSystem openXrRH;
-    openXrRH.m_vForwardDir = ezVec3(0.0f, 0.0f, -1.0f);
-    openXrRH.m_vRightDir = ezVec3(1.0f, 0.0f, 0.0f);
-    openXrRH.m_vUpDir = ezVec3(0.0f, 1.0f, 0.0f);
+    WCoordinateSystem openXrRH;
+    openXrRH.m_vForwardDir = WVec3(0.0f, 0.0f, -1.0f);
+    openXrRH.m_vRightDir = WVec3(1.0f, 0.0f, 0.0f);
+    openXrRH.m_vUpDir = WVec3(0.0f, 1.0f, 0.0f);
 
-    ezCoordinateSystem openXrFlippedRH;
-    openXrFlippedRH.m_vForwardDir = ezVec3(0.0f, 0.0f, 1.0f);
-    openXrFlippedRH.m_vRightDir = ezVec3(-1.0f, 0.0f, 0.0f);
-    openXrFlippedRH.m_vUpDir = ezVec3(0.0f, 1.0f, 0.0f);
+    WCoordinateSystem openXrFlippedRH;
+    openXrFlippedRH.m_vForwardDir = WVec3(0.0f, 0.0f, 1.0f);
+    openXrFlippedRH.m_vRightDir = WVec3(-1.0f, 0.0f, 0.0f);
+    openXrFlippedRH.m_vUpDir = WVec3(0.0f, 1.0f, 0.0f);
 
     TestCoordinateSystemConversion(openXrRH, openXrFlippedRH);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Identity")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Identity")
   {
-    ezCoordinateSystem ezCoordSysLH;
-    ezCoordSysLH.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-    ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-    ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+    WCoordinateSystem WCoordSysLH;
+    WCoordSysLH.m_vForwardDir = WVec3(1.0f, 0.0f, 0.0f);
+    WCoordSysLH.m_vRightDir = WVec3(0.0f, 1.0f, 0.0f);
+    WCoordSysLH.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
 
-    TestCoordinateSystemConversion(ezCoordSysLH, ezCoordSysLH);
+    TestCoordinateSystemConversion(WCoordSysLH, WCoordSysLH);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructed")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Default Constructed")
   {
-    ezCoordinateSystem ezCoordSysLH;
-    ezCoordSysLH.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-    ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-    ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+    WCoordinateSystem WCoordSysLH;
+    WCoordSysLH.m_vForwardDir = WVec3(1.0f, 0.0f, 0.0f);
+    WCoordSysLH.m_vRightDir = WVec3(0.0f, 1.0f, 0.0f);
+    WCoordSysLH.m_vUpDir = WVec3(0.0f, 0.0f, 1.0f);
 
-    const ezAngle rot = ezAngle::MakeFromDegree(90.0f);
+    const WAngle rot = WAngle::MakeFromDegree(90.0f);
 
-    ezCoordinateSystemConversion defaultConstucted;
+    WCoordinateSystemConversion defaultConstucted;
 
-    TestPosition(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vForwardDir);
-    TestPosition(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vRightDir, ezCoordSysLH.m_vRightDir);
-    TestPosition(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vUpDir);
+    TestPosition(defaultConstucted, defaultConstucted, WCoordSysLH.m_vForwardDir, WCoordSysLH.m_vForwardDir);
+    TestPosition(defaultConstucted, defaultConstucted, WCoordSysLH.m_vRightDir, WCoordSysLH.m_vRightDir);
+    TestPosition(defaultConstucted, defaultConstucted, WCoordSysLH.m_vUpDir, WCoordSysLH.m_vUpDir);
 
-    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot), ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot));
-    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot), ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot));
-    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot), ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir,
-      FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot));
+    TestRotation(defaultConstucted, defaultConstucted, WCoordSysLH.m_vForwardDir, WCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(WCoordSysLH.m_vUpDir, rot), WCoordSysLH.m_vForwardDir, WCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(WCoordSysLH.m_vUpDir, rot));
+    TestRotation(defaultConstucted, defaultConstucted, WCoordSysLH.m_vUpDir, WCoordSysLH.m_vForwardDir,
+      FromAxisAndAngle(WCoordSysLH.m_vRightDir, rot), WCoordSysLH.m_vUpDir, WCoordSysLH.m_vForwardDir,
+      FromAxisAndAngle(WCoordSysLH.m_vRightDir, rot));
+    TestRotation(defaultConstucted, defaultConstucted, WCoordSysLH.m_vUpDir, WCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(WCoordSysLH.m_vForwardDir, -rot), WCoordSysLH.m_vUpDir, WCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(WCoordSysLH.m_vForwardDir, -rot));
   }
 }

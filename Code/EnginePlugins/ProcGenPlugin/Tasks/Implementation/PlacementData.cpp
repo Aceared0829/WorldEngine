@@ -3,7 +3,7 @@
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   PlacementData::PlacementData() = default;
   PlacementData::~PlacementData() = default;
@@ -15,11 +15,11 @@ namespace ezProcGenInternal
 
     m_pOutput = nullptr;
     m_uiTileSeed = 0;
-    m_TileBoundingBox = ezBoundingBox::MakeInvalid();
+    m_TileBoundingBox = WBoundingBox::MakeInvalid();
     m_bDebugVisualization = false;
     m_GlobalToLocalBoxTransforms.Clear();
 
     m_VolumeCollections.Clear();
     m_GlobalData.Clear();
   }
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

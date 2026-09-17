@@ -4,15 +4,15 @@
 #include <EditorPluginAssets/ui_MeshImportDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezMeshImportDlg : public ezQtDialog, public Ui_MeshImportDlg
+class WMeshImportDlg : public WQtDialog, public Ui_MeshImportDlg
 {
   Q_OBJECT
 
 public:
-  ezMeshImportDlg(QWidget* pParent);
+  WMeshImportDlg(QWidget* pParent);
 
-  ezString m_sTitle;
-  ezString m_sSharedMaterialsFolderAbs;
+  WString m_sTitle;
+  WString m_sSharedMaterialsFolderAbs;
   bool m_bApplyToAll = false;
   bool m_bUseSharedMaterials = false;
   bool m_bCreateMaterials = true;
@@ -20,9 +20,9 @@ public:
   bool m_bReuseExistingSkeleton = false;
   bool m_bImportAnimationClips = false;
   bool m_bAddLODs = false;
-  ezUInt8 m_uiNumLODs = 1;
-  ezUuid m_SharedSkeleton;
-  ezString m_sMeshLodPrefix;
+  WUInt8 m_uiNumLODs = 1;
+  WUuid m_SharedSkeleton;
+  WString m_sMeshLodPrefix;
 
 private Q_SLOTS:
   void on_Buttons_accepted();
@@ -39,5 +39,5 @@ private:
 
   void UpdateUI();
 
-  ezString m_sSharedSkeleton;
+  WString m_sSharedSkeleton;
 };

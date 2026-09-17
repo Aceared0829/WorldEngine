@@ -7,17 +7,17 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
-ezProcessingStreamGroup::ezProcessingStreamGroup()
+WProcessingStreamGroup::WProcessingStreamGroup()
 {
   Clear();
 }
 
-ezProcessingStreamGroup::~ezProcessingStreamGroup()
+WProcessingStreamGroup::~WProcessingStreamGroup()
 {
   Clear();
 }
 
-void ezProcessingStreamGroup::Clear()
+void WProcessingStreamGroup::Clear()
 {
   ClearProcessors();
 
@@ -27,21 +27,21 @@ void ezProcessingStreamGroup::Clear()
   m_uiHighestNumActiveElements = 0;
   m_bStreamAssignmentDirty = true;
 
-  for (ezProcessingStream* pStream : m_DataStreams)
+  for (WProcessingStream* pStream : m_DataStreams)
   {
-    EZ_DEFAULT_DELETE(pStream);
+    W_DEFAULT_DELETE(pStream);
   }
 
   m_DataStreams.Clear();
 }
 
-void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcessor)
+void WProcessingStreamGroup::AddProcessor(WProcessingStreamProcessor* pProcessor)
 {
-  EZ_ASSERT_DEV(pProcessor != nullptr, "Stream processor may not be null!");
+  W_ASSERT_DEV(pProcessor != nullptr, "Stream processor may not be null!");
 
   if (pProcessor->m_pStreamGroup != nullptr)
   {
-    ezLog::Debug("Stream processor is already assigned to a stream group!");
+    WLog::Debug("Stream processor is already assigned to a stream group!");
     return;
   }
 
@@ -52,17 +52,17 @@ void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcess
   m_bStreamAssignmentDirty = true;
 }
 
-void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProcessor)
+void WProcessingStreamGroup::RemoveProcessor(WProcessingStreamProcessor* pProcessor)
 {
   m_Processors.RemoveAndCopy(pProcessor);
   pProcessor->GetDynamicRTTI()->GetAllocator()->Deallocate(pProcessor);
 }
 
-void ezProcessingStreamGroup::ClearProcessors()
+void WProcessingStreamGroup::ClearProcessors()
 {
   m_bStreamAssignmentDirty = true;
 
-  for (ezProcessingStreamProcessor* pProcessor : m_Processors)
+  for (WProcessingStreamProcessor* pProcessor : m_Processors)
   {
     pProcessor->GetDynamicRTTI()->GetAllocator()->Deallocate(pProcessor);
   }
@@ -70,15 +70,15 @@ void ezProcessingStreamGroup::ClearProcessors()
   m_Processors.Clear();
 }
 
-ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezProcessingStream::DataType type)
+WProcessingStream* WProcessingStreamGroup::AddStream(WStringView sName, WProcessingStream::DataType type)
 {
   // Treat adding a stream two times as an error (return null)
-  if (GetStreamByName(ezTempHashedString(sName)))
+  if (GetStreamByName(WTempHashedString(sName)))
     return nullptr;
 
-  ezHashedString sNameHashed;
+  WHashedString sNameHashed;
   sNameHashed.Assign(sName);
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sNameHashed, type, ezProcessingStream::GetDataTypeSize(type), 16);
+  WProcessingStream* pStream = W_DEFAULT_NEW(WProcessingStream, sNameHashed, type, WProcessingStream::GetDataTypeSize(type), 16);
 
   m_DataStreams.PushBack(pStream);
 
@@ -87,13 +87,13 @@ ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezPro
   return pStream;
 }
 
-void ezProcessingStreamGroup::RemoveStreamByName(ezTempHashedString sName)
+void WProcessingStreamGroup::RemoveStreamByName(WTempHashedString sName)
 {
-  for (ezUInt32 i = 0; i < m_DataStreams.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DataStreams.GetCount(); ++i)
   {
     if (m_DataStreams[i]->GetName() == sName)
     {
-      EZ_DEFAULT_DELETE(m_DataStreams[i]);
+      W_DEFAULT_DELETE(m_DataStreams[i]);
       m_DataStreams.RemoveAtAndSwap(i);
 
       m_bStreamAssignmentDirty = true;
@@ -102,9 +102,9 @@ void ezProcessingStreamGroup::RemoveStreamByName(ezTempHashedString sName)
   }
 }
 
-ezProcessingStream* ezProcessingStreamGroup::GetStreamByName(ezTempHashedString sName) const
+WProcessingStream* WProcessingStreamGroup::GetStreamByName(WTempHashedString sName) const
 {
-  for (ezProcessingStream* pStream : m_DataStreams)
+  for (WProcessingStream* pStream : m_DataStreams)
   {
     if (pStream->GetName() == sName)
     {
@@ -115,7 +115,7 @@ ezProcessingStream* ezProcessingStreamGroup::GetStreamByName(ezTempHashedString 
   return nullptr;
 }
 
-void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
+void WProcessingStreamGroup::SetSize(WUInt64 uiNumElements)
 {
   if (m_uiNumElements == uiNumElements)
     return;
@@ -134,29 +134,29 @@ void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
 
 /// Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
 /// processors).
-void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
+void WProcessingStreamGroup::RemoveElement(WUInt64 uiElementIndex)
 {
   if (m_PendingRemoveIndices.Contains(uiElementIndex))
     return;
 
-  EZ_ASSERT_DEBUG(uiElementIndex < m_uiNumActiveElements, "Element which should be removed is outside of active element range!");
+  W_ASSERT_DEBUG(uiElementIndex < m_uiNumActiveElements, "Element which should be removed is outside of active element range!");
 
   m_PendingRemoveIndices.PushBack(uiElementIndex);
 }
 
 /// Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the
 /// spawning will be queued.
-void ezProcessingStreamGroup::InitializeElements(ezUInt64 uiNumElements)
+void WProcessingStreamGroup::InitializeElements(WUInt64 uiNumElements)
 {
   m_uiPendingNumberOfElementsToSpawn += uiNumElements;
 }
 
-void ezProcessingStreamGroup::Process()
+void WProcessingStreamGroup::Process()
 {
   EnsureStreamAssignmentValid();
 
   // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
-  for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
+  for (WProcessingStreamProcessor* pStreamProcessor : m_Processors)
   {
     pStreamProcessor->Process(m_uiNumActiveElements);
   }
@@ -170,9 +170,9 @@ void ezProcessingStreamGroup::Process()
 }
 
 
-void ezProcessingStreamGroup::RunPendingDeletions()
+void WProcessingStreamGroup::RunPendingDeletions()
 {
-  ezStreamGroupElementRemovedEvent e;
+  WStreamGroupElementRemovedEvent e;
   e.m_pStreamGroup = this;
 
   // Remove elements
@@ -181,12 +181,12 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     if (m_uiNumActiveElements == 0)
       break;
 
-    const ezUInt64 uiLastActiveElementIndex = m_uiNumActiveElements - 1;
+    const WUInt64 uiLastActiveElementIndex = m_uiNumActiveElements - 1;
 
-    const ezUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
+    const WUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
     m_PendingRemoveIndices.PopBack();
 
-    EZ_ASSERT_DEBUG(uiElementToRemove < m_uiNumActiveElements, "Invalid index to remove");
+    W_ASSERT_DEBUG(uiElementToRemove < m_uiNumActiveElements, "Invalid index to remove");
 
     // inform any interested party about the tragic death
     e.m_uiElementIndex = uiElementToRemove;
@@ -202,7 +202,7 @@ void ezProcessingStreamGroup::RunPendingDeletions()
 
     // Since we swap with the last element we need to make sure that any pending removals of the (current) last element are updated
     // and point to the place where we moved the data to.
-    for (ezUInt32 i = 0; i < m_PendingRemoveIndices.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_PendingRemoveIndices.GetCount(); ++i)
     {
       // Is the pending remove in the array actually the last element we use to swap with? It's simply a matter of updating it to point to the new
       // index.
@@ -216,14 +216,14 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     }
 
     // Move the data
-    for (ezProcessingStream* pStream : m_DataStreams)
+    for (WProcessingStream* pStream : m_DataStreams)
     {
-      const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
-      const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
-      const void* pSourceData = ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<std::ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
-      void* pTargetData = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<std::ptrdiff_t>(uiElementToRemove * uiStreamElementStride));
+      const WUInt64 uiStreamElementStride = pStream->GetElementStride();
+      const WUInt64 uiStreamElementSize = pStream->GetElementSize();
+      const void* pSourceData = WMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<std::ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
+      void* pTargetData = WMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<std::ptrdiff_t>(uiElementToRemove * uiStreamElementStride));
 
-      ezMemoryUtils::Copy<ezUInt8>(static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
+      WMemoryUtils::Copy<WUInt8>(static_cast<WUInt8*>(pTargetData), static_cast<const WUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
     }
 
     // And decrease the size since we swapped the last element to the location of the element we just removed
@@ -233,7 +233,7 @@ void ezProcessingStreamGroup::RunPendingDeletions()
   m_PendingRemoveIndices.Clear();
 }
 
-void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
+void WProcessingStreamGroup::EnsureStreamAssignmentValid()
 {
   // If any stream processors or streams were added we may need to inform them.
   if (m_bStreamAssignmentDirty)
@@ -241,12 +241,12 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
     SortProcessorsByPriority();
 
     // Set the new size on all stream.
-    for (ezProcessingStream* Stream : m_DataStreams)
+    for (WProcessingStream* Stream : m_DataStreams)
     {
       Stream->SetSize(m_uiNumElements);
     }
 
-    for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
+    for (WProcessingStreamProcessor* pStreamProcessor : m_Processors)
     {
       pStreamProcessor->UpdateStreamBindings().IgnoreResult();
     }
@@ -255,16 +255,16 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
   }
 }
 
-void ezProcessingStreamGroup::RunPendingSpawns()
+void WProcessingStreamGroup::RunPendingSpawns()
 {
   // Check if elements need to be spawned. If this is the case spawn them. (This is limited by the maximum number of elements).
   if (m_uiPendingNumberOfElementsToSpawn > 0)
   {
-    m_uiPendingNumberOfElementsToSpawn = ezMath::Min(m_uiPendingNumberOfElementsToSpawn, m_uiNumElements - m_uiNumActiveElements);
+    m_uiPendingNumberOfElementsToSpawn = WMath::Min(m_uiPendingNumberOfElementsToSpawn, m_uiNumElements - m_uiNumActiveElements);
 
     if (m_uiPendingNumberOfElementsToSpawn)
     {
-      for (ezProcessingStreamProcessor* pSpawner : m_Processors)
+      for (WProcessingStreamProcessor* pSpawner : m_Processors)
       {
         pSpawner->InitializeElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
       }
@@ -272,7 +272,7 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
     m_uiNumActiveElements += m_uiPendingNumberOfElementsToSpawn;
 
-    m_uiHighestNumActiveElements = ezMath::Max(m_uiNumActiveElements, m_uiHighestNumActiveElements);
+    m_uiHighestNumActiveElements = WMath::Max(m_uiNumActiveElements, m_uiHighestNumActiveElements);
 
     m_uiPendingNumberOfElementsToSpawn = 0;
   }
@@ -280,10 +280,10 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
 struct ProcessorComparer
 {
-  EZ_ALWAYS_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const { return a->m_fPriority < b->m_fPriority; }
+  W_ALWAYS_INLINE bool Less(const WProcessingStreamProcessor* a, const WProcessingStreamProcessor* b) const { return a->m_fPriority < b->m_fPriority; }
 };
 
-void ezProcessingStreamGroup::SortProcessorsByPriority()
+void WProcessingStreamGroup::SortProcessorsByPriority()
 {
   ProcessorComparer cmp;
   m_Processors.Sort(cmp);

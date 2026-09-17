@@ -6,34 +6,34 @@
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/io/archive.h>
 
-ezOzzArchiveData::ezOzzArchiveData() = default;
-ezOzzArchiveData::~ezOzzArchiveData() = default;
+WOzzArchiveData::WOzzArchiveData() = default;
+WOzzArchiveData::~WOzzArchiveData() = default;
 
-ezResult ezOzzArchiveData::FetchRegularFile(const char* szFile)
+WResult WOzzArchiveData::FetchRegularFile(const char* szFile)
 {
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(szFile));
 
   m_Storage.Clear();
   m_Storage.Reserve(file.GetFileSize());
   m_Storage.ReadAll(file);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOzzArchiveData::FetchEmbeddedArchive(ezStreamReader& inout_stream)
+WResult WOzzArchiveData::FetchEmbeddedArchive(WStreamReader& inout_stream)
 {
   char szTag[8] = "";
 
   inout_stream.ReadBytes(szTag, 8);
   szTag[7] = '\0';
 
-  if (!ezStringUtils::IsEqual(szTag, "ezOzzAr"))
-    return EZ_FAILURE;
+  if (!WStringUtils::IsEqual(szTag, "WOzzAr"))
+    return W_FAILURE;
 
-  /*const ezTypeVersion version =*/inout_stream.ReadVersion(1);
+  /*const WTypeVersion version =*/inout_stream.ReadVersion(1);
 
-  ezUInt64 uiArchiveSize = 0;
+  WUInt64 uiArchiveSize = 0;
   inout_stream >> uiArchiveSize;
 
   m_Storage.Clear();
@@ -41,48 +41,48 @@ ezResult ezOzzArchiveData::FetchEmbeddedArchive(ezStreamReader& inout_stream)
   m_Storage.ReadAll(inout_stream, uiArchiveSize);
 
   if (m_Storage.GetStorageSize64() != uiArchiveSize)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezOzzArchiveData::StoreEmbeddedArchive(ezStreamWriter& inout_stream) const
+WResult WOzzArchiveData::StoreEmbeddedArchive(WStreamWriter& inout_stream) const
 {
-  const char szTag[8] = "ezOzzAr";
+  const char szTag[8] = "WOzzAr";
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(szTag, 8));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteBytes(szTag, 8));
 
   inout_stream.WriteVersion(1);
 
-  const ezUInt64 uiArchiveSize = m_Storage.GetStorageSize64();
+  const WUInt64 uiArchiveSize = m_Storage.GetStorageSize64();
 
   inout_stream << uiArchiveSize;
 
   return m_Storage.CopyToStream(inout_stream);
 }
 
-ezOzzStreamReader::ezOzzStreamReader(const ezOzzArchiveData& data)
+WOzzStreamReader::WOzzStreamReader(const WOzzArchiveData& data)
   : m_Reader(&data.m_Storage)
 {
 }
 
-bool ezOzzStreamReader::opened() const
+bool WOzzStreamReader::opened() const
 {
   return true;
 }
 
-size_t ezOzzStreamReader::Read(void* pBuffer, size_t uiSize)
+size_t WOzzStreamReader::Read(void* pBuffer, size_t uiSize)
 {
   return static_cast<size_t>(m_Reader.ReadBytes(pBuffer, uiSize));
 }
 
-size_t ezOzzStreamReader::Write(const void* pBuffer, size_t uiSize)
+size_t WOzzStreamReader::Write(const void* pBuffer, size_t uiSize)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return 0;
 }
 
-int ezOzzStreamReader::Seek(int iOffset, Origin origin)
+int WOzzStreamReader::Seek(int iOffset, Origin origin)
 {
   switch (origin)
   {
@@ -96,39 +96,39 @@ int ezOzzStreamReader::Seek(int iOffset, Origin origin)
       m_Reader.SetReadPosition(iOffset);
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return 0;
 }
 
-int ezOzzStreamReader::Tell() const
+int WOzzStreamReader::Tell() const
 {
   return static_cast<int>(m_Reader.GetReadPosition());
 }
 
-size_t ezOzzStreamReader::Size() const
+size_t WOzzStreamReader::Size() const
 {
   return static_cast<size_t>(m_Reader.GetByteCount64());
 }
 
-ezOzzStreamWriter::ezOzzStreamWriter(ezOzzArchiveData& ref_data)
+WOzzStreamWriter::WOzzStreamWriter(WOzzArchiveData& ref_data)
   : m_Writer(&ref_data.m_Storage)
 {
 }
 
-bool ezOzzStreamWriter::opened() const
+bool WOzzStreamWriter::opened() const
 {
   return true;
 }
 
-size_t ezOzzStreamWriter::Read(void* pBuffer, size_t uiSize)
+size_t WOzzStreamWriter::Read(void* pBuffer, size_t uiSize)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return 0;
 }
 
-size_t ezOzzStreamWriter::Write(const void* pBuffer, size_t uiSize)
+size_t WOzzStreamWriter::Write(const void* pBuffer, size_t uiSize)
 {
   if (m_Writer.WriteBytes(pBuffer, uiSize).Failed())
     return 0;
@@ -136,7 +136,7 @@ size_t ezOzzStreamWriter::Write(const void* pBuffer, size_t uiSize)
   return uiSize;
 }
 
-int ezOzzStreamWriter::Seek(int iOffset, Origin origin)
+int WOzzStreamWriter::Seek(int iOffset, Origin origin)
 {
   switch (origin)
   {
@@ -150,29 +150,29 @@ int ezOzzStreamWriter::Seek(int iOffset, Origin origin)
       m_Writer.SetWritePosition(iOffset);
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return 0;
 }
 
-int ezOzzStreamWriter::Tell() const
+int WOzzStreamWriter::Tell() const
 {
   return static_cast<int>(m_Writer.GetWritePosition());
 }
 
-size_t ezOzzStreamWriter::Size() const
+size_t WOzzStreamWriter::Size() const
 {
   return static_cast<size_t>(m_Writer.GetByteCount64());
 }
 
-void ezOzzUtils::CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc)
+void WOzzUtils::CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc)
 {
-  ezOzzArchiveData ozzArchiveData;
+  WOzzArchiveData ozzArchiveData;
 
   // store in ozz archive
   {
-    ezOzzStreamWriter ozzWriter(ozzArchiveData);
+    WOzzStreamWriter ozzWriter(ozzArchiveData);
     ozz::io::OArchive ozzArchive(&ozzWriter);
 
     ozzArchive << *pSrc;
@@ -180,20 +180,20 @@ void ezOzzUtils::CopyAnimation(ozz::animation::Animation* pDst, const ozz::anima
 
   // read it from archive again
   {
-    ezOzzStreamReader ozzReader(ozzArchiveData);
+    WOzzStreamReader ozzReader(ozzArchiveData);
     ozz::io::IArchive ozzArchive(&ozzReader);
 
     ozzArchive >> *pDst;
   }
 }
 
-EZ_RENDERERCORE_DLL void ezOzzUtils::CopySkeleton(ozz::animation::Skeleton* pDst, const ozz::animation::Skeleton* pSrc)
+W_RENDERERCORE_DLL void WOzzUtils::CopySkeleton(ozz::animation::Skeleton* pDst, const ozz::animation::Skeleton* pSrc)
 {
-  ezOzzArchiveData ozzArchiveData;
+  WOzzArchiveData ozzArchiveData;
 
   // store in ozz archive
   {
-    ezOzzStreamWriter ozzWriter(ozzArchiveData);
+    WOzzStreamWriter ozzWriter(ozzArchiveData);
     ozz::io::OArchive ozzArchive(&ozzWriter);
 
     ozzArchive << *pSrc;
@@ -201,7 +201,7 @@ EZ_RENDERERCORE_DLL void ezOzzUtils::CopySkeleton(ozz::animation::Skeleton* pDst
 
   // read it from archive again
   {
-    ezOzzStreamReader ozzReader(ozzArchiveData);
+    WOzzStreamReader ozzReader(ozzArchiveData);
     ozz::io::IArchive ozzArchive(&ozzReader);
 
     ozzArchive >> *pDst;

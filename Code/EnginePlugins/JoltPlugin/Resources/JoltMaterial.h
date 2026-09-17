@@ -5,15 +5,15 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/PhysicsMaterial.h>
 
-class ezJoltMaterial : public JPH::PhysicsMaterial
+class WJoltMaterial : public JPH::PhysicsMaterial
 {
 public:
-  ezJoltMaterial();
-  ~ezJoltMaterial();
+  WJoltMaterial();
+  ~WJoltMaterial();
 
-  ezSurfaceResource* m_pSurface = nullptr;
+  WSurfaceResource* m_pSurface = nullptr;
 
   float m_fRestitution = 0.0f;
   float m_fFriction = 0.2f;
-  ezColorGammaUB m_DebugColor = ezColor::White;
+  WColorGammaUB m_DebugColor = WColor::White;
 };

@@ -9,31 +9,31 @@
 /// This node outputs a static pose from a specific frame of an animation. Useful for pose-based animations,
 /// aim offsets, or manual frame selection. The sample position can be specified as a normalized value (0-1)
 /// or absolute frame number.
-class EZ_RENDERERCORE_DLL ezSampleFrameAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSampleFrameAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSampleFrameAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSampleFrameAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSampleFrameAnimNode
+  // WSampleFrameAnimNode
 
 public:
   void SetClip(const char* szClip);
   const char* GetClip() const;
 
-  ezHashedString m_sClip;                                 // [ property ]
+  WHashedString m_sClip;                                 // [ property ]
   float m_fNormalizedSamplePosition = 0.0f;               // [ property ]
 
 private:
-  ezAnimGraphNumberInputPin m_InNormalizedSamplePosition; // [ property ]
-  ezAnimGraphNumberInputPin m_InAbsoluteSamplePosition;   // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;                // [ property ]
+  WAnimGraphNumberInputPin m_InNormalizedSamplePosition; // [ property ]
+  WAnimGraphNumberInputPin m_InAbsoluteSamplePosition;   // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;                // [ property ]
 };

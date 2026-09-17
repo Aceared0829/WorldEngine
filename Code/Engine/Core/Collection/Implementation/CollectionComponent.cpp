@@ -5,27 +5,27 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WCollectionComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Collection", GetCollection, SetCollection)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("RegisterNames", m_bRegisterNames),
+    W_RESOURCE_ACCESSOR_PROPERTY("Collection", GetCollection, SetCollection)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_AssetCollection", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("RegisterNames", m_bRegisterNames),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities"),
+    new WCategoryAttribute("Utilities"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCollectionComponent::ezCollectionComponent() = default;
-ezCollectionComponent::~ezCollectionComponent() = default;
+WCollectionComponent::WCollectionComponent() = default;
+WCollectionComponent::~WCollectionComponent() = default;
 
-void ezCollectionComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCollectionComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -34,10 +34,10 @@ void ezCollectionComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_bRegisterNames;
 }
 
-void ezCollectionComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCollectionComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_hCollection;
@@ -48,7 +48,7 @@ void ezCollectionComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezCollectionComponent::SetCollection(const ezCollectionResourceHandle& hCollection)
+void WCollectionComponent::SetCollection(const WCollectionResourceHandle& hCollection)
 {
   m_hCollection = hCollection;
 
@@ -58,18 +58,18 @@ void ezCollectionComponent::SetCollection(const ezCollectionResourceHandle& hCol
   }
 }
 
-void ezCollectionComponent::OnSimulationStarted()
+void WCollectionComponent::OnSimulationStarted()
 {
   InitiatePreload();
 }
 
-void ezCollectionComponent::InitiatePreload()
+void WCollectionComponent::InitiatePreload()
 {
   if (m_hCollection.IsValid())
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_hCollection, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    WResourceLock<WCollectionResource> pCollection(m_hCollection, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-    if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
+    if (pCollection.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       pCollection->PreloadResources();
 
@@ -81,4 +81,4 @@ void ezCollectionComponent::InitiatePreload()
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionComponent);
+W_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionComponent);

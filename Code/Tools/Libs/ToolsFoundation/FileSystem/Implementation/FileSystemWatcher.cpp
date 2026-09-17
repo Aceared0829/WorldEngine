@@ -1,6 +1,6 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER)
 
 #  include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
@@ -10,49 +10,49 @@
 #  include <Foundation/Threading/DelegateTask.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezAssetWatcher
+// WAssetWatcher
 ////////////////////////////////////////////////////////////////////////
 
-ezFileSystemWatcher::ezFileSystemWatcher(const ezApplicationFileSystemConfig& fileSystemConfig)
+WFileSystemWatcher::WFileSystemWatcher(const WApplicationFileSystemConfig& fileSystemConfig)
 {
   m_FileSystemConfig = fileSystemConfig;
 }
 
 
-ezFileSystemWatcher::~ezFileSystemWatcher() = default;
+WFileSystemWatcher::~WFileSystemWatcher() = default;
 
-void ezFileSystemWatcher::Initialize()
+void WFileSystemWatcher::Initialize()
 {
-  EZ_PROFILE_SCOPE("Initialize");
+  W_PROFILE_SCOPE("Initialize");
 
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sTemp;
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    WStringBuilder sTemp;
+    if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
     {
-      ezLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
+      WLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
       continue;
     }
 
-    ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-    ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
+    WDirectoryWatcher* pWatcher = W_DEFAULT_NEW(WDirectoryWatcher);
+    WResult res = pWatcher->OpenDirectory(sTemp, WDirectoryWatcher::Watch::Deletes | WDirectoryWatcher::Watch::Writes | WDirectoryWatcher::Watch::Creates | WDirectoryWatcher::Watch::Renames | WDirectoryWatcher::Watch::Subdirectories);
 
     if (res.Failed())
     {
-      EZ_DEFAULT_DELETE(pWatcher);
-      ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp);
+      W_DEFAULT_DELETE(pWatcher);
+      WLog::Error("Failed to init directory watcher for dir '{0}'", sTemp);
       continue;
     }
 
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", ezTaskNesting::Never, [this]()
+  m_pWatcherTask = W_DEFAULT_NEW(WDelegateTask<void>, "Watcher Changes", WTaskNesting::Never, [this]()
     {
-      ezTempHybridArray<WatcherResult, 16> watcherResults;
-      for (ezDirectoryWatcher* pWatcher : m_Watchers)
+      WTempHybridArray<WatcherResult, 16> watcherResults;
+      for (WDirectoryWatcher* pWatcher : m_Watchers)
       {
-        pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+        pWatcher->EnumerateChanges([pWatcher, &watcherResults](WStringView sFilename, WDirectoryWatcherAction action, WDirectoryWatcherType type)
           { watcherResults.PushBack({sFilename, action, type}); });
       }
       for (const WatcherResult& res : watcherResults)
@@ -61,80 +61,80 @@ void ezFileSystemWatcher::Initialize()
       } //
     });
   // This is a separate task as these trigger callbacks which can potentially take a long time and we can't have the watcher changes task be blocked for so long or notifications might get lost.
-  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", ezTaskNesting::Never, [this]()
+  m_pNotifyTask = W_DEFAULT_NEW(WDelegateTask<void>, "Watcher Notify", WTaskNesting::Never, [this]()
     { NotifyChanges(); });
 }
 
-void ezFileSystemWatcher::Deinitialize()
+void WFileSystemWatcher::Deinitialize()
 {
   m_bShutdown = true;
-  ezTaskGroupID watcherGroup;
-  ezTaskGroupID notifyGroup;
+  WTaskGroupID watcherGroup;
+  WTaskGroupID notifyGroup;
   {
-    EZ_LOCK(m_WatcherMutex);
+    W_LOCK(m_WatcherMutex);
     watcherGroup = m_WatcherGroup;
     notifyGroup = m_NotifyGroup;
   }
-  ezTaskSystem::WaitForGroup(watcherGroup);
-  ezTaskSystem::WaitForGroup(notifyGroup);
+  WTaskSystem::WaitForGroup(watcherGroup);
+  WTaskSystem::WaitForGroup(notifyGroup);
   {
-    EZ_LOCK(m_WatcherMutex);
+    W_LOCK(m_WatcherMutex);
     m_pWatcherTask.Clear();
     m_pNotifyTask.Clear();
-    for (ezDirectoryWatcher* pWatcher : m_Watchers)
+    for (WDirectoryWatcher* pWatcher : m_Watchers)
     {
-      EZ_DEFAULT_DELETE(pWatcher);
+      W_DEFAULT_DELETE(pWatcher);
     }
     m_Watchers.Clear();
   }
 }
 
-void ezFileSystemWatcher::MainThreadTick()
+void WFileSystemWatcher::MainThreadTick()
 {
-  EZ_PROFILE_SCOPE("ezAssetWatcherTick");
-  EZ_LOCK(m_WatcherMutex);
-  if (!m_bShutdown && m_pWatcherTask && ezTaskSystem::IsTaskGroupFinished(m_WatcherGroup))
+  W_PROFILE_SCOPE("WAssetWatcherTick");
+  W_LOCK(m_WatcherMutex);
+  if (!m_bShutdown && m_pWatcherTask && WTaskSystem::IsTaskGroupFinished(m_WatcherGroup))
   {
-    m_WatcherGroup = ezTaskSystem::StartSingleTask(m_pWatcherTask, ezTaskPriority::LongRunningHighPriority);
+    m_WatcherGroup = WTaskSystem::StartSingleTask(m_pWatcherTask, WTaskPriority::LongRunningHighPriority);
   }
-  if (!m_bShutdown && m_pNotifyTask && ezTaskSystem::IsTaskGroupFinished(m_NotifyGroup))
+  if (!m_bShutdown && m_pNotifyTask && WTaskSystem::IsTaskGroupFinished(m_NotifyGroup))
   {
-    m_NotifyGroup = ezTaskSystem::StartSingleTask(m_pNotifyTask, ezTaskPriority::LongRunningHighPriority);
+    m_NotifyGroup = WTaskSystem::StartSingleTask(m_pNotifyTask, WTaskPriority::LongRunningHighPriority);
   }
 }
 
 
-void ezFileSystemWatcher::NotifyChanges()
+void WFileSystemWatcher::NotifyChanges()
 {
-  auto NotifyChange = [this](const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)
+  auto NotifyChange = [this](const WString& sAbsPath, WFileSystemWatcherEvent::Type type)
   {
-    ezFileSystemWatcherEvent e;
+    WFileSystemWatcherEvent e;
     e.m_sPath = sAbsPath;
     e.m_Type = type;
     m_Events.Broadcast(e);
   };
 
   // Files
-  ConsumeEntry(m_FileAdded, ezFileSystemWatcherEvent::Type::FileAdded, NotifyChange);
-  ConsumeEntry(m_FileChanged, ezFileSystemWatcherEvent::Type::FileChanged, NotifyChange);
-  ConsumeEntry(m_FileRemoved, ezFileSystemWatcherEvent::Type::FileRemoved, NotifyChange);
+  ConsumeEntry(m_FileAdded, WFileSystemWatcherEvent::Type::FileAdded, NotifyChange);
+  ConsumeEntry(m_FileChanged, WFileSystemWatcherEvent::Type::FileChanged, NotifyChange);
+  ConsumeEntry(m_FileRemoved, WFileSystemWatcherEvent::Type::FileRemoved, NotifyChange);
 
   // Directories
-  ConsumeEntry(m_DirectoryAdded, ezFileSystemWatcherEvent::Type::DirectoryAdded, NotifyChange);
-  ConsumeEntry(m_DirectoryRemoved, ezFileSystemWatcherEvent::Type::DirectoryRemoved, NotifyChange);
+  ConsumeEntry(m_DirectoryAdded, WFileSystemWatcherEvent::Type::DirectoryAdded, NotifyChange);
+  ConsumeEntry(m_DirectoryRemoved, WFileSystemWatcherEvent::Type::DirectoryRemoved, NotifyChange);
 }
 
-void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
+void WFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
 {
   switch (res.m_Action)
   {
-    case ezDirectoryWatcherAction::None:
-      EZ_ASSERT_DEV(false, "None event should never happen");
+    case WDirectoryWatcherAction::None:
+      W_ASSERT_DEV(false, "None event should never happen");
       break;
-    case ezDirectoryWatcherAction::RenamedNewName:
-    case ezDirectoryWatcherAction::Added:
+    case WDirectoryWatcherAction::RenamedNewName:
+    case WDirectoryWatcherAction::Added:
     {
-      if (res.m_Type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == WDirectoryWatcherType::Directory)
       {
         AddEntry(m_DirectoryAdded, res.m_sFile, s_AddedFrameDelay);
       }
@@ -144,10 +144,10 @@ void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
       }
     }
     break;
-    case ezDirectoryWatcherAction::RenamedOldName:
-    case ezDirectoryWatcherAction::Removed:
+    case WDirectoryWatcherAction::RenamedOldName:
+    case WDirectoryWatcherAction::Removed:
     {
-      if (res.m_Type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == WDirectoryWatcherType::Directory)
       {
         AddEntry(m_DirectoryRemoved, res.m_sFile, s_RemovedFrameDelay);
       }
@@ -157,9 +157,9 @@ void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
       }
     }
     break;
-    case ezDirectoryWatcherAction::Modified:
+    case WDirectoryWatcherAction::Modified:
     {
-      if (res.m_Type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == WDirectoryWatcherType::Directory)
       {
         // Can a directory even be modified? In any case, we ignore this change.
         // UpdateEntry(m_DirectoryRemoved, res.sFile, s_RemovedFrameDelay);
@@ -173,9 +173,9 @@ void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
   }
 }
 
-void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, const ezStringView sAbsPath, ezUInt32 uiFrameDelay)
+void WFileSystemWatcher::AddEntry(WDynamicArray<PendingUpdate>& container, const WStringView sAbsPath, WUInt32 uiFrameDelay)
 {
-  EZ_LOCK(m_WatcherMutex);
+  W_LOCK(m_WatcherMutex);
   for (PendingUpdate& update : container)
   {
     if (update.m_sAbsPath == sAbsPath)
@@ -189,12 +189,12 @@ void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, con
   update.m_sAbsPath = sAbsPath;
 }
 
-void ezFileSystemWatcher::ConsumeEntry(ezDynamicArray<PendingUpdate>& container, ezFileSystemWatcherEvent::Type type, const ezDelegate<void(const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)>& consume)
+void WFileSystemWatcher::ConsumeEntry(WDynamicArray<PendingUpdate>& container, WFileSystemWatcherEvent::Type type, const WDelegate<void(const WString& sAbsPath, WFileSystemWatcherEvent::Type type)>& consume)
 {
-  ezTempHybridArray<PendingUpdate, 16> updates;
+  WTempHybridArray<PendingUpdate, 16> updates;
   {
-    EZ_LOCK(m_WatcherMutex);
-    for (ezUInt32 i = container.GetCount(); i > 0; --i)
+    W_LOCK(m_WatcherMutex);
+    for (WUInt32 i = container.GetCount(); i > 0; --i)
     {
       PendingUpdate& update = container[i - 1];
       --update.m_uiFrameDelay;

@@ -9,119 +9,119 @@
 #include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAngelScriptCodeMode, 1)
-  EZ_ENUM_CONSTANTS(ezAngelScriptCodeMode::Inline, ezAngelScriptCodeMode::FromFile)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WAngelScriptCodeMode, 1)
+  W_ENUM_CONSTANTS(WAngelScriptCodeMode::Inline, WAngelScriptCodeMode::FromFile)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptParameter, 1, ezRTTIDefaultAllocator<ezAngelScriptParameter>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptParameter, 1, WRTTIDefaultAllocator<WAngelScriptParameter>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Declaration", m_sDeclaration)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("Expose", m_bExpose),
+    W_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("Declaration", m_sDeclaration)->AddAttributes(new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("Expose", m_bExpose),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezAngelScriptAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptAssetProperties, 1, WRTTIDefaultAllocator<WAngelScriptAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Source", ezAngelScriptCodeMode, m_CodeMode),
-    EZ_MEMBER_PROPERTY("SourceFile", m_sScriptFile)->AddAttributes(new ezFileBrowserAttribute("Select Script", "*.as", {}, "AngelScript")),
-    EZ_MEMBER_PROPERTY("ClassName", m_sClassName)->AddAttributes(new ezDefaultValueAttribute("ScriptObject")),
-    EZ_ARRAY_MEMBER_PROPERTY("Parameters", m_Parameters)->AddAttributes(new ezContainerAttribute(false, false, false)),
-    EZ_ARRAY_MEMBER_PROPERTY("Dependencies", m_Dependencies)->AddAttributes(new ezContainerAttribute(false, false, false), new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Code", m_sCode)->AddAttributes(new ezHiddenAttribute(), new ezDefaultValueAttribute("class ScriptObject : ezAngelScriptClass\n\
-{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}")),
+    W_ENUM_MEMBER_PROPERTY("Source", WAngelScriptCodeMode, m_CodeMode),
+    W_MEMBER_PROPERTY("SourceFile", m_sScriptFile)->AddAttributes(new WFileBrowserAttribute("Select Script", "*.as", {}, "AngelScript")),
+    W_MEMBER_PROPERTY("ClassName", m_sClassName)->AddAttributes(new WDefaultValueAttribute("ScriptObject")),
+    W_ARRAY_MEMBER_PROPERTY("Parameters", m_Parameters)->AddAttributes(new WContainerAttribute(false, false, false)),
+    W_ARRAY_MEMBER_PROPERTY("Dependencies", m_Dependencies)->AddAttributes(new WContainerAttribute(false, false, false), new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("Code", m_sCode)->AddAttributes(new WHiddenAttribute(), new WDefaultValueAttribute("class ScriptObject : WAngelScriptClass\n\
+{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// WLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg) { }\n}")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetDocument, 3, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptAssetDocument, 3, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAngelScriptAssetDocument::ezAngelScriptAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezAngelScriptAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
+WAngelScriptAssetDocument::WAngelScriptAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WAngelScriptAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple)
 {
 }
 
-ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAngelScriptAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTransformStatus("");
+  W_ASSERT_NOT_IMPLEMENTED;
+  return WTransformStatus("");
 }
 
-class ezAsPreprocessor2
+class WAsPreprocessor2
 {
 public:
-  ezStringBuilder m_sRefFilePath;
-  ezStringBuilder m_sMainCode;
-  ezSet<ezString> m_Dependencies;
+  WStringBuilder m_sRefFilePath;
+  WStringBuilder m_sMainCode;
+  WSet<WString> m_Dependencies;
 
-  ezAsPreprocessor2()
+  WAsPreprocessor2()
   {
-    m_Processor.SetFileOpenFunction(ezMakeDelegate(&ezAsPreprocessor2::PreProc_OpenFile, this));
+    m_Processor.SetFileOpenFunction(WMakeDelegate(&WAsPreprocessor2::PreProc_OpenFile, this));
     m_Processor.SetImplicitPragmaOnce(true);
   }
 
-  ezResult Process()
+  WResult Process()
   {
-    ezStringBuilder sResult;
+    WStringBuilder sResult;
     return m_Processor.Process(m_sRefFilePath, sResult, false);
   };
 
 private:
-  ezResult PreProc_OpenFile(ezStringView sAbsFile, ezDynamicArray<ezUInt8>& out_Content, ezTimestamp& out_FileModification)
+  WResult PreProc_OpenFile(WStringView sAbsFile, WDynamicArray<WUInt8>& out_Content, WTimestamp& out_FileModification)
   {
     if (sAbsFile == m_sRefFilePath)
     {
       out_Content.SetCount(m_sMainCode.GetElementCount());
-      ezMemoryUtils::RawByteCopy(out_Content.GetData(), m_sMainCode.GetData(), m_sMainCode.GetElementCount());
-      return EZ_SUCCESS;
+      WMemoryUtils::RawByteCopy(out_Content.GetData(), m_sMainCode.GetData(), m_sMainCode.GetElementCount());
+      return W_SUCCESS;
     }
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sAbsFile).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     m_Dependencies.Insert(sAbsFile);
 
-    out_Content.SetCountUninitialized((ezUInt32)file.GetFileSize());
+    out_Content.SetCountUninitialized((WUInt32)file.GetFileSize());
     file.ReadBytes(out_Content.GetData(), out_Content.GetCount());
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezPreprocessor m_Processor;
+  WPreprocessor m_Processor;
 };
 
-ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAngelScriptAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   SyncInfos();
 
-  const bool bCanModify = !transformFlags.IsSet(ezTransformFlags::BackgroundProcessing);
+  const bool bCanModify = !transformFlags.IsSet(WTransformFlags::BackgroundProcessing);
 
   auto pProps = GetProperties();
 
-  ezAsPreprocessor2 preProc;
+  WAsPreprocessor2 preProc;
 
-  if (pProps->m_CodeMode == ezAngelScriptCodeMode::Inline)
+  if (pProps->m_CodeMode == WAngelScriptCodeMode::Inline)
   {
     preProc.m_sRefFilePath = GetDocumentPath();
     preProc.m_sMainCode = pProps->m_sCode;
 
-    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(preProc.m_sRefFilePath);
+    WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(preProc.m_sRefFilePath);
   }
   else
   {
     preProc.m_sRefFilePath = pProps->m_sScriptFile;
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(pProps->m_sScriptFile).Succeeded())
     {
       preProc.m_sMainCode.ReadAll(file);
@@ -130,7 +130,7 @@ ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char*
 
   if (preProc.Process().Succeeded())
   {
-    ezTempHybridArray<ezString, 16> newDeps;
+    WTempHybridArray<WString, 16> newDeps;
     for (const auto& str : preProc.m_Dependencies)
     {
       newDeps.PushBack(str);
@@ -139,22 +139,22 @@ ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char*
     if (pProps->m_Dependencies != newDeps)
     {
       if (!bCanModify)
-        return ezTransformResult::NeedsImport;
+        return WTransformResult::NeedsImport;
 
       auto pPropObj = GetPropertyObject();
 
-      ezCommandHistory* history = GetCommandHistory();
-      ezObjectCommandAccessor accessor(history);
+      WCommandHistory* history = GetCommandHistory();
+      WObjectCommandAccessor accessor(history);
 
       accessor.StartTransaction("Update Dependencies");
 
       // clear the entire array
       accessor.ClearByName(pPropObj, "Dependencies").AssertSuccess();
 
-      const ezAbstractProperty* pPropDeps = pPropObj->GetType()->FindPropertyByName("Dependencies");
+      const WAbstractProperty* pPropDeps = pPropObj->GetType()->FindPropertyByName("Dependencies");
 
       // and fill it again
-      for (ezUInt32 clip = 0; clip < newDeps.GetCount(); ++clip)
+      for (WUInt32 clip = 0; clip < newDeps.GetCount(); ++clip)
       {
         accessor.InsertValue(pPropObj, pPropDeps, newDeps[clip], -1).AssertSuccess();
       }
@@ -163,16 +163,16 @@ ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char*
     }
   }
 
-  return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
+  return WAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
 
-void ezAngelScriptAssetDocument::SyncInfos()
+void WAngelScriptAssetDocument::SyncInfos()
 {
   auto pProps = GetProperties();
 
-  if (pProps->m_CodeMode == ezAngelScriptCodeMode::FromFile)
+  if (pProps->m_CodeMode == WAngelScriptCodeMode::FromFile)
   {
-    ezDocumentConfigMsgToEngine cfg;
+    WDocumentConfigMsgToEngine cfg;
     cfg.m_sWhatToDo = "InputFile";
     cfg.m_sValue = pProps->m_sScriptFile;
     GetEditorEngineConnection()->SendMessage(&cfg);
@@ -180,18 +180,18 @@ void ezAngelScriptAssetDocument::SyncInfos()
   else
   {
     {
-      ezStringBuilder sStartFile = GetDocumentPath();
-      ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sStartFile);
+      WStringBuilder sStartFile = GetDocumentPath();
+      WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sStartFile);
       sStartFile.Prepend(":inline:");
 
-      ezDocumentConfigMsgToEngine cfg;
+      WDocumentConfigMsgToEngine cfg;
       cfg.m_sWhatToDo = "InputFile";
       cfg.m_sValue = sStartFile;
       GetEditorEngineConnection()->SendMessage(&cfg);
     }
 
     {
-      ezDocumentConfigMsgToEngine cfg;
+      WDocumentConfigMsgToEngine cfg;
       cfg.m_sWhatToDo = "Code";
       cfg.m_sValue = pProps->m_sCode;
       GetEditorEngineConnection()->SendMessage(&cfg);
@@ -199,33 +199,33 @@ void ezAngelScriptAssetDocument::SyncInfos()
   }
 
   {
-    ezDocumentConfigMsgToEngine cfg;
+    WDocumentConfigMsgToEngine cfg;
     cfg.m_sWhatToDo = "Class";
     cfg.m_sValue = pProps->m_sClassName;
     GetEditorEngineConnection()->SendMessage(&cfg);
   }
 }
 
-void ezAngelScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WAngelScriptAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+  WExposedParameters* pExposedParams = W_DEFAULT_NEW(WExposedParameters);
 
   for (const auto& p : GetProperties()->m_Parameters)
   {
     if (p.m_bExpose == false || p.m_sName.IsEmpty() || !p.m_DefaultValue.IsValid())
       continue;
 
-    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    WExposedParameter* param = W_DEFAULT_NEW(WExposedParameter);
     param->m_sName = p.m_sName;
     param->m_DefaultValue = p.m_DefaultValue;
 
     // TODO AngelScript: support resource handles and pass through the necessary attributes
     //
-    // if (p.m_DefaultValue.IsA<ezString>())
+    // if (p.m_DefaultValue.IsA<WString>())
     //{
-    //   param->m_Attributes.PushBack(new ezAssetBrowserAttribute("CompatibleAsset_Material"));
+    //   param->m_Attributes.PushBack(new WAssetBrowserAttribute("CompatibleAsset_Material"));
     // }
 
     pExposedParams->m_Parameters.PushBack(param);
@@ -240,61 +240,61 @@ void ezAngelScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-void ezAngelScriptAssetDocument::OpenExternalEditor()
+void WAngelScriptAssetDocument::OpenExternalEditor()
 {
-  ezStringBuilder sScriptFile(GetProperties()->m_sScriptFile);
+  WStringBuilder sScriptFile(GetProperties()->m_sScriptFile);
 
-  if (GetProperties()->m_CodeMode != ezAngelScriptCodeMode::FromFile)
+  if (GetProperties()->m_CodeMode != WAngelScriptCodeMode::FromFile)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("The source for this asset is 'inline'. To be able to view it in an external program, it has to be moved into a dedicated file.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("The source for this asset is 'inline'. To be able to view it in an external program, it has to be moved into a dedicated file.");
 
     ShowDocumentStatus("Can't open script file, source code is 'inline'.");
     return;
   }
 
-  if (!ezFileSystem::ExistsFile(sScriptFile))
+  if (!WFileSystem::ExistsFile(sScriptFile))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Can't find the file '{}'.\nTo create a script file click the button next to 'SourceFile'.", sScriptFile));
+    WQtUiServices::GetSingleton()->MessageBoxInformation(WFmt("Can't find the file '{}'.\nTo create a script file click the button next to 'SourceFile'.", sScriptFile));
 
     ShowDocumentStatus("Script file doesn't exist.");
     return;
   }
 
-  ezStringBuilder sScriptFileAbs;
-  if (ezFileSystem::ResolvePath(sScriptFile, &sScriptFileAbs, nullptr).Failed())
+  WStringBuilder sScriptFileAbs;
+  if (WFileSystem::ResolvePath(sScriptFile, &sScriptFileAbs, nullptr).Failed())
     return;
 
   {
     QStringList args;
 
-    args.append(ezMakeQString(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+    args.append(WMakeQString(WToolsProject::GetSingleton()->GetProjectDirectory()));
     args.append(sScriptFileAbs.GetData());
 
-    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    if (WQtUiServices::OpenInVsCode(args).Failed())
     {
       // try again with a different program
-      ezQtUiServices::OpenFileInDefaultProgram(sScriptFileAbs).IgnoreResult();
+      WQtUiServices::OpenFileInDefaultProgram(sScriptFileAbs).IgnoreResult();
     }
   }
 }
 
-void ezAngelScriptAssetDocument::SyncExposedParameters()
+void WAngelScriptAssetDocument::SyncExposedParameters()
 {
   SyncInfos();
 
-  ezDocumentConfigMsgToEngine cfg;
+  WDocumentConfigMsgToEngine cfg;
   cfg.m_sWhatToDo = "SyncExposedParams";
   GetEditorEngineConnection()->SendMessage(&cfg);
 }
 
-void ezAngelScriptAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WAngelScriptAssetDocument::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezAngelScriptAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WAngelScriptAssetProperties>())
   {
-    const ezInt64 sourceMode = e.m_pObject->GetTypeAccessor().GetValue("Source").ConvertTo<ezInt64>();
+    const WInt64 sourceMode = e.m_pObject->GetTypeAccessor().GetValue("Source").ConvertTo<WInt64>();
 
     auto& props = *e.m_pPropertyStates;
 
-    props["SourceFile"].m_Visibility = (sourceMode == ezAngelScriptCodeMode::Inline) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["SourceFile"].m_Visibility = (sourceMode == WAngelScriptCodeMode::Inline) ? WPropertyUiState::Invisible : WPropertyUiState::Default;
   }
 }

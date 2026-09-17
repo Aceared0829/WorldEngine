@@ -2,9 +2,9 @@
 
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 
-ezGALVertexDeclaration::ezGALVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description)
-  : ezGALObject(Description)
+WGALVertexDeclaration::WGALVertexDeclaration(const WGALVertexDeclarationCreationDescription& Description)
+  : WGALObject(Description)
 {
 }
 
-ezGALVertexDeclaration::~ezGALVertexDeclaration() = default;
+WGALVertexDeclaration::~WGALVertexDeclaration() = default;

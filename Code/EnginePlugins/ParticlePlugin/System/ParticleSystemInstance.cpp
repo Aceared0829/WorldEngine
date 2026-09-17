@@ -18,19 +18,19 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-bool ezParticleSystemInstance::HasActiveParticles() const
+bool WParticleSystemInstance::HasActiveParticles() const
 {
   return m_StreamGroup.GetNumActiveElements() > 0;
 }
 
-bool ezParticleSystemInstance::IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+bool WParticleSystemInstance::IsEmitterConfigEqual(const WParticleSystemDescriptor* pTemplate) const
 {
   const auto& factories = pTemplate->GetEmitterFactories();
 
   if (factories.GetCount() != m_Emitters.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  for (WUInt32 i = 0; i < factories.GetCount(); ++i)
   {
     if (factories[i]->GetEmitterType() != m_Emitters[i]->GetDynamicRTTI())
       return false;
@@ -39,14 +39,14 @@ bool ezParticleSystemInstance::IsEmitterConfigEqual(const ezParticleSystemDescri
   return true;
 }
 
-bool ezParticleSystemInstance::IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+bool WParticleSystemInstance::IsInitializerConfigEqual(const WParticleSystemDescriptor* pTemplate) const
 {
   const auto& factories = pTemplate->GetInitializerFactories();
 
   if (factories.GetCount() != m_Initializers.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  for (WUInt32 i = 0; i < factories.GetCount(); ++i)
   {
     if (factories[i]->GetInitializerType() != m_Initializers[i]->GetDynamicRTTI())
       return false;
@@ -55,14 +55,14 @@ bool ezParticleSystemInstance::IsInitializerConfigEqual(const ezParticleSystemDe
   return true;
 }
 
-bool ezParticleSystemInstance::IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+bool WParticleSystemInstance::IsBehaviorConfigEqual(const WParticleSystemDescriptor* pTemplate) const
 {
   const auto& factories = pTemplate->GetBehaviorFactories();
 
   if (factories.GetCount() != m_Behaviors.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  for (WUInt32 i = 0; i < factories.GetCount(); ++i)
   {
     if (factories[i]->GetBehaviorType() != m_Behaviors[i]->GetDynamicRTTI())
       return false;
@@ -71,14 +71,14 @@ bool ezParticleSystemInstance::IsBehaviorConfigEqual(const ezParticleSystemDescr
   return true;
 }
 
-bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+bool WParticleSystemInstance::IsTypeConfigEqual(const WParticleSystemDescriptor* pTemplate) const
 {
   const auto& factories = pTemplate->GetTypeFactories();
 
   if (factories.GetCount() != m_Types.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  for (WUInt32 i = 0; i < factories.GetCount(); ++i)
   {
     if (factories[i]->GetTypeType() != m_Types[i]->GetDynamicRTTI())
       return false;
@@ -87,14 +87,14 @@ bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescripto
   return true;
 }
 
-bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+bool WParticleSystemInstance::IsFinalizerConfigEqual(const WParticleSystemDescriptor* pTemplate) const
 {
   const auto& factories = pTemplate->GetFinalizerFactories();
 
   if (factories.GetCount() != m_Finalizers.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  for (WUInt32 i = 0; i < factories.GetCount(); ++i)
   {
     if (factories[i]->GetFinalizerType() != m_Finalizers[i]->GetDynamicRTTI())
       return false;
@@ -103,7 +103,7 @@ bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDesc
   return true;
 }
 
-void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
+void WParticleSystemInstance::ConfigureFromTemplate(const WParticleSystemDescriptor* pTemplate)
 {
   m_bVisible = pTemplate->m_bVisible;
 
@@ -133,7 +133,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 }
 
 
-void ezParticleSystemInstance::Finalize()
+void WParticleSystemInstance::Finalize()
 {
   for (auto& pEmitter : m_Emitters)
   {
@@ -161,7 +161,7 @@ void ezParticleSystemInstance::Finalize()
   }
 }
 
-void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
+void WParticleSystemInstance::CreateStreamProcessors(const WParticleSystemDescriptor* pTemplate)
 {
   // all spawners get cleared, so clear this as well
   // this has to be done before any streams get created
@@ -171,7 +171,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
   //}
 
 
-  const ezUInt64 uiMaxParticles = m_StreamGroup.GetNumElements();
+  const WUInt64 uiMaxParticles = m_StreamGroup.GetNumElements();
   m_StreamGroup.Clear();
   m_StreamGroup.SetSize(uiMaxParticles);
   m_StreamInfo.Clear();
@@ -182,7 +182,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 
     for (const auto pFactory : pTemplate->GetEmitterFactories())
     {
-      ezParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
+      WParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
       m_StreamGroup.AddProcessor(pEmitter);
       m_Emitters.PushBack(pEmitter);
     }
@@ -194,7 +194,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 
     for (const auto pFactory : pTemplate->GetInitializerFactories())
     {
-      ezParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
+      WParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
       m_StreamGroup.AddProcessor(pInitializer);
       m_Initializers.PushBack(pInitializer);
     }
@@ -206,7 +206,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 
     for (const auto pFactory : pTemplate->GetBehaviorFactories())
     {
-      ezParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
+      WParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
       m_StreamGroup.AddProcessor(pBehavior);
       m_Behaviors.PushBack(pBehavior);
     }
@@ -218,7 +218,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 
     for (const auto pFactory : pTemplate->GetFinalizerFactories())
     {
-      ezParticleFinalizer* pFinalizer = pFactory->CreateFinalizer(this);
+      WParticleFinalizer* pFinalizer = pFactory->CreateFinalizer(this);
       m_StreamGroup.AddProcessor(pFinalizer);
       m_Finalizers.PushBack(pFinalizer);
     }
@@ -230,7 +230,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 
     for (const auto pFactory : pTemplate->GetTypeFactories())
     {
-      ezParticleType* pType = pFactory->CreateType(this);
+      WParticleType* pType = pFactory->CreateType(this);
       m_StreamGroup.AddProcessor(pType);
       m_Types.PushBack(pType);
     }
@@ -238,7 +238,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 }
 
 
-void ezParticleSystemInstance::SetupOptionalStreams()
+void WParticleSystemInstance::SetupOptionalStreams()
 {
   for (auto& pEmitter : m_Emitters)
   {
@@ -266,19 +266,19 @@ void ezParticleSystemInstance::SetupOptionalStreams()
   }
 }
 
-void ezParticleSystemInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
+void WParticleSystemInstance::SetTransform(const WTransform& transform, const WVec3& vParticleStartVelocity)
 {
   m_Transform = transform;
   m_vParticleStartVelocity = vParticleStartVelocity;
 }
 
-void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
+void WParticleSystemInstance::ReinitializeStreamProcessors(const WParticleSystemDescriptor* pTemplate)
 {
   // emitters
   {
     const auto& factories = pTemplate->GetEmitterFactories();
 
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Emitters[i]->Reset(this);
       factories[i]->CopyEmitterProperties(m_Emitters[i], false);
@@ -290,7 +290,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
   {
     const auto& factories = pTemplate->GetInitializerFactories();
 
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Initializers[i]->Reset(this);
       factories[i]->CopyInitializerProperties(m_Initializers[i], false);
@@ -302,7 +302,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
   {
     const auto& factories = pTemplate->GetBehaviorFactories();
 
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Behaviors[i]->Reset(this);
       factories[i]->CopyBehaviorProperties(m_Behaviors[i], false);
@@ -314,7 +314,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
   {
     const auto& factories = pTemplate->GetFinalizerFactories();
 
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Finalizers[i]->Reset(this);
       factories[i]->CopyFinalizerProperties(m_Finalizers[i], false);
@@ -326,7 +326,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
   {
     const auto& factories = pTemplate->GetTypeFactories();
 
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Types[i]->Reset(this);
       factories[i]->CopyTypeProperties(m_Types[i], false);
@@ -335,14 +335,14 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
   }
 }
 
-ezParticleSystemInstance::ezParticleSystemInstance()
+WParticleSystemInstance::WParticleSystemInstance()
 {
-  m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
+  m_BoundingVolume = WBoundingBoxSphere::MakeInvalid();
 }
 
-void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
+void WParticleSystemInstance::Construct(WUInt32 uiMaxParticles, WWorld* pWorld, WParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
 {
-  m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
+  m_BoundingVolume = WBoundingBoxSphere::MakeInvalid();
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
@@ -354,7 +354,7 @@ void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorl
   m_StreamGroup.SetSize(uiMaxParticles);
 }
 
-void ezParticleSystemInstance::Destruct()
+void WParticleSystemInstance::Destruct()
 {
   m_StreamGroup.Clear();
   m_Emitters.Clear();
@@ -366,11 +366,11 @@ void ezParticleSystemInstance::Destruct()
   m_StreamInfo.Clear();
 }
 
-ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
+WParticleSystemState::Enum WParticleSystemInstance::Update(const WTime& diff)
 {
-  EZ_PROFILE_SCOPE("PFX: System Update");
+  W_PROFILE_SCOPE("PFX: System Update");
 
-  ezUInt32 uiSpawnedParticles = 0;
+  WUInt32 uiSpawnedParticles = 0;
 
   if (m_bEmitterEnabled)
   {
@@ -379,14 +379,14 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 
     for (auto pEmitter : m_Emitters)
     {
-      if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
+      if (pEmitter->IsFinished() == WParticleEmitterState::Active)
       {
         bAllEmittersInactive = false;
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
+        const WUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
 
         if (uiSpawn > 0)
         {
-          EZ_PROFILE_SCOPE("PFX: System Emit");
+          W_PROFILE_SCOPE("PFX: System Emit");
           m_StreamGroup.InitializeElements(uiSpawn);
           uiSpawnedParticles += uiSpawn;
         }
@@ -395,7 +395,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 
     if (bAllEmittersInactive)
     {
-      // there is a race condition writing this variable when an effect is used by a ezParticleTypeEffect and should be disabled
+      // there is a race condition writing this variable when an effect is used by a WParticleTypeEffect and should be disabled
       // therefore we must never set this variable to 'true' here, but we can set it to 'false' once we are done
       m_bEmitterEnabled = false;
     }
@@ -407,15 +407,15 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   {
     for (auto pEmitter : m_Emitters)
     {
-      if (pEmitter->IsFinished() == ezParticleEmitterState::OnlyReacting)
+      if (pEmitter->IsFinished() == WParticleEmitterState::OnlyReacting)
       {
         bHasReactingEmitters = true;
 
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
+        const WUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
 
         if (uiSpawn > 0)
         {
-          EZ_PROFILE_SCOPE("PFX: System Emit (React)");
+          W_PROFILE_SCOPE("PFX: System Emit (React)");
           m_StreamGroup.InitializeElements(uiSpawn);
           uiSpawnedParticles += uiSpawn;
         }
@@ -424,7 +424,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   }
 
   {
-    EZ_PROFILE_SCOPE("PFX: System Step Behaviors");
+    W_PROFILE_SCOPE("PFX: System Step Behaviors");
     for (auto pBehavior : m_Behaviors)
     {
       pBehavior->StepParticleSystem(diff, uiSpawnedParticles);
@@ -432,7 +432,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   }
 
   {
-    EZ_PROFILE_SCOPE("PFX: System Step Finalizers");
+    W_PROFILE_SCOPE("PFX: System Step Finalizers");
     for (auto pFinalizer : m_Finalizers)
     {
       pFinalizer->StepParticleSystem(diff, uiSpawnedParticles);
@@ -440,7 +440,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   }
 
   {
-    EZ_PROFILE_SCOPE("PFX: System Step Types");
+    W_PROFILE_SCOPE("PFX: System Step Types");
     for (auto pType : m_Types)
     {
       pType->StepParticleSystem(diff, uiSpawnedParticles);
@@ -448,35 +448,35 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   }
 
   {
-    EZ_PROFILE_SCOPE("PFX: System Process");
+    W_PROFILE_SCOPE("PFX: System Process");
     m_StreamGroup.Process();
   }
 
   if (m_bEmitterEnabled)
-    return ezParticleSystemState::Active;
+    return WParticleSystemState::Active;
 
   // all emitters are done, but some particles are still alive
   if (HasActiveParticles())
-    return ezParticleSystemState::EmittersFinished;
+    return WParticleSystemState::EmittersFinished;
 
-  return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
+  return bHasReactingEmitters ? WParticleSystemState::OnlyReacting : WParticleSystemState::Inactive;
 }
 
-ezProcessingStream* ezParticleSystemInstance::QueryStream(ezTempHashedString sName, ezProcessingStream::DataType type) const
+WProcessingStream* WParticleSystemInstance::QueryStream(WTempHashedString sName, WProcessingStream::DataType type) const
 {
   return m_StreamGroup.GetStreamByName(sName);
 }
 
-void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
+void WParticleSystemInstance::CreateStream(WStringView sName, WProcessingStream::DataType type, WProcessingStream** pStream, WParticleStreamBinding& inout_binding, bool bWillInitializeElements)
 {
-  EZ_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
+  W_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
 
   StreamInfo* pInfo = nullptr;
 
-  ezHashedString sNameHashed;
+  WHashedString sNameHashed;
   sNameHashed.Assign(sName);
 
-  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(sNameHashed);
+  WProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(sNameHashed);
   if (pSubStream == nullptr)
   {
     pSubStream = m_StreamGroup.AddStream(sName, type);
@@ -486,7 +486,7 @@ void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStre
   }
   else
   {
-    EZ_ASSERT_DEV(pSubStream->GetDataType() == type, "Particle stream '{}' already exists with data type {} (!= {}).", sName, (int)pSubStream->GetDataType(), (int)type);
+    W_ASSERT_DEV(pSubStream->GetDataType() == type, "Particle stream '{}' already exists with data type {} (!= {}).", sName, (int)pSubStream->GetDataType(), (int)type);
 
     for (auto& info : m_StreamInfo)
     {
@@ -497,14 +497,14 @@ void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStre
       }
     }
 
-    EZ_ASSERT_DEV(pInfo != nullptr, "Could not find info for stream");
+    W_ASSERT_DEV(pInfo != nullptr, "Could not find info for stream");
   }
 
   pInfo->m_bInUse = true;
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", sName);
+  W_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", sName);
   *pStream = pSubStream;
 
   {
@@ -514,9 +514,9 @@ void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStre
   }
 }
 
-void ezParticleSystemInstance::CreateStreamZeroInitializers()
+void WParticleSystemInstance::CreateStreamZeroInitializers()
 {
-  for (ezUInt32 i = 0; i < m_StreamInfo.GetCount();)
+  for (WUInt32 i = 0; i < m_StreamInfo.GetCount();)
   {
     auto& info = m_StreamInfo[i];
 
@@ -542,24 +542,24 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
     if (info.m_bGetsInitialized)
       continue;
 
-    EZ_ASSERT_DEV(info.m_bInUse, "Invalid state");
+    W_ASSERT_DEV(info.m_bInUse, "Invalid state");
 
     if (info.m_pDefaultInitializer == nullptr)
     {
-      ezParticleStream* pStream = GetOwnerWorldModule()->CreateStreamDefaultInitializer(this, info.m_sName);
+      WParticleStream* pStream = GetOwnerWorldModule()->CreateStreamDefaultInitializer(this, info.m_sName);
 
       if (pStream == nullptr)
       {
-        ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName);
+        WLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName);
 
-        ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
+        WProcessingStreamSpawnerZeroInitialized* pZeroInit = W_DEFAULT_NEW(WProcessingStreamSpawnerZeroInitialized);
         pZeroInit->SetStreamName(info.m_sName);
 
         info.m_pDefaultInitializer = pZeroInit;
       }
       else
       {
-        // ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
+        // WLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
         info.m_pDefaultInitializer = pStream;
       }
 
@@ -568,18 +568,18 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
   }
 }
 
-void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGroup) const
+void WParticleStreamBinding::UpdateBindings(const WProcessingStreamGroup* pGroup) const
 {
   for (const auto& bind : m_Bindings)
   {
-    ezProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
-    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName);
+    WProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
+    W_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName);
 
     *bind.m_ppStream = pStream;
   }
 }
 
-void ezParticleSystemInstance::ProcessEventQueue(ezParticleEventQueue queue)
+void WParticleSystemInstance::ProcessEventQueue(WParticleEventQueue queue)
 {
   for (auto pEmitter : m_Emitters)
   {
@@ -587,12 +587,12 @@ void ezParticleSystemInstance::ProcessEventQueue(ezParticleEventQueue queue)
   }
 }
 
-ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
+WParticleWorldModule* WParticleSystemInstance::GetOwnerWorldModule() const
 {
   return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
-void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void WParticleSystemInstance::ExtractSystemRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const
 {
   for (auto pType : m_Types)
   {
@@ -600,33 +600,33 @@ void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& r
   }
 }
 
-void ezParticleSystemInstance::AddParticleDeathEventHandler(ParticleDeathHandler handler)
+void WParticleSystemInstance::AddParticleDeathEventHandler(ParticleDeathHandler handler)
 {
   m_StreamGroup.m_ElementRemovedEvent.AddEventHandler(handler);
 }
 
-void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHandler handler)
+void WParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHandler handler)
 {
   m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 
-void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize)
+void WParticleSystemInstance::SetBoundingVolume(const WBoundingBoxSphere& volume, float fMaxParticleSize)
 {
   m_BoundingVolume = volume;
 
   float fExpand = 0;
   for (const auto pType : m_Types)
   {
-    fExpand = ezMath::Max(fExpand, pType->GetMaxParticleRadius(fMaxParticleSize));
+    fExpand = WMath::Max(fExpand, pType->GetMaxParticleRadius(fMaxParticleSize));
   }
 
-  m_BoundingVolume.m_vBoxHalfExtents += ezVec3(fExpand);
+  m_BoundingVolume.m_vBoxHalfExtents += WVec3(fExpand);
   m_BoundingVolume.m_fSphereRadius += fExpand;
 }
 
-bool ezParticleSystemInstance::IsContinuous() const
+bool WParticleSystemInstance::IsContinuous() const
 {
-  for (const ezParticleEmitter* pEmitter : m_Emitters)
+  for (const WParticleEmitter* pEmitter : m_Emitters)
   {
     if (pEmitter->IsContinuous())
       return true;

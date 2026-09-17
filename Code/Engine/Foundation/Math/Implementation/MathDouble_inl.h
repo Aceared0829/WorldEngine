@@ -1,52 +1,52 @@
 #pragma once
 
-namespace ezMath
+namespace WMath
 {
-  EZ_ALWAYS_INLINE bool IsFinite(double value)
+  W_ALWAYS_INLINE bool IsFinite(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezInt64DoubleUnion i2f(value);
+    WInt64DoubleUnion i2f(value);
     return ((i2f.i & 0x7FF0000000000000ull) != 0x7FF0000000000000ull);
   }
 
-  EZ_ALWAYS_INLINE bool IsNaN(double value)
+  W_ALWAYS_INLINE bool IsNaN(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezInt64DoubleUnion i2f(value);
+    WInt64DoubleUnion i2f(value);
     return (((i2f.i & 0x7FF0000000000000ull) == 0x7FF0000000000000ull) && ((i2f.i & 0xFFFFFFFFFFFFFull) != 0));
   }
 
-  EZ_ALWAYS_INLINE double Floor(double f)
+  W_ALWAYS_INLINE double Floor(double f)
   {
     return floor(f);
   }
-  EZ_ALWAYS_INLINE ezInt32 FloorToInt(double f)
+  W_ALWAYS_INLINE WInt32 FloorToInt(double f)
   {
-    return static_cast<ezInt32>(floor(f));
+    return static_cast<WInt32>(floor(f));
   }
 
 
-  EZ_ALWAYS_INLINE double Ceil(double f)
+  W_ALWAYS_INLINE double Ceil(double f)
   {
     return ceil(f);
   }
 
-  EZ_ALWAYS_INLINE ezInt32 CeilToInt(double f)
+  W_ALWAYS_INLINE WInt32 CeilToInt(double f)
   {
-    return static_cast<ezInt32>(ceil(f));
+    return static_cast<WInt32>(ceil(f));
   }
 
-  EZ_ALWAYS_INLINE double Round(double f)
+  W_ALWAYS_INLINE double Round(double f)
   {
     return Floor(f + 0.5f);
   }
-  EZ_ALWAYS_INLINE ezInt32 RoundToInt(double f)
+  W_ALWAYS_INLINE WInt32 RoundToInt(double f)
   {
     return FloorToInt(f + 0.5);
   }
@@ -65,58 +65,58 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  EZ_ALWAYS_INLINE double RoundToMultiple(double f, double fMultiple)
+  W_ALWAYS_INLINE double RoundToMultiple(double f, double fMultiple)
   {
     return Round(f / fMultiple) * fMultiple;
   }
 
-  EZ_ALWAYS_INLINE double Exp(double f)
+  W_ALWAYS_INLINE double Exp(double f)
   {
     return exp(f);
   }
 
-  EZ_ALWAYS_INLINE double Ln(double f)
+  W_ALWAYS_INLINE double Ln(double f)
   {
     return log(f);
   }
 
-  EZ_ALWAYS_INLINE double Log2(double f)
+  W_ALWAYS_INLINE double Log2(double f)
   {
     return log10(f) / log10(2.0);
   }
 
-  EZ_ALWAYS_INLINE double Log10(double f)
+  W_ALWAYS_INLINE double Log10(double f)
   {
     return log10(f);
   }
 
-  EZ_ALWAYS_INLINE double Log(double fBase, double f)
+  W_ALWAYS_INLINE double Log(double fBase, double f)
   {
     return log10(f) / log10(fBase);
   }
 
-  EZ_ALWAYS_INLINE double Pow2(double f)
+  W_ALWAYS_INLINE double Pow2(double f)
   {
     return pow(2.0, f);
   }
 
-  EZ_ALWAYS_INLINE double Pow(double fBase, double fExp)
+  W_ALWAYS_INLINE double Pow(double fBase, double fExp)
   {
     return pow(fBase, fExp);
   }
 
-  EZ_ALWAYS_INLINE double Root(double f, double fNthRoot)
+  W_ALWAYS_INLINE double Root(double f, double fNthRoot)
   {
     return pow(f, 1.0 / fNthRoot);
   }
 
-  EZ_ALWAYS_INLINE double Sqrt(double f)
+  W_ALWAYS_INLINE double Sqrt(double f)
   {
     return sqrt(f);
   }
 
-  EZ_ALWAYS_INLINE double Mod(double f, double fDiv)
+  W_ALWAYS_INLINE double Mod(double f, double fDiv)
   {
     return fmod(f, fDiv);
   }
-} // namespace ezMath
+} // namespace WMath

@@ -4,70 +4,70 @@
 #include <Foundation/Time/Clock.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVirtualThumbStick, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
+WInt32 WVirtualThumbStick::s_iThumbsticks = 0;
 
-ezVirtualThumbStick::ezVirtualThumbStick()
+WVirtualThumbStick::WVirtualThumbStick()
 {
-  SetAreaFocusMode(ezInputActionConfig::RequireKeyUp, ezInputActionConfig::KeepFocus);
-  SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-  SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
+  SetAreaFocusMode(WInputActionConfig::RequireKeyUp, WInputActionConfig::KeepFocus);
+  SetTriggerInputSlot(WVirtualThumbStick::Input::Touchpoint);
+  SetThumbstickOutput(WVirtualThumbStick::Output::Controller0_LeftStick);
 
-  SetInputArea(ezVec2(0.0f), ezVec2(0.0f), 0.0f, 0.0f);
+  SetInputArea(WVec2(0.0f), WVec2(0.0f), 0.0f, 0.0f);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("Thumbstick_{0}", s_iThumbsticks);
   m_sName = s;
 
   ++s_iThumbsticks;
 }
 
-ezVirtualThumbStick::~ezVirtualThumbStick()
+WVirtualThumbStick::~WVirtualThumbStick()
 {
-  ezInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
+  WInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
 }
 
-void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum input, const ezInputActionConfig* pCustomConfig)
+void WVirtualThumbStick::SetTriggerInputSlot(WVirtualThumbStick::Input::Enum input, const WInputActionConfig* pCustomConfig)
 {
-  for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+  for (WInt32 i = 0; i < WInputActionConfig::MaxInputSlotAlternatives; ++i)
   {
-    m_ActionConfig.m_sFilterByInputSlotX[i] = ezInputSlot_None;
-    m_ActionConfig.m_sFilterByInputSlotY[i] = ezInputSlot_None;
-    m_ActionConfig.m_sInputSlotTrigger[i] = ezInputSlot_None;
+    m_ActionConfig.m_sFilterByInputSlotX[i] = WInputSlot_None;
+    m_ActionConfig.m_sFilterByInputSlotY[i] = WInputSlot_None;
+    m_ActionConfig.m_sInputSlotTrigger[i] = WInputSlot_None;
   }
 
   switch (input)
   {
-    case ezVirtualThumbStick::Input::Touchpoint:
+    case WVirtualThumbStick::Input::Touchpoint:
     {
-      m_ActionConfig.m_sFilterByInputSlotX[0] = ezInputSlot_TouchPoint0_PositionX;
-      m_ActionConfig.m_sFilterByInputSlotY[0] = ezInputSlot_TouchPoint0_PositionY;
-      m_ActionConfig.m_sInputSlotTrigger[0] = ezInputSlot_TouchPoint0;
+      m_ActionConfig.m_sFilterByInputSlotX[0] = WInputSlot_TouchPoint0_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[0] = WInputSlot_TouchPoint0_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[0] = WInputSlot_TouchPoint0;
 
-      m_ActionConfig.m_sFilterByInputSlotX[1] = ezInputSlot_TouchPoint1_PositionX;
-      m_ActionConfig.m_sFilterByInputSlotY[1] = ezInputSlot_TouchPoint1_PositionY;
-      m_ActionConfig.m_sInputSlotTrigger[1] = ezInputSlot_TouchPoint1;
+      m_ActionConfig.m_sFilterByInputSlotX[1] = WInputSlot_TouchPoint1_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[1] = WInputSlot_TouchPoint1_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[1] = WInputSlot_TouchPoint1;
 
-      m_ActionConfig.m_sFilterByInputSlotX[2] = ezInputSlot_TouchPoint2_PositionX;
-      m_ActionConfig.m_sFilterByInputSlotY[2] = ezInputSlot_TouchPoint2_PositionY;
-      m_ActionConfig.m_sInputSlotTrigger[2] = ezInputSlot_TouchPoint2;
+      m_ActionConfig.m_sFilterByInputSlotX[2] = WInputSlot_TouchPoint2_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[2] = WInputSlot_TouchPoint2_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[2] = WInputSlot_TouchPoint2;
     }
     break;
-    case ezVirtualThumbStick::Input::MousePosition:
+    case WVirtualThumbStick::Input::MousePosition:
     {
-      m_ActionConfig.m_sFilterByInputSlotX[0] = ezInputSlot_MousePositionX;
-      m_ActionConfig.m_sFilterByInputSlotY[0] = ezInputSlot_MousePositionY;
-      m_ActionConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseButton0;
+      m_ActionConfig.m_sFilterByInputSlotX[0] = WInputSlot_MousePositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[0] = WInputSlot_MousePositionY;
+      m_ActionConfig.m_sInputSlotTrigger[0] = WInputSlot_MouseButton0;
     }
     break;
-    case ezVirtualThumbStick::Input::Custom:
+    case WVirtualThumbStick::Input::Custom:
     {
-      EZ_ASSERT_DEV(pCustomConfig != nullptr, "Must pass a custom config, if you want to have a custom config.");
+      W_ASSERT_DEV(pCustomConfig != nullptr, "Must pass a custom config, if you want to have a custom config.");
 
-      for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+      for (WInt32 i = 0; i < WInputActionConfig::MaxInputSlotAlternatives; ++i)
       {
         m_ActionConfig.m_sFilterByInputSlotX[i] = pCustomConfig->m_sFilterByInputSlotX[i];
         m_ActionConfig.m_sFilterByInputSlotY[i] = pCustomConfig->m_sFilterByInputSlotY[i];
@@ -80,75 +80,75 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum i
   m_bConfigChanged = true;
 }
 
-void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum output, ezStringView sOutputLeft, ezStringView sOutputRight, ezStringView sOutputUp, ezStringView sOutputDown)
+void WVirtualThumbStick::SetThumbstickOutput(WVirtualThumbStick::Output::Enum output, WStringView sOutputLeft, WStringView sOutputRight, WStringView sOutputUp, WStringView sOutputDown)
 {
   switch (output)
   {
-    case ezVirtualThumbStick::Output::Controller0_LeftStick:
+    case WVirtualThumbStick::Output::Controller0_LeftStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller0_LeftStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller0_LeftStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller0_LeftStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller0_LeftStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller0_LeftStick_NegX;
+      m_sOutputRight = WInputSlot_Controller0_LeftStick_PosX;
+      m_sOutputUp = WInputSlot_Controller0_LeftStick_PosY;
+      m_sOutputDown = WInputSlot_Controller0_LeftStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller0_RightStick:
+    case WVirtualThumbStick::Output::Controller0_RightStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller0_RightStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller0_RightStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller0_RightStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller0_RightStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller0_RightStick_NegX;
+      m_sOutputRight = WInputSlot_Controller0_RightStick_PosX;
+      m_sOutputUp = WInputSlot_Controller0_RightStick_PosY;
+      m_sOutputDown = WInputSlot_Controller0_RightStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller1_LeftStick:
+    case WVirtualThumbStick::Output::Controller1_LeftStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller1_LeftStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller1_LeftStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller1_LeftStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller1_LeftStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller1_LeftStick_NegX;
+      m_sOutputRight = WInputSlot_Controller1_LeftStick_PosX;
+      m_sOutputUp = WInputSlot_Controller1_LeftStick_PosY;
+      m_sOutputDown = WInputSlot_Controller1_LeftStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller1_RightStick:
+    case WVirtualThumbStick::Output::Controller1_RightStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller1_RightStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller1_RightStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller1_RightStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller1_RightStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller1_RightStick_NegX;
+      m_sOutputRight = WInputSlot_Controller1_RightStick_PosX;
+      m_sOutputUp = WInputSlot_Controller1_RightStick_PosY;
+      m_sOutputDown = WInputSlot_Controller1_RightStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller2_LeftStick:
+    case WVirtualThumbStick::Output::Controller2_LeftStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller2_LeftStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller2_LeftStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller2_LeftStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller2_LeftStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller2_LeftStick_NegX;
+      m_sOutputRight = WInputSlot_Controller2_LeftStick_PosX;
+      m_sOutputUp = WInputSlot_Controller2_LeftStick_PosY;
+      m_sOutputDown = WInputSlot_Controller2_LeftStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller2_RightStick:
+    case WVirtualThumbStick::Output::Controller2_RightStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller2_RightStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller2_RightStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller2_RightStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller2_RightStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller2_RightStick_NegX;
+      m_sOutputRight = WInputSlot_Controller2_RightStick_PosX;
+      m_sOutputUp = WInputSlot_Controller2_RightStick_PosY;
+      m_sOutputDown = WInputSlot_Controller2_RightStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller3_LeftStick:
+    case WVirtualThumbStick::Output::Controller3_LeftStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller3_LeftStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller3_LeftStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller3_LeftStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller3_LeftStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller3_LeftStick_NegX;
+      m_sOutputRight = WInputSlot_Controller3_LeftStick_PosX;
+      m_sOutputUp = WInputSlot_Controller3_LeftStick_PosY;
+      m_sOutputDown = WInputSlot_Controller3_LeftStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Controller3_RightStick:
+    case WVirtualThumbStick::Output::Controller3_RightStick:
     {
-      m_sOutputLeft = ezInputSlot_Controller3_RightStick_NegX;
-      m_sOutputRight = ezInputSlot_Controller3_RightStick_PosX;
-      m_sOutputUp = ezInputSlot_Controller3_RightStick_PosY;
-      m_sOutputDown = ezInputSlot_Controller3_RightStick_NegY;
+      m_sOutputLeft = WInputSlot_Controller3_RightStick_NegX;
+      m_sOutputRight = WInputSlot_Controller3_RightStick_PosX;
+      m_sOutputUp = WInputSlot_Controller3_RightStick_PosY;
+      m_sOutputDown = WInputSlot_Controller3_RightStick_NegY;
     }
     break;
-    case ezVirtualThumbStick::Output::Custom:
+    case WVirtualThumbStick::Output::Custom:
     {
       m_sOutputLeft = sOutputLeft;
       m_sOutputRight = sOutputRight;
@@ -161,7 +161,7 @@ void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum 
   m_bConfigChanged = true;
 }
 
-void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEnter, ezInputActionConfig::OnLeaveArea onLeave)
+void WVirtualThumbStick::SetAreaFocusMode(WInputActionConfig::OnEnterArea onEnter, WInputActionConfig::OnLeaveArea onLeave)
 {
   m_bConfigChanged = true;
 
@@ -169,7 +169,7 @@ void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEn
   m_ActionConfig.m_OnLeaveArea = onLeave;
 }
 
-void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
+void WVirtualThumbStick::SetInputArea(const WVec2& vLowerLeft, const WVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
 {
   m_bConfigChanged = true;
 
@@ -180,23 +180,23 @@ void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& v
   m_CenterMode = center;
 }
 
-void ezVirtualThumbStick::SetFlags(ezBitflags<Flags> flags)
+void WVirtualThumbStick::SetFlags(WBitflags<Flags> flags)
 {
   m_Flags = flags;
 }
 
-void ezVirtualThumbStick::SetInputCoordinateAspectRatio(float fWidthDivHeight)
+void WVirtualThumbStick::SetInputCoordinateAspectRatio(float fWidthDivHeight)
 {
   m_fAspectRatio = fWidthDivHeight;
 }
 
-void ezVirtualThumbStick::GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight) const
+void WVirtualThumbStick::GetInputArea(WVec2& out_vLowerLeft, WVec2& out_vUpperRight) const
 {
   out_vLowerLeft = m_vLowerLeft;
   out_vUpperRight = m_vUpperRight;
 }
 
-void ezVirtualThumbStick::UpdateActionMapping()
+void WVirtualThumbStick::UpdateActionMapping()
 {
   if (!m_bConfigChanged)
     return;
@@ -206,12 +206,12 @@ void ezVirtualThumbStick::UpdateActionMapping()
   m_ActionConfig.m_fFilterYMinValue = m_vLowerLeft.y;
   m_ActionConfig.m_fFilterYMaxValue = m_vUpperRight.y;
 
-  ezInputManager::SetInputActionConfig(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), m_ActionConfig, false);
+  WInputManager::SetInputActionConfig(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), m_ActionConfig, false);
 
   m_bConfigChanged = false;
 }
 
-void ezVirtualThumbStick::UpdateInputSlotValues()
+void WVirtualThumbStick::UpdateInputSlotValues()
 {
   m_bIsActive = false;
 
@@ -222,34 +222,34 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
   if (!m_bEnabled)
   {
-    ezInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
+    WInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
     return;
   }
 
   UpdateActionMapping();
 
   float fValue;
-  ezInt8 iTriggerAlt;
+  WInt8 iTriggerAlt;
 
-  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
+  const WKeyState::Enum ks = WInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
 
-  if (ks != ezKeyState::Up)
+  if (ks != WKeyState::Up)
   {
     m_bIsActive = true;
 
     if (m_CenterMode == CenterMode::Swipe)
     {
-      const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
+      const WTime tDiff = WClock::GetGlobalClock()->GetTimeDiff();
 
-      m_vCenter = ezMath::Lerp(m_vCenter, m_vTouchPos, ezMath::Min(1.0f, tDiff.AsFloatInSeconds() * 4.0f));
+      m_vCenter = WMath::Lerp(m_vCenter, m_vTouchPos, WMath::Min(1.0f, tDiff.AsFloatInSeconds() * 4.0f));
     }
 
     m_vTouchPos.Set(0.0f);
 
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[(ezUInt32)iTriggerAlt].GetData(), &m_vTouchPos.x);
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[(ezUInt32)iTriggerAlt].GetData(), &m_vTouchPos.y);
+    WInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[(WUInt32)iTriggerAlt].GetData(), &m_vTouchPos.x);
+    WInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[(WUInt32)iTriggerAlt].GetData(), &m_vTouchPos.y);
 
-    if (ks == ezKeyState::Pressed)
+    if (ks == WKeyState::Pressed)
     {
       switch (m_CenterMode)
       {
@@ -267,8 +267,8 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
     m_vInputDirection.y /= m_fAspectRatio;
 
-    m_fInputStrength = ezMath::Min(m_vInputDirection.GetLength(), m_fRadius) / m_fRadius;
-    m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+    m_fInputStrength = WMath::Min(m_vInputDirection.GetLength(), m_fRadius) / m_fRadius;
+    m_vInputDirection.NormalizeIfNotZero(WVec2::MakeZero()).IgnoreResult();
 
     const float fThreshold = 0.1f;
 
@@ -279,7 +279,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
     if (m_Flags.IsSet(Flags::OnlyMaxAxis))
     {
-      const float maxVal = ezMath::Max(m_vInputDirection.x, -m_vInputDirection.x, m_vInputDirection.y, -m_vInputDirection.y);
+      const float maxVal = WMath::Max(m_vInputDirection.x, -m_vInputDirection.x, m_vInputDirection.y, -m_vInputDirection.y);
 
       // only activate the output axis that has the strongest (absolute) value
       if (m_vInputDirection.x == maxVal)
@@ -301,10 +301,10 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
     }
     else
     {
-      l = ezMath::Max(0.0f, -m_vInputDirection.x) * m_fInputStrength;
-      r = ezMath::Max(0.0f, m_vInputDirection.x) * m_fInputStrength;
-      u = ezMath::Max(0.0f, -m_vInputDirection.y) * m_fInputStrength;
-      d = ezMath::Max(0.0f, m_vInputDirection.y) * m_fInputStrength;
+      l = WMath::Max(0.0f, -m_vInputDirection.x) * m_fInputStrength;
+      r = WMath::Max(0.0f, m_vInputDirection.x) * m_fInputStrength;
+      u = WMath::Max(0.0f, -m_vInputDirection.y) * m_fInputStrength;
+      d = WMath::Max(0.0f, m_vInputDirection.y) * m_fInputStrength;
     }
 
     if (l < fThreshold)
@@ -318,17 +318,17 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   }
 }
 
-void ezVirtualThumbStick::RegisterInputSlots()
+void WVirtualThumbStick::RegisterInputSlots()
 {
-  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_NegX, "Left Stick Left", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_PosX, "Left Stick Right", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_NegY, "Left Stick Down", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_PosY, "Left Stick Up", ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_LeftStick_NegX, "Left Stick Left", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_LeftStick_PosX, "Left Stick Right", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_LeftStick_NegY, "Left Stick Down", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_LeftStick_PosY, "Left Stick Up", WInputSlotFlags::IsAnalogStick);
 
-  RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegX, "Right Stick Left", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosX, "Right Stick Right", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegY, "Right Stick Down", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosY, "Right Stick Up", ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_RightStick_NegX, "Right Stick Left", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_RightStick_PosX, "Right Stick Right", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_RightStick_NegY, "Right Stick Down", WInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(WInputSlot_Controller0_RightStick_PosY, "Right Stick Up", WInputSlotFlags::IsAnalogStick);
 }
 
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);
+W_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);

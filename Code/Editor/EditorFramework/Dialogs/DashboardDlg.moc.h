@@ -6,7 +6,7 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDashboardDlg : public ezQtDialog, public Ui_ezQtDashboardDlg
+class W_EDITORFRAMEWORK_DLL WQtDashboardDlg : public WQtDialog, public Ui_WQtDashboardDlg
 {
   Q_OBJECT
 
@@ -18,12 +18,12 @@ public:
     Documentation
   };
 
-  ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab = DashboardTab::Projects);
+  WQtDashboardDlg(QWidget* pParent, DashboardTab activeTab = DashboardTab::Projects);
 
 private:
   void SetActiveTab(DashboardTab tab);
   void FillRecentProjectsList();
-  void FindSampleProjects(ezDynamicArray<ezString>& out_Projects);
+  void FindSampleProjects(WDynamicArray<WString>& out_Projects);
   void FillSampleProjectsList();
 
 private Q_SLOTS:

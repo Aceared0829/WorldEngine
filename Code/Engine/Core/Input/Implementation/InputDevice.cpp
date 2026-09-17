@@ -2,46 +2,46 @@
 
 #include <Core/Input/InputManager.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WInputDevice);
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDevice, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum prevState, bool bKeyDown)
+WKeyState::Enum WKeyState::GetNewKeyState(WKeyState::Enum prevState, bool bKeyDown)
 {
   switch (prevState)
   {
-    case ezKeyState::Down:
-    case ezKeyState::Pressed:
-      return bKeyDown ? ezKeyState::Down : ezKeyState::Released;
-    case ezKeyState::Released:
-    case ezKeyState::Up:
-      return bKeyDown ? ezKeyState::Pressed : ezKeyState::Up;
+    case WKeyState::Down:
+    case WKeyState::Pressed:
+      return bKeyDown ? WKeyState::Down : WKeyState::Released;
+    case WKeyState::Released:
+    case WKeyState::Up:
+      return bKeyDown ? WKeyState::Pressed : WKeyState::Up;
   }
 
-  return ezKeyState::Up;
+  return WKeyState::Up;
 }
 
-ezInputDevice::ezInputDevice()
+WInputDevice::WInputDevice()
 {
   m_bInitialized = false;
 }
 
-void ezInputDevice::RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void WInputDevice::RegisterInputSlot(WStringView sName, WStringView sDefaultDisplayName, WBitflags<WInputSlotFlags> SlotFlags)
 {
-  ezInputManager::RegisterInputSlot(sName, sDefaultDisplayName, SlotFlags);
+  WInputManager::RegisterInputSlot(sName, sDefaultDisplayName, SlotFlags);
 }
 
-void ezInputDevice::Initialize()
+void WInputDevice::Initialize()
 {
   if (m_bInitialized)
     return;
 
-  EZ_LOG_BLOCK("Initializing Input Device", GetDynamicRTTI()->GetTypeName());
+  W_LOG_BLOCK("Initializing Input Device", GetDynamicRTTI()->GetTypeName());
 
-  ezLog::Dev("Input Device Type: {0}, Device Name: {1}", GetDynamicRTTI()->GetParentType()->GetTypeName(), GetDynamicRTTI()->GetTypeName());
+  WLog::Dev("Input Device Type: {0}, Device Name: {1}", GetDynamicRTTI()->GetParentType()->GetTypeName(), GetDynamicRTTI()->GetTypeName());
 
   m_bInitialized = true;
 
@@ -50,64 +50,64 @@ void ezInputDevice::Initialize()
 }
 
 
-void ezInputDevice::UpdateAllHardwareStates(ezTime tTimeDifference)
+void WInputDevice::UpdateAllHardwareStates(WTime tTimeDifference)
 {
   // tell each device to update its hardware
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (WInputDevice* pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->UpdateHardwareState(tTimeDifference);
   }
 }
 
-void ezInputDevice::UpdateAllDevices()
+void WInputDevice::UpdateAllDevices()
 {
   // tell each device to update its current input slot values
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (WInputDevice* pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->Initialize();
     pDevice->UpdateInputSlotValues();
   }
 }
 
-void ezInputDevice::ResetAllDevices()
+void WInputDevice::ResetAllDevices()
 {
   // tell all devices that the input update is through and they might need to reset some values now
   // this is especially important for device types that will get input messages at some undefined time after this call
   // but not during 'UpdateInputSlotValues'
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (WInputDevice* pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->ResetInputSlotValues();
   }
 }
 
-ezString ezInputDevice::RetrieveLastCharacters()
+WString WInputDevice::RetrieveLastCharacters()
 {
-  ezString sResult = m_sLastCharacters;
+  WString sResult = m_sLastCharacters;
   m_sLastCharacters.Clear();
   return sResult;
 }
 
-ezString ezInputDevice::RetrieveLastCharactersFromAllDevices()
+WString WInputDevice::RetrieveLastCharactersFromAllDevices()
 {
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (WInputDevice* pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
-    ezString sChars = pDevice->RetrieveLastCharacters();
+    WString sChars = pDevice->RetrieveLastCharacters();
 
     if (!sChars.IsEmpty())
       return sChars;
   }
 
-  return ezString();
+  return WString();
 }
 
-float ezInputDevice::GetInputSlotState(ezStringView sSlot) const
+float WInputDevice::GetInputSlotState(WStringView sSlot) const
 {
   return m_InputSlotValues.GetValueOrDefault(sSlot, 0.f);
 }
 
-bool ezInputDevice::HasDeviceBeenUsedLastFrame() const
+bool WInputDevice::HasDeviceBeenUsedLastFrame() const
 {
   return m_bGeneratedInputRecently;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);
+W_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);

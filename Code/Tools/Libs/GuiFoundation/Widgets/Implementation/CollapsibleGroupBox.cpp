@@ -6,8 +6,8 @@
 #include <QPainter>
 #include <QScrollArea>
 
-ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent)
-  : ezQtGroupBoxBase(pParent, true)
+WQtCollapsibleGroupBox::WQtCollapsibleGroupBox(QWidget* pParent)
+  : WQtGroupBoxBase(pParent, true)
 
 {
   setupUi(this);
@@ -15,30 +15,30 @@ ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent)
   Header->installEventFilter(this);
 }
 
-void ezQtCollapsibleGroupBox::SetTitle(ezStringView sTitle)
+void WQtCollapsibleGroupBox::SetTitle(WStringView sTitle)
 {
-  ezQtGroupBoxBase::SetTitle(sTitle);
+  WQtGroupBoxBase::SetTitle(sTitle);
   update();
 }
 
-void ezQtCollapsibleGroupBox::SetIcon(const QIcon& icon)
+void WQtCollapsibleGroupBox::SetIcon(const QIcon& icon)
 {
-  ezQtGroupBoxBase::SetIcon(icon);
+  WQtGroupBoxBase::SetIcon(icon);
   update();
 }
 
-void ezQtCollapsibleGroupBox::SetFillColor(const QColor& color)
+void WQtCollapsibleGroupBox::SetFillColor(const QColor& color)
 {
-  ezQtGroupBoxBase::SetFillColor(color);
+  WQtGroupBoxBase::SetFillColor(color);
   update();
 }
 
-void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
+void WQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
 {
   if (bCollapsed == m_bCollapsed)
     return;
 
-  ezQtScopedUpdatesDisabled sud(this);
+  WQtScopedUpdatesDisabled sud(this);
 
   m_bCollapsed = bCollapsed;
   Content->setVisible(!bCollapsed);
@@ -54,22 +54,22 @@ void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
   Q_EMIT CollapseStateChanged(bCollapsed);
 }
 
-bool ezQtCollapsibleGroupBox::GetCollapseState() const
+bool WQtCollapsibleGroupBox::GetCollapseState() const
 {
   return m_bCollapsed;
 }
 
-QWidget* ezQtCollapsibleGroupBox::GetContent()
+QWidget* WQtCollapsibleGroupBox::GetContent()
 {
   return Content;
 }
 
-QWidget* ezQtCollapsibleGroupBox::GetHeader()
+QWidget* WQtCollapsibleGroupBox::GetHeader()
 {
   return Header;
 }
 
-bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
+bool WQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
 {
   switch (event->type())
   {
@@ -88,7 +88,7 @@ bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
   return false;
 }
 
-void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
+void WQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
 {
   const QPalette& pal = palette();
   QWidget::paintEvent(event);

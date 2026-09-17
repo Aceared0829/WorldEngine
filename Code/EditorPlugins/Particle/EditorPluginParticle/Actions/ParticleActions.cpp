@@ -4,70 +4,70 @@
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezParticleActions::s_hCategory;
-ezActionDescriptorHandle ezParticleActions::s_hPauseEffect;
-ezActionDescriptorHandle ezParticleActions::s_hRestartEffect;
-ezActionDescriptorHandle ezParticleActions::s_hAutoRestart;
-ezActionDescriptorHandle ezParticleActions::s_hSimulationSpeedMenu;
-ezActionDescriptorHandle ezParticleActions::s_hSimulationSpeed[10];
-ezActionDescriptorHandle ezParticleActions::s_hRenderVisualizers;
+WActionDescriptorHandle WParticleActions::s_hCategory;
+WActionDescriptorHandle WParticleActions::s_hPauseEffect;
+WActionDescriptorHandle WParticleActions::s_hRestartEffect;
+WActionDescriptorHandle WParticleActions::s_hAutoRestart;
+WActionDescriptorHandle WParticleActions::s_hSimulationSpeedMenu;
+WActionDescriptorHandle WParticleActions::s_hSimulationSpeed[10];
+WActionDescriptorHandle WParticleActions::s_hRenderVisualizers;
 
 
-void ezParticleActions::RegisterActions()
+void WParticleActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("ParticleCategory");
+  s_hCategory = W_REGISTER_CATEGORY("ParticleCategory");
   s_hPauseEffect =
-    EZ_REGISTER_ACTION_1("PFX.Pause", ezActionScope::Document, "Particles", "Pause", ezParticleAction, ezParticleAction::ActionType::PauseEffect);
+    W_REGISTER_ACTION_1("PFX.Pause", WActionScope::Document, "Particles", "Pause", WParticleAction, WParticleAction::ActionType::PauseEffect);
   s_hRestartEffect =
-    EZ_REGISTER_ACTION_1("PFX.Restart", ezActionScope::Document, "Particles", "F5", ezParticleAction, ezParticleAction::ActionType::RestartEffect);
+    W_REGISTER_ACTION_1("PFX.Restart", WActionScope::Document, "Particles", "F5", WParticleAction, WParticleAction::ActionType::RestartEffect);
   s_hAutoRestart =
-    EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "", ezParticleAction, ezParticleAction::ActionType::AutoRestart);
+    W_REGISTER_ACTION_1("PFX.AutoRestart", WActionScope::Document, "Particles", "", WParticleAction, WParticleAction::ActionType::AutoRestart);
 
-  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorFramework/Icons/Speed.svg");
-  s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.01", ezActionScope::Document, "Particles", "Ctrl+1", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.1f);
-  s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.025", ezActionScope::Document, "Particles", "Ctrl+2", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.25f);
-  s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.05", ezActionScope::Document, "Particles", "Ctrl+3", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.5f);
-  s_hSimulationSpeed[3] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.1", ezActionScope::Document, "Particles", "Ctrl+4", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 1.0f);
-  s_hSimulationSpeed[4] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.15", ezActionScope::Document, "Particles", "Ctrl+5", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 1.5f);
-  s_hSimulationSpeed[5] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.2", ezActionScope::Document, "Particles", "Ctrl+6", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 2.0f);
-  s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.3", ezActionScope::Document, "Particles", "Ctrl+7", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 3.0f);
-  s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.4", ezActionScope::Document, "Particles", "Ctrl+8", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 4.0f);
-  s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.5", ezActionScope::Document, "Particles", "Ctrl+9", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 5.0f);
-  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2(
-    "PFX.Speed.10", ezActionScope::Document, "Particles", "Ctrl+0", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 10.0f);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1(
-    "PFX.Render.Visualizers", ezActionScope::Document, "Particles", "V", ezParticleAction, ezParticleAction::ActionType::RenderVisualizers);
+  s_hSimulationSpeedMenu = W_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorFramework/Icons/Speed.svg");
+  s_hSimulationSpeed[0] = W_REGISTER_ACTION_2(
+    "PFX.Speed.01", WActionScope::Document, "Particles", "Ctrl+1", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 0.1f);
+  s_hSimulationSpeed[1] = W_REGISTER_ACTION_2(
+    "PFX.Speed.025", WActionScope::Document, "Particles", "Ctrl+2", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 0.25f);
+  s_hSimulationSpeed[2] = W_REGISTER_ACTION_2(
+    "PFX.Speed.05", WActionScope::Document, "Particles", "Ctrl+3", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 0.5f);
+  s_hSimulationSpeed[3] = W_REGISTER_ACTION_2(
+    "PFX.Speed.1", WActionScope::Document, "Particles", "Ctrl+4", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 1.0f);
+  s_hSimulationSpeed[4] = W_REGISTER_ACTION_2(
+    "PFX.Speed.15", WActionScope::Document, "Particles", "Ctrl+5", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 1.5f);
+  s_hSimulationSpeed[5] = W_REGISTER_ACTION_2(
+    "PFX.Speed.2", WActionScope::Document, "Particles", "Ctrl+6", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 2.0f);
+  s_hSimulationSpeed[6] = W_REGISTER_ACTION_2(
+    "PFX.Speed.3", WActionScope::Document, "Particles", "Ctrl+7", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 3.0f);
+  s_hSimulationSpeed[7] = W_REGISTER_ACTION_2(
+    "PFX.Speed.4", WActionScope::Document, "Particles", "Ctrl+8", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 4.0f);
+  s_hSimulationSpeed[8] = W_REGISTER_ACTION_2(
+    "PFX.Speed.5", WActionScope::Document, "Particles", "Ctrl+9", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 5.0f);
+  s_hSimulationSpeed[9] = W_REGISTER_ACTION_2(
+    "PFX.Speed.10", WActionScope::Document, "Particles", "Ctrl+0", WParticleAction, WParticleAction::ActionType::SimulationSpeed, 10.0f);
+  s_hRenderVisualizers = W_REGISTER_ACTION_1(
+    "PFX.Render.Visualizers", WActionScope::Document, "Particles", "V", WParticleAction, WParticleAction::ActionType::RenderVisualizers);
 }
 
-void ezParticleActions::UnregisterActions()
+void WParticleActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hPauseEffect);
-  ezActionManager::UnregisterAction(s_hRestartEffect);
-  ezActionManager::UnregisterAction(s_hAutoRestart);
-  ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
-  ezActionManager::UnregisterAction(s_hRenderVisualizers);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hPauseEffect);
+  WActionManager::UnregisterAction(s_hRestartEffect);
+  WActionManager::UnregisterAction(s_hAutoRestart);
+  WActionManager::UnregisterAction(s_hSimulationSpeedMenu);
+  WActionManager::UnregisterAction(s_hRenderVisualizers);
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
-    ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
+  for (int i = 0; i < W_ARRAY_SIZE(s_hSimulationSpeed); ++i)
+    WActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 }
 
-void ezParticleActions::MapActions(ezStringView sMapping)
+void WParticleActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -79,22 +79,22 @@ void ezParticleActions::MapActions(ezStringView sMapping)
 
   pMap->MapAction(s_hSimulationSpeedMenu, szSubPath, 3.0f);
 
-  ezStringBuilder sSubPath(szSubPath, "/PFX.Speed.Menu");
+  WStringBuilder sSubPath(szSubPath, "/PFX.Speed.Menu");
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_hSimulationSpeed); ++i)
     pMap->MapAction(s_hSimulationSpeed[i], sSubPath, i + 1.0f);
 
   pMap->MapAction(s_hRenderVisualizers, szSubPath, 4.0f);
 }
 
-ezParticleAction::ezParticleAction(const ezActionContext& context, const char* szName, ezParticleAction::ActionType type, float fSimSpeed)
-  : ezButtonAction(context, szName, false, "")
+WParticleAction::WParticleAction(const WActionContext& context, const char* szName, WParticleAction::ActionType type, float fSimSpeed)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
   m_fSimSpeed = fSimSpeed;
 
-  m_pEffectDocument = const_cast<ezParticleEffectAssetDocument*>(static_cast<const ezParticleEffectAssetDocument*>(context.m_pDocument));
-  m_pEffectDocument->m_Events.AddEventHandler(ezMakeDelegate(&ezParticleAction::EffectEventHandler, this));
+  m_pEffectDocument = const_cast<WParticleEffectAssetDocument*>(static_cast<const WParticleEffectAssetDocument*>(context.m_pDocument));
+  m_pEffectDocument->m_Events.AddEventHandler(WMakeDelegate(&WParticleAction::EffectEventHandler, this));
 
   switch (m_Type)
   {
@@ -124,12 +124,12 @@ ezParticleAction::ezParticleAction(const ezActionContext& context, const char* s
 }
 
 
-ezParticleAction::~ezParticleAction()
+WParticleAction::~WParticleAction()
 {
-  m_pEffectDocument->m_Events.RemoveEventHandler(ezMakeDelegate(&ezParticleAction::EffectEventHandler, this));
+  m_pEffectDocument->m_Events.RemoveEventHandler(WMakeDelegate(&WParticleAction::EffectEventHandler, this));
 }
 
-void ezParticleAction::Execute(const ezVariant& value)
+void WParticleAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
@@ -155,13 +155,13 @@ void ezParticleAction::Execute(const ezVariant& value)
   }
 }
 
-void ezParticleAction::EffectEventHandler(const ezParticleEffectAssetEvent& e)
+void WParticleAction::EffectEventHandler(const WParticleEffectAssetEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezParticleEffectAssetEvent::AutoRestartChanged:
-    case ezParticleEffectAssetEvent::SimulationSpeedChanged:
-    case ezParticleEffectAssetEvent::RenderVisualizersChanged:
+    case WParticleEffectAssetEvent::AutoRestartChanged:
+    case WParticleEffectAssetEvent::SimulationSpeedChanged:
+    case WParticleEffectAssetEvent::RenderVisualizersChanged:
       UpdateState();
       break;
 
@@ -170,7 +170,7 @@ void ezParticleAction::EffectEventHandler(const ezParticleEffectAssetEvent& e)
   }
 }
 
-void ezParticleAction::UpdateState()
+void WParticleAction::UpdateState()
 {
   if (m_Type == ActionType::PauseEffect)
   {

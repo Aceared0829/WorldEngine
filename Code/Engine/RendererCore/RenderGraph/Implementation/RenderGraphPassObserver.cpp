@@ -19,132 +19,132 @@
 #include <RendererCore/../../../Data/Base/Shaders/RenderGraph/RenderGraphPreviewConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/RenderGraph/RenderGraphReadbackPixelConstants.h>
 
-static ezAtomicInteger32 s_uiObserverTextureCounter;
+static WAtomicInteger32 s_uiObserverTextureCounter;
 
 namespace
 {
-  constexpr ezUInt32 s_uiHistogramBinCount = 256;
-  constexpr ezUInt32 s_uiHistogramChannelCount = 4;
-  constexpr ezUInt32 s_uiMinMaxValueCount = 2;
+  constexpr WUInt32 s_uiHistogramBinCount = 256;
+  constexpr WUInt32 s_uiHistogramChannelCount = 4;
+  constexpr WUInt32 s_uiMinMaxValueCount = 2;
 
   float GetAdjustedHistogramMax(float fMin, float fMax)
   {
-    const float fRange = ezMath::Max(fMax - fMin, 0.0000001f);
+    const float fRange = WMath::Max(fMax - fMin, 0.0000001f);
     return fMax + fRange * 0.000001f;
   }
 
-  float OrderedUintToFloat(ezUInt32 uiOrderedValue)
+  float OrderedUintToFloat(WUInt32 uiOrderedValue)
   {
-    // Inverse of FloatToOrderedUint in RenderGraphBuildMinMax.ezShader.
+    // Inverse of FloatToOrderedUint in RenderGraphBuildMinMax.WShader.
     // The shader stores min/max floats in an integer domain that preserves float ordering for atomic operations.
-    const ezUInt32 uiRawValue = (uiOrderedValue & 0x80000000u) != 0u ? (uiOrderedValue ^ 0x80000000u) : ~uiOrderedValue;
+    const WUInt32 uiRawValue = (uiOrderedValue & 0x80000000u) != 0u ? (uiOrderedValue ^ 0x80000000u) : ~uiOrderedValue;
     return *reinterpret_cast<const float*>(&uiRawValue);
   }
 } // namespace
 
-ezRenderGraphPassObserver::ezRenderGraphPassObserver(ezGALDevice* pDevice)
+WRenderGraphPassObserver::WRenderGraphPassObserver(WGALDevice* pDevice)
   : m_pDevice(pDevice)
 {
   m_Response.m_Histogram.SetCount(s_uiHistogramBinCount * s_uiHistogramChannelCount);
-  ezMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData(), m_Response.m_Histogram.GetCount());
+  WMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData(), m_Response.m_Histogram.GetCount());
 }
 
-ezRenderGraphPassObserver::~ezRenderGraphPassObserver()
+WRenderGraphPassObserver::~WRenderGraphPassObserver()
 {
   DestroyInspectionResources();
   m_hCopyTextureResource.Invalidate();
   m_hCopyTexture.Invalidate();
 }
 
-ezRenderGraphObserverResponse ezRenderGraphPassObserver::GetResponse() const
+WRenderGraphObserverResponse WRenderGraphPassObserver::GetResponse() const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   return m_Response;
 }
 
-void ezRenderGraphPassObserver::SetRequest(const ezRenderGraphObserverRequest& request)
+void WRenderGraphPassObserver::SetRequest(const WRenderGraphObserverRequest& request)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_PendingRequest = request;
   m_bPendingRequestDirty = true;
 }
 
-void ezRenderGraphPassObserver::ApplyPendingRequest()
+void WRenderGraphPassObserver::ApplyPendingRequest()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   if (m_bPendingRequestDirty)
   {
     m_Request = m_PendingRequest;
-    m_pGraph = ezRenderGraphManager::GetRenderGraphById(m_Request.m_uiRenderGraphId);
-    m_hSwapChain = ezRenderGraphManager::GetSwapChainById(m_Request.m_uiSwapChainId);
+    m_pGraph = WRenderGraphManager::GetRenderGraphById(m_Request.m_uiRenderGraphId);
+    m_hSwapChain = WRenderGraphManager::GetSwapChainById(m_Request.m_uiSwapChainId);
     m_bPendingRequestDirty = false;
   }
 }
 
-void ezRenderGraphPassObserver::EnsureInspectionResources()
+void WRenderGraphPassObserver::EnsureInspectionResources()
 {
   if (m_hPixelReadbackBuffer.IsInvalidated())
   {
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezVec4);
+    WGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(WVec4);
     desc.m_uiTotalSize = desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hPixelReadbackBuffer = m_pDevice->CreateBuffer(desc);
   }
 
   if (m_hHistogramBuffer.IsInvalidated())
   {
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezUInt32);
+    WGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(WUInt32);
     desc.m_uiTotalSize = s_uiHistogramBinCount * s_uiHistogramChannelCount * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hHistogramBuffer = m_pDevice->CreateBuffer(desc);
   }
 
   if (m_hMinMaxBuffer.IsInvalidated())
   {
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezUInt32);
+    WGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(WUInt32);
     desc.m_uiTotalSize = s_uiMinMaxValueCount * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hMinMaxBuffer = m_pDevice->CreateBuffer(desc);
   }
 
   if (!m_hReadbackPixelShader.IsValid())
   {
-    m_hReadbackPixelShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphReadbackPixel.ezShader");
+    m_hReadbackPixelShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphReadbackPixel.WShader");
   }
 
   if (!m_hClearHistogramShader.IsValid())
   {
-    m_hClearHistogramShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphClearHistogram.ezShader");
+    m_hClearHistogramShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphClearHistogram.WShader");
   }
 
   if (!m_hBuildHistogramShader.IsValid())
   {
-    m_hBuildHistogramShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphBuildHistogram.ezShader");
+    m_hBuildHistogramShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphBuildHistogram.WShader");
   }
 
   if (!m_hClearMinMaxShader.IsValid())
   {
-    m_hClearMinMaxShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphClearMinMax.ezShader");
+    m_hClearMinMaxShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphClearMinMax.WShader");
   }
 
   if (!m_hBuildMinMaxShader.IsValid())
   {
-    m_hBuildMinMaxShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphBuildMinMax.ezShader");
+    m_hBuildMinMaxShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphBuildMinMax.WShader");
   }
 
   if (!m_hPreviewShader.IsValid())
   {
-    m_hPreviewShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RenderGraph/RenderGraphPreview.ezShader");
+    m_hPreviewShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RenderGraph/RenderGraphPreview.WShader");
   }
 }
 
-void ezRenderGraphPassObserver::DestroyInspectionResources()
+void WRenderGraphPassObserver::DestroyInspectionResources()
 {
   m_PixelReadback.Reset();
   m_HistogramReadback.Reset();
@@ -160,21 +160,21 @@ void ezRenderGraphPassObserver::DestroyInspectionResources()
   m_hPreviewShader.Invalidate();
 }
 
-void ezRenderGraphPassObserver::PollReadbacks()
+void WRenderGraphPassObserver::PollReadbacks()
 {
   if (m_bPixelReadbackInFlight)
   {
-    const ezEnum<ezGALAsyncResult> result = m_PixelReadback.GetReadbackResult(ezTime::MakeZero());
-    if (result == ezGALAsyncResult::Ready)
+    const WEnum<WGALAsyncResult> result = m_PixelReadback.GetReadbackResult(WTime::MakeZero());
+    if (result == WGALAsyncResult::Ready)
     {
-      ezArrayPtr<const ezUInt8> memory;
-      if (ezReadbackBufferLock lock = m_PixelReadback.LockBuffer(memory))
+      WArrayPtr<const WUInt8> memory;
+      if (WReadbackBufferLock lock = m_PixelReadback.LockBuffer(memory))
       {
         ProcessPixelReadback(memory);
       }
       m_bPixelReadbackInFlight = false;
     }
-    else if (result == ezGALAsyncResult::Expired)
+    else if (result == WGALAsyncResult::Expired)
     {
       m_bPixelReadbackInFlight = false;
     }
@@ -182,17 +182,17 @@ void ezRenderGraphPassObserver::PollReadbacks()
 
   if (m_bHistogramReadbackInFlight)
   {
-    const ezEnum<ezGALAsyncResult> result = m_HistogramReadback.GetReadbackResult(ezTime::MakeZero());
-    if (result == ezGALAsyncResult::Ready)
+    const WEnum<WGALAsyncResult> result = m_HistogramReadback.GetReadbackResult(WTime::MakeZero());
+    if (result == WGALAsyncResult::Ready)
     {
-      ezArrayPtr<const ezUInt8> memory;
-      if (ezReadbackBufferLock lock = m_HistogramReadback.LockBuffer(memory))
+      WArrayPtr<const WUInt8> memory;
+      if (WReadbackBufferLock lock = m_HistogramReadback.LockBuffer(memory))
       {
         ProcessHistogramReadback(memory);
       }
       m_bHistogramReadbackInFlight = false;
     }
-    else if (result == ezGALAsyncResult::Expired)
+    else if (result == WGALAsyncResult::Expired)
     {
       m_bHistogramReadbackInFlight = false;
     }
@@ -200,118 +200,118 @@ void ezRenderGraphPassObserver::PollReadbacks()
 
   if (m_bMinMaxReadbackInFlight)
   {
-    const ezEnum<ezGALAsyncResult> result = m_MinMaxReadback.GetReadbackResult(ezTime::MakeZero());
-    if (result == ezGALAsyncResult::Ready)
+    const WEnum<WGALAsyncResult> result = m_MinMaxReadback.GetReadbackResult(WTime::MakeZero());
+    if (result == WGALAsyncResult::Ready)
     {
-      ezArrayPtr<const ezUInt8> memory;
-      if (ezReadbackBufferLock lock = m_MinMaxReadback.LockBuffer(memory))
+      WArrayPtr<const WUInt8> memory;
+      if (WReadbackBufferLock lock = m_MinMaxReadback.LockBuffer(memory))
       {
         ProcessMinMaxReadback(memory);
       }
       m_bMinMaxReadbackInFlight = false;
     }
-    else if (result == ezGALAsyncResult::Expired)
+    else if (result == WGALAsyncResult::Expired)
     {
       m_bMinMaxReadbackInFlight = false;
     }
   }
 }
 
-void ezRenderGraphPassObserver::ProcessPixelReadback(ezArrayPtr<const ezUInt8> memory)
+void WRenderGraphPassObserver::ProcessPixelReadback(WArrayPtr<const WUInt8> memory)
 {
-  EZ_ASSERT_DEBUG(memory.GetCount() >= sizeof(ezVec4), "Readback size missmatch");
+  W_ASSERT_DEBUG(memory.GetCount() >= sizeof(WVec4), "Readback size missmatch");
 
-  ezVec4 pixelValue;
-  ezMemoryUtils::RawByteCopy(&pixelValue, memory.GetPtr(), sizeof(ezVec4));
+  WVec4 pixelValue;
+  WMemoryUtils::RawByteCopy(&pixelValue, memory.GetPtr(), sizeof(WVec4));
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_Response.m_PixelValue = pixelValue;
 }
 
-void ezRenderGraphPassObserver::ProcessHistogramReadback(ezArrayPtr<const ezUInt8> memory)
+void WRenderGraphPassObserver::ProcessHistogramReadback(WArrayPtr<const WUInt8> memory)
 {
-  constexpr ezUInt32 uiRequiredSize = s_uiHistogramBinCount * s_uiHistogramChannelCount * sizeof(ezUInt32);
-  EZ_ASSERT_DEBUG(memory.GetCount() >= uiRequiredSize, "Readback size missmatch");
+  constexpr WUInt32 uiRequiredSize = s_uiHistogramBinCount * s_uiHistogramChannelCount * sizeof(WUInt32);
+  W_ASSERT_DEBUG(memory.GetCount() >= uiRequiredSize, "Readback size missmatch");
 
-  const ezUInt32* pHistogram = reinterpret_cast<const ezUInt32*>(memory.GetPtr());
+  const WUInt32* pHistogram = reinterpret_cast<const WUInt32*>(memory.GetPtr());
   bool bIgnoreChannel[s_uiHistogramChannelCount] = {};
-  ezUInt32 uiMaxCount = 0;
+  WUInt32 uiMaxCount = 0;
 
-  for (ezUInt32 uiChannel = 0; uiChannel < s_uiHistogramChannelCount; ++uiChannel)
+  for (WUInt32 uiChannel = 0; uiChannel < s_uiHistogramChannelCount; ++uiChannel)
   {
-    if ((m_Request.m_uiChannelMask & EZ_BIT(uiChannel)) == 0)
+    if ((m_Request.m_uiChannelMask & W_BIT(uiChannel)) == 0)
     {
       bIgnoreChannel[uiChannel] = true;
       continue;
     }
 
-    ezUInt32 uiNonZeroBuckets = 0;
-    ezUInt32 uiChannelMaxCount = 0;
+    WUInt32 uiNonZeroBuckets = 0;
+    WUInt32 uiChannelMaxCount = 0;
 
-    for (ezUInt32 uiBucket = 0; uiBucket < s_uiHistogramBinCount; ++uiBucket)
+    for (WUInt32 uiBucket = 0; uiBucket < s_uiHistogramBinCount; ++uiBucket)
     {
-      const ezUInt32 uiCount = pHistogram[uiChannel * s_uiHistogramBinCount + uiBucket];
+      const WUInt32 uiCount = pHistogram[uiChannel * s_uiHistogramBinCount + uiBucket];
       if (uiCount > 0)
       {
         ++uiNonZeroBuckets;
-        uiChannelMaxCount = ezMath::Max(uiChannelMaxCount, uiCount);
+        uiChannelMaxCount = WMath::Max(uiChannelMaxCount, uiCount);
       }
     }
 
     bIgnoreChannel[uiChannel] = uiNonZeroBuckets <= 1;
     if (!bIgnoreChannel[uiChannel])
     {
-      uiMaxCount = ezMath::Max(uiMaxCount, uiChannelMaxCount);
+      uiMaxCount = WMath::Max(uiMaxCount, uiChannelMaxCount);
     }
   }
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_Response.m_bHistogramValid = true;
 
   if (uiMaxCount == 0)
   {
-    ezMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData(), m_Response.m_Histogram.GetCount());
+    WMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData(), m_Response.m_Histogram.GetCount());
     return;
   }
 
-  for (ezUInt32 uiChannel = 0; uiChannel < s_uiHistogramChannelCount; ++uiChannel)
+  for (WUInt32 uiChannel = 0; uiChannel < s_uiHistogramChannelCount; ++uiChannel)
   {
-    const ezUInt32 uiChannelOffset = uiChannel * s_uiHistogramBinCount;
+    const WUInt32 uiChannelOffset = uiChannel * s_uiHistogramBinCount;
     if (bIgnoreChannel[uiChannel])
     {
-      ezMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData() + uiChannelOffset, s_uiHistogramBinCount);
+      WMemoryUtils::ZeroFill(m_Response.m_Histogram.GetData() + uiChannelOffset, s_uiHistogramBinCount);
       continue;
     }
 
-    for (ezUInt32 uiBucket = 0; uiBucket < s_uiHistogramBinCount; ++uiBucket)
+    for (WUInt32 uiBucket = 0; uiBucket < s_uiHistogramBinCount; ++uiBucket)
     {
-      const ezUInt64 uiNormalizedValue = (static_cast<ezUInt64>(pHistogram[uiChannelOffset + uiBucket]) * 255ull) / uiMaxCount;
-      m_Response.m_Histogram[uiChannelOffset + uiBucket] = static_cast<ezUInt8>(ezMath::Min<ezUInt64>(255, uiNormalizedValue));
+      const WUInt64 uiNormalizedValue = (static_cast<WUInt64>(pHistogram[uiChannelOffset + uiBucket]) * 255ull) / uiMaxCount;
+      m_Response.m_Histogram[uiChannelOffset + uiBucket] = static_cast<WUInt8>(WMath::Min<WUInt64>(255, uiNormalizedValue));
     }
   }
 }
 
-void ezRenderGraphPassObserver::ProcessMinMaxReadback(ezArrayPtr<const ezUInt8> memory)
+void WRenderGraphPassObserver::ProcessMinMaxReadback(WArrayPtr<const WUInt8> memory)
 {
-  constexpr ezUInt32 uiRequiredSize = s_uiMinMaxValueCount * sizeof(ezUInt32);
-  EZ_ASSERT_DEBUG(memory.GetCount() >= uiRequiredSize, "Readback size missmatch");
+  constexpr WUInt32 uiRequiredSize = s_uiMinMaxValueCount * sizeof(WUInt32);
+  W_ASSERT_DEBUG(memory.GetCount() >= uiRequiredSize, "Readback size missmatch");
 
-  const ezUInt32* pMinMax = reinterpret_cast<const ezUInt32*>(memory.GetPtr());
+  const WUInt32* pMinMax = reinterpret_cast<const WUInt32*>(memory.GetPtr());
   float fMin = 0.0f;
   float fMax = 1.0f;
 
-  if (pMinMax[0] != ezMath::MaxValue<ezUInt32>() || pMinMax[1] != 0)
+  if (pMinMax[0] != WMath::MaxValue<WUInt32>() || pMinMax[1] != 0)
   {
     fMin = OrderedUintToFloat(pMinMax[0]);
     fMax = OrderedUintToFloat(pMinMax[1]);
   }
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   m_Response.m_fImageMin = fMin;
   m_Response.m_fImageMax = fMax;
 }
 
-void ezRenderGraphPassObserver::Reset()
+void WRenderGraphPassObserver::Reset()
 {
   m_bValid = false;
   m_uiSortedPassIndex = 0xFFFFFFFF;
@@ -320,16 +320,16 @@ void ezRenderGraphPassObserver::Reset()
   m_PostCopyBarriers.Clear();
 }
 
-void ezRenderGraphPassObserver::EnsureCopyTexture(const ezGALTextureCreationDescription& srcDesc)
+void WRenderGraphPassObserver::EnsureCopyTexture(const WGALTextureCreationDescription& srcDesc)
 {
-  ezGALTextureCreationDescription newDesc = srcDesc;
-  newDesc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
+  WGALTextureCreationDescription newDesc = srcDesc;
+  newDesc.m_TextureFlags = WGALTextureUsageFlags::ShaderResource;
   newDesc.m_ResourceAccess.m_bImmutable = false;
   newDesc.m_pExisitingNativeObject = nullptr;
 
   if (!m_hCopyTexture.IsInvalidated())
   {
-    const ezGALTexture* pExisting = m_pDevice->GetTexture(m_hCopyTexture);
+    const WGALTexture* pExisting = m_pDevice->GetTexture(m_hCopyTexture);
     if (pExisting != nullptr && newDesc.CalculateHash() == pExisting->GetDescription().CalculateHash())
     {
       return; // Already matches.
@@ -340,84 +340,84 @@ void ezRenderGraphPassObserver::EnsureCopyTexture(const ezGALTextureCreationDesc
     m_hCopyTexture.Invalidate();
   }
 
-  ezStringBuilder resourceName;
+  WStringBuilder resourceName;
   resourceName.SetFormat("RGObserverCopy_{}", s_uiObserverTextureCounter.Increment());
 
-  ezTexture2DResourceDescriptor texDesc;
+  WTexture2DResourceDescriptor texDesc;
   texDesc.m_DescGAL = newDesc;
-  texDesc.m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-  texDesc.m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
-  texDesc.m_SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+  texDesc.m_SamplerDesc.m_MinFilter = WGALTextureFilterMode::Point;
+  texDesc.m_SamplerDesc.m_MagFilter = WGALTextureFilterMode::Point;
+  texDesc.m_SamplerDesc.m_MipFilter = WGALTextureFilterMode::Point;
 
-  m_hCopyTextureResource = ezResourceManager::CreateResource<ezTexture2DResource>(resourceName, std::move(texDesc), "Render Graph Observer Copy");
+  m_hCopyTextureResource = WResourceManager::CreateResource<WTexture2DResource>(resourceName, std::move(texDesc), "Render Graph Observer Copy");
 
-  ezResourceLock<ezTexture2DResource> pResource(m_hCopyTextureResource, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WTexture2DResource> pResource(m_hCopyTextureResource, WResourceAcquireMode::BlockTillLoaded);
   m_hCopyTexture = pResource->GetGALTexture();
 }
 
-void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
+void WRenderGraphPassObserver::RecordPreview(WRenderGraph& ref_graph)
 {
   if (m_pGraph == nullptr || m_Request.m_sPassName.IsEmpty())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALTextureHandle hCopyTexture = GetCopyTexture();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WGALTextureHandle hCopyTexture = GetCopyTexture();
   if (hCopyTexture.IsInvalidated())
     return;
-  const ezGALTexture* pCopyTexture = pDevice->GetTexture(hCopyTexture);
+  const WGALTexture* pCopyTexture = pDevice->GetTexture(hCopyTexture);
   if (pCopyTexture == nullptr)
     return;
 
   PollReadbacks();
   EnsureInspectionResources();
 
-  const ezGALTextureCreationDescription& copyTextureDesc = pCopyTexture->GetDescription();
-  const ezUInt32 uiMipLevel = ezMath::Min<ezUInt32>(m_Request.m_uiMipLevel, copyTextureDesc.m_uiMipLevelCount - 1);
-  const ezUInt32 uiArraySlice = ezMath::Min<ezUInt32>(m_Request.m_uiArraySlice, copyTextureDesc.GetNumberOfSlices() - 1);
-  const ezVec3U32 mipSize = copyTextureDesc.GetMipMapSize(uiMipLevel);
-  const bool bIsMSAA = copyTextureDesc.m_SampleCount != ezGALMSAASampleCount::None;
-  const ezUInt32 uiSampleCount = (ezUInt32)copyTextureDesc.m_SampleCount;
-  const ezInt32 iSampleIndex = m_Request.m_iSampleIndex < 0 ? -1 : ezMath::Min<ezInt32>(m_Request.m_iSampleIndex, uiSampleCount - 1u);
+  const WGALTextureCreationDescription& copyTextureDesc = pCopyTexture->GetDescription();
+  const WUInt32 uiMipLevel = WMath::Min<WUInt32>(m_Request.m_uiMipLevel, copyTextureDesc.m_uiMipLevelCount - 1);
+  const WUInt32 uiArraySlice = WMath::Min<WUInt32>(m_Request.m_uiArraySlice, copyTextureDesc.GetNumberOfSlices() - 1);
+  const WVec3U32 mipSize = copyTextureDesc.GetMipMapSize(uiMipLevel);
+  const bool bIsMSAA = copyTextureDesc.m_SampleCount != WGALMSAASampleCount::None;
+  const WUInt32 uiSampleCount = (WUInt32)copyTextureDesc.m_SampleCount;
+  const WInt32 iSampleIndex = m_Request.m_iSampleIndex < 0 ? -1 : WMath::Min<WInt32>(m_Request.m_iSampleIndex, uiSampleCount - 1u);
 
-  ezGALTextureRange sourceRange;
+  WGALTextureRange sourceRange;
   sourceRange.m_uiBaseMipLevel = uiMipLevel;
   sourceRange.m_uiMipLevels = 1;
   sourceRange.m_uiBaseArraySlice = uiArraySlice;
   sourceRange.m_uiArraySlices = 1;
 
-  ezRenderGraphTextureHandle hSource = ref_graph.ImportTexture(hCopyTexture);
-  ezRenderGraphBufferHandle hPixelBuffer = ref_graph.ImportBuffer(m_hPixelReadbackBuffer);
-  ezRenderGraphBufferHandle hHistogramBuffer = ref_graph.ImportBuffer(m_hHistogramBuffer);
-  ezRenderGraphBufferHandle hMinMaxBuffer = ref_graph.ImportBuffer(m_hMinMaxBuffer);
+  WRenderGraphTextureHandle hSource = ref_graph.ImportTexture(hCopyTexture);
+  WRenderGraphBufferHandle hPixelBuffer = ref_graph.ImportBuffer(m_hPixelReadbackBuffer);
+  WRenderGraphBufferHandle hHistogramBuffer = ref_graph.ImportBuffer(m_hHistogramBuffer);
+  WRenderGraphBufferHandle hMinMaxBuffer = ref_graph.ImportBuffer(m_hMinMaxBuffer);
 
   if (!m_bPixelReadbackInFlight && m_Request.m_vPixelPosition.x >= 0 && m_Request.m_vPixelPosition.y >= 0)
   {
-    ezRenderGraphReadbackPixelConstants constants;
+    WRenderGraphReadbackPixelConstants constants;
     constants.PixelPosition = m_Request.m_vPixelPosition;
     constants.SampleIndex = iSampleIndex;
     constants.SampleCount = uiSampleCount;
-    constants.TextureSize = ezVec2U32(mipSize.x, mipSize.y);
+    constants.TextureSize = WVec2U32(mipSize.x, mipSize.y);
 
     {
       auto pass = ref_graph.AddComputePass("RenderGraphObserver Read Pixel");
       pass.ReadTexture(hSource, sourceRange);
       pass.WriteBuffer(hPixelBuffer);
-      pass.SetExecuteCallback([this, hSource, hPixelBuffer, sourceRange, constants, bIsMSAA](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([this, hSource, hPixelBuffer, sourceRange, constants, bIsMSAA](const WRenderGraphContext& ctx)
         {
-        ezRenderContext* pContext = ctx.GetRenderContext();
-        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
+        WRenderContext* pContext = ctx.GetRenderContext();
+        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? WTempHashedString("TRUE") : WTempHashedString("FALSE"));
         pContext->BindShader(m_hReadbackPixelShader);
-        pContext->SetPushConstants("ezRenderGraphReadbackPixelConstants", constants);
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, {}, ezGALTextureType::Texture2D);
+        pContext->SetPushConstants("WRenderGraphReadbackPixelConstants", constants);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
+        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, {}, WGALTextureType::Texture2D);
         bindGroup.BindBuffer("PixelOutput", ctx.ResolveBuffer(hPixelBuffer));
         pContext->Dispatch(1, 1, 1).AssertSuccess(); });
     }
     {
       auto readbackPass = ref_graph.AddTransferPass("RenderGraphObserver Pixel Readback");
-      readbackPass.ReadBuffer(hPixelBuffer, ezGALResourceState::CopySource);
+      readbackPass.ReadBuffer(hPixelBuffer, WGALResourceState::CopySource);
       readbackPass.HasSideEffects();
-      readbackPass.SetExecuteCallback([this, hPixelBuffer](const ezRenderGraphContext& ctx)
+      readbackPass.SetExecuteCallback([this, hPixelBuffer](const WRenderGraphContext& ctx)
         { m_PixelReadback.ReadbackBuffer(*ctx.GetCommandEncoder(), ctx.ResolveBuffer(hPixelBuffer)); });
     }
 
@@ -426,8 +426,8 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
 
   if (!m_bMinMaxReadbackInFlight)
   {
-    ezRenderGraphMinMaxConstants constants;
-    constants.TextureSize = ezVec2U32(mipSize.x, mipSize.y);
+    WRenderGraphMinMaxConstants constants;
+    constants.TextureSize = WVec2U32(mipSize.x, mipSize.y);
     constants.SampleIndex = iSampleIndex;
     constants.SampleCount = uiSampleCount;
     constants.ChannelMask = m_Request.m_uiChannelMask;
@@ -436,11 +436,11 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
       auto pass = ref_graph.AddComputePass("RenderGraphObserver Clear MinMax");
       pass.WriteBuffer(hMinMaxBuffer);
       pass.HasSideEffects();
-      pass.SetExecuteCallback([this, hMinMaxBuffer](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([this, hMinMaxBuffer](const WRenderGraphContext& ctx)
         {
-        ezRenderContext* pContext = ctx.GetRenderContext();
+        WRenderContext* pContext = ctx.GetRenderContext();
         pContext->BindShader(m_hClearMinMaxShader);
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bindGroup.BindBuffer("MinMaxOutput", ctx.ResolveBuffer(hMinMaxBuffer));
         pContext->Dispatch(1, 1, 1).AssertSuccess(); });
     }
@@ -449,23 +449,23 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
       auto pass = ref_graph.AddComputePass("RenderGraphObserver Build MinMax");
       pass.ReadTexture(hSource, sourceRange);
       pass.WriteBuffer(hMinMaxBuffer);
-      pass.SetExecuteCallback([this, hSource, hMinMaxBuffer, sourceRange, constants, bIsMSAA](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([this, hSource, hMinMaxBuffer, sourceRange, constants, bIsMSAA](const WRenderGraphContext& ctx)
         {
-        ezRenderContext* pContext = ctx.GetRenderContext();
-        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
+        WRenderContext* pContext = ctx.GetRenderContext();
+        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? WTempHashedString("TRUE") : WTempHashedString("FALSE"));
         pContext->BindShader(m_hBuildMinMaxShader);
-        pContext->SetPushConstants("ezRenderGraphMinMaxConstants", constants);
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2D);
+        pContext->SetPushConstants("WRenderGraphMinMaxConstants", constants);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
+        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, WGALResourceFormat::Invalid, WGALTextureType::Texture2D);
         bindGroup.BindBuffer("MinMaxOutput", ctx.ResolveBuffer(hMinMaxBuffer));
         pContext->Dispatch((constants.TextureSize.x + 7u) / 8u, (constants.TextureSize.y + 7u) / 8u, 1).AssertSuccess(); });
     }
 
     {
       auto readbackPass = ref_graph.AddTransferPass("RenderGraphObserver MinMax Readback");
-      readbackPass.ReadBuffer(hMinMaxBuffer, ezGALResourceState::CopySource);
+      readbackPass.ReadBuffer(hMinMaxBuffer, WGALResourceState::CopySource);
       readbackPass.HasSideEffects();
-      readbackPass.SetExecuteCallback([this, hMinMaxBuffer](const ezRenderGraphContext& ctx)
+      readbackPass.SetExecuteCallback([this, hMinMaxBuffer](const WRenderGraphContext& ctx)
         { m_MinMaxReadback.ReadbackBuffer(*ctx.GetCommandEncoder(), ctx.ResolveBuffer(hMinMaxBuffer)); });
     }
     m_bMinMaxReadbackInFlight = true;
@@ -473,8 +473,8 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
 
   if (!m_bHistogramReadbackInFlight)
   {
-    ezRenderGraphHistogramConstants constants;
-    constants.TextureSize = ezVec2U32(mipSize.x, mipSize.y);
+    WRenderGraphHistogramConstants constants;
+    constants.TextureSize = WVec2U32(mipSize.x, mipSize.y);
     constants.SampleIndex = iSampleIndex;
     constants.SampleCount = uiSampleCount;
     constants.ChannelMask = m_Request.m_uiChannelMask;
@@ -485,11 +485,11 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
       auto pass = ref_graph.AddComputePass("RenderGraphObserver Clear Histogram");
       pass.WriteBuffer(hHistogramBuffer);
       pass.HasSideEffects();
-      pass.SetExecuteCallback([this, hHistogramBuffer](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([this, hHistogramBuffer](const WRenderGraphContext& ctx)
         {
-        ezRenderContext* pContext = ctx.GetRenderContext();
+        WRenderContext* pContext = ctx.GetRenderContext();
         pContext->BindShader(m_hClearHistogramShader);
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
         bindGroup.BindBuffer("HistogramOutput", ctx.ResolveBuffer(hHistogramBuffer));
         pContext->Dispatch(1, 1, 1).AssertSuccess(); });
     }
@@ -498,43 +498,43 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
       auto pass = ref_graph.AddComputePass("RenderGraphObserver Build Histogram");
       pass.ReadTexture(hSource, sourceRange);
       pass.WriteBuffer(hHistogramBuffer);
-      pass.SetExecuteCallback([this, hSource, hHistogramBuffer, sourceRange, constants, bIsMSAA](const ezRenderGraphContext& ctx)
+      pass.SetExecuteCallback([this, hSource, hHistogramBuffer, sourceRange, constants, bIsMSAA](const WRenderGraphContext& ctx)
         {
-        ezRenderContext* pContext = ctx.GetRenderContext();
-        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
+        WRenderContext* pContext = ctx.GetRenderContext();
+        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? WTempHashedString("TRUE") : WTempHashedString("FALSE"));
         pContext->BindShader(m_hBuildHistogramShader);
-        pContext->SetPushConstants("ezRenderGraphHistogramConstants", constants);
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2D);
+        pContext->SetPushConstants("WRenderGraphHistogramConstants", constants);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
+        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, WGALResourceFormat::Invalid, WGALTextureType::Texture2D);
         bindGroup.BindBuffer("HistogramOutput", ctx.ResolveBuffer(hHistogramBuffer));
         pContext->Dispatch((constants.TextureSize.x + 7u) / 8u, (constants.TextureSize.y + 7u) / 8u, 1).AssertSuccess(); });
     }
 
     {
       auto readbackPass = ref_graph.AddTransferPass("RenderGraphObserver Histogram Readback");
-      readbackPass.ReadBuffer(hHistogramBuffer, ezGALResourceState::CopySource);
+      readbackPass.ReadBuffer(hHistogramBuffer, WGALResourceState::CopySource);
       readbackPass.HasSideEffects();
-      readbackPass.SetExecuteCallback([this, hHistogramBuffer](const ezRenderGraphContext& ctx)
+      readbackPass.SetExecuteCallback([this, hHistogramBuffer](const WRenderGraphContext& ctx)
         { m_HistogramReadback.ReadbackBuffer(*ctx.GetCommandEncoder(), ctx.ResolveBuffer(hHistogramBuffer)); });
     }
     m_bHistogramReadbackInFlight = true;
   }
 
-  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
+  const WGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
   if (!pSwapChain)
     return;
 
-  ezGALTextureHandle hBackbuffer = pSwapChain->GetBackBufferTexture();
-  const ezGALTexture* pBackbuffer = pDevice->GetTexture(hBackbuffer);
+  WGALTextureHandle hBackbuffer = pSwapChain->GetBackBufferTexture();
+  const WGALTexture* pBackbuffer = pDevice->GetTexture(hBackbuffer);
   if (!pBackbuffer)
     return;
 
-  const ezGALTextureCreationDescription& desc = pBackbuffer->GetDescription();
-  ezRenderGraphTextureHandle hTarget = ref_graph.ImportTexture(hBackbuffer);
+  const WGALTextureCreationDescription& desc = pBackbuffer->GetDescription();
+  WRenderGraphTextureHandle hTarget = ref_graph.ImportTexture(hBackbuffer);
 
-  const float fZoom = ezMath::Clamp(m_Request.m_fZoom, 0.1f, 64.0f);
-  const float fTexAspect = (float)mipSize.x / (float)ezMath::Max(mipSize.y, 1u);
-  const float fViewAspect = (float)desc.m_uiWidth / (float)ezMath::Max(desc.m_uiHeight, 1u);
+  const float fZoom = WMath::Clamp(m_Request.m_fZoom, 0.1f, 64.0f);
+  const float fTexAspect = (float)mipSize.x / (float)WMath::Max(mipSize.y, 1u);
+  const float fViewAspect = (float)desc.m_uiWidth / (float)WMath::Max(desc.m_uiHeight, 1u);
 
   float fHalfExtentU = 0.5f;
   float fHalfExtentV = 0.5f;
@@ -549,12 +549,12 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
     fHalfExtentV = 0.5f / fZoom;
   }
 
-  const ezVec2 uv0(m_Request.m_vPanCenter.x - fHalfExtentU, m_Request.m_vPanCenter.y - fHalfExtentV);
-  const ezVec2 uv1(m_Request.m_vPanCenter.x + fHalfExtentU, m_Request.m_vPanCenter.y + fHalfExtentV);
+  const WVec2 uv0(m_Request.m_vPanCenter.x - fHalfExtentU, m_Request.m_vPanCenter.y - fHalfExtentV);
+  const WVec2 uv1(m_Request.m_vPanCenter.x + fHalfExtentU, m_Request.m_vPanCenter.y + fHalfExtentV);
 
-  ezRenderGraphPreviewConstants previewConstants;
-  previewConstants.UVTransform = ezVec4(uv1.x - uv0.x, uv1.y - uv0.y, uv0.x, uv0.y);
-  previewConstants.ValueRange = ezVec2(m_Request.m_fRangeMin, m_Request.m_fRangeMax);
+  WRenderGraphPreviewConstants previewConstants;
+  previewConstants.UVTransform = WVec4(uv1.x - uv0.x, uv1.y - uv0.y, uv0.x, uv0.y);
+  previewConstants.ValueRange = WVec2(m_Request.m_fRangeMin, m_Request.m_fRangeMax);
   previewConstants.ChannelMask = m_Request.m_uiChannelMask;
   previewConstants.SampleIndex = iSampleIndex;
   previewConstants.PixelPosition = m_Request.m_vPixelPosition;
@@ -563,18 +563,18 @@ void ezRenderGraphPassObserver::RecordPreview(ezRenderGraph& ref_graph)
   {
     auto pass = ref_graph.AddGraphicsPass("RenderGraphObserver Preview");
     pass.AddColorTarget(hTarget);
-    pass.ReadTexture(hSource, sourceRange, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
-    pass.SetExecuteCallback([this, hSource, sourceRange, previewConstants, bIsMSAA](const ezRenderGraphContext& ctx)
+    pass.ReadTexture(hSource, sourceRange, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
+    pass.SetExecuteCallback([this, hSource, sourceRange, previewConstants, bIsMSAA](const WRenderGraphContext& ctx)
       {
-        ezRenderContext* pContext = ctx.GetRenderContext();
-        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
+        WRenderContext* pContext = ctx.GetRenderContext();
+        pContext->SetShaderPermutationVariable("MSAA", bIsMSAA ? WTempHashedString("TRUE") : WTempHashedString("FALSE"));
 
         pContext->BindShader(m_hPreviewShader);
-        pContext->SetPushConstants("ezRenderGraphPreviewConstants", previewConstants);
-        pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+        pContext->SetPushConstants("WRenderGraphPreviewConstants", previewConstants);
+        pContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
-        ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2D);
+        WBindGroupBuilder& bindGroup = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
+        bindGroup.BindTexture("SourceTexture", ctx.ResolveTexture(hSource), sourceRange, WGALResourceFormat::Invalid, WGALTextureType::Texture2D);
 
         pContext->DrawMeshBuffer().AssertSuccess(); //
       });

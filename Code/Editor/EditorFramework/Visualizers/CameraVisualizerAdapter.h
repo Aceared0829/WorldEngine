@@ -4,11 +4,11 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-class ezCameraVisualizerAdapter : public ezVisualizerAdapter
+class WCameraVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezCameraVisualizerAdapter();
-  ~ezCameraVisualizerAdapter();
+  WCameraVisualizerAdapter();
+  ~WCameraVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -16,11 +16,11 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezTransform m_LocalTransformFrustum;
-  ezTransform m_LocalTransformNearPlane;
-  ezTransform m_LocalTransformFarPlane;
-  ezEngineGizmoHandle m_hBoxGizmo;
-  ezEngineGizmoHandle m_hFrustumGizmo;
-  ezEngineGizmoHandle m_hNearPlaneGizmo;
-  ezEngineGizmoHandle m_hFarPlaneGizmo;
+  WTransform m_LocalTransformFrustum;
+  WTransform m_LocalTransformNearPlane;
+  WTransform m_LocalTransformFarPlane;
+  WEngineGizmoHandle m_hBoxGizmo;
+  WEngineGizmoHandle m_hFrustumGizmo;
+  WEngineGizmoHandle m_hNearPlaneGizmo;
+  WEngineGizmoHandle m_hFarPlaneGizmo;
 };

@@ -2,12 +2,12 @@
 
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
-ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(
-  ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier)
+WParticleSystemInstance* WParticleWorldModule::CreateSystemInstance(
+  WUInt32 uiMaxParticles, WWorld* pWorld, WParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezParticleSystemInstance* pResult = nullptr;
+  WParticleSystemInstance* pResult = nullptr;
 
   if (!m_ParticleSystemFreeList.IsEmpty())
   {
@@ -25,11 +25,11 @@ ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(
   return pResult;
 }
 
-void ezParticleWorldModule::DestroySystemInstance(ezParticleSystemInstance* pInstance)
+void WParticleWorldModule::DestroySystemInstance(WParticleSystemInstance* pInstance)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid particle system");
+  W_ASSERT_DEBUG(pInstance != nullptr, "Invalid particle system");
   pInstance->Destruct();
   m_ParticleSystemFreeList.PushBack(pInstance);
 }

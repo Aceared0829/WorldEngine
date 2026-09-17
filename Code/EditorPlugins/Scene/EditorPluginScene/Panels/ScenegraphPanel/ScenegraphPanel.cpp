@@ -9,27 +9,27 @@
 
 namespace
 {
-  std::unique_ptr<ezQtDocumentTreeModel> CreateGameObjectTreeModel(ezSceneDocument* pDocument)
+  std::unique_ptr<WQtDocumentTreeModel> CreateGameObjectTreeModel(WSceneDocument* pDocument)
   {
-    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtScenegraphModel(pDocument->GetObjectManager()));
-    pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
+    std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtScenegraphModel(pDocument->GetObjectManager()));
+    pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "Children"));
+    pModel->AddAdapter(new WQtGameObjectAdapter(pDocument->GetObjectManager()));
     return std::move(pModel);
   }
 
-  std::unique_ptr<ezQtDocumentTreeModel> CreateSceneTreeModel(ezScene2Document* pDocument)
+  std::unique_ptr<WQtDocumentTreeModel> CreateSceneTreeModel(WScene2Document* pDocument)
   {
-    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtScenegraphModel(pDocument->GetSceneObjectManager()));
-    pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetSceneObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetSceneObjectManager(), pDocument->GetSceneDocumentObjectMetaData(), pDocument->GetSceneGameObjectMetaData()));
+    std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtScenegraphModel(pDocument->GetSceneObjectManager()));
+    pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetSceneObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "Children"));
+    pModel->AddAdapter(new WQtGameObjectAdapter(pDocument->GetSceneObjectManager(), pDocument->GetSceneDocumentObjectMetaData(), pDocument->GetSceneGameObjectMetaData()));
     return std::move(pModel);
   }
 } // namespace
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
+WQtScenegraphPanel::WQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, WSceneDocument* pDocument)
+  : WQtDocumentPanel(pDockManager, pParent, pDocument)
 {
-  setObjectName("ezQtScenegraphPanel");
+  setObjectName("WQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
@@ -40,14 +40,14 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidge
   setWidget(m_pStack);
 
   auto pCustomModel = CreateGameObjectTreeModel(pDocument);
-  m_pMainGameObjectWidget = new ezQtGameObjectWidget(this, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel));
+  m_pMainGameObjectWidget = new WQtGameObjectWidget(this, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel));
   m_pStack->addWidget(m_pMainGameObjectWidget);
 }
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
+WQtScenegraphPanel::WQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, WScene2Document* pDocument)
+  : WQtDocumentPanel(pDockManager, pParent, pDocument)
 {
-  setObjectName("ezQtScenegraphPanel");
+  setObjectName("WQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
@@ -58,14 +58,14 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidge
   setWidget(m_pStack);
 
   auto pCustomModel = CreateSceneTreeModel(pDocument);
-  m_pMainGameObjectWidget = new ezQtGameObjectWidget(this, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel), pDocument->GetSceneSelectionManager());
+  m_pMainGameObjectWidget = new WQtGameObjectWidget(this, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel), pDocument->GetSceneSelectionManager());
   m_LayerWidgets[pDocument->GetGuid()] = m_pMainGameObjectWidget;
   m_pStack->addWidget(m_pMainGameObjectWidget);
 
-  pDocument->m_LayerEvents.AddEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::LayerEventHandler, this), m_LayerEventUnsubscriber);
-  ezTempHybridArray<ezSceneDocument*, 16> layers;
+  pDocument->m_LayerEvents.AddEventHandler(WMakeDelegate(&WQtScenegraphPanel::LayerEventHandler, this), m_LayerEventUnsubscriber);
+  WTempHybridArray<WSceneDocument*, 16> layers;
   pDocument->GetLoadedLayers(layers);
-  for (ezSceneDocument* pLayer : layers)
+  for (WSceneDocument* pLayer : layers)
   {
     if (pLayer != pDocument)
       LayerLoaded(pLayer->GetGuid());
@@ -73,19 +73,19 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidge
   ActiveLayerChanged(pDocument->GetActiveLayer());
 }
 
-ezQtScenegraphPanel::~ezQtScenegraphPanel() = default;
+WQtScenegraphPanel::~WQtScenegraphPanel() = default;
 
-void ezQtScenegraphPanel::LayerEventHandler(const ezScene2LayerEvent& e)
+void WQtScenegraphPanel::LayerEventHandler(const WScene2LayerEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezScene2LayerEvent::Type::LayerLoaded:
+    case WScene2LayerEvent::Type::LayerLoaded:
       LayerLoaded(e.m_layerGuid);
       break;
-    case ezScene2LayerEvent::Type::LayerUnloaded:
+    case WScene2LayerEvent::Type::LayerUnloaded:
       LayerUnloaded(e.m_layerGuid);
       break;
-    case ezScene2LayerEvent::Type::ActiveLayerChanged:
+    case WScene2LayerEvent::Type::ActiveLayerChanged:
     {
       ActiveLayerChanged(e.m_layerGuid);
     }
@@ -94,36 +94,36 @@ void ezQtScenegraphPanel::LayerEventHandler(const ezScene2LayerEvent& e)
   }
 }
 
-void ezQtScenegraphPanel::LayerLoaded(const ezUuid& layerGuid)
+void WQtScenegraphPanel::LayerLoaded(const WUuid& layerGuid)
 {
-  EZ_ASSERT_DEV(!m_LayerWidgets.Contains(layerGuid), "LayerLoaded was fired twice for the same layer.");
+  W_ASSERT_DEV(!m_LayerWidgets.Contains(layerGuid), "LayerLoaded was fired twice for the same layer.");
 
-  auto pScene2 = static_cast<ezScene2Document*>(m_pSceneDocument);
+  auto pScene2 = static_cast<WScene2Document*>(m_pSceneDocument);
   auto pLayer = pScene2->GetLayerDocument(layerGuid);
   auto pCustomModel = CreateGameObjectTreeModel(pLayer);
-  m_pMainGameObjectWidget = new ezQtGameObjectWidget(this, pLayer, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel));
+  m_pMainGameObjectWidget = new WQtGameObjectWidget(this, pLayer, "EditorPluginScene_ScenegraphContextMenu", std::move(pCustomModel));
   m_LayerWidgets[layerGuid] = m_pMainGameObjectWidget;
   m_pStack->addWidget(m_pMainGameObjectWidget);
   ActiveLayerChanged(pScene2->GetActiveLayer());
 }
 
-void ezQtScenegraphPanel::LayerUnloaded(const ezUuid& layerGuid)
+void WQtScenegraphPanel::LayerUnloaded(const WUuid& layerGuid)
 {
-  EZ_ASSERT_DEV(m_LayerWidgets.Contains(layerGuid), "LayerUnloaded was fired without the layer being loaded first.");
+  W_ASSERT_DEV(m_LayerWidgets.Contains(layerGuid), "LayerUnloaded was fired without the layer being loaded first.");
 
-  ezQtGameObjectWidget* pWidget = m_LayerWidgets[layerGuid];
+  WQtGameObjectWidget* pWidget = m_LayerWidgets[layerGuid];
   m_pStack->removeWidget(pWidget);
   m_LayerWidgets.Remove(layerGuid);
   delete pWidget;
 
-  auto pScene2 = static_cast<ezScene2Document*>(m_pSceneDocument);
+  auto pScene2 = static_cast<WScene2Document*>(m_pSceneDocument);
   ActiveLayerChanged(pScene2->GetActiveLayer());
 }
 
-void ezQtScenegraphPanel::ActiveLayerChanged(const ezUuid& layerGuid)
+void WQtScenegraphPanel::ActiveLayerChanged(const WUuid& layerGuid)
 {
   // migrate the search filter text to the other layer
-  if (ezQtGameObjectWidget* pPrev = qobject_cast<ezQtGameObjectWidget*>(m_pStack->currentWidget()))
+  if (WQtGameObjectWidget* pPrev = qobject_cast<WQtGameObjectWidget*>(m_pStack->currentWidget()))
   {
     QString sText = pPrev->GetFilterWidget().text();
     m_LayerWidgets[layerGuid]->GetFilterWidget().setText(sText);

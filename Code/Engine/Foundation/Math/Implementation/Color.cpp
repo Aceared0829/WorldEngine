@@ -3,57 +3,57 @@
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
 
-// ****** ezColor ******
+// ****** WColor ******
 
-ezColor ezColor::MakeNaN()
+WColor WColor::MakeNaN()
 {
-  return ezColor(ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>());
+  return WColor(WMath::NaN<float>(), WMath::NaN<float>(), WMath::NaN<float>(), WMath::NaN<float>());
 }
 
-ezColor ezColor::MakeZero()
+WColor WColor::MakeZero()
 {
-  return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
+  return WColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-ezColor ezColor::MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /*= 1.0f*/)
+WColor WColor::MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /*= 1.0f*/)
 {
-  return ezColor(fLinearRed, fLinearGreen, fLinearBlue, fLinearAlpha);
+  return WColor(fLinearRed, fLinearGreen, fLinearBlue, fLinearAlpha);
 }
 
-void ezColor::operator=(const ezColorLinearUB& cc)
+void WColor::operator=(const WColorLinearUB& cc)
 {
   *this = cc.ToLinearFloat();
 }
 
-void ezColor::operator=(const ezColorGammaUB& cc)
+void WColor::operator=(const WColorGammaUB& cc)
 {
   *this = cc.ToLinearFloat();
 }
 
-bool ezColor::IsNormalized() const
+bool WColor::IsNormalized() const
 {
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 
   return r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f && r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f;
 }
 
 
-float ezColor::CalcAverageRGB() const
+float WColor::CalcAverageRGB() const
 {
   return (1.0f / 3.0f) * (r + g + b);
 }
 
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
-void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
+void WColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
 {
   // The formula below assumes values in gamma space
   const float r2 = LinearToGamma(r);
   const float g2 = LinearToGamma(g);
   const float b2 = LinearToGamma(b);
 
-  out_fValue = ezMath::Max(r2, g2, b2); // Value
+  out_fValue = WMath::Max(r2, g2, b2); // Value
 
-  if (out_fValue < ezMath::SmallEpsilon<float>())
+  if (out_fValue < WMath::SmallEpsilon<float>())
   {
     out_fHue = 0.0f;
     out_fSat = 0.0f;
@@ -65,8 +65,8 @@ void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
   float norm_r = r2 * invV;
   float norm_g = g2 * invV;
   float norm_b = b2 * invV;
-  float rgb_min = ezMath::Min(norm_r, norm_g, norm_b);
-  float rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
+  float rgb_min = WMath::Min(norm_r, norm_g, norm_b);
+  float rgb_max = WMath::Max(norm_r, norm_g, norm_b);
 
   out_fSat = rgb_max - rgb_min; // Saturation
 
@@ -81,7 +81,7 @@ void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
   norm_r = (norm_r - rgb_min) * rgb_delta_inv;
   norm_g = (norm_g - rgb_min) * rgb_delta_inv;
   norm_b = (norm_b - rgb_min) * rgb_delta_inv;
-  rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
+  rgb_max = WMath::Max(norm_r, norm_g, norm_b);
 
   // hue
   if (rgb_max == norm_r)
@@ -98,17 +98,17 @@ void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
 }
 
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
-ezColor ezColor::MakeHSV(float fHue, float fSat, float fVal)
+WColor WColor::MakeHSV(float fHue, float fSat, float fVal)
 {
-  EZ_ASSERT_DEBUG(fHue <= 360 && fHue >= 0, "HSV 'hue' is in invalid range.");
-  EZ_ASSERT_DEBUG(fSat <= 1 && fVal >= 0, "HSV 'saturation' is in invalid range.");
-  EZ_ASSERT_DEBUG(fVal >= 0, "HSV 'value' is in invalid range.");
+  W_ASSERT_DEBUG(fHue <= 360 && fHue >= 0, "HSV 'hue' is in invalid range.");
+  W_ASSERT_DEBUG(fSat <= 1 && fVal >= 0, "HSV 'saturation' is in invalid range.");
+  W_ASSERT_DEBUG(fVal >= 0, "HSV 'value' is in invalid range.");
 
   float c = fSat * fVal;
-  float x = c * (1.0f - ezMath::Abs(ezMath::Mod(fHue / 60.0f, 2) - 1.0f));
+  float x = c * (1.0f - WMath::Abs(WMath::Mod(fHue / 60.0f, 2) - 1.0f));
   float m = fVal - c;
 
-  ezColor res;
+  WColor res;
   res.a = 1.0f;
 
   if (fHue < 60)
@@ -156,7 +156,7 @@ ezColor ezColor::MakeHSV(float fHue, float fSat, float fVal)
   return res;
 }
 
-float ezColor::GetSaturation() const
+float WColor::GetSaturation() const
 {
   float hue, sat, val;
   GetHSV(hue, sat, val);
@@ -164,38 +164,38 @@ float ezColor::GetSaturation() const
   return sat;
 }
 
-bool ezColor::IsValid() const
+bool WColor::IsValid() const
 {
-  if (!ezMath::IsFinite(r))
+  if (!WMath::IsFinite(r))
     return false;
-  if (!ezMath::IsFinite(g))
+  if (!WMath::IsFinite(g))
     return false;
-  if (!ezMath::IsFinite(b))
+  if (!WMath::IsFinite(b))
     return false;
-  if (!ezMath::IsFinite(a))
+  if (!WMath::IsFinite(a))
     return false;
 
   return true;
 }
 
-bool ezColor::IsEqualRGB(const ezColor& rhs, float fEpsilon) const
+bool WColor::IsEqualRGB(const WColor& rhs, float fEpsilon) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(r, rhs.r, fEpsilon) && ezMath::IsEqual(g, rhs.g, fEpsilon) && ezMath::IsEqual(b, rhs.b, fEpsilon));
+  return (WMath::IsEqual(r, rhs.r, fEpsilon) && WMath::IsEqual(g, rhs.g, fEpsilon) && WMath::IsEqual(b, rhs.b, fEpsilon));
 }
 
-bool ezColor::IsEqualRGBA(const ezColor& rhs, float fEpsilon) const
+bool WColor::IsEqualRGBA(const WColor& rhs, float fEpsilon) const
 {
-  EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&rhs);
+  W_NAN_ASSERT(this);
+  W_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(r, rhs.r, fEpsilon) && ezMath::IsEqual(g, rhs.g, fEpsilon) && ezMath::IsEqual(b, rhs.b, fEpsilon) &&
-          ezMath::IsEqual(a, rhs.a, fEpsilon));
+  return (WMath::IsEqual(r, rhs.r, fEpsilon) && WMath::IsEqual(g, rhs.g, fEpsilon) && WMath::IsEqual(b, rhs.b, fEpsilon) &&
+          WMath::IsEqual(a, rhs.a, fEpsilon));
 }
 
-void ezColor::operator/=(float f)
+void WColor::operator/=(float f)
 {
   float f_inv = 1.0f / f;
   r *= f_inv;
@@ -203,12 +203,12 @@ void ezColor::operator/=(float f)
   b *= f_inv;
   a *= f_inv;
 
-  EZ_NAN_ASSERT(this);
+  W_NAN_ASSERT(this);
 }
 
-void ezColor::operator*=(const ezMat4& rhs)
+void WColor::operator*=(const WMat4& rhs)
 {
-  ezVec3 v(r, g, b);
+  WVec3 v(r, g, b);
   v = rhs.TransformPosition(v);
 
   r = v.x;
@@ -217,14 +217,14 @@ void ezColor::operator*=(const ezMat4& rhs)
 }
 
 
-void ezColor::ScaleRGB(float fFactor)
+void WColor::ScaleRGB(float fFactor)
 {
   r *= fFactor;
   g *= fFactor;
   b *= fFactor;
 }
 
-void ezColor::ScaleRGBA(float fFactor)
+void WColor::ScaleRGBA(float fFactor)
 {
   r *= fFactor;
   g *= fFactor;
@@ -232,232 +232,232 @@ void ezColor::ScaleRGBA(float fFactor)
   a *= fFactor;
 }
 
-float ezColor::ComputeHdrMultiplier() const
+float WColor::ComputeHdrMultiplier() const
 {
-  return ezMath::Max(1.0f, r, g, b);
+  return WMath::Max(1.0f, r, g, b);
 }
 
-float ezColor::ComputeHdrExposureValue() const
+float WColor::ComputeHdrExposureValue() const
 {
-  return ezMath::Log2(ComputeHdrMultiplier());
+  return WMath::Log2(ComputeHdrMultiplier());
 }
 
-void ezColor::ApplyHdrExposureValue(float fEv)
+void WColor::ApplyHdrExposureValue(float fEv)
 {
-  const float factor = ezMath::Pow2(fEv);
+  const float factor = WMath::Pow2(fEv);
   r *= factor;
   g *= factor;
   b *= factor;
 }
 
 
-void ezColor::NormalizeToLdrRange()
+void WColor::NormalizeToLdrRange()
 {
   ScaleRGB(1.0f / ComputeHdrMultiplier());
 }
 
-ezColor ezColor::GetDarker(float fFactor /*= 2.0f*/) const
+WColor WColor::GetDarker(float fFactor /*= 2.0f*/) const
 {
   float h, s, v;
   GetHSV(h, s, v);
 
-  return ezColor::MakeHSV(h, s, v / fFactor);
+  return WColor::MakeHSV(h, s, v / fFactor);
 }
 
-ezColor ezColor::GetComplementaryColor() const
+WColor WColor::GetComplementaryColor() const
 {
   float hue, sat, val;
   GetHSV(hue, sat, val);
 
-  ezColor Shifted = ezColor::MakeHSV(ezMath::Mod(hue + 180.0f, 360.0f), sat, val);
+  WColor Shifted = WColor::MakeHSV(WMath::Mod(hue + 180.0f, 360.0f), sat, val);
   Shifted.a = a;
 
   return Shifted;
 }
 
-const ezVec4 ezColor::GetAsVec4() const
+const WVec4 WColor::GetAsVec4() const
 {
-  return ezVec4(r, g, b, a);
+  return WVec4(r, g, b, a);
 }
 
-float ezColor::GammaToLinear(float fGamma)
+float WColor::GammaToLinear(float fGamma)
 {
-  return fGamma <= 0.04045f ? (fGamma / 12.92f) : (ezMath::Pow((fGamma + 0.055f) / 1.055f, 2.4f));
+  return fGamma <= 0.04045f ? (fGamma / 12.92f) : (WMath::Pow((fGamma + 0.055f) / 1.055f, 2.4f));
 }
 
-float ezColor::LinearToGamma(float fLinear)
+float WColor::LinearToGamma(float fLinear)
 {
   // assuming we have linear color (not CIE xyY or CIE XYZ)
-  return fLinear <= 0.0031308f ? (12.92f * fLinear) : (1.055f * ezMath::Pow(fLinear, 1.0f / 2.4f) - 0.055f);
+  return fLinear <= 0.0031308f ? (12.92f * fLinear) : (1.055f * WMath::Pow(fLinear, 1.0f / 2.4f) - 0.055f);
 }
 
-ezVec3 ezColor::GammaToLinear(const ezVec3& vGamma)
+WVec3 WColor::GammaToLinear(const WVec3& vGamma)
 {
-  return ezVec3(GammaToLinear(vGamma.x), GammaToLinear(vGamma.y), GammaToLinear(vGamma.z));
+  return WVec3(GammaToLinear(vGamma.x), GammaToLinear(vGamma.y), GammaToLinear(vGamma.z));
 }
 
-ezVec3 ezColor::LinearToGamma(const ezVec3& vLinear)
+WVec3 WColor::LinearToGamma(const WVec3& vLinear)
 {
   // assuming we have linear color (not CIE xyY or CIE XYZ)
-  return ezVec3(LinearToGamma(vLinear.x), LinearToGamma(vLinear.y), LinearToGamma(vLinear.z));
+  return WVec3(LinearToGamma(vLinear.x), LinearToGamma(vLinear.y), LinearToGamma(vLinear.z));
 }
 
-const ezColor ezColor::AliceBlue(ezColorGammaUB(0xF0, 0xF8, 0xFF));
-const ezColor ezColor::AntiqueWhite(ezColorGammaUB(0xFA, 0xEB, 0xD7));
-const ezColor ezColor::Aqua(ezColorGammaUB(0x00, 0xFF, 0xFF));
-const ezColor ezColor::Aquamarine(ezColorGammaUB(0x7F, 0xFF, 0xD4));
-const ezColor ezColor::Azure(ezColorGammaUB(0xF0, 0xFF, 0xFF));
-const ezColor ezColor::Beige(ezColorGammaUB(0xF5, 0xF5, 0xDC));
-const ezColor ezColor::Bisque(ezColorGammaUB(0xFF, 0xE4, 0xC4));
-const ezColor ezColor::Black(ezColorGammaUB(0x00, 0x00, 0x00));
-const ezColor ezColor::BlanchedAlmond(ezColorGammaUB(0xFF, 0xEB, 0xCD));
-const ezColor ezColor::Blue(ezColorGammaUB(0x00, 0x00, 0xFF));
-const ezColor ezColor::BlueViolet(ezColorGammaUB(0x8A, 0x2B, 0xE2));
-const ezColor ezColor::Brown(ezColorGammaUB(0xA5, 0x2A, 0x2A));
-const ezColor ezColor::BurlyWood(ezColorGammaUB(0xDE, 0xB8, 0x87));
-const ezColor ezColor::CadetBlue(ezColorGammaUB(0x5F, 0x9E, 0xA0));
-const ezColor ezColor::Chartreuse(ezColorGammaUB(0x7F, 0xFF, 0x00));
-const ezColor ezColor::Chocolate(ezColorGammaUB(0xD2, 0x69, 0x1E));
-const ezColor ezColor::Coral(ezColorGammaUB(0xFF, 0x7F, 0x50));
-const ezColor ezColor::CornflowerBlue(ezColorGammaUB(0x64, 0x95, 0xED)); // The Original!
-const ezColor ezColor::Cornsilk(ezColorGammaUB(0xFF, 0xF8, 0xDC));
-const ezColor ezColor::Crimson(ezColorGammaUB(0xDC, 0x14, 0x3C));
-const ezColor ezColor::Cyan(ezColorGammaUB(0x00, 0xFF, 0xFF));
-const ezColor ezColor::DarkBlue(ezColorGammaUB(0x00, 0x00, 0x8B));
-const ezColor ezColor::DarkCyan(ezColorGammaUB(0x00, 0x8B, 0x8B));
-const ezColor ezColor::DarkGoldenRod(ezColorGammaUB(0xB8, 0x86, 0x0B));
-const ezColor ezColor::DarkGray(ezColorGammaUB(0xA9, 0xA9, 0xA9));
-const ezColor ezColor::DarkGrey(ezColorGammaUB(0xA9, 0xA9, 0xA9));
-const ezColor ezColor::DarkGreen(ezColorGammaUB(0x00, 0x64, 0x00));
-const ezColor ezColor::DarkKhaki(ezColorGammaUB(0xBD, 0xB7, 0x6B));
-const ezColor ezColor::DarkMagenta(ezColorGammaUB(0x8B, 0x00, 0x8B));
-const ezColor ezColor::DarkOliveGreen(ezColorGammaUB(0x55, 0x6B, 0x2F));
-const ezColor ezColor::DarkOrange(ezColorGammaUB(0xFF, 0x8C, 0x00));
-const ezColor ezColor::DarkOrchid(ezColorGammaUB(0x99, 0x32, 0xCC));
-const ezColor ezColor::DarkRed(ezColorGammaUB(0x8B, 0x00, 0x00));
-const ezColor ezColor::DarkSalmon(ezColorGammaUB(0xE9, 0x96, 0x7A));
-const ezColor ezColor::DarkSeaGreen(ezColorGammaUB(0x8F, 0xBC, 0x8F));
-const ezColor ezColor::DarkSlateBlue(ezColorGammaUB(0x48, 0x3D, 0x8B));
-const ezColor ezColor::DarkSlateGray(ezColorGammaUB(0x2F, 0x4F, 0x4F));
-const ezColor ezColor::DarkSlateGrey(ezColorGammaUB(0x2F, 0x4F, 0x4F));
-const ezColor ezColor::DarkTurquoise(ezColorGammaUB(0x00, 0xCE, 0xD1));
-const ezColor ezColor::DarkViolet(ezColorGammaUB(0x94, 0x00, 0xD3));
-const ezColor ezColor::DeepPink(ezColorGammaUB(0xFF, 0x14, 0x93));
-const ezColor ezColor::DeepSkyBlue(ezColorGammaUB(0x00, 0xBF, 0xFF));
-const ezColor ezColor::DimGray(ezColorGammaUB(0x69, 0x69, 0x69));
-const ezColor ezColor::DimGrey(ezColorGammaUB(0x69, 0x69, 0x69));
-const ezColor ezColor::DodgerBlue(ezColorGammaUB(0x1E, 0x90, 0xFF));
-const ezColor ezColor::FireBrick(ezColorGammaUB(0xB2, 0x22, 0x22));
-const ezColor ezColor::FloralWhite(ezColorGammaUB(0xFF, 0xFA, 0xF0));
-const ezColor ezColor::ForestGreen(ezColorGammaUB(0x22, 0x8B, 0x22));
-const ezColor ezColor::Fuchsia(ezColorGammaUB(0xFF, 0x00, 0xFF));
-const ezColor ezColor::Gainsboro(ezColorGammaUB(0xDC, 0xDC, 0xDC));
-const ezColor ezColor::GhostWhite(ezColorGammaUB(0xF8, 0xF8, 0xFF));
-const ezColor ezColor::Gold(ezColorGammaUB(0xFF, 0xD7, 0x00));
-const ezColor ezColor::GoldenRod(ezColorGammaUB(0xDA, 0xA5, 0x20));
-const ezColor ezColor::Gray(ezColorGammaUB(0x80, 0x80, 0x80));
-const ezColor ezColor::Grey(ezColorGammaUB(0x80, 0x80, 0x80));
-const ezColor ezColor::Green(ezColorGammaUB(0x00, 0x80, 0x00));
-const ezColor ezColor::GreenYellow(ezColorGammaUB(0xAD, 0xFF, 0x2F));
-const ezColor ezColor::HoneyDew(ezColorGammaUB(0xF0, 0xFF, 0xF0));
-const ezColor ezColor::HotPink(ezColorGammaUB(0xFF, 0x69, 0xB4));
-const ezColor ezColor::IndianRed(ezColorGammaUB(0xCD, 0x5C, 0x5C));
-const ezColor ezColor::Indigo(ezColorGammaUB(0x4B, 0x00, 0x82));
-const ezColor ezColor::Ivory(ezColorGammaUB(0xFF, 0xFF, 0xF0));
-const ezColor ezColor::Khaki(ezColorGammaUB(0xF0, 0xE6, 0x8C));
-const ezColor ezColor::Lavender(ezColorGammaUB(0xE6, 0xE6, 0xFA));
-const ezColor ezColor::LavenderBlush(ezColorGammaUB(0xFF, 0xF0, 0xF5));
-const ezColor ezColor::LawnGreen(ezColorGammaUB(0x7C, 0xFC, 0x00));
-const ezColor ezColor::LemonChiffon(ezColorGammaUB(0xFF, 0xFA, 0xCD));
-const ezColor ezColor::LightBlue(ezColorGammaUB(0xAD, 0xD8, 0xE6));
-const ezColor ezColor::LightCoral(ezColorGammaUB(0xF0, 0x80, 0x80));
-const ezColor ezColor::LightCyan(ezColorGammaUB(0xE0, 0xFF, 0xFF));
-const ezColor ezColor::LightGoldenRodYellow(ezColorGammaUB(0xFA, 0xFA, 0xD2));
-const ezColor ezColor::LightGray(ezColorGammaUB(0xD3, 0xD3, 0xD3));
-const ezColor ezColor::LightGrey(ezColorGammaUB(0xD3, 0xD3, 0xD3));
-const ezColor ezColor::LightGreen(ezColorGammaUB(0x90, 0xEE, 0x90));
-const ezColor ezColor::LightPink(ezColorGammaUB(0xFF, 0xB6, 0xC1));
-const ezColor ezColor::LightSalmon(ezColorGammaUB(0xFF, 0xA0, 0x7A));
-const ezColor ezColor::LightSeaGreen(ezColorGammaUB(0x20, 0xB2, 0xAA));
-const ezColor ezColor::LightSkyBlue(ezColorGammaUB(0x87, 0xCE, 0xFA));
-const ezColor ezColor::LightSlateGray(ezColorGammaUB(0x77, 0x88, 0x99));
-const ezColor ezColor::LightSlateGrey(ezColorGammaUB(0x77, 0x88, 0x99));
-const ezColor ezColor::LightSteelBlue(ezColorGammaUB(0xB0, 0xC4, 0xDE));
-const ezColor ezColor::LightYellow(ezColorGammaUB(0xFF, 0xFF, 0xE0));
-const ezColor ezColor::Lime(ezColorGammaUB(0x00, 0xFF, 0x00));
-const ezColor ezColor::LimeGreen(ezColorGammaUB(0x32, 0xCD, 0x32));
-const ezColor ezColor::Linen(ezColorGammaUB(0xFA, 0xF0, 0xE6));
-const ezColor ezColor::Magenta(ezColorGammaUB(0xFF, 0x00, 0xFF));
-const ezColor ezColor::Maroon(ezColorGammaUB(0x80, 0x00, 0x00));
-const ezColor ezColor::MediumAquaMarine(ezColorGammaUB(0x66, 0xCD, 0xAA));
-const ezColor ezColor::MediumBlue(ezColorGammaUB(0x00, 0x00, 0xCD));
-const ezColor ezColor::MediumOrchid(ezColorGammaUB(0xBA, 0x55, 0xD3));
-const ezColor ezColor::MediumPurple(ezColorGammaUB(0x93, 0x70, 0xDB));
-const ezColor ezColor::MediumSeaGreen(ezColorGammaUB(0x3C, 0xB3, 0x71));
-const ezColor ezColor::MediumSlateBlue(ezColorGammaUB(0x7B, 0x68, 0xEE));
-const ezColor ezColor::MediumSpringGreen(ezColorGammaUB(0x00, 0xFA, 0x9A));
-const ezColor ezColor::MediumTurquoise(ezColorGammaUB(0x48, 0xD1, 0xCC));
-const ezColor ezColor::MediumVioletRed(ezColorGammaUB(0xC7, 0x15, 0x85));
-const ezColor ezColor::MidnightBlue(ezColorGammaUB(0x19, 0x19, 0x70));
-const ezColor ezColor::MintCream(ezColorGammaUB(0xF5, 0xFF, 0xFA));
-const ezColor ezColor::MistyRose(ezColorGammaUB(0xFF, 0xE4, 0xE1));
-const ezColor ezColor::Moccasin(ezColorGammaUB(0xFF, 0xE4, 0xB5));
-const ezColor ezColor::NavajoWhite(ezColorGammaUB(0xFF, 0xDE, 0xAD));
-const ezColor ezColor::Navy(ezColorGammaUB(0x00, 0x00, 0x80));
-const ezColor ezColor::OldLace(ezColorGammaUB(0xFD, 0xF5, 0xE6));
-const ezColor ezColor::Olive(ezColorGammaUB(0x80, 0x80, 0x00));
-const ezColor ezColor::OliveDrab(ezColorGammaUB(0x6B, 0x8E, 0x23));
-const ezColor ezColor::Orange(ezColorGammaUB(0xFF, 0xA5, 0x00));
-const ezColor ezColor::OrangeRed(ezColorGammaUB(0xFF, 0x45, 0x00));
-const ezColor ezColor::Orchid(ezColorGammaUB(0xDA, 0x70, 0xD6));
-const ezColor ezColor::PaleGoldenRod(ezColorGammaUB(0xEE, 0xE8, 0xAA));
-const ezColor ezColor::PaleGreen(ezColorGammaUB(0x98, 0xFB, 0x98));
-const ezColor ezColor::PaleTurquoise(ezColorGammaUB(0xAF, 0xEE, 0xEE));
-const ezColor ezColor::PaleVioletRed(ezColorGammaUB(0xDB, 0x70, 0x93));
-const ezColor ezColor::PapayaWhip(ezColorGammaUB(0xFF, 0xEF, 0xD5));
-const ezColor ezColor::PeachPuff(ezColorGammaUB(0xFF, 0xDA, 0xB9));
-const ezColor ezColor::Peru(ezColorGammaUB(0xCD, 0x85, 0x3F));
-const ezColor ezColor::Pink(ezColorGammaUB(0xFF, 0xC0, 0xCB));
-const ezColor ezColor::Plum(ezColorGammaUB(0xDD, 0xA0, 0xDD));
-const ezColor ezColor::PowderBlue(ezColorGammaUB(0xB0, 0xE0, 0xE6));
-const ezColor ezColor::Purple(ezColorGammaUB(0x80, 0x00, 0x80));
-const ezColor ezColor::RebeccaPurple(ezColorGammaUB(0x66, 0x33, 0x99));
-const ezColor ezColor::Red(ezColorGammaUB(0xFF, 0x00, 0x00));
-const ezColor ezColor::RosyBrown(ezColorGammaUB(0xBC, 0x8F, 0x8F));
-const ezColor ezColor::RoyalBlue(ezColorGammaUB(0x41, 0x69, 0xE1));
-const ezColor ezColor::SaddleBrown(ezColorGammaUB(0x8B, 0x45, 0x13));
-const ezColor ezColor::Salmon(ezColorGammaUB(0xFA, 0x80, 0x72));
-const ezColor ezColor::SandyBrown(ezColorGammaUB(0xF4, 0xA4, 0x60));
-const ezColor ezColor::SeaGreen(ezColorGammaUB(0x2E, 0x8B, 0x57));
-const ezColor ezColor::SeaShell(ezColorGammaUB(0xFF, 0xF5, 0xEE));
-const ezColor ezColor::Sienna(ezColorGammaUB(0xA0, 0x52, 0x2D));
-const ezColor ezColor::Silver(ezColorGammaUB(0xC0, 0xC0, 0xC0));
-const ezColor ezColor::SkyBlue(ezColorGammaUB(0x87, 0xCE, 0xEB));
-const ezColor ezColor::SlateBlue(ezColorGammaUB(0x6A, 0x5A, 0xCD));
-const ezColor ezColor::SlateGray(ezColorGammaUB(0x70, 0x80, 0x90));
-const ezColor ezColor::SlateGrey(ezColorGammaUB(0x70, 0x80, 0x90));
-const ezColor ezColor::Snow(ezColorGammaUB(0xFF, 0xFA, 0xFA));
-const ezColor ezColor::SpringGreen(ezColorGammaUB(0x00, 0xFF, 0x7F));
-const ezColor ezColor::SteelBlue(ezColorGammaUB(0x46, 0x82, 0xB4));
-const ezColor ezColor::Tan(ezColorGammaUB(0xD2, 0xB4, 0x8C));
-const ezColor ezColor::Teal(ezColorGammaUB(0x00, 0x80, 0x80));
-const ezColor ezColor::Thistle(ezColorGammaUB(0xD8, 0xBF, 0xD8));
-const ezColor ezColor::Tomato(ezColorGammaUB(0xFF, 0x63, 0x47));
-const ezColor ezColor::Turquoise(ezColorGammaUB(0x40, 0xE0, 0xD0));
-const ezColor ezColor::Violet(ezColorGammaUB(0xEE, 0x82, 0xEE));
-const ezColor ezColor::Wheat(ezColorGammaUB(0xF5, 0xDE, 0xB3));
-const ezColor ezColor::White(ezColorGammaUB(0xFF, 0xFF, 0xFF));
-const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
-const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
-const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
+const WColor WColor::AliceBlue(WColorGammaUB(0xF0, 0xF8, 0xFF));
+const WColor WColor::AntiqueWhite(WColorGammaUB(0xFA, 0xEB, 0xD7));
+const WColor WColor::Aqua(WColorGammaUB(0x00, 0xFF, 0xFF));
+const WColor WColor::Aquamarine(WColorGammaUB(0x7F, 0xFF, 0xD4));
+const WColor WColor::Azure(WColorGammaUB(0xF0, 0xFF, 0xFF));
+const WColor WColor::Beige(WColorGammaUB(0xF5, 0xF5, 0xDC));
+const WColor WColor::Bisque(WColorGammaUB(0xFF, 0xE4, 0xC4));
+const WColor WColor::Black(WColorGammaUB(0x00, 0x00, 0x00));
+const WColor WColor::BlanchedAlmond(WColorGammaUB(0xFF, 0xEB, 0xCD));
+const WColor WColor::Blue(WColorGammaUB(0x00, 0x00, 0xFF));
+const WColor WColor::BlueViolet(WColorGammaUB(0x8A, 0x2B, 0xE2));
+const WColor WColor::Brown(WColorGammaUB(0xA5, 0x2A, 0x2A));
+const WColor WColor::BurlyWood(WColorGammaUB(0xDE, 0xB8, 0x87));
+const WColor WColor::CadetBlue(WColorGammaUB(0x5F, 0x9E, 0xA0));
+const WColor WColor::Chartreuse(WColorGammaUB(0x7F, 0xFF, 0x00));
+const WColor WColor::Chocolate(WColorGammaUB(0xD2, 0x69, 0x1E));
+const WColor WColor::Coral(WColorGammaUB(0xFF, 0x7F, 0x50));
+const WColor WColor::CornflowerBlue(WColorGammaUB(0x64, 0x95, 0xED)); // The Original!
+const WColor WColor::Cornsilk(WColorGammaUB(0xFF, 0xF8, 0xDC));
+const WColor WColor::Crimson(WColorGammaUB(0xDC, 0x14, 0x3C));
+const WColor WColor::Cyan(WColorGammaUB(0x00, 0xFF, 0xFF));
+const WColor WColor::DarkBlue(WColorGammaUB(0x00, 0x00, 0x8B));
+const WColor WColor::DarkCyan(WColorGammaUB(0x00, 0x8B, 0x8B));
+const WColor WColor::DarkGoldenRod(WColorGammaUB(0xB8, 0x86, 0x0B));
+const WColor WColor::DarkGray(WColorGammaUB(0xA9, 0xA9, 0xA9));
+const WColor WColor::DarkGrey(WColorGammaUB(0xA9, 0xA9, 0xA9));
+const WColor WColor::DarkGreen(WColorGammaUB(0x00, 0x64, 0x00));
+const WColor WColor::DarkKhaki(WColorGammaUB(0xBD, 0xB7, 0x6B));
+const WColor WColor::DarkMagenta(WColorGammaUB(0x8B, 0x00, 0x8B));
+const WColor WColor::DarkOliveGreen(WColorGammaUB(0x55, 0x6B, 0x2F));
+const WColor WColor::DarkOrange(WColorGammaUB(0xFF, 0x8C, 0x00));
+const WColor WColor::DarkOrchid(WColorGammaUB(0x99, 0x32, 0xCC));
+const WColor WColor::DarkRed(WColorGammaUB(0x8B, 0x00, 0x00));
+const WColor WColor::DarkSalmon(WColorGammaUB(0xE9, 0x96, 0x7A));
+const WColor WColor::DarkSeaGreen(WColorGammaUB(0x8F, 0xBC, 0x8F));
+const WColor WColor::DarkSlateBlue(WColorGammaUB(0x48, 0x3D, 0x8B));
+const WColor WColor::DarkSlateGray(WColorGammaUB(0x2F, 0x4F, 0x4F));
+const WColor WColor::DarkSlateGrey(WColorGammaUB(0x2F, 0x4F, 0x4F));
+const WColor WColor::DarkTurquoise(WColorGammaUB(0x00, 0xCE, 0xD1));
+const WColor WColor::DarkViolet(WColorGammaUB(0x94, 0x00, 0xD3));
+const WColor WColor::DeepPink(WColorGammaUB(0xFF, 0x14, 0x93));
+const WColor WColor::DeepSkyBlue(WColorGammaUB(0x00, 0xBF, 0xFF));
+const WColor WColor::DimGray(WColorGammaUB(0x69, 0x69, 0x69));
+const WColor WColor::DimGrey(WColorGammaUB(0x69, 0x69, 0x69));
+const WColor WColor::DodgerBlue(WColorGammaUB(0x1E, 0x90, 0xFF));
+const WColor WColor::FireBrick(WColorGammaUB(0xB2, 0x22, 0x22));
+const WColor WColor::FloralWhite(WColorGammaUB(0xFF, 0xFA, 0xF0));
+const WColor WColor::ForestGreen(WColorGammaUB(0x22, 0x8B, 0x22));
+const WColor WColor::Fuchsia(WColorGammaUB(0xFF, 0x00, 0xFF));
+const WColor WColor::Gainsboro(WColorGammaUB(0xDC, 0xDC, 0xDC));
+const WColor WColor::GhostWhite(WColorGammaUB(0xF8, 0xF8, 0xFF));
+const WColor WColor::Gold(WColorGammaUB(0xFF, 0xD7, 0x00));
+const WColor WColor::GoldenRod(WColorGammaUB(0xDA, 0xA5, 0x20));
+const WColor WColor::Gray(WColorGammaUB(0x80, 0x80, 0x80));
+const WColor WColor::Grey(WColorGammaUB(0x80, 0x80, 0x80));
+const WColor WColor::Green(WColorGammaUB(0x00, 0x80, 0x00));
+const WColor WColor::GreenYellow(WColorGammaUB(0xAD, 0xFF, 0x2F));
+const WColor WColor::HoneyDew(WColorGammaUB(0xF0, 0xFF, 0xF0));
+const WColor WColor::HotPink(WColorGammaUB(0xFF, 0x69, 0xB4));
+const WColor WColor::IndianRed(WColorGammaUB(0xCD, 0x5C, 0x5C));
+const WColor WColor::Indigo(WColorGammaUB(0x4B, 0x00, 0x82));
+const WColor WColor::Ivory(WColorGammaUB(0xFF, 0xFF, 0xF0));
+const WColor WColor::Khaki(WColorGammaUB(0xF0, 0xE6, 0x8C));
+const WColor WColor::Lavender(WColorGammaUB(0xE6, 0xE6, 0xFA));
+const WColor WColor::LavenderBlush(WColorGammaUB(0xFF, 0xF0, 0xF5));
+const WColor WColor::LawnGreen(WColorGammaUB(0x7C, 0xFC, 0x00));
+const WColor WColor::LemonChiffon(WColorGammaUB(0xFF, 0xFA, 0xCD));
+const WColor WColor::LightBlue(WColorGammaUB(0xAD, 0xD8, 0xE6));
+const WColor WColor::LightCoral(WColorGammaUB(0xF0, 0x80, 0x80));
+const WColor WColor::LightCyan(WColorGammaUB(0xE0, 0xFF, 0xFF));
+const WColor WColor::LightGoldenRodYellow(WColorGammaUB(0xFA, 0xFA, 0xD2));
+const WColor WColor::LightGray(WColorGammaUB(0xD3, 0xD3, 0xD3));
+const WColor WColor::LightGrey(WColorGammaUB(0xD3, 0xD3, 0xD3));
+const WColor WColor::LightGreen(WColorGammaUB(0x90, 0xEE, 0x90));
+const WColor WColor::LightPink(WColorGammaUB(0xFF, 0xB6, 0xC1));
+const WColor WColor::LightSalmon(WColorGammaUB(0xFF, 0xA0, 0x7A));
+const WColor WColor::LightSeaGreen(WColorGammaUB(0x20, 0xB2, 0xAA));
+const WColor WColor::LightSkyBlue(WColorGammaUB(0x87, 0xCE, 0xFA));
+const WColor WColor::LightSlateGray(WColorGammaUB(0x77, 0x88, 0x99));
+const WColor WColor::LightSlateGrey(WColorGammaUB(0x77, 0x88, 0x99));
+const WColor WColor::LightSteelBlue(WColorGammaUB(0xB0, 0xC4, 0xDE));
+const WColor WColor::LightYellow(WColorGammaUB(0xFF, 0xFF, 0xE0));
+const WColor WColor::Lime(WColorGammaUB(0x00, 0xFF, 0x00));
+const WColor WColor::LimeGreen(WColorGammaUB(0x32, 0xCD, 0x32));
+const WColor WColor::Linen(WColorGammaUB(0xFA, 0xF0, 0xE6));
+const WColor WColor::Magenta(WColorGammaUB(0xFF, 0x00, 0xFF));
+const WColor WColor::Maroon(WColorGammaUB(0x80, 0x00, 0x00));
+const WColor WColor::MediumAquaMarine(WColorGammaUB(0x66, 0xCD, 0xAA));
+const WColor WColor::MediumBlue(WColorGammaUB(0x00, 0x00, 0xCD));
+const WColor WColor::MediumOrchid(WColorGammaUB(0xBA, 0x55, 0xD3));
+const WColor WColor::MediumPurple(WColorGammaUB(0x93, 0x70, 0xDB));
+const WColor WColor::MediumSeaGreen(WColorGammaUB(0x3C, 0xB3, 0x71));
+const WColor WColor::MediumSlateBlue(WColorGammaUB(0x7B, 0x68, 0xEE));
+const WColor WColor::MediumSpringGreen(WColorGammaUB(0x00, 0xFA, 0x9A));
+const WColor WColor::MediumTurquoise(WColorGammaUB(0x48, 0xD1, 0xCC));
+const WColor WColor::MediumVioletRed(WColorGammaUB(0xC7, 0x15, 0x85));
+const WColor WColor::MidnightBlue(WColorGammaUB(0x19, 0x19, 0x70));
+const WColor WColor::MintCream(WColorGammaUB(0xF5, 0xFF, 0xFA));
+const WColor WColor::MistyRose(WColorGammaUB(0xFF, 0xE4, 0xE1));
+const WColor WColor::Moccasin(WColorGammaUB(0xFF, 0xE4, 0xB5));
+const WColor WColor::NavajoWhite(WColorGammaUB(0xFF, 0xDE, 0xAD));
+const WColor WColor::Navy(WColorGammaUB(0x00, 0x00, 0x80));
+const WColor WColor::OldLace(WColorGammaUB(0xFD, 0xF5, 0xE6));
+const WColor WColor::Olive(WColorGammaUB(0x80, 0x80, 0x00));
+const WColor WColor::OliveDrab(WColorGammaUB(0x6B, 0x8E, 0x23));
+const WColor WColor::Orange(WColorGammaUB(0xFF, 0xA5, 0x00));
+const WColor WColor::OrangeRed(WColorGammaUB(0xFF, 0x45, 0x00));
+const WColor WColor::Orchid(WColorGammaUB(0xDA, 0x70, 0xD6));
+const WColor WColor::PaleGoldenRod(WColorGammaUB(0xEE, 0xE8, 0xAA));
+const WColor WColor::PaleGreen(WColorGammaUB(0x98, 0xFB, 0x98));
+const WColor WColor::PaleTurquoise(WColorGammaUB(0xAF, 0xEE, 0xEE));
+const WColor WColor::PaleVioletRed(WColorGammaUB(0xDB, 0x70, 0x93));
+const WColor WColor::PapayaWhip(WColorGammaUB(0xFF, 0xEF, 0xD5));
+const WColor WColor::PeachPuff(WColorGammaUB(0xFF, 0xDA, 0xB9));
+const WColor WColor::Peru(WColorGammaUB(0xCD, 0x85, 0x3F));
+const WColor WColor::Pink(WColorGammaUB(0xFF, 0xC0, 0xCB));
+const WColor WColor::Plum(WColorGammaUB(0xDD, 0xA0, 0xDD));
+const WColor WColor::PowderBlue(WColorGammaUB(0xB0, 0xE0, 0xE6));
+const WColor WColor::Purple(WColorGammaUB(0x80, 0x00, 0x80));
+const WColor WColor::RebeccaPurple(WColorGammaUB(0x66, 0x33, 0x99));
+const WColor WColor::Red(WColorGammaUB(0xFF, 0x00, 0x00));
+const WColor WColor::RosyBrown(WColorGammaUB(0xBC, 0x8F, 0x8F));
+const WColor WColor::RoyalBlue(WColorGammaUB(0x41, 0x69, 0xE1));
+const WColor WColor::SaddleBrown(WColorGammaUB(0x8B, 0x45, 0x13));
+const WColor WColor::Salmon(WColorGammaUB(0xFA, 0x80, 0x72));
+const WColor WColor::SandyBrown(WColorGammaUB(0xF4, 0xA4, 0x60));
+const WColor WColor::SeaGreen(WColorGammaUB(0x2E, 0x8B, 0x57));
+const WColor WColor::SeaShell(WColorGammaUB(0xFF, 0xF5, 0xEE));
+const WColor WColor::Sienna(WColorGammaUB(0xA0, 0x52, 0x2D));
+const WColor WColor::Silver(WColorGammaUB(0xC0, 0xC0, 0xC0));
+const WColor WColor::SkyBlue(WColorGammaUB(0x87, 0xCE, 0xEB));
+const WColor WColor::SlateBlue(WColorGammaUB(0x6A, 0x5A, 0xCD));
+const WColor WColor::SlateGray(WColorGammaUB(0x70, 0x80, 0x90));
+const WColor WColor::SlateGrey(WColorGammaUB(0x70, 0x80, 0x90));
+const WColor WColor::Snow(WColorGammaUB(0xFF, 0xFA, 0xFA));
+const WColor WColor::SpringGreen(WColorGammaUB(0x00, 0xFF, 0x7F));
+const WColor WColor::SteelBlue(WColorGammaUB(0x46, 0x82, 0xB4));
+const WColor WColor::Tan(WColorGammaUB(0xD2, 0xB4, 0x8C));
+const WColor WColor::Teal(WColorGammaUB(0x00, 0x80, 0x80));
+const WColor WColor::Thistle(WColorGammaUB(0xD8, 0xBF, 0xD8));
+const WColor WColor::Tomato(WColorGammaUB(0xFF, 0x63, 0x47));
+const WColor WColor::Turquoise(WColorGammaUB(0x40, 0xE0, 0xD0));
+const WColor WColor::Violet(WColorGammaUB(0xEE, 0x82, 0xEE));
+const WColor WColor::Wheat(WColorGammaUB(0xF5, 0xDE, 0xB3));
+const WColor WColor::White(WColorGammaUB(0xFF, 0xFF, 0xFF));
+const WColor WColor::WhiteSmoke(WColorGammaUB(0xF5, 0xF5, 0xF5));
+const WColor WColor::Yellow(WColorGammaUB(0xFF, 0xFF, 0x00));
+const WColor WColor::YellowGreen(WColorGammaUB(0x9A, 0xCD, 0x32));
 
 
-ezUInt32 ezColor::ToRGBA8() const
+WUInt32 WColor::ToRGBA8() const
 {
-  return ezColorLinearUB(*this).ToRGBA8();
+  return WColorLinearUB(*this).ToRGBA8();
 }
 
-ezUInt32 ezColor::ToABGR8() const
+WUInt32 WColor::ToABGR8() const
 {
-  return ezColorLinearUB(*this).ToABGR8();
+  return WColorLinearUB(*this).ToABGR8();
 }

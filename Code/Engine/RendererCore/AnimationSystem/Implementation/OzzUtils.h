@@ -13,30 +13,30 @@ namespace ozz::animation
 
 /// Stores or gather the data for an ozz file, for random access operations (seek / tell).
 ///
-/// Since ozz::io::Stream requires seek/tell functionality, it cannot be implemented with basic ezStreamReader / ezStreamWriter.
+/// Since ozz::io::Stream requires seek/tell functionality, it cannot be implemented with basic WStreamReader / WStreamWriter.
 /// Instead, we must have the entire ozz archive data in memory, to be able to jump around arbitrarily.
-class EZ_RENDERERCORE_DLL ezOzzArchiveData
+class W_RENDERERCORE_DLL WOzzArchiveData
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezOzzArchiveData);
+  W_DISALLOW_COPY_AND_ASSIGN(WOzzArchiveData);
 
 public:
-  ezOzzArchiveData();
-  ~ezOzzArchiveData();
+  WOzzArchiveData();
+  ~WOzzArchiveData();
 
-  ezResult FetchRegularFile(const char* szFile);
-  ezResult FetchEmbeddedArchive(ezStreamReader& inout_stream);
-  ezResult StoreEmbeddedArchive(ezStreamWriter& inout_stream) const;
+  WResult FetchRegularFile(const char* szFile);
+  WResult FetchEmbeddedArchive(WStreamReader& inout_stream);
+  WResult StoreEmbeddedArchive(WStreamWriter& inout_stream) const;
 
-  ezDefaultMemoryStreamStorage m_Storage;
+  WDefaultMemoryStreamStorage m_Storage;
 };
 
-/// Implements the ozz::io::Stream interface for reading. The data has to be present in an ezOzzArchiveData object.
+/// Implements the ozz::io::Stream interface for reading. The data has to be present in an WOzzArchiveData object.
 ///
 /// The class is implemented inline and not DLL exported because ozz is only available as a static library.
-class EZ_RENDERERCORE_DLL ezOzzStreamReader : public ozz::io::Stream
+class W_RENDERERCORE_DLL WOzzStreamReader : public ozz::io::Stream
 {
 public:
-  ezOzzStreamReader(const ezOzzArchiveData& data);
+  WOzzStreamReader(const WOzzArchiveData& data);
 
   virtual bool opened() const override;
 
@@ -51,16 +51,16 @@ public:
   virtual size_t Size() const override;
 
 private:
-  ezMemoryStreamReader m_Reader;
+  WMemoryStreamReader m_Reader;
 };
 
-/// Implements the ozz::io::Stream interface for writing. The data is gathered in an ezOzzArchiveData object.
+/// Implements the ozz::io::Stream interface for writing. The data is gathered in an WOzzArchiveData object.
 ///
 /// The class is implemented inline and not DLL exported because ozz is only available as a static library.
-class EZ_RENDERERCORE_DLL ezOzzStreamWriter : public ozz::io::Stream
+class W_RENDERERCORE_DLL WOzzStreamWriter : public ozz::io::Stream
 {
 public:
-  ezOzzStreamWriter(ezOzzArchiveData& ref_data);
+  WOzzStreamWriter(WOzzArchiveData& ref_data);
 
   virtual bool opened() const override;
 
@@ -75,11 +75,11 @@ public:
   virtual size_t Size() const override;
 
 private:
-  ezMemoryStreamWriter m_Writer;
+  WMemoryStreamWriter m_Writer;
 };
 
-namespace ezOzzUtils
+namespace WOzzUtils
 {
-  EZ_RENDERERCORE_DLL void CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc);
-  EZ_RENDERERCORE_DLL void CopySkeleton(ozz::animation::Skeleton* pDst, const ozz::animation::Skeleton* pSrc);
-} // namespace ezOzzUtils
+  W_RENDERERCORE_DLL void CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc);
+  W_RENDERERCORE_DLL void CopySkeleton(ozz::animation::Skeleton* pDst, const ozz::animation::Skeleton* pSrc);
+} // namespace WOzzUtils

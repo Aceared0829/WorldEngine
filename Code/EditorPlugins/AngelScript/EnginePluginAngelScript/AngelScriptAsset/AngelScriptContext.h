@@ -3,26 +3,26 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EnginePluginAngelScript/EnginePluginAngelScriptDLL.h>
 
-class EZ_ENGINEPLUGINAS_DLL ezAngelScriptDocumentContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINAS_DLL WAngelScriptDocumentContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptDocumentContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptDocumentContext, WEngineProcessDocumentContext);
 
 public:
-  ezAngelScriptDocumentContext();
-  ~ezAngelScriptDocumentContext();
+  WAngelScriptDocumentContext();
+  ~WAngelScriptDocumentContext();
 
 protected:
-  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual WStatus ExportDocument(const WExportDocumentMsgToEngine* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  ezEngineProcessViewContext* CreateViewContext() override;
-  void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  WEngineProcessViewContext* CreateViewContext() override;
+  void DestroyViewContext(WEngineProcessViewContext* pContext) override;
 
   void SyncExposedParameters();
-  asIScriptModule* CompileModule(ezStringBuilder& out_sCode, ezSet<ezString>* out_pDependencies);
-  void RetrieveScriptInfos(ezStringView sBasePath);
+  asIScriptModule* CompileModule(WStringBuilder& out_sCode, WSet<WString>* out_pDependencies);
+  void RetrieveScriptInfos(WStringView sBasePath);
 
-  ezString m_sInputFile;
-  ezString m_sClass;
-  ezString m_sCode;
+  WString m_sInputFile;
+  WString m_sClass;
+  WString m_sCode;
 };

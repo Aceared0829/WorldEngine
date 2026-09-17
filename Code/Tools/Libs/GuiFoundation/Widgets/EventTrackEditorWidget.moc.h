@@ -5,25 +5,25 @@
 
 #include <QWidget>
 
-class EZ_GUIFOUNDATION_DLL ezQtEventTrackEditorWidget : public QWidget, public Ui_EventTrackEditorWidget
+class W_GUIFOUNDATION_DLL WQtEventTrackEditorWidget : public QWidget, public Ui_EventTrackEditorWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtEventTrackEditorWidget(QWidget* pParent);
-  ~ezQtEventTrackEditorWidget();
+  explicit WQtEventTrackEditorWidget(QWidget* pParent);
+  ~WQtEventTrackEditorWidget();
 
-  void SetData(const ezEventTrackData& data, double fMinCurveLength);
-  void SetScrubberPosition(ezUInt64 uiTick);
-  void SetScrubberPosition(ezTime time);
+  void SetData(const WEventTrackData& data, double fMinCurveLength);
+  void SetScrubberPosition(WUInt64 uiTick);
+  void SetScrubberPosition(WTime time);
   void ClearSelection();
 
   void FrameCurve();
 
 Q_SIGNALS:
-  void CpMovedEvent(ezUInt32 uiIdx, ezInt64 iTickX);
-  void CpDeletedEvent(ezUInt32 uiIdx);
-  void InsertCpEvent(ezInt64 iTickX, const char* value);
+  void CpMovedEvent(WUInt32 uiIdx, WInt64 iTickX);
+  void CpDeletedEvent(WUInt32 uiIdx);
+  void InsertCpEvent(WInt64 iTickX, const char* value);
 
   void BeginCpChangesEvent(QString sName);
   void EndCpChangesEvent();
@@ -51,10 +51,10 @@ private:
   void DetermineAvailableEvents();
   void FillEventComboBox(const char* szCurrent = nullptr);
 
-  const ezEventTrackData* m_pData = nullptr;
-  ezEventTrackData m_DataCopy;
+  const WEventTrackData* m_pData = nullptr;
+  WEventTrackData m_DataCopy;
 
   double m_fControlPointMove;
   QPointF m_ContextMenuScenePos;
-  ezEventSet m_EventSet;
+  WEventSet m_EventSet;
 };

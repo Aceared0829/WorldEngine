@@ -1,10 +1,10 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/Screen.h>
 
-ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_Screens)
+WResult WScreen::EnumerateScreens(WDynamicArray<WScreenInfo>& out_Screens)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  W_ASSERT_NOT_IMPLEMENTED;
+  return W_FAILURE;
 }

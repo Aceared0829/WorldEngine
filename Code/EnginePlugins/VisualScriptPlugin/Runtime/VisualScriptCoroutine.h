@@ -3,28 +3,28 @@
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptCoroutine : public ezScriptCoroutine
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptCoroutine : public WScriptCoroutine
 {
 public:
-  ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
-  ~ezVisualScriptCoroutine();
+  WVisualScriptCoroutine(const WSharedPtr<const WVisualScriptGraphDescription>& pDesc);
+  ~WVisualScriptCoroutine();
 
-  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override;
+  virtual void StartWithVarargs(WArrayPtr<WVariant> arguments) override;
   virtual void Stop() override;
-  virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
+  virtual Result Update(WTime deltaTimeSinceLastUpdate) override;
 
 private:
-  ezVisualScriptExecutionContext m_Context;
+  WVisualScriptExecutionContext m_Context;
 };
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptCoroutineAllocator : public ezRTTIAllocator
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptCoroutineAllocator : public WRTTIAllocator
 {
 public:
-  ezVisualScriptCoroutineAllocator(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
+  WVisualScriptCoroutineAllocator(const WSharedPtr<const WVisualScriptGraphDescription>& pDesc);
 
-  void Deallocate(void* pObject, ezAllocator* pAllocator = nullptr) override;
-  ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override;
+  void Deallocate(void* pObject, WAllocator* pAllocator = nullptr) override;
+  WInternal::NewInstance<void> AllocateInternal(WAllocator* pAllocator) override;
 
 private:
-  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
+  WSharedPtr<const WVisualScriptGraphDescription> m_pDesc;
 };

@@ -3,21 +3,21 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 
-class ezQtVisualGraphScene;
-class ezQtVisualGraphView;
+class WQtVisualGraphScene;
+class WQtVisualGraphView;
 
-class ezQtRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
+class WQtRenderPipelineAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtRenderPipelineAssetDocumentWindow();
+  WQtRenderPipelineAssetDocumentWindow(WDocument* pDocument);
+  ~WQtRenderPipelineAssetDocumentWindow();
 
 private Q_SLOTS:
 
 private:
   // Both are owned by Qt: the scene through its parent, the view through the panel it is set on.
-  ezQtVisualGraphScene* m_pScene = nullptr;
-  ezQtVisualGraphView* m_pView = nullptr;
+  WQtVisualGraphScene* m_pScene = nullptr;
+  WQtVisualGraphView* m_pView = nullptr;
 };

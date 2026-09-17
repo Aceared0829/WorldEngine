@@ -6,18 +6,18 @@
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Vec3.h>
 
-class ezDebugRendererContext;
+class WDebugRendererContext;
 
-/// Aggregated data by ezAiNavigation that should be sufficient to implement a steering behavior.
-struct ezAiSteeringInfo
+/// Aggregated data by WAiNavigation that should be sufficient to implement a steering behavior.
+struct WAiSteeringInfo
 {
-  ezVec3 m_vNextWaypoint;
+  WVec3 m_vNextWaypoint;
   float m_fDistanceToWaypoint = 0;
-  float m_fArrivalDistance = ezMath::HighValue<float>();
-  ezVec2 m_vDirectionTowardsWaypoint = ezVec2::MakeZero();
-  ezAngle m_AbsRotationTowardsWaypoint = ezAngle::MakeZero();
-  ezAngle m_MaxAbsRotationAfterWaypoint = ezAngle::MakeZero();
-  // float m_fWaypointCorridorWidth = ezMath::HighValue<float>();
+  float m_fArrivalDistance = WMath::HighValue<float>();
+  WVec2 m_vDirectionTowardsWaypoint = WVec2::MakeZero();
+  WAngle m_AbsRotationTowardsWaypoint = WAngle::MakeZero();
+  WAngle m_MaxAbsRotationAfterWaypoint = WAngle::MakeZero();
+  // float m_fWaypointCorridorWidth = WMath::HighValue<float>();
 };
 
 /// Computes a path through a navigation mesh.
@@ -31,17 +31,17 @@ struct ezAiSteeringInfo
 /// Use ComputeAllWaypoints() to get an entire path, e.g. for visualization.
 /// For steering this is not necessary. Instead use ComputeSteeringInfo() to plan the next step.
 /// Apply your steering behavior to your character as desired.
-/// Keep calling SetCurrentPosition() and SetTargetPosition() to inform the ezAiNavigation of the
+/// Keep calling SetCurrentPosition() and SetTargetPosition() to inform the WAiNavigation of the
 /// new state, and keep calling ComputeSteeringInfo() every frame for the updated path.
 ///
 /// If the destination was reached, a completely different path should be computed, or the current
 /// path should be canceled, call CancelNavigation().
 /// To start a new path search, call SetTargetPosition() again (and Update() every frame).
-class EZ_AIPLUGIN_DLL ezAiNavigation final
+class W_AIPLUGIN_DLL WAiNavigation final
 {
 public:
-  ezAiNavigation();
-  ~ezAiNavigation();
+  WAiNavigation();
+  ~WAiNavigation();
 
   enum class State
   {
@@ -56,8 +56,8 @@ public:
     Searching,
   };
 
-  static constexpr ezUInt32 MaxPathNodes = 64;
-  static constexpr ezUInt32 MaxSearchNodes = MaxPathNodes * 8;
+  static constexpr WUInt32 MaxPathNodes = 64;
+  static constexpr WUInt32 MaxSearchNodes = MaxPathNodes * 8;
 
   State GetState() const { return m_State; }
 
@@ -65,7 +65,7 @@ public:
 
   void CancelNavigation();
 
-  void SetCurrentPosition(const ezVec3& vPosition);
+  void SetCurrentPosition(const WVec3& vPosition);
 
   /// Sets the desired target location and starts a path search.
   ///
@@ -74,8 +74,8 @@ public:
   /// incremental (counter-based) optimization produces right after a repath. The path search is
   /// asynchronous, so the optimization cannot happen inside this call - it happens in a later
   /// Update() when the search completes.
-  void SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound = false);
-  const ezVec3& GetTargetPosition() const;
+  void SetTargetPosition(const WVec3& vPosition, bool bOptimizeWhenFound = false);
+  const WVec3& GetTargetPosition() const;
 
   /// Immediately optimizes the current path corridor (topology + visibility).
   ///
@@ -89,21 +89,21 @@ public:
   /// within \a fHeightTolerance of that polygon's surface. This is different from testing whether
   /// a point is on the navmesh at all, and different from a raycast: it answers "would moving to
   /// this position leave the planned corridor?". Returns false if no path exists.
-  bool IsPointInPathCorridor(const ezVec3& vPosition, float fHeightTolerance = 0.5f) const;
-  void SetNavmesh(ezAiNavMesh* pNavmesh);
+  bool IsPointInPathCorridor(const WVec3& vPosition, float fHeightTolerance = 0.5f) const;
+  void SetNavmesh(WAiNavMesh* pNavmesh);
   void SetQueryFilter(const dtQueryFilter& filter);
 
-  void ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const;
+  void ComputeAllWaypoints(WDynamicArray<WVec3>& out_waypoints) const;
 
-  void DebugDrawPathCorridor(const ezDebugRendererContext& context, ezColor tilesColor, float fPolyRenderOffsetZ = 0.1f);
-  void DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ = 0.2f);
-  void DebugDrawState(const ezDebugRendererContext& context, const ezVec3& vPosition) const;
+  void DebugDrawPathCorridor(const WDebugRendererContext& context, WColor tilesColor, float fPolyRenderOffsetZ = 0.1f);
+  void DebugDrawPathLine(const WDebugRendererContext& context, WColor straightLineColor, float fLineRenderOffsetZ = 0.2f);
+  void DebugDrawState(const WDebugRendererContext& context, const WVec3& vPosition) const;
 
 
   /// Returns the height of the navmesh at the current position.
   float GetCurrentElevation() const;
 
-  void ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead = 5.0f);
+  void ComputeSteeringInfo(WAiSteeringInfo& out_info, const WVec2& vForwardDir, float fMaxLookAhead = 5.0f);
 
   // in what radius / up / down distance navigation mesh polygons should be searched around a given position
   // this should relate to the character size, ie at least the character radius
@@ -120,41 +120,41 @@ public:
 private:
   State m_State = State::Idle;
 
-  ezVec3 m_vCurrentPosition = ezVec3::MakeZero();
-  ezVec3 m_vTargetPosition = ezVec3::MakeZero();
+  WVec3 m_vCurrentPosition = WVec3::MakeZero();
+  WVec3 m_vTargetPosition = WVec3::MakeZero();
 
-  ezUInt8 m_uiCurrentPositionChangedBit : 1;
-  ezUInt8 m_uiTargetPositionChangedBit : 1;
-  ezUInt8 m_uiReinitQueryBit : 1;
-  ezUInt8 m_uiOptimizeWhenFoundBit : 1;
+  WUInt8 m_uiCurrentPositionChangedBit : 1;
+  WUInt8 m_uiTargetPositionChangedBit : 1;
+  WUInt8 m_uiReinitQueryBit : 1;
+  WUInt8 m_uiOptimizeWhenFoundBit : 1;
 
-  ezAiNavMesh* m_pNavmesh = nullptr;
+  WAiNavMesh* m_pNavmesh = nullptr;
   dtNavMeshQuery m_Query;
   const dtQueryFilter* m_pFilter = nullptr;
   dtPathCorridor m_PathCorridor;
 
   dtPolyRef m_PathSearchTargetPoly;
-  ezVec3 m_vPathSearchTargetPos;
+  WVec3 m_vPathSearchTargetPos;
 
-  ezUInt8 m_uiOptimizeTopologyCounter = 0;
-  ezUInt8 m_uiOptimizeVisibilityCounter = 0;
+  WUInt8 m_uiOptimizeTopologyCounter = 0;
+  WUInt8 m_uiOptimizeVisibilityCounter = 0;
 
   // Straight-line distance to the target at the last time a budget-limited partial path triggered an
   // automatic repath. Used as an anti-oscillation guard: we only repath again if we have gotten strictly
   // closer to the target since then. Reset to HighValue whenever a fresh search is requested.
-  float m_fLastRepathStartDistToTarget = ezMath::HighValue<float>();
+  float m_fLastRepathStartDistToTarget = WMath::HighValue<float>();
 
   // Number of corridor polygons at the moment a budget-limited partial path was established. As the agent
   // advances, the corridor shrinks from the front; comparing the current length against this tells us how
   // much of the partial path has been used up. 0 means "not a budget-limited partial".
-  ezUInt32 m_uiPartialCorridorInitialLength = 0;
+  WUInt32 m_uiPartialCorridorInitialLength = 0;
 
   // Repath a budget-limited partial path once so few corridor polygons remain, regardless of how much of the
   // original corridor that is - this keeps enough runway for the async search to finish before the agent stalls.
-  constexpr static ezUInt32 c_uiRepathMinPolysRemaining = 10;
+  constexpr static WUInt32 c_uiRepathMinPolysRemaining = 10;
   // ...or once at least this fraction of the original corridor has been consumed, so long corridors repath early
   // rather than travelling almost to their (partial) end first. Expressed as the remaining-length divisor.
-  constexpr static ezUInt32 c_uiRepathConsumedFractionDivisor = 2; // remaining <= initial / 2  ==  half consumed
+  constexpr static WUInt32 c_uiRepathConsumedFractionDivisor = 2; // remaining <= initial / 2  ==  half consumed
   // Minimum progress (straight-line, towards the target) required since the last repath to allow another one.
   constexpr static float c_fRepathMinProgress = 1.0f;
 

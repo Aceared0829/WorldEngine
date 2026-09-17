@@ -4,50 +4,50 @@
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
-ezParticleEffectController::ezParticleEffectController()
+WParticleEffectController::WParticleEffectController()
 {
   m_hEffect.Invalidate();
 }
 
-ezParticleEffectController::ezParticleEffectController(const ezParticleEffectController& rhs)
+WParticleEffectController::WParticleEffectController(const WParticleEffectController& rhs)
 {
   m_pModule = rhs.m_pModule;
   m_hEffect = rhs.m_hEffect;
   m_pSharedInstanceOwner = rhs.m_pSharedInstanceOwner;
 }
 
-ezParticleEffectController::ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect)
+WParticleEffectController::WParticleEffectController(WParticleWorldModule* pModule, WParticleEffectHandle hEffect)
 {
   m_pModule = pModule;
   m_hEffect = hEffect;
 }
 
-void ezParticleEffectController::operator=(const ezParticleEffectController& rhs)
+void WParticleEffectController::operator=(const WParticleEffectController& rhs)
 {
   m_pModule = rhs.m_pModule;
   m_hEffect = rhs.m_hEffect;
   m_pSharedInstanceOwner = rhs.m_pSharedInstanceOwner;
 }
 
-ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
+WParticleEffectInstance* WParticleEffectController::GetInstance() const
 {
   if (m_pModule == nullptr)
     return nullptr;
 
-  ezParticleEffectInstance* pEffect = nullptr;
+  WParticleEffectInstance* pEffect = nullptr;
   m_pModule->TryGetEffectInstance(m_hEffect, pEffect);
   return pEffect;
 }
 
-void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed,
-  const char* szSharedName, const void* pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-  ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void WParticleEffectController::Create(const WParticleEffectResourceHandle& hEffectResource, WParticleWorldModule* pModule, WUInt64 uiRandomSeed,
+  const char* szSharedName, const void* pSharedInstanceOwner, WArrayPtr<WParticleEffectFloatParam> floatParams,
+  WArrayPtr<WParticleEffectColorParam> colorParams)
 {
   m_pSharedInstanceOwner = pSharedInstanceOwner;
 
   // first get the new effect, to potentially increase a refcount to the same effect instance, before we decrease the refcount of our
   // current one
-  ezParticleEffectHandle hNewEffect;
+  WParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
     hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, m_pSharedInstanceOwner, floatParams, colorParams);
@@ -61,20 +61,20 @@ void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hE
     m_pModule = pModule;
 }
 
-bool ezParticleEffectController::IsValid() const
+bool WParticleEffectController::IsValid() const
 {
   return (m_pModule != nullptr && !m_hEffect.IsInvalidated());
 }
 
-bool ezParticleEffectController::IsAlive() const
+bool WParticleEffectController::IsAlive() const
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
+  WParticleEffectInstance* pEffect = GetInstance();
   return pEffect != nullptr;
 }
 
-void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const
+void WParticleEffectController::SetTransform(const WTransform& t, const WVec3& vParticleStartVelocity) const
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
+  WParticleEffectInstance* pEffect = GetInstance();
 
   // shared effects are always simulated at the origin
   if (pEffect && m_pSharedInstanceOwner == nullptr)
@@ -83,17 +83,17 @@ void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3
   }
 }
 
-void ezParticleEffectController::CombineSystemBoundingVolumes()
+void WParticleEffectController::CombineSystemBoundingVolumes()
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->CombineSystemBoundingVolumes();
   }
 }
 
-void ezParticleEffectController::Tick(const ezTime& diff) const
+void WParticleEffectController::Tick(const WTime& diff) const
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
+  WParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
@@ -102,9 +102,9 @@ void ezParticleEffectController::Tick(const ezTime& diff) const
   }
 }
 
-void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const
+void WParticleEffectController::ExtractRenderData(WMsgExtractRenderData& ref_msg, const WTransform& systemTransform) const
 {
-  if (const ezParticleEffectInstance* pEffect = GetInstance())
+  if (const WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->SetIsVisible();
 
@@ -112,7 +112,7 @@ void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& ref_m
   }
 }
 
-void ezParticleEffectController::StopImmediate()
+void WParticleEffectController::StopImmediate()
 {
   if (m_pModule)
   {
@@ -123,41 +123,41 @@ void ezParticleEffectController::StopImmediate()
   }
 }
 
-void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const
+void WParticleEffectController::GetBoundingVolume(WBoundingBoxSphere& ref_volume) const
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->GetBoundingVolume(ref_volume);
   }
 }
 
-void ezParticleEffectController::UpdateWindSamples(ezTime diff)
+void WParticleEffectController::UpdateWindSamples(WTime diff)
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->UpdateWindSamples(diff);
   }
 }
 
-void ezParticleEffectController::FindNearbyAttractors(ezTime diff)
+void WParticleEffectController::FindNearbyAttractors(WTime diff)
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->FindNearbyAttractors(diff);
   }
 }
 
-void ezParticleEffectController::ForceVisible()
+void WParticleEffectController::ForceVisible()
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->SetIsVisible();
   }
 }
 
-ezUInt64 ezParticleEffectController::GetNumActiveParticles() const
+WUInt64 WParticleEffectController::GetNumActiveParticles() const
 {
-  if (ezParticleEffectInstance* pEffect = GetInstance())
+  if (WParticleEffectInstance* pEffect = GetInstance())
   {
     return pEffect->GetNumActiveParticles();
   }
@@ -165,9 +165,9 @@ ezUInt64 ezParticleEffectController::GetNumActiveParticles() const
   return 0;
 }
 
-void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, float value)
+void WParticleEffectController::SetParameter(const WTempHashedString& sName, float value)
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
+  WParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
@@ -175,9 +175,9 @@ void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, f
   }
 }
 
-void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, const ezColor& value)
+void WParticleEffectController::SetParameter(const WTempHashedString& sName, const WColor& value)
 {
-  ezParticleEffectInstance* pEffect = GetInstance();
+  WParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
@@ -185,7 +185,7 @@ void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, c
   }
 }
 
-void ezParticleEffectController::Invalidate()
+void WParticleEffectController::Invalidate()
 {
   if (m_pModule)
   {

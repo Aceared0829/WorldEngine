@@ -6,12 +6,12 @@
 struct ID3D11ShaderReflectionConstantBuffer;
 struct _D3D11_SIGNATURE_PARAMETER_DESC;
 
-class EZ_SHADERCOMPILERHLSL_DLL ezShaderCompilerHLSL : public ezShaderProgramCompiler
+class W_SHADERCOMPILERHLSL_DLL WShaderCompilerHLSL : public WShaderProgramCompiler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL, ezShaderProgramCompiler);
+  W_ADD_DYNAMIC_REFLECTION(WShaderCompilerHLSL, WShaderProgramCompiler);
 
 public:
-  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) override
+  virtual void GetSupportedPlatforms(WHybridArray<WString, 4>& out_platforms) override
   {
     out_platforms.PushBack("DX11_SM40_93");
     out_platforms.PushBack("DX11_SM40");
@@ -19,25 +19,25 @@ public:
     out_platforms.PushBack("DX11_SM50");
   }
 
-  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const override
+  virtual WEnum<WGALBufferLayout> GetMaterialBufferLayout(WStringView sPlatform) const override
   {
-    return ezGALBufferLayout::DirectX_ConstantButter;
+    return WGALBufferLayout::DirectX_ConstantButter;
   }
 
-  virtual ezResult ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
-  virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
+  virtual WResult ModifyShaderSource(WShaderProgramData& inout_data, WLogInterface* pLog) override;
+  virtual WResult Compile(WShaderProgramData& inout_data, WLogInterface* pLog) override;
 
 private:
-  ezResult DefineShaderResourceBindings(const ezShaderProgramData& data, ezHashTable<ezHashedString, ezShaderResourceBinding>& inout_resourceBinding, ezLogInterface* pLog);
+  WResult DefineShaderResourceBindings(const WShaderProgramData& data, WHashTable<WHashedString, WShaderResourceBinding>& inout_resourceBinding, WLogInterface* pLog);
 
-  void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
+  void CreateNewShaderResourceDeclaration(WStringView sPlatform, WStringView sDeclaration, const WShaderResourceBinding& binding, WStringBuilder& out_sDeclaration);
 
-  void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezSharedPtr<ezShaderConstantBufferLayout> ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
-  ezResult AddFakeBindGroupAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog);
+  void ReflectShaderStage(WShaderProgramData& inout_Data, WGALShaderStage::Enum Stage);
+  WSharedPtr<WShaderConstantBufferLayout> ReflectConstantBufferLayout(WGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  WResult AddFakeBindGroupAssignments(WShaderProgramData& inout_Data, WGALShaderStage::Enum Stage, WLogInterface* pLog);
   void Initialize();
-  static ezGALResourceFormat::Enum GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc);
+  static WGALResourceFormat::Enum GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc);
 
 private:
-  ezMap<const char*, ezGALVertexAttributeSemantic::Enum, CompareConstChar> m_VertexInputMapping;
+  WMap<const char*, WGALVertexAttributeSemantic::Enum, CompareConstChar> m_VertexInputMapping;
 };

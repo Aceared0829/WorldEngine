@@ -18,9 +18,9 @@
 
 const int g_iDockingStateVersion = 1;
 
-ezQtMainWindow* ezQtMainWindow::s_pWidget = nullptr;
+WQtMainWindow* WQtMainWindow::s_pWidget = nullptr;
 
-ezQtMainWindow::ezQtMainWindow()
+WQtMainWindow::WQtMainWindow()
   : QMainWindow()
 {
   s_pWidget = this;
@@ -47,59 +47,59 @@ ezQtMainWindow::ezQtMainWindow()
 
   // The dock manager will set ownership to null on add so there is no reason to provide an owner here.
   // Setting one will actually cause memory corruptions on shutdown for unknown reasons.
-  ezQtMainWidget* pMainWidget = new ezQtMainWidget(m_DockManager);
-  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget(m_DockManager);
-  ezQtMemoryWidget* pMemoryWidget = new ezQtMemoryWidget(m_DockManager);
-  ezQtTimeWidget* pTimeWidget = new ezQtTimeWidget(m_DockManager);
-  ezQtInputWidget* pInputWidget = new ezQtInputWidget(m_DockManager);
-  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget(m_DockManager);
-  ezQtSubsystemsWidget* pSubsystemsWidget = new ezQtSubsystemsWidget(m_DockManager);
-  ezQtFileWidget* pFileWidget = new ezQtFileWidget(m_DockManager);
-  ezQtPluginsWidget* pPluginsWidget = new ezQtPluginsWidget(m_DockManager);
-  ezQtGlobalEventsWidget* pGlobalEventesWidget = new ezQtGlobalEventsWidget(m_DockManager);
-  ezQtReflectionWidget* pReflectionWidget = new ezQtReflectionWidget(m_DockManager);
-  ezQtDataWidget* pDataWidget = new ezQtDataWidget(m_DockManager);
-  ezQtResourceWidget* pResourceWidget = new ezQtResourceWidget(m_DockManager);
-  ezQtRenderGraphWidget* pRenderGraphWidget = new ezQtRenderGraphWidget(m_DockManager);
+  WQtMainWidget* pMainWidget = new WQtMainWidget(m_DockManager);
+  WQtLogDockWidget* pLogWidget = new WQtLogDockWidget(m_DockManager);
+  WQtMemoryWidget* pMemoryWidget = new WQtMemoryWidget(m_DockManager);
+  WQtTimeWidget* pTimeWidget = new WQtTimeWidget(m_DockManager);
+  WQtInputWidget* pInputWidget = new WQtInputWidget(m_DockManager);
+  WQtCVarsWidget* pCVarsWidget = new WQtCVarsWidget(m_DockManager);
+  WQtSubsystemsWidget* pSubsystemsWidget = new WQtSubsystemsWidget(m_DockManager);
+  WQtFileWidget* pFileWidget = new WQtFileWidget(m_DockManager);
+  WQtPluginsWidget* pPluginsWidget = new WQtPluginsWidget(m_DockManager);
+  WQtGlobalEventsWidget* pGlobalEventesWidget = new WQtGlobalEventsWidget(m_DockManager);
+  WQtReflectionWidget* pReflectionWidget = new WQtReflectionWidget(m_DockManager);
+  WQtDataWidget* pDataWidget = new WQtDataWidget(m_DockManager);
+  WQtResourceWidget* pResourceWidget = new WQtResourceWidget(m_DockManager);
+  WQtRenderGraphWidget* pRenderGraphWidget = new WQtRenderGraphWidget(m_DockManager);
 
-  EZ_VERIFY(nullptr != QWidget::connect(pMainWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pLogWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pTimeWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pMemoryWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pInputWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pCVarsWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pReflectionWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pFileWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(
-    nullptr != QWidget::connect(pGlobalEventesWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pDataWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pRenderGraphWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pMainWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pLogWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pTimeWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pMemoryWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pInputWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pCVarsWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pReflectionWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pFileWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pPluginsWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(
+    nullptr != QWidget::connect(pGlobalEventesWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pDataWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pResourceWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
+  W_VERIFY(nullptr != QWidget::connect(pRenderGraphWidget, &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
 
   QMenu* pHistoryMenu = new QMenu;
   pHistoryMenu->setTearOffEnabled(true);
   pHistoryMenu->setTitle(QLatin1String("Stat Histories"));
   pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.svg"));
 
-  for (ezUInt32 i = 0; i < 10; ++i)
+  for (WUInt32 i = 0; i < 10; ++i)
   {
-    m_pStatHistoryWidgets[i] = new ezQtStatVisWidget(m_DockManager, this, i);
+    m_pStatHistoryWidgets[i] = new WQtStatVisWidget(m_DockManager, this, i);
     m_DockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
 
-    EZ_VERIFY(
-      nullptr != QWidget::connect(m_pStatHistoryWidgets[i], &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
+    W_VERIFY(
+      nullptr != QWidget::connect(m_pStatHistoryWidgets[i], &ads::CDockWidget::viewToggled, this, &WQtMainWindow::DockWidgetVisibilityChanged), "");
 
     pHistoryMenu->addAction(&m_pStatHistoryWidgets[i]->m_ShowWindowAction);
 
     m_pActionShowStatIn[i] = new QAction(this);
 
-    EZ_VERIFY(nullptr != QWidget::connect(m_pActionShowStatIn[i], &QAction::triggered, ezQtMainWidget::s_pWidget, &ezQtMainWidget::ShowStatIn), "");
+    W_VERIFY(nullptr != QWidget::connect(m_pActionShowStatIn[i], &QAction::triggered, WQtMainWidget::s_pWidget, &WQtMainWidget::ShowStatIn), "");
   }
 
   // delay this until after all widgets are created
-  for (ezUInt32 i = 0; i < 10; ++i)
+  for (WUInt32 i = 0; i < 10; ++i)
   {
     m_pStatHistoryWidgets[i]->toggleView(false); // hide
   }
@@ -152,16 +152,16 @@ ezQtMainWindow::ezQtMainWindow()
 
   Settings.endGroup();
 
-  for (ezInt32 i = 0; i < 10; ++i)
+  for (WInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->Load();
 
   UpdateWindowTitle();
   SetupNetworkTimer();
 }
 
-ezQtMainWindow::~ezQtMainWindow()
+WQtMainWindow::~WQtMainWindow()
 {
-  for (ezInt32 i = 0; i < 10; ++i)
+  for (WInt32 i = 0; i < 10; ++i)
   {
     m_pStatHistoryWidgets[i]->Save();
   }
@@ -174,7 +174,7 @@ ezQtMainWindow::~ezQtMainWindow()
   }
 }
 
-void ezQtMainWindow::closeEvent(QCloseEvent* pEvent)
+void WQtMainWindow::closeEvent(QCloseEvent* pEvent)
 {
   const bool bMaximized = isMaximized();
   if (bMaximized)
@@ -196,7 +196,7 @@ void ezQtMainWindow::closeEvent(QCloseEvent* pEvent)
   Settings.endGroup();
 }
 
-void ezQtMainWindow::SetupNetworkTimer()
+void WQtMainWindow::SetupNetworkTimer()
 {
   // reset the timer to fire again
   if (m_pNetworkTimer == nullptr)
@@ -205,40 +205,40 @@ void ezQtMainWindow::SetupNetworkTimer()
   m_pNetworkTimer->singleShot(40, this, SLOT(UpdateNetworkTimeOut()));
 }
 
-void ezQtMainWindow::UpdateNetworkTimeOut()
+void WQtMainWindow::UpdateNetworkTimeOut()
 {
   UpdateNetwork();
 
   SetupNetworkTimer();
 }
 
-void ezQtMainWindow::UpdateNetwork()
+void WQtMainWindow::UpdateNetwork()
 {
   bool bResetStats = false;
 
   {
-    static ezUInt32 uiServerID = 0;
+    static WUInt32 uiServerID = 0;
 
-    if (ezTelemetry::IsConnectedToServer())
+    if (WTelemetry::IsConnectedToServer())
     {
-      if (uiServerID != ezTelemetry::GetServerID())
+      if (uiServerID != WTelemetry::GetServerID())
       {
-        uiServerID = ezTelemetry::GetServerID();
+        uiServerID = WTelemetry::GetServerID();
         bResetStats = true;
 
-        ezStringBuilder s;
+        WStringBuilder s;
         s.SetFormat("Connected to new Server with ID {0}", uiServerID);
 
-        ezQtLogDockWidget::s_pWidget->Log(s.GetData());
+        WQtLogDockWidget::s_pWidget->Log(s.GetData());
       }
       else if (!m_bConnectedToServer)
       {
-        ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
+        WQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
       }
 
-      if (m_sLastServerName != ezTelemetry::GetServerName())
+      if (m_sLastServerName != WTelemetry::GetServerName())
       {
-        m_sLastServerName = ezTelemetry::GetServerName();
+        m_sLastServerName = WTelemetry::GetServerName();
         UpdateWindowTitle();
       }
 
@@ -252,7 +252,7 @@ void ezQtMainWindow::UpdateNetwork()
     {
       if (m_bConnectedToServer)
       {
-        ezQtLogDockWidget::s_pWidget->Log("Lost Connection to Server.");
+        WQtLogDockWidget::s_pWidget->Log("Lost Connection to Server.");
         m_sLastServerName.Clear();
         m_bConnectedToServer = false;
         UpdateWindowTitle();
@@ -264,80 +264,80 @@ void ezQtMainWindow::UpdateNetwork()
   {
 
 
-    ezQtMainWidget::s_pWidget->ResetStats();
-    ezQtLogDockWidget::s_pWidget->ResetStats();
-    ezQtMemoryWidget::s_pWidget->ResetStats();
-    ezQtTimeWidget::s_pWidget->ResetStats();
-    ezQtInputWidget::s_pWidget->ResetStats();
-    ezQtCVarsWidget::s_pWidget->ResetStats();
-    ezQtReflectionWidget::s_pWidget->ResetStats();
-    ezQtFileWidget::s_pWidget->ResetStats();
-    ezQtPluginsWidget::s_pWidget->ResetStats();
-    ezQtSubsystemsWidget::s_pWidget->ResetStats();
-    ezQtGlobalEventsWidget::s_pWidget->ResetStats();
-    ezQtDataWidget::s_pWidget->ResetStats();
-    ezQtResourceWidget::s_pWidget->ResetStats();
-    ezQtRenderGraphWidget::s_pWidget->ResetStats();
+    WQtMainWidget::s_pWidget->ResetStats();
+    WQtLogDockWidget::s_pWidget->ResetStats();
+    WQtMemoryWidget::s_pWidget->ResetStats();
+    WQtTimeWidget::s_pWidget->ResetStats();
+    WQtInputWidget::s_pWidget->ResetStats();
+    WQtCVarsWidget::s_pWidget->ResetStats();
+    WQtReflectionWidget::s_pWidget->ResetStats();
+    WQtFileWidget::s_pWidget->ResetStats();
+    WQtPluginsWidget::s_pWidget->ResetStats();
+    WQtSubsystemsWidget::s_pWidget->ResetStats();
+    WQtGlobalEventsWidget::s_pWidget->ResetStats();
+    WQtDataWidget::s_pWidget->ResetStats();
+    WQtResourceWidget::s_pWidget->ResetStats();
+    WQtRenderGraphWidget::s_pWidget->ResetStats();
   }
 
   UpdateAlwaysOnTop();
 
-  ezQtMainWidget::s_pWidget->UpdateStats();
-  ezQtPluginsWidget::s_pWidget->UpdateStats();
-  ezQtSubsystemsWidget::s_pWidget->UpdateStats();
-  ezQtMemoryWidget::s_pWidget->UpdateStats();
-  ezQtTimeWidget::s_pWidget->UpdateStats();
-  ezQtFileWidget::s_pWidget->UpdateStats();
-  ezQtResourceWidget::s_pWidget->UpdateStats();
-  ezQtRenderGraphWidget::s_pWidget->UpdateStats();
-  // ezQtDataWidget::s_pWidget->UpdateStats();
+  WQtMainWidget::s_pWidget->UpdateStats();
+  WQtPluginsWidget::s_pWidget->UpdateStats();
+  WQtSubsystemsWidget::s_pWidget->UpdateStats();
+  WQtMemoryWidget::s_pWidget->UpdateStats();
+  WQtTimeWidget::s_pWidget->UpdateStats();
+  WQtFileWidget::s_pWidget->UpdateStats();
+  WQtResourceWidget::s_pWidget->UpdateStats();
+  WQtRenderGraphWidget::s_pWidget->UpdateStats();
+  // WQtDataWidget::s_pWidget->UpdateStats();
 
-  for (ezInt32 i = 0; i < 10; ++i)
+  for (WInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->UpdateStats();
 
-  ezTelemetry::PerFrameUpdate();
+  WTelemetry::PerFrameUpdate();
 }
 
-void ezQtMainWindow::UpdateWindowTitle()
+void WQtMainWindow::UpdateWindowTitle()
 {
   if (m_bConnectedToServer && !m_sLastServerName.IsEmpty())
-    setWindowTitle(QString("ezInspector [%1] - %2").arg(m_sConnectionTarget, m_sLastServerName.GetData()));
+    setWindowTitle(QString("WInspector [%1] - %2").arg(m_sConnectionTarget, m_sLastServerName.GetData()));
   else if (m_bConnectedToServer)
-    setWindowTitle(QString("ezInspector [%1] - connected").arg(m_sConnectionTarget));
+    setWindowTitle(QString("WInspector [%1] - connected").arg(m_sConnectionTarget));
   else
-    setWindowTitle(QString("ezInspector [%1] - not connected").arg(m_sConnectionTarget));
+    setWindowTitle(QString("WInspector [%1] - not connected").arg(m_sConnectionTarget));
 }
 
-void ezQtMainWindow::SetConnectionTarget(const QString& sTarget)
+void WQtMainWindow::SetConnectionTarget(const QString& sTarget)
 {
   m_sConnectionTarget = sTarget;
   UpdateWindowTitle();
 }
 
-void ezQtMainWindow::DockWidgetVisibilityChanged(bool bVisible)
+void WQtMainWindow::DockWidgetVisibilityChanged(bool bVisible)
 {
   // TODO: add menu entry for qt main widget
 
-  ActionShowWindowLog->setChecked(!ezQtLogDockWidget::s_pWidget->isClosed());
-  ActionShowWindowMemory->setChecked(!ezQtMemoryWidget::s_pWidget->isClosed());
-  ActionShowWindowTime->setChecked(!ezQtTimeWidget::s_pWidget->isClosed());
-  ActionShowWindowInput->setChecked(!ezQtInputWidget::s_pWidget->isClosed());
-  ActionShowWindowCVar->setChecked(!ezQtCVarsWidget::s_pWidget->isClosed());
-  ActionShowWindowReflection->setChecked(!ezQtReflectionWidget::s_pWidget->isClosed());
-  ActionShowWindowSubsystems->setChecked(!ezQtSubsystemsWidget::s_pWidget->isClosed());
-  ActionShowWindowFile->setChecked(!ezQtFileWidget::s_pWidget->isClosed());
-  ActionShowWindowPlugins->setChecked(!ezQtPluginsWidget::s_pWidget->isClosed());
-  ActionShowWindowGlobalEvents->setChecked(!ezQtGlobalEventsWidget::s_pWidget->isClosed());
-  ActionShowWindowData->setChecked(!ezQtDataWidget::s_pWidget->isClosed());
-  ActionShowWindowResource->setChecked(!ezQtResourceWidget::s_pWidget->isClosed());
-  ActionShowWindowRenderGraph->setChecked(!ezQtRenderGraphWidget::s_pWidget->isClosed());
+  ActionShowWindowLog->setChecked(!WQtLogDockWidget::s_pWidget->isClosed());
+  ActionShowWindowMemory->setChecked(!WQtMemoryWidget::s_pWidget->isClosed());
+  ActionShowWindowTime->setChecked(!WQtTimeWidget::s_pWidget->isClosed());
+  ActionShowWindowInput->setChecked(!WQtInputWidget::s_pWidget->isClosed());
+  ActionShowWindowCVar->setChecked(!WQtCVarsWidget::s_pWidget->isClosed());
+  ActionShowWindowReflection->setChecked(!WQtReflectionWidget::s_pWidget->isClosed());
+  ActionShowWindowSubsystems->setChecked(!WQtSubsystemsWidget::s_pWidget->isClosed());
+  ActionShowWindowFile->setChecked(!WQtFileWidget::s_pWidget->isClosed());
+  ActionShowWindowPlugins->setChecked(!WQtPluginsWidget::s_pWidget->isClosed());
+  ActionShowWindowGlobalEvents->setChecked(!WQtGlobalEventsWidget::s_pWidget->isClosed());
+  ActionShowWindowData->setChecked(!WQtDataWidget::s_pWidget->isClosed());
+  ActionShowWindowResource->setChecked(!WQtResourceWidget::s_pWidget->isClosed());
+  ActionShowWindowRenderGraph->setChecked(!WQtRenderGraphWidget::s_pWidget->isClosed());
 
-  for (ezInt32 i = 0; i < 10; ++i)
+  for (WInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->m_ShowWindowAction.setChecked(!m_pStatHistoryWidgets[i]->isClosed());
 }
 
 
-void ezQtMainWindow::SetAlwaysOnTop(OnTopMode Mode)
+void WQtMainWindow::SetAlwaysOnTop(OnTopMode Mode)
 {
   m_OnTopMode = Mode;
 
@@ -351,14 +351,14 @@ void ezQtMainWindow::SetAlwaysOnTop(OnTopMode Mode)
   UpdateAlwaysOnTop();
 }
 
-void ezQtMainWindow::UpdateAlwaysOnTop()
+void WQtMainWindow::UpdateAlwaysOnTop()
 {
   static bool bOnTop = false;
 
   bool bNewState = bOnTop;
-  EZ_IGNORE_UNUSED(bNewState);
+  W_IGNORE_UNUSED(bNewState);
 
-  if (m_OnTopMode == Always || (m_OnTopMode == WhenConnected && ezTelemetry::IsConnectedToServer()))
+  if (m_OnTopMode == Always || (m_OnTopMode == WhenConnected && WTelemetry::IsConnectedToServer()))
     bNewState = true;
   else
     bNewState = false;
@@ -378,21 +378,21 @@ void ezQtMainWindow::UpdateAlwaysOnTop()
   }
 }
 
-void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
+void WQtMainWindow::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage(' APP', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage(' APP', Msg) == W_SUCCESS)
   {
     switch (Msg.GetMessageID())
     {
       case 'ASRT':
       {
-        ezString sSourceFile, sFunction, sExpression, sMessage;
-        ezUInt32 uiLine = 0;
+        WString sSourceFile, sFunction, sExpression, sMessage;
+        WUInt32 uiLine = 0;
 
         Msg.GetReader() >> sSourceFile;
         Msg.GetReader() >> uiLine;
@@ -400,26 +400,26 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> sExpression;
         Msg.GetReader() >> sMessage;
 
-        ezQtLogDockWidget::s_pWidget->Log("");
-        ezQtLogDockWidget::s_pWidget->Log("<<< Application Assertion >>>");
-        ezQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log("<<< Application Assertion >>>");
+        WQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogDockWidget::s_pWidget->Log(ezFmt("    Expression: '{0}'", sExpression));
-        ezQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log(WFmt("    Expression: '{0}'", sExpression));
+        WQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogDockWidget::s_pWidget->Log(ezFmt("    Message: '{0}'", sMessage));
-        ezQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log(WFmt("    Message: '{0}'", sMessage));
+        WQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   File: '{0}'", sSourceFile));
+        WQtLogDockWidget::s_pWidget->Log(WFmt("   File: '{0}'", sSourceFile));
 
-        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   Line: {0}", uiLine));
+        WQtLogDockWidget::s_pWidget->Log(WFmt("   Line: {0}", uiLine));
 
-        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   In Function: '{0}'", sFunction));
+        WQtLogDockWidget::s_pWidget->Log(WFmt("   In Function: '{0}'", sFunction));
 
-        ezQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogDockWidget::s_pWidget->Log(">>> Application Assertion <<<");
-        ezQtLogDockWidget::s_pWidget->Log("");
+        WQtLogDockWidget::s_pWidget->Log(">>> Application Assertion <<<");
+        WQtLogDockWidget::s_pWidget->Log("");
       }
       break;
     }

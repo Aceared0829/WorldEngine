@@ -14,73 +14,73 @@
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-struct ezOffscreenTest_SharedTexture
+struct WOffscreenTest_SharedTexture
 {
-  EZ_DECLARE_POD_TYPE();
-  ezUInt32 m_uiCurrentTextureIndex = 0;
-  ezUInt64 m_uiCurrentSemaphoreValue = 0;
+  W_DECLARE_POD_TYPE();
+  WUInt32 m_uiCurrentTextureIndex = 0;
+  WUInt64 m_uiCurrentSemaphoreValue = 0;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezOffscreenTest_SharedTexture)
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WOffscreenTest_SharedTexture)
 
 
-class ezOffscreenTest_OpenMsg : public ezProcessMessage
+class WOffscreenTest_OpenMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOffscreenTest_OpenMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WOffscreenTest_OpenMsg, WProcessMessage);
 
 public:
-  ezGALTextureCreationDescription m_TextureDesc;
-  ezHybridArray<ezGALPlatformSharedHandle, 2> m_TextureHandles;
+  WGALTextureCreationDescription m_TextureDesc;
+  WHybridArray<WGALPlatformSharedHandle, 2> m_TextureHandles;
 };
 
-class ezOffscreenTest_CloseMsg : public ezProcessMessage
+class WOffscreenTest_CloseMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOffscreenTest_CloseMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WOffscreenTest_CloseMsg, WProcessMessage);
 };
 
-class ezOffscreenTest_RenderMsg : public ezProcessMessage
+class WOffscreenTest_RenderMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOffscreenTest_RenderMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WOffscreenTest_RenderMsg, WProcessMessage);
 
 public:
-  ezOffscreenTest_SharedTexture m_Texture;
+  WOffscreenTest_SharedTexture m_Texture;
 };
 
-class ezOffscreenTest_RenderResponseMsg : public ezProcessMessage
+class WOffscreenTest_RenderResponseMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOffscreenTest_RenderResponseMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WOffscreenTest_RenderResponseMsg, WProcessMessage);
 
 public:
-  ezOffscreenTest_SharedTexture m_Texture;
+  WOffscreenTest_SharedTexture m_Texture;
 };
 
-class ezOffscreenRendererTest : public ezApplication
+class WOffscreenRendererTest : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezOffscreenRendererTest();
-  ~ezOffscreenRendererTest();
+  WOffscreenRendererTest();
+  ~WOffscreenRendererTest();
 
   virtual void Run() override;
-  void OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue);
+  void OnPresent(WUInt32 uiCurrentTexture, WUInt64 uiCurrentSemaphoreValue);
 
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  void MessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
+  void MessageFunc(const WIpcProcessMessageProtocol::Event& msg);
 
 
 private:
-  ezLogWriter::HTML m_LogHTML;
-  ezGALDevice* m_pDevice = nullptr;
-  ezGALSwapChainHandle m_hSwapChain;
-  ezShaderResourceHandle m_hScreenShader;
+  WLogWriter::HTML m_LogHTML;
+  WGALDevice* m_pDevice = nullptr;
+  WGALSwapChainHandle m_hSwapChain;
+  WShaderResourceHandle m_hScreenShader;
 
-  ezInt64 m_iHostPID = 0;
-  ezUniquePtr<ezIpcChannel> m_pChannel;
-  ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
+  WInt64 m_iHostPID = 0;
+  WUniquePtr<WIpcChannel> m_pChannel;
+  WUniquePtr<WIpcProcessMessageProtocol> m_pProtocol;
 
   bool m_bExiting = false;
-  ezHybridArray<ezOffscreenTest_RenderMsg, 2> m_RequestedFrames;
+  WHybridArray<WOffscreenTest_RenderMsg, 2> m_RequestedFrames;
 };

@@ -6,55 +6,55 @@
 /// Migrates ProcGen nodes from using RenderPipeline pin types to ProcGen-specific pin types.
 ///
 /// This patch processes all ProcGen node types and updates their pin property types:
-/// - ezRenderPipelineNodeInputPin -> ezProcGenNodeInputPin
-/// - ezRenderPipelineNodeOutputPin -> ezProcGenNodeOutputPin
-class ezProcGenPinTypePatch_1_2 : public ezGraphPatch
+/// - WRenderPipelineNodeInputPin -> WProcGenNodeInputPin
+/// - WRenderPipelineNodeOutputPin -> WProcGenNodeOutputPin
+class WProcGenPinTypePatch_1_2 : public WGraphPatch
 {
 public:
-  ezProcGenPinTypePatch_1_2()
-    : ezGraphPatch("", 2, PatchType::GraphPatch)
+  WProcGenPinTypePatch_1_2()
+    : WGraphPatch("", 2, PatchType::GraphPatch)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Iterate through all nodes in the graph
     for (auto it = pGraph->GetAllNodes().GetIterator(); it.IsValid(); ++it)
     {
-      ezAbstractObjectNode* pCurrentNode = it.Value();
-      const ezStringView sType = pCurrentNode->GetType();
+      WAbstractObjectNode* pCurrentNode = it.Value();
+      const WStringView sType = pCurrentNode->GetType();
 
       // Only process ProcGen node types
-      if (sType.StartsWith("ezProcGen"))
+      if (sType.StartsWith("WProcGen"))
       {
         // Iterate through all properties of this node
         auto& properties = pCurrentNode->GetProperties();
-        for (ezUInt32 i = 0; i < properties.GetCount(); ++i)
+        for (WUInt32 i = 0; i < properties.GetCount(); ++i)
         {
           auto& prop = properties[i];
 
           // Check if this property is a struct with a RenderPipeline pin type
-          if (prop.m_Value.IsA<ezUuid>())
+          if (prop.m_Value.IsA<WUuid>())
           {
-            ezUuid propertyObjectGuid = prop.m_Value.Get<ezUuid>();
-            ezAbstractObjectNode* pPropertyNode = pGraph->GetNode(propertyObjectGuid);
+            WUuid propertyObjectGuid = prop.m_Value.Get<WUuid>();
+            WAbstractObjectNode* pPropertyNode = pGraph->GetNode(propertyObjectGuid);
 
             if (pPropertyNode)
             {
-              const ezStringView sPropertyType = pPropertyNode->GetType();
+              const WStringView sPropertyType = pPropertyNode->GetType();
 
               // Rename RenderPipeline pin types to ProcGen pin types
-              if (sPropertyType == "ezRenderPipelineNodeInputPin")
+              if (sPropertyType == "WRenderPipelineNodeInputPin")
               {
-                pPropertyNode->SetType("ezProcGenNodeInputPin");
+                pPropertyNode->SetType("WProcGenNodeInputPin");
               }
-              else if (sPropertyType == "ezRenderPipelineNodeOutputPin")
+              else if (sPropertyType == "WRenderPipelineNodeOutputPin")
               {
-                pPropertyNode->SetType("ezProcGenNodeOutputPin");
+                pPropertyNode->SetType("WProcGenNodeOutputPin");
               }
-              else if (sPropertyType == "ezRenderPipelineNodePin")
+              else if (sPropertyType == "WRenderPipelineNodePin")
               {
-                pPropertyNode->SetType("ezProcGenNodePin");
+                pPropertyNode->SetType("WProcGenNodePin");
               }
             }
           }
@@ -64,4 +64,4 @@ public:
   }
 };
 
-ezProcGenPinTypePatch_1_2 g_ezProcGenPinTypePatch_1_2;
+WProcGenPinTypePatch_1_2 g_WProcGenPinTypePatch_1_2;

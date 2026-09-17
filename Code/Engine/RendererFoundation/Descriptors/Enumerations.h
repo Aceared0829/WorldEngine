@@ -2,29 +2,29 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// The type of a shader resource (ezShaderResourceBinding).
-/// Shader resources need to be bound to a shader for it to function. This includes samplers, constant buffers, textures etc. which are all handled by EZ via GAL resource types / views. However, vertex buffers, index buffers and vertex layouts are not considered shader resources and are handled separately.
-/// \sa ezGALShaderTextureType, ezShaderResourceBinding
-struct ezGALShaderResourceType
+/// The type of a shader resource (WShaderResourceBinding).
+/// Shader resources need to be bound to a shader for it to function. This includes samplers, constant buffers, textures etc. which are all handled by W via GAL resource types / views. However, vertex buffers, index buffers and vertex layouts are not considered shader resources and are handled separately.
+/// \sa WGALShaderTextureType, WShaderResourceBinding
+struct WGALShaderResourceType
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Unknown = 0,
-    /// Texture sampler (ezGALSamplerStateHandle). HLSL: SamplerState, SamplerComparisonState
+    /// Texture sampler (WGALSamplerStateHandle). HLSL: SamplerState, SamplerComparisonState
     Sampler = 1,
 
-    /// Read-only struct (ezGALBufferHandle). HLSL: cbuffer, ConstantBuffer
+    /// Read-only struct (WGALBufferHandle). HLSL: cbuffer, ConstantBuffer
     ConstantBuffer = 2,
-    // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
+    // Read-only struct. Set directly via WGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
     PushConstants = 3,
 
     /// \name Shader Resource Views (SRVs).
     ///@{
 
-    /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
+    /// Read-only texture view. When set, WGALShaderTextureType is also set. HLSL: Texture*
     Texture = 4,
-    /// Read-only texture view with attached sampler. When set, ezGALShaderTextureType is also set. HLSL: Name sampler the same as texture with _AutoSampler appended.
+    /// Read-only texture view with attached sampler. When set, WGALShaderTextureType is also set. HLSL: Name sampler the same as texture with _AutoSampler appended.
     TextureAndSampler = 5,
     /// Read-only texel buffer. It's like a 1D texture. HLSL: Buffer
     TexelBuffer = 6,
@@ -37,7 +37,7 @@ struct ezGALShaderResourceType
     /// \name Unordered Access Views (UAVs).
     ///@{
 
-    /// Read-write texture view. When set, ezGALShaderTextureType is also set. HLSL: RWTexture*
+    /// Read-write texture view. When set, WGALShaderTextureType is also set. HLSL: RWTexture*
     TextureRW = 8,
     /// Read-write texel buffer. It's like a 1D texture. HLSL: RWBuffer
     TexelBufferRW = 9,
@@ -49,7 +49,7 @@ struct ezGALShaderResourceType
     ///@}
 
     // #TODO_SHADER: Future work:
-    // Not supported: EZ does not support AppendStructuredBuffer, ConsumeStructuredBuffer yet so while the shader can be compiled, nothing can be bound to these resources. On Vulkan, will probably need yet another type to distinguish the data from the count resource (uav_counter_binding).
+    // Not supported: W does not support AppendStructuredBuffer, ConsumeStructuredBuffer yet so while the shader can be compiled, nothing can be bound to these resources. On Vulkan, will probably need yet another type to distinguish the data from the count resource (uav_counter_binding).
     // Not supported: tbuffer, TextureBuffer, these map to CBV on DX11 and to eStorageBuffer on Vulkan, requiring to use a constantBufferView or a UAV. Thus, it bleeds platform implementation details.
     // Not supported: (Vulkan) VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, frame-buffer local read-only image view. Required for render passes on mobile.
     // Not supported: (Vulkan) VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK,Vulkan 1.3 addition, surpasses push-constants but not widely supported yet. May be able to abstract this via PushConstants and custom shader compiler / GAL implementations.
@@ -59,20 +59,20 @@ struct ezGALShaderResourceType
   };
 };
 
-/// General category of the shader resource (ezShaderResourceBinding).
-/// Note that these are flags because some resources can be multiple resource types, e.g. ezGALShaderResourceType::TextureAndSampler.
-struct ezGALShaderResourceCategory
+/// General category of the shader resource (WShaderResourceBinding).
+/// Note that these are flags because some resources can be multiple resource types, e.g. WGALShaderResourceType::TextureAndSampler.
+struct WGALShaderResourceCategory
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   static constexpr int ENUM_COUNT = 4;
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
-    Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
-    ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    TextureSRV = EZ_BIT(2),     //< Shader Resource Views
-    BufferSRV = EZ_BIT(3),      //< Shader Resource Views
-    TextureUAV = EZ_BIT(4),     //< Unordered Access Views
-    BufferUAV = EZ_BIT(5),      //< Unordered Access Views
+    Sampler = W_BIT(0),        //< Sampler (WGALSamplerStateHandle).
+    ConstantBuffer = W_BIT(1), //< Constant Buffer (WGALBufferHandle)
+    TextureSRV = W_BIT(2),     //< Shader Resource Views
+    BufferSRV = W_BIT(3),      //< Shader Resource Views
+    TextureUAV = W_BIT(4),     //< Unordered Access Views
+    BufferUAV = W_BIT(5),      //< Unordered Access Views
     Default = 0
   };
 
@@ -86,16 +86,16 @@ struct ezGALShaderResourceCategory
     StorageType BufferUAV : 1;
   };
 
-  static ezBitflags<ezGALShaderResourceCategory> MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type);
+  static WBitflags<WGALShaderResourceCategory> MakeFromShaderDescriptorType(WGALShaderResourceType::Enum type);
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezGALShaderResourceCategory);
+W_DECLARE_FLAGS_OPERATORS(WGALShaderResourceCategory);
 
-/// The texture type of the shader resource (ezShaderResourceBinding).
-struct ezGALShaderTextureType
+/// The texture type of the shader resource (WShaderResourceBinding).
+struct WGALShaderTextureType
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Unknown = 0,
     Texture1D = 1,
@@ -111,16 +111,16 @@ struct ezGALShaderTextureType
     Default = Unknown
   };
 
-  static bool IsArray(ezGALShaderTextureType::Enum format);
-  static bool IsMSAA(ezGALShaderTextureType::Enum format);
-  static ezGALTextureType::Enum GetTextureType(ezGALShaderTextureType::Enum format);
+  static bool IsArray(WGALShaderTextureType::Enum format);
+  static bool IsMSAA(WGALShaderTextureType::Enum format);
+  static WGALTextureType::Enum GetTextureType(WGALShaderTextureType::Enum format);
 };
 
 /// Defines a swap chain's present mode.
-/// \sa ezGALWindowSwapChainCreationDescription
-struct ezGALPresentMode
+/// \sa WGALWindowSwapChainCreationDescription
+struct WGALPresentMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -132,12 +132,12 @@ struct ezGALPresentMode
 };
 
 /// Defines the usage semantic of a vertex attribute.
-/// \sa ezGALVertexAttribute
-struct ezGALVertexAttributeSemantic
+/// \sa WGALVertexAttribute
+struct WGALVertexAttributeSemantic
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     Position,
     Normal,
@@ -176,17 +176,17 @@ struct ezGALVertexAttributeSemantic
 };
 
 /// Defines for what purpose a texture can be used for.
-/// \sa ezGALTextureCreationDescription
-struct ezGALTextureUsageFlags
+/// \sa WGALTextureCreationDescription
+struct WGALTextureUsageFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    ShaderResource = EZ_BIT(0),  ///< Can be used for ezGALShaderResourceType in the SRV section.
-    UnorderedAccess = EZ_BIT(1), ///< Can be used for ezGALShaderResourceType in the UAV section.
-    RenderTarget = EZ_BIT(2),    ///< Can be used as a render target or depth-stencil target.
-    Presentable = EZ_BIT(4),     ///< Can be presented by a swapchain
+    ShaderResource = W_BIT(0),  ///< Can be used for WGALShaderResourceType in the SRV section.
+    UnorderedAccess = W_BIT(1), ///< Can be used for WGALShaderResourceType in the UAV section.
+    RenderTarget = W_BIT(2),    ///< Can be used as a render target or depth-stencil target.
+    Presentable = W_BIT(4),     ///< Can be presented by a swapchain
 
     Default = ShaderResource
   };
@@ -198,27 +198,27 @@ struct ezGALTextureUsageFlags
     StorageType RenderTarget : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALTextureUsageFlags);
+W_DECLARE_FLAGS_OPERATORS(WGALTextureUsageFlags);
 
 /// Defines for what purpose a buffer can be used for.
-/// \sa ezGALBufferCreationDescription
-struct ezGALBufferUsageFlags
+/// \sa WGALBufferCreationDescription
+struct WGALBufferUsageFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
-    VertexBuffer = EZ_BIT(0),      ///< Can be used as a vertex buffer.
-    IndexBuffer = EZ_BIT(1),       ///< Can be used as an index buffer.
-    ConstantBuffer = EZ_BIT(2),    ///< Can be used as a constant buffer. Can't be combined with any of the other *Buffer flags.
-    TexelBuffer = EZ_BIT(3),       ///< Can be used as a texel buffer.
-    StructuredBuffer = EZ_BIT(4),  ///< ezGALShaderResourceType::StructuredBuffer
-    ByteAddressBuffer = EZ_BIT(5), ///< ezGALShaderResourceType::ByteAddressBuffer (RAW)
+    VertexBuffer = W_BIT(0),      ///< Can be used as a vertex buffer.
+    IndexBuffer = W_BIT(1),       ///< Can be used as an index buffer.
+    ConstantBuffer = W_BIT(2),    ///< Can be used as a constant buffer. Can't be combined with any of the other *Buffer flags.
+    TexelBuffer = W_BIT(3),       ///< Can be used as a texel buffer.
+    StructuredBuffer = W_BIT(4),  ///< WGALShaderResourceType::StructuredBuffer
+    ByteAddressBuffer = W_BIT(5), ///< WGALShaderResourceType::ByteAddressBuffer (RAW)
 
-    ShaderResource = EZ_BIT(6),    ///< Can be used for ezGALShaderResourceType in the SRV section.
-    UnorderedAccess = EZ_BIT(7),   ///< Can be used for ezGALShaderResourceType in the UAV section.
-    DrawIndirect = EZ_BIT(8),      ///< Can be used in an indirect draw call.
-    Transient = EZ_BIT(9),         ///< Does not persist across frames. If ConstantBuffer is also set, it can be updated multiple times per frame in the middle of any operation as new memory is created on every update call.
+    ShaderResource = W_BIT(6),    ///< Can be used for WGALShaderResourceType in the SRV section.
+    UnorderedAccess = W_BIT(7),   ///< Can be used for WGALShaderResourceType in the UAV section.
+    DrawIndirect = W_BIT(8),      ///< Can be used in an indirect draw call.
+    Transient = W_BIT(9),         ///< Does not persist across frames. If ConstantBuffer is also set, it can be updated multiple times per frame in the middle of any operation as new memory is created on every update call.
 
     Default = 0
   };
@@ -237,12 +237,12 @@ struct ezGALBufferUsageFlags
     StorageType Transient : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
+W_DECLARE_FLAGS_OPERATORS(WGALBufferUsageFlags);
 
 /// Type of GPU->CPU query.
-struct ezGALQueryType
+struct WGALQueryType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -256,11 +256,11 @@ struct ezGALQueryType
 };
 
 /// Type of the shared texture (INTERNAL)
-struct ezGALSharedTextureType
+struct WGALSharedTextureType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     None,     ///< Not shared
     Exported, ///< Allocation owned by this process
@@ -271,11 +271,11 @@ struct ezGALSharedTextureType
 
 /// Defines on what type of queue a render pass is being executed.
 /// Note that this does not mean a dedicated queue for this kind of task is used, it merely limits what kind of commands a pass is allowed to execute.
-struct ezGALQueueType
+struct WGALQueueType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     Graphics,
     Compute,
@@ -290,38 +290,38 @@ struct ezGALQueueType
 /// Write states are exclusive and must not be combined with other states.
 ///
 /// Not every state is valid for every resource type. Using an invalid state (e.g., RenderTarget on a buffer) is a usage error.
-struct ezGALResourceState
+struct WGALResourceState
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
-  enum Enum : ezUInt32
+  enum Enum : WUInt32
   {
     Unknown = 0,
 
     // Read-only states (combinable for buffers)
-    ShaderResource = EZ_BIT(0),   ///< Texture/buffer read by a shader stage
-    ConstantBuffer = EZ_BIT(1),   ///< Bound as a constant/uniform buffer
-    VertexBuffer = EZ_BIT(2),     ///< Bound as a vertex buffer
-    IndexBuffer = EZ_BIT(3),      ///< Bound as an index buffer
-    DrawIndirect = EZ_BIT(4),     ///< Indirect draw/dispatch argument buffer
-    DepthStencilRead = EZ_BIT(5), ///< Depth/stencil attachment without writes
-    CopySource = EZ_BIT(6),       ///< Source of a copy or blit operation
-    ResolveSource = EZ_BIT(7),    ///< Source of an MSAA resolve
+    ShaderResource = W_BIT(0),   ///< Texture/buffer read by a shader stage
+    ConstantBuffer = W_BIT(1),   ///< Bound as a constant/uniform buffer
+    VertexBuffer = W_BIT(2),     ///< Bound as a vertex buffer
+    IndexBuffer = W_BIT(3),      ///< Bound as an index buffer
+    DrawIndirect = W_BIT(4),     ///< Indirect draw/dispatch argument buffer
+    DepthStencilRead = W_BIT(5), ///< Depth/stencil attachment without writes
+    CopySource = W_BIT(6),       ///< Source of a copy or blit operation
+    ResolveSource = W_BIT(7),    ///< Source of an MSAA resolve
 
     // Write states (exclusive)
-    UnorderedAccess = EZ_BIT(16),    ///< UAV/storage write
-    RenderTarget = EZ_BIT(17),       ///< Color render target attachment
-    DepthStencilWrite = EZ_BIT(18),  ///< Depth/stencil attachment with writes (implies read)
-    CopyDestination = EZ_BIT(19),    ///< Destination of a copy or blit operation
-    ResolveDestination = EZ_BIT(20), ///< Destination of an MSAA resolve
+    UnorderedAccess = W_BIT(16),    ///< UAV/storage write
+    RenderTarget = W_BIT(17),       ///< Color render target attachment
+    DepthStencilWrite = W_BIT(18),  ///< Depth/stencil attachment with writes (implies read)
+    CopyDestination = W_BIT(19),    ///< Destination of a copy or blit operation
+    ResolveDestination = W_BIT(20), ///< Destination of an MSAA resolve
 
     // Barrier hints
-    Discard = EZ_BIT(28), ///< Textures write only: The previous data / layout can be discarded
+    Discard = W_BIT(28), ///< Textures write only: The previous data / layout can be discarded
 
     // Special - handled internally
-    Present = EZ_BIT(29),  ///< Swapchain presentation
-    CpuRead = EZ_BIT(30),  ///< GPU->CPU readback (e.g., into a staging buffer)
-    CpuWrite = EZ_BIT(31), ///< CPU->GPU upload (e.g., from a staging buffer)
+    Present = W_BIT(29),  ///< Swapchain presentation
+    CpuRead = W_BIT(30),  ///< GPU->CPU readback (e.g., into a staging buffer)
+    CpuWrite = W_BIT(31), ///< CPU->GPU upload (e.g., from a staging buffer)
 
     // Masks
     AllTextureStates = ShaderResource | DepthStencilRead | CopySource | ResolveSource | UnorderedAccess | RenderTarget | DepthStencilWrite | CopyDestination | ResolveDestination | Discard,
@@ -366,31 +366,31 @@ struct ezGALResourceState
     StorageType CpuWrite : 1; // 31
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALResourceState);
+W_DECLARE_FLAGS_OPERATORS(WGALResourceState);
 
 /// Describes a texture barrier for a layout/state transition.
-struct ezGALTextureBarrier
+struct WGALTextureBarrier
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALTextureHandle m_hTexture;
-  ezBitflags<ezGALResourceState> m_StateBefore;
-  ezBitflags<ezGALResourceState> m_StateAfter;
-  ezBitflags<ezGALShaderStageFlags> m_StagesBefore = ezGALShaderStageFlags::Auto;
-  ezBitflags<ezGALShaderStageFlags> m_StagesAfter = ezGALShaderStageFlags::Auto;
-  ezGALTextureSubresource m_Subresource = {};
+  W_DECLARE_POD_TYPE();
+  WGALTextureHandle m_hTexture;
+  WBitflags<WGALResourceState> m_StateBefore;
+  WBitflags<WGALResourceState> m_StateAfter;
+  WBitflags<WGALShaderStageFlags> m_StagesBefore = WGALShaderStageFlags::Auto;
+  WBitflags<WGALShaderStageFlags> m_StagesAfter = WGALShaderStageFlags::Auto;
+  WGALTextureSubresource m_Subresource = {};
   bool m_bAllSubresources = true; ///< If true, the barrier applies to all subresources and m_Subresource is ignored.
   bool m_bDiscard = false;        ///< Discard previous texture layout
 };
 
 /// Describes a buffer barrier for a state transition.
-struct ezGALBufferBarrier
+struct WGALBufferBarrier
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALBufferHandle m_hBuffer;
-  ezBitflags<ezGALResourceState> m_StateBefore;
-  ezBitflags<ezGALResourceState> m_StateAfter;
-  ezBitflags<ezGALShaderStageFlags> m_StagesBefore = ezGALShaderStageFlags::Auto;
-  ezBitflags<ezGALShaderStageFlags> m_StagesAfter = ezGALShaderStageFlags::Auto;
+  W_DECLARE_POD_TYPE();
+  WGALBufferHandle m_hBuffer;
+  WBitflags<WGALResourceState> m_StateBefore;
+  WBitflags<WGALResourceState> m_StateAfter;
+  WBitflags<WGALShaderStageFlags> m_StagesBefore = WGALShaderStageFlags::Auto;
+  WBitflags<WGALShaderStageFlags> m_StagesAfter = WGALShaderStageFlags::Auto;
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Enumerations_inl.h>

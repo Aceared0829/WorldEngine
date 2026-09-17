@@ -14,11 +14,11 @@
 
 namespace
 {
-  /// Equivalent of ezSimpleAssetDocument::GetPropertyObject(), which can't be called without knowing
+  /// Equivalent of WSimpleAssetDocument::GetPropertyObject(), which can't be called without knowing
   /// the concrete asset type.
-  const ezDocumentObject* GetTopLevelObject(const ezDocument* pDoc)
+  const WDocumentObject* GetTopLevelObject(const WDocument* pDoc)
   {
-    const ezDocumentObject* pRoot = pDoc->GetObjectManager()->GetRootObject();
+    const WDocumentObject* pRoot = pDoc->GetObjectManager()->GetRootObject();
     if (pRoot == nullptr || pRoot->GetChildren().GetCount() != 1)
       return nullptr;
 
@@ -29,26 +29,26 @@ namespace
   ///
   /// Only closes the document again if it had to be opened here and nothing has claimed a window for
   /// it, so that a document someone else is working with is left alone.
-  ezVariant ReadAssetProperty(ezStringView sAbsDocumentPath, ezStringView sProperty)
+  WVariant ReadAssetProperty(WStringView sAbsDocumentPath, WStringView sProperty)
   {
     bool bWasOpen = false;
-    ezDocument* pDoc = nullptr;
+    WDocument* pDoc = nullptr;
 
-    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-    if (ezDocumentManager::FindDocumentTypeFromPath(sAbsDocumentPath, false, pTypeDesc).Succeeded())
+    const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+    if (WDocumentManager::FindDocumentTypeFromPath(sAbsDocumentPath, false, pTypeDesc).Succeeded())
     {
       pDoc = pTypeDesc->m_pManager->GetDocumentByPath(sAbsDocumentPath);
       bWasOpen = (pDoc != nullptr);
     }
 
     if (pDoc == nullptr)
-      pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(sAbsDocumentPath, ezDocumentFlags::None);
+      pDoc = WQtEditorApp::GetSingleton()->OpenDocument(sAbsDocumentPath, WDocumentFlags::None);
 
     if (pDoc == nullptr)
       return {};
 
-    ezVariant res;
-    if (const ezDocumentObject* pPropObj = GetTopLevelObject(pDoc))
+    WVariant res;
+    if (const WDocumentObject* pPropObj = GetTopLevelObject(pDoc))
     {
       res = pPropObj->GetTypeAccessor().GetValue(sProperty);
     }
@@ -61,21 +61,21 @@ namespace
     return res;
   }
 
-  /// An asset reference is the guid in braces, which is how ezUuid already formats itself.
-  ezString FormatResourceRef(const ezUuid& guid)
+  /// An asset reference is the guid in braces, which is how WUuid already formats itself.
+  WString FormatResourceRef(const WUuid& guid)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("{}", guid);
     return s;
   }
 
   /// Returns an invalid uuid if the type is unknown, i.e. its plugin is not loaded.
-  ezUuid AddComponent(ezCommandHistory* pHistory, const ezUuid& parentObject, ezStringView sType)
+  WUuid AddComponent(WCommandHistory* pHistory, const WUuid& parentObject, WStringView sType)
   {
-    if (ezRTTI::FindTypeByName(sType) == nullptr)
+    if (WRTTI::FindTypeByName(sType) == nullptr)
       return {};
 
-    ezAddObjectCommand cmd;
+    WAddObjectCommand cmd;
     cmd.m_Index = -1;
     cmd.SetType(sType);
     cmd.m_Parent = parentObject;
@@ -87,9 +87,9 @@ namespace
     return cmd.m_NewObjectGuid;
   }
 
-  ezStatus SetProperty(ezCommandHistory* pHistory, const ezUuid& object, ezStringView sProperty, const ezVariant& value)
+  WStatus SetProperty(WCommandHistory* pHistory, const WUuid& object, WStringView sProperty, const WVariant& value)
   {
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = object;
     cmd.m_sProperty = sProperty;
     cmd.m_NewValue = value;
@@ -97,38 +97,38 @@ namespace
   }
 } // namespace
 
-ezStringView ezMeshPrefabSource::GetDefaultRenderComponentType() const
+WStringView WMeshPrefabSource::GetDefaultRenderComponentType() const
 {
   if (m_bAnimated)
-    return m_LodGuids.IsEmpty() ? "ezAnimatedMeshComponent"_ezsv : "ezLodAnimatedMeshComponent"_ezsv;
+    return m_LodGuids.IsEmpty() ? "WAnimatedMeshComponent"_wsv : "WLodAnimatedMeshComponent"_wsv;
 
-  return m_LodGuids.IsEmpty() ? "ezMeshComponent"_ezsv : "ezLodMeshComponent"_ezsv;
+  return m_LodGuids.IsEmpty() ? "WMeshComponent"_wsv : "WLodMeshComponent"_wsv;
 }
 
-bool ezMeshPrefabCreator::IsPhysicsAvailable()
+bool WMeshPrefabCreator::IsPhysicsAvailable()
 {
-  return ezRTTI::FindTypeByName("ezJoltStaticActorComponent") != nullptr;
+  return WRTTI::FindTypeByName("WJoltStaticActorComponent") != nullptr;
 }
 
-bool ezMeshPrefabCreator::IsMeshAsset(const ezUuid& assetGuid)
+bool WMeshPrefabCreator::IsMeshAsset(const WUuid& assetGuid)
 {
-  return ezMeshColliderUtils::IsMeshAsset(assetGuid);
+  return WMeshColliderUtils::IsMeshAsset(assetGuid);
 }
 
 namespace
 {
   /// Collects LOD-1..N from one folder. Stops at the first gap, as LODs form a contiguous run.
-  void CollectLodsFromFolder(ezStringView sFolder, ezDynamicArray<ezUuid>& out_lodGuids)
+  void CollectLodsFromFolder(WStringView sFolder, WDynamicArray<WUuid>& out_lodGuids)
   {
-    for (ezUInt32 uiLod = 1; uiLod <= ezMeshLodCreator::s_uiMaxLods; ++uiLod)
+    for (WUInt32 uiLod = 1; uiLod <= WMeshLodCreator::s_uiMaxLods; ++uiLod)
     {
-      ezStringBuilder sLodName;
-      sLodName.SetFormat("LOD-{}.ezMeshAsset", uiLod);
+      WStringBuilder sLodName;
+      sLodName.SetFormat("LOD-{}.WMeshAsset", uiLod);
 
-      ezStringBuilder sLodPath = sFolder;
+      WStringBuilder sLodPath = sFolder;
       sLodPath.AppendPath(sLodName);
 
-      auto pLod = ezAssetCurator::GetSingleton()->FindSubAsset(sLodPath);
+      auto pLod = WAssetCurator::GetSingleton()->FindSubAsset(sLodPath);
       if (!pLod.isValid())
         return;
 
@@ -136,16 +136,16 @@ namespace
     }
   }
 
-  /// Looks in the same folders that ezMeshLodCreator writes to, so that LODs it created are picked up.
+  /// Looks in the same folders that WMeshLodCreator writes to, so that LODs it created are picked up.
   ///
   /// sMeshIncludeTags has to be passed for the same reason the creator needs it: without it a mesh
   /// that is one sub-object of a shared model file would find the LODs of a sibling sub-object.
-  void FindLodSiblings(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags, ezDynamicArray<ezUuid>& out_lodGuids)
+  void FindLodSiblings(WStringView sMeshAssetPath, WStringView sMeshFile, WStringView sMeshIncludeTags, WDynamicArray<WUuid>& out_lodGuids)
   {
-    ezHybridArray<ezString, 2> folders;
-    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, folders);
+    WHybridArray<WString, 2> folders;
+    WMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, folders);
 
-    for (const ezString& sFolder : folders)
+    for (const WString& sFolder : folders)
     {
       CollectLodsFromFolder(sFolder, out_lodGuids);
 
@@ -155,239 +155,239 @@ namespace
   }
 } // namespace
 
-ezResult ezMeshPrefabCreator::GatherMeshPrefabSource(const ezUuid& meshAssetGuid, ezMeshPrefabSource& out_source)
+WResult WMeshPrefabCreator::GatherMeshPrefabSource(const WUuid& meshAssetGuid, WMeshPrefabSource& out_source)
 {
-  out_source = ezMeshPrefabSource();
+  out_source = WMeshPrefabSource();
   out_source.m_MeshAssetGuid = meshAssetGuid;
 
-  ezStringBuilder sMeshAssetPath;
+  WStringBuilder sMeshAssetPath;
 
   // the curator lock must not be held while documents are opened further below
   {
-    auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
+    auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
     if (!pSubAsset.isValid() || pSubAsset->m_pAssetInfo == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
+    const WAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
     if (pAssetInfo->m_pDocumentTypeDescriptor == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
-    if (sDocType != ezMeshColliderUtils::s_sMeshDocType && sDocType != ezMeshColliderUtils::s_sAnimatedMeshDocType)
-      return EZ_FAILURE;
+    const WStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    if (sDocType != WMeshColliderUtils::s_sMeshDocType && sDocType != WMeshColliderUtils::s_sAnimatedMeshDocType)
+      return W_FAILURE;
 
-    out_source.m_bAnimated = (sDocType == ezMeshColliderUtils::s_sAnimatedMeshDocType);
+    out_source.m_bAnimated = (sDocType == WMeshColliderUtils::s_sAnimatedMeshDocType);
     sMeshAssetPath = pAssetInfo->m_Path.GetAbsolutePath();
     out_source.m_sMeshAssetPath = sMeshAssetPath;
 
     // bounds are only available once the asset has been transformed at least once
-    if (const ezAssetInfoFile* pInfo = pAssetInfo->GetTransformInfo())
+    if (const WAssetInfoFile* pInfo = pAssetInfo->GetTransformInfo())
     {
-      const ezVariant center = pInfo->GetValue(ezAssetInfoFile::Keys::BoundsCenter);
-      const ezVariant extents = pInfo->GetValue(ezAssetInfoFile::Keys::BoundsHalfExtents);
-      const ezVariant radius = pInfo->GetValue(ezAssetInfoFile::Keys::BoundsRadius);
+      const WVariant center = pInfo->GetValue(WAssetInfoFile::Keys::BoundsCenter);
+      const WVariant extents = pInfo->GetValue(WAssetInfoFile::Keys::BoundsHalfExtents);
+      const WVariant radius = pInfo->GetValue(WAssetInfoFile::Keys::BoundsRadius);
 
-      if (center.IsA<ezVec3>() && extents.IsA<ezVec3>())
+      if (center.IsA<WVec3>() && extents.IsA<WVec3>())
       {
-        out_source.m_vBoundsCenter = center.Get<ezVec3>();
-        out_source.m_vBoundsHalfExtents = extents.Get<ezVec3>();
+        out_source.m_vBoundsCenter = center.Get<WVec3>();
+        out_source.m_vBoundsHalfExtents = extents.Get<WVec3>();
         out_source.m_fBoundsRadius = radius.IsValid() ? radius.ConvertTo<float>() : out_source.m_vBoundsHalfExtents.GetLength();
         out_source.m_bHasBounds = true;
       }
     }
   }
 
-  const ezVariant meshFile = ReadAssetProperty(sMeshAssetPath, "MeshFile");
-  if (meshFile.IsA<ezString>())
+  const WVariant meshFile = ReadAssetProperty(sMeshAssetPath, "MeshFile");
+  if (meshFile.IsA<WString>())
   {
-    out_source.m_sMeshFile = meshFile.Get<ezString>();
+    out_source.m_sMeshFile = meshFile.Get<WString>();
   }
 
-  ezVariantDictionary subMeshProperties;
-  ezMeshColliderUtils::ReadMeshProperties(sMeshAssetPath, ezMeshColliderUtils::GetSubMeshPropertyNames(), subMeshProperties).IgnoreResult();
+  WVariantDictionary subMeshProperties;
+  WMeshColliderUtils::ReadMeshProperties(sMeshAssetPath, WMeshColliderUtils::GetSubMeshPropertyNames(), subMeshProperties).IgnoreResult();
 
-  ezVariant includeTags;
+  WVariant includeTags;
   subMeshProperties.TryGetValue("MeshIncludeTags", includeTags);
 
-  FindLodSiblings(sMeshAssetPath, out_source.m_sMeshFile, includeTags.IsA<ezString>() ? includeTags.Get<ezString>().GetView() : ezStringView(), out_source.m_LodGuids);
+  FindLodSiblings(sMeshAssetPath, out_source.m_sMeshFile, includeTags.IsA<WString>() ? includeTags.Get<WString>().GetView() : WStringView(), out_source.m_LodGuids);
 
-  out_source.m_ExistingTriangleColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::TriangleMesh, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
-  out_source.m_ExistingConvexColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::ConvexHull, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
+  out_source.m_ExistingTriangleColMesh = WMeshColliderUtils::FindExisting(WCollisionMeshKind::TriangleMesh, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
+  out_source.m_ExistingConvexColMesh = WMeshColliderUtils::FindExisting(WCollisionMeshKind::ConvexHull, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezEnum<ezMeshPrefabPhysics> ezMeshPrefabSource::GetDefaultPhysics() const
+WEnum<WMeshPrefabPhysics> WMeshPrefabSource::GetDefaultPhysics() const
 {
   // a triangle mesh is only usable for static bodies, so its existence is the more specific signal
   if (m_ExistingTriangleColMesh.IsValid())
-    return ezMeshPrefabPhysics::StaticTriangleMesh;
+    return WMeshPrefabPhysics::StaticTriangleMesh;
 
   // a convex hull works for both; dynamic additionally needs mass and material set up sensibly
   if (m_ExistingConvexColMesh.IsValid())
-    return ezMeshPrefabPhysics::StaticConvexHull;
+    return WMeshPrefabPhysics::StaticConvexHull;
 
-  return ezMeshPrefabPhysics::None;
+  return WMeshPrefabPhysics::None;
 }
 
 namespace
 {
   /// Creates a collision mesh asset next to the mesh asset, or reuses a matching existing one.
-  /// \see ezMeshColliderUtils
-  ezStatus GetOrCreateCollisionMesh(const ezMeshPrefabSource& source, bool bConvex, ezUuid& out_guid)
+  /// \see WMeshColliderUtils
+  WStatus GetOrCreateCollisionMesh(const WMeshPrefabSource& source, bool bConvex, WUuid& out_guid)
   {
-    const ezEnum<ezCollisionMeshKind> kind = bConvex ? ezCollisionMeshKind::ConvexHull : ezCollisionMeshKind::TriangleMesh;
+    const WEnum<WCollisionMeshKind> kind = bConvex ? WCollisionMeshKind::ConvexHull : WCollisionMeshKind::TriangleMesh;
 
     if (source.m_sMeshFile.IsEmpty())
-      return ezStatus("The mesh asset has no source file, so no collision mesh can be generated from it.");
+      return WStatus("The mesh asset has no source file, so no collision mesh can be generated from it.");
 
-    ezHybridArray<ezStringView, 24> toRead;
-    toRead = ezMeshColliderUtils::GetImportPropertyNames();
-    toRead.PushBackRange(ezMeshColliderUtils::GetSimplificationPropertyNames());
+    WHybridArray<WStringView, 24> toRead;
+    toRead = WMeshColliderUtils::GetImportPropertyNames();
+    toRead.PushBackRange(WMeshColliderUtils::GetSimplificationPropertyNames());
 
-    ezVariantDictionary importProperties;
-    ezMeshColliderUtils::ReadMeshProperties(source.m_sMeshAssetPath, toRead, importProperties).IgnoreResult();
+    WVariantDictionary importProperties;
+    WMeshColliderUtils::ReadMeshProperties(source.m_sMeshAssetPath, toRead, importProperties).IgnoreResult();
 
     // A matching collider counts wherever it sits, so this finds more than the path check below.
-    out_guid = ezMeshColliderUtils::FindExisting(kind, source.m_sMeshFile, importProperties, source.m_sMeshAssetPath);
+    out_guid = WMeshColliderUtils::FindExisting(kind, source.m_sMeshFile, importProperties, source.m_sMeshAssetPath);
     if (out_guid.IsValid())
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
 
-    ezStringBuilder sColMeshPath = source.m_sMeshAssetPath;
-    sColMeshPath.ChangeFileExtension(ezMeshColliderUtils::GetExtension(kind));
+    WStringBuilder sColMeshPath = source.m_sMeshAssetPath;
+    sColMeshPath.ChangeFileExtension(WMeshColliderUtils::GetExtension(kind));
 
-    if (ezOSFile::ExistsFile(sColMeshPath))
+    if (WOSFile::ExistsFile(sColMeshPath))
     {
-      auto pExisting = ezAssetCurator::GetSingleton()->FindSubAsset(sColMeshPath);
+      auto pExisting = WAssetCurator::GetSingleton()->FindSubAsset(sColMeshPath);
       if (pExisting.isValid())
       {
         out_guid = pExisting->m_Data.m_Guid;
-        return ezStatus(EZ_SUCCESS);
+        return WStatus(W_SUCCESS);
       }
 
-      return ezStatus(ezFmt("'{}' already exists but is not a collision mesh asset.", sColMeshPath));
+      return WStatus(WFmt("'{}' already exists but is not a collision mesh asset.", sColMeshPath));
     }
 
     // the mesh file is what the collider is built from
-    if (!importProperties.Contains("MeshFile"_ezsv))
+    if (!importProperties.Contains("MeshFile"_wsv))
     {
-      importProperties.Insert("MeshFile"_ezsv, ezVariant(source.m_sMeshFile));
+      importProperties.Insert("MeshFile"_wsv, WVariant(source.m_sMeshFile));
     }
 
     // no surface here: a prefab's collider gets whatever the shape component specifies
-    return ezMeshColliderUtils::CreateCollisionMesh(sColMeshPath, kind, importProperties, {}, false, out_guid);
+    return WMeshColliderUtils::CreateCollisionMesh(sColMeshPath, kind, importProperties, {}, false, out_guid);
   }
 } // namespace
 
-ezString ezMeshPrefabCreator::SuggestPrefabPath(const ezMeshPrefabSource& source, bool bAllowExisting)
+WString WMeshPrefabCreator::SuggestPrefabPath(const WMeshPrefabSource& source, bool bAllowExisting)
 {
-  ezStringBuilder sPath = source.m_sMeshAssetPath;
-  sPath.ChangeFileExtension("ezPrefab");
+  WStringBuilder sPath = source.m_sMeshAssetPath;
+  sPath.ChangeFileExtension("WPrefab");
 
-  if (bAllowExisting || !ezOSFile::ExistsFile(sPath))
+  if (bAllowExisting || !WOSFile::ExistsFile(sPath))
     return sPath;
 
-  const ezString sBaseName = ezPathUtils::GetFileName(sPath);
+  const WString sBaseName = WPathUtils::GetFileName(sPath);
 
-  for (ezUInt32 i = 2; i < 100; ++i)
+  for (WUInt32 i = 2; i < 100; ++i)
   {
-    ezStringBuilder sCandidateName;
+    WStringBuilder sCandidateName;
     sCandidateName.SetFormat("{}{}", sBaseName, i);
 
-    ezStringBuilder sCandidate = sPath;
+    WStringBuilder sCandidate = sPath;
     sCandidate.ChangeFileName(sCandidateName);
 
-    if (!ezOSFile::ExistsFile(sCandidate))
+    if (!WOSFile::ExistsFile(sCandidate))
       return sCandidate;
   }
 
   return sPath;
 }
 
-ezString ezMeshPrefabCreator::MakeDisplayPath(ezStringView sAbsolutePath)
+WString WMeshPrefabCreator::MakeDisplayPath(WStringView sAbsolutePath)
 {
-  ezStringBuilder sPath = sAbsolutePath;
-  ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath);
+  WStringBuilder sPath = sAbsolutePath;
+  WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath);
   return sPath;
 }
 
-ezResult ezMeshPrefabCreator::ResolveDisplayPath(ezStringView sPath, ezStringBuilder& out_sAbsolutePath)
+WResult WMeshPrefabCreator::ResolveDisplayPath(WStringView sPath, WStringBuilder& out_sAbsolutePath)
 {
   out_sAbsolutePath = sPath;
 
   if (out_sAbsolutePath.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // the file is about to be created, so it does not exist yet
-  return ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(out_sAbsolutePath, false) ? EZ_SUCCESS : EZ_FAILURE;
+  return WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(out_sAbsolutePath, false) ? W_SUCCESS : W_FAILURE;
 }
 
-ezStatus ezMeshPrefabCreator::CreateMeshPrefab(const ezMeshPrefabSource& source, const ezMeshPrefabOptions& options)
+WStatus WMeshPrefabCreator::CreateMeshPrefab(const WMeshPrefabSource& source, const WMeshPrefabOptions& options)
 {
   // An empty path means "wherever this prefab belongs", which is what creating several at once uses.
-  ezStringBuilder sPrefabPath;
+  WStringBuilder sPrefabPath;
   if (options.m_sPrefabPath.IsEmpty())
   {
     sPrefabPath = SuggestPrefabPath(source);
   }
   else if (ResolveDisplayPath(options.m_sPrefabPath, sPrefabPath).Failed())
   {
-    return ezStatus(ezFmt("'{}' does not name a known data directory.", options.m_sPrefabPath));
+    return WStatus(WFmt("'{}' does not name a known data directory.", options.m_sPrefabPath));
   }
 
   if (sPrefabPath.IsEmpty())
-    return ezStatus("No prefab path was given.");
+    return WStatus("No prefab path was given.");
 
-  const bool bExists = ezOSFile::ExistsFile(sPrefabPath);
+  const bool bExists = WOSFile::ExistsFile(sPrefabPath);
 
   // CreateDocument reports an already open document through a modal message box, which would hang an
   // automated caller. Refuse here instead.
   if (bExists && !options.m_bOverwriteExisting)
   {
-    return ezStatus(ezFmt("'{}' already exists. Delete it first, or choose a different name.", sPrefabPath));
+    return WStatus(WFmt("'{}' already exists. Delete it first, or choose a different name.", sPrefabPath));
   }
 
-  const bool bWantsPhysics = options.m_Physics != ezMeshPrefabPhysics::None;
-  const bool bConvex = options.m_Physics == ezMeshPrefabPhysics::StaticConvexHull || options.m_Physics == ezMeshPrefabPhysics::DynamicConvexHull;
-  const bool bDynamic = options.m_Physics == ezMeshPrefabPhysics::DynamicConvexHull || options.m_Physics == ezMeshPrefabPhysics::DynamicBox;
-  const bool bBoxShape = options.m_Physics == ezMeshPrefabPhysics::StaticBox || options.m_Physics == ezMeshPrefabPhysics::DynamicBox;
+  const bool bWantsPhysics = options.m_Physics != WMeshPrefabPhysics::None;
+  const bool bConvex = options.m_Physics == WMeshPrefabPhysics::StaticConvexHull || options.m_Physics == WMeshPrefabPhysics::DynamicConvexHull;
+  const bool bDynamic = options.m_Physics == WMeshPrefabPhysics::DynamicConvexHull || options.m_Physics == WMeshPrefabPhysics::DynamicBox;
+  const bool bBoxShape = options.m_Physics == WMeshPrefabPhysics::StaticBox || options.m_Physics == WMeshPrefabPhysics::DynamicBox;
 
   if (bWantsPhysics && !IsPhysicsAvailable())
-    return ezStatus("Physics components are not available. Enable the Jolt plugin in the project settings.");
+    return WStatus("Physics components are not available. Enable the Jolt plugin in the project settings.");
 
   if (bBoxShape && !source.m_bHasBounds)
-    return ezStatus("The mesh bounds are unknown. Transform the mesh asset first, or use a collision mesh instead of a box.");
+    return WStatus("The mesh bounds are unknown. Transform the mesh asset first, or use a collision mesh instead of a box.");
 
   // first, so that a failure here doesn't leave a half-built prefab behind
-  ezUuid colMeshGuid;
+  WUuid colMeshGuid;
   if (bWantsPhysics && !bBoxShape)
   {
-    EZ_SUCCEED_OR_RETURN(GetOrCreateCollisionMesh(source, bConvex, colMeshGuid));
+    W_SUCCEED_OR_RETURN(GetOrCreateCollisionMesh(source, bConvex, colMeshGuid));
   }
 
   // An existing prefab is rewritten in place rather than deleted and created again, so that it keeps
   // its guid and anything referencing it keeps working.
-  ezDocument* pDoc = bExists ? ezQtEditorApp::GetSingleton()->OpenDocument(sPrefabPath, ezDocumentFlags::None)
-                             : ezQtEditorApp::GetSingleton()->CreateDocument(sPrefabPath, ezDocumentFlags::None);
+  WDocument* pDoc = bExists ? WQtEditorApp::GetSingleton()->OpenDocument(sPrefabPath, WDocumentFlags::None)
+                             : WQtEditorApp::GetSingleton()->CreateDocument(sPrefabPath, WDocumentFlags::None);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Failed to {} prefab document '{}'.", bExists ? "open" : "create", sPrefabPath));
+    return WStatus(WFmt("Failed to {} prefab document '{}'.", bExists ? "open" : "create", sPrefabPath));
 
-  ezStatus result = ezStatus(EZ_SUCCESS);
+  WStatus result = WStatus(W_SUCCESS);
 
   {
     auto pHistory = pDoc->GetCommandHistory();
     pHistory->StartTransaction("Create Prefab from Mesh");
 
     // in a lambda, so that every failure path below cancels the transaction
-    auto BuildPrefab = [&]() -> ezStatus
+    auto BuildPrefab = [&]() -> WStatus
     {
       // A new prefab is not empty: the document manager clones a template that provides the root
       // object. A second one would make the prefab invalid.
-      ezUuid rootObject;
-      for (const ezDocumentObject* pChild : pDoc->GetObjectManager()->GetRootObject()->GetChildren())
+      WUuid rootObject;
+      for (const WDocumentObject* pChild : pDoc->GetObjectManager()->GetRootObject()->GetChildren())
       {
-        if (pChild->GetParentProperty() == "Children"_ezsv)
+        if (pChild->GetParentProperty() == "Children"_wsv)
         {
           rootObject = pChild->GetGuid();
           break;
@@ -396,48 +396,48 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefab(const ezMeshPrefabSource& source,
 
       if (!rootObject.IsValid())
       {
-        ezAddObjectCommand cmd;
+        WAddObjectCommand cmd;
         cmd.m_Index = -1;
-        cmd.SetType("ezGameObject");
+        cmd.SetType("WGameObject");
         cmd.m_sParentProperty = "Children";
-        EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
+        W_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
         rootObject = cmd.m_NewObjectGuid;
       }
 
       // this exact name is what marks the object as the prefab root
-      EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, rootObject, "Name", "<Prefab-Root>"));
+      W_SUCCEED_OR_RETURN(SetProperty(pHistory, rootObject, "Name", "<Prefab-Root>"));
 
       // a prefab that is being rewritten still holds the components and children it had
-      if (const ezDocumentObject* pRoot = pDoc->GetObjectManager()->GetObject(rootObject))
+      if (const WDocumentObject* pRoot = pDoc->GetObjectManager()->GetObject(rootObject))
       {
-        ezHybridArray<ezUuid, 16> toRemove;
-        for (const ezDocumentObject* pChild : pRoot->GetChildren())
+        WHybridArray<WUuid, 16> toRemove;
+        for (const WDocumentObject* pChild : pRoot->GetChildren())
         {
           toRemove.PushBack(pChild->GetGuid());
         }
 
-        for (const ezUuid& guid : toRemove)
+        for (const WUuid& guid : toRemove)
         {
-          ezRemoveObjectCommand remove;
+          WRemoveObjectCommand remove;
           remove.m_Object = guid;
-          EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(remove));
+          W_SUCCEED_OR_RETURN(pHistory->AddCommand(remove));
         }
       }
 
       {
-        const ezString sRenderType = options.m_sRenderComponentType.IsEmpty() ? ezString(source.GetDefaultRenderComponentType()) : options.m_sRenderComponentType;
+        const WString sRenderType = options.m_sRenderComponentType.IsEmpty() ? WString(source.GetDefaultRenderComponentType()) : options.m_sRenderComponentType;
 
-        const ezUuid renderComponent = AddComponent(pHistory, rootObject, sRenderType);
+        const WUuid renderComponent = AddComponent(pHistory, rootObject, sRenderType);
         if (!renderComponent.IsValid())
-          return ezStatus(ezFmt("Failed to add component '{}'.", sRenderType));
+          return WStatus(WFmt("Failed to add component '{}'.", sRenderType));
 
         // The two LOD components are separate types with identical properties, one skinned and one not.
-        const bool bLodComponent = (sRenderType == "ezLodMeshComponent") || (sRenderType == "ezLodAnimatedMeshComponent");
+        const bool bLodComponent = (sRenderType == "WLodMeshComponent") || (sRenderType == "WLodAnimatedMeshComponent");
 
         if (bLodComponent)
         {
           // LOD 0 is the mesh asset itself, the gathered guids continue from LOD 1
-          ezHybridArray<ezUuid, 8> allLods;
+          WHybridArray<WUuid, 8> allLods;
           allLods.PushBack(source.m_MeshAssetGuid);
           allLods.PushBackRange(source.m_LodGuids);
 
@@ -446,14 +446,14 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefab(const ezMeshPrefabSource& source,
           // values. The last LOD gets 0, so that it is used out to the horizon.
           const float fThresholds[] = {0.2f, 0.1f, 0.05f, 0.02f};
 
-          for (ezUInt32 i = 0; i < allLods.GetCount(); ++i)
+          for (WUInt32 i = 0; i < allLods.GetCount(); ++i)
           {
-            ezAddObjectCommand cmd;
-            cmd.m_Index = (ezInt32)i;
-            cmd.SetType((sRenderType == "ezLodAnimatedMeshComponent") ? "ezLodAnimatedMeshLod" : "ezLodMeshLod");
+            WAddObjectCommand cmd;
+            cmd.m_Index = (WInt32)i;
+            cmd.SetType((sRenderType == "WLodAnimatedMeshComponent") ? "WLodAnimatedMeshLod" : "WLodMeshLod");
             cmd.m_Parent = renderComponent;
             cmd.m_sParentProperty = "Meshes";
-            EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
+            W_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
 
             // halving past the end of the table keeps the values strictly decreasing, which the
             // component needs to switch between LODs
@@ -462,90 +462,90 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefab(const ezMeshPrefabSource& source,
             float fThreshold = 0.0f;
             if (!bLastLod)
             {
-              fThreshold = fThresholds[EZ_ARRAY_SIZE(fThresholds) - 1];
+              fThreshold = fThresholds[W_ARRAY_SIZE(fThresholds) - 1];
 
-              for (ezUInt32 uiExtra = EZ_ARRAY_SIZE(fThresholds); uiExtra <= i; ++uiExtra)
+              for (WUInt32 uiExtra = W_ARRAY_SIZE(fThresholds); uiExtra <= i; ++uiExtra)
               {
                 fThreshold *= 0.5f;
               }
 
-              if (i < EZ_ARRAY_SIZE(fThresholds))
+              if (i < W_ARRAY_SIZE(fThresholds))
               {
                 fThreshold = fThresholds[i];
               }
             }
 
-            EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, cmd.m_NewObjectGuid, "Mesh", FormatResourceRef(allLods[i])));
-            EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, cmd.m_NewObjectGuid, "Threshold", fThreshold));
+            W_SUCCEED_OR_RETURN(SetProperty(pHistory, cmd.m_NewObjectGuid, "Mesh", FormatResourceRef(allLods[i])));
+            W_SUCCEED_OR_RETURN(SetProperty(pHistory, cmd.m_NewObjectGuid, "Threshold", fThreshold));
           }
 
           // the component culls by these rather than deriving them from the meshes
           if (source.m_bHasBounds)
           {
-            EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "BoundsOffset", source.m_vBoundsCenter));
-            EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "BoundsRadius", ezMath::Clamp(source.m_fBoundsRadius, 0.01f, 100.0f)));
+            W_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "BoundsOffset", source.m_vBoundsCenter));
+            W_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "BoundsRadius", WMath::Clamp(source.m_fBoundsRadius, 0.01f, 100.0f)));
           }
         }
         else
         {
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "Mesh", FormatResourceRef(source.m_MeshAssetGuid)));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, renderComponent, "Mesh", FormatResourceRef(source.m_MeshAssetGuid)));
         }
       }
 
       if (bWantsPhysics)
       {
-        const ezStringView sActorType = bDynamic ? "ezJoltDynamicActorComponent"_ezsv : "ezJoltStaticActorComponent"_ezsv;
+        const WStringView sActorType = bDynamic ? "WJoltDynamicActorComponent"_wsv : "WJoltStaticActorComponent"_wsv;
 
-        const ezUuid actorComponent = AddComponent(pHistory, rootObject, sActorType);
+        const WUuid actorComponent = AddComponent(pHistory, rootObject, sActorType);
         if (!actorComponent.IsValid())
-          return ezStatus(ezFmt("Failed to add component '{}'.", sActorType));
+          return WStatus(WFmt("Failed to add component '{}'.", sActorType));
 
-        EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "CollisionLayer", options.m_uiCollisionLayer));
+        W_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "CollisionLayer", options.m_uiCollisionLayer));
 
         if (!options.m_sSurfaceAsset.IsEmpty())
         {
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "Surface", options.m_sSurfaceAsset));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "Surface", options.m_sSurfaceAsset));
         }
 
         if (bBoxShape)
         {
           // a child object, so that the box can be offset to the mesh bounds centre
-          ezUuid shapeObject;
+          WUuid shapeObject;
           {
-            ezAddObjectCommand cmd;
+            WAddObjectCommand cmd;
             cmd.m_Index = -1;
-            cmd.SetType("ezGameObject");
+            cmd.SetType("WGameObject");
             cmd.m_Parent = rootObject;
             cmd.m_sParentProperty = "Children";
-            EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
+            W_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
             shapeObject = cmd.m_NewObjectGuid;
           }
 
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeObject, "Name", "Collider"));
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeObject, "LocalPosition", source.m_vBoundsCenter));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeObject, "Name", "Collider"));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeObject, "LocalPosition", source.m_vBoundsCenter));
 
-          const ezUuid shapeComponent = AddComponent(pHistory, shapeObject, "ezJoltShapeBoxComponent");
+          const WUuid shapeComponent = AddComponent(pHistory, shapeObject, "WJoltShapeBoxComponent");
           if (!shapeComponent.IsValid())
-            return ezStatus("Failed to add component 'ezJoltShapeBoxComponent'.");
+            return WStatus("Failed to add component 'WJoltShapeBoxComponent'.");
 
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeComponent, "HalfExtents", source.m_vBoundsHalfExtents));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeComponent, "HalfExtents", source.m_vBoundsHalfExtents));
         }
         else if (bConvex)
         {
-          const ezUuid shapeComponent = AddComponent(pHistory, rootObject, "ezJoltShapeConvexHullComponent");
+          const WUuid shapeComponent = AddComponent(pHistory, rootObject, "WJoltShapeConvexHullComponent");
           if (!shapeComponent.IsValid())
-            return ezStatus("Failed to add component 'ezJoltShapeConvexHullComponent'.");
+            return WStatus("Failed to add component 'WJoltShapeConvexHullComponent'.");
 
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeComponent, "CollisionMesh", FormatResourceRef(colMeshGuid)));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, shapeComponent, "CollisionMesh", FormatResourceRef(colMeshGuid)));
         }
         else
         {
           // a triangle mesh is referenced by the actor directly, no shape component involved
-          EZ_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "CollisionMesh", FormatResourceRef(colMeshGuid)));
+          W_SUCCEED_OR_RETURN(SetProperty(pHistory, actorComponent, "CollisionMesh", FormatResourceRef(colMeshGuid)));
         }
       }
 
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     };
 
     result = BuildPrefab();
@@ -569,36 +569,36 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefab(const ezMeshPrefabSource& source,
   if (pDoc->SaveDocument(true).Failed())
   {
     pDoc->GetDocumentManager()->CloseDocument(pDoc);
-    return ezStatus(ezFmt("Failed to save prefab '{}'.", sPrefabPath));
+    return WStatus(WFmt("Failed to save prefab '{}'.", sPrefabPath));
   }
 
-  const ezString sPath = pDoc->GetDocumentPath();
+  const WString sPath = pDoc->GetDocumentPath();
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
-  ezFileSystemModel::GetSingleton()->NotifyOfChange(sPath);
+  WFileSystemModel::GetSingleton()->NotifyOfChange(sPath);
 
   if (options.m_bOpenAfterCreate)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sPath);
+    WQtEditorApp::GetSingleton()->OpenDocumentQueued(sPath);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezMeshPrefabCreator::CreateMeshPrefabs(ezArrayPtr<const ezUuid> meshAssetGuids, const ezMeshPrefabOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped)
+WStatus WMeshPrefabCreator::CreateMeshPrefabs(WArrayPtr<const WUuid> meshAssetGuids, const WMeshPrefabOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped)
 {
   out_uiCreated = 0;
   out_uiSkipped = 0;
 
-  const bool bWantsPhysics = options.m_Physics != ezMeshPrefabPhysics::None;
-  const bool bBoxShape = options.m_Physics == ezMeshPrefabPhysics::StaticBox || options.m_Physics == ezMeshPrefabPhysics::DynamicBox;
+  const bool bWantsPhysics = options.m_Physics != WMeshPrefabPhysics::None;
+  const bool bBoxShape = options.m_Physics == WMeshPrefabPhysics::StaticBox || options.m_Physics == WMeshPrefabPhysics::DynamicBox;
 
   if (bWantsPhysics && !IsPhysicsAvailable())
-    return ezStatus("Physics components are not available. Enable the Jolt plugin in the project settings.");
+    return WStatus("Physics components are not available. Enable the Jolt plugin in the project settings.");
 
-  for (const ezUuid& meshGuid : meshAssetGuids)
+  for (const WUuid& meshGuid : meshAssetGuids)
   {
-    ezMeshPrefabSource source;
+    WMeshPrefabSource source;
     if (GatherMeshPrefabSource(meshGuid, source).Failed())
     {
       // not a mesh asset - with a mixed selection this is the normal case, not a problem
@@ -608,31 +608,31 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefabs(ezArrayPtr<const ezUuid> meshAss
 
     // SuggestPrefabPath() dodges an existing file by appending a number, which is wrong here: a mesh
     // that already has a prefab is done, it should not get a second, numbered one.
-    ezStringBuilder sPath = source.m_sMeshAssetPath;
-    sPath.ChangeFileExtension("ezPrefab");
+    WStringBuilder sPath = source.m_sMeshAssetPath;
+    sPath.ChangeFileExtension("WPrefab");
 
-    if (!options.m_bOverwriteExisting && ezOSFile::ExistsFile(sPath))
+    if (!options.m_bOverwriteExisting && WOSFile::ExistsFile(sPath))
     {
-      ezLog::Info("Skipping '{}': '{}' already exists.", MakeDisplayPath(source.m_sMeshAssetPath), MakeDisplayPath(sPath));
+      WLog::Info("Skipping '{}': '{}' already exists.", MakeDisplayPath(source.m_sMeshAssetPath), MakeDisplayPath(sPath));
       ++out_uiSkipped;
       continue;
     }
 
     if (bBoxShape && !source.m_bHasBounds)
     {
-      ezLog::Info("Skipping '{}': its bounds are unknown, so no box collider can be sized. Transform the mesh asset first.", MakeDisplayPath(source.m_sMeshAssetPath));
+      WLog::Info("Skipping '{}': its bounds are unknown, so no box collider can be sized. Transform the mesh asset first.", MakeDisplayPath(source.m_sMeshAssetPath));
       ++out_uiSkipped;
       continue;
     }
 
     if (bWantsPhysics && !bBoxShape && source.m_sMeshFile.IsEmpty())
     {
-      ezLog::Info("Skipping '{}': it has no model file to build a collision mesh from.", MakeDisplayPath(source.m_sMeshAssetPath));
+      WLog::Info("Skipping '{}': it has no model file to build a collision mesh from.", MakeDisplayPath(source.m_sMeshAssetPath));
       ++out_uiSkipped;
       continue;
     }
 
-    ezMeshPrefabOptions perMesh = options;
+    WMeshPrefabOptions perMesh = options;
 
     // the path was just checked to be free, so it is passed on explicitly
     perMesh.m_sPrefabPath = sPath;
@@ -641,11 +641,11 @@ ezStatus ezMeshPrefabCreator::CreateMeshPrefabs(ezArrayPtr<const ezUuid> meshAss
     perMesh.m_sRenderComponentType.Clear();
 
     // "nothing to do here" was handled above, so what is left is a real failure and stops the run
-    EZ_SUCCEED_OR_RETURN(CreateMeshPrefab(source, perMesh));
+    W_SUCCEED_OR_RETURN(CreateMeshPrefab(source, perMesh));
 
-    ezLog::Success("Created '{}'.", MakeDisplayPath(sPath));
+    WLog::Success("Created '{}'.", MakeDisplayPath(sPath));
     ++out_uiCreated;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

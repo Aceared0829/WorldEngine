@@ -6,21 +6,21 @@
 ///
 /// This node stores numerical values in the blackboard for sharing between nodes or with gameplay code.
 /// Use it to store locomotion parameters, state values, or any data that needs to be accessed by multiple nodes.
-class EZ_RENDERERCORE_DLL ezSetBlackboardNumberAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSetBlackboardNumberAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardNumberAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSetBlackboardNumberAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSetBlackboardNumberAnimNode
+  // WSetBlackboardNumberAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
@@ -29,9 +29,9 @@ public:
   double m_fNumber = 0.0f;                      // [ property ]
 
 private:
-  ezAnimGraphTriggerInputPin m_InActivate;      // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber;         // [ property ]
-  ezHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphTriggerInputPin m_InActivate;      // [ property ]
+  WAnimGraphNumberInputPin m_InNumber;         // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,29 +42,29 @@ private:
 ///
 /// This node retrieves numerical values stored in the blackboard. Use it to read locomotion parameters
 /// from gameplay code or values written by other nodes.
-class EZ_RENDERERCORE_DLL ezGetBlackboardNumberAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WGetBlackboardNumberAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGetBlackboardNumberAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WGetBlackboardNumberAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGetBlackboardNumberAnimNode
+  // WGetBlackboardNumberAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;            // [ property ]
-  ezAnimGraphNumberOutputPin m_OutNumber;       // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphNumberOutputPin m_OutNumber;       // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,40 +75,40 @@ private:
 ///
 /// This node reads a number from the blackboard, performs a comparison, and outputs the result as booleans.
 /// Useful for state transitions based on blackboard values.
-class EZ_RENDERERCORE_DLL ezCompareBlackboardNumberAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WCompareBlackboardNumberAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCompareBlackboardNumberAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WCompareBlackboardNumberAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCompareBlackboardNumberAnimNode
+  // WCompareBlackboardNumberAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
   double m_fReferenceValue = 0.0;               // [ property ]
-  ezEnum<ezComparisonOperator> m_Comparison;    // [ property ]
+  WEnum<WComparisonOperator> m_Comparison;    // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;            // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;         // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse;        // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsTrue;         // [ property ]
+  WAnimGraphBoolOutputPin m_OutIsFalse;        // [ property ]
 
   struct InstanceData
   {
-    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+    WInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
   };
 };
 
@@ -116,36 +116,36 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezCheckBlackboardBoolAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WCheckBlackboardBoolAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCheckBlackboardBoolAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WCheckBlackboardBoolAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCheckBlackboardBoolAnimNode
+  // WCheckBlackboardBoolAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;            // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool;           // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
+  WAnimGraphBoolOutputPin m_OutBool;           // [ property ]
 
   struct InstanceData
   {
-    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+    WInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
   };
 };
 
@@ -153,21 +153,21 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezSetBlackboardBoolAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSetBlackboardBoolAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardBoolAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSetBlackboardBoolAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSetBlackboardBoolAnimNode
+  // WSetBlackboardBoolAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
@@ -176,71 +176,71 @@ public:
   bool m_bBool = false;                         // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;            // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate;      // [ property ]
-  ezAnimGraphBoolInputPin m_InBool;             // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphTriggerInputPin m_InActivate;      // [ property ]
+  WAnimGraphBoolInputPin m_InBool;             // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezGetBlackboardBoolAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WGetBlackboardBoolAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGetBlackboardBoolAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WGetBlackboardBoolAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGetBlackboardBoolAnimNode
+  // WGetBlackboardBoolAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;            // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool;           // [ property ]
+  WHashedString m_sBlackboardEntry;            // [ property ]
+  WAnimGraphBoolOutputPin m_OutBool;           // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezOnBlackboardValueChangedAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WOnBlackboardValueChangedAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOnBlackboardValueChangedAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WOnBlackboardValueChangedAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezOnBlackboardValuechangedAnimNode
+  // WOnBlackboardValuechangedAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry);    // [ property ]
   const char* GetBlackboardEntry() const;          // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;               // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnValueChanged; // [ property ]
+  WHashedString m_sBlackboardEntry;               // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnValueChanged; // [ property ]
 
   struct InstanceData
   {
-    ezUInt32 m_uiChangeCounter = ezInvalidIndex;
+    WUInt32 m_uiChangeCounter = WInvalidIndex;
   };
 };

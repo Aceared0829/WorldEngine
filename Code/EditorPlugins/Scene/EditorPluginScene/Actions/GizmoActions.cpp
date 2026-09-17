@@ -6,31 +6,31 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-ezActionDescriptorHandle ezSceneGizmoActions::s_hGreyBoxingGizmo;
+WActionDescriptorHandle WSceneGizmoActions::s_hGreyBoxingGizmo;
 
-void ezSceneGizmoActions::RegisterActions()
+void WSceneGizmoActions::RegisterActions()
 {
-  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction, ezGetStaticRTTI<ezGreyBoxEditTool>());
+  s_hGreyBoxingGizmo = W_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", WActionScope::Document, "Gizmo", "B", WGizmoAction, WGetStaticRTTI<WGreyBoxEditTool>());
 }
 
-void ezSceneGizmoActions::UnregisterActions()
+void WSceneGizmoActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hGreyBoxingGizmo);
+  WActionManager::UnregisterAction(s_hGreyBoxingGizmo);
 }
 
-void ezSceneGizmoActions::MapMenuActions(ezStringView sMapping)
+void WSceneGizmoActions::MapMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hGreyBoxingGizmo, "G.Gizmos", 5.0f);
 }
 
-void ezSceneGizmoActions::MapToolbarActions(ezStringView sMapping)
+void WSceneGizmoActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  const ezStringView sSubPath("GizmoCategory");
+  const WStringView sSubPath("GizmoCategory");
   pMap->MapAction(s_hGreyBoxingGizmo, sSubPath, 5.0f);
 }

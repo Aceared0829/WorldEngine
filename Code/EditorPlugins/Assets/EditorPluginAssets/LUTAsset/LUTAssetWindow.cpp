@@ -11,28 +11,28 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezLUTAssetActions
+// WLUTAssetActions
 //////////////////////////////////////////////////////////////////////////
 
 
-void ezLUTAssetActions::RegisterActions() {}
+void WLUTAssetActions::RegisterActions() {}
 
-void ezLUTAssetActions::UnregisterActions() {}
+void WLUTAssetActions::UnregisterActions() {}
 
-void ezLUTAssetActions::MapActions(ezStringView sMapping) {}
+void WLUTAssetActions::MapActions(WStringView sMapping) {}
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtTextureAssetDocumentWindow
+// WQtTextureAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
-ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtLUTAssetDocumentWindow::WQtLUTAssetDocumentWindow(WLUTAssetDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "LUTAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -41,8 +41,8 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "LUTAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -58,24 +58,24 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
 
         SetTargetFramerate(10);
 
-        m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+        m_ViewConfig.m_Camera.LookAt(WVec3(-2, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
         m_ViewConfig.ApplyPerspectiveSetting(90);
 
-        m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-        m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
+        m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+        m_pViewWidget->ConfigureOrbitCameraVolume(WVec3(0), WVec3(1.0f), WVec3(-1, 0, 0));
         AddViewWidget(m_pViewWidget);
-        ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
+        WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 
         m_pDockManager->setCentralWidget(pContainer);*/
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("LUTAssetDockWidget");
     pPropertyPanel->setWindowTitle("LUT Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -83,7 +83,7 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);

@@ -16,22 +16,22 @@
 /// Uses the system heap with platform-specific alignment functions.
 /// This is mainly needed when allocating GPU resources or SIMD data structures,
 /// which require 16 byte alignment.
-using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyAlignedHeap>;
+using WAlignedHeapAllocator = WAllocatorWithPolicy<WAllocPolicyAlignedHeap>;
 
 /// Basic heap allocator without special alignment support.
 ///
-/// Faster than ezAlignedHeapAllocator but only supports natural alignment (alignof(T)).
+/// Faster than WAlignedHeapAllocator but only supports natural alignment (alignof(T)).
 /// This is the recommended allocator for general purpose use.
-using ezHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap>;
+using WHeapAllocator = WAllocatorWithPolicy<WAllocPolicyHeap>;
 
 /// Debug allocator that adds guard pages around allocations.
 ///
 /// Detects buffer overruns and use-after-free bugs by placing guard pages before and after
 /// each allocation. Significantly slower and uses much more memory, only for debugging.
 /// Will trigger access violations on memory corruption.
-using ezGuardingAllocator = ezAllocatorWithPolicy<ezAllocPolicyGuarding>;
+using WGuardingAllocator = WAllocatorWithPolicy<WAllocPolicyGuarding>;
 
 /// Proxy allocator that forwards all operations to another allocator.
 ///
 /// Useful for implementing statistics collection without modifying the underlying allocator.
-using ezProxyAllocator = ezAllocatorWithPolicy<ezAllocPolicyProxy>;
+using WProxyAllocator = WAllocatorWithPolicy<WAllocPolicyProxy>;

@@ -2,46 +2,46 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 // Needed for vulkan.hpp which includes headers that include windows.h which then define min, breaking std::min used in vulkan.hpp :-/
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  define VK_USE_PLATFORM_WIN32_KHR
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
 #  define VK_USE_PLATFORM_XCB_KHR
 #  include <xcb/xcb.h>
 
 #  include <vulkan/vulkan_core.h>
 #  include <vulkan/vulkan_xcb.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif W_ENABLED(W_PLATFORM_ANDROID)
 #  define VK_USE_PLATFORM_ANDROID_KHR
 #endif
 
 #define VULKAN_HPP_NO_NODISCARD_WARNINGS // TODO: temporarily disable warnings to make it compile. Need to fix all the warnings later.
 
-#if EZ_ENABLED(EZ_VULKAN_DYNAMIC_DISPATCH)
+#if W_ENABLED(W_VULKAN_DYNAMIC_DISPATCH)
 #  define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #endif
 
 #include <vulkan/vulkan.hpp>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 #  include <vulkan/vulkan_android.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <vulkan/vulkan_win32.h>
 #endif
 
 // Configure the DLL Import/Export Define
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_RENDERERVULKAN_LIB
-#    define EZ_RENDERERVULKAN_DLL EZ_DECL_EXPORT
+#    define W_RENDERERVULKAN_DLL W_DECL_EXPORT
 #  else
-#    define EZ_RENDERERVULKAN_DLL EZ_DECL_IMPORT
+#    define W_RENDERERVULKAN_DLL W_DECL_IMPORT
 #  endif
 #else
-#  define EZ_RENDERERVULKAN_DLL
+#  define W_RENDERERVULKAN_DLL
 #endif
 
 // Uncomment to log all layout transitions.
@@ -51,16 +51,16 @@
   do                                                                                                                    \
   {                                                                                                                     \
     auto s = (code);                                                                                                    \
-    EZ_ASSERT_DEBUG(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
-      EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);         \
+    W_ASSERT_DEBUG(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
+      W_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), W_SOURCE_FILE, W_SOURCE_LINE);         \
   } while (false)
 
 #define VK_ASSERT_DEV(code)                                                                                           \
   do                                                                                                                  \
   {                                                                                                                   \
     auto s = (code);                                                                                                  \
-    EZ_ASSERT_DEV(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
-      EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);       \
+    W_ASSERT_DEV(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
+      W_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), W_SOURCE_FILE, W_SOURCE_LINE);       \
   } while (false)
 
 #define VK_LOG_ERROR(code)                                                                                                                                                   \
@@ -69,7 +69,7 @@
     auto s = (code);                                                                                                                                                         \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                                  \
     {                                                                                                                                                                        \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      WLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", W_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), W_SOURCE_FILE, W_SOURCE_LINE); \
     }                                                                                                                                                                        \
   } while (false)
 
@@ -79,18 +79,18 @@
     auto s = (code);                                                                                                                                                         \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                                  \
     {                                                                                                                                                                        \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      WLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", W_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), W_SOURCE_FILE, W_SOURCE_LINE); \
       return s;                                                                                                                                                              \
     }                                                                                                                                                                        \
   } while (false)
 
-#define VK_SUCCEED_OR_RETURN_EZ_FAILURE(code)                                                                                                                                \
+#define VK_SUCCEED_OR_RETURN_W_FAILURE(code)                                                                                                                                \
   do                                                                                                                                                                         \
   {                                                                                                                                                                          \
     auto s = (code);                                                                                                                                                         \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                                  \
     {                                                                                                                                                                        \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
-      return EZ_FAILURE;                                                                                                                                                     \
+      WLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", W_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), W_SOURCE_FILE, W_SOURCE_LINE); \
+      return W_FAILURE;                                                                                                                                                     \
     }                                                                                                                                                                        \
   } while (false)

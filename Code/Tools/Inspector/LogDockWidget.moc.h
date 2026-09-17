@@ -7,17 +7,17 @@
 #include <Inspector/ui_LogDockWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtLogDockWidget : public ads::CDockWidget, public Ui_LogDockWidget
+class WQtLogDockWidget : public ads::CDockWidget, public Ui_LogDockWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  void Log(const ezFormatString& text);
+  void Log(const WFormatString& text);
 
-  static ezQtLogDockWidget* s_pWidget;
+  static WQtLogDockWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

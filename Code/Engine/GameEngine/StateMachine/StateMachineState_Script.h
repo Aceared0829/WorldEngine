@@ -5,34 +5,34 @@
 #include <GameEngine/StateMachine/StateMachine.h>
 
 /// A state machine state implementation that can be scripted using e.g. visual scripting.
-class EZ_GAMEENGINE_DLL ezStateMachineState_Script : public ezStateMachineState
+class W_GAMEENGINE_DLL WStateMachineState_Script : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Script, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_Script, WStateMachineState);
 
 public:
-  ezStateMachineState_Script(ezStringView sName = ezStringView());
-  ~ezStateMachineState_Script();
+  WStateMachineState_Script(WStringView sName = WStringView());
+  ~WStateMachineState_Script();
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
-  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
-  virtual void Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const override;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override;
+  virtual void OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const override;
+  virtual void Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) override;
 
   void SetScriptClassFile(const char* szFile); // [ property ]
   const char* GetScriptClassFile() const;      // [ property ]
 
   // Exposed Parameters
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  void SetParameter(const char* szKey, const ezVariant& value);
+  const WRangeView<const char*, WUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const WVariant& value);
   void RemoveParameter(const char* szKey);
-  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  bool GetParameter(const char* szKey, WVariant& out_value) const;
 
 private:
-  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  WArrayMap<WHashedString, WVariant> m_Parameters;
 
-  ezString m_sScriptClassFile;
+  WString m_sScriptClassFile;
 };

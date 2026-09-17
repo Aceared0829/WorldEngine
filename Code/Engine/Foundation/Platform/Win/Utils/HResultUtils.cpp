@@ -1,12 +1,12 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #  include <Foundation/Strings/StringBuilder.h>
 #  include <Foundation/Strings/StringConversion.h>
 
-EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
+W_FOUNDATION_DLL WString WHRESULTtoString(WMinWindows::HRESULT result)
 {
   wchar_t buffer[4096];
   if (::FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM,
@@ -14,14 +14,14 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
         result,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
         buffer,
-        EZ_ARRAY_SIZE(buffer),
+        W_ARRAY_SIZE(buffer),
         nullptr) == 0)
   {
     return {};
   }
 
   // Com error tends to put /r/n at the end. Remove it.
-  ezStringBuilder message(ezStringUtf8(&buffer[0]).GetData());
+  WStringBuilder message(WStringUtf8(&buffer[0]).GetData());
   message.ReplaceAll("\n", "");
   message.ReplaceAll("\r", "");
 
@@ -31,7 +31,7 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 
 #  include <Foundation/Platform/Win/Utils/HResultUtils.h>
 
-EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
+W_FOUNDATION_DLL WString WHRESULTtoString(WMinWindows::HRESULT result)
 {
   return "NOT_SUPPORTED";
 }

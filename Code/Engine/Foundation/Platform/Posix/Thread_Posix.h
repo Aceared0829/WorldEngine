@@ -1,17 +1,17 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Threading/Thread.h>
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
-// Thread entry point used to launch ezRunnable instances
-void* ezThreadClassEntryPoint(void* pThreadParameter)
+// Thread entry point used to launch WRunnable instances
+void* WThreadClassEntryPoint(void* pThreadParameter)
 {
-  EZ_ASSERT_RELEASE(pThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
+  W_ASSERT_RELEASE(pThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
 
-  ezThread* pThread = reinterpret_cast<ezThread*>(pThreadParameter);
+  WThread* pThread = reinterpret_cast<WThread*>(pThreadParameter);
 
   RunThread(pThread);
 

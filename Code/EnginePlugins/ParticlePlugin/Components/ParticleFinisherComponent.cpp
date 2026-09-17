@@ -10,12 +10,12 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleFinisherComponentManager::ezParticleFinisherComponentManager(ezWorld* pWorld)
+WParticleFinisherComponentManager::WParticleFinisherComponentManager(WWorld* pWorld)
   : SUPER(pWorld)
 {
 }
 
-void ezParticleFinisherComponentManager::UpdateBounds()
+void WParticleFinisherComponentManager::UpdateBounds()
 {
   for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
   {
@@ -30,50 +30,50 @@ void ezParticleFinisherComponentManager::UpdateBounds()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WParticleFinisherComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezHiddenAttribute,
+    new WHiddenAttribute,
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgInterruptPlaying, OnMsgInterruptPlaying),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezParticleFinisherComponent::ezParticleFinisherComponent() = default;
-ezParticleFinisherComponent::~ezParticleFinisherComponent() = default;
+WParticleFinisherComponent::WParticleFinisherComponent() = default;
+WParticleFinisherComponent::~WParticleFinisherComponent() = default;
 
-void ezParticleFinisherComponent::OnDeactivated()
+void WParticleFinisherComponent::OnDeactivated()
 {
   m_EffectController.StopImmediate();
 
-  ezRenderComponent::OnDeactivated();
+  WRenderComponent::OnDeactivated();
 }
 
-ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WParticleFinisherComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_EffectController.IsAlive())
   {
     m_EffectController.GetBoundingVolume(ref_bounds);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WParticleFinisherComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   switch (msg.m_pView->GetCameraUsageHint())
   {
-    case ezCameraUsageHint::Shadow:
-    case ezCameraUsageHint::Reflection:
+    case WCameraUsageHint::Shadow:
+    case WCameraUsageHint::Reflection:
       return;
 
     default:
@@ -83,7 +83,7 @@ void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
 
-void ezParticleFinisherComponent::UpdateBounds()
+void WParticleFinisherComponent::UpdateBounds()
 {
   if (m_EffectController.IsAlive())
   {
@@ -100,7 +100,7 @@ void ezParticleFinisherComponent::UpdateBounds()
   }
 }
 
-void ezParticleFinisherComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
+void WParticleFinisherComponent::OnMsgInterruptPlaying(WMsgInterruptPlaying& ref_msg)
 {
   if (m_EffectController.IsAlive())
   {
@@ -109,4 +109,4 @@ void ezParticleFinisherComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& r
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleFinisherComponent);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleFinisherComponent);

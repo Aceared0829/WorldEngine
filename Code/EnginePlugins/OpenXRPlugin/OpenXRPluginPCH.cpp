@@ -5,11 +5,11 @@
 #include <OpenXRPlugin/Basics.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
 
-EZ_STATICLINK_LIBRARY(OpenXRPlugin)
+W_STATICLINK_LIBRARY(OpenXRPlugin)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_Input_Implementation_OpenXRInputDevice);
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSingleton);
+  W_STATICLINK_REFERENCE(OpenXRPlugin_Input_Implementation_OpenXRInputDevice);
+  W_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSingleton);
 }

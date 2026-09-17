@@ -3,57 +3,57 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 
-/// Allows to access data from a previous frame. Always comes in a pair with a ezHistoryTargetPass.
+/// Allows to access data from a previous frame. Always comes in a pair with a WHistoryTargetPass.
 /// To preserve textures across the next frame you need to create this node to define the type of texture and initial state. This node's output pin will give access to the previous frame's content.
-/// Next, create an ezHistoryTargetPass. It's input pin exposes the same texture as provided by the source node but allows you to write to by connecting the input pin to another pass that produces the image that you want to carry to the next frame. To connect an ezHistoryTargetPass to its counterpart you need to set it's "SourcePassName" property to the name of the ezHistorySourcePass you want to match.
-/// As both nodes expose the same texture, special care has to be taken that it's not used as input and output of another pass at the same time. In those cases, add a ezCopyTexturePass to break up invalid state.
-class EZ_RENDERERCORE_DLL ezHistorySourcePass : public ezRenderPipelinePass
+/// Next, create an WHistoryTargetPass. It's input pin exposes the same texture as provided by the source node but allows you to write to by connecting the input pin to another pass that produces the image that you want to carry to the next frame. To connect an WHistoryTargetPass to its counterpart you need to set it's "SourcePassName" property to the name of the WHistorySourcePass you want to match.
+/// As both nodes expose the same texture, special care has to be taken that it's not used as input and output of another pass at the same time. In those cases, add a WCopyTexturePass to break up invalid state.
+class W_RENDERERCORE_DLL WHistorySourcePass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHistorySourcePass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WHistorySourcePass, WRenderPipelinePass);
 
 public:
-  ezHistorySourcePass(const char* szName = "HistorySourcePass");
-  ~ezHistorySourcePass();
+  WHistorySourcePass(const char* szName = "HistorySourcePass");
+  ~WHistorySourcePass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
   /// Provides the history texture handle for the output pin.
-  virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) override;
+  virtual WGALTextureHandle QueryTextureProvider(const WRenderPipelineNodePin* pPin, const WGALTextureCreationDescription& desc) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeOutputProviderPin m_PinOutput;                                       ///< Provides previous frame's texture.
+  WRenderPipelineNodeOutputProviderPin m_PinOutput;                                       ///< Provides previous frame's texture.
 
-  ezEnum<ezRequiredTextureType> m_Type = ezRequiredTextureType::SRGB;                      ///< How the texture contents are interpreted.
-  ezEnum<ezRequiredTexturePrecision> m_MinPrecision = ezRequiredTexturePrecision::Bits_8;  ///< Minimum bits per channel.
-  ezEnum<ezRequiredTextureChannels> m_MinChannels = ezRequiredTextureChannels::Channels_4; ///< Minimum channel count.
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;                    ///< MSAA sample count.
-  ezColor m_ClearColor = ezColor::Black;                                                   ///< Initial clear color for first frame.
+  WEnum<WRequiredTextureType> m_Type = WRequiredTextureType::SRGB;                      ///< How the texture contents are interpreted.
+  WEnum<WRequiredTexturePrecision> m_MinPrecision = WRequiredTexturePrecision::Bits_8;  ///< Minimum bits per channel.
+  WEnum<WRequiredTextureChannels> m_MinChannels = WRequiredTextureChannels::Channels_4; ///< Minimum channel count.
+  WEnum<WGALMSAASampleCount> m_MsaaMode = WGALMSAASampleCount::None;                    ///< MSAA sample count.
+  WColor m_ClearColor = WColor::Black;                                                   ///< Initial clear color for first frame.
   float m_fClearDepth = 1.0f;                                                              ///< Initial clear depth for first frame.
   bool m_bUAV = false;
-  ezGALTextureHandle m_hTextureCleared = {};
+  WGALTextureHandle m_hTextureCleared = {};
 };
 
 /// Frame data provider that manages history texture storage across frames.
-class EZ_RENDERERCORE_DLL ezHistorySourcePassTextureDataProvider : public ezFrameDataProviderBase
+class W_RENDERERCORE_DLL WHistorySourcePassTextureDataProvider : public WFrameDataProviderBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHistorySourcePassTextureDataProvider, ezFrameDataProviderBase);
+  W_ADD_DYNAMIC_REFLECTION(WHistorySourcePassTextureDataProvider, WFrameDataProviderBase);
 
 public:
-  ezHistorySourcePassTextureDataProvider();
-  ~ezHistorySourcePassTextureDataProvider();
+  WHistorySourcePassTextureDataProvider();
+  ~WHistorySourcePassTextureDataProvider();
 
   /// Clears the history texture for a given source pass.
-  void ResetTexture(ezStringView sSourcePassName);
+  void ResetTexture(WStringView sSourcePassName);
 
   /// Retrieves or creates a history texture for a given source pass.
-  ezGALTextureHandle GetOrCreateTexture(ezStringView sSourcePassName, const ezGALTextureCreationDescription& desc);
+  WGALTextureHandle GetOrCreateTexture(WStringView sSourcePassName, const WGALTextureCreationDescription& desc);
 
 public:
-  ezHashTable<ezString, ezGALTextureHandle> m_Data; ///< Maps source pass names to history textures.
+  WHashTable<WString, WGALTextureHandle> m_Data; ///< Maps source pass names to history textures.
 
 private:
   // We ignore the frame-based logic for this data provider as we only want to store cross frame data.
-  virtual void* UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData) override { return nullptr; }
+  virtual void* UpdateData(const WRenderViewContext& renderViewContext, const WExtractedRenderData& extractedData) override { return nullptr; }
 };

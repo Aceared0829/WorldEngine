@@ -9,33 +9,33 @@
 /// The names and valid values for dynamic bitflags may change due to user configuration changes.
 /// The UI should show these user specified names without restarting the tool.
 ///
-/// Call the static function GetDynamicBitflags() to create or get the ezDynamicBitflags for a specific type.
-class EZ_GUIFOUNDATION_DLL ezDynamicBitflags
+/// Call the static function GetDynamicBitflags() to create or get the WDynamicBitflags for a specific type.
+class W_GUIFOUNDATION_DLL WDynamicBitflags
 {
 public:
-  /// Returns a ezDynamicBitflags under the given name. Creates a new one, if the name has not been used before.
-  static ezDynamicBitflags& GetDynamicBitflags(ezStringView sName);
+  /// Returns a WDynamicBitflags under the given name. Creates a new one, if the name has not been used before.
+  static WDynamicBitflags& GetDynamicBitflags(WStringView sName);
 
   /// Returns all bitflag values and current names.
-  const ezMap<ezUInt64, ezString>& GetAllValidValues() const { return m_ValidValues; }
+  const WMap<WUInt64, WString>& GetAllValidValues() const { return m_ValidValues; }
 
   /// Resets stored values.
   void Clear();
 
   /// Sets the name for the given bit position.
-  void SetValueAndName(ezUInt32 uiBitPos, ezStringView sName);
+  void SetValueAndName(WUInt32 uiBitPos, WStringView sName);
 
   /// Removes a value, if it exists.
-  void RemoveValue(ezUInt32 uiBitPos);
+  void RemoveValue(WUInt32 uiBitPos);
 
   /// Returns whether a certain value is known.
-  bool IsValueValid(ezUInt32 uiBitPos) const;
+  bool IsValueValid(WUInt32 uiBitPos) const;
 
   /// Returns the name for the given value
-  bool TryGetValueName(ezUInt32 uiBitPos, ezStringView& out_sName) const;
+  bool TryGetValueName(WUInt32 uiBitPos, WStringView& out_sName) const;
 
 private:
-  ezMap<ezUInt64, ezString> m_ValidValues;
+  WMap<WUInt64, WString> m_ValidValues;
 
-  static ezMap<ezString, ezDynamicBitflags> s_DynamicBitflags;
+  static WMap<WString, WDynamicBitflags> s_DynamicBitflags;
 };

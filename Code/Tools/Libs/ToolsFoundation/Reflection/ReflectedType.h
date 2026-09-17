@@ -9,103 +9,103 @@
 #include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezRTTI;
-class ezPhantomRttiManager;
-class ezReflectedTypeStorageManager;
+class WRTTI;
+class WPhantomRttiManager;
+class WReflectedTypeStorageManager;
 
-/// Event message used by the ezPhantomRttiManager.
-struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
+/// Event message used by the WPhantomRttiManager.
+struct W_TOOLSFOUNDATION_DLL WPhantomTypeChange
 {
-  const ezRTTI* m_pChangedType = nullptr;
+  const WRTTI* m_pChangedType = nullptr;
 };
 
-struct EZ_TOOLSFOUNDATION_DLL ezAttributeHolder
+struct W_TOOLSFOUNDATION_DLL WAttributeHolder
 {
-  ezAttributeHolder();
-  ezAttributeHolder(const ezAttributeHolder& rhs);
-  virtual ~ezAttributeHolder();
+  WAttributeHolder();
+  WAttributeHolder(const WAttributeHolder& rhs);
+  virtual ~WAttributeHolder();
 
-  ezUInt32 GetCount() const;
-  const ezPropertyAttribute* GetValue(ezUInt32 uiIndex) const;
-  void SetValue(ezUInt32 uiIndex, const ezPropertyAttribute* value);
-  void Insert(ezUInt32 uiIndex, const ezPropertyAttribute* value);
-  void Remove(ezUInt32 uiIndex);
+  WUInt32 GetCount() const;
+  const WPropertyAttribute* GetValue(WUInt32 uiIndex) const;
+  void SetValue(WUInt32 uiIndex, const WPropertyAttribute* value);
+  void Insert(WUInt32 uiIndex, const WPropertyAttribute* value);
+  void Remove(WUInt32 uiIndex);
 
-  void operator=(const ezAttributeHolder& rhs);
+  void operator=(const WAttributeHolder& rhs);
 
-  mutable ezHybridArray<const ezPropertyAttribute*, 2> m_Attributes;
-  ezArrayPtr<const ezPropertyAttribute* const> m_ReferenceAttributes;
+  mutable WHybridArray<const WPropertyAttribute*, 2> m_Attributes;
+  WArrayPtr<const WPropertyAttribute* const> m_ReferenceAttributes;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezAttributeHolder);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WAttributeHolder);
 
-/// Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttributeHolder
+/// Stores the description of a reflected property in a serializable form, used by WReflectedTypeDescriptor.
+struct W_TOOLSFOUNDATION_DLL WReflectedPropertyDescriptor : public WAttributeHolder
 {
-  ezReflectedPropertyDescriptor() = default;
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags);
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags,
-    ezArrayPtr<const ezPropertyAttribute* const> attributes); // [tested]
+  WReflectedPropertyDescriptor() = default;
+  WReflectedPropertyDescriptor(WPropertyCategory::Enum category, WStringView sName, WStringView sType, WBitflags<WPropertyFlags> flags);
+  WReflectedPropertyDescriptor(WPropertyCategory::Enum category, WStringView sName, WStringView sType, WBitflags<WPropertyFlags> flags,
+    WArrayPtr<const WPropertyAttribute* const> attributes); // [tested]
   /// Initialize to a constant.
-  ezReflectedPropertyDescriptor(ezStringView sName, const ezVariant& constantValue, ezArrayPtr<const ezPropertyAttribute* const> attributes); // [tested]
-  ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
-  ~ezReflectedPropertyDescriptor();
+  WReflectedPropertyDescriptor(WStringView sName, const WVariant& constantValue, WArrayPtr<const WPropertyAttribute* const> attributes); // [tested]
+  WReflectedPropertyDescriptor(const WReflectedPropertyDescriptor& rhs);
+  ~WReflectedPropertyDescriptor();
 
-  void operator=(const ezReflectedPropertyDescriptor& rhs);
+  void operator=(const WReflectedPropertyDescriptor& rhs);
 
-  ezEnum<ezPropertyCategory> m_Category;
-  ezString m_sName; ///< The name of this property. E.g. what ezAbstractProperty::GetPropertyName() returns.
-  ezString m_sType; ///< The name of the type of the property. E.g. ezAbstractProperty::GetSpecificType().GetTypeName()
+  WEnum<WPropertyCategory> m_Category;
+  WString m_sName; ///< The name of this property. E.g. what WAbstractProperty::GetPropertyName() returns.
+  WString m_sType; ///< The name of the type of the property. E.g. WAbstractProperty::GetSpecificType().GetTypeName()
 
-  /// ezPropertyFlags::Phantom is not part of a descriptor: it is added by the ezPhantom*Property classes when the
+  /// WPropertyFlags::Phantom is not part of a descriptor: it is added by the WPhantom*Property classes when the
   /// descriptor is registered, so setting it here has no effect other than writing it into serialized documents.
-  ezBitflags<ezPropertyFlags> m_Flags;
-  ezVariant m_ConstantValue;
+  WBitflags<WPropertyFlags> m_Flags;
+  WVariant m_ConstantValue;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescriptor);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WReflectedPropertyDescriptor);
 
-struct EZ_TOOLSFOUNDATION_DLL ezFunctionArgumentDescriptor
+struct W_TOOLSFOUNDATION_DLL WFunctionArgumentDescriptor
 {
-  ezFunctionArgumentDescriptor();
-  ezFunctionArgumentDescriptor(ezStringView sType, ezBitflags<ezPropertyFlags> flags);
-  ezString m_sType;
-  ezBitflags<ezPropertyFlags> m_Flags;
+  WFunctionArgumentDescriptor();
+  WFunctionArgumentDescriptor(WStringView sType, WBitflags<WPropertyFlags> flags);
+  WString m_sType;
+  WBitflags<WPropertyFlags> m_Flags;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFunctionArgumentDescriptor);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WFunctionArgumentDescriptor);
 
-/// Stores the description of a reflected function in a serializable form, used by ezReflectedTypeDescriptor.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedFunctionDescriptor : public ezAttributeHolder
+/// Stores the description of a reflected function in a serializable form, used by WReflectedTypeDescriptor.
+struct W_TOOLSFOUNDATION_DLL WReflectedFunctionDescriptor : public WAttributeHolder
 {
-  ezReflectedFunctionDescriptor();
-  ezReflectedFunctionDescriptor(ezStringView sName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, ezArrayPtr<const ezPropertyAttribute* const> attributes);
+  WReflectedFunctionDescriptor();
+  WReflectedFunctionDescriptor(WStringView sName, WBitflags<WPropertyFlags> flags, WEnum<WFunctionType> type, WArrayPtr<const WPropertyAttribute* const> attributes);
 
-  ezReflectedFunctionDescriptor(const ezReflectedFunctionDescriptor& rhs);
-  ~ezReflectedFunctionDescriptor();
+  WReflectedFunctionDescriptor(const WReflectedFunctionDescriptor& rhs);
+  ~WReflectedFunctionDescriptor();
 
-  void operator=(const ezReflectedFunctionDescriptor& rhs);
+  void operator=(const WReflectedFunctionDescriptor& rhs);
 
-  ezString m_sName;
-  ezBitflags<ezPropertyFlags> m_Flags;
-  ezEnum<ezFunctionType> m_Type;
-  ezFunctionArgumentDescriptor m_ReturnValue;
-  ezDynamicArray<ezFunctionArgumentDescriptor> m_Arguments;
+  WString m_sName;
+  WBitflags<WPropertyFlags> m_Flags;
+  WEnum<WFunctionType> m_Type;
+  WFunctionArgumentDescriptor m_ReturnValue;
+  WDynamicArray<WFunctionArgumentDescriptor> m_Arguments;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedFunctionDescriptor);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WReflectedFunctionDescriptor);
 
 
-/// Stores the description of a reflected type in a serializable form. Used by ezPhantomRttiManager to add new types.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor : public ezAttributeHolder
+/// Stores the description of a reflected type in a serializable form. Used by WPhantomRttiManager to add new types.
+struct W_TOOLSFOUNDATION_DLL WReflectedTypeDescriptor : public WAttributeHolder
 {
-  ~ezReflectedTypeDescriptor();
+  ~WReflectedTypeDescriptor();
 
-  ezString m_sTypeName;
-  ezString m_sPluginName;
-  ezString m_sParentTypeName;
+  WString m_sTypeName;
+  WString m_sPluginName;
+  WString m_sParentTypeName;
 
-  /// ezTypeFlags::Phantom is not part of a descriptor: ezPhantomRTTI adds it to every type it creates, so setting it
+  /// WTypeFlags::Phantom is not part of a descriptor: WPhantomRTTI adds it to every type it creates, so setting it
   /// here has no effect other than writing it into serialized documents.
-  ezBitflags<ezTypeFlags> m_Flags;
-  ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
-  ezDynamicArray<ezReflectedFunctionDescriptor> m_Functions;
-  ezUInt32 m_uiTypeVersion = 1;
+  WBitflags<WTypeFlags> m_Flags;
+  WDynamicArray<WReflectedPropertyDescriptor> m_Properties;
+  WDynamicArray<WReflectedFunctionDescriptor> m_Functions;
+  WUInt32 m_uiTypeVersion = 1;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedTypeDescriptor);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WReflectedTypeDescriptor);

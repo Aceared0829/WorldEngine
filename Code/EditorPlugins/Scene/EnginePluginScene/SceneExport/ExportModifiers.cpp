@@ -8,15 +8,15 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_RemoveShapeIconComponents, 1, WRTTIDefaultAllocator<WSceneExportModifier_RemoveShapeIconComponents>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  if (ezShapeIconComponentManager* pSiMan = ref_world.GetComponentManager<ezShapeIconComponentManager>())
+  if (WShapeIconComponentManager* pSiMan = ref_world.GetComponentManager<WShapeIconComponentManager>())
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {
@@ -28,25 +28,25 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_w
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemovePathNodeComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemovePathNodeComponents>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_RemovePathNodeComponents, 1, WRTTIDefaultAllocator<WSceneExportModifier_RemovePathNodeComponents>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_RemovePathNodeComponents::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
   if (!bForExport)
     return;
 
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  if (ezSplineNodeComponentManager* pManager = ref_world.GetComponentManager<ezSplineNodeComponentManager>())
+  if (WSplineNodeComponentManager* pManager = ref_world.GetComponentManager<WSplineNodeComponentManager>())
   {
     for (auto it = pManager->GetComponents(); it.IsValid(); it.Next())
     {
       if (it->GetOwner()->GetComponents().GetCount() == 1 && it->GetOwner()->GetChildCount() == 0)
       {
         // if this is the only component on the object, clear it's name, so that the entire object may get cleaned up
-        it->GetOwner()->SetName(ezStringView());
+        it->GetOwner()->SetName(WStringView());
       }
 
       pManager->DeleteComponent(it);
@@ -57,21 +57,21 @@ void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_wo
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_GenericExport, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_GenericExport>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_GenericExport, 1, WRTTIDefaultAllocator<WSceneExportModifier_GenericExport>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_GenericExport::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_GenericExport::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
   if (!bForExport)
     return;
 
-  ezStringBuilder sb;
-  ezConversionUtils::ToString(documentGuid, sb);
+  WStringBuilder sb;
+  WConversionUtils::ToString(documentGuid, sb);
 
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  ezMsgExport msg;
+  WMsgExport msg;
   msg.m_sDocumentType = sDocumentType;
   msg.m_sDocumentGuid = sb;
 

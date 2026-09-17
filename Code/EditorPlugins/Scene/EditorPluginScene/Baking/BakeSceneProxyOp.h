@@ -2,17 +2,17 @@
 
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 
-class ezLongOpProxy_BakeScene : public ezLongOpProxy
+class WLongOpProxy_BakeScene : public WLongOpProxy
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProxy_BakeScene, ezLongOpProxy);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpProxy_BakeScene, WLongOpProxy);
 
 public:
-  virtual void InitializeRegistered(const ezUuid& documentGuid, const ezUuid& componentGuid) override;
+  virtual void InitializeRegistered(const WUuid& documentGuid, const WUuid& componentGuid) override;
   virtual const char* GetDisplayName() const override { return "Bake Scene"; }
-  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& ref_description) override;
-  virtual void Finalize(ezResult result, const ezDataBuffer& resultData) override;
+  virtual void GetReplicationInfo(WStringBuilder& out_sReplicationOpType, WStreamWriter& ref_description) override;
+  virtual void Finalize(WResult result, const WDataBuffer& resultData) override;
 
 private:
-  ezUuid m_DocumentGuid;
-  ezUuid m_ComponentGuid;
+  WUuid m_DocumentGuid;
+  WUuid m_ComponentGuid;
 };

@@ -3,30 +3,30 @@
 #include <RTSPlugin/Components/ComponentMessages.h>
 #include <RTSPlugin/RTSPluginDLL.h>
 
-class RtsShipSteeringComponentManager : public ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>
+class RtsShipSteeringComponentManager : public WComponentManager<class RtsShipSteeringComponent, WBlockStorageType::Compact>
 {
 public:
-  RtsShipSteeringComponentManager(ezWorld* pWorld);
+  RtsShipSteeringComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
-  void SteeringUpdate(const ezWorldModule::UpdateContext& context);
+  void SteeringUpdate(const WWorldModule::UpdateContext& context);
 };
 
 
-class EZ_RTSPLUGIN_DLL RtsShipSteeringComponent : public ezComponent
+class W_RTSPLUGIN_DLL RtsShipSteeringComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(RtsShipSteeringComponent, ezComponent, RtsShipSteeringComponentManager);
+  W_DECLARE_COMPONENT_TYPE(RtsShipSteeringComponent, WComponent, RtsShipSteeringComponentManager);
 
 public:
   RtsShipSteeringComponent();
   ~RtsShipSteeringComponent();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // WComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
@@ -34,7 +34,7 @@ public:
   float m_fMaxSpeed = 5.0f;
   float m_fMaxAcceleration = 5.0f;
   float m_fMaxDeceleration = 10.0f;
-  ezAngle m_MaxTurnSpeed;
+  WAngle m_MaxTurnSpeed;
 
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
@@ -56,6 +56,6 @@ protected:
   };
 
   Mode m_Mode = Mode::None;
-  ezVec2 m_vTargetPosition;
+  WVec2 m_vTargetPosition;
   float m_fCurrentSpeed = 0;
 };

@@ -5,38 +5,38 @@
 #include <TerrainPlugin/Components/TerrainBrushAttributes.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezTerrainBrush3DVisualizerAdapter::ezTerrainBrush3DVisualizerAdapter() = default;
+WTerrainBrush3DVisualizerAdapter::WTerrainBrush3DVisualizerAdapter() = default;
 
-ezTerrainBrush3DVisualizerAdapter::~ezTerrainBrush3DVisualizerAdapter() = default;
+WTerrainBrush3DVisualizerAdapter::~WTerrainBrush3DVisualizerAdapter() = default;
 
-void ezTerrainBrush3DVisualizerAdapter::Finalize()
+void WTerrainBrush3DVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const ezTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
+  const WTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const WTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hLinesInner.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CustomLines, pAttr->m_InnerColor, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
-  m_hLinesOuter.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CustomLines, pAttr->m_OuterColor, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hLinesInner.ConfigureHandle(nullptr, WEngineGizmoHandleType::CustomLines, pAttr->m_InnerColor, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
+  m_hLinesOuter.ConfigureHandle(nullptr, WEngineGizmoHandleType::CustomLines, pAttr->m_OuterColor, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hLinesInner);
   pAssetDocument->AddSyncObject(&m_hLinesOuter);
 }
 
-void BuildRoundedRectAtZ(ezDynamicArray<ezVec3>& ref_lines, float fHalfX, float fHalfY, float fRadius, float fZ);
+void BuildRoundedRectAtZ(WDynamicArray<WVec3>& ref_lines, float fHalfX, float fHalfY, float fRadius, float fZ);
 
 // Draws a rounded rectangle in the XZ plane at the given Y offset.
 // Delegates to BuildRoundedRectAtZ, then rotates the appended points into XZ by swapping Y and Z.
-static void BuildRoundedRectAtY(ezDynamicArray<ezVec3>& ref_lines, float fHalfX, float fHalfZ, float fRadius, float fY)
+static void BuildRoundedRectAtY(WDynamicArray<WVec3>& ref_lines, float fHalfX, float fHalfZ, float fRadius, float fY)
 {
-  const ezUInt32 uiBefore = ref_lines.GetCount();
+  const WUInt32 uiBefore = ref_lines.GetCount();
   BuildRoundedRectAtZ(ref_lines, fHalfX, fHalfZ, fRadius, fY);
-  for (ezUInt32 i = uiBefore; i < ref_lines.GetCount(); ++i)
-    ezMath::Swap(ref_lines[i].y, ref_lines[i].z);
+  for (WUInt32 i = uiBefore; i < ref_lines.GetCount(); ++i)
+    WMath::Swap(ref_lines[i].y, ref_lines[i].z);
 }
 
-static void BuildRoundedBoxLines(ezDynamicArray<ezVec3>& ref_lines, float fHalfX, float fHalfYBottom, float fHalfYTop, float fHalfZ, float fRadius)
+static void BuildRoundedBoxLines(WDynamicArray<WVec3>& ref_lines, float fHalfX, float fHalfYBottom, float fHalfYTop, float fHalfZ, float fRadius)
 {
   ref_lines.Clear();
 
@@ -51,20 +51,20 @@ static void BuildRoundedBoxLines(ezDynamicArray<ezVec3>& ref_lines, float fHalfX
   const float fCornerYBottom[2] = {+fHalfYBottom, -fHalfYBottom};
   const float fCornerYTop[2] = {+fHalfYTop, -fHalfYTop};
 
-  for (ezUInt32 xi = 0; xi < 2; ++xi)
+  for (WUInt32 xi = 0; xi < 2; ++xi)
   {
-    ref_lines.PushBack(ezVec3(fCornerX[xi], fCornerYBottom[0] + fRadius, -fHalfZ));
-    ref_lines.PushBack(ezVec3(fCornerX[xi], fCornerYTop[0] + fRadius, +fHalfZ));
+    ref_lines.PushBack(WVec3(fCornerX[xi], fCornerYBottom[0] + fRadius, -fHalfZ));
+    ref_lines.PushBack(WVec3(fCornerX[xi], fCornerYTop[0] + fRadius, +fHalfZ));
 
-    ref_lines.PushBack(ezVec3(fCornerX[xi], fCornerYBottom[1] - fRadius, -fHalfZ));
-    ref_lines.PushBack(ezVec3(fCornerX[xi], fCornerYTop[1] - fRadius, +fHalfZ));
+    ref_lines.PushBack(WVec3(fCornerX[xi], fCornerYBottom[1] - fRadius, -fHalfZ));
+    ref_lines.PushBack(WVec3(fCornerX[xi], fCornerYTop[1] - fRadius, +fHalfZ));
   }
 }
 
-void ezTerrainBrush3DVisualizerAdapter::Update()
+void WTerrainBrush3DVisualizerAdapter::Update()
 {
-  const ezTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const ezTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const WTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   float fSizeX = 0;
   float fSizeYBottom = 0;
@@ -75,59 +75,59 @@ void ezTerrainBrush3DVisualizerAdapter::Update()
 
   if (!pAttr->GetPropHalfSizeX().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropHalfSizeX()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'size x'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'size x'");
     fSizeX = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetPropHalfSizeYBottom().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropHalfSizeYBottom()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'size y-bottom'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'size y-bottom'");
     fSizeYBottom = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetPropHalfSizeYTop().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropHalfSizeYTop()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'size y-top'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'size y-top'");
     fSizeYTop = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetPropHalfSizeZ().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropHalfSizeZ()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'size z'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'size z'");
     fSizeZ = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetPropInnerRadius().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropInnerRadius()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'inner radius'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'inner radius'");
     fInnerRadius = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetPropOuterRadius().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPropOuterRadius()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezTerrainBrush3DVisualizerAttribute 'outer radius'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WTerrainBrush3DVisualizerAttribute 'outer radius'");
     fOuterRadius = value.ConvertTo<float>();
   }
 
   if (fSizeZ == 0)
   {
-    fSizeYBottom = ezMath::Max(fSizeYBottom, fSizeYTop);
+    fSizeYBottom = WMath::Max(fSizeYBottom, fSizeYTop);
     fSizeYTop = fSizeYBottom;
   }
 
-  ezTempHybridArray<ezVec3, 128> ref_lines;
+  WTempHybridArray<WVec3, 128> ref_lines;
 
   if (fSizeX > 0 || fSizeYBottom > 0 || fSizeYTop > 0 || fSizeZ > 0 || fInnerRadius > 0)
   {
@@ -158,11 +158,11 @@ void ezTerrainBrush3DVisualizerAdapter::Update()
   }
 }
 
-void ezTerrainBrush3DVisualizerAdapter::UpdateGizmoTransform()
+void WTerrainBrush3DVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const ezTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
+  const WTerrainBrush3DVisualizerAttribute* pAttr = static_cast<const WTerrainBrush3DVisualizerAttribute*>(m_pVisualizerAttr);
 
-  ezTransform t = GetObjectTransform();
+  WTransform t = GetObjectTransform();
   t.m_vPosition += t.m_qRotation * pAttr->m_vOffset;
 
   m_hLinesInner.SetTransformation(t);

@@ -3,17 +3,17 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
 /// Pool for GPU queries.
-class EZ_RENDERERVULKAN_DLL ezQueryPoolVulkan
+class W_RENDERERVULKAN_DLL WQueryPoolVulkan
 {
 public:
-  ezQueryPoolVulkan(ezGALDeviceVulkan* pDevice);
+  WQueryPoolVulkan(WGALDeviceVulkan* pDevice);
 
   /// Initializes the pool.
   /// \param uiValidBits The number of valid bits in the query result. Each queue has different query characteristics and a separate pool is needed for each queue.
-  void Initialize(ezUInt32 uiValidBits);
+  void Initialize(WUInt32 uiValidBits);
   void DeInitialize();
 
   /// Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
@@ -29,30 +29,30 @@ public:
   /// \param commandBuffer Target command buffer to insert the timestamp into.
   /// \param hTimestamp Timestamp to insert. After insertion the only valid option is to call GetTimestampResult.
   /// \param pipelineStage The value of the timestamp will be the point in time in which all previously committed commands have finished this stage.
-  ezGALTimestampHandle InsertTimestamp(vk::CommandBuffer commandBuffer, vk::PipelineStageFlagBits pipelineStage = vk::PipelineStageFlagBits::eBottomOfPipe);
+  WGALTimestampHandle InsertTimestamp(vk::CommandBuffer commandBuffer, vk::PipelineStageFlagBits pipelineStage = vk::PipelineStageFlagBits::eBottomOfPipe);
 
   /// Retrieves the timestamp value if it is available.
   /// \param hTimestamp The target timestamp to resolve.
   /// \param result The time of the timestamp. If this is empty on success the timestamp has expired.
   /// \param bForce Wait for the timestamp to become available.
   /// \return Returns false if the result is not available yet.
-  ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result, bool bForce = false);
+  WEnum<WGALAsyncResult> GetTimestampResult(WGALTimestampHandle hTimestamp, WTime& out_result, bool bForce = false);
 
-  ezGALPoolHandle BeginOcclusionQuery(vk::CommandBuffer commandBuffer, ezEnum<ezGALQueryType> type);
-  void EndOcclusionQuery(vk::CommandBuffer commandBuffer, ezGALPoolHandle hPool);
-  ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALPoolHandle hPool, ezUInt64& out_uiQueryResult, bool bForce = false);
+  WGALPoolHandle BeginOcclusionQuery(vk::CommandBuffer commandBuffer, WEnum<WGALQueryType> type);
+  void EndOcclusionQuery(vk::CommandBuffer commandBuffer, WGALPoolHandle hPool);
+  WEnum<WGALAsyncResult> GetOcclusionQueryResult(WGALPoolHandle hPool, WUInt64& out_uiQueryResult, bool bForce = false);
 
 private:
   /// GPU and CPU timestamps have no relation in Vulkan. To establish it we need to measure the same timestamp in both and compute the difference.
   void Calibrate();
 
-  static constexpr ezUInt32 s_uiRetainFrames = 4;
+  static constexpr WUInt32 s_uiRetainFrames = 4;
 
   /// A singular query
   struct Query
   {
     vk::QueryPool m_pool;
-    ezUInt32 uiQueryIndex;
+    WUInt32 uiQueryIndex;
   };
 
   /// A fixed number of queries are stored in this pool (see m_uiPoolSize below)
@@ -61,56 +61,56 @@ private:
   {
     vk::QueryPool m_pool;
     bool m_bReady = false;
-    ezDynamicArray<uint64_t> m_queryResults;
+    WDynamicArray<uint64_t> m_queryResults;
   };
 
   /// Represents a frame of queries. Depending on the number of queries, multiple QueryPools will need to be used per frame.
   struct FramePool
   {
-    ezUInt64 m_uiNextIndex = 0;    // Next query index in this frame. Use % and / to find the pool / element index.
-    ezUInt64 m_uiFrameCounter = 0; // ezGALDevice::GetCurrentFrame
-    ezUInt8 m_uiReadyFrames = 0;   ///< How many frames ago m_bReady was set on the last QueryPool in m_pools. Used to make sure frames are retained for s_uiRetainFrames after results become available.
-    ezHybridArray<QueryPool*, 2> m_pools;
+    WUInt64 m_uiNextIndex = 0;    // Next query index in this frame. Use % and / to find the pool / element index.
+    WUInt64 m_uiFrameCounter = 0; // WGALDevice::GetCurrentFrame
+    WUInt8 m_uiReadyFrames = 0;   ///< How many frames ago m_bReady was set on the last QueryPool in m_pools. Used to make sure frames are retained for s_uiRetainFrames after results become available.
+    WHybridArray<QueryPool*, 2> m_pools;
   };
 
   /// High level pool of Vulkan queries. Will create more sub-pools to manage demand, reusing them after s_uiRetainFrames of available results.
   /// If the user does not retrieve the values within s_uiRetainFrames time, the result expires.
   struct Pool
   {
-    Pool(ezAllocator* pAllocator);
+    Pool(WAllocator* pAllocator);
 
-    void Initialize(vk::Device device, ezUInt32 uiPoolSize, vk::QueryType queryType);
+    void Initialize(vk::Device device, WUInt32 uiPoolSize, vk::QueryType queryType);
     void DeInitialize();
 
     QueryPool* GetFreePool();
     QueryPool* CreatePool();
-    void BeginFrame(vk::CommandBuffer commandBuffer, ezUInt64 uiCurrentFrame, ezUInt64 uiSafeFrame);
-    void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer, ezUInt32 uiFreePools);
-    ezGALPoolHandle CreateQuery(vk::CommandBuffer commandBuffer, bool bInsideRenderPass);
-    Query GetQuery(ezGALPoolHandle hPool);
-    ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, ezUInt64& out_uiResult, bool bForce);
+    void BeginFrame(vk::CommandBuffer commandBuffer, WUInt64 uiCurrentFrame, WUInt64 uiSafeFrame);
+    void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer, WUInt32 uiFreePools);
+    WGALPoolHandle CreateQuery(vk::CommandBuffer commandBuffer, bool bInsideRenderPass);
+    Query GetQuery(WGALPoolHandle hPool);
+    WEnum<WGALAsyncResult> GetResult(WGALPoolHandle hPool, WUInt64& out_uiResult, bool bForce);
 
     // Current active data.
     FramePool* m_pCurrentFrame = nullptr;
-    ezUInt64 m_uiFirstFrameIndex = 0;
-    ezDeque<FramePool> m_pendingFrames;
+    WUInt64 m_uiFirstFrameIndex = 0;
+    WDeque<FramePool> m_pendingFrames;
 
     // Pools.
-    ezHybridArray<vk::QueryPool, 8> m_resetPools;
-    ezHybridArray<QueryPool*, 8> m_freePools;
+    WHybridArray<vk::QueryPool, 8> m_resetPools;
+    WHybridArray<QueryPool*, 8> m_freePools;
 
     vk::Device m_device;
-    ezUInt32 m_uiPoolSize = 0;
+    WUInt32 m_uiPoolSize = 0;
     vk::QueryType m_QueryType;
   };
 
-  ezGALDeviceVulkan* m_pDevice = nullptr;
+  WGALDeviceVulkan* m_pDevice = nullptr;
   bool m_bInsideRenderPass = false;
 
   // Timestamp conversion and calibration data.
   double m_fNanoSecondsPerTick = 0;
-  ezUInt64 m_uiValidBitsMask = 0;
-  ezTime m_GpuToCpuDelta;
+  WUInt64 m_uiValidBitsMask = 0;
+  WTime m_GpuToCpuDelta;
 
   // Pools
   Pool m_TimestampPool;

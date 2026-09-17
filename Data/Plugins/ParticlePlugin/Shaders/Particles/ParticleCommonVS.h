@@ -178,7 +178,7 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL
   float2 normalizedScreenPos = (screenPosition.xy / screenPosition.w) * float2(0.5, -0.5) + 0.5;
   float3 screenPos = float3(normalizedScreenPos * ViewportSize.xy, screenPosition.w);
-  ezPerClusterData clusterData = GetClusterData(screenPos);
+  WPerClusterData clusterData = GetClusterData(screenPos);
 
   float3 viewVector = normalize(GetCameraPosition() - worldPosition);
 
@@ -190,7 +190,7 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
     uint itemIndex = clusterItemBuffer[i];
     uint lightIndex = GET_LIGHT_INDEX(itemIndex);
 
-    ezPerLightData lightData = perLightDataBuffer[lightIndex];
+    WPerLightData lightData = perLightDataBuffer[lightIndex];
     uint type = (lightData.colorAndType >> 24) & 0xFF;
 
     [branch] if (type <= LIGHT_TYPE_DIR)

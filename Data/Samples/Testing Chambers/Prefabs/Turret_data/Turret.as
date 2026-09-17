@@ -1,13 +1,13 @@
-class ScriptObject : ezAngelScriptClass
+class ScriptObject : WAngelScriptClass
 {
     float Health = 50;
     private uint8 CollisionLayer = 0;
 
-    ezGameObjectHandle target;
-    ezComponentHandle gunSpawn;
-    ezComponentHandle gunSound;
+    WGameObjectHandle target;
+    WComponentHandle gunSpawn;
+    WComponentHandle gunSound;
 
-    void OnMsgDamage(ezMsgDamage@ msg)
+    void OnMsgDamage(WMsgDamage@ msg)
     {
         if (Health <= 0)
             return;
@@ -17,43 +17,43 @@ class ScriptObject : ezAngelScriptClass
         if (Health > 0)
             return;
 
-        SetUpdateInterval(ezTime::Seconds(60)); // basically deactivate future updates
+        SetUpdateInterval(WTime::Seconds(60)); // basically deactivate future updates
 
         auto expObj = GetOwner().FindChildByName("Explosion", true);
         if (@expObj == null)
             return;
 
-        ezSpawnComponent@ spawnComp;
+        WSpawnComponent@ spawnComp;
         if (expObj.TryGetComponentOfBaseType(@spawnComp))
         {
-            spawnComp.TriggerManualSpawn(true, ezVec3::MakeZero());
+            spawnComp.TriggerManualSpawn(true, WVec3::MakeZero());
         }
     }
 
     void OnSimulationStarted()
     {
-        SetUpdateInterval(ezTime::Milliseconds(500));
+        SetUpdateInterval(WTime::Milliseconds(500));
 
-        CollisionLayer = ezPhysics::GetCollisionLayerByName("Visibility Raycast");
+        CollisionLayer = WPhysics::GetCollisionLayerByName("Visibility Raycast");
 
         auto gunObj = GetOwner().FindChildByName("Gun", true);
 
-        ezSpawnComponent@ gunSpawnComp;
+        WSpawnComponent@ gunSpawnComp;
         if (gunObj.TryGetComponentOfBaseType(@gunSpawnComp))
             gunSpawn = gunSpawnComp.GetHandle();
 
-        ezFmodEventComponent@ gunSoundComp;
+        WFmodEventComponent@ gunSoundComp;
         if (gunObj.TryGetComponentOfBaseType(@gunSoundComp))
             gunSound = gunSoundComp.GetHandle();
     }
 
-    bool FoundObjectCallback(ezGameObject@ go)
+    bool FoundObjectCallback(WGameObject@ go)
     {
         target = go.GetHandle();
         return false;
     }
 
-    void Update(ezTime deltaTime)
+    void Update(WTime deltaTime)
     {
         if (Health <= 0)
             return;
@@ -61,51 +61,51 @@ class ScriptObject : ezAngelScriptClass
         if (gunSpawn.IsInvalidated())
             return;
 
-        ezGameObject@ owner = GetOwner();
+        WGameObject@ owner = GetOwner();
 
         target.Invalidate();
-        ezSpatial::FindObjectsInSphere("Player", owner.GetGlobalPosition(), 15, ReportObjectCB(FoundObjectCallback));
+        WSpatial::FindObjectsInSphere("Player", owner.GetGlobalPosition(), 15, ReportObjectCB(FoundObjectCallback));
 
-        ezGameObject@ targetObj;
+        WGameObject@ targetObj;
         if (!GetWorld().TryGetObject(target, @targetObj))
         {
-            SetUpdateInterval(ezTime::Milliseconds(500));
+            SetUpdateInterval(WTime::Milliseconds(500));
             return;
         }
 
-        ezVec3 dirToTarget = targetObj.GetGlobalPosition() - owner.GetGlobalPosition();
+        WVec3 dirToTarget = targetObj.GetGlobalPosition() - owner.GetGlobalPosition();
 
         const float distance = dirToTarget.GetLengthAndNormalize();
 
-        ezVec3 vHitPosition;
-        ezVec3 vHitNormal;
-        ezGameObjectHandle HitObject;
+        WVec3 vHitPosition;
+        WVec3 vHitNormal;
+        WGameObjectHandle HitObject;
 
-        if (ezPhysics::Raycast(vHitPosition, vHitNormal, HitObject, owner.GetGlobalPosition(), dirToTarget * distance, CollisionLayer, ezPhysicsShapeType::Static))
+        if (WPhysics::Raycast(vHitPosition, vHitNormal, HitObject, owner.GetGlobalPosition(), dirToTarget * distance, CollisionLayer, WPhysicsShapeType::Static))
         {
             // obstacle in the way
             return;
         }
 
-        SetUpdateInterval(ezTime::Milliseconds(50));
+        SetUpdateInterval(WTime::Milliseconds(50));
 
-        ezQuat targetRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), dirToTarget);
+        WQuat targetRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), dirToTarget);
 
-        ezQuat newRotation = ezQuat::MakeSlerp(owner.GetGlobalRotation(), targetRotation, 0.1);
+        WQuat newRotation = WQuat::MakeSlerp(owner.GetGlobalRotation(), targetRotation, 0.1);
 
         owner.SetGlobalRotation(newRotation);
 
         dirToTarget.Normalize();
 
-        if (dirToTarget.Dot(owner.GetGlobalDirForwards()) > ezMath::Cos(ezAngle::MakeFromDegree(15)))
+        if (dirToTarget.Dot(owner.GetGlobalDirForwards()) > WMath::Cos(WAngle::MakeFromDegree(15)))
         {
-            ezSpawnComponent@ gunSpawnComp;
+            WSpawnComponent@ gunSpawnComp;
             if (GetWorld().TryGetComponent(gunSpawn, @gunSpawnComp))
             {
-                auto spawned = gunSpawnComp.TriggerManualSpawn(false, ezVec3::MakeZero());;
+                auto spawned = gunSpawnComp.TriggerManualSpawn(false, WVec3::MakeZero());;
                 if (spawned)
                 {
-                    ezFmodEventComponent@ gunSoundComp;
+                    WFmodEventComponent@ gunSoundComp;
                     if (GetWorld().TryGetComponent(gunSound, @gunSoundComp))
                     {
                         gunSoundComp.StartOneShot();

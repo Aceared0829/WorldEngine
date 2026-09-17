@@ -3,7 +3,7 @@
     <file>RmlUi.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezRmlUiCanvas2DComponent.svg</file>
+    <file>WRmlUiCanvas2DComponent.svg</file>
   </qresource>
 </RCC>
 

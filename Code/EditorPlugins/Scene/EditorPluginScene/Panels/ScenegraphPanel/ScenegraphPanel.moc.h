@@ -3,32 +3,32 @@
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <Foundation/Basics.h>
 
-class ezQtSearchWidget;
-class ezQtDocumentTreeView;
-class ezSceneDocument;
-class ezScene2Document;
+class WQtSearchWidget;
+class WQtDocumentTreeView;
+class WSceneDocument;
+class WScene2Document;
 class QStackedWidget;
-struct ezScene2LayerEvent;
+struct WScene2LayerEvent;
 
-class ezQtScenegraphPanel : public ezQtDocumentPanel
+class WQtScenegraphPanel : public WQtDocumentPanel
 {
   Q_OBJECT
 
 public:
-  ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSceneDocument* pDocument);
-  ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument);
-  ~ezQtScenegraphPanel();
+  WQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, WSceneDocument* pDocument);
+  WQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, WScene2Document* pDocument);
+  ~WQtScenegraphPanel();
 
 private:
-  void LayerEventHandler(const ezScene2LayerEvent& e);
-  void LayerLoaded(const ezUuid& layerGuid);
-  void LayerUnloaded(const ezUuid& layerGuid);
-  void ActiveLayerChanged(const ezUuid& layerGuid);
+  void LayerEventHandler(const WScene2LayerEvent& e);
+  void LayerLoaded(const WUuid& layerGuid);
+  void LayerUnloaded(const WUuid& layerGuid);
+  void ActiveLayerChanged(const WUuid& layerGuid);
 
 private:
-  ezSceneDocument* m_pSceneDocument;
+  WSceneDocument* m_pSceneDocument;
   QStackedWidget* m_pStack = nullptr;
-  ezQtGameObjectWidget* m_pMainGameObjectWidget = nullptr;
-  ezEvent<const ezScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
-  ezMap<ezUuid, ezQtGameObjectWidget*> m_LayerWidgets;
+  WQtGameObjectWidget* m_pMainGameObjectWidget = nullptr;
+  WEvent<const WScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
+  WMap<WUuid, WQtGameObjectWidget*> m_LayerWidgets;
 };

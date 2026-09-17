@@ -4,7 +4,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-struct ezTexConvOutputType
+struct WTexConvOutputType
 {
   enum Enum
   {
@@ -18,10 +18,10 @@ struct ezTexConvOutputType
     Default = Texture2D
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
-struct ezTexConvCompressionMode
+struct WTexConvCompressionMode
 {
   enum Enum
   {
@@ -33,18 +33,18 @@ struct ezTexConvCompressionMode
     Default = Medium,
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvCompressionMode);
+W_DECLARE_REFLECTABLE_TYPE(W_TEXTURE_DLL, WTexConvCompressionMode);
 
-struct ezTexConvUsage
+struct WTexConvUsage
 {
   enum Enum
   {
     Auto, ///< Target format will be detected from heuristics (filename, content)
 
-    // Exact format will be decided together with ezTexConvCompressionMode
+    // Exact format will be decided together with WTexConvCompressionMode
 
     Color,
     Linear,
@@ -58,12 +58,12 @@ struct ezTexConvUsage
     Default = Auto
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvUsage);
+W_DECLARE_REFLECTABLE_TYPE(W_TEXTURE_DLL, WTexConvUsage);
 
-struct ezTexConvMipmapMode
+struct WTexConvMipmapMode
 {
   enum Enum
   {
@@ -74,12 +74,12 @@ struct ezTexConvMipmapMode
     Default = Kaiser
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvMipmapMode);
+W_DECLARE_REFLECTABLE_TYPE(W_TEXTURE_DLL, WTexConvMipmapMode);
 
-struct ezTexConvTargetPlatform
+struct WTexConvTargetPlatform
 {
   enum Enum
   {
@@ -89,11 +89,11 @@ struct ezTexConvTargetPlatform
     Default = PC
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };
 
 /// Defines which channel of another texture to read to get a value
-struct ezTexConvChannelValue
+struct WTexConvChannelValue
 {
   enum Enum
   {
@@ -108,7 +108,7 @@ struct ezTexConvChannelValue
 };
 
 /// Defines which filter kernel is used to approximate the x/y bump map gradients
-struct ezTexConvBumpMapFilter
+struct WTexConvBumpMapFilter
 {
   enum Enum
   {
@@ -119,5 +119,5 @@ struct ezTexConvBumpMapFilter
     Default = Finite
   };
 
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 };

@@ -4,30 +4,30 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezDocument;
+class WDocument;
 
-struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
+struct W_GUIFOUNDATION_DLL WActionMapDescriptor
 {
-  ezActionDescriptorHandle m_hAction; ///< Action to be mapped
-  ezString m_sPath;                   ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
+  WActionDescriptorHandle m_hAction; ///< Action to be mapped
+  WString m_sPath;                   ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
   float m_fOrder;                     ///< Ordering key to sort actions in the mapping path.
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezActionMapDescriptor);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WActionMapDescriptor);
 
 template <typename T>
-class ezTreeNode
+class WTreeNode
 {
 public:
-  ezTreeNode()
+  WTreeNode()
     : m_pParent(nullptr)
   {
   }
-  ezTreeNode(const T& data)
+  WTreeNode(const T& data)
     : m_Data(data)
     , m_pParent(nullptr)
   {
   }
-  ~ezTreeNode()
+  ~WTreeNode()
   {
     while (!m_Children.IsEmpty())
     {
@@ -35,50 +35,50 @@ public:
     }
   }
 
-  const ezUuid& GetGuid() const { return m_Guid; }
-  const ezTreeNode<T>* GetParent() const { return m_pParent; }
-  ezTreeNode<T>* GetParent() { return m_pParent; }
-  const ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() const { return m_Children; }
-  ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() { return m_Children; }
+  const WUuid& GetGuid() const { return m_Guid; }
+  const WTreeNode<T>* GetParent() const { return m_pParent; }
+  WTreeNode<T>* GetParent() { return m_pParent; }
+  const WHybridArray<WTreeNode<T>*, 8>& GetChildren() const { return m_Children; }
+  WHybridArray<WTreeNode<T>*, 8>& GetChildren() { return m_Children; }
 
-  ezTreeNode<T>* InsertChild(const T& data, ezUInt32 uiIndex)
+  WTreeNode<T>* InsertChild(const T& data, WUInt32 uiIndex)
   {
-    ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
-    pNode->m_Guid = ezUuid::MakeUuid();
+    WTreeNode<T>* pNode = W_DEFAULT_NEW(WTreeNode<T>, data);
+    pNode->m_Guid = WUuid::MakeUuid();
     m_Children.InsertAt(uiIndex, pNode);
     pNode->m_pParent = this;
     return pNode;
   }
 
-  bool RemoveChild(ezUInt32 uiIndex)
+  bool RemoveChild(WUInt32 uiIndex)
   {
     if (uiIndex > m_Children.GetCount())
       return false;
 
-    ezTreeNode<T>* pChild = m_Children[uiIndex];
+    WTreeNode<T>* pChild = m_Children[uiIndex];
     m_Children.RemoveAtAndCopy(uiIndex);
-    EZ_DEFAULT_DELETE(pChild);
+    W_DEFAULT_DELETE(pChild);
     return true;
   }
 
-  ezUInt32 GetParentIndex() const
+  WUInt32 GetParentIndex() const
   {
-    EZ_ASSERT_DEV(m_pParent != nullptr, "Can't compute parent index if no parent is present!");
-    for (ezUInt32 i = 0; i < m_pParent->GetChildren().GetCount(); i++)
+    W_ASSERT_DEV(m_pParent != nullptr, "Can't compute parent index if no parent is present!");
+    for (WUInt32 i = 0; i < m_pParent->GetChildren().GetCount(); i++)
     {
       if (m_pParent->GetChildren()[i] == this)
         return i;
     }
-    EZ_REPORT_FAILURE("Couldn't find oneself in own parent!");
+    W_REPORT_FAILURE("Couldn't find oneself in own parent!");
     return -1;
   }
 
   T m_Data;
-  ezUuid m_Guid;
+  WUuid m_Guid;
 
 private:
-  ezTreeNode<T>* m_pParent;
-  ezHybridArray<ezTreeNode<T>*, 8> m_Children;
+  WTreeNode<T>* m_pParent;
+  WHybridArray<WTreeNode<T>*, 8> m_Children;
 };
 
 /// Defines the structure of how actions are organized in a particular context.
@@ -86,7 +86,7 @@ private:
 /// Actions are usually commands that are exposed through UI.
 /// For instance a button in a toolbar or a menu entry.
 ///
-/// Actions are unique. Each action only exists once in ezActionManager.
+/// Actions are unique. Each action only exists once in WActionManager.
 ///
 /// An action map defines where in a menu an action shows up.
 /// Actions are usually grouped by categories. So for example all actions related to opening, closing
@@ -97,13 +97,13 @@ private:
 /// For example, usually there is one action map for a window menu, and another map for a toolbar.
 /// These will contain different actions, and they are organized differently.
 ///
-/// Action maps are created through ezActionMapManager and are simply identified by name.
-class EZ_GUIFOUNDATION_DLL ezActionMap
+/// Action maps are created through WActionMapManager and are simply identified by name.
+class W_GUIFOUNDATION_DLL WActionMap
 {
 public:
-  using TreeNode = ezTreeNode<ezActionMapDescriptor>;
-  ezActionMap(ezStringView sParentMapping);
-  ~ezActionMap();
+  using TreeNode = WTreeNode<WActionMapDescriptor>;
+  WActionMap(WStringView sParentMapping);
+  ~WActionMap();
 
   /// Adds the given action to into the category or menu identified by sPath.
   ///
@@ -114,7 +114,7 @@ public:
   /// This is common for top-level menus and for toolbars.
   ///
   /// If sPath is a fully qualified path, the segments are separated by slashes (/)
-  /// and each segment must name either a category (see EZ_REGISTER_CATEGORY) or a menu (see EZ_REGISTER_MENU).
+  /// and each segment must name either a category (see W_REGISTER_CATEGORY) or a menu (see W_REGISTER_MENU).
   ///
   /// sPath may also name a category or menu WITHOUT it being a full path. In this case the name must be unique.
   /// If sPath isn't empty and doesn't contain a slash, the system searches all available actions that are already in the action map.
@@ -125,57 +125,57 @@ public:
   ///
   /// To make it easier to use 'global' category names combined with an additional relative path, there is an overload of this function
   /// that takes an additional sSubPath argument.
-  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder);
+  void MapAction(WActionDescriptorHandle hAction, WStringView sPath, float fOrder);
 
   /// An overload of MapAction that takes a dedicated sPath and sSubPath argument for convenience.
   ///
   /// If sPath is a 'global' name of a category, it is searched for (see SearchPathForAction()).
   /// Afterwards sSubPath is appended and the result is forwarded to MapAction() as a single path string.
-  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
+  void MapAction(WActionDescriptorHandle hAction, WStringView sPath, WStringView sSubPath, float fOrder);
 
   /// Hides an action from the action map. The same rules for 'global' names apply as for MapAction().
   /// If the target action is in this mapping, prefer not calling MapAction in the first place. Use this for actions to be removed that might be in a parent mapping and thus can't be modified directly.
-  void HideAction(ezActionDescriptorHandle hAction, ezStringView sPath);
+  void HideAction(WActionDescriptorHandle hAction, WStringView sPath);
 
   /// Builds an action tree out of all mapped actions of this and any parent mappings.
   const TreeNode* BuildActionTree();
-  const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
+  const WActionMapDescriptor* GetDescriptor(const WTreeNode<WActionMapDescriptor>* pObject) const;
 
 private:
   struct TempActionMapDescriptor
   {
-    ezActionDescriptorHandle m_hAction;
-    ezString m_sPath;
-    ezString m_sSubPath;
+    WActionDescriptorHandle m_hAction;
+    WString m_sPath;
+    WString m_sSubPath;
     float m_fOrder;
   };
 
   /// Searches for an action with the given name and returns the full path to it.
   ///
   /// This is mainly meant to be used with (unique) names to categories (or menus).
-  ezResult SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const;
+  WResult SearchPathForAction(WStringView sUniqueName, WStringBuilder& out_sPath) const;
 
-  void MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder);
-  void MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
-  ezResult UnmapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath);
+  void MapActionInternal(WActionDescriptorHandle hAction, WStringView sPath, float fOrder);
+  void MapActionInternal(WActionDescriptorHandle hAction, WStringView sPath, WStringView sSubPath, float fOrder);
+  WResult UnmapActionInternal(WActionDescriptorHandle hAction, WStringView sPath);
 
-  ezUuid MapActionInternal(const ezActionMapDescriptor& desc);
-  ezResult UnmapActionInternal(const ezActionMapDescriptor& desc);
-  ezResult UnmapActionInternal(const ezUuid& guid);
+  WUuid MapActionInternal(const WActionMapDescriptor& desc);
+  WResult UnmapActionInternal(const WActionMapDescriptor& desc);
+  WResult UnmapActionInternal(const WUuid& guid);
 
-  const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
+  const WActionMapDescriptor* GetDescriptor(const WUuid& guid) const;
 
-  bool FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const;
-  bool FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const;
-  const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const;
+  bool FindObjectByPath(WStringView sPath, WUuid& out_guid) const;
+  bool FindObjectPathByName(const WTreeNode<WActionMapDescriptor>* pObject, WStringView sName, WStringBuilder& out_sPath) const;
+  const WTreeNode<WActionMapDescriptor>* GetChildByName(const WTreeNode<WActionMapDescriptor>* pObject, WStringView sName) const;
 
 private:
-  ezString m_sParentMapping;
-  ezDynamicArray<TempActionMapDescriptor> m_TempActions;
-  ezDynamicArray<TempActionMapDescriptor> m_TempHiddenActions;
-  ezUInt32 m_uiEditCounter = 0;
+  WString m_sParentMapping;
+  WDynamicArray<TempActionMapDescriptor> m_TempActions;
+  WDynamicArray<TempActionMapDescriptor> m_TempHiddenActions;
+  WUInt32 m_uiEditCounter = 0;
 
-  mutable ezUInt32 m_uiTransitiveEditCounterOfRoot = 0;
+  mutable WUInt32 m_uiTransitiveEditCounterOfRoot = 0;
   mutable TreeNode m_Root;
-  mutable ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
+  mutable WMap<WUuid, WTreeNode<WActionMapDescriptor>*> m_Descriptors;
 };

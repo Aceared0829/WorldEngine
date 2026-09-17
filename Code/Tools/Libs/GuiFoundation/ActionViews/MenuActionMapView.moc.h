@@ -7,32 +7,32 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 class QWidget;
-class ezActionMap;
+class WActionMap;
 class QAction;
-class ezQtProxy;
+class WQtProxy;
 
 
-class EZ_GUIFOUNDATION_DLL ezQtMenuActionMapView : public QMenu
+class W_GUIFOUNDATION_DLL WQtMenuActionMapView : public QMenu
 {
   Q_OBJECT
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezQtMenuActionMapView);
+  W_DISALLOW_COPY_AND_ASSIGN(WQtMenuActionMapView);
 
 public:
-  explicit ezQtMenuActionMapView(QWidget* pParent);
-  ~ezQtMenuActionMapView();
+  explicit WQtMenuActionMapView(QWidget* pParent);
+  ~WQtMenuActionMapView();
 
-  void SetActionContext(const ezActionContext& context);
+  void SetActionContext(const WActionContext& context);
 
-  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& ref_proxies, ezActionContext& ref_context, ezActionMap* pActionMap,
-    QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject);
+  static void AddDocumentObjectToMenu(WHashTable<WUuid, QSharedPointer<WQtProxy>>& ref_proxies, WActionContext& ref_context, WActionMap* pActionMap,
+    QMenu* pCurrentRoot, const WActionMap::TreeNode* pObject);
 
 private:
   void ClearView();
   void CreateView();
 
 private:
-  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;
+  WHashTable<WUuid, QSharedPointer<WQtProxy>> m_Proxies;
 
-  ezActionContext m_Context;
-  ezActionMap* m_pActionMap;
+  WActionContext m_Context;
+  WActionMap* m_pActionMap;
 };

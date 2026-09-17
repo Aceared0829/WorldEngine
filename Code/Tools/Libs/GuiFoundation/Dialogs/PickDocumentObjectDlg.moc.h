@@ -5,23 +5,23 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_PickDocumentObjectDlg.h>
 
-class ezDocumentObject;
+class WDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtPickDocumentObjectDlg : public ezQtDialog, public Ui_PickDocumentObjectDlg
+class W_GUIFOUNDATION_DLL WQtPickDocumentObjectDlg : public WQtDialog, public Ui_PickDocumentObjectDlg
 {
   Q_OBJECT
 
 public:
   struct Element
   {
-    const ezDocumentObject* m_pObject;
-    ezString m_sDisplayName;
+    const WDocumentObject* m_pObject;
+    WString m_sDisplayName;
   };
 
-  ezQtPickDocumentObjectDlg(QWidget* pParent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject);
+  WQtPickDocumentObjectDlg(QWidget* pParent, const WArrayPtr<Element>& objects, const WUuid& currentObject);
 
   /// Stores the result that the user picked
-  const ezDocumentObject* m_pPickedObject = nullptr;
+  const WDocumentObject* m_pPickedObject = nullptr;
 
 private Q_SLOTS:
   void on_ObjectTree_itemDoubleClicked(QTreeWidgetItem* pItem, int column);
@@ -29,6 +29,6 @@ private Q_SLOTS:
 private:
   void UpdateTable();
 
-  ezArrayPtr<Element> m_Objects;
-  ezUuid m_CurrentObject;
+  WArrayPtr<Element> m_Objects;
+  WUuid m_CurrentObject;
 };

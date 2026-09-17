@@ -2,7 +2,7 @@
 
 #include "BaseParticleShaderData.h"
 
-struct EZ_SHADER_STRUCT ezTangentQuadParticleShaderData
+struct W_SHADER_STRUCT WTangentQuadParticleShaderData
 {
   FLOAT3(Position);
   FLOAT1(dummy1);
@@ -15,12 +15,12 @@ struct EZ_SHADER_STRUCT ezTangentQuadParticleShaderData
 };
 
 // this is only defined during shader compilation
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezTangentQuadParticleShaderData> particleTangentQuadData BIND_GROUP(BG_DRAW_CALL);
+StructuredBuffer<WTangentQuadParticleShaderData> particleTangentQuadData BIND_GROUP(BG_DRAW_CALL);
 
 #else // C++
 
-static_assert(sizeof(ezTangentQuadParticleShaderData) == 48);
+static_assert(sizeof(WTangentQuadParticleShaderData) == 48);
 
 #endif

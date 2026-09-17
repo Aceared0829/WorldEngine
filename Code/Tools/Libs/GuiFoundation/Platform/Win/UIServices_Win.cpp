@@ -1,6 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <GuiFoundation/UIServices/UIServices.moc.h>
 #  include <ToolsFoundation/Application/ApplicationServices.h>
@@ -9,25 +9,25 @@
 #  include <Foundation/IO/OSFile.h>
 #  include <ShlObj_core.h>
 
-void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
+void WQtUiServices::OpenInExplorer(WStringView sPath, bool bIsFile)
 {
   QStringList args;
 
   if (bIsFile)
     args << "/select,";
 
-  args << QDir::toNativeSeparators(ezMakeQString(sPath));
+  args << QDir::toNativeSeparators(WMakeQString(sPath));
 
   QProcess::startDetached("explorer", args);
 }
 
-void ezQtUiServices::OpenWith(ezStringView sPath0)
+void WQtUiServices::OpenWith(WStringView sPath0)
 {
-  ezStringBuilder sPath = sPath0;
+  WStringBuilder sPath = sPath0;
   sPath.MakeCleanPath();
   sPath.MakePathSeparatorsNative();
 
-  ezStringWChar wpath(sPath);
+  WStringWChar wpath(sPath);
   OPENASINFO oi;
   oi.pcszFile = wpath.GetData();
   oi.pcszClass = NULL;
@@ -35,17 +35,17 @@ void ezQtUiServices::OpenWith(ezStringView sPath0)
   SHOpenWithDialog(NULL, &oi);
 }
 
-ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
+WStatus WQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
   QString sVsCodeExe;
 
   {
-    ezStringBuilder sDstDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WStringBuilder sDstDir = WToolsProject::GetSingleton()->GetProjectDirectory();
     sDstDir.AppendPath(".vscode");
 
-    ezStringBuilder sSrcDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    WStringBuilder sSrcDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
     sSrcDir.AppendPath("VSC");
-    ezOSFile::CopyFolder(sSrcDir, sDstDir).IgnoreResult();
+    WOSFile::CopyFolder(sSrcDir, sDstDir).IgnoreResult();
   }
 
   sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
@@ -71,7 +71,7 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
     }
     else
     {
-      return ezStatus("Installation of Visual Studio Code could not be located.\n"
+      return WStatus("Installation of Visual Studio Code could not be located.\n"
                       "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
     }
   }
@@ -79,10 +79,10 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
   QProcess proc;
   if (proc.startDetached(sVsCodeExe, arguments) == false)
   {
-    return ezStatus("Failed to launch Visual Studio Code.");
+    return WStatus("Failed to launch Visual Studio Code.");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 

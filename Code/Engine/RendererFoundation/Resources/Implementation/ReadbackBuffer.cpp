@@ -2,9 +2,9 @@
 
 #include <RendererFoundation/Resources/ReadbackBuffer.h>
 
-ezGALReadbackBuffer::ezGALReadbackBuffer(const ezGALBufferCreationDescription& Description)
-  : ezGALResource(Description)
+WGALReadbackBuffer::WGALReadbackBuffer(const WGALBufferCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALReadbackBuffer::~ezGALReadbackBuffer() = default;
+WGALReadbackBuffer::~WGALReadbackBuffer() = default;

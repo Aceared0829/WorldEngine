@@ -5,138 +5,138 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromNodeDataType(const ezVisualScriptPin& pin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromNodeDataType(const WVisualScriptPin& pin)
 {
   auto pObject = pin.GetParent();
-  auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->GetDeductedType(pObject);
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromTypeProperty(const ezVisualScriptPin& pin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromTypeProperty(const WVisualScriptPin& pin)
 {
   if (auto pType = GetReflectedType(pin.GetParent()))
   {
-    return ezVisualScriptDataType::FromRtti(pType);
+    return WVisualScriptDataType::FromRtti(pType);
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionInput(const ezVisualScriptPin& pin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromExpressionInput(const WVisualScriptPin& pin)
 {
   return DeductFromExpressionVariable(pin, "Inputs");
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionOutput(const ezVisualScriptPin& pin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromExpressionOutput(const WVisualScriptPin& pin)
 {
   return DeductFromExpressionVariable(pin, "Outputs");
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromAllInputPins(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromAllInputPins(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin)
 {
-  auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
 
-  ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid;
+  WVisualScriptDataType::Enum deductedType = WVisualScriptDataType::Invalid;
 
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
   pManager->GetInputDataPins(pObject, pins);
   for (auto pPin : pins)
   {
-    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
+    if (pPin->GetScriptDataType() != WVisualScriptDataType::Any)
       continue;
 
     // the pin is about to be disconnected so we ignore it here
     if (pPin == pDisconnectedPin)
       continue;
 
-    ezVisualScriptDataType::Enum pinDataType = ezVisualScriptDataType::Invalid;
+    WVisualScriptDataType::Enum pinDataType = WVisualScriptDataType::Invalid;
     auto connections = pManager->GetConnections(*pPin);
     if (connections.IsEmpty() == false)
     {
-      pinDataType = static_cast<const ezVisualScriptPin&>(connections[0]->GetSourcePin()).GetResolvedScriptDataType();
+      pinDataType = static_cast<const WVisualScriptPin&>(connections[0]->GetSourcePin()).GetResolvedScriptDataType();
     }
     else
     {
-      ezVariant var = pObject->GetTypeAccessor().GetValue(pPin->GetName());
-      pinDataType = ezVisualScriptDataType::FromVariantType(var.GetType());
+      WVariant var = pObject->GetTypeAccessor().GetValue(pPin->GetName());
+      pinDataType = WVisualScriptDataType::FromVariantType(var.GetType());
     }
 
-    deductedType = ezMath::Max(deductedType, pinDataType);
+    deductedType = WMath::Max(deductedType, pinDataType);
   }
 
   return deductedType;
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromVariableNameProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromVariableNameProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin)
 {
   auto nameVar = pObject->GetTypeAccessor().GetValue("Name");
-  if (nameVar.IsA<ezString>())
+  if (nameVar.IsA<WString>())
   {
-    auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
-    return pManager->GetVariableType(ezTempHashedString(nameVar.Get<ezString>()));
+    auto pManager = static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+    return pManager->GetVariableType(WTempHashedString(nameVar.Get<WString>()));
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromScriptDataTypeProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromScriptDataTypeProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin)
 {
   auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
-  if (typeVar.IsA<ezInt64>())
+  if (typeVar.IsA<WInt64>())
   {
-    return static_cast<ezVisualScriptDataType::Enum>(typeVar.Get<ezInt64>());
+    return static_cast<WVisualScriptDataType::Enum>(typeVar.Get<WInt64>());
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromPropertyProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromPropertyProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin)
 {
   if (auto pProperty = GetReflectedProperty(pObject))
   {
-    return ezVisualScriptDataType::FromRtti(pProperty->GetSpecificType());
+    return WVisualScriptDataType::FromRtti(pProperty->GetSpecificType());
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductDummy(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductDummy(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin)
 {
   // nothing to do here
-  return ezVisualScriptDataType::Float;
+  return WVisualScriptDataType::Float;
 }
 
 // static
-const ezRTTI* ezVisualScriptTypeDeduction::GetReflectedType(const ezDocumentObject* pObject)
+const WRTTI* WVisualScriptTypeDeduction::GetReflectedType(const WDocumentObject* pObject)
 {
   auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
-  if (typeVar.IsA<ezString>() == false)
+  if (typeVar.IsA<WString>() == false)
     return nullptr;
 
-  const ezString& sTypeName = typeVar.Get<ezString>();
+  const WString& sTypeName = typeVar.Get<WString>();
   if (sTypeName.IsEmpty())
     return nullptr;
 
-  const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
-  if (pType == nullptr && sTypeName.StartsWith("ez") == false)
+  const WRTTI* pType = WRTTI::FindTypeByName(sTypeName);
+  if (pType == nullptr && sTypeName.StartsWith("W") == false)
   {
-    ezStringBuilder sFullTypeName;
-    sFullTypeName.Set("ez", typeVar.Get<ezString>());
-    pType = ezRTTI::FindTypeByName(sFullTypeName);
+    WStringBuilder sFullTypeName;
+    sFullTypeName.Set("W", typeVar.Get<WString>());
+    pType = WRTTI::FindTypeByName(sFullTypeName);
   }
 
   if (pType == nullptr)
   {
-    ezLog::Error("'{}' is not a valid type", typeVar.Get<ezString>());
+    WLog::Error("'{}' is not a valid type", typeVar.Get<WString>());
     return nullptr;
   }
 
@@ -144,25 +144,25 @@ const ezRTTI* ezVisualScriptTypeDeduction::GetReflectedType(const ezDocumentObje
 }
 
 // static
-const ezAbstractProperty* ezVisualScriptTypeDeduction::GetReflectedProperty(const ezDocumentObject* pObject)
+const WAbstractProperty* WVisualScriptTypeDeduction::GetReflectedProperty(const WDocumentObject* pObject)
 {
   auto pType = GetReflectedType(pObject);
   if (pType == nullptr)
     return nullptr;
 
   auto propertyVar = pObject->GetTypeAccessor().GetValue("Property");
-  if (propertyVar.IsA<ezString>() == false)
+  if (propertyVar.IsA<WString>() == false)
     return nullptr;
 
-  const ezString& sPropertyName = propertyVar.Get<ezString>();
+  const WString& sPropertyName = propertyVar.Get<WString>();
   if (sPropertyName.IsEmpty())
     return nullptr;
 
-  const ezAbstractProperty* pProperty = pType->FindPropertyByName(propertyVar.Get<ezString>());
+  const WAbstractProperty* pProperty = pType->FindPropertyByName(propertyVar.Get<WString>());
 
   if (pProperty == nullptr)
   {
-    ezLog::Error("'{}' is not a valid property of '{}'", propertyVar.Get<ezString>(), pType->GetTypeName());
+    WLog::Error("'{}' is not a valid property of '{}'", propertyVar.Get<WString>(), pType->GetTypeName());
     return nullptr;
   }
 
@@ -170,26 +170,26 @@ const ezAbstractProperty* ezVisualScriptTypeDeduction::GetReflectedProperty(cons
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionVariable(const ezVisualScriptPin& pin, ezStringView sPropertyName)
+WVisualScriptDataType::Enum WVisualScriptTypeDeduction::DeductFromExpressionVariable(const WVisualScriptPin& pin, WStringView sPropertyName)
 {
   auto pObject = pin.GetParent();
 
-  ezVariant varList = pObject->GetTypeAccessor().GetValue(sPropertyName);
-  if (varList.IsA<ezVariantArray>() == false)
-    return ezVisualScriptDataType::Invalid;
+  WVariant varList = pObject->GetTypeAccessor().GetValue(sPropertyName);
+  if (varList.IsA<WVariantArray>() == false)
+    return WVisualScriptDataType::Invalid;
 
-  ezVariant var = varList[pin.GetDataPinIndex()];
-  if (var.IsA<ezUuid>() == false)
-    return ezVisualScriptDataType::Invalid;
+  WVariant var = varList[pin.GetDataPinIndex()];
+  if (var.IsA<WUuid>() == false)
+    return WVisualScriptDataType::Invalid;
 
-  const ezDocumentObject* pVarObject = pObject->GetDocumentObjectManager()->GetObject(var.Get<ezUuid>());
+  const WDocumentObject* pVarObject = pObject->GetDocumentObjectManager()->GetObject(var.Get<WUuid>());
   if (pVarObject == nullptr)
-    return ezVisualScriptDataType::Invalid;
+    return WVisualScriptDataType::Invalid;
 
-  ezVariant typeVar = pVarObject->GetTypeAccessor().GetValue("Type");
-  if (typeVar.IsA<ezInt64>() == false)
-    return ezVisualScriptDataType::Invalid;
+  WVariant typeVar = pVarObject->GetTypeAccessor().GetValue("Type");
+  if (typeVar.IsA<WInt64>() == false)
+    return WVisualScriptDataType::Invalid;
 
-  auto expressionDataType = static_cast<ezVisualScriptExpressionDataType::Enum>(typeVar.Get<ezInt64>());
-  return ezVisualScriptExpressionDataType::GetVisualScriptDataType(expressionDataType);
+  auto expressionDataType = static_cast<WVisualScriptExpressionDataType::Enum>(typeVar.Get<WInt64>());
+  return WVisualScriptExpressionDataType::GetVisualScriptDataType(expressionDataType);
 }

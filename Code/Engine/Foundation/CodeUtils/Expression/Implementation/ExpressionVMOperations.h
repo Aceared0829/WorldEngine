@@ -8,31 +8,31 @@ namespace
 {
   struct ExecutionContext
   {
-    ezExpression::Register* m_pRegisters = nullptr;
-    ezUInt32 m_uiNumInstances = 0;
-    ezUInt32 m_uiNumSimd4Instances = 0;
-    ezArrayPtr<const ezProcessingStream*> m_Inputs;
-    ezArrayPtr<ezProcessingStream*> m_Outputs;
-    ezArrayPtr<const ezExpressionFunction*> m_Functions;
-    const ezExpression::GlobalData* m_pGlobalData = nullptr;
+    WExpression::Register* m_pRegisters = nullptr;
+    WUInt32 m_uiNumInstances = 0;
+    WUInt32 m_uiNumSimd4Instances = 0;
+    WArrayPtr<const WProcessingStream*> m_Inputs;
+    WArrayPtr<WProcessingStream*> m_Outputs;
+    WArrayPtr<const WExpressionFunction*> m_Functions;
+    const WExpression::GlobalData* m_pGlobalData = nullptr;
   };
 
-  using ByteCodeType = ezExpressionByteCode::StorageType;
+  using ByteCodeType = WExpressionByteCode::StorageType;
   using OpFunc = void (*)(const ByteCodeType*& pByteCode, ExecutionContext& context);
 
 #define DEFINE_TARGET_REGISTER()                                                                                                        \
-  ezExpression::Register* r = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances; \
-  ezExpression::Register* re = r + context.m_uiNumSimd4Instances;                                                                       \
-  EZ_IGNORE_UNUSED(re);
+  WExpression::Register* r = context.m_pRegisters + WExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances; \
+  WExpression::Register* re = r + context.m_uiNumSimd4Instances;                                                                       \
+  W_IGNORE_UNUSED(re);
 
 #define DEFINE_OP_REGISTER(name) \
-  const ezExpression::Register* name = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances;
+  const WExpression::Register* name = context.m_pRegisters + WExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances;
 
 #define DEFINE_CONSTANT(name)                                                      \
-  const ezUInt32 EZ_PP_CONCAT(name, Raw) = *pByteCode;                             \
-  EZ_IGNORE_UNUSED(EZ_PP_CONCAT(name, Raw));                                       \
-  const ezExpression::Register tmp = ezExpressionByteCode::GetConstant(pByteCode); \
-  const ezExpression::Register* name = &tmp;
+  const WUInt32 W_PP_CONCAT(name, Raw) = *pByteCode;                             \
+  W_IGNORE_UNUSED(W_PP_CONCAT(name, Raw));                                       \
+  const WExpression::Register tmp = WExpressionByteCode::GetConstant(pByteCode); \
+  const WExpression::Register* name = &tmp;
 
 #define UNARY_OP_INNER_LOOP(code) \
   code;                           \
@@ -40,7 +40,7 @@ namespace
   ++a;
 
 #define DEFINE_UNARY_OP(name, code)                                                      \
-  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
+  void W_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
   {                                                                                      \
     DEFINE_TARGET_REGISTER();                                                            \
     DEFINE_OP_REGISTER(a);                                                               \
@@ -61,24 +61,24 @@ namespace
 
 #define DEFINE_BINARY_OP(name, code)                                                                                \
   template <bool RightIsConstant>                                                                                   \
-  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context)                            \
+  void W_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context)                            \
   {                                                                                                                 \
     DEFINE_TARGET_REGISTER();                                                                                       \
     DEFINE_OP_REGISTER(a);                                                                                          \
-    ezUInt32 bRaw;                                                                                                  \
-    EZ_IGNORE_UNUSED(bRaw);                                                                                         \
-    ezExpression::Register bConstant;                                                                               \
-    const ezExpression::Register* b;                                                                                \
-    EZ_IGNORE_UNUSED(b);                                                                                            \
+    WUInt32 bRaw;                                                                                                  \
+    W_IGNORE_UNUSED(bRaw);                                                                                         \
+    WExpression::Register bConstant;                                                                               \
+    const WExpression::Register* b;                                                                                \
+    W_IGNORE_UNUSED(b);                                                                                            \
     if constexpr (RightIsConstant)                                                                                  \
     {                                                                                                               \
       bRaw = *pByteCode;                                                                                            \
-      bConstant = ezExpressionByteCode::GetConstant(pByteCode);                                                     \
+      bConstant = WExpressionByteCode::GetConstant(pByteCode);                                                     \
       b = &bConstant;                                                                                               \
     }                                                                                                               \
     else                                                                                                            \
     {                                                                                                               \
-      b = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances; \
+      b = context.m_pRegisters + WExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances; \
     }                                                                                                               \
     while (r != re)                                                                                                 \
     {                                                                                                               \
@@ -94,7 +94,7 @@ namespace
   ++c;
 
 #define DEFINE_TERNARY_OP(name, code)                                                    \
-  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
+  void W_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
   {                                                                                      \
     DEFINE_TARGET_REGISTER();                                                            \
     DEFINE_OP_REGISTER(a);                                                               \
@@ -110,20 +110,20 @@ namespace
   DEFINE_UNARY_OP(AbsI, r->i = a->i.Abs());
   DEFINE_UNARY_OP(SqrtF, r->f = a->f.GetSqrt());
 
-  DEFINE_UNARY_OP(ExpF, r->f = ezSimdMath::Exp(a->f));
-  DEFINE_UNARY_OP(LnF, r->f = ezSimdMath::Ln(a->f));
-  DEFINE_UNARY_OP(Log2F, r->f = ezSimdMath::Log2(a->f));
-  DEFINE_UNARY_OP(Log2I, r->i = ezSimdMath::Log2i(a->i));
-  DEFINE_UNARY_OP(Log10F, r->f = ezSimdMath::Log10(a->f));
-  DEFINE_UNARY_OP(Pow2F, r->f = ezSimdMath::Pow2(a->f));
+  DEFINE_UNARY_OP(ExpF, r->f = WSimdMath::Exp(a->f));
+  DEFINE_UNARY_OP(LnF, r->f = WSimdMath::Ln(a->f));
+  DEFINE_UNARY_OP(Log2F, r->f = WSimdMath::Log2(a->f));
+  DEFINE_UNARY_OP(Log2I, r->i = WSimdMath::Log2i(a->i));
+  DEFINE_UNARY_OP(Log10F, r->f = WSimdMath::Log10(a->f));
+  DEFINE_UNARY_OP(Pow2F, r->f = WSimdMath::Pow2(a->f));
 
-  DEFINE_UNARY_OP(SinF, r->f = ezSimdMath::Sin(a->f));
-  DEFINE_UNARY_OP(CosF, r->f = ezSimdMath::Cos(a->f));
-  DEFINE_UNARY_OP(TanF, r->f = ezSimdMath::Tan(a->f));
+  DEFINE_UNARY_OP(SinF, r->f = WSimdMath::Sin(a->f));
+  DEFINE_UNARY_OP(CosF, r->f = WSimdMath::Cos(a->f));
+  DEFINE_UNARY_OP(TanF, r->f = WSimdMath::Tan(a->f));
 
-  DEFINE_UNARY_OP(ASinF, r->f = ezSimdMath::ASin(a->f));
-  DEFINE_UNARY_OP(ACosF, r->f = ezSimdMath::ACos(a->f));
-  DEFINE_UNARY_OP(ATanF, r->f = ezSimdMath::ATan(a->f));
+  DEFINE_UNARY_OP(ASinF, r->f = WSimdMath::ASin(a->f));
+  DEFINE_UNARY_OP(ACosF, r->f = WSimdMath::ACos(a->f));
+  DEFINE_UNARY_OP(ATanF, r->f = WSimdMath::ATan(a->f));
 
   DEFINE_UNARY_OP(RoundF, r->f = a->f.Round());
   DEFINE_UNARY_OP(FloorF, r->f = a->f.Floor());
@@ -134,7 +134,7 @@ namespace
   DEFINE_UNARY_OP(NotB, r->b = !a->b);
 
   DEFINE_UNARY_OP(IToF, r->f = a->i.ToFloat());
-  DEFINE_UNARY_OP(FToI, r->i = ezSimdVec4i::Truncate(a->f));
+  DEFINE_UNARY_OP(FToI, r->i = WSimdVec4i::Truncate(a->f));
 
   DEFINE_BINARY_OP(AddF, r->f = a->f + b->f);
   DEFINE_BINARY_OP(AddI, r->i = a->i + b->i);
@@ -185,9 +185,9 @@ namespace
   DEFINE_BINARY_OP(AndB, r->b = a->b && b->b);
   DEFINE_BINARY_OP(OrB, r->b = a->b || b->b);
 
-  DEFINE_TERNARY_OP(SelF, r->f = ezSimdVec4f::Select(a->b, b->f, c->f));
-  DEFINE_TERNARY_OP(SelI, r->i = ezSimdVec4i::Select(a->b, b->i, c->i));
-  DEFINE_TERNARY_OP(SelB, r->b = ezSimdVec4b::Select(a->b, b->b, c->b));
+  DEFINE_TERNARY_OP(SelF, r->f = WSimdVec4f::Select(a->b, b->f, c->f));
+  DEFINE_TERNARY_OP(SelI, r->i = WSimdVec4i::Select(a->b, b->i, c->i));
+  DEFINE_TERNARY_OP(SelB, r->b = WSimdVec4b::Select(a->b, b->b, c->b));
 
   void VM_MovX_R_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
@@ -203,8 +203,8 @@ namespace
 
   void VM_MovX_C_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_MSVC(4189)
+    W_WARNING_PUSH()
+    W_WARNING_DISABLE_MSVC(4189)
 
     DEFINE_TARGET_REGISTER();
     DEFINE_CONSTANT(a);
@@ -214,11 +214,11 @@ namespace
       ++r;
     }
 
-    EZ_WARNING_POP()
+    W_WARNING_POP()
   }
 
   template <typename ValueType, typename StreamType>
-  EZ_ALWAYS_INLINE ValueType ReadInputData(const ezUInt8*& ref_pData, ezUInt32 uiStride)
+  W_ALWAYS_INLINE ValueType ReadInputData(const WUInt8*& ref_pData, WUInt32 uiStride)
   {
     ValueType value = *reinterpret_cast<const StreamType*>(ref_pData);
     ref_pData += uiStride;
@@ -226,10 +226,10 @@ namespace
   }
 
   template <typename RegisterType, typename ValueType, typename StreamType>
-  void LoadInput(RegisterType* r, RegisterType* pRe, const ezProcessingStream& input, ezUInt32 uiNumRemainderInstances)
+  void LoadInput(RegisterType* r, RegisterType* pRe, const WProcessingStream& input, WUInt32 uiNumRemainderInstances)
   {
-    const ezUInt8* pInputData = input.GetData<ezUInt8>();
-    const ezUInt32 uiByteStride = input.GetElementStride();
+    const WUInt8* pInputData = input.GetData<WUInt8>();
+    const WUInt32 uiByteStride = input.GetElementStride();
 
     if (uiByteStride == sizeof(ValueType) && std::is_same<ValueType, StreamType>::value)
     {
@@ -269,17 +269,17 @@ namespace
   }
 
   template <typename ValueType, typename StreamType>
-  EZ_ALWAYS_INLINE void StoreOutputData(ezUInt8*& ref_pData, ezUInt32 uiStride, ValueType value)
+  W_ALWAYS_INLINE void StoreOutputData(WUInt8*& ref_pData, WUInt32 uiStride, ValueType value)
   {
     *reinterpret_cast<StreamType*>(ref_pData) = static_cast<StreamType>(value);
     ref_pData += uiStride;
   }
 
   template <typename RegisterType, typename ValueType, typename StreamType>
-  void StoreOutput(RegisterType* r, RegisterType* pRe, ezProcessingStream& ref_output, ezUInt32 uiNumRemainderInstances)
+  void StoreOutput(RegisterType* r, RegisterType* pRe, WProcessingStream& ref_output, WUInt32 uiNumRemainderInstances)
   {
-    ezUInt8* pOutputData = ref_output.GetWritableData<ezUInt8>();
-    const ezUInt32 uiByteStride = ref_output.GetElementStride();
+    WUInt8* pOutputData = ref_output.GetWritableData<WUInt8>();
+    const WUInt32 uiByteStride = ref_output.GetElementStride();
 
     if (uiByteStride == sizeof(ValueType) && std::is_same<ValueType, StreamType>::value)
     {
@@ -312,7 +312,7 @@ namespace
       ValueType x[4];
       r->template Store<4>(x);
 
-      for (ezUInt32 i = 0; i < uiNumRemainderInstances; ++i)
+      for (WUInt32 i = 0; i < uiNumRemainderInstances; ++i)
       {
         StoreOutputData<ValueType, StreamType>(pOutputData, uiByteStride, x[i]);
       }
@@ -321,57 +321,57 @@ namespace
 
   void VM_LoadF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
+    const WUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
     DEFINE_TARGET_REGISTER();
     if (uiNumRemainderInstances > 0)
       --re;
 
-    const ezUInt32 uiInputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    const WUInt32 uiInputIndex = WExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& input = *context.m_Inputs[uiInputIndex];
 
-    if (input.GetDataType() == ezProcessingStream::DataType::Float)
+    if (input.GetDataType() == WProcessingStream::DataType::Float)
     {
-      LoadInput<ezSimdVec4f, float, float>(reinterpret_cast<ezSimdVec4f*>(r), reinterpret_cast<ezSimdVec4f*>(re), input, uiNumRemainderInstances);
+      LoadInput<WSimdVec4f, float, float>(reinterpret_cast<WSimdVec4f*>(r), reinterpret_cast<WSimdVec4f*>(re), input, uiNumRemainderInstances);
     }
     else
     {
-      EZ_ASSERT_DEBUG(input.GetDataType() == ezProcessingStream::DataType::Half, "Unsupported input type '{}' for LoadF instruction", ezProcessingStream::GetDataTypeName(input.GetDataType()));
-      LoadInput<ezSimdVec4f, float, ezFloat16>(reinterpret_cast<ezSimdVec4f*>(r), reinterpret_cast<ezSimdVec4f*>(re), input, uiNumRemainderInstances);
+      W_ASSERT_DEBUG(input.GetDataType() == WProcessingStream::DataType::Half, "Unsupported input type '{}' for LoadF instruction", WProcessingStream::GetDataTypeName(input.GetDataType()));
+      LoadInput<WSimdVec4f, float, WFloat16>(reinterpret_cast<WSimdVec4f*>(r), reinterpret_cast<WSimdVec4f*>(re), input, uiNumRemainderInstances);
     }
   }
 
   void VM_LoadI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
+    const WUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
     DEFINE_TARGET_REGISTER();
     if (uiNumRemainderInstances > 0)
       --re;
 
-    const ezUInt32 uiInputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    const WUInt32 uiInputIndex = WExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& input = *context.m_Inputs[uiInputIndex];
 
-    if (input.GetDataType() == ezProcessingStream::DataType::Int)
+    if (input.GetDataType() == WProcessingStream::DataType::Int)
     {
-      LoadInput<ezSimdVec4i, int, int>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), input, uiNumRemainderInstances);
+      LoadInput<WSimdVec4i, int, int>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), input, uiNumRemainderInstances);
     }
-    else if (input.GetDataType() == ezProcessingStream::DataType::Short)
+    else if (input.GetDataType() == WProcessingStream::DataType::Short)
     {
-      LoadInput<ezSimdVec4i, int, ezInt16>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), input, uiNumRemainderInstances);
+      LoadInput<WSimdVec4i, int, WInt16>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), input, uiNumRemainderInstances);
     }
     else
     {
-      EZ_ASSERT_DEBUG(input.GetDataType() == ezProcessingStream::DataType::Byte, "Unsupported input type '{}' for LoadI instruction", ezProcessingStream::GetDataTypeName(input.GetDataType()));
-      LoadInput<ezSimdVec4i, int, ezInt8>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), input, uiNumRemainderInstances);
+      W_ASSERT_DEBUG(input.GetDataType() == WProcessingStream::DataType::Byte, "Unsupported input type '{}' for LoadI instruction", WProcessingStream::GetDataTypeName(input.GetDataType()));
+      LoadInput<WSimdVec4i, int, WInt8>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), input, uiNumRemainderInstances);
     }
   }
 
   void VM_StoreF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
+    const WUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
-    ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    WUInt32 uiOutputIndex = WExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& output = *context.m_Outputs[uiOutputIndex];
 
     // actually not target register but operand register in the is case, but we need something to loop over so we use the target register macro here.
@@ -379,22 +379,22 @@ namespace
     if (uiNumRemainderInstances > 0)
       --re;
 
-    if (output.GetDataType() == ezProcessingStream::DataType::Float)
+    if (output.GetDataType() == WProcessingStream::DataType::Float)
     {
-      StoreOutput<ezSimdVec4f, float, float>(reinterpret_cast<ezSimdVec4f*>(r), reinterpret_cast<ezSimdVec4f*>(re), output, uiNumRemainderInstances);
+      StoreOutput<WSimdVec4f, float, float>(reinterpret_cast<WSimdVec4f*>(r), reinterpret_cast<WSimdVec4f*>(re), output, uiNumRemainderInstances);
     }
     else
     {
-      EZ_ASSERT_DEBUG(output.GetDataType() == ezProcessingStream::DataType::Half, "Unsupported input type '{}' for StoreF instruction", ezProcessingStream::GetDataTypeName(output.GetDataType()));
-      StoreOutput<ezSimdVec4f, float, ezFloat16>(reinterpret_cast<ezSimdVec4f*>(r), reinterpret_cast<ezSimdVec4f*>(re), output, uiNumRemainderInstances);
+      W_ASSERT_DEBUG(output.GetDataType() == WProcessingStream::DataType::Half, "Unsupported input type '{}' for StoreF instruction", WProcessingStream::GetDataTypeName(output.GetDataType()));
+      StoreOutput<WSimdVec4f, float, WFloat16>(reinterpret_cast<WSimdVec4f*>(r), reinterpret_cast<WSimdVec4f*>(re), output, uiNumRemainderInstances);
     }
   }
 
   void VM_StoreI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
+    const WUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
-    ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    WUInt32 uiOutputIndex = WExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& output = *context.m_Outputs[uiOutputIndex];
 
     // actually not target register but operand register in the is case, but we need something to loop over so we use the target register macro here.
@@ -402,45 +402,45 @@ namespace
     if (uiNumRemainderInstances > 0)
       --re;
 
-    if (output.GetDataType() == ezProcessingStream::DataType::Int)
+    if (output.GetDataType() == WProcessingStream::DataType::Int)
     {
-      StoreOutput<ezSimdVec4i, int, int>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), output, uiNumRemainderInstances);
+      StoreOutput<WSimdVec4i, int, int>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), output, uiNumRemainderInstances);
     }
-    else if (output.GetDataType() == ezProcessingStream::DataType::Short)
+    else if (output.GetDataType() == WProcessingStream::DataType::Short)
     {
-      StoreOutput<ezSimdVec4i, int, ezInt16>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), output, uiNumRemainderInstances);
+      StoreOutput<WSimdVec4i, int, WInt16>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), output, uiNumRemainderInstances);
     }
     else
     {
-      EZ_ASSERT_DEBUG(output.GetDataType() == ezProcessingStream::DataType::Byte, "Unsupported input type '{}' for StoreI instruction", ezProcessingStream::GetDataTypeName(output.GetDataType()));
-      StoreOutput<ezSimdVec4i, int, ezInt8>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), output, uiNumRemainderInstances);
+      W_ASSERT_DEBUG(output.GetDataType() == WProcessingStream::DataType::Byte, "Unsupported input type '{}' for StoreI instruction", WProcessingStream::GetDataTypeName(output.GetDataType()));
+      StoreOutput<WSimdVec4i, int, WInt8>(reinterpret_cast<WSimdVec4i*>(r), reinterpret_cast<WSimdVec4i*>(re), output, uiNumRemainderInstances);
     }
   }
 
   void VM_Call(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
-    EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_MSVC(4189)
+    W_WARNING_PUSH()
+    W_WARNING_DISABLE_MSVC(4189)
 
-    ezUInt32 uiFunctionIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    WUInt32 uiFunctionIndex = WExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& function = *context.m_Functions[uiFunctionIndex];
 
     DEFINE_TARGET_REGISTER();
-    ezUInt32 uiNumArgs = ezExpressionByteCode::GetFunctionArgCount(pByteCode);
+    WUInt32 uiNumArgs = WExpressionByteCode::GetFunctionArgCount(pByteCode);
 
-    ezHybridArray<ezArrayPtr<const ezExpression::Register>, 32> inputs;
+    WHybridArray<WArrayPtr<const WExpression::Register>, 32> inputs;
     inputs.Reserve(uiNumArgs);
-    for (ezUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
+    for (WUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
     {
       DEFINE_OP_REGISTER(x);
-      inputs.PushBack(ezMakeArrayPtr(x, context.m_uiNumSimd4Instances));
+      inputs.PushBack(WMakeArrayPtr(x, context.m_uiNumSimd4Instances));
     }
 
-    ezExpression::Output output = ezMakeArrayPtr(r, context.m_uiNumSimd4Instances);
+    WExpression::Output output = WMakeArrayPtr(r, context.m_uiNumSimd4Instances);
 
     function.m_Func(inputs, output, *context.m_pGlobalData);
 
-    EZ_WARNING_POP()
+    W_WARNING_POP()
   }
 
   static constexpr OpFunc s_Simd4Funcs[] = {
@@ -600,7 +600,7 @@ namespace
     nullptr,         // LastSpecial,
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_Simd4Funcs) == ezExpressionByteCode::OpCode::Count);
+  static_assert(W_ARRAY_SIZE(s_Simd4Funcs) == WExpressionByteCode::OpCode::Count);
 
 } // namespace
 

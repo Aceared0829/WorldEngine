@@ -9,72 +9,72 @@
 #include <RendererFoundation/Shader/Shader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WShaderPermutationResource, 1, WRTTIDefaultAllocator<WShaderPermutationResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WShaderPermutationResource);
 // clang-format on
 
-static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
+static WShaderPermutationResourceLoader g_PermutationResourceLoader;
 
-ezShaderPermutationResource::ezShaderPermutationResource()
-  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
+WShaderPermutationResource::WShaderPermutationResource()
+  : WResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_bShaderPermutationValid = false;
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     m_ByteCodes[stage] = nullptr;
   }
 }
 
-ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WShaderPermutationResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderPermutationValid = false;
 
-  auto pDevice = ezGALDevice::GetDefaultDevice();
+  auto pDevice = WGALDevice::GetDefaultDevice();
 
   pDevice->DestroyShader(m_hShader);
   pDevice->DestroyBlendState(m_hBlendState);
   pDevice->DestroyDepthStencilState(m_hDepthStencilState);
   pDevice->DestroyRasterizerState(m_hRasterizerState);
 
-  ezResourceLoadDesc res;
-  res.m_State = ezResourceState::Unloaded;
+  WResourceLoadDesc res;
+  res.m_State = WResourceState::Unloaded;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   return res;
 }
 
-ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WShaderPermutationResource::UpdateContent(WStreamReader* Stream)
 {
-  ezUInt32 uiGPUMem = 0;
+  WUInt32 uiGPUMem = 0;
   ModifyMemoryUsage().m_uiMemoryGPU = 0;
 
   m_bShaderPermutationValid = false;
 
-  ezResourceLoadDesc res;
-  res.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc res;
+  res.m_State = WResourceState::Loaded;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    ezLog::Error("Shader Permutation '{0}': Data is not available", GetResourceID());
+    WLog::Error("Shader Permutation '{0}': Data is not available", GetResourceID());
     return res;
   }
 
-  ezShaderPermutationBinary PermutationBinary;
+  WShaderPermutationBinary PermutationBinary;
 
   bool bOldVersion = false;
   if (PermutationBinary.Read(*Stream, bOldVersion).Failed())
   {
-    ezLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", GetResourceID());
+    WLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", GetResourceID());
     return res;
   }
 
-  auto pDevice = ezGALDevice::GetDefaultDevice();
+  auto pDevice = WGALDevice::GetDefaultDevice();
 
   // get the shader render state object
   {
@@ -85,21 +85,21 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     m_bUseUserStencilRef = PermutationBinary.m_StateDescriptor.m_bUseUserStencilRefValue;
   }
 
-  ezGALShaderCreationDescription ShaderDesc;
+  WGALShaderCreationDescription ShaderDesc;
 
   // iterate over all shader stages, add them to the descriptor
-  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (WUInt32 stage = WGALShaderStage::VertexShader; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
-    const ezUInt32 uiStageHash = PermutationBinary.m_uiShaderStageHashes[stage];
+    const WUInt32 uiStageHash = PermutationBinary.m_uiShaderStageHashes[stage];
 
     if (uiStageHash == 0) // not used
       continue;
 
-    ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash, ezShaderManager::GetActivePlatform());
+    WShaderStageBinary* pStageBin = WShaderStageBinary::LoadStageBinary((WGALShaderStage::Enum)stage, uiStageHash, WShaderManager::GetActivePlatform());
 
     if (pStageBin == nullptr)
     {
-      ezLog::Error("Shader Permutation '{0}': Stage '{1}' could not be loaded", GetResourceID(), ezGALShaderStage::Names[stage]);
+      WLog::Error("Shader Permutation '{0}': Stage '{1}' could not be loaded", GetResourceID(), WGALShaderStage::Names[stage]);
       return res;
     }
 
@@ -107,7 +107,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_ByteCodes[stage] = pStageBin->GetByteCode();
 
-    EZ_ASSERT_DEV(pStageBin->m_pGALByteCode->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_pGALByteCode->m_Stage]);
+    W_ASSERT_DEV(pStageBin->m_pGALByteCode->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", WGALShaderStage::Names[stage], WGALShaderStage::Names[pStageBin->m_pGALByteCode->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
@@ -118,7 +118,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
 
   if (m_hShader.IsInvalidated())
   {
-    ezLog::Error("Shader Permutation '{0}': Shader program creation failed", GetResourceID());
+    WLog::Error("Shader Permutation '{0}': Shader program creation failed", GetResourceID());
     return res;
   }
 
@@ -133,23 +133,23 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
   return res;
 }
 
-void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderPermutationResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WShaderPermutationResource);
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderPermutationResource, ezShaderPermutationResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WShaderPermutationResource, WShaderPermutationResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
-  ret.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc ret;
+  ret.m_State = WResourceState::Loaded;
   ret.m_uiQualityLevelsDiscardable = 0;
   ret.m_uiQualityLevelsLoadable = 0;
 
   return ret;
 }
 
-ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader() const
+WResourceTypeLoader* WShaderPermutationResource::GetDefaultResourceTypeLoader() const
 {
   return &g_PermutationResourceLoader;
 }
@@ -161,13 +161,13 @@ struct ShaderPermutationResourceLoadData
   {
   }
 
-  ezContiguousMemoryStreamStorage m_Storage;
-  ezMemoryStreamReader m_Reader;
+  WContiguousMemoryStreamStorage m_Storage;
+  WMemoryStreamReader m_Reader;
 };
 
-ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
+WResult WShaderPermutationResourceLoader::RunCompiler(const WResource* pResource, WShaderPermutationBinary& BinaryInfo, bool bForce)
 {
-  if (ezShaderManager::IsRuntimeCompilationEnabled())
+  if (WShaderManager::IsRuntimeCompilationEnabled())
   {
     if (!bForce)
     {
@@ -179,74 +179,74 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
     }
 
     if (!bForce) // no recompilation necessary
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
-    ezStringBuilder sPermutationFile = pResource->GetResourceID();
+    WStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(WShaderManager::GetCacheDirectory().GetCharacterCount() + WShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
     sPermutationFile.Shrink(0, 9); // remove underscore and the hash at the end
-    sPermutationFile.Append(".ezShader");
+    sPermutationFile.Append(".WShader");
 
-    ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
+    WArrayPtr<const WPermutationVar> permutationVars = static_cast<const WShaderPermutationResource*>(pResource)->GetPermutationVars();
 
-    ezShaderCompiler sc;
-    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(), ezShaderManager::GetActivePlatform());
+    WShaderCompiler sc;
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, WLog::GetThreadLocalLogSystem(), WShaderManager::GetActivePlatform());
   }
   else
   {
     if (bForce)
     {
-      ezLog::Error("Shader was forced to be compiled, but runtime shader compilation is not available");
-      return EZ_FAILURE;
+      WLog::Error("Shader was forced to be compiled, but runtime shader compilation is not available");
+      return W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResource* pResource) const
+bool WShaderPermutationResourceLoader::IsResourceOutdated(const WResource* pResource) const
 {
   // don't try to reload a file that cannot be found
-  ezStringBuilder sAbs;
-  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+  WStringBuilder sAbs;
+  if (WFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
     return false;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
-    ezFileStats stat;
-    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
+    WFileStats stat;
+    if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
       return false;
 
-    if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
+    if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), WTimestamp::CompareMode::FileTimeEqual))
       return true;
   }
 
 #endif
 
-  ezDependencyFile dep;
+  WDependencyFile dep;
   if (dep.ReadDependencyFile(pResource->GetResourceID()).Failed())
     return true;
 
   return dep.HasAnyFileChanged();
 }
 
-ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WShaderPermutationResourceLoader::OpenDataStream(const WResource* pResource)
 {
-  ezResourceLoadData res;
+  WResourceLoadData res;
 
-  ezShaderPermutationBinary permutationBinary;
+  WShaderPermutationBinary permutationBinary;
 
   bool bNeedsCompilation = true;
   bool bOldVersion = false;
 
   {
-    ezFileReader File;
+    WFileReader File;
     if (File.Open(pResource->GetResourceID()).Failed())
     {
-      ezLog::Debug("Shader Permutation '{0}' does not exist, triggering recompile.", pResource->GetResourceID());
+      WLog::Debug("Shader Permutation '{0}' does not exist, triggering recompile.", pResource->GetResourceID());
 
       bNeedsCompilation = false;
       if (RunCompiler(pResource, permutationBinary, true).Failed())
@@ -255,16 +255,16 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
       // try again
       if (File.Open(pResource->GetResourceID()).Failed())
       {
-        ezLog::Debug("Shader Permutation '{0}' still does not exist after recompile.", pResource->GetResourceID());
+        WLog::Debug("Shader Permutation '{0}' still does not exist after recompile.", pResource->GetResourceID());
         return res;
       }
     }
 
     res.m_sResourceDescription = File.GetFilePathRelative().GetData();
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-    ezFileStats stat;
-    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
+    WFileStats stat;
+    if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
     {
       res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
     }
@@ -272,14 +272,14 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
     if (permutationBinary.Read(File, bOldVersion).Failed())
     {
-      ezLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", pResource->GetResourceID());
+      WLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", pResource->GetResourceID());
 
       bNeedsCompilation = true;
     }
 
     if (bOldVersion)
     {
-      ezLog::Dev("Shader Permutation Binary version is outdated, recompiling shader.");
+      WLog::Dev("Shader Permutation Binary version is outdated, recompiling shader.");
       bNeedsCompilation = true;
     }
   }
@@ -289,17 +289,17 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
     if (RunCompiler(pResource, permutationBinary, false).Failed())
       return res;
 
-    ezFileReader File;
+    WFileReader File;
 
     if (File.Open(pResource->GetResourceID()).Failed())
     {
-      ezLog::Error("Shader Permutation '{0}': Failed to open the file", pResource->GetResourceID());
+      WLog::Error("Shader Permutation '{0}': Failed to open the file", pResource->GetResourceID());
       return res;
     }
 
     if (permutationBinary.Read(File, bOldVersion).Failed())
     {
-      ezLog::Error("Shader Permutation '{0}': Binary data could not be read", pResource->GetResourceID());
+      WLog::Error("Shader Permutation '{0}': Binary data could not be read", pResource->GetResourceID());
       return res;
     }
 
@@ -308,24 +308,24 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
 
 
-  ShaderPermutationResourceLoadData* pData = EZ_DEFAULT_NEW(ShaderPermutationResourceLoadData);
+  ShaderPermutationResourceLoadData* pData = W_DEFAULT_NEW(ShaderPermutationResourceLoadData);
 
-  ezMemoryStreamWriter w(&pData->m_Storage);
+  WMemoryStreamWriter w(&pData->m_Storage);
 
-  // preload the files that are referenced in the .ezPermutation file
+  // preload the files that are referenced in the .WPermutation file
   {
     // write the permutation file info back to the output stream, so that the resource can read it as well
     permutationBinary.Write(w).IgnoreResult();
 
-    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    for (WUInt32 stage = WGALShaderStage::VertexShader; stage < WGALShaderStage::ENUM_COUNT; ++stage)
     {
-      const ezUInt32 uiStageHash = permutationBinary.m_uiShaderStageHashes[stage];
+      const WUInt32 uiStageHash = permutationBinary.m_uiShaderStageHashes[stage];
 
       if (uiStageHash == 0) // not used
         continue;
 
       // this is where the preloading happens
-      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash, ezShaderManager::GetActivePlatform());
+      WShaderStageBinary::LoadStageBinary((WGALShaderStage::Enum)stage, uiStageHash, WShaderManager::GetActivePlatform());
     }
   }
 
@@ -335,13 +335,13 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
   return res;
 }
 
-void ezShaderPermutationResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WShaderPermutationResourceLoader::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
   ShaderPermutationResourceLoadData* pData = static_cast<ShaderPermutationResourceLoadData*>(loaderData.m_pCustomLoaderData);
 
-  EZ_DEFAULT_DELETE(pData);
+  W_DEFAULT_DELETE(pData);
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationResource);

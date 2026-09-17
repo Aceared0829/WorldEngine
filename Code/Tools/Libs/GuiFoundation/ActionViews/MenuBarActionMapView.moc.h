@@ -7,31 +7,31 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 class QWidget;
-class ezActionMap;
+class WActionMap;
 class QAction;
-class ezQtProxy;
+class WQtProxy;
 
-class EZ_GUIFOUNDATION_DLL ezQtMenuBarActionMapView : public QMenuBar
+class W_GUIFOUNDATION_DLL WQtMenuBarActionMapView : public QMenuBar
 {
   Q_OBJECT
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezQtMenuBarActionMapView);
+  W_DISALLOW_COPY_AND_ASSIGN(WQtMenuBarActionMapView);
 
 public:
-  explicit ezQtMenuBarActionMapView(QWidget* pParent);
-  ~ezQtMenuBarActionMapView();
+  explicit WQtMenuBarActionMapView(QWidget* pParent);
+  ~WQtMenuBarActionMapView();
 
-  void SetActionContext(const ezActionContext& context);
+  void SetActionContext(const WActionContext& context);
 
 private:
-  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void TreeEventHandler(const WDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 
   void ClearView();
   void CreateView();
 
 private:
-  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;
+  WHashTable<WUuid, QSharedPointer<WQtProxy>> m_Proxies;
 
-  ezActionContext m_Context;
-  ezActionMap* m_pActionMap;
+  WActionContext m_Context;
+  WActionMap* m_pActionMap;
 };

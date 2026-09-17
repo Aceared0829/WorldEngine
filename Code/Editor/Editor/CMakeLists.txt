@@ -1,17 +1,17 @@
-ez_cmake_init()
+W_cmake_init()
 
-ez_requires_editor()
+W_requires_editor()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(APPLICATION ${PROJECT_NAME})
+W_create_target(APPLICATION ${PROJECT_NAME})
 
-ez_make_windowapp(${PROJECT_NAME})
+W_make_windowapp(${PROJECT_NAME})
 
-ez_add_output_ez_prefix(${PROJECT_NAME})
+W_add_output_W_prefix(${PROJECT_NAME})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network Svg)
+W_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network Svg)
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
@@ -26,7 +26,7 @@ add_dependencies(${PROJECT_NAME}
 )
 
 # For SetProcessDpiAwareness
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+if (W_CMAKE_PLATFORM_WINDOWS_DESKTOP)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
     Shcore.lib

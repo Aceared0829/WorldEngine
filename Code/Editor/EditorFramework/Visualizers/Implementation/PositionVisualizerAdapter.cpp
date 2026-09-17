@@ -4,54 +4,54 @@
 #include <EditorFramework/Visualizers/PositionVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezPositionVisualizerAdapter::ezPositionVisualizerAdapter() = default;
-ezPositionVisualizerAdapter::~ezPositionVisualizerAdapter() = default;
+WPositionVisualizerAdapter::WPositionVisualizerAdapter() = default;
+WPositionVisualizerAdapter::~WPositionVisualizerAdapter() = default;
 
-void ezPositionVisualizerAdapter::Finalize()
+void WPositionVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezPositionVisualizerAttribute* pAttr = static_cast<const ezPositionVisualizerAttribute*>(m_pVisualizerAttr);
+  const WPositionVisualizerAttribute* pAttr = static_cast<const WPositionVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cross, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Cross, pAttr->m_Color, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezPositionVisualizerAdapter::Update()
+void WPositionVisualizerAdapter::Update()
 {
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezPositionVisualizerAttribute* pAttr = static_cast<const ezPositionVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WPositionVisualizerAttribute* pAttr = static_cast<const WPositionVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_vPosition = ezVec3::MakeZero();
+  m_vPosition = WVec3::MakeZero();
   m_fScale = pAttr->m_fSizeScale;
 
   if (!pAttr->GetPositionProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetPositionProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezPositionVisualizerAttribute 'position'");
-    m_vPosition = value.ConvertTo<ezVec3>();
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WVec3>(), "Invalid property bound to WPositionVisualizerAttribute 'position'");
+    m_vPosition = value.ConvertTo<WVec3>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezPositionVisualizerAttribute 'color'");
-    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WPositionVisualizerAttribute 'color'");
+    m_hGizmo.SetColor(value.ConvertTo<WColor>() * pAttr->m_Color);
   }
 }
 
-void ezPositionVisualizerAdapter::UpdateGizmoTransform()
+void WPositionVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezTransform t;
+  WTransform t;
   t.SetIdentity();
   t.m_vScale.Set(m_fScale);
   t.m_vPosition = m_vPosition;

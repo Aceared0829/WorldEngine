@@ -2,35 +2,35 @@
 
 #include <RendererFoundation/State/State.h>
 
-ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Description)
-  : ezGALObject(Description)
+WGALBlendState::WGALBlendState(const WGALBlendStateCreationDescription& Description)
+  : WGALObject(Description)
 {
 }
 
-ezGALBlendState::~ezGALBlendState() = default;
+WGALBlendState::~WGALBlendState() = default;
 
 
 
-ezGALDepthStencilState::ezGALDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description)
-  : ezGALObject(Description)
+WGALDepthStencilState::WGALDepthStencilState(const WGALDepthStencilStateCreationDescription& Description)
+  : WGALObject(Description)
 {
 }
 
-ezGALDepthStencilState::~ezGALDepthStencilState() = default;
+WGALDepthStencilState::~WGALDepthStencilState() = default;
 
 
 
-ezGALRasterizerState::ezGALRasterizerState(const ezGALRasterizerStateCreationDescription& Description)
-  : ezGALObject(Description)
+WGALRasterizerState::WGALRasterizerState(const WGALRasterizerStateCreationDescription& Description)
+  : WGALObject(Description)
 {
 }
 
-ezGALRasterizerState::~ezGALRasterizerState() = default;
+WGALRasterizerState::~WGALRasterizerState() = default;
 
 
-ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
-  : ezGALResource(Description)
+WGALSamplerState::WGALSamplerState(const WGALSamplerStateCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALSamplerState::~ezGALSamplerState() = default;
+WGALSamplerState::~WGALSamplerState() = default;

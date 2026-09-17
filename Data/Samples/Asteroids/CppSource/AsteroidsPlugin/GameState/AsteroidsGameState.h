@@ -8,14 +8,14 @@
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameState/GameState.h>
 
-// the ezFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
-// but generally it's better to use ezGameState instead
-// using AsteroidsGameStateBase = ezFallbackGameState;
-using AsteroidsGameStateBase = ezGameState;
+// the WFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
+// but generally it's better to use WGameState instead
+// using AsteroidsGameStateBase = WFallbackGameState;
+using AsteroidsGameStateBase = WGameState;
 
 class AsteroidsGameState : public AsteroidsGameStateBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(AsteroidsGameState, AsteroidsGameStateBase);
+  W_ADD_DYNAMIC_REFLECTION(AsteroidsGameState, AsteroidsGameStateBase);
 
 public:
   AsteroidsGameState();
@@ -25,16 +25,16 @@ public:
 
 protected:
   virtual void ConfigureInputActions() override;
-  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
-  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection) override;
+  virtual void OnChangedMainWorld(WWorld* pPrevWorld, WWorld* pNewWorld, WStringView sStartPosition, const WTransform& startPositionOffset) override;
+  virtual void GetStartupOptions(WString& out_sScene, WString& out_sPreloadCollection) override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
+  virtual void OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
 
   void CreateGameLevel();
   void DestroyLevel();
 
-  ezUniquePtr<Level> m_pLevel;
+  WUniquePtr<Level> m_pLevel;
 };

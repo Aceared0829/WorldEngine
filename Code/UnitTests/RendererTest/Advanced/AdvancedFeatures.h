@@ -5,7 +5,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererTest/Advanced/OffscreenRenderer.h>
 
-class ezRendererTestAdvancedFeatures : public ezGraphicsTest
+class WRendererTestAdvancedFeatures : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "AdvancedFeatures"; }
@@ -37,9 +37,9 @@ private:
 
   virtual void SetupSubTests() override;
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
   void ReadRenderTarget();
   void FloatSampling();
@@ -51,76 +51,76 @@ private:
   void ViewFormatOverride();
   void DepthBias();
   void ConservativeRasterization();
-  ezTestAppRun Material();
-  ezTestAppRun SharedTexture();
-  void OffscreenProcessMessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
+  WTestAppRun Material();
+  WTestAppRun SharedTexture();
+  void OffscreenProcessMessageFunc(const WIpcProcessMessageProtocol::Event& msg);
 
 private:
-  ezShaderResourceHandle m_hShader2;
-  ezShaderResourceHandle m_hShader3;
+  WShaderResourceHandle m_hShader2;
+  WShaderResourceHandle m_hShader3;
 
-  ezGALTextureHandle m_hTexture2D;
-  ezGALTextureRange m_Texture2DRange;
-  ezGALTextureHandle m_hTexture2DArray;
+  WGALTextureHandle m_hTexture2D;
+  WGALTextureRange m_Texture2DRange;
+  WGALTextureHandle m_hTexture2DArray;
 
   // Proxy texture test
-  ezGALTextureHandle m_hProxyTexture2D[2];
+  WGALTextureHandle m_hProxyTexture2D[2];
 
   // Render target view format override test
-  ezGALTextureHandle m_hOverrideTexture2D[2];
-  ezGALRenderTargetViewHandle m_hOverrideRTV[2];
-  ezEnum<ezGALResourceFormat> m_OverrideSrgbFormat;
+  WGALTextureHandle m_hOverrideTexture2D[2];
+  WGALRenderTargetViewHandle m_hOverrideRTV[2];
+  WEnum<WGALResourceFormat> m_OverrideSrgbFormat;
   // Float sampling test
-  ezGALSamplerStateHandle m_hDepthSamplerState;
+  WGALSamplerStateHandle m_hDepthSamplerState;
 
   // Tessellation Test
-  ezMeshBufferResourceHandle m_hSphereMesh;
+  WMeshBufferResourceHandle m_hSphereMesh;
 
   // MSAA Resolve Test
-  ezGALTextureHandle m_hMSAAColor;
-  ezGALTextureHandle m_hMSAADepthStencil;
-  ezGALTextureHandle m_hMSAAResolveTarget;
-  ezMeshBufferResourceHandle m_hMSAAQuadMesh;
-  ezShaderResourceHandle m_hMSAAStencilShader;
-  ezGALReadbackTextureHelper m_MSAAReadback;
-  ezEnum<ezGALMSAASampleCount> m_MSAASamples;
+  WGALTextureHandle m_hMSAAColor;
+  WGALTextureHandle m_hMSAADepthStencil;
+  WGALTextureHandle m_hMSAAResolveTarget;
+  WMeshBufferResourceHandle m_hMSAAQuadMesh;
+  WShaderResourceHandle m_hMSAAStencilShader;
+  WGALReadbackTextureHelper m_MSAAReadback;
+  WEnum<WGALMSAASampleCount> m_MSAASamples;
 
   // Depth Bias Test
-  ezGALTextureHandle m_hDepthBiasColor;
-  ezGALTextureHandle m_hDepthBiasDepth;
-  ezMeshBufferResourceHandle m_hDepthBiasQuadMesh;
-  ezShaderResourceHandle m_hDepthBiasShader;
-  ezGALReadbackTextureHelper m_DepthBiasReadback;
+  WGALTextureHandle m_hDepthBiasColor;
+  WGALTextureHandle m_hDepthBiasDepth;
+  WMeshBufferResourceHandle m_hDepthBiasQuadMesh;
+  WShaderResourceHandle m_hDepthBiasShader;
+  WGALReadbackTextureHelper m_DepthBiasReadback;
   float m_fDepthBiasUnit = 0.0f; ///< Minimum resolvable depth difference of the chosen depth format, the unit that m_iDepthBias is measured in.
 
   // Conservative Rasterization Test
-  ezGALTextureHandle m_hConservativeRasterColor;
-  ezMeshBufferResourceHandle m_hConservativeRasterQuadMesh;
-  ezShaderResourceHandle m_hConservativeRasterShader;
-  ezGALReadbackTextureHelper m_ConservativeRasterReadback;
+  WGALTextureHandle m_hConservativeRasterColor;
+  WMeshBufferResourceHandle m_hConservativeRasterQuadMesh;
+  WShaderResourceHandle m_hConservativeRasterShader;
+  WGALReadbackTextureHelper m_ConservativeRasterReadback;
 
   // Material Test
-  ezTexture2DResourceHandle m_hTexture;
-  ezTexture2DResourceHandle m_hTexture2;
-  ezMaterialResourceHandle m_hMaterial;
-  ezHashedString m_sBaseColor;
-  ezHashedString m_sBaseColor2;
-  ezHashedString m_sTexture;
+  WTexture2DResourceHandle m_hTexture;
+  WTexture2DResourceHandle m_hTexture2;
+  WMaterialResourceHandle m_hMaterial;
+  WHashedString m_sBaseColor;
+  WHashedString m_sBaseColor2;
+  WHashedString m_sTexture;
 
   // Shared Texture Test
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-  ezUniquePtr<ezProcess> m_pOffscreenProcess;
-  ezUniquePtr<ezIpcChannel> m_pChannel;
-  ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
-  ezGALTextureCreationDescription m_SharedTextureDesc;
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
+  WUniquePtr<WProcess> m_pOffscreenProcess;
+  WUniquePtr<WIpcChannel> m_pChannel;
+  WUniquePtr<WIpcProcessMessageProtocol> m_pProtocol;
+  WGALTextureCreationDescription m_SharedTextureDesc;
 
-  static constexpr ezUInt32 s_SharedTextureCount = 3;
+  static constexpr WUInt32 s_SharedTextureCount = 3;
 
   bool m_bExiting = false;
-  ezGALTextureHandle m_hSharedTextures[s_SharedTextureCount];
-  ezDeque<ezOffscreenTest_SharedTexture> m_SharedTextureQueue;
-  ezUInt32 m_uiReceivedTextures = 0;
+  WGALTextureHandle m_hSharedTextures[s_SharedTextureCount];
+  WDeque<WOffscreenTest_SharedTexture> m_SharedTextureQueue;
+  WUInt32 m_uiReceivedTextures = 0;
   float m_fOldProfilingThreshold = 0.0f;
-  ezShaderUtils::ezBuiltinShader m_CopyShader;
+  WShaderUtils::WBuiltinShader m_CopyShader;
 #endif
 };

@@ -2,11 +2,11 @@
 
 #include <Foundation/Basics.h>
 
-class EZ_FOUNDATION_DLL ezProfilingUtils
+class W_FOUNDATION_DLL WProfilingUtils
 {
 public:
-  /// Captures profiling data via ezProfilingSystem::Capture and saves it to the giben file location.
-  static ezResult SaveProfilingCapture(ezStringView sCapturePath);
+  /// Captures profiling data via WProfilingSystem::Capture and saves it to the giben file location.
+  static WResult SaveProfilingCapture(WStringView sCapturePath);
   /// Reads two profiling captures and merges them into one.
-  static ezResult MergeProfilingCaptures(ezStringView sCapturePath1, ezStringView sCapturePath2, ezStringView sMergedCapturePath);
+  static WResult MergeProfilingCaptures(WStringView sCapturePath1, WStringView sCapturePath2, WStringView sMergedCapturePath);
 };

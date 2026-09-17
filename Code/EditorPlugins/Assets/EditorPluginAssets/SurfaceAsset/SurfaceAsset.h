@@ -3,14 +3,14 @@
 #include <Core/Physics/SurfaceResource.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDescriptor>
+class WSurfaceAssetDocument : public WSimpleAssetDocument<WSurfaceResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceAssetDocument, ezSimpleAssetDocument<ezSurfaceResourceDescriptor>);
+  W_ADD_DYNAMIC_REFLECTION(WSurfaceAssetDocument, WSimpleAssetDocument<WSurfaceResourceDescriptor>);
 
 public:
-  ezSurfaceAssetDocument(ezStringView sDocumentPath);
+  WSurfaceAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 };

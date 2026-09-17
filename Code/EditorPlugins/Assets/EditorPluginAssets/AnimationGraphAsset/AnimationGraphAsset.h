@@ -7,75 +7,75 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
+using WAnimationClipResourceHandle = WTypedResourceHandle<class WAnimationClipResource>;
 
-class ezAnimGraphInstance;
-class ezAnimGraphNode;
+class WAnimGraphInstance;
+class WAnimGraphNode;
 
 /// Visual graph pin for animation graph nodes.
 ///
 /// Stores animation-specific pin metadata such as the animation data type and whether it supports multiple inputs.
-class ezAnimationGraphNodePin : public ezVisualGraphPin
+class WAnimationGraphNodePin : public WVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezVisualGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationGraphNodePin, WVisualGraphPin);
 
 public:
-  ezAnimationGraphNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject);
-  ~ezAnimationGraphNodePin();
+  WAnimationGraphNodePin(Type type, const char* szName, const WColorGammaUB& color, const WDocumentObject* pObject);
+  ~WAnimationGraphNodePin();
 
   bool m_bMultiInputPin = false;
-  ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
+  WAnimGraphPin::Type m_DataType = WAnimGraphPin::Invalid;
 };
 
 /// Object manager for animation graphs.
 ///
 /// Manages animation graph nodes and their connections. Handles dynamic pin creation for nodes
 /// that support variable numbers of inputs, and validates connections based on animation data types.
-class ezAnimationGraphNodeManager : public ezVisualGraphObjectManager
+class WAnimationGraphNodeManager : public WVisualGraphObjectManager
 {
 public:
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  virtual bool InternalIsNode(const WDocumentObject* pObject) const override;
+  virtual void InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node) override;
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
+  virtual WStatus InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const override;
 
 private:
-  virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;
+  virtual bool InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const override;
 };
 
-class ezAnimationGraphAssetProperties : public ezReflectedClass
+class WAnimationGraphAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationGraphAssetProperties, WReflectedClass);
 
 public:
-  ezDynamicArray<ezString> m_IncludeGraphs;
-  ezDynamicArray<ezAnimationClipMapping> m_AnimationClipMapping;
+  WDynamicArray<WString> m_IncludeGraphs;
+  WDynamicArray<WAnimationClipMapping> m_AnimationClipMapping;
 };
 
-class ezAnimationGraphAssetDocument : public ezSimpleAssetDocument<ezAnimationGraphAssetProperties>
+class WAnimationGraphAssetDocument : public WSimpleAssetDocument<WAnimationGraphAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphAssetDocument, ezSimpleAssetDocument<ezAnimationGraphAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationGraphAssetDocument, WSimpleAssetDocument<WAnimationGraphAssetProperties>);
 
 public:
-  ezAnimationGraphAssetDocument(ezStringView sDocumentPath);
+  WAnimationGraphAssetDocument(WStringView sDocumentPath);
 
 protected:
   struct PinCount
   {
-    ezUInt16 m_uiInputCount = 0;
-    ezUInt16 m_uiInputIdx = 0;
-    ezUInt16 m_uiOutputCount = 0;
-    ezUInt16 m_uiOutputIdx = 0;
+    WUInt16 m_uiInputCount = 0;
+    WUInt16 m_uiInputIdx = 0;
+    WUInt16 m_uiOutputCount = 0;
+    WUInt16 m_uiOutputIdx = 0;
   };
 
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+  virtual void GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const override;
+  virtual bool Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType) override;
 
-  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
+  virtual void InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const override;
+  virtual void AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable) override;
 };

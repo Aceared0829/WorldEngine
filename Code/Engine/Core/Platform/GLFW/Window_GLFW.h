@@ -1,14 +1,14 @@
 
-class EZ_CORE_DLL ezWindowGLFW : public ezWindowPlatformShared
+class W_CORE_DLL WWindowGLFW : public WWindowPlatformShared
 {
 public:
-  ~ezWindowGLFW();
+  ~WWindowGLFW();
 
-  virtual ezResult InitializeWindow() override;
+  virtual WResult InitializeWindow() override;
   virtual void DestroyWindow() override;
-  virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual WResult Resize(const WSizeU32& newWindowSize) override;
   virtual void ProcessWindowMessages() override;
-  virtual ezWindowHandle GetNativeWindowHandle() const override;
+  virtual WWindowHandle GetNativeWindowHandle() const override;
 
 private:
   static void IconifyCallback(GLFWwindow* window, int iconified);
@@ -24,6 +24,6 @@ private:
 };
 
 // can't use a 'using' here, because that can't be forward declared
-class EZ_CORE_DLL ezWindow : public ezWindowGLFW
+class W_CORE_DLL WWindow : public WWindowGLFW
 {
 };

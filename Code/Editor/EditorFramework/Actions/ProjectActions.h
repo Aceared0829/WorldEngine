@@ -5,105 +5,105 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezCppSettings;
+class WCppSettings;
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezProjectActions
+class W_EDITORFRAMEWORK_DLL WProjectActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes> menus = ezStandardMenuTypes::Default);
+  static void MapActions(WStringView sMapping, const WBitflags<WStandardMenuTypes> menus = WStandardMenuTypes::Default);
 
-  static ezActionDescriptorHandle s_hCatProjectGeneral;
-  static ezActionDescriptorHandle s_hCatProjectAssets;
-  static ezActionDescriptorHandle s_hCatProjectConfig;
-  static ezActionDescriptorHandle s_hCatProjectExternal;
+  static WActionDescriptorHandle s_hCatProjectGeneral;
+  static WActionDescriptorHandle s_hCatProjectAssets;
+  static WActionDescriptorHandle s_hCatProjectConfig;
+  static WActionDescriptorHandle s_hCatProjectExternal;
 
-  static ezActionDescriptorHandle s_hCatFilesGeneral;
-  static ezActionDescriptorHandle s_hCatFileCommon;
-  static ezActionDescriptorHandle s_hCatFileSpecial;
+  static WActionDescriptorHandle s_hCatFilesGeneral;
+  static WActionDescriptorHandle s_hCatFileCommon;
+  static WActionDescriptorHandle s_hCatFileSpecial;
 
-  static ezActionDescriptorHandle s_hCreateDocument;
-  static ezActionDescriptorHandle s_hOpenDocument;
-  static ezActionDescriptorHandle s_hRecentDocuments;
+  static WActionDescriptorHandle s_hCreateDocument;
+  static WActionDescriptorHandle s_hOpenDocument;
+  static WActionDescriptorHandle s_hRecentDocuments;
 
-  static ezActionDescriptorHandle s_hOpenDashboard;
-  static ezActionDescriptorHandle s_hCreateProject;
-  static ezActionDescriptorHandle s_hOpenProject;
-  static ezActionDescriptorHandle s_hRecentProjects;
-  static ezActionDescriptorHandle s_hCloseProject;
+  static WActionDescriptorHandle s_hOpenDashboard;
+  static WActionDescriptorHandle s_hCreateProject;
+  static WActionDescriptorHandle s_hOpenProject;
+  static WActionDescriptorHandle s_hRecentProjects;
+  static WActionDescriptorHandle s_hCloseProject;
 
-  static ezActionDescriptorHandle s_hDocsAndCommunity;
+  static WActionDescriptorHandle s_hDocsAndCommunity;
 
-  static ezActionDescriptorHandle s_hCatProjectSettings;
-  static ezActionDescriptorHandle s_hCatPluginSettings;
-  static ezActionDescriptorHandle s_hShortcutEditor;
-  static ezActionDescriptorHandle s_hDataDirectories;
-  static ezActionDescriptorHandle s_hWindowConfig;
-  static ezActionDescriptorHandle s_hInputConfig;
-  static ezActionDescriptorHandle s_hPreferencesDlg;
-  static ezActionDescriptorHandle s_hTagsConfig;
-  static ezActionDescriptorHandle s_hAssetProfiles;
-  static ezActionDescriptorHandle s_hExportProject;
-  static ezActionDescriptorHandle s_hPluginSelection;
+  static WActionDescriptorHandle s_hCatProjectSettings;
+  static WActionDescriptorHandle s_hCatPluginSettings;
+  static WActionDescriptorHandle s_hShortcutEditor;
+  static WActionDescriptorHandle s_hDataDirectories;
+  static WActionDescriptorHandle s_hWindowConfig;
+  static WActionDescriptorHandle s_hInputConfig;
+  static WActionDescriptorHandle s_hPreferencesDlg;
+  static WActionDescriptorHandle s_hTagsConfig;
+  static WActionDescriptorHandle s_hAssetProfiles;
+  static WActionDescriptorHandle s_hExportProject;
+  static WActionDescriptorHandle s_hPluginSelection;
 
-  static ezActionDescriptorHandle s_hCatToolsExternal;
-  static ezActionDescriptorHandle s_hCatToolsEditor;
-  static ezActionDescriptorHandle s_hCatToolsDocument;
-  static ezActionDescriptorHandle s_hCatEditorSettings;
-  static ezActionDescriptorHandle s_hReloadResources;
-  static ezActionDescriptorHandle s_hReloadEngine;
-  static ezActionDescriptorHandle s_hLaunchFileserve;
-  static ezActionDescriptorHandle s_hInspectorMenu;
-  static ezActionDescriptorHandle s_hLaunchInspectorPlayer;
-  static ezActionDescriptorHandle s_hLaunchInspectorEditorEngine;
-  static ezActionDescriptorHandle s_hLaunchTracy;
-  static ezActionDescriptorHandle s_hSaveProfiling;
-  static ezActionDescriptorHandle s_hOpenVsCode;
-  static ezActionDescriptorHandle s_hImportAsset;
-  static ezActionDescriptorHandle s_hClearAssetCaches;
+  static WActionDescriptorHandle s_hCatToolsExternal;
+  static WActionDescriptorHandle s_hCatToolsEditor;
+  static WActionDescriptorHandle s_hCatToolsDocument;
+  static WActionDescriptorHandle s_hCatEditorSettings;
+  static WActionDescriptorHandle s_hReloadResources;
+  static WActionDescriptorHandle s_hReloadEngine;
+  static WActionDescriptorHandle s_hLaunchFileserve;
+  static WActionDescriptorHandle s_hInspectorMenu;
+  static WActionDescriptorHandle s_hLaunchInspectorPlayer;
+  static WActionDescriptorHandle s_hLaunchInspectorEditorEngine;
+  static WActionDescriptorHandle s_hLaunchTracy;
+  static WActionDescriptorHandle s_hSaveProfiling;
+  static WActionDescriptorHandle s_hOpenVsCode;
+  static WActionDescriptorHandle s_hImportAsset;
+  static WActionDescriptorHandle s_hClearAssetCaches;
 
-  static ezActionDescriptorHandle s_hCppProjectMenu;
-  static ezActionDescriptorHandle s_hSetupCppProject;
-  static ezActionDescriptorHandle s_hOpenCppProject;
-  static ezActionDescriptorHandle s_hCompileCppProject;
-  static ezActionDescriptorHandle s_hRegenerateCppSolution;
+  static WActionDescriptorHandle s_hCppProjectMenu;
+  static WActionDescriptorHandle s_hSetupCppProject;
+  static WActionDescriptorHandle s_hOpenCppProject;
+  static WActionDescriptorHandle s_hCompileCppProject;
+  static WActionDescriptorHandle s_hRegenerateCppSolution;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezDynamicMenuAction
+class W_EDITORFRAMEWORK_DLL WRecentDocumentsMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WRecentDocumentsMenuAction, WDynamicMenuAction);
 
 public:
-  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WRecentDocumentsMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezDynamicMenuAction
+class W_EDITORFRAMEWORK_DLL WRecentProjectsMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WRecentProjectsMenuAction, WDynamicMenuAction);
 
 public:
-  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  WRecentProjectsMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual void Execute(const ezVariant& value) override;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezProjectAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WProjectAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WProjectAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -140,14 +140,14 @@ public:
     ClearAssetCaches,
   };
 
-  ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezProjectAction();
+  WProjectAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WProjectAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void ProjectEventHandler(const ezToolsProjectEvent& e);
-  void CppEventHandler(const ezCppSettings& e);
+  void ProjectEventHandler(const WToolsProjectEvent& e);
+  void CppEventHandler(const WCppSettings& e);
 
   ButtonType m_ButtonType;
 };

@@ -3,36 +3,36 @@
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-EZ_DEFINE_AS_POD_TYPE(vk::DescriptorType);
+W_DEFINE_AS_POD_TYPE(vk::DescriptorType);
 
 template <>
-struct ezHashHelper<vk::DescriptorType>
+struct WHashHelper<vk::DescriptorType>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(vk::DescriptorType value) { return ezHashHelper<ezUInt32>::Hash(ezUInt32(value)); }
-  EZ_ALWAYS_INLINE static bool Equal(vk::DescriptorType a, vk::DescriptorType b) { return a == b; }
+  W_ALWAYS_INLINE static WUInt32 Hash(vk::DescriptorType value) { return WHashHelper<WUInt32>::Hash(WUInt32(value)); }
+  W_ALWAYS_INLINE static bool Equal(vk::DescriptorType a, vk::DescriptorType b) { return a == b; }
 };
 
 /// Creates descriptor sets that are only valid for a single frame.
 /// Descriptors are created from pools that are put in the frame deletion queue once full. The frame deletion queue on the device will then call ReclaimPool and the entire pool is reset and reused. Pools are only destroyed on shutdown.
-class EZ_RENDERERVULKAN_DLL ezTransientDescriptorSetPoolVulkan
+class W_RENDERERVULKAN_DLL WTransientDescriptorSetPoolVulkan
 {
 public:
   static void Initialize(vk::Device device);
   static void DeInitialize();
-  static ezHashTable<vk::DescriptorType, float>& AccessDescriptorPoolWeights();
+  static WHashTable<vk::DescriptorType, float>& AccessDescriptorPoolWeights();
 
   static vk::DescriptorSet CreateTransientDescriptorSet(vk::DescriptorSetLayout layout);
-  static void UpdateDescriptorSet(vk::DescriptorSet descriptorSet, ezArrayPtr<vk::WriteDescriptorSet> update);
+  static void UpdateDescriptorSet(vk::DescriptorSet descriptorSet, WArrayPtr<vk::WriteDescriptorSet> update);
   static void ReclaimPool(vk::DescriptorPool& ref_descriptorPool);
 
 private:
-  static constexpr ezUInt32 s_uiPoolBaseSize = 1024;
+  static constexpr WUInt32 s_uiPoolBaseSize = 1024;
 
   static vk::DescriptorPool GetNewTransientPool();
 
   static vk::DescriptorPool s_CurrentTransientPool;
-  static ezHybridArray<vk::DescriptorPool, 4> s_FreeTransientPools;
+  static WHybridArray<vk::DescriptorPool, 4> s_FreeTransientPools;
 
   static vk::Device s_Device;
-  static ezHashTable<vk::DescriptorType, float> s_DescriptorWeights;
+  static WHashTable<vk::DescriptorType, float> s_DescriptorWeights;
 };

@@ -2,37 +2,37 @@
 
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 
-class ezDocumentObject;
-class ezCommandHistory;
+class WDocumentObject;
+class WCommandHistory;
 
-class EZ_TOOLSFOUNDATION_DLL ezObjectCommandAccessor : public ezObjectDirectAccessor
+class W_TOOLSFOUNDATION_DLL WObjectCommandAccessor : public WObjectDirectAccessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectCommandAccessor, ezObjectDirectAccessor);
+  W_ADD_DYNAMIC_REFLECTION(WObjectCommandAccessor, WObjectDirectAccessor);
 
 public:
-  ezObjectCommandAccessor(ezCommandHistory* pHistory);
+  WObjectCommandAccessor(WCommandHistory* pHistory);
 
-  virtual void StartTransaction(ezStringView sDisplayString) override;
+  virtual void StartTransaction(WStringView sDisplayString) override;
   virtual void CancelTransaction() override;
   virtual void FinishTransaction() override;
-  virtual void BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
+  virtual void BeginTemporaryCommands(WStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
   virtual void CancelTemporaryCommands() override;
   virtual void FinishTemporaryCommands() override;
 
-  virtual ezStatus SetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus InsertValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus MoveValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) override;
+  virtual WStatus SetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus InsertValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus MoveValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex) override;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType,
-    ezUuid& inout_objectGuid) override;
-  virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
-  virtual ezStatus MoveObject(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) override;
+  virtual WStatus AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType,
+    WUuid& inout_objectGuid) override;
+  virtual WStatus RemoveObject(const WDocumentObject* pObject) override;
+  virtual WStatus MoveObject(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index) override;
 
 protected:
-  ezCommandHistory* m_pHistory;
+  WCommandHistory* m_pHistory;
 };

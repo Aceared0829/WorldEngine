@@ -8,8 +8,8 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Declarations.h>
 
-class ezSkeletonBuilder;
-class ezSkeleton;
+class WSkeletonBuilder;
+class WSkeleton;
 
 namespace ozz::animation
 {
@@ -21,21 +21,21 @@ namespace ozz::animation
   }
 } // namespace ozz::animation
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointGeometryType);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WSkeletonJointGeometryType);
 
 /// Describes the collision geometry shape for a bone.
 ///
 /// Used during skeleton editing to define physics collision shapes for bones.
 /// The shape can be a box, capsule, or sphere. If m_fLength is 0, it automatically
 /// uses the distance from the parent joint to this joint.
-struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
+struct W_RENDERERCORE_DLL WEditableSkeletonBoneShape : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneShape, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditableSkeletonBoneShape, WReflectedClass);
 
-  ezEnum<ezSkeletonJointGeometryType> m_Geometry;
+  WEnum<WSkeletonJointGeometryType> m_Geometry;
 
-  ezVec3 m_vOffset = ezVec3::MakeZero();
-  ezQuat m_qRotation = ezQuat::MakeIdentity();
+  WVec3 m_vOffset = WVec3::MakeZero();
+  WQuat m_qRotation = WQuat::MakeIdentity();
 
   float m_fLength = 0;    ///< Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     ///< Box
@@ -46,27 +46,27 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
 ///
 /// Stores vertex positions and triangle indices that define a convex collision mesh
 /// for a bone. Used when more complex collision shapes than simple primitives are needed.
-struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneCollider : public ezReflectedClass
+struct W_RENDERERCORE_DLL WEditableSkeletonBoneCollider : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneCollider, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditableSkeletonBoneCollider, WReflectedClass);
 
-  ezString m_sIdentifier;
-  ezDynamicArray<ezVec3> m_VertexPositions;
-  ezDynamicArray<ezUInt8> m_TriangleIndices;
+  WString m_sIdentifier;
+  WDynamicArray<WVec3> m_VertexPositions;
+  WDynamicArray<WUInt8> m_TriangleIndices;
 };
 
 /// Represents a single joint in an editable skeleton.
 ///
 /// Used during skeleton editing and import. Contains the joint's transform, collision shapes,
 /// physics properties like joint limits and stiffness, and references to child joints.
-/// This is the editable representation which gets converted to the runtime ezSkeletonJoint.
-class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
+/// This is the editable representation which gets converted to the runtime WSkeletonJoint.
+class W_RENDERERCORE_DLL WEditableSkeletonJoint : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonJoint, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditableSkeletonJoint, WReflectedClass);
 
 public:
-  ezEditableSkeletonJoint();
-  ~ezEditableSkeletonJoint();
+  WEditableSkeletonJoint();
+  ~WEditableSkeletonJoint();
 
   const char* GetName() const;
   void SetName(const char* szSz);
@@ -76,52 +76,52 @@ public:
   /// Copies the properties for geometry, physics, and collision from another joint.
   ///
   /// Does NOT copy the name, the transform or the children.
-  void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
+  void CopyPropertiesFrom(const WEditableSkeletonJoint* pJoint);
 
-  ezHashedString m_sName;
-  ezTransform m_LocalTransform = ezTransform::MakeIdentity();
+  WHashedString m_sName;
+  WTransform m_LocalTransform = WTransform::MakeIdentity();
 
-  ezEnum<ezSkeletonJointType> m_JointType;
+  WEnum<WSkeletonJointType> m_JointType;
 
   float m_fStiffness = 0.0f;
 
-  ezAngle m_TwistLimitHalfAngle;
-  ezAngle m_TwistLimitCenterAngle;
-  ezAngle m_SwingLimitY;
-  ezAngle m_SwingLimitZ;
+  WAngle m_TwistLimitHalfAngle;
+  WAngle m_TwistLimitCenterAngle;
+  WAngle m_SwingLimitY;
+  WAngle m_SwingLimitZ;
 
-  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::MakeZero();
-  ezQuat m_qGizmoOffsetRotationRO = ezQuat::MakeIdentity();
+  WVec3 m_vGizmoOffsetPositionRO = WVec3::MakeZero();
+  WQuat m_qGizmoOffsetRotationRO = WQuat::MakeIdentity();
 
-  ezQuat m_qLocalJointRotation = ezQuat::MakeIdentity();
+  WQuat m_qLocalJointRotation = WQuat::MakeIdentity();
 
-  ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
-  ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
-  ezDynamicArray<ezEditableSkeletonBoneCollider> m_BoneColliders;
+  WHybridArray<WEditableSkeletonJoint*, 4> m_Children;
+  WHybridArray<WEditableSkeletonBoneShape, 1> m_BoneShapes;
+  WDynamicArray<WEditableSkeletonBoneCollider> m_BoneColliders;
 
   bool m_bOverrideSurface = false;
   bool m_bOverrideCollisionLayer = false;
-  ezString m_sSurfaceOverride;
-  ezUInt8 m_uiCollisionLayerOverride;
+  WString m_sSurfaceOverride;
+  WUInt8 m_uiCollisionLayerOverride;
 };
 
 /// Editable representation of a skeleton used in the editor and import pipeline.
 ///
 /// Contains the full hierarchy of joints with all their properties. Used for skeleton editing,
 /// mesh import, and for generating the runtime skeleton resource.
-/// Can convert itself into ezSkeletonResourceDescriptor and ozz::animation::Skeleton formats.
-class EZ_RENDERERCORE_DLL ezEditableSkeleton : public ezReflectedClass
+/// Can convert itself into WSkeletonResourceDescriptor and ozz::animation::Skeleton formats.
+class W_RENDERERCORE_DLL WEditableSkeleton : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeleton, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditableSkeleton, WReflectedClass);
 
 public:
-  ezEditableSkeleton();
-  ~ezEditableSkeleton();
+  WEditableSkeleton();
+  ~WEditableSkeleton();
 
   void ClearJoints();
 
   /// Fills the given resource descriptor with data from this editable skeleton.
-  void FillResourceDescriptor(ezSkeletonResourceDescriptor& ref_desc) const;
+  void FillResourceDescriptor(WSkeletonResourceDescriptor& ref_desc) const;
 
   /// Generates a raw ozz skeleton, which can then be compiled to the final ozz format.
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_skeleton) const;
@@ -129,57 +129,57 @@ public:
   /// Generates a fully compiled ozz skeleton directly.
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_skeleton) const;
 
-  void CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const;
+  void CreateJointsRecursive(WSkeletonBuilder& ref_sb, WSkeletonResourceDescriptor& ref_desc, const WEditableSkeletonJoint* pParentJoint, const WEditableSkeletonJoint* pThisJoint, WUInt16 uiThisJointIdx, const WQuat& qParentAccuRot, const WMat4& mRootTransform) const;
 
-  ezString m_sSourceFile;
-  ezString m_sPreviewMesh;
+  WString m_sSourceFile;
+  WString m_sPreviewMesh;
 
-  ezString m_sSurfaceFile;
-  ezUInt8 m_uiCollisionLayer = 0;
+  WString m_sSurfaceFile;
+  WUInt8 m_uiCollisionLayer = 0;
 
   float m_fUniformScaling = 1.0f;
   float m_fMaxImpulse = 100.0f;
 
-  ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
-  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  WEnum<WMeshImportTransform> m_ImportTransform;
+  WEnum<WBasisAxis> m_RightDir = WBasisAxis::NegativeX;
+  WEnum<WBasisAxis> m_UpDir = WBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
-  ezEnum<ezBasisAxis> m_BoneDirection;
+  WEnum<WBasisAxis> m_BoneDirection;
 
-  ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
+  WHybridArray<WEditableSkeletonJoint*, 4> m_Children;
 
   // used for motion extraction
-  ezString m_sLeftFootJoint;
-  ezString m_sRightFootJoint;
+  WString m_sLeftFootJoint;
+  WString m_sRightFootJoint;
 };
 
 /// Represents a bone that is exposed for external use, typically for attachments.
 ///
 /// Used to define attachment points on a skeleton where other objects can be attached.
 /// Stores the bone name, parent bone, and the transform relative to the parent.
-struct EZ_RENDERERCORE_DLL ezExposedBone
+struct W_RENDERERCORE_DLL WExposedBone
 {
-  ezString m_sName;
-  ezString m_sParent;
-  ezTransform m_Transform;
+  WString m_sName;
+  WString m_sParent;
+  WTransform m_Transform;
   // when adding new values, the hash function below has to be adjusted
 };
 
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExposedBone);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WExposedBone);
 
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezExposedBone& bone);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezExposedBone& ref_bone);
-EZ_RENDERERCORE_DLL bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs);
+W_RENDERERCORE_DLL void operator<<(WStreamWriter& inout_stream, const WExposedBone& bone);
+W_RENDERERCORE_DLL void operator>>(WStreamReader& inout_stream, WExposedBone& ref_bone);
+W_RENDERERCORE_DLL bool operator==(const WExposedBone& lhs, const WExposedBone& rhs);
 
 template <>
-struct ezHashHelper<ezExposedBone>
+struct WHashHelper<WExposedBone>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezExposedBone& value)
+  W_ALWAYS_INLINE static WUInt32 Hash(const WExposedBone& value)
   {
-    return ezHashingUtils::xxHash32String(value.m_sName) + ezHashingUtils::xxHash32String(value.m_sParent) + ezHashingUtils::xxHash32(&value, sizeof(ezTransform));
+    return WHashingUtils::xxHash32String(value.m_sName) + WHashingUtils::xxHash32String(value.m_sParent) + WHashingUtils::xxHash32(&value, sizeof(WTransform));
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezExposedBone& a, const ezExposedBone& b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(const WExposedBone& a, const WExposedBone& b) { return a == b; }
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezExposedBone);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WExposedBone);

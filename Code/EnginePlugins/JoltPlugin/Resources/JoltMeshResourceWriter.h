@@ -7,38 +7,38 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
 
-class ezStreamWriter;
+class WStreamWriter;
 
-struct EZ_JOLTPLUGIN_DLL ezJoltHeightfieldWriteDesc
+struct W_JOLTPLUGIN_DLL WJoltHeightfieldWriteDesc
 {
   /// Hash of the source data. Written into the file so the export modifier can skip
   /// regeneration when the file is already up to date.
-  ezUInt64 uiContentHash = 0;
+  WUInt64 uiContentHash = 0;
 
   /// Grid vertex counts. Must satisfy Jolt requirements: even, >= 4, and uiSizeX == uiSizeY.
-  ezUInt32 uiSizeX = 0;
-  ezUInt32 uiSizeY = 0;
+  WUInt32 uiSizeX = 0;
+  WUInt32 uiSizeY = 0;
 
   /// X/Y half-extents of the heightfield in world units.
-  ezVec2 vHalfExtent;
+  WVec2 vHalfExtent;
 
   /// Height samples, row-major with uiSizeX * uiSizeY entries.
-  ezArrayPtr<const float> heights;
+  WArrayPtr<const float> heights;
 
   /// Per-quad material indices, row-major with (uiSizeX-1)*(uiSizeY-1) entries.
   /// May be empty if there are no materials.
-  ezArrayPtr<const ezUInt8> matIndices;
+  WArrayPtr<const WUInt8> matIndices;
 
   /// Surface resource paths indexed by material index values.
-  ezArrayPtr<const ezString> surfacePaths;
+  WArrayPtr<const WString> surfacePaths;
 
   /// Jolt collision layer stored in the file and forwarded to the collider component.
-  ezUInt8 uiCollisionLayer = 0;
+  WUInt8 uiCollisionLayer = 0;
 };
 
-struct ezJoltMeshDesc
+struct WJoltMeshDesc
 {
-  enum class Type : ezUInt8
+  enum class Type : WUInt8
   {
     Triangle,
     ConvexHull,
@@ -48,48 +48,48 @@ struct ezJoltMeshDesc
 
   Type m_Type = Type::Triangle;
   bool m_bFlipNormals = false;
-  ezUInt32 m_uiMaxConvexPieces = 1;
+  WUInt32 m_uiMaxConvexPieces = 1;
 
   /// Hash of the source data. Written uncompressed at the front of the file so the export
   /// modifier can check whether the file is up to date without decompressing it.
-  ezUInt64 m_uiContentHash = 0;
+  WUInt64 m_uiContentHash = 0;
 
-  ezDynamicArray<ezVec3> m_Vertices;
-  ezDynamicArray<ezUInt32> m_TriangleIndices;
-  ezDynamicArray<ezUInt16> m_TriangleSurfaceID;
+  WDynamicArray<WVec3> m_Vertices;
+  WDynamicArray<WUInt32> m_TriangleIndices;
+  WDynamicArray<WUInt16> m_TriangleSurfaceID;
 
-  ezDynamicArray<ezString> m_Surfaces;
+  WDynamicArray<WString> m_Surfaces;
 };
 
 /// Stats for the geometry that cooking produced.
-struct ezJoltCookedMeshStats
+struct WJoltCookedMeshStats
 {
-  ezUInt32 m_uiNumVertices = 0;  ///< Summed over all parts, for a decomposition or hull group.
-  ezUInt32 m_uiNumTriangles = 0; ///< Summed over all parts, for a decomposition or hull group.
-  ezUInt32 m_uiNumParts = 0;     ///< How many convex pieces were produced. 1 for a single hull, 0 for a triangle mesh.
+  WUInt32 m_uiNumVertices = 0;  ///< Summed over all parts, for a decomposition or hull group.
+  WUInt32 m_uiNumTriangles = 0; ///< Summed over all parts, for a decomposition or hull group.
+  WUInt32 m_uiNumParts = 0;     ///< How many convex pieces were produced. 1 for a single hull, 0 for a triangle mesh.
 };
 
-/// Helper class for writing ezJoltMeshResource and ezJoltHeightfieldResource files.
-class EZ_JOLTPLUGIN_DLL ezJoltMeshResourceWriter
+/// Helper class for writing WJoltMeshResource and WJoltHeightfieldResource files.
+class W_JOLTPLUGIN_DLL WJoltMeshResourceWriter
 {
 public:
-  /// Writes the given mesh description to the provided stream so that it can be loaded as an ezJoltMeshResource.
+  /// Writes the given mesh description to the provided stream so that it can be loaded as an WJoltMeshResource.
   ///
   /// Set bWriteAssetHeader to false if the asset header has already been written to the stream, e.g. in case of an asset transformation.
-  static ezResult WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0, ezJoltCookedMeshStats* out_pStats = nullptr);
+  static WResult WriteMeshResource(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, bool bWriteAssetHeader = true, WUInt64 uiAssetHash = 0, WJoltCookedMeshStats* out_pStats = nullptr);
 
-  /// Cooks the Jolt heightfield shape and writes it to the provided stream so that it can be loaded as an ezJoltHeightfieldResource.
+  /// Cooks the Jolt heightfield shape and writes it to the provided stream so that it can be loaded as an WJoltHeightfieldResource.
   ///
   /// Set bWriteAssetHeader to false if the asset header has already been written to the stream.
-  static ezResult WriteHeightfieldResource(const ezJoltHeightfieldWriteDesc& desc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0);
+  static WResult WriteHeightfieldResource(const WJoltHeightfieldWriteDesc& desc, WStreamWriter& inout_stream, bool bWriteAssetHeader = true, WUInt64 uiAssetHash = 0);
 
 private:
-  static ezResult ComputeConvexHull(const ezDynamicArray<ezVec3>& vertices, ezDynamicArray<ezVec3>& out_hullVertices);
+  static WResult ComputeConvexHull(const WDynamicArray<WVec3>& vertices, WDynamicArray<WVec3>& out_hullVertices);
 
-  static ezResult CookSingleConvexJoltMesh(const ezDynamicArray<ezVec3>& vertices, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
+  static WResult CookSingleConvexJoltMesh(const WDynamicArray<WVec3>& vertices, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats);
 
-  static ezResult CookTriangleMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
-  static ezResult CookConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
-  static ezResult CookDecomposedConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
-  static ezResult CookConvexHullGroup(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
+  static WResult CookTriangleMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream);
+  static WResult CookConvexMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats);
+  static WResult CookDecomposedConvexMesh(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats);
+  static WResult CookConvexHullGroup(const WJoltMeshDesc& meshDesc, WStreamWriter& inout_stream, WJoltCookedMeshStats& ref_stats);
 };

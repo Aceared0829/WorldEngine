@@ -8,14 +8,14 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Utilities/RecentFilesList.h>
 
-void ezRecentFilesList::Insert(ezStringView sFile, ezInt32 iContainerWindow)
+void WRecentFilesList::Insert(WStringView sFile, WInt32 iContainerWindow)
 {
-  ezStringBuilder sCleanPath = sFile;
+  WStringBuilder sCleanPath = sFile;
   sCleanPath.MakeCleanPath();
 
-  ezString s = sCleanPath;
+  WString s = sCleanPath;
 
-  for (ezUInt32 i = 0; i < m_Files.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Files.GetCount(); i++)
   {
     if (m_Files[i].m_File == s)
     {
@@ -29,46 +29,46 @@ void ezRecentFilesList::Insert(ezStringView sFile, ezInt32 iContainerWindow)
     m_Files.SetCount(m_uiMaxElements);
 }
 
-void ezRecentFilesList::Save(ezStringView sFile)
+void WRecentFilesList::Save(WStringView sFile)
 {
-  ezDeferredFileWriter File;
+  WDeferredFileWriter File;
   File.SetOutput(sFile);
 
   for (const RecentFile& file : m_Files)
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
     sTemp.SetFormat("{0}|{1}", file.m_File, file.m_iContainerWindow);
     File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
     File.WriteBytes("\n", sizeof(char)).IgnoreResult();
   }
 
   if (File.Close().Failed())
-    ezLog::Error("Unable to open file '{0}' for writing!", sFile);
+    WLog::Error("Unable to open file '{0}' for writing!", sFile);
 }
 
-void ezRecentFilesList::Load(ezStringView sFile)
+void WRecentFilesList::Load(WStringView sFile)
 {
   m_Files.Clear();
 
-  ezFileReader File;
+  WFileReader File;
   if (File.Open(sFile).Failed())
     return;
 
-  ezStringBuilder sAllLines;
+  WStringBuilder sAllLines;
   sAllLines.ReadAll(File);
 
-  ezTempHybridArray<ezStringView, 16> Lines;
+  WTempHybridArray<WStringView, 16> Lines;
   sAllLines.Split(false, Lines, "\n");
 
-  ezStringBuilder sTemp, sTemp2;
+  WStringBuilder sTemp, sTemp2;
 
-  for (const ezStringView& sv : Lines)
+  for (const WStringView& sv : Lines)
   {
     sTemp = sv;
-    ezTempHybridArray<ezStringView, 2> Parts;
+    WTempHybridArray<WStringView, 2> Parts;
     sTemp.Split(false, Parts, "|");
 
-    if (!ezOSFile::ExistsFile(Parts[0].GetData(sTemp2)))
+    if (!WOSFile::ExistsFile(Parts[0].GetData(sTemp2)))
       continue;
 
     if (Parts.GetCount() == 1)
@@ -77,9 +77,9 @@ void ezRecentFilesList::Load(ezStringView sFile)
     }
     else if (Parts.GetCount() == 2)
     {
-      ezStringBuilder sContainer = Parts[1];
-      ezInt32 iContainerWindow = 0;
-      ezConversionUtils::StringToInt(sContainer, iContainerWindow).IgnoreResult();
+      WStringBuilder sContainer = Parts[1];
+      WInt32 iContainerWindow = 0;
+      WConversionUtils::StringToInt(sContainer, iContainerWindow).IgnoreResult();
       m_Files.PushBack(RecentFile(Parts[0], iContainerWindow));
     }
   }

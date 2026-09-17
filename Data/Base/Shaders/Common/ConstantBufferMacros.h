@@ -2,11 +2,11 @@
 
 #include "Platforms.h"
 
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 
 // HLSL
 
-#  define EZ_SHADER_STRUCT
+#  define W_SHADER_STRUCT
 
 struct Transform
 {
@@ -35,7 +35,7 @@ float3x3 TransformToRotation(Transform t)
 #  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name BIND_RESOURCE(Slot, Set)
 #  define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
 
-// Note: If extended, you need to extend Engine/RendererCore/ShaderCompiler/Implementation/ShaderParser.cpp as well as ezShaderConstant::Type.
+// Note: If extended, you need to extend Engine/RendererCore/ShaderCompiler/Implementation/ShaderParser.cpp as well as WShaderConstant::Type.
 #  define FLOAT1(Name) float Name
 #  define FLOAT2(Name) float2 Name
 #  define FLOAT3(Name) float3 Name
@@ -63,9 +63,9 @@ float3x3 TransformToRotation(Transform t)
     float Name2 = f16tof32(CombinedName >> 16)
 
 #  define PACKEDCOLOR4H(Name)    \
-    uint EZ_PP_CONCAT(Name, RG); \
-    uint EZ_PP_CONCAT(Name, GB)
-#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_PP_CONCAT(Name, RG), EZ_PP_CONCAT(Name, GB))
+    uint W_PP_CONCAT(Name, RG); \
+    uint W_PP_CONCAT(Name, GB)
+#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(W_PP_CONCAT(Name, RG), W_PP_CONCAT(Name, GB))
 
 #  define PACKEDUINT16(Name1, Name2, CombinedName) uint CombinedName
 #  define UNPACKUINT16(Name1, Name2, CombinedName) \
@@ -86,46 +86,46 @@ float3x3 TransformToRotation(Transform t)
 #  include <Foundation/Basics/Platform/Common.h>
 #  include <RendererFoundation/Shader/Types.h>
 
-#  define EZ_SHADER_STRUCT alignas(16)
+#  define W_SHADER_STRUCT alignas(16)
 #  define CONSTANT_BUFFER(Name, Slot) struct alignas(16) Name
 #  define CONSTANT_BUFFER2(Name, Slot, Set) struct alignas(16) Name
 #  define STRUCTURED_BUFFER(Name, Type)
-#  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT Name
+#  define BEGIN_PUSH_CONSTANTS(Name) struct W_SHADER_STRUCT Name
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define FLOAT1(Name) float Name
-#  define FLOAT2(Name) ezVec2 Name
-#  define FLOAT3(Name) ezVec3 Name
-#  define FLOAT4(Name) ezVec4 Name
+#  define FLOAT2(Name) WVec2 Name
+#  define FLOAT3(Name) WVec3 Name
+#  define FLOAT4(Name) WVec4 Name
 #  define INT1(Name) int Name
-#  define INT2(Name) ezVec2I32 Name
-#  define INT3(Name) ezVec3I32 Name
-#  define INT4(Name) ezVec4I32 Name
-#  define UINT1(Name) ezUInt32 Name
-#  define UINT2(Name) ezVec2U32 Name
-#  define UINT3(Name) ezVec3U32 Name
-#  define UINT4(Name) ezVec4U32 Name
-#  define MAT3(Name) ezShaderMat3 Name
-#  define MAT4(Name) ezShaderMat4 Name
-#  define TRANSFORM(Name) ezShaderTransform Name
-#  define COLOR4F(Name) ezColor Name
+#  define INT2(Name) WVec2I32 Name
+#  define INT3(Name) WVec3I32 Name
+#  define INT4(Name) WVec4I32 Name
+#  define UINT1(Name) WUInt32 Name
+#  define UINT2(Name) WVec2U32 Name
+#  define UINT3(Name) WVec3U32 Name
+#  define UINT4(Name) WVec4U32 Name
+#  define MAT3(Name) WShaderMat3 Name
+#  define MAT4(Name) WShaderMat4 Name
+#  define TRANSFORM(Name) WShaderTransform Name
+#  define COLOR4F(Name) WColor Name
 
-// #  define COLOR4UB(Name) ezColorGammaUB Name // TODO: this doesn't actually work (in the shader)
+// #  define COLOR4UB(Name) WColorGammaUB Name // TODO: this doesn't actually work (in the shader)
 
-#  define BOOL1(Name) ezShaderBool Name
+#  define BOOL1(Name) WShaderBool Name
 
 #  define PACKEDHALF2(Name1, Name2, CombinedName) \
-    ezFloat16 Name1;                              \
-    ezFloat16 Name2
-#  define PACKEDCOLOR4H(Name) ezColorLinear16f Name
+    WFloat16 Name1;                              \
+    WFloat16 Name2
+#  define PACKEDCOLOR4H(Name) WColorLinear16f Name
 
 #  define PACKEDUINT16(Name1, Name2, CombinedName) \
-    ezUInt16 Name1;                                \
-    ezUInt16 Name2
+    WUInt16 Name1;                                \
+    WUInt16 Name2
 
 #  define PACKEDUINT8(Name1, Name2, Name3, Name4, CombinedName) \
-    ezUInt8 Name1;                                              \
-    ezUInt8 Name2;                                              \
-    ezUInt8 Name3;                                              \
-    ezUInt8 Name4
+    WUInt8 Name1;                                              \
+    WUInt8 Name2;                                              \
+    WUInt8 Name3;                                              \
+    WUInt8 Name4
 
 #endif

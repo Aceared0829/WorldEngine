@@ -4,31 +4,31 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezManipulatorAdapter::ezManipulatorAdapter()
+WManipulatorAdapter::WManipulatorAdapter()
 {
-  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
+  WQtDocumentWindow::s_Events.AddEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentWindowEventHandler, this));
 }
 
-ezManipulatorAdapter::~ezManipulatorAdapter()
+WManipulatorAdapter::~WManipulatorAdapter()
 {
-  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
+  WQtDocumentWindow::s_Events.RemoveEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentWindowEventHandler, this));
 
   if (m_pObject)
   {
-    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
-    m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument()->m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument()->m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
-void ezManipulatorAdapter::SetManipulator(const ezManipulatorAttribute* pAttribute, const ezDocumentObject* pObject)
+void WManipulatorAdapter::SetManipulator(const WManipulatorAttribute* pAttribute, const WDocumentObject* pObject)
 {
   m_pManipulatorAttr = pAttribute;
   m_pObject = pObject;
 
   auto& meta = *m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument()->m_DocumentObjectMetaData;
 
-  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
-  meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
+  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+  meta.m_DataModifiedEvent.AddEventHandler(WMakeDelegate(&WManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
 
   {
     auto pMeta = meta.BeginReadMetaData(m_pObject->GetGuid());
@@ -41,7 +41,7 @@ void ezManipulatorAdapter::SetManipulator(const ezManipulatorAttribute* pAttribu
   Update();
 }
 
-void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WManipulatorAdapter::DocumentObjectPropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (e.m_pObject == m_pObject)
   {
@@ -53,17 +53,17 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
   }
 }
 
-void ezManipulatorAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
+void WManipulatorAdapter::DocumentWindowEventHandler(const WQtDocumentWindowEvent& e)
 {
-  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument())
+  if (e.m_Type == WQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument())
   {
     UpdateGizmoTransform();
   }
 }
 
-void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+void WManipulatorAdapter::DocumentObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WDocumentObjectMetaData>::EventData& e)
 {
-  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 && e.m_ObjectKey == m_pObject->GetGuid())
+  if ((e.m_uiModifiedFlags & WDocumentObjectMetaData::HiddenFlag) != 0 && e.m_ObjectKey == m_pObject->GetGuid())
   {
     m_bManipulatorIsVisible = !e.m_pValue->m_bHidden;
 
@@ -71,57 +71,57 @@ void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMeta
   }
 }
 
-ezTransform ezManipulatorAdapter::GetOffsetTransform() const
+WTransform WManipulatorAdapter::GetOffsetTransform() const
 {
-  return ezTransform::MakeIdentity();
+  return WTransform::MakeIdentity();
 }
 
-ezTransform ezManipulatorAdapter::GetObjectTransform() const
+WTransform WManipulatorAdapter::GetObjectTransform() const
 {
-  ezTransform tObj;
+  WTransform tObj;
   m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, tObj).IgnoreResult();
 
-  const ezTransform offset = GetOffsetTransform();
+  const WTransform offset = GetOffsetTransform();
 
-  ezTransform tGlobal = ezTransform::MakeGlobalTransform(tObj, offset);
+  WTransform tGlobal = WTransform::MakeGlobalTransform(tObj, offset);
 
   return tGlobal;
 }
 
-ezObjectAccessorBase* ezManipulatorAdapter::GetObjectAccessor() const
+WObjectAccessorBase* WManipulatorAdapter::GetObjectAccessor() const
 {
   return m_pObject->GetDocumentObjectManager()->GetDocument()->GetObjectAccessor();
 }
 
-const ezAbstractProperty* ezManipulatorAdapter::GetProperty(const char* szProperty) const
+const WAbstractProperty* WManipulatorAdapter::GetProperty(const char* szProperty) const
 {
   return m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
 }
 
-void ezManipulatorAdapter::BeginTemporaryInteraction()
+void WManipulatorAdapter::BeginTemporaryInteraction()
 {
   GetObjectAccessor()->BeginTemporaryCommands("Adjust Object");
 }
 
-void ezManipulatorAdapter::EndTemporaryInteraction()
+void WManipulatorAdapter::EndTemporaryInteraction()
 {
   GetObjectAccessor()->FinishTemporaryCommands();
 }
 
-void ezManipulatorAdapter::CancelTemporayInteraction()
+void WManipulatorAdapter::CancelTemporayInteraction()
 {
   GetObjectAccessor()->CancelTemporaryCommands();
 }
 
-void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& value) const
+void WManipulatorAdapter::ClampProperty(const char* szProperty, WVariant& value) const
 {
-  ezResult status(EZ_FAILURE);
+  WResult status(W_FAILURE);
   const double fCur = value.ConvertTo<double>(&status);
 
   if (status.Failed())
     return;
 
-  const ezClampValueAttribute* pClamp = GetProperty(szProperty)->GetAttributeByType<ezClampValueAttribute>();
+  const WClampValueAttribute* pClamp = GetProperty(szProperty)->GetAttributeByType<WClampValueAttribute>();
   if (pClamp == nullptr)
     return;
 
@@ -146,44 +146,44 @@ void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& valu
   }
 }
 
-void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/,
-  ezVariant value4 /*= ezVariant()*/, const char* szProperty5 /*= nullptr*/, ezVariant value5 /*= ezVariant()*/, const char* szProperty6 /*= nullptr*/, ezVariant value6 /*= ezVariant()*/)
+void WManipulatorAdapter::ChangeProperties(const char* szProperty1, WVariant value1, const char* szProperty2 /*= nullptr*/, WVariant value2 /*= WVariant()*/, const char* szProperty3 /*= nullptr*/, WVariant value3 /*= WVariant()*/, const char* szProperty4 /*= nullptr*/,
+  WVariant value4 /*= WVariant()*/, const char* szProperty5 /*= nullptr*/, WVariant value5 /*= WVariant()*/, const char* szProperty6 /*= nullptr*/, WVariant value6 /*= WVariant()*/)
 {
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   pObjectAccessor->StartTransaction("Change Properties");
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty1))
+  if (!WStringUtils::IsNullOrEmpty(szProperty1))
   {
     ClampProperty(szProperty1, value1);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty1), value1).AssertSuccess();
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty2))
+  if (!WStringUtils::IsNullOrEmpty(szProperty2))
   {
     ClampProperty(szProperty2, value2);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty2), value2).AssertSuccess();
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty3))
+  if (!WStringUtils::IsNullOrEmpty(szProperty3))
   {
     ClampProperty(szProperty3, value3);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty3), value3).AssertSuccess();
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty4))
+  if (!WStringUtils::IsNullOrEmpty(szProperty4))
   {
     ClampProperty(szProperty4, value4);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty4), value4).AssertSuccess();
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty5))
+  if (!WStringUtils::IsNullOrEmpty(szProperty5))
   {
     ClampProperty(szProperty5, value5);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty5), value5).AssertSuccess();
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(szProperty6))
+  if (!WStringUtils::IsNullOrEmpty(szProperty6))
   {
     ClampProperty(szProperty6, value6);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty6), value6).AssertSuccess();

@@ -7,15 +7,15 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezFakeRopeComponentPatch_2_3 : public ezGraphPatch
+class WFakeRopeComponentPatch_2_3 : public WGraphPatch
 {
 public:
-  ezFakeRopeComponentPatch_2_3()
-    : ezGraphPatch("ezFakeRopeComponent", 3)
+  WFakeRopeComponentPatch_2_3()
+    : WGraphPatch("WFakeRopeComponent", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Anchor", "Anchor2");
     pNode->RenameProperty("AttachToOrigin", "AttachToAnchor1");
@@ -23,4 +23,4 @@ public:
   }
 };
 
-ezFakeRopeComponentPatch_2_3 g_ezFakeRopeComponentPatch_2_3;
+WFakeRopeComponentPatch_2_3 g_WFakeRopeComponentPatch_2_3;

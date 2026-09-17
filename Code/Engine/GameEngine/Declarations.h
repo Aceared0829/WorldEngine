@@ -3,7 +3,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class ezWindowBase;
-class ezWorld;
-class ezWorldModule;
-class ezGameApplication;
+class WWindowBase;
+class WWorld;
+class WWorldModule;
+class WGameApplication;

@@ -6,41 +6,41 @@
 #include <Foundation/Memory/TempAllocator.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TempAllocator)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TempAllocator)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezTempAllocator::Startup();
+    WTempAllocator::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezTempAllocator::Shutdown();
+    WTempAllocator::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezAllocator* ezTempAllocator::s_pAllocator;
+WAllocator* WTempAllocator::s_pAllocator;
 
 // static
-void ezTempAllocator::Startup()
+void WTempAllocator::Startup()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   static constexpr bool OverwriteMemoryOnFree = true;
 #else
   static constexpr bool OverwriteMemoryOnFree = false;
 #endif
-  using StackAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyStack<OverwriteMemoryOnFree>, ezAllocatorTrackingMode::Basics>;
+  using StackAllocatorType = WAllocatorWithPolicy<WAllocPolicyStack<OverwriteMemoryOnFree>, WAllocatorTrackingMode::Basics>;
 
-  s_pAllocator = EZ_DEFAULT_NEW(StackAllocatorType, "TempAllocator", ezFoundation::GetAlignedAllocator());
+  s_pAllocator = W_DEFAULT_NEW(StackAllocatorType, "TempAllocator", WFoundation::GetAlignedAllocator());
 }
 
 // static
-void ezTempAllocator::Shutdown()
+void WTempAllocator::Shutdown()
 {
-  EZ_DEFAULT_DELETE(s_pAllocator);
+  W_DEFAULT_DELETE(s_pAllocator);
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_TempAllocator);
+W_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_TempAllocator);

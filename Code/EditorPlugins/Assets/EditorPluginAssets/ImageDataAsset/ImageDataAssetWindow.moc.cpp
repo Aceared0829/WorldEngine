@@ -9,16 +9,16 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtImageDataAssetDocumentWindow
+// WQtImageDataAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
-ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAssetDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtImageDataAssetDocumentWindow::WQtImageDataAssetDocumentWindow(WImageDataAssetDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "ImageDataAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -27,8 +27,8 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "ImageDataAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -39,9 +39,9 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
 
   // Central Widget
   {
-    m_pImageWidget = new ezQtImageWidget(this);
+    m_pImageWidget = new WQtImageWidget(this);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ImageDataView");
     pCentral->setWindowTitle("Image");
     pCentral->setWidget(m_pImageWidget);
@@ -50,11 +50,11 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ImageDataProperties");
     pPropertyPanel->setWindowTitle("Image Properties");
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -62,7 +62,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -76,23 +76,23 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
 
   UpdatePreview();
 
-  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_EventUnsubscriper);
+  pDocument->Events().AddEventHandler(WMakeDelegate(&WQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_EventUnsubscriper);
 }
 
-void ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler(const ezImageDataAssetEvent& e)
+void WQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler(const WImageDataAssetEvent& e)
 {
-  if (e.m_Type != ezImageDataAssetEvent::Type::Transformed)
+  if (e.m_Type != WImageDataAssetEvent::Type::Transformed)
     return;
 
   UpdatePreview();
 }
 
-void ezQtImageDataAssetDocumentWindow::UpdatePreview()
+void WQtImageDataAssetDocumentWindow::UpdatePreview()
 {
-  auto pImageDoc = static_cast<ezImageDataAssetDocument*>(GetDocument());
+  auto pImageDoc = static_cast<WImageDataAssetDocument*>(GetDocument());
 
-  ezStringBuilder path = pImageDoc->GetProperties()->m_sInputFile;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(path))
+  WStringBuilder path = pImageDoc->GetProperties()->m_sInputFile;
+  if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(path))
     return;
 
   QPixmap pixmap;

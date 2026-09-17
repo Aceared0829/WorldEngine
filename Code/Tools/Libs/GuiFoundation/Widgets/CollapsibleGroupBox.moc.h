@@ -5,13 +5,13 @@
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <GuiFoundation/ui_CollapsibleGroupBox.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public ezQtGroupBoxBase, protected Ui_CollapsibleGroupBox
+class W_GUIFOUNDATION_DLL WQtCollapsibleGroupBox : public WQtGroupBoxBase, protected Ui_CollapsibleGroupBox
 {
   Q_OBJECT
 public:
-  explicit ezQtCollapsibleGroupBox(QWidget* pParent);
+  explicit WQtCollapsibleGroupBox(QWidget* pParent);
 
-  virtual void SetTitle(ezStringView sTitle) override;
+  virtual void SetTitle(WStringView sTitle) override;
   virtual void SetIcon(const QIcon& icon) override;
   virtual void SetFillColor(const QColor& color) override;
 

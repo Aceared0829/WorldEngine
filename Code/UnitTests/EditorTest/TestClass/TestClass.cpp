@@ -18,82 +18,82 @@
 #include <Texture/Image/ImageUtils.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezEditorTestApplication::ezEditorTestApplication(ezStringView sTestName)
-  : ezApplication("ezEditor")
+WEditorTestApplication::WEditorTestApplication(WStringView sTestName)
+  : WApplication("WEditor")
 {
   EnableMemoryLeakReporting(true);
 
-  m_pEditorApp = new ezQtEditorApp;
+  m_pEditorApp = new WQtEditorApp;
   m_sTestName = sTestName;
 }
 
-ezResult ezEditorTestApplication::BeforeCoreSystemsStartup()
+WResult WEditorTestApplication::BeforeCoreSystemsStartup()
 {
   if (SUPER::BeforeCoreSystemsStartup().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezStartup::AddApplicationTag("tool");
-  ezStartup::AddApplicationTag("editor");
-  ezStartup::AddApplicationTag("editorapp");
+  WStartup::AddApplicationTag("tool");
+  WStartup::AddApplicationTag("editor");
+  WStartup::AddApplicationTag("editorapp");
 
-  ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
-  return EZ_SUCCESS;
+  WQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+  return W_SUCCESS;
 }
 
-void ezEditorTestApplication::AfterCoreSystemsShutdown()
+void WEditorTestApplication::AfterCoreSystemsShutdown()
 {
-  ezQtEditorApp::GetSingleton()->DeInitQt();
+  WQtEditorApp::GetSingleton()->DeInitQt();
 
   delete m_pEditorApp;
   m_pEditorApp = nullptr;
 }
 
-void ezEditorTestApplication::Run()
+void WEditorTestApplication::Run()
 {
   qApp->processEvents();
 }
 
-void ezEditorTestApplication::AfterCoreSystemsStartup()
+void WEditorTestApplication::AfterCoreSystemsStartup()
 {
-  EZ_PROFILE_SCOPE("AfterCoreSystemsStartup");
+  W_PROFILE_SCOPE("AfterCoreSystemsStartup");
   // We override the user data dir to not pollute the editor settings.
-  ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder userDataDir = WTestFramework::GetInstance()->GetAbsOutputPath();
   userDataDir.AppendPath(m_sTestName);
   userDataDir.MakeCleanPath();
 
-  ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::Dashboard | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
+  WQtEditorApp::GetSingleton()->StartupEditor(WQtEditorApp::StartupFlags::SafeMode | WQtEditorApp::StartupFlags::Dashboard | WQtEditorApp::StartupFlags::UnitTest, userDataDir);
   // Disable msg boxes.
-  ezQtUiServices::SetHeadless(true);
-  ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
+  WQtUiServices::SetHeadless(true);
+  WFileSystem::SetSpecialDirectory("testout", WTestFramework::GetInstance()->GetAbsOutputPath());
 
-  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+  WFileSystem::AddDataDirectory(">Wtest/", "ImageComparisonDataDir", "imgout", WDataDirUsage::AllowWrites).IgnoreResult();
 
   // To read reference images
-  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
-  ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
+  WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
+  WFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
 }
 
-void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
+void WEditorTestApplication::BeforeHighLevelSystemsShutdown()
 {
-  EZ_PROFILE_SCOPE("BeforeHighLevelSystemsShutdown");
-  ezQtEditorApp::GetSingleton()->ShutdownEditor();
+  W_PROFILE_SCOPE("BeforeHighLevelSystemsShutdown");
+  WQtEditorApp::GetSingleton()->ShutdownEditor();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezEditorTest::ezEditorTest()
+WEditorTest::WEditorTest()
 {
-  ezQtEngineViewWidget::s_FixedResolution = ezSizeU32(512, 512);
+  WQtEngineViewWidget::s_FixedResolution = WSizeU32(512, 512);
 }
 
-ezEditorTest::~ezEditorTest() = default;
+WEditorTest::~WEditorTest() = default;
 
-ezEditorTestApplication* ezEditorTest::CreateApplication()
+WEditorTestApplication* WEditorTest::CreateApplication()
 {
-  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication, GetTestName());
+  WEditorTestApplication* pTestApplication = W_DEFAULT_NEW(WEditorTestApplication, GetTestName());
 
-  m_CommandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
-  EZ_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
+  m_CommandLineArguments = WCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
+  W_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
 
   m_CommandLineArgumentPointers.Clear();
   for (auto& s : m_CommandLineArguments)
@@ -106,10 +106,10 @@ ezEditorTestApplication* ezEditorTest::CreateApplication()
   return pTestApplication;
 }
 
-ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
+WResult WEditorTest::GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber)
 {
   if (!m_CapturedImage.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (m_CapturedImage.GetWidth() == 512 && m_CapturedImage.GetHeight() == 512)
   {
@@ -118,183 +118,183 @@ ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest,
   else
   {
     // Due to DPI scaling, we can't guarantee that the swapchain is exactly 512x512. The viewport still is though, so as long as we have something bigger the resulting image is correct if we crop off the remaining pixels.
-    ezImageUtils::CropImage(m_CapturedImage, {0, 0}, {512, 512}, ref_img);
+    WImageUtils::CropImage(m_CapturedImage, {0, 0}, {512, 512}, ref_img);
     m_CapturedImage.Clear();
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorTest::InitializeTest()
+WResult WEditorTest::InitializeTest()
 {
   m_pApplication = CreateApplication();
   m_sProjectPath.Clear();
 
   if (m_pApplication == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
+  W_SUCCEED_OR_RETURN(WRun_Startup(m_pApplication));
 
   static bool s_bCheckedAdapter = false;
-  static ezString s_sAdapterName;
+  static WString s_sAdapterName;
 
   if (!s_bCheckedAdapter)
   {
     s_bCheckedAdapter = true;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezUniquePtr<ezGALDevice> pDevice;
-    ezGALDeviceCreationDescription DeviceInit;
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    WUniquePtr<WGALDevice> pDevice;
+    WGALDeviceCreationDescription DeviceInit;
 
-    pDevice = ezGALDeviceFactory::CreateDevice(ezGameApplication::GetActiveRenderer(), ezFoundation::GetDefaultAllocator(), DeviceInit);
+    pDevice = WGALDeviceFactory::CreateDevice(WGameApplication::GetActiveRenderer(), WFoundation::GetDefaultAllocator(), DeviceInit);
 
-    EZ_SUCCEED_OR_RETURN(pDevice->Init());
+    W_SUCCEED_OR_RETURN(pDevice->Init());
     s_sAdapterName = pDevice->GetCapabilities().m_sAdapterName;
-    EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
+    W_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
 #endif
   }
 
-  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), s_sAdapterName);
-  m_UIServicesTickEventHandlerID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorTest::UIServicesTickEventHandler, this));
+  WTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(W_PLATFORM_NAME, WGameApplication::GetActiveRenderer(), s_sAdapterName);
+  m_UIServicesTickEventHandlerID = WQtUiServices::s_TickEvent.AddEventHandler(WMakeDelegate(&WEditorTest::UIServicesTickEventHandler, this));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorTest::DeInitializeTest()
+WResult WEditorTest::DeInitializeTest()
 {
-  ezQtUiServices::s_TickEvent.RemoveEventHandler(m_UIServicesTickEventHandlerID);
+  WQtUiServices::s_TickEvent.RemoveEventHandler(m_UIServicesTickEventHandlerID);
   CloseCurrentProject();
 
   if (m_pApplication)
   {
-    ezRun_Shutdown(m_pApplication);
+    WRun_Shutdown(m_pApplication);
 
-    EZ_DEFAULT_DELETE(m_pApplication);
+    W_DEFAULT_DELETE(m_pApplication);
   }
 
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezString ezEditorTest::GetEditorProcessorPath() const
+WString WEditorTest::GetEditorProcessorPath() const
 {
-  ezStringBuilder path;
+  WStringBuilder path;
   // Get the directory where EditorTest.exe is located
-  path = ezOSFile::GetApplicationDirectory();
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  path.AppendPath("ezEditorProcessor.exe");
+  path = WOSFile::GetApplicationDirectory();
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  path.AppendPath("WEditorProcessor.exe");
 #else
-  path.AppendPath("ezEditorProcessor");
+  path.AppendPath("WEditorProcessor");
 #endif
   return path;
 }
 
-ezStatus ezEditorTest::RunEditorProcessor(const ezDynamicArray<ezString>& arguments)
+WStatus WEditorTest::RunEditorProcessor(const WDynamicArray<WString>& arguments)
 {
-  ezProcessOptions processOptions;
+  WProcessOptions processOptions;
   processOptions.m_sProcess = GetEditorProcessorPath();
   processOptions.m_Arguments = arguments;
   processOptions.m_bHideConsoleWindow = true;
 
-  ezInt32 exitCode = 0;
-  ezResult result = ezProcess::Execute(processOptions, &exitCode);
+  WInt32 exitCode = 0;
+  WResult result = WProcess::Execute(processOptions, &exitCode);
 
   if (result.Failed() || exitCode != 0)
   {
-    return ezStatus(ezFmt("ezEditorProcessor failed with exit code: {}", exitCode));
+    return WStatus(WFmt("WEditorProcessor failed with exit code: {}", exitCode));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezResult ezEditorTest::CreateAndLoadProject(const char* name)
+WResult WEditorTest::CreateAndLoadProject(const char* name)
 {
-  EZ_PROFILE_SCOPE("CreateAndLoadProject");
-  ezStringBuilder relPath;
+  W_PROFILE_SCOPE("CreateAndLoadProject");
+  WStringBuilder relPath;
   relPath = ":APPDATA";
   relPath.AppendPath(name);
 
-  ezStringBuilder absPath;
-  if (ezFileSystem::ResolvePath(relPath, &absPath, nullptr).Failed())
+  WStringBuilder absPath;
+  if (WFileSystem::ResolvePath(relPath, &absPath, nullptr).Failed())
   {
-    ezLog::Error("Failed to resolve project path '{0}'.", relPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to resolve project path '{0}'.", relPath);
+    return W_FAILURE;
   }
-  if (ezOSFile::DeleteFolder(absPath).Failed())
+  if (WOSFile::DeleteFolder(absPath).Failed())
   {
-    ezLog::Error("Failed to delete old project folder '{0}'.", absPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to delete old project folder '{0}'.", absPath);
+    return W_FAILURE;
   }
 
-  ezStringBuilder projectFile = absPath;
-  projectFile.AppendPath("ezProject");
+  WStringBuilder projectFile = absPath;
+  projectFile.AppendPath("WProject");
   if (m_pApplication->m_pEditorApp->CreateOrOpenProject(true, projectFile).Failed())
   {
-    ezLog::Error("Failed to create project '{0}'.", projectFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to create project '{0}'.", projectFile);
+    return W_FAILURE;
   }
 
   m_sProjectPath = absPath;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorTest::OpenProject(const char* path)
+WResult WEditorTest::OpenProject(const char* path)
 {
-  EZ_PROFILE_SCOPE("OpenProject");
-  ezStringBuilder relPath;
+  W_PROFILE_SCOPE("OpenProject");
+  WStringBuilder relPath;
   relPath = ">sdk";
   relPath.AppendPath(path);
 
-  ezStringBuilder absPath;
-  if (ezFileSystem::ResolveSpecialDirectory(relPath, absPath).Failed())
+  WStringBuilder absPath;
+  if (WFileSystem::ResolveSpecialDirectory(relPath, absPath).Failed())
   {
-    ezLog::Error("Failed to resolve project path '{0}'.", relPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to resolve project path '{0}'.", relPath);
+    return W_FAILURE;
   }
 
   // Copy project to temp folder
-  ezStringBuilder projectName = ezPathUtils::GetFileName(path);
-  ezStringBuilder relTempPath;
+  WStringBuilder projectName = WPathUtils::GetFileName(path);
+  WStringBuilder relTempPath;
   relTempPath = ":APPDATA";
   relTempPath.AppendPath(projectName);
 
-  ezStringBuilder absTempPath;
-  if (ezFileSystem::ResolvePath(relTempPath, &absTempPath, nullptr).Failed())
+  WStringBuilder absTempPath;
+  if (WFileSystem::ResolvePath(relTempPath, &absTempPath, nullptr).Failed())
   {
-    ezLog::Error("Failed to resolve project temp path '{0}'.", relPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to resolve project temp path '{0}'.", relPath);
+    return W_FAILURE;
   }
-  if (ezOSFile::DeleteFolder(absTempPath).Failed())
+  if (WOSFile::DeleteFolder(absTempPath).Failed())
   {
-    ezLog::Error("Failed to delete old project temp folder '{0}'.", absTempPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to delete old project temp folder '{0}'.", absTempPath);
+    return W_FAILURE;
   }
-  if (ezOSFile::CopyFolder(absPath, absTempPath).Failed())
+  if (WOSFile::CopyFolder(absPath, absTempPath).Failed())
   {
-    ezLog::Error("Failed to copy project '{0}' to temp location: '{1}'.", absPath, absTempPath);
-    return EZ_FAILURE;
+    WLog::Error("Failed to copy project '{0}' to temp location: '{1}'.", absPath, absTempPath);
+    return W_FAILURE;
   }
 
 
-  ezStringBuilder projectFile = absTempPath;
-  projectFile.AppendPath("ezProject");
+  WStringBuilder projectFile = absTempPath;
+  projectFile.AppendPath("WProject");
   if (m_pApplication->m_pEditorApp->CreateOrOpenProject(false, projectFile).Failed())
   {
-    ezLog::Error("Failed to open project '{0}'.", projectFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to open project '{0}'.", projectFile);
+    return W_FAILURE;
   }
 
   m_sProjectPath = absTempPath;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezDocument* ezEditorTest::OpenDocument(const char* subpath)
+WDocument* WEditorTest::OpenDocument(const char* subpath)
 {
-  ezStringBuilder fullpath;
+  WStringBuilder fullpath;
   fullpath = m_sProjectPath;
   fullpath.AppendPath(subpath);
 
-  ezDocument* pDoc = m_pApplication->m_pEditorApp->OpenDocument(fullpath, ezDocumentFlags::RequestWindow);
+  WDocument* pDoc = m_pApplication->m_pEditorApp->OpenDocument(fullpath, WDocumentFlags::RequestWindow);
 
   if (pDoc)
   {
@@ -304,17 +304,17 @@ ezDocument* ezEditorTest::OpenDocument(const char* subpath)
   return pDoc;
 }
 
-void ezEditorTest::ExecuteDocumentAction(const char* szActionName, ezDocument* pDocument, const ezVariant& argument /*= ezVariant()*/)
+void WEditorTest::ExecuteDocumentAction(const char* szActionName, WDocument* pDocument, const WVariant& argument /*= WVariant()*/)
 {
-  EZ_TEST_BOOL(ezActionManager::ExecuteAction(nullptr, szActionName, pDocument, argument).Succeeded());
+  W_TEST_BOOL(WActionManager::ExecuteAction(nullptr, szActionName, pDocument, argument).Succeeded());
 }
 
-ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName)
+WResult WEditorTest::CaptureImage(WQtDocumentWindow* pWindow, const char* szImageName)
 {
-  ezStringBuilder sImgPath = ezOSFile::GetUserDataFolder("EditorTests");
+  WStringBuilder sImgPath = WOSFile::GetUserDataFolder("EditorTests");
   sImgPath.AppendFormat("/{}.tga", szImageName);
 
-  ezOSFile::DeleteFile(sImgPath).IgnoreResult();
+  WOSFile::DeleteFile(sImgPath).IgnoreResult();
 
   pWindow->CreateImageCapture(sImgPath);
 
@@ -322,50 +322,50 @@ ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szI
   {
     ProcessEvents();
 
-    if (ezOSFile::ExistsFile(sImgPath))
+    if (WOSFile::ExistsFile(sImgPath))
       break;
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(100));
   }
 
-  if (!ezOSFile::ExistsFile(sImgPath))
-    return EZ_FAILURE;
+  if (!WOSFile::ExistsFile(sImgPath))
+    return W_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(m_CapturedImage.LoadFrom(sImgPath));
+  W_SUCCEED_OR_RETURN(m_CapturedImage.LoadFrom(sImgPath));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezEditorTest::CloseCurrentProject()
+void WEditorTest::CloseCurrentProject()
 {
-  EZ_PROFILE_SCOPE("CloseCurrentProject");
+  W_PROFILE_SCOPE("CloseCurrentProject");
   m_sProjectPath.Clear();
   m_pApplication->m_pEditorApp->CloseProject();
 }
 
-void ezEditorTest::SafeProfilingData()
+void WEditorTest::SafeProfilingData()
 {
-  ezProfilingUtils::SaveProfilingCapture(":appdata/profiling.json").IgnoreResult();
+  WProfilingUtils::SaveProfilingCapture(":appdata/profiling.json").IgnoreResult();
 }
 
-void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)
+void WEditorTest::ProcessEvents(WUInt32 uiIterations)
 {
-  EZ_PROFILE_SCOPE("ProcessEvents");
+  W_PROFILE_SCOPE("ProcessEvents");
   if (qApp)
   {
-    for (ezUInt32 i = 0; i < uiIterations; i++)
+    for (WUInt32 i = 0; i < uiIterations; i++)
     {
       qApp->processEvents();
     }
   }
 }
 
-void ezEditorTest::WaitFrames(ezUInt32 uiFrames)
+void WEditorTest::WaitFrames(WUInt32 uiFrames)
 {
-  EZ_PROFILE_SCOPE("WaitFrames");
+  W_PROFILE_SCOPE("WaitFrames");
   // Add one because we could have started waiting between start and end frame.
   uiFrames++;
-  ezUInt32 uiCurrentFrame = m_uiRenderedFrames;
+  WUInt32 uiCurrentFrame = m_uiRenderedFrames;
   if (qApp)
   {
     while ((m_uiRenderedFrames - uiCurrentFrame) < uiFrames)
@@ -375,15 +375,15 @@ void ezEditorTest::WaitFrames(ezUInt32 uiFrames)
   }
 }
 
-void ezEditorTest::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+void WEditorTest::UIServicesTickEventHandler(const WQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  if (e.m_Type == WQtUiServices::TickEvent::Type::EndFrame)
   {
     m_uiRenderedFrames++;
   }
 }
 
-std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids)
+std::unique_ptr<QMimeData> WEditorTest::AssetsToDragMimeData(WArrayPtr<WUuid> assetGuids)
 {
   std::unique_ptr<QMimeData> mimeData(new QMimeData());
   QByteArray encodedData;
@@ -392,23 +392,23 @@ std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid>
   QString sGuids;
   QList<QUrl> urls;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   stream << (int)1;
-  for (ezUInt32 i = 0; i < assetGuids.GetCount(); ++i)
+  for (WUInt32 i = 0; i < assetGuids.GetCount(); ++i)
   {
-    QString sGuid(ezConversionUtils::ToString(assetGuids[i], tmp).GetData());
+    QString sGuid(WConversionUtils::ToString(assetGuids[i], tmp).GetData());
     stream << sGuid;
   }
 
-  mimeData->setData("application/ezEditor.AssetGuid", encodedData);
+  mimeData->setData("application/WEditor.AssetGuid", encodedData);
   return std::move(mimeData);
 }
 
-std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
+std::unique_ptr<QMimeData> WEditorTest::ObjectsDragMimeData(const WDeque<const WDocumentObject*>& objects)
 {
-  ezTempHybridArray<const ezDocumentObject*, 32> Dragged;
-  for (const ezDocumentObject* pObject : objects)
+  WTempHybridArray<const WDocumentObject*, 32> Dragged;
+  for (const WDocumentObject* pObject : objects)
   {
     Dragged.PushBack(pObject);
   }
@@ -418,17 +418,17 @@ std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const
   stream << Dragged;
 
   std::unique_ptr<QMimeData> mimeData(new QMimeData());
-  mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
+  mimeData->setData("application/WEditor.ObjectSelection", encodedData);
   return std::move(mimeData);
 }
 
-void ezEditorTest::MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects)
+void WEditorTest::MoveObjectsToLayer(WScene2Document* pDoc, const WDeque<const WDocumentObject*>& objects, const WUuid& layer, WDeque<const WDocumentObject*>& new_objects)
 {
   pDoc->GetSelectionManager()->SetSelection(objects);
 
-  ezQtLayerAdapter adapter(pDoc);
+  WQtLayerAdapter adapter(pDoc);
   auto mimeData = ObjectsDragMimeData(objects);
-  ezDragDropInfo info;
+  WDragDropInfo info;
   info.m_iTargetObjectInsertChildIndex = -1;
   info.m_pMimeData = mimeData.get();
   info.m_sTargetContext = "layertree";
@@ -437,22 +437,22 @@ void ezEditorTest::MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<cons
   info.m_bCtrlKeyDown = false;
   info.m_bShiftKeyDown = false;
   info.m_pAdapter = &adapter;
-  if (!EZ_TEST_BOOL(ezDragDropHandler::DropOnly(&info)))
+  if (!W_TEST_BOOL(WDragDropHandler::DropOnly(&info)))
     return;
 
   new_objects = pDoc->GetLayerDocument(layer)->GetSelectionManager()->GetSelection();
 }
 
-const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift /*= false*/, bool bCtrl /*= false*/)
+const WDocumentObject* WEditorTest::DropAsset(WScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift /*= false*/, bool bCtrl /*= false*/)
 {
-  const ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->FindSubAsset(szAssetGuidOrPath);
-  if (EZ_TEST_BOOL(asset.isValid()))
+  const WAssetCurator::WLockedSubAsset asset = WAssetCurator::GetSingleton()->FindSubAsset(szAssetGuidOrPath);
+  if (W_TEST_BOOL(asset.isValid()))
   {
-    ezUuid assetGuid = asset->m_Data.m_Guid;
-    ezArrayPtr<ezUuid> assets(&assetGuid, 1);
+    WUuid assetGuid = asset->m_Data.m_Guid;
+    WArrayPtr<WUuid> assets(&assetGuid, 1);
     auto mimeData = AssetsToDragMimeData(assets);
 
-    ezDragDropInfo info;
+    WDragDropInfo info;
     info.m_pMimeData = mimeData.get();
     info.m_TargetDocument = pDoc->GetGuid();
     info.m_sTargetContext = "viewport";
@@ -461,7 +461,7 @@ const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const ch
     info.m_bShiftKeyDown = bShift;
     info.m_bCtrlKeyDown = bCtrl;
 
-    if (EZ_TEST_BOOL(ezDragDropHandler::DropOnly(&info)))
+    if (W_TEST_BOOL(WDragDropHandler::DropOnly(&info)))
     {
       return pDoc->GetSelectionManager()->GetCurrentObject();
     }
@@ -469,15 +469,15 @@ const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const ch
   return {};
 }
 
-const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent, ezStringView sName)
+const WDocumentObject* WEditorTest::CreateGameObject(WScene2Document* pDoc, const WDocumentObject* pParent, WStringView sName)
 {
   auto pAccessor = pDoc->GetObjectAccessor();
   pAccessor->StartTransaction("Add Game Object");
 
-  ezUuid guid;
-  EZ_TEST_STATUS(pAccessor->AddObjectByName(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
-  const ezDocumentObject* pObject = pAccessor->GetObject(guid);
-  EZ_TEST_STATUS(pAccessor->SetValueByName(pObject, "Name", sName));
+  WUuid guid;
+  W_TEST_STATUS(pAccessor->AddObjectByName(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, WRTTI::FindTypeByName("WGameObject"), guid));
+  const WDocumentObject* pObject = pAccessor->GetObject(guid);
+  W_TEST_STATUS(pAccessor->SetValueByName(pObject, "Name", sName));
 
   pAccessor->FinishTransaction();
 

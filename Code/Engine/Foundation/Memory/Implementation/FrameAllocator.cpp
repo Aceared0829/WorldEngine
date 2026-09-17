@@ -5,35 +5,35 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezDoubleBufferedLinearAllocator::ezDoubleBufferedLinearAllocator(ezStringView sName0, ezAllocator* pParent)
+WDoubleBufferedLinearAllocator::WDoubleBufferedLinearAllocator(WStringView sName0, WAllocator* pParent)
 {
-  constexpr ezUInt32 uiInitialSize = 1024 * 1024; // 1 MB
+  constexpr WUInt32 uiInitialSize = 1024 * 1024; // 1 MB
 
-  ezStringBuilder sName = sName0;
+  WStringBuilder sName = sName0;
   sName.Append("0");
 
-  m_pCurrentAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
+  m_pCurrentAllocator = W_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
 
   sName = sName0;
   sName.Append("1");
 
-  m_pOtherAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
+  m_pOtherAllocator = W_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
 }
 
-ezDoubleBufferedLinearAllocator::~ezDoubleBufferedLinearAllocator()
+WDoubleBufferedLinearAllocator::~WDoubleBufferedLinearAllocator()
 {
-  EZ_DEFAULT_DELETE(m_pCurrentAllocator);
-  EZ_DEFAULT_DELETE(m_pOtherAllocator);
+  W_DEFAULT_DELETE(m_pCurrentAllocator);
+  W_DEFAULT_DELETE(m_pOtherAllocator);
 }
 
-void ezDoubleBufferedLinearAllocator::Swap()
+void WDoubleBufferedLinearAllocator::Swap()
 {
-  ezMath::Swap(m_pCurrentAllocator, m_pOtherAllocator);
+  WMath::Swap(m_pCurrentAllocator, m_pOtherAllocator);
 
   m_pCurrentAllocator->Reset();
 }
 
-void ezDoubleBufferedLinearAllocator::Reset()
+void WDoubleBufferedLinearAllocator::Reset()
 {
   m_pCurrentAllocator->Reset();
   m_pOtherAllocator->Reset();
@@ -41,33 +41,33 @@ void ezDoubleBufferedLinearAllocator::Reset()
 
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezFrameAllocator::Startup();
+    WFrameAllocator::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezFrameAllocator::Shutdown();
+    WFrameAllocator::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDoubleBufferedLinearAllocator* ezFrameAllocator::s_pAllocator;
+WDoubleBufferedLinearAllocator* WFrameAllocator::s_pAllocator;
 
 // static
-void ezFrameAllocator::Swap()
+void WFrameAllocator::Swap()
 {
-  EZ_PROFILE_SCOPE("FrameAllocator.Swap");
+  W_PROFILE_SCOPE("FrameAllocator.Swap");
 
   s_pAllocator->Swap();
 }
 
 // static
-void ezFrameAllocator::Reset()
+void WFrameAllocator::Reset()
 {
   if (s_pAllocator)
   {
@@ -76,15 +76,15 @@ void ezFrameAllocator::Reset()
 }
 
 // static
-void ezFrameAllocator::Startup()
+void WFrameAllocator::Startup()
 {
-  s_pAllocator = EZ_DEFAULT_NEW(ezDoubleBufferedLinearAllocator, "FrameAllocator", ezFoundation::GetAlignedAllocator());
+  s_pAllocator = W_DEFAULT_NEW(WDoubleBufferedLinearAllocator, "FrameAllocator", WFoundation::GetAlignedAllocator());
 }
 
 // static
-void ezFrameAllocator::Shutdown()
+void WFrameAllocator::Shutdown()
 {
-  EZ_DEFAULT_DELETE(s_pAllocator);
+  W_DEFAULT_DELETE(s_pAllocator);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_FrameAllocator);
+W_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_FrameAllocator);

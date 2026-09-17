@@ -1,12 +1,12 @@
 [submodule "Data/Content"]
 	path = Data/Content
-	url = https://github.com/ezEngine/content
+	url = https://github.com/Aceared0829/WorldEngine-content.git
 [submodule "Data/Tools/Precompiled"]
 	path = Data/Tools/Precompiled
 	url = https://github.com/ezEngine/precompiled-tools
 [submodule "Code/ThirdParty/fmod"]
 	path = Code/ThirdParty/fmod
-	url = https://github.com/ezEngine/thirdparty-fmod
+	url = https://github.com/Aceared0829/WorldEngine-thirdparty-fmod.git
 [submodule "Code/ThirdParty/assimp"]
 	path = Code/ThirdParty/assimp
-	url = https://github.com/ezEngine/thirdparty-assimp
+	url = https://github.com/Aceared0829/WorldEngine-thirdparty-assimp.git

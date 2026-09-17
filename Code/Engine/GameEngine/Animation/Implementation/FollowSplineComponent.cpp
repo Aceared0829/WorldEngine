@@ -12,48 +12,48 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFollowSplineMode, 1)
-  EZ_ENUM_CONSTANTS(ezFollowSplineMode::OnlyPosition, ezFollowSplineMode::AlignUpZ, ezFollowSplineMode::FullRotation)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WFollowSplineMode, 1)
+  W_ENUM_CONSTANTS(WFollowSplineMode::OnlyPosition, WFollowSplineMode::AlignUpZ, WFollowSplineMode::FullRotation)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezFollowSplineComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WFollowSplineComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Spline", DummyGetter, SetSplineObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_ACCESSOR_PROPERTY("StartDistance", GetStartDistance, SetStartDistance)->AddAttributes(new ezClampValueAttribute(0.0f, {})),
-    EZ_ACCESSOR_PROPERTY("Running", IsRunning, SetRunning)->AddAttributes(new ezDefaultValueAttribute(true)), // Whether the animation should start right away.
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_Mode),
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("LookAhead", m_fLookAhead)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("Smoothing", m_fSmoothing)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("FollowMode", ezFollowSplineMode, m_FollowMode),  
-    EZ_MEMBER_PROPERTY("TiltAmount", m_fTiltAmount)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
-    EZ_MEMBER_PROPERTY("MaxTilt", m_MaxTilt)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(90.0f))),
+    W_ACCESSOR_PROPERTY("Spline", DummyGetter, SetSplineObject)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_ACCESSOR_PROPERTY("StartDistance", GetStartDistance, SetStartDistance)->AddAttributes(new WClampValueAttribute(0.0f, {})),
+    W_ACCESSOR_PROPERTY("Running", IsRunning, SetRunning)->AddAttributes(new WDefaultValueAttribute(true)), // Whether the animation should start right away.
+    W_ENUM_MEMBER_PROPERTY("Mode", WPropertyAnimMode, m_Mode),
+    W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("LookAhead", m_fLookAhead)->AddAttributes(new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("Smoothing", m_fSmoothing)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_ENUM_MEMBER_PROPERTY("FollowMode", WFollowSplineMode, m_FollowMode),
+    W_MEMBER_PROPERTY("TiltAmount", m_fTiltAmount)->AddAttributes(new WDefaultValueAttribute(5.0f)),
+    W_MEMBER_PROPERTY("MaxTilt", m_MaxTilt)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(30.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(90.0f))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetCurrentDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetDirectionForwards, In, "Forwards"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ToggleDirection),
+    W_SCRIPT_FUNCTION_PROPERTY(SetCurrentDistance, In, "Distance"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance),
+    W_SCRIPT_FUNCTION_PROPERTY(SetDirectionForwards, In, "Forwards"),
+    W_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
+    W_SCRIPT_FUNCTION_PROPERTY(ToggleDirection),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Animation"),
+    new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezFollowSplineComponent::ezFollowSplineComponent() = default;
-ezFollowSplineComponent::~ezFollowSplineComponent() = default;
+WFollowSplineComponent::WFollowSplineComponent() = default;
+WFollowSplineComponent::~WFollowSplineComponent() = default;
 
-void ezFollowSplineComponent::SerializeComponent(ezWorldWriter& ref_stream) const
+void WFollowSplineComponent::SerializeComponent(WWorldWriter& ref_stream) const
 {
   SUPER::SerializeComponent(ref_stream);
 
@@ -73,7 +73,7 @@ void ezFollowSplineComponent::SerializeComponent(ezWorldWriter& ref_stream) cons
   s << m_MaxTilt;
 }
 
-void ezFollowSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
+void WFollowSplineComponent::DeserializeComponent(WWorldReader& ref_stream)
 {
   SUPER::DeserializeComponent(ref_stream);
 
@@ -93,24 +93,24 @@ void ezFollowSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
   s >> m_MaxTilt;
 }
 
-void ezFollowSplineComponent::OnActivated()
+void WFollowSplineComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   SetCurrentDistance(m_fStartDistance);
 }
 
-void ezFollowSplineComponent::OnSimulationStarted()
+void WFollowSplineComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   // if no spline reference was set, search the parent objects for a spline
   if (m_hSplineObject.IsInvalidated())
   {
-    ezGameObject* pParent = GetOwner()->GetParent();
+    WGameObject* pParent = GetOwner()->GetParent();
     while (pParent != nullptr)
     {
-      ezSplineComponent* pSpline = nullptr;
+      WSplineComponent* pSpline = nullptr;
       if (pParent->TryGetComponentOfBaseType(pSpline))
       {
         m_hSplineObject = pSpline->GetOwner()->GetHandle();
@@ -124,7 +124,7 @@ void ezFollowSplineComponent::OnSimulationStarted()
   SetCurrentDistance(m_fStartDistance);
 }
 
-void ezFollowSplineComponent::SetSplineObject(const char* szReference)
+void WFollowSplineComponent::SetSplineObject(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -134,7 +134,7 @@ void ezFollowSplineComponent::SetSplineObject(const char* szReference)
   m_hSplineObject = resolver(szReference, GetHandle(), "Spline");
 }
 
-void ezFollowSplineComponent::SetStartDistance(float fDistance)
+void WFollowSplineComponent::SetStartDistance(float fDistance)
 {
   m_bLastStateValid = false;
   m_fStartDistance = fDistance;
@@ -145,42 +145,42 @@ void ezFollowSplineComponent::SetStartDistance(float fDistance)
   }
 }
 
-void ezFollowSplineComponent::SetCurrentDistance(float fDistance)
+void WFollowSplineComponent::SetCurrentDistance(float fDistance)
 {
-  m_fCurrentDistance = ezMath::Max(fDistance, 0.0f);
+  m_fCurrentDistance = WMath::Max(fDistance, 0.0f);
 
   if (IsActiveAndInitialized())
   {
-    ezGameObject* pSplineObject = nullptr;
+    WGameObject* pSplineObject = nullptr;
     if (!GetWorld()->TryGetObject(m_hSplineObject, pSplineObject))
       return;
 
-    ezSplineComponent* pSplineComponent;
+    WSplineComponent* pSplineComponent;
     if (!pSplineObject->TryGetComponentOfBaseType(pSplineComponent))
       return;
 
-    m_fCurrentDistance = ezMath::Min(m_fCurrentDistance, pSplineComponent->GetTotalLength());
+    m_fCurrentDistance = WMath::Min(m_fCurrentDistance, pSplineComponent->GetTotalLength());
 
     Update(true);
   }
 }
 
-void ezFollowSplineComponent::SetRunning(bool b)
+void WFollowSplineComponent::SetRunning(bool b)
 {
   m_bIsRunning = b;
 }
 
-void ezFollowSplineComponent::SetDirectionForwards(bool bForwards)
+void WFollowSplineComponent::SetDirectionForwards(bool bForwards)
 {
   m_bIsRunningForwards = bForwards;
 }
 
-void ezFollowSplineComponent::ToggleDirection()
+void WFollowSplineComponent::ToggleDirection()
 {
   m_bIsRunningForwards = !m_bIsRunningForwards;
 }
 
-void ezFollowSplineComponent::Update(bool bForce)
+void WFollowSplineComponent::Update(bool bForce)
 {
   if (!bForce && (!m_bIsRunning || m_fSpeed == 0.0f))
     return;
@@ -188,9 +188,9 @@ void ezFollowSplineComponent::Update(bool bForce)
   if (m_hSplineObject.IsInvalidated())
     return;
 
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
-  ezGameObject* pSplineObject = nullptr;
+  WGameObject* pSplineObject = nullptr;
   if (!pWorld->TryGetObject(m_hSplineObject, pSplineObject))
   {
     // no need to retry this again
@@ -198,7 +198,7 @@ void ezFollowSplineComponent::Update(bool bForce)
     return;
   }
 
-  ezSplineComponent* pSplineComponent;
+  WSplineComponent* pSplineComponent;
   if (!pSplineObject->TryGetComponentOfBaseType(pSplineComponent))
     return;
 
@@ -236,14 +236,14 @@ void ezFollowSplineComponent::Update(bool bForce)
 
     if (bReachedEnd)
     {
-      ezMsgAnimationReachedEnd msg;
+      WMsgAnimationReachedEnd msg;
       m_ReachedEndEvent.SendEventMessage(msg, this, GetOwner());
 
-      if (m_Mode == ezPropertyAnimMode::Loop)
+      if (m_Mode == WPropertyAnimMode::Loop)
       {
         m_fCurrentDistance = fToAdvance;
       }
-      else if (m_Mode == ezPropertyAnimMode::BackAndForth)
+      else if (m_Mode == WPropertyAnimMode::BackAndForth)
       {
         m_bIsRunningForwards = !m_bIsRunningForwards;
         fToAdvance = -fToAdvance;
@@ -257,20 +257,20 @@ void ezFollowSplineComponent::Update(bool bForce)
   }
 
   const float fKey = pSplineComponent->GetKeyAtDistance(m_fCurrentDistance);
-  ezVec3 vPosition = pSplineComponent->GetPositionAtKey(fKey);
-  ezVec3 vUpDir = pSplineComponent->GetUpDirAtKey(fKey);
+  WVec3 vPosition = pSplineComponent->GetPositionAtKey(fKey);
+  WVec3 vUpDir = pSplineComponent->GetUpDirAtKey(fKey);
 
-  ezVec3 vForwardDir;
+  WVec3 vForwardDir;
   if (m_fLookAhead > 0.0f)
   {
-    float fLookAhead = ezMath::Max(m_fLookAhead, 0.02f);
+    float fLookAhead = WMath::Max(m_fLookAhead, 0.02f);
     float fLookAheadDistance = m_fCurrentDistance + fLookAhead;
-    if (fLookAheadDistance > pSplineComponent->GetTotalLength() && m_Mode == ezPropertyAnimMode::Loop)
+    if (fLookAheadDistance > pSplineComponent->GetTotalLength() && m_Mode == WPropertyAnimMode::Loop)
     {
       fLookAheadDistance -= pSplineComponent->GetTotalLength();
     }
 
-    const ezVec3 vLookAheadPosition = pSplineComponent->GetPositionAtDistance(fLookAheadDistance);
+    const WVec3 vLookAheadPosition = pSplineComponent->GetPositionAtDistance(fLookAheadDistance);
     vForwardDir = vLookAheadPosition - vPosition;
   }
   else
@@ -280,45 +280,45 @@ void ezFollowSplineComponent::Update(bool bForce)
 
   if (m_bLastStateValid)
   {
-    const float fSmoothing = ezMath::Clamp(m_fSmoothing, 0.0f, 0.99f);
+    const float fSmoothing = WMath::Clamp(m_fSmoothing, 0.0f, 0.99f);
 
-    vPosition = ezMath::Lerp(vPosition, m_vLastPosition, fSmoothing);
-    vUpDir = ezMath::Lerp(vUpDir, m_vLastUpDir, fSmoothing);
-    vForwardDir = ezMath::Lerp(vForwardDir, m_vLastForwardDir, fSmoothing);
+    vPosition = WMath::Lerp(vPosition, m_vLastPosition, fSmoothing);
+    vUpDir = WMath::Lerp(vUpDir, m_vLastUpDir, fSmoothing);
+    vForwardDir = WMath::Lerp(vForwardDir, m_vLastForwardDir, fSmoothing);
   }
 
-  if (m_FollowMode == ezFollowSplineMode::AlignUpZ)
+  if (m_FollowMode == WFollowSplineMode::AlignUpZ)
   {
-    const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), vPosition);
+    const WPlane plane = WPlane::MakeFromNormalAndPoint(WVec3::MakeAxisZ(), vPosition);
     vForwardDir = plane.GetCoplanarDirection(vForwardDir);
   }
-  vForwardDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+  vForwardDir.NormalizeIfNotZero(WVec3::MakeAxisX()).IgnoreResult();
 
-  vUpDir = (m_FollowMode == ezFollowSplineMode::FullRotation) ? vUpDir : ezVec3::MakeAxisZ();
-  ezVec3 vRightDir = vUpDir.CrossRH(vForwardDir);
-  vRightDir.NormalizeIfNotZero(ezVec3::MakeAxisY()).IgnoreResult();
+  vUpDir = (m_FollowMode == WFollowSplineMode::FullRotation) ? vUpDir : WVec3::MakeAxisZ();
+  WVec3 vRightDir = vUpDir.CrossRH(vForwardDir);
+  vRightDir.NormalizeIfNotZero(WVec3::MakeAxisY()).IgnoreResult();
 
   vUpDir = vForwardDir.CrossRH(vRightDir);
-  vUpDir.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+  vUpDir.NormalizeIfNotZero(WVec3::MakeAxisZ()).IgnoreResult();
 
   // check if we want to tilt the platform when turning
-  ezAngle deltaAngle = ezAngle::MakeFromDegree(0.0f);
-  if (m_FollowMode == ezFollowSplineMode::AlignUpZ && !ezMath::IsZero(m_fTiltAmount, 0.0001f) && !ezMath::IsZero(m_MaxTilt.GetDegree(), 0.0001f))
+  WAngle deltaAngle = WAngle::MakeFromDegree(0.0f);
+  if (m_FollowMode == WFollowSplineMode::AlignUpZ && !WMath::IsZero(m_fTiltAmount, 0.0001f) && !WMath::IsZero(m_MaxTilt.GetDegree(), 0.0001f))
   {
     if (m_bLastStateValid)
     {
-      ezVec3 vLastForwardDir = m_vLastForwardDir;
+      WVec3 vLastForwardDir = m_vLastForwardDir;
       {
-        const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), vPosition);
+        const WPlane plane = WPlane::MakeFromNormalAndPoint(WVec3::MakeAxisZ(), vPosition);
         vLastForwardDir = plane.GetCoplanarDirection(vLastForwardDir);
-        vLastForwardDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+        vLastForwardDir.NormalizeIfNotZero(WVec3::MakeAxisX()).IgnoreResult();
       }
 
-      const float fTiltStrength = ezMath::Sign((vLastForwardDir - vForwardDir).Dot(vRightDir)) * ezMath::Sign(m_fTiltAmount);
-      ezAngle tiltAngle = ezMath::Min(vLastForwardDir.GetAngleBetween(vForwardDir) * ezMath::Abs(m_fTiltAmount), m_MaxTilt);
-      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_LastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
+      const float fTiltStrength = WMath::Sign((vLastForwardDir - vForwardDir).Dot(vRightDir)) * WMath::Sign(m_fTiltAmount);
+      WAngle tiltAngle = WMath::Min(vLastForwardDir.GetAngleBetween(vForwardDir) * WMath::Abs(m_fTiltAmount), m_MaxTilt);
+      deltaAngle = WMath::Lerp(tiltAngle * fTiltStrength, m_LastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
 
-      ezQuat rot = ezQuat::MakeFromAxisAndAngle(vForwardDir, deltaAngle);
+      WQuat rot = WQuat::MakeFromAxisAndAngle(vForwardDir, deltaAngle);
       vUpDir = rot * vUpDir;
       vRightDir = rot * vRightDir;
     }
@@ -332,18 +332,18 @@ void ezFollowSplineComponent::Update(bool bForce)
     m_LastTiltAngle = deltaAngle;
   }
 
-  ezMat3 mRot = ezMat3::MakeIdentity();
-  if (m_FollowMode != ezFollowSplineMode::OnlyPosition)
+  WMat3 mRot = WMat3::MakeIdentity();
+  if (m_FollowMode != WFollowSplineMode::OnlyPosition)
   {
     mRot.SetColumn(0, vForwardDir);
     mRot.SetColumn(1, vRightDir);
     mRot.SetColumn(2, vUpDir);
   }
 
-  ezTransform tFinal;
+  WTransform tFinal;
   tFinal.m_vPosition = vPosition;
   tFinal.m_vScale = GetOwner()->GetLocalScaling() * GetOwner()->GetLocalUniformScaling();
-  tFinal.m_qRotation = ezQuat::MakeFromMat3(mRot);
+  tFinal.m_qRotation = WQuat::MakeFromMat3(mRot);
 
   GetOwner()->SetGlobalTransform(pSplineObject->GetGlobalTransform() * tFinal);
 }
@@ -355,31 +355,31 @@ void ezFollowSplineComponent::Update(bool bForce)
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezFollowPathComponentPatch_1_2 : public ezGraphPatch
+class WFollowPathComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezFollowPathComponentPatch_1_2()
-    : ezGraphPatch("ezFollowPathComponent", 2)
+  WFollowPathComponentPatch_1_2()
+    : WGraphPatch("WFollowPathComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezFollowSplineComponent");
+    ref_context.RenameClass("WFollowSplineComponent");
 
     pNode->RenameProperty("Path", "Spline");
 
     auto* pFollowMode = pNode->FindProperty("FollowMode");
-    if (pFollowMode && pFollowMode->m_Value.IsA<ezString>())
+    if (pFollowMode && pFollowMode->m_Value.IsA<WString>())
     {
-      ezStringBuilder sFollowMode = pFollowMode->m_Value.Get<ezString>();
+      WStringBuilder sFollowMode = pFollowMode->m_Value.Get<WString>();
       sFollowMode.ReplaceAll("Path", "Spline");
       pNode->ChangeProperty("FollowMode", sFollowMode.GetView());
     }
   }
 };
 
-ezFollowPathComponentPatch_1_2 g_ezFollowPathComponentPatch_1_2;
+WFollowPathComponentPatch_1_2 g_WFollowPathComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_FollowSplineComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_FollowSplineComponent);

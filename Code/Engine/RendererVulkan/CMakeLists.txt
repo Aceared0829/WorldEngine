@@ -1,14 +1,14 @@
-ez_cmake_init()
+W_cmake_init()
 
 
-ez_requires_vulkan()
+W_requires_vulkan()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+W_create_target(LIBRARY ${PROJECT_NAME})
 
-if (EZ_CMAKE_PLATFORM_LINUX)
+if (W_CMAKE_PLATFORM_LINUX)
     # We need to link against the Vulkan loader or SteamVR runtime will fail the call to xrGetVulkanGraphicsDevice2KHR with error:
     # IVRSystem::GetOutputDevice: Failed to get required Vulkan device function pointer (vkGetPhysicalDeviceProperties2KHR)
     # Thus, we can't use dynamic dispatch in Vulkan-hpp
@@ -18,9 +18,9 @@ if (EZ_CMAKE_PLATFORM_LINUX)
             PUBLIC
             Vulkan::Vulkan
     )
-    target_compile_definitions(${PROJECT_NAME} PUBLIC EZ_VULKAN_DYNAMIC_DISPATCH=EZ_OFF )
+    target_compile_definitions(${PROJECT_NAME} PUBLIC W_VULKAN_DYNAMIC_DISPATCH=W_OFF )
 else()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC EZ_VULKAN_DYNAMIC_DISPATCH=EZ_ON )
+    target_compile_definitions(${PROJECT_NAME} PUBLIC W_VULKAN_DYNAMIC_DISPATCH=W_ON )
 endif()
 
 target_link_libraries(${PROJECT_NAME}
@@ -35,6 +35,6 @@ target_link_libraries(${PROJECT_NAME}
   VMA
 )
 
-if(EZ_3RDPARTY_GLFW_SUPPORT)
+if(W_3RDPARTY_GLFW_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 endif()

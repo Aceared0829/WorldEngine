@@ -1,11 +1,11 @@
-ez_cmake_init()
+W_cmake_init()
 
-ez_requires_miniaudio()
+W_requires_miniaudio()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+W_create_target(LIBRARY ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -16,4 +16,4 @@ target_link_libraries(${PROJECT_NAME}
   MiniAudio
 )
 
-ez_copy_plugin_bundle(${PROJECT_NAME} "MiniAudio")
+W_copy_plugin_bundle(${PROJECT_NAME} "MiniAudio")

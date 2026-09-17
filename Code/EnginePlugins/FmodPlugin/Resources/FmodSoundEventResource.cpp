@@ -4,41 +4,41 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundEventResource, 1, ezRTTIDefaultAllocator<ezFmodSoundEventResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFmodSoundEventResource, 1, WRTTIDefaultAllocator<WFmodSoundEventResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezFmodSoundEventResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WFmodSoundEventResource);
 
-ezFmodSoundEventResource::ezFmodSoundEventResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WFmodSoundEventResource::WFmodSoundEventResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundEventResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WFmodSoundEventResource);
 }
 
-ezFmodSoundEventResource::~ezFmodSoundEventResource()
+WFmodSoundEventResource::~WFmodSoundEventResource()
 {
-  EZ_ASSERT_DEV(m_pEventDescription == nullptr, "SoundEvent has not been freed correctly");
+  W_ASSERT_DEV(m_pEventDescription == nullptr, "SoundEvent has not been freed correctly");
 }
 
-ezResult ezFmodSoundEventResource::PlayOnce(const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/) const
+WResult WFmodSoundEventResource::PlayOnce(const WTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/) const
 {
   bool bIsOneShot = false;
   m_pEventDescription->isOneshot(&bIsOneShot);
 
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: '{}' is not a one-shot event.", GetResourceIdOrDescription());
-    return EZ_FAILURE;
+    WLog::Warning("WFmodSoundEventResource::PlayOnce: '{}' is not a one-shot event.", GetResourceIdOrDescription());
+    return W_FAILURE;
   }
 
   auto pInstance = CreateInstance();
   if (pInstance == nullptr)
   {
-    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: Instance of '{}' could not be created.", GetResourceIdOrDescription());
-    return EZ_FAILURE;
+    WLog::Warning("WFmodSoundEventResource::PlayOnce: Instance of '{}' could not be created.", GetResourceIdOrDescription());
+    return W_FAILURE;
   }
-  const auto fwd = globalPosition.m_qRotation * ezVec3(1, 0, 0);
-  const auto up = globalPosition.m_qRotation * ezVec3(0, 0, 1);
+  const auto fwd = globalPosition.m_qRotation * WVec3(1, 0, 0);
+  const auto up = globalPosition.m_qRotation * WVec3(0, 0, 1);
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = globalPosition.m_vPosition.x;
@@ -54,30 +54,30 @@ ezResult ezFmodSoundEventResource::PlayOnce(const ezTransform& globalPosition, f
   attr.velocity.y = 0;
   attr.velocity.z = 0;
 
-  EZ_FMOD_ASSERT(pInstance->setPitch(fPitch));
-  EZ_FMOD_ASSERT(pInstance->setVolume(fVolume));
-  EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
-  EZ_FMOD_ASSERT(pInstance->setPaused(false));
-  EZ_FMOD_ASSERT(pInstance->start());
+  W_FMOD_ASSERT(pInstance->setPitch(fPitch));
+  W_FMOD_ASSERT(pInstance->setVolume(fVolume));
+  W_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
+  W_FMOD_ASSERT(pInstance->setPaused(false));
+  W_FMOD_ASSERT(pInstance->start());
 
   pInstance->release();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-FMOD::Studio::EventInstance* ezFmodSoundEventResource::CreateInstance() const
+FMOD::Studio::EventInstance* WFmodSoundEventResource::CreateInstance() const
 {
   if (m_pEventDescription)
   {
     FMOD::Studio::EventInstance* pInstance = nullptr;
-    EZ_FMOD_ASSERT(m_pEventDescription->createInstance(&pInstance));
+    W_FMOD_ASSERT(m_pEventDescription->createInstance(&pInstance));
     return pInstance;
   }
 
   return nullptr;
 }
 
-ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pEventDescription)
   {
@@ -90,44 +90,44 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 
   m_hSoundBank.Invalidate();
 
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundEventResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(WFmodSoundEventResource);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezFmodSoundEventResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WFmodSoundEventResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezFmodSoundEventResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WFmodSoundEventResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezFmodSoundBankResourceHandle* pBankHandle = nullptr;
-  Stream->ReadBytes(&pBankHandle, sizeof(ezFmodSoundBankResourceHandle*));
-  EZ_ASSERT_DEV(pBankHandle != nullptr, "Invalid Sound Bank Handle pointer in stream");
+  WFmodSoundBankResourceHandle* pBankHandle = nullptr;
+  Stream->ReadBytes(&pBankHandle, sizeof(WFmodSoundBankResourceHandle*));
+  W_ASSERT_DEV(pBankHandle != nullptr, "Invalid Sound Bank Handle pointer in stream");
 
   Stream->ReadBytes(&m_pEventDescription, sizeof(FMOD::Studio::EventDescription*));
-  EZ_ASSERT_DEV(m_pEventDescription != nullptr, "Invalid Sound Event Descriptor pointer in stream");
+  W_ASSERT_DEV(m_pEventDescription != nullptr, "Invalid Sound Event Descriptor pointer in stream");
 
   m_hSoundBank = *pBankHandle;
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   // we cannot compute this data here, so we update it wherever we know the memory usage
 
@@ -135,19 +135,19 @@ void ezFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WFmodSoundEventResource, WFmodSoundEventResourceDescriptor)
 {
   // one missing resource is created this way
-  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // W_REPORT_FAILURE("This resource type does not support creating data.");
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
 
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResource);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResource);

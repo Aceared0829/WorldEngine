@@ -3,65 +3,65 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Thread.h>
 
-ezEvent<const ezThreadEvent&, ezMutex> ezThread::s_ThreadEvents;
+WEvent<const WThreadEvent&, WMutex> WThread::s_ThreadEvents;
 
-thread_local ezThread* g_pCurrentThread = nullptr;
+thread_local WThread* g_pCurrentThread = nullptr;
 
-const ezThread* ezThread::GetCurrentThread()
+const WThread* WThread::GetCurrentThread()
 {
   return g_pCurrentThread;
 }
 
-ezThread::ezThread(ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
-  : ezOSThread(ezThreadClassEntryPoint, this, sName, uiStackSize)
+WThread::WThread(WStringView sName /*= "WThread"*/, WUInt32 uiStackSize /*= 128 * 1024*/)
+  : WOSThread(WThreadClassEntryPoint, this, sName, uiStackSize)
   , m_sName(sName)
 {
-  ezThreadEvent e;
+  WThreadEvent e;
   e.m_pThread = this;
-  e.m_Type = ezThreadEvent::Type::ThreadCreated;
-  ezThread::s_ThreadEvents.Broadcast(e, 255);
+  e.m_Type = WThreadEvent::Type::ThreadCreated;
+  WThread::s_ThreadEvents.Broadcast(e, 255);
 }
 
-ezThread::~ezThread()
+WThread::~WThread()
 {
-  EZ_ASSERT_DEV(!IsRunning(), "Thread deletion while still running detected!");
+  W_ASSERT_DEV(!IsRunning(), "Thread deletion while still running detected!");
 
-  ezThreadEvent e;
+  WThreadEvent e;
   e.m_pThread = this;
-  e.m_Type = ezThreadEvent::Type::ThreadDestroyed;
-  ezThread::s_ThreadEvents.Broadcast(e, 255);
+  e.m_Type = WThreadEvent::Type::ThreadDestroyed;
+  WThread::s_ThreadEvents.Broadcast(e, 255);
 }
 
-ezUInt32 RunThread(ezThread* pThread)
+WUInt32 RunThread(WThread* pThread)
 {
   if (pThread == nullptr)
     return 0;
 
   g_pCurrentThread = pThread;
-  ezProfilingSystem::SetThreadName(pThread->m_sName.GetView());
+  WProfilingSystem::SetThreadName(pThread->m_sName.GetView());
 
   {
-    ezThreadEvent e;
+    WThreadEvent e;
     e.m_pThread = pThread;
-    e.m_Type = ezThreadEvent::Type::StartingExecution;
-    ezThread::s_ThreadEvents.Broadcast(e, 255);
+    e.m_Type = WThreadEvent::Type::StartingExecution;
+    WThread::s_ThreadEvents.Broadcast(e, 255);
   }
 
-  pThread->m_ThreadStatus = ezThread::Running;
+  pThread->m_ThreadStatus = WThread::Running;
 
   // Run the worker thread function
-  ezUInt32 uiReturnCode = pThread->Run();
+  WUInt32 uiReturnCode = pThread->Run();
 
   {
-    ezThreadEvent e;
+    WThreadEvent e;
     e.m_pThread = pThread;
-    e.m_Type = ezThreadEvent::Type::FinishedExecution;
-    ezThread::s_ThreadEvents.Broadcast(e, 255);
+    e.m_Type = WThreadEvent::Type::FinishedExecution;
+    WThread::s_ThreadEvents.Broadcast(e, 255);
   }
 
-  pThread->m_ThreadStatus = ezThread::Finished;
+  pThread->m_ThreadStatus = WThread::Finished;
 
-  ezProfilingSystem::RemoveThread();
+  WProfilingSystem::RemoveThread();
 
   return uiReturnCode;
 }

@@ -19,11 +19,11 @@ struct VS_GLOBALS
 static VS_GLOBALS G;
 
 #if defined(USE_OBJECT_POSITION_OFFSET)
-float3 GetObjectPositionOffset(ezPerInstanceData data);
+float3 GetObjectPositionOffset(WPerInstanceData data);
 #endif
 
 #if defined(USE_WORLD_POSITION_OFFSET)
-float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition);
+float3 GetWorldPositionOffset(WPerInstanceData data, float3 worldPosition);
 #endif
 
 #if defined(USE_VERTEX_DEPTH_BIAS)
@@ -62,7 +62,7 @@ VS_OUT FillVertexData(VS_IN Input)
 
   G.Input = Input;
 
-  ezPerInstanceData data = GetInstanceData();
+  WPerInstanceData data = GetInstanceData();
 
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float3x3 objectToWorldNormal = TransformToRotation(data.ObjectToWorldNormal);

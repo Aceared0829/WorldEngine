@@ -2,26 +2,26 @@
 
 #include <RendererVulkan/Resources/TextureVulkan.h>
 
-class ezGALSharedTextureVulkan : public ezGALTextureVulkan, public ezGALSharedTexture
+class WGALSharedTextureVulkan : public WGALTextureVulkan, public WGALSharedTexture
 {
-  using SUPER = ezGALTextureVulkan;
+  using SUPER = WGALTextureVulkan;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALSharedTextureVulkan(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle);
-  ~ezGALSharedTextureVulkan();
+  WGALSharedTextureVulkan(const WGALTextureCreationDescription& Description, WEnum<WGALSharedTextureType> sharedType, WGALPlatformSharedHandle hSharedHandle);
+  ~WGALSharedTextureVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezGALPlatformSharedHandle GetSharedHandle() const override;
-  virtual void WaitSemaphoreGPU(ezUInt64 uiValue) const override;
-  virtual void SignalSemaphoreGPU(ezUInt64 uiValue) const override;
+  virtual WGALPlatformSharedHandle GetSharedHandle() const override;
+  virtual void WaitSemaphoreGPU(WUInt64 uiValue) const override;
+  virtual void SignalSemaphoreGPU(WUInt64 uiValue) const override;
 
 protected:
-  ezEnum<ezGALSharedTextureType> m_SharedType = ezGALSharedTextureType::None;
-  ezGALPlatformSharedHandle m_hSharedHandle;
+  WEnum<WGALSharedTextureType> m_SharedType = WGALSharedTextureType::None;
+  WGALPlatformSharedHandle m_hSharedHandle;
   vk::Semaphore m_SharedSemaphore;
 };

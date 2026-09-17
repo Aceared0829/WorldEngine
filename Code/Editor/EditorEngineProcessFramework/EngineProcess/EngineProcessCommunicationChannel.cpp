@@ -5,15 +5,15 @@
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/IpcProcessMessageProtocol.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
 #  include <signal.h>
 #endif
 
-bool ezEngineProcessCommunicationChannel::IsHostAlive() const
+bool WEngineProcessCommunicationChannel::IsHostAlive() const
 {
-  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+  if (WEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     return true;
 
   if (m_iHostPID == 0)
@@ -21,7 +21,7 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 
   bool bValid = true;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   DWORD pid = static_cast<DWORD>(m_iHostPID);
   HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
   bValid = (hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr);
@@ -31,7 +31,7 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
     bValid = false;
 
   CloseHandle(hProcess);
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
   // We send the signal 0 to the given PID (signal 0 is a no-op)
   // If this succeeds, the process with the given PID exists
   // if it fails, the process does not / no longer exist.
@@ -44,41 +44,41 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
   return bValid;
 }
 
-ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
+WResult WEngineProcessCommunicationChannel::ConnectToHostProcess()
 {
-  EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
+  W_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
 
-  ezResult res = EZ_SUCCESS;
-  if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+  WResult res = W_SUCCESS;
+  if (!WEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
-    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
+    if (WCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
     {
-      EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("Command Line does not contain -IPC parameter");
+      return W_FAILURE;
     }
 
-    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
+    if (WCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
     {
-      EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("Command Line does not contain -PID parameter");
+      return W_FAILURE;
     }
 
     m_iHostPID = 0;
-    EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID));
+    W_SUCCEED_OR_RETURN(WConversionUtils::StringToInt64(WCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID));
 
-    ezLog::Debug("Host Process ID: {0}", m_iHostPID);
+    WLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-    res = CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client));
+    res = CreateAndConnectChannel(WIpcChannel::CreatePipeChannel(WCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), WIpcChannel::Mode::Client));
   }
   else
   {
-    res = CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server));
+    res = CreateAndConnectChannel(WIpcChannel::CreateNetworkChannel("localhost:1050", WIpcChannel::Mode::Server));
   }
   if (res.Failed())
   {
-    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
-    return EZ_FAILURE;
+    WLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    return W_FAILURE;
   }
 
-  return WaitForConnection(ezTime::MakeFromSeconds(30));
+  return WaitForConnection(WTime::MakeFromSeconds(30));
 }

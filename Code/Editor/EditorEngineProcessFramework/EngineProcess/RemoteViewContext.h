@@ -6,16 +6,16 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRemoteEngineProcessViewContext : public ezEngineProcessViewContext
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WRemoteEngineProcessViewContext : public WEngineProcessViewContext
 {
 public:
-  ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext);
-  ~ezRemoteEngineProcessViewContext();
+  WRemoteEngineProcessViewContext(WEngineProcessDocumentContext* pContext);
+  ~WRemoteEngineProcessViewContext();
 
 protected:
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
-  virtual ezViewHandle CreateView() override;
+  virtual void HandleViewMessage(const WEditorEngineViewMsg* pMsg) override;
+  virtual WViewHandle CreateView() override;
 
-  static ezUInt32 s_uiActiveViewID;
-  static ezRemoteEngineProcessViewContext* s_pActiveRemoteViewContext;
+  static WUInt32 s_uiActiveViewID;
+  static WRemoteEngineProcessViewContext* s_pActiveRemoteViewContext;
 };

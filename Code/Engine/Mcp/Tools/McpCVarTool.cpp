@@ -7,24 +7,24 @@
 #include <Foundation/Configuration/CVar.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpCVarTool, 1, ezRTTIDefaultAllocator<ezMcpCVarTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpCVarTool, 1, WRTTIDefaultAllocator<WMcpCVarTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   /// The names used in tool arguments and results, lower case because that is what the AI has to type.
-  ezStringView CVarTypeToString(ezCVarType::Enum type)
+  WStringView CVarTypeToString(WCVarType::Enum type)
   {
     switch (type)
     {
-      case ezCVarType::Int:
+      case WCVarType::Int:
         return "int";
-      case ezCVarType::Float:
+      case WCVarType::Float:
         return "float";
-      case ezCVarType::Bool:
+      case WCVarType::Bool:
         return "bool";
-      case ezCVarType::String:
+      case WCVarType::String:
         return "string";
       default:
         return "unknown";
@@ -35,29 +35,29 @@ namespace
   ///
   /// One place, because both the listing filter and the decision whether to report 'default' need it,
   /// and each type has to be compared through its own pointer cast.
-  bool IsAtDefaultValue(const ezCVar* pCVar)
+  bool IsAtDefaultValue(const WCVar* pCVar)
   {
     switch (pCVar->GetType())
     {
-      case ezCVarType::Int:
+      case WCVarType::Int:
       {
-        const ezCVarInt* p = static_cast<const ezCVarInt*>(pCVar);
-        return p->GetValue() == p->GetValue(ezCVarValue::Default);
+        const WCVarInt* p = static_cast<const WCVarInt*>(pCVar);
+        return p->GetValue() == p->GetValue(WCVarValue::Default);
       }
-      case ezCVarType::Float:
+      case WCVarType::Float:
       {
-        const ezCVarFloat* p = static_cast<const ezCVarFloat*>(pCVar);
-        return p->GetValue() == p->GetValue(ezCVarValue::Default);
+        const WCVarFloat* p = static_cast<const WCVarFloat*>(pCVar);
+        return p->GetValue() == p->GetValue(WCVarValue::Default);
       }
-      case ezCVarType::Bool:
+      case WCVarType::Bool:
       {
-        const ezCVarBool* p = static_cast<const ezCVarBool*>(pCVar);
-        return p->GetValue() == p->GetValue(ezCVarValue::Default);
+        const WCVarBool* p = static_cast<const WCVarBool*>(pCVar);
+        return p->GetValue() == p->GetValue(WCVarValue::Default);
       }
-      case ezCVarType::String:
+      case WCVarType::String:
       {
-        const ezCVarString* p = static_cast<const ezCVarString*>(pCVar);
-        return p->GetValue() == p->GetValue(ezCVarValue::Default);
+        const WCVarString* p = static_cast<const WCVarString*>(pCVar);
+        return p->GetValue() == p->GetValue(WCVarValue::Default);
       }
       default:
         return true;
@@ -66,67 +66,67 @@ namespace
 
   /// Whether a value was written that the engine is not reading yet. Only ever true for CVars
   /// flagged RequiresDelayedSync.
-  bool HasPendingValue(const ezCVar* pCVar)
+  bool HasPendingValue(const WCVar* pCVar)
   {
     switch (pCVar->GetType())
     {
-      case ezCVarType::Int:
-        return static_cast<const ezCVarInt*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::Float:
-        return static_cast<const ezCVarFloat*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::Bool:
-        return static_cast<const ezCVarBool*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::String:
-        return static_cast<const ezCVarString*>(pCVar)->HasDelayedSyncValueChanged();
+      case WCVarType::Int:
+        return static_cast<const WCVarInt*>(pCVar)->HasDelayedSyncValueChanged();
+      case WCVarType::Float:
+        return static_cast<const WCVarFloat*>(pCVar)->HasDelayedSyncValueChanged();
+      case WCVarType::Bool:
+        return static_cast<const WCVarBool*>(pCVar)->HasDelayedSyncValueChanged();
+      case WCVarType::String:
+        return static_cast<const WCVarString*>(pCVar)->HasDelayedSyncValueChanged();
       default:
         return false;
     }
   }
 } // namespace
 
-void ezMcpCVarTool::WriteValue(ezMcpJsonWriter& ref_writer, ezStringView sFieldName, const ezCVar* pCVar, ezUInt32 uiWhichValue)
+void WMcpCVarTool::WriteValue(WMcpJsonWriter& ref_writer, WStringView sFieldName, const WCVar* pCVar, WUInt32 uiWhichValue)
 {
-  const ezCVarValue::Enum which = static_cast<ezCVarValue::Enum>(uiWhichValue);
+  const WCVarValue::Enum which = static_cast<WCVarValue::Enum>(uiWhichValue);
 
   // Written as the JSON type that matches the CVar, not as a string: a client that reads a bool and
   // writes it straight back must not have to know it was quoted on the way out.
   switch (pCVar->GetType())
   {
-    case ezCVarType::Int:
-      ref_writer.AddVariableInt32(sFieldName, static_cast<const ezCVarInt*>(pCVar)->GetValue(which));
+    case WCVarType::Int:
+      ref_writer.AddVariableInt32(sFieldName, static_cast<const WCVarInt*>(pCVar)->GetValue(which));
       break;
-    case ezCVarType::Float:
-      ref_writer.AddVariableFloat(sFieldName, static_cast<const ezCVarFloat*>(pCVar)->GetValue(which));
+    case WCVarType::Float:
+      ref_writer.AddVariableFloat(sFieldName, static_cast<const WCVarFloat*>(pCVar)->GetValue(which));
       break;
-    case ezCVarType::Bool:
-      ref_writer.AddVariableBool(sFieldName, static_cast<const ezCVarBool*>(pCVar)->GetValue(which));
+    case WCVarType::Bool:
+      ref_writer.AddVariableBool(sFieldName, static_cast<const WCVarBool*>(pCVar)->GetValue(which));
       break;
-    case ezCVarType::String:
-      ref_writer.AddVariableString(sFieldName, static_cast<const ezCVarString*>(pCVar)->GetValue(which).GetView());
+    case WCVarType::String:
+      ref_writer.AddVariableString(sFieldName, static_cast<const WCVarString*>(pCVar)->GetValue(which).GetView());
       break;
     default:
       break;
   }
 }
 
-void ezMcpCVarTool::WriteCVar(ezMcpJsonWriter& ref_writer, const ezCVar* pCVar)
+void WMcpCVarTool::WriteCVar(WMcpJsonWriter& ref_writer, const WCVar* pCVar)
 {
   ref_writer.BeginObject();
 
   ref_writer.AddVariableString("name", pCVar->GetName());
   ref_writer.AddVariableString("type", CVarTypeToString(pCVar->GetType()));
-  WriteValue(ref_writer, "value", pCVar, ezCVarValue::Current);
+  WriteValue(ref_writer, "value", pCVar, WCVarValue::Current);
 
   // Only when it differs, per the 'omit empty fields' rule - a CVar sitting at its default is the
   // common case and repeating the same number twice costs tokens without saying anything.
   if (!IsAtDefaultValue(pCVar))
   {
-    WriteValue(ref_writer, "default", pCVar, ezCVarValue::Default);
+    WriteValue(ref_writer, "default", pCVar, WCVarValue::Default);
   }
 
-  const ezBitflags<ezCVarFlags> flags = pCVar->GetFlags();
+  const WBitflags<WCVarFlags> flags = pCVar->GetFlags();
 
-  if (flags.IsSet(ezCVarFlags::RequiresDelayedSync))
+  if (flags.IsSet(WCVarFlags::RequiresDelayedSync))
   {
     // The trap this field exists for: writing such a CVar does not change what the engine reads until
     // the owning subsystem syncs it, so a caller that only re-read 'value' would conclude its write was
@@ -136,11 +136,11 @@ void ezMcpCVarTool::WriteCVar(ezMcpJsonWriter& ref_writer, const ezCVar* pCVar)
 
     if (HasPendingValue(pCVar))
     {
-      WriteValue(ref_writer, "pendingValue", pCVar, ezCVarValue::DelayedSync);
+      WriteValue(ref_writer, "pendingValue", pCVar, WCVarValue::DelayedSync);
     }
   }
 
-  if (flags.IsSet(ezCVarFlags::Save))
+  if (flags.IsSet(WCVarFlags::Save))
   {
     ref_writer.AddVariableBool("saved", true);
   }
@@ -158,10 +158,10 @@ void ezMcpCVarTool::WriteCVar(ezMcpJsonWriter& ref_writer, const ezCVar* pCVar)
   ref_writer.EndObject();
 }
 
-void ezMcpCVarTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpCVarTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "cvar_list";
     desc.m_sDescription = "Lists the CVars registered in this process, with their current value, type, owning plugin and "
                           "description. CVars are the debug and configuration switches the engine and its plugins declare - "
@@ -178,7 +178,7 @@ void ezMcpCVarTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "cvar_set";
     desc.m_sDescription = "Changes the value of one CVar. The value is converted to the CVar's own type, so a number may be "
                           "sent as a JSON number or as a string. Returns what the value was and what it is now.\n"
@@ -192,7 +192,7 @@ void ezMcpCVarTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 }
 
-void ezMcpCVarTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCVarTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "cvar_list")
   {
@@ -204,22 +204,22 @@ void ezMcpCVarTool::Execute(ezStringView sToolName, const ezVariantDictionary& a
   }
 }
 
-void ezMcpCVarTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCVarTool::ExecuteList(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sContains = ezMcpJson::GetString(arguments, "contains");
-  const ezStringView sPlugin = ezMcpJson::GetString(arguments, "plugin");
-  const bool bChangedOnly = ezMcpJson::GetBool(arguments, "changedOnly", false);
+  const WStringView sContains = WMcpJson::GetString(arguments, "contains");
+  const WStringView sPlugin = WMcpJson::GetString(arguments, "plugin");
+  const bool bChangedOnly = WMcpJson::GetBool(arguments, "changedOnly", false);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  ezUInt32 uiTotalMatches = 0;
-  ezUInt32 uiReturned = 0;
+  WUInt32 uiTotalMatches = 0;
+  WUInt32 uiReturned = 0;
 
   writer.BeginArray("cvars");
 
-  // ezCVar is ezEnumerable, so every CVar of every loaded plugin is on this list without registration
-  for (const ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  // WCVar is WEnumerable, so every CVar of every loaded plugin is on this list without registration
+  for (const WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
     if (!sPlugin.IsEmpty() && !pCVar->GetPluginName().IsEqual_NoCase(sPlugin))
       continue;
@@ -259,9 +259,9 @@ void ezMcpCVarTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToolR
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpCVarTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCVarTool::ExecuteSet(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
 
   if (sName.IsEmpty())
   {
@@ -269,11 +269,11 @@ void ezMcpCVarTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolRe
     return;
   }
 
-  ezCVar* pCVar = ezCVar::FindCVarByName(sName);
+  WCVar* pCVar = WCVar::FindCVarByName(sName);
 
   if (pCVar == nullptr)
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("No CVar named '{}' exists in this process. Use cvar_list to find the right name; a CVar only exists once "
                      "the plugin that declares it has been loaded.",
       sName);
@@ -281,7 +281,7 @@ void ezMcpCVarTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolRe
     return;
   }
 
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
   if (!arguments.TryGetValue("value", pValue) || !pValue->IsValid())
   {
@@ -292,54 +292,54 @@ void ezMcpCVarTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolRe
   // The target's type decides the conversion, not the type the client happened to send: AI clients send
   // numbers as strings and booleans as 0/1, and refusing those would be a type check dressed up as
   // validation. Everything below fails only when the value genuinely cannot be read as that type.
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableString("name", pCVar->GetName());
   writer.AddVariableString("type", CVarTypeToString(pCVar->GetType()));
-  WriteValue(writer, "previousValue", pCVar, ezCVarValue::Current);
+  WriteValue(writer, "previousValue", pCVar, WCVarValue::Current);
 
-  ezStringBuilder sConversionError;
+  WStringBuilder sConversionError;
 
   switch (pCVar->GetType())
   {
-    case ezCVarType::Int:
+    case WCVarType::Int:
     {
-      ezResult res = EZ_FAILURE;
-      const ezInt32 iValue = static_cast<ezInt32>(pValue->ConvertTo<ezInt64>(&res));
+      WResult res = W_FAILURE;
+      const WInt32 iValue = static_cast<WInt32>(pValue->ConvertTo<WInt64>(&res));
       if (res.Failed())
-        sConversionError.SetFormat("Value '{}' cannot be read as an integer.", pValue->ConvertTo<ezString>());
+        sConversionError.SetFormat("Value '{}' cannot be read as an integer.", pValue->ConvertTo<WString>());
       else
-        *static_cast<ezCVarInt*>(pCVar) = iValue;
+        *static_cast<WCVarInt*>(pCVar) = iValue;
       break;
     }
-    case ezCVarType::Float:
+    case WCVarType::Float:
     {
-      ezResult res = EZ_FAILURE;
+      WResult res = W_FAILURE;
       const float fValue = pValue->ConvertTo<float>(&res);
       if (res.Failed())
-        sConversionError.SetFormat("Value '{}' cannot be read as a float.", pValue->ConvertTo<ezString>());
+        sConversionError.SetFormat("Value '{}' cannot be read as a float.", pValue->ConvertTo<WString>());
       else
-        *static_cast<ezCVarFloat*>(pCVar) = fValue;
+        *static_cast<WCVarFloat*>(pCVar) = fValue;
       break;
     }
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
     {
-      ezResult res = EZ_FAILURE;
+      WResult res = W_FAILURE;
       const bool bValue = pValue->ConvertTo<bool>(&res);
       if (res.Failed())
-        sConversionError.SetFormat("Value '{}' cannot be read as a boolean. Use true/false, \"true\"/\"false\" or 1/0.", pValue->ConvertTo<ezString>());
+        sConversionError.SetFormat("Value '{}' cannot be read as a boolean. Use true/false, \"true\"/\"false\" or 1/0.", pValue->ConvertTo<WString>());
       else
-        *static_cast<ezCVarBool*>(pCVar) = bValue;
+        *static_cast<WCVarBool*>(pCVar) = bValue;
       break;
     }
-    case ezCVarType::String:
+    case WCVarType::String:
     {
-      ezResult res = EZ_FAILURE;
-      const ezString sValue = pValue->ConvertTo<ezString>(&res);
+      WResult res = W_FAILURE;
+      const WString sValue = pValue->ConvertTo<WString>(&res);
       if (res.Failed())
         sConversionError = "Value cannot be read as a string.";
       else
-        *static_cast<ezCVarString*>(pCVar) = sValue.GetView();
+        *static_cast<WCVarString*>(pCVar) = sValue.GetView();
       break;
     }
     default:
@@ -356,11 +356,11 @@ void ezMcpCVarTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolRe
     return;
   }
 
-  WriteValue(writer, "value", pCVar, ezCVarValue::Current);
+  WriteValue(writer, "value", pCVar, WCVarValue::Current);
 
-  if (pCVar->GetFlags().IsSet(ezCVarFlags::RequiresDelayedSync))
+  if (pCVar->GetFlags().IsSet(WCVarFlags::RequiresDelayedSync))
   {
-    WriteValue(writer, "pendingValue", pCVar, ezCVarValue::DelayedSync);
+    WriteValue(writer, "pendingValue", pCVar, WCVarValue::DelayedSync);
     writer.AddVariableBool("requiresRestart", true);
     writer.AddVariableString("note",
       "This CVar only takes effect after the owning subsystem syncs it, usually at startup. 'value' is what the engine still "

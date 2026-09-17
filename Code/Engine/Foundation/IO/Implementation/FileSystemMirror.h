@@ -9,7 +9,7 @@
 // this needs to be treated as a delete. At the point of the move, it is no longer possible to query the contents of the folder.
 // So a in memory copy of the file system is required in order to correctly implement a directory watcher.
 template <typename T>
-class ezFileSystemMirror
+class WFileSystemMirror
 {
 public:
   enum class Type
@@ -20,47 +20,47 @@ public:
 
   struct DirEntry
   {
-    ezMap<ezString, DirEntry> m_subDirectories;
-    ezMap<ezString, T> m_files;
+    WMap<WString, DirEntry> m_subDirectories;
+    WMap<WString, T> m_files;
   };
 
-  ezFileSystemMirror();
-  ~ezFileSystemMirror();
+  WFileSystemMirror();
+  ~WFileSystemMirror();
 
   // Adds the directory, and all files in it recursively.
-  ezResult AddDirectory(ezStringView sPath, bool* out_pDirectoryExistsAlready = nullptr);
+  WResult AddDirectory(WStringView sPath, bool* out_pDirectoryExistsAlready = nullptr);
 
   // Adds a file. Creates directories if they do not exist.
-  ezResult AddFile(ezStringView sPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue);
+  WResult AddFile(WStringView sPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue);
 
   // Removes a file.
-  ezResult RemoveFile(ezStringView sPath);
+  WResult RemoveFile(WStringView sPath);
 
   // Removes a directory. Deletes any files & directories inside.
-  ezResult RemoveDirectory(ezStringView sPath);
+  WResult RemoveDirectory(WStringView sPath);
 
   // Moves a directory. Any files & folders inside are moved with it.
-  ezResult MoveDirectory(ezStringView sFromPath, ezStringView sToPath);
+  WResult MoveDirectory(WStringView sFromPath, WStringView sToPath);
 
-  using EnumerateFunc = ezDelegate<void(const ezStringBuilder& path, Type type)>;
+  using EnumerateFunc = WDelegate<void(const WStringBuilder& path, Type type)>;
 
   // Enumerates the files & directories under the given path
-  ezResult Enumerate(ezStringView sPath, EnumerateFunc callbackFunc);
+  WResult Enumerate(WStringView sPath, EnumerateFunc callbackFunc);
 
   // On success, out_Type will contains the type of the object (file or folder).
-  ezResult GetType(ezStringView sPath, Type& out_type);
+  WResult GetType(WStringView sPath, Type& out_type);
 
 private:
-  DirEntry* FindDirectory(ezStringBuilder& path);
+  DirEntry* FindDirectory(WStringBuilder& path);
 
 private:
   DirEntry m_TopLevelDir;
-  ezString m_sTopLevelDirPath;
+  WString m_sTopLevelDirPath;
 };
 
 namespace
 {
-  void EnsureTrailingSlash(ezStringBuilder& ref_sBuilder)
+  void EnsureTrailingSlash(WStringBuilder& ref_sBuilder)
   {
     if (!ref_sBuilder.EndsWith("/"))
     {
@@ -68,7 +68,7 @@ namespace
     }
   }
 
-  void RemoveTrailingSlash(ezStringBuilder& ref_sBuilder)
+  void RemoveTrailingSlash(WStringBuilder& ref_sBuilder)
   {
     if (ref_sBuilder.EndsWith("/"))
     {
@@ -78,15 +78,15 @@ namespace
 } // namespace
 
 template <typename T>
-ezFileSystemMirror<T>::ezFileSystemMirror() = default;
+WFileSystemMirror<T>::WFileSystemMirror() = default;
 
 template <typename T>
-ezFileSystemMirror<T>::~ezFileSystemMirror() = default;
+WFileSystemMirror<T>::~WFileSystemMirror() = default;
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDirectoryExistsAlready)
+WResult WFileSystemMirror<T>::AddDirectory(WStringView sPath, bool* out_pDirectoryExistsAlready)
 {
-  ezStringBuilder currentDirAbsPath = sPath;
+  WStringBuilder currentDirAbsPath = sPath;
   currentDirAbsPath.MakeCleanPath();
   EnsureTrailingSlash(currentDirAbsPath);
 
@@ -97,18 +97,18 @@ ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDire
 
     DirEntry* currentDir = &m_TopLevelDir;
 
-    ezHybridArray<DirEntry*, 16> m_dirStack;
+    WHybridArray<DirEntry*, 16> m_dirStack;
 
-    ezFileSystemIterator files;
-    files.StartSearch(currentDirAbsPath.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
+    WFileSystemIterator files;
+    files.StartSearch(currentDirAbsPath.GetData(), WFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
     for (; files.IsValid(); files.Next())
     {
-      const ezFileStats& stats = files.GetStats();
+      const WFileStats& stats = files.GetStats();
 
       // In case we are done with a directory, move back up
       while (currentDirAbsPath != stats.m_sParentPath)
       {
-        EZ_ASSERT_DEV(m_dirStack.GetCount() > 0, "Unexpected file iteration order");
+        W_ASSERT_DEV(m_dirStack.GetCount() > 0, "Unexpected file iteration order");
         currentDir = m_dirStack.PeekBack();
         m_dirStack.PopBack();
         currentDirAbsPath.PathParentDirectory();
@@ -118,7 +118,7 @@ ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDire
       if (stats.m_bIsDirectory)
       {
         m_dirStack.PushBack(currentDir);
-        ezStringBuilder subdirName = stats.m_sName;
+        WStringBuilder subdirName = stats.m_sName;
         EnsureTrailingSlash(subdirName);
         auto insertIt = currentDir->m_subDirectories.Insert(subdirName, DirEntry());
         currentDir = &insertIt.Value();
@@ -139,7 +139,7 @@ ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDire
     DirEntry* parentDir = FindDirectory(currentDirAbsPath);
     if (parentDir == nullptr)
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     if (out_pDirectoryExistsAlready != nullptr)
@@ -150,34 +150,34 @@ ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDire
     while (!currentDirAbsPath.IsEmpty())
     {
       const char* dirEnd = currentDirAbsPath.FindSubString("/");
-      ezStringView subdirName(currentDirAbsPath.GetData(), dirEnd + 1);
+      WStringView subdirName(currentDirAbsPath.GetData(), dirEnd + 1);
       auto insertIt = parentDir->m_subDirectories.Insert(subdirName, DirEntry());
       parentDir = &insertIt.Value();
-      currentDirAbsPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
+      currentDirAbsPath.Shrink(WStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::AddFile(ezStringView sPath0, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue)
+WResult WFileSystemMirror<T>::AddFile(WStringView sPath0, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue)
 {
-  ezStringBuilder sPath = sPath0;
+  WStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
   if (dir == nullptr)
   {
-    return EZ_FAILURE; // file not under top level directory
+    return W_FAILURE; // file not under top level directory
   }
 
   const char* szSlashPos = sPath.FindSubString("/");
 
   while (szSlashPos != nullptr)
   {
-    ezStringView subdirName(sPath.GetData(), szSlashPos + 1);
+    WStringView subdirName(sPath.GetData(), szSlashPos + 1);
     auto insertIt = dir->m_subDirectories.Insert(subdirName, DirEntry());
     dir = &insertIt.Value();
-    sPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
+    sPath.Shrink(WStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
     szSlashPos = sPath.FindSubString("/");
   }
 
@@ -203,44 +203,44 @@ ezResult ezFileSystemMirror<T>::AddFile(ezStringView sPath0, const T& value, boo
     }
     it.Value() = value;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::RemoveFile(ezStringView sPath0)
+WResult WFileSystemMirror<T>::RemoveFile(WStringView sPath0)
 {
-  ezStringBuilder sPath = sPath0;
+  WStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
   if (dir == nullptr)
   {
-    return EZ_FAILURE; // file not under top level directory
+    return W_FAILURE; // file not under top level directory
   }
 
   if (sPath.FindSubString("/") != nullptr)
   {
-    return EZ_FAILURE; // file does not exist
+    return W_FAILURE; // file does not exist
   }
 
   if (dir->m_files.GetCount() == 0)
   {
-    return EZ_FAILURE; // there are no files in this directory
+    return W_FAILURE; // there are no files in this directory
   }
 
   auto it = dir->m_files.Find(sPath);
   if (!it.IsValid())
   {
-    return EZ_FAILURE; // file does not exist
+    return W_FAILURE; // file does not exist
   }
 
   dir->m_files.Remove(it);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::RemoveDirectory(ezStringView sPath)
+WResult WFileSystemMirror<T>::RemoveDirectory(WStringView sPath)
 {
-  ezStringBuilder parentPath = sPath;
-  ezStringBuilder dirName = sPath;
+  WStringBuilder parentPath = sPath;
+  WStringBuilder dirName = sPath;
   parentPath.PathParentDirectory();
   EnsureTrailingSlash(parentPath);
   dirName.Shrink(parentPath.GetCharacterCount(), 0);
@@ -249,30 +249,30 @@ ezResult ezFileSystemMirror<T>::RemoveDirectory(ezStringView sPath)
   DirEntry* parentDir = FindDirectory(parentPath);
   if (parentDir == nullptr || !parentPath.IsEmpty())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (!parentDir->m_subDirectories.Remove(dirName))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringView sToPath0)
+WResult WFileSystemMirror<T>::MoveDirectory(WStringView sFromPath0, WStringView sToPath0)
 {
-  ezStringBuilder sFromPath = sFromPath0;
-  ezStringBuilder sFromName = sFromPath0;
+  WStringBuilder sFromPath = sFromPath0;
+  WStringBuilder sFromName = sFromPath0;
   sFromPath.PathParentDirectory();
   EnsureTrailingSlash(sFromPath);
   sFromName.Shrink(sFromPath.GetCharacterCount(), 0);
   EnsureTrailingSlash(sFromName);
 
 
-  ezStringBuilder sToPath = sToPath0;
-  ezStringBuilder sToName = sToPath0;
+  WStringBuilder sToPath = sToPath0;
+  WStringBuilder sToName = sToPath0;
   sToPath.PathParentDirectory();
   EnsureTrailingSlash(sToPath);
   sToName.Shrink(sToPath.GetCharacterCount(), 0);
@@ -281,14 +281,14 @@ ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringV
   DirEntry* moveFromDir = FindDirectory(sFromPath);
   if (!moveFromDir)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
-  EZ_ASSERT_DEV(sFromPath.IsEmpty(), "move from directory should fully exist");
+  W_ASSERT_DEV(sFromPath.IsEmpty(), "move from directory should fully exist");
 
   DirEntry* moveToDir = FindDirectory(sToPath);
   if (!moveToDir)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (!sToPath.IsEmpty())
@@ -296,10 +296,10 @@ ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringV
     do
     {
       const char* dirEnd = sToPath.FindSubString("/");
-      ezStringView subdirName(sToPath.GetData(), dirEnd + 1);
+      WStringView subdirName(sToPath.GetData(), dirEnd + 1);
       auto insertIt = moveToDir->m_subDirectories.Insert(subdirName, DirEntry());
       moveToDir = &insertIt.Value();
-      sToPath.Shrink(0, ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()));
+      sToPath.Shrink(0, WStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()));
     } while (!sToPath.IsEmpty());
   }
 
@@ -308,7 +308,7 @@ ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringV
     auto fromIt = moveFromDir->m_subDirectories.Find(sFromName);
     if (!fromIt.IsValid())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     movedDir = std::move(fromIt.Value());
@@ -317,24 +317,24 @@ ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringV
 
   moveToDir->m_subDirectories.Insert(sToName, std::move(movedDir));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 namespace
 {
   template <typename T>
-  struct ezDirEnumerateState
+  struct WDirEnumerateState
   {
-    typename ezFileSystemMirror<T>::DirEntry* dir;
-    typename ezMap<ezString, typename ezFileSystemMirror<T>::DirEntry>::Iterator subDirIt;
+    typename WFileSystemMirror<T>::DirEntry* dir;
+    typename WMap<WString, typename WFileSystemMirror<T>::DirEntry>::Iterator subDirIt;
   };
 } // namespace
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc callbackFunc)
+WResult WFileSystemMirror<T>::Enumerate(WStringView sPath0, EnumerateFunc callbackFunc)
 {
-  ezHybridArray<ezDirEnumerateState<T>, 16> dirStack;
-  ezStringBuilder sPath = sPath0;
+  WHybridArray<WDirEnumerateState<T>, 16> dirStack;
+  WStringBuilder sPath = sPath0;
   if (!sPath.EndsWith("/"))
   {
     sPath.Append("/");
@@ -342,14 +342,14 @@ ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc cal
   DirEntry* dirToEnumerate = FindDirectory(sPath);
   if (dirToEnumerate == nullptr)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
   if (!sPath.IsEmpty())
   {
-    return EZ_FAILURE; // requested folder to enumerate doesn't exist
+    return W_FAILURE; // requested folder to enumerate doesn't exist
   }
   DirEntry* currentDir = dirToEnumerate;
-  typename ezMap<ezString, ezFileSystemMirror::DirEntry>::Iterator currentSubDirIt = currentDir->m_subDirectories.GetIterator();
+  typename WMap<WString, WFileSystemMirror::DirEntry>::Iterator currentSubDirIt = currentDir->m_subDirectories.GetIterator();
   sPath = sPath0;
 
   while (currentDir != nullptr)
@@ -364,7 +364,7 @@ ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc cal
     }
     else
     {
-      ezStringBuilder sFilePath;
+      WStringBuilder sFilePath;
       for (auto& file : currentDir->m_files)
       {
         sFilePath = sPath;
@@ -399,38 +399,38 @@ ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc cal
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::GetType(ezStringView sPath0, Type& out_type)
+WResult WFileSystemMirror<T>::GetType(WStringView sPath0, Type& out_type)
 {
-  ezStringBuilder sPath = sPath0;
+  WStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
   if (dir == nullptr)
   {
-    return EZ_FAILURE; // file not under top level directory
+    return W_FAILURE; // file not under top level directory
   }
 
   auto it = dir->m_files.Find(sPath);
   if (it.IsValid())
   {
-    out_type = ezFileSystemMirror::Type::File;
-    return EZ_SUCCESS;
+    out_type = WFileSystemMirror::Type::File;
+    return W_SUCCESS;
   }
 
   auto itDir = dir->m_subDirectories.Find(sPath);
   if (itDir.IsValid())
   {
-    out_type = ezFileSystemMirror::Type::Directory;
-    return EZ_SUCCESS;
+    out_type = WFileSystemMirror::Type::Directory;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 template <typename T>
-typename ezFileSystemMirror<T>::DirEntry* ezFileSystemMirror<T>::FindDirectory(ezStringBuilder& path)
+typename WFileSystemMirror<T>::DirEntry* WFileSystemMirror<T>::FindDirectory(WStringBuilder& path)
 {
   if (!path.StartsWith(m_sTopLevelDirPath))
   {

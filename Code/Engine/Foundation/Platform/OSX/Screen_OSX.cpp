@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#if W_ENABLED(W_PLATFORM_OSX)
 
 #  include <Foundation/Platform/NoImpl/Screen_NoImpl.h>
 

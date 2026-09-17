@@ -6,10 +6,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezPropertyMetaStateEvent;
-class ezSkeletonAssetDocument;
+struct WPropertyMetaStateEvent;
+class WSkeletonAssetDocument;
 
-struct ezSkeletonAssetEvent
+struct WSkeletonAssetEvent
 {
   enum Type
   {
@@ -17,30 +17,30 @@ struct ezSkeletonAssetEvent
     Transformed,
   };
 
-  ezSkeletonAssetDocument* m_pDocument = nullptr;
+  WSkeletonAssetDocument* m_pDocument = nullptr;
   Type m_Type;
 };
 
-class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezEditableSkeleton>
+class WSkeletonAssetDocument : public WSimpleAssetDocument<WEditableSkeleton>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocument, ezSimpleAssetDocument<ezEditableSkeleton>);
+  W_ADD_DYNAMIC_REFLECTION(WSkeletonAssetDocument, WSimpleAssetDocument<WEditableSkeleton>);
 
 public:
-  ezSkeletonAssetDocument(ezStringView sDocumentPath);
-  ~ezSkeletonAssetDocument();
+  WSkeletonAssetDocument(WStringView sDocumentPath);
+  ~WSkeletonAssetDocument();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezStatus WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton, ezUInt16* out_pNumBones = nullptr) const;
+  WStatus WriteResource(WStreamWriter& inout_stream, const WEditableSkeleton& skeleton, WUInt16* out_pNumBones = nullptr) const;
 
   bool m_bIsTransforming = false;
 
-  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
+  virtual WManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
   {
-    return ezManipulatorSearchStrategy::SelectedObject;
+    return WManipulatorSearchStrategy::SelectedObject;
   }
 
-  const ezEvent<const ezSkeletonAssetEvent&>& Events() const { return m_Events; }
+  const WEvent<const WSkeletonAssetEvent&>& Events() const { return m_Events; }
 
   void SetRenderBones(bool bEnable);
   bool GetRenderBones() const { return m_bRenderBones; }
@@ -61,17 +61,17 @@ public:
   bool GetRenderPreviewMesh() const { return m_bRenderPreviewMesh; }
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  const ezEditableSkeleton* MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
+  const WEditableSkeleton* MergeWithNewSkeleton(WEditableSkeleton& newSkeleton);
 
   /// Whether merging in newSkeleton would change the joint hierarchy stored in this document.
-  bool WouldSkeletonHierarchyChange(const ezEditableSkeleton& newSkeleton) const;
+  bool WouldSkeletonHierarchyChange(const WEditableSkeleton& newSkeleton) const;
 
-  ezEvent<const ezSkeletonAssetEvent&> m_Events;
+  WEvent<const WSkeletonAssetEvent&> m_Events;
   bool m_bRenderBones = true;
   bool m_bRenderColliders = true;
   bool m_bRenderJoints = false; // currently not exposed
@@ -82,16 +82,16 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezSkeletonAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WSkeletonAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WSkeletonAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezSkeletonAssetDocumentGenerator();
-  ~ezSkeletonAssetDocumentGenerator();
+  WSkeletonAssetDocumentGenerator();
+  ~WSkeletonAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezSkeletonAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WSkeletonAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Meshes"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

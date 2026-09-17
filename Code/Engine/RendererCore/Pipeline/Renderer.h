@@ -5,12 +5,12 @@
 /// This is the base class for types that handle rendering of different object types.
 ///
 /// E.g. there are different renderers for meshes, particle effects, light sources, etc.
-class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
+class W_RENDERERCORE_DLL WRenderer : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WRenderer, WReflectedClass);
 
 public:
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const = 0;
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const = 0;
 
-  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
+  virtual void RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const = 0;
 };

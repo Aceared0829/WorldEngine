@@ -7,60 +7,60 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDragToPositionGizmo, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDragToPositionGizmo::ezDragToPositionGizmo()
+WDragToPositionGizmo::WDragToPositionGizmo()
 {
   m_bModifiesRotation = false;
 
   // TODO: adjust colors for +/- axis
-  const ezColor colr1 = ezColorGammaUB(206, 0, 46);
-  const ezColor colr2 = ezColorGammaUB(206, 0, 46);
-  const ezColor colg1 = ezColorGammaUB(101, 206, 0);
-  const ezColor colg2 = ezColorGammaUB(101, 206, 0);
-  const ezColor colb1 = ezColorGammaUB(0, 125, 206);
-  const ezColor colb2 = ezColorGammaUB(0, 125, 206);
-  const ezColor coly = ezColorGammaUB(128, 128, 0);
+  const WColor colr1 = WColorGammaUB(206, 0, 46);
+  const WColor colr2 = WColorGammaUB(206, 0, 46);
+  const WColor colg1 = WColorGammaUB(101, 206, 0);
+  const WColor colg2 = WColorGammaUB(101, 206, 0);
+  const WColor colb1 = WColorGammaUB(0, 125, 206);
+  const WColor colb2 = WColorGammaUB(0, 125, 206);
+  const WColor coly = WColorGammaUB(128, 128, 0);
 
-  m_hBobble.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragCenter.obj");
-  m_hAlignPX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPX.obj");
-  m_hAlignNX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNX.obj");
-  m_hAlignPY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPY.obj");
-  m_hAlignNY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNY.obj");
-  m_hAlignPZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPZ.obj");
-  m_hAlignNZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNZ.obj");
+  m_hBobble.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, coly, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragCenter.obj");
+  m_hAlignPX.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colr1, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowPX.obj");
+  m_hAlignNX.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colr2, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowNX.obj");
+  m_hAlignPY.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colg1, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowPY.obj");
+  m_hAlignNY.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colg2, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowNY.obj");
+  m_hAlignPZ.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colb1, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowPZ.obj");
+  m_hAlignNZ.ConfigureHandle(this, WEngineGizmoHandleType::FromFile, colb2, WGizmoFlags::ConstantSize | WGizmoFlags::Pickable, "Editor/Meshes/DragArrowNZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::MakeIdentity());
+  SetTransformation(WTransform::MakeIdentity());
 }
 
-void ezDragToPositionGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+void WDragToPositionGizmo::UpdateStatusBarText(WQtEngineDocumentWindow* pWindow)
 {
   if (m_pInteractionGizmoHandle != nullptr)
   {
     if (m_pInteractionGizmoHandle == &m_hBobble)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: Center"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: Center"));
     else if (m_pInteractionGizmoHandle == &m_hAlignPX)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +X"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: +X"));
     else if (m_pInteractionGizmoHandle == &m_hAlignNX)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -X"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: -X"));
     else if (m_pInteractionGizmoHandle == &m_hAlignPY)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Y"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: +Y"));
     else if (m_pInteractionGizmoHandle == &m_hAlignNY)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Y"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: -Y"));
     else if (m_pInteractionGizmoHandle == &m_hAlignPZ)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Z"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: +Z"));
     else if (m_pInteractionGizmoHandle == &m_hAlignNZ)
-      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Z"));
+      GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position: -Z"));
   }
   else
   {
-    GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position"));
+    GetOwnerWindow()->SetPermanentStatusBarMsg(WFmt("Drag to Position"));
   }
 }
 
-void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void WDragToPositionGizmo::OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hBobble);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignPX);
@@ -71,7 +71,7 @@ void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, e
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignNZ);
 }
 
-void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
+void WDragToPositionGizmo::OnVisibleChanged(bool bVisible)
 {
   m_hBobble.SetVisible(bVisible);
   m_hAlignPX.SetVisible(bVisible);
@@ -82,7 +82,7 @@ void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
   m_hAlignNZ.SetVisible(bVisible);
 }
 
-void ezDragToPositionGizmo::OnTransformationChanged(const ezTransform& transform)
+void WDragToPositionGizmo::OnTransformationChanged(const WTransform& transform)
 {
   m_hBobble.SetTransformation(transform);
   m_hAlignPX.SetTransformation(transform);
@@ -93,14 +93,14 @@ void ezDragToPositionGizmo::OnTransformationChanged(const ezTransform& transform
   m_hAlignNZ.SetTransformation(transform);
 }
 
-void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
+void WDragToPositionGizmo::DoFocusLost(bool bCancel)
 {
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? WGizmoEvent::Type::CancelInteractions : WGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_hBobble.SetVisible(true);
@@ -114,15 +114,15 @@ void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
   m_pInteractionGizmoHandle = nullptr;
 }
 
-ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  ezViewHighlightMsgToEngine msg;
+  WViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
@@ -140,65 +140,65 @@ ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
   m_vStartPosition = GetTransformation().m_vPosition;
   m_qStartOrientation = GetTransformation().m_qRotation;
 
-  m_LastInteraction = ezTime::Now();
+  m_LastInteraction = WTime::Now();
 
   SetActiveInputContext(this);
 
   UpdateStatusBarText(nullptr);
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
+  ev.m_Type = WGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
+WEditorInput WDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
-    return ezEditorInput::WasExclusivelyHandled;
+  if (tNow - m_LastInteraction < WTime::MakeFromSeconds(1.0 / 25.0))
+    return WEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
-  const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+  const WObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
   if (!res.m_PickedObject.IsValid())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN() || res.m_vPickedNormal.IsZero())
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
 
-  ezVec3 vSnappedPosition = res.m_vPickedPosition;
+  WVec3 vSnappedPosition = res.m_vPickedPosition;
 
   // disable snapping when SHIFT is pressed
   if (!e->modifiers().testFlag(Qt::ShiftModifier))
-    ezSnapProvider::SnapTranslation(vSnappedPosition);
+    WSnapProvider::SnapTranslation(vSnappedPosition);
 
-  ezTransform mTrans = GetTransformation();
+  WTransform mTrans = GetTransformation();
   mTrans.m_vPosition = vSnappedPosition;
 
-  ezQuat rot;
-  ezVec3 alignAxis, orthoAxis;
+  WQuat rot;
+  WVec3 alignAxis, orthoAxis;
 
   if (m_pInteractionGizmoHandle == &m_hAlignPX)
   {
@@ -243,23 +243,23 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     alignAxis = m_qStartOrientation * alignAxis;
     alignAxis.Normalize();
 
-    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::MakeFromDegree(179))
+    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > WAngle::MakeFromDegree(179))
     {
-      rot = ezQuat::MakeFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::MakeFromDegree(180));
+      rot = WQuat::MakeFromAxisAndAngle(m_qStartOrientation * orthoAxis, WAngle::MakeFromDegree(180));
     }
     else
     {
-      rot = ezQuat::MakeShortestRotation(alignAxis, res.m_vPickedNormal);
+      rot = WQuat::MakeShortestRotation(alignAxis, res.m_vPickedNormal);
     }
   }
 
   mTrans.m_qRotation = rot * m_qStartOrientation;
   SetTransformation(mTrans);
 
-  ezGizmoEvent ev;
+  WGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
+  ev.m_Type = WGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInput::WasExclusivelyHandled;
+  return WEditorInput::WasExclusivelyHandled;
 }

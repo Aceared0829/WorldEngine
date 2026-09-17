@@ -10,40 +10,40 @@
 #include <SampleGamePlugin/Messages/Messages.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(DisplayMsgComponent, 1, ezComponentMode::Static /* this component does not move the owner node */)
+W_BEGIN_COMPONENT_TYPE(DisplayMsgComponent, 1, WComponentMode::Static /* this component does not move the owner node */)
 {
-  //EZ_BEGIN_PROPERTIES
+  //W_BEGIN_PROPERTIES
   //{
   //}
-  //EZ_END_PROPERTIES;
+  //W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGamePlugin"),
+    new WCategoryAttribute("SampleGamePlugin"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
   // BEGIN-DOCS-CODE-SNIPPET: message-handler-block
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetText, OnSetText),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor)
+    W_MESSAGE_HANDLER(WMsgSetText, OnSetText),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnSetColor)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
   // END-DOCS-CODE-SNIPPET
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
 DisplayMsgComponent::DisplayMsgComponent() = default;
 DisplayMsgComponent::~DisplayMsgComponent() = default;
 
-void DisplayMsgComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void DisplayMsgComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 }
 
-void DisplayMsgComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void DisplayMsgComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 }
@@ -55,18 +55,18 @@ void DisplayMsgComponent::OnSimulationStarted()
 
 void DisplayMsgComponent::Update()
 {
-  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
+  const WTransform ownerTransform = GetOwner()->GetGlobalTransform();
 
-  ezDebugRenderer::Draw3DText(GetWorld(), m_sCurrentText.GetData(), ownerTransform.m_vPosition, m_TextColor, 32);
+  WDebugRenderer::Draw3DText(GetWorld(), m_sCurrentText.GetData(), ownerTransform.m_vPosition, m_TextColor, 32);
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: message-handler-impl
-void DisplayMsgComponent::OnSetText(ezMsgSetText& msg)
+void DisplayMsgComponent::OnSetText(WMsgSetText& msg)
 {
   m_sCurrentText = msg.m_sText;
 }
 
-void DisplayMsgComponent::OnSetColor(ezMsgSetColor& msg)
+void DisplayMsgComponent::OnSetColor(WMsgSetColor& msg)
 {
   m_TextColor = msg.m_Color;
 }

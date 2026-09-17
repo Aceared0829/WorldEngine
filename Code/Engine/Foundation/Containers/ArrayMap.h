@@ -2,15 +2,15 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 
-/// An associative container, similar to ezMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more
+/// An associative container, similar to WMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more
 /// efficient.
 ///
-/// Prefer this container over ezMap when you modify the container less often than you look things up (which is in most cases), and when
+/// Prefer this container over WMap when you modify the container less often than you look things up (which is in most cases), and when
 /// you do not need to store iterators to elements and require them to stay valid when the container is modified.
 ///
-/// ezArrayMapBase also allows to store multiple values under the same key (like a multi-map).
+/// WArrayMapBase also allows to store multiple values under the same key (like a multi-map).
 template <typename KEY, typename VALUE>
-class ezArrayMapBase
+class WArrayMapBase
 {
   /// \todo Custom comparer
 
@@ -20,24 +20,24 @@ public:
     KEY key;
     VALUE value;
 
-    EZ_DETECT_TYPE_CLASS(KEY, VALUE);
+    W_DETECT_TYPE_CLASS(KEY, VALUE);
 
-    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const { return key < rhs.key; }
+    W_ALWAYS_INLINE bool operator<(const Pair& rhs) const { return key < rhs.key; }
 
-    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const { return key == rhs.key; }
+    W_ALWAYS_INLINE bool operator==(const Pair& rhs) const { return key == rhs.key; }
   };
 
   /// Constructor.
-  explicit ezArrayMapBase(ezAllocator* pAllocator); // [tested]
+  explicit WArrayMapBase(WAllocator* pAllocator); // [tested]
 
   /// Copy-Constructor.
-  ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocator* pAllocator); // [tested]
+  WArrayMapBase(const WArrayMapBase& rhs, WAllocator* pAllocator); // [tested]
 
   /// Copy assignment operator.
-  void operator=(const ezArrayMapBase& rhs); // [tested]
+  void operator=(const WArrayMapBase& rhs); // [tested]
 
   /// Returns the number of elements stored in the map.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// True if the map contains no elements.
   bool IsEmpty() const; // [tested]
@@ -48,42 +48,42 @@ public:
   /// Always inserts a new value under the given key. Duplicates are allowed.
   /// Returns the index of the newly added element.
   template <typename CompatibleKeyType, typename CompatibleValueType>
-  ezUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
+  WUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// Ensures the internal data structure is sorted. This is done automatically every time a lookup needs to be made.
   void Sort() const; // [tested]
 
   /// Returns an index to one element with the given key. If the key is inserted multiple times, there is no guarantee which one is returned.
-  /// Returns ezInvalidIndex when no such element exists.
+  /// Returns WInvalidIndex when no such element exists.
   template <typename CompatibleKeyType>
-  ezUInt32 Find(const CompatibleKeyType& key) const; // [tested]
+  WUInt32 Find(const CompatibleKeyType& key) const; // [tested]
 
   /// Returns the index to the first element with a key equal or larger than the given key.
-  /// Returns ezInvalidIndex when no such element exists.
+  /// Returns WInvalidIndex when no such element exists.
   /// If there are multiple keys with the same value, the one at the smallest index is returned.
   template <typename CompatibleKeyType>
-  ezUInt32 LowerBound(const CompatibleKeyType& key) const; // [tested]
+  WUInt32 LowerBound(const CompatibleKeyType& key) const; // [tested]
 
   /// Returns the index to the first element with a key that is LARGER than the given key.
-  /// Returns ezInvalidIndex when no such element exists.
+  /// Returns WInvalidIndex when no such element exists.
   /// If there are multiple keys with the same value, the one at the smallest index is returned.
   template <typename CompatibleKeyType>
-  ezUInt32 UpperBound(const CompatibleKeyType& key) const; // [tested]
+  WUInt32 UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// Returns the key that is stored at the given index.
-  const KEY& GetKey(ezUInt32 uiIndex) const; // [tested]
+  const KEY& GetKey(WUInt32 uiIndex) const; // [tested]
 
   /// Returns the value that is stored at the given index.
-  const VALUE& GetValue(ezUInt32 uiIndex) const; // [tested]
+  const VALUE& GetValue(WUInt32 uiIndex) const; // [tested]
 
   /// Returns the value that is stored at the given index.
-  VALUE& GetValue(ezUInt32 uiIndex); // [tested]
+  VALUE& GetValue(WUInt32 uiIndex); // [tested]
 
   /// Returns a reference to the map data array.
-  ezDynamicArray<Pair>& GetData();
+  WDynamicArray<Pair>& GetData();
 
   /// Returns a constant reference to the map data array.
-  const ezDynamicArray<Pair>& GetData() const;
+  const WDynamicArray<Pair>& GetData() const;
 
   /// Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
   template <typename CompatibleKeyType>
@@ -94,14 +94,14 @@ public:
   VALUE& operator[](const CompatibleKeyType& key); // [tested]
 
   /// Returns the key/value pair at the given index.
-  const Pair& GetPair(ezUInt32 uiIndex) const; // [tested]
+  const Pair& GetPair(WUInt32 uiIndex) const; // [tested]
 
   /// Removes the element at the given index.
   ///
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
-  void RemoveAtAndCopy(ezUInt32 uiIndex, bool bKeepSorted = false);
+  void RemoveAtAndCopy(WUInt32 uiIndex, bool bKeepSorted = false);
 
   /// Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to
   /// call this function multiple times to remove them all.
@@ -121,113 +121,113 @@ public:
   bool Contains(const CompatibleKeyType& key, const VALUE& value) const; // [tested]
 
   /// Reserves enough memory to store \a size elements.
-  void Reserve(ezUInt32 uiSize); // [tested]
+  void Reserve(WUInt32 uiSize); // [tested]
 
   /// Compacts the internal memory to not waste any space.
   void Compact(); // [tested]
 
   /// Compares the two containers for equality.
-  bool operator==(const ezArrayMapBase<KEY, VALUE>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayMapBase<KEY, VALUE>&);
+  bool operator==(const WArrayMapBase<KEY, VALUE>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WArrayMapBase<KEY, VALUE>&);
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
+  WUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
 
-  using const_iterator = typename ezDynamicArray<Pair>::const_iterator;
-  using const_reverse_iterator = typename ezDynamicArray<Pair>::const_reverse_iterator;
-  using iterator = typename ezDynamicArray<Pair>::iterator;
-  using reverse_iterator = typename ezDynamicArray<Pair>::reverse_iterator;
+  using const_iterator = typename WDynamicArray<Pair>::const_iterator;
+  using const_reverse_iterator = typename WDynamicArray<Pair>::const_reverse_iterator;
+  using iterator = typename WDynamicArray<Pair>::iterator;
+  using reverse_iterator = typename WDynamicArray<Pair>::reverse_iterator;
 
 private:
   mutable bool m_bSorted;
-  mutable ezDynamicArray<Pair> m_Data;
+  mutable WDynamicArray<Pair> m_Data;
 };
 
-/// See ezArrayMapBase for details.
-template <typename KEY, typename VALUE, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezArrayMap : public ezArrayMapBase<KEY, VALUE>
+/// See WArrayMapBase for details.
+template <typename KEY, typename VALUE, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WArrayMap : public WArrayMapBase<KEY, VALUE>
 {
 public:
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+  W_DECLARE_MEM_RELOCATABLE_TYPE();
 
-  ezArrayMap();
-  explicit ezArrayMap(ezAllocator* pAllocator);
+  WArrayMap();
+  explicit WArrayMap(WAllocator* pAllocator);
 
-  ezArrayMap(const ezArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
-  ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs);
+  WArrayMap(const WArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
+  WArrayMap(const WArrayMapBase<KEY, VALUE>& rhs);
 
-  void operator=(const ezArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
-  void operator=(const ezArrayMapBase<KEY, VALUE>& rhs);
+  void operator=(const WArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
+  void operator=(const WArrayMapBase<KEY, VALUE>& rhs);
 };
 
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::iterator begin(ezArrayMapBase<KEY, VALUE>& ref_container)
+typename WArrayMapBase<KEY, VALUE>::iterator begin(WArrayMapBase<KEY, VALUE>& ref_container)
 {
   return begin(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_iterator begin(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_iterator begin(const WArrayMapBase<KEY, VALUE>& container)
 {
   return begin(container.GetData());
 }
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_iterator cbegin(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_iterator cbegin(const WArrayMapBase<KEY, VALUE>& container)
 {
   return cbegin(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(ezArrayMapBase<KEY, VALUE>& ref_container)
+typename WArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(WArrayMapBase<KEY, VALUE>& ref_container)
 {
   return rbegin(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rbegin(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_reverse_iterator rbegin(const WArrayMapBase<KEY, VALUE>& container)
 {
   return rbegin(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crbegin(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_reverse_iterator crbegin(const WArrayMapBase<KEY, VALUE>& container)
 {
   return crbegin(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::iterator end(ezArrayMapBase<KEY, VALUE>& ref_container)
+typename WArrayMapBase<KEY, VALUE>::iterator end(WArrayMapBase<KEY, VALUE>& ref_container)
 {
   return end(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_iterator end(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_iterator end(const WArrayMapBase<KEY, VALUE>& container)
 {
   return end(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_iterator cend(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_iterator cend(const WArrayMapBase<KEY, VALUE>& container)
 {
   return cend(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rend(ezArrayMapBase<KEY, VALUE>& ref_container)
+typename WArrayMapBase<KEY, VALUE>::reverse_iterator rend(WArrayMapBase<KEY, VALUE>& ref_container)
 {
   return rend(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rend(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_reverse_iterator rend(const WArrayMapBase<KEY, VALUE>& container)
 {
   return rend(container.GetData());
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crend(const ezArrayMapBase<KEY, VALUE>& container)
+typename WArrayMapBase<KEY, VALUE>::const_reverse_iterator crend(const WArrayMapBase<KEY, VALUE>& container)
 {
   return crend(container.GetData());
 }

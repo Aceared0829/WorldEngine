@@ -2,30 +2,30 @@
 
 #include <Foundation/SimdMath/SimdVec4i.h>
 
-class EZ_FOUNDATION_DLL ezSimdPerlinNoise
+class W_FOUNDATION_DLL WSimdPerlinNoise
 {
 public:
-  ezSimdPerlinNoise();
-  ezSimdPerlinNoise(ezUInt32 uiSeed);
+  WSimdPerlinNoise();
+  WSimdPerlinNoise(WUInt32 uiSeed);
 
-  void Initialize(ezRandom& ref_rng);
+  void Initialize(WRandom& ref_rng);
 
-  ezSimdVec4f NoiseZeroToOne(const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z, ezUInt32 uiNumOctaves = 1);
+  WSimdVec4f NoiseZeroToOne(const WSimdVec4f& x, const WSimdVec4f& y, const WSimdVec4f& z, WUInt32 uiNumOctaves = 1);
 
 private:
-  ezSimdVec4f Noise(const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z);
+  WSimdVec4f Noise(const WSimdVec4f& x, const WSimdVec4f& y, const WSimdVec4f& z);
 
-  EZ_FORCE_INLINE ezSimdVec4i Permute(const ezSimdVec4i& v)
+  W_FORCE_INLINE WSimdVec4i Permute(const WSimdVec4i& v)
   {
 #if 0
-    ezArrayPtr<ezUInt8> p = ezMakeArrayPtr(m_Permutations);
+    WArrayPtr<WUInt8> p = WMakeArrayPtr(m_Permutations);
 #else
-    ezUInt8* p = m_Permutations;
+    WUInt8* p = m_Permutations;
 #endif
 
-    ezSimdVec4i i = v & ezSimdVec4i(EZ_ARRAY_SIZE(m_Permutations) - 1);
-    return ezSimdVec4i(p[i.x()], p[i.y()], p[i.z()], p[i.w()]);
+    WSimdVec4i i = v & WSimdVec4i(W_ARRAY_SIZE(m_Permutations) - 1);
+    return WSimdVec4i(p[i.x()], p[i.y()], p[i.z()], p[i.w()]);
   }
 
-  ezUInt8 m_Permutations[256];
+  WUInt8 m_Permutations[256];
 };

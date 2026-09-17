@@ -4,56 +4,56 @@
 #include <EditorPluginAi/Dialogs/AiProjectSettingsDlg.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAiAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAiAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezAiActions::s_hCategoryAi;
-ezActionDescriptorHandle ezAiActions::s_hProjectSettings;
+WActionDescriptorHandle WAiActions::s_hCategoryAi;
+WActionDescriptorHandle WAiActions::s_hProjectSettings;
 
-void ezAiActions::RegisterActions()
+void WAiActions::RegisterActions()
 {
-  s_hCategoryAi = EZ_REGISTER_CATEGORY("Ai");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Ai.Settings.Project", ezActionScope::Document, "Ai", "", ezAiAction, ezAiAction::ActionType::ProjectSettings);
+  s_hCategoryAi = W_REGISTER_CATEGORY("Ai");
+  s_hProjectSettings = W_REGISTER_ACTION_1("Ai.Settings.Project", WActionScope::Document, "Ai", "", WAiAction, WAiAction::ActionType::ProjectSettings);
 }
 
-void ezAiActions::UnregisterActions()
+void WAiActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategoryAi);
-  ezActionManager::UnregisterAction(s_hProjectSettings);
+  WActionManager::UnregisterAction(s_hCategoryAi);
+  WActionManager::UnregisterAction(s_hProjectSettings);
 }
 
-void ezAiActions::MapMenuActions()
+void WAiActions::MapMenuActions()
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("AssetMenuBar");
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap("AssetMenuBar");
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryAi, "G.Plugins.Settings", 10.0f);
   pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "Ai", 1.0f);
 }
 
-ezAiAction::ezAiAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WAiAction::WAiAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
   switch (m_Type)
   {
     case ActionType::ProjectSettings:
-      SetIconPath(":/AiPlugin/ezAiPlugin.svg");
+      SetIconPath(":/AiPlugin/WAiPlugin.svg");
       break;
   }
 }
 
-ezAiAction::~ezAiAction() = default;
+WAiAction::~WAiAction() = default;
 
-void ezAiAction::Execute(const ezVariant& value)
+void WAiAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezQtAiProjectSettingsDlg dlg(nullptr);
+    WQtAiProjectSettingsDlg dlg(nullptr);
     if (dlg.exec() == QDialog::Accepted)
     {
-      ezToolsProject::BroadcastConfigChanged();
+      WToolsProject::BroadcastConfigChanged();
     }
   }
 }

@@ -9,19 +9,19 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Serialization);
+W_CREATE_SIMPLE_TEST_GROUP(Serialization);
 
-class TestContext : public ezRttiConverterContext
+class TestContext : public WRttiConverterContext
 {
 public:
-  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override
+  virtual WInternal::NewInstance<void> CreateObject(const WUuid& guid, const WRTTI* pRtti) override
   {
     auto pObj = pRtti->GetAllocator()->Allocate<void>();
     RegisterObject(guid, pRtti, pObj);
     return pObj;
   }
 
-  virtual void DeleteObject(const ezUuid& guid) override
+  virtual void DeleteObject(const WUuid& guid) override
   {
     auto object = GetObjectByGUID(guid);
     object.m_pType->GetAllocator()->Deallocate(object.m_pObject);
@@ -33,257 +33,257 @@ public:
 template <typename T>
 void TestSerialize(T* pObject)
 {
-  ezAbstractObjectGraph graph;
+  WAbstractObjectGraph graph;
   TestContext context;
-  ezRttiConverterWriter conv(&graph, &context, true, true);
+  WRttiConverterWriter conv(&graph, &context, true, true);
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-  const ezUuid guid = ezUuid::MakeUuid();
+  const WRTTI* pRtti = WGetStaticRTTI<T>();
+  const WUuid guid = WUuid::MakeUuid();
 
   context.RegisterObject(guid, pRtti, pObject);
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, pObject, "root");
+  WAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, pObject, "root");
 
-  EZ_TEST_BOOL(pNode->GetGuid() == guid);
-  EZ_TEST_STRING(pNode->GetType(), pRtti->GetTypeName());
-  EZ_TEST_INT(pNode->GetProperties().GetCount(), pNode->GetProperties().GetCount());
+  W_TEST_BOOL(pNode->GetGuid() == guid);
+  W_TEST_STRING(pNode->GetType(), pRtti->GetTypeName());
+  W_TEST_INT(pNode->GetProperties().GetCount(), pNode->GetProperties().GetCount());
 
   {
-    ezContiguousMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
+    WContiguousMemoryStreamStorage storage;
+    WMemoryStreamWriter writer(&storage);
+    WMemoryStreamReader reader(&storage);
 
-    ezAbstractGraphDdlSerializer::Write(writer, &graph);
+    WAbstractGraphDdlSerializer::Write(writer, &graph);
 
-    ezStringBuilder sData, sData2;
+    WStringBuilder sData, sData2;
     sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize32());
 
 
-    ezRttiConverterReader convRead(&graph, &context);
+    WRttiConverterReader convRead(&graph, &context);
     auto* pRootNode = graph.GetNodeByName("root");
-    EZ_TEST_BOOL(pRootNode != nullptr);
+    W_TEST_BOOL(pRootNode != nullptr);
 
     T target;
     convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-    EZ_TEST_BOOL(target == *pObject);
+    W_TEST_BOOL(target == *pObject);
 
-    // Overwrite again to test for leaks as existing values have to be removed first by ezRttiConverterReader.
+    // Overwrite again to test for leaks as existing values have to be removed first by WRttiConverterReader.
     convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-    EZ_TEST_BOOL(target == *pObject);
+    W_TEST_BOOL(target == *pObject);
 
     {
       T clone;
-      ezReflectionSerializer::Clone(pObject, &clone, pRtti);
-      EZ_TEST_BOOL(clone == *pObject);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, pObject, pRtti));
+      WReflectionSerializer::Clone(pObject, &clone, pRtti);
+      W_TEST_BOOL(clone == *pObject);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&clone, pObject, pRtti));
     }
 
     {
-      T* pClone = ezReflectionSerializer::Clone(pObject);
-      EZ_TEST_BOOL(*pClone == *pObject);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject));
+      T* pClone = WReflectionSerializer::Clone(pObject);
+      W_TEST_BOOL(*pClone == *pObject);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(pClone, pObject));
       // Overwrite again to test for leaks as existing values have to be removed first by clone.
-      ezReflectionSerializer::Clone(pObject, pClone, pRtti);
-      EZ_TEST_BOOL(*pClone == *pObject);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject, pRtti));
+      WReflectionSerializer::Clone(pObject, pClone, pRtti);
+      W_TEST_BOOL(*pClone == *pObject);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(pClone, pObject, pRtti));
       pRtti->GetAllocator()->Deallocate(pClone);
     }
 
-    ezAbstractObjectGraph graph2;
-    ezAbstractGraphDdlSerializer::Read(reader, &graph2).IgnoreResult();
+    WAbstractObjectGraph graph2;
+    WAbstractGraphDdlSerializer::Read(reader, &graph2).IgnoreResult();
 
-    ezContiguousMemoryStreamStorage storage2;
-    ezMemoryStreamWriter writer2(&storage2);
+    WContiguousMemoryStreamStorage storage2;
+    WMemoryStreamWriter writer2(&storage2);
 
-    ezAbstractGraphDdlSerializer::Write(writer2, &graph2);
+    WAbstractGraphDdlSerializer::Write(writer2, &graph2);
     sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize32());
 
-    EZ_TEST_BOOL(sData == sData2);
+    W_TEST_BOOL(sData == sData2);
   }
 
   {
-    ezContiguousMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
+    WContiguousMemoryStreamStorage storage;
+    WMemoryStreamWriter writer(&storage);
+    WMemoryStreamReader reader(&storage);
 
-    ezAbstractGraphBinarySerializer::Write(writer, &graph);
+    WAbstractGraphBinarySerializer::Write(writer, &graph);
 
-    ezRttiConverterReader convRead(&graph, &context);
+    WRttiConverterReader convRead(&graph, &context);
     auto* pRootNode = graph.GetNodeByName("root");
-    EZ_TEST_BOOL(pRootNode != nullptr);
+    W_TEST_BOOL(pRootNode != nullptr);
 
     T target;
     convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-    EZ_TEST_BOOL(target == *pObject);
+    W_TEST_BOOL(target == *pObject);
 
-    ezAbstractObjectGraph graph2;
-    ezAbstractGraphBinarySerializer::Read(reader, &graph2);
+    WAbstractObjectGraph graph2;
+    WAbstractGraphBinarySerializer::Read(reader, &graph2);
 
-    ezContiguousMemoryStreamStorage storage2;
-    ezMemoryStreamWriter writer2(&storage2);
+    WContiguousMemoryStreamStorage storage2;
+    WMemoryStreamWriter writer2(&storage2);
 
-    ezAbstractGraphBinarySerializer::Write(writer2, &graph2);
+    WAbstractGraphBinarySerializer::Write(writer2, &graph2);
 
-    EZ_TEST_INT(storage.GetStorageSize32(), storage2.GetStorageSize32());
+    W_TEST_INT(storage.GetStorageSize32(), storage2.GetStorageSize32());
 
     if (storage.GetStorageSize32() == storage2.GetStorageSize32())
     {
-      EZ_TEST_BOOL(ezMemoryUtils::RawByteCompare(storage.GetData(), storage2.GetData(), storage.GetStorageSize32()) == 0);
+      W_TEST_BOOL(WMemoryUtils::RawByteCompare(storage.GetData(), storage2.GetData(), storage.GetStorageSize32()) == 0);
     }
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
+W_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PODs")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PODs")
   {
-    ezTestStruct t1;
+    WTestStruct t1;
     t1.m_fFloat1 = 5.0f;
     t1.m_UInt8 = 222;
     t1.m_variant = "A";
-    t1.m_Angle = ezAngle::MakeFromDegree(5);
+    t1.m_Angle = WAngle::MakeFromDegree(5);
     t1.m_DataBuffer.PushBack(1);
     t1.m_DataBuffer.PushBack(5);
-    t1.m_vVec3I = ezVec3I32(0, 1, 333);
+    t1.m_vVec3I = WVec3I32(0, 1, 333);
     TestSerialize(&t1);
 
     {
-      ezTestStruct clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestStruct>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestStruct>()));
+      WTestStruct clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestStruct>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestStruct>()));
       clone.m_variant = "Test";
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestStruct>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestStruct>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EmbededStruct")
+  W_TEST_BLOCK(WTestBlock::Enabled, "EmbededStruct")
   {
-    ezTestClass1 t1;
-    t1.m_Color = ezColor::Yellow;
+    WTestClass1 t1;
+    t1.m_Color = WColor::Yellow;
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
+    t1.m_Struct.m_Angle = WAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
-    t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
+    t1.m_Struct.m_vVec3I = WVec3I32(0, 1, 333);
     TestSerialize(&t1);
 
     {
-      ezTestClass1 clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestClass1>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass1>()));
+      WTestClass1 clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestClass1>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass1>()));
       clone.m_Struct.m_DataBuffer[1] = 6;
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass1>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass1>()));
       clone.m_Struct.m_DataBuffer[1] = 5;
-      clone.m_Struct.m_variant = ezVec3(1, 2, 3);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass1>()));
+      clone.m_Struct.m_variant = WVec3(1, 2, 3);
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass1>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Enum")
   {
-    ezTestEnumStruct t1;
-    t1.m_enum = ezExampleEnum::Value2;
-    t1.m_enumClass = ezExampleEnum::Value3;
-    t1.SetEnum(ezExampleEnum::Value2);
-    t1.SetEnumClass(ezExampleEnum::Value3);
+    WTestEnumStruct t1;
+    t1.m_enum = WExampleEnum::Value2;
+    t1.m_enumClass = WExampleEnum::Value3;
+    t1.SetEnum(WExampleEnum::Value2);
+    t1.SetEnumClass(WExampleEnum::Value3);
     TestSerialize(&t1);
 
     {
-      ezTestEnumStruct clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestEnumStruct>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestEnumStruct>()));
-      clone.m_enum = ezExampleEnum::Value3;
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestEnumStruct>()));
+      WTestEnumStruct clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestEnumStruct>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestEnumStruct>()));
+      clone.m_enum = WExampleEnum::Value3;
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestEnumStruct>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitflags")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Bitflags")
   {
-    ezTestBitflagsStruct t1;
+    WTestBitflagsStruct t1;
     t1.m_bitflagsClass.SetValue(0);
-    t1.SetBitflagsClass(ezExampleBitflags::Value1 | ezExampleBitflags::Value2);
+    t1.SetBitflagsClass(WExampleBitflags::Value1 | WExampleBitflags::Value2);
     TestSerialize(&t1);
 
     {
-      ezTestBitflagsStruct clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestBitflagsStruct>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestBitflagsStruct>()));
-      clone.m_bitflagsClass = ezExampleBitflags::Value1;
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestBitflagsStruct>()));
+      WTestBitflagsStruct clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestBitflagsStruct>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestBitflagsStruct>()));
+      clone.m_bitflagsClass = WExampleBitflags::Value1;
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestBitflagsStruct>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Derived Class")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Derived Class")
   {
-    ezTestClass2 t1;
-    t1.m_Color = ezColor::Yellow;
+    WTestClass2 t1;
+    t1.m_Color = WColor::Yellow;
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
+    t1.m_Struct.m_Angle = WAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
-    t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
-    t1.m_Time = ezTime::MakeFromSeconds(22.2f);
-    t1.m_enumClass = ezExampleEnum::Value3;
-    t1.m_bitflagsClass = ezExampleBitflags::Value1 | ezExampleBitflags::Value2;
+    t1.m_Struct.m_vVec3I = WVec3I32(0, 1, 333);
+    t1.m_Time = WTime::MakeFromSeconds(22.2f);
+    t1.m_enumClass = WExampleEnum::Value3;
+    t1.m_bitflagsClass = WExampleBitflags::Value1 | WExampleBitflags::Value2;
     t1.m_array.PushBack(40.0f);
     t1.m_array.PushBack(-1.5f);
-    t1.m_Variant = ezVec4(1, 2, 3, 4);
+    t1.m_Variant = WVec4(1, 2, 3, 4);
     t1.SetCharPtr("Hello");
     t1.SetString("World");
     t1.SetStringView("!!!");
     TestSerialize(&t1);
 
     {
-      ezTestClass2 clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestClass2>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass2>()));
+      WTestClass2 clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestClass2>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass2>()));
       clone.m_Struct.m_DataBuffer[1] = 6;
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass2>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass2>()));
       clone.m_Struct.m_DataBuffer[1] = 5;
       t1.m_array.PushBack(-1.33f);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestClass2>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestClass2>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Arrays")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Arrays")
   {
-    ezTestArrays t1;
+    WTestArrays t1;
     t1.m_Hybrid.PushBack(4.5f);
     t1.m_Hybrid.PushBack(2.3f);
     t1.m_HybridChar.PushBack("Test");
 
-    ezTestStruct3 ts;
+    WTestStruct3 ts;
     ts.m_fFloat1 = 5.0f;
     ts.m_UInt8 = 22;
     t1.m_Dynamic.PushBack(ts);
     t1.m_Dynamic.PushBack(ts);
-    t1.m_Deque.PushBack(ezTestArrays());
+    t1.m_Deque.PushBack(WTestArrays());
     TestSerialize(&t1);
 
     {
-      ezTestArrays clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestArrays>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestArrays>()));
-      clone.m_Dynamic.PushBack(ezTestStruct3());
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestArrays>()));
+      WTestArrays clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestArrays>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestArrays>()));
+      clone.m_Dynamic.PushBack(WTestStruct3());
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestArrays>()));
       clone.m_Dynamic.PopBack();
       clone.m_Hybrid.PushBack(444.0f);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestArrays>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestArrays>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sets")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Sets")
   {
-    ezTestSets t1;
+    WTestSets t1;
     t1.m_SetMember.Insert(0);
     t1.m_SetMember.Insert(5);
     t1.m_SetMember.Insert(-33);
@@ -297,38 +297,38 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     TestSerialize(&t1);
 
     {
-      ezTestSets clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestSets>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestSets>()));
+      WTestSets clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestSets>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestSets>()));
       clone.m_SetMember.Insert(12);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestSets>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestSets>()));
       clone.m_SetMember.Remove(12);
       clone.m_Array.PushBack("Bla2");
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestSets>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestSets>()));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Pointer")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Pointer")
   {
-    ezTestPtr t1;
+    WTestPtr t1;
     t1.m_sString = "Ttttest";
-    t1.m_pArrays = EZ_DEFAULT_NEW(ezTestArrays);
-    t1.m_pArraysDirect = EZ_DEFAULT_NEW(ezTestArrays);
-    t1.m_ArrayPtr.PushBack(EZ_DEFAULT_NEW(ezTestArrays));
-    t1.m_SetPtr.Insert(EZ_DEFAULT_NEW(ezTestSets));
+    t1.m_pArrays = W_DEFAULT_NEW(WTestArrays);
+    t1.m_pArraysDirect = W_DEFAULT_NEW(WTestArrays);
+    t1.m_ArrayPtr.PushBack(W_DEFAULT_NEW(WTestArrays));
+    t1.m_SetPtr.Insert(W_DEFAULT_NEW(WTestSets));
     TestSerialize(&t1);
 
     {
-      ezTestPtr clone;
-      ezReflectionSerializer::Clone(&t1, &clone, ezGetStaticRTTI<ezTestPtr>());
-      EZ_TEST_BOOL(t1 == clone);
-      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestPtr>()));
+      WTestPtr clone;
+      WReflectionSerializer::Clone(&t1, &clone, WGetStaticRTTI<WTestPtr>());
+      W_TEST_BOOL(t1 == clone);
+      W_TEST_BOOL(WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestPtr>()));
       clone.m_SetPtr.GetIterator().Key()->m_Deque.PushBack(42);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestPtr>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestPtr>()));
       clone.m_SetPtr.GetIterator().Key()->m_Deque.PopBack();
       clone.m_ArrayPtr[0]->m_Hybrid.PushBack(123.0f);
-      EZ_TEST_BOOL(!ezReflectionUtils::IsEqual(&t1, &clone, ezGetStaticRTTI<ezTestPtr>()));
+      W_TEST_BOOL(!WReflectionUtils::IsEqual(&t1, &clone, WGetStaticRTTI<WTestPtr>()));
     }
   }
 }

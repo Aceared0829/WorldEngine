@@ -2,9 +2,9 @@
 
 #include <Foundation/Configuration/Singleton.h>
 
-ezMap<size_t, ezSingletonRegistry::SingletonEntry> ezSingletonRegistry::s_Singletons;
+WMap<size_t, WSingletonRegistry::SingletonEntry> WSingletonRegistry::s_Singletons;
 
-const ezMap<size_t, ezSingletonRegistry::SingletonEntry>& ezSingletonRegistry::GetAllRegisteredSingletons()
+const WMap<size_t, WSingletonRegistry::SingletonEntry>& WSingletonRegistry::GetAllRegisteredSingletons()
 {
   return s_Singletons;
 }

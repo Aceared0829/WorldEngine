@@ -12,8 +12,8 @@
 #include <RTSPlugin/GameMode/SettingsMenuMode/SettingsMenuMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RTSGameState, 1, ezRTTIDefaultAllocator<RTSGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(RTSGameState, 1, WRTTIDefaultAllocator<RTSGameState>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 RTSGameState* RTSGameState::s_pSingleton = nullptr;
 
@@ -24,7 +24,7 @@ RTSGameState::RTSGameState()
 
 RTSGameState::~RTSGameState() = default;
 
-void RTSGameState::RequestQuit(ezStringView sRequestedBy)
+void RTSGameState::RequestQuit(WStringView sRequestedBy)
 {
   if (sRequestedBy == "window")
   {
@@ -41,22 +41,22 @@ void RTSGameState::RequestQuit(ezStringView sRequestedBy)
   SUPER::RequestQuit(sRequestedBy);
 }
 
-void RTSGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
+void RTSGameState::GetStartupOptions(WString& out_sScene, WString& out_sPreloadCollection)
 {
   // replace this to load a certain scene at startup
   // the default implementation looks at the command line "-scene" argument
 
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
-  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  if (WCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
   else
   {
-    // otherwise, we use the hardcoded 'Main.ezScene'
+    // otherwise, we use the hardcoded 'Main.WScene'
     // if that doesn't exist, this function has to be adjusted
     // note that you can return an asset GUID here, instead of a path
-    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+    out_sScene = "AssetCache/Common/Scenes/Main.WBinScene";
   }
 }
 
@@ -67,35 +67,35 @@ float RTSGameState::GetCameraZoom() const
 
 float RTSGameState::SetCameraZoom(float fZoom)
 {
-  m_fCameraZoom = ezMath::Clamp(fZoom, 1.0f, 50.0f);
+  m_fCameraZoom = WMath::Clamp(fZoom, 1.0f, 50.0f);
 
   return m_fCameraZoom;
 }
 
-void RTSGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void RTSGameState::OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
-  EZ_LOG_BLOCK("GameState::Activate");
+  W_LOG_BLOCK("GameState::Activate");
 
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   PreloadAssets();
 
-  m_pMainMenuMode = EZ_DEFAULT_NEW(RtsMainMenuMode);
-  m_pSettingsMenuMode = EZ_DEFAULT_NEW(RtsSettingsMenuMode);
-  m_pBattleMode = EZ_DEFAULT_NEW(RtsBattleMode);
-  m_pEditLevelMode = EZ_DEFAULT_NEW(RtsEditLevelMode);
+  m_pMainMenuMode = W_DEFAULT_NEW(RtsMainMenuMode);
+  m_pSettingsMenuMode = W_DEFAULT_NEW(RtsSettingsMenuMode);
+  m_pBattleMode = W_DEFAULT_NEW(RtsBattleMode);
+  m_pEditLevelMode = W_DEFAULT_NEW(RtsEditLevelMode);
 
   SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
 }
 
 void RTSGameState::OnDeactivation()
 {
-  EZ_LOG_BLOCK("GameState::Deactivate");
+  W_LOG_BLOCK("GameState::Deactivate");
 
   SetActiveGameMode(RtsActiveGameMode::None);
 
   // Brings the hardware mouse cursor back.
-  ezInputManager::ClearMouseCursor();
+  WInputManager::ClearMouseCursor();
 
   SUPER::OnDeactivation();
 }
@@ -104,22 +104,22 @@ void RTSGameState::PreloadAssets()
 {
   // Load all assets that are referenced in some Collections
 
-  m_hCollectionSpace = ezResourceManager::LoadResource<ezCollectionResource>("{ 7cd0dfa6-d2bb-433e-9fa2-b17bfae42b6b }");
-  m_hCollectionFederation = ezResourceManager::LoadResource<ezCollectionResource>("{ 1edd3af8-6d59-4825-b853-ee8d7a60cb03 }");
-  m_hCollectionKlingons = ezResourceManager::LoadResource<ezCollectionResource>("{ c683d049-0e54-4c42-9764-a122f9dbc69d }");
+  m_hCollectionSpace = WResourceManager::LoadResource<WCollectionResource>("{ 7cd0dfa6-d2bb-433e-9fa2-b17bfae42b6b }");
+  m_hCollectionFederation = WResourceManager::LoadResource<WCollectionResource>("{ 1edd3af8-6d59-4825-b853-ee8d7a60cb03 }");
+  m_hCollectionKlingons = WResourceManager::LoadResource<WCollectionResource>("{ c683d049-0e54-4c42-9764-a122f9dbc69d }");
 
   // Register the loaded assets with the names defined in the collections
   // This allows to easily spawn those objects with human readable names instead of GUIDs
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionSpace, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WCollectionResource> pCollection(m_hCollectionSpace, WResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionFederation, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WCollectionResource> pCollection(m_hCollectionFederation, WResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionKlingons, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WCollectionResource> pCollection(m_hCollectionKlingons, WResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
 }
@@ -129,12 +129,12 @@ void RTSGameState::BeforeWorldUpdate()
   if (IsLoadingSceneInBackground())
     return;
 
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+  W_LOCK(m_pMainWorld->GetWriteMarker());
 
-  ezGameObject* pGameUiObject = nullptr;
-  if (m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("game-ui"), pGameUiObject))
+  WGameObject* pGameUiObject = nullptr;
+  if (m_pMainWorld->TryGetObjectWithGlobalKey(WTempHashedString("game-ui"), pGameUiObject))
   {
-    ezRmlUiCanvas2DComponent* pGameUiComponent = nullptr;
+    WRmlUiCanvas2DComponent* pGameUiComponent = nullptr;
     if (pGameUiObject->TryGetComponentOfBaseType(pGameUiComponent))
     {
       pGameUiComponent->SetCustomScale(m_fUiScale);
@@ -151,13 +151,13 @@ void RTSGameState::BeforeWorldUpdate()
   }
 
   // update the sound listener position to be the same as the camera position
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
-    const ezVec3 pos = m_MainCamera.GetCenterPosition();
-    const ezVec3 dir = m_MainCamera.GetCenterDirForwards();
-    const ezVec3 up = m_MainCamera.GetCenterDirUp();
+    const WVec3 pos = m_MainCamera.GetCenterPosition();
+    const WVec3 dir = m_MainCamera.GetCenterDirForwards();
+    const WVec3 up = m_MainCamera.GetCenterDirUp();
 
-    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::MakeZero());
+    pSoundInterface->SetListener(0, pos, dir, up, WVec3::MakeZero());
   }
 }
 
@@ -166,9 +166,9 @@ void RTSGameState::ConfigureMainCamera()
   SUPER::ConfigureMainCamera();
 
   m_fCameraZoom = 20.0f;
-  ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, m_fCameraZoom);
+  WVec3 vCameraPos = WVec3(0.0f, 0.0f, m_fCameraZoom);
 
-  ezCoordinateSystem coordSys;
+  WCoordinateSystem coordSys;
 
   if (m_pMainWorld)
   {
@@ -181,12 +181,12 @@ void RTSGameState::ConfigureMainCamera()
     coordSys.m_vUpDir.Set(0, 0, 1);
   }
 
-  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45.0f, 0.1f, 100);
+  m_MainCamera.SetCameraMode(WCameraMode::PerspectiveFixedFovY, 45.0f, 0.1f, 100);
   m_MainCamera.LookAt(vCameraPos, vCameraPos - coordSys.m_vUpDir, coordSys.m_vForwardDir);
 }
 
 
-void RTSGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void RTSGameState::OnChangedMainWorld(WWorld* pPrevWorld, WWorld* pNewWorld, WStringView sStartPosition, const WTransform& startPositionOffset)
 {
   SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
 
@@ -243,10 +243,10 @@ void RTSGameState::SetActiveGameMode(RtsActiveGameMode mode)
   }
 }
 
-ezGameObject* RTSGameState::DetectHoveredSelectable()
+WGameObject* RTSGameState::DetectHoveredSelectable()
 {
   m_hHoveredSelectable.Invalidate();
-  ezGameObject* pSelected = PickSelectableObject();
+  WGameObject* pSelected = PickSelectableObject();
 
   if (pSelected != nullptr)
   {
@@ -259,11 +259,11 @@ ezGameObject* RTSGameState::DetectHoveredSelectable()
 
 void RTSGameState::SelectUnits()
 {
-  ezGameObject* pSelected = PickSelectableObject();
+  WGameObject* pSelected = PickSelectableObject();
 
   if (pSelected != nullptr)
   {
-    if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Down || ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) == ezKeyState::Down)
+    if (WInputManager::GetInputSlotState(WInputSlot_KeyLeftCtrl) == WKeyState::Down || WInputManager::GetInputSlotState(WInputSlot_KeyRightCtrl) == WKeyState::Down)
     {
       m_SelectedUnits.ToggleSelection(pSelected->GetHandle());
     }
@@ -281,13 +281,13 @@ void RTSGameState::SelectUnits()
 
 void RTSGameState::RenderUnitSelection() const
 {
-  ezBoundingBox bbox;
+  WBoundingBox bbox;
 
-  for (ezUInt32 i = 0; i < m_SelectedUnits.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_SelectedUnits.GetCount(); ++i)
   {
-    ezGameObjectHandle hObject = m_SelectedUnits.GetObject(i);
+    WGameObjectHandle hObject = m_SelectedUnits.GetObject(i);
 
-    ezGameObject* pObject;
+    WGameObject* pObject;
     if (!m_pMainWorld->TryGetObject(hObject, pObject))
       continue;
 
@@ -297,19 +297,19 @@ void RTSGameState::RenderUnitSelection() const
 
     const float fRadius = pSelectable->m_fSelectionRadius * 1.1f;
 
-    ezTransform t = pObject->GetGlobalTransform();
+    WTransform t = pObject->GetGlobalTransform();
     t.m_vScale.Set(1.0f);
     t.m_qRotation.SetIdentity();
 
-    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
-    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
+    bbox = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), WVec3(fRadius, fRadius, 0));
+    WDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, WColor::White, t);
 
     RenderUnitHealthbar(pObject, fRadius);
   }
 
   // hovered unit
   {
-    ezGameObject* pObject;
+    WGameObject* pObject;
     if (m_pMainWorld->TryGetObject(m_hHoveredSelectable, pObject))
     {
       RtsSelectableComponent* pSelectable;
@@ -317,12 +317,12 @@ void RTSGameState::RenderUnitSelection() const
       {
         const float fRadius = pSelectable->m_fSelectionRadius * 1.1f;
 
-        ezTransform t = pObject->GetGlobalTransform();
+        WTransform t = pObject->GetGlobalTransform();
         t.m_vScale.Set(1.0f);
         t.m_qRotation.SetIdentity();
 
-        bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
-        ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+        bbox = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), WVec3(fRadius, fRadius, 0));
+        WDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, WColor::DodgerBlue, t);
 
         RenderUnitHealthbar(pObject, fRadius);
       }
@@ -330,7 +330,7 @@ void RTSGameState::RenderUnitSelection() const
   }
 }
 
-void RTSGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableRadius) const
+void RTSGameState::RenderUnitHealthbar(WGameObject* pObject, float fSelectableRadius) const
 {
   RtsMsgGatherUnitStats msgStats;
   pObject->SendMessageRecursive(msgStats);
@@ -340,51 +340,51 @@ void RTSGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableR
     const float percentage = msgStats.m_uiCurHealth / (float)msgStats.m_uiMaxHealth;
     const float fOffset = 0.01f;
 
-    ezVec3 pos = pObject->GetGlobalPosition();
+    WVec3 pos = pObject->GetGlobalPosition();
     pos.x += fSelectableRadius - 0.04f - fOffset;
 
-    ezColor c = ezColor::Lime;
+    WColor c = WColor::Lime;
 
     if (percentage < 0.3f)
-      c = ezColor::Red;
+      c = WColor::Red;
     else if (percentage < 0.6f)
-      c = ezColor::Orange;
+      c = WColor::Orange;
     else if (percentage < 0.8f)
-      c = ezColor::Yellow;
+      c = WColor::Yellow;
 
-    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
-    ezDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, ezTransform(pos));
+    WBoundingBox bbox = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), WVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
+    WDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, WTransform(pos));
   }
 }
 
-ezResult RTSGameState::ComputePickingRay()
+WResult RTSGameState::ComputePickingRay()
 {
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
-    return EZ_FAILURE;
+  WView* pView = nullptr;
+  if (!WRenderWorld::TryGetView(m_hMainView, pView))
+    return W_FAILURE;
 
-  ezVec3 vMousePos((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0);
+  WVec3 vMousePos((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0);
 
   pView->ConvertScreenPixelPosToNormalizedPos(vMousePos);
 
   return pView->ComputePickingRay(vMousePos.x, vMousePos.y, m_vCurrentPickingRayStart, m_vCurrentPickingRayDir);
 }
 
-ezResult RTSGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const
+WResult RTSGameState::PickGroundPlanePosition(WVec3& out_vPositon) const
 {
-  ezPlane p;
-  p = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
+  WPlane p;
+  p = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, 1), WVec3(0));
 
-  return p.GetRayIntersection(m_vCurrentPickingRayStart, m_vCurrentPickingRayDir, nullptr, &out_vPositon) ? EZ_SUCCESS : EZ_FAILURE;
+  return p.GetRayIntersection(m_vCurrentPickingRayStart, m_vCurrentPickingRayDir, nullptr, &out_vPositon) ? W_SUCCESS : W_FAILURE;
 }
 
-ezGameObject* RTSGameState::PickSelectableObject() const
+WGameObject* RTSGameState::PickSelectableObject() const
 {
   struct Payload
   {
-    ezGameObject* pBestObject = nullptr;
-    float fBestDistSQR = ezMath::Square(1000.0f);
-    ezVec3 vGroundPos;
+    WGameObject* pBestObject = nullptr;
+    float fBestDistSQR = WMath::Square(1000.0f);
+    WVec3 vGroundPos;
   };
 
   Payload pl;
@@ -392,21 +392,21 @@ ezGameObject* RTSGameState::PickSelectableObject() const
   if (PickGroundPlanePosition(pl.vGroundPos).Failed())
     return nullptr;
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject)
+  WSpatialSystem::QueryCallback cb = [&pl](WGameObject* pObject)
   {
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {
       const float dist = (pObject->GetGlobalTransform().m_vPosition - pl.vGroundPos).GetLengthSquared();
 
-      if (dist < pl.fBestDistSQR && dist <= ezMath::Square(pSelectable->m_fSelectionRadius))
+      if (dist < pl.fBestDistSQR && dist <= WMath::Square(pSelectable->m_fSelectionRadius))
       {
         pl.fBestDistSQR = dist;
         pl.pBestObject = pObject;
       }
     }
 
-    return ezVisitorExecution::Continue;
+    return WVisitorExecution::Continue;
   };
 
   InspectObjectsInArea(pl.vGroundPos.GetAsVec2(), 1.0f, cb);
@@ -415,24 +415,24 @@ ezGameObject* RTSGameState::PickSelectableObject() const
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-query
-void RTSGameState::InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const
+void RTSGameState::InspectObjectsInArea(const WVec2& vPosition, float fRadius, WSpatialSystem::QueryCallback callback) const
 {
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vPosition.GetAsVec3(0), fRadius);
-  ezSpatialSystem::QueryParams queryParams;
+  WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(vPosition.GetAsVec3(0), fRadius);
+  WSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, callback);
 }
 // END-DOCS-CODE-SNIPPET
 
-ezGameObject* RTSGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)
+WGameObject* RTSGameState::SpawnNamedObjectAt(const WTransform& transform, const char* szObjectName, WUInt16 uiTeamID)
 {
-  ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szObjectName);
+  WPrefabResourceHandle hPrefab = WResourceManager::LoadResource<WPrefabResource>(szObjectName);
 
-  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WPrefabResource> pPrefab(hPrefab, WResourceAcquireMode::BlockTillLoaded);
 
-  ezHybridArray<ezGameObject*, 8> CreatedRootObjects;
+  WHybridArray<WGameObject*, 8> CreatedRootObjects;
 
-  ezPrefabInstantiationOptions options;
+  WPrefabInstantiationOptions options;
   options.m_pCreatedRootObjectsOut = &CreatedRootObjects;
   options.m_pOverrideTeamID = &uiTeamID;
 

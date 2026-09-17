@@ -1,12 +1,12 @@
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(ezAllocator* pAllocator)
+WDynamicArrayBase<T>::WDynamicArrayBase(WAllocator* pAllocator)
   : m_pAllocator(pAllocator)
 {
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocator* pAllocator)
+WDynamicArrayBase<T>::WDynamicArrayBase(T* pInplaceStorage, WUInt32 uiCapacity, WAllocator* pAllocator)
   : m_pAllocator(pAllocator)
 {
   m_pAllocator.SetFlags(Storage::External);
@@ -15,35 +15,35 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacit
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocator* pAllocator)
+WDynamicArrayBase<T>::WDynamicArrayBase(const WDynamicArrayBase<T>& other, WAllocator* pAllocator)
   : m_pAllocator(pAllocator)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)other); // redirect this to the ezArrayPtr version
+  WArrayBase<T, WDynamicArrayBase<T>>::operator=((WArrayPtr<const T>)other); // redirect this to the WArrayPtr version
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocator* pAllocator)
+WDynamicArrayBase<T>::WDynamicArrayBase(WDynamicArrayBase<T>&& other, WAllocator* pAllocator)
   : m_pAllocator(pAllocator)
 {
   *this = std::move(other);
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocator* pAllocator)
+WDynamicArrayBase<T>::WDynamicArrayBase(const WArrayPtr<const T>& other, WAllocator* pAllocator)
   : m_pAllocator(pAllocator)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(other);
+  WArrayBase<T, WDynamicArrayBase<T>>::operator=(other);
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::~ezDynamicArrayBase()
+WDynamicArrayBase<T>::~WDynamicArrayBase()
 {
   this->Clear();
 
   if (m_pAllocator.GetFlags() == Storage::Owned)
   {
     // only delete our storage, if we own it
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
+    W_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
   }
 
   this->m_uiCapacity = 0;
@@ -51,13 +51,13 @@ ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezDynamicArrayBase<T>::operator=(const ezDynamicArrayBase<T>& rhs)
+W_ALWAYS_INLINE void WDynamicArrayBase<T>::operator=(const WDynamicArrayBase<T>& rhs)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
+  WArrayBase<T, WDynamicArrayBase<T>>::operator=((WArrayPtr<const T>)rhs); // redirect this to the WArrayPtr version
 }
 
 template <typename T>
-inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
+inline void WDynamicArrayBase<T>::operator=(WDynamicArrayBase<T>&& rhs) noexcept
 {
   // Clear any existing data (calls destructors if necessary)
   this->Clear();
@@ -67,7 +67,7 @@ inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexce
     if (this->m_pAllocator.GetFlags() == Storage::Owned)
     {
       // only delete our storage, if we own it
-      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
+      W_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
     }
 
     // we now own this storage
@@ -89,7 +89,7 @@ inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexce
     this->Reserve(rhs.m_uiCount);
     this->m_uiCount = rhs.m_uiCount;
 
-    ezMemoryUtils::RelocateConstruct(
+    WMemoryUtils::RelocateConstruct(
       this->GetElementsPtr(), rhs.GetElementsPtr() /* vital to remap rhs.m_pElements to absolute ptr */, rhs.m_uiCount);
 
     rhs.m_uiCount = 0;
@@ -97,31 +97,31 @@ inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexce
 }
 
 template <typename T>
-void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
+void WDynamicArrayBase<T>::Swap(WDynamicArrayBase<T>& other)
 {
   if (this->m_pAllocator.GetFlags() == Storage::External && other.m_pAllocator.GetFlags() == Storage::External)
   {
-    constexpr ezUInt32 InplaceStorageSize = 64;
+    constexpr WUInt32 InplaceStorageSize = 64;
 
     struct alignas(alignof(T)) Tmp
     {
-      ezUInt8 m_StaticData[InplaceStorageSize * sizeof(T)];
+      WUInt8 m_StaticData[InplaceStorageSize * sizeof(T)];
     };
 
-    const ezUInt32 localSize = this->m_uiCount;
-    const ezUInt32 otherLocalSize = other.m_uiCount;
+    const WUInt32 localSize = this->m_uiCount;
+    const WUInt32 otherLocalSize = other.m_uiCount;
 
     if (localSize <= InplaceStorageSize && otherLocalSize <= InplaceStorageSize && localSize <= other.m_uiCapacity &&
         otherLocalSize <= this->m_uiCapacity)
     {
 
       Tmp tmp;
-      ezMemoryUtils::RelocateConstruct(reinterpret_cast<T*>(tmp.m_StaticData), this->GetElementsPtr(), localSize);
-      ezMemoryUtils::RelocateConstruct(this->GetElementsPtr(), other.GetElementsPtr(), otherLocalSize);
-      ezMemoryUtils::RelocateConstruct(other.GetElementsPtr(), reinterpret_cast<T*>(tmp.m_StaticData), localSize);
+      WMemoryUtils::RelocateConstruct(reinterpret_cast<T*>(tmp.m_StaticData), this->GetElementsPtr(), localSize);
+      WMemoryUtils::RelocateConstruct(this->GetElementsPtr(), other.GetElementsPtr(), otherLocalSize);
+      WMemoryUtils::RelocateConstruct(other.GetElementsPtr(), reinterpret_cast<T*>(tmp.m_StaticData), localSize);
 
-      ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
-      ezMath::Swap(this->m_uiCount, other.m_uiCount);
+      WMath::Swap(this->m_pAllocator, other.m_pAllocator);
+      WMath::Swap(this->m_uiCount, other.m_uiCount);
 
       return; // successfully swapped in place
     }
@@ -142,29 +142,29 @@ void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
   }
 
   // no external storage involved -> swap pointers
-  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
+  WMath::Swap(this->m_pAllocator, other.m_pAllocator);
   this->DoSwap(other);
 }
 
 template <typename T>
-void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
+void WDynamicArrayBase<T>::SetCapacity(WUInt32 uiCapacity)
 {
   // do NOT early out here, it is vital that this function does its thing even if the old capacity would be sufficient
 
   if (this->m_pAllocator.GetFlags() == Storage::Owned && uiCapacity > this->m_uiCapacity)
   {
-    this->m_pElements = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, uiCapacity);
+    this->m_pElements = W_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, uiCapacity);
   }
   else
   {
     T* pOldElements = GetElementsPtr();
 
-    T* pNewElements = EZ_NEW_RAW_BUFFER(this->m_pAllocator, T, uiCapacity);
-    ezMemoryUtils::RelocateConstruct(pNewElements, pOldElements, this->m_uiCount);
+    T* pNewElements = W_NEW_RAW_BUFFER(this->m_pAllocator, T, uiCapacity);
+    WMemoryUtils::RelocateConstruct(pNewElements, pOldElements, this->m_uiCount);
 
     if (this->m_pAllocator.GetFlags() == Storage::Owned)
     {
-      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, pOldElements);
+      W_DELETE_RAW_BUFFER(this->m_pAllocator, pOldElements);
     }
 
     // after any resize, we definitely own the storage
@@ -176,30 +176,30 @@ void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 }
 
 template <typename T>
-void ezDynamicArrayBase<T>::Reserve(ezUInt32 uiCapacity)
+void WDynamicArrayBase<T>::Reserve(WUInt32 uiCapacity)
 {
   if (this->m_uiCapacity >= uiCapacity)
     return;
 
-  const ezUInt64 uiCurCap64 = static_cast<ezUInt64>(this->m_uiCapacity);
-  ezUInt64 uiNewCapacity64 = uiCurCap64 + (uiCurCap64 / 2);
+  const WUInt64 uiCurCap64 = static_cast<WUInt64>(this->m_uiCapacity);
+  WUInt64 uiNewCapacity64 = uiCurCap64 + (uiCurCap64 / 2);
 
-  uiNewCapacity64 = ezMath::Max<ezUInt64>(uiNewCapacity64, uiCapacity);
+  uiNewCapacity64 = WMath::Max<WUInt64>(uiNewCapacity64, uiCapacity);
 
-  constexpr ezUInt64 uiMaxCapacity = 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1);
+  constexpr WUInt64 uiMaxCapacity = 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1);
 
   // the maximum value must leave room for the capacity alignment computation below (without overflowing the 32 bit range)
-  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, uiMaxCapacity);
+  uiNewCapacity64 = WMath::Min<WUInt64>(uiNewCapacity64, uiMaxCapacity);
 
   uiNewCapacity64 = (uiNewCapacity64 + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
 
-  EZ_ASSERT_DEV(uiCapacity <= uiNewCapacity64, "The requested capacity of {} elements exceeds the maximum possible capacity of {} elements.", uiCapacity, uiMaxCapacity);
+  W_ASSERT_DEV(uiCapacity <= uiNewCapacity64, "The requested capacity of {} elements exceeds the maximum possible capacity of {} elements.", uiCapacity, uiMaxCapacity);
 
-  SetCapacity(static_cast<ezUInt32>(uiNewCapacity64 & 0xFFFFFFFF));
+  SetCapacity(static_cast<WUInt32>(uiNewCapacity64 & 0xFFFFFFFF));
 }
 
 template <typename T>
-void ezDynamicArrayBase<T>::Compact()
+void WDynamicArrayBase<T>::Compact()
 {
   if (m_pAllocator.GetFlags() == Storage::External)
     return;
@@ -207,154 +207,154 @@ void ezDynamicArrayBase<T>::Compact()
   if (this->IsEmpty())
   {
     // completely deallocate all data, if the array is empty.
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
+    W_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
     this->m_uiCapacity = 0;
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+    const WUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (this->m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezDynamicArrayBase<T>::GetElementsPtr()
+W_ALWAYS_INLINE T* WDynamicArrayBase<T>::GetElementsPtr()
 {
   return this->m_pElements;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE const T* ezDynamicArrayBase<T>::GetElementsPtr() const
+W_ALWAYS_INLINE const T* WDynamicArrayBase<T>::GetElementsPtr() const
 {
   return this->m_pElements;
 }
 
 template <typename T>
-ezUInt64 ezDynamicArrayBase<T>::GetHeapMemoryUsage() const
+WUInt64 WDynamicArrayBase<T>::GetHeapMemoryUsage() const
 {
   if (this->m_pAllocator.GetFlags() == Storage::External)
     return 0;
 
-  return (ezUInt64)this->m_uiCapacity * (ezUInt64)sizeof(T);
+  return (WUInt64)this->m_uiCapacity * (WUInt64)sizeof(T);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray()
-  : ezDynamicArrayBase<T>(A::GetAllocator())
+WDynamicArray<T, A>::WDynamicArray()
+  : WDynamicArrayBase<T>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezAllocator* pAllocator)
-  : ezDynamicArrayBase<T>(pAllocator)
+WDynamicArray<T, A>::WDynamicArray(WAllocator* pAllocator)
+  : WDynamicArrayBase<T>(pAllocator)
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArray<T, A>& other)
-  : ezDynamicArrayBase<T>(other, A::GetAllocator())
+WDynamicArray<T, A>::WDynamicArray(const WDynamicArray<T, A>& other)
+  : WDynamicArrayBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArrayBase<T>& other)
-  : ezDynamicArrayBase<T>(other, A::GetAllocator())
+WDynamicArray<T, A>::WDynamicArray(const WDynamicArrayBase<T>& other)
+  : WDynamicArrayBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(const ezArrayPtr<const T>& other)
-  : ezDynamicArrayBase<T>(other, A::GetAllocator())
+WDynamicArray<T, A>::WDynamicArray(const WArrayPtr<const T>& other)
+  : WDynamicArrayBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other)
-  : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
+WDynamicArray<T, A>::WDynamicArray(WDynamicArray<T, A>&& other)
+  : WDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other)
-  : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
+WDynamicArray<T, A>::WDynamicArray(WDynamicArrayBase<T>&& other)
+  : WDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(const ezDynamicArray<T, A>& rhs)
+void WDynamicArray<T, A>::operator=(const WDynamicArray<T, A>& rhs)
 {
-  ezDynamicArrayBase<T>::operator=(rhs);
+  WDynamicArrayBase<T>::operator=(rhs);
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(const ezDynamicArrayBase<T>& rhs)
+void WDynamicArray<T, A>::operator=(const WDynamicArrayBase<T>& rhs)
 {
-  ezDynamicArrayBase<T>::operator=(rhs);
+  WDynamicArrayBase<T>::operator=(rhs);
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(const ezArrayPtr<const T>& rhs)
+void WDynamicArray<T, A>::operator=(const WArrayPtr<const T>& rhs)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(rhs);
+  WArrayBase<T, WDynamicArrayBase<T>>::operator=(rhs);
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(ezDynamicArray<T, A>&& rhs) noexcept
+void WDynamicArray<T, A>::operator=(WDynamicArray<T, A>&& rhs) noexcept
 {
-  ezDynamicArrayBase<T>::operator=(std::move(rhs));
+  WDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
+void WDynamicArray<T, A>::operator=(WDynamicArrayBase<T>&& rhs) noexcept
 {
-  ezDynamicArrayBase<T>::operator=(std::move(rhs));
+  WDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-ezTempArray<T>::ezTempArray()
-  : ezDynamicArray<T>(ezTempAllocator::Get())
+WTempArray<T>::WTempArray()
+  : WDynamicArray<T>(WTempAllocator::Get())
 {
 }
 
 template <typename T>
-void ezTempArray<T>::operator=(const ezDynamicArrayBase<T>& rhs)
+void WTempArray<T>::operator=(const WDynamicArrayBase<T>& rhs)
 {
-  ezDynamicArrayBase<T>::operator=(rhs);
+  WDynamicArrayBase<T>::operator=(rhs);
 }
 
 template <typename T>
-void ezTempArray<T>::operator=(const ezArrayPtr<const T>& rhs)
+void WTempArray<T>::operator=(const WArrayPtr<const T>& rhs)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(rhs);
+  WArrayBase<T, WDynamicArrayBase<T>>::operator=(rhs);
 }
 
 template <typename T>
-void ezTempArray<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
+void WTempArray<T>::operator=(WDynamicArrayBase<T>&& rhs) noexcept
 {
-  ezDynamicArrayBase<T>::operator=(std::move(rhs));
+  WDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename AllocatorWrapper>
-ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray)
+WArrayPtr<const T* const> WMakeArrayPtr(const WDynamicArray<T*, AllocatorWrapper>& dynArray)
 {
-  return ezArrayPtr<const T* const>(dynArray.GetData(), dynArray.GetCount());
+  return WArrayPtr<const T* const>(dynArray.GetData(), dynArray.GetCount());
 }
 
 template <typename T, typename AllocatorWrapper>
-ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dynArray)
+WArrayPtr<const T> WMakeArrayPtr(const WDynamicArray<T, AllocatorWrapper>& dynArray)
 {
-  return ezArrayPtr<const T>(dynArray.GetData(), dynArray.GetCount());
+  return WArrayPtr<const T>(dynArray.GetData(), dynArray.GetCount());
 }
 
 template <typename T, typename AllocatorWrapper>
-ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& in_dynArray)
+WArrayPtr<T> WMakeArrayPtr(WDynamicArray<T, AllocatorWrapper>& in_dynArray)
 {
-  return ezArrayPtr<T>(in_dynArray.GetData(), in_dynArray.GetCount());
+  return WArrayPtr<T>(in_dynArray.GetData(), in_dynArray.GetCount());
 }

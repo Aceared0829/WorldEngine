@@ -5,58 +5,58 @@
 
 static void TelemetryMessage(void* pPassThrough)
 {
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('SVAR', Msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('SVAR', Msg) == W_SUCCESS)
   {
     if (Msg.GetMessageID() == ' SET')
     {
-      ezString sCVar;
-      ezUInt8 uiType;
+      WString sCVar;
+      WUInt8 uiType;
 
       float fValue;
-      ezInt32 iValue;
+      WInt32 iValue;
       bool bValue;
-      ezString sValue;
+      WString sValue;
 
       Msg.GetReader() >> sCVar;
       Msg.GetReader() >> uiType;
 
       switch (uiType)
       {
-        case ezCVarType::Float:
+        case WCVarType::Float:
           Msg.GetReader() >> fValue;
           break;
-        case ezCVarType::Int:
+        case WCVarType::Int:
           Msg.GetReader() >> iValue;
           break;
-        case ezCVarType::Bool:
+        case WCVarType::Bool:
           Msg.GetReader() >> bValue;
           break;
-        case ezCVarType::String:
+        case WCVarType::String:
           Msg.GetReader() >> sValue;
           break;
       }
 
-      ezCVar* pCVar = ezCVar::GetFirstInstance();
+      WCVar* pCVar = WCVar::GetFirstInstance();
 
       while (pCVar)
       {
-        if (((ezUInt8)pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
+        if (((WUInt8)pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
         {
           switch (uiType)
           {
-            case ezCVarType::Float:
-              *((ezCVarFloat*)pCVar) = fValue;
+            case WCVarType::Float:
+              *((WCVarFloat*)pCVar) = fValue;
               break;
-            case ezCVarType::Int:
-              *((ezCVarInt*)pCVar) = iValue;
+            case WCVarType::Int:
+              *((WCVarInt*)pCVar) = iValue;
               break;
-            case ezCVarType::Bool:
-              *((ezCVarBool*)pCVar) = bValue;
+            case WCVarType::Bool:
+              *((WCVarBool*)pCVar) = bValue;
               break;
-            case ezCVarType::String:
-              *((ezCVarString*)pCVar) = sValue;
+            case WCVarType::String:
+              *((WCVarString*)pCVar) = sValue;
               break;
           }
         }
@@ -67,63 +67,63 @@ static void TelemetryMessage(void* pPassThrough)
   }
 }
 
-static void SendCVarTelemetry(ezCVar* pCVar)
+static void SendCVarTelemetry(WCVar* pCVar)
 {
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID('CVAR', 'DATA');
   msg.GetWriter() << pCVar->GetName();
   msg.GetWriter() << pCVar->GetPluginName();
-  // msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue(); // currently not used
-  msg.GetWriter() << (ezUInt8)pCVar->GetType();
+  // msg.GetWriter() << (WUInt8) pCVar->GetFlags().GetValue(); // currently not used
+  msg.GetWriter() << (WUInt8)pCVar->GetType();
   msg.GetWriter() << pCVar->GetDescription();
 
   switch (pCVar->GetType())
   {
-    case ezCVarType::Float:
+    case WCVarType::Float:
     {
-      const float val = ((ezCVarFloat*)pCVar)->GetValue();
+      const float val = ((WCVarFloat*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-    case ezCVarType::Int:
+    case WCVarType::Int:
     {
-      const int val = ((ezCVarInt*)pCVar)->GetValue();
+      const int val = ((WCVarInt*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
     {
-      const bool val = ((ezCVarBool*)pCVar)->GetValue();
+      const bool val = ((WCVarBool*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-    case ezCVarType::String:
+    case WCVarType::String:
     {
-      ezStringView val = ((ezCVarString*)pCVar)->GetValue();
+      WStringView val = ((WCVarString*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
 
-    case ezCVarType::ENUM_COUNT:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+    case WCVarType::ENUM_COUNT:
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 }
 
 static void SendAllCVarTelemetry()
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
   // clear
   {
-    ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', ' CLR', nullptr, 0);
+    WTelemetryMessage msg;
+    WTelemetry::Broadcast(WTelemetry::Reliable, 'CVAR', ' CLR', nullptr, 0);
   }
 
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
+  WCVar* pCVar = WCVar::GetFirstInstance();
 
   while (pCVar)
   {
@@ -133,19 +133,19 @@ static void SendAllCVarTelemetry()
   }
 
   {
-    ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'SYNC', nullptr, 0);
+    WTelemetryMessage msg;
+    WTelemetry::Broadcast(WTelemetry::Reliable, 'CVAR', 'SYNC', nullptr, 0);
   }
 }
 
 namespace CVarsDetail
 {
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllCVarTelemetry();
         break;
 
@@ -154,18 +154,18 @@ namespace CVarsDetail
     }
   }
 
-  static void CVarEventHandler(const ezCVarEvent& e)
+  static void CVarEventHandler(const WCVarEvent& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezCVarEvent::ValueChanged:
+      case WCVarEvent::ValueChanged:
         SendCVarTelemetry(e.m_pCVar);
         break;
 
-      case ezCVarEvent::ListOfVarsChanged:
+      case WCVarEvent::ListOfVarsChanged:
         SendAllCVarTelemetry();
         break;
 
@@ -174,11 +174,11 @@ namespace CVarsDetail
     }
   }
 
-  static void PluginEventHandler(const ezPluginEvent& e)
+  static void PluginEventHandler(const WPluginEvent& e)
   {
     switch (e.m_EventType)
     {
-      case ezPluginEvent::AfterPluginChanges:
+      case WPluginEvent::AfterPluginChanges:
         SendAllCVarTelemetry();
         break;
 
@@ -190,20 +190,20 @@ namespace CVarsDetail
 
 void AddCVarEventHandler()
 {
-  ezTelemetry::AddEventHandler(CVarsDetail::TelemetryEventsHandler);
-  ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, nullptr);
+  WTelemetry::AddEventHandler(CVarsDetail::TelemetryEventsHandler);
+  WTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, nullptr);
 
-  ezCVar::s_AllCVarEvents.AddEventHandler(CVarsDetail::CVarEventHandler);
-  ezPlugin::Events().AddEventHandler(CVarsDetail::PluginEventHandler);
+  WCVar::s_AllCVarEvents.AddEventHandler(CVarsDetail::CVarEventHandler);
+  WPlugin::Events().AddEventHandler(CVarsDetail::PluginEventHandler);
 }
 
 void RemoveCVarEventHandler()
 {
-  ezPlugin::Events().RemoveEventHandler(CVarsDetail::PluginEventHandler);
-  ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarsDetail::CVarEventHandler);
+  WPlugin::Events().RemoveEventHandler(CVarsDetail::PluginEventHandler);
+  WCVar::s_AllCVarEvents.RemoveEventHandler(CVarsDetail::CVarEventHandler);
 
-  ezTelemetry::RemoveEventHandler(CVarsDetail::TelemetryEventsHandler);
-  ezTelemetry::AcceptMessagesForSystem('SVAR', false);
+  WTelemetry::RemoveEventHandler(CVarsDetail::TelemetryEventsHandler);
+  WTelemetry::AcceptMessagesForSystem('SVAR', false);
 }
 
 

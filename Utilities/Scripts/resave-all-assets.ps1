@@ -4,7 +4,7 @@ $appPath = Find-EditorProcessor
 "Using $appPath"
 
 # Re-save all assets
-Get-ChildItem -Path $PSScriptRoot\..\..\. -Filter ezProject -Recurse -File | ForEach-Object {
+Get-ChildItem -Path $PSScriptRoot\..\..\. -Filter WProject -Recurse -File | ForEach-Object {
     $projectDir = $_.Directory.FullName
     
     "Re-saving assets in project $projectDir"

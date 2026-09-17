@@ -39,219 +39,219 @@ constexpr const char* szDefaultRenderer = "Vulkan";
 constexpr const char* szDefaultRenderer = "";
 #endif
 
-ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer implementation to use.", szDefaultRenderer);
-ezCommandLineOptionBool opt_RendererDebugDevice("app", "-debugdevice", "Whether to create a debug GAL device.", false);
+WCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer implementation to use.", szDefaultRenderer);
+WCommandLineOptionBool opt_RendererDebugDevice("app", "-debugdevice", "Whether to create a debug GAL device.", false);
 
-void ezGameApplication::Init_ConfigureAssetManagement()
+void WGameApplication::Init_ConfigureAssetManagement()
 {
-  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.GetConfigName(), ".ezAidlt");
+  const WStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.GetConfigName(), ".WAidlt");
 
   // which redirection table to search
-  ezDataDirectory::FolderType::s_sRedirectionFile = sAssetRedirFile;
+  WDataDirectory::FolderType::s_sRedirectionFile = sAssetRedirFile;
 
   // which platform assets to use
-  ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
+  WDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
 
-  ezResourceManager::RegisterResourceForAssetType("Animated Mesh", ezGetStaticRTTI<ezMeshResource>());
-  ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
-  ezResourceManager::RegisterResourceForAssetType("Animation Graph", ezGetStaticRTTI<ezAnimGraphResource>());
-  ezResourceManager::RegisterResourceForAssetType("BlackboardTemplate", ezGetStaticRTTI<ezBlackboardTemplateResource>());
-  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
-  ezResourceManager::RegisterResourceForAssetType("ColorGradient", ezGetStaticRTTI<ezColorGradientResource>());
-  ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
-  ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
-  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
-  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
-  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
-  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
-  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
-  ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Shader", ezGetStaticRTTI<ezShaderResource>());
-  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
-  ezResourceManager::RegisterResourceForAssetType("StateMachine", ezGetStaticRTTI<ezStateMachineResource>());
-  ezResourceManager::RegisterResourceForAssetType("Substance Texture", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
+  WResourceManager::RegisterResourceForAssetType("Animated Mesh", WGetStaticRTTI<WMeshResource>());
+  WResourceManager::RegisterResourceForAssetType("Animation Clip", WGetStaticRTTI<WAnimationClipResource>());
+  WResourceManager::RegisterResourceForAssetType("Animation Graph", WGetStaticRTTI<WAnimGraphResource>());
+  WResourceManager::RegisterResourceForAssetType("BlackboardTemplate", WGetStaticRTTI<WBlackboardTemplateResource>());
+  WResourceManager::RegisterResourceForAssetType("Collection", WGetStaticRTTI<WCollectionResource>());
+  WResourceManager::RegisterResourceForAssetType("ColorGradient", WGetStaticRTTI<WColorGradientResource>());
+  WResourceManager::RegisterResourceForAssetType("Curve1D", WGetStaticRTTI<WCurve1DResource>());
+  WResourceManager::RegisterResourceForAssetType("Decal", WGetStaticRTTI<WDecalResource>());
+  WResourceManager::RegisterResourceForAssetType("Decal Atlas", WGetStaticRTTI<WDecalAtlasResource>());
+  WResourceManager::RegisterResourceForAssetType("Image Data", WGetStaticRTTI<WImageDataResource>());
+  WResourceManager::RegisterResourceForAssetType("LUT", WGetStaticRTTI<WTexture3DResource>());
+  WResourceManager::RegisterResourceForAssetType("Material", WGetStaticRTTI<WMaterialResource>());
+  WResourceManager::RegisterResourceForAssetType("Mesh", WGetStaticRTTI<WMeshResource>());
+  WResourceManager::RegisterResourceForAssetType("Prefab", WGetStaticRTTI<WPrefabResource>());
+  WResourceManager::RegisterResourceForAssetType("PropertyAnim", WGetStaticRTTI<WPropertyAnimResource>());
+  WResourceManager::RegisterResourceForAssetType("RenderPipeline", WGetStaticRTTI<WRenderPipelineResource>());
+  WResourceManager::RegisterResourceForAssetType("Render Target", WGetStaticRTTI<WTexture2DResource>());
+  WResourceManager::RegisterResourceForAssetType("Shader", WGetStaticRTTI<WShaderResource>());
+  WResourceManager::RegisterResourceForAssetType("Skeleton", WGetStaticRTTI<WSkeletonResource>());
+  WResourceManager::RegisterResourceForAssetType("StateMachine", WGetStaticRTTI<WStateMachineResource>());
+  WResourceManager::RegisterResourceForAssetType("Substance Texture", WGetStaticRTTI<WTexture2DResource>());
+  WResourceManager::RegisterResourceForAssetType("Surface", WGetStaticRTTI<WSurfaceResource>());
+  WResourceManager::RegisterResourceForAssetType("Texture 2D", WGetStaticRTTI<WTexture2DResource>());
+  WResourceManager::RegisterResourceForAssetType("Texture Cube", WGetStaticRTTI<WTextureCubeResource>());
 }
 
-void ezGameApplication::Init_SetupDefaultResources()
+void WGameApplication::Init_SetupDefaultResources()
 {
   SUPER::Init_SetupDefaultResources();
 
-  ezResourceManager::SetIncrementalUnloadForResourceType<ezShaderPermutationResource>(false);
+  WResourceManager::SetIncrementalUnloadForResourceType<WShaderPermutationResource>(false);
 
   // Shaders
   {
-    ezShaderResourceDescriptor desc;
-    ezShaderResourceHandle hFallbackShader = ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
+    WShaderResourceDescriptor desc;
+    WShaderResourceHandle hFallbackShader = WResourceManager::CreateResource<WShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
 
-    ezShaderResourceDescriptor desc2;
-    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc2), "MissingShaderResource");
+    WShaderResourceDescriptor desc2;
+    WShaderResourceHandle hMissingShader = WResourceManager::CreateResource<WShaderResource>("MissingShaderResource", std::move(desc2), "MissingShaderResource");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezShaderResource>(hFallbackShader);
-    ezResourceManager::SetResourceTypeMissingFallback<ezShaderResource>(hMissingShader);
+    WResourceManager::SetResourceTypeLoadingFallback<WShaderResource>(hFallbackShader);
+    WResourceManager::SetResourceTypeMissingFallback<WShaderResource>(hMissingShader);
   }
 
   // Shader Permutation
   {
-    ezShaderPermutationResourceDescriptor desc;
-    ezShaderPermutationResourceHandle hFallbackShaderPermutation = ezResourceManager::CreateResource<ezShaderPermutationResource>("FallbackShaderPermutationResource", std::move(desc), "FallbackShaderPermutationResource");
+    WShaderPermutationResourceDescriptor desc;
+    WShaderPermutationResourceHandle hFallbackShaderPermutation = WResourceManager::CreateResource<WShaderPermutationResource>("FallbackShaderPermutationResource", std::move(desc), "FallbackShaderPermutationResource");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezShaderPermutationResource>(hFallbackShaderPermutation);
+    WResourceManager::SetResourceTypeLoadingFallback<WShaderPermutationResource>(hFallbackShaderPermutation);
   }
 
   // 2D Textures
   {
-    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Loading_D.dds");
-    ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingResource_D.dds");
+    WTexture2DResourceHandle hFallbackTexture = WResourceManager::LoadResource<WTexture2DResource>("Textures/Loading_D.dds");
+    WTexture2DResourceHandle hMissingTexture = WResourceManager::LoadResource<WTexture2DResource>("Textures/MissingResource_D.dds");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallbackTexture);
-    ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissingTexture);
+    WResourceManager::SetResourceTypeLoadingFallback<WTexture2DResource>(hFallbackTexture);
+    WResourceManager::SetResourceTypeMissingFallback<WTexture2DResource>(hMissingTexture);
   }
 
   // Render to 2D Textures
   {
-    ezRenderToTexture2DResourceDescriptor desc;
+    WRenderToTexture2DResourceDescriptor desc;
     desc.m_uiWidth = 128;
     desc.m_uiHeight = 128;
 
-    ezRenderToTexture2DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", std::move(desc));
+    WRenderToTexture2DResourceHandle hMissingTexture = WResourceManager::CreateResource<WRenderToTexture2DResource>("R22DT_Missing", std::move(desc));
 
-    ezResourceManager::SetResourceTypeMissingFallback<ezRenderToTexture2DResource>(hMissingTexture);
+    WResourceManager::SetResourceTypeMissingFallback<WRenderToTexture2DResource>(hMissingTexture);
   }
 
   // Cube Textures
   {
     /// \todo Loading Cubemap Texture
 
-    ezTextureCubeResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/MissingCubeMap.dds");
-    ezTextureCubeResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/MissingCubeMap.dds");
+    WTextureCubeResourceHandle hFallbackTexture = WResourceManager::LoadResource<WTextureCubeResource>("Textures/MissingCubeMap.dds");
+    WTextureCubeResourceHandle hMissingTexture = WResourceManager::LoadResource<WTextureCubeResource>("Textures/MissingCubeMap.dds");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezTextureCubeResource>(hFallbackTexture);
-    ezResourceManager::SetResourceTypeMissingFallback<ezTextureCubeResource>(hMissingTexture);
+    WResourceManager::SetResourceTypeLoadingFallback<WTextureCubeResource>(hFallbackTexture);
+    WResourceManager::SetResourceTypeMissingFallback<WTextureCubeResource>(hMissingTexture);
   }
 
   // Materials
   {
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMaterialResource, ezMaterialResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WMaterialResource, WMaterialResource>();
 
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/LoadingMaterial.ezMaterial");
+    WMaterialResourceHandle hMissingMaterial = WResourceManager::LoadResource<WMaterialResource>("Materials/Common/MissingMaterial.WMaterial");
+    WMaterialResourceHandle hFallbackMaterial = WResourceManager::LoadResource<WMaterialResource>("Materials/Common/LoadingMaterial.WMaterial");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezMaterialResource>(hFallbackMaterial);
-    ezResourceManager::SetResourceTypeMissingFallback<ezMaterialResource>(hMissingMaterial);
+    WResourceManager::SetResourceTypeLoadingFallback<WMaterialResource>(hFallbackMaterial);
+    WResourceManager::SetResourceTypeMissingFallback<WMaterialResource>(hMissingMaterial);
   }
 
   // Meshes
   {
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMeshResource, ezMeshBufferResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WMeshResource, WMeshBufferResource>();
 
-    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
-    ezResourceManager::SetResourceTypeMissingFallback<ezMeshResource>(hMissingMesh);
+    WMeshResourceHandle hMissingMesh = WResourceManager::LoadResource<WMeshResource>("Meshes/MissingMesh.WBinMesh");
+    WResourceManager::SetResourceTypeMissingFallback<WMeshResource>(hMissingMesh);
   }
 
   // Prefabs
   {
-    // ezPrefabResourceDescriptor emptyPrefab;
-    // ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab,
+    // WPrefabResourceDescriptor emptyPrefab;
+    // WPrefabResourceHandle hMissingPrefab = WResourceManager::CreateResource<WPrefabResource>("MissingPrefabResource", emptyPrefab,
     // "MissingPrefabResource");
 
-    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezBinPrefab");
-    ezResourceManager::SetResourceTypeMissingFallback<ezPrefabResource>(hMissingPrefab);
+    WPrefabResourceHandle hMissingPrefab = WResourceManager::LoadResource<WPrefabResource>("Prefabs/MissingPrefab.WBinPrefab");
+    WResourceManager::SetResourceTypeMissingFallback<WPrefabResource>(hMissingPrefab);
   }
 
   // Collections
   {
-    ezCollectionResourceDescriptor desc;
-    ezCollectionResourceHandle hMissingCollection = ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", std::move(desc), "MissingCollectionResource");
+    WCollectionResourceDescriptor desc;
+    WCollectionResourceHandle hMissingCollection = WResourceManager::CreateResource<WCollectionResource>("MissingCollectionResource", std::move(desc), "MissingCollectionResource");
 
-    ezResourceManager::SetResourceTypeMissingFallback<ezCollectionResource>(hMissingCollection);
+    WResourceManager::SetResourceTypeMissingFallback<WCollectionResource>(hMissingCollection);
   }
 
   // Render Pipelines
   {
-    ezRenderPipelineResourceHandle hMissingRenderPipeline = ezRenderPipelineResource::CreateMissingPipeline();
-    ezResourceManager::SetResourceTypeMissingFallback<ezRenderPipelineResource>(hMissingRenderPipeline);
+    WRenderPipelineResourceHandle hMissingRenderPipeline = WRenderPipelineResource::CreateMissingPipeline();
+    WResourceManager::SetResourceTypeMissingFallback<WRenderPipelineResource>(hMissingRenderPipeline);
   }
 
   // Color Gradient
   {
-    ezColorGradientResourceDescriptor cg;
-    cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
-    cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
+    WColorGradientResourceDescriptor cg;
+    cg.m_Gradient.AddColorControlPoint(0, WColor::RebeccaPurple);
+    cg.m_Gradient.AddColorControlPoint(1, WColor::LawnGreen);
 
-    ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezColorGradientResource>(hResource);
+    WColorGradientResourceHandle hResource = WResourceManager::CreateResource<WColorGradientResource>("MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WColorGradientResource>(hResource);
   }
 
   // 1D Curve
   {
-    ezCurve1DResourceDescriptor cd;
+    WCurve1DResourceDescriptor cd;
     auto& curve = cd.m_Curves.ExpandAndGetRef();
     curve.AddControlPoint(0);
     curve.AddControlPoint(1);
     curve.CreateLinearApproximation();
 
-    ezCurve1DResourceHandle hResource = ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", std::move(cd), "Missing Curve1D Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezCurve1DResource>(hResource);
+    WCurve1DResourceHandle hResource = WResourceManager::CreateResource<WCurve1DResource>("MissingCurve1D", std::move(cd), "Missing Curve1D Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WCurve1DResource>(hResource);
   }
 
   // Property Animations
   {
-    ezPropertyAnimResourceDescriptor desc;
-    desc.m_AnimationDuration = ezTime::MakeFromSeconds(0.1);
+    WPropertyAnimResourceDescriptor desc;
+    desc.m_AnimationDuration = WTime::MakeFromSeconds(0.1);
 
-    ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", std::move(desc), "Missing Property Animation Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezPropertyAnimResource>(hResource);
+    WPropertyAnimResourceHandle hResource = WResourceManager::CreateResource<WPropertyAnimResource>("MissingPropertyAnim", std::move(desc), "Missing Property Animation Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WPropertyAnimResource>(hResource);
   }
 
   // Animation Skeleton
   {
-    ezSkeletonResourceDescriptor desc;
+    WSkeletonResourceDescriptor desc;
 
-    ezSkeletonResourceHandle hResource = ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", std::move(desc), "Missing Skeleton Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezSkeletonResource>(hResource);
+    WSkeletonResourceHandle hResource = WResourceManager::CreateResource<WSkeletonResource>("MissingSkeleton", std::move(desc), "Missing Skeleton Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WSkeletonResource>(hResource);
   }
 
   // Animation Clip
   {
-    ezAnimationClipResourceDescriptor desc;
+    WAnimationClipResourceDescriptor desc;
 
-    ezAnimationClipResourceHandle hResource = ezResourceManager::CreateResource<ezAnimationClipResource>("MissingAnimationClip", std::move(desc), "Missing Animation Clip Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezAnimationClipResource>(hResource);
+    WAnimationClipResourceHandle hResource = WResourceManager::CreateResource<WAnimationClipResource>("MissingAnimationClip", std::move(desc), "Missing Animation Clip Resource");
+    WResourceManager::SetResourceTypeMissingFallback<WAnimationClipResource>(hResource);
   }
 
   // Decal Atlas
   {
-    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezDecalAtlasResource, ezTexture2DResource>();
+    WResourceManager::AllowResourceTypeAcquireDuringUpdateContent<WDecalAtlasResource, WTexture2DResource>();
   }
 }
 
-ezStringView GetRendererNameFromCommandLine()
+WStringView GetRendererNameFromCommandLine()
 {
-  return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
+  return opt_Renderer.GetOptionValue(WCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
-ezStringView ezGameApplication::GetActiveRenderer()
+WStringView WGameApplication::GetActiveRenderer()
 {
   return GetRendererNameFromCommandLine();
 }
 
-void ezGameApplication::Init_SetupGraphicsDevice()
+void WGameApplication::Init_SetupGraphicsDevice()
 {
-  ezGALDeviceCreationDescription DeviceInit;
+  WGALDeviceCreationDescription DeviceInit;
 
-  DeviceInit.m_bDebugDevice = opt_RendererDebugDevice.GetOptionValue(ezCommandLineOption::LogMode::Never);
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  DeviceInit.m_bDebugDevice = opt_RendererDebugDevice.GetOptionValue(WCommandLineOption::LogMode::Never);
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
 #endif
 
   {
-    ezGALDevice* pDevice = nullptr;
+    WGALDevice* pDevice = nullptr;
 
     if (s_DefaultDeviceCreator.IsValid())
     {
@@ -259,70 +259,70 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     }
     else
     {
-      ezStringView sRendererName = GetRendererNameFromCommandLine();
-      pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(pDevice != nullptr, "Device implementation for '{}' not found", sRendererName);
+      WStringView sRendererName = GetRendererNameFromCommandLine();
+      pDevice = WGALDeviceFactory::CreateDevice(sRendererName, WFoundation::GetDefaultAllocator(), DeviceInit);
+      W_ASSERT_DEV(pDevice != nullptr, "Device implementation for '{}' not found", sRendererName);
     }
 
-    EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
-    ezGALDevice::SetDefaultDevice(pDevice);
+    W_VERIFY(pDevice->Init() == W_SUCCESS, "Graphics device creation failed!");
+    WGALDevice::SetDefaultDevice(pDevice);
   }
 
   // Create GPU resource pool
-  ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
-  ezGPUResourcePool::SetDefaultInstance(pResourcePool);
+  WGPUResourcePool* pResourcePool = W_DEFAULT_NEW(WGPUResourcePool);
+  WGPUResourcePool::SetDefaultInstance(pResourcePool);
 }
 
-void ezGameApplication::Init_LoadRequiredPlugins()
+void WGameApplication::Init_LoadRequiredPlugins()
 {
-  ezPlugin::InitializeStaticallyLinkedPlugins();
+  WPlugin::InitializeStaticallyLinkedPlugins();
 
-  ezStringView sRendererName = GetRendererNameFromCommandLine();
+  WStringView sRendererName = GetRendererNameFromCommandLine();
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
-  ezShaderManager::Configure(szShaderModel, true);
+  WGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
+  WShaderManager::Configure(szShaderModel, true);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezPlugin::LoadPlugin("ezInspectorPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  WPlugin::LoadPlugin("WInspectorPlugin", WPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
   // The MCP server is a development-only tool, so it is not part of the project's plugin config and thus
   // never ends up in a shipping build. Load it on demand instead, when a port was actually requested.
   // In the editor's engine process this is not needed - there the Mcp plugin bundle pulls it in.
-  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-mcpport") ||
-      ezCommandLineUtils::GetGlobalInstance()->HasOption("-editor-mcpport"))
+  if (WCommandLineUtils::GetGlobalInstance()->HasOption("-mcpport") ||
+      WCommandLineUtils::GetGlobalInstance()->HasOption("-editor-mcpport"))
   {
-    if (ezPlugin::LoadPlugin("ezMcpPlugin", ezPluginLoadFlags::PluginIsOptional).Failed())
+    if (WPlugin::LoadPlugin("WMcpPlugin", WPluginLoadFlags::PluginIsOptional).Failed())
     {
-      ezLog::Warning("An MCP port was given on the command line, but 'ezMcpPlugin' could not be loaded.");
+      WLog::Warning("An MCP port was given on the command line, but 'WMcpPlugin' could not be loaded.");
     }
   }
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
-#  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-  ezPlugin::LoadPlugin("ezFileservePlugin").IgnoreResult(); // don't care if it fails to load
+#  if W_DISABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  WPlugin::LoadPlugin("WFileservePlugin").IgnoreResult(); // don't care if it fails to load
 #  endif
 
 #endif
 
-  if (ezPlugin::LoadPlugin(szShaderCompiler, ezPluginLoadFlags::PluginIsOptional).Failed())
+  if (WPlugin::LoadPlugin(szShaderCompiler, WPluginLoadFlags::PluginIsOptional).Failed())
   {
-    ezLog::Warning("Shader compiler plugin '{}' not found", szShaderCompiler);
+    WLog::Warning("Shader compiler plugin '{}' not found", szShaderCompiler);
   }
 }
 
-void ezGameApplication::Deinit_ShutdownGraphicsDevice()
+void WGameApplication::Deinit_ShutdownGraphicsDevice()
 {
-  if (!ezGALDevice::HasDefaultDevice())
+  if (!WGALDevice::HasDefaultDevice())
     return;
 
   // Cleanup resource pool
-  ezGPUResourcePool::SetDefaultInstance(nullptr);
+  WGPUResourcePool::SetDefaultInstance(nullptr);
 
-  ezResourceManager::FreeAllUnusedResources();
+  WResourceManager::FreeAllUnusedResources();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   pDevice->Shutdown().IgnoreResult();
-  EZ_DEFAULT_DELETE(pDevice);
-  ezGALDevice::SetDefaultDevice(nullptr);
+  W_DEFAULT_DELETE(pDevice);
+  WGALDevice::SetDefaultDevice(nullptr);
 }

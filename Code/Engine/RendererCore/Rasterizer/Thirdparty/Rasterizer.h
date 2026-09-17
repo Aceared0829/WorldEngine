@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 #  include <immintrin.h>
 #endif
 
@@ -12,7 +12,7 @@ struct Occluder;
 class Rasterizer
 {
 public:
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
   Rasterizer(uint32_t width, uint32_t height);
   void setModelViewProjection(const float* matrix);
   void clear();
@@ -52,7 +52,7 @@ public:
 #endif
 
 private:
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
   static float decompressFloat(uint16_t depth);
 
   // these functions don't always work in MSVC debug builds

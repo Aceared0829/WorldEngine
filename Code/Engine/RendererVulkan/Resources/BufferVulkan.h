@@ -6,37 +6,37 @@
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 
-class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
+class W_RENDERERVULKAN_DLL WGALBufferVulkan : public WGALBuffer
 {
 public:
-  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
+  W_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
 
-  EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
-  EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
-  EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
-  EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
-  vk::BufferView GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
-  static vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
+  W_ALWAYS_INLINE vk::IndexType GetIndexType() const;
+  W_ALWAYS_INLINE WVulkanAllocation GetAllocation() const;
+  W_ALWAYS_INLINE const WVulkanAllocationInfo& GetAllocationInfo() const;
+  W_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
+  W_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
+  vk::BufferView GetTexelBufferView(WGALBufferRange bufferRange, WEnum<WGALResourceFormat> overrideTexelBufferFormat) const;
+  static vk::DeviceSize GetAlignment(const WGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description);
+  WGALBufferVulkan(const WGALBufferCreationDescription& Description);
 
-  virtual ~ezGALBufferVulkan();
+  virtual ~WGALBufferVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<const WUInt8> pInitialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
-  ezResult CreateBuffer();
+  WResult CreateBuffer();
 
 protected:
   vk::Buffer m_Buffer = {};
-  ezVulkanAllocation m_pAlloc = {};
-  ezVulkanAllocationInfo m_AllocInfo = {};
+  WVulkanAllocation m_pAlloc = {};
+  WVulkanAllocationInfo m_AllocInfo = {};
   vk::DescriptorBufferInfo m_ResourceBufferInfo = {};
 
   // Data for memory barriers and access
@@ -46,21 +46,21 @@ protected:
   vk::BufferUsageFlags m_Usage = {};
   vk::DeviceSize m_Size = 0;
 
-  ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
+  WGALDeviceVulkan* m_pDeviceVulkan = nullptr;
   vk::Device m_Device = {};
 
   // Views
-  struct View : ezHashableStruct<View>
+  struct View : WHashableStruct<View>
   {
-    ezGALBufferRange m_BufferRange;
-    ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat;
+    WGALBufferRange m_BufferRange;
+    WEnum<WGALResourceFormat> m_OverrideTexelBufferFormat;
 
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
-    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+    W_ALWAYS_INLINE static WUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    W_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
   };
-  mutable ezHashTable<View, vk::BufferView, View> m_TexelBufferViews;
+  mutable WHashTable<View, vk::BufferView, View> m_TexelBufferViews;
 
-  mutable ezString m_sDebugName;
+  mutable WString m_sDebugName;
 };
 
 #include <RendererVulkan/Resources/Implementation/BufferVulkan_inl.h>

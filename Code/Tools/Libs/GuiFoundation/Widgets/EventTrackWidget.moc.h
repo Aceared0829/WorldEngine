@@ -9,26 +9,26 @@
 #include <QPen>
 #include <QWidget>
 
-class ezQGridBarWidget;
+class WQGridBarWidget;
 class QRubberBand;
 
-class EZ_GUIFOUNDATION_DLL ezQtEventTrackWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtEventTrackWidget : public QWidget
 {
   Q_OBJECT
 
 public:
   struct SelectedPoint
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiCategory;
-    ezUInt32 m_uiSortedIdx;
+    WUInt32 m_uiCategory;
+    WUInt32 m_uiSortedIdx;
   };
 
-  ezQtEventTrackWidget(QWidget* pParent);
+  WQtEventTrackWidget(QWidget* pParent);
 
-  void SetData(const ezEventTrackData* pData, double fMinCurveLength);
-  void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
+  void SetData(const WEventTrackData* pData, double fMinCurveLength);
+  void SetGridBarWidget(WQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
   double GetScrubberPosition() const { return m_fScrubberPosition; }
@@ -39,7 +39,7 @@ public:
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
-  void GetSelection(ezDynamicArray<ezUInt32>& out_selection) const;
+  void GetSelection(WDynamicArray<WUInt32>& out_selection) const;
 
 Q_SIGNALS:
   void DoubleClickEvent(double fScenePosX, double fEpsilon);
@@ -85,22 +85,22 @@ private:
 
   struct Point
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiOrgIndex;
+    WUInt32 m_uiOrgIndex;
     bool m_bSelected;
     double m_fPosX;
   };
 
   struct PointCategory
   {
-    ezHashedString m_sName;
-    ezHybridArray<Point, 32> m_SortedPoints;
+    WHashedString m_sName;
+    WHybridArray<Point, 32> m_SortedPoints;
   };
 
   bool IsSelected(SelectedPoint cp) const;
   void SetSelection(SelectedPoint cp);
-  void SetSelection(const ezArrayPtr<SelectedPoint>& selection);
+  void SetSelection(const WArrayPtr<SelectedPoint>& selection);
   void ToggleSelected(SelectedPoint cp);
   void SetSelected(SelectedPoint cp, bool set);
 
@@ -112,18 +112,18 @@ private:
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
-  void ExecMultiSelection(ezDynamicArray<SelectedPoint>& out_Selection);
-  bool CombineSelection(ezDynamicArray<SelectedPoint>& inout_Selection, const ezArrayPtr<SelectedPoint>& change, bool add);
+  void ExecMultiSelection(WDynamicArray<SelectedPoint>& out_Selection);
+  bool CombineSelection(WDynamicArray<SelectedPoint>& inout_Selection, const WArrayPtr<SelectedPoint>& change, bool add);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   void ClampZoomPan();
   void RecreateSortedData();
 
-  ezQGridBarWidget* m_pGridBar = nullptr;
+  WQGridBarWidget* m_pGridBar = nullptr;
 
   EditState m_State = EditState::None;
 
-  const ezEventTrackData* m_pEditData = nullptr;
+  const WEventTrackData* m_pEditData = nullptr;
 
   double m_fMaxCurveExtent = 0;
   double m_fSceneTranslationX = 0;
@@ -148,7 +148,7 @@ private:
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;
 
-  ezHashTable<ezHashedString, ezUInt32> m_NameToCategory;
-  ezHybridArray<PointCategory, 8> m_Categories;
-  ezHybridArray<SelectedPoint, 32> m_SelectedPoints;
+  WHashTable<WHashedString, WUInt32> m_NameToCategory;
+  WHybridArray<PointCategory, 8> m_Categories;
+  WHybridArray<SelectedPoint, 32> m_SelectedPoints;
 };

@@ -25,59 +25,59 @@ public:
     m_uiIndex = uiIndex;
   }
 
-  EZ_ALWAYS_INLINE const_iterator_base& operator++()
+  W_ALWAYS_INLINE const_iterator_base& operator++()
   {
     m_uiIndex += 1;
     return *this;
   }
-  EZ_ALWAYS_INLINE const_iterator_base& operator--()
+  W_ALWAYS_INLINE const_iterator_base& operator--()
   {
     m_uiIndex -= 1;
     return *this;
   }
 
-  EZ_ALWAYS_INLINE const_iterator_base operator++(int)
+  W_ALWAYS_INLINE const_iterator_base operator++(int)
   {
     m_uiIndex += 1;
     return const_iterator_base(*m_pArray, m_uiIndex - 1);
   }
-  EZ_ALWAYS_INLINE const_iterator_base operator--(int)
+  W_ALWAYS_INLINE const_iterator_base operator--(int)
   {
     m_uiIndex -= 1;
     return const_iterator_base(*m_pArray, m_uiIndex + 1);
   }
 
-  EZ_ALWAYS_INLINE bool operator==(const const_iterator_base& rhs) const { return m_pArray == rhs.m_pArray && m_uiIndex == rhs.m_uiIndex; }
-  EZ_ALWAYS_INLINE bool operator!=(const const_iterator_base& rhs) const { return !(*this == rhs); }
+  W_ALWAYS_INLINE bool operator==(const const_iterator_base& rhs) const { return m_pArray == rhs.m_pArray && m_uiIndex == rhs.m_uiIndex; }
+  W_ALWAYS_INLINE bool operator!=(const const_iterator_base& rhs) const { return !(*this == rhs); }
 
-  EZ_ALWAYS_INLINE std::ptrdiff_t operator-(const const_iterator_base& rhs) const { return m_uiIndex - rhs.m_uiIndex; }
+  W_ALWAYS_INLINE std::ptrdiff_t operator-(const const_iterator_base& rhs) const { return m_uiIndex - rhs.m_uiIndex; }
 
-  EZ_ALWAYS_INLINE const_iterator_base operator+(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex + rhs); }
-  EZ_ALWAYS_INLINE const_iterator_base operator-(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex - rhs); }
+  W_ALWAYS_INLINE const_iterator_base operator+(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex + rhs); }
+  W_ALWAYS_INLINE const_iterator_base operator-(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex - rhs); }
 
-  EZ_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_uiIndex += rhs; }
-  EZ_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_uiIndex -= rhs; }
+  W_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_uiIndex += rhs; }
+  W_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_uiIndex -= rhs; }
 
   inline const T& operator*() const
   {
     if (reverse)
-      return (*m_pArray)[m_pArray->GetCount() - (ezUInt32)m_uiIndex - 1];
+      return (*m_pArray)[m_pArray->GetCount() - (WUInt32)m_uiIndex - 1];
     else
-      return (*m_pArray)[(ezUInt32)m_uiIndex];
+      return (*m_pArray)[(WUInt32)m_uiIndex];
   }
-  EZ_ALWAYS_INLINE const T* operator->() const { return &(**this); }
+  W_ALWAYS_INLINE const T* operator->() const { return &(**this); }
 
-  EZ_ALWAYS_INLINE bool operator<(const const_iterator_base& rhs) const { return m_uiIndex < rhs.m_uiIndex; }
-  EZ_ALWAYS_INLINE bool operator>(const const_iterator_base& rhs) const { return m_uiIndex > rhs.m_uiIndex; }
-  EZ_ALWAYS_INLINE bool operator<=(const const_iterator_base& rhs) const { return m_uiIndex <= rhs.m_uiIndex; }
-  EZ_ALWAYS_INLINE bool operator>=(const const_iterator_base& rhs) const { return m_uiIndex >= rhs.m_uiIndex; }
+  W_ALWAYS_INLINE bool operator<(const const_iterator_base& rhs) const { return m_uiIndex < rhs.m_uiIndex; }
+  W_ALWAYS_INLINE bool operator>(const const_iterator_base& rhs) const { return m_uiIndex > rhs.m_uiIndex; }
+  W_ALWAYS_INLINE bool operator<=(const const_iterator_base& rhs) const { return m_uiIndex <= rhs.m_uiIndex; }
+  W_ALWAYS_INLINE bool operator>=(const const_iterator_base& rhs) const { return m_uiIndex >= rhs.m_uiIndex; }
 
-  EZ_ALWAYS_INLINE const T& operator[](size_t uiIndex) const
+  W_ALWAYS_INLINE const T& operator[](size_t uiIndex) const
   {
     if (reverse)
-      return (*m_pArray)[m_pArray->GetCount() - static_cast<ezUInt32>(m_uiIndex + uiIndex) - 1];
+      return (*m_pArray)[m_pArray->GetCount() - static_cast<WUInt32>(m_uiIndex + uiIndex) - 1];
     else
-      return (*m_pArray)[static_cast<ezUInt32>(m_uiIndex + uiIndex)];
+      return (*m_pArray)[static_cast<WUInt32>(m_uiIndex + uiIndex)];
   }
 
 protected:
@@ -99,23 +99,23 @@ public:
   {
   }
 
-  EZ_ALWAYS_INLINE iterator_base& operator++()
+  W_ALWAYS_INLINE iterator_base& operator++()
   {
     this->m_uiIndex += 1;
     return *this;
   }
-  EZ_ALWAYS_INLINE iterator_base& operator--()
+  W_ALWAYS_INLINE iterator_base& operator--()
   {
     this->m_uiIndex -= 1;
     return *this;
   }
 
-  EZ_ALWAYS_INLINE iterator_base operator++(int)
+  W_ALWAYS_INLINE iterator_base operator++(int)
   {
     this->m_uiIndex += 1;
     return iterator_base(*this->m_pArray, this->m_uiIndex - 1);
   }
-  EZ_ALWAYS_INLINE iterator_base operator--(int)
+  W_ALWAYS_INLINE iterator_base operator--(int)
   {
     this->m_uiIndex -= 1;
     return iterator_base(*this->m_pArray, this->m_uiIndex + 1);
@@ -124,25 +124,25 @@ public:
   using const_iterator_base<ARRAY, T, reverse>::operator+;
   using const_iterator_base<ARRAY, T, reverse>::operator-;
 
-  EZ_ALWAYS_INLINE iterator_base operator+(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex + rhs); }
-  EZ_ALWAYS_INLINE iterator_base operator-(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex - rhs); }
+  W_ALWAYS_INLINE iterator_base operator+(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex + rhs); }
+  W_ALWAYS_INLINE iterator_base operator-(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex - rhs); }
 
   inline T& operator*() const
   {
     if (reverse)
-      return (*this->m_pArray)[this->m_pArray->GetCount() - (ezUInt32)this->m_uiIndex - 1];
+      return (*this->m_pArray)[this->m_pArray->GetCount() - (WUInt32)this->m_uiIndex - 1];
     else
-      return (*this->m_pArray)[(ezUInt32)this->m_uiIndex];
+      return (*this->m_pArray)[(WUInt32)this->m_uiIndex];
   }
 
-  EZ_ALWAYS_INLINE T* operator->() const { return &(**this); }
+  W_ALWAYS_INLINE T* operator->() const { return &(**this); }
 
-  EZ_ALWAYS_INLINE T& operator[](size_t uiIndex) const
+  W_ALWAYS_INLINE T& operator[](size_t uiIndex) const
   {
     if (reverse)
-      return (*this->m_pArray)[this->m_pArray->GetCount() - static_cast<ezUInt32>(this->m_uiIndex + uiIndex) - 1];
+      return (*this->m_pArray)[this->m_pArray->GetCount() - static_cast<WUInt32>(this->m_uiIndex + uiIndex) - 1];
     else
-      return (*this->m_pArray)[static_cast<ezUInt32>(this->m_uiIndex + uiIndex)];
+      return (*this->m_pArray)[static_cast<WUInt32>(this->m_uiIndex + uiIndex)];
   }
 };
 
@@ -163,48 +163,48 @@ public:
   {
   }
 
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator& operator++()
+  W_ALWAYS_INLINE const_reverse_pointer_iterator& operator++()
   {
     m_pPtr--;
     return *this;
   }
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator& operator--()
+  W_ALWAYS_INLINE const_reverse_pointer_iterator& operator--()
   {
     m_pPtr++;
     return *this;
   }
 
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator++(int)
+  W_ALWAYS_INLINE const_reverse_pointer_iterator operator++(int)
   {
     m_pPtr--;
     return const_reverse_pointer_iterator(m_pPtr + 1);
   }
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator--(int)
+  W_ALWAYS_INLINE const_reverse_pointer_iterator operator--(int)
   {
     m_pPtr++;
     return const_reverse_pointer_iterator(m_pPtr - 1);
   }
 
-  EZ_ALWAYS_INLINE bool operator==(const const_reverse_pointer_iterator& rhs) const { return m_pPtr == rhs.m_pPtr; }
-  EZ_ALWAYS_INLINE bool operator!=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr != rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator==(const const_reverse_pointer_iterator& rhs) const { return m_pPtr == rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator!=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr != rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE std::ptrdiff_t operator-(const const_reverse_pointer_iterator& rhs) const { return rhs.m_pPtr - m_pPtr; }
+  W_ALWAYS_INLINE std::ptrdiff_t operator-(const const_reverse_pointer_iterator& rhs) const { return rhs.m_pPtr - m_pPtr; }
 
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr - rhs); }
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr + rhs); }
+  W_ALWAYS_INLINE const_reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr - rhs); }
+  W_ALWAYS_INLINE const_reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr + rhs); }
 
-  EZ_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_pPtr -= rhs; }
-  EZ_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_pPtr += rhs; }
+  W_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_pPtr -= rhs; }
+  W_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_pPtr += rhs; }
 
-  EZ_ALWAYS_INLINE const T& operator*() const { return *m_pPtr; }
-  EZ_ALWAYS_INLINE const T* operator->() const { return m_pPtr; }
+  W_ALWAYS_INLINE const T& operator*() const { return *m_pPtr; }
+  W_ALWAYS_INLINE const T* operator->() const { return m_pPtr; }
 
-  EZ_ALWAYS_INLINE bool operator<(const const_reverse_pointer_iterator& rhs) const { return m_pPtr > rhs.m_pPtr; }
-  EZ_ALWAYS_INLINE bool operator>(const const_reverse_pointer_iterator& rhs) const { return m_pPtr < rhs.m_pPtr; }
-  EZ_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr >= rhs.m_pPtr; }
-  EZ_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr <= rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator<(const const_reverse_pointer_iterator& rhs) const { return m_pPtr > rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator>(const const_reverse_pointer_iterator& rhs) const { return m_pPtr < rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr >= rhs.m_pPtr; }
+  W_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr <= rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE const T& operator[](std::ptrdiff_t index) const { return *(m_pPtr - index); }
+  W_ALWAYS_INLINE const T& operator[](std::ptrdiff_t index) const { return *(m_pPtr - index); }
 
 protected:
   T* m_pPtr;
@@ -224,23 +224,23 @@ public:
   {
   }
 
-  EZ_ALWAYS_INLINE reverse_pointer_iterator& operator++()
+  W_ALWAYS_INLINE reverse_pointer_iterator& operator++()
   {
     this->m_pPtr--;
     return *this;
   }
-  EZ_ALWAYS_INLINE reverse_pointer_iterator& operator--()
+  W_ALWAYS_INLINE reverse_pointer_iterator& operator--()
   {
     this->m_pPtr++;
     return *this;
   }
 
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator++(int)
+  W_ALWAYS_INLINE reverse_pointer_iterator operator++(int)
   {
     this->m_pPtr--;
     return reverse_pointer_iterator(this->m_pPtr + 1);
   }
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator--(int)
+  W_ALWAYS_INLINE reverse_pointer_iterator operator--(int)
   {
     this->m_pPtr++;
     return reverse_pointer_iterator(this->m_pPtr - 1);
@@ -249,10 +249,10 @@ public:
   using const_reverse_pointer_iterator<T>::operator+;
   using const_reverse_pointer_iterator<T>::operator-;
 
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr - rhs); }
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr + rhs); }
+  W_ALWAYS_INLINE reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr - rhs); }
+  W_ALWAYS_INLINE reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr + rhs); }
 
-  EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_pPtr); }
-  EZ_ALWAYS_INLINE T* operator->() const { return this->m_pPtr; }
-  EZ_ALWAYS_INLINE T& operator[](std::ptrdiff_t index) const { return *(this->m_pPtr - index); }
+  W_ALWAYS_INLINE T& operator*() const { return *(this->m_pPtr); }
+  W_ALWAYS_INLINE T* operator->() const { return this->m_pPtr; }
+  W_ALWAYS_INLINE T& operator[](std::ptrdiff_t index) const { return *(this->m_pPtr - index); }
 };

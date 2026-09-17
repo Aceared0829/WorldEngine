@@ -2,9 +2,9 @@
 
 #include <RendererFoundation/Resources/Buffer.h>
 
-ezGALBuffer::ezGALBuffer(const ezGALBufferCreationDescription& Description)
-  : ezGALResource(Description)
+WGALBuffer::WGALBuffer(const WGALBufferCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALBuffer::~ezGALBuffer() = default;
+WGALBuffer::~WGALBuffer() = default;

@@ -5,70 +5,70 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocumentObjectManager;
+class WDocumentObjectManager;
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
+class W_TOOLSFOUNDATION_DLL WDocumentObject
 {
 public:
-  ezDocumentObject() = default;
-  virtual ~ezDocumentObject() = default;
+  WDocumentObject() = default;
+  virtual ~WDocumentObject() = default;
 
   // Accessors
-  const ezUuid& GetGuid() const { return m_Guid; }
-  /// Returns the RTTI type of the object that is represented by this ezDocumentObject.
-  const ezRTTI* GetType() const { return GetTypeAccessor().GetType(); }
+  const WUuid& GetGuid() const { return m_Guid; }
+  /// Returns the RTTI type of the object that is represented by this WDocumentObject.
+  const WRTTI* GetType() const { return GetTypeAccessor().GetType(); }
 
-  const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }
-  ezDocumentObjectManager* GetDocumentObjectManager() { return m_pDocumentObjectManager; }
+  const WDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }
+  WDocumentObjectManager* GetDocumentObjectManager() { return m_pDocumentObjectManager; }
 
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const = 0;
-  ezIReflectedTypeAccessor& GetTypeAccessor();
+  virtual const WIReflectedTypeAccessor& GetTypeAccessor() const = 0;
+  WIReflectedTypeAccessor& GetTypeAccessor();
 
   // Ownership
-  const ezDocumentObject* GetParent() const { return m_pParent; }
+  const WDocumentObject* GetParent() const { return m_pParent; }
 
-  virtual void InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index);
-  virtual void RemoveSubObject(ezDocumentObject* pObject);
+  virtual void InsertSubObject(WDocumentObject* pObject, WStringView sProperty, const WVariant& index);
+  virtual void RemoveSubObject(WDocumentObject* pObject);
 
   // Helper
-  void ComputeObjectHash(ezUInt64& ref_uiHash) const;
-  const ezHybridArray<ezDocumentObject*, 8>& GetChildren() const { return m_Children; }
-  ezDocumentObject* GetChild(const ezUuid& guid);
-  const ezDocumentObject* GetChild(const ezUuid& guid) const;
-  ezStringView GetParentProperty() const { return m_sParentProperty; }
-  const ezAbstractProperty* GetParentPropertyType() const;
-  ezVariant GetPropertyIndex() const;
+  void ComputeObjectHash(WUInt64& ref_uiHash) const;
+  const WHybridArray<WDocumentObject*, 8>& GetChildren() const { return m_Children; }
+  WDocumentObject* GetChild(const WUuid& guid);
+  const WDocumentObject* GetChild(const WUuid& guid) const;
+  WStringView GetParentProperty() const { return m_sParentProperty; }
+  const WAbstractProperty* GetParentPropertyType() const;
+  WVariant GetPropertyIndex() const;
   bool IsOnHeap() const;
-  ezUInt32 GetChildIndex(const ezDocumentObject* pChild) const;
+  WUInt32 GetChildIndex(const WDocumentObject* pChild) const;
 
 private:
-  friend class ezDocumentObjectManager;
-  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType) const;
+  friend class WDocumentObjectManager;
+  void HashPropertiesRecursive(const WIReflectedTypeAccessor& acc, WUInt64& uiHash, const WRTTI* pType) const;
 
 protected:
-  ezUuid m_Guid;
-  ezDocumentObjectManager* m_pDocumentObjectManager = nullptr;
+  WUuid m_Guid;
+  WDocumentObjectManager* m_pDocumentObjectManager = nullptr;
 
-  ezDocumentObject* m_pParent = nullptr;
-  ezHybridArray<ezDocumentObject*, 8> m_Children;
+  WDocumentObject* m_pParent = nullptr;
+  WHybridArray<WDocumentObject*, 8> m_Children;
 
   // Sub object data
-  ezString m_sParentProperty;
+  WString m_sParentProperty;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentStorageObject : public ezDocumentObject
+class W_TOOLSFOUNDATION_DLL WDocumentStorageObject : public WDocumentObject
 {
 public:
-  ezDocumentStorageObject(const ezRTTI* pType)
-    : ezDocumentObject()
+  WDocumentStorageObject(const WRTTI* pType)
+    : WDocumentObject()
     , m_ObjectPropertiesAccessor(pType, this)
   {
   }
 
-  virtual ~ezDocumentStorageObject() = default;
+  virtual ~WDocumentStorageObject() = default;
 
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
+  virtual const WIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
 
 protected:
-  ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
+  WReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
 };

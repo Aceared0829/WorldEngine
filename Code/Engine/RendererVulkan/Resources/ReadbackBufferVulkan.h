@@ -4,31 +4,31 @@
 
 #include <RendererFoundation/Resources/ReadbackBuffer.h>
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
-class ezGALReadbackBufferVulkan : public ezGALReadbackBuffer
+class WGALReadbackBufferVulkan : public WGALReadbackBuffer
 {
 public:
-  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_Buffer; }
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const { return m_pAlloc; }
-  EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const { return m_AllocInfo; }
+  W_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_Buffer; }
+  W_ALWAYS_INLINE WVulkanAllocation GetAllocation() const { return m_pAlloc; }
+  W_ALWAYS_INLINE const WVulkanAllocationInfo& GetAllocationInfo() const { return m_AllocInfo; }
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALReadbackBufferVulkan(const ezGALBufferCreationDescription& Description);
-  virtual ~ezGALReadbackBufferVulkan();
+  WGALReadbackBufferVulkan(const WGALBufferCreationDescription& Description);
+  virtual ~WGALReadbackBufferVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
   vk::Buffer m_Buffer = {};
   vk::DeviceSize m_Size = 0;
-  ezVulkanAllocation m_pAlloc = {};
-  ezVulkanAllocationInfo m_AllocInfo = {};
+  WVulkanAllocation m_pAlloc = {};
+  WVulkanAllocationInfo m_AllocInfo = {};
 
-  ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
+  WGALDeviceVulkan* m_pDeviceVulkan = nullptr;
 };

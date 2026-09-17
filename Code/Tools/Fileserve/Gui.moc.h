@@ -2,29 +2,29 @@
 
 #include <Fileserve/Fileserve.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QMainWindow>
 
-class ezApplication;
-class ezQtFileserveWidget;
+class WApplication;
+class WQtFileserveWidget;
 
-class ezQtFileserveMainWnd : public QMainWindow
+class WQtFileserveMainWnd : public QMainWindow
 {
   Q_OBJECT
 public:
-  ezQtFileserveMainWnd(ezApplication* pApp, QWidget* pParent = nullptr);
+  WQtFileserveMainWnd(WApplication* pApp, QWidget* pParent = nullptr);
 
 private Q_SLOTS:
   void UpdateNetworkSlot();
-  void OnServerStarted(const QString& ip, ezUInt16 uiPort);
+  void OnServerStarted(const QString& ip, WUInt16 uiPort);
   void OnServerStopped();
 
 private:
-  ezApplication* m_pApp;
-  ezQtFileserveWidget* m_pFileserveWidget = nullptr;
+  WApplication* m_pApp;
+  WQtFileserveWidget* m_pFileserveWidget = nullptr;
 };
 
-void CreateFileserveMainWindow(ezApplication* pApp);
+void CreateFileserveMainWindow(WApplication* pApp);
 
 #endif

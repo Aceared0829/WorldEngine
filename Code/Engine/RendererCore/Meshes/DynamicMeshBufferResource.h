@@ -7,78 +7,78 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
+using WDynamicMeshBufferResourceHandle = WTypedResourceHandle<class WDynamicMeshBufferResource>;
 
-struct ezDynamicMeshBufferResourceDescriptor
+struct WDynamicMeshBufferResourceDescriptor
 {
-  ezEnum<ezGALPrimitiveTopology> m_Topology = ezGALPrimitiveTopology::Triangles;
-  ezEnum<ezGALIndexType> m_IndexType = ezGALIndexType::UInt;
+  WEnum<WGALPrimitiveTopology> m_Topology = WGALPrimitiveTopology::Triangles;
+  WEnum<WGALIndexType> m_IndexType = WGALIndexType::UInt;
   bool m_bColorStream = false;
-  ezUInt32 m_uiMaxPrimitives = 0;
-  ezUInt32 m_uiMaxVertices = 0;
+  WUInt32 m_uiMaxPrimitives = 0;
+  WUInt32 m_uiMaxVertices = 0;
 };
 
 // Contains the normal, tangent and texcoord0 of a dynamic mesh vertex.
-struct EZ_RENDERERCORE_DLL ezDynamicMeshVertexNTT
+struct W_RENDERERCORE_DLL WDynamicMeshVertexNTT
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezVec4U16 m_vEncodedNormal;
-  ezVec4U16 m_vEncodedTangent;
-  ezVec2 m_vTexCoord;
+  WVec4U16 m_vEncodedNormal;
+  WVec4U16 m_vEncodedTangent;
+  WVec2 m_vTexCoord;
 
-  EZ_ALWAYS_INLINE void EncodeNormal(const ezVec3& vNormal)
+  W_ALWAYS_INLINE void EncodeNormal(const WVec3& vNormal)
   {
     // store in [0; 1] range
-    m_vEncodedNormal.x = ezMath::ColorFloatToShort(vNormal.x * 0.5f + 0.5f);
-    m_vEncodedNormal.y = ezMath::ColorFloatToShort(vNormal.y * 0.5f + 0.5f);
-    m_vEncodedNormal.z = ezMath::ColorFloatToShort(vNormal.z * 0.5f + 0.5f);
+    m_vEncodedNormal.x = WMath::ColorFloatToShort(vNormal.x * 0.5f + 0.5f);
+    m_vEncodedNormal.y = WMath::ColorFloatToShort(vNormal.y * 0.5f + 0.5f);
+    m_vEncodedNormal.z = WMath::ColorFloatToShort(vNormal.z * 0.5f + 0.5f);
     m_vEncodedNormal.w = 0;
 
     // this is the same but slower
-    // ezMeshBufferUtils::EncodeNormal(vNormal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec4U16)), ezGALResourceFormat::RGBAUShortNormalized).IgnoreResult();
+    // WMeshBufferUtils::EncodeNormal(vNormal, WByteArrayPtr(reinterpret_cast<WUInt8*>(&m_vEncodedNormal), sizeof(WVec4U16)), WGALResourceFormat::RGBAUShortNormalized).IgnoreResult();
   }
 
-  EZ_ALWAYS_INLINE void EncodeTangent(const ezVec3& vTangent, float fBitangentSign)
+  W_ALWAYS_INLINE void EncodeTangent(const WVec3& vTangent, float fBitangentSign)
   {
     // store in [0; 1] range
-    m_vEncodedTangent.x = ezMath::ColorFloatToShort(vTangent.x * 0.5f + 0.5f);
-    m_vEncodedTangent.y = ezMath::ColorFloatToShort(vTangent.y * 0.5f + 0.5f);
-    m_vEncodedTangent.z = ezMath::ColorFloatToShort(vTangent.z * 0.5f + 0.5f);
-    m_vEncodedTangent.w = ezMath::ColorFloatToShort(fBitangentSign < 0.0f ? 0.0f : 1.0f);
+    m_vEncodedTangent.x = WMath::ColorFloatToShort(vTangent.x * 0.5f + 0.5f);
+    m_vEncodedTangent.y = WMath::ColorFloatToShort(vTangent.y * 0.5f + 0.5f);
+    m_vEncodedTangent.z = WMath::ColorFloatToShort(vTangent.z * 0.5f + 0.5f);
+    m_vEncodedTangent.w = WMath::ColorFloatToShort(fBitangentSign < 0.0f ? 0.0f : 1.0f);
 
     // this is the same but slower
-    ezMeshBufferUtils::EncodeTangent(vTangent, fBitangentSign, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedTangent), sizeof(ezVec4U16)), ezGALResourceFormat::RGBAUShortNormalized).IgnoreResult();
+    WMeshBufferUtils::EncodeTangent(vTangent, fBitangentSign, WByteArrayPtr(reinterpret_cast<WUInt8*>(&m_vEncodedTangent), sizeof(WVec4U16)), WGALResourceFormat::RGBAUShortNormalized).IgnoreResult();
   }
 };
 
-class EZ_RENDERERCORE_DLL ezDynamicMeshBufferResource : public ezResource
+class W_RENDERERCORE_DLL WDynamicMeshBufferResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicMeshBufferResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezDynamicMeshBufferResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBufferResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicMeshBufferResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WDynamicMeshBufferResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WDynamicMeshBufferResource, WDynamicMeshBufferResourceDescriptor);
 
 public:
-  ezDynamicMeshBufferResource();
-  ~ezDynamicMeshBufferResource();
+  WDynamicMeshBufferResource();
+  ~WDynamicMeshBufferResource();
 
-  EZ_ALWAYS_INLINE const ezDynamicMeshBufferResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezGALBufferHandle> GetVertexBuffers() const { return ezMakeArrayPtr(m_hVertexBuffers); }
-  EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
+  W_ALWAYS_INLINE const WDynamicMeshBufferResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  W_ALWAYS_INLINE WArrayPtr<const WGALBufferHandle> GetVertexBuffers() const { return WMakeArrayPtr(m_hVertexBuffers); }
+  W_ALWAYS_INLINE WGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
 
   /// Grants write access to the position data, and flags the data as 'dirty'.
-  ezArrayPtr<ezVec3> AccessPositionData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
+  WArrayPtr<WVec3> AccessPositionData(WUInt32 uiFirstVertex = 0, WUInt32 uiNumVertices = WInvalidIndex)
   {
-    m_ModifiedPositionDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_PositionData.GetCount() - uiFirstVertex) - 1);
+    m_ModifiedPositionDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + WMath::Min(uiNumVertices, m_PositionData.GetCount() - uiFirstVertex) - 1);
     MarkAsDirty();
 
     return m_PositionData;
   }
 
   /// Grants write access to the normal, tangent and texcoord0 data, and flags the data as 'dirty'.
-  ezArrayPtr<ezDynamicMeshVertexNTT> AccessNormalTangentTexCoord0Data(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
+  WArrayPtr<WDynamicMeshVertexNTT> AccessNormalTangentTexCoord0Data(WUInt32 uiFirstVertex = 0, WUInt32 uiNumVertices = WInvalidIndex)
   {
-    m_ModifiedNTTDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_NTTData.GetCount() - uiFirstVertex) - 1);
+    m_ModifiedNTTDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + WMath::Min(uiNumVertices, m_NTTData.GetCount() - uiFirstVertex) - 1);
     MarkAsDirty();
 
     return m_NTTData;
@@ -87,9 +87,9 @@ public:
   /// Grants write access to the color data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if creation of the color buffer was enabled.
-  ezArrayPtr<ezColorLinear16f> AccessColorData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
+  WArrayPtr<WColorLinear16f> AccessColorData(WUInt32 uiFirstVertex = 0, WUInt32 uiNumVertices = WInvalidIndex)
   {
-    m_ModifiedColorDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_ColorData.GetCount() - uiFirstVertex) - 1);
+    m_ModifiedColorDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + WMath::Min(uiNumVertices, m_ColorData.GetCount() - uiFirstVertex) - 1);
     MarkAsDirty();
 
     return m_ColorData;
@@ -98,64 +98,64 @@ public:
   /// Grants write access to the 16 bit index data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if the buffer was created with 16 bit indices.
-  ezArrayPtr<ezUInt16> AccessIndex16Data(ezUInt32 uiFirstIndex = 0, ezUInt32 uiNumIndices = ezInvalidIndex)
+  WArrayPtr<WUInt16> AccessIndex16Data(WUInt32 uiFirstIndex = 0, WUInt32 uiNumIndices = WInvalidIndex)
   {
-    constexpr ezUInt32 uiIndexByteSize = sizeof(ezUInt16);
-    const ezUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
-    const ezUInt32 uiMaxByte = uiMinByte + ezMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
+    constexpr WUInt32 uiIndexByteSize = sizeof(WUInt16);
+    const WUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
+    const WUInt32 uiMaxByte = uiMinByte + WMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
     m_ModifiedIndexDataRange.SetToIncludeRange(uiMinByte, uiMaxByte);
     MarkAsDirty();
 
-    return ezMakeArrayPtr(reinterpret_cast<ezUInt16*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
+    return WMakeArrayPtr(reinterpret_cast<WUInt16*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
   /// Grants write access to the 32 bit index data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if the buffer was created with 32 bit indices.
-  ezArrayPtr<ezUInt32> AccessIndex32Data(ezUInt32 uiFirstIndex = 0, ezUInt32 uiNumIndices = ezInvalidIndex)
+  WArrayPtr<WUInt32> AccessIndex32Data(WUInt32 uiFirstIndex = 0, WUInt32 uiNumIndices = WInvalidIndex)
   {
-    constexpr ezUInt32 uiIndexByteSize = sizeof(ezUInt32);
-    const ezUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
-    const ezUInt32 uiMaxByte = uiMinByte + ezMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
+    constexpr WUInt32 uiIndexByteSize = sizeof(WUInt32);
+    const WUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
+    const WUInt32 uiMaxByte = uiMinByte + WMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
     m_ModifiedIndexDataRange.SetToIncludeRange(uiMinByte, uiMaxByte);
     MarkAsDirty();
 
-    return ezMakeArrayPtr(reinterpret_cast<ezUInt32*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
+    return WMakeArrayPtr(reinterpret_cast<WUInt32*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
   /// Returns the vertex attributes that describes the data layout of the vertex buffers.
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
+  W_ALWAYS_INLINE WArrayPtr<const WGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
   /// Helper function to create a grid aligned to the XY plane with the given size and number of vertices. The mesh buffer must already have the right number of vertices.
-  static void CreateGridXY(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2& vSize, const ezVec2U32& vNumVertices, const ezVec2& vTextureScale = ezVec2(1));
+  static void CreateGridXY(WDynamicMeshBufferResource* pDynamicMeshBuffer, const WVec2& vSize, const WVec2U32& vNumVertices, const WVec2& vTextureScale = WVec2(1));
 
   /// Helper function to calculate smooth normals and tangents for a grid mesh created with the function above after its positions have been updated.
-  static void CalculateGridNormalAndTangents(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2U32& vNumVertices);
+  static void CalculateGridNormalAndTangents(WDynamicMeshBufferResource* pDynamicMeshBuffer, const WVec2U32& vNumVertices);
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  friend struct ezDynamicMeshBufferManager;
+  friend struct WDynamicMeshBufferManager;
   void MarkAsDirty();
   void UploadChangesForNextFrame();
 
-  ezDynamicMeshBufferResourceDescriptor m_Descriptor;
+  WDynamicMeshBufferResourceDescriptor m_Descriptor;
 
-  ezSmallArray<ezGALVertexAttribute, 8> m_VertexAttributes;
+  WSmallArray<WGALVertexAttribute, 8> m_VertexAttributes;
 
-  ezGALBufferHandle m_hVertexBuffers[ezMeshVertexStreamType::Color0 + 1];
-  ezGALBufferHandle m_hIndexBuffer;
+  WGALBufferHandle m_hVertexBuffers[WMeshVertexStreamType::Color0 + 1];
+  WGALBufferHandle m_hIndexBuffer;
 
-  ezDynamicArray<ezVec3, ezAlignedAllocatorWrapper> m_PositionData;
-  ezDynamicArray<ezDynamicMeshVertexNTT, ezAlignedAllocatorWrapper> m_NTTData;
-  ezDynamicArray<ezColorLinear16f, ezAlignedAllocatorWrapper> m_ColorData;
+  WDynamicArray<WVec3, WAlignedAllocatorWrapper> m_PositionData;
+  WDynamicArray<WDynamicMeshVertexNTT, WAlignedAllocatorWrapper> m_NTTData;
+  WDynamicArray<WColorLinear16f, WAlignedAllocatorWrapper> m_ColorData;
 
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_IndexData;
+  WDynamicArray<WUInt8, WAlignedAllocatorWrapper> m_IndexData;
 
-  ezGAL::ModifiedRange m_ModifiedPositionDataRange;
-  ezGAL::ModifiedRange m_ModifiedNTTDataRange;
-  ezGAL::ModifiedRange m_ModifiedColorDataRange;
-  ezGAL::ModifiedRange m_ModifiedIndexDataRange; // In bytes
+  WGAL::ModifiedRange m_ModifiedPositionDataRange;
+  WGAL::ModifiedRange m_ModifiedNTTDataRange;
+  WGAL::ModifiedRange m_ModifiedColorDataRange;
+  WGAL::ModifiedRange m_ModifiedIndexDataRange; // In bytes
 };

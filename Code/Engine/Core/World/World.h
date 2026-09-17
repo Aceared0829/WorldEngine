@@ -2,7 +2,7 @@
 
 #include <Core/World/Implementation/WorldData.h>
 
-class ezEventMessageHandlerComponent;
+class WEventMessageHandlerComponent;
 
 /// A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
@@ -17,33 +17,33 @@ class ezEventMessageHandlerComponent;
 /// * Actual deletion of dead objects and components are done now.
 /// * Transform update: The global transformation of dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
-class EZ_CORE_DLL ezWorld final
+class W_CORE_DLL WWorld final
 {
 public:
   /// Creates a new world with the given name.
-  ezWorld(ezWorldDesc& ref_desc);
-  ~ezWorld();
+  WWorld(WWorldDesc& ref_desc);
+  ~WWorld();
 
   /// Deletes all game objects in a world
   void Clear();
 
   /// Returns the name of this world.
-  ezStringView GetName() const;
+  WStringView GetName() const;
 
   /// Returns the index of this world.
-  ezUInt32 GetIndex() const;
+  WUInt32 GetIndex() const;
 
   /// Returns a handle to this world. The handle can be used to check whether the world is still valid.
-  ezWorldHandle GetHandle() const;
+  WWorldHandle GetHandle() const;
 
   /// \name Object Functions
   ///@{
 
   /// Create a new game object from the given description and returns a handle to it.
-  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc); // [tested]
+  WGameObjectHandle CreateObject(const WGameObjectDesc& desc); // [tested]
 
   /// Create a new game object from the given description, writes a pointer to it to out_pObject and returns a handle to it.
-  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject); // [tested]
+  WGameObjectHandle CreateObject(const WGameObjectDesc& desc, WGameObject*& out_pObject); // [tested]
 
   /// Deletes the given object, its children and all components.
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
@@ -51,32 +51,32 @@ public:
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectNow(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
+  void DeleteObjectNow(const WGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
   /// Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
+  void DeleteObjectDelayed(const WGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
   /// Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
-  const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;
+  const WEvent<const WGameObject*>& GetObjectDeletionEvent() const;
 
   /// Returns whether the given handle corresponds to a valid object.
-  bool IsValidObject(const ezGameObjectHandle& hObject) const; // [tested]
+  bool IsValidObject(const WGameObjectHandle& hObject) const; // [tested]
 
   /// Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject); // [tested]
+  [[nodiscard]] bool TryGetObject(const WGameObjectHandle& hObject, WGameObject*& out_pObject); // [tested]
 
   /// Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const; // [tested]
+  [[nodiscard]] bool TryGetObject(const WGameObjectHandle& hObject, const WGameObject*& out_pObject) const; // [tested]
 
   /// Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject); // [tested]
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const WTempHashedString& sGlobalKey, WGameObject*& out_pObject); // [tested]
 
   /// Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const; // [tested]
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const WTempHashedString& sGlobalKey, const WGameObject*& out_pObject) const; // [tested]
 
   /// Searches for an object by path. Can find objects through a global key and/or relative to an object. May also search for an object that has a certain component.
   ///
@@ -107,24 +107,24 @@ public:
   /// * "P:name/G:key" -> "G:" must be the first part of the string.
   /// * "obj/../" -> ".." can only appear at the beginning of the relative path
   /// * "obj/P:name" -> "P:" must be at the very beginning or directly after "G:"
-  [[nodiscard]] ezGameObject* SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr); // [tested]
+  [[nodiscard]] WGameObject* SearchForObject(WStringView sSearchPath, WGameObject* pReferenceObject = nullptr, const WRTTI* pExpectedComponent = nullptr); // [tested]
 
   /// const overload of SearchForObject()
-  [[nodiscard]] const ezGameObject* SearchForObject(ezStringView sSearchPath, const ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
+  [[nodiscard]] const WGameObject* SearchForObject(WStringView sSearchPath, const WGameObject* pReferenceObject = nullptr, const WRTTI* pExpectedComponent = nullptr) const; // [tested]
 
   /// Returns the total number of objects in this world.
-  ezUInt32 GetObjectCount() const; // [tested]
+  WUInt32 GetObjectCount() const; // [tested]
 
   /// Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ObjectIterator GetObjects(); // [tested]
+  WInternal::WorldData::ObjectIterator GetObjects(); // [tested]
 
   /// Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ConstObjectIterator GetObjects() const; // [tested]
+  WInternal::WorldData::ConstObjectIterator GetObjects() const; // [tested]
 
   /// Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
   /// (false) traversal.
-  using VisitorFunc = ezInternal::WorldData::VisitorFunc;
+  using VisitorFunc = WInternal::WorldData::VisitorFunc;
 
   enum TraversalMethod
   {
@@ -145,14 +145,14 @@ public:
   ModuleType* GetOrCreateModule(); // [tested]
 
   /// Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
-  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti); // [tested]
+  WWorldModule* GetOrCreateModule(const WRTTI* pRtti); // [tested]
 
   /// Deletes the module of the given type or derived types.
   template <typename ModuleType>
   void DeleteModule();
 
   /// Deletes the module of the given type or derived types.
-  void DeleteModule(const ezRTTI* pRtti);
+  void DeleteModule(const WRTTI* pRtti);
 
   /// Returns the instance to the given module type or derived types.
   template <typename ModuleType>
@@ -167,10 +167,10 @@ public:
   const ModuleType* GetModuleReadOnly() const;
 
   /// Returns the instance to the given module type or derived types.
-  ezWorldModule* GetModule(const ezRTTI* pRtti);
+  WWorldModule* GetModule(const WRTTI* pRtti);
 
   /// Returns the instance to the given module type or derived types.
-  const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
+  const WWorldModule* GetModule(const WRTTI* pRtti) const;
 
   ///@}
   /// \name Component Functions
@@ -181,7 +181,7 @@ public:
   ManagerType* GetOrCreateComponentManager();
 
   /// Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti);
+  WComponentManagerBase* GetOrCreateManagerForComponentType(const WRTTI* pComponentRtti);
 
   /// Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
@@ -196,89 +196,89 @@ public:
   const ManagerType* GetComponentManager() const;
 
   /// Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti);
+  WComponentManagerBase* GetManagerForComponentType(const WRTTI* pComponentRtti);
 
   /// Returns the component manager that handles the given rtti component type.
-  const ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti) const;
+  const WComponentManagerBase* GetManagerForComponentType(const WRTTI* pComponentRtti) const;
 
   /// Checks whether the given handle references a valid component.
-  bool IsValidComponent(const ezComponentHandle& hComponent) const;
+  bool IsValidComponent(const WComponentHandle& hComponent) const;
 
   /// Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent);
+  [[nodiscard]] bool TryGetComponent(const WComponentHandle& hComponent, ComponentType*& out_pComponent);
 
   /// Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponent(const WComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
   /// Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
   template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
-  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, U*& out_pComponent) = delete;
+  [[nodiscard]] bool TryGetComponent(const WTypedComponentHandle<T>& hComponent, U*& out_pComponent) = delete;
 
   /// Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
   template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
-  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, const U*& out_pComponent) const = delete;
+  [[nodiscard]] bool TryGetComponent(const WTypedComponentHandle<T>& hComponent, const U*& out_pComponent) const = delete;
 
   /// Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
   /// If bMustFinishWithinOneFrame is set to false the processing of an init batch can be distributed over multiple frames if
   /// m_MaxComponentInitializationTimePerFrame in the world desc is set to a reasonable value.
-  ezComponentInitBatchHandle CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame = true);
+  WComponentInitBatchHandle CreateComponentInitBatch(WStringView sBatchName, bool bMustFinishWithinOneFrame = true);
 
   /// Deletes a component init batch. It must be completely processed before it can be deleted.
-  void DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
+  void DeleteComponentInitBatch(const WComponentInitBatchHandle& hBatch);
 
   /// All components that are created between an BeginAddingComponentsToInitBatch/EndAddingComponentsToInitBatch scope are added to the
   /// given init batch.
-  void BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
+  void BeginAddingComponentsToInitBatch(const WComponentInitBatchHandle& hBatch);
 
   /// End adding components to the given batch. Components created after this call are added to the default init batch.
-  void EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
+  void EndAddingComponentsToInitBatch(const WComponentInitBatchHandle& hBatch);
 
   /// After all components have been added to the init batch call submit to start processing the batch.
-  void SubmitComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
+  void SubmitComponentInitBatch(const WComponentInitBatchHandle& hBatch);
 
   /// Returns whether the init batch has been completely processed and all corresponding components are initialized
   /// and their OnSimulationStarted function was called.
-  bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hBatch, double* pCompletionFactor = nullptr);
+  bool IsComponentInitBatchCompleted(const WComponentInitBatchHandle& hBatch, double* pCompletionFactor = nullptr);
 
   /// Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
   /// so this function has be used with care.
-  void CancelComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
+  void CancelComponentInitBatch(const WComponentInitBatchHandle& hBatch);
 
   ///@}
   /// \name Message Functions
   ///@{
 
   /// Sends a message to all components of the receiverObject.
-  void SendMessage(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
+  void SendMessage(const WGameObjectHandle& hReceiverObject, WMessage& ref_msg);
 
   /// Sends a message to all components of the receiverObject and all its children.
-  void SendMessageRecursive(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
+  void SendMessageRecursive(const WGameObjectHandle& hReceiverObject, WMessage& ref_msg);
 
   /// Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const WGameObjectHandle& hReceiverObject, const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame) const;
 
   /// Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessageRecursive(const WGameObjectHandle& hReceiverObject, const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame) const;
 
   /// Sends a message to the component.
-  void SendMessage(const ezComponentHandle& hReceiverComponent, ezMessage& ref_msg);
+  void SendMessage(const WComponentHandle& hReceiverComponent, WMessage& ref_msg);
 
   /// Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const WComponentHandle& hReceiverComponent, const WMessage& msg, WTime delay, WObjectMsgQueueType::Enum queueType = WObjectMsgQueueType::NextFrame) const;
 
-  /// Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
-  /// matching components owned by that object. If a ezEventMessageHandlerComponent is found the search is stopped even if it doesn't handle the given message.
+  /// Finds the closest (parent) object, starting at pSearchObject, which has an WComponent that handles the given message and returns all
+  /// matching components owned by that object. If a WEventMessageHandlerComponent is found the search is stopped even if it doesn't handle the given message.
   ///
-  /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
+  /// If no such parent object exists, it searches for all WEventMessageHandlerComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
-  void FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
+  void FindEventMsgHandlers(const WMessage& msg, const WComponent* pSenderComponent, WGameObject* pSearchObject, WDynamicArray<WComponent*>& out_components);
 
-  /// \copydoc ezWorld::FindEventMsgHandlers()
-  void FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
+  /// \copydoc WWorld::FindEventMsgHandlers()
+  void FindEventMsgHandlers(const WMessage& msg, const WComponent* pSenderComponent, const WGameObject* pSearchObject, WDynamicArray<const WComponent*>& out_components) const;
 
   ///@}
 
@@ -289,72 +289,72 @@ public:
   bool GetWorldSimulationEnabled() const;
 
   /// Updates the world by calling the various update methods on the component managers and also updates the transformation data of
-  /// the game objects. See ezWorld for a detailed description of the update phases.
+  /// the game objects. See WWorld for a detailed description of the update phases.
   void Update(); // [tested]
 
   /// Returns a task implementation that calls Update on this world.
-  const ezSharedPtr<ezTask>& GetUpdateTask();
+  const WSharedPtr<WTask>& GetUpdateTask();
 
   /// Returns the number of update calls. Can be used to determine whether an operation has already been done during a frame.
-  ezUInt32 GetUpdateCounter() const;
+  WUInt32 GetUpdateCounter() const;
 
   /// Returns the spatial system that is associated with this world.
-  ezSpatialSystem* GetSpatialSystem();
+  WSpatialSystem* GetSpatialSystem();
 
   /// Returns the spatial system that is associated with this world.
-  const ezSpatialSystem* GetSpatialSystem() const;
+  const WSpatialSystem* GetSpatialSystem() const;
 
 
   /// Returns the coordinate system for the given position.
   /// By default this always returns a coordinate system with forward = +X, right = +Y and up = +Z.
   /// This can be customized by setting a different coordinate system provider.
-  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const; // [tested]
+  void GetCoordinateSystem(const WVec3& vGlobalPosition, WCoordinateSystem& out_coordinateSystem) const; // [tested]
 
   /// Sets the coordinate system provider that should be used in this world.
-  void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider); // [tested]
+  void SetCoordinateSystemProvider(const WSharedPtr<WCoordinateSystemProvider>& pProvider); // [tested]
 
   /// Returns the coordinate system provider that is associated with this world.
-  ezCoordinateSystemProvider& GetCoordinateSystemProvider(); // [tested]
+  WCoordinateSystemProvider& GetCoordinateSystemProvider(); // [tested]
 
   /// Returns the coordinate system provider that is associated with this world.
-  const ezCoordinateSystemProvider& GetCoordinateSystemProvider() const; // [tested]
+  const WCoordinateSystemProvider& GetCoordinateSystemProvider() const; // [tested]
 
 
   /// Returns the clock that is used for all updates in this game world
-  ezClock& GetClock(); // [tested]
+  WClock& GetClock(); // [tested]
 
   /// Returns the clock that is used for all updates in this game world
-  const ezClock& GetClock() const; // [tested]
+  const WClock& GetClock() const; // [tested]
 
   /// Accesses the default random number generator.
   /// If more control is desired, individual components should use their own RNG.
-  ezRandom& GetRandomNumberGenerator();
+  WRandom& GetRandomNumberGenerator();
 
   /// Returns the blackboard that is associated with this world.
-  const ezSharedPtr<ezBlackboard>& GetBlackboard();
+  const WSharedPtr<WBlackboard>& GetBlackboard();
 
   /// Returns the blackboard that is associated with this world.
-  ezSharedPtr<const ezBlackboard> GetBlackboard() const;
+  WSharedPtr<const WBlackboard> GetBlackboard() const;
 
 
   /// Returns the allocator used by this world.
-  ezAllocator* GetAllocator();
+  WAllocator* GetAllocator();
 
   /// Returns the block allocator used by this world.
-  ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
+  WInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
   /// Returns the stack allocator used by this world.
-  ezDoubleBufferedLinearAllocator* GetStackAllocator();
+  WDoubleBufferedLinearAllocator* GetStackAllocator();
 
-  /// Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
+  /// Mark the world for reading by using W_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
   /// writing.
-  ezInternal::WorldData::ReadMarker& GetReadMarker() const; // [tested]
+  WInternal::WorldData::ReadMarker& GetReadMarker() const; // [tested]
 
-  /// Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
-  ezInternal::WorldData::WriteMarker& GetWriteMarker(); // [tested]
+  /// Mark the world for writing by using W_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
+  WInternal::WorldData::WriteMarker& GetWriteMarker(); // [tested]
 
   /// Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
-  void SetMaxInitializationTimePerFrame(ezTime maxInitTime);
+  void SetMaxInitializationTimePerFrame(WTime maxInitTime);
 
   /// Associates the given user data with the world. The user is responsible for the life time of user data.
   void SetUserData(void* pUserData);
@@ -362,9 +362,9 @@ public:
   /// Returns the associated user data.
   void* GetUserData() const;
 
-  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle hThis, ezStringView sProperty)>;
+  using ReferenceResolver = WDelegate<WGameObjectHandle(const void*, WComponentHandle hThis, WStringView sProperty)>;
 
-  /// If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
+  /// If set, this delegate can be used to map some data (GUID or string) to an WGameObjectHandle.
   ///
   /// Currently only used in editor settings, to create a runtime handle from a unique editor reference.
   void SetGameObjectReferenceResolver(const ReferenceResolver& resolver);
@@ -372,99 +372,99 @@ public:
   /// \sa SetGameObjectReferenceResolver()
   const ReferenceResolver& GetGameObjectReferenceResolver() const;
 
-  using ResourceReloadContext = ezInternal::WorldData::ResourceReloadContext;
-  using ResourceReloadFunc = ezInternal::WorldData::ResourceReloadFunc;
+  using ResourceReloadContext = WInternal::WorldData::ResourceReloadContext;
+  using ResourceReloadFunc = WInternal::WorldData::ResourceReloadFunc;
 
   /// Add a function that is called when the given resource has been reloaded.
-  void AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
-  void RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData);
+  void AddResourceReloadFunction(WTypelessResourceHandle hResource, WComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
+  void RemoveResourceReloadFunction(WTypelessResourceHandle hResource, WComponentHandle hComponent, void* pUserData);
 
-  /// \name Helper methods to query ezWorld limits
+  /// \name Helper methods to query WWorld limits
   ///@{
-  static constexpr ezUInt64 GetMaxNumGameObjects();
-  static constexpr ezUInt64 GetMaxNumHierarchyLevels();
-  static constexpr ezUInt64 GetMaxNumComponentsPerType();
-  static constexpr ezUInt64 GetMaxNumWorldModules();
-  static constexpr ezUInt64 GetMaxNumComponentTypes();
-  static constexpr ezUInt64 GetMaxNumWorlds();
+  static constexpr WUInt64 GetMaxNumGameObjects();
+  static constexpr WUInt64 GetMaxNumHierarchyLevels();
+  static constexpr WUInt64 GetMaxNumComponentsPerType();
+  static constexpr WUInt64 GetMaxNumWorldModules();
+  static constexpr WUInt64 GetMaxNumComponentTypes();
+  static constexpr WUInt64 GetMaxNumWorlds();
   ///@}
 
 public:
   /// Returns the number of active worlds.
-  static ezUInt32 GetWorldCount();
+  static WUInt32 GetWorldCount();
 
   /// Returns the world with the given index.
-  static ezWorld* GetWorld(ezUInt8 uiIndex);
+  static WWorld* GetWorld(WUInt8 uiIndex);
 
   /// Returns the world with the given handle.
-  static ezWorld* GetWorld(const ezWorldHandle& hWorld);
+  static WWorld* GetWorld(const WWorldHandle& hWorld);
 
   /// Returns the world for the given game object handle.
-  static ezWorld* GetWorld(const ezGameObjectHandle& hObject);
+  static WWorld* GetWorld(const WGameObjectHandle& hObject);
 
   /// Returns the world for the given component handle.
-  static ezWorld* GetWorld(const ezComponentHandle& hComponent);
+  static WWorld* GetWorld(const WComponentHandle& hComponent);
 
 private:
-  friend class ezGameObject;
-  friend class ezWorldModule;
-  friend class ezComponentManagerBase;
-  friend class ezComponent;
-  friend class ezPrefabResource;
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
+  friend class WGameObject;
+  friend class WWorldModule;
+  friend class WComponentManagerBase;
+  friend class WComponent;
+  friend class WPrefabResource;
+  W_ALLOW_PRIVATE_PROPERTIES(WWorld);
 
-  ezGameObject* Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, float fLocalUniformScale, bool bDynamic);
-  ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
-  ezGameObject* Reflection_SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject) { return SearchForObject(sSearchPath, pReferenceObject, nullptr); }
-  ezClock* Reflection_GetClock();
-  ezRandom* Reflection_GetRandomNumberGenerator();
+  WGameObject* Reflection_CreateGameObject(WHashedString sName, const WGameObjectHandle& hParent, const WVec3& vLocalPosition, const WQuat& qLocalRotation, const WVec3& vLocalScale, float fLocalUniformScale, bool bDynamic);
+  WGameObject* Reflection_TryGetObjectWithGlobalKey(WTempHashedString sGlobalKey);
+  WGameObject* Reflection_SearchForObject(WStringView sSearchPath, WGameObject* pReferenceObject) { return SearchForObject(sSearchPath, pReferenceObject, nullptr); }
+  WClock* Reflection_GetClock();
+  WRandom* Reflection_GetRandomNumberGenerator();
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;
 
-  ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
+  WGameObject* GetObjectUnchecked(WUInt32 uiIndex) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
-    ezTransformPreservation::Enum preserve = ezTransformPreservation::Enum::PreserveGlobal);
-  void LinkToParent(ezGameObject* pObject);
-  void UnlinkFromParent(ezGameObject* pObject);
+  void SetParent(WGameObject* pObject, WGameObject* pNewParent,
+    WTransformPreservation::Enum preserve = WTransformPreservation::Enum::PreserveGlobal);
+  void LinkToParent(WGameObject* pObject);
+  void UnlinkFromParent(WGameObject* pObject);
 
-  void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
-  ezStringView GetObjectGlobalKey(const ezGameObject* pObject) const;
+  void SetObjectGlobalKey(WGameObject* pObject, const WHashedString& sGlobalKey);
+  WStringView GetObjectGlobalKey(const WGameObject* pObject) const;
 
-  using QueuedMsg = ezInternal::WorldData::QueuedMsg;
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  using QueuedMsg = WInternal::WorldData::QueuedMsg;
+  void PostMessage(const WGameObjectHandle& receiverObject, const WMessage& msg, WObjectMsgQueueType::Enum queueType, WTime delay, bool bRecursive) const;
   void UpdateMessageTime();
   void ProcessQueuedMessage(const QueuedMsg& entry);
-  void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
+  void ProcessQueuedMessages(WObjectMsgQueueType::Enum queueType);
 
   template <typename World, typename GameObject, typename Component>
-  static void FindEventMsgHandlers(World& world, const ezMessage& msg, const ezComponent* pSenderComponent, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
+  static void FindEventMsgHandlers(World& world, const WMessage& msg, const WComponent* pSenderComponent, GameObject pSearchObject, WDynamicArray<Component>& out_components);
 
-  void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
-  void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
+  void RegisterUpdateFunction(const WWorldModule::UpdateFunctionDesc& desc);
+  void DeregisterUpdateFunction(const WWorldModule::UpdateFunctionDesc& desc);
 
   /// Used by component managers to queue a new component for initialization during the next update
-  void AddComponentToInitialize(ezComponentHandle hComponent);
+  void AddComponentToInitialize(WComponentHandle hComponent);
 
   void UpdateFromThread();
-  void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
+  void UpdateSynchronous(const WArrayPtr<WInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
 
   // returns if the batch was completely initialized
-  bool ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch, ezTime endTime);
+  bool ProcessInitializationBatch(WInternal::WorldData::InitBatch& batch, WTime endTime);
   void ProcessComponentsToInitialize();
   void ProcessUpdateFunctionsToRegister();
-  ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
+  WResult RegisterUpdateFunctionInternal(const WWorldModule::UpdateFunctionDesc& desc);
   void ProcessUpdateFunctionsToDeregister();
-  void DeregisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
-  void DeregisterUpdateFunctionsInternal(ezWorldModule* pModule);
+  void DeregisterUpdateFunctionInternal(const WWorldModule::UpdateFunctionDesc& desc);
+  void DeregisterUpdateFunctionsInternal(WWorldModule* pModule);
 
   void DeleteDeadObjects();
   void DeleteDeadComponents();
 
-  void PatchHierarchyData(ezGameObject* pObject, ezTransformPreservation::Enum preserve);
-  void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
+  void PatchHierarchyData(WGameObject* pObject, WTransformPreservation::Enum preserve);
+  void RecreateHierarchyData(WGameObject* pObject, bool bWasDynamic);
 
   void ProcessResourceReloadFunctions();
 
@@ -474,18 +474,18 @@ private:
   float GetInvDeltaSeconds() const;
 
   /// Adds hObject to the deferred bounds update queue. Thread-safe.
-  void QueueLocalBoundsUpdate(ezGameObjectHandle hObject);
+  void QueueLocalBoundsUpdate(WGameObjectHandle hObject);
   /// Drains the deferred bounds update queue and calls UpdateLocalBounds() on each object.
   void ProcessLocalBoundsUpdateQueue();
 
-  ezSharedPtr<ezTask> m_pUpdateTask;
+  WSharedPtr<WTask> m_pUpdateTask;
 
-  ezInternal::WorldData m_Data;
+  WInternal::WorldData m_Data;
 
-  ezWorldId m_InternalId;
-  static ezIdTable<ezWorldId, ezWorld*> s_Worlds;
+  WWorldId m_InternalId;
+  static WIdTable<WWorldId, WWorld*> s_Worlds;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezWorld);
+W_DECLARE_REFLECTABLE_TYPE(W_CORE_DLL, WWorld);
 
 #include <Core/World/Implementation/World_inl.h>

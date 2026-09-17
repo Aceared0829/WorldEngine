@@ -8,13 +8,13 @@
 class QLabel;
 class QScrollArea;
 
-class ezSoundEventAssetDocumentWindow : public ezQtDocumentWindow
+class WSoundEventAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezSoundEventAssetDocumentWindow(ezDocument* pDocument);
-  ~ezSoundEventAssetDocumentWindow();
+  WSoundEventAssetDocumentWindow(WDocument* pDocument);
+  ~WSoundEventAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "SoundEventAsset"; }
 
@@ -23,7 +23,7 @@ private Q_SLOTS:
 
 private:
   void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 
-  ezSoundEventAssetDocument* m_pAssetDoc = nullptr;
+  WSoundEventAssetDocument* m_pAssetDoc = nullptr;
 };

@@ -11,13 +11,13 @@
 
 
 /// \todo document and test (and finish)
-class EZ_FOUNDATION_DLL ezTelemetry
+class W_FOUNDATION_DLL WTelemetry
 {
 public:
-  /// The port over which ezTelemetry will connect.
-  static ezUInt16 s_uiPort /* = 1040*/;
+  /// The port over which WTelemetry will connect.
+  static WUInt16 s_uiPort /* = 1040*/;
 
-  /// Defines how the ezTelemetry system was configured.
+  /// Defines how the WTelemetry system was configured.
   enum ConnectionMode
   {
     None,   ///< Not configured yet, at all.
@@ -43,8 +43,8 @@ public:
   /// \note Connections to invalid host names often succeed, because the underlying network API will fall back to 'localhost'.
   /// Connections to invalid IP addresses will however always fail.
   ///
-  /// This function will set the ezTelemetry connection mode to 'Client'. This is mutually exclusive with CreateServer().
-  static ezResult ConnectToServer(ezStringView sConnectTo = {});
+  /// This function will set the WTelemetry connection mode to 'Client'. This is mutually exclusive with CreateServer().
+  static WResult ConnectToServer(WStringView sConnectTo = {});
 
   /// Opens a connection as a server.
   ///
@@ -63,13 +63,13 @@ public:
   /// \name Sending Data
   /// @{
 
-  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes = -1);
-  static void Broadcast(TransmitMode tm, ezTelemetryMessage& ref_msg);
+  static void Broadcast(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes);
+  static void Broadcast(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& inout_stream, WInt32 iDataBytes = -1);
+  static void Broadcast(TransmitMode tm, WTelemetryMessage& ref_msg);
 
-  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
-  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes = -1);
-  static void SendToServer(ezTelemetryMessage& ref_msg);
+  static void SendToServer(WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData = nullptr, WUInt32 uiDataBytes = 0);
+  static void SendToServer(WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& inout_stream, WInt32 iDataBytes = -1);
+  static void SendToServer(WTelemetryMessage& ref_msg);
 
   /// @}
 
@@ -89,22 +89,22 @@ public:
   static bool IsConnectedToOther();
 
   /// Returns the last round trip time ('Ping') to the Server. Only meaningful if there is an active connection (see IsConnectedToServer() ).
-  static ezTime GetPingToServer() { return s_PingToServer; }
+  static WTime GetPingToServer() { return s_PingToServer; }
 
   /// Returns the name of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static ezStringView GetServerName() { return s_sServerName; }
+  static WStringView GetServerName() { return s_sServerName; }
 
   /// Sets the name of the telemetry server. This is broadcast to connected clients, which can display this string for usability.
   ///
   /// Usually this would be used to send the application name, to make it easier to see to which app the tool is connected,
   /// but setting a custom name can be used to add important details, e.g. whether the app is running in single-player or multi-player mode etc.
   /// The server name can be changed at any time.
-  static void SetServerName(ezStringView sName);
+  static void SetServerName(WStringView sName);
 
   /// Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static ezStringView GetServerIP() { return s_sServerIP; }
+  static WStringView GetServerIP() { return s_sServerIP; }
 
   /// Returns a 'unique' ID for the application instance to which this Client is connected.
   ///
@@ -112,14 +112,14 @@ public:
   /// This can be used when a connection got lost and a Client had to reconnect to the Server, to check whether the instance that the Client connected
   /// to is still the same as before. If it did not change, the application can simply continue gathering data. Otherwise it should clear its state
   /// and start from scratch.
-  static ezUInt32 GetServerID() { return s_uiServerID; }
+  static WUInt32 GetServerID() { return s_uiServerID; }
 
   /// Returns the internal mutex used to synchronize all telemetry data access.
   ///
   /// This can be used to block all threads from accessing telemetry data, thus stopping the application.
   /// This can be useful when you want to implement some operation that is fully synchronous with some external tool and you want to
   /// wait for its response and prevent all other actions while you wait for that.
-  static ezMutex& GetTelemetryMutex();
+  static WMutex& GetTelemetryMutex();
 
   /// @}
 
@@ -128,13 +128,13 @@ public:
 
   /// Checks whether any message for the system with the given ID exists and returns that.
   ///
-  /// If no message for the given system is available, EZ_FAILURE is returned.
+  /// If no message for the given system is available, W_FAILURE is returned.
   /// This function will not poll the network to check whether new messages arrived.
   /// Use UpdateNetwork() and RetrieveMessage() in a loop, if you are waiting for a specific message,
   /// to continuously update the network state and check whether the desired message has arrived.
   /// However, if you do so, you will be able to deadlock your application, if such a message never arrives.
   /// Also it might fill up other message queues which might lead to messages getting discarded.
-  static ezResult RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_message);
+  static WResult RetrieveMessage(WUInt32 uiSystemID, WTelemetryMessage& out_message);
 
   /// Polls the network for new incoming messages and ensures outgoing messages are sent.
   ///
@@ -146,7 +146,7 @@ public:
 
   using ProcessMessagesCallback = void (*)(void*);
 
-  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback = nullptr, void* pPassThrough = nullptr);
+  static void AcceptMessagesForSystem(WUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback = nullptr, void* pPassThrough = nullptr);
 
   /// Call this once per frame to process queued messages and to send the PerFrameUpdate event.
   static void PerFrameUpdate();
@@ -158,11 +158,11 @@ public:
   ///        a proper recipient is available. Set this to zero to discard all messages from a system, when no recipient is available.
   ///
   /// The default queue size is 1000. When a connection to a suitable recipient is made, all queued messages are delivered in one burst.
-  static void SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued);
+  static void SetOutgoingQueueSize(WUInt32 uiSystemID, WUInt16 uiMaxQueued);
 
   /// @}
 
-  /// \name ezTelemetry Events
+  /// \name WTelemetry Events
   /// @{
 
   struct TelemetryEventData
@@ -179,52 +179,52 @@ public:
     EventType m_EventType;
   };
 
-  using ezEventTelemetry = ezEvent<const TelemetryEventData&, ezMutex>;
+  using WEventTelemetry = WEvent<const TelemetryEventData&, WMutex>;
 
-  /// Adds an event handler that is called for every ezTelemetry event.
-  static void AddEventHandler(ezEventTelemetry::Handler handler) { s_TelemetryEvents.AddEventHandler(handler); }
+  /// Adds an event handler that is called for every WTelemetry event.
+  static void AddEventHandler(WEventTelemetry::Handler handler) { s_TelemetryEvents.AddEventHandler(handler); }
 
   /// Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventTelemetry::Handler handler) { s_TelemetryEvents.RemoveEventHandler(handler); }
+  static void RemoveEventHandler(WEventTelemetry::Handler handler) { s_TelemetryEvents.RemoveEventHandler(handler); }
 
   /// @}
 
 private:
   static void UpdateServerPing();
 
-  static ezResult OpenConnection(ConnectionMode Mode, ezStringView sConnectTo = {});
+  static WResult OpenConnection(ConnectionMode Mode, WStringView sConnectTo = {});
 
-  static void Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes);
+  static void Transmit(TransmitMode tm, const void* pData, WUInt32 uiDataBytes);
 
-  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
-  static void Send(TransmitMode tm, ezTelemetryMessage& msg);
+  static void Send(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes);
+  static void Send(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, WStreamReader& Stream, WInt32 iDataBytes = -1);
+  static void Send(TransmitMode tm, WTelemetryMessage& msg);
 
-  friend class ezTelemetryThread;
+  friend class WTelemetryThread;
 
   static void FlushOutgoingQueues();
 
   static void InitializeAsServer();
-  static ezResult InitializeAsClient(ezStringView sConnectTo);
+  static WResult InitializeAsClient(WStringView sConnectTo);
   static ConnectionMode s_ConnectionMode;
 
-  static ezUInt32 s_uiApplicationID;
-  static ezUInt32 s_uiServerID;
+  static WUInt32 s_uiApplicationID;
+  static WUInt32 s_uiServerID;
 
-  static ezString s_sServerName;
-  static ezString s_sServerIP;
+  static WString s_sServerName;
+  static WString s_sServerIP;
 
   static bool s_bConnectedToServer;
   static bool s_bConnectedToClient;
   static bool s_bAllowNetworkUpdate;
 
-  static void QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
+  static void QueueOutgoingMessage(TransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData, WUInt32 uiDataBytes);
 
   static void SendServerName();
 
-  static ezTime s_PingToServer;
+  static WTime s_PingToServer;
 
-  using MessageDeque = ezDeque<ezTelemetryMessage>;
+  using MessageDeque = WDeque<WTelemetryMessage>;
 
   struct MessageQueue
   {
@@ -239,18 +239,18 @@ private:
     bool m_bAcceptMessages;
     ProcessMessagesCallback m_Callback;
     void* m_pPassThrough;
-    ezUInt32 m_uiMaxQueuedOutgoing;
+    WUInt32 m_uiMaxQueuedOutgoing;
 
     MessageDeque m_IncomingQueue;
     MessageDeque m_OutgoingQueue;
   };
 
-  static ezMap<ezUInt64, MessageQueue> s_SystemMessages;
+  static WMap<WUInt64, MessageQueue> s_SystemMessages;
 
-  static ezEventTelemetry s_TelemetryEvents;
+  static WEventTelemetry s_TelemetryEvents;
 
 private:
-  static ezMutex s_TelemetryMutex;
+  static WMutex s_TelemetryMutex;
   static void StartTelemetryThread();
   static void StopTelemetryThread();
 };

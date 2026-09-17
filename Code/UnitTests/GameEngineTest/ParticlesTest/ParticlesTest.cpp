@@ -6,20 +6,20 @@
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <RendererFoundation/Device/Device.h>
 
-static ezGameEngineTestParticles s_GameEngineTestParticles;
+static WGameEngineTestParticles s_GameEngineTestParticles;
 
-const char* ezGameEngineTestParticles::GetTestName() const
+const char* WGameEngineTestParticles::GetTestName() const
 {
   return "Particle Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestParticles::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestParticles::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication_Particles);
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication_Particles);
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestParticles::SetupSubTests()
+void WGameEngineTestParticles::SetupSubTests()
 {
   AddSubTest("BillboardRenderer", SubTests::BillboardRenderer);
   AddSubTest("ColorGradientBehavior", SubTests::ColorGradientBehavior);
@@ -61,57 +61,57 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("Fog", SubTests::Fog);
 }
 
-ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestParticles::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_pOwnApplication->m_uiImageCompareThreshold = GetImageCompareThreshold(iIdentifier);
   m_iFrame = -1;
 
   if (iIdentifier == SubTests::Billboards)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Billboards.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Billboards.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::PullAlongBehavior)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::DistanceEmitter)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::SharedInstances)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::EventReactionEffect)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::LocalSpaceSim)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::Lighting)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::Attractors)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Attractors.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Attractors.WBinScene");
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::Fog)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Fog.ezBinScene");
-    return EZ_SUCCESS;
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Fog.WBinScene");
+    return W_SUCCESS;
   }
   else
   {
@@ -146,20 +146,20 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     };
 
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 }
 
-ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestParticles::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   ++m_iFrame;
 
   return m_pOwnApplication->ExecParticleSubTest(m_iFrame);
 }
 
-ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier)
+WUInt32 WGameEngineTestParticles::GetImageCompareThreshold(WInt32 iIdentifier)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   if (pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
   {
     // All these tests sample a sphere texture and lavapipe consistently samples a lower mip-level for this texture which results in slightly blurrier results. Images are identical to AMD if mip-maps are disabled for the texture.
@@ -199,54 +199,54 @@ ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier
 
 //////////////////////////////////////////////////////////////////////////
 
-ezGameEngineTestApplication_Particles::ezGameEngineTestApplication_Particles()
-  : ezGameEngineTestApplication("Particles")
+WGameEngineTestApplication_Particles::WGameEngineTestApplication_Particles()
+  : WGameEngineTestApplication("Particles")
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameEngineTestApplication_Particles::SetupSceneSubTest(const char* szFile)
+void WGameEngineTestApplication_Particles::SetupSceneSubTest(const char* szFile)
 {
   LoadScene(szFile).IgnoreResult();
 }
 
-void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szFile)
+void WGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szFile)
 {
-  LoadScene("Particles/AssetCache/Common/Particles1.ezBinScene").IgnoreResult();
+  LoadScene("Particles/AssetCache/Common/Particles1.WBinScene").IgnoreResult();
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  ezGameObject* pObject;
+  WGameObject* pObject;
   if (m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject))
   {
-    ezParticleComponent* pEffect;
-    m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
+    WParticleComponent* pEffect;
+    m_pWorld->GetOrCreateComponentManager<WParticleComponentManager>()->CreateComponent(pObject, pEffect);
     pEffect->SetParticleEffectFile(szFile);
     pEffect->m_uiRandomSeed = 42;
   }
 }
 
-ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
+WTestAppRun WGameEngineTestApplication_Particles::ExecParticleSubTest(WInt32 iCurFrame)
 {
   Run();
   if (ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, m_uiImageCompareThreshold);
+      W_TEST_IMAGE(0, m_uiImageCompareThreshold);
       break;
 
     case 30:
-      EZ_TEST_IMAGE(1, m_uiImageCompareThreshold);
+      W_TEST_IMAGE(1, m_uiImageCompareThreshold);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, m_uiImageCompareThreshold);
-      return ezTestAppRun::Quit;
+      W_TEST_IMAGE(2, m_uiImageCompareThreshold);
+      return WTestAppRun::Quit;
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

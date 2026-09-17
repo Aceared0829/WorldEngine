@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginJolt/DragDropHandlers/JoltCollisionMeshDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezJoltCollisionMeshComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltCollisionMeshComponentDragDropHandler, 1, WRTTIDefaultAllocator<WJoltCollisionMeshComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezJoltCollisionMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WJoltCollisionMeshComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return (IsSpecificAssetType(pInfo, "Jolt_Colmesh_Triangle") || IsSpecificAssetType(pInfo, "Jolt_Colmesh_Convex")) ? 1.0f : 0.0f;
 }
 
-void ezJoltCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WJoltCollisionMeshComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezJoltStaticActorComponent";
+  constexpr const char* szComponentType = "WJoltStaticActorComponent";
   constexpr const char* szPropertyName = "CollisionMesh";
 
   if (pInfo->m_sTargetContext == "viewport")

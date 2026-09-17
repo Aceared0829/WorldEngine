@@ -9,41 +9,41 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <memory>
 
-class ezJoltMaterial;
-struct ezSurfaceResourceEvent;
-class ezJoltDebugRenderer;
-class ezWorld;
+class WJoltMaterial;
+struct WSurfaceResourceEvent;
+class WJoltDebugRenderer;
+class WWorld;
 
 namespace JPH
 {
   class JobSystem;
 }
 
-class EZ_JOLTPLUGIN_DLL ezJoltCore
+class W_JOLTPLUGIN_DLL WJoltCore
 {
 public:
   static JPH::JobSystem* GetJoltJobSystem();
-  static const ezJoltMaterial* GetDefaultMaterial() { return s_pDefaultMaterial; }
+  static const WJoltMaterial* GetDefaultMaterial() { return s_pDefaultMaterial; }
 
-  static void DebugDraw(ezWorld* pWorld);
+  static void DebugDraw(WWorld* pWorld);
 
 #ifdef JPH_DEBUG_RENDERER
-  static std::unique_ptr<ezJoltDebugRenderer> s_pDebugRenderer;
+  static std::unique_ptr<WJoltDebugRenderer> s_pDebugRenderer;
 #endif
 
-  static const ezCollisionFilterConfig& GetCollisionFilterConfig();
-  static const ezWeightCategoryConfig& GetWeightCategoryConfig();
-  static const ezImpulseTypeConfig& GetImpulseTypeConfig();
+  static const WCollisionFilterConfig& GetCollisionFilterConfig();
+  static const WWeightCategoryConfig& GetWeightCategoryConfig();
+  static const WImpulseTypeConfig& GetImpulseTypeConfig();
 
   static void ReloadConfigs();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Jolt, JoltPlugin);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Jolt, JoltPlugin);
 
   static void Startup();
   static void Shutdown();
 
-  static void SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e);
+  static void SurfaceResourceEventHandler(const WSurfaceResourceEvent& e);
 
   static void* JoltMalloc(size_t inSize);
   static void JoltFree(void* inBlock);
@@ -55,15 +55,15 @@ private:
   static void LoadWeightCategories();
   static void LoadImpulseTypes();
 
-  static ezJoltMaterial* s_pDefaultMaterial;
+  static WJoltMaterial* s_pDefaultMaterial;
 
-  static ezUniquePtr<JPH::JobSystem> s_pJobSystemEZ;
+  static WUniquePtr<JPH::JobSystem> s_pJobSystemEZ;
   static std::unique_ptr<JPH::JobSystem> s_pJobSystemJolt;
 
-  static ezUniquePtr<ezProxyAllocator> s_pAllocator;
-  static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;
+  static WUniquePtr<WProxyAllocator> s_pAllocator;
+  static WUniquePtr<WProxyAllocator> s_pAllocatorAligned;
 
-  static ezUniquePtr<ezCollisionFilterConfig> s_pCollisionFilterConfig;
-  static ezUniquePtr<ezWeightCategoryConfig> s_pWeightCategoryConfig;
-  static ezUniquePtr<ezImpulseTypeConfig> s_pImpulseTypeConfig;
+  static WUniquePtr<WCollisionFilterConfig> s_pCollisionFilterConfig;
+  static WUniquePtr<WWeightCategoryConfig> s_pWeightCategoryConfig;
+  static WUniquePtr<WImpulseTypeConfig> s_pImpulseTypeConfig;
 };

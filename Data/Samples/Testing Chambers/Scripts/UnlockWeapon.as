@@ -1,12 +1,12 @@
 #include "GameDecls.as"
 
-class UnlockWeapon : ezAngelScriptClass
+class UnlockWeapon : WAngelScriptClass
 {
     int weaponType = 0;
 
-    void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg)
+    void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg)
     {
-        if (msg.TriggerState == ezTriggerState::Activated && msg.Message == "Pickup")
+        if (msg.TriggerState == WTriggerState::Activated && msg.Message == "Pickup")
         {
             MsgUnlockWeapon hm;
             hm.weaponType = WeaponType(weaponType);
@@ -16,13 +16,13 @@ class UnlockWeapon : ezAngelScriptClass
             if (!hm.return_consumed)
                 return;
 
-            ezFmodEventComponent@ sound;
+            WFmodEventComponent@ sound;
             if (GetOwner().TryGetComponentOfBaseType(@sound))
                 sound.StartOneShot();
 
             // delete yourself
-            ezMsgDeleteGameObject del;
-            GetOwner().PostMessage(del, ezTime::Seconds(0.1));
+            WMsgDeleteGameObject del;
+            GetOwner().PostMessage(del, WTime::Seconds(0.1));
         }
     }
 }

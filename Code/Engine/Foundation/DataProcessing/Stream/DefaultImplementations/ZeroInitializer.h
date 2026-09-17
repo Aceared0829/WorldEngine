@@ -6,26 +6,26 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezProcessingStream;
+class WProcessingStream;
 
 /// This element spawner initializes new elements with 0 (by writing 0 bytes into the whole element)
-class EZ_FOUNDATION_DLL ezProcessingStreamSpawnerZeroInitialized : public ezProcessingStreamProcessor
+class W_FOUNDATION_DLL WProcessingStreamSpawnerZeroInitialized : public WProcessingStreamProcessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamSpawnerZeroInitialized, ezProcessingStreamProcessor);
+  W_ADD_DYNAMIC_REFLECTION(WProcessingStreamSpawnerZeroInitialized, WProcessingStreamProcessor);
 
 public:
-  ezProcessingStreamSpawnerZeroInitialized();
+  WProcessingStreamSpawnerZeroInitialized();
 
   /// Which stream to zero initialize
-  void SetStreamName(ezStringView sStreamName);
+  void SetStreamName(WStringView sStreamName);
 
 protected:
-  virtual ezResult UpdateStreamBindings() override;
+  virtual WResult UpdateStreamBindings() override;
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override { EZ_IGNORE_UNUSED(uiNumElements); }
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override { W_IGNORE_UNUSED(uiNumElements); }
 
-  ezHashedString m_sStreamName;
+  WHashedString m_sStreamName;
 
-  ezProcessingStream* m_pStream = nullptr;
+  WProcessingStream* m_pStream = nullptr;
 };

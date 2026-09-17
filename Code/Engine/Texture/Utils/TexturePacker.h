@@ -8,36 +8,36 @@
 struct stbrp_node;
 struct stbrp_rect;
 
-class EZ_TEXTURE_DLL ezTexturePacker
+class W_TEXTURE_DLL WTexturePacker
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexturePacker);
+  W_DISALLOW_COPY_AND_ASSIGN(WTexturePacker);
 
 public:
   struct Texture
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec2U32 m_Size;
-    ezVec2U32 m_Position;
+    WVec2U32 m_Size;
+    WVec2U32 m_Position;
   };
 
-  ezTexturePacker();
-  ~ezTexturePacker();
+  WTexturePacker();
+  ~WTexturePacker();
 
-  void SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiReserveTextures = 0);
+  void SetTextureSize(WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiReserveTextures = 0);
 
-  void AddTexture(ezUInt32 uiWidth, ezUInt32 uiHeight);
+  void AddTexture(WUInt32 uiWidth, WUInt32 uiHeight);
 
-  const ezDynamicArray<Texture>& GetTextures() const { return m_Textures; }
+  const WDynamicArray<Texture>& GetTextures() const { return m_Textures; }
 
-  ezResult PackTextures();
+  WResult PackTextures();
 
 private:
-  ezUInt32 m_uiWidth = 0;
-  ezUInt32 m_uiHeight = 0;
+  WUInt32 m_uiWidth = 0;
+  WUInt32 m_uiHeight = 0;
 
-  ezDynamicArray<Texture> m_Textures;
+  WDynamicArray<Texture> m_Textures;
 
-  ezDynamicArray<stbrp_node> m_Nodes;
-  ezDynamicArray<stbrp_rect> m_Rects;
+  WDynamicArray<stbrp_node> m_Nodes;
+  WDynamicArray<stbrp_rect> m_Rects;
 };

@@ -14,34 +14,34 @@ namespace
   ///
   /// The spec allows numbers, strings and null, and the client is entitled to reject a response whose
   /// id doesn't match what it sent.
-  void WriteId(ezMcpJsonWriter& ref_writer, const ezVariantDictionary& msg)
+  void WriteId(WMcpJsonWriter& ref_writer, const WVariantDictionary& msg)
   {
     ref_writer.BeginVariable("id");
 
-    const ezVariant* pId = nullptr;
+    const WVariant* pId = nullptr;
 
     if (!msg.TryGetValue("id", pId) || !pId->IsValid())
     {
       ref_writer.WriteNULL();
     }
-    else if (pId->IsA<ezString>())
+    else if (pId->IsA<WString>())
     {
-      ref_writer.WriteString(pId->Get<ezString>().GetView());
+      ref_writer.WriteString(pId->Get<WString>().GetView());
     }
     else
     {
       // the JSON reader represents every number as a double, but ids are conventionally integers,
       // so write them without a fractional part
-      ref_writer.WriteInt64(static_cast<ezInt64>(pId->ConvertTo<double>()));
+      ref_writer.WriteInt64(static_cast<WInt64>(pId->ConvertTo<double>()));
     }
 
     ref_writer.EndVariable();
   }
 } // namespace
 
-ezMcpServer* ezMcpServer::s_pInstance = nullptr;
+WMcpServer* WMcpServer::s_pInstance = nullptr;
 
-ezMcpServer::ezMcpServer(ezStringView sServerName)
+WMcpServer::WMcpServer(WStringView sServerName)
   : m_sServerName(sServerName)
 {
   // only ever one of these, created by the plugin - the last one wins rather than asserting, because
@@ -49,7 +49,7 @@ ezMcpServer::ezMcpServer(ezStringView sServerName)
   s_pInstance = this;
 }
 
-ezMcpServer::~ezMcpServer()
+WMcpServer::~WMcpServer()
 {
   Stop();
 
@@ -59,31 +59,31 @@ ezMcpServer::~ezMcpServer()
   }
 }
 
-ezResult ezMcpServer::Start(ezUInt16 uiPort)
+WResult WMcpServer::Start(WUInt16 uiPort)
 {
   Stop();
 
-  if (m_Transport.Start(uiPort, ezMakeDelegate(&ezMcpServer::HandleRequest, this)).Failed())
-    return EZ_FAILURE;
+  if (m_Transport.Start(uiPort, WMakeDelegate(&WMcpServer::HandleRequest, this)).Failed())
+    return W_FAILURE;
 
   // plugins that were loaded after this one may bring their own tools along
-  ezMcpToolRegistry::UpdateProviders();
+  WMcpToolRegistry::UpdateProviders();
 
-  ezLog::Success("MCP server listening on http://127.0.0.1:{}/mcp, {} tools available.", m_Transport.GetPort(), ezMcpToolRegistry::GetTools().GetCount());
-  return EZ_SUCCESS;
+  WLog::Success("MCP server listening on http://127.0.0.1:{}/mcp, {} tools available.", m_Transport.GetPort(), WMcpToolRegistry::GetTools().GetCount());
+  return W_SUCCESS;
 }
 
-void ezMcpServer::Stop()
+void WMcpServer::Stop()
 {
   if (!m_Transport.IsRunning())
     return;
 
   m_Transport.Stop();
 
-  ezLog::Info("MCP server stopped.");
+  WLog::Info("MCP server stopped.");
 }
 
-void ezMcpServer::HandleRequest(const ezMcpHttpRequest& request, ezMcpHttpResponse& ref_response)
+void WMcpServer::HandleRequest(const WMcpHttpRequest& request, WMcpHttpResponse& ref_response)
 {
   if (request.m_sPath != "/mcp")
   {
@@ -98,9 +98,9 @@ void ezMcpServer::HandleRequest(const ezMcpHttpRequest& request, ezMcpHttpRespon
     return;
   }
 
-  ezRawMemoryStreamReader reader(request.m_sBody.GetData(), request.m_sBody.GetElementCount());
+  WRawMemoryStreamReader reader(request.m_sBody.GetData(), request.m_sBody.GetElementCount());
 
-  ezJSONReader json;
+  WJSONReader json;
   if (json.Parse(reader).Failed())
   {
     ref_response.m_sStatus = "400 Bad Request";
@@ -108,7 +108,7 @@ void ezMcpServer::HandleRequest(const ezMcpHttpRequest& request, ezMcpHttpRespon
     return;
   }
 
-  ezStringBuilder sResponse;
+  WStringBuilder sResponse;
   bool bDeferred = false;
 
   if (HandleMessage(json.GetTopLevelObject(), sResponse, bDeferred).Failed())
@@ -131,16 +131,16 @@ void ezMcpServer::HandleRequest(const ezMcpHttpRequest& request, ezMcpHttpRespon
   ref_response.m_sBody = sResponse;
 }
 
-ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuilder& out_sResponse, bool& out_bDeferred)
+WResult WMcpServer::HandleMessage(const WVariantDictionary& msg, WStringBuilder& out_sResponse, bool& out_bDeferred)
 {
-  const ezStringView sMethod = ezMcpJson::GetString(msg, "method");
-  const ezVariantDictionary* pParams = ezMcpJson::GetDict(msg, "params");
+  const WStringView sMethod = WMcpJson::GetString(msg, "method");
+  const WVariantDictionary* pParams = WMcpJson::GetDict(msg, "params");
 
   // notifications carry no 'id' and must be answered with an empty body, never with a JSON-RPC response
   if (sMethod.StartsWith("notifications/"))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("jsonrpc", "2.0");
@@ -149,7 +149,7 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
   if (sMethod == "initialize")
   {
     // echo the client's protocol version back, rather than guessing at one
-    const ezStringView sVersion = pParams ? ezMcpJson::GetString(*pParams, "protocolVersion", "2025-06-18") : "2025-06-18";
+    const WStringView sVersion = pParams ? WMcpJson::GetString(*pParams, "protocolVersion", "2025-06-18") : "2025-06-18";
 
     writer.BeginObject("result");
     writer.AddVariableString("protocolVersion", sVersion);
@@ -171,14 +171,14 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
     writer.BeginObject("result");
     writer.BeginArray("tools");
 
-    for (const ezMcpToolDesc& tool : ezMcpToolRegistry::GetTools())
+    for (const WMcpToolDesc& tool : WMcpToolRegistry::GetTools())
     {
       writer.BeginObject();
       writer.AddVariableString("name", tool.m_sName);
       writer.AddVariableString("description", tool.m_sDescription);
 
       // the schema is raw JSON authored by the tool, so it is spliced in rather than escaped
-      writer.AddVariableRawJson("inputSchema", tool.m_sInputSchema.IsEmpty() ? ezStringView("{\"type\":\"object\"}") : tool.m_sInputSchema.GetView());
+      writer.AddVariableRawJson("inputSchema", tool.m_sInputSchema.IsEmpty() ? WStringView("{\"type\":\"object\"}") : tool.m_sInputSchema.GetView());
       writer.EndObject();
     }
 
@@ -187,17 +187,17 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
   }
   else if (sMethod == "tools/call")
   {
-    const ezStringView sToolName = pParams ? ezMcpJson::GetString(*pParams, "name") : ezStringView();
-    const ezVariantDictionary* pArgs = pParams ? ezMcpJson::GetDict(*pParams, "arguments") : nullptr;
+    const WStringView sToolName = pParams ? WMcpJson::GetString(*pParams, "name") : WStringView();
+    const WVariantDictionary* pArgs = pParams ? WMcpJson::GetDict(*pParams, "arguments") : nullptr;
 
     // a call without an 'arguments' object is legal for tools that take none
-    const ezVariantDictionary emptyArgs;
+    const WVariantDictionary emptyArgs;
 
-    ezMcpToolResult result;
+    WMcpToolResult result;
 
-    if (ezMcpToolRegistry::Execute(sToolName, pArgs != nullptr ? *pArgs : emptyArgs, result).Failed())
+    if (WMcpToolRegistry::Execute(sToolName, pArgs != nullptr ? *pArgs : emptyArgs, result).Failed())
     {
-      result.SetError(ezStringBuilder("Unknown tool: ", sToolName));
+      result.SetError(WStringBuilder("Unknown tool: ", sToolName));
     }
 
     if (result.m_bNotFinished)
@@ -206,7 +206,7 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
       // above was never closed, and the half-written result is thrown away anyway.
       writer.EndAll();
       out_bDeferred = true;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     writer.BeginObject("result");
@@ -229,7 +229,7 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
   }
   else
   {
-    ezStringBuilder sMessage("Method not found: ", sMethod);
+    WStringBuilder sMessage("Method not found: ", sMethod);
 
     writer.BeginObject("error");
     writer.AddVariableInt32("code", -32601);
@@ -241,5 +241,5 @@ ezResult ezMcpServer::HandleMessage(const ezVariantDictionary& msg, ezStringBuil
 
   out_sResponse = writer.GetResult();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

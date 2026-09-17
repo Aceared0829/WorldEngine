@@ -7,34 +7,34 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 3, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_ColorGradient>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_ColorGradient, 3, WRTTIDefaultAllocator<WParticleBehaviorFactory_ColorGradient>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("GradientSource", ezGradientSource, m_GradientSource),
-    EZ_MEMBER_PROPERTY("Gradient", m_Gradient),
-    EZ_RESOURCE_MEMBER_PROPERTY("SharedGradient", m_hSharedGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("TintColor", m_TintColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("ColorGradientMode", ezParticleColorGradientMode, m_GradientMode),
-    EZ_MEMBER_PROPERTY("GradientMaxSpeed", m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("ApplyAlpha", m_bApplyAlpha)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ENUM_MEMBER_PROPERTY("GradientSource", WGradientSource, m_GradientSource),
+    W_MEMBER_PROPERTY("Gradient", m_Gradient),
+    W_RESOURCE_MEMBER_PROPERTY("SharedGradient", m_hSharedGradient)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Gradient"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("TintColor", m_TintColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ENUM_MEMBER_PROPERTY("ColorGradientMode", WParticleColorGradientMode, m_GradientMode),
+    W_MEMBER_PROPERTY("GradientMaxSpeed", m_fMaxSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("ApplyAlpha", m_bApplyAlpha)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_ColorGradient, 1, ezRTTIDefaultAllocator<ezParticleBehavior_ColorGradient>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_ColorGradient, 1, WRTTIDefaultAllocator<WParticleBehavior_ColorGradient>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_ColorGradient::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_ColorGradient::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_ColorGradient>();
+  return WGetStaticRTTI<WParticleBehavior_ColorGradient>();
 }
 
-void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_ColorGradient* pBehavior = static_cast<ezParticleBehavior_ColorGradient*>(pObject);
+  WParticleBehavior_ColorGradient* pBehavior = static_cast<WParticleBehavior_ColorGradient*>(pObject);
 
   pBehavior->m_pGradient = &m_Gradient;
   pBehavior->m_GradientMode = m_GradientMode;
@@ -43,12 +43,12 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
   pBehavior->m_bApplyAlpha = m_bApplyAlpha;
 
   // the gradient resource may not be specified yet, so defer evaluation until an element is created
-  pBehavior->m_InitColor = ezColor::RebeccaPurple;
+  pBehavior->m_InitColor = WColor::RebeccaPurple;
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_ColorGradient::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 6;
+  const WUInt8 uiVersion = 6;
   inout_stream << uiVersion;
 
   // version 3
@@ -67,19 +67,19 @@ void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream)
   m_Gradient.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_ColorGradient::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   if (uiVersion < 6)
   {
     // Old version: read the gradient handle
-    ezColorGradientResourceHandle hGradient;
+    WColorGradientResourceHandle hGradient;
     inout_stream >> hGradient;
 
     // Convert to new format using shared gradient
-    m_GradientSource = ezGradientSource::SharedGradient;
+    m_GradientSource = WGradientSource::SharedGradient;
     m_hSharedGradient = hGradient;
   }
 
@@ -106,45 +106,45 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream,
     m_Gradient.Load(inout_stream);
   }
 
-  if (m_GradientSource == ezGradientSource::SharedGradient && m_hSharedGradient.IsValid())
+  if (m_GradientSource == WGradientSource::SharedGradient && m_hSharedGradient.IsValid())
   {
-    ezResourceLock<ezColorGradientResource> pGradientResource(m_hSharedGradient, ezResourceAcquireMode::BlockTillLoaded);
-    if (pGradientResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WColorGradientResource> pGradientResource(m_hSharedGradient, WResourceAcquireMode::BlockTillLoaded);
+    if (pGradientResource.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       m_Gradient = pGradientResource->GetDescriptor().m_Gradient;
     }
   }
 }
 
-void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
+void WParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
   m_pStreamColor = nullptr;
   m_pStreamVelocity = nullptr;
 
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  CreateStream("Color", WProcessingStream::DataType::Half4, &m_pStreamColor, false);
 
-  if (m_GradientMode == ezParticleColorGradientMode::Age)
+  if (m_GradientMode == WParticleColorGradientMode::Age)
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   }
-  else if (m_GradientMode == ezParticleColorGradientMode::Speed)
+  else if (m_GradientMode == WParticleColorGradientMode::Speed)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
   }
 }
 
-void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleBehavior_ColorGradient::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Color Gradient Init");
+  W_PROFILE_SCOPE("PFX: Color Gradient Init");
 
   // query the init color from the gradient
-  if (m_InitColor == ezColor::RebeccaPurple)
+  if (m_InitColor == WColor::RebeccaPurple)
   {
     m_InitColor = m_TintColor;
 
     if (m_pGradient != nullptr && !m_pGradient->IsEmpty())
     {
-      ezColor rgba;
+      WColor rgba;
       m_pGradient->EvaluateColor(0, rgba);
 
       float fIntensity = 1.0f;
@@ -153,18 +153,18 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
 
       if (m_bApplyAlpha)
       {
-        ezUInt8 alpha;
+        WUInt8 alpha;
         m_pGradient->EvaluateAlpha(0, alpha);
-        rgba.a = ezMath::ColorByteToFloat(alpha);
+        rgba.a = WMath::ColorByteToFloat(alpha);
       }
 
       m_InitColor = m_TintColor * rgba;
     }
   }
 
-  const ezColorLinear16f initCol16 = m_InitColor;
+  const WColorLinear16f initCol16 = m_InitColor;
 
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
+  WProcessingStreamIterator<WColorLinear16f> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
   while (!itColor.HasReachedEnd())
   {
     itColor.Current() = initCol16;
@@ -172,7 +172,7 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
   }
 }
 
-void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_ColorGradient::Process(WUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
   {
@@ -186,16 +186,16 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   if (m_pGradient == nullptr || m_pGradient->IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("PFX: Color Gradient");
+  W_PROFILE_SCOPE("PFX: Color Gradient");
 
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  WProcessingStreamIterator<WColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // Staggered update: skip to the first particle to update this frame
   itColor.Advance(m_uiFirstToUpdate);
 
-  if (m_GradientMode == ezParticleColorGradientMode::Age)
+  if (m_GradientMode == WParticleColorGradientMode::Age)
   {
-    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+    WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
 
     itLifeTime.Advance(m_uiFirstToUpdate);
 
@@ -206,7 +206,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
         const float posx = 1.0f - fLifeTimeFraction;
 
-        ezColor rgba;
+        WColor rgba;
         m_pGradient->EvaluateColor(posx, rgba);
 
         float fIntensity = 1.0f;
@@ -215,9 +215,9 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
         if (m_bApplyAlpha)
         {
-          ezUInt8 alpha = 0;
+          WUInt8 alpha = 0;
           m_pGradient->EvaluateAlpha(posx, alpha);
-          rgba.a = ezMath::ColorByteToFloat(alpha);
+          rgba.a = WMath::ColorByteToFloat(alpha);
         }
         else
         {
@@ -232,9 +232,9 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
       itColor.Advance(m_uiCurrentUpdateInterval);
     }
   }
-  else if (m_GradientMode == ezParticleColorGradientMode::Speed)
+  else if (m_GradientMode == WParticleColorGradientMode::Speed)
   {
-    ezProcessingStreamIterator<const ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+    WProcessingStreamIterator<const WFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
     itVelocity.Advance(m_uiFirstToUpdate);
 
@@ -242,11 +242,11 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
     {
       // if (itLifeTime.Current().y > 0)
       {
-        const ezVec4 vel = itVelocity.Current();
+        const WVec4 vel = itVelocity.Current();
         const float fSpeed = vel.w;
         const float posx = fSpeed / m_fMaxSpeed; // no need to clamp the range, the color lookup will already do that
 
-        ezColor rgba;
+        WColor rgba;
         m_pGradient->EvaluateColor(posx, rgba);
 
         float fIntensity = 1.0f;
@@ -255,9 +255,9 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
         if (m_bApplyAlpha)
         {
-          ezUInt8 alpha = 0;
+          WUInt8 alpha = 0;
           m_pGradient->EvaluateAlpha(posx, alpha);
-          rgba.a = ezMath::ColorByteToFloat(alpha);
+          rgba.a = WMath::ColorByteToFloat(alpha);
         }
         else
         {
@@ -287,4 +287,4 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_ColorGradient);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_ColorGradient);

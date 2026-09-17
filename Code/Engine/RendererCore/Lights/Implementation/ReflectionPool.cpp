@@ -24,7 +24,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ReflectionPool)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ReflectionPool)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -34,60 +34,60 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ReflectionPool)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezReflectionPool::OnEngineStartup();
+    WReflectionPool::OnEngineStartup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezReflectionPool::OnEngineShutdown();
+    WReflectionPool::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
-/// ezReflectionPool
+/// WReflectionPool
 
-ezReflectionProbeId ezReflectionPool::RegisterReflectionProbe(const ezWorld* pWorld, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent)
+WReflectionProbeId WReflectionPool::RegisterReflectionProbe(const WWorld* pWorld, const WReflectionProbeDesc& desc, const WReflectionProbeComponentBase* pComponent)
 {
-  EZ_LOCK(s_pData->m_Mutex);
+  W_LOCK(s_pData->m_Mutex);
 
   Data::ProbeData probe;
   s_pData->UpdateProbeData(probe, desc, pComponent);
   return s_pData->AddProbe(pWorld, std::move(probe));
 }
 
-void ezReflectionPool::DeregisterReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id)
+void WReflectionPool::DeregisterReflectionProbe(const WWorld* pWorld, WReflectionProbeId id)
 {
-  EZ_LOCK(s_pData->m_Mutex);
+  W_LOCK(s_pData->m_Mutex);
   s_pData->RemoveProbe(pWorld, id);
 }
 
-void ezReflectionPool::UpdateReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent)
+void WReflectionPool::UpdateReflectionProbe(const WWorld* pWorld, WReflectionProbeId id, const WReflectionProbeDesc& desc, const WReflectionProbeComponentBase* pComponent)
 {
-  EZ_LOCK(s_pData->m_Mutex);
-  ezReflectionPool::Data::WorldReflectionData& data = s_pData->GetWorldData(pWorld);
+  W_LOCK(s_pData->m_Mutex);
+  WReflectionPool::Data::WorldReflectionData& data = s_pData->GetWorldData(pWorld);
   Data::ProbeData& probeData = data.m_Probes.GetValueUnchecked(id.m_InstanceIndex);
   s_pData->UpdateProbeData(probeData, desc, pComponent);
   data.m_mapping.UpdateProbe(id, probeData.m_Flags);
 }
 
-void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& ref_msg, ezReflectionProbeRenderData* pRenderData0, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority)
+void WReflectionPool::ExtractReflectionProbe(const WComponent* pComponent, WMsgExtractRenderData& ref_msg, WReflectionProbeRenderData* pRenderData0, const WWorld* pWorld, WReflectionProbeId id, float fPriority)
 {
-  EZ_LOCK(s_pData->m_Mutex);
+  W_LOCK(s_pData->m_Mutex);
   s_pData->m_ReflectionProbeUpdater.ScheduleUpdateSteps();
 
-  const ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
+  const WUInt32 uiWorldIndex = pWorld->GetIndex();
+  WReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
   data.m_mapping.AddWeight(id, fPriority);
-  const ezInt32 iMappedIndex = data.m_mapping.GetReflectionIndex(id, true);
+  const WInt32 iMappedIndex = data.m_mapping.GetReflectionIndex(id, true);
 
   Data::ProbeData& probeData = data.m_Probes.GetValueUnchecked(id.m_InstanceIndex);
 
   if (pComponent->GetOwner()->IsDynamic())
   {
-    ezTransform globalTransform = pComponent->GetOwner()->GetGlobalTransform();
-    if (!probeData.m_Flags.IsSet(ezProbeFlags::Dynamic) && probeData.m_GlobalTransform != globalTransform)
+    WTransform globalTransform = pComponent->GetOwner()->GetGlobalTransform();
+    if (!probeData.m_Flags.IsSet(WProbeFlags::Dynamic) && probeData.m_GlobalTransform != globalTransform)
     {
       data.m_mapping.UpdateProbe(id, probeData.m_Flags);
     }
@@ -98,59 +98,59 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
   if (pRenderData0 && iMappedIndex > 0)
   {
     // Index and flags are stored in m_uiIndex so we can't just overwrite it.
-    pRenderData0->m_uiIndex |= (ezUInt32)iMappedIndex;
-    ref_msg.AddRenderData(pRenderData0, ezDefaultRenderDataCategories::ReflectionProbe, ezRenderData::Caching::Never);
+    pRenderData0->m_uiIndex |= (WUInt32)iMappedIndex;
+    ref_msg.AddRenderData(pRenderData0, WDefaultRenderDataCategories::ReflectionProbe, WRenderData::Caching::Never);
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezUInt32 uiMipLevels = GetMipLevels();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WUInt32 uiMipLevels = GetMipLevels();
   if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.IsValid())
   {
-    if (ref_msg.m_OverrideCategory == ezInvalidRenderDataCategory)
+    if (ref_msg.m_OverrideCategory == WInvalidRenderDataCategory)
     {
-      ezInt32 activeIndex = 0;
-      if (s_pData->m_ActiveDynamicUpdate.Contains(ezReflectionProbeRef{uiWorldIndex, id}))
+      WInt32 activeIndex = 0;
+      if (s_pData->m_ActiveDynamicUpdate.Contains(WReflectionProbeRef{uiWorldIndex, id}))
       {
         activeIndex = 1;
       }
 
-      ezStringBuilder sEnum;
-      ezReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-      ezStringBuilder s;
+      WStringBuilder sEnum;
+      WReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, WReflectionUtils::EnumConversionMode::ValueNameOnly);
+      WStringBuilder s;
       s.SetFormat("\n RefIdx: {}\nUpdating: {}\nFlags: {}\n", iMappedIndex, activeIndex, sEnum);
-      ezDebugRenderer::Draw3DText(pWorld, s, pComponent->GetOwner()->GetGlobalPosition(), ezColorScheme::LightUI(ezColorScheme::Violet));
+      WDebugRenderer::Draw3DText(pWorld, s, pComponent->GetOwner()->GetGlobalPosition(), WColorScheme::LightUI(WColorScheme::Violet));
     }
 
     // Not mapped in the atlas - cannot render it.
     if (iMappedIndex < 0)
       return;
 
-    const ezGameObject* pOwner = pComponent->GetOwner();
-    const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent);
+    const WGameObject* pOwner = pComponent->GetOwner();
+    const WUInt32 uiUniqueID = WRenderComponent::GetUniqueIdForRendering(*pComponent);
 
     // This is debug rendering code so we don't want to trash the static instance data buffer every frame.
     const bool bDynamic = true;
-    ezGALDynamicBufferHandle hInstanceDataBuffer;
+    WGALDynamicBufferHandle hInstanceDataBuffer;
     auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(pComponent, bDynamic, hInstanceDataBuffer, probeData.m_DebugInstanceDataOffset, uiMipLevels);
 
-    ezUInt32 uiMipLevelsToRender = probeData.m_desc.m_bShowMipMaps ? uiMipLevels : 1;
-    for (ezUInt32 i = 0; i < uiMipLevelsToRender; i++)
+    WUInt32 uiMipLevelsToRender = probeData.m_desc.m_bShowMipMaps ? uiMipLevels : 1;
+    for (WUInt32 i = 0; i < uiMipLevelsToRender; i++)
     {
-      ezTransform t;
+      WTransform t;
       t.m_vPosition = probeData.m_GlobalTransform * probeData.m_desc.m_vCaptureOffset;
       t.m_vPosition.z += s_fDebugSphereRadius * i * 2;
-      t.m_qRotation = probeData.m_Flags.IsSet(ezProbeFlags::SkyLight) ? ezQuat::MakeIdentity() : probeData.m_GlobalTransform.m_qRotation;
-      t.m_vScale = ezVec3(1.0f);
+      t.m_qRotation = probeData.m_Flags.IsSet(WProbeFlags::SkyLight) ? WQuat::MakeIdentity() : probeData.m_GlobalTransform.m_qRotation;
+      t.m_vScale = WVec3(1.0f);
 
-      ezVec4 customData = ezVec4(static_cast<float>(iMappedIndex), static_cast<float>(i), 0, 0);
+      WVec4 customData = WVec4(static_cast<float>(iMappedIndex), static_cast<float>(i), 0, 0);
 
-      ezRenderDataManager::FillPerInstanceData(instanceData[i], pOwner, t, uiUniqueID, ezColor::White, customData);
+      WRenderDataManager::FillPerInstanceData(instanceData[i], pOwner, t, uiUniqueID, WColor::White, customData);
     }
 
-    ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+    WMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WMeshRenderData>(pOwner);
     pRenderData->Fill(probeData.m_DebugInstanceDataOffset, hInstanceDataBuffer, s_pData->m_hDebugMaterial, s_pData->m_hDebugSphere, 0, 0, uiMipLevelsToRender);
 
-    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+    ref_msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::LitOpaque, WRenderData::Caching::Never);
   }
 #endif
 }
@@ -158,35 +158,35 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
 //////////////////////////////////////////////////////////////////////////
 /// SkyLight
 
-ezReflectionProbeId ezReflectionPool::RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& ref_desc, const ezSkyLightComponent* pComponent)
+WReflectionProbeId WReflectionPool::RegisterSkyLight(const WWorld* pWorld, WReflectionProbeDesc& ref_desc, const WSkyLightComponent* pComponent)
 {
-  EZ_LOCK(s_pData->m_Mutex);
-  const ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  s_pData->m_uiWorldHasSkyLight |= EZ_BIT(uiWorldIndex);
-  s_pData->m_uiSkyIrradianceChanged |= EZ_BIT(uiWorldIndex);
+  W_LOCK(s_pData->m_Mutex);
+  const WUInt32 uiWorldIndex = pWorld->GetIndex();
+  s_pData->m_uiWorldHasSkyLight |= W_BIT(uiWorldIndex);
+  s_pData->m_uiSkyIrradianceChanged |= W_BIT(uiWorldIndex);
 
   Data::ProbeData probe;
   s_pData->UpdateSkyLightData(probe, ref_desc, pComponent);
 
-  ezReflectionProbeId id = s_pData->AddProbe(pWorld, std::move(probe));
+  WReflectionProbeId id = s_pData->AddProbe(pWorld, std::move(probe));
   return id;
 }
 
-void ezReflectionPool::DeregisterSkyLight(const ezWorld* pWorld, ezReflectionProbeId id)
+void WReflectionPool::DeregisterSkyLight(const WWorld* pWorld, WReflectionProbeId id)
 {
-  EZ_LOCK(s_pData->m_Mutex);
+  W_LOCK(s_pData->m_Mutex);
 
   s_pData->RemoveProbe(pWorld, id);
 
-  const ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  s_pData->m_uiWorldHasSkyLight &= ~EZ_BIT(uiWorldIndex);
-  s_pData->m_uiSkyIrradianceChanged |= EZ_BIT(uiWorldIndex);
+  const WUInt32 uiWorldIndex = pWorld->GetIndex();
+  s_pData->m_uiWorldHasSkyLight &= ~W_BIT(uiWorldIndex);
+  s_pData->m_uiSkyIrradianceChanged |= W_BIT(uiWorldIndex);
 }
 
-void ezReflectionPool::UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent)
+void WReflectionPool::UpdateSkyLight(const WWorld* pWorld, WReflectionProbeId id, const WReflectionProbeDesc& desc, const WSkyLightComponent* pComponent)
 {
-  EZ_LOCK(s_pData->m_Mutex);
-  ezReflectionPool::Data::WorldReflectionData& data = s_pData->GetWorldData(pWorld);
+  W_LOCK(s_pData->m_Mutex);
+  WReflectionPool::Data::WorldReflectionData& data = s_pData->GetWorldData(pWorld);
   Data::ProbeData& probeData = data.m_Probes.GetValueUnchecked(id.m_InstanceIndex);
   if (s_pData->UpdateSkyLightData(probeData, desc, pComponent))
   {
@@ -199,45 +199,45 @@ void ezReflectionPool::UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId
 /// Misc
 
 // static
-void ezReflectionPool::SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance)
+void WReflectionPool::SetConstantSkyIrradiance(const WWorld* pWorld, const WAmbientCube<WColor>& skyIrradiance)
 {
-  EZ_LOCK(s_pData->m_Mutex);
-  ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  ezAmbientCube<ezColorLinear16f> skyIrradiance16f = skyIrradiance;
+  W_LOCK(s_pData->m_Mutex);
+  WUInt32 uiWorldIndex = pWorld->GetIndex();
+  WAmbientCube<WColorLinear16f> skyIrradiance16f = skyIrradiance;
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
   if (skyIrradianceStorage[uiWorldIndex] != skyIrradiance16f)
   {
     skyIrradianceStorage[uiWorldIndex] = skyIrradiance16f;
 
-    s_pData->m_uiSkyIrradianceChanged |= EZ_BIT(uiWorldIndex);
+    s_pData->m_uiSkyIrradianceChanged |= W_BIT(uiWorldIndex);
   }
 }
 
-void ezReflectionPool::ResetConstantSkyIrradiance(const ezWorld* pWorld)
+void WReflectionPool::ResetConstantSkyIrradiance(const WWorld* pWorld)
 {
-  EZ_LOCK(s_pData->m_Mutex);
-  ezUInt32 uiWorldIndex = pWorld->GetIndex();
+  W_LOCK(s_pData->m_Mutex);
+  WUInt32 uiWorldIndex = pWorld->GetIndex();
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
-  if (skyIrradianceStorage[uiWorldIndex] != ezAmbientCube<ezColorLinear16f>())
+  if (skyIrradianceStorage[uiWorldIndex] != WAmbientCube<WColorLinear16f>())
   {
-    skyIrradianceStorage[uiWorldIndex] = ezAmbientCube<ezColorLinear16f>();
+    skyIrradianceStorage[uiWorldIndex] = WAmbientCube<WColorLinear16f>();
 
-    s_pData->m_uiSkyIrradianceChanged |= EZ_BIT(uiWorldIndex);
+    s_pData->m_uiSkyIrradianceChanged |= W_BIT(uiWorldIndex);
   }
 }
 
 // static
-ezUInt32 ezReflectionPool::GetReflectionCubeMapSize()
+WUInt32 WReflectionPool::GetReflectionCubeMapSize()
 {
   return s_uiReflectionCubeMapSize;
 }
 
 // static
-ezGALTextureHandle ezReflectionPool::GetReflectionSpecularTexture(ezUInt32 uiWorldIndex, ezEnum<ezCameraUsageHint> cameraUsageHint)
+WGALTextureHandle WReflectionPool::GetReflectionSpecularTexture(WUInt32 uiWorldIndex, WEnum<WCameraUsageHint> cameraUsageHint)
 {
-  if (uiWorldIndex < s_pData->m_WorldReflectionData.GetCount() && cameraUsageHint != ezCameraUsageHint::Reflection)
+  if (uiWorldIndex < s_pData->m_WorldReflectionData.GetCount() && cameraUsageHint != WCameraUsageHint::Reflection)
   {
     Data::WorldReflectionData* pData = s_pData->m_WorldReflectionData[uiWorldIndex].Borrow();
     if (pData)
@@ -247,7 +247,7 @@ ezGALTextureHandle ezReflectionPool::GetReflectionSpecularTexture(ezUInt32 uiWor
 }
 
 // static
-ezGALTextureHandle ezReflectionPool::GetSkyIrradianceTexture()
+WGALTextureHandle WReflectionPool::GetSkyIrradianceTexture()
 {
   return s_pData->m_hSkyIrradianceTexture;
 }
@@ -256,86 +256,86 @@ ezGALTextureHandle ezReflectionPool::GetSkyIrradianceTexture()
 /// Private Functions
 
 // static
-void ezReflectionPool::OnEngineStartup()
+void WReflectionPool::OnEngineStartup()
 {
-  s_pData = EZ_DEFAULT_NEW(ezReflectionPool::Data);
+  s_pData = W_DEFAULT_NEW(WReflectionPool::Data);
 
-  ezRenderWorld::GetExtractionEvent().AddEventHandler(OnExtractionEvent);
-  ezRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
+  WRenderWorld::GetExtractionEvent().AddEventHandler(OnExtractionEvent);
+  WRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
 }
 
 // static
-void ezReflectionPool::OnEngineShutdown()
+void WReflectionPool::OnEngineShutdown()
 {
-  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(OnExtractionEvent);
-  ezRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
+  WRenderWorld::GetExtractionEvent().RemoveEventHandler(OnExtractionEvent);
+  WRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
 
-  EZ_DEFAULT_DELETE(s_pData);
+  W_DEFAULT_DELETE(s_pData);
 }
 
 // static
-void ezReflectionPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
+void WReflectionPool::OnExtractionEvent(const WRenderWorldExtractionEvent& e)
 {
-  if (e.m_Type == ezRenderWorldExtractionEvent::Type::BeginExtraction)
+  if (e.m_Type == WRenderWorldExtractionEvent::Type::BeginExtraction)
   {
-    EZ_PROFILE_SCOPE("Reflection Pool BeginExtraction");
+    W_PROFILE_SCOPE("Reflection Pool BeginExtraction");
     s_pData->CreateSkyIrradianceTexture();
     s_pData->CreateReflectionViewsAndResources();
     s_pData->PreExtraction();
   }
 
-  if (e.m_Type == ezRenderWorldExtractionEvent::Type::EndExtraction)
+  if (e.m_Type == WRenderWorldExtractionEvent::Type::EndExtraction)
   {
-    EZ_PROFILE_SCOPE("Reflection Pool EndExtraction");
+    W_PROFILE_SCOPE("Reflection Pool EndExtraction");
     s_pData->PostExtraction();
   }
 }
 
 // static
-void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
+void WReflectionPool::OnRenderEvent(const WRenderWorldRenderEvent& e)
 {
-  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+  if (e.m_Type != WRenderWorldRenderEvent::Type::BeginRender)
     return;
 
   if (s_pData->m_hSkyIrradianceTexture.IsInvalidated())
     return;
 
-  EZ_LOCK(s_pData->m_Mutex);
+  W_LOCK(s_pData->m_Mutex);
 
-  ezUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
-  ezUInt64& uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
+  WUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
+  WUInt64& uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
   if ((~uiWorldHasSkyLight & uiSkyIrradianceChanged) == 0)
     return;
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   if (s_pData->m_pRenderGraph == nullptr)
-    s_pData->m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("ReflectionPool", ezRenderGraphPhase::PreRender);
+    s_pData->m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("ReflectionPool", WRenderGraphPhase::PreRender);
 
   s_pData->m_pRenderGraph->Reset();
 
   struct IrradianceUpdates
   {
-    ezBoundingBoxu32 m_destBox;
-    ezAmbientCube<ezColorLinear16f> m_cube;
+    WBoundingBoxu32 m_destBox;
+    WAmbientCube<WColorLinear16f> m_cube;
   };
-  ezHybridArray<IrradianceUpdates, 4> irradianceUpdates;
-  ezTempHybridArray<ezGALTextureHandle, 4> atlasToClear;
+  WHybridArray<IrradianceUpdates, 4> irradianceUpdates;
+  WTempHybridArray<WGALTextureHandle, 4> atlasToClear;
 
-  for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
+  for (WUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
-    if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
+    if ((uiWorldHasSkyLight & W_BIT(i)) == 0 && (uiSkyIrradianceChanged & W_BIT(i)) != 0)
     {
       IrradianceUpdates& cube = irradianceUpdates.ExpandAndGetRef();
       cube.m_destBox.m_vMin.Set(0, i, 0);
       cube.m_destBox.m_vMax.Set(6, i + 1, 1);
       cube.m_cube = skyIrradianceStorage[i];
 
-      uiSkyIrradianceChanged &= ~EZ_BIT(i);
+      uiSkyIrradianceChanged &= ~W_BIT(i);
 
       if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
       {
-        ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
+        WReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
         atlasToClear.PushBack(data.m_mapping.GetTexture());
       }
     }
@@ -343,18 +343,18 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   // Transfer pass: update sky irradiance texture
   {
-    ezRenderGraphTextureHandle hSkyIrradiance = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_hSkyIrradianceTexture);
+    WRenderGraphTextureHandle hSkyIrradiance = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_hSkyIrradianceTexture);
     auto pass = s_pData->m_pRenderGraph->AddTransferPass("Sky Irradiance Texture Update");
-    pass.WriteTexture(hSkyIrradiance, {}, ezGALResourceState::CopyDestination);
+    pass.WriteTexture(hSkyIrradiance, {}, WGALResourceState::CopyDestination);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([hSkyIrradiance, irradianceUpdates](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([hSkyIrradiance, irradianceUpdates](const WRenderGraphContext& ctx)
       {
-        for (ezUInt32 i = 0; i < irradianceUpdates.GetCount(); ++i)
+        for (WUInt32 i = 0; i < irradianceUpdates.GetCount(); ++i)
         {
-          ezGALSystemMemoryDescription memDesc;
-          memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-          memDesc.m_pData = ezMakeByteBlobPtr(reinterpret_cast<const ezUInt8*>(&irradianceUpdates[i].m_cube.m_Values[0]), memDesc.m_uiRowPitch * 1);
-          ctx.GetCommandEncoder()->UpdateTexture(ctx.ResolveTexture(hSkyIrradiance), ezGALTextureSubresource(), irradianceUpdates[i].m_destBox, memDesc);
+          WGALSystemMemoryDescription memDesc;
+          memDesc.m_uiRowPitch = sizeof(WAmbientCube<WColorLinear16f>);
+          memDesc.m_pData = WMakeByteBlobPtr(reinterpret_cast<const WUInt8*>(&irradianceUpdates[i].m_cube.m_Values[0]), memDesc.m_uiRowPitch * 1);
+          ctx.GetCommandEncoder()->UpdateTexture(ctx.ResolveTexture(hSkyIrradiance), WGALTextureSubresource(), irradianceUpdates[i].m_destBox, memDesc);
         } //
       } //
     );
@@ -362,30 +362,30 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   // Graphics passes: clear specular sky reflection to black.
   {
-    const ezUInt32 uiNumMipMaps = GetMipLevels();
-    for (ezGALTextureHandle atlas : atlasToClear)
+    const WUInt32 uiNumMipMaps = GetMipLevels();
+    for (WGALTextureHandle atlas : atlasToClear)
     {
-      ezRenderGraphTextureHandle hAtlas = s_pData->m_pRenderGraph->ImportTexture(atlas);
-      for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+      WRenderGraphTextureHandle hAtlas = s_pData->m_pRenderGraph->ImportTexture(atlas);
+      for (WUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+        for (WUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
         {
-          ezGALRenderTargetRange range;
-          range.m_uiBaseArraySlice = static_cast<ezUInt16>(uiFaceIndex);
+          WGALRenderTargetRange range;
+          range.m_uiBaseArraySlice = static_cast<WUInt16>(uiFaceIndex);
           range.m_uiArraySlices = 1;
-          range.m_uiBaseMipLevel = static_cast<ezUInt8>(uiMipMapIndex);
+          range.m_uiBaseMipLevel = static_cast<WUInt8>(uiMipMapIndex);
 
           auto clearPass = s_pData->m_pRenderGraph->AddGraphicsPass("ClearSkySpecular");
-          clearPass.AddColorTarget(hAtlas, range, {}, {}, {}, ezGALTextureType::Texture2DArray);
-          clearPass.SetClearColor(0, ezColor(0, 0, 0, 1));
+          clearPass.AddColorTarget(hAtlas, range, {}, {}, {}, WGALTextureType::Texture2DArray);
+          clearPass.SetClearColor(0, WColor(0, 0, 0, 1));
           clearPass.HasSideEffects();
         }
       }
     }
   }
 
-  ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
+  WRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionPool);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionPool);

@@ -1,5 +1,5 @@
 Plugin
 {
-	string %Path{"ezKrautPlugin"}
+	string %Path{"WKrautPlugin"}
 	bool %LoadCopy{false}
 }

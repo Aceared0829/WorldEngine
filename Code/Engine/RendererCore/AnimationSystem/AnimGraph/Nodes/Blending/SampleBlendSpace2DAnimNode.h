@@ -5,81 +5,81 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
-struct EZ_RENDERERCORE_DLL ezAnimationClip2D
+struct W_RENDERERCORE_DLL WAnimationClip2D
 {
-  ezHashedString m_sClip;
-  ezVec2 m_vPosition;
+  WHashedString m_sClip;
+  WVec2 m_vPosition;
 
   void SetAnimationFile(const char* szFile);
   const char* GetAnimationFile() const;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimationClip2D);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WAnimationClip2D);
 
 /// Blends between animation clips based on two parameters (2D blend space).
 ///
 /// This node defines clips at 2D positions and uses triangular interpolation to blend between them.
 /// Commonly used for directional locomotion (forward/backward, left/right) or aim offsets (pitch/yaw).
 /// The center clip provides the base animation, with surrounding clips modifying it based on input coordinates.
-class EZ_RENDERERCORE_DLL ezSampleBlendSpace2DAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WSampleBlendSpace2DAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSampleBlendSpace2DAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WSampleBlendSpace2DAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSampleBlendSpace1DAnimNode
+  // WSampleBlendSpace1DAnimNode
 
 public:
-  ezSampleBlendSpace2DAnimNode();
-  ~ezSampleBlendSpace2DAnimNode();
+  WSampleBlendSpace2DAnimNode();
+  ~WSampleBlendSpace2DAnimNode();
 
   void SetCenterClipFile(const char* szFile);
   const char* GetCenterClipFile() const;
 
 private:
-  ezHashedString m_sCenterClip;                               // [ property ]
-  ezHybridArray<ezAnimationClip2D, 8> m_Clips;                // [ property ]
-  ezTime m_InputResponse = ezTime::MakeFromMilliseconds(100); // [ property ]
+  WHashedString m_sCenterClip;                               // [ property ]
+  WHybridArray<WAnimationClip2D, 8> m_Clips;                // [ property ]
+  WTime m_InputResponse = WTime::MakeFromMilliseconds(100); // [ property ]
   bool m_bLoop = true;                                        // [ property ]
   float m_fRootMotionAmount = 0.0f;                           // [ property ]
   float m_fPlaybackSpeed = 1.0f;                              // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;                       // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;                           // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;                        // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordX;                       // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordY;                       // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;                    // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnStarted;                 // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFinished;                // [ property ]
+  WAnimGraphTriggerInputPin m_InStart;                       // [ property ]
+  WAnimGraphBoolInputPin m_InLoop;                           // [ property ]
+  WAnimGraphNumberInputPin m_InSpeed;                        // [ property ]
+  WAnimGraphNumberInputPin m_InCoordX;                       // [ property ]
+  WAnimGraphNumberInputPin m_InCoordY;                       // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;                    // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnStarted;                 // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFinished;                // [ property ]
 
   struct ClipToPlay
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiIndex;
+    WUInt32 m_uiIndex;
     float m_fWeight = 1.0f;
-    const ezAnimController::AnimClipInfo* m_pClipInfo = nullptr;
+    const WAnimController::AnimClipInfo* m_pClipInfo = nullptr;
   };
 
   struct InstanceData
   {
-    ezTime m_CenterPlaybackTime = ezTime::MakeFromHours(1000);
+    WTime m_CenterPlaybackTime = WTime::MakeFromHours(1000);
     float m_fOtherPlaybackPosNorm = 0.0f;
     float m_fLastValueX = 0.0f;
     float m_fLastValueY = 0.0f;
   };
 
-  void UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceData* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const;
-  void PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceData* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const;
-  void ComputeClipsAndWeights(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip) const;
+  void UpdateCenterClipPlaybackTime(const WAnimController::AnimClipInfo& centerInfo, InstanceData* pState, WAnimGraphInstance& ref_graph, WTime tDiff, WAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const;
+  void PlayClips(WAnimController& ref_controller, const WAnimController::AnimClipInfo& centerInfo, InstanceData* pState, WAnimGraphInstance& ref_graph, WTime tDiff, WArrayPtr<ClipToPlay> clips, WUInt32 uiMaxWeightClip) const;
+  void ComputeClipsAndWeights(WAnimController& ref_controller, const WAnimController::AnimClipInfo& centerInfo, const WVec2& p, WDynamicArray<ClipToPlay>& out_Clips, WUInt32& out_uiMaxWeightClip) const;
 };

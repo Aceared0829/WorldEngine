@@ -4,27 +4,27 @@
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <GameEngine/Input/XBoxController/InputDeviceXBox.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Time/Clock.h>
 #  include <Xinput.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBoxController, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDeviceXBoxController, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInputDeviceXBoxController::ezInputDeviceXBoxController()
+WInputDeviceXBoxController::WInputDeviceXBoxController()
 {
-  for (ezInt32 i = 0; i < MaxControllers; ++i)
+  for (WInt32 i = 0; i < MaxControllers; ++i)
     m_bControllerConnected[i] = false;
 }
 
-ezInputDeviceXBoxController::~ezInputDeviceXBoxController() = default;
+WInputDeviceXBoxController::~WInputDeviceXBoxController() = default;
 
-void ezInputDeviceXBoxController::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void WInputDeviceXBoxController::RegisterControllerButton(const char* szButton, const char* szName, WBitflags<WInputSlotFlags> SlotFlags)
 {
-  ezStringBuilder s, s2;
+  WStringBuilder s, s2;
 
-  for (ezInt32 i = 0; i < MaxControllers; ++i)
+  for (WInt32 i = 0; i < MaxControllers; ++i)
   {
     s.SetFormat("controller{0}_{1}", i, szButton);
     s2.SetFormat("Cont {0}: {1}", i + 1, szName);
@@ -32,45 +32,45 @@ void ezInputDeviceXBoxController::RegisterControllerButton(const char* szButton,
   }
 }
 
-void ezInputDeviceXBoxController::SetDeadZone(const char* szButton)
+void WInputDeviceXBoxController::SetDeadZone(const char* szButton)
 {
-  ezStringBuilder s;
+  WStringBuilder s;
 
-  for (ezInt32 i = 0; i < MaxControllers; ++i)
+  for (WInt32 i = 0; i < MaxControllers; ++i)
   {
     s.SetFormat("controller{0}_{1}", i, szButton);
-    ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
+    WInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
   }
 }
 
-void ezInputDeviceXBoxController::RegisterInputSlots()
+void WInputDeviceXBoxController::RegisterInputSlots()
 {
-  RegisterControllerButton("button_a", "Button A", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("button_b", "Button B", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("button_x", "Button X", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("button_y", "Button Y", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("button_start", "Start", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("button_back", "Back", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("left_shoulder", "Left Shoulder", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("right_shoulder", "Right Shoulder", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("left_trigger", "Left Trigger", ezInputSlotFlags::IsAnalogTrigger);
-  RegisterControllerButton("right_trigger", "Right Trigger", ezInputSlotFlags::IsAnalogTrigger);
-  RegisterControllerButton("pad_up", "Pad Up", ezInputSlotFlags::IsDPad);
-  RegisterControllerButton("pad_down", "Pad Down", ezInputSlotFlags::IsDPad);
-  RegisterControllerButton("pad_left", "Pad Left", ezInputSlotFlags::IsDPad);
-  RegisterControllerButton("pad_right", "Pad Right", ezInputSlotFlags::IsDPad);
-  RegisterControllerButton("left_stick", "Left Stick", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("right_stick", "Right Stick", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_a", "Button A", WInputSlotFlags::IsButton);
+  RegisterControllerButton("button_b", "Button B", WInputSlotFlags::IsButton);
+  RegisterControllerButton("button_x", "Button X", WInputSlotFlags::IsButton);
+  RegisterControllerButton("button_y", "Button Y", WInputSlotFlags::IsButton);
+  RegisterControllerButton("button_start", "Start", WInputSlotFlags::IsButton);
+  RegisterControllerButton("button_back", "Back", WInputSlotFlags::IsButton);
+  RegisterControllerButton("left_shoulder", "Left Shoulder", WInputSlotFlags::IsButton);
+  RegisterControllerButton("right_shoulder", "Right Shoulder", WInputSlotFlags::IsButton);
+  RegisterControllerButton("left_trigger", "Left Trigger", WInputSlotFlags::IsAnalogTrigger);
+  RegisterControllerButton("right_trigger", "Right Trigger", WInputSlotFlags::IsAnalogTrigger);
+  RegisterControllerButton("pad_up", "Pad Up", WInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_down", "Pad Down", WInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_left", "Pad Left", WInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_right", "Pad Right", WInputSlotFlags::IsDPad);
+  RegisterControllerButton("left_stick", "Left Stick", WInputSlotFlags::IsButton);
+  RegisterControllerButton("right_stick", "Right Stick", WInputSlotFlags::IsButton);
 
-  RegisterControllerButton("leftstick_negx", "Left Stick Left", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("leftstick_posx", "Left Stick Right", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("leftstick_negy", "Left Stick Down", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("leftstick_posy", "Left Stick Up", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_negx", "Left Stick Left", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_posx", "Left Stick Right", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_negy", "Left Stick Down", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_posy", "Left Stick Up", WInputSlotFlags::IsAnalogStick);
 
-  RegisterControllerButton("rightstick_negx", "Right Stick Left", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("rightstick_posx", "Right Stick Right", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("rightstick_negy", "Right Stick Down", ezInputSlotFlags::IsAnalogStick);
-  RegisterControllerButton("rightstick_posy", "Right Stick Up", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_negx", "Right Stick Left", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_posx", "Right Stick Right", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_negy", "Right Stick Down", WInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_posy", "Right Stick Up", WInputSlotFlags::IsAnalogStick);
 
   SetDeadZone("left_trigger");
   SetDeadZone("right_trigger");
@@ -83,37 +83,37 @@ void ezInputDeviceXBoxController::RegisterInputSlots()
   SetDeadZone("rightstick_negy");
   SetDeadZone("rightstick_posy");
 
-  ezLog::Success("Initialized XBox 360 Controller.");
+  WLog::Success("Initialized XBox 360 Controller.");
 }
 
-const ezStringView sControllerName[] = {
-  "controller0_"_ezsv,
-  "controller1_"_ezsv,
-  "controller2_"_ezsv,
-  "controller3_"_ezsv,
+const WStringView sControllerName[] = {
+  "controller0_"_wsv,
+  "controller1_"_wsv,
+  "controller2_"_wsv,
+  "controller3_"_wsv,
 
-  "controller4_"_ezsv,
-  "controller5_"_ezsv,
-  "controller6_"_ezsv,
-  "controller7_"_ezsv,
+  "controller4_"_wsv,
+  "controller5_"_wsv,
+  "controller6_"_wsv,
+  "controller7_"_wsv,
 };
 
-static_assert(EZ_ARRAY_SIZE(sControllerName) >= ezInputDeviceController::MaxControllers);
+static_assert(W_ARRAY_SIZE(sControllerName) >= WInputDeviceController::MaxControllers);
 
-void ezInputDeviceXBoxController::SetValue(ezInt32 iController, const char* szButton, float fValue)
+void WInputDeviceXBoxController::SetValue(WInt32 iController, const char* szButton, float fValue)
 {
-  ezStringBuilder s = sControllerName[iController];
+  WStringBuilder s = sControllerName[iController];
   s.Append(szButton);
   float& fVal = m_InputSlotValues[s];
-  fVal = ezMath::Max(fVal, fValue);
+  fVal = WMath::Max(fVal, fValue);
 }
 
-void ezInputDeviceXBoxController::SetupControllerMappingInOrder()
+void WInputDeviceXBoxController::SetupControllerMappingInOrder()
 {
-  ezTempHybridArray<ezUInt8, MaxControllers> connected;
-  ezTempHybridArray<ezUInt8, MaxControllers> disconnected;
+  WTempHybridArray<WUInt8, MaxControllers> connected;
+  WTempHybridArray<WUInt8, MaxControllers> disconnected;
 
-  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  for (WUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
     XINPUT_STATE State;
     if (XInputGetState(uiPhysical, &State) == ERROR_SUCCESS)
@@ -126,10 +126,10 @@ void ezInputDeviceXBoxController::SetupControllerMappingInOrder()
     }
   }
 
-  ezUInt32 uiVirtual = 0;
+  WUInt32 uiVirtual = 0;
 
   // map the connected controllers to the first virtual controllers
-  for (ezUInt8 uiPhysical : connected)
+  for (WUInt8 uiPhysical : connected)
   {
     SetPhysicalControllerMapping(uiPhysical, uiVirtual);
     uiVirtual++;
@@ -137,19 +137,19 @@ void ezInputDeviceXBoxController::SetupControllerMappingInOrder()
 
   // then map the disconnected controllers to the remaining virtual controllers
   // so that if they get connected later, they map to a free slot
-  for (ezUInt8 uiPhysical : disconnected)
+  for (WUInt8 uiPhysical : disconnected)
   {
     SetPhysicalControllerMapping(uiPhysical, uiVirtual);
     uiVirtual++;
   }
 }
 
-void ezInputDeviceXBoxController::UpdateHardwareState(ezTime tTimeDifference)
+void WInputDeviceXBoxController::UpdateHardwareState(WTime tTimeDifference)
 {
   UpdateVibration(tTimeDifference);
 }
 
-void ezInputDeviceXBoxController::UpdateInputSlotValues()
+void WInputDeviceXBoxController::UpdateInputSlotValues()
 {
   // reset all keys
   for (auto it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
@@ -160,10 +160,10 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
 
   // update not connected controllers only every few milliseconds, apparently it takes quite some time to do this
   // even on not connected controllers
-  static ezTime tLastControllerSearch;
-  static ezUInt32 uiControllerSearch = 0;
-  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
-  const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::MakeFromSeconds(0.5);
+  static WTime tLastControllerSearch;
+  static WUInt32 uiControllerSearch = 0;
+  const WTime tNow = WClock::GetGlobalClock()->GetLastUpdateTime();
+  const bool bSearchControllers = tNow - tLastControllerSearch > WTime::MakeFromSeconds(0.5);
 
   if (bSearchControllers)
   {
@@ -172,7 +172,7 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
   }
 
   // get the data from all physical devices
-  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  for (WUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
     if (m_bControllerConnected[uiPhysical] || (bSearchControllers && uiPhysical == uiControllerSearch))
     {
@@ -180,11 +180,11 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
 
       if (m_bControllerConnected[uiPhysical] != bIsAvailable[uiPhysical])
       {
-        ezLog::Info("XBox Controller {0} has been {1}.", uiPhysical, bIsAvailable[uiPhysical] ? "connected" : "disconnected");
+        WLog::Info("XBox Controller {0} has been {1}.", uiPhysical, bIsAvailable[uiPhysical] ? "connected" : "disconnected");
 
         // this makes sure to reset all values below
         if (!bIsAvailable[uiPhysical])
-          ezMemoryUtils::ZeroFill(&State[uiPhysical], 1);
+          WMemoryUtils::ZeroFill(&State[uiPhysical], 1);
       }
     }
     else
@@ -192,7 +192,7 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
   }
 
   // check from which physical device to take the input data
-  for (ezUInt8 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  for (WUInt8 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
     m_RecentPhysicalControllerInput[uiPhysical].Clear();
 
@@ -201,7 +201,7 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
     if (!m_bControllerConnected[uiPhysical])
       continue;
 
-    ezInt8 iVirtual = GetPhysicalControllerMapping(uiPhysical);
+    WInt8 iVirtual = GetPhysicalControllerMapping(uiPhysical);
     if (iVirtual < 0)
       continue;
 
@@ -238,40 +238,40 @@ void ezInputDeviceXBoxController::UpdateInputSlotValues()
 
     if ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0)
     {
-      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::Start);
+      m_RecentPhysicalControllerInput[uiPhysical].Add(WPhysicalControllerInput::Start);
     }
 
     if ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0)
     {
-      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::Back);
+      m_RecentPhysicalControllerInput[uiPhysical].Add(WPhysicalControllerInput::Back);
     }
 
     if ((State[uiPhysical].Gamepad.wButtons & (XINPUT_GAMEPAD_A | XINPUT_GAMEPAD_B | XINPUT_GAMEPAD_X | XINPUT_GAMEPAD_Y)) != 0)
     {
-      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::FrontButton);
+      m_RecentPhysicalControllerInput[uiPhysical].Add(WPhysicalControllerInput::FrontButton);
     }
 
     if ((State[uiPhysical].Gamepad.wButtons & (XINPUT_GAMEPAD_LEFT_SHOULDER | XINPUT_GAMEPAD_RIGHT_SHOULDER)) != 0)
     {
-      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::ShoulderButton);
+      m_RecentPhysicalControllerInput[uiPhysical].Add(WPhysicalControllerInput::ShoulderButton);
     }
   }
 
 
-  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  for (WUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
     m_bControllerConnected[uiPhysical] = bIsAvailable[uiPhysical];
   }
 }
 
-bool ezInputDeviceXBoxController::IsPhysicalControllerConnected(ezUInt8 uiPhysical) const
+bool WInputDeviceXBoxController::IsPhysicalControllerConnected(WUInt8 uiPhysical) const
 {
-  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Invalid Controller Index {0}", uiPhysical);
+  W_ASSERT_DEV(uiPhysical < MaxControllers, "Invalid Controller Index {0}", uiPhysical);
 
   return m_bControllerConnected[uiPhysical];
 }
 
-void ezInputDeviceXBoxController::ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength)
+void WInputDeviceXBoxController::ApplyVibration(WUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength)
 {
   if (!m_bControllerConnected[uiPhysicalController])
     return;
@@ -289,13 +289,13 @@ void ezInputDeviceXBoxController::ApplyVibration(ezUInt8 uiPhysicalController, M
   }
 }
 
-static ezInputDeviceXBoxController* g_InputDeviceXBoxController = nullptr;
+static WInputDeviceXBoxController* g_InputDeviceXBoxController = nullptr;
 
-ezInputDeviceXBoxController* ezInputDeviceXBoxController::GetDevice()
+WInputDeviceXBoxController* WInputDeviceXBoxController::GetDevice()
 {
   if (g_InputDeviceXBoxController == nullptr)
   {
-    g_InputDeviceXBoxController = EZ_DEFAULT_NEW(ezInputDeviceXBoxController);
+    g_InputDeviceXBoxController = W_DEFAULT_NEW(WInputDeviceXBoxController);
   }
 
   return g_InputDeviceXBoxController;
@@ -303,7 +303,7 @@ ezInputDeviceXBoxController* ezInputDeviceXBoxController::GetDevice()
 
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBoxController)
+W_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBoxController)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation", 
@@ -317,23 +317,23 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBoxController)
  
   ON_CORESYSTEMS_SHUTDOWN
   {
-    EZ_DEFAULT_DELETE(g_InputDeviceXBoxController);
+    W_DEFAULT_DELETE(g_InputDeviceXBoxController);
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezInputDeviceXBoxController::GetDevice();
+    WInputDeviceXBoxController::GetDevice();
   }
  
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    EZ_DEFAULT_DELETE(g_InputDeviceXBoxController);
+    W_DEFAULT_DELETE(g_InputDeviceXBoxController);
   }
  
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 #endif
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Input_XBoxController_InputDeviceXBox);
+W_STATICLINK_FILE(GameEngine, GameEngine_Input_XBoxController_InputDeviceXBox);

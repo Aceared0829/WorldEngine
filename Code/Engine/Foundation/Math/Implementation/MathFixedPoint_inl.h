@@ -3,19 +3,19 @@
 #include <Foundation/Math/FixedPoint.h>
 
 /*
-namespace ezMath
+namespace WMath
 {
 #define FIXEDPOINT_OVERLOADS(Bits)                                                                                                       \
   template <>                                                                                                                            \
-  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::MaxValue() { return (ezFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
+  W_ALWAYS_INLINE WFixedPoint<Bits> BasicType<WFixedPoint<Bits>>::MaxValue() { return (WFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
   template <>                                                                                                                            \
-  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::SmallEpsilon() { return (ezFixedPoint<Bits>)0.0001; }               \
+  W_ALWAYS_INLINE WFixedPoint<Bits> BasicType<WFixedPoint<Bits>>::SmallEpsilon() { return (WFixedPoint<Bits>)0.0001; }               \
   template <>                                                                                                                            \
-  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::DefaultEpsilon() { return (ezFixedPoint<Bits>)0.001; }              \
+  W_ALWAYS_INLINE WFixedPoint<Bits> BasicType<WFixedPoint<Bits>>::DefaultEpsilon() { return (WFixedPoint<Bits>)0.001; }              \
   template <>                                                                                                                            \
-  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::LargeEpsilon() { return (ezFixedPoint<Bits>)0.01; }                 \
+  W_ALWAYS_INLINE WFixedPoint<Bits> BasicType<WFixedPoint<Bits>>::LargeEpsilon() { return (WFixedPoint<Bits>)0.01; }                 \
   template <>                                                                                                                            \
-  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::HugeEpsilon() { return (ezFixedPoint<Bits>)0.1; }
+  W_ALWAYS_INLINE WFixedPoint<Bits> BasicType<WFixedPoint<Bits>>::HugeEpsilon() { return (WFixedPoint<Bits>)0.1; }
 
   FIXEDPOINT_OVERLOADS(1);
   FIXEDPOINT_OVERLOADS(2);
@@ -49,131 +49,131 @@ namespace ezMath
   FIXEDPOINT_OVERLOADS(30);
   //FIXEDPOINT_OVERLOADS(31);
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Floor(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Floor(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)floor(f.ToDouble());
+    return (WFixedPoint<DecimalBits>)floor(f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Ceil(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Ceil(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)ceil(f.ToDouble());
+    return (WFixedPoint<DecimalBits>)ceil(f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  inline ezFixedPoint<DecimalBits> Floor(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> fMultiple)
+  template <WUInt8 DecimalBits>
+  inline WFixedPoint<DecimalBits> Floor(WFixedPoint<DecimalBits> f, WFixedPoint<DecimalBits> fMultiple)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    ezFixedPoint<DecimalBits> fDivides = f / fMultiple;
-    ezFixedPoint<DecimalBits> fFactor = Floor(fDivides);
+    WFixedPoint<DecimalBits> fDivides = f / fMultiple;
+    WFixedPoint<DecimalBits> fFactor = Floor(fDivides);
     return fFactor * fMultiple;
   }
 
-  template <ezUInt8 DecimalBits>
-  inline ezFixedPoint<DecimalBits> Ceil(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> fMultiple)
+  template <WUInt8 DecimalBits>
+  inline WFixedPoint<DecimalBits> Ceil(WFixedPoint<DecimalBits> f, WFixedPoint<DecimalBits> fMultiple)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    ezFixedPoint<DecimalBits> fDivides = f / fMultiple;
-    ezFixedPoint<DecimalBits> fFactor = Ceil(fDivides);
+    WFixedPoint<DecimalBits> fDivides = f / fMultiple;
+    WFixedPoint<DecimalBits> fFactor = Ceil(fDivides);
     return fFactor * fMultiple;
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Exp(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Exp(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)exp(f.ToDouble());
+    return (WFixedPoint<DecimalBits>)exp(f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Ln(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Ln(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)log(f.ToDouble());
+    return (WFixedPoint<DecimalBits>)log(f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log2(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Log2(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(2.0));
+    return (WFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(2.0));
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log10(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Log10(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)log10(f.ToDouble());
+    return (WFixedPoint<DecimalBits>)log10(f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log(ezFixedPoint<DecimalBits> fBase, ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Log(WFixedPoint<DecimalBits> fBase, WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(fBase.ToDouble()));
+    return (WFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(fBase.ToDouble()));
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Pow2(ezFixedPoint<DecimalBits> f)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Pow2(WFixedPoint<DecimalBits> f)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)pow(2.0, f.ToDouble());
+    return (WFixedPoint<DecimalBits>)pow(2.0, f.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Pow(ezFixedPoint<DecimalBits> base, ezFixedPoint<DecimalBits> exp)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Pow(WFixedPoint<DecimalBits> base, WFixedPoint<DecimalBits> exp)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)pow(base.ToDouble(), exp.ToDouble());
+    return (WFixedPoint<DecimalBits>)pow(base.ToDouble(), exp.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Root(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> NthRoot)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Root(WFixedPoint<DecimalBits> f, WFixedPoint<DecimalBits> NthRoot)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)pow(f.ToDouble(), 1.0 / NthRoot.ToDouble());
+    return (WFixedPoint<DecimalBits>)pow(f.ToDouble(), 1.0 / NthRoot.ToDouble());
   }
 
-  template <ezUInt8 DecimalBits>
-  ezFixedPoint<DecimalBits> Sqrt(ezFixedPoint<DecimalBits> a)
+  template <WUInt8 DecimalBits>
+  WFixedPoint<DecimalBits> Sqrt(WFixedPoint<DecimalBits> a)
   {
-    return (ezFixedPoint<DecimalBits>)sqrt(a.ToDouble());
-    //if (a <= ezFixedPoint<DecimalBits>(0))
-    //  return ezFixedPoint<DecimalBits>(0);
+    return (WFixedPoint<DecimalBits>)sqrt(a.ToDouble());
+    //if (a <= WFixedPoint<DecimalBits>(0))
+    //  return WFixedPoint<DecimalBits>(0);
 
-    //ezFixedPoint<DecimalBits> x = a / 2;
+    //WFixedPoint<DecimalBits> x = a / 2;
 
-    //for (ezUInt32 i = 0; i < 8; ++i)
+    //for (WUInt32 i = 0; i < 8; ++i)
     //{
-    //  ezFixedPoint<DecimalBits> ax = a / x;
-    //  ezFixedPoint<DecimalBits> xpax = x + ax;
+    //  WFixedPoint<DecimalBits> ax = a / x;
+    //  WFixedPoint<DecimalBits> xpax = x + ax;
     //  x = xpax / 2;
     //}
 
     //return x;
   }
 
-  template <ezUInt8 DecimalBits>
-  EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Mod(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> div)
+  template <WUInt8 DecimalBits>
+  W_FORCE_INLINE WFixedPoint<DecimalBits> Mod(WFixedPoint<DecimalBits> f, WFixedPoint<DecimalBits> div)
   {
-    EZ_REPORT_FAILURE("This function is not really implemented yet.");
+    W_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>)fmod(f.ToDouble(), div);
+    return (WFixedPoint<DecimalBits>)fmod(f.ToDouble(), div);
   }
 }
 */

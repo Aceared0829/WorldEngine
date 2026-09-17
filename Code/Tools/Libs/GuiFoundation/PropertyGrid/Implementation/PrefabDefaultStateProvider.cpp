@@ -6,12 +6,12 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-ezSharedPtr<ezDefaultStateProvider> ezPrefabDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WSharedPtr<WDefaultStateProvider> WPrefabDefaultStateProvider::CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
   const auto* pMetaData = pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.Borrow();
-  ezInt32 iRootDepth = 0;
-  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, *pMetaData, &iRootDepth);
-  // The root depth is taken x2 because GetPrefabRoot counts the number of parent objects while ezDefaultStateProvider expects to count the properties as well.
+  WInt32 iRootDepth = 0;
+  WUuid rootObjectGuid = WPrefabUtils::GetPrefabRoot(pObject, *pMetaData, &iRootDepth);
+  // The root depth is taken x2 because GetPrefabRoot counts the number of parent objects while WDefaultStateProvider expects to count the properties as well.
   iRootDepth *= 2;
   // If we construct this from a property scope, the root is an additional hop away as GetPrefabRoot counts from the parent object.
   if (pProp)
@@ -20,23 +20,23 @@ ezSharedPtr<ezDefaultStateProvider> ezPrefabDefaultStateProvider::CreateProvider
   if (rootObjectGuid.IsValid())
   {
     auto pMeta = pMetaData->BeginReadMetaData(rootObjectGuid);
-    EZ_SCOPE_EXIT(pMetaData->EndReadMetaData(););
-    ezUuid objectPrefabGuid = pObject->GetGuid();
+    W_SCOPE_EXIT(pMetaData->EndReadMetaData(););
+    WUuid objectPrefabGuid = pObject->GetGuid();
     objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
-    const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
+    const WAbstractObjectGraph* pGraph = WPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
     if (pGraph)
     {
       if (pGraph->GetNode(objectPrefabGuid) != nullptr)
       {
         // The object was found in the prefab, we can thus use its prefab counterpart to provide a default state.
-        return EZ_DEFAULT_NEW(ezPrefabDefaultStateProvider, rootObjectGuid, pMeta->m_CreateFromPrefab, pMeta->m_PrefabSeedGuid, iRootDepth);
+        return W_DEFAULT_NEW(WPrefabDefaultStateProvider, rootObjectGuid, pMeta->m_CreateFromPrefab, pMeta->m_PrefabSeedGuid, iRootDepth);
       }
     }
   }
   return nullptr;
 }
 
-ezPrefabDefaultStateProvider::ezPrefabDefaultStateProvider(const ezUuid& rootObjectGuid, const ezUuid& createFromPrefab, const ezUuid& prefabSeedGuid, ezInt32 iRootDepth)
+WPrefabDefaultStateProvider::WPrefabDefaultStateProvider(const WUuid& rootObjectGuid, const WUuid& createFromPrefab, const WUuid& prefabSeedGuid, WInt32 iRootDepth)
   : m_RootObjectGuid(rootObjectGuid)
   , m_CreateFromPrefab(createFromPrefab)
   , m_PrefabSeedGuid(prefabSeedGuid)
@@ -44,36 +44,36 @@ ezPrefabDefaultStateProvider::ezPrefabDefaultStateProvider(const ezUuid& rootObj
 {
 }
 
-ezInt32 ezPrefabDefaultStateProvider::GetRootDepth() const
+WInt32 WPrefabDefaultStateProvider::GetRootDepth() const
 {
   return m_iRootDepth;
 }
 
-ezColorGammaUB ezPrefabDefaultStateProvider::GetBackgroundColor() const
+WColorGammaUB WPrefabDefaultStateProvider::GetBackgroundColor() const
 {
-  return ezColorScheme::DarkUI(ezColorScheme::Blue).WithAlpha(0.25f);
+  return WColorScheme::DarkUI(WColorScheme::Blue).WithAlpha(0.25f);
 }
 
-ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WVariant WPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags);
 
-  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
-  ezUuid objectPrefabGuid = pObject->GetGuid();
+  const WAbstractObjectGraph* pGraph = WPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
+  WUuid objectPrefabGuid = pObject->GetGuid();
   objectPrefabGuid.RevertCombinationWithSeed(m_PrefabSeedGuid);
   if (pGraph)
   {
     bool bValueFound = true;
-    ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, pProp->GetPropertyName(), index, &bValueFound);
+    WVariant defaultValue = WPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, pProp->GetPropertyName(), index, &bValueFound);
     if (!bValueFound)
     {
       return superPtr[0]->GetDefaultValue(superPtr.GetSubArray(1), pAccessor, pObject, pProp, index);
     }
 
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && defaultValue.IsA<ezString>())
+    if (pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags) && defaultValue.IsA<WString>())
     {
-      ezInt64 iValue = 0;
-      if (ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), defaultValue.Get<ezString>(), iValue))
+      WInt64 iValue = 0;
+      if (WReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), defaultValue.Get<WString>(), iValue))
       {
         defaultValue = iValue;
       }
@@ -87,44 +87,44 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
       // For object references we need to reverse the object GUID mapping from prefab -> instance.
       switch (pProp->GetCategory())
       {
-        case ezPropertyCategory::Member:
+        case WPropertyCategory::Member:
         {
-          ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
+          WUuid& targetGuid = defaultValue.GetWritable<WUuid>();
           targetGuid.CombineWithSeed(m_PrefabSeedGuid);
         }
         break;
-        case ezPropertyCategory::Array:
-        case ezPropertyCategory::Set:
+        case WPropertyCategory::Array:
+        case WPropertyCategory::Set:
         {
           if (index.IsValid())
           {
-            ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
+            WUuid& targetGuid = defaultValue.GetWritable<WUuid>();
             targetGuid.CombineWithSeed(m_PrefabSeedGuid);
           }
           else
           {
-            ezVariantArray& defaultValueArray = defaultValue.GetWritable<ezVariantArray>();
-            for (ezVariant& value : defaultValueArray)
+            WVariantArray& defaultValueArray = defaultValue.GetWritable<WVariantArray>();
+            for (WVariant& value : defaultValueArray)
             {
-              ezUuid& targetGuid = value.GetWritable<ezUuid>();
+              WUuid& targetGuid = value.GetWritable<WUuid>();
               targetGuid.CombineWithSeed(m_PrefabSeedGuid);
             }
           }
         }
         break;
-        case ezPropertyCategory::Map:
+        case WPropertyCategory::Map:
         {
           if (index.IsValid())
           {
-            ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
+            WUuid& targetGuid = defaultValue.GetWritable<WUuid>();
             targetGuid.CombineWithSeed(m_PrefabSeedGuid);
           }
           else
           {
-            ezVariantDictionary& defaultValueDict = defaultValue.GetWritable<ezVariantDictionary>();
+            WVariantDictionary& defaultValueDict = defaultValue.GetWritable<WVariantDictionary>();
             for (auto it : defaultValueDict)
             {
-              ezUuid& targetGuid = it.Value().GetWritable<ezUuid>();
+              WUuid& targetGuid = it.Value().GetWritable<WUuid>();
               targetGuid.CombineWithSeed(m_PrefabSeedGuid);
             }
           }
@@ -137,16 +137,16 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
 
     if (defaultValue.IsValid())
     {
-      if (defaultValue.IsString() && pProp->GetAttributeByType<ezGameObjectReferenceAttribute>())
+      if (defaultValue.IsString() && pProp->GetAttributeByType<WGameObjectReferenceAttribute>())
       {
         // While pretty expensive this restores the default state of game object references which are stored as strings.
-        ezStringView sValue = defaultValue.GetType() == ezVariantType::StringView ? defaultValue.Get<ezStringView>() : ezStringView(defaultValue.Get<ezString>().GetData());
-        if (ezConversionUtils::IsStringUuid(sValue))
+        WStringView sValue = defaultValue.GetType() == WVariantType::StringView ? defaultValue.Get<WStringView>() : WStringView(defaultValue.Get<WString>().GetData());
+        if (WConversionUtils::IsStringUuid(sValue))
         {
-          ezUuid guid = ezConversionUtils::ConvertStringToUuid(sValue);
+          WUuid guid = WConversionUtils::ConvertStringToUuid(sValue);
           guid.CombineWithSeed(m_PrefabSeedGuid);
-          ezStringBuilder sTemp;
-          defaultValue = ezConversionUtils::ToString(guid, sTemp).GetData();
+          WStringBuilder sTemp;
+          defaultValue = WConversionUtils::ToString(guid, sTemp).GetData();
         }
       }
 
@@ -156,21 +156,21 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
   return superPtr[0]->GetDefaultValue(superPtr.GetSubArray(1), pAccessor, pObject, pProp);
 }
 
-ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
+WStatus WPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff)
 {
-  ezVariant defaultValue = GetDefaultValue(superPtr, pAccessor, pObject, pProp);
-  ezVariant currentValue;
-  EZ_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, currentValue));
+  WVariant defaultValue = GetDefaultValue(superPtr, pAccessor, pObject, pProp);
+  WVariant currentValue;
+  W_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, currentValue));
 
-  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
-  ezUuid objectPrefabGuid = pObject->GetGuid();
+  const WAbstractObjectGraph* pGraph = WPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
+  WUuid objectPrefabGuid = pObject->GetGuid();
   objectPrefabGuid.RevertCombinationWithSeed(m_PrefabSeedGuid);
   if (pGraph)
   {
     // We create a sub-graph of only the parent node in both re-mapped prefab as well as from the actually object. We limit the graph to only the container property.
     auto pNode = pGraph->GetNode(objectPrefabGuid);
-    ezAbstractObjectGraph prefabSubGraph;
-    pGraph->Clone(prefabSubGraph, pNode, [pRootNode = pNode, pRootProp = pProp](const ezAbstractObjectNode* pNode, const ezAbstractObjectNode::Property* pProp)
+    WAbstractObjectGraph prefabSubGraph;
+    pGraph->Clone(prefabSubGraph, pNode, [pRootNode = pNode, pRootProp = pProp](const WAbstractObjectNode* pNode, const WAbstractObjectNode::Property* pProp)
       {
         if (pNode == pRootNode && pProp->m_sPropertyName != pRootProp->GetPropertyName())
           return false;
@@ -180,8 +180,8 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
 
     prefabSubGraph.ReMapNodeGuids(m_PrefabSeedGuid);
 
-    ezAbstractObjectGraph instanceSubGraph;
-    ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+    WAbstractObjectGraph instanceSubGraph;
+    WDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const WDocumentObject* pObject, const WAbstractProperty* pProp)
       {
         if (pObject == pRootObject && pProp != pRootProp)
           return false;
@@ -193,8 +193,8 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
 
     prefabSubGraph.CreateDiffWithBaseGraph(instanceSubGraph, out_diff);
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 
-  return ezStatus(ezFmt("The object was not found in the base prefab graph."));
+  return WStatus(WFmt("The object was not found in the base prefab graph."));
 }

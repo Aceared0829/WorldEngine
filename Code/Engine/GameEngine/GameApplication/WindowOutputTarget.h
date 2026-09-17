@@ -9,41 +9,41 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ReadbackHelper.h>
 
-struct ezGALDeviceEvent;
-class ezRenderGraph;
+struct WGALDeviceEvent;
+class WRenderGraph;
 
 /// Creates a swapchain and keeps it up to date with the window.
 ///
-/// If the window is resized or ezGameApplication::cvar_AppVSync changes and onSwapChainChanged is valid, the swapchain is destroyed and recreated. It is up the the application to respond to the OnSwapChainChanged callback and update any references to the swap-chain, e.g. uses in ezView or uses as render targets in ezGALRenderTargetSetup.
+/// If the window is resized or WGameApplication::cvar_AppVSync changes and onSwapChainChanged is valid, the swapchain is destroyed and recreated. It is up the the application to respond to the OnSwapChainChanged callback and update any references to the swap-chain, e.g. uses in WView or uses as render targets in WGALRenderTargetSetup.
 /// If onSwapChainChanged is not set, the swapchain will not be re-created and it is up to the application to manage the swapchain and react to window changes.
-class EZ_GAMEENGINE_DLL ezWindowOutputTargetGAL : public ezWindowOutputTargetBase
+class W_GAMEENGINE_DLL WWindowOutputTargetGAL : public WWindowOutputTargetBase
 {
 public:
-  using OnSwapChainChanged = ezDelegate<void(ezGALSwapChainHandle hSwapChain, ezSizeU32 size)>;
-  ezWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged = {});
-  ~ezWindowOutputTargetGAL();
+  using OnSwapChainChanged = WDelegate<void(WGALSwapChainHandle hSwapChain, WSizeU32 size)>;
+  WWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged = {});
+  ~WWindowOutputTargetGAL();
 
-  void CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc);
+  void CreateSwapchain(const WGALWindowSwapChainCreationDescription& desc);
 
   virtual void PresentImage(bool bEnableVSync) override;
   virtual void AcquireImage() override;
-  virtual ezResult StartCaptureImage() override;
-  virtual ezEnum<ezCaptureImageResult> WaitCaptureImage(ezImage& out_image) override;
+  virtual WResult StartCaptureImage() override;
+  virtual WEnum<WCaptureImageResult> WaitCaptureImage(WImage& out_image) override;
 
-  ezGALSwapChainHandle m_hSwapChain;
+  WGALSwapChainHandle m_hSwapChain;
 
 private:
-  void SwapChainUpdatedEventHandler(const ezGALSwapChain* pSwapChain);
-  void OnRenderEvent(const ezGALDeviceEvent& e);
+  void SwapChainUpdatedEventHandler(const WGALSwapChain* pSwapChain);
+  void OnRenderEvent(const WGALDeviceEvent& e);
 
   OnSwapChainChanged m_OnSwapChainChanged;
-  ezSizeU32 m_Size = ezSizeU32(0, 0);
-  ezGALWindowSwapChainCreationDescription m_CurrentDesc;
+  WSizeU32 m_Size = WSizeU32(0, 0);
+  WGALWindowSwapChainCreationDescription m_CurrentDesc;
 
   // Capture image functionality
-  ezGALReadbackTextureHelper m_Readback;
-  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  WGALReadbackTextureHelper m_Readback;
+  WSharedPtr<WRenderGraph> m_pRenderGraph;
   bool m_bCaptureRequested = false;
   bool m_bCaptureInFlight = false;
-  ezGALTextureCreationDescription m_CaptureBackbufferDesc; ///< Needs to be stored as the swapchain could be resized between the two capture calls.
+  WGALTextureCreationDescription m_CaptureBackbufferDesc; ///< Needs to be stored as the swapchain could be resized between the two capture calls.
 };

@@ -3,16 +3,16 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-class ezStreamWriter;
+class WStreamWriter;
 
-class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
+class W_RENDERERCORE_DLL WExtractor : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExtractor, ezReflectedClass);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WExtractor, WReflectedClass);
+  W_DISALLOW_COPY_AND_ASSIGN(WExtractor);
 
 public:
-  ezExtractor(const char* szName);
-  virtual ~ezExtractor();
+  WExtractor(const char* szName);
+  virtual ~WExtractor();
 
   /// Sets the name of the extractor.
   void SetName(const char* szName);
@@ -20,115 +20,115 @@ public:
   /// returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) = 0;
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) = 0;
 
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) = 0;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) = 0;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream);
+  virtual WResult Serialize(WStreamWriter& inout_stream) const;
+  virtual WResult Deserialize(WStreamReader& inout_stream);
 
 protected:
   /// returns true if the given object should be filtered by view tags.
-  bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
+  bool FilterByViewTags(const WView& view, const WGameObject* pObject) const;
 
   /// extracts the render data for the given object.
-  void ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const;
+  void ExtractRenderData(const WView& view, const WGameObject* pObject, WMsgExtractRenderData& msg, WExtractedRenderData& extractedRenderData) const;
 
 private:
-  friend class ezRenderPipeline;
-  friend class ezRenderPipelinePassGraph;
+  friend class WRenderPipeline;
+  friend class WRenderPipelinePassGraph;
 
   bool m_bActive;
 
-  ezHashedString m_sName;
+  WHashedString m_sName;
 
 protected:
-  ezHybridArray<ezHashedString, 4> m_DependsOn;
+  WHybridArray<WHashedString, 4> m_DependsOn;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  mutable ezUInt32 m_uiNumCachedRenderData;
-  mutable ezUInt32 m_uiNumUncachedRenderData;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  mutable WUInt32 m_uiNumCachedRenderData;
+  mutable WUInt32 m_uiNumUncachedRenderData;
 #endif
 };
 
 
-class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
+class W_RENDERERCORE_DLL WVisibleObjectsExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisibleObjectsExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WVisibleObjectsExtractor, WExtractor);
 
 public:
-  ezVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
-  ~ezVisibleObjectsExtractor();
+  WVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
+  ~WVisibleObjectsExtractor();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 };
 
-class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractorBase : public ezExtractor
+class W_RENDERERCORE_DLL WSelectedObjectsExtractorBase : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractorBase, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WSelectedObjectsExtractorBase, WExtractor);
 
 public:
-  ezSelectedObjectsExtractorBase(const char* szName = "SelectedObjectsExtractor");
-  ~ezSelectedObjectsExtractorBase();
+  WSelectedObjectsExtractorBase(const char* szName = "SelectedObjectsExtractor");
+  ~WSelectedObjectsExtractorBase();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
+  virtual const WDeque<WGameObjectHandle>* GetSelection() = 0;
 
-  ezRenderData::Category m_OverrideCategory;
+  WRenderData::Category m_OverrideCategory;
 };
 
 /// Stores a list of game objects that should get highlighted by the renderer.
 ///
 /// Store an instance somewhere in your game code:
-/// ezSelectedObjectsContext m_SelectedObjects;
+/// WSelectedObjectsContext m_SelectedObjects;
 /// Add handles to game object that should be get the highlighting outline (as the editor uses for selected objects).
-/// On an ezView call:
-/// ezView::SetExtractorProperty("HighlightObjects", "SelectionContext", &m_SelectedObjects);
-/// The first name must be the name of an ezSelectedObjectsExtractor that is instantiated by the render pipeline.
+/// On an WView call:
+/// WView::SetExtractorProperty("HighlightObjects", "SelectionContext", &m_SelectedObjects);
+/// The first name must be the name of an WSelectedObjectsExtractor that is instantiated by the render pipeline.
 ///
-/// As long as there is also an ezSelectionHighlightPass in the render pipeline, all objects in this selection will be rendered
+/// As long as there is also an WSelectionHighlightPass in the render pipeline, all objects in this selection will be rendered
 /// with an outline.
-class EZ_RENDERERCORE_DLL ezSelectedObjectsContext : public ezReflectedClass
+class W_RENDERERCORE_DLL WSelectedObjectsContext : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsContext, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSelectedObjectsContext, WReflectedClass);
 
 public:
-  ezSelectedObjectsContext();
-  ~ezSelectedObjectsContext();
+  WSelectedObjectsContext();
+  ~WSelectedObjectsContext();
 
-  void RemoveDeadObjects(const ezWorld& world);
-  void AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject);
-  void AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject);
+  void RemoveDeadObjects(const WWorld& world);
+  void AddObjectAndChildren(const WWorld& world, const WGameObjectHandle& hObject);
+  void AddObjectAndChildren(const WWorld& world, const WGameObject* pObject);
 
   bool m_bEnabled = true; ///< allows to temporarily 
-  ezDeque<ezGameObjectHandle> m_Objects;
+  WDeque<WGameObjectHandle> m_Objects;
 };
 
 /// An extractor that can be instantiated in a render pipeline, to define manually which objects should be rendered with a selection outline.
 ///
-/// \sa ezSelectedObjectsContext
-class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
+/// \sa WSelectedObjectsContext
+class W_RENDERERCORE_DLL WSelectedObjectsExtractor : public WSelectedObjectsExtractorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractor, ezSelectedObjectsExtractorBase);
+  W_ADD_DYNAMIC_REFLECTION(WSelectedObjectsExtractor, WSelectedObjectsExtractorBase);
 
 public:
-  ezSelectedObjectsExtractor(const char* szName = "ExplicitlySelectedObjectsExtractor");
-  ~ezSelectedObjectsExtractor();
+  WSelectedObjectsExtractor(const char* szName = "ExplicitlySelectedObjectsExtractor");
+  ~WSelectedObjectsExtractor();
 
-  virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual const WDeque<WGameObjectHandle>* GetSelection() override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  /// The context is typically set through an ezView, through ezView::SetExtractorProperty("<name>", "SelectionContext", pointer);
-  void SetSelectionContext(ezSelectedObjectsContext* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]
-  ezSelectedObjectsContext* GetSelectionContext() const { return m_pSelectionContext; }                              // [ property ]
+  /// The context is typically set through an WView, through WView::SetExtractorProperty("<name>", "SelectionContext", pointer);
+  void SetSelectionContext(WSelectedObjectsContext* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]
+  WSelectedObjectsContext* GetSelectionContext() const { return m_pSelectionContext; }                              // [ property ]
 
 private:
-  ezSelectedObjectsContext* m_pSelectionContext = nullptr;
+  WSelectedObjectsContext* m_pSelectionContext = nullptr;
 };

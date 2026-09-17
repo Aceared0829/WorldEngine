@@ -4,15 +4,15 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 
-vk::Device ezFencePoolVulkan::s_Device;
-ezHybridArray<vk::Fence, 4> ezFencePoolVulkan::s_Fences;
+vk::Device WFencePoolVulkan::s_Device;
+WHybridArray<vk::Fence, 4> WFencePoolVulkan::s_Fences;
 
-void ezFencePoolVulkan::Initialize(vk::Device device)
+void WFencePoolVulkan::Initialize(vk::Device device)
 {
   s_Device = device;
 }
 
-void ezFencePoolVulkan::DeInitialize()
+void WFencePoolVulkan::DeInitialize()
 {
   for (vk::Fence& fence : s_Fences)
   {
@@ -24,9 +24,9 @@ void ezFencePoolVulkan::DeInitialize()
   s_Device = nullptr;
 }
 
-vk::Fence ezFencePoolVulkan::RequestFence()
+vk::Fence WFencePoolVulkan::RequestFence()
 {
-  EZ_ASSERT_DEBUG(s_Device, "ezFencePoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(s_Device, "WFencePoolVulkan::Initialize not called");
   if (!s_Fences.IsEmpty())
   {
     vk::Fence Fence = s_Fences.PeekBack();
@@ -42,105 +42,105 @@ vk::Fence ezFencePoolVulkan::RequestFence()
   }
 }
 
-void ezFencePoolVulkan::ReclaimFence(vk::Fence& ref_fence)
+void WFencePoolVulkan::ReclaimFence(vk::Fence& ref_fence)
 {
   vk::Result fenceStatus = s_Device.getFenceStatus(ref_fence);
   if (fenceStatus == vk::Result::eNotReady)
   {
     // #TODO_VULKAN Workaround for fences that were waited for (and thus signaled) returning VK_NOT_READY if AMDs profiler is active.
     // The fence will simply take another round through the reclaim process and will eventually turn signaled.
-    static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice())->ReclaimLater(ref_fence);
+    static_cast<WGALDeviceVulkan*>(WGALDevice::GetDefaultDevice())->ReclaimLater(ref_fence);
     return;
   }
   VK_ASSERT_DEV(fenceStatus);
   s_Device.resetFences(1, &ref_fence);
-  EZ_ASSERT_DEBUG(s_Device, "ezFencePoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(s_Device, "WFencePoolVulkan::Initialize not called");
   s_Fences.PushBack(ref_fence);
 }
 
 
-ezFenceQueueVulkan::ezFenceQueueVulkan(ezGALDeviceVulkan* pDevice)
+WFenceQueueVulkan::WFenceQueueVulkan(WGALDeviceVulkan* pDevice)
   : m_Device(pDevice->GetVulkanDevice())
   , m_PendingFences(pDevice->GetAllocator())
 {
 }
 
-ezFenceQueueVulkan::~ezFenceQueueVulkan()
+WFenceQueueVulkan::~WFenceQueueVulkan()
 {
   while (!m_PendingFences.IsEmpty())
   {
-    WaitForNextFence(ezTime::MakeFromHours(1));
+    WaitForNextFence(WTime::MakeFromHours(1));
   }
 }
 
-ezGALFenceHandle ezFenceQueueVulkan::GetCurrentFenceHandle()
+WGALFenceHandle WFenceQueueVulkan::GetCurrentFenceHandle()
 {
   return m_uiCurrentFenceCounter;
 }
 
-void ezFenceQueueVulkan::FenceSubmitted(vk::Fence vkFence)
+void WFenceQueueVulkan::FenceSubmitted(vk::Fence vkFence)
 {
   m_PendingFences.PushBack({vkFence, m_uiCurrentFenceCounter});
   m_uiCurrentFenceCounter++;
 }
 
-void ezFenceQueueVulkan::FlushReadyFences()
+void WFenceQueueVulkan::FlushReadyFences()
 {
   while (!m_PendingFences.IsEmpty())
   {
-    if (WaitForNextFence() == ezGALAsyncResult::Pending)
+    if (WaitForNextFence() == WGALAsyncResult::Pending)
       return;
   }
 }
 
-ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout /*= ezTime::MakeZero()*/)
+WEnum<WGALAsyncResult> WFenceQueueVulkan::GetFenceResult(WGALFenceHandle hFence, WTime timeout /*= WTime::MakeZero()*/)
 {
   if (hFence <= m_uiReachedFenceCounter)
-    return ezGALAsyncResult::Ready;
+    return WGALAsyncResult::Ready;
 
-  EZ_ASSERT_DEBUG(hFence <= m_uiCurrentFenceCounter, "Invalid fence handle");
+  W_ASSERT_DEBUG(hFence <= m_uiCurrentFenceCounter, "Invalid fence handle");
 
   while (!m_PendingFences.IsEmpty() && m_PendingFences[0].m_hFence <= hFence)
   {
-    const ezTime start = ezTime::Now();
-    ezEnum<ezGALAsyncResult> res = WaitForNextFence(timeout);
-    if (res == ezGALAsyncResult::Pending)
+    const WTime start = WTime::Now();
+    WEnum<WGALAsyncResult> res = WaitForNextFence(timeout);
+    if (res == WGALAsyncResult::Pending)
       return res;
 
-    const ezTime end = ezTime::Now();
+    const WTime end = WTime::Now();
     // Clamp timeout to zero as zero is considered no wait.
-    timeout = ezMath::Max(timeout - (end - start), ezTime::MakeZero());
+    timeout = WMath::Max(timeout - (end - start), WTime::MakeZero());
   }
 
-  return hFence <= m_uiReachedFenceCounter ? ezGALAsyncResult::Ready : ezGALAsyncResult::Pending;
+  return hFence <= m_uiReachedFenceCounter ? WGALAsyncResult::Ready : WGALAsyncResult::Pending;
 }
 
-ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*= ezTime::MakeZero()*/)
+WEnum<WGALAsyncResult> WFenceQueueVulkan::WaitForNextFence(WTime timeout /*= WTime::MakeZero()*/)
 {
   vk::Result fenceStatus;
   {
-    EZ_PROFILE_SCOPE("getFenceStatus");
+    W_PROFILE_SCOPE("getFenceStatus");
     fenceStatus = m_Device.getFenceStatus(m_PendingFences[0].m_vkFence);
   }
   if (fenceStatus == vk::Result::eSuccess)
   {
     m_uiReachedFenceCounter = m_PendingFences[0].m_hFence;
     m_PendingFences.PopFront();
-    return ezGALAsyncResult::Ready;
+    return WGALAsyncResult::Ready;
   }
 
-  EZ_ASSERT_DEBUG(fenceStatus == vk::Result::eNotReady, "getFenceStatus returned {}", vk::to_string(fenceStatus).c_str());
+  W_ASSERT_DEBUG(fenceStatus == vk::Result::eNotReady, "getFenceStatus returned {}", vk::to_string(fenceStatus).c_str());
   if (fenceStatus == vk::Result::eNotReady && timeout.IsPositive())
   {
-    fenceStatus = m_Device.waitForFences(1, &m_PendingFences[0].m_vkFence, true, static_cast<ezUInt64>(timeout.GetNanoseconds()));
+    fenceStatus = m_Device.waitForFences(1, &m_PendingFences[0].m_vkFence, true, static_cast<WUInt64>(timeout.GetNanoseconds()));
     if (fenceStatus == vk::Result::eTimeout)
-      return ezGALAsyncResult::Pending;
+      return WGALAsyncResult::Pending;
 
-    EZ_ASSERT_DEBUG(fenceStatus == vk::Result::eSuccess, "waitForFences returned {}", vk::to_string(fenceStatus).c_str());
+    W_ASSERT_DEBUG(fenceStatus == vk::Result::eSuccess, "waitForFences returned {}", vk::to_string(fenceStatus).c_str());
 
     m_uiReachedFenceCounter = m_PendingFences[0].m_hFence;
     m_PendingFences.PopFront();
-    return ezGALAsyncResult::Ready;
+    return WGALAsyncResult::Ready;
   }
-  return ezGALAsyncResult::Pending;
+  return WGALAsyncResult::Pending;
 }

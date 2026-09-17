@@ -10,14 +10,14 @@
 #include <Foundation/Time/Clock.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpGameTool, 1, ezRTTIDefaultAllocator<ezMcpGameTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpGameTool, 1, WRTTIDefaultAllocator<WMcpGameTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpGameTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "game_info";
     desc.m_sDescription =
       "Returns what the game is currently doing: whether a game state is active and of which type, the world it is "
@@ -30,7 +30,7 @@ void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "game_wait";
     desc.m_sDescription =
       "Lets the game run for a number of frames and returns once they have happened. This is how to observe anything: "
@@ -44,7 +44,7 @@ void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "game_pause";
     desc.m_sDescription =
       "Pauses or resumes the global clock. A paused game keeps rendering and keeps answering tools - it is the world "
@@ -57,7 +57,7 @@ void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "game_speed";
     desc.m_sDescription =
       "Reads or sets the global clock's speed factor. 1 is real time, 0.1 slows everything down by ten, 5 speeds it "
@@ -70,7 +70,7 @@ void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
   }
 }
 
-void ezMcpGameTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpGameTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "game_info")
   {
@@ -90,9 +90,9 @@ void ezMcpGameTool::Execute(ezStringView sToolName, const ezVariantDictionary& a
   }
 }
 
-void ezMcpGameTool::WriteClockState(ezMcpJsonWriter& ref_writer)
+void WMcpGameTool::WriteClockState(WMcpJsonWriter& ref_writer)
 {
-  const ezClock* pClock = ezClock::GetGlobalClock();
+  const WClock* pClock = WClock::GetGlobalClock();
 
   ref_writer.BeginObject("clock");
   ref_writer.AddVariableBool("paused", pClock->GetPaused());
@@ -110,15 +110,15 @@ void ezMcpGameTool::WriteClockState(ezMcpJsonWriter& ref_writer)
   ref_writer.EndObject();
 }
 
-void ezMcpGameTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpGameTool::ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  EZ_IGNORE_UNUSED(arguments);
+  W_IGNORE_UNUSED(arguments);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  ezGameApplicationBase* pApp = ezGameApplicationBase::GetGameApplicationBaseInstance();
-  ezGameStateBase* pGameState = pApp != nullptr ? pApp->GetActiveGameState() : nullptr;
+  WGameApplicationBase* pApp = WGameApplicationBase::GetGameApplicationBaseInstance();
+  WGameStateBase* pGameState = pApp != nullptr ? pApp->GetActiveGameState() : nullptr;
 
   writer.AddVariableBool("gameStateActive", pGameState != nullptr);
 
@@ -129,16 +129,16 @@ void ezMcpGameTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolR
     writer.AddVariableString("gameStateType", pGameState->GetDynamicRTTI()->GetTypeName());
   }
 
-  writer.AddVariableUInt64("frameCount", ezMcpEngineHost::GetFrameCount());
+  writer.AddVariableUInt64("frameCount", WMcpEngineHost::GetFrameCount());
 
   WriteClockState(writer);
 
-  // Reached through the game state rather than by walking ezWorld's global table: ezWorld::GetWorld()
+  // Reached through the game state rather than by walking WWorld's global table: WWorld::GetWorld()
   // takes a raw slot index while GetWorldCount() returns how many slots are *live*, so iterating one
   // against the other reads freed slots as soon as any world has ever been destroyed. The game state's
   // world is also the one the question is actually about.
-  const ezGameState* pTypedGameState = ezDynamicCast<const ezGameState*>(pGameState);
-  const ezWorld* pWorld = pTypedGameState != nullptr ? const_cast<ezGameState*>(pTypedGameState)->GetMainWorld() : nullptr;
+  const WGameState* pTypedGameState = WDynamicCast<const WGameState*>(pGameState);
+  const WWorld* pWorld = pTypedGameState != nullptr ? const_cast<WGameState*>(pTypedGameState)->GetMainWorld() : nullptr;
 
   if (pWorld != nullptr)
   {
@@ -153,38 +153,38 @@ void ezMcpGameTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolR
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpGameTool::ExecuteWait(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpGameTool::ExecuteWait(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezUInt64 uiNow = ezMcpEngineHost::GetFrameCount();
+  const WUInt64 uiNow = WMcpEngineHost::GetFrameCount();
 
   // First entry. Every later one is a re-entry from the deferral, and must not read the arguments
   // again - the frame count it is waiting for was decided here.
   if (!m_bWaiting)
   {
-    const ezInt64 iFrames = ezMcpJson::GetInt(arguments, "frames", 1);
+    const WInt64 iFrames = WMcpJson::GetInt(arguments, "frames", 1);
 
     if (iFrames < 1 || iFrames > s_uiMaxFrames)
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("'frames' must be between 1 and {}, not {}.", s_uiMaxFrames, iFrames);
       out_result.SetError(sError);
       return;
     }
 
-    const ezInt64 iTimeout = ezMcpJson::GetInt(arguments, "timeout", static_cast<ezInt64>(s_DefaultTimeout.GetSeconds()));
+    const WInt64 iTimeout = WMcpJson::GetInt(arguments, "timeout", static_cast<WInt64>(s_DefaultTimeout.GetSeconds()));
 
     m_bWaiting = true;
     m_uiWaitStartFrame = uiNow;
-    m_uiWaitUntilFrame = uiNow + static_cast<ezUInt64>(iFrames);
-    m_WaitStarted = ezTime::Now();
-    m_WaitTimeout = iTimeout > 0 ? ezTime::MakeFromSeconds(static_cast<double>(iTimeout)) : s_DefaultTimeout;
+    m_uiWaitUntilFrame = uiNow + static_cast<WUInt64>(iFrames);
+    m_WaitStarted = WTime::Now();
+    m_WaitTimeout = iTimeout > 0 ? WTime::MakeFromSeconds(static_cast<double>(iTimeout)) : s_DefaultTimeout;
 
     out_result.m_bNotFinished = true;
     return;
   }
 
   const bool bDone = uiNow >= m_uiWaitUntilFrame;
-  const bool bTimedOut = !bDone && (ezTime::Now() - m_WaitStarted >= m_WaitTimeout);
+  const bool bTimedOut = !bDone && (WTime::Now() - m_WaitStarted >= m_WaitTimeout);
 
   if (!bDone && !bTimedOut)
   {
@@ -192,45 +192,45 @@ void ezMcpGameTool::ExecuteWait(const ezVariantDictionary& arguments, ezMcpToolR
     return;
   }
 
-  const ezUInt64 uiElapsed = uiNow - m_uiWaitStartFrame;
-  const ezUInt64 uiRequested = m_uiWaitUntilFrame - m_uiWaitStartFrame;
+  const WUInt64 uiElapsed = uiNow - m_uiWaitStartFrame;
+  const WUInt64 uiRequested = m_uiWaitUntilFrame - m_uiWaitStartFrame;
 
   m_bWaiting = false;
 
   if (bTimedOut)
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("Timed out after {} seconds having waited {} of {} frames. The game is not producing frames fast "
                      "enough, or not at all. In the editor's engine process that is the normal state while "
                      "play-the-game is not running - it renders only when the editor asks it to - so start the game "
                      "in the editor first. A minimised window does the same thing.",
-      (ezTime::Now() - m_WaitStarted).GetSeconds(), uiElapsed, uiRequested);
+      (WTime::Now() - m_WaitStarted).GetSeconds(), uiElapsed, uiRequested);
     out_result.SetError(sError);
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableUInt64("framesWaited", uiElapsed);
   writer.AddVariableUInt64("frameCount", uiNow);
-  writer.AddVariableDouble("elapsedSeconds", (ezTime::Now() - m_WaitStarted).GetSeconds());
+  writer.AddVariableDouble("elapsedSeconds", (WTime::Now() - m_WaitStarted).GetSeconds());
   WriteClockState(writer);
   writer.EndObject();
 
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpGameTool::ExecutePause(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpGameTool::ExecutePause(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezClock* pClock = ezClock::GetGlobalClock();
+  WClock* pClock = WClock::GetGlobalClock();
 
-  const ezVariant* pPaused = nullptr;
+  const WVariant* pPaused = nullptr;
   if (arguments.TryGetValue("paused", pPaused) && pPaused->IsValid())
   {
-    pClock->SetPaused(ezMcpJson::GetBool(arguments, "paused", false));
+    pClock->SetPaused(WMcpJson::GetBool(arguments, "paused", false));
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteClockState(writer);
   writer.EndObject();
@@ -238,14 +238,14 @@ void ezMcpGameTool::ExecutePause(const ezVariantDictionary& arguments, ezMcpTool
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpGameTool::ExecuteSpeed(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpGameTool::ExecuteSpeed(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezClock* pClock = ezClock::GetGlobalClock();
+  WClock* pClock = WClock::GetGlobalClock();
 
-  const ezVariant* pSpeed = nullptr;
+  const WVariant* pSpeed = nullptr;
   if (arguments.TryGetValue("speed", pSpeed) && pSpeed->IsValid())
   {
-    ezResult conversion = EZ_SUCCESS;
+    WResult conversion = W_SUCCESS;
     const double fSpeed = pSpeed->ConvertTo<double>(&conversion);
 
     if (conversion.Failed())
@@ -256,7 +256,7 @@ void ezMcpGameTool::ExecuteSpeed(const ezVariantDictionary& arguments, ezMcpTool
 
     if (fSpeed <= 0.0)
     {
-      // ezClock asserts on a non-positive speed, and 'stopped' is what game_pause is for.
+      // WClock asserts on a non-positive speed, and 'stopped' is what game_pause is for.
       out_result.SetError("'speed' must be greater than 0. Use game_pause to stop time entirely.");
       return;
     }
@@ -264,7 +264,7 @@ void ezMcpGameTool::ExecuteSpeed(const ezVariantDictionary& arguments, ezMcpTool
     pClock->SetSpeed(fSpeed);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteClockState(writer);
   writer.EndObject();

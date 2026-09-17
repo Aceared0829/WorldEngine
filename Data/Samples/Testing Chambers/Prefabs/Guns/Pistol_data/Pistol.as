@@ -3,7 +3,7 @@
 
 class Pistol : WeaponBaseClass
 {
-    private ezTime nextAmmoPlus1Time;
+    private WTime nextAmmoPlus1Time;
 
     void OnSimulationStarted()
     {
@@ -14,30 +14,30 @@ class Pistol : WeaponBaseClass
 
     void FireWeapon(MsgWeaponInteraction@ msg) override
     {
-        ezSpawnComponent@ spawn;
+        WSpawnComponent@ spawn;
         if (!GetOwner().FindChildByName("Spawn").TryGetComponentOfBaseType(@spawn))
             return;
 
         if (!spawn.CanTriggerManualSpawn())
             return;
 
-        ezClock@ clk = GetWorld().GetClock();
-        nextAmmoPlus1Time = clk.GetAccumulatedTime() + ezTime::Seconds(0.75);
+        WClock@ clk = GetWorld().GetClock();
+        nextAmmoPlus1Time = clk.GetAccumulatedTime() + WTime::Seconds(0.75);
         msg.weaponInfo.iAmmoInClip -= 1;
 
-        spawn.TriggerManualSpawn(false, ezVec3::MakeZero());
+        spawn.TriggerManualSpawn(false, WVec3::MakeZero());
 
         PlayShootSound();
     }
 
     void UpdateWeapon(MsgWeaponInteraction@ msg) override
     {
-        ezClock@ clk = GetWorld().GetClock();
+        WClock@ clk = GetWorld().GetClock();
         if (nextAmmoPlus1Time <= clk.GetAccumulatedTime())
         {
-            nextAmmoPlus1Time = clk.GetAccumulatedTime() + ezTime::Seconds(0.75);
+            nextAmmoPlus1Time = clk.GetAccumulatedTime() + WTime::Seconds(0.75);
 
-            msg.weaponInfo.iAmmoInClip = ezMath::Min(msg.weaponInfo.iAmmoInClip + 1, msg.weaponInfo.iClipSize);
+            msg.weaponInfo.iAmmoInClip = WMath::Min(msg.weaponInfo.iAmmoInClip + 1, msg.weaponInfo.iClipSize);
         }
     }
 }

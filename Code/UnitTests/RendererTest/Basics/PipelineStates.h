@@ -4,7 +4,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezRendererTestPipelineStates : public ezGraphicsTest
+class WRendererTestPipelineStates : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "PipelineStates"; }
@@ -40,18 +40,18 @@ private:
     StructuredBuffer_Transient2 = 9,
     StructuredBuffer_UAV = 10,
     CustomVertexStreams_Offsets = 6,
-    Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
+    Timestamps_MaxWaitTime = WMath::MaxValue<WUInt32>(),
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-  virtual void MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
+  virtual void MapImageNumberToString(const char* szTestName, const WSubTestEntry& subTest, WUInt32 uiImageNumber, WStringBuilder& out_sString) const override;
 
-  void RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor = ezColor::CornflowerBlue, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
+  void RenderBlock(WMeshBufferResourceHandle mesh, WColor clearColor = WColor::CornflowerBlue, WUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, WRectFloat* pViewport = nullptr, WRectU32* pScissor = nullptr);
 
   void MostBasicTriangleTest();
   void ViewportScissorTest();
@@ -59,48 +59,48 @@ private:
   void IndexBufferTest();
   void ConstantBufferTest();
   void StructuredBufferTestUpload();
-  void StructuredBufferTest(ezGALShaderResourceType::Enum bufferType);
+  void StructuredBufferTest(WGALShaderResourceType::Enum bufferType);
   void Texture2D();
   void Texture2DArray();
   void GenerateMipMaps();
   void PushConstantsTest();
   void BindGroupsTest();
   void CustomVertexStreams();
-  ezTestAppRun Timestamps();
-  ezTestAppRun OcclusionQueries();
+  WTestAppRun Timestamps();
+  WTestAppRun OcclusionQueries();
 
 private:
-  ezShaderResourceHandle m_hMostBasicTriangleShader;
-  ezShaderResourceHandle m_hNDCPositionOnlyShader;
-  ezShaderResourceHandle m_hConstantBufferShader;
-  ezShaderResourceHandle m_hPushConstantsShader;
-  ezShaderResourceHandle m_hInstancingShader;
-  ezShaderResourceHandle m_hCopyBufferShader;
-  ezShaderResourceHandle m_hCustomVertexStreamShader;
+  WShaderResourceHandle m_hMostBasicTriangleShader;
+  WShaderResourceHandle m_hNDCPositionOnlyShader;
+  WShaderResourceHandle m_hConstantBufferShader;
+  WShaderResourceHandle m_hPushConstantsShader;
+  WShaderResourceHandle m_hInstancingShader;
+  WShaderResourceHandle m_hCopyBufferShader;
+  WShaderResourceHandle m_hCustomVertexStreamShader;
 
-  ezMeshBufferResourceHandle m_hTriangleMesh;
-  ezMeshBufferResourceHandle m_hSphereMesh;
+  WMeshBufferResourceHandle m_hTriangleMesh;
+  WMeshBufferResourceHandle m_hSphereMesh;
 
-  ezConstantBufferStorageHandle m_hTestPerFrameConstantBuffer;
-  ezConstantBufferStorageHandle m_hTestColorsConstantBuffer;
-  ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
+  WConstantBufferStorageHandle m_hTestPerFrameConstantBuffer;
+  WConstantBufferStorageHandle m_hTestColorsConstantBuffer;
+  WConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
-  ezGALBufferHandle m_hInstancingData;
-  ezGALBufferHandle m_hInstancingDataTransient;
-  ezGALBufferHandle m_hInstancingDataUAV;
+  WGALBufferHandle m_hInstancingData;
+  WGALBufferHandle m_hInstancingDataTransient;
+  WGALBufferHandle m_hInstancingDataUAV;
 
-  ezGALBufferHandle m_hInstancingDataVertexStream;
-  ezSmallArray<ezGALVertexAttribute, 8> m_VertexAttributes;
+  WGALBufferHandle m_hInstancingDataVertexStream;
+  WSmallArray<WGALVertexAttribute, 8> m_VertexAttributes;
 
-  ezGALTextureHandle m_hTexture2D;
-  ezGALTextureHandle m_hTexture2DArray;
+  WGALTextureHandle m_hTexture2D;
+  WGALTextureHandle m_hTexture2DArray;
 
 
   // Timestamps / Occlusion Queries test
-  ezInt32 m_iDelay = 0;
-  ezTime m_CPUTime[2];
-  ezTime m_GPUTime[2];
-  ezGALTimestampHandle m_timestamps[2];
-  ezGALOcclusionHandle m_queries[4];
-  ezGALFenceHandle m_hFence = {};
+  WInt32 m_iDelay = 0;
+  WTime m_CPUTime[2];
+  WTime m_GPUTime[2];
+  WGALTimestampHandle m_timestamps[2];
+  WGALOcclusionHandle m_queries[4];
+  WGALFenceHandle m_hFence = {};
 };

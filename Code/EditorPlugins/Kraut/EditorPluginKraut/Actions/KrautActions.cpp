@@ -5,46 +5,46 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WKrautAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezKrautActions::s_hCategory;
-ezActionDescriptorHandle ezKrautActions::s_hWindStrengthMenu;
-ezActionDescriptorHandle ezKrautActions::s_hWindStrength[4];
-ezActionDescriptorHandle ezKrautActions::s_hToggleFrondsLeaves;
+WActionDescriptorHandle WKrautActions::s_hCategory;
+WActionDescriptorHandle WKrautActions::s_hWindStrengthMenu;
+WActionDescriptorHandle WKrautActions::s_hWindStrength[4];
+WActionDescriptorHandle WKrautActions::s_hToggleFrondsLeaves;
 
-void ezKrautActions::RegisterActions()
+void WKrautActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("KrautCategory");
+  s_hCategory = W_REGISTER_CATEGORY("KrautCategory");
 
-  s_hWindStrengthMenu = EZ_REGISTER_MENU_WITH_ICON("Kraut.Wind.Menu", ":/EditorPluginKraut/Wind.svg");
-  s_hWindStrength[0] = EZ_REGISTER_ACTION_2(
-    "Kraut.Wind.Off", ezActionScope::Document, "Kraut Tree", "", ezKrautAction, ezKrautAction::ActionType::WindStrength, ezKrautWindStrength::Off);
-  s_hWindStrength[1] = EZ_REGISTER_ACTION_2(
-    "Kraut.Wind.Light", ezActionScope::Document, "Kraut Tree", "", ezKrautAction, ezKrautAction::ActionType::WindStrength, ezKrautWindStrength::Light);
-  s_hWindStrength[2] = EZ_REGISTER_ACTION_2(
-    "Kraut.Wind.Moderate", ezActionScope::Document, "Kraut Tree", "", ezKrautAction, ezKrautAction::ActionType::WindStrength, ezKrautWindStrength::Moderate);
-  s_hWindStrength[3] = EZ_REGISTER_ACTION_2(
-    "Kraut.Wind.Strong", ezActionScope::Document, "Kraut Tree", "", ezKrautAction, ezKrautAction::ActionType::WindStrength, ezKrautWindStrength::Strong);
+  s_hWindStrengthMenu = W_REGISTER_MENU_WITH_ICON("Kraut.Wind.Menu", ":/EditorPluginKraut/Wind.svg");
+  s_hWindStrength[0] = W_REGISTER_ACTION_2(
+    "Kraut.Wind.Off", WActionScope::Document, "Kraut Tree", "", WKrautAction, WKrautAction::ActionType::WindStrength, WKrautWindStrength::Off);
+  s_hWindStrength[1] = W_REGISTER_ACTION_2(
+    "Kraut.Wind.Light", WActionScope::Document, "Kraut Tree", "", WKrautAction, WKrautAction::ActionType::WindStrength, WKrautWindStrength::Light);
+  s_hWindStrength[2] = W_REGISTER_ACTION_2(
+    "Kraut.Wind.Moderate", WActionScope::Document, "Kraut Tree", "", WKrautAction, WKrautAction::ActionType::WindStrength, WKrautWindStrength::Moderate);
+  s_hWindStrength[3] = W_REGISTER_ACTION_2(
+    "Kraut.Wind.Strong", WActionScope::Document, "Kraut Tree", "", WKrautAction, WKrautAction::ActionType::WindStrength, WKrautWindStrength::Strong);
 
-  s_hToggleFrondsLeaves = EZ_REGISTER_ACTION_1("Kraut.ToggleFrondsLeaves", ezActionScope::Document, "Kraut Tree", "", ezKrautAction, ezKrautAction::ActionType::ToggleFrondsLeaves);
+  s_hToggleFrondsLeaves = W_REGISTER_ACTION_1("Kraut.ToggleFrondsLeaves", WActionScope::Document, "Kraut Tree", "", WKrautAction, WKrautAction::ActionType::ToggleFrondsLeaves);
 }
 
-void ezKrautActions::UnregisterActions()
+void WKrautActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hWindStrengthMenu);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hWindStrengthMenu);
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(s_hWindStrength); ++i)
-    ezActionManager::UnregisterAction(s_hWindStrength[i]);
+  for (int i = 0; i < W_ARRAY_SIZE(s_hWindStrength); ++i)
+    WActionManager::UnregisterAction(s_hWindStrength[i]);
 
-  ezActionManager::UnregisterAction(s_hToggleFrondsLeaves);
+  WActionManager::UnregisterAction(s_hToggleFrondsLeaves);
 }
 
-void ezKrautActions::MapActions(ezStringView sMapping)
+void WKrautActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -52,22 +52,22 @@ void ezKrautActions::MapActions(ezStringView sMapping)
 
   pMap->MapAction(s_hWindStrengthMenu, szSubPath, 1.0f);
 
-  ezStringBuilder sSubPath(szSubPath, "/Kraut.Wind.Menu");
+  WStringBuilder sSubPath(szSubPath, "/Kraut.Wind.Menu");
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hWindStrength); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_hWindStrength); ++i)
     pMap->MapAction(s_hWindStrength[i], sSubPath, i + 1.0f);
 
   pMap->MapAction(s_hToggleFrondsLeaves, szSubPath, 2.0f);
 }
 
-ezKrautAction::ezKrautAction(const ezActionContext& context, const char* szName, ezKrautAction::ActionType type, ezKrautWindStrength::Enum windStrength)
-  : ezButtonAction(context, szName, false, "")
+WKrautAction::WKrautAction(const WActionContext& context, const char* szName, WKrautAction::ActionType type, WKrautWindStrength::Enum windStrength)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
   m_WindStrength = windStrength;
 
-  m_pDocument = const_cast<ezKrautTreeAssetDocument*>(static_cast<const ezKrautTreeAssetDocument*>(context.m_pDocument));
-  m_pDocument->m_Events.AddEventHandler(ezMakeDelegate(&ezKrautAction::KrautEventHandler, this));
+  m_pDocument = const_cast<WKrautTreeAssetDocument*>(static_cast<const WKrautTreeAssetDocument*>(context.m_pDocument));
+  m_pDocument->m_Events.AddEventHandler(WMakeDelegate(&WKrautAction::KrautEventHandler, this));
 
   UpdateState();
 
@@ -77,12 +77,12 @@ ezKrautAction::ezKrautAction(const ezActionContext& context, const char* szName,
   }
 }
 
-ezKrautAction::~ezKrautAction()
+WKrautAction::~WKrautAction()
 {
-  m_pDocument->m_Events.RemoveEventHandler(ezMakeDelegate(&ezKrautAction::KrautEventHandler, this));
+  m_pDocument->m_Events.RemoveEventHandler(WMakeDelegate(&WKrautAction::KrautEventHandler, this));
 }
 
-void ezKrautAction::Execute(const ezVariant& value)
+void WKrautAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::WindStrength)
   {
@@ -94,24 +94,24 @@ void ezKrautAction::Execute(const ezVariant& value)
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
-void ezKrautAction::KrautEventHandler(const ezKrautTreeAssetEvent& e)
+void WKrautAction::KrautEventHandler(const WKrautTreeAssetEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezKrautTreeAssetEvent::Type::WindStrengthChanged:
-    case ezKrautTreeAssetEvent::Type::FrondsLeavesVisibilityChanged:
+    case WKrautTreeAssetEvent::Type::WindStrengthChanged:
+    case WKrautTreeAssetEvent::Type::FrondsLeavesVisibilityChanged:
       UpdateState();
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
 
-void ezKrautAction::UpdateState()
+void WKrautAction::UpdateState()
 {
   if (m_Type == ActionType::WindStrength)
   {
@@ -125,6 +125,6 @@ void ezKrautAction::UpdateState()
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 }

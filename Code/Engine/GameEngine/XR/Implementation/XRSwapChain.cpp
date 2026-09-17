@@ -4,35 +4,35 @@
 #include <GameEngine/XR/XRSwapChain.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALXRSwapChain, ezGALSwapChain, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALXRSwapChain, WGALSwapChain, 1, WRTTINoAllocator)
 {
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGALXRSwapChain::Functor ezGALXRSwapChain::s_Factory;
+WGALXRSwapChain::Functor WGALXRSwapChain::s_Factory;
 
-ezGALXRSwapChain::ezGALXRSwapChain(ezXRInterface* pXrInterface)
-  : ezGALSwapChain(ezGetStaticRTTI<ezGALXRSwapChain>())
+WGALXRSwapChain::WGALXRSwapChain(WXRInterface* pXrInterface)
+  : WGALSwapChain(WGetStaticRTTI<WGALXRSwapChain>())
   , m_pXrInterface(pXrInterface)
 {
 }
 
-ezResult ezGALXRSwapChain::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+WResult WGALXRSwapChain::UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode)
 {
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezGALXRSwapChain::SetFactoryMethod(Functor factory)
+void WGALXRSwapChain::SetFactoryMethod(Functor factory)
 {
   s_Factory = factory;
 }
 
-ezGALSwapChainHandle ezGALXRSwapChain::Create(ezXRInterface* pXrInterface)
+WGALSwapChainHandle WGALXRSwapChain::Create(WXRInterface* pXrInterface)
 {
-  EZ_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for ezGALXRSwapChain.");
+  W_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for WGALXRSwapChain.");
   return s_Factory(pXrInterface);
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRSwapChain);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRSwapChain);

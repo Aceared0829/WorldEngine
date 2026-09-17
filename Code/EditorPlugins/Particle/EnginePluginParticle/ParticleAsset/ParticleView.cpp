@@ -4,23 +4,23 @@
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 #include <RendererCore/Pipeline/View.h>
 
-ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext)
-  : ezEngineProcessViewContext(pParticleContext)
+WParticleViewContext::WParticleViewContext(WParticleContext* pParticleContext)
+  : WEngineProcessViewContext(pParticleContext)
 {
   m_pParticleContext = pParticleContext;
 }
 
-ezParticleViewContext::~ezParticleViewContext() = default;
+WParticleViewContext::~WParticleViewContext() = default;
 
-void ezParticleViewContext::PositionThumbnailCamera(const ezBoundingBoxSphere& bounds)
+void WParticleViewContext::PositionThumbnailCamera(const WBoundingBoxSphere& bounds)
 {
-  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
+  m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
 
-  FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(-1.8f, 1.8f, 1.0f));
+  FocusCameraOnObject(m_Camera, bounds, 45.0f, -WVec3(-1.8f, 1.8f, 1.0f));
 }
 
-ezViewHandle ezParticleViewContext::CreateView()
+WViewHandle WParticleViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Particle Editor - View");
+  WView* pView = CreateDefaultView("Particle Editor - View");
   return pView->GetHandle();
 }

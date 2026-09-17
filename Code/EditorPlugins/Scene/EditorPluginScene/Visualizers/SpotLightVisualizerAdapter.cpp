@@ -5,18 +5,18 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() = default;
+WSpotLightVisualizerAdapter::WSpotLightVisualizerAdapter() = default;
 
-ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() = default;
+WSpotLightVisualizerAdapter::~WSpotLightVisualizerAdapter() = default;
 
-void ezSpotLightVisualizerAdapter::Finalize()
+void WSpotLightVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
-  m_hRadiusGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Cone, WColor::White, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
+  m_hRadiusGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Sphere, WColor::White, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   pAssetDocument->AddSyncObject(&m_hRadiusGizmo);
@@ -24,29 +24,29 @@ void ezSpotLightVisualizerAdapter::Finalize()
   m_hRadiusGizmo.SetVisible(false);
 }
 
-void ezSpotLightVisualizerAdapter::Update()
+void WSpotLightVisualizerAdapter::Update()
 {
-  const ezSpotLightVisualizerAttribute* pAttr = static_cast<const ezSpotLightVisualizerAttribute*>(m_pVisualizerAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WSpotLightVisualizerAttribute* pAttr = static_cast<const WSpotLightVisualizerAttribute*>(m_pVisualizerAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'angle'");
-    m_fAngleScale = ezMath::Tan(value.ConvertTo<ezAngle>() * 0.5f);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WAngle>(), "Invalid property bound to WSpotLightVisualizerAttribute 'angle'");
+    m_fAngleScale = WMath::Tan(value.ConvertTo<WAngle>() * 0.5f);
   }
 
-  ezColor color = ezColor::White;
+  WColor color = WColor::White;
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'color'");
-    color = value.ConvertTo<ezColor>();
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WSpotLightVisualizerAttribute 'color'");
+    color = value.ConvertTo<WColor>();
   }
   m_hGizmo.SetColor(color);
   m_hRadiusGizmo.SetColor(color);
@@ -54,23 +54,23 @@ void ezSpotLightVisualizerAdapter::Update()
   m_fScale = 1.0f;
   if (!pAttr->GetRangeProperty().IsEmpty() && !pAttr->GetIntensityProperty().IsEmpty())
   {
-    ezVariant range;
+    WVariant range;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRangeProperty()), range).AssertSuccess();
-    EZ_ASSERT_DEBUG(range.CanConvertTo<float>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'range'");
+    W_ASSERT_DEBUG(range.CanConvertTo<float>(), "Invalid property bound to WSpotLightVisualizerAttribute 'range'");
 
-    ezVariant intensity;
+    WVariant intensity;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity).AssertSuccess();
-    EZ_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'intensity'");
+    W_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to WSpotLightVisualizerAttribute 'intensity'");
 
-    m_fScale = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
+    m_fScale = WLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
   }
 
   m_fRadius = 0.0f;
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value).AssertSuccess();
-    EZ_ASSERT_DEBUG(value.CanConvertTo<float>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'radius'");
+    W_ASSERT_DEBUG(value.CanConvertTo<float>(), "Invalid property bound to WSpotLightVisualizerAttribute 'radius'");
     m_fRadius = value.ConvertTo<float>();
   }
 
@@ -78,13 +78,13 @@ void ezSpotLightVisualizerAdapter::Update()
   m_hRadiusGizmo.SetVisible(m_bVisualizerIsVisible && m_fRadius > 0.0f);
 }
 
-void ezSpotLightVisualizerAdapter::UpdateGizmoTransform()
+void WSpotLightVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezTransform t = GetObjectTransform();
-  t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fScale);
+  WTransform t = GetObjectTransform();
+  t.m_vScale = t.m_vScale.CompMul(WVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fScale);
   m_hGizmo.SetTransformation(t);
 
-  ezTransform tRadius = GetObjectTransform();
+  WTransform tRadius = GetObjectTransform();
   tRadius.m_vScale *= m_fRadius;
   m_hRadiusGizmo.SetTransformation(tRadius);
 }

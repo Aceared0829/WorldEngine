@@ -1,7 +1,7 @@
 
-inline ezColorLinear16f::ezColorLinear16f() = default;
+inline WColorLinear16f::WColorLinear16f() = default;
 
-inline ezColorLinear16f::ezColorLinear16f(ezFloat16 r, ezFloat16 g, ezFloat16 b, ezFloat16 a)
+inline WColorLinear16f::WColorLinear16f(WFloat16 r, WFloat16 g, WFloat16 b, WFloat16 a)
   : r(r)
   , g(g)
   , b(b)
@@ -9,7 +9,7 @@ inline ezColorLinear16f::ezColorLinear16f(ezFloat16 r, ezFloat16 g, ezFloat16 b,
 {
 }
 
-inline ezColorLinear16f::ezColorLinear16f(const ezColor& color)
+inline WColorLinear16f::WColorLinear16f(const WColor& color)
   : r(color.r)
   , g(color.g)
   , b(color.b)
@@ -17,7 +17,7 @@ inline ezColorLinear16f::ezColorLinear16f(const ezColor& color)
 {
 }
 
-inline ezColor ezColorLinear16f::ToLinearFloat() const
+inline WColor WColorLinear16f::ToLinearFloat() const
 {
-  return ezColor(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a));
+  return WColor(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a));
 }

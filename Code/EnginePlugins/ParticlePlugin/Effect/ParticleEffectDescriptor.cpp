@@ -6,35 +6,35 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 2, ezRTTIDefaultAllocator<ezParticleEffectDescriptor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEffectDescriptor, 2, WRTTIDefaultAllocator<WParticleEffectDescriptor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("WhenInvisible", ezEffectInvisibleUpdateRate, m_InvisibleUpdateRate),
-    EZ_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
-    EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
-    EZ_MEMBER_PROPERTY("ApplyOwnerVelocity", m_fApplyInstanceVelocity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
-    EZ_MEMBER_PROPERTY("NumWindSamples", m_vNumWindSamples)->AddAttributes(new ezDefaultValueAttribute(ezVec3U32(1)), new ezClampValueAttribute(ezVec3U32(1), ezVec3U32(8))),
-    EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
-    EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
-    EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("EventReactions", GetEventReactions, AddEventReaction, RemoveEventReaction)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ENUM_MEMBER_PROPERTY("WhenInvisible", WEffectInvisibleUpdateRate, m_InvisibleUpdateRate),
+    W_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
+    W_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
+    W_MEMBER_PROPERTY("ApplyOwnerVelocity", m_fApplyInstanceVelocity)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
+    W_MEMBER_PROPERTY("NumWindSamples", m_vNumWindSamples)->AddAttributes(new WDefaultValueAttribute(WVec3U32(1)), new WClampValueAttribute(WVec3U32(1), WVec3U32(8))),
+    W_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
+    W_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new WExposeColorAlphaAttribute),
+    W_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(WPropertyFlags::PointerOwner),
+    W_SET_ACCESSOR_PROPERTY("EventReactions", GetEventReactions, AddEventReaction, RemoveEventReaction)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEffectDescriptor::ezParticleEffectDescriptor() = default;
+WParticleEffectDescriptor::WParticleEffectDescriptor() = default;
 
-ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
+WParticleEffectDescriptor::~WParticleEffectDescriptor()
 {
   ClearSystems();
   ClearEventReactions();
 }
 
-void ezParticleEffectDescriptor::ClearSystems()
+void WParticleEffectDescriptor::ClearSystems()
 {
   for (auto pSystem : m_ParticleSystems)
   {
@@ -45,7 +45,7 @@ void ezParticleEffectDescriptor::ClearSystems()
 }
 
 
-void ezParticleEffectDescriptor::ClearEventReactions()
+void WParticleEffectDescriptor::ClearEventReactions()
 {
   for (auto pReaction : m_EventReactions)
   {
@@ -75,13 +75,13 @@ enum class ParticleEffectVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
+void WParticleEffectDescriptor::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)ParticleEffectVersion::Version_Current;
+  const WUInt8 uiVersion = (int)ParticleEffectVersion::Version_Current;
 
   inout_stream << uiVersion;
 
-  const ezUInt32 uiNumSystems = m_ParticleSystems.GetCount();
+  const WUInt32 uiNumSystems = m_ParticleSystems.GetCount();
 
   inout_stream << uiNumSystems;
 
@@ -95,7 +95,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
 
   // Version 6
   {
-    ezUInt8 paramCol = static_cast<ezUInt8>(m_ColorParameters.GetCount());
+    WUInt8 paramCol = static_cast<WUInt8>(m_ColorParameters.GetCount());
     inout_stream << paramCol;
     for (auto it = m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
@@ -103,7 +103,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
       inout_stream << it.Value();
     }
 
-    ezUInt8 paramFloat = static_cast<ezUInt8>(m_FloatParameters.GetCount());
+    WUInt8 paramFloat = static_cast<WUInt8>(m_FloatParameters.GetCount());
     inout_stream << paramFloat;
     for (auto it = m_FloatParameters.GetIterator(); it.IsValid(); ++it)
     {
@@ -117,7 +117,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
 
   // Version 8
   {
-    const ezUInt32 uiNumReactions = m_EventReactions.GetCount();
+    const WUInt32 uiNumReactions = m_EventReactions.GetCount();
     inout_stream << uiNumReactions;
 
     for (auto pReaction : m_EventReactions)
@@ -141,22 +141,22 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
 }
 
 
-void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
+void WParticleEffectDescriptor::Load(WStreamReader& inout_stream)
 {
   ClearSystems();
   ClearEventReactions();
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version {0}", uiVersion);
 
   if (uiVersion < (int)ParticleEffectVersion::Version_9)
   {
-    ezLog::SeriousWarning("Unsupported old particle effect version");
+    WLog::SeriousWarning("Unsupported old particle effect version");
     return;
   }
 
-  ezUInt32 uiNumSystems = 0;
+  WUInt32 uiNumSystems = 0;
   inout_stream >> uiNumSystems;
 
   inout_stream >> m_bSimulateInLocalSpace;
@@ -166,7 +166,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
 
   m_ParticleSystems.SetCountUninitialized(uiNumSystems);
 
-  ezStringBuilder sType;
+  WStringBuilder sType;
 
   if (uiVersion <= (int)ParticleEffectVersion::Version_10)
   {
@@ -174,32 +174,32 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
+      const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+      W_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
 
-      pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
+      pSystem = pRtti->GetAllocator()->Allocate<WParticleSystemDescriptor>();
 
       pSystem->Load(inout_stream, *this);
     }
   }
 
-  ezStringBuilder key;
+  WStringBuilder key;
   m_ColorParameters.Clear();
   m_FloatParameters.Clear();
 
-  ezUInt8 paramCol;
+  WUInt8 paramCol;
   inout_stream >> paramCol;
-  for (ezUInt32 i = 0; i < paramCol; ++i)
+  for (WUInt32 i = 0; i < paramCol; ++i)
   {
-    ezColor val;
+    WColor val;
     inout_stream >> key;
     inout_stream >> val;
     m_ColorParameters[key] = val;
   }
 
-  ezUInt8 paramFloat;
+  WUInt8 paramFloat;
   inout_stream >> paramFloat;
-  for (ezUInt32 i = 0; i < paramFloat; ++i)
+  for (WUInt32 i = 0; i < paramFloat; ++i)
   {
     float val;
     inout_stream >> key;
@@ -209,7 +209,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
 
   inout_stream >> m_fApplyInstanceVelocity;
 
-  ezUInt32 uiNumReactions = 0;
+  WUInt32 uiNumReactions = 0;
   inout_stream >> uiNumReactions;
 
   m_EventReactions.SetCountUninitialized(uiNumReactions);
@@ -218,10 +218,10 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
+    const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+    W_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
 
-    pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
+    pReaction = pRtti->GetAllocator()->Allocate<WParticleEventReactionFactory>();
 
     pReaction->Load(inout_stream);
   }
@@ -238,14 +238,14 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
+      const WRTTI* pRtti = WRTTI::FindTypeByName(sType);
+      W_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
 
-      pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
+      pSystem = pRtti->GetAllocator()->Allocate<WParticleSystemDescriptor>();
 
       pSystem->Load(inout_stream, *this);
     }
   }
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectDescriptor);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectDescriptor);

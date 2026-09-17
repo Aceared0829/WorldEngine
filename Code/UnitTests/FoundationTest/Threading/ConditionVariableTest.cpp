@@ -8,20 +8,20 @@
 
 namespace
 {
-  class TestThread : public ezThread
+  class TestThread : public WThread
   {
   public:
     TestThread()
-      : ezThread("Test Thread")
+      : WThread("Test Thread")
     {
     }
 
-    ezConditionVariable* m_pCV = nullptr;
-    ezAtomicInteger32* m_pCounter = nullptr;
+    WConditionVariable* m_pCV = nullptr;
+    WAtomicInteger32* m_pCounter = nullptr;
 
-    virtual ezUInt32 Run()
+    virtual WUInt32 Run()
     {
-      EZ_LOCK(*m_pCV);
+      W_LOCK(*m_pCV);
 
       m_pCounter->Decrement();
 
@@ -32,31 +32,31 @@ namespace
     }
   };
 
-  class TestThreadTimeout : public ezThread
+  class TestThreadTimeout : public WThread
   {
   public:
     TestThreadTimeout()
-      : ezThread("Test Thread Timeout")
+      : WThread("Test Thread Timeout")
     {
     }
 
-    ezConditionVariable* m_pCV = nullptr;
-    ezConditionVariable* m_pCVTimeout = nullptr;
-    ezAtomicInteger32* m_pCounter = nullptr;
+    WConditionVariable* m_pCV = nullptr;
+    WConditionVariable* m_pCVTimeout = nullptr;
+    WAtomicInteger32* m_pCounter = nullptr;
 
-    virtual ezUInt32 Run()
+    virtual WUInt32 Run()
     {
       // make sure all threads are put to sleep first
       {
-        EZ_LOCK(*m_pCV);
+        W_LOCK(*m_pCV);
         m_pCounter->Decrement();
         m_pCV->UnlockWaitForSignalAndLock();
       }
 
       // this condition will never be met during the test
       // it should always run into the timeout
-      EZ_LOCK(*m_pCVTimeout);
-      m_pCVTimeout->UnlockWaitForSignalAndLock(ezTime::MakeFromSeconds(0.5));
+      W_LOCK(*m_pCVTimeout);
+      m_pCVTimeout->UnlockWaitForSignalAndLock(WTime::MakeFromSeconds(0.5));
 
       m_pCounter->Increment();
       return 0;
@@ -64,19 +64,19 @@ namespace
   };
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
+W_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Wait No Timeout")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Wait No Timeout")
   {
-    constexpr ezUInt32 uiNumThreads = 32;
+    constexpr WUInt32 uiNumThreads = 32;
 
-    ezUniquePtr<TestThread> pTestThreads[uiNumThreads];
-    ezAtomicInteger32 iCounter = uiNumThreads;
-    ezConditionVariable cv;
+    WUniquePtr<TestThread> pTestThreads[uiNumThreads];
+    WAtomicInteger32 iCounter = uiNumThreads;
+    WConditionVariable cv;
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
-      pTestThreads[i] = EZ_DEFAULT_NEW(TestThread);
+      pTestThreads[i] = W_DEFAULT_NEW(TestThread);
       pTestThreads[i]->m_pCounter = &iCounter;
       pTestThreads[i]->m_pCV = &cv;
       pTestThreads[i]->Start();
@@ -87,22 +87,22 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
     {
       // We need to lock here as otherwise we could signal
       // while a thread hasn't reached the wait yet.
-      EZ_LOCK(cv);
+      W_LOCK(cv);
       if (iCounter == 0)
         break;
 
-      ezThreadUtils::YieldTimeSlice();
+      WThreadUtils::YieldTimeSlice();
     }
 
-    for (ezUInt32 t = 0; t < uiNumThreads / 2; ++t)
+    for (WUInt32 t = 0; t < uiNumThreads / 2; ++t)
     {
-      const ezInt32 iExpected = iCounter + 1;
+      const WInt32 iExpected = iCounter + 1;
 
       cv.SignalOne();
 
-      for (ezUInt32 a = 0; a < 1000; ++a)
+      for (WUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
 
         if (iCounter >= iExpected)
           break;
@@ -110,45 +110,45 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
 
       // Theoretically this could fail, if the OS doesn't wake up any other thread in time but with 1000 tries that is very unlikely.
       // On some platforms like posix it is not guaranteed that exactly one thread is woken up, so we check that at least one thread was woken up.
-      EZ_TEST_BOOL(iCounter >= iExpected);
+      W_TEST_BOOL(iCounter >= iExpected);
     }
 
     // wake up the rest
     {
       cv.SignalAll();
 
-      for (ezUInt32 a = 0; a < 1000; ++a)
+      for (WUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+        WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
 
-        if (iCounter >= (ezInt32)uiNumThreads)
+        if (iCounter >= (WInt32)uiNumThreads)
           break;
       }
 
       // theoretically this could fail, if the OS doesn't wake up any other thread in time
       // but with 1000 tries that is very unlikely
-      EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads);
-      EZ_TEST_BOOL(iCounter <= (ezInt32)uiNumThreads); // THIS test must never fail!
+      W_TEST_INT(iCounter, (WInt32)uiNumThreads);
+      W_TEST_BOOL(iCounter <= (WInt32)uiNumThreads); // THIS test must never fail!
     }
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
       pTestThreads[i]->Join();
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Wait With timeout")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Wait With timeout")
   {
-    constexpr ezUInt32 uiNumThreads = 16;
+    constexpr WUInt32 uiNumThreads = 16;
 
-    ezUniquePtr<TestThreadTimeout> pTestThreads[uiNumThreads];
-    ezAtomicInteger32 iCounter = uiNumThreads;
-    ezConditionVariable cv;
-    ezConditionVariable cvt;
+    WUniquePtr<TestThreadTimeout> pTestThreads[uiNumThreads];
+    WAtomicInteger32 iCounter = uiNumThreads;
+    WConditionVariable cv;
+    WConditionVariable cvt;
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
-      pTestThreads[i] = EZ_DEFAULT_NEW(TestThreadTimeout);
+      pTestThreads[i] = W_DEFAULT_NEW(TestThreadTimeout);
       pTestThreads[i]->m_pCounter = &iCounter;
       pTestThreads[i]->m_pCV = &cv;
       pTestThreads[i]->m_pCVTimeout = &cvt;
@@ -160,31 +160,31 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
     {
       // We need to lock here as otherwise we could signal
       // while a thread hasn't reached the wait yet.
-      EZ_LOCK(cv);
+      W_LOCK(cv);
       if (iCounter == 0)
         break;
 
-      ezThreadUtils::YieldTimeSlice();
+      WThreadUtils::YieldTimeSlice();
     }
 
     // open the flood gates
     cv.SignalAll();
 
     // all threads should run into their timeout now
-    for (ezUInt32 a = 0; a < 100; ++a)
+    for (WUInt32 a = 0; a < 100; ++a)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(50));
 
-      if (iCounter >= (ezInt32)uiNumThreads)
+      if (iCounter >= (WInt32)uiNumThreads)
         break;
     }
 
     // theoretically this could fail, if the OS doesn't wake up any other thread in time
     // but with 100 tries that is very unlikely
-    EZ_TEST_INT(iCounter, (ezInt32)uiNumThreads);
-    EZ_TEST_BOOL(iCounter <= (ezInt32)uiNumThreads); // THIS test must never fail!
+    W_TEST_INT(iCounter, (WInt32)uiNumThreads);
+    W_TEST_BOOL(iCounter <= (WInt32)uiNumThreads); // THIS test must never fail!
 
-    for (ezUInt32 i = 0; i < uiNumThreads; ++i)
+    for (WUInt32 i = 0; i < uiNumThreads; ++i)
     {
       pTestThreads[i]->Join();
     }

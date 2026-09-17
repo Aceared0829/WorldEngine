@@ -10,96 +10,96 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1)
+W_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(WRenderPipelinePass, 1)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    W_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("Name", GetName, SetName),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Grape))
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Grape))
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezForwardRenderShadingQuality, 1)
-  EZ_ENUM_CONSTANTS(ezForwardRenderShadingQuality::Normal, ezForwardRenderShadingQuality::Simplified)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WForwardRenderShadingQuality, 1)
+  W_ENUM_CONSTANTS(WForwardRenderShadingQuality::Normal, WForwardRenderShadingQuality::Simplified)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezRenderPipelinePass::ezRenderPipelinePass(const char* szName, bool bIsStereoAware)
+WRenderPipelinePass::WRenderPipelinePass(const char* szName, bool bIsStereoAware)
   : m_bIsStereoAware(bIsStereoAware)
 
 {
   m_sName.Assign(szName);
 }
 
-ezRenderPipelinePass::~ezRenderPipelinePass() = default;
+WRenderPipelinePass::~WRenderPipelinePass() = default;
 
-void ezRenderPipelinePass::SetName(const char* szName)
+void WRenderPipelinePass::SetName(const char* szName)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szName))
+  if (!WStringUtils::IsNullOrEmpty(szName))
   {
     m_sName.Assign(szName);
   }
 }
 
-const char* ezRenderPipelinePass::GetName() const
+const char* WRenderPipelinePass::GetName() const
 {
   return m_sName.GetData();
 }
 
-void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
+void WRenderPipelinePass::ReadBackProperties(WView* pView) {}
 
-ezResult ezRenderPipelinePass::Serialize(ezStreamWriter& inout_stream) const
+WResult WRenderPipelinePass::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_bActive;
   inout_stream << m_sName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
+WResult WRenderPipelinePass::Deserialize(WStreamReader& inout_stream)
 {
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
 
   inout_stream >> m_bActive;
   inout_stream >> m_sName;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRenderPipelinePass::DeclareRendererDependenciesForCategory(ezRenderData::Category category, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_passBuilder)
+void WRenderPipelinePass::DeclareRendererDependenciesForCategory(WRenderData::Category category, WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_passBuilder)
 {
-  for (const ezTextureDependency& dep : m_pPipeline->GetTextureDependenciesWithCategory(category))
+  for (const WTextureDependency& dep : m_pPipeline->GetTextureDependenciesWithCategory(category))
   {
     ref_passBuilder.ReadTexture(ref_graph.ImportTexture(dep.m_hTexture), {}, dep.m_RequiredState, dep.m_Stage);
   }
 
-  for (const ezBufferDependency& dep : m_pPipeline->GetBufferDependenciesWithCategory(category))
+  for (const WBufferDependency& dep : m_pPipeline->GetBufferDependenciesWithCategory(category))
   {
     ref_passBuilder.ReadBuffer(ref_graph.ImportBuffer(dep.m_hBuffer), dep.m_RequiredState, dep.m_Stage);
   }
 }
 
-void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
+void WRenderPipelinePass::RenderDataWithCategory(const WRenderViewContext& renderViewContext, WRenderData::Category category)
 {
-  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), ezRenderData::GetCategoryName(category));
+  W_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), WRenderData::GetCategoryName(category));
 
   auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category);
-  const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-  for (ezUInt32 i = 0; i < uiBatchCount; ++i)
+  const WUInt32 uiBatchCount = batchList.GetBatchCount();
+  for (WUInt32 i = 0; i < uiBatchCount; ++i)
   {
-    const ezRenderDataBatch& batch = batchList.GetBatch(i);
+    const WRenderDataBatch& batch = batchList.GetBatch(i);
 
-    if (const ezRenderData* pRenderData = batch.GetFirstData<ezRenderData>())
+    if (const WRenderData* pRenderData = batch.GetFirstData<WRenderData>())
     {
-      const ezRTTI* pType = pRenderData->GetDynamicRTTI();
+      const WRTTI* pType = pRenderData->GetDynamicRTTI();
 
-      if (const ezRenderer* pRenderer = ezRendererRegistry::GetRenderer(pType))
+      if (const WRenderer* pRenderer = WRendererRegistry::GetRenderer(pType))
       {
         pRenderer->RenderBatch(renderViewContext, this, batch);
       }
@@ -107,12 +107,12 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
   }
 }
 
-void ezRenderPipelinePass::SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value)
+void WRenderPipelinePass::SetReadBackProperty(WView* pView, WStringView sPropertyName, const WVariant& value)
 {
-  ezStringBuilder sb = GetName();
+  WStringBuilder sb = GetName();
   sb.Append(".", sPropertyName);
 
   pView->GetBlackboard()->SetEntryValue(sb, value);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);

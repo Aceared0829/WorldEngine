@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ezQtCreateProjectDlg</class>
- <widget class="QDialog" name="ezQtCreateProjectDlg">
+ <class>WQtCreateProjectDlg</class>
+ <widget class="QDialog" name="WQtCreateProjectDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -110,7 +110,7 @@
         </widget>
        </item>
        <item>
-        <widget class="ezQtPluginSelectionWidget" name="Plugins" native="true">
+        <widget class="WQtPluginSelectionWidget" name="Plugins" native="true">
          <property name="minimumSize">
           <size>
            <width>20</width>
@@ -250,7 +250,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtPluginSelectionWidget</class>
+   <class>WQtPluginSelectionWidget</class>
    <extends>QWidget</extends>
    <header location="global">EditorFramework/Dialogs/PluginSelectionWidget.moc.h</header>
    <container>1</container>

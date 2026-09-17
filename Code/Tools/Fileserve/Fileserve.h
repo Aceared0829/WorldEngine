@@ -5,37 +5,37 @@
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Types/UniquePtr.h>
 
-/// A stand-alone application for the ezFileServer.
+/// A stand-alone application for the WFileServer.
 ///
-/// If EZ_USE_QT is defined, the GUI from the EditorPluginFileserve is used. Otherwise the server runs as a console application.
+/// If W_USE_QT is defined, the GUI from the EditorPluginFileserve is used. Otherwise the server runs as a console application.
 ///
 /// If the command line option "-fs_wait_timeout seconds" is specified, the server waits for a limited time for any client to
 /// connect and closes automatically, if no connection is established. Once a client connects, this timeout becomes irrelevant.
 /// If the command line option "-fs_close_timeout seconds" is specified, the application automatically shuts down when no
 /// client is connected anymore and a certain timeout is reached. Once a client connects, the timeout is reset.
 /// This timeout has no effect as long as no client has connected.
-class ezFileserverApp : public ezApplication
+class WFileserverApp : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezFileserverApp()
-    : ezApplication("Fileserve")
+  WFileserverApp()
+    : WApplication("Fileserve")
   {
   }
 
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
   virtual void Run() override;
-  void FileserverEventHandlerConsole(const ezFileserverEvent& e);
-  void FileserverEventHandler(const ezFileserverEvent& e);
+  void FileserverEventHandlerConsole(const WFileserverEvent& e);
+  void FileserverEventHandler(const WFileserverEvent& e);
 
-  void ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, ezRemoteMessage& ref_msg, ezRemoteInterface& ref_clientChannel, ezDelegate<void(const char*)> logActivity);
+  void ShaderMessageHandler(WFileserveClientContext& ref_ctxt, WRemoteMessage& ref_msg, WRemoteInterface& ref_clientChannel, WDelegate<void(const char*)> logActivity);
 
-  ezUInt32 m_uiSleepCounter = 0;
-  ezUInt32 m_uiConnections = 0;
-  ezTime m_CloseAppTimeout;
-  ezTime m_TimeTillClosing;
+  WUInt32 m_uiSleepCounter = 0;
+  WUInt32 m_uiConnections = 0;
+  WTime m_CloseAppTimeout;
+  WTime m_TimeTillClosing;
 };

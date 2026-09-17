@@ -4,37 +4,37 @@
 #include <Foundation/Strings/String.h>
 
 /// This is a helper class to interact with environment variables.
-class EZ_FOUNDATION_DLL ezEnvironmentVariableUtils
+class W_FOUNDATION_DLL WEnvironmentVariableUtils
 {
 public:
   /// Returns the current value of the request environment variable. If it isn't set szDefault will be returned.
-  static ezString GetValueString(ezStringView sName, ezStringView sDefault = nullptr);
+  static WString GetValueString(WStringView sName, WStringView sDefault = nullptr);
 
   /// Sets the environment variable for the current execution environment (i.e. this process and child processes created after this call).
-  static ezResult SetValueString(ezStringView sName, ezStringView sValue);
+  static WResult SetValueString(WStringView sName, WStringView sValue);
 
   /// Returns the current value of the request environment variable. If it isn't set iDefault will be returned.
-  static ezInt32 GetValueInt(ezStringView sName, ezInt32 iDefault = -1);
+  static WInt32 GetValueInt(WStringView sName, WInt32 iDefault = -1);
 
   /// Sets the environment variable for the current execution environment.
-  static ezResult SetValueInt(ezStringView sName, ezInt32 iValue);
+  static WResult SetValueInt(WStringView sName, WInt32 iValue);
 
   /// Returns true if the environment variable with the given name is set, false otherwise.
-  static bool IsVariableSet(ezStringView sName);
+  static bool IsVariableSet(WStringView sName);
 
   /// Removes an environment variable from the current execution context (i.e. this process and child processes created after this call).
-  static ezResult UnsetVariable(ezStringView sName);
+  static WResult UnsetVariable(WStringView sName);
 
 private:
   /// [internal]
-  static ezString GetValueStringImpl(ezStringView sName, ezStringView sDefault);
+  static WString GetValueStringImpl(WStringView sName, WStringView sDefault);
 
   /// [internal]
-  static ezResult SetValueStringImpl(ezStringView sName, ezStringView sValue);
+  static WResult SetValueStringImpl(WStringView sName, WStringView sValue);
 
   /// [internal]
-  static bool IsVariableSetImpl(ezStringView sName);
+  static bool IsVariableSetImpl(WStringView sName);
 
   /// [internal]
-  static ezResult UnsetVariableImpl(ezStringView sName);
+  static WResult UnsetVariableImpl(WStringView sName);
 };

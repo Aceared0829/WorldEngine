@@ -1,9 +1,9 @@
 ###################
-## ezEngine specific additions
+## WorldEngine specific additions
 ###################
-ez_cmake_init()
+W_cmake_init()
 
-if(NOT EZ_3RDPARTY_GLFW_SUPPORT)
+if(NOT W_3RDPARTY_GLFW_SUPPORT)
   return()
 endif()
 
@@ -12,14 +12,14 @@ set(GLFW_VERSION_MINOR "3.7")
 set(GLFW_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(GLFW_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-if(EZ_COMPILE_ENGINE_AS_DLL)
+if(W_COMPILE_ENGINE_AS_DLL)
   option(GLFW_BUILD_SHARED_LIBS "Build shared libraries" ON)
 else()
   option(GLFW_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 endif()
 
 ###################
-## ezEngine specific additions end
+## WorldEngine specific additions end
 ###################
 
 

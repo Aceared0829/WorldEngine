@@ -6,31 +6,31 @@
 #include <OpenXRPlugin/Basics.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
 
-class ezOpenXR;
+class WOpenXR;
 
 
-class EZ_OPENXRPLUGIN_DLL ezOpenXRSpatialAnchors : public ezXRSpatialAnchorsInterface
+class W_OPENXRPLUGIN_DLL WOpenXRSpatialAnchors : public WXRSpatialAnchorsInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXRSpatialAnchors, ezXRSpatialAnchorsInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(WOpenXRSpatialAnchors, WXRSpatialAnchorsInterface);
 
 public:
-  ezOpenXRSpatialAnchors(ezOpenXR* pOpenXR);
-  ~ezOpenXRSpatialAnchors();
+  WOpenXRSpatialAnchors(WOpenXR* pOpenXR);
+  ~WOpenXRSpatialAnchors();
 
-  ezXRSpatialAnchorID CreateAnchor(const ezTransform& globalTransform) override;
-  ezResult DestroyAnchor(ezXRSpatialAnchorID id) override;
-  ezResult TryGetAnchorTransform(ezXRSpatialAnchorID id, ezTransform& out_globalTransform) override;
+  WXRSpatialAnchorID CreateAnchor(const WTransform& globalTransform) override;
+  WResult DestroyAnchor(WXRSpatialAnchorID id) override;
+  WResult TryGetAnchorTransform(WXRSpatialAnchorID id, WTransform& out_globalTransform) override;
 
 private:
-  friend class ezOpenXR;
+  friend class WOpenXR;
   struct AnchorData
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
     XrSpatialAnchorMSFT m_Anchor;
     XrSpace m_Space;
   };
 
-  ezOpenXR* m_pOpenXR = nullptr;
+  WOpenXR* m_pOpenXR = nullptr;
 
-  ezIdTable<ezXRSpatialAnchorID, AnchorData> m_Anchors;
+  WIdTable<WXRSpatialAnchorID, AnchorData> m_Anchors;
 };

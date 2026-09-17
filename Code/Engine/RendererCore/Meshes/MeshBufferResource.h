@@ -7,12 +7,12 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-using ezMeshBufferResourceHandle = ezTypedResourceHandle<class ezMeshBufferResource>;
-class ezGeometry;
+using WMeshBufferResourceHandle = WTypedResourceHandle<class WMeshBufferResource>;
+class WGeometry;
 
-struct ezMeshVertexStreamType
+struct WMeshVertexStreamType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -33,79 +33,79 @@ struct ezMeshVertexStreamType
   static const char* GetName(Enum type);
 };
 
-struct EZ_RENDERERCORE_DLL ezMeshVertexStreamConfig
+struct W_RENDERERCORE_DLL WMeshVertexStreamConfig
 {
-  ezUInt16 m_uiTypesMask = 0;
+  WUInt16 m_uiTypesMask = 0;
   bool m_bUseHighPrecision = false;
 
-  EZ_ALWAYS_INLINE void AddStream(ezMeshVertexStreamType::Enum type) { m_uiTypesMask |= EZ_BIT(type); }
-  EZ_ALWAYS_INLINE bool HasStream(ezMeshVertexStreamType::Enum type) const { return (m_uiTypesMask & EZ_BIT(type)) != 0; }
+  W_ALWAYS_INLINE void AddStream(WMeshVertexStreamType::Enum type) { m_uiTypesMask |= W_BIT(type); }
+  W_ALWAYS_INLINE bool HasStream(WMeshVertexStreamType::Enum type) const { return (m_uiTypesMask & W_BIT(type)) != 0; }
 
-  EZ_ALWAYS_INLINE bool HasPosition() const { return HasStream(ezMeshVertexStreamType::Position); }
-  EZ_ALWAYS_INLINE bool HasNormalTangentAndTexCoord0() const { return HasStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0); }
-  EZ_ALWAYS_INLINE bool HasNormal() const { return HasStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0); }
-  EZ_ALWAYS_INLINE bool HasTangent() const { return HasStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0); }
-  EZ_ALWAYS_INLINE bool HasTexCoord0() const { return HasStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0); }
-  EZ_ALWAYS_INLINE bool HasTexCoord1() const { return HasStream(ezMeshVertexStreamType::TexCoord1); }
-  EZ_ALWAYS_INLINE bool HasColor0() const { return HasStream(ezMeshVertexStreamType::Color0); }
-  EZ_ALWAYS_INLINE bool HasColor1() const { return HasStream(ezMeshVertexStreamType::Color1); }
-  EZ_ALWAYS_INLINE bool HasSkinningData() const { return HasStream(ezMeshVertexStreamType::SkinningData); }
-  EZ_ALWAYS_INLINE bool HasBoneIndices() const { return HasStream(ezMeshVertexStreamType::SkinningData); }
-  EZ_ALWAYS_INLINE bool HasBoneWeights() const { return HasStream(ezMeshVertexStreamType::SkinningData); }
+  W_ALWAYS_INLINE bool HasPosition() const { return HasStream(WMeshVertexStreamType::Position); }
+  W_ALWAYS_INLINE bool HasNormalTangentAndTexCoord0() const { return HasStream(WMeshVertexStreamType::NormalTangentAndTexCoord0); }
+  W_ALWAYS_INLINE bool HasNormal() const { return HasStream(WMeshVertexStreamType::NormalTangentAndTexCoord0); }
+  W_ALWAYS_INLINE bool HasTangent() const { return HasStream(WMeshVertexStreamType::NormalTangentAndTexCoord0); }
+  W_ALWAYS_INLINE bool HasTexCoord0() const { return HasStream(WMeshVertexStreamType::NormalTangentAndTexCoord0); }
+  W_ALWAYS_INLINE bool HasTexCoord1() const { return HasStream(WMeshVertexStreamType::TexCoord1); }
+  W_ALWAYS_INLINE bool HasColor0() const { return HasStream(WMeshVertexStreamType::Color0); }
+  W_ALWAYS_INLINE bool HasColor1() const { return HasStream(WMeshVertexStreamType::Color1); }
+  W_ALWAYS_INLINE bool HasSkinningData() const { return HasStream(WMeshVertexStreamType::SkinningData); }
+  W_ALWAYS_INLINE bool HasBoneIndices() const { return HasStream(WMeshVertexStreamType::SkinningData); }
+  W_ALWAYS_INLINE bool HasBoneWeights() const { return HasStream(WMeshVertexStreamType::SkinningData); }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetHighestStreamIndex() const { return ezMath::FirstBitHigh(ezUInt32(m_uiTypesMask)); }
+  W_ALWAYS_INLINE WUInt32 GetHighestStreamIndex() const { return WMath::FirstBitHigh(WUInt32(m_uiTypesMask)); }
 
-  template <ezUInt16 ArraySize>
-  void FillVertexAttributes(ezSmallArray<ezGALVertexAttribute, ArraySize>& out_vertexAttributes)
+  template <WUInt16 ArraySize>
+  void FillVertexAttributes(WSmallArray<WGALVertexAttribute, ArraySize>& out_vertexAttributes)
   {
     for (auto vertexAttribute : GetAllVertexAttributes())
     {
-      if ((m_uiTypesMask & EZ_BIT(vertexAttribute.m_uiVertexBufferSlot)) != 0)
+      if ((m_uiTypesMask & W_BIT(vertexAttribute.m_uiVertexBufferSlot)) != 0)
       {
         out_vertexAttributes.PushBack(vertexAttribute);
       }
     }
   }
 
-  ezGALResourceFormat::Enum GetPositionFormat() const;
-  ezGALResourceFormat::Enum GetNormalFormat() const;
-  ezGALResourceFormat::Enum GetTangentFormat() const;
-  ezGALResourceFormat::Enum GetTexCoordFormat() const;
-  ezGALResourceFormat::Enum GetColorFormat() const;
-  ezGALResourceFormat::Enum GetBoneIndicesFormat() const;
-  ezGALResourceFormat::Enum GetBoneWeightsFormat() const;
+  WGALResourceFormat::Enum GetPositionFormat() const;
+  WGALResourceFormat::Enum GetNormalFormat() const;
+  WGALResourceFormat::Enum GetTangentFormat() const;
+  WGALResourceFormat::Enum GetTexCoordFormat() const;
+  WGALResourceFormat::Enum GetColorFormat() const;
+  WGALResourceFormat::Enum GetBoneIndicesFormat() const;
+  WGALResourceFormat::Enum GetBoneWeightsFormat() const;
 
-  ezUInt32 GetNormalDataOffset() const;
-  ezUInt32 GetTangentDataOffset() const;
-  ezUInt32 GetTexCoord0DataOffset() const;
-  ezUInt32 GetBoneIndicesDataOffset() const;
-  ezUInt32 GetBoneWeightsDataOffset() const;
+  WUInt32 GetNormalDataOffset() const;
+  WUInt32 GetTangentDataOffset() const;
+  WUInt32 GetTexCoord0DataOffset() const;
+  WUInt32 GetBoneIndicesDataOffset() const;
+  WUInt32 GetBoneWeightsDataOffset() const;
 
-  ezUInt32 GetStreamElementSize(ezMeshVertexStreamType::Enum type) const;
+  WUInt32 GetStreamElementSize(WMeshVertexStreamType::Enum type) const;
 
-  EZ_ALWAYS_INLINE ezUInt32 GetPositionElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::Position); }
-  EZ_ALWAYS_INLINE ezUInt32 GetNormalTangentAndTexCoord0ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::NormalTangentAndTexCoord0); }
-  EZ_ALWAYS_INLINE ezUInt32 GetTexCoord1ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::TexCoord1); }
-  EZ_ALWAYS_INLINE ezUInt32 GetColor0ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::Color0); }
-  EZ_ALWAYS_INLINE ezUInt32 GetColor1ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::Color1); }
-  EZ_ALWAYS_INLINE ezUInt32 GetSkinningDataElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::SkinningData); }
+  W_ALWAYS_INLINE WUInt32 GetPositionElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::Position); }
+  W_ALWAYS_INLINE WUInt32 GetNormalTangentAndTexCoord0ElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::NormalTangentAndTexCoord0); }
+  W_ALWAYS_INLINE WUInt32 GetTexCoord1ElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::TexCoord1); }
+  W_ALWAYS_INLINE WUInt32 GetColor0ElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::Color0); }
+  W_ALWAYS_INLINE WUInt32 GetColor1ElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::Color1); }
+  W_ALWAYS_INLINE WUInt32 GetSkinningDataElementSize() const { return GetStreamElementSize(WMeshVertexStreamType::SkinningData); }
 
-  static ezGALVertexAttribute GetDataOffsetsVertexAttribute();
+  static WGALVertexAttribute GetDataOffsetsVertexAttribute();
 
 private:
-  ezArrayPtr<ezGALVertexAttribute> GetAllVertexAttributes();
+  WArrayPtr<WGALVertexAttribute> GetAllVertexAttributes();
 };
 
-struct EZ_RENDERERCORE_DLL ezMeshBufferResourceDescriptor
+struct W_RENDERERCORE_DLL WMeshBufferResourceDescriptor
 {
 public:
-  ezMeshBufferResourceDescriptor();
-  ~ezMeshBufferResourceDescriptor();
+  WMeshBufferResourceDescriptor();
+  ~WMeshBufferResourceDescriptor();
 
   void Clear();
 
   /// Use this function to add vertex streams to the mesh buffer.
-  void AddStream(ezMeshVertexStreamType::Enum type, bool bUseHighPrecision = false);
+  void AddStream(WMeshVertexStreamType::Enum type, bool bUseHighPrecision = false);
 
   /// Adds common vertex streams to the mesh buffer.
   ///
@@ -115,122 +115,122 @@ public:
   void AddCommonStreams(bool bUseHighPrecision = false);
 
   /// Adds all streams from the given stream config.
-  void AddStreamConfig(const ezMeshVertexStreamConfig& streamConfig);
+  void AddStreamConfig(const WMeshVertexStreamConfig& streamConfig);
 
   /// After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
-  void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0, bool bZeroFill = false);
+  void AllocateStreams(WUInt32 uiNumVertices, WGALPrimitiveTopology::Enum topology = WGALPrimitiveTopology::Triangles, WUInt32 uiNumPrimitives = 0, bool bZeroFill = false);
 
-  /// Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
-  ///  Streams that do not match any of the data inside the ezGeometry directly are skipped.
-  void AllocateStreamsFromGeometry(const ezGeometry& geom, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles);
+  /// Creates streams and fills them with data from the WGeometry. Only the geometry matching the given topology is used.
+  ///  Streams that do not match any of the data inside the WGeometry directly are skipped.
+  void AllocateStreamsFromGeometry(const WGeometry& geom, WGALPrimitiveTopology::Enum topology = WGALPrimitiveTopology::Triangles);
 
 
   /// Returns the number of vertex buffer used. Note that some vertex buffers in between might be empty if unused.
-  ezUInt32 GetNumVertexBuffers() const;
+  WUInt32 GetNumVertexBuffers() const;
 
   /// Gives read access to the allocated vertex data
-  ezArrayPtr<const ezUInt8> GetVertexBufferData(ezMeshVertexStreamType::Enum type) const;
+  WArrayPtr<const WUInt8> GetVertexBufferData(WMeshVertexStreamType::Enum type) const;
 
   /// Gives read access to the allocated index data
-  ezArrayPtr<const ezUInt8> GetIndexBufferData() const;
+  WArrayPtr<const WUInt8> GetIndexBufferData() const;
 
   /// Allows write access to the allocated vertex data. This can be used for copying data fast into the array.
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetVertexBufferData(ezMeshVertexStreamType::Enum type);
+  WDynamicArray<WUInt8, WAlignedAllocatorWrapper>& GetVertexBufferData(WMeshVertexStreamType::Enum type);
 
   /// Allows write access to the allocated index data. This can be used for copying data fast into the array.
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetIndexBufferData();
+  WDynamicArray<WUInt8, WAlignedAllocatorWrapper>& GetIndexBufferData();
 
 
   /// Gives access to the position data
-  ezArrayPtr<const ezVec3> GetPositionData() const;
-  ezArrayPtr<ezVec3> GetPositionData();
+  WArrayPtr<const WVec3> GetPositionData() const;
+  WArrayPtr<WVec3> GetPositionData();
 
-  /// Gives access to the normal data. Use ezMeshBufferUtils::EncodeNormal/ezMeshBufferUtils::DecodeNormal to pack/unpack the normal.
-  ezArrayPtr<const ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the normal data. Use WMeshBufferUtils::EncodeNormal/WMeshBufferUtils::DecodeNormal to pack/unpack the normal.
+  WArrayPtr<const WUInt8> GetNormalData(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetNormalData(WUInt32* out_pStride = nullptr);
 
-  /// Gives access to the tangent data. Use ezMeshBufferUtils::EncodeTangent/ezMeshBufferUtils::DecodeTangent to pack/unpack the tangent.
-  ezArrayPtr<const ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the tangent data. Use WMeshBufferUtils::EncodeTangent/WMeshBufferUtils::DecodeTangent to pack/unpack the tangent.
+  WArrayPtr<const WUInt8> GetTangentData(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetTangentData(WUInt32* out_pStride = nullptr);
 
-  /// Gives access to the tex coord 0 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
-  ezArrayPtr<const ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the tex coord 0 data. Use WMeshBufferUtils::EncodeTexCoord/WMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
+  WArrayPtr<const WUInt8> GetTexCoord0Data(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetTexCoord0Data(WUInt32* out_pStride = nullptr);
 
-  /// Gives access to the tex coord 1 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
-  ezArrayPtr<const ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the tex coord 1 data. Use WMeshBufferUtils::EncodeTexCoord/WMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
+  WArrayPtr<const WUInt8> GetTexCoord1Data(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetTexCoord1Data(WUInt32* out_pStride = nullptr);
 
-  /// Gives access to the color 0 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
-  ezArrayPtr<const ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the color 0 data. Use WMeshBufferUtils::EncodeFromVec4/WMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
+  WArrayPtr<const WUInt8> GetColor0Data(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetColor0Data(WUInt32* out_pStride = nullptr);
 
-  /// Gives access to the color 1 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
-  ezArrayPtr<const ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr);
+  /// Gives access to the color 1 data. Use WMeshBufferUtils::EncodeFromVec4/WMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
+  WArrayPtr<const WUInt8> GetColor1Data(WUInt32* out_pStride = nullptr) const;
+  WArrayPtr<WUInt8> GetColor1Data(WUInt32* out_pStride = nullptr);
 
 
   /// Slow, but convenient access to the position of a specific vertex.
-  const ezVec3& GetPosition(ezUInt32 uiVertexIndex) const;
-  void SetPosition(ezUInt32 uiVertexIndex, const ezVec3& vPos);
+  const WVec3& GetPosition(WUInt32 uiVertexIndex) const;
+  void SetPosition(WUInt32 uiVertexIndex, const WVec3& vPos);
 
   /// Slow, but convenient access to the normal of a specific vertex.
-  ezVec3 GetNormal(ezUInt32 uiVertexIndex) const;
-  void SetNormal(ezUInt32 uiVertexIndex, const ezVec3& vNormal);
+  WVec3 GetNormal(WUInt32 uiVertexIndex) const;
+  void SetNormal(WUInt32 uiVertexIndex, const WVec3& vNormal);
 
   /// Slow, but convenient access to the tangent of a specific vertex. The w component contains the bi-tangent sign.
-  ezVec4 GetTangent(ezUInt32 uiVertexIndex) const;
-  void SetTangent(ezUInt32 uiVertexIndex, const ezVec4& vTangent);
+  WVec4 GetTangent(WUInt32 uiVertexIndex) const;
+  void SetTangent(WUInt32 uiVertexIndex, const WVec4& vTangent);
 
   /// Slow, but convenient access to the tex coord 0 of a specific vertex.
-  ezVec2 GetTexCoord0(ezUInt32 uiVertexIndex) const;
-  void SetTexCoord0(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord);
+  WVec2 GetTexCoord0(WUInt32 uiVertexIndex) const;
+  void SetTexCoord0(WUInt32 uiVertexIndex, const WVec2& vTexCoord);
 
   /// Slow, but convenient access to the tex coord 1 of a specific vertex.
-  ezVec2 GetTexCoord1(ezUInt32 uiVertexIndex) const;
-  void SetTexCoord1(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord);
+  WVec2 GetTexCoord1(WUInt32 uiVertexIndex) const;
+  void SetTexCoord1(WUInt32 uiVertexIndex, const WVec2& vTexCoord);
 
   /// Slow, but convenient access to the color 0 of a specific vertex.
-  ezColor GetColor0(ezUInt32 uiVertexIndex) const;
-  void SetColor0(ezUInt32 uiVertexIndex, const ezColorLinearUB& color);
-  void SetColor0(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion = ezMeshVertexColorConversion::Default);
+  WColor GetColor0(WUInt32 uiVertexIndex) const;
+  void SetColor0(WUInt32 uiVertexIndex, const WColorLinearUB& color);
+  void SetColor0(WUInt32 uiVertexIndex, const WColor& color, WMeshVertexColorConversion::Enum conversion = WMeshVertexColorConversion::Default);
 
   /// Slow, but convenient access to the color 1 of a specific vertex.
-  ezColor GetColor1(ezUInt32 uiVertexIndex) const;
-  void SetColor1(ezUInt32 uiVertexIndex, const ezColorLinearUB& color);
-  void SetColor1(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion = ezMeshVertexColorConversion::Default);
+  WColor GetColor1(WUInt32 uiVertexIndex) const;
+  void SetColor1(WUInt32 uiVertexIndex, const WColorLinearUB& color);
+  void SetColor1(WUInt32 uiVertexIndex, const WColor& color, WMeshVertexColorConversion::Enum conversion = WMeshVertexColorConversion::Default);
 
   /// Slow, but convenient access to the bone indices of a specific vertex.
-  const ezVec4U16& GetBoneIndices(ezUInt32 uiVertexIndex) const;
-  void SetBoneIndices(ezUInt32 uiVertexIndex, const ezVec4U16& vIndices);
+  const WVec4U16& GetBoneIndices(WUInt32 uiVertexIndex) const;
+  void SetBoneIndices(WUInt32 uiVertexIndex, const WVec4U16& vIndices);
 
   /// Slow, but convenient access to the bone weights of a specific vertex.
-  ezVec4 GetBoneWeights(ezUInt32 uiVertexIndex) const;
-  void SetBoneWeights(ezUInt32 uiVertexIndex, const ezVec4& vWeights);
+  WVec4 GetBoneWeights(WUInt32 uiVertexIndex) const;
+  void SetBoneWeights(WUInt32 uiVertexIndex, const WVec4& vWeights);
 
 
   /// Writes the vertex index for the given point into the index buffer.
-  void SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0);
+  void SetPointIndices(WUInt32 uiPoint, WUInt32 uiVertex0);
 
   /// Writes the two vertex indices for the given line into the index buffer.
-  void SetLineIndices(ezUInt32 uiLine, ezUInt32 uiVertex0, ezUInt32 uiVertex1);
+  void SetLineIndices(WUInt32 uiLine, WUInt32 uiVertex0, WUInt32 uiVertex1);
 
   /// Writes the three vertex indices for the given triangle into the index buffer.
-  void SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2);
+  void SetTriangleIndices(WUInt32 uiTriangle, WUInt32 uiVertex0, WUInt32 uiVertex1, WUInt32 uiVertex2);
 
 
   /// Allows to read the stream info of the descriptor, which is filled out by AddStream()
-  const ezMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
+  const WMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
 
   /// Returns the byte size of all the data for one vertex.
-  ezUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
+  WUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
 
   /// Return the number of vertices, with which AllocateStreams() was called.
-  ezUInt32 GetVertexCount() const { return m_uiVertexCount; }
+  WUInt32 GetVertexCount() const { return m_uiVertexCount; }
 
   /// Returns the number of primitives that the array holds.
-  ezUInt32 GetPrimitiveCount() const;
+  WUInt32 GetPrimitiveCount() const;
 
   /// Returns whether 16 or 32 Bit indices are to be used.
   bool Uses32BitIndices() const { return m_uiVertexCount > 0xFFFF; }
@@ -239,69 +239,69 @@ public:
   bool HasIndexBuffer() const { return !m_IndexBufferData.IsEmpty(); }
 
   /// Calculates the bounds using the data from the position stream
-  ezBoundingBoxSphere ComputeBounds() const;
+  WBoundingBoxSphere ComputeBounds() const;
 
   /// Returns the primitive topology
-  ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
+  WGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
 
-  ezResult RecomputeNormals();
+  WResult RecomputeNormals();
 
 private:
-  EZ_ALWAYS_INLINE ezByteArrayPtr GetVertexData(ezMeshVertexStreamType::Enum type, ezUInt32 uiVertexIndex, ezUInt32 uiElementSize, ezUInt32 uiOffset = 0)
+  W_ALWAYS_INLINE WByteArrayPtr GetVertexData(WMeshVertexStreamType::Enum type, WUInt32 uiVertexIndex, WUInt32 uiElementSize, WUInt32 uiOffset = 0)
   {
     return m_VertexStreamsData[type].GetArrayPtr().GetSubArray(uiVertexIndex * uiElementSize + uiOffset);
   }
 
-  EZ_ALWAYS_INLINE ezConstByteArrayPtr GetVertexData(ezMeshVertexStreamType::Enum type, ezUInt32 uiVertexIndex, ezUInt32 uiElementSize, ezUInt32 uiOffset = 0) const
+  W_ALWAYS_INLINE WConstByteArrayPtr GetVertexData(WMeshVertexStreamType::Enum type, WUInt32 uiVertexIndex, WUInt32 uiElementSize, WUInt32 uiOffset = 0) const
   {
     return m_VertexStreamsData[type].GetArrayPtr().GetSubArray(uiVertexIndex * uiElementSize + uiOffset);
   }
 
-  ezGALPrimitiveTopology::Enum m_Topology = ezGALPrimitiveTopology::Triangles;
-  ezUInt32 m_uiVertexSize = 0;
-  ezUInt32 m_uiVertexCount = 0;
-  ezMeshVertexStreamConfig m_VertexStreamConfig;
-  ezHybridArray<ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>, ezMeshVertexStreamType::Count> m_VertexStreamsData;
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_IndexBufferData;
+  WGALPrimitiveTopology::Enum m_Topology = WGALPrimitiveTopology::Triangles;
+  WUInt32 m_uiVertexSize = 0;
+  WUInt32 m_uiVertexCount = 0;
+  WMeshVertexStreamConfig m_VertexStreamConfig;
+  WHybridArray<WDynamicArray<WUInt8, WAlignedAllocatorWrapper>, WMeshVertexStreamType::Count> m_VertexStreamsData;
+  WDynamicArray<WUInt8, WAlignedAllocatorWrapper> m_IndexBufferData;
 };
 
-class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource
+class W_RENDERERCORE_DLL WMeshBufferResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezMeshBufferResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WMeshBufferResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WMeshBufferResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WMeshBufferResource, WMeshBufferResourceDescriptor);
 
 public:
-  ezMeshBufferResource();
-  ~ezMeshBufferResource();
+  WMeshBufferResource();
+  ~WMeshBufferResource();
 
-  EZ_ALWAYS_INLINE ezUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
+  W_ALWAYS_INLINE WUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
 
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezGALBufferHandle> GetVertexBuffers() const { return ezMakeArrayPtr(m_hVertexBuffers, m_VertexStreamConfig.GetHighestStreamIndex() + 1); }
+  W_ALWAYS_INLINE WArrayPtr<const WGALBufferHandle> GetVertexBuffers() const { return WMakeArrayPtr(m_hVertexBuffers, m_VertexStreamConfig.GetHighestStreamIndex() + 1); }
 
-  EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
+  W_ALWAYS_INLINE WGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
 
-  EZ_ALWAYS_INLINE ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
+  W_ALWAYS_INLINE WGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
 
   /// Returns the stream config used by this mesh buffer.
-  EZ_ALWAYS_INLINE const ezMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
+  W_ALWAYS_INLINE const WMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
 
   /// Returns the vertex attributes that describes the data layout of the vertex buffers.
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
+  W_ALWAYS_INLINE WArrayPtr<const WGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
   /// Returns the bounds of the mesh
-  EZ_ALWAYS_INLINE const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
+  W_ALWAYS_INLINE const WBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezBoundingBoxSphere m_Bounds;
-  ezMeshVertexStreamConfig m_VertexStreamConfig;
-  ezSmallArray<ezGALVertexAttribute, 8> m_VertexAttributes;
-  ezUInt32 m_uiPrimitiveCount = 0;
-  ezGALBufferHandle m_hVertexBuffers[ezMeshVertexStreamType::Count];
-  ezGALBufferHandle m_hIndexBuffer;
-  ezGALPrimitiveTopology::Enum m_Topology = ezGALPrimitiveTopology::Enum::Default;
+  WBoundingBoxSphere m_Bounds;
+  WMeshVertexStreamConfig m_VertexStreamConfig;
+  WSmallArray<WGALVertexAttribute, 8> m_VertexAttributes;
+  WUInt32 m_uiPrimitiveCount = 0;
+  WGALBufferHandle m_hVertexBuffers[WMeshVertexStreamType::Count];
+  WGALBufferHandle m_hIndexBuffer;
+  WGALPrimitiveTopology::Enum m_Topology = WGALPrimitiveTopology::Enum::Default;
 };

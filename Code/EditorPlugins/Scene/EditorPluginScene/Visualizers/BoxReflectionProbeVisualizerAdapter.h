@@ -4,11 +4,11 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-class ezBoxReflectionProbeVisualizerAdapter : public ezVisualizerAdapter
+class WBoxReflectionProbeVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezBoxReflectionProbeVisualizerAdapter();
-  ~ezBoxReflectionProbeVisualizerAdapter();
+  WBoxReflectionProbeVisualizerAdapter();
+  ~WBoxReflectionProbeVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -16,9 +16,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezVec3 m_vScale;
-  ezVec3 m_vPositionOffset;
-  ezQuat m_qRotation;
+  WVec3 m_vScale;
+  WVec3 m_vPositionOffset;
+  WQuat m_qRotation;
 
-  ezEngineGizmoHandle m_hGizmo;
+  WEngineGizmoHandle m_hGizmo;
 };

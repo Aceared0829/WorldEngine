@@ -6,20 +6,20 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
+W_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
+WResult FileLocator(WStringView sCurAbsoluteFile, WStringView sIncludeFile, WPreprocessor::IncludeType incType, WStringBuilder& out_sAbsoluteFilePath)
 {
-  ezStringBuilder& s = out_sAbsoluteFilePath;
+  WStringBuilder& s = out_sAbsoluteFilePath;
 
-  if (incType == ezPreprocessor::RelativeInclude)
+  if (incType == WPreprocessor::RelativeInclude)
   {
     s = sCurAbsoluteFile;
     s.PathParentDirectory();
     s.AppendPath(sIncludeFile);
     s.MakeCleanPath();
   }
-  else if (incType == ezPreprocessor::GlobalInclude)
+  else if (incType == WPreprocessor::GlobalInclude)
   {
     s = "Preprocessor";
     s.AppendPath(sIncludeFile);
@@ -28,52 +28,52 @@ ezResult FileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, e
   else
     s = sIncludeFile;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-class Logger : public ezLogInterface
+class Logger : public WLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_sText); }
+  virtual void HandleLogMessage(const WLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_sText); }
 
-  void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
+  void EventHandler(const WPreprocessor::ProcessingEvent& ed)
   {
     switch (ed.m_Type)
     {
-      case ezPreprocessor::ProcessingEvent::Error:
-      case ezPreprocessor::ProcessingEvent::Warning:
+      case WPreprocessor::ProcessingEvent::Error:
+      case WPreprocessor::ProcessingEvent::Warning:
         m_EventStack.PushBack(ed);
         break;
-      case ezPreprocessor::ProcessingEvent::BeginExpansion:
+      case WPreprocessor::ProcessingEvent::BeginExpansion:
         m_EventStack.PushBack(ed);
         return;
-      case ezPreprocessor::ProcessingEvent::EndExpansion:
+      case WPreprocessor::ProcessingEvent::EndExpansion:
         m_EventStack.PopBack();
         return;
       default:
         return;
     }
 
-    for (ezUInt32 i = 0; i < m_EventStack.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_EventStack.GetCount(); ++i)
     {
-      const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
+      const WPreprocessor::ProcessingEvent& event = m_EventStack[i];
 
       if (event.m_pToken != nullptr)
         m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
 
       switch (event.m_Type)
       {
-        case ezPreprocessor::ProcessingEvent::Error:
+        case WPreprocessor::ProcessingEvent::Error:
           m_sOutput.Append("Error: ");
           break;
-        case ezPreprocessor::ProcessingEvent::Warning:
+        case WPreprocessor::ProcessingEvent::Warning:
           m_sOutput.Append("Warning: ");
           break;
-        case ezPreprocessor::ProcessingEvent::BeginExpansion:
+        case WPreprocessor::ProcessingEvent::BeginExpansion:
           if (event.m_pToken != nullptr)
-            m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
+            m_sOutput.AppendFormat("In Macro: '{0}'", WString(event.m_pToken->m_DataView));
           break;
-        case ezPreprocessor::ProcessingEvent::EndExpansion:
+        case WPreprocessor::ProcessingEvent::EndExpansion:
           break;
 
         default:
@@ -86,20 +86,20 @@ public:
     m_EventStack.PopBack();
   }
 
-  ezDeque<ezPreprocessor::ProcessingEvent> m_EventStack;
-  ezStringBuilder m_sOutput;
+  WDeque<WPreprocessor::ProcessingEvent> m_EventStack;
+  WStringBuilder m_sOutput;
 };
 
-EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
+W_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
-  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
-  ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
+  WStringBuilder sWriteDir = WTestFramework::GetInstance()->GetAbsOutputPath();
 
-  EZ_TEST_BOOL(ezFileSystem::DetectSdkRootDirectory() == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
+  W_TEST_BOOL(WFileSystem::DetectSdkRootDirectory() == W_SUCCESS);
+  W_TEST_BOOL(WFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == W_SUCCESS);
+  W_TEST_BOOL_MSG(WFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", WDataDirUsage::AllowWrites) == W_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
 
-  ezTokenizedFileCache SharedCache;
+  WTokenizedFileCache SharedCache;
 
   /// \todo Add tests for the following:
   /*
@@ -210,27 +210,27 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       PPTestSettings("RawStrings2"),
     };
 
-    ezStringBuilder sOutput;
-    ezStringBuilder fileName;
-    ezStringBuilder fileNameOut;
-    ezStringBuilder fileNameExp;
+    WStringBuilder sOutput;
+    WStringBuilder fileName;
+    WStringBuilder fileNameOut;
+    WStringBuilder fileNameExp;
 
-    for (int i = 0; i < EZ_ARRAY_SIZE(TestSettings); i++)
+    for (int i = 0; i < W_ARRAY_SIZE(TestSettings); i++)
     {
-      EZ_TEST_BLOCK(ezTestBlock::Enabled, TestSettings[i].m_szFileName)
+      W_TEST_BLOCK(WTestBlock::Enabled, TestSettings[i].m_szFileName)
       {
         Logger log;
 
-        ezPreprocessor pp;
+        WPreprocessor pp;
         pp.SetLogInterface(&log);
         pp.SetPassThroughLine(TestSettings[i].m_bPassThroughLines);
         pp.SetPassThroughPragma(TestSettings[i].m_bPassThroughPragmas);
         pp.SetFileLocatorFunction(FileLocator);
         pp.SetCustomFileCache(&SharedCache);
-        pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
+        pp.m_ProcessingEvents.AddEventHandler(WDelegate<void(const WPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ").IgnoreResult();
         pp.AddCustomDefine("PP_FUNC(a) a").IgnoreResult();
-        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool
+        pp.SetPassThroughUnknownCmdsCB([](WStringView s) -> bool
           { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
@@ -238,14 +238,14 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           fileNameExp.SetFormat("Preprocessor/{0} - Expected.txt", TestSettings[i].m_szFileName);
           fileNameOut.SetFormat(":output/Preprocessor/{0} - Result.txt", TestSettings[i].m_szFileName);
 
-          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
+          W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
 
-          ezFileWriter fout;
-          EZ_VERIFY(fout.Open(fileNameOut).Succeeded(), "Could not create output file '{0}'", fileNameOut);
+          WFileWriter fout;
+          W_VERIFY(fout.Open(fileNameOut).Succeeded(), "Could not create output file '{0}'", fileNameOut);
 
-          if (pp.Process(fileName, sOutput) == EZ_SUCCESS)
+          if (pp.Process(fileName, sOutput) == W_SUCCESS)
           {
-            ezString sError = "Processing succeeded\r\n";
+            WString sError = "Processing succeeded\r\n";
             fout.WriteBytes(sError.GetData(), sError.GetElementCount()).IgnoreResult();
             fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount()).IgnoreResult();
 
@@ -254,20 +254,20 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           }
           else
           {
-            ezString sError = "Processing failed\r\n";
+            WString sError = "Processing failed\r\n";
             fout.WriteBytes(sError.GetData(), sError.GetElementCount()).IgnoreResult();
           }
 
           fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount()).IgnoreResult();
 
-          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
+          W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
         }
 
-        EZ_TEST_TEXT_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
+        W_TEST_TEXT_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
       }
     }
   }
 
 
-  ezFileSystem::RemoveDataDirectoryGroup("PreprocessorTest");
+  WFileSystem::RemoveDataDirectoryGroup("PreprocessorTest");
 }

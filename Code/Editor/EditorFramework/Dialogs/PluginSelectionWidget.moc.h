@@ -6,19 +6,19 @@
 #include <Foundation/Strings/String.h>
 #include <QWidget>
 
-struct ezPluginBundleSet;
-struct ezPluginBundle;
+struct WPluginBundleSet;
+struct WPluginBundle;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtPluginSelectionWidget : public QWidget, public Ui_PluginSelectionWidget
+class W_EDITORFRAMEWORK_DLL WQtPluginSelectionWidget : public QWidget, public Ui_PluginSelectionWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtPluginSelectionWidget(QWidget* pParent);
-  ~ezQtPluginSelectionWidget();
+  WQtPluginSelectionWidget(QWidget* pParent);
+  ~WQtPluginSelectionWidget();
 
-  void SetPluginSet(ezPluginBundleSet* pPluginSet);
+  void SetPluginSet(WPluginBundleSet* pPluginSet);
   void SyncStateToSet();
   void SelectTemplate(const char* szTemplate);
 
@@ -30,16 +30,16 @@ private Q_SLOTS:
 private:
   struct State
   {
-    ezString m_sID;
-    ezPluginBundle* m_pInfo = nullptr;
+    WString m_sID;
+    WPluginBundle* m_pInfo = nullptr;
     bool m_bLoadCopy = false;
     bool m_bSelected = false;
     bool m_bIsDependency = false;
   };
 
   void UpdateInternalState();
-  void ApplyRequired(ezArrayPtr<ezString> required);
+  void ApplyRequired(WArrayPtr<WString> required);
 
-  ezHybridArray<State, 8> m_States;
-  ezPluginBundleSet* m_pPluginSet = nullptr;
+  WHybridArray<State, 8> m_States;
+  WPluginBundleSet* m_pPluginSet = nullptr;
 };

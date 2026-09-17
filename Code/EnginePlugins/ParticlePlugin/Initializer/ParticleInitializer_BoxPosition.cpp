@@ -8,49 +8,49 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_BoxPosition>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializerFactory_BoxPosition, 1, WRTTIDefaultAllocator<WParticleInitializerFactory_BoxPosition>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
-    EZ_MEMBER_PROPERTY("Size", m_vSize)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0, 0, 0))),
-    EZ_MEMBER_PROPERTY("ScaleXParam", m_sScaleXParameter),
-    EZ_MEMBER_PROPERTY("ScaleYParam", m_sScaleYParameter),
-    EZ_MEMBER_PROPERTY("ScaleZParam", m_sScaleZParameter),
+    W_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    W_MEMBER_PROPERTY("Size", m_vSize)->AddAttributes(new WDefaultValueAttribute(WVec3(0, 0, 0))),
+    W_MEMBER_PROPERTY("ScaleXParam", m_sScaleXParameter),
+    W_MEMBER_PROPERTY("ScaleYParam", m_sScaleYParameter),
+    W_MEMBER_PROPERTY("ScaleZParam", m_sScaleZParameter),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("Size", 1.0f, ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset")
+    new WBoxVisualizerAttribute("Size", 1.0f, WColor::MediumVioletRed, nullptr, WVisualizerAnchor::Center, WVec3(1.0f), "PositionOffset")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_BoxPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleInitializer_BoxPosition, 1, WRTTIDefaultAllocator<WParticleInitializer_BoxPosition>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_BoxPosition::ezParticleInitializerFactory_BoxPosition()
+WParticleInitializerFactory_BoxPosition::WParticleInitializerFactory_BoxPosition()
 {
   m_vPositionOffset.SetZero();
   m_vSize.Set(0, 0, 0);
 }
 
-const ezRTTI* ezParticleInitializerFactory_BoxPosition::GetInitializerType() const
+const WRTTI* WParticleInitializerFactory_BoxPosition::GetInitializerType() const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_BoxPosition>();
+  return WGetStaticRTTI<WParticleInitializer_BoxPosition>();
 }
 
-void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
+void WParticleInitializerFactory_BoxPosition::CopyInitializerProperties(WParticleInitializer* pInitializer0, bool bFirstTime) const
 {
-  ezParticleInitializer_BoxPosition* pInitializer = static_cast<ezParticleInitializer_BoxPosition*>(pInitializer0);
+  WParticleInitializer_BoxPosition* pInitializer = static_cast<WParticleInitializer_BoxPosition*>(pInitializer0);
 
-  const float fScaleX = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
-  const float fScaleY = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
-  const float fScaleZ = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
+  const float fScaleX = pInitializer->GetOwnerEffect()->GetFloatParameter(WTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
+  const float fScaleY = pInitializer->GetOwnerEffect()->GetFloatParameter(WTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
+  const float fScaleZ = pInitializer->GetOwnerEffect()->GetFloatParameter(WTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
 
-  ezVec3 vSize = m_vSize;
+  WVec3 vSize = m_vSize;
   vSize.x *= fScaleX;
   vSize.y *= fScaleY;
   vSize.z *= fScaleZ;
@@ -59,11 +59,11 @@ void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParti
   pInitializer->m_vSize = vSize;
 }
 
-float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+float WParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const
 {
-  const float fScaleX = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
-  const float fScaleY = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
-  const float fScaleZ = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
+  const float fScaleX = pEffect->GetFloatParameter(WTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
+  const float fScaleY = pEffect->GetFloatParameter(WTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
+  const float fScaleZ = pEffect->GetFloatParameter(WTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
 
   float fSpawnMultiplier = 1.0f;
 
@@ -79,9 +79,9 @@ float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ez
   return fSpawnMultiplier;
 }
 
-void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& inout_stream) const
+void WParticleInitializerFactory_BoxPosition::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const WUInt8 uiVersion = 3;
   inout_stream << uiVersion;
 
   inout_stream << m_vSize;
@@ -95,9 +95,9 @@ void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& inout_stream
   inout_stream << m_sScaleZParameter;
 }
 
-void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleInitializerFactory_BoxPosition::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   inout_stream >> m_vSize;
@@ -115,37 +115,37 @@ void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& inout_stream
   }
 }
 
-void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
+void WParticleInitializer_BoxPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, true);
 }
 
-void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleInitializer_BoxPosition::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Box Position");
+  W_PROFILE_SCOPE("PFX: Box Position");
 
-  ezSimdVec4f* pPosition = m_pStreamPosition->GetWritableData<ezSimdVec4f>();
+  WSimdVec4f* pPosition = m_pStreamPosition->GetWritableData<WSimdVec4f>();
 
-  ezRandom& rng = GetRNG();
+  WRandom& rng = GetRNG();
 
   if (m_vSize.IsZero())
   {
-    ezSimdVec4f pos = ezSimdConversion::ToVec4((GetOwnerSystem()->GetTransform() * m_vPositionOffset).GetAsVec4(0));
+    WSimdVec4f pos = WSimdConversion::ToVec4((GetOwnerSystem()->GetTransform() * m_vPositionOffset).GetAsVec4(0));
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pPosition[i] = pos;
     }
   }
   else
   {
-    ezSimdVec4f pos;
-    ezSimdTransform transform = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
+    WSimdVec4f pos;
+    WSimdTransform transform = WSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
 
     float p0[4];
     p0[3] = 0;
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5) + m_vPositionOffset.x;
       p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5) + m_vPositionOffset.y;
@@ -160,4 +160,4 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_BoxPosition);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_BoxPosition);

@@ -3,12 +3,12 @@
 #include <Foundation/Math/Vec2.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class ezDebugRendererContext;
-class ezVirtualThumbStick;
+class WDebugRendererContext;
+class WVirtualThumbStick;
 
-namespace ezInputDebugVis
+namespace WInputDebugVis
 {
   /// Renders a debug visualization of the given thumbstick using the 2D screen space debug render functions.
-  EZ_GAMEENGINE_DLL void DebugRender(const ezDebugRendererContext& context, const ezVec2& vResolution, const ezVirtualThumbStick& stick);
+  W_GAMEENGINE_DLL void DebugRender(const WDebugRendererContext& context, const WVec2& vResolution, const WVirtualThumbStick& stick);
 
-}; // namespace ezInputDebugVis
+}; // namespace WInputDebugVis

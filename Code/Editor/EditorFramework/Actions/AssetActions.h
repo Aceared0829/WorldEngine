@@ -4,29 +4,29 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezAssetActions
+class W_EDITORFRAMEWORK_DLL WAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapToolBarActions(ezStringView sMapping, bool bDocument);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapToolBarActions(WStringView sMapping, bool bDocument);
 
-  static ezActionDescriptorHandle s_hAssetCategory;
-  static ezActionDescriptorHandle s_hTransformAsset;
-  static ezActionDescriptorHandle s_hAssetHelp;
-  static ezActionDescriptorHandle s_hTransformAllAssets;
-  static ezActionDescriptorHandle s_hCheckFileSystem;
-  static ezActionDescriptorHandle s_hWriteDependencyDGML;
-  static ezActionDescriptorHandle s_hCopyAssetGuid;
-  static ezActionDescriptorHandle s_hSelectInAssetBrowser;
+  static WActionDescriptorHandle s_hAssetCategory;
+  static WActionDescriptorHandle s_hTransformAsset;
+  static WActionDescriptorHandle s_hAssetHelp;
+  static WActionDescriptorHandle s_hTransformAllAssets;
+  static WActionDescriptorHandle s_hCheckFileSystem;
+  static WActionDescriptorHandle s_hWriteDependencyDGML;
+  static WActionDescriptorHandle s_hCopyAssetGuid;
+  static WActionDescriptorHandle s_hSelectInAssetBrowser;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezAssetAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WAssetAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WAssetAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -40,10 +40,10 @@ public:
     SelectInAssetBrowser,
   };
 
-  ezAssetAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezAssetAction();
+  WAssetAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WAssetAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ButtonType m_ButtonType;

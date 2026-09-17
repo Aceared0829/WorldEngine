@@ -5,12 +5,12 @@
 #include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
+WQtFileserveWidget::WQtFileserveWidget(QWidget* pParent /*= nullptr*/)
 {
   setupUi(this);
   Progress->reset();
-  m_pActivityModel = new ezQtFileserveActivityModel(this);
-  m_pAllFilesModel = new ezQtFileserveAllFilesModel(this);
+  m_pActivityModel = new WQtFileserveActivityModel(this);
+  m_pAllFilesModel = new WQtFileserveAllFilesModel(this);
 
   ActivityList->setModel(m_pActivityModel);
   AllFilesList->setModel(m_pAllFilesModel);
@@ -43,10 +43,10 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
 
   connect(m_pActivityModel, SIGNAL(rowsInserted(QModelIndex, int, int)), ActivityList, SLOT(scrollToBottom()));
 
-  if (ezFileserver::GetSingleton())
+  if (WFileserver::GetSingleton())
   {
-    ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtFileserveWidget::FileserverEventHandler, this));
-    const ezUInt16 uiPort = ezFileserver::GetSingleton()->GetPort();
+    WFileserver::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtFileserveWidget::FileserverEventHandler, this));
+    const WUInt16 uiPort = WFileserver::GetSingleton()->GetPort();
 
     PortLineEdit->setText(QString::number(uiPort));
   }
@@ -56,7 +56,7 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
   }
 
   {
-    ezStringBuilder sDisplayString;
+    WStringBuilder sDisplayString;
     FindOwnIP(sDisplayString);
 
     IpLabel->setText(sDisplayString.GetData());
@@ -78,15 +78,15 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
 
   UpdateSpecialDirectoryUI();
 
-  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_nostart"))
+  if (!WCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_nostart"))
   {
-    QTimer::singleShot(100, this, &ezQtFileserveWidget::on_StartServerButton_clicked);
+    QTimer::singleShot(100, this, &WQtFileserveWidget::on_StartServerButton_clicked);
   }
 }
 
-void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_sDisplay, ezHybridArray<ezStringBuilder, 4>* out_pAllIPs)
+void WQtFileserveWidget::FindOwnIP(WStringBuilder& out_sDisplay, WHybridArray<WStringBuilder, 4>* out_pAllIPs)
 {
-  ezStringBuilder hardwarename;
+  WStringBuilder hardwarename;
   out_sDisplay.Clear();
 
   for (const QNetworkInterface& neti : QNetworkInterface::allInterfaces())
@@ -130,35 +130,35 @@ void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_sDisplay, ezHybridArray
   }
 }
 
-ezQtFileserveWidget::~ezQtFileserveWidget()
+WQtFileserveWidget::~WQtFileserveWidget()
 {
-  if (ezFileserver::GetSingleton())
+  if (WFileserver::GetSingleton())
   {
-    ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtFileserveWidget::FileserverEventHandler, this));
+    WFileserver::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtFileserveWidget::FileserverEventHandler, this));
   }
 }
 
-void ezQtFileserveWidget::on_StartServerButton_clicked()
+void WQtFileserveWidget::on_StartServerButton_clicked()
 {
-  if (ezFileserver::GetSingleton())
+  if (WFileserver::GetSingleton())
   {
-    if (ezFileserver::GetSingleton()->IsServerRunning())
+    if (WFileserver::GetSingleton()->IsServerRunning())
     {
       if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
 
-      ezFileserver::GetSingleton()->StopServer();
+      WFileserver::GetSingleton()->StopServer();
     }
     else
     {
       QString sPort = PortLineEdit->text();
       bool bOk = false;
-      ezUInt32 uiPort = sPort.toUInt(&bOk);
+      WUInt32 uiPort = sPort.toUInt(&bOk);
 
       if (bOk && uiPort <= 0xFFFF)
       {
-        ezFileserver::GetSingleton()->SetPort((ezUInt16)uiPort);
-        ezFileserver::GetSingleton()->StartServer();
+        WFileserver::GetSingleton()->SetPort((WUInt16)uiPort);
+        WFileserver::GetSingleton()->StartServer();
       }
       else
         QMessageBox::information(this, "Invalid Port", "The port must be a number between 0 and 65535", QMessageBox::Ok, QMessageBox::Ok);
@@ -166,26 +166,26 @@ void ezQtFileserveWidget::on_StartServerButton_clicked()
   }
 }
 
-void ezQtFileserveWidget::on_ClearActivityButton_clicked()
+void WQtFileserveWidget::on_ClearActivityButton_clicked()
 {
   m_pActivityModel->Clear();
 }
 
-void ezQtFileserveWidget::on_ClearAllFilesButton_clicked()
+void WQtFileserveWidget::on_ClearAllFilesButton_clicked()
 {
   m_pAllFilesModel->Clear();
 }
 
 
-void ezQtFileserveWidget::on_ReloadResourcesButton_clicked()
+void WQtFileserveWidget::on_ReloadResourcesButton_clicked()
 {
-  if (ezFileserver::GetSingleton())
+  if (WFileserver::GetSingleton())
   {
-    ezFileserver::GetSingleton()->BroadcastReloadResourcesCommand();
+    WFileserver::GetSingleton()->BroadcastReloadResourcesCommand();
   }
 }
 
-void ezQtFileserveWidget::on_ConnectClient_clicked()
+void WQtFileserveWidget::on_ConnectClient_clicked()
 {
   QString sIP;
 
@@ -208,45 +208,45 @@ void ezQtFileserveWidget::on_ConnectClient_clicked()
     Settings.endGroup();
   }
 
-  ezStringBuilder sDisplayString;
-  ezTempHybridArray<ezStringBuilder, 4> AllIPs;
+  WStringBuilder sDisplayString;
+  WTempHybridArray<WStringBuilder, 4> AllIPs;
   FindOwnIP(sDisplayString, &AllIPs);
 
-  if (ezFileserver::SendConnectionInfo(sIP.toUtf8().data(), PortLineEdit->text().toInt(), AllIPs).Succeeded())
+  if (WFileserver::SendConnectionInfo(sIP.toUtf8().data(), PortLineEdit->text().toInt(), AllIPs).Succeeded())
   {
-    LogActivity(ezFmt("Successfully sent server info to client at '{0}'", sIP.toUtf8().data()), ezFileserveActivityType::Other);
+    LogActivity(WFmt("Successfully sent server info to client at '{0}'", sIP.toUtf8().data()), WFileserveActivityType::Other);
   }
   else
   {
-    LogActivity(ezFmt("Failed to connect with client at '{0}'", sIP.toUtf8().data()), ezFileserveActivityType::Other);
+    LogActivity(WFmt("Failed to connect with client at '{0}'", sIP.toUtf8().data()), WFileserveActivityType::Other);
   }
 }
 
-void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
+void WQtFileserveWidget::FileserverEventHandler(const WFileserverEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezFileserverEvent::Type::None:
-      EZ_ASSERT_DEV(false, "None event should never be fired");
+    case WFileserverEvent::Type::None:
+      W_ASSERT_DEV(false, "None event should never be fired");
       break;
 
-    case ezFileserverEvent::Type::ServerStarted:
+    case WFileserverEvent::Type::ServerStarted:
     {
-      LogActivity("", ezFileserveActivityType::StartServer);
+      LogActivity("", WFileserveActivityType::StartServer);
       PortLineEdit->setEnabled(false);
       ReloadResourcesButton->setEnabled(true);
       StartServerButton->setText("Stop Server");
 
-      ezStringBuilder sDisplayString;
+      WStringBuilder sDisplayString;
       FindOwnIP(sDisplayString);
 
-      Q_EMIT ServerStarted(sDisplayString.GetData(), ezFileserver::GetSingleton()->GetPort());
+      Q_EMIT ServerStarted(sDisplayString.GetData(), WFileserver::GetSingleton()->GetPort());
     }
     break;
 
-    case ezFileserverEvent::Type::ServerStopped:
+    case WFileserverEvent::Type::ServerStopped:
     {
-      LogActivity("", ezFileserveActivityType::StopServer);
+      LogActivity("", WFileserveActivityType::StopServer);
       PortLineEdit->setEnabled(true);
       ReloadResourcesButton->setEnabled(false);
       StartServerButton->setText("Start Server");
@@ -255,36 +255,36 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-    case ezFileserverEvent::Type::ClientConnected:
+    case WFileserverEvent::Type::ClientConnected:
     {
-      LogActivity("", ezFileserveActivityType::ClientConnect);
+      LogActivity("", WFileserveActivityType::ClientConnect);
       m_Clients[e.m_uiClientID].m_bConnected = true;
 
       UpdateClientList();
     }
     break;
 
-    case ezFileserverEvent::Type::ClientReconnected:
+    case WFileserverEvent::Type::ClientReconnected:
     {
-      LogActivity("", ezFileserveActivityType::ClientReconnected);
+      LogActivity("", WFileserveActivityType::ClientReconnected);
       m_Clients[e.m_uiClientID].m_bConnected = true;
 
       UpdateClientList();
     }
     break;
 
-    case ezFileserverEvent::Type::ClientDisconnected:
+    case WFileserverEvent::Type::ClientDisconnected:
     {
-      LogActivity("", ezFileserveActivityType::ClientDisconnect);
+      LogActivity("", WFileserveActivityType::ClientDisconnect);
       m_Clients[e.m_uiClientID].m_bConnected = false;
 
       UpdateClientList();
     }
     break;
 
-    case ezFileserverEvent::Type::MountDataDir:
+    case WFileserverEvent::Type::MountDataDir:
     {
-      LogActivity(e.m_szPath, ezFileserveActivityType::Mount);
+      LogActivity(e.m_szPath, WFileserveActivityType::Mount);
 
       DataDirInfo& dd = m_Clients[e.m_uiClientID].m_DataDirs.ExpandAndGetRef();
       dd.m_sName = e.m_szName;
@@ -295,9 +295,9 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-    case ezFileserverEvent::Type::MountDataDirFailed:
+    case WFileserverEvent::Type::MountDataDirFailed:
     {
-      LogActivity(e.m_szPath, ezFileserveActivityType::MountFailed);
+      LogActivity(e.m_szPath, WFileserveActivityType::MountFailed);
 
       DataDirInfo& dd = m_Clients[e.m_uiClientID].m_DataDirs.ExpandAndGetRef();
       dd.m_sName = e.m_szName;
@@ -308,12 +308,12 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-    case ezFileserverEvent::Type::UnmountDataDir:
+    case WFileserverEvent::Type::UnmountDataDir:
     {
-      LogActivity(e.m_szName, ezFileserveActivityType::Unmount);
+      LogActivity(e.m_szName, WFileserveActivityType::Unmount);
 
       auto& dds = m_Clients[e.m_uiClientID].m_DataDirs;
-      for (ezUInt32 i = 0; i < dds.GetCount(); ++i)
+      for (WUInt32 i = 0; i < dds.GetCount(); ++i)
       {
         if (dds[i].m_sName == e.m_szName)
         {
@@ -326,102 +326,102 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-    case ezFileserverEvent::Type::FileDownloadRequest:
+    case WFileserverEvent::Type::FileDownloadRequest:
     {
       m_pAllFilesModel->AddAccessedFile(e.m_szPath);
       TransferLabel->setText(QString("Downloading: %1").arg(e.m_szPath));
-      m_LastProgressUpdate = ezTime::Now();
+      m_LastProgressUpdate = WTime::Now();
 
-      if (e.m_FileState == ezFileserveFileState::NonExistant)
-        LogActivity(ezFmt("[N/A] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+      if (e.m_FileState == WFileserveFileState::NonExistant)
+        LogActivity(WFmt("[N/A] {0}", e.m_szPath), WFileserveActivityType::ReadFile);
 
-      if (e.m_FileState == ezFileserveFileState::SameHash)
-        LogActivity(ezFmt("[HASH] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+      if (e.m_FileState == WFileserveFileState::SameHash)
+        LogActivity(WFmt("[HASH] {0}", e.m_szPath), WFileserveActivityType::ReadFile);
 
-      if (e.m_FileState == ezFileserveFileState::SameTimestamp)
-        LogActivity(ezFmt("[TIME] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+      if (e.m_FileState == WFileserveFileState::SameTimestamp)
+        LogActivity(WFmt("[TIME] {0}", e.m_szPath), WFileserveActivityType::ReadFile);
 
-      if (e.m_FileState == ezFileserveFileState::NonExistantEither)
-        LogActivity(ezFmt("[N/A] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+      if (e.m_FileState == WFileserveFileState::NonExistantEither)
+        LogActivity(WFmt("[N/A] {0}", e.m_szPath), WFileserveActivityType::ReadFile);
 
-      if (e.m_FileState == ezFileserveFileState::Different)
-        LogActivity(ezFmt("({1} KB) {0}", e.m_szPath, ezArgF(e.m_uiSizeTotal / 1024.0f, 1)), ezFileserveActivityType::ReadFile);
+      if (e.m_FileState == WFileserveFileState::Different)
+        LogActivity(WFmt("({1} KB) {0}", e.m_szPath, WArgF(e.m_uiSizeTotal / 1024.0f, 1)), WFileserveActivityType::ReadFile);
     }
     break;
 
-    case ezFileserverEvent::Type::FileDownloading:
+    case WFileserverEvent::Type::FileDownloading:
     {
-      if (ezTime::Now() - m_LastProgressUpdate > ezTime::MakeFromMilliseconds(100))
+      if (WTime::Now() - m_LastProgressUpdate > WTime::MakeFromMilliseconds(100))
       {
-        m_LastProgressUpdate = ezTime::Now();
+        m_LastProgressUpdate = WTime::Now();
         Progress->setValue((int)(100.0 * e.m_uiSentTotal / e.m_uiSizeTotal));
       }
     }
     break;
 
-    case ezFileserverEvent::Type::FileDownloadFinished:
+    case WFileserverEvent::Type::FileDownloadFinished:
     {
       TransferLabel->setText(QString());
       Progress->reset();
     }
     break;
 
-    case ezFileserverEvent::Type::FileDeleteRequest:
-      LogActivity(e.m_szPath, ezFileserveActivityType::DeleteFile);
+    case WFileserverEvent::Type::FileDeleteRequest:
+      LogActivity(e.m_szPath, WFileserveActivityType::DeleteFile);
       break;
 
-    case ezFileserverEvent::Type::FileUploadRequest:
+    case WFileserverEvent::Type::FileUploadRequest:
     {
-      LogActivity(ezFmt("({1} KB) {0}", e.m_szPath, ezArgF(e.m_uiSizeTotal / 1024.0f, 1)), ezFileserveActivityType::WriteFile);
+      LogActivity(WFmt("({1} KB) {0}", e.m_szPath, WArgF(e.m_uiSizeTotal / 1024.0f, 1)), WFileserveActivityType::WriteFile);
       TransferLabel->setText(QString("Uploading: %1").arg(e.m_szPath));
-      m_LastProgressUpdate = ezTime::Now();
+      m_LastProgressUpdate = WTime::Now();
     }
     break;
 
-    case ezFileserverEvent::Type::FileUploading:
+    case WFileserverEvent::Type::FileUploading:
     {
-      if (ezTime::Now() - m_LastProgressUpdate > ezTime::MakeFromMilliseconds(100))
+      if (WTime::Now() - m_LastProgressUpdate > WTime::MakeFromMilliseconds(100))
       {
-        m_LastProgressUpdate = ezTime::Now();
+        m_LastProgressUpdate = WTime::Now();
         Progress->setValue((int)(100.0 * e.m_uiSentTotal / e.m_uiSizeTotal));
       }
     }
     break;
 
-    case ezFileserverEvent::Type::FileUploadFinished:
+    case WFileserverEvent::Type::FileUploadFinished:
     {
       TransferLabel->setText(QString());
       Progress->reset();
     }
     break;
 
-    case ezFileserverEvent::Type::AreYouThereRequest:
+    case WFileserverEvent::Type::AreYouThereRequest:
     {
-      LogActivity("Client searching for Server", ezFileserveActivityType::Other);
+      LogActivity("Client searching for Server", WFileserveActivityType::Other);
     }
     break;
 
-    case ezFileserverEvent::Type::LogCustomActivity:
+    case WFileserverEvent::Type::LogCustomActivity:
     {
-      LogActivity(e.m_szName, ezFileserveActivityType::Other);
+      LogActivity(e.m_szName, WFileserveActivityType::Other);
     }
     break;
   }
 }
 
-void ezQtFileserveWidget::LogActivity(const ezFormatString& text, ezFileserveActivityType type)
+void WQtFileserveWidget::LogActivity(const WFormatString& text, WFileserveActivityType type)
 {
   auto& item = m_pActivityModel->AppendItem();
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   item.m_Text = text.GetTextCStr(tmp);
   item.m_Type = type;
 }
 
-void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
+void WQtFileserveWidget::UpdateSpecialDirectoryUI()
 {
   QTableWidget* pTable = SpecialDirList;
-  ezQtScopedBlockSignals bs(SpecialDirList);
+  WQtScopedBlockSignals bs(SpecialDirList);
 
   QStringList header;
   header.append("Special Directory");
@@ -437,12 +437,12 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   pTable->verticalHeader()->setHidden(true);
   pTable->setHorizontalHeaderLabels(header);
 
-  ezStringBuilder sResolved;
+  WStringBuilder sResolved;
   QTableWidgetItem* pItem;
 
-  ezUInt32 row = 0;
+  WUInt32 row = 0;
 
-  for (ezUInt32 i = 0; i < m_SpecialDirectories.GetCount(); ++i, ++row)
+  for (WUInt32 i = 0; i < m_SpecialDirectories.GetCount(); ++i, ++row)
   {
     pItem = new QTableWidgetItem();
     pItem->setText(m_SpecialDirectories[i].m_sName.GetData());
@@ -456,7 +456,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">sdk", sResolved).IgnoreResult();
+    WFileSystem::ResolveSpecialDirectory(">sdk", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("sdk");
@@ -472,7 +472,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">user", sResolved).IgnoreResult();
+    WFileSystem::ResolveSpecialDirectory(">user", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("user");
@@ -488,7 +488,7 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 
   {
-    ezFileSystem::ResolveSpecialDirectory(">appdir", sResolved).IgnoreResult();
+    WFileSystem::ResolveSpecialDirectory(">appdir", sResolved).IgnoreResult();
 
     pItem = new QTableWidgetItem();
     pItem->setText("appdir");
@@ -504,13 +504,13 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
   }
 }
 
-void ezQtFileserveWidget::UpdateClientList()
+void WQtFileserveWidget::UpdateClientList()
 {
-  ezQtScopedBlockSignals bs(ClientsList);
+  WQtScopedBlockSignals bs(ClientsList);
 
   ClientsList->clear();
 
-  ezStringBuilder sName;
+  WStringBuilder sName;
 
   for (auto it = m_Clients.GetIterator(); it.IsValid(); ++it)
   {
@@ -546,14 +546,14 @@ void ezQtFileserveWidget::UpdateClientList()
   ClientsList->resizeColumnToContents(0);
 }
 
-void ezQtFileserveWidget::ConfigureSpecialDirectories()
+void WQtFileserveWidget::ConfigureSpecialDirectories()
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-  const ezUInt32 uiArgs = pCmd->GetStringOptionArguments("-specialdirs");
+  const auto pCmd = WCommandLineUtils::GetGlobalInstance();
+  const WUInt32 uiArgs = pCmd->GetStringOptionArguments("-specialdirs");
 
-  ezStringBuilder sDir, sPath;
+  WStringBuilder sDir, sPath;
 
-  for (ezUInt32 i = 0; i < uiArgs; i += 2)
+  for (WUInt32 i = 0; i < uiArgs; i += 2)
   {
     sDir = pCmd->GetStringOption("-specialdirs", i, "");
     sPath = pCmd->GetStringOption("-specialdirs", i + 1, "");
@@ -561,7 +561,7 @@ void ezQtFileserveWidget::ConfigureSpecialDirectories()
     if (sDir.IsEmpty() || sPath.IsEmpty())
       continue;
 
-    ezFileSystem::SetSpecialDirectory(sDir, sPath);
+    WFileSystem::SetSpecialDirectory(sDir, sPath);
     sPath.MakeCleanPath();
 
     auto& sd = m_SpecialDirectories.ExpandAndGetRef();

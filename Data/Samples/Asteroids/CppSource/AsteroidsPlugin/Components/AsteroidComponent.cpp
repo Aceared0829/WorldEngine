@@ -5,12 +5,12 @@
 #include <Foundation/Time/Clock.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, ezComponentMode::Dynamic)
-EZ_END_COMPONENT_TYPE
+W_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, WComponentMode::Dynamic)
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "The radius at which an asteroid pushes ships away.");
-ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "The strength with which an asteroid pushes a ship away.");
+WCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, WCVarFlags::Default, "The radius at which an asteroid pushes ships away.");
+WCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, WCVarFlags::Default, "The strength with which an asteroid pushes a ship away.");
 
 AsteroidComponent::AsteroidComponent() = default;
 
@@ -23,11 +23,11 @@ void AsteroidComponent::Update()
 {
   const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromRadian(m_fRotationSpeed * fTimeDiff));
+  WQuat qRot = WQuat::MakeFromAxisAndAngle(WVec3(0, 0, 1), WAngle::MakeFromRadian(m_fRotationSpeed * fTimeDiff));
 
   GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
 
-  const ezVec3 vOwnPos = GetOwner()->GetLocalPosition();
+  const WVec3 vOwnPos = GetOwner()->GetLocalPosition();
 
   ShipComponentManager* pShipManager = GetWorld()->GetOrCreateComponentManager<ShipComponentManager>();
 
@@ -38,9 +38,9 @@ void AsteroidComponent::Update()
     if (!ship.IsActiveAndSimulating())
       continue;
 
-    ezGameObject* pObject = ship.GetOwner();
+    WGameObject* pObject = ship.GetOwner();
 
-    const ezVec3 vDir = pObject->GetLocalPosition() - vOwnPos;
+    const WVec3 vDir = pObject->GetLocalPosition() - vOwnPos;
     const float fDist = vDir.GetLength();
     const float fMaxDist = CVar_AsteroidMaxDist;
 
@@ -48,8 +48,8 @@ void AsteroidComponent::Update()
       continue;
 
     const float fFactor = 1.0f - fDist / fMaxDist;
-    const float fScaledFactor = ezMath::Pow(fFactor, 2.0f);
-    const ezVec3 vPull = vDir * fScaledFactor;
+    const float fScaledFactor = WMath::Pow(fFactor, 2.0f);
+    const WVec3 vPull = vDir * fScaledFactor;
 
     ship.AddExternalForce(vPull * (float)CVar_AsteroidPush);
   }

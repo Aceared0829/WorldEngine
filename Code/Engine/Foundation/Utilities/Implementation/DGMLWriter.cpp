@@ -4,20 +4,20 @@
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
-ezDGMLGraph::ezDGMLGraph(ezDGMLGraph::Direction graphDirection /*= LeftToRight*/, ezDGMLGraph::Layout graphLayout /*= Tree*/)
+WDGMLGraph::WDGMLGraph(WDGMLGraph::Direction graphDirection /*= LeftToRight*/, WDGMLGraph::Layout graphLayout /*= Tree*/)
   : m_Direction(graphDirection)
   , m_Layout(graphLayout)
 {
 }
 
-ezDGMLGraph::NodeId ezDGMLGraph::AddNode(ezStringView sTitle, const NodeDesc* pDesc)
+WDGMLGraph::NodeId WDGMLGraph::AddNode(WStringView sTitle, const NodeDesc* pDesc)
 {
   return AddGroup(sTitle, GroupType::None, pDesc);
 }
 
-ezDGMLGraph::NodeId ezDGMLGraph::AddGroup(ezStringView sTitle, GroupType type, const NodeDesc* pDesc /*= nullptr*/)
+WDGMLGraph::NodeId WDGMLGraph::AddGroup(WStringView sTitle, GroupType type, const NodeDesc* pDesc /*= nullptr*/)
 {
-  ezDGMLGraph::Node& Node = m_Nodes.ExpandAndGetRef();
+  WDGMLGraph::Node& Node = m_Nodes.ExpandAndGetRef();
 
   Node.m_Title = sTitle;
   Node.m_GroupType = type;
@@ -30,14 +30,14 @@ ezDGMLGraph::NodeId ezDGMLGraph::AddGroup(ezStringView sTitle, GroupType type, c
   return m_Nodes.GetCount() - 1;
 }
 
-void ezDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
+void WDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
 {
-  EZ_ASSERT_DEBUG(m_Nodes[group].m_GroupType != GroupType::None, "The given group node has not been created as a group node");
+  W_ASSERT_DEBUG(m_Nodes[group].m_GroupType != GroupType::None, "The given group node has not been created as a group node");
 
   m_Nodes[node].m_ParentGroup = group;
 }
 
-ezDGMLGraph::CategoryId ezDGMLGraph::AddConnectionCategory(ezStringView sName, const ezColor& color)
+WDGMLGraph::CategoryId WDGMLGraph::AddConnectionCategory(WStringView sName, const WColor& color)
 {
   auto& cat = m_ConnectionCategories.ExpandAndGetRef();
   cat.m_sName = sName;
@@ -45,9 +45,9 @@ ezDGMLGraph::CategoryId ezDGMLGraph::AddConnectionCategory(ezStringView sName, c
   return m_ConnectionCategories.GetCount() - 1;
 }
 
-ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel, CategoryId category)
+WDGMLGraph::ConnectionId WDGMLGraph::AddConnection(WDGMLGraph::NodeId source, WDGMLGraph::NodeId target, WStringView sLabel, CategoryId category)
 {
-  ezDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
+  WDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
 
   connection.m_Source = source;
   connection.m_Target = target;
@@ -57,75 +57,75 @@ ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source,
   return m_Connections.GetCount() - 1;
 }
 
-ezDGMLGraph::PropertyId ezDGMLGraph::AddPropertyType(ezStringView sName)
+WDGMLGraph::PropertyId WDGMLGraph::AddPropertyType(WStringView sName)
 {
   auto& prop = m_PropertyTypes.ExpandAndGetRef();
   prop.m_Name = sName;
   return m_PropertyTypes.GetCount() - 1;
 }
 
-void ezDGMLGraph::AddNodeProperty(NodeId node, PropertyId property, const ezFormatString& fmt)
+void WDGMLGraph::AddNodeProperty(NodeId node, PropertyId property, const WFormatString& fmt)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   auto& prop = m_Nodes[node].m_Properties.ExpandAndGetRef();
   prop.m_PropertyId = property;
   prop.m_sValue = fmt.GetText(tmp);
 }
 
-ezResult ezDGMLGraphWriter::WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& graph)
+WResult WDGMLGraphWriter::WriteGraphToFile(WStringView sFileName, const WDGMLGraph& graph)
 {
-  ezStringBuilder sGraph;
+  WStringBuilder sGraph;
 
   // Write to memory object and then to file
   if (WriteGraphToString(sGraph, graph).Succeeded())
   {
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
-    ezFileWriter fileWriter;
+    WFileWriter fileWriter;
     if (!fileWriter.Open(sFileName.GetData(sTemp)).Succeeded())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     fileWriter.WriteBytes(sGraph.GetData(), sGraph.GetElementCount()).IgnoreResult();
 
     fileWriter.Close();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuilder, const ezDGMLGraph& graph)
+WResult WDGMLGraphWriter::WriteGraphToString(WStringBuilder& ref_sStringBuilder, const WDGMLGraph& graph)
 {
   const char* szDirection = nullptr;
   const char* szLayout = nullptr;
 
   switch (graph.m_Direction)
   {
-    case ezDGMLGraph::Direction::TopToBottom:
+    case WDGMLGraph::Direction::TopToBottom:
       szDirection = "TopToBottom";
       break;
-    case ezDGMLGraph::Direction::BottomToTop:
+    case WDGMLGraph::Direction::BottomToTop:
       szDirection = "BottomToTop";
       break;
-    case ezDGMLGraph::Direction::LeftToRight:
+    case WDGMLGraph::Direction::LeftToRight:
       szDirection = "LeftToRight";
       break;
-    case ezDGMLGraph::Direction::RightToLeft:
+    case WDGMLGraph::Direction::RightToLeft:
       szDirection = "RightToLeft";
       break;
   }
 
   switch (graph.m_Layout)
   {
-    case ezDGMLGraph::Layout::Free:
+    case WDGMLGraph::Layout::Free:
       szLayout = "None";
       break;
-    case ezDGMLGraph::Layout::Tree:
+    case WDGMLGraph::Layout::Tree:
       szLayout = "Sugiyama";
       break;
-    case ezDGMLGraph::Layout::DependencyMatrix:
+    case WDGMLGraph::Layout::DependencyMatrix:
       szLayout = "DependencyMatrix";
       break;
   }
@@ -136,12 +136,12 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
   if (!graph.m_ConnectionCategories.IsEmpty())
   {
     ref_sStringBuilder.Append("\t<Categories>\n");
-    for (ezUInt32 i = 0; i < graph.m_ConnectionCategories.GetCount(); ++i)
+    for (WUInt32 i = 0; i < graph.m_ConnectionCategories.GetCount(); ++i)
     {
       const auto& cat = graph.m_ConnectionCategories[i];
-      ezColorGammaUB rgba(cat.m_Color);
-      ezStringBuilder sStroke;
-      sStroke.SetFormat("#FF{0}{1}{2}", ezArgU(rgba.r, 2, true, 16, true), ezArgU(rgba.g, 2, true, 16, true), ezArgU(rgba.b, 2, true, 16, true));
+      WColorGammaUB rgba(cat.m_Color);
+      WStringBuilder sStroke;
+      sStroke.SetFormat("#FF{0}{1}{2}", WArgU(rgba.r, 2, true, 16, true), WArgU(rgba.g, 2, true, 16, true), WArgU(rgba.b, 2, true, 16, true));
       ref_sStringBuilder.AppendFormat("\t\t<Category Id=\"C_{0}\" Label=\"{1}\" Stroke=\"{2}\" />\n", i, cat.m_sName, sStroke);
     }
     ref_sStringBuilder.Append("\t</Categories>\n");
@@ -152,7 +152,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
   {
     ref_sStringBuilder.Append("\t<Properties>\n");
 
-    for (ezUInt32 i = 0; i < graph.m_PropertyTypes.GetCount(); ++i)
+    for (WUInt32 i = 0; i < graph.m_PropertyTypes.GetCount(); ++i)
     {
       const auto& prop = graph.m_PropertyTypes[i];
 
@@ -165,15 +165,15 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
   // Write out all the nodes
   if (!graph.m_Nodes.IsEmpty())
   {
-    ezStringBuilder ColorValue;
-    ezStringBuilder PropertiesString;
-    ezStringBuilder SanitizedName;
+    WStringBuilder ColorValue;
+    WStringBuilder PropertiesString;
+    WStringBuilder SanitizedName;
     const char* szGroupString;
 
     ref_sStringBuilder.Append("\t<Nodes>\n");
-    for (ezUInt32 i = 0; i < graph.m_Nodes.GetCount(); ++i)
+    for (WUInt32 i = 0; i < graph.m_Nodes.GetCount(); ++i)
     {
-      const ezDGMLGraph::Node& node = graph.m_Nodes[i];
+      const WDGMLGraph::Node& node = graph.m_Nodes[i];
 
       SanitizedName = node.m_Title;
       SanitizedName.ReplaceAll("&", "&#038;");
@@ -184,22 +184,22 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
       SanitizedName.ReplaceAll("\n", "&#xA;");
 
       ColorValue = "#FF";
-      ezColorGammaUB RGBA(node.m_Desc.m_Color);
-      ColorValue.AppendFormat("{0}{1}{2}", ezArgU(RGBA.r, 2, true, 16, true), ezArgU(RGBA.g, 2, true, 16, true), ezArgU(RGBA.b, 2, true, 16, true));
+      WColorGammaUB RGBA(node.m_Desc.m_Color);
+      ColorValue.AppendFormat("{0}{1}{2}", WArgU(RGBA.r, 2, true, 16, true), WArgU(RGBA.g, 2, true, 16, true), WArgU(RGBA.b, 2, true, 16, true));
 
-      ezStringBuilder StyleString;
+      WStringBuilder StyleString;
       switch (node.m_Desc.m_Shape)
       {
-        case ezDGMLGraph::NodeShape::None:
+        case WDGMLGraph::NodeShape::None:
           StyleString = "Shape=\"None\"";
           break;
-        case ezDGMLGraph::NodeShape::Rectangle:
+        case WDGMLGraph::NodeShape::Rectangle:
           StyleString = "NodeRadius=\"0\"";
           break;
-        case ezDGMLGraph::NodeShape::RoundedRectangle:
+        case WDGMLGraph::NodeShape::RoundedRectangle:
           StyleString = "NodeRadius=\"4\"";
           break;
-        case ezDGMLGraph::NodeShape::Button:
+        case WDGMLGraph::NodeShape::Button:
           StyleString = "";
           break;
       }
@@ -207,15 +207,15 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
       switch (node.m_GroupType)
       {
 
-        case ezDGMLGraph::GroupType::Expanded:
+        case WDGMLGraph::GroupType::Expanded:
           szGroupString = " Group=\"Expanded\"";
           break;
 
-        case ezDGMLGraph::GroupType::Collapsed:
+        case WDGMLGraph::GroupType::Collapsed:
           szGroupString = " Group=\"Collapsed\"";
           break;
 
-        case ezDGMLGraph::GroupType::None:
+        case WDGMLGraph::GroupType::None:
         default:
           szGroupString = nullptr;
           break;
@@ -237,10 +237,10 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
   {
     ref_sStringBuilder.Append("\t<Links>\n");
     {
-      for (ezUInt32 i = 0; i < graph.m_Connections.GetCount(); ++i)
+      for (WUInt32 i = 0; i < graph.m_Connections.GetCount(); ++i)
       {
         const auto& conn = graph.m_Connections[i];
-        if (conn.m_uiCategory != ezInvalidIndex)
+        if (conn.m_uiCategory != WInvalidIndex)
         {
           ref_sStringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" Label=\"{2}\" Category=\"C_{3}\" />\n",
             conn.m_Source, conn.m_Target, conn.m_sLabel, conn.m_uiCategory);
@@ -252,9 +252,9 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
         }
       }
 
-      for (ezUInt32 i = 0; i < graph.m_Nodes.GetCount(); ++i)
+      for (WUInt32 i = 0; i < graph.m_Nodes.GetCount(); ++i)
       {
-        const ezDGMLGraph::Node& node = graph.m_Nodes[i];
+        const WDGMLGraph::Node& node = graph.m_Nodes[i];
 
         if (node.m_ParentGroup != 0xFFFFFFFF)
         {
@@ -267,5 +267,5 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
 
   ref_sStringBuilder.Append("</DirectedGraph>\n");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

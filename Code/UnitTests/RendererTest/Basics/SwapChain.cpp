@@ -4,98 +4,98 @@
 #include <Foundation/Configuration/Startup.h>
 #include <RendererTest/Basics/SwapChain.h>
 
-ezResult ezRendererTestSwapChain::InitializeTest()
+WResult WRendererTestSwapChain::InitializeTest()
 {
-  ezStartup::StartupCoreSystems();
+  WStartup::StartupCoreSystems();
 
   if (SetupRenderer().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestSwapChain::DeInitializeTest()
+WResult WRendererTestSwapChain::DeInitializeTest()
 {
   ShutdownRenderer();
-  ezStartup::ShutdownCoreSystems();
-  ezMemoryTracker::DumpMemoryLeaks();
+  WStartup::ShutdownCoreSystems();
+  WMemoryTracker::DumpMemoryLeaks();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestSwapChain::InitializeSubTest(WInt32 iIdentifier)
 {
   m_iFrame = -1;
   m_bCaptureImage = false;
   m_ImgCompFrames.Clear();
 
-  m_CurrentWindowSize = ezSizeU32(320, 240);
+  m_CurrentWindowSize = WSizeU32(320, 240);
 
   // Window
   {
-    ezWindowCreationDesc WindowCreationDesc;
+    WWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = m_CurrentWindowSize.width;
     WindowCreationDesc.m_Resolution.height = m_CurrentWindowSize.height;
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_bShowMouseCursor = true;
-    WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
-    // ezWindow writes any window size changes into the config.
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? WWindowMode::WindowResizable : WWindowMode::WindowFixedResolution;
+    // WWindow writes any window size changes into the config.
+    m_pWindow = W_DEFAULT_NEW(WWindow);
     m_pWindow->Initialize(WindowCreationDesc).AssertSuccess("Window creation failed");
   }
 
   {
-    ezGALWindowSwapChainCreationDescription swapChainDesc;
+    WGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
-    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_VSync) ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
-    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+    swapChainDesc.m_SampleCount = WGALMSAASampleCount::None;
+    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_VSync) ? WGALPresentMode::VSync : WGALPresentMode::Immediate;
+    m_hSwapChain = WGALWindowSwapChain::Create(swapChainDesc);
   }
 
   // Depth Texture
   if (iIdentifier != SubTests::ST_ColorOnly)
   {
-    ezGALTextureCreationDescription texDesc;
+    WGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = m_CurrentWindowSize.width;
     texDesc.m_uiHeight = m_CurrentWindowSize.height;
     texDesc.m_ResourceAccess.m_bImmutable = false;
     switch (iIdentifier)
     {
       case SubTests::ST_D16:
-        texDesc.m_Format = ezGALResourceFormat::D16;
+        texDesc.m_Format = WGALResourceFormat::D16;
         break;
       case SubTests::ST_D24S8:
-        texDesc.m_Format = ezGALResourceFormat::D24S8;
+        texDesc.m_Format = WGALResourceFormat::D24S8;
         break;
       default:
       case SubTests::ST_D32:
-        texDesc.m_Format = ezGALResourceFormat::DFloat;
+        texDesc.m_Format = WGALResourceFormat::DFloat;
         break;
     }
 
-    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+    texDesc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget);
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestSwapChain::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestSwapChain::DeInitializeSubTest(WInt32 iIdentifier)
 {
   DestroyWindow();
 
   // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
+void WRendererTestSwapChain::ResizeTest(WUInt32 uiInvocationCount)
 {
   if (uiInvocationCount == 4)
   {
     // Not implemented on all platforms,  so we ignore the result here.
-    m_pWindow->Resize(ezSizeU32(640, 480)).IgnoreResult();
+    m_pWindow->Resize(WSizeU32(640, 480)).IgnoreResult();
   }
 
   if (m_pWindow->GetClientAreaSize() != m_CurrentWindowSize)
@@ -106,51 +106,51 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 
     // Swap Chain
     {
-      auto presentMode = m_pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain)->GetWindowDescription().m_InitialPresentMode;
-      EZ_TEST_RESULT(m_pDevice->UpdateSwapChain(m_hSwapChain, presentMode));
+      auto presentMode = m_pDevice->GetSwapChain<WGALWindowSwapChain>(m_hSwapChain)->GetWindowDescription().m_InitialPresentMode;
+      W_TEST_RESULT(m_pDevice->UpdateSwapChain(m_hSwapChain, presentMode));
     }
 
     // Depth Texture
     {
-      ezGALTextureCreationDescription texDesc;
+      WGALTextureCreationDescription texDesc;
       texDesc.m_uiWidth = m_CurrentWindowSize.width;
       texDesc.m_uiHeight = m_CurrentWindowSize.height;
-      texDesc.m_Format = ezGALResourceFormat::DFloat;
+      texDesc.m_Format = WGALResourceFormat::DFloat;
       texDesc.m_ResourceAccess.m_bImmutable = false;
-      texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+      texDesc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget);
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     }
   }
 }
 
-ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WRendererTestSwapChain::BasicRenderLoop(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   BeginFrame();
   BeginCommands("SwapChainTest");
   {
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
-    TransitionTexture(pPrimarySwapChain->GetBackBufferTexture(), ezGALResourceState::RenderTarget);
+    const WGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    TransitionTexture(pPrimarySwapChain->GetBackBufferTexture(), WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
-    renderingSetup.SetClearColor(0, ezColor::CornflowerBlue);
+    renderingSetup.SetClearColor(0, WColor::CornflowerBlue);
     if (!m_hDepthStencilTexture.IsInvalidated())
     {
-      TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
+      TransitionTexture(m_hDepthStencilTexture, WGALResourceState::DepthStencilWrite);
       renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
       renderingSetup.SetClearDepth().SetClearStencil();
     }
-    ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
+    WRectFloat viewport = WRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     m_pWindow->ProcessWindowMessages();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
   EndFrame();
 
-  return m_iFrame < 120 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 120 ? WTestAppRun::Continue : WTestAppRun::Quit;
 }
 
-static ezRendererTestSwapChain g_SwapChainTest;
+static WRendererTestSwapChain g_SwapChainTest;

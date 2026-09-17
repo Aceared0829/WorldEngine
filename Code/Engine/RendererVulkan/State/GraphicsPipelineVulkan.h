@@ -4,16 +4,16 @@
 #include <RendererFoundation/State/GraphicsPipeline.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
-class EZ_RENDERERVULKAN_DLL ezGALGraphicsPipelineVulkan : public ezGALGraphicsPipeline
+class W_RENDERERVULKAN_DLL WGALGraphicsPipelineVulkan : public WGALGraphicsPipeline
 {
 public:
-  ezGALGraphicsPipelineVulkan(const ezGALGraphicsPipelineCreationDescription& description);
-  ~ezGALGraphicsPipelineVulkan();
+  WGALGraphicsPipelineVulkan(const WGALGraphicsPipelineCreationDescription& description);
+  ~WGALGraphicsPipelineVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
   const vk::Pipeline& GetPipeline() const { return m_Pipeline; }
   bool HasStencilTest() const { return m_bStencilTest; }

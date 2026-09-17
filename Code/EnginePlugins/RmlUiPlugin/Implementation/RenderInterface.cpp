@@ -17,27 +17,27 @@
 
 #include <RendererCore/../../../Data/Plugins/RmlUiPlugin/Shaders/RmlUiConstants.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   struct Vertex
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec2 m_Position;
-    ezVec2 m_TexCoord;
-    ezColorLinearUB m_Color;
+    WVec2 m_Position;
+    WVec2 m_TexCoord;
+    WColorLinearUB m_Color;
   };
 
   struct CompiledGeometry
   {
-    ezUInt32 m_uiTriangleCount = 0;
-    ezGALBufferHandle m_hVertexBuffer;
-    ezGALBufferHandle m_hIndexBuffer;
+    WUInt32 m_uiTriangleCount = 0;
+    WGALBufferHandle m_hVertexBuffer;
+    WGALBufferHandle m_hIndexBuffer;
   };
 
   struct CommandType
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -53,10 +53,10 @@ namespace ezRmlUiInternal
 
   struct alignas(4) CommandHeader
   {
-    ezEnum<CommandType> m_Type;
+    WEnum<CommandType> m_Type;
     bool m_bNeedsPremultipliedAlpha = false;
     bool m_bUseStencilTest = false;
-    ezUInt8 m_uiSize = 0;
+    WUInt8 m_uiSize = 0;
   };
 
   struct CommandRenderGeometry : CommandHeader
@@ -64,25 +64,25 @@ namespace ezRmlUiInternal
     static constexpr CommandType::Enum Type = CommandType::RenderGeometry;
 
     CompiledGeometry m_CompiledGeometry;
-    ezGALTextureHandle m_hTexture;
-    ezMat4 m_Transform = ezMat4::MakeIdentity();
-    ezVec2 m_Translation = ezVec2::MakeZero();
+    WGALTextureHandle m_hTexture;
+    WMat4 m_Transform = WMat4::MakeIdentity();
+    WVec2 m_Translation = WVec2::MakeZero();
   };
 
   struct CommandRenderShader : CommandRenderGeometry
   {
     static constexpr CommandType::Enum Type = CommandType::RenderShader;
 
-    ezShaderResourceHandle m_hShader;
-    ezGALBufferHandle m_hAdditionalConstantBuffer;
-    ezEnum<ShaderType> m_ShaderType;
+    WShaderResourceHandle m_hShader;
+    WGALBufferHandle m_hAdditionalConstantBuffer;
+    WEnum<ShaderType> m_ShaderType;
   };
 
   struct CommandSetScissorRegion : CommandHeader
   {
     static constexpr CommandType::Enum Type = CommandType::SetScissorRegion;
 
-    ezRectU32 m_ScissorRect = {};
+    WRectU32 m_ScissorRect = {};
   };
 
   struct CommandRenderToClipMask : CommandHeader
@@ -91,8 +91,8 @@ namespace ezRmlUiInternal
 
     Rml::ClipMaskOperation m_Operation;
     CompiledGeometry m_CompiledGeometry;
-    ezMat4 m_Transform = ezMat4::MakeIdentity();
-    ezVec2 m_Translation = ezVec2::MakeZero();
+    WMat4 m_Transform = WMat4::MakeIdentity();
+    WVec2 m_Translation = WVec2::MakeZero();
   };
 
   struct CommandBuffer
@@ -103,11 +103,11 @@ namespace ezRmlUiInternal
       Clear();
     }
 
-    ezHashedString m_sName;
-    ezDynamicArray<ezUInt8> m_Buffer;
-    ezGALTextureHandle m_hTargetTexture;
-    ezUInt32 m_uiTargetWidth = 0;
-    ezUInt32 m_uiTargetHeight = 0;
+    WHashedString m_sName;
+    WDynamicArray<WUInt8> m_Buffer;
+    WGALTextureHandle m_hTargetTexture;
+    WUInt32 m_uiTargetWidth = 0;
+    WUInt32 m_uiTargetHeight = 0;
 
     template <typename T>
     T& AddCommand()
@@ -121,26 +121,26 @@ namespace ezRmlUiInternal
     }
 
     template <typename T>
-    const T& ConsumeCommand(ezUInt32& inout_uiOffset) const
+    const T& ConsumeCommand(WUInt32& inout_uiOffset) const
     {
       const T& cmd = *reinterpret_cast<const T*>(m_Buffer.GetData() + inout_uiOffset);
       inout_uiOffset += sizeof(T);
       return cmd;
     }
 
-    CommandType::Enum PeekCommandType(ezUInt32 uiOffset) const
+    CommandType::Enum PeekCommandType(WUInt32 uiOffset) const
     {
       return static_cast<CommandType::Enum>(*(m_Buffer.GetData() + uiOffset));
     }
 
-    const CommandHeader& PeekCommandHeader(ezUInt32 uiOffset) const
+    const CommandHeader& PeekCommandHeader(WUInt32 uiOffset) const
     {
       return *reinterpret_cast<const CommandHeader*>(m_Buffer.GetData() + uiOffset);
     }
 
     void Clear()
     {
-      ezUInt32 uiOffset = 0;
+      WUInt32 uiOffset = 0;
       while (uiOffset < m_Buffer.GetCount())
       {
         const CommandHeader& header = PeekCommandHeader(uiOffset);
@@ -163,41 +163,41 @@ namespace ezRmlUiInternal
 
   RenderInterface::RenderInterface()
   {
-    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&RenderInterface::GALEventHandler, this));
+    WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&RenderInterface::GALEventHandler, this));
 
-    m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"); // BlueNoise
-    m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
-    m_hMainShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RmlUi.ezShader");
-    m_hMainConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezRmlUiConstants>();
+    m_hNoiseTexture = WResourceManager::LoadResource<WTexture2DResource>("{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"); // BlueNoise
+    m_hFallbackTexture = WResourceManager::LoadResource<WTexture2DResource>("White.color");
+    m_hMainShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RmlUi.WShader");
+    m_hMainConstantBuffer = WRenderContext::CreateConstantBufferStorage<WRmlUiConstants>();
 
     // Setup the vertex declaration
     {
       auto& va = m_VertexAttributes.ExpandAndGetRef();
-      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
-      va.m_eFormat = ezGALResourceFormat::XYFloat;
-      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Position);
+      va.m_eSemantic = WGALVertexAttributeSemantic::Position;
+      va.m_eFormat = WGALResourceFormat::XYFloat;
+      va.m_uiOffset = offsetof(WRmlUiInternal::Vertex, m_Position);
     }
 
     {
       auto& va = m_VertexAttributes.ExpandAndGetRef();
-      va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
-      va.m_eFormat = ezGALResourceFormat::UVFloat;
-      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_TexCoord);
+      va.m_eSemantic = WGALVertexAttributeSemantic::TexCoord0;
+      va.m_eFormat = WGALResourceFormat::UVFloat;
+      va.m_uiOffset = offsetof(WRmlUiInternal::Vertex, m_TexCoord);
     }
 
     {
       auto& va = m_VertexAttributes.ExpandAndGetRef();
-      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
-      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
-      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Color);
+      va.m_eSemantic = WGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = WGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(WRmlUiInternal::Vertex, m_Color);
     }
 
-    m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("RmlUi", ezRenderGraphPhase::PreRender);
+    m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("RmlUi", WRenderGraphPhase::PreRender);
   }
 
   RenderInterface::~RenderInterface()
   {
-    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&RenderInterface::GALEventHandler, this));
+    WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&RenderInterface::GALEventHandler, this));
 
     for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
     {
@@ -214,44 +214,44 @@ namespace ezRmlUiInternal
 
   Rml::CompiledGeometryHandle RenderInterface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
   {
-    const ezUInt32 uiNumVertices = static_cast<ezUInt32>(vertices.size());
-    const ezUInt32 uiNumIndices = static_cast<ezUInt32>(indices.size());
+    const WUInt32 uiNumVertices = static_cast<WUInt32>(vertices.size());
+    const WUInt32 uiNumIndices = static_cast<WUInt32>(indices.size());
 
     CompiledGeometry geometry;
     geometry.m_uiTriangleCount = uiNumIndices / 3;
 
     // vertices
     {
-      ezTempArray<Vertex> vertexStorage;
+      WTempArray<Vertex> vertexStorage;
       vertexStorage.SetCountUninitialized(uiNumVertices);
 
-      for (ezUInt32 i = 0; i < vertexStorage.GetCount(); ++i)
+      for (WUInt32 i = 0; i < vertexStorage.GetCount(); ++i)
       {
         auto& srcVertex = vertices[i];
         auto& destVertex = vertexStorage[i];
-        destVertex.m_Position = ezRmlUiConversionUtils::ToVec2(srcVertex.position);
-        destVertex.m_TexCoord = ezRmlUiConversionUtils::ToVec2(srcVertex.tex_coord);
-        destVertex.m_Color = ezRmlUiConversionUtils::ToColor(srcVertex.colour);
+        destVertex.m_Position = WRmlUiConversionUtils::ToVec2(srcVertex.position);
+        destVertex.m_TexCoord = WRmlUiConversionUtils::ToVec2(srcVertex.tex_coord);
+        destVertex.m_Color = WRmlUiConversionUtils::ToColor(srcVertex.colour);
       }
 
-      ezGALBufferCreationDescription desc;
+      WGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(Vertex);
       desc.m_uiTotalSize = vertexStorage.GetCount() * desc.m_uiStructSize;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+      desc.m_BufferFlags = WGALBufferUsageFlags::VertexBuffer;
       desc.m_ResourceAccess.m_bImmutable = true;
 
-      geometry.m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, vertexStorage.GetByteArrayPtr());
+      geometry.m_hVertexBuffer = WGALDevice::GetDefaultDevice()->CreateBuffer(desc, vertexStorage.GetByteArrayPtr());
     }
 
     // indices
     {
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = sizeof(ezUInt32);
+      WGALBufferCreationDescription desc;
+      desc.m_uiStructSize = sizeof(WUInt32);
       desc.m_uiTotalSize = uiNumIndices * desc.m_uiStructSize;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
+      desc.m_BufferFlags = WGALBufferUsageFlags::IndexBuffer;
       desc.m_ResourceAccess.m_bImmutable = true;
 
-      geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(indices.data(), uiNumIndices).ToByteArray());
+      geometry.m_hIndexBuffer = WGALDevice::GetDefaultDevice()->CreateBuffer(desc, WMakeArrayPtr(indices.data(), uiNumIndices).ToByteArray());
     }
 
     return m_CompiledGeometry.Insert(std::move(geometry)).ToRml();
@@ -265,17 +265,17 @@ namespace ezRmlUiInternal
 
   void RenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry)
   {
-    EZ_LOCK(m_ReleasedCompiledGeometryMutex);
+    W_LOCK(m_ReleasedCompiledGeometryMutex);
 
-    m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(hGeometry)});
+    m_ReleasedCompiledGeometry.PushBack({WRenderWorld::GetFrameCounter(), GeometryId::FromRml(hGeometry)});
   }
 
   Rml::TextureHandle RenderInterface::LoadTexture(Rml::Vector2i& out_textureSize, const Rml::String& sSource)
   {
-    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(ezRmlUiConversionUtils::ToStringView(sSource));
+    WTexture2DResourceHandle hTexture = WResourceManager::LoadResource<WTexture2DResource>(WRmlUiConversionUtils::ToStringView(sSource));
 
-    ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::BlockTillLoaded);
-    if (pTexture.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WTexture2DResource> pTexture(hTexture, WResourceAcquireMode::BlockTillLoaded);
+    if (pTexture.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       out_textureSize = Rml::Vector2i(pTexture->GetWidth(), pTexture->GetHeight());
 
@@ -286,37 +286,37 @@ namespace ezRmlUiInternal
       return m_Textures.Insert(textureInfo).ToRml();
     }
 
-    return ezRmlUiInternal::TextureId().ToRml();
+    return WRmlUiInternal::TextureId().ToRml();
   }
 
   Rml::TextureHandle RenderInterface::GenerateTexture(Rml::Span<const Rml::byte> source, Rml::Vector2i sourceSize)
   {
-    ezUInt32 uiWidth = sourceSize.x;
-    ezUInt32 uiHeight = sourceSize.y;
-    ezUInt32 uiSizeInBytes = uiWidth * uiHeight * 4;
-    EZ_ASSERT_DEV(uiSizeInBytes == source.size(), "Invalid source size");
+    WUInt32 uiWidth = sourceSize.x;
+    WUInt32 uiHeight = sourceSize.y;
+    WUInt32 uiSizeInBytes = uiWidth * uiHeight * 4;
+    W_ASSERT_DEV(uiSizeInBytes == source.size(), "Invalid source size");
 
-    ezUInt64 uiHash = ezHashingUtils::xxHash64(source.data(), uiSizeInBytes);
+    WUInt64 uiHash = WHashingUtils::xxHash64(source.data(), uiSizeInBytes);
 
-    ezStringBuilder sTextureName;
+    WStringBuilder sTextureName;
     sTextureName.SetFormat("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
 
-    ezTexture2DResourceHandle hTexture = ezResourceManager::GetExistingResource<ezTexture2DResource>(sTextureName);
+    WTexture2DResourceHandle hTexture = WResourceManager::GetExistingResource<WTexture2DResource>(sTextureName);
 
     if (!hTexture.IsValid())
     {
-      ezGALSystemMemoryDescription memoryDesc;
-      memoryDesc.m_pData = ezMakeByteBlobPtr(source.data(), uiSizeInBytes);
+      WGALSystemMemoryDescription memoryDesc;
+      memoryDesc.m_pData = WMakeByteBlobPtr(source.data(), uiSizeInBytes);
       memoryDesc.m_uiRowPitch = uiWidth * 4;
       memoryDesc.m_uiSlicePitch = uiSizeInBytes;
 
-      ezTexture2DResourceDescriptor desc;
+      WTexture2DResourceDescriptor desc;
       desc.m_DescGAL.m_uiWidth = uiWidth;
       desc.m_DescGAL.m_uiHeight = uiHeight;
-      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+      desc.m_DescGAL.m_Format = WGALResourceFormat::RGBAUByteNormalized;
+      desc.m_InitialContent = WMakeArrayPtr(&memoryDesc, 1);
 
-      hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
+      hTexture = WResourceManager::GetOrCreateResource<WTexture2DResource>(sTextureName, std::move(desc));
     }
 
     TextureInfo textureInfo;
@@ -331,7 +331,7 @@ namespace ezRmlUiInternal
     TextureId textureId = TextureId::FromRml(hTexture);
     if (textureId.IsInvalidated() == false)
     {
-      EZ_VERIFY(m_Textures.Remove(textureId), "Invalid texture handle");
+      W_VERIFY(m_Textures.Remove(textureId), "Invalid texture handle");
     }
   }
 
@@ -347,7 +347,7 @@ namespace ezRmlUiInternal
   void RenderInterface::SetScissorRegion(Rml::Rectanglei region)
   {
     auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandSetScissorRegion>();
-    cmd.m_ScissorRect = ezRectU32(region.Left(), region.Top(), region.Width(), region.Height());
+    cmd.m_ScissorRect = WRectU32(region.Left(), region.Top(), region.Width(), region.Height());
   }
 
   void RenderInterface::EnableClipMask(bool bEnable)
@@ -361,7 +361,7 @@ namespace ezRmlUiInternal
     cmd.m_Operation = operation;
     cmd.m_CompiledGeometry = m_CompiledGeometry[GeometryId::FromRml(hGeometry)];
     cmd.m_Transform = m_mTransform;
-    cmd.m_Translation = ezRmlUiConversionUtils::ToVec2(translation);
+    cmd.m_Translation = WRmlUiConversionUtils::ToVec2(translation);
   }
 
   void RenderInterface::SetTransform(const Rml::Matrix4f* pTransform)
@@ -371,9 +371,9 @@ namespace ezRmlUiInternal
       constexpr bool bColumnMajor = std::is_same<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>::value;
 
       if (bColumnMajor)
-        m_mTransform = m_mProjection * ezMat4::MakeFromColumnMajorArray(pTransform->data());
+        m_mTransform = m_mProjection * WMat4::MakeFromColumnMajorArray(pTransform->data());
       else
-        m_mTransform = m_mProjection * ezMat4::MakeFromRowMajorArray(pTransform->data());
+        m_mTransform = m_mProjection * WMat4::MakeFromRowMajorArray(pTransform->data());
     }
     else
     {
@@ -383,72 +383,72 @@ namespace ezRmlUiInternal
 
   Rml::LayerHandle RenderInterface::PushLayer()
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return {};
   }
 
   void RenderInterface::CompositeLayers(Rml::LayerHandle hSource, Rml::LayerHandle hDestination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters)
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   void RenderInterface::PopLayer()
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   Rml::TextureHandle RenderInterface::SaveLayerAsTexture()
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return {};
   }
 
   Rml::CompiledFilterHandle RenderInterface::SaveLayerAsMaskImage()
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return {};
   }
 
   Rml::CompiledFilterHandle RenderInterface::CompileFilter(const Rml::String& sName, const Rml::Dictionary& parameters)
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return {};
   }
 
   void RenderInterface::ReleaseFilter(Rml::CompiledFilterHandle hFilter)
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   Rml::CompiledShaderHandle RenderInterface::CompileShader(const Rml::String& sName, const Rml::Dictionary& parameters)
   {
-    auto ApplyColorStopList = [](ezRmlUiAdditionalConstants& out_data, const Rml::Dictionary& shader_parameters)
+    auto ApplyColorStopList = [](WRmlUiAdditionalConstants& out_data, const Rml::Dictionary& shader_parameters)
     {
       auto it = shader_parameters.find("color_stop_list");
-      EZ_ASSERT_DEV(it != shader_parameters.end() && it->second.GetType() == Rml::Variant::COLORSTOPLIST, "Color stop list not found or invalid type");
+      W_ASSERT_DEV(it != shader_parameters.end() && it->second.GetType() == Rml::Variant::COLORSTOPLIST, "Color stop list not found or invalid type");
       const Rml::ColorStopList& color_stop_list = it->second.GetReference<Rml::ColorStopList>();
-      const ezUInt32 uiNumStops = ezMath::Min(static_cast<ezUInt32>(color_stop_list.size()), GRADIENT_MAX_NUM_STOPS);
+      const WUInt32 uiNumStops = WMath::Min(static_cast<WUInt32>(color_stop_list.size()), GRADIENT_MAX_NUM_STOPS);
 
       out_data.GradientNumStops = uiNumStops;
       float* pStopPositions = &out_data.GradientStopPositions[0].x;
-      for (ezUInt32 i = 0; i < uiNumStops; i++)
+      for (WUInt32 i = 0; i < uiNumStops; i++)
       {
         const Rml::ColorStop& stop = color_stop_list[i];
-        EZ_ASSERT_DEV(stop.position.unit == Rml::Unit::NUMBER, "Invalid color stop position unit");
+        W_ASSERT_DEV(stop.position.unit == Rml::Unit::NUMBER, "Invalid color stop position unit");
         pStopPositions[i] = stop.position.number;
-        out_data.GradientStopColors[i] = ezRmlUiConversionUtils::ToColor(stop.color);
+        out_data.GradientStopColors[i] = WRmlUiConversionUtils::ToColor(stop.color);
       }
     };
 
-    auto CreateGradientConstantBuffer = [](const ezRmlUiAdditionalConstants& data) -> ezGALBufferHandle
+    auto CreateGradientConstantBuffer = [](const WRmlUiAdditionalConstants& data) -> WGALBufferHandle
     {
-      ezGALBufferCreationDescription bufferDesc;
+      WGALBufferCreationDescription bufferDesc;
       bufferDesc.m_uiStructSize = 0;
-      bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
+      bufferDesc.m_BufferFlags = WGALBufferUsageFlags::ConstantBuffer;
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
-      bufferDesc.m_uiTotalSize = sizeof(ezRmlUiAdditionalConstants);
+      bufferDesc.m_uiTotalSize = sizeof(WRmlUiAdditionalConstants);
 
-      return ezGALDevice::GetDefaultDevice()->CreateBuffer(bufferDesc, ezMakeByteArrayPtr(&data, 1));
+      return WGALDevice::GetDefaultDevice()->CreateBuffer(bufferDesc, WMakeByteArrayPtr(&data, 1));
     };
 
     ShaderInfo shaderInfo;
@@ -456,14 +456,14 @@ namespace ezRmlUiInternal
 
     const bool repeating = Rml::Get(parameters, "repeating", false);
 
-    ezRmlUiAdditionalConstants data;
-    ezMemoryUtils::ZeroFill(&data);
+    WRmlUiAdditionalConstants data;
+    WMemoryUtils::ZeroFill(&data);
 
     if (sName == "linear-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_LINEAR : GRADIENT_LINEAR;
-      data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p0", Rml::Vector2f(0.f)));
-      data.GradientParams1 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p1", Rml::Vector2f(0.f))) - data.GradientParams0;
+      data.GradientParams0 = WRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p0", Rml::Vector2f(0.f)));
+      data.GradientParams1 = WRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p1", Rml::Vector2f(0.f))) - data.GradientParams0;
       ApplyColorStopList(data, parameters);
 
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
@@ -472,8 +472,8 @@ namespace ezRmlUiInternal
     else if (sName == "radial-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_RADIAL : GRADIENT_RADIAL;
-      data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
-      data.GradientParams1 = ezRmlUiConversionUtils::ToVec2(Rml::Vector2f(1.f) / Rml::Get(parameters, "radius", Rml::Vector2f(1.f)));
+      data.GradientParams0 = WRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
+      data.GradientParams1 = WRmlUiConversionUtils::ToVec2(Rml::Vector2f(1.f) / Rml::Get(parameters, "radius", Rml::Vector2f(1.f)));
       ApplyColorStopList(data, parameters);
 
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
@@ -482,10 +482,10 @@ namespace ezRmlUiInternal
     else if (sName == "conic-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_CONIC : GRADIENT_CONIC;
-      data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
+      data.GradientParams0 = WRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
 
-      const ezAngle angle = ezAngle::MakeFromRadian(Rml::Get(parameters, "angle", 0.f));
-      data.GradientParams1 = ezVec2(ezMath::Cos(angle), ezMath::Sin(angle));
+      const WAngle angle = WAngle::MakeFromRadian(Rml::Get(parameters, "angle", 0.f));
+      data.GradientParams1 = WVec2(WMath::Cos(angle), WMath::Sin(angle));
       ApplyColorStopList(data, parameters);
 
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
@@ -498,7 +498,7 @@ namespace ezRmlUiInternal
       return m_Shaders.Insert(shaderInfo).ToRml();
     }
 
-    ezLog::Warning("Unsupported shader type '{}'.", sName.c_str());
+    WLog::Warning("Unsupported shader type '{}'.", sName.c_str());
     return {};
   }
 
@@ -508,7 +508,7 @@ namespace ezRmlUiInternal
     FillRenderCommand(cmd, hGeometry, translation, hTexture);
 
     ShaderInfo shaderInfo;
-    EZ_VERIFY(m_Shaders.TryGetValue(ShaderId::FromRml(hShader), shaderInfo), "Invalid shader handle");
+    W_VERIFY(m_Shaders.TryGetValue(ShaderId::FromRml(hShader), shaderInfo), "Invalid shader handle");
 
     cmd.m_hShader = shaderInfo.m_hShader;
     cmd.m_hAdditionalConstantBuffer = shaderInfo.m_hAdditionalConstantBuffer;
@@ -521,26 +521,26 @@ namespace ezRmlUiInternal
     if (shaderId.IsInvalidated() == false)
     {
       ShaderInfo shaderInfo;
-      EZ_VERIFY(m_Shaders.Remove(shaderId, &shaderInfo), "Invalid shader handle");
+      W_VERIFY(m_Shaders.Remove(shaderId, &shaderInfo), "Invalid shader handle");
 
-      ezGALDevice::GetDefaultDevice()->DestroyBuffer(shaderInfo.m_hAdditionalConstantBuffer);
+      WGALDevice::GetDefaultDevice()->DestroyBuffer(shaderInfo.m_hAdditionalConstantBuffer);
     }
   }
 
-  void RenderInterface::BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture)
+  void RenderInterface::BeginExtraction(const WHashedString& sName, WGALTextureHandle hTargetTexture)
   {
     m_pCurrentCommandBuffer = AllocateCommandBuffer();
     m_pCurrentCommandBuffer->m_sName = sName;
     m_pCurrentCommandBuffer->m_hTargetTexture = hTargetTexture;
 
-    const ezGALTexture* pTargetTexture = ezGALDevice::GetDefaultDevice()->GetTexture(hTargetTexture);
-    const ezUInt32 uiTargetWidth = pTargetTexture->GetDescription().m_uiWidth;
-    const ezUInt32 uiTargetHeight = pTargetTexture->GetDescription().m_uiHeight;
+    const WGALTexture* pTargetTexture = WGALDevice::GetDefaultDevice()->GetTexture(hTargetTexture);
+    const WUInt32 uiTargetWidth = pTargetTexture->GetDescription().m_uiWidth;
+    const WUInt32 uiTargetHeight = pTargetTexture->GetDescription().m_uiHeight;
 
     m_pCurrentCommandBuffer->m_uiTargetWidth = uiTargetWidth;
     m_pCurrentCommandBuffer->m_uiTargetHeight = uiTargetHeight;
 
-    m_mProjection = ezGraphicsUtils::CreateOrthographicProjectionMatrix(0.0f, (float)uiTargetWidth, (float)uiTargetHeight, 0.0f, -1.0f, 1.0f);
+    m_mProjection = WGraphicsUtils::CreateOrthographicProjectionMatrix(0.0f, (float)uiTargetWidth, (float)uiTargetHeight, 0.0f, -1.0f, 1.0f);
     SetTransform(nullptr);
     m_bUseStencilTest = false;
   }
@@ -550,13 +550,13 @@ namespace ezRmlUiInternal
     SubmitCommandBuffer(std::move(m_pCurrentCommandBuffer));
   }
 
-  void RenderInterface::GALEventHandler(const ezGALDeviceEvent& e)
+  void RenderInterface::GALEventHandler(const WGALDeviceEvent& e)
   {
-    if (e.m_Type == ezGALDeviceEvent::AfterBeginFrame)
+    if (e.m_Type == WGALDeviceEvent::AfterBeginFrame)
     {
       BeginFrame();
     }
-    else if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
+    else if (e.m_Type == WGALDeviceEvent::AfterEndFrame)
     {
       EndFrame();
     }
@@ -564,21 +564,21 @@ namespace ezRmlUiInternal
 
   void RenderInterface::BeginFrame()
   {
-    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[ezRenderWorld::GetDataIndexForRendering()];
+    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[WRenderWorld::GetDataIndexForRendering()];
     if (submittedCommandBuffers.IsEmpty())
       return;
 
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-    const ezGALResourceFormat::Enum tempTargetFormat = ezGALResourceFormat::RGBAUByteNormalized;
-    const ezGALResourceFormat::Enum tempStencilFormat = ezGALResourceFormat::D24S8;
-    const ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::FourSamples;
+    const WGALResourceFormat::Enum tempTargetFormat = WGALResourceFormat::RGBAUByteNormalized;
+    const WGALResourceFormat::Enum tempStencilFormat = WGALResourceFormat::D24S8;
+    const WGALMSAASampleCount::Enum msaaSampleCount = WGALMSAASampleCount::FourSamples;
 
     m_pRenderGraph->Reset();
 
     for (auto& pCommandBuffer : submittedCommandBuffers)
     {
-      const ezGALTexture* pTargetTexture = pDevice->GetTexture(pCommandBuffer->m_hTargetTexture);
+      const WGALTexture* pTargetTexture = pDevice->GetTexture(pCommandBuffer->m_hTargetTexture);
       if (pTargetTexture == nullptr)
       {
         FreeCommandBuffer(std::move(pCommandBuffer));
@@ -587,65 +587,65 @@ namespace ezRmlUiInternal
 
       auto& textureDesc = pTargetTexture->GetDescription();
 
-      ezRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(pCommandBuffer->m_hTargetTexture);
-      ezGALTextureHandle hTargetTexture = pCommandBuffer->m_hTargetTexture;
+      WRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(pCommandBuffer->m_hTargetTexture);
+      WGALTextureHandle hTargetTexture = pCommandBuffer->m_hTargetTexture;
 
-      ezGALTextureCreationDescription tempColorDesc;
+      WGALTextureCreationDescription tempColorDesc;
       tempColorDesc.SetAsRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempTargetFormat, msaaSampleCount);
-      ezRenderGraphTextureHandle hTempColor = m_pRenderGraph->CreateTexture(tempColorDesc);
+      WRenderGraphTextureHandle hTempColor = m_pRenderGraph->CreateTexture(tempColorDesc);
 
-      ezGALTextureCreationDescription tempStencilDesc;
+      WGALTextureCreationDescription tempStencilDesc;
       tempStencilDesc.SetAsRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempStencilFormat, msaaSampleCount);
-      ezRenderGraphTextureHandle hTempStencil = m_pRenderGraph->CreateTexture(tempStencilDesc);
+      WRenderGraphTextureHandle hTempStencil = m_pRenderGraph->CreateTexture(tempStencilDesc);
 
       {
         auto pass = m_pRenderGraph->AddGraphicsPass(pCommandBuffer->m_sName);
-        pass.AddColorTarget(hTempColor, {}, ezGALRenderTargetLoadOp::Clear);
+        pass.AddColorTarget(hTempColor, {}, WGALRenderTargetLoadOp::Clear);
         pass.SetClearColor(0);
         pass.AddDepthStencilTarget(hTempStencil, {},
-          ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Discard,
-          ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Discard);
+          WGALRenderTargetLoadOp::Clear, WGALRenderTargetStoreOp::Discard,
+          WGALRenderTargetLoadOp::Clear, WGALRenderTargetStoreOp::Discard);
         pass.SetClearDepth();
         pass.SetClearStencil();
 
-        pass.SetExecuteCallback([this, pCommandBuffer = pCommandBuffer.Borrow()](const ezRenderGraphContext& ctx)
+        pass.SetExecuteCallback([this, pCommandBuffer = pCommandBuffer.Borrow()](const WRenderGraphContext& ctx)
           {
             auto* pCommandEncoder = ctx.GetCommandEncoder();
             auto* pRenderContext = ctx.GetRenderContext();
 
             bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
             pRenderContext->SetAllowAsyncShaderLoading(false);
-            EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
+            W_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-            ezRectFloat viewport(static_cast<float>(pCommandBuffer->m_uiTargetWidth), static_cast<float>(pCommandBuffer->m_uiTargetHeight));
+            WRectFloat viewport(static_cast<float>(pCommandBuffer->m_uiTargetWidth), static_cast<float>(pCommandBuffer->m_uiTargetHeight));
             pCommandEncoder->SetViewport(viewport);
 
-            ezRectU32 scissorRect(0, 0, pCommandBuffer->m_uiTargetWidth, pCommandBuffer->m_uiTargetHeight);
+            WRectU32 scissorRect(0, 0, pCommandBuffer->m_uiTargetWidth, pCommandBuffer->m_uiTargetHeight);
             pCommandEncoder->SetScissorRect(scissorRect);
 
             pRenderContext->BindShader(m_hMainShader);
-            ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
-            bindGroup.BindBuffer("ezRmlUiConstants", m_hMainConstantBuffer);
+            WBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
+            bindGroup.BindBuffer("WRmlUiConstants", m_hMainConstantBuffer);
             bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture);
 
             auto Draw = [&](const CommandRenderGeometry& cmd, bool bGradient)
             {
-              pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", cmd.m_bUseStencilTest ? ezTempHashedString("RMLUI_MODE_STENCIL_TEST") : ezTempHashedString("RMLUI_MODE_NORMAL"));
-              pRenderContext->SetShaderPermutationVariable("RMLUI_GRADIENT", bGradient ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
+              pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", cmd.m_bUseStencilTest ? WTempHashedString("RMLUI_MODE_STENCIL_TEST") : WTempHashedString("RMLUI_MODE_NORMAL"));
+              pRenderContext->SetShaderPermutationVariable("RMLUI_GRADIENT", bGradient ? WTempHashedString("TRUE") : WTempHashedString("FALSE"));
 
-              ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hMainConstantBuffer);
+              WRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<WRmlUiConstants>(m_hMainConstantBuffer);
               pConstants->UiTransform = cmd.m_Transform;
               pConstants->UiTranslation = cmd.m_Translation;
               pConstants->TextureNeedsAlphaMultiplication = cmd.m_bNeedsPremultipliedAlpha;
 
-              pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+              pRenderContext->BindMeshBuffer(WMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, WGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
               bindGroup.BindTexture("BaseTexture", cmd.m_hTexture);
 
               pRenderContext->DrawMeshBuffer().IgnoreResult();
             };
 
-            ezUInt32 uiCommandOffset = 0;
+            WUInt32 uiCommandOffset = 0;
             while (uiCommandOffset < pCommandBuffer->m_Buffer.GetCount())
             {
               CommandType::Enum cmdType = pCommandBuffer->PeekCommandType(uiCommandOffset);
@@ -665,7 +665,7 @@ namespace ezRmlUiInternal
                   auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderShader>(uiCommandOffset);
 
                   pRenderContext->BindShader(cmd.m_hShader);
-                  bindGroup.BindBuffer("ezRmlUiAdditionalConstants", cmd.m_hAdditionalConstantBuffer);
+                  bindGroup.BindBuffer("WRmlUiAdditionalConstants", cmd.m_hAdditionalConstantBuffer);
                   Draw(cmd, cmd.m_ShaderType == ShaderType::Gradient);
                 }
                 break;
@@ -682,14 +682,14 @@ namespace ezRmlUiInternal
                 {
                   auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderToClipMask>(uiCommandOffset);
 
-                  EZ_ASSERT_DEV(cmd.m_Operation == Rml::ClipMaskOperation::Set, "Only 'Set' clip mask operation is implemented.");
+                  W_ASSERT_DEV(cmd.m_Operation == Rml::ClipMaskOperation::Set, "Only 'Set' clip mask operation is implemented.");
                   pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");
 
-                  ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hMainConstantBuffer);
+                  WRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<WRmlUiConstants>(m_hMainConstantBuffer);
                   pConstants->UiTransform = cmd.m_Transform;
                   pConstants->UiTranslation = cmd.m_Translation;
 
-                  pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+                  pRenderContext->BindMeshBuffer(WMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, WGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
                   pRenderContext->DrawMeshBuffer().IgnoreResult();
                 }
@@ -697,7 +697,7 @@ namespace ezRmlUiInternal
 
                 default:
                 {
-                  EZ_ASSERT_ALWAYS(false, "RmlUI: Command Type '{}' is not implemented.", cmdType);
+                  W_ASSERT_ALWAYS(false, "RmlUI: Command Type '{}' is not implemented.", cmdType);
                   break;
                 }
               }
@@ -708,32 +708,32 @@ namespace ezRmlUiInternal
       // Transfer pass: resolve MSAA to target texture
       {
         auto resolvePass = m_pRenderGraph->AddTransferPass("RmlUi Resolve");
-        resolvePass.ReadTexture(hTempColor, {}, ezGALResourceState::ResolveSource);
-        resolvePass.WriteTexture(hTarget, {}, ezGALResourceState::ResolveDestination);
+        resolvePass.ReadTexture(hTempColor, {}, WGALResourceState::ResolveSource);
+        resolvePass.WriteTexture(hTarget, {}, WGALResourceState::ResolveDestination);
         resolvePass.SetExecuteCallback(
-          [hTempColor, hTarget](const ezRenderGraphContext& ctx)
+          [hTempColor, hTarget](const WRenderGraphContext& ctx)
           {
             ctx.GetCommandEncoder()->ResolveTexture(
-              ctx.ResolveTexture(hTarget), ezGALTextureSubresource(),
-              ctx.ResolveTexture(hTempColor), ezGALTextureSubresource());
+              ctx.ResolveTexture(hTarget), WGALTextureSubresource(),
+              ctx.ResolveTexture(hTempColor), WGALTextureSubresource());
           });
       }
 
       // Optional: generate mipmaps for the target
-      if (textureDesc.m_uiMipLevelCount > 1 && textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+      if (textureDesc.m_uiMipLevelCount > 1 && textureDesc.m_TextureFlags.IsSet(WGALTextureUsageFlags::RenderTarget))
       {
-        ezRenderGraphUtils::GenerateMipMaps(hTargetTexture, {}, *m_pRenderGraph);
+        WRenderGraphUtils::GenerateMipMaps(hTargetTexture, {}, *m_pRenderGraph);
       }
     }
 
-    ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+    WRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   }
 
   void RenderInterface::EndFrame()
   {
-    ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
+    WUInt64 uiFrameCounter = WRenderWorld::GetFrameCounter();
 
-    EZ_LOCK(m_ReleasedCompiledGeometryMutex);
+    W_LOCK(m_ReleasedCompiledGeometryMutex);
 
     while (!m_ReleasedCompiledGeometry.IsEmpty())
     {
@@ -748,7 +748,7 @@ namespace ezRmlUiInternal
       m_ReleasedCompiledGeometry.PopFront();
     }
 
-    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[ezRenderWorld::GetDataIndexForRendering()];
+    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[WRenderWorld::GetDataIndexForRendering()];
     for (auto& pCommandBuffer : submittedCommandBuffers)
     {
       if (pCommandBuffer != nullptr)
@@ -765,16 +765,16 @@ namespace ezRmlUiInternal
     if (!m_CompiledGeometry.TryGetValue(id, pGeometry))
       return;
 
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hVertexBuffer);
+    WGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hVertexBuffer);
     pGeometry->m_hVertexBuffer.Invalidate();
 
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
+    WGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
     pGeometry->m_hIndexBuffer.Invalidate();
   }
 
   void RenderInterface::FillRenderCommand(CommandRenderGeometry& out_cmd, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture)
   {
-    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(hGeometry), out_cmd.m_CompiledGeometry), "Invalid compiled geometry");
+    W_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(hGeometry), out_cmd.m_CompiledGeometry), "Invalid compiled geometry");
 
     TextureInfo textureInfo;
     if (m_Textures.TryGetValue(TextureId::FromRml(hTexture), textureInfo) == false)
@@ -782,38 +782,38 @@ namespace ezRmlUiInternal
       textureInfo.m_hTexture = m_hFallbackTexture;
     }
 
-    ezResourceLock<ezTexture2DResource> pTexture(textureInfo.m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WTexture2DResource> pTexture(textureInfo.m_hTexture, WResourceAcquireMode::BlockTillLoaded);
     out_cmd.m_hTexture = pTexture->GetGALTexture();
 
     out_cmd.m_Transform = m_mTransform;
-    out_cmd.m_Translation = ezRmlUiConversionUtils::ToVec2(translation);
+    out_cmd.m_Translation = WRmlUiConversionUtils::ToVec2(translation);
     out_cmd.m_bNeedsPremultipliedAlpha = textureInfo.m_bHasPremultipliedAlpha == false;
     out_cmd.m_bUseStencilTest = m_bUseStencilTest;
   }
 
-  ezUniquePtr<CommandBuffer> RenderInterface::AllocateCommandBuffer()
+  WUniquePtr<CommandBuffer> RenderInterface::AllocateCommandBuffer()
   {
     if (m_FreeCommandBuffers.IsEmpty() == false)
     {
-      ezUniquePtr<CommandBuffer> cmdBuffer = std::move(m_FreeCommandBuffers.PeekBack());
+      WUniquePtr<CommandBuffer> cmdBuffer = std::move(m_FreeCommandBuffers.PeekBack());
       m_FreeCommandBuffers.PopBack();
       return cmdBuffer;
     }
 
-    return EZ_DEFAULT_NEW(CommandBuffer);
+    return W_DEFAULT_NEW(CommandBuffer);
   }
 
-  void RenderInterface::FreeCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer)
+  void RenderInterface::FreeCommandBuffer(WUniquePtr<CommandBuffer>&& pBuffer)
   {
     pBuffer->Clear();
 
     m_FreeCommandBuffers.PushBack(std::move(pBuffer));
   }
 
-  void RenderInterface::SubmitCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer)
+  void RenderInterface::SubmitCommandBuffer(WUniquePtr<CommandBuffer>&& pBuffer)
   {
-    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[ezRenderWorld::GetDataIndexForExtraction()];
+    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[WRenderWorld::GetDataIndexForExtraction()];
     submittedCommandBuffers.PushBack(std::move(pBuffer));
   }
 
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

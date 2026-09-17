@@ -8,33 +8,33 @@
 /// Easy access to this single component is provided through the GetSingletonComponent() function.
 /// If a second component is created, the manager will log an error. The first created component will be used as the 'singleton',
 /// all other components are ignored.
-/// Use this for components derived from ezSettingsComponent, of which one should only have zero or one per world.
+/// Use this for components derived from WSettingsComponent, of which one should only have zero or one per world.
 template <typename ComponentType>
-class ezSettingsComponentManager : public ezComponentManagerBase
+class WSettingsComponentManager : public WComponentManagerBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSettingsComponentManager);
+  W_DISALLOW_COPY_AND_ASSIGN(WSettingsComponentManager);
 
 public:
-  ezSettingsComponentManager(ezWorld* pWorld);
-  ~ezSettingsComponentManager();
+  WSettingsComponentManager(WWorld* pWorld);
+  ~WSettingsComponentManager();
 
   /// Returns the first component of this type that has been created.
   ComponentType* GetSingletonComponent();
   const ComponentType* GetSingletonComponent() const;
 
-  static ezWorldModuleTypeId TypeId();
+  static WWorldModuleTypeId TypeId();
 
-  // ezComponentManagerBase implementation
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive) override;
+  // WComponentManagerBase implementation
+  virtual void CollectAllComponents(WDynamicArray<WComponentHandle>& out_allComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(WDynamicArray<WComponent*>& out_allComponents, bool bOnlyActive) override;
 
 private:
-  friend class ezComponentManagerFactory;
+  friend class WComponentManagerFactory;
 
-  virtual ezComponent* CreateComponentStorage() override;
-  virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
+  virtual WComponent* CreateComponentStorage() override;
+  virtual void DeleteComponentStorage(WComponent* pComponent, WComponent*& out_pMovedComponent) override;
 
-  ezHybridArray<ezUniquePtr<ComponentType>, 2> m_Components;
+  WHybridArray<WUniquePtr<ComponentType>, 2> m_Components;
 };
 
 #include <Core/World/Implementation/SettingsComponentManager_inl.h>

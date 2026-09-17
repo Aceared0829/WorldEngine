@@ -8,29 +8,29 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPreferences, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName)->AddAttributes(new ezHiddenAttribute()),
+    W_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMap<const ezDocument*, ezMap<const ezRTTI*, ezPreferences*>> ezPreferences::s_Preferences;
+WMap<const WDocument*, WMap<const WRTTI*, WPreferences*>> WPreferences::s_Preferences;
 
-ezPreferences::ezPreferences(Domain domain, const char* szUniqueName)
+WPreferences::WPreferences(Domain domain, const char* szUniqueName)
 {
   m_Domain = domain;
   m_sUniqueName = szUniqueName;
   m_pDocument = nullptr;
 }
 
-ezPreferences* ezPreferences::QueryPreferences(const ezRTTI* pRtti, const ezDocument* pDocument)
+WPreferences* WPreferences::QueryPreferences(const WRTTI* pRtti, const WDocument* pDocument)
 {
-  EZ_ASSERT_DEV(ezQtEditorApp::GetSingleton() != nullptr, "Editor app is not available in this process");
+  W_ASSERT_DEV(WQtEditorApp::GetSingleton() != nullptr, "Editor app is not available in this process");
 
   auto it = s_Preferences[pDocument].Find(pRtti);
 
@@ -38,52 +38,52 @@ ezPreferences* ezPreferences::QueryPreferences(const ezRTTI* pRtti, const ezDocu
     return it.Value();
 
   auto pAlloc = pRtti->GetAllocator();
-  EZ_ASSERT_DEV(pAlloc != nullptr, "Invalid allocator for preferences type");
+  W_ASSERT_DEV(pAlloc != nullptr, "Invalid allocator for preferences type");
 
   if (!pAlloc->CanAllocate())
   {
-    EZ_ASSERT_DEV(pAlloc->CanAllocate(), "Cannot create a preferences object that does not have a proper allocator");
+    W_ASSERT_DEV(pAlloc->CanAllocate(), "Cannot create a preferences object that does not have a proper allocator");
     return nullptr;
   }
 
-  ezPreferences* pPref = pAlloc->Allocate<ezPreferences>();
+  WPreferences* pPref = pAlloc->Allocate<WPreferences>();
   pPref->m_pDocument = pDocument;
   s_Preferences[pDocument][pRtti] = pPref;
 
   if (pPref->m_Domain == Domain::Document)
   {
-    EZ_ASSERT_DEV(pDocument != nullptr, "Preferences of this type can only be used per document");
+    W_ASSERT_DEV(pDocument != nullptr, "Preferences of this type can only be used per document");
   }
   else
   {
-    EZ_ASSERT_DEV(pDocument == nullptr, "Preferences of this type cannot be used with a document");
+    W_ASSERT_DEV(pDocument == nullptr, "Preferences of this type cannot be used with a document");
   }
 
   pPref->Load();
   return pPref;
 }
 
-ezString ezPreferences::GetFilePath() const
+WString WPreferences::GetFilePath() const
 {
-  ezStringBuilder path;
+  WStringBuilder path;
 
   if (m_Domain == Domain::Application)
   {
-    path = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+    path = WApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
     path.AppendPath(m_sUniqueName);
     path.ChangeFileExtension("pref");
   }
 
   if (m_Domain == Domain::Project)
   {
-    path = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    path = WApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     path.AppendPath(m_sUniqueName);
     path.ChangeFileExtension("pref");
   }
 
   if (m_Domain == Domain::Document)
   {
-    path = ezApplicationServices::GetSingleton()->GetDocumentPreferencesFolder(m_pDocument);
+    path = WApplicationServices::GetSingleton()->GetDocumentPreferencesFolder(m_pDocument);
     path.AppendPath(m_sUniqueName);
     path.ChangeFileExtension("pref");
   }
@@ -91,25 +91,25 @@ ezString ezPreferences::GetFilePath() const
   return path;
 }
 
-void ezPreferences::Load()
+void WPreferences::Load()
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(GetFilePath()).Failed())
     return;
 
-  ezReflectionSerializer::ReadObjectPropertiesFromDDL(file, *GetDynamicRTTI(), this);
+  WReflectionSerializer::ReadObjectPropertiesFromDDL(file, *GetDynamicRTTI(), this);
 }
 
-void ezPreferences::Save() const
+void WPreferences::Save() const
 {
   bool bNothingToSerialize = true;
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> allProperties;
+  WTempHybridArray<const WAbstractProperty*, 32> allProperties;
   GetDynamicRTTI()->GetAllProperties(allProperties);
 
-  for (const ezAbstractProperty* pProp : allProperties)
+  for (const WAbstractProperty* pProp : allProperties)
   {
-    if (pProp->GetCategory() == ezPropertyCategory::Constant || pProp->GetFlags().IsAnySet(ezPropertyFlags::ReadOnly))
+    if (pProp->GetCategory() == WPropertyCategory::Constant || pProp->GetFlags().IsAnySet(WPropertyFlags::ReadOnly))
       continue;
 
     bNothingToSerialize = false;
@@ -119,17 +119,17 @@ void ezPreferences::Save() const
   if (bNothingToSerialize)
     return;
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(GetFilePath());
 
-  ezReflectionSerializer::WriteObjectToDDL(file, GetDynamicRTTI(), this, false, ezOpenDdlWriter::TypeStringMode::Compliant);
+  WReflectionSerializer::WriteObjectToDDL(file, GetDynamicRTTI(), this, false, WOpenDdlWriter::TypeStringMode::Compliant);
 
   if (file.Close().Failed())
-    ezLog::Error("Failed to open file for writing '{0}'.", GetFilePath());
+    WLog::Error("Failed to open file for writing '{0}'.", GetFilePath());
 }
 
 
-void ezPreferences::SavePreferences(const ezDocument* pDocument, Domain domain)
+void WPreferences::SavePreferences(const WDocument* pDocument, Domain domain)
 {
   auto& docPrefs = s_Preferences[pDocument];
 
@@ -143,14 +143,14 @@ void ezPreferences::SavePreferences(const ezDocument* pDocument, Domain domain)
   }
 }
 
-void ezPreferences::ClearPreferences(const ezDocument* pDocument, Domain domain)
+void WPreferences::ClearPreferences(const WDocument* pDocument, Domain domain)
 {
   auto& docPrefs = s_Preferences[pDocument];
 
   // save all preferences for the given document
   for (auto it = docPrefs.GetIterator(); it.IsValid();)
   {
-    ezPreferences* pPref = it.Value();
+    WPreferences* pPref = it.Value();
 
     if (pPref->m_Domain == domain)
     {
@@ -162,37 +162,37 @@ void ezPreferences::ClearPreferences(const ezDocument* pDocument, Domain domain)
   }
 }
 
-void ezPreferences::SaveDocumentPreferences(const ezDocument* pDocument)
+void WPreferences::SaveDocumentPreferences(const WDocument* pDocument)
 {
   SavePreferences(pDocument, Domain::Document);
 }
 
-void ezPreferences::ClearDocumentPreferences(const ezDocument* pDocument)
+void WPreferences::ClearDocumentPreferences(const WDocument* pDocument)
 {
   ClearPreferences(pDocument, Domain::Document);
 }
 
-void ezPreferences::SaveProjectPreferences()
+void WPreferences::SaveProjectPreferences()
 {
   SavePreferences(nullptr, Domain::Project);
 }
 
-void ezPreferences::ClearProjectPreferences()
+void WPreferences::ClearProjectPreferences()
 {
   ClearPreferences(nullptr, Domain::Project);
 }
 
-void ezPreferences::SaveApplicationPreferences()
+void WPreferences::SaveApplicationPreferences()
 {
   SavePreferences(nullptr, Domain::Application);
 }
 
-void ezPreferences::ClearApplicationPreferences()
+void WPreferences::ClearApplicationPreferences()
 {
   ClearPreferences(nullptr, Domain::Application);
 }
 
-void ezPreferences::GatherAllPreferences(ezDynamicArray<ezPreferences*>& out_allPreferences)
+void WPreferences::GatherAllPreferences(WDynamicArray<WPreferences*>& out_allPreferences)
 {
   out_allPreferences.Clear();
   out_allPreferences.Reserve(s_Preferences.GetCount() * 2);
@@ -206,14 +206,14 @@ void ezPreferences::GatherAllPreferences(ezDynamicArray<ezPreferences*>& out_all
   }
 }
 
-ezString ezPreferences::GetName() const
+WString WPreferences::GetName() const
 {
-  ezStringBuilder s;
+  WStringBuilder s;
 
   if (m_Domain == Domain::Document)
   {
     s.Set(m_sUniqueName, ": ");
-    s.Append(ezPathUtils::GetFileName(m_pDocument->GetDocumentPath()));
+    s.Append(WPathUtils::GetFileName(m_pDocument->GetDocumentPath()));
   }
   else
   {

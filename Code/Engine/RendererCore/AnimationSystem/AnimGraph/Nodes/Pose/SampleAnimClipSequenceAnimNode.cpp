@@ -10,75 +10,75 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipSequenceAnimNode, 2, ezRTTIDefaultAllocator<ezSampleAnimClipSequenceAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSampleAnimClipSequenceAnimNode, 2, WRTTIDefaultAllocator<WSampleAnimClipSequenceAnimNode>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
-      EZ_MEMBER_PROPERTY("Loop", m_bLoop),
-      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-      EZ_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-      EZ_ARRAY_ACCESSOR_PROPERTY("MiddleClips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-      EZ_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      W_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, {})),
+      W_MEMBER_PROPERTY("Loop", m_bLoop),
+      W_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, 100.0f)),
+      W_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      W_ARRAY_ACCESSOR_PROPERTY("MiddleClips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      W_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
 
-      EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("ClipIndex", m_ClipIndexPin)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("ClipIndex", m_ClipIndexPin)->AddAttributes(new WHiddenAttribute()),
 
-      EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnMiddleStarted", m_OutOnMiddleStarted)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnEndStarted", m_OutOnEndStarted)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnMiddleStarted", m_OutOnMiddleStarted)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnEndStarted", m_OutOnEndStarted)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new WHiddenAttribute()),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Pose Generation"),
-      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
-      new ezTitleAttribute("Sample Sequence: '{StartClip}' '{Clip}' '{EndClip}'"),
+      new WCategoryAttribute("Pose Generation"),
+      new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
+      new WTitleAttribute("Sample Sequence: '{StartClip}' '{Clip}' '{EndClip}'"),
     }
-    EZ_END_ATTRIBUTES;
+    W_END_ATTRIBUTES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSampleAnimClipSequenceAnimNode::ezSampleAnimClipSequenceAnimNode() = default;
-ezSampleAnimClipSequenceAnimNode::~ezSampleAnimClipSequenceAnimNode() = default;
+WSampleAnimClipSequenceAnimNode::WSampleAnimClipSequenceAnimNode() = default;
+WSampleAnimClipSequenceAnimNode::~WSampleAnimClipSequenceAnimNode() = default;
 
-ezResult ezSampleAnimClipSequenceAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSampleAnimClipSequenceAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sStartClip;
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Clips));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_Clips));
   stream << m_sEndClip;
   stream << m_fRootMotionAmount;
   stream << m_bLoop;
   stream << m_fPlaybackSpeed;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ClipIndexPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnMiddleStarted.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnEndStarted.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ClipIndexPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnMiddleStarted.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnEndStarted.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSampleAnimClipSequenceAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSampleAnimClipSequenceAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sStartClip;
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Clips));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_Clips));
   stream >> m_sEndClip;
 
   if (version == 1)
@@ -95,78 +95,78 @@ ezResult ezSampleAnimClipSequenceAnimNode::DeserializeNode(ezStreamReader& strea
   stream >> m_bLoop;
   stream >> m_fPlaybackSpeed;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ClipIndexPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnMiddleStarted.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnEndStarted.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ClipIndexPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnMiddleStarted.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnEndStarted.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt32 ezSampleAnimClipSequenceAnimNode::Clips_GetCount() const
+WUInt32 WSampleAnimClipSequenceAnimNode::Clips_GetCount() const
 {
   return m_Clips.GetCount();
 }
 
-const char* ezSampleAnimClipSequenceAnimNode::Clips_GetValue(ezUInt32 uiIndex) const
+const char* WSampleAnimClipSequenceAnimNode::Clips_GetValue(WUInt32 uiIndex) const
 {
   return m_Clips[uiIndex];
 }
 
-void ezSampleAnimClipSequenceAnimNode::Clips_SetValue(ezUInt32 uiIndex, const char* szValue)
+void WSampleAnimClipSequenceAnimNode::Clips_SetValue(WUInt32 uiIndex, const char* szValue)
 {
   m_Clips[uiIndex].Assign(szValue);
 }
 
-void ezSampleAnimClipSequenceAnimNode::Clips_Insert(ezUInt32 uiIndex, const char* szValue)
+void WSampleAnimClipSequenceAnimNode::Clips_Insert(WUInt32 uiIndex, const char* szValue)
 {
-  ezHashedString s;
+  WHashedString s;
   s.Assign(szValue);
   m_Clips.InsertAt(uiIndex, s);
 }
 
-void ezSampleAnimClipSequenceAnimNode::Clips_Remove(ezUInt32 uiIndex)
+void WSampleAnimClipSequenceAnimNode::Clips_Remove(WUInt32 uiIndex)
 {
   m_Clips.RemoveAtAndCopy(uiIndex);
 }
 
-void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSampleAnimClipSequenceAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
 
   InstanceData* pState = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  if (pState->m_PlaybackTime > ezTime::MakeFromHours(10))
+  if (pState->m_PlaybackTime > WTime::MakeFromHours(10))
   {
     if (!m_InStart.IsConnected())
     {
       pState->m_State = State::Start;
     }
 
-    pState->m_PlaybackTime = ezTime::MakeZero();
+    pState->m_PlaybackTime = WTime::MakeZero();
   }
 
   if (m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_PlaybackTime = ezTime::MakeZero();
+    pState->m_PlaybackTime = WTime::MakeZero();
     pState->m_State = State::Start;
   }
 
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
   // currently we only support playing clips forwards
-  const float fPlaySpeed = ezMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)));
+  const float fPlaySpeed = WMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)));
 
-  ezTime tPrevSamplePos = pState->m_PlaybackTime;
+  WTime tPrevSamplePos = pState->m_PlaybackTime;
   pState->m_PlaybackTime += tDiff * fPlaySpeed;
 
-  ezAnimationClipResourceHandle hCurClip;
-  ezTime tCurDuration;
+  WAnimationClipResourceHandle hCurClip;
+  WTime tCurDuration;
 
   while (pState->m_State != State::Off)
   {
@@ -178,7 +178,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
+          pState->m_uiMiddleClipIdx = static_cast<WUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -190,12 +190,12 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(startClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimClip(startClip.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
+          pState->m_uiMiddleClipIdx = static_cast<WUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -208,19 +208,19 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
+      W_ASSERT_DEBUG(tCurDuration >= WTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
         m_OutOnMiddleStarted.SetTriggered(ref_graph);
-        tPrevSamplePos = ezTime::MakeZero();
+        tPrevSamplePos = WTime::MakeZero();
         pState->m_PlaybackTime -= tCurDuration;
         pState->m_State = State::Middle;
 
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
+          pState->m_uiMiddleClipIdx = static_cast<WUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -251,8 +251,8 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimClip(clipInfo.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         pState->m_State = State::End;
         m_OutOnEndStarted.SetTriggered(ref_graph);
@@ -260,12 +260,12 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
+      W_ASSERT_DEBUG(tCurDuration >= WTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
-        tPrevSamplePos = ezTime::MakeZero();
+        tPrevSamplePos = WTime::MakeZero();
         pState->m_PlaybackTime -= tCurDuration;
 
         if (bLoop)
@@ -273,7 +273,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
           m_OutOnMiddleStarted.SetTriggered(ref_graph);
           pState->m_State = State::Middle;
 
-          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
+          pState->m_uiMiddleClipIdx = static_cast<WUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -302,8 +302,8 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(endClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimClip(endClip.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         pState->m_State = State::HoldMiddleFrame;
         m_OutOnFinished.SetTriggered(ref_graph);
@@ -311,7 +311,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
+      W_ASSERT_DEBUG(tCurDuration >= WTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {
@@ -330,7 +330,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       const auto& endClip = ref_controller.GetAnimationClipInfo(m_sEndClip);
       hCurClip = endClip.m_hClip;
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(endClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      WResourceLock<WAnimationClipResource> pAnimClip(endClip.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
       pState->m_PlaybackTime = tCurDuration;
       break;
@@ -352,8 +352,8 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimClip(clipInfo.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         pState->m_State = State::HoldStartFrame;
         continue;
@@ -375,15 +375,15 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(startClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WAnimationClipResource> pAnimClip(startClip.m_hClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         pState->m_State = State::Off;
         continue;
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
+      W_ASSERT_DEBUG(tCurDuration >= WTime::MakeFromMilliseconds(5), "Too short clip");
 
       hCurClip = startClip.m_hClip;
       pState->m_PlaybackTime = tCurDuration;
@@ -397,7 +397,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
   const float fInvDuration = 1.0f / tCurDuration.AsFloatInSeconds();
 
   const void* pThis = this;
-  auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+  auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(WHashingUtils::xxHash32(&pThis, sizeof(pThis)));
 
 
   cmd.m_hAnimationClip = hCurClip;
@@ -405,21 +405,21 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
   // if we are already holding the last frame, we can skip event sampling
   if (pState->m_State >= State::HoldStartFrame)
   {
-    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+    cmd.m_EventSampling = WAnimPoseEventTrackSampleMode::None;
 
     cmd.m_fPreviousNormalizedSamplePos = 1.0f;
     cmd.m_fNormalizedSamplePos = 1.0f;
   }
   else
   {
-    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+    cmd.m_EventSampling = WAnimPoseEventTrackSampleMode::OnlyBetween;
 
-    cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
-    cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+    cmd.m_fPreviousNormalizedSamplePos = WMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+    cmd.m_fNormalizedSamplePos = WMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
   }
 
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+    WAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_fOverallWeight = 1.0f;
@@ -429,8 +429,8 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
     {
       pLocalTransforms->m_bUseRootMotion = true;
 
-      const float fCurNormPos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
-      ezResourceLock<ezAnimationClipResource> pAnimClip(hCurClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      const float fCurNormPos = WMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+      WResourceLock<WAnimationClipResource> pAnimClip(hCurClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
       pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed * m_fRootMotionAmount;
 
       const double fSampleTimeSecs = (double)fCurNormPos * pAnimClip->GetDescriptor().GetDuration().GetSeconds();
@@ -446,27 +446,27 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
   }
 }
 
-void ezSampleAnimClipSequenceAnimNode::SetStartClip(const char* szClip)
+void WSampleAnimClipSequenceAnimNode::SetStartClip(const char* szClip)
 {
   m_sStartClip.Assign(szClip);
 }
 
-const char* ezSampleAnimClipSequenceAnimNode::GetStartClip() const
+const char* WSampleAnimClipSequenceAnimNode::GetStartClip() const
 {
   return m_sStartClip;
 }
 
-void ezSampleAnimClipSequenceAnimNode::SetEndClip(const char* szClip)
+void WSampleAnimClipSequenceAnimNode::SetEndClip(const char* szClip)
 {
   m_sEndClip.Assign(szClip);
 }
 
-const char* ezSampleAnimClipSequenceAnimNode::GetEndClip() const
+const char* WSampleAnimClipSequenceAnimNode::GetEndClip() const
 {
   return m_sEndClip;
 }
 
-bool ezSampleAnimClipSequenceAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WSampleAnimClipSequenceAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -477,15 +477,15 @@ bool ezSampleAnimClipSequenceAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& o
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSampleAnimClipSequenceAnimNodePatch_1_2 : public ezGraphPatch
+class WSampleAnimClipSequenceAnimNodePatch_1_2 : public WGraphPatch
 {
 public:
-  ezSampleAnimClipSequenceAnimNodePatch_1_2()
-    : ezGraphPatch("ezSampleAnimClipSequenceAnimNode", 2)
+  WSampleAnimClipSequenceAnimNodePatch_1_2()
+    : WGraphPatch("WSampleAnimClipSequenceAnimNode", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     if (auto pProp = pNode->FindProperty("ApplyRootMotion"))
     {
@@ -502,6 +502,6 @@ public:
   }
 };
 
-ezSampleAnimClipSequenceAnimNodePatch_1_2 g_ezSampleAnimClipSequenceAnimNodePatch_1_2;
+WSampleAnimClipSequenceAnimNodePatch_1_2 g_WSampleAnimClipSequenceAnimNodePatch_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_SampleAnimClipSequenceAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_SampleAnimClipSequenceAnimNode);

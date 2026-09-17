@@ -11,7 +11,7 @@
 
 struct TagComparer
 {
-  EZ_ALWAYS_INLINE bool Less(const ezToolsTag* a, const ezToolsTag* b) const
+  W_ALWAYS_INLINE bool Less(const WToolsTag* a, const WToolsTag* b) const
   {
     if (a->m_sCategory != b->m_sCategory)
       return a->m_sCategory < b->m_sCategory;
@@ -21,12 +21,12 @@ struct TagComparer
   }
 };
 ////////////////////////////////////////////////////////////////////////
-// ezToolsTagRegistry public functions
+// WToolsTagRegistry public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezMap<ezString, ezToolsTag> ezToolsTagRegistry::s_NameToTags;
+WMap<WString, WToolsTag> WToolsTagRegistry::s_NameToTags;
 
-void ezToolsTagRegistry::Clear()
+void WToolsTagRegistry::Clear()
 {
   for (auto it = s_NameToTags.GetIterator(); it.IsValid();)
   {
@@ -41,22 +41,22 @@ void ezToolsTagRegistry::Clear()
   }
 }
 
-void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& inout_stream)
+void WToolsTagRegistry::WriteToDDL(WStreamWriter& inout_stream)
 {
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&inout_stream);
   writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
 
   for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
     writer.BeginObject("Tag");
 
-    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "Name");
+    writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String, "Name");
     writer.WriteString(it.Value().m_sName);
     writer.EndPrimitiveList();
 
-    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "Category");
+    writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String, "Category");
     writer.WriteString(it.Value().m_sCategory);
     writer.EndPrimitiveList();
 
@@ -64,47 +64,47 @@ void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& inout_stream)
   }
 }
 
-ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& inout_stream)
+WStatus WToolsTagRegistry::ReadFromDDL(WStreamReader& inout_stream)
 {
-  ezOpenDdlReader reader;
+  WOpenDdlReader reader;
   if (reader.ParseDocument(inout_stream).Failed())
   {
-    return ezStatus("Failed to read data from ToolsTagRegistry stream!");
+    return WStatus("Failed to read data from ToolsTagRegistry stream!");
   }
 
   // Makes sure not to remove the built-in tags
   Clear();
 
-  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
+  const WOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pTags = pRoot->GetFirstChild(); pTags != nullptr; pTags = pTags->GetSibling())
+  for (const WOpenDdlReaderElement* pTags = pRoot->GetFirstChild(); pTags != nullptr; pTags = pTags->GetSibling())
   {
     if (!pTags->IsCustomType("Tag"))
       continue;
 
-    const ezOpenDdlReaderElement* pName = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
-    const ezOpenDdlReaderElement* pCategory = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Category");
+    const WOpenDdlReaderElement* pName = pTags->FindChildOfType(WOpenDdlPrimitiveType::String, "Name");
+    const WOpenDdlReaderElement* pCategory = pTags->FindChildOfType(WOpenDdlPrimitiveType::String, "Category");
 
     if (!pName || !pCategory)
     {
-      ezLog::Error("Incomplete tag declaration!");
+      WLog::Error("Incomplete tag declaration!");
       continue;
     }
 
-    ezToolsTag tag;
+    WToolsTag tag;
     tag.m_sName = pName->GetPrimitivesString()[0];
     tag.m_sCategory = pCategory->GetPrimitivesString()[0];
 
-    if (!ezToolsTagRegistry::AddTag(tag))
+    if (!WToolsTagRegistry::AddTag(tag))
     {
-      ezLog::Error("Failed to add tag '{0}'", tag.m_sName);
+      WLog::Error("Failed to add tag '{0}'", tag.m_sName);
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
+bool WToolsTagRegistry::AddTag(const WToolsTag& tag)
 {
   if (tag.m_sName.IsEmpty())
     return false;
@@ -127,7 +127,7 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
   }
 }
 
-bool ezToolsTagRegistry::RemoveTag(ezStringView sName)
+bool WToolsTagRegistry::RemoveTag(WStringView sName)
 {
   auto it = s_NameToTags.Find(sName);
   if (it.IsValid())
@@ -141,7 +141,7 @@ bool ezToolsTagRegistry::RemoveTag(ezStringView sName)
   }
 }
 
-void ezToolsTagRegistry::GetAllTags(ezDynamicArray<const ezToolsTag*>& out_tags)
+void WToolsTagRegistry::GetAllTags(WDynamicArray<const WToolsTag*>& out_tags)
 {
   out_tags.Clear();
   for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
@@ -152,17 +152,17 @@ void ezToolsTagRegistry::GetAllTags(ezDynamicArray<const ezToolsTag*>& out_tags)
   out_tags.Sort(TagComparer());
 }
 
-bool ezToolsTagRegistry::IsTagKnown(ezStringView sName)
+bool WToolsTagRegistry::IsTagKnown(WStringView sName)
 {
   return s_NameToTags.Find(sName).IsValid();
 }
 
-void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezDynamicArray<const ezToolsTag*>& out_tags)
+void WToolsTagRegistry::GetTagsByCategory(const WArrayPtr<WStringView>& categories, WDynamicArray<const WToolsTag*>& out_tags)
 {
   out_tags.Clear();
   for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
-    if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& sCat)
+    if (std::any_of(cbegin(categories), cend(categories), [&it](const WStringView& sCat)
           { return it.Value().m_sCategory == sCat; }))
     {
       out_tags.PushBack(&it.Value());

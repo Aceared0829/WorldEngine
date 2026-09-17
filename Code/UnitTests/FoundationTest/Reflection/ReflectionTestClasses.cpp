@@ -3,400 +3,400 @@
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
-  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2)
-  EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WExampleEnum, 1)
+  W_ENUM_CONSTANTS(WExampleEnum::Value1, WExampleEnum::Value2)
+  W_ENUM_CONSTANT(WExampleEnum::Value3),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2)
-  EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
-
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAbstractTestClass, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WExampleBitflags, 1)
+  W_BITFLAGS_CONSTANTS(WExampleBitflags::Value1, WExampleBitflags::Value2)
+  W_BITFLAGS_CONSTANT(WExampleBitflags::Value3),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractTestStruct, ezNoBase, 1, ezRTTINoAllocator);
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAbstractTestClass, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator<ezTestStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WAbstractTestStruct, WNoBase, 1, WRTTINoAllocator);
+W_END_STATIC_REFLECTED_TYPE;
+
+
+W_BEGIN_STATIC_REFLECTED_TYPE(WTestStruct, WNoBase, 7, WRTTIDefaultAllocator<WTestStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(1.1f)),
-    EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3)->AddAttributes(new ezDefaultValueAttribute(ezVec3(3.0f,4.0f,5.0f))),
-    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt)->AddAttributes(new ezDefaultValueAttribute(2)),
-    EZ_MEMBER_PROPERTY("UInt8", m_UInt8)->AddAttributes(new ezDefaultValueAttribute(6)),
-    EZ_MEMBER_PROPERTY("Variant", m_variant)->AddAttributes(new ezDefaultValueAttribute("Test")),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(0.5))),
-    EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer)->AddAttributes(new ezDefaultValueAttribute(ezTestStruct::GetDefaultDataBuffer())),
-    EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I)->AddAttributes(new ezDefaultValueAttribute(ezVec3I32(1,2,3))),
-    EZ_MEMBER_PROPERTY("VarianceAngle", m_VarianceAngle)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeAngle(ezAngle::MakeFromDegree(90.0f), 0.5f))),
+    W_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new WDefaultValueAttribute(1.1f)),
+    W_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3)->AddAttributes(new WDefaultValueAttribute(WVec3(3.0f,4.0f,5.0f))),
+    W_ACCESSOR_PROPERTY("Int", GetInt, SetInt)->AddAttributes(new WDefaultValueAttribute(2)),
+    W_MEMBER_PROPERTY("UInt8", m_UInt8)->AddAttributes(new WDefaultValueAttribute(6)),
+    W_MEMBER_PROPERTY("Variant", m_variant)->AddAttributes(new WDefaultValueAttribute("Test")),
+    W_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(0.5))),
+    W_MEMBER_PROPERTY("DataBuffer", m_DataBuffer)->AddAttributes(new WDefaultValueAttribute(WTestStruct::GetDefaultDataBuffer())),
+    W_MEMBER_PROPERTY("vVec3I", m_vVec3I)->AddAttributes(new WDefaultValueAttribute(WVec3I32(1,2,3))),
+    W_MEMBER_PROPERTY("VarianceAngle", m_VarianceAngle)->AddAttributes(new WDefaultValueAttribute(WVarianceTypeAngle(WAngle::MakeFromDegree(90.0f), 0.5f))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocator<ezTestStruct3>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTestStruct3, WNoBase, 71, WRTTIDefaultAllocator<WTestStruct3>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(33.3f)),
-    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
-    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+    W_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new WDefaultValueAttribute(33.3f)),
+    W_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
+    W_MEMBER_PROPERTY("UInt8", m_UInt8),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(),
-    EZ_CONSTRUCTOR_PROPERTY(double, ezInt16),
+    W_CONSTRUCTOR_PROPERTY(),
+    W_CONSTRUCTOR_PROPERTY(double, WInt16),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypedObjectStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypedObjectStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTypedObjectStruct, WNoBase, 1, WRTTIDefaultAllocator<WTypedObjectStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new ezDefaultValueAttribute(33.3f)),
-    EZ_MEMBER_PROPERTY("Int", m_iInt32),
-    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+    W_MEMBER_PROPERTY("Float", m_fFloat1)->AddAttributes(new WDefaultValueAttribute(33.3f)),
+    W_MEMBER_PROPERTY("Int", m_iInt32),
+    W_MEMBER_PROPERTY("UInt8", m_UInt8),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestClass1, 11, WRTTIDefaultAllocator<WTestClass1>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
-    // EZ_MEMBER_PROPERTY("MyVector", m_MyVector), Intentionally not reflected
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)->AddAttributes(new ezDefaultValueAttribute(ezVec3(3, 4, 5)))
+    W_MEMBER_PROPERTY("SubStruct", m_Struct),
+    // W_MEMBER_PROPERTY("MyVector", m_MyVector), Intentionally not reflected
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)->AddAttributes(new WDefaultValueAttribute(WVec3(3, 4, 5)))
   }
-    EZ_END_PROPERTIES;
+    W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInt32 ezTestClass2Allocator::m_iAllocs = 0;
-ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
+WInt32 WTestClass2Allocator::m_iAllocs = 0;
+WInt32 WTestClass2Allocator::m_iDeallocs = 0;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestClass2, 22, WTestClass2Allocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr)->AddAttributes(new ezDefaultValueAttribute("AAA")),
-    EZ_ACCESSOR_PROPERTY("String", GetString, SetString)->AddAttributes(new ezDefaultValueAttribute("BBB")),
-    EZ_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView)->AddAttributes(new ezDefaultValueAttribute("CCC")),
-    EZ_MEMBER_PROPERTY("Time", m_Time),
-    EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
-    EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
-    EZ_ARRAY_MEMBER_PROPERTY("Array", m_array),
-    EZ_MEMBER_PROPERTY("Variant", m_Variant),
+    W_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr)->AddAttributes(new WDefaultValueAttribute("AAA")),
+    W_ACCESSOR_PROPERTY("String", GetString, SetString)->AddAttributes(new WDefaultValueAttribute("BBB")),
+    W_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView)->AddAttributes(new WDefaultValueAttribute("CCC")),
+    W_MEMBER_PROPERTY("Time", m_Time),
+    W_ENUM_MEMBER_PROPERTY("Enum", WExampleEnum, m_enumClass),
+    W_BITFLAGS_MEMBER_PROPERTY("Bitflags", WExampleBitflags, m_bitflagsClass),
+    W_ARRAY_MEMBER_PROPERTY("Array", m_array),
+    W_MEMBER_PROPERTY("Variant", m_Variant),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTestClass2b>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestClass2b, 24, WRTTIDefaultAllocator<WTestClass2b>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
-    EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
+    W_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
+    W_MEMBER_PROPERTY("SubStruct", m_Struct),
+    W_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestArrays>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestArrays, 1, WRTTIDefaultAllocator<WTestArrays>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
-    EZ_ARRAY_MEMBER_PROPERTY("HybridChar", m_HybridChar),
-    EZ_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
-    EZ_ARRAY_MEMBER_PROPERTY("Deque", m_Deque),
-    EZ_ARRAY_MEMBER_PROPERTY("Custom", m_CustomVariant),
+    W_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
+    W_ARRAY_MEMBER_PROPERTY("HybridChar", m_HybridChar),
+    W_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
+    W_ARRAY_MEMBER_PROPERTY("Deque", m_Deque),
+    W_ARRAY_MEMBER_PROPERTY("Custom", m_CustomVariant),
 
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridRO", m_Hybrid),
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridCharRO", m_HybridChar),
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DynamicRO", m_Dynamic),
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DequeRO", m_Deque),
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("CustomRO", m_CustomVariant),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridRO", m_Hybrid),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridCharRO", m_HybridChar),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("DynamicRO", m_Dynamic),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("DequeRO", m_Deque),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("CustomRO", m_CustomVariant),
 
-    EZ_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
-    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
-    EZ_ARRAY_ACCESSOR_PROPERTY("AcHybridChar", GetCountChar, GetValueChar, SetValueChar, InsertChar, RemoveChar),
-    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridCharRO", GetCountChar, GetValueChar),
-    EZ_ARRAY_ACCESSOR_PROPERTY("AcDynamic", GetCountDyn, GetValueDyn, SetValueDyn, InsertDyn, RemoveDyn),
-    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
-    EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
-    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
-    EZ_ARRAY_ACCESSOR_PROPERTY("AcCustom", GetCountCustom, GetValueCustom, SetValueCustom, InsertCustom, RemoveCustom),
-    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcCustomRO", GetCountCustom, GetValueCustom),
+    W_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
+    W_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
+    W_ARRAY_ACCESSOR_PROPERTY("AcHybridChar", GetCountChar, GetValueChar, SetValueChar, InsertChar, RemoveChar),
+    W_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridCharRO", GetCountChar, GetValueChar),
+    W_ARRAY_ACCESSOR_PROPERTY("AcDynamic", GetCountDyn, GetValueDyn, SetValueDyn, InsertDyn, RemoveDyn),
+    W_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
+    W_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
+    W_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
+    W_ARRAY_ACCESSOR_PROPERTY("AcCustom", GetCountCustom, GetValueCustom, SetValueCustom, InsertCustom, RemoveCustom),
+    W_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcCustomRO", GetCountCustom, GetValueCustom),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezUInt32 ezTestArrays::GetCount() const
+WUInt32 WTestArrays::GetCount() const
 {
   return m_Hybrid.GetCount();
 }
-double ezTestArrays::GetValue(ezUInt32 uiIndex) const
+double WTestArrays::GetValue(WUInt32 uiIndex) const
 {
   return m_Hybrid[uiIndex];
 }
-void ezTestArrays::SetValue(ezUInt32 uiIndex, double value)
+void WTestArrays::SetValue(WUInt32 uiIndex, double value)
 {
   m_Hybrid[uiIndex] = value;
 }
-void ezTestArrays::Insert(ezUInt32 uiIndex, double value)
+void WTestArrays::Insert(WUInt32 uiIndex, double value)
 {
   m_Hybrid.InsertAt(uiIndex, value);
 }
-void ezTestArrays::Remove(ezUInt32 uiIndex)
+void WTestArrays::Remove(WUInt32 uiIndex)
 {
   m_Hybrid.RemoveAtAndCopy(uiIndex);
 }
 
-ezUInt32 ezTestArrays::GetCountChar() const
+WUInt32 WTestArrays::GetCountChar() const
 {
   return m_HybridChar.GetCount();
 }
-const char* ezTestArrays::GetValueChar(ezUInt32 uiIndex) const
+const char* WTestArrays::GetValueChar(WUInt32 uiIndex) const
 {
   return m_HybridChar[uiIndex];
 }
-void ezTestArrays::SetValueChar(ezUInt32 uiIndex, const char* value)
+void WTestArrays::SetValueChar(WUInt32 uiIndex, const char* value)
 {
   m_HybridChar[uiIndex] = value;
 }
-void ezTestArrays::InsertChar(ezUInt32 uiIndex, const char* value)
+void WTestArrays::InsertChar(WUInt32 uiIndex, const char* value)
 {
   m_HybridChar.InsertAt(uiIndex, value);
 }
-void ezTestArrays::RemoveChar(ezUInt32 uiIndex)
+void WTestArrays::RemoveChar(WUInt32 uiIndex)
 {
   m_HybridChar.RemoveAtAndCopy(uiIndex);
 }
 
-ezUInt32 ezTestArrays::GetCountDyn() const
+WUInt32 WTestArrays::GetCountDyn() const
 {
   return m_Dynamic.GetCount();
 }
-const ezTestStruct3& ezTestArrays::GetValueDyn(ezUInt32 uiIndex) const
+const WTestStruct3& WTestArrays::GetValueDyn(WUInt32 uiIndex) const
 {
   return m_Dynamic[uiIndex];
 }
-void ezTestArrays::SetValueDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
+void WTestArrays::SetValueDyn(WUInt32 uiIndex, const WTestStruct3& value)
 {
   m_Dynamic[uiIndex] = value;
 }
-void ezTestArrays::InsertDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
+void WTestArrays::InsertDyn(WUInt32 uiIndex, const WTestStruct3& value)
 {
   m_Dynamic.InsertAt(uiIndex, value);
 }
-void ezTestArrays::RemoveDyn(ezUInt32 uiIndex)
+void WTestArrays::RemoveDyn(WUInt32 uiIndex)
 {
   m_Dynamic.RemoveAtAndCopy(uiIndex);
 }
 
-ezUInt32 ezTestArrays::GetCountDeq() const
+WUInt32 WTestArrays::GetCountDeq() const
 {
   return m_Deque.GetCount();
 }
-const ezTestArrays& ezTestArrays::GetValueDeq(ezUInt32 uiIndex) const
+const WTestArrays& WTestArrays::GetValueDeq(WUInt32 uiIndex) const
 {
   return m_Deque[uiIndex];
 }
-void ezTestArrays::SetValueDeq(ezUInt32 uiIndex, const ezTestArrays& value)
+void WTestArrays::SetValueDeq(WUInt32 uiIndex, const WTestArrays& value)
 {
   m_Deque[uiIndex] = value;
 }
-void ezTestArrays::InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value)
+void WTestArrays::InsertDeq(WUInt32 uiIndex, const WTestArrays& value)
 {
   m_Deque.InsertAt(uiIndex, value);
 }
-void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
+void WTestArrays::RemoveDeq(WUInt32 uiIndex)
 {
   m_Deque.RemoveAtAndCopy(uiIndex);
 }
 
-ezUInt32 ezTestArrays::GetCountCustom() const
+WUInt32 WTestArrays::GetCountCustom() const
 {
   return m_CustomVariant.GetCount();
 }
-ezVarianceTypeAngle ezTestArrays::GetValueCustom(ezUInt32 uiIndex) const
+WVarianceTypeAngle WTestArrays::GetValueCustom(WUInt32 uiIndex) const
 {
   return m_CustomVariant[uiIndex];
 }
-void ezTestArrays::SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
+void WTestArrays::SetValueCustom(WUInt32 uiIndex, WVarianceTypeAngle value)
 {
   m_CustomVariant[uiIndex] = value;
 }
-void ezTestArrays::InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
+void WTestArrays::InsertCustom(WUInt32 uiIndex, WVarianceTypeAngle value)
 {
   m_CustomVariant.InsertAt(uiIndex, value);
 }
-void ezTestArrays::RemoveCustom(ezUInt32 uiIndex)
+void WTestArrays::RemoveCustom(WUInt32 uiIndex)
 {
   m_CustomVariant.RemoveAtAndCopy(uiIndex);
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestSets, 1, WRTTIDefaultAllocator<WTestSets>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
-    EZ_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
-    EZ_SET_ACCESSOR_PROPERTY("AcSet", GetSet, Insert, Remove),
-    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcSetRO", GetSet),
-    EZ_SET_MEMBER_PROPERTY("HashSet", m_HashSetMember),
-    EZ_SET_MEMBER_PROPERTY_READ_ONLY("HashSetRO", m_HashSetMember),
-    EZ_SET_ACCESSOR_PROPERTY("HashAcSet", GetHashSet, HashInsert, HashRemove),
-    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("HashAcSetRO", GetHashSet),
-    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet", GetPseudoSet, PseudoInsert, PseudoRemove),
-    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSetRO", GetPseudoSet),
-    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
-    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
-    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
-    EZ_SET_MEMBER_PROPERTY("CustomHashSet", m_CustomVariant),
-    EZ_SET_MEMBER_PROPERTY_READ_ONLY("CustomHashSetRO", m_CustomVariant),
-    EZ_SET_ACCESSOR_PROPERTY("CustomHashAcSet", GetCustomHashSet, CustomHashInsert, CustomHashRemove),
-    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("CustomHashAcSetRO", GetCustomHashSet),
+    W_SET_MEMBER_PROPERTY("Set", m_SetMember),
+    W_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
+    W_SET_ACCESSOR_PROPERTY("AcSet", GetSet, Insert, Remove),
+    W_SET_ACCESSOR_PROPERTY_READ_ONLY("AcSetRO", GetSet),
+    W_SET_MEMBER_PROPERTY("HashSet", m_HashSetMember),
+    W_SET_MEMBER_PROPERTY_READ_ONLY("HashSetRO", m_HashSetMember),
+    W_SET_ACCESSOR_PROPERTY("HashAcSet", GetHashSet, HashInsert, HashRemove),
+    W_SET_ACCESSOR_PROPERTY_READ_ONLY("HashAcSetRO", GetHashSet),
+    W_SET_ACCESSOR_PROPERTY("AcPseudoSet", GetPseudoSet, PseudoInsert, PseudoRemove),
+    W_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSetRO", GetPseudoSet),
+    W_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
+    W_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
+    W_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
+    W_SET_MEMBER_PROPERTY("CustomHashSet", m_CustomVariant),
+    W_SET_MEMBER_PROPERTY_READ_ONLY("CustomHashSetRO", m_CustomVariant),
+    W_SET_ACCESSOR_PROPERTY("CustomHashAcSet", GetCustomHashSet, CustomHashInsert, CustomHashRemove),
+    W_SET_ACCESSOR_PROPERTY_READ_ONLY("CustomHashAcSetRO", GetCustomHashSet),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezSet<double>& ezTestSets::GetSet() const
+const WSet<double>& WTestSets::GetSet() const
 {
   return m_SetAccessor;
 }
 
-void ezTestSets::Insert(double value)
+void WTestSets::Insert(double value)
 {
   m_SetAccessor.Insert(value);
 }
 
-void ezTestSets::Remove(double value)
+void WTestSets::Remove(double value)
 {
   m_SetAccessor.Remove(value);
 }
 
 
-const ezHashSet<ezInt64>& ezTestSets::GetHashSet() const
+const WHashSet<WInt64>& WTestSets::GetHashSet() const
 {
   return m_HashSetAccessor;
 }
 
-void ezTestSets::HashInsert(ezInt64 value)
+void WTestSets::HashInsert(WInt64 value)
 {
   m_HashSetAccessor.Insert(value);
 }
 
-void ezTestSets::HashRemove(ezInt64 value)
+void WTestSets::HashRemove(WInt64 value)
 {
   m_HashSetAccessor.Remove(value);
 }
 
-const ezDeque<int>& ezTestSets::GetPseudoSet() const
+const WDeque<int>& WTestSets::GetPseudoSet() const
 {
   return m_Deque;
 }
 
-void ezTestSets::PseudoInsert(int value)
+void WTestSets::PseudoInsert(int value)
 {
   if (!m_Deque.Contains(value))
     m_Deque.PushBack(value);
 }
 
-void ezTestSets::PseudoRemove(int value)
+void WTestSets::PseudoRemove(int value)
 {
   m_Deque.RemoveAndCopy(value);
 }
 
 
-ezArrayPtr<const ezString> ezTestSets::GetPseudoSet2() const
+WArrayPtr<const WString> WTestSets::GetPseudoSet2() const
 {
   return m_Array;
 }
 
-void ezTestSets::PseudoInsert2(const ezString& value)
+void WTestSets::PseudoInsert2(const WString& value)
 {
   if (!m_Array.Contains(value))
     m_Array.PushBack(value);
 }
 
-void ezTestSets::PseudoRemove2(const ezString& value)
+void WTestSets::PseudoRemove2(const WString& value)
 {
   m_Array.RemoveAndCopy(value);
 }
 
-void ezTestSets::PseudoInsert2b(const char* value)
+void WTestSets::PseudoInsert2b(const char* value)
 {
   if (!m_Array.Contains(value))
     m_Array.PushBack(value);
 }
 
-void ezTestSets::PseudoRemove2b(const char* value)
+void WTestSets::PseudoRemove2b(const char* value)
 {
   m_Array.RemoveAndCopy(value);
 }
 
-const ezHashSet<ezVarianceTypeAngle>& ezTestSets::GetCustomHashSet() const
+const WHashSet<WVarianceTypeAngle>& WTestSets::GetCustomHashSet() const
 {
   return m_CustomVariant;
 }
 
-void ezTestSets::CustomHashInsert(ezVarianceTypeAngle value)
+void WTestSets::CustomHashInsert(WVarianceTypeAngle value)
 {
   m_CustomVariant.Insert(value);
 }
 
-void ezTestSets::CustomHashRemove(ezVarianceTypeAngle value)
+void WTestSets::CustomHashRemove(WVarianceTypeAngle value)
 {
   m_CustomVariant.Remove(value);
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestMaps, 1, WRTTIDefaultAllocator<WTestMaps>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MAP_MEMBER_PROPERTY("Map", m_MapMember),
-    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("MapRO", m_MapMember),
-    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
-    EZ_MAP_MEMBER_PROPERTY("HashTable", m_HashTableMember),
-    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("HashTableRO", m_HashTableMember),
-    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
-    EZ_MAP_ACCESSOR_PROPERTY("Accessor", GetKeys3, GetValue3, Insert3, Remove3),
-    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AccessorRO", GetKeys3, GetValue3),
-    EZ_MAP_MEMBER_PROPERTY("CustomVariant", m_CustomVariant),
-    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("CustomVariantRO", m_CustomVariant),
+    W_MAP_MEMBER_PROPERTY("Map", m_MapMember),
+    W_MAP_MEMBER_PROPERTY_READ_ONLY("MapRO", m_MapMember),
+    W_MAP_WRITE_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
+    W_MAP_MEMBER_PROPERTY("HashTable", m_HashTableMember),
+    W_MAP_MEMBER_PROPERTY_READ_ONLY("HashTableRO", m_HashTableMember),
+    W_MAP_WRITE_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
+    W_MAP_ACCESSOR_PROPERTY("Accessor", GetKeys3, GetValue3, Insert3, Remove3),
+    W_MAP_ACCESSOR_PROPERTY_READ_ONLY("AccessorRO", GetKeys3, GetValue3),
+    W_MAP_MEMBER_PROPERTY("CustomVariant", m_CustomVariant),
+    W_MAP_MEMBER_PROPERTY_READ_ONLY("CustomVariantRO", m_CustomVariant),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezTestMaps::operator==(const ezTestMaps& rhs) const
+bool WTestMaps::operator==(const WTestMaps& rhs) const
 {
-  for (ezUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
   {
     bool bRes = false;
-    for (ezUInt32 j = 0; j < rhs.m_Accessor3.GetCount(); j++)
+    for (WUInt32 j = 0; j < rhs.m_Accessor3.GetCount(); j++)
     {
       if (m_Accessor3[i].m_Key == rhs.m_Accessor3[j].m_Key)
       {
@@ -410,50 +410,50 @@ bool ezTestMaps::operator==(const ezTestMaps& rhs) const
   return m_MapMember == rhs.m_MapMember && m_MapAccessor == rhs.m_MapAccessor && m_HashTableMember == rhs.m_HashTableMember && m_HashTableAccessor == rhs.m_HashTableAccessor && m_CustomVariant == rhs.m_CustomVariant;
 }
 
-const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const
+const WMap<WString, WInt64>& WTestMaps::GetContainer() const
 {
   return m_MapAccessor;
 }
 
-void ezTestMaps::Insert(const char* szKey, ezInt64 value)
+void WTestMaps::Insert(const char* szKey, WInt64 value)
 {
   m_MapAccessor.Insert(szKey, value);
 }
 
-void ezTestMaps::Remove(const char* szKey)
+void WTestMaps::Remove(const char* szKey)
 {
   m_MapAccessor.Remove(szKey);
 }
 
-const ezHashTable<ezString, ezString>& ezTestMaps::GetContainer2() const
+const WHashTable<WString, WString>& WTestMaps::GetContainer2() const
 {
   return m_HashTableAccessor;
 }
 
-void ezTestMaps::Insert2(const char* szKey, const ezString& value)
+void WTestMaps::Insert2(const char* szKey, const WString& value)
 {
   m_HashTableAccessor.Insert(szKey, value);
 }
 
 
-void ezTestMaps::Remove2(const char* szKey)
+void WTestMaps::Remove2(const char* szKey)
 {
   m_HashTableAccessor.Remove(szKey);
 }
 
-const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
+const WRangeView<const char*, WUInt32> WTestMaps::GetKeys3() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([this]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Accessor3.GetCount(); },
-    [this](ezUInt32& ref_uiIt)
+    [this](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Accessor3[uiIt].m_Key; });
 }
 
-void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)
+void WTestMaps::Insert3(const char* szKey, const WVariant& value)
 {
   for (auto&& t : m_Accessor3)
   {
@@ -468,9 +468,9 @@ void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)
   t.m_Value = value;
 }
 
-void ezTestMaps::Remove3(const char* szKey)
+void WTestMaps::Remove3(const char* szKey)
 {
-  for (ezUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
+  for (WUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
   {
     const Tuple& t = m_Accessor3[i];
     if (t.m_Key == szKey)
@@ -481,7 +481,7 @@ void ezTestMaps::Remove3(const char* szKey)
   }
 }
 
-bool ezTestMaps::GetValue3(const char* szKey, ezVariant& out_value) const
+bool WTestMaps::GetValue3(const char* szKey, WVariant& out_value) const
 {
   for (const auto& t : m_Accessor3)
   {
@@ -495,42 +495,42 @@ bool ezTestMaps::GetValue3(const char* szKey, ezVariant& out_value) const
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTestPtr, 1, WRTTIDefaultAllocator<WTestPtr>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
-    EZ_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_MEMBER_PROPERTY("ArraysPtrDirect", m_pArraysDirect)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
+    W_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(WPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("ArraysPtrDirect", m_pArraysDirect)->AddFlags(WPropertyFlags::PointerOwner),
+    W_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(WPropertyFlags::PointerOwner),
+    W_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestEnumStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTestEnumStruct, WNoBase, 1, WRTTIDefaultAllocator<WTestEnumStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("m_enum", ezExampleEnum, m_enum),
-    EZ_ENUM_MEMBER_PROPERTY("m_enumClass", ezExampleEnum, m_enumClass),
-    EZ_ENUM_ACCESSOR_PROPERTY("m_enum2", ezExampleEnum, GetEnum, SetEnum),
-    EZ_ENUM_ACCESSOR_PROPERTY("m_enumClass2", ezExampleEnum,  GetEnumClass, SetEnumClass),
+    W_ENUM_MEMBER_PROPERTY("m_enum", WExampleEnum, m_enum),
+    W_ENUM_MEMBER_PROPERTY("m_enumClass", WExampleEnum, m_enumClass),
+    W_ENUM_ACCESSOR_PROPERTY("m_enum2", WExampleEnum, GetEnum, SetEnum),
+    W_ENUM_ACCESSOR_PROPERTY("m_enumClass2", WExampleEnum,  GetEnumClass, SetEnumClass),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestBitflagsStruct>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTestBitflagsStruct, WNoBase, 1, WRTTIDefaultAllocator<WTestBitflagsStruct>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", ezExampleBitflags, m_bitflagsClass),
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags, GetBitflagsClass, SetBitflagsClass),
+    W_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", WExampleBitflags, m_bitflagsClass),
+    W_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", WExampleBitflags, GetBitflagsClass, SetBitflagsClass),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on

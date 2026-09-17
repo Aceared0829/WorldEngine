@@ -5,22 +5,22 @@
 // **** ListElement ****
 
 template <typename T>
-ezListBase<T>::ListElementBase::ListElementBase()
+WListBase<T>::ListElementBase::ListElementBase()
   : m_pPrev(nullptr)
   , m_pNext(nullptr)
 {
 }
 
 template <typename T>
-ezListBase<T>::ListElement::ListElement(const T& data)
+WListBase<T>::ListElement::ListElement(const T& data)
   : m_Data(data)
 {
 }
 
-// **** ezListBase ****
+// **** WListBase ****
 
 template <typename T>
-ezListBase<T>::ezListBase(ezAllocator* pAllocator)
+WListBase<T>::WListBase(WAllocator* pAllocator)
   : m_End(reinterpret_cast<ListElement*>(&m_Last))
   , m_uiCount(0)
   , m_Elements(pAllocator)
@@ -31,7 +31,7 @@ ezListBase<T>::ezListBase(ezAllocator* pAllocator)
 }
 
 template <typename T>
-ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator)
+WListBase<T>::WListBase(const WListBase<T>& cc, WAllocator* pAllocator)
   : m_End(reinterpret_cast<ListElement*>(&m_Last))
   , m_uiCount(0)
   , m_Elements(pAllocator)
@@ -44,20 +44,20 @@ ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator)
 }
 
 template <typename T>
-ezListBase<T>::~ezListBase()
+WListBase<T>::~WListBase()
 {
   Clear();
 }
 
 template <typename T>
-void ezListBase<T>::operator=(const ezListBase<T>& cc)
+void WListBase<T>::operator=(const WListBase<T>& cc)
 {
   Clear();
   Insert(GetIterator(), cc.GetIterator(), cc.GetEndIterator());
 }
 
 template <typename T>
-typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode()
+typename WListBase<T>::ListElement* WListBase<T>::AcquireNode()
 {
   ListElement* pNode;
 
@@ -72,14 +72,14 @@ typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode()
     m_pFreeElementStack = m_pFreeElementStack->m_pNext;
   }
 
-  ezMemoryUtils::Construct<SkipTrivialTypes, ListElement>(pNode, 1);
+  WMemoryUtils::Construct<SkipTrivialTypes, ListElement>(pNode, 1);
   return pNode;
 }
 
 template <typename T>
-void ezListBase<T>::ReleaseNode(ListElement* pNode)
+void WListBase<T>::ReleaseNode(ListElement* pNode)
 {
-  ezMemoryUtils::Destruct<ListElement>(pNode, 1);
+  WMemoryUtils::Destruct<ListElement>(pNode, 1);
 
   if (pNode == &m_Elements.PeekBack())
   {
@@ -100,43 +100,43 @@ void ezListBase<T>::ReleaseNode(ListElement* pNode)
 
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetIterator()
+W_ALWAYS_INLINE typename WListBase<T>::Iterator WListBase<T>::GetIterator()
 {
   return Iterator(m_First.m_pNext);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetEndIterator()
+W_ALWAYS_INLINE typename WListBase<T>::Iterator WListBase<T>::GetEndIterator()
 {
   return m_End;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetIterator() const
+W_ALWAYS_INLINE typename WListBase<T>::ConstIterator WListBase<T>::GetIterator() const
 {
   return ConstIterator(m_First.m_pNext);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetEndIterator() const
+W_ALWAYS_INLINE typename WListBase<T>::ConstIterator WListBase<T>::GetEndIterator() const
 {
   return m_End;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezListBase<T>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WListBase<T>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezListBase<T>::IsEmpty() const
+W_ALWAYS_INLINE bool WListBase<T>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename T>
-void ezListBase<T>::Clear()
+void WListBase<T>::Clear()
 {
   if (!IsEmpty())
     Remove(GetIterator(), GetEndIterator());
@@ -146,88 +146,88 @@ void ezListBase<T>::Clear()
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezListBase<T>::Compact()
+W_FORCE_INLINE void WListBase<T>::Compact()
 {
   m_Elements.Compact();
 }
 
 template <typename T>
-EZ_FORCE_INLINE T& ezListBase<T>::PeekFront()
+W_FORCE_INLINE T& WListBase<T>::PeekFront()
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   return m_First.m_pNext->m_Data;
 }
 
 template <typename T>
-EZ_FORCE_INLINE T& ezListBase<T>::PeekBack()
+W_FORCE_INLINE T& WListBase<T>::PeekBack()
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   return m_Last.m_pPrev->m_Data;
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezListBase<T>::PeekFront() const
+W_FORCE_INLINE const T& WListBase<T>::PeekFront() const
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   return m_First.m_pNext->m_Data;
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezListBase<T>::PeekBack() const
+W_FORCE_INLINE const T& WListBase<T>::PeekBack() const
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   return m_Last.m_pPrev->m_Data;
 }
 
 
 template <typename T>
-EZ_ALWAYS_INLINE T& ezListBase<T>::PushBack()
+W_ALWAYS_INLINE T& WListBase<T>::PushBack()
 {
   return *Insert(GetEndIterator());
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezListBase<T>::PushBack(const T& element)
+W_ALWAYS_INLINE void WListBase<T>::PushBack(const T& element)
 {
   Insert(GetEndIterator(), element);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T& ezListBase<T>::PushFront()
+W_ALWAYS_INLINE T& WListBase<T>::PushFront()
 {
   return *Insert(GetIterator());
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezListBase<T>::PushFront(const T& element)
+W_ALWAYS_INLINE void WListBase<T>::PushFront(const T& element)
 {
   Insert(GetIterator(), element);
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezListBase<T>::PopBack()
+W_FORCE_INLINE void WListBase<T>::PopBack()
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   Remove(Iterator(m_Last.m_pPrev));
 }
 
 template <typename T>
-void ezListBase<T>::PopFront()
+void WListBase<T>::PopFront()
 {
-  EZ_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEBUG(!IsEmpty(), "The container is empty.");
 
   Remove(Iterator(m_First.m_pNext));
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos)
+typename WListBase<T>::Iterator WListBase<T>::Insert(const Iterator& pos)
 {
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  W_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ++m_uiCount;
   ListElement* elem = AcquireNode();
@@ -242,9 +242,9 @@ typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos)
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, const T& data)
+typename WListBase<T>::Iterator WListBase<T>::Insert(const Iterator& pos, const T& data)
 {
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  W_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ++m_uiCount;
   ListElement* elem = AcquireNode();
@@ -260,9 +260,9 @@ typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, cons
 }
 
 template <typename T>
-void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last)
+void WListBase<T>::Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last)
 {
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr && first.m_pElement != nullptr && last.m_pElement != nullptr, "One of the iterators is invalid.");
+  W_ASSERT_DEV(pos.m_pElement != nullptr && first.m_pElement != nullptr && last.m_pElement != nullptr, "One of the iterators is invalid.");
 
   while (first != last)
   {
@@ -272,10 +272,10 @@ void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const Const
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Remove(const Iterator& pos)
+typename WListBase<T>::Iterator WListBase<T>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  W_ASSERT_DEV(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ListElement* pPrev = pos.m_pElement->m_pPrev;
   ListElement* pNext = pos.m_pElement->m_pNext;
@@ -289,10 +289,10 @@ typename ezListBase<T>::Iterator ezListBase<T>::Remove(const Iterator& pos)
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Remove(Iterator first, const Iterator& last)
+typename WListBase<T>::Iterator WListBase<T>::Remove(Iterator first, const Iterator& last)
 {
-  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT_DEV(first.m_pElement != nullptr && last.m_pElement != nullptr, "An iterator is invalid.");
+  W_ASSERT_DEV(!IsEmpty(), "The container is empty.");
+  W_ASSERT_DEV(first.m_pElement != nullptr && last.m_pElement != nullptr, "An iterator is invalid.");
 
   while (first != last)
     first = Remove(first);
@@ -304,7 +304,7 @@ typename ezListBase<T>::Iterator ezListBase<T>::Remove(Iterator first, const Ite
     If uiNewSize is larger than the size of the list, default-constructed elements are appended to the list, until the desired size is reached.
 */
 template <typename T>
-void ezListBase<T>::SetCount(ezUInt32 uiNewSize)
+void WListBase<T>::SetCount(WUInt32 uiNewSize)
 {
   while (m_uiCount > uiNewSize)
     PopBack();
@@ -314,7 +314,7 @@ void ezListBase<T>::SetCount(ezUInt32 uiNewSize)
 }
 
 template <typename T>
-bool ezListBase<T>::operator==(const ezListBase<T>& rhs) const
+bool WListBase<T>::operator==(const WListBase<T>& rhs) const
 {
   if (GetCount() != rhs.GetCount())
     return false;
@@ -335,37 +335,37 @@ bool ezListBase<T>::operator==(const ezListBase<T>& rhs) const
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList()
-  : ezListBase<T>(A::GetAllocator())
+WList<T, A>::WList()
+  : WListBase<T>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(ezAllocator* pAllocator)
-  : ezListBase<T>(pAllocator)
+WList<T, A>::WList(WAllocator* pAllocator)
+  : WListBase<T>(pAllocator)
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(const ezList<T, A>& other)
-  : ezListBase<T>(other, A::GetAllocator())
+WList<T, A>::WList(const WList<T, A>& other)
+  : WListBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(const ezListBase<T>& other)
-  : ezListBase<T>(other, A::GetAllocator())
+WList<T, A>::WList(const WListBase<T>& other)
+  : WListBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-void ezList<T, A>::operator=(const ezList<T, A>& rhs)
+void WList<T, A>::operator=(const WList<T, A>& rhs)
 {
-  ezListBase<T>::operator=(rhs);
+  WListBase<T>::operator=(rhs);
 }
 
 template <typename T, typename A>
-void ezList<T, A>::operator=(const ezListBase<T>& rhs)
+void WList<T, A>::operator=(const WListBase<T>& rhs)
 {
-  ezListBase<T>::operator=(rhs);
+  WListBase<T>::operator=(rhs);
 }

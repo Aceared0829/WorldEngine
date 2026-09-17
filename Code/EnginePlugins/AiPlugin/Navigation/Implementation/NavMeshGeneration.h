@@ -3,14 +3,14 @@
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-class ezNavmeshGeoWorldModuleInterface;
+class WNavmeshGeoWorldModuleInterface;
 
-class ezNavMeshSectorGenerationTask : public ezTask
+class WNavMeshSectorGenerationTask : public WTask
 {
 public:
-  ezAiNavMesh::SectorID m_SectorID = ezInvalidIndex;
-  ezAiNavMesh* m_pWorldNavMesh = nullptr;
-  const ezNavmeshGeoWorldModuleInterface* m_pNavGeo = nullptr;
+  WAiNavMesh::SectorID m_SectorID = WInvalidIndex;
+  WAiNavMesh* m_pWorldNavMesh = nullptr;
+  const WNavmeshGeoWorldModuleInterface* m_pNavGeo = nullptr;
 
 protected:
   virtual void Execute() override;

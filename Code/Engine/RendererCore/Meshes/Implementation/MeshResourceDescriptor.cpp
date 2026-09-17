@@ -23,62 +23,62 @@ namespace
   /// Do not raise this above 16 without measuring, the compression gain comes from the zeroed byte.
   constexpr int s_iPositionFilterBits = 16;
 
-  enum class ezMeshPositionFilter : ezUInt8
+  enum class WMeshPositionFilter : WUInt8
   {
     None = 0,
     Exponential = 1,
   };
 } // namespace
 
-ezMeshResourceDescriptor::ezMeshResourceDescriptor()
+WMeshResourceDescriptor::WMeshResourceDescriptor()
 {
-  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  m_Bounds = WBoundingBoxSphere::MakeInvalid();
 }
 
-void ezMeshResourceDescriptor::Clear()
+void WMeshResourceDescriptor::Clear()
 {
-  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  m_Bounds = WBoundingBoxSphere::MakeInvalid();
   m_hMeshBuffer.Invalidate();
   m_Materials.Clear();
   m_MeshBufferDescriptor.Clear();
   m_SubMeshes.Clear();
 }
 
-ezMeshBufferResourceDescriptor& ezMeshResourceDescriptor::MeshBufferDesc()
+WMeshBufferResourceDescriptor& WMeshResourceDescriptor::MeshBufferDesc()
 {
   return m_MeshBufferDescriptor;
 }
 
-const ezMeshBufferResourceDescriptor& ezMeshResourceDescriptor::MeshBufferDesc() const
+const WMeshBufferResourceDescriptor& WMeshResourceDescriptor::MeshBufferDesc() const
 {
   return m_MeshBufferDescriptor;
 }
 
-void ezMeshResourceDescriptor::UseExistingMeshBuffer(const ezMeshBufferResourceHandle& hBuffer)
+void WMeshResourceDescriptor::UseExistingMeshBuffer(const WMeshBufferResourceHandle& hBuffer)
 {
   m_hMeshBuffer = hBuffer;
 }
 
-const ezMeshBufferResourceHandle& ezMeshResourceDescriptor::GetExistingMeshBuffer() const
+const WMeshBufferResourceHandle& WMeshResourceDescriptor::GetExistingMeshBuffer() const
 {
   return m_hMeshBuffer;
 }
 
-ezArrayPtr<const ezMeshResourceDescriptor::Material> ezMeshResourceDescriptor::GetMaterials() const
+WArrayPtr<const WMeshResourceDescriptor::Material> WMeshResourceDescriptor::GetMaterials() const
 {
   return m_Materials;
 }
 
-ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> ezMeshResourceDescriptor::GetSubMeshes() const
+WArrayPtr<const WMeshResourceDescriptor::SubMesh> WMeshResourceDescriptor::GetSubMeshes() const
 {
   return m_SubMeshes;
 }
 
-void ezMeshResourceDescriptor::CollapseSubMeshes()
+void WMeshResourceDescriptor::CollapseSubMeshes()
 {
-  for (ezUInt32 idx = 1; idx < m_SubMeshes.GetCount(); ++idx)
+  for (WUInt32 idx = 1; idx < m_SubMeshes.GetCount(); ++idx)
   {
-    m_SubMeshes[0].m_uiFirstPrimitive = ezMath::Min(m_SubMeshes[0].m_uiFirstPrimitive, m_SubMeshes[idx].m_uiFirstPrimitive);
+    m_SubMeshes[0].m_uiFirstPrimitive = WMath::Min(m_SubMeshes[0].m_uiFirstPrimitive, m_SubMeshes[idx].m_uiFirstPrimitive);
     m_SubMeshes[0].m_uiPrimitiveCount += m_SubMeshes[idx].m_uiPrimitiveCount;
 
     if (m_SubMeshes[0].m_Bounds.IsValid() && m_SubMeshes[idx].m_Bounds.IsValid())
@@ -93,57 +93,57 @@ void ezMeshResourceDescriptor::CollapseSubMeshes()
   m_Materials.SetCount(1);
 }
 
-const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
+const WBoundingBoxSphere& WMeshResourceDescriptor::GetBounds() const
 {
   return m_Bounds;
 }
 
-void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex)
+void WMeshResourceDescriptor::AddSubMesh(WUInt32 uiPrimitiveCount, WUInt32 uiFirstPrimitive, WUInt32 uiMaterialIndex)
 {
   SubMesh p;
   p.m_uiFirstPrimitive = uiFirstPrimitive;
   p.m_uiPrimitiveCount = uiPrimitiveCount;
   p.m_uiMaterialIndex = uiMaterialIndex;
-  p.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  p.m_Bounds = WBoundingBoxSphere::MakeInvalid();
 
   m_SubMeshes.PushBack(p);
 }
 
-void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, ezStringView sPathToMaterial)
+void WMeshResourceDescriptor::SetMaterial(WUInt32 uiMaterialIndex, WStringView sPathToMaterial)
 {
   m_Materials.EnsureCount(uiMaterialIndex + 1);
 
   m_Materials[uiMaterialIndex].m_sPath = sPathToMaterial;
 }
 
-ezResult ezMeshResourceDescriptor::Save(const char* szFile)
+WResult WMeshResourceDescriptor::Save(const char* szFile)
 {
-  EZ_LOG_BLOCK("ezMeshResourceDescriptor::Save", szFile);
+  W_LOG_BLOCK("WMeshResourceDescriptor::Save", szFile);
 
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(szFile, 1024 * 1024).Failed())
   {
-    ezLog::Error("Failed to open file '{0}'", szFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to open file '{0}'", szFile);
+    return W_FAILURE;
   }
 
   Save(file);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
+void WMeshResourceDescriptor::Save(WStreamWriter& inout_stream)
 {
-  ezUInt8 uiVersion = 7;
+  WUInt8 uiVersion = 7;
   inout_stream << uiVersion;
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
-  ezChunkStreamWriter chunk(compressor);
+  WCompressedStreamWriterZstd compressor(&inout_stream, 0, WCompressedStreamWriterZstd::Compression::Average);
+  WChunkStreamWriter chunk(compressor);
 #else
-  ezChunkStreamWriter chunk(stream);
+  WChunkStreamWriter chunk(stream);
 #endif
 
   inout_stream << uiCompressionMode;
@@ -157,7 +157,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     chunk << m_Materials.GetCount();
 
     // each material
-    for (ezUInt32 idx = 0; idx < m_Materials.GetCount(); ++idx)
+    for (WUInt32 idx = 0; idx < m_Materials.GetCount(); ++idx)
     {
       chunk << idx;                      // Material Index
       chunk << m_Materials[idx].m_sPath; // Material Path (data directory relative)
@@ -173,7 +173,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     // number of sub-meshes
     chunk << m_SubMeshes.GetCount();
 
-    for (ezUInt32 idx = 0; idx < m_SubMeshes.GetCount(); ++idx)
+    for (WUInt32 idx = 0; idx < m_SubMeshes.GetCount(); ++idx)
     {
       chunk << idx;                                // Sub-Mesh index
       chunk << m_SubMeshes[idx].m_uiMaterialIndex; // The material to use
@@ -195,7 +195,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     chunk << m_MeshBufferDescriptor.GetVertexStreamConfig().m_bUseHighPrecision;
 
     // Version 3: Topology
-    chunk << (ezUInt8)m_MeshBufferDescriptor.GetTopology();
+    chunk << (WUInt8)m_MeshBufferDescriptor.GetTopology();
 
     // Version 2
     if (!m_Bounds.IsValid())
@@ -218,16 +218,16 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     const auto& streamConfig = m_MeshBufferDescriptor.GetVertexStreamConfig();
 
     // the position filter is lossy, so it is only applied to meshes that were not imported with high precision
-    const bool bFilterPositions = !streamConfig.m_bUseHighPrecision && streamConfig.GetPositionFormat() == ezGALResourceFormat::XYZFloat;
+    const bool bFilterPositions = !streamConfig.m_bUseHighPrecision && streamConfig.GetPositionFormat() == WGALResourceFormat::XYZFloat;
 
-    chunk << static_cast<ezUInt8>(bFilterPositions ? ezMeshPositionFilter::Exponential : ezMeshPositionFilter::None);
+    chunk << static_cast<WUInt8>(bFilterPositions ? WMeshPositionFilter::Exponential : WMeshPositionFilter::None);
 
-    ezDynamicArray<ezUInt8> filteredPositions;
+    WDynamicArray<WUInt8> filteredPositions;
 
-    const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
-    for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+    const WUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
+    for (WUInt32 i = 0; i < uiNumBuffers; ++i)
     {
-      auto type = static_cast<ezMeshVertexStreamType::Enum>(i);
+      auto type = static_cast<WMeshVertexStreamType::Enum>(i);
       const auto& data = m_MeshBufferDescriptor.GetVertexBufferData(type);
 
       // size in bytes
@@ -236,7 +236,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
       if (data.IsEmpty())
         continue;
 
-      if (bFilterPositions && type == ezMeshVertexStreamType::Position)
+      if (bFilterPositions && type == WMeshVertexStreamType::Position)
       {
         filteredPositions.SetCountUninitialized(data.GetCount());
 
@@ -292,47 +292,47 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   compressor.FinishCompressedStream().IgnoreResult();
 
-  ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+  WLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", WArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), WArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), WArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 #endif
 }
 
-ezResult ezMeshResourceDescriptor::Load(const char* szFile)
+WResult WMeshResourceDescriptor::Load(const char* szFile)
 {
-  EZ_LOG_BLOCK("ezMeshResourceDescriptor::Load", szFile);
+  W_LOG_BLOCK("WMeshResourceDescriptor::Load", szFile);
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(szFile, 1024 * 1024).Failed())
   {
-    ezLog::Error("Failed to open file '{0}'", szFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to open file '{0}'", szFile);
+    return W_FAILURE;
   }
 
   // skip asset header
-  ezAssetFileHeader assetHeader;
-  EZ_SUCCEED_OR_RETURN(assetHeader.Read(file));
+  WAssetFileHeader assetHeader;
+  W_SUCCEED_OR_RETURN(assetHeader.Read(file));
 
   return Load(file);
 }
 
-ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
+WResult WMeshResourceDescriptor::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   // version 4 and below is broken
   if (uiVersion <= 4)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
   if (uiVersion >= 6)
   {
     inout_stream >> uiCompressionMode;
   }
 
-  ezStreamReader* pCompressor = &inout_stream;
+  WStreamReader* pCompressor = &inout_stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd;
+  WCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -346,19 +346,19 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       pCompressor = &decompressorZstd;
       break;
 #else
-      ezLog::Error("Mesh is compressed with zstandard, but support for this compressor is not compiled in.");
-      return EZ_FAILURE;
+      WLog::Error("Mesh is compressed with zstandard, but support for this compressor is not compiled in.");
+      return W_FAILURE;
 #endif
 
     default:
-      ezLog::Error("Mesh is compressed with an unknown algorithm.");
-      return EZ_FAILURE;
+      WLog::Error("Mesh is compressed with an unknown algorithm.");
+      return W_FAILURE;
   }
 
-  ezChunkStreamReader chunk(*pCompressor);
+  WChunkStreamReader chunk(*pCompressor);
   chunk.BeginStream();
 
-  ezUInt32 count;
+  WUInt32 count;
   bool bCalculateBounds = true;
 
   while (chunk.GetCurrentChunk().m_bValid)
@@ -369,8 +369,8 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        WLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
+        return W_FAILURE;
       }
 
       // number of materials
@@ -378,9 +378,9 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       m_Materials.SetCount(count);
 
       // each material
-      for (ezUInt32 i = 0; i < m_Materials.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_Materials.GetCount(); ++i)
       {
-        ezUInt32 idx;
+        WUInt32 idx;
         chunk >> idx;                      // Material Index
         chunk >> m_Materials[idx].m_sPath; // Material Path (data directory relative)
         /// \todo Material Path (relative to mesh file)
@@ -391,24 +391,24 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        WLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
+        return W_FAILURE;
       }
 
       // number of sub-meshes
       chunk >> count;
       m_SubMeshes.SetCount(count);
 
-      for (ezUInt32 i = 0; i < m_SubMeshes.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_SubMeshes.GetCount(); ++i)
       {
-        ezUInt32 idx;
+        WUInt32 idx;
         chunk >> idx;                                // Sub-Mesh index
         chunk >> m_SubMeshes[idx].m_uiMaterialIndex; // The material to use
         chunk >> m_SubMeshes[idx].m_uiFirstPrimitive;
         chunk >> m_SubMeshes[idx].m_uiPrimitiveCount;
 
         /// \todo load from file
-        m_SubMeshes[idx].m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+        m_SubMeshes[idx].m_Bounds = WBoundingBoxSphere::MakeInvalid();
       }
     }
 
@@ -416,34 +416,34 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     {
       if (ci.m_uiChunkVersion != 5)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        WLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
+        return W_FAILURE;
       }
 
       // Number of vertices
-      ezUInt32 uiVertexCount = 0;
+      WUInt32 uiVertexCount = 0;
       chunk >> uiVertexCount;
 
       // Number of primitives
-      ezUInt32 uiPrimitiveCount = 0;
+      WUInt32 uiPrimitiveCount = 0;
       chunk >> uiPrimitiveCount;
 
-      ezMeshVertexStreamConfig streamConfig;
+      WMeshVertexStreamConfig streamConfig;
       chunk >> streamConfig.m_uiTypesMask;
       chunk >> streamConfig.m_bUseHighPrecision;
 
       // Topology
-      ezUInt8 uiTopology = ezGALPrimitiveTopology::Triangles;
+      WUInt8 uiTopology = WGALPrimitiveTopology::Triangles;
       chunk >> uiTopology;
 
 
-      for (ezUInt32 idx : ezIterateBitIndices(streamConfig.m_uiTypesMask))
+      for (WUInt32 idx : WIterateBitIndices(streamConfig.m_uiTypesMask))
       {
-        auto type = static_cast<ezMeshVertexStreamType::Enum>(idx);
+        auto type = static_cast<WMeshVertexStreamType::Enum>(idx);
         m_MeshBufferDescriptor.AddStream(type, streamConfig.m_bUseHighPrecision);
       }
 
-      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (ezGALPrimitiveTopology::Enum)uiTopology, uiPrimitiveCount);
+      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (WGALPrimitiveTopology::Enum)uiTopology, uiPrimitiveCount);
 
       // Version 2
       if (ci.m_uiChunkVersion >= 2)
@@ -464,11 +464,11 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     {
       if (ci.m_uiChunkVersion != 2 && ci.m_uiChunkVersion != 3)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        WLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
+        return W_FAILURE;
       }
 
-      ezUInt8 uiPositionFilter = static_cast<ezUInt8>(ezMeshPositionFilter::None);
+      WUInt8 uiPositionFilter = static_cast<WUInt8>(WMeshPositionFilter::None);
 
       // Version 3: the position stream may be stored in a filtered representation
       if (ci.m_uiChunkVersion >= 3)
@@ -476,18 +476,18 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
         chunk >> uiPositionFilter;
       }
 
-      const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
-      for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+      const WUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
+      for (WUInt32 i = 0; i < uiNumBuffers; ++i)
       {
-        auto type = static_cast<ezMeshVertexStreamType::Enum>(i);
+        auto type = static_cast<WMeshVertexStreamType::Enum>(i);
         auto& data = m_MeshBufferDescriptor.GetVertexBufferData(type);
 
         // size in bytes
         chunk >> count;
         if (data.GetCount() != count)
         {
-          ezLog::Error("Buffer data size mismatch: Expected {} but got {}", ezArgFileSize(data.GetCount()), ezArgFileSize(count));
-          return EZ_FAILURE;
+          WLog::Error("Buffer data size mismatch: Expected {} but got {}", WArgFileSize(data.GetCount()), WArgFileSize(count));
+          return W_FAILURE;
         }
 
         if (data.IsEmpty())
@@ -495,7 +495,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
         chunk.ReadBytes(data.GetData(), data.GetCount());
 
-        if (type == ezMeshVertexStreamType::Position && uiPositionFilter == static_cast<ezUInt8>(ezMeshPositionFilter::Exponential))
+        if (type == WMeshVertexStreamType::Position && uiPositionFilter == static_cast<WUInt8>(WMeshPositionFilter::Exponential))
         {
           meshopt_decodeFilterExp(data.GetData(), m_MeshBufferDescriptor.GetVertexCount(), m_MeshBufferDescriptor.GetVertexStreamConfig().GetPositionElementSize());
         }
@@ -506,8 +506,8 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        WLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
+        return W_FAILURE;
       }
 
       // size in bytes
@@ -520,7 +520,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
     if (ci.m_sChunkName == "BindPose")
     {
-      EZ_SUCCEED_OR_RETURN(chunk.ReadHashTable(m_Bones));
+      W_SUCCEED_OR_RETURN(chunk.ReadHashTable(m_Bones));
     }
 
     if (ci.m_sChunkName == "Skeleton")
@@ -538,17 +538,17 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     ComputeBounds();
 
     auto b = m_Bounds;
-    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtents.x, 2), ezArgF(b.m_vBoxHalfExtents.y, 2), ezArgF(b.m_vBoxHalfExtents.z, 2));
+    WLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", WArgF(b.m_vCenter.x, 2), WArgF(b.m_vCenter.y, 2), WArgF(b.m_vCenter.z, 2), WArgF(b.m_vBoxHalfExtents.x, 2), WArgF(b.m_vBoxHalfExtents.y, 2), WArgF(b.m_vBoxHalfExtents.z, 2));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMeshResourceDescriptor::ComputeBounds()
+void WMeshResourceDescriptor::ComputeBounds()
 {
   if (m_hMeshBuffer.IsValid())
   {
-    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WMeshBufferResource> pMeshBuffer(m_hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
     m_Bounds = pMeshBuffer->GetBounds();
   }
   else
@@ -558,22 +558,22 @@ void ezMeshResourceDescriptor::ComputeBounds()
 
   if (!m_Bounds.IsValid())
   {
-    m_Bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(0.1f), 0.1f);
+    m_Bounds = WBoundingBoxSphere::MakeFromCenterExtents(WVec3::MakeZero(), WVec3(0.1f), 0.1f);
   }
 }
 
-ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
+WResult WMeshResourceDescriptor::BoneData::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_GlobalInverseRestPoseMatrix;
   inout_stream << m_uiBoneIndex;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_stream)
+WResult WMeshResourceDescriptor::BoneData::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_GlobalInverseRestPoseMatrix;
   inout_stream >> m_uiBoneIndex;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

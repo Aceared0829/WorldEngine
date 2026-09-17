@@ -1,13 +1,13 @@
 #include "../../Scripts/GameDecls.as"
 
-class ConsumablePickup : ezAngelScriptClass
+class ConsumablePickup : WAngelScriptClass
 {
     int ObjectType = 0;
     int Amount = 0;
 
-    void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg)
+    void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg)
     {
-        if (msg.TriggerState == ezTriggerState::Activated && msg.Message == "Pickup")
+        if (msg.TriggerState == WTriggerState::Activated && msg.Message == "Pickup")
         {
             MsgAddConsumable hm;
             hm.consumableType = ConsumableType(ObjectType);
@@ -18,14 +18,14 @@ class ConsumablePickup : ezAngelScriptClass
             if (hm.return_consumed == false)
                 return;
 
-            ezFmodEventComponent@ sound;
+            WFmodEventComponent@ sound;
             if (GetOwner().TryGetComponentOfBaseType(@sound))
             {
                 sound.StartOneShot();
             }
 
-            ezMsgDeleteGameObject del;
-            GetOwner().PostMessage(del, ezTime::Seconds(0.1));
+            WMsgDeleteGameObject del;
+            GetOwner().PostMessage(del, WTime::Seconds(0.1));
         }
     }
 }

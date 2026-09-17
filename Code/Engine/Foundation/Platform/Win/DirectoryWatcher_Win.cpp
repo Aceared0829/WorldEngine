@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if (EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER))
+#if (W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) && W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER))
 
 #  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/Containers/DynamicArray.h>
@@ -14,18 +14,18 @@
 // #define DEBUG_FILE_WATCHER
 
 #  ifdef DEBUG_FILE_WATCHER
-#    define DEBUG_LOG(...) ezLog::Warning(__VA_ARGS__)
+#    define DEBUG_LOG(...) WLog::Warning(__VA_ARGS__)
 #  else
 #    define DEBUG_LOG(...)
 #  endif
 
 namespace
 {
-  ezCVarBool cvar_ForceNonNTFS("Platform.DirectoryWatcher.ForceNonNTFS", false, ezCVarFlags::Default, "Forces the use of ReadDirectoryChanges instead of ReadDirectoryChangesEx");
+  WCVarBool cvar_ForceNonNTFS("Platform.DirectoryWatcher.ForceNonNTFS", false, WCVarFlags::Default, "Forces the use of ReadDirectoryChanges instead of ReadDirectoryChangesEx");
 
   struct MoveEvent
   {
-    ezString path;
+    WString path;
     bool isDirectory = false;
 
     void Clear()
@@ -41,39 +41,39 @@ namespace
 
   struct Change
   {
-    ezStringBuilder eventFilePath;
+    WStringBuilder eventFilePath;
     bool isFile;
     DWORD Action;
     LARGE_INTEGER LastModificationTime;
   };
 
-  using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
+  using WFileSystemMirrorType = WFileSystemMirror<bool>;
 
-  void GetChangesNTFS(ezStringView sDirectoryPath, const ezByteArrayPtr& buffer, ezDynamicArray<Change>& ref_changes)
+  void GetChangesNTFS(WStringView sDirectoryPath, const WByteArrayPtr& buffer, WDynamicArray<Change>& ref_changes)
   {
-    ezUInt32 uiChanges = 1;
+    WUInt32 uiChanges = 1;
     auto info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetPtr();
     while (info->NextEntryOffset != 0)
     {
       uiChanges++;
-      info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
+      info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((WUInt8*)info) + info->NextEntryOffset);
     }
     ref_changes.Reserve(uiChanges);
     info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetPtr();
 
     while (true)
     {
-      auto directory = ezArrayPtr<const WCHAR>(info->FileName, info->FileNameLength / sizeof(WCHAR));
+      auto directory = WArrayPtr<const WCHAR>(info->FileName, info->FileNameLength / sizeof(WCHAR));
       int bytesNeeded = WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), nullptr, 0, nullptr, nullptr);
       if (bytesNeeded > 0)
       {
-        ezTempHybridArray<char, 1024> dir;
+        WTempHybridArray<char, 1024> dir;
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
         Change& currentChange = ref_changes.ExpandAndGetRef();
         currentChange.eventFilePath = sDirectoryPath;
-        currentChange.eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
+        currentChange.eventFilePath.AppendPath(WStringView(dir.GetData(), dir.GetCount()));
         currentChange.eventFilePath.MakeCleanPath();
         currentChange.Action = info->Action;
         currentChange.LastModificationTime = info->LastModificationTime;
@@ -85,35 +85,35 @@ namespace
         break;
       }
       else
-        info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
+        info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((WUInt8*)info) + info->NextEntryOffset);
     }
   }
 
-  void GetChangesNonNTFS(ezStringView sDirectoryPath, const ezByteArrayPtr& buffer, ezDynamicArray<Change>& ref_changes)
+  void GetChangesNonNTFS(WStringView sDirectoryPath, const WByteArrayPtr& buffer, WDynamicArray<Change>& ref_changes)
   {
-    ezUInt32 uiChanges = 1;
+    WUInt32 uiChanges = 1;
     auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetPtr();
     while (info->NextEntryOffset != 0)
     {
       uiChanges++;
-      info = (const FILE_NOTIFY_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
+      info = (const FILE_NOTIFY_INFORMATION*)(((WUInt8*)info) + info->NextEntryOffset);
     }
     ref_changes.Reserve(ref_changes.GetCount() + uiChanges);
     info = (const FILE_NOTIFY_INFORMATION*)buffer.GetPtr();
 
     while (true)
     {
-      auto directory = ezArrayPtr<const WCHAR>(info->FileName, info->FileNameLength / sizeof(WCHAR));
+      auto directory = WArrayPtr<const WCHAR>(info->FileName, info->FileNameLength / sizeof(WCHAR));
       int bytesNeeded = WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), nullptr, 0, nullptr, nullptr);
       if (bytesNeeded > 0)
       {
-        ezTempHybridArray<char, 1024> dir;
+        WTempHybridArray<char, 1024> dir;
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
         Change& currentChange = ref_changes.ExpandAndGetRef();
         currentChange.eventFilePath = sDirectoryPath;
-        currentChange.eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
+        currentChange.eventFilePath.AppendPath(WStringView(dir.GetData(), dir.GetCount()));
         currentChange.eventFilePath.MakeCleanPath();
         currentChange.Action = info->Action;
         currentChange.LastModificationTime = {};
@@ -125,22 +125,22 @@ namespace
         break;
       }
       else
-        info = (const FILE_NOTIFY_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
+        info = (const FILE_NOTIFY_INFORMATION*)(((WUInt8*)info) + info->NextEntryOffset);
     }
   }
 
-  void PostProcessNonNTFSChanges(ezDynamicArray<Change>& ref_changes, ezFileSystemMirrorType* pMirror)
+  void PostProcessNonNTFSChanges(WDynamicArray<Change>& ref_changes, WFileSystemMirrorType* pMirror)
   {
-    ezTempHybridArray<ezInt32, 4> nextOp;
-    // Figure what changes belong to the same object by creating a linked list of changes. This part is tricky as we basically have to handle all the oddities that ezDirectoryWatcher::EnumerateChanges already does again to figure out which operations belong to the same object.
+    WTempHybridArray<WInt32, 4> nextOp;
+    // Figure what changes belong to the same object by creating a linked list of changes. This part is tricky as we basically have to handle all the oddities that WDirectoryWatcher::EnumerateChanges already does again to figure out which operations belong to the same object.
     {
-      ezMap<ezStringView, ezUInt32> lastChangeAtPath;
+      WMap<WStringView, WUInt32> lastChangeAtPath;
       nextOp.SetCount(ref_changes.GetCount(), -1);
 
-      ezInt32 pendingRemoveOrRename = -1;
-      ezInt32 lastMoveFrom = -1;
+      WInt32 pendingRemoveOrRename = -1;
+      WInt32 lastMoveFrom = -1;
 
-      for (ezUInt32 i = 0; i < ref_changes.GetCount(); i++)
+      for (WUInt32 i = 0; i < ref_changes.GetCount(); i++)
       {
         const auto& currentChange = ref_changes[i];
         if (pendingRemoveOrRename != -1 && (currentChange.Action == FILE_ACTION_RENAMED_OLD_NAME) && (ref_changes[pendingRemoveOrRename].eventFilePath == currentChange.eventFilePath))
@@ -157,7 +157,7 @@ namespace
           pendingRemoveOrRename = -1;
         }
 
-        ezUInt32* uiUniqueItemIndex = nullptr;
+        WUInt32* uiUniqueItemIndex = nullptr;
         switch (currentChange.Action)
         {
           case FILE_ACTION_ADDED:
@@ -195,7 +195,7 @@ namespace
             lastMoveFrom = i;
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
-            EZ_ASSERT_DEBUG(lastMoveFrom != -1, "last move from should be present when encountering FILE_ACTION_RENAMED_NEW_NAME");
+            W_ASSERT_DEBUG(lastMoveFrom != -1, "last move from should be present when encountering FILE_ACTION_RENAMED_NEW_NAME");
             nextOp[lastMoveFrom] = i;
             lastChangeAtPath.Remove(ref_changes[lastMoveFrom].eventFilePath);
             lastChangeAtPath.Insert(currentChange.eventFilePath, i);
@@ -206,18 +206,18 @@ namespace
 
     // Anything that is chained via the nextOp linked list must be given the same type.
     // Instead of building arrays of arrays, we create a bit field of all changes and then flatten the linked list at the first set bit. While iterating we remove everything we reached via the linked list so on the next call to get the first bit we will find another object that needs processing. As the operations are ordered, the first bit will always point to the very first operation of an object (nextOp can never point to a previous element).
-    ezHybridBitfield<128> pendingChanges;
+    WHybridBitfield<128> pendingChanges;
     pendingChanges.SetCount(ref_changes.GetCount(), true);
 
     // Get start of first object.
-    ezTempHybridArray<Change*, 4> objectChanges;
+    WTempHybridArray<Change*, 4> objectChanges;
     auto it = pendingChanges.GetIterator();
     while (it.IsValid())
     {
       // Flatten the changes for one object into a list for easier processing.
       {
         objectChanges.Clear();
-        ezUInt32 currentIndex = it.Value();
+        WUInt32 currentIndex = it.Value();
         objectChanges.PushBack(&ref_changes[currentIndex]);
         pendingChanges.ClearBit(currentIndex);
         while (nextOp[currentIndex] != -1)
@@ -234,18 +234,18 @@ namespace
       // 3. If the object was created and deleted in the same enumeration, we cannot know what type it was, so we take a guess.
       {
         bool isFile = true;
-        ezFileSystemMirrorType::Type type;
+        WFileSystemMirrorType::Type type;
         if (pMirror->GetType(objectChanges[0]->eventFilePath, type).Succeeded())
         {
-          isFile = type == ezFileSystemMirrorType::Type::File;
+          isFile = type == WFileSystemMirrorType::Type::File;
         }
         else
         {
           bool typeFound = false;
           for (Change* currentChange : objectChanges)
           {
-            ezFileStats stats;
-            if (ezOSFile::GetFileStats(currentChange->eventFilePath, stats).Succeeded())
+            WFileStats stats;
+            if (WOSFile::GetFileStats(currentChange->eventFilePath, stats).Succeeded())
             {
               isFile = !stats.m_bIsDirectory;
               typeFound = true;
@@ -273,52 +273,52 @@ namespace
 
 } // namespace
 
-struct ezDirectoryWatcherImpl
+struct WDirectoryWatcherImpl
 {
   void DoRead();
-  void EnumerateChangesImpl(ezStringView sDirectoryPath, ezTime waitUpTo, const ezDelegate<void(const Change&)>& callback);
+  void EnumerateChangesImpl(WStringView sDirectoryPath, WTime waitUpTo, const WDelegate<void(const Change&)>& callback);
 
   bool m_bNTFS = false;
   HANDLE m_directoryHandle;
   DWORD m_filter;
   OVERLAPPED m_overlapped;
   HANDLE m_overlappedEvent;
-  ezDynamicArray<ezUInt8> m_buffer;
-  ezBitflags<ezDirectoryWatcher::Watch> m_whatToWatch;
-  ezUniquePtr<ezFileSystemMirrorType> m_mirror; // store the last modification timestamp alongside each file
+  WDynamicArray<WUInt8> m_buffer;
+  WBitflags<WDirectoryWatcher::Watch> m_whatToWatch;
+  WUniquePtr<WFileSystemMirrorType> m_mirror; // store the last modification timestamp alongside each file
 };
 
-ezDirectoryWatcher::ezDirectoryWatcher()
-  : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
+WDirectoryWatcher::WDirectoryWatcher()
+  : m_pImpl(W_DEFAULT_NEW(WDirectoryWatcherImpl))
 {
   m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflags<Watch> whatToWatch)
+WResult WDirectoryWatcher::OpenDirectory(WStringView sAbsolutePath, WBitflags<Watch> whatToWatch)
 {
   m_pImpl->m_bNTFS = false;
   {
     // Get drive root:
-    ezStringBuilder sTemp = sAbsolutePath;
+    WStringBuilder sTemp = sAbsolutePath;
     sTemp.MakeCleanPath();
     const char* szFirst = sTemp.FindSubString("/");
-    EZ_ASSERT_DEV(szFirst != nullptr, "The path '{}' is not absolute", sTemp);
-    ezStringView sRoot = sAbsolutePath.GetSubString(0, static_cast<ezUInt32>(szFirst - sTemp.GetData()) + 1);
+    W_ASSERT_DEV(szFirst != nullptr, "The path '{}' is not absolute", sTemp);
+    WStringView sRoot = sAbsolutePath.GetSubString(0, static_cast<WUInt32>(szFirst - sTemp.GetData()) + 1);
 
     WCHAR szFileSystemName[8];
-    BOOL res = GetVolumeInformationW(ezStringWChar(sRoot),
+    BOOL res = GetVolumeInformationW(WStringWChar(sRoot),
       nullptr,
       0,
       nullptr,
       nullptr,
       nullptr,
       szFileSystemName,
-      EZ_ARRAY_SIZE(szFileSystemName));
-    m_pImpl->m_bNTFS = res == TRUE && ezStringUtf8(szFileSystemName).GetView() == "NTFS" && !cvar_ForceNonNTFS.GetValue();
+      W_ARRAY_SIZE(szFileSystemName));
+    m_pImpl->m_bNTFS = res == TRUE && WStringUtf8(szFileSystemName).GetView() == "NTFS" && !cvar_ForceNonNTFS.GetValue();
   }
 
-  EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
-  ezStringBuilder sPath(sAbsolutePath);
+  W_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
+  WStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
   sPath.Trim("/");
 
@@ -332,7 +332,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflag
 
   if (!m_pImpl->m_bNTFS || bRequiresMirror)
   {
-    m_pImpl->m_mirror = EZ_DEFAULT_NEW(ezFileSystemMirrorType);
+    m_pImpl->m_mirror = W_DEFAULT_NEW(WFileSystemMirrorType);
     m_pImpl->m_mirror->AddDirectory(sPath).AssertSuccess();
   }
 
@@ -341,26 +341,26 @@ ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflag
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_DIR_NAME;
   }
 
-  m_pImpl->m_directoryHandle = CreateFileW(ezDosDevicePath(sPath), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+  m_pImpl->m_directoryHandle = CreateFileW(WDosDevicePath(sPath), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
     nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
   if (m_pImpl->m_directoryHandle == INVALID_HANDLE_VALUE)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_pImpl->m_overlappedEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
   if (m_pImpl->m_overlappedEvent == INVALID_HANDLE_VALUE)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_pImpl->DoRead();
   m_sDirectoryPath = sPath;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezDirectoryWatcher::CloseDirectory()
+void WDirectoryWatcher::CloseDirectory()
 {
   if (!m_sDirectoryPath.IsEmpty())
   {
@@ -371,13 +371,13 @@ void ezDirectoryWatcher::CloseDirectory()
   }
 }
 
-ezDirectoryWatcher::~ezDirectoryWatcher()
+WDirectoryWatcher::~WDirectoryWatcher()
 {
   CloseDirectory();
-  EZ_DEFAULT_DELETE(m_pImpl);
+  W_DEFAULT_DELETE(m_pImpl);
 }
 
-void ezDirectoryWatcherImpl::DoRead()
+void WDirectoryWatcherImpl::DoRead()
 {
   ResetEvent(m_overlappedEvent);
   memset(&m_overlapped, 0, sizeof(m_overlapped));
@@ -386,27 +386,27 @@ void ezDirectoryWatcherImpl::DoRead()
   if (m_bNTFS)
   {
     BOOL success =
-      ReadDirectoryChangesExW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr, ReadDirectoryNotifyExtendedInformation);
-    EZ_ASSERT_DEV(success, "ReadDirectoryChangesExW failed.");
-    EZ_IGNORE_UNUSED(success);
+      ReadDirectoryChangesExW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(WDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr, ReadDirectoryNotifyExtendedInformation);
+    W_ASSERT_DEV(success, "ReadDirectoryChangesExW failed.");
+    W_IGNORE_UNUSED(success);
   }
   else
   {
     BOOL success =
-      ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr);
-    EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
-    EZ_IGNORE_UNUSED(success);
+      ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(WDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr);
+    W_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
+    W_IGNORE_UNUSED(success);
   }
 }
 
-void ezDirectoryWatcherImpl::EnumerateChangesImpl(ezStringView sDirectoryPath, ezTime waitUpTo, const ezDelegate<void(const Change&)>& callback)
+void WDirectoryWatcherImpl::EnumerateChangesImpl(WStringView sDirectoryPath, WTime waitUpTo, const WDelegate<void(const Change&)>& callback)
 {
-  ezTempHybridArray<Change, 6> changes;
+  WTempHybridArray<Change, 6> changes;
 
-  ezTempHybridArray<ezUInt8, 4096> buffer;
+  WTempHybridArray<WUInt8, 4096> buffer;
   while (WaitForSingleObject(m_overlappedEvent, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_OBJECT_0)
   {
-    waitUpTo = ezTime::MakeZero(); // only wait on the first call to GetQueuedCompletionStatus
+    waitUpTo = WTime::MakeZero(); // only wait on the first call to GetQueuedCompletionStatus
 
     DWORD numberOfBytes = 0;
     GetOverlappedResult(m_directoryHandle, &m_overlapped, &numberOfBytes, FALSE);
@@ -450,13 +450,13 @@ void ezDirectoryWatcherImpl::EnumerateChangesImpl(ezStringView sDirectoryPath, e
   }
 }
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
+void WDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, WTime waitUpTo)
 {
-  ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
-  EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
+  WFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
+  W_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
 
   MoveEvent pendingRemoveOrRename;
-  const ezBitflags<ezDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
+  const WBitflags<WDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
   // Renaming a file to the same filename with different casing triggers the events REMOVED (old casing) -> RENAMED_OLD_NAME -> _RENAMED_NEW_NAME.
   // Thus, we need to cache every remove event to make sure the very next event is not a rename of the exact same file.
   auto FirePendingRemove = [&]()
@@ -469,11 +469,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
           {
-            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type)
-                    { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
+            mirror->Enumerate(pendingRemoveOrRename.path, [&](const WStringBuilder& sPath, WFileSystemMirrorType::Type type)
+                    { func(sPath, WDirectoryWatcherAction::Removed, (type == WFileSystemMirrorType::Type::File) ? WDirectoryWatcherType::File : WDirectoryWatcherType::Directory); })
               .AssertSuccess();
           }
-          func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+          func(pendingRemoveOrRename.path, WDirectoryWatcherAction::Removed, WDirectoryWatcherType::Directory);
         }
         if (mirror)
         {
@@ -486,23 +486,23 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           mirror->RemoveFile(pendingRemoveOrRename.path).AssertSuccess();
         }
-        if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Deletes))
+        if (whatToWatch.IsSet(WDirectoryWatcher::Watch::Deletes))
         {
-          func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
+          func(pendingRemoveOrRename.path, WDirectoryWatcherAction::Removed, WDirectoryWatcherType::File);
         }
       }
       pendingRemoveOrRename.Clear();
     }
   };
 
-  EZ_SCOPE_EXIT(FirePendingRemove());
+  W_SCOPE_EXIT(FirePendingRemove());
 
   MoveEvent lastMoveFrom;
 
   // Process the messages
   m_pImpl->EnumerateChangesImpl(m_sDirectoryPath, waitUpTo, [&](const Change& info)
     {
-      ezDirectoryWatcherAction action = ezDirectoryWatcherAction::None;
+      WDirectoryWatcherAction action = WDirectoryWatcherAction::None;
       bool fireEvent = false;
 
       if (!pendingRemoveOrRename.IsEmpty() && info.isFile == !pendingRemoveOrRename.isDirectory && info.Action == FILE_ACTION_RENAMED_OLD_NAME && pendingRemoveOrRename.path == info.eventFilePath)
@@ -518,8 +518,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           case FILE_ACTION_ADDED:
             DEBUG_LOG("FILE_ACTION_ADDED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
-            action = ezDirectoryWatcherAction::Added;
-            fireEvent = whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates);
+            action = WDirectoryWatcherAction::Added;
+            fireEvent = whatToWatch.IsSet(WDirectoryWatcher::Watch::Creates);
             if (mirror)
             {
               bool fileAlreadyExists = false;
@@ -532,15 +532,15 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             break;
           case FILE_ACTION_REMOVED:
             DEBUG_LOG("FILE_ACTION_REMOVED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
-            action = ezDirectoryWatcherAction::Removed;
+            action = WDirectoryWatcherAction::Removed;
             fireEvent = false;
             pendingRemoveOrRename = {info.eventFilePath, false};
             break;
           case FILE_ACTION_MODIFIED:
           {
             DEBUG_LOG("FILE_ACTION_MODIFIED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
-            action = ezDirectoryWatcherAction::Modified;
-            fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Writes);
+            action = WDirectoryWatcherAction::Modified;
+            fireEvent = whatToWatch.IsAnySet(WDirectoryWatcher::Watch::Writes);
             bool fileAreadyKnown = false;
             bool addPending = false;
             if (mirror)
@@ -555,17 +555,17 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
           break;
           case FILE_ACTION_RENAMED_OLD_NAME:
             DEBUG_LOG("FILE_ACTION_RENAMED_OLD_NAME {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
-            EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
-            action = ezDirectoryWatcherAction::RenamedOldName;
-            fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
-            EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending last move from");
+            W_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
+            action = WDirectoryWatcherAction::RenamedOldName;
+            fireEvent = whatToWatch.IsAnySet(WDirectoryWatcher::Watch::Renames);
+            W_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending last move from");
             lastMoveFrom = {info.eventFilePath, false};
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
             DEBUG_LOG("FILE_ACTION_RENAMED_NEW_NAME {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
-            action = ezDirectoryWatcherAction::RenamedNewName;
-            fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
-            EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty() && !lastMoveFrom.isDirectory, "last move from doesn't match");
+            action = WDirectoryWatcherAction::RenamedNewName;
+            fireEvent = whatToWatch.IsAnySet(WDirectoryWatcher::Watch::Renames);
+            W_ASSERT_DEV(!lastMoveFrom.IsEmpty() && !lastMoveFrom.isDirectory, "last move from doesn't match");
             if (mirror)
             {
               mirror->RemoveFile(lastMoveFrom.path).AssertSuccess();
@@ -577,7 +577,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
 
         if (fireEvent)
         {
-          func(info.eventFilePath, action, ezDirectoryWatcherType::File);
+          func(info.eventFilePath, action, WDirectoryWatcherType::File);
         }
       }
       else
@@ -595,22 +595,22 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
 
             if (whatToWatch.IsSet(Watch::Creates) && !directoryAlreadyKnown)
             {
-              func(info.eventFilePath, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
+              func(info.eventFilePath, WDirectoryWatcherAction::Added, WDirectoryWatcherType::Directory);
             }
 
             // Whenever we add a directory we might be "to late" to see changes inside it.
             // So iterate the file system and make sure we track all files / subdirectories
-            ezFileSystemIterator subdirIt;
+            WFileSystemIterator subdirIt;
 
             subdirIt.StartSearch(info.eventFilePath.GetData(),
-              whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories)
-                ? ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive
-                : ezFileSystemIteratorFlags::ReportFiles);
+              whatToWatch.IsSet(WDirectoryWatcher::Watch::Subdirectories)
+                ? WFileSystemIteratorFlags::ReportFilesAndFoldersRecursive
+                : WFileSystemIteratorFlags::ReportFiles);
 
-            ezStringBuilder tmpPath2;
+            WStringBuilder tmpPath2;
             for (; subdirIt.IsValid(); subdirIt.Next())
             {
-              const ezFileStats& stats = subdirIt.GetStats();
+              const WFileStats& stats = subdirIt.GetStats();
               stats.GetFullPath(tmpPath2);
               if (stats.m_bIsDirectory)
               {
@@ -619,9 +619,9 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
                 {
                   mirror->AddDirectory(tmpPath2, &directoryAlreadyKnown).AssertSuccess();
                 }
-                if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyKnown)
+                if (whatToWatch.IsSet(WDirectoryWatcher::Watch::Creates) && !directoryAlreadyKnown)
                 {
-                  func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
+                  func(tmpPath2, WDirectoryWatcherAction::Added, WDirectoryWatcherType::Directory);
                 }
               }
               else
@@ -631,9 +631,9 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
                 {
                   mirror->AddFile(tmpPath2, false, &fileExistsAlready, nullptr).AssertSuccess();
                 }
-                if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !fileExistsAlready)
+                if (whatToWatch.IsSet(WDirectoryWatcher::Watch::Creates) && !fileExistsAlready)
                 {
-                  func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File);
+                  func(tmpPath2, WDirectoryWatcherAction::Added, WDirectoryWatcherType::File);
                 }
               }
             }
@@ -645,20 +645,20 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             break;
           case FILE_ACTION_RENAMED_OLD_NAME:
             DEBUG_LOG("DIR_ACTION_OLD_NAME {}", info.eventFilePath);
-            EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
+            W_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
             lastMoveFrom = {info.eventFilePath, true};
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
             DEBUG_LOG("DIR_ACTION_NEW_NAME {}", info.eventFilePath);
-            EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty(), "rename old name and rename new name should always appear in pairs");
+            W_ASSERT_DEV(!lastMoveFrom.IsEmpty(), "rename old name and rename new name should always appear in pairs");
             if (mirror)
             {
               mirror->MoveDirectory(lastMoveFrom.path, info.eventFilePath).AssertSuccess();
             }
             if (whatToWatch.IsSet(Watch::Renames))
             {
-              func(lastMoveFrom.path, ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::Directory);
-              func(info.eventFilePath, ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::Directory);
+              func(lastMoveFrom.path, WDirectoryWatcherAction::RenamedOldName, WDirectoryWatcherType::Directory);
+              func(info.eventFilePath, WDirectoryWatcherAction::RenamedNewName, WDirectoryWatcherType::Directory);
             }
             lastMoveFrom.Clear();
             break;
@@ -670,12 +670,12 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
 }
 
 
-void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
+void WDirectoryWatcher::EnumerateChanges(WArrayPtr<WDirectoryWatcher*> watchers, EnumerateChangesFunction func, WTime waitUpTo)
 {
-  ezTempHybridArray<HANDLE, 16> events;
+  WTempHybridArray<HANDLE, 16> events;
   events.SetCount(watchers.GetCount());
 
-  for (ezUInt32 i = 0; i < watchers.GetCount(); ++i)
+  for (WUInt32 i = 0; i < watchers.GetCount(); ++i)
   {
     events[i] = watchers[i]->m_pImpl->m_overlappedEvent;
   }
@@ -687,7 +687,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
   }
 
   // Iterate all of them to make sure we report all changes up to this point.
-  for (ezDirectoryWatcher* watcher : watchers)
+  for (WDirectoryWatcher* watcher : watchers)
   {
     watcher->EnumerateChanges(func);
   }
@@ -696,4 +696,4 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_DirectoryWatcher_Win);
+W_STATICLINK_FILE(Foundation, Foundation_Platform_Win_DirectoryWatcher_Win);

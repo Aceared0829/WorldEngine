@@ -3,46 +3,46 @@
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
 
 /// Factory for creating effect particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory final : public ezParticleTypeFactory
+class W_PARTICLEPLUGIN_DLL WParticleTypeEffectFactory final : public WParticleTypeFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffectFactory, ezParticleTypeFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeEffectFactory, WParticleTypeFactory);
 
 public:
-  ezParticleTypeEffectFactory();
-  ~ezParticleTypeEffectFactory();
+  WParticleTypeEffectFactory();
+  ~WParticleTypeEffectFactory();
 
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetTypeType() const override;
+  virtual void CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezHashedString m_sEffect;
-  ezHashedString m_sSharedInstanceName; // to be removed
+  WHashedString m_sEffect;
+  WHashedString m_sSharedInstanceName; // to be removed
 
-  ezParticleEffectResourceHandle m_hEffect;
+  WParticleEffectResourceHandle m_hEffect;
 };
 
 /// Spawns nested particle effects at each particle position.
 ///
 /// Each particle spawns an independent particle effect instance at its position.
 /// The spawned effects are automatically cleaned up when the parent particle dies.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect final : public ezParticleType
+class W_PARTICLEPLUGIN_DLL WParticleTypeEffect final : public WParticleType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffect, ezParticleType);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeEffect, WParticleType);
 
 public:
-  ezParticleTypeEffect();
-  ~ezParticleTypeEffect();
+  WParticleTypeEffect();
+  ~WParticleTypeEffect();
 
-  ezParticleEffectResourceHandle m_hEffect;
-  // ezString m_sSharedInstanceName;
+  WParticleEffectResourceHandle m_hEffect;
+  // WString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+  virtual void ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const override;
 
   /// Returns the maximum effect radius for culling.
   ///
@@ -50,14 +50,14 @@ public:
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return m_fMaxEffectRadius; }
 
 protected:
-  friend class ezParticleTypeEffectFactory;
+  friend class WParticleTypeEffectFactory;
 
   virtual void OnReset() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
-  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
+  virtual void Process(WUInt64 uiNumElements) override;
+  void OnParticleDeath(const WStreamGroupElementRemovedEvent& e);
   void ClearEffects(bool bInterruptImmediately);
 
   float m_fMaxEffectRadius = 1.0f;
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamEffectID = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamEffectID = nullptr;
 };

@@ -8,35 +8,35 @@ namespace
 {
   struct ScriptInstanceData
   {
-    ezReflectedClass* m_pOwner = nullptr;
+    WReflectedClass* m_pOwner = nullptr;
 
-    ezStateMachineInstance* m_pStateMachineInstance = nullptr;
-    const ezArrayMap<ezHashedString, ezVariant>* m_pParameters = nullptr;
-    ezScriptClassResourceHandle m_hScriptClass;
+    WStateMachineInstance* m_pStateMachineInstance = nullptr;
+    const WArrayMap<WHashedString, WVariant>* m_pParameters = nullptr;
+    WScriptClassResourceHandle m_hScriptClass;
 
-    ezSharedPtr<ezScriptRTTI> m_pScriptType;
-    ezUniquePtr<ezScriptInstance> m_pInstance;
+    WSharedPtr<WScriptRTTI> m_pScriptType;
+    WUniquePtr<WScriptInstance> m_pInstance;
 
     ~ScriptInstanceData()
     {
       ClearInstance();
     }
 
-    void InstantiateScript(const ezStateMachineState* pFromState = nullptr)
+    void InstantiateScript(const WStateMachineState* pFromState = nullptr)
     {
       ClearInstance();
 
-      ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WScriptClassResource> pScript(m_hScriptClass, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pScript.GetAcquireResult() != WResourceAcquireResult::Final)
       {
-        ezLog::Error("Failed to load script '{}'", m_hScriptClass.GetResourceID());
+        WLog::Error("Failed to load script '{}'", m_hScriptClass.GetResourceID());
         return;
       }
 
       auto pScriptType = pScript->GetType();
-      if (pScriptType == nullptr || pScriptType->IsDerivedFrom(ezGetStaticRTTI<ezStateMachineState>()) == false)
+      if (pScriptType == nullptr || pScriptType->IsDerivedFrom(WGetStaticRTTI<WStateMachineState>()) == false)
       {
-        ezLog::Error("Script type '{}' is not a state machine state", pScriptType != nullptr ? pScriptType->GetTypeName() : "NULL");
+        WLog::Error("Script type '{}' is not a state machine state", pScriptType != nullptr ? pScriptType->GetTypeName() : "NULL");
         return;
       }
 
@@ -48,10 +48,10 @@ namespace
         m_pInstance->SetInstanceVariables(*m_pParameters);
       }
 
-      if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
+      if (WWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
       {
-        pWorld->AddResourceReloadFunction(m_hScriptClass, ezComponentHandle(), this,
-          [](ezWorld::ResourceReloadContext& context)
+        pWorld->AddResourceReloadFunction(m_hScriptClass, WComponentHandle(), this,
+          [](WWorld::ResourceReloadContext& context)
           {
             static_cast<ScriptInstanceData*>(context.m_pUserData)->ReloadScript();
           });
@@ -66,12 +66,12 @@ namespace
 
       if (m_pStateMachineInstance != nullptr)
       {
-        if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
+        if (WWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
         {
-          auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
+          auto pModule = pWorld->GetOrCreateModule<WScriptWorldModule>();
           pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
 
-          pWorld->RemoveResourceReloadFunction(m_hScriptClass, ezComponentHandle(), this);
+          pWorld->RemoveResourceReloadFunction(m_hScriptClass, WComponentHandle(), this);
         }
       }
 
@@ -84,7 +84,7 @@ namespace
       InstantiateScript();
     }
 
-    const ezAbstractFunctionProperty* GetScriptFunction(ezUInt32 uiFunctionIndex)
+    const WAbstractFunctionProperty* GetScriptFunction(WUInt32 uiFunctionIndex)
     {
       if (m_pScriptType != nullptr && m_pInstance != nullptr)
       {
@@ -94,33 +94,33 @@ namespace
       return nullptr;
     }
 
-    void CallOnEnter(const ezStateMachineState* pFromState)
+    void CallOnEnter(const WStateMachineState* pFromState)
     {
-      if (auto pFunction = GetScriptFunction(ezStateMachineState_ScriptBaseClassFunctions::OnEnter))
+      if (auto pFunction = GetScriptFunction(WStateMachineState_ScriptBaseClassFunctions::OnEnter))
       {
-        ezVariant args[] = {m_pStateMachineInstance, pFromState};
-        ezVariant returnValue;
-        pFunction->Execute(m_pInstance.Borrow(), ezMakeArrayPtr(args), returnValue);
+        WVariant args[] = {m_pStateMachineInstance, pFromState};
+        WVariant returnValue;
+        pFunction->Execute(m_pInstance.Borrow(), WMakeArrayPtr(args), returnValue);
       }
     }
 
-    void CallOnExit(const ezStateMachineState* pToState)
+    void CallOnExit(const WStateMachineState* pToState)
     {
-      if (auto pFunction = GetScriptFunction(ezStateMachineState_ScriptBaseClassFunctions::OnExit))
+      if (auto pFunction = GetScriptFunction(WStateMachineState_ScriptBaseClassFunctions::OnExit))
       {
-        ezVariant args[] = {m_pStateMachineInstance, pToState};
-        ezVariant returnValue;
-        pFunction->Execute(m_pInstance.Borrow(), ezMakeArrayPtr(args), returnValue);
+        WVariant args[] = {m_pStateMachineInstance, pToState};
+        WVariant returnValue;
+        pFunction->Execute(m_pInstance.Borrow(), WMakeArrayPtr(args), returnValue);
       }
     }
 
-    void CallUpdate(ezTime deltaTime)
+    void CallUpdate(WTime deltaTime)
     {
-      if (auto pFunction = GetScriptFunction(ezStateMachineState_ScriptBaseClassFunctions::Update))
+      if (auto pFunction = GetScriptFunction(WStateMachineState_ScriptBaseClassFunctions::Update))
       {
-        ezVariant args[] = {m_pStateMachineInstance, deltaTime};
-        ezVariant returnValue;
-        pFunction->Execute(m_pInstance.Borrow(), ezMakeArrayPtr(args), returnValue);
+        WVariant args[] = {m_pStateMachineInstance, deltaTime};
+        WVariant returnValue;
+        pFunction->Execute(m_pInstance.Borrow(), WMakeArrayPtr(args), returnValue);
       }
     }
   };
@@ -129,35 +129,35 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Script, 1, ezRTTIDefaultAllocator<ezStateMachineState_Script>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineState_Script, 1, WRTTIDefaultAllocator<WStateMachineState_Script>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ScriptClass", GetScriptClassFile, SetScriptClassFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass"), new ezRequiredAttribute()),
-    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
+    W_ACCESSOR_PROPERTY("ScriptClass", GetScriptClassFile, SetScriptClassFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_ScriptClass"), new WRequiredAttribute()),
+    W_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new WExposedParametersAttribute("ScriptClass")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_Script::ezStateMachineState_Script(ezStringView sName)
-  : ezStateMachineState(sName)
+WStateMachineState_Script::WStateMachineState_Script(WStringView sName)
+  : WStateMachineState(sName)
 {
 }
 
-ezStateMachineState_Script::~ezStateMachineState_Script() = default;
+WStateMachineState_Script::~WStateMachineState_Script() = default;
 
-void ezStateMachineState_Script::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void WStateMachineState_Script::OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const
 {
   auto& instanceData = *static_cast<ScriptInstanceData*>(pInstanceData);
 
   if (instanceData.m_pInstance == nullptr)
   {
-    instanceData.m_pOwner = const_cast<ezStateMachineState_Script*>(this);
+    instanceData.m_pOwner = const_cast<WStateMachineState_Script*>(this);
     instanceData.m_pStateMachineInstance = &ref_instance;
     instanceData.m_pParameters = &m_Parameters;
-    instanceData.m_hScriptClass = ezResourceManager::LoadResource<ezScriptClassResource>(m_sScriptClassFile);
+    instanceData.m_hScriptClass = WResourceManager::LoadResource<WScriptClassResource>(m_sScriptClassFile);
 
     instanceData.InstantiateScript(pFromState);
   }
@@ -167,50 +167,50 @@ void ezStateMachineState_Script::OnEnter(ezStateMachineInstance& ref_instance, v
   }
 }
 
-void ezStateMachineState_Script::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void WStateMachineState_Script::OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const
 {
   auto& instanceData = *static_cast<ScriptInstanceData*>(pInstanceData);
   instanceData.CallOnExit(pToState);
 }
 
-void ezStateMachineState_Script::Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const
+void WStateMachineState_Script::Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const
 {
   auto& instanceData = *static_cast<ScriptInstanceData*>(pInstanceData);
   instanceData.CallUpdate(deltaTime);
 }
 
-ezResult ezStateMachineState_Script::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineState_Script::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_sScriptClassFile;
 
-  ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
+  WUInt16 uiNumParams = static_cast<WUInt16>(m_Parameters.GetCount());
   inout_stream << uiNumParams;
 
-  for (ezUInt32 p = 0; p < uiNumParams; ++p)
+  for (WUInt32 p = 0; p < uiNumParams; ++p)
   {
     inout_stream << m_Parameters.GetKey(p);
     inout_stream << m_Parameters.GetValue(p);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineState_Script::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineState_Script::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sScriptClassFile;
 
-  ezUInt16 uiNumParams = 0;
+  WUInt16 uiNumParams = 0;
   inout_stream >> uiNumParams;
   m_Parameters.Reserve(uiNumParams);
 
-  ezHashedString key;
-  ezVariant value;
-  for (ezUInt32 p = 0; p < uiNumParams; ++p)
+  WHashedString key;
+  WVariant value;
+  for (WUInt32 p = 0; p < uiNumParams; ++p)
   {
     inout_stream >> key;
     inout_stream >> value;
@@ -218,16 +218,16 @@ ezResult ezStateMachineState_Script::Deserialize(ezStreamReader& inout_stream)
     m_Parameters.Insert(key, value);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezStateMachineState_Script::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
+bool WStateMachineState_Script::GetInstanceDataDesc(WInstanceDataDesc& out_desc)
 {
   out_desc.FillFromType<ScriptInstanceData>();
   return true;
 }
 
-void ezStateMachineState_Script::SetScriptClassFile(const char* szFile)
+void WStateMachineState_Script::SetScriptClassFile(const char* szFile)
 {
   m_sScriptClassFile = szFile;
 
@@ -235,47 +235,47 @@ void ezStateMachineState_Script::SetScriptClassFile(const char* szFile)
   // state machine asset transform but the script class resource overwrites are not known there so the resource load would fail.
 }
 
-const char* ezStateMachineState_Script::GetScriptClassFile() const
+const char* WStateMachineState_Script::GetScriptClassFile() const
 {
   return m_sScriptClassFile;
 }
 
-const ezRangeView<const char*, ezUInt32> ezStateMachineState_Script::GetParameters() const
+const WRangeView<const char*, WUInt32> WStateMachineState_Script::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
-void ezStateMachineState_Script::SetParameter(const char* szKey, const ezVariant& value)
+void WStateMachineState_Script::SetParameter(const char* szKey, const WVariant& value)
 {
-  ezHashedString hs;
+  WHashedString hs;
   hs.Assign(szKey);
 
   auto it = m_Parameters.Find(hs);
-  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+  if (it != WInvalidIndex && m_Parameters.GetValue(it) == value)
     return;
 
   m_Parameters[hs] = value;
 }
 
-void ezStateMachineState_Script::RemoveParameter(const char* szKey)
+void WStateMachineState_Script::RemoveParameter(const char* szKey)
 {
-  if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
+  if (m_Parameters.RemoveAndCopy(WTempHashedString(szKey)))
   {
   }
 }
 
-bool ezStateMachineState_Script::GetParameter(const char* szKey, ezVariant& out_value) const
+bool WStateMachineState_Script::GetParameter(const char* szKey, WVariant& out_value) const
 {
-  ezUInt32 it = m_Parameters.Find(szKey);
+  WUInt32 it = m_Parameters.Find(szKey);
 
-  if (it == ezInvalidIndex)
+  if (it == WInvalidIndex)
     return false;
 
   out_value = m_Parameters.GetValue(it);
@@ -283,4 +283,4 @@ bool ezStateMachineState_Script::GetParameter(const char* szKey, ezVariant& out_
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineState_Script);
+W_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineState_Script);

@@ -5,75 +5,75 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
-class ezTempHashedString;
+class WTempHashedString;
 
 /// This class is optimized to take nearly no memory (sizeof(void*)) and to allow very fast checks whether two strings are identical.
 ///
 /// Internally only a reference to the string data is stored. The data itself is stored in a central location, where no duplicates are
-/// possible. Thus two identical strings will result in identical ezHashedString objects, which makes equality comparisons very easy
+/// possible. Thus two identical strings will result in identical WHashedString objects, which makes equality comparisons very easy
 /// (it's a pointer comparison).\n
-/// Copying ezHashedString objects around and assigning between them is very fast as well.\n
+/// Copying WHashedString objects around and assigning between them is very fast as well.\n
 /// \n
 /// Assigning from some other string type is rather slow though, as it requires thread synchronization.\n
 /// You can also get access to the actual string data via GetString().\n
 /// \n
-/// You should use ezHashedString whenever the size of the encapsulating object is important and when changes to the string itself
+/// You should use WHashedString whenever the size of the encapsulating object is important and when changes to the string itself
 /// are rare, but checks for equality might be frequent (e.g. in a system where objects are identified via their name).\n
-/// At runtime when you need to compare ezHashedString objects with some temporary string object, used ezTempHashedString,
+/// At runtime when you need to compare WHashedString objects with some temporary string object, used WTempHashedString,
 /// as it will only use the string's hash value for comparison, but will not store the actual string anywhere.
-class EZ_FOUNDATION_DLL ezHashedString
+class W_FOUNDATION_DLL WHashedString
 {
 public:
   struct HashedData
   {
-#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
-    ezAtomicInteger32 m_iRefCount;
+#if W_ENABLED(W_HASHED_STRING_REF_COUNTING)
+    WAtomicInteger32 m_iRefCount;
 #endif
-    ezString m_sString;
+    WString m_sString;
   };
 
   // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
-  using StringStorage = ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticsAllocatorWrapper>;
+  using StringStorage = WMap<WUInt64, HashedData, WCompareHelper<WUInt64>, WStaticsAllocatorWrapper>;
   using HashedType = StringStorage::Iterator;
 
-#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
+#if W_ENABLED(W_HASHED_STRING_REF_COUNTING)
   /// This will remove all hashed strings from the central storage, that are not referenced anymore.
   ///
-  /// All hashed string values are stored in a central location and ezHashedString just references them. Those strings are then
+  /// All hashed string values are stored in a central location and WHashedString just references them. Those strings are then
   /// reference counted. Once some string is not referenced anymore, its ref count reaches zero, but it will not be removed from
   /// the storage, as it might be reused later again.
   /// This function will clean up all unused strings. It should typically not be necessary to call this function at all, unless lots of
-  /// strings get stored in ezHashedString that are not really used throughout the applications life time.
+  /// strings get stored in WHashedString that are not really used throughout the applications life time.
   ///
   /// Returns the number of unused strings that were removed.
-  static ezUInt32 ClearUnusedStrings();
+  static WUInt32 ClearUnusedStrings();
 #endif
 
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+  W_DECLARE_MEM_RELOCATABLE_TYPE();
 
   /// Initializes this string to the empty string.
-  ezHashedString(); // [tested]
+  WHashedString(); // [tested]
 
-  /// Copies the given ezHashedString.
-  ezHashedString(const ezHashedString& rhs); // [tested]
+  /// Copies the given WHashedString.
+  WHashedString(const WHashedString& rhs); // [tested]
 
-  /// Moves the given ezHashedString.
-  ezHashedString(ezHashedString&& rhs); // [tested]
+  /// Moves the given WHashedString.
+  WHashedString(WHashedString&& rhs); // [tested]
 
-#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
+#if W_ENABLED(W_HASHED_STRING_REF_COUNTING)
   /// Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
-  ~ezHashedString();
+  ~WHashedString();
 #endif
 
-  /// Copies the given ezHashedString.
-  void operator=(const ezHashedString& rhs); // [tested]
+  /// Copies the given WHashedString.
+  void operator=(const WHashedString& rhs); // [tested]
 
-  /// Moves the given ezHashedString.
-  void operator=(ezHashedString&& rhs); // [tested]
+  /// Moves the given WHashedString.
+  void operator=(WHashedString&& rhs); // [tested]
 
   /// Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
   ///
-  /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
+  /// If you need to create an object to compare WHashedString objects against, prefer to use WTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
   template <size_t N>
   void Assign(const char (&string)[N]); // [tested]
@@ -83,37 +83,37 @@ public:
 
   /// Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
-  /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
+  /// If you need to create an object to compare WHashedString objects against, prefer to use WTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
-  void Assign(ezStringView sString); // [tested]
+  void Assign(WStringView sString); // [tested]
 
-  /// Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
+  /// Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what WHashedString is
   /// optimized for.
   ///
-  /// \note Comparing between ezHashedString objects is always error-free, so even if two string had the same hash value, although they are
+  /// \note Comparing between WHashedString objects is always error-free, so even if two string had the same hash value, although they are
   /// different, this comparison function will not report they are the same.
-  bool operator==(const ezHashedString& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezHashedString&);
+  bool operator==(const WHashedString& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WHashedString&);
 
-  /// Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
-  /// and the string to compare against is not yet an ezHashedString object.
-  bool operator==(const ezTempHashedString& rhs) const; // [tested]
-  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
-
-  /// This operator allows sorting objects by hash value, not by alphabetical order.
-  bool operator<(const ezHashedString& rhs) const; // [tested]
+  /// Compares this string object to an WTempHashedString object. This should be used whenever some object needs to be found
+  /// and the string to compare against is not yet an WHashedString object.
+  bool operator==(const WTempHashedString& rhs) const; // [tested]
+  bool operator!=(const WTempHashedString& rhs) const; // [tested]
 
   /// This operator allows sorting objects by hash value, not by alphabetical order.
-  bool operator<(const ezTempHashedString& rhs) const; // [tested]
+  bool operator<(const WHashedString& rhs) const; // [tested]
+
+  /// This operator allows sorting objects by hash value, not by alphabetical order.
+  bool operator<(const WTempHashedString& rhs) const; // [tested]
 
   /// Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
-  const ezString& GetString() const; // [tested]
+  const WString& GetString() const; // [tested]
 
   /// Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const char* GetData() const;
 
   /// Returns the hash of the stored string.
-  ezUInt64 GetHash() const; // [tested]
+  WUInt64 GetHash() const; // [tested]
 
   /// Returns whether the string is empty.
   bool IsEmpty() const;
@@ -122,124 +122,124 @@ public:
   void Clear();
 
   /// Returns a string view to this string's data.
-  EZ_ALWAYS_INLINE operator ezStringView() const { return GetString().GetView(); }
+  W_ALWAYS_INLINE operator WStringView() const { return GetString().GetView(); }
 
   /// Returns a string view to this string's data.
-  EZ_ALWAYS_INLINE ezStringView GetView() const { return GetString().GetView(); }
+  W_ALWAYS_INLINE WStringView GetView() const { return GetString().GetView(); }
 
   /// Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
+  W_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
   // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
-  EZ_ALWAYS_INLINE bool operator==(const char* szString) const { return GetString().GetView() == ezStringView(szString); }
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
+  W_ALWAYS_INLINE bool operator==(const char* szString) const { return GetString().GetView() == WStringView(szString); }
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
 
   /// Attempts to find a known string for the given hash value.
   ///
   /// Careful, this is a slow operation (involving a mutex). It is only meant for debug output purposes.
-  /// The string hash may not be known, if the value was never assigned to any ezHashedString, in which case EZ_FAILURE is returned.
-  static ezResult LookupStringHash(ezUInt64 uiHash, ezStringView& out_sResult);
+  /// The string hash may not be known, if the value was never assigned to any WHashedString, in which case W_FAILURE is returned.
+  static WResult LookupStringHash(WUInt64 uiHash, WStringView& out_sResult);
 
 private:
   static void InitHashedString();
-  static HashedType AddHashedString(ezStringView sString, ezUInt64 uiHash);
+  static HashedType AddHashedString(WStringView sString, WUInt64 uiHash);
 
   HashedType m_Data;
 };
 
 // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
-EZ_ALWAYS_INLINE bool operator==(const char* szString, const ezHashedString& rhs)
+W_ALWAYS_INLINE bool operator==(const char* szString, const WHashedString& rhs)
 {
-  return rhs.GetView() == ezStringView(szString);
+  return rhs.GetView() == WStringView(szString);
 }
 
-#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
-EZ_ALWAYS_INLINE bool operator!=(const char* szString, const ezHashedString& rhs)
+#if W_DISABLED(W_USE_CPP20_OPERATORS)
+W_ALWAYS_INLINE bool operator!=(const char* szString, const WHashedString& rhs)
 {
-  return rhs.GetView() != ezStringView(szString);
+  return rhs.GetView() != WStringView(szString);
 }
 
 #endif
 
-/// Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
+/// Helper function to create an WHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>
-ezHashedString ezMakeHashedString(const char (&string)[N]);
+WHashedString WMakeHashedString(const char (&string)[N]);
 
 
-/// A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
+/// A class to use together with WHashedString for quick comparisons with temporary strings that need not be stored further.
 ///
-/// Whenever you have objects that use ezHashedString members and you need to compare against them with some temporary string,
-/// prefer to use ezTempHashedString instead of ezHashedString, as the latter requires thread synchronization to actually set up the
+/// Whenever you have objects that use WHashedString members and you need to compare against them with some temporary string,
+/// prefer to use WTempHashedString instead of WHashedString, as the latter requires thread synchronization to actually set up the
 /// object.
-class EZ_FOUNDATION_DLL ezTempHashedString
+class W_FOUNDATION_DLL WTempHashedString
 {
-  friend class ezHashedString;
+  friend class WHashedString;
 
 public:
-  ezTempHashedString(); // [tested]
+  WTempHashedString(); // [tested]
 
-  /// Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
+  /// Creates an WTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
-  constexpr ezTempHashedString(const char (&string)[N]); // [tested]
+  constexpr WTempHashedString(const char (&string)[N]); // [tested]
 
   template <size_t N>
-  ezTempHashedString(char (&string)[N]) = delete;
+  WTempHashedString(char (&string)[N]) = delete;
 
-  /// Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
+  /// Creates an WTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.
-  explicit ezTempHashedString(ezStringView sString); // [tested]
+  explicit WTempHashedString(WStringView sString); // [tested]
 
   /// Copies the hash from rhs.
-  ezTempHashedString(const ezTempHashedString& rhs); // [tested]
+  WTempHashedString(const WTempHashedString& rhs); // [tested]
 
-  /// Copies the hash from the ezHashedString.
-  ezTempHashedString(const ezHashedString& rhs); // [tested]
+  /// Copies the hash from the WHashedString.
+  WTempHashedString(const WHashedString& rhs); // [tested]
 
-  explicit ezTempHashedString(ezUInt32 uiHash) = delete;
+  explicit WTempHashedString(WUInt32 uiHash) = delete;
 
   /// Copies the hash from the 64 bit integer.
-  explicit ezTempHashedString(ezUInt64 uiHash);
+  explicit WTempHashedString(WUInt64 uiHash);
 
   /// The hash of the given string can be computed at compile time.
   template <size_t N>
   void operator=(const char (&string)[N]); // [tested]
 
   /// Computes and stores the hash of the given string during runtime, which might be slow.
-  void operator=(ezStringView sString); // [tested]
+  void operator=(WStringView sString); // [tested]
 
   /// Copies the hash from rhs.
-  void operator=(const ezTempHashedString& rhs); // [tested]
+  void operator=(const WTempHashedString& rhs); // [tested]
 
-  /// Copies the hash from the ezHashedString.
-  void operator=(const ezHashedString& rhs); // [tested]
+  /// Copies the hash from the WHashedString.
+  void operator=(const WHashedString& rhs); // [tested]
 
   /// Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
-  bool operator==(const ezTempHashedString& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
+  bool operator==(const WTempHashedString& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WTempHashedString&);
 
   /// This operator allows soring objects by hash value, not by alphabetical order.
-  bool operator<(const ezTempHashedString& rhs) const; // [tested]
+  bool operator<(const WTempHashedString& rhs) const; // [tested]
 
-  /// Checks whether the ezTempHashedString represents the empty string.
+  /// Checks whether the WTempHashedString represents the empty string.
   bool IsEmpty() const; // [tested]
 
   /// Resets the string to the empty string.
   void Clear(); // [tested]
 
   /// Returns the hash of the stored string.
-  ezUInt64 GetHash() const; // [tested]
+  WUInt64 GetHash() const; // [tested]
 
-  /// Convenience function to call ezHashedString::LookupStringHash().
-  ezResult LookupStringHash(ezStringView& out_sResult) const
+  /// Convenience function to call WHashedString::LookupStringHash().
+  WResult LookupStringHash(WStringView& out_sResult) const
   {
-    return ezHashedString::LookupStringHash(m_uiHash, out_sResult);
+    return WHashedString::LookupStringHash(m_uiHash, out_sResult);
   }
 
 private:
-  ezUInt64 m_uiHash;
+  WUInt64 m_uiHash;
 };
 
-// For ezFormatString
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezHashedString& sArg);
+// For WFormatString
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WHashedString& sArg);
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>

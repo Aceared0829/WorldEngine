@@ -3,28 +3,28 @@
 #include <TestFramework/Platform/Android/AndroidTestApplication.h>
 #include <android/log.h>
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                \
-  int ezAndroidMain(int argc, char** argv);                                                                           \
-  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                           \
+#define W_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                \
+  int WAndroidMain(int argc, char** argv);                                                                           \
+  W_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                           \
   extern "C" void android_main(struct android_app* app)                                                               \
   {                                                                                                                   \
-    ezAndroidTestApplication androidApp(app);                                                                         \
+    WAndroidTestApplication androidApp(app);                                                                         \
     androidApp.AndroidRun();                                                                                          \
-    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                                                   \
-    ezTestSetup::DeInitTestFramework();                                                                               \
-    __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iFailedTests); \
+    const WInt32 iFailedTests = WTestSetup::GetFailedTestCount();                                                   \
+    WTestSetup::DeInitTestFramework();                                                                               \
+    __android_log_print(ANDROID_LOG_ERROR, "WorldEngine", "Test framework exited with return code: '%d'", iFailedTests); \
   }                                                                                                                   \
                                                                                                                       \
-  int ezAndroidMain(int argc, char** argv)                                                                            \
+  int WAndroidMain(int argc, char** argv)                                                                            \
   {                                                                                                                   \
-    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv);                             \
+    WTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv);                             \
     /* Execute custom init code here by using the BEGIN/END macros directly */
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_END() \
+#define W_TESTFRAMEWORK_ENTRY_POINT_END() \
   return 0;                                \
   }
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)             \
+#define W_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \
+  W_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)             \
   /* Execute custom init code here by using the BEGIN/END macros directly */ \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_END()
+  W_TESTFRAMEWORK_ENTRY_POINT_END()

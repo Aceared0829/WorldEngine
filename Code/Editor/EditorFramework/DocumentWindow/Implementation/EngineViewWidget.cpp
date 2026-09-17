@@ -10,15 +10,15 @@
 #include <QLabel>
 #include <QTimer>
 
-ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
+WUInt32 WQtEngineViewWidget::s_uiNextViewID = 0;
 
-ezQtEngineViewWidget::InteractionContext ezQtEngineViewWidget::s_InteractionContext;
+WQtEngineViewWidget::InteractionContext WQtEngineViewWidget::s_InteractionContext;
 
-void ezObjectPickingResult::Reset()
+void WObjectPickingResult::Reset()
 {
-  m_PickedComponent = ezUuid();
-  m_PickedObject = ezUuid();
-  m_PickedOther = ezUuid();
+  m_PickedComponent = WUuid();
+  m_PickedObject = WUuid();
+  m_PickedOther = WUuid();
   m_uiPartIndex = 0;
   m_vPickedPosition.SetZero();
   m_vPickedNormal.SetZero();
@@ -26,10 +26,10 @@ void ezObjectPickingResult::Reset()
 }
 
 /// Small helper class which exposes the native surface that the renderer can render into.
-class ezQtNativeSurfaceWidget : public QWidget
+class WQtNativeSurfaceWidget : public QWidget
 {
 public:
-  ezQtNativeSurfaceWidget(QWidget* pParent = nullptr)
+  WQtNativeSurfaceWidget(QWidget* pParent = nullptr)
     : QWidget(pParent)
   {
     // setAttribute(Qt::WA_OpaquePaintEvent);
@@ -47,12 +47,12 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtEngineViewWidget public functions
+// WQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezSizeU32 ezQtEngineViewWidget::s_FixedResolution(0, 0);
+WSizeU32 WQtEngineViewWidget::s_FixedResolution(0, 0);
 
-ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
+WQtEngineViewWidget::WQtEngineViewWidget(QWidget* pParent, WQtEngineDocumentWindow* pDocumentWindow, WEngineViewConfig* pViewConfig)
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
@@ -89,35 +89,35 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   m_fCameraLerp = 1.0f;
   m_fCameraTargetFovOrDim = 70.0f;
 
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.AddEventHandler(WMakeDelegate(&WQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     ShowRestartButton(true);
 }
 
 
-ezQtEngineViewWidget::~ezQtEngineViewWidget()
+WQtEngineViewWidget::~WQtEngineViewWidget()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.RemoveEventHandler(WMakeDelegate(&WQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
   {
     // Ensure the engine process swap chain is destroyed before the window.
-    ezViewDestroyedMsgToEngine msg;
+    WViewDestroyedMsgToEngine msg;
     msg.m_uiViewID = GetViewID();
     // If we fail to send the message the engine process is down and we don't need to clean up.
     if (m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg))
     {
       // Wait for engine process response
-      auto callback = [&](ezProcessMessage* pMsg) -> bool
+      auto callback = [&](WProcessMessage* pMsg) -> bool
       {
-        auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
+        auto pResponse = static_cast<WViewDestroyedResponseMsgToEditor*>(pMsg);
         return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
       };
-      ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
+      WProcessCommunicationChannel::WaitForMessageCallback cb = callback;
 
-      if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::MakeFromSeconds(5), &cb).Failed())
+      if (WEditorEngineProcessConnection::GetSingleton()->WaitForMessage(WGetStaticRTTI<WViewDestroyedResponseMsgToEditor>(), WTime::MakeFromSeconds(5), &cb).Failed())
       {
-        ezLog::Error("Timeout while waiting for engine process to destroy view.");
+        WLog::Error("Timeout while waiting for engine process to destroy view.");
       }
     }
   }
@@ -125,22 +125,22 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
   m_pDocumentWindow->RemoveViewWidget(this);
 }
 
-void ezQtEngineViewWidget::SyncToEngine()
+void WQtEngineViewWidget::SyncToEngine()
 {
-  ezViewRedrawMsgToEngine cam;
+  WViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
   if (m_pViewConfig->m_Camera.IsPerspective())
   {
-    ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    WEditorPreferencesUser* pPref = WPreferences::QueryPreferences<WEditorPreferencesUser>();
     fov = pPref->m_fPerspectiveFieldOfView;
   }
 
   cam.m_uiViewID = GetViewID();
   cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_pViewConfig->m_Camera.GetFarPlane();
-  cam.m_iCameraMode = (ezInt8)m_pViewConfig->m_Camera.GetCameraMode();
+  cam.m_iCameraMode = (WInt8)m_pViewConfig->m_Camera.GetCameraMode();
   cam.m_bUseCameraTransformOnDevice = m_pViewConfig->m_bUseCameraTransformOnDevice;
   cam.m_fFovOrDim = fov;
   cam.m_vDirForwards = m_pViewConfig->m_Camera.GetCenterDirForwards();
@@ -150,11 +150,11 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), cam.m_ProjMatrix);
 
-  cam.m_uiHWND = (ezUInt64)(m_pViewportWidget->winId());
+  cam.m_uiHWND = (WUInt64)(m_pViewportWidget->winId());
   cam.m_uiWindowWidth = m_pViewportWidget->width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = m_pViewportWidget->height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!WEditorInputContext::IsAnyInputContextActive() || WEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
   cam.m_bEnablePickTransparent = m_bPickTransparent;
 
   if (s_FixedResolution.HasNonZeroArea())
@@ -167,19 +167,19 @@ void ezQtEngineViewWidget::SyncToEngine()
 }
 
 
-void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_mViewMatrix, ezMat4& out_mProjectionMatrix) const
+void WQtEngineViewWidget::GetCameraMatrices(WMat4& out_mViewMatrix, WMat4& out_mProjectionMatrix) const
 {
   out_mViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), out_mProjectionMatrix);
 }
 
-void ezQtEngineViewWidget::UpdateCameraInterpolation()
+void WQtEngineViewWidget::UpdateCameraInterpolation()
 {
   if (m_fCameraLerp >= 1.0f)
     return;
 
-  const ezTime tNow = ezTime::Now();
-  const ezTime tDiff = tNow - m_LastCameraUpdate;
+  const WTime tNow = WTime::Now();
+  const WTime tDiff = tNow - m_LastCameraUpdate;
   m_LastCameraUpdate = tNow;
 
   m_fCameraLerp += tDiff.GetSeconds() * 3.0f;
@@ -187,24 +187,24 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   if (m_fCameraLerp >= 1.0f)
     m_fCameraLerp = 1.0f;
 
-  ezCamera& cam = m_pViewConfig->m_Camera;
+  WCamera& cam = m_pViewConfig->m_Camera;
 
-  const float fLerpValue = ezMath::Sin(ezAngle::MakeFromDegree(90.0f * m_fCameraLerp));
+  const float fLerpValue = WMath::Sin(WAngle::MakeFromDegree(90.0f * m_fCameraLerp));
 
-  ezQuat qRot, qRotFinal;
-  qRot = ezQuat::MakeShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
-  qRotFinal = ezQuat::MakeSlerp(ezQuat::MakeIdentity(), qRot, fLerpValue);
+  WQuat qRot, qRotFinal;
+  qRot = WQuat::MakeShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
+  qRotFinal = WQuat::MakeSlerp(WQuat::MakeIdentity(), qRot, fLerpValue);
 
-  const ezVec3 vNewDirection = qRotFinal * m_vCameraStartDirection;
-  const ezVec3 vNewPosition = ezMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
-  const float fNewFovOrDim = ezMath::Lerp(m_fCameraStartFovOrDim, m_fCameraTargetFovOrDim, fLerpValue);
+  const WVec3 vNewDirection = qRotFinal * m_vCameraStartDirection;
+  const WVec3 vNewPosition = WMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
+  const float fNewFovOrDim = WMath::Lerp(m_fCameraStartFovOrDim, m_fCameraTargetFovOrDim, fLerpValue);
 
   /// \todo Hard coded up vector
   cam.LookAt(vNewPosition, vNewPosition + vNewDirection, m_vCameraUp);
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
-void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
+void WQtEngineViewWidget::InterpolateCameraTo(const WVec3& vPosition, const WVec3& vDirection, float fFovOrDim, const WVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -228,28 +228,28 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
     m_fCameraTargetFovOrDim = fFovOrDim;
 
 
-  EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
+  W_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
   if (m_vCameraStartPosition == m_vCameraTargetPosition && m_vCameraStartDirection == m_vCameraTargetDirection && m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
     return;
 
-  m_LastCameraUpdate = ezTime::Now();
+  m_LastCameraUpdate = WTime::Now();
   m_fCameraLerp = 0.0f;
 
   if (bImmediate)
   {
     // make sure the next camera update interpolates all the way
-    m_LastCameraUpdate -= ezTime::MakeFromSeconds(10);
+    m_LastCameraUpdate -= WTime::MakeFromSeconds(10);
     m_fCameraLerp = 0.9f;
   }
 }
 
-void ezQtEngineViewWidget::SetEnablePicking(bool bEnable)
+void WQtEngineViewWidget::SetEnablePicking(bool bEnable)
 {
   m_bUpdatePickingData = bEnable;
 }
 
-void ezQtEngineViewWidget::SetPickTransparent(bool bEnable)
+void WQtEngineViewWidget::SetPickTransparent(bool bEnable)
 {
   if (m_bPickTransparent == bEnable)
     return;
@@ -258,7 +258,7 @@ void ezQtEngineViewWidget::SetPickTransparent(bool bEnable)
   m_LastPickingResult.Reset();
 }
 
-void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
+void WQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
 {
   s_InteractionContext.m_pLastHoveredViewWidget = this;
   s_InteractionContext.m_pLastPickingResult = &m_LastPickingResult;
@@ -267,15 +267,15 @@ void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
 }
 
 
-const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
+const WObjectPickingResult& WQtEngineViewWidget::PickObject(WUInt16 uiScreenPosX, WUInt16 uiScreenPosY) const
 {
-  if (!ezEditorEngineProcessConnection::GetSingleton()->IsEngineSetup())
+  if (!WEditorEngineProcessConnection::GetSingleton()->IsEngineSetup())
   {
     m_LastPickingResult.Reset();
   }
   else
   {
-    ezViewPickingMsgToEngine msg;
+    WViewPickingMsgToEngine msg;
     msg.m_uiViewID = GetViewID();
     msg.m_uiPickPosX = uiScreenPosX * devicePixelRatio();
     msg.m_uiPickPosY = uiScreenPosY * devicePixelRatio();
@@ -286,36 +286,36 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
   return m_LastPickingResult;
 }
 
-void ezQtEngineViewWidget::ClearLastPickedObject()
+void WQtEngineViewWidget::ClearLastPickedObject()
 {
   m_LastPickingResult.Reset();
 }
 
-ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const
+WResult WQtEngineViewWidget::PickPlane(WUInt16 uiScreenPosX, WUInt16 uiScreenPosY, const WPlane& plane, WVec3& out_vPosition) const
 {
   const auto& cam = m_pViewConfig->m_Camera;
 
-  ezMat4 mView = cam.GetViewMatrix();
-  ezMat4 mProj;
+  WMat4 mView = cam.GetViewMatrix();
+  WMat4 mProj;
   cam.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), mProj);
-  ezMat4 mViewProj = mProj * mView;
-  ezMat4 mInvViewProj = mViewProj.GetInverse();
+  WMat4 mViewProj = mProj * mView;
+  WMat4 mInvViewProj = mViewProj.GetInverse();
 
-  ezVec3 vScreenPos(uiScreenPosX, uiScreenPosY, 0);
-  ezVec3 vResPos, vResRay;
+  WVec3 vScreenPos(uiScreenPosX, uiScreenPosY, 0);
+  WVec3 vResPos, vResRay;
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_pViewportWidget->width(), m_pViewportWidget->height(), vScreenPos, vResPos, &vResRay).Failed())
-    return EZ_FAILURE;
+  if (WGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_pViewportWidget->width(), m_pViewportWidget->height(), vScreenPos, vResPos, &vResRay).Failed())
+    return W_FAILURE;
 
   if (plane.GetRayIntersection(vResPos, vResRay, nullptr, &out_vPosition))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void WQtEngineViewWidget::HandleViewMessage(const WEditorEngineViewMsg* pMsg)
 {
-  if (const ezViewPickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewPickingResultMsgToEditor*>(pMsg))
+  if (const WViewPickingResultMsgToEditor* pFullMsg = WDynamicCast<const WViewPickingResultMsgToEditor*>(pMsg))
   {
     m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
     m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
@@ -327,47 +327,47 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     return;
   }
-  else if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
+  else if (const WViewMarqueePickingResultMsgToEditor* pFullMsg = WDynamicCast<const WViewMarqueePickingResultMsgToEditor*>(pMsg))
   {
     HandleMarqueePickingResult(pFullMsg);
     return;
   }
 }
 
-ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) const
+WPlane WQtEngineViewWidget::GetFallbackPickingPlane(WVec3 vPointOnPlane) const
 {
   if (m_pViewConfig->m_Camera.IsPerspective())
   {
-    return ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), vPointOnPlane);
+    return WPlane::MakeFromNormalAndPoint(WVec3(0, 0, 1), vPointOnPlane);
   }
   else
   {
-    return ezPlane::MakeFromNormalAndPoint(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
+    return WPlane::MakeFromNormalAndPoint(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
   }
 }
 
-void ezQtEngineViewWidget::TakeScreenshot(const char* szOutputPath) const
+void WQtEngineViewWidget::TakeScreenshot(const char* szOutputPath) const
 {
-  ezViewScreenshotMsgToEngine msg;
+  WViewScreenshotMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
   msg.m_sOutputFile = szOutputPath;
   m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtEngineViewWidget qt overrides
+// WQtEngineViewWidget qt overrides
 ////////////////////////////////////////////////////////////////////////
 
-bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
+bool WQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 {
   if (event->type() == QEvent::Type::ShortcutOverride)
   {
-    if (ezEditorInputContext::IsAnyInputContextActive())
+    if (WEditorInputContext::IsAnyInputContextActive())
     {
       // if the active input context does not like other shortcuts,
       // accept this event and thus block further shortcut processing
       // instead Qt will then send a keypress event
-      if (ezEditorInputContext::GetActiveInputContext()->GetShortcutsDisabled())
+      if (WEditorInputContext::GetActiveInputContext()->GetShortcutsDisabled())
         event->accept();
     }
   }
@@ -376,12 +376,12 @@ bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 }
 
 
-void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
+void WQtEngineViewWidget::paintEvent(QPaintEvent* event)
 {
   // event->accept();
 }
 
-void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
+void WQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   if (s_FixedResolution.HasNonZeroArea())
   {
@@ -394,27 +394,27 @@ void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
   m_pResizeTimer->start();
 }
 
-void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
+void WQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
 {
   if (e->isAutoRepeat())
     return;
 
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->KeyPressEvent(e) == WEditorInput::WasExclusivelyHandled)
       return;
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
     return;
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->KeyPressEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -422,34 +422,34 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->KeyPressEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
       return;
   }
 
   QWidget::keyPressEvent(e);
 }
 
-void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
+void WQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
 {
   if (e->isAutoRepeat())
     return;
 
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == WEditorInput::WasExclusivelyHandled)
       return;
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
     return;
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->KeyReleaseEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -457,26 +457,26 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->KeyReleaseEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
       return;
   }
 
   QWidget::keyReleaseEvent(e);
 }
 
-void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
+void WQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->MousePressEvent(e) == WEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
     }
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
     e->accept();
     return;
@@ -484,10 +484,10 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MousePressEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -495,7 +495,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MousePressEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -505,19 +505,19 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   QWidget::mousePressEvent(e);
 }
 
-void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
+void WQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->MouseReleaseEvent(e) == WEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
     }
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
     e->accept();
     return;
@@ -525,10 +525,10 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MouseReleaseEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -536,7 +536,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MouseReleaseEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -546,7 +546,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   QWidget::mouseReleaseEvent(e);
 }
 
-void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
+void WQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
   s_InteractionContext.m_pLastHoveredViewWidget = this;
   s_InteractionContext.m_pLastPickingResult = &m_LastPickingResult;
@@ -555,16 +555,16 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   PickObject(e->pos().x(), e->pos().y());
 
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->MouseMoveEvent(e) == WEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
     }
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
     e->accept();
     return;
@@ -572,10 +572,10 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MouseMoveEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -583,7 +583,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MouseMoveEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -593,24 +593,24 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   QWidget::mouseMoveEvent(e);
 }
 
-void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
+void WQtEngineViewWidget::wheelEvent(QWheelEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled)
+    if (WEditorInputContext::GetActiveInputContext()->WheelEvent(e) == WEditorInput::WasExclusivelyHandled)
       return;
   }
 
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
     return;
 
   // Override context
   {
-    ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
+    WEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->WheelEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -618,95 +618,95 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->WheelEvent(e) == WEditorInput::WasExclusivelyHandled || WEditorInputContext::IsAnyInputContextActive())
       return;
   }
 
   QWidget::wheelEvent(e);
 }
 
-void ezQtEngineViewWidget::focusOutEvent(QFocusEvent* e)
+void WQtEngineViewWidget::focusOutEvent(QFocusEvent* e)
 {
-  if (ezEditorInputContext::IsAnyInputContextActive())
+  if (WEditorInputContext::IsAnyInputContextActive())
   {
-    ezEditorInputContext::GetActiveInputContext()->FocusLost(false);
-    ezEditorInputContext::SetActiveInputContext(nullptr);
+    WEditorInputContext::GetActiveInputContext()->FocusLost(false);
+    WEditorInputContext::SetActiveInputContext(nullptr);
   }
 
   QWidget::focusOutEvent(e);
 }
 
 
-void ezQtEngineViewWidget::dragEnterEvent(QDragEnterEvent* e)
+void WQtEngineViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   m_bInDragAndDropOperation = true;
 }
 
 
-void ezQtEngineViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
+void WQtEngineViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
 {
   m_bInDragAndDropOperation = false;
 }
 
 
-void ezQtEngineViewWidget::dropEvent(QDropEvent* e)
+void WQtEngineViewWidget::dropEvent(QDropEvent* e)
 {
   m_bInDragAndDropOperation = false;
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtEngineViewWidget protected functions
+// WQtEngineViewWidget protected functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void WQtEngineViewWidget::EngineViewProcessEventHandler(const WEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+    case WEditorEngineProcessConnection::Event::Type::ProcessCrashed:
     {
       ShowProcessStuckIndicator(false);
       ShowRestartButton(true);
     }
     break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+    case WEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
       RecreateEngineViewport();
       ShowRestartButton(false);
     }
     break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case WEditorEngineProcessConnection::Event::Type::ProcessMessage:
       break;
 
-    case ezEditorEngineProcessConnection::Event::Type::Invalid:
-      EZ_ASSERT_DEV(false, "Invalid message should never happen");
+    case WEditorEngineProcessConnection::Event::Type::Invalid:
+      W_ASSERT_DEV(false, "Invalid message should never happen");
       break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
-    case ezEditorEngineProcessConnection::Event::Type::ProcessUnstuck:
+    case WEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+    case WEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+    case WEditorEngineProcessConnection::Event::Type::ProcessUnstuck:
       ShowProcessStuckIndicator(false);
       break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessStuck:
+    case WEditorEngineProcessConnection::Event::Type::ProcessStuck:
       ShowProcessStuckIndicator(true);
       break;
   }
 }
 
-void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
+void WQtEngineViewWidget::ShowRestartButton(bool bShow)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
 
   if (m_pRestartButton == nullptr && bShow == true)
   {
     m_pRestartButton = new QPushButton(this);
     m_pRestartButton->setText("Restart Engine View Process");
-    m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
+    m_pRestartButton->setVisible(WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
     m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezQtEngineViewWidget::SlotRestartEngineProcess);
+    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &WQtEngineViewWidget::SlotRestartEngineProcess);
 
     m_pMainLayout->addWidget(m_pRestartButton);
   }
@@ -722,7 +722,7 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
   m_pViewportWidget->setVisible(!bShow);
 }
 
-void ezQtEngineViewWidget::ShowProcessStuckIndicator(bool bShow)
+void WQtEngineViewWidget::ShowProcessStuckIndicator(bool bShow)
 {
   if (m_pStuckIndicator == nullptr && bShow)
   {
@@ -737,11 +737,11 @@ void ezQtEngineViewWidget::ShowProcessStuckIndicator(bool bShow)
     pIcon->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     pLayout->addWidget(pIcon);
 
-    ezOsProcessID engineProcess = ezEditorEngineProcessConnection::GetSingleton()->GetEngineProcessID();
-    ezStringBuilder sText;
+    WOsProcessID engineProcess = WEditorEngineProcessConnection::GetSingleton()->GetEngineProcessID();
+    WStringBuilder sText;
     sText.SetFormat("Viewport Stalled, ProcessId: {}\nThe engine process might be busy or ran into a problem.", engineProcess);
 
-    QLabel* pText = new QLabel(ezMakeQString(sText), m_pStuckIndicator);
+    QLabel* pText = new QLabel(WMakeQString(sText), m_pStuckIndicator);
     pText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     pText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -763,7 +763,7 @@ void ezQtEngineViewWidget::ShowProcessStuckIndicator(bool bShow)
   }
 }
 
-void ezQtEngineViewWidget::RecreateEngineViewport()
+void WQtEngineViewWidget::RecreateEngineViewport()
 {
   if (m_pViewportWidget)
   {
@@ -774,7 +774,7 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
     m_pViewportWidget->deleteLater();
   }
 
-  m_pViewportWidget = new ezQtNativeSurfaceWidget(this);
+  m_pViewportWidget = new WQtNativeSurfaceWidget(this);
   m_pViewportWidget->installEventFilter(this);
   m_pViewportWidget->setFocusProxy(this);
   if (s_FixedResolution.HasNonZeroArea())
@@ -782,8 +782,8 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
     qreal pixelRatio = devicePixelRatio();
     // When using DPI scaling, this could actually not be possible to achieve so we use the ceiling of the logical size. This is fine, as the editor tests crop the resulting image if not of the proper size.
     m_pViewportWidget->setFixedSize(
-      static_cast<ezInt32>(ezMath::Ceil(s_FixedResolution.width / pixelRatio)),
-      static_cast<ezInt32>(ezMath::Ceil(s_FixedResolution.height / pixelRatio)));
+      static_cast<WInt32>(WMath::Ceil(s_FixedResolution.width / pixelRatio)),
+      static_cast<WInt32>(WMath::Ceil(s_FixedResolution.height / pixelRatio)));
   }
   else
   {
@@ -794,23 +794,23 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtEngineViewWidget private slots
+// WQtEngineViewWidget private slots
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtEngineViewWidget::SlotRestartEngineProcess()
+void WQtEngineViewWidget::SlotRestartEngineProcess()
 {
-  ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
+  WEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtViewWidgetContainer
+// WQtViewWidgetContainer
 ////////////////////////////////////////////////////////////////////////
 
-ezQtViewWidgetContainer::ezQtViewWidgetContainer(ads::CDockManager* pDockManager, QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
+WQtViewWidgetContainer::WQtViewWidgetContainer(ads::CDockManager* pDockManager, QWidget* pParent, WQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
   : ads::CDockWidget(pDockManager, "3D View", pParent)
 {
-  setObjectName("ezQtViewWidgetContainer");
+  setObjectName("WQtViewWidgetContainer");
 
   setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetClosable, false);
   setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFloatable, false);
@@ -833,11 +833,11 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(ads::CDockManager* pDockManager
   m_pViewWidget = pViewWidget;
   m_pViewWidget->setParent(pDummy);
 
-  if (!ezStringUtils::IsNullOrEmpty(szToolBarMapping))
+  if (!WStringUtils::IsNullOrEmpty(szToolBarMapping))
   {
     // Add Tool Bar
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = szToolBarMapping;
     context.m_pDocument = pViewWidget->GetDocumentWindow()->GetDocument();
     context.m_pWindow = m_pViewWidget;
@@ -850,4 +850,4 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(ads::CDockManager* pDockManager
   setWidget(pDummy);
 }
 
-ezQtViewWidgetContainer::~ezQtViewWidgetContainer() = default;
+WQtViewWidgetContainer::~WQtViewWidgetContainer() = default;

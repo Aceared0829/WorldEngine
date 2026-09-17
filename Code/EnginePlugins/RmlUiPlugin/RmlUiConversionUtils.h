@@ -5,61 +5,61 @@
 #include <Foundation/Types/Variant.h>
 #include <RmlUi/Include/RmlUi/Core.h>
 
-namespace ezRmlUiConversionUtils
+namespace WRmlUiConversionUtils
 {
-  EZ_RMLUIPLUGIN_DLL ezVariant ToVariant(const Rml::Variant& value, ezVariant::Type::Enum targetType = ezVariant::Type::Invalid);
-  EZ_RMLUIPLUGIN_DLL Rml::Variant ToVariant(const ezVariant& value);
+  W_RMLUIPLUGIN_DLL WVariant ToVariant(const Rml::Variant& value, WVariant::Type::Enum targetType = WVariant::Type::Invalid);
+  W_RMLUIPLUGIN_DLL Rml::Variant ToVariant(const WVariant& value);
 
   // Strings
-  EZ_ALWAYS_INLINE ezString ToString(const Rml::String& value)
+  W_ALWAYS_INLINE WString ToString(const Rml::String& value)
   {
-    return ezStringView(value.c_str(), static_cast<ezUInt32>(value.length()));
+    return WStringView(value.c_str(), static_cast<WUInt32>(value.length()));
   }
 
-  EZ_ALWAYS_INLINE ezString ToString(const Rml::StringView& value)
+  W_ALWAYS_INLINE WString ToString(const Rml::StringView& value)
   {
-    return ezStringView(value.begin(), static_cast<ezUInt32>(value.size()));
+    return WStringView(value.begin(), static_cast<WUInt32>(value.size()));
   }
 
-  EZ_ALWAYS_INLINE Rml::String ToString(const ezString& sValue)
+  W_ALWAYS_INLINE Rml::String ToString(const WString& sValue)
   {
     return Rml::String(sValue.GetData(), sValue.GetElementCount());
   }
 
-  EZ_ALWAYS_INLINE Rml::String ToString(ezStringView sValue)
+  W_ALWAYS_INLINE Rml::String ToString(WStringView sValue)
   {
     return Rml::String(sValue.GetStartPointer(), sValue.GetElementCount());
   }
 
-  EZ_ALWAYS_INLINE ezStringView ToStringView(const Rml::StringView& value)
+  W_ALWAYS_INLINE WStringView ToStringView(const Rml::StringView& value)
   {
-    return ezStringView(value.begin(), static_cast<ezUInt32>(value.size()));
+    return WStringView(value.begin(), static_cast<WUInt32>(value.size()));
   }
 
-  EZ_ALWAYS_INLINE Rml::StringView ToStringView(ezStringView sValue)
+  W_ALWAYS_INLINE Rml::StringView ToStringView(WStringView sValue)
   {
     return Rml::StringView(sValue.GetStartPointer(), sValue.GetElementCount());
   }
 
   // Math
-  EZ_ALWAYS_INLINE ezVec2 ToVec2(const Rml::Vector2f& value)
+  W_ALWAYS_INLINE WVec2 ToVec2(const Rml::Vector2f& value)
   {
-    return ezVec2(value.x, value.y);
+    return WVec2(value.x, value.y);
   }
 
-  EZ_ALWAYS_INLINE Rml::Vector2f ToVec2(const ezVec2& value)
+  W_ALWAYS_INLINE Rml::Vector2f ToVec2(const WVec2& value)
   {
     return Rml::Vector2f(value.x, value.y);
   }
 
-  EZ_ALWAYS_INLINE ezColor ToColor(const Rml::Colourb& value)
+  W_ALWAYS_INLINE WColor ToColor(const Rml::Colourb& value)
   {
-    return reinterpret_cast<const ezColorLinearUB&>(value);
+    return reinterpret_cast<const WColorLinearUB&>(value);
   }
 
-  EZ_ALWAYS_INLINE ezColor ToColor(const Rml::ColourbPremultiplied& value)
+  W_ALWAYS_INLINE WColor ToColor(const Rml::ColourbPremultiplied& value)
   {
-    return reinterpret_cast<const ezColorLinearUB&>(value);
+    return reinterpret_cast<const WColorLinearUB&>(value);
   }
 
-} // namespace ezRmlUiConversionUtils
+} // namespace WRmlUiConversionUtils

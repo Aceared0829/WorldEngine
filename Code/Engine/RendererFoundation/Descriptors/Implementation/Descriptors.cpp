@@ -8,139 +8,139 @@
 
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
-ezResult ezGALTextureCreationDescription::Validate(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData) const
+WResult WGALTextureCreationDescription::Validate(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> initialData) const
 {
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
   if (m_ResourceAccess.IsImmutable())
   {
-    if (m_TextureFlags == ezGALTextureUsageFlags::ShaderResource)
+    if (m_TextureFlags == WGALTextureUsageFlags::ShaderResource)
     {
       if (initialData.IsEmpty())
       {
-        ezLog::Error("Trying to create an immutable texture but not supplying initial data");
-        return EZ_FAILURE;
+        WLog::Error("Trying to create an immutable texture but not supplying initial data");
+        return W_FAILURE;
       }
       if (initialData.GetCount() < m_uiMipLevelCount)
       {
-        ezLog::Error("Trying to create an immutable texture but initialData size '{}' is smaller than mip levels '{}'", initialData.GetCount(), m_uiMipLevelCount);
-        return EZ_FAILURE;
+        WLog::Error("Trying to create an immutable texture but initialData size '{}' is smaller than mip levels '{}'", initialData.GetCount(), m_uiMipLevelCount);
+        return W_FAILURE;
       }
     }
   }
 
   if (m_uiWidth == 0 || m_uiHeight == 0)
   {
-    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
-    return EZ_FAILURE;
+    WLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return W_FAILURE;
   }
 
-  if (m_Type != ezGALTextureType::Texture2DArray && m_Type != ezGALTextureType::TextureCubeArray)
+  if (m_Type != WGALTextureType::Texture2DArray && m_Type != WGALTextureType::TextureCubeArray)
   {
     if (m_uiArraySize != 1)
     {
-      ezLog::Error("m_uiArraySize must be 1 for non array textures!");
-      return EZ_FAILURE;
+      WLog::Error("m_uiArraySize must be 1 for non array textures!");
+      return W_FAILURE;
     }
   }
 
-  if (m_Format == ezGALResourceFormat::Invalid)
+  if (m_Format == WGALResourceFormat::Invalid)
   {
-    ezLog::Error("Texture format is 'Invalid'");
-    return EZ_FAILURE;
+    WLog::Error("Texture format is 'Invalid'");
+    return W_FAILURE;
   }
 
   const auto& caps = pDevice->GetCapabilities();
-  ezBitflags<ezGALResourceFormatSupport> formatSupport = caps.m_FormatSupport[m_Format];
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget) && !formatSupport.IsSet(ezGALResourceFormatSupport::RenderTarget))
+  WBitflags<WGALResourceFormatSupport> formatSupport = caps.m_FormatSupport[m_Format];
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::RenderTarget) && !formatSupport.IsSet(WGALResourceFormatSupport::RenderTarget))
   {
-    ezLog::Error("ezGALTextureUsageFlags::RenderTarget not supported on format: {}", ezArgEnum(m_Format));
-    return EZ_FAILURE;
+    WLog::Error("WGALTextureUsageFlags::RenderTarget not supported on format: {}", WArgEnum(m_Format));
+    return W_FAILURE;
   }
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess) && !formatSupport.IsSet(ezGALResourceFormatSupport::TextureRW))
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::UnorderedAccess) && !formatSupport.IsSet(WGALResourceFormatSupport::TextureRW))
   {
-    ezLog::Error("ezGALTextureUsageFlags::UnorderedAccess not supported on format: {}", ezArgEnum(m_Format));
-    return EZ_FAILURE;
+    WLog::Error("WGALTextureUsageFlags::UnorderedAccess not supported on format: {}", WArgEnum(m_Format));
+    return W_FAILURE;
   }
-  if (m_SampleCount == ezGALMSAASampleCount::TwoSamples && !formatSupport.IsSet(ezGALResourceFormatSupport::MSAA2x))
+  if (m_SampleCount == WGALMSAASampleCount::TwoSamples && !formatSupport.IsSet(WGALResourceFormatSupport::MSAA2x))
   {
-    ezLog::Error("MSAA 2x not supported on format: {}", ezArgEnum(m_Format));
-    return EZ_FAILURE;
+    WLog::Error("MSAA 2x not supported on format: {}", WArgEnum(m_Format));
+    return W_FAILURE;
   }
-  if (m_SampleCount == ezGALMSAASampleCount::FourSamples && !formatSupport.IsSet(ezGALResourceFormatSupport::MSAA4x))
+  if (m_SampleCount == WGALMSAASampleCount::FourSamples && !formatSupport.IsSet(WGALResourceFormatSupport::MSAA4x))
   {
-    ezLog::Error("MSAA 4x not supported on format: {}", ezArgEnum(m_Format));
-    return EZ_FAILURE;
+    WLog::Error("MSAA 4x not supported on format: {}", WArgEnum(m_Format));
+    return W_FAILURE;
   }
-  if (m_SampleCount == ezGALMSAASampleCount::EightSamples && !formatSupport.IsSet(ezGALResourceFormatSupport::MSAA8x))
+  if (m_SampleCount == WGALMSAASampleCount::EightSamples && !formatSupport.IsSet(WGALResourceFormatSupport::MSAA8x))
   {
-    ezLog::Error("MSAA 8x not supported on format: {}", ezArgEnum(m_Format));
-    return EZ_FAILURE;
+    WLog::Error("MSAA 8x not supported on format: {}", WArgEnum(m_Format));
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt32 ezGALTextureCreationDescription::GetNumberOfSlices() const
+WUInt32 WGALTextureCreationDescription::GetNumberOfSlices() const
 {
-  if (m_Type == ezGALTextureType::TextureCube || m_Type == ezGALTextureType::TextureCubeArray)
+  if (m_Type == WGALTextureType::TextureCube || m_Type == WGALTextureType::TextureCubeArray)
     return m_uiArraySize * 6;
   return m_uiArraySize;
 }
 
-ezVec3U32 ezGALTextureCreationDescription::GetMipMapSize(ezUInt32 uiMipLevel) const
+WVec3U32 WGALTextureCreationDescription::GetMipMapSize(WUInt32 uiMipLevel) const
 {
-  ezVec3U32 size = {m_uiWidth, m_uiHeight, m_uiDepth};
-  size.x = ezMath::Max(1u, size.x >> uiMipLevel);
-  size.y = ezMath::Max(1u, size.y >> uiMipLevel);
-  size.z = ezMath::Max(1u, size.z >> uiMipLevel);
+  WVec3U32 size = {m_uiWidth, m_uiHeight, m_uiDepth};
+  size.x = WMath::Max(1u, size.x >> uiMipLevel);
+  size.y = WMath::Max(1u, size.y >> uiMipLevel);
+  size.z = WMath::Max(1u, size.z >> uiMipLevel);
   return size;
 }
 
-ezBitflags<ezGALResourceState> ezGALTextureCreationDescription::GetDefaultState() const
+WBitflags<WGALResourceState> WGALTextureCreationDescription::GetDefaultState() const
 {
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::Presentable))
-    return ezGALResourceState::Present;
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::Presentable))
+    return WGALResourceState::Present;
 
-  bool bDepth = ezGALResourceFormat::IsDepthFormat(m_Format);
+  bool bDepth = WGALResourceFormat::IsDepthFormat(m_Format);
   if (m_ResourceAccess.IsImmutable())
-    return bDepth ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource;
+    return bDepth ? WGALResourceState::DepthStencilRead : WGALResourceState::ShaderResource;
 
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-    return bDepth ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource;
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::ShaderResource))
+    return bDepth ? WGALResourceState::DepthStencilRead : WGALResourceState::ShaderResource;
 
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
-    return bDepth ? ezGALResourceState::DepthStencilWrite : ezGALResourceState::RenderTarget;
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::RenderTarget))
+    return bDepth ? WGALResourceState::DepthStencilWrite : WGALResourceState::RenderTarget;
 
-  if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
-    return ezGALResourceState::UnorderedAccess;
+  if (m_TextureFlags.IsSet(WGALTextureUsageFlags::UnorderedAccess))
+    return WGALResourceState::UnorderedAccess;
 
-  return ezGALResourceState::Unknown;
+  return WGALResourceState::Unknown;
 }
 
-ezBitflags<ezGALResourceState> ezGALBufferCreationDescription::GetDefaultState() const
+WBitflags<WGALResourceState> WGALBufferCreationDescription::GetDefaultState() const
 {
-  ezBitflags<ezGALResourceState> state = ezGALResourceState::Unknown;
+  WBitflags<WGALResourceState> state = WGALResourceState::Unknown;
   for (auto flag : m_BufferFlags)
   {
     switch (flag)
     {
-      case ezGALBufferUsageFlags::VertexBuffer:
-        state |= ezGALResourceState::VertexBuffer;
+      case WGALBufferUsageFlags::VertexBuffer:
+        state |= WGALResourceState::VertexBuffer;
         break;
-      case ezGALBufferUsageFlags::IndexBuffer:
-        state |= ezGALResourceState::IndexBuffer;
+      case WGALBufferUsageFlags::IndexBuffer:
+        state |= WGALResourceState::IndexBuffer;
         break;
-      case ezGALBufferUsageFlags::ConstantBuffer:
-        state |= ezGALResourceState::ConstantBuffer;
+      case WGALBufferUsageFlags::ConstantBuffer:
+        state |= WGALResourceState::ConstantBuffer;
         break;
-      case ezGALBufferUsageFlags::ShaderResource:
-        state |= ezGALResourceState::ShaderResource;
+      case WGALBufferUsageFlags::ShaderResource:
+        state |= WGALResourceState::ShaderResource;
         break;
-      case ezGALBufferUsageFlags::UnorderedAccess:
-        state |= ezGALResourceState::UnorderedAccess;
+      case WGALBufferUsageFlags::UnorderedAccess:
+        state |= WGALResourceState::UnorderedAccess;
         break;
-      case ezGALBufferUsageFlags::DrawIndirect:
-        state |= ezGALResourceState::DrawIndirect;
+      case WGALBufferUsageFlags::DrawIndirect:
+        state |= WGALResourceState::DrawIndirect;
         break;
       default:
         break;
@@ -148,19 +148,19 @@ ezBitflags<ezGALResourceState> ezGALBufferCreationDescription::GetDefaultState()
   }
 
   if (m_ResourceAccess.IsImmutable())
-    return state & ezGALResourceState::AllReadStates;
+    return state & WGALResourceState::AllReadStates;
 
   // This is the only write state for buffers. If set, all read states need to be removed to allow creating proper write -> read barriers.
-  if (state.IsSet(ezGALResourceState::UnorderedAccess))
-    state = ezGALResourceState::UnorderedAccess;
+  if (state.IsSet(WGALResourceState::UnorderedAccess))
+    state = WGALResourceState::UnorderedAccess;
 
   return state;
 }
 
-ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
+WUInt32 WGALBindGroupLayoutCreationDescription::CalculateHash() const
 {
-  ezHashStreamWriter32 writer;
-  auto HashBinding = [](ezHashStreamWriter32& writer, const ezShaderResourceBinding& binding)
+  WHashStreamWriter32 writer;
+  auto HashBinding = [](WHashStreamWriter32& writer, const WShaderResourceBinding& binding)
   {
     writer << binding.m_ResourceType.GetValue();
     writer << binding.m_TextureType.GetValue();
@@ -171,9 +171,9 @@ ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
     writer << binding.m_sName;
     if (binding.m_pLayout != nullptr)
     {
-      const ezShaderConstantBufferLayout* pLayout = binding.m_pLayout;
+      const WShaderConstantBufferLayout* pLayout = binding.m_pLayout;
       writer << pLayout->m_uiTotalSize;
-      for (const ezShaderConstant& constant : pLayout->m_Constants)
+      for (const WShaderConstant& constant : pLayout->m_Constants)
       {
         writer << constant.m_sName;
         writer << constant.m_Type.GetValue();
@@ -183,11 +183,11 @@ ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
     }
   };
 
-  for (const ezShaderResourceBinding& binding : m_ResourceBindings)
+  for (const WShaderResourceBinding& binding : m_ResourceBindings)
   {
     HashBinding(writer, binding);
   }
-  for (const ezShaderResourceBinding& binding : m_ImmutableSamplers)
+  for (const WShaderResourceBinding& binding : m_ImmutableSamplers)
   {
     HashBinding(writer, binding);
   }

@@ -4,13 +4,13 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
-struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCounted
+struct W_VISUALSCRIPTPLUGIN_DLL WVisualScriptDataDescription : public WRefCounted
 {
   struct DataOffset
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    struct EZ_VISUALSCRIPTPLUGIN_DLL Source
+    struct W_VISUALSCRIPTPLUGIN_DLL Source
     {
       enum Enum
       {
@@ -29,80 +29,80 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCou
       BYTE_OFFSET_BITS = 24,
       TYPE_BITS = 6,
       SOURCE_BITS = 2,
-      INVALID_BYTE_OFFSET = EZ_BIT(BYTE_OFFSET_BITS) - 1
+      INVALID_BYTE_OFFSET = W_BIT(BYTE_OFFSET_BITS) - 1
     };
 
-    EZ_ALWAYS_INLINE DataOffset()
+    W_ALWAYS_INLINE DataOffset()
     {
       m_uiByteOffset = INVALID_BYTE_OFFSET;
-      m_uiType = ezVisualScriptDataType::Invalid;
+      m_uiType = WVisualScriptDataType::Invalid;
       m_uiSource = Source::Local;
     }
 
-    EZ_ALWAYS_INLINE DataOffset(ezUInt32 uiOffset, ezVisualScriptDataType::Enum dataType, Source::Enum source)
+    W_ALWAYS_INLINE DataOffset(WUInt32 uiOffset, WVisualScriptDataType::Enum dataType, Source::Enum source)
     {
       m_uiByteOffset = uiOffset;
       m_uiType = dataType;
       m_uiSource = source;
     }
 
-    EZ_ALWAYS_INLINE bool IsValid() const
+    W_ALWAYS_INLINE bool IsValid() const
     {
       return m_uiByteOffset != INVALID_BYTE_OFFSET &&
-             m_uiType != ezVisualScriptDataType::Invalid;
+             m_uiType != WVisualScriptDataType::Invalid;
     }
 
-    EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetType() const { return static_cast<ezVisualScriptDataType::Enum>(m_uiType); }
-    EZ_ALWAYS_INLINE Source::Enum GetSource() const { return static_cast<Source::Enum>(m_uiSource); }
-    EZ_ALWAYS_INLINE bool IsLocal() const { return m_uiSource == Source::Local; }
-    EZ_ALWAYS_INLINE bool IsInstance() const { return m_uiSource == Source::Instance; }
-    EZ_ALWAYS_INLINE bool IsConstant() const { return m_uiSource == Source::Constant; }
+    W_ALWAYS_INLINE WVisualScriptDataType::Enum GetType() const { return static_cast<WVisualScriptDataType::Enum>(m_uiType); }
+    W_ALWAYS_INLINE Source::Enum GetSource() const { return static_cast<Source::Enum>(m_uiSource); }
+    W_ALWAYS_INLINE bool IsLocal() const { return m_uiSource == Source::Local; }
+    W_ALWAYS_INLINE bool IsInstance() const { return m_uiSource == Source::Instance; }
+    W_ALWAYS_INLINE bool IsConstant() const { return m_uiSource == Source::Constant; }
 
-    EZ_ALWAYS_INLINE ezResult Serialize(ezStreamWriter& inout_stream) const { return inout_stream.WriteDWordValue(this); }
-    EZ_ALWAYS_INLINE ezResult Deserialize(ezStreamReader& inout_stream) { return inout_stream.ReadDWordValue(this); }
+    W_ALWAYS_INLINE WResult Serialize(WStreamWriter& inout_stream) const { return inout_stream.WriteDWordValue(this); }
+    W_ALWAYS_INLINE WResult Deserialize(WStreamReader& inout_stream) { return inout_stream.ReadDWordValue(this); }
 
-    ezUInt32 m_uiByteOffset : BYTE_OFFSET_BITS;
-    ezUInt32 m_uiType : TYPE_BITS;
-    ezUInt32 m_uiSource : SOURCE_BITS;
+    WUInt32 m_uiByteOffset : BYTE_OFFSET_BITS;
+    WUInt32 m_uiType : TYPE_BITS;
+    WUInt32 m_uiSource : SOURCE_BITS;
   };
 
   struct OffsetAndCount
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiStartOffset = 0;
-    ezUInt32 m_uiCount = 0;
+    WUInt32 m_uiStartOffset = 0;
+    WUInt32 m_uiCount = 0;
   };
 
-  OffsetAndCount m_PerTypeInfo[ezVisualScriptDataType::Count];
-  ezUInt32 m_uiStorageSizeNeeded = 0;
+  OffsetAndCount m_PerTypeInfo[WVisualScriptDataType::Count];
+  WUInt32 m_uiStorageSizeNeeded = 0;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
   void Clear();
   void CalculatePerTypeStartOffsets();
-  void CheckOffset(DataOffset dataOffset, const ezRTTI* pType) const;
+  void CheckOffset(DataOffset dataOffset, const WRTTI* pType) const;
 
-  DataOffset GetOffset(ezVisualScriptDataType::Enum dataType, ezUInt32 uiIndex, DataOffset::Source::Enum source) const;
+  DataOffset GetOffset(WVisualScriptDataType::Enum dataType, WUInt32 uiIndex, DataOffset::Source::Enum source) const;
 };
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataStorage : public ezRefCounted
+class W_VISUALSCRIPTPLUGIN_DLL WVisualScriptDataStorage : public WRefCounted
 {
 public:
-  ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc);
-  ~ezVisualScriptDataStorage();
+  WVisualScriptDataStorage(const WSharedPtr<const WVisualScriptDataDescription>& pDesc);
+  ~WVisualScriptDataStorage();
 
-  const ezVisualScriptDataDescription& GetDesc() const;
+  const WVisualScriptDataDescription& GetDesc() const;
 
   bool IsAllocated() const;
-  void AllocateStorage(ezAllocator* pAllocator);
+  void AllocateStorage(WAllocator* pAllocator);
   void DeallocateStorage();
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream, ezAllocator* pAllocator);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream, WAllocator* pAllocator);
 
-  using DataOffset = ezVisualScriptDataDescription::DataOffset;
+  using DataOffset = WVisualScriptDataDescription::DataOffset;
 
   template <typename T>
   const T& GetData(DataOffset dataOffset) const;
@@ -113,29 +113,29 @@ public:
   template <typename T>
   void SetData(DataOffset dataOffset, const T& value);
 
-  ezTypedPointer GetPointerData(DataOffset dataOffset, ezUInt32 uiExecutionCounter) const;
+  WTypedPointer GetPointerData(DataOffset dataOffset, WUInt32 uiExecutionCounter) const;
 
   template <typename T>
-  void SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType, ezUInt32 uiExecutionCounter);
+  void SetPointerData(DataOffset dataOffset, T ptr, const WRTTI* pType, WUInt32 uiExecutionCounter);
 
-  ezVariant GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType, ezUInt32 uiExecutionCounter) const;
-  void SetDataFromVariant(DataOffset dataOffset, const ezVariant& value, ezUInt32 uiExecutionCounter);
+  WVariant GetDataAsVariant(DataOffset dataOffset, const WRTTI* pExpectedType, WUInt32 uiExecutionCounter) const;
+  void SetDataFromVariant(DataOffset dataOffset, const WVariant& value, WUInt32 uiExecutionCounter);
 
 private:
-  ezSharedPtr<const ezVisualScriptDataDescription> m_pDesc;
-  ezByteArrayPtr m_Storage;
-  ezAllocator* m_pAllocator = nullptr;
+  WSharedPtr<const WVisualScriptDataDescription> m_pDesc;
+  WByteArrayPtr m_Storage;
+  WAllocator* m_pAllocator = nullptr;
 };
 
-struct ezVisualScriptInstanceData
+struct WVisualScriptInstanceData
 {
-  ezVisualScriptDataDescription::DataOffset m_DataOffset;
-  ezVariant m_DefaultValue;
+  WVisualScriptDataDescription::DataOffset m_DataOffset;
+  WVariant m_DefaultValue;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-using ezVisualScriptInstanceDataMapping = ezRefCountedContainer<ezHashTable<ezHashedString, ezVisualScriptInstanceData>>;
+using WVisualScriptInstanceDataMapping = WRefCountedContainer<WHashTable<WHashedString, WVisualScriptInstanceData>>;
 
 #include <VisualScriptPlugin/Runtime/VisualScriptData_inl.h>

@@ -13,32 +13,32 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltHingeConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltHingeConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezJoltConstraintLimitMode, GetLimitMode, SetLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
-    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
-    EZ_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ENUM_ACCESSOR_PROPERTY("DriveMode", ezJoltConstraintDriveMode, GetDriveMode, SetDriveMode),
-    EZ_ACCESSOR_PROPERTY("DriveTargetValue", GetDriveTargetValue, SetDriveTargetValue),
-    EZ_ACCESSOR_PROPERTY("DriveStrength", GetDriveStrength, SetDriveStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("Maximum")),
+    W_ENUM_ACCESSOR_PROPERTY("LimitMode", WJoltConstraintLimitMode, GetLimitMode, SetLimitMode),
+    W_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(0), WAngle::MakeFromDegree(180))),
+    W_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(0), WAngle::MakeFromDegree(180))),
+    W_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ENUM_ACCESSOR_PROPERTY("DriveMode", WJoltConstraintDriveMode, GetDriveMode, SetDriveMode),
+    W_ACCESSOR_PROPERTY("DriveTargetValue", GetDriveTargetValue, SetDriveTargetValue),
+    W_ACCESSOR_PROPERTY("DriveStrength", GetDriveStrength, SetDriveStrength)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WMinValueTextAttribute("Maximum")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::BurlyWood)
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.2f, WColor::BurlyWood)
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltHingeConstraintComponent::ezJoltHingeConstraintComponent() = default;
-ezJoltHingeConstraintComponent::~ezJoltHingeConstraintComponent() = default;
+WJoltHingeConstraintComponent::WJoltHingeConstraintComponent() = default;
+WJoltHingeConstraintComponent::~WJoltHingeConstraintComponent() = default;
 
-void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltHingeConstraintComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -55,10 +55,10 @@ void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& inout_str
   s << m_fFriction;
 }
 
-void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltHingeConstraintComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -73,49 +73,49 @@ void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& inout_s
   s >> m_fFriction;
 }
 
-void ezJoltHingeConstraintComponent::SetLimitMode(ezJoltConstraintLimitMode::Enum mode)
+void WJoltHingeConstraintComponent::SetLimitMode(WJoltConstraintLimitMode::Enum mode)
 {
   m_LimitMode = mode;
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetLowerLimitAngle(ezAngle f)
+void WJoltHingeConstraintComponent::SetLowerLimitAngle(WAngle f)
 {
-  m_LowerLimit = ezMath::Clamp(f, ezAngle(), ezAngle::MakeFromDegree(180));
+  m_LowerLimit = WMath::Clamp(f, WAngle(), WAngle::MakeFromDegree(180));
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetUpperLimitAngle(ezAngle f)
+void WJoltHingeConstraintComponent::SetUpperLimitAngle(WAngle f)
 {
-  m_UpperLimit = ezMath::Clamp(f, ezAngle(), ezAngle::MakeFromDegree(180));
+  m_UpperLimit = WMath::Clamp(f, WAngle(), WAngle::MakeFromDegree(180));
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetFriction(float f)
+void WJoltHingeConstraintComponent::SetFriction(float f)
 {
-  m_fFriction = ezMath::Max(f, 0.0f);
+  m_fFriction = WMath::Max(f, 0.0f);
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetDriveMode(ezJoltConstraintDriveMode::Enum mode)
+void WJoltHingeConstraintComponent::SetDriveMode(WJoltConstraintDriveMode::Enum mode)
 {
   m_DriveMode = mode;
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetDriveTargetValue(ezAngle f)
+void WJoltHingeConstraintComponent::SetDriveTargetValue(WAngle f)
 {
   m_DriveTargetValue = f;
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::SetDriveStrength(float f)
+void WJoltHingeConstraintComponent::SetDriveStrength(float f)
 {
-  m_fDriveStrength = ezMath::Max(f, 0.0f);
+  m_fDriveStrength = WMath::Max(f, 0.0f);
   QueueApplySettings();
 }
 
-void ezJoltHingeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJoltHingeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
   const auto inv2 = pBody1->GetInverseCenterOfMassTransform() * pBody1->GetWorldTransform();
@@ -123,30 +123,30 @@ void ezJoltHingeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JP
   JPH::HingeConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
-  opt.mHingeAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3(1, 0, 0)));
-  opt.mHingeAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3(1, 0, 0)));
-  opt.mNormalAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3(0, 1, 0)));
-  opt.mNormalAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3(0, 1, 0)));
+  opt.mPoint1 = inv1 * WJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * WJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
+  opt.mHingeAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3(1, 0, 0)));
+  opt.mHingeAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3(1, 0, 0)));
+  opt.mNormalAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3(0, 1, 0)));
+  opt.mNormalAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3(0, 1, 0)));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
 
-void ezJoltHingeConstraintComponent::ApplySettings()
+void WJoltHingeConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   JPH::HingeConstraint* pConstraint = static_cast<JPH::HingeConstraint*>(m_pConstraint);
 
   pConstraint->SetMaxFrictionTorque(m_fFriction);
 
-  if (m_LimitMode != ezJoltConstraintLimitMode::NoLimit)
+  if (m_LimitMode != WJoltConstraintLimitMode::NoLimit)
   {
     float low = m_LowerLimit.GetRadian();
     float high = m_UpperLimit.GetRadian();
 
-    const float fLowest = ezAngle::MakeFromDegree(1.0f).GetRadian();
+    const float fLowest = WAngle::MakeFromDegree(1.0f).GetRadian();
 
     // there should be at least some slack
     if (low <= fLowest && high <= fLowest)
@@ -164,13 +164,13 @@ void ezJoltHingeConstraintComponent::ApplySettings()
 
   // drive
   {
-    if (m_DriveMode == ezJoltConstraintDriveMode::NoDrive)
+    if (m_DriveMode == WJoltConstraintDriveMode::NoDrive)
     {
       pConstraint->SetMotorState(JPH::EMotorState::Off);
     }
     else
     {
-      if (m_DriveMode == ezJoltConstraintDriveMode::DriveVelocity)
+      if (m_DriveMode == WJoltConstraintDriveMode::DriveVelocity)
       {
         pConstraint->SetMotorState(JPH::EMotorState::Velocity);
         pConstraint->SetTargetAngularVelocity(m_DriveTargetValue.GetRadian());
@@ -193,12 +193,12 @@ void ezJoltHingeConstraintComponent::ApplySettings()
   if (pConstraint->GetBody2()->IsInBroadPhase())
   {
     // wake up the bodies that are attached to this constraint
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
 
-bool ezJoltHingeConstraintComponent::ExceededBreakingPoint()
+bool WJoltHingeConstraintComponent::ExceededBreakingPoint()
 {
   if (auto pConstraint = static_cast<JPH::HingeConstraint*>(m_pConstraint))
   {
@@ -223,4 +223,4 @@ bool ezJoltHingeConstraintComponent::ExceededBreakingPoint()
   return false;
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltHingeConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltHingeConstraintComponent);

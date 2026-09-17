@@ -10,49 +10,49 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezPluginBundle::WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const
+void WPluginBundle::WriteStateToDDL(WOpenDdlWriter& ref_ddl, const char* szOwnName) const
 {
   ref_ddl.BeginObject("PluginState");
-  ezOpenDdlUtils::StoreString(ref_ddl, szOwnName, "ID");
-  ezOpenDdlUtils::StoreBool(ref_ddl, m_bSelected, "Selected");
-  ezOpenDdlUtils::StoreBool(ref_ddl, m_bLoadCopy, "LoadCopy");
+  WOpenDdlUtils::StoreString(ref_ddl, szOwnName, "ID");
+  WOpenDdlUtils::StoreBool(ref_ddl, m_bSelected, "Selected");
+  WOpenDdlUtils::StoreBool(ref_ddl, m_bLoadCopy, "LoadCopy");
   ref_ddl.EndObject();
 }
 
-void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOwnName)
+void WPluginBundle::ReadStateFromDDL(WOpenDdlReader& ref_ddl, const char* szOwnName)
 {
   m_bSelected = false;
 
   auto pState = ref_ddl.GetRootElement()->FindChildOfType("PluginState");
   while (pState)
   {
-    auto pName = pState->FindChildOfType(ezOpenDdlPrimitiveType::String, "ID");
+    auto pName = pState->FindChildOfType(WOpenDdlPrimitiveType::String, "ID");
     if (!pName || pName->GetPrimitivesString()[0] != szOwnName)
     {
       pState = pState->GetSibling();
       continue;
     }
 
-    if (auto pVal = pState->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Selected"))
+    if (auto pVal = pState->FindChildOfType(WOpenDdlPrimitiveType::Bool, "Selected"))
       m_bSelected = pVal->GetPrimitivesBool()[0];
-    if (auto pVal = pState->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy"))
+    if (auto pVal = pState->FindChildOfType(WOpenDdlPrimitiveType::Bool, "LoadCopy"))
       m_bLoadCopy = pVal->GetPrimitivesBool()[0];
 
     break;
   }
 }
 
-void ezPluginBundleSet::SetFromTemplate(const char* szTemplateName)
+void WPluginBundleSet::SetFromTemplate(const char* szTemplateName)
 {
   for (auto it : m_Plugins)
   {
-    ezPluginBundle& bundle = it.Value();
+    WPluginBundle& bundle = it.Value();
 
     bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplateName);
   }
 }
 
-void ezPluginBundleSet::WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const
+void WPluginBundleSet::WriteStateToDDL(WOpenDdlWriter& ref_ddl) const
 {
   for (const auto& it : m_Plugins)
   {
@@ -63,7 +63,7 @@ void ezPluginBundleSet::WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const
   }
 }
 
-void ezPluginBundleSet::ReadStateFromDDL(ezOpenDdlReader& ref_ddl)
+void WPluginBundleSet::ReadStateFromDDL(WOpenDdlReader& ref_ddl)
 {
   for (auto& it : m_Plugins)
   {
@@ -71,7 +71,7 @@ void ezPluginBundleSet::ReadStateFromDDL(ezOpenDdlReader& ref_ddl)
   }
 }
 
-bool ezPluginBundleSet::IsStateEqual(const ezPluginBundleSet& rhs) const
+bool WPluginBundleSet::IsStateEqual(const WPluginBundleSet& rhs) const
 {
   if (m_Plugins.GetCount() != rhs.m_Plugins.GetCount())
     return false;
@@ -90,141 +90,141 @@ bool ezPluginBundleSet::IsStateEqual(const ezPluginBundleSet& rhs) const
   return true;
 }
 
-ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
+WResult WPluginBundle::ReadBundleFromDDL(WOpenDdlReader& ref_ddl)
 {
-  EZ_LOG_BLOCK("Reading plugin info file");
+  W_LOG_BLOCK("Reading plugin info file");
 
   auto pInfo = ref_ddl.GetRootElement()->FindChildOfType("PluginInfo");
 
   if (pInfo == nullptr)
   {
-    ezLog::Error("'PluginInfo' root object is missing");
-    return EZ_FAILURE;
+    WLog::Error("'PluginInfo' root object is missing");
+    return W_FAILURE;
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Mandatory"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::Bool, "Mandatory"))
     m_bMandatory = pElement->GetPrimitivesBool()[0];
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "AllowEnableReload"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::Bool, "AllowEnableReload"))
     m_bAllowEnableReload = pElement->GetPrimitivesBool()[0];
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DisplayName"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "DisplayName"))
     m_sDisplayName = pElement->GetPrimitivesString()[0];
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "Description"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "Description"))
     m_sDescription = pElement->GetPrimitivesString()[0];
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EditorPlugins"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "EditorPlugins"))
   {
     m_EditorPlugins.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_EditorPlugins[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EditorEnginePlugins"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "EditorEnginePlugins"))
   {
     m_EditorEnginePlugins.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_EditorEnginePlugins[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "RuntimePlugins"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "RuntimePlugins"))
   {
     m_RuntimePlugins.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_RuntimePlugins[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependencies"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "PackageDependencies"))
   {
     m_PackageDependencies.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_PackageDependencies[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesDev"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "PackageDependenciesDev"))
   {
     m_PackageDependenciesDev.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_PackageDependenciesDev[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesDebug"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "PackageDependenciesDebug"))
   {
     m_PackageDependenciesDebug.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_PackageDependenciesDebug[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesShipping"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "PackageDependenciesShipping"))
   {
     m_PackageDependenciesShipping.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_PackageDependenciesShipping[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DataDirectories"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "DataDirectories"))
   {
     m_DataDirectories.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_DataDirectories[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "RequiredPlugins"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "RequiredPlugins"))
   {
     m_RequiredBundles.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_RequiredBundles[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "ExclusiveFeatures"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "ExclusiveFeatures"))
   {
     m_ExclusiveFeatures.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_ExclusiveFeatures[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EnabledInTemplates"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "EnabledInTemplates"))
   {
     m_EnabledInTemplates.SetCount(pElement->GetNumPrimitives());
-    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+    for (WUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_EnabledInTemplates[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "CMakeTargetName"))
+  if (auto pElement = pInfo->FindChildOfType(WOpenDdlPrimitiveType::String, "CMakeTargetName"))
     m_sCMakeTargetName = pElement->GetPrimitivesString()[0];
 
   m_bMissing = false;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
+void WQtEditorApp::DetectAvailablePluginBundles(WStringView sSearchDirectory)
 {
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
-  // find all ezPluginBundle files
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
+  // find all WPluginBundle files
   {
-    ezStringBuilder sSearch = sSearchDirectory;
+    WStringBuilder sSearch = sSearchDirectory;
 
-    sSearch.AppendPath("*.ezPluginBundle");
+    sSearch.AppendPath("*.WPluginBundle");
 
-    ezStringBuilder sPath, sPlugin;
+    WStringBuilder sPath, sPlugin;
 
-    ezFileSystemIterator fsit;
-    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
+    WFileSystemIterator fsit;
+    for (fsit.StartSearch(sSearch.GetData(), WFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
       sPlugin = fsit.GetStats().m_sName;
       sPlugin.RemoveFileExtension();
 
       fsit.GetStats().GetFullPath(sPath);
 
-      ezFileReader file;
+      WFileReader file;
       if (file.Open(sPath).Succeeded())
       {
-        ezOpenDdlReader ddl;
+        WOpenDdlReader ddl;
         if (ddl.ParseDocument(file).Failed())
         {
-          ezLog::Error("Failed to parse plugin bundle file: '{}'", sPath);
+          WLog::Error("Failed to parse plugin bundle file: '{}'", sPath);
         }
         else
         {
@@ -234,23 +234,23 @@ void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
     }
   }
 
-  // additionally, find all *Plugin.dll files that are not mentioned in any ezPluginBundle and treat them as fake plugin bundles
+  // additionally, find all *Plugin.dll files that are not mentioned in any WPluginBundle and treat them as fake plugin bundles
   if (false) // sometimes useful, but not how it's supposed to be
   {
-    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
+    WStringBuilder sSearch = WOSFile::GetApplicationDirectory();
 
     sSearch.AppendPath("*Plugin.dll");
 
-    ezStringBuilder sPlugin;
+    WStringBuilder sPlugin;
 
-    auto isUsedInBundle = [this](const ezStringBuilder& sPlugin) -> bool
+    auto isUsedInBundle = [this](const WStringBuilder& sPlugin) -> bool
     {
       for (auto pit : m_PluginBundles.m_Plugins)
       {
         if (pit.Key().IsEqual_NoCase(sPlugin))
           return true;
 
-        const ezPluginBundle& val = pit.Value();
+        const WPluginBundle& val = pit.Value();
 
         for (const auto& rt : val.m_RuntimePlugins)
         {
@@ -262,8 +262,8 @@ void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
       return false;
     };
 
-    ezFileSystemIterator fsit;
-    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
+    WFileSystemIterator fsit;
+    for (fsit.StartSearch(sSearch.GetData(), WFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
       sPlugin = fsit.GetStats().m_sName;
       sPlugin.RemoveFileExtension();
@@ -273,21 +273,21 @@ void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
 
       auto& newp = m_PluginBundles.m_Plugins[sPlugin];
       newp.m_RuntimePlugins.PushBack(sPlugin);
-      newp.m_sDescription = "No ezPluginBundle file is present for this plugin.";
+      newp.m_sDescription = "No WPluginBundle file is present for this plugin.";
 
       sPlugin.Shrink(0, 6);
       newp.m_sDisplayName = sPlugin;
     }
   }
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
 
-void ezQtEditorApp::LoadEditorPlugins()
+void WQtEditorApp::LoadEditorPlugins()
 {
-  EZ_PROFILE_SCOPE("LoadEditorPlugins");
-  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+  W_PROFILE_SCOPE("LoadEditorPlugins");
+  DetectAvailablePluginBundles(WOSFile::GetApplicationDirectory());
 
-  ezPlugin::InitializeStaticallyLinkedPlugins();
+  WPlugin::InitializeStaticallyLinkedPlugins();
 }

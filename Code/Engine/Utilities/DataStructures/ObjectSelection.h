@@ -14,19 +14,19 @@
 ///
 /// The selection automatically handles validation of object handles and provides utilities for
 /// common selection operations like adding, removing, and toggling objects.
-class EZ_UTILITIES_DLL ezObjectSelection
+class W_UTILITIES_DLL WObjectSelection
 {
 public:
-  ezObjectSelection();
+  WObjectSelection();
 
   /// Sets the world context for this selection.
   ///
   /// All objects in the selection must belong to the same world. This is used for validation
   /// when adding objects and for cleaning up destroyed objects.
-  void SetWorld(ezWorld* pWorld);
+  void SetWorld(WWorld* pWorld);
 
   /// Returns the world in which the selected objects exist.
-  const ezWorld* GetWorld() const { return m_pWorld; }
+  const WWorld* GetWorld() const { return m_pWorld; }
 
   /// Clears the selection.
   void Clear() { m_Objects.Clear(); }
@@ -39,22 +39,22 @@ public:
   void RemoveDeadObjects();
 
   /// Adds the given object to the selection, unless it is not valid anymore. Objects can be added multiple times.
-  void AddObject(ezGameObjectHandle hObject, bool bDontAddTwice = true);
+  void AddObject(WGameObjectHandle hObject, bool bDontAddTwice = true);
 
   /// Removes the first occurrence of the given object from the selection. Returns false if the object did not exist in the
   /// selection.
-  bool RemoveObject(ezGameObjectHandle hObject);
+  bool RemoveObject(WGameObjectHandle hObject);
 
   /// Removes the object from the selection if it exists already, otherwise adds it.
-  void ToggleSelection(ezGameObjectHandle hObject);
+  void ToggleSelection(WGameObjectHandle hObject);
 
   /// Returns the number of objects currently in the selection.
-  ezUInt32 GetCount() const { return m_Objects.GetCount(); }
+  WUInt32 GetCount() const { return m_Objects.GetCount(); }
 
   /// Returns the n-th object in the selection.
-  ezGameObjectHandle GetObject(ezUInt32 uiIndex) const { return m_Objects[uiIndex]; }
+  WGameObjectHandle GetObject(WUInt32 uiIndex) const { return m_Objects[uiIndex]; }
 
 private:
-  ezWorld* m_pWorld = nullptr;
-  ezDeque<ezGameObjectHandle> m_Objects;
+  WWorld* m_pWorld = nullptr;
+  WDeque<WGameObjectHandle> m_Objects;
 };

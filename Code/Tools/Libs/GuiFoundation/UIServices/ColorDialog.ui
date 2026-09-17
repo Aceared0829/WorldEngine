@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+    <normaloff>:/GuiFoundation/W-logo.svg</normaloff>:/GuiFoundation/W-logo.svg</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_6">
    <item>
@@ -119,7 +119,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="ezQtColorCompareWidget" name="ColorCompare" native="true">
+          <widget class="WQtColorCompareWidget" name="ColorCompare" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -200,7 +200,7 @@
             </widget>
            </item>
            <item>
-            <widget class="ezQtDoubleSpinBox" name="SpinAlpha">
+            <widget class="WQtDoubleSpinBox" name="SpinAlpha">
              <property name="decimals">
               <number>0</number>
              </property>
@@ -231,7 +231,7 @@
      <item row="1" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="ezQtColorAreaWidget" name="ColorArea" native="true">
+        <widget class="WQtColorAreaWidget" name="ColorArea" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -253,7 +253,7 @@
         </widget>
        </item>
        <item>
-        <widget class="ezQtColorRangeWidget" name="ColorRange" native="true">
+        <widget class="WQtColorRangeWidget" name="ColorRange" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -294,14 +294,14 @@
        <item>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinSaturation">
+          <widget class="WQtDoubleSpinBox" name="SpinSaturation">
            <property name="maximum">
             <double>100.000000000000000</double>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinRed">
+          <widget class="WQtDoubleSpinBox" name="SpinRed">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -324,7 +324,7 @@
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinBlue">
+          <widget class="WQtDoubleSpinBox" name="SpinBlue">
            <property name="decimals">
             <number>0</number>
            </property>
@@ -433,14 +433,14 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinValue">
+          <widget class="WQtDoubleSpinBox" name="SpinValue">
            <property name="maximum">
             <double>100.000000000000000</double>
            </property>
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinGreen">
+          <widget class="WQtDoubleSpinBox" name="SpinGreen">
            <property name="decimals">
             <number>0</number>
            </property>
@@ -480,7 +480,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="ezQtDoubleSpinBox" name="SpinHue">
+          <widget class="WQtDoubleSpinBox" name="SpinHue">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -565,25 +565,25 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtColorRangeWidget</class>
+   <class>WQtColorRangeWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtColorAreaWidget</class>
+   <class>WQtColorAreaWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtColorCompareWidget</class>
+   <class>WQtColorCompareWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtDoubleSpinBox</class>
+   <class>WQtDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
   </customwidget>

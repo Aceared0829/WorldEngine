@@ -1,10 +1,10 @@
 
-EZ_ALWAYS_INLINE ezWorld* ezWorldModule::GetWorld()
+W_ALWAYS_INLINE WWorld* WWorldModule::GetWorld()
 {
   return m_pWorld;
 }
 
-EZ_ALWAYS_INLINE const ezWorld* ezWorldModule::GetWorld() const
+W_ALWAYS_INLINE const WWorld* WWorldModule::GetWorld() const
 {
   return m_pWorld;
 }
@@ -12,13 +12,13 @@ EZ_ALWAYS_INLINE const ezWorld* ezWorldModule::GetWorld() const
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ModuleType, typename RTTIType>
-ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule()
+WWorldModuleTypeId WWorldModuleFactory::RegisterWorldModule()
 {
   struct Helper
   {
-    static ezWorldModule* Create(ezAllocator* pAllocator, ezWorld* pWorld) { return EZ_NEW(pAllocator, ModuleType, pWorld); }
+    static WWorldModule* Create(WAllocator* pAllocator, WWorld* pWorld) { return W_NEW(pAllocator, ModuleType, pWorld); }
   };
 
-  const ezRTTI* pRtti = ezGetStaticRTTI<RTTIType>();
+  const WRTTI* pRtti = WGetStaticRTTI<RTTIType>();
   return RegisterWorldModule(pRtti, &Helper::Create);
 }

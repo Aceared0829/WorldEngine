@@ -6,14 +6,14 @@
 #include <Core/World/World.h>
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-struct ezMsgComponentInternalTrigger;
+struct WMsgComponentInternalTrigger;
 
-using ezProjectileComponentManager = ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>;
+using WProjectileComponentManager = WComponentManagerSimple<class WProjectileComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Defines what a projectile will do when it hits a surface
-struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction
+struct W_GAMECOMPONENTS_DLL WProjectileReaction
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum : StorageType
   {
@@ -27,12 +27,12 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileReaction);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WProjectileReaction);
 
 /// Defines how the projectile owner orientation is updated on reflection / bounce.
-struct EZ_GAMECOMPONENTS_DLL ezProjectileBounceOrientation
+struct W_GAMECOMPONENTS_DLL WProjectileBounceOrientation
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum : StorageType
   {
@@ -43,27 +43,27 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileBounceOrientation
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileBounceOrientation);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WProjectileBounceOrientation);
 
 /// Holds the information about how a projectile interacts with a specific surface type
-struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
+struct W_GAMECOMPONENTS_DLL WProjectileSurfaceInteraction
 {
   /// The surface type (and derived ones) for which this interaction is used
-  ezSurfaceResourceHandle m_hSurface;
+  WSurfaceResourceHandle m_hSurface;
 
   /// How the projectile itself will react when hitting the surface type
-  ezProjectileReaction::Enum m_Reaction;
+  WProjectileReaction::Enum m_Reaction;
 
-  /// Which interaction should be triggered. See ezSurfaceResource.
-  ezString m_sInteraction;
+  /// Which interaction should be triggered. See WSurfaceResource.
+  WString m_sInteraction;
 
   /// Which impulse type to use.
-  ezUInt8 m_uiImpulseType = 0;
+  WUInt8 m_uiImpulseType = 0;
 
   /// The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
 
-  /// How much damage to do on this type of surface. Send via ezMsgDamage
+  /// How much damage to do on this type of surface. Send via WMsgDamage
   float m_fDamage = 0.0f;
 
   /// How much the rotation (spinning) of the owner object is affected by reflections/bounces about the surface
@@ -75,33 +75,33 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
   float m_fInertiaRatio = 5.0f;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileSurfaceInteraction);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WProjectileSurfaceInteraction);
 
 /// Shoots a game object in a straight line and uses physics raycasts to detect hits.
 ///
 /// When a raycast detects a hit, the surface information is used to determine how the projectile should proceed
 /// and which prefab it should spawn as an effect.
-class EZ_GAMECOMPONENTS_DLL ezProjectileComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WProjectileComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProjectileComponent, ezComponent, ezProjectileComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProjectileComponent, WComponent, WProjectileComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezProjectileComponent
+  // WProjectileComponent
 
 public:
-  ezProjectileComponent();
-  ~ezProjectileComponent();
+  WProjectileComponent();
+  ~WProjectileComponent();
 
   /// The speed at which the projectile flies.
   float m_fMetersPerSecond; // [ property ]
@@ -113,51 +113,51 @@ public:
   bool m_bSpawnPrefabOnStatic; // [ property ]
 
   /// Defines which other physics objects the projectile will collide with.
-  ezUInt8 m_uiCollisionLayer; // [ property ]
+  WUInt8 m_uiCollisionLayer; // [ property ]
 
   /// If greater than zero, a sphere shape query is used for collision detection
   /// otherwise raycasting is used and projectile is treated like a "dot"
   float m_fRadius; // [ property ]
 
   /// Defines how reflections / bounces rotate the owner object.
-  ezProjectileBounceOrientation::Enum m_BounceOrientation = ezProjectileBounceOrientation::Reflection; // [ property ]
+  WProjectileBounceOrientation::Enum m_BounceOrientation = WProjectileBounceOrientation::Reflection; // [ property ]
 
   /// Velocity ratio below which a bounced projectile is considered static.
   float m_fStaticVelocityRatio = 0.05f; // [ property ]
 
   /// A broad filter to ignore certain types of colliders.
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
+  WBitflags<WPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
 
   /// After this time the projectile is removed, if it didn't hit anything yet.
-  ezTime m_MaxLifetime; // [ property ]
+  WTime m_MaxLifetime; // [ property ]
 
   /// If the projectile hits something that has no valid surface, this surface is used instead.
-  ezSurfaceResourceHandle m_hFallbackSurface; // [ property ]
+  WSurfaceResourceHandle m_hFallbackSurface; // [ property ]
 
   /// Specifies how the projectile interacts with different surface types.
-  ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
+  WHybridArray<WProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// If the projectile reaches its maximum lifetime it can spawn this prefab.
-  ezPrefabResourceHandle m_hDeathPrefab;           // [ property ]
+  WPrefabResourceHandle m_hDeathPrefab;           // [ property ]
 
-  void SetFallbackSurfaceFile(ezStringView sFile); // [ property ]
-  ezStringView GetFallbackSurfaceFile() const;     // [ property ]
+  void SetFallbackSurfaceFile(WStringView sFile); // [ property ]
+  WStringView GetFallbackSurfaceFile() const;     // [ property ]
 
 private:
   void Update();
-  void OnTriggered(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
+  void OnTriggered(WMsgComponentInternalTrigger& msg); // [ msg handler ]
 
   void SpawnDeathPrefab();
-  void ApplyReflectionRotation(const ezVec3& vCurDirection, const ezVec3& vSurfaceNormal);
-  void ApplySpinningRotation(const ezProjectileSurfaceInteraction& interaction, const ezPhysicsCastResult& castResult, const ezVec3& vPositionOnReflection, const ezVec3& vCurDirection, const ezVec3& vNewVelocity);
-  bool QueryCollision(const ezPhysicsWorldModuleInterface& physicsInterface, ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, const ezPhysicsQueryParameters& queryParams) const;
-  bool ShouldStopProjectile(const ezPhysicsWorldModuleInterface& physicsInterface, const ezPhysicsCastResult& castResult, const ezVec3& vVelocity);
+  void ApplyReflectionRotation(const WVec3& vCurDirection, const WVec3& vSurfaceNormal);
+  void ApplySpinningRotation(const WProjectileSurfaceInteraction& interaction, const WPhysicsCastResult& castResult, const WVec3& vPositionOnReflection, const WVec3& vCurDirection, const WVec3& vNewVelocity);
+  bool QueryCollision(const WPhysicsWorldModuleInterface& physicsInterface, WPhysicsCastResult& out_result, const WVec3& vStart, const WVec3& vDirection, float fDistance, const WPhysicsQueryParameters& queryParams) const;
+  bool ShouldStopProjectile(const WPhysicsWorldModuleInterface& physicsInterface, const WPhysicsCastResult& castResult, const WVec3& vVelocity);
 
 
   /// If an unknown surface type is hit, the projectile will just delete itself without further interaction
-  ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
+  WInt32 FindSurfaceInteraction(const WSurfaceResourceHandle& hSurface) const;
 
-  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
+  void TriggerSurfaceInteraction(const WSurfaceResourceHandle& hSurface, WGameObjectHandle hObject, const WVec3& vPos, const WVec3& vNormal, const WVec3& vDirection, const char* szInteraction);
 
-  ezVec3 m_vVelocity;
+  WVec3 m_vVelocity;
 };

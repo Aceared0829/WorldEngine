@@ -5,7 +5,7 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <Foundation/Tracks/Curve1D.h>
 
-using namespace ezExpression;
+using namespace WExpression;
 
 namespace
 {
@@ -16,7 +16,7 @@ namespace
     "Float",
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_szRegisterTypeNames) == RegisterType::Count);
+  static_assert(W_ARRAY_SIZE(s_szRegisterTypeNames) == RegisterType::Count);
 
   static const char* s_szRegisterTypeNamesShort[] = {
     "U",
@@ -25,37 +25,37 @@ namespace
     "F",
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_szRegisterTypeNamesShort) == RegisterType::Count);
+  static_assert(W_ARRAY_SIZE(s_szRegisterTypeNamesShort) == RegisterType::Count);
 
-  static_assert(RegisterType::Count <= EZ_BIT(RegisterType::MaxNumBits));
+  static_assert(RegisterType::Count <= W_BIT(RegisterType::MaxNumBits));
 } // namespace
 
 // static
 const char* RegisterType::GetName(Enum registerType)
 {
-  EZ_ASSERT_DEBUG(registerType >= 0 && static_cast<ezUInt32>(registerType) < EZ_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
+  W_ASSERT_DEBUG(registerType >= 0 && static_cast<WUInt32>(registerType) < W_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
   return s_szRegisterTypeNames[registerType];
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult StreamDesc::Serialize(ezStreamWriter& inout_stream) const
+WResult StreamDesc::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_sName;
-  inout_stream << static_cast<ezUInt8>(m_DataType);
+  inout_stream << static_cast<WUInt8>(m_DataType);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult StreamDesc::Deserialize(ezStreamReader& inout_stream)
+WResult StreamDesc::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_sName;
 
-  ezUInt8 dataType = 0;
+  WUInt8 dataType = 0;
   inout_stream >> dataType;
-  m_DataType = static_cast<ezProcessingStream::DataType>(dataType);
+  m_DataType = static_cast<WProcessingStream::DataType>(dataType);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,29 +74,29 @@ bool FunctionDesc::operator<(const FunctionDesc& other) const
   return m_InputTypes.GetArrayPtr() < other.m_InputTypes.GetArrayPtr();
 }
 
-ezResult FunctionDesc::Serialize(ezStreamWriter& inout_stream) const
+WResult FunctionDesc::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_sName;
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_InputTypes));
+  W_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_InputTypes));
   inout_stream << m_uiNumRequiredInputs;
   inout_stream << m_OutputType;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult FunctionDesc::Deserialize(ezStreamReader& inout_stream)
+WResult FunctionDesc::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_sName;
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_InputTypes));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_InputTypes));
   inout_stream >> m_uiNumRequiredInputs;
   inout_stream >> m_OutputType;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezHashedString FunctionDesc::GetMangledName() const
+WHashedString FunctionDesc::GetMangledName() const
 {
-  ezStringBuilder sMangledName = m_sName.GetView();
+  WStringBuilder sMangledName = m_sName.GetView();
   sMangledName.Append("_");
 
   for (auto inputType : m_InputTypes)
@@ -104,7 +104,7 @@ ezHashedString FunctionDesc::GetMangledName() const
     sMangledName.Append(s_szRegisterTypeNamesShort[inputType]);
   }
 
-  ezHashedString sResult;
+  WHashedString sResult;
   sResult.Assign(sMangledName);
   return sResult;
 }
@@ -113,11 +113,11 @@ ezHashedString FunctionDesc::GetMangledName() const
 
 namespace
 {
-  static const ezEnum<RegisterType> s_RandomInputTypes[] = {RegisterType::Int, RegisterType::Int};
+  static const WEnum<RegisterType> s_RandomInputTypes[] = {RegisterType::Int, RegisterType::Int};
 
   static void Random(Inputs inputs, Output output, const GlobalData& globalData)
   {
-    EZ_IGNORE_UNUSED(globalData);
+    W_IGNORE_UNUSED(globalData);
 
     const Register* pPositions = inputs[0].GetPtr();
     const Register* pPositionsEnd = inputs[0].GetEndPtr();
@@ -129,7 +129,7 @@ namespace
 
       while (pPositions < pPositionsEnd)
       {
-        pOutput->f = ezSimdRandom::FloatZeroToOne(pPositions->i, ezSimdVec4u(pSeeds->i));
+        pOutput->f = WSimdRandom::FloatZeroToOne(pPositions->i, WSimdVec4u(pSeeds->i));
 
         ++pPositions;
         ++pSeeds;
@@ -140,7 +140,7 @@ namespace
     {
       while (pPositions < pPositionsEnd)
       {
-        pOutput->f = ezSimdRandom::FloatZeroToOne(pPositions->i);
+        pOutput->f = WSimdRandom::FloatZeroToOne(pPositions->i);
 
         ++pPositions;
         ++pOutput;
@@ -150,8 +150,8 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ezSimdPerlinNoise s_PerlinNoise(12345);
-  static const ezEnum<RegisterType> s_PerlinNoiseInputTypes[] = {
+  static WSimdPerlinNoise s_PerlinNoise(12345);
+  static const WEnum<RegisterType> s_PerlinNoiseInputTypes[] = {
     RegisterType::Float,
     RegisterType::Float,
     RegisterType::Float,
@@ -160,14 +160,14 @@ namespace
 
   static void PerlinNoise(Inputs inputs, Output output, const GlobalData& globalData)
   {
-    EZ_IGNORE_UNUSED(globalData);
+    W_IGNORE_UNUSED(globalData);
 
     const Register* pPosX = inputs[0].GetPtr();
     const Register* pPosY = inputs[1].GetPtr();
     const Register* pPosZ = inputs[2].GetPtr();
     const Register* pPosXEnd = inputs[0].GetEndPtr();
 
-    const ezUInt32 uiNumOctaves = (inputs.GetCount() >= 4) ? inputs[3][0].i.x() : 1;
+    const WUInt32 uiNumOctaves = (inputs.GetCount() >= 4) ? inputs[3][0].i.x() : 1;
 
     Register* pOutput = output.GetPtr();
 
@@ -184,87 +184,87 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  static ezHashedString s_sCurves = ezMakeHashedString("Curves");
+  static WHashedString s_sCurves = WMakeHashedString("Curves");
 
-  static const ezEnum<ezExpression::RegisterType> s_SampleCurvesInputTypes[] = {
-    ezExpression::RegisterType::Int,   // CurveIndex
-    ezExpression::RegisterType::Float, // X
+  static const WEnum<WExpression::RegisterType> s_SampleCurvesInputTypes[] = {
+    WExpression::RegisterType::Int,   // CurveIndex
+    WExpression::RegisterType::Float, // X
   };
 
-  static void SampleCurve(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  static void SampleCurve(WExpression::Inputs inputs, WExpression::Output output, const WExpression::GlobalData& globalData)
   {
-    const ezVariantArray& curves = globalData.GetValue(s_sCurves)->Get<ezVariantArray>();
+    const WVariantArray& curves = globalData.GetValue(s_sCurves)->Get<WVariantArray>();
     if (curves.IsEmpty())
       return;
 
-    ezUInt32 uiCurveIndex = inputs[0].GetPtr()->i.x();
+    WUInt32 uiCurveIndex = inputs[0].GetPtr()->i.x();
     if (uiCurveIndex >= curves.GetCount())
       return;
 
-    auto pSampledCurve = ezDynamicCast<const ezSampledCurve1D*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
+    auto pSampledCurve = WDynamicCast<const WSampledCurve1D*>(curves[uiCurveIndex].Get<WReflectedClass*>());
     if (pSampledCurve == nullptr || pSampledCurve->m_Samples.IsEmpty())
       return;
 
-    const ezUInt32 uiMaxIdx = pSampledCurve->m_Samples.GetCount() - 1;
-    const ezSimdVec4f vOffsetX = ezSimdVec4f(-pSampledCurve->m_fMinX);
+    const WUInt32 uiMaxIdx = pSampledCurve->m_Samples.GetCount() - 1;
+    const WSimdVec4f vOffsetX = WSimdVec4f(-pSampledCurve->m_fMinX);
     const float fRange = pSampledCurve->m_fMaxX - pSampledCurve->m_fMinX;
-    const ezSimdVec4f vScale = ezSimdVec4f(fRange > 0.0f ? static_cast<float>(uiMaxIdx) / fRange : 0.0f);
-    const ezSimdVec4i vMaxIdx = ezSimdVec4i(uiMaxIdx);
+    const WSimdVec4f vScale = WSimdVec4f(fRange > 0.0f ? static_cast<float>(uiMaxIdx) / fRange : 0.0f);
+    const WSimdVec4i vMaxIdx = WSimdVec4i(uiMaxIdx);
     const float* samples = pSampledCurve->m_Samples.GetData();
 
-    const ezExpression::Register* pX = inputs[1].GetPtr();
-    const ezExpression::Register* pXEnd = inputs[1].GetEndPtr();
-    ezExpression::Register* pOutput = output.GetPtr();
+    const WExpression::Register* pX = inputs[1].GetPtr();
+    const WExpression::Register* pXEnd = inputs[1].GetEndPtr();
+    WExpression::Register* pOutput = output.GetPtr();
 
     while (pX < pXEnd)
     {
-      const ezSimdVec4f vT = (pX->f + vOffsetX).CompMul(vScale);
-      const ezSimdVec4i vIdx0 = ezSimdVec4i::Truncate(vT).CompMax(ezSimdVec4i::MakeZero()).CompMin(vMaxIdx);
-      const ezSimdVec4i vIdx1 = (vIdx0 + ezSimdVec4i(1)).CompMin(vMaxIdx);
-      const ezSimdVec4f vFrac = vT - vIdx0.ToFloat();
+      const WSimdVec4f vT = (pX->f + vOffsetX).CompMul(vScale);
+      const WSimdVec4i vIdx0 = WSimdVec4i::Truncate(vT).CompMax(WSimdVec4i::MakeZero()).CompMin(vMaxIdx);
+      const WSimdVec4i vIdx1 = (vIdx0 + WSimdVec4i(1)).CompMin(vMaxIdx);
+      const WSimdVec4f vFrac = vT - vIdx0.ToFloat();
 
       const float sample0[] = {samples[vIdx0.x()], samples[vIdx0.y()], samples[vIdx0.z()], samples[vIdx0.w()]};
       const float sample1[] = {samples[vIdx1.x()], samples[vIdx1.y()], samples[vIdx1.z()], samples[vIdx1.w()]};
-      ezSimdVec4f vSample0, vSample1;
+      WSimdVec4f vSample0, vSample1;
       vSample0.Load<4>(sample0);
       vSample1.Load<4>(sample1);
 
-      pOutput->f = ezSimdVec4f::Lerp(vSample0, vSample1, vFrac);
+      pOutput->f = WSimdVec4f::Lerp(vSample0, vSample1, vFrac);
 
       ++pX;
       ++pOutput;
     }
   }
 
-  static ezResult SampleCurveValidate(const ezExpression::GlobalData& globalData)
+  static WResult SampleCurveValidate(const WExpression::GlobalData& globalData)
   {
     if (!globalData.IsEmpty())
     {
-      if (const ezVariant* pValue = globalData.GetValue(s_sCurves))
+      if (const WVariant* pValue = globalData.GetValue(s_sCurves))
       {
-        if (pValue->GetType() == ezVariantType::VariantArray)
+        if (pValue->GetType() == WVariantType::VariantArray)
         {
-          return EZ_SUCCESS;
+          return W_SUCCESS;
         }
       }
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 } // namespace
 
-ezExpressionFunction ezDefaultExpressionFunctions::s_RandomFunc = {
-  {ezMakeHashedString("random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
+WExpressionFunction WDefaultExpressionFunctions::s_RandomFunc = {
+  {WMakeHashedString("random"), WExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
   &Random,
 };
 
-ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
-  {ezMakeHashedString("perlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
+WExpressionFunction WDefaultExpressionFunctions::s_PerlinNoiseFunc = {
+  {WMakeHashedString("perlinNoise"), WExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
 };
 
-ezExpressionFunction ezExtendedExpressionFunctions::s_SampleCurveFunc = {
-  {ezMakeHashedString("sampleCurve"), ezExpression::FunctionDesc::TypeList(s_SampleCurvesInputTypes), 2, ezExpression::RegisterType::Float},
+WExpressionFunction WExtendedExpressionFunctions::s_SampleCurveFunc = {
+  {WMakeHashedString("sampleCurve"), WExpression::FunctionDesc::TypeList(s_SampleCurvesInputTypes), 2, WExpression::RegisterType::Float},
   &SampleCurve,
   &SampleCurveValidate,
 };
@@ -272,25 +272,25 @@ ezExpressionFunction ezExtendedExpressionFunctions::s_SampleCurveFunc = {
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExpressionWidgetAttribute, 1, ezRTTIDefaultAllocator<ezExpressionWidgetAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExpressionWidgetAttribute, 1, WRTTIDefaultAllocator<WExpressionWidgetAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InputsProperty", m_sInputsProperty),
-    EZ_MEMBER_PROPERTY("OutputsProperty", m_sOutputsProperty),
-    EZ_MEMBER_PROPERTY("CustomKeywords", m_sCustomKeywords),
-    EZ_MEMBER_PROPERTY("CustomKeywordColor", m_CustomKeywordColor),
+    W_MEMBER_PROPERTY("InputsProperty", m_sInputsProperty),
+    W_MEMBER_PROPERTY("OutputsProperty", m_sOutputsProperty),
+    W_MEMBER_PROPERTY("CustomKeywords", m_sCustomKeywords),
+    W_MEMBER_PROPERTY("CustomKeywordColor", m_CustomKeywordColor),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, ezColorGammaUB),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    W_CONSTRUCTOR_PROPERTY(const char*, WColorGammaUB),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);
+W_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);

@@ -4,36 +4,36 @@
 
 #include <GameEngine/Animation/TransformComponent.h>
 
-using ezRotorComponentManager = ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating>;
+using WRotorComponentManager = WComponentManagerSimple<class WRotorComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Applies a rotation to the game object that it is attached to.
 ///
 /// The rotation may be endless, or limited to a certain amount of rotation.
 /// It may also automatically turn around and accelerate and decelerate.
-class EZ_GAMEENGINE_DLL ezRotorComponent : public ezTransformComponent
+class W_GAMEENGINE_DLL WRotorComponent : public WTransformComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, ezRotorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRotorComponent, WTransformComponent, WRotorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRotorComponent
+  // WRotorComponent
 
 public:
-  ezRotorComponent();
-  ~ezRotorComponent();
+  WRotorComponent();
+  ~WRotorComponent();
 
   /// How much to rotate before reaching the end and either stopping or turning around.
   /// Set to zero for endless rotation.
-  ezInt32 m_iDegreeToRotate = 0; // [ property ]
+  WInt32 m_iDegreeToRotate = 0; // [ property ]
 
   /// The acceleration to reach the target speed.
   float m_fAcceleration = 1.0f; // [ property ]
@@ -42,14 +42,14 @@ public:
   float m_fDeceleration = 1.0f; // [ property ]
 
   /// The axis around which to rotate. In local space of the game object.
-  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
+  WEnum<WBasisAxis> m_Axis = WBasisAxis::PositiveZ; // [ property ]
 
   /// How much the rotation axis may randomly deviate to not have all objects rotate the same way.
-  ezAngle m_AxisDeviation; // [ property ]
+  WAngle m_AxisDeviation; // [ property ]
 
 protected:
   void Update();
 
-  ezVec3 m_vRotationAxis = ezVec3(0, 0, 1);
-  ezQuat m_qLastRotation = ezQuat::MakeIdentity();
+  WVec3 m_vRotationAxis = WVec3(0, 0, 1);
+  WQuat m_qLastRotation = WQuat::MakeIdentity();
 };

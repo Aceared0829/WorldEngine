@@ -1,5 +1,5 @@
 
-void SetConsoleColor(ezUInt8 ui)
+void SetConsoleColor(WUInt8 ui)
 {
-  EZ_IGNORE_UNUSED(ui);
+  W_IGNORE_UNUSED(ui);
 }

@@ -8,28 +8,28 @@
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-EZ_DEFINE_AS_POD_TYPE(vk::Format);
+W_DEFINE_AS_POD_TYPE(vk::Format);
 
-class ezGALCommandEncoderImplVulkan;
-class ezFenceQueueVulkan;
+class WGALCommandEncoderImplVulkan;
+class WFenceQueueVulkan;
 
-struct ezGALFormatLookupEntryVulkan
+struct WGALFormatLookupEntryVulkan
 {
-  ezGALFormatLookupEntryVulkan() = default;
-  ezGALFormatLookupEntryVulkan(vk::Format format)
+  WGALFormatLookupEntryVulkan() = default;
+  WGALFormatLookupEntryVulkan(vk::Format format)
   {
     m_format = format;
     m_readback = format;
   }
 
-  ezGALFormatLookupEntryVulkan(vk::Format format, ezArrayPtr<vk::Format> mutableFormats)
+  WGALFormatLookupEntryVulkan(vk::Format format, WArrayPtr<vk::Format> mutableFormats)
   {
     m_format = format;
     m_readback = format;
     m_mutableFormats = mutableFormats;
   }
 
-  inline ezGALFormatLookupEntryVulkan& R(vk::Format readbackType)
+  inline WGALFormatLookupEntryVulkan& R(vk::Format readbackType)
   {
     m_readback = readbackType;
     return *this;
@@ -37,38 +37,38 @@ struct ezGALFormatLookupEntryVulkan
 
   vk::Format m_format = vk::Format::eUndefined;
   vk::Format m_readback = vk::Format::eUndefined;
-  ezHybridArray<vk::Format, 6> m_mutableFormats;
+  WHybridArray<vk::Format, 6> m_mutableFormats;
 };
 
-using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEntryVulkan>;
+using WGALFormatLookupTableVulkan = WGALFormatLookupTable<WGALFormatLookupEntryVulkan>;
 
-class ezGALBufferVulkan;
-class ezGALTextureVulkan;
-class ezCommandBufferPoolVulkan;
-class ezStagingBufferPoolVulkan;
-class ezQueryPoolVulkan;
-class ezInitContextVulkan;
-class ezDescriptorWritePoolVulkan;
+class WGALBufferVulkan;
+class WGALTextureVulkan;
+class WCommandBufferPoolVulkan;
+class WStagingBufferPoolVulkan;
+class WQueryPoolVulkan;
+class WInitContextVulkan;
+class WDescriptorWritePoolVulkan;
 
 /// The Vulkan device implementation of the graphics abstraction layer.
-class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
+class W_RENDERERVULKAN_DLL WGALDeviceVulkan : public WGALDevice
 {
 private:
-  friend ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description);
-  ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description);
+  friend WInternal::NewInstance<WGALDevice> CreateVulkanDevice(WAllocator* pAllocator, const WGALDeviceCreationDescription& description);
+  WGALDeviceVulkan(const WGALDeviceCreationDescription& Description);
 
 public:
-  virtual ~ezGALDeviceVulkan();
+  virtual ~WGALDeviceVulkan();
 
 public:
   struct PendingDeletionFlags
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
-      UsesExternalMemory = EZ_BIT(0),
-      IsFileDescriptor = EZ_BIT(1),
+      UsesExternalMemory = W_BIT(0),
+      IsFileDescriptor = W_BIT(1),
       Default = 0
     };
 
@@ -81,22 +81,22 @@ public:
 
   struct PendingDeletion
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
     vk::ObjectType m_type;                    ///< What type to cast m_pObject to.
-    ezBitflags<PendingDeletionFlags> m_flags; ///< In case m_type == eUnknown, defines the custom deletion to be performed.
+    WBitflags<PendingDeletionFlags> m_flags; ///< In case m_type == eUnknown, defines the custom deletion to be performed.
     void* m_pObject;                          ///< The object to be deleted, usually cast to a vk::* type.
     union
     {
-      ezVulkanAllocation m_allocation;        ///< For convenience to omit casting of m_pContext.
+      WVulkanAllocation m_allocation;        ///< For convenience to omit casting of m_pContext.
       void* m_pContext;                       ///< 64bit of context data.
     };
   };
 
   struct ReclaimResource
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
     vk::ObjectType m_type;      ///< What type to cast m_pObject to.
-    ezUInt32 m_Data;            ///< 32bit of context data.
+    WUInt32 m_Data;            ///< 32bit of context data.
     void* m_pObject = nullptr;  ///< The object to be reclaimed, usually cast to a vk::* type.
     void* m_pContext = nullptr; ///< 64bit of context data. Usually the object that reclaims the resource.
   };
@@ -106,14 +106,14 @@ public:
     bool m_bSurface = false;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     bool m_bWin32Surface = false;
-#elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#elif W_ENABLED(W_SUPPORTS_GLFW)
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
     bool m_bAndroidSurface = false;
 #else
 #  error "Vulkan Platform not supported"
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
     bool m_bSurfaceXcb = false;
 #endif
 
@@ -159,8 +159,8 @@ public:
   struct Queue
   {
     vk::Queue m_queue;
-    ezUInt32 m_uiQueueFamily = -1;
-    ezUInt32 m_uiQueueIndex = 0;
+    WUInt32 m_uiQueueFamily = -1;
+    WUInt32 m_uiQueueIndex = 0;
   };
 
   vk::Instance GetVulkanInstance() const;
@@ -169,30 +169,30 @@ public:
   const Queue& GetTransferQueue() const;
 
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
-  EZ_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_Properties.properties; }
+  W_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_Properties.properties; }
   vk::PhysicalDeviceFeatures2 GetPhysicalDeviceFeatures(void* pNext = nullptr) const;
 
   const Extensions& GetExtensions() const { return m_Extensions; }
-  const ezVulkanDispatchContext& GetDispatchContext() const { return m_DispatchContext; }
+  const WVulkanDispatchContext& GetDispatchContext() const { return m_DispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;
 
   /// Shader stages the device lacks the features for. These must be masked out of every pipeline barrier, otherwise the stage mask is invalid (VUID-vkCmdPipelineBarrier-srcStageMask-04996).
   vk::PipelineStageFlags GetUnsupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
-  ezQueryPoolVulkan& GetQueryPool() const;
-  ezFenceQueueVulkan& GetFenceQueue() const;
-  ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
-  ezInitContextVulkan& GetInitContext() const;
-  ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
+  WQueryPoolVulkan& GetQueryPool() const;
+  WFenceQueueVulkan& GetFenceQueue() const;
+  WStagingBufferPoolVulkan& GetStagingBufferPool() const;
+  WInitContextVulkan& GetInitContext() const;
+  WDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
 
 
-  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData);
-  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData);
+  WGALTextureHandle CreateTextureInternal(const WGALTextureCreationDescription& description, WArrayPtr<WGALSystemMemoryDescription> initialData);
+  WGALBufferHandle CreateBufferInternal(const WGALBufferCreationDescription& description, WArrayPtr<const WUInt8> initialData);
 
-  const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
+  const WGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
-  ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
+  WInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
   vk::Fence Submit(bool bAddSignalSemaphore = true, bool bAddUpdateForNextFrameCommands = false);
 
@@ -211,7 +211,7 @@ public:
   }
 
   template <typename T>
-  void DeleteLater(T& ref_object, ezVulkanAllocation& ref_pAllocation)
+  void DeleteLater(T& ref_object, WVulkanAllocation& ref_pAllocation)
   {
     if (ref_object)
     {
@@ -222,7 +222,7 @@ public:
   }
 
   template <typename T>
-  void DeleteLater(T& ref_object, void* pContext, ezBitflags<PendingDeletionFlags> flags = {})
+  void DeleteLater(T& ref_object, void* pContext, WBitflags<PendingDeletionFlags> flags = {})
   {
     if (ref_object)
     {
@@ -246,18 +246,18 @@ public:
   void ReclaimLater(const ReclaimResource& reclaim);
 
   template <typename T>
-  void ReclaimLater(T& ref_object, void* pContext = nullptr, ezUInt32 uiData = 0)
+  void ReclaimLater(T& ref_object, void* pContext = nullptr, WUInt32 uiData = 0)
   {
     ReclaimLater({ref_object.objectType, uiData, (void*)ref_object, pContext});
     ref_object = nullptr;
   }
 
-  void SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation pAllocation = nullptr);
+  void SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, WVulkanAllocation pAllocation = nullptr);
 
   template <typename T>
-  void SetDebugName(const char* szName, T& ref_object, ezVulkanAllocation pAllocation = nullptr)
+  void SetDebugName(const char* szName, T& ref_object, WVulkanAllocation pAllocation = nullptr)
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     if (ref_object)
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
@@ -272,26 +272,26 @@ public:
 
   void ReportLiveGpuObjects();
 
-  static void UploadBufferStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> initialData, vk::DeviceSize dstOffset = 0);
-  static void UploadTextureStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
+  static void UploadBufferStaging(WGALDeviceVulkan& ref_device, WStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const WGALBufferVulkan* pBuffer, WArrayPtr<const WUInt8> initialData, vk::DeviceSize dstOffset = 0);
+  static void UploadTextureStaging(WGALDeviceVulkan& ref_device, WStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const WGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const WGALSystemMemoryDescription& data);
 
   struct OnBeforeImageDestroyedData
   {
     vk::Image image;
-    ezGALDeviceVulkan& GALDeviceVulkan;
+    WGALDeviceVulkan& GALDeviceVulkan;
   };
-  ezEvent<OnBeforeImageDestroyedData> OnBeforeImageDestroyed;
+  WEvent<OnBeforeImageDestroyedData> OnBeforeImageDestroyed;
 
-  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
+  virtual const WGALSharedTexture* GetSharedTexture(WGALTextureHandle hTexture) const override;
 
   struct SemaphoreInfo
   {
-    static SemaphoreInfo MakeWaitSemaphore(vk::Semaphore semaphore, vk::PipelineStageFlagBits waitStage = vk::PipelineStageFlagBits::eAllCommands, vk::SemaphoreType type = vk::SemaphoreType::eBinary, ezUInt64 uiValue = 0)
+    static SemaphoreInfo MakeWaitSemaphore(vk::Semaphore semaphore, vk::PipelineStageFlagBits waitStage = vk::PipelineStageFlagBits::eAllCommands, vk::SemaphoreType type = vk::SemaphoreType::eBinary, WUInt64 uiValue = 0)
     {
       return SemaphoreInfo{semaphore, type, waitStage, uiValue};
     }
 
-    static SemaphoreInfo MakeSignalSemaphore(vk::Semaphore semaphore, vk::SemaphoreType type = vk::SemaphoreType::eBinary, ezUInt64 uiValue = 0)
+    static SemaphoreInfo MakeSignalSemaphore(vk::Semaphore semaphore, vk::SemaphoreType type = vk::SemaphoreType::eBinary, WUInt64 uiValue = 0)
     {
       return SemaphoreInfo{semaphore, type, vk::PipelineStageFlagBits::eNone, uiValue};
     }
@@ -299,7 +299,7 @@ public:
     vk::Semaphore m_semaphore;
     vk::SemaphoreType m_type = vk::SemaphoreType::eBinary;
     vk::PipelineStageFlagBits m_waitStage = vk::PipelineStageFlagBits::eAllCommands;
-    ezUInt64 m_uiValue = 0;
+    WUInt64 m_uiValue = 0;
   };
   void AddWaitSemaphore(const SemaphoreInfo& waitSemaphore);
   void AddSignalSemaphore(const SemaphoreInfo& signalSemaphore);
@@ -308,99 +308,99 @@ public:
 protected:
   // Init & shutdown functions
 
-  vk::Result SelectInstanceExtensions(ezDynamicArray<ezString>& extensions);
-  vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezDynamicArray<ezString>& extensions);
+  vk::Result SelectInstanceExtensions(WDynamicArray<WString>& extensions);
+  vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, WDynamicArray<WString>& extensions);
 
-  virtual ezStringView GetRendererPlatform() override;
-  virtual ezResult InitPlatform() override;
-  virtual ezResult ShutdownPlatform() override;
+  virtual WStringView GetRendererPlatform() override;
+  virtual WResult InitPlatform() override;
+  virtual WResult ShutdownPlatform() override;
 
   // Command encoder functions
 
-  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
-  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
+  virtual WGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
+  virtual void EndCommandsPlatform(WGALCommandEncoder* pPass) override;
 
   virtual void FlushPlatform() override;
 
 
   // State creation functions
 
-  virtual ezGALBlendState* CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description) override;
-  virtual void DestroyBlendStatePlatform(ezGALBlendState* pBlendState) override;
+  virtual WGALBlendState* CreateBlendStatePlatform(const WGALBlendStateCreationDescription& Description) override;
+  virtual void DestroyBlendStatePlatform(WGALBlendState* pBlendState) override;
 
-  virtual ezGALDepthStencilState* CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description) override;
-  virtual void DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState) override;
+  virtual WGALDepthStencilState* CreateDepthStencilStatePlatform(const WGALDepthStencilStateCreationDescription& Description) override;
+  virtual void DestroyDepthStencilStatePlatform(WGALDepthStencilState* pDepthStencilState) override;
 
-  virtual ezGALRasterizerState* CreateRasterizerStatePlatform(const ezGALRasterizerStateCreationDescription& Description) override;
-  virtual void DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) override;
+  virtual WGALRasterizerState* CreateRasterizerStatePlatform(const WGALRasterizerStateCreationDescription& Description) override;
+  virtual void DestroyRasterizerStatePlatform(WGALRasterizerState* pRasterizerState) override;
 
-  virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) override;
-  virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
-  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
+  virtual WGALSamplerState* CreateSamplerStatePlatform(const WGALSamplerStateCreationDescription& Description) override;
+  virtual void DestroySamplerStatePlatform(WGALSamplerState* pSamplerState) override;
+  virtual void RecreateSamplerStatePlatform(WGALSamplerState* pSamplerState) override;
 
-  virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) override;
-  virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) override;
+  virtual WGALBindGroupLayout* CreateBindGroupLayoutPlatform(const WGALBindGroupLayoutCreationDescription& Description) override;
+  virtual void DestroyBindGroupLayoutPlatform(WGALBindGroupLayout* pBindGroupLayout) override;
 
-  virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
-  virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
-  virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
+  virtual WGALBindGroup* CreateBindGroupPlatform(const WGALBindGroupCreationDescription& Description) override;
+  virtual void DestroyBindGroupPlatform(WGALBindGroup* pBindGroup) override;
+  virtual void RecreateBindGroupPlatform(WGALBindGroup* pBindGroup) override;
 
-  virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
-  virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;
+  virtual WGALPipelineLayout* CreatePipelineLayoutPlatform(const WGALPipelineLayoutCreationDescription& Description) override;
+  virtual void DestroyPipelineLayoutPlatform(WGALPipelineLayout* pPipelineLayout) override;
 
-  virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) override;
-  virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) override;
+  virtual WGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const WGALGraphicsPipelineCreationDescription& Description) override;
+  virtual void DestroyGraphicsPipelinePlatform(WGALGraphicsPipeline* pGraphicsPipeline) override;
 
-  virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) override;
-  virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) override;
+  virtual WGALComputePipeline* CreateComputePipelinePlatform(const WGALComputePipelineCreationDescription& Description) override;
+  virtual void DestroyComputePipelinePlatform(WGALComputePipeline* pComputePipeline) override;
 
   // Resource creation functions
 
-  virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) override;
-  virtual void DestroyShaderPlatform(ezGALShader* pShader) override;
+  virtual WGALShader* CreateShaderPlatform(const WGALShaderCreationDescription& Description) override;
+  virtual void DestroyShaderPlatform(WGALShader* pShader) override;
 
-  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) override;
-  virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
+  virtual WGALBuffer* CreateBufferPlatform(const WGALBufferCreationDescription& Description, WArrayPtr<const WUInt8> pInitialData) override;
+  virtual void DestroyBufferPlatform(WGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-  virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
+  virtual WGALTexture* CreateTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData) override;
+  virtual void DestroyTexturePlatform(WGALTexture* pTexture) override;
 
-  virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
-  virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
+  virtual WGALTexture* CreateSharedTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData, WEnum<WGALSharedTextureType> sharedType, WGALPlatformSharedHandle handle) override;
+  virtual void DestroySharedTexturePlatform(WGALTexture* pTexture) override;
 
-  virtual ezGALReadbackBuffer* CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description) override;
-  virtual void DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer) override;
+  virtual WGALReadbackBuffer* CreateReadbackBufferPlatform(const WGALBufferCreationDescription& Description) override;
+  virtual void DestroyReadbackBufferPlatform(WGALReadbackBuffer* pReadbackBuffer) override;
 
-  virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) override;
-  virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) override;
+  virtual WGALReadbackTexture* CreateReadbackTexturePlatform(const WGALTextureCreationDescription& Description) override;
+  virtual void DestroyReadbackTexturePlatform(WGALReadbackTexture* pReadbackTexture) override;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
-  virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
+  virtual WGALRenderTargetView* CreateRenderTargetViewPlatform(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description) override;
+  virtual void DestroyRenderTargetViewPlatform(WGALRenderTargetView* pRenderTargetView) override;
 
-  virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
-  virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
+  virtual WGALVertexDeclaration* CreateVertexDeclarationPlatform(const WGALVertexDeclarationCreationDescription& Description) override;
+  virtual void DestroyVertexDeclarationPlatform(WGALVertexDeclaration* pVertexDeclaration) override;
 
   // Resource update functions
 
-  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) override;
-  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) override;
+  virtual void UpdateBufferForNextFramePlatform(const WGALBuffer* pBuffer, WConstByteArrayPtr sourceData, WUInt32 uiDestOffset) override;
+  virtual void UpdateTextureForNextFramePlatform(const WGALTexture* pTexture, const WGALSystemMemoryDescription& sourceData, const WGALTextureSubresource& destinationSubResource, const WBoundingBoxu32& destinationBox) override;
 
   // GPU -> CPU query functions
 
-  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
-  virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
-  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
-  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const override;
-  virtual void UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const override;
-  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const override;
-  virtual void UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const override;
+  virtual WEnum<WGALAsyncResult> GetTimestampResultPlatform(WGALTimestampHandle hTimestamp, WTime& out_result) override;
+  virtual WEnum<WGALAsyncResult> GetOcclusionResultPlatform(WGALOcclusionHandle hOcclusion, WUInt64& out_uiResult) override;
+  virtual WEnum<WGALAsyncResult> GetFenceResultPlatform(WGALFenceHandle hFence, WTime timeout) override;
+  virtual WResult LockBufferPlatform(const WGALReadbackBuffer* pBuffer, WArrayPtr<const WUInt8>& out_Memory) const override;
+  virtual void UnlockBufferPlatform(const WGALReadbackBuffer* pBuffer) const override;
+  virtual WResult LockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_Memory) const override;
+  virtual void UnlockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources) const override;
 
   // Misc functions
 
-  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) override;
-  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
-  virtual ezUInt64 GetCurrentFramePlatform() const override;
-  virtual ezUInt64 GetSafeFramePlatform() const override;
+  virtual void BeginFramePlatform(WArrayPtr<WGALSwapChain*> swapchains, const WUInt64 uiAppFrame) override;
+  virtual void EndFramePlatform(WArrayPtr<WGALSwapChain*> swapchains) override;
+  virtual WUInt64 GetCurrentFramePlatform() const override;
+  virtual WUInt64 GetSafeFramePlatform() const override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -414,31 +414,31 @@ private:
   struct PerFrameData
   {
     /// These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
-    ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
+    WHybridArray<vk::Fence, 2> m_CommandBufferFences;
 
     vk::CommandBuffer m_currentCommandBuffer;
-    ezUInt64 m_uiFrame = -1;
+    WUInt64 m_uiFrame = -1;
 
-    ezMutex m_pendingDeletionsMutex;
-    ezDeque<PendingDeletion> m_pendingDeletions;
-    ezDeque<PendingDeletion> m_pendingDeletionsPrevious;
+    WMutex m_pendingDeletionsMutex;
+    WDeque<PendingDeletion> m_pendingDeletions;
+    WDeque<PendingDeletion> m_pendingDeletionsPrevious;
 
-    ezMutex m_reclaimResourcesMutex;
-    ezDeque<ReclaimResource> m_reclaimResources;
-    ezDeque<ReclaimResource> m_reclaimResourcesPrevious;
+    WMutex m_reclaimResourcesMutex;
+    WDeque<ReclaimResource> m_reclaimResources;
+    WDeque<ReclaimResource> m_reclaimResourcesPrevious;
   };
 
-  void DeletePendingResources(ezDeque<PendingDeletion>& pendingDeletions);
-  void ReclaimResources(ezDeque<ReclaimResource>& resources);
+  void DeletePendingResources(WDeque<PendingDeletion>& pendingDeletions);
+  void ReclaimResources(WDeque<ReclaimResource>& resources);
 
   void FillFormatLookupTable();
 
-  static constexpr ezUInt32 FRAMES = 4;
+  static constexpr WUInt32 FRAMES = 4;
 
-  // These are atomic as the ezInitContextVulkan is accessing these on worker threads when uploading resources in the background.
-  ezAtomicInteger<ezUInt64> m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
-  ezAtomicInteger<ezUInt64> m_uiSafeFrame = 0;
-  ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
+  // These are atomic as the WInitContextVulkan is accessing these on worker threads when uploading resources in the background.
+  WAtomicInteger<WUInt64> m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
+  WAtomicInteger<WUInt64> m_uiSafeFrame = 0;
+  WUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
   vk::Instance m_Instance;
   vk::PhysicalDevice m_PhysicalDevice;
@@ -447,41 +447,41 @@ private:
   Queue m_GraphicsQueue;
   Queue m_TransferQueue;
 
-  ezGALFormatLookupTableVulkan m_FormatLookupTable;
+  WGALFormatLookupTableVulkan m_FormatLookupTable;
   vk::PipelineStageFlags m_SupportedStages;
   vk::PipelineStageFlags m_UnsupportedStages;
   vk::PhysicalDeviceMemoryProperties m_MemoryProperties;
 
-  ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
-  ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
+  WUniquePtr<WGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
+  WUniquePtr<WGALCommandEncoder> m_pCommandEncoder;
 
-  ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
-  ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;
-  ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
-  ezUniquePtr<ezFenceQueueVulkan> m_pFenceQueue;
-  ezUniquePtr<ezInitContextVulkan> m_pInitContext;
+  WUniquePtr<WCommandBufferPoolVulkan> m_pCommandBufferPool;
+  WUniquePtr<WStagingBufferPoolVulkan> m_pStagingBufferPool;
+  WUniquePtr<WQueryPoolVulkan> m_pQueryPool;
+  WUniquePtr<WFenceQueueVulkan> m_pFenceQueue;
+  WUniquePtr<WInitContextVulkan> m_pInitContext;
 
-  ezDynamicArray<ezPendingBufferCopyVulkan, ezLocalAllocatorWrapper> m_PendingBufferCopies;
-  ezDynamicArray<ezPendingTextureCopyVulkan, ezLocalAllocatorWrapper> m_PendingTextureCopies;
+  WDynamicArray<WPendingBufferCopyVulkan, WLocalAllocatorWrapper> m_PendingBufferCopies;
+  WDynamicArray<WPendingTextureCopyVulkan, WLocalAllocatorWrapper> m_PendingTextureCopies;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_LastCommandBufferFinished;
 
   PerFrameData m_PerFrameData[FRAMES];
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
+#if W_ENABLED(W_USE_PROFILING)
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
   struct GPUTimingScope* m_pPassTimingScope = nullptr;
 #endif
 
   Extensions m_Extensions;
-  ezVulkanDispatchContext m_DispatchContext;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  WVulkanDispatchContext m_DispatchContext;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   vk::DebugUtilsMessengerEXT m_DebugMessenger = nullptr;
 #endif
-  ezHybridArray<SemaphoreInfo, 3> m_WaitSemaphores;
-  ezHybridArray<SemaphoreInfo, 3> m_SignalSemaphores;
+  WHybridArray<SemaphoreInfo, 3> m_WaitSemaphores;
+  WHybridArray<SemaphoreInfo, 3> m_SignalSemaphores;
 };
 
 #include <RendererVulkan/Device/Implementation/DeviceVulkan_inl.h>

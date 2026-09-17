@@ -22,8 +22,8 @@
 
 namespace
 {
-  constexpr ezUInt32 s_uiSystemId = 'RGPH';
-  constexpr ezUInt16 s_uiProtocolVersion = 1;
+  constexpr WUInt32 s_uiSystemId = 'RGPH';
+  constexpr WUInt16 s_uiProtocolVersion = 1;
 
   enum GraphListItemDataRole
   {
@@ -38,9 +38,9 @@ namespace
     SwapChainListRole_Height = Qt::UserRole + 2,
   };
 
-  QString MakeGraphLabel(const ezRenderGraphExecutionSummary& graph)
+  QString MakeGraphLabel(const WRenderGraphExecutionSummary& graph)
   {
-    ezStringBuilder label;
+    WStringBuilder label;
     if (!graph.m_sUserName.IsEmpty())
       label.SetFormat("{} ({})", graph.m_sUserName, graph.m_sGraphName);
     else
@@ -49,32 +49,32 @@ namespace
     if (graph.m_uiExecutionOrder >= 0)
       label.AppendFormat("  [{}]", graph.m_uiExecutionOrder);
 
-    return ezMakeQString(label);
+    return WMakeQString(label);
   }
 
-  QString MakeSwapChainLabel(const ezRenderGraphSwapChainSummary& swapChain)
+  QString MakeSwapChainLabel(const WRenderGraphSwapChainSummary& swapChain)
   {
-    ezStringBuilder label;
-    label.SetFormat("0x{}  {}x{}", ezArgU(swapChain.m_uiSwapChainId, 8, true, 16), swapChain.m_uiWidth, swapChain.m_uiHeight);
-    return ezMakeQString(label);
+    WStringBuilder label;
+    label.SetFormat("0x{}  {}x{}", WArgU(swapChain.m_uiSwapChainId, 8, true, 16), swapChain.m_uiWidth, swapChain.m_uiHeight);
+    return WMakeQString(label);
   }
 
-  QString MakePhaseLabel(ezRenderGraphPhase::Enum phase)
+  QString MakePhaseLabel(WRenderGraphPhase::Enum phase)
   {
     switch (phase)
     {
-      case ezRenderGraphPhase::PreRender:
+      case WRenderGraphPhase::PreRender:
         return "PreRender";
-      case ezRenderGraphPhase::Render:
+      case WRenderGraphPhase::Render:
         return "Render";
-      case ezRenderGraphPhase::PostRender:
+      case WRenderGraphPhase::PostRender:
         return "PostRender";
       default:
         return "Unknown";
     }
   }
 
-  void AddGraphPhaseSeparator(QListWidget* pList, ezRenderGraphPhase::Enum phase)
+  void AddGraphPhaseSeparator(QListWidget* pList, WRenderGraphPhase::Enum phase)
   {
     QListWidgetItem* pItem = new QListWidgetItem(MakePhaseLabel(phase));
     pItem->setFlags(Qt::NoItemFlags);
@@ -86,9 +86,9 @@ namespace
 
 } // namespace
 
-ezQtRenderGraphWidget* ezQtRenderGraphWidget::s_pWidget = nullptr;
+WQtRenderGraphWidget* WQtRenderGraphWidget::s_pWidget = nullptr;
 
-ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtRenderGraphWidget::WQtRenderGraphWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Render Graph", pParent)
 {
   s_pWidget = this;
@@ -101,9 +101,9 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
   OverviewScroll->viewport()->setAutoFillBackground(true);
   OverviewScroll->viewport()->setPalette(overviewScrollPalette);
 
-  connect(Overview, &ezQtRenderGraphOverviewWidget::AccessSelected, this, &ezQtRenderGraphWidget::SelectAccess);
-  connect(Overview, &ezQtRenderGraphOverviewWidget::AccessDeselected, this, &ezQtRenderGraphWidget::ClearAccessSelection);
-  connect(Preview, &ezQtRenderGraphPreviewWidget::RequestChanged, this, &ezQtRenderGraphWidget::UpdatePreviewRequest);
+  connect(Overview, &WQtRenderGraphOverviewWidget::AccessSelected, this, &WQtRenderGraphWidget::SelectAccess);
+  connect(Overview, &WQtRenderGraphOverviewWidget::AccessDeselected, this, &WQtRenderGraphWidget::ClearAccessSelection);
+  connect(Preview, &WQtRenderGraphPreviewWidget::RequestChanged, this, &WQtRenderGraphWidget::UpdatePreviewRequest);
 
   auto requestFromControls = [this]()
   {
@@ -145,7 +145,7 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
     m_bInfoValid = false;
     m_Info.Clear();
     Overview->Clear();
-    m_Request = ezRenderGraphObserverRequest();
+    m_Request = WRenderGraphObserverRequest();
     m_Request.m_uiRenderGraphId = m_uiSelectedGraphId;
     Preview->SetView(m_Request.m_fZoom, m_Request.m_vPanCenter);
     SendInfoRequest();
@@ -158,7 +158,7 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
     QListWidgetItem* pItem = SwapChainList->item(row);
     m_uiSelectedSwapChainId = pItem->data(SwapChainListRole_SwapChainId).toUInt();
     m_Request.m_uiSwapChainId = m_uiSelectedSwapChainId;
-    Preview->SetTargetSize(ezVec2U32(pItem->data(SwapChainListRole_Width).toUInt(), pItem->data(SwapChainListRole_Height).toUInt()));
+    Preview->SetTargetSize(WVec2U32(pItem->data(SwapChainListRole_Width).toUInt(), pItem->data(SwapChainListRole_Height).toUInt()));
     SendObserverRequest(); });
 
   connect(MipSpin, qOverload<int>(&QSpinBox::valueChanged), this, requestFromControls);
@@ -177,22 +177,22 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
   connect(ResetZoomToolButton, &QToolButton::clicked, this, [this]()
     {
     m_Request.m_fZoom = 1.0f;
-    m_Request.m_vPanCenter = ezVec2(0.5f);
+    m_Request.m_vPanCenter = WVec2(0.5f);
     Preview->SetView(m_Request.m_fZoom, m_Request.m_vPanCenter);
     SendObserverRequest(); });
 
   ResetStats();
 }
 
-void ezQtRenderGraphWidget::ResetStats()
+void WQtRenderGraphWidget::ResetStats()
 {
   m_Summary.m_AvailableSwapChains.Clear();
   m_Summary.m_RenderGraphs.Clear();
   m_Info.Clear();
-  m_Request = ezRenderGraphObserverRequest();
-  m_Response = ezRenderGraphObserverResponse();
+  m_Request = WRenderGraphObserverRequest();
+  m_Response = WRenderGraphObserverResponse();
   m_sLastPixelValue.Clear();
-  m_vLastPixelPosition = ezVec2I32(-1, -1);
+  m_vLastPixelPosition = WVec2I32(-1, -1);
   m_LastHistogram.Clear();
   m_uiSelectedGraphId = 0;
   m_uiSelectedSwapChainId = 0xFFFFFFFF;
@@ -201,7 +201,7 @@ void ezQtRenderGraphWidget::ResetStats()
   m_bInfoValid = false;
   m_bUpdateUi = true;
   Overview->Clear();
-  Preview->SetTextureSize(ezVec2U32(0, 0));
+  Preview->SetTextureSize(WVec2U32(0, 0));
   Histogram->Clear();
   MipSpin->setMaximum(0);
   MipSpin->setEnabled(false);
@@ -212,7 +212,7 @@ void ezQtRenderGraphWidget::ResetStats()
   SendSummaryRequest();
 }
 
-void ezQtRenderGraphWidget::UpdateStats()
+void WQtRenderGraphWidget::UpdateStats()
 {
   UpdateObservationVisibility();
 
@@ -227,26 +227,26 @@ void ezQtRenderGraphWidget::UpdateStats()
   UpdateInfoWidgets();
 }
 
-void ezQtRenderGraphWidget::SendSummaryRequest()
+void WQtRenderGraphWidget::SendSummaryRequest()
 {
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID(s_uiSystemId, 'RSUM');
   msg.GetWriter() << s_uiProtocolVersion;
-  ezTelemetry::SendToServer(msg);
+  WTelemetry::SendToServer(msg);
 }
 
-void ezQtRenderGraphWidget::SendInfoRequest()
+void WQtRenderGraphWidget::SendInfoRequest()
 {
   if (m_uiSelectedGraphId == 0)
     return;
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID(s_uiSystemId, 'RINF');
   msg.GetWriter() << s_uiProtocolVersion;
   msg.GetWriter() << m_uiSelectedGraphId;
-  ezTelemetry::SendToServer(msg);
+  WTelemetry::SendToServer(msg);
 }
 
-void ezQtRenderGraphWidget::SendObserverRequest()
+void WQtRenderGraphWidget::SendObserverRequest()
 {
   if (m_bObservationPaused)
     return;
@@ -254,33 +254,33 @@ void ezQtRenderGraphWidget::SendObserverRequest()
   SendObserverRequest(m_Request);
 }
 
-void ezQtRenderGraphWidget::SendObserverRequest(const ezRenderGraphObserverRequest& request)
+void WQtRenderGraphWidget::SendObserverRequest(const WRenderGraphObserverRequest& request)
 {
   if (request.m_uiRenderGraphId == 0)
     return;
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID(s_uiSystemId, 'RREQ');
   msg.GetWriter() << s_uiProtocolVersion;
   msg.GetWriter() << request;
-  ezTelemetry::SendToServer(msg);
+  WTelemetry::SendToServer(msg);
 }
 
-void ezQtRenderGraphWidget::PauseObservation()
+void WQtRenderGraphWidget::PauseObservation()
 {
   if (m_bObservationPaused)
     return;
 
   m_bObservationPaused = true;
 
-  ezRenderGraphObserverRequest pauseRequest = m_Request;
+  WRenderGraphObserverRequest pauseRequest = m_Request;
   pauseRequest.m_sPassName.Clear();
   pauseRequest.m_uiAccessIndex = 0;
-  pauseRequest.m_vPixelPosition = ezVec2I32(-1, -1);
+  pauseRequest.m_vPixelPosition = WVec2I32(-1, -1);
   pauseRequest.m_bHighlightPixel = false;
   SendObserverRequest(pauseRequest);
 }
 
-void ezQtRenderGraphWidget::ResumeObservation()
+void WQtRenderGraphWidget::ResumeObservation()
 {
   if (!m_bObservationPaused)
     return;
@@ -293,7 +293,7 @@ void ezQtRenderGraphWidget::ResumeObservation()
   }
 }
 
-void ezQtRenderGraphWidget::UpdateObservationVisibility()
+void WQtRenderGraphWidget::UpdateObservationVisibility()
 {
   if (isVisible())
   {
@@ -305,40 +305,40 @@ void ezQtRenderGraphWidget::UpdateObservationVisibility()
   }
 }
 
-void ezQtRenderGraphWidget::showEvent(QShowEvent* pEvent)
+void WQtRenderGraphWidget::showEvent(QShowEvent* pEvent)
 {
   ads::CDockWidget::showEvent(pEvent);
   UpdateObservationVisibility();
 }
 
-void ezQtRenderGraphWidget::hideEvent(QHideEvent* pEvent)
+void WQtRenderGraphWidget::hideEvent(QHideEvent* pEvent)
 {
   ads::CDockWidget::hideEvent(pEvent);
   UpdateObservationVisibility();
 }
 
-void ezQtRenderGraphWidget::UpdateGraphList()
+void WQtRenderGraphWidget::UpdateGraphList()
 {
   const QSignalBlocker blocker(GraphList);
   GraphList->clear();
-  ezInt32 iSelectedRow = -1;
+  WInt32 iSelectedRow = -1;
 
-  constexpr ezRenderGraphPhase::Enum phases[] = {ezRenderGraphPhase::PreRender, ezRenderGraphPhase::Render, ezRenderGraphPhase::PostRender};
-  for (ezRenderGraphPhase::Enum phase : phases)
+  constexpr WRenderGraphPhase::Enum phases[] = {WRenderGraphPhase::PreRender, WRenderGraphPhase::Render, WRenderGraphPhase::PostRender};
+  for (WRenderGraphPhase::Enum phase : phases)
   {
     AddGraphPhaseSeparator(GraphList, phase);
 
-    for (ezUInt32 i = 0; i < m_Summary.m_RenderGraphs.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Summary.m_RenderGraphs.GetCount(); ++i)
     {
       const auto& graph = m_Summary.m_RenderGraphs[i];
       if (graph.m_Phase != phase)
         continue;
 
-      const ezUInt64 uiIdentity = graph.m_uiRenderGraphId;
+      const WUInt64 uiIdentity = graph.m_uiRenderGraphId;
       QListWidgetItem* pItem = new QListWidgetItem(MakeGraphLabel(graph));
       pItem->setData(GraphListRole_RenderGraphId, QVariant::fromValue<qulonglong>(uiIdentity));
       pItem->setData(GraphListRole_IsGraphItem, true);
-      pItem->setForeground(graph.m_uiExecutionOrder >= 0 ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green)) : GraphList->palette().color(QPalette::Disabled, QPalette::Text));
+      pItem->setForeground(graph.m_uiExecutionOrder >= 0 ? WToQtColor(WColorScheme::LightUI(WColorScheme::Green)) : GraphList->palette().color(QPalette::Disabled, QPalette::Text));
       GraphList->addItem(pItem);
       if (uiIdentity == m_uiSelectedGraphId)
         iSelectedRow = GraphList->count() - 1;
@@ -349,22 +349,22 @@ void ezQtRenderGraphWidget::UpdateGraphList()
     GraphList->setCurrentRow(iSelectedRow);
 }
 
-void ezQtRenderGraphWidget::UpdateSwapChainList()
+void WQtRenderGraphWidget::UpdateSwapChainList()
 {
   const QSignalBlocker blocker(SwapChainList);
   SwapChainList->clear();
-  ezInt32 iSelectedRow = -1;
-  for (ezUInt32 i = 0; i < m_Summary.m_AvailableSwapChains.GetCount(); ++i)
+  WInt32 iSelectedRow = -1;
+  for (WUInt32 i = 0; i < m_Summary.m_AvailableSwapChains.GetCount(); ++i)
   {
-    const ezRenderGraphSwapChainSummary& swapChain = m_Summary.m_AvailableSwapChains[i];
-    const ezUInt32 uiIdentity = swapChain.m_uiSwapChainId;
+    const WRenderGraphSwapChainSummary& swapChain = m_Summary.m_AvailableSwapChains[i];
+    const WUInt32 uiIdentity = swapChain.m_uiSwapChainId;
     QListWidgetItem* pItem = new QListWidgetItem(MakeSwapChainLabel(swapChain));
     pItem->setData(SwapChainListRole_SwapChainId, uiIdentity);
     pItem->setData(SwapChainListRole_Width, swapChain.m_uiWidth);
     pItem->setData(SwapChainListRole_Height, swapChain.m_uiHeight);
     SwapChainList->addItem(pItem);
     if (uiIdentity == m_uiSelectedSwapChainId)
-      iSelectedRow = (ezInt32)i;
+      iSelectedRow = (WInt32)i;
   }
 
   // If the previously selected swap chain is no longer available (or none was selected yet), fall back to
@@ -381,7 +381,7 @@ void ezQtRenderGraphWidget::UpdateSwapChainList()
   if (iSelectedRow >= 0)
   {
     SwapChainList->setCurrentRow(iSelectedRow);
-    Preview->SetTargetSize(ezVec2U32(SwapChainList->item(iSelectedRow)->data(SwapChainListRole_Width).toUInt(), SwapChainList->item(iSelectedRow)->data(SwapChainListRole_Height).toUInt()));
+    Preview->SetTargetSize(WVec2U32(SwapChainList->item(iSelectedRow)->data(SwapChainListRole_Width).toUInt(), SwapChainList->item(iSelectedRow)->data(SwapChainListRole_Height).toUInt()));
   }
 
   if (bSelectionChanged)
@@ -390,7 +390,7 @@ void ezQtRenderGraphWidget::UpdateSwapChainList()
   }
 }
 
-void ezQtRenderGraphWidget::UpdateInfoWidgets()
+void WQtRenderGraphWidget::UpdateInfoWidgets()
 {
   if (m_bInfoValid)
   {
@@ -400,16 +400,16 @@ void ezQtRenderGraphWidget::UpdateInfoWidgets()
 
   if (m_Response.m_PixelValue.IsValid())
   {
-    m_sLastPixelValue = m_Response.m_PixelValue.ConvertTo<ezString>();
+    m_sLastPixelValue = m_Response.m_PixelValue.ConvertTo<WString>();
     m_vLastPixelPosition = m_Request.m_vPixelPosition;
     m_bHasLastPixelValue = true;
   }
 
   if (m_bHasLastPixelValue)
   {
-    ezStringBuilder text;
+    WStringBuilder text;
     text.SetFormat("Pixel ({}, {}): {}", m_vLastPixelPosition.x, m_vLastPixelPosition.y, m_sLastPixelValue);
-    PixelLabel->setText(ezMakeQString(text));
+    PixelLabel->setText(WMakeQString(text));
   }
   else
   {
@@ -431,7 +431,7 @@ void ezQtRenderGraphWidget::UpdateInfoWidgets()
   }
 }
 
-void ezQtRenderGraphWidget::UpdateRequestControls()
+void WQtRenderGraphWidget::UpdateRequestControls()
 {
   m_bUpdatingControls = true;
   MipSpin->setValue(m_Request.m_uiMipLevel);
@@ -439,14 +439,14 @@ void ezQtRenderGraphWidget::UpdateRequestControls()
   SampleSpin->setValue(m_Request.m_iSampleIndex);
   RangeMinSpin->setValue(m_Request.m_fRangeMin);
   RangeMaxSpin->setValue(m_Request.m_fRangeMax);
-  ChannelR->setChecked((m_Request.m_uiChannelMask & EZ_BIT(0)) != 0);
-  ChannelG->setChecked((m_Request.m_uiChannelMask & EZ_BIT(1)) != 0);
-  ChannelB->setChecked((m_Request.m_uiChannelMask & EZ_BIT(2)) != 0);
-  ChannelA->setChecked((m_Request.m_uiChannelMask & EZ_BIT(3)) != 0);
+  ChannelR->setChecked((m_Request.m_uiChannelMask & W_BIT(0)) != 0);
+  ChannelG->setChecked((m_Request.m_uiChannelMask & W_BIT(1)) != 0);
+  ChannelB->setChecked((m_Request.m_uiChannelMask & W_BIT(2)) != 0);
+  ChannelA->setChecked((m_Request.m_uiChannelMask & W_BIT(3)) != 0);
   m_bUpdatingControls = false;
 }
 
-void ezQtRenderGraphWidget::UpdatePreviewRequest(float fZoom, ezVec2 panCenter, ezVec2I32 pixel, bool bUpdatePixelPosition, bool bHighlightPixel)
+void WQtRenderGraphWidget::UpdatePreviewRequest(float fZoom, WVec2 panCenter, WVec2I32 pixel, bool bUpdatePixelPosition, bool bHighlightPixel)
 {
   m_Request.m_fZoom = fZoom;
   m_Request.m_vPanCenter = panCenter;
@@ -458,26 +458,26 @@ void ezQtRenderGraphWidget::UpdatePreviewRequest(float fZoom, ezVec2 panCenter, 
   SendObserverRequest();
 }
 
-void ezQtRenderGraphWidget::SetRequestFromControls()
+void WQtRenderGraphWidget::SetRequestFromControls()
 {
-  m_Request.m_uiMipLevel = static_cast<ezUInt8>(ezMath::Clamp(MipSpin->value(), 0, 255));
-  m_Request.m_uiArraySlice = static_cast<ezUInt16>(ezMath::Clamp(SliceSpin->value(), 0, 65535));
-  m_Request.m_iSampleIndex = static_cast<ezInt8>(ezMath::Clamp(SampleSpin->value(), -1, 127));
+  m_Request.m_uiMipLevel = static_cast<WUInt8>(WMath::Clamp(MipSpin->value(), 0, 255));
+  m_Request.m_uiArraySlice = static_cast<WUInt16>(WMath::Clamp(SliceSpin->value(), 0, 65535));
+  m_Request.m_iSampleIndex = static_cast<WInt8>(WMath::Clamp(SampleSpin->value(), -1, 127));
   m_Request.m_fRangeMin = (float)RangeMinSpin->value();
   m_Request.m_fRangeMax = (float)RangeMaxSpin->value();
   m_Request.m_uiChannelMask = 0;
-  m_Request.m_uiChannelMask |= ChannelR->isChecked() ? EZ_BIT(0) : 0;
-  m_Request.m_uiChannelMask |= ChannelG->isChecked() ? EZ_BIT(1) : 0;
-  m_Request.m_uiChannelMask |= ChannelB->isChecked() ? EZ_BIT(2) : 0;
-  m_Request.m_uiChannelMask |= ChannelA->isChecked() ? EZ_BIT(3) : 0;
+  m_Request.m_uiChannelMask |= ChannelR->isChecked() ? W_BIT(0) : 0;
+  m_Request.m_uiChannelMask |= ChannelG->isChecked() ? W_BIT(1) : 0;
+  m_Request.m_uiChannelMask |= ChannelB->isChecked() ? W_BIT(2) : 0;
+  m_Request.m_uiChannelMask |= ChannelA->isChecked() ? W_BIT(3) : 0;
   m_Request.m_uiSwapChainId = m_uiSelectedSwapChainId;
 }
 
-void ezQtRenderGraphWidget::SelectAccess(ezUInt16 uiPassIndex, ezUInt16 uiAccessIndex)
+void WQtRenderGraphWidget::SelectAccess(WUInt16 uiPassIndex, WUInt16 uiAccessIndex)
 {
   if (uiPassIndex >= m_Info.m_Passes.GetCount())
     return;
-  const ezRenderGraphInspectionInfo::AccessInfo* pSelectedAccess = nullptr;
+  const WRenderGraphInspectionInfo::AccessInfo* pSelectedAccess = nullptr;
   for (const auto& access : m_Info.m_Accesses)
   {
     if (access.m_bIsTexture && access.m_uiPassIndex == uiPassIndex && access.m_uiAccessIndex == uiAccessIndex)
@@ -490,17 +490,17 @@ void ezQtRenderGraphWidget::SelectAccess(ezUInt16 uiPassIndex, ezUInt16 uiAccess
     return;
 
   const auto& texture = m_Info.m_Textures[pSelectedAccess->m_uiResourceIndex];
-  const ezInt32 iMipMax = ezMath::Max<ezInt32>(0, texture.m_Desc.m_uiMipLevelCount - 1);
-  const ezInt32 iSliceMax = ezMath::Max<ezInt32>(0, texture.m_Desc.GetNumberOfSlices() - 1);
-  const ezInt32 iSampleCount = (ezInt32)texture.m_Desc.m_SampleCount;
-  const bool bHasMsaaSamples = texture.m_Desc.m_SampleCount != ezGALMSAASampleCount::None;
+  const WInt32 iMipMax = WMath::Max<WInt32>(0, texture.m_Desc.m_uiMipLevelCount - 1);
+  const WInt32 iSliceMax = WMath::Max<WInt32>(0, texture.m_Desc.GetNumberOfSlices() - 1);
+  const WInt32 iSampleCount = (WInt32)texture.m_Desc.m_SampleCount;
+  const bool bHasMsaaSamples = texture.m_Desc.m_SampleCount != WGALMSAASampleCount::None;
   MipSpin->setMaximum(iMipMax);
   MipSpin->setEnabled(iMipMax > 0);
   SliceSpin->setMaximum(iSliceMax);
   SliceSpin->setEnabled(iSliceMax > 0);
   SampleSpin->setMaximum(bHasMsaaSamples ? iSampleCount - 1 : -1);
   SampleSpin->setEnabled(bHasMsaaSamples);
-  Preview->SetTextureSize(ezVec2U32(texture.m_Desc.m_uiWidth, texture.m_Desc.m_uiHeight));
+  Preview->SetTextureSize(WVec2U32(texture.m_Desc.m_uiWidth, texture.m_Desc.m_uiHeight));
   m_Request.m_uiRenderGraphId = m_uiSelectedGraphId;
   m_Request.m_sPassName = m_Info.m_Passes[uiPassIndex].m_sName;
   m_Request.m_uiAccessIndex = uiAccessIndex;
@@ -511,19 +511,19 @@ void ezQtRenderGraphWidget::SelectAccess(ezUInt16 uiPassIndex, ezUInt16 uiAccess
   SendObserverRequest();
 }
 
-void ezQtRenderGraphWidget::ClearAccessSelection()
+void WQtRenderGraphWidget::ClearAccessSelection()
 {
   m_Request.m_uiRenderGraphId = m_uiSelectedGraphId;
   m_Request.m_sPassName.Clear();
   m_Request.m_uiAccessIndex = 0;
-  m_Request.m_vPixelPosition = ezVec2I32(-1, -1);
+  m_Request.m_vPixelPosition = WVec2I32(-1, -1);
   m_Request.m_bHighlightPixel = false;
   m_Request.m_uiSwapChainId = m_uiSelectedSwapChainId;
 
   m_sLastPixelValue.Clear();
-  m_vLastPixelPosition = ezVec2I32(-1, -1);
+  m_vLastPixelPosition = WVec2I32(-1, -1);
   m_LastHistogram.Clear();
-  m_Response = ezRenderGraphObserverResponse();
+  m_Response = WRenderGraphObserverResponse();
   m_bHasLastPixelValue = false;
   m_bHasLastHistogram = false;
 
@@ -533,22 +533,22 @@ void ezQtRenderGraphWidget::ClearAccessSelection()
   SliceSpin->setEnabled(false);
   SampleSpin->setMaximum(-1);
   SampleSpin->setEnabled(false);
-  Preview->SetTextureSize(ezVec2U32(0, 0));
+  Preview->SetTextureSize(WVec2U32(0, 0));
   Overview->SetRequest(m_Request);
   Histogram->Clear();
   UpdateInfoWidgets();
   SendObserverRequest();
 }
 
-void ezQtRenderGraphWidget::ProcessTelemetry(void*)
+void WQtRenderGraphWidget::ProcessTelemetry(void*)
 {
   if (s_pWidget == nullptr)
     return;
 
-  ezTelemetryMessage msg;
-  while (ezTelemetry::RetrieveMessage(s_uiSystemId, msg) == EZ_SUCCESS)
+  WTelemetryMessage msg;
+  while (WTelemetry::RetrieveMessage(s_uiSystemId, msg) == W_SUCCESS)
   {
-    ezUInt16 uiVersion = 0;
+    WUInt16 uiVersion = 0;
     switch (msg.GetMessageID())
     {
       case 'SUMM':
@@ -558,7 +558,7 @@ void ezQtRenderGraphWidget::ProcessTelemetry(void*)
         break;
       case 'INFO':
       {
-        ezUInt64 uiGraphIdentity = 0;
+        WUInt64 uiGraphIdentity = 0;
         bool bSuccess = false;
         msg.GetReader() >> uiVersion;
         msg.GetReader() >> uiGraphIdentity;
@@ -570,7 +570,7 @@ void ezQtRenderGraphWidget::ProcessTelemetry(void*)
         }
         else if (uiGraphIdentity == s_pWidget->m_uiSelectedGraphId)
         {
-          s_pWidget->m_Info = ezRenderGraphInspectionInfo();
+          s_pWidget->m_Info = WRenderGraphInspectionInfo();
           s_pWidget->m_bInfoValid = false;
         }
         s_pWidget->m_bUpdateUi = true;

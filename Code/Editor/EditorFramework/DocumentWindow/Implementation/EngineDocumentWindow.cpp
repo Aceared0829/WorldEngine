@@ -6,37 +6,37 @@
 
 #include <EditorFramework/Assets/AssetDocument.h>
 
-ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtEngineDocumentWindow::WQtEngineDocumentWindow(WAssetDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
-  pDocument->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
+  pDocument->m_ProcessMessageEvent.AddEventHandler(WMakeDelegate(&WQtEngineDocumentWindow::ProcessMessageEventHandler, this));
+  pDocument->m_CommonAssetUiChangeEvent.AddEventHandler(WMakeDelegate(&WQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
 
-  m_pCuratorControl = new ezQtCuratorControl(this);
+  m_pCuratorControl = new WQtCuratorControl(this);
   statusBar()->addPermanentWidget(m_pCuratorControl, 0);
 }
 
-ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
+WQtEngineDocumentWindow::~WQtEngineDocumentWindow()
 {
   // make sure the selection gets cleared before the views are destroyed, so that dependent code can clean up first
   GetDocument()->GetSelectionManager()->Clear();
 
-  GetDocument()->m_ProcessMessageEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
-  GetDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
+  GetDocument()->m_ProcessMessageEvent.RemoveEventHandler(WMakeDelegate(&WQtEngineDocumentWindow::ProcessMessageEventHandler, this));
+  GetDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(WMakeDelegate(&WQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
 
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
 }
 
 
-ezEditorEngineConnection* ezQtEngineDocumentWindow::GetEditorEngineConnection() const
+WEditorEngineConnection* WQtEngineDocumentWindow::GetEditorEngineConnection() const
 {
   return GetDocument()->GetEditorEngineConnection();
 }
 
-static ezObjectPickingResult s_DummyResult;
+static WObjectPickingResult s_DummyResult;
 
-const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const
+const WObjectPickingResult& WQtEngineDocumentWindow::PickObject(WUInt16 uiScreenPosX, WUInt16 uiScreenPosY, WQtEngineViewWidget* pView) const
 {
   if (pView == nullptr)
     pView = GetHoveredViewWidget();
@@ -48,24 +48,24 @@ const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScr
 }
 
 
-ezAssetDocument* ezQtEngineDocumentWindow::GetDocument() const
+WAssetDocument* WQtEngineDocumentWindow::GetDocument() const
 {
-  return static_cast<ezAssetDocument*>(ezQtDocumentWindow::GetDocument());
+  return static_cast<WAssetDocument*>(WQtDocumentWindow::GetDocument());
 }
 
-void ezQtEngineDocumentWindow::InternalRedraw()
+void WQtEngineDocumentWindow::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
   GetDocument()->SyncObjectsToEngine();
 }
 
-ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetHoveredViewWidget() const
+WQtEngineViewWidget* WQtEngineDocumentWindow::GetHoveredViewWidget() const
 {
   QWidget* pWidget = QApplication::widgetAt(QCursor::pos());
 
   while (pWidget != nullptr)
   {
-    ezQtEngineViewWidget* pCandidate = qobject_cast<ezQtEngineViewWidget*>(pWidget);
+    WQtEngineViewWidget* pCandidate = qobject_cast<WQtEngineViewWidget*>(pWidget);
     if (pCandidate != nullptr)
     {
       if (m_ViewWidgets.Contains(pCandidate))
@@ -80,13 +80,13 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetHoveredViewWidget() const
   return nullptr;
 }
 
-ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetFocusedViewWidget() const
+WQtEngineViewWidget* WQtEngineDocumentWindow::GetFocusedViewWidget() const
 {
   QWidget* pWidget = QApplication::focusWidget();
 
   while (pWidget != nullptr)
   {
-    ezQtEngineViewWidget* pCandidate = qobject_cast<ezQtEngineViewWidget*>(pWidget);
+    WQtEngineViewWidget* pCandidate = qobject_cast<WQtEngineViewWidget*>(pWidget);
     if (pCandidate != nullptr)
     {
       if (m_ViewWidgets.Contains(pCandidate))
@@ -101,7 +101,7 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetFocusedViewWidget() const
   return nullptr;
 }
 
-ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiViewID) const
+WQtEngineViewWidget* WQtEngineDocumentWindow::GetViewWidgetByID(WUInt32 uiViewID) const
 {
   for (auto pView : m_ViewWidgets)
   {
@@ -112,62 +112,62 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiVie
   return nullptr;
 }
 
-ezArrayPtr<ezQtEngineViewWidget* const> ezQtEngineDocumentWindow::GetViewWidgets() const
+WArrayPtr<WQtEngineViewWidget* const> WQtEngineDocumentWindow::GetViewWidgets() const
 {
   return m_ViewWidgets;
 }
 
-void ezQtEngineDocumentWindow::AddViewWidget(ezQtEngineViewWidget* pView)
+void WQtEngineDocumentWindow::AddViewWidget(WQtEngineViewWidget* pView)
 {
   m_ViewWidgets.PushBack(pView);
-  ezEngineWindowEvent e;
-  e.m_Type = ezEngineWindowEvent::Type::ViewCreated;
+  WEngineWindowEvent e;
+  e.m_Type = WEngineWindowEvent::Type::ViewCreated;
   e.m_pView = pView;
   m_EngineWindowEvent.Broadcast(e);
 }
 
-void ezQtEngineDocumentWindow::RemoveViewWidget(ezQtEngineViewWidget* pView)
+void WQtEngineDocumentWindow::RemoveViewWidget(WQtEngineViewWidget* pView)
 {
   m_ViewWidgets.RemoveAndSwap(pView);
-  ezEngineWindowEvent e;
-  e.m_Type = ezEngineWindowEvent::Type::ViewDestroyed;
+  WEngineWindowEvent e;
+  e.m_Type = WEngineWindowEvent::Type::ViewDestroyed;
   e.m_pView = pView;
   m_EngineWindowEvent.Broadcast(e);
 }
 
-void ezQtEngineDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiState& e)
+void WQtEngineDocumentWindow::CommonAssetUiEventHandler(const WCommonAssetUiState& e)
 {
-  ezSimpleDocumentConfigMsgToEngine msg;
+  WSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "CommonAssetUiState";
   msg.m_PayloadValue = e.m_fValue;
 
   switch (e.m_State)
   {
-    case ezCommonAssetUiState::Restart:
+    case WCommonAssetUiState::Restart:
       msg.m_sPayload = "Restart";
       break;
 
-    case ezCommonAssetUiState::Loop:
+    case WCommonAssetUiState::Loop:
       msg.m_sPayload = "Loop";
       break;
 
-    case ezCommonAssetUiState::Pause:
+    case WCommonAssetUiState::Pause:
       msg.m_sPayload = "Pause";
       break;
 
-    case ezCommonAssetUiState::Grid:
+    case WCommonAssetUiState::Grid:
       msg.m_sPayload = "Grid";
       break;
 
-    case ezCommonAssetUiState::SimulationSpeed:
+    case WCommonAssetUiState::SimulationSpeed:
       msg.m_sPayload = "SimulationSpeed";
       break;
 
-    case ezCommonAssetUiState::Visualizers:
+    case WCommonAssetUiState::Visualizers:
       msg.m_sPayload = "Visualizers";
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   if (!msg.m_sPayload.IsEmpty())
@@ -176,20 +176,20 @@ void ezQtEngineDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiSt
   }
 }
 
-void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtEngineDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineViewMsg>())
   {
-    const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
+    const WEditorEngineViewMsg* pViewMsg = static_cast<const WEditorEngineViewMsg*>(pMsg);
 
-    ezQtEngineViewWidget* pView = GetViewWidgetByID(pViewMsg->m_uiViewID);
+    WQtEngineViewWidget* pView = GetViewWidgetByID(pViewMsg->m_uiViewID);
 
     if (pView != nullptr)
       pView->HandleViewMessage(pViewMsg);
   }
 }
 
-void ezQtEngineDocumentWindow::DestroyAllViews()
+void WQtEngineDocumentWindow::DestroyAllViews()
 {
   while (!m_ViewWidgets.IsEmpty())
   {
@@ -197,7 +197,7 @@ void ezQtEngineDocumentWindow::DestroyAllViews()
   }
 }
 
-void ezQtEngineDocumentWindow::CreateImageCapture(const char* szOutputPath)
+void WQtEngineDocumentWindow::CreateImageCapture(const char* szOutputPath)
 {
   if (!m_ViewWidgets.IsEmpty())
     m_ViewWidgets[0]->TakeScreenshot(szOutputPath);

@@ -2,32 +2,32 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-class ezGameObjectDocument;
-class ezWorldSettingsMsgToEngine;
-class ezQtGameObjectViewWidget;
-struct ezGameObjectEvent;
-struct ezSnapProviderEvent;
+class WGameObjectDocument;
+class WWorldSettingsMsgToEngine;
+class WQtGameObjectViewWidget;
+struct WGameObjectEvent;
+struct WSnapProviderEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDocumentWindow : public ezQtEngineDocumentWindow
+class W_EDITORFRAMEWORK_DLL WQtGameObjectDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 public:
-  ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument);
-  ~ezQtGameObjectDocumentWindow();
+  WQtGameObjectDocumentWindow(WGameObjectDocument* pDocument);
+  ~WQtGameObjectDocumentWindow();
 
-  ezGameObjectDocument* GetGameObjectDocument() const;
+  WGameObjectDocument* GetGameObjectDocument() const;
 
 protected:
-  ezWorldSettingsMsgToEngine GetWorldSettings() const;
-  ezGridSettingsMsgToEngine GetGridSettings() const;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  WWorldSettingsMsgToEngine GetWorldSettings() const;
+  WGridSettingsMsgToEngine GetGridSettings() const;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
 
 private:
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
-  void SnapProviderEventHandler(const ezSnapProviderEvent& e);
+  void GameObjectEventHandler(const WGameObjectEvent& e);
+  void SnapProviderEventHandler(const WSnapProviderEvent& e);
 
   void FocusOnSelectionAllViews();
   void FocusOnSelectionHoveredView();
 
-  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView);
+  void HandleFocusOnSelection(const WQuerySelectionBBoxResultMsgToEditor* pMsg, WQtGameObjectViewWidget* pSceneView);
 };

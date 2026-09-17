@@ -3,20 +3,20 @@
 #include <EditorFramework/Assets/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTransformResult, 1)
-  EZ_ENUM_CONSTANT(ezTransformResult::Success),
-  EZ_ENUM_CONSTANT(ezTransformResult::Failure),
-  EZ_ENUM_CONSTANT(ezTransformResult::NeedsImport),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTransformResult, 1)
+  W_ENUM_CONSTANT(WTransformResult::Success),
+  W_ENUM_CONSTANT(WTransformResult::Failure),
+  W_ENUM_CONSTANT(WTransformResult::NeedsImport),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTransformStatus, ezNoBase, 1, ezRTTIDefaultAllocator<ezTransformStatus>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WTransformStatus, WNoBase, 1, WRTTIDefaultAllocator<WTransformStatus>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Result", ezTransformResult, m_Result),
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
+    W_ENUM_MEMBER_PROPERTY("Result", WTransformResult, m_Result),
+    W_MEMBER_PROPERTY("Message", m_sMessage),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on

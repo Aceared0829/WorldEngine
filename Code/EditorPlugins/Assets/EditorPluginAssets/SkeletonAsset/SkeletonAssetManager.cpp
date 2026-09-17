@@ -3,39 +3,39 @@
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetManager.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonAssetDocumentManager, 1, WRTTIDefaultAllocator<WSkeletonAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
+WSkeletonAssetDocumentManager::WSkeletonAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Skeleton";
-  m_DocTypeDesc.m_sFileExtension = "ezSkeletonAsset";
+  m_DocTypeDesc.m_sFileExtension = "WSkeletonAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.svg";
   m_DocTypeDesc.m_sAssetCategory = "Animation";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WSkeletonAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skeleton");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinSkeleton";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinSkeleton";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail | WAssetDocumentFlags::AutoTransformOnSave;
 }
 
-ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
+WSkeletonAssetDocumentManager::~WSkeletonAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WSkeletonAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSkeletonAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSkeletonAssetDocument>())
       {
-        new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtSkeletonAssetDocumentWindow(static_cast<WSkeletonAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -45,19 +45,19 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-void ezSkeletonAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WSkeletonAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSkeletonAssetDocument(sPath);
+  out_pDocument = new WSkeletonAssetDocument(sPath);
 }
 
-void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-void ezSkeletonAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+void WSkeletonAssetDocumentManager::AppendAssetInfoSummary(WStringBuilder& ref_sOut, const WAssetInfoFile& info, WStringView sLinePrefix) const
 {
-  const ezStringView keys[] = {ezAssetInfoFile::Keys::NumBones};
+  const WStringView keys[] = {WAssetInfoFile::Keys::NumBones};
   info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
 }

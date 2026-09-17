@@ -1,18 +1,18 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 #  include <Foundation/Platform/Android/Utils/AndroidJni.h>
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <Foundation/Threading/Thread.h>
 #  include <android_native_app_glue.h>
 
-thread_local JNIEnv* ezJniAttachment::s_env;
-thread_local bool ezJniAttachment::s_ownsEnv;
-thread_local int ezJniAttachment::s_attachCount;
-thread_local ezJniErrorState ezJniAttachment::s_lastError;
-thread_local ezJniErrorHandler s_onError;
+thread_local JNIEnv* WJniAttachment::s_env;
+thread_local bool WJniAttachment::s_ownsEnv;
+thread_local int WJniAttachment::s_attachCount;
+thread_local WJniErrorState WJniAttachment::s_lastError;
+thread_local WJniErrorHandler s_onError;
 
-ezJniAttachment::ezJniAttachment()
+WJniAttachment::WJniAttachment()
 {
   if (s_attachCount > 0)
   {
@@ -21,27 +21,27 @@ ezJniAttachment::ezJniAttachment()
   else
   {
     JNIEnv* env = nullptr;
-    jint envStatus = ezAndroidUtils::GetAndroidJavaVM()->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+    jint envStatus = WAndroidUtils::GetAndroidJavaVM()->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
     bool ownsEnv = (envStatus != JNI_OK);
     if (ownsEnv)
     {
-      const char* szThreadName = "EZ JNI";
-      if (const ezThread* pThread = ezThread::GetCurrentThread())
+      const char* szThreadName = "W JNI";
+      if (const WThread* pThread = WThread::GetCurrentThread())
       {
         szThreadName = pThread->GetThreadName();
       }
-      else if (ezThreadUtils::IsMainThread())
+      else if (WThreadUtils::IsMainThread())
       {
-        szThreadName = "EZ Main Thread";
+        szThreadName = "W Main Thread";
       }
       // Assign name to attachment since ART complains about it not being set.
       JavaVMAttachArgs args = {JNI_VERSION_1_6, szThreadName, nullptr};
-      ezAndroidUtils::GetAndroidJavaVM()->AttachCurrentThread(&env, &args);
+      WAndroidUtils::GetAndroidJavaVM()->AttachCurrentThread(&env, &args);
     }
     else
     {
       // Assume already existing JNI environment will be alive as long as this object exists.
-      EZ_ASSERT_DEV(env != nullptr, "");
+      W_ASSERT_DEV(env != nullptr, "");
       env->PushLocalFrame(16);
     }
 
@@ -50,10 +50,10 @@ ezJniAttachment::ezJniAttachment()
   }
 
   s_attachCount++;
-  EZ_ASSERT_ALWAYS(s_onError.IsValid() == false, "Can't install error handler for more than one instance.");
+  W_ASSERT_ALWAYS(s_onError.IsValid() == false, "Can't install error handler for more than one instance.");
 }
 
-ezJniAttachment::~ezJniAttachment()
+WJniAttachment::~WJniAttachment()
 {
   s_onError = nullptr;
   s_attachCount--;
@@ -64,7 +64,7 @@ ezJniAttachment::~ezJniAttachment()
 
     if (s_ownsEnv)
     {
-      ezAndroidUtils::GetAndroidJavaVM()->DetachCurrentThread();
+      WAndroidUtils::GetAndroidJavaVM()->DetachCurrentThread();
     }
     else
     {
@@ -80,114 +80,114 @@ ezJniAttachment::~ezJniAttachment()
   }
 }
 
-ezJniObject ezJniAttachment::GetActivity()
+WJniObject WJniAttachment::GetActivity()
 {
-  return ezJniObject(ezAndroidUtils::GetAndroidNativeActivity(), ezJniOwnerShip::BORROW);
+  return WJniObject(WAndroidUtils::GetAndroidNativeActivity(), WJniOwnerShip::BORROW);
 }
 
-JNIEnv* ezJniAttachment::GetEnv()
+JNIEnv* WJniAttachment::GetEnv()
 {
-  EZ_ASSERT_DEV(s_env != nullptr, "Thread not attached to the JVM - you forgot to create an instance of ezJniAttachment in the current scope.");
+  W_ASSERT_DEV(s_env != nullptr, "Thread not attached to the JVM - you forgot to create an instance of WJniAttachment in the current scope.");
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if W_ENABLED(W_COMPILE_FOR_DEBUG)
   void* unused;
-  EZ_ASSERT_DEBUG(ezAndroidUtils::GetAndroidJavaVM()->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK,
+  W_ASSERT_DEBUG(WAndroidUtils::GetAndroidJavaVM()->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK,
     "Current thread has lost its attachment to the JVM - some OS calls can cause this to happen. Try to reduce the attachment to a smaller scope.");
 #  endif
 
   return s_env;
 }
 
-ezJniErrorState ezJniAttachment::GetLastError()
+WJniErrorState WJniAttachment::GetLastError()
 {
-  ezJniErrorState state = s_lastError;
+  WJniErrorState state = s_lastError;
   return state;
 }
 
-void ezJniAttachment::ClearLastError()
+void WJniAttachment::ClearLastError()
 {
-  s_lastError = ezJniErrorState::SUCCESS;
+  s_lastError = WJniErrorState::SUCCESS;
 }
 
-void ezJniAttachment::SetLastError(ezJniErrorState state)
+void WJniAttachment::SetLastError(WJniErrorState state)
 {
   s_lastError = state;
-  if (s_onError.IsValid() && s_lastError != ezJniErrorState::SUCCESS)
+  if (s_onError.IsValid() && s_lastError != WJniErrorState::SUCCESS)
   {
     s_onError(s_lastError);
   }
 }
 
-bool ezJniAttachment::HasPendingException()
+bool WJniAttachment::HasPendingException()
 {
   return GetEnv()->ExceptionCheck();
 }
 
-void ezJniAttachment::ClearPendingException()
+void WJniAttachment::ClearPendingException()
 {
   return GetEnv()->ExceptionClear();
 }
 
-ezJniObject ezJniAttachment::GetPendingException()
+WJniObject WJniAttachment::GetPendingException()
 {
-  return ezJniObject(GetEnv()->ExceptionOccurred(), ezJniOwnerShip::OWN);
+  return WJniObject(GetEnv()->ExceptionOccurred(), WJniOwnerShip::OWN);
 }
 
-bool ezJniAttachment::FailOnPendingErrorOrException()
+bool WJniAttachment::FailOnPendingErrorOrException()
 {
-  if (ezJniAttachment::GetLastError() != ezJniErrorState::SUCCESS)
+  if (WJniAttachment::GetLastError() != WJniErrorState::SUCCESS)
   {
-    ezLog::Error("Aborting call because the previous error state was not cleared.");
+    WLog::Error("Aborting call because the previous error state was not cleared.");
     return true;
   }
 
-  if (ezJniAttachment::HasPendingException())
+  if (WJniAttachment::HasPendingException())
   {
-    ezLog::Error("Aborting call because a Java exception is still pending.");
-    ezJniAttachment::SetLastError(ezJniErrorState::PENDING_EXCEPTION);
+    WLog::Error("Aborting call because a Java exception is still pending.");
+    WJniAttachment::SetLastError(WJniErrorState::PENDING_EXCEPTION);
     return true;
   }
 
   return false;
 }
 
-void ezJniAttachment::InstallErrorHandler(ezJniErrorHandler onError)
+void WJniAttachment::InstallErrorHandler(WJniErrorHandler onError)
 {
-  EZ_ASSERT_ALWAYS(s_attachCount == 1, "Can't install error handler for more than one instance.");
+  W_ASSERT_ALWAYS(s_attachCount == 1, "Can't install error handler for more than one instance.");
   s_onError = onError;
 }
 
-void ezJniObject::DumpTypes(const ezJniClass* inputTypes, int N, const ezJniClass* returnType)
+void WJniObject::DumpTypes(const WJniClass* inputTypes, int N, const WJniClass* returnType)
 {
   if (returnType != nullptr)
   {
-    ezLog::Error("  With requested return type '{}'", returnType->ToString().GetData());
+    WLog::Error("  With requested return type '{}'", returnType->ToString().GetData());
   }
 
   for (int paramIdx = 0; paramIdx < N; ++paramIdx)
   {
-    ezLog::Error("  With passed param type #{} '{}'", paramIdx, inputTypes[paramIdx].IsNull() ? "(null)" : inputTypes[paramIdx].ToString().GetData());
+    WLog::Error("  With passed param type #{} '{}'", paramIdx, inputTypes[paramIdx].IsNull() ? "(null)" : inputTypes[paramIdx].ToString().GetData());
   }
 }
 
-int ezJniObject::CompareMethodSpecificity(const ezJniObject& method1, const ezJniObject& method2)
+int WJniObject::CompareMethodSpecificity(const WJniObject& method1, const WJniObject& method2)
 {
-  ezJniClass returnType1 = method1.UnsafeCall<ezJniClass>("getReturnType", "()Ljava/lang/Class;");
-  ezJniClass returnType2 = method2.UnsafeCall<ezJniClass>("getReturnType", "()Ljava/lang/Class;");
+  WJniClass returnType1 = method1.UnsafeCall<WJniClass>("getReturnType", "()Ljava/lang/Class;");
+  WJniClass returnType2 = method2.UnsafeCall<WJniClass>("getReturnType", "()Ljava/lang/Class;");
 
-  ezJniObject paramTypes1 = method1.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
-  ezJniObject paramTypes2 = method2.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  WJniObject paramTypes1 = method1.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  WJniObject paramTypes2 = method2.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
 
-  jsize N = ezJniAttachment::GetEnv()->GetArrayLength(jarray(paramTypes1.m_object));
+  jsize N = WJniAttachment::GetEnv()->GetArrayLength(jarray(paramTypes1.m_object));
 
   int decision = returnType1.IsAssignableFrom(returnType2) - returnType2.IsAssignableFrom(returnType1);
 
   for (jsize paramIdx = 0; paramIdx < N; ++paramIdx)
   {
-    ezJniClass paramType1(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
-    ezJniClass paramType2(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    WJniClass paramType1(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), WJniOwnerShip::OWN);
+    WJniClass paramType2(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), WJniOwnerShip::OWN);
 
     int paramDecision = paramType1.IsAssignableFrom(paramType2) - paramType2.IsAssignableFrom(paramType1);
 
@@ -206,25 +206,25 @@ int ezJniObject::CompareMethodSpecificity(const ezJniObject& method1, const ezJn
   return decision;
 }
 
-bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMethod, const ezJniClass& returnType, ezJniClass* inputTypes, int N)
+bool WJniObject::IsMethodViable(bool bStatic, const WJniObject& candidateMethod, const WJniClass& returnType, WJniClass* inputTypes, int N)
 {
   // Check if staticness matches
-  if (ezJniClass("java/lang/reflect/Modifier").UnsafeCallStatic<bool>("isStatic", "(I)Z", candidateMethod.UnsafeCall<int>("getModifiers", "()I")) !=
+  if (WJniClass("java/lang/reflect/Modifier").UnsafeCallStatic<bool>("isStatic", "(I)Z", candidateMethod.UnsafeCall<int>("getModifiers", "()I")) !=
       bStatic)
   {
     return false;
   }
 
   // Check if return type is assignable to the requested type
-  ezJniClass candidateReturnType = candidateMethod.UnsafeCall<ezJniClass>("getReturnType", "()Ljava/lang/Class;");
+  WJniClass candidateReturnType = candidateMethod.UnsafeCall<WJniClass>("getReturnType", "()Ljava/lang/Class;");
   if (!returnType.IsAssignableFrom(candidateReturnType))
   {
     return false;
   }
 
   // Check number of parameters
-  ezJniObject parameterTypes = candidateMethod.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
-  jsize numCandidateParams = ezJniAttachment::GetEnv()->GetArrayLength(jarray(parameterTypes.m_object));
+  WJniObject parameterTypes = candidateMethod.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  jsize numCandidateParams = WJniAttachment::GetEnv()->GetArrayLength(jarray(parameterTypes.m_object));
   if (numCandidateParams != N)
   {
     return false;
@@ -233,8 +233,8 @@ bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMetho
   // Check if input parameter types are assignable to the actual parameter types
   for (jsize paramIdx = 0; paramIdx < numCandidateParams; ++paramIdx)
   {
-    ezJniClass paramType(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    WJniClass paramType(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), WJniOwnerShip::OWN);
 
     if (inputTypes[paramIdx].IsNull())
     {
@@ -255,46 +255,46 @@ bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMetho
   return true;
 }
 
-ezJniObject ezJniObject::FindMethod(
-  bool bStatic, const char* name, const ezJniClass& searchClass, const ezJniClass& returnType, ezJniClass* inputTypes, int N)
+WJniObject WJniObject::FindMethod(
+  bool bStatic, const char* name, const WJniClass& searchClass, const WJniClass& returnType, WJniClass* inputTypes, int N)
 {
   if (searchClass.IsNull())
   {
-    ezLog::Error("Attempting to find constructor for null type.");
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniObject();
+    WLog::Error("Attempting to find constructor for null type.");
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniObject();
   }
 
-  ezTempHybridArray<ezJniObject, 32> bestCandidates;
+  WTempHybridArray<WJniObject, 32> bestCandidates;
 
   // In case of no parameters, fetch the method directly.
   if (N == 0)
   {
-    ezJniObject candidateMethod = searchClass.UnsafeCall<ezJniObject>(
-      "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", ezJniString(name), ezJniObject());
+    WJniObject candidateMethod = searchClass.UnsafeCall<WJniObject>(
+      "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", WJniString(name), WJniObject());
 
-    if (!ezJniAttachment::GetEnv()->ExceptionCheck() && IsMethodViable(bStatic, candidateMethod, returnType, inputTypes, N))
+    if (!WJniAttachment::GetEnv()->ExceptionCheck() && IsMethodViable(bStatic, candidateMethod, returnType, inputTypes, N))
     {
       bestCandidates.PushBack(candidateMethod);
     }
     else
     {
-      ezJniAttachment::GetEnv()->ExceptionClear();
+      WJniAttachment::GetEnv()->ExceptionClear();
     }
   }
   else
   {
     // For methods with parameters, loop over all methods to find one with the correct name and matching parameter types
 
-    ezJniObject methodArray = searchClass.UnsafeCall<ezJniObject>("getMethods", "()[Ljava/lang/reflect/Method;");
+    WJniObject methodArray = searchClass.UnsafeCall<WJniObject>("getMethods", "()[Ljava/lang/reflect/Method;");
 
-    jsize numMethods = ezJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
+    jsize numMethods = WJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
     for (jsize methodIdx = 0; methodIdx < numMethods; ++methodIdx)
     {
-      ezJniObject candidateMethod(
-        ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
+      WJniObject candidateMethod(
+        WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), WJniOwnerShip::OWN);
 
-      ezJniString methodName = candidateMethod.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;");
+      WJniString methodName = candidateMethod.UnsafeCall<WJniString>("getName", "()Ljava/lang/String;");
 
       if (strcmp(name, methodName.GetData()) != 0)
       {
@@ -343,41 +343,41 @@ ezJniObject ezJniObject::FindMethod(
   }
   else if (bestCandidates.GetCount() == 0)
   {
-    ezLog::Error("Overload resolution failed: No method '{}' in class '{}' matches the requested return and parameter types.", name,
+    WLog::Error("Overload resolution failed: No method '{}' in class '{}' matches the requested return and parameter types.", name,
       searchClass.ToString().GetData());
     DumpTypes(inputTypes, N, &returnType);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_METHOD);
-    return ezJniObject();
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_METHOD);
+    return WJniObject();
   }
   else
   {
-    ezLog::Error("Overload resolution failed: Call to '{}' in class '{}' is ambiguous. Cannot decide between the following candidates:", name,
+    WLog::Error("Overload resolution failed: Call to '{}' in class '{}' is ambiguous. Cannot decide between the following candidates:", name,
       searchClass.ToString().GetData());
     for (int candidateIdx = 0; candidateIdx < bestCandidates.GetCount(); ++candidateIdx)
     {
-      ezLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
+      WLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
     }
     DumpTypes(inputTypes, N, &returnType);
-    ezJniAttachment::SetLastError(ezJniErrorState::AMBIGUOUS_CALL);
-    return ezJniObject();
+    WJniAttachment::SetLastError(WJniErrorState::AMBIGUOUS_CALL);
+    return WJniObject();
   }
 }
 
-int ezJniObject::CompareConstructorSpecificity(const ezJniObject& method1, const ezJniObject& method2)
+int WJniObject::CompareConstructorSpecificity(const WJniObject& method1, const WJniObject& method2)
 {
-  ezJniObject paramTypes1 = method1.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
-  ezJniObject paramTypes2 = method2.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  WJniObject paramTypes1 = method1.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  WJniObject paramTypes2 = method2.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
 
-  jsize N = ezJniAttachment::GetEnv()->GetArrayLength(jarray(paramTypes1.m_object));
+  jsize N = WJniAttachment::GetEnv()->GetArrayLength(jarray(paramTypes1.m_object));
 
   int decision = 0;
 
   for (jsize paramIdx = 0; paramIdx < N; ++paramIdx)
   {
-    ezJniClass paramType1(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
-    ezJniClass paramType2(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    WJniClass paramType1(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), WJniOwnerShip::OWN);
+    WJniClass paramType2(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), WJniOwnerShip::OWN);
 
     int paramDecision = paramType1.IsAssignableFrom(paramType2) - paramType2.IsAssignableFrom(paramType1);
 
@@ -396,11 +396,11 @@ int ezJniObject::CompareConstructorSpecificity(const ezJniObject& method1, const
   return decision;
 }
 
-bool ezJniObject::IsConstructorViable(const ezJniObject& candidateMethod, ezJniClass* inputTypes, int N)
+bool WJniObject::IsConstructorViable(const WJniObject& candidateMethod, WJniClass* inputTypes, int N)
 {
   // Check number of parameters
-  ezJniObject parameterTypes = candidateMethod.UnsafeCall<ezJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
-  jsize numCandidateParams = ezJniAttachment::GetEnv()->GetArrayLength(jarray(parameterTypes.m_object));
+  WJniObject parameterTypes = candidateMethod.UnsafeCall<WJniObject>("getParameterTypes", "()[Ljava/lang/Class;");
+  jsize numCandidateParams = WJniAttachment::GetEnv()->GetArrayLength(jarray(parameterTypes.m_object));
   if (numCandidateParams != N)
   {
     return false;
@@ -409,8 +409,8 @@ bool ezJniObject::IsConstructorViable(const ezJniObject& candidateMethod, ezJniC
   // Check if input parameter types are assignable to the actual parameter types
   for (jsize paramIdx = 0; paramIdx < numCandidateParams; ++paramIdx)
   {
-    ezJniClass paramType(
-      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    WJniClass paramType(
+      jclass(WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), WJniOwnerShip::OWN);
 
     if (inputTypes[paramIdx].IsNull())
     {
@@ -431,43 +431,43 @@ bool ezJniObject::IsConstructorViable(const ezJniObject& candidateMethod, ezJniC
   return true;
 }
 
-ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inputTypes, int N)
+WJniObject WJniObject::FindConstructor(const WJniClass& type, WJniClass* inputTypes, int N)
 {
   if (type.IsNull())
   {
-    ezLog::Error("Attempting to find constructor for null type.");
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniObject();
+    WLog::Error("Attempting to find constructor for null type.");
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniObject();
   }
 
-  ezTempHybridArray<ezJniObject, 32> bestCandidates;
+  WTempHybridArray<WJniObject, 32> bestCandidates;
 
   // In case of no parameters, fetch the method directly.
   if (N == 0)
   {
-    ezJniObject candidateMethod =
-      type.UnsafeCall<ezJniObject>("getConstructor", "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", ezJniObject());
+    WJniObject candidateMethod =
+      type.UnsafeCall<WJniObject>("getConstructor", "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", WJniObject());
 
-    if (!ezJniAttachment::GetEnv()->ExceptionCheck() && IsConstructorViable(candidateMethod, inputTypes, N))
+    if (!WJniAttachment::GetEnv()->ExceptionCheck() && IsConstructorViable(candidateMethod, inputTypes, N))
     {
       bestCandidates.PushBack(candidateMethod);
     }
     else
     {
-      ezJniAttachment::GetEnv()->ExceptionClear();
+      WJniAttachment::GetEnv()->ExceptionClear();
     }
   }
   else
   {
     // For methods with parameters, loop over all methods to find one with the correct name and matching parameter types
 
-    ezJniObject methodArray = type.UnsafeCall<ezJniObject>("getConstructors", "()[Ljava/lang/reflect/Constructor;");
+    WJniObject methodArray = type.UnsafeCall<WJniObject>("getConstructors", "()[Ljava/lang/reflect/Constructor;");
 
-    jsize numMethods = ezJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
+    jsize numMethods = WJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
     for (jsize methodIdx = 0; methodIdx < numMethods; ++methodIdx)
     {
-      ezJniObject candidateMethod(
-        ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
+      WJniObject candidateMethod(
+        WJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), WJniOwnerShip::OWN);
 
       if (!IsConstructorViable(candidateMethod, inputTypes, N))
       {
@@ -511,74 +511,74 @@ ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inp
   }
   else if (bestCandidates.GetCount() == 0)
   {
-    ezLog::Error("Overload resolution failed: No constructor in class '{}' matches the requested parameter types.", type.ToString().GetData());
+    WLog::Error("Overload resolution failed: No constructor in class '{}' matches the requested parameter types.", type.ToString().GetData());
     DumpTypes(inputTypes, N, nullptr);
-    ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_METHOD);
-    return ezJniObject();
+    WJniAttachment::SetLastError(WJniErrorState::NO_MATCHING_METHOD);
+    return WJniObject();
   }
   else
   {
-    ezLog::Error("Overload resolution failed: Call to constructor in class '{}' is ambiguous. Cannot decide between the following candidates:",
+    WLog::Error("Overload resolution failed: Call to constructor in class '{}' is ambiguous. Cannot decide between the following candidates:",
       type.ToString().GetData());
     for (int candidateIdx = 0; candidateIdx < bestCandidates.GetCount(); ++candidateIdx)
     {
-      ezLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
+      WLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
     }
     DumpTypes(inputTypes, N, nullptr);
-    ezJniAttachment::SetLastError(ezJniErrorState::AMBIGUOUS_CALL);
-    return ezJniObject();
+    WJniAttachment::SetLastError(WJniErrorState::AMBIGUOUS_CALL);
+    return WJniObject();
   }
 }
 
-ezJniObject::ezJniObject()
+WJniObject::WJniObject()
   : m_object(nullptr)
   , m_class(nullptr)
   , m_own(false)
 {
 }
 
-jobject ezJniObject::GetHandle() const
+jobject WJniObject::GetHandle() const
 {
   return m_object;
 }
 
-ezJniClass ezJniObject::GetClass() const
+WJniClass WJniObject::GetClass() const
 {
   if (!m_object)
   {
-    return ezJniClass();
+    return WJniClass();
   }
 
   if (!m_class)
   {
-    const_cast<ezJniObject*>(this)->m_class = ezJniAttachment::GetEnv()->GetObjectClass(m_object);
+    const_cast<WJniObject*>(this)->m_class = WJniAttachment::GetEnv()->GetObjectClass(m_object);
   }
 
-  return ezJniClass(m_class, ezJniOwnerShip::BORROW);
+  return WJniClass(m_class, WJniOwnerShip::BORROW);
 }
 
-ezJniString ezJniObject::ToString() const
+WJniString WJniObject::ToString() const
 {
-  if (ezJniAttachment::FailOnPendingErrorOrException())
+  if (WJniAttachment::FailOnPendingErrorOrException())
   {
-    return ezJniString();
+    return WJniString();
   }
 
   // Implement ToString without UnsafeCall, since UnsafeCall requires ToString for diagnostic output.
   if (IsNull())
   {
-    ezLog::Error("Attempting to call method 'toString' on null object.");
-    ezJniAttachment::SetLastError(ezJniErrorState::CALL_ON_NULL_OBJECT);
-    return ezJniString();
+    WLog::Error("Attempting to call method 'toString' on null object.");
+    WJniAttachment::SetLastError(WJniErrorState::CALL_ON_NULL_OBJECT);
+    return WJniString();
   }
 
-  jmethodID method = ezJniAttachment::GetEnv()->GetMethodID(jclass(GetClass().m_object), "toString", "()Ljava/lang/String;");
-  EZ_ASSERT_DEV(method, "Could not find JNI method toString()");
+  jmethodID method = WJniAttachment::GetEnv()->GetMethodID(jclass(GetClass().m_object), "toString", "()Ljava/lang/String;");
+  W_ASSERT_DEV(method, "Could not find JNI method toString()");
 
-  return ezJniTraits<ezJniString>::CallInstanceMethod(m_object, method);
+  return WJniTraits<WJniString>::CallInstanceMethod(m_object, method);
 }
 
-bool ezJniObject::IsInstanceOf(const ezJniClass& clazz) const
+bool WJniObject::IsInstanceOf(const WJniClass& clazz) const
 {
   if (IsNull())
   {
@@ -588,60 +588,60 @@ bool ezJniObject::IsInstanceOf(const ezJniClass& clazz) const
   return clazz.IsAssignableFrom(GetClass());
 }
 
-ezJniString::ezJniString()
-  : ezJniObject()
+WJniString::WJniString()
+  : WJniObject()
   , m_utf(nullptr)
 {
 }
 
-ezJniString::ezJniString(const char* str)
-  : ezJniObject(ezJniAttachment::GetEnv()->NewStringUTF(str), ezJniOwnerShip::OWN)
+WJniString::WJniString(const char* str)
+  : WJniObject(WJniAttachment::GetEnv()->NewStringUTF(str), WJniOwnerShip::OWN)
   , m_utf(nullptr)
 {
 }
 
-ezJniString::ezJniString(jstring string, ezJniOwnerShip ownerShip)
-  : ezJniObject(string, ownerShip)
+WJniString::WJniString(jstring string, WJniOwnerShip ownerShip)
+  : WJniObject(string, ownerShip)
   , m_utf(nullptr)
 {
 }
 
-ezJniString::ezJniString(const ezJniString& other)
-  : ezJniObject(other)
+WJniString::WJniString(const WJniString& other)
+  : WJniObject(other)
   , m_utf(nullptr)
 {
 }
 
-ezJniString::ezJniString(ezJniString&& other)
-  : ezJniObject(other)
+WJniString::WJniString(WJniString&& other)
+  : WJniObject(other)
   , m_utf(nullptr)
 {
   m_utf = other.m_utf;
   other.m_utf = nullptr;
 }
 
-ezJniString& ezJniString::operator=(const ezJniString& other)
+WJniString& WJniString::operator=(const WJniString& other)
 {
   if (m_utf)
   {
-    ezJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
+    WJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
     m_utf = nullptr;
   }
 
-  ezJniObject::operator=(other);
+  WJniObject::operator=(other);
 
   return *this;
 }
 
-ezJniString& ezJniString::operator=(ezJniString&& other)
+WJniString& WJniString::operator=(WJniString&& other)
 {
   if (m_utf)
   {
-    ezJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
+    WJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
     m_utf = nullptr;
   }
 
-  ezJniObject::operator=(other);
+  WJniObject::operator=(other);
 
   m_utf = other.m_utf;
   other.m_utf = nullptr;
@@ -649,92 +649,92 @@ ezJniString& ezJniString::operator=(ezJniString&& other)
   return *this;
 }
 
-ezJniString::~ezJniString()
+WJniString::~WJniString()
 {
   if (m_utf)
   {
-    ezJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
+    WJniAttachment::GetEnv()->ReleaseStringUTFChars(jstring(GetJObject()), m_utf);
     m_utf = nullptr;
   }
 }
 
-const char* ezJniString::GetData() const
+const char* WJniString::GetData() const
 {
   if (IsNull())
   {
-    ezLog::Error("Calling AsChar() on null Java String");
+    WLog::Error("Calling AsChar() on null Java String");
     return "<null>";
   }
 
   if (!m_utf)
   {
-    const_cast<ezJniString*>(this)->m_utf = ezJniAttachment::GetEnv()->GetStringUTFChars(jstring(GetJObject()), nullptr);
+    const_cast<WJniString*>(this)->m_utf = WJniAttachment::GetEnv()->GetStringUTFChars(jstring(GetJObject()), nullptr);
   }
 
   return m_utf;
 }
 
 
-ezJniClass::ezJniClass()
-  : ezJniObject()
+WJniClass::WJniClass()
+  : WJniObject()
 {
 }
 
-ezJniClass::ezJniClass(const char* className)
-  : ezJniObject(ezJniAttachment::GetEnv()->FindClass(className), ezJniOwnerShip::OWN)
+WJniClass::WJniClass(const char* className)
+  : WJniObject(WJniAttachment::GetEnv()->FindClass(className), WJniOwnerShip::OWN)
 {
   if (IsNull())
   {
-    ezLog::Error("Class '{}' not found.", className);
-    ezJniAttachment::SetLastError(ezJniErrorState::CLASS_NOT_FOUND);
+    WLog::Error("Class '{}' not found.", className);
+    WJniAttachment::SetLastError(WJniErrorState::CLASS_NOT_FOUND);
   }
 }
 
-ezJniClass::ezJniClass(jclass clazz, ezJniOwnerShip ownerShip)
-  : ezJniObject(clazz, ownerShip)
+WJniClass::WJniClass(jclass clazz, WJniOwnerShip ownerShip)
+  : WJniObject(clazz, ownerShip)
 {
 }
 
-ezJniClass::ezJniClass(const ezJniClass& other)
-  : ezJniObject(static_cast<const ezJniObject&>(other))
+WJniClass::WJniClass(const WJniClass& other)
+  : WJniObject(static_cast<const WJniObject&>(other))
 {
 }
 
-ezJniClass::ezJniClass(ezJniClass&& other)
-  : ezJniObject(other)
+WJniClass::WJniClass(WJniClass&& other)
+  : WJniObject(other)
 {
 }
 
-ezJniClass& ezJniClass::operator=(const ezJniClass& other)
+WJniClass& WJniClass::operator=(const WJniClass& other)
 {
-  ezJniObject::operator=(other);
+  WJniObject::operator=(other);
   return *this;
 }
 
-ezJniClass& ezJniClass::operator=(ezJniClass&& other)
+WJniClass& WJniClass::operator=(WJniClass&& other)
 {
-  ezJniObject::operator=(other);
+  WJniObject::operator=(other);
   return *this;
 }
 
-jclass ezJniClass::GetHandle() const
+jclass WJniClass::GetHandle() const
 {
   return static_cast<jclass>(GetJObject());
 }
 
-bool ezJniClass::IsAssignableFrom(const ezJniClass& other) const
+bool WJniClass::IsAssignableFrom(const WJniClass& other) const
 {
   static bool checkedApiOrder = false;
   static bool reverseArgs = false;
 
-  JNIEnv* env = ezJniAttachment::GetEnv();
+  JNIEnv* env = WJniAttachment::GetEnv();
 
   // Guard against JNI bug reversing order of arguments - fixed in
   // https://android.googlesource.com/platform/art/+/1268b742c8cff7318dc0b5b283cbaeabfe0725ba
   if (!checkedApiOrder)
   {
-    ezJniClass objectClass("java/lang/Object");
-    ezJniClass stringClass("java/lang/String");
+    WJniClass objectClass("java/lang/Object");
+    WJniClass stringClass("java/lang/String");
 
     if (env->IsAssignableFrom(jclass(objectClass.GetJObject()), jclass(stringClass.GetJObject())))
     {
@@ -753,22 +753,22 @@ bool ezJniClass::IsAssignableFrom(const ezJniClass& other) const
   }
 }
 
-bool ezJniClass::IsPrimitive()
+bool WJniClass::IsPrimitive()
 {
   return UnsafeCall<bool>("isPrimitive", "()Z");
 }
 
-ezJniNullPtr::ezJniNullPtr(ezJniClass& clazz)
+WJniNullPtr::WJniNullPtr(WJniClass& clazz)
 {
   m_class = clazz;
 }
 
-const ezJniString ezJniNullPtr::GetTypeSignature() const
+const WJniString WJniNullPtr::GetTypeSignature() const
 {
-  ezJniString jSignature = m_class.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;");
-  ezStringBuilder signature{jSignature.GetData()};
+  WJniString jSignature = m_class.UnsafeCall<WJniString>("getName", "()Ljava/lang/String;");
+  WStringBuilder signature{jSignature.GetData()};
   signature.ReplaceAll(".", "/");
-  return ezJniString{signature.GetData()};
+  return WJniString{signature.GetData()};
 }
 
 #endif

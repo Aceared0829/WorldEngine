@@ -2,26 +2,26 @@
 
 #include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
-ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor()
-  : ezDocumentObjectMirror()
+WIPCObjectMirrorEditor::WIPCObjectMirrorEditor()
+  : WDocumentObjectMirror()
 {
   m_pIPC = nullptr;
 }
 
-ezIPCObjectMirrorEditor::~ezIPCObjectMirrorEditor() = default;
+WIPCObjectMirrorEditor::~WIPCObjectMirrorEditor() = default;
 
-void ezIPCObjectMirrorEditor::SetIPC(ezEditorEngineConnection* pIPC)
+void WIPCObjectMirrorEditor::SetIPC(WEditorEngineConnection* pIPC)
 {
-  EZ_ASSERT_DEBUG(m_pContext == nullptr, "Need to call SetIPC before SetReceiver");
+  W_ASSERT_DEBUG(m_pContext == nullptr, "Need to call SetIPC before SetReceiver");
   m_pIPC = pIPC;
 }
 
-ezEditorEngineConnection* ezIPCObjectMirrorEditor::GetIPC()
+WEditorEngineConnection* WIPCObjectMirrorEditor::GetIPC()
 {
   return m_pIPC;
 }
 
-void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& ref_change)
+void WIPCObjectMirrorEditor::ApplyOp(WObjectChange& ref_change)
 {
   if (m_pManager)
   {
@@ -29,15 +29,15 @@ void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& ref_change)
   }
   else
   {
-    EZ_REPORT_FAILURE("ezIPCObjectMirrorEngine not set up for sender nor receiver!");
+    W_REPORT_FAILURE("WIPCObjectMirrorEngine not set up for sender nor receiver!");
   }
 }
 
-void ezIPCObjectMirrorEditor::SendOp(ezObjectChange& change)
+void WIPCObjectMirrorEditor::SendOp(WObjectChange& change)
 {
-  EZ_ASSERT_DEBUG(m_pIPC != nullptr, "Need to call SetIPC before SetReceiver");
+  W_ASSERT_DEBUG(m_pIPC != nullptr, "Need to call SetIPC before SetReceiver");
 
-  ezEntityMsgToEngine msg;
+  WEntityMsgToEngine msg;
   msg.m_change = std::move(change);
 
   m_pIPC->SendMessage(&msg);

@@ -1,179 +1,179 @@
 
-/// Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
-#define EZ_GALDEVICE_LOCK_AND_CHECK() \
-  EZ_LOCK(m_Mutex);                   \
+/// Used to guard WGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
+#define W_GALDEVICE_LOCK_AND_CHECK() \
+  W_LOCK(m_Mutex);                   \
   VerifyMultithreadedAccess()
 
-EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescription() const
+W_ALWAYS_INLINE const WGALDeviceCreationDescription* WGALDevice::GetDescription() const
 {
   return &m_Description;
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetCurrentFrame() const
+W_ALWAYS_INLINE WUInt64 WGALDevice::GetCurrentFrame() const
 {
   return GetCurrentFramePlatform();
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetSafeFrame() const
+W_ALWAYS_INLINE WUInt64 WGALDevice::GetSafeFrame() const
 {
   return GetSafeFramePlatform();
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+W_ALWAYS_INLINE WEnum<WGALAsyncResult> WGALDevice::GetTimestampResult(WGALTimestampHandle hTimestamp, WTime& out_result)
 {
   if (hTimestamp.IsInvalidated())
-    return ezGALAsyncResult::Expired;
+    return WGALAsyncResult::Expired;
 
   return GetTimestampResultPlatform(hTimestamp, out_result);
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+W_ALWAYS_INLINE WEnum<WGALAsyncResult> WGALDevice::GetOcclusionQueryResult(WGALOcclusionHandle hOcclusion, WUInt64& out_uiResult)
 {
   if (hOcclusion.IsInvalidated())
-    return ezGALAsyncResult::Expired;
+    return WGALAsyncResult::Expired;
 
   return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
 }
 
 template <typename IdTableType, typename ReturnType>
-EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
+W_ALWAYS_INLINE ReturnType* WGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  W_GALDEVICE_LOCK_AND_CHECK();
 
   ReturnType* pObject = nullptr;
   bool _1 = IdTable.TryGetValue(hHandle, pObject);
-  EZ_IGNORE_UNUSED(_1);
+  W_IGNORE_UNUSED(_1);
   return pObject;
 }
 
-inline const ezGALSwapChain* ezGALDevice::GetSwapChain(ezGALSwapChainHandle hSwapChain) const
+inline const WGALSwapChain* WGALDevice::GetSwapChain(WGALSwapChainHandle hSwapChain) const
 {
-  return Get<SwapChainTable, ezGALSwapChain>(hSwapChain, m_SwapChains);
+  return Get<SwapChainTable, WGALSwapChain>(hSwapChain, m_SwapChains);
 }
 
-inline const ezGALShader* ezGALDevice::GetShader(ezGALShaderHandle hShader) const
+inline const WGALShader* WGALDevice::GetShader(WGALShaderHandle hShader) const
 {
-  return Get<ShaderTable, ezGALShader>(hShader, m_Shaders);
+  return Get<ShaderTable, WGALShader>(hShader, m_Shaders);
 }
 
-inline const ezGALTexture* ezGALDevice::GetTexture(ezGALTextureHandle hTexture) const
+inline const WGALTexture* WGALDevice::GetTexture(WGALTextureHandle hTexture) const
 {
-  return Get<TextureTable, ezGALTexture>(hTexture, m_Textures);
+  return Get<TextureTable, WGALTexture>(hTexture, m_Textures);
 }
 
-inline const ezGALBuffer* ezGALDevice::GetBuffer(ezGALBufferHandle hBuffer) const
+inline const WGALBuffer* WGALDevice::GetBuffer(WGALBufferHandle hBuffer) const
 {
-  return Get<BufferTable, ezGALBuffer>(hBuffer, m_Buffers);
+  return Get<BufferTable, WGALBuffer>(hBuffer, m_Buffers);
 }
 
-inline const ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer) const
+inline const WGALDynamicBuffer* WGALDevice::GetDynamicBuffer(WGALDynamicBufferHandle hBuffer) const
 {
-  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+  return Get<DynamicBufferTable, WGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
 }
 
-inline ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer)
+inline WGALDynamicBuffer* WGALDevice::GetDynamicBuffer(WGALDynamicBufferHandle hBuffer)
 {
-  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+  return Get<DynamicBufferTable, WGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
 }
 
-inline const ezGALReadbackBuffer* ezGALDevice::GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const
+inline const WGALReadbackBuffer* WGALDevice::GetReadbackBuffer(WGALReadbackBufferHandle hBuffer) const
 {
-  return Get<ReadbackBufferTable, ezGALReadbackBuffer>(hBuffer, m_ReadbackBuffers);
+  return Get<ReadbackBufferTable, WGALReadbackBuffer>(hBuffer, m_ReadbackBuffers);
 }
 
-inline const ezGALReadbackTexture* ezGALDevice::GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const
+inline const WGALReadbackTexture* WGALDevice::GetReadbackTexture(WGALReadbackTextureHandle hTexture) const
 {
-  return Get<ReadbackTextureTable, ezGALReadbackTexture>(hTexture, m_ReadbackTextures);
+  return Get<ReadbackTextureTable, WGALReadbackTexture>(hTexture, m_ReadbackTextures);
 }
 
-inline const ezGALDepthStencilState* ezGALDevice::GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const
+inline const WGALDepthStencilState* WGALDevice::GetDepthStencilState(WGALDepthStencilStateHandle hDepthStencilState) const
 {
-  return Get<DepthStencilStateTable, ezGALDepthStencilState>(hDepthStencilState, m_DepthStencilStates);
+  return Get<DepthStencilStateTable, WGALDepthStencilState>(hDepthStencilState, m_DepthStencilStates);
 }
 
-inline const ezGALBlendState* ezGALDevice::GetBlendState(ezGALBlendStateHandle hBlendState) const
+inline const WGALBlendState* WGALDevice::GetBlendState(WGALBlendStateHandle hBlendState) const
 {
-  return Get<BlendStateTable, ezGALBlendState>(hBlendState, m_BlendStates);
+  return Get<BlendStateTable, WGALBlendState>(hBlendState, m_BlendStates);
 }
 
-inline const ezGALRasterizerState* ezGALDevice::GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const
+inline const WGALRasterizerState* WGALDevice::GetRasterizerState(WGALRasterizerStateHandle hRasterizerState) const
 {
-  return Get<RasterizerStateTable, ezGALRasterizerState>(hRasterizerState, m_RasterizerStates);
+  return Get<RasterizerStateTable, WGALRasterizerState>(hRasterizerState, m_RasterizerStates);
 }
 
-inline const ezGALVertexDeclaration* ezGALDevice::GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const
+inline const WGALVertexDeclaration* WGALDevice::GetVertexDeclaration(WGALVertexDeclarationHandle hVertexDeclaration) const
 {
-  return Get<VertexDeclarationTable, ezGALVertexDeclaration>(hVertexDeclaration, m_VertexDeclarations);
+  return Get<VertexDeclarationTable, WGALVertexDeclaration>(hVertexDeclaration, m_VertexDeclarations);
 }
 
-inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHandle hSamplerState) const
+inline const WGALSamplerState* WGALDevice::GetSamplerState(WGALSamplerStateHandle hSamplerState) const
 {
-  return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
+  return Get<SamplerStateTable, WGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
-inline const ezGALBindGroupLayout* ezGALDevice::GetBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout) const
+inline const WGALBindGroupLayout* WGALDevice::GetBindGroupLayout(WGALBindGroupLayoutHandle hBindGroupLayout) const
 {
-  return Get<BindGroupLayoutTable, ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts);
+  return Get<BindGroupLayoutTable, WGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts);
 }
 
-inline const ezGALBindGroup* ezGALDevice::GetBindGroup(ezGALBindGroupHandle hBindGroup) const
+inline const WGALBindGroup* WGALDevice::GetBindGroup(WGALBindGroupHandle hBindGroup) const
 {
-  return Get<BindGroupTable, ezGALBindGroup>(hBindGroup, m_BindGroups);
+  return Get<BindGroupTable, WGALBindGroup>(hBindGroup, m_BindGroups);
 }
 
-inline const ezGALPipelineLayout* ezGALDevice::GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const
+inline const WGALPipelineLayout* WGALDevice::GetPipelineLayout(WGALPipelineLayoutHandle hPipelineLayout) const
 {
-  return Get<PipelineLayoutTable, ezGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts);
+  return Get<PipelineLayoutTable, WGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts);
 }
 
-inline const ezGALGraphicsPipeline* ezGALDevice::GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const
+inline const WGALGraphicsPipeline* WGALDevice::GetGraphicsPipeline(WGALGraphicsPipelineHandle hGraphicsPipeline) const
 {
-  return Get<GraphicsPipelineTable, ezGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);
+  return Get<GraphicsPipelineTable, WGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);
 }
 
-inline const ezGALComputePipeline* ezGALDevice::GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const
+inline const WGALComputePipeline* WGALDevice::GetComputePipeline(WGALComputePipelineHandle hComputePipeline) const
 {
-  return Get<ComputePipelineTable, ezGALComputePipeline>(hComputePipeline, m_ComputePipelines);
+  return Get<ComputePipelineTable, WGALComputePipeline>(hComputePipeline, m_ComputePipelines);
 }
 
-inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
+inline const WGALRenderTargetView* WGALDevice::GetRenderTargetView(WGALRenderTargetViewHandle hRenderTargetView) const
 {
-  return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
+  return Get<RenderTargetViewTable, WGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
 }
 
 // static
-EZ_ALWAYS_INLINE void ezGALDevice::SetDefaultDevice(ezGALDevice* pDefaultDevice)
+W_ALWAYS_INLINE void WGALDevice::SetDefaultDevice(WGALDevice* pDefaultDevice)
 {
   s_pDefaultDevice = pDefaultDevice;
 }
 
 // static
-EZ_ALWAYS_INLINE ezGALDevice* ezGALDevice::GetDefaultDevice()
+W_ALWAYS_INLINE WGALDevice* WGALDevice::GetDefaultDevice()
 {
-  EZ_ASSERT_DEBUG(s_pDefaultDevice != nullptr, "Default device not set.");
+  W_ASSERT_DEBUG(s_pDefaultDevice != nullptr, "Default device not set.");
   return s_pDefaultDevice;
 }
 
 // static
-EZ_ALWAYS_INLINE bool ezGALDevice::HasDefaultDevice()
+W_ALWAYS_INLINE bool WGALDevice::HasDefaultDevice()
 {
   return s_pDefaultDevice != nullptr;
 }
 
 template <typename HandleType>
-EZ_FORCE_INLINE void ezGALDevice::AddDeadObject(ezUInt32 uiType, HandleType handle)
+W_FORCE_INLINE void WGALDevice::AddDeadObject(WUInt32 uiType, HandleType handle)
 {
   DeadObject deadObject = {uiType, handle.GetInternalID().m_Data};
-  EZ_ASSERT_DEBUG(!m_DeadObjects.Contains(deadObject), "The same object is being destroyed multiple times.");
+  W_ASSERT_DEBUG(!m_DeadObjects.Contains(deadObject), "The same object is being destroyed multiple times.");
   m_DeadObjects.PushBack(deadObject);
 }
 
 template <typename HandleType>
-void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
+void WGALDevice::ReviveDeadObject(WUInt32 uiType, HandleType handle)
 {
-  ezUInt32 uiHandle = handle.GetInternalID().m_Data;
+  WUInt32 uiHandle = handle.GetInternalID().m_Data;
 
-  for (ezUInt32 i = 0; i < m_DeadObjects.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DeadObjects.GetCount(); ++i)
   {
     const auto& deadObject = m_DeadObjects[i];
 
@@ -185,15 +185,15 @@ void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
   }
 }
 
-EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
+W_ALWAYS_INLINE void WGALDevice::VerifyMultithreadedAccess() const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  EZ_ASSERT_DEV(m_Capabilities.m_bSupportsMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  W_ASSERT_DEV(m_Capabilities.m_bSupportsMultithreadedResourceCreation || WThreadUtils::IsMainThread(),
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
 }
 
-inline ezAllocator* ezGALDevice::GetAllocator()
+inline WAllocator* WGALDevice::GetAllocator()
 {
   return &m_Allocator;
 }

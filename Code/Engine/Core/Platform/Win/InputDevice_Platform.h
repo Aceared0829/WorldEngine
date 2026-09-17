@@ -3,16 +3,16 @@
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Foundation/Platform/Win/Utils/MinWindows.h>
 
-class EZ_CORE_DLL ezInputDeviceMouseKeyboard_Win : public ezInputDeviceMouseKeyboard
+class W_CORE_DLL WInputDeviceMouseKeyboard_Win : public WInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_Win, ezInputDeviceMouseKeyboard);
+  W_ADD_DYNAMIC_REFLECTION(WInputDeviceMouseKeyboard_Win, WInputDeviceMouseKeyboard);
 
 public:
-  ezInputDeviceMouseKeyboard_Win(ezMinWindows::HWND hWnd);
-  ~ezInputDeviceMouseKeyboard_Win();
+  WInputDeviceMouseKeyboard_Win(WMinWindows::HWND hWnd);
+  ~WInputDeviceMouseKeyboard_Win();
 
   /// This function needs to be called by all Windows functions, to pass the input information through to this input device.
-  void WindowMessage(ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
+  void WindowMessage(WMinWindows::UINT msg, WMinWindows::WPARAM wparam, WMinWindows::LPARAM lparam);
 
   /// Calling this function will 'translate' most key names from English to the OS language, by querying that information
   /// from the OS.
@@ -22,13 +22,13 @@ public:
   /// the display names, if that is required.
   static void LocalizeButtonDisplayNames();
 
-  virtual ezUInt32 GetHardwareCursorSize() const override;
+  virtual WUInt32 GetHardwareCursorSize() const override;
 
   virtual void SetDisableOSHotkeys(bool bDisable) override;
 
 protected:
   virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
-  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+  virtual void ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode) override;
 
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
@@ -36,18 +36,18 @@ protected:
   virtual void UpdateInputSlotValues() override;
 
 private:
-  void ApplyClipRect(ezMouseCursorClipMode::Enum mode);
+  void ApplyClipRect(WMouseCursorClipMode::Enum mode);
   void OnFocusLost();
   void RegisterRawInput();
 
-  static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
+  static WInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
 
-  ezMinWindows::HWND m_hWnd;
+  WMinWindows::HWND m_hWnd;
   bool m_bApplyClipRect = false;
   // m_bFirstWndMsg and m_bFirstClick are used to fix issues Windows not giving focus to applications that have been launched
   // through a parent process
   bool m_bFirstWndMsg = true;
   bool m_bFirstClick = true;
-  ezUInt8 m_uiMouseButtonReceivedDown[5] = {0, 0, 0, 0, 0};
-  ezUInt8 m_uiMouseButtonReceivedUp[5] = {0, 0, 0, 0, 0};
+  WUInt8 m_uiMouseButtonReceivedDown[5] = {0, 0, 0, 0, 0};
+  WUInt8 m_uiMouseButtonReceivedUp[5] = {0, 0, 0, 0, 0};
 };

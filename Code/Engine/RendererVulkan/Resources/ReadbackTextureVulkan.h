@@ -4,30 +4,30 @@
 
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 
-class ezGALBufferVulkan;
-class ezGALDeviceVulkan;
+class WGALBufferVulkan;
+class WGALDeviceVulkan;
 
-class ezGALReadbackTextureVulkan : public ezGALReadbackTexture
+class WGALReadbackTextureVulkan : public WGALReadbackTexture
 {
 public:
-  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_Buffer; }
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_pBufferAlloc; }
+  W_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_Buffer; }
+  W_ALWAYS_INLINE WVulkanAllocation GetBufferAllocation() const { return m_pBufferAlloc; }
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  ezGALReadbackTextureVulkan(const ezGALTextureCreationDescription& Description);
-  ~ezGALReadbackTextureVulkan();
+  WGALReadbackTextureVulkan(const WGALTextureCreationDescription& Description);
+  ~WGALReadbackTextureVulkan();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
   vk::Buffer m_Buffer = {};
-  ezVulkanAllocation m_pBufferAlloc;
-  ezVulkanAllocationInfo m_BufferAllocInfo;
+  WVulkanAllocation m_pBufferAlloc;
+  WVulkanAllocationInfo m_BufferAllocInfo;
 
-  ezGALDeviceVulkan* m_pDevice = nullptr;
+  WGALDeviceVulkan* m_pDevice = nullptr;
 };

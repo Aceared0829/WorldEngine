@@ -3,75 +3,75 @@
 
 #include <Foundation/Algorithm/HashingUtils.h>
 
-class ezStreamReader;
-class ezStreamWriter;
+class WStreamReader;
+class WStreamWriter;
 
 /// 128-bit Universally Unique Identifier (UUID/GUID) for object identification and referencing.
 ///
-/// ezUuid provides a robust way to uniquely identify objects, assets, or entities across systems,
+/// WUuid provides a robust way to uniquely identify objects, assets, or entities across systems,
 /// time, and network boundaries. It's essential for serialization, asset management, networking,
 /// and any scenario where objects need stable, globally unique identities.
-class EZ_FOUNDATION_DLL ezUuid
+class W_FOUNDATION_DLL WUuid
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor. Constructed Uuid will be invalid.
-  EZ_ALWAYS_INLINE ezUuid() = default; // [tested]
+  W_ALWAYS_INLINE WUuid() = default; // [tested]
 
   /// Constructs the Uuid from existing values
-  EZ_ALWAYS_INLINE constexpr ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
+  W_ALWAYS_INLINE constexpr WUuid(WUInt64 uiLow, WUInt64 uiHigh)
     : m_uiHigh(uiHigh)
     , m_uiLow(uiLow)
   {
   }
 
   /// Comparison operator. [tested]
-  EZ_ALWAYS_INLINE bool operator==(const ezUuid& other) const;
+  W_ALWAYS_INLINE bool operator==(const WUuid& other) const;
 
   /// Comparison operator. [tested]
-  EZ_ALWAYS_INLINE bool operator!=(const ezUuid& other) const;
+  W_ALWAYS_INLINE bool operator!=(const WUuid& other) const;
 
   /// Comparison operator.
-  EZ_ALWAYS_INLINE bool operator<(const ezUuid& other) const;
+  W_ALWAYS_INLINE bool operator<(const WUuid& other) const;
 
   /// Returns true if this is a valid Uuid.
-  EZ_ALWAYS_INLINE bool IsValid() const;
+  W_ALWAYS_INLINE bool IsValid() const;
 
   /// Returns an invalid UUID.
-  [[nodiscard]] EZ_ALWAYS_INLINE static ezUuid MakeInvalid() { return ezUuid(0, 0); }
+  [[nodiscard]] W_ALWAYS_INLINE static WUuid MakeInvalid() { return WUuid(0, 0); }
 
   /// Returns a new Uuid.
-  [[nodiscard]] static ezUuid MakeUuid();
+  [[nodiscard]] static WUuid MakeUuid();
 
   /// Returns the internal 128 Bit of data
-  void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
+  void GetValues(WUInt64& ref_uiLow, WUInt64& ref_uiHigh) const
   {
     ref_uiHigh = m_uiHigh;
     ref_uiLow = m_uiLow;
   }
 
   /// Creates a uuid from a string. The result is always the same for the same string.
-  [[nodiscard]] static ezUuid MakeStableUuidFromString(ezStringView sString);
+  [[nodiscard]] static WUuid MakeStableUuidFromString(WStringView sString);
 
   /// Creates a uuid from an integer. The result is always the same for the same input.
-  [[nodiscard]] static ezUuid MakeStableUuidFromInt(ezInt64 iInt);
+  [[nodiscard]] static WUuid MakeStableUuidFromInt(WInt64 iInt);
 
   /// Adds the given seed value to this guid, creating a new guid. The process is reversible.
-  EZ_ALWAYS_INLINE void CombineWithSeed(const ezUuid& seed);
+  W_ALWAYS_INLINE void CombineWithSeed(const WUuid& seed);
 
   /// Subtracts the given seed from this guid, restoring the original guid.
-  EZ_ALWAYS_INLINE void RevertCombinationWithSeed(const ezUuid& seed);
+  W_ALWAYS_INLINE void RevertCombinationWithSeed(const WUuid& seed);
 
   /// Combines two guids using hashing, irreversible and order dependent.
-  EZ_ALWAYS_INLINE void HashCombine(const ezUuid& hash);
+  W_ALWAYS_INLINE void HashCombine(const WUuid& hash);
 
 private:
-  friend EZ_FOUNDATION_DLL_FRIEND void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value);
-  friend EZ_FOUNDATION_DLL_FRIEND void operator<<(ezStreamWriter& inout_stream, const ezUuid& value);
+  friend W_FOUNDATION_DLL_FRIEND void operator>>(WStreamReader& inout_stream, WUuid& ref_value);
+  friend W_FOUNDATION_DLL_FRIEND void operator<<(WStreamWriter& inout_stream, const WUuid& value);
 
-  ezUInt64 m_uiHigh = 0;
-  ezUInt64 m_uiLow = 0;
+  WUInt64 m_uiHigh = 0;
+  WUInt64 m_uiLow = 0;
 };
 
 #include <Foundation/Types/Implementation/Uuid_inl.h>

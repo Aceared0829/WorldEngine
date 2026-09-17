@@ -1,33 +1,33 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <Foundation/Threading/Mutex.h>
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
-template <ezUInt32 a, ezUInt32 b>
+template <WUInt32 a, WUInt32 b>
 struct SameSize
 {
   static_assert(a == b, "Critical section has incorrect size");
 };
 
-template <ezUInt32 a, ezUInt32 b>
+template <WUInt32 a, WUInt32 b>
 struct SameAlignment
 {
   static_assert(a == b, "Critical section has incorrect alignment");
 };
 
 
-ezMutex::ezMutex()
+WMutex::WMutex()
 {
-  SameSize<sizeof(ezMutexHandle), sizeof(CRITICAL_SECTION)> check1;
+  SameSize<sizeof(WMutexHandle), sizeof(CRITICAL_SECTION)> check1;
   (void)check1;
-  SameAlignment<alignof(ezMutexHandle), alignof(CRITICAL_SECTION)> check2;
+  SameAlignment<alignof(WMutexHandle), alignof(CRITICAL_SECTION)> check2;
   (void)check2;
   InitializeCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }
 
-ezMutex::~ezMutex()
+WMutex::~WMutex()
 {
   DeleteCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }

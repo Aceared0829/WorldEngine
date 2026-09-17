@@ -30,7 +30,7 @@
 #define EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC 19
 #define EDITOR_RENDER_PASS_BONE_WEIGHTS 20
 
-CONSTANT_BUFFER(ezGlobalConstants, 0)
+CONSTANT_BUFFER(WGlobalConstants, 0)
 {
   // Use functions from CameraConstantsAccess.h to access these and derived camera properties.
   MAT4(CameraToScreenMatrix)

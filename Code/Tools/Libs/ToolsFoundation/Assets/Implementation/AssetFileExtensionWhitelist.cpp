@@ -2,29 +2,29 @@
 
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-ezMap<ezString, ezSet<ezString>> ezAssetFileExtensionWhitelist::s_ExtensionWhitelist;
+WMap<WString, WSet<WString>> WAssetFileExtensionWhitelist::s_ExtensionWhitelist;
 
-void ezAssetFileExtensionWhitelist::AddAssetFileExtension(ezStringView sAssetType, ezStringView sAllowedFileExtension)
+void WAssetFileExtensionWhitelist::AddAssetFileExtension(WStringView sAssetType, WStringView sAllowedFileExtension)
 {
-  ezStringBuilder sLowerType = sAssetType;
+  WStringBuilder sLowerType = sAssetType;
   sLowerType.ToLower();
 
-  ezStringBuilder sLowerExt = sAllowedFileExtension;
+  WStringBuilder sLowerExt = sAllowedFileExtension;
   sLowerExt.ToLower();
 
   s_ExtensionWhitelist[sLowerType].Insert(sLowerExt);
 }
 
 
-bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(ezStringView sAssetType, ezStringView sFile)
+bool WAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(WStringView sAssetType, WStringView sFile)
 {
-  ezStringBuilder sLowerExt = ezPathUtils::GetFileExtension(sFile);
+  WStringBuilder sLowerExt = WPathUtils::GetFileExtension(sFile);
   sLowerExt.ToLower();
 
-  ezStringBuilder sLowerType = sAssetType;
+  WStringBuilder sLowerType = sAssetType;
   sLowerType.ToLower();
 
-  ezTempHybridArray<ezString, 16> Types;
+  WTempHybridArray<WString, 16> Types;
   sLowerType.Split(false, Types, ";");
 
   for (const auto& filter : Types)
@@ -36,7 +36,7 @@ bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(ezStringView sAssetTy
   return false;
 }
 
-const ezSet<ezString>& ezAssetFileExtensionWhitelist::GetAssetFileExtensions(ezStringView sAssetType)
+const WSet<WString>& WAssetFileExtensionWhitelist::GetAssetFileExtensions(WStringView sAssetType)
 {
   return s_ExtensionWhitelist[sAssetType];
 }

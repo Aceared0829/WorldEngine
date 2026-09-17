@@ -4,85 +4,85 @@
 #include <d3d11.h>
 
 struct ID3D11Query;
-class ezGALDeviceDX11;
+class WGALDeviceDX11;
 
 /// Pool for GPU queries.
-class EZ_RENDERERDX11_DLL ezQueryPoolDX11
+class W_RENDERERDX11_DLL WQueryPoolDX11
 {
 public:
-  ezQueryPoolDX11(ezGALDeviceDX11* pDevice);
+  WQueryPoolDX11(WGALDeviceDX11* pDevice);
 
   /// Initializes the pool.
-  ezResult Initialize();
+  WResult Initialize();
   void DeInitialize();
 
   void BeginFrame();
   void EndFrame();
 
-  ezGALTimestampHandle InsertTimestamp();
+  WGALTimestampHandle InsertTimestamp();
 
   /// Retrieves the timestamp value if it is available.
   /// \param hTimestamp The target timestamp to resolve.
   /// \param result The time of the timestamp. If this is empty on success the timestamp has expired.
   /// \return Returns false if the result is not available yet.
-  ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result);
+  WEnum<WGALAsyncResult> GetTimestampResult(WGALTimestampHandle hTimestamp, WTime& out_result);
 
-  ezGALPoolHandle BeginOcclusionQuery(ezEnum<ezGALQueryType> type);
-  void EndOcclusionQuery(ezGALPoolHandle hPool);
-  ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALPoolHandle hPool, ezUInt64& out_uiQueryResult);
+  WGALPoolHandle BeginOcclusionQuery(WEnum<WGALQueryType> type);
+  void EndOcclusionQuery(WGALPoolHandle hPool);
+  WEnum<WGALAsyncResult> GetOcclusionQueryResult(WGALPoolHandle hPool, WUInt64& out_uiQueryResult);
 
 private:
-  static constexpr ezUInt32 s_uiRetainFrames = 4;
-  static constexpr ezUInt64 s_uiPredicateFlag = EZ_BIT(19);
+  static constexpr WUInt32 s_uiRetainFrames = 4;
+  static constexpr WUInt64 s_uiPredicateFlag = W_BIT(19);
   static constexpr double s_fInvalid = -1.0;
 
   struct PerFrameData
   {
-    ezGALFenceHandle m_hFence;
+    WGALFenceHandle m_hFence;
     ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = s_fInvalid;
-    ezUInt32 m_uiReadyFrames = 0; ///< How many frames ago the m_pDisjointTimerQuery result was ready. Used to retain data for s_uiRetainFrames.
-    ezUInt64 m_uiFrameCounter = ezUInt64(-1);
+    WUInt32 m_uiReadyFrames = 0; ///< How many frames ago the m_pDisjointTimerQuery result was ready. Used to retain data for s_uiRetainFrames.
+    WUInt64 m_uiFrameCounter = WUInt64(-1);
   };
 
 private:
   PerFrameData GetFreeFrame();
 
 private:
-  ezGALDeviceDX11* m_pDevice = nullptr;
+  WGALDeviceDX11* m_pDevice = nullptr;
 
   struct Pool
   {
-    Pool(ezAllocator* pAllocator);
+    Pool(WAllocator* pAllocator);
 
-    ezResult Initialize(ezGALDeviceDX11* pDevice, D3D11_QUERY queryType, ezUInt32 uiCount);
+    WResult Initialize(WGALDeviceDX11* pDevice, D3D11_QUERY queryType, WUInt32 uiCount);
     void DeInitialize();
 
-    ezGALPoolHandle CreateQuery();
-    ID3D11Query* GetQuery(ezGALPoolHandle hPool);
+    WGALPoolHandle CreateQuery();
+    ID3D11Query* GetQuery(WGALPoolHandle hPool);
     template <typename T>
-    ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, T& out_uiResult)
+    WEnum<WGALAsyncResult> GetResult(WGALPoolHandle hPool, T& out_uiResult)
     {
       ID3D11Query* pQuery = GetQuery(hPool);
       HRESULT res = m_pDevice->GetDXImmediateContext()->GetData(pQuery, &out_uiResult, sizeof(out_uiResult), D3D11_ASYNC_GETDATA_DONOTFLUSH);
       if (res == S_FALSE)
       {
-        return ezGALAsyncResult::Pending;
+        return WGALAsyncResult::Pending;
       }
       else if (res == S_OK)
       {
-        return ezGALAsyncResult::Ready;
+        return WGALAsyncResult::Ready;
       }
       else
       {
-        return ezGALAsyncResult::Expired;
+        return WGALAsyncResult::Expired;
       }
     }
 
     // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
-    ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Queries;
-    ezUInt32 m_uiNextTimestamp = 0;
-    ezGALDeviceDX11* m_pDevice = nullptr;
+    WDynamicArray<ID3D11Query*, WLocalAllocatorWrapper> m_Queries;
+    WUInt32 m_uiNextTimestamp = 0;
+    WGALDeviceDX11* m_pDevice = nullptr;
   };
 
   // Pools
@@ -91,10 +91,10 @@ private:
   Pool m_OcclusionPredicatePool;
 
   // Disjoint timer and frame meta data needed for timestamps
-  ezDeque<PerFrameData> m_PendingFrames;
-  ezDeque<PerFrameData> m_FreeFrames;
-  ezUInt64 m_uiFirstFrameIndex = 0;
+  WDeque<PerFrameData> m_PendingFrames;
+  WDeque<PerFrameData> m_FreeFrames;
+  WUInt64 m_uiFirstFrameIndex = 0;
 
-  ezTime m_SyncTimeDiff;
+  WTime m_SyncTimeDiff;
   bool m_bSyncTimeNeeded = true;
 };

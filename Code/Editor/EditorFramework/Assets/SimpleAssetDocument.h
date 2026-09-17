@@ -12,39 +12,39 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 template <typename ObjectProperties>
-class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
+class WSimpleDocumentObjectManager : public WDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override { out_types.PushBack(ezGetStaticRTTI<ObjectProperties>()); }
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override { out_types.PushBack(WGetStaticRTTI<ObjectProperties>()); }
 };
 
-template <typename PropertyType, typename BaseClass = ezAssetDocument>
-class ezSimpleAssetDocument : public BaseClass
+template <typename PropertyType, typename BaseClass = WAssetDocument>
+class WSimpleAssetDocument : public BaseClass
 {
 public:
-  ezSimpleAssetDocument(ezStringView sDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
-    : BaseClass(sDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
+  WSimpleAssetDocument(WStringView sDocumentPath, WAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
+    : BaseClass(sDocumentPath, W_DEFAULT_NEW(WSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
     if (bEnableDefaultLighting)
     {
-      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
       pPreferences->ApplyDefaultValues(m_LightSettings);
     }
   }
 
-  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, ezStringView sDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
+  WSimpleAssetDocument(WDocumentObjectManager* pObjectManager, WStringView sDocumentPath, WAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
     : BaseClass(sDocumentPath, pObjectManager, engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
     if (bEnableDefaultLighting)
     {
-      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
       pPreferences->ApplyDefaultValues(m_LightSettings);
     }
   }
 
-  ~ezSimpleAssetDocument()
+  ~WSimpleAssetDocument()
   {
     m_ObjectMirror.Clear();
     m_ObjectMirror.DeInit();
@@ -60,8 +60,8 @@ public:
     return static_cast<PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(this->GetObjectManager()->GetRootObject()->GetChildren()[0]));
   }
 
-  ezDocumentObject* GetPropertyObject() { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
-  const ezDocumentObject* GetPropertyObject() const { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
+  WDocumentObject* GetPropertyObject() { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
+  const WDocumentObject* GetPropertyObject() const { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override
@@ -77,11 +77,11 @@ protected:
     this->AddSyncObject(&m_LightSettings);
   }
 
-  virtual ezStatus InternalLoadDocument() override
+  virtual WStatus InternalLoadDocument() override
   {
     this->GetObjectManager()->DestroyAllObjects();
 
-    ezStatus ret = BaseClass::InternalLoadDocument();
+    WStatus ret = BaseClass::InternalLoadDocument();
 
     return ret;
   }
@@ -91,28 +91,28 @@ protected:
   // not incremental changes to the existing data.
   void ApplyNativePropertyChangesToObjectManager(bool bForceIndexBasedRemapping = false)
   {
-    EZ_PROFILE_SCOPE("ApplyNativePropertyChangesToObjectManager");
+    W_PROFILE_SCOPE("ApplyNativePropertyChangesToObjectManager");
     // Create object manager graph
-    ezAbstractObjectGraph origGraph;
-    ezAbstractObjectNode* pOrigRootNode = nullptr;
+    WAbstractObjectGraph origGraph;
+    WAbstractObjectNode* pOrigRootNode = nullptr;
     {
-      ezDocumentObjectConverterWriter writer(&origGraph, this->GetObjectManager());
+      WDocumentObjectConverterWriter writer(&origGraph, this->GetObjectManager());
       pOrigRootNode = writer.AddObjectToGraph(GetPropertyObject());
     }
 
     // Create native object graph
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectNode* pRootNode = nullptr;
+    WAbstractObjectGraph graph;
+    WAbstractObjectNode* pRootNode = nullptr;
     {
-      // The ezApplyNativePropertyChangesContext takes care of generating guids for native pointers that match those
+      // The WApplyNativePropertyChangesContext takes care of generating guids for native pointers that match those
       // of the object manager.
-      ezApplyNativePropertyChangesContext nativeChangesContext(m_Context, origGraph);
-      ezRttiConverterWriter rttiConverter(&graph, &nativeChangesContext, true, true);
-      nativeChangesContext.RegisterObject(pOrigRootNode->GetGuid(), ezGetStaticRTTI<PropertyType>(), GetProperties());
+      WApplyNativePropertyChangesContext nativeChangesContext(m_Context, origGraph);
+      WRttiConverterWriter rttiConverter(&graph, &nativeChangesContext, true, true);
+      nativeChangesContext.RegisterObject(pOrigRootNode->GetGuid(), WGetStaticRTTI<PropertyType>(), GetProperties());
       pRootNode = rttiConverter.AddObjectToGraph(GetProperties(), "Object");
     }
 
-    // Remapping is no longer necessary as ezApplyNativePropertyChangesContext takes care of mapping to the original nodes.
+    // Remapping is no longer necessary as WApplyNativePropertyChangesContext takes care of mapping to the original nodes.
     // However, if the native changes are done like clear+rebuild everything, then no original object will be found and
     // every pointer will be deleted and re-created. Forcing the remapping (which works entirely via index and ignores
     // pointer addresses) will yield better results (e.g. no changes on two back-to -back transform calls).
@@ -122,7 +122,7 @@ protected:
       graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
     }
 
-    ezDeque<ezAbstractGraphDiffOperation> diffResult;
+    WDeque<WAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
     // if index-based remapping is used, we MUST send a change event of some kind
@@ -137,7 +137,7 @@ protected:
       // Apply diff while object mirror is down.
       this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
 
-      ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
+      WDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
 
       // Re-apply document
       m_ObjectMirror.SendDocument();
@@ -152,15 +152,15 @@ private:
     auto pRoot = this->GetObjectManager()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
-      ezDocumentObject* pObject = this->GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
+      WDocumentObject* pObject = this->GetObjectManager()->CreateObject(WGetStaticRTTI<PropertyType>());
       this->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
     }
   }
 
 protected:
-  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezAssetDocumentInfo); }
+  virtual WDocumentInfo* CreateDocumentInfo() override { return W_DEFAULT_NEW(WAssetDocumentInfo); }
 
-  ezDocumentObjectMirror m_ObjectMirror;
-  ezRttiConverterContext m_Context;
-  ezEngineViewLightSettings m_LightSettings;
+  WDocumentObjectMirror m_ObjectMirror;
+  WRttiConverterContext m_Context;
+  WEngineViewLightSettings m_LightSettings;
 };

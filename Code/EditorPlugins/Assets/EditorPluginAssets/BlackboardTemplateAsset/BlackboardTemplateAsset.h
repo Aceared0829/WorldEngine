@@ -5,25 +5,25 @@
 #include <RendererCore/Components/BlackboardComponent.h>
 #include <RendererCore/Utils/BlackboardTemplateResource.h>
 
-struct ezBlackboardTemplateAssetObject : public ezReflectedClass
+struct WBlackboardTemplateAssetObject : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateAssetObject, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WBlackboardTemplateAssetObject, WReflectedClass);
 
-  ezDynamicArray<ezString> m_BaseTemplates;
-  ezDynamicArray<ezBlackboardEntry> m_Entries;
+  WDynamicArray<WString> m_BaseTemplates;
+  WDynamicArray<WBlackboardEntry> m_Entries;
 };
 
-class ezBlackboardTemplateAssetDocument : public ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>
+class WBlackboardTemplateAssetDocument : public WSimpleAssetDocument<WBlackboardTemplateAssetObject>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateAssetDocument, ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>);
+  W_ADD_DYNAMIC_REFLECTION(WBlackboardTemplateAssetDocument, WSimpleAssetDocument<WBlackboardTemplateAssetObject>);
 
 public:
-  ezBlackboardTemplateAssetDocument(ezStringView sDocumentPath);
+  WBlackboardTemplateAssetDocument(WStringView sDocumentPath);
 
-  ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile) const;
+  WStatus WriteAsset(WStreamWriter& inout_stream, const WPlatformProfile* pAssetProfile) const;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& inout_stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& inout_stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc) const;
+  WStatus RetrieveState(const WBlackboardTemplateAssetObject* pProp, WBlackboardTemplateResourceDescriptor& inout_Desc) const;
 };

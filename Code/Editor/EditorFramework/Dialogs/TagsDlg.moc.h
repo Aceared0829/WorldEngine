@@ -7,13 +7,13 @@
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public ezQtDialog, public Ui_ezQtTagsDlg
+class W_EDITORFRAMEWORK_DLL WQtTagsDlg : public WQtDialog, public Ui_WQtTagsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtTagsDlg(const ezVariant& startup, QWidget* pParent);
+  WQtTagsDlg(const WVariant& startup, QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonNewCategory_clicked();
@@ -32,7 +32,7 @@ private:
 
   QTreeWidgetItem* CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag, bool bBuiltIn);
 
-  ezString m_sStartupCategory;
-  ezHybridArray<ezToolsTag, 32> m_Tags;
-  ezMap<ezString, QTreeWidgetItem*> m_CategoryToItem;
+  WString m_sStartupCategory;
+  WHybridArray<WToolsTag, 32> m_Tags;
+  WMap<WString, QTreeWidgetItem*> m_CategoryToItem;
 };

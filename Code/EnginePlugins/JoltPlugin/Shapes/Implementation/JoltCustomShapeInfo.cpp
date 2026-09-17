@@ -7,7 +7,7 @@
 
 using namespace JPH;
 
-const JPH::PhysicsMaterial* ezJoltCustomShapeInfo::GetMaterial(const SubShapeID& subShapeID) const
+const JPH::PhysicsMaterial* WJoltCustomShapeInfo::GetMaterial(const SubShapeID& subShapeID) const
 {
   if (!m_CustomMaterials.IsEmpty())
   {
@@ -24,12 +24,12 @@ const JPH::PhysicsMaterial* ezJoltCustomShapeInfo::GetMaterial(const SubShapeID&
   return mInnerShape->GetMaterial(subShapeID);
 }
 
-JPH::uint64 ezJoltCustomShapeInfo::GetSubShapeUserData(const SubShapeID& subShapeID) const
+JPH::uint64 WJoltCustomShapeInfo::GetSubShapeUserData(const SubShapeID& subShapeID) const
 {
   return GetUserData();
 }
 
-JPH::MassProperties ezJoltCustomShapeInfo::GetMassProperties() const
+JPH::MassProperties WJoltCustomShapeInfo::GetMassProperties() const
 {
   MassProperties p = mInnerShape->GetMassProperties();
 
@@ -40,29 +40,29 @@ JPH::MassProperties ezJoltCustomShapeInfo::GetMassProperties() const
   return p;
 }
 
-JPH::Vec3 ezJoltCustomShapeInfo::GetCenterOfMass() const
+JPH::Vec3 WJoltCustomShapeInfo::GetCenterOfMass() const
 {
   return mInnerShape->GetCenterOfMass();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-JPH::AABox ezJoltCustomShapeInfo::GetLocalBounds() const
+JPH::AABox WJoltCustomShapeInfo::GetLocalBounds() const
 {
   return mInnerShape->GetLocalBounds();
 }
 
-float ezJoltCustomShapeInfo::GetInnerRadius() const
+float WJoltCustomShapeInfo::GetInnerRadius() const
 {
   return mInnerShape->GetInnerRadius();
 }
 
-JPH::Vec3 ezJoltCustomShapeInfo::GetSurfaceNormal(const SubShapeID& subShapeID, Vec3Arg inLocalSurfacePosition) const
+JPH::Vec3 WJoltCustomShapeInfo::GetSurfaceNormal(const SubShapeID& subShapeID, Vec3Arg inLocalSurfacePosition) const
 {
   return mInnerShape->GetSurfaceNormal(subShapeID, inLocalSurfacePosition);
 }
 
-void ezJoltCustomShapeInfo::GetSubmergedVolume(Mat44Arg centerOfMassTransform, Vec3Arg inScale, const Plane& surface, float& out_fTotalVolume, float& out_fSubmergedVolume, Vec3& out_centerOfBuoyancy
+void WJoltCustomShapeInfo::GetSubmergedVolume(Mat44Arg centerOfMassTransform, Vec3Arg inScale, const Plane& surface, float& out_fTotalVolume, float& out_fSubmergedVolume, Vec3& out_centerOfBuoyancy
 #ifdef JPH_DEBUG_RENDERER // Not using JPH_IF_DEBUG_RENDERER for Doxygen
   ,
   JPH::RVec3Arg inBaseOffset
@@ -77,51 +77,51 @@ void ezJoltCustomShapeInfo::GetSubmergedVolume(Mat44Arg centerOfMassTransform, V
   );
 }
 
-void ezJoltCustomShapeInfo::Draw(DebugRenderer* pInRenderer, Mat44Arg centerOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool bInUseMaterialColors, bool bInDrawWireframe) const
+void WJoltCustomShapeInfo::Draw(DebugRenderer* pInRenderer, Mat44Arg centerOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool bInUseMaterialColors, bool bInDrawWireframe) const
 {
   mInnerShape->Draw(pInRenderer, centerOfMassTransform, inScale, inColor, bInUseMaterialColors, bInDrawWireframe);
 }
 
-bool ezJoltCustomShapeInfo::CastRay(const RayCast& ray, const SubShapeIDCreator& subShapeIDCreator, RayCastResult& ref_hit) const
+bool WJoltCustomShapeInfo::CastRay(const RayCast& ray, const SubShapeIDCreator& subShapeIDCreator, RayCastResult& ref_hit) const
 {
   return mInnerShape->CastRay(ray, subShapeIDCreator, ref_hit);
 }
 
-void ezJoltCustomShapeInfo::CastRay(const JPH::RayCast& ray, const JPH::RayCastSettings& rayCastSettings, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::CastRayCollector& ref_collector, const JPH::ShapeFilter& shapeFilter) const
+void WJoltCustomShapeInfo::CastRay(const JPH::RayCast& ray, const JPH::RayCastSettings& rayCastSettings, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::CastRayCollector& ref_collector, const JPH::ShapeFilter& shapeFilter) const
 {
   return mInnerShape->CastRay(ray, rayCastSettings, subShapeIDCreator, ref_collector, shapeFilter);
 }
 
-void ezJoltCustomShapeInfo::CollidePoint(JPH::Vec3Arg inPoint, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::CollidePointCollector& ref_collector, const JPH::ShapeFilter& shapeFilter) const
+void WJoltCustomShapeInfo::CollidePoint(JPH::Vec3Arg inPoint, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::CollidePointCollector& ref_collector, const JPH::ShapeFilter& shapeFilter) const
 {
   mInnerShape->CollidePoint(inPoint, subShapeIDCreator, ref_collector, shapeFilter);
 }
 
-void ezJoltCustomShapeInfo::GetTrianglesStart(GetTrianglesContext& ref_context, const AABox& box, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const
+void WJoltCustomShapeInfo::GetTrianglesStart(GetTrianglesContext& ref_context, const AABox& box, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const
 {
   mInnerShape->GetTrianglesStart(ref_context, box, inPositionCOM, inRotation, inScale);
 }
 
-int ezJoltCustomShapeInfo::GetTrianglesNext(GetTrianglesContext& ref_context, int iInMaxTrianglesRequested, Float3* pTriangleVertices, const PhysicsMaterial** pMaterials /*= nullptr*/) const
+int WJoltCustomShapeInfo::GetTrianglesNext(GetTrianglesContext& ref_context, int iInMaxTrianglesRequested, Float3* pTriangleVertices, const PhysicsMaterial** pMaterials /*= nullptr*/) const
 {
   return mInnerShape->GetTrianglesNext(ref_context, iInMaxTrianglesRequested, pTriangleVertices, pMaterials);
 }
 
-float ezJoltCustomShapeInfo::GetVolume() const
+float WJoltCustomShapeInfo::GetVolume() const
 {
   return mInnerShape->GetVolume();
 }
 
-Shape::Stats ezJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ref_ioVisitedShapes) const
+Shape::Stats WJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ref_ioVisitedShapes) const
 {
   return mInnerShape->GetStatsRecursive(ref_ioVisitedShapes);
 }
 
-void ezJoltCustomShapeInfo::sRegister()
+void WJoltCustomShapeInfo::sRegister()
 {
   ShapeFunctions& f = ShapeFunctions::sGet(EShapeSubType::User1);
   f.mConstruct = []() -> Shape*
-  { return new ezJoltCustomShapeInfo; };
+  { return new WJoltCustomShapeInfo; };
   f.mColor = Color::sCyan;
 
   for (EShapeSubType s : sAllSubShapeTypes)
@@ -133,46 +133,46 @@ void ezJoltCustomShapeInfo::sRegister()
   }
 }
 
-void ezJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, const JPH::CollideSoftBodyVertexIterator& vertices, JPH::uint numVertices, int iCollidingShapeIndex) const
+void WJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, const JPH::CollideSoftBodyVertexIterator& vertices, JPH::uint numVertices, int iCollidingShapeIndex) const
 {
   mInnerShape->CollideSoftBodyVertices(centerOfMassTransform, scale, vertices, numVertices, iCollidingShapeIndex);
 }
 
-void ezJoltCustomShapeInfo::CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ref_ioCollector, const JPH::ShapeFilter& shapeFilter) const
+void WJoltCustomShapeInfo::CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ref_ioCollector, const JPH::ShapeFilter& shapeFilter) const
 {
   mInnerShape->CollectTransformedShapes(box, positionCOM, rotation, scale, subShapeIDCreator, ref_ioCollector, shapeFilter);
 }
 
-void ezJoltCustomShapeInfo::sCollideUser1VsShape(const JPH::Shape* inShape1, const JPH::Shape* inShape2, JPH::Vec3Arg inScale1, JPH::Vec3Arg inScale2, JPH::Mat44Arg inCenterOfMassTransform1, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, const JPH::CollideShapeSettings& inCollideShapeSettings, JPH::CollideShapeCollector& ioCollector, const JPH::ShapeFilter& inShapeFilter)
+void WJoltCustomShapeInfo::sCollideUser1VsShape(const JPH::Shape* inShape1, const JPH::Shape* inShape2, JPH::Vec3Arg inScale1, JPH::Vec3Arg inScale2, JPH::Mat44Arg inCenterOfMassTransform1, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, const JPH::CollideShapeSettings& inCollideShapeSettings, JPH::CollideShapeCollector& ioCollector, const JPH::ShapeFilter& inShapeFilter)
 {
   JPH_ASSERT(inShape1->GetSubType() == EShapeSubType::User1);
-  const ezJoltCustomShapeInfo* shape1 = static_cast<const ezJoltCustomShapeInfo*>(inShape1);
+  const WJoltCustomShapeInfo* shape1 = static_cast<const WJoltCustomShapeInfo*>(inShape1);
 
   CollisionDispatch::sCollideShapeVsShape(shape1->mInnerShape, inShape2, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, inCollideShapeSettings, ioCollector, inShapeFilter);
 }
 
-void ezJoltCustomShapeInfo::sCollideShapeVsUser1(const JPH::Shape* inShape1, const JPH::Shape* inShape2, JPH::Vec3Arg inScale1, JPH::Vec3Arg inScale2, JPH::Mat44Arg inCenterOfMassTransform1, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, const JPH::CollideShapeSettings& inCollideShapeSettings, JPH::CollideShapeCollector& ioCollector, const JPH::ShapeFilter& inShapeFilter)
+void WJoltCustomShapeInfo::sCollideShapeVsUser1(const JPH::Shape* inShape1, const JPH::Shape* inShape2, JPH::Vec3Arg inScale1, JPH::Vec3Arg inScale2, JPH::Mat44Arg inCenterOfMassTransform1, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, const JPH::CollideShapeSettings& inCollideShapeSettings, JPH::CollideShapeCollector& ioCollector, const JPH::ShapeFilter& inShapeFilter)
 {
   JPH_ASSERT(inShape2->GetSubType() == EShapeSubType::User1);
-  const ezJoltCustomShapeInfo* shape2 = static_cast<const ezJoltCustomShapeInfo*>(inShape2);
+  const WJoltCustomShapeInfo* shape2 = static_cast<const WJoltCustomShapeInfo*>(inShape2);
 
   CollisionDispatch::sCollideShapeVsShape(inShape1, shape2->mInnerShape, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, inCollideShapeSettings, ioCollector, inShapeFilter);
 }
 
-void ezJoltCustomShapeInfo::sCastUser1VsShape(const JPH::ShapeCast& inShapeCast, const JPH::ShapeCastSettings& inShapeCastSettings, const Shape* inShape, JPH::Vec3Arg inScale, const JPH::ShapeFilter& inShapeFilter, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, JPH::CastShapeCollector& ioCollector)
+void WJoltCustomShapeInfo::sCastUser1VsShape(const JPH::ShapeCast& inShapeCast, const JPH::ShapeCastSettings& inShapeCastSettings, const Shape* inShape, JPH::Vec3Arg inScale, const JPH::ShapeFilter& inShapeFilter, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, JPH::CastShapeCollector& ioCollector)
 {
   // Fetch offset center of mass shape from cast shape
   JPH_ASSERT(inShapeCast.mShape->GetSubType() == EShapeSubType::User1);
 
-  JPH::ShapeCast innerShapeCast(static_cast<const ezJoltCustomShapeInfo*>(inShapeCast.mShape)->GetInnerShape(), inShapeCast.mScale, inShapeCast.mCenterOfMassStart, inShapeCast.mDirection);
+  JPH::ShapeCast innerShapeCast(static_cast<const WJoltCustomShapeInfo*>(inShapeCast.mShape)->GetInnerShape(), inShapeCast.mScale, inShapeCast.mCenterOfMassStart, inShapeCast.mDirection);
 
   CollisionDispatch::sCastShapeVsShapeLocalSpace(innerShapeCast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
-void ezJoltCustomShapeInfo::sCastShapeVsUser1(const JPH::ShapeCast& inShapeCast, const JPH::ShapeCastSettings& inShapeCastSettings, const Shape* inShape, JPH::Vec3Arg inScale, const JPH::ShapeFilter& inShapeFilter, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, JPH::CastShapeCollector& ioCollector)
+void WJoltCustomShapeInfo::sCastShapeVsUser1(const JPH::ShapeCast& inShapeCast, const JPH::ShapeCastSettings& inShapeCastSettings, const Shape* inShape, JPH::Vec3Arg inScale, const JPH::ShapeFilter& inShapeFilter, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, JPH::CastShapeCollector& ioCollector)
 {
   JPH_ASSERT(inShape->GetSubType() == EShapeSubType::User1);
-  const ezJoltCustomShapeInfo* shape = static_cast<const ezJoltCustomShapeInfo*>(inShape);
+  const WJoltCustomShapeInfo* shape = static_cast<const WJoltCustomShapeInfo*>(inShape);
 
   CollisionDispatch::sCastShapeVsShapeLocalSpace(inShapeCast, inShapeCastSettings, shape->mInnerShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }

@@ -21,26 +21,26 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool cvar_ParticlesDebugWindSamples("Particles.DebugWindSamples", false, ezCVarFlags::Default, "Enables debug visualization for wind sampling on particle effects.");
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+WCVarBool cvar_ParticlesDebugWindSamples("Particles.DebugWindSamples", false, WCVarFlags::Default, "Enables debug visualization for wind sampling on particle effects.");
 #endif
 
-ezParticleEffectInstance::ezParticleEffectInstance()
+WParticleEffectInstance::WParticleEffectInstance()
 {
-  m_pTask = EZ_DEFAULT_NEW(ezParticleEffectUpdateTask, this);
-  m_pTask->ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
+  m_pTask = W_DEFAULT_NEW(WParticleEffectUpdateTask, this);
+  m_pTask->ConfigureTask("Particle Effect Update", WTaskNesting::Maybe);
 
   m_pOwnerModule = nullptr;
 
   Destruct();
 }
 
-ezParticleEffectInstance::~ezParticleEffectInstance()
+WParticleEffectInstance::~WParticleEffectInstance()
 {
   Destruct();
 }
 
-void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void WParticleEffectInstance::Construct(WParticleEffectHandle hEffectHandle, const WParticleEffectResourceHandle& hResource, WWorld* pWorld, WParticleWorldModule* pOwnerModule, WUInt64 uiRandomSeed, bool bIsShared, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -49,15 +49,15 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
-  m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
-  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
-  m_EffectIsVisible = ezTime::MakeZero();
+  m_BoundingVolume = WBoundingBoxSphere::MakeInvalid();
+  m_ElapsedTimeSinceUpdate = WTime::MakeZero();
+  m_EffectIsVisible = WTime::MakeZero();
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
   m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
   m_vVelocityForNextFrame.SetZero();
-  m_TotalEffectLifeTime = ezTime::MakeZero();
+  m_TotalEffectLifeTime = WTime::MakeZero();
   m_pVisibleIf = nullptr;
   m_uiRandomSeed = uiRandomSeed;
 
@@ -69,7 +69,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   Reconfigure(true, floatParams, colorParams);
 }
 
-void ezParticleEffectInstance::Destruct()
+void WParticleEffectInstance::Destruct()
 {
   Interrupt();
 
@@ -96,18 +96,18 @@ void ezParticleEffectInstance::Destruct()
   m_EventQueue.Clear();
 }
 
-void ezParticleEffectInstance::Interrupt()
+void WParticleEffectInstance::Interrupt()
 {
   ClearParticleSystems();
   ClearEventReactions();
   m_bEmitterEnabled = false;
 }
 
-void ezParticleEffectInstance::SetEmitterEnabled(bool bEnable)
+void WParticleEffectInstance::SetEmitterEnabled(bool bEnable)
 {
   m_bEmitterEnabled = bEnable;
 
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
@@ -117,9 +117,9 @@ void ezParticleEffectInstance::SetEmitterEnabled(bool bEnable)
 }
 
 
-bool ezParticleEffectInstance::HasActiveParticles() const
+bool WParticleEffectInstance::HasActiveParticles() const
 {
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
@@ -132,7 +132,7 @@ bool ezParticleEffectInstance::HasActiveParticles() const
 }
 
 
-void ezParticleEffectInstance::ClearParticleSystem(ezUInt32 index)
+void WParticleEffectInstance::ClearParticleSystem(WUInt32 index)
 {
   if (m_ParticleSystems[index])
   {
@@ -141,9 +141,9 @@ void ezParticleEffectInstance::ClearParticleSystem(ezUInt32 index)
   }
 }
 
-void ezParticleEffectInstance::ClearParticleSystems()
+void WParticleEffectInstance::ClearParticleSystems()
 {
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     ClearParticleSystem(i);
   }
@@ -152,9 +152,9 @@ void ezParticleEffectInstance::ClearParticleSystems()
 }
 
 
-void ezParticleEffectInstance::ClearEventReactions()
+void WParticleEffectInstance::ClearEventReactions()
 {
-  for (ezUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
   {
     if (m_EventReactions[i])
     {
@@ -165,9 +165,9 @@ void ezParticleEffectInstance::ClearEventReactions()
   m_EventReactions.Clear();
 }
 
-bool ezParticleEffectInstance::IsContinuous() const
+bool WParticleEffectInstance::IsContinuous() const
 {
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
@@ -179,7 +179,7 @@ bool ezParticleEffectInstance::IsContinuous() const
   return false;
 }
 
-void ezParticleEffectInstance::PreSimulate()
+void WParticleEffectInstance::PreSimulate()
 {
   if (m_PreSimulateDuration.GetSeconds() == 0.0)
     return;
@@ -190,7 +190,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // simulate in large steps to get close
   {
-    const ezTime tDiff = ezTime::MakeFromSeconds(0.5);
+    const WTime tDiff = WTime::MakeFromSeconds(0.5);
     while (m_PreSimulateDuration.GetSeconds() > 10.0)
     {
       StepSimulation(tDiff);
@@ -200,7 +200,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // finer steps
   {
-    const ezTime tDiff = ezTime::MakeFromSeconds(0.2);
+    const WTime tDiff = WTime::MakeFromSeconds(0.2);
     while (m_PreSimulateDuration.GetSeconds() > 5.0)
     {
       StepSimulation(tDiff);
@@ -210,7 +210,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // even finer
   {
-    const ezTime tDiff = ezTime::MakeFromSeconds(0.1);
+    const WTime tDiff = WTime::MakeFromSeconds(0.1);
     while (m_PreSimulateDuration.GetSeconds() >= 0.1)
     {
       StepSimulation(tDiff);
@@ -222,7 +222,7 @@ void ezParticleEffectInstance::PreSimulate()
   if (m_PreSimulateDuration.GetSeconds() > 0.0)
   {
     StepSimulation(m_PreSimulateDuration);
-    m_PreSimulateDuration = ezTime::MakeFromSeconds(0);
+    m_PreSimulateDuration = WTime::MakeFromSeconds(0);
   }
 
   // Ensure the first game-world update after pre-simulation is not throttled by the
@@ -235,50 +235,50 @@ void ezParticleEffectInstance::PreSimulate()
   if (!IsContinuous())
   {
     // Can't check this at the beginning, because the particle systems are only set up during StepSimulation.
-    ezLog::Warning("Particle pre-simulation is enabled on an effect that is not continuous.");
+    WLog::Warning("Particle pre-simulation is enabled on an effect that is not continuous.");
   }
 }
 
-void ezParticleEffectInstance::SetIsVisible() const
+void WParticleEffectInstance::SetIsVisible() const
 {
   // if it is visible this frame, also render it the next few frames
   // this has multiple purposes:
   // 1) it fixes the transition when handing off an effect from a
-  //    ezParticleComponent to a ezParticleFinisherComponent
+  //    WParticleComponent to a WParticleFinisherComponent
   //    though this would only need one frame overlap
   // 2) The bounding volume for culling is only computed every couple of frames
   //    so it may be too small and culling could be imprecise
   //    by just rendering it the next 100ms, no matter what, the bounding volume
   //    does not need to be updated so frequently
-  m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::MakeFromSeconds(0.1);
+  m_EffectIsVisible = WClock::GetGlobalClock()->GetAccumulatedTime() + WTime::MakeFromSeconds(0.1);
 }
 
 
-void ezParticleEffectInstance::SetVisibleIf(ezParticleEffectInstance* pOtherVisible)
+void WParticleEffectInstance::SetVisibleIf(WParticleEffectInstance* pOtherVisible)
 {
-  EZ_ASSERT_DEV(pOtherVisible != this, "Invalid effect");
+  W_ASSERT_DEV(pOtherVisible != this, "Invalid effect");
   m_pVisibleIf = pOtherVisible;
 }
 
-bool ezParticleEffectInstance::IsVisible() const
+bool WParticleEffectInstance::IsVisible() const
 {
   if (m_pVisibleIf != nullptr)
   {
     return m_pVisibleIf->IsVisible();
   }
 
-  return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
+  return m_EffectIsVisible >= WClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void WParticleEffectInstance::Reconfigure(bool bFirstTime, WArrayPtr<WParticleEffectFloatParam> floatParams, WArrayPtr<WParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
-    ezLog::Error("Effect Reconfigure: Effect Resource is invalid");
+    WLog::Error("Effect Reconfigure: Effect Resource is invalid");
     return;
   }
 
-  ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WParticleEffectResource> pResource(m_hResource, WResourceAcquireMode::BlockTillLoaded);
 
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
@@ -305,12 +305,12 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
     for (auto it = desc.m_FloatParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
+      SetParameter(WTempHashedString(it.Key().GetData()), it.Value());
     }
 
     for (auto it = desc.m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
-      SetParameter(ezTempHashedString(it.Key().GetData()), it.Value());
+      SetParameter(WTempHashedString(it.Key().GetData()), it.Value());
     }
 
     // shared effects do not support per-instance parameters
@@ -318,17 +318,17 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     {
       if (!floatParams.IsEmpty() || !colorParams.IsEmpty())
       {
-        ezLog::Warning("Shared particle effects do not support effect parameters");
+        WLog::Warning("Shared particle effects do not support effect parameters");
       }
     }
     else
     {
-      for (ezUInt32 p = 0; p < floatParams.GetCount(); ++p)
+      for (WUInt32 p = 0; p < floatParams.GetCount(); ++p)
       {
         SetParameter(floatParams[p].m_sName, floatParams[p].m_Value);
       }
 
-      for (ezUInt32 p = 0; p < colorParams.GetCount(); ++p)
+      for (WUInt32 p = 0; p < colorParams.GetCount(); ++p)
       {
         SetParameter(colorParams[p].m_sName, colorParams[p].m_Value);
       }
@@ -352,45 +352,45 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
   struct MulCount
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     float m_fMultiplier = 1.0f;
-    ezUInt32 m_uiCount = 0;
+    WUInt32 m_uiCount = 0;
   };
 
-  ezTempHybridArray<MulCount, 8> systemMaxParticles;
+  WTempHybridArray<MulCount, 8> systemMaxParticles;
   {
     systemMaxParticles.SetCountUninitialized(systems.GetCount());
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
-      ezUInt32 uiMaxParticlesAbs = 0, uiMaxParticlesPerSec = 0;
-      for (const ezParticleEmitterFactory* pEmitter : systems[i]->GetEmitterFactories())
+      WUInt32 uiMaxParticlesAbs = 0, uiMaxParticlesPerSec = 0;
+      for (const WParticleEmitterFactory* pEmitter : systems[i]->GetEmitterFactories())
       {
-        ezUInt32 uiMaxParticlesAbs0 = 0, uiMaxParticlesPerSec0 = 0;
+        WUInt32 uiMaxParticlesAbs0 = 0, uiMaxParticlesPerSec0 = 0;
         pEmitter->QueryMaxParticleCount(uiMaxParticlesAbs0, uiMaxParticlesPerSec0);
 
         uiMaxParticlesAbs += uiMaxParticlesAbs0;
         uiMaxParticlesPerSec += uiMaxParticlesPerSec0;
       }
 
-      const ezTime tLifetime = systems[i]->GetAvgLifetime();
+      const WTime tLifetime = systems[i]->GetAvgLifetime();
 
-      const ezUInt32 uiMaxParticles = ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+      const WUInt32 uiMaxParticles = WMath::Max(32u, WMath::Max(uiMaxParticlesAbs, (WUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
 
       float fMultiplier = 1.0f;
 
-      for (const ezParticleInitializerFactory* pInitializer : systems[i]->GetInitializerFactories())
+      for (const WParticleInitializerFactory* pInitializer : systems[i]->GetInitializerFactories())
       {
         fMultiplier *= pInitializer->GetSpawnCountMultiplier(this);
       }
 
-      systemMaxParticles[i].m_fMultiplier = ezMath::Max(0.0f, fMultiplier);
-      systemMaxParticles[i].m_uiCount = (ezUInt32)(uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
+      systemMaxParticles[i].m_fMultiplier = WMath::Max(0.0f, fMultiplier);
+      systemMaxParticles[i].m_uiCount = (WUInt32)(uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
     }
   }
   // delete all that have important changes
   {
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
       if (m_ParticleSystems[i] != nullptr)
       {
@@ -402,7 +402,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
   // recreate where necessary
   {
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
       if (m_ParticleSystems[i] == nullptr)
       {
@@ -411,9 +411,9 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     }
   }
 
-  const ezVec3 vStartVelocity = m_vVelocity * m_fApplyInstanceVelocity;
+  const WVec3 vStartVelocity = m_vVelocity * m_fApplyInstanceVelocity;
 
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
     m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
@@ -428,7 +428,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     m_EventReactions.SetCount(desc.GetEventReactions().GetCount());
 
     const auto& er = desc.GetEventReactions();
-    for (ezUInt32 i = 0; i < er.GetCount(); ++i)
+    for (WUInt32 i = 0; i < er.GetCount(); ++i)
     {
       if (m_EventReactions[i] == nullptr)
       {
@@ -438,11 +438,11 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   }
 }
 
-bool ezParticleEffectInstance::Update(const ezTime& diff)
+bool WParticleEffectInstance::Update(const WTime& diff)
 {
-  EZ_PROFILE_SCOPE("PFX: Effect Update");
+  W_PROFILE_SCOPE("PFX: Effect Update");
 
-  ezTime tMinStep = ezTime::MakeFromSeconds(0);
+  WTime tMinStep = WTime::MakeFromSeconds(0);
 
   if (!IsVisible() && m_iMinSimStepsToDo == 0)
   {
@@ -452,23 +452,23 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
 
     switch (m_InvisibleUpdateRate)
     {
-      case ezEffectInvisibleUpdateRate::FullUpdate:
-        tMinStep = ezTime::MakeFromSeconds(1.0 / 60.0);
+      case WEffectInvisibleUpdateRate::FullUpdate:
+        tMinStep = WTime::MakeFromSeconds(1.0 / 60.0);
         break;
 
-      case ezEffectInvisibleUpdateRate::Max20fps:
-        tMinStep = ezTime::MakeFromMilliseconds(50);
+      case WEffectInvisibleUpdateRate::Max20fps:
+        tMinStep = WTime::MakeFromMilliseconds(50);
         break;
 
-      case ezEffectInvisibleUpdateRate::Max10fps:
-        tMinStep = ezTime::MakeFromMilliseconds(100);
+      case WEffectInvisibleUpdateRate::Max10fps:
+        tMinStep = WTime::MakeFromMilliseconds(100);
         break;
 
-      case ezEffectInvisibleUpdateRate::Max5fps:
-        tMinStep = ezTime::MakeFromMilliseconds(200);
+      case WEffectInvisibleUpdateRate::Max5fps:
+        tMinStep = WTime::MakeFromMilliseconds(200);
         break;
 
-      case ezEffectInvisibleUpdateRate::Pause:
+      case WEffectInvisibleUpdateRate::Pause:
       {
         if (m_bEmitterEnabled)
         {
@@ -477,11 +477,11 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
         }
 
         // otherwise do infrequent updates to shut the effect down
-        tMinStep = ezTime::MakeFromMilliseconds(200);
+        tMinStep = WTime::MakeFromMilliseconds(200);
         break;
       }
 
-      case ezEffectInvisibleUpdateRate::Discard:
+      case WEffectInvisibleUpdateRate::Discard:
         Interrupt();
         return false;
     }
@@ -492,7 +492,7 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
 
   // if the time step is too big, iterate multiple times
   {
-    const ezTime tMaxTimeStep = ezTime::MakeFromMilliseconds(200); // in sync with Max5fps
+    const WTime tMaxTimeStep = WTime::MakeFromMilliseconds(200); // in sync with Max5fps
     while (m_ElapsedTimeSinceUpdate > tMaxTimeStep)
     {
       m_ElapsedTimeSinceUpdate -= tMaxTimeStep;
@@ -506,27 +506,27 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
     return m_uiReviveTimeout > 0;
 
   // do the remainder
-  const ezTime tUpdateDiff = m_ElapsedTimeSinceUpdate;
-  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  const WTime tUpdateDiff = m_ElapsedTimeSinceUpdate;
+  m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 
   return StepSimulation(tUpdateDiff);
 }
 
-bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
+bool WParticleEffectInstance::StepSimulation(const WTime& tDiff)
 {
   m_TotalEffectLifeTime += tDiff;
 
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i] != nullptr)
     {
       auto state = m_ParticleSystems[i]->Update(tDiff);
 
-      if (state == ezParticleSystemState::Inactive)
+      if (state == WParticleSystemState::Inactive)
       {
         ClearParticleSystem(i);
       }
-      else if (state != ezParticleSystemState::OnlyReacting)
+      else if (state != WParticleSystemState::OnlyReacting)
       {
         // this is used to delay particle effect death by a couple of frames
         // that way, if an event is in the pipeline that might trigger a reacting emitter,
@@ -536,14 +536,14 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
     }
   }
 
-  m_iMinSimStepsToDo = ezMath::Max<ezInt8>(m_iMinSimStepsToDo - 1, 0);
+  m_iMinSimStepsToDo = WMath::Max<WInt8>(m_iMinSimStepsToDo - 1, 0);
 
   --m_uiReviveTimeout;
   return m_uiReviveTimeout > 0;
 }
 
 
-void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
+void WParticleEffectInstance::AddParticleEvent(const WParticleEvent& pe)
 {
   // drop events when the capacity is full
   if (m_EventQueue.GetCount() == m_EventQueue.GetCapacity())
@@ -552,89 +552,89 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
-void ezParticleEffectInstance::RequestWindSamples()
+void WParticleEffectInstance::RequestWindSamples()
 {
-  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  const WUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
 
   for (auto& grid : m_WindSampleGrids)
   {
     if (grid == nullptr)
     {
-      grid = EZ_NEW(ezFoundation::GetAlignedAllocator(), WindSampleGrid);
+      grid = W_NEW(WFoundation::GetAlignedAllocator(), WindSampleGrid);
       grid->m_vMinPos.Set(1000.0f);
       grid->m_vMaxPos.Set(-1000.0f);
       grid->m_vInvCellSize.SetZero();
       grid->m_Samples.SetCountUninitialized(uiTotalNumSamples);
-      ezMemoryUtils::ZeroFill(grid->m_Samples.GetData(), uiTotalNumSamples);
+      WMemoryUtils::ZeroFill(grid->m_Samples.GetData(), uiTotalNumSamples);
     }
   }
 }
 
-void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
+void WParticleEffectInstance::UpdateWindSamples(WTime diff)
 {
-  const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
-  const ezUInt32 uiDataIdx = uiFrameCounter & 1;
+  const WUInt64 uiFrameCounter = WRenderWorld::GetFrameCounter();
+  const WUInt32 uiDataIdx = uiFrameCounter & 1;
   if (m_WindSampleGrids[uiDataIdx] == nullptr || m_BoundingVolume.IsValid() == false)
     return;
 
   auto& grid = *m_WindSampleGrids[uiDataIdx];
   const auto& oldGrid = *m_WindSampleGrids[(uiDataIdx + 1) & 1];
 
-  const ezUInt32 uiNumSamplesX = m_vNumWindSamples.x;
-  const ezUInt32 uiNumSamplesY = m_vNumWindSamples.y;
-  const ezUInt32 uiNumSamplesZ = m_vNumWindSamples.z;
-  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
-  EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples && oldGrid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid number of samples");
+  const WUInt32 uiNumSamplesX = m_vNumWindSamples.x;
+  const WUInt32 uiNumSamplesY = m_vNumWindSamples.y;
+  const WUInt32 uiNumSamplesZ = m_vNumWindSamples.z;
+  const WUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  W_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples && oldGrid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid number of samples");
 
-  const ezSimdVec4f interpolationFactor = ezSimdVec4f(1.0f - ezMath::Pow(0.1f, diff.AsFloatInSeconds()));
+  const WSimdVec4f interpolationFactor = WSimdVec4f(1.0f - WMath::Pow(0.1f, diff.AsFloatInSeconds()));
 
-  const ezSimdBBox boundingBox = ezSimdConversion::ToBBox(m_BoundingVolume.GetBox());
-  const ezSimdVec4f boundsSize = boundingBox.GetExtents();
-  const ezSimdVec4f gridSize = ezSimdVec4i(uiNumSamplesX, uiNumSamplesY, uiNumSamplesZ).ToFloat();
-  ezSimdVec4f cellSize = boundsSize.CompDiv(gridSize);
-  const ezSimdVec4f minPos = boundingBox.m_Min + cellSize * 0.5f;
-  const ezSimdVec4f maxPos = boundingBox.m_Max - cellSize * 0.5f;
+  const WSimdBBox boundingBox = WSimdConversion::ToBBox(m_BoundingVolume.GetBox());
+  const WSimdVec4f boundsSize = boundingBox.GetExtents();
+  const WSimdVec4f gridSize = WSimdVec4i(uiNumSamplesX, uiNumSamplesY, uiNumSamplesZ).ToFloat();
+  WSimdVec4f cellSize = boundsSize.CompDiv(gridSize);
+  const WSimdVec4f minPos = boundingBox.m_Min + cellSize * 0.5f;
+  const WSimdVec4f maxPos = boundingBox.m_Max - cellSize * 0.5f;
 
-  const ezSimdVec4b oldGridValid = oldGrid.m_vMinPos < oldGrid.m_vMaxPos;
-  grid.m_vMinPos = ezSimdVec4f::Select(oldGridValid, ezSimdVec4f::Lerp(oldGrid.m_vMinPos, minPos, interpolationFactor), minPos);
-  grid.m_vMaxPos = ezSimdVec4f::Select(oldGridValid, ezSimdVec4f::Lerp(oldGrid.m_vMaxPos, maxPos, interpolationFactor), maxPos);
+  const WSimdVec4b oldGridValid = oldGrid.m_vMinPos < oldGrid.m_vMaxPos;
+  grid.m_vMinPos = WSimdVec4f::Select(oldGridValid, WSimdVec4f::Lerp(oldGrid.m_vMinPos, minPos, interpolationFactor), minPos);
+  grid.m_vMaxPos = WSimdVec4f::Select(oldGridValid, WSimdVec4f::Lerp(oldGrid.m_vMaxPos, maxPos, interpolationFactor), maxPos);
 
-  const ezSimdVec4f finalGridSize = grid.m_vMaxPos - grid.m_vMinPos;
-  const ezSimdVec4f maxIndices = gridSize - ezSimdVec4f(1.0f);
-  cellSize = ezSimdVec4f::Select(maxIndices != ezSimdVec4f::MakeZero(), finalGridSize.CompDiv(maxIndices), ezSimdVec4f::MakeZero());
-  grid.m_vInvCellSize = ezSimdVec4f::Select(cellSize != ezSimdVec4f::MakeZero(), ezSimdVec4f(1.0f).CompDiv(cellSize), ezSimdVec4f::MakeZero());
-  EZ_ASSERT_DEBUG(grid.m_vInvCellSize.IsValid<3>(), "");
+  const WSimdVec4f finalGridSize = grid.m_vMaxPos - grid.m_vMinPos;
+  const WSimdVec4f maxIndices = gridSize - WSimdVec4f(1.0f);
+  cellSize = WSimdVec4f::Select(maxIndices != WSimdVec4f::MakeZero(), finalGridSize.CompDiv(maxIndices), WSimdVec4f::MakeZero());
+  grid.m_vInvCellSize = WSimdVec4f::Select(cellSize != WSimdVec4f::MakeZero(), WSimdVec4f(1.0f).CompDiv(cellSize), WSimdVec4f::MakeZero());
+  W_ASSERT_DEBUG(grid.m_vInvCellSize.IsValid<3>(), "");
 
-  if (auto pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  if (auto pWind = GetWorld()->GetModuleReadOnly<WWindWorldModuleInterface>())
   {
-    for (ezUInt32 i = 0; i < uiTotalNumSamples; ++i)
+    for (WUInt32 i = 0; i < uiTotalNumSamples; ++i)
     {
-      ezUInt32 index = i;
-      const ezUInt32 z = i / (uiNumSamplesX * uiNumSamplesY);
+      WUInt32 index = i;
+      const WUInt32 z = i / (uiNumSamplesX * uiNumSamplesY);
       index -= z * (uiNumSamplesX * uiNumSamplesY);
-      const ezUInt32 y = index / uiNumSamplesX;
-      const ezUInt32 x = index - (y * uiNumSamplesX);
+      const WUInt32 y = index / uiNumSamplesX;
+      const WUInt32 x = index - (y * uiNumSamplesX);
 
-      const ezSimdVec4f samplePos = grid.m_vMinPos + cellSize.CompMul(ezSimdVec4i(x, y, z).ToFloat());
+      const WSimdVec4f samplePos = grid.m_vMinPos + cellSize.CompMul(WSimdVec4i(x, y, z).ToFloat());
 
-      grid.m_Samples[i] = ezSimdVec4f::Lerp(oldGrid.m_Samples[i], pWind->GetWindAtSimd(samplePos), interpolationFactor);
+      grid.m_Samples[i] = WSimdVec4f::Lerp(oldGrid.m_Samples[i], pWind->GetWindAtSimd(samplePos), interpolationFactor);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       if (cvar_ParticlesDebugWindSamples)
       {
-        const ezColor c = ezColorScheme::GetColor(ezColorScheme::Blue, 8);
+        const WColor c = WColorScheme::GetColor(WColorScheme::Blue, 8);
 
-        const ezVec3 samplePos0 = ezSimdConversion::ToVec3(samplePos);
-        ezDebugRenderer::DrawCross(GetWorld(), samplePos0, 0.1f, c);
+        const WVec3 samplePos0 = WSimdConversion::ToVec3(samplePos);
+        WDebugRenderer::DrawCross(GetWorld(), samplePos0, 0.1f, c);
 
-        const ezVec3 vWind = ezSimdConversion::ToVec3(grid.m_Samples[i]);
+        const WVec3 vWind = WSimdConversion::ToVec3(grid.m_Samples[i]);
         const float fWindStrength = vWind.GetLength();
-        ezDebugRenderer::Draw3DText(GetWorld(), ezFmt("{} m/s", ezArgF(fWindStrength, 2)), samplePos0, c);
+        WDebugRenderer::Draw3DText(GetWorld(), WFmt("{} m/s", WArgF(fWindStrength, 2)), samplePos0, c);
 
         if (fWindStrength > 0.01f)
         {
-          const ezQuat q = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vWind);
-          ezDebugRenderer::DrawArrow(GetWorld(), fWindStrength, c, ezTransform::Make(samplePos0, q));
+          const WQuat q = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), vWind);
+          WDebugRenderer::DrawArrow(GetWorld(), fWindStrength, c, WTransform::Make(samplePos0, q));
         }
       }
 #endif
@@ -649,12 +649,12 @@ void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
   }
 }
 
-void ezParticleEffectInstance::RequestAttractorSamples(ezUInt8 uiMaxAttractors)
+void WParticleEffectInstance::RequestAttractorSamples(WUInt8 uiMaxAttractors)
 {
-  m_uiMaxAttractors = ezMath::Clamp<ezUInt8>(uiMaxAttractors, m_uiMaxAttractors, 4);
+  m_uiMaxAttractors = WMath::Clamp<WUInt8>(uiMaxAttractors, m_uiMaxAttractors, 4);
 }
 
-void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
+void WParticleEffectInstance::FindNearbyAttractors(WTime diff)
 {
   if (m_uiMaxAttractors == 0)
     return;
@@ -665,35 +665,35 @@ void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
     m_uiAttractorSearchTimer = 90;
     m_AttractorHandles.Clear();
 
-    ezSpatialSystem* pSpatialSystem = m_pWorld->GetSpatialSystem();
+    WSpatialSystem* pSpatialSystem = m_pWorld->GetSpatialSystem();
     if (pSpatialSystem != nullptr)
     {
-      const ezSpatialData::Category category = ezParticleAttractorComponent::GetSpatialCategory();
+      const WSpatialData::Category category = WParticleAttractorComponent::GetSpatialCategory();
 
-      ezBoundingBoxSphere effectBounds;
+      WBoundingBoxSphere effectBounds;
       GetBoundingVolume(effectBounds);
 
-      const ezVec3 worldCenter = m_Transform.TransformPosition(effectBounds.m_vCenter);
-      const float fSearchRadius = ezMath::Max(0.0f, effectBounds.m_fSphereRadius);
+      const WVec3 worldCenter = m_Transform.TransformPosition(effectBounds.m_vCenter);
+      const float fSearchRadius = WMath::Max(0.0f, effectBounds.m_fSphereRadius);
 
-      ezSpatialSystem::QueryParams queryParams;
+      WSpatialSystem::QueryParams queryParams;
       queryParams.m_uiCategoryBitmask = category.GetBitmask();
 
       struct SortEntry
       {
-        EZ_DECLARE_POD_TYPE();
+        W_DECLARE_POD_TYPE();
         float fDistSqr;
-        ezComponentHandle hComponent;
+        WComponentHandle hComponent;
       };
 
-      ezTempHybridArray<SortEntry, 8> candidates;
+      WTempHybridArray<SortEntry, 8> candidates;
 
       pSpatialSystem->FindObjectsInSphere(
-        ezBoundingSphere::MakeFromCenterAndRadius(worldCenter, fSearchRadius),
+        WBoundingSphere::MakeFromCenterAndRadius(worldCenter, fSearchRadius),
         queryParams,
-        [&](ezGameObject* pObject) -> ezVisitorExecution::Enum
+        [&](WGameObject* pObject) -> WVisitorExecution::Enum
         {
-          ezParticleAttractorComponent* pAttractor = nullptr;
+          WParticleAttractorComponent* pAttractor = nullptr;
           if (pObject->TryGetComponentOfBaseType(pAttractor))
           {
             SortEntry entry;
@@ -701,14 +701,14 @@ void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
             entry.fDistSqr = (pObject->GetGlobalPosition() - worldCenter).GetLengthSquared();
             candidates.PushBack(entry);
           }
-          return ezVisitorExecution::Continue;
+          return WVisitorExecution::Continue;
         });
 
       candidates.Sort([](const SortEntry& a, const SortEntry& b)
         { return a.fDistSqr < b.fDistSqr; });
 
-      const ezUInt32 uiCount = ezMath::Min(candidates.GetCount(), (ezUInt32)m_uiMaxAttractors);
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      const WUInt32 uiCount = WMath::Min(candidates.GetCount(), (WUInt32)m_uiMaxAttractors);
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         m_AttractorHandles.PushBack(candidates[i].hComponent);
       }
@@ -721,15 +721,15 @@ void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
 
   // Every frame: resolve handles and read live position/properties into the write slot.
   // Worker threads read from the opposite slot (written last frame), so there is no data race.
-  const ezUInt32 uiWriteIdx = ezRenderWorld::GetFrameCounter() & 1;
+  const WUInt32 uiWriteIdx = WRenderWorld::GetFrameCounter() & 1;
   auto& writeBuffer = m_AttractorData[uiWriteIdx];
   writeBuffer.Clear();
-  for (const ezComponentHandle& hComponent : m_AttractorHandles)
+  for (const WComponentHandle& hComponent : m_AttractorHandles)
   {
-    ezParticleAttractorComponent* pAttractor = nullptr;
+    WParticleAttractorComponent* pAttractor = nullptr;
     if (m_pWorld->TryGetComponent(hComponent, pAttractor))
     {
-      ezParticleAttractorData& data = writeBuffer.ExpandAndGetRef();
+      WParticleAttractorData& data = writeBuffer.ExpandAndGetRef();
       data.m_vPosition = pAttractor->GetOwner()->GetGlobalPosition();
       data.m_fStrength = pAttractor->m_fStrength;
       data.m_fRadius = pAttractor->m_fRadius;
@@ -739,16 +739,16 @@ void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
   }
 }
 
-ezArrayPtr<const ezParticleAttractorData> ezParticleEffectInstance::GetAttractorData() const
+WArrayPtr<const WParticleAttractorData> WParticleEffectInstance::GetAttractorData() const
 {
   // Read from the slot opposite to what the main thread is currently writing.
-  const ezUInt32 uiReadIdx = (ezRenderWorld::GetFrameCounter() + 1) & 1;
+  const WUInt32 uiReadIdx = (WRenderWorld::GetFrameCounter() + 1) & 1;
   return m_AttractorData[uiReadIdx];
 }
 
-ezUInt64 ezParticleEffectInstance::GetNumActiveParticles() const
+WUInt64 WParticleEffectInstance::GetNumActiveParticles() const
 {
-  ezUInt64 num = 0;
+  WUInt64 num = 0;
 
   for (auto pSystem : m_ParticleSystems)
   {
@@ -761,7 +761,7 @@ ezUInt64 ezParticleEffectInstance::GetNumActiveParticles() const
   return num;
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
+void WParticleEffectInstance::SetTransform(const WTransform& transform, const WVec3& vParticleStartVelocity)
 {
   m_Transform = transform;
   m_TransformForNextFrame = transform;
@@ -770,86 +770,86 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
   m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
+void WParticleEffectInstance::SetTransformForNextFrame(const WTransform& transform, const WVec3& vParticleStartVelocity)
 {
   m_TransformForNextFrame = transform;
   m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-ezSimdVec4f ezParticleEffectInstance::GetWindAt(const ezSimdVec4f& vPosition) const
+WSimdVec4f WParticleEffectInstance::GetWindAt(const WSimdVec4f& vPosition) const
 {
-  const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
-  const ezUInt32 uiDataIdx = (uiFrameCounter + 1) & 1;
+  const WUInt64 uiFrameCounter = WRenderWorld::GetFrameCounter();
+  const WUInt32 uiDataIdx = (uiFrameCounter + 1) & 1;
   if (m_WindSampleGrids[uiDataIdx] == nullptr)
   {
-    return ezSimdVec4f::MakeZero();
+    return WSimdVec4f::MakeZero();
   }
 
   auto& grid = *m_WindSampleGrids[uiDataIdx];
 
-  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
-  EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid sample count");
+  const WUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  W_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid sample count");
 
   // Sample grid with trilinear interpolation
-  ezSimdVec4f gridSpacePos = (vPosition - grid.m_vMinPos).CompMul(grid.m_vInvCellSize);
-  gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::MakeZero());
+  WSimdVec4f gridSpacePos = (vPosition - grid.m_vMinPos).CompMul(grid.m_vInvCellSize);
+  gridSpacePos = gridSpacePos.CompMax(WSimdVec4f::MakeZero());
 
-  const ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
-  const ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
+  const WSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
+  const WSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
 
-  const ezSimdVec4i maxIndices = ezSimdConversion::ToVec4i(m_vNumWindSamples) - ezSimdVec4i(1);
-  const ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);
-  const ezSimdVec4i pos1 = (pos0 + ezSimdVec4i(1)).CompMin(maxIndices);
+  const WSimdVec4i maxIndices = WSimdConversion::ToVec4i(m_vNumWindSamples) - WSimdVec4i(1);
+  const WSimdVec4i pos0 = WSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);
+  const WSimdVec4i pos1 = (pos0 + WSimdVec4i(1)).CompMin(maxIndices);
 
-  const ezInt32 xCount = m_vNumWindSamples.x;
-  const ezInt32 xyCount = xCount * m_vNumWindSamples.y;
-  const ezSimdVec4i cXcXYcXcXY = ezSimdVec4i(xCount, xyCount, xCount, xyCount);
-  const ezSimdVec4i y0z0y1z1 = pos0.GetCombined<ezSwizzle::YZYZ>(pos1).CompMul(cXcXYcXcXY);
-  const ezSimdVec4i y0y0y1y1 = y0z0y1z1.Get<ezSwizzle::XXZZ>();
-  const ezSimdVec4i x0x0x1x1 = pos0.GetCombined<ezSwizzle::XXXX>(pos1);
-  const ezSimdVec4i x0x1x0x1 = x0x0x1x1.Get<ezSwizzle::XZXZ>();
-  const ezSimdVec4i y0y0y1y1_plus_x0x1x0x1 = y0y0y1y1 + x0x1x0x1;
+  const WInt32 xCount = m_vNumWindSamples.x;
+  const WInt32 xyCount = xCount * m_vNumWindSamples.y;
+  const WSimdVec4i cXcXYcXcXY = WSimdVec4i(xCount, xyCount, xCount, xyCount);
+  const WSimdVec4i y0z0y1z1 = pos0.GetCombined<WSwizzle::YZYZ>(pos1).CompMul(cXcXYcXcXY);
+  const WSimdVec4i y0y0y1y1 = y0z0y1z1.Get<WSwizzle::XXZZ>();
+  const WSimdVec4i x0x0x1x1 = pos0.GetCombined<WSwizzle::XXXX>(pos1);
+  const WSimdVec4i x0x1x0x1 = x0x0x1x1.Get<WSwizzle::XZXZ>();
+  const WSimdVec4i y0y0y1y1_plus_x0x1x0x1 = y0y0y1y1 + x0x1x0x1;
 
-  const ezSimdVec4f wX = weights.Get<ezSwizzle::XXXX>();
-  const ezSimdVec4f wY = weights.Get<ezSwizzle::YYYY>();
+  const WSimdVec4f wX = weights.Get<WSwizzle::XXXX>();
+  const WSimdVec4f wY = weights.Get<WSwizzle::YYYY>();
 
-  const ezSimdVec4f* pSamples = grid.m_Samples.GetData();
+  const WSimdVec4f* pSamples = grid.m_Samples.GetData();
 
-  const ezSimdVec4i indices_z0 = y0z0y1z1.Get<ezSwizzle::YYYY>() + y0y0y1y1_plus_x0x1x0x1;
-  const ezSimdVec4f sample_z0y0x0 = pSamples[indices_z0.x()];
-  const ezSimdVec4f sample_z0y0x1 = pSamples[indices_z0.y()];
-  const ezSimdVec4f res_z0y0 = ezSimdVec4f::Lerp(sample_z0y0x0, sample_z0y0x1, wX);
+  const WSimdVec4i indices_z0 = y0z0y1z1.Get<WSwizzle::YYYY>() + y0y0y1y1_plus_x0x1x0x1;
+  const WSimdVec4f sample_z0y0x0 = pSamples[indices_z0.x()];
+  const WSimdVec4f sample_z0y0x1 = pSamples[indices_z0.y()];
+  const WSimdVec4f res_z0y0 = WSimdVec4f::Lerp(sample_z0y0x0, sample_z0y0x1, wX);
 
-  const ezSimdVec4f sample_z0y1x0 = pSamples[indices_z0.z()];
-  const ezSimdVec4f sample_z0y1x1 = pSamples[indices_z0.w()];
-  const ezSimdVec4f res_z0y1 = ezSimdVec4f::Lerp(sample_z0y1x0, sample_z0y1x1, wX);
+  const WSimdVec4f sample_z0y1x0 = pSamples[indices_z0.z()];
+  const WSimdVec4f sample_z0y1x1 = pSamples[indices_z0.w()];
+  const WSimdVec4f res_z0y1 = WSimdVec4f::Lerp(sample_z0y1x0, sample_z0y1x1, wX);
 
-  const ezSimdVec4f res_z0 = ezSimdVec4f::Lerp(res_z0y0, res_z0y1, wY);
+  const WSimdVec4f res_z0 = WSimdVec4f::Lerp(res_z0y0, res_z0y1, wY);
 
-  const ezSimdVec4i indices_z1 = y0z0y1z1.Get<ezSwizzle::WWWW>() + y0y0y1y1_plus_x0x1x0x1;
-  const ezSimdVec4f sample_z1y0x0 = pSamples[indices_z1.x()];
-  const ezSimdVec4f sample_z1y0x1 = pSamples[indices_z1.y()];
-  const ezSimdVec4f res_z1y0 = ezSimdVec4f::Lerp(sample_z1y0x0, sample_z1y0x1, wX);
+  const WSimdVec4i indices_z1 = y0z0y1z1.Get<WSwizzle::WWWW>() + y0y0y1y1_plus_x0x1x0x1;
+  const WSimdVec4f sample_z1y0x0 = pSamples[indices_z1.x()];
+  const WSimdVec4f sample_z1y0x1 = pSamples[indices_z1.y()];
+  const WSimdVec4f res_z1y0 = WSimdVec4f::Lerp(sample_z1y0x0, sample_z1y0x1, wX);
 
-  const ezSimdVec4f sample_z1y1x0 = pSamples[indices_z1.z()];
-  const ezSimdVec4f sample_z1y1x1 = pSamples[indices_z1.w()];
-  const ezSimdVec4f res_z1y1 = ezSimdVec4f::Lerp(sample_z1y1x0, sample_z1y1x1, wX);
+  const WSimdVec4f sample_z1y1x0 = pSamples[indices_z1.z()];
+  const WSimdVec4f sample_z1y1x1 = pSamples[indices_z1.w()];
+  const WSimdVec4f res_z1y1 = WSimdVec4f::Lerp(sample_z1y1x0, sample_z1y1x1, wX);
 
-  const ezSimdVec4f res_z1 = ezSimdVec4f::Lerp(res_z1y0, res_z1y1, wY);
+  const WSimdVec4f res_z1 = WSimdVec4f::Lerp(res_z1y0, res_z1y1, wY);
 
-  const ezSimdVec4f wZ = weights.Get<ezSwizzle::ZZZZ>();
-  const ezSimdVec4f res = ezSimdVec4f::Lerp(res_z0, res_z1, wZ);
+  const WSimdVec4f wZ = weights.Get<WSwizzle::ZZZZ>();
+  const WSimdVec4f res = WSimdVec4f::Lerp(res_z0, res_z1, wZ);
 
   return res;
 }
 
-void ezParticleEffectInstance::PassTransformToSystems()
+void WParticleEffectInstance::PassTransformToSystems()
 {
   if (!m_bSimulateInLocalSpace)
   {
-    const ezVec3 vStartVel = m_vVelocity * m_fApplyInstanceVelocity;
+    const WVec3 vStartVel = m_vVelocity * m_fApplyInstanceVelocity;
 
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
       if (m_ParticleSystems[i] != nullptr)
       {
@@ -859,17 +859,17 @@ void ezParticleEffectInstance::PassTransformToSystems()
   }
 }
 
-void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwner)
+void WParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwner)
 {
   m_SharedInstances.Insert(pSharedInstanceOwner);
 }
 
-void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
+void WParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
 {
   m_SharedInstances.Remove(pSharedInstanceOwner);
 }
 
-bool ezParticleEffectInstance::ShouldBeUpdated() const
+bool WParticleEffectInstance::ShouldBeUpdated() const
 {
   if (m_hEffectHandle.IsInvalidated())
     return false;
@@ -881,11 +881,11 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
   return true;
 }
 
-void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const
+void WParticleEffectInstance::GetBoundingVolume(WBoundingBoxSphere& ref_volume) const
 {
   if (!m_BoundingVolume.IsValid())
   {
-    ref_volume = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.25f);
+    ref_volume = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), 0.25f);
     return;
   }
 
@@ -894,20 +894,20 @@ void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume
   if (!m_bSimulateInLocalSpace)
   {
     // transform the bounding volume to local space, unless it was already created there
-    const ezMat4 invTrans = GetTransform().GetAsMat4().GetInverse();
+    const WMat4 invTrans = GetTransform().GetAsMat4().GetInverse();
     ref_volume.Transform(invTrans);
   }
 }
 
-void ezParticleEffectInstance::CombineSystemBoundingVolumes()
+void WParticleEffectInstance::CombineSystemBoundingVolumes()
 {
-  ezBoundingBoxSphere effectVolume = ezBoundingBoxSphere::MakeInvalid();
+  WBoundingBoxSphere effectVolume = WBoundingBoxSphere::MakeInvalid();
 
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
-      const ezBoundingBoxSphere& systemVolume = m_ParticleSystems[i]->GetBoundingVolume();
+      const WBoundingBoxSphere& systemVolume = m_ParticleSystems[i]->GetBoundingVolume();
       if (systemVolume.IsValid())
       {
         effectVolume.ExpandToInclude(systemVolume);
@@ -918,7 +918,7 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
   m_BoundingVolume = effectVolume;
 }
 
-void ezParticleEffectInstance::ProcessEventQueues()
+void WParticleEffectInstance::ProcessEventQueues()
 {
   m_Transform = m_TransformForNextFrame;
   m_vVelocity = m_vVelocityForNextFrame;
@@ -926,8 +926,8 @@ void ezParticleEffectInstance::ProcessEventQueues()
   if (m_EventQueue.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("PFX: Effect Event Queue");
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  W_PROFILE_SCOPE("PFX: Effect Event Queue");
+  for (WUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
@@ -935,11 +935,11 @@ void ezParticleEffectInstance::ProcessEventQueues()
     }
   }
 
-  for (const ezParticleEvent& e : m_EventQueue)
+  for (const WParticleEvent& e : m_EventQueue)
   {
-    ezUInt32 rnd = m_Random.UIntInRange(100);
+    WUInt32 rnd = m_Random.UIntInRange(100);
 
-    for (ezParticleEventReaction* pReaction : m_EventReactions)
+    for (WParticleEventReaction* pReaction : m_EventReactions)
     {
       if (pReaction->m_sEventName != e.m_EventType)
         continue;
@@ -957,13 +957,13 @@ void ezParticleEffectInstance::ProcessEventQueues()
   m_EventQueue.Clear();
 }
 
-ezParticleEffectUpdateTask::ezParticleEffectUpdateTask(ezParticleEffectInstance* pEffect)
+WParticleEffectUpdateTask::WParticleEffectUpdateTask(WParticleEffectInstance* pEffect)
 {
   m_pEffect = pEffect;
-  m_UpdateDiff = ezTime::MakeZero();
+  m_UpdateDiff = WTime::MakeZero();
 }
 
-void ezParticleEffectUpdateTask::Execute()
+void WParticleEffectUpdateTask::Execute()
 {
   if (HasBeenCanceled())
     return;
@@ -974,21 +974,21 @@ void ezParticleEffectUpdateTask::Execute()
 
     if (!m_pEffect->Update(m_UpdateDiff))
     {
-      const ezParticleEffectHandle hEffect = m_pEffect->GetHandle();
-      EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
+      const WParticleEffectHandle hEffect = m_pEffect->GetHandle();
+      W_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
 
       m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, true, nullptr);
     }
   }
 }
 
-void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, float value)
+void WParticleEffectInstance::SetParameter(const WTempHashedString& sName, float value)
 {
   // shared effects do not support parameters
   if (m_bIsSharedEffect)
     return;
 
-  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
     if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
     {
@@ -1002,13 +1002,13 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, flo
   ref.m_fValue = value;
 }
 
-void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, const ezColor& value)
+void WParticleEffectInstance::SetParameter(const WTempHashedString& sName, const WColor& value)
 {
   // shared effects do not support parameters
   if (m_bIsSharedEffect)
     return;
 
-  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
     if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
     {
@@ -1022,9 +1022,9 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, con
   ref.m_Value = value;
 }
 
-ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& sName) const
+WInt32 WParticleEffectInstance::FindFloatParameter(const WTempHashedString& sName) const
 {
-  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
     if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
       return i;
@@ -1033,12 +1033,12 @@ ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& s
   return -1;
 }
 
-float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& sName, float fDefaultValue) const
+float WParticleEffectInstance::GetFloatParameter(const WTempHashedString& sName, float fDefaultValue) const
 {
   if (sName.IsEmpty())
     return fDefaultValue;
 
-  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
     if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
       return m_FloatParameters[i].m_fValue;
@@ -1047,9 +1047,9 @@ float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& sNam
   return fDefaultValue;
 }
 
-ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& sName) const
+WInt32 WParticleEffectInstance::FindColorParameter(const WTempHashedString& sName) const
 {
-  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
     if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
       return i;
@@ -1058,12 +1058,12 @@ ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& s
   return -1;
 }
 
-const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& sName, const ezColor& defaultValue) const
+const WColor& WParticleEffectInstance::GetColorParameter(const WTempHashedString& sName, const WColor& defaultValue) const
 {
   if (sName.IsEmpty())
     return defaultValue;
 
-  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
     if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
       return m_ColorParameters[i].m_Value;
@@ -1072,4 +1072,4 @@ const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedStr
   return defaultValue;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectInstance);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectInstance);

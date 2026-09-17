@@ -20,12 +20,12 @@
 /// - Set operations (union, intersection) are needed
 /// - Memory usage is not the primary concern
 ///
-/// Consider ezHashSet instead when:
+/// Consider WHashSet instead when:
 /// - You don't need sorted iteration
 /// - You want O(1) average case performance
 /// - Memory usage is more critical
 template <typename KeyType, typename Comparer>
-class ezSetBase
+class WSetBase
 {
 private:
   struct Node;
@@ -33,7 +33,7 @@ private:
   /// Only used by the sentinel node.
   struct NilNode
   {
-    ezUInt16 m_uiLevel = 0;
+    WUInt16 m_uiLevel = 0;
     Node* m_pParent = nullptr;
     Node* m_pLink[2] = {nullptr, nullptr};
   };
@@ -55,30 +55,30 @@ public:
     using pointer = IteratorBase<REVERSE>*;
     using reference = IteratorBase<REVERSE>&;
 
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     /// Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE IteratorBase()
+    W_ALWAYS_INLINE IteratorBase()
       : m_pElement(nullptr)
     {
     } // [tested]
 
     /// Checks whether this iterator points to a valid element.
-    EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
+    W_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>& it2) const { return (m_pElement == it2.m_pElement); }
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>&);
+    W_ALWAYS_INLINE bool operator==(const typename WSetBase<KeyType, Comparer>::IteratorBase<REVERSE>& it2) const { return (m_pElement == it2.m_pElement); }
+    W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename WSetBase<KeyType, Comparer>::IteratorBase<REVERSE>&);
 
     /// Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType& Key() const
+    W_FORCE_INLINE const KeyType& Key() const
     {
-      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
+      W_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
       return m_pElement->m_Key;
     } // [tested]
 
     /// Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); }
+    W_ALWAYS_INLINE const KeyType& operator*() const { return Key(); }
 
     /// Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -87,17 +87,17 @@ public:
     void Prev(); // [tested]
 
     /// Shorthand for 'Next'
-    EZ_ALWAYS_INLINE void operator++() { Next(); } // [tested]
+    W_ALWAYS_INLINE void operator++() { Next(); } // [tested]
 
     /// Shorthand for 'Prev'
-    EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
+    W_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
 
   protected:
-    void Advance(ezInt32 dir0, ezInt32 dir1);
+    void Advance(WInt32 dir0, WInt32 dir1);
 
-    friend class ezSetBase<KeyType, Comparer>;
+    friend class WSetBase<KeyType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit IteratorBase(Node* pInit)
+    W_ALWAYS_INLINE explicit IteratorBase(Node* pInit)
       : m_pElement(pInit)
     {
     }
@@ -110,23 +110,23 @@ public:
 
 protected:
   /// Initializes the set to be empty.
-  ezSetBase(const Comparer& comparer, ezAllocator* pAllocator); // [tested]
+  WSetBase(const Comparer& comparer, WAllocator* pAllocator); // [tested]
 
   /// Copies all keys from the given set into this one.
-  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocator* pAllocator); // [tested]
+  WSetBase(const WSetBase<KeyType, Comparer>& cc, WAllocator* pAllocator); // [tested]
 
   /// Destroys all elements in the set.
-  ~ezSetBase(); // [tested]
+  ~WSetBase(); // [tested]
 
   /// Copies all keys from the given set into this one.
-  void operator=(const ezSetBase<KeyType, Comparer>& rhs); // [tested]
+  void operator=(const WSetBase<KeyType, Comparer>& rhs); // [tested]
 
 public:
   /// Returns whether there are no elements in the set. O(1) operation.
   bool IsEmpty() const; // [tested]
 
   /// Returns the number of elements currently stored in the set. O(1) operation.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Destroys all elements in the set and resets its size to zero.
   void Clear(); // [tested]
@@ -157,7 +157,7 @@ public:
   bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// Checks whether all keys of the given set are in the container.
-  bool ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
+  bool ContainsSet(const WSetBase<KeyType, Comparer>& operand) const; // [tested]
 
   /// Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such
   /// element.
@@ -170,26 +170,26 @@ public:
   Iterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// Makes this set the union of itself and the operand.
-  void Union(const ezSetBase<KeyType, Comparer>& operand); // [tested]
+  void Union(const WSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// Makes this set the difference of itself and the operand, i.e. subtracts operand.
-  void Difference(const ezSetBase<KeyType, Comparer>& operand); // [tested]
+  void Difference(const WSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// Makes this set the intersection of itself and the operand.
-  void Intersection(const ezSetBase<KeyType, Comparer>& operand); // [tested]
+  void Intersection(const WSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// Returns the allocator that is used by this instance.
-  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
+  WAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// Comparison operator
-  bool operator==(const ezSetBase<KeyType, Comparer>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezSetBase<KeyType, Comparer>&);
+  bool operator==(const WSetBase<KeyType, Comparer>& rhs) const; // [tested]
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WSetBase<KeyType, Comparer>&);
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
+  WUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
   /// Swaps this map with the other one.
-  void Swap(ezSetBase<KeyType, Comparer>& other); // [tested]
+  void Swap(WSetBase<KeyType, Comparer>& other); // [tested]
 
 private:
   template <typename CompatibleKeyType>
@@ -204,7 +204,7 @@ private:
 
   /// Creates one new node and initializes it.
   template <typename CompatibleKeyType>
-  Node* AcquireNode(CompatibleKeyType&& key, ezUInt16 uiLevel, Node* pParent);
+  Node* AcquireNode(CompatibleKeyType&& key, WUInt16 uiLevel, Node* pParent);
 
   /// Destroys the given node.
   void ReleaseNode(Node* pNode);
@@ -236,10 +236,10 @@ private:
   NilNode m_NilNode;
 
   /// Number of active nodes in the tree.
-  ezUInt32 m_uiCount;
+  WUInt32 m_uiCount;
 
   /// Data store. Keeps all the nodes.
-  ezDeque<Node, ezNullAllocatorWrapper, false> m_Elements;
+  WDeque<Node, WNullAllocatorWrapper, false> m_Elements;
 
   /// Stack of recently discarded nodes to quickly acquire new nodes.
   Node* m_pFreeElementStack;
@@ -248,60 +248,60 @@ private:
   Comparer m_Comparer;
 };
 
-/// \see ezSetBase
-template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezSet : public ezSetBase<KeyType, Comparer>
+/// \see WSetBase
+template <typename KeyType, typename Comparer = WCompareHelper<KeyType>, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+class WSet : public WSetBase<KeyType, Comparer>
 {
 public:
-  ezSet();
-  explicit ezSet(ezAllocator* pAllocator);
-  ezSet(const Comparer& comparer, ezAllocator* pAllocator);
+  WSet();
+  explicit WSet(WAllocator* pAllocator);
+  WSet(const Comparer& comparer, WAllocator* pAllocator);
 
-  ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
-  ezSet(const ezSetBase<KeyType, Comparer>& other);
+  WSet(const WSet<KeyType, Comparer, AllocatorWrapper>& other);
+  WSet(const WSetBase<KeyType, Comparer>& other);
 
-  void operator=(const ezSet<KeyType, Comparer, AllocatorWrapper>& rhs);
-  void operator=(const ezSetBase<KeyType, Comparer>& rhs);
+  void operator=(const WSet<KeyType, Comparer, AllocatorWrapper>& rhs);
+  void operator=(const WSetBase<KeyType, Comparer>& rhs);
 };
 
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& ref_container)
+typename WSetBase<KeyType, Comparer>::Iterator begin(WSetBase<KeyType, Comparer>& ref_container)
 {
   return ref_container.GetIterator();
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator begin(const ezSetBase<KeyType, Comparer>& container)
+typename WSetBase<KeyType, Comparer>::Iterator begin(const WSetBase<KeyType, Comparer>& container)
 {
   return container.GetIterator();
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, Comparer>& container)
+typename WSetBase<KeyType, Comparer>::Iterator cbegin(const WSetBase<KeyType, Comparer>& container)
 {
   return container.GetIterator();
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& ref_container)
+typename WSetBase<KeyType, Comparer>::Iterator end(WSetBase<KeyType, Comparer>& ref_container)
 {
-  EZ_IGNORE_UNUSED(ref_container);
-  return typename ezSetBase<KeyType, Comparer>::Iterator();
+  W_IGNORE_UNUSED(ref_container);
+  return typename WSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container)
+typename WSetBase<KeyType, Comparer>::Iterator end(const WSetBase<KeyType, Comparer>& container)
 {
-  EZ_IGNORE_UNUSED(container);
-  return typename ezSetBase<KeyType, Comparer>::Iterator();
+  W_IGNORE_UNUSED(container);
+  return typename WSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container)
+typename WSetBase<KeyType, Comparer>::Iterator cend(const WSetBase<KeyType, Comparer>& container)
 {
-  EZ_IGNORE_UNUSED(container);
-  return typename ezSetBase<KeyType, Comparer>::Iterator();
+  W_IGNORE_UNUSED(container);
+  return typename WSetBase<KeyType, Comparer>::Iterator();
 }
 
 

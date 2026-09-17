@@ -9,13 +9,13 @@
 ///
 /// Represents a 3D coordinate system using forward, right, and up direction vectors.
 /// Used for transforming between different coordinate conventions in the engine.
-struct EZ_CORE_DLL ezCoordinateSystem
+struct W_CORE_DLL WCoordinateSystem
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezVec3 m_vForwardDir;
-  ezVec3 m_vRightDir;
-  ezVec3 m_vUpDir;
+  WVec3 m_vForwardDir;
+  WVec3 m_vRightDir;
+  WVec3 m_vUpDir;
 };
 
 /// Abstract base class for providing coordinate systems at specific world positions.
@@ -23,57 +23,57 @@ struct EZ_CORE_DLL ezCoordinateSystem
 /// Allows defining position-dependent coordinate systems within a world. Derived classes
 /// implement GetCoordinateSystem to provide custom coordinate transformations based on
 /// world position, enabling features like gravity-aligned coordinate systems or curved spaces.
-class EZ_CORE_DLL ezCoordinateSystemProvider : public ezRefCounted
+class W_CORE_DLL WCoordinateSystemProvider : public WRefCounted
 {
 public:
-  ezCoordinateSystemProvider(const ezWorld* pOwnerWorld)
+  WCoordinateSystemProvider(const WWorld* pOwnerWorld)
     : m_pOwnerWorld(pOwnerWorld)
   {
   }
 
-  virtual ~ezCoordinateSystemProvider() = default;
+  virtual ~WCoordinateSystemProvider() = default;
 
   /// Returns the coordinate system at the given global position.
-  virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const = 0;
+  virtual void GetCoordinateSystem(const WVec3& vGlobalPosition, WCoordinateSystem& out_coordinateSystem) const = 0;
 
 protected:
-  friend class ezWorld;
+  friend class WWorld;
 
-  const ezWorld* m_pOwnerWorld;
+  const WWorld* m_pOwnerWorld;
 };
 
-/// Helper class to convert between two ezCoordinateSystem spaces.
+/// Helper class to convert between two WCoordinateSystem spaces.
 ///
 /// All functions will do an identity transform until SetConversion is called to set up
 /// the conversion. Afterwards the convert functions can be used to convert between
 /// the two systems in both directions.
 /// Currently, only uniformly scaled orthogonal coordinate systems are supported.
 /// They can however be right handed or left handed.
-class EZ_CORE_DLL ezCoordinateSystemConversion
+class W_CORE_DLL WCoordinateSystemConversion
 {
 public:
   /// Creates a new conversion that until set up, does identity conversions.
-  ezCoordinateSystemConversion(); // [tested]
+  WCoordinateSystemConversion(); // [tested]
 
   /// Set up the source and target coordinate systems.
-  void SetConversion(const ezCoordinateSystem& source, const ezCoordinateSystem& target); // [tested]
+  void SetConversion(const WCoordinateSystem& source, const WCoordinateSystem& target); // [tested]
   /// Returns the equivalent point in the target coordinate system.
-  ezVec3 ConvertSourcePosition(const ezVec3& vPos) const; // [tested]
+  WVec3 ConvertSourcePosition(const WVec3& vPos) const; // [tested]
   /// Returns the equivalent rotation in the target coordinate system.
-  ezQuat ConvertSourceRotation(const ezQuat& qOrientation) const; // [tested]
+  WQuat ConvertSourceRotation(const WQuat& qOrientation) const; // [tested]
   /// Returns the equivalent length in the target coordinate system.
   float ConvertSourceLength(float fLength) const; // [tested]
 
   /// Returns the equivalent point in the source coordinate system.
-  ezVec3 ConvertTargetPosition(const ezVec3& vPos) const; // [tested]
+  WVec3 ConvertTargetPosition(const WVec3& vPos) const; // [tested]
   /// Returns the equivalent rotation in the source coordinate system.
-  ezQuat ConvertTargetRotation(const ezQuat& qOrientation) const; // [tested]
+  WQuat ConvertTargetRotation(const WQuat& qOrientation) const; // [tested]
   /// Returns the equivalent length in the source coordinate system.
   float ConvertTargetLength(float fLength) const; // [tested]
 
 private:
-  ezMat3 m_mSourceToTarget;
-  ezMat3 m_mTargetToSource;
+  WMat3 m_mSourceToTarget;
+  WMat3 m_mTargetToSource;
   float m_fWindingSwap = 1.0f;
   float m_fSourceToTargetScale = 1.0f;
   float m_fTargetToSourceScale = 1.0f;

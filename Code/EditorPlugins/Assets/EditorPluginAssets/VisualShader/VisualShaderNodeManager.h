@@ -3,25 +3,25 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-struct ezVisualShaderPinDescriptor;
+struct WVisualShaderPinDescriptor;
 
 /// Visual graph pin for visual shader nodes.
 ///
 /// Extends the base pin class with shader-specific metadata such as data type and tooltip information
 /// derived from the pin descriptor.
-class ezVisualShaderPin : public ezVisualGraphPin
+class WVisualShaderPin : public WVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderPin, ezVisualGraphPin);
+  W_ADD_DYNAMIC_REFLECTION(WVisualShaderPin, WVisualGraphPin);
 
 public:
-  ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
+  WVisualShaderPin(Type type, const WVisualShaderPinDescriptor* pDescriptor, const WDocumentObject* pObject);
 
-  const ezRTTI* GetDataType() const;
-  const ezString& GetTooltip() const;
-  const ezVisualShaderPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
+  const WRTTI* GetDataType() const;
+  const WString& GetTooltip() const;
+  const WVisualShaderPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
 
 private:
-  const ezVisualShaderPinDescriptor* m_pDescriptor;
+  const WVisualShaderPinDescriptor* m_pDescriptor;
 };
 
 /// Object manager for visual shader graphs.
@@ -29,18 +29,18 @@ private:
 /// Manages the document representation of visual shader nodes and their connections.
 /// Creates pins based on shader node type descriptors and validates connections based on data type compatibility.
 /// Enforces constraints such as limiting the number of certain node types in a shader.
-class ezVisualShaderNodeManager : public ezVisualGraphObjectManager
+class WVisualShaderNodeManager : public WVisualGraphObjectManager
 {
 public:
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const override;
+  virtual bool InternalIsNode(const WDocumentObject* pObject) const override;
+  virtual void InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node) override;
+  virtual void GetNodeCreationTemplates(WDynamicArray<WVisualGraphNodeDesc>& out_templates) const override;
 
-  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
+  virtual WStatus InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const override;
 
 private:
-  virtual ezStatus InternalCanAdd(
-    const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const override;
+  virtual WStatus InternalCanAdd(
+    const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const override;
 
-  ezUInt32 CountNodesOfType(ezVisualShaderNodeType::Enum type) const;
+  WUInt32 CountNodesOfType(WVisualShaderNodeType::Enum type) const;
 };

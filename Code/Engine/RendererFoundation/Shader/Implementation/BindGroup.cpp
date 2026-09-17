@@ -7,9 +7,9 @@
 
 #include <Foundation/Algorithm/HashStream.h>
 
-ezUInt64 ezGALBindGroupCreationDescription::CalculateHash() const
+WUInt64 WGALBindGroupCreationDescription::CalculateHash() const
 {
-  ezHashStreamWriter64 writer;
+  WHashStreamWriter64 writer;
   writer << m_hBindGroupLayout.GetInternalID().m_Data;
   if (!m_BindGroupItems.IsEmpty())
   {
@@ -18,163 +18,163 @@ ezUInt64 ezGALBindGroupCreationDescription::CalculateHash() const
   }
   return writer.GetHashValue();
 }
-void ezGALBindGroupCreationDescription::AssertValidDescription(const ezGALDevice& m_Device) const
+void WGALBindGroupCreationDescription::AssertValidDescription(const WGALDevice& m_Device) const
 {
-  const ezGALBindGroupLayout* pLayout = m_Device.GetBindGroupLayout(m_hBindGroupLayout);
-  ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
-  ezArrayPtr<const ezGALBindGroupItem> items = m_BindGroupItems;
-  EZ_ASSERT_ALWAYS(bindings.GetCount() == items.GetCount(), "Missmatch between bindings and item count");
-  const ezUInt32 uiBindings = bindings.GetCount();
-  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  const WGALBindGroupLayout* pLayout = m_Device.GetBindGroupLayout(m_hBindGroupLayout);
+  WArrayPtr<const WShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+  WArrayPtr<const WGALBindGroupItem> items = m_BindGroupItems;
+  W_ASSERT_ALWAYS(bindings.GetCount() == items.GetCount(), "Missmatch between bindings and item count");
+  const WUInt32 uiBindings = bindings.GetCount();
+  for (WUInt32 i = 0; i < uiBindings; ++i)
   {
-    const ezShaderResourceBinding& binding = bindings[i];
-    const ezGALBindGroupItem& item = items[i];
-    const ezBitflags<ezGALShaderResourceCategory> category = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+    const WShaderResourceBinding& binding = bindings[i];
+    const WGALBindGroupItem& item = items[i];
+    const WBitflags<WGALShaderResourceCategory> category = WGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
 
     switch (binding.m_ResourceType)
     {
-      case ezGALShaderResourceType::Sampler:
+      case WGALShaderResourceType::Sampler:
       {
-        EZ_ASSERT_ALWAYS(item.m_Flags.IsSet(ezGALBindGroupItemFlags::Sampler), "Item type does not match binding");
-        const ezGALSamplerState* pSampler = m_Device.GetSamplerState(item.m_Sampler.m_hSampler);
-        EZ_ASSERT_ALWAYS(pSampler != nullptr, "Invalid sampler state");
+        W_ASSERT_ALWAYS(item.m_Flags.IsSet(WGALBindGroupItemFlags::Sampler), "Item type does not match binding");
+        const WGALSamplerState* pSampler = m_Device.GetSamplerState(item.m_Sampler.m_hSampler);
+        W_ASSERT_ALWAYS(pSampler != nullptr, "Invalid sampler state");
       }
       break;
 
-      case ezGALShaderResourceType::ConstantBuffer:
+      case WGALShaderResourceType::ConstantBuffer:
       {
-        EZ_ASSERT_ALWAYS(item.m_Flags.IsSet(ezGALBindGroupItemFlags::Buffer), "Item type does not match binding");
-        const ezGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
-        EZ_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
-        EZ_ASSERT_ALWAYS(item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for constant buffers");
-        EZ_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteOffset == 0, "Byte offset for constant buffers not supported yet");
-        EZ_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteCount == pBuffer->GetDescription().m_uiTotalSize, "Byte count for constant buffers not supported yet");
+        W_ASSERT_ALWAYS(item.m_Flags.IsSet(WGALBindGroupItemFlags::Buffer), "Item type does not match binding");
+        const WGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
+        W_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
+        W_ASSERT_ALWAYS(item.m_Buffer.m_OverrideTexelBufferFormat == WGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for constant buffers");
+        W_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteOffset == 0, "Byte offset for constant buffers not supported yet");
+        W_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteCount == pBuffer->GetDescription().m_uiTotalSize, "Byte count for constant buffers not supported yet");
       }
       break;
-      case ezGALShaderResourceType::TexelBuffer:
-      case ezGALShaderResourceType::StructuredBuffer:
-      case ezGALShaderResourceType::ByteAddressBuffer:
-      case ezGALShaderResourceType::TexelBufferRW:
-      case ezGALShaderResourceType::StructuredBufferRW:
-      case ezGALShaderResourceType::ByteAddressBufferRW:
+      case WGALShaderResourceType::TexelBuffer:
+      case WGALShaderResourceType::StructuredBuffer:
+      case WGALShaderResourceType::ByteAddressBuffer:
+      case WGALShaderResourceType::TexelBufferRW:
+      case WGALShaderResourceType::StructuredBufferRW:
+      case WGALShaderResourceType::ByteAddressBufferRW:
       {
 
-        EZ_ASSERT_ALWAYS(item.m_Flags.IsSet(ezGALBindGroupItemFlags::Buffer), "Item type does not match binding");
-        const ezGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
-        EZ_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
-        const ezGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
-        EZ_ASSERT_ALWAYS((binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::TexelBufferRW) || item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for non-texel buffers");
-        EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::TexelBuffer && binding.m_ResourceType != ezGALShaderResourceType::TexelBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer), "TexelBuffer bindings are only supported on texel buffers");
-        EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::StructuredBuffer && binding.m_ResourceType != ezGALShaderResourceType::StructuredBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer), "StructuredBuffer bindings are only supported on structured buffers");
-        EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::ByteAddressBuffer && binding.m_ResourceType != ezGALShaderResourceType::ByteAddressBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer), "ByteAddressBuffer bindings are only supported on byte address buffers");
+        W_ASSERT_ALWAYS(item.m_Flags.IsSet(WGALBindGroupItemFlags::Buffer), "Item type does not match binding");
+        const WGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
+        W_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
+        const WGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
+        W_ASSERT_ALWAYS((binding.m_ResourceType == WGALShaderResourceType::TexelBuffer || binding.m_ResourceType == WGALShaderResourceType::TexelBufferRW) || item.m_Buffer.m_OverrideTexelBufferFormat == WGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for non-texel buffers");
+        W_ASSERT_ALWAYS((binding.m_ResourceType != WGALShaderResourceType::TexelBuffer && binding.m_ResourceType != WGALShaderResourceType::TexelBufferRW) || bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::TexelBuffer), "TexelBuffer bindings are only supported on texel buffers");
+        W_ASSERT_ALWAYS((binding.m_ResourceType != WGALShaderResourceType::StructuredBuffer && binding.m_ResourceType != WGALShaderResourceType::StructuredBufferRW) || bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::StructuredBuffer), "StructuredBuffer bindings are only supported on structured buffers");
+        W_ASSERT_ALWAYS((binding.m_ResourceType != WGALShaderResourceType::ByteAddressBuffer && binding.m_ResourceType != WGALShaderResourceType::ByteAddressBufferRW) || bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::ByteAddressBuffer), "ByteAddressBuffer bindings are only supported on byte address buffers");
 
-        if (category.IsSet(ezGALShaderResourceCategory::BufferSRV))
+        if (category.IsSet(WGALShaderResourceCategory::BufferSRV))
         {
-          EZ_ASSERT_ALWAYS(bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource), "Buffer must have the ShaderResource flag set to be used as an SRV");
+          W_ASSERT_ALWAYS(bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::ShaderResource), "Buffer must have the ShaderResource flag set to be used as an SRV");
         }
-        if (category.IsSet(ezGALShaderResourceCategory::BufferUAV))
+        if (category.IsSet(WGALShaderResourceCategory::BufferUAV))
         {
-          EZ_ASSERT_ALWAYS(bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess), "Buffer must have the UnorderedAccess flag set to be used as an UAV");
+          W_ASSERT_ALWAYS(bufferDesc.m_BufferFlags.IsSet(WGALBufferUsageFlags::UnorderedAccess), "Buffer must have the UnorderedAccess flag set to be used as an UAV");
         }
 
-        ezUInt32 uiBytesPerElement = 4; // ByteAddress must be multiple of 4
-        if (binding.m_ResourceType == ezGALShaderResourceType::StructuredBuffer || binding.m_ResourceType == ezGALShaderResourceType::StructuredBufferRW)
+        WUInt32 uiBytesPerElement = 4; // ByteAddress must be multiple of 4
+        if (binding.m_ResourceType == WGALShaderResourceType::StructuredBuffer || binding.m_ResourceType == WGALShaderResourceType::StructuredBufferRW)
         {
           uiBytesPerElement = bufferDesc.m_uiStructSize;
         }
-        else if (binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::TexelBufferRW)
+        else if (binding.m_ResourceType == WGALShaderResourceType::TexelBuffer || binding.m_ResourceType == WGALShaderResourceType::TexelBufferRW)
         {
-          const ezGALResourceFormat::Enum viewFormat = item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid ? bufferDesc.m_Format : item.m_Buffer.m_OverrideTexelBufferFormat;
-          uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
+          const WGALResourceFormat::Enum viewFormat = item.m_Buffer.m_OverrideTexelBufferFormat == WGALResourceFormat::Invalid ? bufferDesc.m_Format : item.m_Buffer.m_OverrideTexelBufferFormat;
+          uiBytesPerElement = WGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
         }
 
-        ezGALBufferRange range = item.m_Buffer.m_BufferRange;
+        WGALBufferRange range = item.m_Buffer.m_BufferRange;
         if ((range.m_uiByteOffset % uiBytesPerElement) != 0)
         {
-          EZ_REPORT_FAILURE("m_uiByteOffset {} is not a multiple of the element size {}", range.m_uiByteOffset, uiBytesPerElement);
+          W_REPORT_FAILURE("m_uiByteOffset {} is not a multiple of the element size {}", range.m_uiByteOffset, uiBytesPerElement);
         }
         if (range.m_uiByteOffset >= bufferDesc.m_uiTotalSize)
         {
-          EZ_REPORT_FAILURE("m_uiByteOffset {} is too big for the buffer of size {}", range.m_uiByteOffset, bufferDesc.m_uiTotalSize);
+          W_REPORT_FAILURE("m_uiByteOffset {} is too big for the buffer of size {}", range.m_uiByteOffset, bufferDesc.m_uiTotalSize);
         }
 
-        if (range.m_uiByteCount != EZ_GAL_WHOLE_SIZE)
+        if (range.m_uiByteCount != W_GAL_WHOLE_SIZE)
         {
           if ((range.m_uiByteCount % uiBytesPerElement) != 0)
           {
-            EZ_REPORT_FAILURE("m_uiByteCount {} is not a multiple of the element size {}", range.m_uiByteCount, uiBytesPerElement);
+            W_REPORT_FAILURE("m_uiByteCount {} is not a multiple of the element size {}", range.m_uiByteCount, uiBytesPerElement);
           }
           if (range.m_uiByteOffset + range.m_uiByteCount > bufferDesc.m_uiTotalSize)
           {
-            EZ_REPORT_FAILURE("m_uiByteOffset {} + m_uiByteCount {} = {} is too big for the buffer of size {}", range.m_uiByteOffset, range.m_uiByteCount, range.m_uiByteOffset + range.m_uiByteCount, bufferDesc.m_uiTotalSize);
+            W_REPORT_FAILURE("m_uiByteOffset {} + m_uiByteCount {} = {} is too big for the buffer of size {}", range.m_uiByteOffset, range.m_uiByteCount, range.m_uiByteOffset + range.m_uiByteCount, bufferDesc.m_uiTotalSize);
           }
         }
       }
       break;
-      case ezGALShaderResourceType::Texture:
-      case ezGALShaderResourceType::TextureRW:
-      case ezGALShaderResourceType::TextureAndSampler:
+      case WGALShaderResourceType::Texture:
+      case WGALShaderResourceType::TextureRW:
+      case WGALShaderResourceType::TextureAndSampler:
       {
-        EZ_ASSERT_ALWAYS(item.m_Flags.IsSet(ezGALBindGroupItemFlags::Texture), "Item type does not match binding");
-        const ezGALTexture* pTexture = m_Device.GetTexture(item.m_Texture.m_hTexture);
-        EZ_ASSERT_ALWAYS(pTexture != nullptr, "Invalid texture");
+        W_ASSERT_ALWAYS(item.m_Flags.IsSet(WGALBindGroupItemFlags::Texture), "Item type does not match binding");
+        const WGALTexture* pTexture = m_Device.GetTexture(item.m_Texture.m_hTexture);
+        W_ASSERT_ALWAYS(pTexture != nullptr, "Invalid texture");
         const auto& textureDesc = pTexture->GetDescription();
 
-        if (item.m_Texture.m_OverrideViewFormat != ezGALResourceFormat::Invalid)
+        if (item.m_Texture.m_OverrideViewFormat != WGALResourceFormat::Invalid)
         {
-          const ezEnum<ezGALResourceFormat> format = pTexture->GetDescription().m_Format;
-          const ezEnum<ezGALResourceFormat> overrideFormat = item.m_Texture.m_OverrideViewFormat;
-          EZ_ASSERT_ALWAYS(ezGALResourceFormat::GetBitsPerElement(format) == ezGALResourceFormat::GetBitsPerElement(overrideFormat), "Format override bits per element ({}) must match the same on the original format ({})", ezGALResourceFormat::GetBitsPerElement(overrideFormat), ezGALResourceFormat::GetBitsPerElement(format));
-          EZ_ASSERT_ALWAYS(ezGALResourceFormat::GetChannelCount(format) == ezGALResourceFormat::GetChannelCount(overrideFormat), "Format override channel count ({}) must match the same on the original format ({})", ezGALResourceFormat::GetChannelCount(overrideFormat), ezGALResourceFormat::GetChannelCount(format));
+          const WEnum<WGALResourceFormat> format = pTexture->GetDescription().m_Format;
+          const WEnum<WGALResourceFormat> overrideFormat = item.m_Texture.m_OverrideViewFormat;
+          W_ASSERT_ALWAYS(WGALResourceFormat::GetBitsPerElement(format) == WGALResourceFormat::GetBitsPerElement(overrideFormat), "Format override bits per element ({}) must match the same on the original format ({})", WGALResourceFormat::GetBitsPerElement(overrideFormat), WGALResourceFormat::GetBitsPerElement(format));
+          W_ASSERT_ALWAYS(WGALResourceFormat::GetChannelCount(format) == WGALResourceFormat::GetChannelCount(overrideFormat), "Format override channel count ({}) must match the same on the original format ({})", WGALResourceFormat::GetChannelCount(overrideFormat), WGALResourceFormat::GetChannelCount(format));
         }
         // TODO item.m_Texture.m_OverrideTexelBufferFormat
-        if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
+        if (binding.m_ResourceType == WGALShaderResourceType::TextureAndSampler)
         {
-          const ezGALSamplerState* pSampler = m_Device.GetSamplerState(item.m_Texture.m_hSampler);
-          EZ_ASSERT_ALWAYS(pSampler != nullptr, "Invalid sampler state");
+          const WGALSamplerState* pSampler = m_Device.GetSamplerState(item.m_Texture.m_hSampler);
+          W_ASSERT_ALWAYS(pSampler != nullptr, "Invalid sampler state");
         }
 
-        const ezGALTextureRange range = item.m_Texture.m_TextureRange;
+        const WGALTextureRange range = item.m_Texture.m_TextureRange;
 
-        if (!ezGALShaderTextureType::IsArray(binding.m_TextureType))
+        if (!WGALShaderTextureType::IsArray(binding.m_TextureType))
         {
-          if (binding.m_TextureType == ezGALShaderTextureType::TextureCube)
+          if (binding.m_TextureType == WGALShaderTextureType::TextureCube)
           {
-            EZ_ASSERT_ALWAYS(range.m_uiArraySlices == 6, "m_uiArraySlices must be 6 for a cube texture binding");
+            W_ASSERT_ALWAYS(range.m_uiArraySlices == 6, "m_uiArraySlices must be 6 for a cube texture binding");
           }
           else
           {
-            EZ_ASSERT_ALWAYS(range.m_uiArraySlices == 1, "m_uiArraySlices must be 1 for non array bindings");
+            W_ASSERT_ALWAYS(range.m_uiArraySlices == 1, "m_uiArraySlices must be 1 for non array bindings");
           }
         }
 
-        EZ_ASSERT_ALWAYS(ezGALShaderTextureType::IsMSAA(binding.m_TextureType) == (textureDesc.m_SampleCount != ezGALMSAASampleCount::None), "MSAA missmatch between texture and binding");
+        W_ASSERT_ALWAYS(WGALShaderTextureType::IsMSAA(binding.m_TextureType) == (textureDesc.m_SampleCount != WGALMSAASampleCount::None), "MSAA missmatch between texture and binding");
 
-        if (category.IsSet(ezGALShaderResourceCategory::TextureSRV))
+        if (category.IsSet(WGALShaderResourceCategory::TextureSRV))
         {
-          EZ_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource), "Texture must have the ShaderResourceView flag set to be used as an SRV");
+          W_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(WGALTextureUsageFlags::ShaderResource), "Texture must have the ShaderResourceView flag set to be used as an SRV");
         }
-        if (category.IsSet(ezGALShaderResourceCategory::TextureUAV))
+        if (category.IsSet(WGALShaderResourceCategory::TextureUAV))
         {
-          EZ_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess), "Texture must have the UnorderedAccess flag set to be used as a UAV");
+          W_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(WGALTextureUsageFlags::UnorderedAccess), "Texture must have the UnorderedAccess flag set to be used as a UAV");
         }
-        const ezUInt32 uiSlices = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
-        EZ_ASSERT_ALWAYS(textureDesc.m_Type != ezGALTextureType::Texture2DProxy, "Proxy textures must be resolved to their base texture before binding");
-        EZ_ASSERT_ALWAYS(range.m_uiBaseArraySlice < uiSlices, "Base array slice is out of bounds");
-        EZ_ASSERT_ALWAYS(range.m_uiBaseMipLevel < textureDesc.m_uiMipLevelCount, "Base array slice is out of bounds");
-        EZ_ASSERT_ALWAYS(range.m_uiMipLevels > 0, "Mip level count must be greater than 0");
-        EZ_ASSERT_ALWAYS(range.m_uiArraySlices > 0, "Array slices must be greater than 0");
-        EZ_ASSERT_ALWAYS(range.m_uiMipLevels == EZ_GAL_ALL_MIP_LEVELS || static_cast<ezUInt32>(range.m_uiBaseMipLevel) + range.m_uiMipLevels <= textureDesc.m_uiMipLevelCount, "Mip level range is out of bounds");
+        const WUInt32 uiSlices = (textureDesc.m_Type == WGALTextureType::TextureCube || textureDesc.m_Type == WGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+        W_ASSERT_ALWAYS(textureDesc.m_Type != WGALTextureType::Texture2DProxy, "Proxy textures must be resolved to their base texture before binding");
+        W_ASSERT_ALWAYS(range.m_uiBaseArraySlice < uiSlices, "Base array slice is out of bounds");
+        W_ASSERT_ALWAYS(range.m_uiBaseMipLevel < textureDesc.m_uiMipLevelCount, "Base array slice is out of bounds");
+        W_ASSERT_ALWAYS(range.m_uiMipLevels > 0, "Mip level count must be greater than 0");
+        W_ASSERT_ALWAYS(range.m_uiArraySlices > 0, "Array slices must be greater than 0");
+        W_ASSERT_ALWAYS(range.m_uiMipLevels == W_GAL_ALL_MIP_LEVELS || static_cast<WUInt32>(range.m_uiBaseMipLevel) + range.m_uiMipLevels <= textureDesc.m_uiMipLevelCount, "Mip level range is out of bounds");
 
-        EZ_ASSERT_ALWAYS(range.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES || static_cast<ezUInt32>(range.m_uiBaseArraySlice) + range.m_uiArraySlices <= uiSlices, "Array slice range is out of bounds");
-        EZ_ASSERT_ALWAYS(binding.m_TextureType != ezGALShaderTextureType::TextureCube || range.m_uiArraySlices == 6, "Cube textures must have 6 as array slices");
-        EZ_ASSERT_ALWAYS(binding.m_TextureType != ezGALShaderTextureType::TextureCubeArray || (range.m_uiArraySlices % 6) == 0, "Cube array textures must have array slices that are multiple of 6");
+        W_ASSERT_ALWAYS(range.m_uiArraySlices == W_GAL_ALL_ARRAY_SLICES || static_cast<WUInt32>(range.m_uiBaseArraySlice) + range.m_uiArraySlices <= uiSlices, "Array slice range is out of bounds");
+        W_ASSERT_ALWAYS(binding.m_TextureType != WGALShaderTextureType::TextureCube || range.m_uiArraySlices == 6, "Cube textures must have 6 as array slices");
+        W_ASSERT_ALWAYS(binding.m_TextureType != WGALShaderTextureType::TextureCubeArray || (range.m_uiArraySlices % 6) == 0, "Cube array textures must have array slices that are multiple of 6");
       }
       break;
-      case ezGALShaderResourceType::Unknown:
-      case ezGALShaderResourceType::PushConstants:
+      case WGALShaderResourceType::Unknown:
+      case WGALShaderResourceType::PushConstants:
       default:
-        EZ_REPORT_FAILURE("Unsupported Shader Resource Type: {}", ezArgEnum(binding.m_ResourceType));
+        W_REPORT_FAILURE("Unsupported Shader Resource Type: {}", WArgEnum(binding.m_ResourceType));
         break;
     }
   }

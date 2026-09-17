@@ -12,30 +12,30 @@
 ///
 /// Allows users to define their own asset types that can be created, edited and referenced in the editor without writing an editor plugin.
 ///
-/// In order to do that, subclass ezCustomData,
-/// and put the macro EZ_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData) into the header next to your custom type.
-/// Also put the macro EZ_DEFINE_CUSTOM_DATA_RESOURCE(YourCustomData) into the implementation file.
+/// In order to do that, subclass WCustomData,
+/// and put the macro W_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData) into the header next to your custom type.
+/// Also put the macro W_DEFINE_CUSTOM_DATA_RESOURCE(YourCustomData) into the implementation file.
 ///
 /// Those will also define resource and resource handle types, such as YourCustomDataResource and YourCustomDataResourceHandle.
 ///
 /// For a full example see SampleCustomData in the SampleGamePlugin.
-class EZ_CORE_DLL ezCustomData : public ezReflectedClass
+class W_CORE_DLL WCustomData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WCustomData, WReflectedClass);
 
 public:
   /// Loads the serialized custom data using a robust serialization-based method.
   ///
   /// This function does not need to be overridden. It will work, even if the properties change.
   /// It is only virtual in case you want to hook into the deserialization process.
-  virtual void Load(class ezAbstractObjectGraph& ref_graph, class ezRttiConverterContext& ref_context, const class ezAbstractObjectNode* pRootNode);
+  virtual void Load(class WAbstractObjectGraph& ref_graph, class WRttiConverterContext& ref_context, const class WAbstractObjectNode* pRootNode);
 };
 
-/// Base class for resources that represent different implementations of ezCustomData
+/// Base class for resources that represent different implementations of WCustomData
 ///
 /// These resources are automatically generated using these macros:
-///   EZ_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData)
-///   EZ_DEFINE_CUSTOM_DATA_RESOURCE(YourCustomData)
+///   W_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData)
+///   W_DEFINE_CUSTOM_DATA_RESOURCE(YourCustomData)
 ///
 /// Put the former into a header next to YourCustomData and the latter into a cpp file.
 ///
@@ -45,71 +45,71 @@ public:
 ///
 /// You can then use these to reference this resource type for example in components.
 /// For a full example search the SampleGamePlugin for SampleCustomDataResource and SampleCustomDataResourceHandle and see how they are used.
-class EZ_CORE_DLL ezCustomDataResourceBase : public ezResource
+class W_CORE_DLL WCustomDataResourceBase : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataResourceBase, ezResource);
+  W_ADD_DYNAMIC_REFLECTION(WCustomDataResourceBase, WResource);
 
 public:
-  ezCustomDataResourceBase();
-  ~ezCustomDataResourceBase();
+  WCustomDataResourceBase();
+  ~WCustomDataResourceBase();
 
 protected:
-  virtual void CreateAndLoadData(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode) = 0;
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  ezResourceLoadDesc UpdateContent_Internal(ezStreamReader* Stream, const ezRTTI& rtti);
+  virtual void CreateAndLoadData(WAbstractObjectGraph& ref_graph, WRttiConverterContext& ref_context, const WAbstractObjectNode* pRootNode) = 0;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  WResourceLoadDesc UpdateContent_Internal(WStreamReader* Stream, const WRTTI& rtti);
 };
 
-/// Template resource type for sub-classed ezCustomData types.
+/// Template resource type for sub-classed WCustomData types.
 ///
-/// See ezCustomDataResourceBase for details.
+/// See WCustomDataResourceBase for details.
 template <typename T>
-class ezCustomDataResource : public ezCustomDataResourceBase
+class WCustomDataResource : public WCustomDataResourceBase
 {
 public:
-  ezCustomDataResource();
-  ~ezCustomDataResource();
+  WCustomDataResource();
+  ~WCustomDataResource();
 
   /// Provides read access to the custom data type.
   ///
   /// Returns nullptr, if the resource wasn't loaded successfully.
-  const T* GetData() const { return GetLoadingState() == ezResourceState::Loaded ? reinterpret_cast<const T*>(m_Data) : nullptr; }
+  const T* GetData() const { return GetLoadingState() == WResourceState::Loaded ? reinterpret_cast<const T*>(m_Data) : nullptr; }
 
 protected:
-  virtual void CreateAndLoadData(ezAbstractObjectGraph& graph, ezRttiConverterContext& context, const ezAbstractObjectNode* pRootNode) override;
+  virtual void CreateAndLoadData(WAbstractObjectGraph& graph, WRttiConverterContext& context, const WAbstractObjectNode* pRootNode) override;
 
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
 
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
 
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
   struct alignas(alignof(T))
   {
-    ezUInt8 m_Data[sizeof(T)];
+    WUInt8 m_Data[sizeof(T)];
   };
 };
 
-/// Helper macro to declare a ezCustomDataResource<T> and a matching resource handle
+/// Helper macro to declare a WCustomDataResource<T> and a matching resource handle
 ///
-/// See ezCustomDataResourceBase for details.
-#define EZ_DECLARE_CUSTOM_DATA_RESOURCE(SELF)                              \
-  class SELF##Resource : public ezCustomDataResource<SELF>                 \
+/// See WCustomDataResourceBase for details.
+#define W_DECLARE_CUSTOM_DATA_RESOURCE(SELF)                              \
+  class SELF##Resource : public WCustomDataResource<SELF>                 \
   {                                                                        \
-    EZ_ADD_DYNAMIC_REFLECTION(SELF##Resource, ezCustomDataResource<SELF>); \
-    EZ_RESOURCE_DECLARE_COMMON_CODE(SELF##Resource);                       \
+    W_ADD_DYNAMIC_REFLECTION(SELF##Resource, WCustomDataResource<SELF>); \
+    W_RESOURCE_DECLARE_COMMON_CODE(SELF##Resource);                       \
   };                                                                       \
                                                                            \
-  using SELF##ResourceHandle = ezTypedResourceHandle<SELF##Resource>
+  using SELF##ResourceHandle = WTypedResourceHandle<SELF##Resource>
 
-/// Helper macro to define a ezCustomDataResource<T>
+/// Helper macro to define a WCustomDataResource<T>
 ///
-/// See ezCustomDataResourceBase for details.
-#define EZ_DEFINE_CUSTOM_DATA_RESOURCE(SELF)                                                 \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SELF##Resource, 1, ezRTTIDefaultAllocator<SELF##Resource>) \
-  EZ_END_DYNAMIC_REFLECTED_TYPE;                                                             \
+/// See WCustomDataResourceBase for details.
+#define W_DEFINE_CUSTOM_DATA_RESOURCE(SELF)                                                 \
+  W_BEGIN_DYNAMIC_REFLECTED_TYPE(SELF##Resource, 1, WRTTIDefaultAllocator<SELF##Resource>) \
+  W_END_DYNAMIC_REFLECTED_TYPE;                                                             \
                                                                                              \
-  EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF##Resource)
+  W_RESOURCE_IMPLEMENT_COMMON_CODE(SELF##Resource)
 
 
 #include <Core/Utils/Implementation/CustomData_inl.h>

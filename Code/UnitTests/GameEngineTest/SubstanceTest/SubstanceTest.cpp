@@ -6,35 +6,35 @@
 
 #include <optional>
 
-static ezGameEngineTestSubstance s_GameEngineTestAnimations;
+static WGameEngineTestSubstance s_GameEngineTestAnimations;
 
-const char* ezGameEngineTestSubstance::GetTestName() const
+const char* WGameEngineTestSubstance::GetTestName() const
 {
   return "Substance Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestSubstance::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestSubstance::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "Substance");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "Substance");
   return m_pOwnApplication;
 }
 
 // static
-bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
+bool WGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   static std::optional<bool> s_Cache;
   if (s_Cache.has_value())
   {
     return *s_Cache;
   }
 
-  auto CheckPath = [&](ezStringView sPath)
+  auto CheckPath = [&](WStringView sPath)
   {
-    ezStringBuilder path = sPath;
+    WStringBuilder path = sPath;
     path.AppendPath("sbscooker.exe");
 
-    if (ezOSFile::ExistsFile(path))
+    if (WOSFile::ExistsFile(path))
     {
       s_Cache = true;
       return true;
@@ -43,7 +43,7 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
     return false;
   };
 
-  ezStringBuilder sPath = "C:/Program Files/Allegorithmic/Substance Designer";
+  WStringBuilder sPath = "C:/Program Files/Allegorithmic/Substance Designer";
   if (CheckPath(sPath))
     return true;
 
@@ -54,19 +54,19 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 #endif
 }
 
-void ezGameEngineTestSubstance::SetupSubTests()
+void WGameEngineTestSubstance::SetupSubTests()
 {
   AddSubTest("Basics", SubTests::Basics);
 }
 
-ezResult ezGameEngineTestSubstance::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestSubstance::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   if (HasSubstanceDesignerInstalled() == false)
   {
-    ezLog::Warning("Substance Designer is not installed. Skipping test.");
-    return EZ_SUCCESS;
+    WLog::Warning("Substance Designer is not installed. Skipping test.");
+    return W_SUCCESS;
   }
 
   m_iFrame = -1;
@@ -77,37 +77,37 @@ ezResult ezGameEngineTestSubstance::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(9);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.WBinScene"));
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestSubstance::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestSubstance::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   if (HasSubstanceDesignerInstalled() == false)
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
+  const bool bVulkan = WGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    W_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

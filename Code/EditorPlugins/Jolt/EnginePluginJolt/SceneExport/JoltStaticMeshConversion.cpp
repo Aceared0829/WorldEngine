@@ -5,10 +5,10 @@
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
 #include <JoltPlugin/Resources/JoltMeshResourceWriter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_JoltStaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_JoltStaticMeshConversion>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_JoltStaticMeshConversion, 1, WRTTIDefaultAllocator<WSceneExportModifier_JoltStaticMeshConversion>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
   if (sDocumentType == "Prefab")
   {
@@ -23,12 +23,12 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
     }
   }
 
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  ezSmcDescription desc;
+  WSmcDescription desc;
   desc.m_Surfaces.PushBack(); // add a dummy empty material
 
-  ezMsgBuildStaticMesh msg;
+  WMsgBuildStaticMesh msg;
   msg.m_pStaticMeshDescription = &desc;
 
   for (auto it = ref_world.GetObjects(); it.IsValid(); ++it)
@@ -42,15 +42,15 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   if (desc.m_SubMeshes.IsEmpty() || desc.m_Vertices.IsEmpty() || desc.m_Triangles.IsEmpty())
     return;
 
-  const ezUInt32 uiNumVertices = desc.m_Vertices.GetCount();
-  const ezUInt32 uiNumTriangles = desc.m_Triangles.GetCount();
-  const ezUInt32 uiNumSubMeshes = desc.m_SubMeshes.GetCount();
+  const WUInt32 uiNumVertices = desc.m_Vertices.GetCount();
+  const WUInt32 uiNumTriangles = desc.m_Triangles.GetCount();
+  const WUInt32 uiNumSubMeshes = desc.m_SubMeshes.GetCount();
 
-  ezJoltMeshDesc meshDesc;
-  meshDesc.m_Type = ezJoltMeshDesc::Type::Triangle;
+  WJoltMeshDesc meshDesc;
+  meshDesc.m_Type = WJoltMeshDesc::Type::Triangle;
   meshDesc.m_Vertices.SetCountUninitialized(uiNumVertices);
 
-  for (ezUInt32 i = 0; i < uiNumVertices; ++i)
+  for (WUInt32 i = 0; i < uiNumVertices; ++i)
   {
     meshDesc.m_Vertices[i] = desc.m_Vertices[i];
   }
@@ -58,7 +58,7 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   meshDesc.m_TriangleIndices.SetCountUninitialized(uiNumTriangles * 3);
   meshDesc.m_TriangleSurfaceID.SetCount(uiNumTriangles);
 
-  for (ezUInt32 i = 0; i < uiNumTriangles; ++i)
+  for (WUInt32 i = 0; i < uiNumTriangles; ++i)
   {
     meshDesc.m_TriangleIndices[i * 3 + 0] = desc.m_Triangles[i].m_uiVertexIndices[0];
     meshDesc.m_TriangleIndices[i * 3 + 1] = desc.m_Triangles[i].m_uiVertexIndices[1];
@@ -68,57 +68,57 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   // copy materials
   // we could collate identical materials here and merge meshes, but the mesh cooking will probably do the same already
   {
-    for (ezUInt32 i = 0; i < desc.m_Surfaces.GetCount(); ++i)
+    for (WUInt32 i = 0; i < desc.m_Surfaces.GetCount(); ++i)
     {
       meshDesc.m_Surfaces.PushBack(desc.m_Surfaces[i]);
     }
 
-    for (ezUInt32 i = 0; i < uiNumSubMeshes; ++i)
+    for (WUInt32 i = 0; i < uiNumSubMeshes; ++i)
     {
-      const ezUInt32 uiLastTriangle = desc.m_SubMeshes[i].m_uiFirstTriangle + desc.m_SubMeshes[i].m_uiNumTriangles;
-      const ezUInt16 uiSurface = desc.m_SubMeshes[i].m_uiSurfaceIndex;
+      const WUInt32 uiLastTriangle = desc.m_SubMeshes[i].m_uiFirstTriangle + desc.m_SubMeshes[i].m_uiNumTriangles;
+      const WUInt16 uiSurface = desc.m_SubMeshes[i].m_uiSurfaceIndex;
 
-      for (ezUInt32 t = desc.m_SubMeshes[i].m_uiFirstTriangle; t < uiLastTriangle; ++t)
+      for (WUInt32 t = desc.m_SubMeshes[i].m_uiFirstTriangle; t < uiLastTriangle; ++t)
       {
         meshDesc.m_TriangleSurfaceID[t] = uiSurface;
       }
     }
   }
 
-  ezStringBuilder sDocGuid, sOutputFile;
-  ezConversionUtils::ToString(documentGuid, sDocGuid);
+  WStringBuilder sDocGuid, sOutputFile;
+  WConversionUtils::ToString(documentGuid, sDocGuid);
 
-  sOutputFile.SetFormat(":project/AssetCache/Generated/{0}.ezJoltMesh", sDocGuid);
+  sOutputFile.SetFormat(":project/AssetCache/Generated/{0}.WJoltMesh", sDocGuid);
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sOutputFile);
 
-  if (ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), file).Failed())
+  if (WJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), file).Failed())
   {
-    ezLog::Error("Could not write to global collision mesh file");
+    WLog::Error("Could not write to global collision mesh file");
     return;
   }
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Could not write to global collision mesh file");
+    WLog::Error("Could not write to global collision mesh file");
     return;
   }
 
   {
-    ezGameObject* pGo;
-    ezGameObjectDesc god;
+    WGameObject* pGo;
+    WGameObjectDesc god;
     god.m_sName.Assign("Greybox Collision Mesh");
     ref_world.CreateObject(god, pGo);
 
-    auto* pCompMan = ref_world.GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
+    auto* pCompMan = ref_world.GetOrCreateComponentManager<WJoltStaticActorComponentManager>();
 
-    ezJoltStaticActorComponent* pComp;
+    WJoltStaticActorComponent* pComp;
     pCompMan->CreateComponent(pGo, pComp);
 
     if (!sOutputFile.IsEmpty())
     {
-      ezJoltMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(sOutputFile);
+      WJoltMeshResourceHandle hMesh = WResourceManager::LoadResource<WJoltMeshResource>(sOutputFile);
       pComp->SetMesh(hMesh);
     }
   }

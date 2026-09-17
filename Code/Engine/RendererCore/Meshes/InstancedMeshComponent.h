@@ -3,37 +3,37 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-struct ezPerInstanceData;
-struct ezRenderWorldRenderEvent;
-class ezInstancedMeshComponent;
-struct ezMsgExtractGeometry;
-class ezStreamWriter;
-class ezStreamReader;
+struct WPerInstanceData;
+struct WRenderWorldRenderEvent;
+class WInstancedMeshComponent;
+struct WMsgExtractGeometry;
+class WStreamWriter;
+class WStreamReader;
 
-struct EZ_RENDERERCORE_DLL ezMeshInstanceData
+struct W_RENDERERCORE_DLL WMeshInstanceData
 {
-  void SetLocalPosition(ezVec3 vPosition);
-  ezVec3 GetLocalPosition() const;
+  void SetLocalPosition(WVec3 vPosition);
+  WVec3 GetLocalPosition() const;
 
-  void SetLocalRotation(ezQuat qRotation);
-  ezQuat GetLocalRotation() const;
+  void SetLocalRotation(WQuat qRotation);
+  WQuat GetLocalRotation() const;
 
-  void SetLocalScaling(ezVec3 vScaling);
-  ezVec3 GetLocalScaling() const;
+  void SetLocalScaling(WVec3 vScaling);
+  WVec3 GetLocalScaling() const;
 
-  ezResult Serialize(ezStreamWriter& ref_writer) const;
-  ezResult Deserialize(ezStreamReader& ref_reader);
+  WResult Serialize(WStreamWriter& ref_writer) const;
+  WResult Deserialize(WStreamReader& ref_reader);
 
-  ezTransform m_transform;
+  WTransform m_transform;
 
-  ezColor m_color;
+  WColor m_color;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshInstanceData);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WMeshInstanceData);
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezInstancedMeshComponentManager = ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>;
+using WInstancedMeshComponentManager = WComponentManager<class WInstancedMeshComponent, WBlockStorageType::Compact>;
 
 /// Renders multiple instances of the same mesh.
 ///
@@ -45,44 +45,44 @@ using ezInstancedMeshComponentManager = ezComponentManager<class ezInstancedMesh
 ///
 /// However, editing instanced mesh components isn't very convenient, so usually this component would be created and configured
 /// in code, rather than by hand in the editor. For example a procedural plant placement system could use this.
-class EZ_RENDERERCORE_DLL ezInstancedMeshComponent : public ezMeshComponentBase
+class W_RENDERERCORE_DLL WInstancedMeshComponent : public WMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezInstancedMeshComponent, ezMeshComponentBase, ezInstancedMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WInstancedMeshComponent, WMeshComponentBase, WInstancedMeshComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezInstancedMeshComponent
+  // WInstancedMeshComponent
 
 public:
-  ezInstancedMeshComponent();
-  ~ezInstancedMeshComponent();
+  WInstancedMeshComponent();
+  ~WInstancedMeshComponent();
 
   /// Extracts the render geometry for export etc.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg);            // [ msg handler ]
+  void OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg);            // [ msg handler ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;      // [ msg handler ]
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;      // [ msg handler ]
 
-  ezUInt32 Instances_GetCount() const;                                 // [ property ]
-  ezMeshInstanceData Instances_GetValue(ezUInt32 uiIndex) const;       // [ property ]
-  void Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value); // [ property ]
-  void Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value);   // [ property ]
-  void Instances_Remove(ezUInt32 uiIndex);                             // [ property ]
+  WUInt32 Instances_GetCount() const;                                 // [ property ]
+  WMeshInstanceData Instances_GetValue(WUInt32 uiIndex) const;       // [ property ]
+  void Instances_SetValue(WUInt32 uiIndex, WMeshInstanceData value); // [ property ]
+  void Instances_Insert(WUInt32 uiIndex, WMeshInstanceData value);   // [ property ]
+  void Instances_Remove(WUInt32 uiIndex);                             // [ property ]
 
   // Unpacked, reflected instance data for editing and ease of access
-  ezDynamicArray<ezMeshInstanceData> m_RawInstancedData;
+  WDynamicArray<WMeshInstanceData> m_RawInstancedData;
 
   float m_fBoundingSphereRadius = 1.0f;
 };

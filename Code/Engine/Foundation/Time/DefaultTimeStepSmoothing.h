@@ -11,14 +11,14 @@
 ///
 /// This class implements that algorithm pretty much verbatim.
 /// It does not implement keeping track of the time dept and paying that off later, though.
-class EZ_FOUNDATION_DLL ezDefaultTimeStepSmoothing : public ezTimeStepSmoothing
+class W_FOUNDATION_DLL WDefaultTimeStepSmoothing : public WTimeStepSmoothing
 {
 public:
-  ezDefaultTimeStepSmoothing();
+  WDefaultTimeStepSmoothing();
 
-  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) override;
+  virtual WTime GetSmoothedTimeStep(WTime rawTimeStep, const WClock* pClock) override;
 
-  virtual void Reset(const ezClock* pClock) override;
+  virtual void Reset(const WClock* pClock) override;
 
   /// Changes the factor with which to lerp from the last used time step to the new average time step. Default is 0.2
   ///
@@ -28,6 +28,6 @@ public:
 
 private:
   float m_fLerpFactor;
-  ezTime m_LastTimeStepTaken;
-  ezStaticRingBuffer<ezTime, 11> m_LastTimeSteps;
+  WTime m_LastTimeStepTaken;
+  WStaticRingBuffer<WTime, 11> m_LastTimeSteps;
 };

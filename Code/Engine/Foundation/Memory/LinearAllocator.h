@@ -28,17 +28,17 @@
 /// - Stack-like allocation pattern
 /// - High allocation frequency (parsing, temporary buffers)
 /// - Frame-based or scope-based memory management
-template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default, bool OverwriteMemoryOnReset = false>
-class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>
+template <WAllocatorTrackingMode TrackingMode = WAllocatorTrackingMode::Default, bool OverwriteMemoryOnReset = false>
+class WLinearAllocator : public WAllocatorWithPolicy<WAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>
 {
-  using SUPER = ezAllocatorWithPolicy<ezAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>;
-  using PolicyLinear = ezAllocPolicyLinear<OverwriteMemoryOnReset>;
+  using SUPER = WAllocatorWithPolicy<WAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>;
+  using PolicyLinear = WAllocPolicyLinear<OverwriteMemoryOnReset>;
 
 public:
-  ezLinearAllocator(ezStringView sName, ezAllocator* pParent, ezUInt32 uiInitialSize);
-  ~ezLinearAllocator();
+  WLinearAllocator(WStringView sName, WAllocator* pParent, WUInt32 uiInitialSize);
+  ~WLinearAllocator();
 
-  virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
+  virtual void* Allocate(size_t uiSize, size_t uiAlign, WMemoryUtils::DestructorFunction destructorFunc) override;
   virtual void Deallocate(void* pPtr) override;
 
   /// Resets the allocator, freeing all memory and calling destructors.
@@ -51,15 +51,15 @@ public:
 private:
   struct DestructData
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezMemoryUtils::DestructorFunction m_Func;
+    WMemoryUtils::DestructorFunction m_Func;
     void* m_Ptr;
   };
 
-  ezMutex m_Mutex;
-  ezDynamicArray<DestructData> m_DestructData;
-  ezHashTable<void*, ezUInt32> m_PtrToDestructDataIndexTable;
+  WMutex m_Mutex;
+  WDynamicArray<DestructData> m_DestructData;
+  WHashTable<void*, WUInt32> m_PtrToDestructDataIndexTable;
 };
 
 #include <Foundation/Memory/Implementation/LinearAllocator_inl.h>

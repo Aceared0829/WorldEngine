@@ -4,36 +4,36 @@
 
 #include <Core/World/ComponentManager.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
-using ezCreatureCrawlComponentManager = ezComponentManagerSimple<class ezCreatureCrawlComponent, ezComponentUpdateType::WhenSimulating>;
+using WCreatureCrawlComponentManager = WComponentManagerSimple<class WCreatureCrawlComponent, WComponentUpdateType::WhenSimulating>;
 
-struct ezCreatureLeg
+struct WCreatureLeg
 {
-  ezHashedString m_sLegObject;
-  ezUInt8 m_uiStepGroup = 0;
+  WHashedString m_sLegObject;
+  WUInt8 m_uiStepGroup = 0;
 
-  ezVec3 m_vRestPositionRelative;
-  ezGameObjectHandle m_hLegObject;
-  ezVec3 m_vCurTargetPosAbs;
+  WVec3 m_vRestPositionRelative;
+  WGameObjectHandle m_hLegObject;
+  WVec3 m_vCurTargetPosAbs;
   float m_fMoveLegFactor;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezCreatureLeg);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMECOMPONENTS_DLL, WCreatureLeg);
 
-class EZ_GAMECOMPONENTS_DLL ezCreatureCrawlComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WCreatureCrawlComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezCreatureCrawlComponent, ezComponent, ezCreatureCrawlComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WCreatureCrawlComponent, WComponent, WCreatureCrawlComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCreatureCrawlComponent
+  // WCreatureCrawlComponent
 
 protected:
   void Update();
@@ -41,8 +41,8 @@ protected:
   void OnSimulationStarted() override;
 
 public:
-  ezCreatureCrawlComponent();
-  ~ezCreatureCrawlComponent();
+  WCreatureCrawlComponent();
+  ~WCreatureCrawlComponent();
 
   void SetBodyReference(const char* szReference); // [ property ]
 
@@ -52,12 +52,12 @@ public:
   float m_fMinLegDistance = 0.5f;
 
 protected:
-  ezGameObjectHandle m_hBody;             // [ property ]
-  ezHybridArray<ezCreatureLeg, 4> m_Legs; // [ property ]
+  WGameObjectHandle m_hBody;             // [ property ]
+  WHybridArray<WCreatureLeg, 4> m_Legs; // [ property ]
 
-  const ezPhysicsWorldModuleInterface* m_pPhysicsInterface = nullptr;
-  ezTime m_LastMove;
-  ezQuat m_qBodyTilt = ezQuat::MakeIdentity();
+  const WPhysicsWorldModuleInterface* m_pPhysicsInterface = nullptr;
+  WTime m_LastMove;
+  WQuat m_qBodyTilt = WQuat::MakeIdentity();
 
 private:
   const char* DummyGetter() const { return nullptr; }

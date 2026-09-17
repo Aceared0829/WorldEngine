@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ImGui)
+W_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ImGui)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -26,54 +26,54 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ImGui)
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    if (ezImgui::GetSingleton() != nullptr)
+    if (WImgui::GetSingleton() != nullptr)
     {
-      ezImgui* pImgui = ezImgui::GetSingleton();
-      EZ_DEFAULT_DELETE(pImgui);
+      WImgui* pImgui = WImgui::GetSingleton();
+      W_DEFAULT_DELETE(pImgui);
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 namespace
 {
-  void* ezImguiAllocate(size_t uiSize, void* pUserData)
+  void* WImguiAllocate(size_t uiSize, void* pUserData)
   {
-    ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
-    return pAllocator->Allocate(uiSize, EZ_ALIGNMENT_MINIMUM);
+    WAllocator* pAllocator = static_cast<WAllocator*>(pUserData);
+    return pAllocator->Allocate(uiSize, W_ALIGNMENT_MINIMUM);
   }
 
-  void ezImguiDeallocate(void* pPtr, void* pUserData)
+  void WImguiDeallocate(void* pPtr, void* pUserData)
   {
     if (pPtr != nullptr)
     {
-      ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
+      WAllocator* pAllocator = static_cast<WAllocator*>(pUserData);
       pAllocator->Deallocate(pPtr);
     }
   }
 } // namespace
 
-EZ_IMPLEMENT_SINGLETON(ezImgui);
+W_IMPLEMENT_SINGLETON(WImgui);
 
-ezImgui::ezImgui(ezImguiConfigFontCallback configFontCallback, ezImguiConfigStyleCallback configStyleCallback)
+WImgui::WImgui(WImguiConfigFontCallback configFontCallback, WImguiConfigStyleCallback configStyleCallback)
   : m_SingletonRegistrar(this)
-  , m_Allocator("ImGui", ezFoundation::GetDefaultAllocator())
+  , m_Allocator("ImGui", WFoundation::GetDefaultAllocator())
   , m_ConfigStyleCallback(configStyleCallback)
 {
   Startup(configFontCallback);
 }
 
-ezImgui::~ezImgui()
+WImgui::~WImgui()
 {
   Shutdown();
 }
 
-void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
+void WImgui::SetCurrentContextForView(const WViewHandle& hView)
 {
-  EZ_LOCK(m_ViewToContextTableMutex);
+  W_LOCK(m_ViewToContextTableMutex);
 
   Context& context = m_ViewToContextTable[hView];
   if (context.m_pImGuiContext == nullptr)
@@ -83,7 +83,7 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
 
   ImGui::SetCurrentContext(context.m_pImGuiContext);
 
-  ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
+  WUInt64 uiCurrentFrameCounter = WRenderWorld::GetFrameCounter();
   if (context.m_uiFrameBeginCounter != uiCurrentFrameCounter)
   {
     // Last frame was not rendered. This can happen if a render pipeline with dear imgui renderer is used.
@@ -97,43 +97,43 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
   }
 }
 
-ImTextureID ezImgui::RegisterTexture(const ezTexture2DResourceHandle& hTexture)
+ImTextureID WImgui::RegisterTexture(const WTexture2DResourceHandle& hTexture)
 {
-  ezImGuiTextureRegistration reg;
-  reg.m_Type = ezImGuiTextureRegistration::Type::Texture2D;
+  WImGuiTextureRegistration reg;
+  reg.m_Type = WImGuiTextureRegistration::Type::Texture2D;
   reg.m_hTexture2D = hTexture;
-  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  WImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
   return *reinterpret_cast<ImTextureID*>(&handle);
 }
 
-ImTextureID ezImgui::RegisterTexture(ezGALTextureHandle hTexture)
+ImTextureID WImgui::RegisterTexture(WGALTextureHandle hTexture)
 {
-  ezImGuiTextureRegistration reg;
-  reg.m_Type = ezImGuiTextureRegistration::Type::GALTexture;
+  WImGuiTextureRegistration reg;
+  reg.m_Type = WImGuiTextureRegistration::Type::GALTexture;
   reg.m_hGALTexture = hTexture;
-  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  WImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
   return *reinterpret_cast<ImTextureID*>(&handle);
 }
 
-ImTextureID ezImgui::RegisterMaterial(const ezMaterialResourceHandle& hMaterial)
+ImTextureID WImgui::RegisterMaterial(const WMaterialResourceHandle& hMaterial)
 {
-  ezImGuiTextureRegistration reg;
-  reg.m_Type = ezImGuiTextureRegistration::Type::Material;
+  WImGuiTextureRegistration reg;
+  reg.m_Type = WImGuiTextureRegistration::Type::Material;
   reg.m_hMaterial = hMaterial;
-  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  WImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
   return *reinterpret_cast<ImTextureID*>(&handle);
 }
 
-void ezImgui::UnregisterResource(ImTextureID id)
+void WImgui::UnregisterResource(ImTextureID id)
 {
-  ezImGuiTextureIdData handle = *reinterpret_cast<ezImGuiTextureIdData*>(&id);
+  WImGuiTextureIdData handle = *reinterpret_cast<WImGuiTextureIdData*>(&id);
   if (!m_RegisteredTextures.Contains(handle))
     return;
 
   m_RegisteredTextures.Remove(handle);
 }
 
-void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID texId, const ezVec2& vUv0, const ezVec2& vUv1)
+void WImgui::RegisterImage(WTempHashedString sName, ImTextureID texId, const WVec2& vUv0, const WVec2& vUv1)
 {
   auto& img = m_Images[sName];
   img.m_Id = texId;
@@ -141,12 +141,12 @@ void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID texId, const e
   img.m_UV1 = vUv1;
 }
 
-bool ezImgui::AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor, const ezColor& tintColor) const
+bool WImgui::AddImageButton(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, const WColor& backgroundColor, const WColor& tintColor) const
 {
   Image* pImg;
   if (!m_Images.TryGetValue(sImgId, pImg))
   {
-    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    W_ASSERT_DEBUG(false, "Unknown image identifier");
     return false;
   }
 
@@ -154,12 +154,12 @@ bool ezImgui::AddImageButton(ezTempHashedString sImgId, const char* szImguiID, c
 }
 
 
-void ezImgui::AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor, const ezColor& borderColor) const
+void WImgui::AddImage(WTempHashedString sImgId, const WVec2& vImageSize, const WColor& tintColor, const WColor& borderColor) const
 {
   Image* pImg;
   if (!m_Images.TryGetValue(sImgId, pImg))
   {
-    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    W_ASSERT_DEBUG(false, "Unknown image identifier");
     return;
   }
 
@@ -167,12 +167,12 @@ void ezImgui::AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, cons
 }
 
 
-bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor) const
+bool WImgui::AddImageButtonWithProgress(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, float fProgress, const WColor& overlayColor, const WColor& tintColor) const
 {
   Image* pImg;
   if (!m_Images.TryGetValue(sImgId, pImg))
   {
-    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    W_ASSERT_DEBUG(false, "Unknown image identifier");
     return false;
   }
 
@@ -213,7 +213,7 @@ bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* 
   ImVec2 min = bb.Min;
   ImVec2 max = bb.Max;
 
-  min.x = ezMath::Lerp(min.x, max.x, fProgress);
+  min.x = WMath::Lerp(min.x, max.x, fProgress);
 
   const ImVec4 overlayCol = reinterpret_cast<const ImVec4&>(overlayColor);
   window->DrawList->AddRectFilled(min, max, ImGui::GetColorU32(overlayCol));
@@ -221,12 +221,12 @@ bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* 
   return pressed;
 }
 
-void ezImgui::AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor) const
+void WImgui::AddImageWithProgress(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, float fProgress, const WColor& overlayColor, const WColor& tintColor) const
 {
   Image* pImg;
   if (!m_Images.TryGetValue(sImgId, pImg))
   {
-    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    W_ASSERT_DEBUG(false, "Unknown image identifier");
     return;
   }
 
@@ -257,17 +257,17 @@ void ezImgui::AddImageWithProgress(ezTempHashedString sImgId, const char* szImgu
   ImVec2 min = bb.Min;
   ImVec2 max = bb.Max;
 
-  min.x = ezMath::Lerp(min.x, max.x, fProgress);
+  min.x = WMath::Lerp(min.x, max.x, fProgress);
 
   const ImVec4 overlayCol = reinterpret_cast<const ImVec4&>(overlayColor);
   window->DrawList->AddRectFilled(min, max, ImGui::GetColorU32(overlayCol));
 }
 
-void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
+void WImgui::Startup(WImguiConfigFontCallback configFontCallback)
 {
-  ImGui::SetAllocatorFunctions(&ezImguiAllocate, &ezImguiDeallocate, &m_Allocator);
+  ImGui::SetAllocatorFunctions(&WImguiAllocate, &WImguiDeallocate, &m_Allocator);
 
-  m_pSharedFontAtlas = EZ_DEFAULT_NEW(ImFontAtlas);
+  m_pSharedFontAtlas = W_DEFAULT_NEW(ImFontAtlas);
 
   if (configFontCallback.IsValid())
   {
@@ -282,30 +282,30 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
                                                                     // concept than just a GL texture id, consider calling
                                                                     // GetTexDataAsAlpha8() instead to save on GPU memory.
 
-  ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
+  WTexture2DResourceHandle hFont = WResourceManager::GetExistingResource<WTexture2DResource>("ImguiFont");
 
   if (!hFont.IsValid())
   {
-    ezGALSystemMemoryDescription memoryDesc;
-    memoryDesc.m_pData = ezMakeByteBlobPtr(pixels, ezUInt32(width * height * 4));
+    WGALSystemMemoryDescription memoryDesc;
+    memoryDesc.m_pData = WMakeByteBlobPtr(pixels, WUInt32(width * height * 4));
     memoryDesc.m_uiRowPitch = width * 4;
     memoryDesc.m_uiSlicePitch = width * height * 4;
 
-    ezTexture2DResourceDescriptor desc;
+    WTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = width;
     desc.m_DescGAL.m_uiHeight = height;
-    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+    desc.m_DescGAL.m_Format = WGALResourceFormat::RGBAUByteNormalized;
+    desc.m_InitialContent = WMakeArrayPtr(&memoryDesc, 1);
 
-    hFont = ezResourceManager::GetOrCreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
+    hFont = WResourceManager::GetOrCreateResource<WTexture2DResource>("ImguiFont", std::move(desc));
   }
 
   m_pSharedFontAtlas->TexID = RegisterTexture(hFont);
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
+  WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(WMakeDelegate(&WImgui::GameApplicationEventHandler, this));
 }
 
-void ezImgui::Shutdown()
+void WImgui::Shutdown()
 {
   if (m_pSharedFontAtlas)
   {
@@ -313,8 +313,8 @@ void ezImgui::Shutdown()
   }
   m_pSharedFontAtlas = nullptr;
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
-  EZ_ASSERT_DEV(m_RegisteredTextures.IsEmpty(), "Not all registered textures were unregistered. You need to call 'UnregisterResource' before shutdown.");
+  WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(WMakeDelegate(&WImgui::GameApplicationEventHandler, this));
+  W_ASSERT_DEV(m_RegisteredTextures.IsEmpty(), "Not all registered textures were unregistered. You need to call 'UnregisterResource' before shutdown.");
   m_RegisteredTextures.Clear();
 
 
@@ -328,7 +328,7 @@ void ezImgui::Shutdown()
   m_ViewToContextTable.Clear();
 }
 
-ImGuiContext* ezImgui::CreateContext()
+ImGuiContext* WImgui::CreateContext()
 {
   // imgui reads the global context pointer WHILE creating a new context
   // so if we don't reset it to null here, it will try to access it, and crash
@@ -336,7 +336,7 @@ ImGuiContext* ezImgui::CreateContext()
   ImGui::SetCurrentContext(nullptr);
   ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
 
-  m_pTextScaleCVar = (ezCVarFloat*)ezCVar::FindCVarByName("App.TextScale");
+  m_pTextScaleCVar = (WCVarFloat*)WCVar::FindCVarByName("App.TextScale");
 
   ImGuiIO& cfg = ImGui::GetIO();
 
@@ -353,16 +353,16 @@ ImGuiContext* ezImgui::CreateContext()
   return context;
 }
 
-void ezImgui::BeginFrame(const ezViewHandle& hView)
+void WImgui::BeginFrame(const WViewHandle& hView)
 {
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(hView, pView))
+  WView* pView = nullptr;
+  if (!WRenderWorld::TryGetView(hView, pView))
   {
     return;
   }
 
   auto viewport = pView->GetViewport();
-  m_CurrentWindowResolution = ezSizeU32(static_cast<ezUInt32>(viewport.width), static_cast<ezUInt32>(viewport.height));
+  m_CurrentWindowResolution = WSizeU32(static_cast<WUInt32>(viewport.width), static_cast<WUInt32>(viewport.height));
 
   ImGuiIO& cfg = ImGui::GetIO();
 
@@ -373,72 +373,72 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   cfg.DisplaySize.x = viewport.width;
   cfg.DisplaySize.y = viewport.height;
-  cfg.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+  cfg.DeltaTime = (float)WClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
 
   if (m_bPassInputToImgui)
   {
-    const ezString sChars = ezInputManager::RetrieveLastCharacters(false);
+    const WString sChars = WInputManager::RetrieveLastCharacters(false);
     cfg.AddInputCharactersUTF8(sChars.GetData());
 
     float mousex, mousey;
-    if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) != ezKeyState::Up)
+    if (WInputManager::GetInputSlotState(WInputSlot_TouchPoint0) != WKeyState::Up)
     {
-      ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionX, &mousex);
-      ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionY, &mousey);
+      WInputManager::GetInputSlotState(WInputSlot_TouchPoint0_PositionX, &mousex);
+      WInputManager::GetInputSlotState(WInputSlot_TouchPoint0_PositionY, &mousey);
       cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
-      cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) >= ezKeyState::Pressed);
+      cfg.AddMouseButtonEvent(0, WInputManager::GetInputSlotState(WInputSlot_TouchPoint0) >= WKeyState::Pressed);
       cfg.AddMouseButtonEvent(1, false);
       cfg.AddMouseButtonEvent(2, false);
     }
     else
     {
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousex);
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousey);
+      WInputManager::GetInputSlotState(WInputSlot_MousePositionX, &mousex);
+      WInputManager::GetInputSlotState(WInputSlot_MousePositionY, &mousey);
       cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
-      cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton0) >= ezKeyState::Pressed);
-      cfg.AddMouseButtonEvent(1, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) >= ezKeyState::Pressed);
-      cfg.AddMouseButtonEvent(2, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton2) >= ezKeyState::Pressed);
+      cfg.AddMouseButtonEvent(0, WInputManager::GetInputSlotState(WInputSlot_MouseButton0) >= WKeyState::Pressed);
+      cfg.AddMouseButtonEvent(1, WInputManager::GetInputSlotState(WInputSlot_MouseButton1) >= WKeyState::Pressed);
+      cfg.AddMouseButtonEvent(2, WInputManager::GetInputSlotState(WInputSlot_MouseButton2) >= WKeyState::Pressed);
     }
 
     float fMouseWheel = 0;
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
+    if (WInputManager::GetInputSlotState(WInputSlot_MouseWheelDown) == WKeyState::Pressed)
       fMouseWheel = -1;
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
+    if (WInputManager::GetInputSlotState(WInputSlot_MouseWheelUp) == WKeyState::Pressed)
       fMouseWheel = +1;
     cfg.AddMouseWheelEvent(0, fMouseWheel);
 
 
 
-    cfg.AddKeyEvent(ImGuiKey_LeftAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_RightAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_LeftCtrl, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_RightCtrl, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_LeftShift, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_RightShift, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_LeftSuper, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_RightSuper, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftAlt, WInputManager::GetInputSlotState(WInputSlot_KeyLeftAlt) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightAlt, WInputManager::GetInputSlotState(WInputSlot_KeyRightAlt) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftCtrl, WInputManager::GetInputSlotState(WInputSlot_KeyLeftCtrl) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightCtrl, WInputManager::GetInputSlotState(WInputSlot_KeyRightCtrl) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftShift, WInputManager::GetInputSlotState(WInputSlot_KeyLeftShift) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightShift, WInputManager::GetInputSlotState(WInputSlot_KeyRightShift) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftSuper, WInputManager::GetInputSlotState(WInputSlot_KeyLeftWin) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightSuper, WInputManager::GetInputSlotState(WInputSlot_KeyRightWin) >= WKeyState::Pressed);
 
-    cfg.AddKeyEvent(ImGuiKey_Tab, ezInputManager::GetInputSlotState(ezInputSlot_KeyTab) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_LeftArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeft) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_RightArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyRight) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_UpArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyUp) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_DownArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyDown) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_PageUp, ezInputManager::GetInputSlotState(ezInputSlot_KeyPageUp) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_PageDown, ezInputManager::GetInputSlotState(ezInputSlot_KeyPageDown) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Home, ezInputManager::GetInputSlotState(ezInputSlot_KeyHome) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_End, ezInputManager::GetInputSlotState(ezInputSlot_KeyEnd) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Delete, ezInputManager::GetInputSlotState(ezInputSlot_KeyDelete) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Backspace, ezInputManager::GetInputSlotState(ezInputSlot_KeyBackspace) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Enter, ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed ||
-                                      ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Tab, WInputManager::GetInputSlotState(WInputSlot_KeyTab) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftArrow, WInputManager::GetInputSlotState(WInputSlot_KeyLeft) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightArrow, WInputManager::GetInputSlotState(WInputSlot_KeyRight) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_UpArrow, WInputManager::GetInputSlotState(WInputSlot_KeyUp) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_DownArrow, WInputManager::GetInputSlotState(WInputSlot_KeyDown) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_PageUp, WInputManager::GetInputSlotState(WInputSlot_KeyPageUp) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_PageDown, WInputManager::GetInputSlotState(WInputSlot_KeyPageDown) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Home, WInputManager::GetInputSlotState(WInputSlot_KeyHome) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_End, WInputManager::GetInputSlotState(WInputSlot_KeyEnd) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Delete, WInputManager::GetInputSlotState(WInputSlot_KeyDelete) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Backspace, WInputManager::GetInputSlotState(WInputSlot_KeyBackspace) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Enter, WInputManager::GetInputSlotState(WInputSlot_KeyReturn) >= WKeyState::Pressed ||
+                                      WInputManager::GetInputSlotState(WInputSlot_KeyNumpadEnter) >= WKeyState::Pressed);
 
-    cfg.AddKeyEvent(ImGuiKey_Escape, ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_A, ezInputManager::GetInputSlotState(ezInputSlot_KeyA) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_C, ezInputManager::GetInputSlotState(ezInputSlot_KeyC) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_V, ezInputManager::GetInputSlotState(ezInputSlot_KeyV) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_X, ezInputManager::GetInputSlotState(ezInputSlot_KeyX) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Y, ezInputManager::GetInputSlotState(ezInputSlot_KeyY) >= ezKeyState::Pressed);
-    cfg.AddKeyEvent(ImGuiKey_Z, ezInputManager::GetInputSlotState(ezInputSlot_KeyZ) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Escape, WInputManager::GetInputSlotState(WInputSlot_KeyEscape) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_A, WInputManager::GetInputSlotState(WInputSlot_KeyA) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_C, WInputManager::GetInputSlotState(WInputSlot_KeyC) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_V, WInputManager::GetInputSlotState(WInputSlot_KeyV) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_X, WInputManager::GetInputSlotState(WInputSlot_KeyX) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Y, WInputManager::GetInputSlotState(WInputSlot_KeyY) >= WKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Z, WInputManager::GetInputSlotState(WInputSlot_KeyZ) >= WKeyState::Pressed);
   }
   else
   {
@@ -450,9 +450,9 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   m_bImguiWantsInput = cfg.WantCaptureKeyboard || cfg.WantCaptureMouse;
 }
 
-void ezImgui::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
+void WImgui::GameApplicationEventHandler(const WGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins)
+  if (e.m_Type == WGameApplicationExecutionEvent::Type::AfterUpdatePlugins)
   {
     ImGuiContext* pContext = ImGui::GetCurrentContext();
     if (pContext && pContext->Initialized && pContext->WithinFrameScope)
@@ -465,4 +465,4 @@ void ezImgui::GameApplicationEventHandler(const ezGameApplicationExecutionEvent&
 #endif
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_Implementation_DearImgui);
+W_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_Implementation_DearImgui);

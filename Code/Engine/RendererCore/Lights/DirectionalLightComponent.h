@@ -3,15 +3,15 @@
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-using ezDirectionalLightComponentManager = ezComponentManager<class ezDirectionalLightComponent, ezBlockStorageType::Compact>;
+using WDirectionalLightComponentManager = WComponentManager<class WDirectionalLightComponent, WBlockStorageType::Compact>;
 
 /// The render data object for directional lights.
-class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderData
+class W_RENDERERCORE_DLL WDirectionalLightRenderData : public WLightRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WDirectionalLightRenderData, WLightRenderData);
 
 public:
-  ezVec3 m_vDirection;
+  WVec3 m_vDirection;
   bool m_bScreenSpaceShadows;
 };
 
@@ -20,29 +20,29 @@ public:
 /// It is very rare to use more than one directional lightsource at the same time.
 /// Directional lightsources are used to fake the large scale light of the sun (or moon).
 /// They use cascaded shadow maps to reduce the performance overhead for dynamic shadows of such large lights.
-class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
+class W_RENDERERCORE_DLL WDirectionalLightComponent : public WLightComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezDirectionalLightComponent, ezLightComponent, ezDirectionalLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WDirectionalLightComponent, WLightComponent, WDirectionalLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezDirectionalLightComponent
+  // WDirectionalLightComponent
 
 public:
-  ezDirectionalLightComponent();
-  ~ezDirectionalLightComponent();
+  WDirectionalLightComponent();
+  ~WDirectionalLightComponent();
 
   /// Sets whether to use screen space shadows. Improves contact shadows and self-shadowing for small objects.
   void SetScreenSpaceShadows(bool bShadows); // [ property ]
@@ -52,13 +52,13 @@ public:
   ///
   /// A non-zero value produces softer specular highlights via representative-point shading. Has no effect on attenuation since directional lights are treated as infinitely far away.
   /// Reference values: sun ≈ 0.53°, full moon ≈ 0.52°. Values above a few degrees are physically implausible but may be used for stylised looks.
-  void SetSourceAngle(ezAngle sourceAngle); // [ property ]
-  ezAngle GetSourceAngle() const;           // [ property ]
+  void SetSourceAngle(WAngle sourceAngle); // [ property ]
+  WAngle GetSourceAngle() const;           // [ property ]
 
 
   /// Sets how many shadow map cascades to use. Typically between 2 and 4.
-  void SetNumCascades(ezUInt32 uiNumCascades); // [ property ]
-  ezUInt32 GetNumCascades() const;             // [ property ]
+  void SetNumCascades(WUInt32 uiNumCascades); // [ property ]
+  WUInt32 GetNumCascades() const;             // [ property ]
 
   /// Sets the distance around the main camera in which to apply dynamic shadows.
   void SetMinShadowRange(float fMinShadowRange); // [ property ]
@@ -77,12 +77,12 @@ public:
   float GetNearPlaneOffset() const;                // [ property ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   bool m_bScreenSpaceShadows = false;
 
-  ezAngle m_SourceAngle = ezAngle::MakeFromDegree(0.0f);
-  ezUInt32 m_uiNumCascades = 3;
+  WAngle m_SourceAngle = WAngle::MakeFromDegree(0.0f);
+  WUInt32 m_uiNumCascades = 3;
   float m_fMinShadowRange = 50.0f;
   float m_fFadeOutStart = 0.8f;
   float m_fSplitModeWeight = 0.7f;
@@ -92,14 +92,14 @@ protected:
 /// Visualizer attribute for the angular size (source angle) of a directional light.
 ///
 /// Shows a sphere as an intuitive size reference; its world-space size is proportional to the configured angle.
-class EZ_RENDERERCORE_DLL ezDirectionalLightVisualizerAttribute : public ezVisualizerAttribute
+class W_RENDERERCORE_DLL WDirectionalLightVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDirectionalLightVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezDirectionalLightVisualizerAttribute();
-  ezDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty);
+  WDirectionalLightVisualizerAttribute();
+  WDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty);
 
-  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty2; }
 };

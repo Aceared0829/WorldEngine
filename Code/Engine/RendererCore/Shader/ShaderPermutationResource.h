@@ -7,11 +7,11 @@
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
-using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;
-using ezShaderStateResourceHandle = ezTypedResourceHandle<class ezShaderStateResource>;
+using WShaderPermutationResourceHandle = WTypedResourceHandle<class WShaderPermutationResource>;
+using WShaderStateResourceHandle = WTypedResourceHandle<class WShaderStateResource>;
 
 /// Descriptor for shader permutation resources.
-struct ezShaderPermutationResourceDescriptor
+struct WShaderPermutationResourceDescriptor
 {
   // empty
 };
@@ -21,24 +21,24 @@ struct ezShaderPermutationResourceDescriptor
 /// Shaders use permutation variables to create variants for different features (e.g., with/without shadows,
 /// skinning, etc.). Each unique combination of permutation values results in a separate compiled shader.
 /// This resource holds the compiled shader bytecode, render states, and permutation variable values.
-class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource
+class W_RENDERERCORE_DLL WShaderPermutationResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezShaderPermutationResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezShaderPermutationResource, ezShaderPermutationResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WShaderPermutationResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WShaderPermutationResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WShaderPermutationResource, WShaderPermutationResourceDescriptor);
 
 public:
-  ezShaderPermutationResource();
+  WShaderPermutationResource();
 
-  ezGALShaderHandle GetGALShader() const { return m_hShader; }
-  const ezGALShaderByteCode* GetShaderByteCode(ezGALShaderStage::Enum stage) const { return m_ByteCodes[stage]; }
+  WGALShaderHandle GetGALShader() const { return m_hShader; }
+  const WGALShaderByteCode* GetShaderByteCode(WGALShaderStage::Enum stage) const { return m_ByteCodes[stage]; }
 
-  ezGALBlendStateHandle GetBlendState() const { return m_hBlendState; }
-  ezGALDepthStencilStateHandle GetDepthStencilState() const { return m_hDepthStencilState; }
-  ezGALRasterizerStateHandle GetRasterizerState() const { return m_hRasterizerState; }
+  WGALBlendStateHandle GetBlendState() const { return m_hBlendState; }
+  WGALDepthStencilStateHandle GetDepthStencilState() const { return m_hDepthStencilState; }
+  WGALRasterizerStateHandle GetRasterizerState() const { return m_hRasterizerState; }
 
   /// Returns the stencil reference value for stencil testing.
-  ezUInt8 GetShaderStencilRefValue() const { return m_uiShaderStencilRef; }
+  WUInt8 GetShaderStencilRefValue() const { return m_uiShaderStencilRef; }
 
   /// Returns whether the shader wants to use the user provided stencil reference value.
   bool GetUseUserStencilRefValue() const { return m_bUseUserStencilRef; }
@@ -47,30 +47,30 @@ public:
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
 
   /// Returns the permutation variable values that define this shader variant.
-  ezArrayPtr<const ezPermutationVar> GetPermutationVars() const { return m_PermutationVars; }
+  WArrayPtr<const WPermutationVar> GetPermutationVars() const { return m_PermutationVars; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
+  virtual WResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
 
 private:
-  friend class ezShaderManager;
+  friend class WShaderManager;
 
-  ezSharedPtr<const ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
+  WSharedPtr<const WGALShaderByteCode> m_ByteCodes[WGALShaderStage::ENUM_COUNT];
 
   bool m_bShaderPermutationValid;
-  ezGALShaderHandle m_hShader;
+  WGALShaderHandle m_hShader;
 
-  ezGALBlendStateHandle m_hBlendState;
-  ezGALDepthStencilStateHandle m_hDepthStencilState;
-  ezGALRasterizerStateHandle m_hRasterizerState;
+  WGALBlendStateHandle m_hBlendState;
+  WGALDepthStencilStateHandle m_hDepthStencilState;
+  WGALRasterizerStateHandle m_hRasterizerState;
 
-  ezUInt8 m_uiShaderStencilRef = 0;
+  WUInt8 m_uiShaderStencilRef = 0;
   bool m_bUseUserStencilRef = false;
 
-  ezHybridArray<ezPermutationVar, 16> m_PermutationVars;
+  WHybridArray<WPermutationVar, 16> m_PermutationVars;
 };
 
 
@@ -78,14 +78,14 @@ private:
 ///
 /// Handles loading compiled shader bytecode. If the permutation is not found or outdated,
 /// it triggers shader compilation on-demand.
-class ezShaderPermutationResourceLoader : public ezResourceTypeLoader
+class WShaderPermutationResourceLoader : public WResourceTypeLoader
 {
 public:
-  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
+  virtual WResourceLoadData OpenDataStream(const WResource* pResource) override;
+  virtual void CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData) override;
 
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 
 private:
-  ezResult RunCompiler(const ezResource* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
+  WResult RunCompiler(const WResource* pResource, WShaderPermutationBinary& BinaryInfo, bool bForce);
 };

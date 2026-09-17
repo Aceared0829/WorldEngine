@@ -2,34 +2,34 @@
 
 #include <Foundation/SimdMath/SimdQuatd.h>
 
-class EZ_FOUNDATION_DLL ezSimdTransformd
+class W_FOUNDATION_DLL WSimdTransformd
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   /// Default constructor: Does not do any initialization.
-  ezSimdTransformd(); // [tested]
+  WSimdTransformd(); // [tested]
 
   /// Sets position, rotation and scale.
-  explicit ezSimdTransformd(const ezSimdVec4d& vPosition, const ezSimdQuatd& qRotation = ezSimdQuatd::MakeIdentity(), const ezSimdVec4d& vScale = ezSimdVec4d(1.0f)); // [tested]
+  explicit WSimdTransformd(const WSimdVec4d& vPosition, const WSimdQuatd& qRotation = WSimdQuatd::MakeIdentity(), const WSimdVec4d& vScale = WSimdVec4d(1.0f)); // [tested]
 
   /// Sets rotation.
-  explicit ezSimdTransformd(const ezSimdQuatd& qRotation); // [tested]
+  explicit WSimdTransformd(const WSimdQuatd& qRotation); // [tested]
 
   /// Creates a transform from the given position, rotation and scale.
-  [[nodiscard]] static ezSimdTransformd Make(const ezSimdVec4d& vPosition, const ezSimdQuatd& qRotation = ezSimdQuatd::MakeIdentity(), const ezSimdVec4d& vScale = ezSimdVec4d(1.0f)); // [tested]
+  [[nodiscard]] static WSimdTransformd Make(const WSimdVec4d& vPosition, const WSimdQuatd& qRotation = WSimdQuatd::MakeIdentity(), const WSimdVec4d& vScale = WSimdVec4d(1.0f)); // [tested]
 
   /// Creates an identity transform.
-  [[nodiscard]] static ezSimdTransformd MakeIdentity(); // [tested]
+  [[nodiscard]] static WSimdTransformd MakeIdentity(); // [tested]
 
   /// Creates a transform that is the local transformation needed to get from the parent's transform to the child's.
-  [[nodiscard]] static ezSimdTransformd MakeLocalTransform(const ezSimdTransformd& globalTransformParent, const ezSimdTransformd& globalTransformChild); // [tested]
+  [[nodiscard]] static WSimdTransformd MakeLocalTransform(const WSimdTransformd& globalTransformParent, const WSimdTransformd& globalTransformChild); // [tested]
 
   /// Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
-  [[nodiscard]] static ezSimdTransformd MakeGlobalTransform(const ezSimdTransformd& globalTransformParent, const ezSimdTransformd& localTransformChild); // [tested]
+  [[nodiscard]] static WSimdTransformd MakeGlobalTransform(const WSimdTransformd& globalTransformParent, const WSimdTransformd& localTransformChild); // [tested]
 
   /// Returns the scale component with maximum magnitude.
-  ezSimdDouble GetMaxScale() const; // [tested]
+  WSimdDouble GetMaxScale() const; // [tested]
 
   /// Returns whether this transform contains negative scaling aka mirroring.
   bool HasMirrorScaling() const;
@@ -39,59 +39,59 @@ public:
 
 public:
   /// Equality Check with epsilon
-  bool IsEqual(const ezSimdTransformd& rhs, const ezSimdDouble& fEpsilon) const; // [tested]
+  bool IsEqual(const WSimdTransformd& rhs, const WSimdDouble& fEpsilon) const; // [tested]
 
 public:
   /// Inverts this transform.
   void Invert(); // [tested]
 
   /// Returns the inverse of this transform.
-  ezSimdTransformd GetInverse() const; // [tested]
+  WSimdTransformd GetInverse() const; // [tested]
 
   /// Returns the transformation as a matrix.
-  ezSimdMat4d GetAsMat4() const;                                            // [tested]
+  WSimdMat4d GetAsMat4() const;                                            // [tested]
 
 public:
-  [[nodiscard]] ezSimdVec4d TransformPosition(const ezSimdVec4d& v) const;  // [tested]
-  [[nodiscard]] ezSimdVec4d TransformDirection(const ezSimdVec4d& v) const; // [tested]
+  [[nodiscard]] WSimdVec4d TransformPosition(const WSimdVec4d& v) const;  // [tested]
+  [[nodiscard]] WSimdVec4d TransformDirection(const WSimdVec4d& v) const; // [tested]
 
   /// Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
-  void operator*=(const ezSimdTransformd& other); // [tested]
+  void operator*=(const WSimdTransformd& other); // [tested]
 
   /// Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  void operator*=(const ezSimdQuatd& q);  // [tested]
+  void operator*=(const WSimdQuatd& q);  // [tested]
 
-  void operator+=(const ezSimdVec4d& v); // [tested]
-  void operator-=(const ezSimdVec4d& v); // [tested]
+  void operator+=(const WSimdVec4d& v); // [tested]
+  void operator-=(const WSimdVec4d& v); // [tested]
 
 public:
-  ezSimdVec4d m_Position;
-  ezSimdQuatd m_Rotation;
-  ezSimdVec4d m_Scale;
+  WSimdVec4d m_Position;
+  WSimdQuatd m_Rotation;
+  WSimdVec4d m_Scale;
 };
 
 // *** free functions ***
 
 /// Transforms the vector v by the transform.
-EZ_ALWAYS_INLINE const ezSimdVec4d operator*(const ezSimdTransformd& t, const ezSimdVec4d& v); // [tested]
+W_ALWAYS_INLINE const WSimdVec4d operator*(const WSimdTransformd& t, const WSimdVec4d& v); // [tested]
 
 /// Rotates the transform by the given quaternion. Multiplies q from the left with t.
-EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdQuatd& q, const ezSimdTransformd& t); // [tested]
+W_ALWAYS_INLINE const WSimdTransformd operator*(const WSimdQuatd& q, const WSimdTransformd& t); // [tested]
 
 /// Rotates the transform by the given quaternion. Multiplies q from the right with t.
-EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdTransformd& t, const ezSimdQuatd& q); // [tested]
+W_ALWAYS_INLINE const WSimdTransformd operator*(const WSimdTransformd& t, const WSimdQuatd& q); // [tested]
 
-/// Translates the ezSimdTransformd by the vector. This will move the object in global space.
-EZ_ALWAYS_INLINE const ezSimdTransformd operator+(const ezSimdTransformd& t, const ezSimdVec4d& v); // [tested]
+/// Translates the WSimdTransformd by the vector. This will move the object in global space.
+W_ALWAYS_INLINE const WSimdTransformd operator+(const WSimdTransformd& t, const WSimdVec4d& v); // [tested]
 
-/// Translates the ezSimdTransformd by the vector. This will move the object in global space.
-EZ_ALWAYS_INLINE const ezSimdTransformd operator-(const ezSimdTransformd& t, const ezSimdVec4d& v); // [tested]
+/// Translates the WSimdTransformd by the vector. This will move the object in global space.
+W_ALWAYS_INLINE const WSimdTransformd operator-(const WSimdTransformd& t, const WSimdVec4d& v); // [tested]
 
 /// Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
-EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdTransformd& lhs, const ezSimdTransformd& rhs); // [tested]
+W_ALWAYS_INLINE const WSimdTransformd operator*(const WSimdTransformd& lhs, const WSimdTransformd& rhs); // [tested]
 
-EZ_ALWAYS_INLINE bool operator==(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                   // [tested]
-EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                   // [tested]
+W_ALWAYS_INLINE bool operator==(const WSimdTransformd& t1, const WSimdTransformd& t2);                   // [tested]
+W_ALWAYS_INLINE bool operator!=(const WSimdTransformd& t1, const WSimdTransformd& t2);                   // [tested]
 
 
 #include <Foundation/SimdMath/Implementation/SimdTransformd_inl.h>

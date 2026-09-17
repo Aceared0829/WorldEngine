@@ -6,38 +6,38 @@
 #include <GameEngine/Animation/ResetTransformComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezResetTransformComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WResetTransformComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Animation"),
+    new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_PROPERTIES
+  W_END_ATTRIBUTES;
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ResetPositionX", m_bResetLocalPositionX)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ResetPositionY", m_bResetLocalPositionY)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ResetPositionZ", m_bResetLocalPositionZ)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("LocalPosition", m_vLocalPosition),
-    EZ_MEMBER_PROPERTY("ResetRotation", m_bResetLocalRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("LocalRotation", m_qLocalRotation)->AddAttributes(new ezDefaultValueAttribute(ezQuat::MakeIdentity())),
-    EZ_MEMBER_PROPERTY("ResetScaling", m_bResetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("LocalScaling", m_vLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1))),
-    EZ_MEMBER_PROPERTY("LocalUniformScaling", m_fLocalUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1)),
+    W_MEMBER_PROPERTY("ResetPositionX", m_bResetLocalPositionX)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("ResetPositionY", m_bResetLocalPositionY)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("ResetPositionZ", m_bResetLocalPositionZ)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("LocalPosition", m_vLocalPosition),
+    W_MEMBER_PROPERTY("ResetRotation", m_bResetLocalRotation)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("LocalRotation", m_qLocalRotation)->AddAttributes(new WDefaultValueAttribute(WQuat::MakeIdentity())),
+    W_MEMBER_PROPERTY("ResetScaling", m_bResetLocalScaling)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("LocalScaling", m_vLocalScaling)->AddAttributes(new WDefaultValueAttribute(WVec3(1))),
+    W_MEMBER_PROPERTY("LocalUniformScaling", m_fLocalUniformScaling)->AddAttributes(new WDefaultValueAttribute(1)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResetTransformComponent::ezResetTransformComponent() = default;
-ezResetTransformComponent::~ezResetTransformComponent() = default;
+WResetTransformComponent::WResetTransformComponent() = default;
+WResetTransformComponent::~WResetTransformComponent() = default;
 
-void ezResetTransformComponent::OnSimulationStarted()
+void WResetTransformComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezVec3 vLocalPos = GetOwner()->GetLocalPosition();
+  WVec3 vLocalPos = GetOwner()->GetLocalPosition();
 
   if (m_bResetLocalPositionX)
     vLocalPos.x = m_vLocalPosition.x;
@@ -63,7 +63,7 @@ void ezResetTransformComponent::OnSimulationStarted()
   GetOwner()->UpdateGlobalTransform();
 }
 
-void ezResetTransformComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WResetTransformComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -80,10 +80,10 @@ void ezResetTransformComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_fLocalUniformScaling;
 }
 
-void ezResetTransformComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WResetTransformComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -99,4 +99,4 @@ void ezResetTransformComponent::DeserializeComponent(ezWorldReader& inout_stream
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ResetTransformComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ResetTransformComponent);

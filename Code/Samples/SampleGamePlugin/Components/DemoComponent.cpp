@@ -7,23 +7,23 @@
 // BEGIN-DOCS-CODE-SNIPPET: customcomp-reflection
 // clang-format off
 // BEGIN-DOCS-CODE-SNIPPET: component-reflection
-EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3 /* version */, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(DemoComponent, 3 /* version */, WComponentMode::Dynamic)
 // END-DOCS-CODE-SNIPPET
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
-    EZ_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
+    W_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(0, 10)),
+    W_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(90))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGamePlugin"),
+    new WCategoryAttribute("SampleGamePlugin"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 // END-DOCS-CODE-SNIPPET
 
@@ -40,17 +40,17 @@ void DemoComponent::OnSimulationStarted()
 
 void DemoComponent::Update()
 {
-  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
-  const ezAngle curAngle = curTime.AsFloatInSeconds() * m_Speed;
-  const float curHeight = ezMath::Sin(curAngle) * m_fAmplitude;
+  const WTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
+  const WAngle curAngle = curTime.AsFloatInSeconds() * m_Speed;
+  const float curHeight = WMath::Sin(curAngle) * m_fAmplitude;
 
-  GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));
+  GetOwner()->SetLocalPosition(WVec3(0, 0, curHeight));
 }
 
 // END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: component-serialize
-void DemoComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void DemoComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -62,10 +62,10 @@ void DemoComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 // END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: component-deserialize
-void DemoComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void DemoComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -74,10 +74,10 @@ void DemoComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion <= 2)
   {
     // up to version 2 the angle was stored as a float in degree
-    // convert this to ezAngle
+    // convert this to WAngle
     float fDegree;
     s >> fDegree;
-    m_Speed = ezAngle::MakeFromDegree(fDegree);
+    m_Speed = WAngle::MakeFromDegree(fDegree);
   }
   else
   {

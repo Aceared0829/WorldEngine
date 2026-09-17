@@ -4,7 +4,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAssetObjects.h>
 
-struct ezImageDataAssetEvent
+struct WImageDataAssetEvent
 {
   enum class Type
   {
@@ -14,20 +14,20 @@ struct ezImageDataAssetEvent
   Type m_Type = Type::Transformed;
 };
 
-class ezImageDataAssetDocument : public ezSimpleAssetDocument<ezImageDataAssetProperties>
+class WImageDataAssetDocument : public WSimpleAssetDocument<WImageDataAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImageDataAssetDocument, ezSimpleAssetDocument<ezImageDataAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WImageDataAssetDocument, WSimpleAssetDocument<WImageDataAssetProperties>);
 
 public:
-  ezImageDataAssetDocument(ezStringView sDocumentPath);
+  WImageDataAssetDocument(WStringView sDocumentPath);
 
-  const ezEvent<const ezImageDataAssetEvent&>& Events() const { return m_Events; }
+  const WEvent<const WImageDataAssetEvent&>& Events() const { return m_Events; }
 
 protected:
-  ezEvent<const ezImageDataAssetEvent&> m_Events;
+  WEvent<const WImageDataAssetEvent&> m_Events;
 
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override { return WStatus(W_SUCCESS); }
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
+  WStatus RunTexConv(const char* szTargetFile, const WAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
 };

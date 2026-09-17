@@ -6,107 +6,107 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 3, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WMeshComponent, 3, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
+    W_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material")),
+    W_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry)
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezMeshComponent::ezMeshComponent() = default;
-ezMeshComponent::~ezMeshComponent() = default;
+WMeshComponent::WMeshComponent() = default;
+WMeshComponent::~WMeshComponent() = default;
 
-void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
+void WMeshComponent::OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) const
 {
-  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+  if (ref_msg.m_Mode != WWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
 
   // ignore invalid and created resources
   {
-    ezMeshResourceHandle hRenderMesh = GetMesh();
+    WMeshResourceHandle hRenderMesh = GetMesh();
     if (!hRenderMesh.IsValid())
       return;
 
-    ezResourceLock<ezMeshResource> pRenderMesh(hRenderMesh, ezResourceAcquireMode::PointerOnly);
-    if (pRenderMesh->GetBaseResourceFlags().IsAnySet(ezResourceFlags::IsCreatedResource))
+    WResourceLock<WMeshResource> pRenderMesh(hRenderMesh, WResourceAcquireMode::PointerOnly);
+    if (pRenderMesh->GetBaseResourceFlags().IsAnySet(WResourceFlags::IsCreatedResource))
       return;
   }
 
-  ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMesh().GetResourceID()));
+  ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), WResourceManager::LoadResource<WCpuMeshResource>(GetMesh().GetResourceID()));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshImportTransform, 1)
-  EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_YUp),
-  EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_ZUp),
-  EZ_ENUM_CONSTANT(ezMeshImportTransform::Custom),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WMeshImportTransform, 1)
+  W_ENUM_CONSTANT(WMeshImportTransform::Blender_YUp),
+  W_ENUM_CONSTANT(WMeshImportTransform::Blender_ZUp),
+  W_ENUM_CONSTANT(WMeshImportTransform::Custom),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezBasisAxis::Enum ezMeshImportTransform::GetRightDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir)
+WBasisAxis::Enum WMeshImportTransform::GetRightDir(WMeshImportTransform::Enum transform, WBasisAxis::Enum dir)
 {
   switch (transform)
   {
-    case ezMeshImportTransform::Blender_YUp:
-      return ezBasisAxis::NegativeX;
-    case ezMeshImportTransform::Blender_ZUp:
-      return ezBasisAxis::NegativeX;
-    case ezMeshImportTransform::Custom:
+    case WMeshImportTransform::Blender_YUp:
+      return WBasisAxis::NegativeX;
+    case WMeshImportTransform::Blender_ZUp:
+      return WBasisAxis::NegativeX;
+    case WMeshImportTransform::Custom:
       return dir;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return dir;
 }
 
-ezBasisAxis::Enum ezMeshImportTransform::GetUpDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir)
+WBasisAxis::Enum WMeshImportTransform::GetUpDir(WMeshImportTransform::Enum transform, WBasisAxis::Enum dir)
 {
   switch (transform)
   {
-    case ezMeshImportTransform::Blender_YUp:
-      return ezBasisAxis::PositiveY;
-    case ezMeshImportTransform::Blender_ZUp:
-      return ezBasisAxis::PositiveZ;
-    case ezMeshImportTransform::Custom:
+    case WMeshImportTransform::Blender_YUp:
+      return WBasisAxis::PositiveY;
+    case WMeshImportTransform::Blender_ZUp:
+      return WBasisAxis::PositiveZ;
+    case WMeshImportTransform::Custom:
       return dir;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return dir;
 }
 
-bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform, bool bFlip)
+bool WMeshImportTransform::GetFlipForward(WMeshImportTransform::Enum transform, bool bFlip)
 {
   switch (transform)
   {
-    case ezMeshImportTransform::Blender_YUp:
+    case WMeshImportTransform::Blender_YUp:
       return false;
-    case ezMeshImportTransform::Blender_ZUp:
+    case WMeshImportTransform::Blender_ZUp:
       return false;
-    case ezMeshImportTransform::Custom:
+    case WMeshImportTransform::Custom:
       return bFlip;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return bFlip;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);

@@ -6,14 +6,14 @@
 ///
 /// Provides a simple container for representing rectangular dimensions in 2D space.
 /// The template parameter allows using different numeric types (integers, floats) depending
-/// on precision requirements. Common typedefs include ezSizeU32, ezSizeFloat, and ezSizeDouble.
+/// on precision requirements. Common typedefs include WSizeU32, WSizeFloat, and WSizeDouble.
 /// Primarily used for representing viewport dimensions, texture sizes, and UI element bounds.
 template <typename Type>
-class ezSizeTemplate
+class WSizeTemplate
 {
 public:
   // Means this object can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   // *** Data ***
 public:
@@ -23,10 +23,10 @@ public:
   // *** Constructors ***
 public:
   /// Default constructor does not initialize the data.
-  ezSizeTemplate();
+  WSizeTemplate();
 
   /// Constructor to set all values.
-  ezSizeTemplate(Type width, Type height);
+  WSizeTemplate(Type width, Type height);
 
   // *** Common Functions ***
 public:
@@ -35,15 +35,15 @@ public:
 };
 
 template <typename Type>
-bool operator==(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
+bool operator==(const WSizeTemplate<Type>& v1, const WSizeTemplate<Type>& v2);
 
 template <typename Type>
-bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
+bool operator!=(const WSizeTemplate<Type>& v1, const WSizeTemplate<Type>& v2);
 
 #include <Foundation/Math/Implementation/Size_inl.h>
 
-using ezSizeU32 = ezSizeTemplate<ezUInt32>;
-using ezSizeFloat = ezSizeTemplate<float>;
-using ezSizeDouble = ezSizeTemplate<double>;
+using WSizeU32 = WSizeTemplate<WUInt32>;
+using WSizeFloat = WSizeTemplate<float>;
+using WSizeDouble = WSizeTemplate<double>;
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezSizeU32& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WSizeU32& arg);

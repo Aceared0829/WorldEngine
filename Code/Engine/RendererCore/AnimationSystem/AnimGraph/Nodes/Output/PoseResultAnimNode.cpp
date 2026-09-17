@@ -6,73 +6,73 @@
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/Output/PoseResultAnimNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPoseResultAnimNode, 1, ezRTTIDefaultAllocator<ezPoseResultAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPoseResultAnimNode, 1, WRTTIDefaultAllocator<WPoseResultAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("FadeDuration", m_FadeDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(200)), new ezClampValueAttribute(ezTime::MakeZero(), ezTime::MakeFromSeconds(10))),
-    EZ_MEMBER_PROPERTY("InPose", m_InPose)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InTargetWeight", m_InTargetWeight)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InFadeDuration", m_InFadeDuration)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutOnFadedOut", m_OutOnFadedOut)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutOnFadedIn", m_OutOnFadedIn)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutCurrentWeight", m_OutCurrentWeight)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("FadeDuration", m_FadeDuration)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromMilliseconds(200)), new WClampValueAttribute(WTime::MakeZero(), WTime::MakeFromSeconds(10))),
+    W_MEMBER_PROPERTY("InPose", m_InPose)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("InTargetWeight", m_InTargetWeight)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("InFadeDuration", m_InFadeDuration)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutOnFadedOut", m_OutOnFadedOut)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutOnFadedIn", m_OutOnFadedIn)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutCurrentWeight", m_OutCurrentWeight)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Output"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Grape)),
-    new ezTitleAttribute("Pose Result"),
+    new WCategoryAttribute("Output"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Grape)),
+    new WTitleAttribute("Pose Result"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPoseResultAnimNode::ezPoseResultAnimNode() = default;
-ezPoseResultAnimNode::~ezPoseResultAnimNode() = default;
+WPoseResultAnimNode::WPoseResultAnimNode() = default;
+WPoseResultAnimNode::~WPoseResultAnimNode() = default;
 
-ezResult ezPoseResultAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WPoseResultAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_FadeDuration;
 
-  EZ_SUCCEED_OR_RETURN(m_InPose.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InTargetWeight.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFadedIn.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutCurrentWeight.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InTargetWeight.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InFadeDuration.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InWeights.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFadedOut.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFadedIn.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutCurrentWeight.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPoseResultAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WPoseResultAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_FadeDuration;
 
-  EZ_SUCCEED_OR_RETURN(m_InPose.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InTargetWeight.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFadedIn.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutCurrentWeight.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InTargetWeight.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InFadeDuration.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InWeights.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFadedOut.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFadedIn.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutCurrentWeight.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WPoseResultAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_InPose.IsConnected())
     return;
@@ -88,7 +88,7 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     if (bWasInterpolating)
     {
       const float f = (float)(pInstance->m_PlayTime.GetSeconds() / pInstance->m_EndTime.GetSeconds());
-      pInstance->m_fStartWeight = ezMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
+      pInstance->m_fStartWeight = WMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
     }
     else
     {
@@ -96,8 +96,8 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     }
 
     pInstance->m_fEndWeight = fNewTargetWeight;
-    pInstance->m_PlayTime = ezTime::MakeZero();
-    pInstance->m_EndTime = ezTime::MakeFromSeconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
+    pInstance->m_PlayTime = WTime::MakeZero();
+    pInstance->m_EndTime = WTime::MakeFromSeconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
   }
 
   float fCurrentWeight = 0.0f;
@@ -119,7 +119,7 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   else
   {
     const float f = (float)(pInstance->m_PlayTime.GetSeconds() / pInstance->m_EndTime.GetSeconds());
-    fCurrentWeight = ezMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
+    fCurrentWeight = WMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
   }
 
   m_OutCurrentWeight.SetNumber(ref_graph, fCurrentWeight);
@@ -129,9 +129,9 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
 
   if (auto pCurrentLocalTransforms = m_InPose.GetPose(ref_controller, ref_graph))
   {
-    if (pCurrentLocalTransforms->m_CommandID != ezInvalidIndex)
+    if (pCurrentLocalTransforms->m_CommandID != WInvalidIndex)
     {
-      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+      WAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
       // Re-query: AddPinDataLocalTransforms may have reallocated the array, invalidating the pointer obtained above.
       pCurrentLocalTransforms = m_InPose.GetPose(ref_controller, ref_graph);
@@ -156,7 +156,7 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     auto& cmd = ref_controller.GetPoseGenerator().AllocCommandRestPose();
 
     {
-      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+      WAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
       pLocalTransforms->m_CommandID = cmd.GetCommandID();
       pLocalTransforms->m_pWeights = m_InWeights.GetWeights(ref_controller, ref_graph);
@@ -168,11 +168,11 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   }
 }
 
-bool ezPoseResultAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WPoseResultAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Output_PoseResultAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Output_PoseResultAnimNode);

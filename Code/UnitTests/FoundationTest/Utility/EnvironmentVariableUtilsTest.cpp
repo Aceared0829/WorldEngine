@@ -2,79 +2,79 @@
 
 #include <Foundation/System/EnvironmentVariableUtils.h>
 
-static ezUInt32 uiVersionForVariableSetting = 0;
+static WUInt32 uiVersionForVariableSetting = 0;
 
-EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
+W_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValueString / GetValueInt")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetValueString / GetValueInt")
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
     // Windows will have "NUMBER_OF_PROCESSORS" and "USERNAME" set, let's see if we can get them
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet("NUMBER_OF_PROCESSORS"));
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet("NUMBER_OF_PROCESSORS"));
 
-    ezInt32 iNumProcessors = ezEnvironmentVariableUtils::GetValueInt("NUMBER_OF_PROCESSORS", -23);
-    EZ_TEST_BOOL(iNumProcessors > 0);
+    WInt32 iNumProcessors = WEnvironmentVariableUtils::GetValueInt("NUMBER_OF_PROCESSORS", -23);
+    W_TEST_BOOL(iNumProcessors > 0);
 
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet("USERNAME"));
-    ezString szUserName = ezEnvironmentVariableUtils::GetValueString("USERNAME");
-    EZ_TEST_BOOL(szUserName.GetElementCount() > 0);
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet("USERNAME"));
+    WString szUserName = WEnvironmentVariableUtils::GetValueString("USERNAME");
+    W_TEST_BOOL(szUserName.GetElementCount() > 0);
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_OSX) || W_ENABLED(W_PLATFORM_LINUX)
 
     // Mac OS & Linux will have "USER" set
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet("USER"));
-    ezString szUserName = ezEnvironmentVariableUtils::GetValueString("USER");
-    EZ_TEST_BOOL(szUserName.GetElementCount() > 0);
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet("USER"));
+    WString szUserName = WEnvironmentVariableUtils::GetValueString("USER");
+    W_TEST_BOOL(szUserName.GetElementCount() > 0);
 
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsVariableSet/SetValue")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsVariableSet/SetValue")
   {
-    ezStringBuilder szVarName;
-    szVarName.SetFormat("EZ_THIS_SHOULDNT_EXIST_NOW_OR_THIS_TEST_WILL_FAIL_{0}", uiVersionForVariableSetting++);
+    WStringBuilder szVarName;
+    szVarName.SetFormat("W_THIS_SHOULDNT_EXIST_NOW_OR_THIS_TEST_WILL_FAIL_{0}", uiVersionForVariableSetting++);
 
-    EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    W_TEST_BOOL(!WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE").IgnoreResult();
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    WEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE").IgnoreResult();
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE");
+    W_TEST_STRING(WEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE");
 
     // Test overwriting the same value again
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE_SOMETHING_ELSE").IgnoreResult();
-    EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE_SOMETHING_ELSE");
+    WEnvironmentVariableUtils::SetValueString(szVarName, "NOW_IT_SHOULD_BE_SOMETHING_ELSE").IgnoreResult();
+    W_TEST_STRING(WEnvironmentVariableUtils::GetValueString(szVarName), "NOW_IT_SHOULD_BE_SOMETHING_ELSE");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Variable with very long value")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Variable with very long value")
   {
     // The Windows implementation has a 64 wchar_t buffer for example. Let's try setting a really
     // long variable and getting it back
     const char* szLongVariable =
       "SOME REALLY LONG VALUE, LETS TEST SOME LIMITS WE MIGHT HIT - 012456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
 
-    ezStringBuilder szVarName;
-    szVarName.SetFormat("EZ_LONG_VARIABLE_TEST_{0}", uiVersionForVariableSetting++);
+    WStringBuilder szVarName;
+    szVarName.SetFormat("W_LONG_VARIABLE_TEST_{0}", uiVersionForVariableSetting++);
 
-    EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    W_TEST_BOOL(!WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, szLongVariable).IgnoreResult();
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    WEnvironmentVariableUtils::SetValueString(szVarName, szLongVariable).IgnoreResult();
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    EZ_TEST_STRING(ezEnvironmentVariableUtils::GetValueString(szVarName), szLongVariable);
+    W_TEST_STRING(WEnvironmentVariableUtils::GetValueString(szVarName), szLongVariable);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsetting variables")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Unsetting variables")
   {
-    const char* szVarName = "EZ_TEST_HELLO_WORLD";
-    EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    const char* szVarName = "W_TEST_HELLO_WORLD";
+    W_TEST_BOOL(!WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::SetValueString(szVarName, "TEST").IgnoreResult();
+    WEnvironmentVariableUtils::SetValueString(szVarName, "TEST").IgnoreResult();
 
-    EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    W_TEST_BOOL(WEnvironmentVariableUtils::IsVariableSet(szVarName));
 
-    ezEnvironmentVariableUtils::UnsetVariable(szVarName).IgnoreResult();
-    EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
+    WEnvironmentVariableUtils::UnsetVariable(szVarName).IgnoreResult();
+    W_TEST_BOOL(!WEnvironmentVariableUtils::IsVariableSet(szVarName));
   }
 }

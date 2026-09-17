@@ -5,12 +5,12 @@
 #include <Foundation/Containers/Map.h>
 #include <QAbstractListModel>
 
-class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveAllFilesModel : public QAbstractListModel
+class W_EDITORPLUGINFILESERVE_DLL WQtFileserveAllFilesModel : public QAbstractListModel
 {
   Q_OBJECT
 
 public:
-  ezQtFileserveAllFilesModel(QWidget* pParent);
+  WQtFileserveAllFilesModel(QWidget* pParent);
 
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -27,7 +27,7 @@ private Q_SLOTS:
 
 private:
   bool m_bTimerRunning = false;
-  ezUInt32 m_uiAddedItems = 0;
-  ezMap<ezString, ezUInt32> m_AllFiles;
-  ezDeque<ezMap<ezString, ezUInt32>::Iterator> m_IndexedFiles;
+  WUInt32 m_uiAddedItems = 0;
+  WMap<WString, WUInt32> m_AllFiles;
+  WDeque<WMap<WString, WUInt32>::Iterator> m_IndexedFiles;
 };

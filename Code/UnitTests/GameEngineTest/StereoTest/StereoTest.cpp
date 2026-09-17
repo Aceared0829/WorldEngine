@@ -1,6 +1,6 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) || W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <Core/World/World.h>
 #  include <Core/WorldSerializer/WorldReader.h>
@@ -14,17 +14,17 @@
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererFoundation/Device/Device.h>
 
-static ezStereoTest s_StereoTest;
+static WStereoTest s_StereoTest;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestGameState, 1, ezRTTIDefaultAllocator<ezStereoTestGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStereoTestGameState, 1, WRTTIDefaultAllocator<WStereoTestGameState>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezStereoTestGameState::OverrideRenderPipeline(ezTypedResourceHandle<ezRenderPipelineResource> hPipeline)
+void WStereoTestGameState::OverrideRenderPipeline(WTypedResourceHandle<WRenderPipelineResource> hPipeline)
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hMainView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hMainView, pView))
   {
     pView->SetRenderPipelineResource(hPipeline);
   }
@@ -32,38 +32,38 @@ void ezStereoTestGameState::OverrideRenderPipeline(ezTypedResourceHandle<ezRende
 
 //////////////////////////////////////////////////////////////////////////
 
-ezStereoTestApplication::ezStereoTestApplication(const char* szProjectDirName)
-  : ezGameEngineTestApplication(szProjectDirName)
+WStereoTestApplication::WStereoTestApplication(const char* szProjectDirName)
+  : WGameEngineTestApplication(szProjectDirName)
 {
 }
 
-ezUniquePtr<ezGameStateBase> ezStereoTestApplication::CreateGameState()
+WUniquePtr<WGameStateBase> WStereoTestApplication::CreateGameState()
 {
-  return EZ_DEFAULT_NEW(ezStereoTestGameState);
+  return W_DEFAULT_NEW(WStereoTestGameState);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-const char* ezStereoTest::GetTestName() const
+const char* WStereoTest::GetTestName() const
 {
   return "Stereo Test";
 }
 
-ezGameEngineTestApplication* ezStereoTest::CreateApplication()
+WGameEngineTestApplication* WStereoTest::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezStereoTestApplication, "XR");
+  m_pOwnApplication = W_DEFAULT_NEW(WStereoTestApplication, "XR");
   return m_pOwnApplication;
 }
 
-void ezStereoTest::SetupSubTests()
+void WStereoTest::SetupSubTests()
 {
   AddSubTest("HoloLensPipeline", SubTests::HoloLensPipeline);
   AddSubTest("DefaultPipeline", SubTests::DefaultPipeline);
 }
 
-ezResult ezStereoTest::InitializeSubTest(ezInt32 iIdentifier)
+WResult WStereoTest::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -73,61 +73,61 @@ ezResult ezStereoTest::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(100);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezBinScene"));
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.WBinScene"));
 
-    auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
-    ezDynamicCast<ezStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);
+    auto renderPipeline = WResourceManager::LoadResource<WRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
+    WDynamicCast<WStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   if (iIdentifier == SubTests::DefaultPipeline)
   {
     m_ImgCompFrames.PushBack(100);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezBinScene"));
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.WBinScene"));
 
-    auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }");
-    ezDynamicCast<ezStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);
+    auto renderPipeline = WResourceManager::LoadResource<WRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }");
+    WDynamicCast<WStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezStereoTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WStereoTest::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   ++m_iFrame;
-  ezStringBuilder sb;
+  WStringBuilder sb;
   sb.SetFormat("{}", m_iFrame);
 
-  ezDebugRenderer::Draw2DText(m_pApplication->GetWorld(), sb, ezVec2I32(50, 50), ezColor::Brown, 60);
+  WDebugRenderer::Draw2DText(m_pApplication->GetWorld(), sb, WVec2I32(50, 50), WColor::Brown, 60);
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    // The particle effect increases the error on lavapipe, see ezGameEngineTestParticles::GetImageCompareThreshold.
-    ezUInt32 uiThreshhold = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe") ? 300 : 250;
-    EZ_TEST_IMAGE(m_uiImgCompIdx, uiThreshhold);
+    // The particle effect increases the error on lavapipe, see WGameEngineTestParticles::GetImageCompareThreshold.
+    WUInt32 uiThreshhold = WGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe") ? 300 : 250;
+    W_TEST_IMAGE(m_uiImgCompIdx, uiThreshhold);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
       if (false)
       {
-        ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
+        WStringBuilder sPath(":appdata/Profiling/", WApplication::GetApplicationInstance()->GetApplicationName());
         sPath.AppendPath("stereoProfiling.json");
-        ezProfilingUtils::SaveProfilingCapture(sPath).IgnoreResult();
+        WProfilingUtils::SaveProfilingCapture(sPath).IgnoreResult();
       }
 
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
 #endif

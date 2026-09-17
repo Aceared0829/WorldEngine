@@ -3,7 +3,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <ProcGenPlugin/Declarations.h>
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   // Source: https://c-core-games.com/Generator/PlacementPatterns.html?t=R&s=16&ps=abcde&pr=0.73&pt=100&ri=500&ts=abababxx&ti=5000&st=true
   static Pattern::Point s_RegularGridPoints[] = {
@@ -799,26 +799,26 @@ namespace ezProcGenInternal
     {15.94f, 1.76f, 0.031f},
   };
 
-  static Pattern s_Patterns[ezProcPlacementPattern::COUNT];
+  static Pattern s_Patterns[WProcPlacementPattern::COUNT];
 
   bool FillPatterns()
   {
-    s_Patterns[ezProcPlacementPattern::RegularGrid].m_Points = ezMakeArrayPtr(s_RegularGridPoints);
-    s_Patterns[ezProcPlacementPattern::RegularGrid].m_fSize = 16.0f;
+    s_Patterns[WProcPlacementPattern::RegularGrid].m_Points = WMakeArrayPtr(s_RegularGridPoints);
+    s_Patterns[WProcPlacementPattern::RegularGrid].m_fSize = 16.0f;
 
-    s_Patterns[ezProcPlacementPattern::HexGrid].m_Points = ezMakeArrayPtr(s_HexGridPoints);
-    s_Patterns[ezProcPlacementPattern::HexGrid].m_fSize = 16.0f;
+    s_Patterns[WProcPlacementPattern::HexGrid].m_Points = WMakeArrayPtr(s_HexGridPoints);
+    s_Patterns[WProcPlacementPattern::HexGrid].m_fSize = 16.0f;
 
-    s_Patterns[ezProcPlacementPattern::Natural].m_Points = ezMakeArrayPtr(s_NaturalPoints);
-    s_Patterns[ezProcPlacementPattern::Natural].m_fSize = 16.0f;
+    s_Patterns[WProcPlacementPattern::Natural].m_Points = WMakeArrayPtr(s_NaturalPoints);
+    s_Patterns[WProcPlacementPattern::Natural].m_fSize = 16.0f;
 
     return true;
   }
 
   static bool s_bFillPatternsDummy = FillPatterns();
 
-  Pattern* GetPattern(ezProcPlacementPattern::Enum pattern)
+  Pattern* GetPattern(WProcPlacementPattern::Enum pattern)
   {
     return &s_Patterns[pattern];
   }
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

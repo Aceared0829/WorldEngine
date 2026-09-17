@@ -4,150 +4,150 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezJoltSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezJoltSurfaceResourceSlot>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WJoltSurfaceResourceSlot, WNoBase, 1, WRTTIDefaultAllocator<WJoltSurfaceResourceSlot>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("Exclude", m_bExclude),
+    W_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("Exclude", m_bExclude),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltCollisionMeshType, 2)
-  EZ_ENUM_CONSTANT(ezJoltCollisionMeshType::ConvexHull),
-  EZ_ENUM_CONSTANT(ezJoltCollisionMeshType::TriangleMesh),
-  EZ_ENUM_CONSTANT(ezJoltCollisionMeshType::Cylinder),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltCollisionMeshType, 2)
+  W_ENUM_CONSTANT(WJoltCollisionMeshType::ConvexHull),
+  W_ENUM_CONSTANT(WJoltCollisionMeshType::TriangleMesh),
+  W_ENUM_CONSTANT(WJoltCollisionMeshType::Cylinder),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltConvexCollisionMeshType, 1)
-  EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexHull),
-  EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::Cylinder),
-  EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexDecomposition),
-  EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexHullGroup),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WJoltConvexCollisionMeshType, 1)
+  W_ENUM_CONSTANT(WJoltConvexCollisionMeshType::ConvexHull),
+  W_ENUM_CONSTANT(WJoltConvexCollisionMeshType::Cylinder),
+  W_ENUM_CONSTANT(WJoltConvexCollisionMeshType::ConvexDecomposition),
+  W_ENUM_CONSTANT(WJoltConvexCollisionMeshType::ConvexHullGroup),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WJoltCollisionMeshAssetProperties, 3, WRTTIDefaultAllocator<WJoltCollisionMeshAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
-    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
-    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
-    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("IsConvexMesh", m_bIsConvexMesh)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("ConvexMeshType", ezJoltConvexCollisionMeshType, m_ConvexMeshType),
-    EZ_MEMBER_PROPERTY("MaxConvexPieces", m_uiMaxConvexPieces)->AddAttributes(new ezDefaultValueAttribute(5)),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
-    EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags),
-    EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
-    EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+    W_ENUM_MEMBER_PROPERTY("ImportTransform", WMeshImportTransform, m_ImportTransform),
+    W_ENUM_MEMBER_PROPERTY("RightDir", WBasisAxis, m_RightDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::NegativeX)),
+    W_ENUM_MEMBER_PROPERTY("UpDir", WBasisAxis, m_UpDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::PositiveY)),
+    W_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
+    W_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    W_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("IsConvexMesh", m_bIsConvexMesh)->AddAttributes(new WHiddenAttribute()),
+    W_ENUM_MEMBER_PROPERTY("ConvexMeshType", WJoltConvexCollisionMeshType, m_ConvexMeshType),
+    W_MEMBER_PROPERTY("MaxConvexPieces", m_uiMaxConvexPieces)->AddAttributes(new WDefaultValueAttribute(5)),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(0, 32)),
+    W_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new WFileBrowserAttribute("Select Mesh", WFileBrowserAttribute::Meshes), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
+    W_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags),
+    W_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new WContainerAttribute(false, false, true)),
+    W_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
 
-    EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
-    EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
-    EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(20), new ezClampValueAttribute(1, 100)),
-    EZ_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
+    W_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
+    W_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new WDefaultValueAttribute(50), new WClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new WDefaultValueAttribute(20), new WClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltCollisionMeshAssetProperties::ezJoltCollisionMeshAssetProperties() = default;
-ezJoltCollisionMeshAssetProperties::~ezJoltCollisionMeshAssetProperties() = default;
+WJoltCollisionMeshAssetProperties::WJoltCollisionMeshAssetProperties() = default;
+WJoltCollisionMeshAssetProperties::~WJoltCollisionMeshAssetProperties() = default;
 
-void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezJoltCollisionMeshAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() != WGetStaticRTTI<WJoltCollisionMeshAssetProperties>())
     return;
 
   const bool bSimplify = e.m_pObject->GetTypeAccessor().GetValue("SimplifyMesh").ConvertTo<bool>();
   const bool isConvex = e.m_pObject->GetTypeAccessor().GetValue("IsConvexMesh").ConvertTo<bool>();
-  const ezInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("ConvexMeshType").ConvertTo<ezInt64>();
+  const WInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("ConvexMeshType").ConvertTo<WInt64>();
 
   auto& props = *e.m_pPropertyStates;
 
-  props["Radius"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Radius2"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Height"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
-  props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Surfaces"].m_Visibility = ezPropertyUiState::Invisible;
-  props["SimplifyMesh"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MeshSimplification"].m_Visibility = ezPropertyUiState::Invisible;
-  props["MaxSimplificationError"].m_Visibility = ezPropertyUiState::Invisible;
-  props["NormalWeight"].m_Visibility = ezPropertyUiState::Invisible;
-  props["AggressiveSimplification"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Surface"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Radius"].m_Visibility = WPropertyUiState::Invisible;
+  props["Radius2"].m_Visibility = WPropertyUiState::Invisible;
+  props["Height"].m_Visibility = WPropertyUiState::Invisible;
+  props["Detail"].m_Visibility = WPropertyUiState::Invisible;
+  props["MeshFile"].m_Visibility = WPropertyUiState::Invisible;
+  props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Invisible;
+  props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Invisible;
+  props["ConvexMeshType"].m_Visibility = WPropertyUiState::Invisible;
+  props["MaxConvexPieces"].m_Visibility = WPropertyUiState::Invisible;
+  props["MaxConvexPieces"].m_Visibility = WPropertyUiState::Invisible;
+  props["Surfaces"].m_Visibility = WPropertyUiState::Invisible;
+  props["SimplifyMesh"].m_Visibility = WPropertyUiState::Invisible;
+  props["MeshSimplification"].m_Visibility = WPropertyUiState::Invisible;
+  props["MaxSimplificationError"].m_Visibility = WPropertyUiState::Invisible;
+  props["NormalWeight"].m_Visibility = WPropertyUiState::Invisible;
+  props["AggressiveSimplification"].m_Visibility = WPropertyUiState::Invisible;
+  props["Surface"].m_Visibility = WPropertyUiState::Invisible;
 
-  const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+  const WInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<WInt64>();
   const bool bCustomTransform = importTransform == 127;
-  props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["RightDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["UpDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+  props["FlipForwardDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
   if (!isConvex)
   {
-    props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-    props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
-    props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
-    props["Surfaces"].m_Visibility = ezPropertyUiState::Default;
-    props["SimplifyMesh"].m_Visibility = ezPropertyUiState::Default;
+    props["MeshFile"].m_Visibility = WPropertyUiState::Default;
+    props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Default;
+    props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Default;
+    props["Surfaces"].m_Visibility = WPropertyUiState::Default;
+    props["SimplifyMesh"].m_Visibility = WPropertyUiState::Default;
 
-    props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["NormalWeight"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MeshSimplification"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["MaxSimplificationError"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["NormalWeight"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["AggressiveSimplification"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
   }
   else
   {
-    props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Default;
+    props["ConvexMeshType"].m_Visibility = WPropertyUiState::Default;
 
     switch (meshType)
     {
-      case ezJoltConvexCollisionMeshType::ConvexHull:
-        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["Surface"].m_Visibility = ezPropertyUiState::Default;
+      case WJoltConvexCollisionMeshType::ConvexHull:
+        props["MeshFile"].m_Visibility = WPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["Surface"].m_Visibility = WPropertyUiState::Default;
         break;
 
-      case ezJoltConvexCollisionMeshType::ConvexDecomposition:
-        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["Surface"].m_Visibility = ezPropertyUiState::Default;
-        props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Default;
+      case WJoltConvexCollisionMeshType::ConvexDecomposition:
+        props["MeshFile"].m_Visibility = WPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["Surface"].m_Visibility = WPropertyUiState::Default;
+        props["MaxConvexPieces"].m_Visibility = WPropertyUiState::Default;
         break;
 
-      case ezJoltConvexCollisionMeshType::ConvexHullGroup:
-        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["Surfaces"].m_Visibility = ezPropertyUiState::Default;
+      case WJoltConvexCollisionMeshType::ConvexHullGroup:
+        props["MeshFile"].m_Visibility = WPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["Surfaces"].m_Visibility = WPropertyUiState::Default;
         break;
 
-      case ezJoltConvexCollisionMeshType::Cylinder:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-        props["Height"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Surface"].m_Visibility = ezPropertyUiState::Default;
+      case WJoltConvexCollisionMeshType::Cylinder:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Radius2"].m_Visibility = WPropertyUiState::Default;
+        props["Height"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Surface"].m_Visibility = WPropertyUiState::Default;
         break;
     }
   }
@@ -157,18 +157,18 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezJoltCollisionMeshAssetProperties_1_2 : public ezGraphPatch
+class WJoltCollisionMeshAssetProperties_1_2 : public WGraphPatch
 {
 public:
-  ezJoltCollisionMeshAssetProperties_1_2()
-    : ezGraphPatch("ezJoltCollisionMeshAssetProperties", 2)
+  WJoltCollisionMeshAssetProperties_1_2()
+    : WGraphPatch("WJoltCollisionMeshAssetProperties", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->AddProperty("ImportTransform", 127);
   }
 };
 
-ezJoltCollisionMeshAssetProperties_1_2 g_ezJoltCollisionMeshAssetProperties_1_2;
+WJoltCollisionMeshAssetProperties_1_2 g_WJoltCollisionMeshAssetProperties_1_2;

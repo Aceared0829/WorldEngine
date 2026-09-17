@@ -14,101 +14,101 @@
 
 namespace
 {
-  void MakeSubfunctionName(const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject, ezStringBuilder& out_sName)
+  void MakeSubfunctionName(const WDocumentObject* pObject, const WDocumentObject* pEntryObject, WStringBuilder& out_sName)
   {
-    ezVariant sNameProperty = pObject->GetTypeAccessor().GetValue("Name");
-    ezUInt32 uiHash = ezHashHelper<ezUuid>::Hash(pObject->GetGuid());
+    WVariant sNameProperty = pObject->GetTypeAccessor().GetValue("Name");
+    WUInt32 uiHash = WHashHelper<WUuid>::Hash(pObject->GetGuid());
 
-    out_sName.SetFormat("{}_{}_{}", pEntryObject != nullptr ? ezVisualScriptNodeManager::GetNiceFunctionName(pEntryObject) : "", sNameProperty, ezArgU(uiHash, 8, true, 16));
+    out_sName.SetFormat("{}_{}_{}", pEntryObject != nullptr ? WVisualScriptNodeManager::GetNiceFunctionName(pEntryObject) : "", sNameProperty, WArgU(uiHash, 8, true, 16));
   }
 
-  ezVisualScriptDataType::Enum FinalizeDataType(ezVisualScriptDataType::Enum dataType)
+  WVisualScriptDataType::Enum FinalizeDataType(WVisualScriptDataType::Enum dataType)
   {
-    ezVisualScriptDataType::Enum result = dataType;
-    if (result == ezVisualScriptDataType::EnumValue || result == ezVisualScriptDataType::BitflagValue)
-      result = ezVisualScriptDataType::Int64;
+    WVisualScriptDataType::Enum result = dataType;
+    if (result == WVisualScriptDataType::EnumValue || result == WVisualScriptDataType::BitflagValue)
+      result = WVisualScriptDataType::Int64;
 
-    if (result == ezVisualScriptDataType::Resource)
-      result = ezVisualScriptDataType::String;
+    if (result == WVisualScriptDataType::Resource)
+      result = WVisualScriptDataType::String;
 
     return result;
   }
 
-  using FillUserDataFunction = ezResult (*)(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject);
+  using FillUserDataFunction = WResult (*)(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject);
 
-  static ezResult FillUserData_CoroutineMode(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_CoroutineMode(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
     inout_astNode.m_Value = pObject->GetTypeAccessor().GetValue("CoroutineMode");
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_ReflectedPropertyOrFunction(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_ReflectedPropertyOrFunction(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+    auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
     if (pNodeDesc->m_pTargetType != nullptr)
       inout_astNode.m_sTargetTypeName.Assign(pNodeDesc->m_pTargetType->GetTypeName());
 
-    ezVariantArray propertyNames;
+    WVariantArray propertyNames;
     for (auto& pProp : pNodeDesc->m_TargetProperties)
     {
-      ezHashedString sPropertyName;
+      WHashedString sPropertyName;
       sPropertyName.Assign(pProp->GetPropertyName());
       propertyNames.PushBack(sPropertyName);
     }
 
     inout_astNode.m_Value = propertyNames;
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_DynamicReflectedProperty(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_DynamicReflectedProperty(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
-    auto pTargetType = ezVisualScriptTypeDeduction::GetReflectedType(pObject);
-    auto pTargetProperty = ezVisualScriptTypeDeduction::GetReflectedProperty(pObject);
+    auto pTargetType = WVisualScriptTypeDeduction::GetReflectedType(pObject);
+    auto pTargetProperty = WVisualScriptTypeDeduction::GetReflectedProperty(pObject);
     if (pTargetType == nullptr || pTargetProperty == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     inout_astNode.m_sTargetTypeName.Assign(pTargetType->GetTypeName());
 
-    ezVariantArray propertyNames;
+    WVariantArray propertyNames;
     {
-      ezHashedString sPropertyName;
+      WHashedString sPropertyName;
       sPropertyName.Assign(pTargetProperty->GetPropertyName());
       propertyNames.PushBack(sPropertyName);
     }
 
     inout_astNode.m_Value = propertyNames;
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_VariableName(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_VariableName(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
     inout_astNode.m_Value = pObject->GetTypeAccessor().GetValue("Name");
 
-    ezStringView sName = inout_astNode.m_Value.Get<ezString>().GetView();
+    WStringView sName = inout_astNode.m_Value.Get<WString>().GetView();
 
-    ezVisualScriptVariable v;
-    if (static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager())->GetVariable(ezTempHashedString(sName), v).Failed())
+    WVisualScriptVariable v;
+    if (static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager())->GetVariable(WTempHashedString(sName), v).Failed())
     {
-      ezLog::Error("Invalid variable named '{}'", sName);
-      return EZ_FAILURE;
+      WLog::Error("Invalid variable named '{}'", sName);
+      return W_FAILURE;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_Switch(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_Switch(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
-    inout_astNode.m_DeductedDataType = ezVisualScriptDataType::Int64;
+    inout_astNode.m_DeductedDataType = WVisualScriptDataType::Int64;
 
-    ezVariantArray casesVarArray;
+    WVariantArray casesVarArray;
 
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+    auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
     if (pNodeDesc->m_pTargetType != nullptr)
     {
-      ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
-      ezReflectionUtils::GetEnumKeysAndValues(pNodeDesc->m_pTargetType, enumKeysAndValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      WTempHybridArray<WReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
+      WReflectionUtils::GetEnumKeysAndValues(pNodeDesc->m_pTargetType, enumKeysAndValues, WReflectionUtils::EnumConversionMode::ValueNameOnly);
       for (auto& keyAndValue : enumKeysAndValues)
       {
         casesVarArray.PushBack(keyAndValue.m_iValue);
@@ -116,103 +116,103 @@ namespace
     }
     else
     {
-      ezVariant casesVar = pObject->GetTypeAccessor().GetValue("Cases");
-      casesVarArray = casesVar.Get<ezVariantArray>();
+      WVariant casesVar = pObject->GetTypeAccessor().GetValue("Cases");
+      casesVarArray = casesVar.Get<WVariantArray>();
       for (auto& caseVar : casesVarArray)
       {
-        if (caseVar.IsA<ezString>())
+        if (caseVar.IsA<WString>())
         {
-          inout_astNode.m_DeductedDataType = ezVisualScriptDataType::HashedString;
-          caseVar = ezTempHashedString(caseVar.Get<ezString>()).GetHash();
+          inout_astNode.m_DeductedDataType = WVisualScriptDataType::HashedString;
+          caseVar = WTempHashedString(caseVar.Get<WString>()).GetHash();
         }
-        else if (caseVar.IsA<ezHashedString>())
+        else if (caseVar.IsA<WHashedString>())
         {
-          inout_astNode.m_DeductedDataType = ezVisualScriptDataType::HashedString;
-          caseVar = caseVar.Get<ezHashedString>().GetHash();
+          inout_astNode.m_DeductedDataType = WVisualScriptDataType::HashedString;
+          caseVar = caseVar.Get<WHashedString>().GetHash();
         }
       }
     }
 
     inout_astNode.m_Value = casesVarArray;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_Builtin_Compare(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_Builtin_Compare(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
     inout_astNode.m_Value = pObject->GetTypeAccessor().GetValue("Operator");
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_Builtin_Expression(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_Builtin_Expression(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
-    auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+    auto pManager = static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
 
-    ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+    WTempHybridArray<const WVisualScriptPin*, 16> pins;
 
-    ezTempHybridArray<ezExpression::StreamDesc, 8> inputs;
+    WTempHybridArray<WExpression::StreamDesc, 8> inputs;
     pManager->GetInputDataPins(pObject, pins);
     for (auto pPin : pins)
     {
       auto& input = inputs.ExpandAndGetRef();
       input.m_sName.Assign(pPin->GetName());
-      input.m_DataType = ezVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
+      input.m_DataType = WVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
     }
 
-    ezTempHybridArray<ezExpression::StreamDesc, 8> outputs;
+    WTempHybridArray<WExpression::StreamDesc, 8> outputs;
     pManager->GetOutputDataPins(pObject, pins);
     for (auto pPin : pins)
     {
       auto& output = outputs.ExpandAndGetRef();
       output.m_sName.Assign(pPin->GetName());
-      output.m_DataType = ezVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
+      output.m_DataType = WVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
     }
 
-    ezString sExpressionSource = pObject->GetTypeAccessor().GetValue("Expression").Get<ezString>();
+    WString sExpressionSource = pObject->GetTypeAccessor().GetValue("Expression").Get<WString>();
 
-    ezExpressionParser parser;
-    ezExpressionParser::Options options = {};
-    ezExpressionAST ast;
-    EZ_SUCCEED_OR_RETURN(parser.Parse(sExpressionSource, inputs, outputs, options, ast));
+    WExpressionParser parser;
+    WExpressionParser::Options options = {};
+    WExpressionAST ast;
+    W_SUCCEED_OR_RETURN(parser.Parse(sExpressionSource, inputs, outputs, options, ast));
 
-    ezExpressionCompiler compiler;
-    ezExpressionByteCode byteCode;
-    EZ_SUCCEED_OR_RETURN(compiler.Compile(ast, byteCode));
+    WExpressionCompiler compiler;
+    WExpressionByteCode byteCode;
+    W_SUCCEED_OR_RETURN(compiler.Compile(ast, byteCode));
 
     inout_astNode.m_Value = byteCode;
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_ComponentTypeName(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_ComponentTypeName(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
     auto typeName = pObject->GetTypeAccessor().GetValue("TypeName");
-    const ezRTTI* pType = ezRTTI::FindTypeByName(typeName.Get<ezString>());
+    const WRTTI* pType = WRTTI::FindTypeByName(typeName.Get<WString>());
     if (pType == nullptr)
     {
-      ezLog::Error("Invalid type '{}' for GameObject::CreateComponent/TryGetComponentOfBaseType node.", typeName);
-      return EZ_FAILURE;
+      WLog::Error("Invalid type '{}' for GameObject::CreateComponent/TryGetComponentOfBaseType node.", typeName);
+      return W_FAILURE;
     }
 
     inout_astNode.m_sTargetTypeName.Assign(pType->GetTypeName());
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  static ezResult FillUserData_Builtin_StartCoroutine(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  static WResult FillUserData_Builtin_StartCoroutine(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
-    EZ_SUCCEED_OR_RETURN(FillUserData_CoroutineMode(inout_astNode, pCompiler, pObject, pEntryObject));
+    W_SUCCEED_OR_RETURN(FillUserData_CoroutineMode(inout_astNode, pCompiler, pObject, pEntryObject));
 
-    auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
-    ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+    auto pManager = static_cast<const WVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+    WTempHybridArray<const WVisualScriptPin*, 16> pins;
     pManager->GetOutputExecutionPins(pObject, pins);
 
-    const ezUInt32 uiCoroutineBodyIndex = 1;
+    const WUInt32 uiCoroutineBodyIndex = 1;
     auto connections = pManager->GetConnections(*pins[uiCoroutineBodyIndex]);
     if (connections.IsEmpty() == false)
     {
-      ezStringBuilder sFunctionName;
+      WStringBuilder sFunctionName;
       MakeSubfunctionName(pObject, pEntryObject, sFunctionName);
 
-      ezStringBuilder sFullName;
+      WStringBuilder sFullName;
       sFullName.Set(pCompiler->GetCompiledModule().m_sScriptClassName, "::", sFunctionName, "<Coroutine>");
 
       inout_astNode.m_sTargetTypeName.Assign(sFullName);
@@ -220,7 +220,7 @@ namespace
       return pCompiler->AddFunction(sFunctionName, connections[0]->GetTargetPin().GetParent(), pObject);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   static FillUserDataFunction s_TypeToFillUserDataFunctions[] = {
@@ -314,43 +314,43 @@ namespace
     nullptr,                                   // LastBuiltin,
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_TypeToFillUserDataFunctions) == ezVisualScriptNodeDescription::Type::Count);
+  static_assert(W_ARRAY_SIZE(s_TypeToFillUserDataFunctions) == WVisualScriptNodeDescription::Type::Count);
 
-  ezResult FillUserData(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  WResult FillUserData(WVisualScriptCompiler::AstNode& inout_astNode, WVisualScriptCompiler* pCompiler, const WDocumentObject* pObject, const WDocumentObject* pEntryObject)
   {
     if (pObject == nullptr)
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
     auto nodeType = inout_astNode.m_Type;
-    EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_TypeToFillUserDataFunctions), "Out of bounds access");
+    W_ASSERT_DEBUG(nodeType >= 0 && nodeType < W_ARRAY_SIZE(s_TypeToFillUserDataFunctions), "Out of bounds access");
     auto func = s_TypeToFillUserDataFunctions[nodeType];
 
     if (func != nullptr)
     {
-      EZ_SUCCEED_OR_RETURN(func(inout_astNode, pCompiler, pObject, pEntryObject));
+      W_SUCCEED_OR_RETURN(func(inout_astNode, pCompiler, pObject, pEntryObject));
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptCompiler::CompiledModule::CompiledModule()
-  : m_ConstantDataStorage(ezSharedPtr<ezVisualScriptDataDescription>(&m_ConstantDataDesc, nullptr))
+WVisualScriptCompiler::CompiledModule::CompiledModule()
+  : m_ConstantDataStorage(WSharedPtr<WVisualScriptDataDescription>(&m_ConstantDataDesc, nullptr))
 {
   // Prevent the data desc from being deleted by fake shared ptr above
   m_ConstantDataDesc.AddRef();
 }
 
-ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout_stream) const
+WResult WVisualScriptCompiler::CompiledModule::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_ASSERT_DEV(m_sScriptClassName.IsEmpty() == false, "Invalid script class name");
+  W_ASSERT_DEV(m_sScriptClassName.IsEmpty() == false, "Invalid script class name");
 
-  ezStringDeduplicationWriteContext stringDedup(inout_stream);
+  WStringDeduplicationWriteContext stringDedup(inout_stream);
 
-  ezChunkStreamWriter chunk(stringDedup.Begin());
+  WChunkStreamWriter chunk(stringDedup.Begin());
   chunk.BeginStream(1);
 
   {
@@ -362,15 +362,15 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
 
   {
     chunk.BeginChunk("ConstantData", 1);
-    EZ_SUCCEED_OR_RETURN(m_ConstantDataDesc.Serialize(chunk));
-    EZ_SUCCEED_OR_RETURN(m_ConstantDataStorage.Serialize(chunk));
+    W_SUCCEED_OR_RETURN(m_ConstantDataDesc.Serialize(chunk));
+    W_SUCCEED_OR_RETURN(m_ConstantDataStorage.Serialize(chunk));
     chunk.EndChunk();
   }
 
   {
     chunk.BeginChunk("InstanceData", 1);
-    EZ_SUCCEED_OR_RETURN(m_InstanceDataDesc.Serialize(chunk));
-    EZ_SUCCEED_OR_RETURN(chunk.WriteHashTable(m_InstanceDataMapping.m_Content));
+    W_SUCCEED_OR_RETURN(m_InstanceDataDesc.Serialize(chunk));
+    W_SUCCEED_OR_RETURN(chunk.WriteHashTable(m_InstanceDataMapping.m_Content));
     chunk.EndChunk();
   }
 
@@ -379,7 +379,7 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
     chunk << m_Functions.GetCount();
 
     // Reverse order so functions that are added later (e.g. coroutines) are loaded first
-    for (ezUInt32 i = m_Functions.GetCount(); i-- > 0;)
+    for (WUInt32 i = m_Functions.GetCount(); i-- > 0;)
     {
       auto& function = m_Functions[i];
 
@@ -387,7 +387,7 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
       chunk << function.m_Type;
       chunk << function.m_CoroutineCreationMode;
 
-      EZ_SUCCEED_OR_RETURN(ezVisualScriptGraphDescription::Serialize(function.m_NodeDescriptions, function.m_LocalDataDesc, chunk));
+      W_SUCCEED_OR_RETURN(WVisualScriptGraphDescription::Serialize(function.m_NodeDescriptions, function.m_LocalDataDesc, chunk));
     }
 
     chunk.EndChunk();
@@ -400,29 +400,29 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptCompiler::ezVisualScriptCompiler(ezVisualScriptNodeManager& ref_nodeManager)
+WVisualScriptCompiler::WVisualScriptCompiler(WVisualScriptNodeManager& ref_nodeManager)
   : m_NodeManager(ref_nodeManager)
 {
 }
 
-ezVisualScriptCompiler::~ezVisualScriptCompiler() = default;
+WVisualScriptCompiler::~WVisualScriptCompiler() = default;
 
-void ezVisualScriptCompiler::InitModule(ezStringView sBaseClassName, ezStringView sScriptClassName)
+void WVisualScriptCompiler::InitModule(WStringView sBaseClassName, WStringView sScriptClassName)
 {
   m_Module.m_sBaseClassName = sBaseClassName;
   m_Module.m_sScriptClassName = sScriptClassName;
 }
 
-ezResult ezVisualScriptCompiler::AddFunction(ezStringView sName, const ezDocumentObject* pEntryObject, const ezDocumentObject* pParentObject)
+WResult WVisualScriptCompiler::AddFunction(WStringView sName, const WDocumentObject* pEntryObject, const WDocumentObject* pParentObject)
 {
-  EZ_ASSERT_DEV(&m_NodeManager == pEntryObject->GetDocumentObjectManager(), "Can't add functions from different document");
+  W_ASSERT_DEV(&m_NodeManager == pEntryObject->GetDocumentObjectManager(), "Can't add functions from different document");
 
   for (auto& existingFunction : m_Module.m_Functions)
   {
     if (existingFunction.m_sName == sName)
     {
-      ezLog::Error("A function named '{}' already exists. Function names need to unique.", sName);
-      return EZ_FAILURE;
+      WLog::Error("A function named '{}' already exists. Function names need to unique.", sName);
+      return W_FAILURE;
     }
   }
 
@@ -432,77 +432,77 @@ ezResult ezVisualScriptCompiler::AddFunction(ezStringView sName, const ezDocumen
   {
     auto pObjectWithCoroutineMode = pParentObject != nullptr ? pParentObject : pEntryObject;
     auto mode = pObjectWithCoroutineMode->GetTypeAccessor().GetValue("CoroutineMode");
-    if (mode.IsA<ezInt64>())
+    if (mode.IsA<WInt64>())
     {
-      function.m_CoroutineCreationMode = static_cast<ezScriptCoroutineCreationMode::Enum>(mode.Get<ezInt64>());
+      function.m_CoroutineCreationMode = static_cast<WScriptCoroutineCreationMode::Enum>(mode.Get<WInt64>());
     }
     else
     {
-      function.m_CoroutineCreationMode = ezScriptCoroutineCreationMode::AllowOverlap;
+      function.m_CoroutineCreationMode = WScriptCoroutineCreationMode::AllowOverlap;
     }
   }
 
   m_EntryObjects.PushBack(pEntryObject);
-  EZ_ASSERT_DEBUG(m_Module.m_Functions.GetCount() == m_EntryObjects.GetCount(), "");
+  W_ASSERT_DEBUG(m_Module.m_Functions.GetCount() == m_EntryObjects.GetCount(), "");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::Compile(ezStringView sDebugAstOutputPath)
+WResult WVisualScriptCompiler::Compile(WStringView sDebugAstOutputPath)
 {
-  EZ_SUCCEED_OR_RETURN(BuildInstanceDataMapping());
+  W_SUCCEED_OR_RETURN(BuildInstanceDataMapping());
 
-  for (ezUInt32 i = 0; i < m_Module.m_Functions.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Module.m_Functions.GetCount(); ++i)
   {
     auto& function = m_Module.m_Functions[i];
-    const ezDocumentObject* pEntryObject = m_EntryObjects[i];
+    const WDocumentObject* pEntryObject = m_EntryObjects[i];
 
     AstNode* pEntryAstNode = BuildExecutionFlow(pEntryObject);
     if (pEntryAstNode == nullptr)
     {
-      ezLog::Error("Failed to build execution flow for function '{}'", function.m_sName);
-      return EZ_FAILURE;
+      WLog::Error("Failed to build execution flow for function '{}'", function.m_sName);
+      return W_FAILURE;
     }
 
     function.m_Type = pEntryAstNode->m_Type;
 
-    EZ_SUCCEED_OR_RETURN(BuildDataExecutions(pEntryAstNode));
+    W_SUCCEED_OR_RETURN(BuildDataExecutions(pEntryAstNode));
 
     DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_00");
 
-    EZ_SUCCEED_OR_RETURN(InsertTypeConversions(pEntryAstNode));
+    W_SUCCEED_OR_RETURN(InsertTypeConversions(pEntryAstNode));
 
     DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_01_TypeConv");
 
-    EZ_SUCCEED_OR_RETURN(AssignInstanceVariables(pEntryAstNode));
+    W_SUCCEED_OR_RETURN(AssignInstanceVariables(pEntryAstNode));
 
     DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_02_InstanceVarsAssigned");
 
-    EZ_SUCCEED_OR_RETURN(ReplaceUnsupportedNodes(pEntryAstNode));
+    W_SUCCEED_OR_RETURN(ReplaceUnsupportedNodes(pEntryAstNode));
 
     DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_03_Replaced");
 
-    EZ_SUCCEED_OR_RETURN(CopyOutputsToInputs(pEntryAstNode));
-    EZ_SUCCEED_OR_RETURN(AssignLocalVariables(pEntryAstNode, function.m_LocalDataDesc));
+    W_SUCCEED_OR_RETURN(CopyOutputsToInputs(pEntryAstNode));
+    W_SUCCEED_OR_RETURN(AssignLocalVariables(pEntryAstNode, function.m_LocalDataDesc));
 
     DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_04_LocalVarsAssigned");
 
-    EZ_SUCCEED_OR_RETURN(BuildNodeDescriptions(pEntryAstNode, function.m_NodeDescriptions));
+    W_SUCCEED_OR_RETURN(BuildNodeDescriptions(pEntryAstNode, function.m_NodeDescriptions));
 
     DumpGraph(function.m_NodeDescriptions, sDebugAstOutputPath, function.m_sName, "_Graph");
 
     m_CompilationState.Clear();
   }
 
-  EZ_SUCCEED_OR_RETURN(FinalizeConstantData());
+  W_SUCCEED_OR_RETURN(FinalizeConstantData());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // Ast node creation
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptCompiler::AstNode& ezVisualScriptCompiler::CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, ezVisualScriptDataType::Enum deductedDataType, bool bImplicitExecution /*= false*/)
+WVisualScriptCompiler::AstNode& WVisualScriptCompiler::CreateAstNode(WVisualScriptNodeDescription::Type::Enum type, WVisualScriptDataType::Enum deductedDataType, bool bImplicitExecution /*= false*/)
 {
   auto& node = m_AstNodes.ExpandAndGetRef();
   node.m_Type = type;
@@ -511,21 +511,21 @@ ezVisualScriptCompiler::AstNode& ezVisualScriptCompiler::CreateAstNode(ezVisualS
   return node;
 }
 
-ezVisualScriptCompiler::AstNode& ezVisualScriptCompiler::CreateJumpNode(AstNode* pTargetNode)
+WVisualScriptCompiler::AstNode& WVisualScriptCompiler::CreateJumpNode(AstNode* pTargetNode)
 {
-  auto& jumpNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Jump);
-  jumpNode.m_Value = ezUInt64(*reinterpret_cast<size_t*>(&pTargetNode));
+  auto& jumpNode = CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Jump);
+  jumpNode.m_Value = WUInt64(*reinterpret_cast<size_t*>(&pTargetNode));
 
   return jumpNode;
 }
 
-ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::CreateAstNodeFromObject(const ezDocumentObject* pObject, const ezVisualScriptNodeRegistry::NodeDesc* pNodeDesc, const ezDocumentObject* pEntryObject, bool bImplicitOnly /*= false*/)
+WVisualScriptCompiler::AstNode* WVisualScriptCompiler::CreateAstNodeFromObject(const WDocumentObject* pObject, const WVisualScriptNodeRegistry::NodeDesc* pNodeDesc, const WDocumentObject* pEntryObject, bool bImplicitOnly /*= false*/)
 {
   if (pNodeDesc == nullptr)
   {
-    pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+    pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
   }
-  EZ_ASSERT_DEV(pNodeDesc != nullptr && pNodeDesc->m_Type != ezVisualScriptNodeDescription::Type::GetScriptOwner, "Invalid node type");
+  W_ASSERT_DEV(pNodeDesc != nullptr && pNodeDesc->m_Type != WVisualScriptNodeDescription::Type::GetScriptOwner, "Invalid node type");
 
   if (bImplicitOnly && !pNodeDesc->m_bImplicitExecution)
     return nullptr;
@@ -548,15 +548,15 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::CreateAstNodeFromObject
   return &astNode;
 }
 
-ezVisualScriptCompiler::DataInput ezVisualScriptCompiler::GetOrCreateDefaultPointerNode(const AstNode& node, const ezRTTI* pRtti)
+WVisualScriptCompiler::DataInput WVisualScriptCompiler::GetOrCreateDefaultPointerNode(const AstNode& node, const WRTTI* pRtti)
 {
   if (pRtti == nullptr)
   {
-    pRtti = ezRTTI::FindTypeByNameHash(node.m_sTargetTypeName.GetHash());
+    pRtti = WRTTI::FindTypeByNameHash(node.m_sTargetTypeName.GetHash());
   }
 
-  const bool bIsGameObject = pRtti == ezGetStaticRTTI<ezGameObject>() || pRtti == ezGetStaticRTTI<ezGameObjectHandle>();
-  const bool bIsWorld = pRtti == ezGetStaticRTTI<ezWorld>();
+  const bool bIsGameObject = pRtti == WGetStaticRTTI<WGameObject>() || pRtti == WGetStaticRTTI<WGameObjectHandle>();
+  const bool bIsWorld = pRtti == WGetStaticRTTI<WWorld>();
 
   if (bIsWorld || bIsGameObject)
   {
@@ -570,32 +570,32 @@ ezVisualScriptCompiler::DataInput ezVisualScriptCompiler::GetOrCreateDefaultPoin
   return DataInput();
 }
 
-void ezVisualScriptCompiler::MarkAsCoroutine(AstNode* pEntryAstNode)
+void WVisualScriptCompiler::MarkAsCoroutine(AstNode* pEntryAstNode)
 {
   switch (pEntryAstNode->m_Type)
   {
-    case ezVisualScriptNodeDescription::Type::EntryCall:
-      pEntryAstNode->m_Type = ezVisualScriptNodeDescription::Type::EntryCall_Coroutine;
+    case WVisualScriptNodeDescription::Type::EntryCall:
+      pEntryAstNode->m_Type = WVisualScriptNodeDescription::Type::EntryCall_Coroutine;
       break;
-    case ezVisualScriptNodeDescription::Type::MessageHandler:
-      pEntryAstNode->m_Type = ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine;
+    case WVisualScriptNodeDescription::Type::MessageHandler:
+      pEntryAstNode->m_Type = WVisualScriptNodeDescription::Type::MessageHandler_Coroutine;
       break;
-    case ezVisualScriptNodeDescription::Type::EntryCall_Coroutine:
-    case ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine:
+    case WVisualScriptNodeDescription::Type::EntryCall_Coroutine:
+    case WVisualScriptNodeDescription::Type::MessageHandler_Coroutine:
       // Already a coroutine
       break;
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
 
 // Pins, inputs and outputs
 //////////////////////////////////////////////////////////////////////////
 
-void ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezVariant& value)
+void WVisualScriptCompiler::AddConstantDataInput(AstNode& node, const WVariant& value)
 {
-  ezVisualScriptDataType::Enum dataType = ezVisualScriptDataType::FromVariantType(value.GetType());
+  WVisualScriptDataType::Enum dataType = WVisualScriptDataType::FromVariantType(value.GetType());
 
-  ezUInt32 uiIndex = ezInvalidIndex;
+  WUInt32 uiIndex = WInvalidIndex;
   if (m_Module.m_ConstantDataToIndex.TryGetValue(value, uiIndex) == false)
   {
     auto& offsetAndCount = m_Module.m_ConstantDataDesc.m_PerTypeInfo[dataType];
@@ -611,39 +611,39 @@ void ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezVariant
   dataInput.m_DataOffset = DataOffset(uiIndex, dataType, DataOffset::Source::Constant);
 }
 
-ezResult ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezDocumentObject* pObject, const ezVisualScriptPin* pPin, ezVisualScriptDataType::Enum dataType)
+WResult WVisualScriptCompiler::AddConstantDataInput(AstNode& node, const WDocumentObject* pObject, const WVisualScriptPin* pPin, WVisualScriptDataType::Enum dataType)
 {
-  ezStringView sPropertyName = pPin->HasDynamicPinProperty() ? pPin->GetDynamicPinProperty() : pPin->GetName();
+  WStringView sPropertyName = pPin->HasDynamicPinProperty() ? pPin->GetDynamicPinProperty() : pPin->GetName();
 
-  ezVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
+  WVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
   if (value.IsValid() && pPin->HasDynamicPinProperty())
   {
-    EZ_ASSERT_DEBUG(value.IsA<ezVariantArray>(), "Implementation error");
-    value = value.Get<ezVariantArray>()[pPin->GetElementIndex()];
+    W_ASSERT_DEBUG(value.IsA<WVariantArray>(), "Implementation error");
+    value = value.Get<WVariantArray>()[pPin->GetElementIndex()];
   }
 
-  if (value.IsA<ezUuid>())
+  if (value.IsA<WUuid>())
   {
     value = 0;
   }
 
-  ezVisualScriptDataType::Enum valueDataType = ezVisualScriptDataType::FromVariantType(value.GetType());
-  if (dataType != ezVisualScriptDataType::Variant)
+  WVisualScriptDataType::Enum valueDataType = WVisualScriptDataType::FromVariantType(value.GetType());
+  if (dataType != WVisualScriptDataType::Variant)
   {
-    value = value.ConvertTo(ezVisualScriptDataType::GetVariantType(dataType));
+    value = value.ConvertTo(WVisualScriptDataType::GetVariantType(dataType));
     if (value.IsValid() == false)
     {
-      ezLog::Error("Failed to convert '{}.{}' of type '{}' to '{}'.", GetNiceTypeName(pObject), pPin->GetName(), ezVisualScriptDataType::GetName(valueDataType), ezVisualScriptDataType::GetName(dataType));
-      return EZ_FAILURE;
+      WLog::Error("Failed to convert '{}.{}' of type '{}' to '{}'.", GetNiceTypeName(pObject), pPin->GetName(), WVisualScriptDataType::GetName(valueDataType), WVisualScriptDataType::GetName(dataType));
+      return W_FAILURE;
     }
   }
 
   AddConstantDataInput(node, value);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezVisualScriptCompiler::AddDataInput(AstNode& node, AstNode* pSourceNode, ezUInt32 uiSourcePinIndex, ezVisualScriptDataType::Enum dataType)
+void WVisualScriptCompiler::AddDataInput(AstNode& node, AstNode* pSourceNode, WUInt32 uiSourcePinIndex, WVisualScriptDataType::Enum dataType)
 {
   auto& dataInput = node.m_DataInputs.ExpandAndGetRef();
   dataInput.m_pSourceNode = pSourceNode;
@@ -651,27 +651,27 @@ void ezVisualScriptCompiler::AddDataInput(AstNode& node, AstNode* pSourceNode, e
   dataInput.m_DataOffset.m_uiType = dataType;
 }
 
-void ezVisualScriptCompiler::AddDataOutput(AstNode& node, ezVisualScriptDataType::Enum dataType)
+void WVisualScriptCompiler::AddDataOutput(AstNode& node, WVisualScriptDataType::Enum dataType)
 {
   auto& dataOutput = node.m_DataOutputs.ExpandAndGetRef();
   dataOutput.m_DataOffset = DataOffset(m_CompilationState.m_uiNextLocalVarId++, dataType, DataOffset::Source::Local);
 }
 
-ezVisualScriptCompiler::DataOutput& ezVisualScriptCompiler::GetDataOutputFromInput(const DataInput& dataInput)
+WVisualScriptCompiler::DataOutput& WVisualScriptCompiler::GetDataOutputFromInput(const DataInput& dataInput)
 {
   if (dataInput.m_uiSourcePinIndex < dataInput.m_pSourceNode->m_DataOutputs.GetCount())
   {
     return dataInput.m_pSourceNode->m_DataOutputs[dataInput.m_uiSourcePinIndex];
   }
 
-  EZ_ASSERT_DEBUG(false, "This code should be never reached");
+  W_ASSERT_DEBUG(false, "This code should be never reached");
   static DataOutput dummy;
   return dummy;
 }
 
-void ezVisualScriptCompiler::ConnectExecution(AstNode& sourceNode, AstNode& targetNode, ezUInt32 uiSourcePinIndex /*= ezInvalidIndex*/)
+void WVisualScriptCompiler::ConnectExecution(AstNode& sourceNode, AstNode& targetNode, WUInt32 uiSourcePinIndex /*= WInvalidIndex*/)
 {
-  if (uiSourcePinIndex == ezInvalidIndex)
+  if (uiSourcePinIndex == WInvalidIndex)
   {
     // New connection
     ExecInput execInput;
@@ -699,17 +699,17 @@ void ezVisualScriptCompiler::ConnectExecution(AstNode& sourceNode, AstNode& targ
   }
 }
 
-void ezVisualScriptCompiler::DisconnectExecution(AstNode& sourceNode, AstNode& targetNode, ezUInt32 uiSourcePinIndex)
+void WVisualScriptCompiler::DisconnectExecution(AstNode& sourceNode, AstNode& targetNode, WUInt32 uiSourcePinIndex)
 {
   ExecInput execInputToRemove;
   execInputToRemove.m_pSourceNode = &sourceNode;
   execInputToRemove.m_uiSourcePinIndex = uiSourcePinIndex;
-  EZ_VERIFY(targetNode.m_ExecInputs.RemoveAndCopy(execInputToRemove), "");
+  W_VERIFY(targetNode.m_ExecInputs.RemoveAndCopy(execInputToRemove), "");
 
   sourceNode.m_ExecOutputs[uiSourcePinIndex].m_pTargetNode = nullptr;
 }
 
-void ezVisualScriptCompiler::ExecuteBefore(AstNode& node, AstNode& firstNewNode, AstNode& lastNewNode)
+void WVisualScriptCompiler::ExecuteBefore(AstNode& node, AstNode& firstNewNode, AstNode& lastNewNode)
 {
   for (auto& execInput : node.m_ExecInputs)
   {
@@ -720,9 +720,9 @@ void ezVisualScriptCompiler::ExecuteBefore(AstNode& node, AstNode& firstNewNode,
   ConnectExecution(lastNewNode, node);
 }
 
-void ezVisualScriptCompiler::ExecuteAfter(AstNode& node, AstNode& firstNewNode, AstNode& lastNewNode)
+void WVisualScriptCompiler::ExecuteAfter(AstNode& node, AstNode& firstNewNode, AstNode& lastNewNode)
 {
-  EZ_ASSERT_DEV(node.m_ExecOutputs.GetCount() == 1, "This function only works for nodes with a single exec output pin");
+  W_ASSERT_DEV(node.m_ExecOutputs.GetCount() == 1, "This function only works for nodes with a single exec output pin");
   AstNode* pNodeAfter = node.m_ExecOutputs[0].m_pTargetNode;
 
   ConnectExecution(node, firstNewNode, 0);
@@ -731,9 +731,9 @@ void ezVisualScriptCompiler::ExecuteAfter(AstNode& node, AstNode& firstNewNode, 
   ConnectExecution(lastNewNode, *pNodeAfter);
 }
 
-void ezVisualScriptCompiler::ReplaceExecution(AstNode& oldNode, AstNode& newNode)
+void WVisualScriptCompiler::ReplaceExecution(AstNode& oldNode, AstNode& newNode)
 {
-  EZ_ASSERT_DEBUG(newNode.m_ExecInputs.IsEmpty() && newNode.m_ExecOutputs.IsEmpty(), "New node must not have any connections yet");
+  W_ASSERT_DEBUG(newNode.m_ExecInputs.IsEmpty() && newNode.m_ExecOutputs.IsEmpty(), "New node must not have any connections yet");
 
   for (auto& execInput : oldNode.m_ExecInputs)
   {
@@ -741,7 +741,7 @@ void ezVisualScriptCompiler::ReplaceExecution(AstNode& oldNode, AstNode& newNode
   }
   oldNode.m_ExecInputs.Clear();
 
-  for (ezUInt32 i = 0; i < oldNode.m_ExecOutputs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < oldNode.m_ExecOutputs.GetCount(); ++i)
   {
     AstNode* pTargetNode = oldNode.m_ExecOutputs[i].m_pTargetNode;
     if (pTargetNode != nullptr)
@@ -757,39 +757,39 @@ void ezVisualScriptCompiler::ReplaceExecution(AstNode& oldNode, AstNode& newNode
   oldNode.m_ExecOutputs.Clear();
 }
 
-ezVisualScriptCompiler::DataOffset ezVisualScriptCompiler::GetInstanceDataOffset(ezHashedString sName, ezVisualScriptDataType::Enum dataType)
+WVisualScriptCompiler::DataOffset WVisualScriptCompiler::GetInstanceDataOffset(WHashedString sName, WVisualScriptDataType::Enum dataType)
 {
-  ezVisualScriptInstanceData instanceData;
+  WVisualScriptInstanceData instanceData;
   if (m_Module.m_InstanceDataMapping.m_Content.TryGetValue(sName, instanceData) == false)
   {
-    ezLog::Error("Invalid variable named '{}'", sName);
+    WLog::Error("Invalid variable named '{}'", sName);
     return DataOffset();
   }
 
-  EZ_ASSERT_DEBUG(instanceData.m_DataOffset.m_uiType == dataType, "Data type mismatch");
+  W_ASSERT_DEBUG(instanceData.m_DataOffset.m_uiType == dataType, "Data type mismatch");
   return instanceData.m_DataOffset;
 }
 
 // Compilation steps
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
+WResult WVisualScriptCompiler::BuildInstanceDataMapping()
 {
-  ezTempHybridArray<ezVisualScriptVariable, 16> variables;
+  WTempHybridArray<WVisualScriptVariable, 16> variables;
   m_NodeManager.GetAllVariables(variables);
 
   for (auto& variable : variables)
   {
     auto dataType = variable.m_TypeDecl.GetDataType();
 
-    EZ_ASSERT_DEV(dataType == ezVisualScriptDataType::Variant ||
-                    ((dataType == ezVisualScriptDataType::GameObject || dataType == ezVisualScriptDataType::Component || dataType == ezVisualScriptDataType::TypedPointer) && variable.m_DefaultValue.IsValid() == false) ||
-                    dataType == ezVisualScriptDataType::FromVariantType(variable.m_DefaultValue.GetType()),
+    W_ASSERT_DEV(dataType == WVisualScriptDataType::Variant ||
+                    ((dataType == WVisualScriptDataType::GameObject || dataType == WVisualScriptDataType::Component || dataType == WVisualScriptDataType::TypedPointer) && variable.m_DefaultValue.IsValid() == false) ||
+                    dataType == WVisualScriptDataType::FromVariantType(variable.m_DefaultValue.GetType()),
       "Data type mismatch");
 
     auto& offsetAndCount = m_Module.m_InstanceDataDesc.m_PerTypeInfo[dataType];
 
-    ezVisualScriptInstanceData instanceData;
+    WVisualScriptInstanceData instanceData;
     instanceData.m_DataOffset.m_uiByteOffset = offsetAndCount.m_uiCount;
     instanceData.m_DataOffset.m_uiType = dataType;
     instanceData.m_DataOffset.m_uiSource = DataOffset::Source::Instance;
@@ -800,36 +800,36 @@ ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
     m_Module.m_InstanceDataMapping.m_Content.Insert(variable.m_sName, instanceData);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(const ezDocumentObject* pEntryObject)
+WVisualScriptCompiler::AstNode* WVisualScriptCompiler::BuildExecutionFlow(const WDocumentObject* pEntryObject)
 {
   AstNode* pEntryAstNode = CreateAstNodeFromObject(pEntryObject, nullptr, pEntryObject);
   if (pEntryAstNode == nullptr)
     return nullptr;
 
-  if (ezVisualScriptNodeDescription::Type::IsEntry(pEntryAstNode->m_Type) == false)
+  if (WVisualScriptNodeDescription::Type::IsEntry(pEntryAstNode->m_Type) == false)
   {
-    auto& astNode = CreateAstNode(ezVisualScriptNodeDescription::Type::EntryCall);
+    auto& astNode = CreateAstNode(WVisualScriptNodeDescription::Type::EntryCall);
     ConnectExecution(astNode, *pEntryAstNode);
 
     pEntryAstNode = &astNode;
   }
 
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
-  ezTempHybridArray<const ezDocumentObject*, 64> objectStack;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
+  WTempHybridArray<const WDocumentObject*, 64> objectStack;
   objectStack.PushBack(pEntryObject);
 
   while (objectStack.IsEmpty() == false)
   {
-    const ezDocumentObject* pObject = objectStack.PeekBack();
+    const WDocumentObject* pObject = objectStack.PeekBack();
     objectStack.PopBack();
 
     AstNode* pAstNode = nullptr;
-    EZ_VERIFY(m_CompilationState.m_ExecObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
+    W_VERIFY(m_CompilationState.m_ExecObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
 
-    if (ezVisualScriptNodeDescription::Type::MakesOuterCoroutine(pAstNode->m_Type))
+    if (WVisualScriptNodeDescription::Type::MakesOuterCoroutine(pAstNode->m_Type))
     {
       MarkAsCoroutine(pEntryAstNode);
     }
@@ -844,8 +844,8 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(cons
         continue;
       }
 
-      EZ_ASSERT_DEV(connections.GetCount() == 1, "Output execution pins should only have one connection");
-      const ezDocumentObject* pNextObject = connections[0]->GetTargetPin().GetParent();
+      W_ASSERT_DEV(connections.GetCount() == 1, "Output execution pins should only have one connection");
+      const WDocumentObject* pNextObject = connections[0]->GetTargetPin().GetParent();
 
       AstNode* pNextAstNode;
       if (m_CompilationState.m_ExecObjectToAstNode.TryGetValue(pNextObject, pNextAstNode) == false)
@@ -863,12 +863,12 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(cons
 
   // Always add a GetScriptOwner node directly after the entry node
   {
-    EZ_ASSERT_DEBUG(m_CompilationState.m_pGetScriptOwnerNode == nullptr, "");
+    W_ASSERT_DEBUG(m_CompilationState.m_pGetScriptOwnerNode == nullptr, "");
 
-    auto& getScriptOwnerNode = CreateAstNode(ezVisualScriptNodeDescription::Type::GetScriptOwner);
-    AddDataOutput(getScriptOwnerNode, ezVisualScriptDataType::TypedPointer);
-    AddDataOutput(getScriptOwnerNode, ezVisualScriptDataType::GameObject);
-    AddDataOutput(getScriptOwnerNode, ezVisualScriptDataType::Component);
+    auto& getScriptOwnerNode = CreateAstNode(WVisualScriptNodeDescription::Type::GetScriptOwner);
+    AddDataOutput(getScriptOwnerNode, WVisualScriptDataType::TypedPointer);
+    AddDataOutput(getScriptOwnerNode, WVisualScriptDataType::GameObject);
+    AddDataOutput(getScriptOwnerNode, WVisualScriptDataType::Component);
 
     m_CompilationState.m_pGetScriptOwnerNode = &getScriptOwnerNode;
 
@@ -878,37 +878,37 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(cons
   return pEntryAstNode;
 }
 
-ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*& out_pFirstDataNode, AstNode*& out_pLastDataNode)
+WResult WVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*& out_pFirstDataNode, AstNode*& out_pLastDataNode)
 {
   if (pEntryAstNode->m_pObject == nullptr)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
 
   struct ObjectContext
   {
-    const ezDocumentObject* m_pObject = nullptr;
-    const ezVisualScriptNodeRegistry::NodeDesc* m_pNodeDesc = nullptr;
+    const WDocumentObject* m_pObject = nullptr;
+    const WVisualScriptNodeRegistry::NodeDesc* m_pNodeDesc = nullptr;
   };
 
-  ezTempHybridArray<ObjectContext, 32> objectStack;
-  objectStack.PushBack({pEntryAstNode->m_pObject, ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pEntryAstNode->m_pObject->GetType())});
+  WTempHybridArray<ObjectContext, 32> objectStack;
+  objectStack.PushBack({pEntryAstNode->m_pObject, WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pEntryAstNode->m_pObject->GetType())});
 
   // Start from scratch for each data stack
   m_CompilationState.m_DataObjectToAstNode.Clear();
   m_CompilationState.m_DataObjectToAstNode.Insert(pEntryAstNode->m_pObject, pEntryAstNode);
 
-  ezTempHybridArray<AstNode*, 32> dataStack;
+  WTempHybridArray<AstNode*, 32> dataStack;
 
   while (objectStack.IsEmpty() == false)
   {
     auto& objCtx = objectStack.PeekBack();
-    const ezDocumentObject* pObject = objCtx.m_pObject;
-    const ezVisualScriptNodeRegistry::NodeDesc* pNodeDesc = objCtx.m_pNodeDesc;
+    const WDocumentObject* pObject = objCtx.m_pObject;
+    const WVisualScriptNodeRegistry::NodeDesc* pNodeDesc = objCtx.m_pNodeDesc;
     objectStack.PopBack();
 
     AstNode* pAstNode = nullptr;
-    EZ_VERIFY(m_CompilationState.m_DataObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
+    W_VERIFY(m_CompilationState.m_DataObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
 
     if (pAstNode != pEntryAstNode)
     {
@@ -916,7 +916,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
     }
 
     m_NodeManager.GetInputDataPins(pObject, pins);
-    ezUInt32 uiNextInputPinIndex = 0;
+    WUInt32 uiNextInputPinIndex = 0;
 
     for (auto& pinDesc : pNodeDesc->m_InputPins)
     {
@@ -927,17 +927,17 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
       bool bArrayInput = false;
       if (pinDesc.m_bReplaceWithArray && pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
       {
-        const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(pinDesc.m_sDynamicPinProperty);
+        const WAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(pinDesc.m_sDynamicPinProperty);
         if (pProp == nullptr)
-          return EZ_FAILURE;
+          return W_FAILURE;
 
-        if (pProp->GetCategory() == ezPropertyCategory::Array)
+        if (pProp->GetCategory() == WPropertyCategory::Array)
         {
-          auto pMakeArrayAstNode = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_MakeArray, true);
+          auto pMakeArrayAstNode = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_MakeArray, true);
           pMakeArrayAstNode->m_pObject = pObject;
-          AddDataOutput(*pMakeArrayAstNode, ezVisualScriptDataType::Array);
+          AddDataOutput(*pMakeArrayAstNode, WVisualScriptDataType::Array);
 
-          AddDataInput(*pAstNode, pMakeArrayAstNode, 0, ezVisualScriptDataType::Array);
+          AddDataInput(*pAstNode, pMakeArrayAstNode, 0, WVisualScriptDataType::Array);
 
           dataStack.PushBack(pMakeArrayAstNode);
 
@@ -953,25 +953,25 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
         if (pPin->GetDynamicPinProperty() != pinDesc.m_sDynamicPinProperty)
           break;
 
-        ezVisualScriptDataType::Enum targetDataType = pPin->GetResolvedScriptDataType();
-        if (targetDataType == ezVisualScriptDataType::Invalid)
+        WVisualScriptDataType::Enum targetDataType = pPin->GetResolvedScriptDataType();
+        if (targetDataType == WVisualScriptDataType::Invalid)
         {
-          ezLog::Error("Can't deduct type for pin '{}.{}'. The pin is not connected or all node properties are invalid.", GetNiceTypeName(pObject), pPin->GetName());
-          return EZ_FAILURE;
+          WLog::Error("Can't deduct type for pin '{}.{}'. The pin is not connected or all node properties are invalid.", GetNiceTypeName(pObject), pPin->GetName());
+          return W_FAILURE;
         }
 
         auto connections = m_NodeManager.GetConnections(*pPin);
-        if (pPin->IsRequired() && targetDataType != ezVisualScriptDataType::GameObject && connections.IsEmpty())
+        if (pPin->IsRequired() && targetDataType != WVisualScriptDataType::GameObject && connections.IsEmpty())
         {
-          ezLog::Error("Required input '{}' for '{}' is not connected", pPin->GetName(), GetNiceTypeName(pObject));
-          return EZ_FAILURE;
+          WLog::Error("Required input '{}' for '{}' is not connected", pPin->GetName(), GetNiceTypeName(pObject));
+          return W_FAILURE;
         }
 
-        auto dataInputType = bArrayInput ? ezVisualScriptDataType::Variant : FinalizeDataType(targetDataType);
+        auto dataInputType = bArrayInput ? WVisualScriptDataType::Variant : FinalizeDataType(targetDataType);
 
         if (connections.IsEmpty())
         {
-          if (ezVisualScriptDataType::IsPointer(dataInputType))
+          if (WVisualScriptDataType::IsPointer(dataInputType))
           {
             auto defaultInput = GetOrCreateDefaultPointerNode(*pAstNode, pPin->GetDataType());
             AddDataInput(*pAstNodeToAddInput, defaultInput.m_pSourceNode, defaultInput.m_uiSourcePinIndex, defaultInput.m_DataOffset.GetType());
@@ -987,23 +987,23 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
           }
           else
           {
-            EZ_SUCCEED_OR_RETURN(AddConstantDataInput(*pAstNodeToAddInput, pObject, pPin, dataInputType));
+            W_SUCCEED_OR_RETURN(AddConstantDataInput(*pAstNodeToAddInput, pObject, pPin, dataInputType));
           }
         }
         else
         {
-          auto& sourcePin = static_cast<const ezVisualScriptPin&>(connections[0]->GetSourcePin());
-          const ezDocumentObject* pSourceObject = sourcePin.GetParent();
-          auto pSourceNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pSourceObject->GetType());
+          auto& sourcePin = static_cast<const WVisualScriptPin&>(connections[0]->GetSourcePin());
+          const WDocumentObject* pSourceObject = sourcePin.GetParent();
+          auto pSourceNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pSourceObject->GetType());
 
-          if (pSourceNodeDesc->m_Type == ezVisualScriptNodeDescription::Type::GetScriptOwner)
+          if (pSourceNodeDesc->m_Type == WVisualScriptNodeDescription::Type::GetScriptOwner)
           {
             AstNode* pSourceAstNode = m_CompilationState.m_pGetScriptOwnerNode;
             AddDataInput(*pAstNodeToAddInput, pSourceAstNode, sourcePin.GetDataPinIndex(), dataInputType);
           }
-          else if (pSourceNodeDesc->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Constant)
+          else if (pSourceNodeDesc->m_Type == WVisualScriptNodeDescription::Type::Builtin_Constant)
           {
-            ezVariant value = pSourceObject->GetTypeAccessor().GetValue("Value");
+            WVariant value = pSourceObject->GetTypeAccessor().GetValue("Value");
             AddConstantDataInput(*pAstNodeToAddInput, value);
           }
           else
@@ -1020,23 +1020,23 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
               {
                 if (m_CompilationState.m_ExecObjectToAstNode.TryGetValue(pSourceObject, pSourceAstNode) == false)
                 {
-                  ezLog::Error("The source node '{}' is not executed in the current function.", GetNiceTypeName(pSourceObject));
-                  return EZ_FAILURE;
+                  WLog::Error("The source node '{}' is not executed in the current function.", GetNiceTypeName(pSourceObject));
+                  return W_FAILURE;
                 }
               }
             }
 
-            ezVisualScriptDataType::Enum sourceDataType = sourcePin.GetResolvedScriptDataType();
-            if (sourceDataType == ezVisualScriptDataType::Invalid)
+            WVisualScriptDataType::Enum sourceDataType = sourcePin.GetResolvedScriptDataType();
+            if (sourceDataType == WVisualScriptDataType::Invalid)
             {
-              ezLog::Error("Can't deduct type for pin '{}.{}'. The pin is not connected or all node properties are invalid.", GetNiceTypeName(pSourceObject), sourcePin.GetName());
-              return EZ_FAILURE;
+              WLog::Error("Can't deduct type for pin '{}.{}'. The pin is not connected or all node properties are invalid.", GetNiceTypeName(pSourceObject), sourcePin.GetName());
+              return W_FAILURE;
             }
 
             if (sourcePin.CanConvertTo(*pPin) == false)
             {
-              ezLog::Error("Can't implicitly convert pin '{}.{}' of type '{}' connected to pin '{}.{}' of type '{}'", GetNiceTypeName(pSourceObject), sourcePin.GetName(), sourcePin.GetDataTypeName(), GetNiceTypeName(pObject), pPin->GetName(), pPin->GetDataTypeName());
-              return EZ_FAILURE;
+              WLog::Error("Can't implicitly convert pin '{}.{}' of type '{}' connected to pin '{}.{}' of type '{}'", GetNiceTypeName(pSourceObject), sourcePin.GetName(), sourcePin.GetDataTypeName(), GetNiceTypeName(pObject), pPin->GetName(), pPin->GetDataTypeName());
+              return W_FAILURE;
             }
 
             AddDataInput(*pAstNodeToAddInput, pSourceAstNode, sourcePin.GetDataPinIndex(), dataInputType);
@@ -1055,13 +1055,13 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
   }
 
   // Traverse in topological order and connect executions
-  ezTempHybridArray<AstNode*, 32> sortedDataStack;
+  WTempHybridArray<AstNode*, 32> sortedDataStack;
 
   while (dataStack.IsEmpty() == false)
   {
     // Find next node with all data dependencies already in the sorted stack
     AstNode* nextNode = nullptr;
-    for (ezUInt32 i = dataStack.GetCount(); i-- > 0;)
+    for (WUInt32 i = dataStack.GetCount(); i-- > 0;)
     {
       AstNode* nextNodeCandiate = dataStack[i];
       const bool bValidCandidate = [&]()
@@ -1072,7 +1072,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
           auto connections = m_NodeManager.GetConnections(*pPin);
           for (auto pConnection : connections)
           {
-            const ezDocumentObject* pSourceObject = pConnection->GetSourcePin().GetParent();
+            const WDocumentObject* pSourceObject = pConnection->GetSourcePin().GetParent();
 
             AstNode* pSourceAstNode = nullptr;
             if (!m_CompilationState.m_DataObjectToAstNode.TryGetValue(pSourceObject, pSourceAstNode))
@@ -1101,8 +1101,8 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
 
     if (nextNode == nullptr)
     {
-      EZ_REPORT_FAILURE("Data connection corrupted or loop detected");
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("Data connection corrupted or loop detected");
+      return W_FAILURE;
     }
 
     if (sortedDataStack.IsEmpty() == false)
@@ -1123,10 +1123,10 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
     out_pLastDataNode = sortedDataStack.PeekBack();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
+WResult WVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
 {
   return TraverseAstDepthFirst(pEntryAstNode,
     [&](AstNode*& pAstNode)
@@ -1149,11 +1149,11 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
     });
 }
 
-ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
+WResult WVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 {
-  auto InsertBuiltinTypeConversion = [&](AstNode& node, DataInput& dataInput, ezVisualScriptDataType::Enum inputDataType, ezVisualScriptDataType::Enum outputDataType) -> AstNode&
+  auto InsertBuiltinTypeConversion = [&](AstNode& node, DataInput& dataInput, WVisualScriptDataType::Enum inputDataType, WVisualScriptDataType::Enum outputDataType) -> AstNode&
   {
-    auto nodeType = ezVisualScriptNodeDescription::Type::GetConversionType(inputDataType);
+    auto nodeType = WVisualScriptNodeDescription::Type::GetConversionType(inputDataType);
 
     auto& conversionNode = CreateAstNode(nodeType, outputDataType, true);
     AddDataInput(conversionNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, outputDataType);
@@ -1182,31 +1182,31 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 
         if (dataOutput.m_DataOffset.GetType() != inputDataType)
         {
-          if (ezVisualScriptDataType::IsNumberOrBool(outputDataType) && ezVisualScriptDataType::IsVector(inputDataType))
+          if (WVisualScriptDataType::IsNumberOrBool(outputDataType) && WVisualScriptDataType::IsVector(inputDataType))
           {
             AstNode* pSourceNode = dataInput.m_pSourceNode;
-            ezUInt32 uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
-            if (outputDataType != ezVisualScriptDataType::Float)
+            WUInt32 uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
+            if (outputDataType != WVisualScriptDataType::Float)
             {
-              auto& conversionNode = InsertBuiltinTypeConversion(*pAstNode, dataInput, ezVisualScriptDataType::Float, outputDataType);
+              auto& conversionNode = InsertBuiltinTypeConversion(*pAstNode, dataInput, WVisualScriptDataType::Float, outputDataType);
               pSourceNode = &conversionNode;
               uiSourcePinIndex = 0;
             }
 
-            auto& makeVecXNode = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
-            const ezRTTI* pRtti = ezVisualScriptDataType::GetRtti(inputDataType);
+            auto& makeVecXNode = CreateAstNode(WVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
+            const WRTTI* pRtti = WVisualScriptDataType::GetRtti(inputDataType);
             makeVecXNode.m_sTargetTypeName.Assign(pRtti->GetTypeName());
 
-            ezVariantArray a;
-            a.PushBack(ezMakeHashedString("Make"));
+            WVariantArray a;
+            a.PushBack(WMakeHashedString("Make"));
             makeVecXNode.m_Value = a;
 
-            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            if (inputDataType >= ezVisualScriptDataType::Vector3)
-              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            if (inputDataType == ezVisualScriptDataType::Vector4)
-              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, WVisualScriptDataType::Float);
+            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, WVisualScriptDataType::Float);
+            if (inputDataType >= WVisualScriptDataType::Vector3)
+              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, WVisualScriptDataType::Float);
+            if (inputDataType == WVisualScriptDataType::Vector4)
+              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, WVisualScriptDataType::Float);
 
             AddDataOutput(makeVecXNode, inputDataType);
 
@@ -1215,19 +1215,19 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 
             ExecuteBefore(*pAstNode, makeVecXNode, makeVecXNode);
           }
-          else if (outputDataType == ezVisualScriptDataType::Vector3 && inputDataType == ezVisualScriptDataType::Transform)
+          else if (outputDataType == WVisualScriptDataType::Vector3 && inputDataType == WVisualScriptDataType::Transform)
           {
-            auto& makeTransformNode = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
-            makeTransformNode.m_sTargetTypeName.Assign("ezTransform");
+            auto& makeTransformNode = CreateAstNode(WVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
+            makeTransformNode.m_sTargetTypeName.Assign("WTransform");
 
-            ezVariantArray a;
-            a.PushBack(ezMakeHashedString("Make"));
+            WVariantArray a;
+            a.PushBack(WMakeHashedString("Make"));
             makeTransformNode.m_Value = a;
 
-            AddDataInput(makeTransformNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, ezVisualScriptDataType::Vector3);
-            AddConstantDataInput(makeTransformNode, ezQuat::MakeIdentity());
-            AddConstantDataInput(makeTransformNode, ezVec3(1));
-            AddDataOutput(makeTransformNode, ezVisualScriptDataType::Transform);
+            AddDataInput(makeTransformNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, WVisualScriptDataType::Vector3);
+            AddConstantDataInput(makeTransformNode, WQuat::MakeIdentity());
+            AddConstantDataInput(makeTransformNode, WVec3(1));
+            AddDataOutput(makeTransformNode, WVisualScriptDataType::Transform);
 
             dataInput.m_pSourceNode = &makeTransformNode;
             dataInput.m_uiSourcePinIndex = 0;
@@ -1245,7 +1245,7 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
     });
 }
 
-ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
+WResult WVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 {
   AstNode* pLoopInitStart = nullptr;
   AstNode* pLoopInitEnd = nullptr;
@@ -1255,7 +1255,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
   DataInput conditionDataInput;
   conditionDataInput.m_uiSourcePinIndex = 0;
-  conditionDataInput.m_DataOffset.m_uiType = ezVisualScriptDataType::Bool;
+  conditionDataInput.m_DataOffset.m_uiType = WVisualScriptDataType::Bool;
 
   AstNode* pLoopIncrement = nullptr;
 
@@ -1267,7 +1267,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
   auto loopType = pLoopNode->m_Type;
 
-  if (loopType == ezVisualScriptNodeDescription::Type::Builtin_WhileLoop)
+  if (loopType == WVisualScriptNodeDescription::Type::Builtin_WhileLoop)
   {
     conditionDataInput = pLoopNode->m_DataInputs[0];
 
@@ -1282,16 +1282,16 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
       }
     }
   }
-  else if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForLoop)
+  else if (loopType == WVisualScriptNodeDescription::Type::Builtin_ForLoop)
   {
     auto& firstIndexInput = pLoopNode->m_DataInputs[0];
     auto& lastIndexInput = pLoopNode->m_DataInputs[1];
 
     // Loop Init
     {
-      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_ToInt, ezVisualScriptDataType::Int);
+      pLoopInitStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_ToInt, WVisualScriptDataType::Int);
       pLoopInitStart->m_DataInputs.PushBack(firstIndexInput);
-      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitStart, WVisualScriptDataType::Int);
 
       pLoopInitEnd = pLoopInitStart;
       pLoopIndex = pLoopInitStart;
@@ -1299,19 +1299,19 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
     // Loop Condition
     {
-      pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
-      pLoopConditionStart->m_Value = ezInt64(ezComparisonOperator::LessEqual);
-      AddDataInput(*pLoopConditionStart, pLoopInitStart, 0, ezVisualScriptDataType::Int);
+      pLoopConditionStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Compare, WVisualScriptDataType::Int);
+      pLoopConditionStart->m_Value = WInt64(WComparisonOperator::LessEqual);
+      AddDataInput(*pLoopConditionStart, pLoopInitStart, 0, WVisualScriptDataType::Int);
       pLoopConditionStart->m_DataInputs.PushBack(lastIndexInput);
-      AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Bool);
+      AddDataOutput(*pLoopConditionStart, WVisualScriptDataType::Bool);
 
       pLoopConditionEnd = pLoopConditionStart;
     }
 
     // Loop Increment
     {
-      pLoopIncrement = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Add, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopIncrement, pLoopIndex, 0, ezVisualScriptDataType::Int);
+      pLoopIncrement = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Add, WVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrement, pLoopIndex, 0, WVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopIncrement, 1);
 
       // Dummy input that is not used at runtime but prevents the lastIndexInput from being re-used across the loop's lifetime
@@ -1322,23 +1322,23 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
       dataOutput.m_DataOffset = pLoopIndex->m_DataOutputs[0].m_DataOffset;
     }
   }
-  else if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
-           loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
+  else if (loopType == WVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
+           loopType == WVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
   {
-    const bool isReverse = (loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop);
+    const bool isReverse = (loopType == WVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop);
     auto& arrayInput = pLoopNode->m_DataInputs[0];
 
     // Loop Init
     if (isReverse)
     {
-      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
+      pLoopInitStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
       pLoopInitStart->m_DataInputs.PushBack(arrayInput);
-      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitStart, WVisualScriptDataType::Int);
 
-      pLoopInitEnd = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Subtract, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopInitEnd, pLoopInitStart, 0, ezVisualScriptDataType::Int);
+      pLoopInitEnd = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Subtract, WVisualScriptDataType::Int);
+      AddDataInput(*pLoopInitEnd, pLoopInitStart, 0, WVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopInitEnd, 1);
-      AddDataOutput(*pLoopInitEnd, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitEnd, WVisualScriptDataType::Int);
 
       ConnectExecution(*pLoopInitStart, *pLoopInitEnd);
 
@@ -1346,9 +1346,9 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     }
     else
     {
-      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_ToInt, ezVisualScriptDataType::Int);
+      pLoopInitStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_ToInt, WVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopInitStart, 0);
-      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitStart, WVisualScriptDataType::Int);
 
       pLoopInitEnd = pLoopInitStart;
 
@@ -1358,35 +1358,35 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     // Loop Condition
     if (isReverse)
     {
-      pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
-      pLoopConditionStart->m_Value = ezInt64(ezComparisonOperator::GreaterEqual);
-      AddDataInput(*pLoopConditionStart, pLoopIndex, 0, ezVisualScriptDataType::Int);
+      pLoopConditionStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Compare, WVisualScriptDataType::Int);
+      pLoopConditionStart->m_Value = WInt64(WComparisonOperator::GreaterEqual);
+      AddDataInput(*pLoopConditionStart, pLoopIndex, 0, WVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopConditionStart, 0);
-      AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Bool);
+      AddDataOutput(*pLoopConditionStart, WVisualScriptDataType::Bool);
 
       pLoopConditionEnd = pLoopConditionStart;
     }
     else
     {
-      pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
+      pLoopConditionStart = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
       pLoopConditionStart->m_DataInputs.PushBack(arrayInput);
-      AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopConditionStart, WVisualScriptDataType::Int);
 
-      pLoopConditionEnd = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
-      pLoopConditionEnd->m_Value = ezInt64(ezComparisonOperator::Less);
-      AddDataInput(*pLoopConditionEnd, pLoopIndex, 0, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopConditionEnd, pLoopConditionStart, 0, ezVisualScriptDataType::Int);
-      AddDataOutput(*pLoopConditionEnd, ezVisualScriptDataType::Bool);
+      pLoopConditionEnd = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Compare, WVisualScriptDataType::Int);
+      pLoopConditionEnd->m_Value = WInt64(WComparisonOperator::Less);
+      AddDataInput(*pLoopConditionEnd, pLoopIndex, 0, WVisualScriptDataType::Int);
+      AddDataInput(*pLoopConditionEnd, pLoopConditionStart, 0, WVisualScriptDataType::Int);
+      AddDataOutput(*pLoopConditionEnd, WVisualScriptDataType::Bool);
 
       ConnectExecution(*pLoopConditionStart, *pLoopConditionEnd);
     }
 
     // Loop Increment
     {
-      auto incType = isReverse ? ezVisualScriptNodeDescription::Type::Builtin_Subtract : ezVisualScriptNodeDescription::Type::Builtin_Add;
+      auto incType = isReverse ? WVisualScriptNodeDescription::Type::Builtin_Subtract : WVisualScriptNodeDescription::Type::Builtin_Add;
 
-      pLoopIncrement = &CreateAstNode(incType, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopIncrement, pLoopIndex, 0, ezVisualScriptDataType::Int);
+      pLoopIncrement = &CreateAstNode(incType, WVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrement, pLoopIndex, 0, WVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopIncrement, 1);
 
       // Dummy input that is not used at runtime but prevents the array from being re-used across the loop's lifetime
@@ -1397,14 +1397,14 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
       dataOutput.m_DataOffset = pLoopIndex->m_DataOutputs[0].m_DataOffset;
     }
 
-    pLoopElement = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetElement, ezVisualScriptDataType::Invalid, true);
+    pLoopElement = &CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Array_GetElement, WVisualScriptDataType::Invalid, true);
     pLoopElement->m_DataInputs.PushBack(arrayInput);
-    AddDataInput(*pLoopElement, pLoopIndex, 0, ezVisualScriptDataType::Int);
-    AddDataOutput(*pLoopElement, ezVisualScriptDataType::Variant);
+    AddDataInput(*pLoopElement, pLoopIndex, 0, WVisualScriptDataType::Int);
+    AddDataOutput(*pLoopElement, WVisualScriptDataType::Variant);
   }
   else
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
   {
@@ -1413,7 +1413,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
       conditionDataInput.m_pSourceNode = pLoopConditionEnd;
     }
 
-    auto& branchNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Branch);
+    auto& branchNode = CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Branch);
     branchNode.m_DataInputs.PushBack(conditionDataInput);
 
     ReplaceExecution(*pLoopNode, branchNode);
@@ -1445,21 +1445,21 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     pJumpNode = pLoopIncrement;
   }
 
-  ezTempHybridArray<AstNode*, 8> nodesConnectedToBreak;
+  WTempHybridArray<AstNode*, 8> nodesConnectedToBreak;
 
   if (TraverseAstDepthFirst(pLoopBody,
         [&](AstNode*& pAstNode)
         {
-          EZ_ASSERT_DEV(ezVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) == false, "Nested Loops should have been resolved already");
+          W_ASSERT_DEV(WVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) == false, "Nested Loops should have been resolved already");
 
-          for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
+          for (WUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
           {
             auto& execOutput = pAstNode->m_ExecOutputs[i];
             if (execOutput.m_pTargetNode == nullptr)
             {
               ConnectExecution(*pAstNode, *pJumpNode, i);
             }
-            else if (execOutput.m_pTargetNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
+            else if (execOutput.m_pTargetNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_Break)
             {
               // handle breaks after this traversal, otherwise we could end up traversing to nodes outside the loop
               nodesConnectedToBreak.PushBack(pAstNode);
@@ -1468,8 +1468,8 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
           for (auto& dataInput : pAstNode->m_DataInputs)
           {
-            if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
-                loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
+            if (loopType == WVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
+                loopType == WVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
             {
               if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
               {
@@ -1494,7 +1494,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
         })
         .Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // Go through all loop body nodes and check if they have data connections to nodes outside the loop.
@@ -1525,10 +1525,10 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
   // Remove break nodes from the execution flow and connect them to the loop completed node
   for (auto pAstNode : nodesConnectedToBreak)
   {
-    for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
     {
       auto& execOutput = pAstNode->m_ExecOutputs[i];
-      if (execOutput.m_pTargetNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
+      if (execOutput.m_pTargetNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_Break)
       {
         DisconnectExecution(*pAstNode, *execOutput.m_pTargetNode, i);
         if (pLoopCompleted != nullptr)
@@ -1539,19 +1539,19 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
+WResult WVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
 {
-  ezTempHybridArray<AstNode*, 64> unsupportedNodes;
+  WTempHybridArray<AstNode*, 64> unsupportedNodes;
 
   if (TraverseAstDepthFirst(pEntryAstNode,
         [&](AstNode*& pAstNode)
         {
-          if (ezVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) || pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
+          if (WVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) || pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_CompareExec)
           {
-            EZ_ASSERT_DEBUG(unsupportedNodes.Contains(pAstNode) == false, "");
+            W_ASSERT_DEBUG(unsupportedNodes.Contains(pAstNode) == false, "");
             unsupportedNodes.PushBack(pAstNode);
           }
 
@@ -1559,41 +1559,41 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
         })
         .Failed())
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // Replace unsupported nodes backwards so that we replace inner loops first, order doesn't matter for the other nodes
-  for (ezUInt32 i = unsupportedNodes.GetCount(); i-- > 0;)
+  for (WUInt32 i = unsupportedNodes.GetCount(); i-- > 0;)
   {
     AstNode* pAstNode = unsupportedNodes[i];
 
-    if (pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
+    if (pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_CompareExec)
     {
-      auto& compareNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, pAstNode->m_DeductedDataType, true);
+      auto& compareNode = CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Compare, pAstNode->m_DeductedDataType, true);
       compareNode.m_Value = pAstNode->m_Value;
       compareNode.m_DataInputs = pAstNode->m_DataInputs;
-      AddDataOutput(compareNode, ezVisualScriptDataType::Bool);
+      AddDataOutput(compareNode, WVisualScriptDataType::Bool);
 
-      auto& branchNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Branch);
-      AddDataInput(branchNode, &compareNode, 0, ezVisualScriptDataType::Bool);
+      auto& branchNode = CreateAstNode(WVisualScriptNodeDescription::Type::Builtin_Branch);
+      AddDataInput(branchNode, &compareNode, 0, WVisualScriptDataType::Bool);
 
       ReplaceExecution(*pAstNode, branchNode);
       ExecuteBefore(branchNode, compareNode, compareNode);
     }
-    else if (ezVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type))
+    else if (WVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type))
     {
-      EZ_SUCCEED_OR_RETURN(ReplaceLoop(pAstNode));
+      W_SUCCEED_OR_RETURN(ReplaceLoop(pAstNode));
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
+WResult WVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
 {
   return TraverseAstDepthFirst(pEntryAstNode,
     [&](AstNode*& pAstNode)
@@ -1604,14 +1604,14 @@ ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
           continue;
 
         auto pSourceNode = dataInput.m_pSourceNode;
-        EZ_ASSERT_DEBUG(pSourceNode != nullptr, "Data input source node should be always valid for local inputs");
+        W_ASSERT_DEBUG(pSourceNode != nullptr, "Data input source node should be always valid for local inputs");
 
-        if (pSourceNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_GetVariable)
+        if (pSourceNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_GetVariable)
         {
           auto& dataOutput = GetDataOutputFromInput(dataInput);
 
-          ezHashedString sName;
-          sName.Assign(pSourceNode->m_Value.Get<ezString>());
+          WHashedString sName;
+          sName.Assign(pSourceNode->m_Value.Get<WString>());
 
           dataInput.m_pSourceNode = nullptr;
           dataInput.m_uiSourcePinIndex = 0;
@@ -1634,16 +1634,16 @@ ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
         }
       }
 
-      if (pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_SetVariable ||
-          pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_IncVariable ||
-          pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_DecVariable)
+      if (pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_SetVariable ||
+          pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_IncVariable ||
+          pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_DecVariable)
       {
-        ezHashedString sName;
-        sName.Assign(pAstNode->m_Value.Get<ezString>());
+        WHashedString sName;
+        sName.Assign(pAstNode->m_Value.Get<WString>());
 
         DataOffset dataOffset = GetInstanceDataOffset(sName, pAstNode->m_DeductedDataType);
 
-        if (pAstNode->m_Type != ezVisualScriptNodeDescription::Type::Builtin_SetVariable)
+        if (pAstNode->m_Type != WVisualScriptNodeDescription::Type::Builtin_SetVariable)
         {
           if (pAstNode->m_DataInputs.IsEmpty())
           {
@@ -1652,7 +1652,7 @@ ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
           }
         }
 
-        EZ_ASSERT_DEBUG(pAstNode->m_DataOutputs.GetCount() > 0, "");
+        W_ASSERT_DEBUG(pAstNode->m_DataOutputs.GetCount() > 0, "");
         auto& dataOutput = pAstNode->m_DataOutputs[0];
         dataOutput.m_DataOffset = dataOffset;
       }
@@ -1661,18 +1661,18 @@ ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
     });
 }
 
-ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc)
+WResult WVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, WVisualScriptDataDescription& inout_localDataDesc)
 {
   m_CompilationState.m_LiveLocalVars.Reserve(m_CompilationState.m_uiNextLocalVarId);
-  for (ezUInt32 i = 0; i < m_CompilationState.m_uiNextLocalVarId; ++i)
+  for (WUInt32 i = 0; i < m_CompilationState.m_uiNextLocalVarId; ++i)
   {
     auto& liveLocalVar = m_CompilationState.m_LiveLocalVars.ExpandAndGetRef();
     liveLocalVar.m_uiId = i;
   }
 
-  ezUInt32 uiNodeIndex = 0;
+  WUInt32 uiNodeIndex = 0;
 
-  ezResult r = TraverseAstTopologicalOrder(pEntryAstNode,
+  WResult r = TraverseAstTopologicalOrder(pEntryAstNode,
     [&](const AstNode* pAstNode)
     {
       for (auto& dataInput : pAstNode->m_DataInputs)
@@ -1680,10 +1680,10 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
         if (dataInput.IsConnectedAndLocal() == false)
           continue;
 
-        const ezUInt32 id = dataInput.m_DataOffset.m_uiByteOffset;
+        const WUInt32 id = dataInput.m_DataOffset.m_uiByteOffset;
         auto& liveLocalVar = m_CompilationState.m_LiveLocalVars[id];
 
-        liveLocalVar.m_uiEnd = ezMath::Max(liveLocalVar.m_uiEnd, uiNodeIndex);
+        liveLocalVar.m_uiEnd = WMath::Max(liveLocalVar.m_uiEnd, uiNodeIndex);
       }
 
       for (auto& dataOutput : pAstNode->m_DataOutputs)
@@ -1691,19 +1691,19 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
         if (dataOutput.IsValidAndLocal() == false)
           continue;
 
-        const ezUInt32 id = dataOutput.m_DataOffset.m_uiByteOffset;
+        const WUInt32 id = dataOutput.m_DataOffset.m_uiByteOffset;
         auto& liveLocalVar = m_CompilationState.m_LiveLocalVars[id];
 
         liveLocalVar.m_uiId = id;
         liveLocalVar.m_DataOffset = dataOutput.m_DataOffset;
-        liveLocalVar.m_uiStart = ezMath::Min(liveLocalVar.m_uiStart, uiNodeIndex);
+        liveLocalVar.m_uiStart = WMath::Min(liveLocalVar.m_uiStart, uiNodeIndex);
       }
 
       ++uiNodeIndex;
       return VisitorResult::Continue;
     });
   if (r.Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // This is an implementation of the linear scan register allocation algorithm without spilling
   // https://www2.seas.gwu.edu/~hchoi/teaching/cs160d/linearscan.pdf
@@ -1719,13 +1719,13 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
     });
 
   // Assign local vars
-  ezTempHybridArray<LiveLocalVar, 64> activeIntervals;
-  ezTempHybridArray<DataOffset, 64> freeDataOffsets;
+  WTempHybridArray<LiveLocalVar, 64> activeIntervals;
+  WTempHybridArray<DataOffset, 64> freeDataOffsets;
 
   for (auto& liveInterval : m_CompilationState.m_LiveLocalVars)
   {
     // Expire old intervals with less comparison instead of less equal (as in the original paper) so we don't end up using the same data as input and output
-    for (ezUInt32 uiActiveIndex = activeIntervals.GetCount(); uiActiveIndex-- > 0;)
+    for (WUInt32 uiActiveIndex = activeIntervals.GetCount(); uiActiveIndex-- > 0;)
     {
       auto& activeInterval = activeIntervals[uiActiveIndex];
       if (activeInterval.m_uiEnd < liveInterval.m_uiStart)
@@ -1748,7 +1748,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
       DataOffset dataOffset;
       dataOffset.m_uiType = liveInterval.m_DataOffset.m_uiType;
 
-      for (ezUInt32 i = 0; i < freeDataOffsets.GetCount(); ++i)
+      for (WUInt32 i = 0; i < freeDataOffsets.GetCount(); ++i)
       {
         auto freeDataOffset = freeDataOffsets[i];
         if (freeDataOffset.m_uiType == dataOffset.m_uiType)
@@ -1761,7 +1761,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
 
       if (dataOffset.IsValid() == false)
       {
-        EZ_ASSERT_DEBUG(dataOffset.GetType() < ezVisualScriptDataType::Count, "Invalid data type");
+        W_ASSERT_DEBUG(dataOffset.GetType() < WVisualScriptDataType::Count, "Invalid data type");
         auto& offsetAndCount = inout_localDataDesc.m_PerTypeInfo[dataOffset.m_uiType];
         dataOffset.m_uiByteOffset = offsetAndCount.m_uiCount;
         ++offsetAndCount.m_uiCount;
@@ -1785,8 +1785,8 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
         if (dataInput.IsConnectedAndLocal() == false)
           continue;
 
-        const ezUInt32 id = dataInput.m_DataOffset.m_uiByteOffset;
-        EZ_ASSERT_DEBUG(m_CompilationState.m_LiveLocalVars[id].m_uiId == id, "");
+        const WUInt32 id = dataInput.m_DataOffset.m_uiByteOffset;
+        W_ASSERT_DEBUG(m_CompilationState.m_LiveLocalVars[id].m_uiId == id, "");
         dataInput.m_DataOffset = m_CompilationState.m_LiveLocalVars[id].m_DataOffset;
       }
 
@@ -1795,8 +1795,8 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
         if (dataOutput.IsValidAndLocal() == false)
           continue;
 
-        const ezUInt32 id = dataOutput.m_DataOffset.m_uiByteOffset;
-        EZ_ASSERT_DEBUG(m_CompilationState.m_LiveLocalVars[id].m_uiId == id, "");
+        const WUInt32 id = dataOutput.m_DataOffset.m_uiByteOffset;
+        W_ASSERT_DEBUG(m_CompilationState.m_LiveLocalVars[id].m_uiId == id, "");
         dataOutput.m_DataOffset = m_CompilationState.m_LiveLocalVars[id].m_DataOffset;
       }
 
@@ -1804,7 +1804,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
     });
 }
 
-ezResult ezVisualScriptCompiler::CopyOutputsToInputs(AstNode* pEntryAstNode)
+WResult WVisualScriptCompiler::CopyOutputsToInputs(AstNode* pEntryAstNode)
 {
   return TraverseAstDepthFirst(pEntryAstNode,
     [&](AstNode*& pAstNode)
@@ -1817,19 +1817,19 @@ ezResult ezVisualScriptCompiler::CopyOutputsToInputs(AstNode* pEntryAstNode)
         auto& dataOutput = GetDataOutputFromInput(dataInput);
         dataInput.m_DataOffset.m_uiByteOffset = dataOutput.m_DataOffset.m_uiByteOffset;
         dataInput.m_DataOffset.m_uiSource = dataOutput.m_DataOffset.m_uiSource;
-        EZ_ASSERT_DEBUG(dataInput.m_DataOffset.GetType() == ezVisualScriptDataType::Variant || dataInput.m_DataOffset.GetType() == dataOutput.m_DataOffset.GetType(), "");
+        W_ASSERT_DEBUG(dataInput.m_DataOffset.GetType() == WVisualScriptDataType::Variant || dataInput.m_DataOffset.GetType() == dataOutput.m_DataOffset.GetType(), "");
       }
 
       return VisitorResult::Continue;
     });
 }
 
-ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions)
+WResult WVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, WDynamicArray<WVisualScriptNodeDescription>& out_NodeDescriptions)
 {
-  ezHashTable<const AstNode*, ezUInt32> astNodeToNodeDescIndices;
+  WHashTable<const AstNode*, WUInt32> astNodeToNodeDescIndices;
   out_NodeDescriptions.Clear();
 
-  auto CreateNodeDesc = [&](const AstNode& astNode, ezUInt32& out_uiNodeDescIndex) -> ezResult
+  auto CreateNodeDesc = [&](const AstNode& astNode, WUInt32& out_uiNodeDescIndex) -> WResult
   {
     out_uiNodeDescIndex = out_NodeDescriptions.GetCount();
 
@@ -1849,21 +1849,21 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
       nodeDesc.m_OutputDataOffsets.PushBack(dataOutput.m_DataOffset);
     }
 
-    nodeDesc.m_ExecutionIndices.SetCount(astNode.m_ExecOutputs.GetCount(), ezSmallInvalidIndex);
+    nodeDesc.m_ExecutionIndices.SetCount(astNode.m_ExecOutputs.GetCount(), WSmallInvalidIndex);
 
-    EZ_VERIFY(astNodeToNodeDescIndices.Insert(&astNode, out_uiNodeDescIndex) == false, "");
-    return EZ_SUCCESS;
+    W_VERIFY(astNodeToNodeDescIndices.Insert(&astNode, out_uiNodeDescIndex) == false, "");
+    return W_SUCCESS;
   };
 
   return TraverseAstTopologicalOrder(pEntryAstNode,
     [&](const AstNode* pAstNode)
     {
-      ezUInt32 uiTargetIndex = 0;
+      WUInt32 uiTargetIndex = 0;
 
       // Jump nodes should not end up in the final node descriptions
-      if (pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Jump)
+      if (pAstNode->m_Type == WVisualScriptNodeDescription::Type::Builtin_Jump)
       {
-        ezUInt64 uiPtr = pAstNode->m_Value.Get<ezUInt64>();
+        WUInt64 uiPtr = pAstNode->m_Value.Get<WUInt64>();
         const AstNode* pTargetAstNode = *reinterpret_cast<const AstNode**>(&uiPtr);
 
         if (astNodeToNodeDescIndices.TryGetValue(pTargetAstNode, uiTargetIndex) == false)
@@ -1880,8 +1880,8 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
         if (execInput.m_pSourceNode == nullptr)
           continue;
 
-        ezUInt32 uiSourceIndex = 0;
-        EZ_VERIFY(astNodeToNodeDescIndices.TryGetValue(execInput.m_pSourceNode, uiSourceIndex), "Topological sort failed");
+        WUInt32 uiSourceIndex = 0;
+        W_VERIFY(astNodeToNodeDescIndices.TryGetValue(execInput.m_pSourceNode, uiSourceIndex), "Topological sort failed");
 
         auto pSourceNodeDesc = &out_NodeDescriptions[uiSourceIndex];
         pSourceNodeDesc->m_ExecutionIndices[execInput.m_uiSourcePinIndex] = uiTargetIndex;
@@ -1891,20 +1891,20 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
     });
 }
 
-ezResult ezVisualScriptCompiler::FinalizeConstantData()
+WResult WVisualScriptCompiler::FinalizeConstantData()
 {
   m_Module.m_ConstantDataDesc.CalculatePerTypeStartOffsets();
-  m_Module.m_ConstantDataStorage.AllocateStorage(ezFoundation::GetDefaultAllocator());
+  m_Module.m_ConstantDataStorage.AllocateStorage(WFoundation::GetDefaultAllocator());
 
   for (auto& it : m_Module.m_ConstantDataToIndex)
   {
-    const ezVariant& value = it.Key();
-    ezUInt32 uiIndex = it.Value();
+    const WVariant& value = it.Key();
+    WUInt32 uiIndex = it.Value();
 
-    auto scriptDataType = ezVisualScriptDataType::FromVariantType(value.GetType());
-    if (scriptDataType == ezVisualScriptDataType::Invalid)
+    auto scriptDataType = WVisualScriptDataType::FromVariantType(value.GetType());
+    if (scriptDataType == WVisualScriptDataType::Invalid)
     {
-      scriptDataType = ezVisualScriptDataType::Variant;
+      scriptDataType = WVisualScriptDataType::Variant;
     }
 
     auto dataOffset = m_Module.m_ConstantDataDesc.GetOffset(scriptDataType, uiIndex, DataOffset::Source::Constant);
@@ -1912,17 +1912,17 @@ ezResult ezVisualScriptCompiler::FinalizeConstantData()
     m_Module.m_ConstantDataStorage.SetDataFromVariant(dataOffset, value, 0);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, ezDelegate<VisitorResult(AstNode*& pAstNode)> func)
+WResult WVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, WDelegate<VisitorResult(AstNode*& pAstNode)> func)
 {
   if (pEntryAstNode == nullptr)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   m_CompilationState.m_VisitedNodes.Clear();
 
-  ezTempHybridArray<AstNode*, 64> nodeStack;
+  WTempHybridArray<AstNode*, 64> nodeStack;
   nodeStack.PushBack(pEntryAstNode);
 
   while (nodeStack.IsEmpty() == false)
@@ -1934,15 +1934,15 @@ ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, e
 
     VisitorResult r = func(pAstNode);
     if (r == VisitorResult::Error)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // Check whether the node has been replaced by a new one and if so mark the new one as visited as well
     if (pAstNode != pOldAstNode)
     {
-      EZ_VERIFY(m_CompilationState.m_VisitedNodes.Insert(pAstNode) == false, "");
+      W_VERIFY(m_CompilationState.m_VisitedNodes.Insert(pAstNode) == false, "");
     }
 
-    for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
     {
       auto& execOutput = pAstNode->m_ExecOutputs[i];
 
@@ -1951,7 +1951,7 @@ ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, e
       if (m_CompilationState.m_VisitedNodes.Insert(execOutput.m_pTargetNode))
         continue;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
       bool bExecInputFound = false;
       for (auto& execInput : execOutput.m_pTargetNode->m_ExecInputs)
       {
@@ -1961,31 +1961,31 @@ ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, e
           break;
         }
       }
-      EZ_ASSERT_DEBUG(bExecInputFound, "Execution connection corrupted");
+      W_ASSERT_DEBUG(bExecInputFound, "Execution connection corrupted");
 #endif
 
       nodeStack.PushBack(execOutput.m_pTargetNode);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEntryAstNode, ezDelegate<VisitorResult(const AstNode* pAstNode)> func)
+WResult WVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEntryAstNode, WDelegate<VisitorResult(const AstNode* pAstNode)> func)
 {
   if (pEntryAstNode == nullptr)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   m_CompilationState.m_VisitedNodes.Clear();
 
-  ezTempHybridArray<const AstNode*, 64> nodeStack;
+  WTempHybridArray<const AstNode*, 64> nodeStack;
   nodeStack.PushBack(pEntryAstNode);
 
   while (nodeStack.IsEmpty() == false)
   {
     // Find next node with all execution dependencies visited
     const AstNode* pAstNode = nullptr;
-    for (ezUInt32 i = nodeStack.GetCount(); i-- > 0;)
+    for (WUInt32 i = nodeStack.GetCount(); i-- > 0;)
     {
       const AstNode* pCandidateAstNode = nodeStack[i];
       bool bAllVisited = true;
@@ -2008,20 +2008,20 @@ ezResult ezVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEnt
 
     if (pAstNode == nullptr)
     {
-      EZ_REPORT_FAILURE("Execution connection corrupted or loop detected");
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("Execution connection corrupted or loop detected");
+      return W_FAILURE;
     }
 
-    EZ_VERIFY(m_CompilationState.m_VisitedNodes.Insert(pAstNode) == false, "");
+    W_VERIFY(m_CompilationState.m_VisitedNodes.Insert(pAstNode) == false, "");
 
     VisitorResult r = func(pAstNode);
     if (r == VisitorResult::Error)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // Since we use a stack we need to iterate the execution outputs backwards to ensure that they are processed in order.
     // Strictly speaking this is not necessary but improves data locality especially for loops,
     // which in the end results in shorter variable lifetimes and thus in fewer local variables.
-    for (ezUInt32 i = pAstNode->m_ExecOutputs.GetCount(); i-- > 0;)
+    for (WUInt32 i = pAstNode->m_ExecOutputs.GetCount(); i-- > 0;)
     {
       auto& execOutput = pAstNode->m_ExecOutputs[i];
 
@@ -2037,34 +2037,34 @@ ezResult ezVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEnt
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutputPath, ezStringView sFunctionName, ezStringView sSuffix)
+void WVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, WStringView sOutputPath, WStringView sFunctionName, WStringView sSuffix)
 {
   if (sOutputPath.IsEmpty())
     return;
 
-  ezDGMLGraph dgmlGraph;
+  WDGMLGraph dgmlGraph;
   {
-    ezHashTable<const AstNode*, ezUInt32> nodeCache;
-    ezHashTable<ezUInt64, ezString> connectionCache;
-    ezStringBuilder sb;
-    ezUInt32 uiNodeIndex = 0;
+    WHashTable<const AstNode*, WUInt32> nodeCache;
+    WHashTable<WUInt64, WString> connectionCache;
+    WStringBuilder sb;
+    WUInt32 uiNodeIndex = 0;
 
     // First build all the dgml graph nodes
     TraverseAstTopologicalOrder(pEntryAstNode,
       [&](const AstNode* pAstNode)
       {
-        ezStringView sTypeName = ezVisualScriptNodeDescription::Type::GetName(pAstNode->m_Type);
+        WStringView sTypeName = WVisualScriptNodeDescription::Type::GetName(pAstNode->m_Type);
         sb.SetFormat("{} (id: {})", sTypeName, uiNodeIndex);
         if (pAstNode->m_sTargetTypeName.IsEmpty() == false)
         {
           sb.Append("\n", pAstNode->m_sTargetTypeName);
         }
-        if (pAstNode->m_DeductedDataType != ezVisualScriptDataType::Invalid)
+        if (pAstNode->m_DeductedDataType != WVisualScriptDataType::Invalid)
         {
-          sb.Append("\nDataType: ", ezVisualScriptDataType::GetName(pAstNode->m_DeductedDataType));
+          sb.Append("\nDataType: ", WVisualScriptDataType::GetName(pAstNode->m_DeductedDataType));
         }
         sb.AppendFormat("\nImplicitExec: {}", pAstNode->m_bImplicitExecution);
         if (pAstNode->m_Value.IsValid())
@@ -2072,12 +2072,12 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
           sb.AppendFormat("\nValue: {}", pAstNode->m_Value);
         }
 
-        float colorX = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(ezHashingUtils::StringHash(sTypeName))).x();
+        float colorX = WSimdRandom::FloatZeroToOne(WSimdVec4i(WHashingUtils::StringHash(sTypeName))).x();
 
-        ezDGMLGraph::NodeDesc nd;
-        nd.m_Color = ezColorScheme::LightUI(colorX);
-        ezUInt32 uiGraphNode = dgmlGraph.AddNode(sb, &nd);
-        EZ_VERIFY(nodeCache.Insert(pAstNode, uiGraphNode) == false, "");
+        WDGMLGraph::NodeDesc nd;
+        nd.m_Color = WColorScheme::LightUI(colorX);
+        WUInt32 uiGraphNode = dgmlGraph.AddNode(sb, &nd);
+        W_VERIFY(nodeCache.Insert(pAstNode, uiGraphNode) == false, "");
 
         ++uiNodeIndex;
         return VisitorResult::Continue;
@@ -2088,17 +2088,17 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
     for (auto it : nodeCache)
     {
       const AstNode* pAstNode = it.Key();
-      const ezUInt32 uiGraphNode = it.Value();
+      const WUInt32 uiGraphNode = it.Value();
 
       for (auto& execInput : pAstNode->m_ExecInputs)
       {
-        ezUInt32 uiSourceGraphNode = 0;
-        EZ_VERIFY(nodeCache.TryGetValue(execInput.m_pSourceNode, uiSourceGraphNode), "");
+        WUInt32 uiSourceGraphNode = 0;
+        W_VERIFY(nodeCache.TryGetValue(execInput.m_pSourceNode, uiSourceGraphNode), "");
 
-        ezUInt64 uiConnectionKey = uiSourceGraphNode | ezUInt64(uiGraphNode) << 32;
-        ezString& sLabel = connectionCache[uiConnectionKey];
+        WUInt64 uiConnectionKey = uiSourceGraphNode | WUInt64(uiGraphNode) << 32;
+        WString& sLabel = connectionCache[uiConnectionKey];
 
-        ezStringBuilder sb = sLabel;
+        WStringBuilder sb = sLabel;
         if (sb.IsEmpty() == false)
         {
           sb.Append(" + ");
@@ -2107,74 +2107,74 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
         sLabel = sb;
       }
 
-      for (ezUInt32 i = 0; i < pAstNode->m_DataInputs.GetCount(); ++i)
+      for (WUInt32 i = 0; i < pAstNode->m_DataInputs.GetCount(); ++i)
       {
         auto& dataInput = pAstNode->m_DataInputs[i];
         if (dataInput.m_pSourceNode == nullptr)
           continue;
 
         // Exclude GetScriptOwner connections as they create too much noise
-        if (dataInput.m_pSourceNode->m_Type == ezVisualScriptNodeDescription::Type::GetScriptOwner)
+        if (dataInput.m_pSourceNode->m_Type == WVisualScriptNodeDescription::Type::GetScriptOwner)
           continue;
 
         auto& dataOutput = GetDataOutputFromInput(dataInput);
 
-        ezUInt32 uiSourceGraphNode = 0;
-        EZ_VERIFY(nodeCache.TryGetValue(dataInput.m_pSourceNode, uiSourceGraphNode), "");
+        WUInt32 uiSourceGraphNode = 0;
+        W_VERIFY(nodeCache.TryGetValue(dataInput.m_pSourceNode, uiSourceGraphNode), "");
 
-        ezUInt64 uiConnectionKey = uiSourceGraphNode | ezUInt64(uiGraphNode) << 32;
-        ezString& sLabel = connectionCache[uiConnectionKey];
+        WUInt64 uiConnectionKey = uiSourceGraphNode | WUInt64(uiGraphNode) << 32;
+        WString& sLabel = connectionCache[uiConnectionKey];
 
-        ezStringBuilder sb = sLabel;
+        WStringBuilder sb = sLabel;
         if (sb.IsEmpty() == false)
         {
           sb.Append(" + ");
         }
-        const ezUInt32 uiOutputId = dataOutput.m_DataOffset.m_uiByteOffset;
-        const ezUInt32 uiInputId = dataInput.m_DataOffset.m_uiByteOffset;
-        sb.AppendFormat("o{}:{} (id: {})->i{}:{} (id: {})", dataInput.m_uiSourcePinIndex, ezVisualScriptDataType::GetName(dataOutput.m_DataOffset.GetType()), uiOutputId, i, ezVisualScriptDataType::GetName(dataInput.m_DataOffset.GetType()), uiInputId);
+        const WUInt32 uiOutputId = dataOutput.m_DataOffset.m_uiByteOffset;
+        const WUInt32 uiInputId = dataInput.m_DataOffset.m_uiByteOffset;
+        sb.AppendFormat("o{}:{} (id: {})->i{}:{} (id: {})", dataInput.m_uiSourcePinIndex, WVisualScriptDataType::GetName(dataOutput.m_DataOffset.GetType()), uiOutputId, i, WVisualScriptDataType::GetName(dataInput.m_DataOffset.GetType()), uiInputId);
         sLabel = sb;
       }
     }
 
     for (auto& it : connectionCache)
     {
-      ezUInt32 uiSource = it.Key() & 0xFFFFFFFF;
-      ezUInt32 uiTarget = it.Key() >> 32;
+      WUInt32 uiSource = it.Key() & 0xFFFFFFFF;
+      WUInt32 uiTarget = it.Key() >> 32;
 
       dgmlGraph.AddConnection(uiSource, uiTarget, it.Value());
     }
   }
 
-  ezStringView sExt = sOutputPath.GetFileExtension();
-  ezStringBuilder sFullPath;
+  WStringView sExt = sOutputPath.GetFileExtension();
+  WStringBuilder sFullPath;
   sFullPath.Append(sOutputPath.GetFileDirectory(), sOutputPath.GetFileName(), "_", sFunctionName, sSuffix);
   sFullPath.Append(".", sExt);
 
-  ezDGMLGraphWriter dgmlGraphWriter;
+  WDGMLGraphWriter dgmlGraphWriter;
   if (dgmlGraphWriter.WriteGraphToFile(sFullPath, dgmlGraph).Succeeded())
   {
-    ezLog::Info("AST was dumped to: {}", sFullPath);
+    WLog::Info("AST was dumped to: {}", sFullPath);
   }
   else
   {
-    ezLog::Error("Failed to dump AST to: {}", sFullPath);
+    WLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }
 
-void ezVisualScriptCompiler::DumpGraph(ezArrayPtr<const ezVisualScriptNodeDescription> nodeDescriptions, ezStringView sOutputPath, ezStringView sFunctionName, ezStringView sSuffix)
+void WVisualScriptCompiler::DumpGraph(WArrayPtr<const WVisualScriptNodeDescription> nodeDescriptions, WStringView sOutputPath, WStringView sFunctionName, WStringView sSuffix)
 {
   if (sOutputPath.IsEmpty())
     return;
 
-  ezDGMLGraph dgmlGraph;
+  WDGMLGraph dgmlGraph;
   {
-    ezStringBuilder sTmp;
-    for (ezUInt32 i = 0; i < nodeDescriptions.GetCount(); ++i)
+    WStringBuilder sTmp;
+    for (WUInt32 i = 0; i < nodeDescriptions.GetCount(); ++i)
     {
       auto& nodeDesc = nodeDescriptions[i];
 
-      ezStringView sTypeName = ezVisualScriptNodeDescription::Type::GetName(nodeDesc.m_Type);
+      WStringView sTypeName = WVisualScriptNodeDescription::Type::GetName(nodeDesc.m_Type);
       sTmp = sTypeName;
 
       nodeDesc.AppendUserDataName(sTmp);
@@ -2183,13 +2183,13 @@ void ezVisualScriptCompiler::DumpGraph(ezArrayPtr<const ezVisualScriptNodeDescri
 
       for (auto& dataOffset : nodeDesc.m_InputDataOffsets)
       {
-        sTmp.AppendFormat("\n Input {} {}[{}]", DataOffset::Source::GetName(dataOffset.GetSource()), ezVisualScriptDataType::GetName(dataOffset.GetType()), dataOffset.m_uiByteOffset);
+        sTmp.AppendFormat("\n Input {} {}[{}]", DataOffset::Source::GetName(dataOffset.GetSource()), WVisualScriptDataType::GetName(dataOffset.GetType()), dataOffset.m_uiByteOffset);
 
         if (dataOffset.GetSource() == DataOffset::Source::Constant)
         {
           for (auto& it : m_Module.m_ConstantDataToIndex)
           {
-            auto scriptDataType = ezVisualScriptDataType::FromVariantType(it.Key().GetType());
+            auto scriptDataType = WVisualScriptDataType::FromVariantType(it.Key().GetType());
             if (scriptDataType == dataOffset.GetType() && it.Value() == dataOffset.m_uiByteOffset)
             {
               sTmp.AppendFormat(" ({})", it.Key());
@@ -2201,24 +2201,24 @@ void ezVisualScriptCompiler::DumpGraph(ezArrayPtr<const ezVisualScriptNodeDescri
 
       for (auto& dataOffset : nodeDesc.m_OutputDataOffsets)
       {
-        sTmp.AppendFormat("\n Output {} {}[{}]", DataOffset::Source::GetName(dataOffset.GetSource()), ezVisualScriptDataType::GetName(dataOffset.GetType()), dataOffset.m_uiByteOffset);
+        sTmp.AppendFormat("\n Output {} {}[{}]", DataOffset::Source::GetName(dataOffset.GetSource()), WVisualScriptDataType::GetName(dataOffset.GetType()), dataOffset.m_uiByteOffset);
       }
 
-      float colorX = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(ezHashingUtils::StringHash(sTypeName))).x();
+      float colorX = WSimdRandom::FloatZeroToOne(WSimdVec4i(WHashingUtils::StringHash(sTypeName))).x();
 
-      ezDGMLGraph::NodeDesc nd;
-      nd.m_Color = ezColorScheme::LightUI(colorX);
+      WDGMLGraph::NodeDesc nd;
+      nd.m_Color = WColorScheme::LightUI(colorX);
 
       dgmlGraph.AddNode(sTmp, &nd);
     }
 
-    for (ezUInt32 uiCurrentIndex = 0; uiCurrentIndex < nodeDescriptions.GetCount(); ++uiCurrentIndex)
+    for (WUInt32 uiCurrentIndex = 0; uiCurrentIndex < nodeDescriptions.GetCount(); ++uiCurrentIndex)
     {
       auto& executionIndices = nodeDescriptions[uiCurrentIndex].m_ExecutionIndices;
-      for (ezUInt32 uiExecIndex = 0; uiExecIndex < executionIndices.GetCount(); ++uiExecIndex)
+      for (WUInt32 uiExecIndex = 0; uiExecIndex < executionIndices.GetCount(); ++uiExecIndex)
       {
-        const ezUInt32 uiNextIndex = executionIndices[uiExecIndex];
-        if (uiNextIndex == ezSmallInvalidIndex)
+        const WUInt32 uiNextIndex = executionIndices[uiExecIndex];
+        if (uiNextIndex == WSmallInvalidIndex)
           continue;
 
         sTmp.SetFormat("Exec{}", uiExecIndex);
@@ -2227,18 +2227,18 @@ void ezVisualScriptCompiler::DumpGraph(ezArrayPtr<const ezVisualScriptNodeDescri
     }
   }
 
-  ezStringView sExt = sOutputPath.GetFileExtension();
-  ezStringBuilder sFullPath;
+  WStringView sExt = sOutputPath.GetFileExtension();
+  WStringBuilder sFullPath;
   sFullPath.Append(sOutputPath.GetFileDirectory(), sOutputPath.GetFileName(), "_", sFunctionName, sSuffix);
   sFullPath.Append(".", sExt);
 
-  ezDGMLGraphWriter dgmlGraphWriter;
+  WDGMLGraphWriter dgmlGraphWriter;
   if (dgmlGraphWriter.WriteGraphToFile(sFullPath, dgmlGraph).Succeeded())
   {
-    ezLog::Info("AST was dumped to: {}", sFullPath);
+    WLog::Info("AST was dumped to: {}", sFullPath);
   }
   else
   {
-    ezLog::Error("Failed to dump AST to: {}", sFullPath);
+    WLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }

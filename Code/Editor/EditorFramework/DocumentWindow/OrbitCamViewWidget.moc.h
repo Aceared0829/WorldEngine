@@ -4,28 +4,28 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezOrbitCameraContext;
-class ezSelectionContext;
+class WOrbitCameraContext;
+class WSelectionContext;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtOrbitCamViewWidget : public ezQtEngineViewWidget
+class W_EDITORFRAMEWORK_DLL WQtOrbitCamViewWidget : public WQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig, bool bPicking = false);
-  ~ezQtOrbitCamViewWidget();
+  WQtOrbitCamViewWidget(WQtEngineDocumentWindow* pOwnerWindow, WEngineViewConfig* pViewConfig, bool bPicking = false);
+  ~WQtOrbitCamViewWidget();
 
-  void ConfigureFixed(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamPosition);
-  void ConfigureRelative(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamDirection, float fCamDistanceScale);
+  void ConfigureFixed(const WVec3& vCenterPos, const WVec3& vHalfBoxSize, const WVec3& vCamPosition);
+  void ConfigureRelative(const WVec3& vCenterPos, const WVec3& vHalfBoxSize, const WVec3& vCamDirection, float fCamDistanceScale);
 
-  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize);
+  void SetOrbitVolume(const WVec3& vCenterPos, const WVec3& vHalfBoxSize);
 
-  ezOrbitCameraContext* GetOrbitCamera();
+  WOrbitCameraContext* GetOrbitCamera();
 
   virtual void SyncToEngine() override;
 
 private:
   bool m_bSetDefaultCamPos = true;
 
-  ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
-  ezUniquePtr<ezSelectionContext> m_pSelectionContext;
+  WUniquePtr<WOrbitCameraContext> m_pOrbitCameraContext;
+  WUniquePtr<WSelectionContext> m_pSelectionContext;
 };

@@ -9,28 +9,28 @@
 /// Screen-space contact shadows using per-pixel ray marching.
 ///
 /// This implementation is using the "screen space shadow" code by Bend studio.
-class EZ_RENDERERCORE_DLL ezScreenSpaceShadowPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WScreenSpaceShadowPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScreenSpaceShadowPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WScreenSpaceShadowPass, WRenderPipelinePass);
 
 public:
-  ezScreenSpaceShadowPass();
-  ~ezScreenSpaceShadowPass();
+  WScreenSpaceShadowPass();
+  ~WScreenSpaceShadowPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
   void CreateSamplerState();
 
-  ezRenderPipelineNodeInputPin m_PinDepthInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  WRenderPipelineNodeInputPin m_PinDepthInput;
+  WRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezConstantBufferStorageHandle m_hConstantBuffer;
-  ezGALSamplerStateHandle m_hDepthSamplerState;
+  WConstantBufferStorageHandle m_hConstantBuffer;
+  WGALSamplerStateHandle m_hDepthSamplerState;
 
-  ezShaderResourceHandle m_hShader;
+  WShaderResourceHandle m_hShader;
 
   float m_fSurfaceThickness = 0.005f;
   float m_fShadowContrast = 4.0f;

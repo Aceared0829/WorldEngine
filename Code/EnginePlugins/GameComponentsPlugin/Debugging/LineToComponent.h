@@ -5,37 +5,37 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 
-using ezLineToComponentManager = ezComponentManagerSimple<class ezLineToComponent, ezComponentUpdateType::Always, ezBlockStorageType::FreeList, ezWorldUpdatePhase::PostTransform>;
+using WLineToComponentManager = WComponentManagerSimple<class WLineToComponent, WComponentUpdateType::Always, WBlockStorageType::FreeList, WWorldUpdatePhase::PostTransform>;
 
 /// Draws a line from its own position to the target object position
-class EZ_GAMECOMPONENTS_DLL ezLineToComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WLineToComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLineToComponent, ezComponent, ezLineToComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLineToComponent, WComponent, WLineToComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLineToComponent
+  // WLineToComponent
 
 public:
-  ezLineToComponent();
-  ~ezLineToComponent();
+  WLineToComponent();
+  ~WLineToComponent();
 
   const char* GetLineToTargetGuid() const;                                      // [ property ]
   void SetLineToTargetGuid(const char* szTargetGuid);                           // [ property ]
 
-  void SetLineToTarget(const ezGameObjectHandle& hTargetObject);                // [ property ]
-  const ezGameObjectHandle& GetLineToTarget() const { return m_hTargetObject; } // [ property ]
+  void SetLineToTarget(const WGameObjectHandle& hTargetObject);                // [ property ]
+  const WGameObjectHandle& GetLineToTarget() const { return m_hTargetObject; } // [ property ]
 
-  ezColor m_LineColor;                                                          // [ property ]
+  WColor m_LineColor;                                                          // [ property ]
 
   void Update();
 
 protected:
-  ezGameObjectHandle m_hTargetObject;
+  WGameObjectHandle m_hTargetObject;
 };

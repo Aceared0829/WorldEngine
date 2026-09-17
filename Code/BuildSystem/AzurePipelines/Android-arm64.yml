@@ -118,7 +118,7 @@ jobs:
         targetType: filepath
         pwsh: true
         filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
-        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.FoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/FoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/FoundationTest.apk"
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.worldengine.FoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/FoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/FoundationTest.apk"
       env:
         ANDROID_HOME: '$(androidHome)'
         ANDROID_NDK_HOME: '$(androidNdkHome)'
@@ -131,7 +131,7 @@ jobs:
         targetType: filepath
         pwsh: true
         filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
-        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.CoreTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/CoreTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/CoreTest.apk"
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.worldengine.CoreTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/CoreTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/CoreTest.apk"
       env:
         ANDROID_HOME: '$(androidHome)'
         ANDROID_NDK_HOME: '$(androidNdkHome)'
@@ -144,7 +144,7 @@ jobs:
         targetType: filepath
         pwsh: true
         filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
-        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.RendererTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/RendererTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/RendererTest.apk"
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.worldengine.RendererTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/RendererTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/RendererTest.apk"
       env:
         ANDROID_HOME: '$(androidHome)'
         ANDROID_NDK_HOME: '$(androidNdkHome)'
@@ -157,7 +157,7 @@ jobs:
         targetType: filepath
         pwsh: true
         filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
-        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.ToolsFoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/ToolsFoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/ToolsFoundationTest.apk"
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.worldengine.ToolsFoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/ToolsFoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/ToolsFoundationTest.apk"
       env:
         ANDROID_HOME: '$(androidHome)'
         ANDROID_NDK_HOME: '$(androidNdkHome)'

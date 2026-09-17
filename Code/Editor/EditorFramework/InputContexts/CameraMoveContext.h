@@ -4,33 +4,33 @@
 #include <Foundation/Time/Time.h>
 #include <QPoint>
 
-class ezCamera;
+class WCamera;
 
-class EZ_EDITORFRAMEWORK_DLL ezCameraMoveContext : public ezEditorInputContext
+class W_EDITORFRAMEWORK_DLL WCameraMoveContext : public WEditorInputContext
 {
 public:
-  ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
+  WCameraMoveContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView);
 
   void LoadState();
 
-  void SetCamera(ezCamera* pCamera);
+  void SetCamera(WCamera* pCamera);
 
-  ezVec3 GetOrbitPoint() const;
+  WVec3 GetOrbitPoint() const;
   void SetOrbitDistance(float fDistance);
 
-  static float ConvertCameraSpeed(ezUInt32 uiSpeedIdx);
+  static float ConvertCameraSpeed(WUInt32 uiSpeedIdx);
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoWheelEvent(QWheelEvent* e) override;
+  virtual WEditorInput DoKeyPressEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoWheelEvent(QWheelEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override {}
 
 
   void OnActivated() override;
@@ -38,15 +38,15 @@ protected:
 private:
   virtual void UpdateContext() override;
 
-  void SetMoveSpeed(ezInt32 iSpeed);
+  void SetMoveSpeed(WInt32 iSpeed);
   void ResetCursor();
   void SetCurrentMouseMode();
   void DeactivateIfLast();
 
   float m_fOrbitPointDistance = 1.0f;
 
-  ezVec2I32 m_vLastMousePos = ezVec2I32::MakeZero();
-  ezVec2I32 m_vMouseClickPos = ezVec2I32::MakeZero();
+  WVec2I32 m_vLastMousePos = WVec2I32::MakeZero();
+  WVec2I32 m_vMouseClickPos = WVec2I32::MakeZero();
 
   bool m_bRotateCamera = false;
   bool m_bMoveCamera = false;
@@ -57,7 +57,7 @@ private:
   bool m_bPanCamera = false;
   bool m_bOpenMenuOnMouseUp = false;
 
-  ezCamera* m_pCamera = nullptr;
+  WCamera* m_pCamera = nullptr;
 
   bool m_bRun = false;
   bool m_bMoveForwards = false;
@@ -68,12 +68,12 @@ private:
   bool m_bMoveDown = false;
   bool m_bMoveForwardsInPlane = false;
   bool m_bMoveBackwardsInPlane = false;
-  ezInt32 m_iDidMoveMouse[3] = {0, 0, 0}; // Left Click, Right Click, Middle Click
+  WInt32 m_iDidMoveMouse[3] = {0, 0, 0}; // Left Click, Right Click, Middle Click
 
   bool m_bRotateLeft = false;
   bool m_bRotateRight = false;
   bool m_bRotateUp = false;
   bool m_bRotateDown = false;
 
-  ezTime m_LastUpdate;
+  WTime m_LastUpdate;
 };

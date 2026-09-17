@@ -2,14 +2,14 @@
 
 #include "Basics.h"
 
-ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
+WTestAppRun WRendererTestBasics::SubtestBlendStates()
 {
   BeginFrame();
   BeginCommands("BlendStates");
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-  ezGALBlendStateHandle hState;
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+  WGALBlendStateHandle hState;
 
-  ezGALBlendStateCreationDescription StateDesc;
+  WGALBlendStateCreationDescription StateDesc;
   StateDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled = true;
 
   if (m_iFrame == 0)
@@ -19,36 +19,36 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 
   if (m_iFrame == 1)
   {
-    StateDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend = ezGALBlend::SrcAlpha;
-    StateDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend = ezGALBlend::InvSrcAlpha;
+    StateDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend = WGALBlend::SrcAlpha;
+    StateDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend = WGALBlend::InvSrcAlpha;
   }
 
-  ezColor clear(0, 0, 0, 0);
+  WColor clear(0, 0, 0, 0);
   // if (StateDesc.m_bDepthClip)
   //  clear.r = 0.5f;
   // if (StateDesc.m_bFrontCounterClockwise)
   //  clear.g = 0.5f;
-  // if (StateDesc.m_CullMode == ezGALCullMode::Front)
+  // if (StateDesc.m_CullMode == WGALCullMode::Front)
   //  clear.b = 0.5f;
-  // if (StateDesc.m_CullMode == ezGALCullMode::Back)
+  // if (StateDesc.m_CullMode == WGALCullMode::Back)
   //  clear.b = 1.0f;
 
   BeginRendering(clear);
 
   hState = m_pDevice->CreateBlendState(StateDesc);
-  EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
+  W_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
 
-  ezRenderContext::GetDefaultInstance()->SetBlendState(hState);
+  WRenderContext::GetDefaultInstance()->SetBlendState(hState);
 
-  RenderObjects(ezShaderBindFlags::NoBlendState);
+  RenderObjects(WShaderBindFlags::NoBlendState);
 
   EndRendering();
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-  EZ_TEST_IMAGE(m_iFrame, 150);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+  W_TEST_IMAGE(m_iFrame, 150);
   EndCommands();
   EndFrame();
 
   m_pDevice->DestroyBlendState(hState);
 
-  return m_iFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 1 ? WTestAppRun::Continue : WTestAppRun::Quit;
 }

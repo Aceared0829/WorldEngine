@@ -7,32 +7,32 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeEffectFactory>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypeEffectFactory, 1, WRTTIDefaultAllocator<WParticleTypeEffectFactory>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect"), new ezRequiredAttribute()),
-    // EZ_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName), // there is currently no way (I can think of) to uniquely identify each sub-system for the 'shared owner'
+    W_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Particle_Effect"), new WRequiredAttribute()),
+    // W_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName), // there is currently no way (I can think of) to uniquely identify each sub-system for the 'shared owner'
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<ezParticleTypeEffect>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypeEffect, 1, WRTTIDefaultAllocator<WParticleTypeEffect>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleTypeEffectFactory::ezParticleTypeEffectFactory() = default;
-ezParticleTypeEffectFactory::~ezParticleTypeEffectFactory() = default;
+WParticleTypeEffectFactory::WParticleTypeEffectFactory() = default;
+WParticleTypeEffectFactory::~WParticleTypeEffectFactory() = default;
 
-const ezRTTI* ezParticleTypeEffectFactory::GetTypeType() const
+const WRTTI* WParticleTypeEffectFactory::GetTypeType() const
 {
-  return ezGetStaticRTTI<ezParticleTypeEffect>();
+  return WGetStaticRTTI<WParticleTypeEffect>();
 }
 
-void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
+void WParticleTypeEffectFactory::CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const
 {
-  ezParticleTypeEffect* pType = static_cast<ezParticleTypeEffect*>(pObject);
+  WParticleTypeEffect* pType = static_cast<WParticleTypeEffect*>(pObject);
 
   pType->m_hEffect = m_hEffect;
 
@@ -41,7 +41,7 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bo
 
   if (bFirstTime)
   {
-    pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, pType));
+    pType->GetOwnerSystem()->AddParticleDeathEventHandler(WMakeDelegate(&WParticleTypeEffect::OnParticleDeath, pType));
   }
 }
 
@@ -56,30 +56,30 @@ enum class TypeEffectVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeEffectFactory::Save(ezStreamWriter& inout_stream) const
+void WParticleTypeEffectFactory::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)TypeEffectVersion::Version_Current;
+  const WUInt8 uiVersion = (int)TypeEffectVersion::Version_Current;
   inout_stream << uiVersion;
 
-  ezUInt64 m_uiRandomSeed = 0;
+  WUInt64 m_uiRandomSeed = 0;
 
   inout_stream << m_sEffect;
   inout_stream << m_uiRandomSeed;
   inout_stream << m_sSharedInstanceName;
 }
 
-void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleTypeEffectFactory::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeEffectVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)TypeEffectVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_sEffect;
 
   if (uiVersion >= 2)
   {
-    ezUInt64 m_uiRandomSeed = 0;
+    WUInt64 m_uiRandomSeed = 0;
 
     inout_stream >> m_uiRandomSeed;
     inout_stream >> m_sSharedInstanceName;
@@ -87,47 +87,47 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream, const ezPar
 
   if (!m_sEffect.IsEmpty())
   {
-    m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
+    m_hEffect = WResourceManager::LoadResource<WParticleEffectResource>(m_sEffect);
   }
 }
 
 
-ezParticleTypeEffect::ezParticleTypeEffect() = default;
+WParticleTypeEffect::WParticleTypeEffect() = default;
 
-ezParticleTypeEffect::~ezParticleTypeEffect()
+WParticleTypeEffect::~WParticleTypeEffect()
 {
   if (m_pStreamPosition != nullptr)
   {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(WMakeDelegate(&WParticleTypeEffect::OnParticleDeath, this));
 
     ClearEffects(true);
   }
 }
 
-void ezParticleTypeEffect::CreateRequiredStreams()
+void WParticleTypeEffect::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("EffectID", WProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
 
-void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void WParticleTypeEffect::ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const
 {
-  EZ_PROFILE_SCOPE("PFX: Effect");
+  W_PROFILE_SCOPE("PFX: Effect");
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const WUInt32 numParticles = (WUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
   if (numParticles == 0)
     return;
 
-  const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
+  const WUInt32* pEffectID = m_pStreamEffectID->GetData<WUInt32>();
 
-  const ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  const WParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
 
-  for (ezUInt32 i = 0; i < numParticles; ++i)
+  for (WUInt32 i = 0; i < numParticles; ++i)
   {
-    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[i]));
+    WParticleEffectHandle hInstance = WParticleEffectHandle(WParticleEffectId(pEffectID[i]));
 
-    const ezParticleEffectInstance* pEffect = nullptr;
+    const WParticleEffectInstance* pEffect = nullptr;
     if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
     {
       pWorldModule->ExtractEffectRenderData(pEffect, ref_msg, pEffect->GetTransform());
@@ -135,89 +135,89 @@ void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg
   }
 }
 
-void ezParticleTypeEffect::OnReset()
+void WParticleTypeEffect::OnReset()
 {
   ClearEffects(true);
 }
 
-void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
+void WParticleTypeEffect::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Effect");
+  W_PROFILE_SCOPE("PFX: Effect");
 
   if (!m_hEffect.IsValid())
     return;
 
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+  const WVec4* pPosition = m_pStreamPosition->GetData<WVec4>();
+  WUInt32* pEffectID = m_pStreamEffectID->GetWritableData<WUInt32>();
 
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  WParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
 
   m_fMaxEffectRadius = 0.0f;
 
-  const ezUInt64 uiRandomSeed = GetOwnerEffect()->GetRandomSeed();
+  const WUInt64 uiRandomSeed = GetOwnerEffect()->GetRandomSeed();
 
-  for (ezUInt32 i = 0; i < uiNumElements; ++i)
+  for (WUInt32 i = 0; i < uiNumElements; ++i)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      WParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, WArrayPtr<WParticleEffectFloatParam>(), WArrayPtr<WParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
 
-    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[i]));
+    WParticleEffectHandle hInstance = WParticleEffectHandle(WParticleEffectId(pEffectID[i]));
 
-    ezParticleEffectInstance* pEffect = nullptr;
+    WParticleEffectInstance* pEffect = nullptr;
     if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
     {
-      ezTransform t;
+      WTransform t;
       t.m_qRotation.SetIdentity();
       t.m_vScale.Set(1.0f);
       t.m_vPosition = pPosition[i].GetAsVec3();
 
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
-      pEffect->SetTransformForNextFrame(t, ezVec3::MakeZero());
+      pEffect->SetTransformForNextFrame(t, WVec3::MakeZero());
 
-      ezBoundingBoxSphere bounds;
+      WBoundingBoxSphere bounds;
       pEffect->GetBoundingVolume(bounds);
 
-      m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
+      m_fMaxEffectRadius = WMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }
   }
 }
 
-void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void WParticleTypeEffect::OnParticleDeath(const WStreamGroupElementRemovedEvent& e)
 {
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  WParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
 
-  const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
+  const WUInt32* pEffectID = m_pStreamEffectID->GetData<WUInt32>();
 
-  ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[e.m_uiElementIndex]));
+  WParticleEffectHandle hInstance = WParticleEffectHandle(WParticleEffectId(pEffectID[e.m_uiElementIndex]));
 
   pWorldModule->DestroyEffectInstance(hInstance, false, nullptr);
 }
 
-void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
+void WParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
 {
   // delete all effects that are still in the processing group
 
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
-  const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
+  WParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  const WUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
 
   if (uiNumParticles == 0 || m_pStreamEffectID == nullptr)
     return;
 
-  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+  WUInt32* pEffectID = m_pStreamEffectID->GetWritableData<WUInt32>();
 
-  for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
+  for (WUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
   {
-    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[elemIdx]));
+    WParticleEffectHandle hInstance = WParticleEffectHandle(WParticleEffectId(pEffectID[elemIdx]));
     pEffectID[elemIdx] = 0;
 
     pWorldModule->DestroyEffectInstance(hInstance, bInterruptImmediately, nullptr);
   }
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Effect_ParticleTypeEffect);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Effect_ParticleTypeEffect);

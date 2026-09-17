@@ -4,21 +4,21 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 
-struct ezGameObjectEvent;
-struct ezManipulatorManagerEvent;
+struct WGameObjectEvent;
+struct WManipulatorManagerEvent;
 
-class EZ_EDITORPLUGINSCENE_DLL ezGreyBoxEditTool : public ezGameObjectEditTool
+class W_EDITORPLUGINSCENE_DLL WGreyBoxEditTool : public WGameObjectEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGreyBoxEditTool, ezGameObjectEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WGreyBoxEditTool, WGameObjectEditTool);
 
 public:
-  ezGreyBoxEditTool();
-  ~ezGreyBoxEditTool();
+  WGreyBoxEditTool();
+  ~WGreyBoxEditTool();
 
-  virtual ezEditorInputContext* GetEditorInputContextOverride() override;
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override;
+  virtual WEditorInputContext* GetEditorInputContextOverride() override;
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const override;
   virtual bool GetSupportsMoveParentOnly() const override;
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) override;
+  virtual void GetGridSettings(WGridSettingsMsgToEngine& out_gridSettings) override;
 
 protected:
   virtual void OnConfigured() override;
@@ -26,9 +26,9 @@ protected:
 
 private:
   void UpdateGizmoState();
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
-  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GameObjectEventHandler(const WGameObjectEvent& e);
+  void ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
-  ezDrawBoxGizmo m_DrawBoxGizmo;
+  WDrawBoxGizmo m_DrawBoxGizmo;
 };

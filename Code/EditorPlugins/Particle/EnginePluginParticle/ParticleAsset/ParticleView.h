@@ -2,18 +2,18 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezParticleContext;
+class WParticleContext;
 
-class ezParticleViewContext : public ezEngineProcessViewContext
+class WParticleViewContext : public WEngineProcessViewContext
 {
 public:
-  ezParticleViewContext(ezParticleContext* pParticleContext);
-  ~ezParticleViewContext();
+  WParticleViewContext(WParticleContext* pParticleContext);
+  ~WParticleViewContext();
 
-  void PositionThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  void PositionThumbnailCamera(const WBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezViewHandle CreateView() override;
+  virtual WViewHandle CreateView() override;
 
-  ezParticleContext* m_pParticleContext;
+  WParticleContext* m_pParticleContext;
 };

@@ -1,5 +1,5 @@
 #include <Foundation/FoundationPCH.h>
 
-#if (EZ_ENABLED(EZ_PLATFORM_ANDROID) && EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER))
+#if (W_ENABLED(W_PLATFORM_ANDROID) && W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER))
 #  include <Foundation/Platform/Posix/DirectoryWatcher_Posix.h>
 #endif

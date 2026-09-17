@@ -5,16 +5,16 @@
 #include <QPoint>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WTranslateGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WTranslateGizmo, WGizmo);
 
 public:
-  ezTranslateGizmo();
+  WTranslateGizmo();
 
-  const ezVec3 GetStartPosition() const { return m_vStartPosition; }
-  const ezVec3 GetTranslationResult() const { return GetTransformation().m_vPosition - m_vStartPosition; }
-  const ezVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
+  const WVec3 GetStartPosition() const { return m_vStartPosition; }
+  const WVec3 GetTranslationResult() const { return GetTransformation().m_vPosition - m_vStartPosition; }
+  const WVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
 
   enum class MovementMode
   {
@@ -47,35 +47,35 @@ public:
   /// Used when CTRL+drag moves the object AND the camera
   void SetCameraSpeed(float fSpeed);
 
-  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+  virtual void UpdateStatusBarText(WQtEngineDocumentWindow* pWindow) override;
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
-  ezResult GetPointOnPlane(const ezVec2I32& vScreenPos, ezVec3& out_Result) const;
+  WResult GetPointOnPlane(const WVec2I32& vScreenPos, WVec3& out_Result) const;
 
 private:
-  ezVec2I32 m_vLastMousePos;
-  ezVec2 m_vTotalMouseDiff;
+  WVec2I32 m_vLastMousePos;
+  WVec2 m_vTotalMouseDiff;
 
-  ezVec3 m_vLastMoveDiff;
+  WVec3 m_vLastMoveDiff;
 
   MovementMode m_MovementMode;
-  ezEngineGizmoHandle m_hAxisX;
-  ezEngineGizmoHandle m_hAxisY;
-  ezEngineGizmoHandle m_hAxisZ;
+  WEngineGizmoHandle m_hAxisX;
+  WEngineGizmoHandle m_hAxisY;
+  WEngineGizmoHandle m_hAxisZ;
 
-  ezEngineGizmoHandle m_hPlaneXY;
-  ezEngineGizmoHandle m_hPlaneXZ;
-  ezEngineGizmoHandle m_hPlaneYZ;
+  WEngineGizmoHandle m_hPlaneXY;
+  WEngineGizmoHandle m_hPlaneXZ;
+  WEngineGizmoHandle m_hPlaneYZ;
 
   TranslateMode m_Mode;
   HandleInteraction m_LastHandleInteraction;
@@ -83,9 +83,9 @@ private:
   float m_fStartScale;
   float m_fCameraSpeed;
 
-  ezTime m_LastInteraction;
-  ezVec3 m_vMoveAxis;
-  ezVec3 m_vPlaneAxis[2];
-  ezVec3 m_vStartPosition;
-  ezMat4 m_mInvViewProj;
+  WTime m_LastInteraction;
+  WVec3 m_vMoveAxis;
+  WVec3 m_vPlaneAxis[2];
+  WVec3 m_vStartPosition;
+  WMat4 m_mInvViewProj;
 };

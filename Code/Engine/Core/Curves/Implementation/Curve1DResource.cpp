@@ -3,74 +3,74 @@
 #include <Core/Curves/Curve1DResource.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DResource, 1, ezRTTIDefaultAllocator<ezCurve1DResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCurve1DResource, 1, WRTTIDefaultAllocator<WCurve1DResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCurve1DResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WCurve1DResource);
 
-ezCurve1DResource::ezCurve1DResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WCurve1DResource::WCurve1DResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WCurve1DResource, WCurve1DResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezCurve1DResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WCurve1DResource::UnloadData(Unload WhatToUnload)
 {
-  EZ_IGNORE_UNUSED(WhatToUnload);
+  W_IGNORE_UNUSED(WhatToUnload);
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   m_Descriptor.m_Curves.Clear();
 
   return res;
 }
 
-ezResourceLoadDesc ezCurve1DResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WCurve1DResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezCurve1DResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WCurve1DResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
   m_Descriptor.Load(*Stream);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Curves.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<WUInt32>(m_Descriptor.m_Curves.GetHeapMemoryUsage()) + static_cast<WUInt32>(sizeof(m_Descriptor));
 
   for (const auto& curve : m_Descriptor.m_Curves)
   {
@@ -78,35 +78,35 @@ void ezCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   }
 }
 
-void ezCurve1DResourceDescriptor::Save(ezStreamWriter& inout_stream) const
+void WCurve1DResourceDescriptor::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
 
   inout_stream << uiVersion;
 
-  const ezUInt8 uiCurves = static_cast<ezUInt8>(m_Curves.GetCount());
+  const WUInt8 uiCurves = static_cast<WUInt8>(m_Curves.GetCount());
   inout_stream << uiCurves;
 
-  for (ezUInt32 i = 0; i < uiCurves; ++i)
+  for (WUInt32 i = 0; i < uiCurves; ++i)
   {
     m_Curves[i].Save(inout_stream);
   }
 }
 
-void ezCurve1DResourceDescriptor::Load(ezStreamReader& inout_stream)
+void WCurve1DResourceDescriptor::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
-  ezUInt8 uiCurves = 0;
+  WUInt8 uiCurves = 0;
   inout_stream >> uiCurves;
 
   m_Curves.SetCount(uiCurves);
 
-  for (ezUInt32 i = 0; i < uiCurves; ++i)
+  for (WUInt32 i = 0; i < uiCurves; ++i)
   {
     m_Curves[i].Load(inout_stream);
 
@@ -118,4 +118,4 @@ void ezCurve1DResourceDescriptor::Load(ezStreamReader& inout_stream)
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Curves_Implementation_Curve1DResource);
+W_STATICLINK_FILE(Core, Core_Curves_Implementation_Curve1DResource);

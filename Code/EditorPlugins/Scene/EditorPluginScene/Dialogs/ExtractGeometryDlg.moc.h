@@ -8,17 +8,17 @@
 
 #include <QPushButton>
 
-class ezQtExtractGeometryDlg : public ezQtDialog, public Ui_ExtractGeometryDlg
+class WQtExtractGeometryDlg : public WQtDialog, public Ui_ExtractGeometryDlg
 {
   Q_OBJECT
 
 public:
-  ezQtExtractGeometryDlg(QWidget* pParent);
+  WQtExtractGeometryDlg(QWidget* pParent);
 
   static QString s_sDestinationFile;
   static bool s_bOnlySelection;
   static int s_iExtractionMode;
-  static ezMat3 GetCoordinateSystemTransform();
+  static WMat3 GetCoordinateSystemTransform();
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);

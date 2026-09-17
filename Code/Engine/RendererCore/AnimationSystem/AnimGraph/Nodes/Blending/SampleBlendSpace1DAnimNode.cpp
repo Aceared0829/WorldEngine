@@ -10,69 +10,69 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimationClip1D, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimationClip1D>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WAnimationClip1D, WNoBase, 1, WRTTIDefaultAllocator<WAnimationClip1D>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-    EZ_MEMBER_PROPERTY("Position", m_fPosition),
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+    W_MEMBER_PROPERTY("Position", m_fPosition),
+    W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace1DAnimNode, 2, ezRTTIDefaultAllocator<ezSampleBlendSpace1DAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSampleBlendSpace1DAnimNode, 2, WRTTIDefaultAllocator<WSampleBlendSpace1DAnimNode>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
-      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-      EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
+      W_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new WDefaultValueAttribute(true)),
+      W_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, {})),
+      W_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, 100.0f)),
+      W_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
-      EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InLerp", m_InLerp)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InLerp", m_InLerp)->AddAttributes(new WHiddenAttribute()),
 
-      EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnStarted", m_OutOnStarted)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnStarted", m_OutOnStarted)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new WHiddenAttribute()),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Pose Generation"),
-      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
-      new ezTitleAttribute("BlendSpace 1D: '{Clips[0]}' '{Clips[1]}' '{Clips[2]}'"),
+      new WCategoryAttribute("Pose Generation"),
+      new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
+      new WTitleAttribute("BlendSpace 1D: '{Clips[0]}' '{Clips[1]}' '{Clips[2]}'"),
     }
-    EZ_END_ATTRIBUTES;
+    W_END_ATTRIBUTES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimationClip1D::SetAnimationFile(const char* szFile)
+void WAnimationClip1D::SetAnimationFile(const char* szFile)
 {
   m_sClip.Assign(szFile);
 }
 
-const char* ezAnimationClip1D::GetAnimationFile() const
+const char* WAnimationClip1D::GetAnimationFile() const
 {
   return m_sClip;
 }
 
-ezSampleBlendSpace1DAnimNode::ezSampleBlendSpace1DAnimNode() = default;
-ezSampleBlendSpace1DAnimNode::~ezSampleBlendSpace1DAnimNode() = default;
+WSampleBlendSpace1DAnimNode::WSampleBlendSpace1DAnimNode() = default;
+WSampleBlendSpace1DAnimNode::~WSampleBlendSpace1DAnimNode() = default;
 
-ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSampleBlendSpace1DAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_Clips.GetCount();
-  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
     stream << m_Clips[i].m_sClip;
     stream << m_Clips[i].m_fPosition;
@@ -83,27 +83,27 @@ ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) con
   stream << m_fRootMotionAmount;
   stream << m_fPlaybackSpeed;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLerp.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnStarted.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLerp.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnStarted.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSampleBlendSpace1DAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  ezUInt32 num = 0;
+  WUInt32 num = 0;
   stream >> num;
   m_Clips.SetCount(num);
-  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
     stream >> m_Clips[i].m_sClip;
     stream >> m_Clips[i].m_fPosition;
@@ -125,40 +125,40 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_fPlaybackSpeed;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLerp.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnStarted.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLerp.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnStarted.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSampleBlendSpace1DAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InLerp.IsConnected() || m_Clips.IsEmpty())
     return;
 
   InstanceData* pState = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  if (!m_InStart.IsConnected() && pState->m_PlaybackTime > ezTime::MakeFromHours(10))
+  if (!m_InStart.IsConnected() && pState->m_PlaybackTime > WTime::MakeFromHours(10))
   {
-    pState->m_PlaybackTime = ezTime::MakeZero();
+    pState->m_PlaybackTime = WTime::MakeZero();
   }
 
   if (m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_PlaybackTime = ezTime::MakeZero();
+    pState->m_PlaybackTime = WTime::MakeZero();
 
     m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
-  ezUInt32 uiClip1 = 0;
-  ezUInt32 uiClip2 = 0;
+  WUInt32 uiClip1 = 0;
+  WUInt32 uiClip2 = 0;
 
   const float fLerpPos = (float)m_InLerp.GetNumber(ref_graph);
 
@@ -167,9 +167,9 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     float fDist1 = 1000000.0f;
     float fDist2 = 1000000.0f;
 
-    for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
     {
-      const float dist = ezMath::Abs(m_Clips[i].m_fPosition - fLerpPos);
+      const float dist = WMath::Abs(m_Clips[i].m_fPosition - fLerpPos);
 
       if (dist < fDist1)
       {
@@ -186,7 +186,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       }
     }
 
-    if (ezMath::IsZero(fDist1, ezMath::SmallEpsilon<float>()))
+    if (WMath::IsZero(fDist1, WMath::SmallEpsilon<float>()))
     {
       uiClip2 = uiClip1;
     }
@@ -198,10 +198,10 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   if (!clip1.m_hClip.IsValid() || !clip2.m_hClip.IsValid())
     return;
 
-  ezResourceLock<ezAnimationClipResource> pAnimClip1(clip1.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
-  ezResourceLock<ezAnimationClipResource> pAnimClip2(clip2.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WAnimationClipResource> pAnimClip1(clip1.m_hClip, WResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WAnimationClipResource> pAnimClip2(clip2.m_hClip, WResourceAcquireMode::BlockTillLoaded);
 
-  if (pAnimClip1.GetAcquireResult() != ezResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pAnimClip1.GetAcquireResult() != WResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   float fLerpFactor = 0.0f;
@@ -224,26 +224,26 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     }
   }
 
-  const float fAvgClipSpeed = ezMath::Lerp(m_Clips[uiClip1].m_fSpeed, m_Clips[uiClip2].m_fSpeed, fLerpFactor);
+  const float fAvgClipSpeed = WMath::Lerp(m_Clips[uiClip1].m_fSpeed, m_Clips[uiClip2].m_fSpeed, fLerpFactor);
   const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
 
   const auto& animDesc1 = pAnimClip1->GetDescriptor();
   const auto& animDesc2 = pAnimClip2->GetDescriptor();
 
-  const ezTime avgDuration = ezMath::Lerp(animDesc1.GetDuration(), animDesc2.GetDuration(), fLerpFactor);
+  const WTime avgDuration = WMath::Lerp(animDesc1.GetDuration(), animDesc2.GetDuration(), fLerpFactor);
   const float fInvDuration = 1.0f / avgDuration.AsFloatInSeconds();
 
-  const ezTime tPrevPlayback = pState->m_PlaybackTime;
+  const WTime tPrevPlayback = pState->m_PlaybackTime;
   pState->m_PlaybackTime += tDiff * fSpeed;
 
-  ezAnimPoseEventTrackSampleMode eventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+  WAnimPoseEventTrackSampleMode eventSampling = WAnimPoseEventTrackSampleMode::OnlyBetween;
 
   if (pState->m_PlaybackTime >= avgDuration)
   {
     if (bLoop)
     {
       pState->m_PlaybackTime -= avgDuration;
-      eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+      eventSampling = WAnimPoseEventTrackSampleMode::LoopAtEnd;
       m_OutOnStarted.SetTriggered(ref_graph);
     }
     else
@@ -257,12 +257,12 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       else
       {
         // if we are already holding the last frame, we can skip event sampling
-        eventSampling = ezAnimPoseEventTrackSampleMode::None;
+        eventSampling = WAnimPoseEventTrackSampleMode::None;
       }
     }
   }
 
-  ezAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
+  WAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
 
   auto& poseGen = ref_controller.GetPoseGenerator();
 
@@ -272,7 +272,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   if (clip1.m_hClip == clip2.m_hClip)
   {
     const void* pThis = this;
-    auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+    auto& cmd = poseGen.AllocCommandSampleTrack(WHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
     cmd.m_hAnimationClip = clip1.m_hClip;
     cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
     cmd.m_fNormalizedSamplePos = fCurPosNorm;
@@ -288,11 +288,11 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     // sample animation 1
     {
       const void* pThis = this;
-      auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
+      auto& cmd = poseGen.AllocCommandSampleTrack(WHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
       cmd.m_hAnimationClip = clip1.m_hClip;
       cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
       cmd.m_fNormalizedSamplePos = fCurPosNorm;
-      cmd.m_EventSampling = fLerpFactor <= 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
+      cmd.m_EventSampling = fLerpFactor <= 0.5f ? eventSampling : WAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
 
       cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
       cmdCmb.m_InputWeights.PushBack(1.0f - fLerpFactor);
@@ -301,11 +301,11 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     // sample animation 2
     {
       const void* pThis = this;
-      auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
+      auto& cmd = poseGen.AllocCommandSampleTrack(WHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
       cmd.m_hAnimationClip = clip2.m_hClip;
       cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
       cmd.m_fNormalizedSamplePos = fCurPosNorm;
-      cmd.m_EventSampling = fLerpFactor > 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
+      cmd.m_EventSampling = fLerpFactor > 0.5f ? eventSampling : WAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
 
       cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
       cmdCmb.m_InputWeights.PushBack(fLerpFactor);
@@ -318,7 +318,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     {
       pOutputTransform->m_bUseRootMotion = true;
 
-      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed * m_fRootMotionAmount;
+      pOutputTransform->m_vRootMotion = WMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed * m_fRootMotionAmount;
     }
 
     // blend custom curves from both clips
@@ -357,7 +357,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   }
 }
 
-bool ezSampleBlendSpace1DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WSampleBlendSpace1DAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -368,15 +368,15 @@ bool ezSampleBlendSpace1DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSampleBlendSpace1DAnimNodePatch_1_2 : public ezGraphPatch
+class WSampleBlendSpace1DAnimNodePatch_1_2 : public WGraphPatch
 {
 public:
-  ezSampleBlendSpace1DAnimNodePatch_1_2()
-    : ezGraphPatch("ezSampleBlendSpace1DAnimNode", 2)
+  WSampleBlendSpace1DAnimNodePatch_1_2()
+    : WGraphPatch("WSampleBlendSpace1DAnimNode", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     if (auto pProp = pNode->FindProperty("ApplyRootMotion"))
     {
@@ -393,6 +393,6 @@ public:
   }
 };
 
-ezSampleBlendSpace1DAnimNodePatch_1_2 g_ezSampleBlendSpace1DAnimNodePatch_1_2;
+WSampleBlendSpace1DAnimNodePatch_1_2 g_WSampleBlendSpace1DAnimNodePatch_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SampleBlendSpace1DAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SampleBlendSpace1DAnimNode);

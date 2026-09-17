@@ -9,34 +9,34 @@
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshRenderer, 1, WRTTIDefaultAllocator<WMeshRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMeshRenderer::ezMeshRenderer() = default;
-ezMeshRenderer::~ezMeshRenderer() = default;
+WMeshRenderer::WMeshRenderer() = default;
+WMeshRenderer::~WMeshRenderer() = default;
 
-void ezMeshRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WMeshRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
-  out_types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
-  out_types.PushBack(ezGetStaticRTTI<ezSkinnedMeshRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WMeshRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WCustomMeshRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WSkinnedMeshRenderData>());
 }
 
-void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WMeshRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
-  auto& bg = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WRenderContext* pContext = renderViewContext.m_pRenderContext;
+  auto& bg = pContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
 
-  const ezInstanceableRenderData* pRenderData = batch.GetFirstData<ezInstanceableRenderData>();
+  const WInstanceableRenderData* pRenderData = batch.GetFirstData<WInstanceableRenderData>();
 
-  ezUInt32 uiPrimitiveCount = 0;
-  ezUInt32 uiFirstPrimitive = 0;
+  WUInt32 uiPrimitiveCount = 0;
+  WUInt32 uiFirstPrimitive = 0;
   bool bUseSkinning = false;
-  if (pRenderData->IsInstanceOf<ezCustomMeshRenderData>())
+  if (pRenderData->IsInstanceOf<WCustomMeshRenderData>())
   {
-    const auto* pCustomMeshRenderData = static_cast<const ezCustomMeshRenderData*>(pRenderData);
+    const auto* pCustomMeshRenderData = static_cast<const WCustomMeshRenderData*>(pRenderData);
     uiPrimitiveCount = pCustomMeshRenderData->m_uiNumPrimitives;
     uiFirstPrimitive = pCustomMeshRenderData->m_uiFirstPrimitive;
 
@@ -45,11 +45,11 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
   }
   else
   {
-    const auto* pMeshRenderData = static_cast<const ezMeshRenderData*>(pRenderData);
-    const ezUInt32 uiPartIndex = pMeshRenderData->m_uiSubMeshIndex;
+    const auto* pMeshRenderData = static_cast<const WMeshRenderData*>(pRenderData);
+    const WUInt32 uiPartIndex = pMeshRenderData->m_uiSubMeshIndex;
 
-    const ezMeshResourceHandle& hMesh = pMeshRenderData->m_hMesh;
-    ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    const WMeshResourceHandle& hMesh = pMeshRenderData->m_hMesh;
+    WResourceLock<WMeshResource> pMesh(hMesh, WResourceAcquireMode::AllowLoadingFallback);
 
     // This can happen when the resource has been reloaded and now has fewer submeshes.
     const auto& subMeshes = pMesh->GetSubMeshes();
@@ -58,7 +58,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       return;
     }
 
-    const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+    const WMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
     uiPrimitiveCount = meshPart.m_uiPrimitiveCount;
     uiFirstPrimitive = meshPart.m_uiFirstPrimitive;
 
@@ -70,7 +70,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       bg.BindBuffer("perInstanceDataCustom", pCustomInstanceDataBuffer->GetBufferForRendering());
     }
 
-    if (auto pSkinnedMeshRenderData = ezDynamicCast<const ezSkinnedMeshRenderData*>(pRenderData))
+    if (auto pSkinnedMeshRenderData = WDynamicCast<const WSkinnedMeshRenderData*>(pRenderData))
     {
       if (auto pSkinningBuffer = pDevice->GetDynamicBuffer(pSkinnedMeshRenderData->m_hSkinningBuffer))
       {
@@ -82,8 +82,8 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
     SetAdditionalData(renderViewContext, pMeshRenderData);
   }
 
-  constexpr ezTempHashedString sTrue("TRUE");
-  constexpr ezTempHashedString sFalse("FALSE");
+  constexpr WTempHashedString sTrue("TRUE");
+  constexpr WTempHashedString sFalse("FALSE");
 
   pContext->SetShaderPermutationVariable("VERTEX_SKINNING", bUseSkinning ? sTrue : sFalse);
   pContext->SetShaderPermutationVariable("FLIP_WINDING", pRenderData->FlipWinding() ? sTrue : sFalse);
@@ -95,23 +95,23 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
   if (pContext->DrawMeshBuffer(uiPrimitiveCount, uiFirstPrimitive, batch.GetInstanceCount()).Failed())
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     // draw bounding box instead
-    for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+    for (auto it = batch.GetIterator<WRenderData>(); it.IsValid(); ++it)
     {
-      if (auto pMeshRenderData = ezDynamicCast<const ezMeshRenderData*>(it))
+      if (auto pMeshRenderData = WDynamicCast<const WMeshRenderData*>(it))
       {
         if (pMeshRenderData->m_FallbackGlobalBBox.IsValid())
         {
-          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pMeshRenderData->m_FallbackGlobalBBox, ezColor::Magenta);
+          WDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pMeshRenderData->m_FallbackGlobalBBox, WColor::Magenta);
         }
       }
-      else if (auto pCustomMeshRenderData = ezDynamicCast<const ezCustomMeshRenderData*>(it))
+      else if (auto pCustomMeshRenderData = WDynamicCast<const WCustomMeshRenderData*>(it))
       {
         // draw bounding box instead
         if (pCustomMeshRenderData->m_FallbackGlobalBBox.IsValid())
         {
-          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pCustomMeshRenderData->m_FallbackGlobalBBox, ezColor::Magenta);
+          WDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pCustomMeshRenderData->m_FallbackGlobalBBox, WColor::Magenta);
         }
       }
     }
@@ -119,8 +119,8 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
   }
 }
 
-void ezMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
+void WMeshRenderer::SetAdditionalData(const WRenderViewContext& renderViewContext, const WMeshRenderData* pRenderData) const
 {
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

@@ -14,70 +14,70 @@
 #include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <atomic>
 
-struct ezAssetCuratorEvent;
-class ezTask;
-struct ezAssetInfo;
+struct WAssetCuratorEvent;
+class WTask;
+struct WAssetInfo;
 
 /// Log for all background processing results
-class ezAssetProcessorLog : public ezLogInterface
+class WAssetProcessorLog : public WLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override;
-  void AddLogWriter(ezLoggingEvent::Handler handler);
-  void RemoveLogWriter(ezLoggingEvent::Handler handler);
+  virtual void HandleLogMessage(const WLoggingEventData& le) override;
+  void AddLogWriter(WLoggingEvent::Handler handler);
+  void RemoveLogWriter(WLoggingEvent::Handler handler);
 
-  ezLoggingEvent m_LoggingEvent;
+  WLoggingEvent m_LoggingEvent;
 };
 
-/// Event type used by ezAssetProcessor::m_Events
-struct ezAssetProcessorEvent
+/// Event type used by WAssetProcessor::m_Events
+struct WAssetProcessorEvent
 {
   enum class Type
   {
-    AssetProcessorStateChanged, ///< ezAssetProcessor::GetProcessorState changed
-    ProcessStateChanged,        ///< ezAssetProcessor::GetProcessState changed
+    AssetProcessorStateChanged, ///< WAssetProcessor::GetProcessorState changed
+    ProcessStateChanged,        ///< WAssetProcessor::GetProcessState changed
   };
 
   Type m_Type;
-  ezUInt8 m_uiProcessCount = 0; ///< Total number of processes. Only valid if ProcessorStateChanged.
-  ezUInt8 m_uiProcessorID = 0;  ///< The changed process index. Only valid if ProcessStateChanged.
+  WUInt8 m_uiProcessCount = 0; ///< Total number of processes. Only valid if ProcessorStateChanged.
+  WUInt8 m_uiProcessorID = 0;  ///< The changed process index. Only valid if ProcessStateChanged.
 };
 
-/// Event type used by ezAssetProcessor::m_ProgressEvents
-struct ezAssetProcessorProgressEvent
+/// Event type used by WAssetProcessor::m_ProgressEvents
+struct WAssetProcessorProgressEvent
 {
-  enum class Type : ezUInt8
+  enum class Type : WUInt8
   {
     ProcessingStarted, ///< A process started working on an asset
     ProcessingFinished ///< A process finished working on an asset
   };
 
   Type m_Type;
-  ezAssetInfo::TransformState m_TransformState = ezAssetInfo::Unknown;
-  ezUInt8 m_uiProcessorID;
-  ezUuid m_AssetGuid;
-  ezString m_sAssetPath;
-  ezTime m_StartTime;
-  ezTime m_TransformStartTime;
-  ezTime m_EndTime;
-  ezTransformStatus m_Result; ///< Only valid when m_Type == ProcessingFinished
+  WAssetInfo::TransformState m_TransformState = WAssetInfo::Unknown;
+  WUInt8 m_uiProcessorID;
+  WUuid m_AssetGuid;
+  WString m_sAssetPath;
+  WTime m_StartTime;
+  WTime m_TransformStartTime;
+  WTime m_EndTime;
+  WTransformStatus m_Result; ///< Only valid when m_Type == ProcessingFinished
 };
 
-/// Thread used by ezAssetProcessor to schedule work items on the ezEditorProcessorProcess instances.
-class ezAssetProcessorThread : public ezThread
+/// Thread used by WAssetProcessor to schedule work items on the WEditorProcessorProcess instances.
+class WAssetProcessorThread : public WThread
 {
 public:
-  ezAssetProcessorThread()
-    : ezThread("ezProcessThread")
+  WAssetProcessorThread()
+    : WThread("WProcessThread")
   {
   }
 
 
-  virtual ezUInt32 Run() override;
+  virtual WUInt32 Run() override;
 };
 
-/// Encapsulates one ezEditorProcessor process managed by ezAssetProcessor.
-class ezEditorProcessorProcess
+/// Encapsulates one WEditorProcessor process managed by WAssetProcessor.
+class WEditorProcessorProcess
 {
 public:
   enum class State
@@ -92,12 +92,12 @@ public:
   };
 
 public:
-  ezEditorProcessorProcess();
-  ~ezEditorProcessorProcess();
+  WEditorProcessorProcess();
+  ~WEditorProcessorProcess();
 
-  ezUInt32 m_uiProcessorID;
-  ezTime m_ProcessingStartTime;  // When a work item was started.
-  ezThreadSignal* m_pNewWorkSignal = nullptr;
+  WUInt32 m_uiProcessorID;
+  WTime m_ProcessingStartTime;  // When a work item was started.
+  WThreadSignal* m_pNewWorkSignal = nullptr;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
@@ -107,69 +107,69 @@ public:
   bool IsConnected() const;
   bool IsRunning() const;
   bool IsCrashed() const;
-  ezOsProcessID GetProcessId() const;
+  WOsProcessID GetProcessId() const;
   bool HasProcessCrashed();
   void HandleHashMissmatch();
 
-  ezResult StartProcess();
+  WResult StartProcess();
   void ShutdownProcess();
 
 private:
-  void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
-  void ChannelEventHandler(const ezIpcChannelEvent& e);
+  void EventHandlerIPC(const WProcessCommunicationChannel::Event& e);
+  void ChannelEventHandler(const WIpcChannelEvent& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
-  void OnProcessCrashed(ezStringView message);
+  bool GetNextAssetToProcess(WAssetInfo* pInfo, WUuid& out_guid, WDataDirPath& out_path, WAssetInfo::TransformState& out_transformState);
+  bool GetNextAssetToProcess(WUuid& out_guid, WDataDirPath& out_path, WAssetInfo::TransformState& out_transformState);
+  void OnProcessCrashed(WStringView message);
 
 private:
   State m_State = State::StartClient;
-  ezEditorProcessCommunicationChannel* m_pIPC;
+  WEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
   bool m_bIsIdle = false;
-  ezOsProcessID m_CurrentProcessID = {};
+  WOsProcessID m_CurrentProcessID = {};
 
   // New asset to process
-  ezUuid m_AssetGuid;
-  ezDataDirPath m_AssetPath;
-  ezAssetInfo::TransformState m_TransformState = ezAssetInfo::TransformState::Unknown;
-  ezString m_sPlatform;
-  ezUInt64 m_uiAssetHash = 0;
-  ezUInt64 m_uiThumbHash = 0;
-  ezUInt64 m_uiPackageHash = 0;
-  ezDynamicArray<ezString> m_TransitiveHull;
+  WUuid m_AssetGuid;
+  WDataDirPath m_AssetPath;
+  WAssetInfo::TransformState m_TransformState = WAssetInfo::TransformState::Unknown;
+  WString m_sPlatform;
+  WUInt64 m_uiAssetHash = 0;
+  WUInt64 m_uiThumbHash = 0;
+  WUInt64 m_uiPackageHash = 0;
+  WDynamicArray<WString> m_TransitiveHull;
 
   // Transform result
-  ezTransformStatus m_Status;
-  ezDynamicArray<ezLogEntry> m_LogEntries;
-  ezMap<ezString, ezUInt64> m_MissmatchTransformDependencies;
-  ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies;
-  ezUInt64 m_uiMissmatchAssetHash = 0;
-  ezUInt64 m_uiMissmatchThumbHash = 0;
-  ezTime m_StartedProcessing;
-  ezTime m_StartedTransform;
-  ezTime m_FinishedProcessing;
+  WTransformStatus m_Status;
+  WDynamicArray<WLogEntry> m_LogEntries;
+  WMap<WString, WUInt64> m_MissmatchTransformDependencies;
+  WMap<WString, WUInt64> m_MissmatchThumbnailDependencies;
+  WUInt64 m_uiMissmatchAssetHash = 0;
+  WUInt64 m_uiMissmatchThumbHash = 0;
+  WTime m_StartedProcessing;
+  WTime m_StartedTransform;
+  WTime m_FinishedProcessing;
 };
 
 /// Background asset processing is handled by this class.
-/// Creates ezEditorProcessor processes which are managed by the ezEditorProcessorProcess class.
-class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
+/// Creates WEditorProcessor processes which are managed by the WEditorProcessorProcess class.
+class W_EDITORFRAMEWORK_DLL WAssetProcessor
 {
-  EZ_DECLARE_SINGLETON(ezAssetProcessor);
+  W_DECLARE_SINGLETON(WAssetProcessor);
 
 public:
-  enum class ProcessorState : ezUInt8
+  enum class ProcessorState : WUInt8
   {
     Stopped,  ///< No EditorProcessor or the process thread is running.
     Running,  ///< Everything is active.
     Stopping, ///< Everything is still running but no new tasks are put into the EditorProcessors.
   };
 
-  ezAssetProcessor();
-  ~ezAssetProcessor();
+  WAssetProcessor();
+  ~WAssetProcessor();
 
   // used to temporarily not process assets, usually because currently assets get imported
-  ezAtomicInteger32 m_iPauseProcessing;
+  WAtomicInteger32 m_iPauseProcessing;
 
   void StartProcessor();
   void StopProcessor(bool bForce);
@@ -180,47 +180,47 @@ public:
     return m_ProcessorState;
   }
 
-  /// Returns how many ezEditorProcessor processes are managed by the ezAssetProcessor.
-  ezUInt32 GetProcessCount() const;
-  /// Returns the state of one of the ezEditorProcessor processes.
+  /// Returns how many WEditorProcessor processes are managed by the WAssetProcessor.
+  WUInt32 GetProcessCount() const;
+  /// Returns the state of one of the WEditorProcessor processes.
   /// \param uiProcessIndex The index of the process. Must be smaller than GetProcessCount.
-  ezEditorProcessorState GetProcessState(ezUInt32 uiProcessIndex) const;
+  WEditorProcessorState GetProcessState(WUInt32 uiProcessIndex) const;
 
   /// Requests a restart of a crashed processor.
   /// This is safe to call from any thread. The restart will be handled by the worker thread.
   /// \param uiProcessIndex The index of the crashed process to restart. Must be smaller than GetProcessCount.
-  void RequestRestartProcess(ezUInt32 uiProcessIndex);
+  void RequestRestartProcess(WUInt32 uiProcessIndex);
 
-  void AddLogWriter(ezLoggingEvent::Handler handler);
-  void RemoveLogWriter(ezLoggingEvent::Handler handler);
+  void AddLogWriter(WLoggingEvent::Handler handler);
+  void RemoveLogWriter(WLoggingEvent::Handler handler);
   void UpdateProcessStates();
 
 public:
   // Can be called from worker threads!
-  ezCopyOnBroadcastEvent<const ezAssetProcessorEvent&, ezMutex> m_Events;
-  ezCopyOnBroadcastEvent<const ezAssetProcessorProgressEvent&, ezMutex> m_ProgressEvents;
+  WCopyOnBroadcastEvent<const WAssetProcessorEvent&, WMutex> m_Events;
+  WCopyOnBroadcastEvent<const WAssetProcessorProgressEvent&, WMutex> m_ProgressEvents;
 
 private:
-  friend class ezEditorProcessorProcess;
-  friend class ezAssetProcessorThread;
-  friend class ezAssetCurator;
+  friend class WEditorProcessorProcess;
+  friend class WAssetProcessorThread;
+  friend class WAssetCurator;
 
   void Run();
 
 private:
-  ezAssetProcessorLog m_CuratorLog;
+  WAssetProcessorLog m_CuratorLog;
 
   // Process thread and its state
-  ezThreadSignal m_NewWorkSignal;
-  ezUniquePtr<ezAssetProcessorThread> m_pThread;
+  WThreadSignal m_NewWorkSignal;
+  WUniquePtr<WAssetProcessorThread> m_pThread;
   std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
   // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
-  mutable ezMutex m_ProcessorMutex;
+  mutable WMutex m_ProcessorMutex;
   std::atomic<ProcessorState> m_ProcessorState = ProcessorState::Stopped;
-  ezDynamicArray<ezEditorProcessorState> m_EditorProcessorStates;
-  ezDynamicArray<ezAtomicBool> m_RestartRequests; ///< Set by main thread, read by worker thread
+  WDynamicArray<WEditorProcessorState> m_EditorProcessorStates;
+  WDynamicArray<WAtomicBool> m_RestartRequests; ///< Set by main thread, read by worker thread
 
   // Data owned by the process thread.
-  ezDynamicArray<ezEditorProcessorProcess> m_Processes;
+  WDynamicArray<WEditorProcessorProcess> m_Processes;
 };

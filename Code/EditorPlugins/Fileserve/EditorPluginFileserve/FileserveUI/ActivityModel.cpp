@@ -2,22 +2,22 @@
 
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 
-ezQtFileserveActivityModel::ezQtFileserveActivityModel(QWidget* pParent)
+WQtFileserveActivityModel::WQtFileserveActivityModel(QWidget* pParent)
   : QAbstractListModel(pParent)
 {
 }
 
-int ezQtFileserveActivityModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
+int WQtFileserveActivityModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return m_Items.GetCount() - m_uiAddedItems;
 }
 
-int ezQtFileserveActivityModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
+int WQtFileserveActivityModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return 2;
 }
 
-QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*= Qt::DisplayRole*/) const
+QVariant WQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*= Qt::DisplayRole*/) const
 {
   if (!index.isValid())
     return QVariant();
@@ -26,7 +26,7 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*
 
   if (iRole == Qt::ToolTipRole)
   {
-    if (item.m_Type == ezFileserveActivityType::ReadFile)
+    if (item.m_Type == WFileserveActivityType::ReadFile)
     {
       return QString("[TIME] == File was not transferred because the timestamps match on server and client.\n"
                      "[HASH] == File was not transferred because the file hashes matched on server and client.\n"
@@ -40,27 +40,27 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*
     {
       switch (item.m_Type)
       {
-        case ezFileserveActivityType::StartServer:
+        case WFileserveActivityType::StartServer:
           return "Server Started";
-        case ezFileserveActivityType::StopServer:
+        case WFileserveActivityType::StopServer:
           return "Server Stopped";
-        case ezFileserveActivityType::ClientConnect:
+        case WFileserveActivityType::ClientConnect:
           return "Client Connected";
-        case ezFileserveActivityType::ClientReconnected:
+        case WFileserveActivityType::ClientReconnected:
           return "Client Re-connected";
-        case ezFileserveActivityType::ClientDisconnect:
+        case WFileserveActivityType::ClientDisconnect:
           return "Client Disconnect";
-        case ezFileserveActivityType::Mount:
+        case WFileserveActivityType::Mount:
           return "Mount";
-        case ezFileserveActivityType::MountFailed:
+        case WFileserveActivityType::MountFailed:
           return "Failed Mount";
-        case ezFileserveActivityType::Unmount:
+        case WFileserveActivityType::Unmount:
           return "Unmount";
-        case ezFileserveActivityType::ReadFile:
+        case WFileserveActivityType::ReadFile:
           return "Read";
-        case ezFileserveActivityType::WriteFile:
+        case WFileserveActivityType::WriteFile:
           return "Write";
-        case ezFileserveActivityType::DeleteFile:
+        case WFileserveActivityType::DeleteFile:
           return "Delete";
 
         default:
@@ -72,29 +72,29 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*
     {
       switch (item.m_Type)
       {
-        case ezFileserveActivityType::StartServer:
+        case WFileserveActivityType::StartServer:
           return QColor::fromRgb(0, 200, 0);
-        case ezFileserveActivityType::StopServer:
+        case WFileserveActivityType::StopServer:
           return QColor::fromRgb(200, 200, 0);
 
-        case ezFileserveActivityType::ClientConnect:
-        case ezFileserveActivityType::ClientReconnected:
+        case WFileserveActivityType::ClientConnect:
+        case WFileserveActivityType::ClientReconnected:
           return QColor::fromRgb(50, 200, 0);
-        case ezFileserveActivityType::ClientDisconnect:
+        case WFileserveActivityType::ClientDisconnect:
           return QColor::fromRgb(250, 100, 0);
 
-        case ezFileserveActivityType::Mount:
+        case WFileserveActivityType::Mount:
           return QColor::fromRgb(0, 0, 200);
-        case ezFileserveActivityType::MountFailed:
+        case WFileserveActivityType::MountFailed:
           return QColor::fromRgb(255, 0, 0);
-        case ezFileserveActivityType::Unmount:
+        case WFileserveActivityType::Unmount:
           return QColor::fromRgb(150, 0, 200);
 
-        case ezFileserveActivityType::ReadFile:
+        case WFileserveActivityType::ReadFile:
           return QColor::fromRgb(100, 100, 100);
-        case ezFileserveActivityType::WriteFile:
+        case WFileserveActivityType::WriteFile:
           return QColor::fromRgb(255, 150, 0);
-        case ezFileserveActivityType::DeleteFile:
+        case WFileserveActivityType::DeleteFile:
           return QColor::fromRgb(200, 50, 50);
 
         default:
@@ -115,7 +115,7 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int iRole /*
 }
 
 
-QVariant ezQtFileserveActivityModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
+QVariant WQtFileserveActivityModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
 {
   if (iRole == Qt::DisplayRole)
   {
@@ -133,20 +133,20 @@ QVariant ezQtFileserveActivityModel::headerData(int iSection, Qt::Orientation or
   return QVariant();
 }
 
-ezQtFileserveActivityItem& ezQtFileserveActivityModel::AppendItem()
+WQtFileserveActivityItem& WQtFileserveActivityModel::AppendItem()
 {
   if (!m_bTimerRunning)
   {
     m_bTimerRunning = true;
 
-    QTimer::singleShot(250, this, &ezQtFileserveActivityModel::UpdateViewSlot);
+    QTimer::singleShot(250, this, &WQtFileserveActivityModel::UpdateViewSlot);
   }
 
   m_uiAddedItems++;
   return m_Items.ExpandAndGetRef();
 }
 
-void ezQtFileserveActivityModel::UpdateView()
+void WQtFileserveActivityModel::UpdateView()
 {
   if (m_uiAddedItems == 0)
     return;
@@ -157,7 +157,7 @@ void ezQtFileserveActivityModel::UpdateView()
   endInsertRows();
 }
 
-void ezQtFileserveActivityModel::Clear()
+void WQtFileserveActivityModel::Clear()
 {
   m_Items.Clear();
   m_uiAddedItems = 0;
@@ -166,7 +166,7 @@ void ezQtFileserveActivityModel::Clear()
   endResetModel();
 }
 
-void ezQtFileserveActivityModel::UpdateViewSlot()
+void WQtFileserveActivityModel::UpdateViewSlot()
 {
   m_bTimerRunning = false;
 

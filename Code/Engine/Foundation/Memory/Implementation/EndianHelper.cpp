@@ -3,12 +3,12 @@
 #include <Foundation/Memory/EndianHelper.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
-void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
+void WEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
 {
-  EZ_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
-  EZ_ASSERT_DEBUG((szFormat != nullptr) && (szFormat[0] != '\0'), "Struct format description necessary!");
+  W_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
+  W_ASSERT_DEBUG((szFormat != nullptr) && (szFormat[0] != '\0'), "Struct format description necessary!");
 
-  ezUInt8* pWorkPointer = static_cast<ezUInt8*>(pDataPointer);
+  WUInt8* pWorkPointer = static_cast<WUInt8*>(pDataPointer);
   char cCurrentElement = *szFormat;
 
   while (cCurrentElement != '\0')
@@ -23,25 +23,25 @@ void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
       case 's':
       case 'w':
       {
-        ezUInt16* pWordElement = reinterpret_cast<ezUInt16*>(pWorkPointer);
+        WUInt16* pWordElement = reinterpret_cast<WUInt16*>(pWorkPointer);
         *pWordElement = Switch(*pWordElement);
-        pWorkPointer += sizeof(ezUInt16);
+        pWorkPointer += sizeof(WUInt16);
       }
       break;
 
       case 'd':
       {
-        ezUInt32* pDWordElement = reinterpret_cast<ezUInt32*>(pWorkPointer);
+        WUInt32* pDWordElement = reinterpret_cast<WUInt32*>(pWorkPointer);
         *pDWordElement = Switch(*pDWordElement);
-        pWorkPointer += sizeof(ezUInt32);
+        pWorkPointer += sizeof(WUInt32);
       }
       break;
 
       case 'q':
       {
-        ezUInt64* pQWordElement = reinterpret_cast<ezUInt64*>(pWorkPointer);
+        WUInt64* pQWordElement = reinterpret_cast<WUInt64*>(pWorkPointer);
         *pQWordElement = Switch(*pQWordElement);
-        pWorkPointer += sizeof(ezUInt64);
+        pWorkPointer += sizeof(WUInt64);
       }
       break;
     }
@@ -51,15 +51,15 @@ void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
   }
 }
 
-void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezUInt32 uiStride, ezUInt32 uiCount)
+void WEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, WUInt32 uiStride, WUInt32 uiCount)
 {
-  EZ_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
-  EZ_ASSERT_DEBUG((szFormat != nullptr) && (szFormat[0] != '\0'), "Struct format description necessary!");
-  EZ_ASSERT_DEBUG(uiStride > 0, "Struct size necessary!");
+  W_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
+  W_ASSERT_DEBUG((szFormat != nullptr) && (szFormat[0] != '\0'), "Struct format description necessary!");
+  W_ASSERT_DEBUG(uiStride > 0, "Struct size necessary!");
 
-  for (ezUInt32 i = 0; i < uiCount; i++)
+  for (WUInt32 i = 0; i < uiCount; i++)
   {
     SwitchStruct(pDataPointer, szFormat);
-    pDataPointer = ezMemoryUtils::AddByteOffset(pDataPointer, uiStride);
+    pDataPointer = WMemoryUtils::AddByteOffset(pDataPointer, uiStride);
   }
 }

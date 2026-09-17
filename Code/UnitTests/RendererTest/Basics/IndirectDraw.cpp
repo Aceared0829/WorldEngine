@@ -7,9 +7,9 @@
 
 #include "../../../../Data/UnitTests/RendererTest/Shaders/IndirectArgs.h"
 
-static ezRendererTestIndirectDraw s_IndirectDrawTest;
+static WRendererTestIndirectDraw s_IndirectDrawTest;
 
-void ezRendererTestIndirectDraw::SetupSubTests()
+void WRendererTestIndirectDraw::SetupSubTests()
 {
   AddSubTest("DrawInstancedIndirect", SubTests::ST_DrawInstancedIndirect);
   AddSubTest("DrawIndexedInstancedIndirect", SubTests::ST_DrawIndexedInstancedIndirect);
@@ -17,29 +17,29 @@ void ezRendererTestIndirectDraw::SetupSubTests()
   AddSubTest("DispatchIndirect", SubTests::ST_DispatchIndirect);
 }
 
-ezResult ezRendererTestIndirectDraw::InitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestIndirectDraw::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(CreateWindow(s_uiRTSize, s_uiRTSize));
+  W_SUCCEED_OR_RETURN(WGraphicsTest::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(CreateWindow(s_uiRTSize, s_uiRTSize));
 
-  ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
-  ezGPUResourcePool::SetDefaultInstance(pResourcePool);
+  WGPUResourcePool* pResourcePool = W_DEFAULT_NEW(WGPUResourcePool);
+  WGPUResourcePool::SetDefaultInstance(pResourcePool);
 
   // Indirect args buffer: 32 bytes is enough for all argument structs (max 5 uint32 = 20 bytes) plus offset tests.
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = 4;
     desc.m_uiTotalSize = 64;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::UnorderedAccess | ezGALBufferUsageFlags::DrawIndirect;
+    desc.m_BufferFlags = WGALBufferUsageFlags::ByteAddressBuffer | WGALBufferUsageFlags::UnorderedAccess | WGALBufferUsageFlags::DrawIndirect;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hIndirectArgsBuffer = m_pDevice->CreateBuffer(desc);
-    EZ_ASSERT_DEV(!m_hIndirectArgsBuffer.IsInvalidated(), "Failed to create indirect args buffer");
+    W_ASSERT_DEV(!m_hIndirectArgsBuffer.IsInvalidated(), "Failed to create indirect args buffer");
   }
 
   // Non-indexed triangle mesh: a full-NDC triangle (covers the entire viewport).
   {
-    ezGeometry geom;
-    geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+    WGeometry geom;
+    geom.AddRect(WVec2(2.0f, 2.0f), 1, 1);
     m_hTriangleMesh = CreateMesh(geom, "IndirectDrawTriangle");
   }
 
@@ -47,33 +47,33 @@ ezResult ezRendererTestIndirectDraw::InitializeSubTest(ezInt32 iIdentifier)
   m_hIndexedTriangleMesh = m_hTriangleMesh;
 
   // Load shaders.
-  m_hFillArgsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/FillIndirectArgs.ezShader");
-  m_hDrawShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
-  m_hInstancedDrawShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/IndirectDrawInstances.ezShader");
-  m_hIndexedInstancedDrawShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/IndirectDrawIndexedInstances.ezShader");
-  m_hDispatchWriteShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/IndirectDispatchWrite.ezShader");
+  m_hFillArgsShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/FillIndirectArgs.WShader");
+  m_hDrawShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/StencilColor.WShader");
+  m_hInstancedDrawShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/IndirectDrawInstances.WShader");
+  m_hIndexedInstancedDrawShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/IndirectDrawIndexedInstances.WShader");
+  m_hDispatchWriteShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/IndirectDispatchWrite.WShader");
 
   m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
 
   // Dispatch output texture (for DispatchIndirect test).
   if (iIdentifier == ST_DispatchIndirect)
   {
-    ezGALTextureCreationDescription desc;
+    WGALTextureCreationDescription desc;
     desc.m_uiWidth = 16;
     desc.m_uiHeight = 16;
-    desc.m_Format = ezGALResourceFormat::RGBAFloat;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::ShaderResource;
+    desc.m_Format = WGALResourceFormat::RGBAFloat;
+    desc.m_TextureFlags = WGALTextureUsageFlags::UnorderedAccess | WGALTextureUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hDispatchOutputTexture = m_pDevice->CreateTexture(desc);
-    EZ_ASSERT_DEV(!m_hDispatchOutputTexture.IsInvalidated(), "Failed to create dispatch output texture");
+    W_ASSERT_DEV(!m_hDispatchOutputTexture.IsInvalidated(), "Failed to create dispatch output texture");
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2D.WShader");
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestIndirectDraw::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestIndirectDraw::DeInitializeSubTest(WInt32 iIdentifier)
 {
   m_hFillArgsShader.Invalidate();
   m_hDrawShader.Invalidate();
@@ -86,13 +86,13 @@ ezResult ezRendererTestIndirectDraw::DeInitializeSubTest(ezInt32 iIdentifier)
   m_pDevice->DestroyBuffer(m_hIndirectArgsBuffer);
   m_pDevice->DestroyTexture(m_hDispatchOutputTexture);
 
-  ezGPUResourcePool::SetDefaultInstance(nullptr);
+  WGPUResourcePool::SetDefaultInstance(nullptr);
   DestroyWindow();
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(WGraphicsTest::DeInitializeSubTest(iIdentifier));
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezRendererTestIndirectDraw::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WRendererTestIndirectDraw::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
@@ -114,35 +114,35 @@ ezTestAppRun ezRendererTestIndirectDraw::RunSubTest(ezInt32 iIdentifier, ezUInt3
       DispatchIndirect();
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
   EndFrame();
   if (m_ImgCompFrames.IsEmpty() || m_ImgCompFrames.PeekBack() == m_iFrame)
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
-void ezRendererTestIndirectDraw::DrawInstancedIndirect()
+void WRendererTestIndirectDraw::DrawInstancedIndirect()
 {
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pContext = WRenderContext::GetDefaultInstance();
 
   BeginCommands("DrawInstancedIndirect");
 
   // Compute pass: fill indirect args with {vertexCount=6, instanceCount=4, startVertex=0, startInstance=0}
   FillIndirectArgsViaCompute(6, 4, 0, 0);
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::DrawIndirect);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
 
   {
-    BeginRendering(ezColor::Black);
+    BeginRendering(WColor::Black);
 
     pContext->BindShader(m_hInstancedDrawShader);
-    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    pContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
     pContext->ApplyContextStates().AssertSuccess();
     m_pEncoder->DrawInstancedIndirect(m_hIndirectArgsBuffer, 0).AssertSuccess();
 
@@ -153,20 +153,20 @@ void ezRendererTestIndirectDraw::DrawInstancedIndirect()
   EndCommands();
 }
 
-void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirect()
+void WRendererTestIndirectDraw::DrawIndexedInstancedIndirect()
 {
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pContext = WRenderContext::GetDefaultInstance();
 
   BeginCommands("DrawIndexedInstancedIndirect");
 
   // Compute pass: fill indexed indirect args {indexCount=6, instanceCount=4, startIndex=0, baseVertex=0, startInstance=0}
   FillIndirectArgsViaCompute(6, 4, 0, 0, 0);
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::DrawIndirect);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
 
   {
-    BeginRendering(ezColor::Black);
+    BeginRendering(WColor::Black);
 
     pContext->BindShader(m_hIndexedInstancedDrawShader);
     pContext->BindMeshBuffer(m_hIndexedTriangleMesh);
@@ -180,13 +180,13 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirect()
   EndCommands();
 }
 
-void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
+void WRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
 {
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
-  ezMat4 mMVP = ezMat4::MakeIdentity();
-  if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
+  WRenderContext* pContext = WRenderContext::GetDefaultInstance();
+  WMat4 mMVP = WMat4::MakeIdentity();
+  if (WClipSpaceYMode::RenderToTextureDefault == WClipSpaceYMode::Flipped)
   {
-    mMVP = ezMat4::MakeScaling(ezVec3(1.0f, -1.0f, 1.0f)) * mMVP;
+    mMVP = WMat4::MakeScaling(WVec3(1.0f, -1.0f, 1.0f)) * mMVP;
   }
 
   BeginCommands("DrawIndexedIndirectOffset");
@@ -194,19 +194,19 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
   // Zero arguments at offset 0 must leave the cleared target untouched.
   FillIndirectArgsViaCompute(0, 0, 0, 0, 0);
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::DrawIndirect);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
 
   {
     const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-    ezRectFloat viewport = ezRectFloat(0, 0, fWidth * 0.5f, fHeight);
+    WRectFloat viewport = WRectFloat(0, 0, fWidth * 0.5f, fHeight);
 
-    BeginRendering(ezColor::Black, 0xFFFFFFFF, &viewport);
+    BeginRendering(WColor::Black, 0xFFFFFFFF, &viewport);
 
-    ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+    ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mMVP;
-    ocb->m_Color = ezColor(1.0f, 0.0f, 1.0f, 1.0f);
+    ocb->m_Color = WColor(1.0f, 0.0f, 1.0f, 1.0f);
     pContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
     pContext->BindShader(m_hDrawShader);
     pContext->BindMeshBuffer(m_hIndexedTriangleMesh);
@@ -223,23 +223,23 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
   // Fill valid args at byte offset 20 using UpdateBuffer from CPU.
   // DrawIndexedInstanced args: {indexCount=6, instanceCount=1, startIndex=0, baseVertex=0, startInstance=0}
   {
-    alignas(16) ezUInt32 args[5] = {6, 1, 0, 0, 0};
-    m_pEncoder->UpdateBuffer(m_hIndirectArgsBuffer, 20, ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(args), sizeof(args)), ezGALUpdateMode::AheadOfTime);
+    alignas(16) WUInt32 args[5] = {6, 1, 0, 0, 0};
+    m_pEncoder->UpdateBuffer(m_hIndirectArgsBuffer, 20, WMakeArrayPtr(reinterpret_cast<const WUInt8*>(args), sizeof(args)), WGALUpdateMode::AheadOfTime);
   }
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::DrawIndirect);
+  TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
 
   {
     const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-    ezRectFloat viewport = ezRectFloat(fWidth * 0.5f, 0, fWidth * 0.5f, fHeight);
+    WRectFloat viewport = WRectFloat(fWidth * 0.5f, 0, fWidth * 0.5f, fHeight);
 
-    BeginRendering(ezColor::Black, 0, &viewport);
+    BeginRendering(WColor::Black, 0, &viewport);
 
-    ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+    ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mMVP;
-    ocb->m_Color = ezColor(1.0f, 1.0f, 0.0f, 1.0f);
+    ocb->m_Color = WColor(1.0f, 1.0f, 0.0f, 1.0f);
     pContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
     pContext->BindShader(m_hDrawShader);
     pContext->BindMeshBuffer(m_hIndexedTriangleMesh);
@@ -254,9 +254,9 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
   EndCommands();
 }
 
-void ezRendererTestIndirectDraw::DispatchIndirect()
+void WRendererTestIndirectDraw::DispatchIndirect()
 {
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pContext = WRenderContext::GetDefaultInstance();
 
   BeginCommands("DispatchIndirect");
 
@@ -264,15 +264,15 @@ void ezRendererTestIndirectDraw::DispatchIndirect()
   // The compute shader uses [numthreads(8,8,1)], so 2*2 groups = 16x16 threads = fills the 16x16 texture.
   FillIndirectArgsViaCompute(2, 2, 1, 0);
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(m_hDispatchOutputTexture, ezGALResourceState::UnorderedAccess);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::DrawIndirect);
+  TransitionTexture(m_hDispatchOutputTexture, WGALResourceState::UnorderedAccess);
 
   // Dispatch pass.
   {
     pContext->BeginCompute("IndirectDispatch");
     pContext->BindShader(m_hDispatchWriteShader);
 
-    ezBindGroupBuilder& bg = pContext->GetBindGroup();
+    WBindGroupBuilder& bg = pContext->GetBindGroup();
     bg.BindTexture("OutputTexture", m_hDispatchOutputTexture);
     pContext->ApplyContextStates().AssertSuccess();
     m_pEncoder->DispatchIndirect(m_hIndirectArgsBuffer, 0).AssertSuccess();
@@ -280,12 +280,12 @@ void ezRendererTestIndirectDraw::DispatchIndirect()
     pContext->EndCompute();
   }
 
-  TransitionTexture(m_hDispatchOutputTexture, ezGALResourceState::ShaderResource);
+  TransitionTexture(m_hDispatchOutputTexture, WGALResourceState::ShaderResource);
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-  const ezMat4 mTextureMVP = CreateSimpleMVP(fWidth / fHeight);
+  WRectFloat viewport = WRectFloat(0, 0, fWidth, fHeight);
+  const WMat4 mTextureMVP = CreateSimpleMVP(fWidth / fHeight);
   m_bCaptureImage = m_ImgCompFrames.Contains(m_iFrame);
   RenderCube(viewport, mTextureMVP, 0xFFFFFFFF, m_hDispatchOutputTexture);
   EndCommands();
@@ -295,34 +295,34 @@ void ezRendererTestIndirectDraw::DispatchIndirect()
 // Helper: Fill indirect args via a compute dispatch
 // ============================================================
 
-void ezRendererTestIndirectDraw::FillIndirectArgsViaCompute(ezUInt32 arg0, ezUInt32 arg1, ezUInt32 arg2, ezUInt32 arg3, ezUInt32 arg4)
+void WRendererTestIndirectDraw::FillIndirectArgsViaCompute(WUInt32 arg0, WUInt32 arg1, WUInt32 arg2, WUInt32 arg3, WUInt32 arg4)
 {
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pContext = WRenderContext::GetDefaultInstance();
 
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::UnorderedAccess);
+  TransitionBuffer(m_hIndirectArgsBuffer, WGALResourceState::UnorderedAccess);
 
   pContext->BeginCompute("FillIndirectArgs");
   pContext->BindShader(m_hFillArgsShader);
 
-  ezIndirectArgs constants;
+  WIndirectArgs constants;
   constants.Arg0 = arg0;
   constants.Arg1 = arg1;
   constants.Arg2 = arg2;
   constants.Arg3 = arg3;
   constants.Arg4 = arg4;
-  pContext->SetPushConstants("ezIndirectArgs", constants);
+  pContext->SetPushConstants("WIndirectArgs", constants);
 
-  ezBindGroupBuilder& bg = pContext->GetBindGroup();
+  WBindGroupBuilder& bg = pContext->GetBindGroup();
   bg.BindBuffer("IndirectArgsBuffer", m_hIndirectArgsBuffer);
   pContext->Dispatch(1).AssertSuccess();
   pContext->EndCompute();
 }
 
-void ezRendererTestIndirectDraw::CaptureImage()
+void WRendererTestIndirectDraw::CaptureImage()
 {
   if (m_ImgCompFrames.Contains(m_iFrame))
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-    EZ_TEST_IMAGE(m_iFrame, 100);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+    W_TEST_IMAGE(m_iFrame, 100);
   }
 }

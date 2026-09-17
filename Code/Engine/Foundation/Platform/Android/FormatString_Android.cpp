@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Strings/FormatString.h>
 #  include <Foundation/Strings/String.h>
@@ -8,10 +8,10 @@
 
 #  include <string.h>
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgErrno& arg)
 {
   const char* szErrorMsg = std::strerror(arg.m_iErrno);
-  ezStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
-  return ezStringView(szTmp);
+  WStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
+  return WStringView(szTmp);
 }
 #endif

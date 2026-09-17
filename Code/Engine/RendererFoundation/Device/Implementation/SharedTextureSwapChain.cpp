@@ -5,34 +5,34 @@
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALSharedTextureSwapChain, ezGALSwapChain, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WGALSharedTextureSwapChain, WGALSwapChain, 1, WRTTINoAllocator)
 {
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGALSharedTextureSwapChain::Functor ezGALSharedTextureSwapChain::s_Factory;
+WGALSharedTextureSwapChain::Functor WGALSharedTextureSwapChain::s_Factory;
 
-void ezGALSharedTextureSwapChain::SetFactoryMethod(Functor factory)
+void WGALSharedTextureSwapChain::SetFactoryMethod(Functor factory)
 {
   s_Factory = factory;
 }
 
-ezGALSwapChainHandle ezGALSharedTextureSwapChain::Create(const ezGALSharedTextureSwapChainCreationDescription& desc)
+WGALSwapChainHandle WGALSharedTextureSwapChain::Create(const WGALSharedTextureSwapChainCreationDescription& desc)
 {
-  EZ_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for ezGALWindowSwapChain.");
+  W_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for WGALWindowSwapChain.");
   return s_Factory(desc);
 }
 
-ezGALSharedTextureSwapChain::ezGALSharedTextureSwapChain(const ezGALSharedTextureSwapChainCreationDescription& desc)
-  : ezGALSwapChain(ezGetStaticRTTI<ezGALSharedTextureSwapChain>())
+WGALSharedTextureSwapChain::WGALSharedTextureSwapChain(const WGALSharedTextureSwapChainCreationDescription& desc)
+  : WGALSwapChain(WGetStaticRTTI<WGALSharedTextureSwapChain>())
   , m_Desc(desc)
 {
 }
 
-void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
+void WGALSharedTextureSwapChain::Arm(WUInt32 uiTextureIndex, WUInt64 uiCurrentSemaphoreValue)
 {
-  if (m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>())
+  if (m_uiCurrentTexture != WMath::MaxValue<WUInt32>())
   {
     // We did not use the previous texture index.
     m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
@@ -43,78 +43,78 @@ void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurren
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
 }
 
-void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
+void WGALSharedTextureSwapChain::AcquireNextRenderTarget(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Acquire called without calling Arm first.");
+  W_ASSERT_DEV(m_uiCurrentTexture != WMath::MaxValue<WUInt32>(), "Acquire called without calling Arm first.");
 
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
   m_SharedTextureInterfaces[m_uiCurrentTexture]->WaitSemaphoreGPU(m_uiCurrentSemaphoreValue);
 }
 
-void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
+void WGALSharedTextureSwapChain::PresentRenderTarget(WGALDevice* pDevice)
 {
   m_RenderTargets.m_hRTs[0].Invalidate();
 
-  EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Present called without calling Arm first.");
+  W_ASSERT_DEV(m_uiCurrentTexture != WMath::MaxValue<WUInt32>(), "Present called without calling Arm first.");
 
   m_SharedTextureInterfaces[m_uiCurrentTexture]->SignalSemaphoreGPU(m_uiCurrentSemaphoreValue + 1);
   m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
 
   pDevice->Flush();
 
-  m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
+  m_uiCurrentTexture = WMath::MaxValue<WUInt32>();
 }
 
-ezResult ezGALSharedTextureSwapChain::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+WResult WGALSharedTextureSwapChain::UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode)
 {
-  EZ_IGNORE_UNUSED(pDevice);
-  EZ_IGNORE_UNUSED(newPresentMode);
+  W_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(newPresentMode);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
+WResult WGALSharedTextureSwapChain::InitPlatform(WGALDevice* pDevice)
 {
   // Create textures
-  for (ezUInt32 i = 0; i < m_Desc.m_Textures.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Desc.m_Textures.GetCount(); ++i)
   {
-    ezGALPlatformSharedHandle handle = m_Desc.m_Textures[i];
-    ezGALTextureHandle hTexture = pDevice->OpenSharedTexture(m_Desc.m_TextureDesc, handle);
+    WGALPlatformSharedHandle handle = m_Desc.m_Textures[i];
+    WGALTextureHandle hTexture = pDevice->OpenSharedTexture(m_Desc.m_TextureDesc, handle);
     if (hTexture.IsInvalidated())
     {
-      ezLog::Error("Failed to open shared texture");
-      return EZ_FAILURE;
+      WLog::Error("Failed to open shared texture");
+      return W_FAILURE;
     }
     m_SharedTextureHandles.PushBack(hTexture);
-    const ezGALSharedTexture* pSharedTexture = pDevice->GetSharedTexture(hTexture);
+    const WGALSharedTexture* pSharedTexture = pDevice->GetSharedTexture(hTexture);
     if (pSharedTexture == nullptr)
     {
-      ezLog::Error("Created texture is not a shared texture");
-      return EZ_FAILURE;
+      WLog::Error("Created texture is not a shared texture");
+      return W_FAILURE;
     }
     m_SharedTextureInterfaces.PushBack(pSharedTexture);
     m_CurrentSemaphoreValue.PushBack(0);
   }
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[0];
   m_CurrentSize = {m_Desc.m_TextureDesc.m_uiWidth, m_Desc.m_TextureDesc.m_uiHeight};
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALSharedTextureSwapChain::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALSharedTextureSwapChain::DeInitPlatform(WGALDevice* pDevice)
 {
-  for (ezUInt32 i = 0; i < m_SharedTextureHandles.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_SharedTextureHandles.GetCount(); ++i)
   {
     pDevice->DestroySharedTexture(m_SharedTextureHandles[i]);
   }
-  m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
+  m_uiCurrentTexture = WMath::MaxValue<WUInt32>();
   m_uiCurrentSemaphoreValue = 0;
   m_SharedTextureHandles.Clear();
   m_SharedTextureInterfaces.Clear();
   m_CurrentSemaphoreValue.Clear();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SharedTextureSwapChain);
+W_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SharedTextureSwapChain);

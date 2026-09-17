@@ -14,28 +14,28 @@
 /// out of it (e.g. for configuration files), to register C-functions to it and to call script-functions. It is possible
 /// to load more than one Lua-File into one Lua-Script, one can dynamically generate code and pass it as
 /// a string to the script.
-/// It ALSO allows to construct the ezLuaWrapper with a working lua_State-Pointer and thus
+/// It ALSO allows to construct the WLuaWrapper with a working lua_State-Pointer and thus
 /// only simplify interaction with an already existing script (for example, when a C-Function is called in a Script,
 /// it passes its lua_State to that Function).
 ///
-/// \note Lua starts counting at 1, not at 0. However ezLuaWrapper does NOT do this, but uses the C++ convention instead!
+/// \note Lua starts counting at 1, not at 0. However WLuaWrapper does NOT do this, but uses the C++ convention instead!
 /// That means, when you query the first parameter or return-value passed to your function, you need to query for value 0, not for value 1.
-class EZ_CORE_DLL ezLuaWrapper
+class W_CORE_DLL WLuaWrapper
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezLuaWrapper);
+  W_DISALLOW_COPY_AND_ASSIGN(WLuaWrapper);
 
 public:
   /// \name Setting up the Script
   /// @{
 
   /// Generates a NEW Lua-Script, which is empty.
-  ezLuaWrapper(); // [tested]
+  WLuaWrapper(); // [tested]
 
   /// Takes an EXISTING Lua-Script and allows to get easier access to it.
-  ezLuaWrapper(lua_State* s);
+  WLuaWrapper(lua_State* s);
 
   /// Destroys the Lua-Script, if it was created, but leaves it intact, if this instance did not generate the Lua-Script.
-  ~ezLuaWrapper(); // [tested]
+  ~WLuaWrapper(); // [tested]
 
   /// Clears the script to be empty.
   void Clear(); // [tested]
@@ -56,8 +56,8 @@ public:
   /// \param pLogInterface
   ///   An optional log interface where error messages are written to. If nullptr is passed in, error messages are written to the global
   ///   log.
-  ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk",
-    ezLogInterface* pLogInterface = nullptr) const; // [tested]
+  WResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk",
+    WLogInterface* pLogInterface = nullptr) const; // [tested]
 
   /// @}
 
@@ -68,11 +68,11 @@ public:
   /// Opens the Lua-Table with the given name for reading and writing.
   ///
   /// All following calls to functions that read/write variables are working in the scope of the last opened table.
-  /// The table to open needs to be in scope itself. Returns EZ_FAILURE, if it's not possible (the table does not exist in this scope).
-  ezResult OpenTable(const char* szTable); // [tested]
+  /// The table to open needs to be in scope itself. Returns W_FAILURE, if it's not possible (the table does not exist in this scope).
+  WResult OpenTable(const char* szTable); // [tested]
 
   /// Opens the Table n, that was passed to a C-Function on its Parameter-Stack.
-  ezResult OpenTableFromParameter(ezUInt32 uiFunctionParameter); // [tested]
+  WResult OpenTableFromParameter(WUInt32 uiFunctionParameter); // [tested]
 
   /// Closes the table that was opened last.
   void CloseTable(); // [tested]
@@ -100,7 +100,7 @@ public:
   /// @{
 
   /// Returns the Value of the Variable with the given name, or the default-value, if it does not exist.
-  int GetIntVariable(const char* szName, ezInt32 iDefault = 0) const; // [tested]
+  int GetIntVariable(const char* szName, WInt32 iDefault = 0) const; // [tested]
 
   /// Returns the Value of the Variable with the given name, or the default-value, if it does not exist.
   bool GetBoolVariable(const char* szName, bool bDefault = false) const; // [tested]
@@ -120,7 +120,7 @@ public:
   void SetVariableNil(const char* szName) const; // [tested]
 
   /// Sets the Variable with the given name (in scope) with the given value.
-  void SetVariable(const char* szName, ezInt32 iValue) const; // [tested]
+  void SetVariable(const char* szName, WInt32 iValue) const; // [tested]
 
   /// Sets the Variable with the given name (in scope) with the given value.
   void SetVariable(const char* szName, bool bValue) const; // [tested]
@@ -132,7 +132,7 @@ public:
   void SetVariable(const char* szName, const char* szValue) const; // [tested]
 
   /// Sets the Variable with the given name (in scope) with the given value.
-  void SetVariable(const char* szName, const char* szValue, ezUInt32 uiLen) const; // [tested]
+  void SetVariable(const char* szName, const char* szValue, WUInt32 uiLen) const; // [tested]
 
   /// @}
 
@@ -151,8 +151,8 @@ public:
   /// You must pass in how many return values you expect from this function and the function must stick to that, otherwise an assert will
   /// trigger. After you are finished inspecting the return values, you need to call DiscardReturnValues() to clean them up.
   ///
-  /// Returns EZ_FAILURE if anything went wrong during function execution. Reports errors via \a pLogInterface.
-  ezResult CallPreparedFunction(ezUInt32 uiExpectedReturnValues = 0, ezLogInterface* pLogInterface = nullptr); // [tested]
+  /// Returns W_FAILURE if anything went wrong during function execution. Reports errors via \a pLogInterface.
+  WResult CallPreparedFunction(WUInt32 uiExpectedReturnValues = 0, WLogInterface* pLogInterface = nullptr); // [tested]
 
   /// Call this after you called a prepared Lua-function, that returned some values. If zero values were returned, this function is
   /// optional.
@@ -164,12 +164,12 @@ public:
   /// \code
   /// int CFunction(lua_State* state)
   /// {
-  ///   ezLuaWrapper s(state);
+  ///   WLuaWrapper s(state);
   ///   .. do something ..
   ///   return s.ReturnToScript();
   /// }
   /// \endcode
-  ezInt32 ReturnToScript() const; // [tested]
+  WInt32 ReturnToScript() const; // [tested]
 
   /// @}
 
@@ -178,7 +178,7 @@ public:
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter(ezInt32 iParam); // [tested]
+  void PushParameter(WInt32 iParam); // [tested]
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
@@ -194,7 +194,7 @@ public:
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter(const char* szParam, ezUInt32 uiLength); // [tested]
+  void PushParameter(const char* szParam, WUInt32 uiLength); // [tested]
 
   /// Pushes a nil parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
@@ -209,37 +209,37 @@ public:
   void* GetFunctionLightUserData() const;
 
   /// Returns how many Parameters were passed to the called C-Function.
-  ezUInt32 GetNumberOfFunctionParameters() const; // [tested]
+  WUInt32 GetNumberOfFunctionParameters() const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterInt(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterInt(WUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterBool(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterBool(WUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterFloat(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterFloat(WUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterTable(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterTable(WUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterString(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterString(WUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterNil(ezUInt32 uiParameter) const; // [tested]
+  bool IsParameterNil(WUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  int GetIntParameter(ezUInt32 uiParameter) const; // [tested]
+  int GetIntParameter(WUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  bool GetBoolParameter(ezUInt32 uiParameter) const; // [tested]
+  bool GetBoolParameter(WUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  float GetFloatParameter(ezUInt32 uiParameter) const; // [tested]
+  float GetFloatParameter(WUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  const char* GetStringParameter(ezUInt32 uiParameter) const; // [tested]
+  const char* GetStringParameter(WUInt32 uiParameter) const; // [tested]
 
   /// @}
 
@@ -247,7 +247,7 @@ public:
   /// @{
 
   /// Pushes a value as a return value for a called C-Function
-  void PushReturnValue(ezInt32 iParam); // [tested]
+  void PushReturnValue(WInt32 iParam); // [tested]
 
   /// Pushes a value as a return value for a called C-Function
   void PushReturnValue(bool bParam); // [tested]
@@ -259,39 +259,39 @@ public:
   void PushReturnValue(const char* szParam); // [tested]
 
   /// Pushes a value as a return value for a called C-Function
-  void PushReturnValue(const char* szParam, ezUInt32 uiLength); // [tested]
+  void PushReturnValue(const char* szParam, WUInt32 uiLength); // [tested]
 
   /// Pushes a value as a return value for a called C-Function
   void PushReturnValueNil(); // [tested]
 
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueInt(ezUInt32 uiReturnValue) const; // [tested]
+  bool IsReturnValueInt(WUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueBool(ezUInt32 uiReturnValue) const; // [tested]
+  bool IsReturnValueBool(WUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueFloat(ezUInt32 uiReturnValue) const; // [tested]
+  bool IsReturnValueFloat(WUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueString(ezUInt32 uiReturnValue) const; // [tested]
+  bool IsReturnValueString(WUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueNil(ezUInt32 uiReturnValue) const; // [tested]
+  bool IsReturnValueNil(WUInt32 uiReturnValue) const; // [tested]
 
 
   /// Returns the value of the nth return-value.
-  int GetIntReturnValue(ezUInt32 uiReturnValue) const; // [tested]
+  int GetIntReturnValue(WUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  bool GetBoolReturnValue(ezUInt32 uiReturnValue) const; // [tested]
+  bool GetBoolReturnValue(WUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  float GetFloatReturnValue(ezUInt32 uiReturnValue) const; // [tested]
+  float GetFloatReturnValue(WUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  const char* GetStringReturnValue(ezUInt32 uiReturnValue) const; // [tested]
+  const char* GetStringReturnValue(WUInt32 uiReturnValue) const; // [tested]
 
   /// @}
 
@@ -306,25 +306,25 @@ private:
   /// If this script created the Lua-State, it also releases it on exit.
   bool m_bReleaseOnExit;
 
-  struct ezScriptStates
+  struct WScriptStates
   {
-    ezScriptStates()
+    WScriptStates()
 
       = default;
 
     /// How many Parameters were pushed for the next function-call.
-    ezInt32 m_iParametersPushed = 0;
+    WInt32 m_iParametersPushed = 0;
 
     /// How many Tables have been opened inside the Lua-Script.
-    ezInt32 m_iOpenTables = 0;
+    WInt32 m_iOpenTables = 0;
 
     /// How many values the called Lua-function should return
-    ezInt32 m_iLuaReturnValues = 0;
+    WInt32 m_iLuaReturnValues = 0;
   };
 
-  ezScriptStates m_States;
+  WScriptStates m_States;
 
-  static constexpr ezInt32 s_iParamOffset = 1; // should be one, to start counting at 0, instead of 1
+  static constexpr WInt32 s_iParamOffset = 1; // should be one, to start counting at 0, instead of 1
 };
 
 #  include <Core/Scripting/LuaWrapper/LuaWrapper.inl>

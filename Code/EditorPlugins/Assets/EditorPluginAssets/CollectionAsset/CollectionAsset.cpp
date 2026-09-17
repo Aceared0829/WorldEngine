@@ -5,37 +5,37 @@
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocator<ezCollectionAssetEntry>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCollectionAssetEntry, 1, WRTTIDefaultAllocator<WCollectionAssetEntry>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sLookupName),
-    EZ_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new ezAssetBrowserAttribute("", "*", ezDependencyFlags::Package), new ezRequiredAttribute())
+    W_MEMBER_PROPERTY("Name", m_sLookupName),
+    W_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new WAssetBrowserAttribute("", "*", WDependencyFlags::Package), new WRequiredAttribute())
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetData, 1, ezRTTIDefaultAllocator<ezCollectionAssetData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCollectionAssetData, 1, WRTTIDefaultAllocator<WCollectionAssetData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Entries", m_Entries),
+    W_ARRAY_MEMBER_PROPERTY("Entries", m_Entries),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCollectionAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCollectionAssetDocument::ezCollectionAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezCollectionAssetData>(sDocumentPath, ezAssetDocEngineConnection::None)
+WCollectionAssetDocument::WCollectionAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WCollectionAssetData>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
+static bool InsertEntry(WStringView sID, WStringView sLookupName, WMap<WString, WCollectionEntry>& inout_found)
 {
   auto it = inout_found.Find(sID);
 
@@ -49,8 +49,8 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
     return true;
   }
 
-  ezStringBuilder tmp;
-  ezAssetCurator::ezLockedSubAsset pInfo = ezAssetCurator::GetSingleton()->FindSubAsset(sID.GetData(tmp));
+  WStringBuilder tmp;
+  WAssetCurator::WLockedSubAsset pInfo = WAssetCurator::GetSingleton()->FindSubAsset(sID.GetData(tmp));
 
   if (pInfo == nullptr)
   {
@@ -61,7 +61,7 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
   // insert item itself
   {
-    ezCollectionEntry& entry = inout_found[sID];
+    WCollectionEntry& entry = inout_found[sID];
     entry.m_sOptionalNiceLookupName = sLookupName;
     entry.m_sResourceID = sID;
     entry.m_sAssetTypeName = pInfo->m_Data.m_sSubAssetsDocumentTypeName;
@@ -69,9 +69,9 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
   // insert dependencies
   {
-    const ezAssetDocumentInfo* pDocInfo = pInfo->m_pAssetInfo->m_Info.Borrow();
+    const WAssetDocumentInfo* pDocInfo = pInfo->m_pAssetInfo->m_Info.Borrow();
 
-    for (const ezString& doc : pDocInfo->m_PackageDependencies)
+    for (const WString& doc : pDocInfo->m_PackageDependencies)
     {
       // ignore return value, we are only interested in top-level information
       InsertEntry(doc, {}, inout_found);
@@ -81,11 +81,11 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
   return true;
 }
 
-ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WCollectionAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  const ezCollectionAssetData* pProp = GetProperties();
+  const WCollectionAssetData* pProp = GetProperties();
 
-  ezMap<ezString, ezCollectionEntry> entries;
+  WMap<WString, WCollectionEntry> entries;
 
   for (const auto& e : pProp->m_Entries)
   {
@@ -95,11 +95,11 @@ ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWrit
     if (!InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries))
     {
       // this should be treated as an error for top-level references, since they are manually added (in contrast to the transitive dependencies)
-      return ezStatus(ezFmt("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset));
+      return WStatus(WFmt("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset));
     }
   }
 
-  ezCollectionResourceDescriptor desc;
+  WCollectionResourceDescriptor desc;
 
   for (auto it : entries)
   {
@@ -108,5 +108,5 @@ ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWrit
 
   desc.Save(stream);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

@@ -6,47 +6,47 @@
 #include <GuiFoundation/VisualGraph/Pin.h>
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 
-class ezQtVisualGraphView;
-struct ezVisualShaderPinDescriptor;
+class WQtVisualGraphView;
+struct WVisualShaderPinDescriptor;
 
 /// Qt scene for visual shader asset editing.
 ///
 /// Manages the visual scene for editing visual shader assets in the editor.
-class ezQtVisualShaderScene : public ezQtVisualGraphScene
+class WQtVisualShaderScene : public WQtVisualGraphScene
 {
   Q_OBJECT
 
 public:
-  ezQtVisualShaderScene(QObject* pParent = nullptr);
-  ~ezQtVisualShaderScene();
+  WQtVisualShaderScene(QObject* pParent = nullptr);
+  ~WQtVisualShaderScene();
 };
 
 /// Qt graphics item for visual shader pins.
 ///
 /// Displays shader node pins with custom rendering for shader-specific visual feedback.
-class ezQtVisualShaderPin : public ezQtVisualGraphPin
+class WQtVisualShaderPin : public WQtVisualGraphPin
 {
 public:
-  ezQtVisualShaderPin();
+  WQtVisualShaderPin();
 
-  virtual void SetPin(const ezVisualGraphPin& pin) override;
+  virtual void SetPin(const WVisualGraphPin& pin) override;
   virtual void paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget) override;
 };
 
 /// Qt graphics item for visual shader nodes.
 ///
 /// Visual representation of shader nodes such as texture samplers, math operations, or output nodes.
-class ezQtVisualShaderNode : public ezQtVisualGraphNode
+class WQtVisualShaderNode : public WQtVisualGraphNode
 {
 public:
-  ezQtVisualShaderNode();
+  WQtVisualShaderNode();
 
-  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
 
 private:
-  static bool TryParseSlotPlaceholder(ezStringView sPlaceholder, ezStringView sPrefix, ezUInt32 uiSlotCount, ezUInt32& out_uiSlot);
-  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
-  void AppendInputPinValue(const ezVisualShaderPinDescriptor& pinDesc, ezUInt32 uiPin, const TitleFormat& format, ezStringBuilder& ref_sOutput);
+  static bool TryParseSlotPlaceholder(WStringView sPlaceholder, WStringView sPrefix, WUInt32 uiSlotCount, WUInt32& out_uiSlot);
+  void ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput);
+  void AppendInputPinValue(const WVisualShaderPinDescriptor& pinDesc, WUInt32 uiPin, const TitleFormat& format, WStringBuilder& ref_sOutput);
 };

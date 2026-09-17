@@ -4,272 +4,272 @@
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
-void MirrorCheck(ezTestDocument* pDoc, const ezDocumentObject* pObject)
+void MirrorCheck(WTestDocument* pDoc, const WDocumentObject* pObject)
 {
   // Create native object graph
-  ezAbstractObjectGraph graph;
-  ezAbstractObjectNode* pRootNode = nullptr;
+  WAbstractObjectGraph graph;
+  WAbstractObjectNode* pRootNode = nullptr;
   {
-    ezRttiConverterWriter rttiConverter(&graph, &pDoc->m_Context, true, true);
+    WRttiConverterWriter rttiConverter(&graph, &pDoc->m_Context, true, true);
     pRootNode = rttiConverter.AddObjectToGraph(pObject->GetType(), pDoc->m_ObjectMirror.GetNativeObjectPointer(pObject), "Object");
   }
 
   // Create object manager graph
-  ezAbstractObjectGraph origGraph;
-  ezAbstractObjectNode* pOrigRootNode = nullptr;
+  WAbstractObjectGraph origGraph;
+  WAbstractObjectNode* pOrigRootNode = nullptr;
   {
-    ezDocumentObjectConverterWriter writer(&origGraph, pDoc->GetObjectManager());
+    WDocumentObjectConverterWriter writer(&origGraph, pDoc->GetObjectManager());
     pOrigRootNode = writer.AddObjectToGraph(pObject);
   }
 
   // Remap native guids so they match the object manager (stuff like embedded classes will not have a guid on the native side).
   graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
-  ezDeque<ezAbstractGraphDiffOperation> diffResult;
+  WDeque<WAbstractGraphDiffOperation> diffResult;
 
   graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
-  EZ_TEST_BOOL(diffResult.GetCount() == 0);
+  W_TEST_BOOL(diffResult.GetCount() == 0);
 }
 
 
-ezVariant GetVariantFromType(ezVariant::Type::Enum type)
+WVariant GetVariantFromType(WVariant::Type::Enum type)
 {
   switch (type)
   {
-    case ezVariant::Type::Invalid:
-      return ezVariant();
-    case ezVariant::Type::Bool:
-      return ezVariant(true);
-    case ezVariant::Type::Int8:
-      return ezVariant((ezInt8)-55);
-    case ezVariant::Type::UInt8:
-      return ezVariant((ezUInt8)44);
-    case ezVariant::Type::Int16:
-      return ezVariant((ezInt16)-444);
-    case ezVariant::Type::UInt16:
-      return ezVariant((ezUInt16)666);
-    case ezVariant::Type::Int32:
-      return ezVariant((ezInt32)-88880);
-    case ezVariant::Type::UInt32:
-      return ezVariant((ezUInt32)123445);
-    case ezVariant::Type::Int64:
-      return ezVariant((ezInt64)-888800000);
-    case ezVariant::Type::UInt64:
-      return ezVariant((ezUInt64)123445000);
-    case ezVariant::Type::Float:
-      return ezVariant(1024.0f);
-    case ezVariant::Type::Double:
-      return ezVariant(-2048.0f);
-    case ezVariant::Type::Color:
-      return ezVariant(ezColor(0.5f, 33.0f, 2.0f, 0.3f));
-    case ezVariant::Type::ColorGamma:
-      return ezVariant(ezColorGammaUB(ezColor(0.5f, 33.0f, 2.0f, 0.3f)));
-    case ezVariant::Type::Vector2:
-      return ezVariant(ezVec2(2.0f, 4.0f));
-    case ezVariant::Type::Vector3:
-      return ezVariant(ezVec3(2.0f, 4.0f, -8.0f));
-    case ezVariant::Type::Vector4:
-      return ezVariant(ezVec4(1.0f, 7.0f, 8.0f, -10.0f));
-    case ezVariant::Type::Vector2I:
-      return ezVariant(ezVec2I32(1, 2));
-    case ezVariant::Type::Vector3I:
-      return ezVariant(ezVec3I32(3, 4, 5));
-    case ezVariant::Type::Vector4I:
-      return ezVariant(ezVec4I32(6, 7, 8, 9));
-    case ezVariant::Type::Quaternion:
+    case WVariant::Type::Invalid:
+      return WVariant();
+    case WVariant::Type::Bool:
+      return WVariant(true);
+    case WVariant::Type::Int8:
+      return WVariant((WInt8)-55);
+    case WVariant::Type::UInt8:
+      return WVariant((WUInt8)44);
+    case WVariant::Type::Int16:
+      return WVariant((WInt16)-444);
+    case WVariant::Type::UInt16:
+      return WVariant((WUInt16)666);
+    case WVariant::Type::Int32:
+      return WVariant((WInt32)-88880);
+    case WVariant::Type::UInt32:
+      return WVariant((WUInt32)123445);
+    case WVariant::Type::Int64:
+      return WVariant((WInt64)-888800000);
+    case WVariant::Type::UInt64:
+      return WVariant((WUInt64)123445000);
+    case WVariant::Type::Float:
+      return WVariant(1024.0f);
+    case WVariant::Type::Double:
+      return WVariant(-2048.0f);
+    case WVariant::Type::Color:
+      return WVariant(WColor(0.5f, 33.0f, 2.0f, 0.3f));
+    case WVariant::Type::ColorGamma:
+      return WVariant(WColorGammaUB(WColor(0.5f, 33.0f, 2.0f, 0.3f)));
+    case WVariant::Type::Vector2:
+      return WVariant(WVec2(2.0f, 4.0f));
+    case WVariant::Type::Vector3:
+      return WVariant(WVec3(2.0f, 4.0f, -8.0f));
+    case WVariant::Type::Vector4:
+      return WVariant(WVec4(1.0f, 7.0f, 8.0f, -10.0f));
+    case WVariant::Type::Vector2I:
+      return WVariant(WVec2I32(1, 2));
+    case WVariant::Type::Vector3I:
+      return WVariant(WVec3I32(3, 4, 5));
+    case WVariant::Type::Vector4I:
+      return WVariant(WVec4I32(6, 7, 8, 9));
+    case WVariant::Type::Quaternion:
     {
-      ezQuat quat;
-      quat = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(-15), ezAngle::MakeFromDegree(20));
-      return ezVariant(quat);
+      WQuat quat;
+      quat = WQuat::MakeFromEulerAngles(WAngle::MakeFromDegree(30), WAngle::MakeFromDegree(-15), WAngle::MakeFromDegree(20));
+      return WVariant(quat);
     }
-    case ezVariant::Type::Matrix3:
+    case WVariant::Type::Matrix3:
     {
-      ezMat3 mat = ezMat3::MakeIdentity();
+      WMat3 mat = WMat3::MakeIdentity();
 
-      mat = ezMat3::MakeAxisRotation(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::MakeFromDegree(30));
-      return ezVariant(mat);
+      mat = WMat3::MakeAxisRotation(WVec3(1.0f, 0.0f, 0.0f), WAngle::MakeFromDegree(30));
+      return WVariant(mat);
     }
-    case ezVariant::Type::Matrix4:
+    case WVariant::Type::Matrix4:
     {
-      ezMat4 mat = ezMat4::MakeIdentity();
+      WMat4 mat = WMat4::MakeIdentity();
 
-      mat = ezMat4::MakeAxisRotation(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(30));
-      mat.SetTranslationVector(ezVec3(1.0f, 2.0f, 3.0f));
-      return ezVariant(mat);
+      mat = WMat4::MakeAxisRotation(WVec3(0.0f, 1.0f, 0.0f), WAngle::MakeFromDegree(30));
+      mat.SetTranslationVector(WVec3(1.0f, 2.0f, 3.0f));
+      return WVariant(mat);
     }
-    case ezVariant::Type::String:
-      return ezVariant("Test");
-    case ezVariant::Type::StringView:
-      return ezVariant("Test");
-    case ezVariant::Type::Time:
-      return ezVariant(ezTime::MakeFromSeconds(123.0f));
-    case ezVariant::Type::Uuid:
+    case WVariant::Type::String:
+      return WVariant("Test");
+    case WVariant::Type::StringView:
+      return WVariant("Test");
+    case WVariant::Type::Time:
+      return WVariant(WTime::MakeFromSeconds(123.0f));
+    case WVariant::Type::Uuid:
     {
-      return ezVariant(ezUuid::MakeUuid());
+      return WVariant(WUuid::MakeUuid());
     }
-    case ezVariant::Type::Angle:
-      return ezVariant(ezAngle::MakeFromDegree(30.0f));
-    case ezVariant::Type::DataBuffer:
+    case WVariant::Type::Angle:
+      return WVariant(WAngle::MakeFromDegree(30.0f));
+    case WVariant::Type::DataBuffer:
     {
-      ezDataBuffer data;
+      WDataBuffer data;
       data.PushBack(12);
       data.PushBack(55);
       data.PushBack(88);
-      return ezVariant(data);
+      return WVariant(data);
     }
-    case ezVariant::Type::VariantArray:
-      return ezVariantArray();
-    case ezVariant::Type::VariantDictionary:
-      return ezVariantDictionary();
-    case ezVariant::Type::TypedPointer:
-      return ezVariant(ezTypedPointer(nullptr, nullptr));
-    case ezVariant::Type::TypedObject:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+    case WVariant::Type::VariantArray:
+      return WVariantArray();
+    case WVariant::Type::VariantDictionary:
+      return WVariantDictionary();
+    case WVariant::Type::TypedPointer:
+      return WVariant(WTypedPointer(nullptr, nullptr));
+    case WVariant::Type::TypedObject:
+      W_ASSERT_NOT_IMPLEMENTED;
 
     default:
-      EZ_REPORT_FAILURE("Invalid case statement");
-      return ezVariant();
+      W_REPORT_FAILURE("Invalid case statement");
+      return WVariant();
   }
-  return ezVariant();
+  return WVariant();
 }
 
-void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezObjectAccessorBase* pObjectAccessor)
+void RecursiveModifyProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp, WObjectAccessorBase* pObjectAccessor)
 {
-  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  if (pProp->GetCategory() == WPropertyCategory::Member)
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+    if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
     {
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      if (pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
       {
-        const ezUuid oldGuid = pObjectAccessor->Get<ezUuid>(pObject, pProp);
-        ezUuid newGuid = ezUuid::MakeUuid();
+        const WUuid oldGuid = pObjectAccessor->Get<WUuid>(pObject, pProp);
+        WUuid newGuid = WUuid::MakeUuid();
         if (oldGuid.IsValid())
         {
-          EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).Succeeded());
+          W_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).Succeeded());
         }
 
-        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, ezVariant(), pProp->GetSpecificType(), newGuid).Succeeded());
+        W_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, WVariant(), pProp->GetSpecificType(), newGuid).Succeeded());
 
-        const ezDocumentObject* pChild = pObject->GetChild(newGuid);
-        EZ_ASSERT_DEV(pChild != nullptr, "References child object does not exist!");
+        const WDocumentObject* pChild = pObject->GetChild(newGuid);
+        W_ASSERT_DEV(pChild != nullptr, "References child object does not exist!");
       }
       else
       {
-        ezVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
+        WVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
+        W_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
       }
     }
     else
     {
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
+      if (pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags | WPropertyFlags::StandardType))
       {
-        ezVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
+        WVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
+        W_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
       }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+      else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
       {
         // Noting to do here, value cannot change
       }
     }
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
+  else if (pProp->GetCategory() == WPropertyCategory::Array || pProp->GetCategory() == WPropertyCategory::Set)
   {
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
-        !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    if (pProp->GetFlags().IsAnySet(WPropertyFlags::StandardType | WPropertyFlags::Pointer) &&
+        !pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
     {
-      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-      for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
+      WInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
+      for (WInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
         pObjectAccessor->RemoveValue(pObject, pProp, i).AssertSuccess();
       }
 
-      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, 0);
-      ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).Succeeded());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).Succeeded());
+      WVariant value1 = WReflectionUtils::GetDefaultValue(pProp, 0);
+      WVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
+      W_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).Succeeded());
+      W_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).Succeeded());
     }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+    else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
     {
-      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      ezTempHybridArray<ezVariant, 16> currentValues;
+      WInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+      WTempHybridArray<WVariant, 16> currentValues;
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
-      for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
+      for (WInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
-        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).Succeeded());
+        W_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<WUuid>())).Succeeded());
       }
 
-      if (pProp->GetCategory() == ezPropertyCategory::Array)
+      if (pProp->GetCategory() == WPropertyCategory::Array)
       {
-        ezUuid newGuid = ezUuid::MakeUuid();
-        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).Succeeded());
+        WUuid newGuid = WUuid::MakeUuid();
+        W_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).Succeeded());
       }
     }
   }
-  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  else if (pProp->GetCategory() == WPropertyCategory::Map)
   {
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
-        !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    if (pProp->GetFlags().IsAnySet(WPropertyFlags::StandardType | WPropertyFlags::Pointer) &&
+        !pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner))
     {
-      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-      ezTempHybridArray<ezVariant, 16> keys;
+      WInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
+      WTempHybridArray<WVariant, 16> keys;
       pObjectAccessor->GetKeys(pObject, pProp, keys).AssertSuccess();
-      for (const ezVariant& key : keys)
+      for (const WVariant& key : keys)
       {
         pObjectAccessor->RemoveValue(pObject, pProp, key).AssertSuccess();
       }
 
-      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, "Dummy");
-      ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").Succeeded());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").Succeeded());
+      WVariant value1 = WReflectionUtils::GetDefaultValue(pProp, "Dummy");
+      WVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
+      W_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").Succeeded());
+      W_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").Succeeded());
     }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+    else if (pProp->GetFlags().IsSet(WPropertyFlags::Class))
     {
-      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      ezTempHybridArray<ezVariant, 16> currentValues;
+      WInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+      WTempHybridArray<WVariant, 16> currentValues;
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
-      for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
+      for (WInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
-        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).Succeeded());
+        W_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<WUuid>())).Succeeded());
       }
 
-      ezUuid newGuid = ezUuid::MakeUuid();
-      EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).Succeeded());
+      WUuid newGuid = WUuid::MakeUuid();
+      W_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).Succeeded());
     }
   }
 }
 
-void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase* pAccessor)
+void RecursiveModifyObject(const WDocumentObject* pObject, WObjectAccessorBase* pAccessor)
 {
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
   for (const auto* pProp : properties)
   {
     RecursiveModifyProperty(pObject, pProp, pAccessor);
   }
 
-  for (const ezDocumentObject* pSubObject : pObject->GetChildren())
+  for (const WDocumentObject* pSubObject : pObject->GetChildren())
   {
     RecursiveModifyObject(pSubObject, pAccessor);
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
+W_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
 {
-  ezTestDocument doc("Test", true);
+  WTestDocument doc("Test", true);
   doc.InitializeAfterLoading(false);
-  ezObjectAccessorBase* pAccessor = doc.GetObjectAccessor();
-  ezUuid mirrorGuid;
+  WObjectAccessorBase* pAccessor = doc.GetObjectAccessor();
+  WUuid mirrorGuid;
 
   pAccessor->StartTransaction("Init");
-  ezStatus status = pAccessor->AddObject(nullptr, (const ezAbstractProperty*)nullptr, -1, ezGetStaticRTTI<ezMirrorTest>(), mirrorGuid);
-  const ezDocumentObject* pObject = pAccessor->GetObject(mirrorGuid);
-  EZ_TEST_BOOL(status.Succeeded());
+  WStatus status = pAccessor->AddObject(nullptr, (const WAbstractProperty*)nullptr, -1, WGetStaticRTTI<WMirrorTest>(), mirrorGuid);
+  const WDocumentObject* pObject = pAccessor->GetObject(mirrorGuid);
+  W_TEST_BOOL(status.Succeeded());
   pAccessor->FinishTransaction();
 
   MirrorCheck(&doc, pObject);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Document Changes")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Document Changes")
   {
     pAccessor->StartTransaction("Document Changes");
     RecursiveModifyObject(pObject, pAccessor);

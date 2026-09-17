@@ -6,7 +6,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <meshoptimizer/meshoptimizer.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   namespace
   {
@@ -15,15 +15,15 @@ namespace ezModelImporter2
     /// Triangles are only reordered within a sub-mesh, so that the index range of every sub-mesh stays valid.
     /// The vertex reordering is done across the entire mesh buffer and all indices are remapped accordingly.
     /// Only indexed triangle meshes are touched, everything else is left as it is.
-    void OptimizeMeshForRendering(ezMeshResourceDescriptor& ref_desc)
+    void OptimizeMeshForRendering(WMeshResourceDescriptor& ref_desc)
     {
-      ezMeshBufferResourceDescriptor& mb = ref_desc.MeshBufferDesc();
+      WMeshBufferResourceDescriptor& mb = ref_desc.MeshBufferDesc();
 
-      if (mb.GetTopology() != ezGALPrimitiveTopology::Triangles || !mb.HasIndexBuffer())
+      if (mb.GetTopology() != WGALPrimitiveTopology::Triangles || !mb.HasIndexBuffer())
         return;
 
-      const ezUInt32 uiVertexCount = mb.GetVertexCount();
-      const ezUInt32 uiIndexCount = mb.GetPrimitiveCount() * 3;
+      const WUInt32 uiVertexCount = mb.GetVertexCount();
+      const WUInt32 uiIndexCount = mb.GetPrimitiveCount() * 3;
 
       if (uiVertexCount == 0 || uiIndexCount == 0)
         return;
@@ -31,7 +31,7 @@ namespace ezModelImporter2
       // meshoptimizer only works on 32 bit indices, so 16 bit index data is widened here and narrowed again at the end
       const bool bIndices32Bit = mb.Uses32BitIndices();
 
-      ezTempArray<ezUInt32> indices;
+      WTempArray<WUInt32> indices;
       indices.SetCountUninitialized(uiIndexCount);
 
       {
@@ -39,13 +39,13 @@ namespace ezModelImporter2
 
         if (bIndices32Bit)
         {
-          ezMemoryUtils::Copy(indices.GetData(), reinterpret_cast<const ezUInt32*>(indexData.GetData()), uiIndexCount);
+          WMemoryUtils::Copy(indices.GetData(), reinterpret_cast<const WUInt32*>(indexData.GetData()), uiIndexCount);
         }
         else
         {
-          const ezUInt16* pSrc = reinterpret_cast<const ezUInt16*>(indexData.GetData());
+          const WUInt16* pSrc = reinterpret_cast<const WUInt16*>(indexData.GetData());
 
-          for (ezUInt32 i = 0; i < uiIndexCount; ++i)
+          for (WUInt32 i = 0; i < uiIndexCount; ++i)
           {
             indices[i] = pSrc[i];
           }
@@ -56,8 +56,8 @@ namespace ezModelImporter2
       // otherwise triangles would move out of the index range that the sub-mesh refers to
       for (const auto& subMesh : ref_desc.GetSubMeshes())
       {
-        const ezUInt32 uiFirstIndex = subMesh.m_uiFirstPrimitive * 3;
-        const ezUInt32 uiNumIndices = subMesh.m_uiPrimitiveCount * 3;
+        const WUInt32 uiFirstIndex = subMesh.m_uiFirstPrimitive * 3;
+        const WUInt32 uiNumIndices = subMesh.m_uiPrimitiveCount * 3;
 
         if (uiNumIndices == 0 || uiFirstIndex + uiNumIndices > uiIndexCount)
           continue;
@@ -67,31 +67,31 @@ namespace ezModelImporter2
 
       // reorder the vertices in the order in which the (now optimized) index buffer references them
       {
-        ezTempArray<ezUInt32> remap;
+        WTempArray<WUInt32> remap;
         remap.SetCountUninitialized(uiVertexCount);
 
-        const ezUInt32 uiUniqueVertices = static_cast<ezUInt32>(meshopt_optimizeVertexFetchRemap(remap.GetData(), indices.GetData(), uiIndexCount, uiVertexCount));
+        const WUInt32 uiUniqueVertices = static_cast<WUInt32>(meshopt_optimizeVertexFetchRemap(remap.GetData(), indices.GetData(), uiIndexCount, uiVertexCount));
 
         // if the mesh contains vertices that no triangle references, the remap table would shrink the vertex buffer.
         // that would require patching up everything that refers to vertex indices, so instead the vertex order is left alone in this case.
         if (uiUniqueVertices == uiVertexCount)
         {
-          ezTempArray<ezUInt32> remappedIndices;
+          WTempArray<WUInt32> remappedIndices;
           remappedIndices.SetCountUninitialized(uiIndexCount);
           meshopt_remapIndexBuffer(remappedIndices.GetData(), indices.GetData(), uiIndexCount, remap.GetData());
           indices.Swap(remappedIndices);
 
-          ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> remappedStream;
+          WDynamicArray<WUInt8, WAlignedAllocatorWrapper> remappedStream;
 
-          for (ezUInt32 i = 0; i < mb.GetNumVertexBuffers(); ++i)
+          for (WUInt32 i = 0; i < mb.GetNumVertexBuffers(); ++i)
           {
-            const auto type = static_cast<ezMeshVertexStreamType::Enum>(i);
+            const auto type = static_cast<WMeshVertexStreamType::Enum>(i);
             auto& streamData = mb.GetVertexBufferData(type);
 
             if (streamData.IsEmpty())
               continue;
 
-            const ezUInt32 uiElementSize = mb.GetVertexStreamConfig().GetStreamElementSize(type);
+            const WUInt32 uiElementSize = mb.GetVertexStreamConfig().GetStreamElementSize(type);
 
             remappedStream.SetCountUninitialized(streamData.GetCount());
             meshopt_remapVertexBuffer(remappedStream.GetData(), streamData.GetData(), uiVertexCount, uiElementSize, remap.GetData());
@@ -100,7 +100,7 @@ namespace ezModelImporter2
         }
         else
         {
-          ezLog::Dev("Mesh has {} unused vertices, skipping vertex fetch optimization.", uiVertexCount - uiUniqueVertices);
+          WLog::Dev("Mesh has {} unused vertices, skipping vertex fetch optimization.", uiVertexCount - uiUniqueVertices);
         }
       }
 
@@ -110,15 +110,15 @@ namespace ezModelImporter2
 
         if (bIndices32Bit)
         {
-          ezMemoryUtils::Copy(reinterpret_cast<ezUInt32*>(indexData.GetData()), indices.GetData(), uiIndexCount);
+          WMemoryUtils::Copy(reinterpret_cast<WUInt32*>(indexData.GetData()), indices.GetData(), uiIndexCount);
         }
         else
         {
-          ezUInt16* pDst = reinterpret_cast<ezUInt16*>(indexData.GetData());
+          WUInt16* pDst = reinterpret_cast<WUInt16*>(indexData.GetData());
 
-          for (ezUInt32 i = 0; i < uiIndexCount; ++i)
+          for (WUInt32 i = 0; i < uiIndexCount; ++i)
           {
-            pDst[i] = static_cast<ezUInt16>(indices[i]);
+            pDst[i] = static_cast<WUInt16>(indices[i]);
           }
         }
       }
@@ -128,22 +128,22 @@ namespace ezModelImporter2
   Importer::Importer() = default;
   Importer::~Importer() = default;
 
-  ezResult Importer::Import(const ImportOptions& options, ezLogInterface* pLogInterface /*= nullptr*/, ezProgress* pProgress /*= nullptr*/)
+  WResult Importer::Import(const ImportOptions& options, WLogInterface* pLogInterface /*= nullptr*/, WProgress* pProgress /*= nullptr*/)
   {
-    ezResult res = EZ_FAILURE;
+    WResult res = W_FAILURE;
 
-    ezLogInterface* pPrevLogSystem = ezLog::GetThreadLocalLogSystem();
+    WLogInterface* pPrevLogSystem = WLog::GetThreadLocalLogSystem();
 
     if (pLogInterface)
     {
-      ezLog::SetThreadLocalLogSystem(pLogInterface);
+      WLog::SetThreadLocalLogSystem(pLogInterface);
     }
 
     {
       m_pProgress = pProgress;
       m_Options = options;
 
-      EZ_LOG_BLOCK("ModelImport", m_Options.m_sSourceFile);
+      W_LOG_BLOCK("ModelImport", m_Options.m_sSourceFile);
 
       res = DoImport();
 
@@ -154,17 +154,17 @@ namespace ezModelImporter2
     }
 
 
-    ezLog::SetThreadLocalLogSystem(pPrevLogSystem);
+    WLog::SetThreadLocalLogSystem(pPrevLogSystem);
 
     return res;
   }
 
-  void OutputTexture::GenerateFileName(ezStringBuilder& out_sName) const
+  void OutputTexture::GenerateFileName(WStringBuilder& out_sName) const
   {
-    ezStringBuilder tmp("Embedded_", m_sFilename);
+    WStringBuilder tmp("Embedded_", m_sFilename);
 
-    ezPathUtils::MakeValidFilename(tmp.GetFileName(), '_', out_sName);
+    WPathUtils::MakeValidFilename(tmp.GetFileName(), '_', out_sName);
     out_sName.ChangeFileExtension(m_sFileFormatExtension);
   }
 
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

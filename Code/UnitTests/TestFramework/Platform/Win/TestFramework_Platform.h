@@ -1,3 +1,3 @@
 #include <conio.h>
 
-using ezTestFramework_Platform = ezTestFramework;
+using WTestFramework_Platform = WTestFramework;

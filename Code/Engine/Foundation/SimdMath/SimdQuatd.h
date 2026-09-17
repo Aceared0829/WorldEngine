@@ -2,45 +2,45 @@
 
 #include <Foundation/SimdMath/SimdMat4d.h>
 
-class EZ_FOUNDATION_DLL ezSimdQuatd
+class W_FOUNDATION_DLL WSimdQuatd
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezSimdQuatd();                              // [tested]
+  WSimdQuatd();                              // [tested]
 
-  explicit ezSimdQuatd(const ezSimdVec4d& v); // [tested]
+  explicit WSimdQuatd(const WSimdVec4d& v); // [tested]
 
   /// Static function that returns a quaternion that represents the identity rotation (none).
-  [[nodiscard]] static const ezSimdQuatd MakeIdentity(); // [tested]
+  [[nodiscard]] static const WSimdQuatd MakeIdentity(); // [tested]
 
   /// Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an
   /// angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
-  [[nodiscard]] static ezSimdQuatd MakeFromElements(ezSimdDouble x, ezSimdDouble y, ezSimdDouble z, ezSimdDouble w); // [tested]
+  [[nodiscard]] static WSimdQuatd MakeFromElements(WSimdDouble x, WSimdDouble y, WSimdDouble z, WSimdDouble w); // [tested]
 
-  /// Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an ezAngle)
-  [[nodiscard]] static ezSimdQuatd MakeFromAxisAndAngle(const ezSimdVec4d& vRotationAxis, const ezSimdDouble& fAngle); // [tested]
+  /// Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an WAngle)
+  [[nodiscard]] static WSimdQuatd MakeFromAxisAndAngle(const WSimdVec4d& vRotationAxis, const WSimdDouble& fAngle); // [tested]
 
   /// Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  [[nodiscard]] static ezSimdQuatd MakeShortestRotation(const ezSimdVec4d& vDirFrom, const ezSimdVec4d& vDirTo); // [tested]
+  [[nodiscard]] static WSimdQuatd MakeShortestRotation(const WSimdVec4d& vDirFrom, const WSimdVec4d& vDirTo); // [tested]
 
   /// Returns a quaternion that is the spherical linear interpolation of the other two.
-  [[nodiscard]] static ezSimdQuatd MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& qTo, const ezSimdDouble& t); // [tested]
+  [[nodiscard]] static WSimdQuatd MakeSlerp(const WSimdQuatd& qFrom, const WSimdQuatd& qTo, const WSimdDouble& t); // [tested]
 
 public:
   /// Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).
   void Normalize(); // [tested]
 
   /// Returns the rotation-axis and angle (in Radians), that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezSimdVec4d& ref_vAxis, ezSimdDouble& ref_fAngle, const ezSimdDouble& fEpsilon = ezMath::DefaultEpsilon<double>()) const; // [tested]
+  WResult GetRotationAxisAndAngle(WSimdVec4d& ref_vAxis, WSimdDouble& ref_fAngle, const WSimdDouble& fEpsilon = WMath::DefaultEpsilon<double>()) const; // [tested]
 
   /// Returns the Quaternion as a matrix.
-  ezSimdMat4d GetAsMat4() const; // [tested]
+  WSimdMat4d GetAsMat4() const; // [tested]
 
   /// Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
-  bool IsValid(const ezSimdDouble& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
+  bool IsValid(const WSimdDouble& fEpsilon = WMath::DefaultEpsilon<float>()) const; // [tested]
 
   /// Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
@@ -50,23 +50,23 @@ public:
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezSimdQuatd& qOther, const ezSimdDouble& fEpsilon) const; // [tested]
+  bool IsEqualRotation(const WSimdQuatd& qOther, const WSimdDouble& fEpsilon) const; // [tested]
 
 public:
   /// Returns a Quaternion that represents the negative / inverted rotation.
-  [[nodiscard]] ezSimdQuatd operator-() const; // [tested]
+  [[nodiscard]] WSimdQuatd operator-() const; // [tested]
 
   /// Rotates v by q
-  [[nodiscard]] ezSimdVec4d operator*(const ezSimdVec4d& v) const; // [tested]
+  [[nodiscard]] WSimdVec4d operator*(const WSimdVec4d& v) const; // [tested]
 
   /// Concatenates the rotations of q1 and q2
-  [[nodiscard]] ezSimdQuatd operator*(const ezSimdQuatd& q2) const; // [tested]
+  [[nodiscard]] WSimdQuatd operator*(const WSimdQuatd& q2) const; // [tested]
 
-  bool operator==(const ezSimdQuatd& q2) const;                    // [tested]
-  bool operator!=(const ezSimdQuatd& q2) const;                    // [tested]
+  bool operator==(const WSimdQuatd& q2) const;                    // [tested]
+  bool operator!=(const WSimdQuatd& q2) const;                    // [tested]
 
 public:
-  ezSimdVec4d m_v;
+  WSimdVec4d m_v;
 };
 
 #include <Foundation/SimdMath/Implementation/SimdQuatd_inl.h>

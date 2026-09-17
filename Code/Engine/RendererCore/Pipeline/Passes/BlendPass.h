@@ -9,23 +9,23 @@
 ///
 /// Linearly interpolates between two input textures using a blend factor.
 /// The output format matches InputA. Both inputs should have the same size and format.
-class EZ_RENDERERCORE_DLL ezBlendPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WBlendPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBlendPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WBlendPass, WRenderPipelinePass);
 
 public:
-  ezBlendPass();
-  ~ezBlendPass();
+  WBlendPass();
+  ~WBlendPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInputA;  ///< First input texture.
-  ezRenderPipelineNodeInputPin m_PinInputB;  ///< Second input texture.
-  ezRenderPipelineNodeOutputPin m_PinOutput; ///< Blended output.
+  WRenderPipelineNodeInputPin m_PinInputA;  ///< First input texture.
+  WRenderPipelineNodeInputPin m_PinInputB;  ///< Second input texture.
+  WRenderPipelineNodeOutputPin m_PinOutput; ///< Blended output.
 
   float m_fBlendFactor = 0.5f;               ///< Blend factor between inputs (0 = full A, 1 = full B).
-  ezShaderResourceHandle m_hShader;          ///< Shader for blending operation.
+  WShaderResourceHandle m_hShader;          ///< Shader for blending operation.
 };

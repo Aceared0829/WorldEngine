@@ -10,11 +10,11 @@
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassResource, 1, ezRTTIDefaultAllocator<ezVisualScriptClassResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptClassResource);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualScriptClassResource, 1, WRTTIDefaultAllocator<WVisualScriptClassResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WVisualScriptClassResource);
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, VisualScriptResource)
+W_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, VisualScriptResource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ResourceManager" 
@@ -22,42 +22,42 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, VisualScriptResource)
 
   ON_CORESYSTEMS_STARTUP 
   {
-    ezResourceManager::RegisterResourceForAssetType("VisualScriptClass", ezGetStaticRTTI<ezVisualScriptClassResource>());
-    ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezVisualScriptClassResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezBinVisualScriptClass");
+    WResourceManager::RegisterResourceForAssetType("VisualScriptClass", WGetStaticRTTI<WVisualScriptClassResource>());
+    WResourceManager::RegisterResourceOverrideType(WGetStaticRTTI<WVisualScriptClassResource>(), [](const WStringBuilder& sResourceID) -> bool  {
+        return sResourceID.HasExtension(".WBinVisualScriptClass");
       });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::UnregisterResourceOverrideType(ezGetStaticRTTI<ezVisualScriptClassResource>());
+    WResourceManager::UnregisterResourceOverrideType(WGetStaticRTTI<WVisualScriptClassResource>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezVisualScriptClassResource::ezVisualScriptClassResource() = default;
-ezVisualScriptClassResource::~ezVisualScriptClassResource() = default;
+WVisualScriptClassResource::WVisualScriptClassResource() = default;
+WVisualScriptClassResource::~WVisualScriptClassResource() = default;
 
-ezResourceLoadDesc ezVisualScriptClassResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WVisualScriptClassResource::UnloadData(Unload WhatToUnload)
 {
   DeleteScriptType();
   DeleteAllScriptCoroutineTypes();
 
-  ezResourceLoadDesc ld;
-  ld.m_State = ezResourceState::Unloaded;
+  WResourceLoadDesc ld;
+  ld.m_State = WResourceState::Unloaded;
   ld.m_uiQualityLevelsDiscardable = 0;
   ld.m_uiQualityLevelsLoadable = 0;
 
   return ld;
 }
 
-ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pStream)
+WResourceLoadDesc WVisualScriptClassResource::UpdateContent(WStreamReader* pStream)
 {
-  ezResourceLoadDesc ld;
+  WResourceLoadDesc ld;
   ld.m_uiQualityLevelsDiscardable = 0;
   ld.m_uiQualityLevelsLoadable = 0;
-  ld.m_State = ezResourceState::LoadedResourceMissing;
+  ld.m_State = WResourceState::LoadedResourceMissing;
 
   if (pStream == nullptr)
   {
@@ -65,22 +65,22 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
   }
 
   // the standard file reader writes the absolute file path into the stream
-  ezString sAbsFilePath;
+  WString sAbsFilePath;
   (*pStream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*pStream).IgnoreResult();
 
-  ezString sScriptClassName;
-  const ezRTTI* pBaseClassType = nullptr;
-  ezScriptRTTI::FunctionList functions;
-  ezScriptRTTI::MessageHandlerList messageHandlers;
+  WString sScriptClassName;
+  const WRTTI* pBaseClassType = nullptr;
+  WScriptRTTI::FunctionList functions;
+  WScriptRTTI::MessageHandlerList messageHandlers;
   {
-    ezStringDeduplicationReadContext stringDedup(*pStream);
+    WStringDeduplicationReadContext stringDedup(*pStream);
 
-    ezChunkStreamReader chunk(*pStream);
-    chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);
+    WChunkStreamReader chunk(*pStream);
+    chunk.SetEndChunkFileMode(WChunkStreamReader::EndChunkFileMode::JustClose);
 
     chunk.BeginStream();
 
@@ -89,39 +89,39 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
     {
       if (chunk.GetCurrentChunk().m_sChunkName == "Header")
       {
-        ezString sBaseClassName;
+        WString sBaseClassName;
         chunk >> sBaseClassName;
         chunk >> sScriptClassName;
-        pBaseClassType = ezRTTI::FindTypeByName(sBaseClassName);
+        pBaseClassType = WRTTI::FindTypeByName(sBaseClassName);
         if (pBaseClassType == nullptr)
         {
-          ezLog::Error("Invalid base class '{}' for Visual Script Class '{}'", sBaseClassName, sScriptClassName);
+          WLog::Error("Invalid base class '{}' for Visual Script Class '{}'", sBaseClassName, sScriptClassName);
           return ld;
         }
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "ConstantData")
       {
-        ezSharedPtr<ezVisualScriptDataDescription> pConstantDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        WSharedPtr<WVisualScriptDataDescription> pConstantDataDesc = W_SCRIPT_NEW(WVisualScriptDataDescription);
         if (pConstantDataDesc->Deserialize(chunk).Failed())
         {
           return ld;
         }
 
-        ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
-        if (pConstantDataStorage->Deserialize(chunk, ezScriptAllocator::GetAllocator()).Succeeded())
+        WSharedPtr<WVisualScriptDataStorage> pConstantDataStorage = W_SCRIPT_NEW(WVisualScriptDataStorage, pConstantDataDesc);
+        if (pConstantDataStorage->Deserialize(chunk, WScriptAllocator::GetAllocator()).Succeeded())
         {
           m_pConstantDataStorage = pConstantDataStorage;
         }
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
       {
-        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        WSharedPtr<WVisualScriptDataDescription> pInstanceDataDesc = W_SCRIPT_NEW(WVisualScriptDataDescription);
         if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
         {
           m_pInstanceDataDesc = pInstanceDataDesc;
         }
 
-        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_SCRIPT_NEW(ezVisualScriptInstanceDataMapping);
+        WSharedPtr<WVisualScriptInstanceDataMapping> pInstanceDataMapping = W_SCRIPT_NEW(WVisualScriptInstanceDataMapping);
         if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
         {
           m_pInstanceDataMapping = pInstanceDataMapping;
@@ -136,60 +136,60 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "FunctionGraphs")
       {
-        ezUInt32 uiNumFunctions;
+        WUInt32 uiNumFunctions;
         chunk >> uiNumFunctions;
 
         if (m_pInstanceDataDesc == nullptr || m_pConstantDataStorage == nullptr)
         {
-          ezLog::Error("Old visual script, needs re-export");
+          WLog::Error("Old visual script, needs re-export");
           return ld;
         }
 
-        for (ezUInt32 i = 0; i < uiNumFunctions; ++i)
+        for (WUInt32 i = 0; i < uiNumFunctions; ++i)
         {
-          ezString sFunctionName;
-          ezEnum<ezVisualScriptNodeDescription::Type> functionType;
-          ezEnum<ezScriptCoroutineCreationMode> coroutineCreationMode;
+          WString sFunctionName;
+          WEnum<WVisualScriptNodeDescription::Type> functionType;
+          WEnum<WScriptCoroutineCreationMode> coroutineCreationMode;
           chunk >> sFunctionName;
           chunk >> functionType;
           chunk >> coroutineCreationMode;
 
-          ezUniquePtr<ezVisualScriptGraphDescription> pDesc = EZ_SCRIPT_NEW(ezVisualScriptGraphDescription);
+          WUniquePtr<WVisualScriptGraphDescription> pDesc = W_SCRIPT_NEW(WVisualScriptGraphDescription);
           if (pDesc->Deserialize(chunk, *m_pInstanceDataDesc, m_pConstantDataStorage->GetDesc()).Failed())
           {
-            ezLog::Error("Invalid visual script desc");
+            WLog::Error("Invalid visual script desc");
             return ld;
           }
 
-          if (functionType == ezVisualScriptNodeDescription::Type::EntryCall)
+          if (functionType == WVisualScriptNodeDescription::Type::EntryCall)
           {
-            ezUniquePtr<ezVisualScriptFunctionProperty> pFunctionProperty = EZ_SCRIPT_NEW(ezVisualScriptFunctionProperty, sFunctionName, std::move(pDesc));
+            WUniquePtr<WVisualScriptFunctionProperty> pFunctionProperty = W_SCRIPT_NEW(WVisualScriptFunctionProperty, sFunctionName, std::move(pDesc));
             functions.PushBack(std::move(pFunctionProperty));
           }
-          else if (functionType == ezVisualScriptNodeDescription::Type::EntryCall_Coroutine)
+          else if (functionType == WVisualScriptNodeDescription::Type::EntryCall_Coroutine)
           {
-            ezUniquePtr<ezVisualScriptCoroutineAllocator> pCoroutineAllocator = EZ_SCRIPT_NEW(ezVisualScriptCoroutineAllocator, std::move(pDesc));
+            WUniquePtr<WVisualScriptCoroutineAllocator> pCoroutineAllocator = W_SCRIPT_NEW(WVisualScriptCoroutineAllocator, std::move(pDesc));
             auto pCoroutineType = CreateScriptCoroutineType(sScriptClassName, sFunctionName, std::move(pCoroutineAllocator));
-            ezUniquePtr<ezScriptCoroutineFunctionProperty> pFunctionProperty = EZ_SCRIPT_NEW(ezScriptCoroutineFunctionProperty, sFunctionName, pCoroutineType, coroutineCreationMode);
+            WUniquePtr<WScriptCoroutineFunctionProperty> pFunctionProperty = W_SCRIPT_NEW(WScriptCoroutineFunctionProperty, sFunctionName, pCoroutineType, coroutineCreationMode);
             functions.PushBack(std::move(pFunctionProperty));
           }
-          else if (functionType == ezVisualScriptNodeDescription::Type::MessageHandler)
+          else if (functionType == WVisualScriptNodeDescription::Type::MessageHandler)
           {
             auto desc = pDesc->GetMessageDesc();
-            ezUniquePtr<ezVisualScriptMessageHandler> pMessageHandler = EZ_SCRIPT_NEW(ezVisualScriptMessageHandler, desc, std::move(pDesc));
+            WUniquePtr<WVisualScriptMessageHandler> pMessageHandler = W_SCRIPT_NEW(WVisualScriptMessageHandler, desc, std::move(pDesc));
             messageHandlers.PushBack(std::move(pMessageHandler));
           }
-          else if (functionType == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine)
+          else if (functionType == WVisualScriptNodeDescription::Type::MessageHandler_Coroutine)
           {
             auto desc = pDesc->GetMessageDesc();
-            ezUniquePtr<ezVisualScriptCoroutineAllocator> pCoroutineAllocator = EZ_SCRIPT_NEW(ezVisualScriptCoroutineAllocator, std::move(pDesc));
+            WUniquePtr<WVisualScriptCoroutineAllocator> pCoroutineAllocator = W_SCRIPT_NEW(WVisualScriptCoroutineAllocator, std::move(pDesc));
             auto pCoroutineType = CreateScriptCoroutineType(sScriptClassName, sFunctionName, std::move(pCoroutineAllocator));
-            ezUniquePtr<ezScriptCoroutineMessageHandler> pMessageHandler = EZ_SCRIPT_NEW(ezScriptCoroutineMessageHandler, sFunctionName, desc, pCoroutineType, coroutineCreationMode);
+            WUniquePtr<WScriptCoroutineMessageHandler> pMessageHandler = W_SCRIPT_NEW(WScriptCoroutineMessageHandler, sFunctionName, desc, pCoroutineType, coroutineCreationMode);
             messageHandlers.PushBack(std::move(pMessageHandler));
           }
           else
           {
-            ezLog::Error("Invalid event handler type '{}' for event handler '{}'", ezVisualScriptNodeDescription::Type::GetName(functionType), sFunctionName);
+            WLog::Error("Invalid event handler type '{}' for event handler '{}'", WVisualScriptNodeDescription::Type::GetName(functionType), sFunctionName);
             return ld;
           }
         }
@@ -201,20 +201,20 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
 
   CreateScriptType(sScriptClassName, pBaseClassType, std::move(functions), std::move(messageHandlers));
 
-  ld.m_State = ezResourceState::Loaded;
+  ld.m_State = WResourceState::Loaded;
   return ld;
 }
 
-void ezVisualScriptClassResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WVisualScriptClassResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)sizeof(ezVisualScriptClassResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = (WUInt32)sizeof(WVisualScriptClassResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const
+WUniquePtr<WScriptInstance> WVisualScriptClassResource::Instantiate(WReflectedClass& inout_owner, WWorld* pWorld) const
 {
-  return EZ_SCRIPT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc, m_pInstanceDataMapping);
+  return W_SCRIPT_NEW(WVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc, m_pInstanceDataMapping);
 }
 
 
-EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Resources_VisualScriptClassResource);
+W_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Resources_VisualScriptClassResource);

@@ -3,7 +3,7 @@
 #include <RendererTest/TestClass/TestClass.h>
 
 /// Tests stencil buffer operations and compare functions.
-class ezRendererTestStencilStates : public ezGraphicsTest
+class WRendererTestStencilStates : public WGraphicsTest
 {
 public:
   virtual const char* GetTestName() const override { return "StencilStates"; }
@@ -23,16 +23,16 @@ private:
     AddSubTest("Stencil Reference Value", SubTests::ST_StencilRefValue);
   }
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
-  ezTestAppRun SubtestStencilOperations();
-  ezTestAppRun SubtestStencilCompareFunctions();
-  ezTestAppRun SubtestStencilRefValue();
+  WTestAppRun SubtestStencilOperations();
+  WTestAppRun SubtestStencilCompareFunctions();
+  WTestAppRun SubtestStencilRefValue();
 
-  void RenderQuad(const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
+  void RenderQuad(const WMat4& mTransform, const WColor& color, WBitflags<WShaderBindFlags> ShaderBindFlags = WShaderBindFlags::Default);
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override
   {
     m_iFrame = uiInvocationCount;
 
@@ -45,9 +45,9 @@ private:
     if (iIdentifier == SubTests::ST_StencilRefValue)
       return SubtestStencilRefValue();
 
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  ezMeshBufferResourceHandle m_hQuadMesh;
-  ezShaderResourceHandle m_hStencilShader;
+  WMeshBufferResourceHandle m_hQuadMesh;
+  WShaderResourceHandle m_hStencilShader;
 };

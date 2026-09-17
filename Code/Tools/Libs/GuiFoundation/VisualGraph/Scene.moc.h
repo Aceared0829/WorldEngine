@@ -7,17 +7,17 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-class ezQtVisualGraphNode;
-class ezQtVisualGraphPin;
-class ezQtVisualGraphConnection;
-struct ezSelectionManagerEvent;
+class WQtVisualGraphNode;
+class WQtVisualGraphPin;
+class WQtVisualGraphConnection;
+struct WSelectionManagerEvent;
 
 /// Qt graphics scene for displaying and interacting with visual graphs.
 ///
 /// This class manages the visual representation of node graphs, including rendering nodes, pins, and connections.
 /// It handles user interactions such as node creation, connection dragging, and selection.
-/// Works in conjunction with ezVisualGraphObjectManager which manages the document-side graph data.
-class EZ_GUIFOUNDATION_DLL ezQtVisualGraphScene : public QGraphicsScene
+/// Works in conjunction with WVisualGraphObjectManager which manages the document-side graph data.
+class W_GUIFOUNDATION_DLL WQtVisualGraphScene : public QGraphicsScene
 {
   Q_OBJECT
 public:
@@ -28,22 +28,22 @@ public:
     Connection
   };
 
-  explicit ezQtVisualGraphScene(QObject* pParent = nullptr);
-  ~ezQtVisualGraphScene();
+  explicit WQtVisualGraphScene(QObject* pParent = nullptr);
+  ~WQtVisualGraphScene();
 
-  virtual void InitScene(const ezVisualGraphObjectManager* pManager);
-  const ezVisualGraphObjectManager* GetDocumentNodeManager() const;
-  const ezDocument* GetDocument() const;
+  virtual void InitScene(const WVisualGraphObjectManager* pManager);
+  const WVisualGraphObjectManager* GetDocumentNodeManager() const;
+  const WDocument* GetDocument() const;
 
-  static ezRttiMappedObjectFactory<ezQtVisualGraphNode>& GetNodeFactory();
-  static ezRttiMappedObjectFactory<ezQtVisualGraphPin>& GetPinFactory();
-  static ezRttiMappedObjectFactory<ezQtVisualGraphConnection>& GetConnectionFactory();
-  static ezVec2 GetLastMouseInteractionPos() { return s_vLastMouseInteraction; }
+  static WRttiMappedObjectFactory<WQtVisualGraphNode>& GetNodeFactory();
+  static WRttiMappedObjectFactory<WQtVisualGraphPin>& GetPinFactory();
+  static WRttiMappedObjectFactory<WQtVisualGraphConnection>& GetConnectionFactory();
+  static WVec2 GetLastMouseInteractionPos() { return s_vLastMouseInteraction; }
 
   /// Visual style for rendering connections between pins
   struct ConnectionStyle
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
@@ -55,17 +55,17 @@ public:
     };
   };
 
-  void SetConnectionStyle(ezEnum<ConnectionStyle> style);
-  ezEnum<ConnectionStyle> GetConnectionStyle() const { return m_ConnectionStyle; }
+  void SetConnectionStyle(WEnum<ConnectionStyle> style);
+  WEnum<ConnectionStyle> GetConnectionStyle() const { return m_ConnectionStyle; }
 
   struct ConnectionDecorationFlags
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
-      DirectionArrows = EZ_BIT(0), ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
-      DrawDebugging = EZ_BIT(1),   ///< Draw animated effect to denote debugging.
+      DirectionArrows = W_BIT(0), ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
+      DrawDebugging = W_BIT(1),   ///< Draw animated effect to denote debugging.
 
       Default = 0
     };
@@ -77,8 +77,8 @@ public:
     };
   };
 
-  void SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags);
-  ezBitflags<ConnectionDecorationFlags> GetConnectionDecorationFlags() const { return m_ConnectionDecorationFlags; }
+  void SetConnectionDecorationFlags(WBitflags<ConnectionDecorationFlags> flags);
+  WBitflags<ConnectionDecorationFlags> GetConnectionDecorationFlags() const { return m_ConnectionDecorationFlags; }
 
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
@@ -89,63 +89,63 @@ protected:
 
 private:
   void Clear();
-  void CreateQtNode(const ezDocumentObject* pObject);
-  void DeleteQtNode(const ezDocumentObject* pObject);
-  void CreateQtConnection(const ezDocumentObject* pObject);
-  void DeleteQtConnection(const ezDocumentObject* pObject);
-  void RecreateQtPins(const ezDocumentObject* pObject);
-  void CreateNodeObject(const ezVisualGraphNodeDesc& nodeTemplate);
-  void NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e);
-  void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
-  void SelectionEventsHandler(const ezSelectionManagerEvent& e);
-  void GetSelectedNodes(ezDeque<ezQtVisualGraphNode*>& selection) const;
-  void MarkupConnectablePins(ezQtVisualGraphPin* pSourcePin);
+  void CreateQtNode(const WDocumentObject* pObject);
+  void DeleteQtNode(const WDocumentObject* pObject);
+  void CreateQtConnection(const WDocumentObject* pObject);
+  void DeleteQtConnection(const WDocumentObject* pObject);
+  void RecreateQtPins(const WDocumentObject* pObject);
+  void CreateNodeObject(const WVisualGraphNodeDesc& nodeTemplate);
+  void NodeEventsHandler(const WVisualGraphObjectManagerEvent& e);
+  void PropertyEventsHandler(const WDocumentObjectPropertyEvent& e);
+  void SelectionEventsHandler(const WSelectionManagerEvent& e);
+  void GetSelectedNodes(WDeque<WQtVisualGraphNode*>& selection) const;
+  void MarkupConnectablePins(WQtVisualGraphPin* pSourcePin);
   void ResetConnectablePinMarkup();
   void OpenSearchMenu(QPoint screenPos);
 
 protected:
-  /// Which 'recently used' list the node creation menu records to. See ezQtSearchableMenuRecentList.
+  /// Which 'recently used' list the node creation menu records to. See WQtSearchableMenuRecentList.
   /// If empty, the document type name is used when the menu is first opened.
-  ezString m_sRecentListName;
+  WString m_sRecentListName;
 
-  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode);
+  virtual WStatus RemoveNode(WQtVisualGraphNode* pNode);
   virtual void RemoveSelectedNodesAction();
   virtual void AddCommentAroundSelectionAction();
-  virtual void ConnectPinsAction(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin);
-  virtual void DisconnectPinsAction(ezQtVisualGraphConnection* pConnection);
-  virtual void DisconnectPinsAction(ezQtVisualGraphPin* pPin);
+  virtual void ConnectPinsAction(const WVisualGraphPin& sourcePin, const WVisualGraphPin& targetPin);
+  virtual void DisconnectPinsAction(WQtVisualGraphConnection* pConnection);
+  virtual void DisconnectPinsAction(WQtVisualGraphPin* pPin);
 
 private Q_SLOTS:
   void OnMenuItemTriggered(const QString& sName, const QVariant& variant);
   void OnSelectionChanged();
 
 private:
-  static ezRttiMappedObjectFactory<ezQtVisualGraphNode> s_NodeFactory;
-  static ezRttiMappedObjectFactory<ezQtVisualGraphPin> s_PinFactory;
-  static ezRttiMappedObjectFactory<ezQtVisualGraphConnection> s_ConnectionFactory;
+  static WRttiMappedObjectFactory<WQtVisualGraphNode> s_NodeFactory;
+  static WRttiMappedObjectFactory<WQtVisualGraphPin> s_PinFactory;
+  static WRttiMappedObjectFactory<WQtVisualGraphConnection> s_ConnectionFactory;
 
 protected:
-  const ezVisualGraphObjectManager* m_pManager = nullptr;
+  const WVisualGraphObjectManager* m_pManager = nullptr;
 
-  ezMap<const ezDocumentObject*, ezQtVisualGraphNode*> m_Nodes;
-  ezMap<const ezDocumentObject*, ezQtVisualGraphConnection*> m_Connections;
+  WMap<const WDocumentObject*, WQtVisualGraphNode*> m_Nodes;
+  WMap<const WDocumentObject*, WQtVisualGraphConnection*> m_Connections;
 
 private:
   bool m_bIgnoreSelectionChange = false;
-  ezQtVisualGraphPin* m_pStartPin = nullptr;
-  ezQtVisualGraphConnection* m_pTempConnection = nullptr;
-  ezQtVisualGraphNode* m_pTempNode = nullptr;
-  ezDeque<const ezDocumentObject*> m_Selection;
-  ezVec2 m_vMousePos = ezVec2::MakeZero();
+  WQtVisualGraphPin* m_pStartPin = nullptr;
+  WQtVisualGraphConnection* m_pTempConnection = nullptr;
+  WQtVisualGraphNode* m_pTempNode = nullptr;
+  WDeque<const WDocumentObject*> m_Selection;
+  WVec2 m_vMousePos = WVec2::MakeZero();
   QString m_sContextMenuSearchText;
-  ezDynamicArray<const ezQtVisualGraphPin*> m_ConnectablePins;
-  ezEnum<ConnectionStyle> m_ConnectionStyle;
-  ezBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
+  WDynamicArray<const WQtVisualGraphPin*> m_ConnectablePins;
+  WEnum<ConnectionStyle> m_ConnectionStyle;
+  WBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
 
-  ezDynamicArray<ezVisualGraphNodeDesc> m_NodeCreationTemplates;
-  ezDynamicArray<ezString> m_NodeCreationTemplatePaths;
+  WDynamicArray<WVisualGraphNodeDesc> m_NodeCreationTemplates;
+  WDynamicArray<WString> m_NodeCreationTemplatePaths;
 
-  static ezVec2 s_vLastMouseInteraction;
+  static WVec2 s_vLastMouseInteraction;
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezQtVisualGraphScene::ConnectionDecorationFlags);
+W_DECLARE_FLAGS_OPERATORS(WQtVisualGraphScene::ConnectionDecorationFlags);

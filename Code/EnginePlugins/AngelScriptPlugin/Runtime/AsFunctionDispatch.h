@@ -8,20 +8,20 @@
 
 class asIScriptFunction;
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptFunctionProperty : public ezScriptFunctionProperty
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptFunctionProperty : public WScriptFunctionProperty
 {
 public:
-  ezAngelScriptFunctionProperty(ezStringView sName, asIScriptFunction* pFunction);
-  ~ezAngelScriptFunctionProperty();
+  WAngelScriptFunctionProperty(WStringView sName, asIScriptFunction* pFunction);
+  ~WAngelScriptFunctionProperty();
 
-  virtual ezFunctionType::Enum GetFunctionType() const override { return ezFunctionType::Member; }
-  virtual const ezRTTI* GetReturnType() const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override { return ezPropertyFlags::Void; }
-  virtual ezUInt32 GetArgumentCount() const override { return 0; }
-  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override { return ezPropertyFlags::Void; }
+  virtual WFunctionType::Enum GetFunctionType() const override { return WFunctionType::Member; }
+  virtual const WRTTI* GetReturnType() const override { return nullptr; }
+  virtual WBitflags<WPropertyFlags> GetReturnFlags() const override { return WPropertyFlags::Void; }
+  virtual WUInt32 GetArgumentCount() const override { return 0; }
+  virtual const WRTTI* GetArgumentType(WUInt32 uiParamIndex) const override { return nullptr; }
+  virtual WBitflags<WPropertyFlags> GetArgumentFlags(WUInt32 uiParamIndex) const override { return WPropertyFlags::Void; }
 
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override;
+  virtual void Execute(void* pInstance, WArrayPtr<WVariant> arguments, WVariant& out_returnValue) const override;
 
 private:
   asIScriptFunction* m_pAsFunction = nullptr;
@@ -29,13 +29,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptMessageHandler : public ezScriptMessageHandler
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptMessageHandler : public WScriptMessageHandler
 {
 public:
-  ezAngelScriptMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction);
-  ~ezAngelScriptMessageHandler();
+  WAngelScriptMessageHandler(const WScriptMessageDesc& desc, asIScriptFunction* pFunction);
+  ~WAngelScriptMessageHandler();
 
-  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+  static void Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg);
 
 private:
   asIScriptFunction* m_pAsFunction = nullptr;
@@ -43,37 +43,37 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezMsgDeliverAngelScriptMsg : public ezMessage
+struct WMsgDeliverAngelScriptMsg : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgDeliverAngelScriptMsg, WMessage);
 
-  ~ezMsgDeliverAngelScriptMsg();
+  ~WMsgDeliverAngelScriptMsg();
 
-  ezMsgDeliverAngelScriptMsg(const ezMsgDeliverAngelScriptMsg& rhs);
-  ezMsgDeliverAngelScriptMsg(ezMsgDeliverAngelScriptMsg&& rhs);
-  void operator=(const ezMsgDeliverAngelScriptMsg& rhs);
-  void operator=(ezMsgDeliverAngelScriptMsg&& rhs);
+  WMsgDeliverAngelScriptMsg(const WMsgDeliverAngelScriptMsg& rhs);
+  WMsgDeliverAngelScriptMsg(WMsgDeliverAngelScriptMsg&& rhs);
+  void operator=(const WMsgDeliverAngelScriptMsg& rhs);
+  void operator=(WMsgDeliverAngelScriptMsg&& rhs);
 
   bool m_bRelease = false;
   void* m_pAsMsg = nullptr;
 };
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptCustomAsMessageHandler : public ezScriptMessageHandler
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptCustomAsMessageHandler : public WScriptMessageHandler
 {
 public:
-  ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc);
-  ~ezAngelScriptCustomAsMessageHandler();
+  WAngelScriptCustomAsMessageHandler(const WScriptMessageDesc& desc);
+  ~WAngelScriptCustomAsMessageHandler();
 
   void AddReceiver(asIScriptFunction* pFunction, const char* szArgType);
 
-  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+  static void Dispatch(WAbstractMessageHandler* pSelf, void* pInstance, WMessage& ref_msg);
 
 private:
   struct Receiver
   {
-    ezHashedString m_sArgType;
+    WHashedString m_sArgType;
     asIScriptFunction* m_pAsFunction = nullptr;
   };
 
-  ezHybridArray<Receiver, 2> m_Receivers;
+  WHybridArray<Receiver, 2> m_Receivers;
 };

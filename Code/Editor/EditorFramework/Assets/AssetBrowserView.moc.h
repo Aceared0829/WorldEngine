@@ -7,19 +7,19 @@
 #include <QItemDelegate>
 #include <QListView>
 
-class ezQtIconViewDelegate;
+class WQtIconViewDelegate;
 
-class ezQtAssetBrowserView : public ezQtItemView<QListView>
+class WQtAssetBrowserView : public WQtItemView<QListView>
 {
   Q_OBJECT
 
 public:
-  ezQtAssetBrowserView(QWidget* pParent);
+  WQtAssetBrowserView(QWidget* pParent);
   void SetDialogMode(bool bDialogMode);
 
   void SetIconMode(bool bIconMode);
-  void SetIconScale(ezInt32 iIconSizePercentage);
-  ezInt32 GetIconScale() const;
+  void SetIconScale(WInt32 iIconSizePercentage);
+  WInt32 GetIconScale() const;
 
   void dragEnterEvent(QDragEnterEvent* pEvent) override;
   void dragMoveEvent(QDragMoveEvent* pEvent) override;
@@ -28,7 +28,7 @@ public:
   void startDrag(Qt::DropActions supportedActions) override;
 
 Q_SIGNALS:
-  void ViewZoomed(ezInt32 iIconSizePercentage);
+  void ViewZoomed(WInt32 iIconSizePercentage);
 
 protected:
   virtual void wheelEvent(QWheelEvent* pEvent) override;
@@ -38,21 +38,21 @@ protected:
 
 private:
   bool m_bDialogMode;
-  ezQtIconViewDelegate* m_pDelegate;
-  ezInt32 m_iIconSizePercentage;
+  WQtIconViewDelegate* m_pDelegate;
+  WInt32 m_iIconSizePercentage;
 };
 
 
-class ezQtIconViewDelegate : public ezQtItemDelegate
+class WQtIconViewDelegate : public WQtItemDelegate
 {
   Q_OBJECT
 
 public:
-  ezQtIconViewDelegate(ezQtAssetBrowserView* pParent = nullptr);
+  WQtIconViewDelegate(WQtAssetBrowserView* pParent = nullptr);
 
   void SetDrawTransformState(bool b) { m_bDrawTransformState = b; }
 
-  void SetIconScale(ezInt32 iIconSizePercentage);
+  void SetIconScale(WInt32 iIconSizePercentage);
 
   virtual bool mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   virtual bool mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
@@ -68,19 +68,19 @@ public:
 private:
   QSize ItemSize() const;
   QFont GetFont() const;
-  ezUInt32 ThumbnailSize() const;
+  WUInt32 ThumbnailSize() const;
   bool IsInIconMode() const;
 
 private:
   enum
   {
-    MaxSize = ezThumbnailSize,
+    MaxSize = WThumbnailSize,
     HighlightBorderWidth = 3,
     ItemSideMargin = 5,
     TextSpacing = 5
   };
 
   bool m_bDrawTransformState;
-  ezInt32 m_iIconSizePercentage;
-  ezQtAssetBrowserView* m_pView;
+  WInt32 m_iIconSizePercentage;
+  WQtAssetBrowserView* m_pView;
 };

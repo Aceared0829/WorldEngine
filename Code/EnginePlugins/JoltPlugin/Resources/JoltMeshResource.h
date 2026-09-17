@@ -4,12 +4,12 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-using ezJoltMeshResourceHandle = ezTypedResourceHandle<class ezJoltMeshResource>;
-using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
-using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
+using WJoltMeshResourceHandle = WTypedResourceHandle<class WJoltMeshResource>;
+using WSurfaceResourceHandle = WTypedResourceHandle<class WSurfaceResource>;
+using WCpuMeshResourceHandle = WTypedResourceHandle<class WCpuMeshResource>;
 
-struct ezMsgExtractGeometry;
-class ezJoltMaterial;
+struct WMsgExtractGeometry;
+class WJoltMaterial;
 
 namespace JPH
 {
@@ -18,61 +18,61 @@ namespace JPH
   class Shape;
 } // namespace JPH
 
-struct EZ_JOLTPLUGIN_DLL ezJoltMeshResourceDescriptor
+struct W_JOLTPLUGIN_DLL WJoltMeshResourceDescriptor
 {
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_JOLTPLUGIN_DLL ezJoltMeshResource : public ezResource
+class W_JOLTPLUGIN_DLL WJoltMeshResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltMeshResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezJoltMeshResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezJoltMeshResource, ezJoltMeshResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WJoltMeshResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WJoltMeshResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WJoltMeshResource, WJoltMeshResourceDescriptor);
 
 public:
-  ezJoltMeshResource();
-  ~ezJoltMeshResource();
+  WJoltMeshResource();
+  ~WJoltMeshResource();
 
   /// Returns the bounds of the collision mesh
-  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
+  const WBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
   /// Returns the array of default surfaces to be used with this mesh.
   ///
   /// Note the array may contain less surfaces than the mesh does. It may also contain invalid surface handles.
   /// Use the default physics material as a fallback.
-  const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
+  const WDynamicArray<WSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
   /// Returns whether the mesh resource contains a triangle mesh. Triangle meshes and convex meshes are mutually exclusive.
   bool HasTriangleMesh() const { return m_pTriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty(); }
 
   /// Creates a new instance (shape) of the triangle mesh.
-  JPH::Shape* InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const;
+  JPH::Shape* InstantiateTriangleMesh(WUInt64 uiUserData, const WDynamicArray<const WJoltMaterial*>& materials) const;
 
   /// Returns the number of convex meshes. Triangle meshes and convex meshes are mutually exclusive.
-  ezUInt32 GetNumConvexParts() const { return !m_ConvexMeshInstances.IsEmpty() ? m_ConvexMeshInstances.GetCount() : m_ConvexMeshesData.GetCount(); }
+  WUInt32 GetNumConvexParts() const { return !m_ConvexMeshInstances.IsEmpty() ? m_ConvexMeshInstances.GetCount() : m_ConvexMeshesData.GetCount(); }
 
   /// Creates a new instance (shape) of the triangle mesh.
-  JPH::Shape* InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt64 uiUserData, const ezJoltMaterial* pMaterial, float fDensity) const;
+  JPH::Shape* InstantiateConvexPart(WUInt32 uiPartIdx, WUInt64 uiUserData, const WJoltMaterial* pMaterial, float fDensity) const;
 
   /// Converts the geometry of the triangle or convex mesh to a CPU mesh resource
-  ezCpuMeshResourceHandle ConvertToCpuMesh() const;
+  WCpuMeshResourceHandle ConvertToCpuMesh() const;
 
-  ezUInt32 GetNumTriangles() const { return m_uiNumTriangles; }
-  ezUInt32 GetNumVertices() const { return m_uiNumVertices; }
+  WUInt32 GetNumTriangles() const { return m_uiNumTriangles; }
+  WUInt32 GetNumVertices() const { return m_uiNumVertices; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezBoundingBoxSphere m_Bounds;
-  ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
-  mutable ezHybridArray<ezDataBuffer*, 1> m_ConvexMeshesData;
-  mutable ezDataBuffer m_TriangleMeshData;
+  WBoundingBoxSphere m_Bounds;
+  WDynamicArray<WSurfaceResourceHandle> m_Surfaces;
+  mutable WHybridArray<WDataBuffer*, 1> m_ConvexMeshesData;
+  mutable WDataBuffer m_TriangleMeshData;
   mutable JPH::Shape* m_pTriangleMeshInstance = nullptr;
-  mutable ezHybridArray<JPH::Shape*, 1> m_ConvexMeshInstances;
+  mutable WHybridArray<JPH::Shape*, 1> m_ConvexMeshInstances;
 
-  ezUInt32 m_uiNumVertices = 0;
-  ezUInt32 m_uiNumTriangles = 0;
+  WUInt32 m_uiNumVertices = 0;
+  WUInt32 m_uiNumTriangles = 0;
 };

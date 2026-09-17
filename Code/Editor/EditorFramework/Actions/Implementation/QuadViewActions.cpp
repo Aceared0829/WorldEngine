@@ -4,42 +4,42 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
-ezActionDescriptorHandle ezQuadViewActions::s_hToggleViews;
-ezActionDescriptorHandle ezQuadViewActions::s_hSpawnView;
+WActionDescriptorHandle WQuadViewActions::s_hToggleViews;
+WActionDescriptorHandle WQuadViewActions::s_hSpawnView;
 
-void ezQuadViewActions::RegisterActions()
+void WQuadViewActions::RegisterActions()
 {
-  s_hToggleViews = EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::ToggleViews);
-  s_hSpawnView = EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::SpawnView);
+  s_hToggleViews = W_REGISTER_ACTION_1("Scene.View.Toggle", WActionScope::Window, "Scene", "", WQuadViewAction, WQuadViewAction::ButtonType::ToggleViews);
+  s_hSpawnView = W_REGISTER_ACTION_1("Scene.View.Span", WActionScope::Window, "Scene", "", WQuadViewAction, WQuadViewAction::ButtonType::SpawnView);
 }
 
-void ezQuadViewActions::UnregisterActions()
+void WQuadViewActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hToggleViews);
-  ezActionManager::UnregisterAction(s_hSpawnView);
+  WActionManager::UnregisterAction(s_hToggleViews);
+  WActionManager::UnregisterAction(s_hSpawnView);
 }
 
-void ezQuadViewActions::MapToolbarActions(ezStringView sMapping)
+void WQuadViewActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hToggleViews, "", 3.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezSceneViewAction
+// WSceneViewAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WQuadViewAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WQuadViewAction::WQuadViewAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtGameObjectViewWidget'!");
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(context.m_pWindow);
+  W_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'WQtGameObjectViewWidget'!");
   switch (m_ButtonType)
   {
     case ButtonType::ToggleViews:
@@ -51,12 +51,12 @@ ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* s
   }
 }
 
-ezQuadViewAction::~ezQuadViewAction() = default;
+WQuadViewAction::~WQuadViewAction() = default;
 
-void ezQuadViewAction::Execute(const ezVariant& value)
+void WQuadViewAction::Execute(const WVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  ezQtEngineDocumentWindow* pWindow = static_cast<ezQtEngineDocumentWindow*>(pView->GetDocumentWindow());
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  WQtEngineDocumentWindow* pWindow = static_cast<WQtEngineDocumentWindow*>(pView->GetDocumentWindow());
 
   switch (m_ButtonType)
   {

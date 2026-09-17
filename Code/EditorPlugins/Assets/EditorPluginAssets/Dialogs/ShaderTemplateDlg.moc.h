@@ -4,16 +4,16 @@
 #include <EditorPluginAssets/ui_ShaderTemplateDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezDocument;
+class WDocument;
 
-class ezQtShaderTemplateDlg : public ezQtDialog, public Ui_ShaderTemplateDlg
+class WQtShaderTemplateDlg : public WQtDialog, public Ui_ShaderTemplateDlg
 {
   Q_OBJECT
 
 public:
-  ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument* pDoc);
+  WQtShaderTemplateDlg(QWidget* pParent, const WDocument* pDoc);
 
-  ezString m_sResult;
+  WString m_sResult;
 
 private Q_SLOTS:
   void on_Buttons_accepted();
@@ -24,11 +24,11 @@ private Q_SLOTS:
 private:
   struct Template
   {
-    ezString m_sName;
-    ezString m_sPath;
-    ezString m_sContent;
-    ezHybridArray<ezString, 16> m_Vars;
+    WString m_sName;
+    WString m_sPath;
+    WString m_sContent;
+    WHybridArray<WString, 16> m_Vars;
   };
 
-  ezHybridArray<Template, 32> m_Templates;
+  WHybridArray<Template, 32> m_Templates;
 };

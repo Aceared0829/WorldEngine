@@ -9,11 +9,11 @@
 /// Renders a cone along the light direction whose half-angle matches the authored source angle
 /// (the "sun disc" size). The cone's length is purely symbolic since directional lights have no
 /// position in the scene; only the opening angle carries meaning.
-class ezDirectionalLightVisualizerAdapter : public ezVisualizerAdapter
+class WDirectionalLightVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezDirectionalLightVisualizerAdapter();
-  ~ezDirectionalLightVisualizerAdapter();
+  WDirectionalLightVisualizerAdapter();
+  ~WDirectionalLightVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -22,5 +22,5 @@ protected:
   virtual void UpdateGizmoTransform() override;
 
   float m_fAngleScale = 0.0f;
-  ezEngineGizmoHandle m_hGizmo;
+  WEngineGizmoHandle m_hGizmo;
 };

@@ -4,28 +4,28 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-static ezGameEngineTestAnimations s_GameEngineTestAnimations;
+static WGameEngineTestAnimations s_GameEngineTestAnimations;
 
-const char* ezGameEngineTestAnimations::GetTestName() const
+const char* WGameEngineTestAnimations::GetTestName() const
 {
   return "Animations Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestAnimations::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestAnimations::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "Animations");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "Animations");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestAnimations::SetupSubTests()
+void WGameEngineTestAnimations::SetupSubTests()
 {
   AddSubTest("Skeletal", SubTests::Skeletal);
   AddSubTest("CurveData", SubTests::CurveData);
 }
 
-ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestAnimations::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -37,8 +37,8 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(30);
     m_ImgCompFrames.PushBack(60);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimController.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimController.WBinScene"));
+    return W_SUCCESS;
   }
 
   if (iIdentifier == SubTests::CurveData)
@@ -47,32 +47,32 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(75);
     m_ImgCompFrames.PushBack(100);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimCurves.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimCurves.WBinScene"));
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestAnimations::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestAnimations::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   ++m_iFrame;
 
   m_pOwnApplication->Run();
 
   if (m_pOwnApplication->ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, 300);
+    W_TEST_IMAGE(m_uiImgCompIdx, 300);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

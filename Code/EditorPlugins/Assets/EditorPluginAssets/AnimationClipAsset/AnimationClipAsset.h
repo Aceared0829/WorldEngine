@@ -6,14 +6,14 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
-class ezAnimationClipAssetDocument;
-struct ezPropertyMetaStateEvent;
+class WAnimationClipAssetDocument;
+struct WPropertyMetaStateEvent;
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezRootMotionSource
+struct WRootMotionSource
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -24,13 +24,13 @@ struct ezRootMotionSource
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionSource);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WRootMotionSource);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezAdditiveAnimationReference
+struct WAdditiveAnimationReference
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -41,73 +41,73 @@ struct ezAdditiveAnimationReference
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezAdditiveAnimationReference);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WAdditiveAnimationReference);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Stores a single named float curve for use in an animation clip.
 ///
 /// The color used for display in the editor is derived automatically from the name.
-class EZ_NO_LINKAGE ezAnimationClipCurveData : public ezReflectedClass
+class W_NO_LINKAGE WAnimationClipCurveData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipCurveData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipCurveData, WReflectedClass);
 
 public:
-  ezString m_sName;          ///< Identifies this curve across clips. Used to match values from multiple clips for blending.
-  ezSingleCurveData m_Curve; ///< The curve data. Color is overridden at edit time based on m_sName.
+  WString m_sName;          ///< Identifies this curve across clips. Used to match values from multiple clips for blending.
+  WSingleCurveData m_Curve; ///< The curve data. Color is overridden at edit time based on m_sName.
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezAnimationClipAssetProperties : public ezReflectedClass
+class WAnimationClipAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipAssetProperties, WReflectedClass);
 
 public:
-  ezAnimationClipAssetProperties();
-  ~ezAnimationClipAssetProperties();
+  WAnimationClipAssetProperties();
+  ~WAnimationClipAssetProperties();
 
-  ezString m_sSourceFile;
-  ezString m_sAnimationClipToExtract;
+  WString m_sSourceFile;
+  WString m_sAnimationClipToExtract;
   bool m_bAdditive = false;
-  ezUInt32 m_uiFirstFrame = 0;
-  ezUInt32 m_uiNumFrames = 0;
-  ezString m_sPreviewMesh;
-  ezString m_sPreviewAnim;
-  ezEnum<ezRootMotionSource> m_RootMotionMode;
-  ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
-  ezVec3 m_vConstantRootMotion;
+  WUInt32 m_uiFirstFrame = 0;
+  WUInt32 m_uiNumFrames = 0;
+  WString m_sPreviewMesh;
+  WString m_sPreviewAnim;
+  WEnum<WRootMotionSource> m_RootMotionMode;
+  WEnum<WAdditiveAnimationReference> m_AdditiveReference;
+  WVec3 m_vConstantRootMotion;
   float m_fConstantRootMotionLength = 0.0f;
   float m_fAnimationPositionScale = 1.0f;
 
-  ezEventTrackData m_EventTrack;
-  ezDynamicArray<ezAnimationClipCurveData> m_Curves;
+  WEventTrackData m_EventTrack;
+  WDynamicArray<WAnimationClipCurveData> m_Curves;
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationClipAssetProperties>
+class WAnimationClipAssetDocument : public WSimpleAssetDocument<WAnimationClipAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipAssetDocument, WSimpleAssetDocument<WAnimationClipAssetProperties>);
 
 public:
-  ezAnimationClipAssetDocument(ezStringView sDocumentPath);
+  WAnimationClipAssetDocument(WStringView sDocumentPath);
 
-  virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value) override;
-  virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
+  virtual void SetCommonAssetUiState(WCommonAssetUiState::Enum state, double value) override;
+  virtual double GetCommonAssetUiState(WCommonAssetUiState::Enum state) const override;
 
-  ezUuid InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue);
+  WUuid InsertEventTrackCpAt(WInt64 iTickX, const char* szValue);
 
   /// Fills the 'AnimationClipsInSourceFile' enum with the clips that the last transform found.
   ///
-  /// Subscribed to ezDynamicStringEnum::s_RefreshValuesEvent, so that the values match the document being shown.
-  static void OnRefreshDynamicStringEnum(ezDynamicStringEnum::RefreshValuesEvent& e);
+  /// Subscribed to WDynamicStringEnum::s_RefreshValuesEvent, so that the values match the document being shown.
+  static void OnRefreshDynamicStringEnum(WDynamicStringEnum::RefreshValuesEvent& e);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
 private:
   float m_fSimulationSpeed = 1.0f;
@@ -115,17 +115,17 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezAnimationClipAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WAnimationClipAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WAnimationClipAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezAnimationClipAssetDocumentGenerator();
-  ~ezAnimationClipAssetDocumentGenerator();
+  WAnimationClipAssetDocumentGenerator();
+  ~WAnimationClipAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
-  virtual bool NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const override;
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WAnimationClipAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Meshes"; }
+  virtual bool NeedsImport(WStringView sInputFileAbs, WStringView sMode) const override;
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

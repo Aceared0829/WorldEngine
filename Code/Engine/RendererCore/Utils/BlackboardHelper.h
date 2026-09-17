@@ -2,10 +2,10 @@
 
 #include <Core/Utils/Blackboard.h>
 
-namespace ezInternal
+namespace WInternal
 {
   template <typename T>
-  T ApplyBlackboardValueWithStrength(const T& currentValue, const ezBlackboard& blackboard, ezTempHashedString sName, ezTempHashedString sNameStrength)
+  T ApplyBlackboardValueWithStrength(const T& currentValue, const WBlackboard& blackboard, WTempHashedString sName, WTempHashedString sNameStrength)
   {
     if (const auto* pEntry = blackboard.GetEntry(sName))
     {
@@ -18,7 +18,7 @@ namespace ezInternal
       if (const auto* pStrengthEntry = blackboard.GetEntry(sNameStrength))
       {
         const float fStrength = pStrengthEntry->m_Value.ConvertTo<float>();
-        return ezMath::Lerp(currentValue, newValue, fStrength);
+        return WMath::Lerp(currentValue, newValue, fStrength);
       }
 
       return newValue;
@@ -26,9 +26,9 @@ namespace ezInternal
 
     return currentValue;
   }
-} // namespace ezInternal
+} // namespace WInternal
 
-#define EZ_STRENGTH_SUFFIX "_Strength"
+#define W_STRENGTH_SUFFIX "_Strength"
 
-#define EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(currentValue, blackboard, name) \
-  ezInternal::ApplyBlackboardValueWithStrength(currentValue, blackboard, ezTempHashedString(#name), ezTempHashedString(#name EZ_STRENGTH_SUFFIX))
+#define W_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(currentValue, blackboard, name) \
+  WInternal::ApplyBlackboardValueWithStrength(currentValue, blackboard, WTempHashedString(#name), WTempHashedString(#name W_STRENGTH_SUFFIX))

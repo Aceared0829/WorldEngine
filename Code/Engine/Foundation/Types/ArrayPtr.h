@@ -9,65 +9,65 @@
 
 #include <Foundation/Math/Math.h>
 
-#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#if W_ENABLED(W_INTEROP_STL_SPAN)
 #  include <span>
 #endif
 
 /// Value used by containers for indices to indicate an invalid index.
-#ifndef ezInvalidIndex
-#  define ezInvalidIndex 0xFFFFFFFF
+#ifndef WInvalidIndex
+#  define WInvalidIndex 0xFFFFFFFF
 #endif
 
-namespace ezArrayPtrDetail
+namespace WArrayPtrDetail
 {
   template <typename U>
   struct ByteTypeHelper
   {
-    using type = ezUInt8;
+    using type = WUInt8;
   };
 
   template <typename U>
   struct ByteTypeHelper<const U>
   {
-    using type = const ezUInt8;
+    using type = const WUInt8;
   };
-} // namespace ezArrayPtrDetail
+} // namespace WArrayPtrDetail
 
 /// This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
 ///
-/// No data is deallocated at destruction, the ezArrayPtr only allows for easier access.
+/// No data is deallocated at destruction, the WArrayPtr only allows for easier access.
 template <typename T>
-class ezArrayPtr
+class WArrayPtr
 {
   template <typename U>
-  friend class ezArrayPtr;
+  friend class WArrayPtr;
 
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  static_assert(!std::is_same_v<T, void>, "ezArrayPtr<void> is not allowed (anymore)");
-  static_assert(!std::is_same_v<T, const void>, "ezArrayPtr<void> is not allowed (anymore)");
+  static_assert(!std::is_same_v<T, void>, "WArrayPtr<void> is not allowed (anymore)");
+  static_assert(!std::is_same_v<T, const void>, "WArrayPtr<void> is not allowed (anymore)");
 
-  using ByteType = typename ezArrayPtrDetail::ByteTypeHelper<T>::type;
+  using ByteType = typename WArrayPtrDetail::ByteTypeHelper<T>::type;
   using ValueType = T;
   using PointerType = T*;
 
-  /// Initializes the ezArrayPtr to be empty.
-  EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
+  /// Initializes the WArrayPtr to be empty.
+  W_ALWAYS_INLINE WArrayPtr() // [tested]
     : m_pPtr(nullptr)
     , m_uiCount(0u)
   {
   }
 
   /// Copies the pointer and size of /a other. Does not allocate any data.
-  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
+  W_ALWAYS_INLINE WArrayPtr(const WArrayPtr<T>& other) // [tested]
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
-  /// Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  inline ezArrayPtr(T* pPtr, ezUInt32 uiCount) // [tested]
+  /// Initializes the WArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
+  inline WArrayPtr(T* pPtr, WUInt32 uiCount) // [tested]
     : m_pPtr(pPtr)
     , m_uiCount(uiCount)
   {
@@ -79,27 +79,27 @@ public:
     }
   }
 
-  /// Initializes the ezArrayPtr to encapsulate the given array.
+  /// Initializes the WArrayPtr to encapsulate the given array.
   template <size_t N>
-  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) // [tested]
+  W_ALWAYS_INLINE WArrayPtr(T (&staticArray)[N]) // [tested]
     : m_pPtr(staticArray)
-    , m_uiCount(static_cast<ezUInt32>(N))
+    , m_uiCount(static_cast<WUInt32>(N))
   {
   }
 
-  /// Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
+  /// Initializes the WArrayPtr to be a copy of \a other. No memory is allocated or copied.
   template <typename U>
-  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<U>& other) // [tested]
+  W_ALWAYS_INLINE WArrayPtr(const WArrayPtr<U>& other) // [tested]
     : m_pPtr(other.m_pPtr)
     , m_uiCount(other.m_uiCount)
   {
   }
 
-#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#if W_ENABLED(W_INTEROP_STL_SPAN)
   template <typename U>
-  EZ_ALWAYS_INLINE ezArrayPtr(const std::span<U>& other)
+  W_ALWAYS_INLINE WArrayPtr(const std::span<U>& other)
     : m_pPtr(other.data())
-    , m_uiCount((ezUInt32)other.size())
+    , m_uiCount((WUInt32)other.size())
   {
   }
 
@@ -125,118 +125,118 @@ public:
 #endif
 
   /// Convert to const version.
-  operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]
+  operator WArrayPtr<const T>() const { return WArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]
 
   /// Copies the pointer and size of /a other. Does not allocate any data.
-  EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
+  W_ALWAYS_INLINE void operator=(const WArrayPtr<T>& other) // [tested]
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
   /// Clears the array
-  EZ_ALWAYS_INLINE void Clear()
+  W_ALWAYS_INLINE void Clear()
   {
     m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
-  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) // [tested]
+  W_ALWAYS_INLINE void operator=(std::nullptr_t) // [tested]
   {
     m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
   /// Returns the pointer to the array.
-  EZ_ALWAYS_INLINE PointerType GetPtr() const // [tested]
+  W_ALWAYS_INLINE PointerType GetPtr() const // [tested]
   {
     return m_pPtr;
   }
 
   /// Returns the pointer to the array.
-  EZ_ALWAYS_INLINE PointerType GetPtr() // [tested]
+  W_ALWAYS_INLINE PointerType GetPtr() // [tested]
   {
     return m_pPtr;
   }
 
   /// Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
+  W_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
 
   /// Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
+  W_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
 
   /// Returns whether the array is empty.
-  EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
+  W_ALWAYS_INLINE bool IsEmpty() const // [tested]
   {
     return GetCount() == 0;
   }
 
   /// Returns the number of elements in the array.
-  EZ_ALWAYS_INLINE ezUInt32 GetCount() const // [tested]
+  W_ALWAYS_INLINE WUInt32 GetCount() const // [tested]
   {
     return m_uiCount;
   }
 
   /// Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
+  W_FORCE_INLINE WArrayPtr<T> GetSubArray(WUInt32 uiStart, WUInt32 uiCount) const // [tested]
   {
     // the first check is necessary to also detect errors when uiStart+uiCount would overflow
-    EZ_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
+    W_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
       uiStart + uiCount, GetCount());
-    return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
+    return WArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
   /// Creates a sub-array from this array.
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
-  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) const // [tested]
+  W_FORCE_INLINE WArrayPtr<T> GetSubArray(WUInt32 uiStart) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
-    return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
+    W_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
+    return WArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
   /// Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezArrayPtr<const ByteType> ToByteArray() const
+  W_ALWAYS_INLINE WArrayPtr<const ByteType> ToByteArray() const
   {
-    return ezArrayPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
+    return WArrayPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray() { return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
+  W_ALWAYS_INLINE WArrayPtr<ByteType> ToByteArray() { return WArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
 
 
   /// Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
   template <typename U>
-  EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
+  W_ALWAYS_INLINE WArrayPtr<U> Cast()
   {
     static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
-    return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
+    return WArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
   /// Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
   template <typename U>
-  EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
+  W_ALWAYS_INLINE WArrayPtr<const U> Cast() const
   {
     static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
-    return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
+    return WArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
   /// Index access.
-  EZ_FORCE_INLINE const ValueType& operator[](ezUInt32 uiIndex) const // [tested]
+  W_FORCE_INLINE const ValueType& operator[](WUInt32 uiIndex) const // [tested]
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    W_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
   /// Index access.
-  EZ_FORCE_INLINE ValueType& operator[](ezUInt32 uiIndex) // [tested]
+  W_FORCE_INLINE ValueType& operator[](WUInt32 uiIndex) // [tested]
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    W_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
   /// Compares the two arrays for equality.
   template <typename = typename std::enable_if<std::is_const<T>::value == false>>
-  inline bool operator==(const ezArrayPtr<const T>& other) const // [tested]
+  inline bool operator==(const WArrayPtr<const T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
       return false;
@@ -244,19 +244,19 @@ public:
     if (GetPtr() == other.GetPtr())
       return true;
 
-    return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
+    return WMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
-#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+#if W_DISABLED(W_USE_CPP20_OPERATORS)
   template <typename = typename std::enable_if<std::is_const<T>::value == false>>
-  inline bool operator!=(const ezArrayPtr<const T>& other) const // [tested]
+  inline bool operator!=(const WArrayPtr<const T>& other) const // [tested]
   {
     return !(*this == other);
   }
 #endif
 
   /// Compares the two arrays for equality.
-  inline bool operator==(const ezArrayPtr<T>& other) const // [tested]
+  inline bool operator==(const WArrayPtr<T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
       return false;
@@ -264,17 +264,17 @@ public:
     if (GetPtr() == other.GetPtr())
       return true;
 
-    return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
+    return WMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<T>&);
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WArrayPtr<T>&);
 
   /// Compares the two arrays for less.
-  inline bool operator<(const ezArrayPtr<const T>& other) const // [tested]
+  inline bool operator<(const WArrayPtr<const T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
       return GetCount() < other.GetCount();
 
-    for (ezUInt32 i = 0; i < GetCount(); ++i)
+    for (WUInt32 i = 0; i < GetCount(); ++i)
     {
       if (GetPtr()[i] < other.GetPtr()[i])
         return true;
@@ -287,46 +287,46 @@ public:
   }
 
   /// Copies the data from \a other into this array. The arrays must have the exact same size.
-  inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
+  inline void CopyFrom(const WArrayPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
+    W_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
 
-    ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
+    WMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
-  EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
+  W_ALWAYS_INLINE void Swap(WArrayPtr<T>& other)
   {
-    ::ezMath::Swap(m_pPtr, other.m_pPtr);
-    ::ezMath::Swap(m_uiCount, other.m_uiCount);
+    ::WMath::Swap(m_pPtr, other.m_pPtr);
+    ::WMath::Swap(m_uiCount, other.m_uiCount);
   }
 
   /// Checks whether the given value can be found in the array. O(n) complexity.
-  EZ_ALWAYS_INLINE bool Contains(const T& value) const // [tested]
+  W_ALWAYS_INLINE bool Contains(const T& value) const // [tested]
   {
-    return IndexOf(value) != ezInvalidIndex;
+    return IndexOf(value) != WInvalidIndex;
   }
 
-  /// Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  inline ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const // [tested]
+  /// Searches for the first occurrence of the given value and returns its index or WInvalidIndex if not found.
+  inline WUInt32 IndexOf(const T& value, WUInt32 uiStartIndex = 0) const // [tested]
   {
-    for (ezUInt32 i = uiStartIndex; i < m_uiCount; ++i)
+    for (WUInt32 i = uiStartIndex; i < m_uiCount; ++i)
     {
-      if (ezMemoryUtils::IsEqual(m_pPtr + i, &value))
+      if (WMemoryUtils::IsEqual(m_pPtr + i, &value))
         return i;
     }
 
-    return ezInvalidIndex;
+    return WInvalidIndex;
   }
 
-  /// Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
-  inline ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const // [tested]
+  /// Searches for the last occurrence of the given value and returns its index or WInvalidIndex if not found.
+  inline WUInt32 LastIndexOf(const T& value, WUInt32 uiStartIndex = WInvalidIndex) const // [tested]
   {
-    for (ezUInt32 i = ::ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
+    for (WUInt32 i = ::WMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
     {
-      if (ezMemoryUtils::IsEqual(m_pPtr + i, &value))
+      if (WMemoryUtils::IsEqual(m_pPtr + i, &value))
         return i;
     }
-    return ezInvalidIndex;
+    return WInvalidIndex;
   }
 
   using const_iterator = const T*;
@@ -336,126 +336,126 @@ public:
 
 private:
   PointerType m_pPtr;
-  ezUInt32 m_uiCount;
+  WUInt32 m_uiCount;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezByteArrayPtr = ezArrayPtr<ezUInt8>;
-using ezConstByteArrayPtr = ezArrayPtr<const ezUInt8>;
+using WByteArrayPtr = WArrayPtr<WUInt8>;
+using WConstByteArrayPtr = WArrayPtr<const WUInt8>;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// Helper function to create ezArrayPtr from a pointer of some type and a count.
+/// Helper function to create WArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* pPtr, ezUInt32 uiCount)
+W_ALWAYS_INLINE WArrayPtr<T> WMakeArrayPtr(T* pPtr, WUInt32 uiCount)
 {
-  return ezArrayPtr<T>(pPtr, uiCount);
+  return WArrayPtr<T>(pPtr, uiCount);
 }
 
-/// Helper function to create ezArrayPtr from a static array the a size known at compile-time.
-template <typename T, ezUInt32 N>
-EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
+/// Helper function to create WArrayPtr from a static array the a size known at compile-time.
+template <typename T, WUInt32 N>
+W_ALWAYS_INLINE WArrayPtr<T> WMakeArrayPtr(T (&staticArray)[N])
 {
-  return ezArrayPtr<T>(staticArray);
+  return WArrayPtr<T>(staticArray);
 }
 
-/// Helper function to create ezConstByteArrayPtr from a pointer of some type and a count.
+/// Helper function to create WConstByteArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* pPtr, ezUInt32 uiCount)
+W_ALWAYS_INLINE WConstByteArrayPtr WMakeByteArrayPtr(const T* pPtr, WUInt32 uiCount)
 {
-  return ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
+  return WConstByteArrayPtr(reinterpret_cast<const WUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// Helper function to create ezByteArrayPtr from a pointer of some type and a count.
+/// Helper function to create WByteArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* pPtr, ezUInt32 uiCount)
+W_ALWAYS_INLINE WByteArrayPtr WMakeByteArrayPtr(T* pPtr, WUInt32 uiCount)
 {
-  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(pPtr), uiCount * sizeof(T));
+  return WByteArrayPtr(reinterpret_cast<WUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// Helper function to create ezByteArrayPtr from a void pointer and a count.
-EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* pPtr, ezUInt32 uiBytes)
+/// Helper function to create WByteArrayPtr from a void pointer and a count.
+W_ALWAYS_INLINE WByteArrayPtr WMakeByteArrayPtr(void* pPtr, WUInt32 uiBytes)
 {
-  return ezByteArrayPtr(static_cast<ezUInt8*>(pPtr), uiBytes);
+  return WByteArrayPtr(static_cast<WUInt8*>(pPtr), uiBytes);
 }
 
-/// Helper function to create ezConstByteArrayPtr from a const void pointer and a count.
-EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const void* pPtr, ezUInt32 uiBytes)
+/// Helper function to create WConstByteArrayPtr from a const void pointer and a count.
+W_ALWAYS_INLINE WConstByteArrayPtr WMakeByteArrayPtr(const void* pPtr, WUInt32 uiBytes)
 {
-  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(pPtr), uiBytes);
+  return WConstByteArrayPtr(static_cast<const WUInt8*>(pPtr), uiBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& ref_container)
+typename WArrayPtr<T>::iterator begin(WArrayPtr<T>& ref_container)
 {
   return ref_container.GetPtr();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator begin(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_iterator begin(const WArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_iterator cbegin(const WArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& ref_container)
+typename WArrayPtr<T>::reverse_iterator rbegin(WArrayPtr<T>& ref_container)
 {
-  return typename ezArrayPtr<T>::reverse_iterator(ref_container.GetPtr() + ref_container.GetCount() - 1);
+  return typename WArrayPtr<T>::reverse_iterator(ref_container.GetPtr() + ref_container.GetCount() - 1);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_reverse_iterator rbegin(const WArrayPtr<T>& container)
 {
-  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+  return typename WArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_reverse_iterator crbegin(const WArrayPtr<T>& container)
 {
-  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+  return typename WArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& ref_container)
+typename WArrayPtr<T>::iterator end(WArrayPtr<T>& ref_container)
 {
   return ref_container.GetPtr() + ref_container.GetCount();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_iterator end(const WArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_iterator cend(const WArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& ref_container)
+typename WArrayPtr<T>::reverse_iterator rend(WArrayPtr<T>& ref_container)
 {
-  return typename ezArrayPtr<T>::reverse_iterator(ref_container.GetPtr() - 1);
+  return typename WArrayPtr<T>::reverse_iterator(ref_container.GetPtr() - 1);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator rend(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_reverse_iterator rend(const WArrayPtr<T>& container)
 {
-  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
+  return typename WArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container)
+typename WArrayPtr<T>::const_reverse_iterator crend(const WArrayPtr<T>& container)
 {
-  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
+  return typename WArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }

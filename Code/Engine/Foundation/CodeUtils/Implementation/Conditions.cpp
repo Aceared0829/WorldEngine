@@ -2,22 +2,22 @@
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination)
+WResult WPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source, WUInt32 uiFirstSourceToken, TokenStream& Destination)
 {
   Destination.Clear();
   Destination.Reserve(Source.GetCount() - uiFirstSourceToken);
 
   {
     // skip all whitespace at the start of the replacement string
-    ezUInt32 uiCurToken = uiFirstSourceToken;
+    WUInt32 uiCurToken = uiFirstSourceToken;
     SkipWhitespace(Source, uiCurToken);
 
     // add all the relevant tokens to the definition
     while (uiCurToken < Source.GetCount())
     {
-      if (Source[uiCurToken]->m_iType == ezTokenType::BlockComment || Source[uiCurToken]->m_iType == ezTokenType::LineComment || Source[uiCurToken]->m_iType == ezTokenType::EndOfFile || Source[uiCurToken]->m_iType == ezTokenType::Newline)
+      if (Source[uiCurToken]->m_iType == WTokenType::BlockComment || Source[uiCurToken]->m_iType == WTokenType::LineComment || Source[uiCurToken]->m_iType == WTokenType::EndOfFile || Source[uiCurToken]->m_iType == WTokenType::Newline)
       {
         ++uiCurToken;
         continue;
@@ -29,11 +29,11 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
 
         const bool bParenthesis = Accept(Source, uiCurToken, "(");
 
-        ezUInt32 uiIdentifier = uiCurToken;
-        if (Expect(Source, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
-          return EZ_FAILURE;
+        WUInt32 uiIdentifier = uiCurToken;
+        if (Expect(Source, uiCurToken, WTokenType::Identifier, &uiIdentifier).Failed())
+          return W_FAILURE;
 
-        ezToken* pReplacement = nullptr;
+        WToken* pReplacement = nullptr;
 
         const bool bDefined = m_Macros.Find(Source[uiIdentifier]->m_DataView).IsValid();
 
@@ -53,7 +53,7 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
         if (bParenthesis)
         {
           if (Expect(Source, uiCurToken, ")").Failed())
-            return EZ_FAILURE;
+            return W_FAILURE;
         }
       }
       else
@@ -65,39 +65,39 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
   }
 
   // remove whitespace at end of macro
-  while (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == ezTokenType::Whitespace)
+  while (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == WTokenType::Whitespace)
     Destination.PopBack();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::EvaluateCondition(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   iResult = 0;
 
   TokenStream Copied(&m_ClassAllocator);
   if (CopyTokensAndEvaluateDefined(Tokens, uiCurToken, Copied).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   TokenStream Expanded(&m_ClassAllocator);
 
   if (Expand(Copied, Expanded).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (Expanded.IsEmpty())
   {
     PP_LOG0(Error, "After expansion the condition is empty", Tokens[uiCurToken]);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezUInt32 uiCurToken2 = 0;
+  WUInt32 uiCurToken2 = 0;
   if (ParseExpressionOr(Expanded, uiCurToken2, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   return ExpectEndOfLine(Expanded, uiCurToken2);
 }
 
-ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseFactor(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   while (Accept(Tokens, uiCurToken, "+"))
   {
@@ -106,36 +106,36 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
   if (Accept(Tokens, uiCurToken, "-"))
   {
     if (ParseFactor(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult = -iResult;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (Accept(Tokens, uiCurToken, "~"))
   {
     if (ParseFactor(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult = ~iResult;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   if (Accept(Tokens, uiCurToken, "!"))
   {
     if (ParseFactor(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult = (iResult != 0) ? 0 : 1;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezUInt32 uiValueToken = uiCurToken;
-  if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken) || Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken))
+  WUInt32 uiValueToken = uiCurToken;
+  if (Accept(Tokens, uiCurToken, WTokenType::Identifier, &uiValueToken) || Accept(Tokens, uiCurToken, WTokenType::Integer, &uiValueToken))
   {
-    const ezString sVal = Tokens[uiValueToken]->m_DataView;
+    const WString sVal = Tokens[uiValueToken]->m_DataView;
 
-    ezInt32 iResult32 = 0;
+    WInt32 iResult32 = 0;
 
     if (sVal == "true")
     {
@@ -145,7 +145,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
     {
       iResult32 = 0;
     }
-    else if (ezConversionUtils::StringToInt(sVal, iResult32).Failed())
+    else if (WConversionUtils::StringToInt(sVal, iResult32).Failed())
     {
       // this is not an error, all unknown identifiers are assumed to be zero
 
@@ -156,44 +156,44 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
       m_ProcessingEvents.Broadcast(pe);
     }
 
-    iResult = (ezInt64)iResult32;
+    iResult = (WInt64)iResult32;
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else if (Accept(Tokens, uiCurToken, "("))
   {
     if (ParseExpressionOr(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     return Expect(Tokens, uiCurToken, ")");
   }
 
-  uiCurToken = ezMath::Min(uiCurToken, Tokens.GetCount() - 1);
+  uiCurToken = WMath::Min(uiCurToken, Tokens.GetCount() - 1);
   PP_LOG0(Error, "Syntax error, expected identifier, number or '('", Tokens[uiCurToken]);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::ParseExpressionPlus(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionPlus(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionMul(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (true)
   {
     if (Accept(Tokens, uiCurToken, "+"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseExpressionMul(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult += iNextValue;
     }
     else if (Accept(Tokens, uiCurToken, "-"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseExpressionMul(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult -= iNextValue;
     }
@@ -201,29 +201,29 @@ ezResult ezPreprocessor::ParseExpressionPlus(const TokenStream& Tokens, ezUInt32
       break;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionShift(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionShift(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionPlus(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (true)
   {
     if (Accept(Tokens, uiCurToken, ">", ">"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseExpressionPlus(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult >>= iNextValue;
     }
     else if (Accept(Tokens, uiCurToken, "<", "<"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseExpressionPlus(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult <<= iNextValue;
     }
@@ -231,121 +231,121 @@ ezResult ezPreprocessor::ParseExpressionShift(const TokenStream& Tokens, ezUInt3
       break;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionOr(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionAnd(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (Accept(Tokens, uiCurToken, "|", "|"))
   {
-    ezInt64 iNextValue = 0;
+    WInt64 iNextValue = 0;
     if (ParseExpressionAnd(Tokens, uiCurToken, iNextValue).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult = (iResult != 0 || iNextValue != 0) ? 1 : 0;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionAnd(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionBitOr(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (Accept(Tokens, uiCurToken, "&", "&"))
   {
-    ezInt64 iNextValue = 0;
+    WInt64 iNextValue = 0;
     if (ParseExpressionBitOr(Tokens, uiCurToken, iNextValue).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult = (iResult != 0 && iNextValue != 0) ? 1 : 0;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionBitOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionBitOr(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionBitXor(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (AcceptUnless(Tokens, uiCurToken, "|", "|"))
   {
-    ezInt64 iNextValue = 0;
+    WInt64 iNextValue = 0;
     if (ParseExpressionBitXor(Tokens, uiCurToken, iNextValue).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult |= iNextValue;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionBitAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionBitAnd(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseCondition(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (AcceptUnless(Tokens, uiCurToken, "&", "&"))
   {
-    ezInt64 iNextValue = 0;
+    WInt64 iNextValue = 0;
     if (ParseCondition(Tokens, uiCurToken, iNextValue).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult &= iNextValue;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionBitXor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionBitXor(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseExpressionBitAnd(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (Accept(Tokens, uiCurToken, "^"))
   {
-    ezInt64 iNextValue = 0;
+    WInt64 iNextValue = 0;
     if (ParseExpressionBitAnd(Tokens, uiCurToken, iNextValue).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     iResult ^= iNextValue;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
-ezResult ezPreprocessor::ParseExpressionMul(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseExpressionMul(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
   if (ParseFactor(Tokens, uiCurToken, iResult).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   while (true)
   {
     if (Accept(Tokens, uiCurToken, "*"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult *= iNextValue;
     }
     else if (Accept(Tokens, uiCurToken, "/"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult /= iNextValue;
     }
     else if (Accept(Tokens, uiCurToken, "%"))
     {
-      ezInt64 iNextValue = 0;
+      WInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iResult %= iNextValue;
     }
@@ -353,7 +353,7 @@ ezResult ezPreprocessor::ParseExpressionMul(const TokenStream& Tokens, ezUInt32&
       break;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 enum class Comparison
@@ -367,11 +367,11 @@ enum class Comparison
   GreaterThanEqual
 };
 
-ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+WResult WPreprocessor::ParseCondition(const TokenStream& Tokens, WUInt32& uiCurToken, WInt64& iResult)
 {
-  ezInt64 iResult1 = 0;
+  WInt64 iResult1 = 0;
   if (ParseExpressionShift(Tokens, uiCurToken, iResult1).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   Comparison Operator = Comparison::None;
 
@@ -390,37 +390,37 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
   else
   {
     iResult = iResult1;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezInt64 iResult2 = 0;
+  WInt64 iResult2 = 0;
   if (ParseExpressionShift(Tokens, uiCurToken, iResult2).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   switch (Operator)
   {
     case Comparison::Equal:
       iResult = (iResult1 == iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::GreaterThan:
       iResult = (iResult1 > iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::GreaterThanEqual:
       iResult = (iResult1 >= iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::LessThan:
       iResult = (iResult1 < iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::LessThanEqual:
       iResult = (iResult1 <= iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::Unequal:
       iResult = (iResult1 != iResult2) ? 1 : 0;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     case Comparison::None:
-      ezLog::Error(m_pLog, "Unknown operator");
-      return EZ_FAILURE;
+      WLog::Error(m_pLog, "Unknown operator");
+      return W_FAILURE;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }

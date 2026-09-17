@@ -4,15 +4,15 @@
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-namespace ezConversionUtils
+namespace WConversionUtils
 {
 
-  static bool IsWhitespace(ezUInt32 c)
+  static bool IsWhitespace(WUInt32 c)
   {
     return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v' || c == '\f' || c == '\a');
   }
 
-  static void SkipWhitespace(ezStringView& ref_sText)
+  static void SkipWhitespace(WStringView& ref_sText)
   {
     // we are only looking at ASCII characters here, so no need to decode Utf8 sequences
 
@@ -22,7 +22,7 @@ namespace ezConversionUtils
     }
   }
 
-  static ezResult FindFirstDigit(ezStringView& inout_sText, bool& out_bSignIsPositive)
+  static WResult FindFirstDigit(WStringView& inout_sText, bool& out_bSignIsPositive)
   {
     out_bSignIsPositive = true;
 
@@ -57,12 +57,12 @@ namespace ezConversionUtils
         continue;
       }
 
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     // not a single digit found
     if (inout_sText.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // remove all leading zeros
     while (inout_sText.StartsWith("00"))
@@ -81,47 +81,47 @@ namespace ezConversionUtils
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult StringToInt(ezStringView sText, ezInt32& out_iRes, const char** out_pLastParsePosition)
+  WResult StringToInt(WStringView sText, WInt32& out_iRes, const char** out_pLastParsePosition)
   {
-    ezInt64 tmp = out_iRes;
-    if (StringToInt64(sText, tmp, out_pLastParsePosition) == EZ_SUCCESS && tmp <= (ezInt32)0x7FFFFFFF && tmp >= (ezInt32)0x80000000)
+    WInt64 tmp = out_iRes;
+    if (StringToInt64(sText, tmp, out_pLastParsePosition) == W_SUCCESS && tmp <= (WInt32)0x7FFFFFFF && tmp >= (WInt32)0x80000000)
     {
-      out_iRes = (ezInt32)tmp;
-      return EZ_SUCCESS;
+      out_iRes = (WInt32)tmp;
+      return W_SUCCESS;
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezResult StringToUInt(ezStringView sText, ezUInt32& out_uiRes, const char** out_pLastParsePosition)
+  WResult StringToUInt(WStringView sText, WUInt32& out_uiRes, const char** out_pLastParsePosition)
   {
-    ezInt64 tmp = out_uiRes;
-    if (StringToInt64(sText, tmp, out_pLastParsePosition) == EZ_SUCCESS && tmp <= (ezUInt32)0xFFFFFFFF && tmp >= 0)
+    WInt64 tmp = out_uiRes;
+    if (StringToInt64(sText, tmp, out_pLastParsePosition) == W_SUCCESS && tmp <= (WUInt32)0xFFFFFFFF && tmp >= 0)
     {
-      out_uiRes = (ezUInt32)tmp;
-      return EZ_SUCCESS;
+      out_uiRes = (WUInt32)tmp;
+      return W_SUCCESS;
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes, const char** out_pLastParsePosition)
+  WResult StringToInt64(WStringView sText, WInt64& out_iRes, const char** out_pLastParsePosition)
   {
     if (sText.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     bool bSignIsPos = true;
 
-    if (FindFirstDigit(sText, bSignIsPos) == EZ_FAILURE)
-      return EZ_FAILURE;
+    if (FindFirstDigit(sText, bSignIsPos) == W_FAILURE)
+      return W_FAILURE;
 
-    ezInt64 iCurRes = 0;
-    ezInt64 iSign = bSignIsPos ? 1 : -1;
-    const ezInt64 iMax = 0x7FFFFFFFFFFFFFFF;
-    const ezInt64 iMin = 0x8000000000000000;
+    WInt64 iCurRes = 0;
+    WInt64 iSign = bSignIsPos ? 1 : -1;
+    const WInt64 iMax = 0x7FFFFFFFFFFFFFFF;
+    const WInt64 iMin = 0x8000000000000000;
 
     while (!sText.IsEmpty())
     {
@@ -138,13 +138,13 @@ namespace ezConversionUtils
       if (c < '0' || c > '9')
         break;
 
-      const ezInt64 iLastDigit = c - '0';
+      const WInt64 iLastDigit = c - '0';
 
       if ((iCurRes > iMax / 10) || (iCurRes == iMax / 10 && iLastDigit > 7)) // going to overflow
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       if ((iCurRes < iMin / 10) || (iCurRes == iMin / 10 && iLastDigit > 8)) // going to underflow
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       iCurRes = iCurRes * 10 + iLastDigit * iSign;                           // shift all previously read digits to the left and add the last digit
 
@@ -156,21 +156,21 @@ namespace ezConversionUtils
     if (out_pLastParsePosition != nullptr)
       *out_pLastParsePosition = sText.GetStartPointer();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult StringToFloat(ezStringView sText, double& out_fRes, const char** out_pLastParsePosition)
+  WResult StringToFloat(WStringView sText, double& out_fRes, const char** out_pLastParsePosition)
   {
     if (sText.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     bool bSignIsPos = true;
 
-    if (FindFirstDigit(sText, bSignIsPos) == EZ_FAILURE)
+    if (FindFirstDigit(sText, bSignIsPos) == W_FAILURE)
     {
       // if it is a '.' continue (this is valid)
       if (!sText.StartsWith("."))
-        return EZ_FAILURE;
+        return W_FAILURE;
     }
 
     enum NumberPart
@@ -182,10 +182,10 @@ namespace ezConversionUtils
 
     NumberPart Part = Integer;
 
-    ezUInt64 uiIntegerPart = 0;    // with 64 Bit to represent the values a 32 Bit float value can be stored, but a 64 Bit double cannot
-    ezUInt64 uiFractionalPart = 0; // lets just assume we won't have such large or precise values stored in text form
-    ezUInt64 uiFractionDivisor = 1;
-    ezUInt64 uiExponentPart = 0;
+    WUInt64 uiIntegerPart = 0;    // with 64 Bit to represent the values a 32 Bit float value can be stored, but a 64 Bit double cannot
+    WUInt64 uiFractionalPart = 0; // lets just assume we won't have such large or precise values stored in text form
+    WUInt64 uiFractionDivisor = 1;
+    WUInt64 uiExponentPart = 0;
     bool bExponentIsPositive = true;
 
     while (!sText.IsEmpty())
@@ -299,20 +299,20 @@ namespace ezConversionUtils
     if (Part == Exponent)
     {
       if (bExponentIsPositive)
-        out_fRes *= ezMath::Pow(10.0, (double)uiExponentPart);
+        out_fRes *= WMath::Pow(10.0, (double)uiExponentPart);
       else
-        out_fRes /= ezMath::Pow(10.0, (double)uiExponentPart);
+        out_fRes /= WMath::Pow(10.0, (double)uiExponentPart);
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult StringToBool(ezStringView sText, bool& out_bRes, const char** out_pLastParsePosition)
+  WResult StringToBool(WStringView sText, bool& out_bRes, const char** out_pLastParsePosition)
   {
     SkipWhitespace(sText);
 
     if (sText.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     // we are only looking at ASCII characters here, so no need to decode Utf8 sequences
 
@@ -323,7 +323,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 1;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith("0"))
@@ -333,7 +333,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 1;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("true"))
@@ -343,7 +343,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 4;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("false"))
@@ -353,7 +353,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 5;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("on"))
@@ -363,7 +363,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 2;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("off"))
@@ -373,7 +373,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 3;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("yes"))
@@ -383,7 +383,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 3;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("no"))
@@ -393,7 +393,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 2;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("enable"))
@@ -403,7 +403,7 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 6;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     if (sText.StartsWith_NoCase("disable"))
@@ -413,15 +413,15 @@ namespace ezConversionUtils
       if (out_pLastParsePosition)
         *out_pLastParsePosition = sText.GetStartPointer() + 7;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_pLastParsePosition)
+  WUInt32 ExtractFloatsFromString(WStringView sText, WUInt32 uiNumFloats, float* out_pFloats, const char** out_pLastParsePosition)
   {
-    ezUInt32 uiFloatsFound = 0;
+    WUInt32 uiFloatsFound = 0;
 
     // just try to extract n floats from the given text
     // if n floats were extracted, or the text end is reached, stop
@@ -432,7 +432,7 @@ namespace ezConversionUtils
       const char* szPos;
 
       // if successful, store the float, otherwise advance the string by one, to skip invalid characters
-      if (StringToFloat(sText, res, &szPos) == EZ_SUCCESS)
+      if (StringToFloat(sText, res, &szPos) == W_SUCCESS)
       {
         out_pFloats[uiFloatsFound] = (float)res;
         ++uiFloatsFound;
@@ -451,38 +451,38 @@ namespace ezConversionUtils
     return uiFloatsFound;
   }
 
-  ezInt8 HexCharacterToIntValue(ezUInt32 uiCharacter)
+  WInt8 HexCharacterToIntValue(WUInt32 uiCharacter)
   {
     if (uiCharacter >= '0' && uiCharacter <= '9')
-      return static_cast<ezInt8>(uiCharacter - '0');
+      return static_cast<WInt8>(uiCharacter - '0');
 
     if (uiCharacter >= 'a' && uiCharacter <= 'f')
-      return static_cast<ezInt8>(uiCharacter - 'a' + 10);
+      return static_cast<WInt8>(uiCharacter - 'a' + 10);
 
     if (uiCharacter >= 'A' && uiCharacter <= 'F')
-      return static_cast<ezInt8>(uiCharacter - 'A' + 10);
+      return static_cast<WInt8>(uiCharacter - 'A' + 10);
 
     return -1;
   }
 
-  ezResult ConvertHexStringToUInt32(ezStringView sHex, ezUInt32& out_uiResult)
+  WResult ConvertHexStringToUInt32(WStringView sHex, WUInt32& out_uiResult)
   {
-    ezUInt64 uiTemp = 0;
-    const ezResult res = ConvertHexStringToUInt(sHex, uiTemp, 8, nullptr);
+    WUInt64 uiTemp = 0;
+    const WResult res = ConvertHexStringToUInt(sHex, uiTemp, 8, nullptr);
 
-    out_uiResult = static_cast<ezUInt32>(uiTemp);
+    out_uiResult = static_cast<WUInt32>(uiTemp);
     return res;
   }
 
-  ezResult ConvertHexStringToUInt64(ezStringView sHex, ezUInt64& out_uiResult)
+  WResult ConvertHexStringToUInt64(WStringView sHex, WUInt64& out_uiResult)
   {
     return ConvertHexStringToUInt(sHex, out_uiResult, 16, nullptr);
   }
 
-  ezResult ConvertHexStringToUInt(ezStringView sHex, ezUInt64& out_uiResult, ezUInt32 uiMaxHexCharacters, ezUInt32* pTotalCharactersParsed)
+  WResult ConvertHexStringToUInt(WStringView sHex, WUInt64& out_uiResult, WUInt32 uiMaxHexCharacters, WUInt32* pTotalCharactersParsed)
   {
-    EZ_ASSERT_DEBUG(uiMaxHexCharacters <= 16, "Only HEX strings of up to 16 character can be parsed into a 64-bit integer");
-    const ezUInt32 origStringElementsCount = sHex.GetElementCount();
+    W_ASSERT_DEBUG(uiMaxHexCharacters <= 16, "Only HEX strings of up to 16 character can be parsed into a 64-bit integer");
+    const WUInt32 origStringElementsCount = sHex.GetElementCount();
 
     out_uiResult = 0;
 
@@ -491,7 +491,7 @@ namespace ezConversionUtils
       sHex.Shrink(2, 0);
 
     // convert two characters to one byte, at a time
-    for (ezUInt32 i = 0; i < uiMaxHexCharacters; ++i)
+    for (WUInt32 i = 0; i < uiMaxHexCharacters; ++i)
     {
       if (sHex.IsEmpty())
       {
@@ -499,7 +499,7 @@ namespace ezConversionUtils
         break;
       }
 
-      const ezInt8 iValue = ezConversionUtils::HexCharacterToIntValue(sHex.GetCharacter());
+      const WInt8 iValue = WConversionUtils::HexCharacterToIntValue(sHex.GetCharacter());
 
       if (iValue < 0)
       {
@@ -509,7 +509,7 @@ namespace ezConversionUtils
         {
           *pTotalCharactersParsed = 0;
         }
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       out_uiResult <<= 4; // 4 Bits, ie. half a byte
@@ -520,14 +520,14 @@ namespace ezConversionUtils
 
     if (pTotalCharactersParsed)
     {
-      EZ_ASSERT_DEBUG(sHex.GetElementCount() <= origStringElementsCount, "");
+      W_ASSERT_DEBUG(sHex.GetElementCount() <= origStringElementsCount, "");
       *pTotalCharactersParsed = origStringElementsCount - sHex.GetElementCount();
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  void ConvertHexToBinary(ezStringView sHex, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer)
+  void ConvertHexToBinary(WStringView sHex, WUInt8* pBinary, WUInt32 uiBinaryBuffer)
   {
     // skip 0x
     if (sHex.StartsWith_NoCase("0x"))
@@ -537,12 +537,12 @@ namespace ezConversionUtils
     // try not to run out of buffer space
     while (sHex.GetElementCount() >= 2 && uiBinaryBuffer >= 1)
     {
-      const ezUInt32 c0 = *sHex.GetStartPointer();
-      const ezUInt32 c1 = *(sHex.GetStartPointer() + 1);
+      const WUInt32 c0 = *sHex.GetStartPointer();
+      const WUInt32 c1 = *(sHex.GetStartPointer() + 1);
 
-      ezUInt8 uiValue1 = ezConversionUtils::HexCharacterToIntValue(c0);
-      ezUInt8 uiValue2 = ezConversionUtils::HexCharacterToIntValue(c1);
-      ezUInt8 uiValue = 16 * uiValue1 + uiValue2;
+      WUInt8 uiValue1 = WConversionUtils::HexCharacterToIntValue(c0);
+      WUInt8 uiValue2 = WConversionUtils::HexCharacterToIntValue(c1);
+      WUInt8 uiValue = 16 * uiValue1 + uiValue2;
       *pBinary = uiValue;
 
       pBinary += 1;
@@ -552,121 +552,121 @@ namespace ezConversionUtils
     }
   }
 
-  const ezStringBuilder& ToString(ezInt8 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WInt8 value, WStringBuilder& out_sResult)
   {
-    out_sResult.SetFormat("{0}", (ezInt32)value);
+    out_sResult.SetFormat("{0}", (WInt32)value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezUInt8 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WUInt8 value, WStringBuilder& out_sResult)
   {
-    out_sResult.SetFormat("{0}", (ezUInt32)value);
+    out_sResult.SetFormat("{0}", (WUInt32)value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezInt16 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WInt16 value, WStringBuilder& out_sResult)
   {
-    out_sResult.SetFormat("{0}", (ezInt32)value);
+    out_sResult.SetFormat("{0}", (WInt32)value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezUInt16 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WUInt16 value, WStringBuilder& out_sResult)
   {
-    out_sResult.SetFormat("{0}", (ezUInt32)value);
+    out_sResult.SetFormat("{0}", (WUInt32)value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezInt32 value, ezStringBuilder& out_sResult)
-  {
-    out_sResult.SetFormat("{0}", value);
-    return out_sResult;
-  }
-
-  const ezStringBuilder& ToString(ezUInt32 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WInt32 value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezInt64 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WUInt32 value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(ezUInt64 value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WInt64 value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(float value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(WUInt64 value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(double value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(float value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezColor& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(double value, WStringBuilder& out_sResult)
+  {
+    out_sResult.SetFormat("{0}", value);
+    return out_sResult;
+  }
+
+  const WStringBuilder& ToString(const WColor& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezColorGammaUB& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WColorGammaUB& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec2& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec2& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1} }", value.x, value.y);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec3& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec3& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec4& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec4& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec2I32& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec2I32& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1} }", value.x, value.y);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec3I32& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec3I32& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezVec4I32& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WVec4I32& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WQuat& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WMat3& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetPrintf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
                           "c1r2=%f, c2r2=%f, c3r2=%f, "
@@ -676,7 +676,7 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WMat4& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetPrintf("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
                           "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
@@ -688,44 +688,44 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WTransform& value, WStringBuilder& out_sResult)
   {
-    ezStringBuilder tmp1, tmp2, tmp3;
+    WStringBuilder tmp1, tmp2, tmp3;
     out_sResult.SetFormat("{ position={0}, rotation={1}, scale={2} }", ToString(value.m_vPosition, tmp1), ToString(value.m_qRotation, tmp2),
       ToString(value.m_vScale, tmp3));
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WAngle& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WTime& value, WStringBuilder& out_sResult)
   {
     out_sResult.SetFormat("{0}", value);
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WHashedString& value, WStringBuilder& out_sResult)
   {
     out_sResult = value.GetView();
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WTempHashedString& value, WStringBuilder& out_sResult)
   {
-    out_sResult.SetFormat("0x{}", ezArgU(value.GetHash(), 16, true, 16));
+    out_sResult.SetFormat("0x{}", WArgU(value.GetHash(), 16, true, 16));
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WDynamicArray<WVariant>& value, WStringBuilder& out_sResult)
   {
     out_sResult.Append("[");
-    for (const ezVariant& var : value)
+    for (const WVariant& var : value)
     {
-      out_sResult.Append(var.ConvertTo<ezString>(), ", ");
+      out_sResult.Append(var.ConvertTo<WString>(), ", ");
     }
     if (!value.IsEmpty())
       out_sResult.Shrink(0, 2);
@@ -733,12 +733,12 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezHashTable<ezString, ezVariant>& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WHashTable<WString, WVariant>& value, WStringBuilder& out_sResult)
   {
     out_sResult.Append("{");
     for (auto it : value)
     {
-      out_sResult.Append(it.Key(), "=", it.Value().ConvertTo<ezString>(), ", ");
+      out_sResult.Append(it.Key(), "=", it.Value().ConvertTo<WString>(), ", ");
     }
     if (!value.IsEmpty())
       out_sResult.Shrink(0, 2);
@@ -746,17 +746,17 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  ezUuid ConvertStringToUuid(ezStringView sText);
+  WUuid ConvertStringToUuid(WStringView sText);
 
-  const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WUuid& value, WStringBuilder& out_sResult)
   {
     // Windows GUID formatting.
     struct GUID
     {
-      ezUInt32 Data1;
-      ezUInt16 Data2;
-      ezUInt16 Data3;
-      ezUInt8 Data4[8];
+      WUInt32 Data1;
+      WUInt16 Data2;
+      WUInt16 Data3;
+      WUInt8 Data4[8];
     };
 
     const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
@@ -767,13 +767,13 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_sResult)
+  const WStringBuilder& ToString(const WStringView& value, WStringBuilder& out_sResult)
   {
     out_sResult = value;
     return out_sResult;
   }
 
-  bool IsStringUuid(ezStringView sText)
+  bool IsStringUuid(WStringView sText)
   {
     if (sText.GetElementCount() != 40)
       return false;
@@ -791,30 +791,30 @@ namespace ezConversionUtils
     return true;
   }
 
-  ezResult TryConvertStringToUuid(ezStringView sText, ezUuid& out_uuid)
+  WResult TryConvertStringToUuid(WStringView sText, WUuid& out_uuid)
   {
     if (!IsStringUuid(sText))
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     out_uuid = ConvertStringToUuid(sText);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezUuid ConvertStringToUuid(ezStringView sText)
+  WUuid ConvertStringToUuid(WStringView sText)
   {
-    EZ_ASSERT_DEBUG(IsStringUuid(sText), "The given string is not in the correct Uuid format: '{0}'", sText);
+    W_ASSERT_DEBUG(IsStringUuid(sText), "The given string is not in the correct Uuid format: '{0}'", sText);
 
     const char* szText = sText.GetStartPointer();
 
-    while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
+    while (*szText == '{' || WStringUtils::IsWhiteSpace(*szText))
       ++szText;
 
     struct GUID
     {
-      ezUInt32 Data1;
-      ezUInt16 Data2;
-      ezUInt16 Data3;
-      ezUInt8 Data4[8];
+      WUInt32 Data1;
+      WUInt16 Data2;
+      WUInt16 Data3;
+      WUInt8 Data4[8];
     };
 
     GUID guid;
@@ -867,27 +867,27 @@ namespace ezConversionUtils
       ++szText;
     }
 
-    ezUuid result;
-    ezMemoryUtils::Copy<ezUuid>(&result, reinterpret_cast<ezUuid*>(&guid), 1);
+    WUuid result;
+    WMemoryUtils::Copy<WUuid>(&result, reinterpret_cast<WUuid*>(&guid), 1);
 
     return result;
   }
 
 #define Check(name)                                     \
-  if (sColorName.IsEqual_NoCase(EZ_PP_STRINGIFY(name))) \
-  return ezColor::name
+  if (sColorName.IsEqual_NoCase(W_PP_STRINGIFY(name))) \
+  return WColor::name
 
-  ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& ref_color)
+  WResult ConvertHexStringToColor(WStringView sText, WColorGammaUB& ref_color)
   {
-    ref_color = ezColorGammaUB(0, 0, 0);
+    ref_color = WColorGammaUB(0, 0, 0);
 
-    auto twoCharsToByte = [](ezStringView& text, ezUInt8& out_uiByte) -> ezResult
+    auto twoCharsToByte = [](WStringView& text, WUInt8& out_uiByte) -> WResult
     {
       if (text.IsEmpty())
-        return EZ_SUCCESS;
+        return W_SUCCESS;
 
-      ezInt8 firstChar = 0;
-      ezInt8 secondChar = 0;
+      WInt8 firstChar = 0;
+      WInt8 secondChar = 0;
 
       firstChar = HexCharacterToIntValue(text.GetCharacter());
       text.ChopAwayFirstCharacterUtf8();
@@ -900,35 +900,35 @@ namespace ezConversionUtils
 
       if (firstChar < 0 || secondChar < 0)
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
-      out_uiByte = (static_cast<ezUInt8>(firstChar) << 4) | static_cast<ezUInt8>(secondChar);
-      return EZ_SUCCESS;
+      out_uiByte = (static_cast<WUInt8>(firstChar) << 4) | static_cast<WUInt8>(secondChar);
+      return W_SUCCESS;
     };
 
     sText.Trim();             // remove whitespace around the text
     sText.TrimWordStart("#"); // remove optional hash at the beginning
 
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.r));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.g));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.b));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.a));
+    W_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.r));
+    W_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.g));
+    W_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.b));
+    W_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.a));
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezColor GetColorByName(ezStringView sColorName, bool* out_pValidColorName)
+  WColor GetColorByName(WStringView sColorName, bool* out_pValidColorName)
   {
     if (out_pValidColorName)
       *out_pValidColorName = false;
 
     if (sColorName.IsEmpty())
-      return ezColor::Black; // considered not to be a valid color name
+      return WColor::Black; // considered not to be a valid color name
 
     if (sColorName.StartsWith("#"))
     {
-      ezColorGammaUB res;
+      WColorGammaUB res;
       if (ConvertHexStringToColor(sColorName, res).Succeeded())
       {
         if (out_pValidColorName)
@@ -1097,16 +1097,16 @@ namespace ezConversionUtils
     if (out_pValidColorName)
       *out_pValidColorName = false;
 
-    return ezColor::RebeccaPurple;
+    return WColor::RebeccaPurple;
   }
 
 #undef Check
 
 #define Check(name)         \
-  if (ezColor::name == col) \
+  if (WColor::name == col) \
   return #name
 
-  ezString GetColorName(const ezColor& col)
+  WString GetColorName(const WColor& col)
   {
     Check(AliceBlue);
     Check(AntiqueWhite);
@@ -1250,18 +1250,18 @@ namespace ezConversionUtils
     Check(Yellow);
     Check(YellowGreen);
 
-    ezColorGammaUB cg = col;
+    WColorGammaUB cg = col;
 
-    ezStringBuilder s;
+    WStringBuilder s;
 
     if (cg.a == 255)
     {
-      s.SetFormat("#{0}{1}{2}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true));
+      s.SetFormat("#{0}{1}{2}", WArgU(cg.r, 2, true, 16, true), WArgU(cg.g, 2, true, 16, true), WArgU(cg.b, 2, true, 16, true));
     }
     else
     {
-      s.SetFormat("#{0}{1}{2}{3}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true),
-        ezArgU(cg.a, 2, true, 16, true));
+      s.SetFormat("#{0}{1}{2}{3}", WArgU(cg.r, 2, true, 16, true), WArgU(cg.g, 2, true, 16, true), WArgU(cg.b, 2, true, 16, true),
+        WArgU(cg.a, 2, true, 16, true));
     }
 
     return s;
@@ -1269,4 +1269,4 @@ namespace ezConversionUtils
 
 #undef Check
 
-} // namespace ezConversionUtils
+} // namespace WConversionUtils

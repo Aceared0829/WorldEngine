@@ -6,26 +6,26 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltConeConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltConeConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ConeAngle", GetConeAngle, SetConeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("ConeAngle", GetConeAngle, SetConeAngle)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(175))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "ConeAngle", 0.3f, nullptr)
+    new WConeVisualizerAttribute(WBasisAxis::PositiveX, "ConeAngle", 0.3f, nullptr)
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltConeConstraintComponent::ezJoltConeConstraintComponent() = default;
-ezJoltConeConstraintComponent::~ezJoltConeConstraintComponent() = default;
+WJoltConeConstraintComponent::WJoltConeConstraintComponent() = default;
+WJoltConeConstraintComponent::~WJoltConeConstraintComponent() = default;
 
-void ezJoltConeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltConeConstraintComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -34,17 +34,17 @@ void ezJoltConeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stre
   s << m_ConeAngle;
 }
 
-void ezJoltConeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltConeConstraintComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_ConeAngle;
 }
 
-void ezJoltConeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJoltConeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
   const auto inv2 = pBody1->GetInverseCenterOfMassTransform() * pBody1->GetWorldTransform();
@@ -52,18 +52,18 @@ void ezJoltConeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH
   JPH::ConeConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
+  opt.mPoint1 = inv1 * WJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * WJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mHalfConeAngle = m_ConeAngle.GetRadian() * 0.5f;
-  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::MakeAxisX()));
-  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::MakeAxisX()));
+  opt.mTwistAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3::MakeAxisX()));
+  opt.mTwistAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3::MakeAxisX()));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
 
-void ezJoltConeConstraintComponent::ApplySettings()
+void WJoltConeConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   auto pConstraint = static_cast<JPH::ConeConstraint*>(m_pConstraint);
   pConstraint->SetHalfConeAngle(m_ConeAngle.GetRadian() * 0.5f);
@@ -71,12 +71,12 @@ void ezJoltConeConstraintComponent::ApplySettings()
   if (pConstraint->GetBody2()->IsInBroadPhase())
   {
     // wake up the bodies that are attached to this constraint
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
 
-bool ezJoltConeConstraintComponent::ExceededBreakingPoint()
+bool WJoltConeConstraintComponent::ExceededBreakingPoint()
 {
   if (auto pConstraint = static_cast<JPH::ConeConstraint*>(m_pConstraint))
   {
@@ -100,11 +100,11 @@ bool ezJoltConeConstraintComponent::ExceededBreakingPoint()
   return false;
 }
 
-void ezJoltConeConstraintComponent::SetConeAngle(ezAngle f)
+void WJoltConeConstraintComponent::SetConeAngle(WAngle f)
 {
   m_ConeAngle = f;
   QueueApplySettings();
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltConeConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltConeConstraintComponent);

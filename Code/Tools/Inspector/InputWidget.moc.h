@@ -7,15 +7,15 @@
 #include <Inspector/ui_InputWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtInputWidget : public ads::CDockWidget, public Ui_InputWidget
+class WQtInputWidget : public ads::CDockWidget, public Ui_InputWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtInputWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtInputWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtInputWidget* s_pWidget;
+  static WQtInputWidget* s_pWidget;
 
 private Q_SLOTS:
   virtual void on_ButtonClearSlots_clicked();
@@ -35,9 +35,9 @@ private:
 
   struct SlotData
   {
-    ezInt32 m_iTableRow;
-    ezUInt16 m_uiSlotFlags;
-    ezKeyState::Enum m_KeyState;
+    WInt32 m_iTableRow;
+    WUInt16 m_uiSlotFlags;
+    WKeyState::Enum m_KeyState;
     float m_fValue;
     float m_fDeadZone;
 
@@ -45,32 +45,32 @@ private:
     {
       m_iTableRow = -1;
       m_uiSlotFlags = 0;
-      m_KeyState = ezKeyState::Up;
+      m_KeyState = WKeyState::Up;
       m_fValue = 0;
       m_fDeadZone = 0;
     }
   };
 
-  ezMap<ezString, SlotData> m_InputSlots;
+  WMap<WString, SlotData> m_InputSlots;
 
   struct ActionData
   {
-    ezInt32 m_iTableRow;
-    ezKeyState::Enum m_KeyState;
+    WInt32 m_iTableRow;
+    WKeyState::Enum m_KeyState;
     float m_fValue;
     bool m_bUseTimeScaling;
 
-    ezString m_sTrigger[ezInputActionConfig::MaxInputSlotAlternatives];
-    float m_fTriggerScaling[ezInputActionConfig::MaxInputSlotAlternatives];
+    WString m_sTrigger[WInputActionConfig::MaxInputSlotAlternatives];
+    float m_fTriggerScaling[WInputActionConfig::MaxInputSlotAlternatives];
 
     ActionData()
     {
       m_iTableRow = -1;
-      m_KeyState = ezKeyState::Up;
+      m_KeyState = WKeyState::Up;
       m_fValue = 0;
       m_bUseTimeScaling = false;
     }
   };
 
-  ezMap<ezString, ActionData> m_InputActions;
+  WMap<WString, ActionData> m_InputActions;
 };

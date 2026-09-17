@@ -9,75 +9,75 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 2, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WSpatialAnchorComponent, 2, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("XR"),
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
+    new WCategoryAttribute("XR"),
+    new WInDevelopmentAttribute(WInDevelopmentAttribute::Phase::Beta),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSpatialAnchorComponent::ezSpatialAnchorComponent() = default;
-ezSpatialAnchorComponent::~ezSpatialAnchorComponent()
+WSpatialAnchorComponent::WSpatialAnchorComponent() = default;
+WSpatialAnchorComponent::~WSpatialAnchorComponent()
 {
-  if (ezXRSpatialAnchorsInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRSpatialAnchorsInterface>())
+  if (WXRSpatialAnchorsInterface* pXR = WSingletonRegistry::GetSingletonInstance<WXRSpatialAnchorsInterface>())
   {
     if (!m_AnchorID.IsInvalidated())
     {
       pXR->DestroyAnchor(m_AnchorID).IgnoreResult();
-      m_AnchorID = ezXRSpatialAnchorID();
+      m_AnchorID = WXRSpatialAnchorID();
     }
   }
 }
 
-void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSpatialAnchorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 }
 
-void ezSpatialAnchorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSpatialAnchorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
   if (uiVersion == 1)
   {
-    ezString sAnchorName;
+    WString sAnchorName;
     s >> sAnchorName;
   }
 }
 
-ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
+WResult WSpatialAnchorComponent::RecreateAnchorAt(const WTransform& position)
 {
-  if (ezXRSpatialAnchorsInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRSpatialAnchorsInterface>())
+  if (WXRSpatialAnchorsInterface* pXR = WSingletonRegistry::GetSingletonInstance<WXRSpatialAnchorsInterface>())
   {
     if (!m_AnchorID.IsInvalidated())
     {
       pXR->DestroyAnchor(m_AnchorID).IgnoreResult();
-      m_AnchorID = ezXRSpatialAnchorID();
+      m_AnchorID = WXRSpatialAnchorID();
     }
 
     m_AnchorID = pXR->CreateAnchor(position);
-    return m_AnchorID.IsInvalidated() ? EZ_FAILURE : EZ_SUCCESS;
+    return m_AnchorID.IsInvalidated() ? W_FAILURE : W_SUCCESS;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSpatialAnchorComponent::Update()
+void WSpatialAnchorComponent::Update()
 {
   if (IsActiveAndSimulating())
   {
-    if (ezXRSpatialAnchorsInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRSpatialAnchorsInterface>())
+    if (WXRSpatialAnchorsInterface* pXR = WSingletonRegistry::GetSingletonInstance<WXRSpatialAnchorsInterface>())
     {
       if (!m_AnchorID.IsInvalidated())
       {
-        ezTransform globalTransform;
+        WTransform globalTransform;
         if (pXR->TryGetAnchorTransform(m_AnchorID, globalTransform).Succeeded())
         {
           globalTransform.m_vScale = GetOwner()->GetGlobalScaling();
@@ -92,12 +92,12 @@ void ezSpatialAnchorComponent::Update()
   }
 }
 
-void ezSpatialAnchorComponent::OnSimulationStarted()
+void WSpatialAnchorComponent::OnSimulationStarted()
 {
-  if (ezXRSpatialAnchorsInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRSpatialAnchorsInterface>())
+  if (WXRSpatialAnchorsInterface* pXR = WSingletonRegistry::GetSingletonInstance<WXRSpatialAnchorsInterface>())
   {
     m_AnchorID = pXR->CreateAnchor(GetOwner()->GetGlobalTransform());
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_SpatialAnchorComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_SpatialAnchorComponent);

@@ -4,20 +4,20 @@
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 
-class ezQtSearchWidget;
-class ezGameObjectDocument;
-struct ezGameObjectEvent;
-class ezQtGameObjectDelegate;
+class WQtSearchWidget;
+class WGameObjectDocument;
+struct WGameObjectEvent;
+class WQtGameObjectDelegate;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectWidget : public QWidget
+class W_EDITORFRAMEWORK_DLL WQtGameObjectWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
-  ~ezQtGameObjectWidget();
+  WQtGameObjectWidget(QWidget* pParent, WGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<WQtDocumentTreeModel> pCustomModel, WSelectionManager* pSelection = nullptr);
+  ~WQtGameObjectWidget();
 
-  ezQtSearchWidget& GetFilterWidget() { return *m_pFilterWidget; }
+  WQtSearchWidget& GetFilterWidget() { return *m_pFilterWidget; }
 
 private Q_SLOTS:
   void OnItemDoubleClicked(const QModelIndex&);
@@ -25,25 +25,25 @@ private Q_SLOTS:
   void OnFilterTextChanged(const QString& text);
 
 private:
-  void DocumentSceneEventHandler(const ezGameObjectEvent& e);
+  void DocumentSceneEventHandler(const WGameObjectEvent& e);
 
 protected:
-  ezQtGameObjectDelegate* m_pDelegate = nullptr;
-  ezGameObjectDocument* m_pDocument;
-  ezQtDocumentTreeView* m_pTreeWidget;
-  ezQtSearchWidget* m_pFilterWidget;
-  ezString m_sContextMenuMapping;
+  WQtGameObjectDelegate* m_pDelegate = nullptr;
+  WGameObjectDocument* m_pDocument;
+  WQtDocumentTreeView* m_pTreeWidget;
+  WQtSearchWidget* m_pFilterWidget;
+  WString m_sContextMenuMapping;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectPanel : public ezQtDocumentPanel
+class W_EDITORFRAMEWORK_DLL WQtGameObjectPanel : public WQtDocumentPanel
 {
   Q_OBJECT
 
 public:
-  ezQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
-  ~ezQtGameObjectPanel();
+  WQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, WGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<WQtDocumentTreeModel> pCustomModel);
+  ~WQtGameObjectPanel();
 
 
 protected:
-  ezQtGameObjectWidget* m_pMainWidget = nullptr;
+  WQtGameObjectWidget* m_pMainWidget = nullptr;
 };

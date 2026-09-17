@@ -5,15 +5,15 @@
 #include <QLabel>
 #include <QLineEdit>
 
-class ezQtFileLineEdit;
+class WQtFileLineEdit;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtFilePropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtFilePropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtFilePropertyWidget();
-  bool IsValidFileReference(ezStringView sFile) const;
+  WQtFilePropertyWidget();
+  bool IsValidFileReference(WStringView sFile) const;
   void SetReadOnly(bool bReadOnly = true) override;
 
 private Q_SLOTS:
@@ -30,25 +30,25 @@ protected slots:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   void UpdateRequiredIndicator(bool bValueEmpty);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtFileLineEdit* m_pWidget = nullptr;
+  WQtFileLineEdit* m_pWidget = nullptr;
   QToolButton* m_pButton = nullptr;
   QLabel* m_pWarningIcon = nullptr;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtExternalFilePropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtExternalFilePropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtExternalFilePropertyWidget();
-  bool IsValidFileReference(ezStringView sFile) const;
+  WQtExternalFilePropertyWidget();
+  bool IsValidFileReference(WStringView sFile) const;
 
 private Q_SLOTS:
   void on_BrowseFile_clicked();
@@ -62,7 +62,7 @@ protected slots:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;

@@ -2,21 +2,21 @@
 
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezPropertyAnimObjectManager : public ezDocumentObjectManager
+class WPropertyAnimObjectManager : public WDocumentObjectManager
 {
 public:
-  ezPropertyAnimObjectManager();
-  ~ezPropertyAnimObjectManager();
+  WPropertyAnimObjectManager();
+  ~WPropertyAnimObjectManager();
 
   bool GetAllowStructureChangeOnTemporaries() const { return m_bAllowStructureChangeOnTemporaries; }
   void SetAllowStructureChangeOnTemporaries(bool bVal) { m_bAllowStructureChangeOnTemporaries = bVal; }
 
 private:
-  virtual ezStatus InternalCanAdd(
-    const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const override;
-  virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const override;
-  virtual ezStatus InternalCanMove(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const override;
+  virtual WStatus InternalCanAdd(
+    const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const override;
+  virtual WStatus InternalCanRemove(const WDocumentObject* pObject) const override;
+  virtual WStatus InternalCanMove(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProperty, const WVariant& index) const override;
 
 private:
   bool m_bAllowStructureChangeOnTemporaries = false;

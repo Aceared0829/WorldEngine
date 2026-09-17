@@ -7,13 +7,13 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Enum.h>
 
-class ezStreamWriter;
-class ezStreamReader;
-class ezSampledCurve1D;
+class WStreamWriter;
+class WStreamReader;
+class WSampledCurve1D;
 
-struct EZ_FOUNDATION_DLL ezCurveTangentMode
+struct W_FOUNDATION_DLL WCurveTangentMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -27,34 +27,34 @@ struct EZ_FOUNDATION_DLL ezCurveTangentMode
 };
 
 /// A 1D curve for animating a single value over time.
-class EZ_FOUNDATION_DLL ezCurve1D
+class W_FOUNDATION_DLL WCurve1D
 {
 public:
   /// Stores position and tangents to control spline interpolation
   struct ControlPoint
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     ControlPoint();
 
     /// The position (x,y) of the control point
-    ezVec2d m_Position;
+    WVec2d m_Position;
 
     /// The tangent for the curve segment to the left that affects the spline interpolation
-    ezVec2 m_LeftTangent;
+    WVec2 m_LeftTangent;
     /// The tangent for the curve segment to the right that affects the spline interpolation
-    ezVec2 m_RightTangent;
+    WVec2 m_RightTangent;
 
-    ezEnum<ezCurveTangentMode> m_TangentModeLeft;
-    ezEnum<ezCurveTangentMode> m_TangentModeRight;
+    WEnum<WCurveTangentMode> m_TangentModeLeft;
+    WEnum<WCurveTangentMode> m_TangentModeRight;
 
-    ezUInt16 m_uiOriginalIndex;
+    WUInt16 m_uiOriginalIndex;
 
-    EZ_ALWAYS_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
+    W_ALWAYS_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
   };
 
 public:
-  ezCurve1D();
+  WCurve1D();
 
   /// Removes all control points.
   void Clear();
@@ -83,14 +83,14 @@ public:
   void QueryExtremeValues(double& ref_fMinVal, double& ref_fMaxVal) const;
 
   /// Returns the number of control points.
-  ezUInt32 GetNumControlPoints() const;
+  WUInt32 GetNumControlPoints() const;
 
   /// Const access to a control point.
-  const ControlPoint& GetControlPoint(ezUInt32 uiIdx) const { return m_ControlPoints[uiIdx]; }
+  const ControlPoint& GetControlPoint(WUInt32 uiIdx) const { return m_ControlPoints[uiIdx]; }
 
   /// Non-const access to a control point. If you modify the position, SortControlPoints() has to be called before evaluating the
   /// curve.
-  ControlPoint& ModifyControlPoint(ezUInt32 uiIdx) { return m_ControlPoints[uiIdx]; }
+  ControlPoint& ModifyControlPoint(WUInt32 uiIdx) { return m_ControlPoints[uiIdx]; }
 
   /// Sorts the control point arrays by their position. The CPs have to be sorted before calling Evaluate(), otherwise the result
   /// will be wrong.
@@ -117,20 +117,20 @@ public:
   double NormalizeValue(double value) const;
 
   /// How much heap memory the curve uses.
-  ezUInt64 GetHeapMemoryUsage() const;
+  WUInt64 GetHeapMemoryUsage() const;
 
   /// Stores the current state in a stream.
-  void Save(ezStreamWriter& inout_stream) const;
+  void Save(WStreamWriter& inout_stream) const;
 
   /// Restores the state from a stream.
-  void Load(ezStreamReader& inout_stream);
+  void Load(WStreamReader& inout_stream);
 
   /// Pre-computes sample points for linear interpolation that approximate the curve within the allowed error threshold.
   ///
   /// \note All control points must already be in sorted order, so call SortControlPoints() first if necessary.
-  void CreateLinearApproximation(double fMaxError = 0.01, ezUInt8 uiMaxSubDivs = 8);
+  void CreateLinearApproximation(double fMaxError = 0.01, WUInt8 uiMaxSubDivs = 8);
 
-  const ezHybridArray<ezVec2d, 24>& GetLinearApproximation() const { return m_LinearApproximation; }
+  const WHybridArray<WVec2d, 24>& GetLinearApproximation() const { return m_LinearApproximation; }
 
   /// Adjusts the tangents such that the curve cannot make loopings
   void ClampTangents();
@@ -141,32 +141,32 @@ public:
   void ApplyTangentModes();
 
   /// Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
-  void MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx);
+  void MakeFixedLengthTangentLeft(WUInt32 uiCpIdx);
   /// Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
-  void MakeFixedLengthTangentRight(ezUInt32 uiCpIdx);
+  void MakeFixedLengthTangentRight(WUInt32 uiCpIdx);
   /// Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
-  void MakeLinearTangentLeft(ezUInt32 uiCpIdx);
+  void MakeLinearTangentLeft(WUInt32 uiCpIdx);
   /// Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
-  void MakeLinearTangentRight(ezUInt32 uiCpIdx);
+  void MakeLinearTangentRight(WUInt32 uiCpIdx);
 
-  void MakeAutoTangentLeft(ezUInt32 uiCpIdx);
-  void MakeAutoTangentRight(ezUInt32 uiCpIdx);
+  void MakeAutoTangentLeft(WUInt32 uiCpIdx);
+  void MakeAutoTangentRight(WUInt32 uiCpIdx);
 
-  ezResult GenerateSampledCurve(ezUInt32 uiNumSamples, ezSampledCurve1D& out_sampledCurve);
+  WResult GenerateSampledCurve(WUInt32 uiNumSamples, WSampledCurve1D& out_sampledCurve);
 
 private:
   void RecomputeLinearApproxExtremes();
   void ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY);
   void ApproximateCurve(
-    const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
-  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft,
-    double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
-  ezInt32 FindApproxControlPoint(double x) const;
+    const WVec2d& p0, const WVec2d& p1, const WVec2d& p2, const WVec2d& p3, double fMaxErrorX, double fMaxErrorY, WInt32 iSubDivLeft);
+  void ApproximateCurvePiece(const WVec2d& p0, const WVec2d& p1, const WVec2d& p2, const WVec2d& p3, double tLeft, const WVec2d& pLeft,
+    double tRight, const WVec2d& pRight, double fMaxErrorX, double fMaxErrorY, WInt32 iSubDivLeft);
+  WInt32 FindApproxControlPoint(double x) const;
 
   double m_fMinX, m_fMaxX;
   double m_fMinY, m_fMaxY;
-  ezHybridArray<ControlPoint, 8> m_ControlPoints;
-  ezHybridArray<ezVec2d, 24> m_LinearApproximation;
+  WHybridArray<ControlPoint, 8> m_ControlPoints;
+  WHybridArray<WVec2d, 24> m_LinearApproximation;
 };
 
 /// A simple curve representation that only stores the precomputed sample points for linear interpolation.
@@ -174,16 +174,16 @@ private:
 ///
 /// The curve is defined by a set of sample points, where the x values are evenly distributed between a specified minimum and maximum x value.
 /// The y values of the sample points can be used to approximate the curve through linear interpolation.
-class EZ_FOUNDATION_DLL ezSampledCurve1D : public ezReflectedClass
+class W_FOUNDATION_DLL WSampledCurve1D : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSampledCurve1D, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSampledCurve1D, WReflectedClass);
 
-  ezDynamicArray<float> m_Samples;
+  WDynamicArray<float> m_Samples;
   float m_fMinX = 0.0f;
   float m_fMaxX = 1.0f;
 
-  bool operator==(const ezSampledCurve1D& rhs) const;
+  bool operator==(const WSampledCurve1D& rhs) const;
 
-  void Save(ezStreamWriter& inout_stream) const;
-  ezResult Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  WResult Load(WStreamReader& inout_stream);
 };

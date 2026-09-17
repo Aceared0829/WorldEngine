@@ -2,31 +2,31 @@
 
 #include <Foundation/Types/TypeTraits.h>
 
-class ezRTTI;
+class WRTTI;
 
 /// A typed raw pointer.
 ///
-/// Common use case is the storage of object pointers inside an ezVariant.
+/// Common use case is the storage of object pointers inside an WVariant.
 /// Has the same lifetime concerns that any other raw pointer.
-/// \sa ezVariant
-struct ezTypedPointer
+/// \sa WVariant
+struct WTypedPointer
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
   void* m_pObject = nullptr;
-  const ezRTTI* m_pType = nullptr;
+  const WRTTI* m_pType = nullptr;
 
-  ezTypedPointer() = default;
-  ezTypedPointer(void* pObject, const ezRTTI* pType)
+  WTypedPointer() = default;
+  WTypedPointer(void* pObject, const WRTTI* pType)
     : m_pObject(pObject)
     , m_pType(pType)
   {
   }
 
-  bool operator==(const ezTypedPointer& rhs) const
+  bool operator==(const WTypedPointer& rhs) const
   {
     return m_pObject == rhs.m_pObject;
   }
-  bool operator!=(const ezTypedPointer& rhs) const
+  bool operator!=(const WTypedPointer& rhs) const
   {
     return m_pObject != rhs.m_pObject;
   }

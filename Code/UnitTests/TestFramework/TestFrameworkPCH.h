@@ -33,7 +33,7 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 #  include <QWidget>
 
 // QtWidgets includes Windows.h

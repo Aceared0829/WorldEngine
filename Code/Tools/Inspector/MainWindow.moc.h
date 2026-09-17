@@ -6,7 +6,7 @@
 #include <QMainWindow>
 #include <ads/DockManager.h>
 
-class ezQtMainWindow : public QMainWindow, public Ui_MainWindow
+class WQtMainWindow : public QMainWindow, public Ui_MainWindow
 {
   enum OnTopMode
   {
@@ -19,10 +19,10 @@ public:
   Q_OBJECT
 
 public:
-  ezQtMainWindow();
-  ~ezQtMainWindow();
+  WQtMainWindow();
+  ~WQtMainWindow();
 
-  static ezQtMainWindow* s_pWidget;
+  static WQtMainWindow* s_pWidget;
 
   static void ProcessTelemetry(void* pUnuseed);
 
@@ -65,11 +65,11 @@ private:
   OnTopMode m_OnTopMode;
   QTimer* m_pNetworkTimer;
   QString m_sConnectionTarget;
-  ezString m_sLastServerName;
+  WString m_sLastServerName;
   bool m_bConnectedToServer = false;
 
 public:
   ads::CDockManager* m_DockManager = nullptr;
   QAction* m_pActionShowStatIn[10];
-  ezQtStatVisWidget* m_pStatHistoryWidgets[10];
+  WQtStatVisWidget* m_pStatHistoryWidgets[10];
 };

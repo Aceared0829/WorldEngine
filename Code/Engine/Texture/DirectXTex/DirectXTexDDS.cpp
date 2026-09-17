@@ -1,9 +1,9 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_CLANG("-Wunused-but-set-variable")
+W_WARNING_PUSH()
+W_WARNING_DISABLE_CLANG("-Wunused-but-set-variable")
 
 //-------------------------------------------------------------------------------------
 // DirectXTexDDS.cpp
@@ -2431,7 +2431,7 @@ HRESULT DirectX::SaveToDDSFile(
     return S_OK;
 }
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
 #endif
 

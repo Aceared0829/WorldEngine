@@ -10,21 +10,21 @@
 
 #include <QPointer>
 
-class ezImageDataAssetDocument;
-struct ezImageDataAssetEvent;
+class WImageDataAssetDocument;
+struct WImageDataAssetEvent;
 
-class ezQtImageDataAssetDocumentWindow : public ezQtDocumentWindow
+class WQtImageDataAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtImageDataAssetDocumentWindow(ezImageDataAssetDocument* pDocument);
+  WQtImageDataAssetDocumentWindow(WImageDataAssetDocument* pDocument);
 
 private:
-  void ImageDataAssetEventHandler(const ezImageDataAssetEvent& e);
-  ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_EventUnsubscriper;
+  void ImageDataAssetEventHandler(const WImageDataAssetEvent& e);
+  WEvent<const WImageDataAssetEvent&>::Unsubscriber m_EventUnsubscriper;
 
   void UpdatePreview();
 
-  QPointer<ezQtImageWidget> m_pImageWidget;
+  QPointer<WQtImageWidget> m_pImageWidget;
 };

@@ -9,7 +9,7 @@
 #include <QToolButton>
 #include <qevent.h>
 
-ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* pParent, Qt::WindowFlags f)
+WQtManipulatorLabel::WQtManipulatorLabel(QWidget* pParent, Qt::WindowFlags f)
   : QWidget(pParent, f)
 {
   QHBoxLayout* pLayout = new QHBoxLayout(this);
@@ -32,26 +32,26 @@ ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* pParent, Qt::WindowFlags f)
   m_pButton->setFixedSize(24, 24);
   m_pButton->setToolTip("Toggles the manipulator gizmo for this property.");
   m_pButton->setVisible(false);
-  connect(m_pButton, &QAbstractButton::clicked, this, &ezQtManipulatorLabel::ToggleManipulator);
+  connect(m_pButton, &QAbstractButton::clicked, this, &WQtManipulatorLabel::ToggleManipulator);
   pLayout->addWidget(m_pButton, 0);
 }
 
-void ezQtManipulatorLabel::setText(const QString& sText)
+void WQtManipulatorLabel::setText(const QString& sText)
 {
   m_pLabel->setText(sText);
 }
 
-void ezQtManipulatorLabel::setAlignment(Qt::Alignment alignment)
+void WQtManipulatorLabel::setAlignment(Qt::Alignment alignment)
 {
   m_pLabel->setAlignment(alignment);
 }
 
-const ezManipulatorAttribute* ezQtManipulatorLabel::GetManipulator() const
+const WManipulatorAttribute* WQtManipulatorLabel::GetManipulator() const
 {
   return m_pManipulator;
 }
 
-void ezQtManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipulator)
+void WQtManipulatorLabel::SetManipulator(const WManipulatorAttribute* pManipulator)
 {
   m_pManipulator = pManipulator;
 
@@ -63,12 +63,12 @@ void ezQtManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipul
   }
 }
 
-bool ezQtManipulatorLabel::GetManipulatorActive() const
+bool WQtManipulatorLabel::GetManipulatorActive() const
 {
   return m_bActive;
 }
 
-void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
+void WQtManipulatorLabel::SetManipulatorActive(bool bActive)
 {
   m_bActive = bActive;
 
@@ -79,12 +79,12 @@ void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
   }
 }
 
-void ezQtManipulatorLabel::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtManipulatorLabel::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
   m_Items = items;
 }
 
-void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
+void WQtManipulatorLabel::SetIsDefault(bool bIsDefault)
 {
   if (m_bIsDefault != bIsDefault)
   {
@@ -94,27 +94,27 @@ void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
   }
 }
 
-void ezQtManipulatorLabel::ToggleManipulator()
+void WQtManipulatorLabel::ToggleManipulator()
 {
   if (m_pManipulator == nullptr)
     return;
 
-  const ezDocument* pDoc = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
+  const WDocument* pDoc = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   if (m_bActive)
-    ezManipulatorManager::GetSingleton()->ClearActiveManipulator(pDoc);
+    WManipulatorManager::GetSingleton()->ClearActiveManipulator(pDoc);
   else
-    ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, m_Items);
+    WManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, m_Items);
 }
 
-void ezQtManipulatorLabel::showEvent(QShowEvent* event)
+void WQtManipulatorLabel::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set font.
   m_pLabel->setFont(m_Font);
   QWidget::showEvent(event);
 }
 
-bool ezQtManipulatorLabel::eventFilter(QObject* pWatched, QEvent* pEvent)
+bool WQtManipulatorLabel::eventFilter(QObject* pWatched, QEvent* pEvent)
 {
   if (pWatched == m_pLabel)
   {

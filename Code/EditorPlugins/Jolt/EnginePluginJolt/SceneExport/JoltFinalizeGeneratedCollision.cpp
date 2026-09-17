@@ -3,10 +3,10 @@
 #include <EnginePluginJolt/SceneExport/JoltFinalizeGeneratedCollision.h>
 #include <JoltPlugin/Components/JoltGenerateCollisionComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_JoltFinalizeGeneratedCollision, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_JoltFinalizeGeneratedCollision>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_JoltFinalizeGeneratedCollision, 1, WRTTIDefaultAllocator<WSceneExportModifier_JoltFinalizeGeneratedCollision>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezSceneExportModifier_JoltFinalizeGeneratedCollision::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_JoltFinalizeGeneratedCollision::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
   // Don't finalize yet for prefabs since the real generation might only happen in the final scene context
   if (sDocumentType == "Prefab" && bForExport)
@@ -14,9 +14,9 @@ void ezSceneExportModifier_JoltFinalizeGeneratedCollision::ModifyWorld(ezWorld& 
     return;
   }
 
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  auto pComponentManager = ref_world.GetComponentManager<ezJoltGenerateCollisionComponentManager>();
+  auto pComponentManager = ref_world.GetComponentManager<WJoltGenerateCollisionComponentManager>();
   if (pComponentManager == nullptr)
     return;
 

@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Memory/MemoryTracker.h>
 #  include <Foundation/Memory/PageAllocator.h>
@@ -8,33 +8,33 @@
 #  include <Foundation/Time/Time.h>
 
 // static
-void* ezPageAllocator::AllocatePage(size_t uiSize)
+void* WPageAllocator::AllocatePage(size_t uiSize)
 {
-  ezTime fAllocationTime = ezTime::Now();
+  WTime fAllocationTime = WTime::Now();
 
   void* ptr = ::VirtualAlloc(nullptr, uiSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-  EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
+  W_ASSERT_DEV(ptr != nullptr, "Could not allocate memory pages. Error Code '{0}'", WArgErrorCode(::GetLastError()));
 
-  size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
-  EZ_CHECK_ALIGNMENT(ptr, uiAlign);
+  size_t uiAlign = WSystemInformation::Get().GetMemoryPageSize();
+  W_CHECK_ALIGNMENT(ptr, uiAlign);
 
-  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStats)
+  if constexpr (WAllocatorTrackingMode::Default >= WAllocatorTrackingMode::AllocationStats)
   {
-    ezMemoryTracker::AddAllocation(ezPageAllocator::GetId(), ezAllocatorTrackingMode::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+    WMemoryTracker::AddAllocation(WPageAllocator::GetId(), WAllocatorTrackingMode::Default, ptr, uiSize, uiAlign, WTime::Now() - fAllocationTime);
   }
 
   return ptr;
 }
 
 // static
-void ezPageAllocator::DeallocatePage(void* pPtr)
+void WPageAllocator::DeallocatePage(void* pPtr)
 {
-  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStats)
+  if constexpr (WAllocatorTrackingMode::Default >= WAllocatorTrackingMode::AllocationStats)
   {
-    ezMemoryTracker::RemoveAllocation(ezPageAllocator::GetId(), pPtr);
+    WMemoryTracker::RemoveAllocation(WPageAllocator::GetId(), pPtr);
   }
 
-  EZ_VERIFY(::VirtualFree(pPtr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
+  W_VERIFY(::VirtualFree(pPtr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", WArgErrorCode(::GetLastError()));
 }
 
 #endif

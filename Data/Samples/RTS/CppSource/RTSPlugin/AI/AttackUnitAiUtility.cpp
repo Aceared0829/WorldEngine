@@ -4,7 +4,7 @@
 #include <RTSPlugin/Components/UnitComponent.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 
-double RtsAttackUnitAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const
+double RtsAttackUnitAiUtility::ComputePriority(WGameObject* pOwnerObject, WComponent* pOwnerComponent) const
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
@@ -14,19 +14,19 @@ double RtsAttackUnitAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezCom
   return 100;
 }
 
-void RtsAttackUnitAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
+void RtsAttackUnitAiUtility::Activate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) {}
 
-void RtsAttackUnitAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
+void RtsAttackUnitAiUtility::Deactivate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) {}
 
-void RtsAttackUnitAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
+void RtsAttackUnitAiUtility::Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
-  ezGameObject* pTarget = nullptr;
+  WGameObject* pTarget = nullptr;
   if (!pOwnerObject->GetWorld()->TryGetObject(pUnit->m_hAssignedUnitToAttack, pTarget))
     return;
 
-  const ezVec2 vTargetPos = pTarget->GetGlobalPosition().GetAsVec2();
+  const WVec2 vTargetPos = pTarget->GetGlobalPosition().GetAsVec2();
 
   if ((pOwnerObject->GetGlobalPosition().GetAsVec2() - vTargetPos).GetLengthSquared() > 100)
   {

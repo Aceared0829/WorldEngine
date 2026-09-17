@@ -7,21 +7,21 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezLUTAssetDocument;
+class WLUTAssetDocument;
 
-class ezQtLUTAssetDocumentWindow : public ezQtDocumentWindow
+class WQtLUTAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument);
+  WQtLUTAssetDocumentWindow(WLUTAssetDocument* pDocument);
 };
 
-class ezLUTAssetActions
+class WLUTAssetActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 };

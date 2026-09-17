@@ -48,7 +48,7 @@
           <number>1</number>
          </property>
          <item>
-          <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+          <widget class="WQtSearchWidget" name="SearchWidget" native="true"/>
          </item>
          <item>
           <widget class="QPushButton" name="ButtonShowItemsSubFolders">
@@ -213,7 +213,7 @@
         </layout>
        </item>
        <item>
-        <widget class="ezQtAssetBrowserView" name="ListAssets">
+        <widget class="WQtAssetBrowserView" name="ListAssets">
          <property name="contextMenuPolicy">
           <enum>Qt::CustomContextMenu</enum>
          </property>
@@ -255,12 +255,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtAssetBrowserView</class>
+   <class>WQtAssetBrowserView</class>
    <extends>QListView</extends>
    <header location="global">EditorFramework/Assets/AssetBrowserView.moc.h</header>
   </customwidget>
   <customwidget>
-   <class>ezQtSearchWidget</class>
+   <class>WQtSearchWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>

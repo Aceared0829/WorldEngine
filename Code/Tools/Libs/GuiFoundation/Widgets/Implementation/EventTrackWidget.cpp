@@ -9,7 +9,7 @@
 #include <QRubberBand>
 #include <qevent.h>
 
-ezQtEventTrackWidget::ezQtEventTrackWidget(QWidget* pParent)
+WQtEventTrackWidget::WQtEventTrackWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
@@ -29,7 +29,7 @@ ezQtEventTrackWidget::ezQtEventTrackWidget(QWidget* pParent)
 }
 
 
-void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCurveLength)
+void WQtEventTrackWidget::SetData(const WEventTrackData* pData, double fMinCurveLength)
 {
   m_pEditData = pData;
   m_fMaxCurveExtent = fMinCurveLength;
@@ -37,7 +37,7 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
   RecreateSortedData();
 
   //  // make sure the selection does not contain points that got deleted
-  //  for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); )
+  //  for (WUInt32 i = 0; i < m_SelectedCPs.GetCount(); )
   //  {
   //    if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() ||
   //      m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
@@ -55,18 +55,18 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
   update();
 }
 
-void ezQtEventTrackWidget::RecreateSortedData()
+void WQtEventTrackWidget::RecreateSortedData()
 {
   for (auto& cat : m_Categories)
   {
     cat.m_SortedPoints.Clear();
   }
 
-  for (ezUInt32 idx = 0; idx < m_pEditData->m_ControlPoints.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < m_pEditData->m_ControlPoints.GetCount(); ++idx)
   {
     const auto& pt = m_pEditData->m_ControlPoints[idx];
 
-    ezUInt32 uiCategory = 0;
+    WUInt32 uiCategory = 0;
     if (!m_NameToCategory.TryGetValue(pt.m_sEvent, uiCategory))
     {
       uiCategory = m_Categories.GetCount();
@@ -86,14 +86,14 @@ void ezQtEventTrackWidget::RecreateSortedData()
   // sort points by X position
   // for (auto& cat : m_Categories)
   //{
-  //  cat.m_SortedPoints.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
+  //  cat.m_SortedPoints.Sort([](const WQtEventTrackWidget::Point& lhs, const WQtEventTrackWidget::Point& rhs) -> bool
   //  {
   //    return lhs.m_fPosX < rhs.m_fPosX;
   //  });
   //}
 }
 
-void ezQtEventTrackWidget::SetScrubberPosition(double fPosition)
+void WQtEventTrackWidget::SetScrubberPosition(double fPosition)
 {
   m_bShowScrubber = true;
   m_fScrubberPosition = fPosition;
@@ -101,7 +101,7 @@ void ezQtEventTrackWidget::SetScrubberPosition(double fPosition)
   update();
 }
 
-void ezQtEventTrackWidget::FrameCurve()
+void WQtEventTrackWidget::FrameCurve()
 {
   m_bFrameBeforePaint = false;
 
@@ -120,8 +120,8 @@ void ezQtEventTrackWidget::FrameCurve()
     for (const auto& cpSel : m_SelectedPoints)
     {
       const double pos = m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_fPosX;
-      minX = ezMath::Min(minX, pos);
-      maxX = ezMath::Max(maxX, pos);
+      minX = WMath::Min(minX, pos);
+      maxX = WMath::Max(maxX, pos);
     }
 
     // fWidth = m_selectionBRect.width();
@@ -136,7 +136,7 @@ void ezQtEventTrackWidget::FrameCurve()
     fOffsetX = m_Categories[m_SelectedPoints[0].m_uiCategory].m_SortedPoints[m_SelectedPoints[0].m_uiSortedIdx].m_fPosX - 0.05;
   }
 
-  fWidth = ezMath::Max(fWidth, 0.1);
+  fWidth = WMath::Max(fWidth, 0.1);
 
   const double fFinalWidth = fWidth * 1.2;
 
@@ -150,7 +150,7 @@ void ezQtEventTrackWidget::FrameCurve()
   update();
 }
 
-QPoint ezQtEventTrackWidget::MapFromScene(const QPointF& pos) const
+QPoint WQtEventTrackWidget::MapFromScene(const QPointF& pos) const
 {
   double x = pos.x() - m_fSceneTranslationX;
   double y = pos.y();
@@ -160,7 +160,7 @@ QPoint ezQtEventTrackWidget::MapFromScene(const QPointF& pos) const
   return QPoint((int)x, (int)y);
 }
 
-QPointF ezQtEventTrackWidget::MapToScene(const QPoint& pos) const
+QPointF WQtEventTrackWidget::MapToScene(const QPoint& pos) const
 {
   double x = pos.x();
   double y = pos.y();
@@ -170,7 +170,7 @@ QPointF ezQtEventTrackWidget::MapToScene(const QPoint& pos) const
   return QPointF(x + m_fSceneTranslationX, y);
 }
 
-void ezQtEventTrackWidget::ClearSelection()
+void WQtEventTrackWidget::ClearSelection()
 {
   m_SelectionBRect = QRectF();
 
@@ -189,7 +189,7 @@ void ezQtEventTrackWidget::ClearSelection()
 }
 
 
-void ezQtEventTrackWidget::GetSelection(ezDynamicArray<ezUInt32>& out_selection) const
+void WQtEventTrackWidget::GetSelection(WDynamicArray<WUInt32>& out_selection) const
 {
   out_selection.Clear();
 
@@ -199,12 +199,12 @@ void ezQtEventTrackWidget::GetSelection(ezDynamicArray<ezUInt32>& out_selection)
   }
 }
 
-bool ezQtEventTrackWidget::IsSelected(SelectedPoint cp) const
+bool WQtEventTrackWidget::IsSelected(SelectedPoint cp) const
 {
   return m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected;
 }
 
-void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
+void WQtEventTrackWidget::SetSelection(SelectedPoint cp)
 {
   ClearSelection();
 
@@ -217,7 +217,7 @@ void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
   Q_EMIT SelectionChangedEvent();
 }
 
-void ezQtEventTrackWidget::SetSelection(const ezArrayPtr<SelectedPoint>& selection)
+void WQtEventTrackWidget::SetSelection(const WArrayPtr<SelectedPoint>& selection)
 {
   for (const auto& cpSel : m_SelectedPoints)
   {
@@ -234,7 +234,7 @@ void ezQtEventTrackWidget::SetSelection(const ezArrayPtr<SelectedPoint>& selecti
   Q_EMIT SelectionChangedEvent();
 }
 
-void ezQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
+void WQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
 {
   SetSelected(cp, !IsSelected(cp));
 
@@ -243,7 +243,7 @@ void ezQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
   Q_EMIT SelectionChangedEvent();
 }
 
-void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
+void WQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
 {
   if (m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected == set)
     return;
@@ -263,7 +263,7 @@ void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
   Q_EMIT SelectionChangedEvent();
 }
 
-QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
+QRectF WQtEventTrackWidget::ComputeViewportSceneRect() const
 {
   const QPointF topLeft = MapToScene(rect().topLeft());
   const QPointF bottomRight = MapToScene(rect().bottomRight());
@@ -271,40 +271,40 @@ QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
   return QRectF(topLeft, bottomRight);
 }
 
-static ezColorGammaUB g_EventColors[10 * 3] = {
-  ezColorGammaUB(255, 102, 0),
-  ezColorGammaUB(76, 255, 0),
-  ezColorGammaUB(0, 255, 255),
-  ezColorGammaUB(239, 35, 0),
-  ezColorGammaUB(127, 255, 0),
-  ezColorGammaUB(0, 0, 255),
-  ezColorGammaUB(205, 92, 92),
-  ezColorGammaUB(120, 158, 39),
-  ezColorGammaUB(81, 120, 188),
-  ezColorGammaUB(255, 105, 180),
-  ezColorGammaUB(0, 250, 154),
-  ezColorGammaUB(0, 191, 255),
-  ezColorGammaUB(220, 20, 60),
-  ezColorGammaUB(0, 255, 127),
-  ezColorGammaUB(30, 144, 255),
-  ezColorGammaUB(240, 128, 128),
-  ezColorGammaUB(60, 179, 113),
-  ezColorGammaUB(135, 206, 250),
-  ezColorGammaUB(178, 34, 34),
-  ezColorGammaUB(46, 139, 87),
-  ezColorGammaUB(65, 105, 225),
-  ezColorGammaUB(211, 122, 122),
-  ezColorGammaUB(144, 238, 144),
-  ezColorGammaUB(135, 206, 235),
-  ezColorGammaUB(219, 112, 147),
-  ezColorGammaUB(0, 128, 0),
-  ezColorGammaUB(70, 130, 180),
-  ezColorGammaUB(255, 182, 193),
-  ezColorGammaUB(102, 205, 170),
-  ezColorGammaUB(100, 149, 237),
+static WColorGammaUB g_EventColors[10 * 3] = {
+  WColorGammaUB(255, 102, 0),
+  WColorGammaUB(76, 255, 0),
+  WColorGammaUB(0, 255, 255),
+  WColorGammaUB(239, 35, 0),
+  WColorGammaUB(127, 255, 0),
+  WColorGammaUB(0, 0, 255),
+  WColorGammaUB(205, 92, 92),
+  WColorGammaUB(120, 158, 39),
+  WColorGammaUB(81, 120, 188),
+  WColorGammaUB(255, 105, 180),
+  WColorGammaUB(0, 250, 154),
+  WColorGammaUB(0, 191, 255),
+  WColorGammaUB(220, 20, 60),
+  WColorGammaUB(0, 255, 127),
+  WColorGammaUB(30, 144, 255),
+  WColorGammaUB(240, 128, 128),
+  WColorGammaUB(60, 179, 113),
+  WColorGammaUB(135, 206, 250),
+  WColorGammaUB(178, 34, 34),
+  WColorGammaUB(46, 139, 87),
+  WColorGammaUB(65, 105, 225),
+  WColorGammaUB(211, 122, 122),
+  WColorGammaUB(144, 238, 144),
+  WColorGammaUB(135, 206, 235),
+  WColorGammaUB(219, 112, 147),
+  WColorGammaUB(0, 128, 0),
+  WColorGammaUB(70, 130, 180),
+  WColorGammaUB(255, 182, 193),
+  WColorGammaUB(102, 205, 170),
+  WColorGammaUB(100, 149, 237),
 };
 
-void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
+void WQtEventTrackWidget::paintEvent(QPaintEvent* e)
 {
   if (m_bFrameBeforePaint)
     FrameCurve();
@@ -321,7 +321,7 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
 
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+  WWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
 
   RenderVerticalGrid(&painter, viewportSceneRect, fRoughGridDensity);
 
@@ -337,14 +337,14 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
   PaintScrubber(painter);
 }
 
-void ezQtEventTrackWidget::ClampZoomPan()
+void WQtEventTrackWidget::ClampZoomPan()
 {
-  m_fSceneTranslationX = ezMath::Clamp(m_fSceneTranslationX, -2.0, 50000.0);
-  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), 0.0005, 10000.0));
-  m_SceneToPixelScale.setY(ezMath::Clamp(m_SceneToPixelScale.y(), -10000.0, -0.0005));
+  m_fSceneTranslationX = WMath::Clamp(m_fSceneTranslationX, -2.0, 50000.0);
+  m_SceneToPixelScale.setX(WMath::Clamp(m_SceneToPixelScale.x(), 0.0005, 10000.0));
+  m_SceneToPixelScale.setY(WMath::Clamp(m_SceneToPixelScale.y(), -10000.0, -0.0005));
 }
 
-void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
+void WQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 {
   QWidget::mousePressEvent(e);
   m_LastMousePos = e->pos();
@@ -370,17 +370,17 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
         switch (WhereIsPoint(e->pos()))
         {
-          case ezQtEventTrackWidget::SelectArea::None:
+          case WQtEventTrackWidget::SelectArea::None:
             break;
-          case ezQtEventTrackWidget::SelectArea::Center:
+          case WQtEventTrackWidget::SelectArea::Center:
             m_State = EditState::DraggingPoints;
             m_TotalPointDrag = QPointF();
             break;
-          case ezQtEventTrackWidget::SelectArea::Left:
+          case WQtEventTrackWidget::SelectArea::Left:
             m_State = EditState::ScaleLeftRight;
             m_ScaleReferencePoint = m_SelectionBRect.topRight();
             break;
-          case ezQtEventTrackWidget::SelectArea::Right:
+          case WQtEventTrackWidget::SelectArea::Right:
             m_State = EditState::ScaleLeftRight;
             m_ScaleReferencePoint = m_SelectionBRect.topLeft();
             break;
@@ -420,7 +420,7 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
         m_State = EditState::MultiSelect;
       }
 
-      EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
+      W_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
 
       if (m_State == EditState::DraggingPoints)
       {
@@ -447,7 +447,7 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
   }
 }
 
-void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
+void WQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   QWidget::mouseReleaseEvent(e);
 
@@ -486,8 +486,8 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 
     if (!m_MultiSelectRect.isEmpty())
     {
-      ezTempHybridArray<SelectedPoint, 32> newSelection = m_SelectedPoints;
-      ezTempHybridArray<SelectedPoint, 32> change;
+      WTempHybridArray<SelectedPoint, 32> newSelection = m_SelectedPoints;
+      WTempHybridArray<SelectedPoint, 32> change;
       ExecMultiSelection(change);
       m_MultiSelectRect = QRect();
 
@@ -529,7 +529,7 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
   }
 }
 
-void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
+void WQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
 {
   QWidget::mouseMoveEvent(e);
   Qt::CursorShape cursor = Qt::ArrowCursor;
@@ -567,13 +567,13 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
   {
     switch (WhereIsPoint(e->pos()))
     {
-      case ezQtEventTrackWidget::SelectArea::None:
+      case WQtEventTrackWidget::SelectArea::None:
         break;
-      case ezQtEventTrackWidget::SelectArea::Center:
+      case WQtEventTrackWidget::SelectArea::Center:
         // cursor = Qt::SizeAllCursor;
         break;
-      case ezQtEventTrackWidget::SelectArea::Left:
-      case ezQtEventTrackWidget::SelectArea::Right:
+      case WQtEventTrackWidget::SelectArea::Left:
+      case WQtEventTrackWidget::SelectArea::Right:
         cursor = Qt::SizeHorCursor;
         break;
     }
@@ -594,7 +594,7 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
   m_LastMousePos = e->pos();
 }
 
-void ezQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
+void WQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
 {
   QWidget::mouseDoubleClickEvent(e);
 
@@ -621,7 +621,7 @@ void ezQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
   }
 }
 
-void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
+void WQtEventTrackWidget::wheelEvent(QWheelEvent* e)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   const double ptAtX = MapToScene(mapFromGlobal(e->globalPosition().toPoint())).x();
@@ -669,11 +669,11 @@ void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
   update();
 }
 
-void ezQtEventTrackWidget::keyPressEvent(QKeyEvent* e)
+void WQtEventTrackWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
-  if (e->modifiers() == Qt::ControlModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
+  if (e->modifiers() == Qt::ControlModifier && WQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
   {
     FrameCurve();
   }
@@ -694,9 +694,9 @@ void ezQtEventTrackWidget::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQtEventTrackWidget::PaintOutsideAreaOverlay(QPainter* painter) const
+void WQtEventTrackWidget::PaintOutsideAreaOverlay(QPainter* painter) const
 {
-  const int iRightEdge = MapFromScene(QPointF(ezMath::Max(0.0, m_fMaxCurveExtent), 0)).x();
+  const int iRightEdge = MapFromScene(QPointF(WMath::Max(0.0, m_fMaxCurveExtent), 0)).x();
 
   if (iRightEdge >= rect().width())
     return;
@@ -713,17 +713,17 @@ void ezQtEventTrackWidget::PaintOutsideAreaOverlay(QPainter* painter) const
   painter->drawRect(area);
 }
 
-void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
+void WQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 {
   if (m_Categories.IsEmpty())
     return;
 
   painter->save();
 
-  ezTempHybridArray<QLineF, 100> lines;
-  ezTempHybridArray<QRectF, 100> rects;
-  ezTempHybridArray<QLineF, 100> linesSelected;
-  ezTempHybridArray<QRectF, 100> rectsSelected;
+  WTempHybridArray<QLineF, 100> lines;
+  WTempHybridArray<QRectF, 100> rects;
+  WTempHybridArray<QLineF, 100> linesSelected;
+  WTempHybridArray<QRectF, 100> rectsSelected;
 
   const double fRectLeft = rect().left() - 10;
   const double fRectRight = rect().right() + 10;
@@ -732,7 +732,7 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
   const double fLineStepY = fStepY / 3.5;
   double fOffsetY = rect().top() + fStepY * 0.5;
 
-  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
+  for (WUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
   {
     const PointCategory& cat = m_Categories[catIdx];
 
@@ -760,7 +760,7 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 
     if (!rects.IsEmpty())
     {
-      const ezColorGammaUB& col = g_EventColors[catIdx % EZ_ARRAY_SIZE(g_EventColors)];
+      const WColorGammaUB& col = g_EventColors[catIdx % W_ARRAY_SIZE(g_EventColors)];
 
       brush.setColor(qRgb(col.r, col.g, col.b));
       pen.setColor(qRgb(col.r, col.g, col.b));
@@ -801,7 +801,7 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
   painter->restore();
 }
 
-void ezQtEventTrackWidget::PaintMultiSelectionSquare(QPainter* painter) const
+void WQtEventTrackWidget::PaintMultiSelectionSquare(QPainter* painter) const
 {
   if (m_SelectionBRect.isEmpty())
     return;
@@ -836,14 +836,14 @@ void ezQtEventTrackWidget::PaintMultiSelectionSquare(QPainter* painter) const
   painter->restore();
 }
 
-void ezQtEventTrackWidget::PaintScrubber(QPainter& p) const
+void WQtEventTrackWidget::PaintScrubber(QPainter& p) const
 {
   if (!m_bShowScrubber)
     return;
 
   const QRect area = rect();
 
-  const ezInt32 xPos = MapFromScene(QPointF(m_fScrubberPosition, 0)).x();
+  const WInt32 xPos = MapFromScene(QPointF(m_fScrubberPosition, 0)).x();
   if (xPos < 0 || xPos > area.width())
     return;
 
@@ -860,11 +860,11 @@ void ezQtEventTrackWidget::PaintScrubber(QPainter& p) const
   p.restore();
 }
 
-void ezQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity)
+void WQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity)
 {
   double lowX, highX;
-  ezWidgetUtils::ComputeGridExtentsX(viewportSceneRect, fRoughGridDensity, lowX, highX);
-  lowX = ezMath::Max(lowX, 0.0);
+  WWidgetUtils::ComputeGridExtentsX(viewportSceneRect, fRoughGridDensity, lowX, highX);
+  lowX = WMath::Max(lowX, 0.0);
 
   const int iy = rect().bottom();
 
@@ -874,7 +874,7 @@ void ezQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& v
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    ezTempHybridArray<QLine, 100> lines;
+    WTempHybridArray<QLine, 100> lines;
 
     for (double x = lowX; x <= highX; x += fRoughGridDensity)
     {
@@ -888,10 +888,10 @@ void ezQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& v
   }
 }
 
-bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const
+bool WQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const
 {
-  const ezVec2 at((float)pos.x(), (float)pos.y());
-  float fMaxDistSqr = ezMath::Square(fMaxPixelDistance);
+  const WVec2 at((float)pos.x(), (float)pos.y());
+  float fMaxDistSqr = WMath::Square(fMaxPixelDistance);
 
   out_Result.m_uiCategory = 0xFFFFFFFF;
   out_Result.m_uiSortedIdx = 0xFFFFFFFF;
@@ -900,22 +900,22 @@ bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, 
   const double fStepY = fHeight / m_Categories.GetCount();
   double fOffsetY = rect().top() + fStepY * 0.5;
 
-  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
+  for (WUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
   {
     const auto& cat = m_Categories[catIdx];
 
     const double diffY = fOffsetY - pos.y();
 
-    if (ezMath::Abs(diffY) < 20)
+    if (WMath::Abs(diffY) < 20)
     {
       const auto& allPoints = cat.m_SortedPoints;
 
-      for (ezUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
+      for (WUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
       {
         const auto& point = allPoints[ptIdx];
 
         double ptPosX = MapFromScene(QPointF(point.m_fPosX, 0)).x();
-        const ezVec2 fDiff(ptPosX - pos.x(), diffY);
+        const WVec2 fDiff(ptPosX - pos.x(), diffY);
 
         const float fDistSqr = fDiff.GetLengthSquared();
         if (fDistSqr <= fMaxDistSqr)
@@ -933,7 +933,7 @@ bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, 
   return out_Result.m_uiSortedIdx != 0xFFFFFFFF;
 }
 
-ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const QPoint& pos)
+WQtEventTrackWidget::ClickTarget WQtEventTrackWidget::DetectClickTarget(const QPoint& pos)
 {
   SelectedPoint ptSel;
   if (PickCpAt(pos, 15.0f, ptSel))
@@ -945,7 +945,7 @@ ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const 
   return ClickTarget::Nothing;
 }
 
-void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<SelectedPoint>& out_Selection)
+void WQtEventTrackWidget::ExecMultiSelection(WDynamicArray<SelectedPoint>& out_Selection)
 {
   out_Selection.Clear();
 
@@ -953,7 +953,7 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<SelectedPoint>& out
   const double fStepY = fHeight / m_Categories.GetCount();
   double fOffsetY = rect().top() + fStepY * 0.5;
 
-  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
+  for (WUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
   {
     const PointCategory& cat = m_Categories[catIdx];
 
@@ -961,7 +961,7 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<SelectedPoint>& out
 
     const int iY = (int)fOffsetY;
 
-    for (ezUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
+    for (WUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
     {
       const auto& point = allPoints[ptIdx];
 
@@ -980,11 +980,11 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<SelectedPoint>& out
   }
 }
 
-bool ezQtEventTrackWidget::CombineSelection(ezDynamicArray<SelectedPoint>& inout_Selection, const ezArrayPtr<SelectedPoint>& change, bool add)
+bool WQtEventTrackWidget::CombineSelection(WDynamicArray<SelectedPoint>& inout_Selection, const WArrayPtr<SelectedPoint>& change, bool add)
 {
   bool bChange = false;
 
-  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
+  for (WUInt32 i = 0; i < change.GetCount(); ++i)
   {
     const auto& cp = change[i];
 
@@ -1002,23 +1002,23 @@ bool ezQtEventTrackWidget::CombineSelection(ezDynamicArray<SelectedPoint>& inout
   return bChange;
 }
 
-void ezQtEventTrackWidget::ComputeSelectionRect()
+void WQtEventTrackWidget::ComputeSelectionRect()
 {
   m_SelectionBRect = QRectF();
 
   if (m_SelectedPoints.GetCount() < 2)
     return;
 
-  ezBoundingBox bbox;
-  bbox = ezBoundingBox::MakeInvalid();
+  WBoundingBox bbox;
+  bbox = WBoundingBox::MakeInvalid();
 
   // TODO: properly implement the Y value
   // for (const auto& cpSel : m_SelectedPoints)
   //{
   //  const double pos = m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_fPosX;
 
-  //  bbox.ExpandToInclude(ezVec3(pos, cpSel.m_uiCategory - 1, 0));
-  //  bbox.ExpandToInclude(ezVec3(pos, cpSel.m_uiCategory + 1, 0));
+  //  bbox.ExpandToInclude(WVec3(pos, cpSel.m_uiCategory - 1, 0));
+  //  bbox.ExpandToInclude(WVec3(pos, cpSel.m_uiCategory + 1, 0));
   //}
 
   if (bbox.IsValid())
@@ -1028,7 +1028,7 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
   }
 }
 
-ezQtEventTrackWidget::SelectArea ezQtEventTrackWidget::WhereIsPoint(QPoint pos) const
+WQtEventTrackWidget::SelectArea WQtEventTrackWidget::WhereIsPoint(QPoint pos) const
 {
   if (m_SelectionBRect.isEmpty())
     return SelectArea::None;

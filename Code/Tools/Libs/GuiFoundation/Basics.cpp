@@ -3,12 +3,12 @@
 #include <Foundation/Basics.h>
 #include <QWidget>
 
-ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(
+WQtScopedUpdatesDisabled::WQtScopedUpdatesDisabled(
   QWidget* pWidget1, QWidget* pWidget2, QWidget* pWidget3, QWidget* pWidget4, QWidget* pWidget5, QWidget* pWidget6)
 {
   QWidget* pWidgets[] = {pWidget1, pWidget2, pWidget3, pWidget4, pWidget5, pWidget6};
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(pWidgets); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(pWidgets); ++i)
   {
     if (pWidgets[i] != nullptr && pWidgets[i]->updatesEnabled())
     {
@@ -22,9 +22,9 @@ ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(
   }
 }
 
-ezQtScopedUpdatesDisabled::~ezQtScopedUpdatesDisabled()
+WQtScopedUpdatesDisabled::~WQtScopedUpdatesDisabled()
 {
-  for (int i = EZ_ARRAY_SIZE(m_pWidgets) - 1; i >= 0; --i)
+  for (int i = W_ARRAY_SIZE(m_pWidgets) - 1; i >= 0; --i)
   {
     if (m_pWidgets[i] != nullptr)
     {
@@ -33,12 +33,12 @@ ezQtScopedUpdatesDisabled::~ezQtScopedUpdatesDisabled()
   }
 }
 
-ezQtScopedBlockSignals::ezQtScopedBlockSignals(
+WQtScopedBlockSignals::WQtScopedBlockSignals(
   QObject* pObject1, QObject* pObject2, QObject* pObject3, QObject* pObject4, QObject* pObject5, QObject* pObject6)
 {
   QObject* pObjects[] = {pObject1, pObject2, pObject3, pObject4, pObject5, pObject6};
 
-  for (int i = 0; i < EZ_ARRAY_SIZE(pObjects); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(pObjects); ++i)
   {
     if (pObjects[i] != nullptr && !pObjects[i]->signalsBlocked())
     {
@@ -52,9 +52,9 @@ ezQtScopedBlockSignals::ezQtScopedBlockSignals(
   }
 }
 
-ezQtScopedBlockSignals::~ezQtScopedBlockSignals()
+WQtScopedBlockSignals::~WQtScopedBlockSignals()
 {
-  for (int i = EZ_ARRAY_SIZE(m_pObjects) - 1; i >= 0; --i)
+  for (int i = W_ARRAY_SIZE(m_pObjects) - 1; i >= 0; --i)
   {
     if (m_pObjects[i] != nullptr)
     {

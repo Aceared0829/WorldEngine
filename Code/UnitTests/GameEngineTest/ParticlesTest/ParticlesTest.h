@@ -4,25 +4,25 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestApplication_Particles : public ezGameEngineTestApplication
+class WGameEngineTestApplication_Particles : public WGameEngineTestApplication
 {
 public:
-  ezGameEngineTestApplication_Particles();
+  WGameEngineTestApplication_Particles();
 
   void SetupSceneSubTest(const char* szFile);
   void SetupParticleSubTest(const char* szFile);
-  ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
+  WTestAppRun ExecParticleSubTest(WInt32 iCurFrame);
 
-  ezUInt32 m_uiImageCompareThreshold = 110;
+  WUInt32 m_uiImageCompareThreshold = 110;
 };
 
-class ezGameEngineTestParticles : public ezGameEngineTest
+class WGameEngineTestParticles : public WGameEngineTest
 {
-  using SUPER = ezGameEngineTest;
+  using SUPER = WGameEngineTest;
 
 public:
   virtual const char* GetTestName() const override;
-  virtual ezGameEngineTestApplication* CreateApplication() override;
+  virtual WGameEngineTestApplication* CreateApplication() override;
 
 private:
   enum SubTests
@@ -69,10 +69,10 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-  ezUInt32 GetImageCompareThreshold(ezInt32 iIdentifier);
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
+  WUInt32 GetImageCompareThreshold(WInt32 iIdentifier);
 
-  ezInt32 m_iFrame = 0;
-  ezGameEngineTestApplication_Particles* m_pOwnApplication = nullptr;
+  WInt32 m_iFrame = 0;
+  WGameEngineTestApplication_Particles* m_pOwnApplication = nullptr;
 };

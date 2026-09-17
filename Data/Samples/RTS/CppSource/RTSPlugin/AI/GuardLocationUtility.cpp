@@ -3,22 +3,22 @@
 #include <RTSPlugin/AI/GuardLocationUtility.h>
 #include <RTSPlugin/Components/UnitComponent.h>
 
-void RtsGuardLocationAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
+void RtsGuardLocationAiUtility::Activate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) {}
 
-void RtsGuardLocationAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
+void RtsGuardLocationAiUtility::Deactivate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) {}
 
-void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
+void RtsGuardLocationAiUtility::Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
   // shoot at close by enemies
-  ezGameObject* pEnemy = pUnit->AttackClosestEnemey(7.0f, 10.0f);
+  WGameObject* pEnemy = pUnit->AttackClosestEnemey(7.0f, 10.0f);
 
   if (pEnemy)
   {
-    ezVec3 vDiff = pEnemy->GetGlobalPosition() - pOwnerObject->GetGlobalPosition();
+    WVec3 vDiff = pEnemy->GetGlobalPosition() - pOwnerObject->GetGlobalPosition();
 
-    if (vDiff.GetLengthSquared() > ezMath::Square(5.0f))
+    if (vDiff.GetLengthSquared() > WMath::Square(5.0f))
     {
       vDiff.Normalize();
 
@@ -31,7 +31,7 @@ void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent*
   }
 }
 
-double RtsGuardLocationAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const
+double RtsGuardLocationAiUtility::ComputePriority(WGameObject* pOwnerObject, WComponent* pOwnerComponent) const
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 

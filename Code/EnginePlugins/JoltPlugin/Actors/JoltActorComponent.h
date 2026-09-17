@@ -19,54 +19,54 @@ namespace JPH
 /// It is often also called a (rigid) body.
 /// An actor is made out of one or multiple shapes that define its geometry.
 /// Different types of actors differ in how they participate in the simulation.
-class EZ_JOLTPLUGIN_DLL ezJoltActorComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltActorComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WJoltActorComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltActorComponent
+  // WJoltActorComponent
 
 public:
-  ezJoltActorComponent();
-  ~ezJoltActorComponent();
+  WJoltActorComponent();
+  ~WJoltActorComponent();
 
   /// The collision layer determines with which other actors this actor collides.
   ///
-  /// Which collision layers collide with each other is configured through the ezCollisionFilterConfig.
-  /// \see ezJoltCollisionFiltering::GetCollisionFilterConfig()
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  /// Which collision layers collide with each other is configured through the WCollisionFilterConfig.
+  /// \see WJoltCollisionFiltering::GetCollisionFilterConfig()
+  WUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   /// Sets the object filter ID to use. This can only be set right after creation, before the component gets activated.
-  void SetInitialObjectFilterID(ezUInt32 uiObjectFilterID);
+  void SetInitialObjectFilterID(WUInt32 uiObjectFilterID);
 
   /// The object filter ID can be used to ignore collisions specifically with this one object.
-  ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; }
+  WUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; }
 
   /// Returns the internal ID used by Jolt to identify this actor/body.
-  ezUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
+  WUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
 
 protected:
-  const ezJoltUserData* GetUserData() const;
+  const WJoltUserData* GetUserData() const;
 
-  void ExtractSubShapeGeometry(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const;
+  void ExtractSubShapeGeometry(const WGameObject* pObject, WMsgExtractGeometry& msg) const;
 
-  static void GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, ezGameObject* pObject, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial);
-  ezResult CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const ezJoltMaterial* pMaterial);
+  static void GatherShapes(WDynamicArray<WJoltSubShape>& shapes, WGameObject* pObject, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial);
+  WResult CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const WJoltMaterial* pMaterial);
 
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) {}
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) {}
 
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
+  WUInt32 m_uiJoltBodyID = WInvalidIndex;
+  WUInt32 m_uiObjectFilterID = WInvalidIndex;
 };

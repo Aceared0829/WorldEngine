@@ -3,14 +3,14 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
-static ezInt32 s_iDataDirCounter = 0;
-static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticsAllocatorWrapper> s_KnownDataDirs;
+static WInt32 s_iDataDirCounter = 0;
+static WMap<WString, WInt32, WCompareHelper<WString>, WStaticsAllocatorWrapper> s_KnownDataDirs;
 
-static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
+static void FileSystemEventHandler(const WFileSystem::FileEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezFileSystem::FileEventType::AddDataDirectorySucceeded:
+    case WFileSystem::FileEventType::AddDataDirectorySucceeded:
     {
       bool bExisted = false;
       auto it = s_KnownDataDirs.FindOrAdd(e.m_sFileOrDirectory, &bExisted);
@@ -21,24 +21,24 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
         ++s_iDataDirCounter;
       }
 
-      ezStringBuilder sName;
-      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      WStringBuilder sName;
+      sName.SetFormat("IO/DataDirs/Dir{0}", WArgI(it.Value(), 2, true));
 
-      ezStats::SetStat(sName.GetData(), e.m_sFileOrDirectory);
+      WStats::SetStat(sName.GetData(), e.m_sFileOrDirectory);
     }
     break;
 
-    case ezFileSystem::FileEventType::RemoveDataDirectory:
+    case WFileSystem::FileEventType::RemoveDataDirectory:
     {
       auto it = s_KnownDataDirs.Find(e.m_sFileOrDirectory);
 
       if (!it.IsValid())
         break;
 
-      ezStringBuilder sName;
-      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      WStringBuilder sName;
+      sName.SetFormat("IO/DataDirs/Dir{0}", WArgI(it.Value(), 2, true));
 
-      ezStats::RemoveStat(sName.GetData());
+      WStats::RemoveStat(sName.GetData());
     }
     break;
 
@@ -49,10 +49,10 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
 
 void AddFileSystemEventHandler()
 {
-  ezFileSystem::RegisterEventHandler(FileSystemEventHandler);
+  WFileSystem::RegisterEventHandler(FileSystemEventHandler);
 }
 
 void RemoveFileSystemEventHandler()
 {
-  ezFileSystem::UnregisterEventHandler(FileSystemEventHandler);
+  WFileSystem::UnregisterEventHandler(FileSystemEventHandler);
 }

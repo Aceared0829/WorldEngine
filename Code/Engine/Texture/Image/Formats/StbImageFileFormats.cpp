@@ -10,23 +10,23 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezStbImageFileFormats> g_StbImageFormats;
+W_STATICLINK_FORCE static WImageFileFormatRegistrator<WStbImageFileFormats> g_StbImageFormats;
 
 // stb_image callbacks would be better than loading the entire file into memory.
-// However, it turned out that it does not map well to ezStreamReader
+// However, it turned out that it does not map well to WStreamReader
 
 // namespace
 //{
 //  // fill 'data' with 'size' bytes.  return number of bytes actually read
 //  int read(void *user, char *data, int size)
 //  {
-//    ezStreamReader* pStream = static_cast<ezStreamReader*>(user);
+//    WStreamReader* pStream = static_cast<WStreamReader*>(user);
 //    return static_cast<int>(pStream->ReadBytes(data, size));
 //  }
 //  // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
 //  void skip(void *user, int n)
 //  {
-//    ezStreamReader* pStream = static_cast<ezStreamReader*>(user);
+//    WStreamReader* pStream = static_cast<WStreamReader*>(user);
 //    if(n > 0)
 //      pStream->SkipBytes(n);
 //    else
@@ -36,7 +36,7 @@ EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezStbImageFileFormats> g
 //  // returns nonzero if we are at end of file/data
 //  int eof(void *user)
 //  {
-//    ezStreamReader* pStream = static_cast<ezStreamReader*>(user);
+//    WStreamReader* pStream = static_cast<WStreamReader*>(user);
 //    // ?
 //  }
 //}
@@ -46,13 +46,13 @@ namespace
 
   void write_func(void* pContext, void* pData, int iSize)
   {
-    ezStreamWriter* writer = static_cast<ezStreamWriter*>(pContext);
+    WStreamWriter* writer = static_cast<WStreamWriter*>(pContext);
     writer->WriteBytes(pData, iSize).IgnoreResult();
   }
 
-  void* ReadImageData(ezStreamReader& inout_stream, ezDynamicArray<ezUInt8>& ref_fileBuffer, ezImageHeader& ref_imageHeader, bool& ref_bIsHDR)
+  void* ReadImageData(WStreamReader& inout_stream, WDynamicArray<WUInt8>& ref_fileBuffer, WImageHeader& ref_imageHeader, bool& ref_bIsHDR)
   {
-    ezStreamUtils::ReadAllAndAppend(inout_stream, ref_fileBuffer);
+    WStreamUtils::ReadAllAndAppend(inout_stream, ref_fileBuffer);
 
     int width, height, numComp;
 
@@ -69,25 +69,25 @@ namespace
     }
     if (!sourceImageData)
     {
-      ezLog::Error("stb_image failed to load: {0}", stbi_failure_reason());
+      WLog::Error("stb_image failed to load: {0}", stbi_failure_reason());
       return nullptr;
     }
     ref_fileBuffer.Clear();
 
-    ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
+    WImageFormat::Enum format = WImageFormat::UNKNOWN;
     switch (numComp)
     {
       case 1:
-        format = (ref_bIsHDR) ? ezImageFormat::R32_FLOAT : ezImageFormat::R8_UNORM;
+        format = (ref_bIsHDR) ? WImageFormat::R32_FLOAT : WImageFormat::R8_UNORM;
         break;
       case 2:
-        format = (ref_bIsHDR) ? ezImageFormat::R32G32_FLOAT : ezImageFormat::R8G8_UNORM;
+        format = (ref_bIsHDR) ? WImageFormat::R32G32_FLOAT : WImageFormat::R8G8_UNORM;
         break;
       case 3:
-        format = (ref_bIsHDR) ? ezImageFormat::R32G32B32_FLOAT : ezImageFormat::R8G8B8_UNORM;
+        format = (ref_bIsHDR) ? WImageFormat::R32G32B32_FLOAT : WImageFormat::R8G8B8_UNORM;
         break;
       case 4:
-        format = (ref_bIsHDR) ? ezImageFormat::R32G32B32A32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
+        format = (ref_bIsHDR) ? WImageFormat::R32G32B32A32_FLOAT : WImageFormat::R8G8B8A8_UNORM;
         break;
     }
 
@@ -106,48 +106,48 @@ namespace
 
 } // namespace
 
-ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
+WResult WStbImageFileFormats::ReadImageHeader(WStreamReader& inout_stream, WImageHeader& ref_header, WStringView sFileExtension) const
 {
-  EZ_IGNORE_UNUSED(sFileExtension);
+  W_IGNORE_UNUSED(sFileExtension);
 
-  EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImageHeader");
+  W_PROFILE_SCOPE("WStbImageFileFormats::ReadImageHeader");
 
   bool isHDR = false;
-  ezDynamicArray<ezUInt8> fileBuffer;
+  WDynamicArray<WUInt8> fileBuffer;
   void* sourceImageData = ReadImageData(inout_stream, fileBuffer, ref_header, isHDR);
 
   if (sourceImageData == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   stbi_image_free(sourceImageData);
 
   // Expand grayscale to RGB so that imported textures don't turn red. See end of ReadImage below.
-  if (ref_header.GetImageFormat() == ezImageFormat::R8_UNORM)
-    ref_header.SetImageFormat(ezImageFormat::R8G8B8_UNORM);
+  if (ref_header.GetImageFormat() == WImageFormat::R8_UNORM)
+    ref_header.SetImageFormat(WImageFormat::R8G8B8_UNORM);
   // Expand grayscale+alpha to RGBA so that imported textures don't turn yellow. See end of ReadImage below.
-  if (ref_header.GetImageFormat() == ezImageFormat::R8G8_UNORM)
-    ref_header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  if (ref_header.GetImageFormat() == WImageFormat::R8G8_UNORM)
+    ref_header.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
+WResult WStbImageFileFormats::ReadImage(WStreamReader& inout_stream, WImage& ref_image, WStringView sFileExtension) const
 {
-  EZ_IGNORE_UNUSED(sFileExtension);
+  W_IGNORE_UNUSED(sFileExtension);
 
-  EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImage");
+  W_PROFILE_SCOPE("WStbImageFileFormats::ReadImage");
 
   bool isHDR = false;
-  ezDynamicArray<ezUInt8> fileBuffer;
-  ezImageHeader imageHeader;
+  WDynamicArray<WUInt8> fileBuffer;
+  WImageHeader imageHeader;
   void* sourceImageData = ReadImageData(inout_stream, fileBuffer, imageHeader, isHDR);
 
   if (sourceImageData == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   ref_image.ResetAndAlloc(imageHeader);
 
-  const size_t numComp = ezImageFormat::GetNumChannels(imageHeader.GetImageFormat());
+  const size_t numComp = WImageFormat::GetNumChannels(imageHeader.GetImageFormat());
 
   const size_t elementsToCopy = static_cast<size_t>(imageHeader.GetWidth()) * static_cast<size_t>(imageHeader.GetHeight()) * numComp;
 
@@ -155,57 +155,57 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage&
   if (isHDR)
   {
     float* targetImageData = ref_image.GetBlobPtr<float>().GetPtr();
-    ezMemoryUtils::Copy(targetImageData, (const float*)sourceImageData, elementsToCopy);
+    WMemoryUtils::Copy(targetImageData, (const float*)sourceImageData, elementsToCopy);
   }
   else
   {
-    ezUInt8* targetImageData = ref_image.GetBlobPtr<ezUInt8>().GetPtr();
-    ezMemoryUtils::Copy(targetImageData, (const ezUInt8*)sourceImageData, elementsToCopy);
+    WUInt8* targetImageData = ref_image.GetBlobPtr<WUInt8>().GetPtr();
+    WMemoryUtils::Copy(targetImageData, (const WUInt8*)sourceImageData, elementsToCopy);
   }
 
   stbi_image_free((void*)sourceImageData);
 
   // Expand grayscale to RGB so that imported textures don't turn red.
-  if (ref_image.GetImageFormat() == ezImageFormat::R8_UNORM)
+  if (ref_image.GetImageFormat() == WImageFormat::R8_UNORM)
   {
-    ref_image.Convert(ezImageFormat::R8G8B8_UNORM).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
+    ref_image.Convert(WImageFormat::R8G8B8_UNORM).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
   }
   // Expand grayscale+alpha to RGBA so that imported textures don't turn yellow.
-  if (ref_image.GetImageFormat() == ezImageFormat::R8G8_UNORM)
+  if (ref_image.GetImageFormat() == WImageFormat::R8G8_UNORM)
   {
-    ref_image.Convert(ezImageFormat::R8G8B8A8_UNORM).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 3, ref_image, 1).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
-    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
+    ref_image.Convert(WImageFormat::R8G8B8A8_UNORM).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 3, ref_image, 1).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    WImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
+WResult WStbImageFileFormats::WriteImage(WStreamWriter& inout_stream, const WImageView& image, WStringView sFileExtension) const
 {
-  ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
+  WImageFormat::Enum compatibleFormats[] = {WImageFormat::R8_UNORM, WImageFormat::R8G8B8_UNORM, WImageFormat::R8G8B8A8_UNORM};
 
   // Find a compatible format closest to the one the image currently has
-  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  WImageFormat::Enum format = WImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
-  if (format == ezImageFormat::UNKNOWN)
+  if (format == WImageFormat::UNKNOWN)
   {
-    ezLog::Error("No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
-    return EZ_FAILURE;
+    WLog::Error("No conversion from format '{0}' to a format suitable for PNG files known.", WImageFormat::GetName(image.GetImageFormat()));
+    return W_FAILURE;
   }
 
   // Convert if not already in a compatible format
   if (format != image.GetImageFormat())
   {
-    ezImage convertedImage;
-    if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    WImage convertedImage;
+    if (WImageConversion::Convert(image, convertedImage, format) != W_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
-      return EZ_FAILURE;
+      W_ASSERT_DEV(false, "WImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      return W_FAILURE;
     }
 
     return WriteImage(inout_stream, convertedImage, sFileExtension);
@@ -213,31 +213,31 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const e
 
   if (sFileExtension.IsEqual_NoCase("png"))
   {
-    if (stbi_write_png_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 0))
+    if (stbi_write_png_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), WImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 0))
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
   if (sFileExtension.IsEqual_NoCase("jpg") || sFileExtension.IsEqual_NoCase("jpeg"))
   {
-    if (stbi_write_jpg_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 95))
+    if (stbi_write_jpg_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), WImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 95))
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-bool ezStbImageFileFormats::CanReadFileType(ezStringView sExtension) const
+bool WStbImageFileFormats::CanReadFileType(WStringView sExtension) const
 {
   if (sExtension.IsEqual_NoCase("hdr"))
     return true;
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_DISABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
-  // on Windows Desktop, we prefer to use WIC (ezWicFileFormat)
+  // on Windows Desktop, we prefer to use WIC (WWicFileFormat)
   if (sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg"))
   {
     return true;
@@ -247,7 +247,7 @@ bool ezStbImageFileFormats::CanReadFileType(ezStringView sExtension) const
   return false;
 }
 
-bool ezStbImageFileFormats::CanWriteFileType(ezStringView sExtension) const
+bool WStbImageFileFormats::CanWriteFileType(WStringView sExtension) const
 {
   // even when WIC is available, prefer to write these files through STB, to get consistent output
   if (sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg"))
@@ -260,4 +260,4 @@ bool ezStbImageFileFormats::CanWriteFileType(ezStringView sExtension) const
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_StbImageFileFormats);
+W_STATICLINK_FILE(Texture, Texture_Image_Formats_StbImageFileFormats);

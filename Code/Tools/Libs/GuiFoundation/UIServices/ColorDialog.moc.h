@@ -7,17 +7,17 @@
 #include <GuiFoundation/ui_ColorDialog.h>
 
 class QLineEdit;
-class ezQtDoubleSpinBox;
+class WQtDoubleSpinBox;
 class QPushButton;
 class QSlider;
 
 
-class EZ_GUIFOUNDATION_DLL ezQtColorDialog : public ezQtDialog, Ui_ColorDialog
+class W_GUIFOUNDATION_DLL WQtColorDialog : public WQtDialog, Ui_ColorDialog
 {
   Q_OBJECT
 public:
-  ezQtColorDialog(const ezColor& initial, QWidget* pParent);
-  ~ezQtColorDialog();
+  WQtColorDialog(const WColor& initial, QWidget* pParent);
+  ~WQtColorDialog();
 
   void ShowAlpha(bool bEnable);
   void ShowHDR(bool bEnable);
@@ -25,8 +25,8 @@ public:
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
 
 Q_SIGNALS:
-  void CurrentColorChanged(const ezColor& color);
-  void ColorSelected(const ezColor& color);
+  void CurrentColorChanged(const WColor& color);
+  void ColorSelected(const WColor& color);
 
 private Q_SLOTS:
   void ChangedRGB();
@@ -45,17 +45,17 @@ private:
   float m_fSaturation;
   float m_fValue;
 
-  ezUInt16 m_uiHue;
-  ezUInt8 m_uiSaturation;
+  WUInt16 m_uiHue;
+  WUInt8 m_uiSaturation;
 
-  ezUInt8 m_uiGammaRed;
-  ezUInt8 m_uiGammaGreen;
-  ezUInt8 m_uiGammaBlue;
+  WUInt8 m_uiGammaRed;
+  WUInt8 m_uiGammaGreen;
+  WUInt8 m_uiGammaBlue;
 
-  ezUInt8 m_uiAlpha;
+  WUInt8 m_uiAlpha;
   float m_fExposureValue;
 
-  ezColor m_CurrentColor;
+  WColor m_CurrentColor;
 
   static QByteArray s_LastDialogGeometry;
 
@@ -67,7 +67,7 @@ private:
   void ExtractColorRGB();
   void ExtractColorHSV();
 
-  void ComputeRgbAndHsv(const ezColor& color);
+  void ComputeRgbAndHsv(const WColor& color);
   void RecomputeRGB();
   void RecomputeHSV();
 };

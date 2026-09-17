@@ -8,15 +8,15 @@
 #include <Inspector/ui_DataTransferWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtDataWidget : public ads::CDockWidget, public Ui_DataTransferWidget
+class WQtDataWidget : public ads::CDockWidget, public Ui_DataTransferWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtDataWidget* s_pWidget;
+  static WQtDataWidget* s_pWidget;
 
 private Q_SLOTS:
   virtual void on_ButtonRefresh_clicked();
@@ -33,21 +33,21 @@ public:
 private:
   struct TransferDataObject
   {
-    ezString m_sMimeType;
-    ezString m_sExtension;
-    ezContiguousMemoryStreamStorage m_Storage;
-    ezString m_sFileName;
+    WString m_sMimeType;
+    WString m_sExtension;
+    WContiguousMemoryStreamStorage m_Storage;
+    WString m_sFileName;
   };
 
   struct TransferData
   {
-    ezMap<ezString, TransferDataObject> m_Items;
+    WMap<WString, TransferDataObject> m_Items;
   };
 
-  bool SaveToFile(TransferDataObject& item, ezStringView sFile);
+  bool SaveToFile(TransferDataObject& item, WStringView sFile);
 
   TransferDataObject* GetCurrentItem();
   TransferData* GetCurrentTransfer();
 
-  ezMap<ezString, TransferData> m_Transfers;
+  WMap<WString, TransferData> m_Transfers;
 };

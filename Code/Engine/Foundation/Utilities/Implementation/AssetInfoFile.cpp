@@ -10,15 +10,15 @@
 #include <Foundation/Utilities/AssetInfoFile.h>
 
 // Version of the file layout, not of the values inside it.
-static constexpr ezUInt16 s_uiAssetInfoFileVersion = 1;
+static constexpr WUInt16 s_uiAssetInfoFileVersion = 1;
 
-static constexpr ezStringView s_sRootObject = "AssetInfo"_ezsv;
-static constexpr ezStringView s_sValuesObject = "Values"_ezsv;
-static constexpr ezStringView s_sVersion = "Version"_ezsv;
-static constexpr ezStringView s_sAssetHash = "AssetHash"_ezsv;
-static constexpr ezStringView s_sTypeVersion = "TypeVersion"_ezsv;
+static constexpr WStringView s_sRootObject = "AssetInfo"_wsv;
+static constexpr WStringView s_sValuesObject = "Values"_wsv;
+static constexpr WStringView s_sVersion = "Version"_wsv;
+static constexpr WStringView s_sAssetHash = "AssetHash"_wsv;
+static constexpr WStringView s_sTypeVersion = "TypeVersion"_wsv;
 
-void ezAssetInfoFile::SetValue(ezStringView sKey, const ezVariant& value)
+void WAssetInfoFile::SetValue(WStringView sKey, const WVariant& value)
 {
   if (!value.IsValid())
   {
@@ -29,156 +29,156 @@ void ezAssetInfoFile::SetValue(ezStringView sKey, const ezVariant& value)
   m_Values[sKey] = value;
 }
 
-ezVariant ezAssetInfoFile::GetValue(ezStringView sKey) const
+WVariant WAssetInfoFile::GetValue(WStringView sKey) const
 {
   auto it = m_Values.Find(sKey);
 
   if (!it.IsValid())
-    return ezVariant();
+    return WVariant();
 
   return it.Value();
 }
 
-ezResult ezAssetInfoFile::Write(ezStreamWriter& inout_stream, const ezAssetFileHeader& header) const
+WResult WAssetInfoFile::Write(WStreamWriter& inout_stream, const WAssetFileHeader& header) const
 {
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&inout_stream);
 
-  ddl.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
+  ddl.SetFloatPrecisionMode(WOpenDdlWriter::FloatPrecisionMode::Readable);
 
   ddl.BeginObject(s_sRootObject);
   {
-    ezOpenDdlUtils::StoreUInt16(ddl, s_uiAssetInfoFileVersion, s_sVersion);
+    WOpenDdlUtils::StoreUInt16(ddl, s_uiAssetInfoFileVersion, s_sVersion);
 
-    // Stored here rather than in a binary ezAssetFileHeader, so that the entire file stays readable text.
-    ezOpenDdlUtils::StoreUInt64(ddl, header.GetFileHash(), s_sAssetHash);
-    ezOpenDdlUtils::StoreUInt16(ddl, header.GetFileVersion(), s_sTypeVersion);
+    // Stored here rather than in a binary WAssetFileHeader, so that the entire file stays readable text.
+    WOpenDdlUtils::StoreUInt64(ddl, header.GetFileHash(), s_sAssetHash);
+    WOpenDdlUtils::StoreUInt16(ddl, header.GetFileVersion(), s_sTypeVersion);
 
     ddl.BeginObject(s_sValuesObject);
     {
       for (auto it = m_Values.GetIterator(); it.IsValid(); ++it)
       {
-        ezOpenDdlUtils::StoreVariant(ddl, it.Value(), it.Key());
+        WOpenDdlUtils::StoreVariant(ddl, it.Value(), it.Key());
       }
     }
     ddl.EndObject();
   }
   ddl.EndObject();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezAssetInfoFile::Read(ezStreamReader& inout_stream, ezAssetFileHeader& out_header)
+WResult WAssetInfoFile::Read(WStreamReader& inout_stream, WAssetFileHeader& out_header)
 {
   m_Values.Clear();
 
-  ezOpenDdlReader ddl;
+  WOpenDdlReader ddl;
   if (ddl.ParseDocument(inout_stream).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezOpenDdlReaderElement* pRoot = ddl.GetRootElement()->FindChildOfType(s_sRootObject);
+  const WOpenDdlReaderElement* pRoot = ddl.GetRootElement()->FindChildOfType(s_sRootObject);
 
   if (pRoot == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezOpenDdlReaderElement* pVersion = pRoot->FindChildOfType(ezOpenDdlPrimitiveType::UInt16, s_sVersion);
+  const WOpenDdlReaderElement* pVersion = pRoot->FindChildOfType(WOpenDdlPrimitiveType::UInt16, s_sVersion);
 
   // A newer version may be structured differently, so it is not read at all.
   if (pVersion == nullptr || *pVersion->GetPrimitivesUInt16() > s_uiAssetInfoFileVersion)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezOpenDdlReaderElement* pHash = pRoot->FindChildOfType(ezOpenDdlPrimitiveType::UInt64, s_sAssetHash);
-  const ezOpenDdlReaderElement* pTypeVersion = pRoot->FindChildOfType(ezOpenDdlPrimitiveType::UInt16, s_sTypeVersion);
+  const WOpenDdlReaderElement* pHash = pRoot->FindChildOfType(WOpenDdlPrimitiveType::UInt64, s_sAssetHash);
+  const WOpenDdlReaderElement* pTypeVersion = pRoot->FindChildOfType(WOpenDdlPrimitiveType::UInt16, s_sTypeVersion);
 
   if (pHash == nullptr || pTypeVersion == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_header.SetFileHashAndVersion(*pHash->GetPrimitivesUInt64(), *pTypeVersion->GetPrimitivesUInt16());
 
-  if (const ezOpenDdlReaderElement* pValues = pRoot->FindChildOfType(s_sValuesObject))
+  if (const WOpenDdlReaderElement* pValues = pRoot->FindChildOfType(s_sValuesObject))
   {
-    for (const ezOpenDdlReaderElement* pChild = pValues->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+    for (const WOpenDdlReaderElement* pChild = pValues->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
     {
       if (pChild->GetName().IsEmpty())
         continue;
 
-      ezVariant value;
+      WVariant value;
 
       // Skip a value of a type this build cannot represent, the remaining ones are still useful.
-      if (ezOpenDdlUtils::ConvertToVariant(pChild, value).Failed())
+      if (WOpenDdlUtils::ConvertToVariant(pChild, value).Failed())
         continue;
 
       m_Values[pChild->GetName()] = value;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezAssetInfoFile::WriteToFile(ezStringView sAbsolutePath, const ezAssetFileHeader& header) const
+WResult WAssetInfoFile::WriteToFile(WStringView sAbsolutePath, const WAssetFileHeader& header) const
 {
   // Remove a file from an earlier transform, it would be mistaken for current information.
   if (m_Values.IsEmpty())
   {
-    ezOSFile::DeleteFile(sAbsolutePath).IgnoreResult();
-    return EZ_SUCCESS;
+    WOSFile::DeleteFile(sAbsolutePath).IgnoreResult();
+    return W_SUCCESS;
   }
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sAbsolutePath);
 
   if (Write(file, header).Failed())
   {
     file.Discard();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   return file.Close();
 }
 
-ezResult ezAssetInfoFile::ReadFromFile(ezStringView sAbsolutePath, ezUInt64 uiExpectedHash, ezUInt16 uiExpectedTypeVersion)
+WResult WAssetInfoFile::ReadFromFile(WStringView sAbsolutePath, WUInt64 uiExpectedHash, WUInt16 uiExpectedTypeVersion)
 {
   m_Values.Clear();
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sAbsolutePath).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezAssetFileHeader header;
-  EZ_SUCCEED_OR_RETURN(Read(file, header));
+  WAssetFileHeader header;
+  W_SUCCEED_OR_RETURN(Read(file, header));
 
   if (!header.IsFileUpToDate(uiExpectedHash, uiExpectedTypeVersion))
   {
     m_Values.Clear();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStringBuilder ezAssetInfoFile::GetInfoFilePathForOutput(ezStringView sAbsoluteOutputPath)
+WStringBuilder WAssetInfoFile::GetInfoFilePathForOutput(WStringView sAbsoluteOutputPath)
 {
-  ezStringBuilder sPath = sAbsoluteOutputPath;
-  sPath.Append(".ezAssetInfo");
+  WStringBuilder sPath = sAbsoluteOutputPath;
+  sPath.Append(".WAssetInfo");
   return sPath;
 }
 
 // Keys that are only ever shown as part of a combined line, and must not also be listed on their own.
-static bool IsPartOfCombinedLine(ezStringView sKey)
+static bool IsPartOfCombinedLine(WStringView sKey)
 {
-  return sKey == ezAssetInfoFile::Keys::ImageHeight;
+  return sKey == WAssetInfoFile::Keys::ImageHeight;
 }
 
-bool ezAssetInfoFile::AppendValueToDisplayString(ezStringBuilder& ref_sOut, ezStringView sKey, ezStringView sLinePrefix) const
+bool WAssetInfoFile::AppendValueToDisplayString(WStringBuilder& ref_sOut, WStringView sKey, WStringView sLinePrefix) const
 {
-  const ezVariant value = GetValue(sKey);
+  const WVariant value = GetValue(sKey);
 
   if (!value.IsValid() || IsPartOfCombinedLine(sKey))
     return false;
 
   if (sKey == Keys::ImageWidth)
   {
-    const ezVariant height = GetValue(Keys::ImageHeight);
+    const WVariant height = GetValue(Keys::ImageHeight);
 
     if (!height.IsValid())
       return false;
@@ -190,36 +190,36 @@ bool ezAssetInfoFile::AppendValueToDisplayString(ezStringBuilder& ref_sOut, ezSt
   // The size is more useful than the half extents that it is stored as.
   if (sKey == Keys::BoundsHalfExtents)
   {
-    if (!value.IsA<ezVec3>())
+    if (!value.IsA<WVec3>())
       return false;
 
-    const ezVec3 vHalf = value.Get<ezVec3>();
-    ref_sOut.AppendFormat("{}Size: {} x {} x {}", sLinePrefix, ezArgF(vHalf.x * 2, 3), ezArgF(vHalf.y * 2, 3), ezArgF(vHalf.z * 2, 3));
+    const WVec3 vHalf = value.Get<WVec3>();
+    ref_sOut.AppendFormat("{}Size: {} x {} x {}", sLinePrefix, WArgF(vHalf.x * 2, 3), WArgF(vHalf.y * 2, 3), WArgF(vHalf.z * 2, 3));
     return true;
   }
 
   // The center is shown as the range it produces, which reveals whether the origin sits inside the object or at its base.
   if (sKey == Keys::BoundsCenter)
   {
-    const ezVariant halfExtents = GetValue(Keys::BoundsHalfExtents);
+    const WVariant halfExtents = GetValue(Keys::BoundsHalfExtents);
 
-    if (!value.IsA<ezVec3>() || !halfExtents.IsValid() || !halfExtents.IsA<ezVec3>())
+    if (!value.IsA<WVec3>() || !halfExtents.IsValid() || !halfExtents.IsA<WVec3>())
       return false;
 
-    const ezVec3 vCenter = value.Get<ezVec3>();
-    const ezVec3 vHalf = halfExtents.Get<ezVec3>();
+    const WVec3 vCenter = value.Get<WVec3>();
+    const WVec3 vHalf = halfExtents.Get<WVec3>();
     ref_sOut.AppendFormat("{}Bounds: {} {} {} to {} {} {}", sLinePrefix,
-      ezArgF(vCenter.x - vHalf.x, 3), ezArgF(vCenter.y - vHalf.y, 3), ezArgF(vCenter.z - vHalf.z, 3),
-      ezArgF(vCenter.x + vHalf.x, 3), ezArgF(vCenter.y + vHalf.y, 3), ezArgF(vCenter.z + vHalf.z, 3));
+      WArgF(vCenter.x - vHalf.x, 3), WArgF(vCenter.y - vHalf.y, 3), WArgF(vCenter.z - vHalf.z, 3),
+      WArgF(vCenter.x + vHalf.x, 3), WArgF(vCenter.y + vHalf.y, 3), WArgF(vCenter.z + vHalf.z, 3));
     return true;
   }
 
-  const ezStringView sLabel = ezTranslate(sKey);
+  const WStringView sLabel = WTranslate(sKey);
 
   // Recorded lists are long enough to swamp everything else, so only the element count is shown.
-  if (value.IsA<ezVariantArray>())
+  if (value.IsA<WVariantArray>())
   {
-    ref_sOut.AppendFormat("{}{}: {}", sLinePrefix, sLabel, value.Get<ezVariantArray>().GetCount());
+    ref_sOut.AppendFormat("{}{}: {}", sLinePrefix, sLabel, value.Get<WVariantArray>().GetCount());
     return true;
   }
 
@@ -227,7 +227,7 @@ bool ezAssetInfoFile::AppendValueToDisplayString(ezStringBuilder& ref_sOut, ezSt
   return true;
 }
 
-void ezAssetInfoFile::AppendToDisplayString(ezStringBuilder& ref_sOut, ezStringView sLinePrefix) const
+void WAssetInfoFile::AppendToDisplayString(WStringBuilder& ref_sOut, WStringView sLinePrefix) const
 {
   for (auto it = m_Values.GetIterator(); it.IsValid(); ++it)
   {
@@ -235,9 +235,9 @@ void ezAssetInfoFile::AppendToDisplayString(ezStringBuilder& ref_sOut, ezStringV
   }
 }
 
-void ezAssetInfoFile::AppendValuesToDisplayString(ezStringBuilder& ref_sOut, ezArrayPtr<const ezStringView> keys, ezStringView sLinePrefix) const
+void WAssetInfoFile::AppendValuesToDisplayString(WStringBuilder& ref_sOut, WArrayPtr<const WStringView> keys, WStringView sLinePrefix) const
 {
-  for (ezStringView sKey : keys)
+  for (WStringView sKey : keys)
   {
     AppendValueToDisplayString(ref_sOut, sKey, sLinePrefix);
   }

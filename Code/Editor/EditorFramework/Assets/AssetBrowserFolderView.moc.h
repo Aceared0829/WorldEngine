@@ -9,30 +9,30 @@
 #include <QTreeWidget>
 #include <QValidator>
 
-class ezQtAssetBrowserFilter;
+class WQtAssetBrowserFilter;
 
 /// Basic file name validator. Makes sure that under a given parent folder, the new file name is valid and not already in use by a different file.
-class ezFileNameValidator : public QValidator
+class WFileNameValidator : public QValidator
 {
 public:
   /// Constructor. Validator requires the current location and name of the file.
   /// \param sParentFolder Absolute path to the location of the file.
   /// \param sCurrentName Current filename. If set, this name is marked as valid, even though it is already in use.
-  ezFileNameValidator(QObject* pParent, ezStringView sParentFolder, ezStringView sCurrentName);
+  WFileNameValidator(QObject* pParent, WStringView sParentFolder, WStringView sCurrentName);
   virtual QValidator::State validate(QString& ref_sInput, int& ref_iPos) const override;
 
 private:
-  ezString m_sParentFolder;
-  ezString m_sCurrentName;
+  WString m_sParentFolder;
+  WString m_sCurrentName;
 };
 
 /// Custom delegate for the eqQtAssetBrowserFolderView to enable renaming folders. Does not do any model modifications. Instead, it fires editingFinished when the delegate editor closes.
-class ezFolderNameDelegate : public QItemDelegate
+class WFolderNameDelegate : public QItemDelegate
 {
   Q_OBJECT
 
 public:
-  ezFolderNameDelegate(QObject* pParent = nullptr);
+  WFolderNameDelegate(QObject* pParent = nullptr);
 
   virtual QWidget* createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
   virtual void setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const override;
@@ -43,8 +43,8 @@ signals:
 
 /// Folder tree of the asset browser to allow filtering by folder.
 ///
-/// This class keeps up to date with the folder structure in ezFileSystemModel. Events from ezFileSystemModel are cached ans flushed via OnFlushFileSystemEvents.
-/// Folder movement, creation and deletion is supported and handled by this class. The context menu is implemented in ezQtAssetBrowserWidget as it requires a global context of the asset browser instance.
+/// This class keeps up to date with the folder structure in WFileSystemModel. Events from WFileSystemModel are cached ans flushed via OnFlushFileSystemEvents.
+/// Folder movement, creation and deletion is supported and handled by this class. The context menu is implemented in WQtAssetBrowserWidget as it requires a global context of the asset browser instance.
 class eqQtAssetBrowserFolderView : public QTreeWidget
 {
   Q_OBJECT
@@ -52,8 +52,8 @@ public:
   eqQtAssetBrowserFolderView(QWidget* pParent);
   ~eqQtAssetBrowserFolderView();
 
-  /// Required to be set right after the ctor. This class will call ezQtAssetBrowserFilter::SetPathFilter whenever the current selected item changes.
-  void SetFilter(ezQtAssetBrowserFilter* pFilter);
+  /// Required to be set right after the ctor. This class will call WQtAssetBrowserFilter::SetPathFilter whenever the current selected item changes.
+  void SetFilter(WQtAssetBrowserFilter* pFilter);
   /// In dialog mode, any modifications (folder movement, creation and deletion) are disabled.
   void SetDialogMode(bool bDialogMode);
 
@@ -80,7 +80,7 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent* e) override;
   virtual void dropEvent(QDropEvent* event) override;
   virtual Qt::DropActions supportedDropActions() const override;
-  ezStatus canDrop(QDropEvent* e, ezDynamicArray<ezString>& out_files, ezString& out_sTargetFolder);
+  WStatus canDrop(QDropEvent* e, WDynamicArray<WString>& out_files, WString& out_sTargetFolder);
   virtual QStringList mimeTypes() const override;
   virtual QMimeData* mimeData(const QList<QTreeWidgetItem*>& items) const override;
   virtual void keyPressEvent(QKeyEvent* e) override;
@@ -89,30 +89,30 @@ private:
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
   void UpdateDirectoryTree();
   void ClearDirectoryTree();
-  void BuildDirectoryTree(const ezDataDirPath& path, ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem, bool bIsHidden);
-  void RemoveDirectoryTreeItem(ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem);
-  QTreeWidgetItem* FindDirectoryTreeItem(ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem);
-  void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void BuildDirectoryTree(const WDataDirPath& path, WStringView sCurPath, QTreeWidgetItem* pParent, WStringView sCurPathToItem, bool bIsHidden);
+  void RemoveDirectoryTreeItem(WStringView sCurPath, QTreeWidgetItem* pParent, WStringView sCurPathToItem);
+  QTreeWidgetItem* FindDirectoryTreeItem(WStringView sCurPath, QTreeWidgetItem* pParent, WStringView sCurPathToItem);
+  void ProjectEventHandler(const WToolsProjectEvent& e);
 
 private:
-  // Shared object as the event handler can be called after this object is destroyed due to the use of ezCopyOnBroadcastEvent in ezFileSystemModel.
+  // Shared object as the event handler can be called after this object is destroyed due to the use of WCopyOnBroadcastEvent in WFileSystemModel.
   // This is the only way to prevent race conditions and allow safe add/remove calls to multithreaded event broadcasters.
-  class QueuedFolderEvents : public ezRefCounted
+  class QueuedFolderEvents : public WRefCounted
   {
   public:
-    void FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e);
+    void FileSystemModelFolderEventHandler(const WFolderChangedEvent& e);
 
-    ezMutex m_FolderStructureMutex;
+    WMutex m_FolderStructureMutex;
     eqQtAssetBrowserFolderView* m_pParent = nullptr;
-    ezHybridArray<ezFolderChangedEvent, 2> m_Events;
+    WHybridArray<WFolderChangedEvent, 2> m_Events;
   };
 
   bool m_bDialogMode = false;
-  ezUInt32 m_uiKnownAssetFolderCount = 0;
+  WUInt32 m_uiKnownAssetFolderCount = 0;
   bool m_bTreeSelectionChangeInProgress = false;
 
-  ezQtAssetBrowserFilter* m_pFilter = nullptr;
-  ezSharedPtr<QueuedFolderEvents> m_pFolderEvents;
+  WQtAssetBrowserFilter* m_pFilter = nullptr;
+  WSharedPtr<QueuedFolderEvents> m_pFolderEvents;
 
-  ezEventSubscriptionID m_FolderChangedSubscription = 0;
+  WEventSubscriptionID m_FolderChangedSubscription = 0;
 };

@@ -6,71 +6,71 @@
 #include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 
-ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Description)
-  : ezGALShader(Description)
+WGALShaderVulkan::WGALShaderVulkan(const WGALShaderCreationDescription& Description)
+  : WGALShader(Description)
 {
 }
 
-ezGALShaderVulkan::~ezGALShaderVulkan() = default;
+WGALShaderVulkan::~WGALShaderVulkan() = default;
 
-void ezGALShaderVulkan::SetDebugName(ezStringView sName) const
+void WGALShaderVulkan::SetDebugName(WStringView sName) const
 {
-  ezStringBuilder tmp;
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  WStringBuilder tmp;
+  for (WUInt32 i = 0; i < WGALShaderStage::ENUM_COUNT; i++)
   {
-    static_cast<ezGALDeviceVulkan*>(m_pDevice)->SetDebugName(sName.GetData(tmp), m_Shaders[i]);
+    static_cast<WGALDeviceVulkan*>(m_pDevice)->SetDebugName(sName.GetData(tmp), m_Shaders[i]);
   }
 }
 
-ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALShaderVulkan::InitPlatform(WGALDevice* pDevice)
 {
   m_pDevice = pDevice;
-  EZ_SUCCEED_OR_RETURN(CreateBindingMapping(false));
-  EZ_SUCCEED_OR_RETURN(CreateLayouts(pDevice, true));
+  W_SUCCEED_OR_RETURN(CreateBindingMapping(false));
+  W_SUCCEED_OR_RETURN(CreateLayouts(pDevice, true));
 
-  auto pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  auto pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
   // Build shaders
   vk::ShaderModuleCreateInfo createInfo;
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  for (WUInt32 i = 0; i < WGALShaderStage::ENUM_COUNT; i++)
   {
-    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
+    if (m_Description.HasByteCodeForStage((WGALShaderStage::Enum)i))
     {
       createInfo.codeSize = m_Description.m_ByteCodes[i]->m_ByteCode.GetCount();
-      EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
-      createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[i]->m_ByteCode.GetData());
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pDeviceVulkan->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
+      W_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
+      createInfo.pCode = reinterpret_cast<const WUInt32*>(m_Description.m_ByteCodes[i]->m_ByteCode.GetData());
+      VK_SUCCEED_OR_RETURN_W_FAILURE(pDeviceVulkan->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALShaderVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
   DestroyBindingMapping();
   DestroyLayouts(pDevice);
 
-  auto* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  auto* pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
   for (auto& m_Shader : m_Shaders)
   {
     pVulkanDevice->DeleteLater(m_Shader);
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-vk::PipelineLayout ezGALShaderVulkan::GetVkPipelineLayout() const
+vk::PipelineLayout WGALShaderVulkan::GetVkPipelineLayout() const
 {
-  return static_cast<const ezGALPipelineLayoutVulkan*>(m_pDevice->GetPipelineLayout(m_hPipelineLayout))->GetVkPipelineLayout();
+  return static_cast<const WGALPipelineLayoutVulkan*>(m_pDevice->GetPipelineLayout(m_hPipelineLayout))->GetVkPipelineLayout();
 }
 
-vk::DescriptorSetLayout ezGALShaderVulkan::GetDescriptorSetLayout(ezUInt32 uiSet) const
+vk::DescriptorSetLayout WGALShaderVulkan::GetDescriptorSetLayout(WUInt32 uiSet) const
 {
-  EZ_ASSERT_DEBUG(uiSet < GetBindGroupCount(), "Bind group index out of range.");
-  return static_cast<const ezGALBindGroupLayoutVulkan*>(m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiSet]))->GetDescriptorSetLayout();
+  W_ASSERT_DEBUG(uiSet < GetBindGroupCount(), "Bind group index out of range.");
+  return static_cast<const WGALBindGroupLayoutVulkan*>(m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiSet]))->GetDescriptorSetLayout();
 }
 
-vk::PushConstantRange ezGALShaderVulkan::GetPushConstantRange() const
+vk::PushConstantRange WGALShaderVulkan::GetPushConstantRange() const
 {
-  return static_cast<const ezGALPipelineLayoutVulkan*>(m_pDevice->GetPipelineLayout(m_hPipelineLayout))->GetPushConstantRange();
+  return static_cast<const WGALPipelineLayoutVulkan*>(m_pDevice->GetPipelineLayout(m_hPipelineLayout))->GetPushConstantRange();
 }

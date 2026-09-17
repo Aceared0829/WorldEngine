@@ -7,7 +7,7 @@
 #include <QAbstractItemModel>
 
 /// The Qt model that represents log output for a view
-class EZ_GUIFOUNDATION_DLL ezQtLogModel : public QAbstractItemModel
+class W_GUIFOUNDATION_DLL WQtLogModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -19,17 +19,17 @@ public:
     LinkTarget = Qt::UserRole + 3,
   };
 
-  ezQtLogModel(QObject* pParent);
+  WQtLogModel(QObject* pParent);
   void Clear();
-  void SetLogLevel(ezLogMsgType::Enum logLevel);
+  void SetLogLevel(WLogMsgType::Enum logLevel);
   void SetSearchText(const char* szText);
-  void AddLogMsg(const ezLogEntry& msg);
+  void AddLogMsg(const WLogEntry& msg);
 
-  ezUInt32 GetVisibleItemCount() const { return m_VisibleMessages.GetCount(); }
+  WUInt32 GetVisibleItemCount() const { return m_VisibleMessages.GetCount(); }
 
-  ezUInt32 GetNumErrors() const { return m_uiNumErrors; }
-  ezUInt32 GetNumSeriousWarnings() const { return m_uiNumSeriousWarnings; }
-  ezUInt32 GetNumWarnings() const { return m_uiNumWarnings; }
+  WUInt32 GetNumErrors() const { return m_uiNumErrors; }
+  WUInt32 GetNumSeriousWarnings() const { return m_uiNumSeriousWarnings; }
+  WUInt32 GetNumWarnings() const { return m_uiNumWarnings; }
 
 public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int iRole) const override;
@@ -51,30 +51,30 @@ private:
   /// Wraps a log entry with optional embedded link data parsed from [[text|target]] syntax.
   struct ModelEntry
   {
-    ezLogEntry m_Log;
-    ezStringView m_sLink;       ///< Full [[text|target]] substring, empty if no link present.
-    ezStringView m_sLinkText;   ///< Display text of the link.
-    ezStringView m_sLinkTarget; ///< Link target (e.g. "asset:{guid}").
+    WLogEntry m_Log;
+    WStringView m_sLink;       ///< Full [[text|target]] substring, empty if no link present.
+    WStringView m_sLinkText;   ///< Display text of the link.
+    WStringView m_sLinkTarget; ///< Link target (e.g. "asset:{guid}").
   };
 
   void Invalidate();
-  bool IsFiltered(const ezLogEntry& lm) const;
+  bool IsFiltered(const WLogEntry& lm) const;
   void UpdateVisibleEntries() const;
   void FindLink(ModelEntry& ref_entry) const;
 
-  ezLogMsgType::Enum m_LogLevel;
-  ezString m_sSearchText;
-  ezDeque<ModelEntry> m_AllMessages;
+  WLogMsgType::Enum m_LogLevel;
+  WString m_sSearchText;
+  WDeque<ModelEntry> m_AllMessages;
 
   mutable bool m_bIsValid;
-  mutable ezDeque<const ModelEntry*> m_VisibleMessages;
-  mutable ezHybridArray<const ModelEntry*, 16> m_BlockQueue;
+  mutable WDeque<const ModelEntry*> m_VisibleMessages;
+  mutable WHybridArray<const ModelEntry*, 16> m_BlockQueue;
 
-  mutable ezMutex m_NewMessagesMutex;
-  ezDeque<ezLogEntry> m_NewMessages;
+  mutable WMutex m_NewMessagesMutex;
+  WDeque<WLogEntry> m_NewMessages;
   bool m_bProcessingPending = false; ///< Prevents duplicate queued ProcessNewMessages invocations
 
-  ezUInt32 m_uiNumErrors = 0;
-  ezUInt32 m_uiNumSeriousWarnings = 0;
-  ezUInt32 m_uiNumWarnings = 0;
+  WUInt32 m_uiNumErrors = 0;
+  WUInt32 m_uiNumSeriousWarnings = 0;
+  WUInt32 m_uiNumWarnings = 0;
 };

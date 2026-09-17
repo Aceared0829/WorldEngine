@@ -6,25 +6,25 @@
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 
-ezFmodListenerComponentManager::ezFmodListenerComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WFmodListenerComponentManager::WFmodListenerComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-void ezFmodListenerComponentManager::Initialize()
+void WFmodListenerComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodListenerComponentManager::UpdateListeners, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WFmodListenerComponentManager::UpdateListeners, this);
+    desc.m_Phase = WWorldUpdatePhase::PostTransform;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezFmodListenerComponentManager::UpdateListeners(const ezWorldModule::UpdateContext& context)
+void WFmodListenerComponentManager::UpdateListeners(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -39,21 +39,21 @@ void ezFmodListenerComponentManager::UpdateListeners(const ezWorldModule::Update
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WFmodListenerComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ListenerIndex", m_uiListenerIndex),
+    W_MEMBER_PROPERTY("ListenerIndex", m_uiListenerIndex),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFmodListenerComponent::ezFmodListenerComponent() = default;
-ezFmodListenerComponent::~ezFmodListenerComponent() = default;
+WFmodListenerComponent::WFmodListenerComponent() = default;
+WFmodListenerComponent::~WFmodListenerComponent() = default;
 
-void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WFmodListenerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -62,24 +62,24 @@ void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_uiListenerIndex;
 }
 
-void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WFmodListenerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_uiListenerIndex;
 }
 
-void ezFmodListenerComponent::Update()
+void WFmodListenerComponent::Update()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX()).GetNormalized();
-  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ()).GetNormalized();
+  const auto fwd = (GetOwner()->GetGlobalRotation() * WVec3::MakeAxisX()).GetNormalized();
+  const auto up = (GetOwner()->GetGlobalRotation() * WVec3::MakeAxisZ()).GetNormalized();
 
-  ezFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
+  WFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
 }
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodListenerComponent);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodListenerComponent);

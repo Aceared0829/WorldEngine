@@ -10,18 +10,18 @@
 // *****************************************
 // ***** Runtime Type Information Data *****
 
-struct ezRTTIAllocator;
-class ezAbstractProperty;
-class ezAbstractFunctionProperty;
-class ezAbstractMessageHandler;
-struct ezMessageSenderInfo;
-class ezPropertyAttribute;
-class ezMessage;
-using ezMessageId = ezUInt16;
+struct WRTTIAllocator;
+class WAbstractProperty;
+class WAbstractFunctionProperty;
+class WAbstractMessageHandler;
+struct WMessageSenderInfo;
+class WPropertyAttribute;
+class WMessage;
+using WMessageId = WUInt16;
 
-/// Core class of ezEngine's reflection system that holds complete runtime type information.
+/// Core class of WorldEngine's reflection system that holds complete runtime type information.
 ///
-/// Each ezRTTI instance represents one reflected type and contains all metadata needed for runtime
+/// Each WRTTI instance represents one reflected type and contains all metadata needed for runtime
 /// introspection, serialization, and object creation. The reflection system enables:
 ///
 /// - Runtime type queries and inheritance checks
@@ -45,146 +45,146 @@ using ezMessageId = ezUInt16;
 /// - Property access involves virtual calls and type conversions
 /// - Message dispatching uses optimized jump tables
 ///
-/// Usage: Types are typically registered using macros (EZ_BEGIN_STATIC_REFLECTED_TYPE, etc.)
-/// rather than creating ezRTTI instances manually.
-class EZ_FOUNDATION_DLL ezRTTI
+/// Usage: Types are typically registered using macros (W_BEGIN_STATIC_REFLECTED_TYPE, etc.)
+/// rather than creating WRTTI instances manually.
+class W_FOUNDATION_DLL WRTTI
 {
 public:
   /// The constructor requires all the information about the type that this object represents.
-  ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
-    ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
-    ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)());
+  WRTTI(WStringView sName, const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType,
+    WBitflags<WTypeFlags> flags, WRTTIAllocator* pAllocator, WArrayPtr<const WAbstractProperty*> properties, WArrayPtr<const WAbstractFunctionProperty*> functions,
+    WArrayPtr<const WPropertyAttribute*> attributes, WArrayPtr<WAbstractMessageHandler*> messageHandlers,
+    WArrayPtr<WMessageSenderInfo> messageSenders, const WRTTI* (*fnVerifyParent)());
 
 
-  ~ezRTTI();
+  ~WRTTI();
 
   /// Can be called in debug builds to check that all reflected objects are correctly set up.
   void VerifyCorrectness() const;
 
-  /// Calls VerifyCorrectness() on all ezRTTI objects.
+  /// Calls VerifyCorrectness() on all WRTTI objects.
   static void VerifyCorrectnessForAllTypes();
 
   /// Returns the name of this type.
-  EZ_ALWAYS_INLINE ezStringView GetTypeName() const { return m_sTypeName; } // [tested]
+  W_ALWAYS_INLINE WStringView GetTypeName() const { return m_sTypeName; } // [tested]
 
   /// Returns the hash of the name of this type.
-  EZ_ALWAYS_INLINE ezUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
+  W_ALWAYS_INLINE WUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
 
   /// Returns the type that is the base class of this type. May be nullptr if this type has no base class.
-  EZ_ALWAYS_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
+  W_ALWAYS_INLINE const WRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// Returns the corresponding variant type for this type or Invalid if there is none.
-  EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
+  W_ALWAYS_INLINE WVariantType::Enum GetVariantType() const { return static_cast<WVariantType::Enum>(m_uiVariantType); }
 
   /// Fast O(1) check if this type is derived from the given type (or is the same type).
   ///
   /// Uses pre-computed parent hierarchy arrays for constant-time inheritance checks.
   /// Returns true if this type inherits from pBaseType or if they are the same type.
   /// This is the preferred method for inheritance testing in performance-critical code.
-  EZ_ALWAYS_INLINE bool IsDerivedFrom(const ezRTTI* pBaseType) const // [tested]
+  W_ALWAYS_INLINE bool IsDerivedFrom(const WRTTI* pBaseType) const // [tested]
   {
-    const ezUInt32 thisGeneration = m_ParentHierarchy.GetCount();
-    const ezUInt32 baseGeneration = pBaseType->m_ParentHierarchy.GetCount();
-    EZ_ASSERT_DEBUG(thisGeneration > 0 && baseGeneration > 0, "SetupParentHierarchy() has not been called");
+    const WUInt32 thisGeneration = m_ParentHierarchy.GetCount();
+    const WUInt32 baseGeneration = pBaseType->m_ParentHierarchy.GetCount();
+    W_ASSERT_DEBUG(thisGeneration > 0 && baseGeneration > 0, "SetupParentHierarchy() has not been called");
     return thisGeneration >= baseGeneration && m_ParentHierarchy.GetData()[thisGeneration - baseGeneration] == pBaseType;
   }
 
   /// Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
-  EZ_ALWAYS_INLINE bool IsDerivedFrom() const // [tested]
+  W_ALWAYS_INLINE bool IsDerivedFrom() const // [tested]
   {
-    return IsDerivedFrom(ezGetStaticRTTI<BASE>());
+    return IsDerivedFrom(WGetStaticRTTI<BASE>());
   }
 
   /// Returns the object through which instances of this type can be allocated.
-  EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
+  W_ALWAYS_INLINE WRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
   /// Returns the array of properties that this type has. Does NOT include properties from base classes.
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractProperty* const> GetProperties() const { return m_Properties; } // [tested]
+  W_ALWAYS_INLINE WArrayPtr<const WAbstractProperty* const> GetProperties() const { return m_Properties; } // [tested]
 
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractFunctionProperty* const> GetFunctions() const { return m_Functions; }
+  W_ALWAYS_INLINE WArrayPtr<const WAbstractFunctionProperty* const> GetFunctions() const { return m_Functions; }
 
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
+  W_ALWAYS_INLINE WArrayPtr<const WPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
   /// Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
   const Type* GetAttributeByType() const;
 
   /// Returns the list of properties that this type has, including derived properties from all base classes.
-  void GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const; // [tested]
+  void GetAllProperties(WDynamicArray<const WAbstractProperty*>& out_properties) const; // [tested]
 
   /// Returns the size (in bytes) of an instance of this type.
-  EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
+  W_ALWAYS_INLINE WUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
   /// Returns the version number of this type.
-  EZ_ALWAYS_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
+  W_ALWAYS_INLINE WUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
 
   /// Returns the type flags.
-  EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
+  W_ALWAYS_INLINE const WBitflags<WTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
-  /// Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
-  static const ezRTTI* FindTypeByName(ezStringView sName); // [tested]
+  /// Searches all WRTTI instances for the one with the given name, or nullptr if no such type exists.
+  static const WRTTI* FindTypeByName(WStringView sName); // [tested]
 
-  /// Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
-  static const ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
-  static const ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
+  /// Searches all WRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
+  static const WRTTI* FindTypeByNameHash(WUInt64 uiNameHash); // [tested]
+  static const WRTTI* FindTypeByNameHash32(WUInt32 uiNameHash);
 
-  using PredicateFunc = ezDelegate<bool(const ezRTTI*), 48>;
-  /// Searches all ezRTTI instances for one where the given predicate function returns true
-  static const ezRTTI* FindTypeIf(PredicateFunc func);
+  using PredicateFunc = WDelegate<bool(const WRTTI*), 48>;
+  /// Searches all WRTTI instances for one where the given predicate function returns true
+  static const WRTTI* FindTypeIf(PredicateFunc func);
 
   /// Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
-  const ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
+  const WAbstractProperty* FindPropertyByName(WStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// Returns the name of the plugin which this type is declared in.
-  EZ_ALWAYS_INLINE ezStringView GetPluginName() const { return m_sPluginName; } // [tested]
+  W_ALWAYS_INLINE WStringView GetPluginName() const { return m_sPluginName; } // [tested]
 
   /// Returns the array of message handlers that this type has.
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
+  W_ALWAYS_INLINE const WArrayPtr<WAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
   /// Dispatches a message to the appropriate handler for this type.
   ///
   /// Uses optimized message dispatch tables for fast O(1) message routing. Returns true if a handler
   /// was found and the message was processed, false if no handler exists for this message type.
   /// The message system enables decoupled communication between components.
-  bool DispatchMessage(void* pInstance, ezMessage& ref_msg) const;
+  bool DispatchMessage(void* pInstance, WMessage& ref_msg) const;
 
   /// Dispatches a message to the appropriate handler (const version).
   ///
   /// Same as the non-const version but for read-only message handlers. Some messages may only
   /// be handled by const handlers for safety reasons.
-  bool DispatchMessage(const void* pInstance, ezMessage& ref_msg) const;
+  bool DispatchMessage(const void* pInstance, WMessage& ref_msg) const;
 
   /// Returns whether this type can handle the given message type.
   template <typename MessageType>
-  EZ_ALWAYS_INLINE bool CanHandleMessage() const
+  W_ALWAYS_INLINE bool CanHandleMessage() const
   {
     return CanHandleMessage(MessageType::GetTypeMsgId());
   }
 
   /// Returns whether this type can handle the message type with the given id.
-  inline bool CanHandleMessage(ezMessageId id) const
+  inline bool CanHandleMessage(WMessageId id) const
   {
-    EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+    W_ASSERT_DEBUG(m_uiMsgIdOffset != WSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
                                                             "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                            "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+                                                            "you may have forgotten to instantiate an WPlugin object inside your plugin DLL.");
 
-    const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
+    const WUInt32 uiIndex = id - m_uiMsgIdOffset;
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers.GetData()[uiIndex] != nullptr;
   }
 
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
+  W_ALWAYS_INLINE const WArrayPtr<WMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
 
   struct ForEachOptions
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
       None = 0,
-      ExcludeNonAllocatable = EZ_BIT(0), ///< Excludes all types that cannot be allocated through ezRTTI. They may still be creatable through regular C++, though.
-      ExcludeAbstract = EZ_BIT(1),       ///< Excludes all types that are marked as 'abstract'. They may not be abstract in the C++ sense, though.
+      ExcludeNonAllocatable = W_BIT(0), ///< Excludes all types that cannot be allocated through WRTTI. They may still be creatable through regular C++, though.
+      ExcludeAbstract = W_BIT(1),       ///< Excludes all types that are marked as 'abstract'. They may not be abstract in the C++ sense, though.
       ExcludeNotConcrete = ExcludeNonAllocatable | ExcludeAbstract,
 
       Default = None
@@ -192,67 +192,67 @@ public:
 
     struct Bits
     {
-      ezUInt8 ExcludeNonAllocatable : 1;
-      ezUInt8 ExcludeAbstract : 1;
+      WUInt8 ExcludeNonAllocatable : 1;
+      WUInt8 ExcludeAbstract : 1;
     };
   };
 
-  using VisitorFunc = ezDelegate<void(const ezRTTI*), 48>;
-  static void ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default); // [tested]
+  using VisitorFunc = WDelegate<void(const WRTTI*), 48>;
+  static void ForEachType(VisitorFunc func, WBitflags<ForEachOptions> options = ForEachOptions::Default); // [tested]
 
-  static void ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default);
+  static void ForEachDerivedType(const WRTTI* pBaseType, VisitorFunc func, WBitflags<ForEachOptions> options = ForEachOptions::Default);
 
   template <typename T>
-  static EZ_ALWAYS_INLINE void ForEachDerivedType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default)
+  static W_ALWAYS_INLINE void ForEachDerivedType(VisitorFunc func, WBitflags<ForEachOptions> options = ForEachOptions::Default)
   {
-    ForEachDerivedType(ezGetStaticRTTI<T>(), func, options);
+    ForEachDerivedType(WGetStaticRTTI<T>(), func, options);
   }
 
 protected:
-  ezStringView m_sPluginName;
-  ezStringView m_sTypeName;
-  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
-  ezArrayPtr<const ezAbstractFunctionProperty* const> m_Functions;
-  ezArrayPtr<const ezPropertyAttribute* const> m_Attributes;
-  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags);
+  WStringView m_sPluginName;
+  WStringView m_sTypeName;
+  WArrayPtr<const WAbstractProperty* const> m_Properties;
+  WArrayPtr<const WAbstractFunctionProperty* const> m_Functions;
+  WArrayPtr<const WPropertyAttribute* const> m_Attributes;
+  void UpdateType(const WRTTI* pParentType, WUInt32 uiTypeSize, WUInt32 uiTypeVersion, WUInt8 uiVariantType, WBitflags<WTypeFlags> flags);
   void RegisterType();
   void UnregisterType();
 
   void GatherDynamicMessageHandlers();
   void SetupParentHierarchy();
 
-  const ezRTTI* m_pParentType = nullptr;
-  ezRTTIAllocator* m_pAllocator = nullptr;
+  const WRTTI* m_pParentType = nullptr;
+  WRTTIAllocator* m_pAllocator = nullptr;
 
-  ezUInt32 m_uiTypeSize = 0;
-  ezUInt32 m_uiTypeVersion = 0;
-  ezUInt64 m_uiTypeNameHash = 0;
-  ezUInt32 m_uiTypeIndex = 0;
-  ezBitflags<ezTypeFlags> m_TypeFlags;
-  ezUInt8 m_uiVariantType = 0;
-  ezUInt16 m_uiMsgIdOffset = ezSmallInvalidIndex;
+  WUInt32 m_uiTypeSize = 0;
+  WUInt32 m_uiTypeVersion = 0;
+  WUInt64 m_uiTypeNameHash = 0;
+  WUInt32 m_uiTypeIndex = 0;
+  WBitflags<WTypeFlags> m_TypeFlags;
+  WUInt8 m_uiVariantType = 0;
+  WUInt16 m_uiMsgIdOffset = WSmallInvalidIndex;
 
-  const ezRTTI* (*m_VerifyParent)();
+  const WRTTI* (*m_VerifyParent)();
 
-  ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezSmallArray<ezAbstractMessageHandler*, 1, ezStaticsAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  WArrayPtr<WAbstractMessageHandler*> m_MessageHandlers;
+  WSmallArray<WAbstractMessageHandler*, 1, WStaticsAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
-  ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
-  ezSmallArray<const ezRTTI*, 7, ezStaticsAllocatorWrapper> m_ParentHierarchy;
+  WArrayPtr<WMessageSenderInfo> m_MessageSenders;
+  WSmallArray<const WRTTI*, 7, WStaticsAllocatorWrapper> m_ParentHierarchy;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
 
-  /// Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
-  static void AssignPlugin(ezStringView sPluginName);
+  /// Assigns the given plugin name to every WRTTI instance that has no plugin assigned yet.
+  static void AssignPlugin(WStringView sPluginName);
 
-  static void SanityCheckType(ezRTTI* pType);
+  static void SanityCheckType(WRTTI* pType);
 
-  /// Handles events by ezPlugin, to figure out which types were provided by which plugin
-  static void PluginEventHandler(const ezPluginEvent& EventData);
+  /// Handles events by WPlugin, to figure out which types were provided by which plugin
+  static void PluginEventHandler(const WPluginEvent& EventData);
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
+W_DECLARE_FLAGS_OPERATORS(WRTTI::ForEachOptions);
 
 
 // ***********************************
@@ -265,40 +265,40 @@ EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
 /// enabling features like custom memory management, object pooling, and creation tracking.
 /// Different allocator implementations can optimize for specific use cases:
 ///
-/// - ezRTTIDefaultAllocator: Standard heap allocation
-/// - ezRTTINoAllocator: Prevents dynamic allocation (compile-time types only)
+/// - WRTTIDefaultAllocator: Standard heap allocation
+/// - WRTTINoAllocator: Prevents dynamic allocation (compile-time types only)
 /// - Custom allocators: Object pools, stack allocation, etc.
-struct EZ_FOUNDATION_DLL ezRTTIAllocator
+struct W_FOUNDATION_DLL WRTTIAllocator
 {
-  virtual ~ezRTTIAllocator();
+  virtual ~WRTTIAllocator();
 
   /// Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
   virtual bool CanAllocate() const { return true; } // [tested]
 
   /// Allocates one instance.
   template <typename T>
-  ezInternal::NewInstance<T> Allocate(ezAllocator* pAllocator = nullptr)
+  WInternal::NewInstance<T> Allocate(WAllocator* pAllocator = nullptr)
   {
     return AllocateInternal(pAllocator).Cast<T>();
   }
 
   /// Clones the given instance.
   template <typename T>
-  ezInternal::NewInstance<T> Clone(const void* pObject, ezAllocator* pAllocator = nullptr)
+  WInternal::NewInstance<T> Clone(const void* pObject, WAllocator* pAllocator = nullptr)
   {
     return CloneInternal(pObject, pAllocator).Cast<T>();
   }
 
   /// Deallocates the given instance.
-  virtual void Deallocate(void* pObject, ezAllocator* pAllocator = nullptr) = 0; // [tested]
+  virtual void Deallocate(void* pObject, WAllocator* pAllocator = nullptr) = 0; // [tested]
 
 private:
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) = 0;
-  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator)
+  virtual WInternal::NewInstance<void> AllocateInternal(WAllocator* pAllocator) = 0;
+  virtual WInternal::NewInstance<void> CloneInternal(const void* pObject, WAllocator* pAllocator)
   {
-    EZ_IGNORE_UNUSED(pObject);
-    EZ_REPORT_FAILURE("Cloning is not supported by this allocator.");
-    return ezInternal::NewInstance<void>(nullptr, pAllocator);
+    W_IGNORE_UNUSED(pObject);
+    W_REPORT_FAILURE("Cloning is not supported by this allocator.");
+    return WInternal::NewInstance<void>(nullptr, pAllocator);
   }
 };
 
@@ -307,52 +307,52 @@ private:
 /// Used for abstract base classes, static utility classes, or types that should only be
 /// created through specific factory functions. Attempting to allocate objects through
 /// this allocator will trigger assertions in debug builds.
-struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
+struct W_FOUNDATION_DLL WRTTINoAllocator : public WRTTIAllocator
 {
   /// Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
   virtual bool CanAllocate() const override { return false; } // [tested]
 
   /// Will trigger an assert.
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
+  virtual WInternal::NewInstance<void> AllocateInternal(WAllocator* pAllocator) override // [tested]
   {
-    EZ_REPORT_FAILURE("This function should never be called.");
-    return ezInternal::NewInstance<void>(nullptr, pAllocator);
+    W_REPORT_FAILURE("This function should never be called.");
+    return WInternal::NewInstance<void>(nullptr, pAllocator);
   }
 
   /// Will trigger an assert.
-  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
+  virtual void Deallocate(void* pObject, WAllocator* pAllocator) override // [tested]
   {
-    EZ_IGNORE_UNUSED(pObject);
-    EZ_IGNORE_UNUSED(pAllocator);
-    EZ_REPORT_FAILURE("This function should never be called.");
+    W_IGNORE_UNUSED(pObject);
+    W_IGNORE_UNUSED(pAllocator);
+    W_REPORT_FAILURE("This function should never be called.");
   }
 };
 
-/// Standard RTTI allocator that creates instances using ezEngine's allocator system.
+/// Standard RTTI allocator that creates instances using WorldEngine's allocator system.
 ///
 /// This is the default allocator used by most reflected types. It provides standard heap allocation
-/// with proper integration into ezEngine's memory management system. The allocator wrapper allows
+/// with proper integration into WorldEngine's memory management system. The allocator wrapper allows
 /// customization of the underlying allocator (default, aligned, frame, etc.).
 ///
 /// Template parameters:
 /// - CLASS: The type to allocate (must be copy-constructible for cloning)
-/// - AllocatorWrapper: Determines which allocator to use (default: ezDefaultAllocatorWrapper)
-template <typename CLASS, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-struct ezRTTIDefaultAllocator : public ezRTTIAllocator
+/// - AllocatorWrapper: Determines which allocator to use (default: WDefaultAllocatorWrapper)
+template <typename CLASS, typename AllocatorWrapper = WDefaultAllocatorWrapper>
+struct WRTTIDefaultAllocator : public WRTTIAllocator
 {
   /// Returns a new instance that was allocated with the given allocator.
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
+  virtual WInternal::NewInstance<void> AllocateInternal(WAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
       pAllocator = AllocatorWrapper::GetAllocator();
     }
 
-    return EZ_NEW(pAllocator, CLASS);
+    return W_NEW(pAllocator, CLASS);
   }
 
   /// Clones the given instance with the given allocator.
-  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator) override // [tested]
+  virtual WInternal::NewInstance<void> CloneInternal(const void* pObject, WAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
@@ -361,17 +361,17 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 
     if constexpr (std::is_copy_constructible_v<CLASS>)
     {
-      return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
+      return W_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
     }
     else
     {
-      EZ_REPORT_FAILURE("Clone failed since the type is not copy constructible");
-      return ezInternal::NewInstance<void>(nullptr, pAllocator);
+      W_REPORT_FAILURE("Clone failed since the type is not copy constructible");
+      return WInternal::NewInstance<void>(nullptr, pAllocator);
     }
   }
 
   /// Deletes the given instance with the given allocator.
-  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
+  virtual void Deallocate(void* pObject, WAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
@@ -379,6 +379,6 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
     }
 
     CLASS* pPointer = static_cast<CLASS*>(pObject);
-    EZ_DELETE(pAllocator, pPointer);
+    W_DELETE(pAllocator, pPointer);
   }
 };

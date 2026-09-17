@@ -7,29 +7,29 @@
 class asIScriptModule;
 class asITypeInfo;
 
-using ezAngelScriptResourceHandle = ezTypedResourceHandle<class ezAngelScriptResource>;
+using WAngelScriptResourceHandle = WTypedResourceHandle<class WAngelScriptResource>;
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptResource : public ezScriptClassResource
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptResource : public WScriptClassResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptResource, ezScriptClassResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezAngelScriptResource);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptResource, WScriptClassResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WAngelScriptResource);
 
 public:
-  ezAngelScriptResource();
-  ~ezAngelScriptResource();
+  WAngelScriptResource();
+  ~WAngelScriptResource();
 
-  ezStringView GetScriptContent() const { return m_sScriptContent; }
+  WStringView GetScriptContent() const { return m_sScriptContent; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const override;
+  virtual WUniquePtr<WScriptInstance> Instantiate(WReflectedClass& inout_owner, WWorld* pWorld) const override;
 
-  void FindMessageHandlers(const asITypeInfo* pClassType, ezScriptRTTI::MessageHandlerList& inout_Handlers);
+  void FindMessageHandlers(const asITypeInfo* pClassType, WScriptRTTI::MessageHandlerList& inout_Handlers);
 
-  ezString m_sClassName;
-  ezString m_sScriptContent;
+  WString m_sClassName;
+  WString m_sScriptContent;
   asIScriptModule* m_pModule = nullptr;
 };

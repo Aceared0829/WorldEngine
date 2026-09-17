@@ -8,18 +8,18 @@
 /// Implementation of a thread.
 ///
 /// Since the thread class needs a platform specific entry-point it is usually
-/// recommended to use the ezThread class instead as the base for long running threads.
-class EZ_FOUNDATION_DLL ezOSThread
+/// recommended to use the WThread class instead as the base for long running threads.
+class W_FOUNDATION_DLL WOSThread
 {
 public:
   /// Initializes the thread instance (e.g. thread creation etc.)
   ///
   /// Note that the thread won't start execution until Start() is called. Please note that szName must be valid until Start() has been
   /// called!
-  ezOSThread(ezOSThreadEntryPoint threadEntryPoint, void* pUserData = nullptr, ezStringView sName = "ezOSThread", ezUInt32 uiStackSize = 128 * 1024);
+  WOSThread(WOSThreadEntryPoint threadEntryPoint, void* pUserData = nullptr, WStringView sName = "WOSThread", WUInt32 uiStackSize = 128 * 1024);
 
   /// Destructor.
-  virtual ~ezOSThread();
+  virtual ~WOSThread();
 
   /// Starts the thread
   void Start(); // [tested]
@@ -27,29 +27,29 @@ public:
   /// Waits in the calling thread until the thread has finished execution (e.g. returned from the thread function)
   void Join(); // [tested]
 
-  /// Returns the thread ID of the thread object, may be used in comparison operations with ezThreadUtils::GetCurrentThreadID() for
+  /// Returns the thread ID of the thread object, may be used in comparison operations with WThreadUtils::GetCurrentThreadID() for
   /// example.
-  const ezThreadID& GetThreadID() const { return m_ThreadID; }
+  const WThreadID& GetThreadID() const { return m_ThreadID; }
 
-  /// Returns how many ezOSThreads are currently active.
-  static ezInt32 GetThreadCount() { return s_iThreadCount; }
+  /// Returns how many WOSThreads are currently active.
+  static WInt32 GetThreadCount() { return s_iThreadCount; }
 
 protected:
-  ezThreadHandle m_hHandle;
-  ezThreadID m_ThreadID;
+  WThreadHandle m_hHandle;
+  WThreadID m_ThreadID;
 
-  ezOSThreadEntryPoint m_EntryPoint;
+  WOSThreadEntryPoint m_EntryPoint;
 
   void* m_pUserData;
 
-  ezString m_sName;
+  WString m_sName;
 
-  ezUInt32 m_uiStackSize;
+  WUInt32 m_uiStackSize;
 
 
 private:
-  /// Stores how many ezOSThread are currently active.
-  static ezAtomicInteger32 s_iThreadCount;
+  /// Stores how many WOSThread are currently active.
+  static WAtomicInteger32 s_iThreadCount;
 
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezOSThread);
+  W_DISALLOW_COPY_AND_ASSIGN(WOSThread);
 };

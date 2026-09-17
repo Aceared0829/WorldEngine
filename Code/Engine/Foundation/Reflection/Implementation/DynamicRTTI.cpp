@@ -3,7 +3,7 @@
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 
-bool ezReflectedClass::IsInstanceOf(const ezRTTI* pType) const
+bool WReflectedClass::IsInstanceOf(const WRTTI* pType) const
 {
   return GetDynamicRTTI()->IsDerivedFrom(pType);
 }

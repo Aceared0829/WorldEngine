@@ -8,27 +8,27 @@
 #include <Foundation/Types/Uuid.h>
 #include <QWidget>
 
-class ezQGridBarWidget;
-struct ezAssetProcessorProgressEvent;
-struct ezAssetProcessorEvent;
+class WQGridBarWidget;
+struct WAssetProcessorProgressEvent;
+struct WAssetProcessorEvent;
 class QPushButton;
 class QScrollBar;
 
 /// Visual progress widget that displays an asset processing timeline.
 ///
-/// Shows a timeline view with Y-axis representing each ezEditorProcessor and X-axis representing time.
+/// Shows a timeline view with Y-axis representing each WEditorProcessor and X-axis representing time.
 /// Each asset being processed is displayed as a bar on the timeline.
 /// The timeline is compacted in that every length of time in which no asset processing happens is reduced to one second in the timeline and a diagonal pattern is drawn to indicate that the timeline cuts off there.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetProcessorProgressWidget : public QWidget
+class W_EDITORFRAMEWORK_DLL WQtAssetProcessorProgressWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtAssetProcessorProgressWidget(QWidget* pParent = nullptr);
-  ~ezQtAssetProcessorProgressWidget();
+  explicit WQtAssetProcessorProgressWidget(QWidget* pParent = nullptr);
+  ~WQtAssetProcessorProgressWidget();
 
-  /// An ezQGridBarWidget must be placed over this widget in a vertical layout and then set here.
-  void SetGridBarWidget(ezQGridBarWidget* pGridBar);
+  /// An WQGridBarWidget must be placed over this widget in a vertical layout and then set here.
+  void SetGridBarWidget(WQGridBarWidget* pGridBar);
   void SetScrollBarWidget(QScrollBar* pScrollBar);
 
 public Q_SLOTS:
@@ -55,41 +55,41 @@ private:
   /// Compact representation of an item in the timeline of the asset processor.
   struct ProcessorTask
   {
-    static constexpr ezUInt16 SuccessResult = 0xFFFF;
-    EZ_ALWAYS_INLINE bool IsFinished() const { return m_fDurationInSeconds != -1; }
-    EZ_ALWAYS_INLINE bool Failed() const { return m_uiResultIndex != SuccessResult; }
-    EZ_ALWAYS_INLINE float EndTime() const { return IsFinished() ? m_fStartTimeInSeconds + m_fDurationInSeconds : 0.0f; }
+    static constexpr WUInt16 SuccessResult = 0xFFFF;
+    W_ALWAYS_INLINE bool IsFinished() const { return m_fDurationInSeconds != -1; }
+    W_ALWAYS_INLINE bool Failed() const { return m_uiResultIndex != SuccessResult; }
+    W_ALWAYS_INLINE float EndTime() const { return IsFinished() ? m_fStartTimeInSeconds + m_fDurationInSeconds : 0.0f; }
 
-    ezUuid m_AssetGuid;
+    WUuid m_AssetGuid;
     float m_fStartTimeInSeconds = 0.0f;
     float m_fTransformStartTimeInSeconds = 0.0f;
     float m_fDurationInSeconds = -1;
-    ezUInt16 m_uiResultIndex = -1; //< We only store failed results to safe space. Index points to m_FailedTransforms
-    ezAssetInfo::TransformState m_TransformState = ezAssetInfo::Unknown;
+    WUInt16 m_uiResultIndex = -1; //< We only store failed results to safe space. Index points to m_FailedTransforms
+    WAssetInfo::TransformState m_TransformState = WAssetInfo::Unknown;
   };
 
-  class HistoryState : public ezRefCounted
+  class HistoryState : public WRefCounted
   {
   public:
-    void SetMaxProcessors(ezUInt32 uiCount);
+    void SetMaxProcessors(WUInt32 uiCount);
     void ClearHistory();
-    ezTime GetLatestTaskTime() const;
-    void OnProgressEvent(const ezAssetProcessorProgressEvent& e);
-    void OnProcessorEvent(const ezAssetProcessorEvent& e);
-    const ProcessorTask* FindTaskAtTime(ezUInt32 uiProcessorID, double fPointInTimeSec) const;
+    WTime GetLatestTaskTime() const;
+    void OnProgressEvent(const WAssetProcessorProgressEvent& e);
+    void OnProcessorEvent(const WAssetProcessorEvent& e);
+    const ProcessorTask* FindTaskAtTime(WUInt32 uiProcessorID, double fPointInTimeSec) const;
 
   public:
-    mutable ezMutex m_HistoryMutex;
-    ezQtAssetProcessorProgressWidget* m_pParent = nullptr;
+    mutable WMutex m_HistoryMutex;
+    WQtAssetProcessorProgressWidget* m_pParent = nullptr;
     // Rendering the current time is a bit cumbersome so we instead subtract an offset to make the graph start at zero seconds. If this value is false, the next incoming asset transform will set m_CurrentOffset.
     bool m_bCurrentOffsetValid = false;
     // To compact various runs of asset processing in the timeline, this value is subtracted from the actual start / end time of each asset transform.
-    ezTime m_CurrentOffset;
+    WTime m_CurrentOffset;
     // At which points in time the timeline got compacted. Just used for rendering a pattern to indicate that the timeline was cut off at these points.
-    ezDynamicArray<ezTime> m_SkipOffsets;
-    ezDynamicArray<ezDynamicArray<ProcessorTask>> m_ProcessorHistory; // [processorId][taskIndex]
-    ezDeque<ezTransformStatus> m_FailedTransforms;
-    ezDynamicArray<ezEditorProcessorState> m_ProcessStates;
+    WDynamicArray<WTime> m_SkipOffsets;
+    WDynamicArray<WDynamicArray<ProcessorTask>> m_ProcessorHistory; // [processorId][taskIndex]
+    WDeque<WTransformStatus> m_FailedTransforms;
+    WDynamicArray<WEditorProcessorState> m_ProcessStates;
   };
 
   static constexpr int s_iRowHeight = 30;
@@ -102,7 +102,7 @@ private Q_SLOTS:
   void OnUpdateTimer();
   void OnHistoryChanged();
   void OnProcessorStateChanged();
-  void OnProcessStateChanged(ezUInt8 uiProcessID);
+  void OnProcessStateChanged(WUInt8 uiProcessID);
 
 private:
   QPoint MapFromScene(const QPointF& pos) const;
@@ -111,36 +111,36 @@ private:
   void ClampZoomPan();
   void UpdateGridBarConfig() const;
 
-  const ezString& GetAssetPath(const ezUuid& assetGuid) const;
-  const ProcessorTask* FindTaskAtPosition(const QPoint& pos, ezUInt32& out_uiProcessorID) const;
+  const WString& GetAssetPath(const WUuid& assetGuid) const;
+  const ProcessorTask* FindTaskAtPosition(const QPoint& pos, WUInt32& out_uiProcessorID) const;
   void ShowTooltip(QMouseEvent* e);
 
   void DrawTimeline(QPainter& painter) const;
-  void DrawProcessorRow(QPainter& painter, ezUInt32 uiProcessorID, int y) const;
+  void DrawProcessorRow(QPainter& painter, WUInt32 uiProcessorID, int y) const;
   void DrawProcessorTask(QPainter& painter, const ProcessorTask& task, const QRect& rect, const QRect& actualWork) const;
 
 private:
-  ezEventSubscriptionID m_ProgressEventsID;
-  ezEventSubscriptionID m_ProcessorEventsID;
-  ezSharedPtr<HistoryState> m_pHistoryState;
-  ezUInt32 m_uiMaxProcessors = 0;
+  WEventSubscriptionID m_ProgressEventsID;
+  WEventSubscriptionID m_ProcessorEventsID;
+  WSharedPtr<HistoryState> m_pHistoryState;
+  WUInt32 m_uiMaxProcessors = 0;
 
   QTimer* m_pUpdateTimer = nullptr;
-  ezQGridBarWidget* m_pGridBar = nullptr;
+  WQGridBarWidget* m_pGridBar = nullptr;
   QScrollBar* m_pScrollBar = nullptr;
 
   // Display and interaction settings
   EditState m_EditState = EditState::None;
 
-  ezTime m_TimelineLength = ezTime::MakeFromMinutes(1); // Multiple of 1min, resize when current time exceeds this.
+  WTime m_TimelineLength = WTime::MakeFromMinutes(1); // Multiple of 1min, resize when current time exceeds this.
   double m_fSceneTranslationX = 0;                      // Scene horizontal pan offset (in seconds)
   QPointF m_SceneToPixelScale = QPointF(20, 1);
   QPoint m_StartMousePos = {0, 0};
   QPoint m_LastMousePos = {0, 0};
 
-  // Cache for asset names so we don't have to store the name in ProcessorTask and also don't SPAM the ezAssetCurator.
-  mutable ezMap<ezUuid, ezString> m_AssetNameCache;
-  ezString m_sUnknownAsset = "<DELETED>";
+  // Cache for asset names so we don't have to store the name in ProcessorTask and also don't SPAM the WAssetCurator.
+  mutable WMap<WUuid, WString> m_AssetNameCache;
+  WString m_sUnknownAsset = "<DELETED>";
 
   // Paint performance tracking
   mutable double m_fLastPaintTimeMs = 0.0;
@@ -153,7 +153,7 @@ private:
   mutable QColor m_NeedsThumbnailColor[2];
   mutable QColor m_ErrorColor[2];
   mutable bool m_bCachesInitialized = false;
-  mutable ezDynamicArray<QString> m_ProcessorLabels; // Cached "Process N" strings
+  mutable WDynamicArray<QString> m_ProcessorLabels; // Cached "Process N" strings
 
   void InitializePaintCaches() const;
   void InvalidatePaintCaches();

@@ -11,7 +11,7 @@
 ///
 /// All keys always go through the states 'Pressed' and 'Released', even if they are active for only one frame.
 /// A key is 'Down' when it is pressed for at least two frames. It is 'Up' when it is not pressed for at least two frames.
-struct EZ_CORE_DLL ezKeyState
+struct W_CORE_DLL WKeyState
 {
   enum Enum
   {
@@ -22,28 +22,28 @@ struct EZ_CORE_DLL ezKeyState
   };
 
   /// Computes the new key state from a previous key state and whether it is currently pressed or not.
-  static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum prevState, bool bKeyDown);
+  static WKeyState::Enum GetNewKeyState(WKeyState::Enum prevState, bool bKeyDown);
 };
 
 /// Abstract description of a custom ('software') mouse cursor.
 ///
-/// The ezInputManager only stores this data, it never interprets m_sCursor and it does not render
-/// anything. A higher level system (ezMouseCursorRenderer in the GameEngine library) reads this,
+/// The WInputManager only stores this data, it never interprets m_sCursor and it does not render
+/// anything. A higher level system (WMouseCursorRenderer in the GameEngine library) reads this,
 /// resolves the identifier to an actual resource and draws the cursor on top of everything else.
 ///
-/// \sa ezInputManager::SetMouseCursor()
-struct EZ_CORE_DLL ezMouseCursorDesc
+/// \sa WInputManager::SetMouseCursor()
+struct W_CORE_DLL WMouseCursorDesc
 {
   /// Identifies which cursor to display. An empty string means that no custom cursor is used.
   ///
   /// This is either the GUID of a material or texture asset ("{ ... }"), or a path to one.
   /// Whether it is a material or a texture is figured out by the system that renders the cursor
-  /// (ezMouseCursorRenderer determines it from the file extension that the identifier resolves to).
-  ezString m_sCursor;
+  /// (WMouseCursorRenderer determines it from the file extension that the identifier resolves to).
+  WString m_sCursor;
 
   /// Scales the size of the cursor image.
   ///
-  /// The base size is ezInputManager::GetHardwareCursorSize(), which makes the custom cursor
+  /// The base size is WInputManager::GetHardwareCursorSize(), which makes the custom cursor
   /// match the size of the OS cursor on any monitor, resolution and DPI scaling.
   /// Use this only to deliberately deviate from the size that the user configured.
   float m_fSize = 1.0f;
@@ -52,26 +52,26 @@ struct EZ_CORE_DLL ezMouseCursorDesc
   /// coordinates. (0,0) is the top-left corner of the image, (0.5,0.5) its center.
   ///
   /// This is also the pivot around which m_Rotation is applied.
-  ezVec2 m_vHotspot = ezVec2(0.0f);
+  WVec2 m_vHotspot = WVec2(0.0f);
 
   /// The sub-rectangle of the image to display. Use this for texture atlases and animated cursors.
-  ezVec2 m_vUvTopLeft = ezVec2(0.0f);
-  ezVec2 m_vUvBottomRight = ezVec2(1.0f);
+  WVec2 m_vUvTopLeft = WVec2(0.0f);
+  WVec2 m_vUvBottomRight = WVec2(1.0f);
 
   /// Rotation of the cursor image around its hotspot. Positive angles rotate clockwise on screen.
-  ezAngle m_Rotation;
+  WAngle m_Rotation;
 
   /// The cursor image is multiplied with this color. Useful for state changes without extra artwork.
-  ezColor m_Color = ezColor::White;
+  WColor m_Color = WColor::White;
 
-  bool operator==(const ezMouseCursorDesc& rhs) const;
-  bool operator!=(const ezMouseCursorDesc& rhs) const { return !(*this == rhs); }
+  bool operator==(const WMouseCursorDesc& rhs) const;
+  bool operator!=(const WMouseCursorDesc& rhs) const { return !(*this == rhs); }
 };
 
 /// How an overlay temporarily changes the mouse cursor state, ignoring what the application wants.
-struct ezMouseCursorOverride
+struct WMouseCursorOverride
 {
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     None,          ///< No override. The OS cursor follows what the application requested, and is hidden while a custom cursor is set.
     ForceOSCursor, ///< The OS cursor is forced to be visible and the custom cursor is not drawn.
@@ -83,18 +83,18 @@ struct ezMouseCursorOverride
 
 /// Describes one mouse cursor override.
 ///
-/// \sa ezInputManager::PushMouseCursorOverride()
-struct EZ_CORE_DLL ezMouseCursorOverrideDesc
+/// \sa WInputManager::PushMouseCursorOverride()
+struct W_CORE_DLL WMouseCursorOverrideDesc
 {
   /// How the OS cursor and the custom cursor are affected while this override is active.
-  ezMouseCursorOverride::Enum m_OSCursor = ezMouseCursorOverride::Default;
+  WMouseCursorOverride::Enum m_OSCursor = WMouseCursorOverride::Default;
 
-  /// If true, ezMouseCursorClipMode::NoClip is forced while this override is active,
+  /// If true, WMouseCursorClipMode::NoClip is forced while this override is active,
   /// so that the mouse can leave the window, no matter what the application requested.
   bool m_bForceNoClip = true;
 
-  bool operator==(const ezMouseCursorOverrideDesc& rhs) const { return m_OSCursor == rhs.m_OSCursor && m_bForceNoClip == rhs.m_bForceNoClip; }
-  bool operator!=(const ezMouseCursorOverrideDesc& rhs) const { return !(*this == rhs); }
+  bool operator==(const WMouseCursorOverrideDesc& rhs) const { return m_OSCursor == rhs.m_OSCursor && m_bForceNoClip == rhs.m_bForceNoClip; }
+  bool operator!=(const WMouseCursorOverrideDesc& rhs) const { return !(*this == rhs); }
 };
 
 /// Holds at most one mouse cursor override and releases it automatically on destruction.
@@ -102,25 +102,25 @@ struct EZ_CORE_DLL ezMouseCursorOverrideDesc
 /// Use this either as a scope, by passing a desc to the constructor, or as a member of a long lived
 /// object (such as an in-game console), that requests and releases the override as it is shown and hidden.
 ///
-/// \sa ezInputManager::PushMouseCursorOverride()
-class EZ_CORE_DLL ezMouseCursorOverrideRequest
+/// \sa WInputManager::PushMouseCursorOverride()
+class W_CORE_DLL WMouseCursorOverrideRequest
 {
 public:
-  ezMouseCursorOverrideRequest() = default;
+  WMouseCursorOverrideRequest() = default;
 
   /// Requests an override right away, which is released again when this object goes out of scope.
-  explicit ezMouseCursorOverrideRequest(const ezMouseCursorOverrideDesc& desc) { Request(desc); }
+  explicit WMouseCursorOverrideRequest(const WMouseCursorOverrideDesc& desc) { Request(desc); }
 
-  ~ezMouseCursorOverrideRequest() { Release(); }
+  ~WMouseCursorOverrideRequest() { Release(); }
 
-  ezMouseCursorOverrideRequest(const ezMouseCursorOverrideRequest&) = delete;
-  void operator=(const ezMouseCursorOverrideRequest&) = delete;
+  WMouseCursorOverrideRequest(const WMouseCursorOverrideRequest&) = delete;
+  void operator=(const WMouseCursorOverrideRequest&) = delete;
 
-  ezMouseCursorOverrideRequest(ezMouseCursorOverrideRequest&& rhs);
-  void operator=(ezMouseCursorOverrideRequest&& rhs);
+  WMouseCursorOverrideRequest(WMouseCursorOverrideRequest&& rhs);
+  void operator=(WMouseCursorOverrideRequest&& rhs);
 
   /// Activates the override. Calling this repeatedly with an identical desc does nothing.
-  void Request(const ezMouseCursorOverrideDesc& desc = ezMouseCursorOverrideDesc());
+  void Request(const WMouseCursorOverrideDesc& desc = WMouseCursorOverrideDesc());
 
   /// Deactivates the override. Calling this while inactive does nothing.
   void Release();
@@ -129,8 +129,8 @@ public:
   bool IsActive() const { return m_uiOverrideId != 0; }
 
 private:
-  ezUInt32 m_uiOverrideId = 0;
-  ezMouseCursorOverrideDesc m_Desc;
+  WUInt32 m_uiOverrideId = 0;
+  WMouseCursorOverrideDesc m_Desc;
 };
 
 // clang-format off
@@ -142,26 +142,26 @@ private:
 /// action, these flags can be used to filter out unwanted slots.
 /// For example you can filter out mouse movements by requiring that the input slot must be pressable or may not represent any axis.
 /// You an additionally also use the prefix of the input slot name, to filter out all touch input slots etc. if necessary.
-struct ezInputSlotFlags
+struct WInputSlotFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
     None                      = 0,
 
-    ReportsRelativeValues     = EZ_BIT(0),  ///< The input slot reports delta values (e.g. a mouse move), instead of absolute values.
-    ValueBinaryZeroOrOne      = EZ_BIT(1),  ///< The input slot will either be zero or one. Used for all buttons and keys.
-    ValueRangeZeroToOne       = EZ_BIT(2),  ///< The input slot has analog values between zero and one. Used for analog axis like the xbox triggers or thumb-sticks.
-    ValueRangeZeroToInf       = EZ_BIT(3),  ///< The input slot has unbounded values larger than zero. Used for all absolute positions, such as the mouse position.
-    Pressable                 = EZ_BIT(4),  ///< The slot can be pressed (e.g. a key). This is not possible for an axis, such as the mouse or an analog stick.
-    Holdable                  = EZ_BIT(5),  ///< The user can hold down the key. Possible for buttons, but not for axes or for wheels such as the mouse wheel.
-    HalfAxis                  = EZ_BIT(6),  ///< The input slot represents one half of the actually possible data. Used for all axes (pos / neg mouse movement, thumb-sticks).
-    FullAxis                  = EZ_BIT(7),  ///< The input slot represents one full axis. Mostly used for devices that report absolute values, such as the mouse position or touch input positions (values between zero and one) 
-    RequiresDeadZone          = EZ_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumb-sticks and trigger buttons.
-    ValuesAreNonContinuous    = EZ_BIT(9),  ///< The values of the slot can jump around randomly, ie. the user can input arbitrary values, like the position on a touchpad
-    ActivationDependsOnOthers = EZ_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touch-points which are numbered depending on how many other touch-points are already active.
-    NeverTimeScale            = EZ_BIT(11), ///< When this flag is specified, data from the input slot will never be scaled by the input update time difference. Important for mouse deltas and such.
+    ReportsRelativeValues     = W_BIT(0),  ///< The input slot reports delta values (e.g. a mouse move), instead of absolute values.
+    ValueBinaryZeroOrOne      = W_BIT(1),  ///< The input slot will either be zero or one. Used for all buttons and keys.
+    ValueRangeZeroToOne       = W_BIT(2),  ///< The input slot has analog values between zero and one. Used for analog axis like the xbox triggers or thumb-sticks.
+    ValueRangeZeroToInf       = W_BIT(3),  ///< The input slot has unbounded values larger than zero. Used for all absolute positions, such as the mouse position.
+    Pressable                 = W_BIT(4),  ///< The slot can be pressed (e.g. a key). This is not possible for an axis, such as the mouse or an analog stick.
+    Holdable                  = W_BIT(5),  ///< The user can hold down the key. Possible for buttons, but not for axes or for wheels such as the mouse wheel.
+    HalfAxis                  = W_BIT(6),  ///< The input slot represents one half of the actually possible data. Used for all axes (pos / neg mouse movement, thumb-sticks).
+    FullAxis                  = W_BIT(7),  ///< The input slot represents one full axis. Mostly used for devices that report absolute values, such as the mouse position or touch input positions (values between zero and one)
+    RequiresDeadZone          = W_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumb-sticks and trigger buttons.
+    ValuesAreNonContinuous    = W_BIT(9),  ///< The values of the slot can jump around randomly, ie. the user can input arbitrary values, like the position on a touchpad
+    ActivationDependsOnOthers = W_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touch-points which are numbered depending on how many other touch-points are already active.
+    NeverTimeScale            = W_BIT(11), ///< When this flag is specified, data from the input slot will never be scaled by the input update time difference. Important for mouse deltas and such.
 
 
     // Some predefined sets of flags for the most common use cases
@@ -196,336 +196,336 @@ struct ezInputSlotFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezInputSlotFlags);
+W_DECLARE_FLAGS_OPERATORS(WInputSlotFlags);
 
-#define ezInputSlot_None                  ""
+#define WInputSlot_None                  ""
 
 //
 // Touchpads
 //
 
-#define ezInputSlot_TouchPoint0           "touchpoint_0"
-#define ezInputSlot_TouchPoint0_PositionX "touchpoint_0_position_x"
-#define ezInputSlot_TouchPoint0_PositionY "touchpoint_0_position_y"
+#define WInputSlot_TouchPoint0           "touchpoint_0"
+#define WInputSlot_TouchPoint0_PositionX "touchpoint_0_position_x"
+#define WInputSlot_TouchPoint0_PositionY "touchpoint_0_position_y"
 
-#define ezInputSlot_TouchPoint1           "touchpoint_1"
-#define ezInputSlot_TouchPoint1_PositionX "touchpoint_1_position_x"
-#define ezInputSlot_TouchPoint1_PositionY "touchpoint_1_position_y"
+#define WInputSlot_TouchPoint1           "touchpoint_1"
+#define WInputSlot_TouchPoint1_PositionX "touchpoint_1_position_x"
+#define WInputSlot_TouchPoint1_PositionY "touchpoint_1_position_y"
 
-#define ezInputSlot_TouchPoint2           "touchpoint_2"
-#define ezInputSlot_TouchPoint2_PositionX "touchpoint_2_position_x"
-#define ezInputSlot_TouchPoint2_PositionY "touchpoint_2_position_y"
+#define WInputSlot_TouchPoint2           "touchpoint_2"
+#define WInputSlot_TouchPoint2_PositionX "touchpoint_2_position_x"
+#define WInputSlot_TouchPoint2_PositionY "touchpoint_2_position_y"
 
-#define ezInputSlot_TouchPoint3           "touchpoint_3"
-#define ezInputSlot_TouchPoint3_PositionX "touchpoint_3_position_x"
-#define ezInputSlot_TouchPoint3_PositionY "touchpoint_3_position_y"
+#define WInputSlot_TouchPoint3           "touchpoint_3"
+#define WInputSlot_TouchPoint3_PositionX "touchpoint_3_position_x"
+#define WInputSlot_TouchPoint3_PositionY "touchpoint_3_position_y"
 
-#define ezInputSlot_TouchPoint4           "touchpoint_4"
-#define ezInputSlot_TouchPoint4_PositionX "touchpoint_4_position_x"
-#define ezInputSlot_TouchPoint4_PositionY "touchpoint_4_position_y"
+#define WInputSlot_TouchPoint4           "touchpoint_4"
+#define WInputSlot_TouchPoint4_PositionX "touchpoint_4_position_x"
+#define WInputSlot_TouchPoint4_PositionY "touchpoint_4_position_y"
 
-#define ezInputSlot_TouchPoint5           "touchpoint_5"
-#define ezInputSlot_TouchPoint5_PositionX "touchpoint_5_position_x"
-#define ezInputSlot_TouchPoint5_PositionY "touchpoint_5_position_y"
+#define WInputSlot_TouchPoint5           "touchpoint_5"
+#define WInputSlot_TouchPoint5_PositionX "touchpoint_5_position_x"
+#define WInputSlot_TouchPoint5_PositionY "touchpoint_5_position_y"
 
-#define ezInputSlot_TouchPoint6           "touchpoint_6"
-#define ezInputSlot_TouchPoint6_PositionX "touchpoint_6_position_x"
-#define ezInputSlot_TouchPoint6_PositionY "touchpoint_6_position_y"
+#define WInputSlot_TouchPoint6           "touchpoint_6"
+#define WInputSlot_TouchPoint6_PositionX "touchpoint_6_position_x"
+#define WInputSlot_TouchPoint6_PositionY "touchpoint_6_position_y"
 
-#define ezInputSlot_TouchPoint7           "touchpoint_7"
-#define ezInputSlot_TouchPoint7_PositionX "touchpoint_7_position_x"
-#define ezInputSlot_TouchPoint7_PositionY "touchpoint_7_position_y"
+#define WInputSlot_TouchPoint7           "touchpoint_7"
+#define WInputSlot_TouchPoint7_PositionX "touchpoint_7_position_x"
+#define WInputSlot_TouchPoint7_PositionY "touchpoint_7_position_y"
 
-#define ezInputSlot_TouchPoint8           "touchpoint_8"
-#define ezInputSlot_TouchPoint8_PositionX "touchpoint_8_position_x"
-#define ezInputSlot_TouchPoint8_PositionY "touchpoint_8_position_y"
+#define WInputSlot_TouchPoint8           "touchpoint_8"
+#define WInputSlot_TouchPoint8_PositionX "touchpoint_8_position_x"
+#define WInputSlot_TouchPoint8_PositionY "touchpoint_8_position_y"
 
-#define ezInputSlot_TouchPoint9           "touchpoint_9"
-#define ezInputSlot_TouchPoint9_PositionX "touchpoint_9_position_x"
-#define ezInputSlot_TouchPoint9_PositionY "touchpoint_9_position_y"
+#define WInputSlot_TouchPoint9           "touchpoint_9"
+#define WInputSlot_TouchPoint9_PositionX "touchpoint_9_position_x"
+#define WInputSlot_TouchPoint9_PositionY "touchpoint_9_position_y"
 
 //
 // Standard Controllers
 //
 
-#define ezInputSlot_Controller0_ButtonA         "controller0_button_a"
-#define ezInputSlot_Controller0_ButtonB         "controller0_button_b"
-#define ezInputSlot_Controller0_ButtonX         "controller0_button_x"
-#define ezInputSlot_Controller0_ButtonY         "controller0_button_y"
-#define ezInputSlot_Controller0_ButtonStart     "controller0_button_start"
-#define ezInputSlot_Controller0_ButtonBack      "controller0_button_back"
-#define ezInputSlot_Controller0_LeftShoulder    "controller0_left_shoulder"
-#define ezInputSlot_Controller0_RightShoulder   "controller0_right_shoulder"
-#define ezInputSlot_Controller0_LeftTrigger     "controller0_left_trigger"
-#define ezInputSlot_Controller0_RightTrigger    "controller0_right_trigger"
-#define ezInputSlot_Controller0_PadUp           "controller0_pad_up"
-#define ezInputSlot_Controller0_PadDown         "controller0_pad_down"
-#define ezInputSlot_Controller0_PadLeft         "controller0_pad_left"
-#define ezInputSlot_Controller0_PadRight        "controller0_pad_right"
-#define ezInputSlot_Controller0_LeftStick       "controller0_left_stick"
-#define ezInputSlot_Controller0_RightStick      "controller0_right_stick"
-#define ezInputSlot_Controller0_LeftStick_NegX  "controller0_leftstick_negx"
-#define ezInputSlot_Controller0_LeftStick_PosX  "controller0_leftstick_posx"
-#define ezInputSlot_Controller0_LeftStick_NegY  "controller0_leftstick_negy"
-#define ezInputSlot_Controller0_LeftStick_PosY  "controller0_leftstick_posy"
-#define ezInputSlot_Controller0_RightStick_NegX "controller0_rightstick_negx"
-#define ezInputSlot_Controller0_RightStick_PosX "controller0_rightstick_posx"
-#define ezInputSlot_Controller0_RightStick_NegY "controller0_rightstick_negy"
-#define ezInputSlot_Controller0_RightStick_PosY "controller0_rightstick_posy"
+#define WInputSlot_Controller0_ButtonA         "controller0_button_a"
+#define WInputSlot_Controller0_ButtonB         "controller0_button_b"
+#define WInputSlot_Controller0_ButtonX         "controller0_button_x"
+#define WInputSlot_Controller0_ButtonY         "controller0_button_y"
+#define WInputSlot_Controller0_ButtonStart     "controller0_button_start"
+#define WInputSlot_Controller0_ButtonBack      "controller0_button_back"
+#define WInputSlot_Controller0_LeftShoulder    "controller0_left_shoulder"
+#define WInputSlot_Controller0_RightShoulder   "controller0_right_shoulder"
+#define WInputSlot_Controller0_LeftTrigger     "controller0_left_trigger"
+#define WInputSlot_Controller0_RightTrigger    "controller0_right_trigger"
+#define WInputSlot_Controller0_PadUp           "controller0_pad_up"
+#define WInputSlot_Controller0_PadDown         "controller0_pad_down"
+#define WInputSlot_Controller0_PadLeft         "controller0_pad_left"
+#define WInputSlot_Controller0_PadRight        "controller0_pad_right"
+#define WInputSlot_Controller0_LeftStick       "controller0_left_stick"
+#define WInputSlot_Controller0_RightStick      "controller0_right_stick"
+#define WInputSlot_Controller0_LeftStick_NegX  "controller0_leftstick_negx"
+#define WInputSlot_Controller0_LeftStick_PosX  "controller0_leftstick_posx"
+#define WInputSlot_Controller0_LeftStick_NegY  "controller0_leftstick_negy"
+#define WInputSlot_Controller0_LeftStick_PosY  "controller0_leftstick_posy"
+#define WInputSlot_Controller0_RightStick_NegX "controller0_rightstick_negx"
+#define WInputSlot_Controller0_RightStick_PosX "controller0_rightstick_posx"
+#define WInputSlot_Controller0_RightStick_NegY "controller0_rightstick_negy"
+#define WInputSlot_Controller0_RightStick_PosY "controller0_rightstick_posy"
 
-#define ezInputSlot_Controller1_ButtonA         "controller1_button_a"
-#define ezInputSlot_Controller1_ButtonB         "controller1_button_b"
-#define ezInputSlot_Controller1_ButtonX         "controller1_button_x"
-#define ezInputSlot_Controller1_ButtonY         "controller1_button_y"
-#define ezInputSlot_Controller1_ButtonStart     "controller1_button_start"
-#define ezInputSlot_Controller1_ButtonBack      "controller1_button_back"
-#define ezInputSlot_Controller1_LeftShoulder    "controller1_left_shoulder"
-#define ezInputSlot_Controller1_RightShoulder   "controller1_right_shoulder"
-#define ezInputSlot_Controller1_LeftTrigger     "controller1_left_trigger"
-#define ezInputSlot_Controller1_RightTrigger    "controller1_right_trigger"
-#define ezInputSlot_Controller1_PadUp           "controller1_pad_up"
-#define ezInputSlot_Controller1_PadDown         "controller1_pad_down"
-#define ezInputSlot_Controller1_PadLeft         "controller1_pad_left"
-#define ezInputSlot_Controller1_PadRight        "controller1_pad_right"
-#define ezInputSlot_Controller1_LeftStick       "controller1_left_stick"
-#define ezInputSlot_Controller1_RightStick      "controller1_right_stick"
-#define ezInputSlot_Controller1_LeftStick_NegX  "controller1_leftstick_negx"
-#define ezInputSlot_Controller1_LeftStick_PosX  "controller1_leftstick_posx"
-#define ezInputSlot_Controller1_LeftStick_NegY  "controller1_leftstick_negy"
-#define ezInputSlot_Controller1_LeftStick_PosY  "controller1_leftstick_posy"
-#define ezInputSlot_Controller1_RightStick_NegX "controller1_rightstick_negx"
-#define ezInputSlot_Controller1_RightStick_PosX "controller1_rightstick_posx"
-#define ezInputSlot_Controller1_RightStick_NegY "controller1_rightstick_negy"
-#define ezInputSlot_Controller1_RightStick_PosY "controller1_rightstick_posy"
+#define WInputSlot_Controller1_ButtonA         "controller1_button_a"
+#define WInputSlot_Controller1_ButtonB         "controller1_button_b"
+#define WInputSlot_Controller1_ButtonX         "controller1_button_x"
+#define WInputSlot_Controller1_ButtonY         "controller1_button_y"
+#define WInputSlot_Controller1_ButtonStart     "controller1_button_start"
+#define WInputSlot_Controller1_ButtonBack      "controller1_button_back"
+#define WInputSlot_Controller1_LeftShoulder    "controller1_left_shoulder"
+#define WInputSlot_Controller1_RightShoulder   "controller1_right_shoulder"
+#define WInputSlot_Controller1_LeftTrigger     "controller1_left_trigger"
+#define WInputSlot_Controller1_RightTrigger    "controller1_right_trigger"
+#define WInputSlot_Controller1_PadUp           "controller1_pad_up"
+#define WInputSlot_Controller1_PadDown         "controller1_pad_down"
+#define WInputSlot_Controller1_PadLeft         "controller1_pad_left"
+#define WInputSlot_Controller1_PadRight        "controller1_pad_right"
+#define WInputSlot_Controller1_LeftStick       "controller1_left_stick"
+#define WInputSlot_Controller1_RightStick      "controller1_right_stick"
+#define WInputSlot_Controller1_LeftStick_NegX  "controller1_leftstick_negx"
+#define WInputSlot_Controller1_LeftStick_PosX  "controller1_leftstick_posx"
+#define WInputSlot_Controller1_LeftStick_NegY  "controller1_leftstick_negy"
+#define WInputSlot_Controller1_LeftStick_PosY  "controller1_leftstick_posy"
+#define WInputSlot_Controller1_RightStick_NegX "controller1_rightstick_negx"
+#define WInputSlot_Controller1_RightStick_PosX "controller1_rightstick_posx"
+#define WInputSlot_Controller1_RightStick_NegY "controller1_rightstick_negy"
+#define WInputSlot_Controller1_RightStick_PosY "controller1_rightstick_posy"
 
-#define ezInputSlot_Controller2_ButtonA         "controller2_button_a"
-#define ezInputSlot_Controller2_ButtonB         "controller2_button_b"
-#define ezInputSlot_Controller2_ButtonX         "controller2_button_x"
-#define ezInputSlot_Controller2_ButtonY         "controller2_button_y"
-#define ezInputSlot_Controller2_ButtonStart     "controller2_button_start"
-#define ezInputSlot_Controller2_ButtonBack      "controller2_button_back"
-#define ezInputSlot_Controller2_LeftShoulder    "controller2_left_shoulder"
-#define ezInputSlot_Controller2_RightShoulder   "controller2_right_shoulder"
-#define ezInputSlot_Controller2_LeftTrigger     "controller2_left_trigger"
-#define ezInputSlot_Controller2_RightTrigger    "controller2_right_trigger"
-#define ezInputSlot_Controller2_PadUp           "controller2_pad_up"
-#define ezInputSlot_Controller2_PadDown         "controller2_pad_down"
-#define ezInputSlot_Controller2_PadLeft         "controller2_pad_left"
-#define ezInputSlot_Controller2_PadRight        "controller2_pad_right"
-#define ezInputSlot_Controller2_LeftStick       "controller2_left_stick"
-#define ezInputSlot_Controller2_RightStick      "controller2_right_stick"
-#define ezInputSlot_Controller2_LeftStick_NegX  "controller2_leftstick_negx"
-#define ezInputSlot_Controller2_LeftStick_PosX  "controller2_leftstick_posx"
-#define ezInputSlot_Controller2_LeftStick_NegY  "controller2_leftstick_negy"
-#define ezInputSlot_Controller2_LeftStick_PosY  "controller2_leftstick_posy"
-#define ezInputSlot_Controller2_RightStick_NegX "controller2_rightstick_negx"
-#define ezInputSlot_Controller2_RightStick_PosX "controller2_rightstick_posx"
-#define ezInputSlot_Controller2_RightStick_NegY "controller2_rightstick_negy"
-#define ezInputSlot_Controller2_RightStick_PosY "controller2_rightstick_posy"
+#define WInputSlot_Controller2_ButtonA         "controller2_button_a"
+#define WInputSlot_Controller2_ButtonB         "controller2_button_b"
+#define WInputSlot_Controller2_ButtonX         "controller2_button_x"
+#define WInputSlot_Controller2_ButtonY         "controller2_button_y"
+#define WInputSlot_Controller2_ButtonStart     "controller2_button_start"
+#define WInputSlot_Controller2_ButtonBack      "controller2_button_back"
+#define WInputSlot_Controller2_LeftShoulder    "controller2_left_shoulder"
+#define WInputSlot_Controller2_RightShoulder   "controller2_right_shoulder"
+#define WInputSlot_Controller2_LeftTrigger     "controller2_left_trigger"
+#define WInputSlot_Controller2_RightTrigger    "controller2_right_trigger"
+#define WInputSlot_Controller2_PadUp           "controller2_pad_up"
+#define WInputSlot_Controller2_PadDown         "controller2_pad_down"
+#define WInputSlot_Controller2_PadLeft         "controller2_pad_left"
+#define WInputSlot_Controller2_PadRight        "controller2_pad_right"
+#define WInputSlot_Controller2_LeftStick       "controller2_left_stick"
+#define WInputSlot_Controller2_RightStick      "controller2_right_stick"
+#define WInputSlot_Controller2_LeftStick_NegX  "controller2_leftstick_negx"
+#define WInputSlot_Controller2_LeftStick_PosX  "controller2_leftstick_posx"
+#define WInputSlot_Controller2_LeftStick_NegY  "controller2_leftstick_negy"
+#define WInputSlot_Controller2_LeftStick_PosY  "controller2_leftstick_posy"
+#define WInputSlot_Controller2_RightStick_NegX "controller2_rightstick_negx"
+#define WInputSlot_Controller2_RightStick_PosX "controller2_rightstick_posx"
+#define WInputSlot_Controller2_RightStick_NegY "controller2_rightstick_negy"
+#define WInputSlot_Controller2_RightStick_PosY "controller2_rightstick_posy"
 
-#define ezInputSlot_Controller3_ButtonA         "controller3_button_a"
-#define ezInputSlot_Controller3_ButtonB         "controller3_button_b"
-#define ezInputSlot_Controller3_ButtonX         "controller3_button_x"
-#define ezInputSlot_Controller3_ButtonY         "controller3_button_y"
-#define ezInputSlot_Controller3_ButtonStart     "controller3_button_start"
-#define ezInputSlot_Controller3_ButtonBack      "controller3_button_back"
-#define ezInputSlot_Controller3_LeftShoulder    "controller3_left_shoulder"
-#define ezInputSlot_Controller3_RightShoulder   "controller3_right_shoulder"
-#define ezInputSlot_Controller3_LeftTrigger     "controller3_left_trigger"
-#define ezInputSlot_Controller3_RightTrigger    "controller3_right_trigger"
-#define ezInputSlot_Controller3_PadUp           "controller3_pad_up"
-#define ezInputSlot_Controller3_PadDown         "controller3_pad_down"
-#define ezInputSlot_Controller3_PadLeft         "controller3_pad_left"
-#define ezInputSlot_Controller3_PadRight        "controller3_pad_right"
-#define ezInputSlot_Controller3_LeftStick       "controller3_left_stick"
-#define ezInputSlot_Controller3_RightStick      "controller3_right_stick"
-#define ezInputSlot_Controller3_LeftStick_NegX  "controller3_leftstick_negx"
-#define ezInputSlot_Controller3_LeftStick_PosX  "controller3_leftstick_posx"
-#define ezInputSlot_Controller3_LeftStick_NegY  "controller3_leftstick_negy"
-#define ezInputSlot_Controller3_LeftStick_PosY  "controller3_leftstick_posy"
-#define ezInputSlot_Controller3_RightStick_NegX "controller3_rightstick_negx"
-#define ezInputSlot_Controller3_RightStick_PosX "controller3_rightstick_posx"
-#define ezInputSlot_Controller3_RightStick_NegY "controller3_rightstick_negy"
-#define ezInputSlot_Controller3_RightStick_PosY "controller3_rightstick_posy"
+#define WInputSlot_Controller3_ButtonA         "controller3_button_a"
+#define WInputSlot_Controller3_ButtonB         "controller3_button_b"
+#define WInputSlot_Controller3_ButtonX         "controller3_button_x"
+#define WInputSlot_Controller3_ButtonY         "controller3_button_y"
+#define WInputSlot_Controller3_ButtonStart     "controller3_button_start"
+#define WInputSlot_Controller3_ButtonBack      "controller3_button_back"
+#define WInputSlot_Controller3_LeftShoulder    "controller3_left_shoulder"
+#define WInputSlot_Controller3_RightShoulder   "controller3_right_shoulder"
+#define WInputSlot_Controller3_LeftTrigger     "controller3_left_trigger"
+#define WInputSlot_Controller3_RightTrigger    "controller3_right_trigger"
+#define WInputSlot_Controller3_PadUp           "controller3_pad_up"
+#define WInputSlot_Controller3_PadDown         "controller3_pad_down"
+#define WInputSlot_Controller3_PadLeft         "controller3_pad_left"
+#define WInputSlot_Controller3_PadRight        "controller3_pad_right"
+#define WInputSlot_Controller3_LeftStick       "controller3_left_stick"
+#define WInputSlot_Controller3_RightStick      "controller3_right_stick"
+#define WInputSlot_Controller3_LeftStick_NegX  "controller3_leftstick_negx"
+#define WInputSlot_Controller3_LeftStick_PosX  "controller3_leftstick_posx"
+#define WInputSlot_Controller3_LeftStick_NegY  "controller3_leftstick_negy"
+#define WInputSlot_Controller3_LeftStick_PosY  "controller3_leftstick_posy"
+#define WInputSlot_Controller3_RightStick_NegX "controller3_rightstick_negx"
+#define WInputSlot_Controller3_RightStick_PosX "controller3_rightstick_posx"
+#define WInputSlot_Controller3_RightStick_NegY "controller3_rightstick_negy"
+#define WInputSlot_Controller3_RightStick_PosY "controller3_rightstick_posy"
 
 //
 // Keyboard
 //
 
-#define ezInputSlot_KeyLeft           "keyboard_left"
-#define ezInputSlot_KeyRight          "keyboard_right"
-#define ezInputSlot_KeyUp             "keyboard_up"
-#define ezInputSlot_KeyDown           "keyboard_down"
-#define ezInputSlot_KeyEscape         "keyboard_escape"
-#define ezInputSlot_KeySpace          "keyboard_space"
-#define ezInputSlot_KeyBackspace      "keyboard_backspace"
-#define ezInputSlot_KeyReturn         "keyboard_return"
-#define ezInputSlot_KeyTab            "keyboard_tab"
-#define ezInputSlot_KeyLeftShift      "keyboard_left_shift"
-#define ezInputSlot_KeyRightShift     "keyboard_right_shift"
-#define ezInputSlot_KeyLeftCtrl       "keyboard_left_ctrl"
-#define ezInputSlot_KeyRightCtrl      "keyboard_right_ctrl"
-#define ezInputSlot_KeyLeftAlt        "keyboard_left_alt"
-#define ezInputSlot_KeyRightAlt       "keyboard_right_alt"
-#define ezInputSlot_KeyLeftWin        "keyboard_left_win"
-#define ezInputSlot_KeyRightWin       "keyboard_right_win"
-#define ezInputSlot_KeyBracketOpen    "keyboard_bracket_open"
-#define ezInputSlot_KeyBracketClose   "keyboard_bracket_close"
-#define ezInputSlot_KeySemicolon      "keyboard_semicolon"
-#define ezInputSlot_KeyApostrophe     "keyboard_apostrophe"
-#define ezInputSlot_KeySlash          "keyboard_slash"
-#define ezInputSlot_KeyEquals         "keyboard_equals"
-#define ezInputSlot_KeyTilde          "keyboard_tilde"
-#define ezInputSlot_KeyHyphen         "keyboard_hyphen"
-#define ezInputSlot_KeyComma          "keyboard_comma"
-#define ezInputSlot_KeyPeriod         "keyboard_period"
-#define ezInputSlot_KeyBackslash      "keyboard_backslash"
-#define ezInputSlot_KeyPipe           "keyboard_pipe"
-#define ezInputSlot_Key1              "keyboard_1"
-#define ezInputSlot_Key2              "keyboard_2"
-#define ezInputSlot_Key3              "keyboard_3"
-#define ezInputSlot_Key4              "keyboard_4"
-#define ezInputSlot_Key5              "keyboard_5"
-#define ezInputSlot_Key6              "keyboard_6"
-#define ezInputSlot_Key7              "keyboard_7"
-#define ezInputSlot_Key8              "keyboard_8"
-#define ezInputSlot_Key9              "keyboard_9"
-#define ezInputSlot_Key0              "keyboard_0"
-#define ezInputSlot_KeyNumpad1        "keyboard_numpad_1"
-#define ezInputSlot_KeyNumpad2        "keyboard_numpad_2"
-#define ezInputSlot_KeyNumpad3        "keyboard_numpad_3"
-#define ezInputSlot_KeyNumpad4        "keyboard_numpad_4"
-#define ezInputSlot_KeyNumpad5        "keyboard_numpad_5"
-#define ezInputSlot_KeyNumpad6        "keyboard_numpad_6"
-#define ezInputSlot_KeyNumpad7        "keyboard_numpad_7"
-#define ezInputSlot_KeyNumpad8        "keyboard_numpad_8"
-#define ezInputSlot_KeyNumpad9        "keyboard_numpad_9"
-#define ezInputSlot_KeyNumpad0        "keyboard_numpad_0"
-#define ezInputSlot_KeyA              "keyboard_a"
-#define ezInputSlot_KeyB              "keyboard_b"
-#define ezInputSlot_KeyC              "keyboard_c"
-#define ezInputSlot_KeyD              "keyboard_d"
-#define ezInputSlot_KeyE              "keyboard_e"
-#define ezInputSlot_KeyF              "keyboard_f"
-#define ezInputSlot_KeyG              "keyboard_g"
-#define ezInputSlot_KeyH              "keyboard_h"
-#define ezInputSlot_KeyI              "keyboard_i"
-#define ezInputSlot_KeyJ              "keyboard_j"
-#define ezInputSlot_KeyK              "keyboard_k"
-#define ezInputSlot_KeyL              "keyboard_l"
-#define ezInputSlot_KeyM              "keyboard_m"
-#define ezInputSlot_KeyN              "keyboard_n"
-#define ezInputSlot_KeyO              "keyboard_o"
-#define ezInputSlot_KeyP              "keyboard_p"
-#define ezInputSlot_KeyQ              "keyboard_q"
-#define ezInputSlot_KeyR              "keyboard_r"
-#define ezInputSlot_KeyS              "keyboard_s"
-#define ezInputSlot_KeyT              "keyboard_t"
-#define ezInputSlot_KeyU              "keyboard_u"
-#define ezInputSlot_KeyV              "keyboard_v"
-#define ezInputSlot_KeyW              "keyboard_w"
-#define ezInputSlot_KeyX              "keyboard_x"
-#define ezInputSlot_KeyY              "keyboard_y"
-#define ezInputSlot_KeyZ              "keyboard_z"
-#define ezInputSlot_KeyF1             "keyboard_f1"
-#define ezInputSlot_KeyF2             "keyboard_f2"
-#define ezInputSlot_KeyF3             "keyboard_f3"
-#define ezInputSlot_KeyF4             "keyboard_f4"
-#define ezInputSlot_KeyF5             "keyboard_f5"
-#define ezInputSlot_KeyF6             "keyboard_f6"
-#define ezInputSlot_KeyF7             "keyboard_f7"
-#define ezInputSlot_KeyF8             "keyboard_f8"
-#define ezInputSlot_KeyF9             "keyboard_f9"
-#define ezInputSlot_KeyF10            "keyboard_f10"
-#define ezInputSlot_KeyF11            "keyboard_f11"
-#define ezInputSlot_KeyF12            "keyboard_f12"
-#define ezInputSlot_KeyHome           "keyboard_home"
-#define ezInputSlot_KeyEnd            "keyboard_end"
-#define ezInputSlot_KeyDelete         "keyboard_delete"
-#define ezInputSlot_KeyInsert         "keyboard_insert"
-#define ezInputSlot_KeyPageUp         "keyboard_page_up"
-#define ezInputSlot_KeyPageDown       "keyboard_page_down"
-#define ezInputSlot_KeyNumLock        "keyboard_numlock"
-#define ezInputSlot_KeyNumpadPlus     "keyboard_numpad_plus"
-#define ezInputSlot_KeyNumpadMinus    "keyboard_numpad_minus"
-#define ezInputSlot_KeyNumpadStar     "keyboard_numpad_star"
-#define ezInputSlot_KeyNumpadSlash    "keyboard_numpad_slash"
-#define ezInputSlot_KeyNumpadPeriod   "keyboard_numpad_period"
-#define ezInputSlot_KeyNumpadEnter    "keyboard_numpad_enter"
-#define ezInputSlot_KeyCapsLock       "keyboard_capslock"
-#define ezInputSlot_KeyPrint          "keyboard_print"
-#define ezInputSlot_KeyScroll         "keyboard_scroll"
-#define ezInputSlot_KeyPause          "keyboard_pause"
-#define ezInputSlot_KeyApps           "keyboard_apps"
-#define ezInputSlot_KeyPrevTrack      "keyboard_prev_track"
-#define ezInputSlot_KeyNextTrack      "keyboard_next_track"
-#define ezInputSlot_KeyPlayPause      "keyboard_play_pause"
-#define ezInputSlot_KeyStop           "keyboard_stop"
-#define ezInputSlot_KeyVolumeUp       "keyboard_volume_up"
-#define ezInputSlot_KeyVolumeDown     "keyboard_volume_down"
-#define ezInputSlot_KeyMute           "keyboard_mute"
+#define WInputSlot_KeyLeft           "keyboard_left"
+#define WInputSlot_KeyRight          "keyboard_right"
+#define WInputSlot_KeyUp             "keyboard_up"
+#define WInputSlot_KeyDown           "keyboard_down"
+#define WInputSlot_KeyEscape         "keyboard_escape"
+#define WInputSlot_KeySpace          "keyboard_space"
+#define WInputSlot_KeyBackspace      "keyboard_backspace"
+#define WInputSlot_KeyReturn         "keyboard_return"
+#define WInputSlot_KeyTab            "keyboard_tab"
+#define WInputSlot_KeyLeftShift      "keyboard_left_shift"
+#define WInputSlot_KeyRightShift     "keyboard_right_shift"
+#define WInputSlot_KeyLeftCtrl       "keyboard_left_ctrl"
+#define WInputSlot_KeyRightCtrl      "keyboard_right_ctrl"
+#define WInputSlot_KeyLeftAlt        "keyboard_left_alt"
+#define WInputSlot_KeyRightAlt       "keyboard_right_alt"
+#define WInputSlot_KeyLeftWin        "keyboard_left_win"
+#define WInputSlot_KeyRightWin       "keyboard_right_win"
+#define WInputSlot_KeyBracketOpen    "keyboard_bracket_open"
+#define WInputSlot_KeyBracketClose   "keyboard_bracket_close"
+#define WInputSlot_KeySemicolon      "keyboard_semicolon"
+#define WInputSlot_KeyApostrophe     "keyboard_apostrophe"
+#define WInputSlot_KeySlash          "keyboard_slash"
+#define WInputSlot_KeyEquals         "keyboard_equals"
+#define WInputSlot_KeyTilde          "keyboard_tilde"
+#define WInputSlot_KeyHyphen         "keyboard_hyphen"
+#define WInputSlot_KeyComma          "keyboard_comma"
+#define WInputSlot_KeyPeriod         "keyboard_period"
+#define WInputSlot_KeyBackslash      "keyboard_backslash"
+#define WInputSlot_KeyPipe           "keyboard_pipe"
+#define WInputSlot_Key1              "keyboard_1"
+#define WInputSlot_Key2              "keyboard_2"
+#define WInputSlot_Key3              "keyboard_3"
+#define WInputSlot_Key4              "keyboard_4"
+#define WInputSlot_Key5              "keyboard_5"
+#define WInputSlot_Key6              "keyboard_6"
+#define WInputSlot_Key7              "keyboard_7"
+#define WInputSlot_Key8              "keyboard_8"
+#define WInputSlot_Key9              "keyboard_9"
+#define WInputSlot_Key0              "keyboard_0"
+#define WInputSlot_KeyNumpad1        "keyboard_numpad_1"
+#define WInputSlot_KeyNumpad2        "keyboard_numpad_2"
+#define WInputSlot_KeyNumpad3        "keyboard_numpad_3"
+#define WInputSlot_KeyNumpad4        "keyboard_numpad_4"
+#define WInputSlot_KeyNumpad5        "keyboard_numpad_5"
+#define WInputSlot_KeyNumpad6        "keyboard_numpad_6"
+#define WInputSlot_KeyNumpad7        "keyboard_numpad_7"
+#define WInputSlot_KeyNumpad8        "keyboard_numpad_8"
+#define WInputSlot_KeyNumpad9        "keyboard_numpad_9"
+#define WInputSlot_KeyNumpad0        "keyboard_numpad_0"
+#define WInputSlot_KeyA              "keyboard_a"
+#define WInputSlot_KeyB              "keyboard_b"
+#define WInputSlot_KeyC              "keyboard_c"
+#define WInputSlot_KeyD              "keyboard_d"
+#define WInputSlot_KeyE              "keyboard_e"
+#define WInputSlot_KeyF              "keyboard_f"
+#define WInputSlot_KeyG              "keyboard_g"
+#define WInputSlot_KeyH              "keyboard_h"
+#define WInputSlot_KeyI              "keyboard_i"
+#define WInputSlot_KeyJ              "keyboard_j"
+#define WInputSlot_KeyK              "keyboard_k"
+#define WInputSlot_KeyL              "keyboard_l"
+#define WInputSlot_KeyM              "keyboard_m"
+#define WInputSlot_KeyN              "keyboard_n"
+#define WInputSlot_KeyO              "keyboard_o"
+#define WInputSlot_KeyP              "keyboard_p"
+#define WInputSlot_KeyQ              "keyboard_q"
+#define WInputSlot_KeyR              "keyboard_r"
+#define WInputSlot_KeyS              "keyboard_s"
+#define WInputSlot_KeyT              "keyboard_t"
+#define WInputSlot_KeyU              "keyboard_u"
+#define WInputSlot_KeyV              "keyboard_v"
+#define WInputSlot_KeyW              "keyboard_w"
+#define WInputSlot_KeyX              "keyboard_x"
+#define WInputSlot_KeyY              "keyboard_y"
+#define WInputSlot_KeyZ              "keyboard_z"
+#define WInputSlot_KeyF1             "keyboard_f1"
+#define WInputSlot_KeyF2             "keyboard_f2"
+#define WInputSlot_KeyF3             "keyboard_f3"
+#define WInputSlot_KeyF4             "keyboard_f4"
+#define WInputSlot_KeyF5             "keyboard_f5"
+#define WInputSlot_KeyF6             "keyboard_f6"
+#define WInputSlot_KeyF7             "keyboard_f7"
+#define WInputSlot_KeyF8             "keyboard_f8"
+#define WInputSlot_KeyF9             "keyboard_f9"
+#define WInputSlot_KeyF10            "keyboard_f10"
+#define WInputSlot_KeyF11            "keyboard_f11"
+#define WInputSlot_KeyF12            "keyboard_f12"
+#define WInputSlot_KeyHome           "keyboard_home"
+#define WInputSlot_KeyEnd            "keyboard_end"
+#define WInputSlot_KeyDelete         "keyboard_delete"
+#define WInputSlot_KeyInsert         "keyboard_insert"
+#define WInputSlot_KeyPageUp         "keyboard_page_up"
+#define WInputSlot_KeyPageDown       "keyboard_page_down"
+#define WInputSlot_KeyNumLock        "keyboard_numlock"
+#define WInputSlot_KeyNumpadPlus     "keyboard_numpad_plus"
+#define WInputSlot_KeyNumpadMinus    "keyboard_numpad_minus"
+#define WInputSlot_KeyNumpadStar     "keyboard_numpad_star"
+#define WInputSlot_KeyNumpadSlash    "keyboard_numpad_slash"
+#define WInputSlot_KeyNumpadPeriod   "keyboard_numpad_period"
+#define WInputSlot_KeyNumpadEnter    "keyboard_numpad_enter"
+#define WInputSlot_KeyCapsLock       "keyboard_capslock"
+#define WInputSlot_KeyPrint          "keyboard_print"
+#define WInputSlot_KeyScroll         "keyboard_scroll"
+#define WInputSlot_KeyPause          "keyboard_pause"
+#define WInputSlot_KeyApps           "keyboard_apps"
+#define WInputSlot_KeyPrevTrack      "keyboard_prev_track"
+#define WInputSlot_KeyNextTrack      "keyboard_next_track"
+#define WInputSlot_KeyPlayPause      "keyboard_play_pause"
+#define WInputSlot_KeyStop           "keyboard_stop"
+#define WInputSlot_KeyVolumeUp       "keyboard_volume_up"
+#define WInputSlot_KeyVolumeDown     "keyboard_volume_down"
+#define WInputSlot_KeyMute           "keyboard_mute"
 
 //
 // Mouse
 //
 
-#define ezInputSlot_MouseWheelUp      "mouse_wheel_up"
-#define ezInputSlot_MouseWheelDown    "mouse_wheel_down"
-#define ezInputSlot_MouseMoveNegX     "mouse_move_negx"
-#define ezInputSlot_MouseMovePosX     "mouse_move_posx"
-#define ezInputSlot_MouseMoveNegY     "mouse_move_negy"
-#define ezInputSlot_MouseMovePosY     "mouse_move_posy"
-#define ezInputSlot_MouseButton0      "mouse_button_0"
-#define ezInputSlot_MouseButton1      "mouse_button_1"
-#define ezInputSlot_MouseButton2      "mouse_button_2"
-#define ezInputSlot_MouseButton3      "mouse_button_3"
-#define ezInputSlot_MouseButton4      "mouse_button_4"
-#define ezInputSlot_MouseDblClick0    "mouse_button_0_doubleclick"
-#define ezInputSlot_MouseDblClick1    "mouse_button_1_doubleclick"
-#define ezInputSlot_MouseDblClick2    "mouse_button_2_doubleclick"
-#define ezInputSlot_MousePositionX    "mouse_position_x"
-#define ezInputSlot_MousePositionY    "mouse_position_y"
+#define WInputSlot_MouseWheelUp      "mouse_wheel_up"
+#define WInputSlot_MouseWheelDown    "mouse_wheel_down"
+#define WInputSlot_MouseMoveNegX     "mouse_move_negx"
+#define WInputSlot_MouseMovePosX     "mouse_move_posx"
+#define WInputSlot_MouseMoveNegY     "mouse_move_negy"
+#define WInputSlot_MouseMovePosY     "mouse_move_posy"
+#define WInputSlot_MouseButton0      "mouse_button_0"
+#define WInputSlot_MouseButton1      "mouse_button_1"
+#define WInputSlot_MouseButton2      "mouse_button_2"
+#define WInputSlot_MouseButton3      "mouse_button_3"
+#define WInputSlot_MouseButton4      "mouse_button_4"
+#define WInputSlot_MouseDblClick0    "mouse_button_0_doubleclick"
+#define WInputSlot_MouseDblClick1    "mouse_button_1_doubleclick"
+#define WInputSlot_MouseDblClick2    "mouse_button_2_doubleclick"
+#define WInputSlot_MousePositionX    "mouse_position_x"
+#define WInputSlot_MousePositionY    "mouse_position_y"
 
 //
 // Spatial Input Data (Tracked Hands or Controllers)
 //
 
-#define ezInputSlot_Spatial_Hand0_Tracked "spatial_hand0_tracked"
-#define ezInputSlot_Spatial_Hand0_Pressed "spatial_hand0_pressed"
-#define ezInputSlot_Spatial_Hand0_PositionPosX "spatial_hand0_position_posx"
-#define ezInputSlot_Spatial_Hand0_PositionPosY "spatial_hand0_position_posy"
-#define ezInputSlot_Spatial_Hand0_PositionPosZ "spatial_hand0_position_posz"
-#define ezInputSlot_Spatial_Hand0_PositionNegX "spatial_hand0_position_negx"
-#define ezInputSlot_Spatial_Hand0_PositionNegY "spatial_hand0_position_negy"
-#define ezInputSlot_Spatial_Hand0_PositionNegZ "spatial_hand0_position_negz"
+#define WInputSlot_Spatial_Hand0_Tracked "spatial_hand0_tracked"
+#define WInputSlot_Spatial_Hand0_Pressed "spatial_hand0_pressed"
+#define WInputSlot_Spatial_Hand0_PositionPosX "spatial_hand0_position_posx"
+#define WInputSlot_Spatial_Hand0_PositionPosY "spatial_hand0_position_posy"
+#define WInputSlot_Spatial_Hand0_PositionPosZ "spatial_hand0_position_posz"
+#define WInputSlot_Spatial_Hand0_PositionNegX "spatial_hand0_position_negx"
+#define WInputSlot_Spatial_Hand0_PositionNegY "spatial_hand0_position_negy"
+#define WInputSlot_Spatial_Hand0_PositionNegZ "spatial_hand0_position_negz"
 
-#define ezInputSlot_Spatial_Hand1_Tracked "spatial_hand1_tracked"
-#define ezInputSlot_Spatial_Hand1_Pressed "spatial_hand1_pressed"
-#define ezInputSlot_Spatial_Hand1_PositionPosX "spatial_hand1_position_posx"
-#define ezInputSlot_Spatial_Hand1_PositionPosY "spatial_hand1_position_posy"
-#define ezInputSlot_Spatial_Hand1_PositionPosZ "spatial_hand1_position_posz"
-#define ezInputSlot_Spatial_Hand1_PositionNegX "spatial_hand1_position_negx"
-#define ezInputSlot_Spatial_Hand1_PositionNegY "spatial_hand1_position_negy"
-#define ezInputSlot_Spatial_Hand1_PositionNegZ "spatial_hand1_position_negz"
+#define WInputSlot_Spatial_Hand1_Tracked "spatial_hand1_tracked"
+#define WInputSlot_Spatial_Hand1_Pressed "spatial_hand1_pressed"
+#define WInputSlot_Spatial_Hand1_PositionPosX "spatial_hand1_position_posx"
+#define WInputSlot_Spatial_Hand1_PositionPosY "spatial_hand1_position_posy"
+#define WInputSlot_Spatial_Hand1_PositionPosZ "spatial_hand1_position_posz"
+#define WInputSlot_Spatial_Hand1_PositionNegX "spatial_hand1_position_negx"
+#define WInputSlot_Spatial_Hand1_PositionNegY "spatial_hand1_position_negy"
+#define WInputSlot_Spatial_Hand1_PositionNegZ "spatial_hand1_position_negz"
 
-#define ezInputSlot_Spatial_Head_PositionPosX "spatial_head_position_posx"
-#define ezInputSlot_Spatial_Head_PositionPosY "spatial_head_position_posy"
-#define ezInputSlot_Spatial_Head_PositionPosZ "spatial_head_position_posz"
-#define ezInputSlot_Spatial_Head_PositionNegX "spatial_head_position_negx"
-#define ezInputSlot_Spatial_Head_PositionNegY "spatial_head_position_negy"
-#define ezInputSlot_Spatial_Head_PositionNegZ "spatial_head_position_negz"
+#define WInputSlot_Spatial_Head_PositionPosX "spatial_head_position_posx"
+#define WInputSlot_Spatial_Head_PositionPosY "spatial_head_position_posy"
+#define WInputSlot_Spatial_Head_PositionPosZ "spatial_head_position_posz"
+#define WInputSlot_Spatial_Head_PositionNegX "spatial_head_position_negx"
+#define WInputSlot_Spatial_Head_PositionNegY "spatial_head_position_negy"
+#define WInputSlot_Spatial_Head_PositionNegZ "spatial_head_position_negz"
 
-#define ezInputSlot_Spatial_Head_ForwardPosX "spatial_head_forward_posx"
-#define ezInputSlot_Spatial_Head_ForwardPosY "spatial_head_forward_posy"
-#define ezInputSlot_Spatial_Head_ForwardPosZ "spatial_head_forward_posz"
-#define ezInputSlot_Spatial_Head_ForwardNegX "spatial_head_forward_negx"
-#define ezInputSlot_Spatial_Head_ForwardNegY "spatial_head_forward_negy"
-#define ezInputSlot_Spatial_Head_ForwardNegZ "spatial_head_forward_negz"
+#define WInputSlot_Spatial_Head_ForwardPosX "spatial_head_forward_posx"
+#define WInputSlot_Spatial_Head_ForwardPosY "spatial_head_forward_posy"
+#define WInputSlot_Spatial_Head_ForwardPosZ "spatial_head_forward_posz"
+#define WInputSlot_Spatial_Head_ForwardNegX "spatial_head_forward_negx"
+#define WInputSlot_Spatial_Head_ForwardNegY "spatial_head_forward_negy"
+#define WInputSlot_Spatial_Head_ForwardNegZ "spatial_head_forward_negz"
 
-#define ezInputSlot_Spatial_Head_UpPosX "spatial_head_up_posx"
-#define ezInputSlot_Spatial_Head_UpPosY "spatial_head_up_posy"
-#define ezInputSlot_Spatial_Head_UpPosZ "spatial_head_up_posz"
-#define ezInputSlot_Spatial_Head_UpNegX "spatial_head_up_negx"
-#define ezInputSlot_Spatial_Head_UpNegY "spatial_head_up_negy"
-#define ezInputSlot_Spatial_Head_UpNegZ "spatial_head_up_negz"
+#define WInputSlot_Spatial_Head_UpPosX "spatial_head_up_posx"
+#define WInputSlot_Spatial_Head_UpPosY "spatial_head_up_posy"
+#define WInputSlot_Spatial_Head_UpPosZ "spatial_head_up_posz"
+#define WInputSlot_Spatial_Head_UpNegX "spatial_head_up_negx"
+#define WInputSlot_Spatial_Head_UpNegY "spatial_head_up_negy"
+#define WInputSlot_Spatial_Head_UpNegZ "spatial_head_up_negz"
 

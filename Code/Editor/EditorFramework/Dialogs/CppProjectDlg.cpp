@@ -12,8 +12,8 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 
-ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCppProjectDlg::WQtCppProjectDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -21,45 +21,45 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   m_CppSettings.Load().IgnoreResult();
 
   {
-    ezQtScopedBlockSignals _1(PluginName);
-    PluginName->setPlaceholderText(ezToolsProject::GetSingleton()->GetProjectName(true).GetData());
+    WQtScopedBlockSignals _1(PluginName);
+    PluginName->setPlaceholderText(WToolsProject::GetSingleton()->GetProjectName(true).GetData());
     PluginName->setText(m_CppSettings.m_sPluginName.GetData());
   }
 
-  if (ezStatus compilerTestResult = ezCppProject::TestCompiler(); compilerTestResult.Failed())
+  if (WStatus compilerTestResult = WCppProject::TestCompiler(); compilerTestResult.Failed())
   {
     // TODO: how do I color the ErrorText label in Red (or whatever error color is configured?)
-    ezStringBuilder fmt;
+    WStringBuilder fmt;
     fmt.SetFormat("<html><b>Error:</b> {}<br>Please go to preferences and configure the C & C++ compiler.", compilerTestResult.GetMessageString());
 
-    ErrorText->setText(ezMakeQString(fmt));
+    ErrorText->setText(WMakeQString(fmt));
     GenerateSolution->setDisabled(true);
   }
 
   UpdateUI();
 }
 
-void ezQtCppProjectDlg::on_OpenPluginLocation_clicked()
+void WQtCppProjectDlg::on_OpenPluginLocation_clicked()
 {
-  ezQtUiServices::OpenInExplorer(PluginLocation->text().toUtf8().data(), false);
+  WQtUiServices::OpenInExplorer(PluginLocation->text().toUtf8().data(), false);
 }
 
-void ezQtCppProjectDlg::on_OpenBuildFolder_clicked()
+void WQtCppProjectDlg::on_OpenBuildFolder_clicked()
 {
-  ezQtUiServices::OpenInExplorer(BuildFolder->text().toUtf8().data(), false);
+  WQtUiServices::OpenInExplorer(BuildFolder->text().toUtf8().data(), false);
 }
 
-void ezQtCppProjectDlg::on_OpenSolution_clicked()
+void WQtCppProjectDlg::on_OpenSolution_clicked()
 {
-  if (auto result = ezCppProject::OpenSolution(m_CppSettings); result.Failed())
+  if (auto result = WCppProject::OpenSolution(m_CppSettings); result.Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(result.GetMessageString().GetView());
+    WQtUiServices::GetSingleton()->MessageBoxWarning(result.GetMessageString().GetView());
   }
 }
 
-void ezQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
+void WQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
 {
-  ezStringBuilder name = PluginName->text().toUtf8().data();
+  WStringBuilder name = PluginName->text().toUtf8().data();
 
   if (name.EndsWith_NoCase("Plugin"))
   {
@@ -71,43 +71,43 @@ void ezQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
   UpdateUI();
 }
 
-void ezQtCppProjectDlg::UpdateUI()
+void WQtCppProjectDlg::UpdateUI()
 {
-  PluginLocation->setText(ezCppProject::GetTargetSourceDir().GetData());
-  BuildFolder->setText(ezCppProject::GetBuildDir(m_CppSettings).GetData());
+  PluginLocation->setText(WCppProject::GetTargetSourceDir().GetData());
+  BuildFolder->setText(WCppProject::GetBuildDir(m_CppSettings).GetData());
 
-  OpenPluginLocation->setEnabled(ezOSFile::ExistsDirectory(PluginLocation->text().toUtf8().data()));
-  OpenBuildFolder->setEnabled(ezOSFile::ExistsDirectory(BuildFolder->text().toUtf8().data()));
-  OpenSolution->setEnabled(ezCppProject::ExistsSolution(m_CppSettings));
+  OpenPluginLocation->setEnabled(WOSFile::ExistsDirectory(PluginLocation->text().toUtf8().data()));
+  OpenBuildFolder->setEnabled(WOSFile::ExistsDirectory(BuildFolder->text().toUtf8().data()));
+  OpenSolution->setEnabled(WCppProject::ExistsSolution(m_CppSettings));
 }
 
-class ezForwardToQTextEdit : public ezLogInterface
+class WForwardToQTextEdit : public WLogInterface
 {
 public:
   QTextEdit* m_pTextEdit = nullptr;
 
-  void HandleLogMessage(const ezLoggingEventData& le) override
+  void HandleLogMessage(const WLoggingEventData& le) override
   {
     switch (le.m_EventType)
     {
-      case ezLogMsgType::GlobalDefault:
-      case ezLogMsgType::Flush:
-      case ezLogMsgType::BeginGroup:
-      case ezLogMsgType::EndGroup:
-      case ezLogMsgType::None:
-      case ezLogMsgType::All:
-      case ezLogMsgType::ENUM_COUNT:
+      case WLogMsgType::GlobalDefault:
+      case WLogMsgType::Flush:
+      case WLogMsgType::BeginGroup:
+      case WLogMsgType::EndGroup:
+      case WLogMsgType::None:
+      case WLogMsgType::All:
+      case WLogMsgType::ENUM_COUNT:
         return;
 
-      case ezLogMsgType::ErrorMsg:
-      case ezLogMsgType::SeriousWarningMsg:
-      case ezLogMsgType::WarningMsg:
-      case ezLogMsgType::SuccessMsg:
-      case ezLogMsgType::InfoMsg:
-      case ezLogMsgType::DevMsg:
-      case ezLogMsgType::DebugMsg:
+      case WLogMsgType::ErrorMsg:
+      case WLogMsgType::SeriousWarningMsg:
+      case WLogMsgType::WarningMsg:
+      case WLogMsgType::SuccessMsg:
+      case WLogMsgType::InfoMsg:
+      case WLogMsgType::DevMsg:
+      case WLogMsgType::DebugMsg:
       {
-        ezStringBuilder tmp(le.m_sText, "\n");
+        WStringBuilder tmp(le.m_sText, "\n");
 
         QString s = m_pTextEdit->toPlainText();
         s.append(tmp);
@@ -115,16 +115,16 @@ public:
         return;
       }
 
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+        W_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
   }
 };
 
-void ezQtCppProjectDlg::on_GenerateSolution_clicked()
+void WQtCppProjectDlg::on_GenerateSolution_clicked()
 {
-  if (ezCppProject::ExistsSolution(m_CppSettings))
+  if (WCppProject::ExistsSolution(m_CppSettings))
   {
-    if (ezQtUiServices::MessageBoxQuestion("The solution already exists, do you want to recreate it?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+    if (WQtUiServices::MessageBoxQuestion("The solution already exists, do you want to recreate it?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
     {
       return;
     }
@@ -137,7 +137,7 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 
   if (!m_OldCppSettings.m_sPluginName.IsEmpty() && m_OldCppSettings.m_sPluginName != m_CppSettings.m_sPluginName)
   {
-    if (ezQtUiServices::MessageBoxQuestion("You are attempting to change the name of the existing C++ plugin.\n\nTHIS IS A BAD IDEA.\n\nThe C++ sources and CMake files were already created with the old name in it. To not accidentally delete your work, EZ won't touch any of those files. Therefore this change won't have any effect, unless you have already deleted those files yourself and EZ can just create new ones. Only select YES if you have done the necessary steps and/or know what you are doing.", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+    if (WQtUiServices::MessageBoxQuestion("You are attempting to change the name of the existing C++ plugin.\n\nTHIS IS A BAD IDEA.\n\nThe C++ sources and CMake files were already created with the old name in it. To not accidentally delete your work, W won't touch any of those files. Therefore this change won't have any effect, unless you have already deleted those files yourself and W can just create new ones. Only select YES if you have done the necessary steps and/or know what you are doing.", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
     {
       return;
     }
@@ -145,47 +145,47 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 
   if (m_CppSettings.Save().Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Saving new C++ project settings failed.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("Saving new C++ project settings failed.");
     return;
   }
 
   m_OldCppSettings.Load().IgnoreResult();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (ezSystemInformation::IsDebuggerAttached())
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  if (WSystemInformation::IsDebuggerAttached())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, CMake usually fails with the error that no C/C++ compiler can be found.\n\nDetach the debugger now, then press OK to continue.");
+    WQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, CMake usually fails with the error that no C/C++ compiler can be found.\n\nDetach the debugger now, then press OK to continue.");
   }
 #endif
 
   OutputLog->clear();
 
   {
-    ezForwardToQTextEdit log;
+    WForwardToQTextEdit log;
     log.m_pTextEdit = OutputLog;
-    ezLogSystemScope _logScope(&log);
+    WLogSystemScope _logScope(&log);
 
-    ezProgressRange progress("Generating Solution", 3, false);
+    WProgressRange progress("Generating Solution", 3, false);
     progress.SetStepWeighting(0, 0.1f);
     progress.SetStepWeighting(1, 0.1f);
     progress.SetStepWeighting(2, 0.8f);
 
-    EZ_SCOPE_EXIT(UpdateUI());
+    W_SCOPE_EXIT(UpdateUI());
 
     {
       progress.BeginNextStep("Clean Build Directory");
 
-      if (ezCppProject::CleanBuildDir(m_CppSettings).Failed())
+      if (WCppProject::CleanBuildDir(m_CppSettings).Failed())
       {
-        ezLog::Warning("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.\n", ezCppProject::GetBuildDir(m_CppSettings));
+        WLog::Warning("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.\n", WCppProject::GetBuildDir(m_CppSettings));
       }
     }
 
     {
       progress.BeginNextStep("Populate with Default Sources");
-      if (ezCppProject::PopulateWithDefaultSources(m_CppSettings).Failed())
+      if (WCppProject::PopulateWithDefaultSources(m_CppSettings).Failed())
       {
-        ezQtUiServices::GetSingleton()->MessageBoxWarning("Failed to populate the CppSource directory with the default files.\n\nCheck the log for details.");
+        WQtUiServices::GetSingleton()->MessageBoxWarning("Failed to populate the CppSource directory with the default files.\n\nCheck the log for details.");
         return;
       }
     }
@@ -194,25 +194,25 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
     {
       progress.BeginNextStep("Running CMake");
 
-      if (ezCppProject::RunCMake(m_CppSettings).Failed())
+      if (WCppProject::RunCMake(m_CppSettings).Failed())
       {
 
-        ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed.\n\nCheck the log for details.");
+        WQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed.\n\nCheck the log for details.");
         return;
       }
     }
 
-    if (ezCppProject::BuildCodeIfNecessary(m_CppSettings).Failed())
+    if (WCppProject::BuildCodeIfNecessary(m_CppSettings).Failed())
     {
-      ezLog::Error("Failed to compile the newly generated C++ solution.");
+      WLog::Error("Failed to compile the newly generated C++ solution.");
     }
   }
 
-  ezCppProject::UpdatePluginConfig(m_CppSettings);
+  WCppProject::UpdatePluginConfig(m_CppSettings);
 
-  ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+  WQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("The solution was generated successfully.\n\nDo you want to open it now?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion("The solution was generated successfully.\n\nDo you want to open it now?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
   {
     on_OpenSolution_clicked();
   }

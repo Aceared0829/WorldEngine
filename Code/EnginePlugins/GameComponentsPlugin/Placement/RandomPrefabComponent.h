@@ -4,23 +4,23 @@
 #include <Core/World/World.h>
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-class ezRandomPrefabComponent;
+class WRandomPrefabComponent;
 
-class EZ_GAMECOMPONENTS_DLL ezRandomPrefabComponentManager : public ezComponentManager<ezRandomPrefabComponent, ezBlockStorageType::Compact>
+class W_GAMECOMPONENTS_DLL WRandomPrefabComponentManager : public WComponentManager<WRandomPrefabComponent, WBlockStorageType::Compact>
 {
 public:
-  ezRandomPrefabComponentManager(ezWorld* pWorld);
-  ~ezRandomPrefabComponentManager();
+  WRandomPrefabComponentManager(WWorld* pWorld);
+  ~WRandomPrefabComponentManager();
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void AddToUpdateList(ezRandomPrefabComponent* pComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void AddToUpdateList(WRandomPrefabComponent* pComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  ezHashSet<ezComponentHandle> m_ComponentsToUpdate;
+  WHashSet<WComponentHandle> m_ComponentsToUpdate;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,16 +31,16 @@ private:
 /// The location, rotation, size and color may vary within specified limits.
 ///
 /// The randomness is deterministic for each object, but different objects produce different results.
-class EZ_GAMECOMPONENTS_DLL ezRandomPrefabComponent : public ezComponent
+class W_GAMECOMPONENTS_DLL WRandomPrefabComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRandomPrefabComponent, ezComponent, ezRandomPrefabComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRandomPrefabComponent, WComponent, WRandomPrefabComponentManager);
 
 public:
-  ezRandomPrefabComponent();
-  ~ezRandomPrefabComponent();
+  WRandomPrefabComponent();
+  ~WRandomPrefabComponent();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void OnActivated() override;
@@ -49,24 +49,24 @@ protected:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRandomPrefabComponent
+  // WRandomPrefabComponent
 
 public:
   /// Specifies how many objects to spawn.
-  void SetCount(ezUInt16 uiCount);
-  ezUInt16 GetCount() const;
+  void SetCount(WUInt16 uiCount);
+  WUInt16 GetCount() const;
 
   /// Specifies how far along the x, y and z axis the spawned object positions may deviate from the center.
-  void SetPositionDeviation(const ezVec3& vValue);
-  const ezVec3& GetPositionDeviation() const { return m_vPositionDeviation; }
+  void SetPositionDeviation(const WVec3& vValue);
+  const WVec3& GetPositionDeviation() const { return m_vPositionDeviation; }
 
   /// Specifies how much the spawned object rotations may deviate.
-  void SetRotationDeviation(const ezVec3& vValue);
-  const ezVec3& GetRotationDeviation() const { return m_vRotationDeviation; }
+  void SetRotationDeviation(const WVec3& vValue);
+  const WVec3& GetRotationDeviation() const { return m_vRotationDeviation; }
 
   /// Sets the minimum scale for the spawned objects.
   void SetMinUniformScale(float fValue);
@@ -76,13 +76,13 @@ public:
   void SetMaxUniformScale(float fValue);
   float GetMaxUniformScale() const { return m_fMaxUniformScale; }
 
-  /// If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
-  void SetColor1(const ezColor& value);
-  const ezColor& GetColor1() const { return m_Color1; }
+  /// If color1 and/or color2 are not white, objects are sent an WMsgSetColor, with a color that is a random interpolation between the two.
+  void SetColor1(const WColor& value);
+  const WColor& GetColor1() const { return m_Color1; }
 
-  /// If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
-  void SetColor2(const ezColor& value);
-  const ezColor& GetColor2() const { return m_Color2; }
+  /// If color1 and/or color2 are not white, objects are sent an WMsgSetColor, with a color that is a random interpolation between the two.
+  void SetColor2(const WColor& value);
+  const WColor& GetColor2() const { return m_Color2; }
 
   /// If set to true, the spawned objects get attached to the owner of this component. Otherwise they don't have a parent.
   void SetInstantiateAsChildren(bool bValue);
@@ -96,23 +96,23 @@ private:
   void ClearCreatedInstances();
   void InstantiatePrefabs();
 
-  ezUInt32 Prefabs_GetCount() const;
-  ezString Prefabs_GetValue(ezUInt32 uiIndex) const;
-  void Prefabs_SetValue(ezUInt32 uiIndex, ezString sValue);
-  void Prefabs_Insert(ezUInt32 uiIndex, ezString sValue);
-  void Prefabs_Remove(ezUInt32 uiIndex);
+  WUInt32 Prefabs_GetCount() const;
+  WString Prefabs_GetValue(WUInt32 uiIndex) const;
+  void Prefabs_SetValue(WUInt32 uiIndex, WString sValue);
+  void Prefabs_Insert(WUInt32 uiIndex, WString sValue);
+  void Prefabs_Remove(WUInt32 uiIndex);
 
-  ezUInt16 m_uiCount = 1;
+  WUInt16 m_uiCount = 1;
   bool m_bInstantiateAsChildren = false;
   bool m_bPreview = true;
 
-  ezVec3 m_vPositionDeviation = ezVec3(0);
-  ezVec3 m_vRotationDeviation = ezVec3(0);
+  WVec3 m_vPositionDeviation = WVec3(0);
+  WVec3 m_vRotationDeviation = WVec3(0);
   float m_fMinUniformScale = 1.0f;
   float m_fMaxUniformScale = 1.0f;
 
-  ezColor m_Color1 = ezColor::White;
-  ezColor m_Color2 = ezColor::White;
+  WColor m_Color1 = WColor::White;
+  WColor m_Color2 = WColor::White;
 
-  ezHybridArray<ezPrefabResourceHandle, 4> m_Prefabs;
+  WHybridArray<WPrefabResourceHandle, 4> m_Prefabs;
 };

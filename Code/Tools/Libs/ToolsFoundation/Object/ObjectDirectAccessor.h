@@ -2,36 +2,36 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-class ezDocumentObjectManager;
+class WDocumentObjectManager;
 
-class EZ_TOOLSFOUNDATION_DLL ezObjectDirectAccessor : public ezObjectAccessorBase
+class W_TOOLSFOUNDATION_DLL WObjectDirectAccessor : public WObjectAccessorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectDirectAccessor, ezObjectAccessorBase);
+  W_ADD_DYNAMIC_REFLECTION(WObjectDirectAccessor, WObjectAccessorBase);
 
 public:
-  ezObjectDirectAccessor(ezDocumentObjectManager* pManager);
+  WObjectDirectAccessor(WDocumentObjectManager* pManager);
 
-  virtual const ezDocumentObject* GetObject(const ezUuid& object) override;
-  virtual ezStatus GetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
-  virtual ezStatus SetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus InsertValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus MoveValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) override;
-  virtual ezStatus GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount) override;
+  virtual const WDocumentObject* GetObject(const WUuid& object) override;
+  virtual WStatus GetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index = WVariant()) override;
+  virtual WStatus SetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus InsertValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus MoveValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex) override;
+  virtual WStatus GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount) override;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType,
-    ezUuid& inout_objectGuid) override;
-  virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
-  virtual ezStatus MoveObject(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) override;
+  virtual WStatus AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType,
+    WUuid& inout_objectGuid) override;
+  virtual WStatus RemoveObject(const WDocumentObject* pObject) override;
+  virtual WStatus MoveObject(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index) override;
 
-  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) override;
-  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values) override;
+  virtual WStatus GetKeys(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys) override;
+  virtual WStatus GetValues(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values) override;
 
 protected:
-  ezDocumentObjectManager* m_pManager;
+  WDocumentObjectManager* m_pManager;
 };

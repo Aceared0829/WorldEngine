@@ -4,29 +4,29 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 
 class QHBoxLayout;
-class ezDynamicEnum;
-class ezQtSearchableMenu;
+class WDynamicEnum;
+class WQtSearchableMenu;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDynamicEnumPropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtDynamicEnumPropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtDynamicEnumPropertyWidget();
+  WQtDynamicEnumPropertyWidget();
 
 protected slots:
   void onMenuAboutToShow();
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezDynamicEnum* m_pEnum = nullptr;
+  WDynamicEnum* m_pEnum = nullptr;
   QPushButton* m_pButton = nullptr;
   QMenu* m_pMenu = nullptr;
-  ezQtSearchableMenu* m_pSearchableMenu = nullptr;
-  ezString m_sEnumAttribute;
-  static ezMap<ezString, QString> s_LastSearch;
+  WQtSearchableMenu* m_pSearchableMenu = nullptr;
+  WString m_sEnumAttribute;
+  static WMap<WString, QString> s_LastSearch;
 };

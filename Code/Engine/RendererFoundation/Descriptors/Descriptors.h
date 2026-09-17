@@ -13,149 +13,149 @@
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 #include <Texture/Image/ImageEnums.h>
 
-class ezWindowBase;
-class ezGALDevice;
+class WWindowBase;
+class WGALDevice;
 
 /// Bind group layout for a single bind group.
 /// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
-struct ezGALBindGroupLayoutCreationDescription
+struct WGALBindGroupLayoutCreationDescription
 {
-  ezUInt32 CalculateHash() const;
+  WUInt32 CalculateHash() const;
 
-  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iBindGroup must be the same for all bindings in this array.
-  ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
+  WDynamicArray<WShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iBindGroup must be the same for all bindings in this array.
+  WHybridArray<WShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See WGALImmutableSamplers.
 };
 
 /// Push constant info
-/// Used by ezGALPipelineLayoutCreationDescription.
-struct ezGALPushConstant
+/// Used by WGALPipelineLayoutCreationDescription.
+struct WGALPushConstant
 {
-  ezUInt16 m_uiSize = 0;
-  ezUInt16 m_uiOffset = 0;
-  ezBitflags<ezGALShaderStageFlags> m_Stages;
+  WUInt16 m_uiSize = 0;
+  WUInt16 m_uiOffset = 0;
+  WBitflags<WGALShaderStageFlags> m_Stages;
 };
 
 /// Pipeline layout.
 /// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
-struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
+struct WGALPipelineLayoutCreationDescription : public WHashableStruct<WGALPipelineLayoutCreationDescription>
 {
-  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each bind group used in the shader. BG_FRAME, BG_RENDER_PASS, BG_MATERIAL, BG_DRAW_CALL.
-  ezGALPushConstant m_PushConstants;                               ///< Only one push constant block is supported right now.
+  WGALBindGroupLayoutHandle m_BindGroups[W_GAL_MAX_BIND_GROUPS]; ///< One for each bind group used in the shader. BG_FRAME, BG_RENDER_PASS, BG_MATERIAL, BG_DRAW_CALL.
+  WGALPushConstant m_PushConstants;                               ///< Only one push constant block is supported right now.
 };
 
 /// Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
 /// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
-struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>
+struct WGALGraphicsPipelineCreationDescription : public WHashableStruct<WGALGraphicsPipelineCreationDescription>
 {
-  ezGALShaderHandle m_hShader;                       ///< Also defines pipeline layout
-  ezGALVertexDeclarationHandle m_hVertexDeclaration; ///< Optional
+  WGALShaderHandle m_hShader;                       ///< Also defines pipeline layout
+  WGALVertexDeclarationHandle m_hVertexDeclaration; ///< Optional
 
-  ezGALRasterizerStateHandle m_hRasterizerState;
-  ezGALBlendStateHandle m_hBlendState;
-  ezGALDepthStencilStateHandle m_hDepthStencilState;
+  WGALRasterizerStateHandle m_hRasterizerState;
+  WGALBlendStateHandle m_hBlendState;
+  WGALDepthStencilStateHandle m_hDepthStencilState;
 
-  ezEnum<ezGALPrimitiveTopology> m_Topology;
+  WEnum<WGALPrimitiveTopology> m_Topology;
 
-  ezGALRenderPassDescriptor m_RenderPass; ///< Use ezGALRenderingSetup::GetRenderPass to set this.
+  WGALRenderPassDescriptor m_RenderPass; ///< Use WGALRenderingSetup::GetRenderPass to set this.
 };
 
 /// Defines the complete state of a compute pipeline, excluding bound resources (e.g. textures, buffers).
 /// Creating a compute pipeline increases the reference count on the shader handle.
-struct ezGALComputePipelineCreationDescription : public ezHashableStruct<ezGALComputePipelineCreationDescription>
+struct WGALComputePipelineCreationDescription : public WHashableStruct<WGALComputePipelineCreationDescription>
 {
-  ezGALShaderHandle m_hShader; ///< Also defines pipeline layout
+  WGALShaderHandle m_hShader; ///< Also defines pipeline layout
 };
 
-struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
+struct WGALWindowSwapChainCreationDescription : public WHashableStruct<WGALWindowSwapChainCreationDescription>
 {
-  ezWindowBase* m_pWindow = nullptr;
+  WWindowBase* m_pWindow = nullptr;
 
   // Describes the format that should be used for the backbuffer.
   // Note however, that different platforms may enforce restrictions on this.
-  ezGALMSAASampleCount::Enum m_SampleCount = ezGALMSAASampleCount::None;
-  ezGALResourceFormat::Enum m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
+  WGALMSAASampleCount::Enum m_SampleCount = WGALMSAASampleCount::None;
+  WGALResourceFormat::Enum m_BackBufferFormat = WGALResourceFormat::RGBAUByteNormalizedsRGB;
+  WEnum<WGALPresentMode> m_InitialPresentMode = WGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
 };
 
-struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
+struct WGALSwapChainCreationDescription : public WHashableStruct<WGALSwapChainCreationDescription>
 {
-  const ezRTTI* m_pSwapChainType = nullptr;
+  const WRTTI* m_pSwapChainType = nullptr;
 };
 
-struct ezGALDeviceCreationDescription
+struct WGALDeviceCreationDescription
 {
   bool m_bDebugDevice = false;
 };
 
-struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
+struct WGALShaderCreationDescription : public WHashableStruct<WGALShaderCreationDescription>
 {
-  ezGALShaderCreationDescription();
+  WGALShaderCreationDescription();
   /// Needs to be overwritten as the base class impl can only handle pod types.
-  ezGALShaderCreationDescription(const ezGALShaderCreationDescription& other);
-  ~ezGALShaderCreationDescription();
+  WGALShaderCreationDescription(const WGALShaderCreationDescription& other);
+  ~WGALShaderCreationDescription();
   /// Needs to be overwritten as the base class impl can only handle pod types.
-  void operator=(const ezGALShaderCreationDescription& other);
+  void operator=(const WGALShaderCreationDescription& other);
 
-  bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
+  bool HasByteCodeForStage(WGALShaderStage::Enum stage) const;
 
-  ezSharedPtr<ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
+  WSharedPtr<WGALShaderByteCode> m_ByteCodes[WGALShaderStage::ENUM_COUNT];
 };
 
-struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTargetBlendDescription>
+struct WGALRenderTargetBlendDescription : public WHashableStruct<WGALRenderTargetBlendDescription>
 {
-  ezEnum<ezGALBlend> m_SourceBlend = ezGALBlend::One;
-  ezEnum<ezGALBlend> m_DestBlend = ezGALBlend::One;
-  ezEnum<ezGALBlendOp> m_BlendOp = ezGALBlendOp::Add;
+  WEnum<WGALBlend> m_SourceBlend = WGALBlend::One;
+  WEnum<WGALBlend> m_DestBlend = WGALBlend::One;
+  WEnum<WGALBlendOp> m_BlendOp = WGALBlendOp::Add;
 
-  ezEnum<ezGALBlend> m_SourceBlendAlpha = ezGALBlend::One;
-  ezEnum<ezGALBlend> m_DestBlendAlpha = ezGALBlend::One;
-  ezEnum<ezGALBlendOp> m_BlendOpAlpha = ezGALBlendOp::Add;
+  WEnum<WGALBlend> m_SourceBlendAlpha = WGALBlend::One;
+  WEnum<WGALBlend> m_DestBlendAlpha = WGALBlend::One;
+  WEnum<WGALBlendOp> m_BlendOpAlpha = WGALBlendOp::Add;
 
-  ezUInt8 m_uiWriteMask = 0xFF;    ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
+  WUInt8 m_uiWriteMask = 0xFF;    ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
                                    ///< Channel, Bit 5-8 are unused
   bool m_bBlendingEnabled = false; ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target.
                                    ///< Set m_uiWriteMask to 0 to disable all writes to the render target.
 };
 
-struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendStateCreationDescription>
+struct WGALBlendStateCreationDescription : public WHashableStruct<WGALBlendStateCreationDescription>
 {
-  ezGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[EZ_GAL_MAX_RENDERTARGET_COUNT];
+  WGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[W_GAL_MAX_RENDERTARGET_COUNT];
 
   bool m_bAlphaToCoverage = false;  ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
   bool m_bIndependentBlend = false; ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each
                                     ///< render target uses a different blend state.
 };
 
-struct ezGALStencilOpDescription : public ezHashableStruct<ezGALStencilOpDescription>
+struct WGALStencilOpDescription : public WHashableStruct<WGALStencilOpDescription>
 {
-  ezEnum<ezGALStencilOp> m_FailOp = ezGALStencilOp::Keep;
-  ezEnum<ezGALStencilOp> m_DepthFailOp = ezGALStencilOp::Keep;
-  ezEnum<ezGALStencilOp> m_PassOp = ezGALStencilOp::Keep;
+  WEnum<WGALStencilOp> m_FailOp = WGALStencilOp::Keep;
+  WEnum<WGALStencilOp> m_DepthFailOp = WGALStencilOp::Keep;
+  WEnum<WGALStencilOp> m_PassOp = WGALStencilOp::Keep;
 
-  ezEnum<ezGALCompareFunc> m_StencilFunc = ezGALCompareFunc::Always;
+  WEnum<WGALCompareFunc> m_StencilFunc = WGALCompareFunc::Always;
 };
 
-struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGALDepthStencilStateCreationDescription>
+struct WGALDepthStencilStateCreationDescription : public WHashableStruct<WGALDepthStencilStateCreationDescription>
 {
-  ezGALStencilOpDescription m_FrontFaceStencilOp;
-  ezGALStencilOpDescription m_BackFaceStencilOp;
+  WGALStencilOpDescription m_FrontFaceStencilOp;
+  WGALStencilOpDescription m_BackFaceStencilOp;
 
-  ezEnum<ezGALCompareFunc> m_DepthTestFunc = ezGALCompareFunc::Less;
+  WEnum<WGALCompareFunc> m_DepthTestFunc = WGALCompareFunc::Less;
 
   bool m_bDepthEnable = true;
   bool m_bDepthWrite = true;
   bool m_bStencilEnable = false;
-  ezUInt8 m_uiStencilReadMask = 0xFF;
-  ezUInt8 m_uiStencilWriteMask = 0xFF;
+  WUInt8 m_uiStencilReadMask = 0xFF;
+  WUInt8 m_uiStencilWriteMask = 0xFF;
 };
 
-/// Describes the settings for a new rasterizer state. See ezGALDevice::CreateRasterizerState
-struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRasterizerStateCreationDescription>
+/// Describes the settings for a new rasterizer state. See WGALDevice::CreateRasterizerState
+struct WGALRasterizerStateCreationDescription : public WHashableStruct<WGALRasterizerStateCreationDescription>
 {
-  ezEnum<ezGALCullMode> m_CullMode = ezGALCullMode::Back; ///< Which sides of a triangle to cull. Default is ezGALCullMode::Back
-  ezInt32 m_iDepthBias = 0;                               ///< The pixel depth bias. Default is 0
+  WEnum<WGALCullMode> m_CullMode = WGALCullMode::Back; ///< Which sides of a triangle to cull. Default is WGALCullMode::Back
+  WInt32 m_iDepthBias = 0;                               ///< The pixel depth bias. Default is 0
   float m_fDepthBiasClamp = 0.0f;                         ///< The pixel depth bias clamp. Default is 0
   float m_fSlopeScaledDepthBias = 0.0f;                   ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame = false;                              ///< Whether triangles are rendered filled or as wireframe. Default is false
@@ -165,122 +165,122 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   bool m_bConservativeRasterization = false;              ///< Whether conservative rasterization is enabled
 };
 
-struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>
+struct WGALSamplerStateCreationDescription : public WHashableStruct<WGALSamplerStateCreationDescription>
 {
-  ezEnum<ezGALTextureFilterMode> m_MinFilter;
-  ezEnum<ezGALTextureFilterMode> m_MagFilter;
-  ezEnum<ezGALTextureFilterMode> m_MipFilter;
+  WEnum<WGALTextureFilterMode> m_MinFilter;
+  WEnum<WGALTextureFilterMode> m_MagFilter;
+  WEnum<WGALTextureFilterMode> m_MipFilter;
 
-  ezEnum<ezImageAddressMode> m_AddressU;
-  ezEnum<ezImageAddressMode> m_AddressV;
-  ezEnum<ezImageAddressMode> m_AddressW;
+  WEnum<WImageAddressMode> m_AddressU;
+  WEnum<WImageAddressMode> m_AddressV;
+  WEnum<WImageAddressMode> m_AddressW;
 
-  ezEnum<ezGALCompareFunc> m_SampleCompareFunc;
+  WEnum<WGALCompareFunc> m_SampleCompareFunc;
 
-  ezColor m_BorderColor = ezColor::Black;
+  WColor m_BorderColor = WColor::Black;
 
   float m_fMipLodBias = 0.0f;
   float m_fMinMip = -1.0f;
   float m_fMaxMip = 42000.0f;
 
-  ezUInt8 m_uiMaxAnisotropy = 4;
+  WUInt8 m_uiMaxAnisotropy = 4;
 
   /// Quality slot that controls filter and anisotropy for this sampler. When set, these are overridden
   /// by the current quality setting for that slot, and the sampler is automatically recreated when quality changes.
-  /// Set to ezGALTextureQualitySlot::None (default) to use fixed filter settings from m_MinFilter/m_MagFilter/m_MipFilter/m_uiMaxAnisotropy.
-  /// \see ezRenderContext::SetDefaultTextureQuality, ezTextureFilterSetting
-  ezEnum<ezGALTextureQualitySlot> m_useTextureQualitySlot = ezGALTextureQualitySlot::None;
+  /// Set to WGALTextureQualitySlot::None (default) to use fixed filter settings from m_MinFilter/m_MagFilter/m_MipFilter/m_uiMaxAnisotropy.
+  /// \see WRenderContext::SetDefaultTextureQuality, WTextureFilterSetting
+  WEnum<WGALTextureQualitySlot> m_useTextureQualitySlot = WGALTextureQualitySlot::None;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALVertexBinding
+struct W_RENDERERFOUNDATION_DLL WGALVertexBinding
 {
-  ezUInt32 m_uiStride = 0;
-  ezEnum<ezGALVertexBindingRate> m_Rate;
+  WUInt32 m_uiStride = 0;
+  WEnum<WGALVertexBindingRate> m_Rate;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
+struct W_RENDERERFOUNDATION_DLL WGALVertexAttribute
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezGALVertexAttribute() = default;
+  WGALVertexAttribute() = default;
 
-  constexpr ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt8 uiOffset, ezUInt8 uiVertexBufferSlot);
+  constexpr WGALVertexAttribute(WGALVertexAttributeSemantic::Enum semantic, WGALResourceFormat::Enum format, WUInt8 uiOffset, WUInt8 uiVertexBufferSlot);
 
-  ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
-  ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
-  ezUInt8 m_uiOffset = 0;
-  ezUInt8 m_uiVertexBufferSlot = 0;
+  WGALVertexAttributeSemantic::Enum m_eSemantic = WGALVertexAttributeSemantic::Position;
+  WGALResourceFormat::Enum m_eFormat = WGALResourceFormat::XYZFloat;
+  WUInt8 m_uiOffset = 0;
+  WUInt8 m_uiVertexBufferSlot = 0;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
+struct W_RENDERERFOUNDATION_DLL WGALVertexDeclarationCreationDescription : public WHashableStruct<WGALVertexDeclarationCreationDescription>
 {
-  ezGALShaderHandle m_hShader; // Needed for attribute indices
-  ezStaticArray<ezGALVertexAttribute, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_VertexAttributes;
-  ezStaticArray<ezGALVertexBinding, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBindings;
+  WGALShaderHandle m_hShader; // Needed for attribute indices
+  WStaticArray<WGALVertexAttribute, W_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_VertexAttributes;
+  WStaticArray<WGALVertexBinding, W_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBindings;
 };
 
-struct ezGALResourceAccess
+struct WGALResourceAccess
 {
-  EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
+  W_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
   bool m_bImmutable = false;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
+struct W_RENDERERFOUNDATION_DLL WGALBufferCreationDescription : public WHashableStruct<WGALBufferCreationDescription>
 {
   /// Returns the most appropriate default resource state based on the buffer's usage flags.
-  ezBitflags<ezGALResourceState> GetDefaultState() const;
+  WBitflags<WGALResourceState> GetDefaultState() const;
 
-  ezUInt32 m_uiTotalSize = 0;           ///< Total size in bytes. Must always be set > 0.
-  ezUInt32 m_uiStructSize = 0;          ///< Struct, Index or Vertex size in bytes. Only valid if StructuredBuffer, VertexBuffer or IndexBuffer flag is set.
-  ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
-  ezGALResourceAccess m_ResourceAccess;
-  ezEnum<ezGALResourceFormat> m_Format; ///< Only relevant for TexelBuffer to create the default view.
+  WUInt32 m_uiTotalSize = 0;           ///< Total size in bytes. Must always be set > 0.
+  WUInt32 m_uiStructSize = 0;          ///< Struct, Index or Vertex size in bytes. Only valid if StructuredBuffer, VertexBuffer or IndexBuffer flag is set.
+  WBitflags<WGALBufferUsageFlags> m_BufferFlags;
+  WGALResourceAccess m_ResourceAccess;
+  WEnum<WGALResourceFormat> m_Format; ///< Only relevant for TexelBuffer to create the default view.
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
+struct W_RENDERERFOUNDATION_DLL WGALTextureCreationDescription : public WHashableStruct<WGALTextureCreationDescription>
 {
-  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
-  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiArraySize, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
-  ezResult Validate(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {}) const;
-  ezUInt32 GetNumberOfSlices() const;
-  ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
+  void SetAsRenderTarget(WUInt32 uiWidth, WUInt32 uiHeight, WGALResourceFormat::Enum format, WGALMSAASampleCount::Enum sampleCount = WGALMSAASampleCount::None);
+  void SetAsRenderTarget(WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiArraySize, WGALResourceFormat::Enum format, WGALMSAASampleCount::Enum sampleCount = WGALMSAASampleCount::None);
+  WResult Validate(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> initialData = {}) const;
+  WUInt32 GetNumberOfSlices() const;
+  WVec3U32 GetMipMapSize(WUInt32 uiMipLevel) const;
 
   /// Returns the most appropriate default resource state based on the texture's allowed views and format.
-  ezBitflags<ezGALResourceState> GetDefaultState() const;
+  WBitflags<WGALResourceState> GetDefaultState() const;
 
-  ezUInt32 m_uiWidth = 0;
-  ezUInt32 m_uiHeight = 0;
-  ezUInt32 m_uiDepth = 1;
-  ezUInt32 m_uiArraySize = 1; ///< In case of cube maps, the number of cubes instead of faces.
-  ezUInt8 m_uiMipLevelCount = 1;
+  WUInt32 m_uiWidth = 0;
+  WUInt32 m_uiHeight = 0;
+  WUInt32 m_uiDepth = 1;
+  WUInt32 m_uiArraySize = 1; ///< In case of cube maps, the number of cubes instead of faces.
+  WUInt8 m_uiMipLevelCount = 1;
 
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
-  ezEnum<ezGALMSAASampleCount> m_SampleCount = ezGALMSAASampleCount::None;
-  ezEnum<ezGALTextureType> m_Type = ezGALTextureType::Texture2D;
+  WEnum<WGALResourceFormat> m_Format = WGALResourceFormat::Invalid;
+  WEnum<WGALMSAASampleCount> m_SampleCount = WGALMSAASampleCount::None;
+  WEnum<WGALTextureType> m_Type = WGALTextureType::Texture2D;
 
-  ezBitflags<ezGALTextureUsageFlags> m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
+  WBitflags<WGALTextureUsageFlags> m_TextureFlags = WGALTextureUsageFlags::ShaderResource;
 
-  ezGALResourceAccess m_ResourceAccess;
+  WGALResourceAccess m_ResourceAccess;
 
   void* m_pExisitingNativeObject = nullptr; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
 };
 
-struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALRenderTargetViewCreationDescription>
+struct WGALRenderTargetViewCreationDescription : public WHashableStruct<WGALRenderTargetViewCreationDescription>
 {
-  ezGALTextureHandle m_hTexture;
+  WGALTextureHandle m_hTexture;
 
-  ezUInt32 m_uiMipLevel = 0;
-  ezUInt32 m_uiFirstSlice = 0;
-  ezUInt32 m_uiSliceCount = 1;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
+  WUInt32 m_uiMipLevel = 0;
+  WUInt32 m_uiFirstSlice = 0;
+  WUInt32 m_uiSliceCount = 1;
+  WEnum<WGALResourceFormat> m_OverrideViewFormat = WGALResourceFormat::Invalid;
+  WEnum<WGALTextureType> m_OverrideViewType = WGALTextureType::Invalid;
 
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
 /// Type for important GAL events.
-struct ezGALDeviceEvent
+struct WGALDeviceEvent
 {
   enum Type
   {
@@ -300,19 +300,19 @@ struct ezGALDeviceEvent
   };
 
   Type m_Type;
-  class ezGALDevice* m_pDevice = nullptr;
-  ezGALCommandEncoder* m_pCommandEncoder = nullptr;
+  class WGALDevice* m_pDevice = nullptr;
+  WGALCommandEncoder* m_pCommandEncoder = nullptr;
 };
 
 // Opaque platform specific handle
 // Typically holds a platform specific handle for the texture and it's synchronization primitive
-struct ezGALPlatformSharedHandle : public ezHashableStruct<ezGALPlatformSharedHandle>
+struct WGALPlatformSharedHandle : public WHashableStruct<WGALPlatformSharedHandle>
 {
-  ezUInt64 m_hSharedTexture = 0;
-  ezUInt64 m_hSemaphore = 0;
-  ezUInt32 m_uiProcessId = 0;
-  ezUInt32 m_uiMemoryTypeIndex = 0;
-  ezUInt64 m_uiSize = 0;
+  WUInt64 m_hSharedTexture = 0;
+  WUInt64 m_hSemaphore = 0;
+  WUInt32 m_uiProcessId = 0;
+  WUInt32 m_uiMemoryTypeIndex = 0;
+  WUInt64 m_uiSize = 0;
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

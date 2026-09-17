@@ -1,15 +1,15 @@
 
-EZ_ALWAYS_INLINE ezRational::ezRational()
+W_ALWAYS_INLINE WRational::WRational()
 
   = default;
 
-EZ_ALWAYS_INLINE ezRational::ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator)
+W_ALWAYS_INLINE WRational::WRational(WUInt32 uiNumerator, WUInt32 uiDenominator)
   : m_uiNumerator(uiNumerator)
   , m_uiDenominator(uiDenominator)
 {
 }
 
-EZ_ALWAYS_INLINE bool ezRational::IsIntegral() const
+W_ALWAYS_INLINE bool WRational::IsIntegral() const
 {
   if (m_uiNumerator == 0 && m_uiDenominator == 0)
     return true;
@@ -17,27 +17,27 @@ EZ_ALWAYS_INLINE bool ezRational::IsIntegral() const
   return ((m_uiNumerator / m_uiDenominator) * m_uiDenominator) == m_uiNumerator;
 }
 
-EZ_ALWAYS_INLINE bool ezRational::operator==(const ezRational& other) const
+W_ALWAYS_INLINE bool WRational::operator==(const WRational& other) const
 {
   return m_uiNumerator == other.m_uiNumerator && m_uiDenominator == other.m_uiDenominator;
 }
 
-EZ_ALWAYS_INLINE bool ezRational::operator!=(const ezRational& other) const
+W_ALWAYS_INLINE bool WRational::operator!=(const WRational& other) const
 {
   return m_uiNumerator != other.m_uiNumerator || m_uiDenominator != other.m_uiDenominator;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezRational::GetNumerator() const
+W_ALWAYS_INLINE WUInt32 WRational::GetNumerator() const
 {
   return m_uiNumerator;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezRational::GetDenominator() const
+W_ALWAYS_INLINE WUInt32 WRational::GetDenominator() const
 {
   return m_uiDenominator;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezRational::GetIntegralResult() const
+W_ALWAYS_INLINE WUInt32 WRational::GetIntegralResult() const
 {
   if (m_uiNumerator == 0 && m_uiDenominator == 0)
     return 0;
@@ -45,7 +45,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezRational::GetIntegralResult() const
   return m_uiNumerator / m_uiDenominator;
 }
 
-EZ_ALWAYS_INLINE double ezRational::GetFloatingPointResult() const
+W_ALWAYS_INLINE double WRational::GetFloatingPointResult() const
 {
   if (m_uiNumerator == 0 && m_uiDenominator == 0)
     return 0.0;
@@ -53,14 +53,14 @@ EZ_ALWAYS_INLINE double ezRational::GetFloatingPointResult() const
   return static_cast<double>(m_uiNumerator) / static_cast<double>(m_uiDenominator);
 }
 
-EZ_ALWAYS_INLINE bool ezRational::IsValid() const
+W_ALWAYS_INLINE bool WRational::IsValid() const
 {
   return m_uiDenominator != 0 || (m_uiNumerator == 0 && m_uiDenominator == 0);
 }
 
-EZ_ALWAYS_INLINE ezRational ezRational::ReduceIntegralFraction() const
+W_ALWAYS_INLINE WRational WRational::ReduceIntegralFraction() const
 {
-  EZ_ASSERT_DEV(IsValid() && IsIntegral(), "ReduceIntegralFraction can only be called on valid, integral rational numbers");
+  W_ASSERT_DEV(IsValid() && IsIntegral(), "ReduceIntegralFraction can only be called on valid, integral rational numbers");
 
-  return ezRational(m_uiNumerator / m_uiDenominator, 1);
+  return WRational(m_uiNumerator / m_uiDenominator, 1);
 }

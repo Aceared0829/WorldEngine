@@ -3,17 +3,17 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitterFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitter, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInstance* pOwner) const
+WParticleEmitter* WParticleEmitterFactory::CreateEmitter(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetEmitterType();
+  const WRTTI* pRtti = GetEmitterType();
 
-  ezParticleEmitter* pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitter>();
+  WParticleEmitter* pEmitter = pRtti->GetAllocator()->Allocate<WParticleEmitter>();
   pEmitter->Reset(pOwner);
 
   CopyEmitterProperties(pEmitter, true);
@@ -22,13 +22,13 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
   return pEmitter;
 }
 
-bool ezParticleEmitter::IsContinuous() const
+bool WParticleEmitter::IsContinuous() const
 {
   return false;
 }
 
-void ezParticleEmitter::Process(ezUInt64 uiNumElements) {}
-void ezParticleEmitter::ProcessEventQueue(ezParticleEventQueue queue) {}
+void WParticleEmitter::Process(WUInt64 uiNumElements) {}
+void WParticleEmitter::ProcessEventQueue(WParticleEventQueue queue) {}
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter);

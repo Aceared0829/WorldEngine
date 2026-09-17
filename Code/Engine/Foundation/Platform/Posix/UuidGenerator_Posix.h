@@ -1,5 +1,5 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Types/Uuid.h>
 
@@ -13,24 +13,24 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #if HAS_UUID
 
-static_assert(sizeof(ezUInt64) * 2 == sizeof(uuid_t));
+static_assert(sizeof(WUInt64) * 2 == sizeof(uuid_t));
 
-ezUuid ezUuid::MakeUuid()
+WUuid WUuid::MakeUuid()
 {
   uuid_t uuid;
   uuid_generate(uuid);
 
-  ezUInt64* uiUuidData = reinterpret_cast<ezUInt64*>(uuid);
+  WUInt64* uiUuidData = reinterpret_cast<WUInt64*>(uuid);
 
-  return ezUuid(uiUuidData[1], uiUuidData[0]);
+  return WUuid(uiUuidData[1], uiUuidData[0]);
 }
 
 #else
 
-ezUuid ezUuid::MakeUuid()
+WUuid WUuid::MakeUuid()
 {
-  EZ_REPORT_FAILURE("This distro doesn't have support for UUID generation.");
-  return ezUuid();
+  W_REPORT_FAILURE("This distro doesn't have support for UUID generation.");
+  return WUuid();
 }
 
 #endif

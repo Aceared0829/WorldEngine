@@ -15,8 +15,8 @@
 #include <QFile>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpDocumentTool, 1, ezRTTIDefaultAllocator<ezMcpDocumentTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpDocumentTool, 1, WRTTIDefaultAllocator<WMcpDocumentTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
@@ -24,34 +24,34 @@ namespace
   /// Turns whatever the caller passed into an absolute path.
   ///
   /// An agent has three plausible spellings of the same document: the absolute path, the data
-  /// directory parent relative path that asset_find reports ("Testing Chambers/Prefabs/Barrel.ezPrefab")
+  /// directory parent relative path that asset_find reports ("Testing Chambers/Prefabs/Barrel.WPrefab")
   /// and the data directory relative path. All three are accepted, because rejecting a path the agent
   /// read out of another tool's output is the kind of failure it cannot diagnose.
   ///
   /// Returns an empty string if nothing could be made of the input.
-  ezStringBuilder DocumentToolResolvePath(ezStringView sPath)
+  WStringBuilder DocumentToolResolvePath(WStringView sPath)
   {
-    ezStringBuilder sResult = sPath;
+    WStringBuilder sResult = sPath;
     sResult.MakeCleanPath();
 
-    if (sResult.IsEmpty() || ezPathUtils::IsAbsolutePath(sResult))
+    if (sResult.IsEmpty() || WPathUtils::IsAbsolutePath(sResult))
       return sResult;
 
     // Deliberately not passing a guid to MakeParentDataDirectoryRelativePathAbsolute(): it resolves
-    // one through ezSubAsset::m_pAssetInfo without checking it for null, which crashes the editor for
+    // one through WSubAsset::m_pAssetInfo without checking it for null, which crashes the editor for
     // an asset the curator knows but holds no file information for. Callers that want to name a
-    // document by guid go through ezMcpDocument::Find() instead.
-    if (ezConversionUtils::IsStringUuid(sResult))
+    // document by guid go through WMcpDocument::Find() instead.
+    if (WConversionUtils::IsStringUuid(sResult))
       return sResult;
 
     // The parent relative form first: it is what the asset tools report, so it is the form an agent
     // is most likely to be carrying around.
-    ezStringBuilder sTemp = sResult;
-    if (ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sTemp, false))
+    WStringBuilder sTemp = sResult;
+    if (WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sTemp, false))
       return sTemp;
 
     sTemp = sResult;
-    if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
+    if (WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
       return sTemp;
 
     return sResult;
@@ -59,10 +59,10 @@ namespace
 
 } // namespace
 
-void ezMcpDocumentTool::WriteDocumentIdentity(ezMcpJsonWriter& ref_writer, const ezDocument& document)
+void WMcpDocumentTool::WriteDocumentIdentity(WMcpJsonWriter& ref_writer, const WDocument& document)
 {
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(document.GetGuid(), sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(document.GetGuid(), sGuid);
 
   ref_writer.AddVariableString("guid", sGuid);
   ref_writer.AddVariableString("path", document.GetDocumentPath());
@@ -78,10 +78,10 @@ void ezMcpDocumentTool::WriteDocumentIdentity(ezMcpJsonWriter& ref_writer, const
     ref_writer.AddVariableBool("subDocument", true);
 }
 
-void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpDocumentTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_types";
     desc.m_sDescription =
       "Lists the document types the editor can open and create, with the file extension each one uses. Call this before "
@@ -96,7 +96,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_list";
     desc.m_sDescription =
       "Lists the documents that are currently open in the editor, with guid, absolute path, type and whether they have unsaved "
@@ -110,7 +110,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_open";
     desc.m_sDescription =
       "Opens an existing document and returns its guid. Does nothing but return the document if it is already open, so this is also "
@@ -123,7 +123,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_create";
     desc.m_sDescription =
       "Creates a new document on disk and opens it. The new document is saved immediately, so the file exists when this returns. "
@@ -139,7 +139,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_save";
     desc.m_sDescription =
       "Writes an open document to disk. Does nothing if it has no unsaved changes, unless 'force' is set. Saving is what makes a "
@@ -153,7 +153,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_close";
     desc.m_sDescription =
       "Closes an open document. This DISCARDS unsaved changes without asking, so it refuses to close a modified document unless "
@@ -166,7 +166,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_focus";
     desc.m_sDescription =
       "Brings an open document's window to the front, so the user is looking at it. Use this to show the user what a change refers "
@@ -177,7 +177,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "document_delete";
     desc.m_sDescription =
       "Deletes a document file, optionally repointing everything that references it at a replacement first. Deleting a referenced "
@@ -193,7 +193,7 @@ void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_too
   }
 }
 
-void ezMcpDocumentTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "document_types")
     ExecuteListTypes(arguments, out_result);
@@ -213,20 +213,20 @@ void ezMcpDocumentTool::Execute(ezStringView sToolName, const ezVariantDictionar
     ExecuteDelete(arguments, out_result);
 }
 
-void ezMcpDocumentTool::ExecuteListTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteListTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sNameFilter = ezMcpJson::GetString(arguments, "name");
-  const bool bCanCreateOnly = ezMcpJson::GetBool(arguments, "canCreate", false);
+  const WStringView sNameFilter = WMcpJson::GetString(arguments, "name");
+  const bool bCanCreateOnly = WMcpJson::GetBool(arguments, "canCreate", false);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("types");
 
-  ezUInt32 uiCount = 0;
+  WUInt32 uiCount = 0;
 
-  for (auto it : ezDocumentManager::GetAllDocumentDescriptors())
+  for (auto it : WDocumentManager::GetAllDocumentDescriptors())
   {
-    const ezDocumentTypeDescriptor* pDesc = it.Value();
+    const WDocumentTypeDescriptor* pDesc = it.Value();
 
     if (pDesc == nullptr)
       continue;
@@ -251,11 +251,11 @@ void ezMcpDocumentTool::ExecuteListTypes(const ezVariantDictionary& arguments, e
 
     // Same trap as in AssetTool: the lookup returns the key unchanged when there is no entry, so an
     // untranslated type would otherwise be reported as having a display name identical to its name.
-    const ezStringView sDisplayName = ezTranslate(pDesc->m_sDocumentTypeName.GetData());
+    const WStringView sDisplayName = WTranslate(pDesc->m_sDocumentTypeName.GetData());
     if (!sDisplayName.IsEmpty() && sDisplayName != pDesc->m_sDocumentTypeName)
       writer.AddVariableString("displayName", sDisplayName);
 
-    const ezStringView sHelpUrl = ezTranslateHelpURL(pDesc->m_sDocumentTypeName.GetData());
+    const WStringView sHelpUrl = WTranslateHelpURL(pDesc->m_sDocumentTypeName.GetData());
     if (!sHelpUrl.IsEmpty() && sHelpUrl != pDesc->m_sDocumentTypeName)
       writer.AddVariableString("helpUrl", sHelpUrl);
 
@@ -269,20 +269,20 @@ void ezMcpDocumentTool::ExecuteListTypes(const ezVariantDictionary& arguments, e
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteList(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sTypeFilter = ezMcpJson::GetString(arguments, "type");
-  const bool bModifiedOnly = ezMcpJson::GetBool(arguments, "modifiedOnly", false);
+  const WStringView sTypeFilter = WMcpJson::GetString(arguments, "type");
+  const bool bModifiedOnly = WMcpJson::GetBool(arguments, "modifiedOnly", false);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("documents");
 
-  ezUInt32 uiCount = 0;
+  WUInt32 uiCount = 0;
 
-  for (const ezDocumentManager* pManager : ezDocumentManager::GetAllDocumentManagers())
+  for (const WDocumentManager* pManager : WDocumentManager::GetAllDocumentManagers())
   {
-    for (const ezDocument* pDoc : pManager->GetAllOpenDocuments())
+    for (const WDocument* pDoc : pManager->GetAllOpenDocuments())
     {
       if (pDoc == nullptr)
         continue;
@@ -312,9 +312,9 @@ void ezMcpDocumentTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteOpen(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteOpen(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sPath = ezMcpJson::GetString(arguments, "path");
+  const WStringView sPath = WMcpJson::GetString(arguments, "path");
 
   if (sPath.IsEmpty())
   {
@@ -322,61 +322,61 @@ void ezMcpDocumentTool::ExecuteOpen(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  const bool bFocus = ezMcpJson::GetBool(arguments, "focus", true);
+  const bool bFocus = WMcpJson::GetBool(arguments, "focus", true);
 
-  const ezStringBuilder sAbsPath = DocumentToolResolvePath(sPath);
+  const WStringBuilder sAbsPath = DocumentToolResolvePath(sPath);
 
   // A path that resolved against no data directory is still relative, and everything below expects an
-  // absolute one: ezOSFile::ExistsFile() asserts on a relative path rather than returning false, which
+  // absolute one: WOSFile::ExistsFile() asserts on a relative path rather than returning false, which
   // takes the editor down with it.
-  if (!ezPathUtils::IsAbsolutePath(sAbsPath))
+  if (!WPathUtils::IsAbsolutePath(sAbsPath))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' could not be resolved to a file in this project. Pass an absolute path, or the path as 'asset_find' reports it "
-                "(data directory name first, e.g. 'Testing Chambers/Effects/SmallExplosion.ezParticleEffectAsset').",
+                "(data directory name first, e.g. 'Testing Chambers/Effects/SmallExplosion.WParticleEffectAsset').",
       sPath);
     out_result.SetError(s);
     return;
   }
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(sAbsPath, false, pTypeDesc).Failed() || pTypeDesc == nullptr)
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (WDocumentManager::FindDocumentTypeFromPath(sAbsPath, false, pTypeDesc).Failed() || pTypeDesc == nullptr)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("The file extension of '{}' is not registered with any document type. 'document_types' lists the extensions that are.", sAbsPath);
     out_result.SetError(s);
     return;
   }
 
-  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(sAbsPath);
+  WDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(sAbsPath);
   const bool bWasAlreadyOpen = pDocument != nullptr;
 
   if (!bWasAlreadyOpen)
   {
-    if (!ezOSFile::ExistsFile(sAbsPath))
+    if (!WOSFile::ExistsFile(sAbsPath))
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("There is no file at '{}'. Use 'document_create' to create a new document, or 'asset_find' to locate an existing one.", sAbsPath);
       out_result.SetError(s);
       return;
     }
 
-    // Deliberately not going through ezQtEditorApp::OpenDocument(): that reports every failure with a
+    // Deliberately not going through WQtEditorApp::OpenDocument(): that reports every failure with a
     // modal message box, which never returns when there is no human to close it.
-    ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(sAbsPath);
+    WStatus res = pTypeDesc->m_pManager->CanOpenDocument(sAbsPath);
 
     if (res.Succeeded())
     {
-      ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList;
+      WBitflags<WDocumentFlags> flags = WDocumentFlags::AddToRecentFilesList;
       if (bFocus)
-        flags |= ezDocumentFlags::RequestWindow;
+        flags |= WDocumentFlags::RequestWindow;
 
       res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, sAbsPath, pDocument, flags);
     }
 
     if (res.Failed() || pDocument == nullptr)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Failed to open '{}': {}", sAbsPath, res.GetMessageString());
       out_result.SetError(s);
       return;
@@ -390,7 +390,7 @@ void ezMcpDocumentTool::ExecuteOpen(const ezVariantDictionary& arguments, ezMcpT
     pDocument->EnsureVisible();
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteDocumentIdentity(writer, *pDocument);
   writer.AddVariableBool("wasAlreadyOpen", bWasAlreadyOpen);
@@ -403,7 +403,7 @@ void ezMcpDocumentTool::ExecuteOpen(const ezVariantDictionary& arguments, ezMcpT
   if (!pDocument->GetLoadingErrors().IsEmpty())
   {
     writer.BeginArray("loadingErrors");
-    for (const ezString& sError : pDocument->GetLoadingErrors())
+    for (const WString& sError : pDocument->GetLoadingErrors())
     {
       writer.WriteString(sError);
     }
@@ -415,9 +415,9 @@ void ezMcpDocumentTool::ExecuteOpen(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteCreate(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sPath = ezMcpJson::GetString(arguments, "path");
+  const WStringView sPath = WMcpJson::GetString(arguments, "path");
 
   if (sPath.IsEmpty())
   {
@@ -425,19 +425,19 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  const ezStringView sType = ezMcpJson::GetString(arguments, "type");
-  const bool bEmpty = ezMcpJson::GetBool(arguments, "empty", false);
-  const bool bFocus = ezMcpJson::GetBool(arguments, "focus", true);
+  const WStringView sType = WMcpJson::GetString(arguments, "type");
+  const bool bEmpty = WMcpJson::GetBool(arguments, "empty", false);
+  const bool bFocus = WMcpJson::GetBool(arguments, "focus", true);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
 
   if (!sType.IsEmpty())
   {
-    pTypeDesc = ezDocumentManager::GetDescriptorForDocumentType(sType);
+    pTypeDesc = WDocumentManager::GetDescriptorForDocumentType(sType);
 
     if (pTypeDesc == nullptr)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("'{}' is not a known document type. 'document_types' lists the valid names.", sType);
       out_result.SetError(s);
       return;
@@ -447,7 +447,7 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     // come out of the path checks instead and blame the file extension, which is not the problem.
     if (!pTypeDesc->m_bCanCreate)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Documents of type '{}' cannot be created this way - they are produced by importing or generating a file. "
                   "Call 'document_types' with 'canCreate' to see which types can be created.",
         pTypeDesc->m_sDocumentTypeName);
@@ -456,20 +456,20 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     }
   }
 
-  ezStringBuilder sAbsPath = DocumentToolResolvePath(sPath);
+  WStringBuilder sAbsPath = DocumentToolResolvePath(sPath);
 
   // A named type whose extension is missing from the path is a typo waiting to happen, so append it
   // rather than failing - the type was stated unambiguously. But only when the path carries no
   // document extension at all: appending to a path that already names a *different* type would turn a
-  // contradiction ('Thing.ezScene' as a Prefab) into a 'Thing.ezScene.ezPrefab' nobody asked for,
+  // contradiction ('Thing.WScene' as a Prefab) into a 'Thing.WScene.WPrefab' nobody asked for,
   // instead of the error below.
   if (pTypeDesc != nullptr)
   {
-    const ezStringView sExtension = ezPathUtils::GetFileExtension(sAbsPath);
+    const WStringView sExtension = WPathUtils::GetFileExtension(sAbsPath);
 
-    const ezDocumentTypeDescriptor* pExtensionTypeDesc = nullptr;
+    const WDocumentTypeDescriptor* pExtensionTypeDesc = nullptr;
     const bool bExtensionIsKnown =
-      !sExtension.IsEmpty() && ezDocumentManager::FindDocumentTypeFromPath(sAbsPath, true, pExtensionTypeDesc).Succeeded();
+      !sExtension.IsEmpty() && WDocumentManager::FindDocumentTypeFromPath(sAbsPath, true, pExtensionTypeDesc).Succeeded();
 
     if (!bExtensionIsKnown && !sExtension.IsEqual_NoCase(pTypeDesc->m_sFileExtension))
     {
@@ -477,19 +477,19 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     }
   }
 
-  if (!ezPathUtils::IsAbsolutePath(sAbsPath))
+  if (!WPathUtils::IsAbsolutePath(sAbsPath))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' could not be resolved to a location inside the project. Pass an absolute path, or one relative to the data "
-                "directory parent such as 'Testing Chambers/Prefabs/Thing.ezPrefab'. 'project_info' reports the data directories.",
+                "directory parent such as 'Testing Chambers/Prefabs/Thing.WPrefab'. 'project_info' reports the data directories.",
       sPath);
     out_result.SetError(s);
     return;
   }
 
-  if (ezOSFile::ExistsFile(sAbsPath))
+  if (WOSFile::ExistsFile(sAbsPath))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("A file already exists at '{}'. Creating would overwrite it, which this tool does not do. Pick another path, or use "
                 "'document_open' if this is the document you meant.",
       sAbsPath);
@@ -499,12 +499,12 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
 
   {
     // Checks the extension is registered and that no open document already claims the path.
-    const ezDocumentTypeDescriptor* pPathTypeDesc = nullptr;
-    const ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(sAbsPath, &pPathTypeDesc);
+    const WDocumentTypeDescriptor* pPathTypeDesc = nullptr;
+    const WStatus res = WDocumentUtils::IsValidSaveLocationForDocument(sAbsPath, &pPathTypeDesc);
 
     if (res.Failed())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Cannot create '{}': {}", sAbsPath, res.GetMessageString());
       out_result.SetError(s);
       return;
@@ -516,10 +516,10 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     {
       // Two different answers to 'what type is this' - guessing which one the caller meant would
       // silently create the wrong kind of document.
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("The requested type '{}' does not match the file extension '{}', which belongs to type '{}'. Use the extension "
                   "'{}' for a '{}' document.",
-        pTypeDesc->m_sDocumentTypeName, ezPathUtils::GetFileExtension(sAbsPath), pPathTypeDesc->m_sDocumentTypeName,
+        pTypeDesc->m_sDocumentTypeName, WPathUtils::GetFileExtension(sAbsPath), pPathTypeDesc->m_sDocumentTypeName,
         pTypeDesc->m_sFileExtension, pTypeDesc->m_sDocumentTypeName);
       out_result.SetError(s);
       return;
@@ -532,12 +532,12 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  // ezDocumentManager::CreateDocument() asserts on a type that cannot be created, and an assert takes
+  // WDocumentManager::CreateDocument() asserts on a type that cannot be created, and an assert takes
   // the whole editor down. The same check runs above for an explicitly named type; this one catches
   // the case where the type came from the path's extension.
   if (!pTypeDesc->m_bCanCreate)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("Documents of type '{}' cannot be created this way - they are produced by importing or generating a file. "
                 "Call 'document_types' with 'canCreate' to see which types can be created.",
       pTypeDesc->m_sDocumentTypeName);
@@ -545,15 +545,15 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
   {
     out_result.SetError("No project is open, so no document can be created.");
     return;
   }
 
-  if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(sAbsPath))
+  if (!WToolsProject::GetSingleton()->IsDocumentInAllowedRoot(sAbsPath))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' is outside the open project. Documents have to be created inside one of the project's data directories - "
                 "'project_info' lists them.",
       sAbsPath);
@@ -561,22 +561,22 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList;
+  WBitflags<WDocumentFlags> flags = WDocumentFlags::AddToRecentFilesList;
 
   if (bFocus)
-    flags |= ezDocumentFlags::RequestWindow;
+    flags |= WDocumentFlags::RequestWindow;
 
   // Without this the manager clones Editor/DocumentTemplates/Default.<ext> when one exists, which is
   // what the editor's own 'new document' does and usually the more useful starting point.
   if (bEmpty)
-    flags |= ezDocumentFlags::EmptyDocument;
+    flags |= WDocumentFlags::EmptyDocument;
 
-  ezDocument* pDocument = nullptr;
-  const ezStatus res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sAbsPath, pDocument, flags);
+  WDocument* pDocument = nullptr;
+  const WStatus res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sAbsPath, pDocument, flags);
 
   if (res.Failed() || pDocument == nullptr)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("Failed to create '{}': {}", sAbsPath, res.GetMessageString());
     out_result.SetError(s);
     return;
@@ -584,12 +584,12 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
 
   // Tells the asset system about the new file. Without it the document exists but the asset database
   // does not know about it until something else triggers a file system scan.
-  ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
+  WFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
 
   if (bFocus)
     pDocument->EnsureVisible();
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteDocumentIdentity(writer, *pDocument);
   writer.AddVariableBool("fromTemplate", !bEmpty);
@@ -598,11 +598,11 @@ void ezMcpDocumentTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteSave(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteSave(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sIdentifier = ezMcpJson::GetString(arguments, "document");
-  const bool bAll = ezMcpJson::GetBool(arguments, "all", false);
-  const bool bForce = ezMcpJson::GetBool(arguments, "force", false);
+  const WStringView sIdentifier = WMcpJson::GetString(arguments, "document");
+  const bool bAll = WMcpJson::GetBool(arguments, "all", false);
+  const bool bForce = WMcpJson::GetBool(arguments, "force", false);
 
   if (!bAll && sIdentifier.IsEmpty())
   {
@@ -610,13 +610,13 @@ void ezMcpDocumentTool::ExecuteSave(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  ezHybridArray<ezDocument*, 16> toSave;
+  WHybridArray<WDocument*, 16> toSave;
 
   if (bAll)
   {
-    for (ezDocumentManager* pManager : ezDocumentManager::GetAllDocumentManagers())
+    for (WDocumentManager* pManager : WDocumentManager::GetAllDocumentManagers())
     {
-      for (ezDocument* pDoc : pManager->GetAllOpenDocuments())
+      for (WDocument* pDoc : pManager->GetAllOpenDocuments())
       {
         if (pDoc != nullptr && (bForce || pDoc->IsModified()))
           toSave.PushBack(pDoc);
@@ -625,26 +625,26 @@ void ezMcpDocumentTool::ExecuteSave(const ezVariantDictionary& arguments, ezMcpT
   }
   else
   {
-    ezDocument* pDocument = ezMcpDocument::Find(sIdentifier);
+    WDocument* pDocument = WMcpDocument::Find(sIdentifier);
 
     if (pDocument == nullptr)
     {
-      ezMcpDocument::SetNotOpenError(out_result, sIdentifier);
+      WMcpDocument::SetNotOpenError(out_result, sIdentifier);
       return;
     }
 
     toSave.PushBack(pDocument);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("saved");
 
-  ezUInt32 uiSaved = 0;
-  ezUInt32 uiFailed = 0;
-  ezUInt32 uiUnchanged = 0;
+  WUInt32 uiSaved = 0;
+  WUInt32 uiFailed = 0;
+  WUInt32 uiUnchanged = 0;
 
-  for (ezDocument* pDoc : toSave)
+  for (WDocument* pDoc : toSave)
   {
     if (!bForce && !pDoc->IsModified())
     {
@@ -652,7 +652,7 @@ void ezMcpDocumentTool::ExecuteSave(const ezVariantDictionary& arguments, ezMcpT
       continue;
     }
 
-    const ezStatus res = pDoc->SaveDocument(bForce);
+    const WStatus res = pDoc->SaveDocument(bForce);
 
     writer.BeginObject();
     WriteDocumentIdentity(writer, *pDoc);
@@ -688,9 +688,9 @@ void ezMcpDocumentTool::ExecuteSave(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_bIsError = uiFailed > 0;
 }
 
-void ezMcpDocumentTool::ExecuteClose(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteClose(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sIdentifier = ezMcpJson::GetString(arguments, "document");
+  const WStringView sIdentifier = WMcpJson::GetString(arguments, "document");
 
   if (sIdentifier.IsEmpty())
   {
@@ -698,20 +698,20 @@ void ezMcpDocumentTool::ExecuteClose(const ezVariantDictionary& arguments, ezMcp
     return;
   }
 
-  ezDocument* pDocument = ezMcpDocument::Find(sIdentifier);
+  WDocument* pDocument = WMcpDocument::Find(sIdentifier);
 
   if (pDocument == nullptr)
   {
-    ezMcpDocument::SetNotOpenError(out_result, sIdentifier);
+    WMcpDocument::SetNotOpenError(out_result, sIdentifier);
     return;
   }
 
-  // ezDocumentManager::CloseDocument() throws unsaved changes away without a word, and the usual
+  // WDocumentManager::CloseDocument() throws unsaved changes away without a word, and the usual
   // 'ask the user' path is a modal dialog this tool must not open. So the decision is the caller's,
   // and the default is the safe one.
-  if (pDocument->IsModified() && !ezMcpJson::GetBool(arguments, "discardChanges", false))
+  if (pDocument->IsModified() && !WMcpJson::GetBool(arguments, "discardChanges", false))
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' has unsaved changes. Save it with 'document_save' first, or pass 'discardChanges' to close it and lose them.",
       pDocument->GetDocumentPath());
     out_result.SetError(s);
@@ -719,7 +719,7 @@ void ezMcpDocumentTool::ExecuteClose(const ezVariantDictionary& arguments, ezMcp
   }
 
   // Everything needed for the result has to be read before the document is deleted.
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteDocumentIdentity(writer, *pDocument);
   writer.AddVariableBool("closed", true);
@@ -730,9 +730,9 @@ void ezMcpDocumentTool::ExecuteClose(const ezVariantDictionary& arguments, ezMcp
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteFocus(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteFocus(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sIdentifier = ezMcpJson::GetString(arguments, "document");
+  const WStringView sIdentifier = WMcpJson::GetString(arguments, "document");
 
   if (sIdentifier.IsEmpty())
   {
@@ -740,11 +740,11 @@ void ezMcpDocumentTool::ExecuteFocus(const ezVariantDictionary& arguments, ezMcp
     return;
   }
 
-  ezDocument* pDocument = ezMcpDocument::Find(sIdentifier);
+  WDocument* pDocument = WMcpDocument::Find(sIdentifier);
 
   if (pDocument == nullptr)
   {
-    ezMcpDocument::SetNotOpenError(out_result, sIdentifier);
+    WMcpDocument::SetNotOpenError(out_result, sIdentifier);
     return;
   }
 
@@ -757,7 +757,7 @@ void ezMcpDocumentTool::ExecuteFocus(const ezVariantDictionary& arguments, ezMcp
 
   pDocument->EnsureVisible();
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   WriteDocumentIdentity(writer, *pDocument);
   writer.AddVariableBool("windowCreated", !bHadWindow);
@@ -766,9 +766,9 @@ void ezMcpDocumentTool::ExecuteFocus(const ezVariantDictionary& arguments, ezMcp
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpDocumentTool::ExecuteDelete(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sIdentifier = ezMcpJson::GetString(arguments, "path");
+  const WStringView sIdentifier = WMcpJson::GetString(arguments, "path");
 
   if (sIdentifier.IsEmpty())
   {
@@ -776,7 +776,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
   if (pCurator == nullptr)
   {
@@ -784,9 +784,9 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezUuid assetGuid;
-  ezStringBuilder sAbsPath;
-  ezString sAssetTypeName;
+  WUuid assetGuid;
+  WStringBuilder sAbsPath;
+  WString sAssetTypeName;
 
   {
     auto asset = pCurator->FindSubAsset(sIdentifier, false);
@@ -796,7 +796,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
 
     if (!asset.isValid())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("No asset matches '{}'. Pass the guid or the path of an existing asset - 'asset_find' locates them.", sIdentifier);
       out_result.SetError(s);
       return;
@@ -813,10 +813,10 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     sAssetTypeName = asset->m_Data.m_sSubAssetsDocumentTypeName.GetString();
   }
 
-  const ezStringView sReplacement = ezMcpJson::GetString(arguments, "replaceWith");
-  const bool bForce = ezMcpJson::GetBool(arguments, "force", false);
+  const WStringView sReplacement = WMcpJson::GetString(arguments, "replaceWith");
+  const bool bForce = WMcpJson::GetBool(arguments, "force", false);
 
-  ezSet<ezUuid> uses;
+  WSet<WUuid> uses;
   pCurator->FindAllUses(assetGuid, uses, true);
 
   // Refusing here rather than deleting is the whole point of routing a delete through this tool: the
@@ -824,7 +824,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
   // transform failure somewhere unrelated.
   if (!uses.IsEmpty() && sReplacement.IsEmpty() && !bForce)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("'{}' is referenced by {} other asset(s). Pass 'replaceWith' to repoint them at a different asset of type '{}' "
                 "before deleting, or 'force' to delete anyway and leave those references broken. 'asset_uses' lists what uses it.",
       sAbsPath, uses.GetCount(), sAssetTypeName);
@@ -832,7 +832,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezUuid replacementGuid;
+  WUuid replacementGuid;
 
   if (!sReplacement.IsEmpty())
   {
@@ -843,7 +843,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
 
     if (!replacement.isValid())
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("No asset matches the replacement '{}'.", sReplacement);
       out_result.SetError(s);
       return;
@@ -861,7 +861,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     // later, when something tries to load it as the type the property expects.
     if (!replacement->m_Data.m_sSubAssetsDocumentTypeName.GetString().IsEqual_NoCase(sAssetTypeName))
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("The replacement is of type '{}' but '{}' is of type '{}'. Replacing across types would write references that the "
                   "using documents cannot resolve.",
         replacement->m_Data.m_sSubAssetsDocumentTypeName, sAbsPath, sAssetTypeName);
@@ -870,22 +870,22 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     }
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(assetGuid, sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(assetGuid, sGuid);
   writer.AddVariableString("guid", sGuid);
   writer.AddVariableString("path", sAbsPath);
   writer.AddVariableUInt32("referencedBy", uses.GetCount());
 
   if (replacementGuid.IsValid())
   {
-    ezStringBuilder sOldReference, sNewReference;
-    ezConversionUtils::ToString(assetGuid, sOldReference);
-    ezConversionUtils::ToString(replacementGuid, sNewReference);
+    WStringBuilder sOldReference, sNewReference;
+    WConversionUtils::ToString(assetGuid, sOldReference);
+    WConversionUtils::ToString(replacementGuid, sNewReference);
 
-    const ezAssetCurator::ReplaceAssetResult result = pCurator->ReplaceAssetReferenceInUses(assetGuid, sOldReference, sNewReference);
+    const WAssetCurator::ReplaceAssetResult result = pCurator->ReplaceAssetReferenceInUses(assetGuid, sOldReference, sNewReference);
 
     writer.AddVariableString("replacedWith", sNewReference);
     writer.AddVariableUInt32("documentsModified", result.m_uiDocumentsModified);
@@ -894,7 +894,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     if (!result.m_Errors.IsEmpty())
     {
       writer.BeginArray("errors");
-      for (const ezString& sError : result.m_Errors)
+      for (const WString& sError : result.m_Errors)
       {
         writer.WriteString(sError);
       }
@@ -917,11 +917,11 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
 
   // The document has to go before the file does, otherwise the editor holds an open document whose
   // file no longer exists and will happily save it back out again.
-  ezDocumentManager::EnsureDocumentIsClosedInAllManagers(sAbsPath);
+  WDocumentManager::EnsureDocumentIsClosedInAllManagers(sAbsPath);
 
-  // Qt's, because there is no ez equivalent - the asset browser deletes the same way. The recycle bin
+  // Qt's, because there is no W equivalent - the asset browser deletes the same way. The recycle bin
   // rather than an outright delete matters here: this tool can be called by mistake.
-  if (!QFile::moveToTrash(ezMakeQString(sAbsPath)))
+  if (!QFile::moveToTrash(WMakeQString(sAbsPath)))
   {
     writer.AddVariableBool("deleted", false);
     writer.AddVariableString("error", "The file could not be moved to the recycle bin. It may be open in another program or write protected.");
@@ -932,7 +932,7 @@ void ezMcpDocumentTool::ExecuteDelete(const ezVariantDictionary& arguments, ezMc
     return;
   }
 
-  ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
+  WFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
 
   writer.AddVariableBool("deleted", true);
   writer.EndObject();

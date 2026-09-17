@@ -3,29 +3,29 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Time/Clock.h>
 
-static void TimeEventHandler(const ezClock::EventData& e)
+static void TimeEventHandler(const WClock::EventData& e)
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
-  ezTelemetryMessage Msg;
+  WTelemetryMessage Msg;
   Msg.SetMessageID('TIME', 'UPDT');
   Msg.GetWriter() << e.m_sClockName;
-  Msg.GetWriter() << ezTime::Now();
+  Msg.GetWriter() << WTime::Now();
   Msg.GetWriter() << e.m_RawTimeStep;
   Msg.GetWriter() << e.m_SmoothedTimeStep;
 
-  ezTelemetry::Broadcast(ezTelemetry::Unreliable, Msg);
+  WTelemetry::Broadcast(WTelemetry::Unreliable, Msg);
 }
 
 void AddTimeEventHandler()
 {
-  ezClock::AddEventHandler(TimeEventHandler);
+  WClock::AddEventHandler(TimeEventHandler);
 }
 
 void RemoveTimeEventHandler()
 {
-  ezClock::RemoveEventHandler(TimeEventHandler);
+  WClock::RemoveEventHandler(TimeEventHandler);
 }
 
 

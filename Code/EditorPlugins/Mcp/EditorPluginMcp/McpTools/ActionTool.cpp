@@ -13,40 +13,40 @@
 #include <ToolsFoundation/Document/Document.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpActionTool, 1, ezRTTIDefaultAllocator<ezMcpActionTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpActionTool, 1, WRTTIDefaultAllocator<WMcpActionTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
-  constexpr ezUInt32 uiMaxActions = 200;
+  constexpr WUInt32 uiMaxActions = 200;
 
-  ezStringView ToString(ezActionScope::Enum scope)
+  WStringView ToString(WActionScope::Enum scope)
   {
     switch (scope)
     {
-      case ezActionScope::Global:
+      case WActionScope::Global:
         return "Global";
-      case ezActionScope::Document:
+      case WActionScope::Document:
         return "Document";
-      case ezActionScope::Window:
+      case WActionScope::Window:
         return "Window";
     }
 
     return "Unknown";
   }
 
-  ezStringView ToString(ezActionType::Enum type)
+  WStringView ToString(WActionType::Enum type)
   {
     switch (type)
     {
-      case ezActionType::Action:
+      case WActionType::Action:
         return "Action";
-      case ezActionType::Category:
+      case WActionType::Category:
         return "Category";
-      case ezActionType::Menu:
+      case WActionType::Menu:
         return "Menu";
-      case ezActionType::ActionAndMenu:
+      case WActionType::ActionAndMenu:
         return "ActionAndMenu";
     }
 
@@ -62,17 +62,17 @@ namespace
   /// Reading an existing instance rather than creating one matters twice over: creating an action has
   /// side effects (it registers event handlers, and some constructors touch the editor), and a fresh
   /// instance would not have received the updates that keep m_bEnabled current.
-  const ezAction* GetLiveInstance(const ezActionDescriptor& desc, const ezDocument* pDocument)
+  const WAction* GetLiveInstance(const WActionDescriptor& desc, const WDocument* pDocument)
   {
-    const ezArrayPtr<ezAction* const> instances = desc.GetCreatedActions();
+    const WArrayPtr<WAction* const> instances = desc.GetCreatedActions();
 
-    if (desc.m_Scope == ezActionScope::Global)
+    if (desc.m_Scope == WActionScope::Global)
       return instances.IsEmpty() ? nullptr : instances[0];
 
     if (pDocument == nullptr)
       return nullptr;
 
-    for (const ezAction* pAction : instances)
+    for (const WAction* pAction : instances)
     {
       if (pAction->GetContext().m_pDocument == pDocument)
         return pAction;
@@ -82,15 +82,15 @@ namespace
   }
 
   /// Whether the action would let itself be triggered. True for the types that have no such flag.
-  bool IsActionEnabled(const ezAction* pAction)
+  bool IsActionEnabled(const WAction* pAction)
   {
-    if (const ezButtonAction* pButton = ezDynamicCast<const ezButtonAction*>(pAction))
+    if (const WButtonAction* pButton = WDynamicCast<const WButtonAction*>(pAction))
       return pButton->IsEnabled();
 
-    if (const ezDynamicActionAndMenuAction* pMenu = ezDynamicCast<const ezDynamicActionAndMenuAction*>(pAction))
+    if (const WDynamicActionAndMenuAction* pMenu = WDynamicCast<const WDynamicActionAndMenuAction*>(pAction))
       return pMenu->IsEnabled();
 
-    if (const ezSliderAction* pSlider = ezDynamicCast<const ezSliderAction*>(pAction))
+    if (const WSliderAction* pSlider = WDynamicCast<const WSliderAction*>(pAction))
       return pSlider->IsEnabled();
 
     return true;
@@ -102,15 +102,15 @@ namespace
   /// that a caller can tell 'not applicable or not known' apart from 'false'. That happens for
   /// document actions when no document was named, for actions that are not currently mapped into any
   /// open window, and for action types that carry no enabled flag at all (categories and plain menus).
-  void WriteActionState(ezMcpJsonWriter& ref_writer, const ezActionDescriptor& desc, const ezDocument* pDocument)
+  void WriteActionState(WMcpJsonWriter& ref_writer, const WActionDescriptor& desc, const WDocument* pDocument)
   {
-    const ezAction* pAction = GetLiveInstance(desc, pDocument);
+    const WAction* pAction = GetLiveInstance(desc, pDocument);
 
     if (pAction == nullptr)
     {
       ref_writer.AddVariableString("enabled", "unknown");
 
-      if (desc.m_Scope != ezActionScope::Global && pDocument == nullptr)
+      if (desc.m_Scope != WActionScope::Global && pDocument == nullptr)
       {
         ref_writer.AddVariableString("stateReason", "This action's state depends on a document. Pass 'document' to read it.");
       }
@@ -122,7 +122,7 @@ namespace
       return;
     }
 
-    if (const ezButtonAction* pButton = ezDynamicCast<const ezButtonAction*>(pAction))
+    if (const WButtonAction* pButton = WDynamicCast<const WButtonAction*>(pAction))
     {
       ref_writer.AddVariableBool("enabled", pButton->IsEnabled());
       ref_writer.AddVariableBool("visible", pButton->IsVisible());
@@ -135,18 +135,18 @@ namespace
         ref_writer.AddVariableBool("checked", pButton->IsChecked());
       }
     }
-    else if (const ezDynamicActionAndMenuAction* pMenu = ezDynamicCast<const ezDynamicActionAndMenuAction*>(pAction))
+    else if (const WDynamicActionAndMenuAction* pMenu = WDynamicCast<const WDynamicActionAndMenuAction*>(pAction))
     {
       ref_writer.AddVariableBool("enabled", pMenu->IsEnabled());
       ref_writer.AddVariableBool("visible", pMenu->IsVisible());
     }
-    else if (const ezSliderAction* pSlider = ezDynamicCast<const ezSliderAction*>(pAction))
+    else if (const WSliderAction* pSlider = WDynamicCast<const WSliderAction*>(pAction))
     {
       ref_writer.AddVariableBool("enabled", pSlider->IsEnabled());
       ref_writer.AddVariableBool("visible", pSlider->IsVisible());
       ref_writer.AddVariableInt32("value", pSlider->GetValue());
 
-      ezInt32 iMin = 0, iMax = 0;
+      WInt32 iMin = 0, iMax = 0;
       pSlider->GetRange(iMin, iMax);
       ref_writer.AddVariableInt32("minValue", iMin);
       ref_writer.AddVariableInt32("maxValue", iMax);
@@ -161,19 +161,19 @@ namespace
   /// Writes the strings a user would see for this action, skipping those that translate to nothing.
   ///
   /// All three lookups are keyed on the action name.
-  void WriteTranslations(ezMcpJsonWriter& ref_writer, const ezActionDescriptor& desc)
+  void WriteTranslations(WMcpJsonWriter& ref_writer, const WActionDescriptor& desc)
   {
-    const ezStringView sName = desc.m_sActionName;
+    const WStringView sName = desc.m_sActionName;
 
-    ezMcpTranslation::AddOptionalString(ref_writer, "displayName", ezMcpTranslation::GetDisplayName(sName));
-    ezMcpTranslation::AddOptionalString(ref_writer, "tooltip", ezMcpTranslation::GetTooltip(sName));
-    ezMcpTranslation::AddOptionalString(ref_writer, "helpUrl", ezMcpTranslation::GetHelpURL(sName));
+    WMcpTranslation::AddOptionalString(ref_writer, "displayName", WMcpTranslation::GetDisplayName(sName));
+    WMcpTranslation::AddOptionalString(ref_writer, "tooltip", WMcpTranslation::GetTooltip(sName));
+    WMcpTranslation::AddOptionalString(ref_writer, "helpUrl", WMcpTranslation::GetHelpURL(sName));
   }
 } // namespace
 
-void ezMcpActionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpActionTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
-  ezMcpToolDesc& list = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& list = out_tools.ExpandAndGetRef();
   list.m_sName = "action_list";
   list.m_sDescription = "Lists the editor's actions - the commands behind its menu entries and toolbar buttons - with their "
                         "internal name, category, keyboard shortcut and the text the user sees for them. Use it to find out "
@@ -189,7 +189,7 @@ void ezMcpActionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools
                         R"("includeMenus":{"type":"boolean","description":"Also list menus, which only group other entries and cannot be executed. Default false. Turn this on to describe the structure of the editor's menu bar to a user, not to find something to run."},)"
                         R"("includeState":{"type":"boolean","description":"Include the current enabled/checked state of each action. Default false, because it makes the result considerably longer."}}})";
 
-  ezMcpToolDesc& state = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& state = out_tools.ExpandAndGetRef();
   state.m_sName = "action_state";
   state.m_sDescription = "Reports whether one action is currently enabled, and whether it is checked if it is a toggle. Read "
                          "from the live action as the UI shows it, so it is accurate at the moment of the call - but it is "
@@ -202,7 +202,7 @@ void ezMcpActionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools
                          R"("document":{"type":"string","description":"Guid or path of an open document. Required for actions of scope 'Document' or 'Window', whose state is per document."}},)"
                          R"("required":["name"]})";
 
-  ezMcpToolDesc& exec = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& exec = out_tools.ExpandAndGetRef();
   exec.m_sName = "action_execute";
   exec.m_sDescription = "Triggers one action, exactly as clicking its menu entry or toolbar button would. Refuses and "
                         "reports 'wasDisabled' if the action is currently disabled, rather than invoking something that the "
@@ -231,7 +231,7 @@ void ezMcpActionTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools
                         R"("required":["name"]})";
 }
 
-void ezMcpActionTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpActionTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "action_list")
   {
@@ -247,15 +247,15 @@ void ezMcpActionTool::Execute(ezStringView sToolName, const ezVariantDictionary&
   }
 }
 
-const ezActionDescriptor* ezMcpActionTool::FindAction(ezStringView sName, ezStringView sCategory, bool& out_bAmbiguous)
+const WActionDescriptor* WMcpActionTool::FindAction(WStringView sName, WStringView sCategory, bool& out_bAmbiguous)
 {
   out_bAmbiguous = false;
 
-  const ezActionDescriptor* pFound = nullptr;
+  const WActionDescriptor* pFound = nullptr;
 
-  for (auto it = ezActionManager::GetActionIterator(); it.IsValid(); ++it)
+  for (auto it = WActionManager::GetActionIterator(); it.IsValid(); ++it)
   {
-    const ezActionDescriptor* pDesc = it.Value();
+    const WActionDescriptor* pDesc = it.Value();
 
     if (pDesc->m_sActionName != sName)
       continue;
@@ -277,55 +277,55 @@ const ezActionDescriptor* ezMcpActionTool::FindAction(ezStringView sName, ezStri
   return pFound;
 }
 
-void ezMcpActionTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpActionTool::ExecuteList(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sContains = ezMcpJson::GetString(arguments, "contains");
-  const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
-  const bool bMatchTranslation = ezMcpJson::GetBool(arguments, "matchTranslation", false);
-  const bool bIncludeMenus = ezMcpJson::GetBool(arguments, "includeMenus", false);
-  const bool bIncludeState = ezMcpJson::GetBool(arguments, "includeState", false);
+  const WStringView sContains = WMcpJson::GetString(arguments, "contains");
+  const WStringView sDocument = WMcpJson::GetString(arguments, "document");
+  const bool bMatchTranslation = WMcpJson::GetBool(arguments, "matchTranslation", false);
+  const bool bIncludeMenus = WMcpJson::GetBool(arguments, "includeMenus", false);
+  const bool bIncludeState = WMcpJson::GetBool(arguments, "includeState", false);
 
-  ezDocument* pDocument = nullptr;
+  WDocument* pDocument = nullptr;
 
   if (!sDocument.IsEmpty())
   {
-    pDocument = ezMcpDocument::Find(sDocument);
+    pDocument = WMcpDocument::Find(sDocument);
 
     if (pDocument == nullptr)
     {
-      ezMcpDocument::SetNotOpenError(out_result, sDocument);
+      WMcpDocument::SetNotOpenError(out_result, sDocument);
       return;
     }
   }
 
   // naming a document is only ever done to get at that document's actions, so listing global ones
   // exclusively would answer a question that was not asked
-  const bool bGlobalOnly = ezMcpJson::GetBool(arguments, "globalOnly", pDocument == nullptr);
+  const bool bGlobalOnly = WMcpJson::GetBool(arguments, "globalOnly", pDocument == nullptr);
 
-  ezUInt32 uiTotalMatches = 0;
-  ezUInt32 uiReturned = 0;
+  WUInt32 uiTotalMatches = 0;
+  WUInt32 uiReturned = 0;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.BeginArray("actions");
 
-  for (auto it = ezActionManager::GetActionIterator(); it.IsValid(); ++it)
+  for (auto it = WActionManager::GetActionIterator(); it.IsValid(); ++it)
   {
-    const ezActionDescriptor* pDesc = it.Value();
+    const WActionDescriptor* pDesc = it.Value();
 
-    if (bGlobalOnly && pDesc->m_Scope != ezActionScope::Global)
+    if (bGlobalOnly && pDesc->m_Scope != WActionScope::Global)
       continue;
 
     // categories are pure grouping for the shortcut dialog, they are never executable and would only
     // pad the list
-    if (pDesc->m_Type == ezActionType::Category)
+    if (pDesc->m_Type == WActionType::Category)
       continue;
 
     // Menus are half of all global entries and none of them can be executed, so they are left out
     // unless asked for. 'ActionAndMenu' is kept either way - it is a button that also has a menu, and
     // the button part does work.
-    if (!bIncludeMenus && pDesc->m_Type == ezActionType::Menu)
+    if (!bIncludeMenus && pDesc->m_Type == WActionType::Menu)
       continue;
 
     if (!sContains.IsEmpty())
@@ -335,9 +335,9 @@ void ezMcpActionTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToo
 
       if (!bMatches && bMatchTranslation)
       {
-        const ezStringView sName = pDesc->m_sActionName;
-        const ezStringBuilder sDisplay = ezMcpTranslation::GetDisplayName(sName);
-        const ezStringBuilder sTooltip = ezMcpTranslation::GetTooltip(sName);
+        const WStringView sName = pDesc->m_sActionName;
+        const WStringBuilder sDisplay = WMcpTranslation::GetDisplayName(sName);
+        const WStringBuilder sTooltip = WMcpTranslation::GetTooltip(sName);
 
         bMatches = sDisplay.FindSubString_NoCase(sContains) != nullptr || sTooltip.FindSubString_NoCase(sContains) != nullptr;
       }
@@ -363,7 +363,7 @@ void ezMcpActionTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToo
     writer.AddVariableString("scope", ToString(pDesc->m_Scope));
 
     // 'Action' is the overwhelming majority, so only the exceptions are worth the tokens
-    if (pDesc->m_Type != ezActionType::Action)
+    if (pDesc->m_Type != WActionType::Action)
     {
       writer.AddVariableString("type", ToString(pDesc->m_Type));
     }
@@ -395,10 +395,10 @@ void ezMcpActionTool::ExecuteList(const ezVariantDictionary& arguments, ezMcpToo
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpActionTool::ExecuteState(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpActionTool::ExecuteState(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
-  const ezStringView sCategory = ezMcpJson::GetString(arguments, "category");
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
+  const WStringView sCategory = WMcpJson::GetString(arguments, "category");
 
   if (sName.IsEmpty())
   {
@@ -407,11 +407,11 @@ void ezMcpActionTool::ExecuteState(const ezVariantDictionary& arguments, ezMcpTo
   }
 
   bool bAmbiguous = false;
-  const ezActionDescriptor* pDesc = FindAction(sName, sCategory, bAmbiguous);
+  const WActionDescriptor* pDesc = FindAction(sName, sCategory, bAmbiguous);
 
   if (pDesc == nullptr)
   {
-    ezStringBuilder sMsg;
+    WStringBuilder sMsg;
 
     if (bAmbiguous)
     {
@@ -426,22 +426,22 @@ void ezMcpActionTool::ExecuteState(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
+  const WStringView sDocument = WMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = nullptr;
+  WDocument* pDocument = nullptr;
 
   if (!sDocument.IsEmpty())
   {
-    pDocument = ezMcpDocument::Find(sDocument);
+    pDocument = WMcpDocument::Find(sDocument);
 
     if (pDocument == nullptr)
     {
-      ezMcpDocument::SetNotOpenError(out_result, sDocument);
+      WMcpDocument::SetNotOpenError(out_result, sDocument);
       return;
     }
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("name", pDesc->m_sActionName);
@@ -455,12 +455,12 @@ void ezMcpActionTool::ExecuteState(const ezVariantDictionary& arguments, ezMcpTo
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpActionTool::ExecuteAction(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
-  const ezStringView sCategory = ezMcpJson::GetString(arguments, "category");
-  const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
-  const bool bForce = ezMcpJson::GetBool(arguments, "force", false);
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
+  const WStringView sCategory = WMcpJson::GetString(arguments, "category");
+  const WStringView sDocument = WMcpJson::GetString(arguments, "document");
+  const bool bForce = WMcpJson::GetBool(arguments, "force", false);
 
   if (sName.IsEmpty())
   {
@@ -469,11 +469,11 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
   }
 
   bool bAmbiguous = false;
-  const ezActionDescriptor* pDesc = FindAction(sName, sCategory, bAmbiguous);
+  const WActionDescriptor* pDesc = FindAction(sName, sCategory, bAmbiguous);
 
   if (pDesc == nullptr)
   {
-    ezStringBuilder sMsg;
+    WStringBuilder sMsg;
 
     if (bAmbiguous)
     {
@@ -490,9 +490,9 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
 
   // categories and plain menus have an Execute() that does nothing, so calling them would report
   // success while achieving nothing at all
-  if (pDesc->m_Type == ezActionType::Category || pDesc->m_Type == ezActionType::Menu)
+  if (pDesc->m_Type == WActionType::Category || pDesc->m_Type == WActionType::Menu)
   {
-    ezStringBuilder sMsg;
+    WStringBuilder sMsg;
     sMsg.SetFormat("'{}' is a '{}', which only groups other actions and does nothing when triggered.", sName, ToString(pDesc->m_Type));
 
     out_result.SetError(sMsg);
@@ -502,21 +502,21 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
   // Document and window actions do their work on one document, and the descriptor alone does not say
   // which. Without it the action would be constructed with a null document and dereference it right
   // away, so this is refused rather than left to crash.
-  ezDocument* pDocument = nullptr;
+  WDocument* pDocument = nullptr;
 
   if (!sDocument.IsEmpty())
   {
-    pDocument = ezMcpDocument::Find(sDocument);
+    pDocument = WMcpDocument::Find(sDocument);
 
     if (pDocument == nullptr)
     {
-      ezMcpDocument::SetNotOpenError(out_result, sDocument);
+      WMcpDocument::SetNotOpenError(out_result, sDocument);
       return;
     }
   }
-  else if (pDesc->m_Scope != ezActionScope::Global)
+  else if (pDesc->m_Scope != WActionScope::Global)
   {
-    ezStringBuilder sMsg;
+    WStringBuilder sMsg;
     sMsg.SetFormat("'{}' has scope '{}', so it acts on one document. Pass 'document' with the guid or path of an open document, "
                    "see document_list.",
       sName, ToString(pDesc->m_Scope));
@@ -528,11 +528,11 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
   // Window actions read their widget out of the context, so a document that was opened without a window
   // cannot serve them. The window is also handed to document actions, because it costs nothing and some
   // of them use it for dialogs.
-  QWidget* pWindow = (pDocument != nullptr) ? ezQtDocumentWindow::FindWindowByDocument(pDocument) : nullptr;
+  QWidget* pWindow = (pDocument != nullptr) ? WQtDocumentWindow::FindWindowByDocument(pDocument) : nullptr;
 
-  if (pDesc->m_Scope == ezActionScope::Window && pWindow == nullptr)
+  if (pDesc->m_Scope == WActionScope::Window && pWindow == nullptr)
   {
-    ezStringBuilder sMsg;
+    WStringBuilder sMsg;
     sMsg.SetFormat("'{}' has scope 'Window', but '{}' has no window - it was opened without focus. Call document_open with "
                    "focus true first.",
       sName, sDocument);
@@ -541,15 +541,15 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  // Checked against a live instance before doing anything, because ezActionManager::ExecuteAction()
+  // Checked against a live instance before doing anything, because WActionManager::ExecuteAction()
   // does not: it creates an action and calls Execute() on it regardless of the enabled flag. Invoking a
   // disabled action is what the UI exists to prevent, and for some actions it would assert or act on
   // state that isn't there.
-  if (const ezAction* pExisting = GetLiveInstance(*pDesc, pDocument))
+  if (const WAction* pExisting = GetLiveInstance(*pDesc, pDocument))
   {
     if (!IsActionEnabled(pExisting) && !bForce)
     {
-      ezMcpJsonWriter writer;
+      WMcpJsonWriter writer;
       writer.BeginObject();
       writer.AddVariableBool("executed", false);
       writer.AddVariableBool("wasDisabled", true);
@@ -565,30 +565,30 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
     }
   }
 
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
   arguments.TryGetValue("value", pValue);
 
-  ezActionContext context;
+  WActionContext context;
   context.m_pDocument = pDocument;
   context.m_pWindow = pWindow;
 
-  ezAction* pAction = pDesc->CreateAction(context);
+  WAction* pAction = pDesc->CreateAction(context);
 
   if (pAction == nullptr)
   {
-    out_result.SetError(ezStringBuilder("Failed to create the action '", sName, "'."));
+    out_result.SetError(WStringBuilder("Failed to create the action '", sName, "'."));
     return;
   }
 
-  // The call runs with ezQtScopedUnattended active (see ezMcpToolRegistry::Execute), so an action that
+  // The call runs with WQtScopedUnattended active (see WMcpToolRegistry::Execute), so an action that
   // opens one of the editor's own dialogs gets it rejected instead of entering a nested event loop that
-  // nobody would ever leave. It can still hang on a modal window that goes around ezQtDialog - a
+  // nobody would ever leave. It can still hang on a modal window that goes around WQtDialog - a
   // QFileDialog, for instance - which is what the timeout in the tool description is for.
-  pAction->Execute(pValue != nullptr ? *pValue : ezVariant());
+  pAction->Execute(pValue != nullptr ? *pValue : WVariant());
 
   pDesc->DeleteAction(pAction);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableBool("executed", true);
   writer.AddVariableString("name", pDesc->m_sActionName);
@@ -598,19 +598,19 @@ void ezMcpActionTool::ExecuteAction(const ezVariantDictionary& arguments, ezMcpT
     writer.AddVariableString("document", pDocument->GetDocumentPath());
   }
 
-  // Actions report nothing back - ezAction::Execute() returns void - so there is no result to pass on
+  // Actions report nothing back - WAction::Execute() returns void - so there is no result to pass on
   // and 'executed' only means that it was invoked without anything going wrong on the way there. What
   // it did has to be observed elsewhere, e.g. through log_read.
   writer.AddVariableString("note", "Actions do not return a result. Check log_read or query the editor state to see what happened.");
 
   // Only written when something was actually suppressed: for the majority of actions this stays empty,
   // and an always present empty array would suggest the field is worth looking at every time.
-  const ezArrayPtr<const ezString> suppressed = ezQtUiServices::GetSuppressedDialogs();
+  const WArrayPtr<const WString> suppressed = WQtUiServices::GetSuppressedDialogs();
 
   if (!suppressed.IsEmpty())
   {
     writer.BeginArray("suppressedDialogs");
-    for (const ezString& s : suppressed)
+    for (const WString& s : suppressed)
     {
       writer.WriteString(s);
     }

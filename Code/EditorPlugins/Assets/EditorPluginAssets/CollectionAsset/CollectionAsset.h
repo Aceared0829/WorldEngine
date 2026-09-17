@@ -3,30 +3,30 @@
 #include <Core/Collection/CollectionResource.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezCollectionAssetEntry : public ezReflectedClass
+class WCollectionAssetEntry : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetEntry, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WCollectionAssetEntry, WReflectedClass);
 
 public:
-  ezString m_sLookupName;
-  ezString m_sRedirectionAsset;
+  WString m_sLookupName;
+  WString m_sRedirectionAsset;
 };
 
-class ezCollectionAssetData : public ezReflectedClass
+class WCollectionAssetData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WCollectionAssetData, WReflectedClass);
 
 public:
-  ezDynamicArray<ezCollectionAssetEntry> m_Entries;
+  WDynamicArray<WCollectionAssetEntry> m_Entries;
 };
 
-class ezCollectionAssetDocument : public ezSimpleAssetDocument<ezCollectionAssetData>
+class WCollectionAssetDocument : public WSimpleAssetDocument<WCollectionAssetData>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetDocument, ezSimpleAssetDocument<ezCollectionAssetData>);
+  W_ADD_DYNAMIC_REFLECTION(WCollectionAssetDocument, WSimpleAssetDocument<WCollectionAssetData>);
 
 public:
-  ezCollectionAssetDocument(ezStringView sDocumentPath);
+  WCollectionAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 };

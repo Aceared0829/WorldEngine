@@ -3,18 +3,18 @@
 #include <ParticlePlugin/Type/ParticleType.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypeFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleType, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleType, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwner) const
+WParticleType* WParticleTypeFactory::CreateType(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetTypeType();
+  const WRTTI* pRtti = GetTypeType();
 
-  ezParticleType* pType = pRtti->GetAllocator()->Allocate<ezParticleType>();
+  WParticleType* pType = pRtti->GetAllocator()->Allocate<WParticleType>();
   pType->Reset(pOwner);
 
   CopyTypeProperties(pType, true);
@@ -23,7 +23,7 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
   return pType;
 }
 
-ezParticleType::ezParticleType()
+WParticleType::WParticleType()
 {
   m_uiLastExtractedFrame = 0;
 
@@ -31,40 +31,40 @@ ezParticleType::ezParticleType()
   m_fPriority = +1000.0f;
 }
 
-ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt64 uiResource1Hash, ezUInt64 uiResource2Hash)
+WUInt32 WParticleType::ComputeSortingKey(WParticleTypeRenderMode::Enum mode, WUInt64 uiResource1Hash, WUInt64 uiResource2Hash)
 {
-  ezUInt32 key = 0;
+  WUInt32 key = 0;
 
   switch (mode)
   {
-    case ezParticleTypeRenderMode::Additive:
-      key = ezParticleTypeSortingKey::Additive;
+    case WParticleTypeRenderMode::Additive:
+      key = WParticleTypeSortingKey::Additive;
       break;
 
-    case ezParticleTypeRenderMode::Blended:
-      key = ezParticleTypeSortingKey::Blended;
+    case WParticleTypeRenderMode::Blended:
+      key = WParticleTypeSortingKey::Blended;
       break;
 
-    case ezParticleTypeRenderMode::BlendedForeground:
-      key = ezParticleTypeSortingKey::BlendedForeground;
+    case WParticleTypeRenderMode::BlendedForeground:
+      key = WParticleTypeSortingKey::BlendedForeground;
       break;
 
-    case ezParticleTypeRenderMode::BlendedBackground:
-      key = ezParticleTypeSortingKey::BlendedBackground;
+    case WParticleTypeRenderMode::BlendedBackground:
+      key = WParticleTypeSortingKey::BlendedBackground;
       break;
 
-    case ezParticleTypeRenderMode::Opaque:
-      key = ezParticleTypeSortingKey::Opaque;
+    case WParticleTypeRenderMode::Opaque:
+      key = WParticleTypeSortingKey::Opaque;
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   key <<= 32 - 3; // require 3 bits for the values above
-  key |= ezHashingUtils::StringHashTo32(uiResource1Hash) & 0x1FFFFFFFu;
-  key |= ezHashingUtils::StringHashTo32(uiResource2Hash) & 0x1FFFFFFFu;
+  key |= WHashingUtils::StringHashTo32(uiResource1Hash) & 0x1FFFFFFFu;
+  key |= WHashingUtils::StringHashTo32(uiResource2Hash) & 0x1FFFFFFFu;
 
   return key;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);

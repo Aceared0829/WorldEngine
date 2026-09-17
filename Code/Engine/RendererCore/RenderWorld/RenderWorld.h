@@ -3,10 +3,10 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
 
 /// Event data for render data extraction phase.
-struct ezRenderWorldExtractionEvent
+struct WRenderWorldExtractionEvent
 {
   enum class Type
   {
@@ -17,13 +17,13 @@ struct ezRenderWorldExtractionEvent
   };
 
   Type m_Type;
-  const ezView* m_pView = nullptr;
-  ezExtractedRenderData* m_pExtractedRenderData = nullptr;
-  ezUInt64 m_uiFrameCounter = 0;
+  const WView* m_pView = nullptr;
+  WExtractedRenderData* m_pExtractedRenderData = nullptr;
+  WUInt64 m_uiFrameCounter = 0;
 };
 
 /// Event data for render execution phase.
-struct ezRenderWorldRenderEvent
+struct WRenderWorldRenderEvent
 {
   enum class Type
   {
@@ -34,8 +34,8 @@ struct ezRenderWorldRenderEvent
   };
 
   Type m_Type;
-  const ezRenderViewContext* m_pRenderViewContext = nullptr;
-  ezUInt64 m_uiFrameCounter = 0;
+  const WRenderViewContext* m_pRenderViewContext = nullptr;
+  WUInt64 m_uiFrameCounter = 0;
 };
 
 /// Central hub for rendering operations and view management.
@@ -43,79 +43,79 @@ struct ezRenderWorldRenderEvent
 /// Manages views, render data extraction, and rendering execution. Handles double-buffering
 /// of render data when multithreaded rendering is enabled. Provides events for hooking into
 /// various stages of the rendering pipeline.
-class EZ_RENDERERCORE_DLL ezRenderWorld
+class W_RENDERERCORE_DLL WRenderWorld
 {
 public:
-  static ezViewHandle CreateView(ezStringView sName, ezView*& out_pView);
-  static void DeleteView(const ezViewHandle& hView);
+  static WViewHandle CreateView(WStringView sName, WView*& out_pView);
+  static void DeleteView(const WViewHandle& hView);
 
-  static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
+  static bool TryGetView(const WViewHandle& hView, WView*& out_pView);
 
-  /// Searches for an ezView with the desired usage hint or alternative usage hint.
-  static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
+  /// Searches for an WView with the desired usage hint or alternative usage hint.
+  static WView* GetViewByUsageHint(WCameraUsageHint::Enum usageHint, WCameraUsageHint::Enum alternativeUsageHint = WCameraUsageHint::None, const WWorld* pWorld = nullptr);
 
-  static void AddMainView(const ezViewHandle& hView);
-  static void RemoveMainView(const ezViewHandle& hView);
+  static void AddMainView(const WViewHandle& hView);
+  static void RemoveMainView(const WViewHandle& hView);
   static void ClearMainViews();
-  static ezArrayPtr<ezViewHandle> GetMainViews();
+  static WArrayPtr<WViewHandle> GetMainViews();
   static bool IsRenderingScheduled();
 
   /// Caches render data for an object to avoid re-extraction if unchanged.
   ///
   /// Cached render data needs to be deleted/invalidated manually if any data changes. The dependency arrays carry per-category render-graph barrier dependencies that were recorded during extraction and are cached alongside the render data.
-  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies = {}, ezArrayPtr<const ezBufferDependency> bufferDependencies = {});
+  static void CacheRenderData(const WView& view, const WGameObjectHandle& hOwnerObject, const WComponentHandle& hOwnerComponent, WUInt16 uiComponentVersion, WArrayPtr<WInternal::RenderDataCacheEntry> cacheEntries, WArrayPtr<const WTextureDependency> textureDependencies = {}, WArrayPtr<const WBufferDependency> bufferDependencies = {});
 
   /// Deletes all cached render data globally.
   static void DeleteAllCachedRenderData();
 
   /// Deletes cached render data for a specific component.
-  static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
+  static void DeleteCachedRenderData(const WGameObjectHandle& hOwnerObject, const WComponentHandle& hOwnerComponent);
 
   /// Deletes cached render data for a game object.
-  static void DeleteCachedRenderDataForObject(const ezGameObject* pOwnerObject);
+  static void DeleteCachedRenderDataForObject(const WGameObject* pOwnerObject);
 
   /// Recursively deletes cached render data for a game object and all its children.
-  static void DeleteCachedRenderDataForObjectRecursive(const ezGameObject* pOwnerObject);
+  static void DeleteCachedRenderDataForObjectRecursive(const WGameObject* pOwnerObject);
 
   /// Resets the render data cache for a specific view.
-  static void ResetRenderDataCache(ezView& ref_view);
+  static void ResetRenderDataCache(WView& ref_view);
 
   /// Retrieves cached render data if available and still valid.
-  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies);
+  static WArrayPtr<const WInternal::RenderDataCacheEntry> GetCachedRenderData(const WView& view, const WGameObjectHandle& hOwner, WUInt16 uiComponentVersion, WArrayPtr<const WTextureDependency>& out_textureDependencies, WArrayPtr<const WBufferDependency>& out_bufferDependencies);
 
-  static void AddViewToRender(const ezViewHandle& hView);
+  static void AddViewToRender(const WViewHandle& hView);
 
   /// Declares that the given view needs the specified texture in the given resource state when its render graph executes. Must be called during extraction.
-  /// Usually this function is called alongside ezRenderWorld::AddViewToRender to declare the required state of the output the view produced.
-  static void AddViewDependency(const ezView& consumerView, ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  /// Usually this function is called alongside WRenderWorld::AddViewToRender to declare the required state of the output the view produced.
+  static void AddViewDependency(const WView& consumerView, WGALTextureHandle hTexture, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
   /// Declares that the given view needs the specified buffer in the given resource state when its render graph executes. Must be called during extraction.
-  /// Usually this function is called alongside ezRenderWorld::AddViewToRender to declare the required state of the output the view produced.
-  static void AddViewDependency(const ezView& consumerView, ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  /// Usually this function is called alongside WRenderWorld::AddViewToRender to declare the required state of the output the view produced.
+  static void AddViewDependency(const WView& consumerView, WGALBufferHandle hBuffer, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
   static void ExtractMainViews();
 
-  static void Render(ezRenderContext* pRenderContext);
+  static void Render(WRenderContext* pRenderContext);
 
   static void BeginFrame();
   static void EndFrame();
 
-  static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
-  static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
+  static WEvent<WView*, WMutex> s_ViewCreatedEvent;
+  static WEvent<WView*, WMutex> s_ViewDeletedEvent;
 
-  static const ezEvent<const ezRenderWorldExtractionEvent&, ezMutex>& GetExtractionEvent() { return s_ExtractionEvent; }
-  static const ezEvent<const ezRenderWorldRenderEvent&, ezMutex>& GetRenderEvent() { return s_RenderEvent; }
+  static const WEvent<const WRenderWorldExtractionEvent&, WMutex>& GetExtractionEvent() { return s_ExtractionEvent; }
+  static const WEvent<const WRenderWorldRenderEvent&, WMutex>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
 
   /// Resets the frame counter to zero. Only for test purposes !
-  EZ_ALWAYS_INLINE static void ResetFrameCounter() { s_uiFrameCounter = 0; }
+  W_ALWAYS_INLINE static void ResetFrameCounter() { s_uiFrameCounter = 0; }
 
-  EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter() { return s_uiFrameCounter; }
+  W_ALWAYS_INLINE static WUInt64 GetFrameCounter() { return s_uiFrameCounter; }
 
-  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForExtraction() { return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0; }
+  W_FORCE_INLINE static WUInt32 GetDataIndexForExtraction() { return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0; }
 
-  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForRendering() { return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0; }
+  W_FORCE_INLINE static WUInt32 GetDataIndexForRendering() { return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0; }
 
   static bool IsRenderingThread();
 
@@ -124,7 +124,7 @@ public:
 public:
   struct CameraConfig
   {
-    ezRenderPipelineResourceHandle m_hRenderPipeline;
+    WRenderPipelineResourceHandle m_hRenderPipeline;
   };
 
   static void BeginModifyCameraConfigs();
@@ -133,30 +133,30 @@ public:
   static void SetCameraConfig(const char* szName, const CameraConfig& config);
   static const CameraConfig* FindCameraConfig(const char* szName);
 
-  static ezEvent<void*> s_CameraConfigsModifiedEvent;
+  static WEvent<void*> s_CameraConfigsModifiedEvent;
 
 private:
   static bool s_bModifyingCameraConfigs;
-  static ezMap<ezString, CameraConfig> s_CameraConfigs;
+  static WMap<WString, CameraConfig> s_CameraConfigs;
 
   /// @}
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
-  friend class ezView;
-  friend class ezRenderPipeline;
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
+  friend class WView;
+  friend class WRenderPipeline;
 
-  static void DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject);
+  static void DeleteCachedRenderDataInternal(const WGameObjectHandle& hOwnerObject);
   static void ClearRenderDataCache();
   static void UpdateRenderDataCache();
 
-  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView);
+  static void AddRenderPipelineToRebuild(WRenderPipeline* pRenderPipeline, const WViewHandle& hView);
   static void RebuildPipelines();
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> s_ExtractionEvent;
-  static ezEvent<const ezRenderWorldRenderEvent&, ezMutex> s_RenderEvent;
-  static ezUInt64 s_uiFrameCounter;
+  static WEvent<const WRenderWorldExtractionEvent&, WMutex> s_ExtractionEvent;
+  static WEvent<const WRenderWorldRenderEvent&, WMutex> s_RenderEvent;
+  static WUInt64 s_uiFrameCounter;
 };

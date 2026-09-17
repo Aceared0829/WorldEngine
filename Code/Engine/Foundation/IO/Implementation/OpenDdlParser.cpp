@@ -4,40 +4,40 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-ezOpenDdlParser::ezOpenDdlParser()
+WOpenDdlParser::WOpenDdlParser()
 {
   m_pLogInterface = nullptr;
   m_bHadFatalParsingError = false;
 }
 
-void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
+void WOpenDdlParser::SetCacheSize(WUInt32 uiSizeInKB)
 {
-  m_Cache.SetCountUninitialized(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
-  m_TempString.SetCountUninitialized(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
+  m_Cache.SetCountUninitialized(WMath::Max<WUInt32>(1, uiSizeInKB) * 1024);
+  m_TempString.SetCountUninitialized(WMath::Max<WUInt32>(1, uiSizeInKB) * 1024);
 
   m_pBoolCache = reinterpret_cast<bool*>(m_Cache.GetData());
-  m_pInt8Cache = reinterpret_cast<ezInt8*>(m_Cache.GetData());
-  m_pInt16Cache = reinterpret_cast<ezInt16*>(m_Cache.GetData());
-  m_pInt32Cache = reinterpret_cast<ezInt32*>(m_Cache.GetData());
-  m_pInt64Cache = reinterpret_cast<ezInt64*>(m_Cache.GetData());
-  m_pUInt8Cache = reinterpret_cast<ezUInt8*>(m_Cache.GetData());
-  m_pUInt16Cache = reinterpret_cast<ezUInt16*>(m_Cache.GetData());
-  m_pUInt32Cache = reinterpret_cast<ezUInt32*>(m_Cache.GetData());
-  m_pUInt64Cache = reinterpret_cast<ezUInt64*>(m_Cache.GetData());
+  m_pInt8Cache = reinterpret_cast<WInt8*>(m_Cache.GetData());
+  m_pInt16Cache = reinterpret_cast<WInt16*>(m_Cache.GetData());
+  m_pInt32Cache = reinterpret_cast<WInt32*>(m_Cache.GetData());
+  m_pInt64Cache = reinterpret_cast<WInt64*>(m_Cache.GetData());
+  m_pUInt8Cache = reinterpret_cast<WUInt8*>(m_Cache.GetData());
+  m_pUInt16Cache = reinterpret_cast<WUInt16*>(m_Cache.GetData());
+  m_pUInt32Cache = reinterpret_cast<WUInt32*>(m_Cache.GetData());
+  m_pUInt64Cache = reinterpret_cast<WUInt64*>(m_Cache.GetData());
   m_pFloatCache = reinterpret_cast<float*>(m_Cache.GetData());
   m_pDoubleCache = reinterpret_cast<double*>(m_Cache.GetData());
 }
 
 
 // Extension to default OpenDDL: We allow ':' and '.' to appear in identifier names
-bool IsDdlIdentifierCharacter(ezUInt32 uiByte)
+bool IsDdlIdentifierCharacter(WUInt32 uiByte)
 {
   return ((uiByte >= 'a' && uiByte <= 'z') || (uiByte >= 'A' && uiByte <= 'Z') || (uiByte == '_') || (uiByte >= '0' && uiByte <= '9') || (uiByte == ':') || (uiByte == '.'));
 }
 
-void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset /*= 0*/)
+void WOpenDdlParser::SetInputStream(WStreamReader& stream, WUInt32 uiFirstLineOffset /*= 0*/)
 {
-  EZ_ASSERT_DEV(m_StateStack.IsEmpty(), "OpenDDL Parser cannot be restarted");
+  W_ASSERT_DEV(m_StateStack.IsEmpty(), "OpenDDL Parser cannot be restarted");
 
   m_pInput = &stream;
 
@@ -73,7 +73,7 @@ void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLin
   }
 }
 
-bool ezOpenDdlParser::ContinueParsing()
+bool WOpenDdlParser::ContinueParsing()
 {
   if (m_uiCurByte == '\0')
   {
@@ -129,27 +129,27 @@ bool ezOpenDdlParser::ContinueParsing()
       return true;
 
     default:
-      EZ_REPORT_FAILURE("Unknown State in OpenDDL parser state machine.");
+      W_REPORT_FAILURE("Unknown State in OpenDDL parser state machine.");
       return false;
   }
 }
 
-ezResult ezOpenDdlParser::ParseAll()
+WResult WOpenDdlParser::ParseAll()
 {
   while (ContinueParsing())
   {
   }
 
-  return m_bHadFatalParsingError ? EZ_FAILURE : EZ_SUCCESS;
+  return m_bHadFatalParsingError ? W_FAILURE : W_SUCCESS;
 }
 
-void ezOpenDdlParser::SkipRestOfObject()
+void WOpenDdlParser::SkipRestOfObject()
 {
-  EZ_ASSERT_DEBUG(!m_bSkippingMode, "Skipping mode is in an invalid state.");
+  W_ASSERT_DEBUG(!m_bSkippingMode, "Skipping mode is in an invalid state.");
 
   m_bSkippingMode = true;
 
-  const ezUInt32 iSkipToStackHeight = m_StateStack.GetCount() - 1;
+  const WUInt32 iSkipToStackHeight = m_StateStack.GetCount() - 1;
 
   while (m_StateStack.GetCount() > iSkipToStackHeight)
     ContinueParsing();
@@ -158,18 +158,18 @@ void ezOpenDdlParser::SkipRestOfObject()
 }
 
 
-void ezOpenDdlParser::StopParsing()
+void WOpenDdlParser::StopParsing()
 {
   m_uiCurByte = '\0';
   m_StateStack.Clear();
 }
 
-void ezOpenDdlParser::ParsingError(ezStringView sMessage, bool bFatal)
+void WOpenDdlParser::ParsingError(WStringView sMessage, bool bFatal)
 {
   if (bFatal)
-    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
+    WLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
   else
-    ezLog::Warning(m_pLogInterface, sMessage);
+    WLog::Warning(m_pLogInterface, sMessage);
 
   OnParsingError(sMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 
@@ -182,9 +182,9 @@ void ezOpenDdlParser::ParsingError(ezStringView sMessage, bool bFatal)
 }
 
 
-void ezOpenDdlParser::ReadNextByte()
+void WOpenDdlParser::ReadNextByte()
 {
-  m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+  m_pInput->ReadBytes(&m_uiNextByte, sizeof(WUInt8));
 
   if (m_uiNextByte == '\n')
   {
@@ -195,7 +195,7 @@ void ezOpenDdlParser::ReadNextByte()
     ++m_uiCurColumn;
 }
 
-bool ezOpenDdlParser::ReadCharacter()
+bool WOpenDdlParser::ReadCharacter()
 {
   m_uiCurByte = m_uiNextByte;
 
@@ -205,7 +205,7 @@ bool ezOpenDdlParser::ReadCharacter()
   return m_uiCurByte != '\0';
 }
 
-bool ezOpenDdlParser::ReadCharacterSkipComments()
+bool WOpenDdlParser::ReadCharacterSkipComments()
 {
   m_uiCurByte = m_uiNextByte;
 
@@ -250,7 +250,7 @@ bool ezOpenDdlParser::ReadCharacterSkipComments()
   return m_uiCurByte != '\0';
 }
 
-void ezOpenDdlParser::SkipWhitespace()
+void WOpenDdlParser::SkipWhitespace()
 {
   do
   {
@@ -258,11 +258,11 @@ void ezOpenDdlParser::SkipWhitespace()
 
     if (!ReadCharacterSkipComments())
       return; // stop when end of stream is encountered
-  } while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
+  } while (WStringUtils::IsWhiteSpace(m_uiCurByte));
 }
 
 
-void ezOpenDdlParser::ContinueIdle()
+void WOpenDdlParser::ContinueIdle()
 {
   switch (m_uiCurByte)
   {
@@ -279,7 +279,7 @@ void ezOpenDdlParser::ContinueIdle()
 
     default:
     {
-      ezUInt32 uiIdTypeLen = 0;
+      WUInt32 uiIdTypeLen = 0;
       ReadIdentifier(m_szIdentifierType, uiIdTypeLen);
 
       if (uiIdTypeLen == 0)
@@ -298,7 +298,7 @@ void ezOpenDdlParser::ContinueIdle()
         if (!ReadCharacterSkipComments())
           return;
 
-        ezUInt32 uiIdNameLen = 0;
+        WUInt32 uiIdNameLen = 0;
         ReadIdentifier(m_szIdentifierName, uiIdNameLen);
 
         if (uiIdNameLen == 0)
@@ -322,54 +322,54 @@ void ezOpenDdlParser::ContinueIdle()
         // support for 'uint' is an extension to OpenDDL
         // support for u1, u2, u3, u4 for  8 Bit, 16 Bit, 32 Bit, 64 Bit is an extension to OpenDDL
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u1") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "u1") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
         {
           m_StateStack.PushBack(State::ReadingUInt8);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::UInt8, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u3") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "u3") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
         {
           m_StateStack.PushBack(State::ReadingUInt32);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::UInt32, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u2") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "u2") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
         {
           m_StateStack.PushBack(State::ReadingUInt16);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::UInt16, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u4") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") ||
-            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "u4") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") ||
+            WStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
         {
           m_StateStack.PushBack(State::ReadingUInt64);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::UInt64, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
@@ -378,46 +378,46 @@ void ezOpenDdlParser::ContinueIdle()
       {
         // support for i1, i2, i3, i4 for  8 Bit, 16 Bit, 32 Bit, 64 Bit is an extension to OpenDDL
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i3") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "i3") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
         {
           m_StateStack.PushBack(State::ReadingInt32);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Int32, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i1") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "i1") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
         {
           m_StateStack.PushBack(State::ReadingInt8);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Int8, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i2") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "i2") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
         {
           m_StateStack.PushBack(State::ReadingInt16);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Int16, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i4") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "i4") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
         {
           m_StateStack.PushBack(State::ReadingInt64);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Int64, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
@@ -426,46 +426,46 @@ void ezOpenDdlParser::ContinueIdle()
       {
         // support for f, d, s, b for  float, double, string, boo is an extension to OpenDDL
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "f") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "f") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
         {
           m_StateStack.PushBack(State::ReadingFloat);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Float, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Float, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "s") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "s") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
         {
           m_StateStack.PushBack(State::ReadingString);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::String, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::String, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "b") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "b") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
         {
           m_StateStack.PushBack(State::ReadingBool);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Bool, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "d") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
+        if (WStringUtils::IsEqual((const char*)m_szIdentifierType, "d") || WStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
         {
           m_StateStack.PushBack(State::ReadingDouble);
 
           if (!m_bSkippingMode)
           {
-            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Double, (const char*)m_szIdentifierName, bGlobalName);
+            OnBeginPrimitiveList(WOpenDdlPrimitiveType::Double, (const char*)m_szIdentifierName, bGlobalName);
           }
           return;
         }
@@ -485,7 +485,7 @@ void ezOpenDdlParser::ContinueIdle()
   }
 }
 
-void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
+void WOpenDdlParser::ReadIdentifier(WUInt8* szString, WUInt32& count)
 {
   count = 0;
 
@@ -588,7 +588,7 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
   SkipWhitespace();
 }
 
-void ezOpenDdlParser::ReadString()
+void WOpenDdlParser::ReadString()
 {
   m_uiTempStringLength = 0;
 
@@ -651,8 +651,8 @@ void ezOpenDdlParser::ReadString()
           break;
         default:
         {
-          ezStringBuilder s;
-          s.SetFormat("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
+          WStringBuilder s;
+          s.SetFormat("Unknown escape-sequence '\\{0}'", WArgC(m_uiCurByte));
           ParsingError(s, false);
         }
         break;
@@ -675,7 +675,7 @@ void ezOpenDdlParser::ReadString()
   m_TempString[m_uiTempStringLength] = '\0';
 }
 
-void ezOpenDdlParser::ReadWord()
+void WOpenDdlParser::ReadWord()
 {
   m_uiTempStringLength = 0;
 
@@ -688,15 +688,15 @@ void ezOpenDdlParser::ReadWord()
 
     if (!ReadCharacterSkipComments())
       break; // stop when end of stream is encountered
-  } while (!ezStringUtils::IsIdentifierDelimiter_C_Code(m_uiCurByte));
+  } while (!WStringUtils::IsIdentifierDelimiter_C_Code(m_uiCurByte));
 
   m_TempString[m_uiTempStringLength] = '\0';
 
-  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+  if (WStringUtils::IsWhiteSpace(m_uiCurByte))
     SkipWhitespace();
 }
 
-void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
+void WOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
 {
   if (!m_bSkippingMode && m_uiNumCachedPrimitives > 0)
   {
@@ -747,7 +747,7 @@ void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
         break;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
   }
@@ -755,7 +755,7 @@ void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
   m_uiNumCachedPrimitives = 0;
 }
 
-bool ezOpenDdlParser::ContinuePrimitiveList()
+bool WOpenDdlParser::ContinuePrimitiveList()
 {
   switch (m_uiCurByte)
   {
@@ -787,7 +787,7 @@ bool ezOpenDdlParser::ContinuePrimitiveList()
   return true;
 }
 
-void ezOpenDdlParser::ContinueString()
+void WOpenDdlParser::ContinueString()
 {
   if (!ContinuePrimitiveList())
     return;
@@ -809,7 +809,7 @@ void ezOpenDdlParser::ContinueString()
 
       if (!m_bSkippingMode)
       {
-        ezStringView view((const char*)&m_TempString[0], (const char*)&m_TempString[m_uiTempStringLength]);
+        WStringView view((const char*)&m_TempString[0], (const char*)&m_TempString[m_uiTempStringLength]);
 
         OnPrimitiveString(1, &view, false);
       }
@@ -826,7 +826,7 @@ void ezOpenDdlParser::ContinueString()
   }
 }
 
-void ezOpenDdlParser::SkipString()
+void WOpenDdlParser::SkipString()
 {
   bool bEscapeSequence = false;
 
@@ -845,7 +845,7 @@ void ezOpenDdlParser::SkipString()
   } while (bEscapeSequence || m_uiCurByte != '\"');
 }
 
-void ezOpenDdlParser::ContinueBool()
+void WOpenDdlParser::ContinueBool()
 {
   if (!ContinuePrimitiveList())
     return;
@@ -859,13 +859,13 @@ void ezOpenDdlParser::ContinueBool()
     {
       ReadWord();
 
-      // Extension to OpenDDL: We allow everything that ezConversionUtils::StringToBool knows as a bool value
+      // Extension to OpenDDL: We allow everything that WConversionUtils::StringToBool knows as a bool value
       // We actually use '1' and '0' in compact mode
 
       bool bRes = false;
-      if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
+      if (WConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == W_FAILURE)
       {
-        ezStringBuilder s;
+        WStringBuilder s;
         s.SetFormat("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
@@ -885,12 +885,12 @@ void ezOpenDdlParser::ContinueBool()
   ParsingError("Invalid bool value", true);
 }
 
-void ezOpenDdlParser::ContinueInt()
+void WOpenDdlParser::ContinueInt()
 {
   if (!ContinuePrimitiveList())
     return;
 
-  ezInt8 sign = 1;
+  WInt8 sign = 1;
 
   // allow exactly one sign
   if (m_uiCurByte == '-')
@@ -901,14 +901,14 @@ void ezOpenDdlParser::ContinueInt()
     // no whitespace is allowed here
     ReadCharacterSkipComments();
 
-    if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+    if (WStringUtils::IsWhiteSpace(m_uiCurByte))
     {
       ParsingError("Whitespace is not allowed between integer sign and value", false);
       SkipWhitespace();
     }
   }
 
-  ezUInt64 value = 0;
+  WUInt64 value = 0;
 
   if (m_uiCurByte == '0' && (m_uiNextByte == 'x' || m_uiNextByte == 'X'))
   {
@@ -958,9 +958,9 @@ void ezOpenDdlParser::ContinueInt()
   {
     case ReadingInt8:
     {
-      m_pInt8Cache[m_uiNumCachedPrimitives++] = sign * (ezInt8)value; // if user data is out of range, we don't care
+      m_pInt8Cache[m_uiNumCachedPrimitives++] = sign * (WInt8)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt8))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WInt8))
         PurgeCachedPrimitives(false);
 
       break;
@@ -968,9 +968,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingInt16:
     {
-      m_pInt16Cache[m_uiNumCachedPrimitives++] = sign * (ezInt16)value; // if user data is out of range, we don't care
+      m_pInt16Cache[m_uiNumCachedPrimitives++] = sign * (WInt16)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt16))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WInt16))
         PurgeCachedPrimitives(false);
 
       break;
@@ -978,9 +978,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingInt32:
     {
-      m_pInt32Cache[m_uiNumCachedPrimitives++] = sign * (ezInt32)value; // if user data is out of range, we don't care
+      m_pInt32Cache[m_uiNumCachedPrimitives++] = sign * (WInt32)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt32))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WInt32))
         PurgeCachedPrimitives(false);
 
       break;
@@ -988,9 +988,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingInt64:
     {
-      m_pInt64Cache[m_uiNumCachedPrimitives++] = sign * (ezInt64)value; // if user data is out of range, we don't care
+      m_pInt64Cache[m_uiNumCachedPrimitives++] = sign * (WInt64)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt64))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WInt64))
         PurgeCachedPrimitives(false);
 
       break;
@@ -999,9 +999,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingUInt8:
     {
-      m_pUInt8Cache[m_uiNumCachedPrimitives++] = (ezUInt8)value; // if user data is out of range, we don't care
+      m_pUInt8Cache[m_uiNumCachedPrimitives++] = (WUInt8)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt8))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WUInt8))
         PurgeCachedPrimitives(false);
 
       break;
@@ -1009,9 +1009,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingUInt16:
     {
-      m_pUInt16Cache[m_uiNumCachedPrimitives++] = (ezUInt16)value; // if user data is out of range, we don't care
+      m_pUInt16Cache[m_uiNumCachedPrimitives++] = (WUInt16)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt16))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WUInt16))
         PurgeCachedPrimitives(false);
 
       break;
@@ -1019,9 +1019,9 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingUInt32:
     {
-      m_pUInt32Cache[m_uiNumCachedPrimitives++] = (ezUInt32)value; // if user data is out of range, we don't care
+      m_pUInt32Cache[m_uiNumCachedPrimitives++] = (WUInt32)value; // if user data is out of range, we don't care
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt32))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WUInt32))
         PurgeCachedPrimitives(false);
 
       break;
@@ -1029,22 +1029,22 @@ void ezOpenDdlParser::ContinueInt()
 
     case ReadingUInt64:
     {
-      m_pUInt64Cache[m_uiNumCachedPrimitives++] = (ezUInt64)value;
+      m_pUInt64Cache[m_uiNumCachedPrimitives++] = (WUInt64)value;
 
-      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt64))
+      if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(WUInt64))
         PurgeCachedPrimitives(false);
 
       break;
     }
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 }
 
 
-void ezOpenDdlParser::ContinueFloat()
+void WOpenDdlParser::ContinueFloat()
 {
   if (!ContinuePrimitiveList())
     return;
@@ -1063,7 +1063,7 @@ void ezOpenDdlParser::ContinueFloat()
       // no whitespace is allowed here
       ReadCharacterSkipComments();
 
-      if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+      if (WStringUtils::IsWhiteSpace(m_uiCurByte))
       {
         ParsingError("Whitespace is not allowed between float sign and value", false);
         SkipWhitespace();
@@ -1084,9 +1084,9 @@ void ezOpenDdlParser::ContinueFloat()
     ReadHexString();
 
     if (curState == ReadingFloat)
-      ezConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (ezUInt8*)&fValue, 4);
+      WConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (WUInt8*)&fValue, 4);
     else
-      ezConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (ezUInt8*)&dValue, 8);
+      WConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (WUInt8*)&dValue, 8);
   }
   else if (m_uiCurByte == '0' && (m_uiNextByte == 'o' || m_uiNextByte == 'O'))
   {
@@ -1105,9 +1105,9 @@ void ezOpenDdlParser::ContinueFloat()
     // Decimal literal
     ReadDecimalFloat();
 
-    if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == EZ_FAILURE)
+    if (WConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == W_FAILURE)
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
       ParsingError(s.GetData(), true);
     }
@@ -1143,12 +1143,12 @@ void ezOpenDdlParser::ContinueFloat()
     }
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 }
 
-void ezOpenDdlParser::ReadDecimalFloat()
+void WOpenDdlParser::ReadDecimalFloat()
 {
   m_uiTempStringLength = 0;
 
@@ -1166,12 +1166,12 @@ void ezOpenDdlParser::ReadDecimalFloat()
 
   m_TempString[m_uiTempStringLength] = '\0';
 
-  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+  if (WStringUtils::IsWhiteSpace(m_uiCurByte))
     SkipWhitespace();
 }
 
 
-void ezOpenDdlParser::ReadHexString()
+void WOpenDdlParser::ReadHexString()
 {
   m_uiTempStringLength = 0;
 
@@ -1188,13 +1188,13 @@ void ezOpenDdlParser::ReadHexString()
 
   m_TempString[m_uiTempStringLength] = '\0';
 
-  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+  if (WStringUtils::IsWhiteSpace(m_uiCurByte))
     SkipWhitespace();
 }
 
-ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
+WUInt64 WOpenDdlParser::ReadDecimalLiteral()
 {
-  ezUInt64 value = 0;
+  WUInt64 value = 0;
 
   while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '_')
   {
@@ -1211,7 +1211,7 @@ ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
     ReadCharacterSkipComments();
   }
 
-  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+  if (WStringUtils::IsWhiteSpace(m_uiCurByte))
   {
     // move to next valid character
     SkipWhitespace();

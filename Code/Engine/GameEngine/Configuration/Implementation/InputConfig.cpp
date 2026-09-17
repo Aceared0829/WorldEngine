@@ -6,52 +6,52 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GameEngine/Configuration/InputConfig.h>
 
-static_assert(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
+static_assert(WGameAppInputConfig::MaxInputSlotAlternatives == WInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
 
-ezGameAppInputConfig::ezGameAppInputConfig()
+WGameAppInputConfig::WGameAppInputConfig()
 {
-  for (ezUInt16 i = 0; i < MaxInputSlotAlternatives; ++i)
+  for (WUInt16 i = 0; i < MaxInputSlotAlternatives; ++i)
   {
     m_fInputSlotScale[i] = 1.0f;
-    m_sInputSlotTrigger[i] = ezInputSlot_None;
+    m_sInputSlotTrigger[i] = WInputSlot_None;
   }
 }
 
-void ezGameAppInputConfig::Apply() const
+void WGameAppInputConfig::Apply() const
 {
-  ezInputActionConfig cfg;
+  WInputActionConfig cfg;
   cfg.m_bApplyTimeScaling = m_bApplyTimeScaling;
 
-  for (ezUInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
+  for (WUInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
   {
     cfg.m_sInputSlotTrigger[i] = m_sInputSlotTrigger[i];
     cfg.m_fInputSlotScale[i] = m_fInputSlotScale[i];
   }
 
-  ezInputManager::SetInputActionConfig(m_sInputSet, m_sInputAction, cfg, true);
+  WInputManager::SetInputActionConfig(m_sInputSet, m_sInputAction, cfg, true);
 }
 
-void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& inout_stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
+void WGameAppInputConfig::WriteToDDL(WStreamWriter& inout_stream, const WArrayPtr<WGameAppInputConfig>& actions)
 {
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetCompactMode(false);
-  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetFloatPrecisionMode(WOpenDdlWriter::FloatPrecisionMode::Readable);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
   writer.SetOutputStream(&inout_stream);
 
-  for (const ezGameAppInputConfig& config : actions)
+  for (const WGameAppInputConfig& config : actions)
   {
     config.WriteToDDL(writer);
   }
 }
 
-void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& ref_writer) const
+void WGameAppInputConfig::WriteToDDL(WOpenDdlWriter& ref_writer) const
 {
   ref_writer.BeginObject("InputAction");
   {
-    ezOpenDdlUtils::StoreString(ref_writer, m_sInputSet, "Set");
-    ezOpenDdlUtils::StoreString(ref_writer, m_sInputAction, "Action");
-    ezOpenDdlUtils::StoreBool(ref_writer, m_bApplyTimeScaling, "TimeScale");
+    WOpenDdlUtils::StoreString(ref_writer, m_sInputSet, "Set");
+    WOpenDdlUtils::StoreString(ref_writer, m_sInputAction, "Action");
+    WOpenDdlUtils::StoreBool(ref_writer, m_bApplyTimeScaling, "TimeScale");
 
     for (int i = 0; i < 3; ++i)
     {
@@ -59,8 +59,8 @@ void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& ref_writer) const
       {
         ref_writer.BeginObject("Slot");
         {
-          ezOpenDdlUtils::StoreString(ref_writer, m_sInputSlotTrigger[i], "Key");
-          ezOpenDdlUtils::StoreFloat(ref_writer, m_fInputSlotScale[i], "Scale");
+          WOpenDdlUtils::StoreString(ref_writer, m_sInputSlotTrigger[i], "Key");
+          WOpenDdlUtils::StoreFloat(ref_writer, m_fInputSlotScale[i], "Scale");
         }
         ref_writer.EndObject();
       }
@@ -69,31 +69,31 @@ void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& ref_writer) const
   ref_writer.EndObject();
 }
 
-void ezGameAppInputConfig::ReadFromDDL(ezStreamReader& inout_stream, ezDynamicArray<ezGameAppInputConfig>& out_actions)
+void WGameAppInputConfig::ReadFromDDL(WStreamReader& inout_stream, WDynamicArray<WGameAppInputConfig>& out_actions)
 {
-  ezOpenDdlReader reader;
+  WOpenDdlReader reader;
 
-  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (reader.ParseDocument(inout_stream, 0, WLog::GetThreadLocalLogSystem()).Failed())
     return;
 
-  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
+  const WOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pAction = pRoot->GetFirstChild(); pAction != nullptr; pAction = pAction->GetSibling())
+  for (const WOpenDdlReaderElement* pAction = pRoot->GetFirstChild(); pAction != nullptr; pAction = pAction->GetSibling())
   {
     if (!pAction->IsCustomType("InputAction"))
       continue;
 
-    ezGameAppInputConfig& cfg = out_actions.ExpandAndGetRef();
+    WGameAppInputConfig& cfg = out_actions.ExpandAndGetRef();
 
     cfg.ReadFromDDL(pAction);
   }
 }
 
-void ezGameAppInputConfig::ReadFromDDL(const ezOpenDdlReaderElement* pInput)
+void WGameAppInputConfig::ReadFromDDL(const WOpenDdlReaderElement* pInput)
 {
-  const ezOpenDdlReaderElement* pSet = pInput->FindChildOfType(ezOpenDdlPrimitiveType::String, "Set");
-  const ezOpenDdlReaderElement* pAction = pInput->FindChildOfType(ezOpenDdlPrimitiveType::String, "Action");
-  const ezOpenDdlReaderElement* pTimeScale = pInput->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "TimeScale");
+  const WOpenDdlReaderElement* pSet = pInput->FindChildOfType(WOpenDdlPrimitiveType::String, "Set");
+  const WOpenDdlReaderElement* pAction = pInput->FindChildOfType(WOpenDdlPrimitiveType::String, "Action");
+  const WOpenDdlReaderElement* pTimeScale = pInput->FindChildOfType(WOpenDdlPrimitiveType::Bool, "TimeScale");
 
 
   if (pSet)
@@ -105,14 +105,14 @@ void ezGameAppInputConfig::ReadFromDDL(const ezOpenDdlReaderElement* pInput)
   if (pTimeScale)
     m_bApplyTimeScaling = pTimeScale->GetPrimitivesBool()[0];
 
-  ezInt32 iSlot = 0;
-  for (const ezOpenDdlReaderElement* pSlot = pInput->GetFirstChild(); pSlot != nullptr; pSlot = pSlot->GetSibling())
+  WInt32 iSlot = 0;
+  for (const WOpenDdlReaderElement* pSlot = pInput->GetFirstChild(); pSlot != nullptr; pSlot = pSlot->GetSibling())
   {
     if (!pSlot->IsCustomType("Slot"))
       continue;
 
-    const ezOpenDdlReaderElement* pKey = pSlot->FindChildOfType(ezOpenDdlPrimitiveType::String, "Key");
-    const ezOpenDdlReaderElement* pScale = pSlot->FindChildOfType(ezOpenDdlPrimitiveType::Float, "Scale");
+    const WOpenDdlReaderElement* pKey = pSlot->FindChildOfType(WOpenDdlPrimitiveType::String, "Key");
+    const WOpenDdlReaderElement* pScale = pSlot->FindChildOfType(WOpenDdlPrimitiveType::Float, "Scale");
 
     if (pKey)
       m_sInputSlotTrigger[iSlot] = pKey->GetPrimitivesString()[0];
@@ -127,9 +127,9 @@ void ezGameAppInputConfig::ReadFromDDL(const ezOpenDdlReaderElement* pInput)
   }
 }
 
-void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions)
+void WGameAppInputConfig::ApplyAll(const WArrayPtr<WGameAppInputConfig>& actions)
 {
-  for (const ezGameAppInputConfig& config : actions)
+  for (const WGameAppInputConfig& config : actions)
   {
     config.Apply();
   }

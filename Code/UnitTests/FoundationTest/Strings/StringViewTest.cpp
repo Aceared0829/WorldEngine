@@ -7,104 +7,104 @@
 
 using namespace std;
 
-const ezStringView gConstant1 = "gConstant1"_ezsv;
-const ezStringView gConstant2("gConstant2");
+const WStringView gConstant1 = "gConstant1"_wsv;
+const WStringView gConstant2("gConstant2");
 const std::string_view gConstant3 = "gConstant3"sv;
 
-EZ_CREATE_SIMPLE_TEST(Strings, StringView)
+W_CREATE_SIMPLE_TEST(Strings, StringView)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (simple)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor (simple)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
-    ezStringView it(sz);
+    WStringView it(sz);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == sz);
-    EZ_TEST_STRING(it.GetData(tmp), sz);
-    EZ_TEST_BOOL(it.GetEndPointer() == sz + 26);
-    EZ_TEST_INT(it.GetElementCount(), 26);
+    W_TEST_BOOL(it.GetStartPointer() == sz);
+    W_TEST_STRING(it.GetData(tmp), sz);
+    W_TEST_BOOL(it.GetEndPointer() == sz + 26);
+    W_TEST_INT(it.GetElementCount(), 26);
 
-    ezStringView it2(sz + 15);
+    WStringView it2(sz + 15);
 
-    EZ_TEST_BOOL(it2.GetStartPointer() == &sz[15]);
-    EZ_TEST_STRING(it2.GetData(tmp), &sz[15]);
-    EZ_TEST_BOOL(it2.GetEndPointer() == sz + 26);
-    EZ_TEST_INT(it2.GetElementCount(), 11);
+    W_TEST_BOOL(it2.GetStartPointer() == &sz[15]);
+    W_TEST_STRING(it2.GetData(tmp), &sz[15]);
+    W_TEST_BOOL(it2.GetEndPointer() == sz + 26);
+    W_TEST_INT(it2.GetElementCount(), 11);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (complex, YARLY!)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor (complex, YARLY!)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
-    ezStringView it(sz + 3, sz + 17);
+    WStringView it(sz + 3, sz + 17);
     it.SetStartPosition(sz + 5);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == sz + 5);
-    EZ_TEST_STRING(it.GetData(tmp), "fghijklmnopq");
-    EZ_TEST_BOOL(it.GetEndPointer() == sz + 17);
-    EZ_TEST_INT(it.GetElementCount(), 12);
+    W_TEST_BOOL(it.GetStartPointer() == sz + 5);
+    W_TEST_STRING(it.GetData(tmp), "fghijklmnopq");
+    W_TEST_BOOL(it.GetEndPointer() == sz + 17);
+    W_TEST_INT(it.GetElementCount(), 12);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor constexpr")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor constexpr")
   {
-    constexpr ezStringView b = ezStringView("Hello World", 10);
-    EZ_TEST_INT(b.GetElementCount(), 10);
-    EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
+    constexpr WStringView b = WStringView("Hello World", 10);
+    W_TEST_INT(b.GetElementCount(), 10);
+    W_TEST_STRING(b.GetData(tmp), "Hello Worl");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "String literal")
+  W_TEST_BLOCK(WTestBlock::Enabled, "String literal")
   {
-    constexpr ezStringView a = "Hello World"_ezsv;
-    EZ_TEST_INT(a.GetElementCount(), 11);
-    EZ_TEST_STRING(a.GetData(tmp), "Hello World");
+    constexpr WStringView a = "Hello World"_wsv;
+    W_TEST_INT(a.GetElementCount(), 11);
+    W_TEST_STRING(a.GetData(tmp), "Hello World");
 
-    ezStringView b = "Hello Worl"_ezsv;
-    EZ_TEST_INT(b.GetElementCount(), 10);
-    EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
+    WStringView b = "Hello Worl"_wsv;
+    W_TEST_INT(b.GetElementCount(), 10);
+    W_TEST_STRING(b.GetData(tmp), "Hello Worl");
 
     // tests a special case in which the MSVC compiler would run into trouble
-    EZ_TEST_INT(gConstant1.GetElementCount(), 10);
-    EZ_TEST_STRING(gConstant1.GetData(tmp), "gConstant1");
+    W_TEST_INT(gConstant1.GetElementCount(), 10);
+    W_TEST_STRING(gConstant1.GetData(tmp), "gConstant1");
 
-    EZ_TEST_INT(gConstant2.GetElementCount(), 10);
-    EZ_TEST_STRING(gConstant2.GetData(tmp), "gConstant2");
+    W_TEST_INT(gConstant2.GetElementCount(), 10);
+    W_TEST_STRING(gConstant2.GetData(tmp), "gConstant2");
 
-    EZ_TEST_INT(gConstant3.size(), 10);
-    EZ_TEST_BOOL(gConstant3 == "gConstant3");
+    W_TEST_INT(gConstant3.size(), 10);
+    W_TEST_BOOL(gConstant3 == "gConstant3");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator++")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator++")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringView it(sz);
+    WStringView it(sz);
 
-    for (ezInt32 i = 0; i < 26; ++i)
+    for (WInt32 i = 0; i < 26; ++i)
     {
-      EZ_TEST_INT(it.GetCharacter(), sz[i]);
-      EZ_TEST_BOOL(it.IsValid());
+      W_TEST_INT(it.GetCharacter(), sz[i]);
+      W_TEST_BOOL(it.IsValid());
       it.Shrink(1, 0);
     }
 
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator== / operator!=")
   {
-    ezString s1(L"abcdefghiäöüß€");
-    ezString s2(L"ghiäöüß€abdef");
+    WString s1(L"abcdefghiäöüß€");
+    WString s2(L"ghiäöüß€abdef");
 
-    ezStringView it1 = s1.GetSubString(8, 4);
-    ezStringView it2 = s2.GetSubString(2, 4);
-    ezStringView it3 = s2.GetSubString(2, 5);
+    WStringView it1 = s1.GetSubString(8, 4);
+    WStringView it2 = s2.GetSubString(2, 4);
+    WStringView it3 = s2.GetSubString(2, 5);
 
-    EZ_TEST_BOOL(it1 == it2);
-    EZ_TEST_BOOL(it1 != it3);
+    W_TEST_BOOL(it1 == it2);
+    W_TEST_BOOL(it1 != it3);
 
-    EZ_TEST_BOOL(it1 == ezString(L"iäöü").GetData());
-    EZ_TEST_BOOL(it2 == ezString(L"iäöü").GetData());
-    EZ_TEST_BOOL(it3 == ezString(L"iäöüß").GetData());
+    W_TEST_BOOL(it1 == WString(L"iäöü").GetData());
+    W_TEST_BOOL(it2 == WString(L"iäöü").GetData());
+    W_TEST_BOOL(it3 == WString(L"iäöüß").GetData());
 
     s1 = "abcdefghijkl";
     s2 = "oghijklm";
@@ -113,301 +113,301 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     it2 = s2.GetSubString(1, 4);
     it3 = s2.GetSubString(1, 5);
 
-    EZ_TEST_BOOL(it1 == it2);
-    EZ_TEST_BOOL(it1 != it3);
+    W_TEST_BOOL(it1 == it2);
+    W_TEST_BOOL(it1 != it3);
 
-    EZ_TEST_BOOL(it1 == "ghij");
-    EZ_TEST_BOOL(it1 != "ghijk");
+    W_TEST_BOOL(it1 == "ghij");
+    W_TEST_BOOL(it1 != "ghijk");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqual")
   {
     const char* sz = "abcdef";
-    ezStringView it(sz);
+    WStringView it(sz);
 
-    EZ_TEST_BOOL(it.IsEqual(ezStringView("abcdef")));
-    EZ_TEST_BOOL(!it.IsEqual(ezStringView("abcde")));
-    EZ_TEST_BOOL(!it.IsEqual(ezStringView("abcdefg")));
+    W_TEST_BOOL(it.IsEqual(WStringView("abcdef")));
+    W_TEST_BOOL(!it.IsEqual(WStringView("abcde")));
+    W_TEST_BOOL(!it.IsEqual(WStringView("abcdefg")));
 
-    ezStringView it2(sz + 2, sz + 5);
+    WStringView it2(sz + 2, sz + 5);
 
     const char* szRhs = "Abcdef";
-    ezStringView it3(szRhs + 2, szRhs + 5);
-    EZ_TEST_BOOL(it2.IsEqual(it3));
-    it3 = ezStringView(szRhs + 1, szRhs + 5);
-    EZ_TEST_BOOL(!it2.IsEqual(it3));
-    it3 = ezStringView(szRhs + 2, szRhs + 6);
-    EZ_TEST_BOOL(!it2.IsEqual(it3));
+    WStringView it3(szRhs + 2, szRhs + 5);
+    W_TEST_BOOL(it2.IsEqual(it3));
+    it3 = WStringView(szRhs + 1, szRhs + 5);
+    W_TEST_BOOL(!it2.IsEqual(it3));
+    it3 = WStringView(szRhs + 2, szRhs + 6);
+    W_TEST_BOOL(!it2.IsEqual(it3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual_NoCase")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqual_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringView it(sz);
+    WStringView it(sz);
 
-    EZ_TEST_BOOL(it.IsEqual_NoCase("abcdef"));
-    EZ_TEST_BOOL(!it.IsEqual_NoCase("abcde"));
-    EZ_TEST_BOOL(!it.IsEqual_NoCase("abcdefg"));
+    W_TEST_BOOL(it.IsEqual_NoCase("abcdef"));
+    W_TEST_BOOL(!it.IsEqual_NoCase("abcde"));
+    W_TEST_BOOL(!it.IsEqual_NoCase("abcdefg"));
 
-    ezStringView it2(sz + 1, sz + 5);
+    WStringView it2(sz + 1, sz + 5);
     it2.SetStartPosition(sz + 2);
 
-    EZ_TEST_BOOL(it2.IsEqual_NoCase("cde"));
-    EZ_TEST_BOOL(!it2.IsEqual_NoCase("bcde"));
-    EZ_TEST_BOOL(!it2.IsEqual_NoCase("cdef"));
+    W_TEST_BOOL(it2.IsEqual_NoCase("cde"));
+    W_TEST_BOOL(!it2.IsEqual_NoCase("bcde"));
+    W_TEST_BOOL(!it2.IsEqual_NoCase("cdef"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+=")
+  W_TEST_BLOCK(WTestBlock::Enabled, "operator+=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringView it(sz);
+    WStringView it(sz);
 
-    for (ezInt32 i = 0; i < 26; i += 2)
+    for (WInt32 i = 0; i < 26; i += 2)
     {
-      EZ_TEST_INT(it.GetCharacter(), sz[i]);
-      EZ_TEST_BOOL(it.IsValid());
+      W_TEST_INT(it.GetCharacter(), sz[i]);
+      W_TEST_BOOL(it.IsValid());
       it.Shrink(2, 0);
     }
 
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacter")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetCharacter")
   {
-    ezStringUtf8 s(L"abcäöü€");
-    ezStringView it = ezStringView(s.GetData());
+    WStringUtf8 s(L"abcäöü€");
+    WStringView it = WStringView(s.GetData());
 
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[2]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[2]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[3]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[3]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[5]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[5]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[7]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[7]));
     it.Shrink(1, 0);
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[9]));
+    W_TEST_INT(it.GetCharacter(), WUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[9]));
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetElementCount")
   {
-    ezStringUtf8 s(L"abcäöü€");
-    ezStringView it = ezStringView(s.GetData());
+    WStringUtf8 s(L"abcäöü€");
+    WStringView it = WStringView(s.GetData());
 
-    EZ_TEST_INT(it.GetElementCount(), 12);
+    W_TEST_INT(it.GetElementCount(), 12);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 11);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 11);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 10);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 10);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 9);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 9);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 7);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 7);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 5);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 5);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 3);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 3);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(!it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 0);
+    W_TEST_BOOL(!it.IsValid());
+    W_TEST_INT(it.GetElementCount(), 0);
     it.Shrink(1, 0);
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetStartPosition")
-  {
-    const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringView it(sz);
-
-    for (ezInt32 i = 0; i < 26; ++i)
-    {
-      it.SetStartPosition(sz + i);
-      EZ_TEST_BOOL(it.IsValid());
-      EZ_TEST_BOOL(it.StartsWith(&sz[i]));
-    }
-
-    EZ_TEST_BOOL(it.IsValid());
-    it.Shrink(1, 0);
-    EZ_TEST_BOOL(!it.IsValid());
-
-    it = ezStringView(sz);
-    for (ezInt32 i = 0; i < 26; ++i)
-    {
-      it.SetStartPosition(sz + i);
-      EZ_TEST_BOOL(it.IsValid());
-      EZ_TEST_BOOL(it.StartsWith(&sz[i]));
-    }
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStartPosition / GetEndPosition / GetData")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetStartPosition")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringView it(sz + 7, sz + 19);
+    WStringView it(sz);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == sz + 7);
-    EZ_TEST_BOOL(it.GetEndPointer() == sz + 19);
-    EZ_TEST_STRING(it.GetData(tmp), "hijklmnopqrs");
+    for (WInt32 i = 0; i < 26; ++i)
+    {
+      it.SetStartPosition(sz + i);
+      W_TEST_BOOL(it.IsValid());
+      W_TEST_BOOL(it.StartsWith(&sz[i]));
+    }
+
+    W_TEST_BOOL(it.IsValid());
+    it.Shrink(1, 0);
+    W_TEST_BOOL(!it.IsValid());
+
+    it = WStringView(sz);
+    for (WInt32 i = 0; i < 26; ++i)
+    {
+      it.SetStartPosition(sz + i);
+      W_TEST_BOOL(it.IsValid());
+      W_TEST_BOOL(it.StartsWith(&sz[i]));
+    }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetStartPosition / GetEndPosition / GetData")
   {
-    ezStringUtf8 s(L"abcäöü€def");
-    ezStringView it(s.GetData());
+    const char* sz = "abcdefghijklmnopqrstuvwxyz";
+    WStringView it(sz + 7, sz + 19);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[0]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
-    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[0]);
-    EZ_TEST_BOOL(it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == sz + 7);
+    W_TEST_BOOL(it.GetEndPointer() == sz + 19);
+    W_TEST_STRING(it.GetData(tmp), "hijklmnopqrs");
+  }
+
+  W_TEST_BLOCK(WTestBlock::Enabled, "Shrink")
+  {
+    WStringUtf8 s(L"abcäöü€def");
+    WStringView it(s.GetData());
+
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[0]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    W_TEST_STRING(it.GetData(tmp), &s.GetData()[0]);
+    W_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 0);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[1]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
-    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[1]);
-    EZ_TEST_BOOL(it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[1]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    W_TEST_STRING(it.GetData(tmp), &s.GetData()[1]);
+    W_TEST_BOOL(it.IsValid());
 
     it.Shrink(3, 0);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
-    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[5]);
-    EZ_TEST_BOOL(it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    W_TEST_STRING(it.GetData(tmp), &s.GetData()[5]);
+    W_TEST_BOOL(it.IsValid());
 
     it.Shrink(0, 4);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[9]);
-    EZ_TEST_STRING(it.GetData(tmp), (const char*)u8"öü");
-    EZ_TEST_BOOL(it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[9]);
+    W_TEST_STRING(it.GetData(tmp), (const char*)u8"öü");
+    W_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 1);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
-    EZ_TEST_STRING(it.GetData(tmp), "");
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
+    W_TEST_STRING(it.GetData(tmp), "");
+    W_TEST_BOOL(!it.IsValid());
 
     it.Shrink(10, 10);
 
-    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
-    EZ_TEST_STRING(it.GetData(tmp), "");
-    EZ_TEST_BOOL(!it.IsValid());
+    W_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
+    W_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
+    W_TEST_STRING(it.GetData(tmp), "");
+    W_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChopAwayFirstCharacterUtf8")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ChopAwayFirstCharacterUtf8")
   {
-    ezStringUtf8 utf8(L"О, Господи!");
-    ezStringView s(utf8.GetData());
+    WStringUtf8 utf8(L"О, Господи!");
+    WStringView s(utf8.GetData());
 
     const char* szOrgStart = s.GetStartPointer();
     const char* szOrgEnd = s.GetEndPointer();
 
     while (!s.IsEmpty())
     {
-      const ezUInt32 uiNumCharsBefore = ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
+      const WUInt32 uiNumCharsBefore = WStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
       s.ChopAwayFirstCharacterUtf8();
-      const ezUInt32 uiNumCharsAfter = ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
+      const WUInt32 uiNumCharsAfter = WStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
 
-      EZ_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
+      W_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
     }
 
     // this needs to be true, some code relies on the fact that the start pointer always moves forwards
-    EZ_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
+    W_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChopAwayFirstCharacterAscii")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ChopAwayFirstCharacterAscii")
   {
-    ezStringUtf8 utf8(L"Wosn Schmarrn");
-    ezStringView s("");
+    WStringUtf8 utf8(L"Wosn Schmarrn");
+    WStringView s("");
 
     const char* szOrgStart = s.GetStartPointer();
     const char* szOrgEnd = s.GetEndPointer();
 
     while (!s.IsEmpty())
     {
-      const ezUInt32 uiNumCharsBefore = s.GetElementCount();
+      const WUInt32 uiNumCharsBefore = s.GetElementCount();
       s.ChopAwayFirstCharacterAscii();
-      const ezUInt32 uiNumCharsAfter = s.GetElementCount();
+      const WUInt32 uiNumCharsAfter = s.GetElementCount();
 
-      EZ_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
+      W_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
     }
 
     // this needs to be true, some code relies on the fact that the start pointer always moves forwards
-    EZ_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
+    W_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trim")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Trim")
   {
     // Empty input
-    ezStringUtf8 utf8(L"");
-    ezStringView view(utf8.GetData());
+    WStringUtf8 utf8(L"");
+    WStringView view(utf8.GetData());
     view.Trim(" \t");
-    EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
+    W_TEST_BOOL(view.IsEqual(WStringUtf8(L"").GetData()));
     view.Trim(nullptr, " \t");
-    EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
+    W_TEST_BOOL(view.IsEqual(WStringUtf8(L"").GetData()));
     view.Trim(" \t", nullptr);
-    EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
+    W_TEST_BOOL(view.IsEqual(WStringUtf8(L"").GetData()));
 
     // Clear all from one side
-    ezStringUtf8 sUnicode(L"私はクリストハさんです");
+    WStringUtf8 sUnicode(L"私はクリストハさんです");
     view = sUnicode.GetData();
     view.Trim(nullptr, sUnicode.GetData());
-    EZ_TEST_BOOL(view.IsEqual(""));
+    W_TEST_BOOL(view.IsEqual(""));
     view = sUnicode.GetData();
     view.Trim(sUnicode.GetData(), nullptr);
-    EZ_TEST_BOOL(view.IsEqual(""));
+    W_TEST_BOOL(view.IsEqual(""));
 
     // Clear partial side
     sUnicode = L"ですですですAにぱにぱにぱ";
     view = sUnicode.GetData();
-    view.Trim(nullptr, ezStringUtf8(L"にぱ").GetData());
+    view.Trim(nullptr, WStringUtf8(L"にぱ").GetData());
     sUnicode = L"ですですですA";
-    EZ_TEST_BOOL(view.IsEqual(sUnicode.GetData()));
-    view.Trim(ezStringUtf8(L"です").GetData(), nullptr);
-    EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"A").GetData()));
+    W_TEST_BOOL(view.IsEqual(sUnicode.GetData()));
+    view.Trim(WStringUtf8(L"です").GetData(), nullptr);
+    W_TEST_BOOL(view.IsEqual(WStringUtf8(L"A").GetData()));
 
     sUnicode = L"ですですですAにぱにぱにぱ";
     view = sUnicode.GetData();
-    view.Trim(ezStringUtf8(L"ですにぱ").GetData());
-    EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"A").GetData()));
+    view.Trim(WStringUtf8(L"ですにぱ").GetData());
+    W_TEST_BOOL(view.IsEqual(WStringUtf8(L"A").GetData()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordStart")
+  W_TEST_BLOCK(WTestBlock::Enabled, "TrimWordStart")
   {
-    ezStringView sb;
+    WStringView sb;
 
     {
       sb = "<test>abc<test>";
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
-      EZ_TEST_STRING(sb, "abc<test>");
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
-      EZ_TEST_STRING(sb, "abc<test>");
+      W_TEST_BOOL(sb.TrimWordStart("<test>"));
+      W_TEST_STRING(sb, "abc<test>");
+      W_TEST_BOOL(sb.TrimWordStart("<test>") == false);
+      W_TEST_STRING(sb, "abc<test>");
     }
 
     {
       sb = "<test><tut><test><test><tut>abc<tut><test>";
-      EZ_TEST_BOOL(!sb.TrimWordStart("<tut>"));
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
-      EZ_TEST_STRING(sb, "abc<tut><test>");
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>") == false);
-      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
-      EZ_TEST_STRING(sb, "abc<tut><test>");
+      W_TEST_BOOL(!sb.TrimWordStart("<tut>"));
+      W_TEST_BOOL(sb.TrimWordStart("<test>"));
+      W_TEST_BOOL(sb.TrimWordStart("<tut>"));
+      W_TEST_BOOL(sb.TrimWordStart("<test>"));
+      W_TEST_BOOL(sb.TrimWordStart("<test>"));
+      W_TEST_BOOL(sb.TrimWordStart("<tut>"));
+      W_TEST_STRING(sb, "abc<tut><test>");
+      W_TEST_BOOL(sb.TrimWordStart("<tut>") == false);
+      W_TEST_BOOL(sb.TrimWordStart("<test>") == false);
+      W_TEST_STRING(sb, "abc<tut><test>");
     }
 
     {
@@ -421,7 +421,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
       {
       }
 
-      EZ_TEST_STRING(sb, "abc");
+      W_TEST_STRING(sb, "abc");
     }
 
     {
@@ -435,33 +435,33 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
       {
       }
 
-      EZ_TEST_STRING(sb, "");
+      W_TEST_STRING(sb, "");
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordEnd")
+  W_TEST_BLOCK(WTestBlock::Enabled, "TrimWordEnd")
   {
-    ezStringView sb;
+    WStringView sb;
 
     {
       sb = "<test>abc<test>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
-      EZ_TEST_STRING(sb, "<test>abc");
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
-      EZ_TEST_STRING(sb, "<test>abc");
+      W_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      W_TEST_STRING(sb, "<test>abc");
+      W_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
+      W_TEST_STRING(sb, "<test>abc");
     }
 
     {
       sb = "<tut><test>abc<test><tut><test><test><tut>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
-      EZ_TEST_STRING(sb, "<tut><test>abc");
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>") == false);
-      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
-      EZ_TEST_STRING(sb, "<tut><test>abc");
+      W_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      W_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      W_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      W_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      W_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      W_TEST_STRING(sb, "<tut><test>abc");
+      W_TEST_BOOL(sb.TrimWordEnd("<tut>") == false);
+      W_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
+      W_TEST_STRING(sb, "<tut><test>abc");
     }
 
     {
@@ -475,7 +475,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
       {
       }
 
-      EZ_TEST_STRING(sb, "abc");
+      W_TEST_STRING(sb, "abc");
     }
 
     {
@@ -489,330 +489,330 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
       {
       }
 
-      EZ_TEST_STRING(sb, "");
+      W_TEST_STRING(sb, "");
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Split")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Split")
   {
-    ezStringView s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
+    WStringView s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
 
-    ezDeque<ezStringView> SubStrings;
+    WDeque<WStringView> SubStrings;
 
     s.Split(false, SubStrings, ",", "|", "<>");
 
-    EZ_TEST_INT(SubStrings.GetCount(), 7);
-    EZ_TEST_BOOL(SubStrings[0] == "abc");
-    EZ_TEST_BOOL(SubStrings[1] == "def");
-    EZ_TEST_BOOL(SubStrings[2] == "ghi");
-    EZ_TEST_BOOL(SubStrings[3] == "jkl");
-    EZ_TEST_BOOL(SubStrings[4] == "mno");
-    EZ_TEST_BOOL(SubStrings[5] == "pqr");
-    EZ_TEST_BOOL(SubStrings[6] == "stu");
+    W_TEST_INT(SubStrings.GetCount(), 7);
+    W_TEST_BOOL(SubStrings[0] == "abc");
+    W_TEST_BOOL(SubStrings[1] == "def");
+    W_TEST_BOOL(SubStrings[2] == "ghi");
+    W_TEST_BOOL(SubStrings[3] == "jkl");
+    W_TEST_BOOL(SubStrings[4] == "mno");
+    W_TEST_BOOL(SubStrings[5] == "pqr");
+    W_TEST_BOOL(SubStrings[6] == "stu");
 
     s.Split(true, SubStrings, ",", "|", "<>");
 
-    EZ_TEST_INT(SubStrings.GetCount(), 10);
-    EZ_TEST_BOOL(SubStrings[0] == "");
-    EZ_TEST_BOOL(SubStrings[1] == "abc");
-    EZ_TEST_BOOL(SubStrings[2] == "def");
-    EZ_TEST_BOOL(SubStrings[3] == "ghi");
-    EZ_TEST_BOOL(SubStrings[4] == "");
-    EZ_TEST_BOOL(SubStrings[5] == "");
-    EZ_TEST_BOOL(SubStrings[6] == "jkl");
-    EZ_TEST_BOOL(SubStrings[7] == "mno");
-    EZ_TEST_BOOL(SubStrings[8] == "pqr");
-    EZ_TEST_BOOL(SubStrings[9] == "stu");
+    W_TEST_INT(SubStrings.GetCount(), 10);
+    W_TEST_BOOL(SubStrings[0] == "");
+    W_TEST_BOOL(SubStrings[1] == "abc");
+    W_TEST_BOOL(SubStrings[2] == "def");
+    W_TEST_BOOL(SubStrings[3] == "ghi");
+    W_TEST_BOOL(SubStrings[4] == "");
+    W_TEST_BOOL(SubStrings[5] == "");
+    W_TEST_BOOL(SubStrings[6] == "jkl");
+    W_TEST_BOOL(SubStrings[7] == "mno");
+    W_TEST_BOOL(SubStrings[8] == "pqr");
+    W_TEST_BOOL(SubStrings[9] == "stu");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "HasAnyExtension")
   {
-    ezStringView p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.HasAnyExtension());
+    WStringView p = "This/Is\\My//Path.dot\\file.extension";
+    W_TEST_BOOL(p.HasAnyExtension());
 
     p = "This/Is\\My//Path.dot\\file_no_extension";
-    EZ_TEST_BOOL(!p.HasAnyExtension());
-    EZ_TEST_BOOL(!p.HasAnyExtension());
+    W_TEST_BOOL(!p.HasAnyExtension());
+    W_TEST_BOOL(!p.HasAnyExtension());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "HasExtension")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.HasExtension(".Extension"));
+    W_TEST_BOOL(p.HasExtension(".Extension"));
 
     p = "This/Is\\My//Path.dot\\file.ext";
-    EZ_TEST_BOOL(p.HasExtension("EXT"));
+    W_TEST_BOOL(p.HasExtension("EXT"));
 
     p = "This/Is\\My//Path.dot\\file.ext";
-    EZ_TEST_BOOL(!p.HasExtension("NEXT"));
+    W_TEST_BOOL(!p.HasExtension("NEXT"));
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(!p.HasExtension(".Ext"));
+    W_TEST_BOOL(!p.HasExtension(".Ext"));
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(!p.HasExtension("sion"));
+    W_TEST_BOOL(!p.HasExtension("sion"));
 
     p = "";
-    EZ_TEST_BOOL(!p.HasExtension("ext"));
+    W_TEST_BOOL(!p.HasExtension("ext"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileExtension")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.GetFileExtension() == "extension");
+    W_TEST_BOOL(p.GetFileExtension() == "extension");
 
     p = "This/Is\\My//Path.dot\\file";
-    EZ_TEST_BOOL(p.GetFileExtension() == "");
+    W_TEST_BOOL(p.GetFileExtension() == "");
 
     p = "";
-    EZ_TEST_BOOL(p.GetFileExtension() == "");
+    W_TEST_BOOL(p.GetFileExtension() == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileNameAndExtension")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file.extension");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "file.extension");
 
     p = "This/Is\\My//Path.dot\\.extension";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == ".extension");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == ".extension");
 
     p = "This/Is\\My//Path.dot\\file";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "file");
 
     p = "\\file";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "file");
 
     p = "";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "");
 
     p = "/";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "");
 
     p = "This/Is\\My//Path.dot\\";
-    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+    W_TEST_BOOL(p.GetFileNameAndExtension() == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileName")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.GetFileName() == "file");
+    W_TEST_BOOL(p.GetFileName() == "file");
 
     p = "This/Is\\My//Path.dot\\file";
-    EZ_TEST_BOOL(p.GetFileName() == "file");
+    W_TEST_BOOL(p.GetFileName() == "file");
 
     p = "\\file";
-    EZ_TEST_BOOL(p.GetFileName() == "file");
+    W_TEST_BOOL(p.GetFileName() == "file");
 
     p = "";
-    EZ_TEST_BOOL(p.GetFileName() == "");
+    W_TEST_BOOL(p.GetFileName() == "");
 
     p = "/";
-    EZ_TEST_BOOL(p.GetFileName() == "");
+    W_TEST_BOOL(p.GetFileName() == "");
 
     p = "This/Is\\My//Path.dot\\";
-    EZ_TEST_BOOL(p.GetFileName() == "");
+    W_TEST_BOOL(p.GetFileName() == "");
 
     p = "This/Is\\My//Path.dot\\.stupidfile";
-    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile");
+    W_TEST_BOOL(p.GetFileName() == ".stupidfile");
 
     p = "This/Is\\My//Path.dot\\.stupidfile.ext";
-    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile");
+    W_TEST_BOOL(p.GetFileName() == ".stupidfile");
 
     p = "This/Is\\My//Path.dot\\.stupidfile.ext.";
-    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile.ext.");
+    W_TEST_BOOL(p.GetFileName() == ".stupidfile.ext.");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileDirectory")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "This/Is\\My//Path.dot\\file.extension";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
 
     p = "This/Is\\My//Path.dot\\.extension";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
 
     p = "This/Is\\My//Path.dot\\file";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
 
     p = "\\file";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "\\");
+    W_TEST_BOOL(p.GetFileDirectory() == "\\");
 
     p = "";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "");
+    W_TEST_BOOL(p.GetFileDirectory() == "");
 
     p = "/";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "/");
+    W_TEST_BOOL(p.GetFileDirectory() == "/");
 
     p = "This/Is\\My//Path.dot\\";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+    W_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
 
     p = "This";
-    EZ_TEST_BOOL(p.GetFileDirectory() == "");
+    W_TEST_BOOL(p.GetFileDirectory() == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath / IsRelativePath / IsRootedPath")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsAbsolutePath / IsRelativePath / IsRootedPath")
   {
-    ezStringView p;
+    WStringView p;
 
     p = "";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
     p = "C:\\temp.stuff";
-    EZ_TEST_BOOL(p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "C:/temp.stuff";
-    EZ_TEST_BOOL(p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "\\\\myserver\\temp.stuff";
-    EZ_TEST_BOOL(p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "\\myserver\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "/temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath()); // bloed
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath()); // bloed
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "..\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = ".\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = ":MyDataDir\bla";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(p.IsRootedPath());
 
     p = ":\\MyDataDir\bla";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(p.IsRootedPath());
 
     p = ":/MyDataDir/bla";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(p.IsRootedPath());
 
 #else
 
     p = "C:\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "/temp.stuff";
-    EZ_TEST_BOOL(p.IsAbsolutePath());
-    EZ_TEST_BOOL(!p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(p.IsAbsolutePath());
+    W_TEST_BOOL(!p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = "..\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
     p = ".\\temp.stuff";
-    EZ_TEST_BOOL(!p.IsAbsolutePath());
-    EZ_TEST_BOOL(p.IsRelativePath());
-    EZ_TEST_BOOL(!p.IsRootedPath());
+    W_TEST_BOOL(!p.IsAbsolutePath());
+    W_TEST_BOOL(p.IsRelativePath());
+    W_TEST_BOOL(!p.IsRootedPath());
 
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathRootName")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetRootedPathRootName")
   {
-    ezStringView p;
+    WStringView p;
 
     p = ":root\\bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "root");
 
     p = ":root/bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "root");
 
     p = "://root/bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "root");
 
     p = ":/\\/root\\/bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "root");
 
     p = "://\\root";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "root");
 
     p = ":";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "");
 
     p = "";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "");
 
     p = "noroot\\bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "");
 
     p = "C:\\noroot/bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "");
 
     p = "/noroot/bla";
-    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+    W_TEST_BOOL(p.GetRootedPathRootName() == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubString")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetSubString")
   {
-    ezStringView s = u8"Пожалуйста, дай мне очень длинные Unicode-стринги!";
+    WStringView s = u8"Пожалуйста, дай мне очень длинные Unicode-стринги!";
 
-    EZ_TEST_BOOL(s.GetElementCount() > ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer()));
+    W_TEST_BOOL(s.GetElementCount() > WStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer()));
 
-    ezStringView w1 = s.GetSubString(0, 10);
-    ezStringView w2 = s.GetSubString(12, 3);
-    ezStringView w3 = s.GetSubString(20, 5);
-    ezStringView w4 = s.GetSubString(34, 15);
-    ezStringView w5 = s.GetSubString(34, 20);
-    ezStringView w6 = s.GetSubString(100, 10);
+    WStringView w1 = s.GetSubString(0, 10);
+    WStringView w2 = s.GetSubString(12, 3);
+    WStringView w3 = s.GetSubString(20, 5);
+    WStringView w4 = s.GetSubString(34, 15);
+    WStringView w5 = s.GetSubString(34, 20);
+    WStringView w6 = s.GetSubString(100, 10);
 
-    EZ_TEST_BOOL(w1 == ezStringView(u8"Пожалуйста"));
-    EZ_TEST_BOOL(w2 == ezStringView(u8"дай"));
-    EZ_TEST_BOOL(w3 == ezStringView(u8"очень"));
-    EZ_TEST_BOOL(w4 == ezStringView(u8"Unicode-стринги"));
-    EZ_TEST_BOOL(w5 == ezStringView(u8"Unicode-стринги!"));
-    EZ_TEST_BOOL(!w6.IsValid());
-    EZ_TEST_BOOL(w6 == ezStringView(""));
+    W_TEST_BOOL(w1 == WStringView(u8"Пожалуйста"));
+    W_TEST_BOOL(w2 == WStringView(u8"дай"));
+    W_TEST_BOOL(w3 == WStringView(u8"очень"));
+    W_TEST_BOOL(w4 == WStringView(u8"Unicode-стринги"));
+    W_TEST_BOOL(w5 == WStringView(u8"Unicode-стринги!"));
+    W_TEST_BOOL(!w6.IsValid());
+    W_TEST_BOOL(w6 == WStringView(""));
   }
 }

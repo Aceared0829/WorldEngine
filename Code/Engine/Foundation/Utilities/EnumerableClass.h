@@ -12,22 +12,22 @@
 ///
 /// If you have a class A that you want to be enumerable, add this to its header:
 ///
-///   class EZ_DLL_IMPORT_EXPORT_STUFF A : public ezEnumerable<A>
+///   class W_DLL_IMPORT_EXPORT_STUFF A : public WEnumerable<A>
 ///   {
-///     EZ_DECLARE_ENUMERABLE_CLASS(A); // since A is declared as DLL import/export all code embedded in its body will also work properly
+///     W_DECLARE_ENUMERABLE_CLASS(A); // since A is declared as DLL import/export all code embedded in its body will also work properly
 ///     ...
 ///   };
 ///
 /// Also add this somewhere in its source-file:
 ///
-///   EZ_ENUMERABLE_CLASS_IMPLEMENTATION(A);
+///   W_ENUMERABLE_CLASS_IMPLEMENTATION(A);
 ///
 /// That's it, now the class instances can be enumerated with 'GetFirstInstance' and 'GetNextInstance'
-template <typename Derived, typename Base = ezNoBase>
-class ezEnumerable : public Base
+template <typename Derived, typename Base = WNoBase>
+class WEnumerable : public Base
 {
 public:
-  ezEnumerable()
+  WEnumerable()
   {
     if (Derived::s_pFirstInstance == nullptr)
       Derived::s_pFirstInstance = this;
@@ -39,11 +39,11 @@ public:
     ++Derived::s_uiInstances;
   }
 
-  virtual ~ezEnumerable()
+  virtual ~WEnumerable()
   {
     --Derived::s_uiInstances;
-    ezEnumerable* pPrev = nullptr;
-    ezEnumerable* pCur = Derived::s_pFirstInstance;
+    WEnumerable* pPrev = nullptr;
+    WEnumerable* pCur = Derived::s_pFirstInstance;
 
     while (pCur)
     {
@@ -66,24 +66,24 @@ public:
   }
 
 protected:
-  ezEnumerable* m_pNextInstance;
+  WEnumerable* m_pNextInstance;
 };
 
 /// Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
-/// See class ezEnumerable for more details.
-#define EZ_DECLARE_ENUMERABLE_CLASS(self) EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, ezNoBase)
+/// See class WEnumerable for more details.
+#define W_DECLARE_ENUMERABLE_CLASS(self) W_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, WNoBase)
 
 /// Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
-/// See class ezEnumerable for more details.
-#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
+/// See class WEnumerable for more details.
+#define W_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
 private:                                                  \
-  using ezEnumerableBase = base;                          \
-  friend class ezEnumerable<self, base>;                  \
-  static ezEnumerable<self, base>* s_pFirstInstance;      \
-  static ezEnumerable<self, base>* s_pLastInstance;       \
-  static ezUInt32 s_uiInstances;                          \
+  using WEnumerableBase = base;                          \
+  friend class WEnumerable<self, base>;                  \
+  static WEnumerable<self, base>* s_pFirstInstance;      \
+  static WEnumerable<self, base>* s_pLastInstance;       \
+  static WUInt32 s_uiInstances;                          \
                                                           \
 public:                                                   \
   static self* GetFirstInstance()                         \
@@ -103,8 +103,8 @@ private:
 
 /// Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.
 ///
-/// See class ezEnumerable for more details.
-#define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self)                                \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = nullptr; \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = nullptr;  \
-  ezUInt32 self::s_uiInstances = 0
+/// See class WEnumerable for more details.
+#define W_ENUMERABLE_CLASS_IMPLEMENTATION(self)                                \
+  WEnumerable<self, self::WEnumerableBase>* self::s_pFirstInstance = nullptr; \
+  WEnumerable<self, self::WEnumerableBase>* self::s_pLastInstance = nullptr;  \
+  WUInt32 self::s_uiInstances = 0

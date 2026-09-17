@@ -3,9 +3,9 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-EZ_CREATE_SIMPLE_TEST(IO, OSFile)
+W_CREATE_SIMPLE_TEST(IO, OSFile)
 {
-  ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
+  WStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
 Turret: Who's there?\n\
 Turret: Is anyone there?\n\
 Turret: I see you.\n\
@@ -15,166 +15,166 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
-  const ezUInt32 uiTextLen = sFileContent.GetElementCount();
+  const WUInt32 uiTextLen = sFileContent.GetElementCount();
 
-  ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFile = WTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFile.MakeCleanPath();
   sOutputFile.AppendPath("IO", "SubFolder");
   sOutputFile.AppendPath("OSFile_TestFile.txt");
 
-  ezStringBuilder sOutputFile2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFile2 = WTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFile2.MakeCleanPath();
   sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
-  ezStringBuilder sOutputFile3 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFile3 = WTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFile3.MakeCleanPath();
   sOutputFile3.AppendPath("IO", "SubFolder2", "SubSubFolder");
   sOutputFile3.AppendPath("RandomFile.txt");
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Write File")
   {
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
-    EZ_TEST_BOOL(f.IsOpen());
-    EZ_TEST_INT(f.GetFilePosition(), 0);
-    EZ_TEST_INT(f.GetFileSize(), 0);
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile.GetData(), WFileOpenMode::Write) == W_SUCCESS);
+    W_TEST_BOOL(f.IsOpen());
+    W_TEST_INT(f.GetFilePosition(), 0);
+    W_TEST_INT(f.GetFileSize(), 0);
 
-    for (ezUInt32 i = 0; i < uiTextLen; ++i)
+    for (WUInt32 i = 0; i < uiTextLen; ++i)
     {
-      EZ_TEST_BOOL(f.Write(&sFileContent.GetData()[i], 1) == EZ_SUCCESS);
-      EZ_TEST_INT(f.GetFilePosition(), i + 1);
-      EZ_TEST_INT(f.GetFileSize(), i + 1);
+      W_TEST_BOOL(f.Write(&sFileContent.GetData()[i], 1) == W_SUCCESS);
+      W_TEST_INT(f.GetFilePosition(), i + 1);
+      W_TEST_INT(f.GetFileSize(), i + 1);
     }
 
-    EZ_TEST_INT(f.GetFilePosition(), uiTextLen);
-    f.SetFilePosition(5, ezFileSeekMode::FromStart);
-    EZ_TEST_INT(f.GetFileSize(), uiTextLen);
+    W_TEST_INT(f.GetFilePosition(), uiTextLen);
+    f.SetFilePosition(5, WFileSeekMode::FromStart);
+    W_TEST_INT(f.GetFileSize(), uiTextLen);
 
-    EZ_TEST_INT(f.GetFilePosition(), 5);
+    W_TEST_INT(f.GetFilePosition(), 5);
     // f.Close(); // The file should be closed automatically
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append File")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Append File")
   {
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Append) == EZ_SUCCESS);
-    EZ_TEST_BOOL(f.IsOpen());
-    EZ_TEST_INT(f.GetFilePosition(), uiTextLen);
-    EZ_TEST_BOOL(f.Write(sFileContent.GetData(), uiTextLen) == EZ_SUCCESS);
-    EZ_TEST_INT(f.GetFilePosition(), uiTextLen * 2);
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile.GetData(), WFileOpenMode::Append) == W_SUCCESS);
+    W_TEST_BOOL(f.IsOpen());
+    W_TEST_INT(f.GetFilePosition(), uiTextLen);
+    W_TEST_BOOL(f.Write(sFileContent.GetData(), uiTextLen) == W_SUCCESS);
+    W_TEST_INT(f.GetFilePosition(), uiTextLen * 2);
     f.Close();
-    EZ_TEST_BOOL(!f.IsOpen());
+    W_TEST_BOOL(!f.IsOpen());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read File")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Read File")
   {
-    const ezUInt32 FS_MAX_PATH = 1024;
+    const WUInt32 FS_MAX_PATH = 1024;
     char szTemp[FS_MAX_PATH];
 
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);
-    EZ_TEST_BOOL(f.IsOpen());
-    EZ_TEST_INT(f.GetFilePosition(), 0);
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile.GetData(), WFileOpenMode::Read) == W_SUCCESS);
+    W_TEST_BOOL(f.IsOpen());
+    W_TEST_INT(f.GetFilePosition(), 0);
 
-    EZ_TEST_INT(f.Read(szTemp, FS_MAX_PATH), uiTextLen * 2);
-    EZ_TEST_INT(f.GetFilePosition(), uiTextLen * 2);
+    W_TEST_INT(f.Read(szTemp, FS_MAX_PATH), uiTextLen * 2);
+    W_TEST_INT(f.GetFilePosition(), uiTextLen * 2);
 
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), uiTextLen));
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(&szTemp[uiTextLen], sFileContent.GetData(), uiTextLen));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), uiTextLen));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(&szTemp[uiTextLen], sFileContent.GetData(), uiTextLen));
 
     f.Close();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy File")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy File")
   {
-    ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData()).IgnoreResult();
+    WOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData()).IgnoreResult();
 
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile2.GetData(), WFileOpenMode::Read) == W_SUCCESS);
 
-    const ezUInt32 FS_MAX_PATH = 1024;
+    const WUInt32 FS_MAX_PATH = 1024;
     char szTemp[FS_MAX_PATH];
 
-    EZ_TEST_INT(f.Read(szTemp, FS_MAX_PATH), uiTextLen * 2);
+    W_TEST_INT(f.Read(szTemp, FS_MAX_PATH), uiTextLen * 2);
 
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), uiTextLen));
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(&szTemp[uiTextLen], sFileContent.GetData(), uiTextLen));
-
-    f.Close();
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
-  {
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile, ezFileOpenMode::Read) == EZ_SUCCESS);
-
-    ezDynamicArray<ezUInt8> fileContent;
-    const ezUInt64 bytes = f.ReadAll(fileContent);
-
-    EZ_TEST_INT(bytes, uiTextLen * 2);
-
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(fileContent.GetData(), (const ezUInt8*)sFileContent.GetData(), uiTextLen));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), uiTextLen));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(&szTemp[uiTextLen], sFileContent.GetData(), uiTextLen));
 
     f.Close();
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Stats")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ReadAll")
   {
-    ezFileStats s;
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile, WFileOpenMode::Read) == W_SUCCESS);
 
-    ezStringBuilder dir = sOutputFile2.GetFileDirectory();
+    WDynamicArray<WUInt8> fileContent;
+    const WUInt64 bytes = f.ReadAll(fileContent);
 
-    EZ_TEST_BOOL(ezOSFile::GetFileStats(sOutputFile2.GetData(), s) == EZ_SUCCESS);
-    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
-    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
+    W_TEST_INT(bytes, uiTextLen * 2);
 
-    EZ_TEST_BOOL(ezOSFile::GetFileStats(dir.GetData(), s) == EZ_SUCCESS);
-    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
-    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(fileContent.GetData(), (const WUInt8*)sFileContent.GetData(), uiTextLen));
+
+    f.Close();
   }
 
-#  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
+  W_TEST_BLOCK(WTestBlock::Enabled, "File Stats")
   {
-    ezStringBuilder dir = sOutputFile2;
+    WFileStats s;
+
+    WStringBuilder dir = sOutputFile2.GetFileDirectory();
+
+    W_TEST_BOOL(WOSFile::GetFileStats(sOutputFile2.GetData(), s) == W_SUCCESS);
+    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
+    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(WSIUnitOfTime::Microsecond));
+
+    W_TEST_BOOL(WOSFile::GetFileStats(dir.GetData(), s) == W_SUCCESS);
+    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
+    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(WSIUnitOfTime::Microsecond));
+  }
+
+#  if (W_ENABLED(W_SUPPORTS_CASE_INSENSITIVE_PATHS) && W_ENABLED(W_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetFileCasing")
+  {
+    WStringBuilder dir = sOutputFile2;
     dir.ToLower();
 
-#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    // On Windows the drive letter will always be turned upper case by ezOSFile::GetFileCasing()
+#    if W_ENABLED(W_PLATFORM_WINDOWS)
+    // On Windows the drive letter will always be turned upper case by WOSFile::GetFileCasing()
     // ensure that our input data ('ground truth') also uses an upper case drive letter
     auto driveLetterIterator = sOutputFile2.GetIteratorFront();
-    const ezUInt32 uiDriveLetter = ezStringUtils::ToUpperChar(driveLetterIterator.GetCharacter());
+    const WUInt32 uiDriveLetter = WStringUtils::ToUpperChar(driveLetterIterator.GetCharacter());
     sOutputFile2.ChangeCharacter(driveLetterIterator, uiDriveLetter);
 #    endif
 
-    ezStringBuilder sCorrected;
-    EZ_TEST_BOOL(ezOSFile::GetFileCasing(dir.GetData(), sCorrected) == EZ_SUCCESS);
+    WStringBuilder sCorrected;
+    W_TEST_BOOL(WOSFile::GetFileCasing(dir.GetData(), sCorrected) == W_SUCCESS);
 
     // On Windows the drive letter will always be made to upper case
-    EZ_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
+    W_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
   }
-#  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+#  endif // W_SUPPORTS_CASE_INSENSITIVE_PATHS && W_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif   // EZ_SUPPORTS_FILE_STATS
+#endif   // W_SUPPORTS_FILE_STATS
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "File Iterator")
   {
-    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    WStringBuilder sOutputFolder = WFileSystem::GetSdkRootDirectory();
     sOutputFolder.AppendPath("Data/Base/*");
 
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
 
-    ezUInt32 uiFolders = 0;
-    ezUInt32 uiFiles = 0;
+    WUInt32 uiFolders = 0;
+    WUInt32 uiFiles = 0;
 
     bool bSkipFolder = true;
 
-    ezFileSystemIterator it;
-    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+    WFileSystemIterator it;
+    for (it.StartSearch(sOutputFolder.GetData(), WFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
     {
       sFullPath = it.GetCurrentPath();
       sFullPath.AppendPath(it.GetStats().m_sName.GetData());
@@ -202,24 +202,24 @@ Only concrete and clocks.\n\
     }
 
 // The binary folder will only have subdirectories on windows desktop
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    EZ_TEST_BOOL(uiFolders > 0);
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+    W_TEST_BOOL(uiFolders > 0);
 #  endif
-    EZ_TEST_BOOL(uiFiles > 0);
+    W_TEST_BOOL(uiFiles > 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator (non recursive)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "File Iterator (non recursive)")
   {
-    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    WStringBuilder sOutputFolder = WFileSystem::GetSdkRootDirectory();
     sOutputFolder.AppendPath("Data/Base");
 
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
 
-    ezUInt32 uiFolders = 0;
-    ezUInt32 uiFiles = 0;
+    WUInt32 uiFolders = 0;
+    WUInt32 uiFiles = 0;
 
-    ezFileSystemIterator it;
-    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFiles); it.IsValid();)
+    WFileSystemIterator it;
+    for (it.StartSearch(sOutputFolder.GetData(), WFileSystemIteratorFlags::ReportFiles); it.IsValid();)
     {
       sFullPath = it.GetCurrentPath();
       sFullPath.AppendPath(it.GetStats().m_sName.GetData());
@@ -236,118 +236,118 @@ Only concrete and clocks.\n\
         ++uiFiles;
       }
 
-      EZ_TEST_BOOL(sFullPath.StartsWith(sOutputFolder));
+      W_TEST_BOOL(sFullPath.StartsWith(sOutputFolder));
       sFullPath.MakeRelativeTo(sOutputFolder).AssertSuccess();
 
-      EZ_TEST_BOOL(!sFullPath.FindSubString("/")); // no sub path
+      W_TEST_BOOL(!sFullPath.FindSubString("/")); // no sub path
 
       it.Next();
     }
 
-    EZ_TEST_BOOL(uiFolders == 0);
-    EZ_TEST_BOOL(uiFiles > 0);
+    W_TEST_BOOL(uiFolders == 0);
+    W_TEST_BOOL(uiFiles > 0);
   }
 
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Delete File")
   {
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);          // second time should still 'succeed'
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile.GetData()) == W_SUCCESS);
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile.GetData()) == W_SUCCESS);          // second time should still 'succeed'
 
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);         // second time should still 'succeed'
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile2.GetData()) == W_SUCCESS);
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile2.GetData()) == W_SUCCESS);         // second time should still 'succeed'
 
-    ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_FAILURE);  // file should not exist anymore
-    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_FAILURE); // file should not exist anymore
+    WOSFile f;
+    W_TEST_BOOL(f.Open(sOutputFile.GetData(), WFileOpenMode::Read) == W_FAILURE);  // file should not exist anymore
+    W_TEST_BOOL(f.Open(sOutputFile2.GetData(), WFileOpenMode::Read) == W_FAILURE); // file should not exist anymore
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCurrentWorkingDirectory")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetCurrentWorkingDirectory")
   {
-    ezStringBuilder cwd = ezOSFile::GetCurrentWorkingDirectory();
+    WStringBuilder cwd = WOSFile::GetCurrentWorkingDirectory();
 
-    EZ_TEST_BOOL(!cwd.IsEmpty());
+    W_TEST_BOOL(!cwd.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathAbsoluteWithCWD")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakePathAbsoluteWithCWD")
   {
-    ezStringBuilder cwd = ezOSFile::GetCurrentWorkingDirectory();
-    ezStringBuilder path = ezOSFile::MakePathAbsoluteWithCWD("sub/folder");
+    WStringBuilder cwd = WOSFile::GetCurrentWorkingDirectory();
+    WStringBuilder path = WOSFile::MakePathAbsoluteWithCWD("sub/folder");
 
-    EZ_TEST_BOOL(path.StartsWith(cwd));
-    EZ_TEST_BOOL(path.EndsWith("/sub/folder"));
+    W_TEST_BOOL(path.StartsWith(cwd));
+    W_TEST_BOOL(path.EndsWith("/sub/folder"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsFile")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExistsFile")
   {
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile2.GetData()) == false);
 
     {
-      ezOSFile f;
-      EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
+      WOSFile f;
+      W_TEST_BOOL(f.Open(sOutputFile.GetData(), WFileOpenMode::Write) == W_SUCCESS);
     }
 
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile.GetData()) == true);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile2.GetData()) == false);
 
     {
-      ezOSFile f;
-      EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
+      WOSFile f;
+      W_TEST_BOOL(f.Open(sOutputFile2.GetData(), WFileOpenMode::Write) == W_SUCCESS);
     }
 
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == true);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile.GetData()) == true);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile2.GetData()) == true);
 
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile.GetData()) == W_SUCCESS);
+    W_TEST_BOOL(WOSFile::DeleteFile(sOutputFile2.GetData()) == W_SUCCESS);
 
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFile2.GetData()) == false);
 
-    ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    WStringBuilder sOutputFolder = WTestFramework::GetInstance()->GetAbsOutputPath();
     // We should not report folders as files
-    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFolder) == false);
+    W_TEST_BOOL(WOSFile::ExistsFile(sOutputFolder) == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsDirectory")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ExistsDirectory")
   {
     // files are not folders
-    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile.GetData()) == false);
-    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile2.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsDirectory(sOutputFile.GetData()) == false);
+    W_TEST_BOOL(WOSFile::ExistsDirectory(sOutputFile2.GetData()) == false);
 
-    ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
+    WStringBuilder sOutputFolder = WTestFramework::GetInstance()->GetAbsOutputPath();
+    W_TEST_BOOL(WOSFile::ExistsDirectory(sOutputFolder) == true);
 
     sOutputFile.AppendPath("IO");
-    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
+    W_TEST_BOOL(WOSFile::ExistsDirectory(sOutputFolder) == true);
 
     sOutputFile.AppendPath("SubFolder");
-    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
+    W_TEST_BOOL(WOSFile::ExistsDirectory(sOutputFolder) == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetApplicationDirectory")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetApplicationDirectory")
   {
-    ezStringView sAppDir = ezOSFile::GetApplicationDirectory();
-    EZ_TEST_BOOL(!sAppDir.IsEmpty());
+    WStringView sAppDir = WOSFile::GetApplicationDirectory();
+    W_TEST_BOOL(!sAppDir.IsEmpty());
   }
 
-#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
+#if (W_ENABLED(W_SUPPORTS_FILE_ITERATORS) && W_ENABLED(W_SUPPORTS_FILE_STATS))
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteFolder")
+  W_TEST_BLOCK(WTestBlock::Enabled, "DeleteFolder")
   {
     {
-      ezOSFile f;
-      EZ_TEST_BOOL(f.Open(sOutputFile3.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
+      WOSFile f;
+      W_TEST_BOOL(f.Open(sOutputFile3.GetData(), WFileOpenMode::Write) == W_SUCCESS);
     }
 
-    ezStringBuilder SubFolder2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    WStringBuilder SubFolder2 = WTestFramework::GetInstance()->GetAbsOutputPath();
     SubFolder2.MakeCleanPath();
     SubFolder2.AppendPath("IO", "SubFolder2");
 
-    EZ_TEST_BOOL(ezOSFile::DeleteFolder(SubFolder2).Succeeded());
-    EZ_TEST_BOOL(!ezOSFile::ExistsDirectory(SubFolder2));
+    W_TEST_BOOL(WOSFile::DeleteFolder(SubFolder2).Succeeded());
+    W_TEST_BOOL(!WOSFile::ExistsDirectory(SubFolder2));
   }
 
 #endif

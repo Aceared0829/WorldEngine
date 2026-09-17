@@ -2,43 +2,43 @@
 
 #include <Foundation/SimdMath/SimdQuatd.h>
 
-ezSimdQuatd ezSimdQuatd::MakeShortestRotation(const ezSimdVec4d& vDirFrom, const ezSimdVec4d& vDirTo)
+WSimdQuatd WSimdQuatd::MakeShortestRotation(const WSimdVec4d& vDirFrom, const WSimdVec4d& vDirTo)
 {
-  const ezSimdVec4d v0 = vDirFrom.GetNormalized<3>();
-  const ezSimdVec4d v1 = vDirTo.GetNormalized<3>();
+  const WSimdVec4d v0 = vDirFrom.GetNormalized<3>();
+  const WSimdVec4d v1 = vDirTo.GetNormalized<3>();
 
-  const ezSimdDouble fDot = v0.Dot<3>(v1);
+  const WSimdDouble fDot = v0.Dot<3>(v1);
 
   // if both vectors are identical -> no rotation needed
   if (fDot.IsEqual(1.0f, 0.0001f))
   {
-    return ezSimdQuatd::MakeIdentity();
+    return WSimdQuatd::MakeIdentity();
   }
   else if (fDot.IsEqual(-1.0f, 0.0001f)) // if both vectors are opposing
   {
-    return ezSimdQuatd::MakeFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
+    return WSimdQuatd::MakeFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), WAngle::MakeFromRadian(WMath::Pi<float>()));
   }
 
-  const ezSimdVec4d c = v0.CrossRH(v1);
-  const ezSimdDouble s = ((fDot + ezSimdDouble(1.0f)) * ezSimdDouble(2.0f)).GetSqrt();
+  const WSimdVec4d c = v0.CrossRH(v1);
+  const WSimdDouble s = ((fDot + WSimdDouble(1.0f)) * WSimdDouble(2.0f)).GetSqrt();
 
-  ezSimdQuatd res;
+  WSimdQuatd res;
   res.m_v = c / s;
-  res.m_v.SetW(s * ezSimdDouble(0.5f));
+  res.m_v.SetW(s * WSimdDouble(0.5f));
   res.Normalize();
   return res;
 }
 
-ezSimdQuatd ezSimdQuatd::MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& qTo, const ezSimdDouble& t)
+WSimdQuatd WSimdQuatd::MakeSlerp(const WSimdQuatd& qFrom, const WSimdQuatd& qTo, const WSimdDouble& t)
 {
-  EZ_ASSERT_DEBUG((t >= 0.0f) && (t <= 1.0f), "Invalid lerp factor.");
+  W_ASSERT_DEBUG((t >= 0.0f) && (t <= 1.0f), "Invalid lerp factor.");
 
-  const ezSimdDouble one = 1.0f;
-  const ezSimdDouble qdelta = 1.0f - 0.001f;
+  const WSimdDouble one = 1.0f;
+  const WSimdDouble qdelta = 1.0f - 0.001f;
 
-  const ezSimdDouble fDot = qFrom.m_v.Dot<4>(qTo.m_v);
+  const WSimdDouble fDot = qFrom.m_v.Dot<4>(qTo.m_v);
 
-  ezSimdDouble cosTheta = fDot;
+  WSimdDouble cosTheta = fDot;
 
   bool bFlipSign = false;
   if (cosTheta < 0.0f)
@@ -47,18 +47,18 @@ ezSimdQuatd ezSimdQuatd::MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& 
     cosTheta = -cosTheta;
   }
 
-  ezSimdDouble t0, t1;
+  WSimdDouble t0, t1;
 
   if (cosTheta < qdelta)
   {
-    ezAngle theta = ezMath::ACos(float(cosTheta));
+    WAngle theta = WMath::ACos(float(cosTheta));
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
-    const ezSimdDouble iSinTheta = (one - (cosTheta * cosTheta)).GetInvSqrt();
-    const ezAngle tTheta = (float)t * theta;
+    const WSimdDouble iSinTheta = (one - (cosTheta * cosTheta)).GetInvSqrt();
+    const WAngle tTheta = (float)t * theta;
 
-    ezSimdDouble s0 = ezMath::Sin(theta - tTheta);
-    ezSimdDouble s1 = ezMath::Sin(tTheta);
+    WSimdDouble s0 = WMath::Sin(theta - tTheta);
+    WSimdDouble s1 = WMath::Sin(tTheta);
 
     t0 = s0 * iSinTheta;
     t1 = s1 * iSinTheta;
@@ -73,29 +73,29 @@ ezSimdQuatd ezSimdQuatd::MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& 
   if (bFlipSign)
     t1 = -t1;
 
-  ezSimdQuatd res;
+  WSimdQuatd res;
   res.m_v = qFrom.m_v * t0 + qTo.m_v * t1;
   res.Normalize();
   return res;
 }
 
-bool ezSimdQuatd::IsEqualRotation(const ezSimdQuatd& qOther, const ezSimdDouble& fEpsilon) const
+bool WSimdQuatd::IsEqualRotation(const WSimdQuatd& qOther, const WSimdDouble& fEpsilon) const
 {
-  ezSimdVec4d vA1, vA2;
-  ezSimdDouble fA1, fA2;
+  WSimdVec4d vA1, vA2;
+  WSimdDouble fA1, fA2;
 
-  if (GetRotationAxisAndAngle(vA1, fA1) == EZ_FAILURE)
+  if (GetRotationAxisAndAngle(vA1, fA1) == W_FAILURE)
     return false;
-  if (qOther.GetRotationAxisAndAngle(vA2, fA2) == EZ_FAILURE)
+  if (qOther.GetRotationAxisAndAngle(vA2, fA2) == W_FAILURE)
     return false;
 
-  ezAngle A1 = ezAngle::MakeFromRadian(float(fA1));
-  ezAngle A2 = ezAngle::MakeFromRadian(float(fA2));
+  WAngle A1 = WAngle::MakeFromRadian(float(fA1));
+  WAngle A2 = WAngle::MakeFromRadian(float(fA2));
 
-  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(A2, WAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(-A2, WAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
     return true;
 
   return false;

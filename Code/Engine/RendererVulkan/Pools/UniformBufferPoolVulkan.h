@@ -6,11 +6,11 @@
 
 #include <RendererFoundation/Utils/RingBufferTracker.h>
 
-class ezGALDeviceVulkan;
-class ezGALBufferVulkan;
+class WGALDeviceVulkan;
+class WGALBufferVulkan;
 
-/// `ezGALBufferVulkan` created with `ezGALBufferUsageFlags::Transient` will allocate scratch memory from this pool which will last until the end of the frame.
-class EZ_RENDERERVULKAN_DLL ezUniformBufferPoolVulkan
+/// `WGALBufferVulkan` created with `WGALBufferUsageFlags::Transient` will allocate scratch memory from this pool which will last until the end of the frame.
+class W_RENDERERVULKAN_DLL WUniformBufferPoolVulkan
 {
 public:
   enum class BufferUpdateResult
@@ -19,7 +19,7 @@ public:
     DynamicBufferChanged, ///< The current buffer was depleted and a new buffer was started.
   };
 
-  ezUniformBufferPoolVulkan(ezGALDeviceVulkan* pDevice);
+  WUniformBufferPoolVulkan(WGALDeviceVulkan* pDevice);
 
   void Initialize();
   void DeInitialize();
@@ -32,47 +32,47 @@ public:
   /// \param pBuffer The buffer to allocate scratch memory for.
   /// \param data The data of the buffer. Must be the size of the entire buffer.
   /// \return Returns whether a new pool needed to be created.
-  BufferUpdateResult UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> data);
+  BufferUpdateResult UpdateBuffer(const WGALBufferVulkan* pBuffer, WArrayPtr<const WUInt8> data);
 
   /// Access the descriptor info for the given buffer.
   /// \param pBuffer The buffer for which previously scratch memory was allocated for.
   /// \return Pointer to the descriptor info.
-  const vk::DescriptorBufferInfo* GetBuffer(const ezGALBufferVulkan* pBuffer) const;
+  const vk::DescriptorBufferInfo* GetBuffer(const WGALBufferVulkan* pBuffer) const;
 
 private:
   struct UniformBufferPool
   {
-    UniformBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize);
+    UniformBufferPool(WUInt32 uiAlignment, WUInt32 uiTotalSize);
     ~UniformBufferPool();
-    ezResult CanAllocate(ezUInt32 uiSize) const { return m_Tracker.CanAllocate(uiSize); }
-    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation);
-    void Free(ezUInt64 uiUpToFrame);
-    void Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame);
-    ezUInt32 GetFreeMemory() const { return m_Tracker.GetFreeMemory(); }
+    WResult CanAllocate(WUInt32 uiSize) const { return m_Tracker.CanAllocate(uiSize); }
+    WResult Allocate(WUInt32 uiSize, WUInt64 uiCurrentFrame, WUInt32& out_uiStartOffset, WByteArrayPtr& out_allocation);
+    void Free(WUInt64 uiUpToFrame);
+    void Submit(WGALDeviceVulkan* pDevice, WUInt64 uiFrame);
+    WUInt32 GetFreeMemory() const { return m_Tracker.GetFreeMemory(); }
 
-    ezRingBufferTracker m_Tracker;
-    ezArrayPtr<ezUInt8> m_Data;
+    WRingBufferTracker m_Tracker;
+    WArrayPtr<WUInt8> m_Data;
     vk::Buffer m_Buffer;
     vk::Buffer m_StagingBuffer;
-    ezVulkanAllocation m_Alloc;
-    ezVulkanAllocation m_StagingAlloc;
-    ezVulkanAllocationInfo m_AllocInfo;
-    ezVulkanAllocationInfo m_StagingAllocInfo;
+    WVulkanAllocation m_Alloc;
+    WVulkanAllocation m_StagingAlloc;
+    WVulkanAllocationInfo m_AllocInfo;
+    WVulkanAllocationInfo m_StagingAllocInfo;
   };
 
 private:
-  UniformBufferPool* GetFreePool(ezUInt32 uiSize);
-  ezUInt32 GetBufferSize(ezUInt32 uiSize);
+  UniformBufferPool* GetFreePool(WUInt32 uiSize);
+  WUInt32 GetBufferSize(WUInt32 uiSize);
 
 private:
-  ezGALDeviceVulkan* m_pDevice = nullptr;
+  WGALDeviceVulkan* m_pDevice = nullptr;
   vk::Device m_Device;
-  ezUInt32 m_uiAlignment = 0;
-  ezUInt32 m_uiBufferSize = 0;
+  WUInt32 m_uiAlignment = 0;
+  WUInt32 m_uiBufferSize = 0;
 
-  ezMap<const ezGALBufferVulkan*, vk::DescriptorBufferInfo> m_Buffer;
+  WMap<const WGALBufferVulkan*, vk::DescriptorBufferInfo> m_Buffer;
 
   UniformBufferPool* m_pCurrentPool = nullptr;
-  ezDeque<UniformBufferPool*> m_PendingPools;
-  ezHybridArray<UniformBufferPool*, 8> m_FreePools;
+  WDeque<UniformBufferPool*> m_PendingPools;
+  WHybridArray<UniformBufferPool*, 8> m_FreePools;
 };

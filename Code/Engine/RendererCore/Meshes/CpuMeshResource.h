@@ -4,27 +4,27 @@
 
 /// CPU-accessible mesh resource that stores mesh data in system memory.
 ///
-/// Unlike regular ezMeshResource which stores data on the GPU, this resource keeps
+/// Unlike regular WMeshResource which stores data on the GPU, this resource keeps
 /// the mesh descriptor in CPU memory. Used for scenarios requiring CPU access to
 /// mesh data such as collision detection, raycasting, or procedural mesh generation.
-class EZ_RENDERERCORE_DLL ezCpuMeshResource : public ezResource
+class W_RENDERERCORE_DLL WCpuMeshResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCpuMeshResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezCpuMeshResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezCpuMeshResource, ezMeshResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WCpuMeshResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WCpuMeshResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WCpuMeshResource, WMeshResourceDescriptor);
 
 public:
-  ezCpuMeshResource();
+  WCpuMeshResource();
 
   /// Returns the mesh descriptor containing vertex and index data.
-  const ezMeshResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  const WMeshResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezMeshResourceDescriptor m_Descriptor;
+  WMeshResourceDescriptor m_Descriptor;
 };
 
-using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
+using WCpuMeshResourceHandle = WTypedResourceHandle<class WCpuMeshResource>;

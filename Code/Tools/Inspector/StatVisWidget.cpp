@@ -9,12 +9,12 @@
 #include <QGraphicsView>
 #include <QSettings>
 
-ezQtStatVisWidget* ezQtStatVisWidget::s_pWidget = nullptr;
-ezInt32 ezQtStatVisWidget::s_iCurColor = 0;
+WQtStatVisWidget* WQtStatVisWidget::s_pWidget = nullptr;
+WInt32 WQtStatVisWidget::s_iCurColor = 0;
 
 namespace StatVisWidgetDetail
 {
-  static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] = {
+  static QColor s_Colors[WQtStatVisWidget::s_uiMaxColors] = {
     QColor(255, 106, 0), // orange
     QColor(182, 255, 0), // lime green
     QColor(255, 0, 255), // pink
@@ -27,12 +27,12 @@ namespace StatVisWidgetDetail
   };
 }
 
-ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, ezInt32 iWindowNumber)
+WQtStatVisWidget::WQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, WInt32 iWindowNumber)
   : ads::CDockWidget(pDockManager, QString("StatVisWidget") + QString::number(iWindowNumber), pParent)
   , m_ShowWindowAction(pParent)
 {
   m_iWindowNumber = iWindowNumber;
-  m_DisplayInterval = ezTime::MakeFromSeconds(60.0);
+  m_DisplayInterval = WTime::MakeFromSeconds(60.0);
 
   s_pWidget = this;
 
@@ -40,7 +40,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* p
   setWidget(StatVisWidgetFrame);
 
   {
-    ezQtScopedUpdatesDisabled _1(ComboTimeframe);
+    WQtScopedUpdatesDisabled _1(ComboTimeframe);
 
     ComboTimeframe->addItem("Timeframe: 10 seconds");
     ComboTimeframe->addItem("Timeframe: 30 seconds");
@@ -55,7 +55,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* p
 
   m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(64, 64, 64)), 0));
 
-  for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
+  for (WUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i] = m_Scene.addPath(QPainterPath(), QPen(QBrush(StatVisWidgetDetail::s_Colors[i]), 0));
 
   QTransform t = StatHistoryView->transform();
@@ -71,7 +71,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* p
 
   m_ShowWindowAction.setCheckable(true);
 
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("StatHistory{0}", m_iWindowNumber);
 
   QSettings Settings;
@@ -81,15 +81,15 @@ ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* p
   SpinMax->setValue(Settings.value(QLatin1String("Max"), 1.0).toDouble());
   Settings.endGroup();
 
-  EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction, SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
+  W_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction, SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
 }
 
 
-ezQtStatVisWidget::~ezQtStatVisWidget() = default;
+WQtStatVisWidget::~WQtStatVisWidget() = default;
 
-void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
+void WQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] = {
+  const WUInt32 uiSeconds[] = {
     10,
     30,
     60 * 1,
@@ -98,12 +98,12 @@ void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
     60 * 10,
   };
 
-  m_DisplayInterval = ezTime::MakeFromSeconds(uiSeconds[index]);
+  m_DisplayInterval = WTime::MakeFromSeconds(uiSeconds[index]);
 }
 
-void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)
+void WQtStatVisWidget::on_LineName_textChanged(const QString& text)
 {
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("StatHistory{0}", m_iWindowNumber);
 
   QSettings Settings;
@@ -115,9 +115,9 @@ void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)
   m_ShowWindowAction.setText(LineName->text());
 }
 
-void ezQtStatVisWidget::on_SpinMin_valueChanged(double val)
+void WQtStatVisWidget::on_SpinMin_valueChanged(double val)
 {
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("StatHistory{0}", m_iWindowNumber);
 
   QSettings Settings;
@@ -126,9 +126,9 @@ void ezQtStatVisWidget::on_SpinMin_valueChanged(double val)
   Settings.endGroup();
 }
 
-void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
+void WQtStatVisWidget::on_SpinMax_valueChanged(double val)
 {
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("StatHistory{0}", m_iWindowNumber);
 
   QSettings Settings;
@@ -137,7 +137,7 @@ void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
   Settings.endGroup();
 }
 
-void ezQtStatVisWidget::on_ToggleVisible()
+void WQtStatVisWidget::on_ToggleVisible()
 {
   toggleView(isClosed());
 
@@ -145,12 +145,12 @@ void ezQtStatVisWidget::on_ToggleVisible()
     raise();
 }
 
-void ezQtStatVisWidget::on_ListStats_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
+void WQtStatVisWidget::on_ListStats_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
   ButtonRemove->setEnabled(current != nullptr);
 }
 
-void ezQtStatVisWidget::on_ButtonRemove_clicked()
+void WQtStatVisWidget::on_ButtonRemove_clicked()
 {
   if (ListStats->currentItem() == nullptr)
     return;
@@ -166,9 +166,9 @@ void ezQtStatVisWidget::on_ButtonRemove_clicked()
   }
 }
 
-void ezQtStatVisWidget::Save()
+void WQtStatVisWidget::Save()
 {
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("/StatWindow{0}.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -183,7 +183,7 @@ void ezQtStatVisWidget::Save()
 
   QDataStream stream(&f);
 
-  const ezUInt32 uiNumFavorites = m_Stats.GetCount();
+  const WUInt32 uiNumFavorites = m_Stats.GetCount();
   stream << uiNumFavorites;
 
   for (auto it = m_Stats.GetIterator(); it.IsValid(); ++it)
@@ -196,9 +196,9 @@ void ezQtStatVisWidget::Save()
   f.close();
 }
 
-void ezQtStatVisWidget::Load()
+void WQtStatVisWidget::Load()
 {
-  ezStringBuilder sStatHistory;
+  WStringBuilder sStatHistory;
   sStatHistory.SetFormat("/StatWindow{0}.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -215,10 +215,10 @@ void ezQtStatVisWidget::Load()
 
   QDataStream stream(&f);
 
-  ezUInt32 uiNumFavorites = 0;
+  WUInt32 uiNumFavorites = 0;
   stream >> uiNumFavorites;
 
-  for (ezUInt32 i = 0; i < uiNumFavorites; ++i)
+  for (WUInt32 i = 0; i < uiNumFavorites; ++i)
   {
     QString s;
     stream >> s;
@@ -226,15 +226,15 @@ void ezQtStatVisWidget::Load()
     bool bChecked = true;
     stream >> bChecked;
 
-    ezString ezs = s.toUtf8().data();
+    WString Ws = s.toUtf8().data();
 
-    AddStat(ezs, bChecked, false);
+    AddStat(Ws, bChecked, false);
   }
 
   f.close();
 }
 
-void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRaiseWindow)
+void WQtStatVisWidget::AddStat(const WString& sStatPath, bool bEnabled, bool bRaiseWindow)
 {
   if (bRaiseWindow)
   {
@@ -246,7 +246,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
 
   if (Stat.m_pListItem == nullptr)
   {
-    Stat.m_uiColor = s_iCurColor % ezQtStatVisWidget::s_uiMaxColors;
+    Stat.m_uiColor = s_iCurColor % WQtStatVisWidget::s_uiMaxColors;
     ++s_iCurColor;
 
     Stat.m_pListItem = new QListWidgetItem();
@@ -259,28 +259,28 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
   }
 }
 
-void ezQtStatVisWidget::UpdateStats()
+void WQtStatVisWidget::UpdateStats()
 {
   if (isClosed())
     return;
 
   QPainterPath pp[s_uiMaxColors];
 
-  for (ezMap<ezString, StatsData>::Iterator it = m_Stats.GetIterator(); it.IsValid(); ++it)
+  for (WMap<WString, StatsData>::Iterator it = m_Stats.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_pListItem->checkState() != Qt::Checked)
       continue;
 
-    const ezDeque<ezQtMainWidget::StatSample>& Samples = ezQtMainWidget::s_pWidget->m_Stats[it.Key()].m_History;
+    const WDeque<WQtMainWidget::StatSample>& Samples = WQtMainWidget::s_pWidget->m_Stats[it.Key()].m_History;
 
     if (Samples.IsEmpty())
       continue;
 
-    const ezUInt32 uiColorPath = it.Value().m_uiColor;
+    const WUInt32 uiColorPath = it.Value().m_uiColor;
 
-    ezUInt32 uiFirstSample = 0;
+    WUInt32 uiFirstSample = 0;
 
-    const ezTime MaxGlobalTime = ezQtMainWidget::s_pWidget->m_MaxGlobalTime;
+    const WTime MaxGlobalTime = WQtMainWidget::s_pWidget->m_MaxGlobalTime;
 
     while ((uiFirstSample + 1 < Samples.GetCount()) && (MaxGlobalTime - Samples[uiFirstSample + 1].m_AtGlobalTime > m_DisplayInterval))
       ++uiFirstSample;
@@ -289,7 +289,7 @@ void ezQtStatVisWidget::UpdateStats()
     {
       pp[uiColorPath].moveTo(QPointF((Samples[uiFirstSample].m_AtGlobalTime - MaxGlobalTime).GetSeconds(), Samples[uiFirstSample].m_Value));
 
-      for (ezUInt32 i = uiFirstSample + 1; i < Samples.GetCount(); ++i)
+      for (WUInt32 i = uiFirstSample + 1; i < Samples.GetCount(); ++i)
       {
         pp[uiColorPath].lineTo(QPointF((Samples[i].m_AtGlobalTime - MaxGlobalTime).GetSeconds(), Samples[i].m_Value));
       }
@@ -299,7 +299,7 @@ void ezQtStatVisWidget::UpdateStats()
     }
   }
 
-  for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
+  for (WUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i]->setPath(pp[i]);
 
   {

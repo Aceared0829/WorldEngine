@@ -16,10 +16,10 @@
 /// | m03 m13 m23 m33 |   Column 3: (m30, m31, m32, m33)
 /// ```
 template <typename Type>
-class ezMat4Template
+class WMat4Template
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   using ComponentType = Type;
 
@@ -32,13 +32,13 @@ public:
   /// The matrix as a 16-element Type array (column-major)
   Type m_fElementsCM[16];
 
-  EZ_ALWAYS_INLINE Type& Element(ezInt32 iColumn, ezInt32 iRow) { return m_fElementsCM[iColumn * 4 + iRow]; }
-  EZ_ALWAYS_INLINE Type Element(ezInt32 iColumn, ezInt32 iRow) const { return m_fElementsCM[iColumn * 4 + iRow]; }
+  W_ALWAYS_INLINE Type& Element(WInt32 iColumn, WInt32 iRow) { return m_fElementsCM[iColumn * 4 + iRow]; }
+  W_ALWAYS_INLINE Type Element(WInt32 iColumn, WInt32 iRow) const { return m_fElementsCM[iColumn * 4 + iRow]; }
 
   // *** Constructors ***
 public:
   /// Default Constructor DOES NOT INITIALIZE the matrix, at all.
-  ezMat4Template(); // [tested]
+  WMat4Template(); // [tested]
 
   /// Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -47,65 +47,65 @@ public:
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  ezMat4Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
+  WMat4Template(const Type* const pData, WMatrixLayout::Enum layout); // [tested]
 
   /// Sets each element manually: Naming is "column-n row-m"
-  ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3,
+  WMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3,
     Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// Creates a transformation matrix from a rotation and a translation.
-  ezMat4Template(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
+  WMat4Template(const WMat3Template<Type>& mRotation, const WVec3Template<Type>& vTranslation); // [tested]
 
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please "
+    W_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please "
                                "check that all code-paths properly initialize this object.");
   }
 #endif
 
   /// Returns a zero matrix.
-  [[nodiscard]] static ezMat4Template<Type> MakeZero();
+  [[nodiscard]] static WMat4Template<Type> MakeZero();
 
   /// Returns an identity matrix.
-  [[nodiscard]] static ezMat4Template<Type> MakeIdentity();
+  [[nodiscard]] static WMat4Template<Type> MakeIdentity();
 
   /// Creates a matrix from 16 values that are in row-major layout.
-  [[nodiscard]] static ezMat4Template<Type> MakeFromRowMajorArray(const Type* const pData);
+  [[nodiscard]] static WMat4Template<Type> MakeFromRowMajorArray(const Type* const pData);
 
   /// Creates a matrix from 16 values that are in column-major layout.
-  [[nodiscard]] static ezMat4Template<Type> MakeFromColumnMajorArray(const Type* const pData);
+  [[nodiscard]] static WMat4Template<Type> MakeFromColumnMajorArray(const Type* const pData);
 
   /// Creates a matrix from 16 values. Naming is "column-n row-m"
-  [[nodiscard]] static ezMat4Template<Type> MakeFromValues(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4);
+  [[nodiscard]] static WMat4Template<Type> MakeFromValues(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4);
 
   /// Creates a matrix with all zero values, except the last column, which is set to x, y, z, 1
-  [[nodiscard]] static ezMat4Template<Type> MakeTranslation(const ezVec3Template<Type>& vTranslation);
+  [[nodiscard]] static WMat4Template<Type> MakeTranslation(const WVec3Template<Type>& vTranslation);
 
   /// Creates a transformation matrix from a rotation and a translation.
-  [[nodiscard]] static ezMat4Template<Type> MakeTransformation(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation);
+  [[nodiscard]] static WMat4Template<Type> MakeTransformation(const WMat3Template<Type>& mRotation, const WVec3Template<Type>& vTranslation);
 
   /// Creates a matrix with all zero values, except along the diagonal, which is set to x, y, z, 1
-  [[nodiscard]] static ezMat4Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
+  [[nodiscard]] static WMat4Template<Type> MakeScaling(const WVec3Template<Type>& vScale);
 
   /// Creates a matrix that is a rotation matrix around the X-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngleTemplate<Type> angle);
+  [[nodiscard]] static WMat4Template<Type> MakeRotationX(WAngleTemplate<Type> angle);
 
   /// Creates a matrix that is a rotation matrix around the Y-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngleTemplate<Type> angle);
+  [[nodiscard]] static WMat4Template<Type> MakeRotationY(WAngleTemplate<Type> angle);
 
   /// Creates a matrix that is a rotation matrix around the Z-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngleTemplate<Type> angle);
+  [[nodiscard]] static WMat4Template<Type> MakeRotationZ(WAngleTemplate<Type> angle);
 
   /// Creates a matrix that is a rotation matrix around the given axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle);
+  [[nodiscard]] static WMat4Template<Type> MakeAxisRotation(const WVec3Template<Type>& vAxis, WAngleTemplate<Type> angle);
 
   /// Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.
-  void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
+  void GetAsArray(Type* out_pData, WMatrixLayout::Enum layout) const; // [tested]
 
   /// Sets a transformation matrix from a rotation and a translation.
-  void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
+  void SetTransformationMatrix(const WMat3Template<Type>& mRotation, const WVec3Template<Type>& vTranslation); // [tested]
 
   // *** Special matrix constructors ***
 public:
@@ -121,21 +121,21 @@ public:
   void Transpose(); // [tested]
 
   /// Returns the transpose of this matrix.
-  const ezMat4Template<Type> GetTranspose() const; // [tested]
+  const WMat4Template<Type> GetTranspose() const; // [tested]
 
   /// Inverts this matrix. Return value indicates whether the matrix could be inverted.
-  ezResult Invert(Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
+  WResult Invert(Type fEpsilon = WMath::SmallEpsilon<Type>()); // [tested]
 
   /// Returns the inverse of this matrix.
-  const ezMat4Template<Type> GetInverse(Type fEpsilon = ezMath::SmallEpsilon<Type>()) const; // [tested]
+  const WMat4Template<Type> GetInverse(Type fEpsilon = WMath::SmallEpsilon<Type>()) const; // [tested]
 
   // *** Checks ***
 public:
   /// Checks whether all elements are zero.
-  bool IsZero(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  bool IsZero(Type fEpsilon = WMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// Checks whether this is an identity matrix.
-  bool IsIdentity(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  bool IsIdentity(Type fEpsilon = WMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// Checks whether all components are finite numbers.
   bool IsValid() const; // [tested]
@@ -146,63 +146,63 @@ public:
   // *** Special Accessors ***
 public:
   /// Returns all 4 components of the i-th row.
-  ezVec4Template<Type> GetRow(ezUInt32 uiRow) const; // [tested]
+  WVec4Template<Type> GetRow(WUInt32 uiRow) const; // [tested]
 
   /// Sets all 4 components of the i-th row.
-  void SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& vRow); // [tested]
+  void SetRow(WUInt32 uiRow, const WVec4Template<Type>& vRow); // [tested]
 
   /// Returns all 4 components of the i-th column.
-  ezVec4Template<Type> GetColumn(ezUInt32 uiColumn) const; // [tested]
+  WVec4Template<Type> GetColumn(WUInt32 uiColumn) const; // [tested]
 
   /// Sets all 4 components of the i-th column.
-  void SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& vColumn); // [tested]
+  void SetColumn(WUInt32 uiColumn, const WVec4Template<Type>& vColumn); // [tested]
 
   /// Returns all 4 components on the diagonal of the matrix.
-  ezVec4Template<Type> GetDiagonal() const; // [tested]
+  WVec4Template<Type> GetDiagonal() const; // [tested]
 
   /// Sets all 4 components on the diagonal of the matrix.
-  void SetDiagonal(const ezVec4Template<Type>& vDiag); // [tested]
+  void SetDiagonal(const WVec4Template<Type>& vDiag); // [tested]
 
   /// Returns the first 3 components of the last column.
-  const ezVec3Template<Type> GetTranslationVector() const; // [tested]
+  const WVec3Template<Type> GetTranslationVector() const; // [tested]
 
   /// Sets the first 3 components of the last column.
-  void SetTranslationVector(const ezVec3Template<Type>& v); // [tested]
+  void SetTranslationVector(const WVec3Template<Type>& v); // [tested]
 
   /// Sets the 3x3 rotational part of the matrix.
-  void SetRotationalPart(const ezMat3Template<Type>& mRotation); // [tested]
+  void SetRotationalPart(const WMat3Template<Type>& mRotation); // [tested]
 
   /// Returns the 3x3 rotational and scaling part of the matrix.
-  const ezMat3Template<Type> GetRotationalPart() const; // [tested]
+  const WMat3Template<Type> GetRotationalPart() const; // [tested]
 
   /// Returns the 3 scaling factors that are encoded in the matrix.
-  const ezVec3Template<Type> GetScalingFactors() const; // [tested]
+  const WVec3Template<Type> GetScalingFactors() const; // [tested]
 
-  /// Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no
+  /// Tries to set the three scaling factors in the matrix. Returns W_FAILURE if the matrix columns cannot be normalized and thus no
   /// rescaling is possible.
-  ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
+  WResult SetScalingFactors(const WVec3Template<Type>& vXYZ, Type fEpsilon = WMath::DefaultEpsilon<Type>()); // [tested]
 
   // *** Operators ***
 public:
   /// Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  const ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
+  const WVec3Template<Type> TransformPosition(const WVec3Template<Type>& v) const; // [tested]
 
   /// Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  void TransformPosition(ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformPosition(WVec3Template<Type>* pV, WUInt32 uiNumVectors, WUInt32 uiStride = sizeof(WVec3Template<Type>)) const; // [tested]
 
   /// Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
-  const ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
+  const WVec3Template<Type> TransformDirection(const WVec3Template<Type>& v) const; // [tested]
 
   /// Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
-  void TransformDirection(ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformDirection(WVec3Template<Type>* pV, WUInt32 uiNumVectors, WUInt32 uiStride = sizeof(WVec3Template<Type>)) const; // [tested]
 
   /// Matrix-vector multiplication.
-  const ezVec4Template<Type> Transform(const ezVec4Template<Type>& v) const; // [tested]
+  const WVec4Template<Type> Transform(const WVec4Template<Type>& v) const; // [tested]
 
   /// Matrix-vector multiplication.
-  void Transform(ezVec4Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4Template<Type>)) const; // [tested]
+  void Transform(WVec4Template<Type>* pV, WUInt32 uiNumVectors, WUInt32 uiStride = sizeof(WVec4Template<Type>)) const; // [tested]
 
   /// Component-wise multiplication (commutative)
   void operator*=(Type f); // [tested]
@@ -211,52 +211,52 @@ public:
   void operator/=(Type f); // [tested]
 
   /// Equality Check
-  bool IsIdentical(const ezMat4Template<Type>& rhs) const; // [tested]
+  bool IsIdentical(const WMat4Template<Type>& rhs) const; // [tested]
 
   /// Equality Check with epsilon
-  bool IsEqual(const ezMat4Template<Type>& rhs, Type fEpsilon) const; // [tested]
+  bool IsEqual(const WMat4Template<Type>& rhs, Type fEpsilon) const; // [tested]
 };
 
 // *** free functions ***
 
 /// Matrix-Matrix multiplication
 template <typename Type>
-const ezMat4Template<Type> operator*(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+const WMat4Template<Type> operator*(const WMat4Template<Type>& m1, const WMat4Template<Type>& m2); // [tested]
 
 /// Matrix-vector multiplication
 template <typename Type>
-const ezVec3Template<Type> operator*(const ezMat4Template<Type>& m, const ezVec3Template<Type>& v); // [tested]
+const WVec3Template<Type> operator*(const WMat4Template<Type>& m, const WVec3Template<Type>& v); // [tested]
 
 /// Matrix-vector multiplication
 template <typename Type>
-const ezVec4Template<Type> operator*(const ezMat4Template<Type>& m, const ezVec4Template<Type>& v); // [tested]
+const WVec4Template<Type> operator*(const WMat4Template<Type>& m, const WVec4Template<Type>& v); // [tested]
 
 /// Component-wise multiplication (commutative)
 template <typename Type>
-const ezMat4Template<Type> operator*(const ezMat4Template<Type>& m1, Type f); // [tested]
+const WMat4Template<Type> operator*(const WMat4Template<Type>& m1, Type f); // [tested]
 
 /// Component-wise multiplication (commutative)
 template <typename Type>
-const ezMat4Template<Type> operator*(Type f, const ezMat4Template<Type>& m1); // [tested]
+const WMat4Template<Type> operator*(Type f, const WMat4Template<Type>& m1); // [tested]
 
 /// Component-wise division
 template <typename Type>
-const ezMat4Template<Type> operator/(const ezMat4Template<Type>& m1, Type f); // [tested]
+const WMat4Template<Type> operator/(const WMat4Template<Type>& m1, Type f); // [tested]
 
 /// Adding two matrices (component-wise)
 template <typename Type>
-const ezMat4Template<Type> operator+(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+const WMat4Template<Type> operator+(const WMat4Template<Type>& m1, const WMat4Template<Type>& m2); // [tested]
 
 /// Subtracting two matrices (component-wise)
 template <typename Type>
-const ezMat4Template<Type> operator-(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+const WMat4Template<Type> operator-(const WMat4Template<Type>& m1, const WMat4Template<Type>& m2); // [tested]
 
 /// Comparison Operator ==
 template <typename Type>
-bool operator==(const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
+bool operator==(const WMat4Template<Type>& lhs, const WMat4Template<Type>& rhs); // [tested]
 
 /// Comparison Operator !=
 template <typename Type>
-bool operator!=(const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
+bool operator!=(const WMat4Template<Type>& lhs, const WMat4Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat4_inl.h>

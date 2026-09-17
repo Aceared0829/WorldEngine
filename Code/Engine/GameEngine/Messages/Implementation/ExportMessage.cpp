@@ -3,17 +3,17 @@
 #include <GameEngine/Messages/ExportMessage.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExport);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExport, 1, ezRTTIDefaultAllocator<ezMsgExport>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgExport);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgExport, 1, WRTTIDefaultAllocator<WMsgExport>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
-    EZ_MEMBER_PROPERTY("DocumentGuid", m_sDocumentGuid),
+    W_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
+    W_MEMBER_PROPERTY("DocumentGuid", m_sDocumentGuid),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_ExportMessage);
+W_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_ExportMessage);

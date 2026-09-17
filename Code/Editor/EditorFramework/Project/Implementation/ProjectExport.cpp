@@ -13,39 +13,39 @@
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
-ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
+WResult WProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
 {
-  if (ezOSFile::DeleteFolder(szAbsFolderPath).Failed())
+  if (WOSFile::DeleteFolder(szAbsFolderPath).Failed())
   {
-    ezLog::Error("Target folder could not be removed:\n'{}'", szAbsFolderPath);
-    return EZ_FAILURE;
+    WLog::Error("Target folder could not be removed:\n'{}'", szAbsFolderPath);
+    return W_FAILURE;
   }
 
-  if (ezOSFile::CreateDirectoryStructure(szAbsFolderPath).Failed())
+  if (WOSFile::CreateDirectoryStructure(szAbsFolderPath).Failed())
   {
-    ezLog::Error("Target folder could not be created:\n'{}'", szAbsFolderPath);
-    return EZ_FAILURE;
+    WLog::Error("Target folder could not be created:\n'{}'", szAbsFolderPath);
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator, ezDynamicArray<ezString>* pSceneFiles, const ezPlatformProfile* pPlatformProfile)
+WResult WProjectExport::ScanFolder(WSet<WString>& out_Files, const char* szFolder, const WPathPatternFilter& filter, WAssetCurator* pCurator, WDynamicArray<WString>* pSceneFiles, const WPlatformProfile* pPlatformProfile)
 {
-  ezStringBuilder sRootFolder = szFolder;
+  WStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
 
-  const ezUInt32 uiRootFolderLength = sRootFolder.GetElementCount();
+  const WUInt32 uiRootFolderLength = sRootFolder.GetElementCount();
 
-  ezStringBuilder sAbsFilePath, sRelFilePath;
+  WStringBuilder sAbsFilePath, sRelFilePath;
 
-  ezFileSystemIterator it;
-  for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+  WFileSystemIterator it;
+  for (it.StartSearch(sRootFolder, WFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
   {
-    if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+    if (WProgress::GetGlobalProgressbar()->WasCanceled())
     {
-      ezLog::Warning("Folder scanning canceled by user");
-      return EZ_FAILURE;
+      WLog::Warning("Folder scanning canceled by user");
+      return W_FAILURE;
     }
 
     it.GetStats().GetFullPath(sAbsFilePath);
@@ -53,18 +53,18 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     sRelFilePath = sAbsFilePath;
     sRelFilePath.Shrink(uiRootFolderLength, 0); // keep the slash at the front -> useful for the pattern filter
 
-    ezStringBuilder filterRule;
+    WStringBuilder filterRule;
 
     if (!filter.PassesFilters(sRelFilePath, &filterRule))
     {
       if (it.GetStats().m_bIsDirectory)
       {
-        ezLog::Info(" Skipping folder '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
+        WLog::Info(" Skipping folder '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.SkipFolder();
       }
       else
       {
-        ezLog::Info(" Skipping file '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
+        WLog::Info(" Skipping file '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.Next();
       }
 
@@ -84,7 +84,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
       if (asset.isValid() && asset->m_bMainAsset)
       {
         // redirect to asset output
-        ezAssetDocumentManager* pAssetMan = ezStaticCast<ezAssetDocumentManager*>(asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_pManager);
+        WAssetDocumentManager* pAssetMan = WStaticCast<WAssetDocumentManager*>(asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_pManager);
 
         sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_Path, nullptr, pPlatformProfile);
 
@@ -96,7 +96,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
           pSceneFiles->PushBack(sRelFilePath);
         }
 
-        for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
+        for (const WString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
         {
           sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_Path, outputTag, pPlatformProfile);
 
@@ -113,22 +113,22 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     it.Next();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgressRange* pProgressRange)
+WResult WProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const WSet<WString>& files, WProgressRange* pProgressRange)
 {
-  ezLog::Info("Source folder: {}", szSrcFolder);
-  ezLog::Info("Destination folder: {}", szDstFolder);
+  WLog::Info("Source folder: {}", szSrcFolder);
+  WLog::Info("Destination folder: {}", szDstFolder);
 
-  ezStringBuilder sSrc, sDst;
+  WStringBuilder sSrc, sDst;
 
   for (auto itFile = files.GetIterator(); itFile.IsValid(); ++itFile)
   {
-    if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+    if (WProgress::GetGlobalProgressbar()->WasCanceled())
     {
-      ezLog::Info("File copy operation canceled by user.");
-      return EZ_FAILURE;
+      WLog::Info("File copy operation canceled by user.");
+      return W_FAILURE;
     }
 
     if (pProgressRange)
@@ -139,27 +139,27 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
     sSrc.Set(szSrcFolder, "/", itFile.Key());
     sDst.Set(szDstFolder, "/", itFile.Key());
 
-    if (ezOSFile::CopyFile(sSrc, sDst).Succeeded())
+    if (WOSFile::CopyFile(sSrc, sDst).Succeeded())
     {
-      ezLog::Info(" Copied: {}", itFile.Key());
+      WLog::Info(" Copied: {}", itFile.Key());
     }
     else
     {
-      ezLog::Error(" Copy failed: {}", itFile.Key());
+      WLog::Error(" Copy failed: {}", itFile.Key());
     }
   }
 
-  ezLog::Success("Finished copying files to destination '{}'", szDstFolder);
-  return EZ_SUCCESS;
+  WLog::Success("Finished copying files to destination '{}'", szDstFolder);
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files)
+WResult WProjectExport::GatherGeneratedAssetManagerFiles(WSet<WString>& out_Files)
 {
-  ezTempHybridArray<ezString, 4> addFiles;
+  WTempHybridArray<WString, 4> addFiles;
 
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
+    if (auto pAssMan = WDynamicCast<WAssetDocumentManager*>(pMan))
     {
       pAssMan->GetAdditionalOutputs(addFiles).AssertSuccess();
 
@@ -172,69 +172,69 @@ ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile)
+WResult WProjectExport::CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile)
 {
-  if (ezFileSystem::ExistsFile(szExpectedFile))
-    return EZ_SUCCESS;
+  if (WFileSystem::ExistsFile(szExpectedFile))
+    return W_SUCCESS;
 
-  ezStringBuilder src;
+  WStringBuilder src;
   src.Set("#include <", szFallbackFile, ">\n\n\n[EXCLUDE]\n\n// TODO: add exclude patterns\n\n\n[INCLUDE]\n\n//TODO: add include patterns\n\n\n");
 
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(szExpectedFile).Failed())
   {
-    ezLog::Error("Failed to open '{}' for writing.", szExpectedFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to open '{}' for writing.", szExpectedFile);
+    return W_FAILURE;
   }
 
   file.WriteBytes(src.GetData(), src.GetElementCount()).AssertSuccess();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const ezPlatformProfile* pPlatformProfile)
+WResult WProjectExport::ReadExportFilters(WPathPatternFilter& out_DataFilter, WPathPatternFilter& out_BinariesFilter, const WPlatformProfile* pPlatformProfile)
 {
-  ezStringBuilder sDefine;
+  WStringBuilder sDefine;
   sDefine.SetFormat("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
   sDefine.ToUpper();
 
-  ezTempHybridArray<ezString, 1> ppDefines;
+  WTempHybridArray<WString, 1> ppDefines;
   ppDefines.PushBack(sDefine);
 
-  if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed())
+  if (WProjectExport::CreateExportFilterFile(":project/ProjectData.WExportFilter", "CommonData.WExportFilter").Failed())
   {
-    ezLog::Error("The file 'ProjectData.ezExportFilter' could not be created.");
-    return EZ_FAILURE;
+    WLog::Error("The file 'ProjectData.WExportFilter' could not be created.");
+    return W_FAILURE;
   }
 
-  if (ezProjectExport::CreateExportFilterFile(":project/ProjectBinaries.ezExportFilter", "CommonBinaries.ezExportFilter").Failed())
+  if (WProjectExport::CreateExportFilterFile(":project/ProjectBinaries.WExportFilter", "CommonBinaries.WExportFilter").Failed())
   {
-    ezLog::Error("The file 'ProjectBinaries.ezExportFilter' could not be created.");
-    return EZ_FAILURE;
+    WLog::Error("The file 'ProjectBinaries.WExportFilter' could not be created.");
+    return W_FAILURE;
   }
 
-  if (out_DataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed())
+  if (out_DataFilter.ReadConfigFile("ProjectData.WExportFilter", ppDefines).Failed())
   {
-    ezLog::Error("The file 'ProjectData.ezExportFilter' could not be read.");
-    return EZ_FAILURE;
+    WLog::Error("The file 'ProjectData.WExportFilter' could not be read.");
+    return W_FAILURE;
   }
 
-  if (out_BinariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
+  if (out_BinariesFilter.ReadConfigFile("ProjectBinaries.WExportFilter", ppDefines).Failed())
   {
-    ezLog::Error("The file 'ProjectBinaries.ezExportFilter' could not be read.");
-    return EZ_FAILURE;
+    WLog::Error("The file 'ProjectBinaries.WExportFilter' could not be read.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory)
+WResult WProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory)
 {
-  ezApplicationFileSystemConfig cfg;
+  WApplicationFileSystemConfig cfg;
 
-  ezStringBuilder sPath;
+  WStringBuilder sPath;
 
   for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
   {
@@ -254,56 +254,56 @@ ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping
 
   if (cfg.Save(sPath).Failed())
   {
-    ezLog::Error("Failed to write DataDirectories.ddl file.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to write DataDirectories.ddl file.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPlatformProfile* pPlatformProfile)
+WResult WProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const WApplicationFileSystemConfig& dirConfig, const WPlatformProfile* pPlatformProfile)
 {
-  ezStringBuilder sDataDirPath;
+  WStringBuilder sDataDirPath;
 
   for (const auto& dataDir : dirConfig.m_DataDirs)
   {
-    if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
     {
-      ezLog::Error("Failed to resolve data directory path '{}'", dataDir.m_sDataDirSpecialPath);
-      return EZ_FAILURE;
+      WLog::Error("Failed to resolve data directory path '{}'", dataDir.m_sDataDirSpecialPath);
+      return W_FAILURE;
     }
 
     sDataDirPath.Trim("/\\");
 
-    ezStringBuilder sAidltPath("AssetCache/", pPlatformProfile->GetConfigName(), ".ezAidlt");
+    WStringBuilder sAidltPath("AssetCache/", pPlatformProfile->GetConfigName(), ".WAidlt");
 
     mapping[sDataDirPath].m_Files.Insert(sAidltPath);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter, ezDynamicArray<ezString>* pSceneFiles, const ezPlatformProfile* pPlatformProfile)
+WResult WProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const WApplicationFileSystemConfig& dirConfig, const WPathPatternFilter& dataFilter, WDynamicArray<WString>* pSceneFiles, const WPlatformProfile* pPlatformProfile)
 {
-  ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
+  WProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
 
-  ezUInt32 uiDataDirNumber = 1;
+  WUInt32 uiDataDirNumber = 1;
 
-  ezStringBuilder sDataDirPath, sDstPath;
+  WStringBuilder sDataDirPath, sDstPath;
 
   for (const auto& dataDir : dirConfig.m_DataDirs)
   {
     progress.BeginNextStep(dataDir.m_sDataDirSpecialPath);
 
-    if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
     {
-      ezLog::Error("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath);
-      return EZ_FAILURE;
+      WLog::Error("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath);
+      return W_FAILURE;
     }
 
     sDataDirPath.Trim("/\\");
 
-    ezProjectExport::DataDirectory& ddInfo = mapping[sDataDirPath];
+    WProjectExport::DataDirectory& ddInfo = mapping[sDataDirPath];
 
     if (!dataDir.m_sRootName.IsEmpty())
     {
@@ -320,94 +320,94 @@ ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
       ddInfo.m_sTargetDirPath = sDstPath;
     }
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton(), pSceneFiles, pPlatformProfile));
+    W_SUCCEED_OR_RETURN(WProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, WAssetCurator::GetSingleton(), pSceneFiles, pPlatformProfile));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::CopyAllFiles(DirectoryMapping& mapping, const char* szTargetDirectory)
+WResult WProjectExport::CopyAllFiles(DirectoryMapping& mapping, const char* szTargetDirectory)
 {
-  ezUInt32 uiTotalFiles = 0;
+  WUInt32 uiTotalFiles = 0;
   for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
     uiTotalFiles += itDir.Value().m_Files.GetCount();
 
-  ezProgressRange range("Copying files", uiTotalFiles, true);
+  WProgressRange range("Copying files", uiTotalFiles, true);
 
-  ezLog::Info("Copying files to target directory '{}'", szTargetDirectory);
+  WLog::Info("Copying files to target directory '{}'", szTargetDirectory);
 
-  ezStringBuilder sTargetFolder;
+  WStringBuilder sTargetFolder;
 
   for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
   {
     sTargetFolder.Set(szTargetDirectory, "/", itDir.Value().m_sTargetDirPath);
 
-    if (ezProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, &range).Failed())
-      return EZ_FAILURE;
+    if (WProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, &range).Failed())
+      return W_FAILURE;
   }
 
-  ezLog::Success("Finished copying all files.");
-  return EZ_SUCCESS;
+  WLog::Success("Finished copying all files.");
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::GatherBinaries(DirectoryMapping& mapping, const ezPathPatternFilter& filter)
+WResult WProjectExport::GatherBinaries(DirectoryMapping& mapping, const WPathPatternFilter& filter)
 {
-  ezStringBuilder sAppDir;
-  sAppDir = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sAppDir;
+  sAppDir = WOSFile::GetApplicationDirectory();
   sAppDir.MakeCleanPath();
   sAppDir.Trim("/\\");
 
-  ezProjectExport::DataDirectory& ddInfo = mapping[sAppDir];
+  WProjectExport::DataDirectory& ddInfo = mapping[sAppDir];
   ddInfo.m_sTargetDirPath = "Bin";
   ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
-  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr, nullptr, nullptr).Failed())
-    return EZ_FAILURE;
+  if (WProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr, nullptr, nullptr).Failed())
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezString ezProjectExport::FindCustomGameExecutable()
+WString WProjectExport::FindCustomGameExecutable()
 {
-  if (!ezFileSystem::ExistsFile(":project/Editor/CppProject.ddl"))
+  if (!WFileSystem::ExistsFile(":project/Editor/CppProject.ddl"))
     return {};
 
-  ezCppSettings cppSettings;
+  WCppSettings cppSettings;
   if (cppSettings.Load().Failed() || cppSettings.m_sPluginName.IsEmpty())
     return {};
 
   // this has to match the name of the application target that the C++ project generation creates
-  ezStringBuilder sExeName(cppSettings.m_sPluginName, "Game");
+  WStringBuilder sExeName(cppSettings.m_sPluginName, "Game");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   sExeName.Append(".exe");
 #endif
 
-  ezStringBuilder sExePath = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sExePath = WOSFile::GetApplicationDirectory();
   sExePath.AppendPath(sExeName);
   sExePath.MakeCleanPath();
 
-  if (!ezOSFile::ExistsFile(sExePath))
+  if (!WOSFile::ExistsFile(sExePath))
   {
-    ezLog::Info("The project's game executable '{}' hasn't been built, exporting ezPlayer instead.", sExeName);
+    WLog::Info("The project's game executable '{}' hasn't been built, exporting WPlayer instead.", sExeName);
     return {};
   }
 
   return sExeName;
 }
 
-ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory, ezStringView sCustomGameExecutable)
+WResult WProjectExport::CreateLaunchConfig(const WDynamicArray<WString>& sceneFiles, const char* szTargetDirectory, WStringView sCustomGameExecutable)
 {
-  auto WriteScript = [szTargetDirectory](ezStringView sScriptName, ezStringView sCommand) -> ezResult
+  auto WriteScript = [szTargetDirectory](WStringView sScriptName, WStringView sCommand) -> WResult
   {
-    ezStringBuilder sScriptPath;
+    WStringBuilder sScriptPath;
     sScriptPath.SetFormat("{}/{}.bat", szTargetDirectory, sScriptName);
 
-    ezOSFile file;
-    if (file.Open(sScriptPath, ezFileOpenMode::Write).Failed())
+    WOSFile file;
+    if (file.Open(sScriptPath, WFileOpenMode::Write).Failed())
     {
-      ezLog::Error("Couldn't create '{}'", sScriptPath);
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create '{}'", sScriptPath);
+      return W_FAILURE;
     }
 
     return file.Write(sCommand.GetStartPointer(), sCommand.GetElementCount());
@@ -415,36 +415,36 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
 
   if (!sCustomGameExecutable.IsEmpty())
   {
-    // the game executable decides itself which scene to load (see ezGameState::GetStartupOptions()),
+    // the game executable decides itself which scene to load (see WGameState::GetStartupOptions()),
     // so a script per scene would be pointless here
-    ezStringBuilder cmd;
+    WStringBuilder cmd;
     cmd.SetFormat("start Bin/{} -project \"Data/project\"", sCustomGameExecutable);
 
-    ezStringBuilder sScriptName("Launch ", ezPathUtils::GetFileName(sCustomGameExecutable));
+    WStringBuilder sScriptName("Launch ", WPathUtils::GetFileName(sCustomGameExecutable));
     return WriteScript(sScriptName, cmd);
   }
 
   for (const auto& sf : sceneFiles)
   {
-    ezStringBuilder cmd;
-    cmd.SetFormat("start Bin/ezPlayer.exe -project \"Data/project\" -scene \"{}\"", sf);
+    WStringBuilder cmd;
+    cmd.SetFormat("start Bin/WPlayer.exe -project \"Data/project\" -scene \"{}\"", sf);
 
-    ezStringBuilder sScriptName("Launch ", ezPathUtils::GetFileName(sf));
-    EZ_SUCCEED_OR_RETURN(WriteScript(sScriptName, cmd));
+    WStringBuilder sScriptName("Launch ", WPathUtils::GetFileName(sf));
+    W_SUCCEED_OR_RETURN(WriteScript(sScriptName, cmd));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProjectExport::GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, const char* szProjectDirectory)
+WResult WProjectExport::GatherGeneratedAssetFiles(WSet<WString>& out_Files, const char* szProjectDirectory)
 {
-  ezStringBuilder sRoot(szProjectDirectory, "/AssetCache/Generated");
+  WStringBuilder sRoot(szProjectDirectory, "/AssetCache/Generated");
 
-  ezPathPatternFilter filter;
-  ezSet<ezString> files;
-  EZ_SUCCEED_OR_RETURN(ScanFolder(files, sRoot, filter, nullptr, nullptr, nullptr));
+  WPathPatternFilter filter;
+  WSet<WString> files;
+  W_SUCCEED_OR_RETURN(ScanFolder(files, sRoot, filter, nullptr, nullptr, nullptr));
 
-  ezStringBuilder sFilePath;
+  WStringBuilder sFilePath;
 
   for (const auto& file : files)
   {
@@ -452,28 +452,28 @@ ezResult ezProjectExport::GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, 
     out_Files.Insert(sFilePath);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fileList)
+void WProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fileList)
 {
-  auto knownAssets = ezAssetCurator::GetSingleton()->GetKnownAssets();
+  auto knownAssets = WAssetCurator::GetSingleton()->GetKnownAssets();
 
-  ezStringBuilder sAbsPath, sRelPath;
+  WStringBuilder sAbsPath, sRelPath;
 
   for (auto it = knownAssets->GetIterator(); it.IsValid(); ++it)
   {
-    const ezAssetInfo* pAssetInfo = it.Value();
+    const WAssetInfo* pAssetInfo = it.Value();
     if (pAssetInfo->m_Info == nullptr)
       continue;
 
-    for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
+    for (const WString& dep : pAssetInfo->m_Info->m_PackageDependencies)
     {
       // GUIDs reference other assets which ScanFolder already handles via the asset curator
-      if (ezConversionUtils::IsStringUuid(dep))
+      if (WConversionUtils::IsStringUuid(dep))
         continue;
 
-      if (ezFileSystem::ResolvePath(dep, &sAbsPath, nullptr).Failed())
+      if (WFileSystem::ResolvePath(dep, &sAbsPath, nullptr).Failed())
         continue;
 
       sAbsPath.MakeCleanPath();
@@ -493,47 +493,47 @@ void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fil
   }
 }
 
-ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezStringBuilder* out_pLog)
+WStatus WProjectExport::ExportProjectComplete(WStringView sTargetDirectory, const WProjectExportOptions& options, WStringBuilder* out_pLog)
 {
   if (sTargetDirectory.IsEmpty())
-    return ezStatus("No target directory given.");
+    return WStatus("No target directory given.");
 
-  if (!ezPathUtils::IsAbsolutePath(sTargetDirectory))
-    return ezStatus(ezFmt("The target directory '{}' is not an absolute path.", sTargetDirectory));
+  if (!WPathUtils::IsAbsolutePath(sTargetDirectory))
+    return WStatus(WFmt("The target directory '{}' is not an absolute path.", sTargetDirectory));
 
-  const ezString sTargetDir = sTargetDirectory;
+  const WString sTargetDir = sTargetDirectory;
 
-  ezLogSystemToBuffer logBuffer;
-  ezStatus result = ezStatus(EZ_SUCCESS);
+  WLogSystemToBuffer logBuffer;
+  WStatus result = WStatus(W_SUCCESS);
 
   {
-    ezLogSystemScope logScope(&logBuffer);
+    WLogSystemScope logScope(&logBuffer);
 
     if (options.m_bCompileCppPlugin)
     {
       // Does nothing if the project has no C++ code at all. Failing here would leave the export with
       // binaries that don't match the code, so it is not something to continue past.
-      if (ezCppProject::EnsureCppPluginReady().Failed())
+      if (WCppProject::EnsureCppPluginReady().Failed())
       {
-        result = ezStatus("Building the project's C++ plugin failed.");
+        result = WStatus("Building the project's C++ plugin failed.");
       }
     }
 
     if (result.Succeeded() && options.m_bTransformAssets)
     {
-      const ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets();
+      const WStatus stat = WAssetCurator::GetSingleton()->TransformAllAssets();
 
       if (stat.Failed())
       {
-        result = ezStatus(ezFmt("Transforming all assets failed: {}", stat.GetMessageString()));
+        result = WStatus(WFmt("Transforming all assets failed: {}", stat.GetMessageString()));
       }
     }
 
     if (result.Succeeded())
     {
-      if (ezProjectExport::ExportProject(sTargetDir, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig(), options.m_bCreateLaunchScripts).Failed())
+      if (WProjectExport::ExportProject(sTargetDir, WAssetCurator::GetSingleton()->GetActiveAssetProfile(), WQtEditorApp::GetSingleton()->GetFileSystemConfig(), options.m_bCreateLaunchScripts).Failed())
       {
-        result = ezStatus("Project export failed.");
+        result = WStatus("Project export failed.");
       }
     }
   }
@@ -546,27 +546,27 @@ ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, c
   // Written last, and only when the directory is there: a failure early on means ExportProject() never
   // got as far as creating it, and an otherwise empty folder containing just a log would look like a
   // half finished export.
-  if (ezOSFile::ExistsDirectory(sTargetDir))
+  if (WOSFile::ExistsDirectory(sTargetDir))
   {
-    ezStringBuilder sLogFile(sTargetDir, "/ExportLog.txt");
+    WStringBuilder sLogFile(sTargetDir, "/ExportLog.txt");
 
-    ezOSFile file;
-    if (file.Open(sLogFile, ezFileOpenMode::Write).Succeeded())
+    WOSFile file;
+    if (file.Open(sLogFile, WFileOpenMode::Write).Succeeded())
     {
       file.Write(logBuffer.m_sBuffer.GetData(), logBuffer.m_sBuffer.GetElementCount()).IgnoreResult();
     }
     else
     {
-      ezLog::Warning("Failed to write the export log '{}'.", sLogFile);
+      WLog::Warning("Failed to write the export log '{}'.", sLogFile);
     }
   }
 
   return result;
 }
 
-ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts)
+WResult WProjectExport::ExportProject(const char* szTargetDirectory, const WPlatformProfile* pPlatformProfile, const WApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts)
 {
-  ezProgressRange mainProgress("Export Project", 7, true);
+  WProgressRange mainProgress("Export Project", 7, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
   mainProgress.SetStepWeighting(1, 0.05f); // Generating special files
   mainProgress.SetStepWeighting(2, 0.10f); // Scanning data directories
@@ -575,51 +575,51 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   mainProgress.SetStepWeighting(5, 0.01f); // Writing data directory config
   mainProgress.SetStepWeighting(6, 0.01f); // Finish up
 
-  ezStringBuilder sProjectRootDir;
-  ezTempHybridArray<ezString, 16> sceneFiles;
-  ezProjectExport::DirectoryMapping fileList;
+  WStringBuilder sProjectRootDir;
+  WTempHybridArray<WString, 16> sceneFiles;
+  WProjectExport::DirectoryMapping fileList;
 
-  ezPathPatternFilter dataFilter;
-  ezPathPatternFilter binariesFilter;
+  WPathPatternFilter dataFilter;
+  WPathPatternFilter binariesFilter;
 
-  const ezString sCustomGameExecutable = ezProjectExport::FindCustomGameExecutable();
+  const WString sCustomGameExecutable = WProjectExport::FindCustomGameExecutable();
 
   // 0
   {
     mainProgress.BeginNextStep("Preparing output folder");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ClearTargetFolder(szTargetDirectory));
+    W_SUCCEED_OR_RETURN(WProjectExport::ClearTargetFolder(szTargetDirectory));
   }
 
   // 0
   {
-    ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
+    WFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
     sProjectRootDir.Trim("/\\");
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pPlatformProfile));
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pPlatformProfile));
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherGeneratedAssetFiles(fileList[sProjectRootDir].m_Files, sProjectRootDir));
+    W_SUCCEED_OR_RETURN(WProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pPlatformProfile));
+    W_SUCCEED_OR_RETURN(WProjectExport::ReadExportFilters(dataFilter, binariesFilter, pPlatformProfile));
+    W_SUCCEED_OR_RETURN(WProjectExport::GatherGeneratedAssetFiles(fileList[sProjectRootDir].m_Files, sProjectRootDir));
   }
 
   // 1
   {
     mainProgress.BeginNextStep("Generating special files");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files));
+    W_SUCCEED_OR_RETURN(WProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files));
   }
 
   // 2
   {
     mainProgress.BeginNextStep("Scanning data directories");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles, pPlatformProfile));
-    ezProjectExport::AddPackageDependenciesToFileList(fileList);
+    W_SUCCEED_OR_RETURN(WProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles, pPlatformProfile));
+    WProjectExport::AddPackageDependenciesToFileList(fileList);
   }
 
   // 3
   {
-    // by default all DLLs are excluded by CommonBinaries.ezExportFilter
+    // by default all DLLs are excluded by CommonBinaries.WExportFilter
     // we want to override this for all the runtime DLLs and indirect DLL dependencies
     // so we add those to the 'include filter'
 
-    for (auto it : ezQtEditorApp::GetSingleton()->GetPluginBundles().m_Plugins)
+    for (auto it : WQtEditorApp::GetSingleton()->GetPluginBundles().m_Plugins)
     {
       if (!it.Value().m_bSelected)
         continue;
@@ -629,12 +629,12 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
         binariesFilter.AddFilter(dep, true);
       }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
       for (const auto& dep : it.Value().m_PackageDependenciesDebug)
       {
         binariesFilter.AddFilter(dep, true);
       }
-#elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#elif W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
       for (const auto& dep : it.Value().m_PackageDependenciesDev)
       {
         binariesFilter.AddFilter(dep, true);
@@ -647,11 +647,11 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
 #endif
       for (const auto& dep : it.Value().m_RuntimePlugins)
       {
-        ezStringBuilder tmp = dep;
+        WStringBuilder tmp = dep;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
         tmp.Append(".dll");
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
         tmp.Append(".so");
 #else
 #  error "Platform not implemented"
@@ -664,35 +664,35 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
     if (!sCustomGameExecutable.IsEmpty())
     {
       // the export filters exclude all executables by default, so the project's own game executable
-      // has to be added explicitly, and ezPlayer isn't needed anymore
-      ezStringBuilder sPattern("/", sCustomGameExecutable);
+      // has to be added explicitly, and WPlayer isn't needed anymore
+      WStringBuilder sPattern("/", sCustomGameExecutable);
       binariesFilter.AddFilter(sPattern, true);
 
-      for (ezUInt32 i = binariesFilter.m_IncludePatterns.GetCount(); i > 0; --i)
+      for (WUInt32 i = binariesFilter.m_IncludePatterns.GetCount(); i > 0; --i)
       {
-        if (binariesFilter.m_IncludePatterns[i - 1].m_sString.IsEqual_NoCase("/ezPlayer.exe"))
+        if (binariesFilter.m_IncludePatterns[i - 1].m_sString.IsEqual_NoCase("/WPlayer.exe"))
         {
           binariesFilter.m_IncludePatterns.RemoveAtAndCopy(i - 1);
         }
       }
 
-      ezLog::Info("Exporting '{}' as the game executable, ezPlayer is not exported.", sCustomGameExecutable);
+      WLog::Info("Exporting '{}' as the game executable, WPlayer is not exported.", sCustomGameExecutable);
     }
 
     mainProgress.BeginNextStep("Gathering binaries");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherBinaries(fileList, binariesFilter));
+    W_SUCCEED_OR_RETURN(WProjectExport::GatherBinaries(fileList, binariesFilter));
   }
 
   // 4
   {
     mainProgress.BeginNextStep("Copying files");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::CopyAllFiles(fileList, szTargetDirectory));
+    W_SUCCEED_OR_RETURN(WProjectExport::CopyAllFiles(fileList, szTargetDirectory));
   }
 
   // 5
   {
     mainProgress.BeginNextStep("Writing data directory config");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateDataDirectoryDDL(fileList, szTargetDirectory));
+    W_SUCCEED_OR_RETURN(WProjectExport::CreateDataDirectoryDDL(fileList, szTargetDirectory));
   }
 
   // 6
@@ -701,9 +701,9 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
 
     if (bCreateLaunchScripts)
     {
-      EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory, sCustomGameExecutable));
+      W_SUCCEED_OR_RETURN(WProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory, sCustomGameExecutable));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

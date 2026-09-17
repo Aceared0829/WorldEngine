@@ -4,36 +4,36 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezShaderStageBinary;
+class WShaderStageBinary;
 
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
-using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;
-using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
-using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
-using ezMeshBufferResourceHandle = ezTypedResourceHandle<class ezMeshBufferResource>;
-using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
-using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
-using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
-using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
-using ezDecalAtlasResourceHandle = ezTypedResourceHandle<class ezDecalAtlasResource>;
-using ezDecalId = ezGenericId<16, 8>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
+using WTexture3DResourceHandle = WTypedResourceHandle<class WTexture3DResource>;
+using WRenderToTexture2DResourceHandle = WTypedResourceHandle<class WRenderToTexture2DResource>;
+using WTextureCubeResourceHandle = WTypedResourceHandle<class WTextureCubeResource>;
+using WMeshBufferResourceHandle = WTypedResourceHandle<class WMeshBufferResource>;
+using WDynamicMeshBufferResourceHandle = WTypedResourceHandle<class WDynamicMeshBufferResource>;
+using WMeshResourceHandle = WTypedResourceHandle<class WMeshResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
+using WShaderResourceHandle = WTypedResourceHandle<class WShaderResource>;
+using WShaderPermutationResourceHandle = WTypedResourceHandle<class WShaderPermutationResource>;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
+using WDecalResourceHandle = WTypedResourceHandle<class WDecalResource>;
+using WDecalAtlasResourceHandle = WTypedResourceHandle<class WDecalAtlasResource>;
+using WDecalId = WGenericId<16, 8>;
 
-struct EZ_RENDERERCORE_DLL ezPermutationVar
+struct W_RENDERERCORE_DLL WPermutationVar
 {
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+  W_DECLARE_MEM_RELOCATABLE_TYPE();
 
-  ezHashedString m_sName;
-  ezHashedString m_sValue;
+  WHashedString m_sName;
+  WHashedString m_sValue;
 
-  EZ_ALWAYS_INLINE bool operator==(const ezPermutationVar& other) const { return m_sName == other.m_sName && m_sValue == other.m_sValue; }
+  W_ALWAYS_INLINE bool operator==(const WPermutationVar& other) const { return m_sName == other.m_sName && m_sValue == other.m_sValue; }
 };
 
-struct EZ_RENDERERCORE_DLL ezMeshImportTransform
+struct W_RENDERERCORE_DLL WMeshImportTransform
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -45,9 +45,9 @@ struct EZ_RENDERERCORE_DLL ezMeshImportTransform
     Default = Blender_YUp
   };
 
-  static ezBasisAxis::Enum GetRightDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
-  static ezBasisAxis::Enum GetUpDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
-  static bool GetFlipForward(ezMeshImportTransform::Enum transform, bool bFlip);
+  static WBasisAxis::Enum GetRightDir(WMeshImportTransform::Enum transform, WBasisAxis::Enum dir);
+  static WBasisAxis::Enum GetUpDir(WMeshImportTransform::Enum transform, WBasisAxis::Enum dir);
+  static bool GetFlipForward(WMeshImportTransform::Enum transform, bool bFlip);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshImportTransform);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WMeshImportTransform);

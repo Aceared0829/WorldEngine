@@ -11,67 +11,67 @@ class QMouseEvent;
 class QPushButton;
 class QLineEdit;
 
-class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtTimeScrubberWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtTimeScrubberWidget(QWidget* pParent);
-  ~ezQtTimeScrubberWidget();
+  explicit WQtTimeScrubberWidget(QWidget* pParent);
+  ~WQtTimeScrubberWidget();
 
   /// Sets the duration in 'ticks'. There are 4800 ticks per second.
-  void SetDuration(ezUInt64 uiNumTicks);
+  void SetDuration(WUInt64 uiNumTicks);
 
   /// Sets the duration.
-  void SetDuration(ezTime time);
+  void SetDuration(WTime time);
 
   /// Sets the current position in 'ticks'. There are 4800 ticks per second.
-  void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(WUInt64 uiTick);
 
   /// Sets the current position.
-  void SetScrubberPosition(ezTime time);
+  void SetScrubberPosition(WTime time);
 
 Q_SIGNALS:
-  void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
+  void ScrubberPosChangedEvent(WUInt64 uiNewScrubberTickPos);
 
 private:
   virtual void paintEvent(QPaintEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
-  void SetScrubberPosFromPixelCoord(ezInt32 x);
+  void SetScrubberPosFromPixelCoord(WInt32 x);
 
-  ezUInt64 m_uiDurationTicks = 0;
-  ezTime m_Duration;
-  ezUInt64 m_uiScrubberTickPos = 0;
+  WUInt64 m_uiDurationTicks = 0;
+  WTime m_Duration;
+  WUInt64 m_uiScrubberTickPos = 0;
   double m_fNormScrubberPosition = 0.0;
   bool m_bDragging = false;
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberToolbar : public QToolBar
+class W_GUIFOUNDATION_DLL WQtTimeScrubberToolbar : public QToolBar
 {
   Q_OBJECT
 
 public:
-  explicit ezQtTimeScrubberToolbar(QWidget* pParent);
+  explicit WQtTimeScrubberToolbar(QWidget* pParent);
 
   /// Sets the duration in 'ticks'. There are 4800 ticks per second.
-  void SetDuration(ezUInt64 uiNumTicks);
+  void SetDuration(WUInt64 uiNumTicks);
 
   /// Sets the current position in 'ticks'. There are 4800 ticks per second.
-  void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(WUInt64 uiTick);
 
   void SetButtonState(bool bPlaying, bool bRepeatEnabled);
 
 Q_SIGNALS:
-  void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
+  void ScrubberPosChangedEvent(WUInt64 uiNewScrubberTickPos);
   void PlayPauseEvent();
   void RepeatEvent();
   void DurationChangedEvent(double fDuration);
   void AdjustDurationEvent();
 
 private:
-  ezQtTimeScrubberWidget* m_pScrubber = nullptr;
+  WQtTimeScrubberWidget* m_pScrubber = nullptr;
   QPushButton* m_pPlayButton = nullptr;
   QPushButton* m_pRepeatButton = nullptr;
   QLineEdit* m_pDuration = nullptr;

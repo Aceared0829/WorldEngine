@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
+void WQtEditorApp::AddRestartRequiredReason(const char* szReason)
 {
   if (!m_RestartRequiredReasons.Find(szReason).IsValid())
   {
@@ -10,14 +10,14 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
     UpdateGlobalStatusBarMessage();
   }
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("The editor process must be restarted.\nReason: '{0}'\n\nDo you want to restart now?", szReason);
 
-  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+  if (WQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
   {
-    if (ezToolsProject::CanCloseProject())
+    if (WToolsProject::CanCloseProject())
     {
-      LaunchEditor(ezToolsProject::GetSingleton()->GetProjectFile(), false);
+      LaunchEditor(WToolsProject::GetSingleton()->GetProjectFile(), false);
 
       QApplication::closeAllWindows();
       return;
@@ -25,7 +25,7 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
   }
 }
 
-void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
+void WQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
 {
   if (!m_ReloadProjectRequiredReasons.Find(szReason).IsValid())
   {
@@ -33,14 +33,14 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
     UpdateGlobalStatusBarMessage();
   }
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("The project must be reloaded.\nReason: '{0}'\n\nDo you want to reload it now?", szReason);
 
-  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+  if (WQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
   {
-    if (ezToolsProject::CanCloseProject())
+    if (WToolsProject::CanCloseProject())
     {
-      ezStringBuilder sProjectFile = ezToolsProject::GetSingleton()->GetProjectFile();
+      WStringBuilder sProjectFile = WToolsProject::GetSingleton()->GetProjectFile();
 
       SlotQueuedCloseProject();
       OpenProject(sProjectFile, true).IgnoreResult();
@@ -48,9 +48,9 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
   }
 }
 
-void ezQtEditorApp::UpdateGlobalStatusBarMessage()
+void WQtEditorApp::UpdateGlobalStatusBarMessage()
 {
-  ezStringBuilder sText;
+  WStringBuilder sText;
 
   if (!m_RestartRequiredReasons.IsEmpty())
     sText.Append("Restart the editor to apply changes.   ");
@@ -58,5 +58,5 @@ void ezQtEditorApp::UpdateGlobalStatusBarMessage()
   if (!m_ReloadProjectRequiredReasons.IsEmpty())
     sText.Append("Reload the project to apply changes.   ");
 
-  ezQtUiServices::ShowGlobalStatusBarMessage(sText);
+  WQtUiServices::ShowGlobalStatusBarMessage(sText);
 }

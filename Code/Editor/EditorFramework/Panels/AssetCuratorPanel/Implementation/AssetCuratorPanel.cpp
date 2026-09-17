@@ -11,17 +11,17 @@
 #include <QMenu>
 #include <QTimer>
 
-ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
-  : ezQtAssetFilter(pParent)
+WQtAssetCuratorFilter::WQtAssetCuratorFilter(QObject* pParent)
+  : WQtAssetFilter(pParent)
 {
 }
 
-void ezQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
+void WQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
 {
   m_bFilterTransitive = bFilterTransitive;
 }
 
-bool ezQtAssetCuratorFilter::HasIssue(const ezSubAsset* pInfo)
+bool WQtAssetCuratorFilter::HasIssue(const WSubAsset* pInfo)
 {
   if (!pInfo)
     return false;
@@ -29,21 +29,21 @@ bool ezQtAssetCuratorFilter::HasIssue(const ezSubAsset* pInfo)
   if (!pInfo->m_bMainAsset)
     return false;
 
-  const ezAssetInfo::TransformState state = pInfo->m_pAssetInfo->m_TransformState;
+  const WAssetInfo::TransformState state = pInfo->m_pAssetInfo->m_TransformState;
 
-  return state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::CircularDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::MissingPackageDependency || state == ezAssetInfo::TransformError;
+  return state == WAssetInfo::MissingTransformDependency || state == WAssetInfo::CircularDependency || state == WAssetInfo::MissingThumbnailDependency || state == WAssetInfo::MissingPackageDependency || state == WAssetInfo::TransformError;
 }
 
-bool ezQtAssetCuratorFilter::IsIndirectIssue(const ezSubAsset* pInfo)
+bool WQtAssetCuratorFilter::IsIndirectIssue(const WSubAsset* pInfo)
 {
   // An issue is 'indirect' when every dependency that this asset is missing resolves to an asset
   // that the curator still knows about. Those assets are reported with their own issue, so listing
   // everything downstream of them would only repeat the same root cause.
-  auto allDepsResolve = [](const ezSet<ezString>& deps) -> bool
+  auto allDepsResolve = [](const WSet<WString>& deps) -> bool
   {
-    for (const ezString& ref : deps)
+    for (const WString& ref : deps)
     {
-      if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+      if (!WAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
         return false;
     }
     return true;
@@ -51,10 +51,10 @@ bool ezQtAssetCuratorFilter::IsIndirectIssue(const ezSubAsset* pInfo)
 
   switch (pInfo->m_pAssetInfo->m_TransformState)
   {
-    case ezAssetInfo::MissingThumbnailDependency:
+    case WAssetInfo::MissingThumbnailDependency:
       return allDepsResolve(pInfo->m_pAssetInfo->m_MissingThumbnailDeps);
 
-    case ezAssetInfo::MissingPackageDependency:
+    case WAssetInfo::MissingPackageDependency:
       return allDepsResolve(pInfo->m_pAssetInfo->m_MissingPackageDeps);
 
     default:
@@ -62,21 +62,21 @@ bool ezQtAssetCuratorFilter::IsIndirectIssue(const ezSubAsset* pInfo)
   }
 }
 
-ezAssetFilterResult ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+WAssetFilterResult WQtAssetCuratorFilter::IsAssetFiltered(WStringView sDataDirParentRelativePath, bool bIsFolder, const WSubAsset* pInfo) const
 {
   if (!HasIssue(pInfo))
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
   if (m_bFilterTransitive && IsIndirectIssue(pInfo))
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
-  return ezAssetFilterResult::Visible;
+  return WAssetFilterResult::Visible;
 }
 
-EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
+W_IMPLEMENT_SINGLETON(WQtAssetCuratorPanel);
 
-ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
-  : ezQtApplicationPanel(pDockManager, "Panel.AssetCurator")
+WQtAssetCuratorPanel::WQtAssetCuratorPanel(ads::CDockManager* pDockManager)
+  : WQtApplicationPanel(pDockManager, "Panel.AssetCurator")
   , m_SingletonRegistrar(this)
 {
   QWidget* pDummy = new QWidget();
@@ -86,20 +86,20 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   // using pDummy instead of 'this' breaks auto-connect for slots
   setWidget(pDummy);
-  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/AssetCurator.svg"));
-  setWindowTitle(ezMakeQString(ezTranslate("Panel.AssetCurator")));
+  setIcon(WQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/AssetCurator.svg"));
+  setWindowTitle(WMakeQString(WTranslate("Panel.AssetCurator")));
 
-  connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);
-  connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
-  connect(ListAssets, &QWidget::customContextMenuRequested, this, &ezQtAssetCuratorPanel::onListAssetsContextMenuRequested);
+  connect(ListAssets, &QTreeView::doubleClicked, this, &WQtAssetCuratorPanel::onListAssetsDoubleClicked);
+  connect(CheckIndirect, &QCheckBox::toggled, this, &WQtAssetCuratorPanel::onCheckIndirectToggled);
+  connect(ListAssets, &QWidget::customContextMenuRequested, this, &WQtAssetCuratorPanel::onListAssetsContextMenuRequested);
 
-  ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
+  WAssetProcessor::GetSingleton()->AddLogWriter(WMakeDelegate(&WQtAssetCuratorPanel::LogWriter, this));
 
   ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
   ProcessorProgress->SetScrollBarWidget(ProcessorScrollBar);
 
-  m_pFilter = new ezQtAssetCuratorFilter(this);
-  m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
+  m_pFilter = new WQtAssetCuratorFilter(this);
+  m_Model = QSharedPointer<WQtAssetBrowserModel>(new WQtAssetBrowserModel(this, m_pFilter));
   m_Model->Initialize();
   m_Model->SetIconMode(false);
 
@@ -109,10 +109,10 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   ListAssets->setModel(m_Model.data());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-  EZ_VERIFY(
-    connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
+  W_VERIFY(
+    connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &WQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::dataChanged, this,
+  W_VERIFY(connect(m_Model.data(), &QAbstractItemModel::dataChanged, this,
               [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
               {
                 if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
@@ -122,7 +122,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
               }),
     "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::modelReset, this,
+  W_VERIFY(connect(m_Model.data(), &QAbstractItemModel::modelReset, this,
               [this]()
               {
                 m_SelectedIndex = QPersistentModelIndex();
@@ -133,28 +133,28 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   // An asset can become (or stop being) an indirect issue without ever entering the list, so the
   // model's own signals are not enough to keep the count current - listen to the curator instead.
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetCuratorPanel::AssetCuratorEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtAssetCuratorPanel::AssetCuratorEventHandler, this));
 
   UpdateIndirectIssueCount();
 
-  EZ_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &ezQtAssetProcessorProgressWidget::ClearHistory), "");
+  W_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &WQtAssetProcessorProgressWidget::ClearHistory), "");
 }
 
-ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
+WQtAssetCuratorPanel::~WQtAssetCuratorPanel()
 {
-  ezAssetProcessor::GetSingleton()->RemoveLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetCuratorPanel::AssetCuratorEventHandler, this));
+  WAssetProcessor::GetSingleton()->RemoveLogWriter(WMakeDelegate(&WQtAssetCuratorPanel::LogWriter, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtAssetCuratorPanel::AssetCuratorEventHandler, this));
 }
 
-void ezQtAssetCuratorPanel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+void WQtAssetCuratorPanel::AssetCuratorEventHandler(const WAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezAssetCuratorEvent::Type::AssetAdded:
-    case ezAssetCuratorEvent::Type::AssetMoved:
-    case ezAssetCuratorEvent::Type::AssetRemoved:
-    case ezAssetCuratorEvent::Type::AssetUpdated:
-    case ezAssetCuratorEvent::Type::AssetListReset:
+    case WAssetCuratorEvent::Type::AssetAdded:
+    case WAssetCuratorEvent::Type::AssetMoved:
+    case WAssetCuratorEvent::Type::AssetRemoved:
+    case WAssetCuratorEvent::Type::AssetUpdated:
+    case WAssetCuratorEvent::Type::AssetListReset:
       ScheduleIndirectIssueCountUpdate();
       break;
 
@@ -163,7 +163,7 @@ void ezQtAssetCuratorPanel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
   }
 }
 
-void ezQtAssetCuratorPanel::ScheduleIndirectIssueCountUpdate()
+void WQtAssetCuratorPanel::ScheduleIndirectIssueCountUpdate()
 {
   // Curator events arrive in bursts, so coalesce them - recounting walks all known assets.
   if (m_bIndirectCountScheduled)
@@ -178,7 +178,7 @@ void ezQtAssetCuratorPanel::ScheduleIndirectIssueCountUpdate()
     });
 }
 
-void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+void WQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (selected.isEmpty())
     m_SelectedIndex = QModelIndex();
@@ -188,19 +188,19 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
   UpdateIssueInfo();
 }
 
-void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
+void WQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
-  QString sAbsPath = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+  QString sAbsPath = m_Model->data(index, WQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
-  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
+  WQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
 }
 
-QModelIndex ezQtAssetCuratorPanel::GetContextMenuTarget() const
+QModelIndex WQtAssetCuratorPanel::GetContextMenuTarget() const
 {
   return ListAssets->selectionModel()->currentIndex();
 }
 
-void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
+void WQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
 {
   // make the item under the cursor the current one, so that the menu always acts on what was clicked
   const QModelIndex clicked = ListAssets->indexAt(pos);
@@ -215,7 +215,7 @@ void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
 
   QMenu menu;
 
-  QAction* pOpen = menu.addAction(ezMakeQString(ezTranslate("AssetCurator.OpenDocument")));
+  QAction* pOpen = menu.addAction(WMakeQString(WTranslate("AssetCurator.OpenDocument")));
   connect(pOpen, &QAction::triggered, this, [this]()
     {
       const QModelIndex idx = GetContextMenuTarget();
@@ -223,19 +223,19 @@ void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
         onListAssetsDoubleClicked(idx); //
     });
 
-  QAction* pSelect = menu.addAction(ezMakeQString(ezTranslate("AssetCurator.SelectInAssetBrowser")));
+  QAction* pSelect = menu.addAction(WMakeQString(WTranslate("AssetCurator.SelectInAssetBrowser")));
   connect(pSelect, &QAction::triggered, this, [this]()
     {
       const QModelIndex idx = GetContextMenuTarget();
       if (!idx.isValid())
         return;
 
-      const ezUuid assetGuid = m_Model->data(idx, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+      const WUuid assetGuid = m_Model->data(idx, WQtAssetBrowserModel::UserRoles::AssetGuid).value<WUuid>();
       if (!assetGuid.IsValid())
         return;
 
-      ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(assetGuid);
-      ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible(); //
+      WQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(assetGuid);
+      WQtAssetBrowserPanel::GetSingleton()->EnsureVisible(); //
     });
 
   // the double click default action is 'open', so make that the bold default entry as well
@@ -244,25 +244,25 @@ void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
   menu.exec(ListAssets->viewport()->mapToGlobal(pos));
 }
 
-void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
+void WQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
 {
   m_pFilter->SetFilterTransitive(!checked);
   m_Model->resetModel();
   UpdateIndirectIssueCount();
 }
 
-void ezQtAssetCuratorPanel::UpdateIndirectIssueCount()
+void WQtAssetCuratorPanel::UpdateIndirectIssueCount()
 {
-  ezUInt32 uiIndirect = 0;
+  WUInt32 uiIndirect = 0;
 
   {
-    ezAssetCurator::ezLockedSubAssetTable allAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+    WAssetCurator::WLockedSubAssetTable allAssetsLocked = WAssetCurator::GetSingleton()->GetKnownSubAssets();
 
     for (auto it : *allAssetsLocked)
     {
-      const ezSubAsset* pSubAsset = &it.Value();
+      const WSubAsset* pSubAsset = &it.Value();
 
-      if (ezQtAssetCuratorFilter::HasIssue(pSubAsset) && ezQtAssetCuratorFilter::IsIndirectIssue(pSubAsset))
+      if (WQtAssetCuratorFilter::HasIssue(pSubAsset) && WQtAssetCuratorFilter::IsIndirectIssue(pSubAsset))
       {
         ++uiIndirect;
       }
@@ -275,20 +275,20 @@ void ezQtAssetCuratorPanel::UpdateIndirectIssueCount()
   }
   else
   {
-    ezStringBuilder sText;
+    WStringBuilder sText;
     sText.SetFormat(uiIndirect == 1 ? "Show {} Indirect Issue" : "Show {} Indirect Issues", uiIndirect);
-    CheckIndirect->setText(ezMakeQString(sText));
+    CheckIndirect->setText(WMakeQString(sText));
   }
 }
 
-void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
+void WQtAssetCuratorPanel::LogWriter(const WLoggingEventData& e)
 {
   // Can be called from a different thread, but AddLogMsg is thread safe.
-  ezLogEntry msg(e);
+  WLogEntry msg(e);
   CuratorLog->GetLog()->AddLogMsg(msg);
 }
 
-void ezQtAssetCuratorPanel::UpdateIssueInfo()
+void WQtAssetCuratorPanel::UpdateIssueInfo()
 {
   if (!m_SelectedIndex.isValid())
   {
@@ -296,8 +296,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return;
   }
 
-  ezUuid assetGuid = m_Model->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
-  auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+  WUuid assetGuid = m_Model->data(m_SelectedIndex, WQtAssetBrowserModel::UserRoles::AssetGuid).value<WUuid>();
+  auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (pSubAsset == nullptr)
   {
     TransformLog->GetLog()->Clear();
@@ -306,48 +306,48 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   TransformLog->GetLog()->Clear();
 
-  ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
+  WAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [&pSubAsset](const ezString& sDep) -> ezStringBuilder
+  auto getNiceName = [&pSubAsset](const WString& sDep) -> WStringBuilder
   {
-    if (ezConversionUtils::IsStringUuid(sDep))
+    if (WConversionUtils::IsStringUuid(sDep))
     {
-      ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
-      auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+      WUuid guid = WConversionUtils::ConvertStringToUuid(sDep);
+      auto assetInfoDep = WAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
         return assetInfoDep->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
       }
 
-      ezUInt64 uiLow;
-      ezUInt64 uiHigh;
+      WUInt64 uiLow;
+      WUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
 
-      ezString sDocumentPath = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
+      WString sDocumentPath = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
 
       // Open the document (without requesting a window)
-      ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
+      WDocument* pDocument = WQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, WDocumentFlags::None);
 
-      constexpr ezUInt32 maxResults = 3;
-      ezTempHybridArray<ezAssetDocument::AssetUsage, maxResults> uses;
+      constexpr WUInt32 maxResults = 3;
+      WTempHybridArray<WAssetDocument::AssetUsage, maxResults> uses;
       if (pDocument != nullptr)
       {
-        // cast a document to ezAssetDocument to access the FindAssetUsages function.
-        if (ezAssetDocument* pAssetDoc = ezDynamicCast<ezAssetDocument*>(pDocument))
+        // cast a document to WAssetDocument to access the FindAssetUsages function.
+        if (WAssetDocument* pAssetDoc = WDynamicCast<WAssetDocument*>(pDocument))
         {
           // Find all direct uses of this asset
           pAssetDoc->FindAssetUsages(sDep, uses, maxResults);
         }
       }
 
-      ezStringBuilder sTmp;
+      WStringBuilder sTmp;
       if (uses.IsEmpty())
       {
         sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
       }
       else
       {
-        ezStringBuilder usesString;
+        WStringBuilder usesString;
         for (auto& use : uses)
         {
           if (!usesString.IsEmpty())
@@ -366,49 +366,49 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return sDep;
   };
 
-  ezLogEntryDelegate logger(([this](ezLogEntry& ref_entry) -> void
+  WLogEntryDelegate logger(([this](WLogEntry& ref_entry) -> void
     { TransformLog->GetLog()->AddLogMsg(std::move(ref_entry)); }));
-  ezStringBuilder text;
-  if (pAssetInfo->m_TransformState == ezAssetInfo::MissingTransformDependency)
+  WStringBuilder text;
+  if (pAssetInfo->m_TransformState == WAssetInfo::MissingTransformDependency)
   {
-    ezLog::Error(&logger, "Missing Transform Dependency:");
-    for (const ezString& dep : pAssetInfo->m_MissingTransformDeps)
+    WLog::Error(&logger, "Missing Transform Dependency:");
+    for (const WString& dep : pAssetInfo->m_MissingTransformDeps)
     {
-      ezStringBuilder m_sNiceName = getNiceName(dep);
-      ezLog::Error(&logger, "{0}", m_sNiceName);
+      WStringBuilder m_sNiceName = getNiceName(dep);
+      WLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
-  else if (pAssetInfo->m_TransformState == ezAssetInfo::CircularDependency)
+  else if (pAssetInfo->m_TransformState == WAssetInfo::CircularDependency)
   {
-    ezLog::Error(&logger, "Circular Dependency:");
-    for (const ezString& ref : pAssetInfo->m_CircularDependencies)
+    WLog::Error(&logger, "Circular Dependency:");
+    for (const WString& ref : pAssetInfo->m_CircularDependencies)
     {
-      ezStringBuilder m_sNiceName = getNiceName(ref);
-      ezLog::Error(&logger, "{0}", m_sNiceName);
+      WStringBuilder m_sNiceName = getNiceName(ref);
+      WLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
-  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
+  else if (pAssetInfo->m_TransformState == WAssetInfo::MissingThumbnailDependency)
   {
-    ezLog::Error(&logger, "Missing Thumbnail Dependency:");
-    for (const ezString& ref : pAssetInfo->m_MissingThumbnailDeps)
+    WLog::Error(&logger, "Missing Thumbnail Dependency:");
+    for (const WString& ref : pAssetInfo->m_MissingThumbnailDeps)
     {
-      ezStringBuilder m_sNiceName = getNiceName(ref);
-      ezLog::Error(&logger, "{0}", m_sNiceName);
+      WStringBuilder m_sNiceName = getNiceName(ref);
+      WLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
-  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
+  else if (pAssetInfo->m_TransformState == WAssetInfo::MissingPackageDependency)
   {
-    ezLog::Error(&logger, "Missing Package Dependency:");
-    for (const ezString& ref : pAssetInfo->m_MissingPackageDeps)
+    WLog::Error(&logger, "Missing Package Dependency:");
+    for (const WString& ref : pAssetInfo->m_MissingPackageDeps)
     {
-      ezStringBuilder m_sNiceName = getNiceName(ref);
-      ezLog::Error(&logger, "{0}", m_sNiceName);
+      WStringBuilder m_sNiceName = getNiceName(ref);
+      WLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
-  else if (pAssetInfo->m_TransformState == ezAssetInfo::TransformError)
+  else if (pAssetInfo->m_TransformState == WAssetInfo::TransformError)
   {
-    ezLog::Error(&logger, "Transform Error:");
-    for (const ezLogEntry& logEntry : pAssetInfo->m_LogEntries)
+    WLog::Error(&logger, "Transform Error:");
+    for (const WLogEntry& logEntry : pAssetInfo->m_LogEntries)
     {
       TransformLog->GetLog()->AddLogMsg(logEntry);
     }

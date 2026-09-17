@@ -3,18 +3,18 @@
 #include <BakingPlugin/Tracer/TracerInterface.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class EZ_BAKINGPLUGIN_DLL ezTracerEmbree : public ezTracerInterface
+class W_BAKINGPLUGIN_DLL WTracerEmbree : public WTracerInterface
 {
 public:
-  ezTracerEmbree();
-  ~ezTracerEmbree();
+  WTracerEmbree();
+  ~WTracerEmbree();
 
-  virtual ezResult BuildScene(const ezBakingScene& scene) override;
+  virtual WResult BuildScene(const WBakingScene& scene) override;
 
-  virtual void TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits) override;
+  virtual void TraceRays(WArrayPtr<const Ray> rays, WArrayPtr<Hit> hits) override;
 
 private:
   struct Data;
 
-  ezUniquePtr<Data> m_pData;
+  WUniquePtr<Data> m_pData;
 };

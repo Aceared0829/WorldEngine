@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_DISABLED(EZ_SUPPORTS_GLFW)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) && W_DISABLED(W_SUPPORTS_GLFW)
 
 #  include <Core/System/Window.h>
 #  include <Foundation/Basics.h>
@@ -8,13 +8,13 @@
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/SystemInformation.h>
 
-static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
+static LRESULT CALLBACK WWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-  ezWindowWin* pWindow = reinterpret_cast<ezWindowWin*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+  WWindowWin* pWindow = reinterpret_cast<WWindowWin*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
   if (pWindow != nullptr && pWindow->IsInitialized())
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_Win*>(pWindow->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_Win*>(pWindow->GetInputDevice()))
     {
       pInput->WindowMessage(msg, wparam, lparam);
     }
@@ -35,7 +35,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
 
       case WM_SIZE:
       {
-        ezSizeU32 size(LOWORD(lparam), HIWORD(lparam));
+        WSizeU32 size(LOWORD(lparam), HIWORD(lparam));
         pWindow->OnVisibleChange(wparam != SIZE_MINIMIZED);
         if (size.width > 0 && size.height > 0)
           pWindow->OnResize(size);
@@ -56,27 +56,27 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
       break;
     }
 
-    pWindow->OnWindowMessage(ezMinWindows::FromNative(hWnd), msg, wparam, lparam);
+    pWindow->OnWindowMessage(WMinWindows::FromNative(hWnd), msg, wparam, lparam);
   }
 
   return DefWindowProcW(hWnd, msg, wparam, lparam);
 }
 
-ezWindowWin::~ezWindowWin()
+WWindowWin::~WWindowWin()
 {
   DestroyWindow();
 }
 
-ezResult ezWindowWin::InitializeWindow()
+WResult WWindowWin::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindowWin::Initialize", m_CreationDescription.m_Title.GetData());
+  W_LOG_BLOCK("WWindowWin::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
     DestroyWindow();
   }
 
-  EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
+  W_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
 
   // Initialize window class
   WNDCLASSEXW windowClass = {};
@@ -86,8 +86,8 @@ ezResult ezWindowWin::InitializeWindow()
   windowClass.hIcon = LoadIcon(GetModuleHandleW(nullptr), MAKEINTRESOURCE(101)); /// \todo Expose icon functionality somehow (101 == IDI_ICON1, see resource.h)
   windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
   windowClass.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
-  windowClass.lpszClassName = L"ezWin32Window";
-  windowClass.lpfnWndProc = ezWindowsMessageFuncTrampoline;
+  windowClass.lpszClassName = L"WWin32Window";
+  windowClass.lpfnWndProc = WWindowsMessageFuncTrampoline;
 
   if (!RegisterClassExW(&windowClass)) /// \todo test & support for multiple windows
   {
@@ -95,15 +95,15 @@ ezResult ezWindowWin::InitializeWindow()
 
     if (error != ERROR_CLASS_ALREADY_EXISTS)
     {
-      ezLog::Error("Failed to create ezWindowWin window class! (error code '{0}')", ezArgErrorCode(error));
-      return EZ_FAILURE;
+      WLog::Error("Failed to create WWindowWin window class! (error code '{0}')", WArgErrorCode(error));
+      return W_FAILURE;
     }
   }
 
   // setup fullscreen mode
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::FullscreenFixedResolution)
   {
-    ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+    WLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
 
     DEVMODEW dmScreenSettings = {};
     dmScreenSettings.dmSize = sizeof(DEVMODEW);
@@ -114,10 +114,10 @@ ezResult ezWindowWin::InitializeWindow()
 
     if (ChangeDisplaySettingsW(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
     {
-      m_CreationDescription.m_WindowMode = ezWindowMode::FullscreenBorderlessNativeResolution;
-      EZ_SUCCEED_OR_RETURN(m_CreationDescription.AdjustWindowSizeAndPosition());
+      m_CreationDescription.m_WindowMode = WWindowMode::FullscreenBorderlessNativeResolution;
+      W_SUCCEED_OR_RETURN(m_CreationDescription.AdjustWindowSizeAndPosition());
 
-      ezLog::Error("Failed to change display resolution for fullscreen window. Falling back to borderless window.");
+      WLog::Error("Failed to change display resolution for fullscreen window. Falling back to borderless window.");
     }
   }
 
@@ -126,7 +126,7 @@ ezResult ezWindowWin::InitializeWindow()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-  if (m_CreationDescription.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
+  if (m_CreationDescription.m_bSetForegroundOnInit && !WSystemInformation::IsDebuggerAttached())
   {
     // use WS_EX_TOPMOST to force that the window shows up on top
     // this is the only thing that seems to be working reliably
@@ -134,20 +134,20 @@ ezResult ezWindowWin::InitializeWindow()
     dwExStyle |= WS_EX_TOPMOST;
   }
 
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == WWindowMode::WindowResizable)
   {
-    ezLog::Dev("Window is not fullscreen.");
+    WLog::Dev("Window is not fullscreen.");
     dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
   }
   else
   {
-    ezLog::Dev("Window is fullscreen.");
+    WLog::Dev("Window is fullscreen.");
     dwWindowStyle |= WS_POPUP;
   }
 
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::WindowResizable)
   {
-    ezLog::Dev("Window is resizable.");
+    WLog::Dev("Window is resizable.");
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
   }
 
@@ -156,7 +156,7 @@ ezResult ezWindowWin::InitializeWindow()
   RECT Rect = {0, 0, (LONG)m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
 
   // Account for left or top placed task bars
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == WWindowMode::WindowResizable)
   {
     // Adjust for borders and bars etc.
     AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
@@ -184,23 +184,23 @@ ezResult ezWindowWin::InitializeWindow()
   const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 
-  ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
+  WLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
 
 
   // create window
-  ezStringWChar sTitleWChar(m_CreationDescription.m_Title.GetData());
+  WStringWChar sTitleWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitleWCharRaw = sTitleWChar.GetData();
-  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitleWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
+  m_hWindowHandle = WMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitleWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
   if (m_hWindowHandle == INVALID_HANDLE_VALUE)
   {
-    ezLog::Error("Failed to create window.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create window.");
+    return W_FAILURE;
   }
 
-  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
+  auto windowHandle = WMinWindows::ToNative(m_hWindowHandle);
 
-  // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
+  // safe window pointer for lookup in WWindowsMessageFuncTrampoline
   SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // show window and activate if required
@@ -216,9 +216,9 @@ ezResult ezWindowWin::InitializeWindow()
   GetClientRect(windowHandle, &r);
 
   // Force size change to the desired size if CreateWindowExW 'fixed' the size to fit into your current monitor.
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution &&
-      (m_CreationDescription.m_Resolution.width != ezUInt32(r.right - r.left) ||
-        m_CreationDescription.m_Resolution.height != ezUInt32(r.bottom - r.top)))
+  if (m_CreationDescription.m_WindowMode == WWindowMode::WindowFixedResolution &&
+      (m_CreationDescription.m_Resolution.width != WUInt32(r.right - r.left) ||
+        m_CreationDescription.m_Resolution.height != WUInt32(r.bottom - r.top)))
   {
     ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, iWidth, iHeight, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
     GetClientRect(windowHandle, &r);
@@ -230,35 +230,35 @@ ezResult ezWindowWin::InitializeWindow()
 
 
   m_bInitialized = true;
-  ezLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
+  WLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
-  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, ezMinWindows::FromNative(windowHandle));
-  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
+  auto pInput = W_DEFAULT_NEW(WInputDeviceMouseKeyboard_Win, WMinWindows::FromNative(windowHandle));
+  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? WMouseCursorClipMode::ClipToWindowImmediate : WMouseCursorClipMode::NoClip);
   pInput->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   m_pInputDevice = std::move(pInput);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowWin::DestroyWindow()
+void WWindowWin::DestroyWindow()
 {
   if (!m_bInitialized)
     return;
 
-  if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_Win*>(GetInputDevice()))
+  if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard_Win*>(GetInputDevice()))
   {
-    pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+    pInput->SetClipMouseCursor(WMouseCursorClipMode::NoClip);
   }
 
-  EZ_LOG_BLOCK("ezWindowWin::Destroy");
+  W_LOG_BLOCK("WWindowWin::Destroy");
 
   m_pInputDevice = nullptr;
 
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::FullscreenFixedResolution)
     ChangeDisplaySettingsW(nullptr, 0);
 
-  HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+  HWND hWindow = WMinWindows::ToNative(GetNativeWindowHandle());
   // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
   // compiler :-(
   LONG_PTR pNull = 0;
@@ -267,32 +267,32 @@ void ezWindowWin::DestroyWindow()
 
   if (!::DestroyWindow(hWindow))
   {
-    ezLog::SeriousWarning("DestroyWindow failed.");
+    WLog::SeriousWarning("DestroyWindow failed.");
   }
 
   // actually nobody cares about this, all Window Classes are cleared when the application closes
   // in the mean time, having multiple windows will just result in errors when one is closed,
   // as the Window Class must not be in use anymore when one calls UnregisterClassW
-  // if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
+  // if (!UnregisterClassW(L"WWin32Window", GetModuleHandleW(nullptr)))
   //{
-  //  ezLog::SeriousWarning("UnregisterClassW failed.");
-  //  Res = EZ_FAILURE;
+  //  WLog::SeriousWarning("UnregisterClassW failed.");
+  //  Res = W_FAILURE;
   //}
 
   m_bInitialized = false;
   m_hWindowHandle = INVALID_WINDOW_HANDLE_VALUE;
 
-  ezLog::Success("Window destroyed.");
+  WLog::Success("Window destroyed.");
 }
 
-ezResult ezWindowWin::Resize(const ezSizeU32& newWindowSize)
+WResult WWindowWin::Resize(const WSizeU32& newWindowSize)
 {
-  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
+  auto windowHandle = WMinWindows::ToNative(m_hWindowHandle);
   BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-  return res != FALSE ? EZ_SUCCESS : EZ_FAILURE;
+  return res != FALSE ? W_SUCCESS : W_FAILURE;
 }
 
-void ezWindowWin::ProcessWindowMessages()
+void WWindowWin::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -314,12 +314,12 @@ void ezWindowWin::ProcessWindowMessages()
   {
     // remove the WS_EX_TOPMOST flag again
     m_CreationDescription.m_bSetForegroundOnInit = false;
-    HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+    HWND hWindow = WMinWindows::ToNative(GetNativeWindowHandle());
     SetWindowPos(hWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
 }
 
-ezWindowHandle ezWindowWin::GetNativeWindowHandle() const
+WWindowHandle WWindowWin::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

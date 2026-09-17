@@ -6,7 +6,7 @@ Write-Host "Using $appPath"
 $failed = @()
 
 # Transform all assets
-Get-ChildItem -Path $PSScriptRoot\..\..\. -Filter ezProject -Recurse -File | ForEach-Object {
+Get-ChildItem -Path $PSScriptRoot\..\..\. -Filter WProject -Recurse -File | ForEach-Object {
     $projectDir = $_.Directory.FullName
 
     # A project with C++ code needs its plugin built before its assets can be transformed: a scene that

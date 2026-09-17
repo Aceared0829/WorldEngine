@@ -4,13 +4,13 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/ArrayPtr.h>
 
-class ezFormatString;
+class WFormatString;
 
 /// This class encapsulates building a DGML compatible graph.
-class EZ_FOUNDATION_DLL ezDGMLGraph
+class W_FOUNDATION_DLL WDGMLGraph
 {
 public:
-  enum class Direction : ezUInt8
+  enum class Direction : WUInt8
   {
     TopToBottom,
     BottomToTop,
@@ -18,14 +18,14 @@ public:
     RightToLeft
   };
 
-  enum class Layout : ezUInt8
+  enum class Layout : WUInt8
   {
     Free,
     Tree,
     DependencyMatrix
   };
 
-  enum class NodeShape : ezUInt8
+  enum class NodeShape : WUInt8
   {
     None,
     Rectangle,
@@ -33,93 +33,93 @@ public:
     Button
   };
 
-  enum class GroupType : ezUInt8
+  enum class GroupType : WUInt8
   {
     None,
     Expanded,
     Collapsed,
   };
 
-  using NodeId = ezUInt32;
-  using PropertyId = ezUInt32;
-  using ConnectionId = ezUInt32;
-  using CategoryId = ezUInt32;
+  using NodeId = WUInt32;
+  using PropertyId = WUInt32;
+  using ConnectionId = WUInt32;
+  using CategoryId = WUInt32;
 
   struct NodeDesc
   {
-    ezColor m_Color = ezColor::White;
+    WColor m_Color = WColor::White;
     NodeShape m_Shape = NodeShape::Rectangle;
   };
 
   /// Constructor for the graph.
-  ezDGMLGraph(Direction graphDirection = Direction::LeftToRight, Layout graphLayout = Layout::Tree);
+  WDGMLGraph(Direction graphDirection = Direction::LeftToRight, Layout graphLayout = Layout::Tree);
 
   /// Adds a node to the graph.
   /// Adds a node to the graph and returns the node id which can be used to reference the node later to add connections etc.
-  NodeId AddNode(ezStringView sTitle, const NodeDesc* pDesc = nullptr);
+  NodeId AddNode(WStringView sTitle, const NodeDesc* pDesc = nullptr);
 
   /// Adds a DGML node that can act as a group for other nodes
-  NodeId AddGroup(ezStringView sTitle, GroupType type, const NodeDesc* pDesc = nullptr);
+  NodeId AddGroup(WStringView sTitle, GroupType type, const NodeDesc* pDesc = nullptr);
 
   /// Inserts a node into an existing group node.
   void AddNodeToGroup(NodeId node, NodeId group);
 
   /// Adds a category with a display color. Returns the category id for use with AddConnection.
-  CategoryId AddConnectionCategory(ezStringView sName, const ezColor& color);
+  CategoryId AddConnectionCategory(WStringView sName, const WColor& color);
 
   /// Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {}, CategoryId category = ezInvalidIndex);
+  ConnectionId AddConnection(NodeId source, NodeId target, WStringView sLabel = {}, CategoryId category = WInvalidIndex);
 
   /// Adds a property type. All properties currently use the data type 'string'
-  PropertyId AddPropertyType(ezStringView sName);
+  PropertyId AddPropertyType(WStringView sName);
 
   /// Adds a property of the specified type with the given value to a node
-  void AddNodeProperty(NodeId node, PropertyId property, const ezFormatString& fmt);
+  void AddNodeProperty(NodeId node, PropertyId property, const WFormatString& fmt);
 
 protected:
-  friend class ezDGMLGraphWriter;
+  friend class WDGMLGraphWriter;
 
   struct ConnectionCategory
   {
-    ezString m_sName;
-    ezColor m_Color;
+    WString m_sName;
+    WColor m_Color;
   };
 
   struct Connection
   {
     NodeId m_Source;
     NodeId m_Target;
-    ezString m_sLabel;
-    CategoryId m_uiCategory = ezInvalidIndex;
+    WString m_sLabel;
+    CategoryId m_uiCategory = WInvalidIndex;
   };
 
   struct PropertyType
   {
-    ezString m_Name;
+    WString m_Name;
   };
 
   struct PropertyValue
   {
     PropertyId m_PropertyId;
-    ezString m_sValue;
+    WString m_sValue;
   };
 
   struct Node
   {
-    ezString m_Title;
+    WString m_Title;
     GroupType m_GroupType = GroupType::None;
     NodeId m_ParentGroup = 0xFFFFFFFF;
     NodeDesc m_Desc;
-    ezDynamicArray<PropertyValue> m_Properties;
+    WDynamicArray<PropertyValue> m_Properties;
   };
 
-  ezHybridArray<Node, 16> m_Nodes;
+  WHybridArray<Node, 16> m_Nodes;
 
-  ezHybridArray<Connection, 32> m_Connections;
+  WHybridArray<Connection, 32> m_Connections;
 
-  ezHybridArray<ConnectionCategory, 16> m_ConnectionCategories;
+  WHybridArray<ConnectionCategory, 16> m_ConnectionCategories;
 
-  ezHybridArray<PropertyType, 16> m_PropertyTypes;
+  WHybridArray<PropertyType, 16> m_PropertyTypes;
 
   Direction m_Direction;
 
@@ -127,12 +127,12 @@ protected:
 };
 
 /// This class encapsulates the output of DGML compatible graphs to files and streams.
-class EZ_FOUNDATION_DLL ezDGMLGraphWriter
+class W_FOUNDATION_DLL WDGMLGraphWriter
 {
 public:
   /// Helper method to write the graph to a file.
-  static ezResult WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& graph);
+  static WResult WriteGraphToFile(WStringView sFileName, const WDGMLGraph& graph);
 
   /// Writes the graph as a DGML formatted document to the given string builder.
-  static ezResult WriteGraphToString(ezStringBuilder& ref_sStringBuilder, const ezDGMLGraph& graph);
+  static WResult WriteGraphToString(WStringBuilder& ref_sStringBuilder, const WDGMLGraph& graph);
 };

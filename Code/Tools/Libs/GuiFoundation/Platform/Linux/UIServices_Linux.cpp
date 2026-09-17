@@ -1,13 +1,13 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 
 #  include <GuiFoundation/UIServices/UIServices.moc.h>
 
-void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
+void WQtUiServices::OpenInExplorer(WStringView sPath, bool bIsFile)
 {
   QStringList args;
-  ezStringBuilder parentDir;
+  WStringBuilder parentDir;
 
   if (bIsFile)
   {
@@ -15,24 +15,24 @@ void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
     parentDir = parentDir.GetFileDirectory();
     sPath = parentDir.GetData();
   }
-  args << QDir::toNativeSeparators(ezMakeQString(sPath));
+  args << QDir::toNativeSeparators(WMakeQString(sPath));
 
   QProcess::startDetached("xdg-open", args);
 }
 
-void ezQtUiServices::OpenWith(ezStringView sPath0)
+void WQtUiServices::OpenWith(WStringView sPath0)
 {
-  ezStringBuilder sPath = sPath0;
+  WStringBuilder sPath = sPath0;
   sPath.MakeCleanPath();
   sPath.MakePathSeparatorsNative();
 
-  ezLog::Error("ezQtUiServices::OpenWith() not implemented on Linux");
+  WLog::Error("WQtUiServices::OpenWith() not implemented on Linux");
 }
 
-ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
+WStatus WQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
-  ezLog::Error("ezQtUiServices::OpenInVsCode() not implemented on Linux");
-  return ezStatus(EZ_FAILURE);
+  WLog::Error("WQtUiServices::OpenInVsCode() not implemented on Linux");
+  return WStatus(W_FAILURE);
 }
 
 #endif

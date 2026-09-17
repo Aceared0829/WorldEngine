@@ -1,33 +1,33 @@
 #pragma once
 
-#ifndef EZ_INCLUDING_BASICS_H
+#ifndef W_INCLUDING_BASICS_H
 #  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
 #endif
 
 //Note: duplicate from Foundation/Math/Declarations.h
 template <typename Type>
-class ezAngleTemplate;
-using ezAngle = ezAngleTemplate<float>;
-using ezAngled = ezAngleTemplate<double>;
+class WAngleTemplate;
+using WAngle = WAngleTemplate<float>;
+using WAngled = WAngleTemplate<double>;
 
 
-class ezRTTI;
-class ezStringBuilder;
-class ezVariant;
-class ezRational;
-struct ezTime;
-
-template <typename T>
-struct ezEnum;
-template <typename T>
-struct ezBitflags;
+class WRTTI;
+class WStringBuilder;
+class WVariant;
+class WRational;
+struct WTime;
 
 template <typename T>
-const ezRTTI* ezGetStaticRTTI();
+struct WEnum;
+template <typename T>
+struct WBitflags;
 
-struct ezArgI
+template <typename T>
+const WRTTI* WGetStaticRTTI();
+
+struct WArgI
 {
-  inline explicit ezArgI(ezInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10)
+  inline explicit WArgI(WInt64 value, WUInt8 uiWidth = 1, bool bPadWithZeros = false, WUInt8 uiBase = 10)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -35,15 +35,15 @@ struct ezArgI
   {
   }
 
-  ezInt64 m_Value;
-  ezUInt8 m_uiWidth;
+  WInt64 m_Value;
+  WUInt8 m_uiWidth;
   bool m_bPadWithZeros;
-  ezUInt8 m_uiBase;
+  WUInt8 m_uiBase;
 };
 
-struct ezArgU
+struct WArgU
 {
-  inline explicit ezArgU(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10, bool bUpperCase = false)
+  inline explicit WArgU(WUInt64 value, WUInt8 uiWidth = 1, bool bPadWithZeros = false, WUInt8 uiBase = 10, bool bUpperCase = false)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -52,16 +52,16 @@ struct ezArgU
   {
   }
 
-  ezUInt64 m_Value;
-  ezUInt8 m_uiWidth;
+  WUInt64 m_Value;
+  WUInt8 m_uiWidth;
   bool m_bPadWithZeros;
   bool m_bUpperCase;
-  ezUInt8 m_uiBase;
+  WUInt8 m_uiBase;
 };
 
-struct ezArgF
+struct WArgF
 {
-  inline explicit ezArgF(double value, ezInt8 iPrecision = -1, bool bScientific = false, ezUInt8 uiWidth = 1, bool bPadWithZeros = false)
+  inline explicit WArgF(double value, WInt8 iPrecision = -1, bool bScientific = false, WUInt8 uiWidth = 1, bool bPadWithZeros = false)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -71,15 +71,15 @@ struct ezArgF
   }
 
   double m_Value;
-  ezUInt8 m_uiWidth;
+  WUInt8 m_uiWidth;
   bool m_bPadWithZeros;
   bool m_bScientific;
-  ezInt8 m_iPrecision;
+  WInt8 m_iPrecision;
 };
 
-struct ezArgC
+struct WArgC
 {
-  inline explicit ezArgC(char value)
+  inline explicit WArgC(char value)
     : m_Value(value)
   {
   }
@@ -87,9 +87,9 @@ struct ezArgC
   char m_Value;
 };
 
-struct ezArgP
+struct WArgP
 {
-  inline explicit ezArgP(const void* value)
+  inline explicit WArgP(const void* value)
     : m_Value(value)
   {
   }
@@ -106,9 +106,9 @@ struct ezArgP
 /// E.g.: For the default case base is 1000 and suffixes are the SI unit suffixes (i.e. K for kilo, M for mega etc.)
 ///       Thus 0 remains 0, 1 remains 1, 1000 becomes 1.00K, and 2534000 becomes 2.53M. But 999.999 will
 ///       end up being displayed as 1000.00K for base 1000 due to rounding.
-struct ezArgHumanReadable
+struct WArgHumanReadable
 {
-  inline ezArgHumanReadable(const double value, const ezUInt64 uiBase, const char* const* const pSuffixes, ezUInt32 uiSuffixCount)
+  inline WArgHumanReadable(const double value, const WUInt64 uiBase, const char* const* const pSuffixes, WUInt32 uiSuffixCount)
     : m_Value(value)
     , m_Base(uiBase)
     , m_Suffixes(pSuffixes)
@@ -116,32 +116,32 @@ struct ezArgHumanReadable
   {
   }
 
-  inline ezArgHumanReadable(const ezInt64 value, const ezUInt64 uiBase, const char* const* const pSuffixes, ezUInt32 uiSuffixCount)
-    : ezArgHumanReadable(static_cast<double>(value), uiBase, pSuffixes, uiSuffixCount)
+  inline WArgHumanReadable(const WInt64 value, const WUInt64 uiBase, const char* const* const pSuffixes, WUInt32 uiSuffixCount)
+    : WArgHumanReadable(static_cast<double>(value), uiBase, pSuffixes, uiSuffixCount)
   {
   }
 
-  inline explicit ezArgHumanReadable(const double value)
-    : ezArgHumanReadable(value, 1000u, m_DefaultSuffixes, EZ_ARRAY_SIZE(m_DefaultSuffixes))
+  inline explicit WArgHumanReadable(const double value)
+    : WArgHumanReadable(value, 1000u, m_DefaultSuffixes, W_ARRAY_SIZE(m_DefaultSuffixes))
   {
   }
 
-  inline explicit ezArgHumanReadable(const ezInt64 value)
-    : ezArgHumanReadable(static_cast<double>(value), 1000u, m_DefaultSuffixes, EZ_ARRAY_SIZE(m_DefaultSuffixes))
+  inline explicit WArgHumanReadable(const WInt64 value)
+    : WArgHumanReadable(static_cast<double>(value), 1000u, m_DefaultSuffixes, W_ARRAY_SIZE(m_DefaultSuffixes))
   {
   }
 
   const double m_Value;
-  const ezUInt64 m_Base;
+  const WUInt64 m_Base;
   const char* const* const m_Suffixes;
   const char* const m_DefaultSuffixes[6] = {"", "K", "M", "G", "T", "P"};
-  const ezUInt32 m_SuffixCount;
+  const WUInt32 m_SuffixCount;
 };
 
-struct ezArgFileSize : public ezArgHumanReadable
+struct WArgFileSize : public WArgHumanReadable
 {
-  inline explicit ezArgFileSize(const ezUInt64 value)
-    : ezArgHumanReadable(static_cast<double>(value), 1024u, m_ByteSuffixes, EZ_ARRAY_SIZE(m_ByteSuffixes))
+  inline explicit WArgFileSize(const WUInt64 value)
+    : WArgHumanReadable(static_cast<double>(value), 1024u, m_ByteSuffixes, W_ARRAY_SIZE(m_ByteSuffixes))
   {
   }
 
@@ -156,88 +156,88 @@ struct ezArgFileSize : public ezArgHumanReadable
 /// \param sSensitiveInfo The information that may need to be scrambled.
 /// \param szContext A custom string to identify the 'context', ie. what type of sensitive data is being scrambled.
 ///        This may be passed through unmodified, or can guide the scrambling function to choose how to output the sensitive data.
-struct ezArgSensitive
+struct WArgSensitive
 {
-  inline explicit ezArgSensitive(const ezStringView& sSensitiveInfo, const char* szContext = nullptr)
+  inline explicit WArgSensitive(const WStringView& sSensitiveInfo, const char* szContext = nullptr)
     : m_sSensitiveInfo(sSensitiveInfo)
     , m_szContext(szContext)
   {
   }
 
-  const ezStringView m_sSensitiveInfo;
+  const WStringView m_sSensitiveInfo;
   const char* m_szContext;
 
-  using BuildStringCallback = ezStringView (*)(char*, ezUInt32, const ezArgSensitive&);
-  EZ_FOUNDATION_DLL static BuildStringCallback s_BuildStringCB;
+  using BuildStringCallback = WStringView (*)(char*, WUInt32, const WArgSensitive&);
+  W_FOUNDATION_DLL static BuildStringCallback s_BuildStringCB;
 
   /// Set s_BuildStringCB to this function to enable scrambling of sensitive data.
-  EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
+  W_FOUNDATION_DLL static WStringView BuildString_SensitiveUserData_Hash(char* szTmp, WUInt32 uiLength, const WArgSensitive& arg);
 };
 
-/// Formats an ezEnum or ezBitflags value as its string representation using the reflection system.
+/// Formats an WEnum or WBitflags value as its string representation using the reflection system.
 ///
 /// By default the value name is output without the type prefix (e.g. "Value1" instead of "MyEnum::Value1"). Set bFullyQualifiedName to true to include the type prefix.
-/// Requires that the enum/bitflags type has been registered with the reflection system via EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_BEGIN_STATIC_REFLECTED_BITFLAGS.
-struct ezArgEnum
+/// Requires that the enum/bitflags type has been registered with the reflection system via W_BEGIN_STATIC_REFLECTED_ENUM / W_BEGIN_STATIC_REFLECTED_BITFLAGS.
+struct WArgEnum
 {
   template <typename T>
-  inline explicit ezArgEnum(ezEnum<T> value, bool bFullyQualifiedName = false)
-    : m_pType(ezGetStaticRTTI<T>())
-    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+  inline explicit WArgEnum(WEnum<T> value, bool bFullyQualifiedName = false)
+    : m_pType(WGetStaticRTTI<T>())
+    , m_iValue(static_cast<WInt64>(value.GetValue()))
     , m_bFullyQualifiedName(bFullyQualifiedName)
   {
   }
 
   template <typename T>
-  inline explicit ezArgEnum(ezBitflags<T> value, bool bFullyQualifiedName = false)
-    : m_pType(ezGetStaticRTTI<T>())
-    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+  inline explicit WArgEnum(WBitflags<T> value, bool bFullyQualifiedName = false)
+    : m_pType(WGetStaticRTTI<T>())
+    , m_iValue(static_cast<WInt64>(value.GetValue()))
     , m_bFullyQualifiedName(bFullyQualifiedName)
   {
   }
 
-  const ezRTTI* m_pType = nullptr;
-  ezInt64 m_iValue = 0;
+  const WRTTI* m_pType = nullptr;
+  WInt64 m_iValue = 0;
   bool m_bFullyQualifiedName = false;
 };
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgI& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt64 iArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt32 iArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgU& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezUInt64 uiArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezUInt32 uiArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgF& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, double fArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, bool bArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char* szArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezStringBuilder& sArg);
-EZ_FOUNDATION_DLL const ezStringView& BuildString(char* szTmp, ezUInt32 uiLength, const ezStringView& sArg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgC& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgP& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezResult arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezVariant& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezAngle& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezRational& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgHumanReadable& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTime& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgEnum& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgI& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, WInt64 iArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, WInt32 iArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgU& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, WUInt64 uiArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, WUInt32 uiArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgF& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, double fArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, bool bArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const char* szArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const wchar_t* pArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WStringBuilder& sArg);
+W_FOUNDATION_DLL const WStringView& BuildString(char* szTmp, WUInt32 uiLength, const WStringView& sArg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgC& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgP& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, WResult arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WVariant& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WAngle& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WRational& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgHumanReadable& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WTime& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgSensitive& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgEnum& arg);
 
 
-#if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
+#if W_ENABLED(W_COMPILER_GCC) || W_ENABLED(W_COMPILER_CLANG)
 
 // on these platforms "long int" is a different type from "long long int"
 
-EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, long int iArg)
+W_ALWAYS_INLINE WStringView BuildString(char* szTmp, WUInt32 uiLength, long int iArg)
 {
-  return BuildString(szTmp, uiLength, static_cast<ezInt64>(iArg));
+  return BuildString(szTmp, uiLength, static_cast<WInt64>(iArg));
 }
 
-EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, unsigned long int uiArg)
+W_ALWAYS_INLINE WStringView BuildString(char* szTmp, WUInt32 uiLength, unsigned long int uiArg)
 {
-  return BuildString(szTmp, uiLength, static_cast<ezUInt64>(uiArg));
+  return BuildString(szTmp, uiLength, static_cast<WUInt64>(uiArg));
 }
 
 #endif

@@ -5,40 +5,40 @@
 #include <QPoint>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezNonUniformBoxGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WNonUniformBoxGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNonUniformBoxGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WNonUniformBoxGizmo, WGizmo);
 
 public:
-  ezNonUniformBoxGizmo();
+  WNonUniformBoxGizmo();
 
-  void SetSize(const ezVec3& vNegSize, const ezVec3& vPosSize, bool bLinkAxis = false);
+  void SetSize(const WVec3& vNegSize, const WVec3& vPosSize, bool bLinkAxis = false);
 
-  const ezVec3& GetNegSize() const { return m_vNegSize; }
-  const ezVec3& GetPosSize() const { return m_vPosSize; }
+  const WVec3& GetNegSize() const { return m_vNegSize; }
+  const WVec3& GetPosSize() const { return m_vPosSize; }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
 private:
-  ezResult GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
+  WResult GetPointOnAxis(WInt32 iScreenPosX, WInt32 iScreenPosY, WVec3& out_Result) const;
 
-  ezTime m_LastInteraction;
-  ezMat4 m_mInvViewProj;
+  WTime m_LastInteraction;
+  WMat4 m_mInvViewProj;
 
-  ezVec2I32 m_vLastMousePos;
+  WVec2I32 m_vLastMousePos;
 
-  ezEngineGizmoHandle m_hOutline;
-  ezEngineGizmoHandle m_Nobs[6];
-  ezVec3 m_vMainAxis[6];
+  WEngineGizmoHandle m_hOutline;
+  WEngineGizmoHandle m_Nobs[6];
+  WVec3 m_vMainAxis[6];
 
   enum ManipulateMode
   {
@@ -53,13 +53,13 @@ private:
 
   ManipulateMode m_ManipulateMode = ManipulateMode::None;
 
-  ezVec3 m_vNegSize;
-  ezVec3 m_vPosSize;
-  ezVec3 m_vStartNegSize;
-  ezVec3 m_vStartPosSize;
-  ezVec3 m_vMoveAxis;
-  ezVec3 m_vStartPosition;
-  ezVec3 m_vInteractionPivot;
+  WVec3 m_vNegSize;
+  WVec3 m_vPosSize;
+  WVec3 m_vStartNegSize;
+  WVec3 m_vStartPosSize;
+  WVec3 m_vMoveAxis;
+  WVec3 m_vStartPosition;
+  WVec3 m_vInteractionPivot;
   float m_fStartScale = 1.0f;
   bool m_bLinkAxis = false;
 };

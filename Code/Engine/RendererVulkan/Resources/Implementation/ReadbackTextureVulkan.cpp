@@ -4,16 +4,16 @@
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 
-ezGALReadbackTextureVulkan::ezGALReadbackTextureVulkan(const ezGALTextureCreationDescription& Description)
-  : ezGALReadbackTexture(Description)
+WGALReadbackTextureVulkan::WGALReadbackTextureVulkan(const WGALTextureCreationDescription& Description)
+  : WGALReadbackTexture(Description)
 {
 }
 
-ezGALReadbackTextureVulkan::~ezGALReadbackTextureVulkan() = default;
+WGALReadbackTextureVulkan::~WGALReadbackTextureVulkan() = default;
 
-ezResult ezGALReadbackTextureVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackTextureVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  m_pDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDevice = static_cast<WGALDeviceVulkan*>(pDevice);
 
   vk::BufferCreateInfo bufferCreateInfo;
   bufferCreateInfo.usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer;
@@ -21,31 +21,31 @@ ezResult ezGALReadbackTextureVulkan::InitPlatform(ezGALDevice* pDevice)
   bufferCreateInfo.queueFamilyIndexCount = 0;
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
 
-  ezHybridArray<ezGALTextureVulkan::SubResourceOffset, 8> subResourceSizes;
-  bufferCreateInfo.size = ezGALTextureVulkan::ComputeSubResourceOffsets(m_pDevice, m_Description, subResourceSizes);
+  WHybridArray<WGALTextureVulkan::SubResourceOffset, 8> subResourceSizes;
+  bufferCreateInfo.size = WGALTextureVulkan::ComputeSubResourceOffsets(m_pDevice, m_Description, subResourceSizes);
 
-  ezVulkanAllocationCreateInfo allocCreateInfo;
-  allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom /*| ezVulkanAllocationCreateFlags::Mapped*/;
+  WVulkanAllocationCreateInfo allocCreateInfo;
+  allocCreateInfo.m_usage = WVulkanMemoryUsage::Auto;
+  allocCreateInfo.m_flags = WVulkanAllocationCreateFlags::HostAccessRandom /*| WVulkanAllocationCreateFlags::Mapped*/;
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pBufferAlloc, &m_BufferAllocInfo));
-  return EZ_SUCCESS;
+  VK_ASSERT_DEV(WMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pBufferAlloc, &m_BufferAllocInfo));
+  return W_SUCCESS;
 }
 
-ezResult ezGALReadbackTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackTextureVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
   if (m_Buffer)
   {
-    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+    WGALDeviceVulkan* pVulkanDevice = static_cast<WGALDeviceVulkan*>(pDevice);
     pVulkanDevice->DeleteLater(m_Buffer, m_pBufferAlloc);
     m_BufferAllocInfo = {};
     m_Buffer = nullptr;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALReadbackTextureVulkan::SetDebugNamePlatform(const char* szName) const
+void WGALReadbackTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_pDevice->SetDebugName(szName, m_Buffer, m_pBufferAlloc);
 }

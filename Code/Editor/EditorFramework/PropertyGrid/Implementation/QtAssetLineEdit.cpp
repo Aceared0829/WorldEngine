@@ -3,12 +3,12 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 
-ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* pParent /*= nullptr*/)
+WQtAssetLineEdit::WQtAssetLineEdit(QWidget* pParent /*= nullptr*/)
   : QLineEdit(pParent)
 {
 }
 
-void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
+void WQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -23,7 +23,7 @@ void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
   QLineEdit::dragMoveEvent(e);
 }
 
-void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent* e)
+void WQtAssetLineEdit::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -38,7 +38,7 @@ void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent* e)
   QLineEdit::dragEnterEvent(e);
 }
 
-void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
+void WQtAssetLineEdit::dropEvent(QDropEvent* e)
 {
   if (e->source() == this)
   {
@@ -50,8 +50,8 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   {
     QString str = e->mimeData()->urls()[0].toLocalFile();
 
-    ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    WString sPath = str.toUtf8().data();
+    if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
       setText(QString::fromUtf8(sPath.GetData()));
     }
@@ -66,8 +66,8 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   {
     QString str = e->mimeData()->text();
 
-    ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    WString sPath = str.toUtf8().data();
+    if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
       setText(QString::fromUtf8(sPath.GetData()));
     }
@@ -78,7 +78,7 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   }
 }
 
-void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
+void WQtAssetLineEdit::paintEvent(QPaintEvent* e)
 {
   if (hasFocus())
   {
@@ -100,19 +100,19 @@ void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
     p.setClipRect(r);
 
     // Render asset name
-    ezStringBuilder sText = qtToEzString(text());
+    WStringBuilder sText = qtToEzString(text());
     if (sText.IsEmpty())
     {
       sText = qtToEzString(placeholderText());
     }
 
-    ezStringView sFinalText = sText;
+    WStringView sFinalText = sText;
 
     if (m_pOwner->IsValidAssetType(sText))
     {
       if (const char* szPipe = sFinalText.FindLastSubString("|"))
       {
-        sFinalText = ezStringView(szPipe + 1);
+        sFinalText = WStringView(szPipe + 1);
       }
       else
       {
@@ -123,11 +123,11 @@ void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
     r.adjust(2, 0, 2, 0);
     QTextOption opt(Qt::AlignLeft | Qt::AlignVCenter);
     opt.setWrapMode(QTextOption::NoWrap);
-    p.drawText(r, ezMakeQString(sFinalText), opt);
+    p.drawText(r, WMakeQString(sFinalText), opt);
   }
 }
 
-void ezQtAssetLineEdit::mousePressEvent(QMouseEvent* e)
+void WQtAssetLineEdit::mousePressEvent(QMouseEvent* e)
 {
   QLineEdit::mousePressEvent(e);
 

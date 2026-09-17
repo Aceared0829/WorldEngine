@@ -1,14 +1,14 @@
-ez_cmake_init()
-ez_requires_rmlui()
+W_cmake_init()
+W_requires_rmlui()
 
-get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+get_property(W_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY W_SUBMODULE_PREFIX_PATH)
 
 set (PROJECT_NAME "RmlCore")
 
-ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+W_create_target(LIBRARY ${PROJECT_NAME} NO_W_PREFIX)
 
 # override the default IDE folder
-ez_set_project_ide_folder(${PROJECT_NAME} "${EZ_ROOT}/Code/ThirdParty/RmlCore")
+W_set_project_ide_folder(${PROJECT_NAME} "${W_ROOT}/Code/ThirdParty/RmlCore")
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPORT)
 target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_CORE_EXPORTS)
@@ -21,8 +21,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../
 # Freetype
 target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_FONT_ENGINE_FREETYPE)
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
-  set(RMLUI_FREETYPE_PATH ${EZ_ROOT}/Code/ThirdParty/RmlUi/Dependencies/freetype)
+if(W_CMAKE_PLATFORM_WINDOWS)
+  set(RMLUI_FREETYPE_PATH ${W_ROOT}/Code/ThirdParty/RmlUi/Dependencies/freetype)
   target_include_directories(${PROJECT_NAME} PRIVATE "${RMLUI_FREETYPE_PATH}/Include")
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -38,7 +38,7 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
   )
 endif()
 
-if(EZ_CMAKE_PLATFORM_LINUX)
+if(W_CMAKE_PLATFORM_LINUX)
   find_package(Freetype)
   if(NOT Freetype_FOUND)
     message(FATAL_ERROR "Couldn't find freetype. Check your cmake prefix path or install your systems freetype package (e.g. libfreetype-dev).")

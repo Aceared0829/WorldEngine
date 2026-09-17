@@ -3,20 +3,20 @@
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-ezRemoteInterface::~ezRemoteInterface()
+WRemoteInterface::~WRemoteInterface()
 {
   // unfortunately we cannot do that ourselves here, because ShutdownConnection() calls virtual functions
   // and this object is already partially destructed here (derived class is already shut down)
-  EZ_ASSERT_DEV(m_RemoteMode == ezRemoteMode::None, "ezRemoteInterface::ShutdownConnection() has to be called before destroying the interface");
+  W_ASSERT_DEV(m_RemoteMode == WRemoteMode::None, "WRemoteInterface::ShutdownConnection() has to be called before destroying the interface");
 }
 
-ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, ezStringView sServerAddress, bool bStartUpdateThread)
+WResult WRemoteInterface::CreateConnection(WUInt32 uiConnectionToken, WRemoteMode mode, WStringView sServerAddress, bool bStartUpdateThread)
 {
-  ezUInt32 uiPrevID = m_uiApplicationID;
+  WUInt32 uiPrevID = m_uiApplicationID;
   ShutdownConnection();
   m_uiApplicationID = uiPrevID;
 
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
 
   m_uiConnectionToken = uiConnectionToken;
   m_sServerAddress = sServerAddress;
@@ -24,13 +24,13 @@ ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemot
   if (m_uiApplicationID == 0)
   {
     // create a 'unique' ID to identify this application
-    m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
+    m_uiApplicationID = (WUInt32)WTime::Now().GetSeconds();
   }
 
   if (InternalCreateConnection(mode, sServerAddress).Failed())
   {
     ShutdownConnection();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_RemoteMode = mode;
@@ -42,54 +42,54 @@ ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemot
     StartUpdateThread();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRemoteInterface::StartServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread /*= true*/)
+WResult WRemoteInterface::StartServer(WUInt32 uiConnectionToken, WStringView sAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezRemoteMode::Server, sAddress, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, WRemoteMode::Server, sAddress, bStartUpdateThread);
 }
 
-ezResult ezRemoteInterface::ConnectToServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread /*= true*/)
+WResult WRemoteInterface::ConnectToServer(WUInt32 uiConnectionToken, WStringView sAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezRemoteMode::Client, sAddress, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, WRemoteMode::Client, sAddress, bStartUpdateThread);
 }
 
-ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::MakeFromSeconds(10)*/)
+WResult WRemoteInterface::WaitForConnectionToServer(WTime timeout /*= WTime::MakeFromSeconds(10)*/)
 {
-  if (m_RemoteMode != ezRemoteMode::Client)
-    return EZ_FAILURE;
+  if (m_RemoteMode != WRemoteMode::Client)
+    return W_FAILURE;
 
-  const ezTime tStart = ezTime::Now();
+  const WTime tStart = WTime::Now();
 
   while (true)
   {
     UpdateRemoteInterface();
 
     if (IsConnectedToServer())
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
     if (timeout.GetSeconds() != 0)
     {
-      if (ezTime::Now() - tStart > timeout)
-        return EZ_FAILURE;
+      if (WTime::Now() - tStart > timeout)
+        return W_FAILURE;
     }
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
 }
 
-void ezRemoteInterface::ShutdownConnection()
+void WRemoteInterface::ShutdownConnection()
 {
   StopUpdateThread();
 
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
 
-  if (m_RemoteMode != ezRemoteMode::None)
+  if (m_RemoteMode != WRemoteMode::None)
   {
     InternalShutdownConnection();
 
-    m_RemoteMode = ezRemoteMode::None;
+    m_RemoteMode = WRemoteMode::None;
     m_uiApplicationID = 0;
     m_uiConnectionToken = 0;
     m_uiConnectedToServerWithID = 0;
@@ -97,122 +97,122 @@ void ezRemoteInterface::ShutdownConnection()
   }
 }
 
-void ezRemoteInterface::UpdatePingToServer()
+void WRemoteInterface::UpdatePingToServer()
 {
-  if (m_RemoteMode == ezRemoteMode::Server)
+  if (m_RemoteMode == WRemoteMode::Server)
   {
-    EZ_LOCK(GetMutex());
+    W_LOCK(GetMutex());
     m_PingToServer = InternalGetPingToServer();
   }
 }
 
-void ezRemoteInterface::UpdateRemoteInterface()
+void WRemoteInterface::UpdateRemoteInterface()
 {
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
 
   InternalUpdateRemoteInterface();
 }
 
-ezResult ezRemoteInterface::Transmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+WResult WRemoteInterface::Transmit(WRemoteTransmitMode tm, const WArrayPtr<const WUInt8>& data)
 {
-  if (m_RemoteMode == ezRemoteMode::None)
-    return EZ_FAILURE;
+  if (m_RemoteMode == WRemoteMode::None)
+    return W_FAILURE;
 
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
 
   if (InternalTransmit(tm, data).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // make sure the message is processed immediately
   UpdateRemoteInterface();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezRemoteInterface::Send(ezUInt32 uiSystemID, ezUInt32 uiMsgID)
+void WRemoteInterface::Send(WUInt32 uiSystemID, WUInt32 uiMsgID)
 {
-  Send(ezRemoteTransmitMode::Reliable, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>());
+  Send(WRemoteTransmitMode::Reliable, uiSystemID, uiMsgID, WArrayPtr<const WUInt8>());
 }
 
-void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+void WRemoteInterface::Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const WArrayPtr<const WUInt8>& data)
 {
-  if (m_RemoteMode == ezRemoteMode::None)
+  if (m_RemoteMode == WRemoteMode::None)
     return;
 
   // if (!IsConnectedToOther())
   //  return;
 
   m_TempSendBuffer.SetCountUninitialized(12 + data.GetCount());
-  *((ezUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
-  *((ezUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
-  *((ezUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
+  *((WUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
+  *((WUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
+  *((WUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
 
   if (!data.IsEmpty())
   {
-    ezUInt8* pCopyDst = &m_TempSendBuffer[12];
-    ezMemoryUtils::Copy(pCopyDst, data.GetPtr(), data.GetCount());
+    WUInt8* pCopyDst = &m_TempSendBuffer[12];
+    WMemoryUtils::Copy(pCopyDst, data.GetPtr(), data.GetCount());
   }
 
   Transmit(tm, m_TempSendBuffer).IgnoreResult();
 }
 
-void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
+void WRemoteInterface::Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData /*= nullptr*/, WUInt32 uiDataBytes /*= 0*/)
 {
-  Send(tm, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), uiDataBytes));
+  Send(tm, uiSystemID, uiMsgID, WArrayPtr<const WUInt8>(reinterpret_cast<const WUInt8*>(pData), uiDataBytes));
 }
 
-void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezRemoteMessage& ref_msg)
+void WRemoteInterface::Send(WRemoteTransmitMode tm, WRemoteMessage& ref_msg)
 {
   Send(tm, ref_msg.GetSystemID(), ref_msg.GetMessageID(), ref_msg.m_Storage);
 }
 
-void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data)
+void WRemoteInterface::Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const WContiguousMemoryStreamStorage& data)
 {
-  if (m_RemoteMode == ezRemoteMode::None)
+  if (m_RemoteMode == WRemoteMode::None)
     return;
 
   // if (!IsConnectedToOther())
   //  return;
 
-  ezArrayPtr<const ezUInt8> range = {data.GetData(), data.GetStorageSize32()};
+  WArrayPtr<const WUInt8> range = {data.GetData(), data.GetStorageSize32()};
 
   m_TempSendBuffer.SetCountUninitialized(12 + range.GetCount());
-  *((ezUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
-  *((ezUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
-  *((ezUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
+  *((WUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
+  *((WUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
+  *((WUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
 
   if (!range.IsEmpty())
   {
-    ezUInt8* pCopyDst = &m_TempSendBuffer[12];
-    ezMemoryUtils::Copy(pCopyDst, range.GetPtr(), range.GetCount());
+    WUInt8* pCopyDst = &m_TempSendBuffer[12];
+    WMemoryUtils::Copy(pCopyDst, range.GetPtr(), range.GetCount());
   }
 
   Transmit(tm, m_TempSendBuffer).IgnoreResult();
 }
 
-void ezRemoteInterface::SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler)
+void WRemoteInterface::SetMessageHandler(WUInt32 uiSystemID, WRemoteMessageHandler messageHandler)
 {
   m_MessageQueues[uiSystemID].m_MessageHandler = messageHandler;
 }
 
-void ezRemoteInterface::SetUnhandledMessageHandler(ezRemoteMessageHandler messageHandler)
+void WRemoteInterface::SetUnhandledMessageHandler(WRemoteMessageHandler messageHandler)
 {
   m_UnhandledMessageHandler = messageHandler;
 }
 
-ezUInt32 ezRemoteInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
+WUInt32 WRemoteInterface::ExecuteMessageHandlers(WUInt32 uiSystem)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   return ExecuteMessageHandlersForQueue(m_MessageQueues[uiSystem]);
 }
 
-ezUInt32 ezRemoteInterface::ExecuteAllMessageHandlers()
+WUInt32 WRemoteInterface::ExecuteAllMessageHandlers()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezUInt32 ret = 0;
+  WUInt32 ret = 0;
   for (auto it = m_MessageQueues.GetIterator(); it.IsValid(); ++it)
   {
     ret += ExecuteMessageHandlersForQueue(it.Value());
@@ -221,10 +221,10 @@ ezUInt32 ezRemoteInterface::ExecuteAllMessageHandlers()
   return ret;
 }
 
-ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue)
+WUInt32 WRemoteInterface::ExecuteMessageHandlersForQueue(WRemoteMessageQueue& queue)
 {
   queue.m_MessageQueueIn.Swap(queue.m_MessageQueueOut);
-  const ezUInt32 ret = queue.m_MessageQueueOut.GetCount();
+  const WUInt32 ret = queue.m_MessageQueueOut.GetCount();
 
   if (queue.m_MessageHandler.IsValid())
   {
@@ -246,81 +246,81 @@ ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue&
   return ret;
 }
 
-void ezRemoteInterface::StartUpdateThread()
+void WRemoteInterface::StartUpdateThread()
 {
   StopUpdateThread();
 
   if (m_pUpdateThread == nullptr)
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
-    m_pUpdateThread = EZ_DEFAULT_NEW(ezRemoteThread);
+    m_pUpdateThread = W_DEFAULT_NEW(WRemoteThread);
     m_pUpdateThread->m_pRemoteInterface = this;
     m_pUpdateThread->Start();
   }
 }
 
-void ezRemoteInterface::StopUpdateThread()
+void WRemoteInterface::StopUpdateThread()
 {
   if (m_pUpdateThread != nullptr)
   {
     m_pUpdateThread->m_bKeepRunning = false;
     m_pUpdateThread->Join();
 
-    EZ_LOCK(m_Mutex);
-    EZ_DEFAULT_DELETE(m_pUpdateThread);
+    W_LOCK(m_Mutex);
+    W_DEFAULT_DELETE(m_pUpdateThread);
   }
 }
 
 
-void ezRemoteInterface::ReportConnectionToServer(ezUInt32 uiServerID)
+void WRemoteInterface::ReportConnectionToServer(WUInt32 uiServerID)
 {
   if (m_uiConnectedToServerWithID == uiServerID)
     return;
 
   m_uiConnectedToServerWithID = uiServerID;
 
-  ezRemoteEvent e;
-  e.m_Type = ezRemoteEvent::ConnectedToServer;
+  WRemoteEvent e;
+  e.m_Type = WRemoteEvent::ConnectedToServer;
   e.m_uiOtherAppID = uiServerID;
   m_RemoteEvents.Broadcast(e);
 }
 
 
-void ezRemoteInterface::ReportConnectionToClient(ezUInt32 uiApplicationID)
+void WRemoteInterface::ReportConnectionToClient(WUInt32 uiApplicationID)
 {
   m_iConnectionsToClients++;
 
-  ezRemoteEvent e;
-  e.m_Type = ezRemoteEvent::ConnectedToClient;
+  WRemoteEvent e;
+  e.m_Type = WRemoteEvent::ConnectedToClient;
   e.m_uiOtherAppID = uiApplicationID;
   m_RemoteEvents.Broadcast(e);
 }
 
-void ezRemoteInterface::ReportDisconnectedFromServer()
+void WRemoteInterface::ReportDisconnectedFromServer()
 {
   m_uiConnectedToServerWithID = 0;
 
-  ezRemoteEvent e;
-  e.m_Type = ezRemoteEvent::DisconnectedFromServer;
+  WRemoteEvent e;
+  e.m_Type = WRemoteEvent::DisconnectedFromServer;
   e.m_uiOtherAppID = m_uiConnectedToServerWithID;
   m_RemoteEvents.Broadcast(e);
 }
 
-void ezRemoteInterface::ReportDisconnectedFromClient(ezUInt32 uiApplicationID)
+void WRemoteInterface::ReportDisconnectedFromClient(WUInt32 uiApplicationID)
 {
   m_iConnectionsToClients--;
 
-  ezRemoteEvent e;
-  e.m_Type = ezRemoteEvent::DisconnectedFromClient;
+  WRemoteEvent e;
+  e.m_Type = WRemoteEvent::DisconnectedFromClient;
   e.m_uiOtherAppID = uiApplicationID;
   m_RemoteEvents.Broadcast(e);
 }
 
 
-void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+void WRemoteInterface::ReportMessage(WUInt32 uiApplicationID, WUInt32 uiSystemID, WUInt32 uiMsgID, const WArrayPtr<const WUInt8>& data)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto& queue = m_MessageQueues[uiSystemID];
 
@@ -331,29 +331,29 @@ void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyste
   msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount()).IgnoreResult();
 }
 
-ezResult ezRemoteInterface::DetermineTargetAddress(ezStringView sConnectTo0, ezUInt32& out_IP, ezUInt16& out_Port)
+WResult WRemoteInterface::DetermineTargetAddress(WStringView sConnectTo0, WUInt32& out_IP, WUInt16& out_Port)
 {
   out_IP = 0;
   out_Port = 0;
 
-  ezStringBuilder sConnectTo = sConnectTo0;
+  WStringBuilder sConnectTo = sConnectTo0;
 
   const char* szColon = sConnectTo.FindLastSubString(":");
   if (szColon != nullptr)
   {
-    sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
+    sConnectTo.Shrink(0, WStringUtils::GetStringElementCount(szColon));
 
-    ezStringBuilder sPort = szColon + 1;
+    WStringBuilder sPort = szColon + 1;
 
-    ezInt32 tmp;
-    if (ezConversionUtils::StringToInt(sPort, tmp).Succeeded())
-      out_Port = static_cast<ezUInt16>(tmp);
+    WInt32 tmp;
+    if (WConversionUtils::StringToInt(sPort, tmp).Succeeded())
+      out_Port = static_cast<WUInt16>(tmp);
   }
 
-  ezInt32 ip1 = 0;
-  ezInt32 ip2 = 0;
-  ezInt32 ip3 = 0;
-  ezInt32 ip4 = 0;
+  WInt32 ip1 = 0;
+  WInt32 ip2 = 0;
+  WInt32 ip3 = 0;
+  WInt32 ip4 = 0;
 
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
   {
@@ -364,53 +364,53 @@ ezResult ezRemoteInterface::DetermineTargetAddress(ezStringView sConnectTo0, ezU
   }
   else if (sConnectTo.FindSubString(".") != nullptr)
   {
-    ezTempHybridArray<ezString, 8> IP;
+    WTempHybridArray<WString, 8> IP;
     sConnectTo.Split(false, IP, ".");
 
     if (IP.GetCount() != 4)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    if (ezConversionUtils::StringToInt(IP[0], ip1).Failed())
-      return EZ_FAILURE;
-    if (ezConversionUtils::StringToInt(IP[1], ip2).Failed())
-      return EZ_FAILURE;
-    if (ezConversionUtils::StringToInt(IP[2], ip3).Failed())
-      return EZ_FAILURE;
-    if (ezConversionUtils::StringToInt(IP[3], ip4).Failed())
-      return EZ_FAILURE;
+    if (WConversionUtils::StringToInt(IP[0], ip1).Failed())
+      return W_FAILURE;
+    if (WConversionUtils::StringToInt(IP[1], ip2).Failed())
+      return W_FAILURE;
+    if (WConversionUtils::StringToInt(IP[2], ip3).Failed())
+      return W_FAILURE;
+    if (WConversionUtils::StringToInt(IP[3], ip4).Failed())
+      return W_FAILURE;
   }
   else
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   out_IP = ((ip1 & 0xFF) | (ip2 & 0xFF) << 8 | (ip3 & 0xFF) << 16 | (ip4 & 0xFF) << 24);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezRemoteThread::ezRemoteThread()
-  : ezThread("ezRemoteThread")
+WRemoteThread::WRemoteThread()
+  : WThread("WRemoteThread")
 {
 }
 
-ezUInt32 ezRemoteThread::Run()
+WUInt32 WRemoteThread::Run()
 {
-  ezTime lastPing;
+  WTime lastPing;
 
   while (m_bKeepRunning && m_pRemoteInterface)
   {
     m_pRemoteInterface->UpdateRemoteInterface();
 
     // Send a Ping every once in a while
-    if (m_pRemoteInterface->GetRemoteMode() == ezRemoteMode::Client)
+    if (m_pRemoteInterface->GetRemoteMode() == WRemoteMode::Client)
     {
-      ezTime tNow = ezTime::Now();
+      WTime tNow = WTime::Now();
 
-      if (tNow - lastPing > ezTime::MakeFromMilliseconds(500))
+      if (tNow - lastPing > WTime::MakeFromMilliseconds(500))
       {
         lastPing = tNow;
 
@@ -418,7 +418,7 @@ ezUInt32 ezRemoteThread::Run()
       }
     }
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
   }
 
   return 0;

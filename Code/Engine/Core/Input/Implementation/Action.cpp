@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputManager.h>
 
-ezInputActionConfig::ezInputActionConfig()
+WInputActionConfig::WInputActionConfig()
 {
   m_bApplyTimeScaling = true;
 
@@ -16,31 +16,31 @@ ezInputActionConfig::ezInputActionConfig()
   m_OnLeaveArea = LoseFocus;
   m_OnEnterArea = ActivateImmediately;
 
-  for (ezInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
+  for (WInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
   {
     m_fInputSlotScale[i] = 1.0f;
-    m_sInputSlotTrigger[i] = ezInputSlot_None;
-    m_sFilterByInputSlotX[i] = ezInputSlot_None;
-    m_sFilterByInputSlotY[i] = ezInputSlot_None;
+    m_sInputSlotTrigger[i] = WInputSlot_None;
+    m_sFilterByInputSlotX[i] = WInputSlot_None;
+    m_sFilterByInputSlotY[i] = WInputSlot_None;
   }
 }
 
-ezInputManager::ezActionData::ezActionData()
+WInputManager::WActionData::WActionData()
 {
   m_fValue = 0.0f;
-  m_State = ezKeyState::Up;
+  m_State = WKeyState::Up;
   m_iTriggeredViaAlternative = -1;
 }
 
-void ezInputManager::ClearInputMapping(ezStringView sInputSet, ezStringView sInputSlot)
+void WInputManager::ClearInputMapping(WStringView sInputSet, WStringView sInputSlot)
 {
-  ezActionMap& Actions = GetInternals().s_ActionMapping[sInputSet];
+  WActionMap& Actions = GetInternals().s_ActionMapping[sInputSet];
 
   // iterate over all existing actions
-  for (ezActionMap::Iterator it = Actions.GetIterator(); it.IsValid(); ++it)
+  for (WActionMap::Iterator it = Actions.GetIterator(); it.IsValid(); ++it)
   {
     // iterate over all input slots in the existing action
-    for (ezUInt32 i1 = 0; i1 < ezInputActionConfig::MaxInputSlotAlternatives; ++i1)
+    for (WUInt32 i1 = 0; i1 < WInputActionConfig::MaxInputSlotAlternatives; ++i1)
     {
       // if that action is triggered by the given input slot, remove that trigger from the action
 
@@ -52,21 +52,21 @@ void ezInputManager::ClearInputMapping(ezStringView sInputSet, ezStringView sInp
   }
 }
 
-void ezInputManager::SetInputActionConfig(ezStringView sInputSet, ezStringView sAction, const ezInputActionConfig& config, bool bClearPreviousInputMappings)
+void WInputManager::SetInputActionConfig(WStringView sInputSet, WStringView sAction, const WInputActionConfig& config, bool bClearPreviousInputMappings)
 {
-  EZ_ASSERT_DEV(!sInputSet.IsEmpty(), "The InputSet name must not be empty.");
-  EZ_ASSERT_DEV(!sAction.IsEmpty(), "No input action to map to was given.");
+  W_ASSERT_DEV(!sInputSet.IsEmpty(), "The InputSet name must not be empty.");
+  W_ASSERT_DEV(!sAction.IsEmpty(), "No input action to map to was given.");
 
   if (bClearPreviousInputMappings)
   {
-    for (ezUInt32 i1 = 0; i1 < ezInputActionConfig::MaxInputSlotAlternatives; ++i1)
+    for (WUInt32 i1 = 0; i1 < WInputActionConfig::MaxInputSlotAlternatives; ++i1)
     {
       ClearInputMapping(sInputSet, config.m_sInputSlotTrigger[i1]);
     }
   }
 
   // store the new action mapping
-  ezInputManager::ezActionData& ad = GetInternals().s_ActionMapping[sInputSet][sAction];
+  WInputManager::WActionData& ad = GetInternals().s_ActionMapping[sInputSet][sAction];
   ad.m_Config = config;
 
   InputEventData e;
@@ -77,27 +77,27 @@ void ezInputManager::SetInputActionConfig(ezStringView sInputSet, ezStringView s
   s_InputEvents.Broadcast(e);
 }
 
-ezInputActionConfig ezInputManager::GetInputActionConfig(ezStringView sInputSet, ezStringView sAction)
+WInputActionConfig WInputManager::GetInputActionConfig(WStringView sInputSet, WStringView sAction)
 {
-  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
+  const WInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
 
   if (!ItSet.IsValid())
-    return ezInputActionConfig();
+    return WInputActionConfig();
 
-  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
+  const WActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
 
   if (!ItAction.IsValid())
-    return ezInputActionConfig();
+    return WInputActionConfig();
 
   return ItAction.Value().m_Config;
 }
 
-void ezInputManager::RemoveInputAction(ezStringView sInputSet, ezStringView sAction)
+void WInputManager::RemoveInputAction(WStringView sInputSet, WStringView sAction)
 {
   GetInternals().s_ActionMapping[sInputSet].Remove(sAction);
 }
 
-ezKeyState::Enum ezInputManager::GetInputActionState(ezStringView sInputSet, ezStringView sAction, float* pValue, ezInt8* pTriggeredSlot)
+WKeyState::Enum WInputManager::GetInputActionState(WStringView sInputSet, WStringView sAction, float* pValue, WInt8* pTriggeredSlot)
 {
   if (pValue)
     *pValue = 0.0f;
@@ -106,17 +106,17 @@ ezKeyState::Enum ezInputManager::GetInputActionState(ezStringView sInputSet, ezS
     *pTriggeredSlot = -1;
 
   if (!s_sExclusiveInputSet.IsEmpty() && s_sExclusiveInputSet != sInputSet)
-    return ezKeyState::Up;
+    return WKeyState::Up;
 
-  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
+  const WInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
 
   if (!ItSet.IsValid())
-    return ezKeyState::Up;
+    return WKeyState::Up;
 
-  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
+  const WActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
 
   if (!ItAction.IsValid())
-    return ezKeyState::Up;
+    return WKeyState::Up;
 
   if (pValue)
     *pValue = ItAction.Value().m_fValue;
@@ -127,16 +127,16 @@ ezKeyState::Enum ezInputManager::GetInputActionState(ezStringView sInputSet, ezS
   return ItAction.Value().m_State;
 }
 
-ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap& Actions, const ezString& sSlot, const ezActionMap::Iterator& itFirst)
+WInputManager::WActionMap::Iterator WInputManager::GetBestAction(WActionMap& Actions, const WString& sSlot, const WActionMap::Iterator& itFirst)
 {
   // this function determines which input action should be triggered by the given input slot
   // it will prefer actions with higher priority
   // it will check that all conditions of the action are met (ie. filters like that a mouse cursor is inside a rectangle)
   // if some action had focus before and shall keep it until some key is released, that action will always be preferred
 
-  ezActionMap::Iterator ItAction = itFirst;
+  WActionMap::Iterator ItAction = itFirst;
 
-  ezActionMap::Iterator itBestAction;
+  WActionMap::Iterator itBestAction;
   float fBestPriority = -1000000;
 
   if (ItAction.IsValid())
@@ -156,9 +156,9 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   // check all actions from the given array
   for (; ItAction.IsValid(); ++ItAction)
   {
-    ezActionData& ThisAction = ItAction.Value();
+    WActionData& ThisAction = ItAction.Value();
 
-    ezInt8 AltSlot = ThisAction.m_iTriggeredViaAlternative;
+    WInt8 AltSlot = ThisAction.m_iTriggeredViaAlternative;
 
     if (AltSlot >= 0)
     {
@@ -168,7 +168,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
     else
     {
       // if the given slot triggers this action (or any of its alternative slots), continue
-      for (AltSlot = 0; AltSlot < ezInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
+      for (AltSlot = 0; AltSlot < WInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
       {
         if (ThisAction.m_Config.m_sInputSlotTrigger[AltSlot] == sSlot)
           goto hell;
@@ -180,11 +180,11 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
 
   hell:
 
-    EZ_ASSERT_DEV(AltSlot >= 0 && AltSlot < ezInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
+    W_ASSERT_DEV(AltSlot >= 0 && AltSlot < WInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
 
     // if the action had input in the last update AND wants to keep the focus, it will ALWAYS get the input, until the input slot gets
     // inactive (key up) independent from priority, overlap of areas etc.
-    if (ThisAction.m_State != ezKeyState::Up && ThisAction.m_Config.m_OnLeaveArea == ezInputActionConfig::KeepFocus)
+    if (ThisAction.m_State != WKeyState::Up && ThisAction.m_Config.m_OnLeaveArea == WInputActionConfig::KeepFocus)
     {
       // just return this result immediately
       return ItAction;
@@ -227,24 +227,24 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   return itBestAction;
 }
 
-void ezInputManager::UpdateInputActions(ezTime tTimeDifference)
+void WInputManager::UpdateInputActions(WTime tTimeDifference)
 {
   // update each input set
   // all input sets are disjunct from each other, so one key press can have different effects in each input set
-  for (ezInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
+  for (WInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
   {
     UpdateInputActions(ItSets.Key().GetData(), ItSets.Value(), tTimeDifference);
   }
 }
 
-void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Actions, ezTime tTimeDifference)
+void WInputManager::UpdateInputActions(WStringView sInputSet, WActionMap& Actions, WTime tTimeDifference)
 {
   // reset all action values to zero
-  for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
+  for (WActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
     ItActions.Value().m_fValue = 0.0f;
 
   // iterate over all input slots and check how their values affect the actions from the current input set
-  for (ezInputSlotsMap::Iterator ItSlots = GetInternals().s_InputSlots.GetIterator(); ItSlots.IsValid(); ++ItSlots)
+  for (WInputSlotsMap::Iterator ItSlots = GetInternals().s_InputSlots.GetIterator(); ItSlots.IsValid(); ++ItSlots)
   {
     // if this input slot is not active, ignore it; we will reset all actions later
     if (ItSlots.Value().m_fValue == 0.0f)
@@ -252,10 +252,10 @@ void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Act
 
     // If this key got clicked in this frame, it has not been dragged into the active area of the action
     // e.g. the mouse has been clicked while it was inside this area, instead of outside and then moved here
-    const bool bFreshClick = ItSlots.Value().m_State == ezKeyState::Pressed;
+    const bool bFreshClick = ItSlots.Value().m_State == WKeyState::Pressed;
 
     // find the action that should be affected by this input slot
-    ezActionMap::Iterator itBestAction;
+    WActionMap::Iterator itBestAction;
 
     // we activate all actions with the same priority simultaneously
     while (true)
@@ -267,28 +267,28 @@ void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Act
       if (!itBestAction.IsValid())
         break;
 
-      const float fSlotScale = itBestAction.Value().m_Config.m_fInputSlotScale[(ezUInt32)(itBestAction.Value().m_iTriggeredViaAlternative)];
+      const float fSlotScale = itBestAction.Value().m_Config.m_fInputSlotScale[(WUInt32)(itBestAction.Value().m_iTriggeredViaAlternative)];
 
       float fSlotValue = ItSlots.Value().m_fValue;
 
       if (fSlotScale >= 0.0f)
         fSlotValue *= fSlotScale;
       else
-        fSlotValue = ezMath::Pow(fSlotValue, -fSlotScale);
+        fSlotValue = WMath::Pow(fSlotValue, -fSlotScale);
 
-      if ((!ItSlots.Value().m_SlotFlags.IsAnySet(ezInputSlotFlags::NeverTimeScale)) && (itBestAction.Value().m_Config.m_bApplyTimeScaling))
+      if ((!ItSlots.Value().m_SlotFlags.IsAnySet(WInputSlotFlags::NeverTimeScale)) && (itBestAction.Value().m_Config.m_bApplyTimeScaling))
         fSlotValue *= (float)tTimeDifference.GetSeconds();
 
-      const float fNewValue = ezMath::Max(itBestAction.Value().m_fValue, fSlotValue);
+      const float fNewValue = WMath::Max(itBestAction.Value().m_fValue, fSlotValue);
 
-      if (itBestAction.Value().m_Config.m_OnEnterArea == ezInputActionConfig::RequireKeyUp)
+      if (itBestAction.Value().m_Config.m_OnEnterArea == WInputActionConfig::RequireKeyUp)
       {
         // if this action requires that it is only activated by a key press while the mouse is inside it
         // we check whether this is either a fresh click (inside the area) or the action is already active
         // if it is already active, the mouse is most likely held clicked at the moment
 
-        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f) || (itBestAction.Value().m_State == ezKeyState::Pressed) ||
-            (itBestAction.Value().m_State == ezKeyState::Down))
+        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f) || (itBestAction.Value().m_State == WKeyState::Pressed) ||
+            (itBestAction.Value().m_State == WKeyState::Down))
           itBestAction.Value().m_fValue = fNewValue;
       }
       else
@@ -297,12 +297,12 @@ void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Act
   }
 
   // now update all action states, if any one has not gotten any input from any input slot recently, it will be reset to 'Released' or 'Up'
-  for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
+  for (WActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
   {
     const bool bHasInput = ItActions.Value().m_fValue > 0.0f;
-    const ezKeyState::Enum NewState = ezKeyState::GetNewKeyState(ItActions.Value().m_State, bHasInput);
+    const WKeyState::Enum NewState = WKeyState::GetNewKeyState(ItActions.Value().m_State, bHasInput);
 
-    if ((NewState != ezKeyState::Up) || (NewState != ItActions.Value().m_State))
+    if ((NewState != WKeyState::Up) || (NewState != ItActions.Value().m_State))
     {
       ItActions.Value().m_State = NewState;
 
@@ -314,36 +314,36 @@ void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Act
       s_InputEvents.Broadcast(e);
     }
 
-    if (NewState == ezKeyState::Up)
+    if (NewState == WKeyState::Up)
       ItActions.Value().m_iTriggeredViaAlternative = -1;
   }
 }
 
-void ezInputManager::SetActionDisplayName(ezStringView sAction, ezStringView sDisplayName)
+void WInputManager::SetActionDisplayName(WStringView sAction, WStringView sDisplayName)
 {
   GetInternals().s_ActionDisplayNames[sAction] = sDisplayName;
 }
 
-const ezString ezInputManager::GetActionDisplayName(ezStringView sAction)
+const WString WInputManager::GetActionDisplayName(WStringView sAction)
 {
   return GetInternals().s_ActionDisplayNames.GetValueOrDefault(sAction, sAction);
 }
 
-void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames)
+void WInputManager::GetAllInputSets(WDynamicArray<WString>& out_inputSetNames)
 {
   out_inputSetNames.Clear();
 
-  for (ezInputSetMap::Iterator it = GetInternals().s_ActionMapping.GetIterator(); it.IsValid(); ++it)
+  for (WInputSetMap::Iterator it = GetInternals().s_ActionMapping.GetIterator(); it.IsValid(); ++it)
     out_inputSetNames.PushBack(it.Key());
 }
 
-void ezInputManager::GetAllInputActions(ezStringView sInputSetName, ezDynamicArray<ezString>& out_inputActions)
+void WInputManager::GetAllInputActions(WStringView sInputSetName, WDynamicArray<WString>& out_inputActions)
 {
   const auto& map = GetInternals().s_ActionMapping[sInputSetName];
 
   out_inputActions.Clear();
   out_inputActions.Reserve(map.GetCount());
 
-  for (ezActionMap::ConstIterator it = map.GetIterator(); it.IsValid(); ++it)
+  for (WActionMap::ConstIterator it = map.GetIterator(); it.IsValid(); ++it)
     out_inputActions.PushBack(it.Key());
 }

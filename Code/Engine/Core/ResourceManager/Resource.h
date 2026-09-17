@@ -6,9 +6,9 @@
 #include <Foundation/Time/Timestamp.h>
 
 /// The base class for all resources.
-class EZ_CORE_DLL ezResource : public ezReflectedClass
+class W_CORE_DLL WResource : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezResource, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WResource, WReflectedClass);
 
 public:
   enum class DoUpdate
@@ -28,10 +28,10 @@ protected:
   };
 
   /// Default constructor.
-  ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
+  WResource(DoUpdate ResourceUpdateThread, WUInt8 uiQualityLevelsLoadable);
 
   /// virtual destructor.
-  virtual ~ezResource();
+  virtual ~WResource();
 
 public:
   struct MemoryUsage
@@ -42,32 +42,32 @@ public:
       m_uiMemoryGPU = 0;
     }
 
-    ezUInt64 m_uiMemoryCPU;
-    ezUInt64 m_uiMemoryGPU;
+    WUInt64 m_uiMemoryCPU;
+    WUInt64 m_uiMemoryGPU;
   };
 
   /// Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
-  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_sUniqueID; }
+  W_ALWAYS_INLINE WStringView GetResourceID() const { return m_sUniqueID; }
 
   /// Returns the hash of the unique ID.
-  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
+  W_ALWAYS_INLINE WUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
 
   /// The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
-  void SetResourceDescription(ezStringView sDescription);
+  void SetResourceDescription(WStringView sDescription);
 
   /// The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
-  const ezString& GetResourceDescription() const { return m_sResourceDescription; }
+  const WString& GetResourceDescription() const { return m_sResourceDescription; }
 
   /// The returns the resource description, if available, otherwise the resource ID.
   ///
   /// This is mainly for logging, where you want the more user friendly description, but the ID, if no description is available.
-  const ezString& GetResourceIdOrDescription() const { return m_sResourceDescription.IsEmpty() ? m_sUniqueID : m_sResourceDescription; }
+  const WString& GetResourceIdOrDescription() const { return m_sResourceDescription.IsEmpty() ? m_sUniqueID : m_sResourceDescription; }
 
   /// Returns the current state in which this resource is in.
-  EZ_ALWAYS_INLINE ezResourceState GetLoadingState() const { return m_LoadingState; }
+  W_ALWAYS_INLINE WResourceState GetLoadingState() const { return m_LoadingState; }
 
   /// Returns the current maximum quality level that the resource could have.
   ///
@@ -84,48 +84,48 @@ public:
   /// mipmap above that, which would result in 5 quality levels for a 1024*1024 texture.
   ///
   /// Most resource will have zero or one quality levels (which is the same) as they are either loaded or not.
-  EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
+  W_ALWAYS_INLINE WUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
 
   /// Returns how many quality levels the resource may additionally load.
-  EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
+  W_ALWAYS_INLINE WUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
   /// Returns the priority that is used by the resource manager to determine which resource to load next.
-  float GetLoadingPriority(ezTime now) const;
+  float GetLoadingPriority(WTime now) const;
 
   /// Returns the current resource priority.
-  ezResourcePriority GetPriority() const { return m_Priority; }
+  WResourcePriority GetPriority() const { return m_Priority; }
 
   /// Changes the current resource priority.
-  void SetPriority(ezResourcePriority priority);
+  void SetPriority(WResourcePriority priority);
 
   /// Returns the basic flags for the resource type. Mostly used the resource manager.
-  EZ_ALWAYS_INLINE const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
+  W_ALWAYS_INLINE const WBitflags<WResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
 
   /// Returns the information about the current memory usage of the resource.
-  EZ_ALWAYS_INLINE const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
+  W_ALWAYS_INLINE const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
 
   /// Returns the time at which the resource was (tried to be) acquired last.
-  /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is
+  /// If a resource is acquired using WResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is
   /// not acquired for full use.
-  EZ_ALWAYS_INLINE ezTime GetLastAcquireTime() const { return m_LastAcquire; }
+  W_ALWAYS_INLINE WTime GetLastAcquireTime() const { return m_LastAcquire; }
 
   /// Returns the reference count of this resource.
-  EZ_ALWAYS_INLINE ezInt32 GetReferenceCount() const { return m_iReferenceCount; }
+  W_ALWAYS_INLINE WInt32 GetReferenceCount() const { return m_iReferenceCount; }
 
   /// Returns the modification date of the file from which this resource was loaded.
   ///
   /// The date may be invalid, if it cannot be retrieved or the resource was created and not loaded.
-  EZ_ALWAYS_INLINE const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
+  W_ALWAYS_INLINE const WTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
 
   /// Returns the current value of the resource change counter.
   /// Can be used to detect whether the resource has changed since using it last time.
   ///
   /// The resource change counter is increased by calling IncResourceChangeCounter() or
   /// whenever the resource content is updated.
-  EZ_ALWAYS_INLINE ezUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
+  W_ALWAYS_INLINE WUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
 
   /// Allows to manually increase the resource change counter to signal that dependent code might need to update.
-  EZ_ALWAYS_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
+  W_ALWAYS_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
   /// If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on
   /// itself).
@@ -133,48 +133,48 @@ public:
 
   /// Prints the stack-traces for all handles that currently reference this resource.
   ///
-  /// Only implemented if EZ_RESOURCEHANDLE_STACK_TRACES is EZ_ON.
+  /// Only implemented if W_RESOURCEHANDLE_STACK_TRACES is W_ON.
   /// Otherwise the function does nothing.
   void PrintHandleStackTraces();
 
 
-  mutable ezEvent<const ezResourceEvent&, ezMutex> m_ResourceEvents;
+  mutable WEvent<const WResourceEvent&, WMutex> m_ResourceEvents;
 
 private:
-  friend class ezResourceManager;
-  friend class ezResourceManagerWorkerDataLoad;
-  friend class ezResourceManagerWorkerUpdateContent;
+  friend class WResourceManager;
+  friend class WResourceManagerWorkerDataLoad;
+  friend class WResourceManagerWorkerUpdateContent;
 
-  /// Called by ezResourceManager shortly after resource creation.
-  void SetUniqueID(ezStringView sUniqueID, bool bIsReloadable);
+  /// Called by WResourceManager shortly after resource creation.
+  void SetUniqueID(WStringView sUniqueID, bool bIsReloadable);
 
   void CallUnloadData(Unload WhatToUnload);
 
   /// Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it
   /// is going to be deleted afterwards.
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
 
-  void CallUpdateContent(ezStreamReader* Stream);
+  void CallUpdateContent(WStreamReader* Stream);
 
   /// Called whenever more data for the resource is available. The resource must read the stream to update it's data.
   ///
   /// pStream may be nullptr in case the resource data could not be found.
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) = 0;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* pStream) = 0;
 
   /// Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the
-  /// ezResourceManager.
+  /// WResourceManager.
   ///
-  /// By default, this redirects to ezResourceManager::GetDefaultResourceLoader. So there is one global default loader, that can be set
+  /// By default, this redirects to WResourceManager::GetDefaultResourceLoader. So there is one global default loader, that can be set
   /// on the resource manager. Overriding this function will then allow to use a different resource loader on a specific type.
-  /// Additionally, one can override the resource loader from the outside, by setting it via ezResourceManager::SetResourceTypeLoader.
+  /// Additionally, one can override the resource loader from the outside, by setting it via WResourceManager::SetResourceTypeLoader.
   /// That last method always takes precedence and allows to modify the behavior without modifying the code for the resource.
   /// But in the default case, the resource defines which loader is used.
-  virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
+  virtual WResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
 private:
-  ezAtomicInteger<ezResourceState> m_LoadingState = ezResourceState::Unloaded;
-  ezAtomicInteger<ezUInt8> m_uiQualityLevelsDiscardable = 0;
-  ezAtomicInteger<ezUInt8> m_uiQualityLevelsLoadable = 0;
+  WAtomicInteger<WResourceState> m_LoadingState = WResourceState::Unloaded;
+  WAtomicInteger<WUInt8> m_uiQualityLevelsDiscardable = 0;
+  WAtomicInteger<WUInt8> m_uiQualityLevelsLoadable = 0;
 
 
 protected:
@@ -185,29 +185,29 @@ protected:
   ///
   /// By default all created resources are flagged as not reloadable.
   /// All resources loaded from file are automatically flagged as reloadable.
-  void SetIsReloadable(bool bIsReloadable) { m_Flags.AddOrRemove(ezResourceFlags::IsReloadable, bIsReloadable); }
+  void SetIsReloadable(bool bIsReloadable) { m_Flags.AddOrRemove(WResourceFlags::IsReloadable, bIsReloadable); }
 
   /// Used internally by the code injection macros
-  void SetHasLoadingFallback(bool bHasLoadingFallback) { m_Flags.AddOrRemove(ezResourceFlags::ResourceHasFallback, bHasLoadingFallback); }
+  void SetHasLoadingFallback(bool bHasLoadingFallback) { m_Flags.AddOrRemove(WResourceFlags::ResourceHasFallback, bHasLoadingFallback); }
 
 private:
   template <typename ResourceType>
-  friend class ezTypedResourceHandle;
+  friend class WTypedResourceHandle;
 
-  friend EZ_CORE_DLL_FRIEND void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner);
-  friend EZ_CORE_DLL_FRIEND void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+  friend W_CORE_DLL_FRIEND void IncreaseResourceRefCount(WResource* pResource, const void* pOwner);
+  friend W_CORE_DLL_FRIEND void DecreaseResourceRefCount(WResource* pResource, const void* pOwner);
 
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
-  friend EZ_CORE_DLL_FRIEND void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
+  friend W_CORE_DLL_FRIEND void MigrateResourceRefCount(WResource* pResource, const void* pOldOwner, const void* pNewOwner);
 
   struct HandleStackTrace
   {
-    ezUInt32 m_uiNumPtrs = 0;
+    WUInt32 m_uiNumPtrs = 0;
     void* m_Ptrs[64];
   };
 
-  ezMutex m_HandleStackTraceMutex;
-  ezHashTable<const void*, HandleStackTrace> m_HandleStackTraces;
+  WMutex m_HandleStackTraceMutex;
+  WHashTable<const void*, HandleStackTrace> m_HandleStackTraces;
 #endif
 
 
@@ -221,25 +221,25 @@ private:
 
   virtual bool HasResourceTypeLoadingFallback() const = 0;
 
-  /// Called by ezResourceMananger::CreateResource
-  void VerifyAfterCreateResource(const ezResourceLoadDesc& ld);
+  /// Called by WResourceMananger::CreateResource
+  void VerifyAfterCreateResource(const WResourceLoadDesc& ld);
 
-  ezUInt64 m_uiUniqueIDHash = 0;
-  ezUInt32 m_uiResourceChangeCounter = 0;
-  ezAtomicInteger32 m_iReferenceCount = 0;
-  // ezAtomicInteger32 m_iLockCount = 0; // currently not used
-  ezString m_sUniqueID;
-  ezString m_sResourceDescription;
+  WUInt64 m_uiUniqueIDHash = 0;
+  WUInt32 m_uiResourceChangeCounter = 0;
+  WAtomicInteger32 m_iReferenceCount = 0;
+  // WAtomicInteger32 m_iLockCount = 0; // currently not used
+  WString m_sUniqueID;
+  WString m_sResourceDescription;
   MemoryUsage m_MemoryUsage;
-  ezBitflags<ezResourceFlags> m_Flags;
+  WBitflags<WResourceFlags> m_Flags;
 
-  ezTime m_LastAcquire;
-  ezResourcePriority m_Priority = ezResourcePriority::Medium;
-  ezTimestamp m_LoadedFileModificationTime;
+  WTime m_LastAcquire;
+  WResourcePriority m_Priority = WResourcePriority::Medium;
+  WTimestamp m_LoadedFileModificationTime;
 
 private:
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  static const ezResource* GetCurrentlyUpdatingContent();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  static const WResource* GetCurrentlyUpdatingContent();
 #endif
 };
 
@@ -254,8 +254,8 @@ private:
 
 #include <Core/ResourceManager/ResourceManager.h>
 
-#define EZ_RESOURCE_DECLARE_COMMON_CODE(SELF)                                                                                                \
-  friend class ::ezResourceManager;                                                                                                          \
+#define W_RESOURCE_DECLARE_COMMON_CODE(SELF)                                                                                                \
+  friend class ::WResourceManager;                                                                                                          \
                                                                                                                                              \
 public:                                                                                                                                      \
   /*                                                                                                                                     \ \ \
@@ -269,24 +269,24 @@ public:                                                                         
   /*                                                                                                                                     \ \ \
   /// Returns a typed resource handle to this resource                                                                            \ \ \
   */                                                                                                                                         \
-  ezTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                     \
+  WTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                     \
                                                                                                                                              \
   /*                                                                                                                                     \ \ \
   /// Sets the fallback resource that can be used while this resource is not yet loaded.                                          \ \ \
   ///                                                                                                                                    \ \ \
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.            \ \ \
   */                                                                                                                                         \
-  void SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource);                                                             \
+  void SetLoadingFallbackResource(const WTypedResourceHandle<SELF>& hResource);                                                             \
                                                                                                                                              \
 private:                                                                                                                                     \
   /* These functions are needed to access the static members, such that they get DLL exported, otherwise you get unresolved symbols */       \
-  static void SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource);                                                  \
-  static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource);                                                  \
-  static const ezTypedResourceHandle<SELF>& GetResourceTypeLoadingFallback()                                                                 \
+  static void SetResourceTypeLoadingFallback(const WTypedResourceHandle<SELF>& hResource);                                                  \
+  static void SetResourceTypeMissingFallback(const WTypedResourceHandle<SELF>& hResource);                                                  \
+  static const WTypedResourceHandle<SELF>& GetResourceTypeLoadingFallback()                                                                 \
   {                                                                                                                                          \
     return s_TypeLoadingFallback;                                                                                                            \
   }                                                                                                                                          \
-  static const ezTypedResourceHandle<SELF>& GetResourceTypeMissingFallback()                                                                 \
+  static const WTypedResourceHandle<SELF>& GetResourceTypeMissingFallback()                                                                 \
   {                                                                                                                                          \
     return s_TypeMissingFallback;                                                                                                            \
   }                                                                                                                                          \
@@ -295,66 +295,66 @@ private:                                                                        
     return s_TypeLoadingFallback.IsValid();                                                                                                  \
   }                                                                                                                                          \
                                                                                                                                              \
-  static ezTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                                  \
-  static ezTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                                  \
+  static WTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                                  \
+  static WTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                                  \
                                                                                                                                              \
-  ezTypedResourceHandle<SELF> m_hLoadingFallback;
+  WTypedResourceHandle<SELF> m_hLoadingFallback;
 
 
 
-#define EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                                                         \
-  ezTypedResourceHandle<SELF> SELF::s_TypeLoadingFallback;                                                              \
-  ezTypedResourceHandle<SELF> SELF::s_TypeMissingFallback;                                                              \
+#define W_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                                                         \
+  WTypedResourceHandle<SELF> SELF::s_TypeLoadingFallback;                                                              \
+  WTypedResourceHandle<SELF> SELF::s_TypeMissingFallback;                                                              \
                                                                                                                         \
   void SELF::CleanupDynamicPluginReferences()                                                                           \
   {                                                                                                                     \
     s_TypeLoadingFallback.Invalidate();                                                                                 \
     s_TypeMissingFallback.Invalidate();                                                                                 \
-    ezResourceManager::ClearResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                             \
+    WResourceManager::ClearResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                             \
   }                                                                                                                     \
                                                                                                                         \
-  ezTypedResourceHandle<SELF> SELF::GetResourceHandle() const                                                           \
+  WTypedResourceHandle<SELF> SELF::GetResourceHandle() const                                                           \
   {                                                                                                                     \
-    EZ_ASSERT_DEV(GetReferenceCount() > 0, "This resource is being deallocated, do not store a handle to it anymore!"); \
-    ezTypedResourceHandle<SELF> handle((SELF*)this);                                                                    \
+    W_ASSERT_DEV(GetReferenceCount() > 0, "This resource is being deallocated, do not store a handle to it anymore!"); \
+    WTypedResourceHandle<SELF> handle((SELF*)this);                                                                    \
     return handle;                                                                                                      \
   }                                                                                                                     \
                                                                                                                         \
-  void SELF::SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource)                                   \
+  void SELF::SetLoadingFallbackResource(const WTypedResourceHandle<SELF>& hResource)                                   \
   {                                                                                                                     \
     m_hLoadingFallback = hResource;                                                                                     \
     SetHasLoadingFallback(m_hLoadingFallback.IsValid());                                                                \
   }                                                                                                                     \
                                                                                                                         \
-  void SELF::SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource)                               \
+  void SELF::SetResourceTypeLoadingFallback(const WTypedResourceHandle<SELF>& hResource)                               \
   {                                                                                                                     \
     s_TypeLoadingFallback = hResource;                                                                                  \
-    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                \
-    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                               \
+    W_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                \
+    WResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                               \
   }                                                                                                                     \
-  void SELF::SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource)                               \
+  void SELF::SetResourceTypeMissingFallback(const WTypedResourceHandle<SELF>& hResource)                               \
   {                                                                                                                     \
     s_TypeMissingFallback = hResource;                                                                                  \
-    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                \
-    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                               \
+    W_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                \
+    WResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                               \
   }
 
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-#  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)                                       \
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+#  define W_RESOURCE_VALIDATE_FALLBACK(SELF)                                       \
     if (hResource.IsValid())                                                        \
     {                                                                               \
-      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::BlockTillLoaded); \
+      WResourceLock<SELF> lock(hResource, WResourceAcquireMode::BlockTillLoaded); \
       /* if this fails, the 'fallback resource' is missing itself*/                 \
     }
 #else
-#  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)
+#  define W_RESOURCE_VALIDATE_FALLBACK(SELF)
 #endif
 
-#define EZ_RESOURCE_DECLARE_CREATEABLE(SELF, SELF_DESCRIPTOR)      \
+#define W_RESOURCE_DECLARE_CREATEABLE(SELF, SELF_DESCRIPTOR)      \
 protected:                                                         \
-  ezResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor); \
+  WResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor); \
                                                                    \
 private:
 
-#define EZ_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR) ezResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)
+#define W_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR) WResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)

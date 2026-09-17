@@ -4,11 +4,11 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezKrautTreeAssetDocument;
-struct ezKrautTreeAssetEvent;
+class WKrautTreeAssetDocument;
+struct WKrautTreeAssetEvent;
 
 /// Wind strength presets available in the Kraut tree asset editor preview.
-struct ezKrautWindStrength
+struct WKrautWindStrength
 {
   enum Enum
   {
@@ -21,42 +21,42 @@ struct ezKrautWindStrength
   };
 };
 
-class ezKrautActions
+class WKrautActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hWindStrengthMenu;
-  static ezActionDescriptorHandle s_hWindStrength[4];
-  static ezActionDescriptorHandle s_hToggleFrondsLeaves;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hWindStrengthMenu;
+  static WActionDescriptorHandle s_hWindStrength[4];
+  static WActionDescriptorHandle s_hToggleFrondsLeaves;
 };
 
 /// Button action used in the Kraut tree asset editor toolbar.
-class ezKrautAction : public ezButtonAction
+class WKrautAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WKrautAction, WButtonAction);
 
 public:
   enum class ActionType
   {
-    WindStrength,       ///< Sets the preview wind strength to a specific ezKrautWindStrength preset.
+    WindStrength,       ///< Sets the preview wind strength to a specific WKrautWindStrength preset.
     ToggleFrondsLeaves, ///< Toggles visibility of frond and leaf geometry in the preview.
   };
 
-  ezKrautAction(const ezActionContext& context, const char* szName, ActionType type, ezKrautWindStrength::Enum windStrength = ezKrautWindStrength::Light);
-  ~ezKrautAction();
+  WKrautAction(const WActionContext& context, const char* szName, ActionType type, WKrautWindStrength::Enum windStrength = WKrautWindStrength::Light);
+  ~WKrautAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void KrautEventHandler(const ezKrautTreeAssetEvent& e);
+  void KrautEventHandler(const WKrautTreeAssetEvent& e);
   void UpdateState();
 
-  ezKrautTreeAssetDocument* m_pDocument = nullptr;
+  WKrautTreeAssetDocument* m_pDocument = nullptr;
   ActionType m_Type;
-  ezKrautWindStrength::Enum m_WindStrength = ezKrautWindStrength::Default;
+  WKrautWindStrength::Enum m_WindStrength = WKrautWindStrength::Default;
 };

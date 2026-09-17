@@ -4,250 +4,250 @@
 
 #include <Foundation/Strings/String.h>
 
-EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
+W_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsASCII")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsASCII")
   {
     // test all ASCII Characters
-    for (ezUInt32 i = 0; i < 128; ++i)
-      EZ_TEST_BOOL(ezUnicodeUtils::IsASCII(i));
+    for (WUInt32 i = 0; i < 128; ++i)
+      W_TEST_BOOL(WUnicodeUtils::IsASCII(i));
 
-    for (ezUInt32 i = 128; i < 0xFFFFF; ++i)
-      EZ_TEST_BOOL(!ezUnicodeUtils::IsASCII(i));
+    for (WUInt32 i = 128; i < 0xFFFFF; ++i)
+      W_TEST_BOOL(!WUnicodeUtils::IsASCII(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8StartByte")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsUtf8StartByte")
   {
-    ezStringUtf8 s(L"äöü€");
+    WStringUtf8 s(L"äöü€");
     // ä
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[0]));
-    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[1]));
+    W_TEST_BOOL(WUnicodeUtils::IsUtf8StartByte(s.GetData()[0]));
+    W_TEST_BOOL(!WUnicodeUtils::IsUtf8StartByte(s.GetData()[1]));
 
     // ö
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[2]));
-    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[3]));
+    W_TEST_BOOL(WUnicodeUtils::IsUtf8StartByte(s.GetData()[2]));
+    W_TEST_BOOL(!WUnicodeUtils::IsUtf8StartByte(s.GetData()[3]));
 
     // ü
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[4]));
-    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[5]));
+    W_TEST_BOOL(WUnicodeUtils::IsUtf8StartByte(s.GetData()[4]));
+    W_TEST_BOOL(!WUnicodeUtils::IsUtf8StartByte(s.GetData()[5]));
 
     // €
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[6]));
-    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[7]));
-    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[8]));
+    W_TEST_BOOL(WUnicodeUtils::IsUtf8StartByte(s.GetData()[6]));
+    W_TEST_BOOL(!WUnicodeUtils::IsUtf8StartByte(s.GetData()[7]));
+    W_TEST_BOOL(!WUnicodeUtils::IsUtf8StartByte(s.GetData()[8]));
 
     // \0
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[9]));
+    W_TEST_BOOL(WUnicodeUtils::IsUtf8StartByte(s.GetData()[9]));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8ContinuationByte")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsUtf8ContinuationByte")
   {
     // all ASCII Characters are not continuation bytes
     for (char i = 0; i < 127; ++i)
     {
-      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(i));
+      W_TEST_BOOL(!WUnicodeUtils::IsUtf8ContinuationByte(i));
     }
 
-    for (ezUInt32 i = 0; i < 255u; ++i)
+    for (WUInt32 i = 0; i < 255u; ++i)
     {
       const char uiContByte = static_cast<char>(0x80 | (i & 0x3f));
       const char uiNoContByte1 = static_cast<char>(i | 0x40);
       const char uiNoContByte2 = static_cast<char>(i | 0xC0);
 
-      EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8ContinuationByte(uiContByte));
-      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte1));
-      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte2));
+      W_TEST_BOOL(WUnicodeUtils::IsUtf8ContinuationByte(uiContByte));
+      W_TEST_BOOL(!WUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte1));
+      W_TEST_BOOL(!WUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte2));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetUtf8SequenceLength")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetUtf8SequenceLength")
   {
     // All ASCII characters are 1 byte in length
     for (char i = 0; i < 127; ++i)
     {
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(i), 1);
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(i), 1);
     }
 
     {
-      ezStringUtf8 s(L"ä");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+      WStringUtf8 s(L"ä");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
     }
 
     {
-      ezStringUtf8 s(L"ß");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+      WStringUtf8 s(L"ß");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
     }
 
     {
-      ezStringUtf8 s(L"€");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
+      WStringUtf8 s(L"€");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
     }
 
     {
-      ezStringUtf8 s(L"з");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+      WStringUtf8 s(L"з");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
     }
 
     {
-      ezStringUtf8 s(L"г");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+      WStringUtf8 s(L"г");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
     }
 
     {
-      ezStringUtf8 s(L"ы");
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+      WStringUtf8 s(L"ы");
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
     }
 
     {
-      ezUInt32 u[2] = {L'\u0B87', 0};
-      ezStringUtf8 s(u);
-      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
+      WUInt32 u[2] = {L'\u0B87', 0};
+      WStringUtf8 s(u);
+      W_TEST_INT(WUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertUtf8ToUtf32")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ConvertUtf8ToUtf32")
   {
     // Just wraps around 'utf8::peek_next'
     // I think we can assume that that works.
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSizeForCharacterInUtf8")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetSizeForCharacterInUtf8")
   {
     // All ASCII characters are 1 byte in length
-    for (ezUInt32 i = 0; i < 128; ++i)
-      EZ_TEST_INT(ezUnicodeUtils::GetSizeForCharacterInUtf8(i), 1);
+    for (WUInt32 i = 0; i < 128; ++i)
+      W_TEST_INT(WUnicodeUtils::GetSizeForCharacterInUtf8(i), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Decode")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Decode")
   {
     char utf8[] = {(char)0xc3, (char)0xb6, 0};
-    ezUInt16 utf16[] = {0xf6, 0};
+    WUInt16 utf16[] = {0xf6, 0};
     wchar_t wchar[] = {L'ö', 0};
 
     char* szUtf8 = &utf8[0];
-    ezUInt16* szUtf16 = &utf16[0];
+    WUInt16* szUtf16 = &utf16[0];
     wchar_t* szWChar = &wchar[0];
 
-    ezUInt32 uiUtf321 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
-    ezUInt32 uiUtf322 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
-    ezUInt32 uiUtf323 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
+    WUInt32 uiUtf321 = WUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
+    WUInt32 uiUtf322 = WUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
+    WUInt32 uiUtf323 = WUnicodeUtils::DecodeWCharToUtf32(szWChar);
 
-    EZ_TEST_INT(uiUtf321, uiUtf322);
-    EZ_TEST_INT(uiUtf321, uiUtf323);
+    W_TEST_INT(uiUtf321, uiUtf322);
+    W_TEST_INT(uiUtf321, uiUtf323);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Encode")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Encode")
   {
     char utf8[4] = {0};
-    ezUInt16 utf16[4] = {0};
+    WUInt16 utf16[4] = {0};
     wchar_t wchar[4] = {0};
 
     char* szUtf8 = &utf8[0];
-    ezUInt16* szUtf16 = &utf16[0];
+    WUInt16* szUtf16 = &utf16[0];
     wchar_t* szWChar = &wchar[0];
 
-    ezUnicodeUtils::EncodeUtf32ToUtf8(0xf6, szUtf8);
-    ezUnicodeUtils::EncodeUtf32ToUtf16(0xf6, szUtf16);
-    ezUnicodeUtils::EncodeUtf32ToWChar(0xf6, szWChar);
+    WUnicodeUtils::EncodeUtf32ToUtf8(0xf6, szUtf8);
+    WUnicodeUtils::EncodeUtf32ToUtf16(0xf6, szUtf16);
+    WUnicodeUtils::EncodeUtf32ToWChar(0xf6, szWChar);
 
-    EZ_TEST_BOOL(utf8[0] == (char)0xc3 && utf8[1] == (char)0xb6);
-    EZ_TEST_BOOL(utf16[0] == 0xf6);
-    EZ_TEST_BOOL(wchar[0] == L'ö');
+    W_TEST_BOOL(utf8[0] == (char)0xc3 && utf8[1] == (char)0xb6);
+    W_TEST_BOOL(utf16[0] == 0xf6);
+    W_TEST_BOOL(wchar[0] == L'ö');
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToNextUtf8")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MoveToNextUtf8")
   {
-    ezStringUtf8 s(L"aböäß€de");
+    WStringUtf8 s(L"aböäß€de");
 
-    EZ_TEST_INT(s.GetElementCount(), 13);
+    W_TEST_INT(s.GetElementCount(), 13);
 
     const char* sz = s.GetData();
 
     // test how far it skips ahead
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[1]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[2]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[4]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[6]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[8]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[11]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[12]);
+    WUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[12]);
 
     sz = s.GetData();
     const char* szEnd = s.GetView().GetEndPointer();
 
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[1]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[2]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[4]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[6]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[8]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[11]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[12]);
+    WUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[12]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToPriorUtf8")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MoveToPriorUtf8")
   {
-    ezStringUtf8 s(L"aböäß€de");
+    WStringUtf8 s(L"aböäß€de");
 
     const char* sz = &s.GetData()[13];
 
-    EZ_TEST_INT(s.GetElementCount(), 13);
+    W_TEST_INT(s.GetElementCount(), 13);
 
     // test how far it skips ahead
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[12]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[12]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[11]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[8]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[6]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[4]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[2]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[1]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
-    EZ_TEST_BOOL(sz == &s.GetData()[0]);
+    WUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
+    W_TEST_BOOL(sz == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf8Bom")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SkipUtf8Bom")
   {
     // C++ is really stupid, chars are signed, but Utf8 only works with unsigned values ... argh!
 
@@ -255,53 +255,53 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     char szNoBom[] = {'a'};
     const char* pString = szWithBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf8Bom(pString) == true);
-    EZ_TEST_BOOL(pString == &szWithBom[3]);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf8Bom(pString) == true);
+    W_TEST_BOOL(pString == &szWithBom[3]);
 
     pString = szNoBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf8Bom(pString) == false);
-    EZ_TEST_BOOL(pString == szNoBom);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf8Bom(pString) == false);
+    W_TEST_BOOL(pString == szNoBom);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomLE")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SkipUtf16BomLE")
   {
-    ezUInt16 szWithBom[] = {0xfeff, 'a'};
-    ezUInt16 szNoBom[] = {'a'};
+    WUInt16 szWithBom[] = {0xfeff, 'a'};
+    WUInt16 szNoBom[] = {'a'};
 
-    const ezUInt16* pString = szWithBom;
+    const WUInt16* pString = szWithBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomLE(pString) == true);
-    EZ_TEST_BOOL(pString == &szWithBom[1]);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf16BomLE(pString) == true);
+    W_TEST_BOOL(pString == &szWithBom[1]);
 
     pString = szNoBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomLE(pString) == false);
-    EZ_TEST_BOOL(pString == szNoBom);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf16BomLE(pString) == false);
+    W_TEST_BOOL(pString == szNoBom);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomBE")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SkipUtf16BomBE")
   {
-    ezUInt16 szWithBom[] = {0xfffe, 'a'};
-    ezUInt16 szNoBom[] = {'a'};
+    WUInt16 szWithBom[] = {0xfffe, 'a'};
+    WUInt16 szNoBom[] = {'a'};
 
-    const ezUInt16* pString = szWithBom;
+    const WUInt16* pString = szWithBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomBE(pString) == true);
-    EZ_TEST_BOOL(pString == &szWithBom[1]);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf16BomBE(pString) == true);
+    W_TEST_BOOL(pString == &szWithBom[1]);
 
     pString = szNoBom;
 
-    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomBE(pString) == false);
-    EZ_TEST_BOOL(pString == szNoBom);
+    W_TEST_BOOL(WUnicodeUtils::SkipUtf16BomBE(pString) == false);
+    W_TEST_BOOL(pString == szNoBom);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf16Surrogate")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsUtf16Surrogate")
   {
-    ezUInt16 szNoSurrogate[] = {0x2AD7};
-    ezUInt16 szSurrogate[] = {0xd83e};
+    WUInt16 szNoSurrogate[] = {0x2AD7};
+    WUInt16 szSurrogate[] = {0xd83e};
 
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szNoSurrogate) == false);
-    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf16Surrogate(szSurrogate) == true);
+    W_TEST_BOOL(WUnicodeUtils::IsUtf16Surrogate(szNoSurrogate) == false);
+    W_TEST_BOOL(WUnicodeUtils::IsUtf16Surrogate(szSurrogate) == true);
   }
 }

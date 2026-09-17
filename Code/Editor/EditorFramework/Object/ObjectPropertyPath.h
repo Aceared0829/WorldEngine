@@ -7,44 +7,44 @@
 #include <Foundation/Types/Uuid.h>
 #include <Foundation/Types/Variant.h>
 
-class ezDocumentObject;
-class ezObjectAccessorBase;
-struct ezPropertyReference;
-class ezStringBuilder;
-class ezAbstractProperty;
+class WDocumentObject;
+class WObjectAccessorBase;
+struct WPropertyReference;
+class WStringBuilder;
+class WAbstractProperty;
 
-struct EZ_EDITORFRAMEWORK_DLL ezPropertyReference
+struct W_EDITORFRAMEWORK_DLL WPropertyReference
 {
-  bool operator==(const ezPropertyReference& rhs) const
+  bool operator==(const WPropertyReference& rhs) const
   {
     return m_Object == rhs.m_Object && m_pProperty == rhs.m_pProperty && m_Index == rhs.m_Index;
   }
-  ezUuid m_Object;
-  const ezAbstractProperty* m_pProperty = nullptr;
-  ezVariant m_Index;
+  WUuid m_Object;
+  const WAbstractProperty* m_pProperty = nullptr;
+  WVariant m_Index;
 };
 
-struct EZ_EDITORFRAMEWORK_DLL ezObjectPropertyPathContext
+struct W_EDITORFRAMEWORK_DLL WObjectPropertyPathContext
 {
-  const ezDocumentObject* m_pContextObject; ///< Paths start at this object.
-  ezObjectAccessorBase* m_pAccessor;        ///< Accessor used to traverse hierarchy and query properties.
-  ezString m_sRootProperty;                 ///< In case m_pContextObject points to the root object, this is the property to follow.
+  const WDocumentObject* m_pContextObject; ///< Paths start at this object.
+  WObjectAccessorBase* m_pAccessor;        ///< Accessor used to traverse hierarchy and query properties.
+  WString m_sRootProperty;                 ///< In case m_pContextObject points to the root object, this is the property to follow.
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezObjectPropertyPath
+class W_EDITORFRAMEWORK_DLL WObjectPropertyPath
 {
 public:
-  static ezStatus CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sObjectSearchSequence,
-    ezStringBuilder& out_sComponentType, ezStringBuilder& out_sPropertyPath);
-  static ezStatus CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath);
-  static void AppendSubIndices(ezStringBuilder& ref_sPropertyPath, ezArrayPtr<ezVariant> indices);
-  static ezStatus ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& out_keys,
+  static WStatus CreatePath(const WObjectPropertyPathContext& context, const WPropertyReference& prop, WStringBuilder& out_sObjectSearchSequence,
+    WStringBuilder& out_sComponentType, WStringBuilder& out_sPropertyPath);
+  static WStatus CreatePropertyPath(const WObjectPropertyPathContext& context, const WPropertyReference& prop, WStringBuilder& out_sPropertyPath);
+  static void AppendSubIndices(WStringBuilder& ref_sPropertyPath, WArrayPtr<WVariant> indices);
+  static WStatus ResolvePath(const WObjectPropertyPathContext& context, WDynamicArray<WPropertyReference>& out_keys,
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath);
-  static ezStatus ResolvePropertyPath(const ezObjectPropertyPathContext& context, const char* szPropertyPath, ezPropertyReference& out_key);
+  static WStatus ResolvePropertyPath(const WObjectPropertyPathContext& context, const char* szPropertyPath, WPropertyReference& out_key);
 
-  static const ezDocumentObject* FindParentNodeComponent(const ezDocumentObject* pObject);
+  static const WDocumentObject* FindParentNodeComponent(const WDocumentObject* pObject);
 
 private:
-  static ezStatus PrependProperty(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezStringBuilder& out_sPropertyPath);
+  static WStatus PrependProperty(
+    const WDocumentObject* pObject, const WAbstractProperty* pProperty, WVariant index, WStringBuilder& out_sPropertyPath);
 };

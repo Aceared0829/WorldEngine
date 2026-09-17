@@ -1,38 +1,38 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Threading/ThreadUtils.h>
 #  include <Foundation/Time/Time.h>
 
 static DWORD g_uiMainThreadID = 0xFFFFFFFF;
 
-void ezThreadUtils::Initialize()
+void WThreadUtils::Initialize()
 {
   g_uiMainThreadID = GetCurrentThreadId();
 }
 
-void ezThreadUtils::YieldTimeSlice()
+void WThreadUtils::YieldTimeSlice()
 {
   ::Sleep(0);
 }
 
-void ezThreadUtils::YieldHardwareThread()
+void WThreadUtils::YieldHardwareThread()
 {
   YieldProcessor();
 }
 
-void ezThreadUtils::Sleep(const ezTime& duration)
+void WThreadUtils::Sleep(const WTime& duration)
 {
   ::Sleep((DWORD)duration.GetMilliseconds());
 }
 
-ezThreadID ezThreadUtils::GetCurrentThreadID()
+WThreadID WThreadUtils::GetCurrentThreadID()
 {
   return ::GetCurrentThreadId();
 }
 
-bool ezThreadUtils::IsMainThread()
+bool WThreadUtils::IsMainThread()
 {
   return GetCurrentThreadID() == g_uiMainThreadID;
 }

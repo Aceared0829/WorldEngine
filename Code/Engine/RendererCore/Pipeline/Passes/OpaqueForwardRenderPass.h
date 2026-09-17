@@ -6,25 +6,25 @@
 ///
 /// Renders all opaque geometry with full lighting and shading.
 /// Optionally accepts an ambient occlusion input for enhanced shading.
-class EZ_RENDERERCORE_DLL ezOpaqueForwardRenderPass : public ezForwardRenderPass
+class W_RENDERERCORE_DLL WOpaqueForwardRenderPass : public WForwardRenderPass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOpaqueForwardRenderPass, ezForwardRenderPass);
+  W_ADD_DYNAMIC_REFLECTION(WOpaqueForwardRenderPass, WForwardRenderPass);
 
 public:
-  ezOpaqueForwardRenderPass(const char* szName = "OpaqueForwardRenderPass");
-  ~ezOpaqueForwardRenderPass();
+  WOpaqueForwardRenderPass(const char* szName = "OpaqueForwardRenderPass");
+  ~WOpaqueForwardRenderPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
 protected:
-  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
+  virtual void SetupPermutationVars(const WRenderViewContext& renderViewContext) override;
 
-  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
+  virtual void DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass) override;
 
-  virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
+  virtual void RenderObjects(const WRenderViewContext& renderViewContext) override;
 
-  ezRenderPipelineNodeInputPin m_PinSSAO;        ///< Optional SSAO input for ambient occlusion.
-  ezRenderPipelineNodeInputPin m_PinShadowMasks; ///< Optional shadow mask input for deferred shadows.
+  WRenderPipelineNodeInputPin m_PinSSAO;        ///< Optional SSAO input for ambient occlusion.
+  WRenderPipelineNodeInputPin m_PinShadowMasks; ///< Optional shadow mask input for deferred shadows.
 
   bool m_bWriteDepth = true;                     ///< Whether to write to the depth buffer.
 };

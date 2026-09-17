@@ -4,9 +4,9 @@ The source assets are stored here:
 
 <https://github.com/ezEngine/src-assets>
 
-## To update ezMesh files
+## To update WMesh files
 
-The editor project is used to convert source assets from .glb format into the EZ specific formats.
+The editor project is used to convert source assets from .glb format into the W specific formats.
 The files from the AssetCache must then be copied here.
 
 ## To update OBJ files

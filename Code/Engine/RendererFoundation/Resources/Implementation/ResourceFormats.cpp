@@ -3,7 +3,7 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 // clang-format off
-const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
+const WUInt8 WGALResourceFormat::s_BitsPerElement[WGALResourceFormat::ENUM_COUNT] =
 {
   0, // Invalid
 
@@ -92,7 +92,7 @@ const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_CO
   8  // BC7UNormalizedsRGB
 };
 
-const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUNT] =
+const WUInt8 WGALResourceFormat::s_ChannelCount[WGALResourceFormat::ENUM_COUNT] =
 {
   0, // Invalid
 
@@ -179,26 +179,26 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
 };
 // clang-format on
 
-bool ezGALResourceFormat::IsBlockCompressed(ezGALResourceFormat::Enum format)
+bool WGALResourceFormat::IsBlockCompressed(WGALResourceFormat::Enum format)
 {
-  return (format >= ezGALResourceFormat::BC1 && format < ezGALResourceFormat::ENUM_COUNT);
+  return (format >= WGALResourceFormat::BC1 && format < WGALResourceFormat::ENUM_COUNT);
 }
 
-bool ezGALResourceFormat::IsFloatFormat(ezGALResourceFormat::Enum format)
+bool WGALResourceFormat::IsFloatFormat(WGALResourceFormat::Enum format)
 {
   switch (format)
   {
-    case ezGALResourceFormat::RGBAFloat:
-    case ezGALResourceFormat::RGBFloat:
-    case ezGALResourceFormat::RGBAHalf:
-    case ezGALResourceFormat::RGFloat:
-    case ezGALResourceFormat::RG11B10Float:
-    case ezGALResourceFormat::RGHalf:
-    case ezGALResourceFormat::DFloat:
-    case ezGALResourceFormat::RFloat:
-    case ezGALResourceFormat::RHalf:
-    case ezGALResourceFormat::BC6UFloat:
-    case ezGALResourceFormat::BC6Float:
+    case WGALResourceFormat::RGBAFloat:
+    case WGALResourceFormat::RGBFloat:
+    case WGALResourceFormat::RGBAHalf:
+    case WGALResourceFormat::RGFloat:
+    case WGALResourceFormat::RG11B10Float:
+    case WGALResourceFormat::RGHalf:
+    case WGALResourceFormat::DFloat:
+    case WGALResourceFormat::RFloat:
+    case WGALResourceFormat::RHalf:
+    case WGALResourceFormat::BC6UFloat:
+    case WGALResourceFormat::BC6Float:
       return true;
     default:
       return false;

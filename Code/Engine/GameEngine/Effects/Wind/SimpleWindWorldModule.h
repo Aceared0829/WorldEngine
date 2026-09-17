@@ -3,19 +3,19 @@
 #include <Core/Interfaces/WindWorldModule.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class EZ_GAMEENGINE_DLL ezSimpleWindWorldModule : public ezWindWorldModuleInterface
+class W_GAMEENGINE_DLL WSimpleWindWorldModule : public WWindWorldModuleInterface
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleWindWorldModule, ezWindWorldModuleInterface);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WSimpleWindWorldModule, WWindWorldModuleInterface);
 
 public:
-  ezSimpleWindWorldModule(ezWorld* pWorld);
-  ~ezSimpleWindWorldModule();
+  WSimpleWindWorldModule(WWorld* pWorld);
+  ~WSimpleWindWorldModule();
 
-  virtual ezVec3 GetWindAt(const ezVec3& vPosition) const override;
+  virtual WVec3 GetWindAt(const WVec3& vPosition) const override;
 
-  void SetFallbackWind(const ezVec3& vWind);
+  void SetFallbackWind(const WVec3& vWind);
 
 private:
-  ezVec3 m_vFallbackWind;
+  WVec3 m_vFallbackWind;
 };

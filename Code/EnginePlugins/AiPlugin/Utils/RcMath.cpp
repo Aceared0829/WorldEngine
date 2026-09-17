@@ -3,48 +3,48 @@
 #include <AiPlugin/Utils/RcMath.h>
 #include <Foundation/Math/Vec3.h>
 
-ezRcPos::ezRcPos()
+WRcPos::WRcPos()
 {
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
-  m_Pos[0] = ezMath::NaN<float>();
-  m_Pos[1] = ezMath::NaN<float>();
-  m_Pos[2] = ezMath::NaN<float>();
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
+  m_Pos[0] = WMath::NaN<float>();
+  m_Pos[1] = WMath::NaN<float>();
+  m_Pos[2] = WMath::NaN<float>();
 #endif
 }
 
-ezRcPos::ezRcPos(const ezVec3& v)
+WRcPos::WRcPos(const WVec3& v)
 {
   *this = v;
 }
 
-ezRcPos::ezRcPos(const float* pPos)
+WRcPos::WRcPos(const float* pPos)
 {
   *this = pPos;
 }
 
-ezRcPos::operator const float*() const
+WRcPos::operator const float*() const
 {
   return &m_Pos[0];
 }
 
-ezRcPos::operator float*()
+WRcPos::operator float*()
 {
   return &m_Pos[0];
 }
 
-ezRcPos::operator ezVec3() const
+WRcPos::operator WVec3() const
 {
-  return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
+  return WVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
 }
 
-void ezRcPos::operator=(const float* pPos)
+void WRcPos::operator=(const float* pPos)
 {
   m_Pos[0] = pPos[0];
   m_Pos[1] = pPos[1];
   m_Pos[2] = pPos[2];
 }
 
-void ezRcPos::operator=(const ezVec3& v)
+void WRcPos::operator=(const WVec3& v)
 {
   m_Pos[0] = v.x;
   m_Pos[1] = v.z;

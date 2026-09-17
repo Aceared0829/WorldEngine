@@ -3,7 +3,7 @@
 #include <Core/World/ComponentManager.h>
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-using ezCameraShakeComponentManager = ezComponentManagerSimple<class ezCameraShakeComponent, ezComponentUpdateType::WhenSimulating>;
+using WCameraShakeComponentManager = WComponentManagerSimple<class WCameraShakeComponent, WComponentUpdateType::WhenSimulating>;
 
 /// This component is used to apply a shaking effect to the game object that it is attached to.
 ///
@@ -13,33 +13,33 @@ using ezCameraShakeComponentManager = ezComponentManagerSimple<class ezCameraSha
 ///
 /// How much shake to apply is controlled through the m_MinShake and m_MaxShake properties.
 ///
-/// The shake values can be modified dynamically to force a shake, but it is more convenient to instead place shake volumes (see ezCameraShakeVolumeComponent and derived classes). The camera shake component samples these volumes using its own location and uses the
+/// The shake values can be modified dynamically to force a shake, but it is more convenient to instead place shake volumes (see WCameraShakeVolumeComponent and derived classes). The camera shake component samples these volumes using its own location and uses the
 /// determined strength to fade between its min and max shake amount.
 ///
-/// \see ezCameraShakeVolumeComponent
-class EZ_GAMECOMPONENTS_DLL ezCameraShakeComponent : public ezComponent
+/// \see WCameraShakeVolumeComponent
+class W_GAMECOMPONENTS_DLL WCameraShakeComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezCameraShakeComponent, ezComponent, ezCameraShakeComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WCameraShakeComponent, WComponent, WCameraShakeComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCameraShakeComponent
+  // WCameraShakeComponent
 
   /// How much shake to apply as the minimum value, even if no shake volume is found or the shake strength is zero.
-  ezAngle m_MinShake; // [ property ]
+  WAngle m_MinShake; // [ property ]
 
   /// How much shake to apply at shake strength 1.
-  ezAngle m_MaxShake = ezAngle::MakeFromDegree(5); // [ property ]
+  WAngle m_MaxShake = WAngle::MakeFromDegree(5); // [ property ]
 
 public:
-  ezCameraShakeComponent();
-  ~ezCameraShakeComponent();
+  WCameraShakeComponent();
+  ~WCameraShakeComponent();
 
 protected:
   void Update();
@@ -48,8 +48,8 @@ protected:
   float GetStrengthAtPosition() const;
 
   float m_fLastStrength = 0.0f;
-  ezTime m_ReferenceTime;
-  ezAngle m_Rotation;
-  ezQuat m_qPrevTarget = ezQuat::MakeIdentity();
-  ezQuat m_qNextTarget = ezQuat::MakeIdentity();
+  WTime m_ReferenceTime;
+  WAngle m_Rotation;
+  WQuat m_qPrevTarget = WQuat::MakeIdentity();
+  WQuat m_qNextTarget = WQuat::MakeIdentity();
 };

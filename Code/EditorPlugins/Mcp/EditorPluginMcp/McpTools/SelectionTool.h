@@ -2,8 +2,8 @@
 
 #include <Mcp/McpTool.h>
 
-class ezDocumentObject;
-class ezMcpJsonWriter;
+class WDocumentObject;
+class WMcpJsonWriter;
 
 /// Reads and sets the selection of an open document.
 ///
@@ -13,18 +13,18 @@ class ezMcpJsonWriter;
 ///
 /// Selecting an object does not require its window to exist, but a document that was opened without
 /// one shows nothing, so a selection meant for the user to see belongs to a document they have open.
-class ezMcpSelectionTool : public ezMcpToolProvider
+class WMcpSelectionTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpSelectionTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpSelectionTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 private:
-  void ExecuteGet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecuteGet(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteSet(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 
   /// Writes guid, name and type - enough to recognise an object without a second call per entry.
-  static void WriteObject(ezMcpJsonWriter& ref_writer, const ezDocumentObject* pObject);
+  static void WriteObject(WMcpJsonWriter& ref_writer, const WDocumentObject* pObject);
 };

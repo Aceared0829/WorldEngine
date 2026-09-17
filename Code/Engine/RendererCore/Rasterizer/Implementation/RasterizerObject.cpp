@@ -6,41 +6,41 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
 
-ezMutex ezRasterizerObject::s_Mutex;
-ezMap<ezString, ezSharedPtr<ezRasterizerObject>> ezRasterizerObject::s_Objects;
+WMutex WRasterizerObject::s_Mutex;
+WMap<WString, WSharedPtr<WRasterizerObject>> WRasterizerObject::s_Objects;
 
-ezRasterizerObject::ezRasterizerObject() = default;
-ezRasterizerObject::~ezRasterizerObject() = default;
+WRasterizerObject::WRasterizerObject() = default;
+WRasterizerObject::~WRasterizerObject() = default;
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#if W_ENABLED(W_RASTERIZER_SUPPORTED)
 
-// needed for ezHybridArray below
-EZ_DEFINE_AS_POD_TYPE(__m128);
+// needed for WHybridArray below
+W_DEFINE_AS_POD_TYPE(__m128);
 
-void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
+void WRasterizerObject::CreateMesh(const WGeometry& geo)
 {
-  ezTempHybridArray<__m128, 64> vertices;
+  WTempHybridArray<__m128, 64> vertices;
   vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
   Aabb bounds;
 
-  auto addVtx = [&](ezVec3 vtxPos)
+  auto addVtx = [&](WVec3 vtxPos)
   {
-    ezSimdVec4f v;
+    WSimdVec4f v;
     v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
     vertices.PushBack(v.m_v);
   };
 
   for (const auto& poly : geo.GetPolygons())
   {
-    const ezUInt32 uiNumVertices = poly.m_Vertices.GetCount();
-    ezUInt32 uiQuadVtx = 0;
+    const WUInt32 uiNumVertices = poly.m_Vertices.GetCount();
+    WUInt32 uiQuadVtx = 0;
 
     // ignore complex polygons entirely
     if (uiNumVertices > 4)
       continue;
 
-    for (ezUInt32 i = 0; i < uiNumVertices; ++i)
+    for (WUInt32 i = 0; i < uiNumVertices; ++i)
     {
       if (uiQuadVtx == 4)
       {
@@ -48,7 +48,7 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
         break;
       }
 
-      const ezUInt32 vtxIdx = poly.m_Vertices[i];
+      const WUInt32 vtxIdx = poly.m_Vertices[i];
 
       addVtx(geo.GetVertices()[vtxIdx].m_vPosition);
 
@@ -65,13 +65,13 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
     if (uiQuadVtx == 4)
     {
-      const ezUInt32 n = vertices.GetCount();
+      const WUInt32 n = vertices.GetCount();
 
-      // swap two vertices in the quad to flip the front face (different convention between EZ and the rasterizer)
-      ezMath::Swap(vertices[n - 1], vertices[n - 3]);
+      // swap two vertices in the quad to flip the front face (different convention between W and the rasterizer)
+      WMath::Swap(vertices[n - 1], vertices[n - 3]);
     }
 
-    EZ_ASSERT_DEV(uiQuadVtx == 4, "Degenerate polygon encountered");
+    W_ASSERT_DEV(uiQuadVtx == 4, "Degenerate polygon encountered");
   }
 
   // pad vertices to 32 for proper alignment during baking
@@ -83,9 +83,9 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   m_Occluder.bake(vertices.GetData(), vertices.GetCount(), bounds.m_min, bounds.m_max);
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::GetObject(WStringView sUniqueName)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
   auto it = s_Objects.Find(sUniqueName);
 
@@ -95,20 +95,20 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView
   return nullptr;
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateBox(const WVec3& vFullExtents)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
-  ezStringBuilder sName;
+  WStringBuilder sName;
   sName.SetFormat("Box-{}-{}-{}", vFullExtents.x, vFullExtents.y, vFullExtents.z);
 
-  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+  WSharedPtr<WRasterizerObject>& pObj = s_Objects[sName];
 
   if (pObj == nullptr)
   {
-    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    pObj = W_NEW(WFoundation::GetAlignedAllocator(), WRasterizerObject);
 
-    ezGeometry geometry;
+    WGeometry geometry;
     geometry.AddBox(vFullExtents, false, {});
 
     pObj->CreateMesh(geometry);
@@ -117,23 +117,23 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3
   return pObj;
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateQuadX(const WVec2& vYZExtents)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
-  ezStringBuilder sName;
+  WStringBuilder sName;
   sName.SetFormat("Quad-{}-{}", vYZExtents.x, vYZExtents.y);
 
-  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+  WSharedPtr<WRasterizerObject>& pObj = s_Objects[sName];
 
   if (pObj == nullptr)
   {
-    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    pObj = W_NEW(WFoundation::GetAlignedAllocator(), WRasterizerObject);
 
-    ezGeometry::GeoOptions opt;
-    opt.m_MainAxis = ezBasisAxis::PositiveX;
+    WGeometry::GeoOptions opt;
+    opt.m_MainAxis = WBasisAxis::PositiveX;
 
-    ezGeometry geometry;
+    WGeometry geometry;
     geometry.AddRect(vYZExtents, 1, 1, opt);
 
     pObj->CreateMesh(geometry);
@@ -142,15 +142,15 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVe
   return pObj;
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateMesh(WStringView sUniqueName, const WGeometry& geometry)
 {
-  EZ_LOCK(s_Mutex);
+  W_LOCK(s_Mutex);
 
-  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sUniqueName];
+  WSharedPtr<WRasterizerObject>& pObj = s_Objects[sUniqueName];
 
   if (pObj == nullptr)
   {
-    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    pObj = W_NEW(WFoundation::GetAlignedAllocator(), WRasterizerObject);
 
     pObj->CreateMesh(geometry);
   }
@@ -160,26 +160,26 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 
 #else
 
-void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
+void WRasterizerObject::CreateMesh(const WGeometry& geo)
 {
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
-{
-  return nullptr;
-}
-
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::GetObject(WStringView sUniqueName)
 {
   return nullptr;
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateBox(const WVec3& vFullExtents)
 {
   return nullptr;
 }
 
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateQuadX(const WVec2& vYZExtents)
+{
+  return nullptr;
+}
+
+WSharedPtr<const WRasterizerObject> WRasterizerObject::CreateMesh(WStringView sUniqueName, const WGeometry& geometry)
 {
   return nullptr;
 }

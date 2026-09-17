@@ -5,16 +5,16 @@
 #include <DetourNavMesh.h>
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarInt cvar_NavMeshVisualize("AI.Navmesh.Visualize", -1, ezCVarFlags::None, "Visualize the n-th navmesh.");
+WCVarInt cvar_NavMeshVisualize("AI.Navmesh.Visualize", -1, WCVarFlags::None, "Visualize the n-th navmesh.");
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezAiNavMeshWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAiNavMeshWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_WORLD_MODULE(WAiNavMeshWorldModule);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAiNavMeshWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAiNavMeshWorldModule::ezAiNavMeshWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WAiNavMeshWorldModule::WAiNavMeshWorldModule(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
   m_Config.Load().IgnoreResult();
 
@@ -27,8 +27,8 @@ ezAiNavMeshWorldModule::ezAiNavMeshWorldModule(ezWorld* pWorld)
   {
     auto& filter = m_PathSearchFilters[cfg.m_sName];
 
-    ezUInt32 groundMask = 0;
-    for (ezUInt32 gt = 0; gt < ezAiNumGroundTypes; ++gt)
+    WUInt32 groundMask = 0;
+    for (WUInt32 gt = 0; gt < WAiNumGroundTypes; ++gt)
     {
       if (cfg.m_bGroundTypeAllowed[gt])
         groundMask |= (1 << gt);
@@ -46,21 +46,21 @@ ezAiNavMeshWorldModule::ezAiNavMeshWorldModule(ezWorld* pWorld)
   }
 }
 
-ezAiNavMeshWorldModule::~ezAiNavMeshWorldModule()
+WAiNavMeshWorldModule::~WAiNavMeshWorldModule()
 {
   for (const auto& cfg : m_Config.m_NavmeshConfigs)
   {
-    EZ_DEFAULT_DELETE(m_WorldNavMeshes[cfg.m_sName]);
+    W_DEFAULT_DELETE(m_WorldNavMeshes[cfg.m_sName]);
   }
 }
 
-void ezAiNavMeshWorldModule::Initialize()
+void WAiNavMeshWorldModule::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAiNavMeshWorldModule::Update, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto updateDesc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WAiNavMeshWorldModule::Update, this);
+    updateDesc.m_Phase = WWorldUpdatePhase::PostTransform;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(updateDesc);
@@ -71,21 +71,21 @@ void ezAiNavMeshWorldModule::Initialize()
   for (const auto& cfg : m_Config.m_NavmeshConfigs)
   {
     // TODO: make tile size etc configurable
-    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, cfg);
+    m_WorldNavMeshes[cfg.m_sName] = W_DEFAULT_NEW(WAiNavMesh, cfg);
   }
 
-  m_pGenerateSectorTask = EZ_DEFAULT_NEW(ezNavMeshSectorGenerationTask);
-  m_pGenerateSectorTask->ConfigureTask("Generate Navmesh Sector", ezTaskNesting::Maybe);
+  m_pGenerateSectorTask = W_DEFAULT_NEW(WNavMeshSectorGenerationTask);
+  m_pGenerateSectorTask->ConfigureTask("Generate Navmesh Sector", WTaskNesting::Maybe);
 }
 
-void ezAiNavMeshWorldModule::Deinitialize()
+void WAiNavMeshWorldModule::Deinitialize()
 {
   m_pGenerateSectorTask = nullptr;
-  ezTaskSystem::CancelGroup(m_GenerateSectorTaskID).IgnoreResult();
-  ezTaskSystem::WaitForGroup(m_GenerateSectorTaskID);
+  WTaskSystem::CancelGroup(m_GenerateSectorTaskID).IgnoreResult();
+  WTaskSystem::WaitForGroup(m_GenerateSectorTaskID);
 }
 
-ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName)
+WAiNavMesh* WAiNavMeshWorldModule::GetNavMesh(WStringView sName)
 {
   auto it = m_WorldNavMeshes.Find(sName);
   if (it.IsValid())
@@ -94,7 +94,7 @@ ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName)
   return nullptr;
 }
 
-const ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName) const
+const WAiNavMesh* WAiNavMeshWorldModule::GetNavMesh(WStringView sName) const
 {
   auto it = m_WorldNavMeshes.Find(sName);
   if (it.IsValid())
@@ -103,7 +103,7 @@ const ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName) const
   return nullptr;
 }
 
-void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
+void WAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
 {
   if (m_uiUpdateDelay > 0)
   {
@@ -118,7 +118,7 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
 
   if (cvar_NavMeshVisualize >= 0)
   {
-    ezInt32 i = cvar_NavMeshVisualize;
+    WInt32 i = cvar_NavMeshVisualize;
     for (auto it = m_WorldNavMeshes.GetIterator(); it.IsValid(); ++it)
     {
       if (i-- == 0)
@@ -129,39 +129,39 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
     }
   }
 
-  if (!ezTaskSystem::IsTaskGroupFinished(m_GenerateSectorTaskID))
+  if (!WTaskSystem::IsTaskGroupFinished(m_GenerateSectorTaskID))
     return;
 
-  auto pNavGeo = GetWorld()->GetOrCreateModule<ezNavmeshGeoWorldModuleInterface>();
+  auto pNavGeo = GetWorld()->GetOrCreateModule<WNavmeshGeoWorldModuleInterface>();
   if (pNavGeo == nullptr)
     return;
 
   for (auto& nm : m_WorldNavMeshes)
   {
     auto sectorID = nm.Value()->RetrieveRequestedSector();
-    if (sectorID == ezInvalidIndex)
+    if (sectorID == WInvalidIndex)
       continue;
 
     m_pGenerateSectorTask->m_pWorldNavMesh = nm.Value();
     m_pGenerateSectorTask->m_SectorID = sectorID;
     m_pGenerateSectorTask->m_pNavGeo = pNavGeo;
 
-    m_GenerateSectorTaskID = ezTaskSystem::StartSingleTask(m_pGenerateSectorTask, ezTaskPriority::LongRunning);
+    m_GenerateSectorTaskID = WTaskSystem::StartSingleTask(m_pGenerateSectorTask, WTaskPriority::LongRunning);
 
     break;
   }
 }
 
-const dtQueryFilter& ezAiNavMeshWorldModule::GetPathSearchFilter(ezStringView sName) const
+const dtQueryFilter& WAiNavMeshWorldModule::GetPathSearchFilter(WStringView sName) const
 {
   auto it = m_PathSearchFilters.Find(sName);
   if (it.IsValid())
     return it.Value();
 
   it = m_PathSearchFilters.Find("");
-  ezLog::Warning("Ai Path Search Filter '{}' does not exist.", sName);
+  WLog::Warning("Ai Path Search Filter '{}' does not exist.", sName);
   return it.Value();
 }
 
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Implementation_NavMeshWorldModule);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Implementation_NavMeshWorldModule);

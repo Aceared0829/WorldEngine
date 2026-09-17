@@ -20,39 +20,39 @@
 /// Limitations:
 /// - Cannot represent shearing transformations
 /// - Non-uniform scaling across hierarchies uses simplified component-wise multiplication
-/// - When these limitations are problematic, use ezMat3 or ezMat4T instead
+/// - When these limitations are problematic, use WMat3 or WMat4T instead
 ///
 /// Performance characteristics:
 /// - More memory efficient than 4x4 matrices (7 floats vs 16)
 /// - Faster interpolation and concatenation than matrices
 /// - Suitable for real-time animation and game object hierarchies
 template <typename Type>
-class ezTransformTemplate
+class WTransformTemplate
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   // *** Data ***
-  ezVec3Template<Type> m_vPosition;
-  ezQuatTemplate<Type> m_qRotation;
-  ezVec3Template<Type> m_vScale;
+  WVec3Template<Type> m_vPosition;
+  WQuatTemplate<Type> m_qRotation;
+  WVec3Template<Type> m_vScale;
 
   // *** Constructors ***
 public:
   /// Default constructor: Does not do any initialization.
-  ezTransformTemplate() = default;
+  WTransformTemplate() = default;
 
 
   /// Initializes the transform from the given position, rotation and scale.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,
-    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(),
-    const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
+  explicit WTransformTemplate(const WVec3Template<Type>& vPosition,
+    const WQuatTemplate<Type>& qRotation = WQuatTemplate<Type>::MakeIdentity(),
+    const WVec3Template<Type>& vScale = WVec3Template<Type>(1)); // [tested]
 
   /// Creates a transform from the given position, rotation and scale.
-  [[nodiscard]] static ezTransformTemplate<Type> Make(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(), const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1));
+  [[nodiscard]] static WTransformTemplate<Type> Make(const WVec3Template<Type>& vPosition, const WQuatTemplate<Type>& qRotation = WQuatTemplate<Type>::MakeIdentity(), const WVec3Template<Type>& vScale = WVec3Template<Type>(1));
 
   /// Creates an identity transform.
-  [[nodiscard]] static ezTransformTemplate<Type> MakeIdentity();
+  [[nodiscard]] static WTransformTemplate<Type> MakeIdentity();
 
   /// Creates a transform from the given matrix using decomposition.
   ///
@@ -62,17 +62,17 @@ public:
   /// \note Matrices containing shearing cannot be accurately represented as transforms.
   /// Mirroring (negative determinant) may not be preserved correctly.
   /// Zero or near-zero matrices will produce degenerate transforms.
-  [[nodiscard]] static ezTransformTemplate<Type> MakeFromMat4(const ezMat4Template<Type>& mMat);
+  [[nodiscard]] static WTransformTemplate<Type> MakeFromMat4(const WMat4Template<Type>& mMat);
 
   /// Creates a transform that is the local transformation needed to get from the parent's transform to the child's.
   ///
   /// Computes: localTransform = inverse(globalTransformParent) * globalTransformChild
-  [[nodiscard]] static ezTransformTemplate<Type> MakeLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
+  [[nodiscard]] static WTransformTemplate<Type> MakeLocalTransform(const WTransformTemplate& globalTransformParent, const WTransformTemplate& globalTransformChild); // [tested]
 
   /// Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
   ///
   /// Computes: globalTransform = globalTransformParent * localTransformChild
-  [[nodiscard]] static ezTransformTemplate<Type> MakeGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
+  [[nodiscard]] static WTransformTemplate<Type> MakeGlobalTransform(const WTransformTemplate& globalTransformParent, const WTransformTemplate& localTransformChild); // [tested]
 
   /// Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
@@ -97,10 +97,10 @@ public:
   // *** Equality ***
 public:
   /// Equality Check (bitwise)
-  bool IsIdentical(const ezTransformTemplate& rhs) const; // [tested]
+  bool IsIdentical(const WTransformTemplate& rhs) const; // [tested]
 
   /// Equality Check with epsilon
-  bool IsEqual(const ezTransformTemplate& rhs, Type fEpsilon) const; // [tested]
+  bool IsEqual(const WTransformTemplate& rhs, Type fEpsilon) const; // [tested]
 
   // *** Inverse ***
 public:
@@ -108,59 +108,59 @@ public:
   void Invert(); // [tested]
 
   /// Returns the inverse of this transform.
-  const ezTransformTemplate GetInverse() const; // [tested]
+  const WTransformTemplate GetInverse() const; // [tested]
 
   /// Transforms a position vector by this transform (applies scale, rotation, and translation).
-  [[nodiscard]] ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
+  [[nodiscard]] WVec3Template<Type> TransformPosition(const WVec3Template<Type>& v) const; // [tested]
 
   /// Transforms a direction vector by this transform (applies scale and rotation, but not translation).
-  [[nodiscard]] ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
+  [[nodiscard]] WVec3Template<Type> TransformDirection(const WVec3Template<Type>& v) const; // [tested]
 
   /// Translates the transform by the given vector in global space.
-  void operator+=(const ezVec3Template<Type>& v); // [tested]
+  void operator+=(const WVec3Template<Type>& v); // [tested]
 
   /// Translates the transform by the negative of the given vector in global space.
-  void operator-=(const ezVec3Template<Type>& v); // [tested]
+  void operator-=(const WVec3Template<Type>& v); // [tested]
 
   // *** Conversion operations ***
 public:
   /// Returns the transformation as a matrix.
-  const ezMat4Template<Type> GetAsMat4() const; // [tested]
+  const WMat4Template<Type> GetAsMat4() const; // [tested]
 };
 
 // *** free functions ***
 
 /// Transforms the vector v by the transform (equivalent to TransformPosition).
 template <typename Type>
-const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
+const WVec3Template<Type> operator*(const WTransformTemplate<Type>& t, const WVec3Template<Type>& v); // [tested]
 
 /// Rotates the transform by the given quaternion. Multiplies q from the left with t.
 template <typename Type>
-const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t); // [tested]
+const WTransformTemplate<Type> operator*(const WQuatTemplate<Type>& q, const WTransformTemplate<Type>& t); // [tested]
 
 /// Rotates the transform by the given quaternion. Multiplies q from the right with t.
 template <typename Type>
-const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t, const ezQuatTemplate<Type>& q);
+const WTransformTemplate<Type> operator*(const WTransformTemplate<Type>& t, const WQuatTemplate<Type>& q);
 
-/// Translates the ezTransform by the vector. This will move the object in global space.
+/// Translates the WTransform by the vector. This will move the object in global space.
 template <typename Type>
-const ezTransformTemplate<Type> operator+(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
+const WTransformTemplate<Type> operator+(const WTransformTemplate<Type>& t, const WVec3Template<Type>& v); // [tested]
 
-/// Translates the ezTransform by the vector. This will move the object in global space.
+/// Translates the WTransform by the vector. This will move the object in global space.
 template <typename Type>
-const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
+const WTransformTemplate<Type> operator-(const WTransformTemplate<Type>& t, const WVec3Template<Type>& v); // [tested]
 
 /// Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
 ///
 /// Computes: result = t1 * t2 (apply t2 first, then t1)
 /// Equivalent to: MakeGlobalTransform(t1, t2)
 template <typename Type>
-const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
+const WTransformTemplate<Type> operator*(const WTransformTemplate<Type>& t1, const WTransformTemplate<Type>& t2); // [tested]
 
 template <typename Type>
-bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2);                           // [tested]
+bool operator==(const WTransformTemplate<Type>& t1, const WTransformTemplate<Type>& t2);                           // [tested]
 
 template <typename Type>
-bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2);                           // [tested]
+bool operator!=(const WTransformTemplate<Type>& t1, const WTransformTemplate<Type>& t2);                           // [tested]
 
 #include <Foundation/Math/Implementation/Transform_inl.h>

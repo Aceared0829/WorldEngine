@@ -11,12 +11,12 @@ namespace Rml
   class Context;
 }
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiDataBinding
+class W_RMLUIPLUGIN_DLL WRmlUiDataBinding
 {
 public:
-  virtual ~ezRmlUiDataBinding() = default;
+  virtual ~WRmlUiDataBinding() = default;
 
-  virtual ezResult Initialize(Rml::Context& ref_context) = 0;
+  virtual WResult Initialize(Rml::Context& ref_context) = 0;
   virtual void Deinitialize(Rml::Context& ref_context) = 0;
 
   /// Returns true if anything was updated

@@ -1,21 +1,21 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Application/Application.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Logging/TraceWriter.h>
 
-void ezLog::Print(const char* szText)
+void WLog::Print(const char* szText)
 {
   printf("%s", szText);
 
-  ezLoggingEventData data;
-  data.m_EventType = ezLogMsgType::InfoMsg;
+  WLoggingEventData data;
+  data.m_EventType = WLogMsgType::InfoMsg;
   data.m_sText = szText;
-  ezLogWriter::Tracing::LogMessageHandler(data);
+  WLogWriter::Tracing::LogMessageHandler(data);
 
-  OutputDebugStringW(ezStringWChar(szText).GetData());
+  OutputDebugStringW(WStringWChar(szText).GetData());
 
   if (s_CustomPrintFunction)
   {
@@ -26,23 +26,23 @@ void ezLog::Print(const char* szText)
   fflush(stderr);
 }
 
-void ezLog::OsMessageBox(const ezFormatString& text)
+void WLog::OsMessageBox(const WFormatString& text)
 {
-  ezStringBuilder tmp;
-  ezStringBuilder display = text.GetText(tmp);
+  WStringBuilder tmp;
+  WStringBuilder display = text.GetText(tmp);
   display.Trim(" \n\r\t");
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   const char* title = "";
-  if (ezApplication::GetApplicationInstance())
+  if (WApplication::GetApplicationInstance())
   {
-    title = ezApplication::GetApplicationInstance()->GetApplicationName();
+    title = WApplication::GetApplicationInstance()->GetApplicationName();
   }
 
-  MessageBoxW(nullptr, ezStringWChar(display).GetData(), ezStringWChar(title), MB_OK);
+  MessageBoxW(nullptr, WStringWChar(display).GetData(), WStringWChar(title), MB_OK);
 #  else
-  ezLog::Print(display);
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  WLog::Print(display);
+  W_ASSERT_NOT_IMPLEMENTED;
 #  endif
 }
 

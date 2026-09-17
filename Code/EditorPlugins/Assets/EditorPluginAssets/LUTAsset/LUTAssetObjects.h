@@ -5,18 +5,18 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 
-class ezLUTAssetProperties : public ezReflectedClass
+class WLUTAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLUTAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WLUTAssetProperties, WReflectedClass);
 
 public:
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
   const char* GetInputFile() const { return m_sInput; }
   void SetInputFile(const char* szFile) { m_sInput = szFile; }
 
-  ezString GetAbsoluteInputFilePath() const;
+  WString GetAbsoluteInputFilePath() const;
 
 private:
-  ezString m_sInput;
+  WString m_sInput;
 };

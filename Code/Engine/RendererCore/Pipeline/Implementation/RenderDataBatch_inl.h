@@ -1,42 +1,42 @@
 
 template <typename T>
-EZ_ALWAYS_INLINE const T& ezRenderDataBatch::Iterator<T>::operator*() const
+W_ALWAYS_INLINE const T& WRenderDataBatch::Iterator<T>::operator*() const
 {
-  return *ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
+  return *WStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE const T* ezRenderDataBatch::Iterator<T>::operator->() const
+W_ALWAYS_INLINE const T* WRenderDataBatch::Iterator<T>::operator->() const
 {
-  return ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
+  return WStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::operator const T*() const
+W_ALWAYS_INLINE WRenderDataBatch::Iterator<T>::operator const T*() const
 {
-  return ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
+  return WStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::Next()
+W_ALWAYS_INLINE void WRenderDataBatch::Iterator<T>::Next()
 {
   ++m_pCurrent;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezRenderDataBatch::Iterator<T>::IsValid() const
+W_ALWAYS_INLINE bool WRenderDataBatch::Iterator<T>::IsValid() const
 {
   return m_pCurrent < m_pEnd;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::operator++()
+W_ALWAYS_INLINE void WRenderDataBatch::Iterator<T>::operator++()
 {
   Next();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd)
+W_ALWAYS_INLINE WRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd)
 {
   m_pCurrent = pStart;
   m_pEnd = pEnd;
@@ -44,47 +44,47 @@ EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderDa
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetDataCount() const
+W_ALWAYS_INLINE WUInt32 WRenderDataBatch::GetDataCount() const
 {
   return m_Data.GetCount();
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE const T* ezRenderDataBatch::GetFirstData() const
+W_ALWAYS_INLINE const T* WRenderDataBatch::GetFirstData() const
 {
-  return m_Data.IsEmpty() == false ? ezStaticCast<const T*>(m_Data.GetPtr()->m_pRenderData) : nullptr;
+  return m_Data.IsEmpty() == false ? WStaticCast<const T*>(m_Data.GetPtr()->m_pRenderData) : nullptr;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(ezUInt32 uiStartIndex, ezUInt32 uiCount) const
+W_ALWAYS_INLINE WRenderDataBatch::Iterator<T> WRenderDataBatch::GetIterator(WUInt32 uiStartIndex, WUInt32 uiCount) const
 {
-  ezUInt32 uiEndIndex = ezMath::Min(uiStartIndex + uiCount, m_Data.GetCount());
+  WUInt32 uiEndIndex = WMath::Min(uiStartIndex + uiCount, m_Data.GetCount());
   return Iterator<T>(m_Data.GetPtr() + uiStartIndex, m_Data.GetPtr() + uiEndIndex);
 }
 
-EZ_ALWAYS_INLINE ezGALBufferHandle ezRenderDataBatch::GetDataOffsetsBuffer() const
+W_ALWAYS_INLINE WGALBufferHandle WRenderDataBatch::GetDataOffsetsBuffer() const
 {
   return m_hDataOffsetsBuffer;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetFirstDataOffsetIndex() const
+W_ALWAYS_INLINE WUInt32 WRenderDataBatch::GetFirstDataOffsetIndex() const
 {
   return m_uiFirstDataOffsetIndex;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetInstanceCount() const
+W_ALWAYS_INLINE WUInt32 WRenderDataBatch::GetInstanceCount() const
 {
   return m_uiInstanceCount;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatchList::GetBatchCount() const
+W_ALWAYS_INLINE WUInt32 WRenderDataBatchList::GetBatchCount() const
 {
   return m_Batches.GetCount();
 }
 
-EZ_ALWAYS_INLINE const ezRenderDataBatch& ezRenderDataBatchList::GetBatch(ezUInt32 uiIndex) const
+W_ALWAYS_INLINE const WRenderDataBatch& WRenderDataBatchList::GetBatch(WUInt32 uiIndex) const
 {
   return m_Batches[uiIndex];
 }

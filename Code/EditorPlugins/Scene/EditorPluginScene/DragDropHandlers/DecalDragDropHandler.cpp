@@ -3,32 +3,32 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginScene/DragDropHandlers/DecalDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezDecalComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalComponentDragDropHandler, 1, WRTTIDefaultAllocator<WDecalComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezDecalComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WDecalComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Decal") ? 1.0f : 0.0f;
 }
 
-void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WDecalComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  ezVariantArray var;
+  WVariantArray var;
   var.PushBack(GetAssetGuidString(pInfo));
-  constexpr const char* szComponentType = "ezDecalComponent";
+  constexpr const char* szComponentType = "WDecalComponent";
   constexpr const char* szPropertyName = "Decals";
 
   if (pInfo->m_sTargetContext == "viewport")
   {
     CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, var, pInfo->m_ActiveParentObject, -1);
 
-    m_vAlignAxisWithNormal = -ezVec3::MakeAxisX();
+    m_vAlignAxisWithNormal = -WVec3::MakeAxisX();
   }
   else
   {

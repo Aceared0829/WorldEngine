@@ -1,67 +1,67 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere() = default;
+W_ALWAYS_INLINE WSimdBBoxSphere::WSimdBBoxSphere() = default;
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius)
+W_ALWAYS_INLINE WSimdBBoxSphere::WSimdBBoxSphere(const WSimdVec4f& vCenter, const WSimdVec4f& vBoxHalfExtents, const WSimdFloat& fSphereRadius)
   : m_CenterAndRadius(vCenter)
   , m_BoxHalfExtents(vBoxHalfExtents)
 {
   m_CenterAndRadius.SetW(fSphereRadius);
 }
 
-inline ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBBox& box, const ezSimdBSphere& sphere)
+inline WSimdBBoxSphere::WSimdBBoxSphere(const WSimdBBox& box, const WSimdBSphere& sphere)
 {
   *this = MakeFromBoxAndSphere(box, sphere);
 }
 
-inline ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBBox& box)
+inline WSimdBBoxSphere::WSimdBBoxSphere(const WSimdBBox& box)
   : m_CenterAndRadius(box.GetCenter())
   , m_BoxHalfExtents(m_CenterAndRadius - box.m_Min)
 {
   m_CenterAndRadius.SetW(m_BoxHalfExtents.GetLength<3>());
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBSphere& sphere)
+W_ALWAYS_INLINE WSimdBBoxSphere::WSimdBBoxSphere(const WSimdBSphere& sphere)
   : m_CenterAndRadius(sphere.m_CenterAndRadius)
-  , m_BoxHalfExtents(ezSimdVec4f(sphere.GetRadius()))
+  , m_BoxHalfExtents(WSimdVec4f(sphere.GetRadius()))
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeZero()
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeZero()
 {
-  ezSimdBBoxSphere res;
-  res.m_CenterAndRadius = ezSimdVec4f::MakeZero();
-  res.m_BoxHalfExtents = ezSimdVec4f::MakeZero();
+  WSimdBBoxSphere res;
+  res.m_CenterAndRadius = WSimdVec4f::MakeZero();
+  res.m_BoxHalfExtents = WSimdVec4f::MakeZero();
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeInvalid()
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeInvalid()
 {
-  ezSimdBBoxSphere res;
-  res.m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
-  res.m_BoxHalfExtents.Set(-ezMath::MaxValue<float>());
+  WSimdBBoxSphere res;
+  res.m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -WMath::SmallEpsilon<float>());
+  res.m_BoxHalfExtents.Set(-WMath::MaxValue<float>());
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromCenterExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius)
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeFromCenterExtents(const WSimdVec4f& vCenter, const WSimdVec4f& vBoxHalfExtents, const WSimdFloat& fSphereRadius)
 {
-  ezSimdBBoxSphere res;
+  WSimdBBoxSphere res;
   res.m_CenterAndRadius = vCenter;
   res.m_BoxHalfExtents = vBoxHalfExtents;
   res.m_CenterAndRadius.SetW(fSphereRadius);
   return res;
 }
 
-inline ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /*= sizeof(ezSimdVec4f)*/)
+inline WSimdBBoxSphere WSimdBBoxSphere::MakeFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride /*= sizeof(WSimdVec4f)*/)
 {
-  const ezSimdBBox box = ezSimdBBox::MakeFromPoints(pPoints, uiNumPoints, uiStride);
+  const WSimdBBox box = WSimdBBox::MakeFromPoints(pPoints, uiNumPoints, uiStride);
 
-  ezSimdBBoxSphere res;
+  WSimdBBoxSphere res;
 
   res.m_CenterAndRadius = box.GetCenter();
   res.m_BoxHalfExtents = res.m_CenterAndRadius - box.m_Min;
 
-  ezSimdBSphere sphere(res.m_CenterAndRadius, ezSimdFloat::MakeZero());
+  WSimdBSphere sphere(res.m_CenterAndRadius, WSimdFloat::MakeZero());
   sphere.ExpandToInclude(pPoints, uiNumPoints, uiStride);
 
   res.m_CenterAndRadius.SetW(sphere.GetRadius());
@@ -69,106 +69,106 @@ inline ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromPoints(const ezSimdVec4f* pPoi
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromBox(const ezSimdBBox& box)
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeFromBox(const WSimdBBox& box)
 {
-  return ezSimdBBoxSphere(box);
+  return WSimdBBoxSphere(box);
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromSphere(const ezSimdBSphere& sphere)
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeFromSphere(const WSimdBSphere& sphere)
 {
-  return ezSimdBBoxSphere(sphere);
+  return WSimdBBoxSphere(sphere);
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeFromBoxAndSphere(const ezSimdBBox& box, const ezSimdBSphere& sphere)
+W_ALWAYS_INLINE WSimdBBoxSphere WSimdBBoxSphere::MakeFromBoxAndSphere(const WSimdBBox& box, const WSimdBSphere& sphere)
 {
-  ezSimdBBoxSphere res;
+  WSimdBBoxSphere res;
   res.m_CenterAndRadius = box.GetCenter();
   res.m_BoxHalfExtents = res.m_CenterAndRadius - box.m_Min;
   res.m_CenterAndRadius.SetW(res.m_BoxHalfExtents.GetLength<3>().Min((sphere.GetCenter() - res.m_CenterAndRadius).GetLength<3>() + sphere.GetRadius()));
   return res;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetInvalid()
+W_ALWAYS_INLINE void WSimdBBoxSphere::SetInvalid()
 {
-  m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
-  m_BoxHalfExtents.Set(-ezMath::MaxValue<float>());
+  m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -WMath::SmallEpsilon<float>());
+  m_BoxHalfExtents.Set(-WMath::MaxValue<float>());
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::IsValid() const
+W_ALWAYS_INLINE bool WSimdBBoxSphere::IsValid() const
 {
-  return m_CenterAndRadius.IsValid<4>() && m_CenterAndRadius.w() >= ezSimdFloat::MakeZero() && m_BoxHalfExtents.IsValid<3>() &&
-         (m_BoxHalfExtents >= ezSimdVec4f::MakeZero()).AllSet<3>();
+  return m_CenterAndRadius.IsValid<4>() && m_CenterAndRadius.w() >= WSimdFloat::MakeZero() && m_BoxHalfExtents.IsValid<3>() &&
+         (m_BoxHalfExtents >= WSimdVec4f::MakeZero()).AllSet<3>();
 }
 
-inline bool ezSimdBBoxSphere::IsNaN() const
+inline bool WSimdBBoxSphere::IsNaN() const
 {
   return m_CenterAndRadius.IsNaN<4>() || m_BoxHalfExtents.IsNaN<3>();
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
+W_ALWAYS_INLINE void WSimdBBoxSphere::SetFromPoints(const WSimdVec4f* pPoints, WUInt32 uiNumPoints, WUInt32 uiStride)
 {
   *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
 }
 
-EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBoxSphere::GetBox() const
+W_ALWAYS_INLINE WSimdBBox WSimdBBoxSphere::GetBox() const
 {
-  return ezSimdBBox::MakeFromCenterAndHalfExtents(m_CenterAndRadius, m_BoxHalfExtents);
+  return WSimdBBox::MakeFromCenterAndHalfExtents(m_CenterAndRadius, m_BoxHalfExtents);
 }
 
-EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBBoxSphere::GetSphere() const
+W_ALWAYS_INLINE WSimdBSphere WSimdBBoxSphere::GetSphere() const
 {
-  ezSimdBSphere sphere;
+  WSimdBSphere sphere;
   sphere.m_CenterAndRadius = m_CenterAndRadius;
   return sphere;
 }
 
-inline void ezSimdBBoxSphere::ExpandToInclude(const ezSimdBBoxSphere& rhs)
+inline void WSimdBBoxSphere::ExpandToInclude(const WSimdBBoxSphere& rhs)
 {
-  ezSimdBBox box = GetBox();
+  WSimdBBox box = GetBox();
   box.ExpandToInclude(rhs.GetBox());
 
-  ezSimdVec4f center = box.GetCenter();
-  ezSimdVec4f boxHalfExtents = center - box.m_Min;
-  ezSimdFloat tmpRadius = boxHalfExtents.GetLength<3>();
+  WSimdVec4f center = box.GetCenter();
+  WSimdVec4f boxHalfExtents = center - box.m_Min;
+  WSimdFloat tmpRadius = boxHalfExtents.GetLength<3>();
 
-  const ezSimdFloat fSphereRadiusA = (m_CenterAndRadius - center).GetLength<3>() + m_CenterAndRadius.w();
-  const ezSimdFloat fSphereRadiusB = (rhs.m_CenterAndRadius - center).GetLength<3>() + rhs.m_CenterAndRadius.w();
+  const WSimdFloat fSphereRadiusA = (m_CenterAndRadius - center).GetLength<3>() + m_CenterAndRadius.w();
+  const WSimdFloat fSphereRadiusB = (rhs.m_CenterAndRadius - center).GetLength<3>() + rhs.m_CenterAndRadius.w();
 
   m_CenterAndRadius = center;
   m_CenterAndRadius.SetW(tmpRadius.Min(fSphereRadiusA.Max(fSphereRadiusB)));
   m_BoxHalfExtents = boxHalfExtents;
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdTransform& t)
+W_ALWAYS_INLINE void WSimdBBoxSphere::Transform(const WSimdTransform& t)
 {
   Transform(t.GetAsMat4());
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdMat4f& mMat)
+W_ALWAYS_INLINE void WSimdBBoxSphere::Transform(const WSimdMat4f& mMat)
 {
-  ezSimdFloat radius = m_CenterAndRadius.w();
+  WSimdFloat radius = m_CenterAndRadius.w();
   m_CenterAndRadius = mMat.TransformPosition(m_CenterAndRadius);
 
-  ezSimdFloat maxRadius = mMat.m_col0.Dot<3>(mMat.m_col0);
+  WSimdFloat maxRadius = mMat.m_col0.Dot<3>(mMat.m_col0);
   maxRadius = maxRadius.Max(mMat.m_col1.Dot<3>(mMat.m_col1));
   maxRadius = maxRadius.Max(mMat.m_col2.Dot<3>(mMat.m_col2));
   radius *= maxRadius.GetSqrt();
 
   m_CenterAndRadius.SetW(radius);
 
-  ezSimdVec4f newHalfExtents = mMat.m_col0.Abs() * m_BoxHalfExtents.x();
+  WSimdVec4f newHalfExtents = mMat.m_col0.Abs() * m_BoxHalfExtents.x();
   newHalfExtents += mMat.m_col1.Abs() * m_BoxHalfExtents.y();
   newHalfExtents += mMat.m_col2.Abs() * m_BoxHalfExtents.z();
 
-  m_BoxHalfExtents = newHalfExtents.CompMin(ezSimdVec4f(radius));
+  m_BoxHalfExtents = newHalfExtents.CompMin(WSimdVec4f(radius));
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::operator==(const ezSimdBBoxSphere& rhs) const
+W_ALWAYS_INLINE bool WSimdBBoxSphere::operator==(const WSimdBBoxSphere& rhs) const
 {
   return (m_CenterAndRadius == rhs.m_CenterAndRadius).AllSet<4>() && (m_BoxHalfExtents == rhs.m_BoxHalfExtents).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::operator!=(const ezSimdBBoxSphere& rhs) const
+W_ALWAYS_INLINE bool WSimdBBoxSphere::operator!=(const WSimdBBoxSphere& rhs) const
 {
   return !(*this == rhs);
 }

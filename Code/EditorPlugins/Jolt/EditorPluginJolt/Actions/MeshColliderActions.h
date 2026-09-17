@@ -8,31 +8,31 @@
 
 /// Creates Jolt collision mesh assets from mesh assets. Hides itself unless the target is one or
 /// more mesh assets.
-class ezMeshColliderActions
+class WMeshColliderActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
   /// Pass bDocumentScope for a map belonging to a document window, so that the action is given that
-  /// document; leave it off for the asset browser, which has none and uses ezAssetBrowserSelection.
+  /// document; leave it off for the asset browser, which has none and uses WAssetBrowserSelection.
   ///
   /// Fails if the action map does not exist, i.e. the plugin that owns it is not loaded.
-  static ezResult MapActions(ezStringView sActionMap, ezStringView sSubPath, bool bDocumentScope = false);
+  static WResult MapActions(WStringView sActionMap, WStringView sSubPath, bool bDocumentScope = false);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hCreateCollider;
-  static ezActionDescriptorHandle s_hCreateColliderDoc;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hCreateCollider;
+  static WActionDescriptorHandle s_hCreateColliderDoc;
 };
 
-class ezMeshColliderAction : public ezButtonAction
+class WMeshColliderAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshColliderAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WMeshColliderAction, WButtonAction);
 
 public:
-  ezMeshColliderAction(const ezActionContext& context, const char* szName);
+  WMeshColliderAction(const WActionContext& context, const char* szName);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
   virtual void RefreshState() override;
 
 private:
@@ -40,5 +40,5 @@ private:
   /// neither names a mesh asset.
   ///
   /// Non-mesh assets in the selection are dropped rather than disabling the action.
-  void GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const;
+  void GetTargetAssets(WDynamicArray<WUuid>& out_assets) const;
 };

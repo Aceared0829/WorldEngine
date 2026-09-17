@@ -2,20 +2,20 @@
 
 #include <Foundation/IO/OpenDdlReader.h>
 
-ezOpenDdlReader::ezOpenDdlReader()
+WOpenDdlReader::WOpenDdlReader()
 {
   m_pCurrentChunk = nullptr;
   m_uiBytesInChunkLeft = 0;
 }
 
-ezOpenDdlReader::~ezOpenDdlReader()
+WOpenDdlReader::~WOpenDdlReader()
 {
   ClearDataChunks();
 }
 
-ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& inout_stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiCacheSizeInKB)
+WResult WOpenDdlReader::ParseDocument(WStreamReader& inout_stream, WUInt32 uiFirstLineOffset, WLogInterface* pLog, WUInt32 uiCacheSizeInKB)
 {
-  EZ_ASSERT_DEBUG(m_ObjectStack.IsEmpty(), "A reader can only be used once.");
+  W_ASSERT_DEBUG(m_ObjectStack.IsEmpty(), "A reader can only be used once.");
 
   SetLogInterface(pLog);
   SetCacheSize(uiCacheSizeInKB);
@@ -23,10 +23,10 @@ ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& inout_stream, ezUInt32 u
 
   m_TempCache.Reserve(s_uiChunkSize);
 
-  ezOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
+  WOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
   pElement->m_pFirstChild = nullptr;
   pElement->m_pLastChild = nullptr;
-  pElement->m_PrimitiveType = ezOpenDdlPrimitiveType::Custom;
+  pElement->m_PrimitiveType = WOpenDdlPrimitiveType::Custom;
   pElement->m_pSiblingElement = nullptr;
   pElement->m_sCustomType = CopyString("root");
   pElement->m_sName = nullptr;
@@ -37,20 +37,20 @@ ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& inout_stream, ezUInt32 u
   return ParseAll();
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReader::GetRootElement() const
+const WOpenDdlReaderElement* WOpenDdlReader::GetRootElement() const
 {
-  EZ_ASSERT_DEBUG(!m_ObjectStack.IsEmpty(), "The reader has not parsed any document yet or an error occurred during parsing.");
+  W_ASSERT_DEBUG(!m_ObjectStack.IsEmpty(), "The reader has not parsed any document yet or an error occurred during parsing.");
 
   return m_ObjectStack[0];
 }
 
 
-const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(ezStringView sGlobalName) const
+const WOpenDdlReaderElement* WOpenDdlReader::FindElement(WStringView sGlobalName) const
 {
   return m_GlobalNames.GetValueOrDefault(sGlobalName, nullptr);
 }
 
-ezStringView ezOpenDdlReader::CopyString(const ezStringView& string)
+WStringView WOpenDdlReader::CopyString(const WStringView& string)
 {
   if (string.IsEmpty())
     return {};
@@ -60,9 +60,9 @@ ezStringView ezOpenDdlReader::CopyString(const ezStringView& string)
   return m_Strings.PeekBack();
 }
 
-ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType type, ezStringView sType, ezStringView sName, bool bGlobalName)
+WOpenDdlReaderElement* WOpenDdlReader::CreateElement(WOpenDdlPrimitiveType type, WStringView sType, WStringView sName, bool bGlobalName)
 {
-  ezOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
+  WOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
   pElement->m_pFirstChild = nullptr;
   pElement->m_pLastChild = nullptr;
   pElement->m_PrimitiveType = type;
@@ -73,7 +73,7 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
 
   if (bGlobalName)
   {
-    pElement->m_uiNumChildElements = EZ_BIT(31);
+    pElement->m_uiNumChildElements = W_BIT(31);
   }
 
   if (bGlobalName && !sName.IsEmpty())
@@ -81,7 +81,7 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
     m_GlobalNames[sName] = pElement;
   }
 
-  ezOpenDdlReaderElement* pParent = m_ObjectStack.PeekBack();
+  WOpenDdlReaderElement* pParent = m_ObjectStack.PeekBack();
   pParent->m_uiNumChildElements++;
 
   if (pParent->m_pFirstChild == nullptr)
@@ -91,7 +91,7 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
   }
   else
   {
-    ((ezOpenDdlReaderElement*)pParent->m_pLastChild)->m_pSiblingElement = pElement;
+    ((WOpenDdlReaderElement*)pParent->m_pLastChild)->m_pSiblingElement = pElement;
     pParent->m_pLastChild = pElement;
   }
 
@@ -101,45 +101,45 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
 }
 
 
-void ezOpenDdlReader::OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName)
+void WOpenDdlReader::OnBeginObject(WStringView sType, WStringView sName, bool bGlobalName)
 {
-  CreateElement(ezOpenDdlPrimitiveType::Custom, CopyString(sType), sName, bGlobalName);
+  CreateElement(WOpenDdlPrimitiveType::Custom, CopyString(sType), sName, bGlobalName);
 }
 
-void ezOpenDdlReader::OnEndObject()
+void WOpenDdlReader::OnEndObject()
 {
   m_ObjectStack.PopBack();
 }
 
-void ezOpenDdlReader::OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName, bool bGlobalName)
+void WOpenDdlReader::OnBeginPrimitiveList(WOpenDdlPrimitiveType type, WStringView sName, bool bGlobalName)
 {
   CreateElement(type, nullptr, sName, bGlobalName);
 
   m_TempCache.Clear();
 }
 
-void ezOpenDdlReader::OnEndPrimitiveList()
+void WOpenDdlReader::OnEndPrimitiveList()
 {
   // if we had to temporarily store the primitive data, copy it into a new destination
   if (!m_TempCache.IsEmpty())
   {
-    ezUInt8* pTarget = AllocateBytes(m_TempCache.GetCount());
+    WUInt8* pTarget = AllocateBytes(m_TempCache.GetCount());
     m_ObjectStack.PeekBack()->m_pFirstChild = pTarget;
 
-    ezMemoryUtils::Copy(pTarget, m_TempCache.GetData(), m_TempCache.GetCount());
+    WMemoryUtils::Copy(pTarget, m_TempCache.GetData(), m_TempCache.GetCount());
   }
 
   m_ObjectStack.PopBack();
 }
 
-void ezOpenDdlReader::StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, const ezUInt8* pData)
+void WOpenDdlReader::StorePrimitiveData(bool bThisIsAll, WUInt32 bytecount, const WUInt8* pData)
 {
-  ezUInt8* pTarget = nullptr;
+  WUInt8* pTarget = nullptr;
 
   if (!bThisIsAll || !m_TempCache.IsEmpty())
   {
     // if this is not all, accumulate the data in a temp buffer
-    ezUInt32 offset = m_TempCache.GetCount();
+    WUInt32 offset = m_TempCache.GetCount();
     m_TempCache.SetCountUninitialized(m_TempCache.GetCount() + bytecount);
     pTarget = &m_TempCache[offset]; // have to index m_TempCache after the resize, otherwise it could be empty and not like it
   }
@@ -150,87 +150,87 @@ void ezOpenDdlReader::StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, co
     m_ObjectStack.PeekBack()->m_pFirstChild = pTarget;
   }
 
-  ezMemoryUtils::Copy(pTarget, pData, bytecount);
+  WMemoryUtils::Copy(pTarget, pData, bytecount);
 }
 
 
-void ezOpenDdlReader::OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveBool(WUInt32 count, const bool* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(bool) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(bool) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveInt8(ezUInt32 count, const ezInt8* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveInt8(WUInt32 count, const WInt8* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezInt8) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WInt8) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveInt16(WUInt32 count, const WInt16* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezInt16) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WInt16) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveInt32(WUInt32 count, const WInt32* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezInt32) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WInt32) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveInt64(WUInt32 count, const WInt64* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezInt64) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WInt64) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveUInt8(ezUInt32 count, const ezUInt8* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveUInt8(WUInt32 count, const WUInt8* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezUInt8) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WUInt8) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveUInt16(WUInt32 count, const WUInt16* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezUInt16) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WUInt16) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveUInt32(WUInt32 count, const WUInt32* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezUInt32) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WUInt32) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveUInt64(WUInt32 count, const WUInt64* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(ezUInt64) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(WUInt64) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveFloat(ezUInt32 count, const float* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveFloat(WUInt32 count, const float* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(float) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(float) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveDouble(ezUInt32 count, const double* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveDouble(WUInt32 count, const double* pData, bool bThisIsAll)
 {
-  StorePrimitiveData(bThisIsAll, sizeof(double) * count, (const ezUInt8*)pData);
+  StorePrimitiveData(bThisIsAll, sizeof(double) * count, (const WUInt8*)pData);
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
-void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll)
+void WOpenDdlReader::OnPrimitiveString(WUInt32 count, const WStringView* pData, bool bThisIsAll)
 {
-  EZ_IGNORE_UNUSED(bThisIsAll);
+  W_IGNORE_UNUSED(bThisIsAll);
 
-  const ezUInt32 uiDataSize = count * sizeof(ezStringView);
+  const WUInt32 uiDataSize = count * sizeof(WStringView);
 
-  const ezUInt32 offset = m_TempCache.GetCount();
+  const WUInt32 offset = m_TempCache.GetCount();
   m_TempCache.SetCountUninitialized(m_TempCache.GetCount() + uiDataSize);
-  ezStringView* pTarget = (ezStringView*)&m_TempCache[offset];
+  WStringView* pTarget = (WStringView*)&m_TempCache[offset];
 
-  for (ezUInt32 i = 0; i < count; ++i)
+  for (WUInt32 i = 0; i < count; ++i)
   {
     pTarget[i] = CopyString(pData[i]);
   }
@@ -239,11 +239,11 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
 }
 
 
-void ezOpenDdlReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+void WOpenDdlReader::OnParsingError(WStringView sMessage, bool bFatal, WUInt32 uiLine, WUInt32 uiColumn)
 {
-  EZ_IGNORE_UNUSED(sMessage);
-  EZ_IGNORE_UNUSED(uiLine);
-  EZ_IGNORE_UNUSED(uiColumn);
+  W_IGNORE_UNUSED(sMessage);
+  W_IGNORE_UNUSED(uiLine);
+  W_IGNORE_UNUSED(uiColumn);
 
   if (bFatal)
   {
@@ -257,24 +257,24 @@ void ezOpenDdlReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt3
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezOpenDdlReader::ClearDataChunks()
+void WOpenDdlReader::ClearDataChunks()
 {
-  for (ezUInt32 i = 0; i < m_DataChunks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DataChunks.GetCount(); ++i)
   {
-    EZ_DEFAULT_DELETE(m_DataChunks[i]);
+    W_DEFAULT_DELETE(m_DataChunks[i]);
   }
 
   m_DataChunks.Clear();
 }
 
-ezUInt8* ezOpenDdlReader::AllocateBytes(ezUInt32 uiNumBytes)
+WUInt8* WOpenDdlReader::AllocateBytes(WUInt32 uiNumBytes)
 {
-  uiNumBytes = ezMemoryUtils::AlignSize(uiNumBytes, static_cast<ezUInt32>(EZ_ALIGNMENT_MINIMUM));
+  uiNumBytes = WMemoryUtils::AlignSize(uiNumBytes, static_cast<WUInt32>(W_ALIGNMENT_MINIMUM));
 
   // if the requested data is very large, just allocate it as an individual chunk
   if (uiNumBytes > s_uiChunkSize / 2)
   {
-    ezUInt8* pResult = EZ_DEFAULT_NEW_ARRAY(ezUInt8, uiNumBytes).GetPtr();
+    WUInt8* pResult = W_DEFAULT_NEW_ARRAY(WUInt8, uiNumBytes).GetPtr();
     m_DataChunks.PushBack(pResult);
     return pResult;
   }
@@ -282,13 +282,13 @@ ezUInt8* ezOpenDdlReader::AllocateBytes(ezUInt32 uiNumBytes)
   // if our current chunk is too small, discard the remaining free bytes and just allocate a new chunk
   if (m_uiBytesInChunkLeft < uiNumBytes)
   {
-    m_pCurrentChunk = EZ_DEFAULT_NEW_ARRAY(ezUInt8, s_uiChunkSize).GetPtr();
+    m_pCurrentChunk = W_DEFAULT_NEW_ARRAY(WUInt8, s_uiChunkSize).GetPtr();
     m_uiBytesInChunkLeft = s_uiChunkSize;
     m_DataChunks.PushBack(m_pCurrentChunk);
   }
 
   // no fulfill the request from the current chunk
-  ezUInt8* pResult = m_pCurrentChunk;
+  WUInt8* pResult = m_pCurrentChunk;
   m_pCurrentChunk += uiNumBytes;
   m_uiBytesInChunkLeft -= uiNumBytes;
 
@@ -297,24 +297,24 @@ ezUInt8* ezOpenDdlReader::AllocateBytes(ezUInt32 uiNumBytes)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezUInt32 ezOpenDdlReaderElement::GetNumChildObjects() const
+WUInt32 WOpenDdlReaderElement::GetNumChildObjects() const
 {
-  if (m_PrimitiveType != ezOpenDdlPrimitiveType::Custom)
+  if (m_PrimitiveType != WOpenDdlPrimitiveType::Custom)
     return 0;
 
-  return m_uiNumChildElements & (~EZ_BIT(31)); // Bit 31 stores whether the name is global
+  return m_uiNumChildElements & (~W_BIT(31)); // Bit 31 stores whether the name is global
 }
 
-ezUInt32 ezOpenDdlReaderElement::GetNumPrimitives() const
+WUInt32 WOpenDdlReaderElement::GetNumPrimitives() const
 {
-  if (m_PrimitiveType == ezOpenDdlPrimitiveType::Custom)
+  if (m_PrimitiveType == WOpenDdlPrimitiveType::Custom)
     return 0;
 
-  return m_uiNumChildElements & (~EZ_BIT(31)); // Bit 31 stores whether the name is global
+  return m_uiNumChildElements & (~W_BIT(31)); // Bit 31 stores whether the name is global
 }
 
 
-bool ezOpenDdlReaderElement::HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32 uiMinNumberOfPrimitives /*= 1*/) const
+bool WOpenDdlReaderElement::HasPrimitives(WOpenDdlPrimitiveType type, WUInt32 uiMinNumberOfPrimitives /*= 1*/) const
 {
   /// \test This is new
 
@@ -324,11 +324,11 @@ bool ezOpenDdlReaderElement::HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32
   return m_uiNumChildElements >= uiMinNumberOfPrimitives;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezStringView sName) const
+const WOpenDdlReaderElement* WOpenDdlReaderElement::FindChild(WStringView sName) const
 {
-  EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
+  W_ASSERT_DEBUG(m_PrimitiveType == WOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
 
-  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+  const WOpenDdlReaderElement* pChild = static_cast<const WOpenDdlReaderElement*>(m_pFirstChild);
 
   while (pChild)
   {
@@ -343,19 +343,19 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezStringView sNa
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, ezStringView sName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
+const WOpenDdlReaderElement* WOpenDdlReaderElement::FindChildOfType(WOpenDdlPrimitiveType type, WStringView sName, WUInt32 uiMinNumberOfPrimitives /* = 1*/) const
 {
   /// \test This is new
 
-  EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
+  W_ASSERT_DEBUG(m_PrimitiveType == WOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
 
-  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+  const WOpenDdlReaderElement* pChild = static_cast<const WOpenDdlReaderElement*>(m_pFirstChild);
 
   while (pChild)
   {
     if (pChild->GetPrimitivesType() == type && pChild->GetName() == sName)
     {
-      if (type == ezOpenDdlPrimitiveType::Custom || pChild->GetNumPrimitives() >= uiMinNumberOfPrimitives)
+      if (type == WOpenDdlPrimitiveType::Custom || pChild->GetNumPrimitives() >= uiMinNumberOfPrimitives)
         return pChild;
     }
 
@@ -365,13 +365,13 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlP
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezStringView sType, ezStringView sName /*= {}*/) const
+const WOpenDdlReaderElement* WOpenDdlReaderElement::FindChildOfType(WStringView sType, WStringView sName /*= {}*/) const
 {
-  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+  const WOpenDdlReaderElement* pChild = static_cast<const WOpenDdlReaderElement*>(m_pFirstChild);
 
   while (pChild)
   {
-    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && pChild->GetCustomType() == sType && (sName.IsEmpty() || pChild->GetName() == sName))
+    if (pChild->GetPrimitivesType() == WOpenDdlPrimitiveType::Custom && pChild->GetCustomType() == sType && (sName.IsEmpty() || pChild->GetName() == sName))
     {
       return pChild;
     }

@@ -3,10 +3,10 @@
 #include <Foundation/Communication/Message.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: message-decl
-struct ezMsgSetText : public ezMessage
+struct WMsgSetText : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetText, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgSetText, WMessage);
 
-  ezString m_sText;
+  WString m_sText;
 };
 // END-DOCS-CODE-SNIPPET

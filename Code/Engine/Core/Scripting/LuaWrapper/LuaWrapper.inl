@@ -2,124 +2,124 @@
 
 #  pragma once
 
-inline lua_State* ezLuaWrapper::GetLuaState()
+inline lua_State* WLuaWrapper::GetLuaState()
 {
   return m_pState;
 }
 
-inline ezInt32 ezLuaWrapper::ReturnToScript() const
+inline WInt32 WLuaWrapper::ReturnToScript() const
 {
   return (m_States.m_iParametersPushed);
 }
 
-inline ezUInt32 ezLuaWrapper::GetNumberOfFunctionParameters() const
+inline WUInt32 WLuaWrapper::GetNumberOfFunctionParameters() const
 {
   return ((int)lua_gettop(m_pState));
 }
 
-inline bool ezLuaWrapper::IsParameterBool(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterBool(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TBOOLEAN);
 }
 
-inline bool ezLuaWrapper::IsParameterFloat(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterFloat(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TNUMBER);
 }
 
-inline bool ezLuaWrapper::IsParameterInt(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterInt(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TNUMBER);
 }
 
-inline bool ezLuaWrapper::IsParameterString(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterString(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TSTRING);
 }
 
-inline bool ezLuaWrapper::IsParameterNil(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterNil(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TNIL);
 }
 
-inline bool ezLuaWrapper::IsParameterTable(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::IsParameterTable(WUInt32 uiParameter) const
 {
   return (lua_type(m_pState, uiParameter + s_iParamOffset) == LUA_TTABLE);
 }
 
-inline void ezLuaWrapper::PushParameter(ezInt32 iParameter)
+inline void WLuaWrapper::PushParameter(WInt32 iParameter)
 {
   lua_pushinteger(m_pState, iParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushParameter(bool bParameter)
+inline void WLuaWrapper::PushParameter(bool bParameter)
 {
   lua_pushboolean(m_pState, bParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushParameter(float fParameter)
+inline void WLuaWrapper::PushParameter(float fParameter)
 {
   lua_pushnumber(m_pState, fParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushParameter(const char* szParameter)
+inline void WLuaWrapper::PushParameter(const char* szParameter)
 {
   lua_pushstring(m_pState, szParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushParameter(const char* szParameter, ezUInt32 uiLength)
+inline void WLuaWrapper::PushParameter(const char* szParameter, WUInt32 uiLength)
 {
   lua_pushlstring(m_pState, szParameter, uiLength);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushParameterNil()
+inline void WLuaWrapper::PushParameterNil()
 {
   lua_pushnil(m_pState);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValue(ezInt32 iParameter)
+inline void WLuaWrapper::PushReturnValue(WInt32 iParameter)
 {
   lua_pushinteger(m_pState, iParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValue(bool bParameter)
+inline void WLuaWrapper::PushReturnValue(bool bParameter)
 {
   lua_pushboolean(m_pState, bParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValue(float fParameter)
+inline void WLuaWrapper::PushReturnValue(float fParameter)
 {
   lua_pushnumber(m_pState, fParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValue(const char* szParameter)
+inline void WLuaWrapper::PushReturnValue(const char* szParameter)
 {
   lua_pushstring(m_pState, szParameter);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValue(const char* szParameter, ezUInt32 uiLength)
+inline void WLuaWrapper::PushReturnValue(const char* szParameter, WUInt32 uiLength)
 {
   lua_pushlstring(m_pState, szParameter, uiLength);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::PushReturnValueNil()
+inline void WLuaWrapper::PushReturnValueNil()
 {
   lua_pushnil(m_pState);
   m_States.m_iParametersPushed++;
 }
 
-inline void ezLuaWrapper::SetVariableNil(const char* szName) const
+inline void WLuaWrapper::SetVariableNil(const char* szName) const
 {
   lua_pushnil(m_pState);
 
@@ -129,7 +129,7 @@ inline void ezLuaWrapper::SetVariableNil(const char* szName) const
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::SetVariable(const char* szName, ezInt32 iValue) const
+inline void WLuaWrapper::SetVariable(const char* szName, WInt32 iValue) const
 {
   lua_pushinteger(m_pState, iValue);
 
@@ -139,7 +139,7 @@ inline void ezLuaWrapper::SetVariable(const char* szName, ezInt32 iValue) const
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::SetVariable(const char* szName, float fValue) const
+inline void WLuaWrapper::SetVariable(const char* szName, float fValue) const
 {
   lua_pushnumber(m_pState, fValue);
 
@@ -149,7 +149,7 @@ inline void ezLuaWrapper::SetVariable(const char* szName, float fValue) const
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::SetVariable(const char* szName, bool bValue) const
+inline void WLuaWrapper::SetVariable(const char* szName, bool bValue) const
 {
   lua_pushboolean(m_pState, bValue);
 
@@ -159,7 +159,7 @@ inline void ezLuaWrapper::SetVariable(const char* szName, bool bValue) const
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::SetVariable(const char* szName, const char* szValue) const
+inline void WLuaWrapper::SetVariable(const char* szName, const char* szValue) const
 {
   lua_pushstring(m_pState, szValue);
 
@@ -169,7 +169,7 @@ inline void ezLuaWrapper::SetVariable(const char* szName, const char* szValue) c
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::SetVariable(const char* szName, const char* szValue, ezUInt32 uiLen) const
+inline void WLuaWrapper::SetVariable(const char* szName, const char* szValue, WUInt32 uiLen) const
 {
   lua_pushlstring(m_pState, szValue, uiLen);
 
@@ -179,7 +179,7 @@ inline void ezLuaWrapper::SetVariable(const char* szName, const char* szValue, e
     lua_setfield(m_pState, -2, szName);
 }
 
-inline void ezLuaWrapper::PushTable(const char* szTableName, bool bGlobalTable)
+inline void WLuaWrapper::PushTable(const char* szTableName, bool bGlobalTable)
 {
   if (bGlobalTable || m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szTableName);
@@ -192,22 +192,22 @@ inline void ezLuaWrapper::PushTable(const char* szTableName, bool bGlobalTable)
   m_States.m_iParametersPushed++;
 }
 
-inline int ezLuaWrapper::GetIntParameter(ezUInt32 uiParameter) const
+inline int WLuaWrapper::GetIntParameter(WUInt32 uiParameter) const
 {
   return ((int)(lua_tointeger(m_pState, uiParameter + s_iParamOffset)));
 }
 
-inline bool ezLuaWrapper::GetBoolParameter(ezUInt32 uiParameter) const
+inline bool WLuaWrapper::GetBoolParameter(WUInt32 uiParameter) const
 {
   return (lua_toboolean(m_pState, uiParameter + s_iParamOffset) != 0);
 }
 
-inline float ezLuaWrapper::GetFloatParameter(ezUInt32 uiParameter) const
+inline float WLuaWrapper::GetFloatParameter(WUInt32 uiParameter) const
 {
   return ((float)(lua_tonumber(m_pState, uiParameter + s_iParamOffset)));
 }
 
-inline const char* ezLuaWrapper::GetStringParameter(ezUInt32 uiParameter) const
+inline const char* WLuaWrapper::GetStringParameter(WUInt32 uiParameter) const
 {
   return (lua_tostring(m_pState, uiParameter + s_iParamOffset));
 }

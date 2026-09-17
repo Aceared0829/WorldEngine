@@ -5,156 +5,156 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_IMPLEMENT_SINGLETON(ezToolsProject);
+W_IMPLEMENT_SINGLETON(WToolsProject);
 
-ezEvent<const ezToolsProjectEvent&, ezMutex> ezToolsProject::s_Events;
-ezEvent<ezToolsProjectRequest&> ezToolsProject::s_Requests;
+WEvent<const WToolsProjectEvent&, WMutex> WToolsProject::s_Events;
+WEvent<WToolsProjectRequest&> WToolsProject::s_Requests;
 
 
-ezToolsProjectRequest::ezToolsProjectRequest()
+WToolsProjectRequest::WToolsProjectRequest()
 {
   m_Type = Type::CanCloseProject;
   m_bCanClose = true;
   m_iContainerWindowUniqueIdentifier = 0;
 }
 
-ezToolsProject::ezToolsProject(ezStringView sProjectPath)
+WToolsProject::WToolsProject(WStringView sProjectPath)
   : m_SingletonRegistrar(this)
 {
   m_bIsClosing = false;
 
-  ezStringBuilder sPath = sProjectPath;
+  WStringBuilder sPath = sProjectPath;
   sPath.MakeCleanPath();
 
   // on Windows the same file can be referenced with an upper or lower case drive letter,
   // normalizing it here makes sure that all string comparisons against the project path work
-  ezPathUtils::NormalizeWindowsDriveLetter(sPath);
+  WPathUtils::NormalizeWindowsDriveLetter(sPath);
 
   m_sProjectPath = sPath;
-  EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
+  W_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
-ezToolsProject::~ezToolsProject() = default;
+WToolsProject::~WToolsProject() = default;
 
-ezStatus ezToolsProject::Create()
+WStatus WToolsProject::Create()
 {
   {
-    ezOSFile ProjectFile;
-    if (ProjectFile.Open(m_sProjectPath, ezFileOpenMode::Write).Failed())
+    WOSFile ProjectFile;
+    if (ProjectFile.Open(m_sProjectPath, WFileOpenMode::Write).Failed())
     {
-      return ezStatus(ezFmt("Could not open/create the project file for writing: '{0}'", m_sProjectPath));
+      return WStatus(WFmt("Could not open/create the project file for writing: '{0}'", m_sProjectPath));
     }
     else
     {
-      ezStringView szToken = "ezEditor Project File";
+      WStringView szToken = "WEditor Project File";
 
-      EZ_SUCCEED_OR_RETURN(ProjectFile.Write(szToken.GetStartPointer(), szToken.GetElementCount() + 1));
+      W_SUCCEED_OR_RETURN(ProjectFile.Write(szToken.GetStartPointer(), szToken.GetElementCount() + 1));
       ProjectFile.Close();
     }
   }
 
   {
-    ezToolsProjectEvent e;
+    WToolsProjectEvent e;
     e.m_pProject = this;
-    e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
+    e.m_Type = WToolsProjectEvent::Type::ProjectCreated;
     s_Events.Broadcast(e);
   }
 
-  EZ_SUCCEED_OR_RETURN(Open());
+  W_SUCCEED_OR_RETURN(Open());
 
   // if this file already exists, the project was created from a template and should not get additional setup
-  ezStringBuilder path(GetProjectDirectory(), "/Scenes/Main.ezScene");
-  if (!ezOSFile::ExistsFile(path))
+  WStringBuilder path(GetProjectDirectory(), "/Scenes/Main.WScene");
+  if (!WOSFile::ExistsFile(path))
   {
-    ezToolsProjectEvent e;
+    WToolsProjectEvent e;
     e.m_pProject = this;
-    e.m_Type = ezToolsProjectEvent::Type::ProjectFirstSetup;
+    e.m_Type = WToolsProjectEvent::Type::ProjectFirstSetup;
     s_Events.Broadcast(e);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezToolsProject::Open()
+WStatus WToolsProject::Open()
 {
-  ezOSFile ProjectFile;
-  if (ProjectFile.Open(m_sProjectPath, ezFileOpenMode::Read).Failed())
+  WOSFile ProjectFile;
+  if (ProjectFile.Open(m_sProjectPath, WFileOpenMode::Read).Failed())
   {
-    return ezStatus(ezFmt("Could not open the project file for reading: '{0}'", m_sProjectPath));
+    return WStatus(WFmt("Could not open the project file for reading: '{0}'", m_sProjectPath));
   }
 
   ProjectFile.Close();
 
-  ezToolsProjectEvent e;
+  WToolsProjectEvent e;
   e.m_pProject = this;
-  e.m_Type = ezToolsProjectEvent::Type::ProjectOpened;
+  e.m_Type = WToolsProjectEvent::Type::ProjectOpened;
   s_Events.Broadcast(e);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezToolsProject::CreateSubFolder(ezStringView sFolder) const
+void WToolsProject::CreateSubFolder(WStringView sFolder) const
 {
-  ezStringBuilder sPath;
+  WStringBuilder sPath;
 
   sPath = m_sProjectPath;
   sPath.PathParentDirectory();
   sPath.AppendPath(sFolder);
 
-  ezOSFile::CreateDirectoryStructure(sPath).IgnoreResult();
+  WOSFile::CreateDirectoryStructure(sPath).IgnoreResult();
 }
 
-void ezToolsProject::CloseProject()
+void WToolsProject::CloseProject()
 {
   if (GetSingleton())
   {
     GetSingleton()->m_bIsClosing = true;
 
-    ezToolsProjectEvent e;
+    WToolsProjectEvent e;
     e.m_pProject = GetSingleton();
-    e.m_Type = ezToolsProjectEvent::Type::ProjectClosing;
+    e.m_Type = WToolsProjectEvent::Type::ProjectClosing;
     s_Events.Broadcast(e);
 
-    ezDocumentManager::CloseAllDocuments();
+    WDocumentManager::CloseAllDocuments();
 
     delete GetSingleton();
 
-    e.m_Type = ezToolsProjectEvent::Type::ProjectClosed;
+    e.m_Type = WToolsProjectEvent::Type::ProjectClosed;
     s_Events.Broadcast(e);
   }
 }
 
-void ezToolsProject::SaveProjectState()
+void WToolsProject::SaveProjectState()
 {
   if (GetSingleton())
   {
-    ezToolsProjectEvent e;
+    WToolsProjectEvent e;
     e.m_pProject = GetSingleton();
-    e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;
+    e.m_Type = WToolsProjectEvent::Type::ProjectSaveState;
     s_Events.Broadcast(e, 1);
   }
 }
 
-bool ezToolsProject::CanCloseProject()
+bool WToolsProject::CanCloseProject()
 {
   if (GetSingleton() == nullptr)
     return true;
 
-  ezToolsProjectRequest e;
-  e.m_Type = ezToolsProjectRequest::Type::CanCloseProject;
+  WToolsProjectRequest e;
+  e.m_Type = WToolsProjectRequest::Type::CanCloseProject;
   e.m_bCanClose = true;
   s_Requests.Broadcast(e, 1); // when the save dialog pops up and the user presses 'Save' we need to allow one more recursion
 
   return e.m_bCanClose;
 }
 
-bool ezToolsProject::CanCloseDocuments(ezArrayPtr<ezDocument*> documents)
+bool WToolsProject::CanCloseDocuments(WArrayPtr<WDocument*> documents)
 {
   if (GetSingleton() == nullptr)
     return true;
 
-  ezToolsProjectRequest e;
-  e.m_Type = ezToolsProjectRequest::Type::CanCloseDocuments;
+  WToolsProjectRequest e;
+  e.m_Type = WToolsProjectRequest::Type::CanCloseDocuments;
   e.m_bCanClose = true;
   e.m_Documents = documents;
   s_Requests.Broadcast(e);
@@ -162,41 +162,41 @@ bool ezToolsProject::CanCloseDocuments(ezArrayPtr<ezDocument*> documents)
   return e.m_bCanClose;
 }
 
-ezInt32 ezToolsProject::SuggestContainerWindow(ezDocument* pDoc)
+WInt32 WToolsProject::SuggestContainerWindow(WDocument* pDoc)
 {
   if (pDoc == nullptr)
   {
     return 0;
   }
-  ezToolsProjectRequest e;
-  e.m_Type = ezToolsProjectRequest::Type::SuggestContainerWindow;
+  WToolsProjectRequest e;
+  e.m_Type = WToolsProjectRequest::Type::SuggestContainerWindow;
   e.m_Documents.PushBack(pDoc);
   s_Requests.Broadcast(e);
 
   return e.m_iContainerWindowUniqueIdentifier;
 }
 
-ezStringBuilder ezToolsProject::GetPathForDocumentGuid(const ezUuid& guid)
+WStringBuilder WToolsProject::GetPathForDocumentGuid(const WUuid& guid)
 {
-  ezToolsProjectRequest e;
-  e.m_Type = ezToolsProjectRequest::Type::GetPathForDocumentGuid;
+  WToolsProjectRequest e;
+  e.m_Type = WToolsProjectRequest::Type::GetPathForDocumentGuid;
   e.m_documentGuid = guid;
   s_Requests.Broadcast(e, 1); // this can be sent while CanCloseProject is processed, so allow one additional recursion depth
   return e.m_sAbsDocumentPath;
 }
 
-ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCreate)
+WStatus WToolsProject::CreateOrOpenProject(WStringView sProjectPath, bool bCreate)
 {
   CloseProject();
 
-  new ezToolsProject(sProjectPath);
+  new WToolsProject(sProjectPath);
 
-  ezStatus ret(EZ_SUCCESS);
+  WStatus ret(W_SUCCESS);
 
   if (bCreate)
   {
     ret = GetSingleton()->Create();
-    ezToolsProject::SaveProjectState();
+    WToolsProject::SaveProjectState();
   }
   else
   {
@@ -211,39 +211,39 @@ ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCr
   return ret;
 }
 
-ezStatus ezToolsProject::OpenProject(ezStringView sProjectPath)
+WStatus WToolsProject::OpenProject(WStringView sProjectPath)
 {
-  ezStatus status = CreateOrOpenProject(sProjectPath, false);
+  WStatus status = CreateOrOpenProject(sProjectPath, false);
 
   return status;
 }
 
-ezStatus ezToolsProject::CreateProject(ezStringView sProjectPath)
+WStatus WToolsProject::CreateProject(WStringView sProjectPath)
 {
   return CreateOrOpenProject(sProjectPath, true);
 }
 
-void ezToolsProject::BroadcastSaveAll()
+void WToolsProject::BroadcastSaveAll()
 {
-  ezToolsProjectEvent e;
+  WToolsProjectEvent e;
   e.m_pProject = GetSingleton();
-  e.m_Type = ezToolsProjectEvent::Type::SaveAll;
+  e.m_Type = WToolsProjectEvent::Type::SaveAll;
 
   s_Events.Broadcast(e);
 }
 
-void ezToolsProject::BroadcastConfigChanged()
+void WToolsProject::BroadcastConfigChanged()
 {
-  ezToolsProjectEvent e;
+  WToolsProjectEvent e;
   e.m_pProject = GetSingleton();
-  e.m_Type = ezToolsProjectEvent::Type::ProjectConfigChanged;
+  e.m_Type = WToolsProjectEvent::Type::ProjectConfigChanged;
 
   s_Events.Broadcast(e);
 }
 
-void ezToolsProject::AddAllowedDocumentRoot(ezStringView sPath)
+void WToolsProject::AddAllowedDocumentRoot(WStringView sPath)
 {
-  ezStringBuilder s = sPath;
+  WStringBuilder s = sPath;
   s.MakeCleanPath();
   s.Trim("", "/");
 
@@ -251,19 +251,19 @@ void ezToolsProject::AddAllowedDocumentRoot(ezStringView sPath)
 }
 
 
-bool ezToolsProject::IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezString* out_pRelativePath) const
+bool WToolsProject::IsDocumentInAllowedRoot(WStringView sDocumentPath, WString* out_pRelativePath) const
 {
-  for (ezUInt32 i = m_AllowedDocumentRoots.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_AllowedDocumentRoots.GetCount(); i > 0; --i)
   {
     const auto& root = m_AllowedDocumentRoots[i - 1];
 
-    ezStringBuilder s = sDocumentPath;
+    WStringBuilder s = sDocumentPath;
     if (!s.IsPathBelowFolder(root))
       continue;
 
     if (out_pRelativePath)
     {
-      ezStringBuilder sText = sDocumentPath;
+      WStringBuilder sText = sDocumentPath;
       sText.MakeRelativeTo(root).IgnoreResult();
 
       *out_pRelativePath = sText;
@@ -275,25 +275,25 @@ bool ezToolsProject::IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezStrin
   return false;
 }
 
-const ezString ezToolsProject::GetProjectName(bool bSanitize) const
+const WString WToolsProject::GetProjectName(bool bSanitize) const
 {
-  ezStringBuilder sTemp = ezToolsProject::GetSingleton()->GetProjectFile();
+  WStringBuilder sTemp = WToolsProject::GetSingleton()->GetProjectFile();
   sTemp.PathParentDirectory();
   sTemp.Trim("/");
 
   if (!bSanitize)
     return sTemp.GetFileName();
 
-  const ezStringBuilder sOrgName = sTemp.GetFileName();
+  const WStringBuilder sOrgName = sTemp.GetFileName();
   sTemp.Clear();
 
   bool bAnyAscii = false;
 
-  for (ezStringIterator it = sOrgName.GetIteratorFront(); it.IsValid(); ++it)
+  for (WStringIterator it = sOrgName.GetIteratorFront(); it.IsValid(); ++it)
   {
-    const ezUInt32 c = it.GetCharacter();
+    const WUInt32 c = it.GetCharacter();
 
-    if (!ezStringUtils::IsIdentifierDelimiter_C_Code(c))
+    if (!WStringUtils::IsIdentifierDelimiter_C_Code(c))
     {
       bAnyAscii = true;
 
@@ -306,13 +306,13 @@ const ezString ezToolsProject::GetProjectName(bool bSanitize) const
     }
     else
     {
-      sTemp.AppendFormat("{}", ezArgU(c, 1, false, 16));
+      sTemp.AppendFormat("{}", WArgU(c, 1, false, 16));
     }
   }
 
   if (!bAnyAscii)
   {
-    const ezUInt32 uiHash = ezHashingUtils::xxHash32String(sTemp);
+    const WUInt32 uiHash = WHashingUtils::xxHash32String(sTemp);
     sTemp.SetFormat("Project{}", uiHash);
   }
 
@@ -329,9 +329,9 @@ const ezString ezToolsProject::GetProjectName(bool bSanitize) const
   return sTemp;
 }
 
-ezString ezToolsProject::GetProjectDirectory() const
+WString WToolsProject::GetProjectDirectory() const
 {
-  ezStringBuilder s = GetProjectFile();
+  WStringBuilder s = GetProjectFile();
 
   s.PathParentDirectory();
   s.Trim("", "/\\");
@@ -339,27 +339,27 @@ ezString ezToolsProject::GetProjectDirectory() const
   return s;
 }
 
-ezString ezToolsProject::GetProjectDataFolder() const
+WString WToolsProject::GetProjectDataFolder() const
 {
-  ezStringBuilder s = GetProjectDirectory();
+  WStringBuilder s = GetProjectDirectory();
   s.AppendPath("Editor");
 
   return s;
 }
 
-ezString ezToolsProject::FindProjectDirectoryForDocument(ezStringView sDocumentPath)
+WString WToolsProject::FindProjectDirectoryForDocument(WStringView sDocumentPath)
 {
-  ezStringBuilder sPath = sDocumentPath;
+  WStringBuilder sPath = sDocumentPath;
   sPath.PathParentDirectory();
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
   while (!sPath.IsEmpty())
   {
     sTemp = sPath;
-    sTemp.AppendPath("ezProject");
+    sTemp.AppendPath("WProject");
 
-    if (ezOSFile::ExistsFile(sTemp))
+    if (WOSFile::ExistsFile(sTemp))
       return sPath;
 
     sPath.PathParentDirectory();

@@ -11,29 +11,29 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpMeshPrefabTool, 1, ezRTTIDefaultAllocator<ezMcpMeshPrefabTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpMeshPrefabTool, 1, WRTTIDefaultAllocator<WMcpMeshPrefabTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   struct PhysicsName
   {
-    ezStringView m_sName;
-    ezMeshPrefabPhysics::Enum m_Value;
+    WStringView m_sName;
+    WMeshPrefabPhysics::Enum m_Value;
   };
 
   /// The spellings that the 'physics' argument accepts, and that mesh_prefab_info reports back.
   constexpr PhysicsName s_PhysicsNames[] = {
-    {"None"_ezsv, ezMeshPrefabPhysics::None},
-    {"StaticTriangleMesh"_ezsv, ezMeshPrefabPhysics::StaticTriangleMesh},
-    {"StaticConvexHull"_ezsv, ezMeshPrefabPhysics::StaticConvexHull},
-    {"StaticBox"_ezsv, ezMeshPrefabPhysics::StaticBox},
-    {"DynamicConvexHull"_ezsv, ezMeshPrefabPhysics::DynamicConvexHull},
-    {"DynamicBox"_ezsv, ezMeshPrefabPhysics::DynamicBox},
+    {"None"_wsv, WMeshPrefabPhysics::None},
+    {"StaticTriangleMesh"_wsv, WMeshPrefabPhysics::StaticTriangleMesh},
+    {"StaticConvexHull"_wsv, WMeshPrefabPhysics::StaticConvexHull},
+    {"StaticBox"_wsv, WMeshPrefabPhysics::StaticBox},
+    {"DynamicConvexHull"_wsv, WMeshPrefabPhysics::DynamicConvexHull},
+    {"DynamicBox"_wsv, WMeshPrefabPhysics::DynamicBox},
   };
 
-  ezStringView PhysicsToString(ezMeshPrefabPhysics::Enum value)
+  WStringView PhysicsToString(WMeshPrefabPhysics::Enum value)
   {
     for (const PhysicsName& n : s_PhysicsNames)
     {
@@ -41,11 +41,11 @@ namespace
         return n.m_sName;
     }
 
-    return "None"_ezsv;
+    return "None"_wsv;
   }
 
   /// Case insensitive, because the argument comes from a language model reading the schema.
-  bool PhysicsFromString(ezStringView sName, ezMeshPrefabPhysics::Enum& out_value)
+  bool PhysicsFromString(WStringView sName, WMeshPrefabPhysics::Enum& out_value)
   {
     for (const PhysicsName& n : s_PhysicsNames)
     {
@@ -63,27 +63,27 @@ namespace
   ///
   /// The box modes are sized from the bounds, which only exist once the asset was transformed. The
   /// collision mesh modes generate an asset from the source model file, so they need that path.
-  ezStringView GetPhysicsUnavailableReason(const ezMeshPrefabSource& source, ezMeshPrefabPhysics::Enum mode)
+  WStringView GetPhysicsUnavailableReason(const WMeshPrefabSource& source, WMeshPrefabPhysics::Enum mode)
   {
-    if (mode == ezMeshPrefabPhysics::None)
+    if (mode == WMeshPrefabPhysics::None)
       return {};
 
-    if (!ezMeshPrefabCreator::IsPhysicsAvailable())
-      return "The Jolt plugin is not loaded, so no collider components exist."_ezsv;
+    if (!WMeshPrefabCreator::IsPhysicsAvailable())
+      return "The Jolt plugin is not loaded, so no collider components exist."_wsv;
 
     switch (mode)
     {
-      case ezMeshPrefabPhysics::StaticBox:
-      case ezMeshPrefabPhysics::DynamicBox:
+      case WMeshPrefabPhysics::StaticBox:
+      case WMeshPrefabPhysics::DynamicBox:
         if (!source.m_bHasBounds)
-          return "The mesh asset has no bounds. Transform it first, with asset_transform."_ezsv;
+          return "The mesh asset has no bounds. Transform it first, with asset_transform."_wsv;
         break;
 
-      case ezMeshPrefabPhysics::StaticTriangleMesh:
-      case ezMeshPrefabPhysics::StaticConvexHull:
-      case ezMeshPrefabPhysics::DynamicConvexHull:
+      case WMeshPrefabPhysics::StaticTriangleMesh:
+      case WMeshPrefabPhysics::StaticConvexHull:
+      case WMeshPrefabPhysics::DynamicConvexHull:
         if (source.m_sMeshFile.IsEmpty())
-          return "The mesh asset has no source model file, so no collision mesh asset can be generated from it."_ezsv;
+          return "The mesh asset has no source model file, so no collision mesh asset can be generated from it."_wsv;
         break;
 
       default:
@@ -100,26 +100,26 @@ namespace
   ///
   /// The result is always absolute, as everything downstream asserts on relative paths. A spelling
   /// that resolves to no data directory is interpreted relative to the project directory.
-  ezStringBuilder ResolveOutputPath(ezStringView sPath)
+  WStringBuilder ResolveOutputPath(WStringView sPath)
   {
-    ezStringBuilder sResult = sPath;
+    WStringBuilder sResult = sPath;
     sResult.MakeCleanPath();
 
-    if (sResult.IsEmpty() || ezPathUtils::IsAbsolutePath(sResult))
+    if (sResult.IsEmpty() || WPathUtils::IsAbsolutePath(sResult))
       return sResult;
 
-    ezStringBuilder sTemp = sResult;
-    if (ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sTemp, false))
+    WStringBuilder sTemp = sResult;
+    if (WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sTemp, false))
       return sTemp;
 
     // only finds a path whose file already exists, but it is what resolves a rooted path or a guid
     sTemp = sResult;
-    if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
+    if (WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
       return sTemp;
 
-    if (ezToolsProject::IsProjectOpen())
+    if (WToolsProject::IsProjectOpen())
     {
-      sTemp = ezToolsProject::GetSingleton()->GetProjectDirectory();
+      sTemp = WToolsProject::GetSingleton()->GetProjectDirectory();
       sTemp.AppendPath(sResult);
       sTemp.MakeCleanPath();
       return sTemp;
@@ -128,9 +128,9 @@ namespace
     return sResult;
   }
 
-  ezAssetCurator::ezLockedSubAsset ResolveAsset(ezStringView sPathOrGuid)
+  WAssetCurator::WLockedSubAsset ResolveAsset(WStringView sPathOrGuid)
   {
-    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+    WAssetCurator* pCurator = WAssetCurator::GetSingleton();
 
     auto asset = pCurator->FindSubAsset(sPathOrGuid, false);
 
@@ -141,9 +141,9 @@ namespace
   }
 
   /// Resolves the 'mesh' argument down to a mesh asset guid, or explains why it isn't one.
-  bool ResolveMeshArgument(const ezVariantDictionary& arguments, ezMcpToolResult& out_result, ezUuid& out_guid)
+  bool ResolveMeshArgument(const WVariantDictionary& arguments, WMcpToolResult& out_result, WUuid& out_guid)
   {
-    const ezStringView sMesh = ezMcpJson::GetString(arguments, "mesh");
+    const WStringView sMesh = WMcpJson::GetString(arguments, "mesh");
 
     if (sMesh.IsEmpty())
     {
@@ -151,19 +151,19 @@ namespace
       return false;
     }
 
-    if (ezAssetCurator::GetSingleton() == nullptr)
+    if (WAssetCurator::GetSingleton() == nullptr)
     {
       out_result.SetError("No project is open.");
       return false;
     }
 
-    ezUuid guid;
+    WUuid guid;
     {
       auto asset = ResolveAsset(sMesh);
 
       if (!asset.isValid())
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("No asset found for '{}'. Use asset_find to search for it.", sMesh);
         out_result.SetError(sError);
         return false;
@@ -172,9 +172,9 @@ namespace
       guid = asset->m_Data.m_Guid;
     }
 
-    if (!ezMeshPrefabCreator::IsMeshAsset(guid))
+    if (!WMeshPrefabCreator::IsMeshAsset(guid))
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("'{}' is not a mesh or animated mesh asset, so no prefab can be created from it.", sMesh);
       out_result.SetError(sError);
       return false;
@@ -187,15 +187,15 @@ namespace
   /// The prefab path that mesh_prefab_info suggests and that mesh_prefab_create uses when the caller
   /// names none: the mesh asset path with the extension swapped. Empty when that file exists, as
   /// creation refuses to overwrite.
-  ezStringBuilder SuggestPrefabPath(const ezMeshPrefabSource& source)
+  WStringBuilder SuggestPrefabPath(const WMeshPrefabSource& source)
   {
     if (source.m_sMeshAssetPath.IsEmpty())
       return {};
 
-    ezStringBuilder sPath = source.m_sMeshAssetPath;
-    sPath.ChangeFileExtension("ezPrefab");
+    WStringBuilder sPath = source.m_sMeshAssetPath;
+    sPath.ChangeFileExtension("WPrefab");
 
-    if (ezOSFile::ExistsFile(sPath))
+    if (WOSFile::ExistsFile(sPath))
       return {};
 
     return sPath;
@@ -203,15 +203,15 @@ namespace
 
 } // namespace
 
-void ezMcpMeshPrefabTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpMeshPrefabTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "mesh_prefab_info";
     desc.m_sDescription =
       "Reports what a prefab created from a mesh asset would contain, and which options are usable for it. Modifies nothing. "
-      "Returns the render component that fits the mesh (ezLodMeshComponent when the import produced LOD assets, "
-      "ezAnimatedMeshComponent for a skinned mesh, ezMeshComponent otherwise), the mesh bounds, any collision mesh asset that "
+      "Returns the render component that fits the mesh (WLodMeshComponent when the import produced LOD assets, "
+      "WAnimatedMeshComponent for a skinned mesh, WMeshComponent otherwise), the mesh bounds, any collision mesh asset that "
       "already exists for the same source model, and for every physics mode whether it can be used and why not. "
       "Call this before 'mesh_prefab_create' when the options matter; creating with the defaults needs no info call.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
@@ -220,12 +220,12 @@ void ezMcpMeshPrefabTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_t
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "mesh_prefab_create";
     desc.m_sDescription =
       "Creates and saves a prefab document that displays one mesh asset: a root game object with the render component that fits the "
       "mesh, and optionally a Jolt collider. This is the same operation as 'Create Prefab...' in the asset browser's context menu. "
-      "The collision mesh modes generate an ezJoltCollisionMeshAsset (or convex one) next to the mesh asset, reusing an existing one "
+      "The collision mesh modes generate an WJoltCollisionMeshAsset (or convex one) next to the mesh asset, reusing an existing one "
       "built from the same source model rather than creating a duplicate. The box modes need the mesh bounds and therefore a mesh "
       "asset that was transformed at least once. "
       "Fails if the target file already exists - it never overwrites a prefab. The new prefab is not transformed here; call "
@@ -233,8 +233,8 @@ void ezMcpMeshPrefabTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_t
     desc.m_sInputSchema =
       R"({"type":"object","properties":{)"
       R"("mesh":{"type":"string","description":"Guid or path of a mesh or animated mesh asset, as returned by asset_find."},)"
-      R"("prefab":{"type":"string","description":"Where to write the prefab. Absolute, or relative to a data directory or its parent. A missing '.ezPrefab' extension is added. Defaults to the mesh asset path with the extension swapped."},)"
-      R"("renderComponent":{"type":"string","description":"RTTI name of the component that renders the mesh, e.g. 'ezMeshComponent'. Defaults to what mesh_prefab_info reports as 'renderComponent'."},)"
+      R"("prefab":{"type":"string","description":"Where to write the prefab. Absolute, or relative to a data directory or its parent. A missing '.WPrefab' extension is added. Defaults to the mesh asset path with the extension swapped."},)"
+      R"("renderComponent":{"type":"string","description":"RTTI name of the component that renders the mesh, e.g. 'WMeshComponent'. Defaults to what mesh_prefab_info reports as 'renderComponent'."},)"
       R"("physics":{"type":"string","enum":["None","StaticTriangleMesh","StaticConvexHull","StaticBox","DynamicConvexHull","DynamicBox"],"description":"Which collider to set up. Defaults to 'defaultPhysics' from mesh_prefab_info, which is a mode matching an already existing collision mesh asset, or 'None'."},)"
       R"("collisionLayer":{"type":"number","description":"Jolt collision layer for the actor component. Defaults to 0."},)"
       R"("surface":{"type":"string","description":"Guid or path of a surface asset for the collider. Optional."})"
@@ -242,7 +242,7 @@ void ezMcpMeshPrefabTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_t
   }
 }
 
-void ezMcpMeshPrefabTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpMeshPrefabTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "mesh_prefab_info")
     ExecuteInfo(arguments, out_result);
@@ -250,20 +250,20 @@ void ezMcpMeshPrefabTool::Execute(ezStringView sToolName, const ezVariantDiction
     ExecuteCreate(arguments, out_result);
 }
 
-void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpMeshPrefabTool::ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezUuid meshGuid;
+  WUuid meshGuid;
   if (!ResolveMeshArgument(arguments, out_result, meshGuid))
     return;
 
-  ezMeshPrefabSource source;
-  if (ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Failed())
+  WMeshPrefabSource source;
+  if (WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Failed())
   {
     out_result.SetError("The mesh asset could not be read.");
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableUuid("mesh", source.m_MeshAssetGuid);
@@ -273,10 +273,10 @@ void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMc
   writer.AddVariableString("renderComponent", source.GetDefaultRenderComponentType());
 
   writer.BeginArray("lodMeshes");
-  for (const ezUuid& lod : source.m_LodGuids)
+  for (const WUuid& lod : source.m_LodGuids)
   {
-    ezStringBuilder sGuid;
-    ezConversionUtils::ToString(lod, sGuid);
+    WStringBuilder sGuid;
+    WConversionUtils::ToString(lod, sGuid);
     writer.WriteString(sGuid);
   }
   writer.EndArray();
@@ -292,7 +292,7 @@ void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMc
     writer.EndObject();
   }
 
-  writer.AddVariableBool("physicsAvailable", ezMeshPrefabCreator::IsPhysicsAvailable());
+  writer.AddVariableBool("physicsAvailable", WMeshPrefabCreator::IsPhysicsAvailable());
   writer.AddVariableString("defaultPhysics", PhysicsToString(source.GetDefaultPhysics()));
 
   if (source.m_ExistingTriangleColMesh.IsValid())
@@ -306,7 +306,7 @@ void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMc
   writer.BeginArray("physicsModes");
   for (const PhysicsName& n : s_PhysicsNames)
   {
-    const ezStringView sReason = GetPhysicsUnavailableReason(source, n.m_Value);
+    const WStringView sReason = GetPhysicsUnavailableReason(source, n.m_Value);
 
     writer.BeginObject();
     writer.AddVariableString("mode", n.m_sName);
@@ -319,7 +319,7 @@ void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMc
   }
   writer.EndArray();
 
-  const ezStringBuilder sSuggested = SuggestPrefabPath(source);
+  const WStringBuilder sSuggested = SuggestPrefabPath(source);
 
   if (sSuggested.IsEmpty())
   {
@@ -336,25 +336,25 @@ void ezMcpMeshPrefabTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMc
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpMeshPrefabTool::ExecuteCreate(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezUuid meshGuid;
+  WUuid meshGuid;
   if (!ResolveMeshArgument(arguments, out_result, meshGuid))
     return;
 
-  ezMeshPrefabSource source;
-  if (ezMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Failed())
+  WMeshPrefabSource source;
+  if (WMeshPrefabCreator::GatherMeshPrefabSource(meshGuid, source).Failed())
   {
     out_result.SetError("The mesh asset could not be read.");
     return;
   }
 
-  ezMeshPrefabOptions options;
+  WMeshPrefabOptions options;
 
   {
-    const ezStringView sPrefab = ezMcpJson::GetString(arguments, "prefab");
+    const WStringView sPrefab = WMcpJson::GetString(arguments, "prefab");
 
-    ezStringBuilder sPath = sPrefab.IsEmpty() ? SuggestPrefabPath(source) : ResolveOutputPath(sPrefab);
+    WStringBuilder sPath = sPrefab.IsEmpty() ? SuggestPrefabPath(source) : ResolveOutputPath(sPrefab);
 
     if (sPath.IsEmpty())
     {
@@ -364,16 +364,16 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
     }
 
     // creation resolves the document type from the extension, which a caller often leaves off
-    if (!ezPathUtils::HasExtension(sPath, "ezPrefab"))
-      sPath.ChangeFileExtension("ezPrefab");
+    if (!WPathUtils::HasExtension(sPath, "WPrefab"))
+      sPath.ChangeFileExtension("WPrefab");
 
     options.m_sPrefabPath = sPath;
   }
 
-  options.m_sRenderComponentType = ezMcpJson::GetString(arguments, "renderComponent", source.GetDefaultRenderComponentType());
+  options.m_sRenderComponentType = WMcpJson::GetString(arguments, "renderComponent", source.GetDefaultRenderComponentType());
 
   {
-    const ezStringView sPhysics = ezMcpJson::GetString(arguments, "physics");
+    const WStringView sPhysics = WMcpJson::GetString(arguments, "physics");
 
     if (sPhysics.IsEmpty())
     {
@@ -381,11 +381,11 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
     }
     else
     {
-      ezMeshPrefabPhysics::Enum mode = ezMeshPrefabPhysics::None;
+      WMeshPrefabPhysics::Enum mode = WMeshPrefabPhysics::None;
 
       if (!PhysicsFromString(sPhysics, mode))
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("'{}' is not a physics mode. Valid values are None, StaticTriangleMesh, StaticConvexHull, StaticBox, "
                          "DynamicConvexHull and DynamicBox.",
           sPhysics);
@@ -394,11 +394,11 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
       }
 
       // checked here, so that the reason names the missing prerequisite
-      const ezStringView sReason = GetPhysicsUnavailableReason(source, mode);
+      const WStringView sReason = GetPhysicsUnavailableReason(source, mode);
 
       if (!sReason.IsEmpty())
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("Physics mode '{}' cannot be used for this mesh. {}", sPhysics, sReason);
         out_result.SetError(sError);
         return;
@@ -408,10 +408,10 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
     }
   }
 
-  options.m_uiCollisionLayer = static_cast<ezUInt8>(ezMath::Clamp<ezInt64>(ezMcpJson::GetInt(arguments, "collisionLayer", 0), 0, 31));
+  options.m_uiCollisionLayer = static_cast<WUInt8>(WMath::Clamp<WInt64>(WMcpJson::GetInt(arguments, "collisionLayer", 0), 0, 31));
 
   {
-    const ezStringView sSurface = ezMcpJson::GetString(arguments, "surface");
+    const WStringView sSurface = WMcpJson::GetString(arguments, "surface");
 
     if (!sSurface.IsEmpty())
     {
@@ -419,14 +419,14 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
 
       if (!asset.isValid())
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("No asset found for surface '{}'.", sSurface);
         out_result.SetError(sError);
         return;
       }
 
-      ezStringBuilder sGuid;
-      ezConversionUtils::ToString(asset->m_Data.m_Guid, sGuid);
+      WStringBuilder sGuid;
+      WConversionUtils::ToString(asset->m_Data.m_Guid, sGuid);
       options.m_sSurfaceAsset = sGuid;
     }
   }
@@ -434,7 +434,7 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
   // not opened: that would put a window in front of the user for something they did not click on
   options.m_bOpenAfterCreate = false;
 
-  const ezStatus res = ezMeshPrefabCreator::CreateMeshPrefab(source, options);
+  const WStatus res = WMeshPrefabCreator::CreateMeshPrefab(source, options);
 
   if (res.Failed())
   {
@@ -442,7 +442,7 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("prefabPath", options.m_sPrefabPath);
@@ -452,9 +452,9 @@ void ezMcpMeshPrefabTool::ExecuteCreate(const ezVariantDictionary& arguments, ez
   writer.AddVariableUInt32("lodCount", source.m_LodGuids.GetCount() + 1);
 
   // the curator has to have seen the file before anything can look it up by guid
-  ezAssetCurator::GetSingleton()->CheckFileSystem();
+  WAssetCurator::GetSingleton()->CheckFileSystem();
 
-  auto created = ezAssetCurator::GetSingleton()->FindSubAsset(options.m_sPrefabPath, false);
+  auto created = WAssetCurator::GetSingleton()->FindSubAsset(options.m_sPrefabPath, false);
 
   if (created.isValid())
     writer.AddVariableUuid("prefab", created->m_Data.m_Guid);

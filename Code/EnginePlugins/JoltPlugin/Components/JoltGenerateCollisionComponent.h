@@ -5,88 +5,88 @@
 
 #include <Core/World/World.h>
 
-struct ezMsgGenerateSplineMeshCollision;
-struct ezMsgComponentInternalTrigger;
-class ezAbstractObjectNode;
-using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
+struct WMsgGenerateSplineMeshCollision;
+struct WMsgComponentInternalTrigger;
+class WAbstractObjectNode;
+using WMeshResourceHandle = WTypedResourceHandle<class WMeshResource>;
 
-struct EZ_JOLTPLUGIN_DLL ezJoltMeshMapping
+struct W_JOLTPLUGIN_DLL WJoltMeshMapping
 {
-  ezMeshResourceHandle m_hRenderMesh;
-  ezJoltMeshResourceHandle m_hCollisionMesh;
+  WMeshResourceHandle m_hRenderMesh;
+  WJoltMeshResourceHandle m_hCollisionMesh;
 
-  bool operator==(const ezJoltMeshMapping& other) const
+  bool operator==(const WJoltMeshMapping& other) const
   {
     return m_hRenderMesh == other.m_hRenderMesh && m_hCollisionMesh == other.m_hCollisionMesh;
   }
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltMeshMapping);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltMeshMapping);
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezJoltGenerateCollisionComponentManager = ezComponentManager<class ezJoltGenerateCollisionComponent, ezBlockStorageType::Compact>;
+using WJoltGenerateCollisionComponentManager = WComponentManager<class WJoltGenerateCollisionComponent, WBlockStorageType::Compact>;
 
 /// A component that generates a static collision mesh from specified render meshes.
 ///
 /// The generated collision mesh is written to disk as a JoltMeshResource. During scene export the
-/// ezSceneExportModifier_JoltFinalizeGeneratedCollision export modifier creates a static actor which references the generated collision mesh.
+/// WSceneExportModifier_JoltFinalizeGeneratedCollision export modifier creates a static actor which references the generated collision mesh.
 /// This component has no effect at runtime and is removed from scenes (not prefabs though) by the export modifier.
 /// Currently only supports generation from spline meshes.
-class EZ_JOLTPLUGIN_DLL ezJoltGenerateCollisionComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltGenerateCollisionComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltGenerateCollisionComponent, ezComponent, ezJoltGenerateCollisionComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltGenerateCollisionComponent, WComponent, WJoltGenerateCollisionComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltGenerateCollisionComponent
+  // WJoltGenerateCollisionComponent
 
 public:
-  ezJoltGenerateCollisionComponent();
-  ~ezJoltGenerateCollisionComponent();
+  WJoltGenerateCollisionComponent();
+  ~WJoltGenerateCollisionComponent();
 
   /// Mesh mappings define which jolt collision mesh should be used for a corresponding render mesh.
   /// Render meshes without a mapping won't have collision.
-  ezArrayPtr<const ezJoltMeshMapping> GetMeshMappings() const { return m_MeshMappings; }                         // [ property ]
+  WArrayPtr<const WJoltMeshMapping> GetMeshMappings() const { return m_MeshMappings; }                         // [ property ]
 
-  ezUInt8 m_uiCollisionLayer = 0;                                                                                // [ property ]
+  WUInt8 m_uiCollisionLayer = 0;                                                                                // [ property ]
 
 private:
-  ezUInt32 Reflection_GetMeshMappingCount() const { return m_MeshMappings.GetCount(); }                          // [ property ]
-  const ezJoltMeshMapping& Reflection_GetMeshMapping(ezUInt32 uiIndex) const { return m_MeshMappings[uiIndex]; } // [ property ]
-  void Reflection_SetMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);                            // [ property ]
-  void Reflection_InsertMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);                         // [ property ]
-  void Reflection_RemoveMeshMapping(ezUInt32 uiIndex);                                                           // [ property ]
+  WUInt32 Reflection_GetMeshMappingCount() const { return m_MeshMappings.GetCount(); }                          // [ property ]
+  const WJoltMeshMapping& Reflection_GetMeshMapping(WUInt32 uiIndex) const { return m_MeshMappings[uiIndex]; } // [ property ]
+  void Reflection_SetMeshMapping(WUInt32 uiIndex, const WJoltMeshMapping& mapping);                            // [ property ]
+  void Reflection_InsertMeshMapping(WUInt32 uiIndex, const WJoltMeshMapping& mapping);                         // [ property ]
+  void Reflection_RemoveMeshMapping(WUInt32 uiIndex);                                                           // [ property ]
 
-  ezCpuMeshResourceHandle GetCollisionCpuMeshForRenderMesh(ezMeshResourceHandle hRenderMesh) const;
+  WCpuMeshResourceHandle GetCollisionCpuMeshForRenderMesh(WMeshResourceHandle hRenderMesh) const;
 
-  void OnObjectCreated(const ezAbstractObjectNode& node);
-  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg); // [ msg handler ]
-  void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& ref_msg);       // [ msg handler ]
+  void OnObjectCreated(const WAbstractObjectNode& node);
+  void OnMsgGenerateSplineMeshCollision(WMsgGenerateSplineMeshCollision& ref_msg); // [ msg handler ]
+  void OnMsgComponentInternalTrigger(WMsgComponentInternalTrigger& ref_msg);       // [ msg handler ]
 
-  void StartGenerateTask(ezSharedPtr<ezTask>&& pTask);
+  void StartGenerateTask(WSharedPtr<WTask>&& pTask);
 
-  friend class ezSceneExportModifier_JoltFinalizeGeneratedCollision;
+  friend class WSceneExportModifier_JoltFinalizeGeneratedCollision;
   void FinalizeGeneration();
 
-  ezSmallArray<ezJoltMeshMapping, 1> m_MeshMappings;
+  WSmallArray<WJoltMeshMapping, 1> m_MeshMappings;
 
-  ezUInt64 m_uiStableId = 0;
-  ezHashedString m_sCollisionMeshPath;
+  WUInt64 m_uiStableId = 0;
+  WHashedString m_sCollisionMeshPath;
 
-  ezSharedPtr<ezTask> m_pGenerationTask;
-  ezSharedPtr<ezTask> m_pNextGenerationTask;
-  ezTaskGroupID m_TaskGroupID;
+  WSharedPtr<WTask> m_pGenerationTask;
+  WSharedPtr<WTask> m_pNextGenerationTask;
+  WTaskGroupID m_TaskGroupID;
 };

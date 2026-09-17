@@ -5,59 +5,59 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 /// Actions for configuring the engine view light settings.
-class EZ_EDITORFRAMEWORK_DLL ezViewLightActions
+class W_EDITORFRAMEWORK_DLL WViewLightActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hLightMenu;
-  static ezActionDescriptorHandle s_hSkyBox;
-  static ezActionDescriptorHandle s_hSkyLight;
-  static ezActionDescriptorHandle s_hSkyLightCubeMap;
-  static ezActionDescriptorHandle s_hSkyLightIntensity;
-  static ezActionDescriptorHandle s_hDirLight;
-  static ezActionDescriptorHandle s_hDirLightAngle;
-  static ezActionDescriptorHandle s_hDirLightShadows;
-  static ezActionDescriptorHandle s_hDirLightIntensity;
-  static ezActionDescriptorHandle s_hFog;
-  static ezActionDescriptorHandle s_hSetAsDefault;
+  static WActionDescriptorHandle s_hLightMenu;
+  static WActionDescriptorHandle s_hSkyBox;
+  static WActionDescriptorHandle s_hSkyLight;
+  static WActionDescriptorHandle s_hSkyLightCubeMap;
+  static WActionDescriptorHandle s_hSkyLightIntensity;
+  static WActionDescriptorHandle s_hDirLight;
+  static WActionDescriptorHandle s_hDirLightAngle;
+  static WActionDescriptorHandle s_hDirLightShadows;
+  static WActionDescriptorHandle s_hDirLightIntensity;
+  static WActionDescriptorHandle s_hFog;
+  static WActionDescriptorHandle s_hSetAsDefault;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewLightButtonAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WViewLightButtonAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewLightButtonAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WViewLightButtonAction, WButtonAction);
 
 public:
-  ezViewLightButtonAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button);
-  ~ezViewLightButtonAction();
+  WViewLightButtonAction(const WActionContext& context, const char* szName, WEngineViewLightSettingsEvent::Type button);
+  ~WViewLightButtonAction();
 
-  virtual void Execute(const ezVariant& value) override;
-  void LightSettingsEventHandler(const ezEngineViewLightSettingsEvent& e);
+  virtual void Execute(const WVariant& value) override;
+  void LightSettingsEventHandler(const WEngineViewLightSettingsEvent& e);
   void UpdateAction();
 
 private:
-  ezEngineViewLightSettingsEvent::Type m_ButtonType;
-  ezEngineViewLightSettings* m_pSettings = nullptr;
-  ezEventSubscriptionID m_SettingsID;
+  WEngineViewLightSettingsEvent::Type m_ButtonType;
+  WEngineViewLightSettings* m_pSettings = nullptr;
+  WEventSubscriptionID m_SettingsID;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewLightSliderAction : public ezSliderAction
+class W_EDITORFRAMEWORK_DLL WViewLightSliderAction : public WSliderAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewLightSliderAction, ezSliderAction);
+  W_ADD_DYNAMIC_REFLECTION(WViewLightSliderAction, WSliderAction);
 
 public:
-  ezViewLightSliderAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button);
-  ~ezViewLightSliderAction();
+  WViewLightSliderAction(const WActionContext& context, const char* szName, WEngineViewLightSettingsEvent::Type button);
+  ~WViewLightSliderAction();
 
-  virtual void Execute(const ezVariant& value) override;
-  void LightSettingsEventHandler(const ezEngineViewLightSettingsEvent& e);
+  virtual void Execute(const WVariant& value) override;
+  void LightSettingsEventHandler(const WEngineViewLightSettingsEvent& e);
   void UpdateAction();
 
 private:
-  ezEngineViewLightSettingsEvent::Type m_ButtonType;
-  ezEngineViewLightSettings* m_pSettings = nullptr;
-  ezEventSubscriptionID m_SettingsID;
+  WEngineViewLightSettingsEvent::Type m_ButtonType;
+  WEngineViewLightSettings* m_pSettings = nullptr;
+  WEventSubscriptionID m_SettingsID;
 };

@@ -11,15 +11,15 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <SharedPluginAssets/Common/Messages.h>
 
-ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnimatedMeshAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtAnimatedMeshAssetDocumentWindow::WQtAnimatedMeshAssetDocumentWindow(WAnimatedMeshAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "AnimatedMeshAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -28,8 +28,8 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "AnimatedMeshAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -39,33 +39,33 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
   }
 
   // 3D View
-  ezQtViewWidgetContainer* pContainer = nullptr;
+  WQtViewWidgetContainer* pContainer = nullptr;
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-1.6f, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureRelative(WVec3(0, 0, 1), WVec3(10.0f), WVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
 
-    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext = W_DEFAULT_NEW(WCameraMoveContext, this, m_pViewWidget);
     m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
     m_pCameraFlyContext->LoadState();
 
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimatedMeshAssetViewToolBar");
+    pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimatedMeshAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AnimatedMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Mesh Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -73,7 +73,7 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -88,24 +88,24 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
   UpdatePreview();
 
   m_pHighlightTimer = new QTimer();
-  connect(m_pHighlightTimer, &QTimer::timeout, this, &ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer);
+  connect(m_pHighlightTimer, &QTimer::timeout, this, &WQtAnimatedMeshAssetDocumentWindow::HighlightTimer);
   m_pHighlightTimer->setInterval(500);
   m_pHighlightTimer->start();
 }
 
-ezQtAnimatedMeshAssetDocumentWindow::~ezQtAnimatedMeshAssetDocumentWindow()
+WQtAnimatedMeshAssetDocumentWindow::~WQtAnimatedMeshAssetDocumentWindow()
 {
   m_pHighlightTimer->stop();
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-ezAnimatedMeshAssetDocument* ezQtAnimatedMeshAssetDocumentWindow::GetMeshDocument()
+WAnimatedMeshAssetDocument* WQtAnimatedMeshAssetDocumentWindow::GetMeshDocument()
 {
-  return static_cast<ezAnimatedMeshAssetDocument*>(GetDocument());
+  return static_cast<WAnimatedMeshAssetDocument*>(GetDocument());
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::SetCameraMode(int iMode)
+void WQtAnimatedMeshAssetDocumentWindow::SetCameraMode(int iMode)
 {
   if (m_iCameraMode == iMode)
     return;
@@ -118,10 +118,10 @@ void ezQtAnimatedMeshAssetDocumentWindow::SetCameraMode(int iMode)
     m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::SendRedrawMsg()
+void WQtAnimatedMeshAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   for (auto pView : m_ViewWidgets)
@@ -134,15 +134,15 @@ void ezQtAnimatedMeshAssetDocumentWindow::SendRedrawMsg()
   QueryObjectBBox();
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /* = 0*/)
+void WQtAnimatedMeshAssetDocumentWindow::QueryObjectBBox(WInt32 iPurpose /* = 0*/)
 {
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   // if (e.m_sProperty == "Resource") // any material change
   {
@@ -150,9 +150,9 @@ void ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentO
   }
 }
 
-bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
+bool WQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return false;
 
   if (GetMeshDocument()->GetProperties() == nullptr)
@@ -160,13 +160,13 @@ bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
 
   const auto& materials = GetMeshDocument()->GetProperties()->m_Slots;
 
-  ezEditorEngineSetMaterialsMsg msg;
+  WEditorEngineSetMaterialsMsg msg;
   msg.m_Materials.SetCount(materials.GetCount());
 
-  ezUInt32 uiSlot = 0;
+  WUInt32 uiSlot = 0;
   bool bHighlighted = false;
 
-  for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+  for (WUInt32 i = 0; i < materials.GetCount(); ++i)
   {
     msg.m_Materials[i] = materials[i].m_sResource;
 
@@ -175,7 +175,7 @@ bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
       if (uiSlot == m_uiHighlightSlots)
       {
         bHighlighted = true;
-        msg.m_Materials[i] = "Editor/Materials/HighlightMesh.ezMaterial";
+        msg.m_Materials[i] = "Editor/Materials/HighlightMesh.WMaterial";
       }
 
       ++uiSlot;
@@ -187,22 +187,22 @@ bool ezQtAnimatedMeshAssetDocumentWindow::UpdatePreview()
   return bHighlighted;
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::InternalRedraw()
+void WQtAnimatedMeshAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtAnimatedMeshAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxResultMsgToEditor>())
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(WVec3(0.1f)));
     }
     else
     {
@@ -213,17 +213,17 @@ void ezQtAnimatedMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEdi
     return;
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
 }
 
-void ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer()
+void WQtAnimatedMeshAssetDocumentWindow::HighlightTimer()
 {
-  if (m_uiHighlightSlots & EZ_BIT(31))
-    m_uiHighlightSlots &= ~EZ_BIT(31);
+  if (m_uiHighlightSlots & W_BIT(31))
+    m_uiHighlightSlots &= ~W_BIT(31);
   else
-    m_uiHighlightSlots |= EZ_BIT(31);
+    m_uiHighlightSlots |= W_BIT(31);
 
-  if (m_uiHighlightSlots & EZ_BIT(31))
+  if (m_uiHighlightSlots & W_BIT(31))
   {
     UpdatePreview();
   }
@@ -235,7 +235,7 @@ void ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer()
     }
     else
     {
-      m_uiHighlightSlots = EZ_BIT(31);
+      m_uiHighlightSlots = W_BIT(31);
     }
   }
 }

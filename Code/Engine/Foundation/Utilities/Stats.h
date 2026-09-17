@@ -10,27 +10,27 @@
 ///
 /// This can be used by a game to store (and continuously update) information about the internal game state. Other tools can then
 /// display this information in a convenient manner. For example the stats can be shown on screen. The data is also transmitted through
-/// ezTelemetry, and the ezInspector tool will display the information.
-class EZ_FOUNDATION_DLL ezStats
+/// WTelemetry, and the WInspector tool will display the information.
+class W_FOUNDATION_DLL WStats
 {
 public:
-  using MapType = ezMap<ezString, ezVariant>;
+  using MapType = WMap<WString, WVariant>;
 
   /// Removes the stat with the given name.
   ///
-  /// This will also send a 'remove' message through ezTelemetry, such that external tools can remove it from their list.
-  static void RemoveStat(ezStringView sStatName);
+  /// This will also send a 'remove' message through WTelemetry, such that external tools can remove it from their list.
+  static void RemoveStat(WStringView sStatName);
 
   /// Sets the value of the given stat, adds it if it did not exist before.
   ///
-  /// szStatName may contain slashes (but not backslashes) to define groups and subgroups, which can be used by tools such as ezInspector
+  /// szStatName may contain slashes (but not backslashes) to define groups and subgroups, which can be used by tools such as WInspector
   /// to display the stats in a hierarchical way.
-  /// This function will also send the name and value of the stat through ezTelemetry, such that tools like ezInspector will show the
+  /// This function will also send the name and value of the stat through WTelemetry, such that tools like WInspector will show the
   /// changed value.
-  static void SetStat(ezStringView sStatName, const ezVariant& value);
+  static void SetStat(WStringView sStatName, const WVariant& value);
 
-  /// Returns the value of the given stat. Returns an invalid ezVariant, if the stat did not exist before.
-  static const ezVariant& GetStat(ezStringView sStatName) { return s_Stats[sStatName]; }
+  /// Returns the value of the given stat. Returns an invalid WVariant, if the stat did not exist before.
+  static const WVariant& GetStat(WStringView sStatName) { return s_Stats[sStatName]; }
 
   /// Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
@@ -47,20 +47,20 @@ public:
     };
 
     EventType m_EventType;
-    ezStringView m_sStatName;
-    ezVariant m_NewStatValue;
+    WStringView m_sStatName;
+    WVariant m_NewStatValue;
   };
 
-  using ezEventStats = ezEvent<const StatsEventData&, ezMutex>;
+  using WEventStats = WEvent<const StatsEventData&, WMutex>;
 
   /// Adds an event handler that is called every time a stat is changed.
-  static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }
+  static void AddEventHandler(WEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }
 
   /// Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler(handler); }
+  static void RemoveEventHandler(WEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler(handler); }
 
 private:
-  static ezMutex s_Mutex;
+  static WMutex s_Mutex;
   static MapType s_Stats;
-  static ezEventStats s_StatsEvents;
+  static WEventStats s_StatsEvents;
 };

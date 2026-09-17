@@ -13,28 +13,28 @@
 /// rope distance constraints.
 ///
 /// Based on https://owlree.blog/posts/simulating-a-rope.html
-class EZ_GAMEENGINE_DLL ezRopeSimulator
+class W_GAMEENGINE_DLL WRopeSimulator
 {
 public:
   struct Node
   {
-    ezSimdVec4f m_vPosition = ezSimdVec4f::MakeZero();
-    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::MakeZero();
+    WSimdVec4f m_vPosition = WSimdVec4f::MakeZero();
+    WSimdVec4f m_vPreviousPosition = WSimdVec4f::MakeZero();
 
     // could add per node acceleration
     // could add per node mass
   };
 
 public:
-  ezRopeSimulator();
-  ~ezRopeSimulator();
+  WRopeSimulator();
+  ~WRopeSimulator();
 
   /// External acceleration, typically gravity or a combination of gravity and wind.
   /// Applied to all rope nodes equally.
-  ezVec3 m_vAcceleration = ezVec3(0, 0, -10);
+  WVec3 m_vAcceleration = WVec3(0, 0, -10);
 
   /// All the nodes in the rope
-  ezDynamicArray<Node, ezAlignedAllocatorWrapper> m_Nodes;
+  WDynamicArray<Node, WAlignedAllocatorWrapper> m_Nodes;
 
   /// A factor to dampen velocities to make the rope stop swinging.
   /// Should be between 0.97 (strong damping) and 1.0 (no damping).
@@ -46,17 +46,17 @@ public:
   bool m_bFirstNodeIsFixed = true;
   bool m_bLastNodeIsFixed = true;
 
-  void SimulateRope(const ezTime& diff);
-  void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
-  void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
-  bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
+  void SimulateRope(const WTime& diff);
+  void SimulateStep(const WSimdFloat fDiffSqr, WUInt32 uiMaxIterations, WSimdFloat fAllowedError);
+  void SimulateTillEquilibrium(WSimdFloat fAllowedMovement = 0.005f, WUInt32 uiMaxIterations = 1000);
+  bool HasEquilibrium(WSimdFloat fAllowedMovement) const;
   float GetTotalLength() const;
-  ezSimdVec4f GetPositionAtLength(float fLength) const;
+  WSimdVec4f GetPositionAtLength(float fLength) const;
 
 private:
-  ezSimdFloat EnforceDistanceConstraint();
-  void UpdateNodePositions(const ezSimdFloat tDiffSqr);
-  ezSimdVec4f MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError);
+  WSimdFloat EnforceDistanceConstraint();
+  void UpdateNodePositions(const WSimdFloat tDiffSqr);
+  WSimdVec4f MoveTowards(const WSimdVec4f posThis, const WSimdVec4f posNext, WSimdFloat factor, const WSimdVec4f fallbackDir, WSimdFloat& inout_fError);
 
-  ezTime m_LeftOverTimeStep;
+  WTime m_LeftOverTimeStep;
 };

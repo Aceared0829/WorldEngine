@@ -6,11 +6,11 @@
 
 /// Helper template class to iterate over stream elements.
 template <typename Type>
-class ezProcessingStreamIterator
+class WProcessingStreamIterator
 {
 public:
   /// Constructor.
-  ezProcessingStreamIterator(const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex);
+  WProcessingStreamIterator(const WProcessingStream* pStream, WUInt64 uiNumElements, WUInt64 uiStartIndex);
 
   /// Returns a reference to the current element. Note that the behavior is undefined if HasReachedEnd() is true!
   Type& Current() const;
@@ -22,7 +22,7 @@ public:
   void Advance();
 
   /// Advances the current pointer by the given number of elements.
-  void Advance(ezUInt32 uiNumElements);
+  void Advance(WUInt32 uiNumElements);
 
   // TODO: Add iterator interface? Only makes really sense for element spawners and processors which work on a single stream
 
@@ -30,7 +30,7 @@ protected:
   void* m_pCurrentPtr = nullptr;
   void* m_pEndPtr = nullptr;
 
-  ezUInt64 m_uiElementStride = 0;
+  WUInt64 m_uiElementStride = 0;
 };
 
 #include <Foundation/DataProcessing/Stream/Implementation/ProcessingStreamIterator_inl.h>

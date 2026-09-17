@@ -11,24 +11,24 @@
 /// Just add all permutation variables and their possible values.
 /// Then the number of possible permutations and each permutation
 /// can be queried.
-class EZ_RENDERERCORE_DLL ezPermutationGenerator
+class W_RENDERERCORE_DLL WPermutationGenerator
 {
 public:
   /// Resets everything.
   void Clear();
 
   /// Removes all permutations for the given variable
-  void RemovePermutations(const ezHashedString& sPermVarName);
+  void RemovePermutations(const WHashedString& sPermVarName);
 
   /// Adds the name and one of the possible values of a permutation variable.
-  void AddPermutation(const ezHashedString& sName, const ezHashedString& sValue);
+  void AddPermutation(const WHashedString& sName, const WHashedString& sValue);
 
   /// Returns how many permutations are possible.
-  ezUInt32 GetPermutationCount() const;
+  WUInt32 GetPermutationCount() const;
 
   /// Returns the n-th permutation.
-  void GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPermutationVar>& out_permVars) const;
+  void GetPermutation(WUInt32 uiPerm, WDynamicArray<WPermutationVar>& out_permVars) const;
 
 private:
-  ezMap<ezHashedString, ezHashSet<ezHashedString>> m_Permutations;
+  WMap<WHashedString, WHashSet<WHashedString>> m_Permutations;
 };

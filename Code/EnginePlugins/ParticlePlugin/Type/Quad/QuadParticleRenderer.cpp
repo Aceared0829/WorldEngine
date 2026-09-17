@@ -7,48 +7,48 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleQuadRenderData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderer, 1, ezRTTIDefaultAllocator<ezParticleQuadRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleQuadRenderer, 1, WRTTIDefaultAllocator<WParticleQuadRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezParticleQuadRenderData::CanBatch(const ezRenderData& other0) const
+bool WParticleQuadRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezParticleQuadRenderData&>(other0);
+  const auto& other = WStaticCast<const WParticleQuadRenderData&>(other0);
 
   return m_RenderMode == other.m_RenderMode && m_hTexture == other.m_hTexture && m_hCustomMaterial == other.m_hCustomMaterial;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleQuadRenderer::ezParticleQuadRenderer()
+WParticleQuadRenderer::WParticleQuadRenderer()
 {
-  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_TangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(WBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(WBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TangentDataBuffer, sizeof(WTangentQuadParticleShaderData), s_uiParticlesPerBatch);
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/DefaultQuadParticle.ezShader");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Particles/DefaultQuadParticle.WShader");
 }
 
-ezParticleQuadRenderer::~ezParticleQuadRenderer()
+WParticleQuadRenderer::~WParticleQuadRenderer()
 {
   DestroyParticleDataBuffer(m_BaseDataBuffer);
   DestroyParticleDataBuffer(m_BillboardDataBuffer);
   DestroyParticleDataBuffer(m_TangentDataBuffer);
 }
 
-void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WParticleQuadRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WParticleQuadRenderData>());
 }
 
-void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WParticleQuadRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
+  WRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -56,20 +56,20 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
   // Bind mesh buffer
   {
-    pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
+    pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
   }
 
-  ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+  WBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
 
   // now render all particle effects of type Quad
-  for (auto it = batch.GetIterator<ezParticleQuadRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<WParticleQuadRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
   {
-    const ezParticleQuadRenderData* pRenderData = it;
+    const WParticleQuadRenderData* pRenderData = it;
 
     if (pRenderData->m_hCustomMaterial.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMat(pRenderData->m_hCustomMaterial, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-      if (pMat.GetAcquireResult() != ezResourceAcquireResult::Final)
+      WResourceLock<WMaterialResource> pMat(pRenderData->m_hCustomMaterial, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+      if (pMat.GetAcquireResult() != WResourceAcquireResult::Final)
       {
         // skip rendering this particle effect in case the custom material is not yet loaded (or fails to load)
         // otherwise we would get the fallback material, which doesn't work with particle vertex streams
@@ -89,11 +89,11 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       bindGroupMaterial.BindTexture("ParticleTexture", pRenderData->m_hTexture);
     }
 
-    const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
-    const ezBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
-    const ezTangentQuadParticleShaderData* pParticleTangentData = pRenderData->m_TangentParticleData.GetPtr();
+    const WBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const WBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
+    const WTangentQuadParticleShaderData* pParticleTangentData = pRenderData->m_TangentParticleData.GetPtr();
 
-    ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
+    WUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
@@ -104,31 +104,31 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
     while (uiNumParticles > 0)
     {
       // Request new buffers and bind them
-      ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
-      ezGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
-      ezGALBufferHandle hTangentDataBuffer = m_TangentDataBuffer.GetNewBuffer();
+      WGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
+      WGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
+      WGALBufferHandle hTangentDataBuffer = m_TangentDataBuffer.GetNewBuffer();
 
-      ezBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      WBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
       bindGroupDraw.BindBuffer("particleBaseData", hBaseDataBuffer);
       bindGroupDraw.BindBuffer("particleBillboardQuadData", hBillboardDataBuffer);
       bindGroupDraw.BindBuffer("particleTangentQuadData", hTangentDataBuffer);
 
       // upload this batch of particle data
-      const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
+      const WUInt32 uiNumParticlesInBatch = WMath::Min<WUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, WMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticleBaseData += uiNumParticlesInBatch;
 
       if (pParticleBillboardData != nullptr)
       {
-        pGALCommandEncoder->UpdateBuffer(hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+        pGALCommandEncoder->UpdateBuffer(hBillboardDataBuffer, 0, WMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
         pParticleBillboardData += uiNumParticlesInBatch;
       }
 
       if (pParticleTangentData != nullptr)
       {
-        pGALCommandEncoder->UpdateBuffer(hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+        pGALCommandEncoder->UpdateBuffer(hTangentDataBuffer, 0, WMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
         pParticleTangentData += uiNumParticlesInBatch;
       }
 
@@ -138,39 +138,39 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
   }
 }
 
-void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext) const
+void WParticleQuadRenderer::ConfigureRenderMode(const WParticleQuadRenderData* pRenderData, WRenderContext* pRenderContext) const
 {
   switch (pRenderData->m_RenderMode)
   {
-    case ezParticleTypeRenderMode::Additive:
+    case WParticleTypeRenderMode::Additive:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_ADDITIVE");
       break;
-    case ezParticleTypeRenderMode::Blended:
-    case ezParticleTypeRenderMode::BlendedForeground:
-    case ezParticleTypeRenderMode::BlendedBackground:
+    case WParticleTypeRenderMode::Blended:
+    case WParticleTypeRenderMode::BlendedForeground:
+    case WParticleTypeRenderMode::BlendedBackground:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
       break;
-    case ezParticleTypeRenderMode::Opaque:
+    case WParticleTypeRenderMode::Opaque:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
       break;
 
-    case ezParticleTypeRenderMode::Unused:
-    case ezParticleTypeRenderMode::Unused2:
+    case WParticleTypeRenderMode::Unused:
+    case WParticleTypeRenderMode::Unused2:
       break;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+      W_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   switch (pRenderData->m_LightingMode)
   {
-    case ezParticleLightingMode::Fullbright:
+    case WParticleLightingMode::Fullbright:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_FULLBRIGHT");
       break;
-    case ezParticleLightingMode::VertexLit:
+    case WParticleLightingMode::VertexLit:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_VERTEX_LIT");
       break;
   }
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_QuadParticleRenderer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_QuadParticleRenderer);

@@ -10,7 +10,7 @@
 #define RESERVE(uiCount)                                         \
   if (uiCount > m_uiCount)                                       \
   {                                                              \
-    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);           \
+    m_uiMaxCount = WMath::Max(m_uiMaxCount, uiCount);           \
     if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount)) \
       Reserve(uiCount);                                          \
   }
@@ -20,7 +20,7 @@
 // larger chunks
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Constructor(ezAllocator* pAllocator)
+void WDequeBase<T, Construct>::Constructor(WAllocator* pAllocator)
 {
   m_pAllocator = pAllocator;
   m_pChunks = nullptr;
@@ -32,19 +32,19 @@ void ezDequeBase<T, Construct>::Constructor(ezAllocator* pAllocator)
 
   ResetReduceSizeCounter();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   m_uiChunkSize = CHUNK_SIZE(T);
 #endif
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(ezAllocator* pAllocator)
+WDequeBase<T, Construct>::WDequeBase(WAllocator* pAllocator)
 {
   Constructor(pAllocator);
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocator* pAllocator)
+WDequeBase<T, Construct>::WDequeBase(const WDequeBase<T, Construct>& rhs, WAllocator* pAllocator)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -54,7 +54,7 @@ ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezA
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocator* pAllocator)
+WDequeBase<T, Construct>::WDequeBase(WDequeBase<T, Construct>&& rhs, WAllocator* pAllocator)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -64,13 +64,13 @@ ezDequeBase<T, Construct>::ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAlloca
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::~ezDequeBase()
+WDequeBase<T, Construct>::~WDequeBase()
 {
   DeallocateAll();
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
+void WDequeBase<T, Construct>::operator=(const WDequeBase<T, Construct>& rhs)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -79,17 +79,17 @@ void ezDequeBase<T, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
   m_uiCount = rhs.m_uiCount;
 
   // copy construct all the elements
-  for (ezUInt32 i = 0; i < rhs.m_uiCount; ++i)
-    ezMemoryUtils::CopyConstruct(&ElementAt(i), rhs[i], 1);
+  for (WUInt32 i = 0; i < rhs.m_uiCount; ++i)
+    WMemoryUtils::CopyConstruct(&ElementAt(i), rhs[i], 1);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
+void WDequeBase<T, Construct>::operator=(WDequeBase<T, Construct>&& rhs)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   if (m_pAllocator != rhs.m_pAllocator)
-    operator=(static_cast<ezDequeBase<T, Construct>&>(rhs));
+    operator=(static_cast<WDequeBase<T, Construct>&>(rhs));
   else
   {
     DeallocateAll();
@@ -112,12 +112,12 @@ void ezDequeBase<T, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::operator==(const ezDequeBase<T, Construct>& rhs) const
+bool WDequeBase<T, Construct>::operator==(const WDequeBase<T, Construct>& rhs) const
 {
   if (GetCount() != rhs.GetCount())
     return false;
 
-  for (ezUInt32 i = 0; i < GetCount(); ++i)
+  for (WUInt32 i = 0; i < GetCount(); ++i)
   {
     if ((*this)[i] != rhs[i])
       return false;
@@ -127,12 +127,12 @@ bool ezDequeBase<T, Construct>::operator==(const ezDequeBase<T, Construct>& rhs)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Clear()
+void WDequeBase<T, Construct>::Clear()
 {
   if (Construct)
   {
-    for (ezUInt32 i = 0; i < m_uiCount; ++i)
-      ezMemoryUtils::Destruct<T>(&operator[](i), 1);
+    for (WUInt32 i = 0; i < m_uiCount; ++i)
+      WMemoryUtils::Destruct<T>(&operator[](i), 1);
   }
 
   m_uiCount = 0;
@@ -155,7 +155,7 @@ void ezDequeBase<T, Construct>::Clear()
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
+void WDequeBase<T, Construct>::Reserve(WUInt32 uiCount)
 {
   // This is the function where all the complicated stuff happens.
   // The basic idea is as follows:
@@ -172,27 +172,27 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
     return;
 
   // keeps track of the largest amount of used elements since the last memory reduction
-  m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);
+  m_uiMaxCount = WMath::Max(m_uiMaxCount, uiCount);
 
   // if there is enough room to hold all requested elements AND one can prepend at least one element (PushFront)
   // do not reallocate
   if ((m_uiFirstElement > 0) && (GetCurMaxCount() >= uiCount))
     return;
 
-  const ezUInt32 uiCurFirstChunk = GetFirstUsedChunk();
-  const ezUInt32 uiRequiredChunks = GetRequiredChunks(uiCount);
+  const WUInt32 uiCurFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiRequiredChunks = GetRequiredChunks(uiCount);
 
   // if we already have enough chunks, just rearrange them
   if (m_uiChunks > uiRequiredChunks + 1) // have at least one spare chunk for the front, and one for the back
   {
-    const ezUInt32 uiSpareChunks = m_uiChunks - uiRequiredChunks;
-    const ezUInt32 uiSpareChunksStart = uiSpareChunks / 2;
+    const WUInt32 uiSpareChunks = m_uiChunks - uiRequiredChunks;
+    const WUInt32 uiSpareChunksStart = uiSpareChunks / 2;
 
-    EZ_ASSERT_DEBUG(uiSpareChunksStart > 0, "Implementation error.");
+    W_ASSERT_DEBUG(uiSpareChunksStart > 0, "Implementation error.");
 
     // always leave one spare chunk at the front, to ensure that one can prepend elements
 
-    EZ_ASSERT_DEBUG(uiSpareChunksStart != uiCurFirstChunk, "No rearrangement possible.");
+    W_ASSERT_DEBUG(uiSpareChunksStart != uiCurFirstChunk, "No rearrangement possible.");
 
     // if the new first active chunk is to the left
     if (uiSpareChunksStart < uiCurFirstChunk)
@@ -200,23 +200,23 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
     else
       MoveIndexChunksRight(uiSpareChunksStart - uiCurFirstChunk);
 
-    EZ_ASSERT_DEBUG(m_uiFirstElement > 0, "Did not achieve the desired effect.");
-    EZ_ASSERT_DEBUG(GetCurMaxCount() >= uiCount, "Did not achieve the desired effect ({0} >= {1}).", GetCurMaxCount(), uiCount);
+    W_ASSERT_DEBUG(m_uiFirstElement > 0, "Did not achieve the desired effect.");
+    W_ASSERT_DEBUG(GetCurMaxCount() >= uiCount, "Did not achieve the desired effect ({0} >= {1}).", GetCurMaxCount(), uiCount);
   }
   else
   {
-    const ezUInt32 uiReallocSize = 16 + uiRequiredChunks + 16;
+    const WUInt32 uiReallocSize = 16 + uiRequiredChunks + 16;
 
-    T** pNewChunksArray = EZ_NEW_RAW_BUFFER(m_pAllocator, T*, uiReallocSize);
-    ezMemoryUtils::ZeroFill(pNewChunksArray, uiReallocSize);
+    T** pNewChunksArray = W_NEW_RAW_BUFFER(m_pAllocator, T*, uiReallocSize);
+    WMemoryUtils::ZeroFill(pNewChunksArray, uiReallocSize);
 
-    const ezUInt32 uiFirstUsedChunk = m_uiFirstElement / CHUNK_SIZE(T);
+    const WUInt32 uiFirstUsedChunk = m_uiFirstElement / CHUNK_SIZE(T);
 
     // move all old chunks over
-    ezUInt32 pos = 16;
+    WUInt32 pos = 16;
 
     // first the used chunks at the start of the new array
-    for (ezUInt32 i = 0; i < m_uiChunks - uiFirstUsedChunk; ++i)
+    for (WUInt32 i = 0; i < m_uiChunks - uiFirstUsedChunk; ++i)
     {
       pNewChunksArray[pos] = m_pChunks[uiFirstUsedChunk + i];
       ++pos;
@@ -225,7 +225,7 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
     m_uiFirstElement -= uiFirstUsedChunk * CHUNK_SIZE(T);
 
     // then the unused chunks at the end of the new array
-    for (ezUInt32 i = 0; i < uiFirstUsedChunk; ++i)
+    for (WUInt32 i = 0; i < uiFirstUsedChunk; ++i)
     {
       pNewChunksArray[pos] = m_pChunks[i];
       ++pos;
@@ -233,17 +233,17 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
 
     m_uiFirstElement += 16 * CHUNK_SIZE(T);
 
-    EZ_ASSERT_DEBUG(m_uiFirstElement == (16 * CHUNK_SIZE(T)) + (m_uiFirstElement % CHUNK_SIZE(T)), "");
+    W_ASSERT_DEBUG(m_uiFirstElement == (16 * CHUNK_SIZE(T)) + (m_uiFirstElement % CHUNK_SIZE(T)), "");
 
 
-    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
+    W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
     m_pChunks = pNewChunksArray;
     m_uiChunks = uiReallocSize;
   }
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Compact()
+void WDequeBase<T, Construct>::Compact()
 {
   ResetReduceSizeCounter();
 
@@ -261,41 +261,41 @@ void ezDequeBase<T, Construct>::Compact()
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Swap(ezDequeBase<T, Construct>& other)
+void WDequeBase<T, Construct>::Swap(WDequeBase<T, Construct>& other)
 {
-  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
-  ezMath::Swap(this->m_pChunks, other.m_pChunks);
-  ezMath::Swap(this->m_uiChunks, other.m_uiChunks);
-  ezMath::Swap(this->m_uiFirstElement, other.m_uiFirstElement);
-  ezMath::Swap(this->m_uiCount, other.m_uiCount);
-  ezMath::Swap(this->m_uiAllocatedChunks, other.m_uiAllocatedChunks);
-  ezMath::Swap(this->m_iReduceSizeTimer, other.m_iReduceSizeTimer);
-  ezMath::Swap(this->m_uiMaxCount, other.m_uiMaxCount);
+  WMath::Swap(this->m_pAllocator, other.m_pAllocator);
+  WMath::Swap(this->m_pChunks, other.m_pChunks);
+  WMath::Swap(this->m_uiChunks, other.m_uiChunks);
+  WMath::Swap(this->m_uiFirstElement, other.m_uiFirstElement);
+  WMath::Swap(this->m_uiCount, other.m_uiCount);
+  WMath::Swap(this->m_uiAllocatedChunks, other.m_uiAllocatedChunks);
+  WMath::Swap(this->m_iReduceSizeTimer, other.m_iReduceSizeTimer);
+  WMath::Swap(this->m_uiMaxCount, other.m_uiMaxCount);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
+void WDequeBase<T, Construct>::CompactIndexArray(WUInt32 uiMinChunksToKeep)
 {
-  const ezUInt32 uiRequiredChunks = ezMath::Max<ezUInt32>(1, GetRequiredChunks(m_uiCount));
-  uiMinChunksToKeep = ezMath::Max(uiRequiredChunks, uiMinChunksToKeep);
+  const WUInt32 uiRequiredChunks = WMath::Max<WUInt32>(1, GetRequiredChunks(m_uiCount));
+  uiMinChunksToKeep = WMath::Max(uiRequiredChunks, uiMinChunksToKeep);
 
   // keep some spare pointers for scaling the deque up again
-  const ezUInt32 uiChunksToKeep = 16 + uiMinChunksToKeep + 16;
+  const WUInt32 uiChunksToKeep = 16 + uiMinChunksToKeep + 16;
 
   // only reduce the index array, if we can reduce its size at least to half (the +4 is for the very small cases)
   if (uiChunksToKeep + 4 >= m_uiChunks / 2)
     return;
 
-  T** pNewChunkArray = EZ_NEW_RAW_BUFFER(m_pAllocator, T*, uiChunksToKeep);
-  ezMemoryUtils::ZeroFill<T*>(pNewChunkArray, uiChunksToKeep);
+  T** pNewChunkArray = W_NEW_RAW_BUFFER(m_pAllocator, T*, uiChunksToKeep);
+  WMemoryUtils::ZeroFill<T*>(pNewChunkArray, uiChunksToKeep);
 
-  const ezUInt32 uiFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiFirstChunk = GetFirstUsedChunk();
 
   // makes sure that no more than this amount of chunks is still allocated -> those can be copied over
   DeallocateUnusedChunks(uiChunksToKeep);
 
   // moves the used chunks into the new array
-  for (ezUInt32 i = 0; i < uiRequiredChunks; ++i)
+  for (WUInt32 i = 0; i < uiRequiredChunks; ++i)
   {
     pNewChunkArray[16 + i] = m_pChunks[uiFirstChunk + i];
     m_pChunks[uiFirstChunk + i] = nullptr;
@@ -304,12 +304,12 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
   // copy all still allocated chunks over to the new index array
   // since we just deallocated enough chunks, all that are found can be copied over as spare chunks
   {
-    ezUInt32 iPos = 0;
-    for (ezUInt32 i = 0; i < uiFirstChunk; ++i)
+    WUInt32 iPos = 0;
+    for (WUInt32 i = 0; i < uiFirstChunk; ++i)
     {
       if (m_pChunks[i])
       {
-        EZ_ASSERT_DEBUG(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
+        W_ASSERT_DEBUG(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
         m_pChunks[i] = nullptr;
@@ -320,11 +320,11 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
       }
     }
 
-    for (ezUInt32 i = GetLastUsedChunk() + 1; i < m_uiChunks; ++i)
+    for (WUInt32 i = GetLastUsedChunk() + 1; i < m_uiChunks; ++i)
     {
       if (m_pChunks[i])
       {
-        EZ_ASSERT_DEBUG(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
+        W_ASSERT_DEBUG(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
         m_pChunks[i] = nullptr;
@@ -336,17 +336,17 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
     }
   }
 
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
+  W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
   m_pChunks = pNewChunkArray;
   m_uiChunks = uiChunksToKeep;
   m_uiFirstElement = (16 * CHUNK_SIZE(T)) + (m_uiFirstElement % CHUNK_SIZE(T));
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
+void WDequeBase<T, Construct>::SetCount(WUInt32 uiCount)
 {
-  const ezUInt32 uiOldCount = m_uiCount;
-  const ezUInt32 uiNewCount = uiCount;
+  const WUInt32 uiOldCount = m_uiCount;
+  const WUInt32 uiNewCount = uiCount;
 
   if (uiNewCount > uiOldCount)
   {
@@ -358,12 +358,12 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
     if (Construct)
     {
       // default construct the new elements
-      for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
-        ezMemoryUtils::Construct<ConstructAll>(&ElementAt(i), 1);
+      for (WUInt32 i = uiOldCount; i < uiNewCount; ++i)
+        WMemoryUtils::Construct<ConstructAll>(&ElementAt(i), 1);
     }
     else
     {
-      for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
+      for (WUInt32 i = uiOldCount; i < uiNewCount; ++i)
         ElementAt(i);
     }
   }
@@ -372,8 +372,8 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
     if (Construct)
     {
       // destruct elements at the end of the deque
-      for (ezUInt32 i = uiNewCount; i < uiOldCount; ++i)
-        ezMemoryUtils::Destruct(&operator[](i), 1);
+      for (WUInt32 i = uiNewCount; i < uiOldCount; ++i)
+        WMemoryUtils::Destruct(&operator[](i), 1);
     }
 
     m_uiCount = uiNewCount;
@@ -386,12 +386,12 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 template <typename T, bool Construct>
 template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger
 // early.
-void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
+void WDequeBase<T, Construct>::SetCountUninitialized(WUInt32 uiCount)
 {
-  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types. See EZ_DEFINE_AS_POD_TYPE() and EZ_DECLARE_POD_TYPE().");
+  static_assert(WIsPodType<T>::value == WTypeIsPod::value, "SetCountUninitialized is only supported for POD types. See W_DEFINE_AS_POD_TYPE() and W_DECLARE_POD_TYPE().");
 
-  const ezUInt32 uiOldCount = m_uiCount;
-  const ezUInt32 uiNewCount = uiCount;
+  const WUInt32 uiOldCount = m_uiCount;
+  const WUInt32 uiNewCount = uiCount;
 
   if (uiNewCount > uiOldCount)
   {
@@ -400,7 +400,7 @@ void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
     RESERVE(uiNewCount);
     m_uiCount = uiNewCount;
 
-    for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
+    for (WUInt32 i = uiOldCount; i < uiNewCount; ++i)
       ElementAt(i);
   }
   else
@@ -408,8 +408,8 @@ void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
     if (Construct)
     {
       // destruct elements at the end of the deque
-      for (ezUInt32 i = uiNewCount; i < uiOldCount; ++i)
-        ezMemoryUtils::Destruct(&operator[](i), 1);
+      for (WUInt32 i = uiNewCount; i < uiOldCount; ++i)
+        WMemoryUtils::Destruct(&operator[](i), 1);
     }
 
     m_uiCount = uiNewCount;
@@ -420,7 +420,7 @@ void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::EnsureCount(ezUInt32 uiCount)
+void WDequeBase<T, Construct>::EnsureCount(WUInt32 uiCount)
 {
   if (uiCount > m_uiCount)
   {
@@ -429,48 +429,48 @@ void ezDequeBase<T, Construct>::EnsureCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
-inline ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
+inline WUInt32 WDequeBase<T, Construct>::GetContiguousRange(WUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
-  const ezUInt32 uiChunkSize = CHUNK_SIZE(T);
+  const WUInt32 uiChunkSize = CHUNK_SIZE(T);
 
-  const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
-  const ezUInt32 uiChunkOffset = uiRealIndex % uiChunkSize;
+  const WUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
+  const WUInt32 uiChunkOffset = uiRealIndex % uiChunkSize;
 
-  const ezUInt32 uiRange = uiChunkSize - uiChunkOffset;
+  const WUInt32 uiRange = uiChunkSize - uiChunkOffset;
 
-  return ezMath::Min(uiRange, GetCount() - uiIndex);
+  return WMath::Min(uiRange, GetCount() - uiIndex);
 }
 
 template <typename T, bool Construct>
-inline T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
+inline T& WDequeBase<T, Construct>::operator[](WUInt32 uiIndex)
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
-  const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
+  const WUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
-  const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
+  const WUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
+  const WUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
 }
 
 template <typename T, bool Construct>
-inline const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
+inline const T& WDequeBase<T, Construct>::operator[](WUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
-  const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
+  const WUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
-  const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
+  const WUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
+  const WUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
 }
 
 template <typename T, bool Construct>
-inline T& ezDequeBase<T, Construct>::ExpandAndGetRef()
+inline T& WDequeBase<T, Construct>::ExpandAndGetRef()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -479,14 +479,14 @@ inline T& ezDequeBase<T, Construct>::ExpandAndGetRef()
 
   if (Construct)
   {
-    ezMemoryUtils::Construct<ConstructAll>(pElement, 1);
+    WMemoryUtils::Construct<ConstructAll>(pElement, 1);
   }
 
   return *pElement;
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PushBack()
+inline void WDequeBase<T, Construct>::PushBack()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -495,41 +495,41 @@ inline void ezDequeBase<T, Construct>::PushBack()
 
   if (Construct)
   {
-    ezMemoryUtils::Construct<ConstructAll>(pElement, 1);
+    WMemoryUtils::Construct<ConstructAll>(pElement, 1);
   }
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PushBack(const T& element)
+inline void WDequeBase<T, Construct>::PushBack(const T& element)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
 
-  ezMemoryUtils::CopyConstruct(&ElementAt(m_uiCount - 1), element, 1);
+  WMemoryUtils::CopyConstruct(&ElementAt(m_uiCount - 1), element, 1);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::PushBack(T&& element)
+void WDequeBase<T, Construct>::PushBack(T&& element)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
 
-  ezMemoryUtils::MoveConstruct<T>(&ElementAt(m_uiCount - 1), std::move(element));
+  WMemoryUtils::MoveConstruct<T>(&ElementAt(m_uiCount - 1), std::move(element));
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
+inline void WDequeBase<T, Construct>::PopBack(WUInt32 uiElements)
 {
-  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
+  W_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
-  for (ezUInt32 i = 0; i < uiElements; ++i)
+  for (WUInt32 i = 0; i < uiElements; ++i)
   {
     if (Construct)
-      ezMemoryUtils::Destruct(&operator[](m_uiCount - 1), 1);
+      WMemoryUtils::Destruct(&operator[](m_uiCount - 1), 1);
 
     --m_uiCount;
   }
@@ -539,7 +539,7 @@ inline void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PushFront(const T& element)
+inline void WDequeBase<T, Construct>::PushFront(const T& element)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -547,11 +547,11 @@ inline void ezDequeBase<T, Construct>::PushFront(const T& element)
   ++m_uiCount;
   --m_uiFirstElement;
 
-  ezMemoryUtils::CopyConstruct(&ElementAt(0), element, 1);
+  WMemoryUtils::CopyConstruct(&ElementAt(0), element, 1);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::PushFront(T&& element)
+void WDequeBase<T, Construct>::PushFront(T&& element)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -559,11 +559,11 @@ void ezDequeBase<T, Construct>::PushFront(T&& element)
   ++m_uiCount;
   --m_uiFirstElement;
 
-  ezMemoryUtils::MoveConstruct<T>(&ElementAt(0), std::move(element));
+  WMemoryUtils::MoveConstruct<T>(&ElementAt(0), std::move(element));
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PushFront()
+inline void WDequeBase<T, Construct>::PushFront()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -573,20 +573,20 @@ inline void ezDequeBase<T, Construct>::PushFront()
 
   if (Construct)
   {
-    ezMemoryUtils::Construct<SkipTrivialTypes>(pElement, 1);
+    WMemoryUtils::Construct<SkipTrivialTypes>(pElement, 1);
   }
 }
 
 template <typename T, bool Construct>
-inline void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
+inline void WDequeBase<T, Construct>::PopFront(WUInt32 uiElements)
 {
-  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
+  W_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
-  for (ezUInt32 i = 0; i < uiElements; ++i)
+  for (WUInt32 i = 0; i < uiElements; ++i)
   {
     if (Construct)
     {
-      ezMemoryUtils::Destruct(&operator[](0), 1);
+      WMemoryUtils::Destruct(&operator[](0), 1);
     }
 
     --m_uiCount;
@@ -598,76 +598,76 @@ inline void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE bool ezDequeBase<T, Construct>::IsEmpty() const
+W_ALWAYS_INLINE bool WDequeBase<T, Construct>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WDequeBase<T, Construct>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE const T& ezDequeBase<T, Construct>::PeekFront() const
+W_ALWAYS_INLINE const T& WDequeBase<T, Construct>::PeekFront() const
 {
   return operator[](0);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE T& ezDequeBase<T, Construct>::PeekFront()
+W_ALWAYS_INLINE T& WDequeBase<T, Construct>::PeekFront()
 {
   return operator[](0);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE const T& ezDequeBase<T, Construct>::PeekBack() const
+W_ALWAYS_INLINE const T& WDequeBase<T, Construct>::PeekBack() const
 {
   return operator[](m_uiCount - 1);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE T& ezDequeBase<T, Construct>::PeekBack()
+W_ALWAYS_INLINE T& WDequeBase<T, Construct>::PeekBack()
 {
   return operator[](m_uiCount - 1);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE bool ezDequeBase<T, Construct>::Contains(const T& value) const
+W_ALWAYS_INLINE bool WDequeBase<T, Construct>::Contains(const T& value) const
 {
-  return IndexOf(value) != ezInvalidIndex;
+  return IndexOf(value) != WInvalidIndex;
 }
 
 template <typename T, bool Construct>
-ezUInt32 ezDequeBase<T, Construct>::IndexOf(const T& value, ezUInt32 uiStartIndex) const
+WUInt32 WDequeBase<T, Construct>::IndexOf(const T& value, WUInt32 uiStartIndex) const
 {
-  for (ezUInt32 i = uiStartIndex; i < m_uiCount; ++i)
+  for (WUInt32 i = uiStartIndex; i < m_uiCount; ++i)
   {
-    if (ezMemoryUtils::IsEqual(&operator[](i), &value))
+    if (WMemoryUtils::IsEqual(&operator[](i), &value))
       return i;
   }
 
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
 template <typename T, bool Construct>
-ezUInt32 ezDequeBase<T, Construct>::LastIndexOf(const T& value, ezUInt32 uiStartIndex) const
+WUInt32 WDequeBase<T, Construct>::LastIndexOf(const T& value, WUInt32 uiStartIndex) const
 {
-  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
+  for (WUInt32 i = WMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
   {
-    if (ezMemoryUtils::IsEqual(&operator[](i), &value))
+    if (WMemoryUtils::IsEqual(&operator[](i), &value))
       return i;
   }
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::RemoveAtAndSwap(ezUInt32 uiIndex)
+void WDequeBase<T, Construct>::RemoveAtAndSwap(WUInt32 uiIndex)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Cannot remove element {0}, the deque only contains {1} elements.", uiIndex, m_uiCount);
+  W_ASSERT_DEV(uiIndex < m_uiCount, "Cannot remove element {0}, the deque only contains {1} elements.", uiIndex, m_uiCount);
 
   if (uiIndex + 1 < m_uiCount) // do not copy over the same element, if uiIndex is actually the last element
     operator[](uiIndex) = PeekBack();
@@ -676,46 +676,46 @@ void ezDequeBase<T, Construct>::RemoveAtAndSwap(ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::MoveIndexChunksLeft(ezUInt32 uiChunkDiff)
+W_FORCE_INLINE void WDequeBase<T, Construct>::MoveIndexChunksLeft(WUInt32 uiChunkDiff)
 {
-  const ezUInt32 uiCurFirstChunk = GetFirstUsedChunk();
-  const ezUInt32 uiRemainingChunks = m_uiChunks - uiCurFirstChunk;
-  const ezUInt32 uiNewFirstChunk = uiCurFirstChunk - uiChunkDiff;
+  const WUInt32 uiCurFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiRemainingChunks = m_uiChunks - uiCurFirstChunk;
+  const WUInt32 uiNewFirstChunk = uiCurFirstChunk - uiChunkDiff;
 
   // ripple the chunks from the back to the front (in place)
-  for (ezUInt32 front = 0; front < uiRemainingChunks; ++front)
-    ezMath::Swap(m_pChunks[uiNewFirstChunk + front], m_pChunks[front + uiCurFirstChunk]);
+  for (WUInt32 front = 0; front < uiRemainingChunks; ++front)
+    WMath::Swap(m_pChunks[uiNewFirstChunk + front], m_pChunks[front + uiCurFirstChunk]);
 
   // just ensures that the following subtraction is possible
-  EZ_ASSERT_DEBUG(m_uiFirstElement > uiChunkDiff * CHUNK_SIZE(T), "");
+  W_ASSERT_DEBUG(m_uiFirstElement > uiChunkDiff * CHUNK_SIZE(T), "");
 
   // adjust which element is the first by how much the index array has been moved
   m_uiFirstElement -= uiChunkDiff * CHUNK_SIZE(T);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::MoveIndexChunksRight(ezUInt32 uiChunkDiff)
+W_FORCE_INLINE void WDequeBase<T, Construct>::MoveIndexChunksRight(WUInt32 uiChunkDiff)
 {
-  const ezUInt32 uiCurFirstChunk = GetFirstUsedChunk();
-  const ezUInt32 uiLastChunk = (m_uiCount == 0) ? (m_uiFirstElement / CHUNK_SIZE(T)) : ((m_uiFirstElement + m_uiCount - 1) / CHUNK_SIZE(T));
-  const ezUInt32 uiCopyChunks = (uiLastChunk - uiCurFirstChunk) + 1;
+  const WUInt32 uiCurFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiLastChunk = (m_uiCount == 0) ? (m_uiFirstElement / CHUNK_SIZE(T)) : ((m_uiFirstElement + m_uiCount - 1) / CHUNK_SIZE(T));
+  const WUInt32 uiCopyChunks = (uiLastChunk - uiCurFirstChunk) + 1;
 
   // ripple the chunks from the front to the back (in place)
-  for (ezUInt32 i = 0; i < uiCopyChunks; ++i)
-    ezMath::Swap(m_pChunks[uiLastChunk - i], m_pChunks[uiLastChunk + uiChunkDiff - i]);
+  for (WUInt32 i = 0; i < uiCopyChunks; ++i)
+    WMath::Swap(m_pChunks[uiLastChunk - i], m_pChunks[uiLastChunk + uiChunkDiff - i]);
 
   // adjust which element is the first by how much the index array has been moved
   m_uiFirstElement += uiChunkDiff * CHUNK_SIZE(T);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetFirstUsedChunk() const
+W_ALWAYS_INLINE WUInt32 WDequeBase<T, Construct>::GetFirstUsedChunk() const
 {
   return m_uiFirstElement / CHUNK_SIZE(T);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk(ezUInt32 uiAtSize) const
+W_FORCE_INLINE WUInt32 WDequeBase<T, Construct>::GetLastUsedChunk(WUInt32 uiAtSize) const
 {
   if (uiAtSize == 0)
     return GetFirstUsedChunk();
@@ -724,13 +724,13 @@ EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk(ezUInt32 ui
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk() const
+W_ALWAYS_INLINE WUInt32 WDequeBase<T, Construct>::GetLastUsedChunk() const
 {
   return GetLastUsedChunk(m_uiCount);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetRequiredChunks(ezUInt32 uiAtSize) const
+W_FORCE_INLINE WUInt32 WDequeBase<T, Construct>::GetRequiredChunks(WUInt32 uiAtSize) const
 {
   if (uiAtSize == 0)
     return 0;
@@ -739,18 +739,18 @@ EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetRequiredChunks(ezUInt32 u
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::DeallocateUnusedChunks(ezUInt32 uiMaxChunks)
+void WDequeBase<T, Construct>::DeallocateUnusedChunks(WUInt32 uiMaxChunks)
 {
   if (m_uiAllocatedChunks <= uiMaxChunks)
     return;
 
   // check all unused chunks at the end, deallocate all that are allocated
-  for (ezUInt32 i = GetLastUsedChunk() + 1; i < m_uiChunks; ++i)
+  for (WUInt32 i = GetLastUsedChunk() + 1; i < m_uiChunks; ++i)
   {
     if (m_pChunks[i])
     {
       --m_uiAllocatedChunks;
-      EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
+      W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
 
       if (m_uiAllocatedChunks <= uiMaxChunks)
         return;
@@ -758,14 +758,14 @@ void ezDequeBase<T, Construct>::DeallocateUnusedChunks(ezUInt32 uiMaxChunks)
   }
 
   // check all unused chunks at the front, deallocate all that are allocated
-  const ezUInt32 uiFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiFirstChunk = GetFirstUsedChunk();
 
-  for (ezUInt32 i = 0; i < uiFirstChunk; ++i)
+  for (WUInt32 i = 0; i < uiFirstChunk; ++i)
   {
     if (m_pChunks[i])
     {
       --m_uiAllocatedChunks;
-      EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
+      W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
 
       if (m_uiAllocatedChunks <= uiMaxChunks)
         return;
@@ -774,13 +774,13 @@ void ezDequeBase<T, Construct>::DeallocateUnusedChunks(ezUInt32 uiMaxChunks)
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE void ezDequeBase<T, Construct>::ResetReduceSizeCounter()
+W_ALWAYS_INLINE void WDequeBase<T, Construct>::ResetReduceSizeCounter()
 {
   m_iReduceSizeTimer = CHUNK_SIZE(T) * 8; // every time 8 chunks might be unused -> check whether to reduce the deque's size
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::ReduceSize(ezInt32 iReduction)
+void WDequeBase<T, Construct>::ReduceSize(WInt32 iReduction)
 {
   m_iReduceSizeTimer -= iReduction;
 
@@ -793,35 +793,35 @@ void ezDequeBase<T, Construct>::ReduceSize(ezInt32 iReduction)
   // we keep this amount of chunks
   // m_uiMaxCount will be adjusted over time
   // if the deque is shrunk and operates in this state long enough, m_uiMaxCount will be reduced more and more
-  const ezUInt32 uiMaxChunks = (m_uiMaxCount / CHUNK_SIZE(T)) + 3; // +1 because of rounding, +2 spare chunks
+  const WUInt32 uiMaxChunks = (m_uiMaxCount / CHUNK_SIZE(T)) + 3; // +1 because of rounding, +2 spare chunks
 
-  EZ_ASSERT_DEBUG(uiMaxChunks >= GetRequiredChunks(m_uiCount), "Implementation Error.");
+  W_ASSERT_DEBUG(uiMaxChunks >= GetRequiredChunks(m_uiCount), "Implementation Error.");
 
   DeallocateUnusedChunks(uiMaxChunks);
 
   // lerp between the current MaxCount and the actually active number of elements
   // m_uiMaxCount is never smaller than m_uiCount, but m_uiCount might be smaller
   // thus m_uiMaxCount might be reduced over time
-  m_uiMaxCount = ezMath::Max(m_uiCount, (m_uiMaxCount / 2) + (m_uiCount / 2));
+  m_uiMaxCount = WMath::Max(m_uiCount, (m_uiMaxCount / 2) + (m_uiCount / 2));
 
   // Should we really adjust the size of the index array here?
   CompactIndexArray(uiMaxChunks);
 }
 
 template <typename T, bool Construct>
-EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCurMaxCount() const
+W_ALWAYS_INLINE WUInt32 WDequeBase<T, Construct>::GetCurMaxCount() const
 {
   return m_uiChunks * CHUNK_SIZE(T) - m_uiFirstElement;
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
+W_FORCE_INLINE T* WDequeBase<T, Construct>::GetUnusedChunk()
 {
   // first search for an unused, but already allocated, chunk and reuse it, if possible
-  const ezUInt32 uiCurFirstChunk = GetFirstUsedChunk();
+  const WUInt32 uiCurFirstChunk = GetFirstUsedChunk();
 
   // search the unused blocks at the start
-  for (ezUInt32 i = 0; i < uiCurFirstChunk; ++i)
+  for (WUInt32 i = 0; i < uiCurFirstChunk; ++i)
   {
     if (m_pChunks[i])
     {
@@ -831,10 +831,10 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     }
   }
 
-  const ezUInt32 uiCurLastChunk = GetLastUsedChunk();
+  const WUInt32 uiCurLastChunk = GetLastUsedChunk();
 
   // search the unused blocks at the end
-  for (ezUInt32 i = m_uiChunks - 1; i > uiCurLastChunk; --i)
+  for (WUInt32 i = m_uiChunks - 1; i > uiCurLastChunk; --i)
   {
     if (m_pChunks[i])
     {
@@ -847,20 +847,20 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
   // nothing unused found, allocate a new block
   ResetReduceSizeCounter();
   ++m_uiAllocatedChunks;
-  return EZ_NEW_RAW_BUFFER(m_pAllocator, T, CHUNK_SIZE(T));
+  return W_NEW_RAW_BUFFER(m_pAllocator, T, CHUNK_SIZE(T));
 }
 
 template <typename T, bool Construct>
-T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
+T& WDequeBase<T, Construct>::ElementAt(WUInt32 uiIndex)
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "");
+  W_ASSERT_DEBUG(uiIndex < m_uiCount, "");
 
-  const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
+  const WUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
-  const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
+  const WUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
+  const WUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
-  EZ_ASSERT_DEBUG(uiChunkIndex < m_uiChunks, "");
+  W_ASSERT_DEBUG(uiChunkIndex < m_uiChunks, "");
 
   if (m_pChunks[uiChunkIndex] == nullptr)
     m_pChunks[uiChunkIndex] = GetUnusedChunk();
@@ -869,50 +869,50 @@ T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::DeallocateAll()
+void WDequeBase<T, Construct>::DeallocateAll()
 {
   Clear();
 
-  ezUInt32 i = 0;
+  WUInt32 i = 0;
   while (m_uiAllocatedChunks > 0)
   {
     if (m_pChunks[i])
     {
       --m_uiAllocatedChunks;
-      EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
+      W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks[i]);
     }
 
     ++i;
   }
 
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
+  W_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
 
   Constructor(m_pAllocator);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::RemoveAtAndCopy(ezUInt32 uiIndex)
+void WDequeBase<T, Construct>::RemoveAtAndCopy(WUInt32 uiIndex)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 
-  for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
+  for (WUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
   {
-    ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1);
+    WMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1);
   }
 
   PopBack();
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::RemoveAndCopy(const T& value)
+bool WDequeBase<T, Construct>::RemoveAndCopy(const T& value)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  ezUInt32 uiIndex = IndexOf(value);
+  WUInt32 uiIndex = IndexOf(value);
 
-  if (uiIndex == ezInvalidIndex)
+  if (uiIndex == WInvalidIndex)
     return false;
 
   RemoveAtAndCopy(uiIndex);
@@ -920,13 +920,13 @@ bool ezDequeBase<T, Construct>::RemoveAndCopy(const T& value)
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
+bool WDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  ezUInt32 uiIndex = IndexOf(value);
+  WUInt32 uiIndex = IndexOf(value);
 
-  if (uiIndex == ezInvalidIndex)
+  if (uiIndex == WInvalidIndex)
     return false;
 
   RemoveAtAndSwap(uiIndex);
@@ -934,51 +934,51 @@ bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::InsertAt(ezUInt32 uiIndex, const T& value)
+void WDequeBase<T, Construct>::InsertAt(WUInt32 uiIndex, const T& value)
 {
   static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   // Index 0 inserts before the first element, Index m_uiCount inserts after the last element.
-  EZ_ASSERT_DEV(uiIndex <= m_uiCount, "The deque has {0} elements. Cannot insert an element at index {1}.", m_uiCount, uiIndex);
+  W_ASSERT_DEV(uiIndex <= m_uiCount, "The deque has {0} elements. Cannot insert an element at index {1}.", m_uiCount, uiIndex);
 
   PushBack();
 
-  for (ezUInt32 i = m_uiCount - 1; i > uiIndex; --i)
+  for (WUInt32 i = m_uiCount - 1; i > uiIndex; --i)
   {
-    ezMemoryUtils::Copy(&operator[](i), &operator[](i - 1), 1);
+    WMemoryUtils::Copy(&operator[](i), &operator[](i - 1), 1);
   }
 
-  ezMemoryUtils::Copy(&operator[](uiIndex), &value, 1);
+  WMemoryUtils::Copy(&operator[](uiIndex), &value, 1);
 }
 
 template <typename T, bool Construct>
 template <typename Comparer>
-void ezDequeBase<T, Construct>::Sort(const Comparer& comparer)
+void WDequeBase<T, Construct>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
-    ezSorting::QuickSort(*this, comparer);
+    WSorting::QuickSort(*this, comparer);
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Sort()
+void WDequeBase<T, Construct>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting::QuickSort(*this, ezCompareHelper<T>());
+    WSorting::QuickSort(*this, WCompareHelper<T>());
 }
 
 template <typename T, bool Construct>
-ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
+WUInt64 WDequeBase<T, Construct>::GetHeapMemoryUsage() const
 {
   if (m_pChunks == nullptr)
     return 0;
 
-  ezUInt64 res = m_uiChunks * sizeof(T*);
+  WUInt64 res = m_uiChunks * sizeof(T*);
 
-  for (ezUInt32 i = 0; i < m_uiChunks; ++i)
+  for (WUInt32 i = 0; i < m_uiChunks; ++i)
   {
     if (m_pChunks[i] != nullptr)
     {
-      res += (ezUInt64)(CHUNK_SIZE(T)) * (ezUInt64)sizeof(T);
+      res += (WUInt64)(CHUNK_SIZE(T)) * (WUInt64)sizeof(T);
     }
   }
 
@@ -990,61 +990,61 @@ ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
 
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque()
-  : ezDequeBase<T, Construct>(A::GetAllocator())
+WDeque<T, A, Construct>::WDeque()
+  : WDequeBase<T, Construct>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezAllocator* pAllocator)
-  : ezDequeBase<T, Construct>(pAllocator)
+WDeque<T, A, Construct>::WDeque(WAllocator* pAllocator)
+  : WDequeBase<T, Construct>(pAllocator)
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other)
-  : ezDequeBase<T, Construct>(other, A::GetAllocator())
+WDeque<T, A, Construct>::WDeque(const WDeque<T, A, Construct>& other)
+  : WDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other)
-  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+WDeque<T, A, Construct>::WDeque(WDeque<T, A, Construct>&& other)
+  : WDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other)
-  : ezDequeBase<T, Construct>(other, A::GetAllocator())
+WDeque<T, A, Construct>::WDeque(const WDequeBase<T, Construct>& other)
+  : WDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other)
-  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+WDeque<T, A, Construct>::WDeque(WDequeBase<T, Construct>&& other)
+  : WDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-void ezDeque<T, A, Construct>::operator=(const ezDeque<T, A, Construct>& rhs)
+void WDeque<T, A, Construct>::operator=(const WDeque<T, A, Construct>& rhs)
 {
-  ezDequeBase<T, Construct>::operator=(rhs);
+  WDequeBase<T, Construct>::operator=(rhs);
 }
 
 template <typename T, typename A, bool Construct>
-void ezDeque<T, A, Construct>::operator=(ezDeque<T, A, Construct>&& rhs)
+void WDeque<T, A, Construct>::operator=(WDeque<T, A, Construct>&& rhs)
 {
-  ezDequeBase<T, Construct>::operator=(std::move(rhs));
+  WDequeBase<T, Construct>::operator=(std::move(rhs));
 }
 
 template <typename T, typename A, bool Construct>
-void ezDeque<T, A, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
+void WDeque<T, A, Construct>::operator=(const WDequeBase<T, Construct>& rhs)
 {
-  ezDequeBase<T, Construct>::operator=(rhs);
+  WDequeBase<T, Construct>::operator=(rhs);
 }
 
 template <typename T, typename A, bool Construct>
-void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
+void WDeque<T, A, Construct>::operator=(WDequeBase<T, Construct>&& rhs)
 {
-  ezDequeBase<T, Construct>::operator=(std::move(rhs));
+  WDequeBase<T, Construct>::operator=(std::move(rhs));
 }

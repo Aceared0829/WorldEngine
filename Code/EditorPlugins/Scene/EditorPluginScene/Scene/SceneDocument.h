@@ -4,9 +4,9 @@
 
 #include <EditorFramework/Document/GameObjectDocument.h>
 
-class ezExposedSceneProperty;
-class ezSceneDocumentSettingsBase;
-class ezPushObjectStateMsgToEditor;
+class WExposedSceneProperty;
+class WSceneDocumentSettingsBase;
+class WPushObjectStateMsgToEditor;
 
 struct GameMode
 {
@@ -18,9 +18,9 @@ struct GameMode
   };
 };
 
-class EZ_EDITORPLUGINSCENE_DLL ezSceneDocument : public ezGameObjectDocument
+class W_EDITORPLUGINSCENE_DLL WSceneDocument : public WGameObjectDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument, ezGameObjectDocument);
+  W_ADD_DYNAMIC_REFLECTION(WSceneDocument, WGameObjectDocument);
 
 public:
   enum class DocumentType
@@ -31,8 +31,8 @@ public:
   };
 
 public:
-  ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType);
-  ~ezSceneDocument();
+  WSceneDocument(WStringView sDocumentPath, DocumentType documentType);
+  ~WSceneDocument();
 
   enum class ShowOrHide
   {
@@ -68,7 +68,7 @@ public:
   /// Detaches all selected objects from their current parent
   void DetachFromParent();
 
-  /// Sends the ordered child object GUIDs to all selected objects that have a component with ezSyncChildOrderAttribute.
+  /// Sends the ordered child object GUIDs to all selected objects that have a component with WSyncChildOrderAttribute.
   void SyncChildOrderForSelection();
 
   /// Iterates all objects in this document and sends child order sync for those that require it.
@@ -78,7 +78,7 @@ public:
   void CopyReference();
 
   /// Creates a new empty object, either top-level (selection empty) or as a child of the selected item
-  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu);
+  WStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);
@@ -89,39 +89,39 @@ public:
   bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 
   /// Determines whether the given object is an editor prefab
-  bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
+  bool IsObjectEditorPrefab(const WUuid& object, WUuid* out_pPrefabAssetGuid = nullptr) const;
 
   /// Determines whether the given object is an engine prefab
-  bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
+  bool IsObjectEnginePrefab(const WUuid& object, WUuid* out_pPrefabAssetGuid = nullptr) const;
 
   /// Nested prefabs are not allowed
   virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
-  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
-  bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
-  bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
-  bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPos);
-  bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
+  virtual void GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_sMimeType) const override;
+  virtual bool Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType) override;
+  bool DuplicateSelectedObjects(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bSetSelected);
+  bool CopySelectedObjects(WAbstractObjectGraph& ref_graph, WMap<WUuid, WUuid>* out_pParents) const;
+  bool PasteAt(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, const WVec3& vPos);
+  bool PasteAtOrignalPosition(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph);
 
   virtual void UpdatePrefabs() override;
 
   /// Removes the link to the prefab template, making the editor prefab a simple object
-  virtual void UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection) override;
+  virtual void UnlinkPrefabs(WArrayPtr<const WDocumentObject*> selection) override;
 
-  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
+  virtual WUuid ReplaceByPrefab(const WDocumentObject* pRootObject, WStringView sPrefabFile, const WUuid& prefabAsset, const WUuid& prefabSeed, bool bEnginePrefab) override;
 
   /// Reverts all selected editor prefabs to their original template state
-  virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
+  virtual WUuid RevertPrefab(const WDocumentObject* pObject) override;
 
   /// Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
-  virtual void ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> selection);
+  virtual void ConvertToEditorPrefab(WArrayPtr<const WDocumentObject*> selection);
   /// Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
-  virtual void ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> selection);
+  virtual void ConvertToEnginePrefab(WArrayPtr<const WDocumentObject*> selection);
 
-  virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {}) override;
+  virtual WStatus CreatePrefabDocumentFromSelection(WStringView sFile, const WRTTI* pRootType, WDelegate<void(WAbstractObjectNode*)> adjustGraphNodeCB = {}, WDelegate<void(WDocumentObject*)> adjustNewNodesCB = {}, WDelegate<void(WAbstractObjectGraph& graph, WDynamicArray<WAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {}) override;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
@@ -136,31 +136,31 @@ public:
   void StepSimulation();
   void PauseSimulation();
 
-  ezTransformStatus ExportScene(bool bCreateThumbnail);
-  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
+  WTransformStatus ExportScene(bool bCreateThumbnail);
+  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* WWorldGeoExtractionUtil::ExtractionMode */, const WMat3& mTransform);
 
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
-  void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
-  void HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg);
+  virtual void HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg) override;
+  void HandleGameModeMsg(const WGameModeMsgToEditor* pMsg);
+  void HandleObjectStateFromEngineMsg(const WPushObjectStateMsgToEditor* pMsg);
 
-  void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
-  void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectMsg(const WDocumentObject* pObj, WObjectTagMsgToEngine* pMsg);
+  void SendObjectMsgRecursive(const WDocumentObject* pObj, WObjectTagMsgToEngine* pMsg);
 
   /// \name Scene Settings
   ///@{
 
-  virtual const ezDocumentObject* GetSettingsObject() const;
-  const ezSceneDocumentSettingsBase* GetSettingsBase() const;
+  virtual const WDocumentObject* GetSettingsObject() const;
+  const WSceneDocumentSettingsBase* GetSettingsBase() const;
   template <typename T>
   const T* GetSettings() const
   {
-    return ezDynamicCast<const T*>(GetSettingsBase());
+    return WDynamicCast<const T*>(GetSettingsBase());
   }
 
-  ezStatus CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
-  ezStatus AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
-  ezInt32 FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
-  ezStatus RemoveExposedParameter(ezInt32 iIndex);
+  WStatus CreateExposedProperty(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index, WExposedSceneProperty& out_key) const;
+  WStatus AddExposedParameter(const char* szName, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index);
+  WInt32 FindExposedParameter(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WRTTI* pType, const WAbstractProperty* pProperty, WVariant index);
+  WStatus RemoveExposedParameter(WInt32 iIndex);
   ///@}
 
   /// \name Editor Camera
@@ -169,22 +169,22 @@ public:
   /// Stores the current editor camera position in a user preference. Slot can be 0 to 9.
   ///
   /// Since the preference is stored on disk, this position can be restored in another session.
-  void StoreFavoriteCamera(ezUInt8 uiSlot);
+  void StoreFavoriteCamera(WUInt8 uiSlot);
 
   /// Applies the previously stored camera position from slot 0 to 9 to the current camera position.
   ///
   /// The camera will quickly interpolate to the stored position.
-  void RestoreFavoriteCamera(ezUInt8 uiSlot);
+  void RestoreFavoriteCamera(WUInt8 uiSlot);
 
-  /// Searches for an ezCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
-  ezResult JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate);
+  /// Searches for an WCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
+  WResult JumpToLevelCamera(WUInt8 uiSlot, bool bImmediate);
 
-  /// Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
-  ezResult CreateLevelCamera(ezUInt8 uiSlot);
+  /// Creates an object with an WCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
+  WResult CreateLevelCamera(WUInt8 uiSlot);
 
-  virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
+  virtual WManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
   {
-    return ezManipulatorSearchStrategy::ChildrenOfSelectedObject;
+    return WManipulatorSearchStrategy::ChildrenOfSelectedObject;
   }
 
   ///@}
@@ -196,11 +196,11 @@ protected:
   void SetGameMode(GameMode::Enum mode);
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab) override;
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdatePrefabObject(WDocumentObject* pObject, const WUuid& PrefabAsset, const WUuid& PrefabSeed, WStringView sBasePrefab) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 
   template <typename Func>
-  void ApplyRecursive(const ezDocumentObject* pObject, Func f)
+  void ApplyRecursive(const WDocumentObject* pObject, Func f)
   {
     f(pObject);
 
@@ -212,23 +212,23 @@ protected:
 
 protected:
   void EnsureSettingsObjectExist();
-  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
-  void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
-  void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  void DocumentObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WDocumentObjectMetaData>::EventData& e);
+  void EngineConnectionEventHandler(const WEditorEngineProcessConnection::Event& e);
+  void ToolsProjectEventHandler(const WToolsProjectEvent& e);
 
-  ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
+  WStatus RequestExportScene(const char* szTargetFile, const WAssetFileHeader& header);
 
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void SyncObjectHiddenState();
-  void SyncObjectHiddenState(ezDocumentObject* pObject);
+  void SyncObjectHiddenState(WDocumentObject* pObject);
 
-  /// Sends the child order sync message if pObj has a component with ezSyncChildOrderAttribute.
-  void SyncChildOrderForObject(const ezDocumentObject* pObj);
+  /// Sends the child order sync message if pObj has a component with WSyncChildOrderAttribute.
+  void SyncChildOrderForObject(const WDocumentObject* pObj);
 
   /// Flushes m_PendingChildOrderSync, sending sync messages for all collected parents.
   void SendPendingChildOrderSyncs();
@@ -244,34 +244,34 @@ protected:
   GameModeData m_GameModeData[3];
 
   // Local mirror for settings
-  ezDocumentObjectMirror m_ObjectMirror;
-  ezRttiConverterContext m_Context;
+  WDocumentObjectMirror m_ObjectMirror;
+  WRttiConverterContext m_Context;
 
   //////////////////////////////////////////////////////////////////////////
 protected:
   bool m_bStoreSelectionChange = true;
-  ezInt8 m_iAllowSelectionChanges = -1;
-  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_SelectionHandlerUnsubscriber;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_ChildOrderStructureEventUnsubscriber;
-  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_ChildOrderCommandHistoryUnsubscriber;
-  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void ChildOrderStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void ChildOrderCommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  WInt8 m_iAllowSelectionChanges = -1;
+  WCopyOnBroadcastEvent<const WSelectionManagerEvent&>::Unsubscriber m_SelectionHandlerUnsubscriber;
+  WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&>::Unsubscriber m_ChildOrderStructureEventUnsubscriber;
+  WEvent<const WCommandHistoryEvent&, WMutex>::Unsubscriber m_ChildOrderCommandHistoryUnsubscriber;
+  void SelectionManagerEventHandler(const WSelectionManagerEvent& e);
+  void ChildOrderStructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void ChildOrderCommandHistoryEventHandler(const WCommandHistoryEvent& e);
 
   struct SelectionHistory
   {
-    ezDynamicArray<ezUuid> m_Objects;
-    ezUuid m_documentGuid;
+    WDynamicArray<WUuid> m_Objects;
+    WUuid m_documentGuid;
   };
 
-  ezDeque<SelectionHistory> m_SelectionStack;
+  WDeque<SelectionHistory> m_SelectionStack;
 
   //////////////////////////////////////////////////////////////////////////
 private:
-  ezSet<ezUuid> m_PendingChildOrderSync;
+  WSet<WUuid> m_PendingChildOrderSync;
 
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types
-  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
-  void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const;
+  virtual void OnInterDocumentMessage(WReflectedClass* pMessage, WDocument* pSender) override;
+  void GatherObjectsOfType(WDocumentObject* pRoot, WGatherObjectsOfTypeMsgInterDoc* pMsg) const;
 };

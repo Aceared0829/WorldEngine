@@ -4,22 +4,22 @@
 #include <Foundation/Strings/String.h>
 
 /// Stores project specific preferences for the current user
-class EZ_EDITORFRAMEWORK_DLL ezProjectPreferencesUser : public ezPreferences
+class W_EDITORFRAMEWORK_DLL WProjectPreferencesUser : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectPreferencesUser, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WProjectPreferencesUser, WPreferences);
 
 public:
-  ezProjectPreferencesUser();
+  WProjectPreferencesUser();
 
-  // which apps to launch as external 'Players' (other than ezPlayer.exe)
-  ezDynamicArray<ezString> m_PlayerApps;
+  // which apps to launch as external 'Players' (other than WPlayer.exe)
+  WDynamicArray<WString> m_PlayerApps;
 
   // the directory where the project should be exported to
-  ezString m_sExportFolder;
+  WString m_sExportFolder;
 
   // path to a folder where shared materials should be stored
-  ezString m_sSharedMaterialFolder;
+  WString m_sSharedMaterialFolder;
 
   // the default mesh include tag used to indicate that a sub-mesh is an LOD
-  ezString m_sMeshLodPrefix;
+  WString m_sMeshLodPrefix;
 };

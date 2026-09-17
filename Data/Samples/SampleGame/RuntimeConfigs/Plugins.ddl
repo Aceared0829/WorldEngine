@@ -1,15 +1,15 @@
 Plugin
 {
-	string %Path{"ezAngelScriptPlugin"}
+	string %Path{"WAngelScriptPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"WParticlePlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezSampleGamePlugin"}
+	string %Path{"WSampleGamePlugin"}
 	bool %LoadCopy{true}
 }

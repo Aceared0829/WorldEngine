@@ -11,34 +11,34 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
-class ezEditorEngineProcessApp;
-class ezDocumentOpenMsgToEngine;
-class ezEngineProcessDocumentContext;
-class ezResourceUpdateMsgToEngine;
-class ezRestoreResourceMsgToEngine;
+class WEditorEngineProcessApp;
+class WDocumentOpenMsgToEngine;
+class WEngineProcessDocumentContext;
+class WResourceUpdateMsgToEngine;
+class WRestoreResourceMsgToEngine;
 
-class ezEngineProcessGameApplication : public ezGameApplication
+class WEngineProcessGameApplication : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
-  ezEngineProcessGameApplication();
-  ~ezEngineProcessGameApplication();
+  WEngineProcessGameApplication();
+  ~WEngineProcessGameApplication();
 
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
   virtual void BeforeCoreSystemsShutdown() override;
 
   virtual void Run() override;
 
-  void LogWriter(const ezLoggingEventData& e);
+  void LogWriter(const WLoggingEventData& e);
 
   virtual bool ShouldApplicationQuit() const override
   {
-    // override the behavior of ezGameApplicationGase
+    // override the behavior of WGameApplicationGase
     // so ignore what the game-state does
-    return ezApplication::ShouldApplicationQuit();
+    return WApplication::ShouldApplicationQuit();
   }
 
 protected:
@@ -46,7 +46,7 @@ protected:
   virtual void Deinit_ShutdownLogging() override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual bool Run_ProcessApplicationInput() override;
-  virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
+  virtual WUniquePtr<WEditorEngineProcessApp> CreateEngineProcessApp();
 
   virtual void ActivateGameStateAtStartup() override
   {
@@ -57,44 +57,44 @@ private:
   void ConnectToHost();
   void DisableErrorReport();
   void WaitForDebugger();
-  static bool EditorAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+  static bool EditorAssertHandler(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
   void AddEditorAssertHandler();
   void RemoveEditorAssertHandler();
 
   bool ProcessIPCMessages(bool bPendingOpInProgress);
   void SendProjectReadyMessage();
   void SendReflectionInformation();
-  void EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e);
-  void EventHandlerCVar(const ezCVarEvent& e);
-  void EventHandlerCVarPlugin(const ezPluginEvent& e);
-  void TransmitCVar(const ezCVar* pCVar);
+  void EventHandlerIPC(const WEngineProcessCommunicationChannel::Event& e);
+  void EventHandlerCVar(const WCVarEvent& e);
+  void EventHandlerCVarPlugin(const WPluginEvent& e);
+  void TransmitCVar(const WCVar* pCVar);
 
-  void HandleResourceUpdateMsg(const ezResourceUpdateMsgToEngine& msg);
-  void HandleResourceRestoreMsg(const ezRestoreResourceMsgToEngine& msg);
+  void HandleResourceUpdateMsg(const WResourceUpdateMsgToEngine& msg);
+  void HandleResourceRestoreMsg(const WRestoreResourceMsgToEngine& msg);
 
-  ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
+  WEngineProcessDocumentContext* CreateDocumentContext(const WDocumentOpenMsgToEngine* pMsg);
 
   virtual void Init_LoadProjectPlugins() override;
 
-  virtual ezString FindProjectDirectory() const override;
+  virtual WString FindProjectDirectory() const override;
 
-  ezString m_sProjectDirectory;
-  ezApplicationFileSystemConfig m_CustomFileSystemConfig;
-  ezApplicationPluginConfig m_CustomPluginConfig;
-  ezEngineProcessCommunicationChannel m_IPC;
-  ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
-  ezLongOpWorkerManager m_LongOpWorkerManager;
-  ezLogWriter::HTML m_LogHTML;
+  WString m_sProjectDirectory;
+  WApplicationFileSystemConfig m_CustomFileSystemConfig;
+  WApplicationPluginConfig m_CustomPluginConfig;
+  WEngineProcessCommunicationChannel m_IPC;
+  WUniquePtr<WEditorEngineProcessApp> m_pApp;
+  WLongOpWorkerManager m_LongOpWorkerManager;
+  WLogWriter::HTML m_LogHTML;
 
-  ezUInt32 m_uiRedrawCountReceived = 0;
-  ezUInt32 m_uiRedrawCountExecuted = 0;
+  WUInt32 m_uiRedrawCountReceived = 0;
+  WUInt32 m_uiRedrawCountExecuted = 0;
 
   /// Sends log messages that were queued up by LogWriter() from non-main threads.
   void SendQueuedLogMessages();
 
   /// Resolves the log links in the message and sends it to the editor. Must be called from the main thread.
-  void SendLogMessage(ezLogEntry& ref_entry);
+  void SendLogMessage(WLogEntry& ref_entry);
 
-  ezMutex m_QueuedLogMsgMutex;
-  ezDeque<ezLogEntry> m_QueuedLogMsgs;
+  WMutex m_QueuedLogMsgMutex;
+  WDeque<WLogEntry> m_QueuedLogMsgs;
 };

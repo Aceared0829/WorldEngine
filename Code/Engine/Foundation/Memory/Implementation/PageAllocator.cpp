@@ -3,13 +3,13 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Memory/PageAllocator.h>
 
-ezAllocatorId ezPageAllocator::GetId()
+WAllocatorId WPageAllocator::GetId()
 {
-  static ezAllocatorId id;
+  static WAllocatorId id;
 
   if (id.IsInvalidated())
   {
-    id = ezMemoryTracker::RegisterAllocator("Page", ezAllocatorTrackingMode::Default, ezAllocatorId());
+    id = WMemoryTracker::RegisterAllocator("Page", WAllocatorTrackingMode::Default, WAllocatorId());
   }
 
   return id;

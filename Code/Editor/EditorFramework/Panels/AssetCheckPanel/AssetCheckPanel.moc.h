@@ -13,15 +13,15 @@ namespace ads
 }
 
 /// Application wide panel that runs asset check rules over a selection of assets and lists the reported issues.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetCheckPanel : public ezQtApplicationPanel, public Ui_AssetCheckPanel
+class W_EDITORFRAMEWORK_DLL WQtAssetCheckPanel : public WQtApplicationPanel, public Ui_AssetCheckPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtAssetCheckPanel);
+  W_DECLARE_SINGLETON(WQtAssetCheckPanel);
 
 public:
-  ezQtAssetCheckPanel(ads::CDockManager* pDockManager);
-  ~ezQtAssetCheckPanel();
+  WQtAssetCheckPanel(ads::CDockManager* pDockManager);
+  ~WQtAssetCheckPanel();
 
   void FillRuleList();
 
@@ -33,7 +33,7 @@ private:
   void ResultTreeItemDoubleClicked(QTreeWidgetItem* pItem, int iColumn);
 
   void UpdateAssetTypeCombo();
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
+  void DocumentManagerEventHandler(const WDocumentManager::Event& e);
 
-  ezDynamicArray<ezAssetCheckRule*> m_Rules;
+  WDynamicArray<WAssetCheckRule*> m_Rules;
 };

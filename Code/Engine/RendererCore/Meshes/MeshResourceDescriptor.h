@@ -10,7 +10,7 @@
 /// Defines sub-meshes with materials, references or creates mesh buffer data,
 /// and stores bounding information. Used both for procedural mesh generation and
 /// loading from files.
-class EZ_RENDERERCORE_DLL ezMeshResourceDescriptor
+class W_RENDERERCORE_DLL WMeshResourceDescriptor
 {
 public:
   /// Describes a sub-mesh within the mesh.
@@ -18,74 +18,74 @@ public:
   /// Each sub-mesh references a range of primitives and a material slot.
   struct SubMesh
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiPrimitiveCount;  ///< Number of primitives in this sub-mesh.
-    ezUInt32 m_uiFirstPrimitive;  ///< Index of the first primitive.
-    ezUInt32 m_uiMaterialIndex;   ///< Index into the material array.
+    WUInt32 m_uiPrimitiveCount;  ///< Number of primitives in this sub-mesh.
+    WUInt32 m_uiFirstPrimitive;  ///< Index of the first primitive.
+    WUInt32 m_uiMaterialIndex;   ///< Index into the material array.
 
-    ezBoundingBoxSphere m_Bounds; ///< Bounding volume of this sub-mesh.
+    WBoundingBoxSphere m_Bounds; ///< Bounding volume of this sub-mesh.
   };
 
   /// Material slot information.
   struct Material
   {
-    ezString m_sPath; ///< Path or GUID of the material resource.
+    WString m_sPath; ///< Path or GUID of the material resource.
   };
 
-  ezMeshResourceDescriptor();
+  WMeshResourceDescriptor();
 
   void Clear();
 
   /// Returns the mesh buffer descriptor for creating a new mesh buffer.
   ///
   /// Use this when building mesh data procedurally. Mutually exclusive with UseExistingMeshBuffer.
-  ezMeshBufferResourceDescriptor& MeshBufferDesc();
+  WMeshBufferResourceDescriptor& MeshBufferDesc();
 
-  const ezMeshBufferResourceDescriptor& MeshBufferDesc() const;
+  const WMeshBufferResourceDescriptor& MeshBufferDesc() const;
 
   /// Uses an existing mesh buffer instead of creating a new one.
   ///
   /// Mutually exclusive with modifying MeshBufferDesc.
-  void UseExistingMeshBuffer(const ezMeshBufferResourceHandle& hBuffer);
+  void UseExistingMeshBuffer(const WMeshBufferResourceHandle& hBuffer);
 
   /// Adds a sub-mesh to the descriptor.
-  void AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex);
+  void AddSubMesh(WUInt32 uiPrimitiveCount, WUInt32 uiFirstPrimitive, WUInt32 uiMaterialIndex);
 
   /// Sets the material path for a material slot.
-  void SetMaterial(ezUInt32 uiMaterialIndex, ezStringView sPathToMaterial);
+  void SetMaterial(WUInt32 uiMaterialIndex, WStringView sPathToMaterial);
 
-  void Save(ezStreamWriter& inout_stream);
-  ezResult Save(const char* szFile);
+  void Save(WStreamWriter& inout_stream);
+  WResult Save(const char* szFile);
 
-  ezResult Load(ezStreamReader& inout_stream);
-  ezResult Load(const char* szFile);
+  WResult Load(WStreamReader& inout_stream);
+  WResult Load(const char* szFile);
 
-  const ezMeshBufferResourceHandle& GetExistingMeshBuffer() const;
+  const WMeshBufferResourceHandle& GetExistingMeshBuffer() const;
 
-  ezArrayPtr<const Material> GetMaterials() const;
+  WArrayPtr<const Material> GetMaterials() const;
 
-  ezArrayPtr<const SubMesh> GetSubMeshes() const;
+  WArrayPtr<const SubMesh> GetSubMeshes() const;
 
   /// Merges all submeshes into just one.
   void CollapseSubMeshes();
 
   void ComputeBounds();
-  const ezBoundingBoxSphere& GetBounds() const;
-  void SetBounds(const ezBoundingBoxSphere& bounds) { m_Bounds = bounds; }
+  const WBoundingBoxSphere& GetBounds() const;
+  void SetBounds(const WBoundingBoxSphere& bounds) { m_Bounds = bounds; }
 
   /// Data for a bone used in skinned meshes.
   struct BoneData
   {
-    ezMat4 m_GlobalInverseRestPoseMatrix;         ///< Transform from mesh space to bone space.
-    ezUInt16 m_uiBoneIndex = ezInvalidJointIndex; ///< Index into the skeleton.
+    WMat4 m_GlobalInverseRestPoseMatrix;         ///< Transform from mesh space to bone space.
+    WUInt16 m_uiBoneIndex = WInvalidJointIndex; ///< Index into the skeleton.
 
-    ezResult Serialize(ezStreamWriter& inout_stream) const;
-    ezResult Deserialize(ezStreamReader& inout_stream);
+    WResult Serialize(WStreamWriter& inout_stream) const;
+    WResult Deserialize(WStreamReader& inout_stream);
   };
 
-  ezSkeletonResourceHandle m_hDefaultSkeleton;   ///< Default skeleton for skinned meshes.
-  ezHashTable<ezHashedString, BoneData> m_Bones; ///< Bone data indexed by bone name.
+  WSkeletonResourceHandle m_hDefaultSkeleton;   ///< Default skeleton for skinned meshes.
+  WHashTable<WHashedString, BoneData> m_Bones; ///< Bone data indexed by bone name.
 
   /// Maximum distance between any vertex and its influencing bones.
   ///
@@ -93,9 +93,9 @@ public:
   float m_fMaxBoneVertexOffset = 0.0f;
 
 private:
-  ezHybridArray<Material, 8> m_Materials;
-  ezHybridArray<SubMesh, 8> m_SubMeshes;
-  ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
-  ezMeshBufferResourceHandle m_hMeshBuffer;
-  ezBoundingBoxSphere m_Bounds;
+  WHybridArray<Material, 8> m_Materials;
+  WHybridArray<SubMesh, 8> m_SubMeshes;
+  WMeshBufferResourceDescriptor m_MeshBufferDescriptor;
+  WMeshBufferResourceHandle m_hMeshBuffer;
+  WBoundingBoxSphere m_Bounds;
 };

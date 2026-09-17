@@ -8,74 +8,74 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDistanceConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltDistanceConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("MinDistance", GetMinDistance, SetMinDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("MaxDistance", GetMaxDistance, SetMaxDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("Frequency", GetFrequency, SetFrequency)->AddAttributes(new ezClampValueAttribute(0.0f, 120.0f), new ezDefaultValueAttribute(2.0f)),
-    EZ_ACCESSOR_PROPERTY("Damping", GetDamping, SetDamping)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.5f)),
+    W_ACCESSOR_PROPERTY("MinDistance", GetMinDistance, SetMinDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("MaxDistance", GetMaxDistance, SetMaxDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("Frequency", GetFrequency, SetFrequency)->AddAttributes(new WClampValueAttribute(0.0f, 120.0f), new WDefaultValueAttribute(2.0f)),
+    W_ACCESSOR_PROPERTY("Damping", GetDamping, SetDamping)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f), new WDefaultValueAttribute(0.5f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("MinDistance", ezColor::IndianRed),
-    new ezSphereVisualizerAttribute("MaxDistance", ezColor::LightSkyBlue),
+    new WSphereVisualizerAttribute("MinDistance", WColor::IndianRed),
+    new WSphereVisualizerAttribute("MaxDistance", WColor::LightSkyBlue),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltDistanceConstraintComponent::ezJoltDistanceConstraintComponent() = default;
-ezJoltDistanceConstraintComponent::~ezJoltDistanceConstraintComponent() = default;
+WJoltDistanceConstraintComponent::WJoltDistanceConstraintComponent() = default;
+WJoltDistanceConstraintComponent::~WJoltDistanceConstraintComponent() = default;
 
-void ezJoltDistanceConstraintComponent::SetMinDistance(float value)
+void WJoltDistanceConstraintComponent::SetMinDistance(float value)
 {
   m_fMinDistance = value;
   QueueApplySettings();
 }
 
-void ezJoltDistanceConstraintComponent::SetMaxDistance(float value)
+void WJoltDistanceConstraintComponent::SetMaxDistance(float value)
 {
   m_fMaxDistance = value;
   QueueApplySettings();
 }
 
-void ezJoltDistanceConstraintComponent::SetFrequency(float value)
+void WJoltDistanceConstraintComponent::SetFrequency(float value)
 {
   m_fFrequency = value;
   QueueApplySettings();
 }
 
-void ezJoltDistanceConstraintComponent::SetDamping(float value)
+void WJoltDistanceConstraintComponent::SetDamping(float value)
 {
   m_fDamping = value;
   QueueApplySettings();
 }
 
-void ezJoltDistanceConstraintComponent::ApplySettings()
+void WJoltDistanceConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   JPH::DistanceConstraint* pConstraint = static_cast<JPH::DistanceConstraint*>(m_pConstraint);
 
   pConstraint->SetLimitsSpringSettings(JPH::SpringSettings(JPH::ESpringMode::FrequencyAndDamping, m_fFrequency, m_fDamping));
 
-  const float fMin = ezMath::Max(0.0f, m_fMinDistance);
-  const float fMax = ezMath::Max(fMin, m_fMaxDistance);
+  const float fMin = WMath::Max(0.0f, m_fMinDistance);
+  const float fMax = WMath::Max(fMin, m_fMaxDistance);
   pConstraint->SetDistance(fMin, fMax);
 
   if (pConstraint->GetBody2()->IsInBroadPhase())
   {
     // wake up the bodies that are attached to this constraint
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
 
-bool ezJoltDistanceConstraintComponent::ExceededBreakingPoint()
+bool WJoltDistanceConstraintComponent::ExceededBreakingPoint()
 {
   if (auto pConstraint = static_cast<JPH::DistanceConstraint*>(m_pConstraint))
   {
@@ -91,7 +91,7 @@ bool ezJoltDistanceConstraintComponent::ExceededBreakingPoint()
   return false;
 }
 
-void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltDistanceConstraintComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -103,10 +103,10 @@ void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& inout_
   s << m_fDamping;
 }
 
-void ezJoltDistanceConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltDistanceConstraintComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -116,7 +116,7 @@ void ezJoltDistanceConstraintComponent::DeserializeComponent(ezWorldReader& inou
   s >> m_fDamping;
 }
 
-void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
   const auto inv2 = pBody1->GetInverseCenterOfMassTransform() * pBody1->GetWorldTransform();
@@ -126,8 +126,8 @@ void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0,
   opt.mMinDistance = 0;
   opt.mMaxDistance = 1;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
+  opt.mPoint1 = inv1 * WJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * WJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mLimitsSpringSettings.mMode = JPH::ESpringMode::FrequencyAndDamping;
   opt.mLimitsSpringSettings.mFrequency = m_fFrequency;
   opt.mLimitsSpringSettings.mDamping = m_fDamping;
@@ -136,4 +136,4 @@ void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0,
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltDistanceConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltDistanceConstraintComponent);

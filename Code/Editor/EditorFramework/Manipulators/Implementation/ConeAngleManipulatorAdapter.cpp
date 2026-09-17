@@ -4,32 +4,32 @@
 #include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter() = default;
+WConeAngleManipulatorAdapter::WConeAngleManipulatorAdapter() = default;
 
-ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter() = default;
+WConeAngleManipulatorAdapter::~WConeAngleManipulatorAdapter() = default;
 
-void ezConeAngleManipulatorAdapter::Finalize()
+void WConeAngleManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
 
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
-  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezConeAngleManipulatorAdapter::GizmoEventHandler, this));
+  m_Gizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WConeAngleManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezConeAngleManipulatorAdapter::Update()
+void WConeAngleManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WConeAngleManipulatorAttribute* pAttr = static_cast<const WConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
   /* if (!pAttr->GetRadiusProperty().IsEmpty())
   {
@@ -40,32 +40,32 @@ void ezConeAngleManipulatorAdapter::Update()
 
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
-    ezAngle value = pObjectAccessor->Get<ezAngle>(m_pObject, GetProperty(pAttr->GetAngleProperty()));
+    WAngle value = pObjectAccessor->Get<WAngle>(m_pObject, GetProperty(pAttr->GetAngleProperty()));
     m_Gizmo.SetAngle(value);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
-void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void WConeAngleManipulatorAdapter::GizmoEventHandler(const WGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
+      const WConeAngleManipulatorAttribute* pAttr = static_cast<const WConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
       ChangeProperties(pAttr->GetAngleProperty(), m_Gizmo.GetAngle());
     }
@@ -73,7 +73,7 @@ void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
-void ezConeAngleManipulatorAdapter::UpdateGizmoTransform()
+void WConeAngleManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }

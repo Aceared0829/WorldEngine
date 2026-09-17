@@ -5,13 +5,13 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestProcGen : public ezGameEngineTest
+class WGameEngineTestProcGen : public WGameEngineTest
 {
-  using SUPER = ezGameEngineTest;
+  using SUPER = WGameEngineTest;
 
 public:
   virtual const char* GetTestName() const override;
-  virtual ezGameEngineTestApplication* CreateApplication() override;
+  virtual WGameEngineTestApplication* CreateApplication() override;
 
 protected:
   enum SubTests
@@ -21,19 +21,19 @@ protected:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-  virtual ezResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
+  virtual WResult DeInitializeTest() override;
 
-  using InputVertex = ezProcGenInternal::VertexColorTask::InputVertex;
-  ezResult TestOutput(const ezHashedString& sOutputName, ezArrayPtr<InputVertex> inputVertices, ezArrayPtr<const ezVec4> expectedOutputs);
+  using InputVertex = WProcGenInternal::VertexColorTask::InputVertex;
+  WResult TestOutput(const WHashedString& sOutputName, WArrayPtr<InputVertex> inputVertices, WArrayPtr<const WVec4> expectedOutputs);
 
-  ezInt32 m_iFrame = 0;
-  ezGameEngineTestApplication* m_pOwnApplication = nullptr;
+  WInt32 m_iFrame = 0;
+  WGameEngineTestApplication* m_pOwnApplication = nullptr;
 
-  ezUInt32 m_uiImgCompIdx = 0;
-  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+  WUInt32 m_uiImgCompIdx = 0;
+  WHybridArray<WUInt32, 8> m_ImgCompFrames;
 
-  ezExpression::GlobalData m_GlobalData;
-  ezUniquePtr<ezExpressionVM> m_pVM;
+  WExpression::GlobalData m_GlobalData;
+  WUniquePtr<WExpressionVM> m_pVM;
 };

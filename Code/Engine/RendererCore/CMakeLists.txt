@@ -1,9 +1,9 @@
-ez_cmake_init()
+W_cmake_init()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+W_create_target(LIBRARY ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -12,7 +12,7 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 )
 
-if (EZ_3RDPARTY_OZZ_SUPPORT)
+if (W_3RDPARTY_OZZ_SUPPORT)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
     ozz
@@ -20,4 +20,4 @@ if (EZ_3RDPARTY_OZZ_SUPPORT)
 endif()
 
 # needed for shader structure includes
-target_include_directories(${PROJECT_NAME} PRIVATE "${EZ_ROOT}/Data/Base")
+target_include_directories(${PROJECT_NAME} PRIVATE "${W_ROOT}/Data/Base")

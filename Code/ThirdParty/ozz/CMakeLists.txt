@@ -1,13 +1,13 @@
-ez_cmake_init()
+W_cmake_init()
 
 
 
-ez_requires(EZ_3RDPARTY_OZZ_SUPPORT)
+W_requires(W_3RDPARTY_OZZ_SUPPORT)
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX ALL_SYMBOLS_VISIBLE)
+W_create_target(LIBRARY ${PROJECT_NAME} NO_W_PREFIX ALL_SYMBOLS_VISIBLE)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_OZZ_SUPPORT)
 
@@ -21,16 +21,16 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMATIONTOOLS_LIB)
 target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMATIONFBX_LIB)
 target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_OPTIONS_LIB)
 
-if(EZ_CMAKE_PLATFORM_ANDROID)
+if(W_CMAKE_PLATFORM_ANDROID)
   target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_SIMD_ARM_NEON)
 endif()
 
-if(EZ_CMAKE_COMPILER_MSVC)
+if(W_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4661)
 endif()
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
-  if (EZ_COMPILE_ENGINE_AS_DLL)
+if(W_CMAKE_PLATFORM_WINDOWS)
+  if (W_COMPILE_ENGINE_AS_DLL)
     target_compile_definitions(${PROJECT_NAME} PUBLIC OZZ_USE_DYNAMIC_LINKING)
   endif()
 endif()

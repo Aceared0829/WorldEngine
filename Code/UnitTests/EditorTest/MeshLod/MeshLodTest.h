@@ -4,10 +4,10 @@
 
 #include <EditorTest/TestClass/TestClass.h>
 
-class ezEditorMeshLodTest : public ezEditorTest
+class WEditorMeshLodTest : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -26,19 +26,19 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
   /// Creates a mesh asset at the given project relative path.
-  ezUuid CreateMeshAsset(const char* szRelativePath, const char* szSourceFile = "Meshes/Cube.obj", const ezVariantDictionary* pExtraProperties = nullptr);
+  WUuid CreateMeshAsset(const char* szRelativePath, const char* szSourceFile = "Meshes/Cube.obj", const WVariantDictionary* pExtraProperties = nullptr);
 
   /// Copies Cube.obj to a new name, so that a test can use a source file nothing else shares.
   /// Returns the project relative path to use as a mesh asset's MeshFile.
-  ezString MakePrivateSourceMesh(const char* szName);
+  WString MakePrivateSourceMesh(const char* szName);
 
   /// Reads a property from a saved asset document, by opening and closing it.
-  ezVariant ReadAssetProperty(ezStringView sAbsPath, ezStringView sProperty);
+  WVariant ReadAssetProperty(WStringView sAbsPath, WStringView sProperty);
 
   void SimplificationLadder();
   void CreateLods();

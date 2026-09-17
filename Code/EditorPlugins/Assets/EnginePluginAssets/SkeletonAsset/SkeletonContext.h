@@ -5,33 +5,33 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Declarations.h>
 
-class EZ_ENGINEPLUGINASSETS_DLL ezSkeletonContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WSkeletonContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WSkeletonContext, WEngineProcessDocumentContext);
 
 public:
-  ezSkeletonContext();
+  WSkeletonContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  ezSkeletonResourceHandle GetSkeleton() const { return m_hSkeleton; }
+  WSkeletonResourceHandle GetSkeleton() const { return m_hSkeleton; }
 
   bool m_bDisplayGrid = true;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg);
 
-  ezGameObject* m_pGameObject = nullptr;
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezComponentHandle m_hSkeletonComponent;
-  ezComponentHandle m_hPoseComponent;
-  ezString m_sAnimatedMeshToUse;
-  ezComponentHandle m_hAnimMeshComponent;
+  WGameObject* m_pGameObject = nullptr;
+  WSkeletonResourceHandle m_hSkeleton;
+  WComponentHandle m_hSkeletonComponent;
+  WComponentHandle m_hPoseComponent;
+  WString m_sAnimatedMeshToUse;
+  WComponentHandle m_hAnimMeshComponent;
 };

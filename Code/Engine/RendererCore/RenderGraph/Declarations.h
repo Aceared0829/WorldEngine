@@ -5,59 +5,59 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 // Forward declarations
-class ezRenderGraph;
-class ezRenderGraphPassBuilder;
-class ezRenderGraphContext;
-class ezRenderGraphManager;
-struct ezRenderGraphInspectionInfo;
-struct ezRenderGraphDebugTarget;
-class ezRenderGraphResourcePool;
-class ezRenderGraphResourceAllocator;
-class ezPooledRenderTexture;
-class ezPooledRenderBuffer;
-struct ezRenderGraphInspectionSummary;
+class WRenderGraph;
+class WRenderGraphPassBuilder;
+class WRenderGraphContext;
+class WRenderGraphManager;
+struct WRenderGraphInspectionInfo;
+struct WRenderGraphDebugTarget;
+class WRenderGraphResourcePool;
+class WRenderGraphResourceAllocator;
+class WPooledRenderTexture;
+class WPooledRenderBuffer;
+struct WRenderGraphInspectionSummary;
 
 /// Opaque handle to a texture within a render graph.
-class ezRenderGraphTextureHandle
+class WRenderGraphTextureHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezRenderGraphTextureHandle, ezGAL::ez18_14Id);
-  friend class ezRenderGraph;
-  friend class ezRenderGraphPassBuilder;
-  friend class ezRenderGraphManager;
+  W_DECLARE_HANDLE_TYPE(WRenderGraphTextureHandle, WGAL::ez18_14Id);
+  friend class WRenderGraph;
+  friend class WRenderGraphPassBuilder;
+  friend class WRenderGraphManager;
 };
 
 /// Opaque handle to a buffer within a render graph.
-class ezRenderGraphBufferHandle
+class WRenderGraphBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezRenderGraphBufferHandle, ezGAL::ez18_14Id);
-  friend class ezRenderGraph;
-  friend class ezRenderGraphPassBuilder;
-  friend class ezRenderGraphManager;
+  W_DECLARE_HANDLE_TYPE(WRenderGraphBufferHandle, WGAL::ez18_14Id);
+  friend class WRenderGraph;
+  friend class WRenderGraphPassBuilder;
+  friend class WRenderGraphManager;
 };
 
 template <>
-struct ezHashHelper<ezRenderGraphTextureHandle>
+struct WHashHelper<WRenderGraphTextureHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezRenderGraphTextureHandle value)
+  W_ALWAYS_INLINE static WUInt32 Hash(WRenderGraphTextureHandle value)
   {
-    return ezHashHelper<ezRenderGraphTextureHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
+    return WHashHelper<WRenderGraphTextureHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezRenderGraphTextureHandle a, ezRenderGraphTextureHandle b)
+  W_ALWAYS_INLINE static bool Equal(WRenderGraphTextureHandle a, WRenderGraphTextureHandle b)
   {
     return a == b;
   }
 };
 
 template <>
-struct ezHashHelper<ezRenderGraphBufferHandle>
+struct WHashHelper<WRenderGraphBufferHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezRenderGraphBufferHandle value)
+  W_ALWAYS_INLINE static WUInt32 Hash(WRenderGraphBufferHandle value)
   {
-    return ezHashHelper<ezRenderGraphBufferHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
+    return WHashHelper<WRenderGraphBufferHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezRenderGraphBufferHandle a, ezRenderGraphBufferHandle b)
+  W_ALWAYS_INLINE static bool Equal(WRenderGraphBufferHandle a, WRenderGraphBufferHandle b)
   {
     return a == b;
   }
@@ -66,9 +66,9 @@ struct ezHashHelper<ezRenderGraphBufferHandle>
 
 
 /// Coarse execution phase for render graphs. Graphs within the same phase execute in registration (FIFO) order.
-struct ezRenderGraphPhase
+struct WRenderGraphPhase
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {

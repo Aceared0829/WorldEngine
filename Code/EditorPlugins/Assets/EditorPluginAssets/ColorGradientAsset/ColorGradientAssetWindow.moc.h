@@ -4,34 +4,34 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtColorGradientEditorWidget;
+class WQtColorGradientEditorWidget;
 
-class ezQtColorGradientAssetDocumentWindow : public ezQtDocumentWindow
+class WQtColorGradientAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtColorGradientAssetDocumentWindow();
+  WQtColorGradientAssetDocumentWindow(WDocument* pDocument);
+  ~WQtColorGradientAssetDocumentWindow();
 
 private Q_SLOTS:
-  void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
-  void onGradientAlphaCpAdded(double posX, ezUInt8 alpha);
+  void onGradientColorCpAdded(double posX, const WColorGammaUB& color);
+  void onGradientAlphaCpAdded(double posX, WUInt8 alpha);
   void onGradientIntensityCpAdded(double posX, float intensity);
 
-  void MoveCP(ezInt32 idx, double newPosX, const char* szArrayName);
-  void onGradientColorCpMoved(ezInt32 idx, double newPosX);
-  void onGradientAlphaCpMoved(ezInt32 idx, double newPosX);
-  void onGradientIntensityCpMoved(ezInt32 idx, double newPosX);
+  void MoveCP(WInt32 idx, double newPosX, const char* szArrayName);
+  void onGradientColorCpMoved(WInt32 idx, double newPosX);
+  void onGradientAlphaCpMoved(WInt32 idx, double newPosX);
+  void onGradientIntensityCpMoved(WInt32 idx, double newPosX);
 
-  void RemoveCP(ezInt32 idx, const char* szArrayName);
-  void onGradientColorCpDeleted(ezInt32 idx);
-  void onGradientAlphaCpDeleted(ezInt32 idx);
-  void onGradientIntensityCpDeleted(ezInt32 idx);
+  void RemoveCP(WInt32 idx, const char* szArrayName);
+  void onGradientColorCpDeleted(WInt32 idx);
+  void onGradientAlphaCpDeleted(WInt32 idx);
+  void onGradientIntensityCpDeleted(WInt32 idx);
 
-  void onGradientColorCpChanged(ezInt32 idx, const ezColorGammaUB& color);
-  void onGradientAlphaCpChanged(ezInt32 idx, ezUInt8 alpha);
-  void onGradientIntensityCpChanged(ezInt32 idx, float intensity);
+  void onGradientColorCpChanged(WInt32 idx, const WColorGammaUB& color);
+  void onGradientAlphaCpChanged(WInt32 idx, WUInt8 alpha);
+  void onGradientIntensityCpChanged(WInt32 idx, float intensity);
 
   void onGradientBeginOperation();
   void onGradientEndOperation(bool commit);
@@ -44,9 +44,9 @@ private:
   void SendLiveResourcePreview();
   void RestoreResource();
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 
   bool m_bShowFirstTime;
-  ezQtColorGradientEditorWidget* m_pGradientEditor;
+  WQtColorGradientEditorWidget* m_pGradientEditor;
 };

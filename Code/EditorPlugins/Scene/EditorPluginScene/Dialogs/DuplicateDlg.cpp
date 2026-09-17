@@ -3,20 +3,20 @@
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <QPushButton>
 
-ezUInt32 ezQtDuplicateDlg::s_uiNumberOfCopies = 1;
-bool ezQtDuplicateDlg::s_bGroupCopies = false;
-ezVec3 ezQtDuplicateDlg::s_vTranslationStep(0, 0, 0);
-ezVec3 ezQtDuplicateDlg::s_vRotationStep(0, 0, 0);
-ezVec3 ezQtDuplicateDlg::s_vRandomTranslation(0, 0, 0);
-ezVec3 ezQtDuplicateDlg::s_vRandomRotation(0, 0, 0);
-int ezQtDuplicateDlg::s_iRevolveAxis = 0;
-int ezQtDuplicateDlg::s_iRevolveStartAngle = 0;
-int ezQtDuplicateDlg::s_iRevolveAngleStep = 0;
-float ezQtDuplicateDlg::s_fRevolveRadius = 1.0f;
+WUInt32 WQtDuplicateDlg::s_uiNumberOfCopies = 1;
+bool WQtDuplicateDlg::s_bGroupCopies = false;
+WVec3 WQtDuplicateDlg::s_vTranslationStep(0, 0, 0);
+WVec3 WQtDuplicateDlg::s_vRotationStep(0, 0, 0);
+WVec3 WQtDuplicateDlg::s_vRandomTranslation(0, 0, 0);
+WVec3 WQtDuplicateDlg::s_vRandomRotation(0, 0, 0);
+int WQtDuplicateDlg::s_iRevolveAxis = 0;
+int WQtDuplicateDlg::s_iRevolveStartAngle = 0;
+int WQtDuplicateDlg::s_iRevolveAngleStep = 0;
+float WQtDuplicateDlg::s_fRevolveRadius = 1.0f;
 
 
-ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtDuplicateDlg::WQtDuplicateDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -29,9 +29,9 @@ ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* pParent)
     toolButtonTransZ->setVisible(false);
   }
 
-  m_vBoundingBoxSize.x = ezMath::RoundToMultiple(m_vBoundingBoxSize.x, 0.01f);
-  m_vBoundingBoxSize.y = ezMath::RoundToMultiple(m_vBoundingBoxSize.y, 0.01f);
-  m_vBoundingBoxSize.z = ezMath::RoundToMultiple(m_vBoundingBoxSize.z, 0.01f);
+  m_vBoundingBoxSize.x = WMath::RoundToMultiple(m_vBoundingBoxSize.x, 0.01f);
+  m_vBoundingBoxSize.y = WMath::RoundToMultiple(m_vBoundingBoxSize.y, 0.01f);
+  m_vBoundingBoxSize.z = WMath::RoundToMultiple(m_vBoundingBoxSize.z, 0.01f);
 
   CheckBoxGroupCopies->setChecked(s_bGroupCopies);
 
@@ -72,7 +72,7 @@ ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* pParent)
   RevolveZ->setChecked(s_iRevolveAxis == 3);
 }
 
-void ezQtDuplicateDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
+void WQtDuplicateDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
 {
   if (pButton == DefaultButtons->button(QDialogButtonBox::Cancel))
   {
@@ -119,15 +119,15 @@ void ezQtDuplicateDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
 
     s_iRevolveStartAngle = SpinBoxStartAngle->value();
     s_iRevolveAngleStep = SpinBoxAngle->value();
-    s_fRevolveRadius = ezMath::Clamp((float)SpinBoxRadius->value(), 0.0f, 1000.0f);
+    s_fRevolveRadius = WMath::Clamp((float)SpinBoxRadius->value(), 0.0f, 1000.0f);
 
     accept();
   }
 }
 
-void ezQtDuplicateDlg::on_toolButtonTransX_clicked()
+void WQtDuplicateDlg::on_toolButtonTransX_clicked()
 {
-  const float f = ezMath::RoundToMultiple((float)SpinBoxTransX->value(), 0.01f);
+  const float f = WMath::RoundToMultiple((float)SpinBoxTransX->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.x)
     SpinBoxTransX->setValue(-m_vBoundingBoxSize.x);
@@ -137,9 +137,9 @@ void ezQtDuplicateDlg::on_toolButtonTransX_clicked()
     SpinBoxTransX->setValue(m_vBoundingBoxSize.x);
 }
 
-void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
+void WQtDuplicateDlg::on_toolButtonTransY_clicked()
 {
-  const float f = ezMath::RoundToMultiple((float)SpinBoxTransY->value(), 0.01f);
+  const float f = WMath::RoundToMultiple((float)SpinBoxTransY->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.y)
     SpinBoxTransY->setValue(-m_vBoundingBoxSize.y);
@@ -149,9 +149,9 @@ void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
     SpinBoxTransY->setValue(m_vBoundingBoxSize.y);
 }
 
-void ezQtDuplicateDlg::on_toolButtonTransZ_clicked()
+void WQtDuplicateDlg::on_toolButtonTransZ_clicked()
 {
-  const float f = ezMath::RoundToMultiple((float)SpinBoxTransZ->value(), 0.01f);
+  const float f = WMath::RoundToMultiple((float)SpinBoxTransZ->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.z)
     SpinBoxTransZ->setValue(-m_vBoundingBoxSize.z);
@@ -161,7 +161,7 @@ void ezQtDuplicateDlg::on_toolButtonTransZ_clicked()
     SpinBoxTransZ->setValue(m_vBoundingBoxSize.z);
 }
 
-void ezQtDuplicateDlg::on_RevolveNone_clicked()
+void WQtDuplicateDlg::on_RevolveNone_clicked()
 {
   if (RevolveNone->isChecked())
   {
@@ -173,7 +173,7 @@ void ezQtDuplicateDlg::on_RevolveNone_clicked()
   }
 }
 
-void ezQtDuplicateDlg::on_RevolveX_clicked()
+void WQtDuplicateDlg::on_RevolveX_clicked()
 {
   if (RevolveX->isChecked())
   {
@@ -185,7 +185,7 @@ void ezQtDuplicateDlg::on_RevolveX_clicked()
   }
 }
 
-void ezQtDuplicateDlg::on_RevolveY_clicked()
+void WQtDuplicateDlg::on_RevolveY_clicked()
 {
   if (RevolveY->isChecked())
   {
@@ -197,7 +197,7 @@ void ezQtDuplicateDlg::on_RevolveY_clicked()
   }
 }
 
-void ezQtDuplicateDlg::on_RevolveZ_clicked()
+void WQtDuplicateDlg::on_RevolveZ_clicked()
 {
   if (RevolveZ->isChecked())
   {

@@ -9,50 +9,50 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Burst>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitterFactory_Burst, 1, WRTTIDefaultAllocator<WParticleEmitterFactory_Burst>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Duration", m_Duration),
-    EZ_MEMBER_PROPERTY("StartDelay", m_StartDelay),
+    W_MEMBER_PROPERTY("Duration", m_Duration),
+    W_MEMBER_PROPERTY("StartDelay", m_StartDelay),
 
-    EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(10)),
-    EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
-    EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
+    W_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new WDefaultValueAttribute(10)),
+    W_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
+    W_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Burst>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitter_Burst, 1, WRTTIDefaultAllocator<WParticleEmitter_Burst>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_Burst::ezParticleEmitterFactory_Burst()
+WParticleEmitterFactory_Burst::WParticleEmitterFactory_Burst()
 {
   m_uiSpawnCountMin = 10;
   m_uiSpawnCountRange = 0;
 }
 
-const ezRTTI* ezParticleEmitterFactory_Burst::GetEmitterType() const
+const WRTTI* WParticleEmitterFactory_Burst::GetEmitterType() const
 {
-  return ezGetStaticRTTI<ezParticleEmitter_Burst>();
+  return WGetStaticRTTI<WParticleEmitter_Burst>();
 }
 
-void ezParticleEmitterFactory_Burst::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
+void WParticleEmitterFactory_Burst::CopyEmitterProperties(WParticleEmitter* pEmitter0, bool bFirstTime) const
 {
-  ezParticleEmitter_Burst* pEmitter = static_cast<ezParticleEmitter_Burst*>(pEmitter0);
+  WParticleEmitter_Burst* pEmitter = static_cast<WParticleEmitter_Burst*>(pEmitter0);
 
   pEmitter->m_Duration = m_Duration;
   pEmitter->m_StartDelay = m_StartDelay;
 
-  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
+  pEmitter->m_uiSpawnCountMin = (WUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_uiSpawnCountRange = (WUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_sSpawnCountScaleParameter = WTempHashedString(m_sSpawnCountScaleParameter.GetData());
 }
 
 
-void ezParticleEmitterFactory_Burst::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void WParticleEmitterFactory_Burst::QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = m_uiSpawnCountMin + m_uiSpawnCountRange;
   out_uiMaxParticlesPerSecond = 0;
@@ -70,9 +70,9 @@ enum class EmitterBurstVersion
 };
 
 
-void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
+void WParticleEmitterFactory_Burst::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)EmitterBurstVersion::Version_Current;
+  const WUInt8 uiVersion = (int)EmitterBurstVersion::Version_Current;
   inout_stream << uiVersion;
 
   // Version 1
@@ -83,12 +83,12 @@ void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleEmitterFactory_Burst::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)EmitterBurstVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)EmitterBurstVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_Duration;
   inout_stream >> m_StartDelay;
@@ -97,16 +97,16 @@ void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream, const ez
   inout_stream >> m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitter_Burst::OnFinalize()
+void WParticleEmitter_Burst::OnFinalize()
 {
   float fSpawnFactor = 1.0f;
 
-  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  const float spawnCountScale = WMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
-  ezRandom& rng = GetRNG();
+  WRandom& rng = GetRNG();
 
-  m_uiSpawnCountLeft = (ezUInt32)(rng.IntMinMax(m_uiSpawnCountMin, m_uiSpawnCountMin + m_uiSpawnCountRange) * fSpawnFactor);
+  m_uiSpawnCountLeft = (WUInt32)(rng.IntMinMax(m_uiSpawnCountMin, m_uiSpawnCountMin + m_uiSpawnCountRange) * fSpawnFactor);
 
   m_fSpawnAccu = 0;
   m_fSpawnPerSecond = 0;
@@ -117,14 +117,14 @@ void ezParticleEmitter_Burst::OnFinalize()
   }
 }
 
-ezParticleEmitterState ezParticleEmitter_Burst::IsFinished()
+WParticleEmitterState WParticleEmitter_Burst::IsFinished()
 {
-  return (m_uiSpawnCountLeft == 0) ? ezParticleEmitterState::Finished : ezParticleEmitterState::Active;
+  return (m_uiSpawnCountLeft == 0) ? WParticleEmitterState::Finished : WParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
+WUInt32 WParticleEmitter_Burst::ComputeSpawnCount(const WTime& tDiff)
 {
-  EZ_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
+  W_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
 
   // delay before the emitter becomes active
   if (m_StartDelay.IsPositive())
@@ -133,7 +133,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
     return 0;
   }
 
-  ezUInt32 uiSpawn = 0;
+  WUInt32 uiSpawn = 0;
 
   if (m_Duration.IsZero())
   {
@@ -143,8 +143,8 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
   else
   {
     m_fSpawnAccu += (float)tDiff.GetSeconds() * m_fSpawnPerSecond;
-    uiSpawn = (ezUInt32)m_fSpawnAccu;
-    uiSpawn = ezMath::Min(uiSpawn, m_uiSpawnCountLeft);
+    uiSpawn = (WUInt32)m_fSpawnAccu;
+    uiSpawn = WMath::Min(uiSpawn, m_uiSpawnCountLeft);
 
     m_fSpawnAccu -= uiSpawn;
     m_uiSpawnCountLeft -= uiSpawn;
@@ -154,4 +154,4 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Burst);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Burst);

@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezQtColorGradientWidget" name="GradientWidget" native="true">
+    <widget class="WQtColorGradientWidget" name="GradientWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ezQtDoubleSpinBox" name="SpinPosition">
+      <widget class="WQtDoubleSpinBox" name="SpinPosition">
        <property name="decimals">
         <number>3</number>
        </property>
@@ -103,7 +103,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ezQtDoubleSpinBox" name="SpinIntensity">
+      <widget class="WQtDoubleSpinBox" name="SpinIntensity">
        <property name="decimals">
         <number>2</number>
        </property>
@@ -164,13 +164,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtColorGradientWidget</class>
+   <class>WQtColorGradientWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/ColorGradientWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtDoubleSpinBox</class>
+   <class>WQtDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
   </customwidget>

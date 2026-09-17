@@ -10,12 +10,12 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocument;
-struct ezDocumentObjectStructureEvent;
+class WDocument;
+struct WDocumentObjectStructureEvent;
 
 
 /// Event describing changes to the selection in the selection manager.
-struct ezSelectionManagerEvent
+struct WSelectionManagerEvent
 {
   enum class Type
   {
@@ -27,43 +27,43 @@ struct ezSelectionManagerEvent
   };
 
   Type m_Type;
-  const ezDocument* m_pDocument;
-  const ezDocumentObject* m_pObject;
+  const WDocument* m_pDocument;
+  const WDocumentObject* m_pObject;
 };
 
-struct ezSelectionEntry
+struct WSelectionEntry
 {
-  const ezDocumentObject* m_pObject;
-  ezUInt32 m_uiSelectionOrder = 0; // the index at which this item was in the selection
+  const WDocumentObject* m_pObject;
+  WUInt32 m_uiSelectionOrder = 0; // the index at which this item was in the selection
 };
 
 /// Selection Manager stores a set of selected document objects.
-class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
+class W_TOOLSFOUNDATION_DLL WSelectionManager
 {
 public:
   /// Event that is broadcast when the selection changes.
-  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
+  WCopyOnBroadcastEvent<const WSelectionManagerEvent&> m_Events;
 
   /// Storage for the selection so it can be swapped when using multiple sub documents.
-  class Storage : public ezRefCounted
+  class Storage : public WRefCounted
   {
   public:
-    ezDeque<const ezDocumentObject*> m_SelectionList;
-    ezSet<ezUuid> m_SelectionSet;
-    const ezDocumentObjectManager* m_pObjectManager = nullptr;
-    ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
+    WDeque<const WDocumentObject*> m_SelectionList;
+    WSet<WUuid> m_SelectionSet;
+    const WDocumentObjectManager* m_pObjectManager = nullptr;
+    WCopyOnBroadcastEvent<const WSelectionManagerEvent&> m_Events;
   };
 
 public:
-  ezSelectionManager(const ezDocumentObjectManager* pObjectManager);
-  ~ezSelectionManager();
+  WSelectionManager(const WDocumentObjectManager* pObjectManager);
+  ~WSelectionManager();
 
   void Clear();
-  void AddObject(const ezDocumentObject* pObject);
-  void RemoveObject(const ezDocumentObject* pObject, bool bRecurseChildren = false);
-  void SetSelection(const ezDocumentObject* pSingleObject);
-  void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
-  void ToggleObject(const ezDocumentObject* pObject);
+  void AddObject(const WDocumentObject* pObject);
+  void RemoveObject(const WDocumentObject* pObject, bool bRecurseChildren = false);
+  void SetSelection(const WDocumentObject* pSingleObject);
+  void SetSelection(const WDeque<const WDocumentObject*>& selection);
+  void ToggleObject(const WDocumentObject* pObject);
 
   /// Forces all UI that is bound to the selection to rebuild, without actually changing which objects are selected.
   ///
@@ -79,19 +79,19 @@ public:
   /// but not yet show the new object as selected in the property grids, such that users can interact with the previously selected object.
   ///
   /// To clear a runtime override selection, simply set an empty selection.
-  void SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection);
+  void SetRuntimeOverrideSelection(const WDeque<const WDocumentObject*>& selection);
 
   /// Returns the current runtime override selection.
   ///
   /// Valid, if the selection is non-empty.
   /// See SetRuntimeOverrideSelection() for details.
-  const ezDeque<const ezDocumentObject*>& GetRuntimeOverrideSelection() const { return m_RuntimeOverrideSelection; }
+  const WDeque<const WDocumentObject*>& GetRuntimeOverrideSelection() const { return m_RuntimeOverrideSelection; }
 
   /// Returns the last selected object in the selection or null if empty.
-  const ezDocumentObject* GetCurrentObject() const;
+  const WDocumentObject* GetCurrentObject() const;
 
   /// Returns the selection in the same order the objects were added to the list.
-  const ezDeque<const ezDocumentObject*>& GetSelection() const { return m_pSelectionStorage->m_SelectionList; }
+  const WDeque<const WDocumentObject*>& GetSelection() const { return m_pSelectionStorage->m_SelectionList; }
 
   bool IsSelectionEmpty() const { return m_pSelectionStorage->m_SelectionList.IsEmpty(); }
 
@@ -101,29 +101,29 @@ public:
   ///
   /// I.e. if an object is selected and one of its ancestors is selected, it is culled from the list.
   /// Items are returned in the order of appearance in an expanded scene tree.
-  /// Their order in the selection is returned through ezSelectionEntry.
-  void GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const;
+  /// Their order in the selection is returned through WSelectionEntry.
+  void GetTopLevelSelection(WDynamicArray<WSelectionEntry>& out_entries) const;
 
   /// Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
-  void GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const;
+  void GetTopLevelSelectionOfType(const WRTTI* pBase, WDynamicArray<WSelectionEntry>& out_entries) const;
 
-  bool IsSelected(const ezDocumentObject* pObject) const;
-  bool IsParentSelected(const ezDocumentObject* pObject) const;
+  bool IsSelected(const WDocumentObject* pObject) const;
+  bool IsParentSelected(const WDocumentObject* pObject) const;
 
-  const ezDocument* GetDocument() const;
+  const WDocument* GetDocument() const;
 
-  ezSharedPtr<ezSelectionManager::Storage> SwapStorage(ezSharedPtr<ezSelectionManager::Storage> pNewStorage);
-  ezSharedPtr<ezSelectionManager::Storage> GetStorage() { return m_pSelectionStorage; }
+  WSharedPtr<WSelectionManager::Storage> SwapStorage(WSharedPtr<WSelectionManager::Storage> pNewStorage);
+  WSharedPtr<WSelectionManager::Storage> GetStorage() { return m_pSelectionStorage; }
 
 private:
-  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  bool RecursiveRemoveFromSelection(const ezDocumentObject* pObject);
+  void TreeEventHandler(const WDocumentObjectStructureEvent& e);
+  bool RecursiveRemoveFromSelection(const WDocumentObject* pObject);
 
-  friend class ezDocument;
+  friend class WDocument;
 
-  ezSharedPtr<ezSelectionManager::Storage> m_pSelectionStorage;
-  ezDeque<const ezDocumentObject*> m_RuntimeOverrideSelection;
+  WSharedPtr<WSelectionManager::Storage> m_pSelectionStorage;
+  WDeque<const WDocumentObject*> m_RuntimeOverrideSelection;
 
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_ObjectStructureUnsubscriber;
-  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_EventsUnsubscriber;
+  WCopyOnBroadcastEvent<const WDocumentObjectStructureEvent&>::Unsubscriber m_ObjectStructureUnsubscriber;
+  WCopyOnBroadcastEvent<const WSelectionManagerEvent&>::Unsubscriber m_EventsUnsubscriber;
 };

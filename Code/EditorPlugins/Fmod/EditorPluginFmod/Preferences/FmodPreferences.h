@@ -4,13 +4,13 @@
 #include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_EDITORPLUGINFMOD_DLL ezFmodProjectPreferences : public ezPreferences
+class W_EDITORPLUGINFMOD_DLL WFmodProjectPreferences : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodProjectPreferences, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WFmodProjectPreferences, WPreferences);
 
 public:
-  ezFmodProjectPreferences();
-  ~ezFmodProjectPreferences();
+  WFmodProjectPreferences();
+  ~WFmodProjectPreferences();
 
   void SetMute(bool bMute);
   bool GetMute() const { return m_bMute; }
@@ -21,7 +21,7 @@ public:
   void SyncCVars();
 
 private:
-  void ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void ProcessEventHandler(const WEditorEngineProcessConnection::Event& e);
 
   bool m_bMute = false;
   float m_fMasterVolume = 1.0f;

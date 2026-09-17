@@ -3,13 +3,13 @@
 #include <Core/Messages/EventMessageSender.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
-/// Message that is sent by ezStateMachineState_SendMsg once the state is entered.
-struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezMessage
+/// Message that is sent by WStateMachineState_SendMsg once the state is entered.
+struct W_GAMEENGINE_DLL WMsgStateMachineStateChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgStateMachineStateChanged, WMessage);
 
-  ezHashedString m_sOldStateName;
-  ezHashedString m_sNewStateName;
+  WHashedString m_sOldStateName;
+  WHashedString m_sNewStateName;
 
 private:
   const char* GetOldStateName() const { return m_sOldStateName; }
@@ -21,25 +21,25 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// A state machine state that sends a ezMsgStateMachineStateChanged on state enter or exit to the owner of the
-/// state machine instance. Currently only works for ezStateMachineComponent.
+/// A state machine state that sends a WMsgStateMachineStateChanged on state enter or exit to the owner of the
+/// state machine instance. Currently only works for WStateMachineComponent.
 ///
 /// Optionally it can also log a message on state enter or exit.
-class ezStateMachineState_SendMsg : public ezStateMachineState
+class WStateMachineState_SendMsg : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_SendMsg, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_SendMsg, WStateMachineState);
 
 public:
-  ezStateMachineState_SendMsg(ezStringView sName = ezStringView());
-  ~ezStateMachineState_SendMsg();
+  WStateMachineState_SendMsg(WStringView sName = WStringView());
+  ~WStateMachineState_SendMsg();
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
-  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override;
+  virtual void OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  ezTime m_MessageDelay;
+  WTime m_MessageDelay;
 
   bool m_bSendMessageOnEnter = true;
   bool m_bSendMessageOnExit = false;
@@ -65,76 +65,76 @@ public:
 /// If multiple objects in the same group have the same name, they will all get activated simultaneously.
 ///
 /// Make sure that essential other objects (like the physics representation or other scripts) are located on other objects, that don't get deactivated.
-class ezStateMachineState_SwitchObject : public ezStateMachineState
+class WStateMachineState_SwitchObject : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_SwitchObject, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_SwitchObject, WStateMachineState);
 
 public:
-  ezStateMachineState_SwitchObject(ezStringView sName = ezStringView());
-  ~ezStateMachineState_SwitchObject();
+  WStateMachineState_SwitchObject(WStringView sName = WStringView());
+  ~WStateMachineState_SwitchObject();
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  ezString m_sGroupPath;
-  ezString m_sObjectToEnable;
+  WString m_sGroupPath;
+  WString m_sObjectToEnable;
   bool m_bDeactivateOthers = true;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezStateMachineComponentManager : public ezComponentManager<class ezStateMachineComponent, ezBlockStorageType::Compact>
+class W_GAMEENGINE_DLL WStateMachineComponentManager : public WComponentManager<class WStateMachineComponent, WBlockStorageType::Compact>
 {
 public:
-  ezStateMachineComponentManager(ezWorld* pWorld);
-  ~ezStateMachineComponentManager();
+  WStateMachineComponentManager(WWorld* pWorld);
+  ~WStateMachineComponentManager();
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  ezHashSet<ezComponentHandle> m_ComponentsToReload;
+  WHashSet<WComponentHandle> m_ComponentsToReload;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-/// A component that holds an ezStateMachineInstance using the ezStateMachineDescription from the resource assigned to this component.
-class EZ_GAMEENGINE_DLL ezStateMachineComponent : public ezComponent
+/// A component that holds an WStateMachineInstance using the WStateMachineDescription from the resource assigned to this component.
+class W_GAMEENGINE_DLL WStateMachineComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezStateMachineComponent, ezComponent, ezStateMachineComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WStateMachineComponent, WComponent, WStateMachineComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezStateMachineComponent
+  // WStateMachineComponent
 
 public:
-  ezStateMachineComponent();
-  ezStateMachineComponent(ezStateMachineComponent&& other);
-  ~ezStateMachineComponent();
+  WStateMachineComponent();
+  WStateMachineComponent(WStateMachineComponent&& other);
+  ~WStateMachineComponent();
 
-  ezStateMachineComponent& operator=(ezStateMachineComponent&& other);
+  WStateMachineComponent& operator=(WStateMachineComponent&& other);
 
-  /// Returns the ezStateMachineInstance owned by this component
-  ezStateMachineInstance* GetStateMachineInstance() { return m_pStateMachineInstance.Borrow(); }
-  const ezStateMachineInstance* GetStateMachineInstance() const { return m_pStateMachineInstance.Borrow(); }
+  /// Returns the WStateMachineInstance owned by this component
+  WStateMachineInstance* GetStateMachineInstance() { return m_pStateMachineInstance.Borrow(); }
+  const WStateMachineInstance* GetStateMachineInstance() const { return m_pStateMachineInstance.Borrow(); }
 
-  void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
-  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
+  void SetResource(const WStateMachineResourceHandle& hResource);                // [ property ]
+  const WStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   /// Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
@@ -142,28 +142,28 @@ public:
   const char* GetInitialState() const { return m_sInitialState; } // [ property ]
 
   /// Sets the current state with the given name.
-  bool SetState(ezStringView sName); // [ scriptable ]
+  bool SetState(WStringView sName); // [ scriptable ]
 
   /// Returns the name of the currently active state.
-  ezStringView GetCurrentState() const; // [ scriptable ]
+  WStringView GetCurrentState() const; // [ scriptable ]
 
   /// Sends a named event that state transitions can react to.
-  void FireTransitionEvent(ezStringView sEvent);
+  void FireTransitionEvent(WStringView sEvent);
 
   void SetBlackboardName(const char* szName);                         // [ property ]
   const char* GetBlackboardName() const { return m_sBlackboardName; } // [ property ]
 
 private:
-  friend class ezStateMachineState_SendMsg;
-  void SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay);
+  friend class WStateMachineState_SendMsg;
+  void SendStateChangedMsg(WMsgStateMachineStateChanged& msg, WTime delay);
   void InstantiateStateMachine();
   void Update();
 
-  ezStateMachineResourceHandle m_hResource;
-  ezHashedString m_sInitialState;
-  ezHashedString m_sBlackboardName;
+  WStateMachineResourceHandle m_hResource;
+  WHashedString m_sInitialState;
+  WHashedString m_sBlackboardName;
 
-  ezUniquePtr<ezStateMachineInstance> m_pStateMachineInstance;
+  WUniquePtr<WStateMachineInstance> m_pStateMachineInstance;
 
-  ezEventMessageSender<ezMsgStateMachineStateChanged> m_StateChangedSender; // [ event ]
+  WEventMessageSender<WMsgStateMachineStateChanged> m_StateChangedSender; // [ event ]
 };

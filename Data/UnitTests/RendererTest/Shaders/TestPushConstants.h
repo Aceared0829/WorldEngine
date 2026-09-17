@@ -2,11 +2,11 @@
 
 #include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
-BEGIN_PUSH_CONSTANTS(ezTestData)
+BEGIN_PUSH_CONSTANTS(WTestData)
 {
   FLOAT4(VertexColor);
   FLOAT4(Vertex0);
   FLOAT4(Vertex1);
   FLOAT4(Vertex2);
 }
-END_PUSH_CONSTANTS(ezTestData)
+END_PUSH_CONSTANTS(WTestData)

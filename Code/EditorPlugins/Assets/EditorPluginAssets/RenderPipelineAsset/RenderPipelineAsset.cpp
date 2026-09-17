@@ -11,64 +11,64 @@
 #include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderPipelineResourceType, 1)
-  EZ_ENUM_CONSTANTS(ezRenderPipelineResourceType::Texture, ezRenderPipelineResourceType::Buffer)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRenderPipelineResourceType, 1)
+  W_ENUM_CONSTANTS(WRenderPipelineResourceType::Texture, WRenderPipelineResourceType::Buffer)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineAssetPinInfo, ezNoBase, 2, ezRTTIDefaultAllocator<ezRenderPipelineAssetPinInfo>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineAssetPinInfo, WNoBase, 2, WRTTIDefaultAllocator<WRenderPipelineAssetPinInfo>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ResourceType", ezRenderPipelineResourceType, m_ResourceType),
-    EZ_MEMBER_PROPERTY("Name", m_sName),
+    W_ENUM_MEMBER_PROPERTY("ResourceType", WRenderPipelineResourceType, m_ResourceType),
+    W_MEMBER_PROPERTY("Name", m_sName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetMetaData, 1, ezRTTIDefaultAllocator<ezRenderPipelineAssetMetaData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineAssetMetaData, 1, WRTTIDefaultAllocator<WRenderPipelineAssetMetaData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Inputs", m_Inputs),
-    EZ_ARRAY_MEMBER_PROPERTY("Outputs", m_Outputs),
+    W_ARRAY_MEMBER_PROPERTY("Inputs", m_Inputs),
+    W_ARRAY_MEMBER_PROPERTY("Outputs", m_Outputs),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNodeGraphPin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineNodeGraphPin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 6, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineAssetDocument, 6, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
-  ezUInt64 ComputeRenderPipelineMetaDataHash(const ezRenderPipelineAssetMetaData* pMetaData)
+  WUInt64 ComputeRenderPipelineMetaDataHash(const WRenderPipelineAssetMetaData* pMetaData)
   {
-    auto HashPin = [](const ezRenderPipelineAssetPinInfo& pin, ezUInt64& ref_uiHash)
+    auto HashPin = [](const WRenderPipelineAssetPinInfo& pin, WUInt64& ref_uiHash)
     {
-      const ezUInt8 uiResourceType = pin.m_ResourceType.GetValue();
-      ref_uiHash = ezHashingUtils::xxHash64(&uiResourceType, sizeof(uiResourceType), ref_uiHash);
-      ref_uiHash = ezHashingUtils::xxHash64String(pin.m_sName, ref_uiHash);
+      const WUInt8 uiResourceType = pin.m_ResourceType.GetValue();
+      ref_uiHash = WHashingUtils::xxHash64(&uiResourceType, sizeof(uiResourceType), ref_uiHash);
+      ref_uiHash = WHashingUtils::xxHash64String(pin.m_sName, ref_uiHash);
     };
 
     if (pMetaData == nullptr)
       return 0;
 
-    ezUInt64 uiHash = 0;
-    const ezUInt32 uiInputCount = pMetaData->m_Inputs.GetCount();
-    uiHash = ezHashingUtils::xxHash64(&uiInputCount, sizeof(uiInputCount), uiHash);
-    for (const ezRenderPipelineAssetPinInfo& pin : pMetaData->m_Inputs)
+    WUInt64 uiHash = 0;
+    const WUInt32 uiInputCount = pMetaData->m_Inputs.GetCount();
+    uiHash = WHashingUtils::xxHash64(&uiInputCount, sizeof(uiInputCount), uiHash);
+    for (const WRenderPipelineAssetPinInfo& pin : pMetaData->m_Inputs)
     {
       HashPin(pin, uiHash);
     }
 
-    const ezUInt32 uiOutputCount = pMetaData->m_Outputs.GetCount();
-    uiHash = ezHashingUtils::xxHash64(&uiOutputCount, sizeof(uiOutputCount), uiHash);
-    for (const ezRenderPipelineAssetPinInfo& pin : pMetaData->m_Outputs)
+    const WUInt32 uiOutputCount = pMetaData->m_Outputs.GetCount();
+    uiHash = WHashingUtils::xxHash64(&uiOutputCount, sizeof(uiOutputCount), uiHash);
+    for (const WRenderPipelineAssetPinInfo& pin : pMetaData->m_Outputs)
     {
       HashPin(pin, uiHash);
     }
@@ -76,49 +76,49 @@ namespace
     return uiHash;
   }
 
-  ezColor GetPinColor(bool bIsBuffer, ezStringView sName)
+  WColor GetPinColor(bool bIsBuffer, WStringView sName)
   {
     if (bIsBuffer)
-      return ezColorScheme::DarkUI(ezColorScheme::Teal);
+      return WColorScheme::DarkUI(WColorScheme::Teal);
 
     if (sName == "DepthStencil")
-      return ezColorScheme::DarkUI(ezColorScheme::Pink);
+      return WColorScheme::DarkUI(WColorScheme::Pink);
 
-    return ezColorScheme::DarkUI(ezColorScheme::Blue);
+    return WColorScheme::DarkUI(WColorScheme::Blue);
   }
 } // namespace
 
-ezRenderPipelineNodeGraphPin::ezRenderPipelineNodeGraphPin(ezVisualGraphPin::Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject, ezRenderPipelineResourceType::Enum resourceType)
-  : ezVisualGraphPin(type, szName, color, pObject)
+WRenderPipelineNodeGraphPin::WRenderPipelineNodeGraphPin(WVisualGraphPin::Type type, const char* szName, const WColorGammaUB& color, const WDocumentObject* pObject, WRenderPipelineResourceType::Enum resourceType)
+  : WVisualGraphPin(type, szName, color, pObject)
   , m_ResourceType(resourceType)
 {
 }
 
-ezRenderPipelineNodeGraphPin::~ezRenderPipelineNodeGraphPin() = default;
+WRenderPipelineNodeGraphPin::~WRenderPipelineNodeGraphPin() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezRenderPipelineNodeManager::ezRenderPipelineNodeManager()
+WRenderPipelineNodeManager::WRenderPipelineNodeManager()
 {
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezRenderPipelineNodeManager::AssetCuratorEventHandler, this));
-  m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezRenderPipelineNodeManager::NodeEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WRenderPipelineNodeManager::AssetCuratorEventHandler, this));
+  m_NodeEvents.AddEventHandler(WMakeDelegate(&WRenderPipelineNodeManager::NodeEventHandler, this));
 }
 
-ezRenderPipelineNodeManager::~ezRenderPipelineNodeManager()
+WRenderPipelineNodeManager::~WRenderPipelineNodeManager()
 {
-  m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineNodeManager::NodeEventHandler, this));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineNodeManager::AssetCuratorEventHandler, this));
+  m_NodeEvents.RemoveEventHandler(WMakeDelegate(&WRenderPipelineNodeManager::NodeEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WRenderPipelineNodeManager::AssetCuratorEventHandler, this));
 }
 
-void ezRenderPipelineNodeManager::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+void WRenderPipelineNodeManager::AssetCuratorEventHandler(const WAssetCuratorEvent& e)
 {
-  if (e.m_Type != ezAssetCuratorEvent::Type::AssetUpdated || e.m_pInfo == nullptr || e.m_pInfo->m_pAssetInfo->GetManager() != GetDocument()->GetDocumentManager())
+  if (e.m_Type != WAssetCuratorEvent::Type::AssetUpdated || e.m_pInfo == nullptr || e.m_pInfo->m_pAssetInfo->GetManager() != GetDocument()->GetDocumentManager())
     return;
 
-  const ezRenderPipelineAssetMetaData* pMetaData = e.m_pInfo->m_pAssetInfo->m_Info->GetMetaInfo<ezRenderPipelineAssetMetaData>();
-  const ezUInt64 uiMetaDataHash = ComputeRenderPipelineMetaDataHash(pMetaData);
+  const WRenderPipelineAssetMetaData* pMetaData = e.m_pInfo->m_pAssetInfo->m_Info->GetMetaInfo<WRenderPipelineAssetMetaData>();
+  const WUInt64 uiMetaDataHash = ComputeRenderPipelineMetaDataHash(pMetaData);
 
-  ezHybridArray<const ezDocumentObject*, 4> subGraphs;
+  WHybridArray<const WDocumentObject*, 4> subGraphs;
   // Find sub-graphs that match the changed asset and have a different meta-data hash.
   for (auto it = m_SubGraphs.GetIterator(); it.IsValid(); ++it)
   {
@@ -130,15 +130,15 @@ void ezRenderPipelineNodeManager::AssetCuratorEventHandler(const ezAssetCuratorE
   if (!subGraphs.IsEmpty())
   {
     // As we have to modify the document, we need to create a transaction. Undoing this one might fail though but still better than clearing the undo stack.
-    auto pAccessor = static_cast<ezVisualGraphCommandAccessor*>(GetDocument()->GetObjectAccessor());
+    auto pAccessor = static_cast<WVisualGraphCommandAccessor*>(GetDocument()->GetObjectAccessor());
     pAccessor->StartTransaction("Update Sub-Graph");
-    for (const ezDocumentObject* pObject : subGraphs)
+    for (const WDocumentObject* pObject : subGraphs)
     {
-      ezTempHybridArray<ezVisualGraphCommandAccessor::ConnectionInfo, 16> oldConnections;
-      ezStatus res = pAccessor->DisconnectAllPins(pObject, oldConnections);
+      WTempHybridArray<WVisualGraphCommandAccessor::ConnectionInfo, 16> oldConnections;
+      WStatus res = pAccessor->DisconnectAllPins(pObject, oldConnections);
       if (res.Failed())
       {
-        ezLog::Warning("Failed to DisconnectAllPins while a pipeline sub-graph was changed: {}", res.GetMessageString());
+        WLog::Warning("Failed to DisconnectAllPins while a pipeline sub-graph was changed: {}", res.GetMessageString());
       }
 
       TryRecreatePins(pObject);
@@ -146,48 +146,48 @@ void ezRenderPipelineNodeManager::AssetCuratorEventHandler(const ezAssetCuratorE
       res = pAccessor->TryReconnectAllPins(pObject, oldConnections);
       if (res.Failed())
       {
-        ezLog::Warning("Failed to TryReconnectAllPins while a pipeline sub-graph was changed: {}", res.GetMessageString());
+        WLog::Warning("Failed to TryReconnectAllPins while a pipeline sub-graph was changed: {}", res.GetMessageString());
       }
     }
     pAccessor->FinishTransaction();
   }
 }
 
-void ezRenderPipelineNodeManager::NodeEventHandler(const ezVisualGraphObjectManagerEvent& e)
+void WRenderPipelineNodeManager::NodeEventHandler(const WVisualGraphObjectManagerEvent& e)
 {
-  if (e.m_EventType == ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved)
+  if (e.m_EventType == WVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved)
   {
     m_SubGraphs.Remove(e.m_pObject->GetGuid());
   }
 }
 
-bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WRenderPipelineNodeManager::InternalIsNode(const WDocumentObject* pObject) const
 {
   auto pType = pObject->GetTypeAccessor().GetType();
-  return pType->IsDerivedFrom<ezRenderPipelineNode>() || pType->IsDerivedFrom<ezExtractor>();
+  return pType->IsDerivedFrom<WRenderPipelineNode>() || pType->IsDerivedFrom<WExtractor>();
 }
 
-void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
+void WRenderPipelineNodeManager::InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node)
 {
   auto pType = pObject->GetTypeAccessor().GetType();
-  if (!pType->IsDerivedFrom<ezRenderPipelineNode>())
+  if (!pType->IsDerivedFrom<WRenderPipelineNode>())
     return;
 
   // SubGraph nodes get their pins from the referenced asset's meta data.
-  if (pType == ezGetStaticRTTI<ezSubGraphNode>())
+  if (pType == WGetStaticRTTI<WSubGraphNode>())
   {
     SubGraphCache& cache = m_SubGraphs[pObject->GetGuid()];
     cache.m_pObject = pObject;
-    cache.m_SourceAssetGuid = ezUuid();
+    cache.m_SourceAssetGuid = WUuid();
     cache.m_uiMetaDataHash = 0;
 
-    const ezString sPipeline = pObject->GetTypeAccessor().GetValue("Pipeline").ConvertTo<ezString>();
+    const WString sPipeline = pObject->GetTypeAccessor().GetValue("Pipeline").ConvertTo<WString>();
 
-    auto pSubAsset = ezAssetCurator::GetSingleton()->FindSubAsset(sPipeline);
+    auto pSubAsset = WAssetCurator::GetSingleton()->FindSubAsset(sPipeline);
     if (!pSubAsset.isValid())
       return;
 
-    const ezRenderPipelineAssetMetaData* pMeta = pSubAsset->m_pAssetInfo->m_Info->GetMetaInfo<ezRenderPipelineAssetMetaData>();
+    const WRenderPipelineAssetMetaData* pMeta = pSubAsset->m_pAssetInfo->m_Info->GetMetaInfo<WRenderPipelineAssetMetaData>();
 
     cache.m_SourceAssetGuid = pSubAsset->m_Data.m_Guid;
     cache.m_uiMetaDataHash = ComputeRenderPipelineMetaDataHash(pMeta);
@@ -195,64 +195,64 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
     if (pMeta == nullptr)
       return;
 
-    for (const ezRenderPipelineAssetPinInfo& pinInfo : pMeta->m_Inputs)
+    for (const WRenderPipelineAssetPinInfo& pinInfo : pMeta->m_Inputs)
     {
-      const ezColor pinColor = GetPinColor(pinInfo.m_ResourceType == ezRenderPipelineResourceType::Buffer, pinInfo.m_sName);
+      const WColor pinColor = GetPinColor(pinInfo.m_ResourceType == WRenderPipelineResourceType::Buffer, pinInfo.m_sName);
 
-      auto pPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Input, pinInfo.m_sName, pinColor, pObject, pinInfo.m_ResourceType);
+      auto pPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Input, pinInfo.m_sName, pinColor, pObject, pinInfo.m_ResourceType);
       ref_node.m_Inputs.PushBack(std::move(pPin));
     }
 
-    for (const ezRenderPipelineAssetPinInfo& pinInfo : pMeta->m_Outputs)
+    for (const WRenderPipelineAssetPinInfo& pinInfo : pMeta->m_Outputs)
     {
-      const ezColor pinColor = GetPinColor(pinInfo.m_ResourceType == ezRenderPipelineResourceType::Buffer, pinInfo.m_sName);
+      const WColor pinColor = GetPinColor(pinInfo.m_ResourceType == WRenderPipelineResourceType::Buffer, pinInfo.m_sName);
 
-      auto pPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Output, pinInfo.m_sName, pinColor, pObject, pinInfo.m_ResourceType);
+      auto pPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Output, pinInfo.m_sName, pinColor, pObject, pinInfo.m_ResourceType);
       ref_node.m_Outputs.PushBack(std::move(pPin));
     }
 
     return;
   }
 
-  if (pType->IsDerivedFrom<ezSwitchBasePass>())
+  if (pType->IsDerivedFrom<WSwitchBasePass>())
   {
-    ezDynamicArray<ezString> inputNames;
+    WDynamicArray<WString> inputNames;
     GetDynamicPinNames(pObject, "Values", "", inputNames);
 
-    const bool bBuffer = pType->IsDerivedFrom<ezBufferSwitchPass>();
-    const ezRenderPipelineResourceType::Enum resourceType = bBuffer ? ezRenderPipelineResourceType::Buffer : ezRenderPipelineResourceType::Texture;
+    const bool bBuffer = pType->IsDerivedFrom<WBufferSwitchPass>();
+    const WRenderPipelineResourceType::Enum resourceType = bBuffer ? WRenderPipelineResourceType::Buffer : WRenderPipelineResourceType::Texture;
 
-    for (const ezString& sInputName : inputNames)
+    for (const WString& sInputName : inputNames)
     {
-      const ezColor pinColor = GetPinColor(bBuffer, sInputName);
+      const WColor pinColor = GetPinColor(bBuffer, sInputName);
 
-      auto pPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Input, sInputName, pinColor, pObject, resourceType);
+      auto pPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Input, sInputName, pinColor, pObject, resourceType);
       ref_node.m_Inputs.PushBack(std::move(pPin));
     }
   }
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)
   {
-    if (pProp->GetCategory() != ezPropertyCategory::Member)
+    if (pProp->GetCategory() != WPropertyCategory::Member)
       continue;
 
-    if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+    if (pProp->GetAttributeByType<WHiddenAttribute>() != nullptr)
       continue;
 
-    if (!pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePin>())
+    if (!pProp->GetSpecificType()->IsDerivedFrom<WRenderPipelineNodePin>())
       continue;
 
-    const ezRTTI* pPinType = pProp->GetSpecificType();
-    const bool bBuffer = pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferInputPin>() ||
-                         pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferOutputPin>() ||
-                         pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferPassThroughPin>();
-    const ezRenderPipelineResourceType::Enum resourceType = bBuffer ? ezRenderPipelineResourceType::Buffer : ezRenderPipelineResourceType::Texture;
+    const WRTTI* pPinType = pProp->GetSpecificType();
+    const bool bBuffer = pPinType->IsDerivedFrom<WRenderPipelineNodeBufferInputPin>() ||
+                         pPinType->IsDerivedFrom<WRenderPipelineNodeBufferOutputPin>() ||
+                         pPinType->IsDerivedFrom<WRenderPipelineNodeBufferPassThroughPin>();
+    const WRenderPipelineResourceType::Enum resourceType = bBuffer ? WRenderPipelineResourceType::Buffer : WRenderPipelineResourceType::Texture;
 
-    ezColor pinColor;
-    if (const ezColorAttribute* pAttr = pProp->GetAttributeByType<ezColorAttribute>())
+    WColor pinColor;
+    if (const WColorAttribute* pAttr = pProp->GetAttributeByType<WColorAttribute>())
     {
       pinColor = pAttr->GetColor();
     }
@@ -261,81 +261,81 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
       pinColor = GetPinColor(bBuffer, pProp->GetPropertyName());
     }
 
-    if (pPinType->IsDerivedFrom<ezRenderPipelineNodeInputPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferInputPin>())
+    if (pPinType->IsDerivedFrom<WRenderPipelineNodeInputPin>() || pPinType->IsDerivedFrom<WRenderPipelineNodeBufferInputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject, resourceType);
+      auto pPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject, resourceType);
       ref_node.m_Inputs.PushBack(std::move(pPin));
     }
-    else if (pPinType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferOutputPin>())
+    else if (pPinType->IsDerivedFrom<WRenderPipelineNodeOutputPin>() || pPinType->IsDerivedFrom<WRenderPipelineNodeBufferOutputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject, resourceType);
+      auto pPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject, resourceType);
       ref_node.m_Outputs.PushBack(std::move(pPin));
     }
-    else if (pPinType->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferPassThroughPin>())
+    else if (pPinType->IsDerivedFrom<WRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<WRenderPipelineNodeBufferPassThroughPin>())
     {
-      auto pInputPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject, resourceType);
+      auto pInputPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject, resourceType);
       ref_node.m_Inputs.PushBack(std::move(pInputPin));
 
-      auto pOutputPin = EZ_DEFAULT_NEW(ezRenderPipelineNodeGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject, resourceType);
+      auto pOutputPin = W_DEFAULT_NEW(WRenderPipelineNodeGraphPin, WVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject, resourceType);
       ref_node.m_Outputs.PushBack(std::move(pOutputPin));
     }
   }
 }
 
-void ezRenderPipelineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WRenderPipelineNodeManager::GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  ezRTTI::ForEachDerivedType<ezRenderPipelineNode>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WRenderPipelineNode>(
+    [&](const WRTTI* pRtti)
     { out_types.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    WRTTI::ForEachOptions::ExcludeAbstract);
 
-  ezRTTI::ForEachDerivedType<ezExtractor>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WExtractor>(
+    [&](const WRTTI* pRtti)
     { out_types.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeAbstract);
+    WRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
+WStatus WRenderPipelineNodeManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const
 {
-  const ezRenderPipelineNodeGraphPin& sourcePin = ezStaticCast<const ezRenderPipelineNodeGraphPin&>(source);
-  const ezRenderPipelineNodeGraphPin& targetPin = ezStaticCast<const ezRenderPipelineNodeGraphPin&>(target);
+  const WRenderPipelineNodeGraphPin& sourcePin = WStaticCast<const WRenderPipelineNodeGraphPin&>(source);
+  const WRenderPipelineNodeGraphPin& targetPin = WStaticCast<const WRenderPipelineNodeGraphPin&>(target);
 
   out_result = CanConnectResult::ConnectNever;
 
   if (sourcePin.m_ResourceType != targetPin.m_ResourceType)
-    return ezStatus("Can't connect texture and buffer pins");
+    return WStatus("Can't connect texture and buffer pins");
 
   if (WouldConnectionCreateCircle(source, target))
-    return ezStatus("Connecting these pins would create a circle in the graph.");
+    return WStatus("Connecting these pins would create a circle in the graph.");
 
   out_result = CanConnectResult::ConnectNto1;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
+WStatus WRenderPipelineNodeManager::InternalCanAdd(const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const
 {
-  if (pRtti->IsDerivedFrom<ezExtractor>())
+  if (pRtti->IsDerivedFrom<WExtractor>())
   {
-    for (const ezDocumentObject* pObject : GetRootObject()->GetChildren())
+    for (const WDocumentObject* pObject : GetRootObject()->GetChildren())
     {
       if (pObject->GetType() == pRtti)
-        return ezStatus(ezFmt("The pipeline may only contain one extractor of type '{}'.", pRtti->GetTypeName()));
+        return WStatus(WFmt("The pipeline may only contain one extractor of type '{}'.", pRtti->GetTypeName()));
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-bool ezRenderPipelineNodeManager::InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool WRenderPipelineNodeManager::InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const
 {
-  if (pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezSwitchBasePass>())
+  if (pObject->GetTypeAccessor().GetType()->IsDerivedFrom<WSwitchBasePass>())
   {
-    return ezStringUtils::IsEqual(pProp->GetPropertyName(), "Values");
+    return WStringUtils::IsEqual(pProp->GetPropertyName(), "Values");
   }
 
-  if (pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezSubGraphNode>())
+  if (pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WSubGraphNode>())
   {
-    return ezStringUtils::IsEqual(pProp->GetPropertyName(), "Pipeline");
+    return WStringUtils::IsEqual(pProp->GetPropertyName(), "Pipeline");
   }
 
   return false;
@@ -343,35 +343,35 @@ bool ezRenderPipelineNodeManager::InternalIsDynamicPinProperty(const ezDocumentO
 
 //////////////////////////////////////////////////////////////////////////
 
-ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(ezStringView sDocumentPath)
-  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
+WRenderPipelineAssetDocument::WRenderPipelineAssetDocument(WStringView sDocumentPath)
+  : WAssetDocument(sDocumentPath, W_DEFAULT_NEW(WRenderPipelineNodeManager), WAssetDocEngineConnection::FullObjectMirroring)
 {
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
+  m_pObjectAccessor = W_DEFAULT_NEW(WVisualGraphCommandAccessor, GetCommandHistory());
 }
 
-ezRenderPipelineAssetDocument::~ezRenderPipelineAssetDocument() = default;
+WRenderPipelineAssetDocument::~WRenderPipelineAssetDocument() = default;
 
-ezStatus ezRenderPipelineAssetDocument::Validate() const
+WStatus WRenderPipelineAssetDocument::Validate() const
 {
-  const ezRTTI* pInputTypes[] = {ezGetStaticRTTI<ezSubGraphTextureInputNode>(), ezGetStaticRTTI<ezSubGraphBufferInputNode>()};
-  const ezRTTI* pOutputTypes[] = {ezGetStaticRTTI<ezSubGraphTextureOutputNode>(), ezGetStaticRTTI<ezSubGraphBufferOutputNode>()};
-  const ezRenderPipelineNodeManager* pManager = static_cast<const ezRenderPipelineNodeManager*>(GetObjectManager());
+  const WRTTI* pInputTypes[] = {WGetStaticRTTI<WSubGraphTextureInputNode>(), WGetStaticRTTI<WSubGraphBufferInputNode>()};
+  const WRTTI* pOutputTypes[] = {WGetStaticRTTI<WSubGraphTextureOutputNode>(), WGetStaticRTTI<WSubGraphBufferOutputNode>()};
+  const WRenderPipelineNodeManager* pManager = static_cast<const WRenderPipelineNodeManager*>(GetObjectManager());
 
-  ezSet<ezString> inputNames, outputNames;
+  WSet<WString> inputNames, outputNames;
 
-  for (const ezDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
+  for (const WDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
   {
-    const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+    const WRTTI* pType = pObject->GetTypeAccessor().GetType();
 
-    if (pType->IsDerivedFrom<ezSwitchBasePass>())
+    if (pType->IsDerivedFrom<WSwitchBasePass>())
     {
-      ezSet<ezInt32> uniqueValues;
-      const ezVariantArray& values = pObject->GetTypeAccessor().GetValue("Values").Get<ezVariantArray>();
-      for (const ezVariant& value : values)
+      WSet<WInt32> uniqueValues;
+      const WVariantArray& values = pObject->GetTypeAccessor().GetValue("Values").Get<WVariantArray>();
+      for (const WVariant& value : values)
       {
-        const ezInt32 iValue = value.ConvertTo<ezInt32>();
+        const WInt32 iValue = value.ConvertTo<WInt32>();
         if (uniqueValues.Contains(iValue))
-          return ezStatus(ezFmt("Switch '{}' contains duplicate value '{}'.", pObject->GetTypeAccessor().GetValue("Name"), iValue));
+          return WStatus(WFmt("Switch '{}' contains duplicate value '{}'.", pObject->GetTypeAccessor().GetValue("Name"), iValue));
 
         uniqueValues.Insert(iValue);
       }
@@ -383,100 +383,100 @@ ezStatus ezRenderPipelineAssetDocument::Validate() const
     if (!bIsInput && !bIsOutput)
       continue;
 
-    const ezString sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+    const WString sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
 
     if (sName.IsEmpty())
     {
-      return ezStatus(ezFmt("{} node '{}' has an empty name.", bIsInput ? "Input" : "Output", pType->GetTypeName()));
+      return WStatus(WFmt("{} node '{}' has an empty name.", bIsInput ? "Input" : "Output", pType->GetTypeName()));
     }
 
-    ezSet<ezString>& names = bIsInput ? inputNames : outputNames;
+    WSet<WString>& names = bIsInput ? inputNames : outputNames;
     if (names.Contains(sName))
     {
-      return ezStatus(ezFmt("{} node '{}' has a duplicate name '{}'.", bIsInput ? "Input" : "Output", pType->GetTypeName(), sName));
+      return WStatus(WFmt("{} node '{}' has a duplicate name '{}'.", bIsInput ? "Input" : "Output", pType->GetTypeName(), sName));
     }
     names.Insert(sName);
   }
 
-  for (const ezDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
+  for (const WDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
   {
     const bool isNode = pManager->IsNode(pObject);
     if (!isNode)
       continue;
 
-    for (const ezUniquePtr<const ezVisualGraphPin>& pOutputPin : pManager->GetOutputPins(pObject))
+    for (const WUniquePtr<const WVisualGraphPin>& pOutputPin : pManager->GetOutputPins(pObject))
     {
-      ezUInt32 uiPassThroughConnections = 0;
-      for (const ezVisualGraphConnection* pConnection : pManager->GetConnections(*pOutputPin))
+      WUInt32 uiPassThroughConnections = 0;
+      for (const WVisualGraphConnection* pConnection : pManager->GetConnections(*pOutputPin))
       {
-        const ezVisualGraphPin& targetPin = pConnection->GetTargetPin();
-        const ezRTTI* pTargetType = targetPin.GetParent()->GetType();
+        const WVisualGraphPin& targetPin = pConnection->GetTargetPin();
+        const WRTTI* pTargetType = targetPin.GetParent()->GetType();
 
-        bool bIsPassThrough = pTargetType->IsDerivedFrom<ezSwitchBasePass>();
-        if (const ezAbstractProperty* pProperty = pTargetType->FindPropertyByName(targetPin.GetName()))
+        bool bIsPassThrough = pTargetType->IsDerivedFrom<WSwitchBasePass>();
+        if (const WAbstractProperty* pProperty = pTargetType->FindPropertyByName(targetPin.GetName()))
         {
-          const ezRTTI* pPinType = pProperty->GetSpecificType();
-          bIsPassThrough |= pPinType->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferPassThroughPin>();
+          const WRTTI* pPinType = pProperty->GetSpecificType();
+          bIsPassThrough |= pPinType->IsDerivedFrom<WRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<WRenderPipelineNodeBufferPassThroughPin>();
         }
 
         if (bIsPassThrough && ++uiPassThroughConnections > 1)
         {
-          return ezStatus(ezFmt("Output pin '{}.{}' is connected to more than one pass-through input.", pObject->GetTypeAccessor().GetValue("Name"), pOutputPin->GetName()));
+          return WStatus(WFmt("Output pin '{}.{}' is connected to more than one pass-through input.", pObject->GetTypeAccessor().GetValue("Name"), pOutputPin->GetName()));
         }
       }
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+  const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_SUCCEED_OR_RETURN(Validate());
+  W_SUCCEED_OR_RETURN(Validate());
 
   if (!GetLoadingErrors().IsEmpty())
   {
-    ezStringBuilder s("Cannot transform document because it had errors during loading:\n\n");
-    for (const ezString& err : GetLoadingErrors())
+    WStringBuilder s("Cannot transform document because it had errors during loading:\n\n");
+    for (const WString& err : GetLoadingErrors())
     {
       s.Append(err, "\n");
     }
-    return ezTransformStatus(s.GetView());
+    return WTransformStatus(s.GetView());
   }
 
-  return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
+  return WAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
 
-ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WRenderPipelineAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  EZ_REPORT_FAILURE("Should not be called");
-  return ezTransformStatus();
+  W_REPORT_FAILURE("Should not be called");
+  return WTransformStatus();
 }
 
-void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WRenderPipelineAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  ezRenderPipelineAssetMetaData* pMeta = EZ_DEFAULT_NEW(ezRenderPipelineAssetMetaData);
+  WRenderPipelineAssetMetaData* pMeta = W_DEFAULT_NEW(WRenderPipelineAssetMetaData);
 
   struct BoundaryNodeType
   {
-    const ezRTTI* m_pType;
+    const WRTTI* m_pType;
     bool m_bIsInput;
-    ezRenderPipelineResourceType::Enum m_ResourceType;
+    WRenderPipelineResourceType::Enum m_ResourceType;
   };
 
   const BoundaryNodeType boundaryTypes[] = {
-    {ezGetStaticRTTI<ezSubGraphTextureInputNode>(), true, ezRenderPipelineResourceType::Texture},
-    {ezGetStaticRTTI<ezSubGraphBufferInputNode>(), true, ezRenderPipelineResourceType::Buffer},
-    {ezGetStaticRTTI<ezSubGraphTextureOutputNode>(), false, ezRenderPipelineResourceType::Texture},
-    {ezGetStaticRTTI<ezSubGraphBufferOutputNode>(), false, ezRenderPipelineResourceType::Buffer},
+    {WGetStaticRTTI<WSubGraphTextureInputNode>(), true, WRenderPipelineResourceType::Texture},
+    {WGetStaticRTTI<WSubGraphBufferInputNode>(), true, WRenderPipelineResourceType::Buffer},
+    {WGetStaticRTTI<WSubGraphTextureOutputNode>(), false, WRenderPipelineResourceType::Texture},
+    {WGetStaticRTTI<WSubGraphBufferOutputNode>(), false, WRenderPipelineResourceType::Buffer},
   };
 
-  for (const ezDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
+  for (const WDocumentObject* pObject : GetObjectManager()->GetRootObject()->GetChildren())
   {
-    const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+    const WRTTI* pType = pObject->GetTypeAccessor().GetType();
 
     for (const BoundaryNodeType& boundary : boundaryTypes)
     {
@@ -485,12 +485,12 @@ void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 
       auto& info = (boundary.m_bIsInput ? pMeta->m_Inputs : pMeta->m_Outputs).ExpandAndGetRef();
       info.m_ResourceType = boundary.m_ResourceType;
-      info.m_sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+      info.m_sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
       break;
     }
   }
 
-  auto sortByTypeAndName = [](const ezRenderPipelineAssetPinInfo& a, const ezRenderPipelineAssetPinInfo& b)
+  auto sortByTypeAndName = [](const WRenderPipelineAssetPinInfo& a, const WRenderPipelineAssetPinInfo& b)
   {
     if (a.m_ResourceType != b.m_ResourceType)
       return a.m_ResourceType < b.m_ResourceType;
@@ -504,41 +504,41 @@ void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   pInfo->m_MetaInfo.PushBack(pMeta);
 }
 
-void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+void WRenderPipelineAssetDocument::InternalGetMetaDataHash(const WDocumentObject* pObject, WUInt64& inout_uiHash) const
 {
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
-void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& ref_graph) const
+void WRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(WAbstractObjectGraph& ref_graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(ref_graph);
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(ref_graph);
 }
 
-void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& ref_graph, bool bUndoable)
+void WRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& ref_graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(ref_graph, bUndoable);
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(ref_graph, bUndoable);
 }
 
-void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
+void WRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(WDynamicArray<WString>& out_mimeTypes) const
 {
-  out_mimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
+  out_mimeTypes.PushBack("application/WEditor.RenderPipelineGraph");
 }
 
-bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool WRenderPipelineAssetDocument::CopySelectedObjects(WAbstractObjectGraph& out_objectGraph, WStringBuilder& out_MimeType) const
 {
-  out_MimeType = "application/ezEditor.RenderPipelineGraph";
+  out_MimeType = "application/WEditor.RenderPipelineGraph";
 
-  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  const WVisualGraphObjectManager* pManager = static_cast<const WVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
+bool WRenderPipelineAssetDocument::Paste(const WArrayPtr<PasteInfo>& info, const WAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, WStringView sMimeType)
 {
-  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  WVisualGraphObjectManager* pManager = static_cast<WVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, WQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

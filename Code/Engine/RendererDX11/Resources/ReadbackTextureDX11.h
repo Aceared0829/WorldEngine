@@ -6,22 +6,22 @@ struct ID3D11Resource;
 struct D3D11_TEXTURE2D_DESC;
 struct D3D11_TEXTURE3D_DESC;
 struct D3D11_SUBRESOURCE_DATA;
-class ezGALDeviceDX11;
+class WGALDeviceDX11;
 
-class ezGALReadbackTextureDX11 : public ezGALReadbackTexture
+class WGALReadbackTextureDX11 : public WGALReadbackTexture
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const { return m_pDXTexture; }
+  W_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const { return m_pDXTexture; }
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALReadbackTextureDX11(const ezGALTextureCreationDescription& Description);
-  ~ezGALReadbackTextureDX11();
+  WGALReadbackTextureDX11(const WGALTextureCreationDescription& Description);
+  ~WGALReadbackTextureDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:

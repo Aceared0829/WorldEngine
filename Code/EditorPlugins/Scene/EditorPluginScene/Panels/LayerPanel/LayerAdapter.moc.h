@@ -5,20 +5,20 @@
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 
-class ezScene2Document;
-struct ezScene2LayerEvent;
-struct ezDocumentEvent;
+class WScene2Document;
+struct WScene2LayerEvent;
+struct WDocumentEvent;
 
-/// Custom adapter for layers, used in ezQtLayerPanel.
-class EZ_EDITORPLUGINSCENE_DLL ezQtLayerAdapter : public ezQtDocumentTreeModelAdapter
+/// Custom adapter for layers, used in WQtLayerPanel.
+class W_EDITORPLUGINSCENE_DLL WQtLayerAdapter : public WQtDocumentTreeModelAdapter
 {
   Q_OBJECT;
 
 public:
-  ezQtLayerAdapter(ezScene2Document* pDocument);
-  ~ezQtLayerAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
-  virtual bool setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const override;
+  WQtLayerAdapter(WScene2Document* pDocument);
+  ~WQtLayerAdapter();
+  virtual QVariant data(const WDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
+  virtual bool setData(const WDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const override;
 
   enum UserRoles
   {
@@ -26,24 +26,24 @@ public:
   };
 
 private:
-  void LayerEventHandler(const ezScene2LayerEvent& e);
-  void DocumentEventHander(const ezDocumentEvent& e);
+  void LayerEventHandler(const WScene2LayerEvent& e);
+  void DocumentEventHander(const WDocumentEvent& e);
 
 private:
-  ezScene2Document* m_pSceneDocument;
-  ezEvent<const ezScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
-  ezEvent<const ezDocumentEvent&>::Unsubscriber m_DocumentEventUnsubscriber;
-  ezUuid m_CurrentActiveLayer;
+  WScene2Document* m_pSceneDocument;
+  WEvent<const WScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
+  WEvent<const WDocumentEvent&>::Unsubscriber m_DocumentEventUnsubscriber;
+  WUuid m_CurrentActiveLayer;
 };
 
-/// Custom delegate for layers, used in ezQtLayerPanel.
+/// Custom delegate for layers, used in WQtLayerPanel.
 /// Provides buttons to toggle the layer visible / loaded states.
-/// Relies on ezQtLayerAdapter to trigger updates and provide the LayerGuid.
-class ezQtLayerDelegate : public ezQtItemDelegate
+/// Relies on WQtLayerAdapter to trigger updates and provide the LayerGuid.
+class WQtLayerDelegate : public WQtItemDelegate
 {
   Q_OBJECT
 public:
-  ezQtLayerDelegate(QObject* pParent, ezScene2Document* pDocument);
+  WQtLayerDelegate(QObject* pParent, WScene2Document* pDocument);
 
   virtual bool mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   virtual bool mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
@@ -55,18 +55,18 @@ public:
   static QRect GetLoadedIconRect(const QStyleOptionViewItem& opt);
 
   bool m_bPressed = false;
-  ezScene2Document* m_pDocument = nullptr;
+  WScene2Document* m_pDocument = nullptr;
 };
 
-/// Custom model for layers, used in ezQtLayerPanel.
-class ezQtLayerModel : public ezQtDocumentTreeModel
+/// Custom model for layers, used in WQtLayerPanel.
+class WQtLayerModel : public WQtDocumentTreeModel
 {
   Q_OBJECT
 
 public:
-  ezQtLayerModel(ezScene2Document* pDocument);
-  ~ezQtLayerModel() = default;
+  WQtLayerModel(WScene2Document* pDocument);
+  ~WQtLayerModel() = default;
 
 private:
-  ezScene2Document* m_pDocument = nullptr;
+  WScene2Document* m_pDocument = nullptr;
 };

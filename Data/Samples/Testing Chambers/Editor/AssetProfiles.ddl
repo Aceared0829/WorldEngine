@@ -7,7 +7,7 @@ AssetProfiles
 			o
 			{
 				Uuid %id{uint64{10386675348308922682,207938457348376428}}
-				string %t{"ezCoreRenderProfileConfig"}
+				string %t{"WCoreRenderProfileConfig"}
 				uint32 %v{1}
 				p
 				{
@@ -20,7 +20,7 @@ AssetProfiles
 			o
 			{
 				Uuid %id{uint64{385040311378845408,1178138948935131612}}
-				string %t{"ezRenderPipelineProfileConfig"}
+				string %t{"WRenderPipelineProfileConfig"}
 				uint32 %v{1}
 				p
 				{
@@ -34,7 +34,7 @@ AssetProfiles
 			o
 			{
 				Uuid %id{uint64{6024007684197752254,9388485812360408817}}
-				string %t{"ezTextureAssetProfileConfig"}
+				string %t{"WTextureAssetProfileConfig"}
 				uint32 %v{1}
 				p
 				{
@@ -44,7 +44,7 @@ AssetProfiles
 			o
 			{
 				Uuid %id{uint64{3821783988184046669,15370839493438779908}}
-				string %t{"ezXRConfig"}
+				string %t{"WXRConfig"}
 				uint32 %v{2}
 				p
 				{
@@ -55,7 +55,7 @@ AssetProfiles
 			o
 			{
 				Uuid %id{uint64{8341519292606584866,16089769571062246001}}
-				string %t{"ezPlatformProfile"}
+				string %t{"WPlatformProfile"}
 				uint32 %v{1}
 				string %n{"root"}
 				p

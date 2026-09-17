@@ -3,28 +3,28 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
 
-class ezMaterialAssetDocumentManager : public ezAssetDocumentManager
+class WMaterialAssetDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialAssetDocumentManager, WAssetDocumentManager);
 
 public:
-  ezMaterialAssetDocumentManager();
-  ~ezMaterialAssetDocumentManager();
+  WMaterialAssetDocumentManager();
+  ~WMaterialAssetDocumentManager();
 
-  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const override;
-  virtual bool IsOutputUpToDate(ezStringView sDocumentPath, ezStringView sOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor) override;
-  virtual ezStringView GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const override;
+  virtual WString GetRelativeOutputFileName(const WAssetDocumentTypeDescriptor* pTypeDescriptor, WStringView sDataDirectory, WStringView sDocumentPath, WStringView sOutputTag, const WPlatformProfile* pAssetProfile) const override;
+  virtual bool IsOutputUpToDate(WStringView sDocumentPath, WStringView sOutputTag, WUInt64 uiHash, const WAssetDocumentTypeDescriptor* pTypeDescriptor) override;
+  virtual WStringView GetOutputDocumentType(const WAssetDocumentTypeDescriptor* pTypeDesc, WStringView sOutputTag, const WPlatformProfile* pAssetProfile = nullptr) const override;
 
   static const char* const s_szShaderOutputTag;
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
 
-  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+  virtual void InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

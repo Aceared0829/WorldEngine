@@ -4,28 +4,28 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RmlUiPlugin/RmlUiDataBinding.h>
 
-class ezBlackboard;
+class WBlackboard;
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   struct EntryInfo
   {
-    ezBlackboard* m_pBlackboard = nullptr;
-    ezHashedString m_sName;
-    ezUInt32 m_uiChangeCounter = 0;
+    WBlackboard* m_pBlackboard = nullptr;
+    WHashedString m_sName;
+    WUInt32 m_uiChangeCounter = 0;
     Rml::DataVariableType m_Type = Rml::DataVariableType::Scalar;
 
     /// Cached copy of the blackboard value. RmlUi holds raw pointers into this value (and into
     /// its nested elements), so it has to stay alive and at a stable address for as long as the
     /// data model exists. It is refreshed in BlackboardDataBinding::Update.
-    ezVariant m_CachedValue;
+    WVariant m_CachedValue;
   };
 
   //////////////////////////////////////////////////////////////////
 
   class VariantDefinitionSet;
 
-  /// \brief Exposes an ezVariant that is nested inside an array or a dictionary. Read-only.
+  /// \brief Exposes an WVariant that is nested inside an array or a dictionary. Read-only.
   class VariantVariableDefinition final : public Rml::VariableDefinition
   {
   public:
@@ -48,7 +48,7 @@ namespace ezRmlUiInternal
   /// one for a given value, so that nested arrays and dictionaries can be traversed.
   ///
   /// This indirection is needed because Rml::VariableDefinition::Type() is fixed at construction
-  /// time, while the type of an ezVariant is only known at runtime.
+  /// time, while the type of an WVariant is only known at runtime.
   class VariantDefinitionSet
   {
   public:
@@ -56,7 +56,7 @@ namespace ezRmlUiInternal
 
     /// \brief Returns a DataVariable that exposes the given value with the matching definition.
     /// The value has to outlive the returned DataVariable.
-    Rml::DataVariable GetDefinition(const ezVariant& value) const;
+    Rml::DataVariable GetDefinition(const WVariant& value) const;
 
   private:
     VariantVariableDefinition m_Scalar;
@@ -85,28 +85,28 @@ namespace ezRmlUiInternal
 
   /////////////////////////////////////////////////////////////////
 
-  class BlackboardDataBinding final : public ezRmlUiDataBinding
+  class BlackboardDataBinding final : public WRmlUiDataBinding
   {
   public:
-    BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
+    BlackboardDataBinding(const WSharedPtr<WBlackboard>& pBlackboard);
     ~BlackboardDataBinding();
 
-    virtual ezResult Initialize(Rml::Context& ref_context) override;
+    virtual WResult Initialize(Rml::Context& ref_context) override;
     virtual void Deinitialize(Rml::Context& ref_context) override;
     virtual bool Update() override;
 
   private:
-    ezSharedPtr<ezBlackboard> m_pBlackboard;
-    ezUInt32 m_uiBlackboardChangeCounter = 0;
-    ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
+    WSharedPtr<WBlackboard> m_pBlackboard;
+    WUInt32 m_uiBlackboardChangeCounter = 0;
+    WUInt32 m_uiBlackboardEntryChangeCounter = 0;
 
     Rml::DataModelHandle m_hDataModel;
 
-    ezDynamicArray<EntryInfo> m_EntryInfos;
+    WDynamicArray<EntryInfo> m_EntryInfos;
 
     VariantDefinitionSet m_VariantDefinitions;
     BlackboardVariableDefinition m_ScalarDefinition;
     BlackboardVariableDefinition m_ArrayDefinition;
     BlackboardVariableDefinition m_StructDefinition;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

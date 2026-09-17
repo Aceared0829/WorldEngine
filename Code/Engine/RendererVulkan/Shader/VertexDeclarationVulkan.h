@@ -6,26 +6,26 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 
-class ezGALVertexDeclarationVulkan : public ezGALVertexDeclaration
+class WGALVertexDeclarationVulkan : public WGALVertexDeclaration
 {
 public:
-  EZ_ALWAYS_INLINE const vk::PipelineVertexInputStateCreateInfo& GetCreateInfo() const;
+  W_ALWAYS_INLINE const vk::PipelineVertexInputStateCreateInfo& GetCreateInfo() const;
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALVertexDeclarationVulkan(const ezGALVertexDeclarationCreationDescription& Description);
+  WGALVertexDeclarationVulkan(const WGALVertexDeclarationCreationDescription& Description);
 
-  virtual ~ezGALVertexDeclarationVulkan();
+  virtual ~WGALVertexDeclarationVulkan();
 
   vk::PipelineVertexInputStateCreateInfo m_CreateInfo;
-  ezHybridArray<vk::VertexInputAttributeDescription, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_Attributes;
-  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_Bindings;
+  WHybridArray<vk::VertexInputAttributeDescription, W_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_Attributes;
+  WHybridArray<vk::VertexInputBindingDescription, W_GAL_MAX_VERTEX_BUFFER_COUNT> m_Bindings;
 };
 
 #include <RendererVulkan/Shader/Implementation/VertexDeclarationVulkan_inl.h>

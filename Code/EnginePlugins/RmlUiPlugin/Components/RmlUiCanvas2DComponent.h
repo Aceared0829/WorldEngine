@@ -2,31 +2,31 @@
 
 #include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
 
-using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact, ezWorldUpdatePhase::PostTransform>;
+using WRmlUiCanvas2DComponentManager = WComponentManagerSimple<class WRmlUiCanvas2DComponent, WComponentUpdateType::Always, WBlockStorageType::Compact, WWorldUpdatePhase::PostTransform>;
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRmlUiCanvasComponentBase
+class W_RMLUIPLUGIN_DLL WRmlUiCanvas2DComponent : public WRmlUiCanvasComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, ezRmlUiCanvasComponentBase, ezRmlUiCanvas2DComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRmlUiCanvas2DComponent, WRmlUiCanvasComponentBase, WRmlUiCanvas2DComponentManager);
 
 public:
-  ezRmlUiCanvas2DComponent();
-  ~ezRmlUiCanvas2DComponent();
+  WRmlUiCanvas2DComponent();
+  ~WRmlUiCanvas2DComponent();
 
-  ezRmlUiCanvas2DComponent& operator=(ezRmlUiCanvas2DComponent&& rhs);
+  WRmlUiCanvas2DComponent& operator=(WRmlUiCanvas2DComponent&& rhs);
 
   virtual void Deinitialize() override;
   virtual void OnActivated() override;
 
   void Update() final override;
 
-  void SetOffset(const ezVec2I32& vOffset);                                   // [ property ]
-  const ezVec2I32& GetOffset() const { return m_vOffset; }                    // [ property ]
+  void SetOffset(const WVec2I32& vOffset);                                   // [ property ]
+  const WVec2I32& GetOffset() const { return m_vOffset; }                    // [ property ]
 
-  void SetSize(const ezVec2U32& vSize);                                       // [ property ]
-  const ezVec2U32& GetSize() const { return m_vSize; }                        // [ property ]
+  void SetSize(const WVec2U32& vSize);                                       // [ property ]
+  const WVec2U32& GetSize() const { return m_vSize; }                        // [ property ]
 
-  void SetAnchorPoint(const ezVec2& vAnchorPoint);                            // [ property ]
-  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; }             // [ property ]
+  void SetAnchorPoint(const WVec2& vAnchorPoint);                            // [ property ]
+  const WVec2& GetAnchorPoint() const { return m_vAnchorPoint; }             // [ property ]
 
   void SetPassInput(bool bPassInput);                                         // [ property ]
   bool GetPassInput() const { return m_bPassInput; }                          // [ property ]
@@ -34,18 +34,18 @@ public:
   void SetCustomScale(float fScale);                                          // [ property ]
   float GetCustomScale() const { return m_fCustomScale; }                     // [ property ]
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const override;
-  bool UpdateSizeOffsetAndTexture(ezVec2& out_viewSize);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const override;
+  bool UpdateSizeOffsetAndTexture(WVec2& out_viewSize);
 
   float m_fCustomScale = 1.0f;
-  ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
-  ezVec2 m_vAnchorPoint = ezVec2::MakeZero();
+  WVec2I32 m_vOffset = WVec2I32::MakeZero();
+  WVec2 m_vAnchorPoint = WVec2::MakeZero();
   bool m_bPassInput = true;
 
-  ezVec2 m_vFinalOffset = ezVec2::MakeZero();
-  ezGALTextureHandle m_hTexture;
+  WVec2 m_vFinalOffset = WVec2::MakeZero();
+  WGALTextureHandle m_hTexture;
 };

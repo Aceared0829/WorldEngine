@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/RendererRegistry.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererRegistry)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -11,35 +11,35 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererRegistry)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezRendererRegistry::UpdateRendererTypes();
+    WRendererRegistry::UpdateRendererTypes();
 
-    ezPlugin::Events().AddEventHandler(ezRendererRegistry::PluginEventHandler);
+    WPlugin::Events().AddEventHandler(WRendererRegistry::PluginEventHandler);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezPlugin::Events().RemoveEventHandler(ezRendererRegistry::PluginEventHandler);
+    WPlugin::Events().RemoveEventHandler(WRendererRegistry::PluginEventHandler);
 
-    ezRendererRegistry::ClearRendererInstances();
+    WRendererRegistry::ClearRendererInstances();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderer, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHybridArray<const ezRTTI*, 16> ezRendererRegistry::s_RendererTypes;
-ezDynamicArray<ezUniquePtr<ezRenderer>> ezRendererRegistry::s_RendererInstances;
-ezHashTable<const ezRTTI*, ezUInt32> ezRendererRegistry::s_RenderDataTypeToRendererIndex;
-bool ezRendererRegistry::s_bRendererInstancesDirty = false;
+WHybridArray<const WRTTI*, 16> WRendererRegistry::s_RendererTypes;
+WDynamicArray<WUniquePtr<WRenderer>> WRendererRegistry::s_RendererInstances;
+WHashTable<const WRTTI*, WUInt32> WRendererRegistry::s_RenderDataTypeToRendererIndex;
+bool WRendererRegistry::s_bRendererInstancesDirty = false;
 
 // static
-void ezRendererRegistry::PluginEventHandler(const ezPluginEvent& e)
+void WRendererRegistry::PluginEventHandler(const WPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPluginEvent::AfterPluginChanges:
+    case WPluginEvent::AfterPluginChanges:
       UpdateRendererTypes();
       break;
 
@@ -49,19 +49,19 @@ void ezRendererRegistry::PluginEventHandler(const ezPluginEvent& e)
 }
 
 // static
-void ezRendererRegistry::UpdateRendererTypes()
+void WRendererRegistry::UpdateRendererTypes()
 {
   s_RendererTypes.Clear();
 
-  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WRenderer>([](const WRTTI* pRtti)
     { s_RendererTypes.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   s_bRendererInstancesDirty = true;
 }
 
 // static
-void ezRendererRegistry::CreateRendererInstances()
+void WRendererRegistry::CreateRendererInstances()
 {
   if (!s_bRendererInstancesDirty)
     return;
@@ -70,14 +70,14 @@ void ezRendererRegistry::CreateRendererInstances()
 
   for (auto pRendererType : s_RendererTypes)
   {
-    EZ_ASSERT_DEV(pRendererType->IsDerivedFrom(ezGetStaticRTTI<ezRenderer>()), "Renderer type '{}' must be derived from ezRenderer", pRendererType->GetTypeName());
+    W_ASSERT_DEV(pRendererType->IsDerivedFrom(WGetStaticRTTI<WRenderer>()), "Renderer type '{}' must be derived from WRenderer", pRendererType->GetTypeName());
 
-    auto pRenderer = pRendererType->GetAllocator()->Allocate<ezRenderer>();
+    auto pRenderer = pRendererType->GetAllocator()->Allocate<WRenderer>();
 
-    ezUInt32 uiIndex = s_RendererInstances.GetCount();
+    WUInt32 uiIndex = s_RendererInstances.GetCount();
     s_RendererInstances.PushBack(pRenderer);
 
-    ezTempHybridArray<const ezRTTI*, 8> supportedTypes;
+    WTempHybridArray<const WRTTI*, 8> supportedTypes;
     pRenderer->GetSupportedRenderDataTypes(supportedTypes);
 
     for (auto pType : supportedTypes)
@@ -90,11 +90,11 @@ void ezRendererRegistry::CreateRendererInstances()
 }
 
 // static
-void ezRendererRegistry::ClearRendererInstances()
+void WRendererRegistry::ClearRendererInstances()
 {
   s_RendererInstances.Clear();
   s_RenderDataTypeToRendererIndex.Clear();
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RendererRegistry);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RendererRegistry);

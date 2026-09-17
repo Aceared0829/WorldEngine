@@ -8,18 +8,18 @@
 #include <Foundation/Types/Status.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCreateProjectDlg : public ezQtDialog, public Ui_ezQtCreateProjectDlg
+class W_EDITORFRAMEWORK_DLL WQtCreateProjectDlg : public WQtDialog, public Ui_WQtCreateProjectDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtCreateProjectDlg(QWidget* pParent);
+  WQtCreateProjectDlg(QWidget* pParent);
 
-  ezString GetFullTargetPath() const;
+  WString GetFullTargetPath() const;
 
-  ezString m_sTargetFolder;
-  ezString m_sTargetName;
+  WString m_sTargetFolder;
+  WString m_sTargetName;
 
 private Q_SLOTS:
   void on_BrowseFolder_clicked();
@@ -30,7 +30,7 @@ private Q_SLOTS:
 private:
   void UpdateUI();
   void FillProjectTemplatesList();
-  ezStatus CreateProject();
+  WStatus CreateProject();
 
   enum class State
   {
@@ -42,6 +42,6 @@ private:
   };
 
   State m_State = State::Basics;
-  ezString m_sProjectTemplate;
-  ezPluginBundleSet m_LocalPluginSet;
+  WString m_sProjectTemplate;
+  WPluginBundleSet m_LocalPluginSet;
 };

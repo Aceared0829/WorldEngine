@@ -4,20 +4,20 @@
 #include <EditorFramework/Gizmos/ConeLengthGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezConeLengthManipulatorAdapter : public ezManipulatorAdapter
+class WConeLengthManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezConeLengthManipulatorAdapter();
-  ~ezConeLengthManipulatorAdapter();
+  WConeLengthManipulatorAdapter();
+  ~WConeLengthManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezConeLengthGizmo m_Gizmo;
+  WConeLengthGizmo m_Gizmo;
 };

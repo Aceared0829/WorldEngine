@@ -4,49 +4,49 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectResource, 1, ezRTTIDefaultAllocator<ezParticleEffectResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEffectResource, 1, WRTTIDefaultAllocator<WParticleEffectResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezParticleEffectResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WParticleEffectResource);
 // clang-format on
 
-ezParticleEffectResource::ezParticleEffectResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WParticleEffectResource::WParticleEffectResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezParticleEffectResource::~ezParticleEffectResource() = default;
+WParticleEffectResource::~WParticleEffectResource() = default;
 
-ezResourceLoadDesc ezParticleEffectResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WParticleEffectResource::UnloadData(Unload WhatToUnload)
 {
   /// \todo Clear something
   // m_Desc.m_System1
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezParticleEffectResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WParticleEffectResource::UpdateContent(WStreamReader* Stream)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  ezAssetFileHeader AssetHash;
+  WAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
   m_Desc.Load(*Stream);
@@ -54,35 +54,35 @@ ezResourceLoadDesc ezParticleEffectResource::UpdateContent(ezStreamReader* Strea
   return res;
 }
 
-void ezParticleEffectResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WParticleEffectResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   /// \todo Better statistics
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezParticleEffectResource) + sizeof(ezParticleEffectResourceDescriptor);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WParticleEffectResource) + sizeof(WParticleEffectResourceDescriptor);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezParticleEffectResource, ezParticleEffectResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WParticleEffectResource, WParticleEffectResourceDescriptor)
 {
   m_Desc = descriptor;
 
-  ezResourceLoadDesc res;
-  res.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc res;
+  res.m_State = WResourceState::Loaded;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
   return res;
 }
 
-void ezParticleEffectResourceDescriptor::Save(ezStreamWriter& inout_stream) const
+void WParticleEffectResourceDescriptor::Save(WStreamWriter& inout_stream) const
 {
   m_Effect.Save(inout_stream);
 }
 
-void ezParticleEffectResourceDescriptor::Load(ezStreamReader& inout_stream)
+void WParticleEffectResourceDescriptor::Load(WStreamReader& inout_stream)
 {
   m_Effect.Load(inout_stream);
 }
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Resources_ParticleEffectResource);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Resources_ParticleEffectResource);

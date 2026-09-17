@@ -1,14 +1,14 @@
-class ScriptObject :  ezAngelScriptClass
+class ScriptObject :  WAngelScriptClass
 {
     private float distance = 0;
 
-    void OnMsgGenericEvent(ezMsgGenericEvent@ msg)
+    void OnMsgGenericEvent(WMsgGenericEvent@ msg)
     {
         if (msg.Message == "RaycastChanged")
         {
-            ezGameObject@ beamObj = GetOwner().FindChildByName("Beam");
+            WGameObject@ beamObj = GetOwner().FindChildByName("Beam");
 
-            ezRaycastComponent@ rayComp;
+            WRaycastComponent@ rayComp;
             if (beamObj.TryGetComponentOfBaseType(@rayComp))
             {
                 const float newDist = rayComp.GetCurrentDistance();
@@ -25,21 +25,21 @@ class ScriptObject :  ezAngelScriptClass
 
     void Explode()
     {
-        ezGameObject@ exp = GetOwner().FindChildByName("Explosion");
+        WGameObject@ exp = GetOwner().FindChildByName("Explosion");
 
         if (@exp != null)
         {
-            ezSpawnComponent@ spawnExpl;
+            WSpawnComponent@ spawnExpl;
             if (exp.TryGetComponentOfBaseType(@spawnExpl))
             {
-                spawnExpl.TriggerManualSpawn(true, ezVec3::MakeZero());
+                spawnExpl.TriggerManualSpawn(true, WVec3::MakeZero());
             }
         }
 
         GetWorld().DeleteObjectDelayed(GetOwner().GetHandle());
     }
 
-    void OnMsgDamage(ezMsgDamage@ msg)
+    void OnMsgDamage(WMsgDamage@ msg)
     {
         // explode on any damage
         Explode();

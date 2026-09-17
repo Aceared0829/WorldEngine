@@ -10,15 +10,15 @@ public:
   RtsAiUtilitySystem();
   ~RtsAiUtilitySystem();
 
-  void AddUtility(ezUniquePtr<RtsAiUtility>&& pUtility);
+  void AddUtility(WUniquePtr<RtsAiUtility>&& pUtility);
 
-  void Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now, ezTime frequency);
-  bool Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now);
+  void Reevaluate(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now, WTime frequency);
+  bool Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now);
 
 private:
-  ezTime m_LastUpdate;
+  WTime m_LastUpdate;
   RtsAiUtility* m_pActiveUtility = nullptr;
-  ezHybridArray<ezUniquePtr<RtsAiUtility>, 8> m_Utilities;
+  WHybridArray<WUniquePtr<RtsAiUtility>, 8> m_Utilities;
 };
 
 class RtsAiUtility
@@ -27,10 +27,10 @@ public:
   RtsAiUtility();
   virtual ~RtsAiUtility();
 
-  virtual void Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) = 0;
-  virtual void Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) = 0;
-  virtual void Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now) = 0;
-  virtual double ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const = 0;
+  virtual void Activate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) = 0;
+  virtual void Deactivate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) = 0;
+  virtual void Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now) = 0;
+  virtual double ComputePriority(WGameObject* pOwnerObject, WComponent* pOwnerComponent) const = 0;
 };
 
 class RtsUnitComponentUtility : public RtsAiUtility

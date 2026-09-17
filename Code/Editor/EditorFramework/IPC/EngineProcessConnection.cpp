@@ -11,30 +11,30 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 
-EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
+W_IMPLEMENT_SINGLETON(WEditorEngineProcessConnection);
 
-ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
+WEvent<const WEditorEngineProcessConnection::Event&> WEditorEngineProcessConnection::s_Events;
 
-ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
+WEditorEngineProcessConnection::WEditorEngineProcessConnection()
   : m_SingletonRegistrar(this)
 {
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
-  m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
+  m_IPC.m_Events.AddEventHandler(WMakeDelegate(&WEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
-ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
+WEditorEngineProcessConnection::~WEditorEngineProcessConnection()
 {
-  m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
+  m_IPC.m_Events.RemoveEventHandler(WMakeDelegate(&WEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
-void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
+void WEditorEngineProcessConnection::HandleIPCEvent(const WProcessCommunicationChannel::Event& e)
 {
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<WSyncWithProcessMsgToEditor>())
   {
-    const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(e.m_pMessage);
+    const WSyncWithProcessMsgToEditor* msg = static_cast<const WSyncWithProcessMsgToEditor*>(e.m_pMessage);
     m_uiRedrawCountReceived = msg->m_uiRedrawCount;
     if (m_uiFailedRedrawCount >= s_uiMaxFailedRedrawCount)
     {
@@ -44,29 +44,29 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
     }
     m_uiFailedRedrawCount = 0;
   }
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineDocumentMsg>())
   {
-    const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
+    const WEditorEngineDocumentMsg* pMsg = static_cast<const WEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    ezAssetDocument* pDocument = nullptr;
+    WAssetDocument* pDocument = nullptr;
     if (m_DocumentByGuid.TryGetValue(pMsg->m_DocumentGuid, pDocument))
     {
       pDocument->HandleEngineMessage(pMsg);
     }
   }
-  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineMsg>())
+  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineMsg>())
   {
     Event ee;
-    ee.m_pMsg = static_cast<const ezEditorEngineMsg*>(e.m_pMessage);
+    ee.m_pMsg = static_cast<const WEditorEngineMsg*>(e.m_pMessage);
     ee.m_Type = Event::Type::ProcessMessage;
 
     s_Events.Broadcast(ee);
   }
 }
 
-void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+void WEditorEngineProcessConnection::UIServicesTickEventHandler(const WQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  if (e.m_Type == WQtUiServices::TickEvent::Type::BeforeFrame)
   {
     if (IsProcessCrashed())
     {
@@ -89,11 +89,11 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
       return;
     }
   }
-  else if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  else if (e.m_Type == WQtUiServices::TickEvent::Type::EndFrame)
   {
     if (!IsProcessCrashed())
     {
-      ezSyncWithProcessMsgToEngine sm;
+      WSyncWithProcessMsgToEngine sm;
       sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
       SendMessage(&sm);
       ++m_uiRedrawCountSent;
@@ -101,9 +101,9 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
   }
 }
 
-ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezAssetDocument* pDocument)
+WEditorEngineConnection* WEditorEngineProcessConnection::CreateEngineConnection(WAssetDocument* pDocument)
 {
-  ezEditorEngineConnection* pConnection = new ezEditorEngineConnection(pDocument);
+  WEditorEngineConnection* pConnection = new WEditorEngineConnection(pDocument);
 
   m_DocumentByGuid[pDocument->GetGuid()] = pDocument;
 
@@ -112,7 +112,7 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
   return pConnection;
 }
 
-void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* pDocument)
+void WEditorEngineProcessConnection::DestroyEngineConnection(WAssetDocument* pDocument)
 {
   pDocument->SendDocumentOpenMessage(false);
 
@@ -121,31 +121,31 @@ void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* p
   delete pDocument->GetEditorEngineConnection();
 }
 
-void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMessageType)
+void WEditorEngineProcessConnection::Initialize(const WRTTI* pFirstAllowedMessageType)
 {
-  EZ_PROFILE_SCOPE("Initialize");
+  W_PROFILE_SCOPE("Initialize");
   if (m_IPC.IsClientAlive())
     return;
 
-  ezLog::Dev("Starting Client Engine Process");
+  WLog::Dev("Starting Client Engine Process");
 
-  EZ_ASSERT_DEBUG(m_TickEventSubscriptionID == 0, "A previous subscription is still in place. ShutdownProcess not called?");
-  m_TickEventSubscriptionID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::UIServicesTickEventHandler, this));
+  W_ASSERT_DEBUG(m_TickEventSubscriptionID == 0, "A previous subscription is still in place. ShutdownProcess not called?");
+  m_TickEventSubscriptionID = WQtUiServices::s_TickEvent.AddEventHandler(WMakeDelegate(&WEditorEngineProcessConnection::UIServicesTickEventHandler, this));
 
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   QStringList args = QCoreApplication::arguments();
   args.pop_front(); // Remove first argument which is the name of the path to the editor executable
 
   {
-    ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    WStringBuilder sWndCfgPath = WApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    if (ezFileSystem::ExistsFile(sWndCfgPath))
+    if (WFileSystem::ExistsFile(sWndCfgPath))
     {
       args << "-wnd";
       args << sWndCfgPath.GetData();
@@ -155,37 +155,37 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   // set up the EditorEngineProcess telemetry server on a different port
   {
     args << "-TelemetryPort";
-    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
+    args << WCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
 
   {
-    ezStringBuilder sRelativeData;
+    WStringBuilder sRelativeData;
     sRelativeData = ":APPDATA";
 
-    ezStringBuilder sAbsoluteData;
-    ezFileSystem::ResolvePath(sRelativeData, &sAbsoluteData, nullptr).AssertSuccess("Failed to resolve APPDATA dir!");
+    WStringBuilder sAbsoluteData;
+    WFileSystem::ResolvePath(sRelativeData, &sAbsoluteData, nullptr).AssertSuccess("Failed to resolve APPDATA dir!");
 
     args << "-outputDir";
     args << sAbsoluteData.GetData();
     args << "-logName";
 
-    if (ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
+    if (WQtEditorApp::GetSingleton()->IsInHeadlessMode())
     {
-      tmp.SetFormat("LogEditorProcessor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      tmp.SetFormat("LogEditorProcessor_{}_Engine", WCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
       args << tmp.GetData();
     }
     else
     {
-      tmp.SetFormat("LogEditor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      tmp.SetFormat("LogEditor_{}_Engine", WCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
       args << tmp.GetData();
     }
   }
 
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess.exe";
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess";
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+  const char* EditorEngineProcessExecutableName = "WEditorEngineProcess.exe";
+#elif W_ENABLED(W_PLATFORM_LINUX)
+  const char* EditorEngineProcessExecutableName = "WEditorEngineProcess";
 #else
 #  error Platform not supported
 #endif
@@ -194,7 +194,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
-    ezLog::Error("EngineProcess crashed on startup");
+    WLog::Error("EngineProcess crashed on startup");
   }
   else
   {
@@ -204,7 +204,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
 }
 
-void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezAssetDocument* pDocument, ezUInt32 uiViewID)
+void WEditorEngineProcessConnection::ActivateRemoteProcess(const WAssetDocument* pDocument, WUInt32 uiViewID)
 {
   // make sure process is started
   if (!ConnectToRemoteProcess())
@@ -214,17 +214,17 @@ void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezAssetDocumen
   {
     // open document message
     {
-      ezDocumentOpenMsgToEngine msg;
+      WDocumentOpenMsgToEngine msg;
       msg.m_DocumentGuid = pDocument->GetGuid();
       msg.m_bDocumentOpen = true;
       msg.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
       m_pRemoteProcess->SendMessage(&msg);
     }
 
-    if (pDocument->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>())
+    if (pDocument->GetDynamicRTTI()->IsDerivedFrom<WAssetDocument>())
     {
-      ezAssetDocument* pAssetDoc = (ezAssetDocument*)pDocument;
-      ezDocumentOpenResponseMsgToEditor response;
+      WAssetDocument* pAssetDoc = (WAssetDocument*)pDocument;
+      WDocumentOpenResponseMsgToEditor response;
       response.m_DocumentGuid = pDocument->GetGuid();
       pAssetDoc->HandleEngineMessage(&response);
     }
@@ -232,14 +232,14 @@ void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezAssetDocumen
 
   // send activation message
   {
-    ezActivateRemoteViewMsgToEngine msg;
+    WActivateRemoteViewMsgToEngine msg;
     msg.m_DocumentGuid = pDocument->GetGuid();
     msg.m_uiViewID = uiViewID;
     m_pRemoteProcess->SendMessage(&msg);
   }
 }
 
-bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
+bool WEditorEngineProcessConnection::ConnectToRemoteProcess()
 {
   if (m_pRemoteProcess != nullptr)
   {
@@ -249,15 +249,15 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     ShutdownRemoteProcess();
   }
 
-  ezQtRemoteConnectionDlg dlg(QApplication::activeWindow());
+  WQtRemoteConnectionDlg dlg(QApplication::activeWindow());
 
   if (dlg.exec() == QDialog::Rejected)
     return false;
 
-  m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
+  m_pRemoteProcess = W_DEFAULT_NEW(WEditorProcessRemoteCommunicationChannel);
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).AssertSuccess();
 
-  ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
+  WQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
   waitDialog.m_OnIdle = [this]() -> bool
   {
     if (m_pRemoteProcess->IsConnected())
@@ -272,12 +272,12 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   if (iRet == QDialog::Accepted)
   {
     // Send project setup.
-    ezSetupProjectMsgToEngine msg;
-    msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WSetupProjectMsgToEngine msg;
+    msg.m_sProjectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sFileserveAddress = dlg.GetResultingFsAddress().toUtf8().data();
-    msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
+    msg.m_sAssetProfile = WAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
     m_pRemoteProcess->SendMessage(&msg);
   }
@@ -286,28 +286,28 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
 }
 
 
-void ezEditorEngineProcessConnection::ShutdownRemoteProcess()
+void WEditorEngineProcessConnection::ShutdownRemoteProcess()
 {
   if (m_pRemoteProcess != nullptr)
   {
-    ezLog::Info("Shutting down Remote Engine Process");
+    WLog::Info("Shutting down Remote Engine Process");
     m_pRemoteProcess->CloseConnection();
 
     m_pRemoteProcess = nullptr;
   }
 }
 
-void ezEditorEngineProcessConnection::ShutdownProcess()
+void WEditorEngineProcessConnection::ShutdownProcess()
 {
   if (!m_bProcessShouldBeRunning)
     return;
 
   ShutdownRemoteProcess();
 
-  ezLog::Info("Shutting down Engine Process");
+  WLog::Info("Shutting down Engine Process");
 
   if (m_TickEventSubscriptionID != 0)
-    ezQtUiServices::s_TickEvent.RemoveEventHandler(m_TickEventSubscriptionID);
+    WQtUiServices::s_TickEvent.RemoveEventHandler(m_TickEventSubscriptionID);
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
@@ -319,7 +319,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   s_Events.Broadcast(e);
 }
 
-bool ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
+bool WEditorEngineProcessConnection::SendMessage(WProcessMessage* pMessage)
 {
   bool res = m_IPC.SendMessage(pMessage);
 
@@ -330,32 +330,32 @@ bool ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   return res;
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+WResult WEditorEngineProcessConnection::WaitForMessage(const WRTTI* pMessageType, WTime timeout, WProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
-  EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
+  W_PROFILE_SCOPE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, timeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+WResult WEditorEngineProcessConnection::WaitForDocumentMessage(const WUuid& assetGuid, const WRTTI* pMessageType, WTime timeout, WProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   if (!m_bProcessShouldBeRunning)
   {
-    return EZ_FAILURE; // if the process is not running, we can't wait for a message
+    return W_FAILURE; // if the process is not running, we can't wait for a message
   }
-  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
+  W_ASSERT_DEBUG(pMessageType->IsDerivedFrom(WGetStaticRTTI<WEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
   struct WaitData
   {
-    ezUuid m_AssetGuid;
-    ezProcessCommunicationChannel::WaitForMessageCallback* m_pCallback;
+    WUuid m_AssetGuid;
+    WProcessCommunicationChannel::WaitForMessageCallback* m_pCallback;
   };
 
   WaitData data;
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  WProcessCommunicationChannel::WaitForMessageCallback callback = [&data](WProcessMessage* pMsg) -> bool
   {
-    ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
+    WEditorEngineDocumentMsg* pMsg2 = WDynamicCast<WEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
       if (data.m_pCallback && data.m_pCallback->IsValid() && !(*data.m_pCallback)(pMsg))
@@ -370,60 +370,60 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   return m_IPC.WaitForMessage(pMessageType, timeout, &callback);
 }
 
-ezResult ezEditorEngineProcessConnection::RestartProcess()
+WResult WEditorEngineProcessConnection::RestartProcess()
 {
-  EZ_PROFILE_SCOPE("RestartProcess");
-  EZ_LOG_BLOCK("Restarting Engine Process");
+  W_PROFILE_SCOPE("RestartProcess");
+  W_LOG_BLOCK("Restarting Engine Process");
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::MakeFromSeconds(5));
+  WQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", WTime::MakeFromSeconds(5));
 
   ShutdownProcess();
 
-  Initialize(ezGetStaticRTTI<ezSetupProjectMsgToEngine>());
+  Initialize(WGetStaticRTTI<WSetupProjectMsgToEngine>());
 
   if (m_bProcessCrashed)
   {
-    ezLog::Error("Engine process crashed during startup.");
+    WLog::Error("Engine process crashed during startup.");
     ShutdownProcess();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezLog::Dev("Waiting for IPC connection");
+  WLog::Dev("Waiting for IPC connection");
 
-  if (m_IPC.WaitForConnection(ezTime()).Failed())
+  if (m_IPC.WaitForConnection(WTime()).Failed())
   {
-    ezLog::Error("Engine process did not connect. Engine process output:\n{}", m_IPC.GetStdoutContents());
+    WLog::Error("Engine process did not connect. Engine process output:\n{}", m_IPC.GetStdoutContents());
     ShutdownProcess();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   {
     // Send project setup.
-    ezSetupProjectMsgToEngine msg;
-    msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WSetupProjectMsgToEngine msg;
+    msg.m_sProjectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
-    msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
+    msg.m_sAssetProfile = WAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
     msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : QGuiApplication::primaryScreen()->devicePixelRatio();
 
     SendMessage(&msg);
   }
 
-  ezLog::Dev("Waiting for Engine Process response");
+  WLog::Dev("Waiting for Engine Process response");
 
-  if (WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
+  if (WaitForMessage(WGetStaticRTTI<WProjectReadyMsgToEditor>(), WTime()).Failed())
   {
-    ezLog::Error("Failed to restart the engine process. Engine Process Output:\n", m_IPC.GetStdoutContents());
+    WLog::Error("Failed to restart the engine process. Engine Process Output:\n", m_IPC.GetStdoutContents());
     ShutdownProcess();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   pPreferences->SyncGlobalSettingsToEngine();
 
-  ezLog::Dev("Transmitting open documents to Engine Process");
+  WLog::Dev("Transmitting open documents to Engine Process");
 
-  ezTempHybridArray<ezAssetDocument*, 6> docs;
+  WTempHybridArray<WAssetDocument*, 6> docs;
   docs.Reserve(m_DocumentByGuid.GetCount());
 
   // Resend all open documents. Make sure to send main documents before child documents.
@@ -431,20 +431,20 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     docs.PushBack(it.Value());
   }
-  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b)
+  docs.Sort([](const WAssetDocument* a, const WAssetDocument* b)
     {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
     return a < b; });
 
-  for (ezAssetDocument* pDoc : docs)
+  for (WAssetDocument* pDoc : docs)
   {
     pDoc->SendDocumentOpenMessage(true);
   }
 
-  ezAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(ezAssetInfo::TransformState::TransformError);
+  WAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(WAssetInfo::TransformState::TransformError);
 
-  ezLog::Success("Engine Process is running");
+  WLog::Success("Engine Process is running");
 
   m_bClientIsConfigured = true;
   // We could have crashed while a render was in flight which will now never complete so reset the received counter.
@@ -454,10 +454,10 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   e.m_Type = Event::Type::ProcessRestarted;
   s_Events.Broadcast(e);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezEditorEngineProcessConnection::Update()
+void WEditorEngineProcessConnection::Update()
 {
   if (!m_bProcessShouldBeRunning)
     return;
@@ -482,28 +482,28 @@ void ezEditorEngineProcessConnection::Update()
   }
 }
 
-bool ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
+bool WEditorEngineConnection::SendMessage(WEditorEngineDocumentMsg* pMessage)
 {
-  EZ_WARNING_PUSH()
-  EZ_WARNING_DISABLE_GCC("-Wtautological-undefined-compare")
-  EZ_WARNING_DISABLE_CLANG("-Wtautological-undefined-compare")
+  W_WARNING_PUSH()
+  W_WARNING_DISABLE_GCC("-Wtautological-undefined-compare")
+  W_WARNING_DISABLE_CLANG("-Wtautological-undefined-compare")
 
-  EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
-                                 "not enable the engine-connection through the constructor of ezAssetDocument."); // NOLINT
+  W_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
+                                 "not enable the engine-connection through the constructor of WAssetDocument."); // NOLINT
 
-  EZ_WARNING_POP()
+  W_WARNING_POP()
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  return ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
+  return WEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
 }
 
-void ezEditorEngineConnection::SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage)
+void WEditorEngineConnection::SendHighlightObjectMessage(WViewHighlightMsgToEngine* pMessage)
 {
   // without this check there will be so many messages, that the editor comes to a crawl (< 10 FPS)
   // This happens because Qt sends hundreds of mouse-move events and since each 'SendMessageToEngine'
   // requires a round-trip to the engine process, doing this too often will be sloooow
 
-  static ezUuid LastHighlightGuid;
+  static WUuid LastHighlightGuid;
 
   if (LastHighlightGuid == pMessage->m_HighlightObject)
     return;

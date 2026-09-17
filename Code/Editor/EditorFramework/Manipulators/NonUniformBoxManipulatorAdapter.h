@@ -4,22 +4,22 @@
 #include <EditorFramework/Gizmos/NonUniformBoxGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezNonUniformBoxManipulatorAdapter : public ezManipulatorAdapter
+class WNonUniformBoxManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezNonUniformBoxManipulatorAdapter();
-  ~ezNonUniformBoxManipulatorAdapter();
+  WNonUniformBoxManipulatorAdapter();
+  ~WNonUniformBoxManipulatorAdapter();
 
-  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) override;
+  virtual void QueryGridSettings(WGridSettingsMsgToEngine& out_gridSettings) override;
 
 protected:
   virtual void Finalize() override;
   virtual void Update() override;
-  void GizmoEventHandler(const ezGizmoEvent& e);
+  void GizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
-  ezNonUniformBoxGizmo m_Gizmo;
+  WNonUniformBoxGizmo m_Gizmo;
 };

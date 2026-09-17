@@ -6,49 +6,49 @@
 #include <Foundation/Configuration/CVar.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_CVar, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_CVar, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetBoolValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetIntValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetStringValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetBoolValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetIntValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetFloatValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetStringValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(GetBoolValue, In, "Name")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(GetIntValue, In, "Name")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(GetStringValue, In, "Name")->AddFlags(WPropertyFlags::PureFunction),
+    W_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetBoolValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetIntValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetFloatValue, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetStringValue, In, "Name", In, "Value"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("CVar"),
+    new WScriptExtensionAttribute("CVar"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezHashTable<ezTempHashedString, ezCVar*> s_CachedCVars;
+static WHashTable<WTempHashedString, WCVar*> s_CachedCVars;
 
-static ezCVar* FindCVarByNameCached(ezStringView sName)
+static WCVar* FindCVarByNameCached(WStringView sName)
 {
-  ezTempHashedString sNameHashed(sName);
+  WTempHashedString sNameHashed(sName);
 
-  ezCVar* pCVar = nullptr;
+  WCVar* pCVar = nullptr;
   if (!s_CachedCVars.TryGetValue(sNameHashed, pCVar))
   {
-    pCVar = ezCVar::FindCVarByName(sName);
+    pCVar = WCVar::FindCVarByName(sName);
 
     s_CachedCVars.Insert(sNameHashed, pCVar);
   }
 
-  ezCVar::s_AllCVarEvents.AddEventHandler(
-    [&](const ezCVarEvent& e)
+  WCVar::s_AllCVarEvents.AddEventHandler(
+    [&](const WCVarEvent& e)
     {
-      if (e.m_EventType == ezCVarEvent::Type::ListOfVarsChanged)
+      if (e.m_EventType == WCVarEvent::Type::ListOfVarsChanged)
       {
         s_CachedCVars.Clear();
       }
@@ -58,9 +58,9 @@ static ezCVar* FindCVarByNameCached(ezStringView sName)
 }
 
 // static
-ezVariant ezScriptExtensionClass_CVar::GetValue(ezStringView sName)
+WVariant WScriptExtensionClass_CVar::GetValue(WStringView sName)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
+  WCVar* pCVar = FindCVarByNameCached(sName);
   if (pCVar == nullptr)
   {
     return {};
@@ -68,174 +68,174 @@ ezVariant ezScriptExtensionClass_CVar::GetValue(ezStringView sName)
 
   switch (pCVar->GetType())
   {
-    case ezCVarType::Bool:
-      return static_cast<ezCVarBool*>(pCVar)->GetValue();
-    case ezCVarType::Int:
-      return static_cast<ezCVarInt*>(pCVar)->GetValue();
-    case ezCVarType::Float:
-      return static_cast<ezCVarFloat*>(pCVar)->GetValue();
-    case ezCVarType::String:
-      return static_cast<ezCVarString*>(pCVar)->GetValue();
+    case WCVarType::Bool:
+      return static_cast<WCVarBool*>(pCVar)->GetValue();
+    case WCVarType::Int:
+      return static_cast<WCVarInt*>(pCVar)->GetValue();
+    case WCVarType::Float:
+      return static_cast<WCVarFloat*>(pCVar)->GetValue();
+    case WCVarType::String:
+      return static_cast<WCVarString*>(pCVar)->GetValue();
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   return {};
 }
 
 // static
-bool ezScriptExtensionClass_CVar::GetBoolValue(ezStringView sName)
+bool WScriptExtensionClass_CVar::GetBoolValue(WStringView sName)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Bool)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Bool)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type bool.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type bool.", sName);
     return false;
   }
 
-  return static_cast<ezCVarBool*>(pCVar)->GetValue();
+  return static_cast<WCVarBool*>(pCVar)->GetValue();
 }
 
 // static
-int ezScriptExtensionClass_CVar::GetIntValue(ezStringView sName)
+int WScriptExtensionClass_CVar::GetIntValue(WStringView sName)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Int)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Int)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type int.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type int.", sName);
     return 0;
   }
 
-  return static_cast<ezCVarInt*>(pCVar)->GetValue();
+  return static_cast<WCVarInt*>(pCVar)->GetValue();
 }
 
 // static
-float ezScriptExtensionClass_CVar::GetFloatValue(ezStringView sName)
+float WScriptExtensionClass_CVar::GetFloatValue(WStringView sName)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Float)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Float)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type float.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type float.", sName);
     return 0;
   }
 
-  return static_cast<ezCVarFloat*>(pCVar)->GetValue();
+  return static_cast<WCVarFloat*>(pCVar)->GetValue();
 }
 
 // static
-ezString ezScriptExtensionClass_CVar::GetStringValue(ezStringView sName)
+WString WScriptExtensionClass_CVar::GetStringValue(WStringView sName)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::String)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::String)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type string.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type string.", sName);
     return "";
   }
 
-  return static_cast<ezCVarString*>(pCVar)->GetValue();
+  return static_cast<WCVarString*>(pCVar)->GetValue();
 }
 
 // static
-void ezScriptExtensionClass_CVar::SetValue(ezStringView sName, const ezVariant& value)
+void WScriptExtensionClass_CVar::SetValue(WStringView sName, const WVariant& value)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
+  WCVar* pCVar = FindCVarByNameCached(sName);
   if (pCVar == nullptr)
   {
-    ezLog::Error("CVar '{}' does not exist.", sName);
+    WLog::Error("CVar '{}' does not exist.", sName);
     return;
   }
 
   switch (pCVar->GetType())
   {
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
     {
-      ezCVarBool* pVar = static_cast<ezCVarBool*>(pCVar);
+      WCVarBool* pVar = static_cast<WCVarBool*>(pCVar);
       *pVar = value.ConvertTo<bool>();
       break;
     }
 
-    case ezCVarType::Int:
+    case WCVarType::Int:
     {
-      ezCVarInt* pVar = static_cast<ezCVarInt*>(pCVar);
+      WCVarInt* pVar = static_cast<WCVarInt*>(pCVar);
       *pVar = value.ConvertTo<int>();
       break;
     }
 
-    case ezCVarType::Float:
+    case WCVarType::Float:
     {
-      ezCVarFloat* pVar = static_cast<ezCVarFloat*>(pCVar);
+      WCVarFloat* pVar = static_cast<WCVarFloat*>(pCVar);
       *pVar = value.ConvertTo<float>();
       break;
     }
 
-    case ezCVarType::String:
+    case WCVarType::String:
     {
-      ezCVarString* pVar = static_cast<ezCVarString*>(pCVar);
-      *pVar = value.ConvertTo<ezString>();
+      WCVarString* pVar = static_cast<WCVarString*>(pCVar);
+      *pVar = value.ConvertTo<WString>();
       break;
     }
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
 // static
-void ezScriptExtensionClass_CVar::SetBoolValue(ezStringView sName, bool bValue)
+void WScriptExtensionClass_CVar::SetBoolValue(WStringView sName, bool bValue)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Bool)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Bool)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type bool.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type bool.", sName);
     return;
   }
 
-  ezCVarBool* pVar = static_cast<ezCVarBool*>(pCVar);
+  WCVarBool* pVar = static_cast<WCVarBool*>(pCVar);
   *pVar = bValue;
 }
 
 // static
-void ezScriptExtensionClass_CVar::SetIntValue(ezStringView sName, int iValue)
+void WScriptExtensionClass_CVar::SetIntValue(WStringView sName, int iValue)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Int)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Int)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type int.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type int.", sName);
     return;
   }
 
-  ezCVarInt* pVar = static_cast<ezCVarInt*>(pCVar);
+  WCVarInt* pVar = static_cast<WCVarInt*>(pCVar);
   *pVar = iValue;
 }
 
 // static
-void ezScriptExtensionClass_CVar::SetFloatValue(ezStringView sName, float fValue)
+void WScriptExtensionClass_CVar::SetFloatValue(WStringView sName, float fValue)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::Float)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::Float)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type float.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type float.", sName);
     return;
   }
 
-  ezCVarFloat* pVar = static_cast<ezCVarFloat*>(pCVar);
+  WCVarFloat* pVar = static_cast<WCVarFloat*>(pCVar);
   *pVar = fValue;
 }
 
 // static
-void ezScriptExtensionClass_CVar::SetStringValue(ezStringView sName, const ezString& sValue)
+void WScriptExtensionClass_CVar::SetStringValue(WStringView sName, const WString& sValue)
 {
-  ezCVar* pCVar = FindCVarByNameCached(sName);
-  if (pCVar == nullptr || pCVar->GetType() != ezCVarType::String)
+  WCVar* pCVar = FindCVarByNameCached(sName);
+  if (pCVar == nullptr || pCVar->GetType() != WCVarType::String)
   {
-    ezLog::Error("CVar '{}' does not exist or is not of type string.", sName);
+    WLog::Error("CVar '{}' does not exist or is not of type string.", sName);
     return;
   }
 
-  ezCVarString* pVar = static_cast<ezCVarString*>(pCVar);
+  WCVarString* pVar = static_cast<WCVarString*>(pCVar);
   *pVar = sValue;
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);

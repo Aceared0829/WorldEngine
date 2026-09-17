@@ -13,14 +13,14 @@
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtAnimationClipAssetDocumentWindow::WQtAnimationClipAssetDocumentWindow(WAnimationClipAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
   , m_Clock("AssetClip")
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "AnimationClipAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -29,8 +29,8 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "AnimationClipAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -40,28 +40,28 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
   }
 
   // 3D View
-  ezQtViewWidgetContainer* pContainer = nullptr;
+  WQtViewWidgetContainer* pContainer = nullptr;
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-1.6f, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureRelative(WVec3(0, 0, 1), WVec3(5.0f), WVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimationClipAssetViewToolBar");
+    pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimationClipAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AnimationClipAssetDockWidget");
     pPropertyPanel->setWindowTitle("Animation Clip Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -69,7 +69,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -81,22 +81,22 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Time Scrubber
   {
-    m_pTimeScrubber = new ezQtTimeScrubberWidget(pContainer);
-    m_pTimeScrubber->SetDuration(ezTime::MakeFromSeconds(1));
+    m_pTimeScrubber = new WQtTimeScrubberWidget(pContainer);
+    m_pTimeScrubber->SetDuration(WTime::MakeFromSeconds(1));
 
     pContainer->GetLayout()->addWidget(m_pTimeScrubber);
 
-    connect(m_pTimeScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this, &ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent);
+    connect(m_pTimeScrubber, &WQtTimeScrubberWidget::ScrubberPosChangedEvent, this, &WQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent);
   }
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pEventTrackPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pEventTrackPanel->setObjectName("AnimClipEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
 
-    m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
+    m_pEventTrackEditor = new WQtEventTrackEditorWidget(m_pEventTrackPanel);
     m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
 
     m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pEventTrackPanel);
@@ -106,37 +106,37 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Event track editor events
   {
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::InsertCpEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::CpMovedEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::CpDeletedEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted);
 
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::BeginOperationEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::EndOperationEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::BeginCpChangesEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges);
+    connect(m_pEventTrackEditor, &WQtEventTrackEditorWidget::EndCpChangesEvent, this, &WQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
   // curve editor
   {
-    m_pCurveEditPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pCurveEditPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pCurveEditPanel->setObjectName("AnimClipCustomCurvesPanel");
     m_pCurveEditPanel->setWindowTitle("Curves");
     m_pCurveEditPanel->show();
 
-    m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
+    m_pCurveEditor = new WQtCurve1DEditorWidget(this);
     m_pCurveEditPanel->setWidget(m_pCurveEditor);
 
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveCpMoved);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveCpDeleted);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveTangentMoved);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtAnimationClipAssetDocumentWindow::onLinkCurveTangents);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::InsertCpEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpMovedEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveCpMoved);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpDeletedEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveCpDeleted);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentMovedEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveTangentMoved);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::TangentLinkEvent, this, &WQtAnimationClipAssetDocumentWindow::onLinkCurveTangents);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::CpTangentModeEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged);
 
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveBeginOperation);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveEndOperation);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginOperationEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveBeginOperation);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndOperationEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveEndOperation);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::BeginCpChangesEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges);
+    connect(m_pCurveEditor, &WQtCurve1DEditorWidget::EndCpChangesEvent, this, &WQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges);
 
     m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurveEditPanel);
 
@@ -145,65 +145,65 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   FinishWindowCreation();
 
-  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
-  pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
+  pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
 }
 
-ezQtAnimationClipAssetDocumentWindow::~ezQtAnimationClipAssetDocumentWindow()
+WQtAnimationClipAssetDocumentWindow::~WQtAnimationClipAssetDocumentWindow()
 {
-  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
+  GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
 }
 
-ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
+WAnimationClipAssetDocument* WQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
 {
-  return static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  return static_cast<WAnimationClipAssetDocument*>(GetDocument());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::ExtractRootMotionFromFeet()
+void WQtAnimationClipAssetDocumentWindow::ExtractRootMotionFromFeet()
 {
-  ezSimpleDocumentConfigMsgToEngine msg;
+  WSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "ExtractRootMotionFromFeet";
 
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
+void WQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PlaybackPos";
     msg.m_PayloadValue = (double)(m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds());
     GetDocument()->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
     msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewMesh;
     GetDocument()->SendMessageToEngine(&msg);
   }
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewAnim";
     msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewAnim;
     GetDocument()->SendMessageToEngine(&msg);
   }
 
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "SimulationSpeed";
 
-    if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f)
+    if (GetAnimationClipDocument()->GetCommonAssetUiState(WCommonAssetUiState::Pause) != 0.0f)
       msg.m_PayloadValue = 0.0;
     else
-      msg.m_PayloadValue = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+      msg.m_PayloadValue = GetAnimationClipDocument()->GetCommonAssetUiState(WCommonAssetUiState::SimulationSpeed);
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -218,27 +218,27 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
   QueryObjectBBox();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
+void WQtAnimationClipAssetDocumentWindow::QueryObjectBBox(WInt32 iPurpose /*= 0*/)
 {
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtAnimationClipAssetDocumentWindow::UpdateEventTrackEditor()
+void WQtAnimationClipAssetDocumentWindow::UpdateEventTrackEditor()
 {
   auto* pDoc = GetAnimationClipDocument();
 
   m_pEventTrackEditor->SetData(pDoc->GetProperties()->m_EventTrack, m_ClipDuration.GetSeconds());
 }
 
-static ezColorGammaUB GetColorForCurveName(ezStringView sName, ezInt32 iOffset)
+static WColorGammaUB GetColorForCurveName(WStringView sName, WInt32 iOffset)
 {
-  return ezColorScheme::LightUI(static_cast<ezColorScheme::Enum>((iOffset + ezHashingUtils::StringHash(sName)) % ezColorScheme::Count));
+  return WColorScheme::LightUI(static_cast<WColorScheme::Enum>((iOffset + WHashingUtils::StringHash(sName)) % WColorScheme::Count));
 }
 
-void ezQtAnimationClipAssetDocumentWindow::UpdateCurveEditor()
+void WQtAnimationClipAssetDocumentWindow::UpdateCurveEditor()
 {
   auto* pDoc = GetAnimationClipDocument();
 
@@ -247,7 +247,7 @@ void ezQtAnimationClipAssetDocumentWindow::UpdateCurveEditor()
 
   auto& curves = pDoc->GetProperties()->m_Curves;
 
-  ezInt32 iOffset = 0;
+  WInt32 iOffset = 0;
   for (auto& namedCurve : curves)
   {
     namedCurve.m_Curve.m_CurveColor = GetColorForCurveName(namedCurve.m_sName, iOffset);
@@ -259,7 +259,7 @@ void ezQtAnimationClipAssetDocumentWindow::UpdateCurveEditor()
   m_pCurveEditor->SetCurves(m_Curves);
 }
 
-void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
+void WQtAnimationClipAssetDocumentWindow::InternalRedraw()
 {
   if (m_pTimeScrubber == nullptr)
     return;
@@ -268,16 +268,16 @@ void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
   {
     m_Clock.Update();
 
-    const double fSpeed = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+    const double fSpeed = GetAnimationClipDocument()->GetCommonAssetUiState(WCommonAssetUiState::SimulationSpeed);
 
-    if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) == 0)
+    if (GetAnimationClipDocument()->GetCommonAssetUiState(WCommonAssetUiState::Pause) == 0)
     {
       m_PlaybackPosition += m_Clock.GetTimeDiff() * fSpeed;
     }
 
     if (m_PlaybackPosition > m_ClipDuration)
     {
-      if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Loop) != 0)
+      if (GetAnimationClipDocument()->GetCommonAssetUiState(WCommonAssetUiState::Loop) != 0)
       {
         m_PlaybackPosition -= m_ClipDuration;
       }
@@ -288,25 +288,25 @@ void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
     }
   }
 
-  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::MakeZero(), m_ClipDuration);
+  m_PlaybackPosition = WMath::Clamp(m_PlaybackPosition, WTime::MakeZero(), m_ClipDuration);
   m_pTimeScrubber->SetScrubberPosition(m_PlaybackPosition);
   m_pEventTrackEditor->SetScrubberPosition(m_PlaybackPosition);
   m_pCurveEditor->SetScrubberPosition(m_PlaybackPosition);
 
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg0)
+void WQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg0)
 {
-  if (auto pMsg = ezDynamicCast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg0))
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(WVec3(0.1f)));
     }
     else
     {
@@ -317,11 +317,11 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg0))
+  if (auto pMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEditor*>(pMsg0))
   {
     if (pMsg->m_sWhatToDo == "ClipDuration")
     {
-      const ezTime newDuration = pMsg->m_PayloadValue.Get<ezTime>();
+      const WTime newDuration = pMsg->m_PayloadValue.Get<WTime>();
 
       if (m_ClipDuration != newDuration)
       {
@@ -340,14 +340,14 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
     }
     else if (pMsg->m_sWhatToDo == "ExtractRootMotionFromFeet")
     {
-      const ezVec4 vResult = pMsg->m_PayloadValue.Get<ezVec4>();
+      const WVec4 vResult = pMsg->m_PayloadValue.Get<WVec4>();
 
       auto pPropObj = GetAnimationClipDocument()->GetPropertyObject();
 
-      ezObjectCommandAccessor acc(GetAnimationClipDocument()->GetCommandHistory());
+      WObjectCommandAccessor acc(GetAnimationClipDocument()->GetCommandHistory());
       acc.StartTransaction("Extract Root Motion From Feet");
 
-      acc.SetValueByName(pPropObj, "RootMotion", (ezInt32)ezRootMotionSource::Constant).AssertSuccess();
+      acc.SetValueByName(pPropObj, "RootMotion", (WInt32)WRootMotionSource::Constant).AssertSuccess();
       acc.SetValueByName(pPropObj, "ConstantRootMotion", vResult.GetAsVec3()).AssertSuccess();
       acc.SetValueByName(pPropObj, "RootMotionDistance", vResult.w).AssertSuccess();
 
@@ -359,95 +359,95 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
     }
     else if (pMsg->m_sWhatToDo == "ReportError")
     {
-      QString text = ezMakeQString(pMsg->m_sPayload);
+      QString text = WMakeQString(pMsg->m_sPayload);
       QTimer::singleShot(1, [=]()
         {
           // we have to break out of this callback, and execute the UI stuff on the main thread
-          ezQtUiServices::MessageBoxInformation(ezFmt(text.toUtf8().data()));
+          WQtUiServices::MessageBoxInformation(WFmt(text.toUtf8().data()));
           //
         });
       return;
     }
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg0);
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg0);
 }
 
-void ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiState& e)
+void WQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler(const WCommonAssetUiState& e)
 {
-  ezQtEngineDocumentWindow::CommonAssetUiEventHandler(e);
+  WQtEngineDocumentWindow::CommonAssetUiEventHandler(e);
 
-  if (e.m_State == ezCommonAssetUiState::Restart)
+  if (e.m_State == WCommonAssetUiState::Restart)
   {
-    m_PlaybackPosition = ezTime::MakeFromSeconds(-1);
+    m_PlaybackPosition = WTime::MakeFromSeconds(-1);
   }
 }
 
-void ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos)
+void WQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent(WUInt64 uiNewScrubberTickPos)
 {
   if (m_pTimeScrubber == nullptr || m_ClipDuration.IsZeroOrNegative())
     return;
 
-  m_PlaybackPosition = ezTime::MakeFromSeconds(uiNewScrubberTickPos / 4800.0);
+  m_PlaybackPosition = WTime::MakeFromSeconds(uiNewScrubberTickPos / 4800.0);
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt(WInt64 tickX, QString value)
 {
   auto* pDoc = GetAnimationClipDocument();
   pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved(WUInt32 cpIdx, WInt64 iTickX)
 {
-  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+  iTickX = WMath::Max<WInt64>(iTickX, 0);
 
   auto* pDoc = GetAnimationClipDocument();
 
-  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+  WObjectCommandAccessor accessor(pDoc->GetCommandHistory());
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
-  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
-  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  const WUuid trackGuid = accessor.Get<WUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const WDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
 
-  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted(WUInt32 cpIdx)
 {
   auto* pDoc = GetAnimationClipDocument();
 
-  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+  WObjectCommandAccessor accessor(pDoc->GetCommandHistory());
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
-  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
-  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WAnimationClipAssetProperties>()->FindPropertyByName("EventTrack");
+  const WUuid trackGuid = accessor.Get<WUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const WDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
 
-  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   if (!cpGuid.IsValid())
     return;
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
   pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation(QString name)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation(QString name)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Events");
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation(bool commit)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -455,57 +455,57 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndOperation(bool commit)
     history->CancelTemporaryCommands();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
+void WQtAnimationClipAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
 {
   GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
+void WQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
   UpdateEventTrackEditor();
 }
 
-/// Returns the ezSingleCurveData document object for Curves[uiCurveIdx].m_Curve
-static const ezDocumentObject* GetCurveSubObject(ezAnimationClipAssetDocument* pDoc, ezUInt32 uiCurveIdx)
+/// Returns the WSingleCurveData document object for Curves[uiCurveIdx].m_Curve
+static const WDocumentObject* GetCurveSubObject(WAnimationClipAssetDocument* pDoc, WUInt32 uiCurveIdx)
 {
-  const ezVariant namedCurveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
-  const ezDocumentObject* pNamedCurve = pDoc->GetObjectManager()->GetObject(namedCurveGuid.Get<ezUuid>());
-  const ezVariant curveGuid = pNamedCurve->GetTypeAccessor().GetValue("Curve");
-  return pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
+  const WVariant namedCurveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
+  const WDocumentObject* pNamedCurve = pDoc->GetObjectManager()->GetObject(namedCurveGuid.Get<WUuid>());
+  const WVariant curveGuid = pNamedCurve->GetTypeAccessor().GetValue("Curve");
+  return pDoc->GetObjectManager()->GetObject(curveGuid.Get<WUuid>());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY)
+void WQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(WUInt32 uiCurveIdx, WInt64 tickX, double newPosY)
 {
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  ezCommandHistory* history = pDoc->GetCommandHistory();
+  WCommandHistory* history = pDoc->GetCommandHistory();
 
   // If there is no curve at uiCurveIdx yet, add a new named curve entry
-  while (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") <= static_cast<ezInt32>(uiCurveIdx))
+  while (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") <= static_cast<WInt32>(uiCurveIdx))
   {
-    ezAddObjectCommand cmdAdd;
+    WAddObjectCommand cmdAdd;
     cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
     cmdAdd.m_sParentProperty = "Curves";
-    cmdAdd.m_pType = ezGetStaticRTTI<ezAnimationClipCurveData>();
+    cmdAdd.m_pType = WGetStaticRTTI<WAnimationClipCurveData>();
     cmdAdd.m_Index = -1;
-    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
     history->AddCommand(cmdAdd).AssertSuccess();
   }
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, uiCurveIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, uiCurveIdx);
 
-  ezAddObjectCommand cmdAdd;
+  WAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pCurveObj->GetGuid();
-  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ControlPoints";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
+  cmdAdd.m_pType = WGetStaticRTTI<WCurveControlPointData>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
 
-  ezSetObjectPropertyCommand cmdSet;
+  WSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
@@ -517,25 +517,25 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
+  cmdSet.m_NewValue = WVec2(-0.1f, 0.0f);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "RightTangent";
-  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
+  cmdSet.m_NewValue = WVec2(+0.1f, 0.0f);
   history->AddCommand(cmdSet).AssertSuccess();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
+void WQtAnimationClipAssetDocumentWindow::onCurveCpMoved(WUInt32 curveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY)
 {
-  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+  iTickX = WMath::Max<WInt64>(iTickX, 0);
 
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
-  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const WVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
@@ -547,91 +547,91 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezU
 }
 
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
+void WQtAnimationClipAssetDocumentWindow::onCurveCpDeleted(WUInt32 curveIdx, WUInt32 cpIdx)
 {
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
-  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const WVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   if (!cpGuid.IsValid())
     return;
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void WQtAnimationClipAssetDocumentWindow::onCurveTangentMoved(WUInt32 curveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
 {
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
-  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const WVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<WUuid>();
 
   // clamp tangents to one side
   if (rightTangent)
-    newPosX = ezMath::Max(newPosX, 0.0f);
+    newPosX = WMath::Max(newPosX, 0.0f);
   else
-    newPosX = ezMath::Min(newPosX, 0.0f);
+    newPosX = WMath::Min(newPosX, 0.0f);
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
+  cmdSet.m_NewValue = WVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 
-void ezQtAnimationClipAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
+void WQtAnimationClipAssetDocumentWindow::onLinkCurveTangents(WUInt32 curveIdx, WUInt32 cpIdx, bool bLink)
 {
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
-  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const WVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmdLink;
-  cmdLink.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdLink;
+  cmdLink.m_Object = cpGuid.Get<WUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
   GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
-    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx].m_Curve.m_ControlPoints[cpIdx].m_LeftTangent;
-    const ezVec2 rightTangent = -leftTangent;
+    const WVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx].m_Curve.m_ControlPoints[cpIdx].m_LeftTangent;
+    const WVec2 rightTangent = -leftTangent;
 
     onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
   }
 }
 
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+void WQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged(WUInt32 curveIdx, WUInt32 cpIdx, bool rightTangent, int mode)
 {
-  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+  auto* pDoc = static_cast<WAnimationClipAssetDocument*>(GetDocument());
 
-  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
-  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+  const WDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const WVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = cpGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmd;
+  cmd.m_Object = cpGuid.Get<WUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
   GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 }
 
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveBeginOperation(QString name)
+void WQtAnimationClipAssetDocumentWindow::onCurveBeginOperation(QString name)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands(name.toUtf8().data());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveEndOperation(bool commit)
+void WQtAnimationClipAssetDocumentWindow::onCurveEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -641,19 +641,19 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveEndOperation(bool commit)
   UpdateCurveEditor();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges(QString name)
+void WQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges(QString name)
 {
   GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
-void ezQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges()
+void WQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
   UpdateCurveEditor();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::OnAfterDocumentLayoutRestored()
+void WQtAnimationClipAssetDocumentWindow::OnAfterDocumentLayoutRestored()
 {
   // ADS flags dock widgets not found in the saved layout as "unassigned" (closed, detached from all dock areas).
   // Re-add the panel to its default location.
@@ -670,14 +670,14 @@ void ezQtAnimationClipAssetDocumentWindow::OnAfterDocumentLayoutRestored()
   }
 }
 
-void ezQtAnimationClipAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtAnimationClipAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterReset:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    case WDocumentObjectStructureEvent::Type::AfterReset:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       UpdateCurveEditor();
       break;
 
@@ -686,13 +686,13 @@ void ezQtAnimationClipAssetDocumentWindow::StructureEventHandler(const ezDocumen
   }
 }
 
-void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   // also listen to TransactionCanceled, which is sent when a no-op happens (e.g. asset transform with no change)
   // because the event track data object may still get replaced, and we have to get the new pointer
-  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
-      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded ||
-      e.m_Type == ezCommandHistoryEvent::Type::TransactionCanceled)
+  if (e.m_Type == WCommandHistoryEvent::Type::TransactionEnded || e.m_Type == WCommandHistoryEvent::Type::UndoEnded ||
+      e.m_Type == WCommandHistoryEvent::Type::RedoEnded ||
+      e.m_Type == WCommandHistoryEvent::Type::TransactionCanceled)
   {
     UpdateEventTrackEditor();
     UpdateCurveEditor();

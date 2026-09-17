@@ -5,34 +5,34 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
-struct ezSelectionManagerEvent;
-class ezDocumentObject;
-class ezVisualizerAttribute;
+struct WSelectionManagerEvent;
+class WDocumentObject;
+class WVisualizerAttribute;
 
-struct EZ_GUIFOUNDATION_DLL ezVisualizerManagerEvent
+struct W_GUIFOUNDATION_DLL WVisualizerManagerEvent
 {
-  const ezDocument* m_pDocument;
-  const ezDeque<const ezDocumentObject*>* m_pSelection;
+  const WDocument* m_pDocument;
+  const WDeque<const WDocumentObject*>* m_pSelection;
 };
 
-class EZ_GUIFOUNDATION_DLL ezVisualizerManager
+class W_GUIFOUNDATION_DLL WVisualizerManager
 {
-  EZ_DECLARE_SINGLETON(ezVisualizerManager);
+  W_DECLARE_SINGLETON(WVisualizerManager);
 
 public:
-  ezVisualizerManager();
-  ~ezVisualizerManager();
+  WVisualizerManager();
+  ~WVisualizerManager();
 
-  void SetVisualizersActive(const ezDocument* pDoc, bool bActive);
-  bool GetVisualizersActive(const ezDocument* pDoc);
+  void SetVisualizersActive(const WDocument* pDoc, bool bActive);
+  bool GetVisualizersActive(const WDocument* pDoc);
 
-  ezEvent<const ezVisualizerManagerEvent&> m_Events;
+  WEvent<const WVisualizerManagerEvent&> m_Events;
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void SendEventToRecreateVisualizers(const ezDocument* pDoc);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
+  void DocumentManagerEventHandler(const WDocumentManager::Event& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void SendEventToRecreateVisualizers(const WDocument* pDoc);
 
   struct DocData
   {
@@ -41,5 +41,5 @@ private:
     DocData() { m_bActivated = true; }
   };
 
-  ezMap<const ezDocument*, DocData> m_DocsSubscribed;
+  WMap<const WDocument*, DocData> m_DocsSubscribed;
 };

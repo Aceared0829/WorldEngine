@@ -1,0 +1,67 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE
+
+[RENDERSTATE]
+
+BlendingEnabled0 = false
+
+DepthTest = true
+DepthWrite = true
+
+[SHADER]
+
+#include <Shaders/Common/Common.h>
+
+#define USE_COLOR0
+#if W_ENABLED(PLATFORM_VULKAN)
+  #define CUSTOM_INTERPOLATOR [[vk::builtin("PointSize")]] float PointSize : PSIZE;
+#endif
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Particles/BillboardQuadParticleShaderData.h>
+
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
+  VS_OUT ret;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  ret.RenderTargetArrayIndex = InstanceID;
+#endif
+
+  uint dataIndex = VertexID;
+
+  WBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  WBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
+
+  float4 position = float4(billboardData.Position, 1);
+
+  float4 worldPosition = mul(ObjectToWorldMatrix, position);
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
+
+  ret.Position = screenPosition;
+  ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
+#if W_ENABLED(PLATFORM_VULKAN)
+  ret.PointSize = 1.0;
+#endif
+  return ret;
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return Input.Color0;
+}
+

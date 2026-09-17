@@ -2,430 +2,430 @@
 
 #include <Foundation/Containers/HybridArray.h>
 
-static ezInt32 iCallPodConstructor = 0;
-static ezInt32 iCallPodDestructor = 0;
-static ezInt32 iCallNonPodConstructor = 0;
-static ezInt32 iCallNonPodDestructor = 0;
+static WInt32 iCallPodConstructor = 0;
+static WInt32 iCallPodDestructor = 0;
+static WInt32 iCallNonPodConstructor = 0;
+static WInt32 iCallNonPodDestructor = 0;
 
-struct ezConstructTest
+struct WConstructTest
 {
 public:
-  static ezHybridArray<void*, 10> s_dtorList;
+  static WHybridArray<void*, 10> s_dtorList;
 
-  ezConstructTest() { m_iData = 42; }
+  WConstructTest() { m_iData = 42; }
 
-  ~ezConstructTest() { s_dtorList.PushBack(this); }
+  ~WConstructTest() { s_dtorList.PushBack(this); }
 
-  ezInt32 m_iData;
+  WInt32 m_iData;
 };
-ezHybridArray<void*, 10> ezConstructTest::s_dtorList;
+WHybridArray<void*, 10> WConstructTest::s_dtorList;
 
-static_assert(sizeof(ezConstructTest) == 4);
+static_assert(sizeof(WConstructTest) == 4);
 
 
 struct PODTest
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   PODTest() { m_iData = -1; }
 
-  ezInt32 m_iData;
+  WInt32 m_iData;
 };
 
-static const ezUInt32 s_uiSize = sizeof(ezConstructTest);
+static const WUInt32 s_uiSize = sizeof(WConstructTest);
 
-EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
+W_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 {
-  ezConstructTest::s_dtorList.Clear();
+  WConstructTest::s_dtorList.Clear();
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Construct")
   {
-    ezUInt8 uiRawData[s_uiSize * 5] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize * 5] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct<SkipTrivialTypes, ezConstructTest>(pTest + 1, 2);
+    WMemoryUtils::Construct<SkipTrivialTypes, WConstructTest>(pTest + 1, 2);
 
-    EZ_TEST_INT(pTest[0].m_iData, 0);
-    EZ_TEST_INT(pTest[1].m_iData, 42);
-    EZ_TEST_INT(pTest[2].m_iData, 42);
-    EZ_TEST_INT(pTest[3].m_iData, 0);
-    EZ_TEST_INT(pTest[4].m_iData, 0);
+    W_TEST_INT(pTest[0].m_iData, 0);
+    W_TEST_INT(pTest[1].m_iData, 42);
+    W_TEST_INT(pTest[2].m_iData, 42);
+    W_TEST_INT(pTest[3].m_iData, 0);
+    W_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeConstructorFunction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeConstructorFunction")
   {
-    ezMemoryUtils::ConstructorFunction func = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, ezConstructTest>();
-    EZ_TEST_BOOL(func != nullptr);
+    WMemoryUtils::ConstructorFunction func = WMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, WConstructTest>();
+    W_TEST_BOOL(func != nullptr);
 
-    ezUInt8 uiRawData[s_uiSize] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
     (*func)(pTest);
 
-    EZ_TEST_INT(pTest->m_iData, 42);
+    W_TEST_INT(pTest->m_iData, 42);
 
-    func = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, PODTest>();
-    EZ_TEST_BOOL(func != nullptr);
+    func = WMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, PODTest>();
+    W_TEST_BOOL(func != nullptr);
 
-    func = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, ezInt32>();
-    EZ_TEST_BOOL(func == nullptr);
+    func = WMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, WInt32>();
+    W_TEST_BOOL(func == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DefaultConstruct")
+  W_TEST_BLOCK(WTestBlock::Enabled, "DefaultConstruct")
   {
-    ezUInt32 uiRawData[5]; // not initialized here
+    WUInt32 uiRawData[5]; // not initialized here
 
-    ezMemoryUtils::Construct<ConstructAll>(uiRawData + 1, 2);
+    WMemoryUtils::Construct<ConstructAll>(uiRawData + 1, 2);
 
-    EZ_TEST_INT(uiRawData[1], 0);
-    EZ_TEST_INT(uiRawData[2], 0);
+    W_TEST_INT(uiRawData[1], 0);
+    W_TEST_INT(uiRawData[2], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Array)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Construct Copy(Array)")
   {
-    ezUInt8 uiRawData[s_uiSize * 5] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize * 5] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezConstructTest copy[2];
+    WConstructTest copy[2];
     copy[0].m_iData = 43;
     copy[1].m_iData = 44;
 
-    ezMemoryUtils::CopyConstructArray<ezConstructTest>(pTest + 1, copy, 2);
+    WMemoryUtils::CopyConstructArray<WConstructTest>(pTest + 1, copy, 2);
 
-    EZ_TEST_INT(pTest[0].m_iData, 0);
-    EZ_TEST_INT(pTest[1].m_iData, 43);
-    EZ_TEST_INT(pTest[2].m_iData, 44);
-    EZ_TEST_INT(pTest[3].m_iData, 0);
-    EZ_TEST_INT(pTest[4].m_iData, 0);
+    W_TEST_INT(pTest[0].m_iData, 0);
+    W_TEST_INT(pTest[1].m_iData, 43);
+    W_TEST_INT(pTest[2].m_iData, 44);
+    W_TEST_INT(pTest[3].m_iData, 0);
+    W_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Element)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Construct Copy(Element)")
   {
-    ezUInt8 uiRawData[s_uiSize * 5] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize * 5] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezConstructTest copy;
+    WConstructTest copy;
     copy.m_iData = 43;
 
-    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, copy, 2);
+    WMemoryUtils::CopyConstruct<WConstructTest>(pTest + 1, copy, 2);
 
-    EZ_TEST_INT(pTest[0].m_iData, 0);
-    EZ_TEST_INT(pTest[1].m_iData, 43);
-    EZ_TEST_INT(pTest[2].m_iData, 43);
-    EZ_TEST_INT(pTest[3].m_iData, 0);
-    EZ_TEST_INT(pTest[4].m_iData, 0);
+    W_TEST_INT(pTest[0].m_iData, 0);
+    W_TEST_INT(pTest[1].m_iData, 43);
+    W_TEST_INT(pTest[2].m_iData, 43);
+    W_TEST_INT(pTest[3].m_iData, 0);
+    W_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeCopyConstructorFunction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeCopyConstructorFunction")
   {
-    ezMemoryUtils::CopyConstructorFunction func = ezMemoryUtils::MakeCopyConstructorFunction<ezConstructTest>();
-    EZ_TEST_BOOL(func != nullptr);
+    WMemoryUtils::CopyConstructorFunction func = WMemoryUtils::MakeCopyConstructorFunction<WConstructTest>();
+    W_TEST_BOOL(func != nullptr);
 
-    ezUInt8 uiRawData[s_uiSize] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezConstructTest copy;
+    WConstructTest copy;
     copy.m_iData = 43;
 
     (*func)(pTest, &copy);
 
-    EZ_TEST_INT(pTest->m_iData, 43);
+    W_TEST_INT(pTest->m_iData, 43);
 
-    func = ezMemoryUtils::MakeCopyConstructorFunction<PODTest>();
-    EZ_TEST_BOOL(func != nullptr);
+    func = WMemoryUtils::MakeCopyConstructorFunction<PODTest>();
+    W_TEST_BOOL(func != nullptr);
 
-    func = ezMemoryUtils::MakeCopyConstructorFunction<ezInt32>();
-    EZ_TEST_BOOL(func != nullptr);
+    func = WMemoryUtils::MakeCopyConstructorFunction<WInt32>();
+    W_TEST_BOOL(func != nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Destruct")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Destruct")
   {
-    ezUInt8 uiRawData[s_uiSize * 5] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize * 5] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct<SkipTrivialTypes, ezConstructTest>(pTest + 1, 2);
+    WMemoryUtils::Construct<SkipTrivialTypes, WConstructTest>(pTest + 1, 2);
 
-    EZ_TEST_INT(pTest[0].m_iData, 0);
-    EZ_TEST_INT(pTest[1].m_iData, 42);
-    EZ_TEST_INT(pTest[2].m_iData, 42);
-    EZ_TEST_INT(pTest[3].m_iData, 0);
-    EZ_TEST_INT(pTest[4].m_iData, 0);
+    W_TEST_INT(pTest[0].m_iData, 0);
+    W_TEST_INT(pTest[1].m_iData, 42);
+    W_TEST_INT(pTest[2].m_iData, 42);
+    W_TEST_INT(pTest[3].m_iData, 0);
+    W_TEST_INT(pTest[4].m_iData, 0);
 
-    ezConstructTest::s_dtorList.Clear();
-    ezMemoryUtils::Destruct<ezConstructTest>(pTest, 4);
-    EZ_TEST_INT(4, ezConstructTest::s_dtorList.GetCount());
+    WConstructTest::s_dtorList.Clear();
+    WMemoryUtils::Destruct<WConstructTest>(pTest, 4);
+    W_TEST_INT(4, WConstructTest::s_dtorList.GetCount());
 
-    if (ezConstructTest::s_dtorList.GetCount() == 4)
+    if (WConstructTest::s_dtorList.GetCount() == 4)
     {
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == &pTest[0]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[1] == &pTest[1]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[2] == &pTest[2]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[3] == &pTest[3]);
-      EZ_TEST_INT(pTest[4].m_iData, 0);
+      W_TEST_BOOL(WConstructTest::s_dtorList[0] == &pTest[0]);
+      W_TEST_BOOL(WConstructTest::s_dtorList[1] == &pTest[1]);
+      W_TEST_BOOL(WConstructTest::s_dtorList[2] == &pTest[2]);
+      W_TEST_BOOL(WConstructTest::s_dtorList[3] == &pTest[3]);
+      W_TEST_INT(pTest[4].m_iData, 0);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeDestructorFunction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeDestructorFunction")
   {
-    ezMemoryUtils::DestructorFunction func = ezMemoryUtils::MakeDestructorFunction<ezConstructTest>();
-    EZ_TEST_BOOL(func != nullptr);
+    WMemoryUtils::DestructorFunction func = WMemoryUtils::MakeDestructorFunction<WConstructTest>();
+    W_TEST_BOOL(func != nullptr);
 
-    ezUInt8 uiRawData[s_uiSize] = {0};
-    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+    WUInt8 uiRawData[s_uiSize] = {0};
+    WConstructTest* pTest = (WConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct<SkipTrivialTypes>(pTest, 1);
-    EZ_TEST_INT(pTest->m_iData, 42);
+    WMemoryUtils::Construct<SkipTrivialTypes>(pTest, 1);
+    W_TEST_INT(pTest->m_iData, 42);
 
-    ezConstructTest::s_dtorList.Clear();
+    WConstructTest::s_dtorList.Clear();
     (*func)(pTest);
-    EZ_TEST_INT(1, ezConstructTest::s_dtorList.GetCount());
+    W_TEST_INT(1, WConstructTest::s_dtorList.GetCount());
 
-    if (ezConstructTest::s_dtorList.GetCount() == 1)
+    if (WConstructTest::s_dtorList.GetCount() == 1)
     {
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == pTest);
+      W_TEST_BOOL(WConstructTest::s_dtorList[0] == pTest);
     }
 
-    func = ezMemoryUtils::MakeDestructorFunction<PODTest>();
-    EZ_TEST_BOOL(func == nullptr);
+    func = WMemoryUtils::MakeDestructorFunction<PODTest>();
+    W_TEST_BOOL(func == nullptr);
 
-    func = ezMemoryUtils::MakeDestructorFunction<ezInt32>();
-    EZ_TEST_BOOL(func == nullptr);
+    func = WMemoryUtils::MakeDestructorFunction<WInt32>();
+    W_TEST_BOOL(func == nullptr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Copy")
   {
-    ezUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
-    ezUInt8 uiRawData2[5] = {6, 7, 8, 9, 0};
+    WUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData2[5] = {6, 7, 8, 9, 0};
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 2);
-    EZ_TEST_INT(uiRawData[2], 3);
-    EZ_TEST_INT(uiRawData[3], 4);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 2);
+    W_TEST_INT(uiRawData[2], 3);
+    W_TEST_INT(uiRawData[3], 4);
+    W_TEST_INT(uiRawData[4], 5);
 
-    ezMemoryUtils::Copy(uiRawData + 1, uiRawData2 + 2, 3);
+    WMemoryUtils::Copy(uiRawData + 1, uiRawData2 + 2, 3);
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 8);
-    EZ_TEST_INT(uiRawData[2], 9);
-    EZ_TEST_INT(uiRawData[3], 0);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 8);
+    W_TEST_INT(uiRawData[2], 9);
+    W_TEST_INT(uiRawData[3], 0);
+    W_TEST_INT(uiRawData[4], 5);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move")
   {
-    ezUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 2);
-    EZ_TEST_INT(uiRawData[2], 3);
-    EZ_TEST_INT(uiRawData[3], 4);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 2);
+    W_TEST_INT(uiRawData[2], 3);
+    W_TEST_INT(uiRawData[3], 4);
+    W_TEST_INT(uiRawData[4], 5);
 
-    ezMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData + 3, 2);
+    WMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData + 3, 2);
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 4);
-    EZ_TEST_INT(uiRawData[2], 5);
-    EZ_TEST_INT(uiRawData[3], 4);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 4);
+    W_TEST_INT(uiRawData[2], 5);
+    W_TEST_INT(uiRawData[3], 4);
+    W_TEST_INT(uiRawData[4], 5);
 
-    ezMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData, 4);
+    WMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData, 4);
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 1);
-    EZ_TEST_INT(uiRawData[2], 4);
-    EZ_TEST_INT(uiRawData[3], 5);
-    EZ_TEST_INT(uiRawData[4], 4);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 1);
+    W_TEST_INT(uiRawData[2], 4);
+    W_TEST_INT(uiRawData[3], 5);
+    W_TEST_INT(uiRawData[4], 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IsEqual")
   {
-    ezUInt8 uiRawData1[5] = {1, 2, 3, 4, 5};
-    ezUInt8 uiRawData2[5] = {1, 2, 3, 4, 5};
-    ezUInt8 uiRawData3[5] = {1, 2, 3, 4, 6};
+    WUInt8 uiRawData1[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData2[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData3[5] = {1, 2, 3, 4, 6};
 
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
-    EZ_TEST_BOOL(!ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
-    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
+    W_TEST_BOOL(!WMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
+    W_TEST_BOOL(WMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroFill")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ZeroFill")
   {
-    ezUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 2);
-    EZ_TEST_INT(uiRawData[2], 3);
-    EZ_TEST_INT(uiRawData[3], 4);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 2);
+    W_TEST_INT(uiRawData[2], 3);
+    W_TEST_INT(uiRawData[3], 4);
+    W_TEST_INT(uiRawData[4], 5);
 
     // T*, size_t N overload
-    ezMemoryUtils::ZeroFill(uiRawData + 1, 3);
+    WMemoryUtils::ZeroFill(uiRawData + 1, 3);
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 0);
-    EZ_TEST_INT(uiRawData[2], 0);
-    EZ_TEST_INT(uiRawData[3], 0);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 0);
+    W_TEST_INT(uiRawData[2], 0);
+    W_TEST_INT(uiRawData[3], 0);
+    W_TEST_INT(uiRawData[4], 5);
 
     // T[N] overload
-    ezMemoryUtils::ZeroFillArray(uiRawData);
+    WMemoryUtils::ZeroFillArray(uiRawData);
 
-    EZ_TEST_INT(uiRawData[0], 0);
-    EZ_TEST_INT(uiRawData[1], 0);
-    EZ_TEST_INT(uiRawData[2], 0);
-    EZ_TEST_INT(uiRawData[3], 0);
-    EZ_TEST_INT(uiRawData[4], 0);
+    W_TEST_INT(uiRawData[0], 0);
+    W_TEST_INT(uiRawData[1], 0);
+    W_TEST_INT(uiRawData[2], 0);
+    W_TEST_INT(uiRawData[3], 0);
+    W_TEST_INT(uiRawData[4], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PatternFill")
+  W_TEST_BLOCK(WTestBlock::Enabled, "PatternFill")
   {
-    ezUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
+    WUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 2);
-    EZ_TEST_INT(uiRawData[2], 3);
-    EZ_TEST_INT(uiRawData[3], 4);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 2);
+    W_TEST_INT(uiRawData[2], 3);
+    W_TEST_INT(uiRawData[3], 4);
+    W_TEST_INT(uiRawData[4], 5);
 
     // T*, size_t N overload
-    ezMemoryUtils::PatternFill(uiRawData + 1, 0xAB, 3);
+    WMemoryUtils::PatternFill(uiRawData + 1, 0xAB, 3);
 
-    EZ_TEST_INT(uiRawData[0], 1);
-    EZ_TEST_INT(uiRawData[1], 0xAB);
-    EZ_TEST_INT(uiRawData[2], 0xAB);
-    EZ_TEST_INT(uiRawData[3], 0xAB);
-    EZ_TEST_INT(uiRawData[4], 5);
+    W_TEST_INT(uiRawData[0], 1);
+    W_TEST_INT(uiRawData[1], 0xAB);
+    W_TEST_INT(uiRawData[2], 0xAB);
+    W_TEST_INT(uiRawData[3], 0xAB);
+    W_TEST_INT(uiRawData[4], 5);
 
     // T[N] overload
-    ezMemoryUtils::PatternFillArray(uiRawData, 0xCD);
+    WMemoryUtils::PatternFillArray(uiRawData, 0xCD);
 
-    EZ_TEST_INT(uiRawData[0], 0xCD);
-    EZ_TEST_INT(uiRawData[1], 0xCD);
-    EZ_TEST_INT(uiRawData[2], 0xCD);
-    EZ_TEST_INT(uiRawData[3], 0xCD);
-    EZ_TEST_INT(uiRawData[4], 0xCD);
+    W_TEST_INT(uiRawData[0], 0xCD);
+    W_TEST_INT(uiRawData[1], 0xCD);
+    W_TEST_INT(uiRawData[2], 0xCD);
+    W_TEST_INT(uiRawData[3], 0xCD);
+    W_TEST_INT(uiRawData[4], 0xCD);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Compare")
   {
-    ezUInt32 uiRawDataA[3] = {1, 2, 3};
-    ezUInt32 uiRawDataB[3] = {3, 4, 5};
+    WUInt32 uiRawDataA[3] = {1, 2, 3};
+    WUInt32 uiRawDataB[3] = {3, 4, 5};
 
-    EZ_TEST_INT(uiRawDataA[0], 1);
-    EZ_TEST_INT(uiRawDataA[1], 2);
-    EZ_TEST_INT(uiRawDataA[2], 3);
-    EZ_TEST_INT(uiRawDataB[0], 3);
-    EZ_TEST_INT(uiRawDataB[1], 4);
-    EZ_TEST_INT(uiRawDataB[2], 5);
+    W_TEST_INT(uiRawDataA[0], 1);
+    W_TEST_INT(uiRawDataA[1], 2);
+    W_TEST_INT(uiRawDataA[2], 3);
+    W_TEST_INT(uiRawDataB[0], 3);
+    W_TEST_INT(uiRawDataB[1], 4);
+    W_TEST_INT(uiRawDataB[2], 5);
 
-    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataA, uiRawDataB, 3) < 0);
-    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataA + 2, uiRawDataB, 1) == 0);
-    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataB, uiRawDataA, 3) > 0);
+    W_TEST_BOOL(WMemoryUtils::Compare(uiRawDataA, uiRawDataB, 3) < 0);
+    W_TEST_BOOL(WMemoryUtils::Compare(uiRawDataA + 2, uiRawDataB, 1) == 0);
+    W_TEST_BOOL(WMemoryUtils::Compare(uiRawDataB, uiRawDataA, 3) > 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddByteOffset")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AddByteOffset")
   {
-    ezInt32* pData1 = nullptr;
-    pData1 = ezMemoryUtils::AddByteOffset(pData1, 13);
-    EZ_TEST_BOOL(pData1 == reinterpret_cast<ezInt32*>(13));
+    WInt32* pData1 = nullptr;
+    pData1 = WMemoryUtils::AddByteOffset(pData1, 13);
+    W_TEST_BOOL(pData1 == reinterpret_cast<WInt32*>(13));
 
-    const ezInt32* pData2 = nullptr;
-    const ezInt32* pData3 = ezMemoryUtils::AddByteOffset(pData2, 17);
-    EZ_TEST_BOOL(pData3 == reinterpret_cast<ezInt32*>(17));
+    const WInt32* pData2 = nullptr;
+    const WInt32* pData3 = WMemoryUtils::AddByteOffset(pData2, 17);
+    W_TEST_BOOL(pData3 == reinterpret_cast<WInt32*>(17));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Align / IsAligned")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Align / IsAligned")
   {
     {
-      ezInt32* pData = (ezInt32*)1;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignBackwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)1;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignBackwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(0));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)2;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignBackwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)2;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignBackwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(0));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)3;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignBackwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)3;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignBackwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(0));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)4;
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignBackwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)4;
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignBackwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(4));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
 
     {
-      ezInt32* pData = (ezInt32*)1;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignForwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)1;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignForwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(4));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)2;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignForwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)2;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignForwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(4));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)3;
-      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignForwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)3;
+      W_TEST_BOOL(!WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignForwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(4));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
     {
-      ezInt32* pData = (ezInt32*)4;
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
-      pData = ezMemoryUtils::AlignForwards(pData, 4);
-      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+      WInt32* pData = (WInt32*)4;
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
+      pData = WMemoryUtils::AlignForwards(pData, 4);
+      W_TEST_BOOL(pData == reinterpret_cast<WInt32*>(4));
+      W_TEST_BOOL(WMemoryUtils::IsAligned(pData, 4));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "POD")
+  W_TEST_BLOCK(WTestBlock::Enabled, "POD")
   {
     struct Trivial
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
       ~Trivial() = default;
 
-      ezUInt32 a;
-      ezUInt32 b;
+      WUInt32 a;
+      WUInt32 b;
     };
 
     static_assert(std::is_trivial<Trivial>::value != 0);
-    static_assert(ezIsPodType<Trivial>::value == 1);
+    static_assert(WIsPodType<Trivial>::value == 1);
     static_assert(std::is_trivially_destructible<Trivial>::value != 0);
 
     struct POD
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
-      ezUInt32 a = 2;
-      ezUInt32 b = 4;
+      WUInt32 a = 2;
+      WUInt32 b = 4;
 
       POD()
       {
         iCallPodConstructor++;
       }
 
-      // this isn't allowed anymore in types that use EZ_DECLARE_POD_TYPE
+      // this isn't allowed anymore in types that use W_DECLARE_POD_TYPE
       // unfortunately that means we can't do this kind of check either
       //~POD()
       //{
@@ -434,12 +434,12 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     };
 
     static_assert(std::is_trivial<POD>::value == 0);
-    static_assert(ezIsPodType<POD>::value == 1);
+    static_assert(WIsPodType<POD>::value == 1);
 
     struct NonPOD
     {
-      ezUInt32 a = 3;
-      ezUInt32 b = 5;
+      WUInt32 a = 3;
+      WUInt32 b = 5;
 
       NonPOD()
       {
@@ -453,12 +453,12 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     };
 
     static_assert(std::is_trivial<NonPOD>::value == 0);
-    static_assert(ezIsPodType<NonPOD>::value == 0);
+    static_assert(WIsPodType<NonPOD>::value == 0);
 
     struct NonPOD2
     {
-      ezUInt32 a;
-      ezUInt32 b;
+      WUInt32 a;
+      WUInt32 b;
 
       ~NonPOD2()
       {
@@ -467,48 +467,48 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     };
 
     static_assert(std::is_trivial<NonPOD2>::value == 0); // destructor makes it non-trivial
-    static_assert(ezIsPodType<NonPOD2>::value == 0);
+    static_assert(WIsPodType<NonPOD2>::value == 0);
     static_assert(std::is_trivially_destructible<NonPOD2>::value == 0);
 
-    // check that ezMemoryUtils::Construct and ezMemoryUtils::Destruct ignore POD types
+    // check that WMemoryUtils::Construct and WMemoryUtils::Destruct ignore POD types
     {
-      ezUInt8 mem[sizeof(POD) * 2];
+      WUInt8 mem[sizeof(POD) * 2];
 
-      EZ_TEST_INT(iCallPodConstructor, 0);
-      EZ_TEST_INT(iCallPodDestructor, 0);
+      W_TEST_INT(iCallPodConstructor, 0);
+      W_TEST_INT(iCallPodDestructor, 0);
 
-      ezMemoryUtils::Construct<SkipTrivialTypes, POD>((POD*)mem, 1);
+      WMemoryUtils::Construct<SkipTrivialTypes, POD>((POD*)mem, 1);
 
-      EZ_TEST_INT(iCallPodConstructor, 1);
-      EZ_TEST_INT(iCallPodDestructor, 0);
+      W_TEST_INT(iCallPodConstructor, 1);
+      W_TEST_INT(iCallPodDestructor, 0);
 
-      ezMemoryUtils::Destruct<POD>((POD*)mem, 1);
-      EZ_TEST_INT(iCallPodConstructor, 1);
-      EZ_TEST_INT(iCallPodDestructor, 0);
+      WMemoryUtils::Destruct<POD>((POD*)mem, 1);
+      W_TEST_INT(iCallPodConstructor, 1);
+      W_TEST_INT(iCallPodDestructor, 0);
 
       iCallPodConstructor = 0;
     }
 
-    // check that ezMemoryUtils::Destruct calls the destructor of a non-trivial type
+    // check that WMemoryUtils::Destruct calls the destructor of a non-trivial type
     {
-      ezUInt8 mem[sizeof(NonPOD2) * 2];
+      WUInt8 mem[sizeof(NonPOD2) * 2];
 
-      EZ_TEST_INT(iCallNonPodDestructor, 0);
-      ezMemoryUtils::Destruct<NonPOD2>((NonPOD2*)mem, 1);
+      W_TEST_INT(iCallNonPodDestructor, 0);
+      WMemoryUtils::Destruct<NonPOD2>((NonPOD2*)mem, 1);
 
-      EZ_TEST_INT(iCallNonPodDestructor, 1);
+      W_TEST_INT(iCallNonPodDestructor, 1);
 
       iCallNonPodDestructor = 0;
     }
 
     {
-      // make sure ezMemoryUtils::Construct and ezMemoryUtils::Destruct don't touch built-in types
+      // make sure WMemoryUtils::Construct and WMemoryUtils::Destruct don't touch built-in types
 
-      ezInt32 a = 42;
-      ezMemoryUtils::Construct<SkipTrivialTypes, ezInt32>(&a, 1);
-      EZ_TEST_INT(a, 42);
-      ezMemoryUtils::Destruct<ezInt32>(&a, 1);
-      EZ_TEST_INT(a, 42);
+      WInt32 a = 42;
+      WMemoryUtils::Construct<SkipTrivialTypes, WInt32>(&a, 1);
+      W_TEST_INT(a, 42);
+      WMemoryUtils::Destruct<WInt32>(&a, 1);
+      W_TEST_INT(a, 42);
     }
   }
 }

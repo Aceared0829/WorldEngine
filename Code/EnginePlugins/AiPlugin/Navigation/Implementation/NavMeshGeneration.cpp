@@ -7,9 +7,9 @@
 #include <Recast.h>
 #include <cstdint>
 
-void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezBoundingBox& bbox)
+void FillOutConfig(rcConfig& ref_cfg, const WAiNavmeshConfig& config, const WBoundingBox& bbox)
 {
-  ezMemoryUtils::ZeroFill(&ref_cfg, 1);
+  WMemoryUtils::ZeroFill(&ref_cfg, 1);
   ref_cfg.bmin[0] = bbox.m_vMin.x;
   ref_cfg.bmin[1] = bbox.m_vMin.z;
   ref_cfg.bmin[2] = bbox.m_vMin.y;
@@ -24,8 +24,8 @@ void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezB
   ref_cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / ref_cfg.cs);
   ref_cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / ref_cfg.cs);
   ref_cfg.maxSimplificationError = config.m_fMaxSimplificationError;
-  ref_cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize);
-  ref_cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize);
+  ref_cfg.minRegionArea = (int)WMath::Square(config.m_fMinRegionSize);
+  ref_cfg.mergeRegionArea = (int)WMath::Square(config.m_fRegionMergeSize);
   ref_cfg.maxVertsPerPoly = 6;
   ref_cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : ref_cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
   ref_cfg.detailSampleMaxError = ref_cfg.ch * config.m_fDetailMeshSampleErrorFactor;
@@ -39,19 +39,19 @@ void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezB
   rcCalcGridSize(ref_cfg.bmin, ref_cfg.bmax, ref_cfg.cs, &ref_cfg.width, &ref_cfg.height);
 }
 
-ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
+WResult BuildRecastPolyMesh(const WAiNavmeshConfig& config, WBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, WArrayPtr<const WVec3> vertices, WArrayPtr<const WAiNavMeshTriangle> triangles, WArrayPtr<WUInt8> triangleAreaIDs)
 {
   const float* pVertices = &vertices[0].x;
-  const ezInt32* pTriangles = &triangles[0].m_VertexIdx[0];
+  const WInt32* pTriangles = &triangles[0].m_VertexIdx[0];
 
   // adjust the bounding box to the data that we got (height only)
   {
-    float fMinY = ezMath::HighValue<float>();
-    float fMaxY = -ezMath::HighValue<float>();
-    for (const ezVec3& v : vertices)
+    float fMinY = WMath::HighValue<float>();
+    float fMaxY = -WMath::HighValue<float>();
+    for (const WVec3& v : vertices)
     {
-      fMinY = ezMath::Min(fMinY, v.y);
-      fMaxY = ezMath::Max(fMaxY, v.y);
+      fMinY = WMath::Min(fMinY, v.y);
+      fMaxY = WMath::Max(fMaxY, v.y);
     }
 
     aabb.m_vMin.z = fMinY;
@@ -62,20 +62,20 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
   FillOutConfig(cfg, config, aabb);
 
   rcHeightfield* heightfield = rcAllocHeightfield();
-  EZ_SCOPE_EXIT(rcFreeHeightField(heightfield));
+  W_SCOPE_EXIT(rcFreeHeightField(heightfield));
 
   if (!rcCreateHeightfield(pContext, *heightfield, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
   {
-    ezLog::Error("[AI]Could not create solid heightfield for navmesh.");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not create solid heightfield for navmesh.");
+    return W_FAILURE;
   }
 
   rcClearUnwalkableTriangles(pContext, cfg.walkableSlopeAngle, pVertices, vertices.GetCount(), pTriangles, triangles.GetCount(), triangleAreaIDs.GetPtr());
 
   if (!rcRasterizeTriangles(pContext, pVertices, vertices.GetCount(), pTriangles, triangleAreaIDs.GetPtr(), triangles.GetCount(), *heightfield, cfg.walkableClimb))
   {
-    ezLog::Error("[AI]Could not rasterize navmesh triangles.");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not rasterize navmesh triangles.");
+    return W_FAILURE;
   }
 
   rcFilterLowHangingWalkableObstacles(pContext, cfg.walkableClimb, *heightfield);
@@ -85,18 +85,18 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
   rcFilterWalkableLowHeightSpans(pContext, cfg.walkableHeight, *heightfield);
 
   rcCompactHeightfield* compactHeightfield = rcAllocCompactHeightfield();
-  EZ_SCOPE_EXIT(rcFreeCompactHeightfield(compactHeightfield));
+  W_SCOPE_EXIT(rcFreeCompactHeightfield(compactHeightfield));
 
   if (!rcBuildCompactHeightfield(pContext, cfg.walkableHeight, cfg.walkableClimb, *heightfield, *compactHeightfield))
   {
-    ezLog::Error("[AI]Could not build compact navmesh data.");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not build compact navmesh data.");
+    return W_FAILURE;
   }
 
   if (!rcErodeWalkableArea(pContext, cfg.walkableRadius, *compactHeightfield))
   {
-    ezLog::Error("[AI]Could not erode navmesh with character radius");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not erode navmesh with character radius");
+    return W_FAILURE;
   }
 
   // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -107,15 +107,15 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
     // Prepare for region partitioning, by calculating distance field along the walkable surface.
     if (!rcBuildDistanceField(pContext, *compactHeightfield))
     {
-      ezLog::Error("[AI]Could not build navmesh distance field.");
-      return EZ_FAILURE;
+      WLog::Error("[AI]Could not build navmesh distance field.");
+      return W_FAILURE;
     }
 
     // Partition the walkable surface into simple regions without holes.
     if (!rcBuildRegions(pContext, *compactHeightfield, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea))
     {
-      ezLog::Error("[AI]Could not build navmesh watershed regions.");
-      return EZ_FAILURE;
+      WLog::Error("[AI]Could not build navmesh watershed regions.");
+      return W_FAILURE;
     }
   }
 
@@ -126,8 +126,8 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
     // Monotone partitioning does not need distance field.
     if (!rcBuildRegionsMonotone(pContext, *compactHeightfield, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea))
     {
-      ezLog::Error("[AI]Could not build monotone navmesh regions.");
-      return EZ_FAILURE;
+      WLog::Error("[AI]Could not build monotone navmesh regions.");
+      return W_FAILURE;
     }
   }
 
@@ -137,24 +137,24 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
     // Partition the walkable surface into simple regions without holes.
     if (!rcBuildLayerRegions(pContext, *compactHeightfield, cfg.borderSize, cfg.minRegionArea))
     {
-      ezLog::Error("[AI]Could not build navmesh layer regions.");
-      return EZ_FAILURE;
+      WLog::Error("[AI]Could not build navmesh layer regions.");
+      return W_FAILURE;
     }
   }
 
   rcContourSet* contourSet = rcAllocContourSet();
-  EZ_SCOPE_EXIT(rcFreeContourSet(contourSet));
+  W_SCOPE_EXIT(rcFreeContourSet(contourSet));
 
   if (!rcBuildContours(pContext, *compactHeightfield, cfg.maxSimplificationError, cfg.maxEdgeLen, *contourSet))
   {
-    ezLog::Error("[AI]Could not create navmesh contours");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not create navmesh contours");
+    return W_FAILURE;
   }
 
   if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_polyMesh))
   {
-    ezLog::Error("[AI]Could not triangulate navmesh contours");
-    return EZ_FAILURE;
+    WLog::Error("[AI]Could not triangulate navmesh contours");
+    return W_FAILURE;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -172,13 +172,13 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& out_navmeshData, ezVec2I32 vSectorCoord)
+WResult BuildDetourNavMeshData(const WAiNavmeshConfig& config, const rcPolyMesh& polyMesh, WDataBuffer& out_navmeshData, WVec2I32 vSectorCoord)
 {
   dtNavMeshCreateParams params;
-  ezMemoryUtils::ZeroFill(&params, 1);
+  WMemoryUtils::ZeroFill(&params, 1);
 
   params.verts = polyMesh.verts;
   params.vertCount = polyMesh.nverts;
@@ -199,28 +199,28 @@ ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMes
   params.tileX = vSectorCoord.x;
   params.tileY = vSectorCoord.y;
 
-  ezInt32 navDataSize = 0;
-  ezUInt8* navData = nullptr;
-  EZ_SCOPE_EXIT(dtFree(navData));
+  WInt32 navDataSize = 0;
+  WUInt8* navData = nullptr;
+  W_SCOPE_EXIT(dtFree(navData));
 
   if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
   {
-    ezLog::Error("Could not build Detour navmesh.");
-    return EZ_FAILURE;
+    WLog::Error("Could not build Detour navmesh.");
+    return W_FAILURE;
   }
 
   out_navmeshData.SetCountUninitialized(navDataSize);
-  ezMemoryUtils::Copy(out_navmeshData.GetData(), navData, navDataSize);
+  WMemoryUtils::Copy(out_navmeshData.GetData(), navData, navDataSize);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezNavMeshSectorGenerationTask::Execute()
+void WNavMeshSectorGenerationTask::Execute()
 {
   m_pWorldNavMesh->BuildSector(m_SectorID, m_pNavGeo);
 }
 
-static ezInt8 GetSurfaceGroundType(const ezSurfaceResource* pSurf)
+static WInt8 GetSurfaceGroundType(const WSurfaceResource* pSurf)
 {
   while (pSurf)
   {
@@ -233,9 +233,9 @@ static ezInt8 GetSurfaceGroundType(const ezSurfaceResource* pSurf)
     }
     else if (desc.m_hBaseSurface.IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pRes(desc.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      WResourceLock<WSurfaceResource> pRes(desc.m_hBaseSurface, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-      if (pRes.GetAcquireResult() == ezResourceAcquireResult::Final)
+      if (pRes.GetAcquireResult() == WResourceAcquireResult::Final)
         pSurf = pRes.GetPointer();
     }
   }
@@ -243,81 +243,81 @@ static ezInt8 GetSurfaceGroundType(const ezSurfaceResource* pSurf)
   return 1; // the "<Default>" ground type that is not "<None>"
 }
 
-static void QueryInputGeo(const ezNavmeshGeoWorldModuleInterface* pGeo, ezUInt32 uiCollisionLayer, ezBoundingBox bounds, ezAiNavMeshInputGeo& out_inputGeo)
+static void QueryInputGeo(const WNavmeshGeoWorldModuleInterface* pGeo, WUInt32 uiCollisionLayer, WBoundingBox bounds, WAiNavMeshInputGeo& out_inputGeo)
 {
-  bounds.Grow(ezVec3(1.0f));
+  bounds.Grow(WVec3(1.0f));
 
-  ezTempHybridArray<ezNavmeshTriangle, 64> triangles;
+  WTempHybridArray<WNavmeshTriangle, 64> triangles;
 
   pGeo->RetrieveGeometryInArea(uiCollisionLayer, bounds, triangles);
 
   // sort all triangles by surface (pointer)
-  triangles.Sort([](const ezNavmeshTriangle& lhs, const ezNavmeshTriangle& rhs)
+  triangles.Sort([](const WNavmeshTriangle& lhs, const WNavmeshTriangle& rhs)
     { return lhs.m_pSurface < rhs.m_pSurface; });
 
-  const ezSurfaceResource* pPrevSurf = nullptr;
-  ezInt8 iGroundType = 1; // the "<Default>" ground type that is not "<None>"
+  const WSurfaceResource* pPrevSurf = nullptr;
+  WInt8 iGroundType = 1; // the "<Default>" ground type that is not "<None>"
 
-  for (ezUInt32 tri = 0; tri < triangles.GetCount(); ++tri)
+  for (WUInt32 tri = 0; tri < triangles.GetCount(); ++tri)
   {
     if (triangles[tri].m_pSurface != pPrevSurf)
     {
       pPrevSurf = triangles[tri].m_pSurface;
 
       iGroundType = GetSurfaceGroundType(pPrevSurf);
-      EZ_ASSERT_DEV(iGroundType < 32, "Area ID is out of range");
+      W_ASSERT_DEV(iGroundType < 32, "Area ID is out of range");
     }
 
     // we abuse the surface pointer to store the ground type int, so that we don't need any additional array and sorting logic
-    triangles[tri].m_pSurface = reinterpret_cast<const ezSurfaceResource*>(iGroundType);
+    triangles[tri].m_pSurface = reinterpret_cast<const WSurfaceResource*>(iGroundType);
   }
 
   // sort all triangles by ground type (we wrote the ground type ID into the surface pointer above)
   // this means triangles with ground type 0 will be first, and higher IDs will come later -> should rasterize them in that deterministic order
   // and if several triangles are in the same spot, the higher ground ID should win
-  triangles.Sort([](const ezNavmeshTriangle& lhs, const ezNavmeshTriangle& rhs)
+  triangles.Sort([](const WNavmeshTriangle& lhs, const WNavmeshTriangle& rhs)
     { return lhs.m_pSurface < rhs.m_pSurface; });
 
   out_inputGeo.m_Vertices.SetCount(triangles.GetCount() * 3);
   out_inputGeo.m_Triangles.SetCount(triangles.GetCount());
   out_inputGeo.m_TriangleAreaIDs.SetCount(triangles.GetCount());
 
-  for (ezUInt32 tri = 0; tri < triangles.GetCount(); ++tri)
+  for (WUInt32 tri = 0; tri < triangles.GetCount(); ++tri)
   {
-    ezVec3& v1 = out_inputGeo.m_Vertices[(tri * 3) + 0];
-    ezVec3& v2 = out_inputGeo.m_Vertices[(tri * 3) + 1];
-    ezVec3& v3 = out_inputGeo.m_Vertices[(tri * 3) + 2];
+    WVec3& v1 = out_inputGeo.m_Vertices[(tri * 3) + 0];
+    WVec3& v2 = out_inputGeo.m_Vertices[(tri * 3) + 1];
+    WVec3& v3 = out_inputGeo.m_Vertices[(tri * 3) + 2];
 
     // NOTE: inverting the triangle order here ! Recast seems to use a different winding
     v1 = triangles[tri].m_Vertices[0];
     v2 = triangles[tri].m_Vertices[2];
     v3 = triangles[tri].m_Vertices[1];
 
-    // convert from ez convention (Z up) to recast convention (Y up)
-    ezMath::Swap(v1.y, v1.z);
-    ezMath::Swap(v2.y, v2.z);
-    ezMath::Swap(v3.y, v3.z);
+    // convert from W convention (Z up) to recast convention (Y up)
+    WMath::Swap(v1.y, v1.z);
+    WMath::Swap(v2.y, v2.z);
+    WMath::Swap(v3.y, v3.z);
 
     out_inputGeo.m_Triangles[tri].m_VertexIdx[0] = (tri * 3) + 0;
     out_inputGeo.m_Triangles[tri].m_VertexIdx[1] = (tri * 3) + 1;
     out_inputGeo.m_Triangles[tri].m_VertexIdx[2] = (tri * 3) + 2;
 
-    out_inputGeo.m_TriangleAreaIDs[tri] = static_cast<ezUInt8>(reinterpret_cast<uintptr_t>(triangles[tri].m_pSurface));
+    out_inputGeo.m_TriangleAreaIDs[tri] = static_cast<WUInt8>(reinterpret_cast<uintptr_t>(triangles[tri].m_pSurface));
   }
 }
 
-void ezAiNavMesh::BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleInterface* pGeo)
+void WAiNavMesh::BuildSector(SectorID sectorID, const WNavmeshGeoWorldModuleInterface* pGeo)
 {
-  const ezVec2I32 sectorCoord = CalculateSectorCoord(sectorID);
+  const WVec2I32 sectorCoord = CalculateSectorCoord(sectorID);
   auto& sector = m_Sectors[sectorID];
 
-  EZ_ASSERT_DEV(sector.m_FlagUpdateAvailable == 0, "Shouldn't update a sector that is already being updated");
+  W_ASSERT_DEV(sector.m_FlagUpdateAvailable == 0, "Shouldn't update a sector that is already being updated");
 
-  const ezBoundingBox bounds = GetSectorBounds(sectorCoord, -1000, +1000);
+  const WBoundingBox bounds = GetSectorBounds(sectorCoord, -1000, +1000);
 
-  ezAiNavMeshInputGeo inputGeo;
+  WAiNavMeshInputGeo inputGeo;
   {
-    ezBoundingBox boundsWithBorder = bounds;
+    WBoundingBox boundsWithBorder = bounds;
     const float cs = m_NavmeshConfig.m_fCellSize;
     const float borderSize = ceilf(m_NavmeshConfig.m_fAgentRadius / cs) + 3;
     boundsWithBorder.m_vMin.x -= borderSize * cs;
@@ -340,10 +340,10 @@ void ezAiNavMesh::BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleIn
   }
 
   {
-    EZ_ASSERT_DEV(sector.m_FlagUpdateAvailable == 0, "Race condition in navmesh sector update");
+    W_ASSERT_DEV(sector.m_FlagUpdateAvailable == 0, "Race condition in navmesh sector update");
     sector.m_FlagUpdateAvailable = 1;
 
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     m_UpdatingSectors.PushBack(sectorID);
   }
 }

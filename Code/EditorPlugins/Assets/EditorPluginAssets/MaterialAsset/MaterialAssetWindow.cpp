@@ -17,74 +17,74 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezMaterialModelAction
+// WMaterialModelAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialModelAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMaterialModelAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezMaterialModelAction::ezMaterialModelAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+WMaterialModelAction::WMaterialModelAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WEnumerationMenuAction(context, szName, szIconPath)
 {
-  InitEnumerationType(ezGetStaticRTTI<ezMaterialAssetPreview>());
+  InitEnumerationType(WGetStaticRTTI<WMaterialAssetPreview>());
 }
 
-ezInt64 ezMaterialModelAction::GetValue() const
+WInt64 WMaterialModelAction::GetValue() const
 {
-  return static_cast<const ezMaterialAssetDocument*>(m_Context.m_pDocument)->m_PreviewModel.GetValue();
+  return static_cast<const WMaterialAssetDocument*>(m_Context.m_pDocument)->m_PreviewModel.GetValue();
 }
 
-void ezMaterialModelAction::Execute(const ezVariant& value)
+void WMaterialModelAction::Execute(const WVariant& value)
 {
-  ((ezMaterialAssetDocument*)m_Context.m_pDocument)->m_PreviewModel.SetValue(value.ConvertTo<ezInt32>());
+  ((WMaterialAssetDocument*)m_Context.m_pDocument)->m_PreviewModel.SetValue(value.ConvertTo<WInt32>());
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezMaterialAssetActions
+// WMaterialAssetActions
 //////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezMaterialAssetActions::s_hMaterialModelAction;
+WActionDescriptorHandle WMaterialAssetActions::s_hMaterialModelAction;
 
-void ezMaterialAssetActions::RegisterActions()
+void WMaterialAssetActions::RegisterActions()
 {
-  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/Perspective.svg");
+  s_hMaterialModelAction = W_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", WMaterialModelAction, ":/EditorFramework/Icons/Perspective.svg");
 }
 
-void ezMaterialAssetActions::UnregisterActions()
+void WMaterialAssetActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hMaterialModelAction);
+  WActionManager::UnregisterAction(s_hMaterialModelAction);
 }
 
-void ezMaterialAssetActions::MapToolbarActions(ezStringView sMapping)
+void WMaterialAssetActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hMaterialModelAction, "", 45.0f);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-// ezQtMaterialAssetDocumentWindow
+// WQtMaterialAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
 
-ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
-ezHybridArray<ezDirectoryWatcher*, 4> ezQtMaterialAssetDocumentWindow::s_NodeConfigWatchers;
+WInt32 WQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
+WHybridArray<WDirectoryWatcher*, 4> WQtMaterialAssetDocumentWindow::s_NodeConfigWatchers;
 
 
-ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtMaterialAssetDocumentWindow::WQtMaterialAssetDocumentWindow(WMaterialAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
-  pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  pDocument->m_VisualShaderEvents.AddEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "MaterialAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -93,8 +93,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "MaterialAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -108,26 +108,26 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(+1.6f, 0.5f, 0.3f), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(+1.6f, 0.5f, 0.3f), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(+2.3f, -0.4f, 0.2f));
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureFixed(WVec3(0), WVec3(0.0f), WVec3(+2.3f, -0.4f, 0.2f));
 
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -135,7 +135,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -145,16 +145,16 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Visual Shader Editor
   {
-    m_pVsePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pVsePanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pVsePanel->setObjectName("VisualShaderDockWidget");
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
 
     QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
 
-    m_pScene = new ezQtVisualShaderScene(this);
-    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+    m_pScene = new WQtVisualShaderScene(this);
+    m_pScene->InitScene(static_cast<const WVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pNodeView = new ezQtVisualGraphView(m_pVsePanel);
+    m_pNodeView = new WQtVisualGraphView(m_pVsePanel);
     m_pNodeView->SetScene(m_pScene);
     pSplitter->addWidget(m_pNodeView);
 
@@ -170,7 +170,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
     m_pOpenShaderButton = new QPushButton(m_pVsePanel);
     m_pOpenShaderButton->setText("Open Shader File");
-    connect(m_pOpenShaderButton, &QPushButton::clicked, this, &ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked);
+    connect(m_pOpenShaderButton, &QPushButton::clicked, this, &WQtMaterialAssetDocumentWindow::OnOpenShaderClicked);
 
     pButtonGroup->layout()->setContentsMargins(0, 0, 0, 0);
     pButtonGroup->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
@@ -201,16 +201,16 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   FinishWindowCreation();
 }
 
-ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
+WQtMaterialAssetDocumentWindow::~WQtMaterialAssetDocumentWindow()
 {
-  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   RestoreResource();
 
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<WInt64>() == WMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -218,7 +218,7 @@ ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
+void WQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
 {
   if (needIt)
   {
@@ -227,35 +227,35 @@ void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
     if (s_NodeConfigWatchers.IsEmpty())
     {
       // the editor's own nodes, and the nodes that the open project ships in its data directories
-      ezHybridArray<ezStringBuilder, 4> folders;
+      WHybridArray<WStringBuilder, 4> folders;
 
       {
-        ezStringBuilder& sAppDir = folders.ExpandAndGetRef();
-        sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+        WStringBuilder& sAppDir = folders.ExpandAndGetRef();
+        sAppDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
         sAppDir.AppendPath("VisualShader");
       }
 
-      for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+      for (const auto& dd : WQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
       {
-        ezStringBuilder sDataDir;
-        if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).Succeeded())
+        WStringBuilder sDataDir;
+        if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).Succeeded())
         {
           sDataDir.AppendPath("Editor/VisualShader");
           folders.PushBack(sDataDir);
         }
       }
 
-      for (ezStringBuilder& sFolder : folders)
+      for (WStringBuilder& sFolder : folders)
       {
-        if (!ezOSFile::ExistsDirectory(sFolder))
+        if (!WOSFile::ExistsDirectory(sFolder))
           continue;
 
-        ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+        WDirectoryWatcher* pWatcher = W_DEFAULT_NEW(WDirectoryWatcher);
 
-        if (pWatcher->OpenDirectory(sFolder, ezDirectoryWatcher::Watch::Writes).Failed())
+        if (pWatcher->OpenDirectory(sFolder, WDirectoryWatcher::Watch::Writes).Failed())
         {
-          ezLog::Warning("Could not register a file system watcher for changes to '{0}'", sFolder);
-          EZ_DEFAULT_DELETE(pWatcher);
+          WLog::Warning("Could not register a file system watcher for changes to '{0}'", sFolder);
+          W_DEFAULT_DELETE(pWatcher);
           continue;
         }
 
@@ -269,9 +269,9 @@ void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
 
     if (s_iNodeConfigWatchers == 0)
     {
-      for (ezDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
+      for (WDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
       {
-        EZ_DEFAULT_DELETE(pWatcher);
+        W_DEFAULT_DELETE(pWatcher);
       }
 
       s_NodeConfigWatchers.Clear();
@@ -279,83 +279,83 @@ void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
   }
 }
 
-ezMaterialAssetDocument* ezQtMaterialAssetDocumentWindow::GetMaterialDocument()
+WMaterialAssetDocument* WQtMaterialAssetDocumentWindow::GetMaterialDocument()
 {
-  return static_cast<ezMaterialAssetDocument*>(GetDocument());
+  return static_cast<WMaterialAssetDocument*>(GetDocument());
 }
 
-void ezQtMaterialAssetDocumentWindow::InternalRedraw()
+void WQtMaterialAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  for (ezDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
+  for (WDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
   {
-    pWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
+    pWatcher->EnumerateChanges(WMakeDelegate(&WQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
   }
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
 
-void ezQtMaterialAssetDocumentWindow::showEvent(QShowEvent* event)
+void WQtMaterialAssetDocumentWindow::showEvent(QShowEvent* event)
 {
-  ezQtEngineDocumentWindow::showEvent(event);
+  WQtEngineDocumentWindow::showEvent(event);
 
   m_pVsePanel->toggleView(m_bVisualShaderEnabled);
 }
 
-void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
+void WQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
-  ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
+  WAssetDocumentManager* pManager = (WAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
 
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(), GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  WString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(), GetMaterialDocument()->GetDocumentPath(), WMaterialAssetDocumentManager::s_szShaderOutputTag);
 
-  if (ezOSFile::ExistsFile(sAutoGenShader))
+  if (WOSFile::ExistsFile(sAutoGenShader))
   {
-    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader).IgnoreResult();
+    WQtUiServices::OpenFileInDefaultProgram(sAutoGenShader).IgnoreResult();
   }
   else
   {
-    ezStringBuilder msg;
+    WStringBuilder msg;
     msg.SetFormat("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
 
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(msg);
+    WQtUiServices::GetSingleton()->MessageBoxInformation(msg);
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::UpdatePreview()
+void WQtMaterialAssetDocumentWindow::UpdatePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Material";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
-  ezStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezBinMaterial");
+  WStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WBinMaterial");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetMaterialDocument()->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(GetMaterialDocument()->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
-  if (GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
+  if (GetMaterialDocument()->WriteMaterialAsset(memoryWriter, WAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
     return;
 
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+  msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtMaterialAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (e.m_pObject == GetMaterialDocument()->GetPropertyObject() && e.m_sProperty == "ShaderMode")
   {
@@ -368,7 +368,7 @@ void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
       e.m_sProperty == "BLEND_MODE" ||
       e.m_sProperty == "BaseMaterial")
   {
-    ezDocumentConfigMsgToEngine msg;
+    WDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "InvalidateCache";
 
     GetEditorEngineConnection()->SendMessage(&msg);
@@ -376,7 +376,7 @@ void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
 }
 
 
-void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtMaterialAssetDocumentWindow::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
@@ -391,16 +391,16 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
+void WQtMaterialAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    const ezMaterialAssetDocument* pDoc = static_cast<const ezMaterialAssetDocument*>(GetDocument());
+    const WMaterialAssetDocument* pDoc = static_cast<const WMaterialAssetDocument*>(GetDocument());
 
-    ezDocumentConfigMsgToEngine msg;
+    WDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewModel";
     msg.m_iValue = pDoc->m_PreviewModel.GetValue();
 
@@ -415,20 +415,20 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::RestoreResource()
+void WQtMaterialAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "Material";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
+void WQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<WInt64>() == WMaterialShaderMode::Custom;
 
   m_pVsePanel->toggleView(bCustom);
 
@@ -445,46 +445,46 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void WQtMaterialAssetDocumentWindow::OnVseConfigChanged(WStringView sFilename, WDirectoryWatcherAction action, WDirectoryWatcherType type)
 {
-  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(sFilename, "DDL"))
+  if (type != WDirectoryWatcherType::File || !WPathUtils::HasExtension(sFilename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it
-  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+  WThreadUtils::Sleep(WTime::MakeFromMilliseconds(100));
 
-  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(sFilename);
+  WVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(sFilename);
 
   // TODO: We write an invalid hash in the file, should maybe compute the correct one on the fly
   // but that would involve the asset curator which would also save / transform everything which is
   // not what we want.
-  ezAssetFileHeader AssetHeader;
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
   GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader).LogFailure();
 }
 
-void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)
+void WQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const WMaterialVisualShaderEvent& e)
 {
-  ezStringBuilder text;
+  WStringBuilder text;
 
-  if (e.m_Type == ezMaterialVisualShaderEvent::VisualShaderNotUsed)
+  if (e.m_Type == WMaterialVisualShaderEvent::VisualShaderNotUsed)
   {
     text = "<span style=\"color:#bbbb00;\">Visual Shader is not used by the material.</span><br><br>Change the ShaderMode in the asset "
            "properties to enable Visual Shader mode.";
   }
   else
   {
-    if (e.m_Type == ezMaterialVisualShaderEvent::TransformSucceeded)
+    if (e.m_Type == WMaterialVisualShaderEvent::TransformSucceeded)
       text = "<span style=\"color:#00ff00;\">Visual Shader was transformed successfully.</span><br><br>";
     else
       text = "<span style=\"color:#ff8800;\">Visual Shader is invalid:</span><br><br>";
 
-    ezStringBuilder err = e.m_sTransformError;
+    WStringBuilder err = e.m_sTransformError;
 
-    ezTempHybridArray<ezStringView, 16> lines;
+    WTempHybridArray<WStringView, 16> lines;
     err.Split(false, lines, "\n");
 
-    for (const ezStringView& line : lines)
+    for (const WStringView& line : lines)
     {
       if (line.StartsWith("Error:"))
         text.AppendFormat("<span style=\"color:#ff2200;\">{0}</span><br>", line);

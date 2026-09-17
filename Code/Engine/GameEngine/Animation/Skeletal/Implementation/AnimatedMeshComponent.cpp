@@ -16,79 +16,79 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Static);
+W_BEGIN_COMPONENT_TYPE(WAnimatedMeshComponent, 13, WComponentMode::Static);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    W_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
-    EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
-    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
+    W_MESSAGE_HANDLER(WMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    W_MESSAGE_HANDLER(WMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    W_MESSAGE_HANDLER(WMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionMode, 1)
-  EZ_ENUM_CONSTANTS(ezRootMotionMode::Ignore, ezRootMotionMode::ApplyToOwner, ezRootMotionMode::SendMoveCharacterMsg)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRootMotionMode, 1)
+  W_ENUM_CONSTANTS(WRootMotionMode::Ignore, WRootMotionMode::ApplyToOwner, WRootMotionMode::SendMoveCharacterMsg)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezAnimatedMeshComponent::ezAnimatedMeshComponent() = default;
-ezAnimatedMeshComponent::~ezAnimatedMeshComponent() = default;
+WAnimatedMeshComponent::WAnimatedMeshComponent() = default;
+WAnimatedMeshComponent::~WAnimatedMeshComponent() = default;
 
-void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAnimatedMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 }
 
-void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAnimatedMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  EZ_ASSERT_DEV(uiVersion >= 13, "Unsupported version, delete the file and reexport it");
+  W_ASSERT_DEV(uiVersion >= 13, "Unsupported version, delete the file and reexport it");
 }
 
-void ezAnimatedMeshComponent::OnActivated()
+void WAnimatedMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   InitializeAnimationPose();
 }
 
-void ezAnimatedMeshComponent::OnDeactivated()
+void WAnimatedMeshComponent::OnDeactivated()
 {
   m_SkinningState.Clear();
 
   SUPER::OnDeactivated();
 }
 
-void ezAnimatedMeshComponent::InitializeAnimationPose()
+void WAnimatedMeshComponent::InitializeAnimationPose()
 {
-  m_MaxBounds = ezBoundingBox::MakeInvalid();
+  m_MaxBounds = WBoundingBox::MakeInvalid();
 
   if (!m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   m_hDefaultSkeleton = pMesh->m_hDefaultSkeleton;
@@ -97,17 +97,17 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
   if (!hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(hSkeleton, WResourceAcquireMode::BlockTillLoaded);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   {
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-    const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
+    const WUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
 
-    ezTempArray<ozz::math::Float4x4> poseMatrices;
+    WTempArray<ozz::math::Float4x4> poseMatrices;
     poseMatrices.SetCountUninitialized(uiNumSkeletonJoints);
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
+    W_ASSERT_DEBUG(WMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     {
       ozz::animation::LocalToModelJob job;
       job.input = pOzzSkeleton->joint_rest_poses();
@@ -116,8 +116,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
       job.Run();
     }
 
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
+    WMsgAnimationPoseUpdated msg;
+    msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const WMat4>();
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
 
@@ -128,7 +128,7 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 }
 
 
-void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
+void WAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones, const WSkeleton& skeleton, WArrayPtr<const WMat4> modelSpaceTransforms, WBoundingBox* bounds)
 {
   auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, bones.GetCount());
 
@@ -136,9 +136,9 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
   {
     for (auto itBone : bones)
     {
-      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+      const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-      if (uiJointIdx == ezInvalidJointIndex)
+      if (uiJointIdx == WInvalidJointIndex)
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
@@ -149,9 +149,9 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
   {
     for (auto itBone : bones)
     {
-      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+      const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-      if (uiJointIdx == ezInvalidJointIndex)
+      if (uiJointIdx == WInvalidJointIndex)
         continue;
 
       boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
@@ -159,14 +159,14 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
   }
 }
 
-ezTransform ezAnimatedMeshComponent::GetFinalGlobalTransform() const
+WTransform WAnimatedMeshComponent::GetFinalGlobalTransform() const
 {
   return GetOwner()->GetGlobalTransform() * m_RootTransform;
 }
 
-ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
+WMeshRenderData* WAnimatedMeshComponent::CreateRenderData(const WRenderDataManager* pRenderDataManager) const
 {
-  auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+  auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<WSkinnedMeshRenderData>(GetOwner());
 
   pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
   pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
@@ -174,7 +174,7 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataMa
   return pRenderData;
 }
 
-void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+void WAnimatedMeshComponent::RetrievePose(WDynamicArray<WMat4>& out_modelTransforms, WTransform& out_rootTransform, const WSkeleton& skeleton)
 {
   out_modelTransforms.Clear();
 
@@ -183,35 +183,35 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
 
   out_rootTransform = m_RootTransform;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+  const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
   auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
-  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), WMat4::MakeIdentity());
 
   for (auto itBone : bones)
   {
-    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+    const WUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
 
-    if (uiJointIdx == ezInvalidJointIndex)
+    if (uiJointIdx == WInvalidJointIndex)
       continue;
 
     out_modelTransforms[uiJointIdx] = boneTransforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
   }
 }
 
-void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+void WAnimatedMeshComponent::OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg)
 {
   if (!m_hMesh.IsValid())
     return;
 
   m_RootTransform = *msg.m_pRootTransform;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
 
-  ezBoundingBox poseBounds;
-  poseBounds = ezBoundingBox::MakeInvalid();
+  WBoundingBox poseBounds;
+  poseBounds = WBoundingBox::MakeInvalid();
   MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
@@ -219,74 +219,74 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
     m_MaxBounds.ExpandToInclude(poseBounds);
     QueueLocalBoundsUpdate();
   }
-  else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
+  else if (((WRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (W_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
     m_MaxBounds = poseBounds;
     QueueLocalBoundsUpdate();
   }
 }
 
-void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
+void WAnimatedMeshComponent::OnQueryAnimationSkeleton(WMsgQueryAnimationSkeleton& msg)
 {
   if (!msg.m_hSkeleton.IsValid() && m_hMesh.IsValid())
   {
-    // only overwrite, if no one else had a better skeleton (e.g. the ezSkeletonComponent)
+    // only overwrite, if no one else had a better skeleton (e.g. the WSkeletonComponent)
 
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-    if (pMesh.GetAcquireResult() == ezResourceAcquireResult::Final)
+    WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
+    if (pMesh.GetAcquireResult() == WResourceAcquireResult::Final)
     {
       msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
     }
   }
 }
 
-void ezAnimatedMeshComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
+void WAnimatedMeshComponent::OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& msg)
 {
   m_SkinningState.m_DataOffset = msg.m_NewOffset;
 
   InvalidateCachedRenderData();
 }
 
-ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+WResult WAnimatedMeshComponent::GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg)
 {
   if (!m_MaxBounds.IsValid() || !m_hMesh.IsValid())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return EZ_FAILURE;
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
+    return W_FAILURE;
 
-  ezBoundingBox bbox = m_MaxBounds;
-  bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
-  bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
+  WBoundingBox bbox = m_MaxBounds;
+  bbox.Grow(WVec3(pMesh->m_fMaxBoneVertexOffset));
+  bounds = WBoundingBoxSphere::MakeFromBox(bbox);
   bounds.Transform(m_RootTransform.GetAsMat4());
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+void WRootMotionMode::Apply(WRootMotionMode::Enum mode, WGameObject* pObject, const WVec3& vTranslation, WAngle rotationX, WAngle rotationY, WAngle rotationZ)
 {
   switch (mode)
   {
-    case ezRootMotionMode::Ignore:
+    case WRootMotionMode::Ignore:
       return;
 
-    case ezRootMotionMode::ApplyToOwner:
+    case WRootMotionMode::ApplyToOwner:
     {
-      ezVec3 vNewPos = pObject->GetLocalPosition();
+      WVec3 vNewPos = pObject->GetLocalPosition();
       vNewPos += pObject->GetLocalRotation() * vTranslation;
       pObject->SetLocalPosition(vNewPos);
 
       // not tested whether this is actually correct
-      ezQuat rotation = ezQuat::MakeFromEulerAngles(rotationX, rotationY, rotationZ);
+      WQuat rotation = WQuat::MakeFromEulerAngles(rotationX, rotationY, rotationZ);
 
       pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 
       return;
     }
 
-    case ezRootMotionMode::SendMoveCharacterMsg:
+    case WRootMotionMode::SendMoveCharacterMsg:
     {
-      ezMsgApplyRootMotion msg;
+      WMsgApplyRootMotion msg;
       msg.m_vTranslation = vTranslation;
       msg.m_RotationX = rotationX;
       msg.m_RotationY = rotationY;
@@ -306,31 +306,31 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
 //////////////////////////////////////////////////////////////////////////
 
 
-ezAnimatedMeshComponentManager::ezAnimatedMeshComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+WAnimatedMeshComponentManager::WAnimatedMeshComponentManager(WWorld* pWorld)
+  : WComponentManager<ComponentType, WBlockStorageType::FreeList>(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WAnimatedMeshComponentManager::ResourceEventHandler, this));
 }
 
-ezAnimatedMeshComponentManager::~ezAnimatedMeshComponentManager()
+WAnimatedMeshComponentManager::~WAnimatedMeshComponentManager()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WAnimatedMeshComponentManager::ResourceEventHandler, this));
 }
 
-void ezAnimatedMeshComponentManager::Initialize()
+void WAnimatedMeshComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimatedMeshComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WAnimatedMeshComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
 }
 
-void ezAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WAnimatedMeshComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading)
   {
-    if (ezMeshResource* pResource = ezDynamicCast<ezMeshResource*>(e.m_pResource))
+    if (WMeshResource* pResource = WDynamicCast<WMeshResource*>(e.m_pResource))
     {
-      ezMeshResourceHandle hMesh(pResource);
+      WMeshResourceHandle hMesh(pResource);
 
       for (auto it = GetComponents(); it.IsValid(); it.Next())
       {
@@ -341,9 +341,9 @@ void ezAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent&
       }
     }
 
-    if (ezSkeletonResource* pResource = ezDynamicCast<ezSkeletonResource*>(e.m_pResource))
+    if (WSkeletonResource* pResource = WDynamicCast<WSkeletonResource*>(e.m_pResource))
     {
-      ezSkeletonResourceHandle hSkeleton(pResource);
+      WSkeletonResourceHandle hSkeleton(pResource);
 
       for (auto it = GetComponents(); it.IsValid(); it.Next())
       {
@@ -356,11 +356,11 @@ void ezAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent&
   }
 }
 
-void ezAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WAnimatedMeshComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto hComp : m_ComponentsToUpdate)
   {
-    ezAnimatedMeshComponent* pComponent = nullptr;
+    WAnimatedMeshComponent* pComponent = nullptr;
     if (!TryGetComponent(hComp, pComponent))
       continue;
 
@@ -373,14 +373,14 @@ void ezAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContext& 
   m_ComponentsToUpdate.Clear();
 }
 
-void ezAnimatedMeshComponentManager::AddToUpdateList(ezAnimatedMeshComponent* pComponent)
+void WAnimatedMeshComponentManager::AddToUpdateList(WAnimatedMeshComponent* pComponent)
 {
-  ezComponentHandle hComponent = pComponent->GetHandle();
+  WComponentHandle hComponent = pComponent->GetHandle();
 
-  if (m_ComponentsToUpdate.IndexOf(hComponent) == ezInvalidIndex)
+  if (m_ComponentsToUpdate.IndexOf(hComponent) == WInvalidIndex)
   {
     m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);

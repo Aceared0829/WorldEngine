@@ -6,36 +6,36 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Types/Status.h>
 
-class ezLogInterface;
-class ezStreamReader;
+class WLogInterface;
+class WStreamReader;
 
 /// Simple implementation to read Adobe CUBE LUT files
 ///
 /// Currently only reads 3D LUTs as this is the data we need for our lookup textures in the tone mapping step.
-class ezAdobeCUBEReader
+class WAdobeCUBEReader
 {
 public:
-  ezAdobeCUBEReader();
-  ~ezAdobeCUBEReader();
+  WAdobeCUBEReader();
+  ~WAdobeCUBEReader();
 
-  ezStatus ParseFile(ezStreamReader& inout_stream, ezLogInterface* pLog = nullptr);
+  WStatus ParseFile(WStreamReader& inout_stream, WLogInterface* pLog = nullptr);
 
-  ezVec3 GetDomainMin() const;
-  ezVec3 GetDomainMax() const;
+  WVec3 GetDomainMin() const;
+  WVec3 GetDomainMax() const;
 
-  ezUInt32 GetLUTSize() const;
-  const ezString& GetTitle() const;
+  WUInt32 GetLUTSize() const;
+  const WString& GetTitle() const;
 
-  ezVec3 GetLUTEntry(ezUInt32 r, ezUInt32 g, ezUInt32 b) const;
+  WVec3 GetLUTEntry(WUInt32 r, WUInt32 g, WUInt32 b) const;
 
 protected:
-  ezUInt32 m_uiLUTSize = 0;
-  ezString m_sTitle = "<UNTITLED>";
+  WUInt32 m_uiLUTSize = 0;
+  WString m_sTitle = "<UNTITLED>";
 
-  ezVec3 m_vDomainMin = ezVec3::MakeZero();
-  ezVec3 m_vDomainMax = ezVec3(1.0f);
+  WVec3 m_vDomainMin = WVec3::MakeZero();
+  WVec3 m_vDomainMax = WVec3(1.0f);
 
-  ezDynamicArray<ezVec3> m_LUTValues;
+  WDynamicArray<WVec3> m_LUTValues;
 
-  ezUInt32 GetLUTIndex(ezUInt32 r, ezUInt32 g, ezUInt32 b) const;
+  WUInt32 GetLUTIndex(WUInt32 r, WUInt32 g, WUInt32 b) const;
 };

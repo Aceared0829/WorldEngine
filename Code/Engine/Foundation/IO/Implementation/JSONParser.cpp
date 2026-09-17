@@ -4,7 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-ezJSONParser::ezJSONParser()
+WJSONParser::WJSONParser()
 {
   m_uiCurByte = '\0';
   m_uiNextByte = '\0';
@@ -15,7 +15,7 @@ ezJSONParser::ezJSONParser()
   m_uiCurColumn = 0;
 }
 
-void ezJSONParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset)
+void WJSONParser::SetInputStream(WStreamReader& stream, WUInt32 uiFirstLineOffset)
 {
   m_StateStack.Clear();
   m_uiCurByte = '\0';
@@ -40,7 +40,7 @@ void ezJSONParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOf
   }
 }
 
-void ezJSONParser::StartParsing()
+void WJSONParser::StartParsing()
 {
   // remove the NotStarted state
   PopStack();
@@ -90,8 +90,8 @@ void ezJSONParser::StartParsing()
     {
       // document is malformed
 
-      ezStringBuilder s;
-      s.SetFormat("Start of document: Expected a { or [ or an empty document. Got '{0}' instead.", ezArgC(m_uiCurByte));
+      WStringBuilder s;
+      s.SetFormat("Start of document: Expected a { or [ or an empty document. Got '{0}' instead.", WArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
 
       return;
@@ -99,14 +99,14 @@ void ezJSONParser::StartParsing()
   }
 }
 
-void ezJSONParser::ParseAll()
+void WJSONParser::ParseAll()
 {
   while (ContinueParsing())
   {
   }
 }
 
-void ezJSONParser::ParsingError(ezStringView sMessage, bool bFatal)
+void WJSONParser::ParsingError(WStringView sMessage, bool bFatal)
 {
   if (bFatal)
   {
@@ -116,30 +116,30 @@ void ezJSONParser::ParsingError(ezStringView sMessage, bool bFatal)
   }
 
   if (bFatal)
-    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
+    WLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
   else
-    ezLog::Warning(m_pLogInterface, sMessage);
+    WLog::Warning(m_pLogInterface, sMessage);
 
   OnParsingError(sMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 }
 
-void ezJSONParser::SkipObject()
+void WJSONParser::SkipObject()
 {
   SkipStack(ReadingObject);
 }
 
-void ezJSONParser::SkipArray()
+void WJSONParser::SkipArray()
 {
   SkipStack(ReadingArray);
 }
 
-void ezJSONParser::SkipStack(State s)
+void WJSONParser::SkipStack(State s)
 {
   m_bSkippingMode = true;
 
-  ezUInt32 iSkipToStackHeight = m_StateStack.GetCount();
+  WUInt32 iSkipToStackHeight = m_StateStack.GetCount();
 
-  for (ezUInt32 top = m_StateStack.GetCount(); top > 1; --top)
+  for (WUInt32 top = m_StateStack.GetCount(); top > 1; --top)
   {
     if (m_StateStack[top - 1].m_State == s)
     {
@@ -154,14 +154,14 @@ void ezJSONParser::SkipStack(State s)
   m_bSkippingMode = false;
 }
 
-void ezJSONParser::PopStack()
+void WJSONParser::PopStack()
 {
   // The stack can be empty if the parser encountered a fatal error before
   if (!m_StateStack.IsEmpty())
     m_StateStack.PopBack();
 }
 
-bool ezJSONParser::ContinueParsing()
+bool WJSONParser::ContinueParsing()
 {
   if (m_uiCurByte == '\0')
   {
@@ -204,14 +204,14 @@ bool ezJSONParser::ContinueParsing()
       break;
 
     default:
-      EZ_REPORT_FAILURE("Unknown State in JSON parser state machine.");
+      W_REPORT_FAILURE("Unknown State in JSON parser state machine.");
       break;
   }
 
   return true;
 }
 
-void ezJSONParser::ContinueObject()
+void WJSONParser::ContinueObject()
 {
   switch (m_uiCurByte)
   {
@@ -238,15 +238,15 @@ void ezJSONParser::ContinueObject()
 
     default:
     {
-      ezStringBuilder s;
-      s.SetFormat("While parsing object: Expected \" to begin a new variable, or } to close the object. Got '{0}' instead.", ezArgC(m_uiCurByte));
+      WStringBuilder s;
+      s.SetFormat("While parsing object: Expected \" to begin a new variable, or } to close the object. Got '{0}' instead.", WArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
       return;
   }
 }
 
-void ezJSONParser::ContinueArray()
+void WJSONParser::ContinueArray()
 {
   switch (m_uiCurByte)
   {
@@ -275,7 +275,7 @@ void ezJSONParser::ContinueArray()
   }
 }
 
-void ezJSONParser::ContinueVariable()
+void WJSONParser::ContinueVariable()
 {
   if (!m_bSkippingMode)
     ReadString();
@@ -286,8 +286,8 @@ void ezJSONParser::ContinueVariable()
 
   if (m_uiCurByte != ':')
   {
-    ezStringBuilder s;
-    s.SetFormat("After parsing variable name: Expected : to separate variable and value, Got '{0}' instead.", ezArgC(m_uiCurByte));
+    WStringBuilder s;
+    s.SetFormat("After parsing variable name: Expected : to separate variable and value, Got '{0}' instead.", WArgC(m_uiCurByte));
     ParsingError(s.GetData(), false);
   }
   else
@@ -312,7 +312,7 @@ void ezJSONParser::ContinueVariable()
 }
 
 
-void ezJSONParser::ContinueValue()
+void WJSONParser::ContinueValue()
 {
   switch (m_uiCurByte)
   {
@@ -332,7 +332,7 @@ void ezJSONParser::ContinueValue()
       PopStack();
 
       if (!m_bSkippingMode)
-        OnReadValue(ezStringView((const char*)&m_TempString[0]));
+        OnReadValue(WStringView((const char*)&m_TempString[0]));
     }
       return;
 
@@ -369,9 +369,9 @@ void ezJSONParser::ContinueValue()
       ReadWord();
 
       bool bRes = false;
-      if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
+      if (WConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == W_FAILURE)
       {
-        ezStringBuilder s;
+        WStringBuilder s;
         s.SetFormat("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
@@ -392,12 +392,12 @@ void ezJSONParser::ContinueValue()
       bool bIsNull = false;
 
       // if it's 'null' but with the wrong casing, output an error, but it is not fatal
-      if (ezStringUtils::IsEqual_NoCase((const char*)&m_TempString[0], "null"))
+      if (WStringUtils::IsEqual_NoCase((const char*)&m_TempString[0], "null"))
         bIsNull = true;
 
-      if (!ezStringUtils::IsEqual((const char*)&m_TempString[0], "null"))
+      if (!WStringUtils::IsEqual((const char*)&m_TempString[0], "null"))
       {
-        ezStringBuilder s;
+        WStringBuilder s;
         s.SetFormat("Parsing value: Expected 'null', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), !bIsNull);
       }
@@ -441,17 +441,17 @@ void ezJSONParser::ContinueValue()
 
     default:
     {
-      ezStringBuilder s;
-      s.SetFormat("Parsing value: Expected [, {, f, t, \", 0-1, ., +, -, or even 'e'. Got '{0}' instead", ezArgC(m_uiCurByte));
+      WStringBuilder s;
+      s.SetFormat("Parsing value: Expected [, {, f, t, \", 0-1, ., +, -, or even 'e'. Got '{0}' instead", WArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
       return;
   }
 }
 
-void ezJSONParser::ContinueSeparator()
+void WJSONParser::ContinueSeparator()
 {
-  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+  if (WStringUtils::IsWhiteSpace(m_uiCurByte))
     SkipWhitespace();
 
   // remove ExpectSeparator from the stack
@@ -472,17 +472,17 @@ void ezJSONParser::ContinueSeparator()
 
     default:
     {
-      ezStringBuilder s;
-      s.SetFormat("After parsing value: Expected a comma or closing brackets/braces (], }). Got '{0}' instead.", ezArgC(m_uiCurByte));
+      WStringBuilder s;
+      s.SetFormat("After parsing value: Expected a comma or closing brackets/braces (], }). Got '{0}' instead.", WArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
       return;
   }
 }
 
-void ezJSONParser::ReadNextByte()
+void WJSONParser::ReadNextByte()
 {
-  m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+  m_pInput->ReadBytes(&m_uiNextByte, sizeof(WUInt8));
 
   if (m_uiNextByte == '\n')
   {
@@ -493,7 +493,7 @@ void ezJSONParser::ReadNextByte()
     ++m_uiCurColumn;
 }
 
-bool ezJSONParser::ReadCharacter(bool bSkipComments)
+bool WJSONParser::ReadCharacter(bool bSkipComments)
 {
   m_uiCurByte = m_uiNextByte;
 
@@ -538,9 +538,9 @@ bool ezJSONParser::ReadCharacter(bool bSkipComments)
   return m_uiCurByte != '\0';
 }
 
-void ezJSONParser::SkipWhitespace()
+void WJSONParser::SkipWhitespace()
 {
-  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
+  W_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   do
   {
@@ -548,12 +548,12 @@ void ezJSONParser::SkipWhitespace()
 
     if (!ReadCharacter(true))
       return; // stop when end of stream is encountered
-  } while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
+  } while (WStringUtils::IsWhiteSpace(m_uiCurByte));
 }
 
-void ezJSONParser::SkipString()
+void WJSONParser::SkipString()
 {
-  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
+  W_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
   m_TempString.PushBack('\0');
@@ -575,9 +575,9 @@ void ezJSONParser::SkipString()
   } while (bEscapeSequence || m_uiCurByte != '\"');
 }
 
-void ezJSONParser::ReadString()
+void WJSONParser::ReadString()
 {
-  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
+  W_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -630,14 +630,14 @@ void ezJSONParser::ReadString()
           break;
         case 'u':
         {
-          ezUInt16 cpt[2];
-          auto ReadUtf16CodePoint = [&](ezUInt16& ref_uiCodePoint) -> bool
+          WUInt16 cpt[2];
+          auto ReadUtf16CodePoint = [&](WUInt16& ref_uiCodePoint) -> bool
           {
             ref_uiCodePoint = 0;
 
             // Unicode literal are utf16 in the format \uFFFF. The hex number FFFF can be upper or lower case but must be 4 characters long.
-            ezUInt8 unicodeLiteral[5] = {0, 0, 0, 0, 0};
-            ezUInt32 i = 0;
+            WUInt8 unicodeLiteral[5] = {0, 0, 0, 0, 0};
+            WUInt32 i = 0;
             for (; i < 4; i++)
             {
               if (m_uiNextByte == '\0' || m_uiNextByte == '\"')
@@ -655,10 +655,10 @@ void ezJSONParser::ReadString()
               unicodeLiteral[i] = m_uiCurByte;
             }
 
-            ezUInt32 uiHexValue = 0;
-            if (ezConversionUtils::ConvertHexStringToUInt32((const char*)&unicodeLiteral[0], uiHexValue).Succeeded())
+            WUInt32 uiHexValue = 0;
+            if (WConversionUtils::ConvertHexStringToUInt32((const char*)&unicodeLiteral[0], uiHexValue).Succeeded())
             {
-              ref_uiCodePoint = static_cast<ezUInt16>(uiHexValue);
+              ref_uiCodePoint = static_cast<WUInt16>(uiHexValue);
             }
             else
             {
@@ -669,8 +669,8 @@ void ezJSONParser::ReadString()
           };
           if (ReadUtf16CodePoint(cpt[0]))
           {
-            ezUInt16* start = &cpt[0];
-            if (ezUnicodeUtils::IsUtf16Surrogate(start))
+            WUInt16* start = &cpt[0];
+            if (WUnicodeUtils::IsUtf16Surrogate(start))
             {
               if (m_uiNextByte != '\\' || !ReadCharacter(false))
               {
@@ -687,16 +687,16 @@ void ezJSONParser::ReadString()
                 break;
               }
             }
-            ezUInt32 uiCodePoint = ezUnicodeUtils::DecodeUtf16ToUtf32(start);
-            ezUnicodeUtils::UtfInserter<char, ezHybridArray<ezUInt8, 4096>> tempInserter(&m_TempString);
-            ezUnicodeUtils::EncodeUtf32ToUtf8(uiCodePoint, tempInserter);
+            WUInt32 uiCodePoint = WUnicodeUtils::DecodeUtf16ToUtf32(start);
+            WUnicodeUtils::UtfInserter<char, WHybridArray<WUInt8, 4096>> tempInserter(&m_TempString);
+            WUnicodeUtils::EncodeUtf32ToUtf8(uiCodePoint, tempInserter);
           }
           break;
         }
         default:
         {
-          ezStringBuilder s;
-          s.SetFormat("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
+          WStringBuilder s;
+          s.SetFormat("Unknown escape-sequence '\\{0}'", WArgC(m_uiCurByte));
           ParsingError(s, false);
         }
         break;
@@ -711,9 +711,9 @@ void ezJSONParser::ReadString()
   m_TempString.PushBack('\0');
 }
 
-void ezJSONParser::ReadWord()
+void WJSONParser::ReadWord()
 {
-  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
+  W_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -725,14 +725,14 @@ void ezJSONParser::ReadWord()
 
     if (!ReadCharacter(true))
       break; // stop when end of stream is encountered
-  } while (!ezStringUtils::IsWhiteSpace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
+  } while (!WStringUtils::IsWhiteSpace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
 
   m_TempString.PushBack('\0');
 }
 
-double ezJSONParser::ReadNumber()
+double WJSONParser::ReadNumber()
 {
-  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
+  W_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -750,9 +750,9 @@ double ezJSONParser::ReadNumber()
   m_TempString.PushBack('\0');
 
   double fResult = 0;
-  if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], fResult) == EZ_FAILURE)
+  if (WConversionUtils::StringToFloat((const char*)&m_TempString[0], fResult) == W_FAILURE)
   {
-    ezStringBuilder s;
+    WStringBuilder s;
     s.SetFormat("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
     ParsingError(s.GetData(), true);
   }

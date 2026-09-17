@@ -5,29 +5,29 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezSimpleWindComponentManager = ezComponentManagerSimple<class ezSimpleWindComponent, ezComponentUpdateType::WhenSimulating>;
+using WSimpleWindComponentManager = WComponentManagerSimple<class WSimpleWindComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Calculates one global wind force using a very basic formula.
 ///
 /// This component computes a wind vector that varies between a minimum and maximum strength
 /// and around a certain direction.
 ///
-/// Sets up the ezSimpleWindWorldModule as the implementation of the ezWindWorldModuleInterface.
+/// Sets up the WSimpleWindWorldModule as the implementation of the WWindWorldModuleInterface.
 ///
 /// When sampling the wind through this interface, the returned value is the same at every location.
 ///
 /// Use a single instance of this component in a scene, when you need wind values, e.g. to make cloth and ropes sway,
 /// but don't need a complex wind simulation.
-class EZ_GAMEENGINE_DLL ezSimpleWindComponent : public ezComponent
+class W_GAMEENGINE_DLL WSimpleWindComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSimpleWindComponent, ezComponent, ezSimpleWindComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSimpleWindComponent, WComponent, WSimpleWindComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
@@ -35,21 +35,21 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSimpleWindComponent
+  // WSimpleWindComponent
 
 public:
-  ezSimpleWindComponent();
-  ~ezSimpleWindComponent();
+  WSimpleWindComponent();
+  ~WSimpleWindComponent();
 
   /// The minimum speed that the wind should always blow with.
-  ezEnum<ezWindStrength> m_MinWindStrength; // [ property ]
+  WEnum<WWindStrength> m_MinWindStrength; // [ property ]
 
   /// The maximum speed that the wind should blow with.
-  ezEnum<ezWindStrength> m_MaxWindStrength; // [ property ]
+  WEnum<WWindStrength> m_MaxWindStrength; // [ property ]
 
   /// The wind blows in the positive X direction of the game object.
   /// The direction may deviate this much from that direction. Set to 180 degree to remove the limit.
-  ezAngle m_Deviation; // [ property ]
+  WAngle m_Deviation; // [ property ]
 
 protected:
   void Update();
@@ -57,8 +57,8 @@ protected:
 
   float m_fLastStrength = 0;
   float m_fNextStrength = 0;
-  ezVec3 m_vLastDirection;
-  ezVec3 m_vNextDirection;
-  ezTime m_LastChange;
-  ezTime m_NextChange;
+  WVec3 m_vLastDirection;
+  WVec3 m_vNextDirection;
+  WTime m_LastChange;
+  WTime m_NextChange;
 };

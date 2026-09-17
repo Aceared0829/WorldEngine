@@ -7,22 +7,22 @@
 
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezAssetProfilesDocument;
-class ezPlatformProfile;
-class ezQtDocumentTreeView;
-class ezDocument;
-struct ezDocumentObjectPropertyEvent;
+class WAssetProfilesDocument;
+class WPlatformProfile;
+class WQtDocumentTreeView;
+class WDocument;
+struct WDocumentObjectPropertyEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetProfilesDlg : public ezQtDialog, public Ui_ezQtAssetProfilesDlg
+class W_EDITORFRAMEWORK_DLL WQtAssetProfilesDlg : public WQtDialog, public Ui_WQtAssetProfilesDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtAssetProfilesDlg(QWidget* pParent);
-  ~ezQtAssetProfilesDlg();
+  WQtAssetProfilesDlg(QWidget* pParent);
+  ~WQtAssetProfilesDlg();
 
-  ezUInt32 m_uiActiveConfig = 0;
+  WUInt32 m_uiActiveConfig = 0;
 
 private Q_SLOTS:
   void on_ButtonOk_clicked();
@@ -44,18 +44,18 @@ private:
     };
 
     State m_State = State::None;
-    ezPlatformProfile* m_pProfile = nullptr;
+    WPlatformProfile* m_pProfile = nullptr;
   };
 
-  bool DetermineNewProfileName(QWidget* parent, ezString& result);
+  bool DetermineNewProfileName(QWidget* parent, WString& result);
   bool CheckProfileNameUniqueness(const char* szName);
   void AllAssetProfilesToObject();
-  void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void PropertyChangedEventHandler(const WDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();
-  ezUuid NativeToObject(ezPlatformProfile* pProfile);
-  void ObjectToNative(ezUuid objectGuid, ezPlatformProfile* pProfile);
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  WUuid NativeToObject(WPlatformProfile* pProfile);
+  void ObjectToNative(WUuid objectGuid, WPlatformProfile* pProfile);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
-  ezAssetProfilesDocument* m_pDocument;
-  ezMap<ezUuid, Binding> m_ProfileBindings;
+  WAssetProfilesDocument* m_pDocument;
+  WMap<WUuid, Binding> m_ProfileBindings;
 };

@@ -12,7 +12,7 @@ class Shotgun : WeaponBaseClass
 
     void FireWeapon(MsgWeaponInteraction@ msg) override
     {
-        ezSpawnComponent@ spawn;
+        WSpawnComponent@ spawn;
         if (!GetOwner().FindChildByName("Spawn").TryGetComponentOfBaseType(@spawn))
             return;
 
@@ -21,11 +21,11 @@ class Shotgun : WeaponBaseClass
 
         msg.weaponInfo.iAmmoInClip -= 1;
 
-        ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
+        WRandom@ rng = GetWorld().GetRandomNumberGenerator();
         
         for (int i = 0; i < 16; ++i) 
         {
-            spawn.TriggerManualSpawn(true, ezVec3(rng.DoubleMinMax(-0.05, 0.05), 0, 0));
+            spawn.TriggerManualSpawn(true, WVec3(rng.DoubleMinMax(-0.05, 0.05), 0, 0));
         }
 
         PlayShootSound();

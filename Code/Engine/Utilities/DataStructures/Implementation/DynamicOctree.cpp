@@ -2,11 +2,11 @@
 
 #include <Utilities/DataStructures/DynamicOctree.h>
 
-const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
+const float WDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
-ezDynamicOctree::ezDynamicOctree() = default;
+WDynamicOctree::WDynamicOctree() = default;
 
-void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
+void WDynamicOctree::CreateTree(const WVec3& vCenter, const WVec3& vHalfExtents, float fMinNodeSize)
 {
   m_uiMultiMapCounter = 1;
 
@@ -22,9 +22,9 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
   m_fRealMaxZ = vCenter.z + vHalfExtents.z;
 
   // the bounding box should be square, so use the maximum of the x, y and z extents
-  float fMax = ezMath::Max(vHalfExtents.x, ezMath::Max(vHalfExtents.y, vHalfExtents.z));
+  float fMax = WMath::Max(vHalfExtents.x, WMath::Max(vHalfExtents.y, vHalfExtents.z));
 
-  m_BBox = ezBoundingBox::MakeFromCenterAndHalfExtents(vCenter, ezVec3(fMax));
+  m_BBox = WBoundingBox::MakeFromCenterAndHalfExtents(vCenter, WVec3(fMax));
 
   float fLength = fMax * 2.0f;
 
@@ -36,8 +36,8 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
   }
 
   m_uiAddIDTopLevel = 0;
-  for (ezUInt32 i = 0; i < m_uiMaxTreeDepth; ++i)
-    m_uiAddIDTopLevel += ezMath::Pow(8, i);
+  for (WUInt32 i = 0; i < m_uiMaxTreeDepth; ++i)
+    m_uiAddIDTopLevel += WMath::Pow(8, i);
 }
 
 /// The object lies at vCenter and has vHalfExtents as its bounding box.
@@ -45,44 +45,44 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
 /// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/view-frustum queries.
 ///
 /// If bOnlyIfInside is true, the object is discarded, if it is not inside the actual bounding box of the tree.
-ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
-  ezDynamicTreeObject* out_pObject, bool bOnlyIfInside)
+WResult WDynamicOctree::InsertObject(const WVec3& vCenter, const WVec3& vHalfExtents, WInt32 iObjectType, WInt32 iObjectInstance,
+  WDynamicTreeObject* out_pObject, bool bOnlyIfInside)
 {
   if (out_pObject)
-    *out_pObject = ezDynamicTreeObject();
+    *out_pObject = WDynamicTreeObject();
 
   if (bOnlyIfInside)
   {
     if (vCenter.x + vHalfExtents.x < m_fRealMinX)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (vCenter.x - vHalfExtents.x > m_fRealMaxX)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (vCenter.y + vHalfExtents.y < m_fRealMinY)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (vCenter.y - vHalfExtents.y > m_fRealMaxY)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (vCenter.z + vHalfExtents.z < m_fRealMinZ)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (vCenter.z - vHalfExtents.z > m_fRealMaxZ)
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
-  ezDynamicTree::ezObjectData oData;
+  WDynamicTree::WObjectData oData;
   oData.m_iObjectType = iObjectType;
   oData.m_iObjectInstance = iObjectInstance;
 
   // insert the object into the best child
   if (!InsertObject(vCenter, vHalfExtents, oData, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
-        m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), out_pObject))
+        m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, WMath::Pow(8, m_uiMaxTreeDepth - 1), out_pObject))
   {
     if (!bOnlyIfInside)
     {
-      ezDynamicTree::ezMultiMapKey mmk;
+      WDynamicTree::WMultiMapKey mmk;
       mmk.m_uiKey = 0;
       mmk.m_uiCounter = m_uiMultiMapCounter++;
 
@@ -91,17 +91,17 @@ ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHal
       if (out_pObject)
         *out_pObject = key;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, const ezDynamicTree::ezObjectData& Obj, float minx, float maxx,
-  float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezDynamicTreeObject* out_Object)
+bool WDynamicOctree::InsertObject(const WVec3& vCenter, const WVec3& vHalfExtents, const WDynamicTree::WObjectData& Obj, float minx, float maxx,
+  float miny, float maxy, float minz, float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WDynamicTreeObject* out_Object)
 {
   if (vCenter.x - vHalfExtents.x < minx)
     return false;
@@ -122,9 +122,9 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
     const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
     const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
-    const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-    const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-    const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
+    const WUInt32 uiNodeIDBase = uiNodeID + 1;
+    const WUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+    const WUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
     if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild,
           uiSubAddIDChild, out_Object))
@@ -152,7 +152,7 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
       return true;
   }
 
-  ezDynamicTree::ezMultiMapKey mmk;
+  WDynamicTree::WMultiMapKey mmk;
   mmk.m_uiKey = uiNodeID;
   mmk.m_uiCounter = m_uiMultiMapCounter++;
 
@@ -164,7 +164,7 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
   return true;
 }
 
-void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
+void WDynamicOctree::FindObjectsInRange(const WVec3& vPoint, W_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   if (m_NodeMap.IsEmpty())
     return;
@@ -173,24 +173,24 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
     return;
 
   FindObjectsInRange(vPoint, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
-    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
+    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, WMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-void ezDynamicOctree::FindVisibleObjects(const ezFrustum& viewfrustum, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
+void WDynamicOctree::FindVisibleObjects(const WFrustum& viewfrustum, W_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
-  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
+  W_ASSERT_DEV(m_uiMaxTreeDepth > 0, "WDynamicOctree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
 
   FindVisibleObjects(viewfrustum, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
-    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
+    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, WMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
-  float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+void WDynamicOctree::FindVisibleObjects(const WFrustum& Viewfrustum, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
+  float miny, float maxy, float minz, float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const
 {
-  ezVec3 v[8];
+  WVec3 v[8];
   v[0].Set(minx, miny, minz);
   v[1].Set(minx, miny, maxz);
   v[2].Set(minx, maxy, minz);
@@ -200,27 +200,27 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
   v[6].Set(maxx, maxy, minz);
   v[7].Set(maxx, maxy, maxz);
 
-  ezVolumePosition::Enum pos = Viewfrustum.GetObjectPosition(&v[0], 8);
+  WVolumePosition::Enum pos = Viewfrustum.GetObjectPosition(&v[0], 8);
 
-  if (pos == ezVolumePosition::Outside)
+  if (pos == WVolumePosition::Outside)
     return;
 
-  ezDynamicTree::ezMultiMapKey mmk;
+  WDynamicTree::WMultiMapKey mmk;
   mmk.m_uiKey = uiNodeID;
 
-  ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
+  WDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
 
   if ((!it1.IsValid()) || (it1.Key().m_uiKey >= uiNextNodeID))
     return;
 
-  if (pos == ezVolumePosition::Inside)
+  if (pos == WVolumePosition::Inside)
   {
     mmk.m_uiKey = uiNextNodeID;
 
     while (it1.IsValid())
     {
       // first increase the iterator, the user could erase it in the callback
-      ezDynamicTreeObjectConst temp = it1;
+      WDynamicTreeObjectConst temp = it1;
       ++it1;
 
       Callback(pPassThrough, temp);
@@ -228,14 +228,14 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
 
     return;
   }
-  else if (pos == ezVolumePosition::Intersecting)
+  else if (pos == WVolumePosition::Intersecting)
   {
     mmk.m_uiKey = uiNodeID + 1;
 
     while (it1.IsValid())
     {
       // first increase the iterator, the user could erase it in the callback
-      ezDynamicTreeObjectConst temp = it1;
+      WDynamicTreeObjectConst temp = it1;
       ++it1;
 
       Callback(pPassThrough, temp);
@@ -247,9 +247,9 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
       const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
       const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
-      const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-      const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-      const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
+      const WUInt32 uiNodeIDBase = uiNodeID + 1;
+      const WUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+      const WUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
       FindVisibleObjects(Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
@@ -271,14 +271,14 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
   }
 }
 
-void ezDynamicOctree::RemoveObject(ezDynamicTreeObject obj)
+void WDynamicOctree::RemoveObject(WDynamicTreeObject obj)
 {
   m_NodeMap.Remove(obj);
 }
 
-void ezDynamicOctree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
+void WDynamicOctree::RemoveObject(WInt32 iObjectType, WInt32 iObjectInstance)
 {
-  for (ezDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid(); ++it)
+  for (WDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid(); ++it)
   {
     if ((it.Value().m_iObjectInstance == iObjectInstance) && (it.Value().m_iObjectType == iObjectType))
     {
@@ -288,13 +288,13 @@ void ezDynamicOctree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
   }
 }
 
-void ezDynamicOctree::RemoveObjectsOfType(ezInt32 iObjectType)
+void WDynamicOctree::RemoveObjectsOfType(WInt32 iObjectType)
 {
-  for (ezDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid();)
+  for (WDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid();)
   {
     if (it.Value().m_iObjectType == iObjectType)
     {
-      ezDynamicTreeObject itold = it;
+      WDynamicTreeObject itold = it;
       ++it;
 
       m_NodeMap.Remove(itold);
@@ -306,8 +306,8 @@ void ezDynamicOctree::RemoveObjectsOfType(ezInt32 iObjectType)
 
 
 
-bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
-  float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+bool WDynamicOctree::FindObjectsInRange(const WVec3& vPoint, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
+  float miny, float maxy, float minz, float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const
 {
   if (vPoint.x < minx)
     return true;
@@ -322,25 +322,25 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
   if (vPoint.z > maxz)
     return true;
 
-  ezDynamicTree::ezMultiMapKey mmk;
+  WDynamicTree::WMultiMapKey mmk;
   mmk.m_uiKey = uiNodeID;
 
-  ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
+  WDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
 
   if ((!it1.IsValid()) || (it1.Key().m_uiKey >= uiNextNodeID))
     return true;
 
   {
     {
-      ezDynamicTree::ezMultiMapKey mmk2;
+      WDynamicTree::WMultiMapKey mmk2;
       mmk2.m_uiKey = uiNodeID + 1;
 
-      const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk2);
+      const WDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk2);
 
       while (it1 != itlast)
       {
         // first increase the iterator, the user could erase it in the callback
-        ezDynamicTreeObjectConst temp = it1;
+        WDynamicTreeObjectConst temp = it1;
         ++it1;
 
         if (!Callback(pPassThrough, temp))
@@ -354,9 +354,9 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
       const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
       const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
-      const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-      const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-      const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
+      const WUInt32 uiNodeIDBase = uiNodeID + 1;
+      const WUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+      const WUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
       if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
             uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))
@@ -388,19 +388,19 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
   return true;
 }
 
-void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
+void WDynamicOctree::FindObjectsInRange(const WVec3& vPoint, float fRadius, W_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
-  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindObjectsInRange: You have to first create the tree.");
+  W_ASSERT_DEV(m_uiMaxTreeDepth > 0, "WDynamicOctree::FindObjectsInRange: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
 
   FindObjectsInRange(vPoint, fRadius, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
-    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
+    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, WMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx,
-  float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+bool WDynamicOctree::FindObjectsInRange(const WVec3& vPoint, float fRadius, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx,
+  float maxx, float miny, float maxy, float minz, float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const
 {
   if (vPoint.x + fRadius < minx)
     return true;
@@ -415,10 +415,10 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
   if (vPoint.z - fRadius > maxz)
     return true;
 
-  ezDynamicTree::ezMultiMapKey mmk;
+  WDynamicTree::WMultiMapKey mmk;
   mmk.m_uiKey = uiNodeID;
 
-  ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
+  WDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
 
   // if the whole sub-tree doesn't contain any data, no need to check further
   if ((!it1.IsValid()) || (it1.Key().m_uiKey >= uiNextNodeID))
@@ -431,7 +431,7 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
       while (it1.IsValid() && (it1.Key().m_uiKey == uiNodeID))
       {
         // first increase the iterator, the user could erase it in the callback
-        ezDynamicTreeObjectConst temp = it1;
+        WDynamicTreeObjectConst temp = it1;
         ++it1;
 
         if (!Callback(pPassThrough, temp))
@@ -446,9 +446,9 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
       const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
       const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
-      const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-      const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-      const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
+      const WUInt32 uiNodeIDBase = uiNodeID + 1;
+      const WUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+      const WUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
       if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
             uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))

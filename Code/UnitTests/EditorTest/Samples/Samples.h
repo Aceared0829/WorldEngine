@@ -4,10 +4,10 @@
 
 #include "../GenerateCompile/GenerateCompile.h"
 
-class ezEditorTestSamples : public ezEditorTestGenerateCompile
+class WEditorTestSamples : public WEditorTestGenerateCompile
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -20,9 +20,9 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 };

@@ -9,59 +9,59 @@
 #include <ParticlePlugin/ParticlePluginDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
 
-class ezParticleRenderData;
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
-class ezParticleSystemInstance;
-class ezParticleComponent;
-struct ezMsgSetPlaying;
-struct ezMsgInterruptPlaying;
-struct ezMsgSetFloatParameter;
-struct ezMsgSetColorParameter;
+class WParticleRenderData;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
+class WParticleSystemInstance;
+class WParticleComponent;
+struct WMsgSetPlaying;
+struct WMsgInterruptPlaying;
+struct WMsgSetFloatParameter;
+struct WMsgSetColorParameter;
 
-using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
+using WParticleEffectResourceHandle = WTypedResourceHandle<class WParticleEffectResource>;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponentManager final : public ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>
+class W_PARTICLEPLUGIN_DLL WParticleComponentManager final : public WComponentManager<class WParticleComponent, WBlockStorageType::Compact>
 {
-  using SUPER = ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<class WParticleComponent, WBlockStorageType::Compact>;
 
 public:
-  ezParticleComponentManager(ezWorld* pWorld);
+  WParticleComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 
   void UpdatePfxTransformsAndBounds();
 };
 
 /// Plays a particle effect at the location of the game object.
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
+class W_PARTICLEPLUGIN_DLL WParticleComponent final : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezParticleComponent, ezRenderComponent, ezParticleComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WParticleComponent, WRenderComponent, WParticleComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezParticleComponent
+  // WParticleComponent
 
 public:
-  ezParticleComponent();
-  ~ezParticleComponent();
+  WParticleComponent();
+  ~WParticleComponent();
 
   /// Starts a new particle effect. If one is already running, it will be stopped (but not interrupted) and a new one is started as
   /// well.
@@ -79,46 +79,46 @@ public:
   bool IsEffectActive() const; // [ scriptable ]
 
   /// Forwards to StartEffect() or StopEffect().
-  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
+  void OnMsgSetPlaying(WMsgSetPlaying& ref_msg); // [ msg handler ]
 
   /// Forwards to InterruptEffect().
-  void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
+  void OnMsgInterruptPlaying(WMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
   /// Sets an exposed float parameter of the effect, the same as SetParameter() does.
   ///
   /// A message, so that the effect can be reached without knowing where it sits: a prefab usually has
   /// its particle component on a child object, thus the owner of the prefab can only send this
   /// recursively rather than look the component up.
-  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
+  void OnMsgSetFloatParameter(WMsgSetFloatParameter& ref_msg); // [ msg handler ]
 
   /// Sets an exposed color parameter of the effect, the same as SetParameter() does.
-  void OnMsgSetColorParameter(ezMsgSetColorParameter& ref_msg); // [ msg handler ]
+  void OnMsgSetColorParameter(WMsgSetColorParameter& ref_msg); // [ msg handler ]
 
   /// Replaces the effect to be played.
-  void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
-  EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
+  void SetParticleEffect(const WParticleEffectResourceHandle& hEffect);
+  W_ALWAYS_INLINE const WParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
 
-  void SetParticleEffectFile(ezStringView sFile); // [ property ]
-  ezStringView GetParticleEffectFile() const;     // [ property ]
+  void SetParticleEffectFile(WStringView sFile); // [ property ]
+  WStringView GetParticleEffectFile() const;     // [ property ]
 
   // Exposed Parameters
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ]
-  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ]
+  const WRangeView<const char*, WUInt32> GetParameters() const;   // [ property ]
+  void SetParameter(const char* szKey, const WVariant& value);     // [ property ]
   void RemoveParameter(const char* szKey);                          // [ property ]
-  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ]
+  bool GetParameter(const char* szKey, WVariant& out_value) const; // [ property ]
 
-  void SetFloatParameter(ezStringView sName, float fValue);
-  void SetColorParameter(ezStringView sName, const ezColor& value);
+  void SetFloatParameter(WStringView sName, float fValue);
+  void SetColorParameter(WStringView sName, const WColor& value);
 
   /// If zero, the played effect is randomized each time. Use a fixed seed when the result should be deterministic.
-  ezUInt64 m_uiRandomSeed = 0; // [ property ]
+  WUInt64 m_uiRandomSeed = 0; // [ property ]
 
   /// If set, the component reuses the simulation state of another particle component with the same name.
   ///
   /// This can be used to reuse similar effects, for example smoke on chimneys doesn't need to be unique.
   /// Each instance renders the effect from its own perspective, but the simulation is only done once.
   /// This only makes sense for infinite, ambient effects.
-  ezString m_sSharedInstanceName; // [ property ]
+  WString m_sSharedInstanceName; // [ property ]
 
   /// If false, the effect starts in a paused state.
   bool m_bSpawnAtStart = true; // [ property ]
@@ -127,37 +127,37 @@ public:
   bool m_bIgnoreOwnerRotation = false; // [ property ]
 
   /// What to do when the effect is finished playing.
-  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
+  WEnum<WOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
 
   /// Minimum delay between finishing and restarting.
-  ezTime m_MinRestartDelay; // [ property ]
+  WTime m_MinRestartDelay; // [ property ]
 
   /// Random additional delay between finishing and restarting.
-  ezTime m_RestartDelayRange; // [ property ]
+  WTime m_RestartDelayRange; // [ property ]
 
   /// The local direction into which to spawn the effect.
-  ezEnum<ezBasisAxis> m_SpawnDirection = ezBasisAxis::PositiveZ; // [ property ]
+  WEnum<WBasisAxis> m_SpawnDirection = WBasisAxis::PositiveZ; // [ property ]
 
   /// Allows more fine grain control over the effect execution.
-  ezParticleEffectController m_EffectController;
+  WParticleEffectController m_EffectController;
 
 protected:
   void Update();
-  ezTransform GetPfxTransform() const;
+  WTransform GetPfxTransform() const;
   void UpdatePfxTransformAndBounds();
 
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg);
 
-  ezParticleEffectResourceHandle m_hEffectResource;
+  WParticleEffectResourceHandle m_hEffectResource;
 
-  ezTime m_RestartTime;
+  WTime m_RestartTime;
 
   // Exposed Parameters
-  friend class ezParticleEventReaction_Effect;
+  friend class WParticleEventReaction_Effect;
   bool m_bIfContinuousStopRightAway = false;
   bool m_bFloatParamsChanged = false;
   bool m_bColorParamsChanged = false;
-  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
-  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
+  WHybridArray<WParticleEffectFloatParam, 2> m_FloatParams;
+  WHybridArray<WParticleEffectColorParam, 2> m_ColorParams;
 };

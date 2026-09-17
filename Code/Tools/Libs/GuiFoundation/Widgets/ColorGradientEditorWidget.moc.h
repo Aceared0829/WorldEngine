@@ -9,38 +9,38 @@
 
 class QMouseEvent;
 
-class EZ_GUIFOUNDATION_DLL ezQtColorGradientEditorWidget : public QWidget, public Ui_ColorGradientEditorWidget
+class W_GUIFOUNDATION_DLL WQtColorGradientEditorWidget : public QWidget, public Ui_ColorGradientEditorWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtColorGradientEditorWidget(QWidget* pParent);
-  ~ezQtColorGradientEditorWidget();
+  explicit WQtColorGradientEditorWidget(QWidget* pParent);
+  ~WQtColorGradientEditorWidget();
 
-  void SetColorGradient(const ezColorGradient& gradient);
-  const ezColorGradient& GetColorGradient() const { return m_Gradient; }
+  void SetColorGradient(const WColorGradient& gradient);
+  const WColorGradient& GetColorGradient() const { return m_Gradient; }
 
   void ShowColorPicker() { on_ButtonColor_clicked(); }
-  void SetScrubberPosition(ezUInt64 uiTick);
-  void SetScrubberPosition(ezTime time);
+  void SetScrubberPosition(WUInt64 uiTick);
+  void SetScrubberPosition(WTime time);
 
   void FrameGradient();
 
 Q_SIGNALS:
-  void ColorCpAdded(double fPosX, const ezColorGammaUB& color);
-  void ColorCpMoved(ezInt32 iIndex, float fNewPosX);
-  void ColorCpDeleted(ezInt32 iIndex);
-  void ColorCpChanged(ezInt32 iIndex, const ezColorGammaUB& color);
+  void ColorCpAdded(double fPosX, const WColorGammaUB& color);
+  void ColorCpMoved(WInt32 iIndex, float fNewPosX);
+  void ColorCpDeleted(WInt32 iIndex);
+  void ColorCpChanged(WInt32 iIndex, const WColorGammaUB& color);
 
-  void AlphaCpAdded(double fPosX, ezUInt8 uiAlpha);
-  void AlphaCpMoved(ezInt32 iIndex, double fNewPosX);
-  void AlphaCpDeleted(ezInt32 iIndex);
-  void AlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha);
+  void AlphaCpAdded(double fPosX, WUInt8 uiAlpha);
+  void AlphaCpMoved(WInt32 iIndex, double fNewPosX);
+  void AlphaCpDeleted(WInt32 iIndex);
+  void AlphaCpChanged(WInt32 iIndex, WUInt8 uiAlpha);
 
   void IntensityCpAdded(double fPosX, float fIntensity);
-  void IntensityCpMoved(ezInt32 iIndex, double fNewPosX);
-  void IntensityCpDeleted(ezInt32 iIndex);
-  void IntensityCpChanged(ezInt32 iIndex, float fIntensity);
+  void IntensityCpMoved(WInt32 iIndex, double fNewPosX);
+  void IntensityCpDeleted(WInt32 iIndex);
+  void IntensityCpChanged(WInt32 iIndex, float fIntensity);
 
   void NormalizeRange();
 
@@ -49,7 +49,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
   void on_ButtonFrame_clicked();
-  void on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
+  void on_GradientWidget_selectionChanged(WInt32 colorCP, WInt32 alphaCP, WInt32 intensityCP);
   void on_SpinPosition_valueChanged(double value);
   void on_SpinPosition_editingFinished();
   void on_SpinAlpha_valueChanged(int value);
@@ -59,7 +59,7 @@ private Q_SLOTS:
   void on_SpinIntensity_valueChanged(double value);
   void on_SpinIntensity_editingFinished();
   void on_ButtonColor_clicked();
-  void onCurrentColorChanged(const ezColor& col);
+  void onCurrentColorChanged(const WColor& col);
   void onColorAccepted();
   void onColorReset();
   void on_ButtonNormalize_clicked();
@@ -71,13 +71,13 @@ private:
   void UpdateCpUi();
 
   QPalette m_Pal;
-  ezInt32 m_iSelectedColorCP;
-  ezInt32 m_iSelectedAlphaCP;
-  ezInt32 m_iSelectedIntensityCP;
-  ezColorGradient m_Gradient;
+  WInt32 m_iSelectedColorCP;
+  WInt32 m_iSelectedAlphaCP;
+  WInt32 m_iSelectedIntensityCP;
+  WColorGradient m_Gradient;
 
-  ezColorGammaUB m_PickColorStart;
-  ezColorGammaUB m_PickColorCurrent;
+  WColorGammaUB m_PickColorStart;
+  WColorGammaUB m_PickColorCurrent;
 
   bool m_bTemporaryTransaction = false;
 };

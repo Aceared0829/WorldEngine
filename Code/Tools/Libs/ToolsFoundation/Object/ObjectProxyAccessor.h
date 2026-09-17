@@ -2,54 +2,54 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-class ezDocumentObject;
+class WDocumentObject;
 
-class EZ_TOOLSFOUNDATION_DLL ezObjectProxyAccessor : public ezObjectAccessorBase
+class W_TOOLSFOUNDATION_DLL WObjectProxyAccessor : public WObjectAccessorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectProxyAccessor, ezObjectAccessorBase);
+  W_ADD_DYNAMIC_REFLECTION(WObjectProxyAccessor, WObjectAccessorBase);
 
 public:
-  ezObjectProxyAccessor(ezObjectAccessorBase* pSource);
-  virtual ~ezObjectProxyAccessor();
-  ezObjectAccessorBase* GetSourceAccessor() const { return m_pSource; }
+  WObjectProxyAccessor(WObjectAccessorBase* pSource);
+  virtual ~WObjectProxyAccessor();
+  WObjectAccessorBase* GetSourceAccessor() const { return m_pSource; }
 
   /// \name Transaction Operations
   ///@{
 
-  virtual void StartTransaction(ezStringView sDisplayString) override;
+  virtual void StartTransaction(WStringView sDisplayString) override;
   virtual void CancelTransaction() override;
   virtual void FinishTransaction() override;
-  virtual void BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
+  virtual void BeginTemporaryCommands(WStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
   virtual void CancelTemporaryCommands() override;
   virtual void FinishTemporaryCommands() override;
 
   ///@}
-  /// \name ezObjectAccessorBase overrides
+  /// \name WObjectAccessorBase overrides
   ///@{
 
-  virtual const ezDocumentObject* GetObject(const ezUuid& object) override;
-  virtual ezStatus GetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
-  virtual ezStatus SetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus InsertValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus MoveValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) override;
-  virtual ezStatus GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount) override;
+  virtual const WDocumentObject* GetObject(const WUuid& object) override;
+  virtual WStatus GetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index = WVariant()) override;
+  virtual WStatus SetValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus InsertValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus MoveValue(
+    const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex) override;
+  virtual WStatus GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount) override;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType,
-    ezUuid& inout_objectGuid) override;
-  virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
-  virtual ezStatus MoveObject(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) override;
+  virtual WStatus AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType,
+    WUuid& inout_objectGuid) override;
+  virtual WStatus RemoveObject(const WDocumentObject* pObject) override;
+  virtual WStatus MoveObject(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index) override;
 
-  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) override;
-  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values) override;
+  virtual WStatus GetKeys(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys) override;
+  virtual WStatus GetValues(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values) override;
 
   ///@}
 
 protected:
-  ezObjectAccessorBase* m_pSource = nullptr;
+  WObjectAccessorBase* m_pSource = nullptr;
 };

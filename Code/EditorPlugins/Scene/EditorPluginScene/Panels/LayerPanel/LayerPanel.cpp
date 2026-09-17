@@ -9,34 +9,34 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QVBoxLayout>
 
-ezQtLayerPanel::ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
+WQtLayerPanel::WQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, WScene2Document* pDocument)
+  : WQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("LayerPanel");
   setWindowTitle("Layers");
   m_pSceneDocument = pDocument;
-  m_pDelegate = new ezQtLayerDelegate(this, pDocument);
+  m_pDelegate = new WQtLayerDelegate(this, pDocument);
 
-  std::unique_ptr<ezQtLayerModel> pModel(new ezQtLayerModel(m_pSceneDocument));
-  pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetSceneObjectManager(), ezGetStaticRTTI<ezSceneDocumentSettings>(), "Layers"));
-  pModel->AddAdapter(new ezQtLayerAdapter(pDocument));
+  std::unique_ptr<WQtLayerModel> pModel(new WQtLayerModel(m_pSceneDocument));
+  pModel->AddAdapter(new WQtDummyAdapter(pDocument->GetSceneObjectManager(), WGetStaticRTTI<WSceneDocumentSettings>(), "Layers"));
+  pModel->AddAdapter(new WQtLayerAdapter(pDocument));
 
-  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pModel), m_pSceneDocument->GetLayerSelectionManager());
+  m_pTreeWidget = new WQtDocumentTreeView(this, pDocument, std::move(pModel), m_pSceneDocument->GetLayerSelectionManager());
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(false);
   m_pTreeWidget->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   m_pTreeWidget->setItemDelegate(m_pDelegate);
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr,
+  W_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr,
     "signal/slot connection failed");
 
   setWidget(m_pTreeWidget);
 
   {
     // Tool Bar
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "EditorPluginScene_LayerToolbar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -46,13 +46,13 @@ ezQtLayerPanel::ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent
   }
 }
 
-ezQtLayerPanel::~ezQtLayerPanel() = default;
+WQtLayerPanel::~WQtLayerPanel() = default;
 
-void ezQtLayerPanel::OnRequestContextMenu(QPoint pos)
+void WQtLayerPanel::OnRequestContextMenu(QPoint pos)
 {
-  ezQtMenuActionMapView menu(nullptr);
+  WQtMenuActionMapView menu(nullptr);
 
-  ezActionContext context;
+  WActionContext context;
   context.m_sMapping = "EditorPluginScene_LayerContextMenu";
   context.m_pDocument = m_pSceneDocument;
   context.m_pWindow = this;

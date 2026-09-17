@@ -3,28 +3,28 @@
 #include <VisualScriptPlugin/Runtime/VisualScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
-ezVisualScriptCoroutine::ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
-  : m_Context(pDesc, ezScriptAllocator::GetAllocator())
+WVisualScriptCoroutine::WVisualScriptCoroutine(const WSharedPtr<const WVisualScriptGraphDescription>& pDesc)
+  : m_Context(pDesc, WScriptAllocator::GetAllocator())
 {
 }
 
-ezVisualScriptCoroutine::~ezVisualScriptCoroutine() = default;
+WVisualScriptCoroutine::~WVisualScriptCoroutine() = default;
 
-void ezVisualScriptCoroutine::StartWithVarargs(ezArrayPtr<ezVariant> arguments)
+void WVisualScriptCoroutine::StartWithVarargs(WArrayPtr<WVariant> arguments)
 {
-  auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(GetScriptInstance());
+  auto pVisualScriptInstance = static_cast<WVisualScriptInstance*>(GetScriptInstance());
   m_Context.Initialize(*pVisualScriptInstance, arguments);
 }
 
-void ezVisualScriptCoroutine::Stop()
+void WVisualScriptCoroutine::Stop()
 {
   m_Context.Deinitialize();
 }
 
-ezScriptCoroutine::Result ezVisualScriptCoroutine::Update(ezTime deltaTimeSinceLastUpdate)
+WScriptCoroutine::Result WVisualScriptCoroutine::Update(WTime deltaTimeSinceLastUpdate)
 {
   auto result = m_Context.Execute(deltaTimeSinceLastUpdate);
-  if (result.m_NextExecAndState == ezVisualScriptExecutionContext::ExecResult::State::ContinueLater)
+  if (result.m_NextExecAndState == WVisualScriptExecutionContext::ExecResult::State::ContinueLater)
   {
     return Result::Running(result.m_MaxDelay);
   }
@@ -34,17 +34,17 @@ ezScriptCoroutine::Result ezVisualScriptCoroutine::Update(ezTime deltaTimeSinceL
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptCoroutineAllocator::ezVisualScriptCoroutineAllocator(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
+WVisualScriptCoroutineAllocator::WVisualScriptCoroutineAllocator(const WSharedPtr<const WVisualScriptGraphDescription>& pDesc)
   : m_pDesc(pDesc)
 {
 }
 
-void ezVisualScriptCoroutineAllocator::Deallocate(void* pObject, ezAllocator* pAllocator /*= nullptr*/)
+void WVisualScriptCoroutineAllocator::Deallocate(void* pObject, WAllocator* pAllocator /*= nullptr*/)
 {
-  EZ_REPORT_FAILURE("Deallocate is not supported");
+  W_REPORT_FAILURE("Deallocate is not supported");
 }
 
-ezInternal::NewInstance<void> ezVisualScriptCoroutineAllocator::AllocateInternal(ezAllocator* pAllocator)
+WInternal::NewInstance<void> WVisualScriptCoroutineAllocator::AllocateInternal(WAllocator* pAllocator)
 {
-  return EZ_SCRIPT_NEW(ezVisualScriptCoroutine, m_pDesc);
+  return W_SCRIPT_NEW(WVisualScriptCoroutine, m_pDesc);
 }

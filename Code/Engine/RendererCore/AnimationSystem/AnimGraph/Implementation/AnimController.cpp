@@ -11,13 +11,13 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <ozz/animation/runtime/skeleton.h>
 
-ezMutex ezAnimController::s_SharedDataMutex;
-ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimController::s_SharedBoneWeights;
+WMutex WAnimController::s_SharedDataMutex;
+WHashTable<WString, WSharedPtr<WAnimGraphSharedBoneWeights>> WAnimController::s_SharedBoneWeights;
 
-ezAnimController::ezAnimController() = default;
-ezAnimController::~ezAnimController() = default;
+WAnimController::WAnimController() = default;
+WAnimController::~WAnimController() = default;
 
-void ezAnimController::Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
+void WAnimController::Initialize(const WSkeletonResourceHandle& hSkeleton, WAnimPoseGenerator& ref_poseGenerator, const WSharedPtr<WBlackboard>& pBlackboard /*= nullptr*/)
 {
   m_Instances.Clear();
   m_PinDataBoneWeights.Clear();
@@ -40,7 +40,7 @@ void ezAnimController::Initialize(const ezSkeletonResourceHandle& hSkeleton, ezA
   m_pBlackboard = pBlackboard;
 }
 
-void ezAnimController::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const
+void WAnimController::GetRootMotion(WVec3& ref_vTranslation, WAngle& ref_rotationX, WAngle& ref_rotationY, WAngle& ref_rotationZ) const
 {
   ref_vTranslation = m_vRootMotion;
   ref_rotationX = m_RootRotationX;
@@ -48,20 +48,20 @@ void ezAnimController::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rota
   ref_rotationZ = m_RootRotationZ;
 }
 
-bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
+bool WAnimController::Update(WTime diff, WGameObject* pTarget, bool bEnableIK)
 {
   if (!m_hSkeleton.IsValid())
     return false;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return false;
 
   m_pCurrentModelTransforms = nullptr;
 
   m_CurrentLocalTransformOutputs.Clear();
 
-  m_vRootMotion = ezVec3::MakeZero();
+  m_vRootMotion = WVec3::MakeZero();
   m_RootRotationX = {};
   m_RootRotationY = {};
   m_RootRotationZ = {};
@@ -88,12 +88,12 @@ bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   {
     if (fcv.m_fTotalWeight > 0.0f)
     {
-      ezMsgAnimationCurveValue msg;
+      WMsgAnimationCurveValue msg;
       msg.m_sCurveName = fcv.m_sName;
       msg.m_fMin = fcv.m_fMin;
       msg.m_fMax = fcv.m_fMax;
       msg.m_fAverage = fcv.m_fWeightedSum / fcv.m_fTotalWeight;
-      pTarget->PostEventMessage(msg, nullptr, ezTime::MakeZero());
+      pTarget->PostEventMessage(msg, nullptr, WTime::MakeZero());
     }
   }
 
@@ -101,7 +101,7 @@ bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   {
     if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
     {
-      ezMsgAnimationPoseUpdated msg;
+      WMsgAnimationPoseUpdated msg;
       msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
       msg.m_ModelTransforms = newPose;
 
@@ -119,12 +119,12 @@ bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   return true;
 }
 
-void ezAnimController::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform)
+void WAnimController::SetOutputModelTransform(WAnimGraphPinDataModelTransforms* pModelTransform)
 {
   m_pCurrentModelTransforms = pModelTransform;
 }
 
-void ezAnimController::SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+void WAnimController::SetRootMotion(const WVec3& vTranslation, WAngle rotationX, WAngle rotationY, WAngle rotationZ)
 {
   m_vRootMotion = vTranslation;
   m_RootRotationX = rotationX;
@@ -132,22 +132,22 @@ void ezAnimController::SetRootMotion(const ezVec3& vTranslation, ezAngle rotatio
   m_RootRotationZ = rotationZ;
 }
 
-void ezAnimController::AddOutputLocalTransforms(ezAnimGraphPinDataLocalTransforms* pLocalTransforms)
+void WAnimController::AddOutputLocalTransforms(WAnimGraphPinDataLocalTransforms* pLocalTransforms)
 {
   m_CurrentLocalTransformOutputs.PushBack(pLocalTransforms->m_uiOwnIndex);
 }
 
-ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimController::CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill)
+WSharedPtr<WAnimGraphSharedBoneWeights> WAnimController::CreateBoneWeights(const char* szUniqueName, const WSkeletonResource& skeleton, WDelegate<void(WAnimGraphSharedBoneWeights&)> fill)
 {
-  EZ_LOCK(s_SharedDataMutex);
+  W_LOCK(s_SharedDataMutex);
 
-  ezSharedPtr<ezAnimGraphSharedBoneWeights>& bw = s_SharedBoneWeights[szUniqueName];
+  WSharedPtr<WAnimGraphSharedBoneWeights>& bw = s_SharedBoneWeights[szUniqueName];
 
   if (bw == nullptr)
   {
-    bw = EZ_DEFAULT_NEW(ezAnimGraphSharedBoneWeights);
+    bw = W_DEFAULT_NEW(WAnimGraphSharedBoneWeights);
     bw->m_Weights.SetCountUninitialized(skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
-    ezMemoryUtils::ZeroFill<ozz::math::SimdFloat4>(bw->m_Weights.GetData(), bw->m_Weights.GetCount());
+    WMemoryUtils::ZeroFill<ozz::math::SimdFloat4>(bw->m_Weights.GetData(), bw->m_Weights.GetCount());
   }
 
   fill(*bw);
@@ -155,17 +155,17 @@ ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimController::CreateBoneWeights(co
   return bw;
 }
 
-void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* pSkeleton)
+void WAnimController::GenerateLocalResultProcessors(const WSkeletonResource* pSkeleton)
 {
   if (m_CurrentLocalTransformOutputs.IsEmpty())
     return;
 
-  ezAnimGraphPinDataLocalTransforms* pOut = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[0]];
+  WAnimGraphPinDataLocalTransforms* pOut = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[0]];
 
   // combine multiple outputs
   if (m_CurrentLocalTransformOutputs.GetCount() > 1 || pOut->m_pWeights != nullptr)
   {
-    const ezUInt32 m_uiMaxPoses = 6; // TODO
+    const WUInt32 m_uiMaxPoses = 6; // TODO
 
     pOut = AddPinDataLocalTransforms();
     pOut->m_vRootMotion.SetZero();
@@ -179,18 +179,18 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
     struct PinWeight
     {
-      ezUInt32 m_uiPinIdx;
+      WUInt32 m_uiPinIdx;
       float m_fPinWeight = 0.0f;
     };
 
-    ezTempHybridArray<PinWeight, 16> pw;
+    WTempHybridArray<PinWeight, 16> pw;
     pw.SetCount(m_CurrentLocalTransformOutputs.GetCount());
 
-    for (ezUInt32 i = 0; i < m_CurrentLocalTransformOutputs.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_CurrentLocalTransformOutputs.GetCount(); ++i)
     {
       pw[i].m_uiPinIdx = i;
 
-      const ezAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[i]];
+      const WAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[i]];
 
       if (pTransforms != nullptr)
       {
@@ -210,11 +210,11 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
       pw.SetCount(m_uiMaxPoses);
     }
 
-    ezArrayPtr<const ozz::math::SimdFloat4> invWeights;
+    WArrayPtr<const ozz::math::SimdFloat4> invWeights;
 
     for (const auto& in : pw)
     {
-      const ezAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[in.m_uiPinIdx]];
+      const WAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[in.m_uiPinIdx]];
 
       if (in.m_fPinWeight > 0 && pTransforms->m_pWeights)
       {
@@ -233,9 +233,9 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
         const ozz::math::SimdFloat4 factor = ozz::math::simd_float4::Load1(in.m_fPinWeight);
 
-        const ezArrayPtr<const ozz::math::SimdFloat4> weights = pTransforms->m_pWeights->m_pSharedBoneWeights->m_Weights;
+        const WArrayPtr<const ozz::math::SimdFloat4> weights = pTransforms->m_pWeights->m_pSharedBoneWeights->m_Weights;
 
-        for (ezUInt32 i = 0; i < m_BlendMask.GetCount(); ++i)
+        for (WUInt32 i = 0; i < m_BlendMask.GetCount(); ++i)
         {
           const auto& weight = weights[i];
           auto& mask = m_BlendMask[i];
@@ -251,11 +251,11 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
     {
       if (in.m_fPinWeight > 0)
       {
-        const ezAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[in.m_uiPinIdx]];
+        const WAnimGraphPinDataLocalTransforms* pTransforms = &m_PinDataLocalTransforms[m_CurrentLocalTransformOutputs[in.m_uiPinIdx]];
 
         if (pTransforms->m_pWeights)
         {
-          const ezArrayPtr<const ozz::math::SimdFloat4> weights = pTransforms->m_pWeights->m_pSharedBoneWeights->m_Weights;
+          const WArrayPtr<const ozz::math::SimdFloat4> weights = pTransforms->m_pWeights->m_pSharedBoneWeights->m_Weights;
 
           cmd.m_InputBoneWeights.PushBack(weights);
         }
@@ -297,8 +297,8 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
           pFinal->m_fWeightedSum += cc.m_fValue * in.m_fPinWeight;
           pFinal->m_fTotalWeight += in.m_fPinWeight;
-          pFinal->m_fMin = ezMath::Min(pFinal->m_fMin, cc.m_fValue);
-          pFinal->m_fMax = ezMath::Max(pFinal->m_fMax, cc.m_fValue);
+          pFinal->m_fMin = WMath::Min(pFinal->m_fMin, cc.m_fValue);
+          pFinal->m_fMax = WMath::Max(pFinal->m_fMax, cc.m_fValue);
         }
 
         cmd.m_Inputs.PushBack(pTransforms->m_CommandID);
@@ -336,12 +336,12 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
       }
       pFinal->m_fWeightedSum += cc.m_fValue * pOut->m_fOverallWeight;
       pFinal->m_fTotalWeight += pOut->m_fOverallWeight;
-      pFinal->m_fMin = ezMath::Min(pFinal->m_fMin, cc.m_fValue);
-      pFinal->m_fMax = ezMath::Max(pFinal->m_fMax, cc.m_fValue);
+      pFinal->m_fMin = WMath::Min(pFinal->m_fMin, cc.m_fValue);
+      pFinal->m_fMax = WMath::Max(pFinal->m_fMax, cc.m_fValue);
     }
   }
 
-  ezAnimGraphPinDataModelTransforms* pModelTransform = AddPinDataModelTransforms();
+  WAnimGraphPinDataModelTransforms* pModelTransform = AddPinDataModelTransforms();
 
   // local space to model space
   {
@@ -359,10 +359,10 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
   // model space to output
   {
-    ezVec3 rootMotion = ezVec3::MakeZero();
-    ezAngle rootRotationX;
-    ezAngle rootRotationY;
-    ezAngle rootRotationZ;
+    WVec3 rootMotion = WVec3::MakeZero();
+    WAngle rootRotationX;
+    WAngle rootRotationY;
+    WAngle rootRotationZ;
     GetRootMotion(rootMotion, rootRotationX, rootRotationY, rootRotationZ);
 
     GetPoseGenerator().SetFinalCommand(pModelTransform->m_CommandID);
@@ -381,28 +381,28 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
   }
 }
 
-ezAnimGraphPinDataBoneWeights* ezAnimController::AddPinDataBoneWeights()
+WAnimGraphPinDataBoneWeights* WAnimController::AddPinDataBoneWeights()
 {
-  ezAnimGraphPinDataBoneWeights* pData = &m_PinDataBoneWeights.ExpandAndGetRef();
-  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataBoneWeights.GetCount()) - 1;
+  WAnimGraphPinDataBoneWeights* pData = &m_PinDataBoneWeights.ExpandAndGetRef();
+  pData->m_uiOwnIndex = static_cast<WUInt16>(m_PinDataBoneWeights.GetCount()) - 1;
   return pData;
 }
 
-ezAnimGraphPinDataLocalTransforms* ezAnimController::AddPinDataLocalTransforms()
+WAnimGraphPinDataLocalTransforms* WAnimController::AddPinDataLocalTransforms()
 {
-  ezAnimGraphPinDataLocalTransforms* pData = &m_PinDataLocalTransforms.ExpandAndGetRef();
-  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataLocalTransforms.GetCount()) - 1;
+  WAnimGraphPinDataLocalTransforms* pData = &m_PinDataLocalTransforms.ExpandAndGetRef();
+  pData->m_uiOwnIndex = static_cast<WUInt16>(m_PinDataLocalTransforms.GetCount()) - 1;
   return pData;
 }
 
-ezAnimGraphPinDataModelTransforms* ezAnimController::AddPinDataModelTransforms()
+WAnimGraphPinDataModelTransforms* WAnimController::AddPinDataModelTransforms()
 {
-  ezAnimGraphPinDataModelTransforms* pData = &m_PinDataModelTransforms.ExpandAndGetRef();
-  pData->m_uiOwnIndex = static_cast<ezUInt16>(m_PinDataModelTransforms.GetCount()) - 1;
+  WAnimGraphPinDataModelTransforms* pData = &m_PinDataModelTransforms.ExpandAndGetRef();
+  pData->m_uiOwnIndex = static_cast<WUInt16>(m_PinDataModelTransforms.GetCount()) - 1;
   return pData;
 }
 
-void ezAnimController::AddAnimGraph(const ezAnimGraphResourceHandle& hGraph)
+void WAnimController::AddAnimGraph(const WAnimGraphResourceHandle& hGraph)
 {
   if (!hGraph.IsValid())
     return;
@@ -413,13 +413,13 @@ void ezAnimController::AddAnimGraph(const ezAnimGraphResourceHandle& hGraph)
       return;
   }
 
-  ezResourceLock<ezAnimGraphResource> pAnimGraph(hGraph, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pAnimGraph.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WAnimGraphResource> pAnimGraph(hGraph, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pAnimGraph.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   auto& inst = m_Instances.ExpandAndGetRef();
   inst.m_hAnimGraph = hGraph;
-  inst.m_pInstance = EZ_DEFAULT_NEW(ezAnimGraphInstance);
+  inst.m_pInstance = W_DEFAULT_NEW(WAnimGraphInstance);
   inst.m_pInstance->Configure(pAnimGraph->GetAnimationGraph());
 
   for (auto& clip : pAnimGraph->GetAnimationClipMapping())
@@ -434,11 +434,11 @@ void ezAnimController::AddAnimGraph(const ezAnimGraphResourceHandle& hGraph)
 
   for (auto& ig : pAnimGraph->GetIncludeGraphs())
   {
-    AddAnimGraph(ezResourceManager::LoadResource<ezAnimGraphResource>(ig));
+    AddAnimGraph(WResourceManager::LoadResource<WAnimGraphResource>(ig));
   }
 }
 
-const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezTempHashedString sClipName) const
+const WAnimController::AnimClipInfo& WAnimController::GetAnimationClipInfo(WTempHashedString sClipName) const
 {
   auto it = m_AnimationClipMapping.Find(sClipName);
   if (!it.IsValid())
@@ -447,7 +447,7 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
   return it.Value();
 }
 
-void ezAnimController::SetAnimationClipInfo(const ezHashedString& sClipName, const AnimClipInfo& info)
+void WAnimController::SetAnimationClipInfo(const WHashedString& sClipName, const AnimClipInfo& info)
 {
   m_AnimationClipMapping[sClipName] = info;
 }

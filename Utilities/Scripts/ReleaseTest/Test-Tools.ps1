@@ -5,7 +5,7 @@
 # that still catches the typical package failure of a missing DLL.
 #
 # Example:
-#   Test-Tools.ps1 -SdkDir "D:\ez-test\ezEngine.Release.26.9.0" -OutputDir "D:\ez-test\results"
+#   Test-Tools.ps1 -SdkDir "D:\W-test\WorldEngine.Release.26.9.0" -OutputDir "D:\W-test\results"
 
 [CmdletBinding()]
 param(
@@ -28,14 +28,14 @@ $binDir = Get-EzBinDir -SdkDir $SdkDir -BinDir $BinDir
 Initialize-TestGroup -Group "Tools" -OutputDir $OutputDir
 
 # Console applications: -help writes to stdout and exits.
-# ezEditorProcessor is a GUI application as far as the linker is concerned, but it is headless and
+# WEditorProcessor is a GUI application as far as the linker is concerned, but it is headless and
 # shows its help in a message box, so it is not in this list.
 $consoleTools = @(
-	"ezTexConv.exe",
-	"ezShaderCompiler.exe",
-	"ezArchiveTool.exe",
-	"ezMiniDumpTool.exe",
-	"ezFileserve.exe"
+	"WTexConv.exe",
+	"WShaderCompiler.exe",
+	"WArchiveTool.exe",
+	"WMiniDumpTool.exe",
+	"WFileserve.exe"
 )
 
 # GUI applications: started and closed again, they cannot report anything on stdout.
@@ -43,9 +43,9 @@ $consoleTools = @(
 # though they would fit the same pattern - they are samples, not tools, and Test-Samples.ps1 starts
 # them for its -IncludeStandalone group. Having them in both lists only ran the identical check twice.
 $guiTools = @(
-	"ezEditor.exe",
-	"ezPlayer.exe",
-	"ezInspector.exe"
+	"WEditor.exe",
+	"WPlayer.exe",
+	"WInspector.exe"
 )
 
 # --------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ foreach ($tool in $guiTools)
 	# scene - that is enough to prove that all DLLs resolve and the window system works
 	$extraArgs = switch ($tool)
 	{
-		"ezEditor.exe" { @("-unattended", "-safe") }
+		"WEditor.exe" { @("-unattended", "-safe") }
 		default { @() }
 	}
 

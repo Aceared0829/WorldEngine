@@ -5,11 +5,11 @@
 #include <Jolt/Core/StreamOut.h>
 #include <Jolt/Jolt.h>
 
-/// Adapts ezStreamReader to JPH::StreamIn.
-class ezJoltStreamIn : public JPH::StreamIn
+/// Adapts WStreamReader to JPH::StreamIn.
+class WJoltStreamIn : public JPH::StreamIn
 {
 public:
-  explicit ezJoltStreamIn(ezStreamReader* pReader)
+  explicit WJoltStreamIn(WStreamReader* pReader)
     : m_pReader(pReader)
   {
   }
@@ -24,15 +24,15 @@ public:
   virtual bool IsFailed() const override { return false; }
 
 private:
-  ezStreamReader* m_pReader = nullptr;
+  WStreamReader* m_pReader = nullptr;
   bool m_bEOF = false;
 };
 
-/// Adapts ezStreamWriter to JPH::StreamOut.
-class ezJoltStreamOut : public JPH::StreamOut
+/// Adapts WStreamWriter to JPH::StreamOut.
+class WJoltStreamOut : public JPH::StreamOut
 {
 public:
-  explicit ezJoltStreamOut(ezStreamWriter* pWriter)
+  explicit WJoltStreamOut(WStreamWriter* pWriter)
     : m_pWriter(pWriter)
   {
   }
@@ -46,6 +46,6 @@ public:
   virtual bool IsFailed() const override { return m_bFailed; }
 
 private:
-  ezStreamWriter* m_pWriter = nullptr;
+  WStreamWriter* m_pWriter = nullptr;
   bool m_bFailed = false;
 };

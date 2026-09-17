@@ -9,46 +9,46 @@
 ///
 /// Contains blend, depth-stencil, and rasterizer state descriptions.
 /// Parsed from shader source and serialized with shader permutations.
-struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
+struct W_RENDERERCORE_DLL WShaderStateResourceDescriptor
 {
-  ezGALBlendStateCreationDescription m_BlendDesc;
-  ezGALDepthStencilStateCreationDescription m_DepthStencilDesc;
-  ezGALRasterizerStateCreationDescription m_RasterizerDesc;
+  WGALBlendStateCreationDescription m_BlendDesc;
+  WGALDepthStencilStateCreationDescription m_DepthStencilDesc;
+  WGALRasterizerStateCreationDescription m_RasterizerDesc;
 
-  ezUInt8 m_uiShaderStencilRef = 0;       ///< Stencil reference value for stencil test comparison
+  WUInt8 m_uiShaderStencilRef = 0;       ///< Stencil reference value for stencil test comparison
   bool m_bUseUserStencilRefValue = false; ///< Whether to use the stencil ref value, that is provided externally
 
   /// Parses state descriptions from shader source text.
-  ezResult Parse(const char* szSource);
+  WResult Parse(const char* szSource);
 
-  void Load(ezStreamReader& inout_stream);
-  void Save(ezStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
 
   /// Calculates a hash of all state descriptions for comparison.
-  ezUInt32 CalculateHash() const;
+  WUInt32 CalculateHash() const;
 };
 
 /// Serialized state of a shader permutation.
 ///
-/// Used by ezShaderPermutationResourceLoader to convert into an ezShaderPermutationResource.
+/// Used by WShaderPermutationResourceLoader to convert into an WShaderPermutationResource.
 /// Contains hashes to shader stage binaries, pipeline state, dependencies, and permutation variable values.
-class EZ_RENDERERCORE_DLL ezShaderPermutationBinary
+class W_RENDERERCORE_DLL WShaderPermutationBinary
 {
 public:
-  ezShaderPermutationBinary();
+  WShaderPermutationBinary();
 
-  ezResult Write(ezStreamWriter& inout_stream);
-  ezResult Read(ezStreamReader& inout_stream, bool& out_bOldVersion);
+  WResult Write(WStreamWriter& inout_stream);
+  WResult Read(WStreamReader& inout_stream, bool& out_bOldVersion);
 
   /// Hashes of compiled shader stage binaries for each shader stage.
   ///
-  /// The actual binary will be loaded from the hash via ezShaderStageBinary::LoadStageBinary
-  /// to produce ezShaderStageBinary objects.
-  ezUInt32 m_uiShaderStageHashes[ezGALShaderStage::ENUM_COUNT];
+  /// The actual binary will be loaded from the hash via WShaderStageBinary::LoadStageBinary
+  /// to produce WShaderStageBinary objects.
+  WUInt32 m_uiShaderStageHashes[WGALShaderStage::ENUM_COUNT];
 
-  ezDependencyFile m_DependencyFile;                     ///< File dependencies for hot-reloading.
+  WDependencyFile m_DependencyFile;                     ///< File dependencies for hot-reloading.
 
-  ezShaderStateResourceDescriptor m_StateDescriptor;     ///< Pipeline state (blend, depth-stencil, rasterizer).
+  WShaderStateResourceDescriptor m_StateDescriptor;     ///< Pipeline state (blend, depth-stencil, rasterizer).
 
-  ezHybridArray<ezPermutationVar, 16> m_PermutationVars; ///< Values of permutation variables for this permutation.
+  WHybridArray<WPermutationVar, 16> m_PermutationVars; ///< Values of permutation variables for this permutation.
 };

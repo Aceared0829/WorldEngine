@@ -4,25 +4,25 @@
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
+void WQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
-  // The file picker below is a native window, so it is not covered by ezQtDialog. Automated callers
+  // The file picker below is a native window, so it is not covered by WQtDialog. Automated callers
   // have to name the document, i.e. go through CreateDocument()/OpenDocument() directly.
-  if (ezQtUiServices::SuppressModalWindow(bCreate ? "Create Document (file picker)" : "Open Document (file picker)"))
+  if (WQtUiServices::SuppressModalWindow(bCreate ? "Create Document (file picker)" : "Open Document (file picker)"))
     return;
 
-  const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
+  const WString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
 
   if (sAllFilters.IsEmpty())
   {
-    ezQtUiServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
+    WQtUiServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
     return;
   }
 
   static QString sSelectedExt;
   const QString sDir = QString::fromUtf8(m_sLastDocumentFolder.GetData());
 
-  ezString sFile;
+  WString sFile;
 
   if (bCreate)
     sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir,
@@ -38,38 +38,38 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   if (sFile.IsEmpty())
     return;
 
-  m_sLastDocumentFolder = ezPathUtils::GetFileDirectory(sFile);
+  m_sLastDocumentFolder = WPathUtils::GetFileDirectory(sFile);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(sFile, bCreate, pTypeDesc).Succeeded())
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (WDocumentManager::FindDocumentTypeFromPath(sFile, bCreate, pTypeDesc).Succeeded())
   {
     sSelectedExt = pTypeDesc->m_sDocumentTypeName;
   }
 
   if (bCreate)
-    CreateDocument(sFile, ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow);
+    CreateDocument(sFile, WDocumentFlags::AddToRecentFilesList | WDocumentFlags::RequestWindow);
   else
-    OpenDocument(sFile, ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow);
+    OpenDocument(sFile, WDocumentFlags::AddToRecentFilesList | WDocumentFlags::RequestWindow);
 }
 
-void ezQtEditorApp::GuiCreateDocument()
+void WQtEditorApp::GuiCreateDocument()
 {
   GuiCreateOrOpenDocument(true);
 }
 
-void ezQtEditorApp::GuiOpenDocument()
+void WQtEditorApp::GuiOpenDocument()
 {
-  ezQtAssetBrowserDlg dlg(QApplication::activeWindow(), ezUuid(), "", "");
+  WQtAssetBrowserDlg dlg(QApplication::activeWindow(), WUuid(), "", "");
   if (dlg.exec() == 0)
     return;
 
-  ezQtEditorApp::GetSingleton()->OpenDocument(dlg.GetSelectedAssetPathAbsolute(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+  WQtEditorApp::GetSingleton()->OpenDocument(dlg.GetSelectedAssetPathAbsolute(), WDocumentFlags::RequestWindow | WDocumentFlags::AddToRecentFilesList);
 }
 
 
-ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
+WString WQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
 {
-  ezStringBuilder sAllFilters;
+  WStringBuilder sAllFilters;
   const char* sepsep = "";
 
   if (!bForCreation)
@@ -78,13 +78,13 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     sepsep = ";;";
   }
 
-  const auto& assetTypes = ezDocumentManager::GetAllDocumentDescriptors();
+  const auto& assetTypes = WDocumentManager::GetAllDocumentDescriptors();
 
   // use translated strings
-  ezMap<ezString, const ezDocumentTypeDescriptor*> allDesc;
+  WMap<WString, const WDocumentTypeDescriptor*> allDesc;
   for (auto it : assetTypes)
   {
-    allDesc[ezTranslate(it.Key())] = it.Value();
+    allDesc[WTranslate(it.Key())] = it.Value();
   }
 
   for (auto it : allDesc)
@@ -97,7 +97,7 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     if (desc->m_sFileExtension.IsEmpty())
       continue;
 
-    sAllFilters.Append(sepsep, ezTranslate(desc->m_sDocumentTypeName), " (*.", desc->m_sFileExtension, ")");
+    sAllFilters.Append(sepsep, WTranslate(desc->m_sDocumentTypeName), " (*.", desc->m_sFileExtension, ")");
     sepsep = ";;";
   }
 

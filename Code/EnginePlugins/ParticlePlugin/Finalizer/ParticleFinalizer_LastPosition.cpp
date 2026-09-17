@@ -7,52 +7,52 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_LastPosition, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_LastPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizerFactory_LastPosition, 1, WRTTIDefaultAllocator<WParticleFinalizerFactory_LastPosition>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_LastPosition, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_LastPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizer_LastPosition, 1, WRTTIDefaultAllocator<WParticleFinalizer_LastPosition>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_LastPosition::ezParticleFinalizerFactory_LastPosition() = default;
+WParticleFinalizerFactory_LastPosition::WParticleFinalizerFactory_LastPosition() = default;
 
-const ezRTTI* ezParticleFinalizerFactory_LastPosition::GetFinalizerType() const
+const WRTTI* WParticleFinalizerFactory_LastPosition::GetFinalizerType() const
 {
-  return ezGetStaticRTTI<ezParticleFinalizer_LastPosition>();
+  return WGetStaticRTTI<WParticleFinalizer_LastPosition>();
 }
 
-void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
+void WParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const
 {
-  ezParticleFinalizer_LastPosition* pFinalizer = static_cast<ezParticleFinalizer_LastPosition*>(pObject);
+  WParticleFinalizer_LastPosition* pFinalizer = static_cast<WParticleFinalizer_LastPosition*>(pObject);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleFinalizer_LastPosition::ezParticleFinalizer_LastPosition()
+WParticleFinalizer_LastPosition::WParticleFinalizer_LastPosition()
 {
   // do this at the start of the frame, but after the initializers
   m_fPriority = -499.0f;
 }
 
-ezParticleFinalizer_LastPosition::~ezParticleFinalizer_LastPosition() = default;
+WParticleFinalizer_LastPosition::~WParticleFinalizer_LastPosition() = default;
 
-void ezParticleFinalizer_LastPosition::CreateRequiredStreams()
+void WParticleFinalizer_LastPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("LastPosition", WProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
 }
 
-void ezParticleFinalizer_LastPosition::Process(ezUInt64 uiNumElements)
+void WParticleFinalizer_LastPosition::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: LastPosition");
+  W_PROFILE_SCOPE("PFX: LastPosition");
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
-    ezVec3 curPos = itPosition.Current().GetAsVec3();
-    ezVec3& lastPos = itLastPosition.Current();
+    WVec3 curPos = itPosition.Current().GetAsVec3();
+    WVec3& lastPos = itLastPosition.Current();
 
     lastPos = curPos;
 
@@ -62,4 +62,4 @@ void ezParticleFinalizer_LastPosition::Process(ezUInt64 uiNumElements)
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_LastPosition);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_LastPosition);

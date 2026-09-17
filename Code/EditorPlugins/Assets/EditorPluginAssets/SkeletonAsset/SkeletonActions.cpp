@@ -5,43 +5,43 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezSkeletonActions::s_hCategory;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderBones;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderColliders;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderJoints;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderSwingLimits;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderTwistLimits;
-ezActionDescriptorHandle ezSkeletonActions::s_hRenderPreviewMesh;
+WActionDescriptorHandle WSkeletonActions::s_hCategory;
+WActionDescriptorHandle WSkeletonActions::s_hRenderBones;
+WActionDescriptorHandle WSkeletonActions::s_hRenderColliders;
+WActionDescriptorHandle WSkeletonActions::s_hRenderJoints;
+WActionDescriptorHandle WSkeletonActions::s_hRenderSwingLimits;
+WActionDescriptorHandle WSkeletonActions::s_hRenderTwistLimits;
+WActionDescriptorHandle WSkeletonActions::s_hRenderPreviewMesh;
 
-void ezSkeletonActions::RegisterActions()
+void WSkeletonActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("SkeletonCategory");
-  s_hRenderBones = EZ_REGISTER_ACTION_1("Skeleton.RenderBones", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderBones);
-  s_hRenderColliders = EZ_REGISTER_ACTION_1("Skeleton.RenderColliders", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderColliders);
-  s_hRenderJoints = EZ_REGISTER_ACTION_1("Skeleton.RenderJoints", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderJoints);
-  s_hRenderSwingLimits = EZ_REGISTER_ACTION_1("Skeleton.RenderSwingLimits", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderSwingLimits);
-  s_hRenderTwistLimits = EZ_REGISTER_ACTION_1("Skeleton.RenderTwistLimits", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderTwistLimits);
-  s_hRenderPreviewMesh = EZ_REGISTER_ACTION_1("Skeleton.RenderPreviewMesh", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderPreviewMesh);
+  s_hCategory = W_REGISTER_CATEGORY("SkeletonCategory");
+  s_hRenderBones = W_REGISTER_ACTION_1("Skeleton.RenderBones", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderBones);
+  s_hRenderColliders = W_REGISTER_ACTION_1("Skeleton.RenderColliders", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderColliders);
+  s_hRenderJoints = W_REGISTER_ACTION_1("Skeleton.RenderJoints", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderJoints);
+  s_hRenderSwingLimits = W_REGISTER_ACTION_1("Skeleton.RenderSwingLimits", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderSwingLimits);
+  s_hRenderTwistLimits = W_REGISTER_ACTION_1("Skeleton.RenderTwistLimits", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderTwistLimits);
+  s_hRenderPreviewMesh = W_REGISTER_ACTION_1("Skeleton.RenderPreviewMesh", WActionScope::Document, "Skeletons", "", WSkeletonAction, WSkeletonAction::ActionType::RenderPreviewMesh);
 }
 
-void ezSkeletonActions::UnregisterActions()
+void WSkeletonActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hRenderBones);
-  ezActionManager::UnregisterAction(s_hRenderColliders);
-  ezActionManager::UnregisterAction(s_hRenderJoints);
-  ezActionManager::UnregisterAction(s_hRenderSwingLimits);
-  ezActionManager::UnregisterAction(s_hRenderTwistLimits);
-  ezActionManager::UnregisterAction(s_hRenderPreviewMesh);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hRenderBones);
+  WActionManager::UnregisterAction(s_hRenderColliders);
+  WActionManager::UnregisterAction(s_hRenderJoints);
+  WActionManager::UnregisterAction(s_hRenderSwingLimits);
+  WActionManager::UnregisterAction(s_hRenderTwistLimits);
+  WActionManager::UnregisterAction(s_hRenderPreviewMesh);
 }
 
-void ezSkeletonActions::MapActions(ezStringView sMapping)
+void WSkeletonActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -55,13 +55,13 @@ void ezSkeletonActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hRenderPreviewMesh, szSubPath, 6.0f);
 }
 
-ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* szName, ezSkeletonAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WSkeletonAction::WSkeletonAction(const WActionContext& context, const char* szName, WSkeletonAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
-  m_pSkeletonpDocument = const_cast<ezSkeletonAssetDocument*>(static_cast<const ezSkeletonAssetDocument*>(context.m_pDocument));
-  m_pSkeletonpDocument->Events().AddEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
+  m_pSkeletonpDocument = const_cast<WSkeletonAssetDocument*>(static_cast<const WSkeletonAssetDocument*>(context.m_pDocument));
+  m_pSkeletonpDocument->Events().AddEventHandler(WMakeDelegate(&WSkeletonAction::AssetEventHandler, this));
 
   switch (m_Type)
   {
@@ -93,12 +93,12 @@ ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* s
   UpdateState();
 }
 
-ezSkeletonAction::~ezSkeletonAction()
+WSkeletonAction::~WSkeletonAction()
 {
-  m_pSkeletonpDocument->Events().RemoveEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
+  m_pSkeletonpDocument->Events().RemoveEventHandler(WMakeDelegate(&WSkeletonAction::AssetEventHandler, this));
 }
 
-void ezSkeletonAction::Execute(const ezVariant& value)
+void WSkeletonAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
@@ -128,11 +128,11 @@ void ezSkeletonAction::Execute(const ezVariant& value)
   }
 }
 
-void ezSkeletonAction::AssetEventHandler(const ezSkeletonAssetEvent& e)
+void WSkeletonAction::AssetEventHandler(const WSkeletonAssetEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezSkeletonAssetEvent::RenderStateChanged:
+    case WSkeletonAssetEvent::RenderStateChanged:
       UpdateState();
       break;
     default:
@@ -140,7 +140,7 @@ void ezSkeletonAction::AssetEventHandler(const ezSkeletonAssetEvent& e)
   }
 }
 
-void ezSkeletonAction::UpdateState()
+void WSkeletonAction::UpdateState()
 {
   if (m_Type == ActionType::RenderBones)
   {

@@ -3,7 +3,7 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 
 template <typename HandleType>
-class ezEditorGuidEngineHandleMap
+class WEditorGuidEngineHandleMap
 {
 public:
   void Clear()
@@ -12,7 +12,7 @@ public:
     m_HandleToGuid.Clear();
   }
 
-  void RegisterObject(ezUuid guid, HandleType handle)
+  void RegisterObject(WUuid guid, HandleType handle)
   {
     auto it = m_GuidToHandle.Find(guid);
     if (it.IsValid())
@@ -23,39 +23,39 @@ public:
     m_GuidToHandle[guid] = handle;
     m_HandleToGuid[handle] = guid;
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    W_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
-  void UnregisterObject(ezUuid guid)
+  void UnregisterObject(WUuid guid)
   {
     const HandleType handle = m_GuidToHandle[guid];
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    W_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(HandleType handle)
   {
-    const ezUuid guid = m_HandleToGuid[handle];
+    const WUuid guid = m_HandleToGuid[handle];
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    W_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
-  HandleType GetHandle(ezUuid guid) const
+  HandleType GetHandle(WUuid guid) const
   {
     HandleType res = HandleType();
     m_GuidToHandle.TryGetValue(guid, res);
     return res;
   }
 
-  ezUuid GetGuid(HandleType handle) const { return m_HandleToGuid.GetValueOrDefault(handle, ezUuid()); }
+  WUuid GetGuid(HandleType handle) const { return m_HandleToGuid.GetValueOrDefault(handle, WUuid()); }
 
-  const ezMap<HandleType, ezUuid>& GetHandleToGuidMap() const { return m_HandleToGuid; }
+  const WMap<HandleType, WUuid>& GetHandleToGuidMap() const { return m_HandleToGuid; }
 
 private:
-  ezHashTable<ezUuid, HandleType> m_GuidToHandle;
-  ezMap<HandleType, ezUuid> m_HandleToGuid;
+  WHashTable<WUuid, HandleType> m_GuidToHandle;
+  WMap<HandleType, WUuid> m_HandleToGuid;
 };

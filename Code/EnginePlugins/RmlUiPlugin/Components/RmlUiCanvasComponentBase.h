@@ -9,25 +9,25 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-struct ezMsgExtractRenderData;
-class ezRmlUiContext;
-class ezRmlUiDataBinding;
-class ezBlackboard;
+struct WMsgExtractRenderData;
+class WRmlUiContext;
+class WRmlUiDataBinding;
+class WBlackboard;
 
-using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
+using WRmlUiResourceHandle = WTypedResourceHandle<class WRmlUiResource>;
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvasComponentBase : public ezRenderComponent
+class W_RMLUIPLUGIN_DLL WRmlUiCanvasComponentBase : public WRenderComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, ezRenderComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WRmlUiCanvasComponentBase, WRenderComponent);
 
 public:
-  ezRmlUiCanvasComponentBase();
-  ~ezRmlUiCanvasComponentBase();
+  WRmlUiCanvasComponentBase();
+  ~WRmlUiCanvasComponentBase();
 
-  ezRmlUiCanvasComponentBase& operator=(ezRmlUiCanvasComponentBase&& rhs);
+  WRmlUiCanvasComponentBase& operator=(WRmlUiCanvasComponentBase&& rhs);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -36,61 +36,61 @@ public:
 
   virtual void Update();
 
-  virtual bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
+  virtual bool ReceiveInput(const WVec2& vMousePosInsideCanvas, WRmlUiInputSnapshot input);
 
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlResource, m_hResource, SetRmlResource);
-  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
-  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
+  W_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlResource, m_hResource, SetRmlResource);
+  void SetRmlResource(const WRmlUiResourceHandle& hResource);                // [ property ]
+  const WRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
 
   /// Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  /// If enabled, the component will send an ezMsgRmlUiEventMessage for each RmlUI event that is triggered on the context.
+  /// If enabled, the component will send an WMsgRmlUiEventMessage for each RmlUI event that is triggered on the context.
   void SetSendEventMessage(bool bSendEventMessage);                // [ property ]
   bool GetSendEventMessage() const { return m_bSendEventMessage; } // [ property ]
 
   void SetOnDemandUpdate(bool bOnDemandUpdate);                    // [ property ]
   bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }     // [ property ]
 
-  ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
-  void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
+  WUInt32 AddDataBinding(WUniquePtr<WRmlUiDataBinding>&& pDataBinding);
+  void RemoveDataBinding(WUInt32 uiDataBindingIndex);
 
   /// Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
-  ezUInt32 AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
-  void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
+  WUInt32 AddBlackboardBinding(const WSharedPtr<WBlackboard>& pBlackboard);
+  void RemoveBlackboardBinding(WUInt32 uiDataBindingIndex);
 
-  ezRmlUiContext* GetOrCreateRmlContext();
-  ezRmlUiContext* GetRmlContext() { return m_pContext; }
+  WRmlUiContext* GetOrCreateRmlContext();
+  WRmlUiContext* GetRmlContext() { return m_pContext; }
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 protected:
-  virtual void OnMsgReload(ezMsgRmlUiReload& msg);                            // [ msg handler ]
-  virtual void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const = 0; // [ msg handler ]
+  virtual void OnMsgReload(WMsgRmlUiReload& msg);                            // [ msg handler ]
+  virtual void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const = 0; // [ msg handler ]
 
   void UpdateCachedValues();
   void UpdateAutobinding();
   void UpdateEventHandler();
 
-  void EventHandler(const ezHashedString& sIdentifier, Rml::Event& event);
+  void EventHandler(const WHashedString& sIdentifier, Rml::Event& event);
 
-  ezRmlUiResourceHandle m_hResource;
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
+  WRmlUiResourceHandle m_hResource;
+  WEvent<const WResourceEvent&, WMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
-  ezVec2U32 m_vSize = ezVec2U32::MakeZero();
-  ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
+  WVec2U32 m_vSize = WVec2U32::MakeZero();
+  WVec2U32 m_vReferenceResolution = WVec2U32::MakeZero();
   bool m_bAutobindBlackboards = false;
   bool m_bSendEventMessage = false;
   bool m_bOnDemandUpdate = true;
   bool m_bNeedsUpdate = false;
-  ezUInt16 m_uiContextID = 0;
+  WUInt16 m_uiContextID = 0;
 
-  ezRmlUiContext* m_pContext = nullptr;
-  ezRmlUiInputProvider m_InputProvider;
+  WRmlUiContext* m_pContext = nullptr;
+  WRmlUiInputProvider m_InputProvider;
 
-  ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
-  ezDynamicArray<ezUInt32> m_AutoBindings;
+  WDynamicArray<WUniquePtr<WRmlUiDataBinding>> m_DataBindings;
+  WDynamicArray<WUInt32> m_AutoBindings;
 
-  ezEventMessageSender<ezMsgRmlUiEvent> m_EventMessageSender; // [ event ]
+  WEventMessageSender<WMsgRmlUiEvent> m_EventMessageSender; // [ event ]
 };

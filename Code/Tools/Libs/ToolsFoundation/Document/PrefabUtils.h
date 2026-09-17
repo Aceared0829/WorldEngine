@@ -5,32 +5,32 @@
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocumentObject;
+class WDocumentObject;
 
-class EZ_TOOLSFOUNDATION_DLL ezPrefabUtils
+class W_TOOLSFOUNDATION_DLL WPrefabUtils
 {
 public:
-  static void LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph);
+  static void LoadGraph(WAbstractObjectGraph& out_graph, WStringView sGraph);
 
-  static ezAbstractObjectNode* GetFirstRootNode(ezAbstractObjectGraph& ref_graph);
+  static WAbstractObjectNode* GetFirstRootNode(WAbstractObjectGraph& ref_graph);
 
-  static void GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& out_nodes);
+  static void GetRootNodes(WAbstractObjectGraph& ref_graph, WDynamicArray<WAbstractObjectNode*>& out_nodes);
 
-  static ezUuid GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData, ezInt32* pDepth = nullptr);
+  static WUuid GetPrefabRoot(const WDocumentObject* pObject, const WObjectMetaData<WUuid, WDocumentObjectMetaData>& documentObjectMetaData, WInt32* pDepth = nullptr);
 
-  static ezVariant GetDefaultValue(
-    const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, ezStringView sProperty, ezVariant index = ezVariant(), bool* pValueFound = nullptr);
+  static WVariant GetDefaultValue(
+    const WAbstractObjectGraph& graph, const WUuid& objectGuid, WStringView sProperty, WVariant index = WVariant(), bool* pValueFound = nullptr);
 
-  static void WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& mergedDiff, ezStringBuilder& out_sText);
+  static void WriteDiff(const WDeque<WAbstractGraphDiffOperation>& mergedDiff, WStringBuilder& out_sText);
 
   /// Merges diffs of left and right graphs relative to their base graph. Conflicts prefer the right graph.
-  static void Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph,
-    ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff);
+  static void Merge(const WAbstractObjectGraph& baseGraph, const WAbstractObjectGraph& leftGraph, const WAbstractObjectGraph& rightGraph,
+    WDeque<WAbstractGraphDiffOperation>& out_mergedDiff);
 
   /// Merges diffs of left and right graphs relative to their base graph. Conflicts prefer the right graph. Base and left are provided as
   /// serialized DDL graphs and the right graph is build directly from pRight and its PrefabSeed.
-  static void Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed,
-    ezStringBuilder& out_sNewGraph);
+  static void Merge(WStringView sBase, WStringView sLeft, WDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const WUuid& prefabSeed,
+    WStringBuilder& out_sNewGraph);
 
-  static ezString ReadDocumentAsString(ezStringView sFile);
+  static WString ReadDocumentAsString(WStringView sFile);
 };

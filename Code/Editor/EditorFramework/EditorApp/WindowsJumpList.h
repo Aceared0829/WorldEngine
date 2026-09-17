@@ -2,16 +2,16 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
-class ezRecentFilesList;
+class WRecentFilesList;
 
 /// Helper class for managing Windows taskbar jump lists
-class EZ_EDITORFRAMEWORK_DLL ezWindowsJumpList
+class W_EDITORFRAMEWORK_DLL WWindowsJumpList
 {
 public:
   /// Updates the Windows taskbar jump list with recent projects
-  static void UpdateJumpList(const ezRecentFilesList& recentProjects);
+  static void UpdateJumpList(const WRecentFilesList& recentProjects);
 };
 
 #endif

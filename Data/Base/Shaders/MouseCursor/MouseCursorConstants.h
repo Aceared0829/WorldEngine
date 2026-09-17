@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezMouseCursorConstants, 3)
+CONSTANT_BUFFER(WMouseCursorConstants, 3)
 {
   FLOAT4(CursorPositionAndSize);    // xy = mouse position in pixels, zw = cursor size in pixels
   FLOAT4(CursorHotspotAndRotation); // xy = normalized hotspot, z = sin(rotation), w = cos(rotation)

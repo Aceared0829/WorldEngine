@@ -3,29 +3,29 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <SharedPluginAssets/SharedPluginAssetsDLL.h>
 
-class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineRestartSimulationMsg : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINASSETS_DLL WEditorEngineRestartSimulationMsg : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineRestartSimulationMsg, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineRestartSimulationMsg, WEditorEngineDocumentMsg);
 
 public:
 };
 
-class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineLoopAnimationMsg : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINASSETS_DLL WEditorEngineLoopAnimationMsg : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineLoopAnimationMsg, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineLoopAnimationMsg, WEditorEngineDocumentMsg);
 
 public:
   bool m_bLoop;
 };
 
-class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineSetMaterialsMsg : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINASSETS_DLL WEditorEngineSetMaterialsMsg : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSetMaterialsMsg, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WEditorEngineSetMaterialsMsg, WEditorEngineDocumentMsg);
 
 public:
-  ezHybridArray<ezString, 16> m_Materials;
+  WHybridArray<WString, 16> m_Materials;
 
   /// Human-readable display name for each material slot (e.g. the material asset filename).
   /// Used by asset previews to show which material is under the cursor.
-  ezHybridArray<ezString, 16> m_SlotNames;
+  WHybridArray<WString, 16> m_SlotNames;
 };

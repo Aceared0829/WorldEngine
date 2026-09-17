@@ -2,32 +2,32 @@ include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
 
 message(STATUS "Configuring Platform: Android")
 
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID ON)
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_ANDROID ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_POSIX ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_VULKAN ON)
 
-macro(ez_platform_pull_properties)
+macro(W_platform_pull_properties)
 
-	get_property(EZ_CMAKE_PLATFORM_ANDROID GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID)
+	get_property(W_CMAKE_PLATFORM_ANDROID GLOBAL PROPERTY W_CMAKE_PLATFORM_ANDROID)
 
 endmacro()
 
-macro(ez_platform_detect_generator)
+macro(W_platform_detect_generator)
 
 	if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-		message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+		message(STATUS "Buildsystem is Ninja (W_CMAKE_GENERATOR_NINJA)")
 
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_NINJA ON)
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX "Ninja")
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 
 	else()
-		message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Android! Please extend ez_platform_detect_generator()")
+		message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Android! Please extend W_platform_detect_generator()")
 	endif()
 
 endmacro()
 
-macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
+macro(W_platformhook_set_build_flags_clang TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
@@ -50,11 +50,11 @@ macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 		# Reporting missing symbols at linktime
 		target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
 		# Prevent discarding of statically linked plugins
-		target_link_options(${TARGET_NAME} PRIVATE "LINKER:--undefined-glob=*ezReferenceFunction*")		
+		target_link_options(${TARGET_NAME} PRIVATE "LINKER:--undefined-glob=*WReferenceFunction*")
 	endif()
 endmacro()
 
-macro(ez_platformhook_find_vulkan)
+macro(W_platformhook_find_vulkan)
 
 	# As we are cross compiling, CMake assumes every path to be located under the Android NDK root. This is not the case for external libraries like the Vulkan SDK, so we need to clear the sysroot and find root path.
 	set(backup_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
@@ -63,20 +63,20 @@ macro(ez_platformhook_find_vulkan)
 	set(CMAKE_SYSROOT "")
 
 	# Download prebuilt VkLayer_khronos_validation for Android
-	set(EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR "${EZ_ROOT}/Workspace/shared/VulkanValidationLayer-AndroidArm64-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
-	ez_download_and_extract("${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" "VulkanValidationLayer-AndroidArm64-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
+	set(W_SHARED_VULKAN_VALIDATIONLAYERS_DIR "${W_ROOT}/Workspace/shared/VulkanValidationLayer-AndroidArm64-${W_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
+	W_download_and_extract("${W_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${W_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" "VulkanValidationLayer-AndroidArm64-${W_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
 
-	#set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
-	find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so NO_DEFAULT_PATH
+	#set(W_VULKAN_VALIDATIONLAYERS_DIR "${W_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
+	find_path(W_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so NO_DEFAULT_PATH
 		PATHS
-		${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}
+		${W_SHARED_VULKAN_VALIDATIONLAYERS_DIR}/android-binaries-${W_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}
 	)
 
 	set(CMAKE_FIND_ROOT_PATH ${backup_CMAKE_FIND_ROOT_PATH})
 	set(CMAKE_SYSROOT ${backup_CMAKE_SYSROOT})
 
 	include(FindPackageHandleStandardArgs)
-	find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_VALIDATIONLAYERS_DIR)
+	find_package_handle_standard_args(WVulkan DEFAULT_MSG W_VULKAN_VALIDATIONLAYERS_DIR)
 
 	if(NOT ANDROID_NDK)
 		message(WARNING "ANDROID_NDK not set")
@@ -90,11 +90,11 @@ macro(ez_platformhook_find_vulkan)
 
 endmacro()
 
-macro(ez_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+macro(W_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
 
 	# Package files for Android APK by copying them to the Assets directory
 	# This is done in PRE_BUILD so that it happens before the APK generation steps
-	# that happen in POST_BUILD via ez_create_target
+	# that happen in POST_BUILD via W_create_target
 	set(ANDROID_PACKAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/package/Assets")
 	
 	add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD

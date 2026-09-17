@@ -1,80 +1,80 @@
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezGALResourceFormat::GetBitsPerElement(ezGALResourceFormat::Enum format)
+W_ALWAYS_INLINE WUInt32 WGALResourceFormat::GetBitsPerElement(WGALResourceFormat::Enum format)
 {
   return s_BitsPerElement[format];
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt8 ezGALResourceFormat::GetChannelCount(ezGALResourceFormat::Enum format)
+W_ALWAYS_INLINE WUInt8 WGALResourceFormat::GetChannelCount(WGALResourceFormat::Enum format)
 {
   return s_ChannelCount[format];
 }
 
 // static
-EZ_FORCE_INLINE bool ezGALResourceFormat::IsDepthFormat(ezGALResourceFormat::Enum format)
+W_FORCE_INLINE bool WGALResourceFormat::IsDepthFormat(WGALResourceFormat::Enum format)
 {
   return format == DFloat || format == D16 || format == D24S8;
 }
 
 // static
-EZ_FORCE_INLINE bool ezGALResourceFormat::IsStencilFormat(Enum format)
+W_FORCE_INLINE bool WGALResourceFormat::IsStencilFormat(Enum format)
 {
   return format == D24S8;
 }
 
 // static
-EZ_FORCE_INLINE bool ezGALResourceFormat::IsSrgb(ezGALResourceFormat::Enum format)
+W_FORCE_INLINE bool WGALResourceFormat::IsSrgb(WGALResourceFormat::Enum format)
 {
   return format == BGRAUByteNormalizedsRGB || format == RGBAUByteNormalizedsRGB || format == BC1sRGB || format == BC2sRGB || format == BC3sRGB ||
          format == BC7UNormalizedsRGB;
 }
 
-EZ_FORCE_INLINE bool ezGALResourceFormat::IsIntegerFormat(Enum format)
+W_FORCE_INLINE bool WGALResourceFormat::IsIntegerFormat(Enum format)
 {
   switch (format)
   {
     // D16 is actually a 16 bit unorm format
-    case ezGALResourceFormat::D16:
+    case WGALResourceFormat::D16:
     // 32bit, 4 channel
-    case ezGALResourceFormat::RGBAUInt:
-    case ezGALResourceFormat::RGBAInt:
+    case WGALResourceFormat::RGBAUInt:
+    case WGALResourceFormat::RGBAInt:
     // 32bit, 3 channel
-    case ezGALResourceFormat::RGBUInt:
-    case ezGALResourceFormat::RGBInt:
+    case WGALResourceFormat::RGBUInt:
+    case WGALResourceFormat::RGBInt:
     // 16bit, 4 channel
-    case ezGALResourceFormat::RGBAUShort:
-    case ezGALResourceFormat::RGBAShort:
+    case WGALResourceFormat::RGBAUShort:
+    case WGALResourceFormat::RGBAShort:
     // 16bit, 2 channel
-    case ezGALResourceFormat::RGUInt:
-    case ezGALResourceFormat::RGInt:
+    case WGALResourceFormat::RGUInt:
+    case WGALResourceFormat::RGInt:
     // packed 32bit, 4 channel
-    case ezGALResourceFormat::RGB10A2UInt:
+    case WGALResourceFormat::RGB10A2UInt:
     // 8bit, 4 channel
-    case ezGALResourceFormat::RGBAUByte:
-    case ezGALResourceFormat::RGBAByte:
+    case WGALResourceFormat::RGBAUByte:
+    case WGALResourceFormat::RGBAByte:
     // 16bit, 2 channel
-    case ezGALResourceFormat::RGUShort:
-    case ezGALResourceFormat::RGShort:
+    case WGALResourceFormat::RGUShort:
+    case WGALResourceFormat::RGShort:
     // 8bit, 2 channel
-    case ezGALResourceFormat::RGUByte:
-    case ezGALResourceFormat::RGByte:
+    case WGALResourceFormat::RGUByte:
+    case WGALResourceFormat::RGByte:
     // 32bit, 1 channel
-    case ezGALResourceFormat::RUInt:
-    case ezGALResourceFormat::RInt:
+    case WGALResourceFormat::RUInt:
+    case WGALResourceFormat::RInt:
     // 16bit, 1 channel
-    case ezGALResourceFormat::RUShort:
-    case ezGALResourceFormat::RShort:
+    case WGALResourceFormat::RUShort:
+    case WGALResourceFormat::RShort:
     // 8bit, 1 channel
-    case ezGALResourceFormat::RUByte:
-    case ezGALResourceFormat::RByte:
+    case WGALResourceFormat::RUByte:
+    case WGALResourceFormat::RByte:
       return true;
     default:
       return false;
   }
 }
 
-EZ_FORCE_INLINE bool ezGALResourceFormat::IsSignedFormat(Enum format)
+W_FORCE_INLINE bool WGALResourceFormat::IsSignedFormat(Enum format)
 {
   switch (format)
   {
@@ -113,7 +113,7 @@ EZ_FORCE_INLINE bool ezGALResourceFormat::IsSignedFormat(Enum format)
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry()
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::WGALFormatLookupEntry()
   : m_eStorage(InvalidFormat)
   , m_eRenderTarget(InvalidFormat)
   , m_eDepthOnlyType(InvalidFormat)
@@ -126,7 +126,7 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry(
 
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry(NativeFormatType storage)
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::WGALFormatLookupEntry(NativeFormatType storage)
   : m_eStorage(storage)
   , m_eRenderTarget(InvalidFormat)
   , m_eDepthOnlyType(InvalidFormat)
@@ -138,7 +138,7 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry(
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::RT(
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::RT(
   NativeFormatType renderTargetType)
 {
   m_eRenderTarget = renderTargetType;
@@ -146,21 +146,21 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::D(NativeFormatType depthOnlyType)
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::D(NativeFormatType depthOnlyType)
 {
   m_eDepthOnlyType = depthOnlyType;
   return *this;
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::S(NativeFormatType stencilOnlyType)
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::S(NativeFormatType stencilOnlyType)
 {
   m_eStencilOnlyType = stencilOnlyType;
   return *this;
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::DS(
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::DS(
   NativeFormatType depthStencilType)
 {
   m_eDepthStencilType = depthStencilType;
@@ -168,7 +168,7 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::VA(
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::VA(
   NativeFormatType vertexAttributeType)
 {
   m_eVertexAttributeType = vertexAttributeType;
@@ -176,7 +176,7 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<
 }
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::RV(
+WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& WGALFormatLookupEntry<NativeFormatType, InvalidFormat>::RV(
   NativeFormatType resourceViewType)
 {
   m_eResourceViewType = resourceViewType;
@@ -185,22 +185,22 @@ ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& ezGALFormatLookupEntry<
 
 
 template <typename FormatClass>
-ezGALFormatLookupTable<FormatClass>::ezGALFormatLookupTable()
+WGALFormatLookupTable<FormatClass>::WGALFormatLookupTable()
 {
-  for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
+  for (WUInt32 i = 0; i < WGALResourceFormat::ENUM_COUNT; i++)
   {
     m_Formats[i] = FormatClass();
   }
 }
 
 template <typename FormatClass>
-const FormatClass& ezGALFormatLookupTable<FormatClass>::GetFormatInfo(ezGALResourceFormat::Enum format) const
+const FormatClass& WGALFormatLookupTable<FormatClass>::GetFormatInfo(WGALResourceFormat::Enum format) const
 {
   return m_Formats[format];
 }
 
 template <typename FormatClass>
-void ezGALFormatLookupTable<FormatClass>::SetFormatInfo(ezGALResourceFormat::Enum format, const FormatClass& newFormatInfo)
+void WGALFormatLookupTable<FormatClass>::SetFormatInfo(WGALResourceFormat::Enum format, const FormatClass& newFormatInfo)
 {
   m_Formats[format] = newFormatInfo;
 }

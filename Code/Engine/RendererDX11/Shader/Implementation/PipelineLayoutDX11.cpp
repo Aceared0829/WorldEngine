@@ -3,19 +3,19 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Shader/PipelineLayoutDX11.h>
 
-ezGALPipelineLayoutDX11::ezGALPipelineLayoutDX11(const ezGALPipelineLayoutCreationDescription& Description)
-  : ezGALPipelineLayout(Description)
+WGALPipelineLayoutDX11::WGALPipelineLayoutDX11(const WGALPipelineLayoutCreationDescription& Description)
+  : WGALPipelineLayout(Description)
 {
 }
 
-ezGALPipelineLayoutDX11::~ezGALPipelineLayoutDX11() = default;
+WGALPipelineLayoutDX11::~WGALPipelineLayoutDX11() = default;
 
-ezResult ezGALPipelineLayoutDX11::InitPlatform(ezGALDevice*)
+WResult WGALPipelineLayoutDX11::InitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALPipelineLayoutDX11::DeInitPlatform(ezGALDevice*)
+WResult WGALPipelineLayoutDX11::DeInitPlatform(WGALDevice*)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

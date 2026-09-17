@@ -4,24 +4,24 @@
 #include <RendererCore/Declarations.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezShaderBindFlags
+// WShaderBindFlags
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezShaderBindFlags
+struct W_RENDERERCORE_DLL WShaderBindFlags
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
     None = 0,                ///< No flags causes the default shader binding behavior (all render states are applied)
-    ForceRebind = EZ_BIT(0), ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was
+    ForceRebind = W_BIT(0), ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was
                              ///< previously used with custom bound states
     NoRasterizerState =
-      EZ_BIT(1),             ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
-    NoDepthStencilState = EZ_BIT(
+      W_BIT(1),             ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
+    NoDepthStencilState = W_BIT(
       2),                    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil
     NoBlendState =
-      EZ_BIT(3),             ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
+      W_BIT(3),             ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
     NoStateBinding = NoRasterizerState | NoDepthStencilState | NoBlendState,
 
     Default = None
@@ -36,26 +36,26 @@ struct EZ_RENDERERCORE_DLL ezShaderBindFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
+W_DECLARE_FLAGS_OPERATORS(WShaderBindFlags);
 
 //////////////////////////////////////////////////////////////////////////
-// ezRenderContextFlags
+// WRenderContextFlags
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezRenderContextFlags
+struct W_RENDERERCORE_DLL WRenderContextFlags
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
     None = 0,
-    ShaderStateChanged = EZ_BIT(0),
-    BindGroupChanged = EZ_BIT(1),
-    BindGroupLayoutChanged = EZ_BIT(2),
-    MeshBufferBindingChanged = EZ_BIT(3),
-    MaterialBindingChanged = EZ_BIT(4),
-    PipelineChanged = EZ_BIT(5),
-    NonPipelineStateChanged = EZ_BIT(6),
+    ShaderStateChanged = W_BIT(0),
+    BindGroupChanged = W_BIT(1),
+    BindGroupLayoutChanged = W_BIT(2),
+    MeshBufferBindingChanged = W_BIT(3),
+    MaterialBindingChanged = W_BIT(4),
+    PipelineChanged = W_BIT(5),
+    NonPipelineStateChanged = W_BIT(6),
 
     AllStatesInvalid = ShaderStateChanged | BindGroupChanged | BindGroupLayoutChanged | MeshBufferBindingChanged | PipelineChanged | NonPipelineStateChanged,
     Default = None
@@ -73,23 +73,23 @@ struct EZ_RENDERERCORE_DLL ezRenderContextFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezRenderContextFlags);
+W_DECLARE_FLAGS_OPERATORS(WRenderContextFlags);
 
 //////////////////////////////////////////////////////////////////////////
-// ezDefaultSamplerFlags
+// WDefaultSamplerFlags
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezDefaultSamplerFlags
+struct W_RENDERERCORE_DLL WDefaultSamplerFlags
 {
-  using StorageType = ezUInt32;
+  using StorageType = WUInt32;
 
   enum Enum
   {
     PointFiltering = 0,
-    LinearFiltering = EZ_BIT(0),
+    LinearFiltering = W_BIT(0),
 
     Wrap = 0,
-    Clamp = EZ_BIT(1)
+    Clamp = W_BIT(1)
   };
 
   struct Bits
@@ -99,4 +99,4 @@ struct EZ_RENDERERCORE_DLL ezDefaultSamplerFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezDefaultSamplerFlags);
+W_DECLARE_FLAGS_OPERATORS(WDefaultSamplerFlags);

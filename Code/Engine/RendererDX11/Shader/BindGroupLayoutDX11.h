@@ -5,17 +5,17 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/BindGroupLayout.h>
 
-class ezGALBindGroupLayoutDX11 : public ezGALBindGroupLayout
+class WGALBindGroupLayoutDX11 : public WGALBindGroupLayout
 {
 public:
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALBindGroupLayoutDX11(const ezGALBindGroupLayoutCreationDescription& Description);
+  WGALBindGroupLayoutDX11(const WGALBindGroupLayoutCreationDescription& Description);
 
-  virtual ~ezGALBindGroupLayoutDX11();
+  virtual ~WGALBindGroupLayoutDX11();
 };

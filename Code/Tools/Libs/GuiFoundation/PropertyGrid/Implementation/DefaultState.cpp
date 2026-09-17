@@ -10,82 +10,82 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, DefaultState)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, DefaultState)
   ON_CORESYSTEMS_STARTUP
   {
-    ezDefaultState::RegisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
-    ezDefaultState::RegisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
-    ezDefaultState::RegisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
+    WDefaultState::RegisterDefaultStateProvider(WAttributeDefaultStateProvider::CreateProvider);
+    WDefaultState::RegisterDefaultStateProvider(WPrefabDefaultStateProvider::CreateProvider);
+    WDefaultState::RegisterDefaultStateProvider(WVariantSubDefaultStateProvider::CreateProvider);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezDefaultState::UnregisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
-    ezDefaultState::UnregisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
-    ezDefaultState::UnregisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
+    WDefaultState::UnregisterDefaultStateProvider(WAttributeDefaultStateProvider::CreateProvider);
+    WDefaultState::UnregisterDefaultStateProvider(WPrefabDefaultStateProvider::CreateProvider);
+    WDefaultState::UnregisterDefaultStateProvider(WVariantSubDefaultStateProvider::CreateProvider);
   }
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-ezDynamicArray<ezDefaultState::CreateStateProviderFunc> ezDefaultState::s_Factories;
+WDynamicArray<WDefaultState::CreateStateProviderFunc> WDefaultState::s_Factories;
 
-void ezDefaultState::RegisterDefaultStateProvider(CreateStateProviderFunc func)
+void WDefaultState::RegisterDefaultStateProvider(CreateStateProviderFunc func)
 {
   s_Factories.PushBack(func);
 }
 
-void ezDefaultState::UnregisterDefaultStateProvider(CreateStateProviderFunc func)
+void WDefaultState::UnregisterDefaultStateProvider(CreateStateProviderFunc func)
 {
   s_Factories.RemoveAndCopy(func);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultObjectState::ezDefaultObjectState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection)
+WDefaultObjectState::WDefaultObjectState(const WRTTI* pType, WObjectAccessorBase* pAccessor, const WArrayPtr<WPropertySelection> selection)
 {
   m_pType = pType;
   m_pAccessor = pAccessor;
   m_Selection = selection;
   m_Providers.Reserve(m_Selection.GetCount());
-  for (const ezPropertySelection& sel : m_Selection)
+  for (const WPropertySelection& sel : m_Selection)
   {
     auto& pProviders = m_Providers.ExpandAndGetRef();
-    for (auto& func : ezDefaultState::s_Factories)
+    for (auto& func : WDefaultState::s_Factories)
     {
-      ezSharedPtr<ezDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, nullptr);
+      WSharedPtr<WDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, nullptr);
       if (pProvider != nullptr)
       {
         pProviders.PushBack(std::move(pProvider));
       }
-      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool
+      pProviders.Sort([](const WSharedPtr<WDefaultStateProvider>& pA, const WSharedPtr<WDefaultStateProvider>& pB) -> bool
         { return pA->GetRootDepth() > pB->GetRootDepth(); });
     }
   }
 }
 
-ezColorGammaUB ezDefaultObjectState::GetBackgroundColor() const
+WColorGammaUB WDefaultObjectState::GetBackgroundColor() const
 {
   return m_Providers[0][0]->GetBackgroundColor();
 }
 
-ezString ezDefaultObjectState::GetStateProviderName() const
+WString WDefaultObjectState::GetStateProviderName() const
 {
   return m_Providers[0][0]->GetStateProviderName();
 }
 
-bool ezDefaultObjectState::IsDefaultValue(const char* szProperty) const
+bool WDefaultObjectState::IsDefaultValue(const char* szProperty) const
 {
-  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
+  const WAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return IsDefaultValue(pProp);
 }
 
-bool ezDefaultObjectState::IsDefaultValue(const ezAbstractProperty* pProp) const
+bool WDefaultObjectState::IsDefaultValue(const WAbstractProperty* pProp) const
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
     const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
     if (!bNewDefault)
       return false;
@@ -93,62 +93,62 @@ bool ezDefaultObjectState::IsDefaultValue(const ezAbstractProperty* pProp) const
   return true;
 }
 
-ezStatus ezDefaultObjectState::RevertProperty(const char* szProperty)
+WStatus WDefaultObjectState::RevertProperty(const char* szProperty)
 {
-  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
+  const WAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return RevertProperty(pProp);
 }
 
-ezStatus ezDefaultObjectState::RevertProperty(const ezAbstractProperty* pProp)
+WStatus WDefaultObjectState::RevertProperty(const WAbstractProperty* pProp)
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
-    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    WStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
     if (res.Failed())
       return res;
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezDefaultObjectState::RevertObject()
+WStatus WDefaultObjectState::RevertObject()
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
 
-    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+    WTempHybridArray<const WAbstractProperty*, 32> properties;
     m_Selection[i].m_pObject->GetType()->GetAllProperties(properties);
     for (auto pProp : properties)
     {
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
+      if (pProp->GetFlags().IsAnySet(WPropertyFlags::Hidden | WPropertyFlags::ReadOnly))
         continue;
-      ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
+      WStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
       if (res.Failed())
         return res;
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezVariant ezDefaultObjectState::GetDefaultValue(const char* szProperty, ezUInt32 uiSelectionIndex) const
+WVariant WDefaultObjectState::GetDefaultValue(const char* szProperty, WUInt32 uiSelectionIndex) const
 {
-  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
+  const WAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return GetDefaultValue(pProp, uiSelectionIndex);
 }
 
-ezVariant ezDefaultObjectState::GetDefaultValue(const ezAbstractProperty* pProp, ezUInt32 uiSelectionIndex) const
+WVariant WDefaultObjectState::GetDefaultValue(const WAbstractProperty* pProp, WUInt32 uiSelectionIndex) const
 {
-  EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  W_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
+  WDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
   return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, pProp);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultContainerState::ezDefaultContainerState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection, const char* szProperty)
+WDefaultContainerState::WDefaultContainerState(const WRTTI* pType, WObjectAccessorBase* pAccessor, const WArrayPtr<WPropertySelection> selection, const char* szProperty)
 {
   m_pType = pType;
   m_pAccessor = pAccessor;
@@ -156,39 +156,39 @@ ezDefaultContainerState::ezDefaultContainerState(const ezRTTI* pType, ezObjectAc
   // We assume selections can only contain objects of the same (base) type.
   m_pProp = szProperty ? m_pType->FindPropertyByName(szProperty) : nullptr;
   m_Providers.Reserve(m_Selection.GetCount());
-  for (const ezPropertySelection& sel : m_Selection)
+  for (const WPropertySelection& sel : m_Selection)
   {
     auto& pProviders = m_Providers.ExpandAndGetRef();
-    for (auto& func : ezDefaultState::s_Factories)
+    for (auto& func : WDefaultState::s_Factories)
     {
-      ezSharedPtr<ezDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, m_pProp);
+      WSharedPtr<WDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, m_pProp);
       if (pProvider != nullptr)
       {
         pProviders.PushBack(std::move(pProvider));
       }
-      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool
+      pProviders.Sort([](const WSharedPtr<WDefaultStateProvider>& pA, const WSharedPtr<WDefaultStateProvider>& pB) -> bool
         { return pA->GetRootDepth() > pB->GetRootDepth(); });
     }
   }
 }
 
-ezColorGammaUB ezDefaultContainerState::GetBackgroundColor() const
+WColorGammaUB WDefaultContainerState::GetBackgroundColor() const
 {
   return m_Providers[0][0]->GetBackgroundColor();
 }
 
-ezString ezDefaultContainerState::GetStateProviderName() const
+WString WDefaultContainerState::GetStateProviderName() const
 {
   return m_Providers[0][0]->GetStateProviderName();
 }
 
-bool ezDefaultContainerState::IsDefaultElement(ezVariant index) const
+bool WDefaultContainerState::IsDefaultElement(WVariant index) const
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
-    EZ_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If ezDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the IsDefaultElement call.");
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    W_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If WDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the IsDefaultElement call.");
     const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
     if (!bNewDefault)
       return false;
@@ -196,12 +196,12 @@ bool ezDefaultContainerState::IsDefaultElement(ezVariant index) const
   return true;
 }
 
-bool ezDefaultContainerState::IsDefaultContainer() const
+bool WDefaultContainerState::IsDefaultContainer() const
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
     const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
     if (!bNewDefault)
       return false;
@@ -209,57 +209,57 @@ bool ezDefaultContainerState::IsDefaultContainer() const
   return true;
 }
 
-ezStatus ezDefaultContainerState::RevertElement(ezVariant index)
+WStatus WDefaultContainerState::RevertElement(WVariant index)
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
-    EZ_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If ezDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the RevertElement call.");
-    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    W_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If WDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the RevertElement call.");
+    WStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
     if (res.Failed())
       return res;
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezDefaultContainerState::RevertContainer()
+WStatus WDefaultContainerState::RevertContainer()
 {
-  const ezUInt32 uiObjects = m_Providers.GetCount();
-  for (ezUInt32 i = 0; i < uiObjects; i++)
+  const WUInt32 uiObjects = m_Providers.GetCount();
+  for (WUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
-    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
+    WDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    WStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
     if (res.Failed())
       return res;
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezVariant ezDefaultContainerState::GetDefaultElement(ezVariant index, ezUInt32 uiSelectionIndex) const
+WVariant WDefaultContainerState::GetDefaultElement(WVariant index, WUInt32 uiSelectionIndex) const
 {
-  EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  W_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
+  WDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
   return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp, index);
 }
 
-ezVariant ezDefaultContainerState::GetDefaultContainer(ezUInt32 uiSelectionIndex) const
+WVariant WDefaultContainerState::GetDefaultContainer(WUInt32 uiSelectionIndex) const
 {
-  EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  W_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
+  WDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
   return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 
-bool ezDefaultStateProvider::IsDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+bool WDefaultStateProvider::IsDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  const ezVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
-  ezVariant value;
+  const WVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
+  WVariant value;
   pAccessor->GetValue(pObject, pProp, value, index).LogFailure();
 
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags);
   if (index.IsValid() && !bIsValueType)
   {
     // #TODO we do not support reverting entire objects just yet.
@@ -269,46 +269,46 @@ bool ezDefaultStateProvider::IsDefaultValue(SuperArray superPtr, ezObjectAccesso
   return def == value;
 }
 
-ezStatus ezDefaultStateProvider::RevertProperty(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WDefaultStateProvider::RevertProperty(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags);
   if (!bIsValueType)
   {
-    EZ_ASSERT_DEBUG(!index.IsValid(), "Reverting non-value type container elements is not supported yet. IsDefaultValue should have returned true to prevent this call from being allowed.");
+    W_ASSERT_DEBUG(!index.IsValid(), "Reverting non-value type container elements is not supported yet. IsDefaultValue should have returned true to prevent this call from being allowed.");
 
     return RevertObjectContainer(superPtr, pAccessor, pObject, pProp);
   }
 
-  ezDeque<ezAbstractGraphDiffOperation> diff;
+  WDeque<WAbstractGraphDiffOperation> diff;
   auto& op = diff.ExpandAndGetRef();
   op.m_Node = pObject->GetGuid();
-  op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertyChanged;
+  op.m_Operation = WAbstractGraphDiffOperation::Op::PropertyChanged;
   op.m_sProperty = pProp->GetPropertyName();
   op.m_uiTypeVersion = 0;
   if (index.IsValid())
   {
-    ezVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
+    WVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
       {
-        EZ_ASSERT_DEBUG(index.CanConvertTo<ezInt32>(), "Array / Set indices must be integers.");
-        EZ_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, op.m_Value));
-        EZ_ASSERT_DEBUG(op.m_Value.IsA<ezVariantArray>(), "");
+        W_ASSERT_DEBUG(index.CanConvertTo<WInt32>(), "Array / Set indices must be integers.");
+        W_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, op.m_Value));
+        W_ASSERT_DEBUG(op.m_Value.IsA<WVariantArray>(), "");
 
-        ezVariantArray& currentValue2 = op.m_Value.GetWritable<ezVariantArray>();
-        currentValue2[index.ConvertTo<ezUInt32>()] = def;
+        WVariantArray& currentValue2 = op.m_Value.GetWritable<WVariantArray>();
+        currentValue2[index.ConvertTo<WUInt32>()] = def;
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        EZ_ASSERT_DEBUG(index.IsString(), "Map indices must be strings.");
-        EZ_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, op.m_Value));
-        EZ_ASSERT_DEBUG(op.m_Value.IsA<ezVariantDictionary>(), "");
+        W_ASSERT_DEBUG(index.IsString(), "Map indices must be strings.");
+        W_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, op.m_Value));
+        W_ASSERT_DEBUG(op.m_Value.IsA<WVariantDictionary>(), "");
 
-        ezVariantDictionary& currentValue2 = op.m_Value.GetWritable<ezVariantDictionary>();
-        currentValue2[index.ConvertTo<ezString>()] = def;
+        WVariantDictionary& currentValue2 = op.m_Value.GetWritable<WVariantDictionary>();
+        currentValue2[index.ConvertTo<WString>()] = def;
       }
       break;
       default:
@@ -317,39 +317,39 @@ ezStatus ezDefaultStateProvider::RevertProperty(SuperArray superPtr, ezObjectAcc
   }
   else
   {
-    ezVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
+    WVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
     op.m_Value = def;
   }
 
-  ezDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
-  return ezStatus(EZ_SUCCESS);
+  WDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezDefaultStateProvider::RevertObjectContainer(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WStatus WDefaultStateProvider::RevertObjectContainer(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
-  ezDeque<ezAbstractGraphDiffOperation> diff;
-  ezStatus res = CreateRevertContainerDiff(superPtr, pAccessor, pObject, pProp, diff);
+  WDeque<WAbstractGraphDiffOperation> diff;
+  WStatus res = CreateRevertContainerDiff(superPtr, pAccessor, pObject, pProp, diff);
   if (res.Succeeded())
   {
-    ezDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
+    WDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
   }
   return res;
 }
 
-bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, const ezAbstractProperty* pProp, ezVariant index)
+bool WDefaultStateProvider::DoesVariantMatchProperty(const WVariant& value, const WAbstractProperty* pProp, WVariant index)
 {
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags);
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
     return true;
 
-  auto MatchesElementType = [&](const ezVariant& value2) -> bool
+  auto MatchesElementType = [&](const WVariant& value2) -> bool
   {
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    if (pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags))
     {
       return value2.IsNumber() && !value2.IsFloatingPoint();
     }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+    else if (pProp->GetFlags().IsAnySet(WPropertyFlags::StandardType))
     {
       return value2.CanConvertTo(pProp->GetSpecificType()->GetVariantType());
     }
@@ -359,19 +359,19 @@ bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, co
     }
     else
     {
-      return value2.IsA<ezUuid>();
+      return value2.IsA<WUuid>();
     }
   };
 
   switch (pProp->GetCategory())
   {
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
     {
       return MatchesElementType(value);
     }
     break;
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Array:
+    case WPropertyCategory::Set:
     {
       if (index.IsValid())
       {
@@ -379,15 +379,15 @@ bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, co
       }
       else
       {
-        if (value.IsA<ezVariantArray>())
+        if (value.IsA<WVariantArray>())
         {
-          const ezVariantArray& valueArray = value.Get<ezVariantArray>();
+          const WVariantArray& valueArray = value.Get<WVariantArray>();
           return std::all_of(cbegin(valueArray), cend(valueArray), MatchesElementType);
         }
       }
     }
     break;
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
     {
       if (index.IsValid())
       {
@@ -395,9 +395,9 @@ bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, co
       }
       else
       {
-        if (value.IsA<ezVariantDictionary>())
+        if (value.IsA<WVariantDictionary>())
         {
-          const ezVariantDictionary& valueDict = value.Get<ezVariantDictionary>();
+          const WVariantDictionary& valueDict = value.Get<WVariantDictionary>();
           return std::all_of(cbegin(valueDict), cend(valueDict), [&](const auto& it)
             { return MatchesElementType(it.Value()); });
         }

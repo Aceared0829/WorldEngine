@@ -7,22 +7,22 @@ namespace PluginsDetail
 {
   static void SendPluginTelemetry()
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', ' CLR', nullptr, 0);
+    WTelemetry::Broadcast(WTelemetry::Reliable, 'PLUG', ' CLR', nullptr, 0);
 
-    ezTempHybridArray<ezPlugin::PluginInfo, 16> infos;
-    ezPlugin::GetAllPluginInfos(infos);
+    WTempHybridArray<WPlugin::PluginInfo, 16> infos;
+    WPlugin::GetAllPluginInfos(infos);
 
     for (const auto& pi : infos)
     {
-      ezTelemetryMessage msg;
+      WTelemetryMessage msg;
       msg.SetMessageID('PLUG', 'DATA');
       msg.GetWriter() << pi.m_sName;
       msg.GetWriter() << false; // deprecated 'IsReloadable' flag
 
-      ezStringBuilder s;
+      WStringBuilder s;
 
       for (const auto& dep : pi.m_sDependencies)
       {
@@ -31,15 +31,15 @@ namespace PluginsDetail
 
       msg.GetWriter() << s;
 
-      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+      WTelemetry::Broadcast(WTelemetry::Reliable, msg);
     }
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendPluginTelemetry();
         break;
 
@@ -48,11 +48,11 @@ namespace PluginsDetail
     }
   }
 
-  static void PluginEventHandler(const ezPluginEvent& e)
+  static void PluginEventHandler(const WPluginEvent& e)
   {
     switch (e.m_EventType)
     {
-      case ezPluginEvent::AfterPluginChanges:
+      case WPluginEvent::AfterPluginChanges:
         SendPluginTelemetry();
         break;
 
@@ -64,14 +64,14 @@ namespace PluginsDetail
 
 void AddPluginEventHandler()
 {
-  ezTelemetry::AddEventHandler(PluginsDetail::TelemetryEventsHandler);
-  ezPlugin::Events().AddEventHandler(PluginsDetail::PluginEventHandler);
+  WTelemetry::AddEventHandler(PluginsDetail::TelemetryEventsHandler);
+  WPlugin::Events().AddEventHandler(PluginsDetail::PluginEventHandler);
 }
 
 void RemovePluginEventHandler()
 {
-  ezPlugin::Events().RemoveEventHandler(PluginsDetail::PluginEventHandler);
-  ezTelemetry::RemoveEventHandler(PluginsDetail::TelemetryEventsHandler);
+  WPlugin::Events().RemoveEventHandler(PluginsDetail::PluginEventHandler);
+  WTelemetry::RemoveEventHandler(PluginsDetail::TelemetryEventsHandler);
 }
 
 

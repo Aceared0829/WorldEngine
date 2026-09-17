@@ -6,5 +6,5 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-class ezSkeleton;
-class ezShaderTransform;
+class WSkeleton;
+class WShaderTransform;

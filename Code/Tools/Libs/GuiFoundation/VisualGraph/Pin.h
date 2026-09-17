@@ -4,11 +4,11 @@
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <QGraphicsPathItem>
 
-class ezVisualGraphPin;
-class ezQtVisualGraphConnection;
+class WVisualGraphPin;
+class WQtVisualGraphConnection;
 
 /// Visual feedback state for pins during connection dragging
-enum class ezQtVisualGraphPinHighlight
+enum class WQtVisualGraphPinHighlight
 {
   None,
   CannotConnect,
@@ -21,27 +21,27 @@ enum class ezQtVisualGraphPinHighlight
 ///
 /// Displays the pin shape, color, and label. Manages visual feedback during connection operations
 /// and maintains references to all connections attached to this pin.
-class EZ_GUIFOUNDATION_DLL ezQtVisualGraphPin : public QGraphicsPathItem
+class W_GUIFOUNDATION_DLL WQtVisualGraphPin : public QGraphicsPathItem
 {
 public:
-  ezQtVisualGraphPin();
-  ~ezQtVisualGraphPin();
-  virtual int type() const override { return ezQtVisualGraphScene::Pin; }
+  WQtVisualGraphPin();
+  ~WQtVisualGraphPin();
+  virtual int type() const override { return WQtVisualGraphScene::Pin; }
 
-  void AddConnection(ezQtVisualGraphConnection* pConnection);
-  void RemoveConnection(ezQtVisualGraphConnection* pConnection);
-  ezArrayPtr<ezQtVisualGraphConnection*> GetConnections() { return m_Connections; }
+  void AddConnection(WQtVisualGraphConnection* pConnection);
+  void RemoveConnection(WQtVisualGraphConnection* pConnection);
+  WArrayPtr<WQtVisualGraphConnection*> GetConnections() { return m_Connections; }
   bool HasAnyConnections() const { return !m_Connections.IsEmpty(); }
 
-  const ezVisualGraphPin* GetPin() const { return m_pPin; }
-  virtual void SetPin(const ezVisualGraphPin& pin);
+  const WVisualGraphPin* GetPin() const { return m_pPin; }
+  virtual void SetPin(const WVisualGraphPin& pin);
   virtual void ConnectedStateChanged(bool bConnected);
 
   virtual QPointF GetPinPos() const;
   virtual QPointF GetPinDir() const;
   virtual QRectF GetPinRect() const;
   virtual void UpdateConnections();
-  void SetHighlightState(ezQtVisualGraphPinHighlight state);
+  void SetHighlightState(WQtVisualGraphPinHighlight state);
 
   void SetActive(bool bActive);
 
@@ -49,10 +49,10 @@ public:
   virtual void keyPressEvent(QKeyEvent* pEvent) override {}
 
 protected:
-  virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr);
+  virtual bool UpdatePinColors(const WColorGammaUB* pOverwriteColor = nullptr);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
-  ezQtVisualGraphPinHighlight m_HighlightState = ezQtVisualGraphPinHighlight::None;
+  WQtVisualGraphPinHighlight m_HighlightState = WQtVisualGraphPinHighlight::None;
   QGraphicsTextItem* m_pLabel;
   QPointF m_PinCenter;
 
@@ -61,6 +61,6 @@ protected:
 private:
   bool m_bIsActive = true;
 
-  const ezVisualGraphPin* m_pPin = nullptr;
-  ezHybridArray<ezQtVisualGraphConnection*, 6> m_Connections;
+  const WVisualGraphPin* m_pPin = nullptr;
+  WHybridArray<WQtVisualGraphConnection*, 6> m_Connections;
 };

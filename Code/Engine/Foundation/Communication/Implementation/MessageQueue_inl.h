@@ -1,89 +1,89 @@
 
 template <typename MetaDataType>
-ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(ezAllocator* pAllocator)
+WMessageQueueBase<MetaDataType>::WMessageQueueBase(WAllocator* pAllocator)
   : m_Queue(pAllocator)
 {
 }
 
 template <typename MetaDataType>
-ezMessageQueueBase<MetaDataType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocator* pAllocator)
+WMessageQueueBase<MetaDataType>::WMessageQueueBase(const WMessageQueueBase& rhs, WAllocator* pAllocator)
   : m_Queue(pAllocator)
 {
   m_Queue = rhs.m_Queue;
 }
 
 template <typename MetaDataType>
-ezMessageQueueBase<MetaDataType>::~ezMessageQueueBase()
+WMessageQueueBase<MetaDataType>::~WMessageQueueBase()
 {
   Clear();
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::operator=(const ezMessageQueueBase& rhs)
+void WMessageQueueBase<MetaDataType>::operator=(const WMessageQueueBase& rhs)
 {
   m_Queue = rhs.m_Queue;
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE typename ezMessageQueueBase<MetaDataType>::Entry& ezMessageQueueBase<MetaDataType>::operator[](ezUInt32 uiIndex)
+W_ALWAYS_INLINE typename WMessageQueueBase<MetaDataType>::Entry& WMessageQueueBase<MetaDataType>::operator[](WUInt32 uiIndex)
 {
   return m_Queue[uiIndex];
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE const typename ezMessageQueueBase<MetaDataType>::Entry& ezMessageQueueBase<MetaDataType>::operator[](ezUInt32 uiIndex) const
+W_ALWAYS_INLINE const typename WMessageQueueBase<MetaDataType>::Entry& WMessageQueueBase<MetaDataType>::operator[](WUInt32 uiIndex) const
 {
   return m_Queue[uiIndex];
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE ezUInt32 ezMessageQueueBase<MetaDataType>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WMessageQueueBase<MetaDataType>::GetCount() const
 {
   return m_Queue.GetCount();
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE bool ezMessageQueueBase<MetaDataType>::IsEmpty() const
+W_ALWAYS_INLINE bool WMessageQueueBase<MetaDataType>::IsEmpty() const
 {
   return m_Queue.IsEmpty();
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Clear()
+void WMessageQueueBase<MetaDataType>::Clear()
 {
   m_Queue.Clear();
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE void ezMessageQueueBase<MetaDataType>::Reserve(ezUInt32 uiCount)
+W_ALWAYS_INLINE void WMessageQueueBase<MetaDataType>::Reserve(WUInt32 uiCount)
 {
   m_Queue.Reserve(uiCount);
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE void ezMessageQueueBase<MetaDataType>::Compact()
+W_ALWAYS_INLINE void WMessageQueueBase<MetaDataType>::Compact()
 {
   m_Queue.Compact();
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Enqueue(ezMessage* pMessage, const MetaDataType& metaData)
+void WMessageQueueBase<MetaDataType>::Enqueue(WMessage* pMessage, const MetaDataType& metaData)
 {
   Entry entry;
   entry.m_pMessage = pMessage;
   entry.m_MetaData = metaData;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     m_Queue.PushBack(entry);
   }
 }
 
 template <typename MetaDataType>
-bool ezMessageQueueBase<MetaDataType>::TryDequeue(ezMessage*& out_pMessage, MetaDataType& out_metaData)
+bool WMessageQueueBase<MetaDataType>::TryDequeue(WMessage*& out_pMessage, MetaDataType& out_metaData)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (!m_Queue.IsEmpty())
   {
@@ -99,9 +99,9 @@ bool ezMessageQueueBase<MetaDataType>::TryDequeue(ezMessage*& out_pMessage, Meta
 }
 
 template <typename MetaDataType>
-bool ezMessageQueueBase<MetaDataType>::TryPeek(ezMessage*& out_pMessage, MetaDataType& out_metaData)
+bool WMessageQueueBase<MetaDataType>::TryPeek(WMessage*& out_pMessage, MetaDataType& out_metaData)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (!m_Queue.IsEmpty())
   {
@@ -116,69 +116,69 @@ bool ezMessageQueueBase<MetaDataType>::TryPeek(ezMessage*& out_pMessage, MetaDat
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE typename ezMessageQueueBase<MetaDataType>::Entry& ezMessageQueueBase<MetaDataType>::Peek()
+W_ALWAYS_INLINE typename WMessageQueueBase<MetaDataType>::Entry& WMessageQueueBase<MetaDataType>::Peek()
 {
   return m_Queue.PeekFront();
 }
 
 template <typename MetaDataType>
-EZ_ALWAYS_INLINE void ezMessageQueueBase<MetaDataType>::Dequeue()
+W_ALWAYS_INLINE void WMessageQueueBase<MetaDataType>::Dequeue()
 {
   m_Queue.PopFront();
 }
 
 template <typename MetaDataType>
 template <typename Comparer>
-EZ_ALWAYS_INLINE void ezMessageQueueBase<MetaDataType>::Sort(const Comparer& comparer)
+W_ALWAYS_INLINE void WMessageQueueBase<MetaDataType>::Sort(const Comparer& comparer)
 {
   m_Queue.Sort(comparer);
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Lock()
+void WMessageQueueBase<MetaDataType>::Lock()
 {
   m_Mutex.Lock();
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Unlock()
+void WMessageQueueBase<MetaDataType>::Unlock()
 {
   m_Mutex.Unlock();
 }
 
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue()
-  : ezMessageQueueBase<MD>(A::GetAllocator())
+WMessageQueue<MD, A>::WMessageQueue()
+  : WMessageQueueBase<MD>(A::GetAllocator())
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(ezAllocator* pQueueAllocator)
-  : ezMessageQueueBase<MD>(pQueueAllocator)
+WMessageQueue<MD, A>::WMessageQueue(WAllocator* pQueueAllocator)
+  : WMessageQueueBase<MD>(pQueueAllocator)
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueue<MD, A>& rhs)
-  : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
+WMessageQueue<MD, A>::WMessageQueue(const WMessageQueue<MD, A>& rhs)
+  : WMessageQueueBase<MD>(rhs, A::GetAllocator())
 {
 }
 
 template <typename MD, typename A>
-ezMessageQueue<MD, A>::ezMessageQueue(const ezMessageQueueBase<MD>& rhs)
-  : ezMessageQueueBase<MD>(rhs, A::GetAllocator())
+WMessageQueue<MD, A>::WMessageQueue(const WMessageQueueBase<MD>& rhs)
+  : WMessageQueueBase<MD>(rhs, A::GetAllocator())
 {
 }
 
 template <typename MD, typename A>
-void ezMessageQueue<MD, A>::operator=(const ezMessageQueue<MD, A>& rhs)
+void WMessageQueue<MD, A>::operator=(const WMessageQueue<MD, A>& rhs)
 {
-  ezMessageQueueBase<MD>::operator=(rhs);
+  WMessageQueueBase<MD>::operator=(rhs);
 }
 
 template <typename MD, typename A>
-void ezMessageQueue<MD, A>::operator=(const ezMessageQueueBase<MD>& rhs)
+void WMessageQueue<MD, A>::operator=(const WMessageQueueBase<MD>& rhs)
 {
-  ezMessageQueueBase<MD>::operator=(rhs);
+  WMessageQueueBase<MD>::operator=(rhs);
 }

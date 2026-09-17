@@ -5,15 +5,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Timestamp.h>
 
-class ezOpenDdlWriter;
-class ezOpenDdlReader;
+class WOpenDdlWriter;
+class WOpenDdlReader;
 
 /// A plugin bundle lists all the files and information needed to get one feature plugin working
 /// both in the editor and the runtime.
 ///
 /// So it lists the editor DLLs, the runtime DLLs, all the additional transitive dependencies that need to be packaged,
 /// and so on.
-struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
+struct W_EDITORFRAMEWORK_DLL WPluginBundle
 {
   // State: user selectable per project
   bool m_bSelected = false; ///< whether this bundle is supposed to be used.
@@ -21,55 +21,55 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
 
   // Temp state:
   bool m_bMissing = false;
-  ezTimestamp m_LastModificationTime;
+  WTimestamp m_LastModificationTime;
 
   // General Bundle Description
   bool m_bMandatory = false;                                ///< if set, the bundle is always used and not even displayed in the UI
   bool m_bAllowEnableReload = false;                        ///< If false, the "Enable Reload" option is not available for this bundle. Only set to true for plugins that are loaded purely dynamically at runtime and not linked against directly.
-  ezString m_sDisplayName;                                  ///< The string for displaying the bundle in UI
-  ezString m_sDescription;                                  ///< A proper description what this bundle is for, so that users know when to use it.
-  ezHybridArray<ezString, 1> m_EditorPlugins;               ///< List of all the DLLs (without extension) to load into the editor process.
-  ezHybridArray<ezString, 1> m_EditorEnginePlugins;         ///< List of all the DLLs to load into the editor's engine process.
-  ezHybridArray<ezString, 1> m_RuntimePlugins;              ///< List of all the DLLs to load into the runtime. These will also get packaged.
-  ezHybridArray<ezString, 1> m_PackageDependencies;         ///< Additional files to include in packages. E.g. indirect DLL dependencies.
-  ezHybridArray<ezString, 1> m_PackageDependenciesDev;      ///< Additional files to include in packages only for Dev builds. E.g. indirect DLL dependencies specific to Dev builds.
-  ezHybridArray<ezString, 1> m_PackageDependenciesDebug;    ///< Additional files to include in packages only for Debug builds. E.g. indirect DLL dependencies specific to Debug builds.
-  ezHybridArray<ezString, 1> m_PackageDependenciesShipping; ///< Additional files to include in packages only for Shipping builds. E.g. indirect DLL dependencies specific to Shipping builds.
-  ezHybridArray<ezString, 1> m_DataDirectories;             ///< Special-directory paths (e.g. ">sdk/Data/Plugins/KrautPlugin") to mount as data directories when this bundle is active.
-  ezHybridArray<ezString, 1> m_RequiredBundles;             ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
-  ezHybridArray<ezString, 1> m_ExclusiveFeatures;           ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
-  ezHybridArray<ezString, 1> m_EnabledInTemplates;          ///< In which project templates this plugin should be active by default.
-  ezString m_sCMakeTargetName;                              ///< The CMake target name for linking user plugins against this plugin.
+  WString m_sDisplayName;                                  ///< The string for displaying the bundle in UI
+  WString m_sDescription;                                  ///< A proper description what this bundle is for, so that users know when to use it.
+  WHybridArray<WString, 1> m_EditorPlugins;               ///< List of all the DLLs (without extension) to load into the editor process.
+  WHybridArray<WString, 1> m_EditorEnginePlugins;         ///< List of all the DLLs to load into the editor's engine process.
+  WHybridArray<WString, 1> m_RuntimePlugins;              ///< List of all the DLLs to load into the runtime. These will also get packaged.
+  WHybridArray<WString, 1> m_PackageDependencies;         ///< Additional files to include in packages. E.g. indirect DLL dependencies.
+  WHybridArray<WString, 1> m_PackageDependenciesDev;      ///< Additional files to include in packages only for Dev builds. E.g. indirect DLL dependencies specific to Dev builds.
+  WHybridArray<WString, 1> m_PackageDependenciesDebug;    ///< Additional files to include in packages only for Debug builds. E.g. indirect DLL dependencies specific to Debug builds.
+  WHybridArray<WString, 1> m_PackageDependenciesShipping; ///< Additional files to include in packages only for Shipping builds. E.g. indirect DLL dependencies specific to Shipping builds.
+  WHybridArray<WString, 1> m_DataDirectories;             ///< Special-directory paths (e.g. ">sdk/Data/Plugins/KrautPlugin") to mount as data directories when this bundle is active.
+  WHybridArray<WString, 1> m_RequiredBundles;             ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
+  WHybridArray<WString, 1> m_ExclusiveFeatures;           ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
+  WHybridArray<WString, 1> m_EnabledInTemplates;          ///< In which project templates this plugin should be active by default.
+  WString m_sCMakeTargetName;                              ///< The CMake target name for linking user plugins against this plugin.
 
   /// Reads the bundle description, but not the state.
-  ezResult ReadBundleFromDDL(ezOpenDdlReader& ref_ddl);
+  WResult ReadBundleFromDDL(WOpenDdlReader& ref_ddl);
 
   /// Writes only the bundle's state to a DDL file.
-  void WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const;
+  void WriteStateToDDL(WOpenDdlWriter& ref_ddl, const char* szOwnName) const;
 
   /// Reads only the bundle's state from a DDL file.
-  void ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOwnName);
+  void ReadStateFromDDL(WOpenDdlReader& ref_ddl, const char* szOwnName);
 
   /// Checks whether two bundles have the same state.
-  bool IsStateEqual(const ezPluginBundle& rhs) const
+  bool IsStateEqual(const WPluginBundle& rhs) const
   {
     return m_bSelected == rhs.m_bSelected && m_bLoadCopy == rhs.m_bLoadCopy;
   }
 };
 
-/// Contains multiple ezPluginBundle's.
-struct EZ_EDITORFRAMEWORK_DLL ezPluginBundleSet
+/// Contains multiple WPluginBundle's.
+struct W_EDITORFRAMEWORK_DLL WPluginBundleSet
 {
-  ezMap<ezString, ezPluginBundle, ezCompareString_NoCase> m_Plugins;
+  WMap<WString, WPluginBundle, WCompareString_NoCase> m_Plugins;
 
   void SetFromTemplate(const char* szTemplateName);
 
   /// Writes the state of all bundles to a DDL file.
-  void WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const;
+  void WriteStateToDDL(WOpenDdlWriter& ref_ddl) const;
 
   /// Reads the state of all bundles from a DDL file.
-  void ReadStateFromDDL(ezOpenDdlReader& ref_ddl);
+  void ReadStateFromDDL(WOpenDdlReader& ref_ddl);
 
   /// Checks whether two bundle sets have the same state.
-  bool IsStateEqual(const ezPluginBundleSet& rhs) const;
+  bool IsStateEqual(const WPluginBundleSet& rhs) const;
 };

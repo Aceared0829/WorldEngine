@@ -4,40 +4,40 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezColorGradientAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WColorGradientAssetDocumentManager, 1, WRTTIDefaultAllocator<WColorGradientAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
+WColorGradientAssetDocumentManager::WColorGradientAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "ColorGradient";
-  m_DocTypeDesc.m_sFileExtension = "ezColorGradientAsset";
+  m_DocTypeDesc.m_sFileExtension = "WColorGradientAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.svg";
   m_DocTypeDesc.m_sAssetCategory = "Animation";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Gradient");
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // color gradients can be used as 2D textures
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinColorGradient";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinColorGradient";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave | WAssetDocumentFlags::SupportsThumbnail;
 }
 
-ezColorGradientAssetDocumentManager::~ezColorGradientAssetDocumentManager()
+WColorGradientAssetDocumentManager::~WColorGradientAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WColorGradientAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezColorGradientAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WColorGradientAssetDocument>())
       {
-        new ezQtColorGradientAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
+        new WQtColorGradientAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;
@@ -47,14 +47,14 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezColorGradientAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WColorGradientAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezColorGradientAssetDocument(sPath);
+  out_pDocument = new WColorGradientAssetDocument(sPath);
 }
 
-void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(
+  WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

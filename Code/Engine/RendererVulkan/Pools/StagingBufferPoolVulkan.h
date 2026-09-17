@@ -6,19 +6,19 @@
 #include <RendererVulkan/RendererVulkanDLL.h>
 
 
-class ezGALDeviceVulkan;
+class WGALDeviceVulkan;
 
 
 
 /// Allocates temporary staging buffers from a large pool. Allocations will automatically be freed at the end of the frame.
 /// New (larger) pools will be created if the existing ones run out of space. Pools will be deleted after a certain time of no usage.
-class EZ_RENDERERVULKAN_DLL ezStagingBufferPoolVulkan
+class W_RENDERERVULKAN_DLL WStagingBufferPoolVulkan
 {
 public:
   /// Initializes the pool.
   /// \param pDevice GAL device.
   /// \param uiStartingPoolSize Size of the first pool. If depleted, a new one with twice the size of the previous one is created.
-  void Initialize(ezGALDeviceVulkan* pDevice, ezUInt64 uiStartingPoolSize);
+  void Initialize(WGALDeviceVulkan* pDevice, WUInt64 uiStartingPoolSize);
   /// Needs to be called before destroying this instance. Ensure that the GPU is idle before calling.
   void DeInitialize();
 
@@ -30,36 +30,36 @@ public:
   /// Allocates a temp buffer of the given size.
   /// \param size The size of the temp buffer.
   /// \return Allocated temp buffer.
-  ezStagingBufferVulkan AllocateBuffer(ezUInt64 uiSize);
+  WStagingBufferVulkan AllocateBuffer(WUInt64 uiSize);
 
 private:
-  static constexpr ezUInt32 s_uiNumberOfFramesToKeepUnusedPoolsAlive = 600;
+  static constexpr WUInt32 s_uiNumberOfFramesToKeepUnusedPoolsAlive = 600;
 
   struct StagingBufferPool
   {
-    StagingBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize);
+    StagingBufferPool(WUInt32 uiAlignment, WUInt32 uiTotalSize);
     ~StagingBufferPool();
-    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation);
-    void Free(ezUInt64 uiUpToFrame);
-    void Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame);
+    WResult Allocate(WUInt32 uiSize, WUInt64 uiCurrentFrame, WUInt32& out_uiStartOffset, WByteArrayPtr& out_allocation);
+    void Free(WUInt64 uiUpToFrame);
+    void Submit(WGALDeviceVulkan* pDevice, WUInt64 uiFrame);
 
-    ezRingBufferTracker m_Tracker;
-    ezArrayPtr<ezUInt8> m_Data;
+    WRingBufferTracker m_Tracker;
+    WArrayPtr<WUInt8> m_Data;
     vk::Buffer m_Buffer;
-    ezVulkanAllocation m_Alloc;
-    ezVulkanAllocationInfo m_AllocInfo;
-    ezUInt32 m_uiFramesWithoutAllocations = 0;
+    WVulkanAllocation m_Alloc;
+    WVulkanAllocationInfo m_AllocInfo;
+    WUInt32 m_uiFramesWithoutAllocations = 0;
   };
 
 private:
-  StagingBufferPool* GetFreePool(ezUInt64 uiSize);
+  StagingBufferPool* GetFreePool(WUInt64 uiSize);
 
 private:
-  ezUInt64 m_uiAlignment = 0;
-  ezUInt64 m_uiStartingPoolSize = 10 * 1024u * 1024u;
-  ezGALDeviceVulkan* m_pDevice = nullptr;
+  WUInt64 m_uiAlignment = 0;
+  WUInt64 m_uiStartingPoolSize = 10 * 1024u * 1024u;
+  WGALDeviceVulkan* m_pDevice = nullptr;
   vk::Device m_Device;
 
-  ezHybridArray<StagingBufferPool*, 8> m_Pools;
-  ezUInt64 m_uiHighWatermark = 0;
+  WHybridArray<StagingBufferPool*, 8> m_Pools;
+  WUInt64 m_uiHighWatermark = 0;
 };

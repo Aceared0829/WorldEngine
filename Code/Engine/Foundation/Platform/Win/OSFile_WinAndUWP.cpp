@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
@@ -9,11 +9,11 @@
 #  include <Foundation/Threading/ThreadUtils.h>
 
 // Defined in Timestamp_Win.cpp
-ezInt64 FileTimeToEpoch(FILETIME fileTime);
+WInt64 FileTimeToEpoch(FILETIME fileTime);
 
-ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
+WResult WOSFile::InternalGetFileStats(WStringView sFileOrFolder, WFileStats& out_Stats)
 {
-  ezStringBuilder s = sFileOrFolder;
+  WStringBuilder s = sFileOrFolder;
 
   // FindFirstFile does not like paths that end with a separator, so remove them all
   s.Trim(nullptr, "/\\");
@@ -27,33 +27,33 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
     out_Stats.m_bIsDirectory = true;
     out_Stats.m_sParentPath.Clear();
     out_Stats.m_sName = s;
-    out_Stats.m_LastModificationTime = ezTimestamp::MakeInvalid();
-    return EZ_SUCCESS;
+    out_Stats.m_LastModificationTime = WTimestamp::MakeInvalid();
+    return W_SUCCESS;
   }
 
   WIN32_FIND_DATAW data;
-  HANDLE hSearch = FindFirstFileW(ezDosDevicePath(s), &data);
+  HANDLE hSearch = FindFirstFileW(WDosDevicePath(s), &data);
 
   if ((hSearch == nullptr) || (hSearch == INVALID_HANDLE_VALUE))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  out_Stats.m_uiFileSize = ezMath::MakeUInt64(data.nFileSizeHigh, data.nFileSizeLow);
+  out_Stats.m_uiFileSize = WMath::MakeUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   out_Stats.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = data.cFileName;
-  out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
+  out_Stats.m_LastModificationTime = WTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), WSIUnitOfTime::Microsecond);
 
   FindClose(hSearch);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStringView ezOSFile::GetApplicationPath()
+WStringView WOSFile::GetApplicationPath()
 {
   if (s_sApplicationPath.IsEmpty())
   {
-    ezUInt32 uiRequiredLength = 512;
-    ezTempHybridArray<wchar_t, 1024> tmp;
+    WUInt32 uiRequiredLength = 512;
+    WTempHybridArray<wchar_t, 1024> tmp;
 
     while (true)
     {
@@ -62,7 +62,7 @@ ezStringView ezOSFile::GetApplicationPath()
       // reset last error code
       SetLastError(ERROR_SUCCESS);
 
-      const ezUInt32 uiLength = GetModuleFileNameW(nullptr, tmp.GetData(), tmp.GetCount() - 1);
+      const WUInt32 uiLength = GetModuleFileNameW(nullptr, tmp.GetData(), tmp.GetCount() - 1);
       const DWORD error = GetLastError();
 
       if (error == ERROR_SUCCESS)
@@ -77,14 +77,14 @@ ezStringView ezOSFile::GetApplicationPath()
         continue;
       }
 
-      EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
+      W_REPORT_FAILURE("GetModuleFileNameW failed: {0}", WArgErrorCode(error));
     }
 
     // GetModuleFileNameW returns the drive letter exactly as the process was started with,
     // so launching the same executable through a lower case and an upper case path yields absolute paths
     // that differ in that one character.
-    ezStringBuilder sPath = ezStringUtf8(tmp.GetData()).GetView();
-    ezPathUtils::NormalizeWindowsDriveLetter(sPath);
+    WStringBuilder sPath = WStringUtf8(tmp.GetData()).GetView();
+    WPathUtils::NormalizeWindowsDriveLetter(sPath);
 
     s_sApplicationPath = sPath;
   }
@@ -92,22 +92,22 @@ ezStringView ezOSFile::GetApplicationPath()
   return s_sApplicationPath;
 }
 
-const ezString ezOSFile::GetCurrentWorkingDirectory()
+const WString WOSFile::GetCurrentWorkingDirectory()
 {
-  const ezUInt32 uiRequiredLength = GetCurrentDirectoryW(0, nullptr);
+  const WUInt32 uiRequiredLength = GetCurrentDirectoryW(0, nullptr);
 
-  ezTempHybridArray<wchar_t, 1024> tmp;
+  WTempHybridArray<wchar_t, 1024> tmp;
   tmp.SetCountUninitialized(uiRequiredLength + 16);
 
   if (GetCurrentDirectoryW(tmp.GetCount() - 1, tmp.GetData()) == 0)
   {
-    EZ_REPORT_FAILURE("GetCurrentDirectoryW failed: {}", ezArgErrorCode(GetLastError()));
-    return ezString();
+    W_REPORT_FAILURE("GetCurrentDirectoryW failed: {}", WArgErrorCode(GetLastError()));
+    return WString();
   }
 
   tmp[uiRequiredLength] = L'\0';
 
-  ezStringBuilder clean = ezStringUtf8(tmp.GetData()).GetData();
+  WStringBuilder clean = WStringUtf8(tmp.GetData()).GetData();
   clean.MakeCleanPath();
 
   return clean;

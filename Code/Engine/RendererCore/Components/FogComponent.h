@@ -3,15 +3,15 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
 /// The render data object for height fog.
-class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WFogRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFogRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WFogRenderData, WRenderData);
 
 public:
-  ezColor m_Color;
+  WColor m_Color;
   float m_fDensity;
   float m_fBaseHeight;
   float m_fHeightFalloff;
@@ -19,18 +19,18 @@ public:
   float m_fFogStartDistance;
 };
 
-using ezFogComponentManager = ezSettingsComponentManager<class ezFogComponent>;
+using WFogComponentManager = WSettingsComponentManager<class WFogComponent>;
 
-class EZ_RENDERERCORE_DLL ezFogComponent : public ezComponent
+class W_RENDERERCORE_DLL WFogComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFogComponent, ezComponent, ezFogComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WFogComponent, WComponent, WFogComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Deinitialize() override;
@@ -39,14 +39,14 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezFogComponent
+  // WFogComponent
 
 public:
-  ezFogComponent();
-  ~ezFogComponent();
+  WFogComponent();
+  ~WFogComponent();
 
-  void SetColor(ezColor color);                 // [ property ]
-  ezColor GetColor() const;                     // [ property ]
+  void SetColor(WColor color);                 // [ property ]
+  WColor GetColor() const;                     // [ property ]
 
   void SetDensity(float fDensity);              // [ property ]
   float GetDensity() const;                     // [ property ]
@@ -64,10 +64,10 @@ public:
   float GetStartDistance() const;               // [ property ]
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezColor m_Color = ezColor(0.2f, 0.2f, 0.3f);
+  WColor m_Color = WColor(0.2f, 0.2f, 0.3f);
   float m_fDensity = 1.0f;
   float m_fHeightFalloff = 10.0f;
   float m_fSkyDistance = 1000.0f;

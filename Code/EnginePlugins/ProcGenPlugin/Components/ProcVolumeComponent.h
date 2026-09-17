@@ -4,19 +4,19 @@
 #include <Core/World/World.h>
 #include <ProcGenPlugin/Declarations.h>
 
-struct ezMsgTransformChanged;
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractVolumes;
+struct WMsgTransformChanged;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractVolumes;
 
-using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
+using WImageDataResourceHandle = WTypedResourceHandle<class WImageDataResource>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVolumeComponent : public ezComponent
+class W_PROCGENPLUGIN_DLL WProcVolumeComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WProcVolumeComponent, WComponent);
 
 public:
-  ezProcVolumeComponent();
-  ~ezProcVolumeComponent();
+  WProcVolumeComponent();
+  ~WProcVolumeComponent();
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
@@ -27,40 +27,40 @@ public:
   void SetSortOrder(float fOrder);
   float GetSortOrder() const { return m_fSortOrder; }
 
-  void SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode);
-  ezEnum<ezProcGenBlendMode> GetBlendMode() const { return m_BlendMode; }
+  void SetBlendMode(WEnum<WProcGenBlendMode> blendMode);
+  WEnum<WProcGenBlendMode> GetBlendMode() const { return m_BlendMode; }
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnTransformChanged(ezMsgTransformChanged& ref_msg);
+  void OnTransformChanged(WMsgTransformChanged& ref_msg);
 
-  using AreaInvalidatedEvent = ezEvent<const ezProcGenInternal::InvalidatedArea&, ezMutex>;
+  using AreaInvalidatedEvent = WEvent<const WProcGenInternal::InvalidatedArea&, WMutex>;
   static const AreaInvalidatedEvent& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
 
 protected:
   float m_fValue = 1.0f;
   float m_fSortOrder = 0.0f;
-  ezEnum<ezProcGenBlendMode> m_BlendMode;
+  WEnum<WProcGenBlendMode> m_BlendMode;
 
   void InvalidateArea();
-  void InvalidateArea(const ezBoundingBox& area);
+  void InvalidateArea(const WBoundingBox& area);
 
   static AreaInvalidatedEvent s_AreaInvalidatedEvent;
-  static ezSpatialData::Category s_SpatialCategory;
+  static WSpatialData::Category s_SpatialCategory;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezProcVolumeSphereComponentManager = ezComponentManager<class ezProcVolumeSphereComponent, ezBlockStorageType::Compact>;
+using WProcVolumeSphereComponentManager = WComponentManager<class WProcVolumeSphereComponent, WBlockStorageType::Compact>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVolumeSphereComponent : public ezProcVolumeComponent
+class W_PROCGENPLUGIN_DLL WProcVolumeSphereComponent : public WProcVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeSphereComponent, ezProcVolumeComponent, ezProcVolumeSphereComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcVolumeSphereComponent, WProcVolumeComponent, WProcVolumeSphereComponentManager);
 
 public:
-  ezProcVolumeSphereComponent();
-  ~ezProcVolumeSphereComponent();
+  WProcVolumeSphereComponent();
+  ~WProcVolumeSphereComponent();
 
   float GetRadius() const { return m_fRadius; }
   void SetRadius(float fRadius);
@@ -68,11 +68,11 @@ public:
   float GetFalloff() const { return m_fFalloff; }
   void SetFalloff(float fFalloff);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
-  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
+  void OnExtractVolumes(WMsgExtractVolumes& ref_msg) const;
 
 protected:
   float m_fRadius = 5.0f;
@@ -81,56 +81,56 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezProcVolumeBoxComponentManager = ezComponentManager<class ezProcVolumeBoxComponent, ezBlockStorageType::Compact>;
+using WProcVolumeBoxComponentManager = WComponentManager<class WProcVolumeBoxComponent, WBlockStorageType::Compact>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVolumeBoxComponent : public ezProcVolumeComponent
+class W_PROCGENPLUGIN_DLL WProcVolumeBoxComponent : public WProcVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeBoxComponent, ezProcVolumeComponent, ezProcVolumeBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcVolumeBoxComponent, WProcVolumeComponent, WProcVolumeBoxComponentManager);
 
 public:
-  ezProcVolumeBoxComponent();
-  ~ezProcVolumeBoxComponent();
+  WProcVolumeBoxComponent();
+  ~WProcVolumeBoxComponent();
 
-  const ezVec3& GetExtents() const { return m_vExtents; }
-  void SetExtents(const ezVec3& vExtents);
+  const WVec3& GetExtents() const { return m_vExtents; }
+  void SetExtents(const WVec3& vExtents);
 
-  const ezVec3& GetPositiveFalloff() const { return m_vPositiveFalloff; }
-  void SetPositiveFalloff(const ezVec3& vFalloff);
-  const ezVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; }
-  void SetNegativeFalloff(const ezVec3& vFalloff);
+  const WVec3& GetPositiveFalloff() const { return m_vPositiveFalloff; }
+  void SetPositiveFalloff(const WVec3& vFalloff);
+  const WVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; }
+  void SetNegativeFalloff(const WVec3& vFalloff);
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
-  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
+  void OnExtractVolumes(WMsgExtractVolumes& ref_msg) const;
 
 protected:
-  ezVec3 m_vExtents = ezVec3(10.0f);
-  ezVec3 m_vPositiveFalloff = ezVec3(0.5f);
-  ezVec3 m_vNegativeFalloff = ezVec3(0.5f);
+  WVec3 m_vExtents = WVec3(10.0f);
+  WVec3 m_vPositiveFalloff = WVec3(0.5f);
+  WVec3 m_vNegativeFalloff = WVec3(0.5f);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezProcVolumeImageComponentManager = ezComponentManager<class ezProcVolumeImageComponent, ezBlockStorageType::Compact>;
+using WProcVolumeImageComponentManager = WComponentManager<class WProcVolumeImageComponent, WBlockStorageType::Compact>;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVolumeImageComponent : public ezProcVolumeBoxComponent
+class W_PROCGENPLUGIN_DLL WProcVolumeImageComponent : public WProcVolumeBoxComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeImageComponent, ezProcVolumeBoxComponent, ezProcVolumeImageComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WProcVolumeImageComponent, WProcVolumeBoxComponent, WProcVolumeImageComponentManager);
 
 public:
-  ezProcVolumeImageComponent();
-  ~ezProcVolumeImageComponent();
+  WProcVolumeImageComponent();
+  ~WProcVolumeImageComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
-  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
+  void OnExtractVolumes(WMsgExtractVolumes& ref_msg) const;
 
-  void SetImage(const ezImageDataResourceHandle& hResource);
-  ezImageDataResourceHandle GetImage() const { return m_hImage; }
+  void SetImage(const WImageDataResourceHandle& hResource);
+  WImageDataResourceHandle GetImage() const { return m_hImage; }
 
 protected:
-  ezImageDataResourceHandle m_hImage; // [ property ]
+  WImageDataResourceHandle m_hImage; // [ property ]
 };

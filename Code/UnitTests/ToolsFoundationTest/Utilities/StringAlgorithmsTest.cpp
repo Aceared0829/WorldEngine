@@ -3,18 +3,18 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <ToolsFoundation/Utilities/StringAlgorithms.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Utilities);
+W_CREATE_SIMPLE_TEST_GROUP(Utilities);
 
-EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
+W_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
 {
-  auto Check = [](ezStringView sLeft, ezStringView sRight, ezStringView sExpected)
+  auto Check = [](WStringView sLeft, WStringView sRight, WStringView sExpected)
   {
-    ezStringBuilder sResult;
-    ezStringAlgorithms::ComputeNameBetween(sLeft, sRight, sResult);
-    EZ_TEST_STRING(sResult, sExpected);
+    WStringBuilder sResult;
+    WStringAlgorithms::ComputeNameBetween(sLeft, sRight, sResult);
+    W_TEST_STRING(sResult, sExpected);
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Append")
   {
     Check("1", "", "2");
     Check("3", "", "4");
@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("3.5.2", "", "4");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Prepend")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Prepend")
   {
     Check("", "1", "0");
     Check("", "3", "2");
@@ -32,7 +32,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("", "-1", "-2");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IntegerMidpoint")
+  W_TEST_BLOCK(WTestBlock::Enabled, "IntegerMidpoint")
   {
     // Gap > 1: use integer midpoint
     Check("2", "4", "3");
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("-4", "0", "-2");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AdjacentIntegers")
+  W_TEST_BLOCK(WTestBlock::Enabled, "AdjacentIntegers")
   {
     // Gap == 1: fall back to first sub-level
     Check("3", "4", "3.5");
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("-2", "-1", "-2.5");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SubLevelInsertions")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SubLevelInsertions")
   {
     // Inserting between a fractional name and the next integer
     Check("3.5", "4", "3.7");   // midpoint of 5 and 10 = 7
@@ -62,7 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("3.9.9", "4", "3.9.9.5");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SamePrefix")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SamePrefix")
   {
     // Both names share a common root prefix
     Check("3.2", "3.4", "3.3");
@@ -72,13 +72,13 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("1.1", "1.9", "1.5");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "BothEmpty")
+  W_TEST_BLOCK(WTestBlock::Enabled, "BothEmpty")
   {
     // No neighbors at all: return the initial name
     Check("", "", "1");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NonNumericStrings")
+  W_TEST_BLOCK(WTestBlock::Enabled, "NonNumericStrings")
   {
     // Fully non-numeric names have an all-text prefix and an empty numeric part (treated as 0).
     // The prefix is copied to the result; the numeric portion follows the usual scheme.
@@ -97,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("a.b.c", "", "a.b.c 1");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WithSameTextPrefix")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WithSameTextPrefix")
   {
     // Both names share a common root prefix
     Check("Node 3.2", "Node 3.4", "Node 3.3");
@@ -107,7 +107,7 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
     Check("Node 1.1", "Node 1.9", "Node 1.5");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WithDifferentTextPrefix")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WithDifferentTextPrefix")
   {
     // Both names share a common root prefix
     Check("Bla 3.2", "Blub 3.4", "Bla 3.3");

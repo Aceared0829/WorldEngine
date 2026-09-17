@@ -9,70 +9,70 @@
 #include <GameEngine/Messages/DamageMessage.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezMarkerComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WMarkerComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Marker", GetMarkerType, SetMarkerType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.1)),
+    W_ACCESSOR_PROPERTY("Marker", GetMarkerType, SetMarkerType)->AddAttributes(new WDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(0.1)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::LightSkyBlue),
+    new WCategoryAttribute("Gameplay"),
+    new WSphereVisualizerAttribute("Radius", WColor::LightSkyBlue),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMarkerComponent::ezMarkerComponent() = default;
-ezMarkerComponent::~ezMarkerComponent() = default;
+WMarkerComponent::WMarkerComponent() = default;
+WMarkerComponent::~WMarkerComponent() = default;
 
-void ezMarkerComponent::SetMarkerType(const char* szType)
+void WMarkerComponent::SetMarkerType(const char* szType)
 {
   m_sMarkerType.Assign(szType);
 
   UpdateMarker();
 }
 
-const char* ezMarkerComponent::GetMarkerType() const
+const char* WMarkerComponent::GetMarkerType() const
 {
   return m_sMarkerType;
 }
 
-void ezMarkerComponent::SetRadius(float fRadius)
+void WMarkerComponent::SetRadius(float fRadius)
 {
   m_fRadius = fRadius;
 
   UpdateMarker();
 }
 
-float ezMarkerComponent::GetRadius() const
+float WMarkerComponent::GetRadius() const
 {
   return m_fRadius;
 }
 
-void ezMarkerComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WMarkerComponent::OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0), m_fRadius), m_SpatialCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3(0), m_fRadius), m_SpatialCategory);
 }
 
-void ezMarkerComponent::UpdateMarker()
+void WMarkerComponent::UpdateMarker()
 {
   if (!m_sMarkerType.IsEmpty())
   {
-    m_SpatialCategory = ezSpatialData::RegisterCategory(m_sMarkerType.GetString(), ezSpatialData::Flags::None);
+    m_SpatialCategory = WSpatialData::RegisterCategory(m_sMarkerType.GetString(), WSpatialData::Flags::None);
   }
   else
   {
-    m_SpatialCategory = ezInvalidSpatialDataCategory;
+    m_SpatialCategory = WInvalidSpatialDataCategory;
   }
 
   if (IsActiveAndInitialized())
@@ -81,7 +81,7 @@ void ezMarkerComponent::UpdateMarker()
   }
 }
 
-void ezMarkerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WMarkerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -90,28 +90,28 @@ void ezMarkerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fRadius;
 }
 
-void ezMarkerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WMarkerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sMarkerType;
   s >> m_fRadius;
 }
 
-void ezMarkerComponent::OnActivated()
+void WMarkerComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   UpdateMarker();
 }
 
-void ezMarkerComponent::OnDeactivated()
+void WMarkerComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_MarkerComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_MarkerComponent);

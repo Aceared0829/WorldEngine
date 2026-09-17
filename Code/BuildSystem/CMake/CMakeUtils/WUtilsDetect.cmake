@@ -1,0 +1,358 @@
+# #####################################
+# ## W_detect_project_name(<out-name>)
+# #####################################
+
+function(W_detect_project_name OUT_NAME)
+	# unfortunately this has to be known before the PROJECT command,
+	# but platform and compiler settings are only detected by CMake AFTER the project command
+	# CMAKE_GENERATOR is the only value available before that, so we have to regex this a bit to
+	# generate a useful name
+	# thus, only VS solutions currently get nice names
+	cmake_path(IS_PREFIX CMAKE_SOURCE_DIR ${CMAKE_BINARY_DIR} NORMALIZE IS_IN_SOURCE_BUILD)
+
+	get_filename_component(NAME_REPO ${CMAKE_SOURCE_DIR} NAME)
+	get_filename_component(NAME_DEST ${CMAKE_BINARY_DIR} NAME)
+
+	set(DETECTED_NAME "${NAME_REPO}")
+
+	if(NOT ${NAME_REPO} STREQUAL ${NAME_DEST})
+		set(DETECTED_NAME "${DETECTED_NAME}_${NAME_DEST}")
+	endif()
+
+	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
+
+	message(STATUS "Auto-detected solution name: ${DETECTED_NAME} (Generator = ${CMAKE_GENERATOR})")
+endfunction()
+
+# #####################################
+# ## W_pull_platform_vars()
+# #####################################
+macro(W_pull_platform_vars)
+
+	get_property(W_CMAKE_PLATFORM_NAME GLOBAL PROPERTY W_CMAKE_PLATFORM_NAME)
+	get_property(W_CMAKE_PLATFORM_PREFIX GLOBAL PROPERTY W_CMAKE_PLATFORM_PREFIX)
+	get_property(W_CMAKE_PLATFORM_POSTFIX GLOBAL PROPERTY W_CMAKE_PLATFORM_POSTFIX)
+	get_property(W_CMAKE_PLATFORM_POSIX GLOBAL PROPERTY W_CMAKE_PLATFORM_POSIX)
+	get_property(W_CMAKE_PLATFORM_SUPPORTS_VULKAN GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_VULKAN)
+	get_property(W_CMAKE_PLATFORM_SUPPORTS_D3D11 GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_D3D11)
+	get_property(W_CMAKE_PLATFORM_SUPPORTS_WEBGPU GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_WEBGPU)
+	get_property(W_CMAKE_PLATFORM_SUPPORTS_EDITOR GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_EDITOR)
+
+	W_platform_pull_properties()
+endmacro()
+
+# #####################################
+# ## W_detect_generator()
+# #####################################
+function(W_detect_generator)
+	get_property(PREFIX GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX)
+
+	if(PREFIX)
+		# has already run before and W_CMAKE_GENERATOR_PREFIX is already set
+		# message (STATUS "Redundant call to W_detect_generator()")
+		return()
+	endif()
+
+	W_pull_platform_vars()
+
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX "")
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION "undefined")
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_MSVC OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_XCODE OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_MAKE OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_NINJA OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_INSIDE_VS OFF) # if cmake is called through the visual studio open folder workflow
+
+	message(STATUS "CMAKE_VERSION is '${CMAKE_VERSION}'")
+	message(STATUS "CMAKE_BUILD_TYPE is '${CMAKE_BUILD_TYPE}'")
+	message(STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
+
+	W_platform_detect_generator()
+
+endfunction()
+
+# #####################################
+# ## W_pull_generator_vars()
+# #####################################
+macro(W_pull_generator_vars)
+	W_detect_generator()
+
+	get_property(W_CMAKE_GENERATOR_PREFIX GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX)
+	get_property(W_CMAKE_GENERATOR_CONFIGURATION GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION)
+	get_property(W_CMAKE_GENERATOR_MSVC GLOBAL PROPERTY W_CMAKE_GENERATOR_MSVC)
+	get_property(W_CMAKE_GENERATOR_XCODE GLOBAL PROPERTY W_CMAKE_GENERATOR_XCODE)
+	get_property(W_CMAKE_GENERATOR_MAKE GLOBAL PROPERTY W_CMAKE_GENERATOR_MAKE)
+	get_property(W_CMAKE_GENERATOR_NINJA GLOBAL PROPERTY W_CMAKE_GENERATOR_NINJA)
+	get_property(W_CMAKE_INSIDE_VS GLOBAL PROPERTY W_CMAKE_INSIDE_VS)
+endmacro()
+
+# #####################################
+# ## W_detect_compiler_and_architecture()
+# #####################################
+function(W_detect_compiler_and_architecture)
+	get_property(PREFIX GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX)
+
+	if(PREFIX)
+		# has already run before and W_CMAKE_COMPILER_POSTFIX is already set
+		# message (STATUS "Redundant call to W_detect_compiler()")
+		return()
+	endif()
+
+	W_pull_platform_vars()
+	W_pull_generator_vars()
+	W_pull_config_vars()
+	get_property(GENERATOR_MSVC GLOBAL PROPERTY W_CMAKE_GENERATOR_MSVC)
+
+	set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX "")
+	set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_MSVC OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_CLANG OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_GCC OFF)
+
+	set(FILE_TO_COMPILE "${W_ROOT}/${W_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
+
+	if (W_SDK_DIR)
+		set(FILE_TO_COMPILE "${W_SDK_DIR}/${W_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
+	endif()
+
+	# Only compile the detect file if we don't have a cached result from the last run
+	if((NOT W_DETECTED_COMPILER) OR (NOT W_DETECTED_ARCH) OR (NOT W_DETECTED_MSVC_VER))
+		set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+		try_compile(COMPILE_RESULT
+			${CMAKE_CURRENT_BINARY_DIR}
+			${FILE_TO_COMPILE}
+			OUTPUT_VARIABLE COMPILE_OUTPUT
+		)
+
+		if(NOT COMPILE_RESULT)
+			message(FATAL_ERROR "Failed to detect compiler / target architecture. Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+
+		if(${COMPILE_OUTPUT} MATCHES "ARCH:'([^']*)'")
+			set(W_DETECTED_ARCH ${CMAKE_MATCH_1} CACHE INTERNAL "")
+		else()
+			message(FATAL_ERROR "The compile test did not output the architecture. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+
+		if(${COMPILE_OUTPUT} MATCHES "COMPILER:'([^']*)'")
+			set(W_DETECTED_COMPILER ${CMAKE_MATCH_1} CACHE INTERNAL "")
+		else()
+			message(FATAL_ERROR "The compile test did not output the compiler. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+
+		if(W_DETECTED_COMPILER STREQUAL "msvc")
+			if(${COMPILE_OUTPUT} MATCHES "MSC_VER:'([^']*)'")
+				set(W_DETECTED_MSVC_VER ${CMAKE_MATCH_1} CACHE INTERNAL "")
+			else()
+				message(FATAL_ERROR "The compile test did not output the MSC_VER. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+			endif()
+		else()
+			set(W_DETECTED_MSVC_VER "<NOT USING MSVC>" CACHE INTERNAL "")
+		endif()
+	endif()
+
+	if(W_DETECTED_COMPILER STREQUAL "msvc") # Visual Studio Compiler
+		message(STATUS "Compiler is MSVC (W_CMAKE_COMPILER_MSVC) version ${W_DETECTED_MSVC_VER}")
+
+		set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_MSVC ON)
+
+		if(W_DETECTED_MSVC_VER GREATER_EQUAL 1950)
+			message(STATUS "Compiler is Visual Studio 2026")
+			set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX "2026")
+
+		elseif(W_DETECTED_MSVC_VER GREATER_EQUAL 1930)
+			message(STATUS "Compiler is Visual Studio 2022")
+			set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX "2022")
+
+		else()
+			message(FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend W_detect_compiler()")
+		endif()
+
+	elseif(W_DETECTED_COMPILER STREQUAL "clang")
+		message(STATUS "Compiler is clang (W_CMAKE_COMPILER_CLANG)")
+		set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_CLANG ON)
+		set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX "Clang")
+
+	elseif(W_DETECTED_COMPILER STREQUAL "gcc")
+		message(STATUS "Compiler is gcc (W_CMAKE_COMPILER_GCC)")
+		set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_GCC ON)
+		set_property(GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX "Gcc")
+
+	else()
+		message(FATAL_ERROR "Unhandled compiler ${W_DETECTED_COMPILER}")
+	endif()
+
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX "")
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_64BIT OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_X86 OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_ARM OFF)
+	set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_EMSCRIPTEN OFF)
+
+	if(W_DETECTED_ARCH STREQUAL "x86")
+		message(STATUS "Architecture is X86 (W_CMAKE_ARCHITECTURE_X86)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_X86 ON)
+
+		message(STATUS "Architecture is 32-Bit (W_CMAKE_ARCHITECTURE_32BIT)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT ON)
+
+	elseif(W_DETECTED_ARCH STREQUAL "x64")
+		message(STATUS "Architecture is X86 (W_CMAKE_ARCHITECTURE_X86)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_X86 ON)
+
+		message(STATUS "Architecture is 64-Bit (W_CMAKE_ARCHITECTURE_64BIT)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_64BIT ON)
+
+	elseif(W_DETECTED_ARCH STREQUAL "arm32")
+		message(STATUS "Architecture is ARM (W_CMAKE_ARCHITECTURE_ARM)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_ARM ON)
+
+		message(STATUS "Architecture is 32-Bit (W_CMAKE_ARCHITECTURE_32BIT)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT ON)
+
+	elseif(W_DETECTED_ARCH STREQUAL "arm64")
+		message(STATUS "Architecture is ARM (W_CMAKE_ARCHITECTURE_ARM)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_ARM ON)
+
+		message(STATUS "Architecture is 64-Bit (W_CMAKE_ARCHITECTURE_64BIT)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_64BIT ON)
+
+	elseif(W_DETECTED_ARCH STREQUAL "emscripten")
+		message(STATUS "Architecture is WEBASSEMBLY (W_CMAKE_ARCHITECTURE_WEBASSEMBLY)")
+		set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_WEBASSEMBLY ON)
+
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			message(STATUS "Architecture is 64-Bit (W_CMAKE_ARCHITECTURE_64BIT)")
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_64BIT ON)
+		else()
+			message(STATUS "Architecture is 32-Bit (W_CMAKE_ARCHITECTURE_32BIT)")
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT ON)
+		endif()
+
+	else()
+		message(FATAL_ERROR "Unhandled target architecture ${W_DETECTED_ARCH}")
+	endif()
+
+	get_property(W_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT)
+	get_property(W_CMAKE_ARCHITECTURE_ARM GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_ARM)
+
+	if(W_CMAKE_ARCHITECTURE_ARM)
+		if(W_CMAKE_ARCHITECTURE_32BIT)
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
+		else()
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
+		endif()
+	else()
+		if(W_CMAKE_ARCHITECTURE_32BIT)
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX "32")
+		else()
+			set_property(GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX "64")
+		endif()
+	endif()
+
+endfunction()
+
+# #####################################
+# ## W_pull_compiler_vars()
+# #####################################
+macro(W_pull_compiler_and_architecture_vars)
+	W_detect_compiler_and_architecture()
+
+	# Enable assember language support. Needed for AngelScript.
+	# enable_language is not cached and must thus be run here instead of in W_detect_compiler_and_architecture as the early out at the start would of the function would disable ASM support again. This quirk for some reason only happens on Windows compiling for Android.
+	if(W_CMAKE_COMPILER_MSVC AND W_CMAKE_ARCHITECTURE_64BIT)
+		enable_language(ASM_MASM)
+		if(NOT CMAKE_ASM_MASM_COMPILER_WORKS)
+			message(FATAL_ERROR "MSVC x86_64 target requires a working assembler")
+		endif()
+	endif()
+
+	if(W_CMAKE_ARCHITECTURE_ARM)
+		enable_language(ASM)
+		if(NOT CMAKE_ASM_COMPILER_WORKS)
+			message(FATAL_ERROR "ARM target requires a working assembler")
+		endif()
+	endif()
+	enable_language(ASM)
+
+	get_property(W_CMAKE_COMPILER_POSTFIX GLOBAL PROPERTY W_CMAKE_COMPILER_POSTFIX)
+	get_property(W_CMAKE_COMPILER_MSVC GLOBAL PROPERTY W_CMAKE_COMPILER_MSVC)
+	get_property(W_CMAKE_COMPILER_CLANG GLOBAL PROPERTY W_CMAKE_COMPILER_CLANG)
+	get_property(W_CMAKE_COMPILER_GCC GLOBAL PROPERTY W_CMAKE_COMPILER_GCC)
+
+	get_property(W_CMAKE_ARCHITECTURE_POSTFIX GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_POSTFIX)
+	get_property(W_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_32BIT)
+	get_property(W_CMAKE_ARCHITECTURE_64BIT GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_64BIT)
+	get_property(W_CMAKE_ARCHITECTURE_X86 GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_X86)
+	get_property(W_CMAKE_ARCHITECTURE_ARM GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_ARM)
+	get_property(W_CMAKE_ARCHITECTURE_WEBASSEMBLY GLOBAL PROPERTY W_CMAKE_ARCHITECTURE_WEBASSEMBLY)
+endmacro()
+
+# #####################################
+# ## W_pull_all_vars()
+# #####################################
+macro(W_pull_all_vars)
+	get_property(W_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY W_SUBMODULE_PREFIX_PATH)
+	get_property(W_ROOT GLOBAL PROPERTY W_ROOT)
+
+	W_pull_version()
+	W_pull_compiler_and_architecture_vars()
+	W_pull_generator_vars()
+	W_pull_platform_vars()
+endmacro()
+
+# #####################################
+# ## W_get_version(<VERSIONFILE> <OUT_MAJOR> <OUT_MINOR> <OUT_PATCH>)
+# #####################################
+function(W_get_version VERSIONFILE OUT_MAJOR OUT_MINOR OUT_PATCH)
+	file(READ ${VERSIONFILE} VERSION_STRING)
+
+	string(STRIP ${VERSION_STRING} VERSION_STRING)
+
+	if(VERSION_STRING MATCHES "([0-9]+).([0-9]+).([0-9+])")
+		STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" VERSION_MAJOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" VERSION_MINOR "${VERSION_STRING}")
+		STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" VERSION_PATCH "${VERSION_STRING}")
+
+		string(STRIP ${VERSION_MAJOR} VERSION_MAJOR)
+		string(STRIP ${VERSION_MINOR} VERSION_MINOR)
+		string(STRIP ${VERSION_PATCH} VERSION_PATCH)
+
+		set(${OUT_MAJOR} ${VERSION_MAJOR} PARENT_SCOPE)
+		set(${OUT_MINOR} ${VERSION_MINOR} PARENT_SCOPE)
+		set(${OUT_PATCH} ${VERSION_PATCH} PARENT_SCOPE)
+
+	else()
+		message(FATAL_ERROR "Invalid version string '${VERSION_STRING}'")
+	endif()
+endfunction()
+
+# #####################################
+# ## W_detect_version()
+# #####################################
+function(W_detect_version)
+	get_property(VERSION_MAJOR GLOBAL PROPERTY W_CMAKE_SDKVERSION_MAJOR)
+
+	if(VERSION_MAJOR)
+		# has already run before and W_CMAKE_SDKVERSION_MAJOR is already set
+		return()
+	endif()
+
+	W_get_version("${W_ROOT}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
+	set_property(GLOBAL PROPERTY W_CMAKE_SDKVERSION_MAJOR "${VERSION_MAJOR}")
+	set_property(GLOBAL PROPERTY W_CMAKE_SDKVERSION_MINOR "${VERSION_MINOR}")
+	set_property(GLOBAL PROPERTY W_CMAKE_SDKVERSION_PATCH "${VERSION_PATCH}")
+
+	message(STATUS "SDK version: Major = '${VERSION_MAJOR}', Minor = '${VERSION_MINOR}', Patch = '${VERSION_PATCH}'")
+endfunction()
+
+# #####################################
+# ## W_pull_version()
+# #####################################
+macro(W_pull_version)
+	W_detect_version()
+
+	get_property(W_CMAKE_SDKVERSION_MAJOR GLOBAL PROPERTY W_CMAKE_SDKVERSION_MAJOR)
+	get_property(W_CMAKE_SDKVERSION_MINOR GLOBAL PROPERTY W_CMAKE_SDKVERSION_MINOR)
+	get_property(W_CMAKE_SDKVERSION_PATCH GLOBAL PROPERTY W_CMAKE_SDKVERSION_PATCH)
+endmacro()

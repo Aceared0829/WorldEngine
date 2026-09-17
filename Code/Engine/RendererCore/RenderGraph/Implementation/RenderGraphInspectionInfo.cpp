@@ -7,7 +7,7 @@
 
 namespace
 {
-  void WriteTextureRange(ezStreamWriter& inout_stream, const ezGALTextureRange& value)
+  void WriteTextureRange(WStreamWriter& inout_stream, const WGALTextureRange& value)
   {
     inout_stream << value.m_uiBaseMipLevel;
     inout_stream << value.m_uiMipLevels;
@@ -15,7 +15,7 @@ namespace
     inout_stream << value.m_uiArraySlices;
   }
 
-  void ReadTextureRange(ezStreamReader& inout_stream, ezGALTextureRange& ref_value)
+  void ReadTextureRange(WStreamReader& inout_stream, WGALTextureRange& ref_value)
   {
     inout_stream >> ref_value.m_uiBaseMipLevel;
     inout_stream >> ref_value.m_uiMipLevels;
@@ -23,28 +23,28 @@ namespace
     inout_stream >> ref_value.m_uiArraySlices;
   }
 
-  void WriteTextureDesc(ezStreamWriter& inout_stream, const ezGALTextureCreationDescription& value)
+  void WriteTextureDesc(WStreamWriter& inout_stream, const WGALTextureCreationDescription& value)
   {
     inout_stream << value.m_uiWidth;
     inout_stream << value.m_uiHeight;
     inout_stream << value.m_uiDepth;
     inout_stream << value.m_uiArraySize;
     inout_stream << value.m_uiMipLevelCount;
-    inout_stream << static_cast<ezUInt8>(value.m_Format.GetValue());
-    inout_stream << static_cast<ezUInt8>(value.m_SampleCount.GetValue());
-    inout_stream << static_cast<ezUInt8>(value.m_Type.GetValue());
+    inout_stream << static_cast<WUInt8>(value.m_Format.GetValue());
+    inout_stream << static_cast<WUInt8>(value.m_SampleCount.GetValue());
+    inout_stream << static_cast<WUInt8>(value.m_Type.GetValue());
     inout_stream << value.m_TextureFlags.GetValue();
     inout_stream << value.m_ResourceAccess.m_bImmutable;
-    inout_stream << reinterpret_cast<ezUInt64>(value.m_pExisitingNativeObject);
+    inout_stream << reinterpret_cast<WUInt64>(value.m_pExisitingNativeObject);
   }
 
-  void ReadTextureDesc(ezStreamReader& inout_stream, ezGALTextureCreationDescription& ref_value)
+  void ReadTextureDesc(WStreamReader& inout_stream, WGALTextureCreationDescription& ref_value)
   {
-    ezUInt8 uiFormat = 0;
-    ezUInt8 uiSampleCount = 0;
-    ezUInt8 uiType = 0;
-    ezGALTextureUsageFlags::StorageType textureFlags = 0;
-    ezUInt64 uiNativeObject = 0;
+    WUInt8 uiFormat = 0;
+    WUInt8 uiSampleCount = 0;
+    WUInt8 uiType = 0;
+    WGALTextureUsageFlags::StorageType textureFlags = 0;
+    WUInt64 uiNativeObject = 0;
 
     inout_stream >> ref_value.m_uiWidth;
     inout_stream >> ref_value.m_uiHeight;
@@ -58,26 +58,26 @@ namespace
     inout_stream >> ref_value.m_ResourceAccess.m_bImmutable;
     inout_stream >> uiNativeObject;
 
-    ref_value.m_Format = static_cast<ezGALResourceFormat::Enum>(uiFormat);
-    ref_value.m_SampleCount = static_cast<ezGALMSAASampleCount::Enum>(uiSampleCount);
-    ref_value.m_Type = static_cast<ezGALTextureType::Enum>(uiType);
+    ref_value.m_Format = static_cast<WGALResourceFormat::Enum>(uiFormat);
+    ref_value.m_SampleCount = static_cast<WGALMSAASampleCount::Enum>(uiSampleCount);
+    ref_value.m_Type = static_cast<WGALTextureType::Enum>(uiType);
     ref_value.m_TextureFlags.SetValue(textureFlags);
     ref_value.m_pExisitingNativeObject = reinterpret_cast<void*>(uiNativeObject);
   }
 
-  void WriteBufferDesc(ezStreamWriter& inout_stream, const ezGALBufferCreationDescription& value)
+  void WriteBufferDesc(WStreamWriter& inout_stream, const WGALBufferCreationDescription& value)
   {
     inout_stream << value.m_uiTotalSize;
     inout_stream << value.m_uiStructSize;
     inout_stream << value.m_BufferFlags.GetValue();
     inout_stream << value.m_ResourceAccess.m_bImmutable;
-    inout_stream << static_cast<ezUInt8>(value.m_Format.GetValue());
+    inout_stream << static_cast<WUInt8>(value.m_Format.GetValue());
   }
 
-  void ReadBufferDesc(ezStreamReader& inout_stream, ezGALBufferCreationDescription& ref_value)
+  void ReadBufferDesc(WStreamReader& inout_stream, WGALBufferCreationDescription& ref_value)
   {
-    ezGALBufferUsageFlags::StorageType bufferFlags = 0;
-    ezUInt8 uiFormat = 0;
+    WGALBufferUsageFlags::StorageType bufferFlags = 0;
+    WUInt8 uiFormat = 0;
 
     inout_stream >> ref_value.m_uiTotalSize;
     inout_stream >> ref_value.m_uiStructSize;
@@ -86,11 +86,11 @@ namespace
     inout_stream >> uiFormat;
 
     ref_value.m_BufferFlags.SetValue(bufferFlags);
-    ref_value.m_Format = static_cast<ezGALResourceFormat::Enum>(uiFormat);
+    ref_value.m_Format = static_cast<WGALResourceFormat::Enum>(uiFormat);
   }
 } // namespace
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphObserverRequest& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphObserverRequest& value)
 {
   inout_stream << value.m_uiRenderGraphId;
   inout_stream << value.m_sPassName;
@@ -108,7 +108,7 @@ void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphObserverRequest
   inout_stream << value.m_bHighlightPixel;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphObserverRequest& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphObserverRequest& ref_value)
 {
   inout_stream >> ref_value.m_uiRenderGraphId;
   inout_stream >> ref_value.m_sPassName;
@@ -126,12 +126,12 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphObserverRequest& ref_
   inout_stream >> ref_value.m_bHighlightPixel;
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphObserverResponse& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphObserverResponse& value)
 {
   inout_stream << value.m_fImageMin;
   inout_stream << value.m_fImageMax;
-  inout_stream << static_cast<ezUInt32>(value.m_Histogram.GetCount());
-  for (ezUInt8 uiValue : value.m_Histogram)
+  inout_stream << static_cast<WUInt32>(value.m_Histogram.GetCount());
+  for (WUInt8 uiValue : value.m_Histogram)
   {
     inout_stream << uiValue;
   }
@@ -139,19 +139,19 @@ void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphObserverRespons
   inout_stream << value.m_PixelValue;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphObserverResponse& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphObserverResponse& ref_value)
 {
-  ezUInt32 uiHistogramCount = 0;
+  WUInt32 uiHistogramCount = 0;
 
   inout_stream >> ref_value.m_fImageMin;
   inout_stream >> ref_value.m_fImageMax;
   inout_stream >> uiHistogramCount;
 
   ref_value.m_Histogram.Clear();
-  ref_value.m_Histogram.SetCount(ezMath::Min<ezUInt32>(uiHistogramCount, 1024));
-  for (ezUInt32 i = 0; i < uiHistogramCount; ++i)
+  ref_value.m_Histogram.SetCount(WMath::Min<WUInt32>(uiHistogramCount, 1024));
+  for (WUInt32 i = 0; i < uiHistogramCount; ++i)
   {
-    ezUInt8 uiValue = 0;
+    WUInt8 uiValue = 0;
     inout_stream >> uiValue;
     if (i < ref_value.m_Histogram.GetCount())
     {
@@ -163,18 +163,18 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphObserverResponse& ref
   inout_stream >> ref_value.m_PixelValue;
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphExecutionSummary& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphExecutionSummary& value)
 {
   inout_stream << value.m_uiRenderGraphId;
   inout_stream << value.m_sGraphName;
   inout_stream << value.m_sUserName;
-  inout_stream << static_cast<ezUInt8>(value.m_Phase.GetValue());
+  inout_stream << static_cast<WUInt8>(value.m_Phase.GetValue());
   inout_stream << value.m_uiExecutionOrder;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphExecutionSummary& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphExecutionSummary& ref_value)
 {
-  ezUInt8 uiPhase = 0;
+  WUInt8 uiPhase = 0;
 
   inout_stream >> ref_value.m_uiRenderGraphId;
   inout_stream >> ref_value.m_sGraphName;
@@ -182,42 +182,42 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphExecutionSummary& ref
   inout_stream >> uiPhase;
   inout_stream >> ref_value.m_uiExecutionOrder;
 
-  ref_value.m_Phase = static_cast<ezRenderGraphPhase::Enum>(uiPhase);
+  ref_value.m_Phase = static_cast<WRenderGraphPhase::Enum>(uiPhase);
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphSwapChainSummary& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphSwapChainSummary& value)
 {
   inout_stream << value.m_uiSwapChainId;
   inout_stream << value.m_uiWidth;
   inout_stream << value.m_uiHeight;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphSwapChainSummary& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphSwapChainSummary& ref_value)
 {
   inout_stream >> ref_value.m_uiSwapChainId;
   inout_stream >> ref_value.m_uiWidth;
   inout_stream >> ref_value.m_uiHeight;
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionSummary& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphInspectionSummary& value)
 {
-  inout_stream << static_cast<ezUInt32>(value.m_RenderGraphs.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_RenderGraphs.GetCount());
   for (const auto& graph : value.m_RenderGraphs)
   {
     inout_stream << graph;
   }
 
-  inout_stream << static_cast<ezUInt32>(value.m_AvailableSwapChains.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_AvailableSwapChains.GetCount());
   for (const auto& swapChain : value.m_AvailableSwapChains)
   {
     inout_stream << swapChain;
   }
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionSummary& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphInspectionSummary& ref_value)
 {
-  ezUInt32 uiGraphCount = 0;
-  ezUInt32 uiSwapChainCount = 0;
+  WUInt32 uiGraphCount = 0;
+  WUInt32 uiSwapChainCount = 0;
 
   inout_stream >> uiGraphCount;
   ref_value.m_RenderGraphs.SetCount(uiGraphCount);
@@ -234,18 +234,18 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionSummary& re
   }
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo& value)
+void operator<<(WStreamWriter& inout_stream, const WRenderGraphInspectionInfo& value)
 {
-  inout_stream << static_cast<ezUInt32>(value.m_Passes.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_Passes.GetCount());
   for (const auto& pass : value.m_Passes)
   {
     inout_stream << pass.m_sName;
-    inout_stream << static_cast<ezUInt8>(pass.m_QueueType.GetValue());
+    inout_stream << static_cast<WUInt8>(pass.m_QueueType.GetValue());
     inout_stream << pass.m_bHasSideEffects;
     inout_stream << pass.m_bAlive;
   }
 
-  inout_stream << static_cast<ezUInt32>(value.m_Textures.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_Textures.GetCount());
   for (const auto& texture : value.m_Textures)
   {
     WriteTextureDesc(inout_stream, texture.m_Desc);
@@ -255,7 +255,7 @@ void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo&
     inout_stream << texture.m_uiResolvedIndex;
   }
 
-  inout_stream << static_cast<ezUInt32>(value.m_Buffers.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_Buffers.GetCount());
   for (const auto& buffer : value.m_Buffers)
   {
     WriteBufferDesc(inout_stream, buffer.m_Desc);
@@ -265,7 +265,7 @@ void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo&
     inout_stream << buffer.m_uiResolvedIndex;
   }
 
-  inout_stream << static_cast<ezUInt32>(value.m_Accesses.GetCount());
+  inout_stream << static_cast<WUInt32>(value.m_Accesses.GetCount());
   for (const auto& access : value.m_Accesses)
   {
     inout_stream << access.m_uiPassIndex;
@@ -277,20 +277,20 @@ void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo&
   }
 }
 
-void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_value)
+void operator>>(WStreamReader& inout_stream, WRenderGraphInspectionInfo& ref_value)
 {
-  ezUInt32 uiCount = 0;
+  WUInt32 uiCount = 0;
 
   inout_stream >> uiCount;
   ref_value.m_Passes.SetCount(uiCount);
   for (auto& pass : ref_value.m_Passes)
   {
-    ezUInt8 uiQueueType = 0;
+    WUInt8 uiQueueType = 0;
     inout_stream >> pass.m_sName;
     inout_stream >> uiQueueType;
     inout_stream >> pass.m_bHasSideEffects;
     inout_stream >> pass.m_bAlive;
-    pass.m_QueueType = static_cast<ezGALQueueType::Enum>(uiQueueType);
+    pass.m_QueueType = static_cast<WGALQueueType::Enum>(uiQueueType);
   }
 
   inout_stream >> uiCount;
@@ -319,7 +319,7 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_v
   ref_value.m_Accesses.SetCount(uiCount);
   for (auto& access : ref_value.m_Accesses)
   {
-    ezGALResourceState::StorageType accessFlags = 0;
+    WGALResourceState::StorageType accessFlags = 0;
     inout_stream >> access.m_uiPassIndex;
     inout_stream >> access.m_uiResourceIndex;
     inout_stream >> access.m_uiAccessIndex;
@@ -330,7 +330,7 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_v
   }
 }
 
-void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& ref_data)
+void WRenderGraphInspectionInfo::Swap(WRenderGraphInspectionInfo& ref_data)
 {
   m_Passes.Swap(ref_data.m_Passes);
   m_Textures.Swap(ref_data.m_Textures);
@@ -338,7 +338,7 @@ void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& ref_data)
   m_Accesses.Swap(ref_data.m_Accesses);
 }
 
-void ezRenderGraphInspectionInfo::Clear()
+void WRenderGraphInspectionInfo::Clear()
 {
   m_Passes.Clear();
   m_Textures.Clear();

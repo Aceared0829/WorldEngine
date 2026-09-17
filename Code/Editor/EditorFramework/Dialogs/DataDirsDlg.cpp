@@ -3,23 +3,23 @@
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtDataDirsDlg::WQtDataDirsDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-  m_Config = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
+  m_Config = WQtEditorApp::GetSingleton()->GetFileSystemConfig();
   m_iSelection = -1;
   FillList();
 }
 
-void ezQtDataDirsDlg::FillList()
+void WQtDataDirsDlg::FillList()
 {
   if (m_Config.m_DataDirs.IsEmpty())
     m_iSelection = -1;
 
   if (m_iSelection != -1)
-    m_iSelection = ezMath::Clamp<ezInt32>(m_iSelection, 0, m_Config.m_DataDirs.GetCount() - 1);
+    m_iSelection = WMath::Clamp<WInt32>(m_iSelection, 0, m_Config.m_DataDirs.GetCount() - 1);
 
   ListDataDirs->blockSignals(true);
 
@@ -61,46 +61,46 @@ void ezQtDataDirsDlg::FillList()
   on_ListDataDirs_itemSelectionChanged();
 }
 
-void ezQtDataDirsDlg::on_ButtonOK_clicked()
+void WQtDataDirsDlg::on_ButtonOK_clicked()
 {
   if (m_Config.CreateDataDirStubFiles().Failed())
   {
-    ezQtUiServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected "
+    WQtUiServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.WManifest'). Please review the selected "
                                       "folders, some might not be accessible. See the log for more details.");
     return;
   }
 
-  ezQtEditorApp::GetSingleton()->SetFileSystemConfig(m_Config);
+  WQtEditorApp::GetSingleton()->SetFileSystemConfig(m_Config);
   accept();
 }
 
-void ezQtDataDirsDlg::on_ButtonCancel_clicked()
+void WQtDataDirsDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void ezQtDataDirsDlg::on_ButtonUp_clicked()
+void WQtDataDirsDlg::on_ButtonUp_clicked()
 {
-  ezMath::Swap(m_Config.m_DataDirs[m_iSelection - 1], m_Config.m_DataDirs[m_iSelection]);
+  WMath::Swap(m_Config.m_DataDirs[m_iSelection - 1], m_Config.m_DataDirs[m_iSelection]);
   --m_iSelection;
 
   FillList();
 }
 
-void ezQtDataDirsDlg::on_ButtonDown_clicked()
+void WQtDataDirsDlg::on_ButtonDown_clicked()
 {
-  ezMath::Swap(m_Config.m_DataDirs[m_iSelection], m_Config.m_DataDirs[m_iSelection + 1]);
+  WMath::Swap(m_Config.m_DataDirs[m_iSelection], m_Config.m_DataDirs[m_iSelection + 1]);
   ++m_iSelection;
 
   FillList();
 }
 
-void ezQtDataDirsDlg::on_ButtonAdd_clicked()
+void WQtDataDirsDlg::on_ButtonAdd_clicked()
 {
   static QString sPreviousFolder;
   if (sPreviousFolder.isEmpty())
   {
-    sPreviousFolder = QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectFile().GetData());
+    sPreviousFolder = QString::fromUtf8(WToolsProject::GetSingleton()->GetProjectFile().GetData());
   }
 
   QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
@@ -110,14 +110,14 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 
   sPreviousFolder = sFolder;
 
-  ezStringBuilder sRootPath = ezFileSystem::GetSdkRootDirectory();
+  WStringBuilder sRootPath = WFileSystem::GetSdkRootDirectory();
 
-  ezStringBuilder sRelPath = sFolder.toUtf8().data();
+  WStringBuilder sRelPath = sFolder.toUtf8().data();
   sRelPath.MakeRelativeTo(sRootPath).IgnoreResult();
   sRelPath.Prepend(">sdk/");
   sRelPath.MakeCleanPath();
 
-  ezApplicationFileSystemConfig::DataDirConfig dd;
+  WApplicationFileSystemConfig::DataDirConfig dd;
   dd.m_sDataDirSpecialPath = sRelPath;
   dd.m_bWritable = false;
   m_Config.m_DataDirs.PushBack(dd);
@@ -127,14 +127,14 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
   FillList();
 }
 
-void ezQtDataDirsDlg::on_ButtonRemove_clicked()
+void WQtDataDirsDlg::on_ButtonRemove_clicked()
 {
   m_Config.m_DataDirs.RemoveAtAndCopy(m_iSelection);
 
   FillList();
 }
 
-void ezQtDataDirsDlg::on_ListDataDirs_itemSelectionChanged()
+void WQtDataDirsDlg::on_ListDataDirs_itemSelectionChanged()
 {
   if (ListDataDirs->selectedItems().isEmpty())
     m_iSelection = -1;
@@ -145,21 +145,21 @@ void ezQtDataDirsDlg::on_ListDataDirs_itemSelectionChanged()
 
   ButtonRemove->setEnabled(bCanRemove);
   ButtonUp->setEnabled(m_iSelection > 0);
-  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32)m_Config.m_DataDirs.GetCount() - 1);
+  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (WInt32)m_Config.m_DataDirs.GetCount() - 1);
 }
 
-void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
+void WQtDataDirsDlg::on_ButtonOpenFolder_clicked()
 {
   if (m_iSelection < 0)
     return;
 
-  ezStringBuilder sPath;
-  ezFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath).IgnoreResult();
+  WStringBuilder sPath;
+  WFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath).IgnoreResult();
 
-  ezQtUiServices::OpenInExplorer(sPath.GetData(), true);
+  WQtUiServices::OpenInExplorer(sPath.GetData(), true);
 }
 
-void ezQtDataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
+void WQtDataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
 {
   on_ButtonOpenFolder_clicked();
 }

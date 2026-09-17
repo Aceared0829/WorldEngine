@@ -4,100 +4,100 @@
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/Types/TypeTraits.h>
 
-#define EZ_DECLARE_VARIANCE_HASH_HELPER(TYPE)                        \
+#define W_DECLARE_VARIANCE_HASH_HELPER(TYPE)                        \
   template <>                                                        \
-  struct ezHashHelper<TYPE>                                          \
+  struct WHashHelper<TYPE>                                          \
   {                                                                  \
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const TYPE& value)         \
+    W_ALWAYS_INLINE static WUInt32 Hash(const TYPE& value)         \
     {                                                                \
-      return ezHashingUtils::xxHash32(&value, sizeof(TYPE));         \
+      return WHashingUtils::xxHash32(&value, sizeof(TYPE));         \
     }                                                                \
-    EZ_ALWAYS_INLINE static bool Equal(const TYPE& a, const TYPE& b) \
+    W_ALWAYS_INLINE static bool Equal(const TYPE& a, const TYPE& b) \
     {                                                                \
       return a == b;                                                 \
     }                                                                \
   };
 
-struct EZ_FOUNDATION_DLL ezVarianceTypeBase
+struct W_FOUNDATION_DLL WVarianceTypeBase
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   float m_fVariance = 0;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeBase);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WVarianceTypeBase);
 
-struct EZ_FOUNDATION_DLL ezVarianceTypeFloat : public ezVarianceTypeBase
+struct W_FOUNDATION_DLL WVarianceTypeFloat : public WVarianceTypeBase
 {
-  EZ_DECLARE_POD_TYPE();
-  ezVarianceTypeFloat() = default;
-  ezVarianceTypeFloat(float value, float fVariance = 0.0f)
+  W_DECLARE_POD_TYPE();
+  WVarianceTypeFloat() = default;
+  WVarianceTypeFloat(float value, float fVariance = 0.0f)
     : m_Value(value)
   {
     m_fVariance = fVariance;
   }
 
-  bool operator==(const ezVarianceTypeFloat& rhs) const
+  bool operator==(const WVarianceTypeFloat& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;
   }
-  bool operator!=(const ezVarianceTypeFloat& rhs) const
+  bool operator!=(const WVarianceTypeFloat& rhs) const
   {
     return !(*this == rhs);
   }
   float m_Value = 0;
 };
 
-EZ_DECLARE_VARIANCE_HASH_HELPER(ezVarianceTypeFloat);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeFloat);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVarianceTypeFloat);
+W_DECLARE_VARIANCE_HASH_HELPER(WVarianceTypeFloat);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WVarianceTypeFloat);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WVarianceTypeFloat);
 
-struct EZ_FOUNDATION_DLL ezVarianceTypeTime : public ezVarianceTypeBase
+struct W_FOUNDATION_DLL WVarianceTypeTime : public WVarianceTypeBase
 {
-  EZ_DECLARE_POD_TYPE();
-  ezVarianceTypeTime() = default;
-  ezVarianceTypeTime(ezTime value, float fVariance = 0.0f)
+  W_DECLARE_POD_TYPE();
+  WVarianceTypeTime() = default;
+  WVarianceTypeTime(WTime value, float fVariance = 0.0f)
     : m_Value(value)
   {
     m_fVariance = fVariance;
   }
 
-  bool operator==(const ezVarianceTypeTime& rhs) const
+  bool operator==(const WVarianceTypeTime& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;
   }
-  bool operator!=(const ezVarianceTypeTime& rhs) const
+  bool operator!=(const WVarianceTypeTime& rhs) const
   {
     return !(*this == rhs);
   }
-  ezTime m_Value;
+  WTime m_Value;
 };
 
-EZ_DECLARE_VARIANCE_HASH_HELPER(ezVarianceTypeTime);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeTime);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVarianceTypeTime);
+W_DECLARE_VARIANCE_HASH_HELPER(WVarianceTypeTime);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WVarianceTypeTime);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WVarianceTypeTime);
 
-struct EZ_FOUNDATION_DLL ezVarianceTypeAngle : public ezVarianceTypeBase
+struct W_FOUNDATION_DLL WVarianceTypeAngle : public WVarianceTypeBase
 {
-  EZ_DECLARE_POD_TYPE();
-  ezVarianceTypeAngle() = default;
-  ezVarianceTypeAngle(ezAngle value, float fVariance = 0.0f)
+  W_DECLARE_POD_TYPE();
+  WVarianceTypeAngle() = default;
+  WVarianceTypeAngle(WAngle value, float fVariance = 0.0f)
     : m_Value(value)
   {
     m_fVariance = fVariance;
   }
 
-  bool operator==(const ezVarianceTypeAngle& rhs) const
+  bool operator==(const WVarianceTypeAngle& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;
   }
-  bool operator!=(const ezVarianceTypeAngle& rhs) const
+  bool operator!=(const WVarianceTypeAngle& rhs) const
   {
     return !(*this == rhs);
   }
-  ezAngle m_Value;
+  WAngle m_Value;
 };
 
-EZ_DECLARE_VARIANCE_HASH_HELPER(ezVarianceTypeAngle);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeAngle);
-EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVarianceTypeAngle);
+W_DECLARE_VARIANCE_HASH_HELPER(WVarianceTypeAngle);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WVarianceTypeAngle);
+W_DECLARE_CUSTOM_VARIANT_TYPE(WVarianceTypeAngle);

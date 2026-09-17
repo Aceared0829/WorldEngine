@@ -7,53 +7,53 @@
 #include <Foundation/Reflection/Reflection.h>
 
 /// Base class of all attributes can be used to decorate a RTTI property.
-class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
+class W_FOUNDATION_DLL WPropertyAttribute : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAttribute, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAttribute, WReflectedClass);
 };
 
 /// A property attribute that indicates that the property may not be modified through the UI
-class EZ_FOUNDATION_DLL ezReadOnlyAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WReadOnlyAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReadOnlyAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WReadOnlyAttribute, WPropertyAttribute);
 };
 
 /// A property attribute that indicates that the property is not to be shown in the UI
-class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WHiddenAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WHiddenAttribute, WPropertyAttribute);
 };
 
 /// Marks a property as required. Asset check rules flag the property as an error if it is left empty
 /// (e.g. an empty string, or an empty/invalid game object or component reference).
-class EZ_FOUNDATION_DLL ezRequiredAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WRequiredAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRequiredAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WRequiredAttribute, WPropertyAttribute);
 };
 
 /// A property attribute that indicates that the property is not to be serialized
 /// and whatever it points to only exists temporarily while running or in editor.
-class EZ_FOUNDATION_DLL ezTemporaryAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WTemporaryAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTemporaryAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WTemporaryAttribute, WPropertyAttribute);
 };
 
 /// When placed on a component type, its editor shape icon will be rendered through geometry (always visible).
 ///
 /// Useful for components whose icons tend to end up inside geometry, such as spline nodes.
-class EZ_FOUNDATION_DLL ezShapeIconAlwaysVisibleAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WShapeIconAlwaysVisibleAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShapeIconAlwaysVisibleAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WShapeIconAlwaysVisibleAttribute, WPropertyAttribute);
 };
 
 /// Used to categorize types (e.g. add component menu)
-class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WCategoryAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WCategoryAttribute, WPropertyAttribute);
 
 public:
-  ezCategoryAttribute() = default;
-  ezCategoryAttribute(const char* szCategory)
+  WCategoryAttribute() = default;
+  WCategoryAttribute(const char* szCategory)
     : m_sCategory(szCategory)
   {
   }
@@ -61,13 +61,13 @@ public:
   const char* GetCategory() const { return m_sCategory; }
 
 private:
-  ezUntrackedString m_sCategory;
+  WUntrackedString m_sCategory;
 };
 
 /// A property attribute that indicates that this feature is still in development and should not be shown to all users.
-class EZ_FOUNDATION_DLL ezInDevelopmentAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WInDevelopmentAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInDevelopmentAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WInDevelopmentAttribute, WPropertyAttribute);
 
 public:
   enum Phase
@@ -76,25 +76,25 @@ public:
     Beta
   };
 
-  ezInDevelopmentAttribute() = default;
-  ezInDevelopmentAttribute(ezInt32 iPhase) { m_Phase = iPhase; }
+  WInDevelopmentAttribute() = default;
+  WInDevelopmentAttribute(WInt32 iPhase) { m_Phase = iPhase; }
 
   const char* GetString() const;
 
-  ezInt32 m_Phase = Phase::Beta;
+  WInt32 m_Phase = Phase::Beta;
 };
 
 
 /// Used for dynamic titles of visual script nodes.
 /// E.g. "Set Bool Property '{Name}'" will allow the title to by dynamic
 /// by reading the current value of the 'Name' property.
-class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WTitleAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTitleAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WTitleAttribute, WPropertyAttribute);
 
 public:
-  ezTitleAttribute() = default;
-  ezTitleAttribute(const char* szTitle)
+  WTitleAttribute() = default;
+  WTitleAttribute(const char* szTitle)
     : m_sTitle(szTitle)
   {
   }
@@ -102,40 +102,40 @@ public:
   const char* GetTitle() const { return m_sTitle; }
 
 private:
-  ezUntrackedString m_sTitle;
+  WUntrackedString m_sTitle;
 };
 
 /// Used to colorize types
-class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WColorAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WColorAttribute, WPropertyAttribute);
 
 public:
-  ezColorAttribute() = default;
-  ezColorAttribute(const ezColor& color)
+  WColorAttribute() = default;
+  WColorAttribute(const WColor& color)
     : m_Color(color)
   {
   }
-  const ezColor& GetColor() const { return m_Color; }
+  const WColor& GetColor() const { return m_Color; }
 
 private:
-  ezColor m_Color;
+  WColor m_Color;
 };
 
-/// A property attribute that indicates that the alpha channel of an ezColorGammaUB or ezColor should be exposed in the UI.
-class EZ_FOUNDATION_DLL ezExposeColorAlphaAttribute : public ezPropertyAttribute
+/// A property attribute that indicates that the alpha channel of an WColorGammaUB or WColor should be exposed in the UI.
+class W_FOUNDATION_DLL WExposeColorAlphaAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposeColorAlphaAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WExposeColorAlphaAttribute, WPropertyAttribute);
 };
 
 /// Used for any property shown as a line edit (int, float, vector etc).
-class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WSuffixAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSuffixAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSuffixAttribute, WPropertyAttribute);
 
 public:
-  ezSuffixAttribute() = default;
-  ezSuffixAttribute(const char* szSuffix)
+  WSuffixAttribute() = default;
+  WSuffixAttribute(const char* szSuffix)
     : m_sSuffix(szSuffix)
   {
   }
@@ -143,17 +143,17 @@ public:
   const char* GetSuffix() const { return m_sSuffix; }
 
 private:
-  ezUntrackedString m_sSuffix;
+  WUntrackedString m_sSuffix;
 };
 
 /// Used to show a text instead of the minimum value of a property.
-class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WMinValueTextAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMinValueTextAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WMinValueTextAttribute, WPropertyAttribute);
 
 public:
-  ezMinValueTextAttribute() = default;
-  ezMinValueTextAttribute(const char* szText)
+  WMinValueTextAttribute() = default;
+  WMinValueTextAttribute(const char* szText)
     : m_sText(szText)
   {
   }
@@ -161,92 +161,92 @@ public:
   const char* GetText() const { return m_sText; }
 
 private:
-  ezUntrackedString m_sText;
+  WUntrackedString m_sText;
 };
 
 /// Sets the default value of the property.
-class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WDefaultValueAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDefaultValueAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDefaultValueAttribute, WPropertyAttribute);
 
 public:
-  ezDefaultValueAttribute() = default;
+  WDefaultValueAttribute() = default;
 
-  ezDefaultValueAttribute(const ezVariant& value)
+  WDefaultValueAttribute(const WVariant& value)
     : m_Value(value)
   {
   }
 
-  ezDefaultValueAttribute(ezInt32 value)
+  WDefaultValueAttribute(WInt32 value)
     : m_Value(value)
   {
   }
 
-  ezDefaultValueAttribute(float value)
+  WDefaultValueAttribute(float value)
     : m_Value(value)
   {
   }
 
-  ezDefaultValueAttribute(double value)
+  WDefaultValueAttribute(double value)
     : m_Value(value)
   {
   }
 
-  ezDefaultValueAttribute(ezStringView value)
-    : m_Value(ezVariant(value, false))
+  WDefaultValueAttribute(WStringView value)
+    : m_Value(WVariant(value, false))
   {
   }
 
-  ezDefaultValueAttribute(const char* value)
-    : m_Value(ezVariant(ezStringView(value), false))
+  WDefaultValueAttribute(const char* value)
+    : m_Value(WVariant(WStringView(value), false))
   {
   }
 
-  const ezVariant& GetValue() const { return m_Value; }
+  const WVariant& GetValue() const { return m_Value; }
 
 private:
-  ezVariant m_Value;
+  WVariant m_Value;
 };
 
 /// A property attribute that allows to define min and max values for the UI. Min or max may be set to an invalid variant to indicate
 /// unbounded values in one direction.
-class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WClampValueAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezClampValueAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WClampValueAttribute, WPropertyAttribute);
 
 public:
-  ezClampValueAttribute() = default;
-  ezClampValueAttribute(const ezVariant& min, const ezVariant& max)
+  WClampValueAttribute() = default;
+  WClampValueAttribute(const WVariant& min, const WVariant& max)
     : m_MinValue(min)
     , m_MaxValue(max)
   {
   }
 
-  const ezVariant& GetMinValue() const { return m_MinValue; }
-  const ezVariant& GetMaxValue() const { return m_MaxValue; }
+  const WVariant& GetMinValue() const { return m_MinValue; }
+  const WVariant& GetMaxValue() const { return m_MaxValue; }
 
 protected:
-  ezVariant m_MinValue;
-  ezVariant m_MaxValue;
+  WVariant m_MinValue;
+  WVariant m_MaxValue;
 };
 
 /// Used to categorize properties into groups
-class EZ_FOUNDATION_DLL ezGroupAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WGroupAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGroupAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WGroupAttribute, WPropertyAttribute);
 
 public:
-  ezGroupAttribute();
-  ezGroupAttribute(const char* szGroup, float fOrder = -1.0f);
-  ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder = -1.0f);
+  WGroupAttribute();
+  WGroupAttribute(const char* szGroup, float fOrder = -1.0f);
+  WGroupAttribute(const char* szGroup, const char* szIconName, float fOrder = -1.0f);
 
   const char* GetGroup() const { return m_sGroup; }
   const char* GetIconName() const { return m_sIconName; }
   float GetOrder() const { return m_fOrder; }
 
 private:
-  ezUntrackedString m_sGroup;
-  ezUntrackedString m_sIconName;
+  WUntrackedString m_sGroup;
+  WUntrackedString m_sIconName;
   float m_fOrder = -1.0f;
 };
 
@@ -254,35 +254,35 @@ private:
 ///
 /// Using this attribute affects both member properties as well as elements in a container but not the container widget.
 /// When creating a property widget, the property grid will look for an attribute of this type and use
-/// its type to look for a factory creator in ezRttiMappedObjectFactory<ezQtPropertyWidget>.
-/// E.g. ezRttiMappedObjectFactory<ezQtPropertyWidget>::RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), FileBrowserCreator);
-/// will replace the property widget for all properties that use ezFileBrowserAttribute.
-class EZ_FOUNDATION_DLL ezTypeWidgetAttribute : public ezPropertyAttribute
+/// its type to look for a factory creator in WRttiMappedObjectFactory<WQtPropertyWidget>.
+/// E.g. WRttiMappedObjectFactory<WQtPropertyWidget>::RegisterCreator(WGetStaticRTTI<WFileBrowserAttribute>(), FileBrowserCreator);
+/// will replace the property widget for all properties that use WFileBrowserAttribute.
+class W_FOUNDATION_DLL WTypeWidgetAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTypeWidgetAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WTypeWidgetAttribute, WPropertyAttribute);
 };
 
 /// Derive from this class if you want to define an attribute that replaces the property widget of containers.
 ///
 /// Using this attribute affects the container widget but not container elements.
 /// Only derive from this class if you want to replace the container widget itself, in every other case
-/// prefer to use ezTypeWidgetAttribute.
-class EZ_FOUNDATION_DLL ezContainerWidgetAttribute : public ezPropertyAttribute
+/// prefer to use WTypeWidgetAttribute.
+class W_FOUNDATION_DLL WContainerWidgetAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezContainerWidgetAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WContainerWidgetAttribute, WPropertyAttribute);
 };
 
 /// Add this attribute to a tag set member property to make it use the tag set editor
 /// and define the categories it will use as a ; separated list of category names.
 ///
-/// Usage: EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Category1;Category2")),
-class EZ_FOUNDATION_DLL ezTagSetWidgetAttribute : public ezContainerWidgetAttribute
+/// Usage: W_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new WTagSetWidgetAttribute("Category1;Category2")),
+class W_FOUNDATION_DLL WTagSetWidgetAttribute : public WContainerWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTagSetWidgetAttribute, ezContainerWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WTagSetWidgetAttribute, WContainerWidgetAttribute);
 
 public:
-  ezTagSetWidgetAttribute() = default;
-  ezTagSetWidgetAttribute(const char* szTagFilter)
+  WTagSetWidgetAttribute() = default;
+  WTagSetWidgetAttribute(const char* szTagFilter)
     : m_sTagFilter(szTagFilter)
   {
   }
@@ -290,13 +290,13 @@ public:
   const char* GetTagFilter() const { return m_sTagFilter; }
 
 private:
-  ezUntrackedString m_sTagFilter;
+  WUntrackedString m_sTagFilter;
 };
 
 /// This attribute indicates that a widget should not use temporary transactions when changing the value.
-class EZ_FOUNDATION_DLL ezNoTemporaryTransactionsAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WNoTemporaryTransactionsAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNoTemporaryTransactionsAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WNoTemporaryTransactionsAttribute, WPropertyAttribute);
 };
 
 /// Add this attribute to a variant map property to make it map to the exposed parameters
@@ -304,15 +304,15 @@ class EZ_FOUNDATION_DLL ezNoTemporaryTransactionsAttribute : public ezPropertyAt
 /// The exposed parameters of the currently set asset on that property will be used as the source.
 ///
 /// Usage:
-/// EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle
-/// Effect")), EZ_MAP_ACCESSOR_PROPERTY("Parameters",...)->AddAttributes(new ezExposedParametersAttribute("Effect")),
-class EZ_FOUNDATION_DLL ezExposedParametersAttribute : public ezContainerWidgetAttribute
+/// W_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new WAssetBrowserAttribute("Particle
+/// Effect")), W_MAP_ACCESSOR_PROPERTY("Parameters",...)->AddAttributes(new WExposedParametersAttribute("Effect")),
+class W_FOUNDATION_DLL WExposedParametersAttribute : public WContainerWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposedParametersAttribute, ezContainerWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WExposedParametersAttribute, WContainerWidgetAttribute);
 
 public:
-  ezExposedParametersAttribute() = default;
-  ezExposedParametersAttribute(const char* szParametersSource)
+  WExposedParametersAttribute() = default;
+  WExposedParametersAttribute(const char* szParametersSource)
     : m_sParametersSource(szParametersSource)
   {
   }
@@ -320,7 +320,7 @@ public:
   const char* GetParametersSource() const { return m_sParametersSource; }
 
 private:
-  ezUntrackedString m_sParametersSource;
+  WUntrackedString m_sParametersSource;
 };
 
 /// Add this attribute to an embedded class or container property to make it retrieve its default values from a dynamic meta info object on an asset.
@@ -328,20 +328,20 @@ private:
 /// The default values are retrieved from the asset meta data of the currently set asset on that property.
 ///
 /// Usage:
-/// EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
+/// W_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new WAssetBrowserAttribute("Skeleton")),
 ///
-/// // Use this if the embedded class m_SkeletonMetaData is of type ezSkeletonMetaData.
-/// EZ_MEMBER_PROPERTY("SkeletonMetaData", m_SkeletonMetaData)->AddAttributes(new ezDynamicDefaultValueAttribute("Skeleton", "ezSkeletonMetaData")),
+/// // Use this if the embedded class m_SkeletonMetaData is of type WSkeletonMetaData.
+/// W_MEMBER_PROPERTY("SkeletonMetaData", m_SkeletonMetaData)->AddAttributes(new WDynamicDefaultValueAttribute("Skeleton", "WSkeletonMetaData")),
 ///
-/// // Use this if you don't want embed the entire meta object but just some container of it. In this case the LocalBones container must match in type to the property 'BonesArrayNameInMetaData' in the meta data type 'ezSkeletonMetaData'.
-/// EZ_MAP_MEMBER_PROPERTY("LocalBones", m_Bones)->AddAttributes(new ezDynamicDefaultValueAttribute("Skeleton", "ezSkeletonMetaData", "BonesArrayNameInMetaData")),
-class EZ_FOUNDATION_DLL ezDynamicDefaultValueAttribute : public ezTypeWidgetAttribute
+/// // Use this if you don't want embed the entire meta object but just some container of it. In this case the LocalBones container must match in type to the property 'BonesArrayNameInMetaData' in the meta data type 'WSkeletonMetaData'.
+/// W_MAP_MEMBER_PROPERTY("LocalBones", m_Bones)->AddAttributes(new WDynamicDefaultValueAttribute("Skeleton", "WSkeletonMetaData", "BonesArrayNameInMetaData")),
+class W_FOUNDATION_DLL WDynamicDefaultValueAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicDefaultValueAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicDefaultValueAttribute, WTypeWidgetAttribute);
 
 public:
-  ezDynamicDefaultValueAttribute() = default;
-  ezDynamicDefaultValueAttribute(const char* szClassSource,
+  WDynamicDefaultValueAttribute() = default;
+  WDynamicDefaultValueAttribute(const char* szClassSource,
     const char* szClassType, const char* szClassProperty = nullptr)
     : m_sClassSource(szClassSource)
     , m_sClassType(szClassType)
@@ -354,20 +354,20 @@ public:
   const char* GetClassProperty() const { return m_sClassProperty; }
 
 private:
-  ezUntrackedString m_sClassSource;
-  ezUntrackedString m_sClassType;
-  ezUntrackedString m_sClassProperty;
+  WUntrackedString m_sClassSource;
+  WUntrackedString m_sClassType;
+  WUntrackedString m_sClassProperty;
 };
 
 
 /// Sets the allowed actions on a container.
-class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WContainerAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WContainerAttribute, WPropertyAttribute);
 
 public:
-  ezContainerAttribute() = default;
-  ezContainerAttribute(bool bCanAdd, bool bCanDelete, bool bCanMove)
+  WContainerAttribute() = default;
+  WContainerAttribute(bool bCanAdd, bool bCanDelete, bool bCanMove)
   {
     m_bCanAdd = bCanAdd;
     m_bCanDelete = bCanDelete;
@@ -384,7 +384,7 @@ private:
   bool m_bCanMove = false;
 };
 
-/// Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
+/// Defines how a reference set by WFileBrowserAttribute and WAssetBrowserAttribute is treated.
 ///
 /// A few examples to explain the flags:
 /// ## Input for a mesh: **Transform | Thumbnail**
@@ -403,18 +403,18 @@ private:
 /// * We do, however, need to package it or otherwise the runtime would fail to spawn the prefab on impact.
 ///
 /// As a rule of thumb (also the default for each):
-/// * ezFileBrowserAttribute are mostly Transform and Thumbnail.
-/// * ezAssetBrowserAttribute are mostly Thumbnail and Package.
-struct ezDependencyFlags
+/// * WFileBrowserAttribute are mostly Transform and Thumbnail.
+/// * WAssetBrowserAttribute are mostly Thumbnail and Package.
+struct WDependencyFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     None = 0,              ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
-    Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
-    Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
-    Package = EZ_BIT(2),   ///< This reference needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
+    Thumbnail = W_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
+    Transform = W_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
+    Package = W_BIT(2),   ///< This reference needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
     Default = 0
   };
 
@@ -426,28 +426,28 @@ struct ezDependencyFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezDependencyFlags);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDependencyFlags);
+W_DECLARE_FLAGS_OPERATORS(WDependencyFlags);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WDependencyFlags);
 
 /// A property attribute that indicates that the string property should display a file browsing button.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
-/// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.txt")),
-class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
+/// Usage: W_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new WFileBrowserAttribute("Choose a File", "*.txt")),
+class W_FOUNDATION_DLL WFileBrowserAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WFileBrowserAttribute, WTypeWidgetAttribute);
 
 public:
   // Predefined common type filters
-  static constexpr ezStringView Meshes = "*.obj;*.fbx;*.gltf;*.glb"_ezsv;
-  static constexpr ezStringView MeshesWithAnimations = "*.fbx;*.gltf;*.glb"_ezsv;
-  static constexpr ezStringView ImagesLdrOnly = "*.dds;*.tga;*.png;*.jpg;*.jpeg"_ezsv;
-  static constexpr ezStringView ImagesHdrOnly = "*.hdr;*.exr"_ezsv;
-  static constexpr ezStringView ImagesLdrAndHdr = "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr;*.exr"_ezsv;
-  static constexpr ezStringView CubemapsLdrAndHdr = "*.dds;*.hdr"_ezsv;
+  static constexpr WStringView Meshes = "*.obj;*.fbx;*.gltf;*.glb"_wsv;
+  static constexpr WStringView MeshesWithAnimations = "*.fbx;*.gltf;*.glb"_wsv;
+  static constexpr WStringView ImagesLdrOnly = "*.dds;*.tga;*.png;*.jpg;*.jpeg"_wsv;
+  static constexpr WStringView ImagesHdrOnly = "*.hdr;*.exr"_wsv;
+  static constexpr WStringView ImagesLdrAndHdr = "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr;*.exr"_wsv;
+  static constexpr WStringView CubemapsLdrAndHdr = "*.dds;*.hdr"_wsv;
 
-  ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter, ezStringView sCustomAction = {}, ezStringView sCreateTitle = {}, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
+  WFileBrowserAttribute() = default;
+  WFileBrowserAttribute(WStringView sDialogTitle, WStringView sTypeFilter, WStringView sCustomAction = {}, WStringView sCreateTitle = {}, WBitflags<WDependencyFlags> depencyFlags = WDependencyFlags::Transform | WDependencyFlags::Thumbnail)
     : m_sDialogTitle(sDialogTitle)
     , m_sTypeFilter(sTypeFilter)
     , m_sCustomAction(sCustomAction)
@@ -456,61 +456,61 @@ public:
   {
   }
 
-  ezStringView GetDialogTitle() const { return m_sDialogTitle; }
-  ezStringView GetTypeFilter() const { return m_sTypeFilter; }
-  ezStringView GetCustomAction() const { return m_sCustomAction; }
-  ezStringView GetCreateTitle() const { return m_sCreateTitle; }
-  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
+  WStringView GetDialogTitle() const { return m_sDialogTitle; }
+  WStringView GetTypeFilter() const { return m_sTypeFilter; }
+  WStringView GetCustomAction() const { return m_sCustomAction; }
+  WStringView GetCreateTitle() const { return m_sCreateTitle; }
+  WBitflags<WDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
-  ezUntrackedString m_sDialogTitle;
-  ezUntrackedString m_sTypeFilter;
-  ezUntrackedString m_sCustomAction;
-  ezUntrackedString m_sCreateTitle;
-  ezBitflags<ezDependencyFlags> m_DependencyFlags;
+  WUntrackedString m_sDialogTitle;
+  WUntrackedString m_sTypeFilter;
+  WUntrackedString m_sCustomAction;
+  WUntrackedString m_sCreateTitle;
+  WBitflags<WDependencyFlags> m_DependencyFlags;
 };
 
 /// Indicates that the string property should allow to browse for an file (or programs) outside the project directories.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
-/// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.exe")),
-class EZ_FOUNDATION_DLL ezExternalFileBrowserAttribute : public ezTypeWidgetAttribute
+/// Usage: W_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new WFileBrowserAttribute("Choose a File", "*.exe")),
+class W_FOUNDATION_DLL WExternalFileBrowserAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExternalFileBrowserAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WExternalFileBrowserAttribute, WTypeWidgetAttribute);
 
 public:
-  ezExternalFileBrowserAttribute() = default;
-  ezExternalFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter)
+  WExternalFileBrowserAttribute() = default;
+  WExternalFileBrowserAttribute(WStringView sDialogTitle, WStringView sTypeFilter)
     : m_sDialogTitle(sDialogTitle)
     , m_sTypeFilter(sTypeFilter)
   {
   }
 
-  ezStringView GetDialogTitle() const { return m_sDialogTitle; }
-  ezStringView GetTypeFilter() const { return m_sTypeFilter; }
+  WStringView GetDialogTitle() const { return m_sDialogTitle; }
+  WStringView GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  ezUntrackedString m_sDialogTitle;
-  ezUntrackedString m_sTypeFilter;
+  WUntrackedString m_sDialogTitle;
+  WUntrackedString m_sTypeFilter;
 };
 
 /// A property attribute that indicates that the string property is actually an asset reference.
 ///
 /// Allows to specify the allowed asset types, separated with ;
-/// Usage: EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D;Texture 3D")),
-class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
+/// Usage: W_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new WAssetBrowserAttribute("Texture 2D;Texture 3D")),
+class W_FOUNDATION_DLL WAssetBrowserAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetBrowserAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WAssetBrowserAttribute, WTypeWidgetAttribute);
 
 public:
-  ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  WAssetBrowserAttribute() = default;
+  WAssetBrowserAttribute(const char* szTypeFilter, WBitflags<WDependencyFlags> depencyFlags = WDependencyFlags::Thumbnail | WDependencyFlags::Package)
     : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
   }
 
-  ezAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  WAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag, WBitflags<WDependencyFlags> depencyFlags = WDependencyFlags::Thumbnail | WDependencyFlags::Package)
     : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
@@ -519,31 +519,31 @@ public:
 
   void SetTypeFilter(const char* szTypeFilter)
   {
-    ezStringBuilder sTemp(";", szTypeFilter, ";");
+    WStringBuilder sTemp(";", szTypeFilter, ";");
     m_sTypeFilter = sTemp;
   }
 
   const char* GetTypeFilter() const { return m_sTypeFilter; }
-  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
+  WBitflags<WDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
   const char* GetRequiredTag() const { return m_sRequiredTag; }
 
 private:
-  ezUntrackedString m_sTypeFilter;
-  ezUntrackedString m_sRequiredTag;
-  ezBitflags<ezDependencyFlags> m_DependencyFlags;
+  WUntrackedString m_sTypeFilter;
+  WUntrackedString m_sRequiredTag;
+  WBitflags<WDependencyFlags> m_DependencyFlags;
 };
 
 /// Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
 ///
-/// See ezDynamicEnum for details.
-class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
+/// See WDynamicEnum for details.
+class W_FOUNDATION_DLL WDynamicEnumAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicEnumAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicEnumAttribute, WTypeWidgetAttribute);
 
 public:
-  ezDynamicEnumAttribute() = default;
-  ezDynamicEnumAttribute(const char* szDynamicEnumName)
+  WDynamicEnumAttribute() = default;
+  WDynamicEnumAttribute(const char* szDynamicEnumName)
     : m_sDynamicEnumName(szDynamicEnumName)
   {
   }
@@ -551,19 +551,19 @@ public:
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
 private:
-  ezUntrackedString m_sDynamicEnumName;
+  WUntrackedString m_sDynamicEnumName;
 };
 
 /// Can be used on string properties to display them as enums. The valid enum values and their names may change at runtime.
 ///
-/// See ezDynamicStringEnum for details.
-class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttribute
+/// See WDynamicStringEnum for details.
+class W_FOUNDATION_DLL WDynamicStringEnumAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicStringEnumAttribute, WTypeWidgetAttribute);
 
 public:
-  ezDynamicStringEnumAttribute() = default;
-  ezDynamicStringEnumAttribute(const char* szDynamicEnumName)
+  WDynamicStringEnumAttribute() = default;
+  WDynamicStringEnumAttribute(const char* szDynamicEnumName)
     : m_sDynamicEnumName(szDynamicEnumName)
   {
   }
@@ -571,25 +571,25 @@ public:
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
 private:
-  ezUntrackedString m_sDynamicEnumName;
+  WUntrackedString m_sDynamicEnumName;
 };
 
 /// Can be used on integer properties to display them as bitflags. The valid bitflags and their names may change at runtime.
-class EZ_FOUNDATION_DLL ezDynamicBitflagsAttribute : public ezTypeWidgetAttribute
+class W_FOUNDATION_DLL WDynamicBitflagsAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicBitflagsAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicBitflagsAttribute, WTypeWidgetAttribute);
 
 public:
-  ezDynamicBitflagsAttribute() = default;
-  ezDynamicBitflagsAttribute(ezStringView sDynamicName)
+  WDynamicBitflagsAttribute() = default;
+  WDynamicBitflagsAttribute(WStringView sDynamicName)
     : m_sDynamicBitflagsName(sDynamicName)
   {
   }
 
-  ezStringView GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
+  WStringView GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
 
 private:
-  ezUntrackedString m_sDynamicBitflagsName;
+  WUntrackedString m_sDynamicBitflagsName;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -603,199 +603,199 @@ private:
 ///
 /// The editor discovers this attribute through the reflection system. The ManipulatorManager
 /// tracks which manipulator is active per document and drives the ManipulatorAdapterRegistry,
-/// which instantiates the corresponding ezManipulatorAdapter to handle the actual gizmo logic.
-class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
+/// which instantiates the corresponding WManipulatorAdapter to handle the actual gizmo logic.
+class W_FOUNDATION_DLL WManipulatorAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WManipulatorAttribute, WPropertyAttribute);
 
 public:
-  ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr,
+  WManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr,
     const char* szProperty4 = nullptr, const char* szProperty5 = nullptr, const char* szProperty6 = nullptr);
 
-  ezUntrackedString m_sProperty1;
-  ezUntrackedString m_sProperty2;
-  ezUntrackedString m_sProperty3;
-  ezUntrackedString m_sProperty4;
-  ezUntrackedString m_sProperty5;
-  ezUntrackedString m_sProperty6;
+  WUntrackedString m_sProperty1;
+  WUntrackedString m_sProperty2;
+  WUntrackedString m_sProperty3;
+  WUntrackedString m_sProperty4;
+  WUntrackedString m_sProperty5;
+  WUntrackedString m_sProperty6;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezSphereManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WSphereManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSphereManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSphereManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezSphereManipulatorAttribute();
-  ezSphereManipulatorAttribute(const char* szOuterRadiusProperty, const char* szInnerRadiusProperty = nullptr);
+  WSphereManipulatorAttribute();
+  WSphereManipulatorAttribute(const char* szOuterRadiusProperty, const char* szInnerRadiusProperty = nullptr);
 
-  const ezUntrackedString& GetOuterRadiusProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetInnerRadiusProperty() const { return m_sProperty2; }
-};
-
-
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_FOUNDATION_DLL ezCapsuleManipulatorAttribute : public ezManipulatorAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCapsuleManipulatorAttribute, ezManipulatorAttribute);
-
-public:
-  ezCapsuleManipulatorAttribute();
-  ezCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty);
-
-  const ezUntrackedString& GetLengthProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetOuterRadiusProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetInnerRadiusProperty() const { return m_sProperty2; }
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezBoxManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WCapsuleManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBoxManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WCapsuleManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezBoxManipulatorAttribute();
-  ezBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  WCapsuleManipulatorAttribute();
+  WCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty);
+
+  const WUntrackedString& GetLengthProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+class W_FOUNDATION_DLL WBoxManipulatorAttribute : public WManipulatorAttribute
+{
+  W_ADD_DYNAMIC_REFLECTION(WBoxManipulatorAttribute, WManipulatorAttribute);
+
+public:
+  WBoxManipulatorAttribute();
+  WBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
 
   bool m_bRecenterParent = false;
   float m_fSizeScale = 1.0f;
 
-  const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetRotationProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetSizeProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetOffsetProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetRotationProperty() const { return m_sProperty3; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezNonUniformBoxManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WNonUniformBoxManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNonUniformBoxManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WNonUniformBoxManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezNonUniformBoxManipulatorAttribute();
-  ezNonUniformBoxManipulatorAttribute(
+  WNonUniformBoxManipulatorAttribute();
+  WNonUniformBoxManipulatorAttribute(
     const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp);
-  ezNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ);
+  WNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ);
 
   bool HasSixAxis() const { return !m_sProperty4.IsEmpty(); }
 
-  const ezUntrackedString& GetNegXProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetPosXProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetNegYProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetPosYProperty() const { return m_sProperty4; }
-  const ezUntrackedString& GetNegZProperty() const { return m_sProperty5; }
-  const ezUntrackedString& GetPosZProperty() const { return m_sProperty6; }
+  const WUntrackedString& GetNegXProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetPosXProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetNegYProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetPosYProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetNegZProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetPosZProperty() const { return m_sProperty6; }
 
-  const ezUntrackedString& GetSizeXProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetSizeYProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetSizeZProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetSizeXProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetSizeYProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetSizeZProperty() const { return m_sProperty3; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezConeLengthManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WConeLengthManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConeLengthManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WConeLengthManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezConeLengthManipulatorAttribute();
-  ezConeLengthManipulatorAttribute(const char* szRadiusProperty);
+  WConeLengthManipulatorAttribute();
+  WConeLengthManipulatorAttribute(const char* szRadiusProperty);
 
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezConeAngleManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WConeAngleManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConeAngleManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WConeAngleManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezConeAngleManipulatorAttribute();
-  ezConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale = 1.0f, const char* szRadiusProperty = nullptr);
+  WConeAngleManipulatorAttribute();
+  WConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale = 1.0f, const char* szRadiusProperty = nullptr);
 
-  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
 
   float m_fScale;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezTransformManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WTransformManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTransformManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WTransformManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezTransformManipulatorAttribute();
-  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty = nullptr, const char* szScaleProperty = nullptr, const char* szOffsetTranslation = nullptr, const char* szOffsetRotation = nullptr);
+  WTransformManipulatorAttribute();
+  WTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty = nullptr, const char* szScaleProperty = nullptr, const char* szOffsetTranslation = nullptr, const char* szOffsetRotation = nullptr);
 
-  const ezUntrackedString& GetTranslateProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRotateProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetScaleProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetGetOffsetTranslationProperty() const { return m_sProperty4; }
-  const ezUntrackedString& GetGetOffsetRotationProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetTranslateProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRotateProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetScaleProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetGetOffsetTranslationProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetGetOffsetRotationProperty() const { return m_sProperty5; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezBoneManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WBoneManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBoneManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WBoneManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezBoneManipulatorAttribute();
-  ezBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo);
+  WBoneManipulatorAttribute();
+  WBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo);
 
-  const ezUntrackedString& GetTransformProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetTransformProperty() const { return m_sProperty1; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezSplineManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WSplineManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSplineManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSplineManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezSplineManipulatorAttribute();
-  ezSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty);
+  WSplineManipulatorAttribute();
+  WSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty);
 
-  const ezUntrackedString& GetBindTo() const { return m_sProperty1; }
-  const ezUntrackedString& GetClosedProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetBindTo() const { return m_sProperty1; }
+  const WUntrackedString& GetClosedProperty() const { return m_sProperty2; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezSplineTangentManipulatorAttribute : public ezManipulatorAttribute
+class W_FOUNDATION_DLL WSplineTangentManipulatorAttribute : public WManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSplineTangentManipulatorAttribute, ezManipulatorAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSplineTangentManipulatorAttribute, WManipulatorAttribute);
 
 public:
-  ezSplineTangentManipulatorAttribute();
-  ezSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent);
+  WSplineTangentManipulatorAttribute();
+  WSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent);
 
-  const ezUntrackedString& GetTangentModeProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetCustomTangentProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetTangentModeProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetCustomTangentProperty() const { return m_sProperty2; }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezVisualizerAnchor
+struct WVisualizerAnchor
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     Center = 0,
-    PosX = EZ_BIT(0),
-    NegX = EZ_BIT(1),
-    PosY = EZ_BIT(2),
-    NegY = EZ_BIT(3),
-    PosZ = EZ_BIT(4),
-    NegZ = EZ_BIT(5),
+    PosX = W_BIT(0),
+    NegX = W_BIT(1),
+    PosY = W_BIT(2),
+    NegY = W_BIT(3),
+    PosZ = W_BIT(4),
+    NegZ = W_BIT(5),
 
     Default = Center
   };
@@ -811,134 +811,134 @@ struct ezVisualizerAnchor
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezVisualizerAnchor);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVisualizerAnchor);
+W_DECLARE_FLAGS_OPERATORS(WVisualizerAnchor);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WVisualizerAnchor);
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WVisualizerAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualizerAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WVisualizerAttribute, WPropertyAttribute);
 
 public:
-  ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr,
+  WVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr,
     const char* szProperty4 = nullptr, const char* szProperty5 = nullptr, const char* szProperty6 = nullptr);
 
-  ezUntrackedString m_sProperty1;
-  ezUntrackedString m_sProperty2;
-  ezUntrackedString m_sProperty3;
-  ezUntrackedString m_sProperty4;
-  ezUntrackedString m_sProperty5;
-  ezUntrackedString m_sProperty6;
-  ezBitflags<ezVisualizerAnchor> m_Anchor;
+  WUntrackedString m_sProperty1;
+  WUntrackedString m_sProperty2;
+  WUntrackedString m_sProperty3;
+  WUntrackedString m_sProperty4;
+  WUntrackedString m_sProperty5;
+  WUntrackedString m_sProperty6;
+  WBitflags<WVisualizerAnchor> m_Anchor;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WBoxVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezBoxVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WBoxVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  WBoxVisualizerAttribute();
+  WBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, WBitflags<WVisualizerAnchor> anchor = WVisualizerAnchor::Center, WVec3 vOffsetOrScale = WVec3::MakeZero(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
 
-  const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetRotationProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetSizeProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetRotationProperty() const { return m_sProperty4; }
 
   float m_fSizeScale = 1.0f;
-  ezColor m_Color;
-  ezVec3 m_vOffsetOrScale;
+  WColor m_Color;
+  WVec3 m_vOffsetOrScale;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WSphereVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSphereVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSphereVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezSphereVisualizerAttribute();
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
+  WSphereVisualizerAttribute();
+  WSphereVisualizerAttribute(const char* szRadiusProperty, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, WBitflags<WVisualizerAnchor> anchor = WVisualizerAnchor::Center, WVec3 vOffsetOrScale = WVec3::MakeZero(), const char* szOffsetProperty = nullptr);
 
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
 
-  ezColor m_Color;
-  ezVec3 m_vOffsetOrScale;
+  WColor m_Color;
+  WVec3 m_vOffsetOrScale;
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezCapsuleVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WCapsuleVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCapsuleVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WCapsuleVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezCapsuleVisualizerAttribute();
-  ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center);
+  WCapsuleVisualizerAttribute();
+  WCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, WBitflags<WVisualizerAnchor> anchor = WVisualizerAnchor::Center);
 
-  const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetHeightProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
-  ezColor m_Color;
+  WColor m_Color;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezCylinderVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WCylinderVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCylinderVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WCylinderVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezCylinderVisualizerAttribute();
-  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
-  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
+  WCylinderVisualizerAttribute();
+  WCylinderVisualizerAttribute(WEnum<WBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, WBitflags<WVisualizerAnchor> anchor = WVisualizerAnchor::Center, WVec3 vOffsetOrScale = WVec3::MakeZero(), const char* szOffsetProperty = nullptr);
+  WCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, WBitflags<WVisualizerAnchor> anchor = WVisualizerAnchor::Center, WVec3 vOffsetOrScale = WVec3::MakeZero(), const char* szOffsetProperty = nullptr);
 
-  const ezUntrackedString& GetAxisProperty() const { return m_sProperty5; }
-  const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetAxisProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetHeightProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetOffsetProperty() const { return m_sProperty4; }
 
-  ezColor m_Color;
-  ezVec3 m_vOffsetOrScale;
-  ezEnum<ezBasisAxis> m_Axis;
+  WColor m_Color;
+  WVec3 m_vOffsetOrScale;
+  WEnum<WBasisAxis> m_Axis;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WDirectionVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDirectionVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezDirectionVisualizerAttribute();
-  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
-  ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
+  WDirectionVisualizerAttribute();
+  WDirectionVisualizerAttribute(WEnum<WBasisAxis> axis, float fScale, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
+  WDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
 
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetAxisProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetLengthProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetAxisProperty() const { return m_sProperty3; }
 
-  ezEnum<ezBasisAxis> m_Axis;
-  ezColor m_Color;
+  WEnum<WBasisAxis> m_Axis;
+  WColor m_Color;
   float m_fScale;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezConeVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WConeVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConeVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WConeVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezConeVisualizerAttribute();
+  WConeVisualizerAttribute();
 
   /// Attribute to add on an RTTI type to add a cone visualizer for specific properties.
   ///
@@ -946,34 +946,34 @@ public:
   /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
   /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
   /// fixedColor is ignored if szColorProperty is valid.
-  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr);
+  WConeVisualizerAttribute(WEnum<WBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr);
 
-  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
-  ezEnum<ezBasisAxis> m_Axis;
-  ezColor m_Color;
+  WEnum<WBasisAxis> m_Axis;
+  WColor m_Color;
   float m_fScale;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezCameraVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WCameraVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCameraVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WCameraVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezCameraVisualizerAttribute();
+  WCameraVisualizerAttribute();
 
   /// Attribute to add on an RTTI type to add a camera cone visualizer.
-  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
+  WCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
 
-  const ezUntrackedString& GetModeProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetFovProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetOrthoDimProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetNearPlaneProperty() const { return m_sProperty4; }
-  const ezUntrackedString& GetFarPlaneProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetModeProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetFovProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetOrthoDimProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetNearPlaneProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetFarPlaneProperty() const { return m_sProperty5; }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -982,26 +982,26 @@ public:
 ///
 /// The position is interpreted as a local-space offset from the object's origin.
 /// \c szColorProperty may be nullptr, in which case \c fixedColor is used.
-class EZ_FOUNDATION_DLL ezPositionVisualizerAttribute : public ezVisualizerAttribute
+class W_FOUNDATION_DLL WPositionVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPositionVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WPositionVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezPositionVisualizerAttribute();
-  ezPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale = 0.1f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr);
+  WPositionVisualizerAttribute();
+  WPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale = 0.1f, const WColor& fixedColor = WColorScheme::LightUI(WColorScheme::Grape), const char* szColorProperty = nullptr);
 
-  const ezUntrackedString& GetPositionProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetPositionProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty2; }
 
   float m_fSizeScale = 0.1f;
-  ezColor m_Color;
+  WColor m_Color;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-// Implementation moved here as it requires ezPropertyAttribute to be fully defined.
+// Implementation moved here as it requires WPropertyAttribute to be fully defined.
 template <typename Type>
-const Type* ezRTTI::GetAttributeByType() const
+const Type* WRTTI::GetAttributeByType() const
 {
   for (const auto* pAttr : m_Attributes)
   {
@@ -1015,7 +1015,7 @@ const Type* ezRTTI::GetAttributeByType() const
 }
 
 template <typename Type>
-const Type* ezAbstractProperty::GetAttributeByType() const
+const Type* WAbstractProperty::GetAttributeByType() const
 {
   for (const auto* pAttr : m_Attributes)
   {
@@ -1028,18 +1028,18 @@ const Type* ezAbstractProperty::GetAttributeByType() const
 //////////////////////////////////////////////////////////////////////////
 
 /// A property attribute that specifies the max size of an array. If it is reached, no further elemets are allowed to be added.
-class EZ_FOUNDATION_DLL ezMaxArraySizeAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WMaxArraySizeAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaxArraySizeAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WMaxArraySizeAttribute, WPropertyAttribute);
 
 public:
-  ezMaxArraySizeAttribute() = default;
-  ezMaxArraySizeAttribute(ezUInt32 uiMaxSize) { m_uiMaxSize = uiMaxSize; }
+  WMaxArraySizeAttribute() = default;
+  WMaxArraySizeAttribute(WUInt32 uiMaxSize) { m_uiMaxSize = uiMaxSize; }
 
-  const ezUInt32& GetMaxSize() const { return m_uiMaxSize; }
+  const WUInt32& GetMaxSize() const { return m_uiMaxSize; }
 
 private:
-  ezUInt32 m_uiMaxSize = 0;
+  WUInt32 m_uiMaxSize = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1047,137 +1047,137 @@ private:
 /// If this attribute is set, the UI is encouraged to prevent the user from creating duplicates of the same thing.
 ///
 /// For arrays of objects this means that multiple objects of the same type are not allowed.
-class EZ_FOUNDATION_DLL ezPreventDuplicatesAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WPreventDuplicatesAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPreventDuplicatesAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WPreventDuplicatesAttribute, WPropertyAttribute);
 
 public:
-  ezPreventDuplicatesAttribute() = default;
+  WPreventDuplicatesAttribute() = default;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Attribute for types that should not be exposed to the scripting framework
-class EZ_FOUNDATION_DLL ezExcludeFromScript : public ezPropertyAttribute
+class W_FOUNDATION_DLL WExcludeFromScript : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExcludeFromScript, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WExcludeFromScript, WPropertyAttribute);
 };
 
 /// Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
-class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WScriptableFunctionAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScriptableFunctionAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WScriptableFunctionAttribute, WPropertyAttribute);
 
-  enum ArgType : ezUInt8
+  enum ArgType : WUInt8
   {
     In,
     Out,
     Inout
   };
 
-  ezScriptableFunctionAttribute(ArgType argType1 = In, const char* szArg1 = nullptr, ArgType argType2 = In, const char* szArg2 = nullptr,
+  WScriptableFunctionAttribute(ArgType argType1 = In, const char* szArg1 = nullptr, ArgType argType2 = In, const char* szArg2 = nullptr,
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
     const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr, ArgType argType7 = In, const char* szArg7 = nullptr, ArgType argType8 = In, const char* szArg8 = nullptr, ArgType argType9 = In, const char* szArg9 = nullptr, ArgType argType10 = In, const char* szArg10 = nullptr, ArgType argType11 = In, const char* szArg11 = nullptr, ArgType argType12 = In, const char* szArg12 = nullptr);
 
-  ezUInt32 GetArgumentCount() const { return m_ArgNames.GetCount(); }
-  const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
+  WUInt32 GetArgumentCount() const { return m_ArgNames.GetCount(); }
+  const char* GetArgumentName(WUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
 
-  ArgType GetArgumentType(ezUInt32 uiIndex) const { return static_cast<ArgType>(m_ArgTypes[uiIndex]); }
+  ArgType GetArgumentType(WUInt32 uiIndex) const { return static_cast<ArgType>(m_ArgTypes[uiIndex]); }
 
 private:
-  ezHybridArray<ezUntrackedString, 6> m_ArgNames;
-  ezHybridArray<ezUInt8, 6> m_ArgTypes;
+  WHybridArray<WUntrackedString, 6> m_ArgNames;
+  WHybridArray<WUInt8, 6> m_ArgTypes;
 };
 
 /// Wrapper Attribute to add an attribute to a function argument
-class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribute
+class W_FOUNDATION_DLL WFunctionArgumentAttributes : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFunctionArgumentAttributes, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WFunctionArgumentAttributes, WPropertyAttribute);
 
-  ezFunctionArgumentAttributes() = default;
-  ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 = nullptr, const ezPropertyAttribute* pAttribute3 = nullptr, const ezPropertyAttribute* pAttribute4 = nullptr);
-  ~ezFunctionArgumentAttributes();
+  WFunctionArgumentAttributes() = default;
+  WFunctionArgumentAttributes(WUInt32 uiArgIndex, const WPropertyAttribute* pAttribute1, const WPropertyAttribute* pAttribute2 = nullptr, const WPropertyAttribute* pAttribute3 = nullptr, const WPropertyAttribute* pAttribute4 = nullptr);
+  ~WFunctionArgumentAttributes();
 
-  ezUInt32 GetArgumentIndex() const { return m_uiArgIndex; }
-  ezArrayPtr<const ezPropertyAttribute* const> GetArgumentAttributes() const { return m_ArgAttributes; }
+  WUInt32 GetArgumentIndex() const { return m_uiArgIndex; }
+  WArrayPtr<const WPropertyAttribute* const> GetArgumentAttributes() const { return m_ArgAttributes; }
 
 private:
-  ezUInt32 m_uiArgIndex = 0;
-  // Not pretty, but the values in the array are either created using 'new' when using this class as a reflection decoration, or created using 'EZ_DEFAULT_NEW' when serialized and sent to the editor so in the dtor we need to know where these came from.
+  WUInt32 m_uiArgIndex = 0;
+  // Not pretty, but the values in the array are either created using 'new' when using this class as a reflection decoration, or created using 'W_DEFAULT_NEW' when serialized and sent to the editor so in the dtor we need to know where these came from.
   bool m_bUsesGlobalNew = false;
-  ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
+  WHybridArray<const WPropertyAttribute*, 4> m_ArgAttributes;
 };
 
 /// Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes
-class EZ_FOUNDATION_DLL ezDynamicPinAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WDynamicPinAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicPinAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicPinAttribute, WPropertyAttribute);
 
 public:
-  ezDynamicPinAttribute() = default;
-  ezDynamicPinAttribute(const char* szProperty);
+  WDynamicPinAttribute() = default;
+  WDynamicPinAttribute(const char* szProperty);
 
-  const ezUntrackedString& GetProperty() const { return m_sProperty; }
+  const WUntrackedString& GetProperty() const { return m_sProperty; }
 
 private:
-  ezUntrackedString m_sProperty;
+  WUntrackedString m_sProperty;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Used to mark that a component provides functionality that is executed with a long operation in the editor.
 ///
-/// \a szOpTypeName must be the class name of a class derived from ezLongOpProxy.
+/// \a szOpTypeName must be the class name of a class derived from WLongOpProxy.
 /// Once a component is added to a scene with this attribute, the named long op will appear in the UI and can be executed.
 ///
-/// The automatic registration is done by ezLongOpsAdapter
-class EZ_FOUNDATION_DLL ezLongOpAttribute : public ezPropertyAttribute
+/// The automatic registration is done by WLongOpsAdapter
+class W_FOUNDATION_DLL WLongOpAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WLongOpAttribute, WPropertyAttribute);
 
 public:
-  ezLongOpAttribute() = default;
-  ezLongOpAttribute(const char* szOpTypeName)
+  WLongOpAttribute() = default;
+  WLongOpAttribute(const char* szOpTypeName)
     : m_sOpTypeName(szOpTypeName)
   {
   }
 
-  ezUntrackedString m_sOpTypeName;
+  WUntrackedString m_sOpTypeName;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// A property attribute that indicates that the string property is actually a game object reference.
-class EZ_FOUNDATION_DLL ezGameObjectReferenceAttribute : public ezTypeWidgetAttribute
+class W_FOUNDATION_DLL WGameObjectReferenceAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectReferenceAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectReferenceAttribute, WTypeWidgetAttribute);
 
 public:
-  ezGameObjectReferenceAttribute() = default;
+  WGameObjectReferenceAttribute() = default;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Displays the value range as an image, allowing users to pick a value like on a slider.
 ///
-/// This attribute always has to be combined with an ezClampValueAttribute to define the min and max value range.
+/// This attribute always has to be combined with an WClampValueAttribute to define the min and max value range.
 /// The constructor takes the name of an image generator. The generator is used to build the QImage used for the slider background.
 ///
-/// Image generators are registered through ezQtImageSliderWidget::s_ImageGenerators. Search the codebase for that variable
+/// Image generators are registered through WQtImageSliderWidget::s_ImageGenerators. Search the codebase for that variable
 /// to determine which types of image generators are available.
 /// You can register custom generators as well.
-class EZ_FOUNDATION_DLL ezImageSliderUiAttribute : public ezTypeWidgetAttribute
+class W_FOUNDATION_DLL WImageSliderUiAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImageSliderUiAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WImageSliderUiAttribute, WTypeWidgetAttribute);
 
 public:
-  ezImageSliderUiAttribute() = default;
-  ezImageSliderUiAttribute(const char* szImageGenerator)
+  WImageSliderUiAttribute() = default;
+  WImageSliderUiAttribute(const char* szImageGenerator)
   {
     m_sImageGenerator = szImageGenerator;
   }
 
-  ezUntrackedString m_sImageGenerator;
+  WUntrackedString m_sImageGenerator;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1185,14 +1185,14 @@ public:
 /// Attribute that turns a string property into a selector for an RTTI type.
 ///
 /// The base type defines what types to display.
-/// For example if "ezComponent" is passed in, only types derived from ezComponent are listed.
-class EZ_FOUNDATION_DLL ezRttiTypeStringAttribute : public ezTypeWidgetAttribute
+/// For example if "WComponent" is passed in, only types derived from WComponent are listed.
+class W_FOUNDATION_DLL WRttiTypeStringAttribute : public WTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRttiTypeStringAttribute, ezTypeWidgetAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WRttiTypeStringAttribute, WTypeWidgetAttribute);
 
 public:
-  ezRttiTypeStringAttribute() = default;
-  ezRttiTypeStringAttribute(const char* szBaseType)
+  WRttiTypeStringAttribute() = default;
+  WRttiTypeStringAttribute(const char* szBaseType)
     : m_sBaseType(szBaseType)
   {
   }
@@ -1200,7 +1200,7 @@ public:
   const char* GetBaseType() const { return m_sBaseType; }
 
 private:
-  ezUntrackedString m_sBaseType;
+  WUntrackedString m_sBaseType;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1208,7 +1208,7 @@ private:
 /// Marks a component type as requiring child-order synchronization from the editor.
 /// The editor uses this attribute to identify components that need to receive an ordered
 /// list of their parent game object's children via the reflected function SetChildOrder.
-class EZ_FOUNDATION_DLL ezSyncChildOrderAttribute : public ezPropertyAttribute
+class W_FOUNDATION_DLL WSyncChildOrderAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncChildOrderAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSyncChildOrderAttribute, WPropertyAttribute);
 };

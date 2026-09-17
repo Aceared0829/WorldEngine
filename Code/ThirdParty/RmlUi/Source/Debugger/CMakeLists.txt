@@ -1,14 +1,14 @@
-ez_cmake_init()
-ez_requires_rmlui()
+W_cmake_init()
+W_requires_rmlui()
 
-get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+get_property(W_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY W_SUBMODULE_PREFIX_PATH)
 
 set (PROJECT_NAME "RmlDebugger")
 
-ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+W_create_target(LIBRARY ${PROJECT_NAME} NO_W_PREFIX)
 
 # override the default IDE folder
-ez_set_project_ide_folder(${PROJECT_NAME} "${EZ_ROOT}/Code/ThirdParty/RmlDebugger")
+W_set_project_ide_folder(${PROJECT_NAME} "${W_ROOT}/Code/ThirdParty/RmlDebugger")
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPORT)
 target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_DEBUGGER_EXPORTS)

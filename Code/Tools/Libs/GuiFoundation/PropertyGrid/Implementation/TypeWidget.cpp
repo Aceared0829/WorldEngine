@@ -22,14 +22,14 @@
 #include <QLabel>
 
 
-ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
+WQtTypeWidget::WQtTypeWidget(QWidget* pParent, WQtPropertyGridWidget* pGrid, WObjectAccessorBase* pObjectAccessor, const WRTTI* pType,
   const char* szIncludeProperties, const char* szExcludeProperties)
   : QWidget(pParent)
   , m_pGrid(pGrid)
   , m_pObjectAccessor(pObjectAccessor)
   , m_pType(pType)
 {
-  EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
+  W_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
   m_Pal = palette();
   setAutoFillBackground(true);
 
@@ -42,23 +42,23 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
-  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WQtTypeWidget::CommandHistoryEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WQtTypeWidget::ManipulatorManagerEventHandler, this));
 
   BuildUI(pType, szIncludeProperties, szExcludeProperties);
 }
 
-ezQtTypeWidget::~ezQtTypeWidget()
+WQtTypeWidget::~WQtTypeWidget()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtTypeWidget::CommandHistoryEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtTypeWidget::ManipulatorManagerEventHandler, this));
 }
 
-void ezQtTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtTypeWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
 
   m_Items = items;
 
@@ -80,15 +80,15 @@ void ezQtTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
       it.Value().m_pLabel->SetSelection(m_Items);
   }
 
-  ezManipulatorManagerEvent e;
+  WManipulatorManagerEvent e;
   e.m_pDocument = m_pGrid->GetDocument();
-  e.m_pManipulator = ezManipulatorManager::GetSingleton()->GetActiveManipulator(e.m_pDocument, e.m_pSelection);
+  e.m_pManipulator = WManipulatorManager::GetSingleton()->GetActiveManipulator(e.m_pDocument, e.m_pSelection);
   e.m_bHideManipulators = false; // irrelevant for this
   ManipulatorManagerEventHandler(e);
 }
 
 
-void ezQtTypeWidget::PrepareToDie()
+void WQtTypeWidget::PrepareToDie()
 {
   if (!m_bUndead)
   {
@@ -100,16 +100,16 @@ void ezQtTypeWidget::PrepareToDie()
   }
 }
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap,
-  const ezDynamicArray<ezUniquePtr<PropertyGroup>>& groups, const char* szIncludeProperties, const char* szExcludeProperties)
+void WQtTypeWidget::BuildUI(const WRTTI* pType, const WMap<WString, const WManipulatorAttribute*>& manipulatorMap,
+  const WDynamicArray<WUniquePtr<PropertyGroup>>& groups, const char* szIncludeProperties, const char* szExcludeProperties)
 {
-  ezQtScopedUpdatesDisabled _(this);
+  WQtScopedUpdatesDisabled _(this);
 
-  for (ezUInt32 p = 0; p < groups.GetCount(); p++)
+  for (WUInt32 p = 0; p < groups.GetCount(); p++)
   {
-    const ezUniquePtr<PropertyGroup>& group = groups[p];
+    const WUniquePtr<PropertyGroup>& group = groups[p];
 
-    ezQtCollapsibleGroupBox* pGroupBox = new ezQtCollapsibleGroupBox(this);
+    WQtCollapsibleGroupBox* pGroupBox = new WQtCollapsibleGroupBox(this);
     pGroupBox->setContentsMargins(0, 0, 0, 0);
     pGroupBox->layout()->setSpacing(0);
     if (group->m_sGroup.IsEmpty())
@@ -121,12 +121,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
       pGroupBox->SetTitle(group->m_sGroup.GetData());
 
       m_pGrid->SetCollapseState(pGroupBox);
-      connect(pGroupBox, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+      connect(pGroupBox, &WQtGroupBoxBase::CollapseStateChanged, m_pGrid, &WQtPropertyGridWidget::OnCollapseStateChanged);
 
       if (!group->m_sIconName.IsEmpty())
       {
-        ezStringBuilder sIcon(":/GroupIcons/", group->m_sIconName, ".png");
-        pGroupBox->SetIcon(ezQtUiServices::GetCachedIconResource(sIcon));
+        WStringBuilder sIcon(":/GroupIcons/", group->m_sIconName, ".png");
+        pGroupBox->SetIcon(WQtUiServices::GetCachedIconResource(sIcon));
       }
     }
     QGridLayout* pLayout = new QGridLayout();
@@ -138,12 +138,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pLayout->setSpacing(0);
     pGroupBox->GetContent()->setLayout(pLayout);
 
-    for (ezUInt32 i = 0; i < group->m_Properties.GetCount(); ++i)
+    for (WUInt32 i = 0; i < group->m_Properties.GetCount(); ++i)
     {
-      const ezAbstractProperty* pProp = group->m_Properties[i];
+      const WAbstractProperty* pProp = group->m_Properties[i];
 
-      ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
-      EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
+      WQtPropertyWidget* pNewWidget = WQtPropertyGridWidget::CreatePropertyWidget(pProp);
+      W_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
       pNewWidget->setParent(this);
       pNewWidget->Init(m_pGrid, m_pObjectAccessor, pType, pProp);
       auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
@@ -153,14 +153,14 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
 
       if (pNewWidget->HasLabel())
       {
-        ezStringBuilder tmp;
-        ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
+        WStringBuilder tmp;
+        WQtManipulatorLabel* pLabel = new WQtManipulatorLabel(this);
         pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel(tmp)));
         pLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
         pLabel->setContentsMargins(0, 0, 0, 0);
         pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
-        connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);
+        connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &WQtPropertyWidget::OnCustomContextMenu);
 
         pLayout->addWidget(pLabel, i, 0, 1, 1);
         pLayout->addWidget(pNewWidget, i, 2, 1, 1);
@@ -183,25 +183,25 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     {
       pLayout->addItem(new QSpacerItem(0, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), group->m_Properties.GetCount(), 0, 1, 3);
     }
-    ezUInt32 iRows = m_pLayout->rowCount();
+    WUInt32 iRows = m_pLayout->rowCount();
     m_pLayout->addWidget(pGroupBox, iRows, 0, 1, 3);
   }
 }
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
+void WQtTypeWidget::BuildUI(const WRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
 {
-  ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
-  ezTempHybridArray<ezUniquePtr<PropertyGroup>, 6> groups;
+  WMap<WString, const WManipulatorAttribute*> manipulatorMap;
+  WTempHybridArray<WUniquePtr<PropertyGroup>, 6> groups;
   PropertyGroup* pCurrentGroup = nullptr;
   float fOrder = -1.0f;
 
-  auto AddProperty = [&](const ezAbstractProperty* pProp)
+  auto AddProperty = [&](const WAbstractProperty* pProp)
   {
-    const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>();
+    const WGroupAttribute* pGroup = pProp->GetAttributeByType<WGroupAttribute>();
     if (pGroup != nullptr)
     {
-      ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
+      WUniquePtr<PropertyGroup>* pFound =
+        std::find_if(begin(groups), end(groups), [&](const WUniquePtr<PropertyGroup>& g)
           { return g->m_sGroup == pGroup->GetGroup(); });
       if (pFound != end(groups))
       {
@@ -210,15 +210,15 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
       }
       else
       {
-        ezUniquePtr<PropertyGroup> group = EZ_DEFAULT_NEW(PropertyGroup, pGroup, fOrder);
+        WUniquePtr<PropertyGroup> group = W_DEFAULT_NEW(PropertyGroup, pGroup, fOrder);
         pCurrentGroup = group.Borrow();
         groups.PushBack(std::move(group));
       }
     }
     if (pCurrentGroup == nullptr)
     {
-      ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
+      WUniquePtr<PropertyGroup>* pFound =
+        std::find_if(begin(groups), end(groups), [&](const WUniquePtr<PropertyGroup>& g)
           { return g->m_sGroup.IsEmpty(); });
       if (pFound != end(groups))
       {
@@ -226,7 +226,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
       }
       else
       {
-        ezUniquePtr<PropertyGroup> group = EZ_DEFAULT_NEW(PropertyGroup, nullptr, fOrder);
+        WUniquePtr<PropertyGroup> group = W_DEFAULT_NEW(PropertyGroup, nullptr, fOrder);
         pCurrentGroup = group.Borrow();
         groups.PushBack(std::move(group));
       }
@@ -236,8 +236,8 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   };
 
   // Build type hierarchy array.
-  ezTempHybridArray<const ezRTTI*, 6> typeHierarchy;
-  const ezRTTI* pParentType = pType;
+  WTempHybridArray<const WRTTI*, 6> typeHierarchy;
+  const WRTTI* pParentType = pType;
   while (pParentType != nullptr)
   {
     typeHierarchy.PushBack(pParentType);
@@ -245,17 +245,17 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   }
 
   // Build UI starting from base class.
-  for (ezInt32 i = (ezInt32)typeHierarchy.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)typeHierarchy.GetCount() - 1; i >= 0; --i)
   {
-    const ezRTTI* pCurrentType = typeHierarchy[i];
+    const WRTTI* pCurrentType = typeHierarchy[i];
     const auto& attr = pCurrentType->GetAttributes();
 
     // Traverse type attributes
     for (auto pAttr : attr)
     {
-      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
+      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<WManipulatorAttribute>())
       {
-        const ezManipulatorAttribute* pManipAttr = static_cast<const ezManipulatorAttribute*>(pAttr);
+        const WManipulatorAttribute* pManipAttr = static_cast<const WManipulatorAttribute*>(pAttr);
 
         if (!pManipAttr->m_sProperty1.IsEmpty())
           manipulatorMap[pManipAttr->m_sProperty1] = pManipAttr;
@@ -273,28 +273,28 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     }
 
     // Traverse properties
-    for (ezUInt32 j = 0; j < pCurrentType->GetProperties().GetCount(); ++j)
+    for (WUInt32 j = 0; j < pCurrentType->GetProperties().GetCount(); ++j)
     {
-      const ezAbstractProperty* pProp = pCurrentType->GetProperties()[j];
+      const WAbstractProperty* pProp = pCurrentType->GetProperties()[j];
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
+      if (pProp->GetFlags().IsSet(WPropertyFlags::Hidden))
         continue;
 
-      if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      if (pProp->GetAttributeByType<WHiddenAttribute>() != nullptr)
         continue;
 
-      if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      if (pProp->GetSpecificType()->GetAttributeByType<WHiddenAttribute>() != nullptr)
         continue;
 
-      if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      if (pProp->GetCategory() == WPropertyCategory::Constant)
         continue;
 
-      if (!ezStringUtils::IsNullOrEmpty(szIncludeProperties) &&
-          ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
+      if (!WStringUtils::IsNullOrEmpty(szIncludeProperties) &&
+          WStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
         continue;
 
-      if (!ezStringUtils::IsNullOrEmpty(szExcludeProperties) &&
-          ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
+      if (!WStringUtils::IsNullOrEmpty(szExcludeProperties) &&
+          WStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
         continue;
 
       AddProperty(pProp);
@@ -304,13 +304,13 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     pCurrentGroup = nullptr;
   }
 
-  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool
+  groups.Sort([](const WUniquePtr<PropertyGroup>& lhs, const WUniquePtr<PropertyGroup>& rhs) -> bool
     { return lhs->m_fOrder < rhs->m_fOrder; });
 
   BuildUI(pType, manipulatorMap, groups, szIncludeProperties, szExcludeProperties);
 }
 
-void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtTypeWidget::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (m_bUndead)
     return;
@@ -318,17 +318,17 @@ void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e
   UpdateProperty(e.m_pObject, e.m_sProperty);
 }
 
-void ezQtTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WQtTypeWidget::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   if (m_bUndead)
     return;
 
   switch (e.m_Type)
   {
-    case ezCommandHistoryEvent::Type::UndoEnded:
-    case ezCommandHistoryEvent::Type::RedoEnded:
-    case ezCommandHistoryEvent::Type::TransactionEnded:
-    case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case WCommandHistoryEvent::Type::UndoEnded:
+    case WCommandHistoryEvent::Type::RedoEnded:
+    case WCommandHistoryEvent::Type::TransactionEnded:
+    case WCommandHistoryEvent::Type::TransactionCanceled:
     {
       FlushQueuedChanges();
     }
@@ -340,7 +340,7 @@ void ezQtTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 }
 
 
-void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+void WQtTypeWidget::ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e)
 {
   if (m_bUndead)
     return;
@@ -366,9 +366,9 @@ void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEv
   }
 }
 
-void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
+void WQtTypeWidget::UpdateProperty(const WDocumentObject* pObject, const WString& sProperty)
 {
-  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel)
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const WPropertySelection& sel)
         { return pObject == sel.m_pObject; }))
     return;
 
@@ -383,15 +383,15 @@ void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezStr
     FlushQueuedChanges();
 }
 
-void ezQtTypeWidget::FlushQueuedChanges()
+void WQtTypeWidget::FlushQueuedChanges()
 {
-  for (const ezString& sProperty : m_QueuedChanges)
+  for (const WString& sProperty : m_QueuedChanges)
   {
     for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Key().StartsWith(sProperty))
       {
-        ezQtScopedUpdatesDisabled _(this);
+        WQtScopedUpdatesDisabled _(this);
         it.Value().m_pWidget->SetSelection(m_Items);
         break;
       }
@@ -403,15 +403,15 @@ void ezQtTypeWidget::FlushQueuedChanges()
   UpdatePropertyMetaState();
 }
 
-void ezQtTypeWidget::UpdatePropertyMetaState()
+void WQtTypeWidget::UpdatePropertyMetaState()
 {
-  ezPropertyMetaState* pMeta = ezPropertyMetaState::GetSingleton();
-  ezMap<ezString, ezPropertyUiState> PropertyStates;
+  WPropertyMetaState* pMeta = WPropertyMetaState::GetSingleton();
+  WMap<WString, WPropertyUiState> PropertyStates;
   pMeta->GetTypePropertiesState(m_Items, PropertyStates);
 
-  ezDefaultObjectState defaultState(m_pType, m_pObjectAccessor, m_Items);
+  WDefaultObjectState defaultState(m_pType, m_pObjectAccessor, m_Items);
 
-  ezQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
+  WQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
   setPalette(m_Pal);
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
@@ -419,10 +419,10 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
     it.Value().m_pWidget->GetProperty();
     auto itData = PropertyStates.Find(it.Key());
 
-    const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) ||
-                           (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
+    const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(WPropertyFlags::ReadOnly)) ||
+                           (it.Value().m_pWidget->GetProperty()->GetAttributeByType<WReadOnlyAttribute>() != nullptr);
     const bool bIsDefaultValue = defaultState.IsDefaultValue(it.Key());
-    ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
+    WPropertyUiState::Visibility state = WPropertyUiState::Default;
     if (itData.IsValid())
     {
       state = itData.Value().m_Visibility;
@@ -430,40 +430,40 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 
     if (it.Value().m_pLabel)
     {
-      it.Value().m_pLabel->setVisible(state != ezPropertyUiState::Invisible);
-      it.Value().m_pLabel->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+      it.Value().m_pLabel->setVisible(state != WPropertyUiState::Invisible);
+      it.Value().m_pLabel->setEnabled(!bReadOnly && state != WPropertyUiState::Disabled);
       it.Value().m_pLabel->SetIsDefault(bIsDefaultValue);
 
       if (itData.IsValid() && !itData.Value().m_sNewLabelText.IsEmpty())
       {
         const char* szLabelText = itData.Value().m_sNewLabelText;
-        it.Value().m_pLabel->setText(ezMakeQString(ezTranslate(szLabelText)));
-        it.Value().m_pLabel->setToolTip(ezMakeQString(ezTranslateTooltip(szLabelText)));
+        it.Value().m_pLabel->setText(WMakeQString(WTranslate(szLabelText)));
+        it.Value().m_pLabel->setToolTip(WMakeQString(WTranslateTooltip(szLabelText)));
       }
       else
       {
-        bool temp = ezTranslatorLogMissing::s_bActive;
-        ezTranslatorLogMissing::s_bActive = false;
+        bool temp = WTranslatorLogMissing::s_bActive;
+        WTranslatorLogMissing::s_bActive = false;
 
         // unless there is a specific override, we want to show the exact property name
         // also we don't want to force people to add translations for each and every property name
-        it.Value().m_pLabel->setText(ezMakeQString(ezTranslate(it.Value().m_sOriginalLabelText)));
+        it.Value().m_pLabel->setText(WMakeQString(WTranslate(it.Value().m_sOriginalLabelText)));
 
         // though do try to get a tooltip for the property
         // this will not log an error message, if the string is not translated
-        it.Value().m_pLabel->setToolTip(ezMakeQString(ezTranslateTooltip(it.Value().m_sOriginalLabelText)));
+        it.Value().m_pLabel->setToolTip(WMakeQString(WTranslateTooltip(it.Value().m_sOriginalLabelText)));
 
-        ezTranslatorLogMissing::s_bActive = temp;
+        WTranslatorLogMissing::s_bActive = temp;
       }
     }
 
-    it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
-    it.Value().m_pWidget->SetReadOnly(bReadOnly || state == ezPropertyUiState::Disabled);
+    it.Value().m_pWidget->setVisible(state != WPropertyUiState::Invisible);
+    it.Value().m_pWidget->SetReadOnly(bReadOnly || state == WPropertyUiState::Disabled);
     it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
   }
 }
 
-void ezQtTypeWidget::showEvent(QShowEvent* event)
+void WQtTypeWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
   setPalette(m_Pal);

@@ -5,7 +5,7 @@
 
 #include "SampleConstantBuffer.h"
 
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 
 struct VS_IN
 {

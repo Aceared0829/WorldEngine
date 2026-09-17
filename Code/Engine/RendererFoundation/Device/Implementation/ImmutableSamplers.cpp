@@ -5,7 +5,7 @@
 #include <RendererFoundation/Device/ImmutableSamplers.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, ImmutableSamplers)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, ImmutableSamplers)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -14,54 +14,54 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, ImmutableSamplers)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezGALImmutableSamplers::OnEngineStartup();
+    WGALImmutableSamplers::OnEngineStartup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezGALImmutableSamplers::OnEngineShutdown();
+    WGALImmutableSamplers::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezGALImmutableSamplers::s_bInitialized = false;
-ezGALImmutableSamplers::ImmutableSamplers ezGALImmutableSamplers::s_ImmutableSamplers;
-ezHashTable<ezHashedString, ezGALSamplerStateCreationDescription> ezGALImmutableSamplers::s_ImmutableSamplerDesc;
+bool WGALImmutableSamplers::s_bInitialized = false;
+WGALImmutableSamplers::ImmutableSamplers WGALImmutableSamplers::s_ImmutableSamplers;
+WHashTable<WHashedString, WGALSamplerStateCreationDescription> WGALImmutableSamplers::s_ImmutableSamplerDesc;
 
-void ezGALImmutableSamplers::OnEngineStartup()
+void WGALImmutableSamplers::OnEngineStartup()
 {
-  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALImmutableSamplers::GALDeviceEventHandler));
+  WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WGALImmutableSamplers::GALDeviceEventHandler));
 }
 
-void ezGALImmutableSamplers::OnEngineShutdown()
+void WGALImmutableSamplers::OnEngineShutdown()
 {
-  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezGALImmutableSamplers::GALDeviceEventHandler));
+  WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WGALImmutableSamplers::GALDeviceEventHandler));
 
-  EZ_ASSERT_DEBUG(s_ImmutableSamplers.IsEmpty(), "ezGALDeviceEvent::BeforeShutdown should have been fired before engine shutdown");
+  W_ASSERT_DEBUG(s_ImmutableSamplers.IsEmpty(), "WGALDeviceEvent::BeforeShutdown should have been fired before engine shutdown");
   s_ImmutableSamplers.Clear();
   s_ImmutableSamplerDesc.Clear();
 }
 
-ezResult ezGALImmutableSamplers::RegisterImmutableSampler(ezHashedString sSamplerName, const ezGALSamplerStateCreationDescription& desc)
+WResult WGALImmutableSamplers::RegisterImmutableSampler(WHashedString sSamplerName, const WGALSamplerStateCreationDescription& desc)
 {
-  EZ_ASSERT_ALWAYS(desc.m_useTextureQualitySlot == ezGALTextureQualitySlot::None, "Immutable samplers cannot support dynamic quality levels");
-  EZ_ASSERT_DEBUG(!s_bInitialized, "Registering immutable samplers is only allowed at sub-system startup");
+  W_ASSERT_ALWAYS(desc.m_useTextureQualitySlot == WGALTextureQualitySlot::None, "Immutable samplers cannot support dynamic quality levels");
+  W_ASSERT_DEBUG(!s_bInitialized, "Registering immutable samplers is only allowed at sub-system startup");
   if (s_ImmutableSamplerDesc.Contains(sSamplerName))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   s_ImmutableSamplerDesc.Insert(sSamplerName, desc);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALImmutableSamplers::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WGALImmutableSamplers::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGALDeviceEvent::AfterInit:
+    case WGALDeviceEvent::AfterInit:
       CreateSamplers(e.m_pDevice);
       break;
-    case ezGALDeviceEvent::BeforeShutdown:
+    case WGALDeviceEvent::BeforeShutdown:
       DestroySamplers(e.m_pDevice);
       break;
     default:
@@ -69,18 +69,18 @@ void ezGALImmutableSamplers::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-void ezGALImmutableSamplers::CreateSamplers(ezGALDevice* pDevice)
+void WGALImmutableSamplers::CreateSamplers(WGALDevice* pDevice)
 {
-  EZ_ASSERT_DEBUG(s_ImmutableSamplers.IsEmpty(), "Creating more than one GAL device is not supported");
+  W_ASSERT_DEBUG(s_ImmutableSamplers.IsEmpty(), "Creating more than one GAL device is not supported");
   for (auto it : s_ImmutableSamplerDesc)
   {
-    ezGALSamplerStateHandle hSampler = pDevice->CreateSamplerState(it.Value());
+    WGALSamplerStateHandle hSampler = pDevice->CreateSamplerState(it.Value());
     s_ImmutableSamplers.Insert(it.Key(), hSampler);
   }
   s_bInitialized = true;
 }
 
-void ezGALImmutableSamplers::DestroySamplers(ezGALDevice* pDevice)
+void WGALImmutableSamplers::DestroySamplers(WGALDevice* pDevice)
 {
   for (auto it : s_ImmutableSamplers)
   {
@@ -90,9 +90,9 @@ void ezGALImmutableSamplers::DestroySamplers(ezGALDevice* pDevice)
   s_bInitialized = false;
 }
 
-const ezGALImmutableSamplers::ImmutableSamplers& ezGALImmutableSamplers::GetImmutableSamplers()
+const WGALImmutableSamplers::ImmutableSamplers& WGALImmutableSamplers::GetImmutableSamplers()
 {
   return s_ImmutableSamplers;
 }
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_ImmutableSamplers);
+W_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_ImmutableSamplers);

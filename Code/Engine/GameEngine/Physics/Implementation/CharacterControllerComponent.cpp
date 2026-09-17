@@ -7,23 +7,23 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgMoveCharacterController);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAllocator<ezMsgMoveCharacterController>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgMoveCharacterController);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgMoveCharacterController, 1, WRTTIDefaultAllocator<WMsgMoveCharacterController>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MoveForwards", m_fMoveForwards),
-    EZ_MEMBER_PROPERTY("MoveBackwards", m_fMoveBackwards),
-    EZ_MEMBER_PROPERTY("StrafeLeft", m_fStrafeLeft),
-    EZ_MEMBER_PROPERTY("StrafeRight", m_fStrafeRight),
-    EZ_MEMBER_PROPERTY("RotateLeft", m_fRotateLeft),
-    EZ_MEMBER_PROPERTY("RotateRight", m_fRotateRight),
-    EZ_MEMBER_PROPERTY("Run", m_bRun),
-    EZ_MEMBER_PROPERTY("Jump", m_bJump),
-    EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
+    W_MEMBER_PROPERTY("MoveForwards", m_fMoveForwards),
+    W_MEMBER_PROPERTY("MoveBackwards", m_fMoveBackwards),
+    W_MEMBER_PROPERTY("StrafeLeft", m_fStrafeLeft),
+    W_MEMBER_PROPERTY("StrafeRight", m_fStrafeRight),
+    W_MEMBER_PROPERTY("RotateLeft", m_fRotateLeft),
+    W_MEMBER_PROPERTY("RotateRight", m_fRotateRight),
+    W_MEMBER_PROPERTY("Run", m_bRun),
+    W_MEMBER_PROPERTY("Jump", m_bJump),
+    W_MEMBER_PROPERTY("Crouch", m_bCrouch),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_CharacterControllerComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_CharacterControllerComponent);

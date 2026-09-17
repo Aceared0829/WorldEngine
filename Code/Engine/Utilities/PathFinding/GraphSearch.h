@@ -10,65 +10,65 @@
 /// You can search for a path to a specific location using FindPath() or to the closest node that fulfills some arbitrary criteria
 /// using FindClosest().
 ///
-/// PathStateType must be derived from ezPathState and can be used for keeping track of certain state along a path and to modify
+/// PathStateType must be derived from WPathState and can be used for keeping track of certain state along a path and to modify
 /// the path search dynamically.
 template <typename PathStateType>
-class ezPathSearch
+class WPathSearch
 {
 public:
   /// Used by FindClosest() to query whether the currently visited node fulfills the termination criteria.
-  using IsSearchedObjectCallback = bool (*)(ezInt64 iCurrentNodeIndex, const PathStateType& CurrentState, ezPathStateGenerator<PathStateType>* pGenerator);
+  using IsSearchedObjectCallback = bool (*)(WInt64 iCurrentNodeIndex, const PathStateType& CurrentState, WPathStateGenerator<PathStateType>* pGenerator);
 
   /// FindPath() and FindClosest() return an array of these objects as the path result.
   struct PathResultData
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     /// The index of the node that was visited.
-    ezInt64 m_iNodeIndex;
+    WInt64 m_iNodeIndex;
 
     /// Pointer to the path state that was active at that step along the path.
     const PathStateType* m_pPathState;
   };
 
-  /// Sets the ezPathStateGenerator that should be used by this ezPathSearch object.
-  void SetPathStateGenerator(ezPathStateGenerator<PathStateType>* pStateGenerator) { m_pStateGenerator = pStateGenerator; }
+  /// Sets the WPathStateGenerator that should be used by this WPathSearch object.
+  void SetPathStateGenerator(WPathStateGenerator<PathStateType>* pStateGenerator) { m_pStateGenerator = pStateGenerator; }
 
   /// Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when the graph node \a iTargetNodeIndex was reached.
   ///
-  /// Returns EZ_FAILURE if no path could be found.
+  /// Returns W_FAILURE if no path could be found.
   /// Returns the path result as a list of PathResultData objects in \a out_Path.
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
-  ezResult FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path,
-    float fMaxPathCost = ezMath::Infinity<float>());
+  WResult FindPath(WInt64 iStartNodeIndex, const PathStateType& StartState, WInt64 iTargetNodeIndex, WDeque<PathResultData>& out_Path,
+    float fMaxPathCost = WMath::Infinity<float>());
 
   /// Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when a graph node is reached for which \a Callback return true.
   ///
-  /// Returns EZ_FAILURE if no path could be found.
+  /// Returns W_FAILURE if no path could be found.
   /// Returns the path result as a list of PathResultData objects in \a out_Path.
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
-  ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path,
-    float fMaxPathCost = ezMath::Infinity<float>());
+  WResult FindClosest(WInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, WDeque<PathResultData>& out_Path,
+    float fMaxPathCost = WMath::Infinity<float>());
 
-  /// Needs to be called by the used ezPathStateGenerator to add nodes to evaluate.
-  void AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState);
+  /// Needs to be called by the used WPathStateGenerator to add nodes to evaluate.
+  void AddPathNode(WInt64 iNodeIndex, const PathStateType& NewState);
 
 private:
   void ClearPathStates();
-  ezInt64 FindBestNodeToExpand(PathStateType*& out_pPathState);
-  void FillOutPathResult(ezInt64 iEndNodeIndex, ezDeque<PathResultData>& out_Path);
+  WInt64 FindBestNodeToExpand(PathStateType*& out_pPathState);
+  void FillOutPathResult(WInt64 iEndNodeIndex, WDeque<PathResultData>& out_Path);
 
-  ezPathStateGenerator<PathStateType>* m_pStateGenerator;
+  WPathStateGenerator<PathStateType>* m_pStateGenerator;
 
-  ezHashTable<ezInt64, PathStateType> m_PathStates;
+  WHashTable<WInt64, PathStateType> m_PathStates;
 
-  ezDeque<ezInt64> m_StateQueue;
+  WDeque<WInt64> m_StateQueue;
 
-  ezInt64 m_iCurNodeIndex;
+  WInt64 m_iCurNodeIndex;
   PathStateType m_CurState;
 };
 

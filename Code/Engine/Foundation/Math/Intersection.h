@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Vec3.h>
 
-namespace ezIntersectionUtils
+namespace WIntersectionUtils
 {
   /// Checks whether a ray intersects with a triangle.
   ///
@@ -26,7 +26,7 @@ namespace ezIntersectionUtils
   ///
   /// \return
   ///   True, if the ray intersects the triangle, false otherwise.
-  EZ_FOUNDATION_DLL bool RayTriangleIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime = nullptr, ezVec3* out_pIntersectionPoint = nullptr); // [tested]
+  W_FOUNDATION_DLL bool RayTriangleIntersection(const WVec3& vRayStartPos, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, float* out_pIntersectionTime = nullptr, WVec3* out_pIntersectionPoint = nullptr); // [tested]
 
   /// Checks whether a ray intersects with a triangle.
   ///
@@ -52,7 +52,7 @@ namespace ezIntersectionUtils
   ///
   /// \return
   ///   True, if the ray intersects the triangle, false otherwise.
-  EZ_FOUNDATION_DLL bool RayTriangleIntersection(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime = nullptr, ezVec3* out_pIntersectionPoint = nullptr);
+  W_FOUNDATION_DLL bool RayTriangleIntersection(const WVec3& vRayOrigin, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, WVec3& out_vBarycentricCoords, float* out_pIntersectionTime = nullptr, WVec3* out_pIntersectionPoint = nullptr);
 
   /// Checks whether a ray intersects with a triangle.
   ///
@@ -78,7 +78,7 @@ namespace ezIntersectionUtils
   ///
   /// \return
   ///   True, if the ray intersects the triangle, false otherwise.
-  EZ_FOUNDATION_DLL bool RayTriangleIntersectionCullBackface(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime = nullptr, ezVec3* out_pIntersectionPoint = nullptr);
+  W_FOUNDATION_DLL bool RayTriangleIntersectionCullBackface(const WVec3& vRayOrigin, const WVec3& vRayDir, const WVec3& vVertex0, const WVec3& vVertex1, const WVec3& vVertex2, WVec3& out_vBarycentricCoords, float* out_pIntersectionTime = nullptr, WVec3* out_pIntersectionPoint = nullptr);
 
   /// Checks whether a ray intersects with a polygon.
   ///
@@ -101,25 +101,25 @@ namespace ezIntersectionUtils
   ///   out_fIntersectionPoint == vRayStartPos + vRayDir * out_fIntersectionTime
   ///   This parameter is optional and may be set to nullptr.
   /// \param uiVertexStride
-  ///   The stride in bytes between each vertex in the pPolygonVertices array. If the array is tightly packed, this will equal sizeof(ezVec3), but it
+  ///   The stride in bytes between each vertex in the pPolygonVertices array. If the array is tightly packed, this will equal sizeof(WVec3), but it
   ///   can be larger, if the vertices are interleaved with other data.
   /// \return
   ///   True, if the ray intersects the polygon, false otherwise.
-  EZ_FOUNDATION_DLL bool RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices,
-    ezUInt32 uiNumVertices, float* out_pIntersectionTime = nullptr, ezVec3* out_pIntersectionPoint = nullptr,
-    ezUInt32 uiVertexStride = sizeof(ezVec3)); // [tested]
+  W_FOUNDATION_DLL bool RayPolygonIntersection(const WVec3& vRayStartPos, const WVec3& vRayDir, const WVec3* pPolygonVertices,
+    WUInt32 uiNumVertices, float* out_pIntersectionTime = nullptr, WVec3* out_pIntersectionPoint = nullptr,
+    WUInt32 uiVertexStride = sizeof(WVec3)); // [tested]
 
 
   /// Returns point on the line segment that is closest to \a vStartPoint. Optionally also returns the fraction along the segment, where that
   /// point is located.
-  EZ_FOUNDATION_DLL ezVec3 ClosestPoint_PointLineSegment(const ezVec3& vStartPoint, const ezVec3& vLineSegmentPos0, const ezVec3& vLineSegmentPos1,
+  W_FOUNDATION_DLL WVec3 ClosestPoint_PointLineSegment(const WVec3& vStartPoint, const WVec3& vLineSegmentPos0, const WVec3& vLineSegmentPos1,
     float* out_pFractionAlongSegment = nullptr); // [tested]
 
   /// Computes the intersection point and time of the 2D ray with the 2D line segment. Returns true, if there is an intersection.
-  EZ_FOUNDATION_DLL bool Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& vRayDir, const ezVec2& vLineSegmentPos0,
-    const ezVec2& vLineSegmentPos1, float* out_pIntersectionTime = nullptr, ezVec2* out_pIntersectionPoint = nullptr); // [tested]
+  W_FOUNDATION_DLL bool Ray2DLine2D(const WVec2& vRayStartPos, const WVec2& vRayDir, const WVec2& vLineSegmentPos0,
+    const WVec2& vLineSegmentPos1, float* out_pIntersectionTime = nullptr, WVec2* out_pIntersectionPoint = nullptr); // [tested]
 
   /// Tests whether a point is located on a line
-  EZ_FOUNDATION_DLL bool IsPointOnLine(const ezVec3& vLineStart, const ezVec3& vLineEnd, const ezVec3& vPoint, float fMaxDist = 0.01f);
+  W_FOUNDATION_DLL bool IsPointOnLine(const WVec3& vLineStart, const WVec3& vLineEnd, const WVec3& vPoint, float fMaxDist = 0.01f);
 
-} // namespace ezIntersectionUtils
+} // namespace WIntersectionUtils

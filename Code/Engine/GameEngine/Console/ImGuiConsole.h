@@ -9,53 +9,53 @@
 #  include <Foundation/Types/Delegate.h>
 #  include <GameEngine/GameEngineDLL.h>
 
-struct ezLoggingEventData;
+struct WLoggingEventData;
 
 /// Callback signature for registered ImGui windows. The bool ref controls the window's open state.
-using ezImGuiWindowCallback = ezDelegate<void(bool&)>;
-using ezImGuiRegisteredWndHandleData = ezGenericId<16, 16>;
-class ezImGuiRegisteredWndHandle
+using WImGuiWindowCallback = WDelegate<void(bool&)>;
+using WImGuiRegisteredWndHandleData = WGenericId<16, 16>;
+class WImGuiRegisteredWndHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezImGuiRegisteredWndHandle, ezImGuiRegisteredWndHandleData);
+  W_DECLARE_HANDLE_TYPE(WImGuiRegisteredWndHandle, WImGuiRegisteredWndHandleData);
 };
 
 
-/// An ImGui-based console for in-game display of logs, configuration of ezCVars, and more.
+/// An ImGui-based console for in-game display of logs, configuration of WCVars, and more.
 ///
 /// The console displays the recent log activity, allows to modify CVars and call console functions.
 /// It supports auto-completion and provides a GUI using ImGui.
-/// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
+/// The default implementation uses WConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_GAMEENGINE_DLL ezImGuiConsole final : public ezConsole
+class W_GAMEENGINE_DLL WImGuiConsole final : public WConsole
 {
 public:
-  ezImGuiConsole();
-  ~ezImGuiConsole();
+  WImGuiConsole();
+  ~WImGuiConsole();
 
   /// \name Configuration
   /// @{
 
   /// Adjusts how many strings the console will keep in memory at maximum.
-  void SetMaxConsoleStrings(ezUInt32 uiMax) { m_uiMaxConsoleStrings = ezMath::Clamp<ezUInt32>(uiMax, 0, 100000); }
+  void SetMaxConsoleStrings(WUInt32 uiMax) { m_uiMaxConsoleStrings = WMath::Clamp<WUInt32>(uiMax, 0, 100000); }
 
   /// Returns how many strings the console will keep in memory at maximum.
-  ezUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
+  WUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
 
-  /// Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
+  /// Enables or disables that the output from WGlobalLog is displayed in the console. Enabled by default.
   void EnableLogOutput(bool bEnable);
 
   /// Writes the state of the console (history, bound keys) to the stream.
-  virtual void SaveState(ezStreamWriter& inout_stream) const;
+  virtual void SaveState(WStreamWriter& inout_stream) const;
 
   /// Reads the state of the console (history, bound keys) from the stream.
-  virtual void LoadState(ezStreamReader& inout_stream);
+  virtual void LoadState(WStreamReader& inout_stream);
 
   /// @}
   /// \name Console Content
   /// @{
 
   /// Adds a string to the console.
-  virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default) override;
+  virtual void AddConsoleString(WStringView sText, WConsoleString::Type type = WConsoleString::Type::Default) override;
 
   /// @}
   /// \name Updates
@@ -73,30 +73,30 @@ public:
 
   /// Register an additional ImGui window that will be rendered when the console is open.
   /// The window appears in the Commands menu bar under "Windows".
-  static ezImGuiRegisteredWndHandle RegisterWindow(ezStringView sName, ezImGuiWindowCallback callback);
+  static WImGuiRegisteredWndHandle RegisterWindow(WStringView sName, WImGuiWindowCallback callback);
 
   /// Unregister a previously registered window by name.
-  static void UnregisterWindow(ezImGuiRegisteredWndHandle hWindow);
+  static void UnregisterWindow(WImGuiRegisteredWndHandle hWindow);
 
   /// @}
 
 protected:
   struct CVarTreeNode
   {
-    ezString m_sName;
-    ezCVar* m_pCVar = nullptr; // nullptr for parent nodes, valid for leaf nodes
-    ezMap<ezString, CVarTreeNode> m_Children;
+    WString m_sName;
+    WCVar* m_pCVar = nullptr; // nullptr for parent nodes, valid for leaf nodes
+    WMap<WString, CVarTreeNode> m_Children;
     bool m_bExpanded = false;
   };
 
   struct CustomConsoleWindow
   {
-    ezString m_sName;
-    ezImGuiWindowCallback m_Callback;
+    WString m_sName;
+    WImGuiWindowCallback m_Callback;
     bool m_bOpen = false;
   };
 
-  void LogHandler(const ezLoggingEventData& data);
+  void LogHandler(const WLoggingEventData& data);
   void ClearLogStrings();
   void RenderMenuBar();
   void RenderCommandWindow(bool bSetFocus);
@@ -106,23 +106,23 @@ protected:
   void HandleAutoComplete();
   int InputTextCallback(struct ImGuiInputTextCallbackData* data);
   void BuildCVarTree(CVarTreeNode& root);
-  void RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode& node);
-  void RenderCVarValue(ezCVar* pCVar);
-  bool CVarNamePassesFilter(ezStringView sCVarName) const;
+  void RenderCVarTreeNode(const WString& sNodeName, CVarTreeNode& node);
+  void RenderCVarValue(WCVar* pCVar);
+  bool CVarNamePassesFilter(WStringView sCVarName) const;
   bool CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const;
   void BuildFilteredLogStrings();
-  bool FilterLogString(const ezConsoleString& entry) const;
-  ezUInt64 CalculateTotalMemoryUsage();
+  bool FilterLogString(const WConsoleString& entry) const;
+  WUInt64 CalculateTotalMemoryUsage();
   void UpdateFrameTimes();
   void UpdateMemoryUsage();
 
-  static ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<CustomConsoleWindow>> s_CustomWindows;
+  static WIdTable<WImGuiRegisteredWndHandleData, WUniquePtr<CustomConsoleWindow>> s_CustomWindows;
 
-  ezDeque<ezConsoleString> m_LogStrings;           // For log messages (used by log window)
-  ezDeque<ezConsoleString> m_CommandOutputStrings; // For command input/output (used by console window)
-  ezDeque<ezConsoleString> m_FilteredLogStrings;
-  ezUInt32 m_uiMaxConsoleStrings = 1000;
-  ezUInt32 m_uiMaxCommandOutputStrings = 1000;
+  WDeque<WConsoleString> m_LogStrings;           // For log messages (used by log window)
+  WDeque<WConsoleString> m_CommandOutputStrings; // For command input/output (used by console window)
+  WDeque<WConsoleString> m_FilteredLogStrings;
+  WUInt32 m_uiMaxConsoleStrings = 1000;
+  WUInt32 m_uiMaxCommandOutputStrings = 1000;
   bool m_bLogOutputEnabled = false;
   bool m_bScrollLogToBottom = false;
   bool m_bScrollCommandsToBottom = false; // For console window auto-scroll
@@ -134,42 +134,42 @@ protected:
   bool m_bCVarWindowOpen = true;
 
   // Log filtering
-  ezStringBuilder m_sLogFilter;
-  ezStringBuilder m_sCommandText;
+  WStringBuilder m_sLogFilter;
+  WStringBuilder m_sCommandText;
   bool m_bFilterLog = false;
   bool m_bLogFilterChanged = false;
-  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::DebugMsg;
+  WLogMsgType::Enum m_LogLevel = WLogMsgType::DebugMsg;
 
   // CVar filtering
-  ezStringBuilder m_sCVarFilter;
+  WStringBuilder m_sCVarFilter;
 
   // Input handling
-  ezUInt8 m_uiForceFocus = 3;
+  WUInt8 m_uiForceFocus = 3;
   bool m_bWasOpen = false;
   bool m_bDefaultInputHandlingInitialized = false;
   bool m_bExecutingCommand = false;
-  ezUInt8 m_uiResetLayout = 0;
+  WUInt8 m_uiResetLayout = 0;
 
   // While the console is open, the OS cursor has to be visible, no matter what the game wants,
   // and a custom ('software') cursor must not be used, because it may not indicate where clicks go.
-  ezMouseCursorOverrideRequest m_CursorOverride;
+  WMouseCursorOverrideRequest m_CursorOverride;
 
   // Frame time tracking for statistics
   float m_FrameTimeHistory[30 * 10];
-  ezUInt32 m_uiFrameTimeHistoryIndex = 0;
+  WUInt32 m_uiFrameTimeHistoryIndex = 0;
   float m_fCurrentBinMaxFrameTime = 0.0f;
-  ezTime m_LastBinTime;
+  WTime m_LastBinTime;
   bool m_bTimeTrackingVisible = true;
 
   // Memory tracking for statistics
   float m_MemoryHistory[30 * 10]; // Memory usage in MB
-  ezUInt32 m_uiMemoryHistoryIndex = 0;
+  WUInt32 m_uiMemoryHistoryIndex = 0;
   float m_fCurrentBinMaxMemory = 0.0f;
-  ezTime m_LastMemoryBinTime;
+  WTime m_LastMemoryBinTime;
   bool m_bMemoryTrackingVisible = true;
 
   // Stats window size tracking for overlay/full mode switching
-  ezVec2 m_vStatsWindowSavedSize = ezVec2(0, 0);
+  WVec2 m_vStatsWindowSavedSize = WVec2(0, 0);
   bool m_bStatsWasInFullMode = true;
 };
 

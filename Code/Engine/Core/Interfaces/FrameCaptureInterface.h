@@ -7,7 +7,7 @@
 /// Provides methods to capture frames from windows and save them as image files.
 /// The interface allows starting and ending frame captures, configuring output paths,
 /// and retrieving information about the last successful capture.
-class ezFrameCaptureInterface
+class WFrameCaptureInterface
 {
 public:
   /// Determine if a singleton implementing this interface has successfully been initialized and frame capture functionality is available.
@@ -17,24 +17,24 @@ public:
   /// frame or capture number will be appended.
   /// Note that the final output file name is determined by the frame capture implementation. Use \ref GetLastAbsCaptureFileName()
   /// for retrieving the actual absolute file name of the most recently written capture file.
-  virtual void SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate) = 0;
+  virtual void SetAbsCaptureFilePathTemplate(WStringView sFilePathTemplate) = 0;
 
   /// Retrieve the absolute file path for storing frame captures.
-  virtual ezStringView GetAbsCaptureFilePathTemplate() const = 0;
+  virtual WStringView GetAbsCaptureFilePathTemplate() const = 0;
 
   /// Start capturing a frame rendered to the given window.
-  virtual void StartFrameCapture(ezWindowHandle hWnd) = 0;
+  virtual void StartFrameCapture(WWindowHandle hWnd) = 0;
 
   /// Determine if a frame capture is currently in progress.
   virtual bool IsFrameCapturing() const = 0;
 
   /// End the current frame capture and write the result to the path given by \ref SetAbsCaptureFilePathTemplate.
-  virtual void EndFrameCaptureAndWriteOutput(ezWindowHandle hWnd) = 0;
+  virtual void EndFrameCaptureAndWriteOutput(WWindowHandle hWnd) = 0;
 
   /// End the current frame capture and discard the corresponding data, saving processing time and file I/O in the process.
-  virtual void EndFrameCaptureAndDiscardResult(ezWindowHandle hWnd) = 0;
+  virtual void EndFrameCaptureAndDiscardResult(WWindowHandle hWnd) = 0;
 
-  /// Retrieve the absolute file name of the last successful frame capture. Returns EZ_FAILURE if no successful capture has
+  /// Retrieve the absolute file name of the last successful frame capture. Returns W_FAILURE if no successful capture has
   /// been performed.
-  virtual ezResult GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const = 0;
+  virtual WResult GetLastAbsCaptureFileName(WStringBuilder& out_sFileName) const = 0;
 };

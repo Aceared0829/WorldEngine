@@ -8,17 +8,17 @@
 /// Work in progress, do not use.
 ///
 /// Attempt to implement a steering behavior.
-struct EZ_AIPLUGIN_DLL ezAiSteering
+struct W_AIPLUGIN_DLL WAiSteering
 {
-  ezVec3 m_vPosition = ezVec3::MakeZero();
-  ezQuat m_qRotation = ezQuat::MakeIdentity();
-  ezVec3 m_vVelocity = ezVec3::MakeZero();
+  WVec3 m_vPosition = WVec3::MakeZero();
+  WQuat m_qRotation = WQuat::MakeIdentity();
+  WVec3 m_vVelocity = WVec3::MakeZero();
   float m_fMaxSpeed = 6.0f;
   float m_fAcceleration = 5.0f;
   float m_fDecceleration = 10.0f;
-  ezAngle m_MinTurnSpeed = ezAngle::MakeFromDegree(180);
+  WAngle m_MinTurnSpeed = WAngle::MakeFromDegree(180);
 
-  ezAiSteeringInfo m_Info;
+  WAiSteeringInfo m_Info;
 
-  void Calculate(float fTimeDiff, ezDebugRendererContext ctxt);
+  void Calculate(float fTimeDiff, WDebugRendererContext ctxt);
 };

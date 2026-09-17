@@ -16,8 +16,8 @@
 /// ## Architecture
 ///
 /// **Graph Definition vs Instance:**
-/// - ezAnimGraph is the shared definition (nodes, connections, structure)
-/// - ezAnimGraphInstance is per-character runtime state (playback time, blend weights, pin values)
+/// - WAnimGraph is the shared definition (nodes, connections, structure)
+/// - WAnimGraphInstance is per-character runtime state (playback time, blend weights, pin values)
 /// - One graph can be shared by hundreds of characters, each with their own instance
 ///
 /// **Node Types:**
@@ -40,27 +40,27 @@
 ///
 /// ## Usage Pattern
 ///
-/// Animation graphs are typically created by the editor and stored in ezAnimGraphResource.
-/// At runtime, ezAnimController is used to load a graph resource, create an ezAnimGraphInstance
+/// Animation graphs are typically created by the editor and stored in WAnimGraphResource.
+/// At runtime, WAnimController is used to load a graph resource, create an WAnimGraphInstance
 /// and updates it each frame.
-class EZ_RENDERERCORE_DLL ezAnimGraph
+class W_RENDERERCORE_DLL WAnimGraph
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraph);
+  W_DISALLOW_COPY_AND_ASSIGN(WAnimGraph);
 
 public:
-  ezAnimGraph();
-  ~ezAnimGraph();
+  WAnimGraph();
+  ~WAnimGraph();
 
   void Clear();
 
-  ezAnimGraphNode* AddNode(ezUniquePtr<ezAnimGraphNode>&& pNode);
-  void AddConnection(const ezAnimGraphNode* pSrcNode, ezStringView sSrcPinName, ezAnimGraphNode* pDstNode, ezStringView sDstPinName);
+  WAnimGraphNode* AddNode(WUniquePtr<WAnimGraphNode>&& pNode);
+  void AddConnection(const WAnimGraphNode* pSrcNode, WStringView sSrcPinName, WAnimGraphNode* pDstNode, WStringView sDstPinName);
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
-  const ezInstanceDataAllocator& GetInstanceDataAlloator() const { return m_InstanceDataAllocator; }
-  ezArrayPtr<const ezUniquePtr<ezAnimGraphNode>> GetNodes() const { return m_Nodes; }
+  const WInstanceDataAllocator& GetInstanceDataAlloator() const { return m_InstanceDataAllocator; }
+  WArrayPtr<const WUniquePtr<WAnimGraphNode>> GetNodes() const { return m_Nodes; }
 
   /// Prepares the graph for use by sorting nodes, assigning pin indices, and allocating instance data descriptors.
   ///
@@ -69,40 +69,40 @@ public:
   void PrepareForUse();
 
 private:
-  friend class ezAnimGraphInstance;
+  friend class WAnimGraphInstance;
 
   struct ConnectionTo
   {
-    ezString m_sSrcPinName;
-    const ezAnimGraphNode* m_pDstNode = nullptr;
-    ezString m_sDstPinName;
-    ezAnimGraphPin* m_pSrcPin = nullptr;
-    ezAnimGraphPin* m_pDstPin = nullptr;
+    WString m_sSrcPinName;
+    const WAnimGraphNode* m_pDstNode = nullptr;
+    WString m_sDstPinName;
+    WAnimGraphPin* m_pSrcPin = nullptr;
+    WAnimGraphPin* m_pDstPin = nullptr;
   };
 
   struct ConnectionsTo
   {
-    ezHybridArray<ConnectionTo, 2> m_To;
+    WHybridArray<ConnectionTo, 2> m_To;
   };
 
   void SortNodesByPriority();
   void PreparePinMapping();
   void AssignInputPinIndices();
   void AssignOutputPinIndices();
-  ezUInt16 ComputeNodePriority(const ezAnimGraphNode* pNode, ezMap<const ezAnimGraphNode*, ezUInt16>& inout_Prios, ezUInt16& inout_uiOutputPrio) const;
+  WUInt16 ComputeNodePriority(const WAnimGraphNode* pNode, WMap<const WAnimGraphNode*, WUInt16>& inout_Prios, WUInt16& inout_uiOutputPrio) const;
 
   bool m_bPreparedForUse = true;
-  ezUInt32 m_uiInputPinCounts[ezAnimGraphPin::Type::ENUM_COUNT];
-  ezUInt32 m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::ENUM_COUNT];
-  ezMap<const ezAnimGraphNode*, ConnectionsTo> m_From;
+  WUInt32 m_uiInputPinCounts[WAnimGraphPin::Type::ENUM_COUNT];
+  WUInt32 m_uiPinInstanceDataOffset[WAnimGraphPin::Type::ENUM_COUNT];
+  WMap<const WAnimGraphNode*, ConnectionsTo> m_From;
 
-  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
-  ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
-  ezInstanceDataAllocator m_InstanceDataAllocator;
+  WDynamicArray<WUniquePtr<WAnimGraphNode>> m_Nodes;
+  WDynamicArray<WHybridArray<WUInt16, 1>> m_OutputPinToInputPinMapping[WAnimGraphPin::ENUM_COUNT];
+  WInstanceDataAllocator m_InstanceDataAllocator;
 
-  friend class ezAnimGraphTriggerOutputPin;
-  friend class ezAnimGraphNumberOutputPin;
-  friend class ezAnimGraphBoolOutputPin;
-  friend class ezAnimGraphBoneWeightsOutputPin;
-  friend class ezAnimGraphLocalPoseOutputPin;
+  friend class WAnimGraphTriggerOutputPin;
+  friend class WAnimGraphNumberOutputPin;
+  friend class WAnimGraphBoolOutputPin;
+  friend class WAnimGraphBoneWeightsOutputPin;
+  friend class WAnimGraphLocalPoseOutputPin;
 };

@@ -5,38 +5,38 @@
 #include <Foundation/Math/Mat4.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezWorld;
-class ezGizmoComponent;
-class ezGizmo;
+class WWorld;
+class WGizmoComponent;
+class WGizmo;
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoHandle : public ezEditorEngineSyncObject
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WGizmoHandle : public WEditorEngineSyncObject
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle, ezEditorEngineSyncObject);
+  W_ADD_DYNAMIC_REFLECTION(WGizmoHandle, WEditorEngineSyncObject);
 
 public:
-  ezGizmoHandle();
+  WGizmoHandle();
 
-  ezGizmo* GetOwnerGizmo() const { return m_pParentGizmo; }
+  WGizmo* GetOwnerGizmo() const { return m_pParentGizmo; }
 
   void SetVisible(bool bVisible);
 
-  void SetTransformation(const ezTransform& m);
-  void SetTransformation(const ezMat4& m);
+  void SetTransformation(const WTransform& m);
+  void SetTransformation(const WMat4& m);
 
-  const ezTransform& GetTransformation() const { return m_Transformation; }
+  const WTransform& GetTransformation() const { return m_Transformation; }
 
 protected:
   bool m_bVisible = false;
-  ezTransform m_Transformation;
+  WTransform m_Transformation;
 
-  void SetParentGizmo(ezGizmo* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
+  void SetParentGizmo(WGizmo* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
 
 private:
-  ezGizmo* m_pParentGizmo = nullptr;
+  WGizmo* m_pParentGizmo = nullptr;
 };
 
 
-enum ezEngineGizmoHandleType
+enum WEngineGizmoHandleType
 {
   Arrow,
   Ring,
@@ -60,20 +60,20 @@ enum ezEngineGizmoHandleType
   CustomLines,
 };
 
-struct ezGizmoFlags
+struct WGizmoFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     Default = 0,
 
-    ConstantSize = EZ_BIT(0),
-    OnTop = EZ_BIT(1),
-    Visualizer = EZ_BIT(2),
-    ShowInOrtho = EZ_BIT(3),
-    Pickable = EZ_BIT(4),
-    FaceCamera = EZ_BIT(5),
+    ConstantSize = W_BIT(0),
+    OnTop = W_BIT(1),
+    Visualizer = W_BIT(2),
+    ShowInOrtho = W_BIT(3),
+    Pickable = W_BIT(4),
+    FaceCamera = W_BIT(5),
   };
 
   struct Bits
@@ -87,23 +87,23 @@ struct ezGizmoFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezGizmoFlags);
+W_DECLARE_FLAGS_OPERATORS(WGizmoFlags);
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineGizmoHandle : public WGizmoHandle
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineGizmoHandle, ezGizmoHandle);
+  W_ADD_DYNAMIC_REFLECTION(WEngineGizmoHandle, WGizmoHandle);
 
 public:
-  ezEngineGizmoHandle();
-  ~ezEngineGizmoHandle();
+  WEngineGizmoHandle();
+  ~WEngineGizmoHandle();
 
-  void ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags, const char* szCustomMesh = nullptr);
+  void ConfigureHandle(WGizmo* pParentGizmo, WEngineGizmoHandleType type, const WColor& col, WBitflags<WGizmoFlags> flags, const char* szCustomMesh = nullptr);
 
-  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
-  virtual void UpdateForEngine(ezWorld* pWorld) override;
+  virtual bool SetupForEngine(WWorld* pWorld, WUInt32 uiNextComponentPickingID) override;
+  virtual void UpdateForEngine(WWorld* pWorld) override;
 
-  void SetColor(const ezColor& col);
-  void SetLines(ezArrayPtr<const ezVec3> lines);
+  void SetColor(const WColor& col);
+  void SetLines(WArrayPtr<const WVec3> lines);
 
 protected:
   bool m_bConstantSize = true;
@@ -112,11 +112,11 @@ protected:
   bool m_bShowInOrtho = false;
   bool m_bIsPickable = true;
   bool m_bFaceCamera = false;
-  ezInt32 m_iHandleType = -1;
-  ezString m_sGizmoHandleMesh;
-  ezGameObjectHandle m_hGameObject;
-  ezGizmoComponent* m_pGizmoComponent = nullptr;
-  ezColor m_Color = ezColor::CornflowerBlue; /* The Original! */
-  ezWorld* m_pWorld = nullptr;
-  ezDynamicArray<ezVec3> m_Lines;
+  WInt32 m_iHandleType = -1;
+  WString m_sGizmoHandleMesh;
+  WGameObjectHandle m_hGameObject;
+  WGizmoComponent* m_pGizmoComponent = nullptr;
+  WColor m_Color = WColor::CornflowerBlue; /* The Original! */
+  WWorld* m_pWorld = nullptr;
+  WDynamicArray<WVec3> m_Lines;
 };

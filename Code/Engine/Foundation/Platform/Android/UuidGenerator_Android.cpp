@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Types/Uuid.h>
 
@@ -8,19 +8,19 @@
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
-ezUuid ezUuid::MakeUuid()
+WUuid WUuid::MakeUuid()
 {
-  ezJniAttachment attachment;
+  WJniAttachment attachment;
 
-  ezJniClass uuidClass("java/util/UUID");
-  EZ_ASSERT_DEBUG(!uuidClass.IsNull(), "UUID class not found.");
-  ezJniObject javaUuid = uuidClass.CallStatic<ezJniObject>("randomUUID");
+  WJniClass uuidClass("java/util/UUID");
+  W_ASSERT_DEBUG(!uuidClass.IsNull(), "UUID class not found.");
+  WJniObject javaUuid = uuidClass.CallStatic<WJniObject>("randomUUID");
   jlong mostSignificant = javaUuid.Call<jlong>("getMostSignificantBits");
   jlong leastSignificant = javaUuid.Call<jlong>("getLeastSignificantBits");
 
-  return ezUuid(leastSignificant, mostSignificant);
+  return WUuid(leastSignificant, mostSignificant);
 
-  // #TODO maybe faster to read /proc/sys/kernel/random/uuid, but that can't be done via ezOSFile
+  // #TODO maybe faster to read /proc/sys/kernel/random/uuid, but that can't be done via WOSFile
   //  see https://stackoverflow.com/questions/11888055/include-uuid-h-into-android-ndk-project
 }
 

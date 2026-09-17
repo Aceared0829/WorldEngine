@@ -1,43 +1,43 @@
 #pragma once
 
-EZ_ALWAYS_INLINE constexpr ezStringView::ezStringView() = default;
+W_ALWAYS_INLINE constexpr WStringView::WStringView() = default;
 
-EZ_ALWAYS_INLINE ezStringView::ezStringView(char* pStart)
+W_ALWAYS_INLINE WStringView::WStringView(char* pStart)
   : m_pStart(pStart)
-  , m_uiElementCount(ezStringUtils::GetStringElementCount(pStart))
+  , m_uiElementCount(WStringUtils::GetStringElementCount(pStart))
 {
 }
 
 template <typename T>
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type*)
+constexpr W_ALWAYS_INLINE WStringView::WStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type*)
   : m_pStart(pStart)
-  , m_uiElementCount(ezStringUtils::GetStringElementCount(pStart))
+  , m_uiElementCount(WStringUtils::GetStringElementCount(pStart))
 {
 }
 
 template <typename T>
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
+constexpr W_ALWAYS_INLINE WStringView::WStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
 {
   m_pStart = str;
-  m_uiElementCount = ezStringUtils::GetStringElementCount(m_pStart);
+  m_uiElementCount = WStringUtils::GetStringElementCount(m_pStart);
 }
 
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, const char* pEnd)
+constexpr W_ALWAYS_INLINE WStringView::WStringView(const char* pStart, const char* pEnd)
 {
-  EZ_ASSERT_DEBUG(pStart <= pEnd, "Invalid pointers to construct a string view from.");
+  W_ASSERT_DEBUG(pStart <= pEnd, "Invalid pointers to construct a string view from.");
 
   m_pStart = pStart;
-  m_uiElementCount = static_cast<ezUInt32>(pEnd - pStart);
+  m_uiElementCount = static_cast<WUInt32>(pEnd - pStart);
 }
 
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
+constexpr W_ALWAYS_INLINE WStringView::WStringView(const char* pStart, WUInt32 uiLength)
   : m_pStart(pStart)
   , m_uiElementCount(uiLength)
 {
 }
 
 template <size_t N>
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char (&str)[N])
+constexpr W_ALWAYS_INLINE WStringView::WStringView(const char (&str)[N])
   : m_pStart(str)
   , m_uiElementCount(N - 1)
 {
@@ -45,120 +45,120 @@ constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char (&str)[N])
 }
 
 template <size_t N>
-constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(char (&str)[N])
+constexpr W_ALWAYS_INLINE WStringView::WStringView(char (&str)[N])
 {
   m_pStart = str;
-  m_uiElementCount = ezStringUtils::GetStringElementCount(str, str + N);
+  m_uiElementCount = WStringUtils::GetStringElementCount(str, str + N);
 }
 
-inline void ezStringView::operator++()
+inline void WStringView::operator++()
 {
   if (!IsValid())
     return;
 
   const char* pEnd = m_pStart + m_uiElementCount;
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd).IgnoreResult(); // if it fails, the string is just empty
-  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+  WUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd).IgnoreResult(); // if it fails, the string is just empty
+  m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
 }
 
-inline void ezStringView::operator+=(ezUInt32 d)
+inline void WStringView::operator+=(WUInt32 d)
 {
   const char* pEnd = m_pStart + m_uiElementCount;
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, d).IgnoreResult(); // if it fails, the string is just empty
-  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+  WUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, d).IgnoreResult(); // if it fails, the string is just empty
+  m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsValid() const
+W_ALWAYS_INLINE bool WStringView::IsValid() const
 {
   return (m_pStart != nullptr) && (m_uiElementCount > 0);
 }
 
-EZ_ALWAYS_INLINE void ezStringView::SetStartPosition(const char* szCurPos)
+W_ALWAYS_INLINE void WStringView::SetStartPosition(const char* szCurPos)
 {
-  EZ_ASSERT_DEV((szCurPos >= m_pStart) && (szCurPos <= m_pStart + m_uiElementCount), "New start position must still be inside the view's range.");
+  W_ASSERT_DEV((szCurPos >= m_pStart) && (szCurPos <= m_pStart + m_uiElementCount), "New start position must still be inside the view's range.");
 
   const char* pEnd = m_pStart + m_uiElementCount;
   m_pStart = szCurPos;
-  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+  m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsEmpty() const
+W_ALWAYS_INLINE bool WStringView::IsEmpty() const
 {
   return m_uiElementCount == 0;
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsEqual(ezStringView sOther) const
+W_ALWAYS_INLINE bool WStringView::IsEqual(WStringView sOther) const
 {
-  return ezStringUtils::IsEqual(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
+  return WStringUtils::IsEqual(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsEqual_NoCase(ezStringView sOther) const
+W_ALWAYS_INLINE bool WStringView::IsEqual_NoCase(WStringView sOther) const
 {
-  return ezStringUtils::IsEqual_NoCase(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
+  return WStringUtils::IsEqual_NoCase(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::StartsWith(ezStringView sStartsWith) const
+W_ALWAYS_INLINE bool WStringView::StartsWith(WStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
+  return WStringUtils::StartsWith(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::StartsWith_NoCase(ezStringView sStartsWith) const
+W_ALWAYS_INLINE bool WStringView::StartsWith_NoCase(WStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith_NoCase(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
+  return WStringUtils::StartsWith_NoCase(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::EndsWith(ezStringView sEndsWith) const
+W_ALWAYS_INLINE bool WStringView::EndsWith(WStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
+  return WStringUtils::EndsWith(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::EndsWith_NoCase(ezStringView sEndsWith) const
+W_ALWAYS_INLINE bool WStringView::EndsWith_NoCase(WStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith_NoCase(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
+  return WStringUtils::EndsWith_NoCase(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimChars)
+W_ALWAYS_INLINE void WStringView::Trim(const char* szTrimChars)
 {
   return Trim(szTrimChars, szTrimChars);
 }
 
-EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
+W_ALWAYS_INLINE void WStringView::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
 {
   if (IsValid())
   {
     const char* pEnd = m_pStart + m_uiElementCount;
-    ezStringUtils::Trim(m_pStart, pEnd, szTrimCharsStart, szTrimCharsEnd);
-    m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+    WStringUtils::Trim(m_pStart, pEnd, szTrimCharsStart, szTrimCharsEnd);
+    m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
   }
 }
 
-constexpr EZ_ALWAYS_INLINE ezStringView operator"" _ezsv(const char* pString, size_t uiLen)
+constexpr W_ALWAYS_INLINE WStringView operator"" _wsv(const char* pString, size_t uiLen)
 {
-  return ezStringView(pString, static_cast<ezUInt32>(uiLen));
+  return WStringView(pString, static_cast<WUInt32>(uiLen));
 }
 
 template <typename Container>
-void ezStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
+void WStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
 {
   ref_output.Clear();
 
   if (IsEmpty())
     return;
 
-  const ezUInt32 uiParams = 6;
+  const WUInt32 uiParams = 6;
 
-  const ezStringView seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
+  const WStringView seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
 
   const char* szReadPos = GetStartPointer();
 
   while (true)
   {
-    const char* szFoundPos = ezUnicodeUtils::GetMaxStringEnd<char>();
-    ezUInt32 uiFoundSeparator = 0;
+    const char* szFoundPos = WUnicodeUtils::GetMaxStringEnd<char>();
+    WUInt32 uiFoundSeparator = 0;
 
-    for (ezUInt32 i = 0; i < uiParams; ++i)
+    for (WUInt32 i = 0; i < uiParams; ++i)
     {
-      const char* szFound = ezStringUtils::FindSubString(szReadPos, seps[i].GetStartPointer(), GetEndPointer(), seps[i].GetEndPointer());
+      const char* szFound = WStringUtils::FindSubString(szReadPos, seps[i].GetStartPointer(), GetEndPointer(), seps[i].GetEndPointer());
 
       if ((szFound != nullptr) && (szFound < szFoundPos))
       {
@@ -168,62 +168,62 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const 
     }
 
     // nothing found
-    if (szFoundPos == ezUnicodeUtils::GetMaxStringEnd<char>())
+    if (szFoundPos == WUnicodeUtils::GetMaxStringEnd<char>())
     {
-      const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos, GetEndPointer());
+      const WUInt32 uiLen = WStringUtils::GetStringElementCount(szReadPos, GetEndPointer());
 
       if (bReturnEmptyStrings || (uiLen > 0))
-        ref_output.PushBack(ezStringView(szReadPos, szReadPos + uiLen));
+        ref_output.PushBack(WStringView(szReadPos, szReadPos + uiLen));
 
       return;
     }
 
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
-      ref_output.PushBack(ezStringView(szReadPos, szFoundPos));
+      ref_output.PushBack(WStringView(szReadPos, szFoundPos));
 
     szReadPos = szFoundPos + seps[uiFoundSeparator].GetElementCount();
   }
 }
 
-EZ_ALWAYS_INLINE bool operator==(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator==(WStringView lhs, WStringView rhs)
 {
   return lhs.IsEqual(rhs);
 }
 
-#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+#if W_DISABLED(W_USE_CPP20_OPERATORS)
 
-EZ_ALWAYS_INLINE bool operator!=(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator!=(WStringView lhs, WStringView rhs)
 {
   return !lhs.IsEqual(rhs);
 }
 
 #endif
 
-#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+#if W_ENABLED(W_USE_CPP20_OPERATORS)
 
-EZ_ALWAYS_INLINE std::strong_ordering operator<=>(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE std::strong_ordering operator<=>(WStringView lhs, WStringView rhs)
 {
   return lhs.Compare(rhs) <=> 0;
 }
 
 #else
 
-EZ_ALWAYS_INLINE bool operator<(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator<(WStringView lhs, WStringView rhs)
 {
   return lhs.Compare(rhs) < 0;
 }
 
-EZ_ALWAYS_INLINE bool operator<=(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator<=(WStringView lhs, WStringView rhs)
 {
   return lhs.Compare(rhs) <= 0;
 }
 
-EZ_ALWAYS_INLINE bool operator>(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator>(WStringView lhs, WStringView rhs)
 {
   return lhs.Compare(rhs) > 0;
 }
 
-EZ_ALWAYS_INLINE bool operator>=(ezStringView lhs, ezStringView rhs)
+W_ALWAYS_INLINE bool operator>=(WStringView lhs, WStringView rhs)
 {
   return lhs.Compare(rhs) >= 0;
 }

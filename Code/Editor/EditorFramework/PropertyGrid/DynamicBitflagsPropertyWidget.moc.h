@@ -6,13 +6,13 @@
 class QHBoxLayout;
 class QComboBox;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDynamicBitflagsPropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtDynamicBitflagsPropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtDynamicBitflagsPropertyWidget();
-  virtual ~ezQtDynamicBitflagsPropertyWidget();
+  WQtDynamicBitflagsPropertyWidget();
+  virtual ~WQtDynamicBitflagsPropertyWidget();
 
 private Q_SLOTS:
   void on_Menu_aboutToShow();
@@ -20,7 +20,7 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
   void SetAll(bool bChecked);
 
   void ClearMenu();
@@ -28,12 +28,12 @@ protected:
   void FillInCheckedBoxes();
 
 protected:
-  ezMap<ezInt64, QCheckBox*> m_Constants;
+  WMap<WInt64, QCheckBox*> m_Constants;
   QHBoxLayout* m_pLayout = nullptr;
   QPushButton* m_pWidget = nullptr;
   QPushButton* m_pAllButton = nullptr;
   QPushButton* m_pClearButton = nullptr;
   QHBoxLayout* m_pBottomLayout = nullptr;
   QMenu* m_pMenu = nullptr;
-  ezInt64 m_iCurrentBitflags = 0;
+  WInt64 m_iCurrentBitflags = 0;
 };

@@ -4,36 +4,36 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestApplication_Basics : public ezGameEngineTestApplication
+class WGameEngineTestApplication_Basics : public WGameEngineTestApplication
 {
 public:
-  ezGameEngineTestApplication_Basics();
+  WGameEngineTestApplication_Basics();
 
   void SubTestManyMeshesSetup();
-  ezTestAppRun SubTestManyMeshesExec(ezInt32 iCurFrame);
+  WTestAppRun SubTestManyMeshesExec(WInt32 iCurFrame);
 
   void SubTestSkyboxSetup();
-  ezTestAppRun SubTestSkyboxExec(ezInt32 iCurFrame);
+  WTestAppRun SubTestSkyboxExec(WInt32 iCurFrame);
 
   void SubTestDebugRenderingSetup();
-  ezTestAppRun SubTestDebugRenderingExec(ezInt32 iCurFrame);
+  WTestAppRun SubTestDebugRenderingExec(WInt32 iCurFrame);
 
-  ezTestAppRun SubTestDebugRenderingExec2(ezInt32 iCurFrame);
+  WTestAppRun SubTestDebugRenderingExec2(WInt32 iCurFrame);
 
   void SubTestLoadSceneSetup();
-  ezTestAppRun SubTestLoadSceneExec(ezInt32 iCurFrame);
+  WTestAppRun SubTestLoadSceneExec(WInt32 iCurFrame);
 
   void SubTestGoReferenceSetup();
-  ezTestAppRun SubTestGoReferenceExec(ezInt32 iCurFrame);
+  WTestAppRun SubTestGoReferenceExec(WInt32 iCurFrame);
 };
 
-class ezGameEngineTestBasics : public ezGameEngineTest
+class WGameEngineTestBasics : public WGameEngineTest
 {
-  using SUPER = ezGameEngineTest;
+  using SUPER = WGameEngineTest;
 
 public:
   virtual const char* GetTestName() const override;
-  virtual ezGameEngineTestApplication* CreateApplication() override;
+  virtual WGameEngineTestApplication* CreateApplication() override;
 
 private:
   enum SubTests
@@ -47,9 +47,9 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezInt32 m_iFrame;
-  ezGameEngineTestApplication_Basics* m_pOwnApplication;
+  WInt32 m_iFrame;
+  WGameEngineTestApplication_Basics* m_pOwnApplication;
 };

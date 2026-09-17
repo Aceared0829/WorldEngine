@@ -7,52 +7,52 @@
 ///
 /// Spawns all particles distributed over the duration time.
 /// After the burst completes, the emitter becomes inactive.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Burst final : public ezParticleEmitterFactory
+class W_PARTICLEPLUGIN_DLL WParticleEmitterFactory_Burst final : public WParticleEmitterFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Burst, ezParticleEmitterFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitterFactory_Burst, WParticleEmitterFactory);
 
 public:
-  ezParticleEmitterFactory_Burst();
+  WParticleEmitterFactory_Burst();
 
-  virtual const ezRTTI* GetEmitterType() const override;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
-  virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
+  virtual const WRTTI* GetEmitterType() const override;
+  virtual void CopyEmitterProperties(WParticleEmitter* pEmitter, bool bFirstTime) const override;
+  virtual void QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
 public:
-  ezTime m_Duration;                    ///< Duration over which to distribute the burst (0 = single frame)
-  ezTime m_StartDelay;                  ///< Delay before burst starts
+  WTime m_Duration;                    ///< Duration over which to distribute the burst (0 = single frame)
+  WTime m_StartDelay;                  ///< Delay before burst starts
 
-  ezUInt32 m_uiSpawnCountMin;           ///< Minimum number of particles to spawn
-  ezUInt32 m_uiSpawnCountRange;         ///< Random range added to spawn count
-  ezString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
+  WUInt32 m_uiSpawnCountMin;           ///< Minimum number of particles to spawn
+  WUInt32 m_uiSpawnCountRange;         ///< Random range added to spawn count
+  WString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Burst final : public ezParticleEmitter
+class W_PARTICLEPLUGIN_DLL WParticleEmitter_Burst final : public WParticleEmitter
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Burst, ezParticleEmitter);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitter_Burst, WParticleEmitter);
 
 public:
-  ezTime m_Duration;   // overall duration in which the emitter is considered active, 0 for single frame
-  ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
+  WTime m_Duration;   // overall duration in which the emitter is considered active, 0 for single frame
+  WTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
 
-  ezUInt32 m_uiSpawnCountMin;
-  ezUInt32 m_uiSpawnCountRange;
-  ezTempHashedString m_sSpawnCountScaleParameter;
+  WUInt32 m_uiSpawnCountMin;
+  WUInt32 m_uiSpawnCountRange;
+  WTempHashedString m_sSpawnCountScaleParameter;
 
   virtual void CreateRequiredStreams() override {}
 
 protected:
   virtual void OnFinalize() override;
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
 
-  virtual ezParticleEmitterState IsFinished() override;
-  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
+  virtual WParticleEmitterState IsFinished() override;
+  virtual WUInt32 ComputeSpawnCount(const WTime& tDiff) override;
 
-  ezUInt32 m_uiSpawnCountLeft = 0;
+  WUInt32 m_uiSpawnCountLeft = 0;
   float m_fSpawnPerSecond = 0;
   float m_fSpawnAccu = 0;
 };

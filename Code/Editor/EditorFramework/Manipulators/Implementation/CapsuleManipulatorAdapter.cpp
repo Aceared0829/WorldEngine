@@ -4,32 +4,32 @@
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter() = default;
+WCapsuleManipulatorAdapter::WCapsuleManipulatorAdapter() = default;
 
-ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter() = default;
+WCapsuleManipulatorAdapter::~WCapsuleManipulatorAdapter() = default;
 
-void ezCapsuleManipulatorAdapter::Finalize()
+void WCapsuleManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
 
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
-  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezCapsuleManipulatorAdapter::GizmoEventHandler, this));
+  m_Gizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WCapsuleManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezCapsuleManipulatorAdapter::Update()
+void WCapsuleManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WCapsuleManipulatorAttribute* pAttr = static_cast<const WCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetLengthProperty().IsEmpty())
   {
@@ -46,25 +46,25 @@ void ezCapsuleManipulatorAdapter::Update()
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
-void ezCapsuleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void WCapsuleManipulatorAdapter::GizmoEventHandler(const WGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
+      const WCapsuleManipulatorAttribute* pAttr = static_cast<const WCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
       ChangeProperties(pAttr->GetLengthProperty(), m_Gizmo.GetLength(), pAttr->GetRadiusProperty(), m_Gizmo.GetRadius());
     }
@@ -72,7 +72,7 @@ void ezCapsuleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
-void ezCapsuleManipulatorAdapter::UpdateGizmoTransform()
+void WCapsuleManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }

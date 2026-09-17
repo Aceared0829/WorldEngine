@@ -4,58 +4,58 @@
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/Logic/LogicAnimNodes.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicAndAnimNode, 1, ezRTTIDefaultAllocator<ezLogicAndAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLogicAndAnimNode, 1, WRTTIDefaultAllocator<WLogicAndAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
-    EZ_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("BoolCount")),
-    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new WNoTemporaryTransactionsAttribute(), new WDynamicPinAttribute(), new WDefaultValueAttribute(2)),
+    W_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new WHiddenAttribute(), new WDynamicPinAttribute("BoolCount")),
+    W_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("AND"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("AND"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogicAndAnimNode::ezLogicAndAnimNode() = default;
-ezLogicAndAnimNode::~ezLogicAndAnimNode() = default;
+WLogicAndAnimNode::WLogicAndAnimNode() = default;
+WLogicAndAnimNode::~WLogicAndAnimNode() = default;
 
-ezResult ezLogicAndAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WLogicAndAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_uiBoolCount;
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLogicAndAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WLogicAndAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_uiBoolCount;
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLogicAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WLogicAndAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   bool res = true;
 
@@ -77,55 +77,55 @@ void ezLogicAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicEventAndAnimNode, 1, ezRTTIDefaultAllocator<ezLogicEventAndAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLogicEventAndAnimNode, 1, WRTTIDefaultAllocator<WLogicEventAndAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutOnActivated", m_OutOnActivated)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutOnActivated", m_OutOnActivated)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("Event AND"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("Event AND"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogicEventAndAnimNode::ezLogicEventAndAnimNode() = default;
-ezLogicEventAndAnimNode::~ezLogicEventAndAnimNode() = default;
+WLogicEventAndAnimNode::WLogicEventAndAnimNode() = default;
+WLogicEventAndAnimNode::~WLogicEventAndAnimNode() = default;
 
-ezResult ezLogicEventAndAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WLogicEventAndAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnActivated.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnActivated.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLogicEventAndAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WLogicEventAndAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnActivated.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnActivated.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLogicEventAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WLogicEventAndAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (m_InActivate.IsTriggered(ref_graph) && m_InBool.GetBool(ref_graph))
   {
@@ -138,58 +138,58 @@ void ezLogicEventAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraph
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicOrAnimNode, 1, ezRTTIDefaultAllocator<ezLogicOrAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLogicOrAnimNode, 1, WRTTIDefaultAllocator<WLogicOrAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
-    EZ_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("BoolCount")),
-    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new WNoTemporaryTransactionsAttribute(), new WDynamicPinAttribute(), new WDefaultValueAttribute(2)),
+    W_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new WHiddenAttribute(), new WDynamicPinAttribute("BoolCount")),
+    W_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("OR"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("OR"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogicOrAnimNode::ezLogicOrAnimNode() = default;
-ezLogicOrAnimNode::~ezLogicOrAnimNode() = default;
+WLogicOrAnimNode::WLogicOrAnimNode() = default;
+WLogicOrAnimNode::~WLogicOrAnimNode() = default;
 
-ezResult ezLogicOrAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WLogicOrAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_uiBoolCount;
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLogicOrAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WLogicOrAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_uiBoolCount;
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLogicOrAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WLogicOrAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   bool res = false;
 
@@ -212,56 +212,56 @@ void ezLogicOrAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstan
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicNotAnimNode, 1, ezRTTIDefaultAllocator<ezLogicNotAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLogicNotAnimNode, 1, WRTTIDefaultAllocator<WLogicNotAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("NOT"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("NOT"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogicNotAnimNode::ezLogicNotAnimNode() = default;
-ezLogicNotAnimNode::~ezLogicNotAnimNode() = default;
+WLogicNotAnimNode::WLogicNotAnimNode() = default;
+WLogicNotAnimNode::~WLogicNotAnimNode() = default;
 
-ezResult ezLogicNotAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WLogicNotAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutBool.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutBool.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLogicNotAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WLogicNotAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutBool.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutBool.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLogicNotAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WLogicNotAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   const bool value = !m_InBool.GetBool(ref_graph);
 
   m_OutBool.SetBool(ref_graph, !value);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Logic_LogicAnimNodes);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Logic_LogicAnimNodes);

@@ -3,36 +3,36 @@
 #include <Core/Curves/Curve1DResource.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCurve1DAssetDocument, 3, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezCurve1DAssetDocument::ezCurve1DAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezCurveGroupData>(sDocumentPath, ezAssetDocEngineConnection::None)
+WCurve1DAssetDocument::WCurve1DAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WCurveGroupData>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-ezCurve1DAssetDocument::~ezCurve1DAssetDocument() = default;
+WCurve1DAssetDocument::~WCurve1DAssetDocument() = default;
 
-void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const
+void WCurve1DAssetDocument::FillCurve(WUInt32 uiCurveIdx, WCurve1D& out_result) const
 {
-  const ezCurveGroupData* pProp = static_cast<const ezCurveGroupData*>(GetProperties());
+  const WCurveGroupData* pProp = static_cast<const WCurveGroupData*>(GetProperties());
   pProp->ConvertToRuntimeData(uiCurveIdx, out_result);
 }
 
-ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
+WUInt32 WCurve1DAssetDocument::GetCurveCount() const
 {
-  const ezCurveGroupData* pProp = GetProperties();
+  const WCurveGroupData* pProp = GetProperties();
   return pProp->m_Curves.GetCount();
 }
 
-void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
+void WCurve1DAssetDocument::WriteResource(WStreamWriter& inout_stream) const
 {
-  const ezCurveGroupData* pProp = GetProperties();
+  const WCurveGroupData* pProp = GetProperties();
 
-  ezCurve1DResourceDescriptor desc;
+  WCurve1DResourceDescriptor desc;
   desc.m_Curves.SetCount(pProp->m_Curves.GetCount());
 
-  for (ezUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
   {
     FillCurve(i, desc.m_Curves[i]);
     desc.m_Curves[i].SortControlPoints();
@@ -41,17 +41,17 @@ void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
   desc.Save(inout_stream);
 }
 
-ezTransformStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WCurve1DAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   WriteResource(stream);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  const ezCurveGroupData* pProp = GetProperties();
+  const WCurveGroupData* pProp = GetProperties();
 
-  QImage qimg(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
+  QImage qimg(WThumbnailSize, WThumbnailSize, QImage::Format_RGBA8888);
   qimg.fill(QColor(50, 50, 50));
 
   QPainter p(&qimg);
@@ -65,9 +65,9 @@ ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const Thumbnai
     double fExtentsMin, fExtentsMax;
     double fExtremesMin, fExtremesMax;
 
-    for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
+    for (WUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
     {
-      ezCurve1D curve;
+      WCurve1D curve;
       FillCurve(curveIdx, curve);
 
       curve.SortControlPoints();
@@ -88,10 +88,10 @@ ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const Thumbnai
       }
       else
       {
-        fExtentsMin = ezMath::Min(fExtentsMin, fMin);
-        fExtentsMax = ezMath::Max(fExtentsMax, fMax);
-        fExtremesMin = ezMath::Min(fExtremesMin, fMin2);
-        fExtremesMax = ezMath::Max(fExtremesMax, fMax2);
+        fExtentsMin = WMath::Min(fExtentsMin, fMin);
+        fExtentsMax = WMath::Max(fExtentsMax, fMax);
+        fExtremesMin = WMath::Min(fExtremesMin, fMin2);
+        fExtremesMax = WMath::Max(fExtremesMax, fMax2);
       }
     }
 
@@ -104,25 +104,25 @@ ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const Thumbnai
 
     const float range2 = highValue - lowValue;
 
-    for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
+    for (WUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
     {
       QPainterPath path;
 
-      ezCurve1D curve;
+      WCurve1D curve;
       FillCurve(curveIdx, curve);
       curve.SortControlPoints();
       curve.CreateLinearApproximation();
 
-      const QColor curColor = ezToQtColor(pProp->m_Curves[curveIdx]->m_CurveColor);
+      const QColor curColor = WToQtColor(pProp->m_Curves[curveIdx]->m_CurveColor);
       QPen pen(curColor, 8.0f);
       painter->setPen(pen);
 
-      for (ezUInt32 x = 0; x < (ezUInt32)qimg.width(); ++x)
+      for (WUInt32 x = 0; x < (WUInt32)qimg.width(); ++x)
       {
         const float pos = fExtentsMin + x * factor;
         const float value = 1.0f - (curve.Evaluate(pos) - lowValue) / range2;
 
-        const ezUInt32 y = ezMath::Clamp<ezUInt32>(qimg.height() * value, 0, qimg.height() - 1);
+        const WUInt32 y = WMath::Clamp<WUInt32>(qimg.height() * value, 0, qimg.height() - 1);
 
         if (x == 0)
           path.moveTo(x, y);
@@ -143,33 +143,33 @@ ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const Thumbnai
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezCurve1DControlPointPatch_1_2 : public ezGraphPatch
+class WCurve1DControlPointPatch_1_2 : public WGraphPatch
 {
 public:
-  ezCurve1DControlPointPatch_1_2()
-    : ezGraphPatch("ezCurve1DControlPoint", 2)
+  WCurve1DControlPointPatch_1_2()
+    : WGraphPatch("WCurve1DControlPoint", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Left Tangent", "LeftTangent");
     pNode->RenameProperty("Right Tangent", "RightTangent");
   }
 };
 
-ezCurve1DControlPointPatch_1_2 g_ezCurve1DControlPointPatch_1_2;
+WCurve1DControlPointPatch_1_2 g_WCurve1DControlPointPatch_1_2;
 
 
-class ezCurve1DDataPatch_1_2 : public ezGraphPatch
+class WCurve1DDataPatch_1_2 : public WGraphPatch
 {
 public:
-  ezCurve1DDataPatch_1_2()
-    : ezGraphPatch("ezCurve1DData", 2)
+  WCurve1DDataPatch_1_2()
+    : WGraphPatch("WCurve1DData", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Control Points", "ControlPoints"); }
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override { pNode->RenameProperty("Control Points", "ControlPoints"); }
 };
 
-ezCurve1DDataPatch_1_2 g_ezCurve1DDataPatch_1_2;
+WCurve1DDataPatch_1_2 g_WCurve1DDataPatch_1_2;

@@ -10,38 +10,38 @@
 #include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticlePointRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticlePointRenderData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticlePointRenderer, 1, ezRTTIDefaultAllocator<ezParticlePointRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticlePointRenderer, 1, WRTTIDefaultAllocator<WParticlePointRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticlePointRenderer::ezParticlePointRenderer()
+WParticlePointRenderer::WParticlePointRenderer()
 {
-  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(WBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(WBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Point.ezShader");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Particles/Point.WShader");
 }
 
 
-ezParticlePointRenderer::~ezParticlePointRenderer()
+WParticlePointRenderer::~WParticlePointRenderer()
 {
   DestroyParticleDataBuffer(m_BaseDataBuffer);
   DestroyParticleDataBuffer(m_BillboardDataBuffer);
 }
 
-void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WParticlePointRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WParticlePointRenderData>());
 }
 
-void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WParticlePointRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
+  WRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   TempSystemCB systemConstants(pRenderContext);
 
@@ -49,38 +49,38 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
   // Bind mesh buffer
   {
-    pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
+    pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
   }
 
   // now render all particle effects of type Point
-  for (auto it = batch.GetIterator<ezParticlePointRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<WParticlePointRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
   {
-    const ezParticlePointRenderData* pRenderData = it;
+    const WParticlePointRenderData* pRenderData = it;
 
-    const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
-    const ezBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
+    const WBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const WBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
 
-    ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
+    WUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
     systemConstants.SetGenericData(pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, 1, 1, 1, 1);
 
     while (uiNumParticles > 0)
     {
       // Request new buffers and bind them
-      ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
-      ezGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
-      ezBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      WGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
+      WGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
+      WBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_DRAW_CALL);
       bindGroupDraw.BindBuffer("particleBaseData", hBaseDataBuffer);
       bindGroupDraw.BindBuffer("particleBillboardQuadData", hBillboardDataBuffer);
 
       // upload this batch of particle data
-      const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
+      const WUInt32 uiNumParticlesInBatch = WMath::Min<WUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, WMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticleBaseData += uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      pGALCommandEncoder->UpdateBuffer(hBillboardDataBuffer, 0, WMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray(), WGALUpdateMode::AheadOfTime);
       pParticleBillboardData += uiNumParticlesInBatch;
 
       // do one drawcall
@@ -91,4 +91,4 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_PointRenderer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_PointRenderer);

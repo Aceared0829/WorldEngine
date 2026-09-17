@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER2(ezLightShaftsConstants, 3, BG_RENDER_PASS)
+CONSTANT_BUFFER2(WLightShaftsConstants, 3, BG_RENDER_PASS)
 {
   COLOR4F(LightShaftsTintColor);
 

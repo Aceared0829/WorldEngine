@@ -13,20 +13,20 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
-ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePackageAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtSubstancePackageAssetWindow::WQtSubstancePackageAssetWindow(WSubstancePackageAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   if (pDocument->m_SelectedOutput.IsValid() == false)
   {
-    auto pMetaData = pDocument->GetAssetDocumentInfo()->GetMetaInfo<ezSubstancePackageAssetMetaData>();
+    auto pMetaData = pDocument->GetAssetDocumentInfo()->GetMetaInfo<WSubstancePackageAssetMetaData>();
     if (pMetaData->m_OutputUuids.GetCount() > 0)
       pDocument->m_SelectedOutput = pMetaData->m_OutputUuids[0];
   }
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "SubstanceAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -35,8 +35,8 @@ ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePack
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "SubstanceAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -49,24 +49,24 @@ ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePack
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-2, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureFixed(WVec3(0), WVec3(0.0f), WVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
+    WQtViewWidgetContainer* pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
 
     m_pDockManager->setCentralWidget(pContainer);
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SubstanceAssetDockWidget");
     pPropertyPanel->setWindowTitle("Substance Package Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -74,7 +74,7 @@ ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePack
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -87,24 +87,24 @@ ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePack
   FinishWindowCreation();
 }
 
-void ezQtSubstancePackageAssetWindow::InternalRedraw()
+void WQtSubstancePackageAssetWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
+void WQtSubstancePackageAssetWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    const ezSubstancePackageAssetDocument* pDoc = static_cast<const ezSubstancePackageAssetDocument*>(GetDocument());
+    const WSubstancePackageAssetDocument* pDoc = static_cast<const WSubstancePackageAssetDocument*>(GetDocument());
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetChannelMode";
       msg.m_iValue = pDoc->m_ChannelMode.GetValue();
       msg.m_fValue = 0.5f;
@@ -112,18 +112,18 @@ void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
     }
 
     {
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetLodLevel";
       msg.m_iValue = pDoc->m_iTextureLod;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
 
     {
-      ezStringBuilder tmp;
+      WStringBuilder tmp;
 
-      ezDocumentConfigMsgToEngine msg;
+      WDocumentConfigMsgToEngine msg;
       msg.m_sWhatToDo = "SetTexture";
-      msg.m_sValue = ezConversionUtils::ToString(pDoc->m_SelectedOutput, tmp);
+      msg.m_sValue = WConversionUtils::ToString(pDoc->m_SelectedOutput, tmp);
       GetEditorEngineConnection()->SendMessage(&msg);
     }
   }
@@ -138,66 +138,66 @@ void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstanceSelectOutputAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSubstanceSelectOutputAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSubstanceSelectOutputAction::ezSubstanceSelectOutputAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WSubstanceSelectOutputAction::WSubstanceSelectOutputAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
 }
 
-void ezSubstanceSelectOutputAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WSubstanceSelectOutputAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
-  ezSubstancePackageAssetDocument* pDocument = static_cast<ezSubstancePackageAssetDocument*>(m_Context.m_pDocument);
-  auto pMetaData = pDocument->GetAssetDocumentInfo()->GetMetaInfo<ezSubstancePackageAssetMetaData>();
+  WSubstancePackageAssetDocument* pDocument = static_cast<WSubstancePackageAssetDocument*>(m_Context.m_pDocument);
+  auto pMetaData = pDocument->GetAssetDocumentInfo()->GetMetaInfo<WSubstancePackageAssetMetaData>();
 
   out_entries.Clear();
   out_entries.Reserve(pMetaData->m_OutputNames.GetCount());
 
-  for (ezUInt32 i = 0; i < pMetaData->m_OutputNames.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pMetaData->m_OutputNames.GetCount(); ++i)
   {
     auto& item = out_entries.ExpandAndGetRef();
     item.m_sDisplay = pMetaData->m_OutputNames[i];
 
-    const ezUuid& uuid = pMetaData->m_OutputUuids[i];
+    const WUuid& uuid = pMetaData->m_OutputUuids[i];
     item.m_UserValue = uuid;
     item.m_CheckState = (uuid == pDocument->m_SelectedOutput) ? Item::CheckMark::Checked : Item::CheckMark::Unchecked;
   }
 }
 
-void ezSubstanceSelectOutputAction::Execute(const ezVariant& value)
+void WSubstanceSelectOutputAction::Execute(const WVariant& value)
 {
-  if (value.IsA<ezUuid>())
+  if (value.IsA<WUuid>())
   {
-    ezSubstancePackageAssetDocument* pDocument = static_cast<ezSubstancePackageAssetDocument*>(m_Context.m_pDocument);
-    pDocument->m_SelectedOutput = value.Get<ezUuid>();
+    WSubstancePackageAssetDocument* pDocument = static_cast<WSubstancePackageAssetDocument*>(m_Context.m_pDocument);
+    pDocument->m_SelectedOutput = value.Get<WUuid>();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezSubstancePackageAssetActions::s_hSelectedOutput;
-ezActionDescriptorHandle ezSubstancePackageAssetActions::s_hTextureChannelMode;
-ezActionDescriptorHandle ezSubstancePackageAssetActions::s_hLodSlider;
+WActionDescriptorHandle WSubstancePackageAssetActions::s_hSelectedOutput;
+WActionDescriptorHandle WSubstancePackageAssetActions::s_hTextureChannelMode;
+WActionDescriptorHandle WSubstancePackageAssetActions::s_hLodSlider;
 
-void ezSubstancePackageAssetActions::RegisterActions()
+void WSubstancePackageAssetActions::RegisterActions()
 {
-  s_hSelectedOutput = EZ_REGISTER_DYNAMIC_MENU("SubstancePackageAsset.SelectedOutput", ezSubstanceSelectOutputAction, ":/AssetIcons/SubstanceDesigner.svg");
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("SubstancePackageAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
-  s_hLodSlider = EZ_REGISTER_ACTION_0("SubstancePackageAsset.LodSlider", ezActionScope::Document, "Texture 2D", "", ezTextureLodSliderAction);
+  s_hSelectedOutput = W_REGISTER_DYNAMIC_MENU("SubstancePackageAsset.SelectedOutput", WSubstanceSelectOutputAction, ":/AssetIcons/SubstanceDesigner.svg");
+  s_hTextureChannelMode = W_REGISTER_DYNAMIC_MENU("SubstancePackageAsset.ChannelMode", WTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
+  s_hLodSlider = W_REGISTER_ACTION_0("SubstancePackageAsset.LodSlider", WActionScope::Document, "Texture 2D", "", WTextureLodSliderAction);
 }
 
-void ezSubstancePackageAssetActions::UnregisterActions()
+void WSubstancePackageAssetActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hSelectedOutput);
-  ezActionManager::UnregisterAction(s_hTextureChannelMode);
-  ezActionManager::UnregisterAction(s_hLodSlider);
+  WActionManager::UnregisterAction(s_hSelectedOutput);
+  WActionManager::UnregisterAction(s_hTextureChannelMode);
+  WActionManager::UnregisterAction(s_hLodSlider);
 }
 
-void ezSubstancePackageAssetActions::MapToolbarActions(ezStringView sMapping)
+void WSubstancePackageAssetActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hSelectedOutput, "", 14.0f);
   pMap->MapAction(s_hLodSlider, "", 15.0f);

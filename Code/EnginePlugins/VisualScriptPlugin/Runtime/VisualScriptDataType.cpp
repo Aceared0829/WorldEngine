@@ -6,121 +6,121 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataType, 1)
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Invalid),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Bool),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Byte),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Int),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Int64),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Float),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Double),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Color),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector2),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector3),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector4),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Quaternion),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Transform),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Time),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Angle),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::String),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::HashedString),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::GameObject),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Component),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::TypedPointer),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Variant),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Array),
-  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Map),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WVisualScriptDataType, 1)
+  W_ENUM_CONSTANT(WVisualScriptDataType::Invalid),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Bool),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Byte),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Int),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Int64),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Float),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Double),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Color),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Vector2),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Vector3),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Vector4),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Quaternion),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Transform),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Time),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Angle),
+  W_ENUM_CONSTANT(WVisualScriptDataType::String),
+  W_ENUM_CONSTANT(WVisualScriptDataType::HashedString),
+  W_ENUM_CONSTANT(WVisualScriptDataType::GameObject),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Component),
+  W_ENUM_CONSTANT(WVisualScriptDataType::TypedPointer),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Variant),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Array),
+  W_ENUM_CONSTANT(WVisualScriptDataType::Map),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 namespace
 {
-  static constexpr ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
-    ezVariantType::Invalid,           // Invalid,
+  static constexpr WVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
+    WVariantType::Invalid,           // Invalid,
 
-    ezVariantType::Bool,              // Bool,
-    ezVariantType::UInt8,             // Byte,
-    ezVariantType::Int32,             // Int,
-    ezVariantType::Int64,             // Int64,
-    ezVariantType::Float,             // Float,
-    ezVariantType::Double,            // Double,
-    ezVariantType::Color,             // Color,
-    ezVariantType::Vector2,           // Vector2,
-    ezVariantType::Vector3,           // Vector3,
-    ezVariantType::Vector4,           // Vector4,
-    ezVariantType::Quaternion,        // Quaternion,
-    ezVariantType::Transform,         // Transform,
-    ezVariantType::Time,              // Time,
-    ezVariantType::Angle,             // Angle,
-    ezVariantType::String,            // String,
-    ezVariantType::HashedString,      // HashedString,
-    ezVariantType::TypedObject,       // GameObject,
-    ezVariantType::TypedObject,       // Component,
-    ezVariantType::TypedPointer,      // TypedPointer,
-    ezVariantType::Invalid,           // Variant,
-    ezVariantType::VariantArray,      // Array,
-    ezVariantType::VariantDictionary, // Map,
-    ezVariantType::TypedObject,       // Coroutine,
+    WVariantType::Bool,              // Bool,
+    WVariantType::UInt8,             // Byte,
+    WVariantType::Int32,             // Int,
+    WVariantType::Int64,             // Int64,
+    WVariantType::Float,             // Float,
+    WVariantType::Double,            // Double,
+    WVariantType::Color,             // Color,
+    WVariantType::Vector2,           // Vector2,
+    WVariantType::Vector3,           // Vector3,
+    WVariantType::Vector4,           // Vector4,
+    WVariantType::Quaternion,        // Quaternion,
+    WVariantType::Transform,         // Transform,
+    WVariantType::Time,              // Time,
+    WVariantType::Angle,             // Angle,
+    WVariantType::String,            // String,
+    WVariantType::HashedString,      // HashedString,
+    WVariantType::TypedObject,       // GameObject,
+    WVariantType::TypedObject,       // Component,
+    WVariantType::TypedPointer,      // TypedPointer,
+    WVariantType::Invalid,           // Variant,
+    WVariantType::VariantArray,      // Array,
+    WVariantType::VariantDictionary, // Map,
+    WVariantType::TypedObject,       // Coroutine,
   };
-  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
+  static_assert(W_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)WVisualScriptDataType::Count);
 
-  static constexpr ezUInt32 s_ScriptDataTypeSizes[] = {
+  static constexpr WUInt32 s_ScriptDataTypeSizes[] = {
     0,                                      // Invalid,
 
     sizeof(bool),                           // Bool,
-    sizeof(ezUInt8),                        // Byte,
-    sizeof(ezInt32),                        // Int,
-    sizeof(ezInt64),                        // Int64,
+    sizeof(WUInt8),                        // Byte,
+    sizeof(WInt32),                        // Int,
+    sizeof(WInt64),                        // Int64,
     sizeof(float),                          // Float,
     sizeof(double),                         // Double,
-    sizeof(ezColor),                        // Color,
-    sizeof(ezVec2),                         // Vector2,
-    sizeof(ezVec3),                         // Vector3,
-    sizeof(ezVec4),                         // Vector4,
-    sizeof(ezQuat),                         // Quaternion,
-    sizeof(ezTransform),                    // Transform,
-    sizeof(ezTime),                         // Time,
-    sizeof(ezAngle),                        // Angle,
-    sizeof(ezString),                       // String,
-    sizeof(ezHashedString),                 // HashedString,
-    sizeof(ezVisualScriptGameObjectHandle), // GameObject,
-    sizeof(ezVisualScriptComponentHandle),  // Component,
-    sizeof(ezTypedPointer),                 // TypedPointer,
-    sizeof(ezVariant),                      // Variant,
-    sizeof(ezVariantArray),                 // Array,
-    sizeof(ezVariantDictionary),            // Map,
-    sizeof(ezScriptCoroutineHandle),        // Coroutine,
+    sizeof(WColor),                        // Color,
+    sizeof(WVec2),                         // Vector2,
+    sizeof(WVec3),                         // Vector3,
+    sizeof(WVec4),                         // Vector4,
+    sizeof(WQuat),                         // Quaternion,
+    sizeof(WTransform),                    // Transform,
+    sizeof(WTime),                         // Time,
+    sizeof(WAngle),                        // Angle,
+    sizeof(WString),                       // String,
+    sizeof(WHashedString),                 // HashedString,
+    sizeof(WVisualScriptGameObjectHandle), // GameObject,
+    sizeof(WVisualScriptComponentHandle),  // Component,
+    sizeof(WTypedPointer),                 // TypedPointer,
+    sizeof(WVariant),                      // Variant,
+    sizeof(WVariantArray),                 // Array,
+    sizeof(WVariantDictionary),            // Map,
+    sizeof(WScriptCoroutineHandle),        // Coroutine,
   };
-  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
+  static_assert(W_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)WVisualScriptDataType::Count);
 
-  static constexpr ezUInt32 s_ScriptDataTypeAlignments[] = {
+  static constexpr WUInt32 s_ScriptDataTypeAlignments[] = {
     0,                                       // Invalid,
 
     alignof(bool),                           // Bool,
-    alignof(ezUInt8),                        // Byte,
-    alignof(ezInt32),                        // Int,
-    alignof(ezInt64),                        // Int64,
+    alignof(WUInt8),                        // Byte,
+    alignof(WInt32),                        // Int,
+    alignof(WInt64),                        // Int64,
     alignof(float),                          // Float,
     alignof(double),                         // Double,
-    alignof(ezColor),                        // Color,
-    alignof(ezVec2),                         // Vector2,
-    alignof(ezVec3),                         // Vector3,
-    alignof(ezVec4),                         // Vector4,
-    alignof(ezQuat),                         // Quaternion,
-    alignof(ezTransform),                    // Transform,
-    alignof(ezTime),                         // Time,
-    alignof(ezAngle),                        // Angle,
-    alignof(ezString),                       // String,
-    alignof(ezHashedString),                 // HashedString,
-    alignof(ezVisualScriptGameObjectHandle), // GameObject,
-    alignof(ezVisualScriptComponentHandle),  // Component,
-    alignof(ezTypedPointer),                 // TypedPointer,
-    alignof(ezVariant),                      // Variant,
-    alignof(ezVariantArray),                 // Array,
-    alignof(ezVariantDictionary),            // Map,
-    alignof(ezScriptCoroutineHandle),        // Coroutine,
+    alignof(WColor),                        // Color,
+    alignof(WVec2),                         // Vector2,
+    alignof(WVec3),                         // Vector3,
+    alignof(WVec4),                         // Vector4,
+    alignof(WQuat),                         // Quaternion,
+    alignof(WTransform),                    // Transform,
+    alignof(WTime),                         // Time,
+    alignof(WAngle),                        // Angle,
+    alignof(WString),                       // String,
+    alignof(WHashedString),                 // HashedString,
+    alignof(WVisualScriptGameObjectHandle), // GameObject,
+    alignof(WVisualScriptComponentHandle),  // Component,
+    alignof(WTypedPointer),                 // TypedPointer,
+    alignof(WVariant),                      // Variant,
+    alignof(WVariantArray),                 // Array,
+    alignof(WVariantDictionary),            // Map,
+    alignof(WScriptCoroutineHandle),        // Coroutine,
   };
-  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeAlignments) == (size_t)ezVisualScriptDataType::Count);
+  static_assert(W_ARRAY_SIZE(s_ScriptDataTypeAlignments) == (size_t)WVisualScriptDataType::Count);
 
   static constexpr const char* s_ScriptDataTypeNames[] = {
     "Invalid",
@@ -153,193 +153,193 @@ namespace
     "Bitflag",
     "Resource",
   };
-  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::ExtendedCount);
+  static_assert(W_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)WVisualScriptDataType::ExtendedCount);
 } // namespace
 
 // static
-ezVariantType::Enum ezVisualScriptDataType::GetVariantType(Enum dataType)
+WVariantType::Enum WVisualScriptDataType::GetVariantType(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes), "Out of bounds access");
+  W_ASSERT_DEBUG(dataType >= 0 && dataType < W_ARRAY_SIZE(s_ScriptDataTypeVariantTypes), "Out of bounds access");
   return s_ScriptDataTypeVariantTypes[dataType];
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantType::Enum variantType)
+WVisualScriptDataType::Enum WVisualScriptDataType::FromVariantType(WVariantType::Enum variantType)
 {
   switch (variantType)
   {
-    case ezVariantType::Bool:
+    case WVariantType::Bool:
       return Bool;
-    case ezVariantType::Int8:
-    case ezVariantType::UInt8:
+    case WVariantType::Int8:
+    case WVariantType::UInt8:
       return Byte;
-    case ezVariantType::Int16:
-    case ezVariantType::UInt16:
-    case ezVariantType::Int32:
-    case ezVariantType::UInt32:
+    case WVariantType::Int16:
+    case WVariantType::UInt16:
+    case WVariantType::Int32:
+    case WVariantType::UInt32:
       return Int;
-    case ezVariantType::Int64:
-    case ezVariantType::UInt64:
+    case WVariantType::Int64:
+    case WVariantType::UInt64:
       return Int64;
-    case ezVariantType::Float:
+    case WVariantType::Float:
       return Float;
-    case ezVariantType::Double:
+    case WVariantType::Double:
       return Double;
-    case ezVariantType::Color:
+    case WVariantType::Color:
       return Color;
-    case ezVariantType::Vector2:
-    case ezVariantType::Vector2I:
-    case ezVariantType::Vector2U:
+    case WVariantType::Vector2:
+    case WVariantType::Vector2I:
+    case WVariantType::Vector2U:
       return Vector2;
-    case ezVariantType::Vector3:
-    case ezVariantType::Vector3I:
-    case ezVariantType::Vector3U:
+    case WVariantType::Vector3:
+    case WVariantType::Vector3I:
+    case WVariantType::Vector3U:
       return Vector3;
-    case ezVariantType::Vector4:
-    case ezVariantType::Vector4I:
-    case ezVariantType::Vector4U:
+    case WVariantType::Vector4:
+    case WVariantType::Vector4I:
+    case WVariantType::Vector4U:
       return Vector4;
-    case ezVariantType::Quaternion:
+    case WVariantType::Quaternion:
       return Quaternion;
-    case ezVariantType::Transform:
+    case WVariantType::Transform:
       return Transform;
-    case ezVariantType::Time:
+    case WVariantType::Time:
       return Time;
-    case ezVariantType::Angle:
+    case WVariantType::Angle:
       return Angle;
-    case ezVariantType::String:
-    case ezVariantType::StringView:
+    case WVariantType::String:
+    case WVariantType::StringView:
       return String;
-    case ezVariantType::HashedString:
-    case ezVariantType::TempHashedString:
+    case WVariantType::HashedString:
+    case WVariantType::TempHashedString:
       return HashedString;
-    case ezVariantType::VariantArray:
+    case WVariantType::VariantArray:
       return Array;
-    case ezVariantType::VariantDictionary:
+    case WVariantType::VariantDictionary:
       return Map;
     default:
       return Invalid;
   }
 }
 
-ezProcessingStream::DataType ezVisualScriptDataType::GetStreamDataType(Enum dataType)
+WProcessingStream::DataType WVisualScriptDataType::GetStreamDataType(Enum dataType)
 {
-  // We treat ezColor and ezVec4 as the same in the visual script <=> expression binding
+  // We treat WColor and WVec4 as the same in the visual script <=> expression binding
   // so ensure that they have the same size and layout
-  static_assert(sizeof(ezColor) == sizeof(ezVec4));
-  static_assert(offsetof(ezColor, r) == offsetof(ezVec4, x));
-  static_assert(offsetof(ezColor, g) == offsetof(ezVec4, y));
-  static_assert(offsetof(ezColor, b) == offsetof(ezVec4, z));
-  static_assert(offsetof(ezColor, a) == offsetof(ezVec4, w));
+  static_assert(sizeof(WColor) == sizeof(WVec4));
+  static_assert(offsetof(WColor, r) == offsetof(WVec4, x));
+  static_assert(offsetof(WColor, g) == offsetof(WVec4, y));
+  static_assert(offsetof(WColor, b) == offsetof(WVec4, z));
+  static_assert(offsetof(WColor, a) == offsetof(WVec4, w));
 
   switch (dataType)
   {
     case Int:
-      return ezProcessingStream::DataType::Int;
+      return WProcessingStream::DataType::Int;
     case Float:
-      return ezProcessingStream::DataType::Float;
+      return WProcessingStream::DataType::Float;
     case Vector2:
-      return ezProcessingStream::DataType::Float2;
+      return WProcessingStream::DataType::Float2;
     case Vector3:
-      return ezProcessingStream::DataType::Float3;
+      return WProcessingStream::DataType::Float3;
     case Vector4:
     case Color:
-      return ezProcessingStream::DataType::Float4;
+      return WProcessingStream::DataType::Float4;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  return ezProcessingStream::DataType::Float;
+  return WProcessingStream::DataType::Float;
 }
 
 // static
-const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
+const WRTTI* WVisualScriptDataType::GetRtti(Enum dataType)
 {
   // Define table here to prevent issues with static initialization order
-  static const ezRTTI* s_Rttis[] = {
+  static const WRTTI* s_Rttis[] = {
     nullptr,                                    // Invalid,
 
-    ezGetStaticRTTI<bool>(),                    // Bool,
-    ezGetStaticRTTI<ezUInt8>(),                 // Byte,
-    ezGetStaticRTTI<ezInt32>(),                 // Int,
-    ezGetStaticRTTI<ezInt64>(),                 // Int64,
-    ezGetStaticRTTI<float>(),                   // Float,
-    ezGetStaticRTTI<double>(),                  // Double,
-    ezGetStaticRTTI<ezColor>(),                 // Color,
-    ezGetStaticRTTI<ezVec2>(),                  // Vector2,
-    ezGetStaticRTTI<ezVec3>(),                  // Vector3,
-    ezGetStaticRTTI<ezVec4>(),                  // Vector4,
-    ezGetStaticRTTI<ezQuat>(),                  // Quaternion,
-    ezGetStaticRTTI<ezTransform>(),             // Transform,
-    ezGetStaticRTTI<ezTime>(),                  // Time,
-    ezGetStaticRTTI<ezAngle>(),                 // Angle,
-    ezGetStaticRTTI<ezString>(),                // String,
-    ezGetStaticRTTI<ezHashedString>(),          // HashedString,
-    ezGetStaticRTTI<ezGameObjectHandle>(),      // GameObject,
-    ezGetStaticRTTI<ezComponentHandle>(),       // Component,
+    WGetStaticRTTI<bool>(),                    // Bool,
+    WGetStaticRTTI<WUInt8>(),                 // Byte,
+    WGetStaticRTTI<WInt32>(),                 // Int,
+    WGetStaticRTTI<WInt64>(),                 // Int64,
+    WGetStaticRTTI<float>(),                   // Float,
+    WGetStaticRTTI<double>(),                  // Double,
+    WGetStaticRTTI<WColor>(),                 // Color,
+    WGetStaticRTTI<WVec2>(),                  // Vector2,
+    WGetStaticRTTI<WVec3>(),                  // Vector3,
+    WGetStaticRTTI<WVec4>(),                  // Vector4,
+    WGetStaticRTTI<WQuat>(),                  // Quaternion,
+    WGetStaticRTTI<WTransform>(),             // Transform,
+    WGetStaticRTTI<WTime>(),                  // Time,
+    WGetStaticRTTI<WAngle>(),                 // Angle,
+    WGetStaticRTTI<WString>(),                // String,
+    WGetStaticRTTI<WHashedString>(),          // HashedString,
+    WGetStaticRTTI<WGameObjectHandle>(),      // GameObject,
+    WGetStaticRTTI<WComponentHandle>(),       // Component,
     nullptr,                                    // TypedPointer,
-    ezGetStaticRTTI<ezVariant>(),               // Variant,
-    ezGetStaticRTTI<ezVariantArray>(),          // Array,
-    ezGetStaticRTTI<ezVariantDictionary>(),     // Map,
-    ezGetStaticRTTI<ezScriptCoroutineHandle>(), // Coroutine,
+    WGetStaticRTTI<WVariant>(),               // Variant,
+    WGetStaticRTTI<WVariantArray>(),          // Array,
+    WGetStaticRTTI<WVariantDictionary>(),     // Map,
+    WGetStaticRTTI<WScriptCoroutineHandle>(), // Coroutine,
     nullptr,                                    // Count,
     nullptr,                                    // EnumValue,
     nullptr,                                    // BitflagValue,
     nullptr,                                    // Resource,
   };
-  static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::ExtendedCount);
+  static_assert(W_ARRAY_SIZE(s_Rttis) == (size_t)WVisualScriptDataType::ExtendedCount);
 
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_Rttis), "Out of bounds access");
+  W_ASSERT_DEBUG(dataType >= 0 && dataType < W_ARRAY_SIZE(s_Rttis), "Out of bounds access");
   return s_Rttis[dataType];
 }
 
 // static
-ezVisualScriptDataType::Enum ezVisualScriptDataType::FromRtti(const ezRTTI* pRtti)
+WVisualScriptDataType::Enum WVisualScriptDataType::FromRtti(const WRTTI* pRtti)
 {
   Enum res = FromVariantType(pRtti->GetVariantType());
   if (res != Invalid)
     return res;
 
-  if (pRtti->IsDerivedFrom<ezGameObject>() || pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
+  if (pRtti->IsDerivedFrom<WGameObject>() || pRtti == WGetStaticRTTI<WGameObjectHandle>())
     return GameObject;
 
-  if (pRtti->IsDerivedFrom<ezComponent>() || pRtti == ezGetStaticRTTI<ezComponentHandle>())
+  if (pRtti->IsDerivedFrom<WComponent>() || pRtti == WGetStaticRTTI<WComponentHandle>())
     return Component;
 
-  if (pRtti == ezGetStaticRTTI<ezScriptCoroutineHandle>())
+  if (pRtti == WGetStaticRTTI<WScriptCoroutineHandle>())
     return Coroutine;
 
-  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Class))
+  if (pRtti->GetTypeFlags().IsSet(WTypeFlags::Class))
     return TypedPointer;
 
-  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
+  if (pRtti->GetTypeFlags().IsSet(WTypeFlags::IsEnum))
     return EnumValue;
 
-  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Bitflags))
+  if (pRtti->GetTypeFlags().IsSet(WTypeFlags::Bitflags))
     return BitflagValue;
 
-  if (pRtti == ezGetStaticRTTI<ezVariant>())
+  if (pRtti == WGetStaticRTTI<WVariant>())
     return Variant;
 
   return Invalid;
 }
 
 // static
-ezUInt32 ezVisualScriptDataType::GetStorageSize(Enum dataType)
+WUInt32 WVisualScriptDataType::GetStorageSize(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_ScriptDataTypeSizes), "Out of bounds access");
+  W_ASSERT_DEBUG(dataType >= 0 && dataType < W_ARRAY_SIZE(s_ScriptDataTypeSizes), "Out of bounds access");
   return s_ScriptDataTypeSizes[dataType];
 }
 
 // static
-ezUInt32 ezVisualScriptDataType::GetStorageAlignment(Enum dataType)
+WUInt32 WVisualScriptDataType::GetStorageAlignment(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_ScriptDataTypeAlignments), "Out of bounds access");
+  W_ASSERT_DEBUG(dataType >= 0 && dataType < W_ARRAY_SIZE(s_ScriptDataTypeAlignments), "Out of bounds access");
   return s_ScriptDataTypeAlignments[dataType];
 }
 
 // static
-const char* ezVisualScriptDataType::GetName(Enum dataType)
+const char* WVisualScriptDataType::GetName(Enum dataType)
 {
   if (dataType == AnyPointer)
   {
@@ -350,12 +350,12 @@ const char* ezVisualScriptDataType::GetName(Enum dataType)
     return "Any";
   }
 
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_ScriptDataTypeNames), "Out of bounds access");
+  W_ASSERT_DEBUG(dataType >= 0 && dataType < W_ARRAY_SIZE(s_ScriptDataTypeNames), "Out of bounds access");
   return s_ScriptDataTypeNames[dataType];
 }
 
 // static
-bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataType)
+bool WVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataType)
 {
   if (sourceDataType == targetDataType ||
       sourceDataType == Any ||
@@ -374,7 +374,7 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
     return true;
 
   if (IsPointer(sourceDataType) &&
-      (targetDataType == ezVisualScriptDataType::AnyPointer || targetDataType == ezVisualScriptDataType::Bool))
+      (targetDataType == WVisualScriptDataType::AnyPointer || targetDataType == WVisualScriptDataType::Bool))
     return true;
 
   return false;
@@ -382,7 +382,7 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
 
 //////////////////////////////////////////////////////////////////////////
 
-ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter) const
+WGameObject* WVisualScriptGameObjectHandle::GetPtr(WUInt32 uiExecutionCounter) const
 {
   if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.IsInvalidated() || m_Handle.GetInternalID().m_Data == 0)
   {
@@ -392,16 +392,16 @@ ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter
   m_Ptr = nullptr;
   m_uiExecutionCounter = uiExecutionCounter;
 
-  if (ezWorld* pWorld = ezWorld::GetWorld(m_Handle))
+  if (WWorld* pWorld = WWorld::GetWorld(m_Handle))
   {
     bool objectExists = pWorld->TryGetObject(m_Handle, m_Ptr);
-    EZ_IGNORE_UNUSED(objectExists);
+    W_IGNORE_UNUSED(objectExists);
   }
 
   return m_Ptr;
 }
 
-ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) const
+WComponent* WVisualScriptComponentHandle::GetPtr(WUInt32 uiExecutionCounter) const
 {
   if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.IsInvalidated() || m_Handle.GetInternalID().m_Data == 0)
   {
@@ -411,14 +411,14 @@ ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) 
   m_Ptr = nullptr;
   m_uiExecutionCounter = uiExecutionCounter;
 
-  if (ezWorld* pWorld = ezWorld::GetWorld(m_Handle))
+  if (WWorld* pWorld = WWorld::GetWorld(m_Handle))
   {
     bool componentExists = pWorld->TryGetComponent(m_Handle, m_Ptr);
-    EZ_IGNORE_UNUSED(componentExists);
+    W_IGNORE_UNUSED(componentExists);
   }
 
   return m_Ptr;
 }
 
 
-EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScriptDataType);
+W_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScriptDataType);

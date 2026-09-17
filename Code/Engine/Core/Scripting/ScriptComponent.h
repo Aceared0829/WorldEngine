@@ -5,23 +5,23 @@
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Foundation/Types/RangeView.h>
 
-using ezScriptComponentManager = ezComponentManager<class ezScriptComponent, ezBlockStorageType::FreeList>;
+using WScriptComponentManager = WComponentManager<class WScriptComponent, WBlockStorageType::FreeList>;
 
 /// Component that hosts and executes a script class instance on a game object.
 ///
 /// Manages script execution lifecycle, variable access, parameter exposure, and event handling.
 /// Supports configurable update intervals and simulation-only updates. Provides integration
-/// between game objects and scripting systems through the ezScriptClassResource.
-class EZ_CORE_DLL ezScriptComponent : public ezEventMessageHandlerComponent
+/// between game objects and scripting systems through the WScriptClassResource.
+class W_CORE_DLL WScriptComponent : public WEventMessageHandlerComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezScriptComponent, ezEventMessageHandlerComponent, ezScriptComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WScriptComponent, WEventMessageHandlerComponent, WScriptComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
   virtual void Initialize() override;
   virtual void Deinitialize() override;
   virtual void OnActivated() override;
@@ -29,33 +29,33 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezScriptComponent
+  // WScriptComponent
 public:
-  ezScriptComponent();
-  ~ezScriptComponent();
+  WScriptComponent();
+  ~WScriptComponent();
 
-  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value);         // [ scriptable ]
-  ezVariant GetScriptVariable(const ezHashedString& sName) const;                      // [ scriptable ]
+  void SetScriptVariable(const WHashedString& sName, const WVariant& value);         // [ scriptable ]
+  WVariant GetScriptVariable(const WHashedString& sName) const;                      // [ scriptable ]
 
-  void SetScriptClass(const ezScriptClassResourceHandle& hScript);                     // [ property ]
-  const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; } // [ property ]
+  void SetScriptClass(const WScriptClassResourceHandle& hScript);                     // [ property ]
+  const WScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; } // [ property ]
 
-  void SetUpdateInterval(ezTime interval);                                             // [ property ]
-  ezTime GetUpdateInterval() const { return m_UpdateInterval; }                        // [ property ]
+  void SetUpdateInterval(WTime interval);                                             // [ property ]
+  WTime GetUpdateInterval() const { return m_UpdateInterval; }                        // [ property ]
 
   void SetUpdateOnlyWhenSimulating(bool bUpdate);                                      // [ property ]
   bool GetUpdateOnlyWhenSimulating() const { return m_bUpdateOnlyWhenSimulating; }     // [ property ]
 
-  void BroadcastEventMsg(ezMessage& ref_msg);
+  void BroadcastEventMsg(WMessage& ref_msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  void SetParameter(const char* szKey, const ezVariant& value);
+  const WRangeView<const char*, WUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const WVariant& value);
   void RemoveParameter(const char* szKey);
-  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  bool GetParameter(const char* szKey, WVariant& out_value) const;
 
-  EZ_ALWAYS_INLINE ezScriptInstance* GetScriptInstance() { return m_pInstance.Borrow(); }
+  W_ALWAYS_INLINE WScriptInstance* GetScriptInstance() { return m_pInstance.Borrow(); }
 
 private:
   void InstantiateScript(bool bActivate);
@@ -63,26 +63,26 @@ private:
   void AddUpdateFunctionToSchedule();
   void RemoveUpdateFunctionToSchedule();
 
-  const ezAbstractFunctionProperty* GetScriptFunction(ezUInt32 uiFunctionIndex);
-  void CallScriptFunction(ezUInt32 uiFunctionIndex);
+  const WAbstractFunctionProperty* GetScriptFunction(WUInt32 uiFunctionIndex);
+  void CallScriptFunction(WUInt32 uiFunctionIndex);
 
   void ReloadScript();
 
-  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  WArrayMap<WHashedString, WVariant> m_Parameters;
 
-  ezScriptClassResourceHandle m_hScriptClass;
-  ezTime m_UpdateInterval = ezTime::MakeZero();
+  WScriptClassResourceHandle m_hScriptClass;
+  WTime m_UpdateInterval = WTime::MakeZero();
   bool m_bUpdateOnlyWhenSimulating = true;
 
-  ezSharedPtr<ezScriptRTTI> m_pScriptType;
-  ezUniquePtr<ezScriptInstance> m_pInstance;
+  WSharedPtr<WScriptRTTI> m_pScriptType;
+  WUniquePtr<WScriptInstance> m_pInstance;
 
 private:
   struct EventSender
   {
-    const ezRTTI* m_pMsgType = nullptr;
-    ezEventMessageSender<ezMessage> m_Sender;
+    const WRTTI* m_pMsgType = nullptr;
+    WEventMessageSender<WMessage> m_Sender;
   };
 
-  ezSmallArray<EventSender, 1> m_EventSenders;
+  WSmallArray<EventSender, 1> m_EventSenders;
 };

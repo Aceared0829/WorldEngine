@@ -19,7 +19,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezQtSearchWidget" name="Search" native="true"/>
+    <widget class="WQtSearchWidget" name="Search" native="true"/>
    </item>
    <item>
     <widget class="QTreeWidget" name="Shortcuts">
@@ -83,7 +83,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtSearchWidget</class>
+   <class>WQtSearchWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>

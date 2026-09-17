@@ -5,40 +5,40 @@
 #include <Foundation/Basics.h>
 
 /// Declares an id type, see generic id below how to use this
-#define EZ_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits)                                                     \
+#define W_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits)                                                     \
   static const StorageType MAX_INSTANCES = (1ULL << instanceIndexBits);                                                 \
   static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1;                                                  \
-  static const StorageType INDEX_AND_GENERATION_MASK = ((ezUInt64) - 1) >> (64 - (instanceIndexBits + generationBits)); \
-  EZ_DECLARE_POD_TYPE();                                                                                                \
-  EZ_ALWAYS_INLINE name()                                                                                               \
+  static const StorageType INDEX_AND_GENERATION_MASK = ((WUInt64) - 1) >> (64 - (instanceIndexBits + generationBits)); \
+  W_DECLARE_POD_TYPE();                                                                                                \
+  W_ALWAYS_INLINE name()                                                                                               \
   {                                                                                                                     \
     m_Data = INVALID_INSTANCE_INDEX;                                                                                    \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE explicit name(StorageType internalData)                                                              \
+  W_ALWAYS_INLINE explicit name(StorageType internalData)                                                              \
   {                                                                                                                     \
     m_Data = internalData;                                                                                              \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE bool operator==(const name other) const                                                              \
+  W_ALWAYS_INLINE bool operator==(const name other) const                                                              \
   {                                                                                                                     \
     return m_Data == other.m_Data;                                                                                      \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE bool operator!=(const name other) const                                                              \
+  W_ALWAYS_INLINE bool operator!=(const name other) const                                                              \
   {                                                                                                                     \
     return m_Data != other.m_Data;                                                                                      \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE bool operator<(const name other) const                                                               \
+  W_ALWAYS_INLINE bool operator<(const name other) const                                                               \
   {                                                                                                                     \
     return m_Data < other.m_Data;                                                                                       \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE void Invalidate()                                                                                    \
+  W_ALWAYS_INLINE void Invalidate()                                                                                    \
   {                                                                                                                     \
     m_Data = INVALID_INSTANCE_INDEX;                                                                                    \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE bool IsInvalidated() const                                                                           \
+  W_ALWAYS_INLINE bool IsInvalidated() const                                                                           \
   {                                                                                                                     \
     return m_Data == INVALID_INSTANCE_INDEX;                                                                            \
   }                                                                                                                     \
-  EZ_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const                                               \
+  W_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const                                               \
   {                                                                                                                     \
     return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK);                          \
   }
@@ -59,27 +59,27 @@
 /// - Efficient array-based object storage with O(1) access
 /// - Automatic detection of use-after-free scenarios
 /// - Compact representation (configurable bit allocation)
-/// - Type safety when used with EZ_DECLARE_HANDLE_TYPE
+/// - Type safety when used with W_DECLARE_HANDLE_TYPE
 ///
 /// Template parameters allow customization of the index space vs. generation granularity:
 /// - More instance bits = larger object arrays possible
 /// - More generation bits = longer time before wraparound reuse
 ///
 /// Typical configurations:
-/// - ezGenericId<24, 8>: 16M objects, 256 generations (good for most uses)
-/// - ezGenericId<16, 16>: 64K objects, 65K generations (for high-churn scenarios)
-template <ezUInt32 InstanceIndexBits, ezUInt32 GenerationBits>
-struct ezGenericId
+/// - WGenericId<24, 8>: 16M objects, 256 generations (good for most uses)
+/// - WGenericId<16, 16>: 64K objects, 65K generations (for high-churn scenarios)
+template <WUInt32 InstanceIndexBits, WUInt32 GenerationBits>
+struct WGenericId
 {
   enum
   {
     STORAGE_SIZE = ((InstanceIndexBits + GenerationBits - 1) / 8) + 1
   };
-  using StorageType = typename ezSizeToType<STORAGE_SIZE>::Type;
+  using StorageType = typename WSizeToType<STORAGE_SIZE>::Type;
 
-  EZ_DECLARE_ID_TYPE(ezGenericId, InstanceIndexBits, GenerationBits);
+  W_DECLARE_ID_TYPE(WGenericId, InstanceIndexBits, GenerationBits);
 
-  EZ_ALWAYS_INLINE ezGenericId(StorageType instanceIndex, StorageType generation)
+  W_ALWAYS_INLINE WGenericId(StorageType instanceIndex, StorageType generation)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;
@@ -97,35 +97,35 @@ struct ezGenericId
   };
 };
 
-#define EZ_DECLARE_HANDLE_TYPE(name, idType)               \
+#define W_DECLARE_HANDLE_TYPE(name, idType)               \
 public:                                                    \
-  EZ_DECLARE_POD_TYPE();                                   \
-  EZ_ALWAYS_INLINE name() {}                               \
-  EZ_ALWAYS_INLINE explicit name(idType internalId)        \
+  W_DECLARE_POD_TYPE();                                   \
+  W_ALWAYS_INLINE name() {}                               \
+  W_ALWAYS_INLINE explicit name(idType internalId)        \
     : m_InternalId(internalId)                             \
   {                                                        \
   }                                                        \
-  EZ_ALWAYS_INLINE bool operator==(const name other) const \
+  W_ALWAYS_INLINE bool operator==(const name other) const \
   {                                                        \
     return m_InternalId == other.m_InternalId;             \
   }                                                        \
-  EZ_ALWAYS_INLINE bool operator!=(const name other) const \
+  W_ALWAYS_INLINE bool operator!=(const name other) const \
   {                                                        \
     return m_InternalId != other.m_InternalId;             \
   }                                                        \
-  EZ_ALWAYS_INLINE bool operator<(const name other) const  \
+  W_ALWAYS_INLINE bool operator<(const name other) const  \
   {                                                        \
     return m_InternalId < other.m_InternalId;              \
   }                                                        \
-  EZ_ALWAYS_INLINE void Invalidate()                       \
+  W_ALWAYS_INLINE void Invalidate()                       \
   {                                                        \
     m_InternalId.Invalidate();                             \
   }                                                        \
-  EZ_ALWAYS_INLINE bool IsInvalidated() const              \
+  W_ALWAYS_INLINE bool IsInvalidated() const              \
   {                                                        \
     return m_InternalId.IsInvalidated();                   \
   }                                                        \
-  EZ_ALWAYS_INLINE idType GetInternalID() const            \
+  W_ALWAYS_INLINE idType GetInternalID() const            \
   {                                                        \
     return m_InternalId;                                   \
   }                                                        \

@@ -1,50 +1,50 @@
 #pragma once
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
-class ezIpcChannel;
+class WIpcChannel;
 struct IOContext;
 
-class EZ_FOUNDATION_DLL ezMessageLoop_win : public ezMessageLoop
+class W_FOUNDATION_DLL WMessageLoop_win : public WMessageLoop
 {
 public:
   struct IOItem
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezIpcChannel* pChannel;
+    WIpcChannel* pChannel;
     IOContext* pContext;
     DWORD uiBytesTransfered;
     DWORD uiError;
   };
 
 public:
-  ezMessageLoop_win();
-  ~ezMessageLoop_win();
+  WMessageLoop_win();
+  ~WMessageLoop_win();
 
   HANDLE GetPort() const { return m_hPort; }
 
 protected:
   virtual void WakeUp() override;
-  virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) override;
+  virtual bool WaitForMessages(WInt32 iTimeout, WIpcChannel* pFilter) override;
 
-  bool GetIOItem(ezInt32 iTimeout, IOItem* pItem);
+  bool GetIOItem(WInt32 iTimeout, IOItem* pItem);
   bool ProcessInternalIOItem(const IOItem& item);
-  bool MatchCompletedIOItem(ezIpcChannel* pFilter, IOItem* pItem);
+  bool MatchCompletedIOItem(WIpcChannel* pFilter, IOItem* pItem);
 
 private:
-  ezDynamicArray<IOItem> m_CompletedIO;
+  WDynamicArray<IOItem> m_CompletedIO;
   LONG m_iHaveWork = 0;
   HANDLE m_hPort = INVALID_HANDLE_VALUE;
 };
 
-using ezMessageLoop_Platform = ezMessageLoop_win;
+using WMessageLoop_Platform = WMessageLoop_win;
 
 #endif

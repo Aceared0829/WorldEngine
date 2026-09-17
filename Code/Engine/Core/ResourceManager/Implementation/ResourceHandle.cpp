@@ -2,7 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 
-ezTypelessResourceHandle::ezTypelessResourceHandle(ezResource* pResource)
+WTypelessResourceHandle::WTypelessResourceHandle(WResource* pResource)
 {
   m_pResource = pResource;
 
@@ -12,7 +12,7 @@ ezTypelessResourceHandle::ezTypelessResourceHandle(ezResource* pResource)
   }
 }
 
-void ezTypelessResourceHandle::Invalidate()
+void WTypelessResourceHandle::Invalidate()
 {
   if (m_pResource)
   {
@@ -22,12 +22,12 @@ void ezTypelessResourceHandle::Invalidate()
   m_pResource = nullptr;
 }
 
-ezUInt64 ezTypelessResourceHandle::GetResourceIDHash() const
+WUInt64 WTypelessResourceHandle::GetResourceIDHash() const
 {
   return IsValid() ? m_pResource->GetResourceIDHash() : 0;
 }
 
-ezStringView ezTypelessResourceHandle::GetResourceID() const
+WStringView WTypelessResourceHandle::GetResourceID() const
 {
   if (IsValid())
   {
@@ -37,7 +37,7 @@ ezStringView ezTypelessResourceHandle::GetResourceID() const
   return {};
 }
 
-ezStringView ezTypelessResourceHandle::GetResourceIdOrDescription() const
+WStringView WTypelessResourceHandle::GetResourceIdOrDescription() const
 {
   if (IsValid())
   {
@@ -47,14 +47,14 @@ ezStringView ezTypelessResourceHandle::GetResourceIdOrDescription() const
   return {};
 }
 
-const ezRTTI* ezTypelessResourceHandle::GetResourceType() const
+const WRTTI* WTypelessResourceHandle::GetResourceType() const
 {
   return IsValid() ? m_pResource->GetDynamicRTTI() : nullptr;
 }
 
-void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
+void WTypelessResourceHandle::operator=(const WTypelessResourceHandle& rhs)
 {
-  EZ_ASSERT_DEBUG(this != &rhs, "Cannot assign a resource handle to itself! This would invalidate the handle.");
+  W_ASSERT_DEBUG(this != &rhs, "Cannot assign a resource handle to itself! This would invalidate the handle.");
 
   Invalidate();
 
@@ -62,11 +62,11 @@ void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
 
   if (m_pResource)
   {
-    IncreaseResourceRefCount(reinterpret_cast<ezResource*>(m_pResource), this);
+    IncreaseResourceRefCount(reinterpret_cast<WResource*>(m_pResource), this);
   }
 }
 
-void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
+void WTypelessResourceHandle::operator=(WTypelessResourceHandle&& rhs)
 {
   Invalidate();
 
@@ -80,7 +80,7 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
 }
 
 // static
-void ezResourceHandleStreamOperations::WriteHandle(ezStreamWriter& Stream, const ezResource* pResource)
+void WResourceHandleStreamOperations::WriteHandle(WStreamWriter& Stream, const WResource* pResource)
 {
   if (pResource != nullptr)
   {
@@ -95,9 +95,9 @@ void ezResourceHandleStreamOperations::WriteHandle(ezStreamWriter& Stream, const
 }
 
 // static
-void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezTypelessResourceHandle& ResourceHandle)
+void WResourceHandleStreamOperations::ReadHandle(WStreamReader& Stream, WTypelessResourceHandle& ResourceHandle)
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
   Stream >> sTemp;
   if (sTemp.IsEmpty())
@@ -106,16 +106,16 @@ void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezType
     return;
   }
 
-  const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(sTemp);
+  const WRTTI* pRtti = WResourceManager::FindResourceForAssetType(sTemp);
 
   if (pRtti == nullptr)
   {
-    pRtti = ezRTTI::FindTypeByName(sTemp);
+    pRtti = WRTTI::FindTypeByName(sTemp);
   }
 
   if (pRtti == nullptr)
   {
-    ezLog::Error("Unknown resource type '{0}'", sTemp);
+    WLog::Error("Unknown resource type '{0}'", sTemp);
     ResourceHandle.Invalidate();
   }
 
@@ -124,6 +124,6 @@ void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezType
 
   if (pRtti != nullptr)
   {
-    ResourceHandle = ezResourceManager::LoadResourceByType(pRtti, sTemp);
+    ResourceHandle = WResourceManager::LoadResourceByType(pRtti, sTemp);
   }
 }

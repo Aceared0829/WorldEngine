@@ -6,20 +6,20 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-static ezGameEngineTestDynamicTextureAtlas g_DynamicTextureAtlasTest;
+static WGameEngineTestDynamicTextureAtlas g_DynamicTextureAtlasTest;
 
-const char* ezGameEngineTestDynamicTextureAtlas::GetTestName() const
+const char* WGameEngineTestDynamicTextureAtlas::GetTestName() const
 {
   return "DynamicTextureAtlas Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestDynamicTextureAtlas::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestDynamicTextureAtlas::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "DynamicTextureAtlas");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "DynamicTextureAtlas");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestDynamicTextureAtlas::SetupSubTests()
+void WGameEngineTestDynamicTextureAtlas::SetupSubTests()
 {
   AddSubTest("Allocations (Small)", SubTests::ST_AllocationsSmall);
   AddSubTest("Allocations (Large)", SubTests::ST_AllocationsLarge);
@@ -28,19 +28,19 @@ void ezGameEngineTestDynamicTextureAtlas::SetupSubTests()
   AddSubTest("Deallocations 2", SubTests::ST_Deallocations2);
 }
 
-ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestDynamicTextureAtlas::InitializeSubTest(WInt32 iIdentifier)
 {
   struct AllocInfo
   {
-    ezUInt32 m_uiWidth;
-    ezUInt32 m_uiHeight;
+    WUInt32 m_uiWidth;
+    WUInt32 m_uiHeight;
     const char* m_szName;
   };
 
   m_iFrame = -1;
 
-  ezGALTextureCreationDescription desc;
-  desc.m_Format = ezGALResourceFormat::RUByteNormalized;
+  WGALTextureCreationDescription desc;
+  desc.m_Format = WGALResourceFormat::RUByteNormalized;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   if (iIdentifier == SubTests::ST_AllocationsSmall)
@@ -49,24 +49,24 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
       desc.m_uiWidth = 512 + 256;
       desc.m_uiHeight = 512;
 
-      EZ_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
+      W_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
     }
 
-    constexpr ezUInt32 uiSize = 32;
+    constexpr WUInt32 uiSize = 32;
 
-    ezStringBuilder sb;
-    const ezUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
-    for (ezUInt32 i = 0; i < uiNumAllocations; ++i)
+    WStringBuilder sb;
+    const WUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
+    for (WUInt32 i = 0; i < uiNumAllocations; ++i)
     {
       sb.SetFormat("A{0}", i);
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, sb);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
     }
 
     // Should be full now
     {
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, "Invalid");
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
     }
   }
   else if (iIdentifier == SubTests::ST_AllocationsLarge)
@@ -75,24 +75,24 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
       desc.m_uiWidth = 512 + 256;
       desc.m_uiHeight = 512 + 256;
 
-      EZ_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
+      W_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
     }
 
-    constexpr ezUInt32 uiSize = 256;
+    constexpr WUInt32 uiSize = 256;
 
-    ezStringBuilder sb;
-    const ezUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
-    for (ezUInt32 i = 0; i < uiNumAllocations; ++i)
+    WStringBuilder sb;
+    const WUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
+    for (WUInt32 i = 0; i < uiNumAllocations; ++i)
     {
       sb.SetFormat("A{0}", i);
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, sb);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
     }
 
     // Should be full now
     {
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, "Invalid");
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
     }
   }
   else if (iIdentifier == SubTests::ST_AllocationsMixed)
@@ -101,12 +101,12 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
       desc.m_uiWidth = 512;
       desc.m_uiHeight = 512;
 
-      EZ_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
+      W_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
     }
 
     {
       auto id = m_TextureAtlas.Allocate(1024, 256, "Invalid");
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
     }
 
     AllocInfo allocInfos[] = {
@@ -126,12 +126,12 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
     for (auto& a : allocInfos)
     {
       auto id = m_TextureAtlas.Allocate(a.m_uiWidth, a.m_uiHeight, a.m_szName);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
     }
 
     {
       auto id = m_TextureAtlas.Allocate(256, 256, "Invalid");
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
     }
   }
   else if (iIdentifier == SubTests::ST_Deallocations)
@@ -140,41 +140,41 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
       desc.m_uiWidth = 512;
       desc.m_uiHeight = 512;
 
-      EZ_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
+      W_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
     }
 
-    constexpr ezUInt32 uiSize = 128;
+    constexpr WUInt32 uiSize = 128;
 
-    ezStringBuilder sb;
-    const ezUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
+    WStringBuilder sb;
+    const WUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
 
-    ezDynamicArray<ezDynamicTextureAtlas::AllocationId> allocations;
+    WDynamicArray<WDynamicTextureAtlas::AllocationId> allocations;
     allocations.Reserve(uiNumAllocations);
 
-    for (ezUInt32 i = 0; i < uiNumAllocations; ++i)
+    for (WUInt32 i = 0; i < uiNumAllocations; ++i)
     {
       sb.SetFormat("A{0}", i);
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, sb);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
       allocations.PushBack(id);
     }
 
-    const ezUInt32 uiNumDeallocations = uiNumAllocations;
+    const WUInt32 uiNumDeallocations = uiNumAllocations;
 
-    for (ezUInt32 i = 0; i < uiNumDeallocations; ++i)
+    for (WUInt32 i = 0; i < uiNumDeallocations; ++i)
     {
-      ezUInt32 allocationIndex = ezSimdRandom::UInt(ezSimdVec4i(i)).x() % allocations.GetCount();
+      WUInt32 allocationIndex = WSimdRandom::UInt(WSimdVec4i(i)).x() % allocations.GetCount();
       auto& id = allocations[allocationIndex];
 
       m_TextureAtlas.Deallocate(id);
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
 
       allocations.RemoveAtAndSwap(allocationIndex);
     }
 
     // Atlas should be empty again at this point
     auto id = m_TextureAtlas.Allocate(512, 512, "A2");
-    EZ_TEST_BOOL(!id.IsInvalidated());
+    W_TEST_BOOL(!id.IsInvalidated());
   }
   else if (iIdentifier == SubTests::ST_Deallocations2)
   {
@@ -182,34 +182,34 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
       desc.m_uiWidth = 512;
       desc.m_uiHeight = 512;
 
-      EZ_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
+      W_SUCCEED_OR_RETURN(m_TextureAtlas.Initialize(desc));
     }
 
-    constexpr ezUInt32 uiSize = 32;
+    constexpr WUInt32 uiSize = 32;
 
-    ezStringBuilder sb;
-    const ezUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
+    WStringBuilder sb;
+    const WUInt32 uiNumAllocations = (desc.m_uiWidth / uiSize) * (desc.m_uiHeight / uiSize);
 
-    ezDynamicArray<ezDynamicTextureAtlas::AllocationId> allocations;
+    WDynamicArray<WDynamicTextureAtlas::AllocationId> allocations;
     allocations.Reserve(uiNumAllocations);
 
-    for (ezUInt32 i = 0; i < uiNumAllocations; ++i)
+    for (WUInt32 i = 0; i < uiNumAllocations; ++i)
     {
       sb.SetFormat("A{0}", i);
       auto id = m_TextureAtlas.Allocate(uiSize, uiSize, sb);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
       allocations.PushBack(id);
     }
 
-    const ezUInt32 uiNumDeallocations = uiNumAllocations / 2;
+    const WUInt32 uiNumDeallocations = uiNumAllocations / 2;
 
-    for (ezUInt32 i = 0; i < uiNumDeallocations; ++i)
+    for (WUInt32 i = 0; i < uiNumDeallocations; ++i)
     {
-      ezUInt32 allocationIndex = ezSimdRandom::UInt(ezSimdVec4i(i)).x() % allocations.GetCount();
+      WUInt32 allocationIndex = WSimdRandom::UInt(WSimdVec4i(i)).x() % allocations.GetCount();
       auto& id = allocations[allocationIndex];
 
       m_TextureAtlas.Deallocate(id);
-      EZ_TEST_BOOL(id.IsInvalidated());
+      W_TEST_BOOL(id.IsInvalidated());
 
       allocations.RemoveAtAndSwap(allocationIndex);
     }
@@ -224,26 +224,26 @@ ezResult ezGameEngineTestDynamicTextureAtlas::InitializeSubTest(ezInt32 iIdentif
     for (auto& a : allocInfos)
     {
       auto id = m_TextureAtlas.Allocate(a.m_uiWidth, a.m_uiHeight, a.m_szName);
-      EZ_TEST_BOOL(!id.IsInvalidated());
+      W_TEST_BOOL(!id.IsInvalidated());
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGameEngineTestDynamicTextureAtlas::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestDynamicTextureAtlas::DeInitializeSubTest(WInt32 iIdentifier)
 {
   m_TextureAtlas.Deinitialize();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezGameEngineTestDynamicTextureAtlas::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestDynamicTextureAtlas::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
+  const bool bVulkan = WGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
-  ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView);
+  WView* pView = WRenderWorld::GetViewByUsageHint(WCameraUsageHint::MainView);
   auto& viewport = pView->GetViewport();
 
   m_TextureAtlas.DebugDraw(pView->GetHandle(), viewport.width, viewport.height);
@@ -251,15 +251,15 @@ ezTestAppRun ezGameEngineTestDynamicTextureAtlas::RunSubTest(ezInt32 iIdentifier
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
   if (m_iFrame == 1)
   {
-    EZ_TEST_IMAGE(0, bVulkan ? 300 : 250);
+    W_TEST_IMAGE(0, bVulkan ? 300 : 250);
 
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

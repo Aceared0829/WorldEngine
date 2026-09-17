@@ -6,44 +6,44 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezStringDeduplicationReadContext;
-class ezProgress;
-class ezProgressRange;
+class WStringDeduplicationReadContext;
+class WProgress;
+class WProgressRange;
 
-struct ezPrefabInstantiationOptions
+struct WPrefabInstantiationOptions
 {
-  ezGameObjectHandle m_hParent;
+  WGameObjectHandle m_hParent;
 
-  ezDynamicArray<ezGameObject*>* m_pCreatedRootObjectsOut = nullptr;
-  ezDynamicArray<ezGameObject*>* m_pCreatedChildObjectsOut = nullptr;
-  const ezUInt16* m_pOverrideTeamID = nullptr;
+  WDynamicArray<WGameObject*>* m_pCreatedRootObjectsOut = nullptr;
+  WDynamicArray<WGameObject*>* m_pCreatedChildObjectsOut = nullptr;
+  const WUInt16* m_pOverrideTeamID = nullptr;
 
   bool m_bForceDynamic = false;
 
   /// If the prefab has a single root node with this non-empty name, rather than creating a new object, instead the m_hParent object is used.
-  ezTempHashedString m_ReplaceNamedRootWithParent;
+  WTempHashedString m_ReplaceNamedRootWithParent;
 
   enum class RandomSeedMode
   {
-    DeterministicFromParent, ///< ezWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
-    CompletelyRandom,        ///< ezWorld::CreateObject() will assign a random value to this object
+    DeterministicFromParent, ///< WWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
+    CompletelyRandom,        ///< WWorld::CreateObject() will assign a random value to this object
     FixedFromSerialization,  ///< Keep deserialized random seed value
     CustomRootValue,         ///< Use the given seed root value to assign a deterministic (but different) value to each game object.
   };
 
   RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
-  ezUInt32 m_uiCustomRandomSeedRootValue = 0;
+  WUInt32 m_uiCustomRandomSeedRootValue = 0;
 
-  ezTime m_MaxStepTime = ezTime::MakeZero();
+  WTime m_MaxStepTime = WTime::MakeZero();
 
-  ezProgress* m_pProgress = nullptr;
+  WProgress* m_pProgress = nullptr;
 };
 
 /// Reads a world description from a stream. Allows to instantiate that world multiple times
-///        in different locations and different ezWorld's.
+///        in different locations and different WWorld's.
 ///
 /// The reader will ignore unknown component types and skip them during instantiation.
-class EZ_CORE_DLL ezWorldReader
+class W_CORE_DLL WWorldReader
 {
 public:
   /// A context object is returned from InstantiateWorld or InstantiatePrefab if a maxStepTime greater than zero is specified.
@@ -57,7 +57,7 @@ public:
     enum class StepResult
     {
       Continue,          ///< The available time slice is used up. Call Step() again to continue the process.
-      ContinueNextFrame, ///< The process has reached a point where you need to call ezWorld::Update(). Otherwise no further progress can be made.
+      ContinueNextFrame, ///< The process has reached a point where you need to call WWorld::Update(). Otherwise no further progress can be made.
       Finished,          ///< The instantiation is finished and you can delete the context. Don't call 'Step()' on it again.
     };
 
@@ -71,18 +71,18 @@ public:
     virtual void Cancel() = 0;
   };
 
-  ezWorldReader();
-  ~ezWorldReader();
+  WWorldReader();
+  ~WWorldReader();
 
   /// Reads all information about the world from the given stream.
   ///
-  /// Call this once to populate ezWorldReader with information how to instantiate the world.
+  /// Call this once to populate WWorldReader with information how to instantiate the world.
   /// Afterwards \a stream can be deleted.
   /// Call InstantiateWorld() or InstantiatePrefab() afterwards as often as you like
-  /// to actually get an objects into an ezWorld.
+  /// to actually get an objects into an WWorld.
   /// By default, the method will warn if it skips bytes in the stream that are of unknown
   /// types. The warnings can be suppressed by setting warningOnUnkownSkip to false.
-  ezResult ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUnkownSkip = true);
+  WResult ReadWorldDescription(WStreamReader& inout_stream, bool bWarningOnUnkownSkip = true);
 
   /// Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -96,9 +96,9 @@ public:
   /// This context will only spend the given amount of time in its Step() function.
   /// The function has to be periodically called until it returns true to complete the instantiation.
   ///
-  /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
+  /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The WProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::MakeZero(), ezProgress* pProgress = nullptr);
+  WUniquePtr<InstantiationContextBase> InstantiateWorld(WWorld& ref_world, const WUInt16* pOverrideTeamID = nullptr, WTime maxStepTime = WTime::MakeZero(), WProgress* pProgress = nullptr);
 
   /// Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -113,36 +113,36 @@ public:
   /// This context will only spend the given amount of time in its Step() function.
   /// The function has to be periodically called until it returns true to complete the instantiation.
   ///
-  /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
+  /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The WProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+  WUniquePtr<InstantiationContextBase> InstantiatePrefab(WWorld& ref_world, const WTransform& rootTransform, const WPrefabInstantiationOptions& options);
 
   /// Gives access to the stream of data. Use this inside component deserialization functions to read data.
-  ezStreamReader& GetStream() const;
+  WStreamReader& GetStream() const;
 
   /// Used during component deserialization to read a handle to a game object.
-  ezGameObjectHandle ReadGameObjectHandle();
+  WGameObjectHandle ReadGameObjectHandle();
 
   /// Used during component deserialization to read a handle to a component.
-  void ReadComponentHandle(ezComponentHandle& out_hComponent);
+  void ReadComponentHandle(WComponentHandle& out_hComponent);
 
   /// Used during component deserialization to query the actual version number with which the
-  /// given component type was written. The version number is given through the EZ_BEGIN_COMPONENT_TYPE
+  /// given component type was written. The version number is given through the W_BEGIN_COMPONENT_TYPE
   /// macro. Whenever the serialization of a component changes, that number should be increased.
-  ezUInt32 GetComponentTypeVersion(const ezRTTI* pRtti) const;
+  WUInt32 GetComponentTypeVersion(const WRTTI* pRtti) const;
 
   /// Returns whether world contains a component of given type.
-  bool HasComponentOfType(const ezRTTI* pRtti) const;
+  bool HasComponentOfType(const WRTTI* pRtti) const;
 
   /// Clears all data.
   void ClearAndCompact();
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const;
+  WUInt64 GetHeapMemoryUsage() const;
 
-  using FindComponentTypeCallback = ezDelegate<const ezRTTI*(ezStringView sTypeName)>;
+  using FindComponentTypeCallback = WDelegate<const WRTTI*(WStringView sTypeName)>;
 
-  /// An optional callback to redirect the lookup of a component type name to an ezRTTI type.
+  /// An optional callback to redirect the lookup of a component type name to an WRTTI type.
   ///
   /// If specified, this is used by ALL world readers. The intention is to use this either for logging purposes,
   /// or to implement a whitelist or blacklist for specific component types.
@@ -152,95 +152,95 @@ public:
   /// given that their deserialization code is compatible.
   static FindComponentTypeCallback s_FindComponentTypeCallback;
 
-  ezUInt32 GetRootObjectCount() const;
-  ezUInt32 GetChildObjectCount() const;
+  WUInt32 GetRootObjectCount() const;
+  WUInt32 GetChildObjectCount() const;
 
-  static void SetMaxStepTime(InstantiationContextBase* pContext, ezTime maxStepTime);
-  static ezTime GetMaxStepTime(InstantiationContextBase* pContext);
+  static void SetMaxStepTime(InstantiationContextBase* pContext, WTime maxStepTime);
+  static WTime GetMaxStepTime(InstantiationContextBase* pContext);
 
 private:
   struct GameObjectToCreate
   {
-    ezGameObjectDesc m_Desc;
-    ezString m_sGlobalKey;
-    ezUInt32 m_uiParentHandleIdx;
+    WGameObjectDesc m_Desc;
+    WString m_sGlobalKey;
+    WUInt32 m_uiParentHandleIdx;
   };
 
   void ReadGameObjectDesc(GameObjectToCreate& godesc);
-  void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
+  void ReadComponentTypeInfo(WUInt32 uiComponentTypeIdx);
   void ReadComponentDataToMemStream(bool warningOnUnknownSkip = true);
 
-  ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+  WUniquePtr<InstantiationContextBase> Instantiate(WWorld& world, bool bUseTransform, const WTransform& rootTransform, const WPrefabInstantiationOptions& options);
 
-  ezStreamReader* m_pReadStream = nullptr;
-  ezUInt8 m_uiVersion = 0;
+  WStreamReader* m_pReadStream = nullptr;
+  WUInt8 m_uiVersion = 0;
 
-  ezDynamicArray<GameObjectToCreate> m_RootObjectsToCreate;
-  ezDynamicArray<GameObjectToCreate> m_ChildObjectsToCreate;
+  WDynamicArray<GameObjectToCreate> m_RootObjectsToCreate;
+  WDynamicArray<GameObjectToCreate> m_ChildObjectsToCreate;
 
   struct ComponentTypeInfo
   {
-    const ezRTTI* m_pRtti = nullptr;
-    ezUInt32 m_uiNumComponents = 0;
-    ezUInt32 m_uiComponentDataSize = 0;
+    const WRTTI* m_pRtti = nullptr;
+    WUInt32 m_uiNumComponents = 0;
+    WUInt32 m_uiComponentDataSize = 0;
   };
 
-  ezDynamicArray<ComponentTypeInfo> m_ComponentTypes;
-  ezHashTable<const ezRTTI*, ezUInt32> m_ComponentTypeVersions;
-  ezDefaultMemoryStreamStorage m_ComponentCreationStream;
-  ezDefaultMemoryStreamStorage m_ComponentDataStream;
-  ezUInt64 m_uiTotalNumComponents = 0;
+  WDynamicArray<ComponentTypeInfo> m_ComponentTypes;
+  WHashTable<const WRTTI*, WUInt32> m_ComponentTypeVersions;
+  WDefaultMemoryStreamStorage m_ComponentCreationStream;
+  WDefaultMemoryStreamStorage m_ComponentDataStream;
+  WUInt64 m_uiTotalNumComponents = 0;
 
-  ezUniquePtr<ezStringDeduplicationReadContext> m_pStringDedupReadContext;
+  WUniquePtr<WStringDeduplicationReadContext> m_pStringDedupReadContext;
 
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options, ezAllocator* pAllocator);
+    InstantiationContext(WWorldReader& ref_worldReader, WWorld* pWorld, bool bUseTransform, const WTransform& rootTransform, const WPrefabInstantiationOptions& options, WAllocator* pAllocator);
     ~InstantiationContext();
 
     virtual StepResult Step() override;
     virtual void Cancel() override;
 
     template <bool UseTransform>
-    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_pCreatedObjects, ezTime endTime);
+    bool CreateGameObjects(const WDynamicArray<GameObjectToCreate>& objects, WGameObjectHandle hParent, WDynamicArray<WGameObject*>* out_pCreatedObjects, WTime endTime);
 
-    bool CreateComponents(ezTime endTime);
-    bool DeserializeComponents(ezTime endTime);
-    bool AddComponentsToBatch(ezTime endTime);
+    bool CreateComponents(WTime endTime);
+    bool DeserializeComponents(WTime endTime);
+    bool AddComponentsToBatch(WTime endTime);
 
-    void SetMaxStepTime(ezTime stepTime);
-    ezTime GetMaxStepTime() const;
+    void SetMaxStepTime(WTime stepTime);
+    WTime GetMaxStepTime() const;
 
   private:
-    void BeginNextProgressStep(ezStringView sName);
+    void BeginNextProgressStep(WStringView sName);
     void SetSubProgressCompletion(double fCompletion);
 
-    friend class ezWorldReader;
-    ezWorldReader& m_WorldReader;
+    friend class WWorldReader;
+    WWorldReader& m_WorldReader;
 
-    ezWorld* m_pWorld = nullptr;
+    WWorld* m_pWorld = nullptr;
 
     bool m_bUseTransform = false;
-    ezTransform m_RootTransform;
+    WTransform m_RootTransform;
 
-    ezPrefabInstantiationOptions m_Options;
+    WPrefabInstantiationOptions m_Options;
 
     struct ComponentTypeState
     {
-      ComponentTypeState(ezAllocator* pAllocator)
+      ComponentTypeState(WAllocator* pAllocator)
         : m_ComponentIndexToHandle(pAllocator)
       {
       }
 
-      ezUInt64 m_uiDataReadOffset = 0;
-      ezDynamicArray<ezComponentHandle> m_ComponentIndexToHandle;
+      WUInt64 m_uiDataReadOffset = 0;
+      WDynamicArray<WComponentHandle> m_ComponentIndexToHandle;
     };
 
-    ezDynamicArray<ezGameObjectHandle> m_IndexToGameObjectHandle;
-    ezDynamicArray<ComponentTypeState> m_ComponentTypeStates;
+    WDynamicArray<WGameObjectHandle> m_IndexToGameObjectHandle;
+    WDynamicArray<ComponentTypeState> m_ComponentTypeStates;
 
-    ezComponentInitBatchHandle m_hComponentInitBatch;
+    WComponentInitBatchHandle m_hComponentInitBatch;
 
     // Current state
     struct Phase
@@ -260,12 +260,12 @@ private:
     };
 
     Phase::Enum m_Phase = Phase::Invalid;
-    ezUInt32 m_uiCurrentIndex = 0; // object or component
-    ezUInt32 m_uiCurrentComponentTypeIndex = 0;
-    ezUInt64 m_uiCurrentNumComponentsProcessed = 0;
-    ezMemoryStreamReader m_CurrentReader;
+    WUInt32 m_uiCurrentIndex = 0; // object or component
+    WUInt32 m_uiCurrentComponentTypeIndex = 0;
+    WUInt64 m_uiCurrentNumComponentsProcessed = 0;
+    WMemoryStreamReader m_CurrentReader;
 
-    ezUniquePtr<ezProgressRange> m_pOverallProgressRange;
-    ezUniquePtr<ezProgressRange> m_pSubProgressRange;
+    WUniquePtr<WProgressRange> m_pOverallProgressRange;
+    WUniquePtr<WProgressRange> m_pSubProgressRange;
   };
 };

@@ -4,20 +4,20 @@
 
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorExpressionWidget : public ezQtStandardPropertyWidget
+class W_GUIFOUNDATION_DLL WQtPropertyEditorExpressionWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorExpressionWidget();
-  ~ezQtPropertyEditorExpressionWidget();
+  WQtPropertyEditorExpressionWidget();
+  ~WQtPropertyEditorExpressionWidget();
 
 protected Q_SLOTS:
   void on_TextChanged();
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QHBoxLayout* m_pLayout;

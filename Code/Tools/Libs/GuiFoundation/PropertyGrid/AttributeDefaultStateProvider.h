@@ -4,16 +4,16 @@
 
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 
-/// This is the fall back default state provider which handles the default state set via the ezDefaultAttribute on the reflected type.
-class EZ_GUIFOUNDATION_DLL ezAttributeDefaultStateProvider : public ezDefaultStateProvider
+/// This is the fall back default state provider which handles the default state set via the WDefaultAttribute on the reflected type.
+class W_GUIFOUNDATION_DLL WAttributeDefaultStateProvider : public WDefaultStateProvider
 {
 public:
-  static ezSharedPtr<ezDefaultStateProvider> CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  static WSharedPtr<WDefaultStateProvider> CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp);
 
-  virtual ezInt32 GetRootDepth() const override;
-  virtual ezColorGammaUB GetBackgroundColor() const override;
-  virtual ezString GetStateProviderName() const override { return "Attribute"; }
+  virtual WInt32 GetRootDepth() const override;
+  virtual WColorGammaUB GetBackgroundColor() const override;
+  virtual WString GetStateProviderName() const override { return "Attribute"; }
 
-  virtual ezVariant GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff) override;
+  virtual WVariant GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff) override;
 };

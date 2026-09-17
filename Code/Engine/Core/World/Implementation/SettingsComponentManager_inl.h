@@ -1,12 +1,12 @@
 
 template <typename ComponentType>
-ezSettingsComponentManager<ComponentType>::ezSettingsComponentManager(ezWorld* pWorld)
-  : ezComponentManagerBase(pWorld)
+WSettingsComponentManager<ComponentType>::WSettingsComponentManager(WWorld* pWorld)
+  : WComponentManagerBase(pWorld)
 {
 }
 
 template <typename ComponentType>
-ezSettingsComponentManager<ComponentType>::~ezSettingsComponentManager()
+WSettingsComponentManager<ComponentType>::~WSettingsComponentManager()
 {
   for (auto& component : m_Components)
   {
@@ -15,7 +15,7 @@ ezSettingsComponentManager<ComponentType>::~ezSettingsComponentManager()
 }
 
 template <typename ComponentType>
-EZ_ALWAYS_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent()
+W_ALWAYS_INLINE ComponentType* WSettingsComponentManager<ComponentType>::GetSingletonComponent()
 {
   for (const auto& pComponent : m_Components)
   {
@@ -28,7 +28,7 @@ EZ_ALWAYS_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSi
 }
 
 template <typename ComponentType>
-EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
+W_ALWAYS_INLINE const ComponentType* WSettingsComponentManager<ComponentType>::GetSingletonComponent() const
 {
   for (const auto& pComponent : m_Components)
   {
@@ -42,13 +42,13 @@ EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>:
 
 // static
 template <typename ComponentType>
-EZ_ALWAYS_INLINE ezWorldModuleTypeId ezSettingsComponentManager<ComponentType>::TypeId()
+W_ALWAYS_INLINE WWorldModuleTypeId WSettingsComponentManager<ComponentType>::TypeId()
 {
   return ComponentType::TypeId();
 }
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive)
+void WSettingsComponentManager<ComponentType>::CollectAllComponents(WDynamicArray<WComponentHandle>& out_allComponents, bool bOnlyActive)
 {
   for (auto& component : m_Components)
   {
@@ -60,7 +60,7 @@ void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicAr
 }
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive)
+void WSettingsComponentManager<ComponentType>::CollectAllComponents(WDynamicArray<WComponent*>& out_allComponents, bool bOnlyActive)
 {
   for (auto& component : m_Components)
   {
@@ -72,23 +72,23 @@ void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicAr
 }
 
 template <typename ComponentType>
-ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
+WComponent* WSettingsComponentManager<ComponentType>::CreateComponentStorage()
 {
   if (!m_Components.IsEmpty())
   {
-    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    WLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", WGetStaticRTTI<ComponentType>()->GetTypeName());
   }
 
-  m_Components.PushBack(EZ_NEW(GetAllocator(), ComponentType));
+  m_Components.PushBack(W_NEW(GetAllocator(), ComponentType));
   return m_Components.PeekBack().Borrow();
 }
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent)
+void WSettingsComponentManager<ComponentType>::DeleteComponentStorage(WComponent* pComponent, WComponent*& out_pMovedComponent)
 {
   out_pMovedComponent = pComponent;
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     if (m_Components[i].Borrow() == pComponent)
     {

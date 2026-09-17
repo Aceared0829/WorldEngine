@@ -5,41 +5,41 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezProcGenGraphAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenGraphAssetDocumentManager, 1, WRTTIDefaultAllocator<WProcGenGraphAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
+WProcGenGraphAssetDocumentManager::WProcGenGraphAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "ProcGen Graph";
-  m_DocTypeDesc.m_sFileExtension = "ezProcGenGraphAsset";
+  m_DocTypeDesc.m_sFileExtension = "WProcGenGraphAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.svg";
   m_DocTypeDesc.m_sAssetCategory = "Construction";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WProcGenGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ProcGen_Graph");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinProcGenGraph";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinProcGenGraph";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.svg"));
 }
 
-ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
+WProcGenGraphAssetDocumentManager::~WProcGenGraphAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezProcGenGraphAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WProcGenGraphAssetDocument>())
       {
-        new ezProcGenGraphAssetDocumentWindow(static_cast<ezProcGenGraphAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WProcGenGraphAssetDocumentWindow(static_cast<WProcGenGraphAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -49,13 +49,13 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WProcGenGraphAssetDocumentManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezProcGenGraphAssetDocument(sPath);
+  out_pDocument = new WProcGenGraphAssetDocument(sPath);
 }
 
-void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

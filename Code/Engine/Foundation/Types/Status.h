@@ -5,56 +5,56 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-class ezLogInterface;
+class WLogInterface;
 
-/// An ezResult with an additional message for the reason of failure
-struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
+/// An WResult with an additional message for the reason of failure
+struct [[nodiscard]] W_FOUNDATION_DLL WStatus
 {
-  /// Sets the status to EZ_FAILURE and stores the error message.
-  explicit ezStatus(const char* szError)
-    : m_Result(EZ_FAILURE)
+  /// Sets the status to W_FAILURE and stores the error message.
+  explicit WStatus(const char* szError)
+    : m_Result(W_FAILURE)
     , m_sMessage(szError)
   {
   }
 
-  /// Sets the status to EZ_FAILURE and stores the error message.
-  explicit ezStatus(ezStringView sError)
-    : m_Result(EZ_FAILURE)
+  /// Sets the status to W_FAILURE and stores the error message.
+  explicit WStatus(WStringView sError)
+    : m_Result(W_FAILURE)
     , m_sMessage(sError)
   {
   }
 
   /// Sets the status, but doesn't store a message string.
-  EZ_ALWAYS_INLINE ezStatus(ezResult r)
+  W_ALWAYS_INLINE WStatus(WResult r)
     : m_Result(r)
   {
   }
 
   /// Sets the status, but doesn't store a message string.
-  EZ_ALWAYS_INLINE ezStatus(ezResultEnum r)
+  W_ALWAYS_INLINE WStatus(WResultEnum r)
     : m_Result(r)
   {
   }
 
-  /// Sets the status to EZ_FAILURE and stores the error message. Can be used with ezFmt().
-  explicit ezStatus(const ezFormatString& fmt);
+  /// Sets the status to W_FAILURE and stores the error message. Can be used with WFmt().
+  explicit WStatus(const WFormatString& fmt);
 
-  [[nodiscard]] ezResult GetResult() const { return m_Result; }
+  [[nodiscard]] WResult GetResult() const { return m_Result; }
 
-  [[nodiscard]] EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
-  [[nodiscard]] EZ_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
+  [[nodiscard]] W_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
+  [[nodiscard]] W_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
 
   /// Used to silence compiler warnings, when success or failure doesn't matter.
-  EZ_ALWAYS_INLINE void IgnoreResult()
+  W_ALWAYS_INLINE void IgnoreResult()
   {
     /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
   }
 
-  /// If the state is EZ_FAILURE, the message is written to the given log (or the currently active thread-local log).
+  /// If the state is W_FAILURE, the message is written to the given log (or the currently active thread-local log).
   ///
   /// The return value is the same as 'Failed()' but isn't marked as [[nodiscard]], ie returns true, if a failure happened,
   /// so can be used in a conditional.
-  bool LogFailure(ezLogInterface* pLog = nullptr) const;
+  bool LogFailure(WLogInterface* pLog = nullptr) const;
 
   /// Asserts that the function succeeded. In case of failure, the program will terminate.
   ///
@@ -62,14 +62,14 @@ struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
   /// Additionally m_sMessage will be included as a detailed message.
   void AssertSuccess(const char* szMsg = nullptr) const;
 
-  [[nodiscard]] const ezString& GetMessageString() const { return m_sMessage; }
+  [[nodiscard]] const WString& GetMessageString() const { return m_sMessage; }
 
 private:
-  ezResult m_Result;
-  ezString m_sMessage;
+  WResult m_Result;
+  WString m_sMessage;
 };
 
-EZ_ALWAYS_INLINE ezResult ezToResult(const ezStatus& result)
+W_ALWAYS_INLINE WResult WToResult(const WStatus& result)
 {
   return result.GetResult();
 }

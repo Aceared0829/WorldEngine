@@ -4,18 +4,18 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtBlackboardTemplateAssetDocumentWindow : public ezQtDocumentWindow
+class WQtBlackboardTemplateAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtBlackboardTemplateAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtBlackboardTemplateAssetDocumentWindow();
+  WQtBlackboardTemplateAssetDocumentWindow(WDocument* pDocument);
+  ~WQtBlackboardTemplateAssetDocumentWindow();
 
 private:
   void UpdatePreview();
   void RestoreResource();
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 };

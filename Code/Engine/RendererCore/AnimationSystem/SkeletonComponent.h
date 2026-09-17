@@ -5,9 +5,9 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-struct ezMsgQueryAnimationSkeleton;
+struct WMsgQueryAnimationSkeleton;
 
-using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSkeletonComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using WVisualizeSkeletonComponentManager = WComponentManagerSimple<class WSkeletonComponent, WComponentUpdateType::Always, WBlockStorageType::Compact>;
 
 /// Uses debug rendering to visualize various aspects of an animation skeleton.
 ///
@@ -15,36 +15,36 @@ using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSke
 /// but can also be added to a scene or added to an animated mesh on-demand.
 ///
 /// There are different options what to visualize and also to highlight certain bones.
-class EZ_RENDERERCORE_DLL ezSkeletonComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WSkeletonComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSkeletonComponent, ezRenderComponent, ezVisualizeSkeletonComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSkeletonComponent, WRenderComponent, WVisualizeSkeletonComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSkeletonComponent
+  // WSkeletonComponent
 
 public:
-  ezSkeletonComponent();
-  ~ezSkeletonComponent();
+  WSkeletonComponent();
+  ~WSkeletonComponent();
 
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
+  void SetSkeleton(const WSkeletonResourceHandle& hResource);                // [ property ]
+  const WSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
   /// Sets a semicolon-separated list of bone names that should be highlighted.
   ///
@@ -63,74 +63,74 @@ public:
 protected:
   void Update();
   void VisualizeSkeletonDefaultState();
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg); // [ msg handler ]
 
-  void BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg);
-  void BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg);
-  void BuildJointVisualization(ezMsgAnimationPoseUpdated& msg);
+  void BuildSkeletonVisualization(WMsgAnimationPoseUpdated& msg);
+  void BuildColliderVisualization(WMsgAnimationPoseUpdated& msg);
+  void BuildJointVisualization(WMsgAnimationPoseUpdated& msg);
 
-  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
-  ezDebugRendererLine& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+  void OnQueryAnimationSkeleton(WMsgQueryAnimationSkeleton& msg);
+  WDebugRendererLine& AddLine(const WVec3& vStart, const WVec3& vEnd, const WColor& color);
 
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezTransform m_RootTransform = ezTransform::MakeIdentity();
-  ezUInt32 m_uiSkeletonChangeCounter = 0;
-  ezString m_sBonesToHighlight;
+  WSkeletonResourceHandle m_hSkeleton;
+  WTransform m_RootTransform = WTransform::MakeIdentity();
+  WUInt32 m_uiSkeletonChangeCounter = 0;
+  WString m_sBonesToHighlight;
 
-  ezBoundingBox m_MaxBounds;
-  ezDynamicArray<ezDebugRendererLine> m_LinesSkeleton;
+  WBoundingBox m_MaxBounds;
+  WDynamicArray<WDebugRendererLine> m_LinesSkeleton;
 
   struct SphereShape
   {
-    ezTransform m_Transform;
-    ezBoundingSphere m_Shape;
-    ezColor m_Color;
+    WTransform m_Transform;
+    WBoundingSphere m_Shape;
+    WColor m_Color;
   };
 
   struct BoxShape
   {
-    ezTransform m_Transform;
-    ezBoundingBox m_Shape;
-    ezColor m_Color;
+    WTransform m_Transform;
+    WBoundingBox m_Shape;
+    WColor m_Color;
   };
 
   struct CapsuleShape
   {
-    ezTransform m_Transform;
+    WTransform m_Transform;
     float m_fLength;
     float m_fRadius;
-    ezColor m_Color;
+    WColor m_Color;
   };
 
   struct AngleShape
   {
-    ezTransform m_Transform;
-    ezColor m_Color;
-    ezAngle m_StartAngle;
-    ezAngle m_EndAngle;
+    WTransform m_Transform;
+    WColor m_Color;
+    WAngle m_StartAngle;
+    WAngle m_EndAngle;
   };
 
   struct ConeLimitShape
   {
-    ezTransform m_Transform;
-    ezColor m_Color;
-    ezAngle m_Angle1;
-    ezAngle m_Angle2;
+    WTransform m_Transform;
+    WColor m_Color;
+    WAngle m_Angle1;
+    WAngle m_Angle2;
   };
 
   struct CylinderShape
   {
-    ezTransform m_Transform;
-    ezColor m_Color;
+    WTransform m_Transform;
+    WColor m_Color;
     float m_fRadius1;
     float m_fRadius2;
     float m_fLength;
   };
 
-  ezDynamicArray<SphereShape> m_SpheresShapes;
-  ezDynamicArray<BoxShape> m_BoxShapes;
-  ezDynamicArray<CapsuleShape> m_CapsuleShapes;
-  ezDynamicArray<AngleShape> m_AngleShapes;
-  ezDynamicArray<ConeLimitShape> m_ConeLimitShapes;
-  ezDynamicArray<CylinderShape> m_CylinderShapes;
+  WDynamicArray<SphereShape> m_SpheresShapes;
+  WDynamicArray<BoxShape> m_BoxShapes;
+  WDynamicArray<CapsuleShape> m_CapsuleShapes;
+  WDynamicArray<AngleShape> m_AngleShapes;
+  WDynamicArray<ConeLimitShape> m_ConeLimitShapes;
+  WDynamicArray<CylinderShape> m_CylinderShapes;
 };

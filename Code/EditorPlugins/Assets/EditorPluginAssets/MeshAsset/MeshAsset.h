@@ -4,52 +4,52 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 
-class ezMeshResourceDescriptor;
-class ezGeometry;
-class ezMaterialAssetDocument;
+class WMeshResourceDescriptor;
+class WGeometry;
+class WMaterialAssetDocument;
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   class Importer;
 }
 
-class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
+class WMeshAssetDocument : public WSimpleAssetDocument<WMeshAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocument, ezSimpleAssetDocument<ezMeshAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WMeshAssetDocument, WSimpleAssetDocument<WMeshAssetProperties>);
 
 public:
-  ezMeshAssetDocument(ezStringView sDocumentPath);
+  WMeshAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  void CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
+  void CreateMeshFromGeom(WMeshAssetProperties* pProp, WMeshResourceDescriptor& desc);
 
-  ezTransformStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc, bool bAllowMaterialImport);
+  WTransformStatus CreateMeshFromFile(WMeshAssetProperties* pProp, WMeshResourceDescriptor& desc, bool bAllowMaterialImport);
 
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WMeshAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WMeshAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezMeshAssetDocumentGenerator();
-  ~ezMeshAssetDocumentGenerator();
+  WMeshAssetDocumentGenerator();
+  ~WMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezMeshAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WMeshAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Meshes"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 
 protected:
-  ezMeshAssetDocumentGenerator(bool bAnimMesh);
-  virtual ezStatus ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments);
+  WMeshAssetDocumentGenerator(bool bAnimMesh);
+  virtual WStatus ConfigureMeshDocument(WStringView sInputFile, WStringView sOutFile, WModelImporter2::Importer* pImporter, WArrayPtr<WMaterialResourceSlot> materials, WDynamicArray<WDocument*>& out_generatedDocuments);
 
   bool m_bAnimatedMesh = false;
   bool m_bShowImportDlg = true;
@@ -58,21 +58,21 @@ protected:
   static bool s_bUseSharedMaterials;
   static bool s_bCreateMaterials;
   static bool s_bAddLODs;
-  static ezUInt8 s_uiNumLODs;
-  static ezUuid s_SharedSkeleton;
+  static WUInt8 s_uiNumLODs;
+  static WUuid s_SharedSkeleton;
 };
 
-class ezAnimatedMeshAssetDocumentGenerator : public ezMeshAssetDocumentGenerator
+class WAnimatedMeshAssetDocumentGenerator : public WMeshAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimatedMeshAssetDocumentGenerator, ezMeshAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WAnimatedMeshAssetDocumentGenerator, WMeshAssetDocumentGenerator);
 
 public:
-  ezAnimatedMeshAssetDocumentGenerator();
-  ~ezAnimatedMeshAssetDocumentGenerator();
+  WAnimatedMeshAssetDocumentGenerator();
+  ~WAnimatedMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezAnimatedMeshAsset"; }
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WAnimatedMeshAsset"; }
 
 protected:
-  virtual ezStatus ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual WStatus ConfigureMeshDocument(WStringView sInputFile, WStringView sOutFile, WModelImporter2::Importer* pImporter, WArrayPtr<WMaterialResourceSlot> materials, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

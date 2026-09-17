@@ -2,17 +2,17 @@
 
 #include <Utilities/PathFinding/GridNavmesh.h>
 
-void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2)
+void WGridNavmesh::UpdateRegion(WRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2)
 {
-  ezInt32 iInvalidNode = -(ezInt32)m_ConvexAreas.GetCount();
+  WInt32 iInvalidNode = -(WInt32)m_ConvexAreas.GetCount();
 
   // initialize with 'invalid'
-  for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
+  for (WUInt32 y = region.y; y < region.y + region.height; ++y)
   {
-    for (ezUInt32 x = region.x; x < region.x + region.width; ++x)
+    for (WUInt32 x = region.x; x < region.x + region.width; ++x)
     {
       --iInvalidNode;
-      m_NodesGrid.GetCell(ezVec2I32(x, y)) = iInvalidNode;
+      m_NodesGrid.GetCell(WVec2I32(x, y)) = iInvalidNode;
     }
   }
 
@@ -22,11 +22,11 @@ void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType
 }
 
 
-ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
+WRectU32 WGridNavmesh::GetCellBBox(WInt32 x, WInt32 y) const
 {
-  const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(x, y));
 
-  ezRectU32 r;
+  WRectU32 r;
   r.x = x;
   r.y = y;
   r.width = 1;
@@ -34,7 +34,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
 
   while (r.x > 0)
   {
-    if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(r.x - 1, y)))
+    if (iCellNode != m_NodesGrid.GetCell(WVec2I32(r.x - 1, y)))
       break;
 
     r.x--;
@@ -42,7 +42,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
 
   while (r.y > 0)
   {
-    if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x, r.y - 1)))
+    if (iCellNode != m_NodesGrid.GetCell(WVec2I32(x, r.y - 1)))
       break;
 
     r.y--;
@@ -50,7 +50,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
 
   while (x < m_NodesGrid.GetGridSizeX() - 1)
   {
-    if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x + 1, y)))
+    if (iCellNode != m_NodesGrid.GetCell(WVec2I32(x + 1, y)))
       break;
 
     x++;
@@ -58,7 +58,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
 
   while (y < m_NodesGrid.GetGridSizeY() - 1)
   {
-    if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x, y + 1)))
+    if (iCellNode != m_NodesGrid.GetCell(WVec2I32(x, y + 1)))
       break;
 
     y++;
@@ -70,40 +70,40 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
   return r;
 }
 
-void ezGridNavmesh::Merge(const ezRectU32& rect)
+void WGridNavmesh::Merge(const WRectU32& rect)
 {
-  const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(rect.x, rect.y));
+  const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(rect.x, rect.y));
 
-  for (ezUInt32 y = rect.y; y < rect.y + rect.height; ++y)
+  for (WUInt32 y = rect.y; y < rect.y + rect.height; ++y)
   {
-    for (ezUInt32 x = rect.x; x < rect.x + rect.width; ++x)
+    for (WUInt32 x = rect.x; x < rect.x + rect.width; ++x)
     {
-      m_NodesGrid.GetCell(ezVec2I32(x, y)) = iCellNode;
+      m_NodesGrid.GetCell(WVec2I32(x, y)) = iCellNode;
     }
   }
 }
 
-void ezGridNavmesh::CreateNodes(ezRectU32 region, CellBlocked IsCellBlocked, void* pPassThrough)
+void WGridNavmesh::CreateNodes(WRectU32 region, CellBlocked IsCellBlocked, void* pPassThrough)
 {
-  for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
+  for (WUInt32 y = region.y; y < region.y + region.height; ++y)
   {
-    for (ezUInt32 x = region.x; x < region.x + region.width; ++x)
+    for (WUInt32 x = region.x; x < region.x + region.width; ++x)
     {
-      const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+      const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(x, y));
 
       if (iCellNode >= 0)
         continue;
 
-      if (IsCellBlocked(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)), pPassThrough))
+      if (IsCellBlocked(m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(x, y)), pPassThrough))
       {
-        m_NodesGrid.GetCell(ezVec2I32(x, y)) = -1;
+        m_NodesGrid.GetCell(WVec2I32(x, y)) = -1;
         continue;
       }
 
       ConvexArea a;
       a.m_Rect = GetCellBBox(x, y);
 
-      m_NodesGrid.GetCell(ezVec2I32(a.m_Rect.x, a.m_Rect.y)) = m_ConvexAreas.GetCount();
+      m_NodesGrid.GetCell(WVec2I32(a.m_Rect.x, a.m_Rect.y)) = m_ConvexAreas.GetCount();
       m_ConvexAreas.PushBack(a);
 
       Merge(a.m_Rect);
@@ -112,7 +112,7 @@ void ezGridNavmesh::CreateNodes(ezRectU32 region, CellBlocked IsCellBlocked, voi
 }
 
 
-void ezGridNavmesh::Optimize(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough)
+void WGridNavmesh::Optimize(WRectU32 region, CellComparator IsSameCellType, void* pPassThrough)
 {
   if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 8, 8, 8))
   {
@@ -190,22 +190,22 @@ void ezGridNavmesh::Optimize(ezRectU32 region, CellComparator IsSameCellType, vo
   }
 }
 
-bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const
+bool WGridNavmesh::CanCreateArea(WRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const
 {
   if (region.x + region.width > m_NodesGrid.GetGridSizeX())
     return false;
   if (region.y + region.height > m_NodesGrid.GetGridSizeY())
     return false;
 
-  const ezUInt32 uiStartNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(region.x, region.y));
-  // const ezInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
+  const WUInt32 uiStartNode = m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(region.x, region.y));
+  // const WInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
 
-  for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
+  for (WUInt32 y = region.y; y < region.y + region.height; ++y)
   {
-    for (ezUInt32 x = region.x; x < region.x + region.width; ++x)
+    for (WUInt32 x = region.x; x < region.x + region.width; ++x)
     {
-      const ezUInt32 uiCurNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y));
-      // const ezInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
+      const WUInt32 uiCurNode = m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(x, y));
+      // const WInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
 
       // if (iCurNodeArea == iStartNodeArea)
       // continue;
@@ -213,7 +213,7 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
       if (!IsSameCellType(uiStartNode, uiCurNode, pPassThrough))
         return false;
 
-      const ezRectU32 rect = GetCellBBox(x, y);
+      const WRectU32 rect = GetCellBBox(x, y);
 
       if (rect.x < region.x || rect.y < region.y)
         return false;
@@ -227,16 +227,16 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
   return true;
 }
 
-bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY,
-  ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX, ezUInt32 uiOffsetY)
+bool WGridNavmesh::OptimizeBoxes(WRectU32 region, CellComparator IsSameCellType, void* pPassThrough, WUInt32 uiIntervalX, WUInt32 uiIntervalY,
+  WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiOffsetX, WUInt32 uiOffsetY)
 {
   bool bMergedAny = false;
 
-  for (ezUInt32 y = region.y; y < region.y + region.height; y += uiIntervalY)
+  for (WUInt32 y = region.y; y < region.y + region.height; y += uiIntervalY)
   {
-    for (ezUInt32 x = region.x; x < region.x + region.width; x += uiIntervalX)
+    for (WUInt32 x = region.x; x < region.x + region.width; x += uiIntervalX)
     {
-      ezRectU32 NewArea;
+      WRectU32 NewArea;
       NewArea.x = x + uiOffsetX;
       NewArea.y = y + uiOffsetY;
       NewArea.width = uiWidth;
@@ -256,20 +256,20 @@ bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellTyp
 
 
 
-bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCellType, void* pPassThrough, ezRectU32& out_Result) const
+bool WGridNavmesh::CanMergeRight(WInt32 x, WInt32 y, CellComparator IsSameCellType, void* pPassThrough, WRectU32& out_Result) const
 {
-  const ezRectU32 r1 = GetCellBBox(x, y);
+  const WRectU32 r1 = GetCellBBox(x, y);
 
   if (r1.x + r1.width >= m_NodesGrid.GetGridSizeX())
     return false;
 
-  // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  // const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(x, y));
 
-  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
-        m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
+  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(x, y)),
+        m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(r1.x + r1.width, y)), pPassThrough))
     return false;
 
-  const ezRectU32 r2 = GetCellBBox(r1.x + r1.width, y);
+  const WRectU32 r2 = GetCellBBox(r1.x + r1.width, y);
 
   if (r1.y != r2.y || r1.height != r2.height)
     return false;
@@ -282,20 +282,20 @@ bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCel
   return true;
 }
 
-bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCellType, void* pPassThrough, ezRectU32& out_Result) const
+bool WGridNavmesh::CanMergeDown(WInt32 x, WInt32 y, CellComparator IsSameCellType, void* pPassThrough, WRectU32& out_Result) const
 {
-  const ezRectU32 r1 = GetCellBBox(x, y);
+  const WRectU32 r1 = GetCellBBox(x, y);
 
   if (r1.y + r1.height >= m_NodesGrid.GetGridSizeY())
     return false;
 
-  // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  // const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(x, y));
 
-  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
-        m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
+  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(x, y)),
+        m_NodesGrid.ConvertCellCoordinateToIndex(WVec2I32(x, r1.y + r1.height)), pPassThrough))
     return false;
 
-  const ezRectU32 r2 = GetCellBBox(x, r1.y + r1.height);
+  const WRectU32 r2 = GetCellBBox(x, r1.y + r1.height);
 
   if (r1.x != r2.x || r1.width != r2.width)
     return false;
@@ -309,20 +309,20 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
 }
 
 
-bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough)
+bool WGridNavmesh::MergeBestFit(WRectU32 region, CellComparator IsSameCellType, void* pPassThrough)
 {
   bool bMergedAny = false;
 
-  for (ezUInt32 y = region.y; y < region.y + region.height; y += 1)
+  for (WUInt32 y = region.y; y < region.y + region.height; y += 1)
   {
-    for (ezUInt32 x = region.x; x < region.x + region.width; x += 1)
+    for (WUInt32 x = region.x; x < region.x + region.width; x += 1)
     {
-      const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+      const WInt32 iCellNode = m_NodesGrid.GetCell(WVec2I32(x, y));
 
       if (iCellNode >= 0)
         continue;
 
-      ezRectU32 rd;
+      WRectU32 rd;
       bool bRD = false;
       if (CanMergeDown(x, y, IsSameCellType, pPassThrough, rd))
       {
@@ -330,7 +330,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
           bRD = true;
       }
 
-      ezRectU32 rr;
+      WRectU32 rr;
       bool bRR = false;
       if (CanMergeRight(x, y, IsSameCellType, pPassThrough, rr))
       {
@@ -340,8 +340,8 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRR && bRD)
       {
-        const float fRatioRR = (float)ezMath::Max(rr.width, rr.height) / (float)ezMath::Min(rr.width, rr.height);
-        const float fRatioRD = (float)ezMath::Max(rd.width, rd.height) / (float)ezMath::Min(rd.width, rd.height);
+        const float fRatioRR = (float)WMath::Max(rr.width, rr.height) / (float)WMath::Min(rr.width, rr.height);
+        const float fRatioRD = (float)WMath::Max(rd.width, rd.height) / (float)WMath::Min(rd.width, rd.height);
 
         if (fRatioRR < fRatioRD)
           bRD = false;
@@ -351,7 +351,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRR)
       {
-        // const float fRatio = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
+        // const float fRatio = (float) WMath::Max(rr.width,  rr.height) / (float) WMath::Min(rr.width,  rr.height);
 
         bMergedAny = true;
         Merge(rr);
@@ -359,7 +359,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRD)
       {
-        // const float fRatio = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
+        // const float fRatio = (float) WMath::Max(rd.width,  rd.height) / (float) WMath::Min(rd.width,  rd.height);
 
         Merge(rd);
         bMergedAny = true;
@@ -370,15 +370,15 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
   return bMergedAny;
 }
 
-void ezGridNavmesh::CreateGraphEdges()
+void WGridNavmesh::CreateGraphEdges()
 {
   m_GraphEdges.Clear();
 
-  for (ezUInt32 i = 0; i < m_ConvexAreas.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ConvexAreas.GetCount(); ++i)
     CreateGraphEdges(m_ConvexAreas[i]);
 }
 
-void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
+void WGridNavmesh::CreateGraphEdges(ConvexArea& Area)
 {
   Area.m_uiFirstEdge = m_GraphEdges.GetCount();
   Area.m_uiNumEdges = 0;
@@ -386,15 +386,15 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.y > 0)
   {
     AreaEdge e;
-    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
-    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
+    e.m_EdgeRect.x = static_cast<WUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<WUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
-    e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x, Area.m_Rect.y - 1));
+    e.m_iNeighborArea = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x, Area.m_Rect.y - 1));
 
-    for (ezUInt32 x = Area.m_Rect.x + 1; x < Area.m_Rect.x + Area.m_Rect.width; ++x)
+    for (WUInt32 x = Area.m_Rect.x + 1; x < Area.m_Rect.x + Area.m_Rect.width; ++x)
     {
-      const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(x, Area.m_Rect.y - 1));
+      const WInt32 iThisNeighbor = m_NodesGrid.GetCell(WVec2I32(x, Area.m_Rect.y - 1));
 
       if (e.m_iNeighborArea != iThisNeighbor)
       {
@@ -405,7 +405,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.x = static_cast<ezUInt16>(x);
+        e.m_EdgeRect.x = static_cast<WUInt16>(x);
         e.m_EdgeRect.width = 0;
       }
 
@@ -422,15 +422,15 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.y + Area.m_Rect.height < m_NodesGrid.GetGridSizeY())
   {
     AreaEdge e;
-    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
-    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y + Area.m_Rect.height - 1);
+    e.m_EdgeRect.x = static_cast<WUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<WUInt16>(Area.m_Rect.y + Area.m_Rect.height - 1);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
-    e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x, Area.m_Rect.y + Area.m_Rect.height));
+    e.m_iNeighborArea = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x, Area.m_Rect.y + Area.m_Rect.height));
 
-    for (ezUInt32 x = Area.m_Rect.x + 1; x < Area.m_Rect.x + Area.m_Rect.width; ++x)
+    for (WUInt32 x = Area.m_Rect.x + 1; x < Area.m_Rect.x + Area.m_Rect.width; ++x)
     {
-      const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(x, Area.m_Rect.y + Area.m_Rect.height));
+      const WInt32 iThisNeighbor = m_NodesGrid.GetCell(WVec2I32(x, Area.m_Rect.y + Area.m_Rect.height));
 
       if (e.m_iNeighborArea != iThisNeighbor)
       {
@@ -441,7 +441,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.x = static_cast<ezUInt16>(x);
+        e.m_EdgeRect.x = static_cast<WUInt16>(x);
         e.m_EdgeRect.width = 0;
       }
 
@@ -458,15 +458,15 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.x > 0)
   {
     AreaEdge e;
-    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
-    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
+    e.m_EdgeRect.x = static_cast<WUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<WUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
-    e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x - 1, Area.m_Rect.y));
+    e.m_iNeighborArea = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x - 1, Area.m_Rect.y));
 
-    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
+    for (WUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
     {
-      const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x - 1, y));
+      const WInt32 iThisNeighbor = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x - 1, y));
 
       if (e.m_iNeighborArea != iThisNeighbor)
       {
@@ -477,7 +477,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.y = static_cast<ezUInt16>(y);
+        e.m_EdgeRect.y = static_cast<WUInt16>(y);
         e.m_EdgeRect.height = 0;
       }
 
@@ -494,15 +494,15 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.x + Area.m_Rect.width < m_NodesGrid.GetGridSizeX())
   {
     AreaEdge e;
-    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x + Area.m_Rect.width - 1);
-    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
+    e.m_EdgeRect.x = static_cast<WUInt16>(Area.m_Rect.x + Area.m_Rect.width - 1);
+    e.m_EdgeRect.y = static_cast<WUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
-    e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x + Area.m_Rect.width, Area.m_Rect.y));
+    e.m_iNeighborArea = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x + Area.m_Rect.width, Area.m_Rect.y));
 
-    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
+    for (WUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
     {
-      const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x + Area.m_Rect.width, y));
+      const WInt32 iThisNeighbor = m_NodesGrid.GetCell(WVec2I32(Area.m_Rect.x + Area.m_Rect.width, y));
 
       if (e.m_iNeighborArea != iThisNeighbor)
       {
@@ -513,7 +513,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.y = static_cast<ezUInt16>(y);
+        e.m_EdgeRect.y = static_cast<WUInt16>(y);
         e.m_EdgeRect.height = 0;
       }
 

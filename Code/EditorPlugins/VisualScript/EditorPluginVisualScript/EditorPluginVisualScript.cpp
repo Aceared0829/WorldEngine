@@ -14,13 +14,13 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar", "AssetMenuBar");
-      ezEditActions::MapActions("VisualScriptAssetMenuBar", false, false);
+      WActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar", "AssetMenuBar");
+      WEditActions::MapActions("VisualScriptAssetMenuBar", false, false);
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar", "AssetToolbar");
+      WActionMapManager::RegisterActionMap("VisualScriptAssetToolBar", "AssetToolbar");
     }
   }
 }
@@ -29,12 +29,12 @@ void OnUnloadPlugin()
 {
 }
 
-EZ_PLUGIN_ON_LOADED()
+W_PLUGIN_ON_LOADED()
 {
   OnLoadPlugin();
 }
 
-EZ_PLUGIN_ON_UNLOADED()
+W_PLUGIN_ON_UNLOADED()
 {
   OnUnloadPlugin();
 }

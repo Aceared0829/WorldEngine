@@ -13,13 +13,13 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpCppTool, 1, ezRTTIDefaultAllocator<ezMcpCppTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpCppTool, 1, WRTTIDefaultAllocator<WMcpCppTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMcpCppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpCppTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
-  ezMcpToolDesc& status = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& status = out_tools.ExpandAndGetRef();
   status.m_sName = "cpp_status";
   status.m_sDescription = "Returns the state of the project's C++ plugin: whether the project has C++ code at all, the plugin "
                           "name, where its sources, its build directory, its solution and its compiled library are, whether a "
@@ -28,7 +28,7 @@ void ezMcpCppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
                           "project without C++ code reports 'hasCppProject' false; cpp_generate creates it.";
   status.m_sInputSchema = R"({"type":"object","properties":{}})";
 
-  ezMcpToolDesc& generate = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& generate = out_tools.ExpandAndGetRef();
   generate.m_sName = "cpp_generate";
   generate.m_sDescription = "Creates or regenerates the C++ plugin of the open project: writes the default sources into the "
                             "project directory if they are not there yet, updates the generated files that belong to the SDK, "
@@ -49,7 +49,7 @@ void ezMcpCppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
                             R"("useSdkCompiler":{"type":"boolean","description":"Switch the editor's compiler preference to the one this SDK was built with before generating. Default false. Set it when cpp_status reports a compiler mismatch, which otherwise makes CMake refuse to run - a plugin built with a different compiler cannot be loaded."}})"
                             R"(})";
 
-  ezMcpToolDesc& build = out_tools.ExpandAndGetRef();
+  WMcpToolDesc& build = out_tools.ExpandAndGetRef();
   build.m_sName = "cpp_build";
   build.m_sDescription = "Compiles the C++ plugin of the open project and restarts the engine process so the editor picks up the "
                          "new library. Call this after editing the project's C++ sources. Requires that the C++ project already "
@@ -65,7 +65,7 @@ void ezMcpCppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
                          R"(})";
 }
 
-void ezMcpCppTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCppTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "cpp_status")
   {
@@ -81,9 +81,9 @@ void ezMcpCppTool::Execute(ezStringView sToolName, const ezVariantDictionary& ar
   }
 }
 
-bool ezMcpCppTool::PrepareSettings(ezCppSettings& out_settings, ezMcpToolResult& out_result)
+bool WMcpCppTool::PrepareSettings(WCppSettings& out_settings, WMcpToolResult& out_result)
 {
-  if (!ezToolsProject::IsProjectOpen())
+  if (!WToolsProject::IsProjectOpen())
   {
     out_result.SetError("No project is open, so there is no C++ plugin to work with.");
     return false;
@@ -95,22 +95,22 @@ bool ezMcpCppTool::PrepareSettings(ezCppSettings& out_settings, ezMcpToolResult&
   return true;
 }
 
-ezString ezMcpCppTool::GetEffectivePluginName(const ezCppSettings& settings)
+WString WMcpCppTool::GetEffectivePluginName(const WCppSettings& settings)
 {
   if (!settings.m_sPluginName.IsEmpty())
     return settings.m_sPluginName;
 
   // Same fallback as the C++ project dialog, where the project name is the placeholder text.
-  return ezToolsProject::GetSingleton()->GetProjectName(true);
+  return WToolsProject::GetSingleton()->GetProjectName(true);
 }
 
-ezString ezMcpCppTool::GetPluginBinaryPath(const ezCppSettings& settings)
+WString WMcpCppTool::GetPluginBinaryPath(const WCppSettings& settings)
 {
-  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  WStringBuilder sPath = WOSFile::GetApplicationDirectory();
   sPath.AppendPath(GetEffectivePluginName(settings));
   sPath.Append("Plugin");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   sPath.Append(".dll");
 #else
   sPath.Append(".so");
@@ -120,39 +120,39 @@ ezString ezMcpCppTool::GetPluginBinaryPath(const ezCppSettings& settings)
   return sPath;
 }
 
-void ezMcpCppTool::ExecuteStatus(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCppTool::ExecuteStatus(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezCppSettings cfg;
+  WCppSettings cfg;
   if (!PrepareSettings(cfg, out_result))
     return;
 
-  const bool bHasCppProject = ezCppProject::ExistsProjectCMakeListsTxt();
-  const ezStatus compilerStatus = ezCppProject::TestCompiler();
-  const ezString sPluginBinary = GetPluginBinaryPath(cfg);
+  const bool bHasCppProject = WCppProject::ExistsProjectCMakeListsTxt();
+  const WStatus compilerStatus = WCppProject::TestCompiler();
+  const WString sPluginBinary = GetPluginBinaryPath(cfg);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   // Whether the CMakeLists.txt exists is the distinction that decides which tool to call next: without
-  // it every other operation does nothing, quietly, since ezCppProject treats "no C++ code" as success.
+  // it every other operation does nothing, quietly, since WCppProject treats "no C++ code" as success.
   writer.AddVariableBool("hasCppProject", bHasCppProject);
   writer.AddVariableBool("pluginNameConfigured", !cfg.m_sPluginName.IsEmpty());
   writer.AddVariableString("pluginName", GetEffectivePluginName(cfg));
 
-  writer.AddVariableString("sourceDirectory", ezCppProject::GetTargetSourceDir());
-  writer.AddVariableString("pluginSourceDirectory", ezCppProject::GetPluginSourceDir(cfg));
-  writer.AddVariableString("buildDirectory", ezCppProject::GetBuildDir(cfg));
-  writer.AddVariableString("solutionPath", ezCppProject::GetSolutionPath(cfg));
-  writer.AddVariableBool("solutionExists", ezCppProject::ExistsSolution(cfg));
+  writer.AddVariableString("sourceDirectory", WCppProject::GetTargetSourceDir());
+  writer.AddVariableString("pluginSourceDirectory", WCppProject::GetPluginSourceDir(cfg));
+  writer.AddVariableString("buildDirectory", WCppProject::GetBuildDir(cfg));
+  writer.AddVariableString("solutionPath", WCppProject::GetSolutionPath(cfg));
+  writer.AddVariableBool("solutionExists", WCppProject::ExistsSolution(cfg));
 
   // The library the editor actually loads. Reported because a successful build and a loadable plugin
   // are not the same thing: a mismatched name or a build into a different directory shows up here.
   writer.AddVariableString("pluginBinary", sPluginBinary);
-  writer.AddVariableBool("pluginBinaryExists", ezOSFile::ExistsFile(sPluginBinary));
+  writer.AddVariableBool("pluginBinaryExists", WOSFile::ExistsFile(sPluginBinary));
 
   // Only tests for missing outputs and an outdated CMake cache - it does not compare source timestamps,
   // so false does not mean the binary is up to date with the sources. Build anyway after editing code.
-  writer.AddVariableBool("buildRequired", ezCppProject::IsBuildRequired());
+  writer.AddVariableBool("buildRequired", WCppProject::IsBuildRequired());
 
   writer.AddVariableBool("compilerUsable", compilerStatus.Succeeded());
   if (compilerStatus.Failed())
@@ -163,25 +163,25 @@ void ezMcpCppTool::ExecuteStatus(const ezVariantDictionary& arguments, ezMcpTool
   // A plugin has to be built with the compiler the SDK was built with, which is the first thing
   // TestCompiler() checks - so a usable compiler is this one, and 'compilerError' names the configured
   // one when it is not. cpp_generate's 'useSdkCompiler' switches the preference over.
-  writer.AddVariableString("sdkCompiler", ezCppProject::CompilerToString(ezCppProject::GetSdkCompiler()));
-  writer.AddVariableString("sdkCompilerVersion", ezCppProject::GetSdkCompilerMajorVersion());
+  writer.AddVariableString("sdkCompiler", WCppProject::CompilerToString(WCppProject::GetSdkCompiler()));
+  writer.AddVariableString("sdkCompilerVersion", WCppProject::GetSdkCompilerMajorVersion());
 
   writer.EndObject();
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCppTool::ExecuteGenerate(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezCppSettings cfg;
+  WCppSettings cfg;
   if (!PrepareSettings(cfg, out_result))
     return;
 
-  const bool bCompile = ezMcpJson::GetBool(arguments, "compile", true);
-  const bool bCleanBuildDir = ezMcpJson::GetBool(arguments, "cleanBuildDirectory", false);
-  const bool bUseSdkCompiler = ezMcpJson::GetBool(arguments, "useSdkCompiler", false);
+  const bool bCompile = WMcpJson::GetBool(arguments, "compile", true);
+  const bool bCleanBuildDir = WMcpJson::GetBool(arguments, "cleanBuildDirectory", false);
+  const bool bUseSdkCompiler = WMcpJson::GetBool(arguments, "useSdkCompiler", false);
 
   {
-    ezStringBuilder sRequestedName = ezMcpJson::GetString(arguments, "pluginName");
+    WStringBuilder sRequestedName = WMcpJson::GetString(arguments, "pluginName");
     sRequestedName.Trim(" \t");
 
     // The dialog stores the name without the suffix and appends it everywhere, so a caller that spells
@@ -197,7 +197,7 @@ void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpTo
       // disk all contain the old name and are deliberately not touched, so the rename would produce a
       // project that no longer builds. Deleting those files by hand is the only way through, which is
       // not something to do behind the caller's back.
-      out_result.SetError(ezStringBuilder("This project's C++ plugin is called '", cfg.m_sPluginName, "', it cannot be renamed to '",
+      out_result.SetError(WStringBuilder("This project's C++ plugin is called '", cfg.m_sPluginName, "', it cannot be renamed to '",
         sRequestedName, "'. The existing sources and CMake files were written with the old name and are not modified, so the "
                         "rename would leave a project that does not build. Omit 'pluginName' to keep the existing one."));
       return;
@@ -205,7 +205,7 @@ void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpTo
 
     if (cfg.m_sPluginName.IsEmpty())
     {
-      cfg.m_sPluginName = sRequestedName.IsEmpty() ? GetEffectivePluginName(cfg) : ezString(sRequestedName);
+      cfg.m_sPluginName = sRequestedName.IsEmpty() ? GetEffectivePluginName(cfg) : WString(sRequestedName);
     }
   }
 
@@ -215,40 +215,40 @@ void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpTo
     return;
   }
 
-  ezLogSystemToBuffer logBuffer;
-  ezStatus result = ezStatus(EZ_SUCCESS);
+  WLogSystemToBuffer logBuffer;
+  WStatus result = WStatus(W_SUCCESS);
   bool bCompiled = false;
 
   {
-    ezLogSystemScope logScope(&logBuffer);
+    WLogSystemScope logScope(&logBuffer);
 
-    if (bUseSdkCompiler && ezCppProject::ForceSdkCompatibleCompiler().Failed())
+    if (bUseSdkCompiler && WCppProject::ForceSdkCompatibleCompiler().Failed())
     {
-      ezLog::Warning("No compiler compatible with this SDK was found on this machine, keeping the configured one.");
+      WLog::Warning("No compiler compatible with this SDK was found on this machine, keeping the configured one.");
     }
 
-    if (bCleanBuildDir && ezCppProject::CleanBuildDir(cfg).Failed())
+    if (bCleanBuildDir && WCppProject::CleanBuildDir(cfg).Failed())
     {
       // Not fatal: the usual cause is the solution being open in an IDE, and CMake can regenerate into
       // an existing directory. Reported so a later stale-looking failure has an explanation.
-      ezLog::Warning("Could not delete the build directory '{}'. It is probably open in an IDE.", ezCppProject::GetBuildDir(cfg));
+      WLog::Warning("Could not delete the build directory '{}'. It is probably open in an IDE.", WCppProject::GetBuildDir(cfg));
     }
 
-    if (ezCppProject::PopulateWithDefaultSources(cfg).Failed())
+    if (WCppProject::PopulateWithDefaultSources(cfg).Failed())
     {
-      result = ezStatus("Writing the default C++ source files into the project directory failed.");
+      result = WStatus("Writing the default C++ source files into the project directory failed.");
     }
 
-    if (result.Succeeded() && ezCppProject::RunCMake(cfg).Failed())
+    if (result.Succeeded() && WCppProject::RunCMake(cfg).Failed())
     {
-      result = ezStatus("Generating the C++ solution with CMake failed.");
+      result = WStatus("Generating the C++ solution with CMake failed.");
     }
 
     if (result.Succeeded() && bCompile)
     {
-      if (ezCppProject::CompileSolution(cfg).Failed())
+      if (WCppProject::CompileSolution(cfg).Failed())
       {
-        result = ezStatus("Compiling the generated C++ solution failed.");
+        result = WStatus("Compiling the generated C++ solution failed.");
       }
       else
       {
@@ -261,17 +261,17 @@ void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpTo
   {
     // Writes the plugin's config header and reloads the engine process, so that the plugin that was
     // just built is the one in use. Without this the editor keeps running the previous library.
-    ezCppProject::UpdatePluginConfig(cfg);
-    ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+    WCppProject::UpdatePluginConfig(cfg);
+    WQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableBool("generated", result.Succeeded());
   writer.AddVariableString("pluginName", cfg.m_sPluginName);
-  writer.AddVariableString("sourceDirectory", ezCppProject::GetTargetSourceDir());
-  writer.AddVariableString("solutionPath", ezCppProject::GetSolutionPath(cfg));
+  writer.AddVariableString("sourceDirectory", WCppProject::GetTargetSourceDir());
+  writer.AddVariableString("solutionPath", WCppProject::GetSolutionPath(cfg));
   writer.AddVariableBool("compiled", bCompiled);
 
   if (bCompiled)
@@ -292,39 +292,39 @@ void ezMcpCppTool::ExecuteGenerate(const ezVariantDictionary& arguments, ezMcpTo
   out_result.m_bIsError = result.Failed();
 }
 
-void ezMcpCppTool::ExecuteBuild(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpCppTool::ExecuteBuild(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  ezCppSettings cfg;
+  WCppSettings cfg;
   if (!PrepareSettings(cfg, out_result))
     return;
 
-  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  if (!WCppProject::ExistsProjectCMakeListsTxt())
   {
-    // ezCppProject reports success for a project without C++ code, which as a tool result would read as
+    // WCppProject reports success for a project without C++ code, which as a tool result would read as
     // "built" and leave a caller waiting for a plugin that is never going to appear.
-    out_result.SetError(ezStringBuilder("This project has no C++ code: there is no CMakeLists.txt in '",
-      ezCppProject::GetTargetSourceDir(), "'. Call cpp_generate to create the C++ plugin first."));
+    out_result.SetError(WStringBuilder("This project has no C++ code: there is no CMakeLists.txt in '",
+      WCppProject::GetTargetSourceDir(), "'. Call cpp_generate to create the C++ plugin first."));
     return;
   }
 
-  const bool bForce = ezMcpJson::GetBool(arguments, "force", false);
+  const bool bForce = WMcpJson::GetBool(arguments, "force", false);
 
-  ezLogSystemToBuffer logBuffer;
-  ezStatus result = ezStatus(EZ_SUCCESS);
+  WLogSystemToBuffer logBuffer;
+  WStatus result = WStatus(W_SUCCESS);
 
   {
-    ezLogSystemScope logScope(&logBuffer);
+    WLogSystemScope logScope(&logBuffer);
 
     // Keeps the SDK-owned files in the project's source directory current - the same step the editor
     // performs before it builds. It leaves the user's own sources alone.
-    if (ezCppProject::PopulateWithDefaultSources(cfg).Failed())
+    if (WCppProject::PopulateWithDefaultSources(cfg).Failed())
     {
-      result = ezStatus("Updating the default C++ source files in the project directory failed.");
+      result = WStatus("Updating the default C++ source files in the project directory failed.");
     }
 
-    if (result.Succeeded() && bForce && ezCppProject::RunCMake(cfg).Failed())
+    if (result.Succeeded() && bForce && WCppProject::RunCMake(cfg).Failed())
     {
-      result = ezStatus("Re-generating the C++ solution with CMake failed.");
+      result = WStatus("Re-generating the C++ solution with CMake failed.");
     }
 
     if (result.Succeeded())
@@ -332,19 +332,19 @@ void ezMcpCppTool::ExecuteBuild(const ezVariantDictionary& arguments, ezMcpToolR
       // BuildCodeIfNecessary() runs CMake only when the solution is missing or its cache is outdated,
       // then compiles unconditionally - the build system decides what is actually out of date. With
       // 'force' CMake has already run above.
-      if (ezCppProject::BuildCodeIfNecessary(cfg).Failed())
+      if (WCppProject::BuildCodeIfNecessary(cfg).Failed())
       {
-        result = ezStatus("Compiling the C++ code failed.");
+        result = WStatus("Compiling the C++ code failed.");
       }
     }
   }
 
   if (result.Succeeded())
   {
-    ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+    WQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableBool("built", result.Succeeded());

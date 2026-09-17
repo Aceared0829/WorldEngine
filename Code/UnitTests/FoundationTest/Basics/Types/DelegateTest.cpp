@@ -7,33 +7,33 @@
 
 namespace
 {
-  ezAllocator* g_pTestAllocator;
+  WAllocator* g_pTestAllocator;
 
-  struct ezTestAllocatorWrapper
+  struct WTestAllocatorWrapper
   {
-    static ezAllocator* GetAllocator() { return g_pTestAllocator; }
+    static WAllocator* GetAllocator() { return g_pTestAllocator; }
   };
 
   struct TestType
   {
     TestType(){}; // NOLINT: Allow default construction
 
-    ezInt32 MethodWithManyParams(ezInt32 a, ezInt32 b, ezInt32 c, ezInt32 d, ezInt32 e, ezInt32 f) { return m_iA + a + b + c + d + e + f; }
+    WInt32 MethodWithManyParams(WInt32 a, WInt32 b, WInt32 c, WInt32 d, WInt32 e, WInt32 f) { return m_iA + a + b + c + d + e + f; }
 
-    ezInt32 Method(ezInt32 b) { return b + m_iA; }
+    WInt32 Method(WInt32 b) { return b + m_iA; }
 
-    ezInt32 ConstMethod(ezInt32 b) const { return b + m_iA + 4; }
+    WInt32 ConstMethod(WInt32 b) const { return b + m_iA + 4; }
 
-    virtual ezInt32 VirtualMethod(ezInt32 b) { return b; }
+    virtual WInt32 VirtualMethod(WInt32 b) { return b; }
 
-    mutable ezInt32 m_iA;
+    mutable WInt32 m_iA;
   };
 
   struct TestTypeDerived : public TestType
   {
-    ezInt32 Method(ezInt32 b) { return b + 4; }
+    WInt32 Method(WInt32 b) { return b + 4; }
 
-    virtual ezInt32 VirtualMethod(ezInt32 b) override { return b + 43; }
+    virtual WInt32 VirtualMethod(WInt32 b) override { return b + 43; }
   };
 
   struct BaseA
@@ -53,12 +53,12 @@ namespace
 
   struct ComplexClass : public BaseA, public BaseB
   {
-    ComplexClass() { m_ctorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this); }
+    ComplexClass() { m_ctorDel = WMakeDelegate(&ComplexClass::nonVirtualFunc, this); }
 
     virtual ~ComplexClass()
     {
-      m_dtorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this);
-      EZ_TEST_BOOL(m_ctorDel.IsEqualIfComparable(m_dtorDel));
+      m_dtorDel = WMakeDelegate(&ComplexClass::nonVirtualFunc, this);
+      W_TEST_BOOL(m_ctorDel.IsEqualIfComparable(m_dtorDel));
     }
     virtual void bar() override {}
     virtual void foo() override {}
@@ -74,159 +74,159 @@ namespace
 
     int m_i3;
 
-    ezDelegate<void()> m_ctorDel;
-    ezDelegate<void()> m_dtorDel;
+    WDelegate<void()> m_ctorDel;
+    WDelegate<void()> m_dtorDel;
   };
 
-  static ezInt32 Function(ezInt32 b)
+  static WInt32 Function(WInt32 b)
   {
     return b + 2;
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
+W_CREATE_SIMPLE_TEST(Basics, Delegate)
 {
-  using TestDelegate = ezDelegate<ezInt32(ezInt32)>;
+  using TestDelegate = WDelegate<WInt32(WInt32)>;
   TestDelegate d;
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_TEST_BOOL(sizeof(d) == 32);
+#if W_ENABLED(W_PLATFORM_64BIT)
+  W_TEST_BOOL(sizeof(d) == 32);
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Method")
   {
     TestTypeDerived test;
     test.m_iA = 42;
 
     d = TestDelegate(&TestType::Method, &test);
-    EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::Method, &test)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 46);
+    W_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::Method, &test)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 46);
 
     d = TestDelegate(&TestTypeDerived::Method, &test);
-    EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestTypeDerived::Method, &test)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 8);
+    W_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestTypeDerived::Method, &test)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 8);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method With Many Params")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Method With Many Params")
   {
-    using TestDelegateMany = ezDelegate<ezInt32(ezInt32, ezInt32, ezInt32, ezInt32, ezInt32, ezInt32)>;
+    using TestDelegateMany = WDelegate<WInt32(WInt32, WInt32, WInt32, WInt32, WInt32, WInt32)>;
     TestDelegateMany many;
 
     TestType test;
     test.m_iA = 1000000;
 
     many = TestDelegateMany(&TestType::MethodWithManyParams, &test);
-    EZ_TEST_BOOL(many.IsEqualIfComparable(TestDelegateMany(&TestType::MethodWithManyParams, &test)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(many(1, 10, 100, 1000, 10000, 100000), 1111111);
+    W_TEST_BOOL(many.IsEqualIfComparable(TestDelegateMany(&TestType::MethodWithManyParams, &test)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(many(1, 10, 100, 1000, 10000, 100000), 1111111);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Complex Class")
   {
-    EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_GCC("-Wfree-nonheap-object")
+    W_WARNING_PUSH()
+    W_WARNING_DISABLE_GCC("-Wfree-nonheap-object")
 
     ComplexClass* c = new ComplexClass();
     delete c;
 
-    EZ_WARNING_POP()
+    W_WARNING_POP()
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const Method")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Const Method")
   {
     const TestType constTest;
     constTest.m_iA = 35;
 
     d = TestDelegate(&TestType::ConstMethod, &constTest);
-    EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::ConstMethod, &constTest)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 43);
+    W_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::ConstMethod, &constTest)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 43);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual Method")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Virtual Method")
   {
     TestTypeDerived test;
 
     d = TestDelegate(&TestType::VirtualMethod, &test);
-    EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::VirtualMethod, &test)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 47);
+    W_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestType::VirtualMethod, &test)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 47);
 
     d = TestDelegate(&TestTypeDerived::VirtualMethod, &test);
-    EZ_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestTypeDerived::VirtualMethod, &test)));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 47);
+    W_TEST_BOOL(d.IsEqualIfComparable(TestDelegate(&TestTypeDerived::VirtualMethod, &test)));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 47);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Function")
   {
     d = &Function;
-    EZ_TEST_BOOL(d.IsEqualIfComparable(&Function));
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(4), 6);
+    W_TEST_BOOL(d.IsEqualIfComparable(&Function));
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(4), 6);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - no capture")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - no capture")
   {
-    d = [](ezInt32 i)
+    d = [](WInt32 i)
     { return i * 4; };
-    EZ_TEST_BOOL(d.IsComparable());
-    EZ_TEST_INT(d(2), 8);
+    W_TEST_BOOL(d.IsComparable());
+    W_TEST_INT(d(2), 8);
 
     TestDelegate d2 = d;
-    EZ_TEST_BOOL(d2.IsEqualIfComparable(d));
+    W_TEST_BOOL(d2.IsEqualIfComparable(d));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture by value")
   {
-    ezInt32 c = 20;
-    d = [c](ezInt32)
+    WInt32 c = 20;
+    d = [c](WInt32)
     { return c; };
-    EZ_TEST_BOOL(!d.IsComparable());
-    EZ_TEST_INT(d(3), 20);
+    W_TEST_BOOL(!d.IsComparable());
+    W_TEST_INT(d(3), 20);
     c = 10;
-    EZ_TEST_INT(d(3), 20);
+    W_TEST_INT(d(3), 20);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value, mutable")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture by value, mutable")
   {
-    ezInt32 c = 20;
-    d = [c](ezInt32) mutable
+    WInt32 c = 20;
+    d = [c](WInt32) mutable
     { return c; };
-    EZ_TEST_BOOL(!d.IsComparable());
-    EZ_TEST_INT(d(3), 20);
+    W_TEST_BOOL(!d.IsComparable());
+    W_TEST_INT(d(3), 20);
     c = 10;
-    EZ_TEST_INT(d(3), 20);
+    W_TEST_INT(d(3), 20);
 
-    d = [c](ezInt32 b) mutable -> decltype(b + c)
+    d = [c](WInt32 b) mutable -> decltype(b + c)
     {
       auto result = b + c;
       c = 1;
       return result;
     };
-    EZ_TEST_BOOL(!d.IsComparable());
-    EZ_TEST_INT(d(3), 13);
-    EZ_TEST_INT(d(3), 4);
+    W_TEST_BOOL(!d.IsComparable());
+    W_TEST_INT(d(3), 13);
+    W_TEST_INT(d(3), 4);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by reference")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture by reference")
   {
-    ezInt32 c = 20;
-    d = [&c](ezInt32 i) -> decltype(i)
+    WInt32 c = 20;
+    d = [&c](WInt32 i) -> decltype(i)
     {
       c = 5;
       return i;
     };
-    EZ_TEST_BOOL(!d.IsComparable());
-    EZ_TEST_INT(d(3), 3);
-    EZ_TEST_INT(c, 5);
+    W_TEST_BOOL(!d.IsComparable());
+    W_TEST_INT(d(3), 3);
+    W_TEST_INT(c, 5);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value of non-pod")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture by value of non-pod")
   {
-    struct RefCountedInt : public ezRefCounted
+    struct RefCountedInt : public WRefCounted
     {
       RefCountedInt() = default;
       RefCountedInt(int i)
@@ -236,165 +236,165 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       int m_value;
     };
 
-    ezSharedPtr<RefCountedInt> shared = EZ_DEFAULT_NEW(RefCountedInt, 1);
-    EZ_TEST_INT(shared->GetRefCount(), 1);
+    WSharedPtr<RefCountedInt> shared = W_DEFAULT_NEW(RefCountedInt, 1);
+    W_TEST_INT(shared->GetRefCount(), 1);
     {
-      TestDelegate deleteMe = [shared](ezInt32 i) -> decltype(i)
+      TestDelegate deleteMe = [shared](WInt32 i) -> decltype(i)
       { return 0; };
-      EZ_TEST_BOOL(!deleteMe.IsComparable());
-      EZ_TEST_INT(shared->GetRefCount(), 2);
+      W_TEST_BOOL(!deleteMe.IsComparable());
+      W_TEST_INT(shared->GetRefCount(), 2);
     }
-    EZ_TEST_INT(shared->GetRefCount(), 1);
+    W_TEST_INT(shared->GetRefCount(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture lots of things")
   {
-    ezInt64 a = 10;
-    ezInt64 b = 20;
-    ezInt64 c = 30;
-    d = [a, b, c](ezInt32 i) -> ezInt32
-    { return static_cast<ezInt32>(a + b + c + i); };
-    EZ_TEST_INT(d(6), 66);
-    EZ_TEST_BOOL(!d.IsComparable());
+    WInt64 a = 10;
+    WInt64 b = 20;
+    WInt64 c = 30;
+    d = [a, b, c](WInt32 i) -> WInt32
+    { return static_cast<WInt32>(a + b + c + i); };
+    W_TEST_INT(d(6), 66);
+    W_TEST_BOOL(!d.IsComparable());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things - custom allocator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture lots of things - custom allocator")
   {
-    ezInt64 a = 10;
-    ezInt64 b = 20;
-    ezInt64 c = 30;
-    d = TestDelegate([a, b, c](ezInt32 i) -> ezInt32
-      { return static_cast<ezInt32>(a + b + c + i); }, ezFoundation::GetAlignedAllocator());
-    EZ_TEST_INT(d(6), 66);
-    EZ_TEST_BOOL(!d.IsComparable());
+    WInt64 a = 10;
+    WInt64 b = 20;
+    WInt64 c = 30;
+    d = TestDelegate([a, b, c](WInt32 i) -> WInt32
+      { return static_cast<WInt32>(a + b + c + i); }, WFoundation::GetAlignedAllocator());
+    W_TEST_INT(d(6), 66);
+    W_TEST_BOOL(!d.IsComparable());
 
     d.Invalidate();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things - allocator wrapper")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture lots of things - allocator wrapper")
   {
-    ezProxyAllocator proxy("DelegateTestAllocator", ezFoundation::GetDefaultAllocator());
+    WProxyAllocator proxy("DelegateTestAllocator", WFoundation::GetDefaultAllocator());
     g_pTestAllocator = &proxy;
 
-    ezInt64 a = 10;
-    ezInt64 b = 20;
-    ezInt64 c = 30;
+    WInt64 a = 10;
+    WInt64 b = 20;
+    WInt64 c = 30;
 
-    using TestDelegateWithAllocator = ezDelegate<ezInt32(ezInt32), 16, ezTestAllocatorWrapper>;
-    TestDelegateWithAllocator d2 = [a, b, c](ezInt32 i) -> ezInt32
-    { return static_cast<ezInt32>(a + b + c + i); };
+    using TestDelegateWithAllocator = WDelegate<WInt32(WInt32), 16, WTestAllocatorWrapper>;
+    TestDelegateWithAllocator d2 = [a, b, c](WInt32 i) -> WInt32
+    { return static_cast<WInt32>(a + b + c + i); };
 
-    EZ_TEST_INT(d2(6), 66);
-    EZ_TEST_BOOL(!d2.IsComparable());
-    EZ_TEST_BOOL(proxy.GetStats().m_uiNumAllocations > 0);
+    W_TEST_INT(d2(6), 66);
+    W_TEST_BOOL(!d2.IsComparable());
+    W_TEST_BOOL(proxy.GetStats().m_uiNumAllocations > 0);
 
     d2.Invalidate();
     g_pTestAllocator = nullptr;
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move semantics")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Move semantics")
   {
     // Move pure function
     {
       d.Invalidate();
       TestDelegate d2 = &Function;
       d = std::move(d2);
-      EZ_TEST_BOOL(d.IsValid());
-      EZ_TEST_BOOL(!d2.IsValid());
-      EZ_TEST_BOOL(d.IsComparable());
-      EZ_TEST_INT(d(4), 6);
+      W_TEST_BOOL(d.IsValid());
+      W_TEST_BOOL(!d2.IsValid());
+      W_TEST_BOOL(d.IsComparable());
+      W_TEST_INT(d(4), 6);
     }
 
     // Move delegate
-    ezConstructionCounter::Reset();
+    WConstructionCounter::Reset();
     d.Invalidate();
     {
-      ezConstructionCounter value;
+      WConstructionCounter value;
       value.m_iData = 666;
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
-      TestDelegate d2 = [value](ezInt32 i) -> ezInt32
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 1);
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 0);
+      TestDelegate d2 = [value](WInt32 i) -> WInt32
       { return value.m_iData; };
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 1);  // Move of lambda
       d = std::move(d2);
       // Moving a construction counter also counts as construction
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4);
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);
-      EZ_TEST_BOOL(d.IsValid());
-      EZ_TEST_BOOL(!d2.IsValid());
-      EZ_TEST_BOOL(!d.IsComparable());
-      EZ_TEST_INT(d(0), 666);
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 4);
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 1);
+      W_TEST_BOOL(d.IsValid());
+      W_TEST_BOOL(!d2.IsValid());
+      W_TEST_BOOL(!d.IsComparable());
+      W_TEST_INT(d(0), 666);
     }
-    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 2); // value out of scope
-    EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4);
+    W_TEST_INT(WConstructionCounter::s_iDestructions, 2); // value out of scope
+    W_TEST_INT(WConstructionCounter::s_iConstructions, 4);
     d.Invalidate();
-    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 3); // lambda destroyed.
+    W_TEST_INT(WConstructionCounter::s_iDestructions, 3); // lambda destroyed.
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - Copy")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - Copy")
   {
     d.Invalidate();
-    ezConstructionCounter::Reset();
+    WConstructionCounter::Reset();
     {
-      ezConstructionCounter value;
+      WConstructionCounter value;
       value.m_iData = 666;
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
-      TestDelegate d2 = TestDelegate([value](ezInt32 i) -> ezInt32
-        { return value.m_iData; }, ezFoundation::GetAlignedAllocator());
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 1);
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 0);
+      TestDelegate d2 = TestDelegate([value](WInt32 i) -> WInt32
+        { return value.m_iData; }, WFoundation::GetAlignedAllocator());
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 1);  // Move of lambda
       d = d2;
-      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4); // Lambda Copy
-      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);
-      EZ_TEST_BOOL(d.IsValid());
-      EZ_TEST_BOOL(d2.IsValid());
-      EZ_TEST_BOOL(!d.IsComparable());
-      EZ_TEST_BOOL(!d2.IsComparable());
-      EZ_TEST_INT(d(0), 666);
-      EZ_TEST_INT(d2(0), 666);
+      W_TEST_INT(WConstructionCounter::s_iConstructions, 4); // Lambda Copy
+      W_TEST_INT(WConstructionCounter::s_iDestructions, 1);
+      W_TEST_BOOL(d.IsValid());
+      W_TEST_BOOL(d2.IsValid());
+      W_TEST_BOOL(!d.IsComparable());
+      W_TEST_BOOL(!d2.IsComparable());
+      W_TEST_INT(d(0), 666);
+      W_TEST_INT(d2(0), 666);
     }
-    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 3); // value and lambda out of scope
-    EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4);
+    W_TEST_INT(WConstructionCounter::s_iDestructions, 3); // value and lambda out of scope
+    W_TEST_INT(WConstructionCounter::s_iConstructions, 4);
     d.Invalidate();
-    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 4); // lambda destroyed.
+    W_TEST_INT(WConstructionCounter::s_iDestructions, 4); // lambda destroyed.
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture non-copyable type")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Lambda - capture non-copyable type")
   {
-    ezUniquePtr<ezConstructionCounter> data(EZ_DEFAULT_NEW(ezConstructionCounter));
+    WUniquePtr<WConstructionCounter> data(W_DEFAULT_NEW(WConstructionCounter));
     data->m_iData = 666;
-    TestDelegate d2 = [data = std::move(data)](ezInt32 i) -> ezInt32
+    TestDelegate d2 = [data = std::move(data)](WInt32 i) -> WInt32
     { return data->m_iData; };
-    EZ_TEST_INT(d2(0), 666);
+    W_TEST_INT(d2(0), 666);
     d = std::move(d2);
-    EZ_TEST_BOOL(d.IsValid());
-    EZ_TEST_BOOL(!d2.IsValid());
-    EZ_TEST_INT(d(0), 666);
+    W_TEST_BOOL(d.IsValid());
+    W_TEST_BOOL(!d2.IsValid());
+    W_TEST_INT(d(0), 666);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WMakeDelegate")
   {
-    auto d1 = ezMakeDelegate(&Function);
-    EZ_TEST_BOOL(d1.IsEqualIfComparable(ezMakeDelegate(&Function)));
+    auto d1 = WMakeDelegate(&Function);
+    W_TEST_BOOL(d1.IsEqualIfComparable(WMakeDelegate(&Function)));
 
     TestType instance;
-    auto d2 = ezMakeDelegate(&TestType::Method, &instance);
-    EZ_TEST_BOOL(d2.IsEqualIfComparable(ezMakeDelegate(&TestType::Method, &instance)));
-    auto d3 = ezMakeDelegate(&TestType::ConstMethod, &instance);
-    EZ_TEST_BOOL(d3.IsEqualIfComparable(ezMakeDelegate(&TestType::ConstMethod, &instance)));
-    auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
-    EZ_TEST_BOOL(d4.IsEqualIfComparable(ezMakeDelegate(&TestType::VirtualMethod, &instance)));
+    auto d2 = WMakeDelegate(&TestType::Method, &instance);
+    W_TEST_BOOL(d2.IsEqualIfComparable(WMakeDelegate(&TestType::Method, &instance)));
+    auto d3 = WMakeDelegate(&TestType::ConstMethod, &instance);
+    W_TEST_BOOL(d3.IsEqualIfComparable(WMakeDelegate(&TestType::ConstMethod, &instance)));
+    auto d4 = WMakeDelegate(&TestType::VirtualMethod, &instance);
+    W_TEST_BOOL(d4.IsEqualIfComparable(WMakeDelegate(&TestType::VirtualMethod, &instance)));
 
     TestType instance2;
-    auto d2_2 = ezMakeDelegate(&TestType::Method, &instance2);
-    EZ_TEST_BOOL(!d2_2.IsEqualIfComparable(d2));
+    auto d2_2 = WMakeDelegate(&TestType::Method, &instance2);
+    W_TEST_BOOL(!d2_2.IsEqualIfComparable(d2));
 
-    EZ_IGNORE_UNUSED(d1);
-    EZ_IGNORE_UNUSED(d2);
-    EZ_IGNORE_UNUSED(d2_2);
-    EZ_IGNORE_UNUSED(d3);
-    EZ_IGNORE_UNUSED(d4);
+    W_IGNORE_UNUSED(d1);
+    W_IGNORE_UNUSED(d2);
+    W_IGNORE_UNUSED(d2_2);
+    W_IGNORE_UNUSED(d3);
+    W_IGNORE_UNUSED(d4);
   }
 }

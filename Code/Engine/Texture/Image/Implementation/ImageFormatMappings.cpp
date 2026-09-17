@@ -124,12 +124,12 @@ using DXGI_FORMAT = enum DXGI_FORMAT {
   DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
 };
 
-ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
+WUInt32 WImageFormatMappings::ToDxgiFormat(WImageFormat::Enum format)
 {
 
-#define CASE_EZ2DXGI(ez)  \
-  case ezImageFormat::ez: \
-    return DXGI_FORMAT_##ez
+#define CASE_EZ2DXGI(W)  \
+  case WImageFormat::W: \
+    return DXGI_FORMAT_##W
   switch (format)
   {
     default:
@@ -208,15 +208,15 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
   }
 }
 
-ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
+WImageFormat::Enum WImageFormatMappings::FromDxgiFormat(WUInt32 uiDxgiFormat)
 {
-#define CASE_DXGI2EZ(ez) \
-  case DXGI_FORMAT_##ez: \
-    return ezImageFormat::ez
+#define CASE_DXGI2EZ(W) \
+  case DXGI_FORMAT_##W: \
+    return WImageFormat::W
   switch (uiDxgiFormat)
   {
     default:
-      return ezImageFormat::UNKNOWN;
+      return WImageFormat::UNKNOWN;
 
       CASE_DXGI2EZ(R32G32B32A32_FLOAT);
       CASE_DXGI2EZ(R32G32B32A32_UINT);
@@ -291,23 +291,23 @@ ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
   }
 }
 
-ezUInt32 ezImageFormatMappings::ToFourCc(ezImageFormat::Enum format)
+WUInt32 WImageFormatMappings::ToFourCc(WImageFormat::Enum format)
 {
   switch (format)
   {
-    case ezImageFormat::BC1_UNORM:
+    case WImageFormat::BC1_UNORM:
       return MAKE_FOURCC('D', 'X', 'T', '1');
 
-    case ezImageFormat::BC2_UNORM:
+    case WImageFormat::BC2_UNORM:
       return MAKE_FOURCC('D', 'X', 'T', '3');
 
-    case ezImageFormat::BC3_UNORM:
+    case WImageFormat::BC3_UNORM:
       return MAKE_FOURCC('D', 'X', 'T', '5');
 
-    case ezImageFormat::BC4_UNORM:
+    case WImageFormat::BC4_UNORM:
       return MAKE_FOURCC('A', 'T', 'I', '1');
 
-    case ezImageFormat::BC5_UNORM:
+    case WImageFormat::BC5_UNORM:
       return MAKE_FOURCC('A', 'T', 'I', '2');
 
     default:
@@ -315,55 +315,55 @@ ezUInt32 ezImageFormatMappings::ToFourCc(ezImageFormat::Enum format)
   }
 }
 
-ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
+WImageFormat::Enum WImageFormatMappings::FromFourCc(WUInt32 uiFourCc)
 {
   switch (uiFourCc)
   {
     case MAKE_FOURCC('D', 'X', 'T', '1'):
-      return ezImageFormat::BC1_UNORM;
+      return WImageFormat::BC1_UNORM;
 
     case MAKE_FOURCC('D', 'X', 'T', '2'):
     case MAKE_FOURCC('D', 'X', 'T', '3'):
-      return ezImageFormat::BC2_UNORM;
+      return WImageFormat::BC2_UNORM;
 
     case MAKE_FOURCC('D', 'X', 'T', '4'):
     case MAKE_FOURCC('D', 'X', 'T', '5'):
-      return ezImageFormat::BC3_UNORM;
+      return WImageFormat::BC3_UNORM;
 
     case MAKE_FOURCC('A', 'T', 'I', '1'):
     case MAKE_FOURCC('B', 'C', '4', 'U'):
-      return ezImageFormat::BC4_UNORM;
+      return WImageFormat::BC4_UNORM;
 
     case MAKE_FOURCC('A', 'T', 'I', '2'):
     case MAKE_FOURCC('B', 'C', '5', 'U'):
-      return ezImageFormat::BC5_UNORM;
+      return WImageFormat::BC5_UNORM;
 
     // old legacy DirectX formats
     case 116: // D3DFMT_A32B32G32R32F
-      return ezImageFormat::R32G32B32A32_FLOAT;
+      return WImageFormat::R32G32B32A32_FLOAT;
 
     case 115: // D3DFMT_G32R32F
-      return ezImageFormat::R32G32_FLOAT;
+      return WImageFormat::R32G32_FLOAT;
 
     case 114: // D3DFMT_R32F
-      return ezImageFormat::R32_FLOAT;
+      return WImageFormat::R32_FLOAT;
 
     case 113: // D3DFMT_A16B16G16R16F
-      return ezImageFormat::R16G16B16A16_FLOAT;
+      return WImageFormat::R16G16B16A16_FLOAT;
 
     case 112: // D3DFMT_G16R16F
-      return ezImageFormat::R16G16_FLOAT;
+      return WImageFormat::R16G16_FLOAT;
 
     case 111: // D3DFMT_R16F
-      return ezImageFormat::R16_FLOAT;
+      return WImageFormat::R16_FLOAT;
 
     case 110: // D3DFMT_Q16W16V16U16
-      return ezImageFormat::R16G16B16A16_SNORM;
+      return WImageFormat::R16G16B16A16_SNORM;
 
     case 36:  // D3DFMT_A16B16G16R16
-      return ezImageFormat::R16G16B16A16_UNORM;
+      return WImageFormat::R16G16B16A16_UNORM;
 
     default:
-      return ezImageFormat::UNKNOWN;
+      return WImageFormat::UNKNOWN;
   }
 }

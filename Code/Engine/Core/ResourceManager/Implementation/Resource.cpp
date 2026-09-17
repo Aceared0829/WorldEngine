@@ -6,53 +6,53 @@
 #include <Foundation/System/StackTracer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WResource, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResource::DoUpdate ezResource::UpdateGraphicsResource = ezResource::DoUpdate::OnAnyThread;
+WResource::DoUpdate WResource::UpdateGraphicsResource = WResource::DoUpdate::OnAnyThread;
 
-EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner)
+W_CORE_DLL void IncreaseResourceRefCount(WResource* pResource, const void* pOwner)
 {
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
   {
-    EZ_LOCK(pResource->m_HandleStackTraceMutex);
+    W_LOCK(pResource->m_HandleStackTraceMutex);
 
     auto& info = pResource->m_HandleStackTraces[pOwner];
 
-    ezArrayPtr<void*> ptr(info.m_Ptrs);
+    WArrayPtr<void*> ptr(info.m_Ptrs);
 
-    info.m_uiNumPtrs = ezStackTracer::GetStackTrace(ptr);
+    info.m_uiNumPtrs = WStackTracer::GetStackTrace(ptr);
   }
 #else
-  EZ_IGNORE_UNUSED(pOwner);
+  W_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Increment();
 }
 
-EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner)
+W_CORE_DLL void DecreaseResourceRefCount(WResource* pResource, const void* pOwner)
 {
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
   {
-    EZ_LOCK(pResource->m_HandleStackTraceMutex);
+    W_LOCK(pResource->m_HandleStackTraceMutex);
 
     if (!pResource->m_HandleStackTraces.Remove(pOwner, nullptr))
     {
-      EZ_REPORT_FAILURE("No associated stack-trace!");
+      W_REPORT_FAILURE("No associated stack-trace!");
     }
   }
 #else
-  EZ_IGNORE_UNUSED(pOwner);
+  W_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Decrement();
 }
 
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
-EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
+W_CORE_DLL void MigrateResourceRefCount(WResource* pResource, const void* pOldOwner, const void* pNewOwner)
 {
-  EZ_LOCK(pResource->m_HandleStackTraceMutex);
+  W_LOCK(pResource->m_HandleStackTraceMutex);
 
   // allocate / resize the hash-table first to ensure the iterator stays valid
   auto& newInfo = pResource->m_HandleStackTraces[pNewOwner];
@@ -60,7 +60,7 @@ EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOld
   auto it = pResource->m_HandleStackTraces.Find(pOldOwner);
   if (!it.IsValid())
   {
-    EZ_REPORT_FAILURE("No associated stack-trace!");
+    W_REPORT_FAILURE("No associated stack-trace!");
   }
   else
   {
@@ -70,118 +70,118 @@ EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOld
 }
 #endif
 
-ezResource::~ezResource()
+WResource::~WResource()
 {
-  EZ_ASSERT_DEV(!ezResourceManager::IsQueuedForLoading(this), "Cannot deallocate a resource while it is still qeued for loading");
+  W_ASSERT_DEV(!WResourceManager::IsQueuedForLoading(this), "Cannot deallocate a resource while it is still qeued for loading");
 }
 
-ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
+WResource::WResource(DoUpdate ResourceUpdateThread, WUInt8 uiQualityLevelsLoadable)
 {
   if (ResourceUpdateThread == DoUpdate::OnGraphicsResourceThreads)
   {
     ResourceUpdateThread = UpdateGraphicsResource;
   }
 
-  m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
+  m_Flags.AddOrRemove(WResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
 }
 
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
 static void LogStackTrace(const char* szText)
 {
-  ezLog::Info(szText);
+  WLog::Info(szText);
 };
 #endif
 
-void ezResource::PrintHandleStackTraces()
+void WResource::PrintHandleStackTraces()
 {
-#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+#if W_ENABLED(W_RESOURCEHANDLE_STACK_TRACES)
 
-  EZ_LOCK(m_HandleStackTraceMutex);
+  W_LOCK(m_HandleStackTraceMutex);
 
-  EZ_LOG_BLOCK("Resource Handle Stack Traces");
+  W_LOG_BLOCK("Resource Handle Stack Traces");
 
   for (auto& it : m_HandleStackTraces)
   {
-    EZ_LOG_BLOCK("Handle Trace");
+    W_LOG_BLOCK("Handle Trace");
 
-    ezStackTracer::ResolveStackTrace(ezArrayPtr<void*>(it.Value().m_Ptrs, it.Value().m_uiNumPtrs), LogStackTrace);
+    WStackTracer::ResolveStackTrace(WArrayPtr<void*>(it.Value().m_Ptrs, it.Value().m_uiNumPtrs), LogStackTrace);
   }
 
 #else
 
-  ezLog::Warning("Compile with EZ_RESOURCEHANDLE_STACK_TRACES set to EZ_ON to enable support for resource handle stack traces.");
+  WLog::Warning("Compile with W_RESOURCEHANDLE_STACK_TRACES set to W_ON to enable support for resource handle stack traces.");
 
 #endif
 }
 
-void ezResource::SetResourceDescription(ezStringView sDescription)
+void WResource::SetResourceDescription(WStringView sDescription)
 {
   m_sResourceDescription = sDescription;
 }
 
-void ezResource::SetUniqueID(ezStringView sUniqueID, bool bIsReloadable)
+void WResource::SetUniqueID(WStringView sUniqueID, bool bIsReloadable)
 {
   m_sUniqueID = sUniqueID;
-  m_uiUniqueIDHash = ezHashingUtils::StringHash(sUniqueID);
+  m_uiUniqueIDHash = WHashingUtils::StringHash(sUniqueID);
   SetIsReloadable(bIsReloadable);
 
-  ezResourceEvent e;
+  WResourceEvent e;
   e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourceCreated;
-  ezResourceManager::BroadcastResourceEvent(e);
+  e.m_Type = WResourceEvent::Type::ResourceCreated;
+  WResourceManager::BroadcastResourceEvent(e);
 }
 
-void ezResource::CallUnloadData(Unload WhatToUnload)
+void WResource::CallUnloadData(Unload WhatToUnload)
 {
-  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID());
+  W_LOG_BLOCK("WResource::UnloadData", GetResourceID());
 
-  ezResourceEvent e;
+  WResourceEvent e;
   e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourceContentUnloading;
-  ezResourceManager::BroadcastResourceEvent(e);
+  e.m_Type = WResourceEvent::Type::ResourceContentUnloading;
+  WResourceManager::BroadcastResourceEvent(e);
 
-  ezResourceLoadDesc ld = UnloadData(WhatToUnload);
+  WResourceLoadDesc ld = UnloadData(WhatToUnload);
 
-  EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UnloadData() did not return a valid resource load state");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsDiscardable correctly");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsLoadable correctly");
+  W_ASSERT_DEV(ld.m_State != WResourceState::Invalid, "UnloadData() did not return a valid resource load state");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsDiscardable correctly");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsLoadable correctly");
 
   m_LoadingState = ld.m_State;
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-thread_local const ezResource* g_pCurrentlyUpdatingContent = nullptr;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+thread_local const WResource* g_pCurrentlyUpdatingContent = nullptr;
 
-const ezResource* ezResource::GetCurrentlyUpdatingContent()
+const WResource* WResource::GetCurrentlyUpdatingContent()
 {
   return g_pCurrentlyUpdatingContent;
 }
 #endif
 
-void ezResource::CallUpdateContent(ezStreamReader* Stream)
+void WResource::CallUpdateContent(WStreamReader* Stream)
 {
-  EZ_PROFILE_SCOPE("CallUpdateContent");
+  W_PROFILE_SCOPE("CallUpdateContent");
 
-  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceDescription());
+  W_LOG_BLOCK("WResource::UpdateContent", GetResourceDescription());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;
   g_pCurrentlyUpdatingContent = this;
-  ezResourceLoadDesc ld = UpdateContent(Stream);
+  WResourceLoadDesc ld = UpdateContent(Stream);
   g_pCurrentlyUpdatingContent = pPreviouslyUpdatingContent;
 #else
-  ezResourceLoadDesc ld = UpdateContent(Stream);
+  WResourceLoadDesc ld = UpdateContent(Stream);
 #endif
 
-  EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UpdateContent() did not return a valid resource load state");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsDiscardable correctly");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
+  W_ASSERT_DEV(ld.m_State != WResourceState::Invalid, "UpdateContent() did not return a valid resource load state");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsDiscardable correctly");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
 
-  if (ld.m_State == ezResourceState::LoadedResourceMissing)
+  if (ld.m_State == WResourceState::LoadedResourceMissing)
   {
     ReportResourceIsMissing();
   }
@@ -192,23 +192,23 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
   m_LoadingState = ld.m_State;
 
-  ezResourceEvent e;
+  WResourceEvent e;
   e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
-  ezResourceManager::BroadcastResourceEvent(e);
+  e.m_Type = WResourceEvent::Type::ResourceContentUpdated;
+  WResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
+  WLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), WArgSensitive(GetResourceDescription(), "ResourceDesc"));
 }
 
-float ezResource::GetLoadingPriority(ezTime now) const
+float WResource::GetLoadingPriority(WTime now) const
 {
-  if (m_Priority == ezResourcePriority::Critical)
+  if (m_Priority == WResourcePriority::Critical)
     return 0.0f;
 
   // low priority values mean it gets loaded earlier
   float fPriority = static_cast<float>(m_Priority) * 10.0f;
 
-  if (GetLoadingState() == ezResourceState::Loaded)
+  if (GetLoadingState() == WResourceState::Loaded)
   {
     // already loaded -> more penalty
     fPriority += 30.0f;
@@ -218,14 +218,14 @@ float ezResource::GetLoadingPriority(ezTime now) const
   }
   else
   {
-    const ezBitflags<ezResourceFlags> flags = GetBaseResourceFlags();
+    const WBitflags<WResourceFlags> flags = GetBaseResourceFlags();
 
-    if (flags.IsAnySet(ezResourceFlags::ResourceHasFallback))
+    if (flags.IsAnySet(WResourceFlags::ResourceHasFallback))
     {
       // if the resource has a very specific fallback, it is least important to be get loaded
       fPriority += 20.0f;
     }
-    else if (flags.IsAnySet(ezResourceFlags::ResourceHasTypeFallback))
+    else if (flags.IsAnySet(WResourceFlags::ResourceHasTypeFallback))
     {
       // if it has at least a type fallback, it is less important to get loaded
       fPriority += 10.0f;
@@ -235,40 +235,40 @@ float ezResource::GetLoadingPriority(ezTime now) const
   // everything acquired in the last N seconds gets a higher priority
   // by getting the lowest penalty
   const float secondsSinceAcquire = (float)(now - GetLastAcquireTime()).GetSeconds();
-  const float fTimePriority = ezMath::Min(10.0f, secondsSinceAcquire);
+  const float fTimePriority = WMath::Min(10.0f, secondsSinceAcquire);
 
   return fPriority + fTimePriority;
 }
 
-void ezResource::SetPriority(ezResourcePriority priority)
+void WResource::SetPriority(WResourcePriority priority)
 {
   if (m_Priority == priority)
     return;
 
   m_Priority = priority;
 
-  ezResourceEvent e;
+  WResourceEvent e;
   e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
-  ezResourceManager::BroadcastResourceEvent(e);
+  e.m_Type = WResourceEvent::Type::ResourcePriorityChanged;
+  WResourceManager::BroadcastResourceEvent(e);
 }
 
-ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
+WResourceTypeLoader* WResource::GetDefaultResourceTypeLoader() const
 {
-  return ezResourceManager::GetDefaultResourceLoader();
+  return WResourceManager::GetDefaultResourceLoader();
 }
 
-void ezResource::ReportResourceIsMissing()
+void WResource::ReportResourceIsMissing()
 {
-  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", ezArgSensitive(GetResourceID(), "ResourceID"),
-    ezArgSensitive(m_sResourceDescription, "ResourceDesc"), GetDynamicRTTI()->GetTypeName());
+  WLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", WArgSensitive(GetResourceID(), "ResourceID"),
+    WArgSensitive(m_sResourceDescription, "ResourceDesc"), GetDynamicRTTI()->GetTypeName());
 }
 
-void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
+void WResource::VerifyAfterCreateResource(const WResourceLoadDesc& ld)
 {
-  EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "CreateResource() did not return a valid resource load state");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");
-  EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsLoadable correctly");
+  W_ASSERT_DEV(ld.m_State != WResourceState::Invalid, "CreateResource() did not return a valid resource load state");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");
+  W_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsLoadable correctly");
 
   IncResourceChangeCounter();
 
@@ -278,23 +278,23 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
 
   /* Update Memory Usage*/
   {
-    ezResource::MemoryUsage MemUsage;
+    WResource::MemoryUsage MemUsage;
     MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", GetResourceID());
+    W_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", GetResourceID());
+    W_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", GetResourceID());
 
     m_MemoryUsage = MemUsage;
   }
 
-  ezResourceEvent e;
+  WResourceEvent e;
   e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
-  ezResourceManager::BroadcastResourceEvent(e);
+  e.m_Type = WResourceEvent::Type::ResourceContentUpdated;
+  WResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceIdOrDescription(), "ResourceDesc"));
+  WLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), WArgSensitive(GetResourceIdOrDescription(), "ResourceDesc"));
 }
 
-EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
+W_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);

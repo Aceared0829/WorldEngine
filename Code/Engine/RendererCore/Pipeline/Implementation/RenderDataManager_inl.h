@@ -3,23 +3,23 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 template <typename T>
-T* ezRenderDataManager::CreateRenderDataForThisFrame(const ezGameObject* pOwner) const
+T* WRenderDataManager::CreateRenderDataForThisFrame(const WGameObject* pOwner) const
 {
-  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
+  static_assert(W_IS_DERIVED_FROM_STATIC(WRenderData, T));
 
-  T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
+  T* pRenderData = W_NEW(WFrameAllocator::GetCurrentAllocator(), T);
 
   if (pOwner != nullptr)
   {
-    pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::Dynamic, pOwner->IsDynamic());
-    pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::FlipWinding, pOwner->GetGlobalTransformSimd().HasMirrorScaling());
+    pRenderData->m_Flags.AddOrRemove(WRenderData::Flags::Dynamic, pOwner->IsDynamic());
+    pRenderData->m_Flags.AddOrRemove(WRenderData::Flags::FlipWinding, pOwner->GetGlobalTransformSimd().HasMirrorScaling());
 
     pRenderData->m_vGlobalPosition = pOwner->GetGlobalPosition();
 
     pRenderData->m_hOwner = pOwner->GetHandle();
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   pRenderData->m_pOwner = pOwner;
 #endif
 
@@ -27,9 +27,9 @@ T* ezRenderDataManager::CreateRenderDataForThisFrame(const ezGameObject* pOwner)
 }
 
 // static
-EZ_FORCE_INLINE void ezRenderDataManager::FillPerInstanceData(ezPerInstanceData& out_perInstanceData, const ezGameObject* pObject, const ezTransform& globalTransform, ezUInt32 uiUniqueID /*= 0*/, const ezColor& color /*= ezColor::White*/, const ezVec4& vCustomData /*= ezVec4(0, 1, 0, 1)*/, float fBoundingSphereRadius /*= 1.0f*/, ezUInt32 uiRandomSeed /*= 0*/)
+W_FORCE_INLINE void WRenderDataManager::FillPerInstanceData(WPerInstanceData& out_perInstanceData, const WGameObject* pObject, const WTransform& globalTransform, WUInt32 uiUniqueID /*= 0*/, const WColor& color /*= WColor::White*/, const WVec4& vCustomData /*= WVec4(0, 1, 0, 1)*/, float fBoundingSphereRadius /*= 1.0f*/, WUInt32 uiRandomSeed /*= 0*/)
 {
-  ezMat4 objectToWorld = globalTransform.GetAsMat4();
+  WMat4 objectToWorld = globalTransform.GetAsMat4();
   out_perInstanceData.ObjectToWorld = objectToWorld;
 
   if (globalTransform.HasOnlyUniformScaling())
@@ -38,7 +38,7 @@ EZ_FORCE_INLINE void ezRenderDataManager::FillPerInstanceData(ezPerInstanceData&
   }
   else
   {
-    ezMat3 mInverse = objectToWorld.GetRotationalPart();
+    WMat3 mInverse = objectToWorld.GetRotationalPart();
     mInverse.Invert(0.0f).IgnoreResult();
     // we explicitly ignore the return value here (success / failure)
     // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
@@ -64,9 +64,9 @@ EZ_FORCE_INLINE void ezRenderDataManager::FillPerInstanceData(ezPerInstanceData&
   out_perInstanceData.CustomData = vCustomData;
 }
 
-EZ_FORCE_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetOrCreateInstanceDataAndFill(const ezComponent& ownerComponent, bool bDynamic, const ezTransform& globalTransform, ezInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiUniqueID /*= 0*/, const ezColor& color /*= ezColor::White*/, const ezVec4& vCustomData /*= ezVec4(0, 1, 0, 1)*/) const
+W_FORCE_INLINE WGALDynamicBufferHandle WRenderDataManager::GetOrCreateInstanceDataAndFill(const WComponent& ownerComponent, bool bDynamic, const WTransform& globalTransform, WInstanceDataOffset& inout_instanceDataOffset, WUInt32 uiUniqueID /*= 0*/, const WColor& color /*= WColor::White*/, const WVec4& vCustomData /*= WVec4(0, 1, 0, 1)*/) const
 {
-  ezGALDynamicBufferHandle hInstanceDataBuffer;
+  WGALDynamicBufferHandle hInstanceDataBuffer;
   auto instanceData = GetOrCreateInstanceData(&ownerComponent, bDynamic, hInstanceDataBuffer, inout_instanceDataOffset);
   FillPerInstanceData(instanceData[0], ownerComponent.GetOwner(), globalTransform, uiUniqueID, color, vCustomData);
 
@@ -74,23 +74,23 @@ EZ_FORCE_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetOrCreateInstanc
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezArrayPtr<T> ezRenderDataManager::GetOrCreateCustomInstanceData(ezUInt32 uiCustomDataIndex, const ezComponent* pOwnerComponent, ezGALDynamicBufferHandle& out_hBuffer, ezCustomInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiCount /*= 1*/) const
+W_ALWAYS_INLINE WArrayPtr<T> WRenderDataManager::GetOrCreateCustomInstanceData(WUInt32 uiCustomDataIndex, const WComponent* pOwnerComponent, WGALDynamicBufferHandle& out_hBuffer, WCustomInstanceDataOffset& inout_instanceDataOffset, WUInt32 uiCount /*= 1*/) const
 {
-  ezByteArrayPtr data = GetOrCreateCustomInstanceData(uiCustomDataIndex, sizeof(T), pOwnerComponent, out_hBuffer, inout_instanceDataOffset, uiCount);
-  return ezArrayPtr<T>(reinterpret_cast<T*>(data.GetPtr()), data.GetCount() / sizeof(T));
+  WByteArrayPtr data = GetOrCreateCustomInstanceData(uiCustomDataIndex, sizeof(T), pOwnerComponent, out_hBuffer, inout_instanceDataOffset, uiCount);
+  return WArrayPtr<T>(reinterpret_cast<T*>(data.GetPtr()), data.GetCount() / sizeof(T));
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetOrCreateCustomInstanceDataAndFill(ezUInt32 uiCustomDataIndex, const ezComponent& ownerComponent, ezCustomInstanceDataOffset& inout_instanceDataOffset, const T& data) const
+W_FORCE_INLINE WGALDynamicBufferHandle WRenderDataManager::GetOrCreateCustomInstanceDataAndFill(WUInt32 uiCustomDataIndex, const WComponent& ownerComponent, WCustomInstanceDataOffset& inout_instanceDataOffset, const T& data) const
 {
-  ezGALDynamicBufferHandle hInstanceDataBuffer;
+  WGALDynamicBufferHandle hInstanceDataBuffer;
   auto instanceData = GetOrCreateCustomInstanceData<T>(uiCustomDataIndex, &ownerComponent, hInstanceDataBuffer, inout_instanceDataOffset);
   instanceData[0] = data;
 
   return hInstanceDataBuffer;
 }
 
-EZ_ALWAYS_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetCustomInstanceDataBuffer(ezUInt32 uiCustomDataIndex) const
+W_ALWAYS_INLINE WGALDynamicBufferHandle WRenderDataManager::GetCustomInstanceDataBuffer(WUInt32 uiCustomDataIndex) const
 {
   return m_Buffers[uiCustomDataIndex];
 }

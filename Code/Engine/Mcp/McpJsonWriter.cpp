@@ -5,50 +5,50 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Uuid.h>
 
-ezMcpJsonWriter::ezMcpJsonWriter()
+WMcpJsonWriter::WMcpJsonWriter()
   : m_Writer(&m_Storage)
 {
   SetOutputStream(&m_Writer);
 
   // every character here is a token that the client pays for, and nothing reads this by eye
-  SetWhitespaceMode(ezJSONWriter::WhitespaceMode::None);
-  SetArrayMode(ezJSONWriter::ArrayMode::InOneLine);
+  SetWhitespaceMode(WJSONWriter::WhitespaceMode::None);
+  SetArrayMode(WJSONWriter::ArrayMode::InOneLine);
 }
 
-ezMcpJsonWriter::~ezMcpJsonWriter() = default;
+WMcpJsonWriter::~WMcpJsonWriter() = default;
 
-ezStringView ezMcpJsonWriter::GetResult()
+WStringView WMcpJsonWriter::GetResult()
 {
-  const ezArrayPtr<const ezUInt8> bytes = m_Storage.GetContiguousMemoryRange(0);
+  const WArrayPtr<const WUInt8> bytes = m_Storage.GetContiguousMemoryRange(0);
 
-  m_sResult = ezStringView(reinterpret_cast<const char*>(bytes.GetPtr()), bytes.GetCount());
+  m_sResult = WStringView(reinterpret_cast<const char*>(bytes.GetPtr()), bytes.GetCount());
 
   return m_sResult.GetView();
 }
 
-void ezMcpJsonWriter::WriteVariant(const ezVariant& value)
+void WMcpJsonWriter::WriteVariant(const WVariant& value)
 {
   switch (value.GetType())
   {
-    case ezVariant::Type::TypedPointer:
+    case WVariant::Type::TypedPointer:
     {
       // Written as a description of the target rather than as its contents: the pointer may be null,
       // may point at a type with cycles, and the model can look the type up with the rtti tools anyway.
-      const ezTypedPointer ptr = value.Get<ezTypedPointer>();
+      const WTypedPointer ptr = value.Get<WTypedPointer>();
 
-      const ezRTTI* pType = ptr.m_pType;
+      const WRTTI* pType = ptr.m_pType;
 
       // The variant carries the *declared* pointer type, which for a reflected container is the base
-      // class - an array of ezPropertyAttribute* reports 'ezPropertyAttribute' for every element,
-      // losing which attribute it actually is. When the target derives from ezReflectedClass it can
+      // class - an array of WPropertyAttribute* reports 'WPropertyAttribute' for every element,
+      // losing which attribute it actually is. When the target derives from WReflectedClass it can
       // say so itself, and that is the name worth reporting.
-      if (ptr.m_pObject != nullptr && pType != nullptr && pType->IsDerivedFrom<ezReflectedClass>())
+      if (ptr.m_pObject != nullptr && pType != nullptr && pType->IsDerivedFrom<WReflectedClass>())
       {
-        pType = static_cast<const ezReflectedClass*>(ptr.m_pObject)->GetDynamicRTTI();
+        pType = static_cast<const WReflectedClass*>(ptr.m_pObject)->GetDynamicRTTI();
       }
 
       BeginObject();
-      AddVariableString("$type", pType != nullptr ? pType->GetTypeName() : ezStringView());
+      AddVariableString("$type", pType != nullptr ? pType->GetTypeName() : WStringView());
 
       if (ptr.m_pObject == nullptr)
       {
@@ -59,14 +59,14 @@ void ezMcpJsonWriter::WriteVariant(const ezVariant& value)
       return;
     }
 
-    case ezVariant::Type::TypedObject:
+    case WVariant::Type::TypedObject:
     {
       // Only the type is written. Serialising the members would need the property system and could
       // recurse without bound, which is not what a JSON writer should be doing.
-      const ezRTTI* pType = value.GetReflectedType();
+      const WRTTI* pType = value.GetReflectedType();
 
       BeginObject();
-      AddVariableString("$type", pType != nullptr ? pType->GetTypeName() : ezStringView());
+      AddVariableString("$type", pType != nullptr ? pType->GetTypeName() : WStringView());
       EndObject();
       return;
     }
@@ -75,24 +75,24 @@ void ezMcpJsonWriter::WriteVariant(const ezVariant& value)
       break;
   }
 
-  // The base class ends in EZ_REPORT_FAILURE for a type its switch does not cover, and an assert here
+  // The base class ends in W_REPORT_FAILURE for a type its switch does not cover, and an assert here
   // is a dead editor in the middle of answering a tool call. Everything the enum currently defines is handled by
   // one of the two writers, so this only catches a type added later.
-  const ezVariant::Type::Enum type = value.GetType();
+  const WVariant::Type::Enum type = value.GetType();
 
-  const bool bBaseHandlesIt = (type > ezVariant::Type::Invalid && type < ezVariant::Type::LastStandardType) ||
-                              type == ezVariant::Type::VariantArray || type == ezVariant::Type::VariantDictionary ||
-                              type == ezVariant::Type::Invalid;
+  const bool bBaseHandlesIt = (type > WVariant::Type::Invalid && type < WVariant::Type::LastStandardType) ||
+                              type == WVariant::Type::VariantArray || type == WVariant::Type::VariantDictionary ||
+                              type == WVariant::Type::Invalid;
 
   if (bBaseHandlesIt)
   {
-    ezStandardJSONWriter::WriteVariant(value);
+    WStandardJSONWriter::WriteVariant(value);
     return;
   }
 
   BeginObject();
-  AddVariableString("$type", value.GetReflectedType() != nullptr ? value.GetReflectedType()->GetTypeName() : ezStringView());
-  AddVariableUInt32("$variantType", static_cast<ezUInt32>(type));
+  AddVariableString("$type", value.GetReflectedType() != nullptr ? value.GetReflectedType()->GetTypeName() : WStringView());
+  AddVariableUInt32("$variantType", static_cast<WUInt32>(type));
   AddVariableString("$note", "This value's type has no JSON representation, so only its type is reported.");
   EndObject();
 }

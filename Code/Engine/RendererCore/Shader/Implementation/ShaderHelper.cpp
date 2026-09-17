@@ -2,28 +2,28 @@
 
 #include <RendererCore/Shader/ShaderHelper.h>
 
-namespace ezShaderHelper
+namespace WShaderHelper
 {
-  void ezTextSectionizer::Clear()
+  void WTextSectionizer::Clear()
   {
     m_Sections.Clear();
     m_sText.Clear();
   }
 
-  void ezTextSectionizer::AddSection(const char* szName)
+  void WTextSectionizer::AddSection(const char* szName)
   {
-    m_Sections.PushBack(ezTextSection(szName));
+    m_Sections.PushBack(WTextSection(szName));
   }
 
-  void ezTextSectionizer::Process(const char* szText)
+  void WTextSectionizer::Process(const char* szText)
   {
-    for (ezUInt32 i = 0; i < m_Sections.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Sections.GetCount(); ++i)
       m_Sections[i].Reset();
 
     m_sText = szText;
 
 
-    for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
+    for (WUInt32 s = 0; s < m_Sections.GetCount(); ++s)
     {
       m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData());
       while ((m_Sections[s].m_szSectionStart != nullptr) && (m_Sections[s].m_szSectionStart != m_sText.GetData()) && (*(m_Sections[s].m_szSectionStart - 1) != '\n'))
@@ -32,15 +32,15 @@ namespace ezShaderHelper
       }
 
       if (m_Sections[s].m_szSectionStart != nullptr)
-        m_Sections[s].m_Content = ezStringView(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
+        m_Sections[s].m_Content = WStringView(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
     }
 
-    for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
+    for (WUInt32 s = 0; s < m_Sections.GetCount(); ++s)
     {
       if (m_Sections[s].m_szSectionStart == nullptr)
         continue;
 
-      ezUInt32 uiLine = 1;
+      WUInt32 uiLine = 1;
 
       const char* sz = m_sText.GetData();
       while (sz < m_Sections[s].m_szSectionStart)
@@ -53,7 +53,7 @@ namespace ezShaderHelper
 
       m_Sections[s].m_uiFirstLine = uiLine;
 
-      for (ezUInt32 s2 = 0; s2 < m_Sections.GetCount(); ++s2)
+      for (WUInt32 s2 = 0; s2 < m_Sections.GetCount(); ++s2)
       {
         if (s == s2)
           continue;
@@ -61,22 +61,22 @@ namespace ezShaderHelper
         if (m_Sections[s2].m_szSectionStart > m_Sections[s].m_szSectionStart)
         {
           const char* szContentStart = m_Sections[s].m_Content.GetStartPointer();
-          const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPointer(), m_Sections[s2].m_szSectionStart);
+          const char* szSectionEnd = WMath::Min(m_Sections[s].m_Content.GetEndPointer(), m_Sections[s2].m_szSectionStart);
 
-          m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
+          m_Sections[s].m_Content = WStringView(szContentStart, szSectionEnd);
           m_Sections[s].m_Content.Trim(" \t\r\n");
         }
       }
     }
   }
 
-  ezStringView ezTextSectionizer::GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const
+  WStringView WTextSectionizer::GetSectionContent(WUInt32 uiSection, WUInt32& out_uiFirstLine) const
   {
     out_uiFirstLine = m_Sections[uiSection].m_uiFirstLine;
     return m_Sections[uiSection].m_Content;
   }
 
-  void GetShaderSections(const char* szContent, ezTextSectionizer& out_sections)
+  void GetShaderSections(const char* szContent, WTextSectionizer& out_sections)
   {
     out_sections.Clear();
 
@@ -98,12 +98,12 @@ namespace ezShaderHelper
     out_sections.Process(szContent);
   }
 
-  ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
+  WUInt32 CalculateHash(const WArrayPtr<WPermutationVar>& vars)
   {
-    ezTempHybridArray<ezUInt64, 128> buffer;
+    WTempHybridArray<WUInt64, 128> buffer;
     buffer.SetCountUninitialized(vars.GetCount() * 2);
 
-    for (ezUInt32 i = 0; i < vars.GetCount(); ++i)
+    for (WUInt32 i = 0; i < vars.GetCount(); ++i)
     {
       auto& var = vars[i];
       buffer[i * 2 + 0] = var.m_sName.GetHash();
@@ -111,6 +111,6 @@ namespace ezShaderHelper
     }
 
     auto bytes = buffer.GetByteArrayPtr();
-    return ezHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
+    return WHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
   }
-} // namespace ezShaderHelper
+} // namespace WShaderHelper

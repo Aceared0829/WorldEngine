@@ -11,65 +11,65 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptDocumentContext, 1, ezRTTIDefaultAllocator<ezAngelScriptDocumentContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptDocumentContext, 1, WRTTIDefaultAllocator<WAngelScriptDocumentContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "AngelScript"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "AngelScript"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezAtomicInteger32 s_iCompileCounter;
+static WAtomicInteger32 s_iCompileCounter;
 
-ezAngelScriptDocumentContext::ezAngelScriptDocumentContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WAngelScriptDocumentContext::WAngelScriptDocumentContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-ezAngelScriptDocumentContext::~ezAngelScriptDocumentContext() = default;
+WAngelScriptDocumentContext::~WAngelScriptDocumentContext() = default;
 
-ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+WStatus WAngelScriptDocumentContext::ExportDocument(const WExportDocumentMsgToEngine* pMsg)
 {
-  ezLogSystemToBuffer logBuffer;
-  logBuffer.SetLogLevel(ezLogMsgType::ErrorMsg);
+  WLogSystemToBuffer logBuffer;
+  logBuffer.SetLogLevel(WLogMsgType::ErrorMsg);
 
-  ezLogSystemScope logScope(&logBuffer);
+  WLogSystemScope logScope(&logBuffer);
 
-  ezStringBuilder sCode;
+  WStringBuilder sCode;
   asIScriptModule* pModule = CompileModule(sCode, nullptr);
 
   if (pModule == nullptr)
   {
-    return ezStatus(logBuffer.m_sBuffer.GetView());
+    return WStatus(logBuffer.m_sBuffer.GetView());
   }
 
-  ezTempHybridArray<ezUInt8, 1024 * 8> bytecode;
-  ezAngelScriptUtils::SaveByteCode(pModule, bytecode);
+  WTempHybridArray<WUInt8, 1024 * 8> bytecode;
+  WAngelScriptUtils::SaveByteCode(pModule, bytecode);
   pModule->Discard();
 
-  ezDeferredFileWriter out;
+  WDeferredFileWriter out;
   out.SetOutput(pMsg->m_sOutputFile);
 
   {
     // File Header
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
     header.Write(out).AssertSuccess();
 
-    ezUInt8 uiVersion = 4;
+    WUInt8 uiVersion = 4;
     out << uiVersion;
   }
 
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd stream(&out, 0, ezCompressedStreamWriterZstd::Compression::Average);
+  WCompressedStreamWriterZstd stream(&out, 0, WCompressedStreamWriterZstd::Compression::Average);
 #else
-  ezStreamWriter& stream = out;
+  WStreamWriter& stream = out;
 #endif
 
   // write uncompressed
@@ -80,12 +80,12 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
   stream.WriteArray(bytecode).AssertSuccess();
   stream << sCode;
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezAngelScriptDocumentContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WAngelScriptDocumentContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (const ezDocumentConfigMsgToEngine* pMsg2 = ezDynamicCast<const ezDocumentConfigMsgToEngine*>(pMsg))
+  if (const WDocumentConfigMsgToEngine* pMsg2 = WDynamicCast<const WDocumentConfigMsgToEngine*>(pMsg))
   {
     if (pMsg2->m_sWhatToDo == "InputFile")
     {
@@ -109,62 +109,62 @@ void ezAngelScriptDocumentContext::HandleMessage(const ezEditorEngineDocumentMsg
     }
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-ezEngineProcessViewContext* ezAngelScriptDocumentContext::CreateViewContext()
+WEngineProcessViewContext* WAngelScriptDocumentContext::CreateViewContext()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
-void ezAngelScriptDocumentContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WAngelScriptDocumentContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-class ezLogSystemNull : public ezLogInterface
+class WLogSystemNull : public WLogInterface
 {
 public:
-  void HandleLogMessage(const ezLoggingEventData& le) override
+  void HandleLogMessage(const WLoggingEventData& le) override
   {
   }
 };
 
-void ezAngelScriptDocumentContext::SyncExposedParameters()
+void WAngelScriptDocumentContext::SyncExposedParameters()
 {
-  ezLogSystemNull logNull;
-  ezLogSystemScope scope(&logNull); // disable logging
+  WLogSystemNull logNull;
+  WLogSystemScope scope(&logNull); // disable logging
 
-  ezStringBuilder sCode;
-  ezSet<ezString> dependencies;
+  WStringBuilder sCode;
+  WSet<WString> dependencies;
   asIScriptModule* pModule = CompileModule(sCode, &dependencies);
   if (pModule == nullptr)
     return;
 
-  EZ_SCOPE_EXIT(pModule->Discard());
+  W_SCOPE_EXIT(pModule->Discard());
 
   const asITypeInfo* pClassType = pModule->GetTypeInfoByName(m_sClass);
 
   asIScriptContext* pContext = pModule->GetEngine()->CreateContext();
-  EZ_SCOPE_EXIT(pContext->Release());
+  W_SCOPE_EXIT(pContext->Release());
 
   AS_CHECK(pContext->Prepare(pClassType->GetFactoryByIndex(0)));
   AS_CHECK(pContext->Execute());
   asIScriptObject* pInstance = (asIScriptObject*)pContext->GetReturnObject();
   pInstance->AddRef();
-  EZ_SCOPE_EXIT(pInstance->Release());
+  W_SCOPE_EXIT(pInstance->Release());
 
-  ezStringBuilder sTypeName;
+  WStringBuilder sTypeName;
 
   {
-    ezSimpleDocumentConfigMsgToEditor msg;
+    WSimpleDocumentConfigMsgToEditor msg;
     msg.m_DocumentGuid = m_DocumentGuid;
     msg.m_sWhatToDo = "SyncExposedParams_Clear";
     SendProcessMessage(&msg);
   }
 
-  for (ezUInt32 idx = 0; idx < pClassType->GetPropertyCount(); ++idx)
+  for (WUInt32 idx = 0; idx < pClassType->GetPropertyCount(); ++idx)
   {
     const char* szName;
     int typeId;
@@ -175,10 +175,10 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
     if (isPrivate || isProtected)
       continue;
 
-    ezVariant defVal;
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pModule->GetEngine(), typeId, pInstance->GetAddressOfProperty(idx), defVal).Succeeded())
+    WVariant defVal;
+    if (WAngelScriptUtils::ReadFromAsTypeAtLocation(pModule->GetEngine(), typeId, pInstance->GetAddressOfProperty(idx), defVal).Succeeded())
     {
-      ezSimpleDocumentConfigMsgToEditor msg;
+      WSimpleDocumentConfigMsgToEditor msg;
       msg.m_DocumentGuid = m_DocumentGuid;
       msg.m_sWhatToDo = "SyncExposedParams_Add";
       msg.m_sPayload = szName;
@@ -189,7 +189,7 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
 
   for (const auto& dep : dependencies)
   {
-    ezSimpleDocumentConfigMsgToEditor msg;
+    WSimpleDocumentConfigMsgToEditor msg;
     msg.m_DocumentGuid = m_DocumentGuid;
     msg.m_sWhatToDo = "SyncDependencies_Add";
     msg.m_sPayload = dep;
@@ -197,16 +197,16 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
   }
 
   {
-    ezSimpleDocumentConfigMsgToEditor msg;
+    WSimpleDocumentConfigMsgToEditor msg;
     msg.m_DocumentGuid = m_DocumentGuid;
     msg.m_sWhatToDo = "SyncExposedParams_Finish";
     SendProcessMessage(&msg);
   }
 }
 
-asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& out_sCode, ezSet<ezString>* out_pDependencies)
+asIScriptModule* WAngelScriptDocumentContext::CompileModule(WStringBuilder& out_sCode, WSet<WString>* out_pDependencies)
 {
-  ezStringBuilder sCode, sInputFile;
+  WStringBuilder sCode, sInputFile;
 
   if (m_sInputFile.StartsWith(":inline:"))
   {
@@ -218,14 +218,14 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& ou
   {
     if (m_sInputFile.IsEmpty())
     {
-      ezLog::Error("No AngelScript file specified.");
+      WLog::Error("No AngelScript file specified.");
       return nullptr;
     }
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(m_sInputFile).Failed())
     {
-      ezLog::Error("Failed to open script file '{}'.", m_sInputFile);
+      WLog::Error("Failed to open script file '{}'.", m_sInputFile);
       return nullptr;
     }
 
@@ -236,14 +236,14 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& ou
 
   if (sCode.IsEmpty())
   {
-    ezLog::Error("Script code is empty.");
+    WLog::Error("Script code is empty.");
     return nullptr;
   }
 
-  ezStringBuilder sTempName;
+  WStringBuilder sTempName;
   sTempName.SetFormat("asTempModule-{}", s_iCompileCounter.Increment());
 
-  auto pAs = ezAngelScriptEngineSingleton::GetSingleton();
+  auto pAs = WAngelScriptEngineSingleton::GetSingleton();
   auto pModule = pAs->CompileModule(sTempName, m_sClass, sInputFile, sCode, &out_sCode, out_pDependencies);
 
   if (pModule == nullptr)
@@ -258,15 +258,15 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& ou
   return pModule;
 }
 
-static void WriteSet(ezStringView sFile, const ezSet<ezString>& set)
+static void WriteSet(WStringView sFile, const WSet<WString>& set)
 {
-  ezFileWriter writer;
+  WFileWriter writer;
   if (writer.Open(sFile).Failed())
     return;
 
   const char* szLineBreak = "\n";
 
-  for (const ezString& sItem : set)
+  for (const WString& sItem : set)
   {
     if (sItem.IsEmpty())
       continue;
@@ -276,15 +276,15 @@ static void WriteSet(ezStringView sFile, const ezSet<ezString>& set)
   }
 }
 
-void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
+void WAngelScriptDocumentContext::RetrieveScriptInfos(WStringView sBasePath)
 {
-  auto pEngine = ezAngelScriptEngineSingleton::GetSingleton()->GetEngine();
+  auto pEngine = WAngelScriptEngineSingleton::GetSingleton()->GetEngine();
 
   {
-    ezAsInfos infos;
-    ezAngelScriptUtils::RetrieveAsInfos(pEngine, infos);
+    WAsInfos infos;
+    WAngelScriptUtils::RetrieveAsInfos(pEngine, infos);
 
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
 
     sFullPath.SetPath(sBasePath, "Types.asgen");
     WriteSet(sFullPath, infos.m_Types);
@@ -308,16 +308,16 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
     WriteSet(sFullPath, infos.m_AllDeclarations);
 
     sFullPath.SetPath(sBasePath, "NotRegisteredDecls.asgen");
-    WriteSet(sFullPath, ezAngelScriptEngineSingleton::GetSingleton()->GetNotRegistered());
+    WriteSet(sFullPath, WAngelScriptEngineSingleton::GetSingleton()->GetNotRegistered());
   }
 
   {
-    ezStringBuilder sPredef;
-    ezAngelScriptUtils::GenerateAsPredefinedFile(pEngine, sPredef);
+    WStringBuilder sPredef;
+    WAngelScriptUtils::GenerateAsPredefinedFile(pEngine, sPredef);
 
-    ezStringBuilder sFullPath;
+    WStringBuilder sFullPath;
     sFullPath.SetPath(sBasePath, "../../as.predefined");
-    ezFileWriter file;
+    WFileWriter file;
     if (file.Open(sFullPath).Succeeded())
     {
       file.WriteBytes(sPredef.GetData(), sPredef.GetElementCount()).AssertSuccess();

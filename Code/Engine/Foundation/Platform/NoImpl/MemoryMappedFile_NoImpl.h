@@ -1,56 +1,56 @@
 #include <Foundation/FoundationPCH.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
 
-struct ezMemoryMappedFileImpl
+struct WMemoryMappedFileImpl
 {
-  ezMemoryMappedFile::Mode m_Mode = ezMemoryMappedFile::Mode::None;
+  WMemoryMappedFile::Mode m_Mode = WMemoryMappedFile::Mode::None;
   void* m_pMappedFilePtr = nullptr;
-  ezUInt64 m_uiFileSize = 0;
+  WUInt64 m_uiFileSize = 0;
 
-  ~ezMemoryMappedFileImpl() {}
+  ~WMemoryMappedFileImpl() {}
 };
 
-ezMemoryMappedFile::ezMemoryMappedFile()
+WMemoryMappedFile::WMemoryMappedFile()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = W_DEFAULT_NEW(WMemoryMappedFileImpl);
 }
 
-ezMemoryMappedFile::~ezMemoryMappedFile()
+WMemoryMappedFile::~WMemoryMappedFile()
 {
   Close();
 }
 
-void ezMemoryMappedFile::Close()
+void WMemoryMappedFile::Close()
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = W_DEFAULT_NEW(WMemoryMappedFileImpl);
 }
 
-ezMemoryMappedFile::Mode ezMemoryMappedFile::GetMode() const
+WMemoryMappedFile::Mode WMemoryMappedFile::GetMode() const
 {
   return m_pImpl->m_Mode;
 }
 
-const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
+const void* WMemoryMappedFile::GetReadPointer(WUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
 {
-  EZ_IGNORE_UNUSED(uiOffset);
-  EZ_IGNORE_UNUSED(base);
-  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
+  W_IGNORE_UNUSED(uiOffset);
+  W_IGNORE_UNUSED(base);
+  W_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
   return m_pImpl->m_pMappedFilePtr;
 }
 
-void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
+void* WMemoryMappedFile::GetWritePointer(WUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
 {
-  EZ_IGNORE_UNUSED(uiOffset);
-  EZ_IGNORE_UNUSED(base);
-  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
+  W_IGNORE_UNUSED(uiOffset);
+  W_IGNORE_UNUSED(base);
+  W_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
   return m_pImpl->m_pMappedFilePtr;
 }
 
-ezUInt64 ezMemoryMappedFile::GetFileSize() const
+WUInt64 WMemoryMappedFile::GetFileSize() const
 {
   return m_pImpl->m_uiFileSize;
 }

@@ -5,13 +5,13 @@
 #include <QIcon>
 
 ///
-class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
+class W_GUIFOUNDATION_DLL WNamedAction : public WAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction, ezAction);
+  W_ADD_DYNAMIC_REFLECTION(WNamedAction, WAction);
 
 public:
-  ezNamedAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezAction(context)
+  WNamedAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WAction(context)
     , m_sName(szName)
     , m_sIconPath(szIconPath)
   {
@@ -19,8 +19,8 @@ public:
 
   const char* GetName() const { return m_sName; }
 
-  ezStringView GetAdditionalDisplayString() { return m_sAdditionalDisplayString; }
-  void SetAdditionalDisplayString(ezStringView sString, bool bTriggerUpdate = true)
+  WStringView GetAdditionalDisplayString() { return m_sAdditionalDisplayString; }
+  void SetAdditionalDisplayString(WStringView sString, bool bTriggerUpdate = true)
   {
     m_sAdditionalDisplayString = sString;
     if (bTriggerUpdate)
@@ -31,40 +31,40 @@ public:
   void SetIconPath(const char* szIconPath) { m_sIconPath = szIconPath; }
 
 protected:
-  ezString m_sName;
-  ezString m_sAdditionalDisplayString; // to add some context to the current action
-  ezString m_sIconPath;
+  WString m_sName;
+  WString m_sAdditionalDisplayString; // to add some context to the current action
+  WString m_sIconPath;
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezAction
+class W_GUIFOUNDATION_DLL WCategoryAction : public WAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction, ezAction);
+  W_ADD_DYNAMIC_REFLECTION(WCategoryAction, WAction);
 
 public:
-  ezCategoryAction(const ezActionContext& context)
-    : ezAction(context)
+  WCategoryAction(const WActionContext& context)
+    : WAction(context)
   {
   }
 
-  virtual void Execute(const ezVariant& value) override {};
+  virtual void Execute(const WVariant& value) override {};
 };
 
 /// An action that represents a sub-menu. Can be within a menu bar, or the menu of a tool button).
 ///
 /// This class can be used directly, but then every menu entry has to be mapped individually into the menu.
 /// It is often more convenient to use derived types which already set up the content of the menu.
-class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
+class W_GUIFOUNDATION_DLL WMenuAction : public WNamedAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction, ezNamedAction);
+  W_ADD_DYNAMIC_REFLECTION(WMenuAction, WNamedAction);
 
 public:
-  ezMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezNamedAction(context, szName, szIconPath)
+  WMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WNamedAction(context, szName, szIconPath)
   {
   }
 
-  virtual void Execute(const ezVariant& value) override {};
+  virtual void Execute(const WVariant& value) override {};
 };
 
 /// A menu action whose content is determined when opening the menu.
@@ -74,10 +74,10 @@ public:
 /// It can then return the same result, or adjust the entries (update check marks or show entirely different entries).
 ///
 /// Derive from this, to create your own dynamic menu.
-/// Or use something like ezEnumerationMenuAction to get a menu for an enum type.
-class EZ_GUIFOUNDATION_DLL ezDynamicMenuAction : public ezMenuAction
+/// Or use something like WEnumerationMenuAction to get a menu for an enum type.
+class W_GUIFOUNDATION_DLL WDynamicMenuAction : public WMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicMenuAction, ezMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicMenuAction, WMenuAction);
 
 public:
   struct Item
@@ -91,12 +91,12 @@ public:
 
     struct ItemFlags
     {
-      using StorageType = ezUInt8;
+      using StorageType = WUInt8;
 
       enum Enum
       {
         Default = 0,
-        Separator = EZ_BIT(0),
+        Separator = W_BIT(0),
       };
       struct Bits
       {
@@ -106,27 +106,27 @@ public:
 
     Item() { m_CheckState = CheckMark::NotCheckable; }
 
-    ezString m_sDisplay;
+    WString m_sDisplay;
     QIcon m_Icon;
     CheckMark m_CheckState;
-    ezBitflags<ItemFlags> m_ItemFlags;
-    ezVariant m_UserValue;
+    WBitflags<ItemFlags> m_ItemFlags;
+    WVariant m_UserValue;
   };
 
-  ezDynamicMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezMenuAction(context, szName, szIconPath)
+  WDynamicMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+    : WMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) = 0;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) = 0;
 };
 
 /// An action that is displayed as a tool button that is clickable but also has a sub-menu that can be opened for selecting a different action.
-class EZ_GUIFOUNDATION_DLL ezDynamicActionAndMenuAction : public ezDynamicMenuAction
+class W_GUIFOUNDATION_DLL WDynamicActionAndMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicActionAndMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WDynamicActionAndMenuAction, WDynamicMenuAction);
 
 public:
-  ezDynamicActionAndMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  WDynamicActionAndMenuAction(const WActionContext& context, const char* szName, const char* szIconPath);
 
   bool IsEnabled() const { return m_bEnabled; }
   void SetEnabled(bool bEnable, bool bTriggerUpdate = true)
@@ -150,27 +150,27 @@ protected:
 };
 
 /// A menu that lists all values of an enum type.
-class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezDynamicMenuAction
+class W_GUIFOUNDATION_DLL WEnumerationMenuAction : public WDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezDynamicMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WEnumerationMenuAction, WDynamicMenuAction);
 
 public:
-  ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  void InitEnumerationType(const ezRTTI* pEnumerationType);
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
-  virtual ezInt64 GetValue() const = 0;
+  WEnumerationMenuAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  void InitEnumerationType(const WRTTI* pEnumerationType);
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
+  virtual WInt64 GetValue() const = 0;
 
 protected:
-  const ezRTTI* m_pEnumerationType;
+  const WRTTI* m_pEnumerationType;
 };
 
 /// The standard button action.
-class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
+class W_GUIFOUNDATION_DLL WButtonAction : public WNamedAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction, ezNamedAction);
+  W_ADD_DYNAMIC_REFLECTION(WButtonAction, WNamedAction);
 
 public:
-  ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath);
+  WButtonAction(const WActionContext& context, const char* szName, bool bCheckable, const char* szIconPath);
 
   bool IsEnabled() const { return m_bEnabled; }
   void SetEnabled(bool bEnable, bool bTriggerUpdate = true)
@@ -212,12 +212,12 @@ protected:
 };
 
 /// An action that represents an integer value within a fixed range, and gets displayed as a slider.
-class EZ_GUIFOUNDATION_DLL ezSliderAction : public ezNamedAction
+class W_GUIFOUNDATION_DLL WSliderAction : public WNamedAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSliderAction, ezNamedAction);
+  W_ADD_DYNAMIC_REFLECTION(WSliderAction, WNamedAction);
 
 public:
-  ezSliderAction(const ezActionContext& context, const char* szName);
+  WSliderAction(const WActionContext& context, const char* szName);
 
   bool IsEnabled() const { return m_bEnabled; }
   void SetEnabled(bool bEnable, bool bTriggerUpdate = true)
@@ -235,21 +235,21 @@ public:
       TriggerUpdate();
   }
 
-  void GetRange(ezInt32& out_iMin, ezInt32& out_iMax) const
+  void GetRange(WInt32& out_iMin, WInt32& out_iMax) const
   {
     out_iMin = m_iMinValue;
     out_iMax = m_iMaxValue;
   }
 
-  void SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate = true);
+  void SetRange(WInt32 iMin, WInt32 iMax, bool bTriggerUpdate = true);
 
-  ezInt32 GetValue() const { return m_iCurValue; }
-  void SetValue(ezInt32 iVal, bool bTriggerUpdate = true);
+  WInt32 GetValue() const { return m_iCurValue; }
+  void SetValue(WInt32 iVal, bool bTriggerUpdate = true);
 
 protected:
   bool m_bEnabled;
   bool m_bVisible;
-  ezInt32 m_iMinValue;
-  ezInt32 m_iMaxValue;
-  ezInt32 m_iCurValue;
+  WInt32 m_iMinValue;
+  WInt32 m_iMaxValue;
+  WInt32 m_iCurValue;
 };

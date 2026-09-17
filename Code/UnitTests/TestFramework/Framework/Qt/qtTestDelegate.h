@@ -1,20 +1,20 @@
 #pragma once
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QStyledItemDelegate>
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
 #  include <TestFramework/TestFrameworkDLL.h>
 
-class ezQtTestFramework;
+class WQtTestFramework;
 
-/// Delegate for ezQtTestModel which shows bars for the test durations.
-class EZ_TEST_DLL ezQtTestDelegate : public QStyledItemDelegate
+/// Delegate for WQtTestModel which shows bars for the test durations.
+class W_TEST_DLL WQtTestDelegate : public QStyledItemDelegate
 {
   Q_OBJECT
 public:
-  ezQtTestDelegate(QObject* pParent);
-  virtual ~ezQtTestDelegate();
+  WQtTestDelegate(QObject* pParent);
+  virtual ~WQtTestDelegate();
 
 public: // QStyledItemDelegate interface
   virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;

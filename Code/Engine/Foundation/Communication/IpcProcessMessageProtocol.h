@@ -5,50 +5,50 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezIpcChannel;
-class ezMessageLoop;
+class WIpcChannel;
+class WMessageLoop;
 
 
-/// A protocol around ezIpcChannel to send reflected messages instead of byte array messages between client and server.
+/// A protocol around WIpcChannel to send reflected messages instead of byte array messages between client and server.
 ///
-/// This wrapper class hooks into an existing ezIpcChannel. The ezIpcChannel is still responsible for all connection logic. This class merely provides a high-level messaging protocol via reflected messages derived from ezProcessMessage.
-/// Note that if this class is used, ezIpcChannel::Send must not be called manually anymore, only use ezIpcProcessMessageProtocol::Send.
+/// This wrapper class hooks into an existing WIpcChannel. The WIpcChannel is still responsible for all connection logic. This class merely provides a high-level messaging protocol via reflected messages derived from WProcessMessage.
+/// Note that if this class is used, WIpcChannel::Send must not be called manually anymore, only use WIpcProcessMessageProtocol::Send.
 /// Received messages are stored in a queue and must be flushed via calling ProcessMessages or WaitForMessages.
-class EZ_FOUNDATION_DLL ezIpcProcessMessageProtocol
+class W_FOUNDATION_DLL WIpcProcessMessageProtocol
 {
 public:
-  ezIpcProcessMessageProtocol(ezIpcChannel* pChannel);
-  ~ezIpcProcessMessageProtocol();
+  WIpcProcessMessageProtocol(WIpcChannel* pChannel);
+  ~WIpcProcessMessageProtocol();
 
   /// Sends a message. pMsg can be destroyed after the call.
-  bool Send(ezProcessMessage* pMsg);
+  bool Send(WProcessMessage* pMsg);
 
 
   /// Processes all pending messages by broadcasting m_MessageEvent. Not re-entrant.
   bool ProcessMessages();
   /// Block and wait for new messages and call ProcessMessages.
-  ezResult WaitForMessages(ezTime timeout = ezTime::MakeZero());
+  WResult WaitForMessages(WTime timeout = WTime::MakeZero());
 
 public:
   struct Event
   {
-    const ezProcessMessage* m_pMessage;
+    const WProcessMessage* m_pMessage;
     // Set to true in a message handler to cancel the ProcessMessages function and return to the caller before all messages have been processed.
     mutable bool m_bInterruptMessageProcessing = false;
   };
-  ezEvent<const Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
+  WEvent<const Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
 private:
-  void EnqueueMessage(ezUniquePtr<ezProcessMessage>&& msg);
-  ezUniquePtr<ezProcessMessage> PopMessage();
-  void ReceiveMessageData(ezArrayPtr<const ezUInt8> data);
+  void EnqueueMessage(WUniquePtr<WProcessMessage>&& msg);
+  WUniquePtr<WProcessMessage> PopMessage();
+  void ReceiveMessageData(WArrayPtr<const WUInt8> data);
 
 private:
-  ezIpcChannel* m_pChannel = nullptr;
-  ezUInt64 m_uiSendChannelId = 0;    // UniqueID derived from channel address to correlate telemetry across processes.
-  ezUInt64 m_uiReceiveChannelId = 0; // UniqueID derived from channel address to correlate telemetry across processes.
-  ezAtomicInteger64 m_iSendMessageId = 0;
+  WIpcChannel* m_pChannel = nullptr;
+  WUInt64 m_uiSendChannelId = 0;    // UniqueID derived from channel address to correlate telemetry across processes.
+  WUInt64 m_uiReceiveChannelId = 0; // UniqueID derived from channel address to correlate telemetry across processes.
+  WAtomicInteger64 m_iSendMessageId = 0;
 
-  ezMutex m_IncomingQueueMutex;
-  ezDeque<ezUniquePtr<ezProcessMessage>> m_IncomingQueue;
+  WMutex m_IncomingQueueMutex;
+  WDeque<WUniquePtr<WProcessMessage>> m_IncomingQueue;
 };

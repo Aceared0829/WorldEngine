@@ -8,51 +8,51 @@
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-ezGALComputePipelineVulkan::ezGALComputePipelineVulkan(const ezGALComputePipelineCreationDescription& description)
-  : ezGALComputePipeline(description)
+WGALComputePipelineVulkan::WGALComputePipelineVulkan(const WGALComputePipelineCreationDescription& description)
+  : WGALComputePipeline(description)
 {
 }
 
-ezGALComputePipelineVulkan::~ezGALComputePipelineVulkan() = default;
+WGALComputePipelineVulkan::~WGALComputePipelineVulkan() = default;
 
-ezResult ezGALComputePipelineVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALComputePipelineVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
-  const ezGALShaderVulkan* pShader = static_cast<const ezGALShaderVulkan*>(pDevice->GetShader(m_Description.m_hShader));
+  const WGALShaderVulkan* pShader = static_cast<const WGALShaderVulkan*>(pDevice->GetShader(m_Description.m_hShader));
   if (pShader == nullptr)
   {
-    ezLog::Error("Failed to create Vulkan Compute pipeline: Invalid shader handle.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create Vulkan Compute pipeline: Invalid shader handle.");
+    return W_FAILURE;
   }
 
   vk::ComputePipelineCreateInfo pipe;
   pipe.layout = pShader->GetVkPipelineLayout();
   {
-    vk::ShaderModule shader = pShader->GetShader(ezGALShaderStage::ComputeShader);
-    EZ_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");
-    pipe.stage.stage = ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::ComputeShader);
+    vk::ShaderModule shader = pShader->GetShader(WGALShaderStage::ComputeShader);
+    W_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");
+    pipe.stage.stage = WConversionUtilsVulkan::GetShaderStage(WGALShaderStage::ComputeShader);
     pipe.stage.module = shader;
     pipe.stage.pName = "main";
   }
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pDeviceVulkan->GetVulkanDevice().createComputePipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
+  VK_SUCCEED_OR_RETURN_W_FAILURE(pDeviceVulkan->GetVulkanDevice().createComputePipelines(WResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALComputePipelineVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALComputePipelineVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
   if (m_Pipeline)
   {
     pDeviceVulkan->DeleteLater(m_Pipeline);
     m_Pipeline = nullptr;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALComputePipelineVulkan::SetDebugName(const char*)
+void WGALComputePipelineVulkan::SetDebugName(const char*)
 {
 }

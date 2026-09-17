@@ -4,98 +4,98 @@
 
 #include <Foundation/Strings/UnicodeUtils.h>
 
-// **************** ezStringWChar ****************
+// **************** WStringWChar ****************
 
-inline ezStringWChar::ezStringWChar(ezAllocator* pAllocator)
+inline WStringWChar::WStringWChar(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_Data.PushBack('\0');
 }
 
-inline ezStringWChar::ezStringWChar(const ezUInt16* pUtf16, ezAllocator* pAllocator)
+inline WStringWChar::WStringWChar(const WUInt16* pUtf16, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf16;
 }
 
-inline ezStringWChar::ezStringWChar(const ezUInt32* pUtf32, ezAllocator* pAllocator)
+inline WStringWChar::WStringWChar(const WUInt32* pUtf32, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf32;
 }
 
-inline ezStringWChar::ezStringWChar(const wchar_t* pWChar, ezAllocator* pAllocator)
+inline WStringWChar::WStringWChar(const wchar_t* pWChar, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pWChar;
 }
 
-inline ezStringWChar::ezStringWChar(ezStringView sUtf8, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+inline WStringWChar::WStringWChar(WStringView sUtf8, WAllocator* pAllocator /*= WFoundation::GetDefaultAllocator()*/)
   : m_Data(pAllocator)
 {
   *this = sUtf8;
 }
 
 
-// **************** ezStringUtf8 ****************
+// **************** WStringUtf8 ****************
 
-inline ezStringUtf8::ezStringUtf8(ezAllocator* pAllocator)
+inline WStringUtf8::WStringUtf8(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_Data.PushBack('\0');
 }
 
-inline ezStringUtf8::ezStringUtf8(const char* szUtf8, ezAllocator* pAllocator)
+inline WStringUtf8::WStringUtf8(const char* szUtf8, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = szUtf8;
 }
 
-inline ezStringUtf8::ezStringUtf8(const ezUInt16* pUtf16, ezAllocator* pAllocator)
+inline WStringUtf8::WStringUtf8(const WUInt16* pUtf16, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf16;
 }
 
-inline ezStringUtf8::ezStringUtf8(const ezUInt32* pUtf32, ezAllocator* pAllocator)
+inline WStringUtf8::WStringUtf8(const WUInt32* pUtf32, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf32;
 }
 
-inline ezStringUtf8::ezStringUtf8(const wchar_t* pWChar, ezAllocator* pAllocator)
+inline WStringUtf8::WStringUtf8(const wchar_t* pWChar, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pWChar;
 }
 
-// **************** ezStringUtf16 ****************
+// **************** WStringUtf16 ****************
 
-inline ezStringUtf16::ezStringUtf16(ezAllocator* pAllocator)
+inline WStringUtf16::WStringUtf16(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_Data.PushBack('\0');
 }
 
-inline ezStringUtf16::ezStringUtf16(const char* szUtf8, ezAllocator* pAllocator)
+inline WStringUtf16::WStringUtf16(const char* szUtf8, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = szUtf8;
 }
 
-inline ezStringUtf16::ezStringUtf16(const ezUInt16* pUtf16, ezAllocator* pAllocator)
+inline WStringUtf16::WStringUtf16(const WUInt16* pUtf16, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf16;
 }
 
-inline ezStringUtf16::ezStringUtf16(const ezUInt32* pUtf32, ezAllocator* pAllocator)
+inline WStringUtf16::WStringUtf16(const WUInt32* pUtf32, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf32;
 }
 
-inline ezStringUtf16::ezStringUtf16(const wchar_t* pWChar, ezAllocator* pAllocator)
+inline WStringUtf16::WStringUtf16(const wchar_t* pWChar, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pWChar;
@@ -103,33 +103,33 @@ inline ezStringUtf16::ezStringUtf16(const wchar_t* pWChar, ezAllocator* pAllocat
 
 
 
-// **************** ezStringUtf32 ****************
+// **************** WStringUtf32 ****************
 
-inline ezStringUtf32::ezStringUtf32(ezAllocator* pAllocator)
+inline WStringUtf32::WStringUtf32(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_Data.PushBack('\0');
 }
 
-inline ezStringUtf32::ezStringUtf32(const char* szUtf8, ezAllocator* pAllocator)
+inline WStringUtf32::WStringUtf32(const char* szUtf8, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = szUtf8;
 }
 
-inline ezStringUtf32::ezStringUtf32(const ezUInt16* pUtf16, ezAllocator* pAllocator)
+inline WStringUtf32::WStringUtf32(const WUInt16* pUtf16, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf16;
 }
 
-inline ezStringUtf32::ezStringUtf32(const ezUInt32* pUtf32, ezAllocator* pAllocator)
+inline WStringUtf32::WStringUtf32(const WUInt32* pUtf32, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pUtf32;
 }
 
-inline ezStringUtf32::ezStringUtf32(const wchar_t* pWChar, ezAllocator* pAllocator)
+inline WStringUtf32::WStringUtf32(const wchar_t* pWChar, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = pWChar;

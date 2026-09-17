@@ -4,12 +4,12 @@
 
 #include <EditorTest/TestClass/TestClass.h>
 
-// class ezMaterialAssetDocument;
+// class WMaterialAssetDocument;
 
-class ezMaterialDocumentTest : public ezEditorTest
+class WMaterialDocumentTest : public WEditorTest
 {
 public:
-  using SUPER = ezEditorTest;
+  using SUPER = WEditorTest;
 
   virtual const char* GetTestName() const override;
 
@@ -22,13 +22,13 @@ private:
   };
 
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezResult CreateMaterial(const char* szSceneName);
+  WResult CreateMaterial(const char* szSceneName);
   void CloseMaterial();
-  const ezDocumentObject* GetShaderProperties(const ezDocumentObject* pMaterialProperties);
+  const WDocumentObject* GetShaderProperties(const WDocumentObject* pMaterialProperties);
   void CaptureMaterialImage();
 
   void CreateMaterialFromShader();
@@ -36,6 +36,6 @@ private:
   void CreateMaterialFromVSE();
 
 private:
-  ezAssetDocument* m_pDoc = nullptr;
-  ezUuid m_MaterialGuid;
+  WAssetDocument* m_pDoc = nullptr;
+  WUuid m_MaterialGuid;
 };

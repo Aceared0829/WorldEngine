@@ -11,13 +11,13 @@
 #include <QMessageBox>
 
 class QColorDialog;
-class ezQtColorDialog;
+class WQtColorDialog;
 
-class EZ_GUIFOUNDATION_DLL ezQtUiServices : public QObject
+class W_GUIFOUNDATION_DLL WQtUiServices : public QObject
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtUiServices);
+  W_DECLARE_SINGLETON(WQtUiServices);
 
 public:
   struct Event
@@ -40,12 +40,12 @@ public:
     };
 
     Type m_Type;
-    ezString m_sText;
-    ezTime m_Time;
+    WString m_sText;
+    WTime m_Time;
     TextType m_TextType = TextType::Info;
   };
 
-  static ezEvent<const ezQtUiServices::Event&, ezMutex> s_Events;
+  static WEvent<const WQtUiServices::Event&, WMutex> s_Events;
 
   struct TickEvent
   {
@@ -57,17 +57,17 @@ public:
     };
 
     Type m_Type;
-    ezUInt32 m_uiFrame = 0;
-    ezTime m_Time;
+    WUInt32 m_uiFrame = 0;
+    WTime m_Time;
     double m_fRefreshRate = 60.0;
-    mutable ezUInt32 m_uiFrameRequest = 0;     ///< Only valid for Type::BeforeFrame. Increased by an event handler to request a frame. If zero after the broadcast, no frame is started.
-    mutable ezUInt32 m_uiForceCancelFrame = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to cancel the frame. Regardless of m_uiFrameRequest, no frame is started if != zero.
+    mutable WUInt32 m_uiFrameRequest = 0;     ///< Only valid for Type::BeforeFrame. Increased by an event handler to request a frame. If zero after the broadcast, no frame is started.
+    mutable WUInt32 m_uiForceCancelFrame = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to cancel the frame. Regardless of m_uiFrameRequest, no frame is started if != zero.
   };
 
-  static ezCopyOnBroadcastEvent<const ezQtUiServices::TickEvent&> s_TickEvent;
+  static WCopyOnBroadcastEvent<const WQtUiServices::TickEvent&> s_TickEvent;
 
 public:
-  ezQtUiServices();
+  WQtUiServices();
 
   static const char* GetOwnVersionString();
 
@@ -84,12 +84,12 @@ public:
   ///
   /// The UI is still shown, but everything that would block waiting for input must not be displayed. The
   /// message box functions below therefore only log their message and return their unattended answer, and
-  /// ezQtDialog::exec() returns without showing anything. Code that opens a modal window in some other way
+  /// WQtDialog::exec() returns without showing anything. Code that opens a modal window in some other way
   /// (QFileDialog, QInputDialog, ...) has to check this itself, otherwise it stalls the application
   /// indefinitely.
   ///
   /// This is one-way, for a process that is unattended for its entire runtime (the '-unattended' command
-  /// line option). To make only part of a normal editor session unattended, use ezQtScopedUnattended.
+  /// line option). To make only part of a normal editor session unattended, use WQtScopedUnattended.
   static void SetUnattended();
 
   /// Records that a dialog or message box was not shown, because IsUnattended() is set.
@@ -98,21 +98,21 @@ public:
   /// the operation simply doing nothing. sDescription should identify what was suppressed well enough to
   /// act on it, i.e. the dialog's class name or the text of the message box.
   ///
-  /// Called by ezQtDialog and the MessageBox* functions; call it manually when suppressing a modal window
+  /// Called by WQtDialog and the MessageBox* functions; call it manually when suppressing a modal window
   /// that goes through neither.
-  static void ReportSuppressedDialog(ezStringView sDescription);
+  static void ReportSuppressedDialog(WStringView sDescription);
 
   /// Checks whether a modal window may be opened at all, and records its suppression when it may not.
   ///
-  /// For modal windows that do not go through ezQtDialog and therefore have to check for themselves:
+  /// For modal windows that do not go through WQtDialog and therefore have to check for themselves:
   /// QFileDialog, QInputDialog, QMessageBox used directly, and anything else that enters a nested event
   /// loop. Returns true when the window must NOT be shown - the caller then continues as if the user had
   /// cancelled it, which for a file picker means an empty selection.
   ///
   /// Only worth adding where an automated caller can actually reach the window, i.e. in code triggered by
-  /// a global ezAction. A picker that only opens from a button inside another dialog is already covered,
+  /// a global WAction. A picker that only opens from a button inside another dialog is already covered,
   /// because that dialog never opens.
-  static bool SuppressModalWindow(ezStringView sDescription);
+  static bool SuppressModalWindow(WStringView sDescription);
 
   /// Records a failed assert instead of letting it open its dialog, and returns whether it was handled.
   ///
@@ -125,9 +125,9 @@ public:
   /// an assert that was meant to stop it. That is a deliberate trade: continuing is not safe, but the
   /// caller does get told, whereas a hung process tells nobody anything. Anything reporting these should
   /// say that the application's state is now questionable and that it should be restarted.
-  static void ReportFailedAssert(ezStringView sReport);
+  static void ReportFailedAssert(WStringView sReport);
 
-  static ezArrayPtr<const ezString> GetFailedAsserts();
+  static WArrayPtr<const WString> GetFailedAsserts();
 
   static void ClearFailedAsserts();
 
@@ -135,24 +135,24 @@ public:
   ///
   /// The list has an upper bound, so that a loop opening dialogs cannot grow it without limit. Once that
   /// is reached, further entries are dropped, not rotated.
-  static ezArrayPtr<const ezString> GetSuppressedDialogs();
+  static WArrayPtr<const WString> GetSuppressedDialogs();
 
   static void ClearSuppressedDialogs();
 
   /// Shows a non-modal color dialog. The Qt slots are called when the selected color is changed or when the dialog is closed and the result
   /// accepted or rejected.
-  void ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
+  void ShowColorDialog(const WColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
 
   /// Might show a message box depending on the given status. If the status is 'failure' the szFailureMsg is shown, including the message in
-  /// ezStatus. If the status is success a message box with text szSuccessMsg is shown, but only if the status message is not empty or if
+  /// WStatus. If the status is success a message box with text szSuccessMsg is shown, but only if the status message is not empty or if
   /// bOnlySuccessMsgIfDetails is false.
-  static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
+  static void MessageBoxStatus(const WStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
 
   /// Shows an information message box
-  static void MessageBoxInformation(const ezFormatString& msg, ezStringView sDontShowAgainID = {});
+  static void MessageBoxInformation(const WFormatString& msg, WStringView sDontShowAgainID = {});
 
   /// Shows an warning message box
-  static void MessageBoxWarning(const ezFormatString& msg);
+  static void MessageBoxWarning(const WFormatString& msg);
 
   /// Shows a question message box and returns which button the user pressed.
   ///
@@ -162,39 +162,39 @@ public:
   ///        (see IsUnattended()). This is usually *not* the same as defaultButton: an automated caller needs the
   ///        answer that lets the operation proceed, otherwise scripted work silently does nothing. Use the
   ///        accident-preventing answer here only when proceeding would destroy data that cannot be recovered.
-  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton);
+  static QMessageBox::StandardButton MessageBoxQuestion(const WFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton);
 
   /// Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a
   /// message in a single document window.
-  static void ShowAllDocumentsTemporaryStatusBarMessage(const ezFormatString& msg, ezTime timeOut);
+  static void ShowAllDocumentsTemporaryStatusBarMessage(const WFormatString& msg, WTime timeOut);
 
-  static void ShowAllDocumentsPermanentStatusBarMessage(const ezFormatString& msg, Event::TextType type);
+  static void ShowAllDocumentsPermanentStatusBarMessage(const WFormatString& msg, Event::TextType type);
 
   /// Shows a 'critical' message in all container windows (in red), which does not disappear, until it is replaced with another (empty) string.
-  static void ShowGlobalStatusBarMessage(const ezFormatString& msg);
+  static void ShowGlobalStatusBarMessage(const WFormatString& msg);
 
   /// Opens the given file in the program that is registered in the OS to handle that file type.
-  static ezResult OpenFileInDefaultProgram(ezStringView sPath);
+  static WResult OpenFileInDefaultProgram(WStringView sPath);
 
   /// Open the given file in Visual Studio
-  static ezResult OpenInVisualStudio(ezStringView sPath);
+  static WResult OpenInVisualStudio(WStringView sPath);
 
   /// Open the given file in Jetbrains Rider
-  static ezResult OpenInRider(ezStringView sPath);
+  static WResult OpenInRider(WStringView sPath);
 
   /// Opens the given file or folder in the Explorer
-  static void OpenInExplorer(ezStringView sPath, bool bIsFile);
+  static void OpenInExplorer(WStringView sPath, bool bIsFile);
 
   /// Shows the "Open With" dialog
-  static void OpenWith(ezStringView sPath);
+  static void OpenWith(WStringView sPath);
 
   /// Attempts to launch Visual Studio Code with the given command line
-  static ezStatus OpenInVsCode(const QStringList& arguments);
+  static WStatus OpenInVsCode(const QStringList& arguments);
 
-  /// Loads some global state used by ezQtUiServices from the registry. E.g. the last position of the color dialog.
+  /// Loads some global state used by WQtUiServices from the registry. E.g. the last position of the color dialog.
   void LoadState();
 
-  /// Saves some global state used by ezQtUiServices to the registry.
+  /// Saves some global state used by WQtUiServices to the registry.
   void SaveState();
 
   /// Returns a cached QIcon that was created from an internal Qt resource (e.g. 'QIcon(":QtNamespace/MyIcon.png")' ). Prevents creating the
@@ -204,7 +204,7 @@ public:
   /// a copy is made, and the SVG content is modified such that white ("#FFFFFF") gets replaced by the requested color.
   /// Thus multiple tints of the same icon can be created for different use cases.
   /// Usually this is used to get different shades of the same icon, such that it looks good on the target background.
-  static const QIcon& GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor = ezColor::MakeZero());
+  static const QIcon& GetCachedIconResource(WStringView sIdentifier, WColor svgTintColor = WColor::MakeZero());
 
   /// Returns a cached QImage that was created from an internal Qt resource (e.g. 'QImage(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.
@@ -218,7 +218,7 @@ public:
   ///
   /// If the gitignore file does not exist, it is created.
   /// If the pattern is already present in the file, it is not added again.
-  static ezResult AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern);
+  static WResult AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern);
 
   /// Raises the 'CheckForUpdates' event
   static void CheckForUpdates();
@@ -231,7 +231,7 @@ public:
   /// What's supported is determined by whoever handles the request.
   /// The link target should look like this: "scheme:string".
   /// The "scheme:" allows handlers to distinguish the format of the rest of the string and whether it supports it.
-  static void GotoLinkTarget(ezStringView sLinkTarget);
+  static void GotoLinkTarget(WStringView sLinkTarget);
 
   void Init();
 
@@ -239,35 +239,35 @@ private Q_SLOTS:
   void TickEventHandler();
 
 private:
-  ezQtColorDialog* m_pColorDlg;
+  WQtColorDialog* m_pColorDlg;
   QByteArray m_ColorDlgGeometry;
 
-  static ezMap<ezString, QIcon> s_IconsCache;
-  static ezMap<ezString, QImage> s_ImagesCache;
-  static ezMap<ezString, QPixmap> s_PixmapsCache;
+  static WMap<WString, QIcon> s_IconsCache;
+  static WMap<WString, QImage> s_ImagesCache;
+  static WMap<WString, QPixmap> s_PixmapsCache;
   static bool s_bHeadless;
   static bool s_bUnattended;
-  static ezHybridArray<ezString, 4> s_SuppressedDialogs;
-  static ezHybridArray<ezString, 4> s_FailedAsserts;
+  static WHybridArray<WString, 4> s_SuppressedDialogs;
+  static WHybridArray<WString, 4> s_FailedAsserts;
   static TickEvent s_LastTickEvent;
   bool m_bIsDrawingATM = false;
 
-  friend class ezQtScopedUnattended;
+  friend class WQtScopedUnattended;
 };
 
-/// Makes the enclosed code run as if no user were present, see ezQtUiServices::IsUnattended().
+/// Makes the enclosed code run as if no user were present, see WQtUiServices::IsUnattended().
 ///
 /// For automated calls into an editor that a user is otherwise sitting in front of - an MCP tool call,
 /// for instance. Their dialogs must not block, while the same dialogs opened by the user's own menu
 /// clicks still have to appear, so the state cannot be set globally.
 ///
-/// Scopes nest and restore the previous state. Note that this does not undo ezQtUiServices::SetUnattended()
+/// Scopes nest and restore the previous state. Note that this does not undo WQtUiServices::SetUnattended()
 /// or headless mode: those stay in effect for the whole process.
-class EZ_GUIFOUNDATION_DLL ezQtScopedUnattended
+class W_GUIFOUNDATION_DLL WQtScopedUnattended
 {
 public:
-  ezQtScopedUnattended();
-  ~ezQtScopedUnattended();
+  WQtScopedUnattended();
+  ~WQtScopedUnattended();
 
 private:
   bool m_bPrevUnattended;

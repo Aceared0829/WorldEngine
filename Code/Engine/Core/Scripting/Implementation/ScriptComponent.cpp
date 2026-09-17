@@ -6,35 +6,35 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WScriptComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("UpdateOnlyWhenSimulating", GetUpdateOnlyWhenSimulating, SetUpdateOnlyWhenSimulating)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
+    W_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new WClampValueAttribute(WTime::MakeZero(), WVariant())),
+    W_ACCESSOR_PROPERTY("UpdateOnlyWhenSimulating", GetUpdateOnlyWhenSimulating, SetUpdateOnlyWhenSimulating)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_ScriptClass", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new WExposedParametersAttribute("ScriptClass")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetScriptVariable, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetScriptVariable, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetScriptVariable, In, "Name", In, "Value"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetScriptVariable, In, "Name"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Scripting"),
+    new WCategoryAttribute("Scripting"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptComponent::ezScriptComponent() = default;
-ezScriptComponent::~ezScriptComponent() = default;
+WScriptComponent::WScriptComponent() = default;
+WScriptComponent::~WScriptComponent() = default;
 
-void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
+void WScriptComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
@@ -43,20 +43,20 @@ void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_UpdateInterval;
   s << m_bUpdateOnlyWhenSimulating;
 
-  ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
+  WUInt16 uiNumParams = static_cast<WUInt16>(m_Parameters.GetCount());
   s << uiNumParams;
 
-  for (ezUInt32 p = 0; p < uiNumParams; ++p)
+  for (WUInt32 p = 0; p < uiNumParams; ++p)
   {
     s << m_Parameters.GetKey(p);
     s << m_Parameters.GetValue(p);
   }
 }
 
-void ezScriptComponent::DeserializeComponent(ezWorldReader& stream)
+void WScriptComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hScriptClass;
@@ -67,13 +67,13 @@ void ezScriptComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_bUpdateOnlyWhenSimulating;
   }
 
-  ezUInt16 uiNumParams = 0;
+  WUInt16 uiNumParams = 0;
   s >> uiNumParams;
   m_Parameters.Reserve(uiNumParams);
 
-  ezHashedString key;
-  ezVariant value;
-  for (ezUInt32 p = 0; p < uiNumParams; ++p)
+  WHashedString key;
+  WVariant value;
+  for (WUInt32 p = 0; p < uiNumParams; ++p)
   {
     s >> key;
     s >> value;
@@ -82,7 +82,7 @@ void ezScriptComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezScriptComponent::Initialize()
+void WScriptComponent::Initialize()
 {
   SUPER::Initialize();
 
@@ -92,39 +92,39 @@ void ezScriptComponent::Initialize()
   }
 }
 
-void ezScriptComponent::Deinitialize()
+void WScriptComponent::Deinitialize()
 {
   SUPER::Deinitialize();
 
   ClearInstance(false);
 }
 
-void ezScriptComponent::OnActivated()
+void WScriptComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnActivated);
+  CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnActivated);
 
   AddUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::OnDeactivated()
+void WScriptComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnDeactivated);
+  CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnDeactivated);
 
   RemoveUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::OnSimulationStarted()
+void WScriptComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
+  CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnSimulationStarted);
 }
 
-void ezScriptComponent::SetScriptVariable(const ezHashedString& sName, const ezVariant& value)
+void WScriptComponent::SetScriptVariable(const WHashedString& sName, const WVariant& value)
 {
   if (m_pInstance != nullptr)
   {
@@ -132,17 +132,17 @@ void ezScriptComponent::SetScriptVariable(const ezHashedString& sName, const ezV
   }
 }
 
-ezVariant ezScriptComponent::GetScriptVariable(const ezHashedString& sName) const
+WVariant WScriptComponent::GetScriptVariable(const WHashedString& sName) const
 {
   if (m_pInstance != nullptr)
   {
     return m_pInstance->GetInstanceVariable(sName);
   }
 
-  return ezVariant();
+  return WVariant();
 }
 
-void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScript)
+void WScriptComponent::SetScriptClass(const WScriptClassResourceHandle& hScript)
 {
   if (m_hScriptClass == hScript)
     return;
@@ -160,7 +160,7 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
   }
 }
 
-void ezScriptComponent::SetUpdateInterval(ezTime interval)
+void WScriptComponent::SetUpdateInterval(WTime interval)
 {
   if (m_UpdateInterval == interval)
     return;
@@ -171,7 +171,7 @@ void ezScriptComponent::SetUpdateInterval(ezTime interval)
   AddUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
+void WScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
 {
   if (m_bUpdateOnlyWhenSimulating == bUpdate)
     return;
@@ -182,9 +182,9 @@ void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
   AddUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::BroadcastEventMsg(ezMessage& ref_msg)
+void WScriptComponent::BroadcastEventMsg(WMessage& ref_msg)
 {
-  const ezRTTI* pType = ref_msg.GetDynamicRTTI();
+  const WRTTI* pType = ref_msg.GetDynamicRTTI();
 
   for (auto& sender : m_EventSenders)
   {
@@ -200,25 +200,25 @@ void ezScriptComponent::BroadcastEventMsg(ezMessage& ref_msg)
   sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
 }
 
-const ezRangeView<const char*, ezUInt32> ezScriptComponent::GetParameters() const
+const WRangeView<const char*, WUInt32> WScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
-void ezScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
+void WScriptComponent::SetParameter(const char* szKey, const WVariant& value)
 {
-  ezHashedString hs;
+  WHashedString hs;
   hs.Assign(szKey);
 
   auto it = m_Parameters.Find(hs);
-  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+  if (it != WInvalidIndex && m_Parameters.GetValue(it) == value)
     return;
 
   m_Parameters[hs] = value;
@@ -229,9 +229,9 @@ void ezScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
   }
 }
 
-void ezScriptComponent::RemoveParameter(const char* szKey)
+void WScriptComponent::RemoveParameter(const char* szKey)
 {
-  if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
+  if (m_Parameters.RemoveAndCopy(WTempHashedString(szKey)))
   {
     if (IsInitialized() && m_hScriptClass.IsValid())
     {
@@ -240,32 +240,32 @@ void ezScriptComponent::RemoveParameter(const char* szKey)
   }
 }
 
-bool ezScriptComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+bool WScriptComponent::GetParameter(const char* szKey, WVariant& out_value) const
 {
-  ezUInt32 it = m_Parameters.Find(szKey);
+  WUInt32 it = m_Parameters.Find(szKey);
 
-  if (it == ezInvalidIndex)
+  if (it == WInvalidIndex)
     return false;
 
   out_value = m_Parameters.GetValue(it);
   return true;
 }
 
-void ezScriptComponent::InstantiateScript(bool bActivate)
+void WScriptComponent::InstantiateScript(bool bActivate)
 {
   ClearInstance(IsActiveAndInitialized());
 
-  ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WScriptClassResource> pScript(m_hScriptClass, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pScript.GetAcquireResult() != WResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceIdOrDescription());
+    WLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceIdOrDescription());
     return;
   }
 
   auto pScriptType = pScript->GetType();
-  if (pScriptType == nullptr || pScriptType->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()) == false)
+  if (pScriptType == nullptr || pScriptType->IsDerivedFrom(WGetStaticRTTI<WComponent>()) == false)
   {
-    ezLog::Error("Script type '{}' is not a component", pScriptType != nullptr ? pScriptType->GetTypeName() : "NULL");
+    WLog::Error("Script type '{}' is not a component", pScriptType != nullptr ? pScriptType->GetTypeName() : "NULL");
     return;
   }
 
@@ -279,36 +279,36 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   }
 
   GetWorld()->AddResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr,
-    [](const ezWorld::ResourceReloadContext& context)
+    [](const WWorld::ResourceReloadContext& context)
     {
-      ezStaticCast<ezScriptComponent*>(context.m_pComponent)->ReloadScript();
+      WStaticCast<WScriptComponent*>(context.m_pComponent)->ReloadScript();
     });
 
-  CallScriptFunction(ezComponent_ScriptBaseClassFunctions::Initialize);
+  CallScriptFunction(WComponent_ScriptBaseClassFunctions::Initialize);
   if (bActivate)
   {
-    CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnActivated);
+    CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnActivated);
 
     if (GetWorld()->GetWorldSimulationEnabled())
     {
-      CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
+      CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnSimulationStarted);
     }
   }
 
   AddUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::ClearInstance(bool bDeactivate)
+void WScriptComponent::ClearInstance(bool bDeactivate)
 {
   if (bDeactivate)
   {
-    CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnDeactivated);
+    CallScriptFunction(WComponent_ScriptBaseClassFunctions::OnDeactivated);
   }
-  CallScriptFunction(ezComponent_ScriptBaseClassFunctions::Deinitialize);
+  CallScriptFunction(WComponent_ScriptBaseClassFunctions::Deinitialize);
 
   RemoveUpdateFunctionToSchedule();
 
-  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
+  auto pModule = GetWorld()->GetOrCreateModule<WScriptWorldModule>();
   pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
 
   GetWorld()->RemoveResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr);
@@ -319,28 +319,28 @@ void ezScriptComponent::ClearInstance(bool bDeactivate)
   m_pMessageDispatchType = GetDynamicRTTI();
 }
 
-void ezScriptComponent::AddUpdateFunctionToSchedule()
+void WScriptComponent::AddUpdateFunctionToSchedule()
 {
   if (IsActiveAndInitialized() == false)
     return;
 
-  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
-  if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
+  auto pModule = GetWorld()->GetOrCreateModule<WScriptWorldModule>();
+  if (auto pUpdateFunction = GetScriptFunction(WComponent_ScriptBaseClassFunctions::Update))
   {
     pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, m_bUpdateOnlyWhenSimulating);
   }
 }
 
-void ezScriptComponent::RemoveUpdateFunctionToSchedule()
+void WScriptComponent::RemoveUpdateFunctionToSchedule()
 {
-  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
-  if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
+  auto pModule = GetWorld()->GetOrCreateModule<WScriptWorldModule>();
+  if (auto pUpdateFunction = GetScriptFunction(WComponent_ScriptBaseClassFunctions::Update))
   {
     pModule->RemoveUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow());
   }
 }
 
-const ezAbstractFunctionProperty* ezScriptComponent::GetScriptFunction(ezUInt32 uiFunctionIndex)
+const WAbstractFunctionProperty* WScriptComponent::GetScriptFunction(WUInt32 uiFunctionIndex)
 {
   if (m_pScriptType != nullptr && m_pInstance != nullptr)
   {
@@ -350,18 +350,18 @@ const ezAbstractFunctionProperty* ezScriptComponent::GetScriptFunction(ezUInt32 
   return nullptr;
 }
 
-void ezScriptComponent::CallScriptFunction(ezUInt32 uiFunctionIndex)
+void WScriptComponent::CallScriptFunction(WUInt32 uiFunctionIndex)
 {
   if (auto pFunction = GetScriptFunction(uiFunctionIndex))
   {
-    ezVariant returnValue;
-    pFunction->Execute(m_pInstance.Borrow(), ezArrayPtr<ezVariant>(), returnValue);
+    WVariant returnValue;
+    pFunction->Execute(m_pInstance.Borrow(), WArrayPtr<WVariant>(), returnValue);
   }
 }
 
-void ezScriptComponent::ReloadScript()
+void WScriptComponent::ReloadScript()
 {
   InstantiateScript(IsActiveAndInitialized());
 }
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptComponent);
+W_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptComponent);

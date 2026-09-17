@@ -2,17 +2,17 @@
 
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 
-class ezScene2Document;
+class WScene2Document;
 
-class ezQtScene2DocumentWindow : public ezQtSceneDocumentWindowBase
+class WQtScene2DocumentWindow : public WQtSceneDocumentWindowBase
 {
   Q_OBJECT
 
 public:
-  ezQtScene2DocumentWindow(ezScene2Document* pDocument);
-  ~ezQtScene2DocumentWindow();
+  WQtScene2DocumentWindow(WScene2Document* pDocument);
+  ~WQtScene2DocumentWindow();
 
   virtual bool InternalCanCloseWindow() override;
 
-  ezStatus SaveAllLayers();
+  WStatus SaveAllLayers();
 };

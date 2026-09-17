@@ -4,17 +4,17 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 /// Forward render pass that renders secondary lens flares.
-class EZ_RENDERERCORE_DLL ezLensEffectsPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WLensEffectsPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLensEffectsPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WLensEffectsPass, WRenderPipelinePass);
 
 public:
-  ezLensEffectsPass(const char* szName = "LensEffectsPass");
-  ~ezLensEffectsPass();
+  WLensEffectsPass(const char* szName = "LensEffectsPass");
+  ~WLensEffectsPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
 protected:
-  ezRenderPipelineNodePassThroughPin m_PinColor;
-  ezRenderPipelineNodeInputPin m_PinResolvedDepth;
+  WRenderPipelineNodePassThroughPin m_PinColor;
+  WRenderPipelineNodeInputPin m_PinResolvedDepth;
 };

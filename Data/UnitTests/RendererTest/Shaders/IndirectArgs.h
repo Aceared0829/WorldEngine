@@ -2,7 +2,7 @@
 
 #include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
-BEGIN_PUSH_CONSTANTS(ezIndirectArgs)
+BEGIN_PUSH_CONSTANTS(WIndirectArgs)
 {
   UINT1(Arg0);
   UINT1(Arg1);
@@ -13,4 +13,4 @@ BEGIN_PUSH_CONSTANTS(ezIndirectArgs)
   UINT1(_Pad1);
   UINT1(_Pad2);
 }
-END_PUSH_CONSTANTS(ezIndirectArgs)
+END_PUSH_CONSTANTS(WIndirectArgs)

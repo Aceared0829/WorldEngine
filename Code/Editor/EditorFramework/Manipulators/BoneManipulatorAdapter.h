@@ -9,16 +9,16 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-/// Makes an array of ezExposedBone properties editable in the viewport
+/// Makes an array of WExposedBone properties editable in the viewport
 ///
-/// Enabled by attaching the ezBoneManipulatorAttribute.
-class ezBoneManipulatorAdapter : public ezManipulatorAdapter
+/// Enabled by attaching the WBoneManipulatorAttribute.
+class WBoneManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezBoneManipulatorAdapter();
-  ~ezBoneManipulatorAdapter();
+  WBoneManipulatorAdapter();
+  ~WBoneManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -26,29 +26,29 @@ protected:
   void MigrateSelection();
 
   virtual void Update() override;
-  void RotateGizmoEventHandler(const ezGizmoEvent& e);
-  void ClickGizmoEventHandler(const ezGizmoEvent& e);
+  void RotateGizmoEventHandler(const WGizmoEvent& e);
+  void ClickGizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
   struct ElementGizmo
   {
-    ezMat4 m_Offset;
-    ezMat4 m_InverseOffset;
-    ezRotateGizmo m_RotateGizmo;
-    ezClickGizmo m_ClickGizmo;
+    WMat4 m_Offset;
+    WMat4 m_InverseOffset;
+    WRotateGizmo m_RotateGizmo;
+    WClickGizmo m_ClickGizmo;
   };
 
-  ezVariantArray m_Keys;
-  ezDynamicArray<ezExposedBone> m_Bones;
-  ezDeque<ElementGizmo> m_Gizmos;
-  ezTransform m_RootTransform = ezTransform::MakeIdentity();
+  WVariantArray m_Keys;
+  WDynamicArray<WExposedBone> m_Bones;
+  WDeque<ElementGizmo> m_Gizmos;
+  WTransform m_RootTransform = WTransform::MakeIdentity();
 
   void RetrieveBones();
   void ConfigureGizmos();
-  void SetTransform(ezUInt32 uiBone, const ezTransform& value);
-  ezMat4 ComputeFullTransform(ezUInt32 uiBone) const;
-  ezMat4 ComputeParentTransform(ezUInt32 uiBone) const;
+  void SetTransform(WUInt32 uiBone, const WTransform& value);
+  WMat4 ComputeFullTransform(WUInt32 uiBone) const;
+  WMat4 ComputeParentTransform(WUInt32 uiBone) const;
 
-  static ezString s_sLastSelectedBone;
+  static WString s_sLastSelectedBone;
 };

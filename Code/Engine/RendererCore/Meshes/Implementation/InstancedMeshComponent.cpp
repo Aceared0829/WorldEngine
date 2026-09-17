@@ -7,128 +7,128 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMeshInstanceData, ezNoBase, 1, ezRTTIDefaultAllocator<ezMeshInstanceData>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WMeshInstanceData, WNoBase, 1, WRTTIDefaultAllocator<WMeshInstanceData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
+    W_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new WSuffixAttribute(" m")),
+    W_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
+    W_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new WDefaultValueAttribute(WVec3(1.0f, 1.0f, 1.0f))),
 
-    EZ_MEMBER_PROPERTY("Color", m_color)
+    W_MEMBER_PROPERTY("Color", m_color)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezTransformManipulatorAttribute("LocalPosition", "LocalRotation", "LocalScaling"),
+    new WTransformManipulatorAttribute("LocalPosition", "LocalRotation", "LocalScaling"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+W_END_STATIC_REFLECTED_TYPE
 // clang-format on
 
-void ezMeshInstanceData::SetLocalPosition(ezVec3 vPosition)
+void WMeshInstanceData::SetLocalPosition(WVec3 vPosition)
 {
   m_transform.m_vPosition = vPosition;
 }
-ezVec3 ezMeshInstanceData::GetLocalPosition() const
+WVec3 WMeshInstanceData::GetLocalPosition() const
 {
   return m_transform.m_vPosition;
 }
 
-void ezMeshInstanceData::SetLocalRotation(ezQuat qRotation)
+void WMeshInstanceData::SetLocalRotation(WQuat qRotation)
 {
   m_transform.m_qRotation = qRotation;
 }
 
-ezQuat ezMeshInstanceData::GetLocalRotation() const
+WQuat WMeshInstanceData::GetLocalRotation() const
 {
   return m_transform.m_qRotation;
 }
 
-void ezMeshInstanceData::SetLocalScaling(ezVec3 vScaling)
+void WMeshInstanceData::SetLocalScaling(WVec3 vScaling)
 {
   m_transform.m_vScale = vScaling;
 }
 
-ezVec3 ezMeshInstanceData::GetLocalScaling() const
+WVec3 WMeshInstanceData::GetLocalScaling() const
 {
   return m_transform.m_vScale;
 }
 
-static constexpr ezTypeVersion s_MeshInstanceDataVersion = 1;
-ezResult ezMeshInstanceData::Serialize(ezStreamWriter& ref_writer) const
+static constexpr WTypeVersion s_MeshInstanceDataVersion = 1;
+WResult WMeshInstanceData::Serialize(WStreamWriter& ref_writer) const
 {
   ref_writer.WriteVersion(s_MeshInstanceDataVersion);
 
   ref_writer << m_transform;
   ref_writer << m_color;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMeshInstanceData::Deserialize(ezStreamReader& ref_reader)
+WResult WMeshInstanceData::Deserialize(WStreamReader& ref_reader)
 {
   /*auto version = */ ref_reader.ReadVersion(s_MeshInstanceDataVersion);
 
   ref_reader >> m_transform;
   ref_reader >> m_color;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WInstancedMeshComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("MainColor", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    W_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("MainColor", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new WDefaultValueAttribute(WVec4(0, 1, 0, 1))),
+    W_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material")),
 
-    EZ_ARRAY_ACCESSOR_PROPERTY("InstanceData", Instances_GetCount, Instances_GetValue, Instances_SetValue, Instances_Insert, Instances_Remove),
+    W_ARRAY_ACCESSOR_PROPERTY("InstanceData", Instances_GetCount, Instances_GetValue, Instances_SetValue, Instances_Insert, Instances_Remove),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezInstancedMeshComponent::ezInstancedMeshComponent() = default;
-ezInstancedMeshComponent::~ezInstancedMeshComponent() = default;
+WInstancedMeshComponent::WInstancedMeshComponent() = default;
+WInstancedMeshComponent::~WInstancedMeshComponent() = default;
 
-void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WInstancedMeshComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
   inout_stream.GetStream().WriteArray(m_RawInstancedData).IgnoreResult();
 }
 
-void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WInstancedMeshComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
   inout_stream.GetStream().ReadArray(m_RawInstancedData).IgnoreResult();
 }
 
-void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) {}
+void WInstancedMeshComponent::OnMsgExtractGeometry(WMsgExtractGeometry& ref_msg) {}
 
-ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WInstancedMeshComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (!m_hMesh.IsValid() || m_RawInstancedData.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezBoundingBoxSphere singleBounds = pMesh->GetBounds();
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WBoundingBoxSphere singleBounds = pMesh->GetBounds();
   m_fBoundingSphereRadius = singleBounds.m_fSphereRadius;
 
   for (const auto& instance : m_RawInstancedData)
@@ -139,37 +139,37 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bound
     ref_bounds.ExpandToInclude(instanceBounds);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezInstancedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WInstancedMeshComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid() || m_RawInstancedData.IsEmpty())
     return;
 
   const bool bDynamic = GetOwner()->IsDynamic();
-  ezGALDynamicBufferHandle hInstanceDataBuffer;
+  WGALDynamicBufferHandle hInstanceDataBuffer;
   auto instanceData = msg.m_pRenderDataManager->GetOrCreateInstanceData(this, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, m_RawInstancedData.GetCount());
 
-  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
-  const ezUInt32 uiUniqueID = GetUniqueIdForRendering();
-  const ezUInt32 uiRandomSeed = GetOwner()->GetStableRandomSeed();
-  for (ezUInt32 i = 0; i < m_RawInstancedData.GetCount(); ++i)
+  const WTransform ownerTransform = GetOwner()->GetGlobalTransform();
+  const WUInt32 uiUniqueID = GetUniqueIdForRendering();
+  const WUInt32 uiRandomSeed = GetOwner()->GetStableRandomSeed();
+  for (WUInt32 i = 0; i < m_RawInstancedData.GetCount(); ++i)
   {
     auto& meshInstance = m_RawInstancedData[i];
-    const ezTransform globalTransform = ownerTransform * meshInstance.m_transform;
-    const ezColor color = m_Color * meshInstance.m_color;
+    const WTransform globalTransform = ownerTransform * meshInstance.m_transform;
+    const WColor color = m_Color * meshInstance.m_color;
 
-    ezRenderDataManager::FillPerInstanceData(instanceData[i], nullptr, globalTransform, uiUniqueID, color, m_vCustomData, m_fBoundingSphereRadius, uiRandomSeed + i);
+    WRenderDataManager::FillPerInstanceData(instanceData[i], nullptr, globalTransform, uiUniqueID, color, m_vCustomData, m_fBoundingSphereRadius, uiRandomSeed + i);
   }
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
+  WResourceLock<WMeshResource> pMesh(m_hMesh, WResourceAcquireMode::AllowLoadingFallback);
+  WArrayPtr<const WMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
-  for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
+  for (WUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial;
+    const WUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+    WMaterialResourceHandle hMaterial;
 
     // If we have a material override, use that otherwise use the default mesh material.
     if (GetMaterial(uiMaterialIndex).IsValid())
@@ -177,28 +177,28 @@ void ezInstancedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = CreateRenderData(msg.m_pRenderDataManager);
+    WMeshRenderData* pRenderData = CreateRenderData(msg.m_pRenderDataManager);
     pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex, m_RawInstancedData.GetCount());
 
     bool bDontCacheYet = false;
-    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);
+    WRenderData::Category category = WMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);
 
-    msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, category, bDontCacheYet ? WRenderData::Caching::Never : WRenderData::Caching::IfStatic);
   }
 }
 
-ezUInt32 ezInstancedMeshComponent::Instances_GetCount() const
+WUInt32 WInstancedMeshComponent::Instances_GetCount() const
 {
   return m_RawInstancedData.GetCount();
 }
 
-ezMeshInstanceData ezInstancedMeshComponent::Instances_GetValue(ezUInt32 uiIndex) const
+WMeshInstanceData WInstancedMeshComponent::Instances_GetValue(WUInt32 uiIndex) const
 {
   return m_RawInstancedData[uiIndex];
 }
 
-void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value)
+void WInstancedMeshComponent::Instances_SetValue(WUInt32 uiIndex, WMeshInstanceData value)
 {
   m_RawInstancedData[uiIndex] = value;
 
@@ -206,7 +206,7 @@ void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstan
   InvalidateCachedRenderData();
 }
 
-void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
+void WInstancedMeshComponent::Instances_Insert(WUInt32 uiIndex, WMeshInstanceData value)
 {
   m_RawInstancedData.InsertAt(uiIndex, value);
 
@@ -215,7 +215,7 @@ void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstance
   InvalidateCachedRenderData();
 }
 
-void ezInstancedMeshComponent::Instances_Remove(ezUInt32 uiIndex)
+void WInstancedMeshComponent::Instances_Remove(WUInt32 uiIndex)
 {
   m_RawInstancedData.RemoveAtAndCopy(uiIndex);
 
@@ -225,4 +225,4 @@ void ezInstancedMeshComponent::Instances_Remove(ezUInt32 uiIndex)
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_InstancedMeshComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_InstancedMeshComponent);

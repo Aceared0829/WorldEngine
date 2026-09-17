@@ -5,30 +5,30 @@
 /// \file
 /// Cross-platform tracing system for emitting structured events to the OS tracing infrastructure.
 ///
-/// This header provides macros to emit instant events, scoped events, and async activities that are captured by ETW (Windows), LTTNG (Linux), or Perfetto (Android). Unlike EZ_PROFILE_SCOPE, which stores data in an in-process ring buffer for later JSON export, these macros send events to the operating system's tracing subsystem for capture by external tools.
+/// This header provides macros to emit instant events, scoped events, and async activities that are captured by ETW (Windows), LTTNG (Linux), or Perfetto (Android). Unlike W_PROFILE_SCOPE, which stores data in an in-process ring buffer for later JSON export, these macros send events to the operating system's tracing subsystem for capture by external tools.
 ///
-/// Tracing is controlled by the EZ_USE_TRACING feature toggle (see UserConfig.h). When disabled, all macros expand to nothing with zero overhead.
+/// Tracing is controlled by the W_USE_TRACING feature toggle (see UserConfig.h). When disabled, all macros expand to nothing with zero overhead.
 ///
 /// \section tracing_usage Emitting Trace Events
 ///
 /// \code{.cpp}
 ///   // Instant event (point-in-time)
-///   EZ_TRACE_EVENT("TextureLoaded", ezTraceLevel::Info,
-///     EZ_TRACE_VALUE("Path", szTexturePath),
-///     EZ_TRACE_VALUE("Width", uiWidth));
+///   W_TRACE_EVENT("TextureLoaded", WTraceLevel::Info,
+///     W_TRACE_VALUE("Path", szTexturePath),
+///     W_TRACE_VALUE("Width", uiWidth));
 ///
 ///   // Scoped event (RAII begin + end, measures duration)
 ///   {
-///     EZ_TRACE_SCOPE("PhysicsStep", ezTraceLevel::Verbose,
-///       EZ_TRACE_VALUE("NumBodies", uiBodyCount));
+///     W_TRACE_SCOPE("PhysicsStep", WTraceLevel::Verbose,
+///       W_TRACE_VALUE("NumBodies", uiBodyCount));
 ///     // ... physics work ...
 ///   } // end event emitted automatically
 ///
 ///   // Async activity (correlated across threads by ID)
-///   EZ_TRACE_ASYNC_BEGIN("AsyncLoad", uiRequestId, ezTraceLevel::Info,
-///     EZ_TRACE_VALUE("Resource", szPath));
+///   W_TRACE_ASYNC_BEGIN("AsyncLoad", uiRequestId, WTraceLevel::Info,
+///     W_TRACE_VALUE("Resource", szPath));
 ///   // ... on another thread or later ...
-///   EZ_TRACE_ASYNC_END("AsyncLoad", uiRequestId);
+///   W_TRACE_ASYNC_END("AsyncLoad", uiRequestId);
 /// \endcode
 ///
 /// \section tracing_provider Provider Setup
@@ -39,15 +39,15 @@
 ///   // MyLibrary/Tracing/TraceProvider.h
 ///   #pragma once
 ///   #include <Foundation/Tracing/Tracing.h>
-///   EZ_DECLARE_TRACE_PROVIDER(g_ezTrace_MyLibrary);
-///   #define EZ_TRACE_PROVIDER g_ezTrace_MyLibrary
+///   W_DECLARE_TRACE_PROVIDER(g_WTrace_MyLibrary);
+///   #define W_TRACE_PROVIDER g_WTrace_MyLibrary
 /// \endcode
 ///
 /// \code{.cpp}
 ///   // MyLibrary/Tracing/TraceProvider.cpp
 ///   #include <MyLibrary/MyLibraryPCH.h>
 ///   #include <MyLibrary/Tracing/TraceProvider.h>
-///   EZ_IMPLEMENT_TRACE_PROVIDER(g_ezTrace_MyLibrary, "ez_MyLibrary");
+///   W_IMPLEMENT_TRACE_PROVIDER(g_WTrace_MyLibrary, "W_MyLibrary");
 /// \endcode
 ///
 /// Source files that emit trace events include the provider header instead of Tracing.h:
@@ -55,7 +55,7 @@
 ///   #include <MyLibrary/Tracing/TraceProvider.h>
 ///   void MyFunction()
 ///   {
-///     EZ_TRACE_EVENT("MyEvent", ezTraceLevel::Info, EZ_TRACE_VALUE("Key", 42));
+///     W_TRACE_EVENT("MyEvent", WTraceLevel::Info, W_TRACE_VALUE("Key", 42));
 ///   }
 /// \endcode
 ///
@@ -76,16 +76,16 @@
 ///   pwsh Utilities/Tracing/Capture-Trace.ps1 -Android
 /// \endcode
 ///
-/// \sa EZ_TRACE_EVENT, EZ_TRACE_SCOPE, EZ_TRACE_ASYNC_BEGIN, EZ_TRACE_ASYNC_END, EZ_TRACE_VALUE
+/// \sa W_TRACE_EVENT, W_TRACE_SCOPE, W_TRACE_ASYNC_BEGIN, W_TRACE_ASYNC_END, W_TRACE_VALUE
 
 #include <Foundation/Basics.h>
 
 /// Trace event severity levels.
 ///
-/// These are ezEngine's own levels, mapped to ETW / LTTNG / Perfetto by the platform backend.
-struct ezTraceLevel
+/// These are WorldEngine's own levels, mapped to ETW / LTTNG / Perfetto by the platform backend.
+struct WTraceLevel
 {
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     Error,   ///< Serious failure.
     Warning, ///< Potential problem.
@@ -94,110 +94,110 @@ struct ezTraceLevel
   };
 };
 
-#if EZ_ENABLED(EZ_USE_TRACING)
+#if W_ENABLED(W_USE_TRACING)
 #  include <Tracing_Platform.h>
 #endif
 
 // Ensure provider macros are always defined (no-op when tracing is off or unsupported).
-#ifndef EZ_DECLARE_TRACE_PROVIDER
-#  define EZ_DECLARE_TRACE_PROVIDER(ProviderSymbol)
+#ifndef W_DECLARE_TRACE_PROVIDER
+#  define W_DECLARE_TRACE_PROVIDER(ProviderSymbol)
 #endif
 
-#ifndef EZ_IMPLEMENT_TRACE_PROVIDER
-#  define EZ_IMPLEMENT_TRACE_PROVIDER(ProviderSymbol, ProviderName)
+#ifndef W_IMPLEMENT_TRACE_PROVIDER
+#  define W_IMPLEMENT_TRACE_PROVIDER(ProviderSymbol, ProviderName)
 #endif
 
-#if EZ_ENABLED(EZ_USE_TRACING) || defined(EZ_DOCS)
+#if W_ENABLED(W_USE_TRACING) || defined(W_DOCS)
 
-/// Field descriptor macro for use inside EZ_TRACE_EVENT, EZ_TRACE_SCOPE, and EZ_TRACE_ASYNC_BEGIN. Auto-detects the C++ type of Value. Cast the value if the auto-detection picks the wrong type.
-#  define EZ_TRACE_VALUE(FieldName, Value) \
-    EZ_TRACE_INTERNAL_VALUE(FieldName, Value)
+/// Field descriptor macro for use inside W_TRACE_EVENT, W_TRACE_SCOPE, and W_TRACE_ASYNC_BEGIN. Auto-detects the C++ type of Value. Cast the value if the auto-detection picks the wrong type.
+#  define W_TRACE_VALUE(FieldName, Value) \
+    W_TRACE_INTERNAL_VALUE(FieldName, Value)
 
-/// Fires a single instant event. The Level parameter is an ezTraceLevel::Enum.
+/// Fires a single instant event. The Level parameter is an WTraceLevel::Enum.
 ///
 /// Usage:
 /// \code
-///   EZ_TRACE_EVENT("CollisionDetected", ezTraceLevel::Info,
-///     EZ_TRACE_VALUE("NumContacts", iContacts),
-///     EZ_TRACE_VALUE("Force", fImpact));
+///   W_TRACE_EVENT("CollisionDetected", WTraceLevel::Info,
+///     W_TRACE_VALUE("NumContacts", iContacts),
+///     W_TRACE_VALUE("Force", fImpact));
 /// \endcode
 ///
-/// \sa EZ_TRACE_SCOPE
-#  define EZ_TRACE_EVENT(EventName, Level, ...) \
-    EZ_TRACE_INTERNAL_EVENT(EventName, Level, ##__VA_ARGS__)
+/// \sa W_TRACE_SCOPE
+#  define W_TRACE_EVENT(EventName, Level, ...) \
+    W_TRACE_INTERNAL_EVENT(EventName, Level, ##__VA_ARGS__)
 
 /// Opens a scoped trace that records begin time at construction and end time at destruction.
 ///
-/// Fields are attached to the begin event. The Level parameter is an ezTraceLevel::Enum.
+/// Fields are attached to the begin event. The Level parameter is an WTraceLevel::Enum.
 ///
 /// Usage:
 /// \code
 ///   {
-///     EZ_TRACE_SCOPE("DrawCalls", ezTraceLevel::Info,
-///       EZ_TRACE_VALUE("BatchCount", uiBatches));
+///     W_TRACE_SCOPE("DrawCalls", WTraceLevel::Info,
+///       W_TRACE_VALUE("BatchCount", uiBatches));
 ///     // ... work ...
 ///   }
 /// \endcode
 ///
-/// \sa EZ_TRACE_EVENT, EZ_TRACE_ASYNC_BEGIN, EZ_TRACE_SCOPE_BEGIN
-#  define EZ_TRACE_SCOPE(EventName, Level, ...)                     \
-    EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__); \
-    EZ_SCOPE_EXIT(EZ_TRACE_INTERNAL_SCOPE_END(EventName));
+/// \sa W_TRACE_EVENT, W_TRACE_ASYNC_BEGIN, W_TRACE_SCOPE_BEGIN
+#  define W_TRACE_SCOPE(EventName, Level, ...)                     \
+    W_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__); \
+    W_SCOPE_EXIT(W_TRACE_INTERNAL_SCOPE_END(EventName));
 
 /// Manually begins a scoped trace event.
 ///
-/// Unlike EZ_TRACE_SCOPE, this does not automatically emit an end event at scope exit. You must call EZ_TRACE_SCOPE_END with the same EventName when the region is complete. Use this when the begin and end do not fall within the same C++ scope (e.g. across callbacks).
+/// Unlike W_TRACE_SCOPE, this does not automatically emit an end event at scope exit. You must call W_TRACE_SCOPE_END with the same EventName when the region is complete. Use this when the begin and end do not fall within the same C++ scope (e.g. across callbacks).
 ///
-/// \sa EZ_TRACE_SCOPE_END, EZ_TRACE_SCOPE
-#  define EZ_TRACE_SCOPE_BEGIN(EventName, Level, ...) \
-    EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__)
+/// \sa W_TRACE_SCOPE_END, W_TRACE_SCOPE
+#  define W_TRACE_SCOPE_BEGIN(EventName, Level, ...) \
+    W_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__)
 
-/// Ends a scoped trace event previously started with EZ_TRACE_SCOPE_BEGIN.
+/// Ends a scoped trace event previously started with W_TRACE_SCOPE_BEGIN.
 ///
-/// Must use the same EventName that was passed to EZ_TRACE_SCOPE_BEGIN.
+/// Must use the same EventName that was passed to W_TRACE_SCOPE_BEGIN.
 ///
-/// \sa EZ_TRACE_SCOPE_BEGIN
-#  define EZ_TRACE_SCOPE_END(EventName) \
-    EZ_TRACE_INTERNAL_SCOPE_END(EventName)
+/// \sa W_TRACE_SCOPE_BEGIN
+#  define W_TRACE_SCOPE_END(EventName) \
+    W_TRACE_INTERNAL_SCOPE_END(EventName)
 
-/// Begin a named async activity tied to an ID (ezUInt64). The ID correlates begin/end across threads.
+/// Begin a named async activity tied to an ID (WUInt64). The ID correlates begin/end across threads.
 ///
 /// Usage:
 /// \code
-///   EZ_TRACE_ASYNC_BEGIN("AsyncLoad", uiRequestId, ezTraceLevel::Info,
-///     EZ_TRACE_VALUE("Resource", szPath));
+///   W_TRACE_ASYNC_BEGIN("AsyncLoad", uiRequestId, WTraceLevel::Info,
+///     W_TRACE_VALUE("Resource", szPath));
 ///   // ... on another thread or later ...
-///   EZ_TRACE_ASYNC_END("AsyncLoad", uiRequestId);
+///   W_TRACE_ASYNC_END("AsyncLoad", uiRequestId);
 /// \endcode
 ///
-/// \sa EZ_TRACE_ASYNC_END
-#  define EZ_TRACE_ASYNC_BEGIN(EventName, Id, Level, ...) \
-    EZ_TRACE_INTERNAL_ASYNC_BEGIN(EventName, Id, Level, ##__VA_ARGS__)
+/// \sa W_TRACE_ASYNC_END
+#  define W_TRACE_ASYNC_BEGIN(EventName, Id, Level, ...) \
+    W_TRACE_INTERNAL_ASYNC_BEGIN(EventName, Id, Level, ##__VA_ARGS__)
 
-/// End the async activity started with EZ_TRACE_ASYNC_BEGIN. Must use the same EventName and Id.
+/// End the async activity started with W_TRACE_ASYNC_BEGIN. Must use the same EventName and Id.
 ///
-/// \sa EZ_TRACE_ASYNC_BEGIN
-#  define EZ_TRACE_ASYNC_END(EventName, Id) \
-    EZ_TRACE_INTERNAL_ASYNC_END(EventName, Id)
+/// \sa W_TRACE_ASYNC_BEGIN
+#  define W_TRACE_ASYNC_END(EventName, Id) \
+    W_TRACE_INTERNAL_ASYNC_END(EventName, Id)
 
 /// Flushes any buffered trace events to the OS tracing backend.
 ///
 /// Useful before stopping a trace session to ensure all emitted events are captured.
-#  ifdef EZ_TRACE_INTERNAL_FLUSH
-#    define EZ_TRACE_FLUSH() EZ_TRACE_INTERNAL_FLUSH()
+#  ifdef W_TRACE_INTERNAL_FLUSH
+#    define W_TRACE_FLUSH() W_TRACE_INTERNAL_FLUSH()
 #  else
-#    define EZ_TRACE_FLUSH()
+#    define W_TRACE_FLUSH()
 #  endif
 
 #else
 
-#  define EZ_TRACE_VALUE(FieldName, Value)
-#  define EZ_TRACE_EVENT(EventName, Level, ...)
-#  define EZ_TRACE_SCOPE(EventName, Level, ...)
-#  define EZ_TRACE_SCOPE_BEGIN(EventName, Level, ...)
-#  define EZ_TRACE_SCOPE_END(EventName)
-#  define EZ_TRACE_ASYNC_BEGIN(EventName, Id, Level, ...)
-#  define EZ_TRACE_ASYNC_END(EventName, Id)
-#  define EZ_TRACE_FLUSH()
+#  define W_TRACE_VALUE(FieldName, Value)
+#  define W_TRACE_EVENT(EventName, Level, ...)
+#  define W_TRACE_SCOPE(EventName, Level, ...)
+#  define W_TRACE_SCOPE_BEGIN(EventName, Level, ...)
+#  define W_TRACE_SCOPE_END(EventName)
+#  define W_TRACE_ASYNC_BEGIN(EventName, Id, Level, ...)
+#  define W_TRACE_ASYNC_END(EventName, Id)
+#  define W_TRACE_FLUSH()
 
 #endif

@@ -12,18 +12,18 @@
 
 namespace
 {
-  static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory", ezSpatialData::Flags::None);
+  static WSpatialData::Category s_SpecialTestCategory = WSpatialData::RegisterCategory("SpecialTestCategory", WSpatialData::Flags::None);
 
-  using TestBoundsComponentManager = ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact>;
+  using TestBoundsComponentManager = WComponentManager<class TestBoundsComponent, WBlockStorageType::Compact>;
 
-  class TestBoundsComponent : public ezComponent
+  class TestBoundsComponent : public WComponent
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestBoundsComponent, ezComponent, TestBoundsComponentManager);
+    W_DECLARE_COMPONENT_TYPE(TestBoundsComponent, WComponent, TestBoundsComponentManager);
 
   public:
     virtual void Initialize() override { GetOwner()->UpdateLocalBounds(); }
 
-    void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
+    void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg)
     {
       auto& rng = GetWorld()->GetRandomNumberGenerator();
 
@@ -31,33 +31,33 @@ namespace
       float y = (float)rng.DoubleMinMax(1.0, 100.0);
       float z = (float)rng.DoubleMinMax(1.0, 100.0);
 
-      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(x, y, z));
+      WBoundingBox bounds = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), WVec3(x, y, z));
 
-      ezSpatialData::Category category = m_SpecialCategory;
-      if (category == ezInvalidSpatialDataCategory)
+      WSpatialData::Category category = m_SpecialCategory;
+      if (category == WInvalidSpatialDataCategory)
       {
-        category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+        category = GetOwner()->IsDynamic() ? WDefaultSpatialDataCategories::RenderDynamic : WDefaultSpatialDataCategories::RenderStatic;
       }
 
-      ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(bounds), category);
+      ref_msg.AddBounds(WBoundingBoxSphere::MakeFromBox(bounds), category);
     }
 
-    ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;
+    WSpatialData::Category m_SpecialCategory = WInvalidSpatialDataCategory;
   };
 
   // clang-format off
-  EZ_BEGIN_COMPONENT_TYPE(TestBoundsComponent, 1, ezComponentMode::Static)
+  W_BEGIN_COMPONENT_TYPE(TestBoundsComponent, 1, WComponentMode::Static)
   {
-    EZ_BEGIN_MESSAGEHANDLERS
+    W_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+      W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
     }
-    EZ_END_MESSAGEHANDLERS;
+    W_END_MESSAGEHANDLERS;
   }
-  EZ_END_COMPONENT_TYPE;
+  W_END_COMPONENT_TYPE;
   // clang-format on
 
-  static ezGameObject* CreateObjectAndTestComponent(ezWorld& inout_world, bool bDynamic)
+  static WGameObject* CreateObjectAndTestComponent(WWorld& inout_world, bool bDynamic)
   {
     auto& rng = inout_world.GetRandomNumberGenerator();
     constexpr const double range = 10000.0;
@@ -66,11 +66,11 @@ namespace
     float y = (float)rng.DoubleMinMax(-range, range);
     float z = (float)rng.DoubleMinMax(-range, range);
 
-    ezGameObjectDesc desc;
+    WGameObjectDesc desc;
     desc.m_bDynamic = bDynamic;
-    desc.m_LocalPosition = ezVec3(x, y, z);
+    desc.m_LocalPosition = WVec3(x, y, z);
 
-    ezGameObject* pObject = nullptr;
+    WGameObject* pObject = nullptr;
     inout_world.CreateObject(desc, pObject);
 
     TestBoundsComponent* pComponent = nullptr;
@@ -80,137 +80,137 @@ namespace
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
+W_CREATE_SIMPLE_TEST(World, SpatialSystem)
 {
-  ezWorldDesc worldDesc("Test");
+  WWorldDesc worldDesc("Test");
   worldDesc.m_uiRandomNumberGeneratorSeed = 5;
 
-  ezWorld world(worldDesc);
-  EZ_LOCK(world.GetWriteMarker());
+  WWorld world(worldDesc);
+  W_LOCK(world.GetWriteMarker());
 
-  for (ezUInt32 i = 0; i < 1000; ++i)
+  for (WUInt32 i = 0; i < 1000; ++i)
   {
     CreateObjectAndTestComponent(world, i >= 500);
   }
 
   world.Update();
 
-  ezSpatialSystem::QueryParams queryParams;
-  queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
+  WSpatialSystem::QueryParams queryParams;
+  queryParams.m_uiCategoryBitmask = WDefaultSpatialDataCategories::RenderStatic.GetBitmask();
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindObjectsInSphere")
   {
-    ezBoundingSphere testSphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
+    WBoundingSphere testSphere = WBoundingSphere::MakeFromCenterAndRadius(WVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
-    ezDynamicArray<ezGameObject*> objectsInSphere;
-    ezHashSet<ezGameObject*> uniqueObjects;
+    WDynamicArray<WGameObject*> objectsInSphere;
+    WHashSet<WGameObject*> uniqueObjects;
     world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, objectsInSphere);
 
     for (auto pObject : objectsInSphere)
     {
-      ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
+      WBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
-      EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
-      EZ_TEST_BOOL(pObject->IsStatic());
+      W_TEST_BOOL(testSphere.Overlaps(objSphere));
+      W_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      W_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
+      WBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
+        W_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((WGameObject*)it));
       }
     }
 
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject)
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](WGameObject* pObject)
       {
       objectsInSphere.PushBack(pObject);
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      W_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue; });
+      return WVisitorExecution::Continue; });
 
     for (auto pObject : objectsInSphere)
     {
-      ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
+      WBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
-      EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
-      EZ_TEST_BOOL(pObject->IsStatic());
+      W_TEST_BOOL(testSphere.Overlaps(objSphere));
+      W_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
+      WBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
+        W_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((WGameObject*)it));
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInBox")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindObjectsInBox")
   {
-    ezBoundingBox testBox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
+    WBoundingBox testBox = WBoundingBox::MakeFromCenterAndHalfExtents(WVec3(100.0f, 60.0f, 400.0f), WVec3(3000.0f));
 
-    ezDynamicArray<ezGameObject*> objectsInBox;
-    ezHashSet<ezGameObject*> uniqueObjects;
+    WDynamicArray<WGameObject*> objectsInBox;
+    WHashSet<WGameObject*> uniqueObjects;
     world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, objectsInBox);
 
     for (auto pObject : objectsInBox)
     {
-      ezBoundingBox objBox = pObject->GetGlobalBounds().GetBox();
+      WBoundingBox objBox = pObject->GetGlobalBounds().GetBox();
 
-      EZ_TEST_BOOL(testBox.Overlaps(objBox));
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
-      EZ_TEST_BOOL(pObject->IsStatic());
+      W_TEST_BOOL(testBox.Overlaps(objBox));
+      W_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      W_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
+      WBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
+        W_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((WGameObject*)it));
       }
     }
 
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject)
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](WGameObject* pObject)
       {
       objectsInBox.PushBack(pObject);
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      W_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue; });
+      return WVisitorExecution::Continue; });
 
     for (auto pObject : objectsInBox)
     {
-      ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
+      WBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
-      EZ_TEST_BOOL(testBox.Overlaps(objSphere));
-      EZ_TEST_BOOL(pObject->IsStatic());
+      W_TEST_BOOL(testBox.Overlaps(objSphere));
+      W_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
+      WBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
+        W_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((WGameObject*)it));
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindVisibleObjects")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FindVisibleObjects")
   {
     constexpr uint32_t numUpdates = 13;
 
@@ -222,12 +222,12 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     // newly created objects should be considered visible in the first frame after creation
     {
-      ezGameObject* pNewObject = CreateObjectAndTestComponent(world, false);
+      WGameObject* pNewObject = CreateObjectAndTestComponent(world, false);
 
       world.Update();
 
       auto visState = pNewObject->GetVisibilityState();
-      EZ_TEST_BOOL(visState == ezVisibilityState::Direct);
+      W_TEST_BOOL(visState == WVisibilityState::Direct);
     }
 
     // update a few more times to increase internal frame counter
@@ -236,38 +236,38 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       world.Update();
     }
 
-    queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+    queryParams.m_uiCategoryBitmask = WDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
-    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(80.0f), 1.0f, 1.0f, 10000.0f);
+    WMat4 lookAt = WGraphicsUtils::CreateLookAtViewMatrix(WVec3::MakeZero(), WVec3::MakeAxisX(), WVec3::MakeAxisZ());
+    WMat4 projection = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(WAngle::MakeFromDegree(80.0f), 1.0f, 1.0f, 10000.0f);
 
-    ezFrustum testFrustum = ezFrustum::MakeFromMVP(projection * lookAt);
+    WFrustum testFrustum = WFrustum::MakeFromMVP(projection * lookAt);
 
-    ezDynamicArray<const ezGameObject*> visibleObjects;
-    ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {}, ezVisibilityState::Direct);
+    WDynamicArray<const WGameObject*> visibleObjects;
+    WHashSet<const WGameObject*> uniqueObjects;
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {}, WVisibilityState::Direct);
 
-    EZ_TEST_BOOL(!visibleObjects.IsEmpty());
+    W_TEST_BOOL(!visibleObjects.IsEmpty());
 
     for (auto pObject : visibleObjects)
     {
-      EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
-      EZ_TEST_BOOL(pObject->IsDynamic());
+      W_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
+      W_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      W_TEST_BOOL(pObject->IsDynamic());
 
-      ezVisibilityState::Enum visType = pObject->GetVisibilityState();
-      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
+      WVisibilityState::Enum visType = pObject->GetVisibilityState();
+      W_TEST_BOOL(visType == WVisibilityState::Direct);
     }
 
     // Check for missing objects
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezGameObject* pObject = it;
+      WGameObject* pObject = it;
 
-      if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
+      if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == WVolumePosition::Outside)
       {
-        ezVisibilityState::Enum visType = pObject->GetVisibilityState();
-        EZ_TEST_BOOL(visType == ezVisibilityState::Invisible);
+        WVisibilityState::Enum visType = pObject->GetVisibilityState();
+        W_TEST_BOOL(visType == WVisibilityState::Invisible);
       }
     }
 
@@ -278,7 +278,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       if (it->IsDynamic())
       {
-        ezVec3 pos = it->GetLocalPosition();
+        WVec3 pos = it->GetLocalPosition();
 
         auto& rng = world.GetRandomNumberGenerator();
         pos.x += (float)rng.DoubleMinMax(-range, range);
@@ -292,27 +292,27 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     world.Update();
 
     // Check that last frame visible doesn't reset entirely after moving
-    for (const ezGameObject* pObject : visibleObjects)
+    for (const WGameObject* pObject : visibleObjects)
     {
-      ezVisibilityState::Enum visType = pObject->GetVisibilityState();
-      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
+      WVisibilityState::Enum visType = pObject->GetVisibilityState();
+      W_TEST_BOOL(visType == WVisibilityState::Direct);
     }
   }
 
   if (false)
   {
-    ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    WStringBuilder outputPath = WTestFramework::GetInstance()->GetAbsOutputPath();
+    W_TEST_BOOL(WFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", WDataDirUsage::AllowWrites) == W_SUCCESS);
 
-    ezProfilingUtils::SaveProfilingCapture(":output/profiling.json").IgnoreResult();
+    WProfilingUtils::SaveProfilingCapture(":output/profiling.json").IgnoreResult();
   }
 
   // Test multiple categories for spatial data
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MultipleCategories")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MultipleCategories")
   {
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezGameObject* pObject = it;
+      WGameObject* pObject = it;
 
       TestBoundsComponent* pComponent = nullptr;
       TestBoundsComponent::CreateComponent(pObject, pComponent);
@@ -321,7 +321,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     world.Update();
 
-    ezDynamicArray<ezGameObjectHandle> allObjects;
+    WDynamicArray<WGameObjectHandle> allObjects;
     allObjects.Reserve(world.GetObjectCount());
 
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       allObjects.PushBack(it->GetHandle());
     }
 
-    for (ezUInt32 i = allObjects.GetCount(); i-- > 0;)
+    for (WUInt32 i = allObjects.GetCount(); i-- > 0;)
     {
       world.DeleteObjectNow(allObjects[i]);
     }

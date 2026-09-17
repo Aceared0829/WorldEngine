@@ -3,10 +3,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <RendererCore/Decals/DecalResource.h>
 
-static ezDecalResourceLoader s_DecalResourceLoader;
+static WDecalResourceLoader s_DecalResourceLoader;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation",
@@ -16,21 +16,21 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::SetResourceTypeLoader<ezDecalResource>(&s_DecalResourceLoader);
+    WResourceManager::SetResourceTypeLoader<WDecalResource>(&s_DecalResourceLoader);
 
-    ezDecalResourceDescriptor desc;
-    ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", std::move(desc), "Empty Decal for loading and missing decals");
+    WDecalResourceDescriptor desc;
+    WDecalResourceHandle hFallback = WResourceManager::CreateResource<WDecalResource>("Fallback Decal", std::move(desc), "Empty Decal for loading and missing decals");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalResource>(hFallback);
-    ezResourceManager::SetResourceTypeMissingFallback<ezDecalResource>(hFallback);
+    WResourceManager::SetResourceTypeLoadingFallback<WDecalResource>(hFallback);
+    WResourceManager::SetResourceTypeMissingFallback<WDecalResource>(hFallback);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
+    WResourceManager::SetResourceTypeLoader<WDecalResource>(nullptr);
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalResource>(ezDecalResourceHandle());
-    ezResourceManager::SetResourceTypeMissingFallback<ezDecalResource>(ezDecalResourceHandle());
+    WResourceManager::SetResourceTypeLoadingFallback<WDecalResource>(WDecalResourceHandle());
+    WResourceManager::SetResourceTypeMissingFallback<WDecalResource>(WDecalResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -41,76 +41,76 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalResource, 1, WRTTIDefaultAllocator<WDecalResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WDecalResource);
 // clang-format on
 
-ezDecalResource::ezDecalResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WDecalResource::WDecalResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezDecalResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WDecalResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezDecalResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WDecalResource::UpdateContent(WStreamReader* Stream)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   return res;
 }
 
-void ezDecalResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WDecalResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDecalResource);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WDecalResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalResource, ezDecalResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WDecalResource, WDecalResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
+  WResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;
   ret.m_uiQualityLevelsLoadable = 0;
-  ret.m_State = ezResourceState::Loaded;
+  ret.m_State = WResourceState::Loaded;
 
   return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResourceLoadData ezDecalResourceLoader::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WDecalResourceLoader::OpenDataStream(const WResource* pResource)
 {
   // nothing to load, decals are solely identified by their id (name)
   // the rest of the information is in the decal atlas resource
 
-  ezResourceLoadData res;
+  WResourceLoadData res;
   return res;
 }
 
-void ezDecalResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WDecalResourceLoader::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
   // nothing to do
 }
 
-bool ezDecalResourceLoader::IsResourceOutdated(const ezResource* pResource) const
+bool WDecalResourceLoader::IsResourceOutdated(const WResource* pResource) const
 {
   // decals are never outdated
   return false;
@@ -118,4 +118,4 @@ bool ezDecalResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);

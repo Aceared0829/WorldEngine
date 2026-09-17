@@ -9,160 +9,160 @@
 #include <Foundation/Threading/Thread.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
+W_CREATE_SIMPLE_TEST_GROUP(Logging);
 
 namespace
 {
 
-  class LogTestLogInterface : public ezLogInterface
+  class LogTestLogInterface : public WLogInterface
   {
   public:
-    virtual void HandleLogMessage(const ezLoggingEventData& le) override
+    virtual void HandleLogMessage(const WLoggingEventData& le) override
     {
       switch (le.m_EventType)
       {
-        case ezLogMsgType::Flush:
+        case WLogMsgType::Flush:
           m_Result.Append("[Flush]\n");
           return;
-        case ezLogMsgType::BeginGroup:
+        case WLogMsgType::BeginGroup:
           m_Result.Append(">", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::EndGroup:
+        case WLogMsgType::EndGroup:
           m_Result.Append("<", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::ErrorMsg:
+        case WLogMsgType::ErrorMsg:
           m_Result.Append("E:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::SeriousWarningMsg:
+        case WLogMsgType::SeriousWarningMsg:
           m_Result.Append("SW:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::WarningMsg:
+        case WLogMsgType::WarningMsg:
           m_Result.Append("W:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::SuccessMsg:
+        case WLogMsgType::SuccessMsg:
           m_Result.Append("S:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::InfoMsg:
+        case WLogMsgType::InfoMsg:
           m_Result.Append("I:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::DevMsg:
+        case WLogMsgType::DevMsg:
           m_Result.Append("E:", le.m_sTag, " ", le.m_sText, "\n");
           break;
-        case ezLogMsgType::DebugMsg:
+        case WLogMsgType::DebugMsg:
           m_Result.Append("D:", le.m_sTag, " ", le.m_sText, "\n");
           break;
 
         default:
-          EZ_REPORT_FAILURE("Invalid msg type");
+          W_REPORT_FAILURE("Invalid msg type");
           break;
       }
     }
 
-    ezStringBuilder m_Result;
+    WStringBuilder m_Result;
   };
 
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Logging, Log)
+W_CREATE_SIMPLE_TEST(Logging, Log)
 {
   LogTestLogInterface log;
   LogTestLogInterface log2;
-  ezLogSystemScope logScope(&log);
+  WLogSystemScope logScope(&log);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Output")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Output")
   {
-    EZ_LOG_BLOCK("Verse 1", "Portal: Still Alive");
+    W_LOG_BLOCK("Verse 1", "Portal: Still Alive");
 
-    ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
+    WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::All);
 
-    ezLog::Success("{0}", "This was a triumph.");
-    ezLog::Info("{0}", "I'm making a note here:");
-    ezLog::Error("{0}", "Huge Success");
-    ezLog::Info("{0}", "It's hard to overstate my satisfaction.");
-    ezLog::Dev("{0}", "Aperture Science. We do what we must, because we can,");
-    ezLog::Dev("{0}", "For the good of all of us, except the ones who are dead.");
-    ezLog::Flush();
-    ezLog::Flush(); // second flush should be ignored
+    WLog::Success("{0}", "This was a triumph.");
+    WLog::Info("{0}", "I'm making a note here:");
+    WLog::Error("{0}", "Huge Success");
+    WLog::Info("{0}", "It's hard to overstate my satisfaction.");
+    WLog::Dev("{0}", "Aperture Science. We do what we must, because we can,");
+    WLog::Dev("{0}", "For the good of all of us, except the ones who are dead.");
+    WLog::Flush();
+    WLog::Flush(); // second flush should be ignored
 
     {
-      EZ_LOG_BLOCK("Verse 2");
+      W_LOG_BLOCK("Verse 2");
 
-      ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::DevMsg);
+      WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::DevMsg);
 
-      ezLog::Dev("But there's no sense crying over every mistake.");
-      ezLog::Debug("You just keep on trying 'till you run out of cake.");
-      ezLog::Info("And the science gets done, and you make a neat gun");
-      ezLog::Error("for the people who are still alive.");
+      WLog::Dev("But there's no sense crying over every mistake.");
+      WLog::Debug("You just keep on trying 'till you run out of cake.");
+      WLog::Info("And the science gets done, and you make a neat gun");
+      WLog::Error("for the people who are still alive.");
     }
 
     {
-      EZ_LOG_BLOCK("Verse 3");
+      W_LOG_BLOCK("Verse 3");
 
-      ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
+      WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::InfoMsg);
 
-      ezLog::Info("I'm not even angry.");
-      ezLog::Debug("I'm being so sincere right now.");
-      ezLog::Dev("Even though you broke my heart and killed me.");
-      ezLog::Info("And tore me to pieces,");
-      ezLog::Dev("and threw every piece into a fire.");
-      ezLog::Info("As they burned it hurt because I was so happy for you.");
-      ezLog::Error("Now these points of data make a beautiful line");
-      ezLog::Dev("and we're off the beta, we're releasing on time.");
-      ezLog::Flush();
-      ezLog::Flush();
+      WLog::Info("I'm not even angry.");
+      WLog::Debug("I'm being so sincere right now.");
+      WLog::Dev("Even though you broke my heart and killed me.");
+      WLog::Info("And tore me to pieces,");
+      WLog::Dev("and threw every piece into a fire.");
+      WLog::Info("As they burned it hurt because I was so happy for you.");
+      WLog::Error("Now these points of data make a beautiful line");
+      WLog::Dev("and we're off the beta, we're releasing on time.");
+      WLog::Flush();
+      WLog::Flush();
 
       {
-        EZ_LOG_BLOCK("Verse 4");
+        W_LOG_BLOCK("Verse 4");
 
-        ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::SuccessMsg);
+        WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::SuccessMsg);
 
-        ezLog::Info("So I'm glad I got burned,");
-        ezLog::Debug("think of all the things we learned");
-        ezLog::Debug("for the people who are still alive.");
+        WLog::Info("So I'm glad I got burned,");
+        WLog::Debug("think of all the things we learned");
+        WLog::Debug("for the people who are still alive.");
 
         {
-          ezLogSystemScope logScope2(&log2);
-          EZ_LOG_BLOCK("Interlude");
-          ezLog::Info("Well here we are again. It's always such a pleasure.");
-          ezLog::Error("Remember when you tried to kill me twice?");
+          WLogSystemScope logScope2(&log2);
+          W_LOG_BLOCK("Interlude");
+          WLog::Info("Well here we are again. It's always such a pleasure.");
+          WLog::Error("Remember when you tried to kill me twice?");
         }
 
         {
-          EZ_LOG_BLOCK("Verse 5");
+          W_LOG_BLOCK("Verse 5");
 
-          ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::WarningMsg);
+          WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::WarningMsg);
 
-          ezLog::Debug("Go ahead and leave me.");
-          ezLog::Info("I think I prefer to stay inside.");
-          ezLog::Dev("Maybe you'll find someone else, to help you.");
-          ezLog::Dev("Maybe Black Mesa.");
-          ezLog::Info("That was a joke. Haha. Fat chance.");
-          ezLog::Warning("Anyway, this cake is great.");
-          ezLog::Success("It's so delicious and moist.");
-          ezLog::Dev("Look at me still talking when there's science to do.");
-          ezLog::Error("When I look up there it makes me glad I'm not you.");
-          ezLog::Info("I've experiments to run,");
-          ezLog::SeriousWarning("there is research to be done on the people who are still alive.");
+          WLog::Debug("Go ahead and leave me.");
+          WLog::Info("I think I prefer to stay inside.");
+          WLog::Dev("Maybe you'll find someone else, to help you.");
+          WLog::Dev("Maybe Black Mesa.");
+          WLog::Info("That was a joke. Haha. Fat chance.");
+          WLog::Warning("Anyway, this cake is great.");
+          WLog::Success("It's so delicious and moist.");
+          WLog::Dev("Look at me still talking when there's science to do.");
+          WLog::Error("When I look up there it makes me glad I'm not you.");
+          WLog::Info("I've experiments to run,");
+          WLog::SeriousWarning("there is research to be done on the people who are still alive.");
         }
       }
     }
   }
 
   {
-    EZ_LOG_BLOCK("Verse 6", "Last One");
+    W_LOG_BLOCK("Verse 6", "Last One");
 
-    ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::ErrorMsg);
+    WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::ErrorMsg);
 
-    ezLog::Dev("And believe me I am still alive.");
-    ezLog::Info("I'm doing science and I'm still alive.");
-    ezLog::Success("I feel fantastic and I'm still alive.");
-    ezLog::Warning("While you're dying I'll be still alive.");
-    ezLog::Error("And when you're dead I will be, still alive.");
-    ezLog::Debug("Still alive, still alive.");
+    WLog::Dev("And believe me I am still alive.");
+    WLog::Info("I'm doing science and I'm still alive.");
+    WLog::Success("I feel fantastic and I'm still alive.");
+    WLog::Warning("While you're dying I'll be still alive.");
+    WLog::Error("And when you're dead I will be, still alive.");
+    WLog::Debug("Still alive, still alive.");
   }
 
-  /// \todo This test will fail if EZ_COMPILE_FOR_DEVELOPMENT is disabled.
-  /// We also currently don't test ezLog::Debug, because our build machines compile in release and then the text below would need to be
+  /// \todo This test will fail if W_COMPILE_FOR_DEVELOPMENT is disabled.
+  /// We also currently don't test WLog::Debug, because our build machines compile in release and then the text below would need to be
   /// different.
 
   const char* szResult = log.m_Result;
@@ -200,7 +200,7 @@ E: And when you're dead I will be, still alive.\n\
 <Last One Verse 6\n\
 ";
 
-  EZ_TEST_STRING(szResult, szExpected);
+  W_TEST_STRING(szResult, szExpected);
 
   const char* szResult2 = log2.m_Result;
   const char* szExpected2 = "\
@@ -210,44 +210,44 @@ E: Remember when you tried to kill me twice?\n\
 < Interlude\n\
 ";
 
-  EZ_TEST_STRING(szResult2, szExpected2);
+  W_TEST_STRING(szResult2, szExpected2);
 }
 
-EZ_CREATE_SIMPLE_TEST(Logging, GlobalTestLog)
+W_CREATE_SIMPLE_TEST(Logging, GlobalTestLog)
 {
-  ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
+  WLog::GetThreadLocalLogSystem()->SetLogLevel(WLogMsgType::All);
 
   {
-    ezTestLogInterface log;
-    ezTestLogSystemScope scope(&log, true);
+    WTestLogInterface log;
+    WTestLogSystemScope scope(&log, true);
 
-    log.ExpectMessage("managed to break", ezLogMsgType::ErrorMsg);
-    log.ExpectMessage("my heart", ezLogMsgType::WarningMsg);
-    log.ExpectMessage("see you", ezLogMsgType::WarningMsg, 10);
+    log.ExpectMessage("managed to break", WLogMsgType::ErrorMsg);
+    log.ExpectMessage("my heart", WLogMsgType::WarningMsg);
+    log.ExpectMessage("see you", WLogMsgType::WarningMsg, 10);
 
     {
-      class LogThread : public ezThread
+      class LogThread : public WThread
       {
       public:
-        virtual ezUInt32 Run() override
+        virtual WUInt32 Run() override
         {
-          ezLog::Warning("I see you!");
-          ezLog::Debug("Test debug");
+          WLog::Warning("I see you!");
+          WLog::Debug("Test debug");
           return 0;
         }
       };
 
       LogThread thread[10];
 
-      for (ezUInt32 i = 0; i < 10; ++i)
+      for (WUInt32 i = 0; i < 10; ++i)
       {
         thread[i].Start();
       }
 
-      ezLog::Error("The only thing you managed to break so far");
-      ezLog::Warning("is my heart");
+      WLog::Error("The only thing you managed to break so far");
+      WLog::Warning("is my heart");
 
-      for (ezUInt32 i = 0; i < 10; ++i)
+      for (WUInt32 i = 0; i < 10; ++i)
       {
         thread[i].Join();
       }

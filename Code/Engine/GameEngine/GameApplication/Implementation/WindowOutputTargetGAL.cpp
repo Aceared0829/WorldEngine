@@ -14,54 +14,54 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
-ezWindowOutputTargetGAL::ezWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged)
+WWindowOutputTargetGAL::WWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged)
   : m_OnSwapChainChanged(onSwapChainChanged)
 {
-  ezGALDevice::GetDefaultDevice()->s_SwapChainUpdatedEvent.AddEventHandler(ezMakeDelegate(&ezWindowOutputTargetGAL::SwapChainUpdatedEventHandler, this));
-  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezWindowOutputTargetGAL::OnRenderEvent, this));
-  m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("CaptureImage", ezRenderGraphPhase::PostRender);
+  WGALDevice::GetDefaultDevice()->s_SwapChainUpdatedEvent.AddEventHandler(WMakeDelegate(&WWindowOutputTargetGAL::SwapChainUpdatedEventHandler, this));
+  WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WWindowOutputTargetGAL::OnRenderEvent, this));
+  m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("CaptureImage", WRenderGraphPhase::PostRender);
 }
 
-ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
+WWindowOutputTargetGAL::~WWindowOutputTargetGAL()
 {
-  ezGALDevice::GetDefaultDevice()->s_SwapChainUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezWindowOutputTargetGAL::SwapChainUpdatedEventHandler, this));
-  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowOutputTargetGAL::OnRenderEvent, this));
+  WGALDevice::GetDefaultDevice()->s_SwapChainUpdatedEvent.RemoveEventHandler(WMakeDelegate(&WWindowOutputTargetGAL::SwapChainUpdatedEventHandler, this));
+  WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WWindowOutputTargetGAL::OnRenderEvent, this));
 
-  ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
+  WGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
   m_hSwapChain.Invalidate();
   // After the swapchain is destroyed it can still be used in the renderer. As right after this usually the window is destroyed we must ensure that nothing still renders to it.
-  ezGALDevice::GetDefaultDevice()->WaitIdle();
+  WGALDevice::GetDefaultDevice()->WaitIdle();
 }
 
-void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc)
+void WWindowOutputTargetGAL::CreateSwapchain(const WGALWindowSwapChainCreationDescription& desc)
 {
   m_CurrentDesc = desc;
-  // ezWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
-  m_CurrentDesc.m_InitialPresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+  // WWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
+  m_CurrentDesc.m_InitialPresentMode = WGameApplication::cvar_AppVSync ? WGALPresentMode::VSync : WGALPresentMode::Immediate;
   const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
   if (bSwapChainExisted)
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    pDevice->UpdateSwapChain(m_hSwapChain, ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate).AssertSuccess("");
+    WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+    pDevice->UpdateSwapChain(m_hSwapChain, WGameApplication::cvar_AppVSync ? WGALPresentMode::VSync : WGALPresentMode::Immediate).AssertSuccess("");
   }
   else
   {
     m_Size = desc.m_pWindow->GetClientAreaSize();
-    m_hSwapChain = ezGALWindowSwapChain::Create(m_CurrentDesc);
+    m_hSwapChain = WGALWindowSwapChain::Create(m_CurrentDesc);
   }
 }
 
-void ezWindowOutputTargetGAL::PresentImage(bool bEnableVSync)
+void WWindowOutputTargetGAL::PresentImage(bool bEnableVSync)
 {
-  // For now, the actual present call is done during ezGALDevice::EndFrame by calling ezGALDevice::EnqueueFrameSwapChain before the render loop.
+  // For now, the actual present call is done during WGALDevice::EndFrame by calling WGALDevice::EnqueueFrameSwapChain before the render loop.
 }
 
-void ezWindowOutputTargetGAL::AcquireImage()
+void WWindowOutputTargetGAL::AcquireImage()
 {
-  // For now, the actual acquire call is done during ezGALDevice::BeginFrame by calling ezGALDevice::EnqueueFrameSwapChain before the render loop.
+  // For now, the actual acquire call is done during WGALDevice::BeginFrame by calling WGALDevice::EnqueueFrameSwapChain before the render loop.
   // This call is only used to recreate the swapchain at a safe location.
 
-  ezEnum<ezGALPresentMode> presentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+  WEnum<WGALPresentMode> presentMode = WGameApplication::cvar_AppVSync ? WGALPresentMode::VSync : WGALPresentMode::Immediate;
 
   if (m_Size != m_CurrentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_CurrentDesc.m_InitialPresentMode)
   {
@@ -69,18 +69,18 @@ void ezWindowOutputTargetGAL::AcquireImage()
   }
 }
 
-ezResult ezWindowOutputTargetGAL::StartCaptureImage()
+WResult WWindowOutputTargetGAL::StartCaptureImage()
 {
   if (m_bCaptureInFlight || m_bCaptureRequested)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_bCaptureRequested = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowOutputTargetGAL::OnRenderEvent(const ezGALDeviceEvent& e)
+void WWindowOutputTargetGAL::OnRenderEvent(const WGALDeviceEvent& e)
 {
-  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
+  if (e.m_Type != WGALDeviceEvent::AfterBeginFrame)
     return;
 
   if (!m_bCaptureRequested)
@@ -88,76 +88,76 @@ void ezWindowOutputTargetGAL::OnRenderEvent(const ezGALDeviceEvent& e)
 
   m_bCaptureRequested = false;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
-  ezGALTextureHandle hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
+  const WGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
+  WGALTextureHandle hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : WGALTextureHandle();
   if (hBackbuffer.IsInvalidated())
     return;
 
-  const ezGALTexture* pBackbuffer = pDevice->GetTexture(hBackbuffer);
+  const WGALTexture* pBackbuffer = pDevice->GetTexture(hBackbuffer);
   m_CaptureBackbufferDesc = pBackbuffer->GetDescription();
 
   m_pRenderGraph->Reset();
 
-  ezRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(hBackbuffer);
+  WRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(hBackbuffer);
 
   {
     auto pass = m_pRenderGraph->AddTransferPass("CaptureImage");
-    pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
+    pass.ReadTexture(hTex, {}, WGALResourceState::CopySource);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hTex](const WRenderGraphContext& ctx)
       { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
   }
-  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  WRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bCaptureInFlight = true;
 }
 
-ezEnum<ezCaptureImageResult> ezWindowOutputTargetGAL::WaitCaptureImage(ezImage& out_image)
+WEnum<WCaptureImageResult> WWindowOutputTargetGAL::WaitCaptureImage(WImage& out_image)
 {
   if (!m_bCaptureInFlight)
-    return m_bCaptureRequested ? ezCaptureImageResult::Pending : ezCaptureImageResult::NotStarted;
+    return m_bCaptureRequested ? WCaptureImageResult::Pending : WCaptureImageResult::NotStarted;
 
-  ezGALDevice::GetDefaultDevice()->Flush();
-  ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
-  if (res == ezGALAsyncResult::Pending)
-    return ezCaptureImageResult::Pending;
+  WGALDevice::GetDefaultDevice()->Flush();
+  WEnum<WGALAsyncResult> res = m_Readback.GetReadbackResult(WTime::MakeFromHours(1));
+  if (res == WGALAsyncResult::Pending)
+    return WCaptureImageResult::Pending;
 
-  if (res == ezGALAsyncResult::Expired)
+  if (res == WGALAsyncResult::Expired)
   {
     m_bCaptureInFlight = false;
-    return ezCaptureImageResult::NotStarted;
+    return WCaptureImageResult::NotStarted;
   }
 
   // Ready
-  ezGALTextureSubresource sourceSubResource;
-  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  WGALTextureSubresource sourceSubResource;
+  WArrayPtr<WGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
+  WReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
   if (!lock)
   {
     m_bCaptureInFlight = false;
-    return ezCaptureImageResult::NotStarted;
+    return WCaptureImageResult::NotStarted;
   }
 
-  ezTextureUtils::CopySubResourceToImage(m_CaptureBackbufferDesc, sourceSubResource, memory[0], out_image, true);
+  WTextureUtils::CopySubResourceToImage(m_CaptureBackbufferDesc, sourceSubResource, memory[0], out_image, true);
 
   m_bCaptureInFlight = false;
-  return ezCaptureImageResult::Ready;
+  return WCaptureImageResult::Ready;
 }
 
-void ezWindowOutputTargetGAL::SwapChainUpdatedEventHandler(const ezGALSwapChain* pSwapChain)
+void WWindowOutputTargetGAL::SwapChainUpdatedEventHandler(const WGALSwapChain* pSwapChain)
 {
   if (m_hSwapChain.IsInvalidated())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  auto* pMySwapChain = pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain);
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  auto* pMySwapChain = pDevice->GetSwapChain<WGALWindowSwapChain>(m_hSwapChain);
 
   if (pSwapChain != pMySwapChain || !m_OnSwapChainChanged.IsValid())
     return;
 
-  ezSizeU32 currentSize = pSwapChain->GetCurrentSize();
+  WSizeU32 currentSize = pSwapChain->GetCurrentSize();
   if (m_Size == currentSize)
     return;
 

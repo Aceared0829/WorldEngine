@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Foundation/Threading/Implementation/OSThread.h>
 #  include <Foundation/Threading/Thread.h>
@@ -8,7 +8,7 @@
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Strings/StringConversion.h>
 
-ezAtomicInteger32 ezOSThread::s_iThreadCount;
+WAtomicInteger32 WOSThread::s_iThreadCount;
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
@@ -28,8 +28,8 @@ using THREADNAME_INFO = struct tagTHREADNAME_INFO
 };
 #  pragma pack(pop)
 
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_MSVC(6312)
+W_WARNING_PUSH()
+W_WARNING_DISABLE_MSVC(6312)
 
 // See https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 // this is the new way to set thread names which are also stored with crash dumps and work in more tools (like Pix etc.)
@@ -93,7 +93,7 @@ void SetThreadName(HANDLE hThread, LPCSTR pThreadName)
 
   if (s_pSetThreadDescriptionFnPtr)
   {
-    ezStringWChar threadName(pThreadName);
+    WStringWChar threadName(pThreadName);
     s_pSetThreadDescriptionFnPtr(hThread, threadName.GetData());
   }
   else
@@ -102,23 +102,23 @@ void SetThreadName(HANDLE hThread, LPCSTR pThreadName)
   }
 }
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
 /// \endcond
 
 
 // Windows specific implementation of the thread class
 
-ezOSThread::ezOSThread(
-  ezOSThreadEntryPoint threadEntryPoint, void* pUserData /*= nullptr*/, ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+WOSThread::WOSThread(
+  WOSThreadEntryPoint threadEntryPoint, void* pUserData /*= nullptr*/, WStringView sName /*= "WThread"*/, WUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
-  EZ_ASSERT_ALWAYS(threadEntryPoint != nullptr, "Thread entry point is invalid.");
+  W_ASSERT_ALWAYS(threadEntryPoint != nullptr, "Thread entry point is invalid.");
 
   m_hHandle = CreateThread(nullptr, uiStackSize, threadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
-  EZ_ASSERT_RELEASE(m_hHandle != INVALID_HANDLE_VALUE, "Thread creation failed!");
-  EZ_ASSERT_RELEASE(m_hHandle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
+  W_ASSERT_RELEASE(m_hHandle != INVALID_HANDLE_VALUE, "Thread creation failed!");
+  W_ASSERT_RELEASE(m_hHandle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
   m_ThreadID = GetThreadId(m_hHandle);
 
@@ -134,7 +134,7 @@ ezOSThread::ezOSThread(
   }
 }
 
-ezOSThread::~ezOSThread()
+WOSThread::~WOSThread()
 {
   CloseHandle(m_hHandle);
 
@@ -142,13 +142,13 @@ ezOSThread::~ezOSThread()
 }
 
 /// Attempts to acquire an exclusive lock for this mutex object
-void ezOSThread::Start()
+void WOSThread::Start()
 {
   ResumeThread(m_hHandle);
 }
 
 /// Releases a lock that has been previously acquired
-void ezOSThread::Join()
+void WOSThread::Join()
 {
   WaitForSingleObject(m_hHandle, INFINITE);
 }

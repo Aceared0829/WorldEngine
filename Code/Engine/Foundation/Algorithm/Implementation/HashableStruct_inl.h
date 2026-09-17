@@ -2,45 +2,45 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 template <typename T>
-EZ_ALWAYS_INLINE ezHashableStruct<T>::ezHashableStruct()
+W_ALWAYS_INLINE WHashableStruct<T>::WHashableStruct()
 {
-  ezMemoryUtils::ZeroFill<T>(static_cast<T*>(this), 1);
+  WMemoryUtils::ZeroFill<T>(static_cast<T*>(this), 1);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezHashableStruct<T>::ezHashableStruct(const ezHashableStruct<T>& other)
+W_ALWAYS_INLINE WHashableStruct<T>::WHashableStruct(const WHashableStruct<T>& other)
 {
-  ezMemoryUtils::RawByteCopy(this, &other, sizeof(T));
+  WMemoryUtils::RawByteCopy(this, &other, sizeof(T));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezHashableStruct<T>::operator=(const ezHashableStruct<T>& other)
+W_ALWAYS_INLINE void WHashableStruct<T>::operator=(const WHashableStruct<T>& other)
 {
   if (this != &other)
   {
-    ezMemoryUtils::RawByteCopy(this, &other, sizeof(T));
+    WMemoryUtils::RawByteCopy(this, &other, sizeof(T));
   }
 }
 template <typename T>
-bool ezHashableStruct<T>::operator==(const ezHashableStruct<T>& other) const
+bool WHashableStruct<T>::operator==(const WHashableStruct<T>& other) const
 {
-  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) == 0;
+  return WMemoryUtils::RawByteCompare(this, &other, sizeof(T)) == 0;
 }
 
 template <typename T>
-bool ezHashableStruct<T>::operator!=(const ezHashableStruct<T>& other) const
+bool WHashableStruct<T>::operator!=(const WHashableStruct<T>& other) const
 {
-  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) != 0;
+  return WMemoryUtils::RawByteCompare(this, &other, sizeof(T)) != 0;
 }
 
 template <typename T>
-bool ezHashableStruct<T>::operator<(const ezHashableStruct<T>& other) const
+bool WHashableStruct<T>::operator<(const WHashableStruct<T>& other) const
 {
-  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) < 0;
+  return WMemoryUtils::RawByteCompare(this, &other, sizeof(T)) < 0;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezHashableStruct<T>::CalculateHash() const
+W_ALWAYS_INLINE WUInt32 WHashableStruct<T>::CalculateHash() const
 {
-  return ezHashingUtils::xxHash32(this, sizeof(T));
+  return WHashingUtils::xxHash32(this, sizeof(T));
 }

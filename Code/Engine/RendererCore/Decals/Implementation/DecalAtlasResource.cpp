@@ -12,7 +12,7 @@
 #include <Texture/Image/Image.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
+W_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation",
@@ -22,17 +22,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezDecalAtlasResourceDescriptor desc;
-    ezDecalAtlasResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalAtlasResource>("Fallback Decal Atlas", std::move(desc), "Empty Decal Atlas for loading and missing decals");
+    WDecalAtlasResourceDescriptor desc;
+    WDecalAtlasResourceHandle hFallback = WResourceManager::CreateResource<WDecalAtlasResource>("Fallback Decal Atlas", std::move(desc), "Empty Decal Atlas for loading and missing decals");
 
-    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(hFallback);
-    ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(hFallback);
+    WResourceManager::SetResourceTypeLoadingFallback<WDecalAtlasResource>(hFallback);
+    WResourceManager::SetResourceTypeMissingFallback<WDecalAtlasResource>(hFallback);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
-    ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
+    WResourceManager::SetResourceTypeLoadingFallback<WDecalAtlasResource>(WDecalAtlasResourceHandle());
+    WResourceManager::SetResourceTypeMissingFallback<WDecalAtlasResource>(WDecalAtlasResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -43,64 +43,64 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalAtlasResource, 1, WRTTIDefaultAllocator<WDecalAtlasResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WDecalAtlasResource);
 // clang-format on
 
-ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
+WUInt32 WDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
-ezDecalAtlasResource::ezDecalAtlasResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
-  , m_vBaseColorSize(ezVec2U32::MakeZero())
-  , m_vNormalSize(ezVec2U32::MakeZero())
+WDecalAtlasResource::WDecalAtlasResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
+  , m_vBaseColorSize(WVec2U32::MakeZero())
+  , m_vNormalSize(WVec2U32::MakeZero())
 {
 }
 
-ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WDecalAtlasResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WDecalAtlasResource::UpdateContent(WStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceIdOrDescription());
+  W_LOG_BLOCK("WDecalAtlasResource::UpdateContent", GetResourceIdOrDescription());
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::LoadedResourceMissing;
+  res.m_State = WResourceState::LoadedResourceMissing;
 
   if (Stream == nullptr)
     return res;
 
   // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   // skip the asset header
   {
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.Read(*Stream).IgnoreResult();
   }
 
   {
-    ezUInt8 uiVersion = 0;
+    WUInt8 uiVersion = 0;
     *Stream >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 4, "Invalid decal atlas version {0}", uiVersion);
+    W_ASSERT_DEV(uiVersion <= 4, "Invalid decal atlas version {0}", uiVersion);
 
     // this version is now incompatible
     if (uiVersion < 4)
@@ -109,24 +109,24 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
 
   // read the textures
   {
-    ezDdsFileFormat dds;
-    ezImage baseColor, normal, orm;
+    WDdsFileFormat dds;
+    WImage baseColor, normal, orm;
 
     if (dds.ReadImage(*Stream, baseColor, "dds").Failed())
     {
-      ezLog::Error("Failed to load baseColor image for decal atlas");
+      WLog::Error("Failed to load baseColor image for decal atlas");
       return res;
     }
 
     if (dds.ReadImage(*Stream, normal, "dds").Failed())
     {
-      ezLog::Error("Failed to load normal image for decal atlas");
+      WLog::Error("Failed to load normal image for decal atlas");
       return res;
     }
 
     if (dds.ReadImage(*Stream, orm, "dds").Failed())
     {
-      ezLog::Error("Failed to load normal image for decal atlas");
+      WLog::Error("Failed to load normal image for decal atlas");
       return res;
     }
 
@@ -134,70 +134,70 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
     CreateLayerTexture(normal, false, m_hNormal);
     CreateLayerTexture(orm, false, m_hORM);
 
-    m_vBaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
-    m_vNormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
-    m_vORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
+    m_vBaseColorSize = WVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
+    m_vNormalSize = WVec2U32(normal.GetWidth(), normal.GetHeight());
+    m_vORMSize = WVec2U32(orm.GetWidth(), orm.GetHeight());
   }
 
   ReadDecalInfo(Stream);
 
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
   return res;
 }
 
-void ezDecalAtlasResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WDecalAtlasResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDecalAtlasResource) + (ezUInt32)m_Atlas.m_Items.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WDecalAtlasResource) + (WUInt32)m_Atlas.m_Items.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WDecalAtlasResource, WDecalAtlasResourceDescriptor)
 {
-  ezResourceLoadDesc ret;
+  WResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;
   ret.m_uiQualityLevelsLoadable = 0;
-  ret.m_State = ezResourceState::Loaded;
+  ret.m_State = WResourceState::Loaded;
 
   m_Atlas.Clear();
 
   return ret;
 }
 
-void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture)
+void WDecalAtlasResource::CreateLayerTexture(const WImage& img, bool bSRGB, WTexture2DResourceHandle& out_hTexture)
 {
-  ezTexture2DResourceDescriptor td;
-  td.m_SamplerDesc.m_AddressU = ezImageAddressMode::Clamp;
-  td.m_SamplerDesc.m_AddressV = ezImageAddressMode::Clamp;
-  td.m_SamplerDesc.m_AddressW = ezImageAddressMode::Clamp;
+  WTexture2DResourceDescriptor td;
+  td.m_SamplerDesc.m_AddressU = WImageAddressMode::Clamp;
+  td.m_SamplerDesc.m_AddressV = WImageAddressMode::Clamp;
+  td.m_SamplerDesc.m_AddressW = WImageAddressMode::Clamp;
 
-  ezUInt32 uiMemory;
-  ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
-  ezTexture2DResource::FillOutDescriptor(td, &img, bSRGB, img.GetNumMipLevels(), uiMemory, initData);
-  ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::HighQuality, td.m_SamplerDesc);
+  WUInt32 uiMemory;
+  WTempHybridArray<WGALSystemMemoryDescription, 32> initData;
+  WTexture2DResource::FillOutDescriptor(td, &img, bSRGB, img.GetNumMipLevels(), uiMemory, initData);
+  WTextureUtils::ConfigureSampler(WTextureFilterSetting::HighQuality, td.m_SamplerDesc);
 
-  ezStringBuilder sTexId;
+  WStringBuilder sTexId;
   sTexId.SetFormat("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
   ++s_uiDecalAtlasResources;
 
-  out_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTexId, std::move(td));
+  out_hTexture = WResourceManager::CreateResource<WTexture2DResource>(sTexId, std::move(td));
 }
 
-void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
+void WDecalAtlasResource::ReadDecalInfo(WStreamReader* Stream)
 {
   m_Atlas.Deserialize(*Stream).IgnoreResult();
 }
 
-void ezDecalAtlasResource::ReportResourceIsMissing()
+void WDecalAtlasResource::ReportResourceIsMissing()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // normal during development, don't care much
-  ezLog::Debug("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
+  WLog::Debug("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
 #else
   // should probably exist for shipped applications, report this
-  ezLog::Warning("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
+  WLog::Warning("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
 #endif
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);

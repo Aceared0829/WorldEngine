@@ -14,84 +14,84 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Texture/Image/ImageConversion.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocument::ezAssetDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezDocument(sDocumentPath, pObjectManager)
+WAssetDocument::WAssetDocument(WStringView sDocumentPath, WDocumentObjectManager* pObjectManager, WAssetDocEngineConnection engineConnectionType)
+  : WDocument(sDocumentPath, pObjectManager)
 {
   m_EngineConnectionType = engineConnectionType;
-  m_EngineStatus = (m_EngineConnectionType != ezAssetDocEngineConnection::None) ? EngineStatus::Disconnected : EngineStatus::Unsupported;
+  m_EngineStatus = (m_EngineConnectionType != WAssetDocEngineConnection::None) ? EngineStatus::Disconnected : EngineStatus::Unsupported;
   m_pEngineConnection = nullptr;
-  m_uiCommonAssetStateFlags = ezCommonAssetUiState::Grid | ezCommonAssetUiState::Loop | ezCommonAssetUiState::Visualizers;
+  m_uiCommonAssetStateFlags = WCommonAssetUiState::Grid | WCommonAssetUiState::Loop | WCommonAssetUiState::Visualizers;
 
-  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
+  if (m_EngineConnectionType != WAssetDocEngineConnection::None)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+    WEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(WMakeDelegate(&WAssetDocument::EngineConnectionEventHandler, this));
   }
 }
 
-ezAssetDocument::~ezAssetDocument()
+WAssetDocument::~WAssetDocument()
 {
   m_pMirror->DeInit();
 
-  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
+  if (m_EngineConnectionType != WAssetDocEngineConnection::None)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+    WEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(WMakeDelegate(&WAssetDocument::EngineConnectionEventHandler, this));
 
     if (m_pEngineConnection)
     {
-      ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
+      WEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
     }
   }
 }
 
-void ezAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value)
+void WAssetDocument::SetCommonAssetUiState(WCommonAssetUiState::Enum state, double value)
 {
   if (value == 0)
   {
-    m_uiCommonAssetStateFlags &= ~((ezUInt32)state);
+    m_uiCommonAssetStateFlags &= ~((WUInt32)state);
   }
   else
   {
-    m_uiCommonAssetStateFlags |= (ezUInt32)state;
+    m_uiCommonAssetStateFlags |= (WUInt32)state;
   }
 
-  ezCommonAssetUiState e;
+  WCommonAssetUiState e;
   e.m_State = state;
   e.m_fValue = value;
 
   m_CommonAssetUiChangeEvent.Broadcast(e);
 }
 
-double ezAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const
+double WAssetDocument::GetCommonAssetUiState(WCommonAssetUiState::Enum state) const
 {
-  return (m_uiCommonAssetStateFlags & (ezUInt32)state) != 0 ? 1.0f : 0.0f;
+  return (m_uiCommonAssetStateFlags & (WUInt32)state) != 0 ? 1.0f : 0.0f;
 }
 
-ezAssetDocumentManager* ezAssetDocument::GetAssetDocumentManager() const
+WAssetDocumentManager* WAssetDocument::GetAssetDocumentManager() const
 {
-  return static_cast<ezAssetDocumentManager*>(GetDocumentManager());
+  return static_cast<WAssetDocumentManager*>(GetDocumentManager());
 }
 
-const ezAssetDocumentInfo* ezAssetDocument::GetAssetDocumentInfo() const
+const WAssetDocumentInfo* WAssetDocument::GetAssetDocumentInfo() const
 {
-  return static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
+  return static_cast<WAssetDocumentInfo*>(m_pDocumentInfo);
 }
 
-ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
+WBitflags<WAssetDocumentFlags> WAssetDocument::GetAssetFlags() const
 {
   return GetAssetDocumentTypeDescriptor()->m_AssetDocumentFlags;
 }
 
-ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
+WDocumentInfo* WAssetDocument::CreateDocumentInfo()
 {
-  return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
+  return W_DEFAULT_NEW(WAssetDocumentInfo);
 }
 
-ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
+WTaskGroupID WAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
-  ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
+  WAssetDocumentInfo* pInfo = static_cast<WAssetDocumentInfo*>(m_pDocumentInfo);
 
   pInfo->m_TransformDependencies.Clear();
   pInfo->m_ThumbnailDependencies.Clear();
@@ -103,18 +103,18 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   UpdateAssetDocumentInfo(pInfo);
 
   // In case someone added an empty reference.
-  pInfo->m_TransformDependencies.Remove(ezString());
-  pInfo->m_ThumbnailDependencies.Remove(ezString());
-  pInfo->m_PackageDependencies.Remove(ezString());
+  pInfo->m_TransformDependencies.Remove(WString());
+  pInfo->m_ThumbnailDependencies.Remove(WString());
+  pInfo->m_PackageDependencies.Remove(WString());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   // Dependencies must be either an asset GUID or a path that other machines can resolve as well,
   // so a data directory relative path or a ':rootname/...' path. An absolute path only works on this machine.
-  auto CheckForAbsolutePaths = [this](const ezSet<ezString>& deps, const char* szWhich)
+  auto CheckForAbsolutePaths = [this](const WSet<WString>& deps, const char* szWhich)
   {
-    for (const ezString& sDep : deps)
+    for (const WString& sDep : deps)
     {
-      EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(sDep), "The {} of asset '{}' contain the absolute path '{}'. Asset dependencies must not be absolute paths.", szWhich, GetDocumentPath(), sDep);
+      W_ASSERT_DEV(!WPathUtils::IsAbsolutePath(sDep), "The {} of asset '{}' contain the absolute path '{}'. Asset dependencies must not be absolute paths.", szWhich, GetDocumentPath(), sDep);
     }
   };
 
@@ -123,62 +123,62 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   CheckForAbsolutePaths(pInfo->m_PackageDependencies, "package dependencies");
 #endif
 
-  return ezDocument::InternalSaveDocument(callback);
+  return WDocument::InternalSaveDocument(callback);
 }
 
-void ezAssetDocument::InternalAfterSaveDocument()
+void WAssetDocument::InternalAfterSaveDocument()
 {
   const auto flags = GetAssetFlags();
-  ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
-  ezAssetCurator::GetSingleton()->MainThreadTick(false);
+  WAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
+  WAssetCurator::GetSingleton()->MainThreadTick(false);
 
-  if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+  if (flags.IsAnySet(WAssetDocumentFlags::AutoTransformOnSave))
   {
     // If we request an engine connection but the mirror is not set up yet we are still
     // creating the document and TransformAsset will most likely fail.
-    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_pEngineConnection)
+    if (m_EngineConnectionType == WAssetDocEngineConnection::None || m_pEngineConnection)
     {
-      ezUuid docGuid = GetGuid();
+      WUuid docGuid = GetGuid();
 
-      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", ezTaskNesting::Never, [docGuid]()
+      WSharedPtr<WDelegateTask<void>> pTask = W_DEFAULT_NEW(WDelegateTask<void>, "TransformAfterSaveDocument", WTaskNesting::Never, [docGuid]()
         {
-          ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(docGuid);
+          WDocument* pDoc = WDocumentManager::GetDocumentByGuid(docGuid);
           if (pDoc == nullptr)
             return;
 
           /// \todo Should only be done for platform agnostic assets
-          ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(docGuid, ezTransformFlags::TriggeredManually);
+          WTransformStatus ret = WAssetCurator::GetSingleton()->TransformAsset(docGuid, WTransformFlags::TriggeredManually);
 
           if (ret.Failed())
           {
-            ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, pDoc->GetDocumentPath());
+            WLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, pDoc->GetDocumentPath());
           }
           else
           {
-            ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+            WAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
           }
           //
         });
 
-      pTask->ConfigureTask("TransformAfterSaveDocument", ezTaskNesting::Maybe);
-      ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::ThisFrameMainThread);
+      pTask->ConfigureTask("TransformAfterSaveDocument", WTaskNesting::Maybe);
+      WTaskSystem::StartSingleTask(pTask, WTaskPriority::ThisFrameMainThread);
     }
   }
 }
 
-void ezAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  m_pMirror = EZ_DEFAULT_NEW(ezIPCObjectMirrorEditor);
+  m_pMirror = W_DEFAULT_NEW(WIPCObjectMirrorEditor);
 }
 
-void ezAssetDocument::InitializeAfterLoadingAndSaving()
+void WAssetDocument::InitializeAfterLoadingAndSaving()
 {
-  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
+  if (m_EngineConnectionType != WAssetDocEngineConnection::None)
   {
-    m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
+    m_pEngineConnection = WEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
     m_EngineStatus = EngineStatus::Initializing;
 
-    if (m_EngineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring)
+    if (m_EngineConnectionType == WAssetDocEngineConnection::FullObjectMirroring)
     {
       m_pMirror->SetIPC(m_pEngineConnection);
       m_pMirror->InitSender(GetObjectManager());
@@ -186,70 +186,70 @@ void ezAssetDocument::InitializeAfterLoadingAndSaving()
   }
 }
 
-void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const
+void WAssetDocument::AddPrefabDependencies(const WDocumentObject* pObject, WAssetDocumentInfo* pInfo) const
 {
   {
-    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
+    const WDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
 
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
-      ezStringBuilder tmp;
-      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      WStringBuilder tmp;
+      pInfo->m_TransformDependencies.Insert(WConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData->EndReadMetaData();
   }
 
 
-  const ezTempHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
+  const WTempHybridArray<WDocumentObject*, 8>& children = pObject->GetChildren();
 
   for (auto pChild : children)
   {
-    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
     AddPrefabDependencies(pChild, pInfo);
   }
 }
 
 
-void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const
+void WAssetDocument::AddReferences(const WDocumentObject* pObject, WAssetDocumentInfo* pInfo, bool bInsidePrefab) const
 {
   {
-    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
+    const WDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
 
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
       bInsidePrefab = true;
-      ezStringBuilder tmp;
-      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
-      pInfo->m_ThumbnailDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      WStringBuilder tmp;
+      pInfo->m_TransformDependencies.Insert(WConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_ThumbnailDependencies.Insert(WConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData->EndReadMetaData();
   }
 
-  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
-  ezTempHybridArray<const ezAbstractProperty*, 32> Properties;
+  const WRTTI* pType = pObject->GetTypeAccessor().GetType();
+  WTempHybridArray<const WAbstractProperty*, 32> Properties;
   pType->GetAllProperties(Properties);
   for (auto pProp : Properties)
   {
-    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pProp->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
-    ezBitflags<ezDependencyFlags> depFlags;
+    WBitflags<WDependencyFlags> depFlags;
 
-    if (auto pAttr = pProp->GetAttributeByType<ezAssetBrowserAttribute>())
+    if (auto pAttr = pProp->GetAttributeByType<WAssetBrowserAttribute>())
     {
       depFlags |= pAttr->GetDependencyFlags();
     }
 
-    if (auto pAttr = pProp->GetAttributeByType<ezFileBrowserAttribute>())
+    if (auto pAttr = pProp->GetAttributeByType<WFileBrowserAttribute>())
     {
       depFlags |= pAttr->GetDependencyFlags();
     }
 
     const auto propVarType = pProp->GetSpecificType()->GetVariantType();
-    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+    if (propVarType != WVariantType::String && propVarType != WVariantType::StringView)
       continue;
 
     // add all strings that are marked as asset references or file references
@@ -257,93 +257,93 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     {
       switch (pProp->GetCategory())
       {
-        case ezPropertyCategory::Member:
+        case WPropertyCategory::Member:
         {
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+          if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
           {
             if (bInsidePrefab)
             {
-              ezTempHybridArray<ezPropertySelection, 1> selection;
-              selection.PushBack({pObject, ezVariant()});
-              ezDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
+              WTempHybridArray<WPropertySelection, 1> selection;
+              selection.PushBack({pObject, WVariant()});
+              WDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
               if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultValue(pProp))
                 continue;
             }
 
-            const ezVariant& value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+            const WVariant& value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
 
-            if (depFlags.IsSet(ezDependencyFlags::Transform))
-              pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+            if (depFlags.IsSet(WDependencyFlags::Transform))
+              pInfo->m_TransformDependencies.Insert(value.Get<WString>());
 
-            if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-              pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+            if (depFlags.IsSet(WDependencyFlags::Thumbnail))
+              pInfo->m_ThumbnailDependencies.Insert(value.Get<WString>());
 
-            if (depFlags.IsSet(ezDependencyFlags::Package))
-              pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+            if (depFlags.IsSet(WDependencyFlags::Package))
+              pInfo->m_PackageDependencies.Insert(value.Get<WString>());
           }
         }
         break;
 
-        case ezPropertyCategory::Array:
-        case ezPropertyCategory::Set:
+        case WPropertyCategory::Array:
+        case WPropertyCategory::Set:
         {
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+          if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
           {
-            const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+            const WInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
             if (bInsidePrefab)
             {
-              ezTempHybridArray<ezPropertySelection, 1> selection;
-              selection.PushBack({pObject, ezVariant()});
-              ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
-              for (ezInt32 i = 0; i < iCount; ++i)
+              WTempHybridArray<WPropertySelection, 1> selection;
+              selection.PushBack({pObject, WVariant()});
+              WDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              for (WInt32 i = 0; i < iCount; ++i)
               {
-                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                WVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
                 if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(i))
                 {
                   continue;
                 }
-                if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(value.Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(value.Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(value.Get<WString>());
               }
             }
             else
             {
-              for (ezInt32 i = 0; i < iCount; ++i)
+              for (WInt32 i = 0; i < iCount; ++i)
               {
-                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                WVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
 
-                if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(value.Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(value.Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(value.Get<WString>());
               }
             }
           }
         }
         break;
 
-        case ezPropertyCategory::Map:
+        case WPropertyCategory::Map:
           // #TODO Search for exposed params that reference assets.
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+          if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
           {
-            ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
-            const ezVariantDictionary& varDict = value.Get<ezVariantDictionary>();
+            WVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+            const WVariantDictionary& varDict = value.Get<WVariantDictionary>();
             if (bInsidePrefab)
             {
-              ezTempHybridArray<ezPropertySelection, 1> selection;
-              selection.PushBack({pObject, ezVariant()});
-              ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              WTempHybridArray<WPropertySelection, 1> selection;
+              selection.PushBack({pObject, WVariant()});
+              WDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
               for (auto it : varDict)
               {
                 if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(it.Key()))
@@ -351,28 +351,28 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                   continue;
                 }
 
-                if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(it.Value().Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(it.Value().Get<WString>());
               }
             }
             else
             {
               for (auto it : varDict)
               {
-                if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(it.Value().Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<WString>());
 
-                if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(WDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(it.Value().Get<WString>());
               }
             }
           }
@@ -384,71 +384,71 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     }
   }
 
-  const ezTempHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
+  const WTempHybridArray<WDocumentObject*, 8>& children = pObject->GetChildren();
 
   for (auto pChild : children)
   {
-    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     AddReferences(pChild, pInfo, bInsidePrefab);
   }
 }
 
-void ezAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
-  const ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
+  const WDocumentObject* pRoot = GetObjectManager()->GetRootObject();
 
   AddPrefabDependencies(pRoot, pInfo);
   AddReferences(pRoot, pInfo, false);
 }
 
-void ezAssetDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void WAssetDocument::EngineConnectionEventHandler(const WEditorEngineProcessConnection::Event& e)
 {
-  if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessCrashed)
+  if (e.m_Type == WEditorEngineProcessConnection::Event::Type::ProcessCrashed)
   {
     m_EngineStatus = EngineStatus::Disconnected;
   }
-  else if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessStarted)
+  else if (e.m_Type == WEditorEngineProcessConnection::Event::Type::ProcessStarted)
   {
     m_EngineStatus = EngineStatus::Initializing;
   }
 }
 
-ezUInt64 ezAssetDocument::GetDocumentHash() const
+WUInt64 WAssetDocument::GetDocumentHash() const
 {
-  ezUInt64 uiHash = ezHashingUtils::xxHash64(&m_pDocumentInfo->m_DocumentID, sizeof(ezUuid));
+  WUInt64 uiHash = WHashingUtils::xxHash64(&m_pDocumentInfo->m_DocumentID, sizeof(WUuid));
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
-    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
     GetChildHash(pChild, uiHash);
     InternalGetMetaDataHash(pChild, uiHash);
   }
 
   // Gather used types, sort by name to make it stable and hash their data
-  ezSet<const ezRTTI*> types;
-  ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
-  ezDynamicArray<const ezRTTI*> typesSorted;
+  WSet<const WRTTI*> types;
+  WToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
+  WDynamicArray<const WRTTI*> typesSorted;
   typesSorted.Reserve(types.GetCount());
-  for (const ezRTTI* pType : types)
+  for (const WRTTI* pType : types)
   {
     typesSorted.PushBack(pType);
   }
 
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
+  typesSorted.Sort([](const WRTTI* a, const WRTTI* b)
     { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
 
-  for (const ezRTTI* pType : typesSorted)
+  for (const WRTTI* pType : typesSorted)
   {
-    uiHash = ezHashingUtils::xxHash64(pType->GetTypeName().GetStartPointer(), pType->GetTypeName().GetElementCount(), uiHash);
-    const ezUInt32 uiType = pType->GetTypeVersion();
-    uiHash = ezHashingUtils::xxHash64(&uiType, sizeof(uiType), uiHash);
+    uiHash = WHashingUtils::xxHash64(pType->GetTypeName().GetStartPointer(), pType->GetTypeName().GetElementCount(), uiHash);
+    const WUInt32 uiType = pType->GetTypeVersion();
+    uiHash = WHashingUtils::xxHash64(&uiType, sizeof(uiType), uiHash);
   }
   return uiHash;
 }
 
-void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& uiHash) const
+void WAssetDocument::GetChildHash(const WDocumentObject* pObject, WUInt64& uiHash) const
 {
   pObject->ComputeObjectHash(uiHash);
 
@@ -458,57 +458,57 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAssetDocument::DoTransformAsset(const WPlatformProfile* pAssetProfile0 /*= nullptr*/, WBitflags<WTransformFlags> transformFlags)
 {
   const auto flags = GetAssetFlags();
 
-  if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
-    return ezStatus("Asset transform has been disabled on this asset");
+  if (flags.IsAnySet(WAssetDocumentFlags::DisableTransform))
+    return WStatus("Asset transform has been disabled on this asset");
 
   if (GetUnknownObjectTypeInstances() > 0)
   {
-    return ezStatus("Asset contains unknown object types. Please open the document and fix the errors.");
+    return WStatus("Asset contains unknown object types. Please open the document and fix the errors.");
   }
 
   if (!GetLoadingErrors().IsEmpty())
   {
-    return ezStatus("Asset had loading errors. Please open the document and fix the errors.");
+    return WStatus("Asset had loading errors. Please open the document and fix the errors.");
   }
 
-  const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
+  const WPlatformProfile* pAssetProfile = WAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
 
-  ezUInt64 uiHash = 0;
-  ezUInt64 uiThumbHash = 0;
-  ezUInt64 uiPackageHash = 0;
-  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
+  WUInt64 uiHash = 0;
+  WUInt64 uiThumbHash = 0;
+  WUInt64 uiPackageHash = 0;
+  WAssetInfo::TransformState state = WAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
 
-  if (state == ezAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(ezTransformFlags::ForceTransform))
-    return ezStatus(EZ_SUCCESS);
+  if (state == WAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(WTransformFlags::ForceTransform))
+    return WStatus(W_SUCCESS);
 
   if (uiHash == 0)
-    return ezStatus("Computing the hash for this asset or any dependency failed");
+    return WStatus("Computing the hash for this asset or any dependency failed");
 
   // Write resource
   {
-    ezAssetFileHeader AssetHeader;
+    WAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> WTransformStatus
     {
-      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
+      const WString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
 
       m_TransformInfo.Clear();
 
-      ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+      WTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
-      const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(sTargetFile);
+      const WStringBuilder sInfoFile = WAssetInfoFile::GetInfoFilePathForOutput(sTargetFile);
 
       // if writing failed, make sure the output file does not exist
       if (ret.Failed())
       {
-        ezFileSystem::DeleteFile(sTargetFile);
-        ezOSFile::DeleteFile(sInfoFile).IgnoreResult();
+        WFileSystem::DeleteFile(sTargetFile);
+        WOSFile::DeleteFile(sInfoFile).IgnoreResult();
       }
       else if (!m_TransformInfo.IsEmpty())
       {
@@ -516,17 +516,17 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
         // external tool that generates the output write this file directly (e.g. TexConv).
         if (m_TransformInfo.WriteToFile(sInfoFile, AssetHeader).Failed())
         {
-          ezLog::Warning("Failed to write asset info file '{}'", sInfoFile);
+          WLog::Warning("Failed to write asset info file '{}'", sInfoFile);
         }
       }
 
       m_TransformInfo.Clear();
 
-      ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
+      WAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
       return ret;
     };
 
-    ezTransformStatus res;
+    WTransformStatus res;
     for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
     {
       res = GenerateOutput(it.Key());
@@ -538,78 +538,78 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
     if (res.Failed())
       return res;
 
-    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+    WAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return res;
   }
 }
 
-ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+WTransformStatus WAssetDocument::TransformAsset(WBitflags<WTransformFlags> transformFlags, const WPlatformProfile* pAssetProfile)
 {
-  EZ_PROFILE_SCOPE("TransformAsset");
+  W_PROFILE_SCOPE("TransformAsset");
 
-  if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
+  if (!transformFlags.IsSet(WTransformFlags::ForceTransform))
   {
-    EZ_SUCCEED_OR_RETURN(SaveDocument());
+    W_SUCCEED_OR_RETURN(SaveDocument());
 
     const auto assetFlags = GetAssetFlags();
 
-    if (assetFlags.IsSet(ezAssetDocumentFlags::DisableTransform) || (assetFlags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
+    if (assetFlags.IsSet(WAssetDocumentFlags::DisableTransform) || (assetFlags.IsSet(WAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(WTransformFlags::TriggeredManually)))
     {
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
 
-  const ezTransformStatus res = DoTransformAsset(pAssetProfile, transformFlags);
+  const WTransformStatus res = DoTransformAsset(pAssetProfile, transformFlags);
 
-  if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
+  if (transformFlags.IsSet(WTransformFlags::TriggeredManually))
   {
     SaveDocument().LogFailure();
-    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+    WAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
   }
 
   return res;
 }
 
-ezTransformStatus ezAssetDocument::CreateThumbnail()
+WTransformStatus WAssetDocument::CreateThumbnail()
 {
-  ezUInt64 uiHash = 0;
-  ezUInt64 uiThumbHash = 0;
-  ezUInt64 uiPackageHash = 0;
+  WUInt64 uiHash = 0;
+  WUInt64 uiThumbHash = 0;
+  WUInt64 uiPackageHash = 0;
 
-  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
+  WAssetInfo::TransformState state = WAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), WAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
 
-  if (state == ezAssetInfo::TransformState::UpToDate)
-    return ezStatus(EZ_SUCCESS);
+  if (state == WAssetInfo::TransformState::UpToDate)
+    return WStatus(W_SUCCESS);
 
   if (uiHash == 0)
-    return ezStatus("Computing the hash for this asset or any dependency failed");
+    return WStatus("Computing the hash for this asset or any dependency failed");
 
-  if (state == ezAssetInfo::NeedsThumbnail)
+  if (state == WAssetInfo::NeedsThumbnail)
   {
     ThumbnailInfo ThumbnailInfo;
     ThumbnailInfo.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
-    ezTransformStatus res = InternalCreateThumbnail(ThumbnailInfo);
+    WTransformStatus res = InternalCreateThumbnail(ThumbnailInfo);
 
     InvalidateAssetThumbnail();
-    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+    WAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return res;
   }
-  return ezTransformStatus(ezFmt("Asset state is {}", state));
+  return WTransformStatus(WFmt("Asset state is {}", state));
 }
 
-ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(szTargetFile);
 
-  if (AssetHeader.Write(file) == EZ_FAILURE)
+  if (AssetHeader.Write(file) == W_FAILURE)
   {
     file.Discard();
-    return ezTransformStatus("Failed to write asset header");
+    return WTransformStatus("Failed to write asset header");
   }
 
-  ezTransformStatus res = InternalTransformAsset(file, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
-  if (res.m_Result != ezTransformResult::Success)
+  WTransformStatus res = InternalTransformAsset(file, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
+  if (res.m_Result != WTransformResult::Success)
   {
     // We do not want to overwrite the old output file if we failed to transform the asset.
     file.Discard();
@@ -619,74 +619,74 @@ ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFi
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Could not open file for writing: '{0}'", szTargetFile);
-    return ezStatus("Opening the asset output file failed");
+    WLog::Error("Could not open file for writing: '{0}'", szTargetFile);
+    return WStatus("Opening the asset output file failed");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezString ezAssetDocument::GetThumbnailFilePath(ezStringView sSubAssetName /*= ezStringView()*/) const
+WString WAssetDocument::GetThumbnailFilePath(WStringView sSubAssetName /*= WStringView()*/) const
 {
   return GetAssetDocumentManager()->GenerateResourceThumbnailPath(GetDocumentPath(), sSubAssetName);
 }
 
-void ezAssetDocument::InvalidateAssetThumbnail(ezStringView sSubAssetName /*= ezStringView()*/) const
+void WAssetDocument::InvalidateAssetThumbnail(WStringView sSubAssetName /*= WStringView()*/) const
 {
-  const ezString sResourceFile = GetThumbnailFilePath(sSubAssetName);
-  ezAssetCurator::GetSingleton()->NotifyOfFileChange(sResourceFile);
-  ezQtImageCache::GetSingleton()->InvalidateCache(sResourceFile);
+  const WString sResourceFile = GetThumbnailFilePath(sSubAssetName);
+  WAssetCurator::GetSingleton()->NotifyOfFileChange(sResourceFile);
+  WQtImageCache::GetSingleton()->InvalidateCache(sResourceFile);
 }
 
-ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const
+WStatus WAssetDocument::SaveThumbnail(const WImage& img, const ThumbnailInfo& thumbnailInfo) const
 {
-  ezImage converted;
+  WImage converted;
 
   // make sure the thumbnail is in a format that Qt understands
 
   /// \todo A conversion to B8G8R8X8_UNORM currently fails
 
-  if (ezImageConversion::Convert(img, converted, ezImageFormat::R8G8B8A8_UNORM).Failed())
+  if (WImageConversion::Convert(img, converted, WImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+    const WStringBuilder sResourceFile = GetThumbnailFilePath();
 
-    ezLog::Error("Could not convert asset thumbnail to target format: '{0}'", sResourceFile);
-    return ezStatus(ezFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile));
+    WLog::Error("Could not convert asset thumbnail to target format: '{0}'", sResourceFile);
+    return WStatus(WFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile));
   }
 
-  QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
+  QImage qimg(converted.GetPixelPointer<WUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
 
   return SaveThumbnail(qimg, thumbnailInfo);
 }
 
-ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo& thumbnailInfo) const
+WStatus WAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo& thumbnailInfo) const
 {
-  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
-  EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
+  const WStringBuilder sResourceFile = GetThumbnailFilePath();
+  W_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
 
   QImage qimg = qimg0;
 
   if (qimg.width() == qimg.height())
   {
     // if necessary scale the image to the proper size
-    if (qimg.width() != ezThumbnailSize)
-      qimg = qimg.scaled(ezThumbnailSize, ezThumbnailSize, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
+    if (qimg.width() != WThumbnailSize)
+      qimg = qimg.scaled(WThumbnailSize, WThumbnailSize, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
   }
   else
   {
     // center the image in a square canvas
 
-    // scale the longer edge to ezThumbnailSize
+    // scale the longer edge to WThumbnailSize
     if (qimg.width() > qimg.height())
-      qimg = qimg.scaledToWidth(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToWidth(WThumbnailSize, Qt::TransformationMode::SmoothTransformation);
     else
-      qimg = qimg.scaledToHeight(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToHeight(WThumbnailSize, Qt::TransformationMode::SmoothTransformation);
 
     // create a black canvas
-    QImage img2(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
+    QImage img2(WThumbnailSize, WThumbnailSize, QImage::Format_RGBA8888);
     img2.fill(Qt::GlobalColor::black);
 
-    QPoint destPos = QPoint((ezThumbnailSize - qimg.width()) / 2, (ezThumbnailSize - qimg.height()) / 2);
+    QPoint destPos = QPoint((WThumbnailSize - qimg.width()) / 2, (WThumbnailSize - qimg.height()) / 2);
 
     // paint the smaller image such that it ends up centered
     QPainter painter(&img2);
@@ -697,27 +697,27 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
   }
 
   // make sure the directory exists, Qt will not create sub-folders
-  const ezStringBuilder sDir = sResourceFile.GetFileDirectory();
-  EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sDir));
+  const WStringBuilder sDir = sResourceFile.GetFileDirectory();
+  W_SUCCEED_OR_RETURN(WOSFile::CreateDirectoryStructure(sDir));
 
   // save to JPEG
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
   {
-    ezLog::Error("Could not save asset thumbnail: '{0}'", sResourceFile);
-    return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile));
+    WLog::Error("Could not save asset thumbnail: '{0}'", sResourceFile);
+    return WStatus(WFmt("Could not save asset thumbnail: '{0}'", sResourceFile));
   }
 
   AppendThumbnailInfo(sResourceFile, thumbnailInfo);
   InvalidateAssetThumbnail();
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezAssetDocument::AppendThumbnailInfo(ezStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
+void WAssetDocument::AppendThumbnailInfo(WStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
 {
-  ezContiguousMemoryStreamStorage storage;
+  WContiguousMemoryStreamStorage storage;
   {
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sThumbnailFile).Failed())
     {
       return;
@@ -725,7 +725,7 @@ void ezAssetDocument::AppendThumbnailInfo(ezStringView sThumbnailFile, const Thu
     storage.ReadAll(reader);
   }
 
-  ezDeferredFileWriter writer;
+  WDeferredFileWriter writer;
   writer.SetOutput(sThumbnailFile);
   writer.WriteBytes(storage.GetData(), storage.GetStorageSize64()).IgnoreResult();
 
@@ -733,41 +733,41 @@ void ezAssetDocument::AppendThumbnailInfo(ezStringView sThumbnailFile, const Thu
 
   if (writer.Close().Failed())
   {
-    ezLog::Error("Could not open file for writing: '{0}'", sThumbnailFile);
+    WLog::Error("Could not open file for writing: '{0}'", sThumbnailFile);
   }
 }
 
-ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const
+WStatus WAssetDocument::RemoteExport(const WAssetFileHeader& header, const char* szOutputTarget) const
 {
-  ezProgressRange range("Exporting Asset", 2, false);
+  WProgressRange range("Exporting Asset", 2, false);
 
-  ezLog::Info("Exporting {0} to \"{1}\"", GetDocumentTypeName(), szOutputTarget);
+  WLog::Info("Exporting {0} to \"{1}\"", GetDocumentTypeName(), szOutputTarget);
 
-  EZ_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
+  W_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
 
   range.BeginNextStep(szOutputTarget);
 
-  ezExportDocumentMsgToEngine msg;
+  WExportDocumentMsgToEngine msg;
   msg.m_sOutputFile = szOutputTarget;
   msg.m_uiAssetHash = header.GetFileHash();
   msg.m_uiVersion = header.GetFileVersion();
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  ezStatus status(EZ_SUCCESS);
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&status](ezProcessMessage* pMsg) -> bool
+  WStatus status(W_SUCCESS);
+  WProcessCommunicationChannel::WaitForMessageCallback callback = [&status](WProcessMessage* pMsg) -> bool
   {
-    ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
+    WExportDocumentMsgToEditor* pMsg2 = WDynamicCast<WExportDocumentMsgToEditor*>(pMsg);
 
     if (!pMsg2->m_bOutputSuccess)
-      status = ezStatus(pMsg2->m_sFailureMsg.GetView());
+      status = WStatus(pMsg2->m_sFailureMsg.GetView());
 
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::MakeFromSeconds(60), &callback).Failed())
+  if (WEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), WExportDocumentMsgToEditor::GetStaticRTTI(), WTime::MakeFromSeconds(60), &callback).Failed())
   {
-    return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", GetDocumentTypeName(), msg.m_sOutputFile));
+    return WStatus(WFmt("Remote exporting {0} to \"{1}\" timed out.", GetDocumentTypeName(), msg.m_sOutputFile));
   }
   else
   {
@@ -776,123 +776,123 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
       return status;
     }
 
-    ezLog::Success("{0} \"{1}\" has been exported.", GetDocumentTypeName(), msg.m_sOutputFile);
+    WLog::Success("{0} \"{1}\" has been exported.", GetDocumentTypeName(), msg.m_sOutputFile);
 
-    ShowDocumentStatus(ezFmt("{0} exported successfully", GetDocumentTypeName()));
+    ShowDocumentStatus(WFmt("{0} exported successfully", GetDocumentTypeName()));
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 }
 
-ezTransformStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
+WTransformStatus WAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezStatus("Not implemented");
+  W_ASSERT_NOT_IMPLEMENTED;
+  return WStatus("Not implemented");
 }
 
-ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags) const
+WStatus WAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, WArrayPtr<WStringView> viewExclusionTags) const
 {
-  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+  WAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 
-  ezLog::Info("Create {0} thumbnail for \"{1}\"", GetDocumentTypeName(), GetDocumentPath());
+  WLog::Info("Create {0} thumbnail for \"{1}\"", GetDocumentTypeName(), GetDocumentPath());
 
-  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
+  if (GetEngineStatus() == WAssetDocument::EngineStatus::Disconnected)
   {
-    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
+    return WStatus(WFmt("Create {0} thumbnail for \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
   }
-  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
+  else if (GetEngineStatus() == WAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::MakeFromSeconds(10)).Failed())
+    if (WEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), WDocumentOpenResponseMsgToEditor::GetStaticRTTI(), WTime::MakeFromSeconds(10)).Failed())
     {
-      return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), GetDocumentPath()));
+      return WStatus(WFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), GetDocumentPath()));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    W_ASSERT_DEV(GetEngineStatus() == WAssetDocument::EngineStatus::Loaded, "After receiving WDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
   SyncObjectsToEngine();
-  ezCreateThumbnailMsgToEngine msg;
-  msg.m_uiWidth = ezThumbnailSize;
-  msg.m_uiHeight = ezThumbnailSize;
-  for (const ezStringView& tag : viewExclusionTags)
+  WCreateThumbnailMsgToEngine msg;
+  msg.m_uiWidth = WThumbnailSize;
+  msg.m_uiHeight = WThumbnailSize;
+  for (const WStringView& tag : viewExclusionTags)
   {
     msg.m_ViewExcludeTags.PushBack(tag);
   }
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  WDataBuffer data;
+  WProcessCommunicationChannel::WaitForMessageCallback callback = [&data](WProcessMessage* pMsg) -> bool
   {
-    ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
+    WCreateThumbnailMsgToEditor* pThumbnailMsg = WDynamicCast<WCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::MakeFromSeconds(60), &callback).Failed())
+  if (WEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), WCreateThumbnailMsgToEditor::GetStaticRTTI(), WTime::MakeFromSeconds(60), &callback).Failed())
   {
-    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed timed out.", GetDocumentTypeName(), GetDocumentPath()));
+    return WStatus(WFmt("Create {0} thumbnail for \"{1}\" failed timed out.", GetDocumentTypeName(), GetDocumentPath()));
   }
   else
   {
     if (data.GetCount() != msg.m_uiWidth * msg.m_uiHeight * 4)
     {
-      return ezStatus(ezFmt("Thumbnail generation for {0} failed, thumbnail data is empty.", GetDocumentTypeName()));
+      return WStatus(WFmt("Thumbnail generation for {0} failed, thumbnail data is empty.", GetDocumentTypeName()));
     }
 
-    ezImageHeader imgHeader;
-    imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+    WImageHeader imgHeader;
+    imgHeader.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
     imgHeader.SetWidth(msg.m_uiWidth);
     imgHeader.SetHeight(msg.m_uiHeight);
 
-    ezImage image;
+    WImage image;
     image.ResetAndAlloc(imgHeader);
-    EZ_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
-    ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
+    W_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail WImage has different size than data buffer!");
+    WMemoryUtils::Copy(image.GetPixelPointer<WUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
     SaveThumbnail(image, thumbnailInfo).LogFailure();
 
-    ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", GetDocumentTypeName(), GetDocumentPath());
+    WLog::Success("{0} thumbnail for \"{1}\" has been exported.", GetDocumentTypeName(), GetDocumentPath());
 
-    ShowDocumentStatus(ezFmt("{0} thumbnail created successfully", GetDocumentTypeName()));
+    ShowDocumentStatus(WFmt("{0} thumbnail created successfully", GetDocumentTypeName()));
 
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
 }
 
-ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
+WUInt16 WAssetDocument::GetAssetTypeVersion() const
 {
-  return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
+  return (WUInt16)GetDynamicRTTI()->GetTypeVersion();
 }
 
 
-ezStatus ezAssetDocument::WaitForEngineStatusLoaded() const
+WStatus WAssetDocument::WaitForEngineStatusLoaded() const
 {
-  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
+  if (GetEngineStatus() == WAssetDocument::EngineStatus::Disconnected)
   {
-    return ezStatus(ezFmt("Loading {0} document '{1}' failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
+    return WStatus(WFmt("Loading {0} document '{1}' failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
   }
-  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
+  else if (GetEngineStatus() == WAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), {}).Failed())
+    if (WEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), WDocumentOpenResponseMsgToEditor::GetStaticRTTI(), {}).Failed())
     {
-      return ezStatus(ezFmt("Loading {0} document '{1}' failed, document initialization timed out or engine crashed.", GetDocumentTypeName(), GetDocumentPath()));
+      return WStatus(WFmt("Loading {0} document '{1}' failed, document initialization timed out or engine crashed.", GetDocumentTypeName(), GetDocumentPath()));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    W_ASSERT_DEV(GetEngineStatus() == WAssetDocument::EngineStatus::Loaded, "After receiving WDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-bool ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const
+bool WAssetDocument::SendMessageToEngine(WEditorEngineDocumentMsg* pMessage /*= false*/) const
 {
   return GetEditorEngineConnection()->SendMessage(pMessage);
 }
 
-void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WAssetDocument::HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WDocumentOpenResponseMsgToEditor>())
   {
-    if (m_EngineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring)
+    if (m_EngineConnectionType == WAssetDocEngineConnection::FullObjectMirroring)
     {
       // make sure the engine clears the document first
-      ezDocumentClearMsgToEngine msgClear;
+      WDocumentClearMsgToEngine msgClear;
       msgClear.m_DocumentGuid = GetGuid();
       SendMessageToEngine(&msgClear);
 
@@ -909,32 +909,32 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   m_ProcessMessageEvent.Broadcast(pMsg);
 }
 
-void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
+void WAssetDocument::AddSyncObject(WEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
+  pSync->Configure(GetGuid(), [this](WEditorEngineSyncObject* pSync)
     { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;
 }
 
-void ezAssetDocument::RemoveSyncObject(ezEditorEngineSyncObject* pSync) const
+void WAssetDocument::RemoveSyncObject(WEditorEngineSyncObject* pSync) const
 {
   m_DeletedObjects.PushBack(pSync->GetGuid());
   m_AllSyncObjects.Remove(pSync->GetGuid());
   m_SyncObjects.RemoveAndSwap(pSync);
 }
 
-ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezUuid& guid) const
+WEditorEngineSyncObject* WAssetDocument::FindSyncObject(const WUuid& guid) const
 {
-  ezEditorEngineSyncObject* pSync = nullptr;
+  WEditorEngineSyncObject* pSync = nullptr;
   m_AllSyncObjects.TryGetValue(guid, pSync);
   return pSync;
 }
 
-ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezRTTI* pType) const
+WEditorEngineSyncObject* WAssetDocument::FindSyncObject(const WRTTI* pType) const
 {
-  for (ezEditorEngineSyncObject* pSync : m_SyncObjects)
+  for (WEditorEngineSyncObject* pSync : m_SyncObjects)
   {
     if (pSync->GetDynamicRTTI() == pType)
     {
@@ -944,13 +944,13 @@ ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezRTTI* pType) c
   return nullptr;
 }
 
-void ezAssetDocument::SyncObjectsToEngine() const
+void WAssetDocument::SyncObjectsToEngine() const
 {
   // Tell the engine which sync objects have been removed recently
   {
     for (const auto& guid : m_DeletedObjects)
     {
-      ezEditorEngineSyncObjectMsg msg;
+      WEditorEngineSyncObjectMsg msg;
       msg.m_ObjectGuid = guid;
       SendMessageToEngine(&msg);
     }
@@ -963,16 +963,16 @@ void ezAssetDocument::SyncObjectsToEngine() const
     if (!pObject->GetModified())
       continue;
 
-    ezEditorEngineSyncObjectMsg msg;
+    WEditorEngineSyncObjectMsg msg;
     msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
     msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
 
-    ezContiguousMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
+    WContiguousMemoryStreamStorage storage;
+    WMemoryStreamWriter writer(&storage);
+    WMemoryStreamReader reader(&storage);
 
-    ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
-    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize32());
+    WReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
+    msg.m_ObjectData = WArrayPtr<const WUInt8>(storage.GetData(), storage.GetStorageSize32());
 
     SendMessageToEngine(&msg);
 
@@ -980,59 +980,59 @@ void ezAssetDocument::SyncObjectsToEngine() const
   }
 }
 
-void ezAssetDocument::SendDocumentOpenMessage(bool bOpen)
+void WAssetDocument::SendDocumentOpenMessage(bool bOpen)
 {
-  EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
+  W_PROFILE_SCOPE("SendDocumentOpenMessage");
 
   // it is important to have up-to-date lookup tables in the engine process, because document contexts might try to
   // load resources, and if the file redirection does not happen correctly, derived resource types may not be created as they should
-  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+  WAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
 
   m_EngineStatus = EngineStatus::Initializing;
 
-  ezDocumentOpenMsgToEngine m;
+  WDocumentOpenMsgToEngine m;
   m.m_DocumentGuid = GetGuid();
   m.m_bDocumentOpen = bOpen;
   m.m_sDocumentType = GetDocumentTypeDescriptor()->m_sDocumentTypeName;
   m.m_DocumentMetaData = GetCreateEngineMetaData();
 
-  if (!ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m))
+  if (!WEditorEngineProcessConnection::GetSingleton()->SendMessage(&m))
   {
-    ezLog::Error("Failed to send DocumentOpenMessage");
+    WLog::Error("Failed to send DocumentOpenMessage");
   }
 }
 
 namespace
 {
-  static const char* szThumbnailInfoTag = "ezThumb";
+  static const char* szThumbnailInfoTag = "WThumb";
 }
 
-ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& inout_reader)
+WResult WAssetDocument::ThumbnailInfo::Deserialize(WStreamReader& inout_reader)
 {
   char tag[8] = {0};
 
   if (inout_reader.ReadBytes(tag, 7) != 7)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (!ezStringUtils::IsEqual(tag, szThumbnailInfoTag))
+  if (!WStringUtils::IsEqual(tag, szThumbnailInfoTag))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   inout_reader >> m_uiHash;
   inout_reader >> m_uiVersion;
   inout_reader >> m_uiReserved;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezAssetDocument::ThumbnailInfo::Serialize(ezStreamWriter& inout_writer) const
+WResult WAssetDocument::ThumbnailInfo::Serialize(WStreamWriter& inout_writer) const
 {
-  EZ_SUCCEED_OR_RETURN(inout_writer.WriteBytes(szThumbnailInfoTag, 7));
+  W_SUCCEED_OR_RETURN(inout_writer.WriteBytes(szThumbnailInfoTag, 7));
 
   inout_writer << m_uiHash;
   inout_writer << m_uiVersion;
   inout_writer << m_uiReserved;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

@@ -11,28 +11,28 @@
 /// can register itself as global event message handlers which will be used if no handler is found in the parent hierarchy.
 /// This is typically used for level-logic scripts that want to react to events happening on any object in the world
 /// without needing to be attached to a specific object in the hierarchy.
-class EZ_CORE_DLL ezEventMessageHandlerComponent : public ezComponent
+class W_CORE_DLL WEventMessageHandlerComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WEventMessageHandlerComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Deinitialize() override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezEventMessageHandlerComponent
+  // WEventMessageHandlerComponent
 
 public:
   /// Keep the constructor private or protected in derived classes, so it cannot be called manually.
-  ezEventMessageHandlerComponent();
-  ~ezEventMessageHandlerComponent();
+  WEventMessageHandlerComponent();
+  ~WEventMessageHandlerComponent();
 
   /// Sets the debug output object flag. The effect is type specific, most components will not do anything different.
   void SetDebugOutput(bool bEnable);
@@ -51,9 +51,9 @@ public:
   bool GetPassThroughUnhandledEvents() const { return m_bPassThroughUnhandledEvents; } // [ property ]
 
   /// Returns all global event handler for the given world.
-  static ezArrayPtr<ezComponentHandle> GetAllGlobalEventHandler(const ezWorld* pWorld);
+  static WArrayPtr<WComponentHandle> GetAllGlobalEventHandler(const WWorld* pWorld);
 
-  static void ClearGlobalEventHandlersForWorld(const ezWorld* pWorld);
+  static void ClearGlobalEventHandlersForWorld(const WWorld* pWorld);
 
 private:
   bool m_bDebugOutput = false;

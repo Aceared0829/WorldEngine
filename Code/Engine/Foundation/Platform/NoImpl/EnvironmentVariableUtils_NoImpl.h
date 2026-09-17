@@ -1,32 +1,32 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/EnvironmentVariableUtils.h>
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
+WString WEnvironmentVariableUtils::GetValueStringImpl(WStringView sName, WStringView sDefault)
 {
-  EZ_IGNORE_UNUSED(sName);
-  EZ_IGNORE_UNUSED(sDefault);
-  EZ_ASSERT_NOT_IMPLEMENTED
+  W_IGNORE_UNUSED(sName);
+  W_IGNORE_UNUSED(sDefault);
+  W_ASSERT_NOT_IMPLEMENTED
   return "";
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView sValue)
+WResult WEnvironmentVariableUtils::SetValueStringImpl(WStringView sName, WStringView sValue)
 {
-  EZ_IGNORE_UNUSED(sName);
-  EZ_IGNORE_UNUSED(sValue);
-  EZ_ASSERT_NOT_IMPLEMENTED
-  return EZ_FAILURE;
+  W_IGNORE_UNUSED(sName);
+  W_IGNORE_UNUSED(sValue);
+  W_ASSERT_NOT_IMPLEMENTED
+  return W_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
+bool WEnvironmentVariableUtils::IsVariableSetImpl(WStringView sName)
 {
-  EZ_IGNORE_UNUSED(sName);
+  W_IGNORE_UNUSED(sName);
   return false;
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
+WResult WEnvironmentVariableUtils::UnsetVariableImpl(WStringView sName)
 {
-  EZ_IGNORE_UNUSED(sName);
-  return EZ_FAILURE;
+  W_IGNORE_UNUSED(sName);
+  return W_FAILURE;
 }

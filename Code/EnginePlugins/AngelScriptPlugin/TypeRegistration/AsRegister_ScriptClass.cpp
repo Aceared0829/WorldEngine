@@ -5,11 +5,11 @@
 #include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <Core/Scripting/ScriptComponent.h>
 
-static ezGameObject* GetAngelScriptOwnerObject(asIScriptObject* pSelf)
+static WGameObject* GetAngelScriptOwnerObject(asIScriptObject* pSelf)
 {
   if (pSelf)
   {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
+    WAngelScriptInstance* pInstance = (WAngelScriptInstance*)pSelf->GetUserData(WAsUserData::ScriptInstancePtr);
     pSelf->Release();
 
     return pInstance->GetOwnerComponent()->GetOwner();
@@ -18,11 +18,11 @@ static ezGameObject* GetAngelScriptOwnerObject(asIScriptObject* pSelf)
   return nullptr;
 }
 
-static ezWorld* GetAngelScriptOwnerWorld(asIScriptObject* pSelf)
+static WWorld* GetAngelScriptOwnerWorld(asIScriptObject* pSelf)
 {
   if (pSelf)
   {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
+    WAngelScriptInstance* pInstance = (WAngelScriptInstance*)pSelf->GetUserData(WAsUserData::ScriptInstancePtr);
     pSelf->Release();
 
     return pInstance->GetOwnerComponent()->GetWorld();
@@ -31,11 +31,11 @@ static ezWorld* GetAngelScriptOwnerWorld(asIScriptObject* pSelf)
   return nullptr;
 }
 
-static ezScriptComponent* GetAngelScriptOwnerComponent(asIScriptObject* pSelf)
+static WScriptComponent* GetAngelScriptOwnerComponent(asIScriptObject* pSelf)
 {
   if (pSelf)
   {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
+    WAngelScriptInstance* pInstance = (WAngelScriptInstance*)pSelf->GetUserData(WAsUserData::ScriptInstancePtr);
     pSelf->Release();
 
     return pInstance->GetOwnerComponent();
@@ -45,33 +45,33 @@ static ezScriptComponent* GetAngelScriptOwnerComponent(asIScriptObject* pSelf)
 }
 
 
-void ezAngelScriptEngineSingleton::Register_ezAngelScriptClass()
+void WAngelScriptEngineSingleton::Register_WAngelScriptClass()
 {
-  AS_CHECK(m_pEngine->RegisterInterface("ezIAngelScriptClass"));
+  AS_CHECK(m_pEngine->RegisterInterface("WIAngelScriptClass"));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerObject), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezScriptComponent@ GetScriptOwnerComponent(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerComponent), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerWorld), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WGameObject@ GetScriptOwnerObject(WIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerObject), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WScriptComponent@ GetScriptOwnerComponent(WIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerComponent), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("WWorld@ GetScriptOwnerWorld(WIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerWorld), asCALL_CDECL));
 
   const char* szClassCode = R"(
-shared class ezAngelScriptClass : ezIAngelScriptClass
+shared class WAngelScriptClass : WIAngelScriptClass
 {
-    ezScriptComponent@ GetOwnerComponent()
+    WScriptComponent@ GetOwnerComponent()
     {
         return GetScriptOwnerComponent(@this);
     }
 
-    ezGameObject@ GetOwner()
+    WGameObject@ GetOwner()
     {
         return GetScriptOwnerObject(@this);
     }
 
-    ezWorld@ GetWorld()
+    WWorld@ GetWorld()
     {
         return GetScriptOwnerWorld(@this);
     }
 
-    void SetUpdateInterval(ezTime interval)
+    void SetUpdateInterval(WTime interval)
     {
       GetScriptOwnerComponent(@this).UpdateInterval = interval;
     }
@@ -80,8 +80,8 @@ shared class ezAngelScriptClass : ezIAngelScriptClass
 
   if (SetModuleCode("Builtin_AngelScriptClass", szClassCode, false) == nullptr)
   {
-    EZ_REPORT_FAILURE("Failed to register ezAngelScriptClass class");
+    W_REPORT_FAILURE("Failed to register WAngelScriptClass class");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezScriptComponent", "void BroadcastEventMsg(const ezMessage& in msg)", asMETHOD(ezScriptComponent, BroadcastEventMsg), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("WScriptComponent", "void BroadcastEventMsg(const WMessage& in msg)", asMETHOD(WScriptComponent, BroadcastEventMsg), asCALL_THISCALL));
 }

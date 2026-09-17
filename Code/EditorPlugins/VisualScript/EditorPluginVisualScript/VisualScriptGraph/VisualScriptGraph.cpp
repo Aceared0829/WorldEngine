@@ -7,12 +7,12 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualScriptPin, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex)
-  : ezVisualGraphPin(type, sName, pinDesc.GetColor(), pObject)
+WVisualScriptPin::WVisualScriptPin(Type type, WStringView sName, const WVisualScriptNodeRegistry::PinDesc& pinDesc, const WDocumentObject* pObject, WUInt32 uiDataPinIndex, WUInt32 uiElementIndex)
+  : WVisualGraphPin(type, sName, pinDesc.GetColor(), pObject)
   , m_pDesc(&pinDesc)
   , m_uiDataPinIndex(uiDataPinIndex)
   , m_uiElementIndex(uiElementIndex)
@@ -23,103 +23,103 @@ ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisu
   }
   else
   {
-    m_Shape = (pinDesc.m_ScriptDataType == ezVisualScriptDataType::Array || pinDesc.m_ScriptDataType == ezVisualScriptDataType::Map) ? Shape::Rect : Shape::Circle;
+    m_Shape = (pinDesc.m_ScriptDataType == WVisualScriptDataType::Array || pinDesc.m_ScriptDataType == WVisualScriptDataType::Map) ? Shape::Rect : Shape::Circle;
   }
 }
 
-ezVisualScriptPin::~ezVisualScriptPin()
+WVisualScriptPin::~WVisualScriptPin()
 {
-  auto pManager = static_cast<ezVisualScriptNodeManager*>(const_cast<ezDocumentObjectManager*>(GetParent()->GetDocumentObjectManager()));
+  auto pManager = static_cast<WVisualScriptNodeManager*>(const_cast<WDocumentObjectManager*>(GetParent()->GetDocumentObjectManager()));
   pManager->RemoveDeductedPinType(*this);
 }
 
-ezVisualScriptDataType::Enum ezVisualScriptPin::GetResolvedScriptDataType() const
+WVisualScriptDataType::Enum WVisualScriptPin::GetResolvedScriptDataType() const
 {
   auto scriptDataType = GetScriptDataType();
-  if (scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any)
+  if (scriptDataType == WVisualScriptDataType::AnyPointer || scriptDataType == WVisualScriptDataType::Any)
   {
-    auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetParent()->GetDocumentObjectManager());
+    auto pManager = static_cast<const WVisualScriptNodeManager*>(GetParent()->GetDocumentObjectManager());
     return pManager->GetDeductedType(*this);
   }
 
   return scriptDataType;
 }
 
-ezStringView ezVisualScriptPin::GetDataTypeName() const
+WStringView WVisualScriptPin::GetDataTypeName() const
 {
-  ezVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
-  if (resolvedDataType == ezVisualScriptDataType::Invalid)
+  WVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
+  if (resolvedDataType == WVisualScriptDataType::Invalid)
   {
-    return ezVisualScriptDataType::GetName(GetScriptDataType());
+    return WVisualScriptDataType::GetName(GetScriptDataType());
   }
 
-  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer ||
-        resolvedDataType == ezVisualScriptDataType::EnumValue || resolvedDataType == ezVisualScriptDataType::BitflagValue) &&
+  if ((resolvedDataType == WVisualScriptDataType::TypedPointer ||
+        resolvedDataType == WVisualScriptDataType::EnumValue || resolvedDataType == WVisualScriptDataType::BitflagValue) &&
       GetDataType() != nullptr)
   {
     return GetDataType()->GetTypeName();
   }
 
-  return ezVisualScriptDataType::GetName(resolvedDataType);
+  return WVisualScriptDataType::GetName(resolvedDataType);
 }
 
-bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bUseResolvedDataTypes /*= true*/) const
+bool WVisualScriptPin::CanConvertTo(const WVisualScriptPin& targetPin, bool bUseResolvedDataTypes /*= true*/) const
 {
-  ezVisualScriptDataType::Enum sourceScriptDataType = bUseResolvedDataTypes ? GetResolvedScriptDataType() : GetScriptDataType();
-  ezVisualScriptDataType::Enum targetScriptDataType = bUseResolvedDataTypes ? targetPin.GetResolvedScriptDataType() : targetPin.GetScriptDataType();
+  WVisualScriptDataType::Enum sourceScriptDataType = bUseResolvedDataTypes ? GetResolvedScriptDataType() : GetScriptDataType();
+  WVisualScriptDataType::Enum targetScriptDataType = bUseResolvedDataTypes ? targetPin.GetResolvedScriptDataType() : targetPin.GetScriptDataType();
 
-  const ezRTTI* pSourceDataType = GetDataType();
-  const ezRTTI* pTargetDataType = targetPin.GetDataType();
+  const WRTTI* pSourceDataType = GetDataType();
+  const WRTTI* pTargetDataType = targetPin.GetDataType();
 
-  if (sourceScriptDataType == ezVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
-      targetScriptDataType == ezVisualScriptDataType::TypedPointer && pTargetDataType != nullptr)
+  if (sourceScriptDataType == WVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
+      targetScriptDataType == WVisualScriptDataType::TypedPointer && pTargetDataType != nullptr)
     return pSourceDataType->IsDerivedFrom(pTargetDataType);
 
-  if (sourceScriptDataType == ezVisualScriptDataType::EnumValue && pSourceDataType != nullptr &&
-      targetScriptDataType == ezVisualScriptDataType::EnumValue && pTargetDataType != nullptr)
+  if (sourceScriptDataType == WVisualScriptDataType::EnumValue && pSourceDataType != nullptr &&
+      targetScriptDataType == WVisualScriptDataType::EnumValue && pTargetDataType != nullptr)
     return pSourceDataType == pTargetDataType;
 
-  if (sourceScriptDataType == ezVisualScriptDataType::BitflagValue && pSourceDataType != nullptr &&
-      targetScriptDataType == ezVisualScriptDataType::BitflagValue && pTargetDataType != nullptr)
+  if (sourceScriptDataType == WVisualScriptDataType::BitflagValue && pSourceDataType != nullptr &&
+      targetScriptDataType == WVisualScriptDataType::BitflagValue && pTargetDataType != nullptr)
     return pSourceDataType == pTargetDataType;
 
-  return ezVisualScriptDataType::CanConvertTo(sourceScriptDataType, targetScriptDataType);
+  return WVisualScriptDataType::CanConvertTo(sourceScriptDataType, targetScriptDataType);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptNodeManager::ezVisualScriptNodeManager()
+WVisualScriptNodeManager::WVisualScriptNodeManager()
 {
-  m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::NodeEventsHandler, this));
-  m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::PropertyEventsHandler, this));
+  m_NodeEvents.AddEventHandler(WMakeDelegate(&WVisualScriptNodeManager::NodeEventsHandler, this));
+  m_PropertyEvents.AddEventHandler(WMakeDelegate(&WVisualScriptNodeManager::PropertyEventsHandler, this));
 }
 
-ezVisualScriptNodeManager::~ezVisualScriptNodeManager() = default;
+WVisualScriptNodeManager::~WVisualScriptNodeManager() = default;
 
-ezHashedString ezVisualScriptNodeManager::GetScriptBaseClass() const
+WHashedString WVisualScriptNodeManager::GetScriptBaseClass() const
 {
-  ezHashedString sBaseClass;
+  WHashedString sBaseClass;
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
-    ezVariant baseClass = GetRootObject()->GetChildren()[0]->GetTypeAccessor().GetValue("BaseClass");
-    if (baseClass.IsA<ezString>())
+    WVariant baseClass = GetRootObject()->GetChildren()[0]->GetTypeAccessor().GetValue("BaseClass");
+    if (baseClass.IsA<WString>())
     {
-      sBaseClass.Assign(baseClass.Get<ezString>());
+      sBaseClass.Assign(baseClass.Get<WString>());
     }
   }
   return sBaseClass;
 }
 
-bool ezVisualScriptNodeManager::IsFilteredByBaseClass(const ezRTTI* pNodeType, const ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, const ezHashedString& sBaseClass, bool bLogWarning /*= false*/) const
+bool WVisualScriptNodeManager::IsFilteredByBaseClass(const WRTTI* pNodeType, const WVisualScriptNodeRegistry::NodeDesc& nodeDesc, const WHashedString& sBaseClass, bool bLogWarning /*= false*/) const
 {
   if (nodeDesc.m_sFilterByBaseClass.IsEmpty() == false && nodeDesc.m_sFilterByBaseClass != sBaseClass)
   {
     if (bLogWarning)
     {
-      ezStringView sTypeName = pNodeType->GetTypeName();
-      sTypeName.TrimWordStart(ezVisualScriptNodeRegistry::s_szTypeNamePrefix);
+      WStringView sTypeName = pNodeType->GetTypeName();
+      sTypeName.TrimWordStart(WVisualScriptNodeRegistry::s_szTypeNamePrefix);
 
-      ezLog::Warning("The base class function '{}' is not a function of the currently selected base class '{}' and will be skipped", sTypeName, sBaseClass);
+      WLog::Warning("The base class function '{}' is not a function of the currently selected base class '{}' and will be skipped", sTypeName, sBaseClass);
     }
 
     return true;
@@ -129,81 +129,81 @@ bool ezVisualScriptNodeManager::IsFilteredByBaseClass(const ezRTTI* pNodeType, c
 }
 
 
-ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetVariableType(ezTempHashedString sName) const
+WVisualScriptDataType::Enum WVisualScriptNodeManager::GetVariableType(WTempHashedString sName) const
 {
-  ezVisualScriptVariable variable;
+  WVisualScriptVariable variable;
   if (GetVariable(sName, variable).Succeeded())
   {
     return variable.m_TypeDecl.GetDataType();
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }
 
-ezResult ezVisualScriptNodeManager::GetVariable(ezTempHashedString sName, ezVisualScriptVariable& out_variable) const
+WResult WVisualScriptNodeManager::GetVariable(WTempHashedString sName, WVisualScriptVariable& out_variable) const
 {
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
     auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
-    ezUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
-    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    WUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
+    for (WUInt32 i = 0; i < uiNumVariables; ++i)
     {
-      ezVariant variableUuid = typeAccessor.GetValue("Variables", i);
-      if (variableUuid.IsA<ezUuid>() == false)
+      WVariant variableUuid = typeAccessor.GetValue("Variables", i);
+      if (variableUuid.IsA<WUuid>() == false)
         continue;
 
-      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      auto pVariableObject = GetObject(variableUuid.Get<WUuid>());
       if (pVariableObject == nullptr)
         continue;
 
-      ezVariant nameVar = pVariableObject->GetTypeAccessor().GetValue("Name");
-      if (nameVar.IsA<ezHashedString>() == false || nameVar.Get<ezHashedString>() != sName)
+      WVariant nameVar = pVariableObject->GetTypeAccessor().GetValue("Name");
+      if (nameVar.IsA<WHashedString>() == false || nameVar.Get<WHashedString>() != sName)
         continue;
 
-      out_variable.m_sName = nameVar.Get<ezHashedString>();
-      out_variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
+      out_variable.m_sName = nameVar.Get<WHashedString>();
+      out_variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<WVisualScriptVariableTypeDeclaration>();
       out_variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezVisualScriptNodeManager::GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const
+void WVisualScriptNodeManager::GetAllVariables(WDynamicArray<WVisualScriptVariable>& out_variables) const
 {
   out_variables.Clear();
 
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
     auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
-    ezUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
-    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    WUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
+    for (WUInt32 i = 0; i < uiNumVariables; ++i)
     {
-      ezVariant variableUuid = typeAccessor.GetValue("Variables", i);
-      if (variableUuid.IsA<ezUuid>() == false)
+      WVariant variableUuid = typeAccessor.GetValue("Variables", i);
+      if (variableUuid.IsA<WUuid>() == false)
         continue;
 
-      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      auto pVariableObject = GetObject(variableUuid.Get<WUuid>());
       if (pVariableObject == nullptr)
         continue;
 
       auto& variable = out_variables.ExpandAndGetRef();
-      variable.m_sName = pVariableObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezHashedString>();
-      variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
+      variable.m_sName = pVariableObject->GetTypeAccessor().GetValue("Name").ConvertTo<WHashedString>();
+      variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<WVisualScriptVariableTypeDeclaration>();
       variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
     }
   }
 }
 
-void ezVisualScriptNodeManager::GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const
+void WVisualScriptNodeManager::GetInputExecutionPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const
 {
   out_pins.Clear();
 
   auto pins = GetInputPins(pObject);
   for (auto& pPin : pins)
   {
-    auto& vsPin = ezStaticCast<const ezVisualScriptPin&>(*pPin);
+    auto& vsPin = WStaticCast<const WVisualScriptPin&>(*pPin);
     if (vsPin.IsExecutionPin())
     {
       out_pins.PushBack(&vsPin);
@@ -211,14 +211,14 @@ void ezVisualScriptNodeManager::GetInputExecutionPins(const ezDocumentObject* pO
   }
 }
 
-void ezVisualScriptNodeManager::GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const
+void WVisualScriptNodeManager::GetOutputExecutionPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const
 {
   out_pins.Clear();
 
   auto pins = GetOutputPins(pObject);
   for (auto& pPin : pins)
   {
-    auto& vsPin = ezStaticCast<const ezVisualScriptPin&>(*pPin);
+    auto& vsPin = WStaticCast<const WVisualScriptPin&>(*pPin);
     if (vsPin.IsExecutionPin())
     {
       out_pins.PushBack(&vsPin);
@@ -226,14 +226,14 @@ void ezVisualScriptNodeManager::GetOutputExecutionPins(const ezDocumentObject* p
   }
 }
 
-void ezVisualScriptNodeManager::GetInputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const
+void WVisualScriptNodeManager::GetInputDataPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const
 {
   out_pins.Clear();
 
   auto pins = GetInputPins(pObject);
   for (auto& pPin : pins)
   {
-    auto& vsPin = ezStaticCast<const ezVisualScriptPin&>(*pPin);
+    auto& vsPin = WStaticCast<const WVisualScriptPin&>(*pPin);
     if (vsPin.IsDataPin())
     {
       out_pins.PushBack(&vsPin);
@@ -241,14 +241,14 @@ void ezVisualScriptNodeManager::GetInputDataPins(const ezDocumentObject* pObject
   }
 }
 
-void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const
+void WVisualScriptNodeManager::GetOutputDataPins(const WDocumentObject* pObject, WDynamicArray<const WVisualScriptPin*>& out_pins) const
 {
   out_pins.Clear();
 
   auto pins = GetOutputPins(pObject);
   for (auto& pPin : pins)
   {
-    auto& vsPin = ezStaticCast<const ezVisualScriptPin&>(*pPin);
+    auto& vsPin = WStaticCast<const WVisualScriptPin&>(*pPin);
     if (vsPin.IsDataPin())
     {
       out_pins.PushBack(&vsPin);
@@ -256,21 +256,21 @@ void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObjec
   }
 }
 
-void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const
+void WVisualScriptNodeManager::GetEntryNodes(const WDocumentObject* pObject, WDynamicArray<const WDocumentObject*>& out_entryNodes) const
 {
-  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
+  WTempHybridArray<const WDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pObject);
 
-  ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  WHashSet<const WDocumentObject*> visitedNodes;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {
-    const ezDocumentObject* pCurrentNode = nodeStack.PeekBack();
+    const WDocumentObject* pCurrentNode = nodeStack.PeekBack();
     nodeStack.PopBack();
 
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
-    if (ezVisualScriptNodeDescription::Type::IsEntry(pNodeDesc->m_Type))
+    auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
+    if (WVisualScriptNodeDescription::Type::IsEntry(pNodeDesc->m_Type))
     {
       out_entryNodes.PushBack(pCurrentNode);
       continue;
@@ -282,7 +282,7 @@ void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, e
       auto connections = GetConnections(*pPin);
       for (auto pConnection : connections)
       {
-        const ezDocumentObject* pSourceNode = pConnection->GetSourcePin().GetParent();
+        const WDocumentObject* pSourceNode = pConnection->GetSourcePin().GetParent();
         if (visitedNodes.Insert(pSourceNode))
           continue;
 
@@ -293,53 +293,53 @@ void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, e
 }
 
 // static
-ezStringView ezVisualScriptNodeManager::GetNiceTypeName(const ezDocumentObject* pObject)
+WStringView WVisualScriptNodeManager::GetNiceTypeName(const WDocumentObject* pObject)
 {
-  ezStringView sTypeName = pObject->GetType()->GetTypeName();
+  WStringView sTypeName = pObject->GetType()->GetTypeName();
 
-  while (sTypeName.TrimWordStart(ezVisualScriptNodeRegistry::s_szTypeNamePrefix) ||
+  while (sTypeName.TrimWordStart(WVisualScriptNodeRegistry::s_szTypeNamePrefix) ||
          sTypeName.TrimWordStart("Builtin_"))
   {
   }
 
   if (const char* szAngleBracket = sTypeName.FindSubString("<"))
   {
-    sTypeName = ezStringView(sTypeName.GetStartPointer(), szAngleBracket);
+    sTypeName = WStringView(sTypeName.GetStartPointer(), szAngleBracket);
   }
 
   return sTypeName;
 }
 
-ezStringView ezVisualScriptNodeManager::GetNiceFunctionName(const ezDocumentObject* pObject)
+WStringView WVisualScriptNodeManager::GetNiceFunctionName(const WDocumentObject* pObject)
 {
-  ezStringView sFunctionName = pObject->GetType()->GetTypeName();
+  WStringView sFunctionName = pObject->GetType()->GetTypeName();
 
   if (const char* szSeparator = sFunctionName.FindLastSubString("::"))
   {
-    sFunctionName = ezStringView(szSeparator + 2, sFunctionName.GetEndPointer());
+    sFunctionName = WStringView(szSeparator + 2, sFunctionName.GetEndPointer());
   }
 
   return sFunctionName;
 }
 
-ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ezVisualScriptPin& pin) const
+WVisualScriptDataType::Enum WVisualScriptNodeManager::GetDeductedType(const WVisualScriptPin& pin) const
 {
-  ezEnum<ezVisualScriptDataType> dataType = ezVisualScriptDataType::Invalid;
+  WEnum<WVisualScriptDataType> dataType = WVisualScriptDataType::Invalid;
   m_PinToDeductedType.TryGetValue(&pin, dataType);
   return dataType;
 }
 
-ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ezDocumentObject* pObject) const
+WVisualScriptDataType::Enum WVisualScriptNodeManager::GetDeductedType(const WDocumentObject* pObject) const
 {
-  ezEnum<ezVisualScriptDataType> dataType = ezVisualScriptDataType::Invalid;
+  WEnum<WVisualScriptDataType> dataType = WVisualScriptDataType::Invalid;
   m_ObjectToDeductedType.TryGetValue(pObject, dataType);
   return dataType;
 }
 
-bool ezVisualScriptNodeManager::IsCoroutine(const ezDocumentObject* pObject) const
+bool WVisualScriptNodeManager::IsCoroutine(const WDocumentObject* pObject) const
 {
-  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
-  if (pNodeDesc != nullptr && ezVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
+  auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  if (pNodeDesc != nullptr && WVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
   {
     return true;
   }
@@ -347,10 +347,10 @@ bool ezVisualScriptNodeManager::IsCoroutine(const ezDocumentObject* pObject) con
   return m_CoroutineObjects.Contains(pObject);
 }
 
-bool ezVisualScriptNodeManager::IsLoop(const ezDocumentObject* pObject) const
+bool WVisualScriptNodeManager::IsLoop(const WDocumentObject* pObject) const
 {
-  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
-  if (pNodeDesc != nullptr && ezVisualScriptNodeDescription::Type::IsLoop(pNodeDesc->m_Type))
+  auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  if (pNodeDesc != nullptr && WVisualScriptNodeDescription::Type::IsLoop(pNodeDesc->m_Type))
   {
     return true;
   }
@@ -358,18 +358,18 @@ bool ezVisualScriptNodeManager::IsLoop(const ezDocumentObject* pObject) const
   return false;
 }
 
-bool ezVisualScriptNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool WVisualScriptNodeManager::InternalIsNode(const WDocumentObject* pObject) const
 {
-  return pObject->GetType()->IsDerivedFrom(ezVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType());
+  return pObject->GetType()->IsDerivedFrom(WVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType());
 }
 
-bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool WVisualScriptNodeManager::InternalIsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const
 {
-  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
 
   if (pNodeDesc != nullptr && pNodeDesc->m_bHasDynamicPins)
   {
-    ezTempHashedString sPropNameHashed = ezTempHashedString(pProp->GetPropertyName());
+    WTempHashedString sPropNameHashed = WTempHashedString(pProp->GetPropertyName());
     for (auto& pinDesc : pNodeDesc->m_InputPins)
     {
       if (pinDesc.m_sDynamicPinProperty == sPropNameHashed)
@@ -390,56 +390,56 @@ bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObj
   return false;
 }
 
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
+WStatus WVisualScriptNodeManager::InternalCanConnect(const WVisualGraphPin& source, const WVisualGraphPin& target, CanConnectResult& out_result) const
 {
-  const ezVisualScriptPin& pinSource = ezStaticCast<const ezVisualScriptPin&>(source);
-  const ezVisualScriptPin& pinTarget = ezStaticCast<const ezVisualScriptPin&>(target);
+  const WVisualScriptPin& pinSource = WStaticCast<const WVisualScriptPin&>(source);
+  const WVisualScriptPin& pinTarget = WStaticCast<const WVisualScriptPin&>(target);
 
   if (pinSource.IsExecutionPin() != pinTarget.IsExecutionPin())
   {
     out_result = CanConnectResult::ConnectNever;
-    return ezStatus("Cannot connect data pins with execution pins.");
+    return WStatus("Cannot connect data pins with execution pins.");
   }
 
   if (pinSource.IsDataPin() && pinSource.CanConvertTo(pinTarget, false) == false)
   {
     out_result = CanConnectResult::ConnectNever;
-    return ezStatus(ezFmt("The pin data types are incompatible."));
+    return WStatus(WFmt("The pin data types are incompatible."));
   }
 
   if (WouldConnectionCreateCircle(source, target))
   {
     out_result = CanConnectResult::ConnectNever;
-    return ezStatus("Connecting these pins would create a circle in the graph.");
+    return WStatus("Connecting these pins would create a circle in the graph.");
   }
 
   // only one connection is allowed on DATA input pins, execution input pins may have multiple incoming connections
   if (pinTarget.IsDataPin() && HasConnections(pinTarget))
   {
     out_result = CanConnectResult::ConnectNto1;
-    return ezStatus(EZ_FAILURE);
+    return WStatus(W_FAILURE);
   }
 
   // only one outgoing connection is allowed on EXECUTION pins, data pins may have multiple outgoing connections
   if (pinSource.IsExecutionPin() && HasConnections(pinSource))
   {
     out_result = CanConnectResult::Connect1toN;
-    return ezStatus(EZ_FAILURE);
+    return WStatus(W_FAILURE);
   }
 
   out_result = CanConnectResult::ConnectNtoN;
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
+void WVisualScriptNodeManager::InternalCreatePins(const WDocumentObject* pObject, NodeInternal& ref_node)
 {
-  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
 
   if (pNodeDesc == nullptr)
     return;
 
-  ezTempHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezVisualGraphPin::Type type, ezDynamicArray<ezUniquePtr<ezVisualGraphPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  WTempHybridArray<WString, 16> dynamicPinNames;
+  auto CreatePins = [&](const WVisualScriptNodeRegistry::PinDesc& pinDesc, WVisualGraphPin::Type type, WDynamicArray<WUniquePtr<WVisualGraphPin>>& out_pins, WUInt32& inout_dataPinIndex)
   {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
@@ -451,47 +451,47 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
       dynamicPinNames.PushBack(pinDesc.m_sName.GetView());
     }
 
-    for (ezUInt32 i = 0; i < dynamicPinNames.GetCount(); ++i)
+    for (WUInt32 i = 0; i < dynamicPinNames.GetCount(); ++i)
     {
-      ezUInt32 uiDataPinIndex = ezInvalidIndex;
+      WUInt32 uiDataPinIndex = WInvalidIndex;
       if (pinDesc.IsDataPin())
       {
         uiDataPinIndex = inout_dataPinIndex;
         ++inout_dataPinIndex;
       }
 
-      auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex, i);
+      auto pPin = W_DEFAULT_NEW(WVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex, i);
       out_pins.PushBack(pPin);
     }
   };
 
-  ezUInt32 uiDataPinIndex = 0;
+  WUInt32 uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_InputPins)
   {
-    CreatePins(pinDesc, ezVisualGraphPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
+    CreatePins(pinDesc, WVisualGraphPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
   }
 
   uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_OutputPins)
   {
-    CreatePins(pinDesc, ezVisualGraphPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
+    CreatePins(pinDesc, WVisualGraphPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
   }
 }
 
-void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
+void WVisualScriptNodeManager::GetNodeCreationTemplates(WDynamicArray<WVisualGraphNodeDesc>& out_templates) const
 {
-  auto pRegistry = ezVisualScriptNodeRegistry::GetSingleton();
+  auto pRegistry = WVisualScriptNodeRegistry::GetSingleton();
   auto propertyValues = pRegistry->GetPropertyValues();
-  ezHashedString sBaseClass = GetScriptBaseClass();
+  WHashedString sBaseClass = GetScriptBaseClass();
 
   for (auto& nodeTemplate : pRegistry->GetNodeCreationTemplates())
   {
-    const ezRTTI* pNodeType = nodeTemplate.m_pType;
+    const WRTTI* pNodeType = nodeTemplate.m_pType;
 
     if (IsFilteredByBaseClass(pNodeType, *pRegistry->GetNodeDescForType(pNodeType), sBaseClass))
       continue;
 
-    if (!pNodeType->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    if (!pNodeType->GetTypeFlags().IsSet(WTypeFlags::Abstract))
     {
       auto& temp = out_templates.ExpandAndGetRef();
       temp.m_pType = pNodeType;
@@ -504,38 +504,38 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisual
   // Getter and setter templates for variables
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
-    static ezHashedString sVariables = ezMakeHashedString("Variables");
-    static ezHashedString sName = ezMakeHashedString("Name");
+    static WHashedString sVariables = WMakeHashedString("Variables");
+    static WHashedString sName = WMakeHashedString("Name");
 
     m_PropertyValues.Clear();
     m_VariableNodeTypeNames.Clear();
 
-    ezStringBuilder sNodeTypeName;
+    WStringBuilder sNodeTypeName;
 
     auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
-    const ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+    const WUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
 
     // Pre-allocate the necessary memory for the property values since we take slices of it in the loop below,
     // thus we must not reallocate the array otherwise the slices would become invalid.
     m_PropertyValues.Reserve(uiNumVariables);
 
-    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    for (WUInt32 i = 0; i < uiNumVariables; ++i)
     {
-      ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
-      if (variableUuid.IsA<ezUuid>() == false)
+      WVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
+      if (variableUuid.IsA<WUuid>() == false)
         continue;
 
-      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      auto pVariableObject = GetObject(variableUuid.Get<WUuid>());
       if (pVariableObject == nullptr)
         continue;
 
-      ezVariant nameVar = pVariableObject->GetTypeAccessor().GetValue(sName.GetView());
-      if (nameVar.IsA<ezHashedString>() == false)
+      WVariant nameVar = pVariableObject->GetTypeAccessor().GetValue(sName.GetView());
+      if (nameVar.IsA<WHashedString>() == false)
         continue;
 
-      ezHashedString sVariableName = nameVar.Get<ezHashedString>();
+      WHashedString sVariableName = nameVar.Get<WHashedString>();
 
-      ezUInt32 uiStart = m_PropertyValues.GetCount();
+      WUInt32 uiStart = m_PropertyValues.GetCount();
       m_PropertyValues.PushBack({sName, nameVar});
 
       // Setter
@@ -565,11 +565,11 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisual
   }
 }
 
-void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e)
+void WVisualScriptNodeManager::NodeEventsHandler(const WVisualGraphObjectManagerEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezVisualGraphObjectManagerEvent::Type::AfterPinsConnected:
+    case WVisualGraphObjectManagerEvent::Type::AfterPinsConnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -578,7 +578,7 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManag
     }
     break;
 
-    case ezVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected:
+    case WVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -587,13 +587,13 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManag
     }
     break;
 
-    case ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded:
+    case WVisualGraphObjectManagerEvent::Type::AfterNodeAdded:
     {
       DeductNodeTypeAndAllPinTypes(e.m_pObject);
     }
     break;
 
-    case ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved:
+    case WVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved:
     {
       m_ObjectToDeductedType.Remove(e.m_pObject);
     }
@@ -604,13 +604,13 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManag
   }
 }
 
-void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
+void WVisualScriptNodeManager::PropertyEventsHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (IsNode(e.m_pObject))
   {
     DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
-  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type"))
+  else if (e.m_pObject->GetType() == WGetStaticRTTI<WVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type"))
   {
     // a variable's name or type has changed, re-run type deduction
     for (auto pObject : GetRootObject()->GetChildren())
@@ -623,47 +623,47 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
 
     if (e.m_sProperty == "Type")
     {
-      auto typeDecl = e.m_NewValue.Get<ezVisualScriptVariableTypeDeclaration>();
-      ezVariant defaultValue = e.m_pObject->GetTypeAccessor().GetValue("DefaultValue");
-      ezVisualScriptVariable::ConvertDefaultValue(defaultValue, typeDecl);
+      auto typeDecl = e.m_NewValue.Get<WVisualScriptVariableTypeDeclaration>();
+      WVariant defaultValue = e.m_pObject->GetTypeAccessor().GetValue("DefaultValue");
+      WVisualScriptVariable::ConvertDefaultValue(defaultValue, typeDecl);
 
       GetDocument()->GetObjectAccessor()->SetValueByName(e.m_pObject, "DefaultValue", defaultValue).AssertSuccess();
     }
   }
 }
 
-void ezVisualScriptNodeManager::RemoveDeductedPinType(const ezVisualScriptPin& pin)
+void WVisualScriptNodeManager::RemoveDeductedPinType(const WVisualScriptPin& pin)
 {
   m_PinToDeductedType.Remove(&pin);
 }
 
-void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezVisualGraphPin* pDisconnectedPin /*= nullptr*/)
+void WVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const WDocumentObject* pObject, const WVisualGraphPin* pDisconnectedPin /*= nullptr*/)
 {
-  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
   if (pNodeDesc == nullptr || pNodeDesc->NeedsTypeDeduction() == false)
     return;
 
-  if (pDisconnectedPin != nullptr && static_cast<const ezVisualScriptPin*>(pDisconnectedPin)->NeedsTypeDeduction() == false)
+  if (pDisconnectedPin != nullptr && static_cast<const WVisualScriptPin*>(pDisconnectedPin)->NeedsTypeDeduction() == false)
     return;
 
   bool bNodeTypeChanged = false;
   {
-    ezEnum<ezVisualScriptDataType> newDeductedType = pNodeDesc->m_DeductTypeFunc(pObject, static_cast<const ezVisualScriptPin*>(pDisconnectedPin));
-    ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+    WEnum<WVisualScriptDataType> newDeductedType = pNodeDesc->m_DeductTypeFunc(pObject, static_cast<const WVisualScriptPin*>(pDisconnectedPin));
+    WEnum<WVisualScriptDataType> oldDeductedType = WVisualScriptDataType::Invalid;
     m_ObjectToDeductedType.Insert(pObject, newDeductedType, &oldDeductedType);
 
     bNodeTypeChanged = (newDeductedType != oldDeductedType);
   }
 
   bool bAnyInputPinChanged = false;
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
   GetInputDataPins(pObject, pins);
   for (auto pPin : pins)
   {
     if (auto pFunc = pPin->GetDeductTypeFunc())
     {
-      ezEnum<ezVisualScriptDataType> newDeductedType = pFunc(*pPin);
-      ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+      WEnum<WVisualScriptDataType> newDeductedType = pFunc(*pPin);
+      WEnum<WVisualScriptDataType> oldDeductedType = WVisualScriptDataType::Invalid;
       m_PinToDeductedType.Insert(pPin, newDeductedType, &oldDeductedType);
 
       bAnyInputPinChanged |= (newDeductedType != oldDeductedType);
@@ -676,8 +676,8 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   {
     if (auto pFunc = pPin->GetDeductTypeFunc())
     {
-      ezEnum<ezVisualScriptDataType> newDeductedType = pFunc(*pPin);
-      ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+      WEnum<WVisualScriptDataType> newDeductedType = pFunc(*pPin);
+      WEnum<WVisualScriptDataType> oldDeductedType = WVisualScriptDataType::Invalid;
       m_PinToDeductedType.Insert(pPin, newDeductedType, &oldDeductedType);
 
       bAnyOutputPinChanged |= (newDeductedType != oldDeductedType);
@@ -706,13 +706,13 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   }
 }
 
-void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect)
+void WVisualScriptNodeManager::UpdateCoroutine(const WDocumentObject* pTargetNode, const WVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect)
 {
-  auto vsPin = static_cast<const ezVisualScriptPin&>(changedConnection.GetTargetPin());
+  auto vsPin = static_cast<const WVisualScriptPin&>(changedConnection.GetTargetPin());
   if (vsPin.IsExecutionPin() == false)
     return;
 
-  ezTempHybridArray<const ezDocumentObject*, 16> entryNodes;
+  WTempHybridArray<const WDocumentObject*, 16> entryNodes;
   GetEntryNodes(pTargetNode, entryNodes);
 
   for (auto pEntryNode : entryNodes)
@@ -736,21 +736,21 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   }
 }
 
-bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect) const
+bool WVisualScriptNodeManager::IsConnectedToCoroutine(const WDocumentObject* pEntryNode, const WVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect) const
 {
-  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
+  WTempHybridArray<const WDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pEntryNode);
 
-  ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  WHashSet<const WDocumentObject*> visitedNodes;
+  WTempHybridArray<const WVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {
-    const ezDocumentObject* pCurrentNode = nodeStack.PeekBack();
+    const WDocumentObject* pCurrentNode = nodeStack.PeekBack();
     nodeStack.PopBack();
 
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
-    if (ezVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
+    auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
+    if (WVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
     {
       return true;
     }
@@ -768,7 +768,7 @@ bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* p
         if (bIsAboutToDisconnect && pConnection == &changedConnection)
           continue;
 
-        const ezDocumentObject* pTargetNode = pConnection->GetTargetPin().GetParent();
+        const WDocumentObject* pTargetNode = pConnection->GetTargetPin().GetParent();
         if (visitedNodes.Insert(pTargetNode))
           continue;
 

@@ -4,10 +4,10 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Declarations.h>
 
-struct ezEditorAppEvent;
-class ezPreferences;
+struct WEditorAppEvent;
+class WPreferences;
 
-struct ezSnapProviderEvent
+struct WSnapProviderEvent
 {
   enum class Type
   {
@@ -19,41 +19,41 @@ struct ezSnapProviderEvent
   Type m_Type;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezSnapProvider
+class W_EDITORFRAMEWORK_DLL WSnapProvider
 {
 public:
   static void Startup();
   static void Shutdown();
 
-  static ezAngle GetRotationSnapValue();
+  static WAngle GetRotationSnapValue();
   static float GetScaleSnapValue();
   static float GetTranslationSnapValue();
 
-  static void SetRotationSnapValue(ezAngle angle);
+  static void SetRotationSnapValue(WAngle angle);
   static void SetScaleSnapValue(float fPercentage);
   static void SetTranslationSnapValue(float fUnits);
 
   /// Rounds each component to the closest translation snapping value
-  static void SnapTranslation(ezVec3& value);
+  static void SnapTranslation(WVec3& value);
 
   /// Inverts the rotation, applies that to the translation, snaps it and then transforms it back into the original space
-  static void SnapTranslationInLocalSpace(const ezQuat& qRotation, ezVec3& ref_vTranslation);
+  static void SnapTranslationInLocalSpace(const WQuat& qRotation, WVec3& ref_vTranslation);
 
-  static void SnapRotation(ezAngle& ref_rotation);
+  static void SnapRotation(WAngle& ref_rotation);
 
   static void SnapScale(float& ref_fScale);
-  static void SnapScale(ezVec3& ref_vScale);
+  static void SnapScale(WVec3& ref_vScale);
 
-  static ezVec3 GetScaleSnapped(const ezVec3& vScale);
+  static WVec3 GetScaleSnapped(const WVec3& vScale);
 
-  static ezEvent<const ezSnapProviderEvent&> s_Events;
+  static WEvent<const WSnapProviderEvent&> s_Events;
 
 private:
-  static void EditorEventHandler(const ezEditorAppEvent& e);
-  static void PreferenceChangedEventHandler(ezPreferences* pPreferenceBase);
+  static void EditorEventHandler(const WEditorAppEvent& e);
+  static void PreferenceChangedEventHandler(WPreferences* pPreferenceBase);
 
-  static ezAngle s_RotationSnapValue;
+  static WAngle s_RotationSnapValue;
   static float s_fScaleSnapValue;
   static float s_fTranslationSnapValue;
-  static ezEventSubscriptionID s_UserPreferencesChanged;
+  static WEventSubscriptionID s_UserPreferencesChanged;
 };

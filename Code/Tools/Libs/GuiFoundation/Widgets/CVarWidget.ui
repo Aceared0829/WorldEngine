@@ -22,7 +22,7 @@
      <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+        <widget class="WQtSearchWidget" name="SearchWidget" native="true"/>
        </item>
        <item>
         <widget class="QTreeView" name="CVarsView">
@@ -55,7 +55,7 @@
         </widget>
        </item>
        <item>
-        <widget class="ezQtSearchWidget" name="ConsoleInput" native="true"/>
+        <widget class="WQtSearchWidget" name="ConsoleInput" native="true"/>
        </item>
       </layout>
      </widget>
@@ -65,7 +65,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtSearchWidget</class>
+   <class>WQtSearchWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>

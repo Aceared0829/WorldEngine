@@ -14,55 +14,55 @@
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QKeyEvent>
 
-bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
+bool WQtSceneViewWidget::s_bContextMenuInitialized = false;
 
-ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
+WQtSceneViewWidget::WQtSceneViewWidget(QWidget* pParent, WQtGameObjectDocumentWindow* pOwnerWindow, WEngineViewConfig* pViewConfig)
+  : WQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
   m_bAllowPickSelectedWhileDragging = false;
 
-  if (ezDynamicCast<ezScene2Document*>(pOwnerWindow->GetDocument()))
+  if (WDynamicCast<WScene2Document*>(pOwnerWindow->GetDocument()))
   {
     // #TODO Not the cleanest solution but this replaces the default selection context of the base class.
-    const ezUInt32 uiSelectionIndex = m_InputContexts.IndexOf(m_pSelectionContext);
-    EZ_DEFAULT_DELETE(m_pSelectionContext);
-    m_pSelectionContext = EZ_DEFAULT_NEW(ezSceneSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
+    const WUInt32 uiSelectionIndex = m_InputContexts.IndexOf(m_pSelectionContext);
+    W_DEFAULT_DELETE(m_pSelectionContext);
+    m_pSelectionContext = W_DEFAULT_NEW(WSceneSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
     m_InputContexts[uiSelectionIndex] = m_pSelectionContext;
   }
 }
 
-ezQtSceneViewWidget::~ezQtSceneViewWidget() = default;
+WQtSceneViewWidget::~WQtSceneViewWidget() = default;
 
-bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
+bool WQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
 {
   if (m_bInDragAndDropOperation && m_bAllowPickSelectedWhileDragging)
   {
     return true;
   }
 
-  return ezQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
+  return WQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
 }
 
-void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
+void WQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
 {
   if (!s_bContextMenuInitialized)
   {
     s_bContextMenuInitialized = true;
 
-    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
+    WActionMapManager::RegisterActionMap("SceneViewContextMenu");
 
-    ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
-    ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
-    ezEditActions::MapViewContextMenuActions("SceneViewContextMenu");
-    ezSceneActions::MapViewContextMenuActions("SceneViewContextMenu");
+    WGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
+    WSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
+    WEditActions::MapViewContextMenuActions("SceneViewContextMenu");
+    WSceneActions::MapViewContextMenuActions("SceneViewContextMenu");
   }
 
   {
-    ezQtMenuActionMapView menu(nullptr);
+    WQtMenuActionMapView menu(nullptr);
 
-    ezActionContext context;
+    WActionContext context;
     context.m_sMapping = "SceneViewContextMenu";
     context.m_pDocument = GetDocumentWindow()->GetDocument();
     context.m_pWindow = this;
@@ -72,24 +72,24 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   }
 }
 
-void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
+void WQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
-  ezQtEngineViewWidget::dragEnterEvent(e);
+  WQtEngineViewWidget::dragEnterEvent(e);
 
   // can only drag & drop objects around in perspective mode
   // when dragging between two windows, the editor crashes
   // can be reproduced with two perspective windows as well
-  // if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  // if (m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective)
   // return;
 
-  m_LastDragMoveEvent = ezTime::Now();
+  m_LastDragMoveEvent = WTime::Now();
   m_bAllowPickSelectedWhileDragging = false;
 
   {
     const QPoint screenPos = e->position().toPoint();
-    ezObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
+    WObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
 
-    ezDragDropInfo info;
+    WDragDropInfo info;
     info.m_pMimeData = e->mimeData();
     info.m_TargetDocument = GetDocumentWindow()->GetDocument()->GetGuid();
     info.m_sTargetContext = "viewport";
@@ -102,10 +102,10 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
-    if (ezGameObjectDocument* pSceneDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocumentWindow->GetDocument()))
+    if (WGameObjectDocument* pSceneDoc = WDynamicCast<WGameObjectDocument*>(m_pDocumentWindow->GetDocument()))
     {
       pSceneDoc = pSceneDoc->GetRedirectedGameObjectDoc();
-      const ezUuid guid = pSceneDoc->GetActiveParent();
+      const WUuid guid = pSceneDoc->GetActiveParent();
 
       // the object may not exist anymore
       if (pSceneDoc->GetObjectManager()->GetObject(guid) != nullptr)
@@ -114,8 +114,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       }
     }
 
-    ezDragDropConfig cfg;
-    if (ezDragDropHandler::BeginDragDropOperation(&info, &cfg))
+    WDragDropConfig cfg;
+    if (WDragDropHandler::BeginDragDropOperation(&info, &cfg))
     {
       m_bAllowPickSelectedWhileDragging = cfg.m_bPickSelectedObjects;
 
@@ -127,28 +127,28 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   m_bInDragAndDropOperation = false;
 }
 
-void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
+void WQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
 {
-  ezDragDropHandler::CancelDragDrop();
+  WDragDropHandler::CancelDragDrop();
 
-  ezQtEngineViewWidget::dragLeaveEvent(e);
+  WQtEngineViewWidget::dragLeaveEvent(e);
 }
 
-void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
+void WQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
-  if (tNow - m_LastDragMoveEvent < ezTime::MakeFromSeconds(1.0 / 25.0))
+  if (tNow - m_LastDragMoveEvent < WTime::MakeFromSeconds(1.0 / 25.0))
     return;
 
   m_LastDragMoveEvent = tNow;
 
-  if (ezDragDropHandler::IsHandlerActive())
+  if (WDragDropHandler::IsHandlerActive())
   {
     const QPoint screenPos = e->position().toPoint();
-    ezObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
+    WObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
 
-    ezDragDropInfo info;
+    WDragDropInfo info;
     info.m_pMimeData = e->mimeData();
     info.m_TargetDocument = GetDocumentWindow()->GetDocument()->GetGuid();
     info.m_sTargetContext = "viewport";
@@ -161,18 +161,18 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
-    ezDragDropHandler::UpdateDragDropOperation(&info);
+    WDragDropHandler::UpdateDragDropOperation(&info);
   }
 }
 
-void ezQtSceneViewWidget::dropEvent(QDropEvent* e)
+void WQtSceneViewWidget::dropEvent(QDropEvent* e)
 {
-  if (ezDragDropHandler::IsHandlerActive())
+  if (WDragDropHandler::IsHandlerActive())
   {
     const QPoint screenPos = e->position().toPoint();
-    ezObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
+    WObjectPickingResult res = PickObject(screenPos.x(), screenPos.y());
 
-    ezDragDropInfo info;
+    WDragDropInfo info;
     info.m_pMimeData = e->mimeData();
     info.m_TargetDocument = GetDocumentWindow()->GetDocument()->GetGuid();
     info.m_sTargetContext = "viewport";
@@ -185,10 +185,10 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent* e)
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
-    ezDragDropHandler::FinishDragDrop(&info);
+    WDragDropHandler::FinishDragDrop(&info);
 
     setFocus();
   }
 
-  ezQtEngineViewWidget::dropEvent(e);
+  WQtEngineViewWidget::dropEvent(e);
 }

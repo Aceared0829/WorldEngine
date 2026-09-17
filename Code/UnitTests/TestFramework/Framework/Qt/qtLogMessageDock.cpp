@@ -1,41 +1,41 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QStringBuilder>
 #  include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 #  include <TestFramework/Framework/TestFramework.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtLogMessageDock public functions
+// WQtLogMessageDock public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtLogMessageDock::ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkResult* pResult)
+WQtLogMessageDock::WQtLogMessageDock(QObject* pParent, const WTestFrameworkResult* pResult)
 {
   setupUi(this);
-  m_pModel = new ezQtLogMessageModel(this, pResult);
+  m_pModel = new WQtLogMessageModel(this, pResult);
   ListView->setModel(m_pModel);
 }
 
-ezQtLogMessageDock::~ezQtLogMessageDock()
+WQtLogMessageDock::~WQtLogMessageDock()
 {
   ListView->setModel(nullptr);
   delete m_pModel;
   m_pModel = nullptr;
 }
 
-void ezQtLogMessageDock::resetModel()
+void WQtLogMessageDock::resetModel()
 {
   m_pModel->resetModel();
 }
 
-void ezQtLogMessageDock::currentTestResultChanged(const ezTestResultData* pTestResult)
+void WQtLogMessageDock::currentTestResultChanged(const WTestResultData* pTestResult)
 {
   m_pModel->currentTestResultChanged(pTestResult);
   ListView->scrollToBottom();
 }
 
-void ezQtLogMessageDock::currentTestSelectionChanged(const ezTestResultData* pTestResult)
+void WQtLogMessageDock::currentTestSelectionChanged(const WTestResultData* pTestResult)
 {
   m_pModel->currentTestSelectionChanged(pTestResult);
   ListView->scrollTo(m_pModel->GetLastIndexOfTestSelection(), QAbstractItemView::EnsureVisible);
@@ -43,59 +43,59 @@ void ezQtLogMessageDock::currentTestSelectionChanged(const ezTestResultData* pTe
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtLogMessageModel public functions
+// WQtLogMessageModel public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult)
+WQtLogMessageModel::WQtLogMessageModel(QObject* pParent, const WTestFrameworkResult* pResult)
   : QAbstractItemModel(pParent)
   , m_pTestResult(pResult)
 {
 }
 
-ezQtLogMessageModel::~ezQtLogMessageModel() = default;
+WQtLogMessageModel::~WQtLogMessageModel() = default;
 
-void ezQtLogMessageModel::resetModel()
+void WQtLogMessageModel::resetModel()
 {
   beginResetModel();
   currentTestResultChanged(nullptr);
   endResetModel();
 }
 
-QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
+QModelIndex WQtLogMessageModel::GetFirstIndexOfTestSelection()
 {
   if (m_pCurrentTestSelection == nullptr || m_pCurrentTestSelection->m_iFirstOutput == -1)
     return QModelIndex();
 
-  ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
+  WInt32 iEntries = (WInt32)m_VisibleEntries.size();
   for (int i = 0; i < iEntries; ++i)
   {
-    if ((ezInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iFirstOutput)
+    if ((WInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iFirstOutput)
       return index(i, 0);
   }
   return index(rowCount() - 1, 0);
 }
 
-QModelIndex ezQtLogMessageModel::GetLastIndexOfTestSelection()
+QModelIndex WQtLogMessageModel::GetLastIndexOfTestSelection()
 {
   if (m_pCurrentTestSelection == nullptr || m_pCurrentTestSelection->m_iLastOutput == -1)
     return QModelIndex();
 
-  ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
+  WInt32 iEntries = (WInt32)m_VisibleEntries.size();
   for (int i = 0; i < iEntries; ++i)
   {
-    if ((ezInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iLastOutput)
+    if ((WInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iLastOutput)
       return index(i, 0);
   }
   return index(rowCount() - 1, 0);
 }
 
-void ezQtLogMessageModel::currentTestResultChanged(const ezTestResultData* pTestResult)
+void WQtLogMessageModel::currentTestResultChanged(const WTestResultData* pTestResult)
 {
   UpdateVisibleEntries();
   currentTestSelectionChanged(pTestResult);
 }
 
-void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pTestResult)
+void WQtLogMessageModel::currentTestSelectionChanged(const WTestResultData* pTestResult)
 {
   m_pCurrentTestSelection = pTestResult;
   if (m_pCurrentTestSelection != nullptr)
@@ -106,22 +106,22 @@ void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pT
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtLogMessageModel QAbstractItemModel functions
+// WQtLogMessageModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-QVariant ezQtLogMessageModel::data(const QModelIndex& index, int iRole) const
+QVariant WQtLogMessageModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid() || m_pTestResult == nullptr || index.column() != 0)
     return QVariant();
 
-  const ezInt32 iRow = index.row();
-  if (iRow < 0 || iRow >= (ezInt32)m_VisibleEntries.size())
+  const WInt32 iRow = index.row();
+  if (iRow < 0 || iRow >= (WInt32)m_VisibleEntries.size())
     return QVariant();
 
-  const ezUInt32 uiLogIdx = m_VisibleEntries[iRow];
-  const ezUInt8 uiIndention = m_VisibleEntriesIndention[iRow];
-  const ezTestOutputMessage& Message = *m_pTestResult->GetOutputMessage(uiLogIdx);
-  const ezTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : nullptr;
+  const WUInt32 uiLogIdx = m_VisibleEntries[iRow];
+  const WUInt8 uiIndention = m_VisibleEntriesIndention[iRow];
+  const WTestOutputMessage& Message = *m_pTestResult->GetOutputMessage(uiLogIdx);
+  const WTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : nullptr;
   switch (iRole)
   {
     case Qt::DisplayRole:
@@ -146,21 +146,21 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int iRole) const
     {
       switch (Message.m_Type)
       {
-        case ezTestOutput::BeginBlock:
-        case ezTestOutput::Message:
+        case WTestOutput::BeginBlock:
+        case WTestOutput::Message:
           return QColor(Qt::yellow);
-        case ezTestOutput::Error:
+        case WTestOutput::Error:
           return QColor(Qt::red);
-        case ezTestOutput::Success:
+        case WTestOutput::Success:
           return QColor(Qt::green);
-        case ezTestOutput::Warning:
+        case WTestOutput::Warning:
           return QColor(qRgb(255, 100, 0));
-        case ezTestOutput::StartOutput:
-        case ezTestOutput::EndBlock:
-        case ezTestOutput::ImportantInfo:
-        case ezTestOutput::Details:
-        case ezTestOutput::Duration:
-        case ezTestOutput::FinalResult:
+        case WTestOutput::StartOutput:
+        case WTestOutput::EndBlock:
+        case WTestOutput::ImportantInfo:
+        case WTestOutput::Details:
+        case WTestOutput::Duration:
+        case WTestOutput::FinalResult:
           return QVariant();
         default:
           return QVariant();
@@ -171,7 +171,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int iRole) const
       QPalette palette = QApplication::palette();
       if (m_pCurrentTestSelection != nullptr && m_pCurrentTestSelection->m_iFirstOutput != -1)
       {
-        if (m_pCurrentTestSelection->m_iFirstOutput <= (ezInt32)uiLogIdx && (ezInt32)uiLogIdx <= m_pCurrentTestSelection->m_iLastOutput)
+        if (m_pCurrentTestSelection->m_iFirstOutput <= (WInt32)uiLogIdx && (WInt32)uiLogIdx <= m_pCurrentTestSelection->m_iLastOutput)
         {
           return palette.midlight().color();
         }
@@ -184,7 +184,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int iRole) const
   }
 }
 
-Qt::ItemFlags ezQtLogMessageModel::flags(const QModelIndex& index) const
+Qt::ItemFlags WQtLogMessageModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid() || m_pTestResult == nullptr)
     return Qt::ItemFlags();
@@ -192,7 +192,7 @@ Qt::ItemFlags ezQtLogMessageModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant ezQtLogMessageModel::headerData(int iSection, Qt::Orientation orientation, int iRole) const
+QVariant WQtLogMessageModel::headerData(int iSection, Qt::Orientation orientation, int iRole) const
 {
   if (orientation == Qt::Horizontal && iRole == Qt::DisplayRole)
   {
@@ -205,7 +205,7 @@ QVariant ezQtLogMessageModel::headerData(int iSection, Qt::Orientation orientati
   return QVariant();
 }
 
-QModelIndex ezQtLogMessageModel::index(int iRow, int iColumn, const QModelIndex& parent) const
+QModelIndex WQtLogMessageModel::index(int iRow, int iColumn, const QModelIndex& parent) const
 {
   if (parent.isValid() || m_pTestResult == nullptr || iColumn != 0)
     return QModelIndex();
@@ -213,12 +213,12 @@ QModelIndex ezQtLogMessageModel::index(int iRow, int iColumn, const QModelIndex&
   return createIndex(iRow, iColumn, iRow);
 }
 
-QModelIndex ezQtLogMessageModel::parent(const QModelIndex& index) const
+QModelIndex WQtLogMessageModel::parent(const QModelIndex& index) const
 {
   return QModelIndex();
 }
 
-int ezQtLogMessageModel::rowCount(const QModelIndex& parent) const
+int WQtLogMessageModel::rowCount(const QModelIndex& parent) const
 {
   if (parent.isValid() || m_pTestResult == nullptr)
     return 0;
@@ -226,32 +226,32 @@ int ezQtLogMessageModel::rowCount(const QModelIndex& parent) const
   return (int)m_VisibleEntries.size();
 }
 
-int ezQtLogMessageModel::columnCount(const QModelIndex& parent) const
+int WQtLogMessageModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtLogMessageModel private functions
+// WQtLogMessageModel private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtLogMessageModel::UpdateVisibleEntries()
+void WQtLogMessageModel::UpdateVisibleEntries()
 {
   m_VisibleEntries.clear();
   m_VisibleEntriesIndention.clear();
   if (m_pTestResult == nullptr)
     return;
 
-  ezUInt8 uiIndention = 0;
-  ezUInt32 uiEntries = m_pTestResult->GetOutputMessageCount();
+  WUInt8 uiIndention = 0;
+  WUInt32 uiEntries = m_pTestResult->GetOutputMessageCount();
   /// \todo filter out uninteresting messages
-  for (ezUInt32 i = 0; i < uiEntries; ++i)
+  for (WUInt32 i = 0; i < uiEntries; ++i)
   {
-    ezTestOutput::Enum Type = m_pTestResult->GetOutputMessage(i)->m_Type;
-    if (Type == ezTestOutput::BeginBlock)
+    WTestOutput::Enum Type = m_pTestResult->GetOutputMessage(i)->m_Type;
+    if (Type == WTestOutput::BeginBlock)
       uiIndention++;
-    if (Type == ezTestOutput::EndBlock)
+    if (Type == WTestOutput::EndBlock)
       uiIndention--;
 
     m_VisibleEntries.push_back(i);

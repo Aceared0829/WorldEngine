@@ -4,11 +4,11 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-class ezSpotLightVisualizerAdapter : public ezVisualizerAdapter
+class WSpotLightVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezSpotLightVisualizerAdapter();
-  ~ezSpotLightVisualizerAdapter();
+  WSpotLightVisualizerAdapter();
+  ~WSpotLightVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -19,6 +19,6 @@ protected:
   float m_fScale = 1.0f;
   float m_fAngleScale = 1.0f;
   float m_fRadius = 0.0f;
-  ezEngineGizmoHandle m_hGizmo;
-  ezEngineGizmoHandle m_hRadiusGizmo;
+  WEngineGizmoHandle m_hGizmo;
+  WEngineGizmoHandle m_hRadiusGizmo;
 };

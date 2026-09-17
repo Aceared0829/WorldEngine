@@ -2,25 +2,25 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
-class ezVisualScriptPin;
+class WVisualScriptPin;
 
-class ezVisualScriptTypeDeduction
+class WVisualScriptTypeDeduction
 {
 public:
-  static ezVisualScriptDataType::Enum DeductFromNodeDataType(const ezVisualScriptPin& pin);
-  static ezVisualScriptDataType::Enum DeductFromTypeProperty(const ezVisualScriptPin& pin);
-  static ezVisualScriptDataType::Enum DeductFromExpressionInput(const ezVisualScriptPin& pin);
-  static ezVisualScriptDataType::Enum DeductFromExpressionOutput(const ezVisualScriptPin& pin);
+  static WVisualScriptDataType::Enum DeductFromNodeDataType(const WVisualScriptPin& pin);
+  static WVisualScriptDataType::Enum DeductFromTypeProperty(const WVisualScriptPin& pin);
+  static WVisualScriptDataType::Enum DeductFromExpressionInput(const WVisualScriptPin& pin);
+  static WVisualScriptDataType::Enum DeductFromExpressionOutput(const WVisualScriptPin& pin);
 
-  static ezVisualScriptDataType::Enum DeductFromAllInputPins(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
-  static ezVisualScriptDataType::Enum DeductFromVariableNameProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
-  static ezVisualScriptDataType::Enum DeductFromScriptDataTypeProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
-  static ezVisualScriptDataType::Enum DeductFromPropertyProperty(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
-  static ezVisualScriptDataType::Enum DeductDummy(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
+  static WVisualScriptDataType::Enum DeductFromAllInputPins(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
+  static WVisualScriptDataType::Enum DeductFromVariableNameProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
+  static WVisualScriptDataType::Enum DeductFromScriptDataTypeProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
+  static WVisualScriptDataType::Enum DeductFromPropertyProperty(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
+  static WVisualScriptDataType::Enum DeductDummy(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
 
-  static const ezRTTI* GetReflectedType(const ezDocumentObject* pObject);
-  static const ezAbstractProperty* GetReflectedProperty(const ezDocumentObject* pObject);
+  static const WRTTI* GetReflectedType(const WDocumentObject* pObject);
+  static const WAbstractProperty* GetReflectedProperty(const WDocumentObject* pObject);
 
 private:
-  static ezVisualScriptDataType::Enum DeductFromExpressionVariable(const ezVisualScriptPin& pin, ezStringView sPropertyName);
+  static WVisualScriptDataType::Enum DeductFromExpressionVariable(const WVisualScriptPin& pin, WStringView sPropertyName);
 };

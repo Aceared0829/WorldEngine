@@ -5,41 +5,41 @@
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 
-class ezTextureCubeAssetDocument : public ezSimpleAssetDocument<ezTextureCubeAssetProperties>
+class WTextureCubeAssetDocument : public WSimpleAssetDocument<WTextureCubeAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeAssetDocument, ezSimpleAssetDocument<ezTextureCubeAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WTextureCubeAssetDocument, WSimpleAssetDocument<WTextureCubeAssetProperties>);
 
 public:
-  ezTextureCubeAssetDocument(ezStringView sDocumentPath);
+  WTextureCubeAssetDocument(WStringView sDocumentPath);
 
   // for previewing purposes
-  ezEnum<ezTextureChannelMode> m_ChannelMode;
-  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
+  WEnum<WTextureChannelMode> m_ChannelMode;
+  WInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override
   {
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
+  WStatus RunTexConv(const char* szTargetFile, const WAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezTextureCubeAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WTextureCubeAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WTextureCubeAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezTextureCubeAssetDocumentGenerator();
-  ~ezTextureCubeAssetDocumentGenerator();
+  WTextureCubeAssetDocumentGenerator();
+  ~WTextureCubeAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezTextureCubeAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Images"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WTextureCubeAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Images"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

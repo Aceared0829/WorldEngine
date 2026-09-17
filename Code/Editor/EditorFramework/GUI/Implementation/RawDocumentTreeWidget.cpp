@@ -11,31 +11,31 @@
 ///
 /// Handles matching game objects against the search text by checking component type names
 /// and, when the "ref:" keyword is used, whether any component property references a specific asset GUID.
-class ezGameObjectFilter
+class WGameObjectFilter
 {
 public:
-  bool Filter(QModelIndex index, const ezSearchPatternFilter& filter)
+  bool Filter(QModelIndex index, const WSearchPatternFilter& filter)
   {
     if (filter.GetSearchText() != m_sLastFilterText)
     {
       ParseFilter(filter.GetSearchText());
     }
 
-    const ezQtDocumentTreeModel* pModel = qobject_cast<const ezQtDocumentTreeModel*>(index.model());
+    const WQtDocumentTreeModel* pModel = qobject_cast<const WQtDocumentTreeModel*>(index.model());
     if (pModel == nullptr)
       return false;
 
-    const ezDocumentObject* pObj = pModel->GetObject(index);
-    ezObjectAccessorBase* pAcc = pModel->GetDocumentTree()->GetDocument()->GetObjectAccessor();
-    ezVariant comp;
+    const WDocumentObject* pObj = pModel->GetObject(index);
+    WObjectAccessorBase* pAcc = pModel->GetDocumentTree()->GetDocument()->GetObjectAccessor();
+    WVariant comp;
 
-    const ezInt32 iNum = pAcc->GetCountByName(pObj, "Components");
-    for (ezInt32 i = 0; i < iNum; ++i)
+    const WInt32 iNum = pAcc->GetCountByName(pObj, "Components");
+    for (WInt32 i = 0; i < iNum; ++i)
     {
       if (pAcc->GetValueByName(pObj, "Components", comp, i).Failed())
         continue;
 
-      const ezDocumentObject* pCompObj = pAcc->GetObject(comp.Get<ezUuid>());
+      const WDocumentObject* pCompObj = pAcc->GetObject(comp.Get<WUuid>());
 
       if (m_bGuidSearch)
       {
@@ -53,78 +53,78 @@ public:
   }
 
 private:
-  void ParseFilter(const ezString& sText)
+  void ParseFilter(const WString& sText)
   {
     m_sLastFilterText = sText;
     m_bGuidSearch = false;
 
-    const char* szRef = ezStringUtils::FindSubString_NoCase(sText.GetData(), "ref:");
+    const char* szRef = WStringUtils::FindSubString_NoCase(sText.GetData(), "ref:");
     if (szRef != nullptr)
     {
       const char* szGuid = szRef + strlen("ref:");
-      if (ezConversionUtils::IsStringUuid(szGuid))
+      if (WConversionUtils::IsStringUuid(szGuid))
       {
-        m_SearchGuid = ezConversionUtils::ConvertStringToUuid(szGuid);
+        m_SearchGuid = WConversionUtils::ConvertStringToUuid(szGuid);
         m_bGuidSearch = true;
       }
     }
   }
 
-  static bool ComponentReferencesGuid(const ezDocumentObject* pCompObj, const ezUuid& searchGuid)
+  static bool ComponentReferencesGuid(const WDocumentObject* pCompObj, const WUuid& searchGuid)
   {
-    const ezIReflectedTypeAccessor& acc = pCompObj->GetTypeAccessor();
+    const WIReflectedTypeAccessor& acc = pCompObj->GetTypeAccessor();
 
-    ezDynamicArray<const ezAbstractProperty*> properties;
+    WDynamicArray<const WAbstractProperty*> properties;
     acc.GetType()->GetAllProperties(properties);
 
-    for (const ezAbstractProperty* pProp : properties)
+    for (const WAbstractProperty* pProp : properties)
     {
-      if (pProp->GetAttributeByType<ezAssetBrowserAttribute>() == nullptr)
+      if (pProp->GetAttributeByType<WAssetBrowserAttribute>() == nullptr)
         continue;
 
       const auto propVarType = pProp->GetSpecificType()->GetVariantType();
-      if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+      if (propVarType != WVariantType::String && propVarType != WVariantType::StringView)
         continue;
 
       switch (pProp->GetCategory())
       {
-        case ezPropertyCategory::Member:
+        case WPropertyCategory::Member:
         {
-          const ezVariant val = acc.GetValue(pProp->GetPropertyName());
-          if (val.CanConvertTo<ezString>())
+          const WVariant val = acc.GetValue(pProp->GetPropertyName());
+          if (val.CanConvertTo<WString>())
           {
-            const ezString sVal = val.ConvertTo<ezString>();
-            if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+            const WString sVal = val.ConvertTo<WString>();
+            if (WConversionUtils::IsStringUuid(sVal) && WConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
               return true;
           }
           break;
         }
-        case ezPropertyCategory::Array:
+        case WPropertyCategory::Array:
         {
-          const ezInt32 iCount = acc.GetCount(pProp->GetPropertyName());
-          for (ezInt32 i = 0; i < iCount; ++i)
+          const WInt32 iCount = acc.GetCount(pProp->GetPropertyName());
+          for (WInt32 i = 0; i < iCount; ++i)
           {
-            const ezVariant val = acc.GetValue(pProp->GetPropertyName(), i);
-            if (val.CanConvertTo<ezString>())
+            const WVariant val = acc.GetValue(pProp->GetPropertyName(), i);
+            if (val.CanConvertTo<WString>())
             {
-              const ezString sVal = val.ConvertTo<ezString>();
-              if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+              const WString sVal = val.ConvertTo<WString>();
+              if (WConversionUtils::IsStringUuid(sVal) && WConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
                 return true;
             }
           }
           break;
         }
-        case ezPropertyCategory::Map:
+        case WPropertyCategory::Map:
         {
-          ezDynamicArray<ezVariant> keys;
+          WDynamicArray<WVariant> keys;
           acc.GetKeys(pProp->GetPropertyName(), keys);
-          for (const ezVariant& key : keys)
+          for (const WVariant& key : keys)
           {
-            const ezVariant val = acc.GetValue(pProp->GetPropertyName(), key);
-            if (val.CanConvertTo<ezString>())
+            const WVariant val = acc.GetValue(pProp->GetPropertyName(), key);
+            if (val.CanConvertTo<WString>())
             {
-              const ezString sVal = val.ConvertTo<ezString>();
-              if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+              const WString sVal = val.ConvertTo<WString>();
+              if (WConversionUtils::IsStringUuid(sVal) && WConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
                 return true;
             }
           }
@@ -137,26 +137,26 @@ private:
     return false;
   }
 
-  ezString m_sLastFilterText;
+  WString m_sLastFilterText;
   bool m_bGuidSearch = false;
-  ezUuid m_SearchGuid;
+  WUuid m_SearchGuid;
 };
 
-ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent)
-  : ezQtItemView<QTreeView>(pParent)
+WQtDocumentTreeView::WQtDocumentTreeView(QWidget* pParent)
+  : WQtItemView<QTreeView>(pParent)
 {
-  setObjectName("ezQtDocumentTreeView");
+  setObjectName("WQtDocumentTreeView");
 }
 
-ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
-  : ezQtItemView<QTreeView>(pParent)
+WQtDocumentTreeView::WQtDocumentTreeView(QWidget* pParent, WDocument* pDocument, std::unique_ptr<WQtDocumentTreeModel> pModel, WSelectionManager* pSelection)
+  : WQtItemView<QTreeView>(pParent)
 {
-  setObjectName("ezQtDocumentTreeView");
+  setObjectName("WQtDocumentTreeView");
 
   Initialize(pDocument, std::move(pModel), pSelection);
 }
 
-void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
+void WQtDocumentTreeView::Initialize(WDocument* pDocument, std::unique_ptr<WQtDocumentTreeModel> pModel, WSelectionManager* pSelection)
 {
   m_pDocument = pDocument;
   m_pModel = std::move(pModel);
@@ -167,10 +167,10 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
     m_pSelectionManager = m_pDocument->GetSelectionManager();
   }
 
-  m_pGameObjectFilter = std::make_unique<ezGameObjectFilter>();
-  m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
+  m_pGameObjectFilter = std::make_unique<WGameObjectFilter>();
+  m_pFilterModel.reset(new WQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
-  m_pFilterModel->SetCustomFilterFunc(ezMakeDelegate(&ezGameObjectFilter::Filter, m_pGameObjectFilter.get()));
+  m_pFilterModel->SetCustomFilterFunc(WMakeDelegate(&WGameObjectFilter::Filter, m_pGameObjectFilter.get()));
 
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
@@ -183,31 +183,31 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
   setEditTriggers(QAbstractItemView::EditTrigger::EditKeyPressed);
   setUniformRowHeights(true);
 
-  EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+  W_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
               SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr,
     "signal/slot connection failed");
-  m_pSelectionManager->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
+  m_pSelectionManager->m_Events.AddEventHandler(WMakeDelegate(&WQtDocumentTreeView::SelectionEventHandler, this));
 
-  ezSelectionManagerEvent e;
+  WSelectionManagerEvent e;
   e.m_pDocument = m_pDocument;
   e.m_pObject = nullptr;
-  e.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
+  e.m_Type = WSelectionManagerEvent::Type::SelectionSet;
   SelectionEventHandler(e);
 }
 
-ezQtDocumentTreeView::~ezQtDocumentTreeView()
+WQtDocumentTreeView::~WQtDocumentTreeView()
 {
-  m_pSelectionManager->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
+  m_pSelectionManager->m_Events.RemoveEventHandler(WMakeDelegate(&WQtDocumentTreeView::SelectionEventHandler, this));
 }
 
-void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
+void WQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (m_bBlockSelectionSignal)
     return;
 
   QModelIndexList selection = selectionModel()->selectedIndexes();
 
-  ezDeque<const ezDocumentObject*> sel;
+  WDeque<const WDocumentObject*> sel;
 
   foreach (QModelIndex index, selection)
   {
@@ -216,19 +216,19 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
       index = m_pFilterModel->mapToSource(index);
 
       if (index.isValid())
-        sel.PushBack((const ezDocumentObject*)index.internalPointer());
+        sel.PushBack((const WDocumentObject*)index.internalPointer());
     }
   }
 
   // TODO const cast
-  ((ezSelectionManager*)m_pSelectionManager)->SetSelection(sel);
+  ((WSelectionManager*)m_pSelectionManager)->SetSelection(sel);
 }
 
-void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtDocumentTreeView::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezSelectionManagerEvent::Type::SelectionCleared:
+    case WSelectionManagerEvent::Type::SelectionCleared:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
@@ -237,15 +237,15 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
     }
     break;
 
-    case ezSelectionManagerEvent::Type::SelectionSet:
-    case ezSelectionManagerEvent::Type::ObjectAdded:
-    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case WSelectionManagerEvent::Type::SelectionSet:
+    case WSelectionManagerEvent::Type::ObjectAdded:
+    case WSelectionManagerEvent::Type::ObjectRemoved:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
       QItemSelection selection;
       QModelIndex currentIndex;
-      for (const ezDocumentObject* pObject : m_pSelectionManager->GetSelection())
+      for (const WDocumentObject* pObject : m_pSelectionManager->GetSelection())
       {
         currentIndex = m_pModel->ComputeModelIndex(pObject);
         currentIndex = m_pFilterModel->mapFromSource(currentIndex);
@@ -263,19 +263,19 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
     }
     break;
 
-    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+    case WSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
       // ignore
       break;
   }
 }
 
-void ezQtDocumentTreeView::EnsureLastSelectedItemVisible()
+void WQtDocumentTreeView::EnsureLastSelectedItemVisible()
 {
   if (m_pSelectionManager->GetSelection().IsEmpty())
     return;
 
-  const ezDocumentObject* pObject = m_pSelectionManager->GetSelection().PeekBack();
-  EZ_ASSERT_DEBUG(m_pModel->GetDocumentTree()->GetDocument() == pObject->GetDocumentObjectManager()->GetDocument(), "Selection is from a different document.");
+  const WDocumentObject* pObject = m_pSelectionManager->GetSelection().PeekBack();
+  W_ASSERT_DEBUG(m_pModel->GetDocumentTree()->GetDocument() == pObject->GetDocumentObjectManager()->GetDocument(), "Selection is from a different document.");
 
   auto index = m_pModel->ComputeModelIndex(pObject);
   index = m_pFilterModel->mapFromSource(index);
@@ -284,22 +284,22 @@ void ezQtDocumentTreeView::EnsureLastSelectedItemVisible()
     scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
-void ezQtDocumentTreeView::SetAllowDragDrop(bool bAllow)
+void WQtDocumentTreeView::SetAllowDragDrop(bool bAllow)
 {
   m_pModel->SetAllowDragDrop(bAllow);
 }
 
-void ezQtDocumentTreeView::SetAllowDeleteObjects(bool bAllow)
+void WQtDocumentTreeView::SetAllowDeleteObjects(bool bAllow)
 {
   m_bAllowDeleteObjects = bAllow;
 }
 
-bool ezQtDocumentTreeView::event(QEvent* pEvent)
+bool WQtDocumentTreeView::event(QEvent* pEvent)
 {
   if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
+    if (WQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
 
     if (pEvent->type() == QEvent::KeyPress && keyEvent == QKeySequence::Delete)

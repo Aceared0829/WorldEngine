@@ -4,50 +4,50 @@
 #include <ProcGenPlugin/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBinaryOperator, 1)
-  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Add, ezProcGenBinaryOperator::Subtract, ezProcGenBinaryOperator::Multiply, ezProcGenBinaryOperator::Divide)
-  EZ_ENUM_CONSTANTS(ezProcGenBinaryOperator::Max, ezProcGenBinaryOperator::Min)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcGenBinaryOperator, 1)
+  W_ENUM_CONSTANTS(WProcGenBinaryOperator::Add, WProcGenBinaryOperator::Subtract, WProcGenBinaryOperator::Multiply, WProcGenBinaryOperator::Divide)
+  W_ENUM_CONSTANTS(WProcGenBinaryOperator::Max, WProcGenBinaryOperator::Min)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBlendMode, 1)
-  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
-  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)
-  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Set)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcGenBlendMode, 1)
+  W_ENUM_CONSTANTS(WProcGenBlendMode::Add, WProcGenBlendMode::Subtract, WProcGenBlendMode::Multiply, WProcGenBlendMode::Divide)
+  W_ENUM_CONSTANTS(WProcGenBlendMode::Max, WProcGenBlendMode::Min)
+  W_ENUM_CONSTANTS(WProcGenBlendMode::Set)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcVertexColorChannelMapping, 1)
-  EZ_ENUM_CONSTANTS(ezProcVertexColorChannelMapping::R, ezProcVertexColorChannelMapping::G, ezProcVertexColorChannelMapping::B, ezProcVertexColorChannelMapping::A)
-  EZ_ENUM_CONSTANTS(ezProcVertexColorChannelMapping::Black, ezProcVertexColorChannelMapping::White)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcVertexColorChannelMapping, 1)
+  W_ENUM_CONSTANTS(WProcVertexColorChannelMapping::R, WProcVertexColorChannelMapping::G, WProcVertexColorChannelMapping::B, WProcVertexColorChannelMapping::A)
+  W_ENUM_CONSTANTS(WProcVertexColorChannelMapping::Black, WProcVertexColorChannelMapping::White)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorMapping, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcVertexColorMapping>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WProcVertexColorMapping, WNoBase, 1, WRTTIDefaultAllocator<WProcVertexColorMapping>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("R", ezProcVertexColorChannelMapping, m_R)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::R)),
-    EZ_ENUM_MEMBER_PROPERTY("G", ezProcVertexColorChannelMapping, m_G)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::G)),
-    EZ_ENUM_MEMBER_PROPERTY("B", ezProcVertexColorChannelMapping, m_B)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::B)),
-    EZ_ENUM_MEMBER_PROPERTY("A", ezProcVertexColorChannelMapping, m_A)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::A)),
+    W_ENUM_MEMBER_PROPERTY("R", WProcVertexColorChannelMapping, m_R)->AddAttributes(new WDefaultValueAttribute(WProcVertexColorChannelMapping::R)),
+    W_ENUM_MEMBER_PROPERTY("G", WProcVertexColorChannelMapping, m_G)->AddAttributes(new WDefaultValueAttribute(WProcVertexColorChannelMapping::G)),
+    W_ENUM_MEMBER_PROPERTY("B", WProcVertexColorChannelMapping, m_B)->AddAttributes(new WDefaultValueAttribute(WProcVertexColorChannelMapping::B)),
+    W_ENUM_MEMBER_PROPERTY("A", WProcVertexColorChannelMapping, m_A)->AddAttributes(new WDefaultValueAttribute(WProcVertexColorChannelMapping::A)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcPlacementMode, 1)
-  EZ_ENUM_CONSTANTS(ezProcPlacementMode::Raycast, ezProcPlacementMode::RaycastHighQuality, ezProcPlacementMode::Fixed)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcPlacementMode, 1)
+  W_ENUM_CONSTANTS(WProcPlacementMode::Raycast, WProcPlacementMode::RaycastHighQuality, WProcPlacementMode::Fixed)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcPlacementPattern, 1)
-  EZ_ENUM_CONSTANTS(ezProcPlacementPattern::RegularGrid, ezProcPlacementPattern::HexGrid, ezProcPlacementPattern::Natural)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcPlacementPattern, 1)
+  W_ENUM_CONSTANTS(WProcPlacementPattern::RegularGrid, WProcPlacementPattern::HexGrid, WProcPlacementPattern::Natural)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcVolumeImageMode, 1)
-  EZ_ENUM_CONSTANTS(ezProcVolumeImageMode::ReferenceColor, ezProcVolumeImageMode::ChannelR, ezProcVolumeImageMode::ChannelG, ezProcVolumeImageMode::ChannelB, ezProcVolumeImageMode::ChannelA)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WProcVolumeImageMode, 1)
+  W_ENUM_CONSTANTS(WProcVolumeImageMode::ReferenceColor, WProcVolumeImageMode::ChannelR, WProcVolumeImageMode::ChannelG, WProcVolumeImageMode::ChannelB, WProcVolumeImageMode::ChannelA)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-static ezTypeVersion s_ProcVertexColorMappingVersion = 1;
-ezResult ezProcVertexColorMapping::Serialize(ezStreamWriter& inout_stream) const
+static WTypeVersion s_ProcVertexColorMappingVersion = 1;
+WResult WProcVertexColorMapping::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(s_ProcVertexColorMappingVersion);
   inout_stream << m_R;
@@ -55,51 +55,51 @@ ezResult ezProcVertexColorMapping::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << m_B;
   inout_stream << m_A;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& inout_stream)
+WResult WProcVertexColorMapping::Deserialize(WStreamReader& inout_stream)
 {
-  /*ezTypeVersion version =*/inout_stream.ReadVersion(s_ProcVertexColorMappingVersion);
+  /*WTypeVersion version =*/inout_stream.ReadVersion(s_ProcVertexColorMappingVersion);
   inout_stream >> m_R;
   inout_stream >> m_G;
   inout_stream >> m_B;
   inout_stream >> m_A;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   GraphSharedDataBase::~GraphSharedDataBase() = default;
   Output::~Output() = default;
 
-  ezHashedString ExpressionInputs::s_sPosition = ezMakeHashedString("position");
-  ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("position.x");
-  ezHashedString ExpressionInputs::s_sPositionY = ezMakeHashedString("position.y");
-  ezHashedString ExpressionInputs::s_sPositionZ = ezMakeHashedString("position.z");
-  ezHashedString ExpressionInputs::s_sNormal = ezMakeHashedString("normal");
-  ezHashedString ExpressionInputs::s_sNormalX = ezMakeHashedString("normal.x");
-  ezHashedString ExpressionInputs::s_sNormalY = ezMakeHashedString("normal.y");
-  ezHashedString ExpressionInputs::s_sNormalZ = ezMakeHashedString("normal.z");
-  ezHashedString ExpressionInputs::s_sColor = ezMakeHashedString("color");
-  ezHashedString ExpressionInputs::s_sColorR = ezMakeHashedString("color.x");
-  ezHashedString ExpressionInputs::s_sColorG = ezMakeHashedString("color.y");
-  ezHashedString ExpressionInputs::s_sColorB = ezMakeHashedString("color.z");
-  ezHashedString ExpressionInputs::s_sColorA = ezMakeHashedString("color.w");
-  ezHashedString ExpressionInputs::s_sPointIndex = ezMakeHashedString("pointIndex");
+  WHashedString ExpressionInputs::s_sPosition = WMakeHashedString("position");
+  WHashedString ExpressionInputs::s_sPositionX = WMakeHashedString("position.x");
+  WHashedString ExpressionInputs::s_sPositionY = WMakeHashedString("position.y");
+  WHashedString ExpressionInputs::s_sPositionZ = WMakeHashedString("position.z");
+  WHashedString ExpressionInputs::s_sNormal = WMakeHashedString("normal");
+  WHashedString ExpressionInputs::s_sNormalX = WMakeHashedString("normal.x");
+  WHashedString ExpressionInputs::s_sNormalY = WMakeHashedString("normal.y");
+  WHashedString ExpressionInputs::s_sNormalZ = WMakeHashedString("normal.z");
+  WHashedString ExpressionInputs::s_sColor = WMakeHashedString("color");
+  WHashedString ExpressionInputs::s_sColorR = WMakeHashedString("color.x");
+  WHashedString ExpressionInputs::s_sColorG = WMakeHashedString("color.y");
+  WHashedString ExpressionInputs::s_sColorB = WMakeHashedString("color.z");
+  WHashedString ExpressionInputs::s_sColorA = WMakeHashedString("color.w");
+  WHashedString ExpressionInputs::s_sPointIndex = WMakeHashedString("pointIndex");
 
-  ezHashedString ExpressionOutputs::s_sOutDensity = ezMakeHashedString("outDensity");
-  ezHashedString ExpressionOutputs::s_sOutScale = ezMakeHashedString("outScale");
-  ezHashedString ExpressionOutputs::s_sOutColorIndex = ezMakeHashedString("outColorIndex");
-  ezHashedString ExpressionOutputs::s_sOutObjectIndex = ezMakeHashedString("outObjectIndex");
+  WHashedString ExpressionOutputs::s_sOutDensity = WMakeHashedString("outDensity");
+  WHashedString ExpressionOutputs::s_sOutScale = WMakeHashedString("outScale");
+  WHashedString ExpressionOutputs::s_sOutColorIndex = WMakeHashedString("outColorIndex");
+  WHashedString ExpressionOutputs::s_sOutObjectIndex = WMakeHashedString("outObjectIndex");
 
-  ezHashedString ExpressionOutputs::s_sOutColor = ezMakeHashedString("outColor");
-  ezHashedString ExpressionOutputs::s_sOutColorR = ezMakeHashedString("outColor.x");
-  ezHashedString ExpressionOutputs::s_sOutColorG = ezMakeHashedString("outColor.y");
-  ezHashedString ExpressionOutputs::s_sOutColorB = ezMakeHashedString("outColor.z");
-  ezHashedString ExpressionOutputs::s_sOutColorA = ezMakeHashedString("outColor.w");
-} // namespace ezProcGenInternal
+  WHashedString ExpressionOutputs::s_sOutColor = WMakeHashedString("outColor");
+  WHashedString ExpressionOutputs::s_sOutColorR = WMakeHashedString("outColor.x");
+  WHashedString ExpressionOutputs::s_sOutColorG = WMakeHashedString("outColor.y");
+  WHashedString ExpressionOutputs::s_sOutColorB = WMakeHashedString("outColor.z");
+  WHashedString ExpressionOutputs::s_sOutColorA = WMakeHashedString("outColor.w");
+} // namespace WProcGenInternal
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Declarations);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Declarations);

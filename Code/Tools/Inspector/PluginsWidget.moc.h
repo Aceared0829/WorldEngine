@@ -6,15 +6,15 @@
 #include <Inspector/ui_PluginsWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtPluginsWidget : public ads::CDockWidget, public Ui_PluginsWidget
+class WQtPluginsWidget : public ads::CDockWidget, public Ui_PluginsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtPluginsWidget* s_pWidget;
+  static WQtPluginsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -28,9 +28,9 @@ private:
   struct PluginsData
   {
     bool m_bReloadable;
-    ezString m_sDependencies;
+    WString m_sDependencies;
   };
 
   bool m_bUpdatePlugins;
-  ezMap<ezString, PluginsData> m_Plugins;
+  WMap<WString, PluginsData> m_Plugins;
 };

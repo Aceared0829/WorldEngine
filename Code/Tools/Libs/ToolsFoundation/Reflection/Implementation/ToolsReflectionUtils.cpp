@@ -16,7 +16,7 @@ namespace
 {
   struct GetDoubleFunc
   {
-    GetDoubleFunc(const ezVariant& value)
+    GetDoubleFunc(const WVariant& value)
       : m_Value(value)
     {
     }
@@ -30,28 +30,28 @@ namespace
       }
     }
 
-    const ezVariant& m_Value;
+    const WVariant& m_Value;
     double m_fValue = 0;
     bool m_bValid = false;
   };
 
   template <>
-  void GetDoubleFunc::operator()<ezAngle>()
+  void GetDoubleFunc::operator()<WAngle>()
   {
-    m_fValue = m_Value.Get<ezAngle>().GetDegree();
+    m_fValue = m_Value.Get<WAngle>().GetDegree();
     m_bValid = true;
   }
 
   template <>
-  void GetDoubleFunc::operator()<ezTime>()
+  void GetDoubleFunc::operator()<WTime>()
   {
-    m_fValue = m_Value.Get<ezTime>().GetSeconds();
+    m_fValue = m_Value.Get<WTime>().GetSeconds();
     m_bValid = true;
   }
 
   struct GetVariantFunc
   {
-    GetVariantFunc(double fValue, ezVariantType::Enum type, ezVariant& out_value)
+    GetVariantFunc(double fValue, WVariantType::Enum type, WVariant& out_value)
       : m_fValue(fValue)
       , m_Type(type)
       , m_Value(out_value)
@@ -68,59 +68,59 @@ namespace
       }
       else
       {
-        m_Value = ezVariant();
+        m_Value = WVariant();
       }
     }
 
     double m_fValue;
-    ezVariantType::Enum m_Type;
-    ezVariant& m_Value;
+    WVariantType::Enum m_Type;
+    WVariant& m_Value;
     bool m_bValid = false;
   };
 
   template <>
-  void GetVariantFunc::operator()<ezAngle>()
+  void GetVariantFunc::operator()<WAngle>()
   {
-    m_Value = ezAngle::MakeFromDegree((float)m_fValue);
+    m_Value = WAngle::MakeFromDegree((float)m_fValue);
     m_bValid = true;
   }
 
   template <>
-  void GetVariantFunc::operator()<ezTime>()
+  void GetVariantFunc::operator()<WTime>()
   {
-    m_Value = ezTime::MakeFromSeconds(m_fValue);
+    m_Value = WTime::MakeFromSeconds(m_fValue);
     m_bValid = true;
   }
 } // namespace
 ////////////////////////////////////////////////////////////////////////
-// ezToolsReflectionUtils public functions
+// WToolsReflectionUtils public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezVariantType::Enum ezToolsReflectionUtils::GetStorageType(const ezAbstractProperty* pProperty)
+WVariantType::Enum WToolsReflectionUtils::GetStorageType(const WAbstractProperty* pProperty)
 {
-  ezVariantType::Enum type = ezVariantType::Uuid;
+  WVariantType::Enum type = WVariantType::Uuid;
 
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProperty);
 
   switch (pProperty->GetCategory())
   {
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
     {
       if (bIsValueType)
         type = pProperty->GetSpecificType()->GetVariantType();
-      else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-        type = ezVariantType::Int64;
+      else if (pProperty->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags))
+        type = WVariantType::Int64;
     }
     break;
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Array:
+    case WPropertyCategory::Set:
     {
-      type = ezVariantType::VariantArray;
+      type = WVariantType::VariantArray;
     }
     break;
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
     {
-      type = ezVariantType::VariantDictionary;
+      type = WVariantType::VariantDictionary;
     }
     break;
     default:
@@ -128,68 +128,68 @@ ezVariantType::Enum ezToolsReflectionUtils::GetStorageType(const ezAbstractPrope
   }
 
   // We can't 'store' a string view as it has no ownership of its own. Thus, all string views are stored as strings instead.
-  if (type == ezVariantType::StringView)
-    type = ezVariantType::String;
+  if (type == WVariantType::StringView)
+    type = WVariantType::String;
 
   return type;
 }
 
-ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
+WVariant WToolsReflectionUtils::GetStorageDefault(const WAbstractProperty* pProperty)
 {
-  const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+  const WDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<WDefaultValueAttribute>();
+  const bool bIsValueType = WReflectionUtils::IsValueType(pProperty);
 
   switch (pProperty->GetCategory())
   {
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
     {
-      const ezVariantType::Enum memberType = GetStorageType(pProperty);
-      ezVariant value = ezReflectionUtils::GetDefaultValue(pProperty);
-      // Sometimes, the default value does not match the storage type, e.g. ezStringView is stored as ezString as it needs to be stored in the editor representation, but the reflection can still return default values matching ezStringView (constants for example).
+      const WVariantType::Enum memberType = GetStorageType(pProperty);
+      WVariant value = WReflectionUtils::GetDefaultValue(pProperty);
+      // Sometimes, the default value does not match the storage type, e.g. WStringView is stored as WString as it needs to be stored in the editor representation, but the reflection can still return default values matching WStringView (constants for example).
       if (bIsValueType && value.GetType() != memberType)
         value = value.ConvertTo(memberType);
 
-      EZ_ASSERT_DEBUG(!value.IsValid() || memberType == value.GetType(), "Default value type does not match the storage type of the property");
+      W_ASSERT_DEBUG(!value.IsValid() || memberType == value.GetType(), "Default value type does not match the storage type of the property");
       return value;
     }
     break;
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Array:
+    case WPropertyCategory::Set:
     {
-      if (bIsValueType && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
+      if (bIsValueType && pAttrib && pAttrib->GetValue().IsA<WVariantArray>())
       {
-        auto elementType = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+        auto elementType = pProperty->GetFlags().IsSet(WPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : WVariantType::Uuid;
 
-        const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
-        ezVariantArray ret;
+        const WVariantArray& value = pAttrib->GetValue().Get<WVariantArray>();
+        WVariantArray ret;
         ret.SetCount(value.GetCount());
-        for (ezUInt32 i = 0; i < value.GetCount(); i++)
+        for (WUInt32 i = 0; i < value.GetCount(); i++)
         {
           ret[i] = value[i].ConvertTo(elementType);
         }
         return ret;
       }
-      return ezVariantArray();
+      return WVariantArray();
     }
     break;
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
     {
-      return ezVariantDictionary();
+      return WVariantDictionary();
     }
     break;
-    case ezPropertyCategory::Constant:
-    case ezPropertyCategory::Function:
+    case WPropertyCategory::Constant:
+    case WPropertyCategory::Function:
       break; // no defaults
   }
-  return ezVariant();
+  return WVariant();
 }
 
-bool ezToolsReflectionUtils::GetFloatFromVariant(const ezVariant& val, double& out_fValue)
+bool WToolsReflectionUtils::GetFloatFromVariant(const WVariant& val, double& out_fValue)
 {
   if (val.IsValid())
   {
     GetDoubleFunc func(val);
-    ezVariant::DispatchTo(func, val.GetType());
+    WVariant::DispatchTo(func, val.GetType());
     out_fValue = func.m_fValue;
     return func.m_bValid;
   }
@@ -197,58 +197,58 @@ bool ezToolsReflectionUtils::GetFloatFromVariant(const ezVariant& val, double& o
 }
 
 
-bool ezToolsReflectionUtils::GetVariantFromFloat(double fValue, ezVariantType::Enum type, ezVariant& out_val)
+bool WToolsReflectionUtils::GetVariantFromFloat(double fValue, WVariantType::Enum type, WVariant& out_val)
 {
   GetVariantFunc func(fValue, type, out_val);
-  ezVariant::DispatchTo(func, type);
+  WVariant::DispatchTo(func, type);
 
   return func.m_bValid;
 }
 
-void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
+void WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const WRTTI* pRtti, WReflectedTypeDescriptor& out_desc)
 {
   GetMinimalReflectedTypeDescriptorFromRtti(pRtti, out_desc);
-  out_desc.m_Flags.Remove(ezTypeFlags::Minimal);
+  out_desc.m_Flags.Remove(WTypeFlags::Minimal);
 
   auto rttiProps = pRtti->GetProperties();
-  const ezUInt32 uiCount = rttiProps.GetCount();
+  const WUInt32 uiCount = rttiProps.GetCount();
   out_desc.m_Properties.Reserve(uiCount);
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  for (WUInt32 i = 0; i < uiCount; ++i)
   {
-    const ezAbstractProperty* prop = rttiProps[i];
+    const WAbstractProperty* prop = rttiProps[i];
 
     switch (prop->GetCategory())
     {
-      case ezPropertyCategory::Constant:
+      case WPropertyCategory::Constant:
       {
-        auto constantProp = static_cast<const ezAbstractConstantProperty*>(prop);
-        const ezRTTI* pPropRtti = constantProp->GetSpecificType();
-        if (ezReflectionUtils::IsBasicType(pPropRtti))
+        auto constantProp = static_cast<const WAbstractConstantProperty*>(prop);
+        const WRTTI* pPropRtti = constantProp->GetSpecificType();
+        if (WReflectionUtils::IsBasicType(pPropRtti))
         {
-          ezVariant value = constantProp->GetConstant();
-          EZ_ASSERT_DEV(pPropRtti->GetVariantType() == value.GetType(), "Variant value type and property type should always match!");
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), value, prop->GetAttributes()));
+          WVariant value = constantProp->GetConstant();
+          W_ASSERT_DEV(pPropRtti->GetVariantType() == value.GetType(), "Variant value type and property type should always match!");
+          out_desc.m_Properties.PushBack(WReflectedPropertyDescriptor(constantProp->GetPropertyName(), value, prop->GetAttributes()));
         }
         else
         {
-          EZ_ASSERT_DEV(false, "Non-pod constants are not supported yet!");
+          W_ASSERT_DEV(false, "Non-pod constants are not supported yet!");
         }
       }
       break;
 
-      case ezPropertyCategory::Member:
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Member:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        const ezRTTI* pPropRtti = prop->GetSpecificType();
-        ezBitflags<ezPropertyFlags> flags = prop->GetFlags();
-        flags.Remove(ezPropertyFlags::Phantom);
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), flags, prop->GetAttributes()));
+        const WRTTI* pPropRtti = prop->GetSpecificType();
+        WBitflags<WPropertyFlags> flags = prop->GetFlags();
+        flags.Remove(WPropertyFlags::Phantom);
+        out_desc.m_Properties.PushBack(WReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), flags, prop->GetAttributes()));
       }
       break;
 
-      case ezPropertyCategory::Function:
+      case WPropertyCategory::Function:
         break;
 
       default:
@@ -257,22 +257,22 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   }
 
   auto rttiFunc = pRtti->GetFunctions();
-  const ezUInt32 uiFuncCount = rttiFunc.GetCount();
+  const WUInt32 uiFuncCount = rttiFunc.GetCount();
   out_desc.m_Functions.Reserve(uiFuncCount);
 
-  for (ezUInt32 i = 0; i < uiFuncCount; ++i)
+  for (WUInt32 i = 0; i < uiFuncCount; ++i)
   {
-    const ezAbstractFunctionProperty* prop = rttiFunc[i];
-    ezBitflags<ezPropertyFlags> funcFlags = prop->GetFlags();
-    funcFlags.Remove(ezPropertyFlags::Phantom);
-    out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), funcFlags, prop->GetFunctionType(), prop->GetAttributes()));
-    ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
-    desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
-    const ezUInt32 uiArguments = prop->GetArgumentCount();
+    const WAbstractFunctionProperty* prop = rttiFunc[i];
+    WBitflags<WPropertyFlags> funcFlags = prop->GetFlags();
+    funcFlags.Remove(WPropertyFlags::Phantom);
+    out_desc.m_Functions.PushBack(WReflectedFunctionDescriptor(prop->GetPropertyName(), funcFlags, prop->GetFunctionType(), prop->GetAttributes()));
+    WReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
+    desc.m_ReturnValue = WFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
+    const WUInt32 uiArguments = prop->GetArgumentCount();
     desc.m_Arguments.Reserve(uiArguments);
-    for (ezUInt32 a = 0; a < uiArguments; ++a)
+    for (WUInt32 a = 0; a < uiArguments; ++a)
     {
-      desc.m_Arguments.PushBack(ezFunctionArgumentDescriptor(prop->GetArgumentType(a)->GetTypeName(), prop->GetArgumentFlags(a)));
+      desc.m_Arguments.PushBack(WFunctionArgumentDescriptor(prop->GetArgumentType(a)->GetTypeName(), prop->GetArgumentFlags(a)));
     }
   }
 
@@ -280,66 +280,66 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
 }
 
 
-void ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
+void WToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(const WRTTI* pRtti, WReflectedTypeDescriptor& out_desc)
 {
-  EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
+  W_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
-  out_desc.m_Flags = pRtti->GetTypeFlags() | ezTypeFlags::Minimal;
+  out_desc.m_Flags = pRtti->GetTypeFlags() | WTypeFlags::Minimal;
   // Phantom describes how a type is represented in the current process, not the type itself: it is added by
-  // ezPhantomRTTI and the ezPhantom*Property classes when a descriptor is registered, so it must not travel
+  // WPhantomRTTI and the WPhantom*Property classes when a descriptor is registered, so it must not travel
   // with the descriptor (it would be written into every document that references a phantom type).
-  out_desc.m_Flags.Remove(ezTypeFlags::Phantom);
+  out_desc.m_Flags.Remove(WTypeFlags::Phantom);
   out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
-  const ezRTTI* pParentRtti = pRtti->GetParentType();
+  const WRTTI* pParentRtti = pRtti->GetParentType();
   out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;
 
   out_desc.m_Properties.Clear();
   out_desc.m_Functions.Clear();
   out_desc.m_Attributes.Clear();
-  out_desc.m_ReferenceAttributes = ezArrayPtr<ezPropertyAttribute* const>();
+  out_desc.m_ReferenceAttributes = WArrayPtr<WPropertyAttribute* const>();
 }
 
-static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
+static void GatherObjectTypesInternal(const WDocumentObject* pObject, WSet<const WRTTI*>& inout_types)
 {
   inout_types.Insert(pObject->GetTypeAccessor().GetType());
-  ezReflectionUtils::GatherDependentTypes(pObject->GetTypeAccessor().GetType(), inout_types);
+  WReflectionUtils::GatherDependentTypes(pObject->GetTypeAccessor().GetType(), inout_types);
 
-  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  for (const WDocumentObject* pChild : pObject->GetChildren())
   {
-    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     GatherObjectTypesInternal(pChild, inout_types);
   }
 }
 
-void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
+void WToolsReflectionUtils::GatherObjectTypes(const WDocumentObject* pObject, WSet<const WRTTI*>& inout_types)
 {
   GatherObjectTypesInternal(pObject, inout_types);
 }
 
-bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& ref_descriptors)
+bool WToolsReflectionUtils::DependencySortTypeDescriptorArray(WDynamicArray<WReflectedTypeDescriptor*>& ref_descriptors)
 {
-  ezMap<ezReflectedTypeDescriptor*, ezSet<ezString>> dependencies;
+  WMap<WReflectedTypeDescriptor*, WSet<WString>> dependencies;
 
-  ezSet<ezString> typesInArray;
+  WSet<WString> typesInArray;
   // Gather all types in array
-  for (ezReflectedTypeDescriptor* desc : ref_descriptors)
+  for (WReflectedTypeDescriptor* desc : ref_descriptors)
   {
     typesInArray.Insert(desc->m_sTypeName);
   }
 
   // Find all direct dependencies to types in the array for each type.
-  for (ezReflectedTypeDescriptor* desc : ref_descriptors)
+  for (WReflectedTypeDescriptor* desc : ref_descriptors)
   {
-    auto it = dependencies.Insert(desc, ezSet<ezString>());
+    auto it = dependencies.Insert(desc, WSet<WString>());
 
     if (typesInArray.Contains(desc->m_sParentTypeName))
     {
       it.Value().Insert(desc->m_sParentTypeName);
     }
-    for (ezReflectedPropertyDescriptor& propDesc : desc->m_Properties)
+    for (WReflectedPropertyDescriptor& propDesc : desc->m_Properties)
     {
       if (typesInArray.Contains(propDesc.m_sType))
       {
@@ -348,14 +348,14 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
     }
   }
 
-  ezSet<ezString> accu;
-  ezDynamicArray<ezReflectedTypeDescriptor*> sorted;
+  WSet<WString> accu;
+  WDynamicArray<WReflectedTypeDescriptor*> sorted;
   sorted.Reserve(ref_descriptors.GetCount());
   // Build new sorted types array.
   while (!ref_descriptors.IsEmpty())
   {
     bool bDeadEnd = true;
-    for (ezReflectedTypeDescriptor* desc : ref_descriptors)
+    for (WReflectedTypeDescriptor* desc : ref_descriptors)
     {
       // Are the types dependencies met?
       if (accu.ContainsSet(dependencies[desc]))

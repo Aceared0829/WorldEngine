@@ -4,112 +4,112 @@
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVariantSubAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVariantSubAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVariantSubAccessor::ezVariantSubAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pProp)
-  : ezObjectProxyAccessor(pSource)
+WVariantSubAccessor::WVariantSubAccessor(WObjectAccessorBase* pSource, const WAbstractProperty* pProp)
+  : WObjectProxyAccessor(pSource)
   , m_pProp(pProp)
 {
 }
 
-void ezVariantSubAccessor::SetSubItems(const ezMap<const ezDocumentObject*, ezVariant>& subItemMap)
+void WVariantSubAccessor::SetSubItems(const WMap<const WDocumentObject*, WVariant>& subItemMap)
 {
   m_SubItemMap = subItemMap;
 }
 
-ezInt32 ezVariantSubAccessor::GetDepth() const
+WInt32 WVariantSubAccessor::GetDepth() const
 {
-  if (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(GetSourceAccessor()))
+  if (auto variantSubAccessor = WDynamicCast<WVariantSubAccessor*>(GetSourceAccessor()))
   {
     return variantSubAccessor->GetDepth() + 1;
   }
   return 1;
 }
 
-ezResult ezVariantSubAccessor::GetPath(const ezDocumentObject* pObject, ezDynamicArray<ezVariant>& out_path) const
+WResult WVariantSubAccessor::GetPath(const WDocumentObject* pObject, WDynamicArray<WVariant>& out_path) const
 {
   out_path.Clear();
-  if (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(GetSourceAccessor()))
+  if (auto variantSubAccessor = WDynamicCast<WVariantSubAccessor*>(GetSourceAccessor()))
   {
-    EZ_SUCCEED_OR_RETURN(variantSubAccessor->GetPath(pObject, out_path));
+    W_SUCCEED_OR_RETURN(variantSubAccessor->GetPath(pObject, out_path));
   }
-  ezVariant subItem;
+  WVariant subItem;
   if (!m_SubItemMap.TryGetValue(pObject, subItem))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_path.PushBack(subItem);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezVariantSubAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)
+WStatus WVariantSubAccessor::GetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index)
 {
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, out_value));
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, out_value));
 
-  ezStatus result(EZ_SUCCESS);
-  out_value = ezVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(index, &result);
+  WStatus result(W_SUCCESS);
+  out_value = WVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(index, &result);
   return result;
 }
 
-ezStatus ezVariantSubAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WVariantSubAccessor::SetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).SetValue(newValue, index); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).SetValue(newValue, index); });
 }
 
-ezStatus ezVariantSubAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WVariantSubAccessor::InsertValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).InsertValue(index, newValue); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).InsertValue(index, newValue); });
 }
 
-ezStatus ezVariantSubAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WVariantSubAccessor::RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).RemoveValue(index); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).RemoveValue(index); });
 }
 
-ezStatus ezVariantSubAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WVariantSubAccessor::MoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).MoveValue(oldIndex, newIndex); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).MoveValue(oldIndex, newIndex); });
 }
 
-ezStatus ezVariantSubAccessor::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount)
+WStatus WVariantSubAccessor::GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  out_iCount = ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetCount();
-  return EZ_SUCCESS;
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  out_iCount = WVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetCount();
+  return W_SUCCESS;
 }
 
-ezStatus ezVariantSubAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
+WStatus WVariantSubAccessor::GetKeys(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetKeys(out_keys);
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetKeys(out_keys);
 }
 
-ezStatus ezVariantSubAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
+WStatus WVariantSubAccessor::GetValues(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  ezTempHybridArray<ezVariant, 16> keys;
-  ezVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
-  EZ_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  WTempHybridArray<WVariant, 16> keys;
+  WVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
+  W_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
   out_values.Clear();
   out_values.Reserve(keys.GetCount());
-  for (const ezVariant& key : keys)
+  for (const WVariant& key : keys)
   {
     out_values.PushBack(accessor.GetValue(key));
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezObjectAccessorBase* ezVariantSubAccessor::ResolveProxy(const ezDocumentObject*& ref_pObject, const ezRTTI*& ref_pType, const ezAbstractProperty*& ref_pProp, ezDynamicArray<ezVariant>& ref_indices)
+WObjectAccessorBase* WVariantSubAccessor::ResolveProxy(const WDocumentObject*& ref_pObject, const WRTTI*& ref_pType, const WAbstractProperty*& ref_pProp, WDynamicArray<WVariant>& ref_indices)
 {
-  ezVariant subItem;
+  WVariant subItem;
   if (m_SubItemMap.TryGetValue(ref_pObject, subItem))
   {
     ref_indices.InsertAt(0, subItem);
@@ -118,29 +118,29 @@ ezObjectAccessorBase* ezVariantSubAccessor::ResolveProxy(const ezDocumentObject*
   return m_pSource->ResolveProxy(ref_pObject, ref_pType, ref_pProp, ref_indices);
 }
 
-ezStatus ezVariantSubAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
+WStatus WVariantSubAccessor::GetSubValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value)
 {
-  ezStatus result = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value);
+  WStatus result = WObjectProxyAccessor::GetValue(pObject, pProp, out_value);
   if (result.Failed())
     return result;
 
-  ezVariant subItem;
+  WVariant subItem;
   if (!m_SubItemMap.TryGetValue(pObject, subItem))
-    return ezStatus(ezFmt("Sub-item '{0}' not found in variant property '{1}'", subItem, pProp->GetPropertyName()));
+    return WStatus(WFmt("Sub-item '{0}' not found in variant property '{1}'", subItem, pProp->GetPropertyName()));
 
-  out_value = ezVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(subItem, &result);
+  out_value = WVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(subItem, &result);
   return result;
 }
 
-ezStatus ezVariantSubAccessor::SetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezStatus(ezVariant&)>& func)
+WStatus WVariantSubAccessor::SetSubValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WDelegate<WStatus(WVariant&)>& func)
 {
-  EZ_ASSERT_DEBUG(m_pProp == pProp, "ezVariantSubAccessor should only be used to access a single variant property");
-  ezVariant subItem;
+  W_ASSERT_DEBUG(m_pProp == pProp, "WVariantSubAccessor should only be used to access a single variant property");
+  WVariant subItem;
   if (!m_SubItemMap.TryGetValue(pObject, subItem))
-    return ezStatus(ezFmt("Sub-item '{0}' not found in variant property '{1}'", subItem, pProp->GetPropertyName()));
+    return WStatus(WFmt("Sub-item '{0}' not found in variant property '{1}'", subItem, pProp->GetPropertyName()));
 
-  ezVariant currentValue;
-  EZ_SUCCEED_OR_RETURN(ezObjectProxyAccessor::GetValue(pObject, pProp, currentValue, subItem));
-  EZ_SUCCEED_OR_RETURN(func(currentValue));
-  return ezObjectProxyAccessor::SetValue(pObject, pProp, currentValue, subItem);
+  WVariant currentValue;
+  W_SUCCEED_OR_RETURN(WObjectProxyAccessor::GetValue(pObject, pProp, currentValue, subItem));
+  W_SUCCEED_OR_RETURN(func(currentValue));
+  return WObjectProxyAccessor::SetValue(pObject, pProp, currentValue, subItem);
 }

@@ -8,62 +8,62 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensEffectsPass, 1, ezRTTIDefaultAllocator<ezLensEffectsPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLensEffectsPass, 1, WRTTIDefaultAllocator<WLensEffectsPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
+    W_MEMBER_PROPERTY("Color", m_PinColor),
+    W_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects")
+    new WCategoryAttribute("Effects")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLensEffectsPass::ezLensEffectsPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WLensEffectsPass::WLensEffectsPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezLensEffectsPass::~ezLensEffectsPass() = default;
+WLensEffectsPass::~WLensEffectsPass() = default;
 
-ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WLensEffectsPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  EZ_IGNORE_UNUSED(viewData);
+  W_IGNORE_UNUSED(viewData);
 
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
-    return ezStatus(ezFmt("Color: Not connected"));
+    return WStatus(WFmt("Color: Not connected"));
 
   // Pass-through color
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
-  ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
 
   auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
   if (!hResolvedDepth.IsInvalidated())
-    pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
+    pass.ReadTexture(hResolvedDepth, {}, WGALResourceState::ShaderResource);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LensEffects, ref_graph, pass);
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LensEffects, ref_graph, pass);
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     //Needed? SetupPermutationVars(renderViewContext);
     if (!hResolvedDepth.IsInvalidated())
     {
-      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
       bindGroupRenderPass.BindTexture("SceneDepth", ctx.ResolveTexture(hResolvedDepth));
     }
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LensEffects); });
+    RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LensEffects); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_LensEffectsPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_LensEffectsPass);

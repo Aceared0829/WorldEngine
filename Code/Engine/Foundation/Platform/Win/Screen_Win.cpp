@@ -1,19 +1,19 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/Screen.h>
 
-EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
-EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_MODE_INFO);
+W_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
+W_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_MODE_INFO);
 
-static void QueryMonitorNames(ezMap<ezString, ezString>& out_deviceIDtoName)
+static void QueryMonitorNames(WMap<WString, WString>& out_deviceIDtoName)
 {
   out_deviceIDtoName.Clear();
 
-  ezTempHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
-  ezTempHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
+  WTempHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
+  WTempHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
   UINT32 flags = QDC_ONLY_ACTIVE_PATHS;
   LONG isError = ERROR_INSUFFICIENT_BUFFER;
 
@@ -37,10 +37,10 @@ static void QueryMonitorNames(ezMap<ezString, ezString>& out_deviceIDtoName)
   if (isError)
     return;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   // For each active path
-  for (ezUInt32 i = 0; i < paths.GetCount(); i++)
+  for (WUInt32 i = 0; i < paths.GetCount(); i++)
   {
     // Find the target (monitor) friendly name
     DISPLAYCONFIG_TARGET_DEVICE_NAME targetName = {};
@@ -61,11 +61,11 @@ static void QueryMonitorNames(ezMap<ezString, ezString>& out_deviceIDtoName)
   }
 }
 
-static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScreenResolution>& inout_modes)
+static void EnumerateDisplayModes(WStringView sDeviceName, WDynamicArray<WScreenResolution>& inout_modes)
 {
   inout_modes.Clear();
 
-  const ezStringWChar wName(sDeviceName);
+  const WStringWChar wName(sDeviceName);
 
   DEVMODEW devMode = {};
   devMode.dmSize = sizeof(DEVMODEW);
@@ -73,22 +73,22 @@ static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScr
   int modeNum = 0;
   while (EnumDisplaySettingsW(wName.GetData(), modeNum++, &devMode))
   {
-    ezScreenResolution& mode = inout_modes.ExpandAndGetRef();
+    WScreenResolution& mode = inout_modes.ExpandAndGetRef();
     mode.m_uiResolutionX = devMode.dmPelsWidth;
     mode.m_uiResolutionY = devMode.dmPelsHeight;
-    mode.m_uiBitsPerPixel = static_cast<ezUInt8>(devMode.dmBitsPerPel);
-    mode.m_uiRefreshRate = static_cast<ezUInt16>(devMode.dmDisplayFrequency);
+    mode.m_uiBitsPerPixel = static_cast<WUInt8>(devMode.dmBitsPerPel);
+    mode.m_uiRefreshRate = static_cast<WUInt16>(devMode.dmDisplayFrequency);
   }
 
   inout_modes.Sort();
 }
 
-static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
+static BOOL CALLBACK WMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
-  EZ_IGNORE_UNUSED(pHdcMonitor);
-  EZ_IGNORE_UNUSED(pLprcMonitor);
+  W_IGNORE_UNUSED(pHdcMonitor);
+  W_IGNORE_UNUSED(pLprcMonitor);
 
-  ezTempHybridArray<ezScreenInfo, 2>* pScreens = (ezTempHybridArray<ezScreenInfo, 2>*)data;
+  WTempHybridArray<WScreenInfo, 2>* pScreens = (WTempHybridArray<WScreenInfo, 2>*)data;
 
   MONITORINFOEXW info;
   info.cbSize = sizeof(info);
@@ -111,12 +111,12 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);
 
-  ezMap<ezString, ezString> monitorNames;
+  WMap<WString, WString> monitorNames;
   QueryMonitorNames(monitorNames);
 
   if (EnumDisplayDevicesW(info.szDevice, 0, &ddev, 1) != FALSE)
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     tmp = ddev.DeviceID;
 
     if (auto it = monitorNames.Find(tmp); it.IsValid())
@@ -134,16 +134,16 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   return TRUE;
 }
 
-ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens)
+WResult WScreen::EnumerateScreens(WDynamicArray<WScreenInfo>& out_screens)
 {
   out_screens.Clear();
-  if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_screens) == FALSE)
-    return EZ_FAILURE;
+  if (EnumDisplayMonitors(nullptr, nullptr, WMonitorEnumProc, (LPARAM)&out_screens) == FALSE)
+    return W_FAILURE;
 
   if (out_screens.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

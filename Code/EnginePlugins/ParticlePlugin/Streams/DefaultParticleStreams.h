@@ -10,13 +10,13 @@
 ///
 /// Uses the base class implementation which zero-fills all elements.
 /// This stream type is used for data that should start at zero without custom initialization.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_ZeroInit final : public ezParticleStream
+class W_PARTICLEPLUGIN_DLL WParticleStream_ZeroInit final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_ZeroInit, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_ZeroInit, WParticleStream);
 
 protected:
   // base class implementation already zero fills the stream data
-  // virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  // virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -24,27 +24,27 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating position streams (Float4 data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Position final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Position, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Position, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Position();
+  WParticleStreamFactory_Position();
 };
 
 /// Stream storing particle positions.
 ///
 /// Initializes new particles at the particle system's transform position.
-/// Stores positions as ezVec4 (Float4 stream type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position final : public ezParticleStream
+/// Stores positions as WVec4 (Float4 stream type).
+class W_PARTICLEPLUGIN_DLL WParticleStream_Position final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Position, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Position, WParticleStream);
 
 protected:
-  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void Initialize(WParticleSystemInstance* pOwner) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezParticleSystemInstance* m_pOwner;
+  WParticleSystemInstance* m_pOwner;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -52,24 +52,24 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating size streams (Half data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Size final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Size, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Size, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Size();
+  WParticleStreamFactory_Size();
 };
 
 /// Stream storing particle sizes.
 ///
 /// Initializes new particles with size 1.0.
 /// Uses half-precision floats to reduce memory usage.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size final : public ezParticleStream
+class W_PARTICLEPLUGIN_DLL WParticleStream_Size final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Size, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Size, WParticleStream);
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,24 +77,24 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating color streams (Half4 data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Color final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Color, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Color, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Color();
+  WParticleStreamFactory_Color();
 };
 
 /// Stream storing particle colors.
 ///
 /// Initializes new particles with white color (1, 1, 1, 1).
-/// Uses half-precision floats (ezColorLinear16f) to reduce memory usage.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color final : public ezParticleStream
+/// Uses half-precision floats (WColorLinear16f) to reduce memory usage.
+class W_PARTICLEPLUGIN_DLL WParticleStream_Color final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Color, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Color, WParticleStream);
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,28 +102,28 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating velocity streams (Half4 data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Velocity final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Velocity, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Velocity, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Velocity();
+  WParticleStreamFactory_Velocity();
 };
 
 /// Stream storing particle velocities.
 ///
 /// Initializes new particles with the particle system's start velocity.
-/// Stores velocity as direction (xyz) and speed (w) in an ezVec4 using half-precision floats.
+/// Stores velocity as direction (xyz) and speed (w) in an WVec4 using half-precision floats.
 /// If the start velocity is zero, defaults to direction (0, 0, 1) with speed 0.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity final : public ezParticleStream
+class W_PARTICLEPLUGIN_DLL WParticleStream_Velocity final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Velocity, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Velocity, WParticleStream);
 
 protected:
-  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void Initialize(WParticleSystemInstance* pOwner) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezParticleSystemInstance* m_pOwner;
+  WParticleSystemInstance* m_pOwner;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -139,12 +139,12 @@ protected:
 /// Factory for creating last position streams (Float3 data type).
 ///
 /// Used for trail rendering and motion blur effects to track the previous frame's particle positions.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_LastPosition final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_LastPosition, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_LastPosition, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_LastPosition();
+  WParticleStreamFactory_LastPosition();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,12 +154,12 @@ public:
 /// Factory for creating rotation speed streams (Half data type).
 ///
 /// Stores the angular velocity for rotating billboard particles.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_RotationSpeed final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationSpeed, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_RotationSpeed, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_RotationSpeed();
+  WParticleStreamFactory_RotationSpeed();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -169,12 +169,12 @@ public:
 /// Factory for creating rotation offset streams (Half data type).
 ///
 /// Stores the initial rotation angle offset for particles.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationOffset final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_RotationOffset final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationOffset, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_RotationOffset, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_RotationOffset();
+  WParticleStreamFactory_RotationOffset();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -184,12 +184,12 @@ public:
 /// Factory for creating effect ID streams (Int data type).
 ///
 /// Used to track which effect instance spawned a particle, useful for event reactions and debugging.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_EffectID final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_EffectID, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_EffectID, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_EffectID();
+  WParticleStreamFactory_EffectID();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -199,12 +199,12 @@ public:
 /// Factory for creating on/off streams (Byte data type).
 ///
 /// Used to enable or disable individual particles without removing them from the system.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_OnOff final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_OnOff, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_OnOff, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_OnOff();
+  WParticleStreamFactory_OnOff();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,24 +212,24 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating axis streams (Float3 data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Axis final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Axis, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Axis, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Axis();
+  WParticleStreamFactory_Axis();
 };
 
 /// Stream storing particle orientation axes.
 ///
 /// Initializes new particles with axis (1, 0, 0).
 /// Used for oriented particle rendering where particles need a direction vector.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis final : public ezParticleStream
+class W_PARTICLEPLUGIN_DLL WParticleStream_Axis final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Axis, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Axis, WParticleStream);
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,12 +239,12 @@ protected:
 /// Factory for creating trail data streams (Short2 data type).
 ///
 /// Stores trail-specific data for trail renderers to connect particles into ribbons.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_TrailData final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_TrailData, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_TrailData, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_TrailData();
+  WParticleStreamFactory_TrailData();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -252,25 +252,25 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 /// Factory for creating variation streams (Int data type).
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Variation final : public ezParticleStreamFactory
+class W_PARTICLEPLUGIN_DLL WParticleStreamFactory_Variation final : public WParticleStreamFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Variation, ezParticleStreamFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStreamFactory_Variation, WParticleStreamFactory);
 
 public:
-  ezParticleStreamFactory_Variation();
+  WParticleStreamFactory_Variation();
 };
 
 /// Stream storing particle variation values.
 ///
 /// Initializes new particles with random unsigned integers.
 /// Used for texture atlas variations, flipbook animations, or other per-particle randomization.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Variation final : public ezParticleStream
+class W_PARTICLEPLUGIN_DLL WParticleStream_Variation final : public WParticleStream
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Variation, ezParticleStream);
+  W_ADD_DYNAMIC_REFLECTION(WParticleStream_Variation, WParticleStream);
 
 protected:
-  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void Initialize(WParticleSystemInstance* pOwner) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezParticleSystemInstance* m_pOwner;
+  WParticleSystemInstance* m_pOwner;
 };

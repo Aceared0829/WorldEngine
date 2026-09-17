@@ -7,13 +7,13 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezTask;
-class ezTaskGroup;
-class ezTaskWorkerThread;
-class ezTaskSystemState;
-class ezTaskSystemThreadState;
-class ezDGMLGraph;
-class ezAllocator;
+class WTask;
+class WTaskGroup;
+class WTaskWorkerThread;
+class WTaskSystemState;
+class WTaskSystemThreadState;
+class WDGMLGraph;
+class WAllocator;
 
 /// Describes the priority with which to execute a task.
 ///
@@ -22,7 +22,7 @@ class ezAllocator;
 /// However you should generally not rely on starting tasks in the same frame in which they need to finish.\n
 /// Instead prefer to start a task, whose result you need in the next frame or even later.\n
 /// For those tasks, use 'EarlyNextFrame', 'NextFrame', 'LateNextFrame' and 'InNFrames'.\n
-/// Once 'ezTaskSystem::FinishFrameTasks' is called, all those tasks will be moved into the 'XYZThisFrame' categories.\n
+/// Once 'WTaskSystem::FinishFrameTasks' is called, all those tasks will be moved into the 'XYZThisFrame' categories.\n
 /// For tasks that run over a longer period (e.g. path searches, procedural data creation), use 'LongRunning'.
 /// Only use 'LongRunningHighPriority' for tasks that occur rarely, otherwise 'LongRunning' tasks might not get processed, at all.\n
 /// For tasks that need to access files, prefer to use 'FileAccess', this way all file accesses get executed sequentially.\n
@@ -34,10 +34,10 @@ class ezAllocator;
 /// guarantee WHEN (within a frame) main thread tasks get executed. Most of them will get executed upon a 'FinishFrameTasks' call. However
 /// they are also run whenever the main thread needs to wait or cancel some other task and has nothing else to do. So tasks that get
 /// executed on the main thread should never assume a certain state of other systems.
-struct ezTaskPriority
+struct WTaskPriority
 {
   // clang-format off
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     EarlyThisFrame,           ///< Highest priority, guaranteed to get finished in this frame.
     ThisFrame,                ///< Medium priority, guaranteed to get finished in this frame.
@@ -73,9 +73,9 @@ struct ezTaskPriority
 };
 
 /// Enum that describes what to do when waiting for or canceling tasks, that have already started execution.
-struct ezOnTaskRunning
+struct WOnTaskRunning
 {
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     WaitTillFinished,
     ReturnWithoutBlocking
@@ -83,94 +83,94 @@ struct ezOnTaskRunning
 };
 
 /// \internal Enum that lists the different task worker thread types.
-struct ezWorkerThreadType
+struct WWorkerThreadType
 {
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
-    Unknown,    ///< Default for all non-ezTaskSystem-worker threads. Will only execute short tasks.
-    MainThread, ///< May only be used by the main thread (automatically used by the ezTaskSystem)
+    Unknown,    ///< Default for all non-WTaskSystem-worker threads. Will only execute short tasks.
+    MainThread, ///< May only be used by the main thread (automatically used by the WTaskSystem)
     ShortTasks,
     LongTasks,
     FileAccess,
     ENUM_COUNT
   };
 
-  static const char* GetThreadTypeName(ezWorkerThreadType::Enum threadType);
+  static const char* GetThreadTypeName(WWorkerThreadType::Enum threadType);
 };
 
-/// Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
-class EZ_FOUNDATION_DLL ezTaskGroupID
+/// Given out by WTaskSystem::CreateTaskGroup to identify a task group.
+class W_FOUNDATION_DLL WTaskGroupID
 {
 public:
-  EZ_ALWAYS_INLINE ezTaskGroupID() = default;
-  EZ_ALWAYS_INLINE ~ezTaskGroupID() = default;
+  W_ALWAYS_INLINE WTaskGroupID() = default;
+  W_ALWAYS_INLINE ~WTaskGroupID() = default;
 
-  /// Returns false, if the GroupID does not reference a valid ezTaskGroup
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
+  /// Returns false, if the GroupID does not reference a valid WTaskGroup
+  W_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
 
   /// Resets the GroupID into an invalid state.
-  EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
+  W_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
-  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const
+  W_ALWAYS_INLINE bool operator==(const WTaskGroupID& other) const
   {
     return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter;
   }
-  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const
+  W_ALWAYS_INLINE bool operator!=(const WTaskGroupID& other) const
   {
     return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter;
   }
-  EZ_ALWAYS_INLINE bool operator<(const ezTaskGroupID& other) const
+  W_ALWAYS_INLINE bool operator<(const WTaskGroupID& other) const
   {
     return m_pTaskGroup < other.m_pTaskGroup || (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
   }
 
 private:
-  friend class ezTaskSystem;
-  friend class ezTaskGroup;
+  friend class WTaskSystem;
+  friend class WTaskGroup;
 
   // the counter is used to determine whether this group id references the 'same' group, as m_pTaskGroup.
   // if m_pTaskGroup->m_uiGroupCounter is different to this->m_uiGroupCounter, then the group ID is not valid anymore.
-  ezUInt32 m_uiGroupCounter = 0;
+  WUInt32 m_uiGroupCounter = 0;
 
   // points to the actual task group object
-  ezTaskGroup* m_pTaskGroup = nullptr;
+  WTaskGroup* m_pTaskGroup = nullptr;
 };
 
 /// Callback type when a task group has been finished (or canceled).
-using ezOnTaskGroupFinishedCallback = ezDelegate<void(ezTaskGroupID)>;
+using WOnTaskGroupFinishedCallback = WDelegate<void(WTaskGroupID)>;
 
 /// Callback type when a task has been finished (or canceled).
-using ezOnTaskFinishedCallback = ezDelegate<void(const ezSharedPtr<ezTask>&)>;
+using WOnTaskFinishedCallback = WDelegate<void(const WSharedPtr<WTask>&)>;
 
-struct ezTaskGroupDependency
+struct WTaskGroupDependency
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezTaskGroupID m_TaskGroup;
-  ezTaskGroupID m_DependsOn;
+  WTaskGroupID m_TaskGroup;
+  WTaskGroupID m_DependsOn;
 };
 
 /// Whether a task may wait for the completion of another task.
 ///
-/// This is an optimization hint for the ezTaskSystem. Tasks that never wait on other tasks
+/// This is an optimization hint for the WTaskSystem. Tasks that never wait on other tasks
 /// can be executed more efficiently (without launching a dedicated thread), as they cannot produce
 /// circular dependencies.
 /// If the nesting specification is violated, the task system will assert.
-enum class ezTaskNesting
+enum class WTaskNesting
 {
   Maybe,
   Never,
 };
 
-/// Settings for ezTaskSystem::ParallelFor invocations.
-struct EZ_FOUNDATION_DLL ezParallelForParams
+/// Settings for WTaskSystem::ParallelFor invocations.
+struct W_FOUNDATION_DLL WParallelForParams
 {
-  ezParallelForParams() = default; // do not remove, needed for Clang
+  WParallelForParams() = default; // do not remove, needed for Clang
 
   /// The minimum number of items that must be processed by a task instance.
   /// If the overall number of tasks lies below this value, all work will be executed purely serially
   /// without involving any tasks at all.
-  ezUInt32 m_uiBinSize = 1;
+  WUInt32 m_uiBinSize = 1;
 
   /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
   /// Higher numbers give the scheduler more leeway to balance work across available threads.
@@ -178,23 +178,23 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
   /// might yield better results for workloads where task items may take vastly different amounts
   /// of time, such that scheduling in a balanced fashion becomes more difficult.
-  ezUInt32 m_uiMaxTasksPerThread = 2;
+  WUInt32 m_uiMaxTasksPerThread = 2;
 
-  ezTaskNesting m_NestingMode = ezTaskNesting::Never;
+  WTaskNesting m_NestingMode = WTaskNesting::Never;
 
   /// The allocator used to for the tasks that the parallel-for uses internally. If null, will use the default allocator.
-  ezAllocator* m_pTaskAllocator = nullptr;
+  WAllocator* m_pTaskAllocator = nullptr;
 
-  void DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUInt32& out_uiNumTasksToRun, ezUInt64& out_uiNumItemsPerTask) const;
+  void DetermineThreading(WUInt64 uiNumItemsToExecute, WUInt32& out_uiNumTasksToRun, WUInt64& out_uiNumItemsPerTask) const;
 };
 
-using ezParallelForIndexedFunction32 = ezDelegate<void(ezUInt32, ezUInt32), 48>;
-using ezParallelForIndexedFunction64 = ezDelegate<void(ezUInt64, ezUInt64), 48>;
+using WParallelForIndexedFunction32 = WDelegate<void(WUInt32, WUInt32), 48>;
+using WParallelForIndexedFunction64 = WDelegate<void(WUInt64, WUInt64), 48>;
 
 template <typename ElemType>
-using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
+using WParallelForFunction = WDelegate<void(WUInt32, WArrayPtr<ElemType>), 48>;
 
-enum class ezTaskWorkerState
+enum class WTaskWorkerState
 {
   Active = 0,
   Idle = 1,

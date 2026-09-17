@@ -39,7 +39,7 @@ float3 SampleSceneColor(float2 screenPosition)
   return float3(1.0, 1.0, 1.0);
 }
 
-AccumulatedLight CalculateLightingSimplified(ezMaterialData matData)
+AccumulatedLight CalculateLightingSimplified(WMaterialData matData)
 {
   AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
 

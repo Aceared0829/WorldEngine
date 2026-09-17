@@ -9,56 +9,56 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMovementMode, 1)
-  EZ_ENUM_CONSTANT(ezMovementMode::Constant),
-  EZ_ENUM_CONSTANT(ezMovementMode::CustomCurve),
-  EZ_ENUM_CONSTANT(ezMovementMode::SharedCurve),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WMovementMode, 1)
+  W_ENUM_CONSTANT(WMovementMode::Constant),
+  W_ENUM_CONSTANT(WMovementMode::CustomCurve),
+  W_ENUM_CONSTANT(WMovementMode::SharedCurve),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Move, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Move>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_Move, 1, WRTTIDefaultAllocator<WParticleBehaviorFactory_Move>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("MoveX_Mode", ezMovementMode, m_MoveX_Mode)->AddAttributes(new ezGroupAttribute("X Axis")),
-    EZ_MEMBER_PROPERTY("MoveX_Speed", m_fMoveX_Speed),
-    EZ_MEMBER_PROPERTY("MoveX_Curve", m_MoveX_Curve),
-    EZ_RESOURCE_MEMBER_PROPERTY("MoveX_SharedCurve", m_hMoveX_SharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("MoveX_CurveOffset", m_fMoveX_CurveOffset)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MoveX_CurveScale", m_fMoveX_CurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("MoveX_Mode", WMovementMode, m_MoveX_Mode)->AddAttributes(new WGroupAttribute("X Axis")),
+    W_MEMBER_PROPERTY("MoveX_Speed", m_fMoveX_Speed),
+    W_MEMBER_PROPERTY("MoveX_Curve", m_MoveX_Curve),
+    W_RESOURCE_MEMBER_PROPERTY("MoveX_SharedCurve", m_hMoveX_SharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_MEMBER_PROPERTY("MoveX_CurveOffset", m_fMoveX_CurveOffset)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("MoveX_CurveScale", m_fMoveX_CurveScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
 
-    EZ_ENUM_MEMBER_PROPERTY("MoveY_Mode", ezMovementMode, m_MoveY_Mode)->AddAttributes(new ezGroupAttribute("Y Axis")),
-    EZ_MEMBER_PROPERTY("MoveY_Speed", m_fMoveY_Speed),
-    EZ_MEMBER_PROPERTY("MoveY_Curve", m_MoveY_Curve),
-    EZ_RESOURCE_MEMBER_PROPERTY("MoveY_SharedCurve", m_hMoveY_SharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("MoveY_CurveOffset", m_fMoveY_CurveOffset)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MoveY_CurveScale", m_fMoveY_CurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("MoveY_Mode", WMovementMode, m_MoveY_Mode)->AddAttributes(new WGroupAttribute("Y Axis")),
+    W_MEMBER_PROPERTY("MoveY_Speed", m_fMoveY_Speed),
+    W_MEMBER_PROPERTY("MoveY_Curve", m_MoveY_Curve),
+    W_RESOURCE_MEMBER_PROPERTY("MoveY_SharedCurve", m_hMoveY_SharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_MEMBER_PROPERTY("MoveY_CurveOffset", m_fMoveY_CurveOffset)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("MoveY_CurveScale", m_fMoveY_CurveScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
 
-    EZ_ENUM_MEMBER_PROPERTY("MoveZ_Mode", ezMovementMode, m_MoveZ_Mode)->AddAttributes(new ezGroupAttribute("Z Axis")),
-    EZ_MEMBER_PROPERTY("MoveZ_Speed", m_fMoveZ_Speed),
-    EZ_MEMBER_PROPERTY("MoveZ_Curve", m_MoveZ_Curve),
-    EZ_RESOURCE_MEMBER_PROPERTY("MoveZ_SharedCurve", m_hMoveZ_SharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("MoveZ_CurveOffset", m_fMoveZ_CurveOffset)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MoveZ_CurveScale", m_fMoveZ_CurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("MoveZ_Mode", WMovementMode, m_MoveZ_Mode)->AddAttributes(new WGroupAttribute("Z Axis")),
+    W_MEMBER_PROPERTY("MoveZ_Speed", m_fMoveZ_Speed),
+    W_MEMBER_PROPERTY("MoveZ_Curve", m_MoveZ_Curve),
+    W_RESOURCE_MEMBER_PROPERTY("MoveZ_SharedCurve", m_hMoveZ_SharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_MEMBER_PROPERTY("MoveZ_CurveOffset", m_fMoveZ_CurveOffset)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("MoveZ_CurveScale", m_fMoveZ_CurveScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Move, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Move>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_Move, 1, WRTTIDefaultAllocator<WParticleBehavior_Move>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Move::ezParticleBehaviorFactory_Move() = default;
-ezParticleBehaviorFactory_Move::~ezParticleBehaviorFactory_Move() = default;
+WParticleBehaviorFactory_Move::WParticleBehaviorFactory_Move() = default;
+WParticleBehaviorFactory_Move::~WParticleBehaviorFactory_Move() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Move::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_Move::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Move>();
+  return WGetStaticRTTI<WParticleBehavior_Move>();
 }
 
-void ezParticleBehaviorFactory_Move::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_Move::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_Move* pBehavior = static_cast<ezParticleBehavior_Move*>(pObject);
+  WParticleBehavior_Move* pBehavior = static_cast<WParticleBehavior_Move*>(pObject);
 
   pBehavior->m_MoveX_Mode = m_MoveX_Mode;
   pBehavior->m_fMoveX_Speed = m_fMoveX_Speed;
@@ -78,7 +78,7 @@ void ezParticleBehaviorFactory_Move::CopyBehaviorProperties(ezParticleBehavior* 
   pBehavior->m_fMoveZ_CurveScale = m_fMoveZ_CurveScale;
   pBehavior->m_pMoveZ_Curve = &m_RuntimeMoveZ_Curve;
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (WPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(WGetStaticRTTI<WPhysicsWorldModuleInterface>());
 }
 
 enum class BehaviorMoveVersion
@@ -90,9 +90,9 @@ enum class BehaviorMoveVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Move::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_Move::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorMoveVersion::Version_Current;
+  const WUInt8 uiVersion = (int)BehaviorMoveVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_MoveX_Mode;
@@ -126,12 +126,12 @@ void ezParticleBehaviorFactory_Move::Save(ezStreamWriter& inout_stream) const
   m_RuntimeMoveZ_Curve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_Move::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorMoveVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)BehaviorMoveVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_MoveX_Mode;
   inout_stream >> m_fMoveX_Speed;
@@ -143,10 +143,10 @@ void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream, const ez
   m_RuntimeMoveX_Curve.SortControlPoints(); // also updates the aabb
   m_RuntimeMoveX_Curve.CreateLinearApproximation();
 
-  if (m_MoveX_Mode == ezMovementMode::SharedCurve && m_hMoveX_SharedCurve.IsValid())
+  if (m_MoveX_Mode == WMovementMode::SharedCurve && m_hMoveX_SharedCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurveResource(m_hMoveX_SharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-    if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+    WResourceLock<WCurve1DResource> pCurveResource(m_hMoveX_SharedCurve, WResourceAcquireMode::BlockTillLoaded);
+    if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
     {
       m_RuntimeMoveX_Curve = pCurveResource->GetDescriptor().m_Curves[0];
     }
@@ -162,10 +162,10 @@ void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream, const ez
   m_RuntimeMoveY_Curve.SortControlPoints(); // also updates the aabb
   m_RuntimeMoveY_Curve.CreateLinearApproximation();
 
-  if (m_MoveY_Mode == ezMovementMode::SharedCurve && m_hMoveY_SharedCurve.IsValid())
+  if (m_MoveY_Mode == WMovementMode::SharedCurve && m_hMoveY_SharedCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurveResource(m_hMoveY_SharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-    if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+    WResourceLock<WCurve1DResource> pCurveResource(m_hMoveY_SharedCurve, WResourceAcquireMode::BlockTillLoaded);
+    if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
     {
       m_RuntimeMoveY_Curve = pCurveResource->GetDescriptor().m_Curves[0];
     }
@@ -181,56 +181,56 @@ void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream, const ez
   m_RuntimeMoveZ_Curve.SortControlPoints(); // also updates the aabb
   m_RuntimeMoveZ_Curve.CreateLinearApproximation();
 
-  if (m_MoveZ_Mode == ezMovementMode::SharedCurve && m_hMoveZ_SharedCurve.IsValid())
+  if (m_MoveZ_Mode == WMovementMode::SharedCurve && m_hMoveZ_SharedCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurveResource(m_hMoveZ_SharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-    if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+    WResourceLock<WCurve1DResource> pCurveResource(m_hMoveZ_SharedCurve, WResourceAcquireMode::BlockTillLoaded);
+    if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
     {
       m_RuntimeMoveZ_Curve = pCurveResource->GetDescriptor().m_Curves[0];
     }
   }
 }
 
-void ezParticleBehavior_Move::CreateRequiredStreams()
+void WParticleBehavior_Move::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
 
   // Need lifetime stream if any axis uses curves
   const bool bNeedsLifeTime =
-    ((m_MoveX_Mode == ezMovementMode::CustomCurve || m_MoveX_Mode == ezMovementMode::SharedCurve) && m_pMoveX_Curve && !m_pMoveX_Curve->IsEmpty()) ||
-    ((m_MoveY_Mode == ezMovementMode::CustomCurve || m_MoveY_Mode == ezMovementMode::SharedCurve) && m_pMoveY_Curve && !m_pMoveY_Curve->IsEmpty()) ||
-    ((m_MoveZ_Mode == ezMovementMode::CustomCurve || m_MoveZ_Mode == ezMovementMode::SharedCurve) && m_pMoveZ_Curve && !m_pMoveZ_Curve->IsEmpty());
+    ((m_MoveX_Mode == WMovementMode::CustomCurve || m_MoveX_Mode == WMovementMode::SharedCurve) && m_pMoveX_Curve && !m_pMoveX_Curve->IsEmpty()) ||
+    ((m_MoveY_Mode == WMovementMode::CustomCurve || m_MoveY_Mode == WMovementMode::SharedCurve) && m_pMoveY_Curve && !m_pMoveY_Curve->IsEmpty()) ||
+    ((m_MoveZ_Mode == WMovementMode::CustomCurve || m_MoveZ_Mode == WMovementMode::SharedCurve) && m_pMoveZ_Curve && !m_pMoveZ_Curve->IsEmpty());
 
   if (bNeedsLifeTime)
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   }
 }
 
-void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_Move::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Move");
+  W_PROFILE_SCOPE("PFX: Move");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
   // Early exit if no movement on any axis
-  const bool bHasXMovement = (m_MoveX_Mode == ezMovementMode::Constant && m_fMoveX_Speed != 0.0f) ||
-                             ((m_MoveX_Mode == ezMovementMode::CustomCurve || m_MoveX_Mode == ezMovementMode::SharedCurve) && m_pMoveX_Curve && !m_pMoveX_Curve->IsEmpty());
-  const bool bHasYMovement = (m_MoveY_Mode == ezMovementMode::Constant && m_fMoveY_Speed != 0.0f) ||
-                             ((m_MoveY_Mode == ezMovementMode::CustomCurve || m_MoveY_Mode == ezMovementMode::SharedCurve) && m_pMoveY_Curve && !m_pMoveY_Curve->IsEmpty());
-  const bool bHasZMovement = (m_MoveZ_Mode == ezMovementMode::Constant && m_fMoveZ_Speed != 0.0f) ||
-                             ((m_MoveZ_Mode == ezMovementMode::CustomCurve || m_MoveZ_Mode == ezMovementMode::SharedCurve) && m_pMoveZ_Curve && !m_pMoveZ_Curve->IsEmpty());
+  const bool bHasXMovement = (m_MoveX_Mode == WMovementMode::Constant && m_fMoveX_Speed != 0.0f) ||
+                             ((m_MoveX_Mode == WMovementMode::CustomCurve || m_MoveX_Mode == WMovementMode::SharedCurve) && m_pMoveX_Curve && !m_pMoveX_Curve->IsEmpty());
+  const bool bHasYMovement = (m_MoveY_Mode == WMovementMode::Constant && m_fMoveY_Speed != 0.0f) ||
+                             ((m_MoveY_Mode == WMovementMode::CustomCurve || m_MoveY_Mode == WMovementMode::SharedCurve) && m_pMoveY_Curve && !m_pMoveY_Curve->IsEmpty());
+  const bool bHasZMovement = (m_MoveZ_Mode == WMovementMode::Constant && m_fMoveZ_Speed != 0.0f) ||
+                             ((m_MoveZ_Mode == WMovementMode::CustomCurve || m_MoveZ_Mode == WMovementMode::SharedCurve) && m_pMoveZ_Curve && !m_pMoveZ_Curve->IsEmpty());
 
   if (!bHasXMovement && !bHasYMovement && !bHasZMovement)
     return;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
 
   // Check if any axis uses curves
   const bool bNeedsCurves =
-    (m_MoveX_Mode == ezMovementMode::CustomCurve || m_MoveX_Mode == ezMovementMode::SharedCurve) ||
-    (m_MoveY_Mode == ezMovementMode::CustomCurve || m_MoveY_Mode == ezMovementMode::SharedCurve) ||
-    (m_MoveZ_Mode == ezMovementMode::CustomCurve || m_MoveZ_Mode == ezMovementMode::SharedCurve);
+    (m_MoveX_Mode == WMovementMode::CustomCurve || m_MoveX_Mode == WMovementMode::SharedCurve) ||
+    (m_MoveY_Mode == WMovementMode::CustomCurve || m_MoveY_Mode == WMovementMode::SharedCurve) ||
+    (m_MoveZ_Mode == WMovementMode::CustomCurve || m_MoveZ_Mode == WMovementMode::SharedCurve);
 
   if (bNeedsCurves && m_pStreamLifeTime)
   {
@@ -239,40 +239,40 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
     double fMinX_Y = 0.0, fMaxX_Y = 1.0;
     double fMinX_Z = 0.0, fMaxX_Z = 1.0;
 
-    if (bHasXMovement && (m_MoveX_Mode == ezMovementMode::CustomCurve || m_MoveX_Mode == ezMovementMode::SharedCurve))
+    if (bHasXMovement && (m_MoveX_Mode == WMovementMode::CustomCurve || m_MoveX_Mode == WMovementMode::SharedCurve))
     {
       m_pMoveX_Curve->QueryExtents(fMinX_X, fMaxX_X);
-      fMinX_X = ezMath::Min(fMinX_X, 0.0);
-      fMaxX_X = ezMath::Max(fMaxX_X, 1.0);
+      fMinX_X = WMath::Min(fMinX_X, 0.0);
+      fMaxX_X = WMath::Max(fMaxX_X, 1.0);
     }
 
-    if (bHasYMovement && (m_MoveY_Mode == ezMovementMode::CustomCurve || m_MoveY_Mode == ezMovementMode::SharedCurve))
+    if (bHasYMovement && (m_MoveY_Mode == WMovementMode::CustomCurve || m_MoveY_Mode == WMovementMode::SharedCurve))
     {
       m_pMoveY_Curve->QueryExtents(fMinX_Y, fMaxX_Y);
-      fMinX_Y = ezMath::Min(fMinX_Y, 0.0);
-      fMaxX_Y = ezMath::Max(fMaxX_Y, 1.0);
+      fMinX_Y = WMath::Min(fMinX_Y, 0.0);
+      fMaxX_Y = WMath::Max(fMaxX_Y, 1.0);
     }
 
-    if (bHasZMovement && (m_MoveZ_Mode == ezMovementMode::CustomCurve || m_MoveZ_Mode == ezMovementMode::SharedCurve))
+    if (bHasZMovement && (m_MoveZ_Mode == WMovementMode::CustomCurve || m_MoveZ_Mode == WMovementMode::SharedCurve))
     {
       m_pMoveZ_Curve->QueryExtents(fMinX_Z, fMaxX_Z);
-      fMinX_Z = ezMath::Min(fMinX_Z, 0.0);
-      fMaxX_Z = ezMath::Max(fMaxX_Z, 1.0);
+      fMinX_Z = WMath::Min(fMinX_Z, 0.0);
+      fMaxX_Z = WMath::Max(fMaxX_Z, 1.0);
     }
 
-    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+    WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
 
     while (!itPosition.HasReachedEnd())
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
-      ezVec3 vMove(0.0f);
+      WVec3 vMove(0.0f);
 
       // X-axis movement
       if (bHasXMovement)
       {
-        if (m_MoveX_Mode == ezMovementMode::CustomCurve || m_MoveX_Mode == ezMovementMode::SharedCurve)
+        if (m_MoveX_Mode == WMovementMode::CustomCurve || m_MoveX_Mode == WMovementMode::SharedCurve)
         {
-          const double evalPos = ezMath::Lerp(fMaxX_X, fMinX_X, fLifeTimeFraction);
+          const double evalPos = WMath::Lerp(fMaxX_X, fMinX_X, fLifeTimeFraction);
           const float val = (float)m_pMoveX_Curve->Evaluate(evalPos);
           vMove.x = (m_fMoveX_CurveOffset + val * m_fMoveX_CurveScale) * tDiff;
         }
@@ -285,9 +285,9 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
       // Y-axis movement
       if (bHasYMovement)
       {
-        if (m_MoveY_Mode == ezMovementMode::CustomCurve || m_MoveY_Mode == ezMovementMode::SharedCurve)
+        if (m_MoveY_Mode == WMovementMode::CustomCurve || m_MoveY_Mode == WMovementMode::SharedCurve)
         {
-          const double evalPos = ezMath::Lerp(fMaxX_Y, fMinX_Y, fLifeTimeFraction);
+          const double evalPos = WMath::Lerp(fMaxX_Y, fMinX_Y, fLifeTimeFraction);
           const float val = (float)m_pMoveY_Curve->Evaluate(evalPos);
           vMove.y = (m_fMoveY_CurveOffset + val * m_fMoveY_CurveScale) * tDiff;
         }
@@ -301,9 +301,9 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
       if (bHasZMovement)
       {
         float fZSpeed = 0.0f;
-        if (m_MoveZ_Mode == ezMovementMode::CustomCurve || m_MoveZ_Mode == ezMovementMode::SharedCurve)
+        if (m_MoveZ_Mode == WMovementMode::CustomCurve || m_MoveZ_Mode == WMovementMode::SharedCurve)
         {
-          const double evalPos = ezMath::Lerp(fMaxX_Z, fMinX_Z, fLifeTimeFraction);
+          const double evalPos = WMath::Lerp(fMaxX_Z, fMinX_Z, fLifeTimeFraction);
           const float val = (float)m_pMoveZ_Curve->Evaluate(evalPos);
           vMove.z = (m_fMoveZ_CurveOffset + val * m_fMoveZ_CurveScale) * tDiff;
         }
@@ -313,7 +313,7 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
         }
       }
 
-      itPosition.Current() += ezSimdConversion::ToVec3(vMove);
+      itPosition.Current() += WSimdConversion::ToVec3(vMove);
 
       itPosition.Advance();
       itLifeTime.Advance();
@@ -322,7 +322,7 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
   else
   {
     // Constant movement on all axes
-    ezVec3 vMove(0.0f);
+    WVec3 vMove(0.0f);
 
     if (bHasXMovement)
       vMove.x = m_fMoveX_Speed * tDiff;
@@ -333,7 +333,7 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
     if (bHasZMovement)
       vMove.z = m_fMoveZ_Speed * tDiff;
 
-    const ezSimdVec4f vMoveSimd = ezSimdConversion::ToVec3(vMove);
+    const WSimdVec4f vMoveSimd = WSimdConversion::ToVec3(vMove);
 
     while (!itPosition.HasReachedEnd())
     {
@@ -343,10 +343,10 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_Move::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void WParticleBehavior_Move::RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule)
 {
-  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
+  pParticleModule->CacheWorldModule<WPhysicsWorldModuleInterface>();
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Move);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Move);

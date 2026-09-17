@@ -1,17 +1,17 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Time/Timestamp.h>
 
 #include <sys/time.h>
 #include <time.h>
 
-const ezTimestamp ezTimestamp::CurrentTimestamp()
+const WTimestamp WTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return WTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, WSIUnitOfTime::Microsecond);
 }
 
 bool operator!=(const tm& lhs, const tm& rhs)
@@ -32,7 +32,7 @@ bool operator!=(const tm& lhs, const tm& rhs)
 }
 
 
-const ezTimestamp ezDateTime::GetTimestamp() const
+const WTimestamp WDateTime::GetTimestamp() const
 {
   tm timeinfo = {0};
 
@@ -51,21 +51,21 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   time_t iTimeStamp = mktime(&timeinfo);
   // mktime may have 'patched' our time to be valid, we don't want that to count as a valid date.
   if (iTimeStamp == (time_t)-1 || timeinfoCopy != timeinfo)
-    return ezTimestamp::MakeInvalid();
+    return WTimestamp::MakeInvalid();
 
   iTimeStamp += timeinfo.tm_gmtoff;
   // Subtract one hour if daylight saving time was activated by mktime.
   if (timeinfo.tm_isdst == 1)
     iTimeStamp -= 3600;
-  return ezTimestamp::MakeFromInt(iTimeStamp, ezSIUnitOfTime::Second);
+  return WTimestamp::MakeFromInt(iTimeStamp, WSIUnitOfTime::Second);
 }
 
-ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
+WResult WDateTime::SetFromTimestamp(WTimestamp timestamp)
 {
   tm timeinfo = {0};
-  time_t iTime = (time_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
+  time_t iTime = (time_t)timestamp.GetInt64(WSIUnitOfTime::Second);
   if (gmtime_r(&iTime, &timeinfo) == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_iYear = timeinfo.tm_year + 1900;
   m_uiMonth = timeinfo.tm_mon + 1;
@@ -76,5 +76,5 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
   m_uiSecond = timeinfo.tm_sec;
   m_uiMicroseconds = 0;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

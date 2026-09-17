@@ -5,18 +5,18 @@
 #include <RendererCore/RenderGraph/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezGALCommandEncoder;
-class ezGALDevice;
-class ezRenderContext;
+class WGALCommandEncoder;
+class WGALDevice;
+class WRenderContext;
 
 /// Provided to the pass execution callback. Gives access to the command encoder and allows resolving transient handles to real GPU resources.
 ///
 /// For render passes, BeginRendering has already been called before the callback is invoked and EndRendering will be called after it returns.
-class EZ_RENDERERCORE_DLL ezRenderGraphContext
+class W_RENDERERCORE_DLL WRenderGraphContext
 {
 public:
-  ezRenderGraphContext() = default;
-  ezRenderGraphContext(ezGALCommandEncoder* pCommandEncoder, ezGALDevice* pDevice, ezRenderContext* pRenderContext, const ezReflectedClass* pUserData = nullptr)
+  WRenderGraphContext() = default;
+  WRenderGraphContext(WGALCommandEncoder* pCommandEncoder, WGALDevice* pDevice, WRenderContext* pRenderContext, const WReflectedClass* pUserData = nullptr)
     : m_pCommandEncoder(pCommandEncoder)
     , m_pDevice(pDevice)
     , m_pRenderContext(pRenderContext)
@@ -25,34 +25,34 @@ public:
   }
 
   /// Resolve a transient texture handle to the real GPU texture.
-  ezGALTextureHandle ResolveTexture(ezRenderGraphTextureHandle hTexture) const;
+  WGALTextureHandle ResolveTexture(WRenderGraphTextureHandle hTexture) const;
 
   /// Resolve a transient buffer handle to the real GPU buffer.
-  ezGALBufferHandle ResolveBuffer(ezRenderGraphBufferHandle hBuffer) const;
+  WGALBufferHandle ResolveBuffer(WRenderGraphBufferHandle hBuffer) const;
 
-  ezGALCommandEncoder* GetCommandEncoder() const;
-  ezGALDevice* GetDevice() const;
-  ezRenderContext* GetRenderContext() const;
+  WGALCommandEncoder* GetCommandEncoder() const;
+  WGALDevice* GetDevice() const;
+  WRenderContext* GetRenderContext() const;
 
-  /// Gives access to the graph's user data set via `ezRenderGraph::SetUserData`.
+  /// Gives access to the graph's user data set via `WRenderGraph::SetUserData`.
   template <typename T>
   const T* GetUserData() const
   {
-    return ezDynamicCast<const T*>(m_pUserData);
+    return WDynamicCast<const T*>(m_pUserData);
   }
 
 private:
-  friend class ezRenderGraph;
+  friend class WRenderGraph;
 
-  ezGALCommandEncoder* m_pCommandEncoder = nullptr;
-  ezGALDevice* m_pDevice = nullptr;
-  ezRenderContext* m_pRenderContext = nullptr;
-  const ezReflectedClass* m_pUserData = nullptr;
-  const ezDynamicArray<ezUInt16>* m_pTextureToResolvedTexture = nullptr;
-  const ezDynamicArray<ezUInt16>* m_pBufferToResolvedBuffer = nullptr;
-  const ezDynamicArray<ezGALTextureHandle>* m_pResolvedTextures = nullptr;
-  const ezDynamicArray<ezGALBufferHandle>* m_pResolvedBuffers = nullptr;
+  WGALCommandEncoder* m_pCommandEncoder = nullptr;
+  WGALDevice* m_pDevice = nullptr;
+  WRenderContext* m_pRenderContext = nullptr;
+  const WReflectedClass* m_pUserData = nullptr;
+  const WDynamicArray<WUInt16>* m_pTextureToResolvedTexture = nullptr;
+  const WDynamicArray<WUInt16>* m_pBufferToResolvedBuffer = nullptr;
+  const WDynamicArray<WGALTextureHandle>* m_pResolvedTextures = nullptr;
+  const WDynamicArray<WGALBufferHandle>* m_pResolvedBuffers = nullptr;
 };
 
 /// Execution callback type for render graph passes.
-using ezRenderGraphExecuteFunction = ezDelegate<void(const ezRenderGraphContext&), 16, ezTempAllocatorWrapper>;
+using WRenderGraphExecuteFunction = WDelegate<void(const WRenderGraphContext&), 16, WTempAllocatorWrapper>;

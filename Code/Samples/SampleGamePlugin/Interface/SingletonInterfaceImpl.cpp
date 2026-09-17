@@ -6,7 +6,7 @@
 #include <Foundation/Logging/Log.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: singleton-impl-definition
-EZ_IMPLEMENT_SINGLETON(PrintImplementation);
+W_IMPLEMENT_SINGLETON(PrintImplementation);
 
 PrintImplementation::PrintImplementation()
   : m_SingletonRegistrar(this) // needed for automatic registration
@@ -14,8 +14,8 @@ PrintImplementation::PrintImplementation()
 }
 // END-DOCS-CODE-SNIPPET
 
-void PrintImplementation::Print(const ezFormatString& text)
+void PrintImplementation::Print(const WFormatString& text)
 {
-  ezStringBuilder tmp;
-  ezLog::Info(text.GetText(tmp));
+  WStringBuilder tmp;
+  WLog::Info(text.GetText(tmp));
 }

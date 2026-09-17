@@ -5,48 +5,48 @@
 #include <Foundation/Time/Timestamp.h>
 
 struct ID3D11Query;
-class ezGALDeviceDX11;
+class WGALDeviceDX11;
 
 
-class EZ_RENDERERDX11_DLL ezFencePoolDX11
+class W_RENDERERDX11_DLL WFencePoolDX11
 {
 public:
-  static void Initialize(ezGALDeviceDX11* pDevice);
+  static void Initialize(WGALDeviceDX11* pDevice);
   static void DeInitialize();
 
   static ID3D11Query* RequestFence();
   static void ReclaimFence(ID3D11Query*& ref_pFence);
 
   static void InsertFence(ID3D11Query* pFence);
-  static ezEnum<ezGALAsyncResult> GetFenceResult(ID3D11Query* pFence, ezTime timeout = ezTime::MakeZero());
+  static WEnum<WGALAsyncResult> GetFenceResult(ID3D11Query* pFence, WTime timeout = WTime::MakeZero());
 
 private:
-  static ezHybridArray<ID3D11Query*, 4> s_Fences;
-  static ezGALDeviceDX11* s_pDevice;
+  static WHybridArray<ID3D11Query*, 4> s_Fences;
+  static WGALDeviceDX11* s_pDevice;
 };
 
 
-class EZ_RENDERERDX11_DLL ezFenceQueueDX11
+class W_RENDERERDX11_DLL WFenceQueueDX11
 {
 public:
-  ezFenceQueueDX11(ezAllocator* pAllocator);
-  ~ezFenceQueueDX11();
+  WFenceQueueDX11(WAllocator* pAllocator);
+  ~WFenceQueueDX11();
 
-  ezGALFenceHandle GetCurrentFenceHandle();
-  ezGALFenceHandle SubmitCurrentFence();
-  ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
+  WGALFenceHandle GetCurrentFenceHandle();
+  WGALFenceHandle SubmitCurrentFence();
+  WEnum<WGALAsyncResult> GetFenceResult(WGALFenceHandle hFence, WTime timeout = WTime::MakeZero());
 
 private:
   void FlushReadyFences();
-  ezEnum<ezGALAsyncResult> WaitForNextFence(ezTime timeout = ezTime::MakeZero());
+  WEnum<WGALAsyncResult> WaitForNextFence(WTime timeout = WTime::MakeZero());
 
 private:
   struct PendingFence
   {
     ID3D11Query* m_pFence = nullptr;
-    ezGALFenceHandle m_hFence = {};
+    WGALFenceHandle m_hFence = {};
   };
-  ezDeque<PendingFence> m_PendingFences;
-  ezUInt64 m_uiCurrentFenceCounter = 1;
-  ezUInt64 m_uiReachedFenceCounter = 0;
+  WDeque<PendingFence> m_PendingFences;
+  WUInt64 m_uiCurrentFenceCounter = 1;
+  WUInt64 m_uiReachedFenceCounter = 0;
 };

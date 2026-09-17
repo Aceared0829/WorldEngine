@@ -3,12 +3,12 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezAssetFileHeader;
-struct ezPropertyMetaStateEvent;
+class WAssetFileHeader;
+struct WPropertyMetaStateEvent;
 
-struct ezDecalMode
+struct WDecalMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -22,68 +22,68 @@ struct ezDecalMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezDecalMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WDecalMode);
 
-class ezDecalAssetProperties : public ezReflectedClass
+class WDecalAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WDecalAssetProperties, WReflectedClass);
 
 public:
-  ezDecalAssetProperties();
+  WDecalAssetProperties();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezEnum<ezDecalMode> m_Mode;
+  WEnum<WDecalMode> m_Mode;
   bool m_bBlendModeColorize = false;
 
-  ezString m_sAlphaMask;
-  ezString m_sBaseColor;
-  ezString m_sNormal;
-  ezString m_sORM;
-  ezString m_sEmissive;
+  WString m_sAlphaMask;
+  WString m_sBaseColor;
+  WString m_sNormal;
+  WString m_sORM;
+  WString m_sEmissive;
 
   /// Into how many columns and rows the input textures are subdivided.
   ///
   /// Every cell must contain an independent variation of the decal. All input textures (base color, normal, ...)
-  /// must use the same subdivision. The texture is packed into the decal atlas as a whole, an ezDecalComponent
+  /// must use the same subdivision. The texture is packed into the decal atlas as a whole, an WDecalComponent
   /// then displays only a single cell.
-  ezUInt8 m_uiNumVariationsX = 1;
-  ezUInt8 m_uiNumVariationsY = 1;
+  WUInt8 m_uiNumVariationsX = 1;
+  WUInt8 m_uiNumVariationsY = 1;
 
   /// If no base color texture is given, an opaque white one is generated, so that the alpha mask alone defines the decal.
   bool NeedsBaseColor() const { return !m_sBaseColor.IsEmpty(); }
-  bool NeedsNormal() const { return m_Mode == ezDecalMode::BaseColorNormal || m_Mode == ezDecalMode::BaseColorNormalORM; }
-  bool NeedsORM() const { return m_Mode == ezDecalMode::BaseColorORM || m_Mode == ezDecalMode::BaseColorNormalORM; }
-  bool NeedsEmissive() const { return m_Mode == ezDecalMode::BaseColorEmissive; }
+  bool NeedsNormal() const { return m_Mode == WDecalMode::BaseColorNormal || m_Mode == WDecalMode::BaseColorNormalORM; }
+  bool NeedsORM() const { return m_Mode == WDecalMode::BaseColorORM || m_Mode == WDecalMode::BaseColorNormalORM; }
+  bool NeedsEmissive() const { return m_Mode == WDecalMode::BaseColorEmissive; }
 };
 
 
-class ezDecalAssetDocument : public ezSimpleAssetDocument<ezDecalAssetProperties>
+class WDecalAssetDocument : public WSimpleAssetDocument<WDecalAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetDocument, ezSimpleAssetDocument<ezDecalAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WDecalAssetDocument, WSimpleAssetDocument<WDecalAssetProperties>);
 
 public:
-  ezDecalAssetDocument(ezStringView sDocumentPath);
+  WDecalAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezDecalAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WDecalAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WDecalAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezDecalAssetDocumentGenerator();
-  ~ezDecalAssetDocumentGenerator();
+  WDecalAssetDocumentGenerator();
+  ~WDecalAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezDecalAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Images"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WDecalAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Images"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

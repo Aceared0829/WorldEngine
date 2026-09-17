@@ -9,11 +9,11 @@
 #include <QPushButton>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-bool ezQtCreateMeshColliderDlg::s_bOpenAfterCreate = true;
-ezEnum<ezMeshColliderKind> ezQtCreateMeshColliderDlg::s_LastKind = ezMeshColliderKind::Default;
+bool WQtCreateMeshColliderDlg::s_bOpenAfterCreate = true;
+WEnum<WMeshColliderKind> WQtCreateMeshColliderDlg::s_LastKind = WMeshColliderKind::Default;
 
-ezQtCreateMeshColliderDlg::ezQtCreateMeshColliderDlg(const ezMeshColliderSource& source, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshColliderDlg::WQtCreateMeshColliderDlg(const WMeshColliderSource& source, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_pSource(&source)
 {
   Setup();
@@ -22,8 +22,8 @@ ezQtCreateMeshColliderDlg::ezQtCreateMeshColliderDlg(const ezMeshColliderSource&
   UpdateInfo();
 }
 
-ezQtCreateMeshColliderDlg::ezQtCreateMeshColliderDlg(ezUInt32 uiMeshCount, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtCreateMeshColliderDlg::WQtCreateMeshColliderDlg(WUInt32 uiMeshCount, QWidget* pParent)
+  : WQtDialog(pParent)
   , m_uiMeshCount(uiMeshCount)
 {
   Setup();
@@ -42,47 +42,47 @@ ezQtCreateMeshColliderDlg::ezQtCreateMeshColliderDlg(ezUInt32 uiMeshCount, QWidg
   UpdateInfo();
 }
 
-void ezQtCreateMeshColliderDlg::Setup()
+void WQtCreateMeshColliderDlg::Setup()
 {
   setupUi(this);
 
-  ColliderType->addItem("Convex Hull", QVariant((int)ezMeshColliderKind::ConvexHull));
-  ColliderType->addItem("Triangle Mesh", QVariant((int)ezMeshColliderKind::TriangleMesh));
+  ColliderType->addItem("Convex Hull", QVariant((int)WMeshColliderKind::ConvexHull));
+  ColliderType->addItem("Triangle Mesh", QVariant((int)WMeshColliderKind::TriangleMesh));
   ColliderType->setCurrentIndex(ColliderType->findData(QVariant((int)s_LastKind.GetValue())));
 
   OpenAfterCreate->setChecked(s_bOpenAfterCreate);
 }
 
-ezEnum<ezMeshColliderKind> ezQtCreateMeshColliderDlg::GetSelectedKind() const
+WEnum<WMeshColliderKind> WQtCreateMeshColliderDlg::GetSelectedKind() const
 {
-  return (ezMeshColliderKind::Enum)ColliderType->currentData().toInt();
+  return (WMeshColliderKind::Enum)ColliderType->currentData().toInt();
 }
 
-void ezQtCreateMeshColliderDlg::UpdateSuggestedPath()
+void WQtCreateMeshColliderDlg::UpdateSuggestedPath()
 {
   if (m_pSource == nullptr || !m_bPathIsSuggestion)
     return;
 
-  const ezString sPath = ezMeshColliderCreator::MakeDisplayPath(
-    ezMeshColliderCreator::SuggestColliderPath(*m_pSource, GetSelectedKind(), OverwriteExisting->isChecked()));
+  const WString sPath = WMeshColliderCreator::MakeDisplayPath(
+    WMeshColliderCreator::SuggestColliderPath(*m_pSource, GetSelectedKind(), OverwriteExisting->isChecked()));
 
   // the change is our own, so the text handler must not treat it as the user typing a path
   m_bSettingPath = true;
-  ColliderPath->setText(ezMakeQString(sPath));
+  ColliderPath->setText(WMakeQString(sPath));
   m_bSettingPath = false;
 }
 
-void ezQtCreateMeshColliderDlg::UpdateInfo()
+void WQtCreateMeshColliderDlg::UpdateInfo()
 {
   // Only a convex mesh has a single surface. A triangle mesh gets one per material slot of the
   // model, filled in by the asset transform.
-  const bool bHasSurface = GetSelectedKind() == ezMeshColliderKind::ConvexHull;
+  const bool bHasSurface = GetSelectedKind() == WMeshColliderKind::ConvexHull;
   labelSurface->setVisible(bHasSurface);
   SurfaceAsset->setVisible(bHasSurface);
   SurfaceButton->setVisible(bHasSurface);
   SurfaceClearButton->setVisible(bHasSurface);
 
-  ezStringBuilder sWarning;
+  WStringBuilder sWarning;
 
   if (m_pSource == nullptr)
   {
@@ -98,24 +98,24 @@ void ezQtCreateMeshColliderDlg::UpdateInfo()
   }
   else
   {
-    const ezString sTyped = qtToEzString(ColliderPath->text());
+    const WString sTyped = qtToEzString(ColliderPath->text());
 
-    ezStringBuilder sAbsolute;
+    WStringBuilder sAbsolute;
     if (sTyped.IsEmpty())
     {
       sWarning = "Enter a path for the collision mesh asset.";
     }
-    else if (ezMeshColliderCreator::ResolveDisplayPath(sTyped, sAbsolute).Failed())
+    else if (WMeshColliderCreator::ResolveDisplayPath(sTyped, sAbsolute).Failed())
     {
       sWarning = "This path does not start with the name of a data directory.";
     }
-    else if (ezOSFile::ExistsFile(sAbsolute) && !OverwriteExisting->isChecked())
+    else if (WOSFile::ExistsFile(sAbsolute) && !OverwriteExisting->isChecked())
     {
       sWarning = "This file already exists. Tick the box below to overwrite it, or choose a different name.";
     }
   }
 
-  WarningLabel->setText(ezMakeQString(sWarning));
+  WarningLabel->setText(WMakeQString(sWarning));
 
   if (QPushButton* pOk = ButtonBox->button(QDialogButtonBox::Ok))
   {
@@ -123,20 +123,20 @@ void ezQtCreateMeshColliderDlg::UpdateInfo()
   }
 }
 
-void ezQtCreateMeshColliderDlg::on_ColliderType_currentIndexChanged(int index)
+void WQtCreateMeshColliderDlg::on_ColliderType_currentIndexChanged(int index)
 {
   UpdateSuggestedPath();
   UpdateInfo();
 }
 
-void ezQtCreateMeshColliderDlg::on_OverwriteExisting_toggled(bool checked)
+void WQtCreateMeshColliderDlg::on_OverwriteExisting_toggled(bool checked)
 {
   // the suggestion dodges an existing file by appending a number, which overwriting no longer wants
   UpdateSuggestedPath();
   UpdateInfo();
 }
 
-void ezQtCreateMeshColliderDlg::on_ColliderPath_textChanged(const QString& text)
+void WQtCreateMeshColliderDlg::on_ColliderPath_textChanged(const QString& text)
 {
   if (!m_bSettingPath)
   {
@@ -146,21 +146,21 @@ void ezQtCreateMeshColliderDlg::on_ColliderPath_textChanged(const QString& text)
   UpdateInfo();
 }
 
-void ezQtCreateMeshColliderDlg::on_BrowseButton_clicked()
+void WQtCreateMeshColliderDlg::on_BrowseButton_clicked()
 {
-  const bool bConvex = GetSelectedKind() == ezMeshColliderKind::ConvexHull;
+  const bool bConvex = GetSelectedKind() == WMeshColliderKind::ConvexHull;
 
-  const QString sFilter = bConvex ? QLatin1String("Convex Collision Mesh (*.ezJoltConvexCollisionMeshAsset)")
-                                  : QLatin1String("Collision Mesh (*.ezJoltCollisionMeshAsset)");
+  const QString sFilter = bConvex ? QLatin1String("Convex Collision Mesh (*.WJoltConvexCollisionMeshAsset)")
+                                  : QLatin1String("Collision Mesh (*.WJoltCollisionMeshAsset)");
 
   // the file dialog needs a real path, the line edit holds a data directory relative one
-  ezStringBuilder sStart;
-  if (ezMeshColliderCreator::ResolveDisplayPath(qtToEzString(ColliderPath->text()), sStart).Failed() && m_pSource != nullptr)
+  WStringBuilder sStart;
+  if (WMeshColliderCreator::ResolveDisplayPath(qtToEzString(ColliderPath->text()), sStart).Failed() && m_pSource != nullptr)
   {
-    sStart = ezMeshColliderCreator::SuggestColliderPath(*m_pSource, GetSelectedKind());
+    sStart = WMeshColliderCreator::SuggestColliderPath(*m_pSource, GetSelectedKind());
   }
 
-  QString sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Collision Mesh"), ezMakeQString(sStart), sFilter,
+  QString sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Collision Mesh"), WMakeQString(sStart), sFilter,
     nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
@@ -168,42 +168,42 @@ void ezQtCreateMeshColliderDlg::on_BrowseButton_clicked()
 
   // a path the user browsed to must survive a change of the collider type
   m_bPathIsSuggestion = false;
-  ColliderPath->setText(ezMakeQString(ezMeshColliderCreator::MakeDisplayPath(qtToEzString(sFile))));
+  ColliderPath->setText(WMakeQString(WMeshColliderCreator::MakeDisplayPath(qtToEzString(sFile))));
 }
 
-void ezQtCreateMeshColliderDlg::on_SurfaceButton_clicked()
+void WQtCreateMeshColliderDlg::on_SurfaceButton_clicked()
 {
-  const ezUuid current = ezConversionUtils::ConvertStringToUuid(m_sSurface);
+  const WUuid current = WConversionUtils::ConvertStringToUuid(m_sSurface);
 
-  ezQtAssetBrowserDlg dlg(this, current, "CompatibleAsset_Surface");
+  WQtAssetBrowserDlg dlg(this, current, "CompatibleAsset_Surface");
   if (dlg.exec() == 0)
     return;
 
-  const ezUuid selected = dlg.GetSelectedAssetGuid();
+  const WUuid selected = dlg.GetSelectedAssetGuid();
   if (!selected.IsValid())
     return;
 
   // The guid is what goes into the asset, the path is only shown.
-  ezStringBuilder sGuid;
-  ezConversionUtils::ToString(selected, sGuid);
+  WStringBuilder sGuid;
+  WConversionUtils::ToString(selected, sGuid);
   m_sSurface = sGuid;
 
-  SurfaceAsset->setText(ezMakeQString(dlg.GetSelectedAssetPathRelative()));
+  SurfaceAsset->setText(WMakeQString(dlg.GetSelectedAssetPathRelative()));
 }
 
-void ezQtCreateMeshColliderDlg::on_SurfaceClearButton_clicked()
+void WQtCreateMeshColliderDlg::on_SurfaceClearButton_clicked()
 {
   m_sSurface.Clear();
   SurfaceAsset->clear();
 }
 
-void ezQtCreateMeshColliderDlg::on_ButtonBox_accepted()
+void WQtCreateMeshColliderDlg::on_ButtonBox_accepted()
 {
   // Left empty for several meshes, which is what makes the creator use each mesh's default path.
-  m_Options.m_sColliderPath = (m_pSource != nullptr) ? qtToEzString(ColliderPath->text()) : ezString();
+  m_Options.m_sColliderPath = (m_pSource != nullptr) ? qtToEzString(ColliderPath->text()) : WString();
   m_Options.m_Kind = GetSelectedKind();
   s_LastKind = m_Options.m_Kind;
-  m_Options.m_sSurface = (GetSelectedKind() == ezMeshColliderKind::ConvexHull) ? m_sSurface : ezString();
+  m_Options.m_sSurface = (GetSelectedKind() == WMeshColliderKind::ConvexHull) ? m_sSurface : WString();
   m_Options.m_bOverwriteExisting = OverwriteExisting->isChecked();
 
   // Not remembered for a large selection, where the box was unticked by us rather than by the user.
@@ -217,7 +217,7 @@ void ezQtCreateMeshColliderDlg::on_ButtonBox_accepted()
   accept();
 }
 
-void ezQtCreateMeshColliderDlg::on_ButtonBox_rejected()
+void WQtCreateMeshColliderDlg::on_ButtonBox_rejected()
 {
   reject();
 }

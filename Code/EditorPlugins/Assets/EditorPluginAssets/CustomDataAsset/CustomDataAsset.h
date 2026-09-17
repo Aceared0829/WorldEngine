@@ -3,25 +3,25 @@
 #include <Core/Utils/CustomData.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezCustomDataAssetProperties : public ezReflectedClass
+class WCustomDataAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WCustomDataAssetProperties, WReflectedClass);
 
 public:
-  ezCustomData* m_pType = nullptr;
+  WCustomData* m_pType = nullptr;
 };
 
 
-class ezCustomDataAssetDocument : public ezSimpleAssetDocument<ezCustomDataAssetProperties>
+class WCustomDataAssetDocument : public WSimpleAssetDocument<WCustomDataAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetDocument, ezSimpleAssetDocument<ezCustomDataAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WCustomDataAssetDocument, WSimpleAssetDocument<WCustomDataAssetProperties>);
 
 public:
-  ezCustomDataAssetDocument(ezStringView sDocumentPath);
+  WCustomDataAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };

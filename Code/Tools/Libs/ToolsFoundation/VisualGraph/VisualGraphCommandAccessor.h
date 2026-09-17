@@ -6,34 +6,34 @@
 /// Extends the base command accessor to handle visual graph-specific operations.
 /// When node properties change (such as adding or removing dynamic pins), it automatically
 /// disconnects and reconnects pins as needed to maintain graph consistency.
-class EZ_TOOLSFOUNDATION_DLL ezVisualGraphCommandAccessor : public ezObjectCommandAccessor
+class W_TOOLSFOUNDATION_DLL WVisualGraphCommandAccessor : public WObjectCommandAccessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphCommandAccessor, ezObjectCommandAccessor);
+  W_ADD_DYNAMIC_REFLECTION(WVisualGraphCommandAccessor, WObjectCommandAccessor);
 
 public:
-  ezVisualGraphCommandAccessor(ezCommandHistory* pHistory);
-  ~ezVisualGraphCommandAccessor();
+  WVisualGraphCommandAccessor(WCommandHistory* pHistory);
+  ~WVisualGraphCommandAccessor();
 
-  virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
+  virtual WStatus SetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
 
-  virtual ezStatus InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
-  virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) override;
+  virtual WStatus InsertValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index = WVariant()) override;
+  virtual WStatus RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus MoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex) override;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid) override;
-  virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
+  virtual WStatus AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid) override;
+  virtual WStatus RemoveObject(const WDocumentObject* pObject) override;
 
-  bool IsNode(const ezDocumentObject* pObject) const;
-  bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
+  bool IsNode(const WDocumentObject* pObject) const;
+  bool IsDynamicPinProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp) const;
 
   struct ConnectionInfo
   {
-    const ezDocumentObject* m_pSource = nullptr;
-    const ezDocumentObject* m_pTarget = nullptr;
-    ezString m_sSourcePin;
-    ezString m_sTargetPin;
+    const WDocumentObject* m_pSource = nullptr;
+    const WDocumentObject* m_pTarget = nullptr;
+    WString m_sSourcePin;
+    WString m_sTargetPin;
   };
 
-  ezStatus DisconnectAllPins(const ezDocumentObject* pObject, ezDynamicArray<ConnectionInfo>& out_oldConnections);
-  ezStatus TryReconnectAllPins(const ezDocumentObject* pObject, const ezDynamicArray<ConnectionInfo>& oldConnections);
+  WStatus DisconnectAllPins(const WDocumentObject* pObject, WDynamicArray<ConnectionInfo>& out_oldConnections);
+  WStatus TryReconnectAllPins(const WDocumentObject* pObject, const WDynamicArray<ConnectionInfo>& oldConnections);
 };

@@ -1,0 +1,269 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{4216664979612279722,4764307339926272599}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies
+		{
+			s{"AI/Al-Bot/Al-Bot.as"}
+		}
+		Uuid %DocumentID{u4{4216664979612279722,4764307339926272599}}
+		u4 %Hash{17989732443263695025}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{7855305283485473398,7992906130366490927}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"AI/Al-Bot/Al-Bot.as"}
+		}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15863496947712508938,4845540081987646196}}
+	s %t{"WExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Member"}
+		i3 %DefaultValue{50}
+		s %Name{"Health"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{5645884320301430187,5451274358698965928}}
+	s %t{"WExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Member"}
+		f %DefaultValue{0x00007041}
+		s %Name{"MaxShootDistance"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{7855305283485473398,7992906130366490927}}
+	s %t{"WExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{15863496947712508938,4845540081987646196}}
+			Uuid{u4{5645884320301430187,5451274358698965928}}
+			Uuid{u4{8546864662629442572,8643542302965132399}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8546864662629442572,8643542302965132399}}
+	s %t{"WExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"WPropertyCategory::Member"}
+		b %DefaultValue{1}
+		s %Name{"ShowState"}
+		s %Type{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{7620141936502922142,4935412826412821216}}
+	s %t{"WAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"Bot"}
+		s %Code{"class ScriptObject : WAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// WLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(WMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies{}
+		VarArray %Parameters
+		{
+			Uuid{u4{16226711775381909934,5460911938601690122}}
+			Uuid{u4{13756324908931637431,5551616222866705207}}
+			Uuid{u4{15076180471805269400,5675796133248104609}}
+		}
+		s %Source{"WAngelScriptCodeMode::FromFile"}
+		s %SourceFile{"AI/Al-Bot/Al-Bot.as"}
+	}
+}
+o
+{
+	Uuid %id{u4{16226711775381909934,5460911938601690122}}
+	s %t{"WAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 Health = 50"}
+		i3 %DefaultValue{50}
+		b %Expose{1}
+		s %Name{"Health"}
+	}
+}
+o
+{
+	Uuid %id{u4{13756324908931637431,5551616222866705207}}
+	s %t{"WAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float MaxShootDistance = 15"}
+		f %DefaultValue{0x00007041}
+		b %Expose{1}
+		s %Name{"MaxShootDistance"}
+	}
+}
+o
+{
+	Uuid %id{u4{15076180471805269400,5675796133248104609}}
+	s %t{"WAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"bool ShowState = true"}
+		b %DefaultValue{1}
+		b %Expose{1}
+		s %Name{"ShowState"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7620141936502922142,4935412826412821216}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"WAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

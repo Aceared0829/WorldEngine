@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezReflectionFilteredSpecularConstants, 3)
+CONSTANT_BUFFER(WReflectionFilteredSpecularConstants, 3)
 {
   UINT1(MipLevel);
   UINT1(OutputWidth);

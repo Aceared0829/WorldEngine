@@ -5,17 +5,17 @@
 #include <EditorPluginAssets/Dialogs/MeshImportDlg.moc.h>
 #include <QFileDialog>
 
-ezMeshImportDlg::ezMeshImportDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WMeshImportDlg::WMeshImportDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 }
 
-void ezMeshImportDlg::showEvent(QShowEvent* e)
+void WMeshImportDlg::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
 
-  CurrentAsset->setText(ezMakeQString(m_sTitle));
+  CurrentAsset->setText(WMakeQString(m_sTitle));
   Skeleton->setVisible(m_bShowAnimMeshOptions);
   Animations->setVisible(m_bShowAnimMeshOptions);
   ApplyToAll->setChecked(m_bApplyToAll);
@@ -24,12 +24,12 @@ void ezMeshImportDlg::showEvent(QShowEvent* e)
   UseSharedMaterials->setChecked(m_bUseSharedMaterials);
   Lod->setChecked(m_bAddLODs);
   NumLODs->setValue(m_uiNumLODs);
-  LodIncludeTag->setText(ezMakeQString(m_sMeshLodPrefix));
+  LodIncludeTag->setText(WMakeQString(m_sMeshLodPrefix));
 
   UpdateUI();
 }
 
-void ezMeshImportDlg::UpdateUI()
+void WMeshImportDlg::UpdateUI()
 {
 
   BrowseMaterialsFolder->setEnabled(m_bUseSharedMaterials);
@@ -39,16 +39,16 @@ void ezMeshImportDlg::UpdateUI()
   SkeletonAsset->setEnabled(m_bReuseExistingSkeleton);
   BrowseSkeleton->setEnabled(m_bReuseExistingSkeleton);
 
-  ezStringBuilder sRelPath = m_sSharedMaterialsFolderAbs;
-  if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sRelPath))
+  WStringBuilder sRelPath = m_sSharedMaterialsFolderAbs;
+  if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sRelPath))
   {
-    MaterialsFolder->setText(ezMakeQString(sRelPath));
+    MaterialsFolder->setText(WMakeQString(sRelPath));
   }
 
   bool ok = true;
   if (m_bCreateMaterials && m_bUseSharedMaterials)
   {
-    if (!ezOSFile::ExistsDirectory(m_sSharedMaterialsFolderAbs))
+    if (!WOSFile::ExistsDirectory(m_sSharedMaterialsFolderAbs))
     {
       ok = false;
     }
@@ -82,7 +82,7 @@ void ezMeshImportDlg::UpdateUI()
       {
         if (m_sSharedSkeleton.IsEmpty())
         {
-          if (auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(m_SharedSkeleton))
+          if (auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(m_SharedSkeleton))
           {
             m_sSharedSkeleton = pAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
           }
@@ -95,7 +95,7 @@ void ezMeshImportDlg::UpdateUI()
         }
         else
         {
-          SkeletonAsset->setText(ezMakeQString(m_sSharedSkeleton));
+          SkeletonAsset->setText(WMakeQString(m_sSharedSkeleton));
         }
       }
     }
@@ -104,7 +104,7 @@ void ezMeshImportDlg::UpdateUI()
   Buttons->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(ok);
 }
 
-void ezMeshImportDlg::on_Buttons_accepted()
+void WMeshImportDlg::on_Buttons_accepted()
 {
   m_bCreateMaterials = Materials->isChecked();
   m_bImportAnimationClips = ImportAnimClips->isChecked();
@@ -116,34 +116,34 @@ void ezMeshImportDlg::on_Buttons_accepted()
   accept();
 }
 
-void ezMeshImportDlg::on_Buttons_rejected()
+void WMeshImportDlg::on_Buttons_rejected()
 {
   reject();
 }
 
-void ezMeshImportDlg::on_BrowseMaterialsFolder_clicked()
+void WMeshImportDlg::on_BrowseMaterialsFolder_clicked()
 {
-  ezStringBuilder sPath = m_sSharedMaterialsFolderAbs;
+  WStringBuilder sPath = m_sSharedMaterialsFolderAbs;
 
   if (sPath.IsEmpty())
   {
-    sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   }
 
-  if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
+  if (!WQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
   {
     sPath.Clear();
   }
 
-  QString sSelectedPath = QFileDialog::getExistingDirectory(this, "Select Folder", ezMakeQString(sPath));
+  QString sSelectedPath = QFileDialog::getExistingDirectory(this, "Select Folder", WMakeQString(sPath));
   if (sSelectedPath.isEmpty())
     return;
 
-  ezStringBuilder sRelPath = sSelectedPath.toUtf8().data();
+  WStringBuilder sRelPath = sSelectedPath.toUtf8().data();
 
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sRelPath))
+  if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sRelPath))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("The select path isn't in any of the project's data directories.\n\nPlease select another folder.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("The select path isn't in any of the project's data directories.\n\nPlease select another folder.");
     return;
   }
 
@@ -152,9 +152,9 @@ void ezMeshImportDlg::on_BrowseMaterialsFolder_clicked()
   UpdateUI();
 }
 
-void ezMeshImportDlg::on_BrowseSkeleton_clicked()
+void WMeshImportDlg::on_BrowseSkeleton_clicked()
 {
-  ezQtAssetBrowserDlg dlg(this, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skeleton", "Select Skeleton");
+  WQtAssetBrowserDlg dlg(this, WUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skeleton", "Select Skeleton");
   if (dlg.exec() != 0)
   {
     if (dlg.GetSelectedAssetGuid().IsValid())
@@ -167,28 +167,28 @@ void ezMeshImportDlg::on_BrowseSkeleton_clicked()
   }
 }
 
-void ezMeshImportDlg::on_UseSharedMaterials_clicked(bool)
+void WMeshImportDlg::on_UseSharedMaterials_clicked(bool)
 {
   m_bUseSharedMaterials = UseSharedMaterials->isChecked();
 
   UpdateUI();
 }
 
-void ezMeshImportDlg::on_Materials_clicked(bool)
+void WMeshImportDlg::on_Materials_clicked(bool)
 {
   m_bCreateMaterials = Materials->isChecked();
 
   UpdateUI();
 }
 
-void ezMeshImportDlg::on_ReuseSkeleton_clicked(bool)
+void WMeshImportDlg::on_ReuseSkeleton_clicked(bool)
 {
   m_bReuseExistingSkeleton = ReuseSkeleton->isChecked();
 
   UpdateUI();
 }
 
-void ezMeshImportDlg::on_Help_clicked(bool)
+void WMeshImportDlg::on_Help_clicked(bool)
 {
   QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/graphics/meshes/mesh-import.html"));
 }

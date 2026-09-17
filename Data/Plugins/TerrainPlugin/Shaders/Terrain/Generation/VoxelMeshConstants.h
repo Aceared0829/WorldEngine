@@ -5,7 +5,7 @@
 
 /// Vertex written by the surface nets shaders into the mesh vertex buffer.
 /// Material == 0xFFFFFFFF indicates an inactive (no edge crossing) cell slot.
-struct EZ_SHADER_STRUCT VoxelGpuVertex
+struct W_SHADER_STRUCT VoxelGpuVertex
 {
   FLOAT3(Position);
   UINT1(Material);          ///< Dominant material index (0-15). Value 0xFFFFFFFF = inactive cell sentinel.
@@ -18,8 +18,8 @@ struct EZ_SHADER_STRUCT VoxelGpuVertex
 };
 
 /// Atomic counters output by the surface nets shaders.
-/// Padded to 16 bytes so sizeof matches alignas(16) EZ_SHADER_STRUCT in C++.
-struct EZ_SHADER_STRUCT VoxelMeshCounts
+/// Padded to 16 bytes so sizeof matches alignas(16) W_SHADER_STRUCT in C++.
+struct W_SHADER_STRUCT VoxelMeshCounts
 {
   UINT1(PrimitiveCount); ///< Triangle count (2 per surface quad), written atomically by Pass 2.
   UINT1(VertexCount);    ///< Compact active vertex count, written atomically by Pass 1.

@@ -9,7 +9,7 @@ enum PreyState
 
 class Prey : AiShipBase
 {
-    ezString HunterMarker = "Hunter";
+    WString HunterMarker = "Hunter";
 
     private PreyState m_State = PreyState::Wandering;
     private PreyState m_PrevState = PreyState::Wandering;
@@ -23,27 +23,27 @@ class Prey : AiShipBase
         m_vHomePos = GetOwner().GetGlobalPosition();
         m_fWanderRadius = 200.0f;
         m_fLife = 30.0f;
-        SetUpdateInterval(ezTime::Milliseconds(80));
+        SetUpdateInterval(WTime::Milliseconds(80));
     }
 
-    void Update(ezTime deltaTime)
+    void Update(WTime deltaTime)
     {
-        ezAiVoxelNavigationComponent@ navComp;
+        WAiVoxelNavigationComponent@ navComp;
         if (!GetOwner().TryGetComponentOfBaseType(@navComp))
             return;
 
-        ezVec3 vOwnPos    = GetOwner().GetGlobalPosition();
-        ezVec3 vStatusPos = vOwnPos + ezVec3(0, 0, 2.2f);
+        WVec3 vOwnPos    = GetOwner().GetGlobalPosition();
+        WVec3 vStatusPos = vOwnPos + WVec3(0, 0, 2.2f);
 
         if (TryRecoverFromFailedState(navComp, vOwnPos))
             return;
 
         // Detect nearest hunter
-        ezGameObject@ hunterObj = ezSpatial::FindClosestObjectInSphere(HunterMarker, vOwnPos, m_fAwarenessRange);
+        WGameObject@ hunterObj = WSpatial::FindClosestObjectInSphere(HunterMarker, vOwnPos, m_fAwarenessRange);
 
         if (@hunterObj != null)
         {
-            ezVec3 vHunterPos = hunterObj.GetGlobalPosition();
+            WVec3 vHunterPos = hunterObj.GetGlobalPosition();
             float fDistToHunter = vOwnPos.GetDistanceTo(vHunterPos);
 
             m_State = (fDistToHunter < m_fPanicRange) ? PreyState::Cornered : PreyState::Fleeing;
@@ -69,7 +69,7 @@ class Prey : AiShipBase
                 }
                 else
                 {
-                    ezVec3 vAwayDir = vOwnPos - vHunterPos;
+                    WVec3 vAwayDir = vOwnPos - vHunterPos;
                     float fLen = vAwayDir.GetLength();
 
                     if (fLen > 0.01f)
@@ -77,18 +77,18 @@ class Prey : AiShipBase
                         vAwayDir = vAwayDir * (1.0f / fLen); // normalize manually
 
                         // pull back towards home, stronger the further away we already are
-                        ezVec3 vHomeDir = m_vHomePos - vOwnPos;
+                        WVec3 vHomeDir = m_vHomePos - vOwnPos;
                         float fHomeDist = vHomeDir.GetLength();
-                        float fHomeWeight = ezMath::Clamp(fHomeDist / m_fWanderRadius, 0.0f, 1.5f);
+                        float fHomeWeight = WMath::Clamp(fHomeDist / m_fWanderRadius, 0.0f, 1.5f);
                         if (fHomeDist > 0.01f)
                             vHomeDir = vHomeDir * (1.0f / fHomeDist);
 
                         // always add some randomness so multiple prey don't all flee the same way
-                        ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
+                        WRandom@ rng = GetWorld().GetRandomNumberGenerator();
                         float lateralBias = rng.FloatMinMax(-0.6f, 0.6f);
-                        ezVec3 vSide = vAwayDir.GetOrthogonalVector();
+                        WVec3 vSide = vAwayDir.GetOrthogonalVector();
 
-                        ezVec3 vFleeDir = vAwayDir + vSide * lateralBias + vHomeDir * fHomeWeight;
+                        WVec3 vFleeDir = vAwayDir + vSide * lateralBias + vHomeDir * fHomeWeight;
 
                         if (vFleeDir.GetLength() > 0.01f)
                             vAwayDir = vFleeDir.GetNormalized();
@@ -103,7 +103,7 @@ class Prey : AiShipBase
             }
 
             if (ShowDebugInfo)
-                ezDebug::DrawLine(vOwnPos, vHunterPos, ezColor::Yellow, ezColor::OrangeRed);
+                WDebug::DrawLine(vOwnPos, vHunterPos, WColor::Yellow, WColor::OrangeRed);
         }
         else
         {
@@ -123,14 +123,14 @@ class Prey : AiShipBase
 
             if (m_bHasDestination)
             {
-                ezDebug::DrawLine(vOwnPos, m_vDestination, ezColor::Cyan, ezColor::Cyan);
+                WDebug::DrawLine(vOwnPos, m_vDestination, WColor::Cyan, WColor::Cyan);
             }
         }
     }
 
-    void PickFleeDestinationRandom(ezAiVoxelNavigationComponent@ navComp, ezVec3 vOwnPos)
+    void PickFleeDestinationRandom(WAiVoxelNavigationComponent@ navComp, WVec3 vOwnPos)
     {
-        ezVec3 vPoint;
+        WVec3 vPoint;
 
         if (navComp.FindRandomPointAroundSphere(vOwnPos, m_fFleeDistance, 32, vPoint))
         {
@@ -138,22 +138,22 @@ class Prey : AiShipBase
         }
     }
 
-    void DrawDebugState(ezVec3 vTextPos, ezVec3 vOwnPos)
+    void DrawDebugState(WVec3 vTextPos, WVec3 vOwnPos)
     {
         if (m_State == PreyState::Wandering)
         {
-            ezDebug::Draw3DText("Prey: Wandering", vTextPos, ezColor::Green, 24);
+            WDebug::Draw3DText("Prey: Wandering", vTextPos, WColor::Green, 24);
         }
         else if (m_State == PreyState::Fleeing)
         {
-            ezDebug::Draw3DText("Prey: FLEEING!", vTextPos, ezColor::Yellow, 28);
+            WDebug::Draw3DText("Prey: FLEEING!", vTextPos, WColor::Yellow, 28);
         }
         else
         {
-            ezDebug::Draw3DText("Prey: Cornered!", vTextPos, ezColor::Orange, 28);
+            WDebug::Draw3DText("Prey: Cornered!", vTextPos, WColor::Orange, 28);
         }
 
         // Visualize awareness sphere
-        ezDebug::DrawLineSphere(vOwnPos, m_fAwarenessRange, ezColor(0, 1, 0, 0.25f));
+        WDebug::DrawLineSphere(vOwnPos, m_fAwarenessRange, WColor(0, 1, 0, 0.25f));
     }
 }

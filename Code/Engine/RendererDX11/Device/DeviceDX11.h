@@ -21,33 +21,33 @@ struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
 
-using ezGALFormatLookupEntryDX11 = ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0>;
-using ezGALFormatLookupTableDX11 = ezGALFormatLookupTable<ezGALFormatLookupEntryDX11>;
+using WGALFormatLookupEntryDX11 = WGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0>;
+using WGALFormatLookupTableDX11 = WGALFormatLookupTable<WGALFormatLookupEntryDX11>;
 
-class ezFenceQueueDX11;
-class ezQueryPoolDX11;
+class WFenceQueueDX11;
+class WQueryPoolDX11;
 
 /// The DX11 device implementation of the graphics abstraction layer.
-class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
+class W_RENDERERDX11_DLL WGALDeviceDX11 : public WGALDevice
 {
 private:
-  friend ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description);
-  ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description);
+  friend WInternal::NewInstance<WGALDevice> CreateDX11Device(WAllocator* pAllocator, const WGALDeviceCreationDescription& description);
+  WGALDeviceDX11(const WGALDeviceCreationDescription& Description);
 
 public:
-  virtual ~ezGALDeviceDX11();
+  virtual ~WGALDeviceDX11();
 
 public:
   ID3D11Device* GetDXDevice() const;
   ID3D11Device3* GetDXDevice3() const;
   ID3D11DeviceContext* GetDXImmediateContext() const;
   IDXGIFactory1* GetDXGIFactory() const;
-  ezGALCommandEncoder* GetCommandEncoder() const;
+  WGALCommandEncoder* GetCommandEncoder() const;
 
-  ezFenceQueueDX11& GetFenceQueue() const;
-  ezQueryPoolDX11& GetQueryPool() const;
+  WFenceQueueDX11& GetFenceQueue() const;
+  WQueryPoolDX11& GetQueryPool() const;
 
-  const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
+  const WGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
   void ReportLiveGpuObjects();
 
@@ -61,115 +61,115 @@ protected:
   ///
   /// \param pUsedAdapter
   ///   Null means default adapter.
-  ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
+  WResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
-  virtual ezStringView GetRendererPlatform() override;
-  virtual ezResult InitPlatform() override;
-  virtual ezResult ShutdownPlatform() override;
+  virtual WStringView GetRendererPlatform() override;
+  virtual WResult InitPlatform() override;
+  virtual WResult ShutdownPlatform() override;
 
   // Command encoder functions
 
-  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
-  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
+  virtual WGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
+  virtual void EndCommandsPlatform(WGALCommandEncoder* pPass) override;
 
   virtual void FlushPlatform() override;
 
 
   // State creation functions
 
-  virtual ezGALBlendState* CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description) override;
-  virtual void DestroyBlendStatePlatform(ezGALBlendState* pBlendState) override;
+  virtual WGALBlendState* CreateBlendStatePlatform(const WGALBlendStateCreationDescription& Description) override;
+  virtual void DestroyBlendStatePlatform(WGALBlendState* pBlendState) override;
 
-  virtual ezGALDepthStencilState* CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description) override;
-  virtual void DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState) override;
+  virtual WGALDepthStencilState* CreateDepthStencilStatePlatform(const WGALDepthStencilStateCreationDescription& Description) override;
+  virtual void DestroyDepthStencilStatePlatform(WGALDepthStencilState* pDepthStencilState) override;
 
-  virtual ezGALRasterizerState* CreateRasterizerStatePlatform(const ezGALRasterizerStateCreationDescription& Description) override;
-  virtual void DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) override;
+  virtual WGALRasterizerState* CreateRasterizerStatePlatform(const WGALRasterizerStateCreationDescription& Description) override;
+  virtual void DestroyRasterizerStatePlatform(WGALRasterizerState* pRasterizerState) override;
 
-  virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) override;
-  virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
-  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
+  virtual WGALSamplerState* CreateSamplerStatePlatform(const WGALSamplerStateCreationDescription& Description) override;
+  virtual void DestroySamplerStatePlatform(WGALSamplerState* pSamplerState) override;
+  virtual void RecreateSamplerStatePlatform(WGALSamplerState* pSamplerState) override;
 
-  virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) override;
-  virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) override;
+  virtual WGALBindGroupLayout* CreateBindGroupLayoutPlatform(const WGALBindGroupLayoutCreationDescription& Description) override;
+  virtual void DestroyBindGroupLayoutPlatform(WGALBindGroupLayout* pBindGroupLayout) override;
 
-  virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
-  virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
-  virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
+  virtual WGALBindGroup* CreateBindGroupPlatform(const WGALBindGroupCreationDescription& Description) override;
+  virtual void DestroyBindGroupPlatform(WGALBindGroup* pBindGroup) override;
+  virtual void RecreateBindGroupPlatform(WGALBindGroup* pBindGroup) override;
 
-  virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
-  virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;
+  virtual WGALPipelineLayout* CreatePipelineLayoutPlatform(const WGALPipelineLayoutCreationDescription& Description) override;
+  virtual void DestroyPipelineLayoutPlatform(WGALPipelineLayout* pPipelineLayout) override;
 
-  virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) override;
-  virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) override;
+  virtual WGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const WGALGraphicsPipelineCreationDescription& Description) override;
+  virtual void DestroyGraphicsPipelinePlatform(WGALGraphicsPipeline* pGraphicsPipeline) override;
 
-  virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) override;
-  virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) override;
+  virtual WGALComputePipeline* CreateComputePipelinePlatform(const WGALComputePipelineCreationDescription& Description) override;
+  virtual void DestroyComputePipelinePlatform(WGALComputePipeline* pComputePipeline) override;
 
 
   // Resource creation functions
 
-  virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) override;
-  virtual void DestroyShaderPlatform(ezGALShader* pShader) override;
+  virtual WGALShader* CreateShaderPlatform(const WGALShaderCreationDescription& Description) override;
+  virtual void DestroyShaderPlatform(WGALShader* pShader) override;
 
-  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) override;
-  virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
+  virtual WGALBuffer* CreateBufferPlatform(const WGALBufferCreationDescription& Description, WArrayPtr<const WUInt8> pInitialData) override;
+  virtual void DestroyBufferPlatform(WGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-  virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
+  virtual WGALTexture* CreateTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData) override;
+  virtual void DestroyTexturePlatform(WGALTexture* pTexture) override;
 
-  virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
-  virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
+  virtual WGALTexture* CreateSharedTexturePlatform(const WGALTextureCreationDescription& Description, WArrayPtr<WGALSystemMemoryDescription> pInitialData, WEnum<WGALSharedTextureType> sharedType, WGALPlatformSharedHandle handle) override;
+  virtual void DestroySharedTexturePlatform(WGALTexture* pTexture) override;
 
-  virtual ezGALReadbackBuffer* CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description) override;
-  virtual void DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer) override;
+  virtual WGALReadbackBuffer* CreateReadbackBufferPlatform(const WGALBufferCreationDescription& Description) override;
+  virtual void DestroyReadbackBufferPlatform(WGALReadbackBuffer* pReadbackBuffer) override;
 
-  virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) override;
-  virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) override;
+  virtual WGALReadbackTexture* CreateReadbackTexturePlatform(const WGALTextureCreationDescription& Description) override;
+  virtual void DestroyReadbackTexturePlatform(WGALReadbackTexture* pReadbackTexture) override;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
-  virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
+  virtual WGALRenderTargetView* CreateRenderTargetViewPlatform(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description) override;
+  virtual void DestroyRenderTargetViewPlatform(WGALRenderTargetView* pRenderTargetView) override;
 
   // Other rendering creation functions
 
-  virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
-  virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
+  virtual WGALVertexDeclaration* CreateVertexDeclarationPlatform(const WGALVertexDeclarationCreationDescription& Description) override;
+  virtual void DestroyVertexDeclarationPlatform(WGALVertexDeclaration* pVertexDeclaration) override;
 
   // Resource update functions
 
-  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) override;
-  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) override;
+  virtual void UpdateBufferForNextFramePlatform(const WGALBuffer* pBuffer, WConstByteArrayPtr sourceData, WUInt32 uiDestOffset) override;
+  virtual void UpdateTextureForNextFramePlatform(const WGALTexture* pTexture, const WGALSystemMemoryDescription& sourceData, const WGALTextureSubresource& destinationSubResource, const WBoundingBoxu32& destinationBox) override;
 
   // GPU -> CPU query functions
 
-  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
-  virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
-  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
-  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const override;
-  virtual void UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const override;
-  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const override;
-  virtual void UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const override;
+  virtual WEnum<WGALAsyncResult> GetTimestampResultPlatform(WGALTimestampHandle hTimestamp, WTime& out_result) override;
+  virtual WEnum<WGALAsyncResult> GetOcclusionResultPlatform(WGALOcclusionHandle hOcclusion, WUInt64& out_uiResult) override;
+  virtual WEnum<WGALAsyncResult> GetFenceResultPlatform(WGALFenceHandle hFence, WTime timeout) override;
+  virtual WResult LockBufferPlatform(const WGALReadbackBuffer* pBuffer, WArrayPtr<const WUInt8>& out_Memory) const override;
+  virtual void UnlockBufferPlatform(const WGALReadbackBuffer* pBuffer) const override;
+  virtual WResult LockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources, WDynamicArray<WGALSystemMemoryDescription>& out_Memory) const override;
+  virtual void UnlockTexturePlatform(const WGALReadbackTexture* pTexture, const WArrayPtr<const WGALTextureSubresource>& subResources) const override;
   // Swap chain functions
 
-  void PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync);
+  void PresentPlatform(const WGALSwapChain* pSwapChain, bool bVSync);
 
   // Misc functions
 
-  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) override;
-  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
-  virtual ezUInt64 GetCurrentFramePlatform() const override;
-  virtual ezUInt64 GetSafeFramePlatform() const override;
+  virtual void BeginFramePlatform(WArrayPtr<WGALSwapChain*> swapchains, const WUInt64 uiAppFrame) override;
+  virtual void EndFramePlatform(WArrayPtr<WGALSwapChain*> swapchains) override;
+  virtual WUInt64 GetCurrentFramePlatform() const override;
+  virtual WUInt64 GetSafeFramePlatform() const override;
 
   virtual void FillCapabilitiesPlatform() override;
 
   virtual void WaitIdlePlatform() override;
 
-  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
+  virtual const WGALSharedTexture* GetSharedTexture(WGALTextureHandle hTexture) const override;
 
   /// \endcond
 
 private:
-  friend class ezGALCommandEncoderImplDX11;
+  friend class WGALCommandEncoderImplDX11;
 
   struct TempResourceType
   {
@@ -186,8 +186,8 @@ private:
   {
     ID3D11Resource* m_pResource = nullptr;
     void* m_pData = nullptr;
-    ezUInt32 m_uiRowPitch = 0;
-    ezUInt32 m_uiDepthPitch = 0;
+    WUInt32 m_uiRowPitch = 0;
+    WUInt32 m_uiDepthPitch = 0;
 
     operator bool() const
     {
@@ -195,17 +195,17 @@ private:
     }
   };
 
-  TempResource CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame = ezUInt64(-1));
-  TempResource CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  TempResource CopyToTempBuffer(WConstByteArrayPtr sourceData, WUInt64 uiLastUseFrame = WUInt64(-1));
+  TempResource CopyToTempTexture(const WGALSystemMemoryDescription& sourceData, WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiDepth, WGALResourceFormat::Enum format, WUInt64 uiLastUseFrame = WUInt64(-1));
   void MapTempResource(TempResource& tempResource);
   void UnmapTempResource(TempResource& tempResource);
-  void FreeTempResources(ezUInt64 uiFrame);
+  void FreeTempResources(WUInt64 uiFrame);
 
   void ProcessPendingCopies();
 
   void FillFormatLookupTable();
 
-  static constexpr ezUInt32 FRAMES = 4;
+  static constexpr WUInt32 FRAMES = 4;
 
   ID3D11Device* m_pDevice = nullptr;
   ID3D11Device3* m_pDevice3 = nullptr;
@@ -215,56 +215,56 @@ private:
   IDXGIAdapter1* m_pDXGIAdapter = nullptr;
   IDXGIDevice1* m_pDXGIDevice = nullptr;
 
-  ezUniquePtr<ezFenceQueueDX11> m_pFenceQueue;
-  ezUniquePtr<ezQueryPoolDX11> m_pQueryPool;
-  ezGALFormatLookupTableDX11 m_FormatLookupTable;
+  WUniquePtr<WFenceQueueDX11> m_pFenceQueue;
+  WUniquePtr<WQueryPoolDX11> m_pQueryPool;
+  WGALFormatLookupTableDX11 m_FormatLookupTable;
 
   // NOLINTNEXTLINE
-  ezUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
+  WUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
-  ezUniquePtr<ezGALCommandEncoderImplDX11> m_pCommandEncoderImpl;
-  ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
+  WUniquePtr<WGALCommandEncoderImplDX11> m_pCommandEncoderImpl;
+  WUniquePtr<WGALCommandEncoder> m_pCommandEncoder;
 
   struct PerFrameData
   {
-    ezGALFenceHandle m_hFence = {};
-    ezUInt64 m_uiFrame = ezUInt64(-1);
+    WGALFenceHandle m_hFence = {};
+    WUInt64 m_uiFrame = WUInt64(-1);
   };
 
   PerFrameData m_PerFrameData[FRAMES];
 
-  ezUInt64 m_uiFrameCounter = 1;
-  ezUInt64 m_uiSafeFrame = 0;
-  ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
+  WUInt64 m_uiFrameCounter = 1;
+  WUInt64 m_uiSafeFrame = 0;
+  WUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
   bool m_bSupportsAlwaysMappedTempResources = true;
 
   struct UsedTempResource
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     ID3D11Resource* m_pResource;
-    ezUInt64 m_uiFrame;
-    ezUInt32 m_uiHash;
+    WUInt64 m_uiFrame;
+    WUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<TempResource>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
-  ezDynamicArray<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
+  WMap<WUInt32, WDynamicArray<TempResource>, WCompareHelper<WUInt32>, WLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  WDynamicArray<UsedTempResource, WLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 
   struct PendingCopy
   {
     TempResource m_SourceResource = {};
-    ezGALSystemMemoryDescription m_SourceData; // Used in case always mapped temp resources are not supported
+    WGALSystemMemoryDescription m_SourceData; // Used in case always mapped temp resources are not supported
 
     ID3D11Resource* m_pDestResource = nullptr;
-    ezUInt32 m_uiDestSubResource = 0;
-    ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();
-    ezVec3U32 m_vSourceSize = ezVec3U32::MakeZero();
+    WUInt32 m_uiDestSubResource = 0;
+    WVec3U32 m_vDestPoint = WVec3U32::MakeZero();
+    WVec3U32 m_vSourceSize = WVec3U32::MakeZero();
     bool m_bCopySubresource = false;
-    ezGALResourceFormat::Enum m_SourceFormat = ezGALResourceFormat::Invalid;
+    WGALResourceFormat::Enum m_SourceFormat = WGALResourceFormat::Invalid;
   };
 
-  ezDynamicArray<PendingCopy, ezLocalAllocatorWrapper> m_PendingCopies;
+  WDynamicArray<PendingCopy, WLocalAllocatorWrapper> m_PendingCopies;
 
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;

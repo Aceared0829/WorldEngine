@@ -5,63 +5,63 @@
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFmodAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFmodSliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezFmodActions::s_hCategoryFmod;
-ezActionDescriptorHandle ezFmodActions::s_hProjectSettings;
-ezActionDescriptorHandle ezFmodActions::s_hMuteSound;
-ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
+WActionDescriptorHandle WFmodActions::s_hCategoryFmod;
+WActionDescriptorHandle WFmodActions::s_hProjectSettings;
+WActionDescriptorHandle WFmodActions::s_hMuteSound;
+WActionDescriptorHandle WFmodActions::s_hMasterVolume;
 
-void ezFmodActions::RegisterActions()
+void WFmodActions::RegisterActions()
 {
-  s_hCategoryFmod = EZ_REGISTER_CATEGORY("FMOD");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("FMOD.Settings.Project", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
-  s_hMuteSound = EZ_REGISTER_ACTION_1("FMOD.Mute", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
-  s_hMasterVolume = EZ_REGISTER_ACTION_1("FMOD.MasterVolume", ezActionScope::Document, "FMOD", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
+  s_hCategoryFmod = W_REGISTER_CATEGORY("FMOD");
+  s_hProjectSettings = W_REGISTER_ACTION_1("FMOD.Settings.Project", WActionScope::Document, "FMOD", "", WFmodAction, WFmodAction::ActionType::ProjectSettings);
+  s_hMuteSound = W_REGISTER_ACTION_1("FMOD.Mute", WActionScope::Document, "FMOD", "", WFmodAction, WFmodAction::ActionType::MuteSound);
+  s_hMasterVolume = W_REGISTER_ACTION_1("FMOD.MasterVolume", WActionScope::Document, "FMOD", "", WFmodSliderAction, WFmodSliderAction::ActionType::MasterVolume);
 }
 
-void ezFmodActions::UnregisterActions()
+void WFmodActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategoryFmod);
-  ezActionManager::UnregisterAction(s_hProjectSettings);
-  ezActionManager::UnregisterAction(s_hMuteSound);
-  ezActionManager::UnregisterAction(s_hMasterVolume);
+  WActionManager::UnregisterAction(s_hCategoryFmod);
+  WActionManager::UnregisterAction(s_hProjectSettings);
+  WActionManager::UnregisterAction(s_hMuteSound);
+  WActionManager::UnregisterAction(s_hMasterVolume);
 }
 
-void ezFmodActions::MapPluginMenuActions(ezStringView sMapping)
+void WFmodActions::MapPluginMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryFmod, "G.Plugins.Settings", 9.0f);
   pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "FMOD", 0.0f);
 }
 
-void ezFmodActions::MapMenuActions(ezStringView sMapping)
+void WFmodActions::MapMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryFmod, "G.Scene", 5.0f);
   pMap->MapAction(s_hMuteSound, "G.Scene", "FMOD", 0.0f);
   pMap->MapAction(s_hMasterVolume, "G.Scene", "FMOD", 1.0f);
 }
 
-void ezFmodActions::MapToolbarActions(ezStringView sMapping)
+void WFmodActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pSceneMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
 
   pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
   pSceneMap->MapAction(s_hMuteSound, "FMOD", 0.0f);
 }
 
-ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WFmodAction::WFmodAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -75,8 +75,8 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
     {
       SetCheckable(true);
 
-      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
+      WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WFmodAction::OnPreferenceChange, this));
 
       if (pPreferences->GetMute())
         SetIconPath(":/Icons/SoundOff.svg");
@@ -89,38 +89,38 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
   }
 }
 
-ezFmodAction::~ezFmodAction()
+WFmodAction::~WFmodAction()
 {
   if (m_Type == ActionType::MuteSound)
   {
-    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
-    pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
+    WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
+    pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WFmodAction::OnPreferenceChange, this));
   }
 }
 
-void ezFmodAction::Execute(const ezVariant& value)
+void WFmodAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezQtFmodProjectSettingsDlg dlg(nullptr);
+    WQtFmodProjectSettingsDlg dlg(nullptr);
     dlg.exec();
   }
 
   if (m_Type == ActionType::MuteSound)
   {
-    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
     pPreferences->SetMute(!pPreferences->GetMute());
 
     if (GetContext().m_pDocument)
     {
-      GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
+      GetContext().m_pDocument->ShowDocumentStatus(WFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
     }
   }
 }
 
-void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
+void WFmodAction::OnPreferenceChange(WPreferences* pref)
 {
-  ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+  WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
 
   if (m_Type == ActionType::MuteSound)
   {
@@ -135,8 +135,8 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezSliderAction(context, szName)
+WFmodSliderAction::WFmodSliderAction(const WActionContext& context, const char* szName, ActionType type)
+  : WSliderAction(context, szName)
 {
   m_Type = type;
 
@@ -144,9 +144,9 @@ ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const cha
   {
     case ActionType::MasterVolume:
     {
-      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+      WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
 
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodSliderAction::OnPreferenceChange, this));
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WFmodSliderAction::OnPreferenceChange, this));
 
       SetRange(0, 20);
     }
@@ -156,54 +156,54 @@ ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const cha
   UpdateState();
 }
 
-ezFmodSliderAction::~ezFmodSliderAction()
+WFmodSliderAction::~WFmodSliderAction()
 {
   switch (m_Type)
   {
     case ActionType::MasterVolume:
     {
-      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
-      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezFmodSliderAction::OnPreferenceChange, this));
+      WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
+      pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WFmodSliderAction::OnPreferenceChange, this));
     }
     break;
   }
 }
 
-void ezFmodSliderAction::Execute(const ezVariant& value)
+void WFmodSliderAction::Execute(const WVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
+  const WInt32 iValue = value.Get<WInt32>();
 
   switch (m_Type)
   {
     case ActionType::MasterVolume:
     {
-      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+      WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
 
       pPreferences->SetVolume(iValue / 20.0f);
 
       if (GetContext().m_pDocument)
       {
-        GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
+        GetContext().m_pDocument->ShowDocumentStatus(WFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
       }
     }
     break;
   }
 }
 
-void ezFmodSliderAction::OnPreferenceChange(ezPreferences* pref)
+void WFmodSliderAction::OnPreferenceChange(WPreferences* pref)
 {
   UpdateState();
 }
 
-void ezFmodSliderAction::UpdateState()
+void WFmodSliderAction::UpdateState()
 {
   switch (m_Type)
   {
     case ActionType::MasterVolume:
     {
-      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+      WFmodProjectPreferences* pPreferences = WPreferences::QueryPreferences<WFmodProjectPreferences>();
 
-      SetValue(ezMath::Clamp((ezInt32)(pPreferences->GetVolume() * 20.0f), 0, 20));
+      SetValue(WMath::Clamp((WInt32)(pPreferences->GetVolume() * 20.0f), 0, 20));
     }
     break;
   }

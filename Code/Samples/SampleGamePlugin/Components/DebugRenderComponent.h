@@ -6,55 +6,55 @@
 #include <SampleGamePlugin/CustomData/SampleCustomData.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-struct ezMsgSetColor;
+struct WMsgSetColor;
 
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
 
 // Bitmask to allow the user to select what debug rendering the component should do
 struct DebugRenderComponentMask
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   // the enum names for the bits
   enum Enum
   {
-    Box = EZ_BIT(0),
-    Sphere = EZ_BIT(1),
-    Cross = EZ_BIT(2),
-    Quad = EZ_BIT(3),
+    Box = W_BIT(0),
+    Sphere = W_BIT(1),
+    Cross = W_BIT(2),
+    Quad = W_BIT(3),
     All = 0xFF,
 
-    // required enum member; used by ezBitflags for default initialization
+    // required enum member; used by WBitflags for default initialization
     Default = All
   };
 
   // this allows the debugger to show us names for a bitmask
-  // just try this out by looking at an ezBitflags variable in a debugger
+  // just try this out by looking at an WBitflags variable in a debugger
   struct Bits
   {
-    ezUInt8 Box : 1;
-    ezUInt8 Sphere : 1;
-    ezUInt8 Cross : 1;
-    ezUInt8 Quad : 1;
+    WUInt8 Box : 1;
+    WUInt8 Sphere : 1;
+    WUInt8 Cross : 1;
+    WUInt8 Quad : 1;
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_SAMPLEGAMEPLUGIN_DLL, DebugRenderComponentMask);
+W_DECLARE_REFLECTABLE_TYPE(W_SAMPLEGAMEPLUGIN_DLL, DebugRenderComponentMask);
 
-// use ezComponentUpdateType::Always for this component to use 'Update' called even inside the editor when it is not simulating
+// use WComponentUpdateType::Always for this component to use 'Update' called even inside the editor when it is not simulating
 // otherwise we would see the debug render output only when simulating the scene
-using DebugRenderComponentManager = ezComponentManagerSimple<class DebugRenderComponent, ezComponentUpdateType::Always>;
+using DebugRenderComponentManager = WComponentManagerSimple<class DebugRenderComponent, WComponentUpdateType::Always>;
 
-class EZ_SAMPLEGAMEPLUGIN_DLL DebugRenderComponent : public ezComponent
+class W_SAMPLEGAMEPLUGIN_DLL DebugRenderComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(DebugRenderComponent, ezComponent, DebugRenderComponentManager);
+  W_DECLARE_COMPONENT_TYPE(DebugRenderComponent, WComponent, DebugRenderComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // DebugRenderComponent
@@ -64,13 +64,13 @@ public:
   ~DebugRenderComponent();
 
   float m_fSize = 1.0f;                               // [ property ]
-  ezColor m_Color = ezColor::White;                   // [ property ]
+  WColor m_Color = WColor::White;                   // [ property ]
 
-  ezTexture2DResourceHandle m_hTexture;               // [ property ]
+  WTexture2DResourceHandle m_hTexture;               // [ property ]
 
-  ezBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
+  WBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
 
-  void OnSetColor(ezMsgSetColor& ref_msg);            // [ msg handler ]
+  void OnSetColor(WMsgSetColor& ref_msg);            // [ msg handler ]
 
   void SetRandomColor();                              // [ scriptable ]
 

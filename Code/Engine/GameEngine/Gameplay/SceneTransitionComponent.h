@@ -3,14 +3,14 @@
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <GameEngine/GameEngineDLL.h>
 
-struct ezMsgTriggerTriggered;
+struct WMsgTriggerTriggered;
 
-using ezSceneTransitionComponentManager = ezComponentManager<class ezSceneTransitionComponent, ezBlockStorageType::Compact>;
+using WSceneTransitionComponentManager = WComponentManager<class WSceneTransitionComponent, WBlockStorageType::Compact>;
 
-/// What ezSceneTransitionComponent should do when it gets triggered through a ezMsgTriggerTriggered
-struct ezSceneLoadMode
+/// What WSceneTransitionComponent should do when it gets triggered through a WMsgTriggerTriggered
+struct WSceneLoadMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -23,7 +23,7 @@ struct ezSceneLoadMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSceneLoadMode);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WSceneLoadMode);
 
 /// Provides functionality to transition from one scene to another (level loading).
 ///
@@ -33,30 +33,30 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSceneLoadMode);
 ///
 /// It may also automatically forward the relative position of the player from this object into the
 /// target scene, such that the level transition appears more seamless.
-class EZ_GAMEENGINE_DLL ezSceneTransitionComponent : public ezComponent
+class W_GAMEENGINE_DLL WSceneTransitionComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSceneTransitionComponent, ezComponent, ezSceneTransitionComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSceneTransitionComponent, WComponent, WSceneTransitionComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSceneTransitionComponent
+  // WSceneTransitionComponent
 
 public:
-  ezSceneTransitionComponent();
-  ~ezSceneTransitionComponent();
+  WSceneTransitionComponent();
+  ~WSceneTransitionComponent();
 
   /// GUID or path to the scene that shall be loaded.
-  ezHashedString m_sTargetScene; // [ property ]
+  WHashedString m_sTargetScene; // [ property ]
 
-  /// Optional name of the spawn point (see ezPlayerStartPointComponent).
+  /// Optional name of the spawn point (see WPlayerStartPointComponent).
   /// If no spawn point with this name exists, the first one in the scene is used.
-  ezHashedString m_sSpawnPoint; // [ property ]
+  WHashedString m_sSpawnPoint; // [ property ]
 
   /// If true, the relative player position in this scene is forwarded to the target scene spawn point.
   /// Thus if the two levels looks the same at the transition point, the transition appears more seamless.
@@ -64,23 +64,23 @@ public:
 
   /// Optional collection file to use for preloading.
   /// Necessary for proper loading progress calculation.
-  ezHashedString m_sPreloadCollectionFile; // [ property ]
+  WHashedString m_sPreloadCollectionFile; // [ property ]
 
   /// If not set to 'None' the component reacts to trigger messages with the desired operation.
   /// You can attach a trigger component to the same object (or child) to automatically
   /// switch levels. If this is set to 'None', though, operations have to be triggered
-  /// manually through script code or by sending ezMsgTriggerTriggered directly.
-  ezEnum<ezSceneLoadMode> m_Mode; // [ property ]
+  /// manually through script code or by sending WMsgTriggerTriggered directly.
+  WEnum<WSceneLoadMode> m_Mode; // [ property ]
 
   /// Makes the game immediately switch to the target level.
   ///
   /// If necessary, the loading screen is shown first.
   /// If offsets are given, the player spawns relative to the target spawn point.
   /// This
-  void StartTransition(const ezVec3& vPositionOffset = ezVec3::MakeZero(), const ezQuat& qRotationOffset = ezQuat::MakeIdentity()); // [ scriptable ]
+  void StartTransition(const WVec3& vPositionOffset = WVec3::MakeZero(), const WQuat& qRotationOffset = WQuat::MakeIdentity()); // [ scriptable ]
 
   /// Same as StartTransition() but computes the relative offset to this object from the given global transform.
-  void StartTransitionWithOffsetTo(const ezVec3& vGlobalPosition, const ezQuat& qGlobalRotation); // [ scriptable ]
+  void StartTransitionWithOffsetTo(const WVec3& vGlobalPosition, const WQuat& qGlobalRotation); // [ scriptable ]
 
   /// Starts preloading the target scene.
   ///
@@ -95,5 +95,5 @@ public:
   void CancelPreload(); // [ scriptable ]
 
 protected:
-  void OnMsgTriggerTriggered(ezMsgTriggerTriggered& ref_msg);
+  void OnMsgTriggerTriggered(WMsgTriggerTriggered& ref_msg);
 };

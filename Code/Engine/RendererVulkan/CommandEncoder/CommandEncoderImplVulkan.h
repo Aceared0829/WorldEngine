@@ -9,26 +9,26 @@
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Pools/UniformBufferPoolVulkan.h>
 
-class ezGALBlendStateVulkan;
-class ezGALBufferVulkan;
-class ezGALDepthStencilStateVulkan;
-class ezGALRasterizerStateVulkan;
-class ezGALBufferResourceViewVulkan;
-class ezGALSamplerStateVulkan;
-class ezGALShaderVulkan;
-class ezGALDeviceVulkan;
-class ezFenceQueueVulkan;
-class ezGALGraphicsPipelineVulkan;
-class ezGALComputePipelineVulkan;
-struct ezGALBindGroupCreationDescription;
-class ezDescriptorWritePoolVulkan;
-class ezGALBindGroupVulkan;
+class WGALBlendStateVulkan;
+class WGALBufferVulkan;
+class WGALDepthStencilStateVulkan;
+class WGALRasterizerStateVulkan;
+class WGALBufferResourceViewVulkan;
+class WGALSamplerStateVulkan;
+class WGALShaderVulkan;
+class WGALDeviceVulkan;
+class WFenceQueueVulkan;
+class WGALGraphicsPipelineVulkan;
+class WGALComputePipelineVulkan;
+struct WGALBindGroupCreationDescription;
+class WDescriptorWritePoolVulkan;
+class WGALBindGroupVulkan;
 
-class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
+class W_RENDERERVULKAN_DLL WGALCommandEncoderImplVulkan : public WGALCommandEncoderCommonPlatformInterface
 {
 public:
-  ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& ref_device);
-  ~ezGALCommandEncoderImplVulkan();
+  WGALCommandEncoderImplVulkan(WGALDeviceVulkan& ref_device);
+  ~WGALCommandEncoderImplVulkan();
 
   void Reset();
 
@@ -36,46 +36,46 @@ public:
   void SetCurrentCommandBuffer(vk::CommandBuffer* pCommandBuffer);
   void BeforeCommandBufferSubmit();
   void AfterCommandBufferSubmit(vk::Fence submitFence);
-  ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
+  WDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
 
-  // ezGALCommandEncoderCommonPlatformInterface
+  // WGALCommandEncoderCommonPlatformInterface
   // State setting functions
-  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
-  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup) override;
-  virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
+  virtual void SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroupCreationDescription& bindGroup) override;
+  virtual void SetBindGroupPlatform(WUInt32 uiBindGroup, const WGALBindGroup* pBindGroup) override;
+  virtual void SetPushConstantsPlatform(WArrayPtr<const WUInt8> data) override;
 
   // GPU -> CPU query functions
 
-  virtual ezGALTimestampHandle InsertTimestampPlatform() override;
-  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) override;
-  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) override;
-  virtual ezGALFenceHandle InsertFencePlatform() override;
+  virtual WGALTimestampHandle InsertTimestampPlatform() override;
+  virtual WGALOcclusionHandle BeginOcclusionQueryPlatform(WEnum<WGALQueryType> type) override;
+  virtual void EndOcclusionQueryPlatform(WGALOcclusionHandle hOcclusion) override;
+  virtual WGALFenceHandle InsertFencePlatform() override;
 
 
   // Resource update functions
 
-  virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
-  virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
+  virtual void CopyBufferPlatform(const WGALBuffer* pDestination, const WGALBuffer* pSource) override;
+  virtual void CopyBufferRegionPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, const WGALBuffer* pSource, WUInt32 uiSourceOffset, WUInt32 uiByteCount) override;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode) override;
+  virtual void UpdateBufferPlatform(const WGALBuffer* pDestination, WUInt32 uiDestOffset, WArrayPtr<const WUInt8> sourceData, WGALUpdateMode::Enum updateMode) override;
 
-  virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box) override;
+  virtual void CopyTexturePlatform(const WGALTexture* pDestination, const WGALTexture* pSource) override;
+  virtual void CopyTextureRegionPlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource, const WVec3U32& vDestinationPoint, const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource, const WBoundingBoxu32& box) override;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData) override;
+  virtual void UpdateTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource, const WBoundingBoxu32& destinationBox, const WGALSystemMemoryDescription& sourceData) override;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) override;
+  virtual void ResolveTexturePlatform(const WGALTexture* pDestination, const WGALTextureSubresource& destinationSubResource, const WGALTexture* pSource, const WGALTextureSubresource& sourceSubResource) override;
 
-  virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
+  virtual void ReadbackTexturePlatform(const WGALReadbackTexture* pDestination, const WGALTexture* pSource) override;
+  virtual void ReadbackBufferPlatform(const WGALReadbackBuffer* pDestination, const WGALBuffer* pSource) override;
 
-  void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
-  void CopyImageToBuffer(const ezGALTextureVulkan* pSource, vk::Buffer destination);
+  void CopyImageToBuffer(const WGALTextureVulkan* pSource, const WGALBufferVulkan* pDestination);
+  void CopyImageToBuffer(const WGALTextureVulkan* pSource, vk::Buffer destination);
 
   // Barriers
 
-  virtual void TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers) override;
-  virtual void BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers) override;
+  virtual void TextureBarrierPlatform(WArrayPtr<const WGALTextureBarrier> barriers) override;
+  virtual void BufferBarrierPlatform(WArrayPtr<const WGALBufferBarrier> barriers) override;
 
   // Misc
 
@@ -88,68 +88,68 @@ public:
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
 
-  // ezGALCommandEncoderComputePlatformInterface
+  // WGALCommandEncoderComputePlatformInterface
   // Dispatch
   virtual void BeginComputePlatform() override;
   virtual void EndComputePlatform() override;
 
-  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DispatchPlatform(WUInt32 uiThreadGroupCountX, WUInt32 uiThreadGroupCountY, WUInt32 uiThreadGroupCountZ) override;
+  virtual WResult DispatchIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
 
 
-  // ezGALCommandEncoderRenderPlatformInterface
-  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) override;
+  // WGALCommandEncoderRenderPlatformInterface
+  virtual void BeginRenderingPlatform(const WGALRenderingSetup& renderingSetup) override;
   virtual void EndRenderingPlatform() override;
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+  virtual void ClearPlatform(const WColor& clearColor, WUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, WUInt8 uiStencilClear) override;
 
-  virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
-  virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
-  virtual ezResult DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
-  virtual ezResult DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual ezResult DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
-  virtual ezResult DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DrawPlatform(WUInt32 uiVertexCount, WUInt32 uiStartVertex) override;
+  virtual WResult DrawIndexedPlatform(WUInt32 uiIndexCount, WUInt32 uiStartIndex) override;
+  virtual WResult DrawIndexedInstancedPlatform(WUInt32 uiIndexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartIndex) override;
+  virtual WResult DrawIndexedInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
+  virtual WResult DrawInstancedPlatform(WUInt32 uiVertexCountPerInstance, WUInt32 uiInstanceCount, WUInt32 uiStartVertex) override;
+  virtual WResult DrawInstancedIndirectPlatform(const WGALBuffer* pIndirectArgumentBuffer, WUInt32 uiArgumentOffsetInBytes) override;
 
   // State functions
 
-  virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
-  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) override;
+  virtual void SetIndexBufferPlatform(const WGALBuffer* pIndexBuffer) override;
+  virtual void SetVertexBufferPlatform(WUInt32 uiSlot, const WGALBuffer* pVertexBuffer, WUInt32 uiOffset) override;
 
-  virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) override;
-  virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) override;
+  virtual void SetGraphicsPipelinePlatform(const WGALGraphicsPipeline* pGraphicsPipeline) override;
+  virtual void SetComputePipelinePlatform(const WGALComputePipeline* pComputePipeline) override;
 
-  virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
-  virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
-  virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) override;
+  virtual void SetViewportPlatform(const WRectFloat& rect, float fMinDepth, float fMaxDepth) override;
+  virtual void SetScissorRectPlatform(const WRectU32& rect) override;
+  virtual void SetStencilReferencePlatform(WUInt8 uiStencilRefValue) override;
 
   struct Statistics
   {
-    ezUInt32 m_uiDescriptorSetsCreated = 0;
-    ezUInt32 m_uiDescriptorSetsUpdated = 0;
-    ezUInt32 m_uiDescriptorSetsReused = 0;
-    ezUInt32 m_uiDescriptorWrites = 0;
-    ezUInt32 m_uiDynamicUniformBufferChanged = 0;
+    WUInt32 m_uiDescriptorSetsCreated = 0;
+    WUInt32 m_uiDescriptorSetsUpdated = 0;
+    WUInt32 m_uiDescriptorSetsReused = 0;
+    WUInt32 m_uiDescriptorWrites = 0;
+    WUInt32 m_uiDynamicUniformBufferChanged = 0;
   };
   Statistics GetAndResetStatistics();
 
 private:
   /// To be able to cache descriptor sets, we not only need the bind group description but also the currently used dynamic uniform buffers used by transient constant buffers.
-  /// All constant buffers in EZ are marked as dynamic in the layout so we need to provide offsets for each slot, no mater if a normal or transient constant buffer is bound to a slot.
+  /// All constant buffers in W are marked as dynamic in the layout so we need to provide offsets for each slot, no mater if a normal or transient constant buffer is bound to a slot.
   struct DynamicOffsets
   {
-    ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers; ///< Constant buffers in order of appearance in the bind group. Normal constant buffers write a nullptr here as they have fixed offsets and will never have to be updated. Only updated once via FindDynamicUniformBuffers.
-    ezHybridArray<vk::Buffer, 6> m_DynamicUniformVkBuffers;             ///< Current vk::Buffer for each dynamic uniform buffer in m_DynamicUniformBuffers. Updated via UpdateDynamicUniformBufferOffsets. If any of these change, a new descriptor has to be created.
-    ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;           ///< Offsets in this bind group. Normal constant buffers have fixed offsets determined in FindDynamicUniformBuffers which never change. Transient constant buffer offsets are updated with each UpdateDynamicUniformBufferOffsets call.
+    WHybridArray<const WGALBufferVulkan*, 6> m_DynamicUniformBuffers; ///< Constant buffers in order of appearance in the bind group. Normal constant buffers write a nullptr here as they have fixed offsets and will never have to be updated. Only updated once via FindDynamicUniformBuffers.
+    WHybridArray<vk::Buffer, 6> m_DynamicUniformVkBuffers;             ///< Current vk::Buffer for each dynamic uniform buffer in m_DynamicUniformBuffers. Updated via UpdateDynamicUniformBufferOffsets. If any of these change, a new descriptor has to be created.
+    WHybridArray<WUInt32, 6> m_DynamicUniformBufferOffsets;           ///< Offsets in this bind group. Normal constant buffers have fixed offsets determined in FindDynamicUniformBuffers which never change. Transient constant buffer offsets are updated with each UpdateDynamicUniformBufferOffsets call.
   };
 
-  ezResult FlushDeferredStateChanges();
+  WResult FlushDeferredStateChanges();
   void MarkAllStateDirty();
-  void FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, DynamicOffsets& out_offsets);
-  static ezUInt64 HashBindGroup(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
-  vk::DescriptorSet CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
-  void EnsureBindGroupTextureLayout(const ezGALBindGroupCreationDescription& desc);
+  void FindDynamicUniformBuffers(const WGALBindGroupCreationDescription& desc, DynamicOffsets& out_offsets);
+  static WUInt64 HashBindGroup(const WGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
+  vk::DescriptorSet CreateDescriptorSet(const WGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
+  void EnsureBindGroupTextureLayout(const WGALBindGroupCreationDescription& desc);
 
   enum class DynamicUniformBufferChanges
   {
@@ -160,12 +160,12 @@ private:
   DynamicUniformBufferChanges UpdateDynamicUniformBufferOffsets(DynamicOffsets& ref_offsets);
 
 private:
-  ezGALDeviceVulkan& m_GALDeviceVulkan;
+  WGALDeviceVulkan& m_GALDeviceVulkan;
   vk::Device m_VkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
 
-  ezUniquePtr<ezUniformBufferPoolVulkan> m_pUniformBufferPool;
+  WUniquePtr<WUniformBufferPoolVulkan> m_pUniformBufferPool;
 
   // Cache flags.
   bool m_bPipelineStateDirty = true;
@@ -173,44 +173,44 @@ private:
   bool m_bScissorDirty = true;
   bool m_bStencilRefDirty = false;
   bool m_bIndexBufferDirty = false;
-  bool m_BindGroupDirty[EZ_GAL_MAX_BIND_GROUPS] = {};
+  bool m_BindGroupDirty[W_GAL_MAX_BIND_GROUPS] = {};
   bool m_bDynamicOffsetsDirty = false;
-  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
+  WGAL::ModifiedRange m_BoundVertexBuffersRange;
   bool m_bInsideCompute = false; ///< Within BeginCompute / EndCompute block.
   bool m_bPushConstantsDirty = false;
 
   // Bound objects for deferred state flushes
-  const ezGALShaderVulkan* m_pShader = nullptr;
-  const ezGALGraphicsPipelineVulkan* m_pGraphicsPipeline = nullptr;
-  const ezGALComputePipelineVulkan* m_pComputePipeline = nullptr;
+  const WGALShaderVulkan* m_pShader = nullptr;
+  const WGALGraphicsPipelineVulkan* m_pGraphicsPipeline = nullptr;
+  const WGALComputePipelineVulkan* m_pComputePipeline = nullptr;
 
   vk::RenderPassBeginInfo m_RenderPass;
-  ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_ClearValues;
+  WHybridArray<vk::ClearValue, W_GAL_MAX_RENDERTARGET_COUNT + 1> m_ClearValues;
   vk::ImageAspectFlags m_DepthMask = {};
-  ezUInt32 m_uiLayers = 0;
+  WUInt32 m_uiLayers = 0;
 
   vk::Viewport m_Viewport;
   vk::Rect2D m_Scissor;
   bool m_bScissorEnabled = false;
-  ezUInt8 m_uiStencilRefValue = 0;
+  WUInt8 m_uiStencilRefValue = 0;
 
-  const ezGALBufferVulkan* m_pIndexBuffer = nullptr;
-  vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  const WGALBufferVulkan* m_pIndexBuffer = nullptr;
+  vk::Buffer m_pBoundVertexBuffers[W_GAL_MAX_VERTEX_BUFFER_COUNT];
+  vk::DeviceSize m_VertexBufferOffsets[W_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
   // Bind Groups
-  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
-  const ezGALBindGroupVulkan* m_pBindGroups[EZ_GAL_MAX_BIND_GROUPS] = {};
-  DynamicOffsets m_DynamicOffsets[EZ_GAL_MAX_BIND_GROUPS];
+  WGALBindGroupCreationDescription m_BindGroups[W_GAL_MAX_BIND_GROUPS];
+  const WGALBindGroupVulkan* m_pBindGroups[W_GAL_MAX_BIND_GROUPS] = {};
+  DynamicOffsets m_DynamicOffsets[W_GAL_MAX_BIND_GROUPS];
 
   // Descriptor Writes
-  mutable ezUniquePtr<ezDescriptorWritePoolVulkan> m_pWritePool;
+  mutable WUniquePtr<WDescriptorWritePoolVulkan> m_pWritePool;
 
   // Actual bound descriptor sets
-  ezHashTable<ezUInt64, vk::DescriptorSet> m_DescriptorCache;
-  vk::DescriptorSet m_DescriptorSets[EZ_GAL_MAX_BIND_GROUPS];
+  WHashTable<WUInt64, vk::DescriptorSet> m_DescriptorCache;
+  vk::DescriptorSet m_DescriptorSets[W_GAL_MAX_BIND_GROUPS];
 
-  ezDynamicArray<ezUInt8> m_PushConstants;
+  WDynamicArray<WUInt8> m_PushConstants;
 
   Statistics m_Statistics;
 };

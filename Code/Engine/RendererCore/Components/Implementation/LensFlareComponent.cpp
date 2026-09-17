@@ -11,22 +11,22 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderData, 1, ezRTTIDefaultAllocator<ezLensFlareRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLensFlareRenderData, 1, WRTTIDefaultAllocator<WLensFlareRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLensFlareRenderData::FillSortingKey()
+void WLensFlareRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
-  const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
+  const WUInt32 uiTextureIDHash = static_cast<WUInt32>(m_hTexture.GetResourceIDHash());
 
   // Sort by texture
   m_uiSortingKey = uiTextureIDHash;
 }
 
-bool ezLensFlareRenderData::CanBatch(const ezRenderData& other0) const
+bool WLensFlareRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezLensFlareRenderData&>(other0);
+  const auto& other = WStaticCast<const WLensFlareRenderData&>(other0);
 
   return m_hTexture == other.m_hTexture;
 }
@@ -34,26 +34,26 @@ bool ezLensFlareRenderData::CanBatch(const ezRenderData& other0) const
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAllocator<ezLensFlareElement>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WLensFlareElement, WNoBase, 1, WRTTIDefaultAllocator<WLensFlareElement>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezRequiredAttribute()),
-    EZ_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
-    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10000.0f), new ezSuffixAttribute(" m")),
-    EZ_MEMBER_PROPERTY("MaxScreenSize", m_fMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("ShiftToCenter", m_fShiftToCenter),
-    EZ_MEMBER_PROPERTY("InverseTonemap", m_bInverseTonemap),
+    W_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new WRequiredAttribute()),
+    W_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
+    W_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(10000.0f), new WSuffixAttribute(" m")),
+    W_MEMBER_PROPERTY("MaxScreenSize", m_fMaxScreenSize)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("ShiftToCenter", m_fShiftToCenter),
+    W_MEMBER_PROPERTY("InverseTonemap", m_bInverseTonemap),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezLensFlareElement::Serialize(ezStreamWriter& inout_stream) const
+WResult WLensFlareElement::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_hTexture;
   inout_stream << m_Color;
@@ -65,10 +65,10 @@ ezResult ezLensFlareElement::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << m_bModulateByLightColor;
   inout_stream << m_bGreyscaleTexture;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLensFlareElement::Deserialize(ezStreamReader& inout_stream)
+WResult WLensFlareElement::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_hTexture;
   inout_stream >> m_Color;
@@ -80,54 +80,54 @@ ezResult ezLensFlareElement::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_bModulateByLightColor;
   inout_stream >> m_bGreyscaleTexture;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLensFlareComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WLensFlareComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("LinkToLightShape", GetLinkToLightShape, SetLinkToLightShape)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("LightColor", m_LightColor),
-    EZ_ACCESSOR_PROPERTY("OcclusionSampleRadius", GetOcclusionSampleRadius, SetOcclusionSampleRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.1f), new ezSuffixAttribute(" m")),
-    EZ_MEMBER_PROPERTY("OcclusionSampleSpread", m_fOcclusionSampleSpread)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.5f)),
-    EZ_MEMBER_PROPERTY("OcclusionDepthOffset", m_fOcclusionDepthOffset)->AddAttributes(new ezSuffixAttribute(" m")),
-    EZ_MEMBER_PROPERTY("ApplyFog", m_bApplyFog)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ARRAY_MEMBER_PROPERTY("Elements", m_Elements)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("LinkToLightShape", GetLinkToLightShape, SetLinkToLightShape)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("LightColor", m_LightColor),
+    W_ACCESSOR_PROPERTY("OcclusionSampleRadius", GetOcclusionSampleRadius, SetOcclusionSampleRadius)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(0.1f), new WSuffixAttribute(" m")),
+    W_MEMBER_PROPERTY("OcclusionSampleSpread", m_fOcclusionSampleSpread)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f), new WDefaultValueAttribute(0.5f)),
+    W_MEMBER_PROPERTY("OcclusionDepthOffset", m_fOcclusionDepthOffset)->AddAttributes(new WSuffixAttribute(" m")),
+    W_MEMBER_PROPERTY("ApplyFog", m_bApplyFog)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ARRAY_MEMBER_PROPERTY("Elements", m_Elements)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
-    new ezSphereManipulatorAttribute("OcclusionSampleRadius"),
-    new ezSphereVisualizerAttribute("OcclusionSampleRadius", ezColor::White)
+    new WCategoryAttribute("Rendering"),
+    new WSphereManipulatorAttribute("OcclusionSampleRadius"),
+    new WSphereVisualizerAttribute("OcclusionSampleRadius", WColor::White)
   }
-  EZ_END_ATTRIBUTES;  
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezLensFlareComponent::ezLensFlareComponent() = default;
-ezLensFlareComponent::~ezLensFlareComponent() = default;
+WLensFlareComponent::WLensFlareComponent() = default;
+WLensFlareComponent::~WLensFlareComponent() = default;
 
-void ezLensFlareComponent::OnActivated()
+void WLensFlareComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   FindLightComponent();
 }
 
-void ezLensFlareComponent::OnDeactivated()
+void WLensFlareComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
@@ -135,10 +135,10 @@ void ezLensFlareComponent::OnDeactivated()
   m_hLightComponent.Invalidate();
 }
 
-void ezLensFlareComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WLensFlareComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s.WriteArray(m_Elements).IgnoreResult();
   s << m_fIntensity;
@@ -150,12 +150,12 @@ void ezLensFlareComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_bApplyFog;
 }
 
-void ezLensFlareComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WLensFlareComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s.ReadArray(m_Elements).IgnoreResult();
   s >> m_fIntensity;
@@ -170,7 +170,7 @@ void ezLensFlareComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_bApplyFog;
 }
 
-ezResult ezLensFlareComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WLensFlareComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_bDirectionalLight)
   {
@@ -178,12 +178,12 @@ ezResult ezLensFlareComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, b
   }
   else
   {
-    ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fOcclusionSampleRadius);
+    ref_bounds = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fOcclusionSampleRadius);
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLensFlareComponent::SetLinkToLightShape(bool bLink)
+void WLensFlareComponent::SetLinkToLightShape(bool bLink)
 {
   if (m_bLinkToLightShape == bLink)
     return;
@@ -197,20 +197,20 @@ void ezLensFlareComponent::SetLinkToLightShape(bool bLink)
   TriggerLocalBoundsUpdate();
 }
 
-void ezLensFlareComponent::SetOcclusionSampleRadius(float fRadius)
+void WLensFlareComponent::SetOcclusionSampleRadius(float fRadius)
 {
   m_fOcclusionSampleRadius = fRadius;
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezLensFlareComponent::FindLightComponent()
+void WLensFlareComponent::FindLightComponent()
 {
-  ezLightComponent* pLightComponent = nullptr;
+  WLightComponent* pLightComponent = nullptr;
 
   if (m_bLinkToLightShape)
   {
-    ezGameObject* pObject = GetOwner();
+    WGameObject* pObject = GetOwner();
     while (pObject != nullptr)
     {
       if (pObject->TryGetComponentOfBaseType(pLightComponent))
@@ -222,7 +222,7 @@ void ezLensFlareComponent::FindLightComponent()
 
   if (pLightComponent != nullptr)
   {
-    m_bDirectionalLight = pLightComponent->IsInstanceOf<ezDirectionalLightComponent>();
+    m_bDirectionalLight = pLightComponent->IsInstanceOf<WDirectionalLightComponent>();
     m_hLightComponent = pLightComponent->GetHandle();
   }
   else
@@ -232,31 +232,31 @@ void ezLensFlareComponent::FindLightComponent()
   }
 }
 
-void ezLensFlareComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WLensFlareComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_LightColor);
 }
 
-void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WLensFlareComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't render in shadow and reflection views
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Reflection)
     return;
 
   // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory)
     return;
 
   if (m_fIntensity <= 0.0f)
     return;
 
-  const ezCamera* pCamera = msg.m_pView->GetCamera();
-  ezTransform globalTransform = GetOwner()->GetGlobalTransform();
-  ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
+  const WCamera* pCamera = msg.m_pView->GetCamera();
+  WTransform globalTransform = GetOwner()->GetGlobalTransform();
+  WBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
   float fScale = globalTransform.GetMaxScale();
-  ezColor lightColor = ezColor::White;
+  WColor lightColor = WColor::White;
 
-  const ezLightComponent* pLightComponent = nullptr;
+  const WLightComponent* pLightComponent = nullptr;
   if (GetWorld()->TryGetComponent(m_hLightComponent, pLightComponent))
   {
     lightColor = pLightComponent->GetLightColor();
@@ -268,31 +268,31 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   }
 
   float fFade = 1.0f;
-  if (auto pDirectionalLight = ezDynamicCast<const ezDirectionalLightComponent*>(pLightComponent))
+  if (auto pDirectionalLight = WDynamicCast<const WDirectionalLightComponent*>(pLightComponent))
   {
-    ezTransform localOffset = ezTransform::MakeIdentity();
-    localOffset.m_vPosition = ezVec3(pCamera->GetFarPlane() * -0.999f, 0, 0);
+    WTransform localOffset = WTransform::MakeIdentity();
+    localOffset.m_vPosition = WVec3(pCamera->GetFarPlane() * -0.999f, 0, 0);
 
-    globalTransform = ezTransform::MakeGlobalTransform(globalTransform, localOffset);
+    globalTransform = WTransform::MakeGlobalTransform(globalTransform, localOffset);
     globalTransform.m_vPosition += pCamera->GetCenterPosition();
 
     if (pCamera->IsPerspective())
     {
-      float fHalfHeight = ezMath::Tan(pCamera->GetFovY(1.0f) * 0.5f) * pCamera->GetFarPlane();
+      float fHalfHeight = WMath::Tan(pCamera->GetFovY(1.0f) * 0.5f) * pCamera->GetFarPlane();
       fScale *= fHalfHeight;
     }
 
     lightColor *= 10.0f;
   }
-  else if (auto pSpotLight = ezDynamicCast<const ezSpotLightComponent*>(pLightComponent))
+  else if (auto pSpotLight = WDynamicCast<const WSpotLightComponent*>(pLightComponent))
   {
-    const ezVec3 lightDir = globalTransform.TransformDirection(ezVec3::MakeAxisX());
-    const ezVec3 cameraDir = (pCamera->GetCenterPosition() - globalTransform.m_vPosition).GetNormalized();
+    const WVec3 lightDir = globalTransform.TransformDirection(WVec3::MakeAxisX());
+    const WVec3 cameraDir = (pCamera->GetCenterPosition() - globalTransform.m_vPosition).GetNormalized();
 
     const float cosAngle = lightDir.Dot(cameraDir);
-    const float fCosInner = ezMath::Cos(pSpotLight->GetInnerSpotAngle() * 0.5f);
-    const float fCosOuter = ezMath::Cos(pSpotLight->GetOuterSpotAngle() * 0.5f);
-    fFade = ezMath::Saturate((cosAngle - fCosOuter) / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
+    const float fCosInner = WMath::Cos(pSpotLight->GetInnerSpotAngle() * 0.5f);
+    const float fCosOuter = WMath::Cos(pSpotLight->GetOuterSpotAngle() * 0.5f);
+    fFade = WMath::Saturate((cosAngle - fCosOuter) / WMath::Max(0.001f, (fCosInner - fCosOuter)));
     fFade *= fFade;
   }
 
@@ -301,7 +301,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (element.m_hTexture.IsValid() == false)
       continue;
 
-    ezColor color = element.m_Color * m_fIntensity;
+    WColor color = element.m_Color * m_fIntensity;
     if (element.m_bModulateByLightColor)
     {
       color *= lightColor;
@@ -311,7 +311,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (color.GetLuminance() <= 0.0f || color.a <= 0.0f)
       continue;
 
-    ezLensFlareRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezLensFlareRenderData>(GetOwner());
+    WLensFlareRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WLensFlareRenderData>(GetOwner());
     {
       pRenderData->m_vGlobalPosition = globalTransform.m_vPosition;
 
@@ -332,11 +332,11 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     }
 
     const bool bIsSecondaryFlare = element.m_fShiftToCenter != 0.0f;
-    const auto category = bIsSecondaryFlare ? ezDefaultRenderDataCategories::LensEffects : ezDefaultRenderDataCategories::LitTransparent;
+    const auto category = bIsSecondaryFlare ? WDefaultRenderDataCategories::LensEffects : WDefaultRenderDataCategories::LitTransparent;
 
-    msg.AddRenderData(pRenderData, category, pLightComponent != nullptr ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, category, pLightComponent != nullptr ? WRenderData::Caching::Never : WRenderData::Caching::IfStatic);
   }
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LensFlareComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LensFlareComponent);

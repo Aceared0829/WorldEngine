@@ -10,36 +10,36 @@
 #include <ads/DockContainerWidget.h>
 #include <ads/DockWidgetTab.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezQtApplicationPanel, ezNoBase, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE;
+W_BEGIN_STATIC_REFLECTED_TYPE(WQtApplicationPanel, WNoBase, 1, WRTTINoAllocator)
+W_END_STATIC_REFLECTED_TYPE;
 
-ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
+WDynamicArray<WQtApplicationPanel*> WQtApplicationPanel::s_AllApplicationPanels;
 
-ezQtApplicationPanel::ezQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName)
-  : ads::CDockWidget(pDockManager, szPanelName, ezQtContainerWindow::GetContainerWindow())
+WQtApplicationPanel::WQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName)
+  : ads::CDockWidget(pDockManager, szPanelName, WQtContainerWindow::GetContainerWindow())
 {
-  ezStringBuilder sPanel("AppPanel_", szPanelName);
+  WStringBuilder sPanel("AppPanel_", szPanelName);
 
-  setObjectName(ezMakeQString(sPanel));
-  setWindowTitle(ezMakeQString(ezTranslate(szPanelName)));
+  setObjectName(WMakeQString(sPanel));
+  setWindowTitle(WMakeQString(WTranslate(szPanelName)));
 
   s_AllApplicationPanels.PushBack(this);
 
   m_pContainerWindow = nullptr;
 
-  ezQtContainerWindow::GetContainerWindow()->AddApplicationPanel(this);
+  WQtContainerWindow::GetContainerWindow()->AddApplicationPanel(this);
 
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
+  WToolsProject::s_Events.AddEventHandler(WMakeDelegate(&WQtApplicationPanel::ToolsProjectEventHandler, this));
 }
 
-ezQtApplicationPanel::~ezQtApplicationPanel()
+WQtApplicationPanel::~WQtApplicationPanel()
 {
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
+  WToolsProject::s_Events.RemoveEventHandler(WMakeDelegate(&WQtApplicationPanel::ToolsProjectEventHandler, this));
 
   s_AllApplicationPanels.RemoveAndSwap(this);
 }
 
-void ezQtApplicationPanel::EnsureVisible()
+void WQtApplicationPanel::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 
@@ -64,14 +64,14 @@ void ezQtApplicationPanel::EnsureVisible()
 }
 
 
-void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+void WQtApplicationPanel::ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezToolsProjectEvent::Type::ProjectClosing:
+    case WToolsProjectEvent::Type::ProjectClosing:
       setEnabled(false);
       break;
-    case ezToolsProjectEvent::Type::ProjectOpened:
+    case WToolsProjectEvent::Type::ProjectOpened:
       setEnabled(true);
       break;
 
@@ -80,12 +80,12 @@ void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e
   }
 }
 
-bool ezQtApplicationPanel::event(QEvent* pEvent)
+bool WQtApplicationPanel::event(QEvent* pEvent)
 {
   if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
-    if (ezQtProxy::TriggerDocumentAction(nullptr, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
+    if (WQtProxy::TriggerDocumentAction(nullptr, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
   }
   return ads::CDockWidget::event(pEvent);

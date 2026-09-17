@@ -1,9 +1,9 @@
 
-class ScriptObject : ezAngelScriptClass
+class ScriptObject : WAngelScriptClass
 {
     float Health = 10;
 
-    void OnMsgDamage(ezMsgDamage@ msg)
+    void OnMsgDamage(WMsgDamage@ msg)
     {
         if (Health <= 0) 
             return;
@@ -16,10 +16,10 @@ class ScriptObject : ezAngelScriptClass
         auto spawnNode = GetOwner().FindChildByName("OnBreakSpawn");
         if (@spawnNode != null)
         {
-            ezSpawnComponent@ spawnComp;
+            WSpawnComponent@ spawnComp;
             if (spawnNode.TryGetComponentOfBaseType(@spawnComp))
             {
-                auto offset = ezVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator());
+                auto offset = WVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator());
                 offset *= 0.3;
                 spawnComp.TriggerManualSpawn(true, offset);
             }

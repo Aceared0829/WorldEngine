@@ -10,49 +10,49 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshPrefabAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshPrefabAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezMeshPrefabActions::s_hCategory;
-ezActionDescriptorHandle ezMeshPrefabActions::s_hCreatePrefabFromMesh;
-ezActionDescriptorHandle ezMeshPrefabActions::s_hCreatePrefabFromMeshDoc;
+WActionDescriptorHandle WMeshPrefabActions::s_hCategory;
+WActionDescriptorHandle WMeshPrefabActions::s_hCreatePrefabFromMesh;
+WActionDescriptorHandle WMeshPrefabActions::s_hCreatePrefabFromMeshDoc;
 
-void ezMeshPrefabActions::RegisterActions()
+void WMeshPrefabActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("MeshPrefabCategory");
+  s_hCategory = W_REGISTER_CATEGORY("MeshPrefabCategory");
 
-  s_hCreatePrefabFromMesh = EZ_REGISTER_ACTION_1("Prefabs.CreateFromMesh", ezActionScope::Global, "Prefabs", "", ezMeshPrefabAction, ezMeshPrefabAction::ActionType::CreatePrefabFromMesh);
-  s_hCreatePrefabFromMeshDoc = EZ_REGISTER_ACTION_1("Prefabs.CreateFromMeshDocument", ezActionScope::Document, "Prefabs", "", ezMeshPrefabAction, ezMeshPrefabAction::ActionType::CreatePrefabFromMesh);
+  s_hCreatePrefabFromMesh = W_REGISTER_ACTION_1("Prefabs.CreateFromMesh", WActionScope::Global, "Prefabs", "", WMeshPrefabAction, WMeshPrefabAction::ActionType::CreatePrefabFromMesh);
+  s_hCreatePrefabFromMeshDoc = W_REGISTER_ACTION_1("Prefabs.CreateFromMeshDocument", WActionScope::Document, "Prefabs", "", WMeshPrefabAction, WMeshPrefabAction::ActionType::CreatePrefabFromMesh);
 }
 
-void ezMeshPrefabActions::UnregisterActions()
+void WMeshPrefabActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hCreatePrefabFromMesh);
-  ezActionManager::UnregisterAction(s_hCreatePrefabFromMeshDoc);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hCreatePrefabFromMesh);
+  WActionManager::UnregisterAction(s_hCreatePrefabFromMeshDoc);
 }
 
-ezResult ezMeshPrefabActions::MapActions(ezStringView sActionMap, ezStringView sSubPath, bool bDocumentScope)
+WResult WMeshPrefabActions::MapActions(WStringView sActionMap, WStringView sSubPath, bool bDocumentScope)
 {
   // Not an assert: the mesh document's action maps belong to EditorPluginAssets, which is not
   // guaranteed to have been loaded first.
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sActionMap);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sActionMap);
   if (pMap == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   pMap->MapAction(s_hCategory, sSubPath, 10.0f);
   pMap->MapAction(bDocumentScope ? s_hCreatePrefabFromMeshDoc : s_hCreatePrefabFromMesh, "MeshPrefabCategory", 1.0f);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMeshPrefabAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const
+void WMeshPrefabAction::GetTargetAssets(WDynamicArray<WUuid>& out_assets) const
 {
   out_assets.Clear();
 
-  if (const ezAssetDocument* pAssetDoc = ezDynamicCast<const ezAssetDocument*>(m_Context.m_pDocument))
+  if (const WAssetDocument* pAssetDoc = WDynamicCast<const WAssetDocument*>(m_Context.m_pDocument))
   {
-    if (ezMeshPrefabCreator::IsMeshAsset(pAssetDoc->GetGuid()))
+    if (WMeshPrefabCreator::IsMeshAsset(pAssetDoc->GetGuid()))
     {
       out_assets.PushBack(pAssetDoc->GetGuid());
     }
@@ -60,17 +60,17 @@ void ezMeshPrefabAction::GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) con
     return;
   }
 
-  for (const ezUuid& guid : ezAssetBrowserSelection::GetCurrent().m_AssetGuids)
+  for (const WUuid& guid : WAssetBrowserSelection::GetCurrent().m_AssetGuids)
   {
-    if (ezMeshPrefabCreator::IsMeshAsset(guid))
+    if (WMeshPrefabCreator::IsMeshAsset(guid))
     {
       out_assets.PushBack(guid);
     }
   }
 }
 
-ezMeshPrefabAction::ezMeshPrefabAction(const ezActionContext& context, const char* szName, ezMeshPrefabAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WMeshPrefabAction::WMeshPrefabAction(const WActionContext& context, const char* szName, WMeshPrefabAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -84,13 +84,13 @@ ezMeshPrefabAction::ezMeshPrefabAction(const ezActionContext& context, const cha
   RefreshState();
 }
 
-void ezMeshPrefabAction::RefreshState()
+void WMeshPrefabAction::RefreshState()
 {
   switch (m_Type)
   {
     case ActionType::CreatePrefabFromMesh:
     {
-      ezHybridArray<ezUuid, 16> assets;
+      WHybridArray<WUuid, 16> assets;
       GetTargetAssets(assets);
 
       SetVisible(!assets.IsEmpty(), false);
@@ -100,13 +100,13 @@ void ezMeshPrefabAction::RefreshState()
   }
 }
 
-void ezMeshPrefabAction::Execute(const ezVariant& value)
+void WMeshPrefabAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
     case ActionType::CreatePrefabFromMesh:
     {
-      ezHybridArray<ezUuid, 16> assets;
+      WHybridArray<WUuid, 16> assets;
       GetTargetAssets(assets);
 
       if (assets.IsEmpty())
@@ -114,40 +114,40 @@ void ezMeshPrefabAction::Execute(const ezVariant& value)
 
       if (assets.GetCount() == 1)
       {
-        ezMeshPrefabSource source;
-        if (ezMeshPrefabCreator::GatherMeshPrefabSource(assets[0], source).Failed())
+        WMeshPrefabSource source;
+        if (WMeshPrefabCreator::GatherMeshPrefabSource(assets[0], source).Failed())
         {
-          ezQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
+          WQtUiServices::MessageBoxWarning("The selected asset is not a mesh asset.");
           return;
         }
 
-        ezQtCreateMeshPrefabDlg dlg(source, nullptr);
+        WQtCreateMeshPrefabDlg dlg(source, nullptr);
         if (dlg.exec() != QDialog::Accepted)
           return;
 
-        const ezStatus res = ezMeshPrefabCreator::CreateMeshPrefab(source, dlg.GetOptions());
-        ezQtUiServices::MessageBoxStatus(res, "Failed to create the prefab.", "", true);
+        const WStatus res = WMeshPrefabCreator::CreateMeshPrefab(source, dlg.GetOptions());
+        WQtUiServices::MessageBoxStatus(res, "Failed to create the prefab.", "", true);
         return;
       }
 
-      ezQtCreateMeshPrefabDlg dlg(assets.GetCount(), nullptr);
+      WQtCreateMeshPrefabDlg dlg(assets.GetCount(), nullptr);
       if (dlg.exec() != QDialog::Accepted)
         return;
 
-      ezUInt32 uiCreated = 0;
-      ezUInt32 uiSkipped = 0;
-      const ezStatus res = ezMeshPrefabCreator::CreateMeshPrefabs(assets, dlg.GetOptions(), uiCreated, uiSkipped);
+      WUInt32 uiCreated = 0;
+      WUInt32 uiSkipped = 0;
+      const WStatus res = WMeshPrefabCreator::CreateMeshPrefabs(assets, dlg.GetOptions(), uiCreated, uiSkipped);
 
       if (res.Failed())
       {
-        ezQtUiServices::MessageBoxStatus(res, "Failed to create the prefabs.", "", true);
+        WQtUiServices::MessageBoxStatus(res, "Failed to create the prefabs.", "", true);
         return;
       }
 
       // which meshes were skipped and why is in the log
       if (uiSkipped > 0)
       {
-        ezQtUiServices::MessageBoxInformation(ezFmt("Created {} prefab(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
+        WQtUiServices::MessageBoxInformation(WFmt("Created {} prefab(s), skipped {}.\n\nSee the log for details.", uiCreated, uiSkipped));
       }
       break;
     }

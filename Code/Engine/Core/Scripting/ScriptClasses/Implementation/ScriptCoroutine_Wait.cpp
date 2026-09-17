@@ -3,28 +3,28 @@
 #include <Core/Scripting/ScriptClasses/ScriptCoroutine_Wait.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptCoroutine_Wait, ezScriptCoroutine, 1, ezRTTIDefaultAllocator<ezScriptCoroutine_Wait>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptCoroutine_Wait, WScriptCoroutine, 1, WRTTIDefaultAllocator<WScriptCoroutine_Wait>)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Start, In, "Timeout"),
+    W_SCRIPT_FUNCTION_PROPERTY(Start, In, "Timeout"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("Coroutine::Wait {Timeout}"),
+    new WTitleAttribute("Coroutine::Wait {Timeout}"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezScriptCoroutine_Wait::Start(ezTime timeout)
+void WScriptCoroutine_Wait::Start(WTime timeout)
 {
   m_TimeRemaing = timeout;
 }
 
-ezScriptCoroutine::Result ezScriptCoroutine_Wait::Update(ezTime deltaTimeSinceLastUpdate)
+WScriptCoroutine::Result WScriptCoroutine_Wait::Update(WTime deltaTimeSinceLastUpdate)
 {
   m_TimeRemaing -= deltaTimeSinceLastUpdate;
   if (m_TimeRemaing.IsPositive())
@@ -37,4 +37,4 @@ ezScriptCoroutine::Result ezScriptCoroutine_Wait::Update(ezTime deltaTimeSinceLa
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);

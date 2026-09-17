@@ -14,18 +14,18 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WMeshAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-bool ezMeshAssetDocumentGenerator::s_bCreateMaterials = true;
-bool ezMeshAssetDocumentGenerator::s_bUseSharedMaterials = false;
-bool ezMeshAssetDocumentGenerator::s_bReuseSkeleton = false;
-bool ezMeshAssetDocumentGenerator::s_bImportAllClips = false;
-bool ezMeshAssetDocumentGenerator::s_bAddLODs = false;
-ezUInt8 ezMeshAssetDocumentGenerator::s_uiNumLODs = 1;
-ezUuid ezMeshAssetDocumentGenerator::s_SharedSkeleton;
+bool WMeshAssetDocumentGenerator::s_bCreateMaterials = true;
+bool WMeshAssetDocumentGenerator::s_bUseSharedMaterials = false;
+bool WMeshAssetDocumentGenerator::s_bReuseSkeleton = false;
+bool WMeshAssetDocumentGenerator::s_bImportAllClips = false;
+bool WMeshAssetDocumentGenerator::s_bAddLODs = false;
+WUInt8 WMeshAssetDocumentGenerator::s_uiNumLODs = 1;
+WUuid WMeshAssetDocumentGenerator::s_SharedSkeleton;
 
-ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
+WMeshAssetDocumentGenerator::WMeshAssetDocumentGenerator()
 {
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
@@ -34,39 +34,39 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
   AddSupportedFileType("vox");
 }
 
-ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator(bool bAnimMesh)
+WMeshAssetDocumentGenerator::WMeshAssetDocumentGenerator(bool bAnimMesh)
 {
   m_bAnimatedMesh = bAnimMesh;
 }
 
-ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() = default;
+WMeshAssetDocumentGenerator::~WMeshAssetDocumentGenerator() = default;
 
-void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WMeshAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "MeshImport";
     info.m_sIcon = ":/AssetIcons/Mesh.svg";
   }
 }
 
-ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WMeshAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
 
-  ezStringBuilder sSharedMaterialsFolderAbs = pPref->m_sSharedMaterialFolder;
+  WStringBuilder sSharedMaterialsFolderAbs = pPref->m_sSharedMaterialFolder;
 
   if (sSharedMaterialsFolderAbs.IsEmpty())
   {
-    ezStringBuilder tmp = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WStringBuilder tmp = WToolsProject::GetSingleton()->GetProjectDirectory();
     tmp.AppendPath("Materials");
 
     sSharedMaterialsFolderAbs = tmp;
@@ -75,7 +75,7 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
   // Without a user there is nobody to close this dialog, so the defaults below are used as they are.
   if (m_bShowImportDlg && !pApp->IsInUnattendedMode())
   {
-    ezMeshImportDlg dlg(nullptr);
+    WMeshImportDlg dlg(nullptr);
     dlg.m_bShowAnimMeshOptions = m_bAnimatedMesh;
     dlg.m_sTitle = sInputFileRel;
     dlg.m_bCreateMaterials = s_bCreateMaterials;
@@ -86,11 +86,11 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     dlg.m_bImportAnimationClips = s_bImportAllClips;
     dlg.m_bAddLODs = s_bAddLODs;
     dlg.m_uiNumLODs = s_uiNumLODs;
-    dlg.m_sMeshLodPrefix = pPref->m_sMeshLodPrefix.IsEmpty() ? ezString("$LOD") : pPref->m_sMeshLodPrefix;
+    dlg.m_sMeshLodPrefix = pPref->m_sMeshLodPrefix.IsEmpty() ? WString("$LOD") : pPref->m_sMeshLodPrefix;
 
     if (dlg.exec() != QDialog::Accepted)
     {
-      return ezStatus("User aborted asset import.");
+      return WStatus("User aborted asset import.");
     }
 
     s_bCreateMaterials = dlg.m_bCreateMaterials;
@@ -109,7 +109,7 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     s_bAddLODs = dlg.m_bAddLODs;
     if (s_bAddLODs)
     {
-      s_uiNumLODs = ezMath::Clamp<ezUInt8>(dlg.m_uiNumLODs, 0, 4);
+      s_uiNumLODs = WMath::Clamp<WUInt8>(dlg.m_uiNumLODs, 0, 4);
       pPref->m_sMeshLodPrefix = dlg.m_sMeshLodPrefix;
     }
 
@@ -126,49 +126,49 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     }
   }
 
-  ezStringBuilder sMaterialFolder = sInputFileAbs;
+  WStringBuilder sMaterialFolder = sInputFileAbs;
 
   if (s_bUseSharedMaterials)
   {
     sMaterialFolder = sSharedMaterialsFolderAbs;
   }
 
-  ezTempHybridArray<ezMaterialResourceSlot, 8> materials;
-  ezUniquePtr<ezModelImporter2::Importer> pImporter;
+  WTempHybridArray<WMaterialResourceSlot, 8> materials;
+  WUniquePtr<WModelImporter2::Importer> pImporter;
 
   if (s_bCreateMaterials || (m_bAnimatedMesh && s_bImportAllClips))
   {
-    pImporter = ezModelImporter2::RequestImporterForFileType(sInputFileAbs);
+    pImporter = WModelImporter2::RequestImporterForFileType(sInputFileAbs);
     if (pImporter == nullptr)
-      return ezStatus("No known importer for this file type.");
+      return WStatus("No known importer for this file type.");
 
-    ezMeshResourceDescriptor desc;
+    WMeshResourceDescriptor desc;
 
-    ezModelImporter2::ImportOptions opt;
+    WModelImporter2::ImportOptions opt;
     opt.m_sSourceFile = sInputFileAbs;
     opt.m_pMeshOutput = &desc;
 
     if (pImporter->Import(opt).Failed())
-      return ezStatus("Model importer was unable to read this asset.");
+      return WStatus("Model importer was unable to read this asset.");
 
-    ezMeshImportUtils::SetMeshAssetMaterialSlots(materials, pImporter.Borrow());
-    ezMeshImportUtils::ImportMeshAssetMaterials(materials, sMaterialFolder, pImporter.Borrow());
+    WMeshImportUtils::SetMeshAssetMaterialSlots(materials, pImporter.Borrow());
+    WMeshImportUtils::ImportMeshAssetMaterials(materials, sMaterialFolder, pImporter.Borrow());
   }
 
   return ConfigureMeshDocument(sInputFileRel, sOutFile, pImporter.Borrow(), materials, out_generatedDocuments);
 }
 
-static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_foundLods, ezModelImporter2::Importer* pImporter)
+static void FindLODs(WArrayMap<WUInt32, WString>& out_foundLods, WModelImporter2::Importer* pImporter)
 {
   out_foundLods.Clear();
 
-  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
 
   if (!pPref->m_sMeshLodPrefix.IsEmpty())
   {
-    ezStringBuilder lod;
+    WStringBuilder lod;
 
-    for (ezUInt32 i = 0; i < 4; ++i)
+    for (WUInt32 i = 0; i < 4; ++i)
     {
       lod = pPref->m_sMeshLodPrefix;
       lod.AppendFormat("{}", i);
@@ -186,7 +186,7 @@ static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_foundLods, ezModelImpor
   out_foundLods.Sort();
 }
 
-static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& ref_foundLods, ezDocumentObject* pPropObj, ezObjectCommandAccessor& ref_accessor)
+static void SetMeshLod(WUInt32 uiLod, WArrayMap<WUInt32, WString>& ref_foundLods, WDocumentObject* pPropObj, WObjectCommandAccessor& ref_accessor)
 {
   if (uiLod > 0)
   {
@@ -194,15 +194,15 @@ static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& ref_found
     {
       ref_accessor.SetValueByName(pPropObj, "SimplifyMesh", true).AssertSuccess();
 
-      const ezInt32 uiSimp[5] = {0, 50, 75, 90, 95};
-      const ezInt32 uiErro[5] = {0, 5, 5, 10, 15};
+      const WInt32 uiSimp[5] = {0, 50, 75, 90, 95};
+      const WInt32 uiErro[5] = {0, 5, 5, 10, 15};
       ref_accessor.SetValueByName(pPropObj, "MeshSimplification", uiSimp[uiLod]).AssertSuccess();
       ref_accessor.SetValueByName(pPropObj, "MaxSimplificationError", uiErro[uiLod]).AssertSuccess();
     }
     else
     {
       // always use the smallest next LOD that was found
-      const ezString& sLodToUse = ref_foundLods.GetValue(0);
+      const WString& sLodToUse = ref_foundLods.GetValue(0);
 
       ref_accessor.SetValueByName(pPropObj, "MeshIncludeTags", sLodToUse).AssertSuccess();
 
@@ -211,22 +211,22 @@ static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& ref_found
   }
 }
 
-ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WMeshAssetDocumentGenerator::ConfigureMeshDocument(WStringView sInputFile, WStringView sOutFile, WModelImporter2::Importer* pImporter, WArrayPtr<WMaterialResourceSlot> materials, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezUInt32 uiNumLODs = 1;
+  WUInt32 uiNumLODs = 1;
 
-  ezArrayMap<ezUInt32, ezString> foundLods;
+  WArrayMap<WUInt32, WString> foundLods;
   if (s_bAddLODs)
   {
     FindLODs(foundLods, pImporter);
     uiNumLODs += (!foundLods.IsEmpty()) ? foundLods.GetCount() : s_uiNumLODs;
   }
 
-  ezStringBuilder sFinalName, sFinalPath;
+  WStringBuilder sFinalName, sFinalPath;
 
-  for (ezUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
+  for (WUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
   {
     sFinalPath = sOutFile;
 
@@ -237,25 +237,25 @@ ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInput
       sFinalPath.ChangeFileName(sFinalName);
     }
 
-    ezDocument* pDoc = pApp->CreateDocument(sFinalPath, ezDocumentFlags::None);
+    WDocument* pDoc = pApp->CreateDocument(sFinalPath, WDocumentFlags::None);
     if (pDoc == nullptr)
-      return ezStatus(ezFmt("Could not create document '{}'", sFinalPath));
+      return WStatus(WFmt("Could not create document '{}'", sFinalPath));
 
     out_generatedDocuments.PushBack(pDoc);
 
-    ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(pDoc);
+    WMeshAssetDocument* pAssetDoc = WDynamicCast<WMeshAssetDocument*>(pDoc);
 
     auto pPropObj = pAssetDoc->GetPropertyObject();
 
-    ezObjectCommandAccessor ca(pAssetDoc->GetCommandHistory());
+    WObjectCommandAccessor ca(pAssetDoc->GetCommandHistory());
     ca.StartTransaction("Init Values");
     ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
     ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
 
-    for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+    for (WUInt32 i = 0; i < materials.GetCount(); ++i)
     {
-      ezUuid guid = ezUuid::MakeUuid();
-      ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
+      WUuid guid = WUuid::MakeUuid();
+      ca.AddObjectByName(pPropObj, "Materials", i, WGetStaticRTTI<WMaterialResourceSlot>(), guid).AssertSuccess();
 
       auto* pChildMatObj = ca.GetObject(guid);
       ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
@@ -266,81 +266,81 @@ ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInput
 
     ca.FinishTransaction();
 
-    ezLog::Success("Imported mesh: '{}'", sFinalPath);
+    WLog::Success("Imported mesh: '{}'", sFinalPath);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimatedMeshAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WAnimatedMeshAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
-  : ezMeshAssetDocumentGenerator(true)
+WAnimatedMeshAssetDocumentGenerator::WAnimatedMeshAssetDocumentGenerator()
+  : WMeshAssetDocumentGenerator(true)
 {
   AddSupportedFileType("fbx");
   AddSupportedFileType("gltf");
   AddSupportedFileType("glb");
 }
 
-ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() = default;
+WAnimatedMeshAssetDocumentGenerator::~WAnimatedMeshAssetDocumentGenerator() = default;
 
-void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WAnimatedMeshAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "AnimatedMeshImport";
     info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(WStringView sInputFile, WStringView sOutFile, WModelImporter2::Importer* pImporter, WArrayPtr<WMaterialResourceSlot> materials, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezDocument* pMainDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  WDocument* pMainDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
   if (pMainDoc == nullptr)
-    return ezStatus(ezFmt("Could not create document '{}'", sOutFile));
+    return WStatus(WFmt("Could not create document '{}'", sOutFile));
 
   out_generatedDocuments.PushBack(pMainDoc);
 
-  ezUuid skeletonGuid = s_SharedSkeleton;
+  WUuid skeletonGuid = s_SharedSkeleton;
 
   // create skeleton asset
   if (!s_bReuseSkeleton)
   {
-    ezStringBuilder sOutFile2;
+    WStringBuilder sOutFile2;
 
     sOutFile2 = sOutFile;
-    sOutFile2.ChangeFileExtension("ezSkeletonAsset");
+    sOutFile2.ChangeFileExtension("WSkeletonAsset");
 
-    if (ezOSFile::ExistsFile(sOutFile2))
+    if (WOSFile::ExistsFile(sOutFile2))
     {
-      ezLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile2);
+      WLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile2);
 
-      auto pSkeletonDoc = ezAssetCurator::GetSingleton()->FindSubAsset(sOutFile2);
+      auto pSkeletonDoc = WAssetCurator::GetSingleton()->FindSubAsset(sOutFile2);
       skeletonGuid = pSkeletonDoc->m_Data.m_Guid;
     }
     else
     {
-      ezDocument* pSkelDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
+      WDocument* pSkelDoc = pApp->CreateDocument(sOutFile2, WDocumentFlags::None);
       if (pSkelDoc == nullptr)
-        return ezStatus("Could not create skeleton document");
+        return WStatus("Could not create skeleton document");
 
-      ezStringBuilder sAnimMeshGuid;
-      ezConversionUtils::ToString(pMainDoc->GetGuid(), sAnimMeshGuid);
+      WStringBuilder sAnimMeshGuid;
+      WConversionUtils::ToString(pMainDoc->GetGuid(), sAnimMeshGuid);
 
       out_generatedDocuments.PushBack(pSkelDoc);
 
-      ezSkeletonAssetDocument* pSkeletonDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pSkelDoc);
+      WSkeletonAssetDocument* pSkeletonDoc = WDynamicCast<WSkeletonAssetDocument*>(pSkelDoc);
 
       auto pSkeletonPropObj = pSkeletonDoc->GetPropertyObject();
 
-      ezObjectCommandAccessor ca(pSkeletonDoc->GetCommandHistory());
+      WObjectCommandAccessor ca(pSkeletonDoc->GetCommandHistory());
       ca.StartTransaction("Init Values");
       ca.SetValueByName(pSkeletonPropObj, "File", sInputFile).AssertSuccess();
       ca.SetValueByName(pSkeletonPropObj, "PreviewMesh", sAnimMeshGuid.GetView()).AssertSuccess();
@@ -348,32 +348,32 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringVie
 
       skeletonGuid = pSkeletonDoc->GetGuid();
 
-      ezLog::Success("Imported skeleton: '{}'", sOutFile2);
+      WLog::Success("Imported skeleton: '{}'", sOutFile2);
     }
   }
 
   // configure animated mesh asset
   {
-    ezStringBuilder sFinalName, sFinalPath;
+    WStringBuilder sFinalName, sFinalPath;
 
-    ezUInt32 uiNumLODs = 1;
+    WUInt32 uiNumLODs = 1;
 
-    ezArrayMap<ezUInt32, ezString> foundLods;
+    WArrayMap<WUInt32, WString> foundLods;
     if (s_bAddLODs)
     {
       FindLODs(foundLods, pImporter);
       uiNumLODs += (!foundLods.IsEmpty()) ? foundLods.GetCount() : s_uiNumLODs;
     }
 
-    for (ezUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
+    for (WUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
     {
       sFinalPath = sOutFile;
 
-      ezAnimatedMeshAssetDocument* pAnimMeshDoc;
+      WAnimatedMeshAssetDocument* pAnimMeshDoc;
 
       if (uiLod == 0)
       {
-        pAnimMeshDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pMainDoc);
+        pAnimMeshDoc = WDynamicCast<WAnimatedMeshAssetDocument*>(pMainDoc);
       }
       else
       {
@@ -384,28 +384,28 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringVie
           sFinalPath.ChangeFileName(sFinalName);
         }
 
-        pAnimMeshDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pApp->CreateDocument(sFinalPath, ezDocumentFlags::None));
+        pAnimMeshDoc = WDynamicCast<WAnimatedMeshAssetDocument*>(pApp->CreateDocument(sFinalPath, WDocumentFlags::None));
         if (pAnimMeshDoc == nullptr)
-          return ezStatus(ezFmt("Could not create document '{}'", sFinalPath));
+          return WStatus(WFmt("Could not create document '{}'", sFinalPath));
 
         out_generatedDocuments.PushBack(pAnimMeshDoc);
       }
 
       auto pPropObj = pAnimMeshDoc->GetPropertyObject();
 
-      ezStringBuilder sSkeletonGuid;
-      ezConversionUtils::ToString(skeletonGuid, sSkeletonGuid);
+      WStringBuilder sSkeletonGuid;
+      WConversionUtils::ToString(skeletonGuid, sSkeletonGuid);
 
-      ezObjectCommandAccessor ca(pAnimMeshDoc->GetCommandHistory());
+      WObjectCommandAccessor ca(pAnimMeshDoc->GetCommandHistory());
       ca.StartTransaction("Init Values");
       ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
       ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
       ca.SetValueByName(pPropObj, "DefaultSkeleton", sSkeletonGuid.GetView()).AssertSuccess();
 
-      for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+      for (WUInt32 i = 0; i < materials.GetCount(); ++i)
       {
-        ezUuid guid = ezUuid::MakeUuid();
-        ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
+        WUuid guid = WUuid::MakeUuid();
+        ca.AddObjectByName(pPropObj, "Materials", i, WGetStaticRTTI<WMaterialResourceSlot>(), guid).AssertSuccess();
 
         auto* pChildMatObj = ca.GetObject(guid);
         ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
@@ -416,46 +416,46 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringVie
 
       ca.FinishTransaction();
 
-      ezLog::Success("Imported animated mesh: '{}'", sFinalPath);
+      WLog::Success("Imported animated mesh: '{}'", sFinalPath);
     }
   }
 
   // create animation clip assets
   if (s_bImportAllClips)
   {
-    ezStringBuilder sFilename;
-    ezStringBuilder sOutFile2;
+    WStringBuilder sFilename;
+    WStringBuilder sOutFile2;
 
-    ezStringBuilder sPreviewMesh;
-    ezConversionUtils::ToString(pMainDoc->GetGuid(), sPreviewMesh);
+    WStringBuilder sPreviewMesh;
+    WConversionUtils::ToString(pMainDoc->GetGuid(), sPreviewMesh);
 
     for (const auto& clip : pImporter->m_OutputAnimationNames)
     {
-      ezPathUtils::MakeValidFilename(clip, '-', sFilename);
+      WPathUtils::MakeValidFilename(clip, '-', sFilename);
       sFilename.ReplaceAll(" ", "-");
       sFilename.Prepend(sOutFile.GetFileName(), "_");
 
       sOutFile2 = sOutFile;
       sOutFile2.ChangeFileName(sFilename);
-      sOutFile2.ChangeFileExtension("ezAnimationClipAsset");
+      sOutFile2.ChangeFileExtension("WAnimationClipAsset");
 
-      if (ezOSFile::ExistsFile(sOutFile2))
+      if (WOSFile::ExistsFile(sOutFile2))
       {
-        ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
+        WLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
         continue;
       }
 
-      ezDocument* pAnimDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
+      WDocument* pAnimDoc = pApp->CreateDocument(sOutFile2, WDocumentFlags::None);
       if (pAnimDoc == nullptr)
-        return ezStatus("Could not create animation clip document");
+        return WStatus("Could not create animation clip document");
 
       out_generatedDocuments.PushBack(pAnimDoc);
 
-      ezAnimationClipAssetDocument* pAnimClipDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pAnimDoc);
+      WAnimationClipAssetDocument* pAnimClipDoc = WDynamicCast<WAnimationClipAssetDocument*>(pAnimDoc);
 
       auto pAnimPropObj = pAnimClipDoc->GetPropertyObject();
 
-      ezObjectCommandAccessor ca(pAnimClipDoc->GetCommandHistory());
+      WObjectCommandAccessor ca(pAnimClipDoc->GetCommandHistory());
       ca.StartTransaction("Init Values");
 
       ca.SetValueByName(pAnimPropObj, "File", sInputFile).AssertSuccess();
@@ -464,9 +464,9 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringVie
 
       ca.FinishTransaction();
 
-      ezLog::Success("Imported animation clip: '{}'", sOutFile2);
+      WLog::Success("Imported animation clip: '{}'", sOutFile2);
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

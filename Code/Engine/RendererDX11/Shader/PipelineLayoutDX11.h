@@ -4,17 +4,17 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/PipelineLayout.h>
 
-class ezGALPipelineLayoutDX11 : public ezGALPipelineLayout
+class WGALPipelineLayoutDX11 : public WGALPipelineLayout
 {
 public:
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALPipelineLayoutDX11(const ezGALPipelineLayoutCreationDescription& Description);
+  WGALPipelineLayoutDX11(const WGALPipelineLayoutCreationDescription& Description);
 
-  virtual ~ezGALPipelineLayoutDX11();
+  virtual ~WGALPipelineLayoutDX11();
 };

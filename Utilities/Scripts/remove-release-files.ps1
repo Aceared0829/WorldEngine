@@ -97,11 +97,11 @@ if (Test-Path $fmodProjectDir)
 # Strip the precompiled tools down to what a release package actually needs.
 #
 # What has to be kept, because it does not exist in Output\Bin:
-#   cmake             - builds the C++ plugin of a project. ezCppProject::GetCMakePath() resolves to
+#   cmake             - builds the C++ plugin of a project. WCppProject::GetCMakePath() resolves to
 #                       'cmake/bin/cmake', which is only found below the precompiled tools folder.
 #   7z.exe / 7z.dll   - the editor runs 7z to unpack the archives inside a freshly cloned remote
 #                       project (ExtractArchivesInDirectory in EditorApp.cpp). Also referenced by
-#                       EZ_CONFIG_PATH_7ZA in ezCMakeConfig.cmake.
+#                       W_CONFIG_PATH_7ZA in WCMakeConfig.cmake.
 #
 # tracy-profiler.exe is not kept. The editor can launch it to profile a running game, but that is a
 # development tool, and it is a large binary. Without it the editor's Tracy action fails to find the
@@ -128,10 +128,10 @@ Remove-PathIfExists (Join-Path $cmakeBinDir "cmake-gui.exe")
 Remove-PathIfExists (Join-Path $cmakeBinDir "ctest.exe")
 
 # Remove tools from the binary output that are only useful when working on the engine itself.
-# ezStackResolver needs the PDB files of the build to resolve a callstack, and those are not part
+# WStackResolver needs the PDB files of the build to resolve a callstack, and those are not part
 # of a release package.
-# Note: ezMiniDumpTool must NOT be removed. The crash handler launches it out-of-process to write
-# the crash dump (see ezMiniDumpUtils::LaunchMiniDumpTool), and it looks for the executable next to
+# Note: WMiniDumpTool must NOT be removed. The crash handler launches it out-of-process to write
+# the crash dump (see WMiniDumpUtils::LaunchMiniDumpTool), and it looks for the executable next to
 # the crashed application. The resulting dump can still be resolved by whoever has the PDBs.
 $binDir = Join-Path $RootDir "Output\Bin"
 
@@ -140,8 +140,8 @@ $binariesToRemove = @(
     "GdbProxy.exe",
     "HeaderCheck.exe",
     "LineCount.exe",
-    "ezStaticLinkUtil.exe",
-    "ezStackResolver.exe"
+    "WStaticLinkUtil.exe",
+    "WStackResolver.exe"
 )
 
 if (Test-Path $binDir)
@@ -189,7 +189,7 @@ if (Test-Path $binDir)
 
 # Remove the .exp files next to the import libraries. The linker writes one for every DLL that
 # exports symbols, but only the .lib is needed to link against those DLLs. Nothing in
-# Output\Bin\ezExport.cmake refers to them.
+# Output\Bin\WExport.cmake refers to them.
 $libDir = Join-Path $RootDir "Output\Lib"
 
 if (Test-Path $libDir)
@@ -212,7 +212,7 @@ Remove-PathIfExists (Join-Path $freetypeDir "x86")
 Remove-PathIfExists (Join-Path $freetypeDir "arm64")
 
 # Remove embree. It is only used by the BakingPlugin, which is not part of the package.
-# The whole directory has to go, not just the binaries: FindEzEmbree.cmake detects embree by looking
-# for 'include/embree3/rtcore.h', and ez_requires_embree() skips the plugin when that fails. Leaving
+# The whole directory has to go, not just the binaries: FindWEmbree.cmake detects embree by looking
+# for 'include/embree3/rtcore.h', and W_requires_embree() skips the plugin when that fails. Leaving
 # the headers behind would make the plugin configure and then fail to link.
 Remove-PathIfExists (Join-Path $RootDir "Code\ThirdParty\embree")

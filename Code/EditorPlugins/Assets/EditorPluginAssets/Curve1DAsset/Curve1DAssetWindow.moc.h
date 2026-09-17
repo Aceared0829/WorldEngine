@@ -4,23 +4,23 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtCurve1DEditorWidget;
+class WQtCurve1DEditorWidget;
 
-class ezQtCurve1DAssetDocumentWindow : public ezQtDocumentWindow
+class WQtCurve1DAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtCurve1DAssetDocumentWindow();
+  WQtCurve1DAssetDocumentWindow(WDocument* pDocument);
+  ~WQtCurve1DAssetDocumentWindow();
 
 private Q_SLOTS:
-  void onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);
-  void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
-  void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
-  void onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
-  void onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode);
+  void onInsertCpAt(WUInt32 uiCurveIdx, WInt64 tickX, double newPosY);
+  void onCurveCpMoved(WUInt32 curveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY);
+  void onCurveCpDeleted(WUInt32 curveIdx, WUInt32 cpIdx);
+  void onCurveTangentMoved(WUInt32 curveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void onLinkCurveTangents(WUInt32 curveIdx, WUInt32 cpIdx, bool bLink);
+  void onCurveTangentModeChanged(WUInt32 curveIdx, WUInt32 cpIdx, bool rightTangent, int mode);
 
   void onCurveBeginOperation(QString name);
   void onCurveEndOperation(bool commit);
@@ -33,8 +33,8 @@ private:
   void SendLiveResourcePreview();
   void RestoreResource();
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 
-  ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
+  WQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
 };

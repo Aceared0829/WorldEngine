@@ -8,14 +8,14 @@
 class QPaintEvent;
 
 /// Displays the normalized RGBA histogram returned by the render graph observer.
-class ezQtRenderGraphHistogramWidget : public QWidget
+class WQtRenderGraphHistogramWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ezQtRenderGraphHistogramWidget(QWidget* pParent = nullptr);
+  explicit WQtRenderGraphHistogramWidget(QWidget* pParent = nullptr);
 
-  void SetHistogram(ezArrayPtr<const ezUInt8> histogram);
+  void SetHistogram(WArrayPtr<const WUInt8> histogram);
   void Clear();
   void UpdateHistogram(QRect plotRect);
 
@@ -23,7 +23,7 @@ protected:
   void paintEvent(QPaintEvent*) override;
 
 private:
-  ezDynamicArray<ezUInt8> m_Histogram;
+  WDynamicArray<WUInt8> m_Histogram;
   bool m_bRepaintPending = false;
   QColor m_Colors[16];
   QImage m_HistogramImage;

@@ -3,27 +3,27 @@
 #include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-struct ezStatus;
+struct WStatus;
 
-/// Helper class to modify an ezVariant as if it was a container.
+/// Helper class to modify an WVariant as if it was a container.
 /// GetValue and SetValue are valid for all variant types.
 /// The remaining accessor functions require an VariantArray or VariantDictionary type.
-class EZ_TOOLSFOUNDATION_DLL ezVariantStorageAccessor
+class W_TOOLSFOUNDATION_DLL WVariantStorageAccessor
 {
 public:
-  ezVariantStorageAccessor(ezStringView sProperty, ezVariant& value);
-  ezVariantStorageAccessor(ezStringView sProperty, const ezVariant& value);
+  WVariantStorageAccessor(WStringView sProperty, WVariant& value);
+  WVariantStorageAccessor(WStringView sProperty, const WVariant& value);
 
-  ezVariant GetValue(ezVariant index = ezVariant(), ezStatus* pRes = nullptr) const;
-  ezStatus SetValue(const ezVariant& value, ezVariant index = ezVariant());
+  WVariant GetValue(WVariant index = WVariant(), WStatus* pRes = nullptr) const;
+  WStatus SetValue(const WVariant& value, WVariant index = WVariant());
 
-  ezInt32 GetCount() const;
-  ezStatus GetKeys(ezDynamicArray<ezVariant>& out_keys) const;
-  ezStatus InsertValue(const ezVariant& index, const ezVariant& value);
-  ezStatus RemoveValue(const ezVariant& index);
-  ezStatus MoveValue(const ezVariant& oldIndex, const ezVariant& newIndex);
+  WInt32 GetCount() const;
+  WStatus GetKeys(WDynamicArray<WVariant>& out_keys) const;
+  WStatus InsertValue(const WVariant& index, const WVariant& value);
+  WStatus RemoveValue(const WVariant& index);
+  WStatus MoveValue(const WVariant& oldIndex, const WVariant& newIndex);
 
 private:
-  ezStringView m_sProperty;
-  ezVariant& m_Value;
+  WStringView m_sProperty;
+  WVariant& m_Value;
 };

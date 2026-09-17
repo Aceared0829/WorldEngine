@@ -4,19 +4,19 @@
 #include <FmodPlugin/FmodIncludes.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WFmodComponent, 1)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Sound/FMOD"),
+    new WCategoryAttribute("Sound/FMOD"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezFmodComponent::ezFmodComponent() = default;
-ezFmodComponent::~ezFmodComponent() = default;
+WFmodComponent::WFmodComponent() = default;
+WFmodComponent::~WFmodComponent() = default;
 
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodComponent);
+W_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodComponent);

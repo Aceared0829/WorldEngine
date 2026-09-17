@@ -1,279 +1,279 @@
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject, const ezWorld* pWorld)
+W_ALWAYS_INLINE WGameObject::ConstChildIterator::ConstChildIterator(WGameObject* pObject, const WWorld* pWorld)
   : m_pObject(pObject)
   , m_pWorld(pWorld)
 {
 }
 
-EZ_ALWAYS_INLINE const ezGameObject& ezGameObject::ConstChildIterator::operator*() const
+W_ALWAYS_INLINE const WGameObject& WGameObject::ConstChildIterator::operator*() const
 {
   return *m_pObject;
 }
 
-EZ_ALWAYS_INLINE const ezGameObject* ezGameObject::ConstChildIterator::operator->() const
+W_ALWAYS_INLINE const WGameObject* WGameObject::ConstChildIterator::operator->() const
 {
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject*() const
+W_ALWAYS_INLINE WGameObject::ConstChildIterator::operator const WGameObject*() const
 {
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::ConstChildIterator::IsValid() const
+W_ALWAYS_INLINE bool WGameObject::ConstChildIterator::IsValid() const
 {
   return m_pObject != nullptr;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::ConstChildIterator::operator++()
+W_ALWAYS_INLINE void WGameObject::ConstChildIterator::operator++()
 {
   Next();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject, const ezWorld* pWorld)
+W_ALWAYS_INLINE WGameObject::ChildIterator::ChildIterator(WGameObject* pObject, const WWorld* pWorld)
   : ConstChildIterator(pObject, pWorld)
 {
 }
 
-EZ_ALWAYS_INLINE ezGameObject& ezGameObject::ChildIterator::operator*()
+W_ALWAYS_INLINE WGameObject& WGameObject::ChildIterator::operator*()
 {
   return *m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject* ezGameObject::ChildIterator::operator->()
+W_ALWAYS_INLINE WGameObject* WGameObject::ChildIterator::operator->()
 {
   return m_pObject;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::ChildIterator::operator ezGameObject*()
+W_ALWAYS_INLINE WGameObject::ChildIterator::operator WGameObject*()
 {
   return m_pObject;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline ezGameObject::ezGameObject() = default;
+inline WGameObject::WGameObject() = default;
 
-EZ_ALWAYS_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
+W_ALWAYS_INLINE WGameObject::WGameObject(const WGameObject& other)
 {
   *this = other;
 }
 
-EZ_ALWAYS_INLINE ezGameObjectHandle ezGameObject::GetHandle() const
+W_ALWAYS_INLINE WGameObjectHandle WGameObject::GetHandle() const
 {
-  return ezGameObjectHandle(m_InternalId);
+  return WGameObjectHandle(m_InternalId);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::IsDynamic() const
+W_ALWAYS_INLINE bool WGameObject::IsDynamic() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Dynamic);
+  return m_Flags.IsSet(WObjectFlags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::IsStatic() const
+W_ALWAYS_INLINE bool WGameObject::IsStatic() const
 {
-  return !m_Flags.IsSet(ezObjectFlags::Dynamic);
+  return !m_Flags.IsSet(WObjectFlags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::GetActiveFlag() const
+W_ALWAYS_INLINE bool WGameObject::GetActiveFlag() const
 {
-  return m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+  return m_Flags.IsSet(WObjectFlags::ActiveFlag);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::IsActive() const
+W_ALWAYS_INLINE bool WGameObject::IsActive() const
 {
-  return m_Flags.IsSet(ezObjectFlags::ActiveState);
+  return m_Flags.IsSet(WObjectFlags::ActiveState);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetName(ezStringView sName)
+W_ALWAYS_INLINE void WGameObject::SetName(WStringView sName)
 {
   m_sName.Assign(sName);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetName(const ezHashedString& sName)
+W_ALWAYS_INLINE void WGameObject::SetName(const WHashedString& sName)
 {
   m_sName = sName;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKey(ezStringView sKey)
+W_ALWAYS_INLINE void WGameObject::SetGlobalKey(WStringView sKey)
 {
-  ezHashedString sGlobalKey;
+  WHashedString sGlobalKey;
   sGlobalKey.Assign(sKey);
   SetGlobalKey(sGlobalKey);
 }
 
-EZ_ALWAYS_INLINE ezStringView ezGameObject::GetName() const
+W_ALWAYS_INLINE WStringView WGameObject::GetName() const
 {
   return m_sName.GetView();
 }
 
-EZ_ALWAYS_INLINE const ezHashedString& ezGameObject::GetNameHashed() const
+W_ALWAYS_INLINE const WHashedString& WGameObject::GetNameHashed() const
 {
   return m_sName;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetNameInternal(const char* szName)
+W_ALWAYS_INLINE void WGameObject::SetNameInternal(const char* szName)
 {
   m_sName.Assign(szName);
 }
 
-EZ_ALWAYS_INLINE const char* ezGameObject::GetNameInternal() const
+W_ALWAYS_INLINE const char* WGameObject::GetNameInternal() const
 {
   return m_sName;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKeyInternal(const char* szName)
+W_ALWAYS_INLINE void WGameObject::SetGlobalKeyInternal(const char* szName)
 {
   SetGlobalKey(szName);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& sName) const
+W_ALWAYS_INLINE bool WGameObject::HasName(const WTempHashedString& sName) const
 {
   return m_sName == sName;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::EnableChildChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::EnableChildChangesNotifications()
 {
-  m_Flags.Add(ezObjectFlags::ChildChangesNotifications);
+  m_Flags.Add(WObjectFlags::ChildChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::DisableChildChangesNotifications()
 {
-  m_Flags.Remove(ezObjectFlags::ChildChangesNotifications);
+  m_Flags.Remove(WObjectFlags::ChildChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::EnableParentChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::EnableParentChangesNotifications()
 {
-  m_Flags.Add(ezObjectFlags::ParentChangesNotifications);
+  m_Flags.Add(WObjectFlags::ParentChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DisableParentChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::DisableParentChangesNotifications()
 {
-  m_Flags.Remove(ezObjectFlags::ParentChangesNotifications);
+  m_Flags.Remove(WObjectFlags::ParentChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
+W_ALWAYS_INLINE void WGameObject::AddChildren(const WArrayPtr<const WGameObjectHandle>& children, WTransformPreservation::Enum preserve)
 {
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
     AddChild(children[i], preserve);
   }
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
+W_ALWAYS_INLINE void WGameObject::DetachChildren(const WArrayPtr<const WGameObjectHandle>& children, WTransformPreservation::Enum preserve)
 {
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
     DetachChild(children[i], preserve);
   }
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetChildCount() const
+W_ALWAYS_INLINE WUInt32 WGameObject::GetChildCount() const
 {
   return m_uiChildCount;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(ezVec3 vPosition)
+W_ALWAYS_INLINE void WGameObject::SetLocalPosition(WVec3 vPosition)
 {
-  SetLocalPosition(ezSimdConversion::ToVec3(vPosition));
+  SetLocalPosition(WSimdConversion::ToVec3(vPosition));
 }
 
-EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalPosition() const
+W_ALWAYS_INLINE WVec3 WGameObject::GetLocalPosition() const
 {
-  return ezSimdConversion::ToVec3(m_pTransformationData->m_localPosition);
-}
-
-
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(ezQuat qRotation)
-{
-  SetLocalRotation(ezSimdConversion::ToQuat(qRotation));
-}
-
-EZ_ALWAYS_INLINE ezQuat ezGameObject::GetLocalRotation() const
-{
-  return ezSimdConversion::ToQuat(m_pTransformationData->m_localRotation);
+  return WSimdConversion::ToVec3(m_pTransformationData->m_localPosition);
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(ezVec3 vScaling)
+W_ALWAYS_INLINE void WGameObject::SetLocalRotation(WQuat qRotation)
 {
-  SetLocalScaling(ezSimdConversion::ToVec3(vScaling));
+  SetLocalRotation(WSimdConversion::ToQuat(qRotation));
 }
 
-EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalScaling() const
+W_ALWAYS_INLINE WQuat WGameObject::GetLocalRotation() const
 {
-  return ezSimdConversion::ToVec3(m_pTransformationData->m_localScaling);
+  return WSimdConversion::ToQuat(m_pTransformationData->m_localRotation);
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(float fScaling)
+W_ALWAYS_INLINE void WGameObject::SetLocalScaling(WVec3 vScaling)
 {
-  SetLocalUniformScaling(ezSimdFloat(fScaling));
+  SetLocalScaling(WSimdConversion::ToVec3(vScaling));
 }
 
-EZ_ALWAYS_INLINE float ezGameObject::GetLocalUniformScaling() const
+W_ALWAYS_INLINE WVec3 WGameObject::GetLocalScaling() const
+{
+  return WSimdConversion::ToVec3(m_pTransformationData->m_localScaling);
+}
+
+
+W_ALWAYS_INLINE void WGameObject::SetLocalUniformScaling(float fScaling)
+{
+  SetLocalUniformScaling(WSimdFloat(fScaling));
+}
+
+W_ALWAYS_INLINE float WGameObject::GetLocalUniformScaling() const
 {
   return m_pTransformationData->m_localScaling.w();
 }
 
-EZ_ALWAYS_INLINE ezTransform ezGameObject::GetLocalTransform() const
+W_ALWAYS_INLINE WTransform WGameObject::GetLocalTransform() const
 {
-  return ezSimdConversion::ToTransform(GetLocalTransformSimd());
+  return WSimdConversion::ToTransform(GetLocalTransformSimd());
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezVec3& vPosition)
+W_ALWAYS_INLINE void WGameObject::SetGlobalPosition(const WVec3& vPosition)
 {
-  SetGlobalPosition(ezSimdConversion::ToVec3(vPosition));
+  SetGlobalPosition(WSimdConversion::ToVec3(vPosition));
 }
 
-EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalPosition() const
+W_ALWAYS_INLINE WVec3 WGameObject::GetGlobalPosition() const
 {
-  return ezSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Position);
-}
-
-
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezQuat& qRotation)
-{
-  SetGlobalRotation(ezSimdConversion::ToQuat(qRotation));
-}
-
-EZ_ALWAYS_INLINE ezQuat ezGameObject::GetGlobalRotation() const
-{
-  return ezSimdConversion::ToQuat(m_pTransformationData->m_globalTransform.m_Rotation);
+  return WSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Position);
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezVec3& vScaling)
+W_ALWAYS_INLINE void WGameObject::SetGlobalRotation(const WQuat& qRotation)
 {
-  SetGlobalScaling(ezSimdConversion::ToVec3(vScaling));
+  SetGlobalRotation(WSimdConversion::ToQuat(qRotation));
 }
 
-EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalScaling() const
+W_ALWAYS_INLINE WQuat WGameObject::GetGlobalRotation() const
 {
-  return ezSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Scale);
-}
-
-
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezTransform& transform)
-{
-  SetGlobalTransform(ezSimdConversion::ToTransform(transform));
-}
-
-EZ_ALWAYS_INLINE ezTransform ezGameObject::GetGlobalTransform() const
-{
-  return ezSimdConversion::ToTransform(m_pTransformationData->m_globalTransform);
-}
-
-EZ_ALWAYS_INLINE ezTransform ezGameObject::GetLastGlobalTransform() const
-{
-  return ezSimdConversion::ToTransform(GetLastGlobalTransformSimd());
+  return WSimdConversion::ToQuat(m_pTransformationData->m_globalTransform.m_Rotation);
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& vPosition, UpdateBehaviorIfStatic updateBehavior)
+W_ALWAYS_INLINE void WGameObject::SetGlobalScaling(const WVec3& vScaling)
+{
+  SetGlobalScaling(WSimdConversion::ToVec3(vScaling));
+}
+
+W_ALWAYS_INLINE WVec3 WGameObject::GetGlobalScaling() const
+{
+  return WSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Scale);
+}
+
+
+W_ALWAYS_INLINE void WGameObject::SetGlobalTransform(const WTransform& transform)
+{
+  SetGlobalTransform(WSimdConversion::ToTransform(transform));
+}
+
+W_ALWAYS_INLINE WTransform WGameObject::GetGlobalTransform() const
+{
+  return WSimdConversion::ToTransform(m_pTransformationData->m_globalTransform);
+}
+
+W_ALWAYS_INLINE WTransform WGameObject::GetLastGlobalTransform() const
+{
+  return WSimdConversion::ToTransform(GetLastGlobalTransformSimd());
+}
+
+
+W_ALWAYS_INLINE void WGameObject::SetLocalPosition(const WSimdVec4f& vPosition, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localPosition = vPosition;
 
@@ -283,13 +283,13 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& vPositio
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalPositionSimd() const
+W_ALWAYS_INLINE const WSimdVec4f& WGameObject::GetLocalPositionSimd() const
 {
   return m_pTransformationData->m_localPosition;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& qRotation, UpdateBehaviorIfStatic updateBehavior)
+W_ALWAYS_INLINE void WGameObject::SetLocalRotation(const WSimdQuat& qRotation, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localRotation = qRotation;
 
@@ -299,15 +299,15 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& qRotation
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetLocalRotationSimd() const
+W_ALWAYS_INLINE const WSimdQuat& WGameObject::GetLocalRotationSimd() const
 {
   return m_pTransformationData->m_localRotation;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& vScaling, UpdateBehaviorIfStatic updateBehavior)
+W_ALWAYS_INLINE void WGameObject::SetLocalScaling(const WSimdVec4f& vScaling, UpdateBehaviorIfStatic updateBehavior)
 {
-  ezSimdFloat uniformScale = m_pTransformationData->m_localScaling.w();
+  WSimdFloat uniformScale = m_pTransformationData->m_localScaling.w();
   m_pTransformationData->m_localScaling = vScaling;
   m_pTransformationData->m_localScaling.SetW(uniformScale);
 
@@ -317,13 +317,13 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& vScaling,
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalScalingSimd() const
+W_ALWAYS_INLINE const WSimdVec4f& WGameObject::GetLocalScalingSimd() const
 {
   return m_pTransformationData->m_localScaling;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& fScaling, UpdateBehaviorIfStatic updateBehavior)
+W_ALWAYS_INLINE void WGameObject::SetLocalUniformScaling(const WSimdFloat& fScaling, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localScaling.SetW(fScaling);
 
@@ -333,19 +333,19 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& fS
   }
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezGameObject::GetLocalUniformScalingSimd() const
+W_ALWAYS_INLINE WSimdFloat WGameObject::GetLocalUniformScalingSimd() const
 {
   return m_pTransformationData->m_localScaling.w();
 }
 
-EZ_ALWAYS_INLINE ezSimdTransform ezGameObject::GetLocalTransformSimd() const
+W_ALWAYS_INLINE WSimdTransform WGameObject::GetLocalTransformSimd() const
 {
-  const ezSimdVec4f vScale = m_pTransformationData->m_localScaling * m_pTransformationData->m_localScaling.w();
-  return ezSimdTransform(m_pTransformationData->m_localPosition, m_pTransformationData->m_localRotation, vScale);
+  const WSimdVec4f vScale = m_pTransformationData->m_localScaling * m_pTransformationData->m_localScaling.w();
+  return WSimdTransform(m_pTransformationData->m_localPosition, m_pTransformationData->m_localRotation, vScale);
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezSimdVec4f& vPosition)
+W_ALWAYS_INLINE void WGameObject::SetGlobalPosition(const WSimdVec4f& vPosition)
 {
   UpdateLastGlobalTransform();
 
@@ -359,13 +359,13 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezSimdVec4f& vPositi
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetGlobalPositionSimd() const
+W_ALWAYS_INLINE const WSimdVec4f& WGameObject::GetGlobalPositionSimd() const
 {
   return m_pTransformationData->m_globalTransform.m_Position;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezSimdQuat& qRotation)
+W_ALWAYS_INLINE void WGameObject::SetGlobalRotation(const WSimdQuat& qRotation)
 {
   UpdateLastGlobalTransform();
 
@@ -379,13 +379,13 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezSimdQuat& qRotatio
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetGlobalRotationSimd() const
+W_ALWAYS_INLINE const WSimdQuat& WGameObject::GetGlobalRotationSimd() const
 {
   return m_pTransformationData->m_globalTransform.m_Rotation;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezSimdVec4f& vScaling)
+W_ALWAYS_INLINE void WGameObject::SetGlobalScaling(const WSimdVec4f& vScaling)
 {
   UpdateLastGlobalTransform();
 
@@ -399,21 +399,21 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezSimdVec4f& vScaling
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetGlobalScalingSimd() const
+W_ALWAYS_INLINE const WSimdVec4f& WGameObject::GetGlobalScalingSimd() const
 {
   return m_pTransformationData->m_globalTransform.m_Scale;
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& transform)
+W_ALWAYS_INLINE void WGameObject::SetGlobalTransform(const WSimdTransform& transform)
 {
   UpdateLastGlobalTransform();
 
   m_pTransformationData->m_globalTransform = transform;
 
-  // ezTransformTemplate<Type>::SetLocalTransform will produce NaNs in w components
+  // WTransformTemplate<Type>::SetLocalTransform will produce NaNs in w components
   // of pos and scale if scale.w is not set to 1 here. This only affects builds that
-  // use EZ_SIMD_IMPLEMENTATION_FPU, e.g. arm atm.
+  // use W_SIMD_IMPLEMENTATION_FPU, e.g. arm atm.
   m_pTransformationData->m_globalTransform.m_Scale.SetW(1.0f);
   m_pTransformationData->UpdateLocalTransform();
 
@@ -423,85 +423,85 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& tr
   }
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetGlobalTransformSimd() const
+W_ALWAYS_INLINE const WSimdTransform& WGameObject::GetGlobalTransformSimd() const
 {
   return m_pTransformationData->m_globalTransform;
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetLastGlobalTransformSimd() const
+W_ALWAYS_INLINE const WSimdTransform& WGameObject::GetLastGlobalTransformSimd() const
 {
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
   return m_pTransformationData->m_lastGlobalTransform;
 #else
   return m_pTransformationData->m_globalTransform;
 #endif
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::EnableStaticTransformChangesNotifications()
 {
-  m_Flags.Add(ezObjectFlags::StaticTransformChangesNotifications);
+  m_Flags.Add(WObjectFlags::StaticTransformChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DisableStaticTransformChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::DisableStaticTransformChangesNotifications()
 {
-  m_Flags.Remove(ezObjectFlags::StaticTransformChangesNotifications);
+  m_Flags.Remove(WObjectFlags::StaticTransformChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE ezBoundingBoxSphere ezGameObject::GetLocalBounds() const
+W_ALWAYS_INLINE WBoundingBoxSphere WGameObject::GetLocalBounds() const
 {
-  return ezSimdConversion::ToBBoxSphere(m_pTransformationData->m_localBounds);
+  return WSimdConversion::ToBBoxSphere(m_pTransformationData->m_localBounds);
 }
 
-EZ_ALWAYS_INLINE ezBoundingBoxSphere ezGameObject::GetGlobalBounds() const
+W_ALWAYS_INLINE WBoundingBoxSphere WGameObject::GetGlobalBounds() const
 {
-  return ezSimdConversion::ToBBoxSphere(m_pTransformationData->m_globalBounds);
+  return WSimdConversion::ToBBoxSphere(m_pTransformationData->m_globalBounds);
 }
 
-EZ_ALWAYS_INLINE const ezSimdBBoxSphere& ezGameObject::GetLocalBoundsSimd() const
+W_ALWAYS_INLINE const WSimdBBoxSphere& WGameObject::GetLocalBoundsSimd() const
 {
   return m_pTransformationData->m_localBounds;
 }
 
-EZ_ALWAYS_INLINE const ezSimdBBoxSphere& ezGameObject::GetGlobalBoundsSimd() const
+W_ALWAYS_INLINE const WSimdBBoxSphere& WGameObject::GetGlobalBoundsSimd() const
 {
   return m_pTransformationData->m_globalBounds;
 }
 
-EZ_ALWAYS_INLINE ezSpatialDataHandle ezGameObject::GetSpatialData() const
+W_ALWAYS_INLINE WSpatialDataHandle WGameObject::GetSpatialData() const
 {
   return m_pTransformationData->m_hSpatialData;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::EnableComponentChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::EnableComponentChangesNotifications()
 {
-  m_Flags.Add(ezObjectFlags::ComponentChangesNotifications);
+  m_Flags.Add(WObjectFlags::ComponentChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DisableComponentChangesNotifications()
+W_ALWAYS_INLINE void WGameObject::DisableComponentChangesNotifications()
 {
-  m_Flags.Remove(ezObjectFlags::ComponentChangesNotifications);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent)
-{
-  return TryGetComponentOfBaseType(ezGetStaticRTTI<T>(), (ezComponent*&)out_pComponent);
+  m_Flags.Remove(WObjectFlags::ComponentChangesNotifications);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(const T*& out_pComponent) const
+W_ALWAYS_INLINE bool WGameObject::TryGetComponentOfBaseType(T*& out_pComponent)
 {
-  return TryGetComponentOfBaseType(ezGetStaticRTTI<T>(), (const ezComponent*&)out_pComponent);
+  return TryGetComponentOfBaseType(WGetStaticRTTI<T>(), (WComponent*&)out_pComponent);
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components)
+W_ALWAYS_INLINE bool WGameObject::TryGetComponentOfBaseType(const T*& out_pComponent) const
+{
+  return TryGetComponentOfBaseType(WGetStaticRTTI<T>(), (const WComponent*&)out_pComponent);
+}
+
+template <typename T>
+void WGameObject::TryGetComponentsOfBaseType(WDynamicArray<T*>& out_components)
 {
   out_components.Clear();
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf<T>())
     {
       out_components.PushBack(static_cast<T*>(pComponent));
@@ -510,13 +510,13 @@ void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const
+void WGameObject::TryGetComponentsOfBaseType(WDynamicArray<const T*>& out_components) const
 {
   out_components.Clear();
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = m_Components[i];
+    WComponent* pComponent = m_Components[i];
     if (pComponent->IsInstanceOf<T>())
     {
       out_components.PushBack(static_cast<const T*>(pComponent));
@@ -524,64 +524,64 @@ void ezGameObject::TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_comp
   }
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<ezComponent* const> ezGameObject::GetComponents()
+W_ALWAYS_INLINE WArrayPtr<WComponent* const> WGameObject::GetComponents()
 {
   return m_Components;
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents() const
+W_ALWAYS_INLINE WArrayPtr<const WComponent* const> WGameObject::GetComponents() const
 {
-  return ezMakeArrayPtr(const_cast<const ezComponent* const*>(m_Components.GetData()), m_Components.GetCount());
+  return WMakeArrayPtr(const_cast<const WComponent* const*>(m_Components.GetData()), m_Components.GetCount());
 }
 
-EZ_ALWAYS_INLINE ezUInt16 ezGameObject::GetComponentVersion() const
+W_ALWAYS_INLINE WUInt16 WGameObject::GetComponentVersion() const
 {
   return m_Components.GetUserData<ComponentUserData>().m_uiVersion;
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& ref_msg)
+W_ALWAYS_INLINE bool WGameObject::SendMessage(WMessage& ref_msg)
 {
   return SendMessageInternal(ref_msg, false);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& ref_msg) const
+W_ALWAYS_INLINE bool WGameObject::SendMessage(WMessage& ref_msg) const
 {
   return SendMessageInternal(ref_msg, false);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& ref_msg)
+W_ALWAYS_INLINE bool WGameObject::SendMessageRecursive(WMessage& ref_msg)
 {
   return SendMessageRecursiveInternal(ref_msg, false);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& ref_msg) const
+W_ALWAYS_INLINE bool WGameObject::SendMessageRecursive(WMessage& ref_msg) const
 {
   return SendMessageRecursiveInternal(ref_msg, false);
 }
 
-EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
+W_ALWAYS_INLINE const WTagSet& WGameObject::GetTags() const
 {
   return m_Tags;
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::HasTag(const ezTempHashedString& sTagName) const
+W_ALWAYS_INLINE bool WGameObject::HasTag(const WTempHashedString& sTagName) const
 {
   return m_Tags.IsSetByName(sTagName);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetStableRandomSeed() const
+W_ALWAYS_INLINE WUInt32 WGameObject::GetStableRandomSeed() const
 {
   return m_pTransformationData->m_uiStableRandomSeed;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetStableRandomSeed(ezUInt32 uiSeed)
+W_ALWAYS_INLINE void WGameObject::SetStableRandomSeed(WUInt32 uiSeed)
 {
   m_pTransformationData->m_uiStableRandomSeed = uiSeed;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithoutParent(ezUInt32 uiUpdateCounter)
+W_ALWAYS_INLINE void WGameObject::TransformationData::UpdateGlobalTransformWithoutParent(WUInt32 uiUpdateCounter)
 {
   UpdateLastGlobalTransform(uiUpdateCounter);
 
@@ -590,24 +590,24 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWit
   m_globalTransform.m_Scale = m_localScaling * m_localScaling.w();
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithParent(ezUInt32 uiUpdateCounter)
+W_ALWAYS_INLINE void WGameObject::TransformationData::UpdateGlobalTransformWithParent(WUInt32 uiUpdateCounter)
 {
   UpdateLastGlobalTransform(uiUpdateCounter);
 
-  const ezSimdVec4f vScale = m_localScaling * m_localScaling.w();
-  const ezSimdTransform localTransform(m_localPosition, m_localRotation, vScale);
-  m_globalTransform = ezSimdTransform::MakeGlobalTransform(m_pParentData->m_globalTransform, localTransform);
+  const WSimdVec4f vScale = m_localScaling * m_localScaling.w();
+  const WSimdTransform localTransform(m_localPosition, m_localRotation, vScale);
+  m_globalTransform = WSimdTransform::MakeGlobalTransform(m_pParentData->m_globalTransform, localTransform);
 }
 
-EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
+W_FORCE_INLINE void WGameObject::TransformationData::UpdateGlobalBounds()
 {
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateLastGlobalTransform(ezUInt32 uiUpdateCounter)
+W_ALWAYS_INLINE void WGameObject::TransformationData::UpdateLastGlobalTransform(WUInt32 uiUpdateCounter)
 {
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+#if W_ENABLED(W_GAMEOBJECT_VELOCITY)
   if (m_uiLastGlobalTransformUpdateCounter != uiUpdateCounter)
   {
     m_lastGlobalTransform = m_globalTransform;

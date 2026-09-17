@@ -5,153 +5,153 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 6, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMeshAssetProperties, 6, WRTTIDefaultAllocator<WMeshAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
-    EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
-    EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new ezDefaultValueAttribute("$;UCX_")),
-    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
-    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
-    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
-    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
-    EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
-    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTangents)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("HighPrecision", m_bHighPrecision),
-    EZ_ENUM_MEMBER_PROPERTY("VertexColorConversion", ezMeshVertexColorConversion, m_VertexColorConversion),
-    EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 128)),
-    EZ_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 128)),
-    EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f))),
-    EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
-    EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
-    EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
-    EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(1, 100)),
-    EZ_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
+    W_ENUM_MEMBER_PROPERTY("PrimitiveType", WMeshPrimitive, m_PrimitiveType),
+    W_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new WFileBrowserAttribute("Select Mesh", WFileBrowserAttribute::Meshes)),
+    W_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
+    W_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new WDefaultValueAttribute("$;UCX_")),
+    W_ENUM_MEMBER_PROPERTY("ImportTransform", WMeshImportTransform, m_ImportTransform),
+    W_ENUM_MEMBER_PROPERTY("RightDir", WBasisAxis, m_RightDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::NegativeX)),
+    W_ENUM_MEMBER_PROPERTY("UpDir", WBasisAxis, m_UpDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::PositiveY)),
+    W_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
+    W_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    W_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0001f, 10000.0f)),
+    W_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
+    W_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTangents)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("HighPrecision", m_bHighPrecision),
+    W_ENUM_MEMBER_PROPERTY("VertexColorConversion", WMeshVertexColorConversion, m_VertexColorConversion),
+    W_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new WDefaultValueAttribute(0), new WClampValueAttribute(0, 128)),
+    W_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new WDefaultValueAttribute(0), new WClampValueAttribute(0, 128)),
+    W_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(360.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(360.0f))),
+    W_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new WContainerAttribute(false, true, true)),
+    W_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
+    W_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new WDefaultValueAttribute(50), new WClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new WDefaultValueAttribute(5), new WClampValueAttribute(1, 100)),
+    W_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::File),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Box),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WMeshPrimitive, 1)
+  W_ENUM_CONSTANT(WMeshPrimitive::File),
+  W_ENUM_CONSTANT(WMeshPrimitive::Box),
+  W_ENUM_CONSTANT(WMeshPrimitive::Rect),
+  W_ENUM_CONSTANT(WMeshPrimitive::Cylinder),
+  W_ENUM_CONSTANT(WMeshPrimitive::Cone),
+  W_ENUM_CONSTANT(WMeshPrimitive::Pyramid),
+  W_ENUM_CONSTANT(WMeshPrimitive::Sphere),
+  W_ENUM_CONSTANT(WMeshPrimitive::HalfSphere),
+  W_ENUM_CONSTANT(WMeshPrimitive::GeodesicSphere),
+  W_ENUM_CONSTANT(WMeshPrimitive::Capsule),
+  W_ENUM_CONSTANT(WMeshPrimitive::Torus),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezMeshAssetProperties::ezMeshAssetProperties() = default;
-ezMeshAssetProperties::~ezMeshAssetProperties() = default;
+WMeshAssetProperties::WMeshAssetProperties() = default;
+WMeshAssetProperties::~WMeshAssetProperties() = default;
 
 
-void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WMeshAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezMeshAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WMeshAssetProperties>())
   {
-    const ezInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("PrimitiveType").ConvertTo<ezInt64>();
+    const WInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("PrimitiveType").ConvertTo<WInt64>();
     const bool bSimplify = e.m_pObject->GetTypeAccessor().GetValue("SimplifyMesh").ConvertTo<bool>();
 
     auto& props = *e.m_pPropertyStates;
 
-    props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
-    props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Invisible;
-    props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Radius"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Radius2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Height"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Detail2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Cap"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Cap2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Angle"].m_Visibility = ezPropertyUiState::Invisible;
-    props["ImportMaterials"].m_Visibility = ezPropertyUiState::Invisible;
-    props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Invisible;
-    props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Invisible;
-    props["HighPrecision"].m_Visibility = ezPropertyUiState::Invisible;
-    props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Invisible;
+    props["MeshFile"].m_Visibility = WPropertyUiState::Invisible;
+    props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Invisible;
+    props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Invisible;
+    props["Radius"].m_Visibility = WPropertyUiState::Invisible;
+    props["Radius2"].m_Visibility = WPropertyUiState::Invisible;
+    props["Height"].m_Visibility = WPropertyUiState::Invisible;
+    props["Detail"].m_Visibility = WPropertyUiState::Invisible;
+    props["Detail2"].m_Visibility = WPropertyUiState::Invisible;
+    props["Cap"].m_Visibility = WPropertyUiState::Invisible;
+    props["Cap2"].m_Visibility = WPropertyUiState::Invisible;
+    props["Angle"].m_Visibility = WPropertyUiState::Invisible;
+    props["ImportMaterials"].m_Visibility = WPropertyUiState::Invisible;
+    props["RecalculateNormals"].m_Visibility = WPropertyUiState::Invisible;
+    props["RecalculateTangents"].m_Visibility = WPropertyUiState::Invisible;
+    props["HighPrecision"].m_Visibility = WPropertyUiState::Invisible;
+    props["VertexColorConversion"].m_Visibility = WPropertyUiState::Invisible;
 
-    props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["NormalWeight"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MeshSimplification"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["MaxSimplificationError"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["NormalWeight"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["AggressiveSimplification"].m_Visibility = bSimplify ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
-    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const WInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<WInt64>();
     const bool bCustomTransform = importTransform == 127;
-    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["RightDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
     switch (primType)
     {
-      case ezMeshPrimitive::File:
-        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
-        props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
-        props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Default;
-        props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;
-        props["HighPrecision"].m_Visibility = ezPropertyUiState::Default;
-        props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::File:
+        props["MeshFile"].m_Visibility = WPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = WPropertyUiState::Default;
+        props["ImportMaterials"].m_Visibility = WPropertyUiState::Default;
+        props["RecalculateNormals"].m_Visibility = WPropertyUiState::Default;
+        props["RecalculateTangents"].m_Visibility = WPropertyUiState::Default;
+        props["HighPrecision"].m_Visibility = WPropertyUiState::Default;
+        props["VertexColorConversion"].m_Visibility = WPropertyUiState::Default;
         break;
 
-      case ezMeshPrimitive::Box:
+      case WMeshPrimitive::Box:
         break;
 
-      case ezMeshPrimitive::Rect:
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Rect:
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Detail2"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Rect.Detail1";
         props["Detail2"].m_sNewLabelText = "Prim.Rect.Detail2";
         break;
 
-      case ezMeshPrimitive::Capsule:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Height"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Capsule:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Height"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Detail2"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
         props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
         break;
 
-      case ezMeshPrimitive::Cone:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Height"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Cone:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Height"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Cap"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
         break;
 
-      case ezMeshPrimitive::Cylinder:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-        props["Height"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Cap"].m_Visibility = ezPropertyUiState::Default;
-        props["Cap2"].m_Visibility = ezPropertyUiState::Default;
-        props["Angle"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Cylinder:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Radius2"].m_Visibility = WPropertyUiState::Default;
+        props["Height"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Cap"].m_Visibility = WPropertyUiState::Default;
+        props["Cap2"].m_Visibility = WPropertyUiState::Default;
+        props["Angle"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
         props["Radius"].m_sNewLabelText = "Prim.Cylinder.Radius1";
@@ -161,41 +161,41 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
         props["Cap2"].m_sNewLabelText = "Prim.Cylinder.Cap2";
         break;
 
-      case ezMeshPrimitive::GeodesicSphere:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::GeodesicSphere:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.GeoSphere.Detail";
         break;
 
-      case ezMeshPrimitive::HalfSphere:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
-        props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::HalfSphere:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Detail2"].m_Visibility = WPropertyUiState::Default;
+        props["Cap"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
         props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
         break;
 
-      case ezMeshPrimitive::Pyramid:
-        props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Pyramid:
+        props["Cap"].m_Visibility = WPropertyUiState::Default;
         break;
 
-      case ezMeshPrimitive::Sphere:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Sphere:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Detail2"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
         props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
         break;
 
-      case ezMeshPrimitive::Torus:
-        props["Radius"].m_Visibility = ezPropertyUiState::Default;
-        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail"].m_Visibility = ezPropertyUiState::Default;
-        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case WMeshPrimitive::Torus:
+        props["Radius"].m_Visibility = WPropertyUiState::Default;
+        props["Radius2"].m_Visibility = WPropertyUiState::Default;
+        props["Detail"].m_Visibility = WPropertyUiState::Default;
+        props["Detail2"].m_Visibility = WPropertyUiState::Default;
 
         props["Detail"].m_sNewLabelText = "Prim.Torus.Detail1";
         props["Detail2"].m_sNewLabelText = "Prim.Torus.Detail2";
@@ -208,15 +208,15 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
+class WMeshAssetPropertiesPatch_1_2 : public WGraphPatch
 {
 public:
-  ezMeshAssetPropertiesPatch_1_2()
-    : ezGraphPatch("ezMeshAssetProperties", 2)
+  WMeshAssetPropertiesPatch_1_2()
+    : WGraphPatch("WMeshAssetProperties", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Primitive Type", "PrimitiveType");
     pNode->RenameProperty("Forward Dir", "ForwardDir");
@@ -232,69 +232,69 @@ public:
   }
 };
 
-ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
+WMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
+class WMeshAssetPropertiesPatch_2_3 : public WGraphPatch
 {
 public:
-  ezMeshAssetPropertiesPatch_2_3()
-    : ezGraphPatch("ezMeshAssetProperties", 3)
+  WMeshAssetPropertiesPatch_2_3()
+    : WGraphPatch("WMeshAssetProperties", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    // convert the "Angle" property from float to ezAngle
+    // convert the "Angle" property from float to WAngle
     if (auto pProp = pNode->FindProperty("Angle"))
     {
       if (pProp->m_Value.IsA<float>())
       {
         const float valFloat = pProp->m_Value.Get<float>();
-        pProp->m_Value = ezAngle::MakeFromDegree(valFloat);
+        pProp->m_Value = WAngle::MakeFromDegree(valFloat);
       }
     }
   }
 };
 
-ezMeshAssetPropertiesPatch_2_3 g_ezMeshAssetPropertiesPatch_2_3;
+WMeshAssetPropertiesPatch_2_3 g_WMeshAssetPropertiesPatch_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezMeshAssetPropertiesPatch_3_4 : public ezGraphPatch
+class WMeshAssetPropertiesPatch_3_4 : public WGraphPatch
 {
 public:
-  ezMeshAssetPropertiesPatch_3_4()
-    : ezGraphPatch("ezMeshAssetProperties", 4)
+  WMeshAssetPropertiesPatch_3_4()
+    : WGraphPatch("WMeshAssetProperties", 4)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->AddProperty("ImportTransform", 127);
   }
 };
 
-ezMeshAssetPropertiesPatch_3_4 g_ezMeshAssetPropertiesPatch_3_4;
+WMeshAssetPropertiesPatch_3_4 g_WMeshAssetPropertiesPatch_3_4;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezMeshAssetPropertiesPatch_4_5 : public ezGraphPatch
+class WMeshAssetPropertiesPatch_4_5 : public WGraphPatch
 {
 public:
-  ezMeshAssetPropertiesPatch_4_5()
-    : ezGraphPatch("ezMeshAssetProperties", 5)
+  WMeshAssetPropertiesPatch_4_5()
+    : WGraphPatch("WMeshAssetProperties", 5)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     bool bHighPrecision = false;
 
     if (auto pProp = pNode->FindProperty("NormalPrecision"))
     {
-      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshNormalPrecision::_10Bit")
+      if (pProp->m_Value.IsA<WString>() && pProp->m_Value.Get<WString>() != "WMeshNormalPrecision::_10Bit")
       {
         bHighPrecision = true;
       }
@@ -302,7 +302,7 @@ public:
 
     if (auto pProp = pNode->FindProperty("TexCoordPrecision"))
     {
-      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshTexCoordPrecision::_16Bit")
+      if (pProp->m_Value.IsA<WString>() && pProp->m_Value.Get<WString>() != "WMeshTexCoordPrecision::_16Bit")
       {
         bHighPrecision = true;
       }
@@ -312,4 +312,4 @@ public:
   }
 };
 
-ezMeshAssetPropertiesPatch_4_5 g_ezMeshAssetPropertiesPatch_4_5;
+WMeshAssetPropertiesPatch_4_5 g_WMeshAssetPropertiesPatch_4_5;

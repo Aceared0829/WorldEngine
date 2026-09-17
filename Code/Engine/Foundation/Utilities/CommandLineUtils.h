@@ -21,7 +21,7 @@
 /// - Options with values: "-input data.txt -output result.bin"
 /// - Multiple values: "-files a.txt b.txt c.txt -count 3"
 /// - Mixed usage: "-v -input file.dat -threads 4 -optimize"
-class EZ_FOUNDATION_DLL ezCommandLineUtils
+class W_FOUNDATION_DLL WCommandLineUtils
 {
 public:
   enum ArgMode
@@ -31,46 +31,46 @@ public:
                   ///< support and handles special characters correctly. On non-Windows platforms, falls back to UseArgcArgv behavior.
   };
 
-  /// Returns one global instance of ezCommandLineUtils.
-  static ezCommandLineUtils* GetGlobalInstance();
+  /// Returns one global instance of WCommandLineUtils.
+  static WCommandLineUtils* GetGlobalInstance();
 
   /// Splits a string into the classic argc/argv string.
   ///
   /// Useful for platforms where command line args come in as a single string.
   /// \param addExecutableDir
   ///   Adds executable path as first parameter (just as it would normally be in 'int main(argc, argv)').
-  static void SplitCommandLineString(ezStringView sCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV);
+  static void SplitCommandLineString(WStringView sCommandString, bool bAddExecutableDir, WDynamicArray<WString>& out_args, WDynamicArray<const char*>& out_argsV);
 
-  /// Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
-  void SetCommandLine(ezUInt32 uiArgc, const char** pArgv, ArgMode mode = UseArgcArgv); // [tested]
+  /// Initializes WCommandLineUtils from the parameter arguments that were passed to the application.
+  void SetCommandLine(WUInt32 uiArgc, const char** pArgv, ArgMode mode = UseArgcArgv); // [tested]
 
   /// Overload for non-const argv versions.
-  void SetCommandLine(ezUInt32 uiArgc, char** pArgv, ArgMode mode = UseArgcArgv)
+  void SetCommandLine(WUInt32 uiArgc, char** pArgv, ArgMode mode = UseArgcArgv)
   {
     SetCommandLine(uiArgc, const_cast<const char**>(pArgv), mode);
   }
 
-  /// Initializes ezCommandLineUtils from a list of already split up commands.
-  void SetCommandLine(ezArrayPtr<ezString> commands);
+  /// Initializes WCommandLineUtils from a list of already split up commands.
+  void SetCommandLine(WArrayPtr<WString> commands);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  /// Initializes ezCommandLineUtils by querying the command line parameters directly from the OS.
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  /// Initializes WCommandLineUtils by querying the command line parameters directly from the OS.
   ///
   /// This function is not available on all platforms.
   void SetCommandLine();
 #endif
 
   /// Returns the split up command line.
-  const ezDynamicArray<ezString>& GetCommandLineArray() const;
+  const WDynamicArray<WString>& GetCommandLineArray() const;
 
   /// Assembles the original command line from the split up string representation.
-  ezString GetCommandLineString() const;
+  WString GetCommandLineString() const;
 
   /// Returns the total number of command line parameters (excluding the program path, which is often passed as the first parameter).
-  ezUInt32 GetParameterCount() const; // [tested]
+  WUInt32 GetParameterCount() const; // [tested]
 
   /// Returns the n-th parameter string that was passed to the application.
-  const ezString& GetParameter(ezUInt32 uiParam) const; // [tested]
+  const WString& GetParameter(WUInt32 uiParam) const; // [tested]
 
   /// Returns the index at which the given option string can be found in the parameter list.
   ///
@@ -82,20 +82,20 @@ public:
   /// \return
   ///  -1 When no option with the given name is found.
   ///  Otherwise the index at which the option can be found. This can be passed to GetParameter() or GetStringOptionArguments().
-  ezInt32 GetOptionIndex(ezStringView sOption, bool bCaseSensitive = false) const; // [tested]
+  WInt32 GetOptionIndex(WStringView sOption, bool bCaseSensitive = false) const; // [tested]
 
   /// Returns whether the requested option is specified, at all.
-  bool HasOption(ezStringView sOption, bool bCaseSensitive = false) const;
+  bool HasOption(WStringView sOption, bool bCaseSensitive = false) const;
 
   /// Returns how many arguments follow behind the option with the name \a szOption.
   ///
   /// Everything that does not start with a hyphen is considered to be an additional parameter for the option.
-  ezUInt32 GetStringOptionArguments(ezStringView sOption, bool bCaseSensitive = false) const; // [tested]
+  WUInt32 GetStringOptionArguments(WStringView sOption, bool bCaseSensitive = false) const; // [tested]
 
   /// Returns the n-th parameter to the command line option with the name \a szOption.
   ///
   /// If the option does not exist or does not have that many parameters, \a szDefault is returned.
-  ezStringView GetStringOption(ezStringView sOption, ezUInt32 uiArgument = 0, ezStringView sDefault = {},
+  WStringView GetStringOption(WStringView sOption, WUInt32 uiArgument = 0, WStringView sDefault = {},
     bool bCaseSensitive = false) const; // [tested]
 
   /// Similar to GetStringOption() but assumes that the strings represent paths and concatenates the current working directory if a relative
@@ -107,7 +107,7 @@ public:
   ///
   /// If szDefault is empty and the user did not provide this option, then the result will also be the empty string.
   /// If szDefault is a relative path, it will be concatenated with the CWD just as any user provided option would.
-  const ezString GetAbsolutePathOption(ezStringView sOption, ezUInt32 uiArgument = 0, ezStringView sDefault = {}, bool bCaseSensitive = false) const;
+  const WString GetAbsolutePathOption(WStringView sOption, WUInt32 uiArgument = 0, WStringView sDefault = {}, bool bCaseSensitive = false) const;
 
   /// Returns a boolean interpretation of the option \a szOption or bDefault if it cannot be found.
   ///
@@ -122,9 +122,9 @@ public:
   ///
   /// \return
   ///   If an option with the name \a szOption can be found, which has no parameters, it is interpreted as 'true'.
-  ///   If there is one parameter following, it is interpreted using ezConversionUtils::StringToBool().
+  ///   If there is one parameter following, it is interpreted using WConversionUtils::StringToBool().
   ///   If that conversion fails, bDefault is returned.
-  bool GetBoolOption(ezStringView sOption, bool bDefault = false, bool bCaseSensitive = false) const; // [tested]
+  bool GetBoolOption(WStringView sOption, bool bDefault = false, bool bCaseSensitive = false) const; // [tested]
 
   /// Returns an integer interpretation of the option \a szOption or iDefault if it cannot be found.
   ///
@@ -139,12 +139,12 @@ public:
   ///
   /// \return
   ///   If an option with the name \a szOption can be found, and there is one parameter following,
-  ///   it is interpreted using ezConversionUtils::StringToInt().
+  ///   it is interpreted using WConversionUtils::StringToInt().
   ///   If that conversion fails or there is no such option or no parameter follows it, iDefault is returned.
-  ezInt32 GetIntOption(ezStringView sOption, ezInt32 iDefault = 0, bool bCaseSensitive = false) const; // [tested]
+  WInt32 GetIntOption(WStringView sOption, WInt32 iDefault = 0, bool bCaseSensitive = false) const; // [tested]
 
   /// Same as GetIntOption() but assumes the value is a uint32.
-  ezUInt32 GetUIntOption(ezStringView sOption, ezUInt32 uiDefault = 0, bool bCaseSensitive = false) const; // [tested]
+  WUInt32 GetUIntOption(WStringView sOption, WUInt32 uiDefault = 0, bool bCaseSensitive = false) const; // [tested]
 
   /// Returns a float interpretation of the option \a szOption or fDefault if it cannot be found.
   ///
@@ -159,9 +159,9 @@ public:
   ///
   /// \return
   ///   If an option with the name \a szOption can be found, and there is one parameter following,
-  ///   it is interpreted using ezConversionUtils::StringToFloat().
+  ///   it is interpreted using WConversionUtils::StringToFloat().
   ///   If that conversion fails or there is no such option or no parameter follows it, fDefault is returned.
-  double GetFloatOption(ezStringView sOption, double fDefault = 0.0, bool bCaseSensitive = false) const; // [tested]
+  double GetFloatOption(WStringView sOption, double fDefault = 0.0, bool bCaseSensitive = false) const; // [tested]
 
   /// Appends an argument programmatically, as if it was specified on the command line.
   ///
@@ -179,8 +179,8 @@ public:
   ///   cmdLine.InjectCustomArgument("default.cfg");
   ///   cmdLine.InjectCustomArgument("path with spaces");  // Handled correctly without quotes
   /// \endcode
-  void InjectCustomArgument(ezStringView sArgument); // [tested]
+  void InjectCustomArgument(WStringView sArgument); // [tested]
 
 private:
-  ezDynamicArray<ezString> m_Commands;
+  WDynamicArray<WString> m_Commands;
 };

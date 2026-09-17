@@ -10,78 +10,78 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_Age>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizerFactory_Age, 1, WRTTIDefaultAllocator<WParticleFinalizerFactory_Age>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_Age>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizer_Age, 1, WRTTIDefaultAllocator<WParticleFinalizer_Age>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_Age::ezParticleFinalizerFactory_Age() = default;
+WParticleFinalizerFactory_Age::WParticleFinalizerFactory_Age() = default;
 
-const ezRTTI* ezParticleFinalizerFactory_Age::GetFinalizerType() const
+const WRTTI* WParticleFinalizerFactory_Age::GetFinalizerType() const
 {
-  return ezGetStaticRTTI<ezParticleFinalizer_Age>();
+  return WGetStaticRTTI<WParticleFinalizer_Age>();
 }
 
-void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
+void WParticleFinalizerFactory_Age::CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const
 {
-  ezParticleFinalizer_Age* pFinalizer = static_cast<ezParticleFinalizer_Age*>(pObject);
+  WParticleFinalizer_Age* pFinalizer = static_cast<WParticleFinalizer_Age*>(pObject);
 
   pFinalizer->m_LifeTime = m_LifeTime;
-  pFinalizer->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
-  pFinalizer->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
+  pFinalizer->m_sOnDeathEvent = WTempHashedString(m_sOnDeathEvent.GetData());
+  pFinalizer->m_sLifeScaleParameter = WTempHashedString(m_sLifeScaleParameter.GetData());
 
   if (pFinalizer->m_bHasOnDeathEventHandler)
   {
     pFinalizer->m_bHasOnDeathEventHandler = false;
-    pFinalizer->GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
+    pFinalizer->GetOwnerSystem()->RemoveParticleDeathEventHandler(WMakeDelegate(&WParticleFinalizer_Age::OnParticleDeath, pFinalizer));
   }
 
   if (!pFinalizer->m_sOnDeathEvent.IsEmpty())
   {
     pFinalizer->m_bHasOnDeathEventHandler = true;
-    pFinalizer->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
+    pFinalizer->GetOwnerSystem()->AddParticleDeathEventHandler(WMakeDelegate(&WParticleFinalizer_Age::OnParticleDeath, pFinalizer));
   }
 }
 
-ezParticleFinalizer_Age::ezParticleFinalizer_Age() = default;
+WParticleFinalizer_Age::WParticleFinalizer_Age() = default;
 
-ezParticleFinalizer_Age::~ezParticleFinalizer_Age()
+WParticleFinalizer_Age::~WParticleFinalizer_Age()
 {
   if (m_bHasOnDeathEventHandler)
   {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(WMakeDelegate(&WParticleFinalizer_Age::OnParticleDeath, this));
   }
 }
 
-void ezParticleFinalizer_Age::CreateRequiredStreams()
+void WParticleFinalizer_Age::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
+  CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
 
   m_pStreamPosition = nullptr;
   m_pStreamVelocity = nullptr;
 
   if (!m_sOnDeathEvent.IsEmpty())
   {
-    CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+    CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
   }
 }
 
-void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleFinalizer_Age::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Age Init");
+  W_PROFILE_SCOPE("PFX: Age Init");
 
-  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
-  const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
+  WFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<WFloat16Vec2>();
+  const float fLifeScale = WMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
 
   if (m_LifeTime.m_fVariance == 0)
   {
-    const float tLifeTime = ezMath::Max(fLifeScale * (float)m_LifeTime.m_Value.GetSeconds(), 0.01f); // make sure it's not zero
+    const float tLifeTime = WMath::Max(fLifeScale * (float)m_LifeTime.m_Value.GetSeconds(), 0.01f); // make sure it's not zero
     const float tInvLifeTime = 1.0f / tLifeTime;
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pLifeTime[i].x = tLifeTime;
       pLifeTime[i].y = tInvLifeTime;
@@ -89,12 +89,12 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
   }
   else // random range
   {
-    ezRandom& rng = GetRNG();
+    WRandom& rng = GetRNG();
 
-    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const float tLifeTime =
-        ezMath::Max(fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance), 0.01f); // make sure it's not zero
+        WMath::Max(fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance), 0.01f); // make sure it's not zero
       const float tInvLifeTime = 1.0f / tLifeTime;
 
       pLifeTime[i].x = tLifeTime;
@@ -103,15 +103,15 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
   }
 }
 
-void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
+void WParticleFinalizer_Age::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Age");
+  W_PROFILE_SCOPE("PFX: Age");
 
-  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
+  WFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<WFloat16Vec2>();
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  for (ezUInt32 i = 0; i < uiNumElements; ++i)
+  for (WUInt32 i = 0; i < uiNumElements; ++i)
   {
     pLifeTime[i].x = pLifeTime[i].x - tDiff;
 
@@ -124,16 +124,16 @@ void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleFinalizer_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void WParticleFinalizer_Age::OnParticleDeath(const WStreamGroupElementRemovedEvent& e)
 {
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16Vec4* pVelocity = m_pStreamVelocity->GetData<ezFloat16Vec4>();
+  const WVec4* pPosition = m_pStreamPosition->GetData<WVec4>();
+  const WFloat16Vec4* pVelocity = m_pStreamVelocity->GetData<WFloat16Vec4>();
 
-  const ezVec4 vel = pVelocity[e.m_uiElementIndex];
-  const ezVec3 dir(vel.x, vel.y, vel.z);
+  const WVec4 vel = pVelocity[e.m_uiElementIndex];
+  const WVec3 dir(vel.x, vel.y, vel.z);
   const float speed = vel.w;
 
-  ezParticleEvent pe;
+  WParticleEvent pe;
   pe.m_EventType = m_sOnDeathEvent;
   pe.m_vPosition = pPosition[e.m_uiElementIndex].GetAsVec3();
   pe.m_vDirection = dir * speed;
@@ -144,4 +144,4 @@ void ezParticleFinalizer_Age::OnParticleDeath(const ezStreamGroupElementRemovedE
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_Age);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_Age);

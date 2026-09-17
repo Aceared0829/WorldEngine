@@ -13,38 +13,38 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltHitboxComponent, 2, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WJoltHitboxComponent, 2, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("QueryShapeOnly", m_bQueryShapeOnly)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("UpdateThreshold", m_UpdateThreshold),
+    W_MEMBER_PROPERTY("QueryShapeOnly", m_bQueryShapeOnly)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("UpdateThreshold", m_UpdateThreshold),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
+    W_MESSAGE_HANDLER(WMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
-    EZ_SCRIPT_FUNCTION_PROPERTY(RecreatePhysicsShapes),
+    W_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
+    W_SCRIPT_FUNCTION_PROPERTY(RecreatePhysicsShapes),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Animation"),
+    new WCategoryAttribute("Physics/Jolt/Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltHitboxComponent::ezJoltHitboxComponent() = default;
-ezJoltHitboxComponent::~ezJoltHitboxComponent() = default;
+WJoltHitboxComponent::WJoltHitboxComponent() = default;
+WJoltHitboxComponent::~WJoltHitboxComponent() = default;
 
-void ezJoltHitboxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltHitboxComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -53,28 +53,28 @@ void ezJoltHitboxComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_UpdateThreshold;
 }
 
-void ezJoltHitboxComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltHitboxComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_bQueryShapeOnly;
   s >> m_UpdateThreshold;
 }
 
-void ezJoltHitboxComponent::OnSimulationStarted()
+void WJoltHitboxComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   RecreatePhysicsShapes();
 }
 
-void ezJoltHitboxComponent::OnDeactivated()
+void WJoltHitboxComponent::OnDeactivated()
 {
-  if (m_uiObjectFilterID != ezInvalidIndex)
+  if (m_uiObjectFilterID != WInvalidIndex)
   {
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->DeleteObjectFilterID(m_uiObjectFilterID);
   }
 
@@ -83,11 +83,11 @@ void ezJoltHitboxComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltHitboxComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg)
+void WJoltHitboxComponent::OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& ref_msg)
 {
   if (m_UpdateThreshold.IsPositive())
   {
-    const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+    const WTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
     if (tNow - m_LastUpdate < m_UpdateThreshold)
       return;
@@ -97,16 +97,16 @@ void ezJoltHitboxComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& re
 
   for (const auto& shape : m_Shapes)
   {
-    ezMat4 boneTrans;
-    ezQuat boneRot;
+    WMat4 boneTrans;
+    WQuat boneRot;
     ref_msg.ComputeFullBoneTransform(shape.m_uiAttachedToBone, boneTrans, boneRot);
 
-    ezTransform pose;
+    WTransform pose;
     pose.SetIdentity();
     pose.m_vPosition = boneTrans.GetTranslationVector() + boneRot * shape.m_vOffsetPos;
     pose.m_qRotation = boneRot * shape.m_qOffsetRot;
 
-    ezGameObject* pGO = nullptr;
+    WGameObject* pGO = nullptr;
     if (GetWorld()->TryGetObject(shape.m_hActorObject, pGO))
     {
       pGO->SetLocalPosition(pose.m_vPosition);
@@ -115,9 +115,9 @@ void ezJoltHitboxComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& re
   }
 }
 
-void ezJoltHitboxComponent::RecreatePhysicsShapes()
+void WJoltHitboxComponent::RecreatePhysicsShapes()
 {
-  ezMsgQueryAnimationSkeleton msg;
+  WMsgQueryAnimationSkeleton msg;
   GetOwner()->SendMessage(msg);
 
   if (!msg.m_hSkeleton.IsValid())
@@ -126,45 +126,45 @@ void ezJoltHitboxComponent::RecreatePhysicsShapes()
   DestroyPhysicsShapes();
   CreatePhysicsShapes(msg.m_hSkeleton);
 
-  m_LastUpdate = ezTime::MakeZero();
+  m_LastUpdate = WTime::MakeZero();
 }
 
-void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton)
+void WJoltHitboxComponent::CreatePhysicsShapes(const WSkeletonResourceHandle& hSkeleton)
 {
-  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSkeletonResource> pSkeleton(hSkeleton, WResourceAcquireMode::BlockTillLoaded);
 
   const auto& desc = pSkeleton->GetDescriptor();
 
-  EZ_ASSERT_DEV(m_Shapes.IsEmpty(), "");
+  W_ASSERT_DEV(m_Shapes.IsEmpty(), "");
   m_Shapes.Reserve(desc.m_Geometry.GetCount());
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   m_uiObjectFilterID = pModule->CreateObjectFilterID();
 
   const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  const WQuat qBoneDirAdjustment = WBasisAxis::GetBasisRotation(WBasisAxis::PositiveX, srcBoneDir);
 
-  const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  const WQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
   // the capsule should extend along X, but the capsule shape goes along Z
-  const ezQuat qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
-  const ezQuat qRotYtoZ = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
+  const WQuat qRotZtoX = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), WAngle::MakeFromDegree(-90));
+  const WQuat qRotYtoZ = WQuat::MakeFromAxisAndAngle(WVec3(1, 0, 0), WAngle::MakeFromDegree(90));
 
-  for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
+  for (WUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   {
     const auto& geo = desc.m_Geometry[idx];
 
-    if (geo.m_Type == ezSkeletonJointGeometryType::None)
+    if (geo.m_Type == WSkeletonJointGeometryType::None)
       continue;
 
-    const ezSkeletonJoint& joint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint);
+    const WSkeletonJoint& joint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint);
 
     auto& shape = m_Shapes.ExpandAndGetRef();
 
-    ezGameObject* pGO = nullptr;
+    WGameObject* pGO = nullptr;
 
     {
-      ezGameObjectDesc god;
+      WGameObjectDesc god;
       god.m_bDynamic = true;
       god.m_hParent = GetOwner()->GetHandle();
       god.m_sName = joint.GetName();
@@ -174,8 +174,8 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
 
       if (m_bQueryShapeOnly)
       {
-        ezJoltQueryShapeActorComponent* pDynAct = nullptr;
-        ezJoltQueryShapeActorComponent::CreateComponent(pGO, pDynAct);
+        WJoltQueryShapeActorComponent* pDynAct = nullptr;
+        WJoltQueryShapeActorComponent::CreateComponent(pGO, pDynAct);
 
         pDynAct->m_uiCollisionLayer = joint.GetCollisionLayer();
         pDynAct->m_hSurface = joint.GetSurface();
@@ -183,8 +183,8 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
       }
       else
       {
-        ezJoltDynamicActorComponent* pDynAct = nullptr;
-        ezJoltDynamicActorComponent::CreateComponent(pGO, pDynAct);
+        WJoltDynamicActorComponent* pDynAct = nullptr;
+        WJoltDynamicActorComponent::CreateComponent(pGO, pDynAct);
         pDynAct->SetKinematic(true);
 
         pDynAct->m_uiCollisionLayer = joint.GetCollisionLayer();
@@ -198,55 +198,55 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
     shape.m_qOffsetRot = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
 
-    if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+    if (geo.m_Type == WSkeletonJointGeometryType::Sphere)
     {
-      ezJoltShapeSphereComponent* pShapeComp = nullptr;
-      ezJoltShapeSphereComponent::CreateComponent(pGO, pShapeComp);
+      WJoltShapeSphereComponent* pShapeComp = nullptr;
+      WJoltShapeSphereComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
     }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+    else if (geo.m_Type == WSkeletonJointGeometryType::Box)
     {
-      ezVec3 ext;
+      WVec3 ext;
       ext.x = geo.m_Transform.m_vScale.x;
       ext.y = geo.m_Transform.m_vScale.y;
       ext.z = geo.m_Transform.m_vScale.z;
 
       // TODO: if offset desired
-      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+      shape.m_vOffsetPos += qFinalBoneRot * WVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-      ezJoltShapeBoxComponent* pShapeComp = nullptr;
-      ezJoltShapeBoxComponent::CreateComponent(pGO, pShapeComp);
+      WJoltShapeBoxComponent* pShapeComp = nullptr;
+      WJoltShapeBoxComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetHalfExtents(ext * 0.5f);
     }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+    else if (geo.m_Type == WSkeletonJointGeometryType::Capsule)
     {
       shape.m_qOffsetRot = shape.m_qOffsetRot * qRotZtoX;
 
       // TODO: if offset desired
-      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+      shape.m_vOffsetPos += qFinalBoneRot * WVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-      ezJoltShapeCapsuleComponent* pShapeComp = nullptr;
-      ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
+      WJoltShapeCapsuleComponent* pShapeComp = nullptr;
+      WJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
       pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
     }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::CapsuleSideways)
+    else if (geo.m_Type == WSkeletonJointGeometryType::CapsuleSideways)
     {
       shape.m_qOffsetRot = shape.m_qOffsetRot * qRotYtoZ;
 
-      ezJoltShapeCapsuleComponent* pShapeComp = nullptr;
-      ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
+      WJoltShapeCapsuleComponent* pShapeComp = nullptr;
+      WJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
       pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 }
 
-void ezJoltHitboxComponent::DestroyPhysicsShapes()
+void WJoltHitboxComponent::DestroyPhysicsShapes()
 {
   for (auto& shape : m_Shapes)
   {
@@ -256,4 +256,4 @@ void ezJoltHitboxComponent::DestroyPhysicsShapes()
   m_Shapes.Clear();
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltHitboxComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltHitboxComponent);

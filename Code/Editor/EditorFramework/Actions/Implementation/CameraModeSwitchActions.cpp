@@ -6,50 +6,50 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraModeSwitchAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCameraModeSwitchAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezCameraModeSwitchActions::s_hCameraMode;
+WActionDescriptorHandle WCameraModeSwitchActions::s_hCameraMode;
 
-void ezCameraModeSwitchActions::RegisterActions()
+void WCameraModeSwitchActions::RegisterActions()
 {
-  s_hCameraMode = EZ_REGISTER_DYNAMIC_MENU("Asset.CameraMode", ezCameraModeSwitchAction, ":/EditorFramework/Icons/Camera.svg");
+  s_hCameraMode = W_REGISTER_DYNAMIC_MENU("Asset.CameraMode", WCameraModeSwitchAction, ":/EditorFramework/Icons/Camera.svg");
 }
 
-void ezCameraModeSwitchActions::UnregisterActions()
+void WCameraModeSwitchActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCameraMode);
+  WActionManager::UnregisterAction(s_hCameraMode);
 }
 
-void ezCameraModeSwitchActions::MapToolbarActions(const char* szMapping)
+void WCameraModeSwitchActions::MapToolbarActions(const char* szMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Toolbar action map '{}' does not exist", szMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(szMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Toolbar action map '{}' does not exist", szMapping);
   pMap->MapAction(s_hCameraMode, "", 10.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCameraModeSwitchAction::ezCameraModeSwitchAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WCameraModeSwitchAction::WCameraModeSwitchAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
 }
 
-void ezCameraModeSwitchAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WCameraModeSwitchAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
-  auto* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(m_Context.m_pWindow);
+  auto* pWindow = qobject_cast<WQtEngineDocumentWindow*>(m_Context.m_pWindow);
   if (pWindow == nullptr)
     return;
 
   const int iMode = pWindow->GetCameraMode();
 
-  ezTempHybridArray<ezString, 8> names;
+  WTempHybridArray<WString, 8> names;
   pWindow->GetCameraModeNames(names);
 
-  for (ezUInt32 i = 0; i < names.GetCount(); ++i)
+  for (WUInt32 i = 0; i < names.GetCount(); ++i)
   {
     auto& item = out_entries.ExpandAndGetRef();
     item.m_sDisplay = names[i];
@@ -58,9 +58,9 @@ void ezCameraModeSwitchAction::GetEntries(ezDynamicArray<Item>& out_entries)
   }
 }
 
-void ezCameraModeSwitchAction::Execute(const ezVariant& value)
+void WCameraModeSwitchAction::Execute(const WVariant& value)
 {
-  auto* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(m_Context.m_pWindow);
+  auto* pWindow = qobject_cast<WQtEngineDocumentWindow*>(m_Context.m_pWindow);
   if (pWindow)
     pWindow->SetCameraMode(value.ConvertTo<int>());
 }

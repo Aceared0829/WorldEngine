@@ -8,7 +8,7 @@
 ///
 /// This classification helps determine how image data is laid out in memory
 /// and which processing algorithms are applicable.
-struct EZ_TEXTURE_DLL ezImageFormatType
+struct W_TEXTURE_DLL WImageFormatType
 {
   enum Enum
   {
@@ -23,7 +23,7 @@ struct EZ_TEXTURE_DLL ezImageFormatType
 ///
 /// This determines how raw channel bits are interpreted as numeric values
 /// and affects precision, range, and rendering behavior.
-struct EZ_TEXTURE_DLL ezImageFormatDataType
+struct W_TEXTURE_DLL WImageFormatDataType
 {
   enum Enum
   {
@@ -39,7 +39,7 @@ struct EZ_TEXTURE_DLL ezImageFormatDataType
 };
 
 /// Identifies individual channels within an image format.
-struct EZ_TEXTURE_DLL ezImageFormatChannel
+struct W_TEXTURE_DLL WImageFormatChannel
 {
   enum Enum
   {
@@ -67,16 +67,16 @@ struct EZ_TEXTURE_DLL ezImageFormatChannel
 /// **Common Usage Patterns:**
 /// ```cpp
 /// // Query format properties
-/// bool isCompressed = ezImageFormat::IsCompressed(ezImageFormat::BC1_UNORM);
-/// ezUInt32 bitsPerPixel = ezImageFormat::GetBitsPerPixel(format);
+/// bool isCompressed = WImageFormat::IsCompressed(WImageFormat::BC1_UNORM);
+/// WUInt32 bitsPerPixel = WImageFormat::GetBitsPerPixel(format);
 ///
 /// // Calculate memory requirements
-/// ezUInt64 rowPitch = ezImageFormat::GetRowPitch(format, width);
-/// ezUInt64 slicePitch = ezImageFormat::GetDepthPitch(format, width, height);
+/// WUInt64 rowPitch = WImageFormat::GetRowPitch(format, width);
+/// WUInt64 slicePitch = WImageFormat::GetDepthPitch(format, width, height);
 ///
 /// // Format conversion queries
-/// bool canConvert = ezImageFormat::IsCompatible(sourceFormat, targetFormat);
-/// ezImageFormat::Enum srgbVersion = ezImageFormat::AsSrgb(linearFormat);
+/// bool canConvert = WImageFormat::IsCompatible(sourceFormat, targetFormat);
+/// WImageFormat::Enum srgbVersion = WImageFormat::AsSrgb(linearFormat);
 /// ```
 ///
 /// **Block Compressed Formats:**
@@ -87,9 +87,9 @@ struct EZ_TEXTURE_DLL ezImageFormatChannel
 /// Planar formats like NV12 store different channels in separate memory planes. For example,
 /// NV12 has a luma (Y) plane and an interleaved chroma (UV) plane. Use GetPlaneSubFormat()
 /// to get the format description for individual planes.
-struct EZ_TEXTURE_DLL ezImageFormat
+struct W_TEXTURE_DLL WImageFormat
 {
-  enum Enum : ezUInt16
+  enum Enum : WUInt16
   {
     UNKNOWN,
 
@@ -252,7 +252,7 @@ struct EZ_TEXTURE_DLL ezImageFormat
     Default = UNKNOWN
   };
 
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   /// Returns the name of the given format.
   ///
@@ -260,50 +260,50 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static const char* GetName(Enum format);
 
   /// Returns number of planes in the format, or 1 for non-planar formats.
-  static ezUInt32 GetPlaneCount(Enum format);
+  static WUInt32 GetPlaneCount(Enum format);
 
   /// Returns the number of bits per pixel of the given format. If the format's bpp is non-integral, the returned value rounded up to
   /// to the next integer.
-  static ezUInt32 GetBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetBitsPerPixel(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Exact pixel size in bits. May be non-integral for some compressed formats.
-  static float GetExactBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static float GetExactBitsPerPixel(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Returns the block size in bits. For uncompressed formats, a block is considered a single pixel.
-  static ezUInt32 GetBitsPerBlock(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetBitsPerBlock(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Number of channels (r, g, b, a, depth, stencil) supported by this format.
-  static ezUInt32 GetNumChannels(Enum format);
+  static WUInt32 GetNumChannels(Enum format);
 
   /// Bitmask of each channel of the format. This is not defined for some formats, and may return 0.
-  static ezUInt32 GetChannelMask(Enum format, ezImageFormatChannel::Enum c);
+  static WUInt32 GetChannelMask(Enum format, WImageFormatChannel::Enum c);
 
   /// Returns the number of bits for each channel of the format.
-  static ezUInt32 GetBitsPerChannel(Enum format, ezImageFormatChannel::Enum c);
+  static WUInt32 GetBitsPerChannel(Enum format, WImageFormatChannel::Enum c);
 
   /// If applicable, returns a bitmask for the red component of the format.
-  static ezUInt32 GetRedMask(Enum format);
+  static WUInt32 GetRedMask(Enum format);
 
   /// If applicable, returns a bitmask for the green component of the format.
-  static ezUInt32 GetGreenMask(Enum format);
+  static WUInt32 GetGreenMask(Enum format);
 
   /// If applicable, returns a bitmask for the blue component of the format.
-  static ezUInt32 GetBlueMask(Enum format);
+  static WUInt32 GetBlueMask(Enum format);
 
   /// If applicable, returns a bitmask for the alpha component of the format.
-  static ezUInt32 GetAlphaMask(Enum format);
+  static WUInt32 GetAlphaMask(Enum format);
 
   /// Block width of a compressed format. Defaults to 1 for uncompressed formats.
-  static ezUInt32 GetBlockWidth(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetBlockWidth(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Block height of a compressed format. Defaults to 1 for uncompressed formats.
-  static ezUInt32 GetBlockHeight(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetBlockHeight(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Block depth of a compressed format. Defaults to 1 for uncompressed formats.
-  static ezUInt32 GetBlockDepth(Enum format, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetBlockDepth(Enum format, WUInt32 uiPlaneIndex = 0);
 
   /// Returns the data type represented by a format.
-  static ezImageFormatDataType::Enum GetDataType(Enum format);
+  static WImageFormatDataType::Enum GetDataType(Enum format);
 
   /// Returns true if the format is compressed.
   static bool IsCompressed(Enum format);
@@ -324,29 +324,29 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static Enum AsLinear(Enum format);
 
   /// Computes the number of blocks in X direction (compressed) or pixels (if uncompressed) for a given width (in pixels).
-  static ezUInt32 GetNumBlocksX(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetNumBlocksX(Enum format, WUInt32 uiWidth, WUInt32 uiPlaneIndex = 0);
 
   /// Computes the number of blocks in Y direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
-  static ezUInt32 GetNumBlocksY(Enum format, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetNumBlocksY(Enum format, WUInt32 uiHeight, WUInt32 uiPlaneIndex = 0);
 
   /// Computes the number of blocks in Z direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
-  static ezUInt32 GetNumBlocksZ(Enum format, ezUInt32 uiDepth, ezUInt32 uiPlaneIndex = 0);
+  static WUInt32 GetNumBlocksZ(Enum format, WUInt32 uiDepth, WUInt32 uiPlaneIndex = 0);
 
   /// Computes the size in bytes of a row of blocks (compressed) or pixels (if uncompressed) of the given width.
-  static ezUInt64 GetRowPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex = 0);
+  static WUInt64 GetRowPitch(Enum format, WUInt32 uiWidth, WUInt32 uiPlaneIndex = 0);
 
   /// Computes the size in bytes of a 2D slice of blocks (compressed) or pixels (if uncompressed) of the given width and height.
-  static ezUInt64 GetDepthPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex = 0);
+  static WUInt64 GetDepthPitch(Enum format, WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiPlaneIndex = 0);
 
   /// Returns the type of the image format.
-  static ezImageFormatType::Enum GetType(Enum format);
+  static WImageFormatType::Enum GetType(Enum format);
 
   /// Finds a format matching the given component masks.
-  static ezImageFormat::Enum FromPixelMask(
-    ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel);
+  static WImageFormat::Enum FromPixelMask(
+    WUInt32 uiRedMask, WUInt32 uiGreenMask, WUInt32 uiBlueMask, WUInt32 uiAlphaMask, WUInt32 uiBitsPerPixel);
 
   /// Returns the format of a subplane of a given format.
-  static ezImageFormat::Enum GetPlaneSubFormat(ezImageFormat::Enum format, ezUInt32 uiPlaneIndex);
+  static WImageFormat::Enum GetPlaneSubFormat(WImageFormat::Enum format, WUInt32 uiPlaneIndex);
 
   /// Returns true if the data formats are compatible, i.e. can be copied into one another
   static bool IsCompatible(Enum left, Enum right);
@@ -355,4 +355,4 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static bool RequiresFirstLevelBlockAlignment(Enum format);
 };
 
-EZ_DEFINE_AS_POD_TYPE(ezImageFormat::Enum);
+W_DEFINE_AS_POD_TYPE(WImageFormat::Enum);

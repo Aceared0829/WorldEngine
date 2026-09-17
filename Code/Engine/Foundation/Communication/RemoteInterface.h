@@ -11,7 +11,7 @@
 #include <Foundation/Types/Delegate.h>
 
 /// Whether the remote interface is configured as a server or a client
-enum class ezRemoteMode
+enum class WRemoteMode
 {
   None,   ///< Remote interface is shut down
   Server, ///< Remote interface acts as a server. Can connect with multiple clients
@@ -21,7 +21,7 @@ enum class ezRemoteMode
 /// Mode for transmitting messages
 ///
 /// Depending on the remote interface implementation, Unreliable may not be supported and revert to Reliable.
-enum class ezRemoteTransmitMode
+enum class WRemoteTransmitMode
 {
   Reliable,   ///< Messages should definitely arrive at the target, if necessary they are send several times, until the target acknowledged it.
   Unreliable, ///< Messages are sent at most once, if they get lost, they are not resent. If it is known beforehand, that not receiver exists, they
@@ -29,7 +29,7 @@ enum class ezRemoteTransmitMode
 };
 
 /// Event type for connections
-struct EZ_FOUNDATION_DLL ezRemoteEvent
+struct W_FOUNDATION_DLL WRemoteEvent
 {
   enum Type
   {
@@ -40,29 +40,29 @@ struct EZ_FOUNDATION_DLL ezRemoteEvent
   };
 
   Type m_Type;
-  ezUInt32 m_uiOtherAppID;
+  WUInt32 m_uiOtherAppID;
 };
 
-using ezRemoteMessageHandler = ezDelegate<void(ezRemoteMessage&)>;
+using WRemoteMessageHandler = WDelegate<void(WRemoteMessage&)>;
 
-struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
+struct W_FOUNDATION_DLL WRemoteMessageQueue
 {
-  ezRemoteMessageHandler m_MessageHandler;
+  WRemoteMessageHandler m_MessageHandler;
   /// Messages are pushed into this container on arrival.
-  ezDeque<ezRemoteMessage> m_MessageQueueIn;
+  WDeque<WRemoteMessage> m_MessageQueueIn;
   /// To flush the message queue, m_MessageQueueIn and m_MessageQueueOut are swapped.
   /// Thus new messages can arrive while we execute the event handler for each element
   /// in this container and then clear it.
-  ezDeque<ezRemoteMessage> m_MessageQueueOut;
+  WDeque<WRemoteMessage> m_MessageQueueOut;
 };
 
-class EZ_FOUNDATION_DLL ezRemoteInterface
+class W_FOUNDATION_DLL WRemoteInterface
 {
 public:
-  virtual ~ezRemoteInterface();
+  virtual ~WRemoteInterface();
 
   /// Exposes the mutex that is internally used to secure multi-threaded access
-  ezMutex& GetMutex() const { return m_Mutex; }
+  WMutex& GetMutex() const { return m_Mutex; }
 
 
   /// \name Connection
@@ -75,7 +75,7 @@ public:
   /// \param uiPort The port over which the connection should run.
   /// \param bStartUpdateThread If true, a thread is started that will regularly call UpdateNetwork() and UpdatePingToServer().
   /// If false, this has to be called manually in regular intervals.
-  ezResult StartServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread = true);
+  WResult StartServer(WUInt32 uiConnectionToken, WStringView sAddress, bool bStartUpdateThread = true);
 
   /// Starts the network interface as a client. Tries to connect to the given address.
   ///
@@ -86,12 +86,12 @@ public:
   ///
   /// If this function succeeds, it still might not be connected to a server.
   /// Use WaitForConnectionToServer() to enforce a connection.
-  ezResult ConnectToServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread = true);
+  WResult ConnectToServer(WUInt32 uiConnectionToken, WStringView sAddress, bool bStartUpdateThread = true);
 
   /// Can only be called after ConnectToServer(). Updates the network in a loop until a connection is established, or the time has run out.
   ///
   /// A timeout of exactly zero means to wait indefinitely.
-  ezResult WaitForConnectionToServer(ezTime timeout = ezTime::MakeFromSeconds(10));
+  WResult WaitForConnectionToServer(WTime timeout = WTime::MakeFromSeconds(10));
 
   /// Closes the connection in an orderly fashion
   void ShutdownConnection();
@@ -106,16 +106,16 @@ public:
   bool IsConnectedToOther() const { return IsConnectedToServer() || IsConnectedToClients(); }
 
   /// Whether the remote interface is inactive, a client or a server
-  ezRemoteMode GetRemoteMode() const { return m_RemoteMode; }
+  WRemoteMode GetRemoteMode() const { return m_RemoteMode; }
 
   /// The address through which the connection was started
-  const ezString& GetServerAddress() const { return m_sServerAddress; }
+  const WString& GetServerAddress() const { return m_sServerAddress; }
 
   /// Returns the own (random) application ID used to identify this instance
-  ezUInt32 GetApplicationID() const { return m_uiApplicationID; }
+  WUInt32 GetApplicationID() const { return m_uiApplicationID; }
 
   /// Returns the connection token used to identify compatible servers/clients
-  ezUInt32 GetConnectionToken() const { return m_uiConnectionToken; }
+  WUInt32 GetConnectionToken() const { return m_uiConnectionToken; }
 
   ///@}
 
@@ -123,16 +123,16 @@ public:
   ///@{
 
   /// For the client to display the name of the server
-  // const ezString& GetServerInfoName() const { return m_ServerInfoName; }
+  // const WString& GetServerInfoName() const { return m_ServerInfoName; }
 
   /// For the client to display the IP of the server
-  const ezString& GetServerInfoIP() const { return m_sServerInfoIP; }
+  const WString& GetServerInfoIP() const { return m_sServerInfoIP; }
 
   /// Some random identifier, that allows to determine after a reconnect, whether the connected instance is still the same server
-  ezUInt32 GetServerID() const { return m_uiConnectedToServerWithID; }
+  WUInt32 GetServerID() const { return m_uiConnectedToServerWithID; }
 
   /// Returns the current ping to the server
-  ezTime GetPingToServer() const { return m_PingToServer; }
+  WTime GetPingToServer() const { return m_PingToServer; }
 
   ///@}
 
@@ -153,24 +153,24 @@ public:
   /// Sends a reliable message without any data.
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezUInt32 uiSystemID, ezUInt32 uiMsgID);
+  void Send(WUInt32 uiSystemID, WUInt32 uiMsgID);
 
   /// Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
+  void Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const WArrayPtr<const WUInt8>& data);
 
-  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data);
+  void Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const WContiguousMemoryStreamStorage& data);
 
   /// Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
+  void Send(WRemoteTransmitMode tm, WUInt32 uiSystemID, WUInt32 uiMsgID, const void* pData = nullptr, WUInt32 uiDataBytes = 0);
 
-  /// Sends an ezRemoteMessage
+  /// Sends an WRemoteMessage
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezRemoteTransmitMode tm, ezRemoteMessage& ref_msg);
+  void Send(WRemoteTransmitMode tm, WRemoteMessage& ref_msg);
 
   ///@}
 
@@ -178,16 +178,16 @@ public:
   ///@{
 
   /// Registers a message handler that is executed for all incoming messages for the given system
-  void SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler);
+  void SetMessageHandler(WUInt32 uiSystemID, WRemoteMessageHandler messageHandler);
 
   /// Registers a message handler that is executed for all incoming messages for systems for which there are no dedicated message handlers.
-  void SetUnhandledMessageHandler(ezRemoteMessageHandler messageHandler);
+  void SetUnhandledMessageHandler(WRemoteMessageHandler messageHandler);
 
   /// Executes the message handler for all messages that have arrived for the given system
-  ezUInt32 ExecuteMessageHandlers(ezUInt32 uiSystem);
+  WUInt32 ExecuteMessageHandlers(WUInt32 uiSystem);
 
   /// Executes all message handlers for all received messages
-  ezUInt32 ExecuteAllMessageHandlers();
+  WUInt32 ExecuteAllMessageHandlers();
 
   ///@}
 
@@ -195,7 +195,7 @@ public:
   ///@{
 
   /// Broadcasts events about connections
-  ezEvent<const ezRemoteEvent&> m_RemoteEvents;
+  WEvent<const WRemoteEvent&> m_RemoteEvents;
 
   ///@}
 
@@ -204,7 +204,7 @@ protected:
   ///@{
 
   /// Derived classes have to implement this to start a network connection
-  virtual ezResult InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress) = 0;
+  virtual WResult InternalCreateConnection(WRemoteMode mode, WStringView sServerAddress) = 0;
 
   /// Derived classes have to implement this to shutdown a network connection
   virtual void InternalShutdownConnection() = 0;
@@ -213,29 +213,29 @@ protected:
   virtual void InternalUpdateRemoteInterface() = 0;
 
   /// Derived classes have to implement this to get the ping to the server (client mode only)
-  virtual ezTime InternalGetPingToServer() = 0;
+  virtual WTime InternalGetPingToServer() = 0;
 
   /// Derived classes have to implement this to deliver messages to the server or client
-  virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) = 0;
+  virtual WResult InternalTransmit(WRemoteTransmitMode tm, const WArrayPtr<const WUInt8>& data) = 0;
 
   /// Derived classes can override this to interpret an address differently
-  virtual ezResult DetermineTargetAddress(ezStringView sConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
+  virtual WResult DetermineTargetAddress(WStringView sConnectTo, WUInt32& out_IP, WUInt16& out_Port);
 
   /// Derived classes should update this when the information is available
-  // ezString m_ServerInfoName;
+  // WString m_ServerInfoName;
   /// Derived classes should update this when the information is available
-  ezString m_sServerInfoIP;
+  WString m_sServerInfoIP;
 
   /// Should be called by the implementation, when a server connection has been established
-  void ReportConnectionToServer(ezUInt32 uiServerID);
+  void ReportConnectionToServer(WUInt32 uiServerID);
   /// Should be called by the implementation, when a client connection has been established
-  void ReportConnectionToClient(ezUInt32 uiApplicationID);
+  void ReportConnectionToClient(WUInt32 uiApplicationID);
   /// Should be called by the implementation, when a server connection has been lost
   void ReportDisconnectedFromServer();
   /// Should be called by the implementation, when a client connection has been lost
-  void ReportDisconnectedFromClient(ezUInt32 uiApplicationID);
+  void ReportDisconnectedFromClient(WUInt32 uiApplicationID);
   /// Should be called by the implementation, when a message has arrived
-  void ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
+  void ReportMessage(WUInt32 uiApplicationID, WUInt32 uiSystemID, WUInt32 uiMsgID, const WArrayPtr<const WUInt8>& data);
 
   ///@}
 
@@ -243,36 +243,36 @@ protected:
 private:
   void StartUpdateThread();
   void StopUpdateThread();
-  ezResult Transmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data);
-  ezResult CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, ezStringView sServerAddress, bool bStartUpdateThread);
-  ezUInt32 ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue);
+  WResult Transmit(WRemoteTransmitMode tm, const WArrayPtr<const WUInt8>& data);
+  WResult CreateConnection(WUInt32 uiConnectionToken, WRemoteMode mode, WStringView sServerAddress, bool bStartUpdateThread);
+  WUInt32 ExecuteMessageHandlersForQueue(WRemoteMessageQueue& queue);
 
-  mutable ezMutex m_Mutex;
-  class ezRemoteThread* m_pUpdateThread = nullptr;
-  ezRemoteMode m_RemoteMode = ezRemoteMode::None;
-  ezString m_sServerAddress;
-  ezTime m_PingToServer;
-  ezUInt32 m_uiApplicationID = 0; // sent when connecting to identify the sending instance
-  ezUInt32 m_uiConnectionToken = 0;
-  ezUInt32 m_uiConnectedToServerWithID = 0;
-  ezInt32 m_iConnectionsToClients = 0;
-  ezDynamicArray<ezUInt8> m_TempSendBuffer;
-  ezHashTable<ezUInt32, ezRemoteMessageQueue> m_MessageQueues;
-  ezRemoteMessageHandler m_UnhandledMessageHandler;
+  mutable WMutex m_Mutex;
+  class WRemoteThread* m_pUpdateThread = nullptr;
+  WRemoteMode m_RemoteMode = WRemoteMode::None;
+  WString m_sServerAddress;
+  WTime m_PingToServer;
+  WUInt32 m_uiApplicationID = 0; // sent when connecting to identify the sending instance
+  WUInt32 m_uiConnectionToken = 0;
+  WUInt32 m_uiConnectedToServerWithID = 0;
+  WInt32 m_iConnectionsToClients = 0;
+  WDynamicArray<WUInt8> m_TempSendBuffer;
+  WHashTable<WUInt32, WRemoteMessageQueue> m_MessageQueues;
+  WRemoteMessageHandler m_UnhandledMessageHandler;
 };
 
 /// The remote interface thread updates in regular intervals to keep the connection alive.
 ///
-/// The thread does NOT call ezRemoteInterface::ExecuteAllMessageHandlers(), so by default no message handlers are executed.
+/// The thread does NOT call WRemoteInterface::ExecuteAllMessageHandlers(), so by default no message handlers are executed.
 /// This has to be done manually by the application elsewhere.
-class EZ_FOUNDATION_DLL ezRemoteThread : public ezThread
+class W_FOUNDATION_DLL WRemoteThread : public WThread
 {
 public:
-  ezRemoteThread();
+  WRemoteThread();
 
-  ezRemoteInterface* m_pRemoteInterface = nullptr;
+  WRemoteInterface* m_pRemoteInterface = nullptr;
   volatile bool m_bKeepRunning = true;
 
 private:
-  virtual ezUInt32 Run();
+  virtual WUInt32 Run();
 };

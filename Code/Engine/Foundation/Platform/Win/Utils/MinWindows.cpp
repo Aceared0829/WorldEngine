@@ -1,45 +1,45 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Platform/Win/Utils/MinWindows.h>
 #  include <type_traits>
 
-template <typename ezType, typename WindowsType, bool mustBeConvertible>
-void ezVerifyWindowsType()
+template <typename WType, typename WindowsType, bool mustBeConvertible>
+void WVerifyWindowsType()
 {
-  static_assert(sizeof(ezType) == sizeof(WindowsType), "ez <=> windows.h size mismatch");
-  static_assert(alignof(ezType) == alignof(WindowsType), "ez <=> windows.h alignment mismatch");
-  static_assert(std::is_pointer<ezType>::value == std::is_pointer<WindowsType>::value, "ez <=> windows.h pointer type mismatch");
-  static_assert(!mustBeConvertible || ezConversionTest<ezType, WindowsType>::exists == 1, "ez <=> windows.h conversion failure");
-  static_assert(!mustBeConvertible || ezConversionTest<WindowsType, ezType>::exists == 1, "windows.h <=> ez conversion failure");
+  static_assert(sizeof(WType) == sizeof(WindowsType), "W <=> windows.h size mismatch");
+  static_assert(alignof(WType) == alignof(WindowsType), "W <=> windows.h alignment mismatch");
+  static_assert(std::is_pointer<WType>::value == std::is_pointer<WindowsType>::value, "W <=> windows.h pointer type mismatch");
+  static_assert(!mustBeConvertible || WConversionTest<WType, WindowsType>::exists == 1, "W <=> windows.h conversion failure");
+  static_assert(!mustBeConvertible || WConversionTest<WindowsType, WType>::exists == 1, "windows.h <=> W conversion failure");
 };
 
 void CALLBACK WindowsCallbackTest1();
-void EZ_WINDOWS_CALLBACK WindowsCallbackTest2();
+void W_WINDOWS_CALLBACK WindowsCallbackTest2();
 void WINAPI WindowsWinapiTest1();
-void EZ_WINDOWS_WINAPI WindowsWinapiTest2();
+void W_WINDOWS_WINAPI WindowsWinapiTest2();
 
 // Will never be called and thus removed by the linker
-void ezCheckWindowsTypeSizes()
+void WCheckWindowsTypeSizes()
 {
-  ezVerifyWindowsType<ezMinWindows::DWORD, DWORD, true>();
-  ezVerifyWindowsType<ezMinWindows::UINT, UINT, true>();
-  ezVerifyWindowsType<ezMinWindows::BOOL, BOOL, true>();
-  ezVerifyWindowsType<ezMinWindows::LPARAM, LPARAM, true>();
-  ezVerifyWindowsType<ezMinWindows::WPARAM, WPARAM, true>();
-  ezVerifyWindowsType<ezMinWindows::HINSTANCE, HINSTANCE, false>();
-  ezVerifyWindowsType<ezMinWindows::HMODULE, HMODULE, false>();
-  ezVerifyWindowsType<ezMinWindows::LPSTR, LPSTR, true>();
-  ezVerifyWindowsType<ezMinWindows::HWND, HWND, false>();
-  ezVerifyWindowsType<ezMinWindows::HRESULT, HRESULT, true>();
+  WVerifyWindowsType<WMinWindows::DWORD, DWORD, true>();
+  WVerifyWindowsType<WMinWindows::UINT, UINT, true>();
+  WVerifyWindowsType<WMinWindows::BOOL, BOOL, true>();
+  WVerifyWindowsType<WMinWindows::LPARAM, LPARAM, true>();
+  WVerifyWindowsType<WMinWindows::WPARAM, WPARAM, true>();
+  WVerifyWindowsType<WMinWindows::HINSTANCE, HINSTANCE, false>();
+  WVerifyWindowsType<WMinWindows::HMODULE, HMODULE, false>();
+  WVerifyWindowsType<WMinWindows::LPSTR, LPSTR, true>();
+  WVerifyWindowsType<WMinWindows::HWND, HWND, false>();
+  WVerifyWindowsType<WMinWindows::HRESULT, HRESULT, true>();
 
-  static_assert(std::is_same<decltype(&WindowsCallbackTest1), decltype(&WindowsCallbackTest2)>::value, "EZ_WINDOWS_CALLBACK does not match CALLBACK");
-  static_assert(std::is_same<decltype(&WindowsWinapiTest1), decltype(&WindowsWinapiTest2)>::value, "EZ_WINDOWS_WINAPI does not match WINAPI");
+  static_assert(std::is_same<decltype(&WindowsCallbackTest1), decltype(&WindowsCallbackTest2)>::value, "W_WINDOWS_CALLBACK does not match CALLBACK");
+  static_assert(std::is_same<decltype(&WindowsWinapiTest1), decltype(&WindowsWinapiTest2)>::value, "W_WINDOWS_WINAPI does not match WINAPI");
 
   // Clang doesn't allow us to do this check at compile time
-#  if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-  static_assert(EZ_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "EZ_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
+#  if W_ENABLED(W_COMPILER_MSVC_PURE)
+  static_assert(W_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "W_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
 #  endif
 }
 #endif

@@ -6,51 +6,51 @@ struct ID3D11Resource;
 struct D3D11_TEXTURE2D_DESC;
 struct D3D11_TEXTURE3D_DESC;
 struct D3D11_SUBRESOURCE_DATA;
-class ezGALDeviceDX11;
+class WGALDeviceDX11;
 
-EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
+W_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
 
-class ezGALTextureDX11 : public ezGALTexture
+class WGALTextureDX11 : public WGALTexture
 {
 public:
-  static ezResult Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_tex2DDesc);
-  static ezResult Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_tex3DDesc);
-  static void ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_initialData);
+  static WResult Create2DDesc(const WGALTextureCreationDescription& description, WGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_tex2DDesc);
+  static WResult Create3DDesc(const WGALTextureCreationDescription& description, WGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_tex3DDesc);
+  static void ConvertInitialData(const WGALTextureCreationDescription& description, WArrayPtr<WGALSystemMemoryDescription> initialData, WHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_initialData);
 
 public:
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
-  ID3D11ShaderResourceView* GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType) const;
-  ID3D11UnorderedAccessView* GetUAV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+  W_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
+  ID3D11ShaderResourceView* GetSRV(WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType) const;
+  ID3D11UnorderedAccessView* GetUAV(WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat) const;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
-  friend class ezGALSharedTextureDX11;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
+  friend class WGALSharedTextureDX11;
 
-  ezGALTextureDX11(const ezGALTextureCreationDescription& Description);
-  ~ezGALTextureDX11();
+  WGALTextureDX11(const WGALTextureCreationDescription& Description);
+  ~WGALTextureDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> initialData) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  ezResult InitFromNativeObject(ezGALDeviceDX11* pDXDevice);
+  WResult InitFromNativeObject(WGALDeviceDX11* pDXDevice);
 
 protected:
-  ezGALDeviceDX11* m_pDevice = nullptr;
+  WGALDeviceDX11* m_pDevice = nullptr;
   ID3D11Resource* m_pDXTexture = nullptr;
 
-  struct View : ezHashableStruct<View>
+  struct View : WHashableStruct<View>
   {
-    ezGALTextureRange m_TextureRange;
-    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
-    ezEnum<ezGALTextureType> m_OverrideViewType;
+    WGALTextureRange m_TextureRange;
+    WEnum<WGALResourceFormat> m_OverrideViewFormat;
+    WEnum<WGALTextureType> m_OverrideViewType;
 
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
-    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+    W_ALWAYS_INLINE static WUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    W_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
   };
-  mutable ezHashTable<View, ID3D11ShaderResourceView*, View> m_SRVs;
-  mutable ezHashTable<View, ID3D11UnorderedAccessView*, View> m_UAVs;
+  mutable WHashTable<View, ID3D11ShaderResourceView*, View> m_SRVs;
+  mutable WHashTable<View, ID3D11UnorderedAccessView*, View> m_UAVs;
 };
 
 

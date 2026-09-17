@@ -1,0 +1,16 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"AI Plugin"}
+	string %Description{"Adds support for dynamic navmeshes and other AI functionality."}
+	string %EditorPlugins{"WEditorPluginAi"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"WAiPlugin"}
+	string %PackageDependencies{"Recast.dll"}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+	string %CMakeTargetName{"AiPlugin"}
+}

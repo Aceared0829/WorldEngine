@@ -8,66 +8,66 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIkJointEntry, ezNoBase, 1, ezRTTIDefaultAllocator<ezIkJointEntry>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WIkJointEntry, WNoBase, 1, WRTTIDefaultAllocator<WIkJointEntry>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Joint", m_sJointName),
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("Joint", m_sJointName),
+    W_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 3, ezComponentMode::Dynamic);
+W_BEGIN_COMPONENT_TYPE(WAimIKComponent, 3, WComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("DebugVisScale", GetDebugVisScale, SetDebugVisScale)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("ForwardVector", ezBasisAxis, m_ForwardVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveX)),
-    EZ_ENUM_MEMBER_PROPERTY("UpVector", ezBasisAxis, m_UpVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
-    EZ_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_MEMBER_PROPERTY("InversePoleVector", m_bInversePoleVector),
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
-    EZ_MEMBER_PROPERTY("Order", m_uiOrder),
+    W_ACCESSOR_PROPERTY("DebugVisScale", GetDebugVisScale, SetDebugVisScale)->AddAttributes(new WClampValueAttribute(0.0f, 10.0f)),
+    W_ENUM_MEMBER_PROPERTY("ForwardVector", WBasisAxis, m_ForwardVector)->AddAttributes(new WDefaultValueAttribute(WBasisAxis::PositiveX)),
+    W_ENUM_MEMBER_PROPERTY("UpVector", WBasisAxis, m_UpVector)->AddAttributes(new WDefaultValueAttribute(WBasisAxis::PositiveZ)),
+    W_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_MEMBER_PROPERTY("InversePoleVector", m_bInversePoleVector),
+    W_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
+    W_MEMBER_PROPERTY("Order", m_uiOrder),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands)
+    W_MESSAGE_HANDLER(WMsgInjectPoseCommands, OnInjectPoseCommands)
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezResult ezIkJointEntry::Serialize(ezStreamWriter& inout_stream) const
+WResult WIkJointEntry::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_sJointName;
   inout_stream << m_fWeight;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezIkJointEntry::Deserialize(ezStreamReader& inout_stream)
+WResult WIkJointEntry::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_sJointName;
   inout_stream >> m_fWeight;
   m_uiJointIdx = 0;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezAimIKComponent::ezAimIKComponent() = default;
-ezAimIKComponent::~ezAimIKComponent() = default;
+WAimIKComponent::WAimIKComponent() = default;
+WAimIKComponent::~WAimIKComponent() = default;
 
-void ezAimIKComponent::SetPoleVectorReference(const char* szReference)
+void WAimIKComponent::SetPoleVectorReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -77,19 +77,19 @@ void ezAimIKComponent::SetPoleVectorReference(const char* szReference)
   m_hPoleVector = resolver(szReference, GetHandle(), "PoleVector");
 }
 
-void ezAimIKComponent::SetDebugVisScale(float fScale)
+void WAimIKComponent::SetDebugVisScale(float fScale)
 {
   // allow scales from 0.05f to 10.0f
   // map them to range 0 to 200
-  m_uiDebugVisScale = static_cast<ezUInt8>(ezMath::Clamp(ezMath::RoundToInt(fScale * 20.0f), 0, 200));
+  m_uiDebugVisScale = static_cast<WUInt8>(WMath::Clamp(WMath::RoundToInt(fScale * 20.0f), 0, 200));
 }
 
-float ezAimIKComponent::GetDebugVisScale() const
+float WAimIKComponent::GetDebugVisScale() const
 {
   return m_uiDebugVisScale / 20.0f;
 }
 
-void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAimIKComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -105,10 +105,10 @@ void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_uiOrder;
 }
 
-void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAimIKComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fWeight;
@@ -128,7 +128,7 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
+void WAimIKComponent::OnInjectPoseCommands(WMsgInjectPoseCommands& msg) const
 {
   if ((m_fWeight <= 0.0f && m_uiDebugVisScale == 0) || m_Joints.IsEmpty())
     return;
@@ -140,29 +140,29 @@ void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
   // if we haven't reached this yet, put it in the queue
   if (m_uiOrder > msg.m_uiOrderNow)
   {
-    msg.m_uiOrderNext = ezMath::Min(msg.m_uiOrderNext, m_uiOrder);
+    msg.m_uiOrderNext = WMath::Min(msg.m_uiOrderNext, m_uiOrder);
     return;
   }
 
-  const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
-  const ezTransform selfTrans = GetOwner()->GetGlobalTransform();
-  const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);
-  const ezTransform localTarget = ezTransform::MakeLocalTransform(ownerTransform, selfTrans);
+  const WTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
+  const WTransform selfTrans = GetOwner()->GetGlobalTransform();
+  const WTransform ownerTransform = WTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);
+  const WTransform localTarget = WTransform::MakeLocalTransform(ownerTransform, selfTrans);
 
-  ezVec3 vPoleVectorPos;
+  WVec3 vPoleVectorPos;
 
-  const ezGameObject* pPoleVector;
+  const WGameObject* pPoleVector;
   if (!m_hPoleVector.IsInvalidated() && GetWorld()->TryGetObject(m_hPoleVector, pPoleVector))
   {
-    vPoleVectorPos = ezTransform::MakeLocalTransform(ownerTransform, ezTransform(pPoleVector->GetGlobalPosition())).m_vPosition;
+    vPoleVectorPos = WTransform::MakeLocalTransform(ownerTransform, WTransform(pPoleVector->GetGlobalPosition())).m_vPosition;
   }
   else
   {
     // hard-coded "up vector" as pole target
-    vPoleVectorPos = ezTransform::MakeLocalTransform(ownerTransform, ezTransform(targetTrans * ezVec3(0, 0, 10))).m_vPosition;
+    vPoleVectorPos = WTransform::MakeLocalTransform(ownerTransform, WTransform(targetTrans * WVec3(0, 0, 10))).m_vPosition;
   }
 
-  for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Joints.GetCount(); ++i)
   {
     if (m_Joints[i].m_fWeight <= 0.0f)
       continue;
@@ -172,7 +172,7 @@ void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
       m_Joints[i].m_uiJointIdx = msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_Skeleton.FindJointByName(m_Joints[i].m_sJointName);
     }
 
-    if (m_Joints[i].m_uiJointIdx == ezInvalidJointIndex)
+    if (m_Joints[i].m_uiJointIdx == WInvalidJointIndex)
       continue;
 
     auto& cmdIk = msg.m_pGenerator->AllocCommandAimIK();
@@ -181,8 +181,8 @@ void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
     cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
     cmdIk.m_vTargetPosition = localTarget.m_vPosition;
     cmdIk.m_fWeight = m_fWeight * m_Joints[i].m_fWeight;
-    cmdIk.m_vForwardVector = ezBasisAxis::GetBasisVector(m_ForwardVector);
-    cmdIk.m_vUpVector = ezBasisAxis::GetBasisVector(m_UpVector);
+    cmdIk.m_vForwardVector = WBasisAxis::GetBasisVector(m_ForwardVector);
+    cmdIk.m_vUpVector = WBasisAxis::GetBasisVector(m_UpVector);
     cmdIk.m_vPoleVectorPosition = vPoleVectorPos;
     cmdIk.m_bInversePoleVector = m_bInversePoleVector;
 
@@ -198,4 +198,4 @@ void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AimIKComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AimIKComponent);

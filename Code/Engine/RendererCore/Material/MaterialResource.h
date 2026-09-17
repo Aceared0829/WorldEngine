@@ -9,67 +9,67 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
-using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
+using WTextureCubeResourceHandle = WTypedResourceHandle<class WTextureCubeResource>;
 
 /// Descriptor for creating material resources.
 ///
 /// Materials can inherit from a base material and override shader, parameters, and textures.
 /// Supports shader permutation variables, numeric/color parameters, and 2D/cube texture bindings.
-struct ezMaterialResourceDescriptor
+struct WMaterialResourceDescriptor
 {
   /// A shader parameter name-value pair.
   struct Parameter
   {
-    ezHashedString m_Name; ///< Parameter name (must match shader constant).
-    ezVariant m_Value;     ///< Parameter value (numeric or color).
+    WHashedString m_Name; ///< Parameter name (must match shader constant).
+    WVariant m_Value;     ///< Parameter value (numeric or color).
 
-    EZ_FORCE_INLINE bool operator==(const Parameter& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+    W_FORCE_INLINE bool operator==(const Parameter& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   /// A 2D texture binding.
   struct Texture2DBinding
   {
-    ezHashedString m_Name;             ///< Texture slot name (must match shader resource).
-    ezTexture2DResourceHandle m_Value; ///< Texture resource handle.
+    WHashedString m_Name;             ///< Texture slot name (must match shader resource).
+    WTexture2DResourceHandle m_Value; ///< Texture resource handle.
 
-    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+    W_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   /// A cube texture binding.
   struct TextureCubeBinding
   {
-    ezHashedString m_Name;               ///< Texture slot name (must match shader resource).
-    ezTextureCubeResourceHandle m_Value; ///< Cube map resource handle.
+    WHashedString m_Name;               ///< Texture slot name (must match shader resource).
+    WTextureCubeResourceHandle m_Value; ///< Cube map resource handle.
 
-    EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+    W_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   void Clear();
 
-  bool operator==(const ezMaterialResourceDescriptor& other) const;
-  EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
+  bool operator==(const WMaterialResourceDescriptor& other) const;
+  W_FORCE_INLINE bool operator!=(const WMaterialResourceDescriptor& other) const { return !(*this == other); }
 
-  ezMaterialResourceHandle m_hBaseMaterial;                 ///< Base material to inherit from (optional).
-  ezHashedString m_sSurface;                                ///< Surface type for physics/collision properties.
-  ezShaderResourceHandle m_hShader;                         ///< Shader used for rendering.
-  ezDynamicArray<ezPermutationVar> m_PermutationVars;       ///< Shader permutation variable values.
-  ezDynamicArray<Parameter> m_Parameters;                   ///< Shader constant parameters.
-  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;     ///< 2D texture bindings.
-  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings; ///< Cube texture bindings.
-  ezRenderData::Category m_RenderDataCategory;              ///< Render data category (opaque, transparent, etc.).
+  WMaterialResourceHandle m_hBaseMaterial;                 ///< Base material to inherit from (optional).
+  WHashedString m_sSurface;                                ///< Surface type for physics/collision properties.
+  WShaderResourceHandle m_hShader;                         ///< Shader used for rendering.
+  WDynamicArray<WPermutationVar> m_PermutationVars;       ///< Shader permutation variable values.
+  WDynamicArray<Parameter> m_Parameters;                   ///< Shader constant parameters.
+  WDynamicArray<Texture2DBinding> m_Texture2DBindings;     ///< 2D texture bindings.
+  WDynamicArray<TextureCubeBinding> m_TextureCubeBindings; ///< Cube texture bindings.
+  WRenderData::Category m_RenderDataCategory;              ///< Render data category (opaque, transparent, etc.).
 };
 
 /// Resource representing a material with shader, parameters, and textures.
 ///
 /// Materials define the visual appearance of rendered objects. They reference a shader and provide
 /// values for shader parameters and texture slots. Supports material inheritance through base materials.
-class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
+class W_RENDERERCORE_DLL WMaterialResource final : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezMaterialResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WMaterialResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WMaterialResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WMaterialResource, WMaterialResourceDescriptor);
 
 public:
   /// Default material types with pre-defined shaders.
@@ -85,62 +85,62 @@ public:
     MissingMaterial      ///< Placeholder for missing materials.
   };
 
-  using ezMaterialId = ezGenericId<24, 8>;
+  using WMaterialId = WGenericId<24, 8>;
 
 public:
-  ezMaterialResource();
-  ~ezMaterialResource();
+  WMaterialResource();
+  ~WMaterialResource();
 
-  ezHashedString GetPermutationValue(const ezTempHashedString& sName);
-  ezHashedString GetSurface() const;
+  WHashedString GetPermutationValue(const WTempHashedString& sName);
+  WHashedString GetSurface() const;
 
-  void SetParameter(const ezHashedString& sName, const ezVariant& value);
-  void SetParameter(const char* szName, const ezVariant& value);
-  ezVariant GetParameter(const ezTempHashedString& sName);
+  void SetParameter(const WHashedString& sName, const WVariant& value);
+  void SetParameter(const char* szName, const WVariant& value);
+  WVariant GetParameter(const WTempHashedString& sName);
 
-  void SetTexture2DBinding(const ezHashedString& sName, const ezTexture2DResourceHandle& value);
-  void SetTexture2DBinding(const char* szName, const ezTexture2DResourceHandle& value);
-  ezTexture2DResourceHandle GetTexture2DBinding(const ezTempHashedString& sName);
+  void SetTexture2DBinding(const WHashedString& sName, const WTexture2DResourceHandle& value);
+  void SetTexture2DBinding(const char* szName, const WTexture2DResourceHandle& value);
+  WTexture2DResourceHandle GetTexture2DBinding(const WTempHashedString& sName);
 
-  void SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value);
-  void SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value);
-  ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
+  void SetTextureCubeBinding(const WHashedString& sName, const WTextureCubeResourceHandle& value);
+  void SetTextureCubeBinding(const char* szName, const WTextureCubeResourceHandle& value);
+  WTextureCubeResourceHandle GetTextureCubeBinding(const WTempHashedString& sName);
 
-  ezRenderData::Category GetRenderDataCategory();
-  static ezRenderData::Category GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, ezRenderData::Category fallbackCategory = ezDefaultRenderDataCategories::LitOpaque);
+  WRenderData::Category GetRenderDataCategory();
+  static WRenderData::Category GetRenderDataCategory(const WMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, WRenderData::Category fallbackCategory = WDefaultRenderDataCategories::LitOpaque);
 
   /// Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc();
   virtual void ResetResource() override;
 
-  const ezMaterialResourceDescriptor& GetCurrentDesc() const;
+  const WMaterialResourceDescriptor& GetCurrentDesc() const;
 
-  /// In case the renderer uses structured buffers to store materials, this is the index into the buffer returns by ezMaterialManager::GetMaterialData.
+  /// In case the renderer uses structured buffers to store materials, this is the index into the buffer returns by WMaterialManager::GetMaterialData.
   ///
-  /// You only need to call this if you want to persist the index in some other storage as ezMaterialManager::GetMaterialData will return the index as well.
+  /// You only need to call this if you want to persist the index in some other storage as WMaterialManager::GetMaterialData will return the index as well.
   /// Important: The index can change if the shader changes. This can only be done by unloading and reloading the material in which case the [] event is fired.
-  ezMaterialId GetMaterialId() const { return m_MaterialId; }
+  WMaterialId GetMaterialId() const { return m_MaterialId; }
 
   /// Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
   static const char* GetDefaultMaterialFileName(DefaultMaterialType materialType);
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 public:
   struct DirtyFlags
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
-      Parameter = EZ_BIT(0),
-      Texture2D = EZ_BIT(1),
-      TextureCube = EZ_BIT(2),
-      PermutationVar = EZ_BIT(3),
-      ShaderAndId = EZ_BIT(4),
+      Parameter = W_BIT(0),
+      Texture2D = W_BIT(1),
+      TextureCube = W_BIT(2),
+      PermutationVar = W_BIT(3),
+      ShaderAndId = W_BIT(4),
       ResourceReset = Parameter | Texture2D | TextureCube | PermutationVar,
       ResourceCreation = ResourceReset | ShaderAndId,
       Default = 0
@@ -157,26 +157,26 @@ public:
   };
 
 private:
-  friend class ezRenderContext;
-  friend class ezMaterialManager;
+  friend class WRenderContext;
+  friend class WMaterialManager;
 
-  ezEvent<const ezMaterialResource*, ezMutex> m_ModifiedEvent;
+  WEvent<const WMaterialResource*, WMutex> m_ModifiedEvent;
 
-  void AddPermutationVar(ezStringView sName, ezStringView sValue);
+  void AddPermutationVar(WStringView sName, WStringView sValue);
   void SetModified(DirtyFlags::Enum flag);
   void FlattenOriginalDescHierarchy();
   void ComputeRenderDataCategory();
 
 private:
-  ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
+  WMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
 
   // Dynamic data
-  ezMaterialResourceDescriptor m_mDesc; // Current desc of the material. Contains any changes done after loading.
-  ezBitflags<DirtyFlags> m_DirtyFlags;  // Flags indicating what has changed in m_mDesc this frame.
+  WMaterialResourceDescriptor m_mDesc; // Current desc of the material. Contains any changes done after loading.
+  WBitflags<DirtyFlags> m_DirtyFlags;  // Flags indicating what has changed in m_mDesc this frame.
 
-  // ezMaterialManager registration
-  ezShaderResourceHandle m_hShader;
-  ezMaterialId m_MaterialId;
+  // WMaterialManager registration
+  WShaderResourceHandle m_hShader;
+  WMaterialId m_MaterialId;
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezMaterialResource::DirtyFlags);
+W_DECLARE_FLAGS_OPERATORS(WMaterialResource::DirtyFlags);

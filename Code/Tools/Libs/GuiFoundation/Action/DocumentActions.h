@@ -4,36 +4,36 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 ///
-class EZ_GUIFOUNDATION_DLL ezDocumentActions
+class W_GUIFOUNDATION_DLL WDocumentActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu);
-  static void MapToolbarActions(ezStringView sMapping);
-  static void MapToolsActions(ezStringView sMapping);
+  static void MapMenuActions(WStringView sMapping, WStringView sTargetMenu);
+  static void MapToolbarActions(WStringView sMapping);
+  static void MapToolsActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hSaveCategory;
-  static ezActionDescriptorHandle s_hSave;
-  static ezActionDescriptorHandle s_hSaveAs;
-  static ezActionDescriptorHandle s_hSaveAll;
+  static WActionDescriptorHandle s_hSaveCategory;
+  static WActionDescriptorHandle s_hSave;
+  static WActionDescriptorHandle s_hSaveAs;
+  static WActionDescriptorHandle s_hSaveAll;
 
-  static ezActionDescriptorHandle s_hClose;
-  static ezActionDescriptorHandle s_hCloseAll;
-  static ezActionDescriptorHandle s_hCloseAllButThis;
+  static WActionDescriptorHandle s_hClose;
+  static WActionDescriptorHandle s_hCloseAll;
+  static WActionDescriptorHandle s_hCloseAllButThis;
 
-  static ezActionDescriptorHandle s_hOpenContainingFolder;
-  static ezActionDescriptorHandle s_hCopyDocumentPath;
+  static WActionDescriptorHandle s_hOpenContainingFolder;
+  static WActionDescriptorHandle s_hCopyDocumentPath;
 
-  static ezActionDescriptorHandle s_hUpdatePrefabs;
+  static WActionDescriptorHandle s_hUpdatePrefabs;
 };
 
 
 /// Standard document actions.
-class EZ_GUIFOUNDATION_DLL ezDocumentAction : public ezButtonAction
+class W_GUIFOUNDATION_DLL WDocumentAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WDocumentAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -48,13 +48,13 @@ public:
     CopyDocumentPath,
     UpdatePrefabs,
   };
-  ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezDocumentAction();
+  WDocumentAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WDocumentAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void DocumentEventHandler(const ezDocumentEvent& e);
+  void DocumentEventHandler(const WDocumentEvent& e);
 
   ButtonType m_ButtonType;
 };

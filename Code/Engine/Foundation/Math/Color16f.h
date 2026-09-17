@@ -5,44 +5,44 @@
 
 /// A 16bit per channel float color storage format.
 ///
-/// For any calculations or conversions use ezColor.
-/// \see ezColor
-class EZ_FOUNDATION_DLL ezColorLinear16f
+/// For any calculations or conversions use WColor.
+/// \see WColor
+class W_FOUNDATION_DLL WColorLinear16f
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   // *** Data ***
 public:
-  ezFloat16 r;
-  ezFloat16 g;
-  ezFloat16 b;
-  ezFloat16 a;
+  WFloat16 r;
+  WFloat16 g;
+  WFloat16 b;
+  WFloat16 a;
 
   // *** Constructors ***
 public:
   /// default-constructed color is uninitialized (for speed)
-  ezColorLinear16f(); // [tested]
+  WColorLinear16f(); // [tested]
 
   /// Initializes the color with r, g, b, a
-  ezColorLinear16f(ezFloat16 r, ezFloat16 g, ezFloat16 b, ezFloat16 a); // [tested]
+  WColorLinear16f(WFloat16 r, WFloat16 g, WFloat16 b, WFloat16 a); // [tested]
 
-  /// Initializes the color with ezColor
-  ezColorLinear16f(const ezColor& color); // [tested]
+  /// Initializes the color with WColor
+  WColorLinear16f(const WColor& color); // [tested]
 
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   // *** Functions ***
 public:
-  /// Conversion to ezColor.
-  ezColor ToLinearFloat() const; // [tested]
+  /// Conversion to WColor.
+  WColor ToLinearFloat() const; // [tested]
 
-  /// Conversion to const ezFloat16*.
-  const ezFloat16* GetData() const { return &r; }
+  /// Conversion to const WFloat16*.
+  const WFloat16* GetData() const { return &r; }
 
-  /// Conversion to ezFloat16* - use with care!
-  ezFloat16* GetData() { return &r; }
+  /// Conversion to WFloat16* - use with care!
+  WFloat16* GetData() { return &r; }
 };
 
 #include <Foundation/Math/Implementation/Color16f_inl.h>

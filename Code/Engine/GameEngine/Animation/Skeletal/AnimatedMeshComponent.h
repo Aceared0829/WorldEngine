@@ -4,23 +4,23 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
 
-class EZ_GAMEENGINE_DLL ezAnimatedMeshComponentManager : public ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList>
+class W_GAMEENGINE_DLL WAnimatedMeshComponentManager : public WComponentManager<class WAnimatedMeshComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezAnimatedMeshComponentManager(ezWorld* pWorld);
-  ~ezAnimatedMeshComponentManager();
+  WAnimatedMeshComponentManager(WWorld* pWorld);
+  ~WAnimatedMeshComponentManager();
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void AddToUpdateList(ezAnimatedMeshComponent* pComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void AddToUpdateList(WAnimatedMeshComponent* pComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
+  WDeque<WComponentHandle> m_ComponentsToUpdate;
 };
 
 /// Instantiates a mesh that can be animated through skeletal animation.
@@ -28,63 +28,63 @@ private:
 /// The referenced mesh has to contain skinning information.
 ///
 /// This component only creates an animated mesh for rendering. It does not animate the mesh in any way.
-/// The component handles messages of type ezMsgAnimationPoseUpdated. Using this message other systems can set a new pose
+/// The component handles messages of type WMsgAnimationPoseUpdated. Using this message other systems can set a new pose
 /// for the animated mesh.
 ///
-/// For example the ezSkeletonPoseComponent, ezSimpleAnimationComponent and ezAnimationControllerComponent do this
+/// For example the WSkeletonPoseComponent, WSimpleAnimationComponent and WAnimationControllerComponent do this
 /// to change the pose of the animated mesh.
-class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase
+class W_GAMEENGINE_DLL WAnimatedMeshComponent : public WMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezMeshComponentBase, ezAnimatedMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAnimatedMeshComponent, WMeshComponentBase, WAnimatedMeshComponentManager);
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMeshComponentBase
+  // WMeshComponentBase
 
 protected:
-  virtual ezTransform GetFinalGlobalTransform() const override;
-  virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const override;
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual WTransform GetFinalGlobalTransform() const override;
+  virtual WMeshRenderData* CreateRenderData(const WRenderDataManager* pRenderDataManager) const override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimatedMeshComponent
+  // WAnimatedMeshComponent
 
 public:
-  ezAnimatedMeshComponent();
-  ~ezAnimatedMeshComponent();
+  WAnimatedMeshComponent();
+  ~WAnimatedMeshComponent();
 
-  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
+  void RetrievePose(WDynamicArray<WMat4>& out_modelTransforms, WTransform& out_rootTransform, const WSkeleton& skeleton);
 
 protected:
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);                          // [ msg handler ]
-  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);                      // [ msg handler ]
-  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg);                          // [ msg handler ]
+  void OnQueryAnimationSkeleton(WMsgQueryAnimationSkeleton& msg);                      // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(WMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
 
   void InitializeAnimationPose();
 
-  void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
+  void MapModelSpacePoseToSkinningSpace(const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones, const WSkeleton& skeleton, WArrayPtr<const WMat4> modelSpaceTransforms, WBoundingBox* bounds);
 
-  ezTransform m_RootTransform = ezTransform::MakeIdentity();
-  ezBoundingBox m_MaxBounds;
-  ezSkinningState m_SkinningState;
-  ezSkeletonResourceHandle m_hDefaultSkeleton;
+  WTransform m_RootTransform = WTransform::MakeIdentity();
+  WBoundingBox m_MaxBounds;
+  WSkinningState m_SkinningState;
+  WSkeletonResourceHandle m_hDefaultSkeleton;
 };
 
 
-struct ezRootMotionMode
+struct WRootMotionMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -95,7 +95,7 @@ struct ezRootMotionMode
     Default = Ignore
   };
 
-  EZ_GAMEENGINE_DLL static void Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
+  W_GAMEENGINE_DLL static void Apply(WRootMotionMode::Enum mode, WGameObject* pObject, const WVec3& vTranslation, WAngle rotationX, WAngle rotationY, WAngle rotationZ);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezRootMotionMode);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WRootMotionMode);

@@ -14,58 +14,58 @@
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-ezGALDeviceVulkan* ezResourceCacheVulkan::s_pDevice;
-vk::Device ezResourceCacheVulkan::s_Device;
-vk::PipelineCache ezResourceCacheVulkan::s_PipelineCache;
+WGALDeviceVulkan* WResourceCacheVulkan::s_pDevice;
+vk::Device WResourceCacheVulkan::s_Device;
+vk::PipelineCache WResourceCacheVulkan::s_PipelineCache;
 
-ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_RenderPasses;
-ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_FrameBuffers;
-ezUniquePtr<ezResourceCacheVulkan::FrameBufferTracker> ezResourceCacheVulkan::s_pFrameBufferTracker;
+WHashTable<WGALRenderPassDescriptor, vk::RenderPass, WResourceCacheVulkan::ResourceCacheHash> WResourceCacheVulkan::s_RenderPasses;
+WHashTable<WResourceCacheVulkan::FramebufferKey, vk::Framebuffer, WResourceCacheVulkan::ResourceCacheHash> WResourceCacheVulkan::s_FrameBuffers;
+WUniquePtr<WResourceCacheVulkan::FrameBufferTracker> WResourceCacheVulkan::s_pFrameBufferTracker;
 
-// #define EZ_LOG_VULKAN_RESOURCES
+// #define W_LOG_VULKAN_RESOURCES
 
-static_assert(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
+static_assert(sizeof(WUInt32) == sizeof(WGALRenderTargetViewHandle));
 namespace
 {
-  EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& ref_stream, const ezGALRenderTargetViewHandle& hValue)
+  W_ALWAYS_INLINE WStreamWriter& operator<<(WStreamWriter& ref_stream, const WGALRenderTargetViewHandle& hValue)
   {
-    ref_stream << reinterpret_cast<const ezUInt32&>(hValue);
+    ref_stream << reinterpret_cast<const WUInt32&>(hValue);
     return ref_stream;
   }
 
-  static constexpr ezUInt32 PIPELINE_CACHE_MAGIC = 0x45A9BCD7; // Arbitrary m_uiMagic number
+  static constexpr WUInt32 PIPELINE_CACHE_MAGIC = 0x45A9BCD7; // Arbitrary m_uiMagic number
   // Header structure for Vulkan pipeline cache
   struct PipelineCachePrefixHeader
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiMagic;             // An arbitrary m_uiMagic header to make sure this is actually our file
-    ezUInt32 m_uiDataSize;          // Equal to *pDataSize returned by vkGetPipelineCacheData
-    ezUInt64 m_uiDataHash;          // A hash of pipeline cache data, including the header
-    ezUInt32 m_uiVendorID;          // Equal to VkPhysicalDeviceProperties::vendorID
-    ezUInt32 m_uiDeviceID;          // Equal to VkPhysicalDeviceProperties::deviceID
-    ezUInt32 m_uiDriverVersion;     // Equal to VkPhysicalDeviceProperties::driverVersion
-    ezUInt32 m_uiDriverABI;         // Equal to sizeof(void*)
-    ezUInt8 m_uiUuid[VK_UUID_SIZE]; // Equal to VkPhysicalDeviceProperties::pipelineCacheUUID
+    WUInt32 m_uiMagic;             // An arbitrary m_uiMagic header to make sure this is actually our file
+    WUInt32 m_uiDataSize;          // Equal to *pDataSize returned by vkGetPipelineCacheData
+    WUInt64 m_uiDataHash;          // A hash of pipeline cache data, including the header
+    WUInt32 m_uiVendorID;          // Equal to VkPhysicalDeviceProperties::vendorID
+    WUInt32 m_uiDeviceID;          // Equal to VkPhysicalDeviceProperties::deviceID
+    WUInt32 m_uiDriverVersion;     // Equal to VkPhysicalDeviceProperties::driverVersion
+    WUInt32 m_uiDriverABI;         // Equal to sizeof(void*)
+    WUInt8 m_uiUuid[VK_UUID_SIZE]; // Equal to VkPhysicalDeviceProperties::pipelineCacheUUID
   };
 
-  ezString GetPipelineCacheFilename(const vk::PhysicalDeviceProperties& deviceProperties)
+  WString GetPipelineCacheFilename(const vk::PhysicalDeviceProperties& deviceProperties)
   {
-    ezStringBuilder sCacheFilePath;
-    ezString sAppName = ezApplication::GetApplicationInstance() ? ezApplication::GetApplicationInstance()->GetApplicationName().GetView() : "ezEngine"_ezsv;
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    WStringBuilder sCacheFilePath;
+    WString sAppName = WApplication::GetApplicationInstance() ? WApplication::GetApplicationInstance()->GetApplicationName().GetView() : "WorldEngine"_wsv;
+#if W_ENABLED(W_PLATFORM_ANDROID)
     // Be extra pedantic on Android and don't reuse caches on driver version changes, see https://zeux.io/2019/07/17/serializing-pipeline-cache/
     sCacheFilePath.SetFormat("{}/PipelineCache_{}_{}_{}.bin",
-      ezOSFile::GetUserDataFolder(sAppName),
-      ezArgU(deviceProperties.vendorID, 8, true, 16, true),
-      ezArgU(deviceProperties.deviceID, 8, true, 16, true),
-      ezArgU(deviceProperties.driverVersion, 8, true, 16, true));
+      WOSFile::GetUserDataFolder(sAppName),
+      WArgU(deviceProperties.vendorID, 8, true, 16, true),
+      WArgU(deviceProperties.deviceID, 8, true, 16, true),
+      WArgU(deviceProperties.driverVersion, 8, true, 16, true));
 #else
     // On desktop, we assume that vendors can actually write proper code and caches can be reused after driver updates.
     sCacheFilePath.SetFormat("{}/PipelineCache_{}_{}.bin",
-      ezOSFile::GetUserDataFolder(sAppName),
-      ezArgU(deviceProperties.vendorID, 8, true, 16, true),
-      ezArgU(deviceProperties.deviceID, 8, true, 16, true));
+      WOSFile::GetUserDataFolder(sAppName),
+      WArgU(deviceProperties.vendorID, 8, true, 16, true),
+      WArgU(deviceProperties.deviceID, 8, true, 16, true));
 #endif
     return sCacheFilePath;
   }
@@ -73,12 +73,12 @@ namespace
 
 
 
-void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device device)
+void WResourceCacheVulkan::Initialize(WGALDeviceVulkan* pDevice, vk::Device device)
 {
   s_pDevice = pDevice;
   s_Device = device;
-  s_pFrameBufferTracker = EZ_NEW(pDevice->GetAllocator(), FrameBufferTracker);
-  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.AddEventHandler(&ezResourceCacheVulkan::OnFrameBufferInvalidated);
+  s_pFrameBufferTracker = W_NEW(pDevice->GetAllocator(), FrameBufferTracker);
+  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.AddEventHandler(&WResourceCacheVulkan::OnFrameBufferInvalidated);
 
   if (LoadPipelineCache(s_PipelineCache).Failed())
   {
@@ -89,13 +89,13 @@ void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device de
   }
 }
 
-void ezResourceCacheVulkan::DeInitialize()
+void WResourceCacheVulkan::DeInitialize()
 {
   if (s_PipelineCache)
   {
     if (SavePipelineCache().Failed())
     {
-      ezLog::Error("Failed to save Vulkan pipeline cache");
+      WLog::Error("Failed to save Vulkan pipeline cache");
     }
     // Destroy the pipeline cache
     s_Device.destroyPipelineCache(s_PipelineCache, nullptr);
@@ -117,41 +117,41 @@ void ezResourceCacheVulkan::DeInitialize()
   s_FrameBuffers.Clear();
   s_FrameBuffers.Compact();
 
-  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.RemoveEventHandler(&ezResourceCacheVulkan::OnFrameBufferInvalidated);
+  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.RemoveEventHandler(&WResourceCacheVulkan::OnFrameBufferInvalidated);
   s_pFrameBufferTracker.Clear();
 
   s_Device = nullptr;
 }
 
-EZ_DEFINE_AS_POD_TYPE(vk::AttachmentDescription);
-EZ_DEFINE_AS_POD_TYPE(vk::AttachmentReference);
+W_DEFINE_AS_POD_TYPE(vk::AttachmentDescription);
+W_DEFINE_AS_POD_TYPE(vk::AttachmentReference);
 
-vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDescriptor& renderPass)
+vk::RenderPass WResourceCacheVulkan::RequestRenderPass(const WGALRenderPassDescriptor& renderPass)
 {
   if (const vk::RenderPass* pPass = s_RenderPasses.GetValue(renderPass))
   {
     return *pPass;
   }
 
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating RenderPass #{}", s_RenderPasses.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
+#ifdef W_LOG_VULKAN_RESOURCES
+  WLog::Info("Creating RenderPass #{}", s_RenderPasses.GetCount());
+#endif // W_LOG_VULKAN_RESOURCES
 
-  ezHybridArray<vk::AttachmentDescription, 4> attachments;
-  ezHybridArray<vk::AttachmentReference, 1> depthAttachmentRefs;
-  ezHybridArray<vk::AttachmentReference, 4> colorAttachmentRefs;
+  WHybridArray<vk::AttachmentDescription, 4> attachments;
+  WHybridArray<vk::AttachmentReference, 1> depthAttachmentRefs;
+  WHybridArray<vk::AttachmentReference, 4> colorAttachmentRefs;
 
-  if (renderPass.m_DepthFormat != ezGALResourceFormat::Invalid)
+  if (renderPass.m_DepthFormat != WGALResourceFormat::Invalid)
   {
     vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(renderPass.m_DepthFormat);
 
     vkAttachment.format = formatInfo.m_format;
-    vkAttachment.samples = ezConversionUtilsVulkan::GetSamples(renderPass.m_Msaa);
-    vkAttachment.loadOp = ezConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_DepthLoadOp);
-    vkAttachment.storeOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_DepthStoreOp);
-    vkAttachment.stencilLoadOp = ezConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_StencilLoadOp);
-    vkAttachment.stencilStoreOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_StencilStoreOp);
+    vkAttachment.samples = WConversionUtilsVulkan::GetSamples(renderPass.m_Msaa);
+    vkAttachment.loadOp = WConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_DepthLoadOp);
+    vkAttachment.storeOp = WConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_DepthStoreOp);
+    vkAttachment.stencilLoadOp = WConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_StencilLoadOp);
+    vkAttachment.stencilStoreOp = WConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_StencilStoreOp);
     vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad || vkAttachment.stencilLoadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eDepthStencilAttachmentOptimal : vk::ImageLayout::eUndefined;
     vkAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
@@ -160,16 +160,16 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
     depthAttachment.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
   }
 
-  const ezUInt32 uiCount = renderPass.m_uiRTCount;
-  for (ezUInt32 i = 0; i < uiCount; i++)
+  const WUInt32 uiCount = renderPass.m_uiRTCount;
+  for (WUInt32 i = 0; i < uiCount; i++)
   {
     vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(renderPass.m_ColorFormat[i]);
 
     vkAttachment.format = formatInfo.m_format;
-    vkAttachment.samples = ezConversionUtilsVulkan::GetSamples(renderPass.m_Msaa);
-    vkAttachment.loadOp = ezConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_ColorLoadOp[i]);
-    vkAttachment.storeOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_ColorStoreOp[i]);
+    vkAttachment.samples = WConversionUtilsVulkan::GetSamples(renderPass.m_Msaa);
+    vkAttachment.loadOp = WConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_ColorLoadOp[i]);
+    vkAttachment.storeOp = WConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_ColorStoreOp[i]);
     vkAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     vkAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eColorAttachmentOptimal : vk::ImageLayout::eUndefined;
@@ -218,7 +218,7 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
   return vkRenderPass;
 }
 
-vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRenderPass, const ezGALFrameBufferDescriptor& frameBuffer)
+vk::Framebuffer WResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRenderPass, const WGALFrameBufferDescriptor& frameBuffer)
 {
   FramebufferKey key;
   key.m_renderPass = vkRenderPass;
@@ -229,22 +229,22 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
     return *pFrameBuffer;
   }
 
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating FrameBuffer #{}", s_FrameBuffers.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
+#ifdef W_LOG_VULKAN_RESOURCES
+  WLog::Info("Creating FrameBuffer #{}", s_FrameBuffers.GetCount());
+#endif // W_LOG_VULKAN_RESOURCES
 
-  ezHybridArray<vk::ImageView, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> attachments;
+  WHybridArray<vk::ImageView, W_GAL_MAX_RENDERTARGET_COUNT + 1> attachments;
   if (!frameBuffer.m_hDepthTarget.IsInvalidated())
   {
-    const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(frameBuffer.m_hDepthTarget));
+    const WGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const WGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(frameBuffer.m_hDepthTarget));
     attachments.PushBack(pRenderTargetView->GetImageView());
   }
-  for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; ++i)
+  for (WUInt32 i = 0; i < W_GAL_MAX_RENDERTARGET_COUNT; ++i)
   {
     if (frameBuffer.m_hColorTarget[i].IsInvalidated())
       break;
 
-    const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(frameBuffer.m_hColorTarget[i]));
+    const WGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const WGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(frameBuffer.m_hColorTarget[i]));
     attachments.PushBack(pRenderTargetView->GetImageView());
   }
 
@@ -261,7 +261,7 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
 
   s_FrameBuffers.Insert(key, vkFrameBuffer);
 
-  ezSet<vk::ImageView> dependencies(ezTempAllocatorWrapper::GetAllocator());
+  WSet<vk::ImageView> dependencies(WTempAllocatorWrapper::GetAllocator());
   for (vk::ImageView attachment : attachments)
   {
     dependencies.Insert(attachment);
@@ -271,12 +271,12 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
   return vkFrameBuffer;
 }
 
-void ezResourceCacheVulkan::RenderTargetViewDestroyed(vk::ImageView imageView)
+void WResourceCacheVulkan::RenderTargetViewDestroyed(vk::ImageView imageView)
 {
   s_pFrameBufferTracker->DependencyDestroyed(imageView);
 }
 
-void ezResourceCacheVulkan::OnFrameBufferInvalidated(FramebufferKey key)
+void WResourceCacheVulkan::OnFrameBufferInvalidated(FramebufferKey key)
 {
   // DependencyDestroyed only severed the link to the destroyed view, the links to the other attachments are still around.
   s_pFrameBufferTracker->RemoveResource(key);
@@ -288,73 +288,73 @@ void ezResourceCacheVulkan::OnFrameBufferInvalidated(FramebufferKey key)
   }
 }
 
-ezResult ezResourceCacheVulkan::SavePipelineCache()
+WResult WResourceCacheVulkan::SavePipelineCache()
 {
   // Get physical device properties for cache validation
   vk::PhysicalDeviceProperties deviceProperties = s_pDevice->GetVulkanPhysicalDevice().getProperties();
 
   // Get the cache data
   size_t dataSize = 0;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, nullptr));
+  VK_SUCCEED_OR_RETURN_W_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, nullptr));
   if (dataSize == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezDynamicArray<ezUInt8> pipelineCacheData;
-  pipelineCacheData.SetCountUninitialized(static_cast<ezUInt32>(dataSize));
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, pipelineCacheData.GetData()));
+  WDynamicArray<WUInt8> pipelineCacheData;
+  pipelineCacheData.SetCountUninitialized(static_cast<WUInt32>(dataSize));
+  VK_SUCCEED_OR_RETURN_W_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, pipelineCacheData.GetData()));
 
   // Create our custom prefix header
   PipelineCachePrefixHeader prefixHeader;
   prefixHeader.m_uiMagic = PIPELINE_CACHE_MAGIC;
-  prefixHeader.m_uiDataSize = static_cast<ezUInt32>(dataSize);
+  prefixHeader.m_uiDataSize = static_cast<WUInt32>(dataSize);
   prefixHeader.m_uiVendorID = deviceProperties.vendorID;
   prefixHeader.m_uiDeviceID = deviceProperties.deviceID;
   prefixHeader.m_uiDriverVersion = deviceProperties.driverVersion;
   prefixHeader.m_uiDriverABI = sizeof(void*);
-  for (ezUInt32 i = 0; i < VK_UUID_SIZE; ++i)
+  for (WUInt32 i = 0; i < VK_UUID_SIZE; ++i)
   {
     prefixHeader.m_uiUuid[i] = deviceProperties.pipelineCacheUUID[i];
   }
-  prefixHeader.m_uiDataHash = ezHashingUtils::xxHash64(pipelineCacheData.GetData(), dataSize);
+  prefixHeader.m_uiDataHash = WHashingUtils::xxHash64(pipelineCacheData.GetData(), dataSize);
 
-  ezString sCacheFilePath = GetPipelineCacheFilename(deviceProperties);
-  ezStringBuilder sTempFilePath;
+  WString sCacheFilePath = GetPipelineCacheFilename(deviceProperties);
+  WStringBuilder sTempFilePath;
   sTempFilePath.SetFormat("{}_temp", sCacheFilePath);
   // Write to the temporary file first
   {
-    ezOSFile file;
-    // ezFileWriter file;
-    EZ_SUCCEED_OR_RETURN(file.Open(sTempFilePath, ezFileOpenMode::Write, ezFileShareMode::Exclusive));
-    EZ_SUCCEED_OR_RETURN(file.Write(&prefixHeader, sizeof(PipelineCachePrefixHeader)));
-    EZ_SUCCEED_OR_RETURN(file.Write(pipelineCacheData.GetData(), dataSize));
+    WOSFile file;
+    // WFileWriter file;
+    W_SUCCEED_OR_RETURN(file.Open(sTempFilePath, WFileOpenMode::Write, WFileShareMode::Exclusive));
+    W_SUCCEED_OR_RETURN(file.Write(&prefixHeader, sizeof(PipelineCachePrefixHeader)));
+    W_SUCCEED_OR_RETURN(file.Write(pipelineCacheData.GetData(), dataSize));
     file.Close();
   }
 
   // Now rename the temporary file to the final file
-  EZ_SUCCEED_OR_RETURN(ezOSFile::DeleteFile(sCacheFilePath));
-  EZ_SUCCEED_OR_RETURN(ezOSFile::MoveFileOrDirectory(sTempFilePath, sCacheFilePath));
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(WOSFile::DeleteFile(sCacheFilePath));
+  W_SUCCEED_OR_RETURN(WOSFile::MoveFileOrDirectory(sTempFilePath, sCacheFilePath));
+  return W_SUCCESS;
 }
 
-ezResult ezResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelineCache)
+WResult WResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelineCache)
 {
   // Pipeline cache implementation following https://zeux.io/2019/07/17/serializing-pipeline-cache/
   vk::PhysicalDeviceProperties deviceProperties = s_pDevice->GetVulkanPhysicalDevice().getProperties();
 
   // Try to load the pipeline cache from file
-  ezString cacheFilePath = GetPipelineCacheFilename(deviceProperties);
+  WString cacheFilePath = GetPipelineCacheFilename(deviceProperties);
 
-  ezOSFile file;
-  EZ_SUCCEED_OR_RETURN(file.Open(cacheFilePath, ezFileOpenMode::Read, ezFileShareMode::Default));
+  WOSFile file;
+  W_SUCCEED_OR_RETURN(file.Open(cacheFilePath, WFileOpenMode::Read, WFileShareMode::Default));
 
   // Read our custom prefix header
   PipelineCachePrefixHeader prefixHeader;
-  ezUInt64 uiReadSize = file.Read(&prefixHeader, sizeof(PipelineCachePrefixHeader));
+  WUInt64 uiReadSize = file.Read(&prefixHeader, sizeof(PipelineCachePrefixHeader));
   if (uiReadSize != sizeof(PipelineCachePrefixHeader))
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   bool bCacheUuidValid = true;
-  for (ezUInt32 i = 0; i < VK_UUID_SIZE; ++i)
+  for (WUInt32 i = 0; i < VK_UUID_SIZE; ++i)
   {
     if (prefixHeader.m_uiUuid[i] != deviceProperties.pipelineCacheUUID[i])
     {
@@ -364,58 +364,58 @@ ezResult ezResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelin
   }
   const bool bIsValid =
     bCacheUuidValid && prefixHeader.m_uiMagic == PIPELINE_CACHE_MAGIC && prefixHeader.m_uiVendorID == deviceProperties.vendorID && prefixHeader.m_uiDeviceID == deviceProperties.deviceID
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
     && prefixHeader.m_uiDriverVersion == deviceProperties.driverVersion && prefixHeader.m_uiDriverABI == sizeof(void*)
 #endif
     ;
 
   if (!bIsValid)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // Read the cache data into memory
-  ezDynamicArray<ezUInt8> initialData;
+  WDynamicArray<WUInt8> initialData;
   initialData.SetCountUninitialized(prefixHeader.m_uiDataSize);
   uiReadSize = file.Read(initialData.GetData(), initialData.GetCount());
   if (uiReadSize != prefixHeader.m_uiDataSize)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   file.Close();
 
   // Verify hash
-  const ezUInt64 computedHash = ezHashingUtils::xxHash64(initialData.GetData(), initialData.GetCount());
+  const WUInt64 computedHash = WHashingUtils::xxHash64(initialData.GetData(), initialData.GetCount());
   if (computedHash != prefixHeader.m_uiDataHash)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // Create the pipeline cache
   vk::PipelineCacheCreateInfo pipelineCacheInfo;
   pipelineCacheInfo.initialDataSize = initialData.GetCount();
   pipelineCacheInfo.pInitialData = initialData.GetData();
   if (s_Device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_PipelineCache) != vk::Result::eSuccess)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const ezGALRenderPassDescriptor& desc)
+WUInt32 WResourceCacheVulkan::ResourceCacheHash::Hash(const WGALRenderPassDescriptor& desc)
 {
   return desc.CalculateHash();
 }
 
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALRenderPassDescriptor& a, const ezGALRenderPassDescriptor& b)
+bool WResourceCacheVulkan::ResourceCacheHash::Equal(const WGALRenderPassDescriptor& a, const WGALRenderPassDescriptor& b)
 {
   bool equal = a == b;
   return equal;
 }
 
-ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
+WUInt32 WResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
 {
-  ezHashStreamWriter32 writer;
+  WHashStreamWriter32 writer;
   writer << key.m_renderPass;
   writer << key.m_frameBuffer.CalculateHash();
   return writer.GetHashValue();
 }
 
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, const FramebufferKey& b)
+bool WResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, const FramebufferKey& b)
 {
   return a.m_renderPass == b.m_renderPass && a.m_frameBuffer == b.m_frameBuffer;
 }

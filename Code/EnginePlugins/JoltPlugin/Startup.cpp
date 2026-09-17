@@ -5,7 +5,7 @@
 #include <JoltPlugin/System/JoltCore.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Jolt, JoltPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(Jolt, JoltPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -14,26 +14,26 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Jolt, JoltPlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Triangle", ezGetStaticRTTI<ezJoltMeshResource>());
-    ezResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Convex", ezGetStaticRTTI<ezJoltMeshResource>());
+    WResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Triangle", WGetStaticRTTI<WJoltMeshResource>());
+    WResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Convex", WGetStaticRTTI<WJoltMeshResource>());
 
-    ezJoltMeshResourceDescriptor desc;
-    ezJoltMeshResourceHandle hResource = ezResourceManager::CreateResource<ezJoltMeshResource>("Missing Jolt Mesh", std::move(desc), "Empty collision mesh");
-    ezResourceManager::SetResourceTypeMissingFallback<ezJoltMeshResource>(hResource);
+    WJoltMeshResourceDescriptor desc;
+    WJoltMeshResourceHandle hResource = WResourceManager::CreateResource<WJoltMeshResource>("Missing Jolt Mesh", std::move(desc), "Empty collision mesh");
+    WResourceManager::SetResourceTypeMissingFallback<WJoltMeshResource>(hResource);
 
-    ezJoltCore::Startup();
+    WJoltCore::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezResourceManager::SetResourceTypeMissingFallback<ezJoltMeshResource>(ezJoltMeshResourceHandle());
-    ezJoltCore::Shutdown();
+    WResourceManager::SetResourceTypeMissingFallback<WJoltMeshResource>(WJoltMeshResourceHandle());
+    WJoltCore::Shutdown();
 
-    ezJoltMeshResource::CleanupDynamicPluginReferences();
+    WJoltMeshResource::CleanupDynamicPluginReferences();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Startup);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Startup);

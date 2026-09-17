@@ -11,73 +11,73 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimationClip2D, ezNoBase, 1, ezRTTIDefaultAllocator<ezAnimationClip2D>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WAnimationClip2D, WNoBase, 1, WRTTIDefaultAllocator<WAnimationClip2D>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-    EZ_MEMBER_PROPERTY("Position", m_vPosition),
+    W_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+    W_MEMBER_PROPERTY("Position", m_vPosition),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace2DAnimNode, 2, ezRTTIDefaultAllocator<ezSampleBlendSpace2DAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSampleBlendSpace2DAnimNode, 2, WRTTIDefaultAllocator<WSampleBlendSpace2DAnimNode>)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
-      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
-      EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(100))),
-    EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-      EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
+      W_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new WDefaultValueAttribute(true)),
+      W_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, {})),
+      W_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, 100.0f)),
+      W_MEMBER_PROPERTY("InputResponse", m_InputResponse)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromMilliseconds(100))),
+    W_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new WDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      W_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
-      EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("X", m_InCoordX)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("Y", m_InCoordY)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("InSpeed", m_InSpeed)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("X", m_InCoordX)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("Y", m_InCoordY)->AddAttributes(new WHiddenAttribute()),
 
-      EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnStarted", m_OutOnStarted)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new ezHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnStarted", m_OutOnStarted)->AddAttributes(new WHiddenAttribute()),
+      W_MEMBER_PROPERTY("OutOnFinished", m_OutOnFinished)->AddAttributes(new WHiddenAttribute()),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Pose Generation"),
-      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
-      new ezTitleAttribute("BlendSpace 2D: '{CenterClip}'"),
+      new WCategoryAttribute("Pose Generation"),
+      new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Blue)),
+      new WTitleAttribute("BlendSpace 2D: '{CenterClip}'"),
     }
-    EZ_END_ATTRIBUTES;
+    W_END_ATTRIBUTES;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimationClip2D::SetAnimationFile(const char* szFile)
+void WAnimationClip2D::SetAnimationFile(const char* szFile)
 {
   m_sClip.Assign(szFile);
 }
 
-const char* ezAnimationClip2D::GetAnimationFile() const
+const char* WAnimationClip2D::GetAnimationFile() const
 {
   return m_sClip;
 }
 
-ezSampleBlendSpace2DAnimNode::ezSampleBlendSpace2DAnimNode() = default;
-ezSampleBlendSpace2DAnimNode::~ezSampleBlendSpace2DAnimNode() = default;
+WSampleBlendSpace2DAnimNode::WSampleBlendSpace2DAnimNode() = default;
+WSampleBlendSpace2DAnimNode::~WSampleBlendSpace2DAnimNode() = default;
 
-ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSampleBlendSpace2DAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(3);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sCenterClip;
 
   stream << m_Clips.GetCount();
-  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
     stream << m_Clips[i].m_sClip;
     stream << m_Clips[i].m_vPosition;
@@ -88,30 +88,30 @@ ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) con
   stream << m_fPlaybackSpeed;
   stream << m_InputResponse;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InCoordX.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InCoordY.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnStarted.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InCoordX.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InCoordY.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnStarted.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSampleBlendSpace2DAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(3);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sCenterClip;
 
-  ezUInt32 num = 0;
+  WUInt32 num = 0;
   stream >> num;
   m_Clips.SetCount(num);
-  for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
     stream >> m_Clips[i].m_sClip;
     stream >> m_Clips[i].m_vPosition;
@@ -134,44 +134,44 @@ ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
   stream >> m_fPlaybackSpeed;
   stream >> m_InputResponse;
 
-  EZ_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InCoordX.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InCoordY.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnStarted.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InLoop.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InSpeed.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InCoordX.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InCoordY.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnStarted.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFinished.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSampleBlendSpace2DAnimNode::SetCenterClipFile(const char* szFile)
+void WSampleBlendSpace2DAnimNode::SetCenterClipFile(const char* szFile)
 {
   m_sCenterClip.Assign(szFile);
 }
 
-const char* ezSampleBlendSpace2DAnimNode::GetCenterClipFile() const
+const char* WSampleBlendSpace2DAnimNode::GetCenterClipFile() const
 {
   return m_sCenterClip;
 }
 
-void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSampleBlendSpace2DAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || (!m_InCoordX.IsConnected() && !m_InCoordY.IsConnected()) || m_Clips.IsEmpty())
     return;
 
   InstanceData* pState = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  if (!m_InStart.IsConnected() && pState->m_CenterPlaybackTime > ezTime::MakeFromHours(10))
+  if (!m_InStart.IsConnected() && pState->m_CenterPlaybackTime > WTime::MakeFromHours(10))
   {
-    pState->m_CenterPlaybackTime = ezTime::MakeZero();
+    pState->m_CenterPlaybackTime = WTime::MakeZero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
   }
 
   if (m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_CenterPlaybackTime = ezTime::MakeZero();
+    pState->m_CenterPlaybackTime = WTime::MakeZero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
 
     m_OutOnStarted.SetTriggered(ref_graph);
@@ -187,21 +187,21 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   }
   else
   {
-    const float lerp = static_cast<float>(ezMath::Min(1.0, tDiff.GetSeconds() * (1.0 / m_InputResponse.GetSeconds())));
-    pState->m_fLastValueX = ezMath::Lerp(pState->m_fLastValueX, x, lerp);
-    pState->m_fLastValueY = ezMath::Lerp(pState->m_fLastValueY, y, lerp);
+    const float lerp = static_cast<float>(WMath::Min(1.0, tDiff.GetSeconds() * (1.0 / m_InputResponse.GetSeconds())));
+    pState->m_fLastValueX = WMath::Lerp(pState->m_fLastValueX, x, lerp);
+    pState->m_fLastValueY = WMath::Lerp(pState->m_fLastValueY, y, lerp);
   }
 
   const auto& centerInfo = ref_controller.GetAnimationClipInfo(m_sCenterClip);
 
-  ezUInt32 uiMaxWeightClip = 0;
-  ezTempHybridArray<ClipToPlay, 8> clips;
-  ComputeClipsAndWeights(ref_controller, centerInfo, ezVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
+  WUInt32 uiMaxWeightClip = 0;
+  WTempHybridArray<ClipToPlay, 8> clips;
+  ComputeClipsAndWeights(ref_controller, centerInfo, WVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
 
   PlayClips(ref_controller, centerInfo, pState, ref_graph, tDiff, clips, uiMaxWeightClip);
 }
 
-void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& clips, ezUInt32& out_uiMaxWeightClip) const
+void WSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(WAnimController& ref_controller, const WAnimController::AnimClipInfo& centerInfo, const WVec2& p, WDynamicArray<ClipToPlay>& clips, WUInt32& out_uiMaxWeightClip) const
 {
   out_uiMaxWeightClip = 0;
   float fMaxWeight = -1.0f;
@@ -219,18 +219,18 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
 
     float fWeightNormalization = 0.0f;
 
-    for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Clips.GetCount(); ++i)
     {
       const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_Clips[i].m_sClip);
       if (!clipInfo.m_hClip.IsValid())
         continue;
 
-      const ezVec2 pi = m_Clips[i].m_vPosition;
+      const WVec2 pi = m_Clips[i].m_vPosition;
       float fMinWeight = 1.0f;
 
-      for (ezUInt32 j = 0; j < m_Clips.GetCount(); ++j)
+      for (WUInt32 j = 0; j < m_Clips.GetCount(); ++j)
       {
-        const ezVec2 pj = m_Clips[j].m_vPosition;
+        const WVec2 pj = m_Clips[j].m_vPosition;
 
         const float fLenSqr = (pi - pj).GetLengthSquared();
         const float fProjLenSqr = (pi - p).Dot(pi - pj);
@@ -240,7 +240,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
           continue;
 
         const float fWeight = 1.0f - (fProjLenSqr / fLenSqr);
-        fMinWeight = ezMath::Min(fMinWeight, fWeight);
+        fMinWeight = WMath::Min(fMinWeight, fWeight);
       }
 
       // also check against center clip
@@ -254,7 +254,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
           continue;
 
         const float fWeight = 1.0f - (fProjLenSqr / fLenSqr);
-        fMinWeight = ezMath::Min(fMinWeight, fWeight);
+        fMinWeight = WMath::Min(fMinWeight, fWeight);
       }
 
       if (fMinWeight > 0.0f)
@@ -273,9 +273,9 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
     {
       float fMinWeight = 1.0f;
 
-      for (ezUInt32 j = 0; j < m_Clips.GetCount(); ++j)
+      for (WUInt32 j = 0; j < m_Clips.GetCount(); ++j)
       {
-        const ezVec2 pj = m_Clips[j].m_vPosition;
+        const WVec2 pj = m_Clips[j].m_vPosition;
 
         const float fLenSqr = pj.GetLengthSquared();
         const float fProjLenSqr = (-p).Dot(-pj);
@@ -285,7 +285,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
           continue;
 
         const float fWeight = 1.0f - (fProjLenSqr / fLenSqr);
-        fMinWeight = ezMath::Min(fMinWeight, fWeight);
+        fMinWeight = WMath::Min(fMinWeight, fWeight);
       }
 
       if (fMinWeight > 0.0f)
@@ -301,7 +301,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
 
     fWeightNormalization = 1.0f / fWeightNormalization;
 
-    for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+    for (WUInt32 i = 0; i < clips.GetCount(); ++i)
     {
       auto& c = clips[i];
 
@@ -316,31 +316,31 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_
   }
 }
 
-void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceData* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const
+void WSampleBlendSpace2DAnimNode::PlayClips(WAnimController& ref_controller, const WAnimController::AnimClipInfo& centerInfo, InstanceData* pState, WAnimGraphInstance& ref_graph, WTime tDiff, WArrayPtr<ClipToPlay> clips, WUInt32 uiMaxWeightClip) const
 {
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
   const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
-  ezTime tAvgDuration = ezTime::MakeZero();
+  WTime tAvgDuration = WTime::MakeZero();
 
-  ezTempHybridArray<ezAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
+  WTempHybridArray<WAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
   pSampleTrack.SetCountUninitialized(clips.GetCount());
 
-  ezVec3 vRootMotion = ezVec3::MakeZero();
-  ezUInt32 uiNumAvgClips = 0;
+  WVec3 vRootMotion = WVec3::MakeZero();
+  WUInt32 uiNumAvgClips = 0;
 
-  ezTempHybridArray<const ezAnimationClipResourceDescriptor*, 24> pDescs;
+  WTempHybridArray<const WAnimationClipResourceDescriptor*, 24> pDescs;
   pDescs.SetCount(clips.GetCount());
 
-  for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < clips.GetCount(); ++i)
   {
     const auto& c = clips[i];
 
-    const ezHashedString sClip = c.m_uiIndex >= 0xFF ? m_sCenterClip : m_Clips[c.m_uiIndex].m_sClip;
+    const WHashedString sClip = c.m_uiIndex >= 0xFF ? m_sCenterClip : m_Clips[c.m_uiIndex].m_sClip;
 
     const auto& clipInfo = *clips[i].m_pClipInfo;
 
-    ezResourceLock<ezAnimationClipResource> pClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WAnimationClipResource> pClip(clipInfo.m_hClip, WResourceAcquireMode::BlockTillLoaded);
 
     if (c.m_uiIndex < 0xFF) // center clip should not contribute to the average time
     {
@@ -349,7 +349,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     }
 
     const void* pThis = this;
-    auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), i));
+    auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(WHashingUtils::xxHash32(&pThis, sizeof(pThis), i));
     cmd.m_hAnimationClip = clipInfo.m_hClip;
     cmd.m_fNormalizedSamplePos = pClip->GetDescriptor().GetDuration().AsFloatInSeconds(); // will be combined with actual pos below
 
@@ -365,13 +365,13 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     tAvgDuration = tAvgDuration / uiNumAvgClips;
   }
 
-  tAvgDuration = ezMath::Max(tAvgDuration, ezTime::MakeFromMilliseconds(16));
+  tAvgDuration = WMath::Max(tAvgDuration, WTime::MakeFromMilliseconds(16));
 
-  const ezTime fPrevCenterPlaybackPos = pState->m_CenterPlaybackTime;
+  const WTime fPrevCenterPlaybackPos = pState->m_CenterPlaybackTime;
   const float fPrevPlaybackPosNorm = pState->m_fOtherPlaybackPosNorm;
 
-  ezAnimPoseEventTrackSampleMode eventSamplingCenter = ezAnimPoseEventTrackSampleMode::OnlyBetween;
-  ezAnimPoseEventTrackSampleMode eventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+  WAnimPoseEventTrackSampleMode eventSamplingCenter = WAnimPoseEventTrackSampleMode::OnlyBetween;
+  WAnimPoseEventTrackSampleMode eventSampling = WAnimPoseEventTrackSampleMode::OnlyBetween;
 
   const float fInvAvgDuration = 1.0f / tAvgDuration.AsFloatInSeconds();
   const float tDiffNorm = tDiff.AsFloatInSeconds() * fInvAvgDuration;
@@ -384,7 +384,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     {
       pState->m_fOtherPlaybackPosNorm -= 1.0f;
       m_OutOnStarted.SetTriggered(ref_graph);
-      eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+      eventSampling = WAnimPoseEventTrackSampleMode::LoopAtEnd;
     }
     else
     {
@@ -396,7 +396,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
       }
       else
       {
-        eventSampling = ezAnimPoseEventTrackSampleMode::None;
+        eventSampling = WAnimPoseEventTrackSampleMode::None;
       }
 
       break;
@@ -405,19 +405,19 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
 
   UpdateCenterClipPlaybackTime(centerInfo, pState, ref_graph, tDiff, eventSamplingCenter);
 
-  for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < clips.GetCount(); ++i)
   {
     if (pSampleTrack[i]->m_hAnimationClip == centerInfo.m_hClip)
     {
       pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevCenterPlaybackPos.AsFloatInSeconds() / pSampleTrack[i]->m_fNormalizedSamplePos;
       pSampleTrack[i]->m_fNormalizedSamplePos = pState->m_CenterPlaybackTime.AsFloatInSeconds() / pSampleTrack[i]->m_fNormalizedSamplePos;
-      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSamplingCenter : ezAnimPoseEventTrackSampleMode::None;
+      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSamplingCenter : WAnimPoseEventTrackSampleMode::None;
     }
     else
     {
       pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevPlaybackPosNorm;
       pSampleTrack[i]->m_fNormalizedSamplePos = pState->m_fOtherPlaybackPosNorm;
-      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSampling : ezAnimPoseEventTrackSampleMode::None;
+      pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSampling : WAnimPoseEventTrackSampleMode::None;
 
       if (pDescs[i])
       {
@@ -426,7 +426,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     }
   }
 
-  ezAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
+  WAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
 
   if (m_fRootMotionAmount != 0.0f)
   {
@@ -438,7 +438,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   }
 
   // accumulate custom curves from all clips weighted by blend weight
-  for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+  for (WUInt32 i = 0; i < clips.GetCount(); ++i)
   {
     if (!pDescs[i] || clips[i].m_fWeight <= 0.0f)
       continue;
@@ -482,7 +482,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     cmdCmb.m_InputWeights.SetCountUninitialized(clips.GetCount());
     cmdCmb.m_Inputs.SetCountUninitialized(clips.GetCount());
 
-    for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+    for (WUInt32 i = 0; i < clips.GetCount(); ++i)
     {
       cmdCmb.m_InputWeights[i] = clips[i].m_fWeight;
       cmdCmb.m_Inputs[i] = pSampleTrack[i]->GetCommandID();
@@ -492,15 +492,15 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   m_OutPose.SetPose(ref_graph, pOutputTransform);
 }
 
-void ezSampleBlendSpace2DAnimNode::UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceData* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const
+void WSampleBlendSpace2DAnimNode::UpdateCenterClipPlaybackTime(const WAnimController::AnimClipInfo& centerInfo, InstanceData* pState, WAnimGraphInstance& ref_graph, WTime tDiff, WAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const
 {
   const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
   if (centerInfo.m_hClip.IsValid())
   {
-    ezResourceLock<ezAnimationClipResource> pClip(centerInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WAnimationClipResource> pClip(centerInfo.m_hClip, WResourceAcquireMode::BlockTillLoaded);
 
-    const ezTime tDur = pClip->GetDescriptor().GetDuration();
+    const WTime tDur = pClip->GetDescriptor().GetDuration();
 
     pState->m_CenterPlaybackTime += tDiff * fSpeed;
 
@@ -508,12 +508,12 @@ void ezSampleBlendSpace2DAnimNode::UpdateCenterClipPlaybackTime(const ezAnimCont
     while (pState->m_CenterPlaybackTime > tDur)
     {
       pState->m_CenterPlaybackTime -= tDur;
-      out_eventSamplingCenter = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+      out_eventSamplingCenter = WAnimPoseEventTrackSampleMode::LoopAtEnd;
     }
   }
 }
 
-bool ezSampleBlendSpace2DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WSampleBlendSpace2DAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -524,15 +524,15 @@ bool ezSampleBlendSpace2DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSampleBlendSpace2DAnimNodePatch_1_2 : public ezGraphPatch
+class WSampleBlendSpace2DAnimNodePatch_1_2 : public WGraphPatch
 {
 public:
-  ezSampleBlendSpace2DAnimNodePatch_1_2()
-    : ezGraphPatch("ezSampleBlendSpace2DAnimNode", 2)
+  WSampleBlendSpace2DAnimNodePatch_1_2()
+    : WGraphPatch("WSampleBlendSpace2DAnimNode", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     if (auto pProp = pNode->FindProperty("ApplyRootMotion"))
     {
@@ -549,6 +549,6 @@ public:
   }
 };
 
-ezSampleBlendSpace2DAnimNodePatch_1_2 g_ezSampleBlendSpace2DAnimNodePatch_1_2;
+WSampleBlendSpace2DAnimNodePatch_1_2 g_WSampleBlendSpace2DAnimNodePatch_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SampleBlendSpace2DAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SampleBlendSpace2DAnimNode);

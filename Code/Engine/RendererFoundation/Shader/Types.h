@@ -6,21 +6,21 @@
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Transform.h>
 
-/// A wrapper class that converts a ezMat3 into the correct data layout for shaders.
-class ezShaderMat3
+/// A wrapper class that converts a WMat3 into the correct data layout for shaders.
+class WShaderMat3
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  EZ_RENDERERFOUNDATION_DLL static bool TransposeShaderMatrices /*= false*/;
+  W_RENDERERFOUNDATION_DLL static bool TransposeShaderMatrices /*= false*/;
 
-  EZ_ALWAYS_INLINE ezShaderMat3() = default;
+  W_ALWAYS_INLINE WShaderMat3() = default;
 
-  EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m) { *this = m; }
+  W_ALWAYS_INLINE WShaderMat3(const WMat3& m) { *this = m; }
 
-  EZ_FORCE_INLINE void operator=(const ezMat3& m)
+  W_FORCE_INLINE void operator=(const WMat3& m)
   {
-    if (ezShaderMat3::TransposeShaderMatrices)
+    if (WShaderMat3::TransposeShaderMatrices)
     {
       m_Data[0] = m.m_fElementsCM[0];
       m_Data[1] = m.m_fElementsCM[3];
@@ -39,13 +39,13 @@ public:
     }
     else
     {
-      ezMemoryUtils::Copy(&m_Data[0], &m.m_fElementsCM[0], 3);
+      WMemoryUtils::Copy(&m_Data[0], &m.m_fElementsCM[0], 3);
       m_Data[3] = 0.0f;
 
-      ezMemoryUtils::Copy(&m_Data[4], &m.m_fElementsCM[3], 3);
+      WMemoryUtils::Copy(&m_Data[4], &m.m_fElementsCM[3], 3);
       m_Data[7] = 0.0f;
 
-      ezMemoryUtils::Copy(&m_Data[8], &m.m_fElementsCM[6], 3);
+      WMemoryUtils::Copy(&m_Data[8], &m.m_fElementsCM[6], 3);
       m_Data[11] = 0.0f;
     }
   }
@@ -54,21 +54,21 @@ private:
   float m_Data[12];
 };
 
-/// A wrapper class that converts a ezMat4 into the correct data layout for shaders.
-class ezShaderMat4
+/// A wrapper class that converts a WMat4 into the correct data layout for shaders.
+class WShaderMat4
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderMat4() = default;
+  W_ALWAYS_INLINE WShaderMat4() = default;
 
-  EZ_ALWAYS_INLINE ezShaderMat4(const ezMat4& m) { *this = m; }
+  W_ALWAYS_INLINE WShaderMat4(const WMat4& m) { *this = m; }
 
-  EZ_FORCE_INLINE void operator=(const ezMat4& m)
+  W_FORCE_INLINE void operator=(const WMat4& m)
   {
-    if (ezShaderMat3::TransposeShaderMatrices)
+    if (WShaderMat3::TransposeShaderMatrices)
     {
-      for (ezUInt32 c = 0; c < 4; ++c)
+      for (WUInt32 c = 0; c < 4; ++c)
       {
         m_Data[c * 4 + 0] = m.Element(0, c);
         m_Data[c * 4 + 1] = m.Element(1, c);
@@ -78,7 +78,7 @@ public:
     }
     else
     {
-      ezMemoryUtils::Copy(m_Data, m.m_fElementsCM, 16);
+      WMemoryUtils::Copy(m_Data, m.m_fElementsCM, 16);
     }
   }
 
@@ -86,36 +86,36 @@ private:
   float m_Data[16];
 };
 
-/// A wrapper class that converts a ezTransform into the correct data layout for shaders.
-class ezShaderTransform
+/// A wrapper class that converts a WTransform into the correct data layout for shaders.
+class WShaderTransform
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderTransform() = default;
+  W_ALWAYS_INLINE WShaderTransform() = default;
 
-  inline void operator=(const ezTransform& t) { *this = t.GetAsMat4(); }
+  inline void operator=(const WTransform& t) { *this = t.GetAsMat4(); }
 
-  inline void operator=(const ezMat4& t)
+  inline void operator=(const WMat4& t)
   {
     float data[16];
 
-    if (ezShaderMat3::TransposeShaderMatrices)
-      t.GetAsArray(data, ezMatrixLayout::ColumnMajor);
+    if (WShaderMat3::TransposeShaderMatrices)
+      t.GetAsArray(data, WMatrixLayout::ColumnMajor);
     else
-      t.GetAsArray(data, ezMatrixLayout::RowMajor);
+      t.GetAsArray(data, WMatrixLayout::RowMajor);
 
-    ezMemoryUtils::Copy(&m_Data[0], &data[0], 12);
+    WMemoryUtils::Copy(&m_Data[0], &data[0], 12);
   }
 
-  inline void operator=(const ezMat3& t)
+  inline void operator=(const WMat3& t)
   {
     float data[9];
 
-    if (ezShaderMat3::TransposeShaderMatrices)
-      t.GetAsArray(data, ezMatrixLayout::ColumnMajor);
+    if (WShaderMat3::TransposeShaderMatrices)
+      t.GetAsArray(data, WMatrixLayout::ColumnMajor);
     else
-      t.GetAsArray(data, ezMatrixLayout::RowMajor);
+      t.GetAsArray(data, WMatrixLayout::RowMajor);
 
     m_Data[0] = data[0];
     m_Data[1] = data[1];
@@ -133,20 +133,20 @@ public:
     m_Data[11] = 0;
   }
 
-  inline ezMat4 GetAsMat4() const
+  inline WMat4 GetAsMat4() const
   {
-    ezMat4 res;
-    res.SetRow(0, reinterpret_cast<const ezVec4&>(m_Data[0]));
-    res.SetRow(1, reinterpret_cast<const ezVec4&>(m_Data[4]));
-    res.SetRow(2, reinterpret_cast<const ezVec4&>(m_Data[8]));
-    res.SetRow(3, ezVec4(0, 0, 0, 1));
+    WMat4 res;
+    res.SetRow(0, reinterpret_cast<const WVec4&>(m_Data[0]));
+    res.SetRow(1, reinterpret_cast<const WVec4&>(m_Data[4]));
+    res.SetRow(2, reinterpret_cast<const WVec4&>(m_Data[8]));
+    res.SetRow(3, WVec4(0, 0, 0, 1));
 
     return res;
   }
 
-  inline ezVec3 GetTranslationVector() const
+  inline WVec3 GetTranslationVector() const
   {
-    return ezVec3(m_Data[3], m_Data[7], m_Data[11]);
+    return WVec3(m_Data[3], m_Data[7], m_Data[11]);
   }
 
 private:
@@ -154,17 +154,17 @@ private:
 };
 
 /// A wrapper class that converts a bool into the correct data layout for shaders.
-class ezShaderBool
+class WShaderBool
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderBool() = default;
+  W_ALWAYS_INLINE WShaderBool() = default;
 
-  EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
+  W_ALWAYS_INLINE WShaderBool(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
 
-  EZ_ALWAYS_INLINE void operator=(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
+  W_ALWAYS_INLINE void operator=(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
 
 private:
-  ezUInt32 m_uiData;
+  WUInt32 m_uiData;
 };

@@ -3,120 +3,120 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-struct ezVisualGraphNodeProperty;
-class ezVisualScriptPin;
+struct WVisualGraphNodeProperty;
+class WVisualScriptPin;
 
-class ezVisualScriptNodeRegistry
+class WVisualScriptNodeRegistry
 {
-  EZ_DECLARE_SINGLETON(ezVisualScriptNodeRegistry);
+  W_DECLARE_SINGLETON(WVisualScriptNodeRegistry);
 
 public:
   struct PinDesc
   {
-    ezHashedString m_sName;
-    ezHashedString m_sDynamicPinProperty;
-    const ezRTTI* m_pDataType = nullptr;
+    WHashedString m_sName;
+    WHashedString m_sDynamicPinProperty;
+    const WRTTI* m_pDataType = nullptr;
 
-    using DeductTypeFunc = ezVisualScriptDataType::Enum (*)(const ezVisualScriptPin& pin);
+    using DeductTypeFunc = WVisualScriptDataType::Enum (*)(const WVisualScriptPin& pin);
     DeductTypeFunc m_DeductTypeFunc = nullptr;
 
-    ezEnum<ezVisualScriptDataType> m_ScriptDataType;
+    WEnum<WVisualScriptDataType> m_ScriptDataType;
     bool m_bRequired = false;
     bool m_bSplitExecution = false;
     bool m_bReplaceWithArray = false;
 
-    EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == ezVisualScriptDataType::Invalid; }
-    EZ_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != ezVisualScriptDataType::Invalid; }
+    W_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == WVisualScriptDataType::Invalid; }
+    W_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != WVisualScriptDataType::Invalid; }
 
-    static ezColor GetColorForScriptDataType(ezVisualScriptDataType::Enum dataType);
-    ezColor GetColor() const;
+    static WColor GetColorForScriptDataType(WVisualScriptDataType::Enum dataType);
+    WColor GetColor() const;
   };
 
   struct NodeDesc
   {
-    ezSmallArray<PinDesc, 4> m_InputPins;
-    ezSmallArray<PinDesc, 4> m_OutputPins;
-    ezHashedString m_sFilterByBaseClass;
-    const ezRTTI* m_pTargetType = nullptr;
-    ezSmallArray<const ezAbstractProperty*, 1> m_TargetProperties;
+    WSmallArray<PinDesc, 4> m_InputPins;
+    WSmallArray<PinDesc, 4> m_OutputPins;
+    WHashedString m_sFilterByBaseClass;
+    const WRTTI* m_pTargetType = nullptr;
+    WSmallArray<const WAbstractProperty*, 1> m_TargetProperties;
 
-    using DeductTypeFunc = ezVisualScriptDataType::Enum (*)(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
+    using DeductTypeFunc = WVisualScriptDataType::Enum (*)(const WDocumentObject* pObject, const WVisualScriptPin* pDisconnectedPin);
     DeductTypeFunc m_DeductTypeFunc = nullptr;
 
-    ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
+    WEnum<WVisualScriptNodeDescription::Type> m_Type;
     bool m_bImplicitExecution = true;
     bool m_bHasDynamicPins = false;
 
-    void AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
-    void AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString(), bool bSplitExecution = false);
+    void AddInputExecutionPin(WStringView sName, const WHashedString& sDynamicPinProperty = WHashedString());
+    void AddOutputExecutionPin(WStringView sName, const WHashedString& sDynamicPinProperty = WHashedString(), bool bSplitExecution = false);
 
-    void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr, bool bReplaceWithArray = false);
-    void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
+    void AddInputDataPin(WStringView sName, const WRTTI* pDataType, WVisualScriptDataType::Enum scriptDataType, bool bRequired, const WHashedString& sDynamicPinProperty = WHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr, bool bReplaceWithArray = false);
+    void AddOutputDataPin(WStringView sName, const WRTTI* pDataType, WVisualScriptDataType::Enum scriptDataType, const WHashedString& sDynamicPinProperty = WHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
 
-    EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_DeductTypeFunc != nullptr; }
+    W_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_DeductTypeFunc != nullptr; }
   };
 
-  ezVisualScriptNodeRegistry();
-  ~ezVisualScriptNodeRegistry();
+  WVisualScriptNodeRegistry();
+  ~WVisualScriptNodeRegistry();
 
-  const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
-  const ezRTTI* GetVariableSetterType() const { return m_pSetVariableType; }
-  const ezRTTI* GetVariableGetterType() const { return m_pGetVariableType; }
-  const NodeDesc* GetNodeDescForType(const ezRTTI* pRtti) const { return m_TypeToNodeDescs.GetValue(pRtti); }
+  const WRTTI* GetNodeBaseType() const { return m_pBaseType; }
+  const WRTTI* GetVariableSetterType() const { return m_pSetVariableType; }
+  const WRTTI* GetVariableGetterType() const { return m_pGetVariableType; }
+  const NodeDesc* GetNodeDescForType(const WRTTI* pRtti) const { return m_TypeToNodeDescs.GetValue(pRtti); }
 
   struct NodeCreationTemplate
   {
-    const ezRTTI* m_pType = nullptr;
-    ezStringView m_sTypeName;
-    ezHashedString m_sCategory;
-    ezUInt32 m_uiPropertyValuesStart;
-    ezUInt32 m_uiPropertyValuesCount;
+    const WRTTI* m_pType = nullptr;
+    WStringView m_sTypeName;
+    WHashedString m_sCategory;
+    WUInt32 m_uiPropertyValuesStart;
+    WUInt32 m_uiPropertyValuesCount;
   };
 
-  const ezArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
-  const ezArrayPtr<const ezVisualGraphNodeProperty> GetPropertyValues() const { return m_PropertyValues; }
+  const WArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
+  const WArrayPtr<const WVisualGraphNodeProperty> GetPropertyValues() const { return m_PropertyValues; }
 
   static constexpr const char* s_szTypeNamePrefix = "VisualScriptNode_";
-  static constexpr ezUInt32 s_uiTypeNamePrefixLength = ezStringUtils::GetStringElementCount(s_szTypeNamePrefix);
+  static constexpr WUInt32 s_uiTypeNamePrefixLength = WStringUtils::GetStringElementCount(s_szTypeNamePrefix);
 
 private:
-  void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
+  void PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e);
   void UpdateNodeTypes();
-  void UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose = false);
+  void UpdateNodeType(const WRTTI* pRtti, bool bForceExpose = false);
 
-  ezResult GetScriptDataType(const ezRTTI* pRtti, ezVisualScriptDataType::Enum& out_scriptDataType, ezStringView sFunctionName = ezStringView(), ezStringView sArgName = ezStringView());
-  ezVisualScriptDataType::Enum GetScriptDataType(const ezAbstractProperty* pProp);
-
-  template <typename T>
-  void AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName);
-  void AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty = false, PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
+  WResult GetScriptDataType(const WRTTI* pRtti, WVisualScriptDataType::Enum& out_scriptDataType, WStringView sFunctionName = WStringView(), WStringView sArgName = WStringView());
+  WVisualScriptDataType::Enum GetScriptDataType(const WAbstractProperty* pProp);
 
   template <typename T>
-  void AddOutputDataPin(NodeDesc& ref_nodeDesc, ezStringView sName);
+  void AddInputDataPin(WReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, WStringView sName);
+  void AddInputDataPin_Any(WReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, WStringView sName, bool bRequired, bool bAddVariantProperty = false, PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
+
+  template <typename T>
+  void AddOutputDataPin(NodeDesc& ref_nodeDesc, WStringView sName);
 
   void CreateBuiltinTypes();
-  void CreateGetOwnerNodeType(const ezRTTI* pRtti);
-  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezHashedString& sCategory, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
-  void CreateCoroutineNodeType(const ezRTTI* pRtti);
-  void CreateMessageNodeTypes(const ezRTTI* pRtti);
-  void CreateEnumNodeTypes(const ezRTTI* pRtti);
+  void CreateGetOwnerNodeType(const WRTTI* pRtti);
+  void CreateFunctionCallNodeType(const WRTTI* pRtti, const WHashedString& sCategory, const WAbstractFunctionProperty* pFunction, const WScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
+  void CreateCoroutineNodeType(const WRTTI* pRtti);
+  void CreateMessageNodeTypes(const WRTTI* pRtti);
+  void CreateEnumNodeTypes(const WRTTI* pRtti);
 
-  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, const ezColorGammaUB* pColorOverride = nullptr);
-  void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, const ezColorGammaUB& color);
+  void FillDesc(WReflectedTypeDescriptor& desc, const WRTTI* pRtti, const WColorGammaUB* pColorOverride = nullptr);
+  void FillDesc(WReflectedTypeDescriptor& desc, WStringView sTypeName, const WColorGammaUB& color);
 
-  const ezRTTI* RegisterNodeType(ezReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const ezHashedString& sCategory);
+  const WRTTI* RegisterNodeType(WReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const WHashedString& sCategory);
 
-  const ezRTTI* m_pBaseType = nullptr;
-  const ezRTTI* m_pSetPropertyType = nullptr;
-  const ezRTTI* m_pGetPropertyType = nullptr;
-  const ezRTTI* m_pSetVariableType = nullptr;
-  const ezRTTI* m_pGetVariableType = nullptr;
+  const WRTTI* m_pBaseType = nullptr;
+  const WRTTI* m_pSetPropertyType = nullptr;
+  const WRTTI* m_pGetPropertyType = nullptr;
+  const WRTTI* m_pSetVariableType = nullptr;
+  const WRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
-  ezHashTable<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
-  ezHashSet<const ezRTTI*> m_ExposedTypes;
-  ezHashSet<const ezRTTI*> m_TypesToUpdate;
+  WHashTable<const WRTTI*, NodeDesc> m_TypeToNodeDescs;
+  WHashSet<const WRTTI*> m_ExposedTypes;
+  WHashSet<const WRTTI*> m_TypesToUpdate;
 
-  ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
-  ezDynamicArray<ezVisualGraphNodeProperty> m_PropertyValues;
-  ezSet<ezString> m_PropertyNodeTypeNames;
+  WDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
+  WDynamicArray<WVisualGraphNodeProperty> m_PropertyValues;
+  WSet<WString> m_PropertyNodeTypeNames;
 };

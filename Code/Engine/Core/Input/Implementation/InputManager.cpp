@@ -4,20 +4,20 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-ezInputManager::ezEventInput ezInputManager::s_InputEvents;
-ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
-ezString ezInputManager::s_sLastCharacters;
-bool ezInputManager::s_bInputSlotResetRequired = true;
-ezString ezInputManager::s_sExclusiveInputSet;
-ezMouseCursorDesc ezInputManager::s_MouseCursor;
-ezUInt32 ezInputManager::s_uiMouseCursorChangeCounter = 0;
-ezUInt32 ezInputManager::s_uiMouseCursorIdChangeCounter = 0;
-ezHybridArray<ezInputManager::MouseCursorOverride, 4> ezInputManager::s_MouseCursorOverrides;
-ezUInt32 ezInputManager::s_uiNextMouseCursorOverrideId = 0;
-ezUInt32 ezInputManager::s_uiHardwareCursorSize = 0;
-ezUInt32 ezInputManager::s_uiUpdateCount = 0;
+WInputManager::WEventInput WInputManager::s_InputEvents;
+WInputManager::InternalData* WInputManager::s_pData = nullptr;
+WString WInputManager::s_sLastCharacters;
+bool WInputManager::s_bInputSlotResetRequired = true;
+WString WInputManager::s_sExclusiveInputSet;
+WMouseCursorDesc WInputManager::s_MouseCursor;
+WUInt32 WInputManager::s_uiMouseCursorChangeCounter = 0;
+WUInt32 WInputManager::s_uiMouseCursorIdChangeCounter = 0;
+WHybridArray<WInputManager::MouseCursorOverride, 4> WInputManager::s_MouseCursorOverrides;
+WUInt32 WInputManager::s_uiNextMouseCursorOverrideId = 0;
+WUInt32 WInputManager::s_uiHardwareCursorSize = 0;
+WUInt32 WInputManager::s_uiUpdateCount = 0;
 
-bool ezMouseCursorDesc::operator==(const ezMouseCursorDesc& rhs) const
+bool WMouseCursorDesc::operator==(const WMouseCursorDesc& rhs) const
 {
   return m_sCursor == rhs.m_sCursor &&
          m_fSize == rhs.m_fSize &&
@@ -28,7 +28,7 @@ bool ezMouseCursorDesc::operator==(const ezMouseCursorDesc& rhs) const
          m_Color == rhs.m_Color;
 }
 
-void ezInputManager::SetMouseCursor(const ezMouseCursorDesc& desc)
+void WInputManager::SetMouseCursor(const WMouseCursorDesc& desc)
 {
   if (s_MouseCursor == desc)
     return;
@@ -48,9 +48,9 @@ void ezInputManager::SetMouseCursor(const ezMouseCursorDesc& desc)
   }
 }
 
-ezUInt32 ezInputManager::PushMouseCursorOverride(const ezMouseCursorOverrideDesc& desc)
+WUInt32 WInputManager::PushMouseCursorOverride(const WMouseCursorOverrideDesc& desc)
 {
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
+  W_ASSERT_DEV(WThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
 
   auto& o = s_MouseCursorOverrides.ExpandAndGetRef();
   o.m_uiId = ++s_uiNextMouseCursorOverrideId;
@@ -61,14 +61,14 @@ ezUInt32 ezInputManager::PushMouseCursorOverride(const ezMouseCursorOverrideDesc
   return o.m_uiId;
 }
 
-void ezInputManager::PopMouseCursorOverride(ezUInt32 uiOverrideId)
+void WInputManager::PopMouseCursorOverride(WUInt32 uiOverrideId)
 {
   if (uiOverrideId == 0)
     return;
 
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
+  W_ASSERT_DEV(WThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
 
-  for (ezUInt32 i = 0; i < s_MouseCursorOverrides.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_MouseCursorOverrides.GetCount(); ++i)
   {
     if (s_MouseCursorOverrides[i].m_uiId == uiOverrideId)
     {
@@ -81,36 +81,36 @@ void ezInputManager::PopMouseCursorOverride(ezUInt32 uiOverrideId)
   }
 }
 
-ezMouseCursorOverrideDesc ezInputManager::GetActiveMouseCursorOverride()
+WMouseCursorOverrideDesc WInputManager::GetActiveMouseCursorOverride()
 {
   if (!s_MouseCursorOverrides.IsEmpty())
     return s_MouseCursorOverrides.PeekBack().m_Desc;
 
-  ezMouseCursorOverrideDesc d;
+  WMouseCursorOverrideDesc d;
   d.m_bForceNoClip = false;
-  d.m_OSCursor = ezMouseCursorOverride::None;
+  d.m_OSCursor = WMouseCursorOverride::None;
 
   return d;
 }
 
-bool ezInputManager::IsCustomMouseCursorActive()
+bool WInputManager::IsCustomMouseCursorActive()
 {
   // An explicit override wins over the custom cursor, which in turn wins over what the application wants.
-  return !s_MouseCursor.m_sCursor.IsEmpty() && (GetActiveMouseCursorOverride().m_OSCursor != ezMouseCursorOverride::ForceOSCursor);
+  return !s_MouseCursor.m_sCursor.IsEmpty() && (GetActiveMouseCursorOverride().m_OSCursor != WMouseCursorOverride::ForceOSCursor);
 }
 
-void ezInputManager::UpdateMouseCursorState()
+void WInputManager::UpdateMouseCursorState()
 {
-  for (auto pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (auto pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
-    if (auto pMouse = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pDevice))
+    if (auto pMouse = WDynamicCast<WInputDeviceMouseKeyboard*>(pDevice))
     {
       pMouse->UpdateEffectiveMouseCursorState();
     }
   }
 }
 
-ezMouseCursorOverrideRequest::ezMouseCursorOverrideRequest(ezMouseCursorOverrideRequest&& rhs)
+WMouseCursorOverrideRequest::WMouseCursorOverrideRequest(WMouseCursorOverrideRequest&& rhs)
 {
   m_uiOverrideId = rhs.m_uiOverrideId;
   m_Desc = rhs.m_Desc;
@@ -118,7 +118,7 @@ ezMouseCursorOverrideRequest::ezMouseCursorOverrideRequest(ezMouseCursorOverride
   rhs.m_uiOverrideId = 0;
 }
 
-void ezMouseCursorOverrideRequest::operator=(ezMouseCursorOverrideRequest&& rhs)
+void WMouseCursorOverrideRequest::operator=(WMouseCursorOverrideRequest&& rhs)
 {
   if (this == &rhs)
     return;
@@ -131,7 +131,7 @@ void ezMouseCursorOverrideRequest::operator=(ezMouseCursorOverrideRequest&& rhs)
   rhs.m_uiOverrideId = 0;
 }
 
-void ezMouseCursorOverrideRequest::Request(const ezMouseCursorOverrideDesc& desc)
+void WMouseCursorOverrideRequest::Request(const WMouseCursorOverrideDesc& desc)
 {
   if (IsActive())
   {
@@ -142,24 +142,24 @@ void ezMouseCursorOverrideRequest::Request(const ezMouseCursorOverrideDesc& desc
   }
 
   m_Desc = desc;
-  m_uiOverrideId = ezInputManager::PushMouseCursorOverride(desc);
+  m_uiOverrideId = WInputManager::PushMouseCursorOverride(desc);
 }
 
-void ezMouseCursorOverrideRequest::Release()
+void WMouseCursorOverrideRequest::Release()
 {
   if (!IsActive())
     return;
 
-  ezInputManager::PopMouseCursorOverride(m_uiOverrideId);
+  WInputManager::PopMouseCursorOverride(m_uiOverrideId);
   m_uiOverrideId = 0;
 }
 
-void ezInputManager::ClearMouseCursor()
+void WInputManager::ClearMouseCursor()
 {
-  SetMouseCursor(ezMouseCursorDesc());
+  SetMouseCursor(WMouseCursorDesc());
 }
 
-ezUInt32 ezInputManager::GetHardwareCursorSize()
+WUInt32 WInputManager::GetHardwareCursorSize()
 {
   // Update() re-queries this periodically, this only covers being called before the first Update().
   if (s_uiHardwareCursorSize == 0)
@@ -171,51 +171,51 @@ ezUInt32 ezInputManager::GetHardwareCursorSize()
   return s_uiHardwareCursorSize > 0 ? s_uiHardwareCursorSize : 32;
 }
 
-void ezInputManager::UpdateHardwareCursorSize()
+void WInputManager::UpdateHardwareCursorSize()
 {
   s_uiHardwareCursorSize = 0;
 
-  if (auto pMouse = GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
+  if (auto pMouse = GetInputDeviceOfType<WInputDeviceMouseKeyboard>())
   {
     s_uiHardwareCursorSize = pMouse->GetHardwareCursorSize();
   }
 }
 
-ezInputManager::InternalData& ezInputManager::GetInternals()
+WInputManager::InternalData& WInputManager::GetInternals()
 {
   if (s_pData == nullptr)
-    s_pData = EZ_DEFAULT_NEW(InternalData);
+    s_pData = W_DEFAULT_NEW(InternalData);
 
   return *s_pData;
 }
 
-void ezInputManager::DeallocateInternals()
+void WInputManager::DeallocateInternals()
 {
-  EZ_DEFAULT_DELETE(s_pData);
+  W_DEFAULT_DELETE(s_pData);
 }
 
-ezInputManager::ezInputSlot::ezInputSlot()
+WInputManager::WInputSlot::WInputSlot()
 {
   m_fValue = 0.0f;
-  m_State = ezKeyState::Up;
+  m_State = WKeyState::Up;
   m_fDeadZone = 0.0f;
 }
 
-void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void WInputManager::RegisterInputSlot(WStringView sInputSlot, WStringView sDefaultDisplayName, WBitflags<WInputSlotFlags> SlotFlags)
 {
-  ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(sInputSlot);
+  WMap<WString, WInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
   {
     if (it.Value().m_SlotFlags != SlotFlags)
     {
-      if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
+      if ((it.Value().m_SlotFlags != WInputSlotFlags::Default) && (SlotFlags != WInputSlotFlags::Default))
       {
-        ezStringBuilder tmp, tmp2;
+        WStringBuilder tmp, tmp2;
         tmp.SetPrintf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
           sInputSlot.GetData(tmp2), it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
 
-        ezLog::Warning(tmp);
+        WLog::Warning(tmp);
       }
 
       it.Value().m_SlotFlags |= SlotFlags;
@@ -226,9 +226,9 @@ void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDe
       return;
   }
 
-  // ezLog::Debug("Registered Input Slot: '{0}'", sInputSlot);
+  // WLog::Debug("Registered Input Slot: '{0}'", sInputSlot);
 
-  ezInputSlot& sm = GetInternals().s_InputSlots[sInputSlot];
+  WInputSlot& sm = GetInternals().s_InputSlots[sInputSlot];
 
   sm.m_sDisplayName = sDefaultDisplayName;
   sm.m_SlotFlags = SlotFlags;
@@ -240,21 +240,21 @@ void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDe
   s_InputEvents.Broadcast(e);
 }
 
-ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(ezStringView sInputSlot)
+WBitflags<WInputSlotFlags> WInputManager::GetInputSlotFlags(WStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
+  WMap<WString, WInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_SlotFlags;
 
-  ezLog::Warning("ezInputManager::GetInputSlotFlags: Input Slot '{0}' does not exist (yet).", sInputSlot);
+  WLog::Warning("WInputManager::GetInputSlotFlags: Input Slot '{0}' does not exist (yet).", sInputSlot);
 
-  return ezInputSlotFlags::Default;
+  return WInputSlotFlags::Default;
 }
 
-void ezInputManager::SetInputSlotDisplayName(ezStringView sInputSlot, ezStringView sDefaultDisplayName)
+void WInputManager::SetInputSlotDisplayName(WStringView sInputSlot, WStringView sDefaultDisplayName)
 {
-  RegisterInputSlot(sInputSlot, sDefaultDisplayName, ezInputSlotFlags::Default);
+  RegisterInputSlot(sInputSlot, sDefaultDisplayName, WInputSlotFlags::Default);
   GetInternals().s_InputSlots[sInputSlot].m_sDisplayName = sDefaultDisplayName;
 
   InputEventData e;
@@ -264,18 +264,18 @@ void ezInputManager::SetInputSlotDisplayName(ezStringView sInputSlot, ezStringVi
   s_InputEvents.Broadcast(e);
 }
 
-ezStringView ezInputManager::GetInputSlotDisplayName(ezStringView sInputSlot)
+WStringView WInputManager::GetInputSlotDisplayName(WStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
+  WMap<WString, WInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_sDisplayName.GetData();
 
-  ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '{0}' does not exist (yet).", sInputSlot);
+  WLog::Warning("WInputManager::GetInputSlotDisplayName: Input Slot '{0}' does not exist (yet).", sInputSlot);
   return sInputSlot;
 }
 
-ezStringView ezInputManager::GetInputSlotDisplayName(ezStringView sInputSet, ezStringView sAction, ezInt32 iTrigger)
+WStringView WInputManager::GetInputSlotDisplayName(WStringView sInputSet, WStringView sAction, WInt32 iTrigger)
 {
   /// \test This is new
 
@@ -283,23 +283,23 @@ ezStringView ezInputManager::GetInputSlotDisplayName(ezStringView sInputSet, ezS
 
   if (iTrigger < 0)
   {
-    for (iTrigger = 0; iTrigger < ezInputActionConfig::MaxInputSlotAlternatives; ++iTrigger)
+    for (iTrigger = 0; iTrigger < WInputActionConfig::MaxInputSlotAlternatives; ++iTrigger)
     {
       if (!cfg.m_sInputSlotTrigger[iTrigger].IsEmpty())
         break;
     }
   }
 
-  if (iTrigger >= ezInputActionConfig::MaxInputSlotAlternatives)
+  if (iTrigger >= WInputActionConfig::MaxInputSlotAlternatives)
     return nullptr;
 
   return GetInputSlotDisplayName(cfg.m_sInputSlotTrigger[iTrigger]);
 }
 
-void ezInputManager::SetInputSlotDeadZone(ezStringView sInputSlot, float fDeadZone)
+void WInputManager::SetInputSlotDeadZone(WStringView sInputSlot, float fDeadZone)
 {
-  RegisterInputSlot(sInputSlot, sInputSlot, ezInputSlotFlags::Default);
-  GetInternals().s_InputSlots[sInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
+  RegisterInputSlot(sInputSlot, sInputSlot, WInputSlotFlags::Default);
+  GetInternals().s_InputSlots[sInputSlot].m_fDeadZone = WMath::Max(fDeadZone, 0.0001f);
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
@@ -308,22 +308,22 @@ void ezInputManager::SetInputSlotDeadZone(ezStringView sInputSlot, float fDeadZo
   s_InputEvents.Broadcast(e);
 }
 
-float ezInputManager::GetInputSlotDeadZone(ezStringView sInputSlot)
+float WInputManager::GetInputSlotDeadZone(WStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
+  WMap<WString, WInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_fDeadZone;
 
-  ezLog::Warning("ezInputManager::GetInputSlotDeadZone: Input Slot '{0}' does not exist (yet).", sInputSlot);
+  WLog::Warning("WInputManager::GetInputSlotDeadZone: Input Slot '{0}' does not exist (yet).", sInputSlot);
 
-  ezInputSlot s;
+  WInputSlot s;
   return s.m_fDeadZone; // return the default value
 }
 
-ezKeyState::Enum ezInputManager::GetInputSlotState(ezStringView sInputSlot, float* pValue)
+WKeyState::Enum WInputManager::GetInputSlotState(WStringView sInputSlot, float* pValue)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
+  WMap<WString, WInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
   {
@@ -337,16 +337,16 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(ezStringView sInputSlot, floa
   if (pValue)
     *pValue = 0.0f;
 
-  ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '{0}' does not exist (yet). To ensure all devices are initialized, call "
-                 "ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.",
+  WLog::Warning("WInputManager::GetInputSlotState: Input Slot '{0}' does not exist (yet). To ensure all devices are initialized, call "
+                 "WInputManager::Update before querying device states, or at least call WInputManager::PollHardware.",
     sInputSlot);
 
-  RegisterInputSlot(sInputSlot, sInputSlot, ezInputSlotFlags::None);
+  RegisterInputSlot(sInputSlot, sInputSlot, WInputSlotFlags::None);
 
-  return ezKeyState::Up;
+  return WKeyState::Up;
 }
 
-void ezInputManager::PollHardware()
+void WInputManager::PollHardware()
 {
   if (s_bInputSlotResetRequired)
   {
@@ -354,24 +354,24 @@ void ezInputManager::PollHardware()
     ResetInputSlotValues();
   }
 
-  ezInputDevice::UpdateAllDevices();
+  WInputDevice::UpdateAllDevices();
 
   GatherDeviceInputSlotValues();
 }
 
-void ezInputManager::Update(ezTime timeDifference)
+void WInputManager::Update(WTime timeDifference)
 {
   PollHardware();
 
   UpdateInputSlotStates();
 
-  s_sLastCharacters = ezInputDevice::RetrieveLastCharactersFromAllDevices();
+  s_sLastCharacters = WInputDevice::RetrieveLastCharactersFromAllDevices();
 
   UpdateInputActions(timeDifference);
 
-  ezInputDevice::ResetAllDevices();
+  WInputDevice::ResetAllDevices();
 
-  ezInputDevice::UpdateAllHardwareStates(timeDifference);
+  WInputDevice::UpdateAllHardwareStates(timeDifference);
 
   // safety net, so that devices that were created after the last state change pick it up as well
   UpdateMouseCursorState();
@@ -388,18 +388,18 @@ void ezInputManager::Update(ezTime timeDifference)
   s_bInputSlotResetRequired = true;
 }
 
-void ezInputManager::ResetInputSlotValues()
+void WInputManager::ResetInputSlotValues()
 {
   // set all input slot values to zero
   // this is crucial for accumulating the new values and for resetting the input state later
-  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (WInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     it.Value().m_fValueOld = it.Value().m_fValue;
     it.Value().m_fValue = 0.0f;
   }
 }
 
-void ezInputManager::GatherDeviceInputSlotValues()
+void WInputManager::GatherDeviceInputSlotValues()
 {
   struct AbsValue
   {
@@ -408,9 +408,9 @@ void ezInputManager::GatherDeviceInputSlotValues()
     bool bHasOverride = false;
   };
 
-  ezMap<ezString, AbsValue> absValues(ezTempAllocator::Get());
+  WMap<WString, AbsValue> absValues(WTempAllocator::Get());
 
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  for (WInputDevice* pDevice = WInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->m_bGeneratedInputRecently = false;
 
@@ -419,27 +419,27 @@ void ezInputManager::GatherDeviceInputSlotValues()
     {
       if (it.Value() > 0.0f)
       {
-        ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
+        WInputManager::WInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
         // do not store a value larger than 0 unless it exceeds the dead-zone threshold
         if (it.Value() > Slot.m_fDeadZone)
         {
-          const bool bAbsolute = Slot.m_SlotFlags.IsSet(ezInputSlotFlags::FullAxis) && !Slot.m_SlotFlags.IsSet(ezInputSlotFlags::ReportsRelativeValues);
+          const bool bAbsolute = Slot.m_SlotFlags.IsSet(WInputSlotFlags::FullAxis) && !Slot.m_SlotFlags.IsSet(WInputSlotFlags::ReportsRelativeValues);
 
           if (bAbsolute && pDevice->m_bOverridesAbsoluteInput)
           {
             auto& val = absValues[it.Key()];
-            val.fOverride = ezMath::Max(val.fOverride, it.Value());
+            val.fOverride = WMath::Max(val.fOverride, it.Value());
             val.bHasOverride = true;
           }
           else if (bAbsolute)
           {
             auto& val = absValues[it.Key()];
-            val.fOrdinary = ezMath::Max(val.fOrdinary, it.Value());
+            val.fOrdinary = WMath::Max(val.fOrdinary, it.Value());
           }
           else
           {
-            Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
+            Slot.m_fValue = WMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
           }
 
           // Only count as recent input if the slot represents something the user actively interacted with.
@@ -447,7 +447,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
           // This excludes passive position tracking (mouse position, touch position) which maintain
           // non-zero values even when no actual user interaction is happening.
           // Mouse move events are also excluded, as they could easily happen accidentally
-          if (Slot.m_SlotFlags.IsAnySet(ezInputSlotFlags::Pressable | ezInputSlotFlags::Holdable))
+          if (Slot.m_SlotFlags.IsAnySet(WInputSlotFlags::Pressable | WInputSlotFlags::Holdable))
           {
             pDevice->m_bGeneratedInputRecently = true;
           }
@@ -469,29 +469,29 @@ void ezInputManager::GatherDeviceInputSlotValues()
     }
   }
 
-  ezMap<ezString, float>::Iterator it = GetInternals().s_InjectedInputSlots.GetIterator();
+  WMap<WString, float>::Iterator it = GetInternals().s_InjectedInputSlots.GetIterator();
 
   for (; it.IsValid(); ++it)
   {
-    ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
+    WInputManager::WInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
     // do not store a value larger than 0 unless it exceeds the dead-zone threshold
     if (it.Value() > Slot.m_fDeadZone)
-      Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
+      Slot.m_fValue = WMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
   }
 
   GetInternals().s_InjectedInputSlots.Clear();
 }
 
-void ezInputManager::UpdateInputSlotStates()
+void WInputManager::UpdateInputSlotStates()
 {
-  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (WInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     // update the state of the input slot, depending on its current value
     // its value will only be larger than zero, if it is also larger than its dead-zone value
-    const ezKeyState::Enum NewState = ezKeyState::GetNewKeyState(it.Value().m_State, it.Value().m_fValue > 0.0f);
+    const WKeyState::Enum NewState = WKeyState::GetNewKeyState(it.Value().m_State, it.Value().m_fValue > 0.0f);
 
-    if ((it.Value().m_State != NewState) || (NewState != ezKeyState::Up))
+    if ((it.Value().m_State != NewState) || (NewState != WKeyState::Up))
     {
       it.Value().m_State = NewState;
 
@@ -504,38 +504,38 @@ void ezInputManager::UpdateInputSlotStates()
   }
 }
 
-void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<ezStringView>& out_inputSlots)
+void WInputManager::RetrieveAllKnownInputSlots(WDynamicArray<WStringView>& out_inputSlots)
 {
   out_inputSlots.Clear();
   out_inputSlots.Reserve(GetInternals().s_InputSlots.GetCount());
 
   // just copy all slot names into the given array
-  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (WInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     out_inputSlots.PushBack(it.Key().GetData());
   }
 }
 
-ezString ezInputManager::RetrieveLastCharacters(bool bResetCurrent)
+WString WInputManager::RetrieveLastCharacters(bool bResetCurrent)
 {
   if (!bResetCurrent)
     return s_sLastCharacters;
 
-  ezString sResult = s_sLastCharacters;
+  WString sResult = s_sLastCharacters;
   s_sLastCharacters.Clear();
   return sResult;
 }
 
-void ezInputManager::InjectInputSlotValue(ezStringView sInputSlot, float fValue)
+void WInputManager::InjectInputSlotValue(WStringView sInputSlot, float fValue)
 {
-  GetInternals().s_InjectedInputSlots[sInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[sInputSlot], fValue);
+  GetInternals().s_InjectedInputSlots[sInputSlot] = WMath::Max(GetInternals().s_InjectedInputSlots[sInputSlot], fValue);
 }
 
-ezStringView ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags)
+WStringView WInputManager::GetPressedInputSlot(WInputSlotFlags::Enum mustHaveFlags, WInputSlotFlags::Enum mustNotHaveFlags)
 {
-  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); ++it)
+  for (WInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value().m_State != ezKeyState::Pressed)
+    if (it.Value().m_State != WKeyState::Pressed)
       continue;
 
     if (it.Value().m_SlotFlags.IsAnySet(mustNotHaveFlags))
@@ -545,104 +545,104 @@ ezStringView ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHave
       return it.Key().GetData();
   }
 
-  return ezInputSlot_None;
+  return WInputSlot_None;
 }
 
-ezStringView ezInputManager::GetInputSlotTouchPoint(ezUInt32 uiIndex)
+WStringView WInputManager::GetInputSlotTouchPoint(WUInt32 uiIndex)
 {
   switch (uiIndex)
   {
     case 0:
-      return ezInputSlot_TouchPoint0;
+      return WInputSlot_TouchPoint0;
     case 1:
-      return ezInputSlot_TouchPoint1;
+      return WInputSlot_TouchPoint1;
     case 2:
-      return ezInputSlot_TouchPoint2;
+      return WInputSlot_TouchPoint2;
     case 3:
-      return ezInputSlot_TouchPoint3;
+      return WInputSlot_TouchPoint3;
     case 4:
-      return ezInputSlot_TouchPoint4;
+      return WInputSlot_TouchPoint4;
     case 5:
-      return ezInputSlot_TouchPoint5;
+      return WInputSlot_TouchPoint5;
     case 6:
-      return ezInputSlot_TouchPoint6;
+      return WInputSlot_TouchPoint6;
     case 7:
-      return ezInputSlot_TouchPoint7;
+      return WInputSlot_TouchPoint7;
     case 8:
-      return ezInputSlot_TouchPoint8;
+      return WInputSlot_TouchPoint8;
     case 9:
-      return ezInputSlot_TouchPoint9;
+      return WInputSlot_TouchPoint9;
     default:
-      EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+      W_REPORT_FAILURE("Maximum number of supported input touch points is 10");
       return "";
   }
 }
 
-ezStringView ezInputManager::GetInputSlotTouchPointPositionX(ezUInt32 uiIndex)
+WStringView WInputManager::GetInputSlotTouchPointPositionX(WUInt32 uiIndex)
 {
   switch (uiIndex)
   {
     case 0:
-      return ezInputSlot_TouchPoint0_PositionX;
+      return WInputSlot_TouchPoint0_PositionX;
     case 1:
-      return ezInputSlot_TouchPoint1_PositionX;
+      return WInputSlot_TouchPoint1_PositionX;
     case 2:
-      return ezInputSlot_TouchPoint2_PositionX;
+      return WInputSlot_TouchPoint2_PositionX;
     case 3:
-      return ezInputSlot_TouchPoint3_PositionX;
+      return WInputSlot_TouchPoint3_PositionX;
     case 4:
-      return ezInputSlot_TouchPoint4_PositionX;
+      return WInputSlot_TouchPoint4_PositionX;
     case 5:
-      return ezInputSlot_TouchPoint5_PositionX;
+      return WInputSlot_TouchPoint5_PositionX;
     case 6:
-      return ezInputSlot_TouchPoint6_PositionX;
+      return WInputSlot_TouchPoint6_PositionX;
     case 7:
-      return ezInputSlot_TouchPoint7_PositionX;
+      return WInputSlot_TouchPoint7_PositionX;
     case 8:
-      return ezInputSlot_TouchPoint8_PositionX;
+      return WInputSlot_TouchPoint8_PositionX;
     case 9:
-      return ezInputSlot_TouchPoint9_PositionX;
+      return WInputSlot_TouchPoint9_PositionX;
     default:
-      EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+      W_REPORT_FAILURE("Maximum number of supported input touch points is 10");
       return "";
   }
 }
 
-ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
+WStringView WInputManager::GetInputSlotTouchPointPositionY(WUInt32 uiIndex)
 {
   switch (uiIndex)
   {
     case 0:
-      return ezInputSlot_TouchPoint0_PositionY;
+      return WInputSlot_TouchPoint0_PositionY;
     case 1:
-      return ezInputSlot_TouchPoint1_PositionY;
+      return WInputSlot_TouchPoint1_PositionY;
     case 2:
-      return ezInputSlot_TouchPoint2_PositionY;
+      return WInputSlot_TouchPoint2_PositionY;
     case 3:
-      return ezInputSlot_TouchPoint3_PositionY;
+      return WInputSlot_TouchPoint3_PositionY;
     case 4:
-      return ezInputSlot_TouchPoint4_PositionY;
+      return WInputSlot_TouchPoint4_PositionY;
     case 5:
-      return ezInputSlot_TouchPoint5_PositionY;
+      return WInputSlot_TouchPoint5_PositionY;
     case 6:
-      return ezInputSlot_TouchPoint6_PositionY;
+      return WInputSlot_TouchPoint6_PositionY;
     case 7:
-      return ezInputSlot_TouchPoint7_PositionY;
+      return WInputSlot_TouchPoint7_PositionY;
     case 8:
-      return ezInputSlot_TouchPoint8_PositionY;
+      return WInputSlot_TouchPoint8_PositionY;
     case 9:
-      return ezInputSlot_TouchPoint9_PositionY;
+      return WInputSlot_TouchPoint9_PositionY;
     default:
-      EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+      W_REPORT_FAILURE("Maximum number of supported input touch points is 10");
       return "";
   }
 }
 
-void ezInputManager::GetInputDevicesOfType(const ezRTTI* pRtti, ezDynamicArray<ezInputDevice*>& out_devices)
+void WInputManager::GetInputDevicesOfType(const WRTTI* pRtti, WDynamicArray<WInputDevice*>& out_devices)
 {
   out_devices.Clear();
 
-  for (auto pDev = ezInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
+  for (auto pDev = WInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
   {
     if (pDev->IsInstanceOf(pRtti))
     {

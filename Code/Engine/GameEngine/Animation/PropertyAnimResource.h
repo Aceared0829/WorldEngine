@@ -8,9 +8,9 @@
 #include <GameEngine/GameEngineDLL.h>
 
 /// What data type an animation modifies.
-struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
+struct W_GAMEENGINE_DLL WPropertyAnimTarget
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -28,14 +28,14 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimTarget);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WPropertyAnimTarget);
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Describes how an animation should be played back.
-struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
+struct W_GAMEENGINE_DLL WPropertyAnimMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -47,63 +47,63 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimMode);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WPropertyAnimMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezPropertyAnimEntry
+struct W_GAMEENGINE_DLL WPropertyAnimEntry
 {
-  ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
-  ezString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
-  ezString m_sPropertyPath;
-  ezEnum<ezPropertyAnimTarget> m_Target;
-  const ezRTTI* m_pComponentRtti = nullptr;
+  WString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
+  WString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
+  WString m_sPropertyPath;
+  WEnum<WPropertyAnimTarget> m_Target;
+  const WRTTI* m_pComponentRtti = nullptr;
 };
 
-struct EZ_GAMEENGINE_DLL ezFloatPropertyAnimEntry : public ezPropertyAnimEntry
+struct W_GAMEENGINE_DLL WFloatPropertyAnimEntry : public WPropertyAnimEntry
 {
-  ezCurve1D m_Curve;
+  WCurve1D m_Curve;
 };
 
-struct EZ_GAMEENGINE_DLL ezColorPropertyAnimEntry : public ezPropertyAnimEntry
+struct W_GAMEENGINE_DLL WColorPropertyAnimEntry : public WPropertyAnimEntry
 {
-  ezColorGradient m_Gradient;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-// this class is actually ref counted and used with ezSharedPtr to allow to work on the same data, even when the resource was reloaded
-struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
-{
-  ezTime m_AnimationDuration;
-  ezDynamicArray<ezFloatPropertyAnimEntry> m_FloatAnimations;
-  ezDynamicArray<ezColorPropertyAnimEntry> m_ColorAnimations;
-  ezEventTrack m_EventTrack;
-
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  WColorGradient m_Gradient;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezPropertyAnimResourceHandle = ezTypedResourceHandle<class ezPropertyAnimResource>;
-
-class EZ_GAMEENGINE_DLL ezPropertyAnimResource : public ezResource
+// this class is actually ref counted and used with WSharedPtr to allow to work on the same data, even when the resource was reloaded
+struct W_GAMEENGINE_DLL WPropertyAnimResourceDescriptor : public WRefCounted
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimResource, ezResource);
+  WTime m_AnimationDuration;
+  WDynamicArray<WFloatPropertyAnimEntry> m_FloatAnimations;
+  WDynamicArray<WColorPropertyAnimEntry> m_ColorAnimations;
+  WEventTrack m_EventTrack;
 
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezPropertyAnimResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+using WPropertyAnimResourceHandle = WTypedResourceHandle<class WPropertyAnimResource>;
+
+class W_GAMEENGINE_DLL WPropertyAnimResource : public WResource
+{
+  W_ADD_DYNAMIC_REFLECTION(WPropertyAnimResource, WResource);
+
+  W_RESOURCE_DECLARE_COMMON_CODE(WPropertyAnimResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WPropertyAnimResource, WPropertyAnimResourceDescriptor);
 
 public:
-  ezPropertyAnimResource();
+  WPropertyAnimResource();
 
-  ezSharedPtr<ezPropertyAnimResourceDescriptor> GetDescriptor() const { return m_pDescriptor; }
+  WSharedPtr<WPropertyAnimResourceDescriptor> GetDescriptor() const { return m_pDescriptor; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezSharedPtr<ezPropertyAnimResourceDescriptor> m_pDescriptor;
+  WSharedPtr<WPropertyAnimResourceDescriptor> m_pDescriptor;
 };

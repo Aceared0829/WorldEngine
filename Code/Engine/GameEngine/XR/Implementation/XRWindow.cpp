@@ -16,37 +16,37 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow)
+WWindowXR::WWindowXR(WXRInterface* pVrInterface, WUniquePtr<WWindowBase> pCompanionWindow)
   : m_pVrInterface(pVrInterface)
   , m_pCompanionWindow(std::move(pCompanionWindow))
 {
 }
 
-ezWindowXR::~ezWindowXR()
+WWindowXR::~WWindowXR()
 {
-  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+  W_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call WGALDevice::WaitIdle before destroying a window.");
 }
 
-ezSizeU32 ezWindowXR::GetClientAreaSize() const
+WSizeU32 WWindowXR::GetClientAreaSize() const
 {
   return m_pVrInterface->GetHmdInfo().m_vEyeRenderTargetSize;
 }
 
-ezWindowHandle ezWindowXR::GetNativeWindowHandle() const
+WWindowHandle WWindowXR::GetNativeWindowHandle() const
 {
   if (m_pCompanionWindow)
   {
     m_pCompanionWindow->GetNativeWindowHandle();
   }
-  return ezWindowHandle();
+  return WWindowHandle();
 }
 
-bool ezWindowXR::IsFullscreenWindow(bool bOnlyProperFullscreenMode) const
+bool WWindowXR::IsFullscreenWindow(bool bOnlyProperFullscreenMode) const
 {
   return true;
 }
 
-void ezWindowXR::ProcessWindowMessages()
+void WWindowXR::ProcessWindowMessages()
 {
   if (m_pCompanionWindow)
   {
@@ -54,96 +54,96 @@ void ezWindowXR::ProcessWindowMessages()
   }
 }
 
-const ezWindowBase* ezWindowXR::GetCompanionWindow() const
+const WWindowBase* WWindowXR::GetCompanionWindow() const
 {
   return m_pCompanionWindow.Borrow();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget)
+WWindowOutputTargetXR::WWindowOutputTargetXR(WXRInterface* pXrInterface, WUniquePtr<WWindowOutputTargetGAL> pCompanionWindowOutputTarget)
   : m_pXrInterface(pXrInterface)
   , m_pCompanionWindowOutputTarget(std::move(pCompanionWindowOutputTarget))
 {
   if (m_pCompanionWindowOutputTarget)
   {
     // Create companion resources.
-    m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/VRCompanionView.ezShader");
-    EZ_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
-    m_hCompanionConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezVRCompanionViewConstants>();
-    m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("XR CompanionView", ezRenderGraphPhase::PostRender);
-    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezWindowOutputTargetXR::OnGALEvent, this));
+    m_hCompanionShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/VRCompanionView.WShader");
+    W_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
+    m_hCompanionConstantBuffer = WRenderContext::CreateConstantBufferStorage<WVRCompanionViewConstants>();
+    m_pRenderGraph = WRenderGraphManager::CreateRenderGraph("XR CompanionView", WRenderGraphPhase::PostRender);
+    WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WWindowOutputTargetXR::OnGALEvent, this));
   }
 }
 
-ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
+WWindowOutputTargetXR::~WWindowOutputTargetXR()
 {
   if (m_pCompanionWindowOutputTarget)
   {
-    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowOutputTargetXR::OnGALEvent, this));
+    WGALDevice::s_Events.RemoveEventHandler(WMakeDelegate(&WWindowOutputTargetXR::OnGALEvent, this));
   }
   // Delete companion resources.
-  ezRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
 }
 
-void ezWindowOutputTargetXR::PresentImage(bool bEnableVSync)
+void WWindowOutputTargetXR::PresentImage(bool bEnableVSync)
 {
-  // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
+  // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the WXRInterface now.
 }
 
-void ezWindowOutputTargetXR::CompanionViewBeginFrame(bool bThrottleCompanionView)
+void WWindowOutputTargetXR::CompanionViewBeginFrame(bool bThrottleCompanionView)
 {
-  ezTime currentTime = ezTime::Now();
-  if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::MakeFromMilliseconds(16)))
+  WTime currentTime = WTime::Now();
+  if (bThrottleCompanionView && currentTime < (m_LastPresent + WTime::MakeFromMilliseconds(16)))
     return;
 
   m_LastPresent = currentTime;
-  ezGALDevice::GetDefaultDevice()->EnqueueFrameSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+  WGALDevice::GetDefaultDevice()->EnqueueFrameSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
   m_bRender = true;
 }
 
-void ezWindowOutputTargetXR::RenderCompanionView()
+void WWindowOutputTargetXR::RenderCompanionView()
 {
   if (!m_bRender)
     return;
 
   m_bRender = false;
 
-  EZ_PROFILE_SCOPE("RenderCompanionView");
-  ezGALTextureHandle hColorRT = m_pXrInterface->GetCurrentTexture();
+  W_PROFILE_SCOPE("RenderCompanionView");
+  WGALTextureHandle hColorRT = m_pXrInterface->GetCurrentTexture();
   if (hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
-  ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
-  const ezGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
-  ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
+  const WGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+  WGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
+  const WGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
+  WVec2 targetSize = WVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
   m_pRenderGraph->Reset();
 
-  ezRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(hCompanionRenderTarget);
-  ezRenderGraphTextureHandle hVRSource = m_pRenderGraph->ImportTexture(hColorRT);
+  WRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(hCompanionRenderTarget);
+  WRenderGraphTextureHandle hVRSource = m_pRenderGraph->ImportTexture(hColorRT);
 
   {
     auto pass = m_pRenderGraph->AddGraphicsPass("Blit CompanionView");
     pass.AddColorTarget(hTarget);
     pass.ReadTexture(hVRSource);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hVRSource, targetSize](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, hVRSource, targetSize](const WRenderGraphContext& ctx)
       {
       auto* pRenderContext = ctx.GetRenderContext();
 
-      pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
       pRenderContext->BindShader(m_hCompanionShader);
 
-      auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
+      auto* constants = WRenderContext::GetConstantBufferData<WVRCompanionViewConstants>(m_hCompanionConstantBuffer);
       constants->TargetSize = targetSize;
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+      WBindGroupBuilder& bindGroup = WRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindBuffer("WVRCompanionViewConstants", m_hCompanionConstantBuffer);
       bindGroup.BindTexture("VRTexture", ctx.ResolveTexture(hVRSource));
 
       pRenderContext->DrawMeshBuffer().IgnoreResult(); });
@@ -154,74 +154,74 @@ void ezWindowOutputTargetXR::RenderCompanionView()
   {
     m_bCaptureRequested = false;
 
-    const ezGALTexture* pBackbuffer = pDevice->GetTexture(hCompanionRenderTarget);
+    const WGALTexture* pBackbuffer = pDevice->GetTexture(hCompanionRenderTarget);
     m_CaptureBackbufferDesc = pBackbuffer->GetDescription();
 
     auto capturePass = m_pRenderGraph->AddTransferPass("CaptureImage");
-    capturePass.ReadTexture(hTarget, {}, ezGALResourceState::CopySource);
+    capturePass.ReadTexture(hTarget, {}, WGALResourceState::CopySource);
     capturePass.HasSideEffects();
-    capturePass.SetExecuteCallback([this, hTarget](const ezRenderGraphContext& ctx)
+    capturePass.SetExecuteCallback([this, hTarget](const WRenderGraphContext& ctx)
       { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTarget)); });
 
     m_bCaptureInFlight = true;
   }
 
-  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  WRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
 }
 
-void ezWindowOutputTargetXR::OnGALEvent(const ezGALDeviceEvent& e)
+void WWindowOutputTargetXR::OnGALEvent(const WGALDeviceEvent& e)
 {
-  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
+  if (e.m_Type != WGALDeviceEvent::AfterBeginFrame)
     return;
 
   RenderCompanionView();
 }
 
-ezResult ezWindowOutputTargetXR::StartCaptureImage()
+WResult WWindowOutputTargetXR::StartCaptureImage()
 {
   if (!m_pCompanionWindowOutputTarget)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (m_bCaptureInFlight || m_bCaptureRequested)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_bCaptureRequested = true;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezEnum<ezCaptureImageResult> ezWindowOutputTargetXR::WaitCaptureImage(ezImage& out_image)
+WEnum<WCaptureImageResult> WWindowOutputTargetXR::WaitCaptureImage(WImage& out_image)
 {
   if (!m_bCaptureInFlight)
-    return ezCaptureImageResult::NotStarted;
+    return WCaptureImageResult::NotStarted;
 
-  ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
-  if (res == ezGALAsyncResult::Pending)
-    return ezCaptureImageResult::Pending;
+  WEnum<WGALAsyncResult> res = m_Readback.GetReadbackResult(WTime::MakeFromHours(1));
+  if (res == WGALAsyncResult::Pending)
+    return WCaptureImageResult::Pending;
 
-  if (res == ezGALAsyncResult::Expired)
+  if (res == WGALAsyncResult::Expired)
   {
     m_bCaptureInFlight = false;
-    return ezCaptureImageResult::NotStarted;
+    return WCaptureImageResult::NotStarted;
   }
 
   // Ready
-  ezGALTextureSubresource sourceSubResource;
-  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  WGALTextureSubresource sourceSubResource;
+  WArrayPtr<WGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
+  WReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
   if (!lock)
   {
     m_bCaptureInFlight = false;
-    return ezCaptureImageResult::NotStarted;
+    return WCaptureImageResult::NotStarted;
   }
 
-  ezTextureUtils::CopySubResourceToImage(m_CaptureBackbufferDesc, sourceSubResource, memory[0], out_image, true);
+  WTextureUtils::CopySubResourceToImage(m_CaptureBackbufferDesc, sourceSubResource, memory[0], out_image, true);
 
   m_bCaptureInFlight = false;
-  return ezCaptureImageResult::Ready;
+  return WCaptureImageResult::Ready;
 }
 
-const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutputTarget() const
+const WWindowOutputTargetBase* WWindowOutputTargetXR::GetCompanionWindowOutputTarget() const
 {
   return m_pCompanionWindowOutputTarget.Borrow();
 }

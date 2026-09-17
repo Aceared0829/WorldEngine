@@ -13,44 +13,44 @@
 
 #undef CreateWindow
 
-class ezImage;
-class ezRenderGraph;
+class WImage;
+class WRenderGraph;
 
 struct ObjectCB
 {
-  ezMat4 m_MVP;
-  ezColor m_Color;
+  WMat4 m_MVP;
+  WColor m_Color;
 };
 
-class ezGraphicsTest : public ezTestBaseClass
+class WGraphicsTest : public WTestBaseClass
 {
 public:
-  static ezResult CreateRenderer(ezGALDevice*& out_pDevice);
+  static WResult CreateRenderer(WGALDevice*& out_pDevice);
   static void SetClipSpace();
 
 public:
-  ezGraphicsTest();
+  WGraphicsTest();
 
-  void ReadbackImage(ezRenderGraph& ref_graph);
-  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
+  void ReadbackImage(WRenderGraph& ref_graph);
+  virtual WResult GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber) override;
 
 protected:
   virtual void SetupSubTests() override {}
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override { return ezTestAppRun::Quit; }
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override { return WTestAppRun::Quit; }
 
-  virtual ezResult InitializeTest() override;
-  virtual ezResult DeInitializeTest() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+  virtual WResult InitializeTest() override;
+  virtual WResult DeInitializeTest() override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
 
-  ezSizeU32 GetResolution() const;
+  WSizeU32 GetResolution() const;
 
 protected:
-  const ezGALDeviceCapabilities& GetDeviceCapabilities();
-  ezResult SetupRenderer();
+  const WGALDeviceCapabilities& GetDeviceCapabilities();
+  WResult SetupRenderer();
   void ShutdownRenderer();
 
-  ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
+  WResult CreateWindow(WUInt32 uiResolutionX = 960, WUInt32 uiResolutionY = 540);
   void DestroyWindow();
 
   void BeginFrame();
@@ -59,11 +59,11 @@ protected:
   void BeginCommands(const char* szPassName);
   void EndCommands();
 
-  ezGALCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
+  WGALCommandEncoder* BeginRendering(WColor clearColor, WUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, WRectFloat* pViewport = nullptr, WRectU32* pScissor = nullptr);
   void EndRendering();
-  ezGALResourceStateTracker* GetResourceStateTracker();
-  void TransitionTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> newState, ezGALTextureRange range = {}, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
-  void TransitionBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> newState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  WGALResourceStateTracker* GetResourceStateTracker();
+  void TransitionTexture(WGALTextureHandle hTexture, WBitflags<WGALResourceState> newState, WGALTextureRange range = {}, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
+  void TransitionBuffer(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> newState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
   /// Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
   /// \param viewport Viewport to render into.
@@ -71,37 +71,37 @@ protected:
   /// \param uiRenderTargetClearMask What render targets if any should be cleared.
   /// \param hTexture The texture to render onto the cube.
   /// \param textureRange The texture range to use when rendering the cube.
-  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange = {});
+  void RenderCube(WRectFloat viewport, WMat4 mMVP, WUInt32 uiRenderTargetClearMask, WGALTextureHandle hTexture, const WGALTextureRange& textureRange = {});
 
-  ezMat4 CreateSimpleMVP(float fAspectRatio);
+  WMat4 CreateSimpleMVP(float fAspectRatio);
 
 
-  ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);
-  ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs, float fRadius);
-  ezMeshBufferResourceHandle CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
-  ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
-  ezMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
-  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
-  ezGALTextureHandle GetBackbuffer() const;
-  void TextureBarrier(const ezGALTextureBarrier& barrier);
-  void BufferBarrier(const ezGALBufferBarrier& barrier);
+  WMeshBufferResourceHandle CreateMesh(const WGeometry& geom, const char* szResourceName);
+  WMeshBufferResourceHandle CreateSphere(WInt32 iSubDivs, float fRadius);
+  WMeshBufferResourceHandle CreateTorus(WInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
+  WMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
+  WMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
+  void RenderObject(WMeshBufferResourceHandle hObject, const WMat4& mTransform, const WColor& color, WBitflags<WShaderBindFlags> ShaderBindFlags = WShaderBindFlags::Default);
+  WGALTextureHandle GetBackbuffer() const;
+  void TextureBarrier(const WGALTextureBarrier& barrier);
+  void BufferBarrier(const WGALBufferBarrier& barrier);
 
-  ezWindow* m_pWindow = nullptr;
-  ezGALDevice* m_pDevice = nullptr;
-  ezGALCommandEncoder* m_pEncoder = nullptr;
+  WWindow* m_pWindow = nullptr;
+  WGALDevice* m_pDevice = nullptr;
+  WGALCommandEncoder* m_pEncoder = nullptr;
 
-  ezGALSwapChainHandle m_hSwapChain;
-  ezGALTextureHandle m_hDepthStencilTexture;
+  WGALSwapChainHandle m_hSwapChain;
+  WGALTextureHandle m_hDepthStencilTexture;
 
-  ezConstantBufferStorageHandle m_hObjectTransformCB;
-  ezShaderResourceHandle m_hShader;
-  ezMeshBufferResourceHandle m_hCubeUV;
+  WConstantBufferStorageHandle m_hObjectTransformCB;
+  WShaderResourceHandle m_hShader;
+  WMeshBufferResourceHandle m_hCubeUV;
 
-  ezInt32 m_iFrame = 0;
+  WInt32 m_iFrame = 0;
   bool m_bCaptureImage = false;
-  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
-  ezGALReadbackTextureHelper m_Readback;
+  WHybridArray<WUInt32, 8> m_ImgCompFrames;
+  WGALReadbackTextureHelper m_Readback;
   bool m_bReadBackInProgress = false;
 
-  ezUniquePtr<ezGALResourceStateTracker> m_pResourceStateTracker;
+  WUniquePtr<WGALResourceStateTracker> m_pResourceStateTracker;
 };

@@ -1,38 +1,38 @@
 #pragma once
 
-#ifndef EZ_PP_CONCAT
+#ifndef W_PP_CONCAT
 
 /// Concatenates two strings, even when the strings are macros themselves
-#  define EZ_PP_CONCAT(x, y) EZ_PP_CONCAT_HELPER(x, y)
-#  define EZ_PP_CONCAT_HELPER(x, y) EZ_PP_CONCAT_HELPER2(x, y)
-#  define EZ_PP_CONCAT_HELPER2(x, y) x##y
+#  define W_PP_CONCAT(x, y) W_PP_CONCAT_HELPER(x, y)
+#  define W_PP_CONCAT_HELPER(x, y) W_PP_CONCAT_HELPER2(x, y)
+#  define W_PP_CONCAT_HELPER2(x, y) x##y
 
 #endif
 
-#ifndef EZ_PP_STRINGIFY
+#ifndef W_PP_STRINGIFY
 
 /// Turns some piece of code (usually some identifier name) into a string. Even works on macros.
-#  define EZ_PP_STRINGIFY(str) EZ_PP_STRINGIFY_HELPER(str)
-#  define EZ_PP_STRINGIFY_HELPER(x) #x
+#  define W_PP_STRINGIFY(str) W_PP_STRINGIFY_HELPER(str)
+#  define W_PP_STRINGIFY_HELPER(x) #x
 
 #endif
 
-#ifndef EZ_ON
+#ifndef W_ON
 
-/// Used in conjunction with EZ_ENABLED and EZ_DISABLED for safe checks. Define something to EZ_ON or EZ_OFF to work with those macros.
-#  define EZ_ON =
+/// Used in conjunction with W_ENABLED and W_DISABLED for safe checks. Define something to W_ON or W_OFF to work with those macros.
+#  define W_ON =
 
-/// Used in conjunction with EZ_ENABLED and EZ_DISABLED for safe checks. Define something to EZ_ON or EZ_OFF to work with those macros.
-#  define EZ_OFF !
+/// Used in conjunction with W_ENABLED and W_DISABLED for safe checks. Define something to W_ON or W_OFF to work with those macros.
+#  define W_OFF !
 
-/// Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#  define EZ_ENABLED(x) (1 EZ_PP_CONCAT(x, =) 1)
+/// Used in conjunction with W_ON and W_OFF for safe checks. Use #if W_ENABLED(x) or #if W_DISABLED(x) in conditional compilation.
+#  define W_ENABLED(x) (1 W_PP_CONCAT(x, =) 1)
 
-/// Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#  define EZ_DISABLED(x) (1 EZ_PP_CONCAT(x, =) 2)
+/// Used in conjunction with W_ON and W_OFF for safe checks. Use #if W_ENABLED(x) or #if W_DISABLED(x) in conditional compilation.
+#  define W_DISABLED(x) (1 W_PP_CONCAT(x, =) 2)
 
-/// Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
-#  define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_PP_CONCAT(x, =) 1) == (1 EZ_PP_CONCAT(y, =) 1))
+/// Checks whether x AND y are both defined as W_ON or W_OFF. Usually used to check whether configurations overlap, to issue an error.
+#  define W_IS_NOT_EXCLUSIVE(x, y) ((1 W_PP_CONCAT(x, =) 1) == (1 W_PP_CONCAT(y, =) 1))
 
 #endif
 
@@ -43,7 +43,7 @@
 #define SLOT_AUTO AUTO
 
 /// Binds the resource to the given bind group and slot. Note, that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
-#define BIND_RESOURCE(Slot, BindGroup) : register(EZ_PP_CONCAT(x, Slot), EZ_PP_CONCAT(space, BindGroup))
+#define BIND_RESOURCE(Slot, BindGroup) : register(W_PP_CONCAT(x, Slot), W_PP_CONCAT(space, BindGroup))
 
 /// Binds the resource to the given bind group. Note, that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
 #define BIND_GROUP(BindGroup) BIND_RESOURCE(SLOT_AUTO, BindGroup)

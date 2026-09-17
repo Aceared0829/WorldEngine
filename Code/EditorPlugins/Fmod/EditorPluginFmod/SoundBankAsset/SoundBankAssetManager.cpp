@@ -7,24 +7,24 @@
 #include <Foundation/IO/OSFile.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSoundBankAssetDocumentManager, 1, WRTTIDefaultAllocator<WSoundBankAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-class ezSimpleFmod
+class WSimpleFmod
 {
 public:
-  ezSimpleFmod() = default;
-  ~ezSimpleFmod() { EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down"); }
+  WSimpleFmod() = default;
+  ~WSimpleFmod() { W_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down"); }
 
   void Startup()
   {
-    EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down");
+    W_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down");
 
-    EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pSystem));
+    W_FMOD_ASSERT(FMOD::Studio::System::create(&m_pSystem));
 
     void* extraDriverData = nullptr;
-    EZ_FMOD_ASSERT(m_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
+    W_FMOD_ASSERT(m_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
   }
 
   void Shutdown()
@@ -32,8 +32,8 @@ public:
     if (m_pSystem == nullptr)
       return;
 
-    EZ_FMOD_ASSERT(m_pSystem->unloadAll());
-    EZ_FMOD_ASSERT(m_pSystem->release());
+    W_FMOD_ASSERT(m_pSystem->unloadAll());
+    W_FMOD_ASSERT(m_pSystem->release());
 
     m_pSystem = nullptr;
   }
@@ -51,61 +51,61 @@ private:
 };
 
 
-ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
+WSoundBankAssetDocumentManager::WSoundBankAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Sound Bank";
-  m_DocTypeDesc.m_sFileExtension = "ezSoundBankAsset";
+  m_DocTypeDesc.m_sFileExtension = "WSoundBankAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.svg";
   m_DocTypeDesc.m_sAssetCategory = "Sound";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WSoundBankAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinFmodSoundBank";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinFmodSoundBank";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::None;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.svg"));
 
-  m_pFmod = EZ_DEFAULT_NEW(ezSimpleFmod);
+  m_pFmod = W_DEFAULT_NEW(WSimpleFmod);
 }
 
-ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
+WSoundBankAssetDocumentManager::~WSoundBankAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_pFmod->Shutdown();
   m_pFmod.Clear();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const
+void WSoundBankAssetDocumentManager::FillOutSubAssetList(const WAssetDocumentInfo& assetInfo, WDynamicArray<WSubAssetData>& out_subAssets) const
 {
-  EZ_PROFILE_SCOPE("GetSoundBankSubAssets");
+  W_PROFILE_SCOPE("GetSoundBankSubAssets");
 
   SoundBankCache& cache = m_Cache[assetInfo.m_DocumentID];
-  const ezTimestamp lastTS = cache.m_LastModification;
+  const WTimestamp lastTS = cache.m_LastModification;
   bool bCanEarlyOut = true;
 
-  for (const ezString& dep : assetInfo.m_TransformDependencies)
+  for (const WString& dep : assetInfo.m_TransformDependencies)
   {
-    if (!ezPathUtils::HasExtension(dep, "bank"))
+    if (!WPathUtils::HasExtension(dep, "bank"))
       continue;
 
     {
-      ezString sAssetFile = dep;
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
+      WString sAssetFile = dep;
+      if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
         continue;
 
-      ezFileStats stat;
-      if (ezOSFile::GetFileStats(sAssetFile, stat).Succeeded())
+      WFileStats stat;
+      if (WOSFile::GetFileStats(sAssetFile, stat).Succeeded())
       {
-        if (stat.m_LastModificationTime.Compare(cache.m_LastModification, ezTimestamp::CompareMode::Newer))
+        if (stat.m_LastModificationTime.Compare(cache.m_LastModification, WTimestamp::CompareMode::Newer))
         {
           cache.m_LastModification = stat.m_LastModificationTime;
         }
 
-        if (stat.m_LastModificationTime.Compare(lastTS, ezTimestamp::CompareMode::Newer))
+        if (stat.m_LastModificationTime.Compare(lastTS, WTimestamp::CompareMode::Newer))
         {
           bCanEarlyOut = false;
         }
@@ -121,24 +121,24 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
   cache.m_CachedSubAssets.Clear();
 
-  ezHashedString sAssetsDocumentTypeName;
+  WHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");
 
   auto* pSystem = m_pFmod->GetSystem();
-  ezTempHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
+  WTempHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
 
 
   // TODO: it is unclear whether the code below can produce deadlocks, because of locked soundbank files on disk
   // in theory, since m_TransformDependencies is alphabetically sorted, the access order should always be the same, and thus
   // no deadlock should be possible,
 
-  for (const ezString& dep : assetInfo.m_TransformDependencies)
+  for (const WString& dep : assetInfo.m_TransformDependencies)
   {
-    if (!ezPathUtils::HasExtension(dep, "bank"))
+    if (!WPathUtils::HasExtension(dep, "bank"))
       continue;
 
-    ezString sAssetFile = dep;
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
+    WString sAssetFile = dep;
+    if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
       continue;
 
     FMOD::Studio::Bank* pBank = nullptr;
@@ -148,15 +148,15 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
     loadedBanks.PushBack(pBank);
 
-    ezStringBuilder sStringsBank = sAssetFile;
+    WStringBuilder sStringsBank = sAssetFile;
     sStringsBank.PathParentDirectory();
     sStringsBank.AppendPath("*.strings.bank");
 
     // honestly we have no idea what the strings bank name should be
     // and if there are multiple, which one is the correct one
     // so we just load everything that we can find
-    ezFileSystemIterator fsIt;
-    for (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles); fsIt.IsValid(); fsIt.Next())
+    WFileSystemIterator fsIt;
+    for (fsIt.StartSearch(sStringsBank, WFileSystemIteratorFlags::ReportFiles); fsIt.IsValid(); fsIt.Next())
     {
       sStringsBank = fsIt.GetCurrentPath();
       sStringsBank.AppendPath(fsIt.GetStats().m_sName);
@@ -169,11 +169,11 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
     }
 
     int iEvents = 0;
-    EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
+    W_FMOD_ASSERT(pBank->getEventCount(&iEvents));
 
     if (iEvents > 0)
     {
-      ezDynamicArray<FMOD::Studio::EventDescription*> events;
+      WDynamicArray<FMOD::Studio::EventDescription*> events;
       events.SetCountUninitialized(iEvents);
 
       pBank->getEventList(events.GetData(), iEvents, &iEvents);
@@ -183,12 +183,12 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
       FMOD_GUID guid;
 
-      ezStringBuilder sGuid, sGuidNoSpace, sEventName;
+      WStringBuilder sGuid, sGuidNoSpace, sEventName;
 
-      for (ezUInt32 i = 0; i < events.GetCount(); ++i)
+      for (WUInt32 i = 0; i < events.GetCount(); ++i)
       {
         iLen = 0;
-        EZ_FMOD_ASSERT(events[i]->getPath(szPath, 255, &iLen));
+        W_FMOD_ASSERT(events[i]->getPath(szPath, 255, &iLen));
         szPath[iLen] = '\0';
 
         sEventName = szPath;
@@ -200,19 +200,19 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           sEventName.Shrink(7, 0);
         else
         {
-          ezLog::Warning("Skipping unknown FMOD event type: '{0}", sEventName);
+          WLog::Warning("Skipping unknown FMOD event type: '{0}", sEventName);
           continue;
         }
 
         events[i]->getID(&guid);
 
-        ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
-        ezConversionUtils::ToString(*ezGuid, sGuid);
+        WUuid* WGuid = reinterpret_cast<WUuid*>(&guid);
+        WConversionUtils::ToString(*WGuid, sGuid);
         sGuidNoSpace = sGuid;
         sGuidNoSpace.ReplaceAll(" ", "");
 
         auto& sub = cache.m_CachedSubAssets.ExpandAndGetRef();
-        sub.m_Guid = *ezGuid;
+        sub.m_Guid = *WGuid;
         sub.m_sName = sEventName;
         sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
       }
@@ -220,18 +220,18 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
     for (FMOD::Studio::Bank* pBank : loadedBanks)
     {
-      EZ_FMOD_ASSERT(pBank->unload());
+      W_FMOD_ASSERT(pBank->unload());
     }
 
     loadedBanks.Clear();
   }
 
-  EZ_ASSERT_DEV(loadedBanks.IsEmpty(), "A soundbank wasn't unloaded.");
+  W_ASSERT_DEV(loadedBanks.IsEmpty(), "A soundbank wasn't unloaded.");
 
   out_subAssets = cache.m_CachedSubAssets;
 }
 
-ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
+WString WSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const WSubAsset* pSubAsset, WStringView sDataDirectory, const WPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source FMOD sound bank file
@@ -240,13 +240,13 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
   /// Maybe we should add another platform target for that ?
 
-  // if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
+  // if (pAssetProfile == WAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
-    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_TransformDependencies)
+    for (const WString& dep : pSubAsset->m_pAssetInfo->m_Info->m_TransformDependencies)
     {
       if (dep.EndsWith_NoCase(".bank") && !dep.EndsWith_NoCase(".strings.bank"))
       {
-        ezStringBuilder result;
+        WStringBuilder result;
         result.Set("?", dep); // ? is an option to tell the system to skip the redirection prefix and use the path as is
         return result;
       }
@@ -257,10 +257,10 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   //  SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
   //}
 
-  return ezString();
+  return WString();
 }
 
-ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
+WString WSoundBankAssetDocumentManager::GetAssetTableEntry(const WSubAsset* pSubAsset, WStringView sDataDirectory, const WPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
@@ -268,10 +268,10 @@ ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* p
   }
   else
   {
-    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, sDataDirectory, pAssetProfile);
+    WStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, sDataDirectory, pAssetProfile);
 
-    ezStringBuilder sGuid;
-    ezConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);
+    WStringBuilder sGuid;
+    WConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);
 
     result.Append("|", sGuid);
 
@@ -279,15 +279,15 @@ ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* p
   }
 }
 
-void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WSoundBankAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundBankAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSoundBankAssetDocument>())
       {
-        new ezSoundBankAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WSoundBankAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -296,17 +296,17 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezSoundBankAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WSoundBankAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSoundBankAssetDocument(sPath);
+  out_pDocument = new WSoundBankAssetDocument(sPath);
 }
 
-void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
+WUInt64 WSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const WPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;

@@ -5,19 +5,19 @@
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezCVarFloat cvar_ProcGenCullingDistanceScale("ProcGen.Culling.DistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all placement outputs");
-ezCVarInt cvar_ProcGenCullingMaxRadius("ProcGen.Culling.MaxRadius", 10, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
+WCVarFloat cvar_ProcGenCullingDistanceScale("ProcGen.Culling.DistanceScale", 1.0f, WCVarFlags::Default, "Global scale to control cull distance for all placement outputs");
+WCVarInt cvar_ProcGenCullingMaxRadius("ProcGen.Culling.MaxRadius", 10, WCVarFlags::Default, "Maximum cull radius in number of tiles");
 
-using namespace ezProcGenInternal;
+using namespace WProcGenInternal;
 
-FindPlacementTilesTask::FindPlacementTilesTask(ezProcPlacementComponent* pComponent, ezUInt32 uiOutputIndex)
+FindPlacementTilesTask::FindPlacementTilesTask(WProcPlacementComponent* pComponent, WUInt32 uiOutputIndex)
   : m_pComponent(pComponent)
   , m_uiOutputIndex(uiOutputIndex)
 {
-  ezStringBuilder sName;
+  WStringBuilder sName;
   sName.SetFormat("UpdateTiles {}", m_pComponent->m_OutputContexts[m_uiOutputIndex].m_pOutput->m_sName);
 
-  ConfigureTask(sName, ezTaskNesting::Never);
+  ConfigureTask(sName, WTaskNesting::Never);
 }
 
 FindPlacementTilesTask::~FindPlacementTilesTask() = default;
@@ -27,55 +27,55 @@ void FindPlacementTilesTask::Execute()
   m_NewTiles.Clear();
   m_OldTileKeys.Clear();
 
-  ezTempHybridArray<ezSimdMat4f, 8> globalToLocalBoxTransforms;
+  WTempHybridArray<WSimdMat4f, 8> globalToLocalBoxTransforms;
 
   auto& outputContext = m_pComponent->m_OutputContexts[m_uiOutputIndex];
 
   const float fTileSize = outputContext.m_pOutput->GetTileSize();
   const float fCullDistance = outputContext.m_pOutput->m_fCullDistance * cvar_ProcGenCullingDistanceScale;
 
-  float fRadius = ezMath::Min(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(cvar_ProcGenCullingMaxRadius));
-  ezInt32 iRadius = static_cast<ezInt32>(fRadius);
-  ezInt32 iRadiusSqr = iRadius * iRadius;
+  float fRadius = WMath::Min(WMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(cvar_ProcGenCullingMaxRadius));
+  WInt32 iRadius = static_cast<WInt32>(fRadius);
+  WInt32 iRadiusSqr = iRadius * iRadius;
 
-  ezSimdVec4f fHalfTileSize = ezSimdVec4f(fTileSize * 0.5f);
+  WSimdVec4f fHalfTileSize = WSimdVec4f(fTileSize * 0.5f);
 
-  for (ezVec3 vCameraPosition : m_CameraPositions)
+  for (WVec3 vCameraPosition : m_CameraPositions)
   {
-    ezVec3 cameraPos = vCameraPosition / fTileSize;
-    float fPosX = ezMath::Round(cameraPos.x);
-    float fPosY = ezMath::Round(cameraPos.y);
-    ezInt32 iPosX = static_cast<ezInt32>(fPosX);
-    ezInt32 iPosY = static_cast<ezInt32>(fPosY);
+    WVec3 cameraPos = vCameraPosition / fTileSize;
+    float fPosX = WMath::Round(cameraPos.x);
+    float fPosY = WMath::Round(cameraPos.y);
+    WInt32 iPosX = static_cast<WInt32>(fPosX);
+    WInt32 iPosY = static_cast<WInt32>(fPosY);
 
     float fY = (fPosY - fRadius) * fTileSize;
-    ezInt32 iY = -iRadius;
+    WInt32 iY = -iRadius;
 
     while (iY <= iRadius)
     {
       float fX = (fPosX - fRadius) * fTileSize;
-      ezInt32 iX = -iRadius;
+      WInt32 iX = -iRadius;
 
       while (iX <= iRadius)
       {
         if (iX * iX + iY * iY <= iRadiusSqr)
         {
-          ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY);
+          WUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY);
           if (auto pTile = outputContext.m_TileIndices.GetValue(uiTileKey))
           {
-            pTile->m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
+            pTile->m_uiLastSeenFrame = WRenderWorld::GetFrameCounter();
           }
           else
           {
-            ezSimdVec4f testPos = ezSimdVec4f(fX, fY, 0.0f);
-            ezSimdFloat minZ = 10000.0f;
-            ezSimdFloat maxZ = -10000.0f;
+            WSimdVec4f testPos = WSimdVec4f(fX, fY, 0.0f);
+            WSimdFloat minZ = 10000.0f;
+            WSimdFloat maxZ = -10000.0f;
 
             globalToLocalBoxTransforms.Clear();
 
             for (auto& bounds : m_pComponent->m_Bounds)
             {
-              ezSimdBBox extendedBox = bounds.m_GlobalBoundingBox;
+              WSimdBBox extendedBox = bounds.m_GlobalBoundingBox;
               extendedBox.Grow(fHalfTileSize);
 
               if (((testPos >= extendedBox.m_Min) && (testPos <= extendedBox.m_Max)).AllSet<2>())
@@ -89,9 +89,9 @@ void FindPlacementTilesTask::Execute()
 
             if (!globalToLocalBoxTransforms.IsEmpty())
             {
-              ezProcPlacementComponent::OutputContext::TileIndexAndAge emptyTile;
+              WProcPlacementComponent::OutputContext::TileIndexAndAge emptyTile;
               emptyTile.m_uiIndex = NewTileIndex;
-              emptyTile.m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
+              emptyTile.m_uiLastSeenFrame = WRenderWorld::GetFrameCounter();
 
               outputContext.m_TileIndices.Insert(uiTileKey, emptyTile);
 
@@ -103,7 +103,7 @@ void FindPlacementTilesTask::Execute()
               newTile.m_fMinZ = minZ;
               newTile.m_fMaxZ = maxZ;
               newTile.m_fTileSize = fTileSize;
-              newTile.m_fDistanceToCamera = ezMath::MaxValue<float>();
+              newTile.m_fDistanceToCamera = WMath::MaxValue<float>();
               newTile.m_GlobalToLocalBoxTransforms = globalToLocalBoxTransforms;
             }
           }
@@ -121,14 +121,14 @@ void FindPlacementTilesTask::Execute()
   m_CameraPositions.Clear();
 
   // Find old tiles
-  ezUInt32 uiMaxOldTiles = (ezUInt32)iRadius * 2;
+  WUInt32 uiMaxOldTiles = (WUInt32)iRadius * 2;
   uiMaxOldTiles *= uiMaxOldTiles;
 
   if (outputContext.m_TileIndices.GetCount() > uiMaxOldTiles)
   {
     m_TilesByAge.Clear();
 
-    ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+    WUInt64 uiCurrentFrame = WRenderWorld::GetFrameCounter();
     for (auto it = outputContext.m_TileIndices.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Value().m_uiIndex == EmptyTileIndex)
@@ -148,8 +148,8 @@ void FindPlacementTilesTask::Execute()
       m_TilesByAge.Sort([](auto& ref_tileA, auto& ref_tileB)
         { return ref_tileA.m_uiLastSeenFrame < ref_tileB.m_uiLastSeenFrame; });
 
-      ezUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxOldTiles;
-      for (ezUInt32 i = 0; i < uiOldTileCount; ++i)
+      WUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxOldTiles;
+      for (WUInt32 i = 0; i < uiOldTileCount; ++i)
       {
         m_OldTileKeys.PushBack(m_TilesByAge[i].m_uiTileKey);
       }
@@ -158,4 +158,4 @@ void FindPlacementTilesTask::Execute()
 }
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Tasks_Implementation_FindPlacementTilesTask);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Tasks_Implementation_FindPlacementTilesTask);

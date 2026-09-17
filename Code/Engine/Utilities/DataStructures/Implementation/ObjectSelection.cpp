@@ -2,25 +2,25 @@
 
 #include <Utilities/DataStructures/ObjectSelection.h>
 
-ezObjectSelection::ezObjectSelection()
+WObjectSelection::WObjectSelection()
 {
   m_pWorld = nullptr;
 }
 
-void ezObjectSelection::SetWorld(ezWorld* pWorld)
+void WObjectSelection::SetWorld(WWorld* pWorld)
 {
-  EZ_ASSERT_DEV((m_pWorld == pWorld) || m_Objects.IsEmpty(), "The selection has to be empty to change the world.");
+  W_ASSERT_DEV((m_pWorld == pWorld) || m_Objects.IsEmpty(), "The selection has to be empty to change the world.");
 
   m_pWorld = pWorld;
 }
 
-void ezObjectSelection::RemoveDeadObjects()
+void WObjectSelection::RemoveDeadObjects()
 {
-  EZ_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
+  W_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
 
-  for (ezUInt32 i = m_Objects.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_Objects.GetCount(); i > 0; --i)
   {
-    ezGameObject* pObject;
+    WGameObject* pObject;
     if (!m_pWorld->TryGetObject(m_Objects[i - 1], pObject))
     {
       m_Objects.RemoveAtAndCopy(i - 1); // keep the order
@@ -28,30 +28,30 @@ void ezObjectSelection::RemoveDeadObjects()
   }
 }
 
-void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice)
+void WObjectSelection::AddObject(WGameObjectHandle hObject, bool bDontAddTwice)
 {
-  EZ_IGNORE_UNUSED(bDontAddTwice);
-  EZ_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
+  W_IGNORE_UNUSED(bDontAddTwice);
+  W_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
 
   // only insert valid objects
-  ezGameObject* pObject;
+  WGameObject* pObject;
   if (!m_pWorld->TryGetObject(hObject, pObject))
     return;
 
-  if (m_Objects.IndexOf(hObject) != ezInvalidIndex)
+  if (m_Objects.IndexOf(hObject) != WInvalidIndex)
     return;
 
   m_Objects.PushBack(hObject);
 }
 
-bool ezObjectSelection::RemoveObject(ezGameObjectHandle hObject)
+bool WObjectSelection::RemoveObject(WGameObjectHandle hObject)
 {
   return m_Objects.RemoveAndCopy(hObject);
 }
 
-void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
+void WObjectSelection::ToggleSelection(WGameObjectHandle hObject)
 {
-  for (ezUInt32 i = 0; i < m_Objects.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Objects.GetCount(); ++i)
   {
     if (m_Objects[i] == hObject)
     {

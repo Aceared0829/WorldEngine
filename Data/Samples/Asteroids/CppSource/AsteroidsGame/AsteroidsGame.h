@@ -2,19 +2,19 @@
 
 #include <GameEngine/GameApplication/GameApplication.h>
 
-class AsteroidsGame : public ezGameApplication
+class AsteroidsGame : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
   AsteroidsGame();
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
+  virtual WUniquePtr<WGameStateBase> CreateGameState() override;
 
 private:
-  ezResult TryProjectFolder(ezStringView sPath);
+  WResult TryProjectFolder(WStringView sPath);
   void DetermineProjectPath();
 };

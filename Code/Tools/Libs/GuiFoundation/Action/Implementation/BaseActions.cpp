@@ -4,66 +4,66 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNamedAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WNamedAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCategoryAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicActionAndMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicActionAndMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEnumerationMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezButtonAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WButtonAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDynamicActionAndMenuAction::ezDynamicActionAndMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WDynamicActionAndMenuAction::WDynamicActionAndMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
   m_bEnabled = true;
   m_bVisible = true;
 }
 
-ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WEnumerationMenuAction::WEnumerationMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
   m_pEnumerationType = nullptr;
 }
 
-void ezEnumerationMenuAction::InitEnumerationType(const ezRTTI* pEnumerationType)
+void WEnumerationMenuAction::InitEnumerationType(const WRTTI* pEnumerationType)
 {
   m_pEnumerationType = pEnumerationType;
 }
 
-void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WEnumerationMenuAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
   out_entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);
-  ezInt64 iCurrentValue = ezReflectionUtils::MakeEnumerationValid(m_pEnumerationType, GetValue());
+  WInt64 iCurrentValue = WReflectionUtils::MakeEnumerationValid(m_pEnumerationType, GetValue());
 
   // sort entries by group / category
   // categories appear in the order in which they are used on the reflected properties
   // within each category, items are sorted by 'order'
   // all items that have the same 'order' are sorted alphabetically by display string
 
-  ezStringBuilder sCurGroup;
+  WStringBuilder sCurGroup;
   float fPrevOrder = -1;
   struct ItemWithOrder
   {
     float m_fOrder = -1;
-    ezDynamicMenuAction::Item m_Item;
+    WDynamicMenuAction::Item m_Item;
 
     bool operator<(const ItemWithOrder& rhs) const
     {
@@ -76,7 +76,7 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
     }
   };
 
-  ezTempHybridArray<ItemWithOrder, 16> unsortedItems;
+  WTempHybridArray<ItemWithOrder, 16> unsortedItems;
 
   auto appendToOutput = [&]()
   {
@@ -88,7 +88,7 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
     if (!out_entries.IsEmpty())
     {
       // add a separator between groups
-      out_entries.ExpandAndGetRef().m_ItemFlags.Add(ezDynamicMenuAction::Item::ItemFlags::Separator);
+      out_entries.ExpandAndGetRef().m_ItemFlags.Add(WDynamicMenuAction::Item::ItemFlags::Separator);
     }
 
     for (const auto& sortedItem : unsortedItems)
@@ -101,9 +101,9 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 
   for (auto pProp : m_pEnumerationType->GetProperties().GetSubArray(1))
   {
-    if (pProp->GetCategory() == ezPropertyCategory::Constant)
+    if (pProp->GetCategory() == WPropertyCategory::Constant)
     {
-      if (const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>())
+      if (const WGroupAttribute* pGroup = pProp->GetAttributeByType<WGroupAttribute>())
       {
         if (sCurGroup != pGroup->GetGroup())
         {
@@ -120,20 +120,20 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
       auto& item = newItem.m_Item;
 
       {
-        ezInt64 iValue = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
+        WInt64 iValue = static_cast<const WAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<WInt64>();
 
-        item.m_sDisplay = ezTranslate(pProp->GetPropertyName());
+        item.m_sDisplay = WTranslate(pProp->GetPropertyName());
 
         item.m_UserValue = iValue;
-        if (m_pEnumerationType->IsDerivedFrom<ezEnumBase>())
+        if (m_pEnumerationType->IsDerivedFrom<WEnumBase>())
         {
           item.m_CheckState =
-            (iCurrentValue == iValue) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+            (iCurrentValue == iValue) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
         }
-        else if (m_pEnumerationType->IsDerivedFrom<ezBitflagsBase>())
+        else if (m_pEnumerationType->IsDerivedFrom<WBitflagsBase>())
         {
           item.m_CheckState =
-            ((iCurrentValue & iValue) != 0) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+            ((iCurrentValue & iValue) != 0) ? WDynamicMenuAction::Item::CheckMark::Checked : WDynamicMenuAction::Item::CheckMark::Unchecked;
         }
       }
     }
@@ -142,8 +142,8 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
   appendToOutput();
 }
 
-ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath)
-  : ezNamedAction(context, szName, szIconPath)
+WButtonAction::WButtonAction(const WActionContext& context, const char* szName, bool bCheckable, const char* szIconPath)
+  : WNamedAction(context, szName, szIconPath)
 {
   m_bCheckable = false;
   m_bChecked = false;
@@ -152,8 +152,8 @@ ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szNam
 }
 
 
-ezSliderAction::ezSliderAction(const ezActionContext& context, const char* szName)
-  : ezNamedAction(context, szName, nullptr)
+WSliderAction::WSliderAction(const WActionContext& context, const char* szName)
+  : WNamedAction(context, szName, nullptr)
 {
   m_bEnabled = true;
   m_bVisible = true;
@@ -162,9 +162,9 @@ ezSliderAction::ezSliderAction(const ezActionContext& context, const char* szNam
   m_iCurValue = 50;
 }
 
-void ezSliderAction::SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate /*= true*/)
+void WSliderAction::SetRange(WInt32 iMin, WInt32 iMax, bool bTriggerUpdate /*= true*/)
 {
-  EZ_ASSERT_DEBUG(iMin < iMax, "Invalid range");
+  W_ASSERT_DEBUG(iMin < iMax, "Invalid range");
 
   m_iMinValue = iMin;
   m_iMaxValue = iMax;
@@ -173,9 +173,9 @@ void ezSliderAction::SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate /*
     TriggerUpdate();
 }
 
-void ezSliderAction::SetValue(ezInt32 iVal, bool bTriggerUpdate /*= true*/)
+void WSliderAction::SetValue(WInt32 iVal, bool bTriggerUpdate /*= true*/)
 {
-  m_iCurValue = ezMath::Clamp(iVal, m_iMinValue, m_iMaxValue);
+  m_iCurValue = WMath::Clamp(iVal, m_iMinValue, m_iMaxValue);
   if (bTriggerUpdate)
     TriggerUpdate();
 }

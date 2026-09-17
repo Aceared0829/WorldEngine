@@ -8,7 +8,7 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 #  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <QApplication>
@@ -16,38 +16,38 @@
 #  include <QSettings>
 #endif
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 int main(int iArgc, char** pArgv)
 {
 #else
 int main(int iArgc, const char** pArgv)
 {
 #endif
-  ezFileserverApp* pApp = new ezFileserverApp();
+  WFileserverApp* pApp = new WFileserverApp();
 
-#ifdef EZ_USE_QT
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
+#ifdef W_USE_QT
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  WCommandLineUtils::GetGlobalInstance()->SetCommandLine();
 #  else
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, pArgv);
+  WCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, pArgv);
 #  endif
   int dummyArgc = 0;
   char** dummyArgv = nullptr;
   QApplication* pQtApplication = new QApplication(dummyArgc, const_cast<char**>(dummyArgv));
-  pQtApplication->setApplicationName("ezFileserve");
+  pQtApplication->setApplicationName("WFileserve");
   pQtApplication->setOrganizationDomain("www.ezEngine.net");
-  pQtApplication->setOrganizationName("ezEngine Project");
+  pQtApplication->setOrganizationName("WorldEngine Project");
   pQtApplication->setApplicationVersion("1.0.0");
 
-  if (ezRun_Startup(pApp).Succeeded())
+  if (WRun_Startup(pApp).Succeeded())
   {
     CreateFileserveMainWindow(pApp);
     pQtApplication->exec();
-    ezRun_Shutdown(pApp);
+    WRun_Shutdown(pApp);
   }
 #else
-  pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
-  ezRun(pApp);
+  pApp->SetCommandLineArguments((WUInt32)iArgc, pArgv);
+  WRun(pApp);
 #endif
 
   const int iReturnCode = pApp->GetReturnCode();
@@ -59,7 +59,7 @@ int main(int iArgc, const char** pArgv)
       printf("Return Code: '%s'\n", text.c_str());
   }
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
   delete pQtApplication;
 #endif
 
@@ -69,25 +69,25 @@ int main(int iArgc, const char** pArgv)
   return iReturnCode;
 }
 
-ezResult ezFileserverApp::BeforeCoreSystemsStartup()
+WResult WFileserverApp::BeforeCoreSystemsStartup()
 {
   // before anything else: with '-help' the application only prints its options and exits, it must not
   // ask for a project folder and must not start serving
   {
-    ezStringBuilder cmdHelp;
-    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested))
+    WStringBuilder cmdHelp;
+    if (WCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, WCommandLineOption::LogAvailableModes::IfHelpRequested))
     {
-      ezLog::Print(cmdHelp);
+      WLog::Print(cmdHelp);
       SetReturnCode(-1);
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
   }
 
-  ezStartup::AddApplicationTag("tool");
-  ezStartup::AddApplicationTag("fileserve");
+  WStartup::AddApplicationTag("tool");
+  WStartup::AddApplicationTag("fileserve");
 
-#ifdef EZ_USE_QT
-  if (!ezCommandLineUtils::GetGlobalInstance()->HasOption("-specialdirs"))
+#ifdef W_USE_QT
+  if (!WCommandLineUtils::GetGlobalInstance()->HasOption("-specialdirs"))
   {
     QString sLastFolder;
 
@@ -106,9 +106,9 @@ ezResult ezFileserverApp::BeforeCoreSystemsStartup()
       Settings.setValue("LastProject", folder);
       Settings.endGroup();
 
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-specialdirs");
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("project");
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(folder.toUtf8().data());
+      WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-specialdirs");
+      WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("project");
+      WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(folder.toUtf8().data());
     }
   }
 #endif
@@ -116,22 +116,22 @@ ezResult ezFileserverApp::BeforeCoreSystemsStartup()
   return SUPER::BeforeCoreSystemsStartup();
 }
 
-void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
+void WFileserverApp::FileserverEventHandler(const WFileserverEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezFileserverEvent::Type::ClientConnected:
-    case ezFileserverEvent::Type::ClientReconnected:
+    case WFileserverEvent::Type::ClientConnected:
+    case WFileserverEvent::Type::ClientReconnected:
       ++m_uiConnections;
-      m_TimeTillClosing = ezTime::MakeZero();
+      m_TimeTillClosing = WTime::MakeZero();
       break;
-    case ezFileserverEvent::Type::ClientDisconnected:
+    case WFileserverEvent::Type::ClientDisconnected:
       --m_uiConnections;
 
       if (m_uiConnections == 0 && m_CloseAppTimeout.GetSeconds() > 0)
       {
         // reset the timer
-        m_TimeTillClosing = ezTime::Now() + m_CloseAppTimeout;
+        m_TimeTillClosing = WTime::Now() + m_CloseAppTimeout;
       }
 
       break;
@@ -140,21 +140,21 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
   }
 }
 
-void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, ezRemoteMessage& ref_msg, ezRemoteInterface& ref_clientChannel, ezDelegate<void(const char*)> logActivity)
+void WFileserverApp::ShaderMessageHandler(WFileserveClientContext& ref_ctxt, WRemoteMessage& ref_msg, WRemoteInterface& ref_clientChannel, WDelegate<void(const char*)> logActivity)
 {
   if (ref_msg.GetMessageID() == 'CMPL')
   {
     for (auto& dd : ref_ctxt.m_MountedDataDirs)
     {
-      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezDataDirUsage::AllowWrites).IgnoreResult();
+      WFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, WDataDirUsage::AllowWrites).IgnoreResult();
     }
 
     auto& r = ref_msg.GetReader();
 
-    ezStringBuilder tmp;
-    ezStringBuilder file, platform;
-    ezUInt32 numPermVars;
-    ezTempHybridArray<ezPermutationVar, 16> permVars;
+    WStringBuilder tmp;
+    WStringBuilder file, platform;
+    WUInt32 numPermVars;
+    WTempHybridArray<WPermutationVar, 16> permVars;
 
     r >> file;
     r >> platform;
@@ -175,27 +175,27 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
 
     // enable runtime shader compilation and set the shader cache directories (this only works, if the user doesn't change the default values)
     // the 'active platform' value should never be used during shader compilation, because there it is passed in
-    ezShaderManager::Configure("FILESERVE_UNUSED", true);
+    WShaderManager::Configure("FILESERVE_UNUSED", true);
 
-    ezLogSystemToBuffer log;
-    ezLogSystemScope ls(&log);
+    WLogSystemToBuffer log;
+    WLogSystemScope ls(&log);
 
-    ezShaderCompiler sc;
-    ezResult res = sc.CompileShaderPermutationForPlatforms(file, permVars, ezLog::GetThreadLocalLogSystem(), platform);
+    WShaderCompiler sc;
+    WResult res = sc.CompileShaderPermutationForPlatforms(file, permVars, WLog::GetThreadLocalLogSystem(), platform);
 
-    ezFileSystem::RemoveDataDirectoryGroup("FileServe");
+    WFileSystem::RemoveDataDirectoryGroup("FileServe");
 
     if (res.Succeeded())
     {
       // invalidate read cache to not short-circuit the next file read operation
-      ezRemoteMessage msg2('FSRV', 'INVC');
-      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+      WRemoteMessage msg2('FSRV', 'INVC');
+      ref_clientChannel.Send(WRemoteTransmitMode::Reliable, msg2);
     }
     else
     {
       logActivity("[ERROR] Shader Compilation failed:");
 
-      ezTempHybridArray<ezStringView, 32> lines;
+      WTempHybridArray<WStringView, 32> lines;
       log.m_sBuffer.Split(false, lines, "\n", "\r");
 
       for (auto line : lines)
@@ -206,11 +206,11 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
     }
 
     {
-      ezRemoteMessage msg2('SHDR', 'CRES');
-      msg2.GetWriter() << (res == EZ_SUCCESS);
+      WRemoteMessage msg2('SHDR', 'CRES');
+      msg2.GetWriter() << (res == W_SUCCESS);
       msg2.GetWriter() << log.m_sBuffer;
 
-      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+      ref_clientChannel.Send(WRemoteTransmitMode::Reliable, msg2);
     }
   }
 }

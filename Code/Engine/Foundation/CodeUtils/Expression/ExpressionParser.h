@@ -3,66 +3,66 @@
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 
-class EZ_FOUNDATION_DLL ezExpressionParser
+class W_FOUNDATION_DLL WExpressionParser
 {
 public:
-  ezExpressionParser();
-  ~ezExpressionParser();
+  WExpressionParser();
+  ~WExpressionParser();
 
-  static const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>>& GetKnownTypes();
-  static const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>>& GetBuiltinFunctions();
+  static const WHashTable<WHashedString, WEnum<WExpressionAST::DataType>>& GetKnownTypes();
+  static const WHashTable<WHashedString, WEnum<WExpressionAST::NodeType>>& GetBuiltinFunctions();
 
-  void RegisterFunction(const ezExpression::FunctionDesc& funcDesc);
-  void UnregisterFunction(const ezExpression::FunctionDesc& funcDesc);
+  void RegisterFunction(const WExpression::FunctionDesc& funcDesc);
+  void UnregisterFunction(const WExpression::FunctionDesc& funcDesc);
 
   struct Options
   {
     bool m_bTreatUnknownVariablesAsInputs = false;
   };
 
-  ezResult Parse(ezStringView sCode, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast);
+  WResult Parse(WStringView sCode, WArrayPtr<WExpression::StreamDesc> inputs, WArrayPtr<WExpression::StreamDesc> outputs, const Options& options, WExpressionAST& out_ast);
 
 private:
   static constexpr int s_iLowestPrecedence = 20;
 
   static void RegisterKnownTypes();
   static void RegisterBuiltinFunctions();
-  void SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs);
+  void SetupInAndOutputs(WArrayPtr<WExpression::StreamDesc> inputs, WArrayPtr<WExpression::StreamDesc> outputs);
 
-  ezResult ParseStatement();
-  ezResult ParseType(ezStringView sTypeName, ezEnum<ezExpressionAST::DataType>& out_type);
-  ezResult ParseVariableDefinition(ezEnum<ezExpressionAST::DataType> type);
-  ezResult ParseAssignment();
+  WResult ParseStatement();
+  WResult ParseType(WStringView sTypeName, WEnum<WExpressionAST::DataType>& out_type);
+  WResult ParseVariableDefinition(WEnum<WExpressionAST::DataType> type);
+  WResult ParseAssignment();
 
-  ezExpressionAST::Node* ParseFactor();
-  ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
-  ezExpressionAST::Node* ParseUnaryExpression();
-  ezExpressionAST::Node* ParseFunctionCall(ezStringView sFunctionName);
-  ezExpressionAST::Node* ParseSwizzle(ezExpressionAST::Node* pExpression);
+  WExpressionAST::Node* ParseFactor();
+  WExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
+  WExpressionAST::Node* ParseUnaryExpression();
+  WExpressionAST::Node* ParseFunctionCall(WStringView sFunctionName);
+  WExpressionAST::Node* ParseSwizzle(WExpressionAST::Node* pExpression);
 
   bool AcceptStatementTerminator();
-  bool AcceptOperator(ezStringView sName);
-  bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, ezUInt32& out_uiOperatorLength);
-  ezExpressionAST::Node* GetVariable(ezStringView sVarName);
-  ezExpressionAST::Node* EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType);
-  ezExpressionAST::Node* Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError = true);
+  bool AcceptOperator(WStringView sName);
+  bool AcceptBinaryOperator(WExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, WUInt32& out_uiOperatorLength);
+  WExpressionAST::Node* GetVariable(WStringView sVarName);
+  WExpressionAST::Node* EnsureExpectedType(WExpressionAST::Node* pNode, WExpressionAST::DataType::Enum expectedType);
+  WExpressionAST::Node* Unpack(WExpressionAST::Node* pNode, bool bUnassignedError = true);
 
-  ezResult Expect(ezStringView sToken, const ezToken** pExpectedToken = nullptr);
-  ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
+  WResult Expect(WStringView sToken, const WToken** pExpectedToken = nullptr);
+  WResult Expect(WTokenType::Enum Type, const WToken** pExpectedToken = nullptr);
 
-  void ReportError(const ezToken* pToken, const ezFormatString& message);
+  void ReportError(const WToken* pToken, const WFormatString& message);
 
   /// Checks whether all outputs have been written
-  ezResult CheckOutputs();
+  WResult CheckOutputs();
 
   Options m_Options;
 
-  ezTokenParseUtils::TokenStream m_TokenStream;
-  ezUInt32 m_uiCurrentToken = 0;
-  ezExpressionAST* m_pAST = nullptr;
+  WTokenParseUtils::TokenStream m_TokenStream;
+  WUInt32 m_uiCurrentToken = 0;
+  WExpressionAST* m_pAST = nullptr;
 
-  ezHashTable<ezHashedString, ezExpressionAST::Node*> m_KnownVariables;
-  ezHashTable<ezHashedString, ezHybridArray<ezExpression::FunctionDesc, 1>> m_FunctionDescs;
+  WHashTable<WHashedString, WExpressionAST::Node*> m_KnownVariables;
+  WHashTable<WHashedString, WHybridArray<WExpression::FunctionDesc, 1>> m_FunctionDescs;
 };
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionParser_inl.h>

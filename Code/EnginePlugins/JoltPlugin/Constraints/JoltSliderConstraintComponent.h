@@ -2,25 +2,25 @@
 
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 
-using ezJoltSliderConstraintComponentManager = ezComponentManager<class ezJoltSliderConstraintComponent, ezBlockStorageType::Compact>;
+using WJoltSliderConstraintComponentManager = WComponentManager<class WJoltSliderConstraintComponent, WBlockStorageType::Compact>;
 
 /// Implements a sliding physics constraint.
 ///
 /// The child actor may move along the parent actor along the positive X axis of the constraint.
 /// Usually lower and upper limits are used to prevent infinite movement.
-class EZ_JOLTPLUGIN_DLL ezJoltSliderConstraintComponent : public ezJoltConstraintComponent
+class W_JOLTPLUGIN_DLL WJoltSliderConstraintComponent : public WJoltConstraintComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltSliderConstraintComponent, ezJoltConstraintComponent, ezJoltSliderConstraintComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltSliderConstraintComponent, WJoltConstraintComponent, WJoltSliderConstraintComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConstraintComponent
+  // WJoltConstraintComponent
 
 protected:
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
@@ -28,15 +28,15 @@ protected:
   virtual bool ExceededBreakingPoint() final override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltSliderConstraintComponent
+  // WJoltSliderConstraintComponent
 
 public:
-  ezJoltSliderConstraintComponent();
-  ~ezJoltSliderConstraintComponent();
+  WJoltSliderConstraintComponent();
+  ~WJoltSliderConstraintComponent();
 
   /// Enables a translational limit on the slider.
-  void SetLimitMode(ezJoltConstraintLimitMode::Enum mode);                     // [ property ]
-  ezJoltConstraintLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
+  void SetLimitMode(WJoltConstraintLimitMode::Enum mode);                     // [ property ]
+  WJoltConstraintLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
   /// Sets how far child actor may move in one direction.
   void SetLowerLimitDistance(float f);                                  // [ property ]
@@ -51,8 +51,8 @@ public:
   float GetFriction() const { return m_fFriction; } // [ property ]
 
   /// Enables a drive for the slider to either constantly move or attempt to reach a certain position.
-  void SetDriveMode(ezJoltConstraintDriveMode::Enum mode);                     // [ property ]
-  ezJoltConstraintDriveMode::Enum GetDriveMode() const { return m_DriveMode; } // [ property ]
+  void SetDriveMode(WJoltConstraintDriveMode::Enum mode);                     // [ property ]
+  WJoltConstraintDriveMode::Enum GetDriveMode() const { return m_DriveMode; } // [ property ]
 
   /// Sets the drive target position or velocity.
   void SetDriveTargetValue(float f);                                // [ property ]
@@ -63,12 +63,12 @@ public:
   float GetDriveStrength() const { return m_fDriveStrength; } // [ property ]
 
 protected:
-  ezEnum<ezJoltConstraintLimitMode> m_LimitMode;
+  WEnum<WJoltConstraintLimitMode> m_LimitMode;
   float m_fLowerLimitDistance = 0;
   float m_fUpperLimitDistance = 0;
   float m_fFriction = 0;
 
-  ezEnum<ezJoltConstraintDriveMode> m_DriveMode;
+  WEnum<WJoltConstraintDriveMode> m_DriveMode;
   float m_fDriveTargetValue;
   float m_fDriveStrength = 0; // 0 means maximum strength
 };

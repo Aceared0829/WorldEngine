@@ -3,21 +3,21 @@
 #include <EditorFramework/Dialogs/PluginSelectionWidget.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 
-ezQtPluginSelectionWidget::ezQtPluginSelectionWidget(QWidget* pParent)
+WQtPluginSelectionWidget::WQtPluginSelectionWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
 }
 
-ezQtPluginSelectionWidget::~ezQtPluginSelectionWidget() = default;
+WQtPluginSelectionWidget::~WQtPluginSelectionWidget() = default;
 
-void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
+void WQtPluginSelectionWidget::SetPluginSet(WPluginBundleSet* pPluginSet)
 {
   m_pPluginSet = pPluginSet;
   m_States.Clear();
 
-  ezSet<ezString> templates;
-  ezStringBuilder tmp;
+  WSet<WString> templates;
+  WStringBuilder tmp;
 
   for (auto& plugin : m_pPluginSet->m_Plugins)
   {
@@ -61,7 +61,7 @@ void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
   Template->clear();
   Template->addItem("<custom>");
 
-  for (const ezString tmp : templates)
+  for (const WString tmp : templates)
   {
     Template->addItem(tmp.GetData());
   }
@@ -69,7 +69,7 @@ void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
   UpdateInternalState();
 }
 
-void ezQtPluginSelectionWidget::SyncStateToSet()
+void WQtPluginSelectionWidget::SyncStateToSet()
 {
   // make sure to pull the latest state from the UI
   on_PluginsList_currentItemChanged(nullptr, PluginsList->currentItem());
@@ -81,12 +81,12 @@ void ezQtPluginSelectionWidget::SyncStateToSet()
   }
 }
 
-void ezQtPluginSelectionWidget::SelectTemplate(const char* szTemplate)
+void WQtPluginSelectionWidget::SelectTemplate(const char* szTemplate)
 {
   Template->setCurrentText(szTemplate);
 }
 
-void ezQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
+void WQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
   if (previous)
   {
@@ -110,7 +110,7 @@ void ezQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetIte
   }
 }
 
-void ezQtPluginSelectionWidget::on_PluginsList_itemChanged(QListWidgetItem* item)
+void WQtPluginSelectionWidget::on_PluginsList_itemChanged(QListWidgetItem* item)
 {
   auto& state = m_States[PluginsList->row(item)];
   state.m_bSelected = item->checkState() == Qt::Checked;
@@ -120,12 +120,12 @@ void ezQtPluginSelectionWidget::on_PluginsList_itemChanged(QListWidgetItem* item
   UpdateInternalState();
 }
 
-void ezQtPluginSelectionWidget::on_Template_currentIndexChanged(int index)
+void WQtPluginSelectionWidget::on_Template_currentIndexChanged(int index)
 {
   if (index <= 0)
     return;
 
-  const ezString sTemplate = Template->currentText().toUtf8().data();
+  const WString sTemplate = Template->currentText().toUtf8().data();
 
   for (auto& s : m_States)
   {
@@ -135,7 +135,7 @@ void ezQtPluginSelectionWidget::on_Template_currentIndexChanged(int index)
   UpdateInternalState();
 }
 
-void ezQtPluginSelectionWidget::UpdateInternalState()
+void WQtPluginSelectionWidget::UpdateInternalState()
 {
   for (auto& s : m_States)
   {
@@ -152,9 +152,9 @@ void ezQtPluginSelectionWidget::UpdateInternalState()
 
   PluginsList->blockSignals(true);
 
-  ezSet<ezString, ezCompareString_NoCase> exclusiveFeatures;
+  WSet<WString, WCompareString_NoCase> exclusiveFeatures;
 
-  for (ezUInt32 row = 0; row < m_States.GetCount(); ++row)
+  for (WUInt32 row = 0; row < m_States.GetCount(); ++row)
   {
     const auto& pi = m_States[row];
     auto pItem = PluginsList->item(row);
@@ -175,7 +175,7 @@ void ezQtPluginSelectionWidget::UpdateInternalState()
     pItem->setCheckState(pi.m_bSelected || pi.m_bIsDependency ? Qt::Checked : Qt::Unchecked);
   }
 
-  for (ezUInt32 row = 0; row < m_States.GetCount(); ++row)
+  for (WUInt32 row = 0; row < m_States.GetCount(); ++row)
   {
     const auto& pi = m_States[row];
     auto pItem = PluginsList->item(row);
@@ -200,7 +200,7 @@ void ezQtPluginSelectionWidget::UpdateInternalState()
   PluginsList->blockSignals(false);
 }
 
-void ezQtPluginSelectionWidget::ApplyRequired(ezArrayPtr<ezString> required)
+void WQtPluginSelectionWidget::ApplyRequired(WArrayPtr<WString> required)
 {
   for (const auto& reqName : required)
   {

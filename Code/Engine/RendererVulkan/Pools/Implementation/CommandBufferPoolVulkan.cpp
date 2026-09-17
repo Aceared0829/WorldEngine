@@ -2,18 +2,18 @@
 
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 
-ezCommandBufferPoolVulkan::ezCommandBufferPoolVulkan(ezAllocator* pAllocator)
+WCommandBufferPoolVulkan::WCommandBufferPoolVulkan(WAllocator* pAllocator)
   : m_CommandBuffers(pAllocator)
 {
 }
 
-ezCommandBufferPoolVulkan::~ezCommandBufferPoolVulkan()
+WCommandBufferPoolVulkan::~WCommandBufferPoolVulkan()
 {
-  EZ_ASSERT_DEBUG(m_CommandBuffers.IsEmpty(), "Either DeInitialize was not called or ReclaimCommandBuffer was called after DeInitialize");
-  EZ_ASSERT_DEBUG(!m_Device, "DeInitialize was not called");
+  W_ASSERT_DEBUG(m_CommandBuffers.IsEmpty(), "Either DeInitialize was not called or ReclaimCommandBuffer was called after DeInitialize");
+  W_ASSERT_DEBUG(!m_Device, "DeInitialize was not called");
 }
 
-void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 uiGraphicsFamilyIndex)
+void WCommandBufferPoolVulkan::Initialize(vk::Device device, WUInt32 uiGraphicsFamilyIndex)
 {
   m_Device = device;
 
@@ -25,7 +25,7 @@ void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 uiGraphic
   m_CommandPool = m_Device.createCommandPool(commandPoolCreateInfo);
 }
 
-void ezCommandBufferPoolVulkan::DeInitialize()
+void WCommandBufferPoolVulkan::DeInitialize()
 {
   for (vk::CommandBuffer& commandBuffer : m_CommandBuffers)
   {
@@ -40,9 +40,9 @@ void ezCommandBufferPoolVulkan::DeInitialize()
   m_Device = nullptr;
 }
 
-vk::CommandBuffer ezCommandBufferPoolVulkan::RequestCommandBuffer()
+vk::CommandBuffer WCommandBufferPoolVulkan::RequestCommandBuffer()
 {
-  EZ_ASSERT_DEBUG(m_Device, "ezCommandBufferPoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(m_Device, "WCommandBufferPoolVulkan::Initialize not called");
   if (!m_CommandBuffers.IsEmpty())
   {
     vk::CommandBuffer CommandBuffer = m_CommandBuffers.PeekBack();
@@ -63,9 +63,9 @@ vk::CommandBuffer ezCommandBufferPoolVulkan::RequestCommandBuffer()
   }
 }
 
-void ezCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& ref_commandBuffer)
+void WCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& ref_commandBuffer)
 {
-  EZ_ASSERT_DEBUG(m_Device, "ezCommandBufferPoolVulkan::Initialize not called");
+  W_ASSERT_DEBUG(m_Device, "WCommandBufferPoolVulkan::Initialize not called");
   ref_commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
   m_CommandBuffers.PushBack(ref_commandBuffer);
 }

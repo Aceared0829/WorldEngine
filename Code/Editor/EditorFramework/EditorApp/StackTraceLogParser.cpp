@@ -5,12 +5,12 @@
 #include <EditorFramework/CodeGen/CppProject.h>
 #include <GuiFoundation/Widgets/LogWidget.moc.h>
 
-namespace ezStackTraceLogParser
+namespace WStackTraceLogParser
 {
-  static void StackTraceLogCallback(const ezStringView& sLogText)
+  static void StackTraceLogCallback(const WStringView& sLogText)
   {
-    ezStringView sFileName;
-    ezInt32 lineNumber;
+    WStringView sFileName;
+    WInt32 lineNumber;
 
     if (!ParseStackTraceFileNameAndLineNumber(sLogText, sFileName, lineNumber))
     {
@@ -20,17 +20,17 @@ namespace ezStackTraceLogParser
       }
     }
 
-    ezCppSettings cpp;
+    WCppSettings cpp;
     cpp.Load().IgnoreResult();
-    const ezStatus res = ezCppProject::OpenInCodeEditor(sFileName, lineNumber);
+    const WStatus res = WCppProject::OpenInCodeEditor(sFileName, lineNumber);
   }
 
-  bool ParseAssertFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
+  bool ParseAssertFileNameAndLineNumber(const WStringView& sLine, WStringView& ref_sFileName, WInt32& ref_iLineNumber)
   {
     const char* szFileMarker = "File: ";
-    const ezUInt32 fileMarkerLength = ezStringUtils::GetStringElementCount(szFileMarker);
+    const WUInt32 fileMarkerLength = WStringUtils::GetStringElementCount(szFileMarker);
     const char* szLineMarker = "Line: ";
-    const ezUInt32 lineMarkerLength = ezStringUtils::GetStringElementCount(szLineMarker);
+    const WUInt32 lineMarkerLength = WStringUtils::GetStringElementCount(szLineMarker);
 
     if (sLine.FindSubString("*** Assertion ***") == nullptr)
     {
@@ -49,19 +49,19 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    const char* szFileEnd = ezStringUtils::FindSubString(szFile + fileMarkerLength + 1, "\"", sLine.GetEndPointer());
+    const char* szFileEnd = WStringUtils::FindSubString(szFile + fileMarkerLength + 1, "\"", sLine.GetEndPointer());
     if (szFileEnd == nullptr)
     {
       return false;
     }
 
-    const char* szLineEnd = ezStringUtils::FindSubString(szLine + lineMarkerLength + 1, "\"", sLine.GetEndPointer());
+    const char* szLineEnd = WStringUtils::FindSubString(szLine + lineMarkerLength + 1, "\"", sLine.GetEndPointer());
     if (szLineEnd == nullptr)
     {
       return false;
     }
 
-    ref_sFileName = ezStringView(szFile + fileMarkerLength + 1, szFileEnd);
+    ref_sFileName = WStringView(szFile + fileMarkerLength + 1, szFileEnd);
     ref_sFileName.Trim(" ");
 
     if (!ref_sFileName.IsAbsolutePath())
@@ -69,8 +69,8 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    const ezResult res = ezConversionUtils::StringToInt(ezStringView(szLine + lineMarkerLength + 1, szLineEnd), ref_iLineNumber);
-    if (res != EZ_SUCCESS)
+    const WResult res = WConversionUtils::StringToInt(WStringView(szLine + lineMarkerLength + 1, szLineEnd), ref_iLineNumber);
+    if (res != W_SUCCESS)
     {
       return false;
     }
@@ -78,8 +78,8 @@ namespace ezStackTraceLogParser
     return true;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  bool ParseStackTraceFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+  bool ParseStackTraceFileNameAndLineNumber(const WStringView& sLine, WStringView& ref_sFileName, WInt32& ref_iLineNumber)
   {
     const char* szEndFileNameMarker = "(";
     const char* szEndLineNumberMarker = "):";
@@ -96,7 +96,7 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    ref_sFileName = ezStringView(sLine.GetStartPointer(), szEndFileName);
+    ref_sFileName = WStringView(sLine.GetStartPointer(), szEndFileName);
     ref_sFileName.Trim(" ");
 
     if (!ref_sFileName.IsAbsolutePath())
@@ -104,8 +104,8 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    const ezResult res = ezConversionUtils::StringToInt(ezStringView(szEndFileName + 1, szEndLineNumber), ref_iLineNumber);
-    if (res != EZ_SUCCESS)
+    const WResult res = WConversionUtils::StringToInt(WStringView(szEndFileName + 1, szEndLineNumber), ref_iLineNumber);
+    if (res != W_SUCCESS)
     {
       return false;
     }
@@ -113,7 +113,7 @@ namespace ezStackTraceLogParser
     return true;
   }
 #else
-  bool ParseStackTraceFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
+  bool ParseStackTraceFileNameAndLineNumber(const WStringView& sLine, WStringView& ref_sFileName, WInt32& ref_iLineNumber)
   {
     return false;
   }
@@ -121,11 +121,11 @@ namespace ezStackTraceLogParser
 
   void Register()
   {
-    ezQtLogWidget::AddLogItemContextActionCallback("StackTraceLog", &StackTraceLogCallback);
+    WQtLogWidget::AddLogItemContextActionCallback("StackTraceLog", &StackTraceLogCallback);
   }
 
   void Unregister()
   {
-    ezQtLogWidget::RemoveLogItemContextActionCallback("StackTraceLog");
+    WQtLogWidget::RemoveLogItemContextActionCallback("StackTraceLog");
   }
-} // namespace ezStackTraceLogParser
+} // namespace WStackTraceLogParser

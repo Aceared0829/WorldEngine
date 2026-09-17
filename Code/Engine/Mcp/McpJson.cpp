@@ -4,41 +4,41 @@
 
 #include <Foundation/Utilities/ConversionUtils.h>
 
-ezStringView ezMcpJson::GetString(const ezVariantDictionary& dict, ezStringView sKey, ezStringView sFallback)
+WStringView WMcpJson::GetString(const WVariantDictionary& dict, WStringView sKey, WStringView sFallback)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
-  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<ezString>())
+  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<WString>())
   {
-    return pValue->Get<ezString>().GetView();
+    return pValue->Get<WString>().GetView();
   }
 
   return sFallback;
 }
 
-ezInt64 ezMcpJson::GetInt(const ezVariantDictionary& dict, ezStringView sKey, ezInt64 iFallback)
+WInt64 WMcpJson::GetInt(const WVariantDictionary& dict, WStringView sKey, WInt64 iFallback)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
   if (!dict.TryGetValue(sKey, pValue) || !pValue->IsValid())
     return iFallback;
 
   if (pValue->IsNumber())
-    return static_cast<ezInt64>(pValue->ConvertTo<double>());
+    return static_cast<WInt64>(pValue->ConvertTo<double>());
 
-  if (pValue->IsA<ezString>())
+  if (pValue->IsA<WString>())
   {
-    ezInt64 iResult = 0;
-    if (ezConversionUtils::StringToInt64(pValue->Get<ezString>(), iResult).Succeeded())
+    WInt64 iResult = 0;
+    if (WConversionUtils::StringToInt64(pValue->Get<WString>(), iResult).Succeeded())
       return iResult;
   }
 
   return iFallback;
 }
 
-bool ezMcpJson::GetBool(const ezVariantDictionary& dict, ezStringView sKey, bool bFallback)
+bool WMcpJson::GetBool(const WVariantDictionary& dict, WStringView sKey, bool bFallback)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
   if (!dict.TryGetValue(sKey, pValue) || !pValue->IsValid())
     return bFallback;
@@ -49,60 +49,60 @@ bool ezMcpJson::GetBool(const ezVariantDictionary& dict, ezStringView sKey, bool
   if (pValue->IsNumber())
     return pValue->ConvertTo<double>() != 0.0;
 
-  if (pValue->IsA<ezString>())
+  if (pValue->IsA<WString>())
   {
     bool bResult = false;
-    if (ezConversionUtils::StringToBool(pValue->Get<ezString>(), bResult) == EZ_SUCCESS)
+    if (WConversionUtils::StringToBool(pValue->Get<WString>(), bResult) == W_SUCCESS)
       return bResult;
   }
 
   return bFallback;
 }
 
-bool ezMcpJson::GetStringArray(const ezVariantDictionary& dict, ezStringView sKey, ezDynamicArray<ezString>& out_values)
+bool WMcpJson::GetStringArray(const WVariantDictionary& dict, WStringView sKey, WDynamicArray<WString>& out_values)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
   if (!dict.TryGetValue(sKey, pValue) || !pValue->IsValid())
     return false;
 
-  if (pValue->IsA<ezString>())
+  if (pValue->IsA<WString>())
   {
-    out_values.PushBack(pValue->Get<ezString>());
+    out_values.PushBack(pValue->Get<WString>());
     return true;
   }
 
-  if (!pValue->IsA<ezVariantArray>())
+  if (!pValue->IsA<WVariantArray>())
     return false;
 
-  for (const ezVariant& element : pValue->Get<ezVariantArray>())
+  for (const WVariant& element : pValue->Get<WVariantArray>())
   {
-    if (element.CanConvertTo<ezString>())
-      out_values.PushBack(element.ConvertTo<ezString>());
+    if (element.CanConvertTo<WString>())
+      out_values.PushBack(element.ConvertTo<WString>());
   }
 
   return true;
 }
 
-const ezVariantDictionary* ezMcpJson::GetDict(const ezVariantDictionary& dict, ezStringView sKey)
+const WVariantDictionary* WMcpJson::GetDict(const WVariantDictionary& dict, WStringView sKey)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
-  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<ezVariantDictionary>())
+  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<WVariantDictionary>())
   {
-    return &pValue->Get<ezVariantDictionary>();
+    return &pValue->Get<WVariantDictionary>();
   }
 
   return nullptr;
 }
 
-const ezVariantArray* ezMcpJson::GetArray(const ezVariantDictionary& dict, ezStringView sKey)
+const WVariantArray* WMcpJson::GetArray(const WVariantDictionary& dict, WStringView sKey)
 {
-  const ezVariant* pValue = nullptr;
+  const WVariant* pValue = nullptr;
 
-  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<ezVariantArray>())
+  if (dict.TryGetValue(sKey, pValue) && pValue->IsA<WVariantArray>())
   {
-    return &pValue->Get<ezVariantArray>();
+    return &pValue->Get<WVariantArray>();
   }
 
   return nullptr;

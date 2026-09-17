@@ -3,7 +3,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Tracks/Curve1D.h>
 
-ezCurve1D::ControlPoint::ControlPoint()
+WCurve1D::ControlPoint::ControlPoint()
 {
   m_Position.SetZero();
   m_LeftTangent.SetZero();
@@ -11,12 +11,12 @@ ezCurve1D::ControlPoint::ControlPoint()
   m_uiOriginalIndex = 0;
 }
 
-ezCurve1D::ezCurve1D()
+WCurve1D::WCurve1D()
 {
   Clear();
 }
 
-void ezCurve1D::Clear()
+void WCurve1D::Clear()
 {
   m_fMinX = 0;
   m_fMaxX = 0;
@@ -26,15 +26,15 @@ void ezCurve1D::Clear()
   m_ControlPoints.Clear();
 }
 
-bool ezCurve1D::IsEmpty() const
+bool WCurve1D::IsEmpty() const
 {
   return m_ControlPoints.IsEmpty();
 }
 
-ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(double x)
+WCurve1D::ControlPoint& WCurve1D::AddControlPoint(double x)
 {
   auto& cp = m_ControlPoints.ExpandAndGetRef();
-  cp.m_uiOriginalIndex = static_cast<ezUInt16>(m_ControlPoints.GetCount() - 1);
+  cp.m_uiOriginalIndex = static_cast<WUInt16>(m_ControlPoints.GetCount() - 1);
   cp.m_Position.x = x;
   cp.m_Position.y = 0;
   cp.m_LeftTangent.x = -0.1f;
@@ -45,39 +45,39 @@ ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(double x)
   return cp;
 }
 
-void ezCurve1D::QueryExtents(double& ref_fMinx, double& ref_fMaxx) const
+void WCurve1D::QueryExtents(double& ref_fMinx, double& ref_fMaxx) const
 {
   ref_fMinx = m_fMinX;
   ref_fMaxx = m_fMaxX;
 }
 
-void ezCurve1D::QueryExtremeValues(double& ref_fMinVal, double& ref_fMaxVal) const
+void WCurve1D::QueryExtremeValues(double& ref_fMinVal, double& ref_fMaxVal) const
 {
   ref_fMinVal = m_fMinY;
   ref_fMaxVal = m_fMaxY;
 }
 
-ezUInt32 ezCurve1D::GetNumControlPoints() const
+WUInt32 WCurve1D::GetNumControlPoints() const
 {
   return m_ControlPoints.GetCount();
 }
 
-void ezCurve1D::SortControlPoints()
+void WCurve1D::SortControlPoints()
 {
   m_ControlPoints.Sort();
 
   RecomputeExtents();
 }
 
-ezInt32 ezCurve1D::FindApproxControlPoint(double x) const
+WInt32 WCurve1D::FindApproxControlPoint(double x) const
 {
-  ezUInt32 uiLowIdx = 0;
-  ezUInt32 uiHighIdx = m_LinearApproximation.GetCount();
+  WUInt32 uiLowIdx = 0;
+  WUInt32 uiHighIdx = m_LinearApproximation.GetCount();
 
   // do a binary search to reduce the search space
   while (uiHighIdx - uiLowIdx > 8)
   {
-    const ezUInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
+    const WUInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
 
     if (m_LinearApproximation[uiMidIdx].x >= x)
       uiHighIdx = uiMidIdx;
@@ -86,34 +86,34 @@ ezInt32 ezCurve1D::FindApproxControlPoint(double x) const
   }
 
   // now do a linear search to find the final item
-  for (ezUInt32 idx = uiLowIdx; idx < uiHighIdx; ++idx)
+  for (WUInt32 idx = uiLowIdx; idx < uiHighIdx; ++idx)
   {
     if (m_LinearApproximation[idx].x >= x)
     {
       // when m_LinearApproximation[0].x >= x, we want to return -1
-      return ((ezInt32)idx) - 1;
+      return ((WInt32)idx) - 1;
     }
   }
 
   // return last index
-  return (ezInt32)uiHighIdx - 1;
+  return (WInt32)uiHighIdx - 1;
 }
 
-double ezCurve1D::Evaluate(double x) const
+double WCurve1D::Evaluate(double x) const
 {
-  EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
+  W_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
 
   if (m_LinearApproximation.GetCount() >= 2)
   {
-    const ezUInt32 numCPs = m_LinearApproximation.GetCount();
-    const ezInt32 iControlPoint = FindApproxControlPoint(x);
+    const WUInt32 numCPs = m_LinearApproximation.GetCount();
+    const WInt32 iControlPoint = FindApproxControlPoint(x);
 
     if (iControlPoint < 0)
     {
       // clamp to left value
       return m_LinearApproximation[0].y;
     }
-    else if (ezUInt32(iControlPoint) == numCPs - 1)
+    else if (WUInt32(iControlPoint) == numCPs - 1)
     {
       // clamp to right value
       return m_LinearApproximation[numCPs - 1].y;
@@ -132,7 +132,7 @@ double ezCurve1D::Evaluate(double x) const
       else
         lerpX /= len; // TODO remove division ?
 
-      return ezMath::Lerp(v1, v2, lerpX);
+      return WMath::Lerp(v1, v2, lerpX);
     }
   }
   else if (m_LinearApproximation.GetCount() == 1)
@@ -143,16 +143,16 @@ double ezCurve1D::Evaluate(double x) const
   return 0;
 }
 
-double ezCurve1D::ConvertNormalizedPos(double fPos) const
+double WCurve1D::ConvertNormalizedPos(double fPos) const
 {
   double fMin, fMax;
   QueryExtents(fMin, fMax);
 
-  return ezMath::Lerp(fMin, fMax, fPos);
+  return WMath::Lerp(fMin, fMax, fPos);
 }
 
 
-double ezCurve1D::NormalizeValue(double value) const
+double WCurve1D::NormalizeValue(double value) const
 {
   double fMin, fMax;
   QueryExtremeValues(fMin, fMax);
@@ -163,18 +163,18 @@ double ezCurve1D::NormalizeValue(double value) const
   return (value - fMin) / (fMax - fMin);
 }
 
-ezUInt64 ezCurve1D::GetHeapMemoryUsage() const
+WUInt64 WCurve1D::GetHeapMemoryUsage() const
 {
   return m_ControlPoints.GetHeapMemoryUsage();
 }
 
-void ezCurve1D::Save(ezStreamWriter& inout_stream) const
+void WCurve1D::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 4;
+  const WUInt8 uiVersion = 4;
 
   inout_stream << uiVersion;
 
-  const ezUInt32 numCp = m_ControlPoints.GetCount();
+  const WUInt32 numCp = m_ControlPoints.GetCount();
 
   inout_stream << numCp;
 
@@ -188,14 +188,14 @@ void ezCurve1D::Save(ezStreamWriter& inout_stream) const
   }
 }
 
-void ezCurve1D::Load(ezStreamReader& inout_stream)
+void WCurve1D::Load(WStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 4, "Incorrect version '{0}' for ezCurve1D", uiVersion);
+  W_ASSERT_DEV(uiVersion <= 4, "Incorrect version '{0}' for WCurve1D", uiVersion);
 
-  ezUInt32 numCp = 0;
+  WUInt32 numCp = 0;
 
   inout_stream >> numCp;
 
@@ -205,7 +205,7 @@ void ezCurve1D::Load(ezStreamReader& inout_stream)
   {
     for (auto& cp : m_ControlPoints)
     {
-      ezVec2 pos;
+      WVec2 pos;
       inout_stream >> pos;
       cp.m_Position.Set(pos.x, pos.y);
 
@@ -233,7 +233,7 @@ void ezCurve1D::Load(ezStreamReader& inout_stream)
   }
 }
 
-void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 uiMaxSubDivs /*= 8*/)
+void WCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, WUInt8 uiMaxSubDivs /*= 8*/)
 {
   m_LinearApproximation.Clear();
 
@@ -244,18 +244,18 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
 
   if (m_ControlPoints.IsEmpty())
   {
-    m_LinearApproximation.PushBack(ezVec2d::MakeZero());
+    m_LinearApproximation.PushBack(WVec2d::MakeZero());
     return;
   }
 
-  for (ezUInt32 i = 1; i < m_ControlPoints.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_ControlPoints.GetCount(); ++i)
   {
-    EZ_ASSERT_DEBUG(m_ControlPoints[i - 1].m_Position.x <= m_ControlPoints[i].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
+    W_ASSERT_DEBUG(m_ControlPoints[i - 1].m_Position.x <= m_ControlPoints[i].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
 
     double fMinY, fMaxY;
     ApproximateMinMaxValues(m_ControlPoints[i - 1], m_ControlPoints[i], fMinY, fMaxY);
 
-    const double rangeY = ezMath::Max(0.1, fMaxY - fMinY);
+    const double rangeY = WMath::Max(0.1, fMaxY - fMinY);
     const double fMaxErrorY = fMaxError * rangeY;
     const double fMaxErrorX = (m_ControlPoints[i].m_Position.x - m_ControlPoints[i - 1].m_Position.x) * fMaxError;
 
@@ -263,8 +263,8 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
     m_LinearApproximation.PushBack(m_ControlPoints[i - 1].m_Position);
 
     ApproximateCurve(m_ControlPoints[i - 1].m_Position,
-      m_ControlPoints[i - 1].m_Position + ezVec2d(m_ControlPoints[i - 1].m_RightTangent.x, m_ControlPoints[i - 1].m_RightTangent.y),
-      m_ControlPoints[i].m_Position + ezVec2d(m_ControlPoints[i].m_LeftTangent.x, m_ControlPoints[i].m_LeftTangent.y), m_ControlPoints[i].m_Position,
+      m_ControlPoints[i - 1].m_Position + WVec2d(m_ControlPoints[i - 1].m_RightTangent.x, m_ControlPoints[i - 1].m_RightTangent.y),
+      m_ControlPoints[i].m_Position + WVec2d(m_ControlPoints[i].m_LeftTangent.x, m_ControlPoints[i].m_LeftTangent.y), m_ControlPoints[i].m_Position,
       fMaxErrorX, fMaxErrorY, uiMaxSubDivs);
   }
 
@@ -273,56 +273,56 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
   RecomputeLinearApproxExtremes();
 }
 
-void ezCurve1D::RecomputeExtents()
+void WCurve1D::RecomputeExtents()
 {
-  m_fMinX = ezMath::MaxValue<float>();
-  m_fMaxX = -ezMath::MaxValue<float>();
+  m_fMinX = WMath::MaxValue<float>();
+  m_fMaxX = -WMath::MaxValue<float>();
 
   for (const auto& cp : m_ControlPoints)
   {
-    m_fMinX = ezMath::Min(m_fMinX, cp.m_Position.x);
-    m_fMaxX = ezMath::Max(m_fMaxX, cp.m_Position.x);
+    m_fMinX = WMath::Min(m_fMinX, cp.m_Position.x);
+    m_fMaxX = WMath::Max(m_fMaxX, cp.m_Position.x);
 
     // ignore X values that could go outside the control point range due to Bezier curve interpolation
     // we just assume the curve is always restricted along X by the CPs
 
-    // m_fMinX = ezMath::Min(m_fMinX, cp.m_Position.x + cp.m_LeftTangent.x);
-    // m_fMaxX = ezMath::Max(m_fMaxX, cp.m_Position.x + cp.m_LeftTangent.x);
+    // m_fMinX = WMath::Min(m_fMinX, cp.m_Position.x + cp.m_LeftTangent.x);
+    // m_fMaxX = WMath::Max(m_fMaxX, cp.m_Position.x + cp.m_LeftTangent.x);
 
-    // m_fMinX = ezMath::Min(m_fMinX, cp.m_Position.x + cp.m_RightTangent.x);
-    // m_fMaxX = ezMath::Max(m_fMaxX, cp.m_Position.x + cp.m_RightTangent.x);
+    // m_fMinX = WMath::Min(m_fMinX, cp.m_Position.x + cp.m_RightTangent.x);
+    // m_fMaxX = WMath::Max(m_fMaxX, cp.m_Position.x + cp.m_RightTangent.x);
   }
 }
 
 
-void ezCurve1D::RecomputeLinearApproxExtremes()
+void WCurve1D::RecomputeLinearApproxExtremes()
 {
-  m_fMinY = ezMath::MaxValue<float>();
-  m_fMaxY = -ezMath::MaxValue<float>();
+  m_fMinY = WMath::MaxValue<float>();
+  m_fMaxY = -WMath::MaxValue<float>();
 
   for (const auto& cp : m_LinearApproximation)
   {
-    m_fMinY = ezMath::Min(m_fMinY, cp.y);
-    m_fMaxY = ezMath::Max(m_fMaxY, cp.y);
+    m_fMinY = WMath::Min(m_fMinY, cp.y);
+    m_fMaxY = WMath::Max(m_fMaxY, cp.y);
   }
 }
 
-void ezCurve1D::ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY)
+void WCurve1D::ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY)
 {
-  fMinY = ezMath::Min(lhs.m_Position.y, rhs.m_Position.y);
-  fMaxY = ezMath::Max(lhs.m_Position.y, rhs.m_Position.y);
+  fMinY = WMath::Min(lhs.m_Position.y, rhs.m_Position.y);
+  fMaxY = WMath::Max(lhs.m_Position.y, rhs.m_Position.y);
 
-  fMinY = ezMath::Min(fMinY, lhs.m_Position.y + lhs.m_RightTangent.y);
-  fMaxY = ezMath::Max(fMaxY, lhs.m_Position.y + lhs.m_RightTangent.y);
+  fMinY = WMath::Min(fMinY, lhs.m_Position.y + lhs.m_RightTangent.y);
+  fMaxY = WMath::Max(fMaxY, lhs.m_Position.y + lhs.m_RightTangent.y);
 
-  fMinY = ezMath::Min(fMinY, rhs.m_Position.y + rhs.m_LeftTangent.y);
-  fMaxY = ezMath::Max(fMaxY, rhs.m_Position.y + rhs.m_LeftTangent.y);
+  fMinY = WMath::Min(fMinY, rhs.m_Position.y + rhs.m_LeftTangent.y);
+  fMaxY = WMath::Max(fMaxY, rhs.m_Position.y + rhs.m_LeftTangent.y);
 }
 
-void ezCurve1D::ApproximateCurve(
-  const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
+void WCurve1D::ApproximateCurve(
+  const WVec2d& p0, const WVec2d& p1, const WVec2d& p2, const WVec2d& p3, double fMaxErrorX, double fMaxErrorY, WInt32 iSubDivLeft)
 {
-  const ezVec2d cubicCenter = ezMath::EvaluateBezierCurve(0.5, p0, p1, p2, p3);
+  const WVec2d cubicCenter = WMath::EvaluateBezierCurve(0.5, p0, p1, p2, p3);
 
   ApproximateCurvePiece(p0, p1, p2, p3, 0.0f, p0, 0.5, cubicCenter, fMaxErrorX, fMaxErrorY, iSubDivLeft);
 
@@ -333,23 +333,23 @@ void ezCurve1D::ApproximateCurve(
   ApproximateCurvePiece(p0, p1, p2, p3, 0.5, cubicCenter, 1.0, p3, fMaxErrorX, fMaxErrorY, iSubDivLeft);
 }
 
-void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft,
-  double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
+void WCurve1D::ApproximateCurvePiece(const WVec2d& p0, const WVec2d& p1, const WVec2d& p2, const WVec2d& p3, double tLeft, const WVec2d& pLeft,
+  double tRight, const WVec2d& pRight, double fMaxErrorX, double fMaxErrorY, WInt32 iSubDivLeft)
 {
   // this is a safe guard
   if (iSubDivLeft <= 0)
     return;
 
-  const double tCenter = ezMath::Lerp(tLeft, tRight, 0.5);
+  const double tCenter = WMath::Lerp(tLeft, tRight, 0.5);
 
-  const ezVec2d cubicCenter = ezMath::EvaluateBezierCurve(tCenter, p0, p1, p2, p3);
-  const ezVec2d linearCenter = ezMath::Lerp(pLeft, pRight, 0.5);
+  const WVec2d cubicCenter = WMath::EvaluateBezierCurve(tCenter, p0, p1, p2, p3);
+  const WVec2d linearCenter = WMath::Lerp(pLeft, pRight, 0.5);
 
   // check whether the linear interpolation between pLeft and pRight would already result in a good enough approximation
   // if not, subdivide the curve further
 
-  const double fThisErrorX = ezMath::Abs(cubicCenter.x - linearCenter.x);
-  const double fThisErrorY = ezMath::Abs(cubicCenter.y - linearCenter.y);
+  const double fThisErrorX = WMath::Abs(cubicCenter.x - linearCenter.x);
+  const double fThisErrorY = WMath::Abs(cubicCenter.y - linearCenter.y);
 
   if (fThisErrorX < fMaxErrorX && fThisErrorY < fMaxErrorY)
     return;
@@ -361,25 +361,25 @@ void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, cons
   ApproximateCurvePiece(p0, p1, p2, p3, tCenter, cubicCenter, tRight, pRight, fMaxErrorX, fMaxErrorY, iSubDivLeft - 1);
 }
 
-void ezCurve1D::ClampTangents()
+void WCurve1D::ClampTangents()
 {
   if (m_ControlPoints.GetCount() < 2)
     return;
 
-  for (ezUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
+  for (WUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
   {
     auto& tCP = m_ControlPoints[i];
     const auto& pCP = m_ControlPoints[i - 1];
     const auto& nCP = m_ControlPoints[i + 1];
 
-    ezVec2d lpt = tCP.m_Position + ezVec2d(tCP.m_LeftTangent.x, tCP.m_LeftTangent.y);
-    ezVec2d rpt = tCP.m_Position + ezVec2d(tCP.m_RightTangent.x, tCP.m_RightTangent.y);
+    WVec2d lpt = tCP.m_Position + WVec2d(tCP.m_LeftTangent.x, tCP.m_LeftTangent.y);
+    WVec2d rpt = tCP.m_Position + WVec2d(tCP.m_RightTangent.x, tCP.m_RightTangent.y);
 
-    lpt.x = ezMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
-    rpt.x = ezMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
+    lpt.x = WMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
+    rpt.x = WMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
 
-    const ezVec2d tangentL = lpt - tCP.m_Position;
-    const ezVec2d tangentR = rpt - tCP.m_Position;
+    const WVec2d tangentL = lpt - tCP.m_Position;
+    const WVec2d tangentR = rpt - tCP.m_Position;
 
     tCP.m_LeftTangent.Set((float)tangentL.x, (float)tangentL.y);
     tCP.m_RightTangent.Set((float)tangentR.x, (float)tangentR.y);
@@ -390,10 +390,10 @@ void ezCurve1D::ClampTangents()
     auto& tCP = m_ControlPoints[0];
     const auto& nCP = m_ControlPoints[1];
 
-    ezVec2d rpt = tCP.m_Position + ezVec2d(tCP.m_RightTangent.x, tCP.m_RightTangent.y);
-    rpt.x = ezMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
+    WVec2d rpt = tCP.m_Position + WVec2d(tCP.m_RightTangent.x, tCP.m_RightTangent.y);
+    rpt.x = WMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
 
-    const ezVec2d tangentR = rpt - tCP.m_Position;
+    const WVec2d tangentR = rpt - tCP.m_Position;
     tCP.m_RightTangent.Set((float)tangentR.x, (float)tangentR.y);
   }
 
@@ -402,69 +402,69 @@ void ezCurve1D::ClampTangents()
     auto& tCP = m_ControlPoints[m_ControlPoints.GetCount() - 1];
     const auto& pCP = m_ControlPoints[m_ControlPoints.GetCount() - 2];
 
-    ezVec2d lpt = tCP.m_Position + ezVec2d(tCP.m_LeftTangent.x, tCP.m_LeftTangent.y);
-    lpt.x = ezMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
+    WVec2d lpt = tCP.m_Position + WVec2d(tCP.m_LeftTangent.x, tCP.m_LeftTangent.y);
+    lpt.x = WMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
 
-    const ezVec2d tangentL = lpt - tCP.m_Position;
+    const WVec2d tangentL = lpt - tCP.m_Position;
     tCP.m_LeftTangent.Set((float)tangentL.x, (float)tangentL.y);
   }
 }
 
-void ezCurve1D::ApplyTangentModes()
+void WCurve1D::ApplyTangentModes()
 {
   if (m_ControlPoints.GetCount() < 2)
     return;
 
-  for (ezUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
+  for (WUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
   {
     const auto& cp = m_ControlPoints[i];
 
-    EZ_ASSERT_DEBUG(cp.m_Position.x >= m_ControlPoints[i - 1].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
-    EZ_ASSERT_DEBUG(m_ControlPoints[i + 1].m_Position.x >= cp.m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
+    W_ASSERT_DEBUG(cp.m_Position.x >= m_ControlPoints[i - 1].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
+    W_ASSERT_DEBUG(m_ControlPoints[i + 1].m_Position.x >= cp.m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
 
-    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeLeft == WCurveTangentMode::FixedLength)
       MakeFixedLengthTangentLeft(i);
-    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeLeft == WCurveTangentMode::Linear)
       MakeLinearTangentLeft(i);
-    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Auto)
+    else if (cp.m_TangentModeLeft == WCurveTangentMode::Auto)
       MakeAutoTangentLeft(i);
 
-    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeRight == WCurveTangentMode::FixedLength)
       MakeFixedLengthTangentRight(i);
-    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeRight == WCurveTangentMode::Linear)
       MakeLinearTangentRight(i);
-    else if (cp.m_TangentModeRight == ezCurveTangentMode::Auto)
+    else if (cp.m_TangentModeRight == WCurveTangentMode::Auto)
       MakeAutoTangentRight(i);
   }
 
   // first CP
   {
-    const ezUInt32 i = 0;
+    const WUInt32 i = 0;
     const auto& cp = m_ControlPoints[i];
 
-    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeRight == WCurveTangentMode::FixedLength)
       MakeFixedLengthTangentRight(i);
-    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeRight == WCurveTangentMode::Linear)
       MakeLinearTangentRight(i);
-    else if (cp.m_TangentModeRight == ezCurveTangentMode::Auto)
+    else if (cp.m_TangentModeRight == WCurveTangentMode::Auto)
       MakeLinearTangentRight(i); // note: first point will always be linear in auto mode
   }
 
   // last CP
   {
-    const ezUInt32 i = m_ControlPoints.GetCount() - 1;
+    const WUInt32 i = m_ControlPoints.GetCount() - 1;
     const auto& cp = m_ControlPoints[i];
 
-    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeLeft == WCurveTangentMode::FixedLength)
       MakeFixedLengthTangentLeft(i);
-    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeLeft == WCurveTangentMode::Linear)
       MakeLinearTangentLeft(i);
-    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Auto)
+    else if (cp.m_TangentModeLeft == WCurveTangentMode::Auto)
       MakeLinearTangentLeft(i); // note: last point will always be linear in auto mode
   }
 }
 
-void ezCurve1D::MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx)
+void WCurve1D::MakeFixedLengthTangentLeft(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& pCP = m_ControlPoints[uiCpIdx - 1];
@@ -477,7 +477,7 @@ void ezCurve1D::MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx)
   }
   else
   {
-    const double tLen = ezMath::Min((double)tCP.m_LeftTangent.x, -0.001);
+    const double tLen = WMath::Min((double)tCP.m_LeftTangent.x, -0.001);
 
     const double fNormL = lengthL / tLen;
     tCP.m_LeftTangent.x = (float)lengthL;
@@ -485,7 +485,7 @@ void ezCurve1D::MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx)
   }
 }
 
-void ezCurve1D::MakeFixedLengthTangentRight(ezUInt32 uiCpIdx)
+void WCurve1D::MakeFixedLengthTangentRight(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& nCP = m_ControlPoints[uiCpIdx + 1];
@@ -498,7 +498,7 @@ void ezCurve1D::MakeFixedLengthTangentRight(ezUInt32 uiCpIdx)
   }
   else
   {
-    const double tLen = ezMath::Max((double)tCP.m_RightTangent.x, 0.001);
+    const double tLen = WMath::Max((double)tCP.m_RightTangent.x, 0.001);
 
     const double fNormR = lengthR / tLen;
     tCP.m_RightTangent.x = (float)lengthR;
@@ -506,25 +506,25 @@ void ezCurve1D::MakeFixedLengthTangentRight(ezUInt32 uiCpIdx)
   }
 }
 
-void ezCurve1D::MakeLinearTangentLeft(ezUInt32 uiCpIdx)
+void WCurve1D::MakeLinearTangentLeft(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& pCP = m_ControlPoints[uiCpIdx - 1];
 
-  const ezVec2d tangent = (pCP.m_Position - tCP.m_Position) * 0.3333333333;
+  const WVec2d tangent = (pCP.m_Position - tCP.m_Position) * 0.3333333333;
   tCP.m_LeftTangent.Set((float)tangent.x, (float)tangent.y);
 }
 
-void ezCurve1D::MakeLinearTangentRight(ezUInt32 uiCpIdx)
+void WCurve1D::MakeLinearTangentRight(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& nCP = m_ControlPoints[uiCpIdx + 1];
 
-  const ezVec2d tangent = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
+  const WVec2d tangent = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
 
-void ezCurve1D::MakeAutoTangentLeft(ezUInt32 uiCpIdx)
+void WCurve1D::MakeAutoTangentLeft(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& pCP = m_ControlPoints[uiCpIdx - 1];
@@ -536,15 +536,15 @@ void ezCurve1D::MakeAutoTangentLeft(ezUInt32 uiCpIdx)
 
   const double fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / len;
 
-  const ezVec2d dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333;
-  const ezVec2d dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
+  const WVec2d dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333;
+  const WVec2d dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
 
-  const ezVec2d tangent = ezMath::Lerp(dirP, dirN, fLerpFactor);
+  const WVec2d tangent = WMath::Lerp(dirP, dirN, fLerpFactor);
 
   tCP.m_LeftTangent.Set(-(float)tangent.x, -(float)tangent.y);
 }
 
-void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
+void WCurve1D::MakeAutoTangentRight(WUInt32 uiCpIdx)
 {
   auto& tCP = m_ControlPoints[uiCpIdx];
   const auto& pCP = m_ControlPoints[uiCpIdx - 1];
@@ -556,31 +556,31 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 
   const double fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / len;
 
-  const ezVec2d dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333;
-  const ezVec2d dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
+  const WVec2d dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333;
+  const WVec2d dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333;
 
-  const ezVec2d tangent = ezMath::Lerp(dirP, dirN, fLerpFactor);
+  const WVec2d tangent = WMath::Lerp(dirP, dirN, fLerpFactor);
 
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
 
-ezResult ezCurve1D::GenerateSampledCurve(ezUInt32 uiNumSamples, ezSampledCurve1D& out_sampledCurve)
+WResult WCurve1D::GenerateSampledCurve(WUInt32 uiNumSamples, WSampledCurve1D& out_sampledCurve)
 {
   if (uiNumSamples < 2)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   SortControlPoints();
   CreateLinearApproximation();
 
   double fMinX, fMaxX;
   QueryExtents(fMinX, fMaxX);
-  fMinX = ezMath::Min(fMinX, 0.0);
-  fMaxX = ezMath::Max(fMaxX, 1.0);
+  fMinX = WMath::Min(fMinX, 0.0);
+  fMaxX = WMath::Max(fMaxX, 1.0);
   const float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(uiNumSamples - 1);
 
-  ezDynamicArray<float> samples;
+  WDynamicArray<float> samples;
   samples.SetCount(uiNumSamples);
-  for (ezUInt32 i = 0; i < uiNumSamples; ++i)
+  for (WUInt32 i = 0; i < uiNumSamples; ++i)
   {
     float x = static_cast<float>(fMinX + fStep * i);
     samples[i] = static_cast<float>(Evaluate(x));
@@ -589,34 +589,34 @@ ezResult ezCurve1D::GenerateSampledCurve(ezUInt32 uiNumSamples, ezSampledCurve1D
   out_sampledCurve.m_Samples = std::move(samples);
   out_sampledCurve.m_fMinX = static_cast<float>(fMinX);
   out_sampledCurve.m_fMaxX = static_cast<float>(fMaxX);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampledCurve1D, 1, ezRTTIDefaultAllocator<ezSampledCurve1D>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSampledCurve1D, 1, WRTTIDefaultAllocator<WSampledCurve1D>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-bool ezSampledCurve1D::operator==(const ezSampledCurve1D& rhs) const
+bool WSampledCurve1D::operator==(const WSampledCurve1D& rhs) const
 {
   return m_fMinX == rhs.m_fMinX && m_fMaxX == rhs.m_fMaxX && m_Samples == rhs.m_Samples;
 }
 
-void ezSampledCurve1D::Save(ezStreamWriter& inout_stream) const
+void WSampledCurve1D::Save(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteArray(m_Samples).IgnoreResult();
   inout_stream << m_fMinX;
   inout_stream << m_fMaxX;
 }
 
-ezResult ezSampledCurve1D::Load(ezStreamReader& inout_stream)
+WResult WSampledCurve1D::Load(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Samples));
+  W_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Samples));
   inout_stream >> m_fMinX;
   inout_stream >> m_fMaxX;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);
+W_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);

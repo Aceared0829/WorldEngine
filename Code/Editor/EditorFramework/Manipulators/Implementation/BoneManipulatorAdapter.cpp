@@ -6,21 +6,21 @@
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezString ezBoneManipulatorAdapter::s_sLastSelectedBone;
+WString WBoneManipulatorAdapter::s_sLastSelectedBone;
 
-ezBoneManipulatorAdapter::ezBoneManipulatorAdapter() = default;
-ezBoneManipulatorAdapter::~ezBoneManipulatorAdapter() = default;
+WBoneManipulatorAdapter::WBoneManipulatorAdapter() = default;
+WBoneManipulatorAdapter::~WBoneManipulatorAdapter() = default;
 
-void ezBoneManipulatorAdapter::Finalize()
+void WBoneManipulatorAdapter::Finalize()
 {
   RetrieveBones();
   ConfigureGizmos();
   MigrateSelection();
 }
 
-void ezBoneManipulatorAdapter::MigrateSelection()
+void WBoneManipulatorAdapter::MigrateSelection()
 {
-  for (ezUInt32 i = 0; i < m_Bones.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Bones.GetCount(); ++i)
   {
     if (m_Bones[i].m_sName == s_sLastSelectedBone)
     {
@@ -33,17 +33,17 @@ void ezBoneManipulatorAdapter::MigrateSelection()
   // keep the last selection, even if it can't be migrated, until something else gets selected
 }
 
-void ezBoneManipulatorAdapter::Update()
+void WBoneManipulatorAdapter::Update()
 {
   RetrieveBones();
   UpdateGizmoTransform();
 }
 
-void ezBoneManipulatorAdapter::RotateGizmoEventHandler(const ezGizmoEvent& e)
+void WBoneManipulatorAdapter::RotateGizmoEventHandler(const WGizmoEvent& e)
 {
-  ezUInt32 uiGizmo = ezInvalidIndex;
+  WUInt32 uiGizmo = WInvalidIndex;
 
-  for (ezUInt32 gIdx = 0; gIdx < m_Gizmos.GetCount(); ++gIdx)
+  for (WUInt32 gIdx = 0; gIdx < m_Gizmos.GetCount(); ++gIdx)
   {
     if (&m_Gizmos[gIdx].m_RotateGizmo == e.m_pGizmo)
     {
@@ -52,51 +52,51 @@ void ezBoneManipulatorAdapter::RotateGizmoEventHandler(const ezGizmoEvent& e)
     }
   }
 
-  EZ_ASSERT_DEBUG(uiGizmo != ezInvalidIndex, "Gizmo event from unknown gizmo.");
-  if (uiGizmo == ezInvalidIndex)
+  W_ASSERT_DEBUG(uiGizmo != WInvalidIndex, "Gizmo event from unknown gizmo.");
+  if (uiGizmo == WInvalidIndex)
     return;
 
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      ezTransform globalGizmo = static_cast<const ezGizmo*>(e.m_pGizmo)->GetTransformation();
+      WTransform globalGizmo = static_cast<const WGizmo*>(e.m_pGizmo)->GetTransformation();
       globalGizmo.m_vScale.Set(1);
 
-      ezMat4 mGizmo = globalGizmo.GetAsMat4();
+      WMat4 mGizmo = globalGizmo.GetAsMat4();
       mGizmo = GetObjectTransform().GetAsMat4().GetInverse() * mGizmo;
 
       mGizmo = m_RootTransform.GetAsMat4().GetInverse() * mGizmo;
 
       mGizmo = m_Gizmos[uiGizmo].m_InverseOffset * mGizmo;
 
-      ezQuat rotOnly;
+      WQuat rotOnly;
       rotOnly.ReconstructFromMat4(mGizmo);
 
-      SetTransform(uiGizmo, ezTransform(mGizmo.GetTranslationVector(), rotOnly));
+      SetTransform(uiGizmo, WTransform(mGizmo.GetTranslationVector(), rotOnly));
     }
     break;
   }
 }
 
-void ezBoneManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
+void WBoneManipulatorAdapter::ClickGizmoEventHandler(const WGizmoEvent& e)
 {
-  ezUInt32 uiGizmo = ezInvalidIndex;
+  WUInt32 uiGizmo = WInvalidIndex;
   s_sLastSelectedBone.Clear();
 
-  for (ezUInt32 gIdx = 0; gIdx < m_Gizmos.GetCount(); ++gIdx)
+  for (WUInt32 gIdx = 0; gIdx < m_Gizmos.GetCount(); ++gIdx)
   {
     if (&m_Gizmos[gIdx].m_ClickGizmo == e.m_pGizmo)
     {
@@ -106,15 +106,15 @@ void ezBoneManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
     }
   }
 
-  EZ_ASSERT_DEBUG(uiGizmo != ezInvalidIndex, "Gizmo event from unknown gizmo.");
-  if (uiGizmo == ezInvalidIndex)
+  W_ASSERT_DEBUG(uiGizmo != WInvalidIndex, "Gizmo event from unknown gizmo.");
+  if (uiGizmo == WInvalidIndex)
     return;
 
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      for (ezUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
+      for (WUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
       {
         m_Gizmos[i].m_RotateGizmo.SetVisible(false);
         m_Gizmos[i].m_ClickGizmo.SetVisible(true);
@@ -129,25 +129,25 @@ void ezBoneManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
-void ezBoneManipulatorAdapter::RetrieveBones()
+void WBoneManipulatorAdapter::RetrieveBones()
 {
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-  const ezBoneManipulatorAttribute* pAttr = static_cast<const ezBoneManipulatorAttribute*>(m_pManipulatorAttr);
+  const WBoneManipulatorAttribute* pAttr = static_cast<const WBoneManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (pAttr->GetTransformProperty().IsEmpty())
     return;
 
-  ezVariantArray values;
+  WVariantArray values;
 
-  // Exposed parameters are only stored as diffs in the component. Thus, requesting the exposed parameters only returns those that have been modified. To get all, you need to use the ezExposedParameterCommandAccessor which gives you all exposed parameters from the source asset.
+  // Exposed parameters are only stored as diffs in the component. Thus, requesting the exposed parameters only returns those that have been modified. To get all, you need to use the WExposedParameterCommandAccessor which gives you all exposed parameters from the source asset.
   auto pProperty = GetProperty(pAttr->GetTransformProperty());
-  if (const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>())
+  if (const WExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<WExposedParametersAttribute>())
   {
-    const ezAbstractProperty* pParameterSourceProp = m_pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-    EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), m_pObject->GetType()->GetTypeName());
+    const WAbstractProperty* pParameterSourceProp = m_pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+    W_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), m_pObject->GetType()->GetTypeName());
 
-    ezExposedParameterCommandAccessor proxy(pObjectAccessor, pProperty, pParameterSourceProp);
+    WExposedParameterCommandAccessor proxy(pObjectAccessor, pProperty, pParameterSourceProp);
     proxy.GetValues(m_pObject, pProperty, values).AssertSuccess();
     proxy.GetKeys(m_pObject, pProperty, m_Keys).AssertSuccess();
   }
@@ -162,11 +162,11 @@ void ezBoneManipulatorAdapter::RetrieveBones()
   m_Bones.Clear();
   m_Bones.SetCount(values.GetCount());
 
-  for (ezUInt32 i = 0; i < m_Bones.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Bones.GetCount(); ++i)
   {
-    if (values[i].GetReflectedType() == ezGetStaticRTTI<ezExposedBone>())
+    if (values[i].GetReflectedType() == WGetStaticRTTI<WExposedBone>())
     {
-      const ezExposedBone* pBone = reinterpret_cast<const ezExposedBone*>(values[i].GetData());
+      const WExposedBone* pBone = reinterpret_cast<const WExposedBone*>(values[i].GetData());
 
       if (pBone->m_sName == "<root-transform>")
       {
@@ -177,30 +177,30 @@ void ezBoneManipulatorAdapter::RetrieveBones()
     }
     else
     {
-      // EZ_REPORT_FAILURE("Property is not an ezExposedBone");
+      // W_REPORT_FAILURE("Property is not an WExposedBone");
       m_Bones.Clear();
       return;
     }
   }
 }
 
-void ezBoneManipulatorAdapter::UpdateGizmoTransform()
+void WBoneManipulatorAdapter::UpdateGizmoTransform()
 {
-  const ezMat4 ownerTransform = GetObjectTransform().GetAsMat4();
+  const WMat4 ownerTransform = GetObjectTransform().GetAsMat4();
 
-  for (ezUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
   {
     auto& gizmo = m_Gizmos[i];
 
     gizmo.m_Offset = ComputeParentTransform(i);
     gizmo.m_InverseOffset = gizmo.m_Offset.GetInverse();
 
-    ezMat4 mGizmo = ownerTransform * m_RootTransform.GetAsMat4() * gizmo.m_Offset * m_Bones[i].m_Transform.GetAsMat4();
+    WMat4 mGizmo = ownerTransform * m_RootTransform.GetAsMat4() * gizmo.m_Offset * m_Bones[i].m_Transform.GetAsMat4();
 
-    ezQuat rotOnly;
+    WQuat rotOnly;
     rotOnly.ReconstructFromMat4(mGizmo);
 
-    ezTransform tGizmo;
+    WTransform tGizmo;
     tGizmo.m_vPosition = mGizmo.GetTranslationVector();
     tGizmo.m_qRotation = rotOnly;
 
@@ -212,16 +212,16 @@ void ezBoneManipulatorAdapter::UpdateGizmoTransform()
   }
 }
 
-void ezBoneManipulatorAdapter::ConfigureGizmos()
+void WBoneManipulatorAdapter::ConfigureGizmos()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmos.SetCount(m_Bones.GetCount());
 
-  for (ezUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
   {
     auto& gizmo = m_Gizmos[i];
 
@@ -230,68 +230,68 @@ void ezBoneManipulatorAdapter::ConfigureGizmos()
     auto& rot = gizmo.m_RotateGizmo;
     rot.SetOwner(pEngineWindow, nullptr);
     rot.SetVisible(false);
-    rot.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezBoneManipulatorAdapter::RotateGizmoEventHandler, this));
+    rot.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WBoneManipulatorAdapter::RotateGizmoEventHandler, this));
 
     auto& click = gizmo.m_ClickGizmo;
     click.SetOwner(pEngineWindow, nullptr);
     click.SetVisible(true);
-    click.SetColor(ezColor::Thistle);
-    click.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezBoneManipulatorAdapter::ClickGizmoEventHandler, this));
+    click.SetColor(WColor::Thistle);
+    click.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WBoneManipulatorAdapter::ClickGizmoEventHandler, this));
   }
 
   UpdateGizmoTransform();
 }
 
-void ezBoneManipulatorAdapter::SetTransform(ezUInt32 uiBone, const ezTransform& value)
+void WBoneManipulatorAdapter::SetTransform(WUInt32 uiBone, const WTransform& value)
 {
-  ezExposedBone* pBone = &m_Bones[uiBone];
+  WExposedBone* pBone = &m_Bones[uiBone];
 
   pBone->m_Transform.m_qRotation = value.m_qRotation;
   pBone->m_Transform = value;
 
-  ezExposedBone bone;
+  WExposedBone bone;
   bone.m_sName = pBone->m_sName;
   bone.m_sParent = pBone->m_sParent;
   bone.m_Transform = value;
 
-  ezVariant var;
-  var.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
+  WVariant var;
+  var.CopyTypedObject(&bone, WGetStaticRTTI<WExposedBone>());
 
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-  const ezBoneManipulatorAttribute* pAttr = static_cast<const ezBoneManipulatorAttribute*>(m_pManipulatorAttr);
+  const WBoneManipulatorAttribute* pAttr = static_cast<const WBoneManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (pAttr->GetTransformProperty().IsEmpty())
     return;
 
   auto pProperty = GetProperty(pAttr->GetTransformProperty());
-  const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>();
+  const WExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<WExposedParametersAttribute>();
 
-  const ezAbstractProperty* pParameterSourceProp = m_pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-  EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), m_pObject->GetType()->GetTypeName());
+  const WAbstractProperty* pParameterSourceProp = m_pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+  W_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), m_pObject->GetType()->GetTypeName());
 
-  ezExposedParameterCommandAccessor proxy(pObjectAccessor, pProperty, pParameterSourceProp);
+  WExposedParameterCommandAccessor proxy(pObjectAccessor, pProperty, pParameterSourceProp);
 
-  // for some reason the first command in ezExposedParameterCommandAccessor returns failure 'the property X does not exist' and the insert
+  // for some reason the first command in WExposedParameterCommandAccessor returns failure 'the property X does not exist' and the insert
   // command than fails with 'the property X already exists' ???
 
   proxy.SetValue(m_pObject, pProperty, var, m_Keys[uiBone]).AssertSuccess();
 }
 
-ezMat4 ezBoneManipulatorAdapter::ComputeFullTransform(ezUInt32 uiBone) const
+WMat4 WBoneManipulatorAdapter::ComputeFullTransform(WUInt32 uiBone) const
 {
-  const ezMat4 tParent = ComputeParentTransform(uiBone);
+  const WMat4 tParent = ComputeParentTransform(uiBone);
 
   return tParent * m_Bones[uiBone].m_Transform.GetAsMat4();
 }
 
-ezMat4 ezBoneManipulatorAdapter::ComputeParentTransform(ezUInt32 uiBone) const
+WMat4 WBoneManipulatorAdapter::ComputeParentTransform(WUInt32 uiBone) const
 {
-  const ezString& parent = m_Bones[uiBone].m_sParent;
+  const WString& parent = m_Bones[uiBone].m_sParent;
 
   if (!parent.IsEmpty())
   {
-    for (ezUInt32 b = 0; b < m_Bones.GetCount(); ++b)
+    for (WUInt32 b = 0; b < m_Bones.GetCount(); ++b)
     {
       if (m_Bones[b].m_sName == parent)
       {
@@ -300,5 +300,5 @@ ezMat4 ezBoneManipulatorAdapter::ComputeParentTransform(ezUInt32 uiBone) const
     }
   }
 
-  return ezMat4::MakeIdentity();
+  return WMat4::MakeIdentity();
 }

@@ -5,10 +5,10 @@
 #include <KrautPlugin/KrautDeclarations.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
 /// Display names used for branch type entries in the editor UI.
-namespace ezKrautBranchTypeNames
+namespace WKrautBranchTypeNames
 {
   constexpr const char* Trunk = "Trunk";
   constexpr const char* MainBranch1 = "Main Branch 1";
@@ -20,21 +20,21 @@ namespace ezKrautBranchTypeNames
   constexpr const char* Twig1 = "Twig 1";
   constexpr const char* Twig2 = "Twig 2";
   constexpr const char* Twig3 = "Twig 3";
-} // namespace ezKrautBranchTypeNames
+} // namespace WKrautBranchTypeNames
 
 /// Maps a user-visible label to a material asset path for one slot in the tree's material list.
-struct ezKrautAssetMaterial
+struct WKrautAssetMaterial
 {
-  ezString m_sLabel;
-  ezString m_sMaterial;
+  WString m_sLabel;
+  WString m_sMaterial;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautAssetMaterial);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautAssetMaterial);
 
 /// Controls the overall growth pattern of a branch type.
-struct ezKrautBranchTypeMode
+struct WKrautBranchTypeMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -45,12 +45,12 @@ struct ezKrautBranchTypeMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautBranchTypeMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautBranchTypeMode);
 
 /// Specifies the target growth direction for a branch type, expressed as an angle from straight up.
-struct ezKrautBranchTargetDir
+struct WKrautBranchTargetDir
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -69,12 +69,12 @@ struct ezKrautBranchTargetDir
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautBranchTargetDir);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautBranchTargetDir);
 
 /// Controls the orientation of leaf geometry relative to the branch it grows from.
-struct ezKrautLeafOrientation
+struct WKrautLeafOrientation
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -86,12 +86,12 @@ struct ezKrautLeafOrientation
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautLeafOrientation);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautLeafOrientation);
 
 /// Determines how the contour curve is applied to frond geometry.
-struct ezKrautFrondContourMode
+struct WKrautFrondContourMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -104,12 +104,12 @@ struct ezKrautFrondContourMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautFrondContourMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautFrondContourMode);
 
 /// Controls whether and how a second target direction blends with the primary target direction.
-struct ezKrautBranchTargetDir2Usage
+struct WKrautBranchTargetDir2Usage
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -121,12 +121,12 @@ struct ezKrautBranchTargetDir2Usage
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautBranchTargetDir2Usage);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautBranchTargetDir2Usage);
 
 /// Selects the geometry representation used for a LOD level.
-struct ezKrautLodMode
+struct WKrautLodMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -140,12 +140,12 @@ struct ezKrautLodMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautLodMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautLodMode);
 
 /// Controls how the tapered tip of a branch segment is tessellated.
-struct ezKrautBranchSpikeTipMode
+struct WKrautBranchSpikeTipMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -157,13 +157,13 @@ struct ezKrautBranchSpikeTipMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautBranchSpikeTipMode);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautBranchSpikeTipMode);
 
 /// Authoring data for a single Kraut branch type (trunk, main branch, sub-branch, or twig).
 ///
 /// Each field group maps to a section in the Kraut tree editor's property panel.
-/// Instances of this struct are embedded in ezKrautTreeAssetProperties, one per active branch type slot.
-struct ezKrautAssetBranchType
+/// Instances of this struct are embedded in WKrautTreeAssetProperties, one per active branch type slot.
+struct WKrautAssetBranchType
 {
   // === Administrative ===
 
@@ -177,19 +177,19 @@ struct ezKrautAssetBranchType
 
   // General
 
-  ezUInt8 m_uiSegmentLengthCM = 5;
-  ezEnum<ezKrautBranchTypeMode> m_BranchTypeMode = ezKrautBranchTypeMode::Regular;
+  WUInt8 m_uiSegmentLengthCM = 5;
+  WEnum<WKrautBranchTypeMode> m_BranchTypeMode = WKrautBranchTypeMode::Regular;
   float m_fBranchlessPartABS = 0.0f;
   float m_fBranchlessPartEndABS = 0.0f;
-  ezUInt8 m_uiLowerBound = 0;
-  ezUInt8 m_uiUpperBound = 100;
-  ezUInt16 m_uiMinBranchThicknessInCM = 20;
-  ezUInt16 m_uiMaxBranchThicknessInCM = 20;
+  WUInt8 m_uiLowerBound = 0;
+  WUInt8 m_uiUpperBound = 100;
+  WUInt16 m_uiMinBranchThicknessInCM = 20;
+  WUInt16 m_uiMaxBranchThicknessInCM = 20;
 
   // Spawn Nodes
 
-  ezUInt8 m_uiMinBranches = 4;
-  ezUInt8 m_uiMaxBranches = 4;
+  WUInt8 m_uiMinBranches = 4;
+  WUInt8 m_uiMaxBranches = 4;
   float m_fNodeSpacingBefore = 0.5f;
   float m_fNodeSpacingAfter = 0.0f;
   float m_fNodeHeight = 0.0f;
@@ -199,26 +199,26 @@ struct ezKrautAssetBranchType
 
   // Start Direction
 
-  ezAngle m_MaxRotationalDeviation = {};
-  ezAngle m_BranchAngle = ezAngle::MakeFromDegree(90);
-  ezAngle m_MaxBranchAngleDeviation = ezAngle::MakeFromDegree(10);
+  WAngle m_MaxRotationalDeviation = {};
+  WAngle m_BranchAngle = WAngle::MakeFromDegree(90);
+  WAngle m_MaxBranchAngleDeviation = WAngle::MakeFromDegree(10);
 
   // Target Direction
 
-  ezEnum<ezKrautBranchTargetDir> m_TargetDirection = ezKrautBranchTargetDir::Straight;
+  WEnum<WKrautBranchTargetDir> m_TargetDirection = WKrautBranchTargetDir::Straight;
   bool m_bTargetDirRelative = false;
-  ezEnum<ezKrautBranchTargetDir2Usage> m_TargetDir2Usage = ezKrautBranchTargetDir2Usage::Off;
+  WEnum<WKrautBranchTargetDir2Usage> m_TargetDir2Usage = WKrautBranchTargetDir2Usage::Off;
   float m_fTargetDir2Usage = 2.5f;
-  ezEnum<ezKrautBranchTargetDir> m_TargetDirection2 = ezKrautBranchTargetDir::Upwards;
-  ezAngle m_MaxTargetDirDeviation = ezAngle::MakeFromDegree(20);
+  WEnum<WKrautBranchTargetDir> m_TargetDirection2 = WKrautBranchTargetDir::Upwards;
+  WAngle m_MaxTargetDirDeviation = WAngle::MakeFromDegree(20);
 
   // Growth
 
-  ezUInt16 m_uiMinBranchLengthInCM = 100;
-  ezUInt16 m_uiMaxBranchLengthInCM = 100;
-  ezSingleCurveData m_MaxBranchLengthParentScale;
-  ezAngle m_GrowMaxTargetDirDeviation = {};
-  ezAngle m_GrowMaxDirChangePerSegment = ezAngle::MakeFromDegree(5);
+  WUInt16 m_uiMinBranchLengthInCM = 100;
+  WUInt16 m_uiMaxBranchLengthInCM = 100;
+  WSingleCurveData m_MaxBranchLengthParentScale;
+  WAngle m_GrowMaxTargetDirDeviation = {};
+  WAngle m_GrowMaxDirChangePerSegment = WAngle::MakeFromDegree(5);
   bool m_bRestrictGrowthToFrondPlane = false;
 
   // Obstacles
@@ -226,7 +226,7 @@ struct ezKrautAssetBranchType
   // bool m_bActAsObstacle = false;
   // bool m_bDoPhysicalSimulation = false;
   // float m_fPhysicsLookAhead = 1.5f;
-  // ezAngle m_PhysicsEvasionAngle = ezAngle::MakeFromDegree(30);
+  // WAngle m_PhysicsEvasionAngle = WAngle::MakeFromDegree(30);
 
 
   // === Appearance ===
@@ -234,50 +234,50 @@ struct ezKrautAssetBranchType
   // Branch Mesh
 
   bool m_bEnableMesh = true;
-  ezString m_sBranchMaterial;
-  ezSingleCurveData m_BranchContour;
+  WString m_sBranchMaterial;
+  WSingleCurveData m_BranchContour;
   float m_fRoundnessFactor = 0.5f;
-  ezUInt8 m_uiFlares = 0;
+  WUInt8 m_uiFlares = 0;
   float m_fFlareWidth = 2.0f;
-  ezSingleCurveData m_FlareWidthCurve;
-  ezAngle m_FlareRotation = {};
+  WSingleCurveData m_FlareWidthCurve;
+  WAngle m_FlareRotation = {};
   bool m_bRotateTexCoords = true;
 
   // Fronds
 
   bool m_bEnableFronds = true;
-  ezString m_sFrondMaterial;
+  WString m_sFrondMaterial;
   float m_fTextureRepeat = 0.0f;
-  ezEnum<ezKrautLeafOrientation> m_FrondUpOrientation = ezKrautLeafOrientation::Upwards;
-  ezAngle m_MaxFrondOrientationDeviation = {};
-  ezUInt8 m_uiNumFronds = 1;
+  WEnum<WKrautLeafOrientation> m_FrondUpOrientation = WKrautLeafOrientation::Upwards;
+  WAngle m_MaxFrondOrientationDeviation = {};
+  WUInt8 m_uiNumFronds = 1;
   bool m_bAlignFrondsOnSurface = false;
-  ezUInt8 m_uiFrondDetail = 1;
-  ezSingleCurveData m_FrondContour;
-  ezEnum<ezKrautFrondContourMode> m_FrondContourMode = ezKrautFrondContourMode::Full;
+  WUInt8 m_uiFrondDetail = 1;
+  WSingleCurveData m_FrondContour;
+  WEnum<WKrautFrondContourMode> m_FrondContourMode = WKrautFrondContourMode::Full;
   float m_fFrondHeight = 0.5f;
-  ezSingleCurveData m_FrondHeight;
+  WSingleCurveData m_FrondHeight;
   float m_fFrondWidth = 0.5f;
-  ezSingleCurveData m_FrondWidth;
-  // ezColor m_FrondVariationColor;// currently done through the material
+  WSingleCurveData m_FrondWidth;
+  // WColor m_FrondVariationColor;// currently done through the material
 
   // Leaves
 
   bool m_bEnableLeaves = true;
-  ezString m_sLeafMaterial;
+  WString m_sLeafMaterial;
   bool m_bBillboardLeaves = true;
   float m_fLeafSize = 0.25f;
-  ezSingleCurveData m_LeafScale;
+  WSingleCurveData m_LeafScale;
   float m_fLeafInterval = 0;
-  // ezColor m_LeafVariationColor;// currently done through the material
+  // WColor m_LeafVariationColor;// currently done through the material
 
   // Shared
 
-  // ezUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
-  // ezUInt8 m_uiTextureTilingY[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
+  // WUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
+  // WUInt8 m_uiTextureTilingY[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautAssetBranchType);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautAssetBranchType);
 
 
 /// Authoring data for a single LOD level in a Kraut tree asset.
@@ -285,70 +285,70 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautAssetBranchType);
 /// Controls which geometry types are included in the LOD (via the Allow* bitfields)
 /// and how much mesh detail is generated. m_uiLodDistance sets the camera distance
 /// at which the engine switches to this LOD.
-struct ezKrautAssetLod
+struct WKrautAssetLod
 {
-  ezEnum<ezKrautLodMode> m_Mode = ezKrautLodMode::Full;
+  WEnum<WKrautLodMode> m_Mode = WKrautLodMode::Full;
   float m_fTipDetail = 0.04f;
   float m_fCurvatureThreshold = 5.0f;
   float m_fThicknessThreshold = 0.2f;
   float m_fVertexRingDetail = 0.2f;
-  ezBitflags<ezKrautTreeTypeBits> m_AllowBranch = ezKrautTreeTypeBits::Default; ///< Branch types for which branch mesh geometry is generated in this LOD.
-  ezBitflags<ezKrautTreeTypeBits> m_AllowFrond = ezKrautTreeTypeBits::Default;  ///< Branch types for which frond geometry is generated in this LOD.
-  ezBitflags<ezKrautTreeTypeBits> m_AllowLeaf = ezKrautTreeTypeBits::Default;   ///< Branch types for which leaf geometry is generated in this LOD.
-  ezInt8 m_iMaxFrondDetail = 32;
-  ezInt8 m_iFrondDetailReduction = 0;
-  ezUInt32 m_uiLodDistance = 0;                                                 ///< Camera distance in meters at which the engine transitions to this LOD.
-  ezEnum<ezKrautBranchSpikeTipMode> m_BranchSpikeTipMode = ezKrautBranchSpikeTipMode::FullDetail;
+  WBitflags<WKrautTreeTypeBits> m_AllowBranch = WKrautTreeTypeBits::Default; ///< Branch types for which branch mesh geometry is generated in this LOD.
+  WBitflags<WKrautTreeTypeBits> m_AllowFrond = WKrautTreeTypeBits::Default;  ///< Branch types for which frond geometry is generated in this LOD.
+  WBitflags<WKrautTreeTypeBits> m_AllowLeaf = WKrautTreeTypeBits::Default;   ///< Branch types for which leaf geometry is generated in this LOD.
+  WInt8 m_iMaxFrondDetail = 32;
+  WInt8 m_iFrondDetailReduction = 0;
+  WUInt32 m_uiLodDistance = 0;                                                 ///< Camera distance in meters at which the engine transitions to this LOD.
+  WEnum<WKrautBranchSpikeTipMode> m_BranchSpikeTipMode = WKrautBranchSpikeTipMode::FullDetail;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezKrautAssetLod);
+W_DECLARE_REFLECTABLE_TYPE(W_NO_LINKAGE, WKrautAssetLod);
 
 /// The editable property object for a Kraut tree asset document.
 ///
 /// Aggregates all branch type descriptors (one per active slot), up to five LOD descriptors,
 /// the material list, and global tree properties. The document serializes this object and
-/// uses it to drive ezKrautGeneratorResourceDescriptor creation at transform time.
-class ezKrautTreeAssetProperties : public ezReflectedClass
+/// uses it to drive WKrautGeneratorResourceDescriptor creation at transform time.
+class WKrautTreeAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WKrautTreeAssetProperties, WReflectedClass);
 
 public:
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezKrautTreeAssetProperties();
-  ~ezKrautTreeAssetProperties();
+  WKrautTreeAssetProperties();
+  ~WKrautTreeAssetProperties();
 
   // float m_fUniformScaling = 1.0f;
   // float m_fLodDistanceScale = 1.0f;
   float m_fStaticColliderRadius = 0.4f;
   float m_fTreeStiffness = 10.0f;
   float m_fMinAmbientOcclusion = 0.7f;
-  ezString m_sSurface;
+  WString m_sSurface;
 
-  ezHybridArray<ezKrautAssetMaterial, 8> m_Materials;
-  ezKrautAssetBranchType m_BT_Trunk1;
-  // ezKrautAssetBranchType m_BT_Trunk2;
-  // ezKrautAssetBranchType m_BT_Trunk3;
-  ezKrautAssetBranchType m_BT_MainBranch1;
-  ezKrautAssetBranchType m_BT_MainBranch2;
-  ezKrautAssetBranchType m_BT_MainBranch3;
-  ezKrautAssetBranchType m_BT_SubBranch1;
-  ezKrautAssetBranchType m_BT_SubBranch2;
-  ezKrautAssetBranchType m_BT_SubBranch3;
-  ezKrautAssetBranchType m_BT_Twig1;
-  ezKrautAssetBranchType m_BT_Twig2;
-  ezKrautAssetBranchType m_BT_Twig3;
+  WHybridArray<WKrautAssetMaterial, 8> m_Materials;
+  WKrautAssetBranchType m_BT_Trunk1;
+  // WKrautAssetBranchType m_BT_Trunk2;
+  // WKrautAssetBranchType m_BT_Trunk3;
+  WKrautAssetBranchType m_BT_MainBranch1;
+  WKrautAssetBranchType m_BT_MainBranch2;
+  WKrautAssetBranchType m_BT_MainBranch3;
+  WKrautAssetBranchType m_BT_SubBranch1;
+  WKrautAssetBranchType m_BT_SubBranch2;
+  WKrautAssetBranchType m_BT_SubBranch3;
+  WKrautAssetBranchType m_BT_Twig1;
+  WKrautAssetBranchType m_BT_Twig2;
+  WKrautAssetBranchType m_BT_Twig3;
 
-  ezKrautAssetLod m_Lod0;
-  ezKrautAssetLod m_Lod1;
-  ezKrautAssetLod m_Lod2;
-  ezKrautAssetLod m_Lod3;
-  ezKrautAssetLod m_Lod4;
+  WKrautAssetLod m_Lod0;
+  WKrautAssetLod m_Lod1;
+  WKrautAssetLod m_Lod2;
+  WKrautAssetLod m_Lod3;
+  WKrautAssetLod m_Lod4;
 
   /// Seed used to generate the tree shown in the asset editor preview.
-  ezUInt16 m_uiRandomSeedForDisplay = 0;
+  WUInt16 m_uiRandomSeedForDisplay = 0;
 
   /// List of seeds that produce good-looking results for this tree type.
-  /// ezKrautTreeComponent uses this list when a variation index is specified.
-  ezHybridArray<ezUInt16, 16> m_GoodRandomSeeds;
+  /// WKrautTreeComponent uses this list when a variation index is specified.
+  WHybridArray<WUInt16, 16> m_GoodRandomSeeds;
 };

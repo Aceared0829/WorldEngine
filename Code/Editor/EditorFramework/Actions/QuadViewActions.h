@@ -5,22 +5,22 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezQuadViewActions
+class W_EDITORFRAMEWORK_DLL WQuadViewActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hToggleViews;
-  static ezActionDescriptorHandle s_hSpawnView;
+  static WActionDescriptorHandle s_hToggleViews;
+  static WActionDescriptorHandle s_hSpawnView;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezQuadViewAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WQuadViewAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezQuadViewAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WQuadViewAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -29,10 +29,10 @@ public:
     SpawnView,
   };
 
-  ezQuadViewAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezQuadViewAction();
+  WQuadViewAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WQuadViewAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ButtonType m_ButtonType;

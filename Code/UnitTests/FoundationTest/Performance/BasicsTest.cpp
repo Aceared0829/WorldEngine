@@ -54,418 +54,418 @@
 
 */
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
+W_CREATE_SIMPLE_TEST_GROUP(Performance);
 
-struct ezMsgTest : public ezMessage
+struct WMsgTest : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgTest, WMessage);
 };
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgTest);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgTest, 1, WRTTIDefaultAllocator<WMsgTest>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-struct GetValueMessage : public ezMsgTest
+struct GetValueMessage : public WMsgTest
 {
-  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage, ezMsgTest);
+  W_DECLARE_MESSAGE_TYPE(GetValueMessage, WMsgTest);
 
-  ezInt32 m_iValue;
+  WInt32 m_iValue;
 };
-EZ_IMPLEMENT_MESSAGE_TYPE(GetValueMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetValueMessage, 1, ezRTTIDefaultAllocator<GetValueMessage>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(GetValueMessage);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(GetValueMessage, 1, WRTTIDefaultAllocator<GetValueMessage>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
 
-class Base : public ezReflectedClass
+class Base : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(Base, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(Base, WReflectedClass);
 
 public:
   virtual ~Base() = default;
 
-  virtual ezInt32 Virtual() = 0;
+  virtual WInt32 Virtual() = 0;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-#  define EZ_FASTCALL __fastcall
-#  define EZ_NO_INLINE __declspec(noinline)
+#if W_ENABLED(W_COMPILER_MSVC_PURE)
+#  define W_FASTCALL __fastcall
+#  define W_NO_INLINE __declspec(noinline)
 #else
-#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_32BIT)
-#    define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
+#  if W_ENABLED(W_PLATFORM_ARCH_X86) && W_ENABLED(W_PLATFORM_32BIT)
+#    define W_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
 #  else
-#    define EZ_FASTCALL
+#    define W_FASTCALL
 #  endif
-#  define EZ_NO_INLINE __attribute__((noinline))
+#  define W_NO_INLINE __attribute__((noinline))
 #endif
 
 class Derived1 : public Base
 {
-  EZ_ADD_DYNAMIC_REFLECTION(Derived1, Base);
+  W_ADD_DYNAMIC_REFLECTION(Derived1, Base);
 
 public:
-  EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 1; }
-  EZ_NO_INLINE ezInt32 NonVirtual() { return 1; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() override { return 1; }
-  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 1; }
+  W_NO_INLINE WInt32 W_FASTCALL FastCall() { return 1; }
+  W_NO_INLINE WInt32 NonVirtual() { return 1; }
+  W_NO_INLINE virtual WInt32 Virtual() override { return 1; }
+  W_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 1; }
 };
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
+    W_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 class Derived2 : public Base
 {
-  EZ_ADD_DYNAMIC_REFLECTION(Derived2, Base);
+  W_ADD_DYNAMIC_REFLECTION(Derived2, Base);
 
 public:
-  EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
-  EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() override { return 2; }
-  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 2; }
+  W_NO_INLINE WInt32 W_FASTCALL FastCall() { return 2; }
+  W_NO_INLINE WInt32 NonVirtual() { return 2; }
+  W_NO_INLINE virtual WInt32 Virtual() override { return 2; }
+  W_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 2; }
 };
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
+    W_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CREATE_SIMPLE_TEST(Performance, Basics)
+W_CREATE_SIMPLE_TEST(Performance, Basics)
 {
-  const ezInt32 iNumObjects = 1000000;
+  const WInt32 iNumObjects = 1000000;
   const float fNumObjects = (float)iNumObjects;
 
-  ezDynamicArray<Derived1> Der1;
+  WDynamicArray<Derived1> Der1;
   Der1.SetCount(iNumObjects / 2);
 
-  ezDynamicArray<Derived2> Der2;
+  WDynamicArray<Derived2> Der2;
   Der2.SetCount(iNumObjects / 2);
 
-  ezDynamicArray<Base*> Objects;
+  WDynamicArray<Base*> Objects;
   Objects.SetCount(iNumObjects);
 
-  for (ezInt32 i = 0; i < iNumObjects; i += 2)
+  for (WInt32 i = 0; i < iNumObjects; i += 2)
   {
     Objects[i] = &Der1[i / 2];
     Objects[i + 1] = &Der2[i / 2];
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dispatch Message")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Dispatch Message")
   {
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
     // warm up
-    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    for (WUInt32 i = 0; i < iNumObjects; ++i)
     {
       GetValueMessage msg;
       Objects[i]->GetDynamicRTTI()->DispatchMessage(Objects[i], msg);
       iResult += msg.m_iValue;
     }
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    for (WUInt32 i = 0; i < iNumObjects; ++i)
     {
       GetValueMessage msg;
       Objects[i]->GetDynamicRTTI()->DispatchMessage(Objects[i], msg);
       iResult += msg.m_iValue;
     }
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
+    W_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
-    ezLog::Info("[test]Dispatch Message: {0}ns", ezArgF(tFC, 2), iResult);
+    WLog::Info("[test]Dispatch Message: {0}ns", WArgF(tFC, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Virtual")
   {
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
     // warm up
-    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    for (WUInt32 i = 0; i < iNumObjects; ++i)
       iResult += Objects[i]->Virtual();
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    for (WUInt32 i = 0; i < iNumObjects; ++i)
       iResult += Objects[i]->Virtual();
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
+    W_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
-    ezLog::Info("[test]Virtual Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
+    WLog::Info("[test]Virtual Function Calls: {0}ns", WArgF(tFC, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NonVirtual")
+  W_TEST_BLOCK(WTestBlock::Enabled, "NonVirtual")
   {
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
     // warm up
-    for (ezUInt32 i = 0; i < iNumObjects; i += 2)
+    for (WUInt32 i = 0; i < iNumObjects; i += 2)
     {
       iResult += ((Derived1*)Objects[i])->NonVirtual();
       iResult += ((Derived2*)Objects[i])->NonVirtual();
     }
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    for (ezUInt32 i = 0; i < iNumObjects; i += 2)
+    for (WUInt32 i = 0; i < iNumObjects; i += 2)
     {
       iResult += ((Derived1*)Objects[i])->NonVirtual();
       iResult += ((Derived2*)Objects[i])->NonVirtual();
     }
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
+    W_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
-    ezLog::Info("[test]Non-Virtual Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
+    WLog::Info("[test]Non-Virtual Function Calls: {0}ns", WArgF(tFC, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FastCall")
+  W_TEST_BLOCK(WTestBlock::Enabled, "FastCall")
   {
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
     // warm up
-    for (ezUInt32 i = 0; i < iNumObjects; i += 2)
+    for (WUInt32 i = 0; i < iNumObjects; i += 2)
     {
       iResult += ((Derived1*)Objects[i])->FastCall();
       iResult += ((Derived2*)Objects[i])->FastCall();
     }
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    for (ezUInt32 i = 0; i < iNumObjects; i += 2)
+    for (WUInt32 i = 0; i < iNumObjects; i += 2)
     {
       iResult += ((Derived1*)Objects[i])->FastCall();
       iResult += ((Derived2*)Objects[i])->FastCall();
     }
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
+    W_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
-    ezLog::Info("[test]FastCall Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
+    WLog::Info("[test]FastCall Function Calls: {0}ns", WArgF(tFC, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Division")
+  W_TEST_BLOCK(WTestBlock::Enabled, "32 Bit Integer Division")
   {
-    ezDynamicArray<ezInt32> Ints;
+    WDynamicArray<WInt32> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
-    for (ezInt32 i = 1; i < iNumObjects; i += 1)
+    for (WInt32 i = 1; i < iNumObjects; i += 1)
       iResult += Ints[i] / i;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects - 1);
 
-    ezLog::Info("[test]32 Bit Integer Division: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]32 Bit Integer Division: {0}ns", WArgF(t, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Multiplication")
+  W_TEST_BLOCK(WTestBlock::Enabled, "32 Bit Integer Multiplication")
   {
-    ezDynamicArray<ezInt32> Ints;
+    WDynamicArray<WInt32> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       iResult += Ints[i] * i;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]32 Bit Integer Multiplication: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]32 Bit Integer Multiplication: {0}ns", WArgF(t, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Division")
+  W_TEST_BLOCK(WTestBlock::Enabled, "64 Bit Integer Division")
   {
-    ezDynamicArray<ezInt64> Ints;
+    WDynamicArray<WInt64> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
-      Ints[i] = (ezInt64)i * (ezInt64)100;
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
+      Ints[i] = (WInt64)i * (WInt64)100;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezInt64 iResult = 0;
+    WInt64 iResult = 0;
 
-    for (ezInt32 i = 1; i < iNumObjects; i += 1)
-      iResult += Ints[i] / (ezInt64)i;
+    for (WInt32 i = 1; i < iNumObjects; i += 1)
+      iResult += Ints[i] / (WInt64)i;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects - 1);
 
-    ezLog::Info("[test]64 Bit Integer Division: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]64 Bit Integer Division: {0}ns", WArgF(t, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Multiplication")
+  W_TEST_BLOCK(WTestBlock::Enabled, "64 Bit Integer Multiplication")
   {
-    ezDynamicArray<ezInt64> Ints;
+    WDynamicArray<WInt64> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
-    ezInt64 iResult = 0;
+    WInt64 iResult = 0;
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
-      iResult += Ints[i] * (ezInt64)i;
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
+      iResult += Ints[i] * (WInt64)i;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]64 Bit Integer Multiplication: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]64 Bit Integer Multiplication: {0}ns", WArgF(t, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Division")
+  W_TEST_BLOCK(WTestBlock::Enabled, "32 Bit Float Division")
   {
-    ezDynamicArray<float> Ints;
+    WDynamicArray<float> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0f;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
     float fResult = 0;
 
     float d = 1.0f;
-    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
+    for (WInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       fResult += Ints[i] / d;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]32 Bit Float Division: {0}ns", ezArgF(t, 2), fResult);
+    WLog::Info("[test]32 Bit Float Division: {0}ns", WArgF(t, 2), fResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Multiplication")
+  W_TEST_BLOCK(WTestBlock::Enabled, "32 Bit Float Multiplication")
   {
-    ezDynamicArray<float> Ints;
+    WDynamicArray<float> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i++)
+    for (WInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (float)(fNumObjects) - (float)(i);
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
     float iResult = 0;
 
     float d = 1.0f;
-    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
+    for (WInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       iResult += Ints[i] * d;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]32 Bit Float Multiplication: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]32 Bit Float Multiplication: {0}ns", WArgF(t, 2), iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Division")
+  W_TEST_BLOCK(WTestBlock::Enabled, "64 Bit Double Division")
   {
-    ezDynamicArray<double> Ints;
+    WDynamicArray<double> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+    for (WInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0;
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
     double fResult = 0;
 
     double d = 1.0;
-    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
+    for (WInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       fResult += Ints[i] / d;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]64 Bit Double Division: {0}ns", ezArgF(t, 2), fResult);
+    WLog::Info("[test]64 Bit Double Division: {0}ns", WArgF(t, 2), fResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Multiplication")
+  W_TEST_BLOCK(WTestBlock::Enabled, "64 Bit Double Multiplication")
   {
-    ezDynamicArray<double> Ints;
+    WDynamicArray<double> Ints;
     Ints.SetCountUninitialized(iNumObjects);
 
-    for (ezInt32 i = 0; i < iNumObjects; i++)
+    for (WInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (double)(fNumObjects) - (double)(i);
 
-    ezTime t0 = ezTime::Now();
+    WTime t0 = WTime::Now();
 
     double iResult = 0;
 
     double d = 1.0;
-    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0)
+    for (WInt32 i = 0; i < iNumObjects; i++, d += 1.0)
       iResult += Ints[i] * d;
 
-    ezTime t1 = ezTime::Now();
+    WTime t1 = WTime::Now();
 
-    ezTime tdiff = t1 - t0;
+    WTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
-    ezLog::Info("[test]64 Bit Double Multiplication: {0}ns", ezArgF(t, 2), iResult);
+    WLog::Info("[test]64 Bit Double Multiplication: {0}ns", WArgF(t, 2), iResult);
   }
 }

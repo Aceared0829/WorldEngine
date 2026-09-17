@@ -3,9 +3,9 @@
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
-ezInt32 ezConstructionCounter::s_iConstructions = 0;
-ezInt32 ezConstructionCounter::s_iDestructions = 0;
-ezInt32 ezConstructionCounter::s_iConstructionsLast = 0;
-ezInt32 ezConstructionCounter::s_iDestructionsLast = 0;
+WInt32 WConstructionCounter::s_iConstructions = 0;
+WInt32 WConstructionCounter::s_iDestructions = 0;
+WInt32 WConstructionCounter::s_iConstructionsLast = 0;
+WInt32 WConstructionCounter::s_iDestructionsLast = 0;
 
-EZ_TESTFRAMEWORK_ENTRY_POINT("ToolsFoundationTest", "Tools Foundation Tests")
+W_TESTFRAMEWORK_ENTRY_POINT("ToolsFoundationTest", "Tools Foundation Tests")

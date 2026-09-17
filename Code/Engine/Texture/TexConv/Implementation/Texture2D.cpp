@@ -3,57 +3,57 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const
+WResult WTexConvProcessor::Assemble2DTexture(const WImageHeader& refImg, WImage& dst) const
 {
-  EZ_PROFILE_SCOPE("Assemble2DTexture");
+  W_PROFILE_SCOPE("Assemble2DTexture");
 
   dst.ResetAndAlloc(refImg);
 
-  ezColor* pPixelOut = dst.GetPixelPointer<ezColor>();
+  WColor* pPixelOut = dst.GetPixelPointer<WColor>();
 
   return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], refImg.GetWidth(), refImg.GetHeight(), pPixelOut);
 }
 
-ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const
+WResult WTexConvProcessor::Assemble2DSlice(const WTexConvSliceChannelMapping& mapping, WUInt32 uiResolutionX, WUInt32 uiResolutionY, WColor* pPixelOut) const
 {
-  ezTempHybridArray<const ezColor*, 16> pSource;
-  for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
+  WTempHybridArray<const WColor*, 16> pSource;
+  for (WUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
   {
-    pSource.ExpandAndGetRef() = m_Descriptor.m_InputImages[i].GetPixelPointer<ezColor>();
+    pSource.ExpandAndGetRef() = m_Descriptor.m_InputImages[i].GetPixelPointer<WColor>();
   }
 
   const float fZero = 0.0f;
   const float fOne = 1.0f;
   const float* pSourceValues[4] = {nullptr, nullptr, nullptr, nullptr};
-  ezUInt32 uiSourceStrides[4] = {0, 0, 0, 0};
+  WUInt32 uiSourceStrides[4] = {0, 0, 0, 0};
 
-  for (ezUInt32 channel = 0; channel < 4; ++channel)
+  for (WUInt32 channel = 0; channel < 4; ++channel)
   {
     const auto& cm = mapping.m_Channel[channel];
-    const ezInt32 inputIndex = cm.m_iInputImageIndex;
+    const WInt32 inputIndex = cm.m_iInputImageIndex;
 
     if (inputIndex != -1)
     {
-      const ezColor* pSourcePixel = pSource[inputIndex];
+      const WColor* pSourcePixel = pSource[inputIndex];
       uiSourceStrides[channel] = 4;
 
       switch (cm.m_ChannelValue)
       {
-        case ezTexConvChannelValue::Red:
+        case WTexConvChannelValue::Red:
           pSourceValues[channel] = &pSourcePixel->r;
           break;
-        case ezTexConvChannelValue::Green:
+        case WTexConvChannelValue::Green:
           pSourceValues[channel] = &pSourcePixel->g;
           break;
-        case ezTexConvChannelValue::Blue:
+        case WTexConvChannelValue::Blue:
           pSourceValues[channel] = &pSourcePixel->b;
           break;
-        case ezTexConvChannelValue::Alpha:
+        case WTexConvChannelValue::Alpha:
           pSourceValues[channel] = &pSourcePixel->a;
           break;
 
         default:
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          W_ASSERT_NOT_IMPLEMENTED;
           break;
       }
     }
@@ -63,11 +63,11 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
 
       switch (cm.m_ChannelValue)
       {
-        case ezTexConvChannelValue::Black:
+        case WTexConvChannelValue::Black:
           pSourceValues[channel] = &fZero;
           break;
 
-        case ezTexConvChannelValue::White:
+        case WTexConvChannelValue::White:
           pSourceValues[channel] = &fOne;
           break;
 
@@ -86,23 +86,23 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
   if (!bFlip && (pSourceValues[0] + 1 == pSourceValues[1]) && (pSourceValues[1] + 1 == pSourceValues[2]) &&
       (pSourceValues[2] + 1 == pSourceValues[3]))
   {
-    EZ_PROFILE_SCOPE("Assemble2DSlice(memcpy)");
+    W_PROFILE_SCOPE("Assemble2DSlice(memcpy)");
 
-    ezMemoryUtils::Copy<ezColor>(pPixelOut, reinterpret_cast<const ezColor*>(pSourceValues[0]), uiResolutionX * uiResolutionY);
+    WMemoryUtils::Copy<WColor>(pPixelOut, reinterpret_cast<const WColor*>(pSourceValues[0]), uiResolutionX * uiResolutionY);
   }
   else
   {
-    EZ_PROFILE_SCOPE("Assemble2DSlice(gather)");
+    W_PROFILE_SCOPE("Assemble2DSlice(gather)");
 
-    for (ezUInt32 y = 0; y < uiResolutionY; ++y)
+    for (WUInt32 y = 0; y < uiResolutionY; ++y)
     {
-      const ezUInt32 pixelWriteRowOffset = uiResolutionX * (bFlip ? (uiResolutionY - y - 1) : y);
+      const WUInt32 pixelWriteRowOffset = uiResolutionX * (bFlip ? (uiResolutionY - y - 1) : y);
 
-      for (ezUInt32 x = 0; x < uiResolutionX; ++x)
+      for (WUInt32 x = 0; x < uiResolutionX; ++x)
       {
         float* dst = &pPixelOut[pixelWriteRowOffset + x].r;
 
-        for (ezUInt32 c = 0; c < 4; ++c)
+        for (WUInt32 c = 0; c < 4; ++c)
         {
           dst[c] = *pSourceValues[c];
           pSourceValues[c] += uiSourceStrides[c];
@@ -111,17 +111,17 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const
+WResult WTexConvProcessor::DetermineTargetResolution(const WImage& image, WEnum<WImageFormat> OutputImageFormat, WUInt32& out_uiTargetResolutionX, WUInt32& out_uiTargetResolutionY) const
 {
-  EZ_PROFILE_SCOPE("DetermineResolution");
+  W_PROFILE_SCOPE("DetermineResolution");
 
-  EZ_ASSERT_DEV(out_uiTargetResolutionX == 0 && out_uiTargetResolutionY == 0, "Target resolution already determined");
+  W_ASSERT_DEV(out_uiTargetResolutionX == 0 && out_uiTargetResolutionY == 0, "Target resolution already determined");
 
-  const ezUInt32 uiOrgResX = image.GetWidth();
-  const ezUInt32 uiOrgResY = image.GetHeight();
+  const WUInt32 uiOrgResX = image.GetWidth();
+  const WUInt32 uiOrgResY = image.GetHeight();
 
   out_uiTargetResolutionX = uiOrgResX;
   out_uiTargetResolutionY = uiOrgResY;
@@ -129,8 +129,8 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
   out_uiTargetResolutionX /= (1 << m_Descriptor.m_uiDownscaleSteps);
   out_uiTargetResolutionY /= (1 << m_Descriptor.m_uiDownscaleSteps);
 
-  out_uiTargetResolutionX = ezMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
-  out_uiTargetResolutionY = ezMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  out_uiTargetResolutionX = WMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  out_uiTargetResolutionY = WMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
 
   // keep original aspect ratio
   if (uiOrgResX > uiOrgResY)
@@ -142,36 +142,36 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
     out_uiTargetResolutionX = (out_uiTargetResolutionY * uiOrgResX) / uiOrgResY;
   }
 
-  if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
+  if (m_Descriptor.m_OutputType == WTexConvOutputType::Volume)
   {
-    ezUInt32 uiScaleFactor = uiOrgResY / out_uiTargetResolutionY;
+    WUInt32 uiScaleFactor = uiOrgResY / out_uiTargetResolutionY;
     out_uiTargetResolutionX = uiOrgResX / uiScaleFactor;
   }
 
-  if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::RequiresFirstLevelBlockAlignment(OutputImageFormat))
+  if (OutputImageFormat != WImageFormat::UNKNOWN && WImageFormat::RequiresFirstLevelBlockAlignment(OutputImageFormat))
   {
-    const ezUInt32 blockWidth = ezImageFormat::GetBlockWidth(OutputImageFormat);
+    const WUInt32 blockWidth = WImageFormat::GetBlockWidth(OutputImageFormat);
 
-    ezUInt32 currentWidth = out_uiTargetResolutionX;
-    ezUInt32 currentHeight = out_uiTargetResolutionY;
+    WUInt32 currentWidth = out_uiTargetResolutionX;
+    WUInt32 currentHeight = out_uiTargetResolutionY;
     bool issueWarning = false;
 
     if (out_uiTargetResolutionX % blockWidth != 0)
     {
-      out_uiTargetResolutionX = ezMath::RoundUp(out_uiTargetResolutionX, static_cast<ezUInt16>(blockWidth));
+      out_uiTargetResolutionX = WMath::RoundUp(out_uiTargetResolutionX, static_cast<WUInt16>(blockWidth));
       issueWarning = true;
     }
 
-    ezUInt32 blockHeight = ezImageFormat::GetBlockHeight(OutputImageFormat);
+    WUInt32 blockHeight = WImageFormat::GetBlockHeight(OutputImageFormat);
     if (out_uiTargetResolutionY % blockHeight != 0)
     {
-      out_uiTargetResolutionY = ezMath::RoundUp(out_uiTargetResolutionY, static_cast<ezUInt16>(blockHeight));
+      out_uiTargetResolutionY = WMath::RoundUp(out_uiTargetResolutionY, static_cast<WUInt16>(blockHeight));
       issueWarning = true;
     }
 
     if (issueWarning)
     {
-      ezLog::Warning(
+      WLog::Warning(
         "Chosen output image format is compressed, but target resolution does not fulfill block size requirements. {}x{} -> downscale {} / "
         "clamp({}, {}) -> {}x{}, adjusted to {}x{}",
         uiOrgResX, uiOrgResY, m_Descriptor.m_uiDownscaleSteps, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution, currentWidth,
@@ -179,5 +179,5 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

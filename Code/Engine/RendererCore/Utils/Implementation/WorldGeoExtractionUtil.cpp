@@ -10,28 +10,28 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgExtractGeometry);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgExtractGeometry, 1, WRTTIDefaultAllocator<WMsgExtractGeometry>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
+void WWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const WWorld& world, ExtractionMode mode, WTagSet* pExcludeTags /*= nullptr*/)
 {
-  EZ_PROFILE_SCOPE("ExtractWorldGeometry");
-  EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
+  W_PROFILE_SCOPE("ExtractWorldGeometry");
+  W_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
 
-  ezMsgExtractGeometry msg;
+  WMsgExtractGeometry msg;
   msg.m_Mode = mode;
   msg.m_pMeshObjects = &ref_objects;
 
-  EZ_LOCK(world.GetReadMarker());
+  W_LOCK(world.GetReadMarker());
 
   for (auto it = world.GetObjects(); it.IsValid(); ++it)
   {
@@ -42,20 +42,20 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects,
   }
 }
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
+void WWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const WWorld& world, ExtractionMode mode, const WDeque<WGameObjectHandle>& selection)
 {
-  EZ_PROFILE_SCOPE("ExtractWorldGeometry");
-  EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
+  W_PROFILE_SCOPE("ExtractWorldGeometry");
+  W_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
 
-  ezMsgExtractGeometry msg;
+  WMsgExtractGeometry msg;
   msg.m_Mode = mode;
   msg.m_pMeshObjects = &ref_objects;
 
-  EZ_LOCK(world.GetReadMarker());
+  W_LOCK(world.GetReadMarker());
 
-  for (ezGameObjectHandle hObject : selection)
+  for (WGameObjectHandle hObject : selection)
   {
-    const ezGameObject* pObject;
+    const WGameObject* pObject;
     if (!world.TryGetObject(hObject, pObject))
       continue;
 
@@ -63,67 +63,67 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects,
   }
 }
 
-void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const ezMat3& mTransform)
+void WWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const WMat3& mTransform)
 {
-  EZ_LOG_BLOCK("Write World Geometry to OBJ", szFile);
+  W_LOG_BLOCK("Write World Geometry to OBJ", szFile);
 
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(szFile).Failed())
   {
-    ezLog::Error("Failed to open file for writing: '{0}'", szFile);
+    WLog::Error("Failed to open file for writing: '{0}'", szFile);
     return;
   }
 
-  ezMat4 transform = ezMat4::MakeIdentity();
+  WMat4 transform = WMat4::MakeIdentity();
   transform.SetRotationalPart(mTransform);
 
-  ezStringBuilder line;
+  WStringBuilder line;
 
   line = "\n\n# vertices\n\n";
   file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
-  ezUInt32 uiVertexOffset = 0;
-  ezDeque<ezUInt32> indices;
+  WUInt32 uiVertexOffset = 0;
+  WDeque<WUInt32> indices;
 
   for (const MeshObject& object : objects)
   {
-    ezResourceLock<ezCpuMeshResource> pCpuMesh(object.m_hMeshResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    WResourceLock<WCpuMeshResource> pCpuMesh(object.m_hMeshResource, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pCpuMesh.GetAcquireResult() != WResourceAcquireResult::Final)
     {
       continue;
     }
 
     const auto& meshBufferDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-    const ezVec3* pPositions = meshBufferDesc.GetPositionData().GetPtr();
+    const WVec3* pPositions = meshBufferDesc.GetPositionData().GetPtr();
     if (pPositions == nullptr)
     {
       continue;
     }
 
-    ezMat4 finalTransform = transform * object.m_GlobalTransform.GetAsMat4();
+    WMat4 finalTransform = transform * object.m_GlobalTransform.GetAsMat4();
 
     // write out all vertices
-    for (ezUInt32 i = 0; i < meshBufferDesc.GetVertexCount(); ++i)
+    for (WUInt32 i = 0; i < meshBufferDesc.GetVertexCount(); ++i)
     {
-      const ezVec3 pos = finalTransform.TransformPosition(*pPositions);
+      const WVec3 pos = finalTransform.TransformPosition(*pPositions);
 
-      line.SetFormat("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
+      line.SetFormat("v {0} {1} {2}\n", WArgF(pos.x, 8), WArgF(pos.y, 8), WArgF(pos.z, 8));
       file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
       ++pPositions;
     }
 
     // collect all indices
-    bool flip = ezGraphicsUtils::IsTriangleFlipRequired(finalTransform.GetRotationalPart());
+    bool flip = WGraphicsUtils::IsTriangleFlipRequired(finalTransform.GetRotationalPart());
 
     if (meshBufferDesc.HasIndexBuffer())
     {
       if (meshBufferDesc.Uses32BitIndices())
       {
-        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+        const WUInt32* pTypedIndices = reinterpret_cast<const WUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        for (WUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
         {
           indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
           indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
@@ -132,9 +132,9 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
       }
       else
       {
-        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+        const WUInt16* pTypedIndices = reinterpret_cast<const WUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        for (WUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
         {
           indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
           indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
@@ -144,7 +144,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     }
     else
     {
-      for (ezUInt32 v = 0; v < meshBufferDesc.GetVertexCount(); ++v)
+      for (WUInt32 v = 0; v < meshBufferDesc.GetVertexCount(); ++v)
       {
         indices.PushBack(uiVertexOffset + v);
       }
@@ -156,45 +156,45 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
   line = "\n\n# triangles\n\n";
   file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
-  for (ezUInt32 i = 0; i < indices.GetCount(); i += 3)
+  for (WUInt32 i = 0; i < indices.GetCount(); i += 3)
   {
     // indices are 1 based in obj
     line.SetFormat("f {0} {1} {2}\n", indices[i + 0] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
     file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
   }
 
-  ezLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
+  WLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezMsgExtractGeometry::AddMeshObject(const ezTransform& transform, ezCpuMeshResourceHandle hMeshResource)
+void WMsgExtractGeometry::AddMeshObject(const WTransform& transform, WCpuMeshResourceHandle hMeshResource)
 {
   m_pMeshObjects->PushBack({transform, hMeshResource});
 }
 
-void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
+void WMsgExtractGeometry::AddBox(const WTransform& transform, WVec3 vExtents)
 {
   const char* szResourceName = "CpuMesh-UnitBox";
-  ezCpuMeshResourceHandle hBoxMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(szResourceName);
+  WCpuMeshResourceHandle hBoxMesh = WResourceManager::GetExistingResource<WCpuMeshResource>(szResourceName);
   if (hBoxMesh.IsValid() == false)
   {
-    ezGeometry geom;
-    geom.AddBox(ezVec3(1), false);
+    WGeometry geom;
+    geom.AddBox(WVec3(1), false);
     geom.TriangulatePolygons();
     geom.ComputeTangents();
 
-    ezMeshResourceDescriptor desc;
-    desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+    WMeshResourceDescriptor desc;
+    desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.WMaterialAsset
 
     desc.MeshBufferDesc().AddCommonStreams();
-    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+    desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
     desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
 
     desc.ComputeBounds();
 
-    hBoxMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
+    hBoxMesh = WResourceManager::GetOrCreateResource<WCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
   }
 
   auto& meshObject = m_pMeshObjects->ExpandAndGetRef();
@@ -203,4 +203,4 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
   meshObject.m_hMeshResource = hBoxMesh;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_WorldGeoExtractionUtil);
+W_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_WorldGeoExtractionUtil);

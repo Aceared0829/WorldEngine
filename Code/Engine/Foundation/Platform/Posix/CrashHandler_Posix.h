@@ -1,5 +1,5 @@
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/CrashHandler.h>
@@ -12,14 +12,14 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 static void PrintHelper(const char* szString)
 {
-  ezLog::Printf("%s", szString);
+  WLog::Printf("%s", szString);
 }
 
-static void ezCrashHandlerFunc() noexcept
+static void WCrashHandlerFunc() noexcept
 {
-  if (ezCrashHandler::GetCrashHandler() != nullptr)
+  if (WCrashHandler::GetCrashHandler() != nullptr)
   {
-    ezCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
+    WCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
   }
 
   // restore the original signal handler for the abort signal and raise one so the kernel can do a core dump
@@ -27,37 +27,37 @@ static void ezCrashHandlerFunc() noexcept
   std::raise(SIGABRT);
 }
 
-static void ezSignalHandler(int signum)
+static void WSignalHandler(int signum)
 {
-  ezLog::Printf("***Unhandled Signal:***\n");
+  WLog::Printf("***Unhandled Signal:***\n");
   switch (signum)
   {
     case SIGINT:
-      ezLog::Printf("Signal SIGINT: interrupt\n");
+      WLog::Printf("Signal SIGINT: interrupt\n");
       break;
     case SIGILL:
-      ezLog::Printf("Signal SIGILL: illegal instruction - invalid function image\n");
+      WLog::Printf("Signal SIGILL: illegal instruction - invalid function image\n");
       break;
     case SIGFPE:
-      ezLog::Printf("Signal SIGFPE: floating point exception\n");
+      WLog::Printf("Signal SIGFPE: floating point exception\n");
       break;
     case SIGSEGV:
-      ezLog::Printf("Signal SIGSEGV: segment violation\n");
+      WLog::Printf("Signal SIGSEGV: segment violation\n");
       break;
     case SIGTERM:
-      ezLog::Printf("Signal SIGTERM: Software termination signal from kill\n");
+      WLog::Printf("Signal SIGTERM: Software termination signal from kill\n");
       break;
     case SIGABRT:
-      ezLog::Printf("Signal SIGABRT: abnormal termination triggered by abort call\n");
+      WLog::Printf("Signal SIGABRT: abnormal termination triggered by abort call\n");
       break;
     default:
-      ezLog::Printf("Signal %i: unknown signal\n", signal);
+      WLog::Printf("Signal %i: unknown signal\n", signal);
       break;
   }
 
-  if (ezCrashHandler::GetCrashHandler() != nullptr)
+  if (WCrashHandler::GetCrashHandler() != nullptr)
   {
-    ezCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
+    WCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
   }
 
   // forward the signal back to the OS so that it can write a core dump
@@ -65,19 +65,19 @@ static void ezSignalHandler(int signum)
   kill(getpid(), signum);
 }
 
-void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
+void WCrashHandler::SetCrashHandler(WCrashHandler* pHandler)
 {
   s_pActiveHandler = pHandler;
 
   if (s_pActiveHandler != nullptr)
   {
-    std::signal(SIGINT, ezSignalHandler);
-    std::signal(SIGILL, ezSignalHandler);
-    std::signal(SIGFPE, ezSignalHandler);
-    std::signal(SIGSEGV, ezSignalHandler);
-    std::signal(SIGTERM, ezSignalHandler);
-    std::signal(SIGABRT, ezSignalHandler);
-    std::set_terminate(ezCrashHandlerFunc);
+    std::signal(SIGINT, WSignalHandler);
+    std::signal(SIGILL, WSignalHandler);
+    std::signal(SIGFPE, WSignalHandler);
+    std::signal(SIGSEGV, WSignalHandler);
+    std::signal(SIGTERM, WSignalHandler);
+    std::signal(SIGABRT, WSignalHandler);
+    std::set_terminate(WCrashHandlerFunc);
   }
   else
   {
@@ -91,23 +91,23 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
   }
 }
 
-bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
+bool WCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
-#if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
-  ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, pOsSpecificData);
+#if W_ENABLED(W_SUPPORTS_CRASH_DUMPS)
+  WStatus res = WMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, pOsSpecificData);
   if (res.Failed())
-    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
+    WLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
   return res.Succeeded();
 #else
   return false;
 #endif
 }
 
-void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
+void WCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
 {
-  ezLog::Printf("***Unhandled Exception:***\n");
+  WLog::Printf("***Unhandled Exception:***\n");
 
-  // ezLog::Printf exception type
+  // WLog::Printf exception type
   if (std::type_info* type = abi::__cxa_current_exception_type())
   {
     if (const char* szName = type->name())
@@ -115,19 +115,19 @@ void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
       int status = -1;
       // Try to print nice name
       if (char* szNiceName = abi::__cxa_demangle(szName, 0, 0, &status))
-        ezLog::Printf("Exception: %s\n", szNiceName);
+        WLog::Printf("Exception: %s\n", szNiceName);
       else
-        ezLog::Printf("Exception: %s\n", szName);
+        WLog::Printf("Exception: %s\n", szName);
     }
   }
 
   {
-    ezLog::Printf("\n\n***Stack Trace:***\n");
+    WLog::Printf("\n\n***Stack Trace:***\n");
 
     void* pBuffer[64];
-    ezArrayPtr<void*> tempTrace(pBuffer);
-    const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+    WArrayPtr<void*> tempTrace(pBuffer);
+    const WUInt32 uiNumTraces = WStackTracer::GetStackTrace(tempTrace);
 
-    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
+    WStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
   }
 }

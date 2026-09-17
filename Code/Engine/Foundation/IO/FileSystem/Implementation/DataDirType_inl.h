@@ -2,14 +2,14 @@
 
 #include <Foundation/Strings/StringBuilder.h>
 
-inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader)
+inline WDataDirectoryReaderWriterBase::WDataDirectoryReaderWriterBase(WInt32 iDataDirUserData, bool bIsReader)
 {
   m_iDataDirUserData = iDataDirUserData;
   m_pDataDirType = nullptr;
   m_bIsReader = bIsReader;
 }
 
-inline ezResult ezDataDirectoryReaderWriterBase::Open(ezStringView sFile, ezDataDirectoryType* pDataDirectory, ezFileShareMode::Enum fileShareMode)
+inline WResult WDataDirectoryReaderWriterBase::Open(WStringView sFile, WDataDirectoryType* pDataDirectory, WFileShareMode::Enum fileShareMode)
 {
   m_pDataDirType = pDataDirectory;
   m_sFilePath = sFile;
@@ -17,12 +17,12 @@ inline ezResult ezDataDirectoryReaderWriterBase::Open(ezStringView sFile, ezData
   return InternalOpen(fileShareMode);
 }
 
-inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const
+inline const WString128& WDataDirectoryReaderWriterBase::GetFilePath() const
 {
   return m_sFilePath;
 }
 
-inline ezDataDirectoryType* ezDataDirectoryReaderWriterBase::GetDataDirectory() const
+inline WDataDirectoryType* WDataDirectoryReaderWriterBase::GetDataDirectory() const
 {
   return m_pDataDirType;
 }

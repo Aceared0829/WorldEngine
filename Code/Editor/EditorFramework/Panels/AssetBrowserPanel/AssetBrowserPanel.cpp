@@ -4,10 +4,10 @@
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 
-EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
+W_IMPLEMENT_SINGLETON(WQtAssetBrowserPanel);
 
-ezQtAssetBrowserPanel::ezQtAssetBrowserPanel(ads::CDockManager* pDockManager)
-  : ezQtApplicationPanel(pDockManager, "Panel.AssetBrowser")
+WQtAssetBrowserPanel::WQtAssetBrowserPanel(ads::CDockManager* pDockManager)
+  : WQtApplicationPanel(pDockManager, "Panel.AssetBrowser")
   , m_SingletonRegistrar(this)
 {
   setFeature(ads::CDockWidget::DockWidgetClosable, false);
@@ -18,42 +18,42 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel(ads::CDockManager* pDockManager)
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
   setWidget(pDummy);
 
-  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset.svg"));
-  setWindowTitle(ezMakeQString(ezTranslate("Panel.AssetBrowser")));
+  setIcon(WQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset.svg"));
+  setWindowTitle(WMakeQString(WTranslate("Panel.AssetBrowser")));
 
-  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr,
+  W_VERIFY(connect(AssetBrowserWidget, &WQtAssetBrowserWidget::ItemChosen, this, &WQtAssetBrowserPanel::SlotAssetChosen) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemSelected, this, &ezQtAssetBrowserPanel::SlotAssetSelected) != nullptr,
+  W_VERIFY(connect(AssetBrowserWidget, &WQtAssetBrowserWidget::ItemSelected, this, &WQtAssetBrowserPanel::SlotAssetSelected) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemCleared, this, &ezQtAssetBrowserPanel::SlotAssetCleared) != nullptr,
+  W_VERIFY(connect(AssetBrowserWidget, &WQtAssetBrowserWidget::ItemCleared, this, &WQtAssetBrowserPanel::SlotAssetCleared) != nullptr,
     "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
 }
 
-ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
+WQtAssetBrowserPanel::~WQtAssetBrowserPanel()
 {
   AssetBrowserWidget->SaveState("AssetBrowserPanel2");
 }
 
-void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
+void WQtAssetBrowserPanel::SlotAssetChosen(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags)
 {
   if (guid.IsValid())
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+    WQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
   }
   else
   {
-    ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAssetPathAbsolute)).IgnoreResult();
+    WQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAssetPathAbsolute)).IgnoreResult();
   }
 }
 
-void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
+void WQtAssetBrowserPanel::SlotAssetSelected(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags)
 {
   m_LastSelected = guid;
 }
 
-void ezQtAssetBrowserPanel::SlotAssetCleared()
+void WQtAssetBrowserPanel::SlotAssetCleared()
 {
-  m_LastSelected = ezUuid::MakeInvalid();
+  m_LastSelected = WUuid::MakeInvalid();
 }

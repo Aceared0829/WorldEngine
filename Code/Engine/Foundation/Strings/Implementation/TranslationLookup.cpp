@@ -6,34 +6,34 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
-bool ezTranslator::s_bHighlightUntranslated = false;
-ezHybridArray<ezTranslator*, 4> ezTranslator::s_AllTranslators;
+bool WTranslator::s_bHighlightUntranslated = false;
+WHybridArray<WTranslator*, 4> WTranslator::s_AllTranslators;
 
-ezTranslator::ezTranslator()
+WTranslator::WTranslator()
 {
   s_AllTranslators.PushBack(this);
 }
 
-ezTranslator::~ezTranslator()
+WTranslator::~WTranslator()
 {
   s_AllTranslators.RemoveAndSwap(this);
 }
 
-void ezTranslator::Reset() {}
+void WTranslator::Reset() {}
 
-void ezTranslator::Reload() {}
+void WTranslator::Reload() {}
 
-void ezTranslator::ReloadAllTranslators()
+void WTranslator::ReloadAllTranslators()
 {
-  EZ_LOG_BLOCK("ReloadAllTranslators");
+  W_LOG_BLOCK("ReloadAllTranslators");
 
-  for (ezTranslator* pTranslator : s_AllTranslators)
+  for (WTranslator* pTranslator : s_AllTranslators)
   {
     pTranslator->Reload();
   }
 }
 
-void ezTranslator::HighlightUntranslated(bool bHighlight)
+void WTranslator::HighlightUntranslated(bool bHighlight)
 {
   if (s_bHighlightUntranslated == bHighlight)
     return;
@@ -45,56 +45,56 @@ void ezTranslator::HighlightUntranslated(bool bHighlight)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_Translators;
+WHybridArray<WUniquePtr<WTranslator>, 16> WTranslationLookup::s_Translators;
 
-void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
+void WTranslationLookup::AddTranslator(WUniquePtr<WTranslator> pTranslator)
 {
   s_Translators.PushBack(std::move(pTranslator));
 }
 
 
-ezStringView ezTranslationLookup::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+WStringView WTranslationLookup::Translate(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  for (ezUInt32 i = s_Translators.GetCount(); i > 0; --i)
+  for (WUInt32 i = s_Translators.GetCount(); i > 0; --i)
   {
-    ezStringView sResult = s_Translators[i - 1]->Translate(sString, uiStringHash, usage);
+    WStringView sResult = s_Translators[i - 1]->Translate(sString, uiStringHash, usage);
 
     if (!sResult.IsEmpty())
       return sResult;
   }
 
-  if (usage != ezTranslationUsage::Default)
+  if (usage != WTranslationUsage::Default)
     return {};
 
   return sString;
 }
 
 
-void ezTranslationLookup::Clear()
+void WTranslationLookup::Clear()
 {
   s_Translators.Clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
+void WTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 {
-  EZ_LOG_BLOCK("AddTranslationFilesFromFolder", szFolder);
+  W_LOG_BLOCK("AddTranslationFilesFromFolder", szFolder);
 
   if (!m_Folders.Contains(szFolder))
   {
     m_Folders.PushBack(szFolder);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
-  ezStringBuilder startPath;
-  if (ezFileSystem::ResolvePath(szFolder, &startPath, nullptr).Failed())
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
+  WStringBuilder startPath;
+  if (WFileSystem::ResolvePath(szFolder, &startPath, nullptr).Failed())
     return;
 
-  ezStringBuilder fullpath;
+  WStringBuilder fullpath;
 
-  ezFileSystemIterator it;
-  it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
+  WFileSystemIterator it;
+  it.StartSearch(startPath, WFileSystemIteratorFlags::ReportFilesRecursive);
 
 
   while (it.IsValid())
@@ -110,14 +110,14 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 #endif
 }
 
-ezStringView ezTranslatorFromFiles::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+WStringView WTranslatorFromFiles::Translate(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  return ezTranslatorStorage::Translate(sString, uiStringHash, usage);
+  return WTranslatorStorage::Translate(sString, uiStringHash, usage);
 }
 
-void ezTranslatorFromFiles::Reload()
+void WTranslatorFromFiles::Reload()
 {
-  ezTranslatorStorage::Reload();
+  WTranslatorStorage::Reload();
 
   for (const auto& sFolder : m_Folders)
   {
@@ -125,28 +125,28 @@ void ezTranslatorFromFiles::Reload()
   }
 }
 
-void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
+void WTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 {
-  EZ_LOG_BLOCK("LoadTranslationFile", szFullPath);
+  W_LOG_BLOCK("LoadTranslationFile", szFullPath);
 
-  ezLog::Dev("Loading Localization File '{0}'", szFullPath);
+  WLog::Dev("Loading Localization File '{0}'", szFullPath);
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(szFullPath).Failed())
   {
-    ezLog::Warning("Failed to open localization file '{0}'", szFullPath);
+    WLog::Warning("Failed to open localization file '{0}'", szFullPath);
     return;
   }
 
-  ezStringBuilder sContent;
+  WStringBuilder sContent;
   sContent.ReadAll(file);
 
-  ezDeque<ezStringView> Lines;
+  WDeque<WStringView> Lines;
   sContent.Split(false, Lines, "\n");
 
-  ezTempHybridArray<ezStringView, 4> entries;
+  WTempHybridArray<WStringView, 4> entries;
 
-  ezStringBuilder sLine, sKey, sValue, sTooltip, sHelpUrl;
+  WStringBuilder sLine, sKey, sValue, sTooltip, sHelpUrl;
   for (const auto& line : Lines)
   {
     sLine = line;
@@ -160,7 +160,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 
     if (entries.GetCount() <= 1)
     {
-      ezLog::Error("Invalid line in translation file: '{0}'", sLine);
+      WLog::Error("Invalid line in translation file: '{0}'", sLine);
       continue;
     }
 
@@ -188,60 +188,60 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
       sValue.Append(" (@", sKey, ")");
     }
 
-    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
-    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Tooltip);
-    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey), ezTranslationUsage::HelpURL);
+    StoreTranslation(sValue, WHashingUtils::StringHash(sKey), WTranslationUsage::Default);
+    StoreTranslation(sTooltip, WHashingUtils::StringHash(sKey), WTranslationUsage::Tooltip);
+    StoreTranslation(sHelpUrl, WHashingUtils::StringHash(sKey), WTranslationUsage::HelpURL);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezTranslatorStorage::StoreTranslation(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+void WTranslatorStorage::StoreTranslation(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  m_Translations[(ezUInt32)usage][uiStringHash] = sString;
+  m_Translations[(WUInt32)usage][uiStringHash] = sString;
 }
 
-ezStringView ezTranslatorStorage::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+WStringView WTranslatorStorage::Translate(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  EZ_IGNORE_UNUSED(sString);
+  W_IGNORE_UNUSED(sString);
 
-  auto it = m_Translations[(ezUInt32)usage].Find(uiStringHash);
+  auto it = m_Translations[(WUInt32)usage].Find(uiStringHash);
   if (it.IsValid())
     return it.Value().GetData();
 
   return {};
 }
 
-void ezTranslatorStorage::Reset()
+void WTranslatorStorage::Reset()
 {
-  for (ezUInt32 i = 0; i < (ezUInt32)ezTranslationUsage::ENUM_COUNT; ++i)
+  for (WUInt32 i = 0; i < (WUInt32)WTranslationUsage::ENUM_COUNT; ++i)
   {
     m_Translations[i].Clear();
   }
 }
 
-void ezTranslatorStorage::Reload()
+void WTranslatorStorage::Reload()
 {
   Reset();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezTranslatorLogMissing::s_bActive = true;
+bool WTranslatorLogMissing::s_bActive = true;
 
-ezStringView ezTranslatorLogMissing::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+WStringView WTranslatorLogMissing::Translate(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  if (!ezTranslatorLogMissing::s_bActive && !GetHighlightUntranslated())
+  if (!WTranslatorLogMissing::s_bActive && !GetHighlightUntranslated())
     return {};
 
-  if (usage != ezTranslationUsage::Default)
+  if (usage != WTranslationUsage::Default)
     return {};
 
-  ezStringView sResult = ezTranslatorStorage::Translate(sString, uiStringHash, usage);
+  WStringView sResult = WTranslatorStorage::Translate(sString, uiStringHash, usage);
 
   if (sResult.IsEmpty())
   {
-    ezLog::Warning("Missing translation: {0};", sString);
+    WLog::Warning("Missing translation: {0};", sString);
 
     StoreTranslation(sString, uiStringHash, usage);
   }
@@ -249,37 +249,37 @@ ezStringView ezTranslatorLogMissing::Translate(ezStringView sString, ezUInt64 ui
   return {};
 }
 
-ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+WStringView WTranslatorMakeMoreReadable::Translate(WStringView sString, WUInt64 uiStringHash, WTranslationUsage usage)
 {
-  if (usage != ezTranslationUsage::Default)
+  if (usage != WTranslationUsage::Default)
     return {};
 
-  ezStringView sResult = ezTranslatorStorage::Translate(sString, uiStringHash, usage);
+  WStringView sResult = WTranslatorStorage::Translate(sString, uiStringHash, usage);
 
   if (!sResult.IsEmpty())
     return sResult;
 
-  ezStringBuilder result;
-  ezStringBuilder tmp = sString;
+  WStringBuilder result;
+  WStringBuilder tmp = sString;
   tmp.Trim(" _-");
 
-  if (tmp.TrimWordStart("ez"))
+  if (tmp.TrimWordStart("W"))
   {
-    ezStringView sComponent = "Component";
+    WStringView sComponent = "Component";
     if (tmp.EndsWith(sComponent) && tmp.GetElementCount() > sComponent.GetElementCount())
     {
       tmp.Shrink(0, sComponent.GetElementCount());
     }
   }
 
-  auto IsUpper = [](ezUInt32 c)
-  { return c == ezStringUtils::ToUpperChar(c); };
-  auto IsNumber = [](ezUInt32 c)
+  auto IsUpper = [](WUInt32 c)
+  { return c == WStringUtils::ToUpperChar(c); };
+  auto IsNumber = [](WUInt32 c)
   { return c >= '0' && c <= '9'; };
 
-  ezUInt32 uiPrev = ' ';
-  ezUInt32 uiCur = ' ';
-  ezUInt32 uiNext = ' ';
+  WUInt32 uiPrev = ' ';
+  WUInt32 uiCur = ' ';
+  WUInt32 uiNext = ' ';
 
   bool bContinue = true;
 
@@ -350,5 +350,5 @@ ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUIn
 
   StoreTranslation(result, uiStringHash, usage);
 
-  return ezTranslatorStorage::Translate(sString, uiStringHash, usage);
+  return WTranslatorStorage::Translate(sString, uiStringHash, usage);
 }

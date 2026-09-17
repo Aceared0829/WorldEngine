@@ -11,34 +11,34 @@ class asIScriptEngine;
 class asIScriptModule;
 class asIStringFactory;
 struct asSMessageInfo;
-class ezAsStringFactory;
+class WAsStringFactory;
 class asITypeInfo;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStats>;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+using WAsAllocatorType = WAllocatorWithPolicy<WAllocPolicyHeap, WAllocatorTrackingMode::AllocationStats>;
 #else
-using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
+using WAsAllocatorType = WAllocatorWithPolicy<WAllocPolicyHeap, WAllocatorTrackingMode::Nothing>;
 #endif
 
-class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptEngineSingleton
+class W_ANGELSCRIPTPLUGIN_DLL WAngelScriptEngineSingleton
 {
-  EZ_DECLARE_SINGLETON(ezAngelScriptEngineSingleton);
+  W_DECLARE_SINGLETON(WAngelScriptEngineSingleton);
 
 public:
-  static ezResult PreprocessCode(ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies);
-  static void FindCorrectSectionAndLine(const ezDynamicArray<ezStringView>& lines, ezInt32& ref_iLine, ezStringView& ref_sSection);
+  static WResult PreprocessCode(WStringView sRefFilePath, WStringView sCode, WStringBuilder* out_pProcessedCode, WSet<WString>* out_pDependencies);
+  static void FindCorrectSectionAndLine(const WDynamicArray<WStringView>& lines, WInt32& ref_iLine, WStringView& ref_sSection);
 
 public:
-  ezAngelScriptEngineSingleton();
-  ~ezAngelScriptEngineSingleton();
+  WAngelScriptEngineSingleton();
+  ~WAngelScriptEngineSingleton();
 
   asIScriptEngine* GetEngine() const { return m_pEngine; }
 
-  asIScriptModule* SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection);
-  asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies);
-  ezResult ValidateModule(asIScriptModule* pModule) const;
+  asIScriptModule* SetModuleCode(WStringView sModuleName, WStringView sCode, bool bAddExternalSection);
+  asIScriptModule* CompileModule(WStringView sModuleName, WStringView sMainClass, WStringView sRefFilePath, WStringView sCode, WStringBuilder* out_pProcessedCode, WSet<WString>* out_pDependencies);
+  WResult ValidateModule(asIScriptModule* pModule) const;
 
-  const ezSet<ezString>& GetNotRegistered() const { return m_NotRegistered; }
+  const WSet<WString>& GetNotRegistered() const { return m_NotRegistered; }
 
 private:
   void AddForbiddenType(const char* szTypeName);
@@ -72,46 +72,46 @@ private:
   void Register_Math();
   void Register_Spatial();
 
-  void Register_ezAngelScriptClass();
+  void Register_WAngelScriptClass();
   void Register_GlobalReflectedFunctions();
-  void Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable);
+  void Register_ReflectedType(const WRTTI* pBaseType, bool bCreatable);
   void Register_ReflectedTypes();
-  void RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited);
-  void RegisterSingleGenericFunction(const char* szFuncName, const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited, const ezRTTI* pReturnType);
-  void RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited);
-  bool AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg);
-  bool AppendFuncArgs(ezStringBuilder& decl, const ezAbstractFunctionProperty* pFunc, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg);
+  void RegisterTypeFunctions(const char* szTypeName, const WRTTI* pRtti, bool bIsInherited);
+  void RegisterSingleGenericFunction(const char* szFuncName, const char* szTypeName, const WAbstractFunctionProperty* const pFunc, const WScriptableFunctionAttribute* pFuncAttr, bool bIsInherited, const WRTTI* pReturnType);
+  void RegisterGenericFunction(const char* szTypeName, const WAbstractFunctionProperty* const pFunc, const WScriptableFunctionAttribute* pFuncAttr, bool bIsInherited);
+  bool AppendType(WStringBuilder& decl, const WRTTI* pRtti, const WScriptableFunctionAttribute* pFuncAttr, WUInt32 uiArg);
+  bool AppendFuncArgs(WStringBuilder& decl, const WAbstractFunctionProperty* pFunc, const WScriptableFunctionAttribute* pFuncAttr, WUInt32 uiArg);
   void Register_ExtraComponentFuncs();
 
 
   template <typename T>
   void RegisterPodValueType(asUINT additonalFlags = 0)
   {
-    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    const WRTTI* pRtti = WGetStaticRTTI<T>();
     int typeId = m_pEngine->RegisterObjectType(pRtti->GetTypeName().GetStartPointer(), sizeof(T), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<T>() | additonalFlags);
     AS_CHECK(typeId);
 
-    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
+    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, WAsUserData::RttiPtr);
   }
 
   template <typename T>
   void RegisterNonPodValueType()
   {
-    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    const WRTTI* pRtti = WGetStaticRTTI<T>();
     int typeId = m_pEngine->RegisterObjectType(pRtti->GetTypeName().GetStartPointer(), sizeof(T), asOBJ_VALUE | asGetTypeTraits<T>());
     AS_CHECK(typeId);
 
-    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
+    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, WAsUserData::RttiPtr);
   }
 
   template <typename T>
   void RegisterRefType()
   {
-    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    const WRTTI* pRtti = WGetStaticRTTI<T>();
     int typeId = m_pEngine->RegisterObjectType(pRtti->GetTypeName().GetStartPointer(), 0, asOBJ_REF | asOBJ_NOCOUNT);
     AS_CHECK(typeId);
 
-    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
+    m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, WAsUserData::RttiPtr);
 
     AddForbiddenType(pRtti->GetTypeName().GetStartPointer());
 
@@ -120,14 +120,14 @@ private:
 
   asIScriptEngine* m_pEngine = nullptr;
 
-  ezSet<ezString> m_WhitelistedRefTypes;
+  WSet<WString> m_WhitelistedRefTypes;
 
-  ezHybridArray<const asITypeInfo*, 16> m_ForbiddenTypes;
+  WHybridArray<const asITypeInfo*, 16> m_ForbiddenTypes;
 
-  ezAsStringFactory* m_pStringFactory = nullptr;
+  WAsStringFactory* m_pStringFactory = nullptr;
 
-  ezSet<ezString> m_NotRegistered;
+  WSet<WString> m_NotRegistered;
 
-  ezMutex m_CompilerMutex;
-  ezStringView m_sCodeInCompilation;
+  WMutex m_CompilerMutex;
+  WStringView m_sCodeInCompilation;
 };

@@ -4,9 +4,9 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
-const ezImageFileFormat* ezImageFileFormat::GetReaderFormat(ezStringView sExtension)
+const WImageFileFormat* WImageFileFormat::GetReaderFormat(WStringView sExtension)
 {
-  for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
+  for (auto format = WRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
   {
     if (format->GetFormatType().CanReadFileType(sExtension))
     {
@@ -17,9 +17,9 @@ const ezImageFileFormat* ezImageFileFormat::GetReaderFormat(ezStringView sExtens
   return nullptr;
 }
 
-const ezImageFileFormat* ezImageFileFormat::GetWriterFormat(ezStringView sExtension)
+const WImageFileFormat* WImageFileFormat::GetWriterFormat(WStringView sExtension)
 {
-  for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
+  for (auto format = WRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
   {
     if (format->GetFormatType().CanWriteFileType(sExtension))
     {
@@ -30,39 +30,39 @@ const ezImageFileFormat* ezImageFileFormat::GetWriterFormat(ezStringView sExtens
   return nullptr;
 }
 
-ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeader& ref_header)
+WResult WImageFileFormat::ReadImageHeader(WStringView sFileName, WImageHeader& ref_header)
 {
-  EZ_LOG_BLOCK("Read Image Header", sFileName);
+  W_LOG_BLOCK("Read Image Header", sFileName);
 
-  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName));
+  W_PROFILE_SCOPE(WPathUtils::GetFileNameAndExtension(sFileName));
 
-  ezFileReader reader;
-  if (reader.Open(sFileName) == EZ_FAILURE)
+  WFileReader reader;
+  if (reader.Open(sFileName) == W_FAILURE)
   {
-    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(sFileName, "File"));
-    return EZ_FAILURE;
+    WLog::Warning("Failed to open image file '{0}'", WArgSensitive(sFileName, "File"));
+    return W_FAILURE;
   }
 
-  ezStringView it = ezPathUtils::GetFileExtension(sFileName);
+  WStringView it = WPathUtils::GetFileExtension(sFileName);
 
-  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it))
+  if (const WImageFileFormat* pFormat = WImageFileFormat::GetReaderFormat(it))
   {
-    if (pFormat->ReadImageHeader(reader, ref_header, it) != EZ_SUCCESS)
+    if (pFormat->ReadImageHeader(reader, ref_header, it) != W_SUCCESS)
     {
-      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(sFileName, "File"));
-      return EZ_FAILURE;
+      WLog::Warning("Failed to read image file '{0}'", WArgSensitive(sFileName, "File"));
+      return W_FAILURE;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezLog::Warning("No known image file format for extension '{0}'", it);
-  return EZ_FAILURE;
+  WLog::Warning("No known image file format for extension '{0}'", it);
+  return W_FAILURE;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisteredImageFileFormat);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WRegisteredImageFileFormat);
 
-ezRegisteredImageFileFormat::ezRegisteredImageFileFormat() = default;
-ezRegisteredImageFileFormat::~ezRegisteredImageFileFormat() = default;
+WRegisteredImageFileFormat::WRegisteredImageFileFormat() = default;
+WRegisteredImageFileFormat::~WRegisteredImageFileFormat() = default;

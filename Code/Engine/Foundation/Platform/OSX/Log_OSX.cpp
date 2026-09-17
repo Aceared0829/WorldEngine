@@ -1,10 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#if W_ENABLED(W_PLATFORM_OSX)
 
 #  include <Foundation/Logging/Log.h>
 
-void ezLog::Print(const char* szText)
+void WLog::Print(const char* szText)
 {
   printf("%s", szText);
 
@@ -17,14 +17,14 @@ void ezLog::Print(const char* szText)
   fflush(stderr);
 }
 
-void ezLog::OsMessageBox(const ezFormatString& text)
+void WLog::OsMessageBox(const WFormatString& text)
 {
-  ezStringBuilder tmp;
-  ezStringBuilder display = text.GetText(tmp);
+  WStringBuilder tmp;
+  WStringBuilder display = text.GetText(tmp);
   display.Trim(" \n\r\t");
 
-  ezLog::Print(display);
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  WLog::Print(display);
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif

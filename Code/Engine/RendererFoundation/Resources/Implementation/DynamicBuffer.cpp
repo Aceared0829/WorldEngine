@@ -8,7 +8,7 @@ namespace
 {
   struct CompareRangesByStart
   {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    bool Less(const WGAL::ModifiedRange& a, const WGAL::ModifiedRange& b) const
     {
       return a.m_uiMin < b.m_uiMin;
     }
@@ -16,7 +16,7 @@ namespace
 
   struct CompareRangesByStartReverse
   {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    bool Less(const WGAL::ModifiedRange& a, const WGAL::ModifiedRange& b) const
     {
       return a.m_uiMin > b.m_uiMin;
     }
@@ -24,7 +24,7 @@ namespace
 
   struct CompareRangesByCount
   {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    bool Less(const WGAL::ModifiedRange& a, const WGAL::ModifiedRange& b) const
     {
       return a.GetCount() < b.GetCount();
     }
@@ -33,15 +33,15 @@ namespace
 
 ////////////////////////////////////////////////////////////////////////
 
-ezGALDynamicBuffer::~ezGALDynamicBuffer()
+WGALDynamicBuffer::~WGALDynamicBuffer()
 {
   Deinitialize();
 }
 
-void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName)
+void WGALDynamicBuffer::Initialize(const WGALBufferCreationDescription& desc, WStringView sDebugName)
 {
-  EZ_ASSERT_DEV(desc.m_uiStructSize > 0, "Struct size must be greater than 0");
-  EZ_IGNORE_UNUSED(sDebugName);
+  W_ASSERT_DEV(desc.m_uiStructSize > 0, "Struct size must be greater than 0");
+  W_IGNORE_UNUSED(sDebugName);
 
   m_Desc = desc;
 
@@ -51,19 +51,19 @@ void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, 
   m_sDebugName = sDebugName;
 }
 
-void ezGALDynamicBuffer::Deinitialize()
+void WGALDynamicBuffer::Deinitialize()
 {
   Clear();
 
   if (m_hBufferForRendering != m_hBufferForUpload)
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForRendering);
+    WGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForRendering);
   }
 
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForUpload);
+  WGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForUpload);
 }
 
-void ezGALDynamicBuffer::Clear()
+void WGALDynamicBuffer::Clear()
 {
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
   m_uiNextOffset = 0;
@@ -79,16 +79,16 @@ void ezGALDynamicBuffer::Clear()
   m_DirtyRange.Reset();
 }
 
-ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator)
+WUInt32 WGALDynamicBuffer::Allocate(WUInt64 uiUserData, WUInt32 uiCount, WBitflags<AllocateFlags> allocateFlags, WAllocator* pTempAllocator)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezUInt32 uiOffset = ezInvalidIndex;
+  WUInt32 uiOffset = WInvalidIndex;
 
-  for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
   {
     auto& freeRange = m_FreeRanges[i];
-    const ezUInt32 uiFreeCount = freeRange.GetCount();
+    const WUInt32 uiFreeCount = freeRange.GetCount();
 
     if (uiFreeCount >= uiCount)
     {
@@ -107,7 +107,7 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
     }
   }
 
-  if (uiOffset == ezInvalidIndex)
+  if (uiOffset == WInvalidIndex)
   {
     uiOffset = m_uiNextOffset;
     m_uiNextOffset += uiCount;
@@ -118,11 +118,11 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
     }
   }
 
-  ezUInt32 uiDataIndex = 0;
-  const ezUInt32 uiByteEndOffset = (uiOffset + uiCount) * m_Desc.m_uiStructSize;
+  WUInt32 uiDataIndex = 0;
+  const WUInt32 uiByteEndOffset = (uiOffset + uiCount) * m_Desc.m_uiStructSize;
   if (uiByteEndOffset > m_Data.GetCount())
   {
-    for (ezUInt32 i = 0; i < m_TempData.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_TempData.GetCount(); ++i)
     {
       auto& tempData = m_TempData[i];
       if (uiByteEndOffset <= (tempData.m_uiStartByteOffset + tempData.m_uiByteSize))
@@ -137,33 +137,33 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
 
   if (allocateFlags.IsSet(AllocateFlags::ZeroFill))
   {
-    ezUInt32 uiDummyCount = 0;
+    WUInt32 uiDummyCount = 0;
     auto data = MapForWriting(uiOffset, uiDummyCount);
-    ezMemoryUtils::ZeroFill(data.GetPtr(), data.GetCount());
+    WMemoryUtils::ZeroFill(data.GetPtr(), data.GetCount());
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   CheckSelf();
 #endif
 
   return uiOffset;
 }
 
-void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
+void WGALDynamicBuffer::Deallocate(WUInt32 uiOffset)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  W_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
-  const ezUInt32 uiCount = it.Value().m_uiCount;
+  const WUInt32 uiCount = it.Value().m_uiCount;
 
   if (it.Key() == m_Allocations.GetReverseIterator().Key())
   {
     m_uiNextOffset = uiOffset;
 
     // Remove free range in front of the last allocation
-    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
     {
       auto& freeRange = m_FreeRanges[i];
       if (freeRange.m_uiMax + 1 == m_uiNextOffset)
@@ -176,11 +176,11 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
   }
   else
   {
-    m_FreeRanges.PushBack(ezGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
+    m_FreeRanges.PushBack(WGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
 
     // Merge adjacent free ranges
     m_FreeRanges.Sort(CompareRangesByStart());
-    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
+    for (WUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
     {
       auto& currentFreeRange = m_FreeRanges[i];
       auto& nextFreeRange = m_FreeRanges[i + 1];
@@ -199,17 +199,17 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
 
   m_Allocations.Remove(it);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   CheckSelf();
 #endif
 }
 
-ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount)
+WByteArrayPtr WGALDynamicBuffer::MapForWriting(WUInt32 uiOffset, WUInt32& out_uiCount)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  W_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
   auto& allocation = it.Value();
   out_uiCount = allocation.m_uiCount;
@@ -217,56 +217,56 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
   // Mark dirty
   m_DirtyRange.SetToIncludeRange(uiOffset, uiOffset + out_uiCount - 1);
 
-  const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
-  const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
+  const WUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
+  const WUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
 
   if (allocation.m_uiDataIndex > 0)
   {
     auto& tempData = m_TempData[allocation.m_uiDataIndex - 1];
-    const ezUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
-    EZ_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
-    return ezByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
+    const WUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
+    W_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
+    return WByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
   }
 
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-ezConstByteArrayPtr ezGALDynamicBuffer::MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const
+WConstByteArrayPtr WGALDynamicBuffer::MapForReading(WUInt32 uiOffset, WUInt32& out_uiCount) const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  W_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
   auto& allocation = it.Value();
   out_uiCount = allocation.m_uiCount;
 
-  const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
-  const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
+  const WUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
+  const WUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
 
   if (allocation.m_uiDataIndex > 0)
   {
     auto& tempData = m_TempData[allocation.m_uiDataIndex - 1];
-    const ezUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
-    EZ_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
-    return ezConstByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
+    const WUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
+    W_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
+    return WConstByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
   }
 
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-ezUInt32 ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator)
+WUInt32 WGALDynamicBuffer::AllocateTempData(WUInt32 uiStartOffset, WUInt32 uiNewCount, WAllocator* pTempAllocator)
 {
-  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  constexpr WUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
 
-  uiNewCount = ezMath::Max(uiNewCount, 256U);
+  uiNewCount = WMath::Max(uiNewCount, 256U);
   if (uiNewCount < uiExpGrowthLimit)
   {
-    uiNewCount = ezMath::PowerOfTwo_Ceil(uiNewCount);
+    uiNewCount = WMath::PowerOfTwo_Ceil(uiNewCount);
   }
   else
   {
-    uiNewCount = ezMemoryUtils::AlignSize(uiNewCount, uiExpGrowthLimit);
+    uiNewCount = WMemoryUtils::AlignSize(uiNewCount, uiExpGrowthLimit);
   }
 
   m_Desc.m_uiTotalSize = uiNewCount * m_Desc.m_uiStructSize;
@@ -274,23 +274,23 @@ ezUInt32 ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 u
 
   if (pTempAllocator == nullptr)
   {
-    pTempAllocator = ezFoundation::GetAlignedAllocator();
+    pTempAllocator = WFoundation::GetAlignedAllocator();
   }
 
   TempData& tempData = m_TempData.ExpandAndGetRef();
   tempData.m_pAllocator = pTempAllocator;
   tempData.m_uiByteSize = (uiNewCount - uiStartOffset) * m_Desc.m_uiStructSize;
   tempData.m_uiStartByteOffset = uiStartOffset * m_Desc.m_uiStructSize;
-  tempData.m_pData = static_cast<ezUInt8*>(pTempAllocator->Allocate(tempData.m_uiByteSize, 16));
+  tempData.m_pData = static_cast<WUInt8*>(pTempAllocator->Allocate(tempData.m_uiByteSize, 16));
 
   m_DirtyRange.SetToIncludeRange(0, (uiNewCount - 1));
 
   return m_TempData.GetCount();
 }
 
-void ezGALDynamicBuffer::UploadChangesForNextFrame()
+void WGALDynamicBuffer::UploadChangesForNextFrame()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (m_DirtyRange.IsValid() == false)
     return;
@@ -299,7 +299,7 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
   for (auto& tempData : m_TempData)
   {
-    ezMemoryUtils::Copy(&m_Data[tempData.m_uiStartByteOffset], tempData.m_pData, tempData.m_uiByteSize);
+    WMemoryUtils::Copy(&m_Data[tempData.m_uiStartByteOffset], tempData.m_pData, tempData.m_uiByteSize);
     tempData.m_pAllocator->Deallocate(tempData.m_pData);
   }
   m_TempData.Clear();
@@ -314,7 +314,7 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
     allocation.m_uiDataIndex = 0;
   }
 
-  auto pDevice = ezGALDevice::GetDefaultDevice();
+  auto pDevice = WGALDevice::GetDefaultDevice();
 
   if (m_hBufferForUpload.IsInvalidated() == false && pDevice->GetBuffer(m_hBufferForUpload)->GetDescription().m_uiTotalSize != m_Desc.m_uiTotalSize)
   {
@@ -326,14 +326,14 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
   {
     m_hBufferForUpload = pDevice->CreateBuffer(m_Desc, m_Data);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     pDevice->GetBuffer(m_hBufferForUpload)->SetDebugName(m_sDebugName);
 #endif
   }
   else
   {
-    const ezUInt32 uiByteOffset = m_DirtyRange.m_uiMin * m_Desc.m_uiStructSize;
-    const ezUInt32 uiByteSize = m_DirtyRange.GetCount() * m_Desc.m_uiStructSize;
+    const WUInt32 uiByteOffset = m_DirtyRange.m_uiMin * m_Desc.m_uiStructSize;
+    const WUInt32 uiByteSize = m_DirtyRange.GetCount() * m_Desc.m_uiStructSize;
     auto data = m_Data.GetArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 
     pDevice->UpdateBufferForNextFrame(m_hBufferForUpload, data, uiByteOffset);
@@ -342,9 +342,9 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
   m_DirtyRange.Reset();
 }
 
-void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& out_changedAllocations, ezUInt32 uiMaxSteps)
+void WGALDynamicBuffer::RunCompactionSteps(WDynamicArray<ChangedAllocation>& out_changedAllocations, WUInt32 uiMaxSteps)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   out_changedAllocations.Clear();
 
@@ -356,16 +356,16 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     return;
 
   m_FreeRanges.Sort(CompareRangesByStartReverse());
-  EZ_SCOPE_EXIT(m_FreeRanges.Sort(CompareRangesByCount()));
+  W_SCOPE_EXIT(m_FreeRanges.Sort(CompareRangesByCount()));
 
-  auto MoveAllocation = [&](const Allocation& allocation, ezUInt32 uiOldOffset, ezUInt32 uiNewOffset)
+  auto MoveAllocation = [&](const Allocation& allocation, WUInt32 uiOldOffset, WUInt32 uiNewOffset)
   {
     out_changedAllocations.PushBack(ChangedAllocation{allocation.m_uiUserData, uiNewOffset});
 
-    const ezUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
-    const ezUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
-    const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
-    ezMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
+    const WUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
+    const WUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
+    const WUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
+    WMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
 
     m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + allocation.m_uiCount - 1);
 
@@ -373,14 +373,14 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     m_Allocations.Remove(uiOldOffset);
   };
 
-  for (ezUInt32 i = 0; i < uiMaxSteps; ++i)
+  for (WUInt32 i = 0; i < uiMaxSteps; ++i)
   {
     if (m_FreeRanges.IsEmpty())
       return;
 
     auto& freeRange = m_FreeRanges.PeekBack();
-    const ezUInt32 uiFreeCount = freeRange.GetCount();
-    const ezUInt32 uiNewOffset = freeRange.m_uiMin;
+    const WUInt32 uiFreeCount = freeRange.GetCount();
+    const WUInt32 uiNewOffset = freeRange.m_uiMin;
 
     // first check whether the last allocation fits into the hole
     auto revIt = m_Allocations.GetReverseIterator();
@@ -398,9 +398,9 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 
     // if not start to move the allocations forward
     auto it = m_Allocations.Find(freeRange.m_uiMax + 1);
-    EZ_ASSERT_DEV(it.IsValid(), "Implementation error");
+    W_ASSERT_DEV(it.IsValid(), "Implementation error");
     {
-      const ezUInt32 uiNewFreeRangeMin = uiNewOffset + it.Value().m_uiCount;
+      const WUInt32 uiNewFreeRangeMin = uiNewOffset + it.Value().m_uiCount;
 
       if (it.Key() == revIt.Key())
       {
@@ -416,7 +416,7 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
         // merge adjacent free ranges
         if (m_FreeRanges.GetCount() > 1)
         {
-          const ezUInt32 uiSecondIndex = m_FreeRanges.GetCount() - 2;
+          const WUInt32 uiSecondIndex = m_FreeRanges.GetCount() - 2;
           auto& secondFreeRange = m_FreeRanges[uiSecondIndex];
           if (freeRange.m_uiMax + 1 == secondFreeRange.m_uiMin)
           {
@@ -430,38 +430,38 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     }
   }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   CheckSelf();
 #endif
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-void ezGALDynamicBuffer::CheckSelf() const
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+void WGALDynamicBuffer::CheckSelf() const
 {
 #  if 0
   if (m_uiNextOffset == 0 && m_Allocations.IsEmpty() && m_FreeRanges.IsEmpty())
     return;
 
-  ezDynamicBitfield check;
+  WDynamicBitfield check;
   check.SetCount(m_uiNextOffset, false);
 
   for (auto it : m_Allocations)
   {
-    const ezUInt32 uiStart = it.Key();
-    const ezUInt32 uiCount = it.Value().m_uiCount;
-    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping allocation detected");
+    const WUInt32 uiStart = it.Key();
+    const WUInt32 uiCount = it.Value().m_uiCount;
+    W_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping allocation detected");
     check.SetBitRange(uiStart, uiCount);
   }
 
   for (auto range : m_FreeRanges)
   {
-    const ezUInt32 uiStart = range.m_uiMin;
-    const ezUInt32 uiCount = range.GetCount();
-    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping free range detected");
+    const WUInt32 uiStart = range.m_uiMin;
+    const WUInt32 uiCount = range.GetCount();
+    W_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping free range detected");
     check.SetBitRange(uiStart, uiCount);
   }
 
-  EZ_ASSERT_DEBUG(check.AreAllBitsSet(), "Some memory is neither allocated nor free");
+  W_ASSERT_DEBUG(check.AreAllBitsSet(), "Some memory is neither allocated nor free");
 #  endif
 }
 #endif

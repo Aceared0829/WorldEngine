@@ -9,65 +9,65 @@
 #include <QPainter>
 #include <QStyleOptionToolButton>
 
-ezQtGroupBoxBase::ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible)
+WQtGroupBoxBase::WQtGroupBoxBase(QWidget* pParent, bool bCollapsible)
   : QWidget(pParent)
 {
   m_bCollapsible = bCollapsible;
 }
 
-void ezQtGroupBoxBase::SetTitle(ezStringView sTitle)
+void WQtGroupBoxBase::SetTitle(WStringView sTitle)
 {
-  m_sTitle = ezMakeQString(sTitle);
+  m_sTitle = WMakeQString(sTitle);
 }
 
-QString ezQtGroupBoxBase::GetTitle() const
+QString WQtGroupBoxBase::GetTitle() const
 {
   return m_sTitle;
 }
 
-void ezQtGroupBoxBase::SetBoldTitle(bool bBold)
+void WQtGroupBoxBase::SetBoldTitle(bool bBold)
 {
   m_bBoldTitle = bBold;
   update();
 }
 
-bool ezQtGroupBoxBase::GetBoldTitle() const
+bool WQtGroupBoxBase::GetBoldTitle() const
 {
   return m_bBoldTitle;
 }
 
-void ezQtGroupBoxBase::SetIcon(const QIcon& icon)
+void WQtGroupBoxBase::SetIcon(const QIcon& icon)
 {
   m_Icon = icon;
 }
 
-QIcon ezQtGroupBoxBase::GetIcon() const
+QIcon WQtGroupBoxBase::GetIcon() const
 {
   return m_Icon;
 }
 
-void ezQtGroupBoxBase::SetFillColor(const QColor& color)
+void WQtGroupBoxBase::SetFillColor(const QColor& color)
 {
   m_FillColor = color;
   update();
 }
 
-QColor ezQtGroupBoxBase::GetFillColor() const
+QColor WQtGroupBoxBase::GetFillColor() const
 {
   return m_FillColor;
 }
 
-void ezQtGroupBoxBase::SetDraggable(bool bDraggable)
+void WQtGroupBoxBase::SetDraggable(bool bDraggable)
 {
   m_bDraggable = bDraggable;
 }
 
-bool ezQtGroupBoxBase::IsDraggable() const
+bool WQtGroupBoxBase::IsDraggable() const
 {
   return m_bDraggable;
 }
 
-void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
+void WQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
 {
   QRect remainingRect = rect.adjusted(0, 0, 0, 0);
 
@@ -76,8 +76,8 @@ void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
     QRect iconRect = remainingRect;
     iconRect.setWidth(iconRect.height() / 2);
     bool bCollapsed = GetCollapseState();
-    QIcon collapseIcon = bCollapsed ? ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupClosed.svg")
-                                    : ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupOpen.svg");
+    QIcon collapseIcon = bCollapsed ? WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupClosed.svg")
+                                    : WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupOpen.svg");
     collapseIcon.paint(&p, iconRect);
     remainingRect.adjust(iconRect.width() + Spacing, 0, 0, 0);
   }
@@ -103,7 +103,7 @@ void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
   p.setFont(fontOld);
 }
 
-void ezQtGroupBoxBase::HeaderMousePress(QMouseEvent* me)
+void WQtGroupBoxBase::HeaderMousePress(QMouseEvent* me)
 {
   if (me->button() == Qt::MouseButton::LeftButton)
   {
@@ -112,7 +112,7 @@ void ezQtGroupBoxBase::HeaderMousePress(QMouseEvent* me)
   }
 }
 
-void ezQtGroupBoxBase::HeaderMouseMove(QMouseEvent* me)
+void WQtGroupBoxBase::HeaderMouseMove(QMouseEvent* me)
 {
   if (m_bDraggable)
   {
@@ -139,7 +139,7 @@ void ezQtGroupBoxBase::HeaderMouseMove(QMouseEvent* me)
   }
 }
 
-void ezQtGroupBoxBase::HeaderMouseRelease(QMouseEvent* me)
+void WQtGroupBoxBase::HeaderMouseRelease(QMouseEvent* me)
 {
   if (me->button() == Qt::MouseButton::LeftButton)
   {

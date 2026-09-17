@@ -2,22 +2,22 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#if W_ENABLED(W_SUPPORTS_GLFW)
 
 extern "C"
 {
   typedef struct GLFWwindow GLFWwindow;
 }
 
-class EZ_CORE_DLL ezInputDeviceMouseKeyboard_GLFW : public ezInputDeviceMouseKeyboard
+class W_CORE_DLL WInputDeviceMouseKeyboard_GLFW : public WInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_GLFW, ezInputDeviceMouseKeyboard);
+  W_ADD_DYNAMIC_REFLECTION(WInputDeviceMouseKeyboard_GLFW, WInputDeviceMouseKeyboard);
 
 public:
-  ezInputDeviceMouseKeyboard_GLFW(GLFWwindow* windowHandle);
-  ~ezInputDeviceMouseKeyboard_GLFW();
+  WInputDeviceMouseKeyboard_GLFW(GLFWwindow* windowHandle);
+  ~WInputDeviceMouseKeyboard_GLFW();
 
-  virtual ezUInt32 GetHardwareCursorSize() const override;
+  virtual WUInt32 GetHardwareCursorSize() const override;
 
   // GLFW callback for key pressed, released, repeated events
   void OnKey(int key, int scancode, int action, int mods);
@@ -36,7 +36,7 @@ public:
 
 private:
   virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
-  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+  virtual void ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode) override;
 
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
@@ -44,7 +44,7 @@ private:
 
 private:
   GLFWwindow* m_pWindow = nullptr;
-  ezVec2d m_LastPos = ezVec2d(ezMath::MaxValue<double>());
+  WVec2d m_LastPos = WVec2d(WMath::MaxValue<double>());
 };
 
 #endif

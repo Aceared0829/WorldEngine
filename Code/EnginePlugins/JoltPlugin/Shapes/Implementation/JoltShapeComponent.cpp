@@ -8,21 +8,21 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltShapeComponent, 1)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WJoltShapeComponent, 1)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Shapes"),
+    new WCategoryAttribute("Physics/Jolt/Shapes"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+W_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezJoltShapeComponent::ezJoltShapeComponent() = default;
-ezJoltShapeComponent::~ezJoltShapeComponent() = default;
+WJoltShapeComponent::WJoltShapeComponent() = default;
+WJoltShapeComponent::~WJoltShapeComponent() = default;
 
-void ezJoltShapeComponent::Initialize()
+void WJoltShapeComponent::Initialize()
 {
   if (IsActive())
   {
@@ -30,28 +30,28 @@ void ezJoltShapeComponent::Initialize()
   }
 }
 
-void ezJoltShapeComponent::OnDeactivated()
+void WJoltShapeComponent::OnDeactivated()
 {
-  if (m_uiUserDataIndex != ezInvalidIndex)
+  if (m_uiUserDataIndex != WInvalidIndex)
   {
-    ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
     pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
   SUPER::OnDeactivated();
 }
 
-const ezJoltUserData* ezJoltShapeComponent::GetUserData()
+const WJoltUserData* WJoltShapeComponent::GetUserData()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  if (m_uiUserDataIndex != ezInvalidIndex)
+  if (m_uiUserDataIndex != WInvalidIndex)
   {
     return &pModule->GetUserData(m_uiUserDataIndex);
   }
   else
   {
-    ezJoltUserData* pUserData = nullptr;
+    WJoltUserData* pUserData = nullptr;
     m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
     pUserData->Init(this);
 
@@ -59,11 +59,11 @@ const ezJoltUserData* ezJoltShapeComponent::GetUserData()
   }
 }
 
-ezUInt32 ezJoltShapeComponent::GetUserDataIndex()
+WUInt32 WJoltShapeComponent::GetUserDataIndex()
 {
   GetUserData();
   return m_uiUserDataIndex;
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeComponent);

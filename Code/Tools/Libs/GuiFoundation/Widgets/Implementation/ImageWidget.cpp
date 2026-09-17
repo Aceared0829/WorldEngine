@@ -6,14 +6,14 @@
 #include <QScrollArea>
 #include <QScrollBar>
 
-ezQtImageScene::ezQtImageScene(QObject* pParent)
+WQtImageScene::WQtImageScene(QObject* pParent)
   : QGraphicsScene(pParent)
 {
   m_pImageItem = nullptr;
   setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-void ezQtImageScene::SetImage(QPixmap pixmap)
+void WQtImageScene::SetImage(QPixmap pixmap)
 {
   if (m_pImageItem)
     delete m_pImageItem;
@@ -25,11 +25,11 @@ void ezQtImageScene::SetImage(QPixmap pixmap)
 
 
 
-ezQtImageWidget::ezQtImageWidget(QWidget* pParent, bool bShowButtons)
+WQtImageWidget::WQtImageWidget(QWidget* pParent, bool bShowButtons)
   : QWidget(pParent)
 {
   setupUi(this);
-  m_pScene = new ezQtImageScene(GraphicsView);
+  m_pScene = new WQtImageScene(GraphicsView);
   GraphicsView->setScene(m_pScene);
 
   m_fCurrentScale = 1.0f;
@@ -38,9 +38,9 @@ ezQtImageWidget::ezQtImageWidget(QWidget* pParent, bool bShowButtons)
     ButtonBar->setVisible(false);
 }
 
-ezQtImageWidget::~ezQtImageWidget() = default;
+WQtImageWidget::~WQtImageWidget() = default;
 
-void ezQtImageWidget::SetImageSize(float fScale)
+void WQtImageWidget::SetImageSize(float fScale)
 {
   if (m_fCurrentScale == fScale)
     return;
@@ -49,37 +49,37 @@ void ezQtImageWidget::SetImageSize(float fScale)
   ImageApplyScale();
 }
 
-void ezQtImageWidget::ScaleImage(float fFactor)
+void WQtImageWidget::ScaleImage(float fFactor)
 {
   float fPrevScale = m_fCurrentScale;
-  m_fCurrentScale = ezMath::Clamp(m_fCurrentScale * fFactor, 0.2f, 5.0f);
+  m_fCurrentScale = WMath::Clamp(m_fCurrentScale * fFactor, 0.2f, 5.0f);
 
   ImageApplyScale();
 }
 
-void ezQtImageWidget::ImageApplyScale()
+void WQtImageWidget::ImageApplyScale()
 {
   QTransform scale = QTransform::fromScale(m_fCurrentScale, m_fCurrentScale);
   GraphicsView->setTransform(scale);
 }
 
-void ezQtImageWidget::SetImage(QPixmap pixmap)
+void WQtImageWidget::SetImage(QPixmap pixmap)
 {
   m_pScene->SetImage(pixmap);
   ImageApplyScale();
 }
 
-void ezQtImageWidget::on_ButtonZoomIn_clicked()
+void WQtImageWidget::on_ButtonZoomIn_clicked()
 {
   ScaleImage(1.25f);
 }
 
-void ezQtImageWidget::on_ButtonZoomOut_clicked()
+void WQtImageWidget::on_ButtonZoomOut_clicked()
 {
   ScaleImage(0.75f);
 }
 
-void ezQtImageWidget::on_ButtonResetZoom_clicked()
+void WQtImageWidget::on_ButtonResetZoom_clicked()
 {
   SetImageSize(1.0f);
 }

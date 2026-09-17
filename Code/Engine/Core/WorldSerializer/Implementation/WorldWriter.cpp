@@ -4,7 +4,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 
-void ezWorldWriter::Clear()
+void WWorldWriter::Clear()
 {
   m_AllRootObjects.Clear();
   m_AllChildObjects.Clear();
@@ -16,75 +16,75 @@ void ezWorldWriter::Clear()
   // invalid handles
   {
     m_WrittenGameObjectHandles.Clear();
-    m_WrittenGameObjectHandles[ezGameObjectHandle()] = 0;
+    m_WrittenGameObjectHandles[WGameObjectHandle()] = 0;
   }
 }
 
-void ezWorldWriter::WriteWorld(ezStreamWriter& inout_stream, ezWorld& ref_world, const ezTagSet* pExclude)
+void WWorldWriter::WriteWorld(WStreamWriter& inout_stream, WWorld& ref_world, const WTagSet* pExclude)
 {
   Clear();
 
   m_pStream = &inout_stream;
   m_pExclude = pExclude;
 
-  EZ_LOCK(ref_world.GetReadMarker());
+  W_LOCK(ref_world.GetReadMarker());
 
-  ref_world.Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
+  ref_world.Traverse(WMakeDelegate(&WWorldWriter::ObjectTraverser, this), WWorld::TraversalMethod::DepthFirst);
 
   WriteToStream().IgnoreResult();
 }
 
-void ezWorldWriter::WriteObjects(ezStreamWriter& inout_stream, const ezDeque<const ezGameObject*>& rootObjects)
+void WWorldWriter::WriteObjects(WStreamWriter& inout_stream, const WDeque<const WGameObject*>& rootObjects)
 {
   Clear();
 
   m_pStream = &inout_stream;
 
-  for (const ezGameObject* pObject : rootObjects)
+  for (const WGameObject* pObject : rootObjects)
   {
     // traversal function takes a non-const object, but we only read it anyway
-    Traverse(const_cast<ezGameObject*>(pObject));
+    Traverse(const_cast<WGameObject*>(pObject));
   }
 
   WriteToStream().IgnoreResult();
 }
 
-void ezWorldWriter::WriteObjects(ezStreamWriter& inout_stream, ezArrayPtr<const ezGameObject*> rootObjects)
+void WWorldWriter::WriteObjects(WStreamWriter& inout_stream, WArrayPtr<const WGameObject*> rootObjects)
 {
   Clear();
 
   m_pStream = &inout_stream;
 
-  for (const ezGameObject* pObject : rootObjects)
+  for (const WGameObject* pObject : rootObjects)
   {
     // traversal function takes a non-const object, but we only read it anyway
-    Traverse(const_cast<ezGameObject*>(pObject));
+    Traverse(const_cast<WGameObject*>(pObject));
   }
 
   WriteToStream().IgnoreResult();
 }
 
-ezResult ezWorldWriter::WriteToStream()
+WResult WWorldWriter::WriteToStream()
 {
-  const ezUInt8 uiVersion = 10;
+  const WUInt8 uiVersion = 10;
   *m_pStream << uiVersion;
 
   // version 8: use string dedup instead of handle writer
-  ezStringDeduplicationWriteContext stringDedupWriteContext(*m_pStream);
+  WStringDeduplicationWriteContext stringDedupWriteContext(*m_pStream);
   m_pStream = &stringDedupWriteContext.Begin();
 
   IncludeAllComponentBaseTypes();
 
-  ezUInt32 uiNumRootObjects = m_AllRootObjects.GetCount();
-  ezUInt32 uiNumChildObjects = m_AllChildObjects.GetCount();
-  ezUInt32 uiNumComponentTypes = m_AllComponents.GetCount();
+  WUInt32 uiNumRootObjects = m_AllRootObjects.GetCount();
+  WUInt32 uiNumChildObjects = m_AllChildObjects.GetCount();
+  WUInt32 uiNumComponentTypes = m_AllComponents.GetCount();
 
   *m_pStream << uiNumRootObjects;
   *m_pStream << uiNumChildObjects;
   *m_pStream << uiNumComponentTypes;
 
   // this is used to sort all component types by name, to make the file serialization deterministic
-  ezMap<ezString, const ezRTTI*> sortedTypes;
+  WMap<WString, const WRTTI*> sortedTypes;
 
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
@@ -119,16 +119,16 @@ ezResult ezWorldWriter::WriteToStream()
     WriteComponentSerializationData(m_AllComponents[it.Value()].m_Components);
   }
 
-  EZ_SUCCEED_OR_RETURN(stringDedupWriteContext.End());
+  W_SUCCEED_OR_RETURN(stringDedupWriteContext.End());
   m_pStream = &stringDedupWriteContext.GetOriginalStream();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezWorldWriter::AssignGameObjectIndices()
+void WWorldWriter::AssignGameObjectIndices()
 {
-  ezUInt32 uiGameObjectIndex = 1;
+  WUInt32 uiGameObjectIndex = 1;
   for (const auto* pObject : m_AllRootObjects)
   {
     m_WrittenGameObjectHandles[pObject->GetHandle()] = uiGameObjectIndex;
@@ -142,11 +142,11 @@ void ezWorldWriter::AssignGameObjectIndices()
   }
 }
 
-void ezWorldWriter::AssignComponentHandleIndices(const ezMap<ezString, const ezRTTI*>& sortedTypes)
+void WWorldWriter::AssignComponentHandleIndices(const WMap<WString, const WRTTI*>& sortedTypes)
 {
-  ezUInt16 uiTypeIndex = 0;
+  WUInt16 uiTypeIndex = 0;
 
-  EZ_ASSERT_DEV(m_AllComponents.GetCount() <= ezMath::MaxValue<ezUInt16>(), "Too many types for world writer");
+  W_ASSERT_DEV(m_AllComponents.GetCount() <= WMath::MaxValue<WUInt16>(), "Too many types for world writer");
 
   // assign the component handle indices in the order in which the components are written
   for (auto it = sortedTypes.GetIterator(); it.IsValid(); ++it)
@@ -156,10 +156,10 @@ void ezWorldWriter::AssignComponentHandleIndices(const ezMap<ezString, const ezR
     components.m_uiSerializedTypeIndex = uiTypeIndex;
     ++uiTypeIndex;
 
-    ezUInt32 uiComponentIndex = 1;
-    components.m_HandleToIndex[ezComponentHandle()] = 0;
+    WUInt32 uiComponentIndex = 1;
+    components.m_HandleToIndex[WComponentHandle()] = 0;
 
-    for (const ezComponent* pComp : components.m_Components)
+    for (const WComponent* pComp : components.m_Components)
     {
       components.m_HandleToIndex[pComp->GetHandle()] = uiComponentIndex;
       ++uiComponentIndex;
@@ -168,9 +168,9 @@ void ezWorldWriter::AssignComponentHandleIndices(const ezMap<ezString, const ezR
 }
 
 
-void ezWorldWriter::IncludeAllComponentBaseTypes()
+void WWorldWriter::IncludeAllComponentBaseTypes()
 {
-  ezDynamicArray<const ezRTTI*> allNow;
+  WDynamicArray<const WRTTI*> allNow;
   allNow.Reserve(m_AllComponents.GetCount());
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
@@ -184,9 +184,9 @@ void ezWorldWriter::IncludeAllComponentBaseTypes()
 }
 
 
-void ezWorldWriter::IncludeAllComponentBaseTypes(const ezRTTI* pRtti)
+void WWorldWriter::IncludeAllComponentBaseTypes(const WRTTI* pRtti)
 {
-  if (pRtti == nullptr || !pRtti->IsDerivedFrom<ezComponent>() || m_AllComponents.Contains(pRtti))
+  if (pRtti == nullptr || !pRtti->IsDerivedFrom<WComponent>() || m_AllComponents.Contains(pRtti))
     return;
 
   // this is actually used to insert the type, but we have no component of this type
@@ -196,9 +196,9 @@ void ezWorldWriter::IncludeAllComponentBaseTypes(const ezRTTI* pRtti)
 }
 
 
-void ezWorldWriter::Traverse(ezGameObject* pObject)
+void WWorldWriter::Traverse(WGameObject* pObject)
 {
-  if (ObjectTraverser(pObject) == ezVisitorExecution::Continue)
+  if (ObjectTraverser(pObject) == WVisitorExecution::Continue)
   {
     for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
     {
@@ -207,13 +207,13 @@ void ezWorldWriter::Traverse(ezGameObject* pObject)
   }
 }
 
-void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)
+void WWorldWriter::WriteGameObjectHandle(const WGameObjectHandle& hObject)
 {
   auto it = m_WrittenGameObjectHandles.Find(hObject);
 
-  ezUInt32 uiIndex = 0;
+  WUInt32 uiIndex = 0;
 
-  EZ_ASSERT_DEV(it.IsValid(), "Referenced object does not exist in the scene. This can happen, if it was optimized away, because it had no name, no children and no essential components.");
+  W_ASSERT_DEV(it.IsValid(), "Referenced object does not exist in the scene. This can happen, if it was optimized away, because it had no name, no children and no essential components.");
 
   if (it.IsValid())
     uiIndex = it.Value();
@@ -221,18 +221,18 @@ void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)
   *m_pStream << uiIndex;
 }
 
-void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
+void WWorldWriter::WriteComponentHandle(const WComponentHandle& hComponent)
 {
-  ezUInt16 uiTypeIndex = 0;
-  ezUInt32 uiIndex = 0;
+  WUInt16 uiTypeIndex = 0;
+  WUInt32 uiIndex = 0;
 
-  ezComponent* pComponent = nullptr;
-  if (ezWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
+  WComponent* pComponent = nullptr;
+  if (WWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
   {
     if (auto* components = m_AllComponents.GetValue(pComponent->GetDynamicRTTI()))
     {
       auto it = components->m_HandleToIndex.Find(hComponent);
-      EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
+      W_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
 
       if (it.IsValid())
       {
@@ -246,12 +246,12 @@ void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
   *m_pStream << uiIndex;
 }
 
-ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
+WVisitorExecution::Enum WWorldWriter::ObjectTraverser(WGameObject* pObject)
 {
   if (m_pExclude && pObject->GetTags().IsAnySet(*m_pExclude))
-    return ezVisitorExecution::Skip;
+    return WVisitorExecution::Skip;
   if (pObject->WasCreatedByPrefab())
-    return ezVisitorExecution::Skip;
+    return WVisitorExecution::Skip;
 
   if (pObject->GetParent())
     m_AllChildObjects.PushBack(pObject);
@@ -260,7 +260,7 @@ ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 
   auto components = pObject->GetComponents();
 
-  for (const ezComponent* pComp : components)
+  for (const WComponent* pComp : components)
   {
     if (pComp->WasCreatedByPrefab())
       continue;
@@ -268,17 +268,17 @@ ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
     m_AllComponents[pComp->GetDynamicRTTI()].m_Components.PushBack(pComp);
   }
 
-  return ezVisitorExecution::Continue;
+  return WVisitorExecution::Continue;
 }
 
-void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
+void WWorldWriter::WriteGameObject(const WGameObject* pObject)
 {
   if (pObject->GetParent())
     WriteGameObjectHandle(pObject->GetParent()->GetHandle());
   else
-    WriteGameObjectHandle(ezGameObjectHandle());
+    WriteGameObjectHandle(WGameObjectHandle());
 
-  ezStreamWriter& s = *m_pStream;
+  WStreamWriter& s = *m_pStream;
 
   s << pObject->GetName();
   s << pObject->GetGlobalKey();
@@ -293,28 +293,28 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->GetStableRandomSeed();
 }
 
-void ezWorldWriter::WriteComponentTypeInfo(const ezRTTI* pRtti)
+void WWorldWriter::WriteComponentTypeInfo(const WRTTI* pRtti)
 {
-  ezStreamWriter& s = *m_pStream;
+  WStreamWriter& s = *m_pStream;
 
   s << pRtti->GetTypeName();
   s << pRtti->GetTypeVersion();
 }
 
-void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>& components)
+void WWorldWriter::WriteComponentCreationData(const WDeque<const WComponent*>& components)
 {
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter memWriter(&storage);
+  WDefaultMemoryStreamStorage storage;
+  WMemoryStreamWriter memWriter(&storage);
 
-  ezStreamWriter* pPrevStream = m_pStream;
+  WStreamWriter* pPrevStream = m_pStream;
   m_pStream = &memWriter;
 
   // write to memory stream
   {
-    ezStreamWriter& s = *m_pStream;
+    WStreamWriter& s = *m_pStream;
     s << components.GetCount();
 
-    ezUInt32 uiComponentIndex = 1;
+    WUInt32 uiComponentIndex = 1;
     for (auto pComponent : components)
     {
       WriteGameObjectHandle(pComponent->GetOwner()->GetHandle());
@@ -325,10 +325,10 @@ void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>
 
       // version 7
       {
-        ezUInt8 userFlags = 0;
-        for (ezUInt8 i = 0; i < 8; ++i)
+        WUInt8 userFlags = 0;
+        for (WUInt8 i = 0; i < 8; ++i)
         {
-          userFlags |= pComponent->GetUserFlag(i) ? EZ_BIT(i) : 0;
+          userFlags |= pComponent->GetUserFlag(i) ? W_BIT(i) : 0;
         }
 
         s << userFlags;
@@ -340,21 +340,21 @@ void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>
 
   // write result to actual stream
   {
-    ezStreamWriter& s = *m_pStream;
+    WStreamWriter& s = *m_pStream;
     s << storage.GetStorageSize32();
 
-    EZ_ASSERT_ALWAYS(storage.GetStorageSize64() <= ezMath::MaxValue<ezUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
+    W_ASSERT_ALWAYS(storage.GetStorageSize64() <= WMath::MaxValue<WUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
 
     storage.CopyToStream(s).IgnoreResult();
   }
 }
 
-void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezComponent*>& components)
+void WWorldWriter::WriteComponentSerializationData(const WDeque<const WComponent*>& components)
 {
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter memWriter(&storage);
+  WDefaultMemoryStreamStorage storage;
+  WMemoryStreamWriter memWriter(&storage);
 
-  ezStreamWriter* pPrevStream = m_pStream;
+  WStreamWriter* pPrevStream = m_pStream;
   m_pStream = &memWriter;
 
   // write to memory stream
@@ -367,10 +367,10 @@ void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezCompon
 
   // write result to actual stream
   {
-    ezStreamWriter& s = *m_pStream;
+    WStreamWriter& s = *m_pStream;
     s << storage.GetStorageSize32();
 
-    EZ_ASSERT_ALWAYS(storage.GetStorageSize64() <= ezMath::MaxValue<ezUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
+    W_ASSERT_ALWAYS(storage.GetStorageSize64() <= WMath::MaxValue<WUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
 
     storage.CopyToStream(s).IgnoreResult();
   }

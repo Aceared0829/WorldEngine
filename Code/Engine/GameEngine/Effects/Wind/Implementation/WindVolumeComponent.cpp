@@ -8,65 +8,65 @@
 #include <Foundation/Math/Intersection.h>
 #include <GameEngine/Effects/Wind/WindVolumeComponent.h>
 
-ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes", ezSpatialData::Flags::None);
+WSpatialData::Category WWindVolumeComponent::SpatialDataCategory = WSpatialData::RegisterCategory("WindVolumes", WSpatialData::Flags::None);
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 3)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WWindVolumeComponent, 3)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Strength", ezWindStrength, m_Strength),
-    EZ_MEMBER_PROPERTY("StrengthFactor", m_fStrengthFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10, 10)),
-    EZ_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
-    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    W_ENUM_MEMBER_PROPERTY("Strength", WWindStrength, m_Strength),
+    W_MEMBER_PROPERTY("StrengthFactor", m_fStrengthFactor)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(-10, 10)),
+    W_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
+    W_ENUM_MEMBER_PROPERTY("OnFinishedAction", WOnComponentFinishedAction, m_OnFinishedAction),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnTriggered),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects/Wind"),
+    new WCategoryAttribute("Effects/Wind"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezWindVolumeComponent::ezWindVolumeComponent() = default;
-ezWindVolumeComponent::~ezWindVolumeComponent() = default;
+WWindVolumeComponent::WWindVolumeComponent() = default;
+WWindVolumeComponent::~WWindVolumeComponent() = default;
 
-void ezWindVolumeComponent::OnActivated()
+void WWindVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezWindVolumeComponent::OnDeactivated()
+void WWindVolumeComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
 }
 
-void ezWindVolumeComponent::OnSimulationStarted()
+void WWindVolumeComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   if (m_BurstDuration.IsPositive())
   {
-    ezMsgComponentInternalTrigger msg;
+    WMsgComponentInternalTrigger msg;
     msg.m_sMessage.Assign("Suicide");
 
     PostMessage(msg, m_BurstDuration);
   }
 }
 
-void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WWindVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -77,10 +77,10 @@ void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fStrengthFactor;
 }
 
-void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WWindVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
@@ -100,38 +100,38 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezSimdVec4f ezWindVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const
+WSimdVec4f WWindVolumeComponent::ComputeForceAtGlobalPosition(const WSimdVec4f& vGlobalPos) const
 {
-  const ezSimdTransform t = GetOwner()->GetGlobalTransformSimd();
-  const ezSimdTransform tInv = t.GetInverse();
-  const ezSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
+  const WSimdTransform t = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform tInv = t.GetInverse();
+  const WSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
 
-  const ezSimdVec4f force = ComputeForceAtLocalPosition(localPos);
+  const WSimdVec4f force = ComputeForceAtLocalPosition(localPos);
 
   return t.TransformDirection(force);
 }
 
-void ezWindVolumeComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
+void WWindVolumeComponent::OnTriggered(WMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_sMessage != ezTempHashedString("Suicide"))
+  if (msg.m_sMessage != WTempHashedString("Suicide"))
     return;
 
-  ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+  WOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
 
   SetActiveFlag(false);
 }
 
-void ezWindVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WWindVolumeComponent::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
   if (m_BurstDuration.IsPositive())
   {
-    ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+    WOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
   }
 }
 
-float ezWindVolumeComponent::GetWindInMetersPerSecond() const
+float WWindVolumeComponent::GetWindInMetersPerSecond() const
 {
-  return ezWindStrength::GetInMetersPerSecond(m_Strength) * m_fStrengthFactor;
+  return WWindStrength::GetInMetersPerSecond(m_Strength) * m_fStrengthFactor;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -139,15 +139,15 @@ float ezWindVolumeComponent::GetWindInMetersPerSecond() const
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezWindVolumeComponentPatch_2_3 : public ezGraphPatch
+class WWindVolumeComponentPatch_2_3 : public WGraphPatch
 {
 public:
-  ezWindVolumeComponentPatch_2_3()
-    : ezGraphPatch("ezWindVolumeComponent", 3)
+  WWindVolumeComponentPatch_2_3()
+    : WGraphPatch("WWindVolumeComponent", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto pReverseDirection = pNode->FindProperty("ReverseDirection");
     if (pReverseDirection && pReverseDirection->m_Value.IsA<bool>())
@@ -158,39 +158,39 @@ public:
   }
 };
 
-ezWindVolumeComponentPatch_2_3 g_ezWindVolumeComponentPatch_2_3;
+WWindVolumeComponentPatch_2_3 g_WWindVolumeComponentPatch_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeSphereComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WWindVolumeSphereComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius", ezColor::CornflowerBlue),
-    new ezSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius", WColor::CornflowerBlue),
+    new WSphereManipulatorAttribute("Radius"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezWindVolumeSphereComponent::ezWindVolumeSphereComponent() = default;
-ezWindVolumeSphereComponent::~ezWindVolumeSphereComponent() = default;
+WWindVolumeSphereComponent::WWindVolumeSphereComponent() = default;
+WWindVolumeSphereComponent::~WWindVolumeSphereComponent() = default;
 
-void ezWindVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WWindVolumeSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -198,36 +198,36 @@ void ezWindVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_fRadius;
 }
 
-void ezWindVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WWindVolumeSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   m_fOneDivRadius = 1.0f / m_fRadius;
 }
 
-ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
+WSimdVec4f WWindVolumeSphereComponent::ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const
 {
   // TODO: could do this computation in global space
 
-  ezSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
+  WSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
 
   // inverse quadratic falloff to have sharper edges
-  ezSimdFloat forceFactor = ezSimdFloat(1.0f) - (lenScaled * lenScaled);
+  WSimdFloat forceFactor = WSimdFloat(1.0f) - (lenScaled * lenScaled);
 
-  const ezSimdFloat force = GetWindInMetersPerSecond() * forceFactor.Max(0.0f);
+  const WSimdFloat force = GetWindInMetersPerSecond() * forceFactor.Max(0.0f);
 
-  ezSimdVec4f dir = vLocalPos;
+  WSimdVec4f dir = vLocalPos;
   dir.NormalizeIfNotZero<3>();
 
   return dir * force;
 }
 
-void ezWindVolumeSphereComponent::SetRadius(float fVal)
+void WWindVolumeSphereComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(fVal, 0.1f);
+  m_fRadius = WMath::Max(fVal, 0.1f);
   m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
@@ -236,9 +236,9 @@ void ezWindVolumeSphereComponent::SetRadius(float fVal)
   }
 }
 
-void ezWindVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WWindVolumeSphereComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), WWindVolumeComponent::SpatialDataCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -246,41 +246,41 @@ void ezWindVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ms
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezWindVolumeCylinderMode, 1)
-  EZ_ENUM_CONSTANTS(ezWindVolumeCylinderMode::Directional, ezWindVolumeCylinderMode::Vortex)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WWindVolumeCylinderMode, 1)
+  W_ENUM_CONSTANTS(WWindVolumeCylinderMode::Directional, WWindVolumeCylinderMode::Vortex)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeCylinderComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WWindVolumeCylinderComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("RadiusFalloff", GetRadiusFalloff, SetRadiusFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.1f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezWindVolumeCylinderMode, m_Mode),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, WVariant())),
+    W_ACCESSOR_PROPERTY("RadiusFalloff", GetRadiusFalloff, SetRadiusFalloff)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new WDefaultValueAttribute(5.0f), new WClampValueAttribute(0.1f, WVariant())),
+    W_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f)),
+    W_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f)),
+    W_ENUM_MEMBER_PROPERTY("Mode", WWindVolumeCylinderMode, m_Mode),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveX, "Length", "Radius", ezColor::CornflowerBlue),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::DeepSkyBlue),
+    new WCylinderVisualizerAttribute(WBasisAxis::PositiveX, "Length", "Radius", WColor::CornflowerBlue),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 1.0f, WColor::DeepSkyBlue),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezWindVolumeCylinderComponent::ezWindVolumeCylinderComponent() = default;
-ezWindVolumeCylinderComponent::~ezWindVolumeCylinderComponent() = default;
+WWindVolumeCylinderComponent::WWindVolumeCylinderComponent() = default;
+WWindVolumeCylinderComponent::~WWindVolumeCylinderComponent() = default;
 
-void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WWindVolumeCylinderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -293,10 +293,10 @@ void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stre
   s << m_Mode;
 }
 
-void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WWindVolumeCylinderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
@@ -317,30 +317,30 @@ void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_st
   ComputeScaleBiasValues();
 }
 
-ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
+WSimdVec4f WWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const
 {
-  ezSimdVec4f orthoDir = vLocalPos;
-  orthoDir.SetX(ezSimdFloat::MakeZero());
-  const ezSimdVec4f radius = ezSimdVec4f(orthoDir.GetLength<3>());
+  WSimdVec4f orthoDir = vLocalPos;
+  orthoDir.SetX(WSimdFloat::MakeZero());
+  const WSimdVec4f radius = WSimdVec4f(orthoDir.GetLength<3>());
 
-  const ezSimdVec4f ddr = vLocalPos.GetCombined<ezSwizzle::XXXX>(radius); // dist, dist, radius
-  ezSimdVec4f fadeValues = ezSimdVec4f::MulAdd(ddr, m_vScaleValues, m_vBiasValues);
-  fadeValues = fadeValues.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
-  const ezSimdFloat finalStrength = fadeValues.HorizontalMin<2>() * fadeValues.z() * ezSimdFloat(GetWindInMetersPerSecond());
+  const WSimdVec4f ddr = vLocalPos.GetCombined<WSwizzle::XXXX>(radius); // dist, dist, radius
+  WSimdVec4f fadeValues = WSimdVec4f::MulAdd(ddr, m_vScaleValues, m_vBiasValues);
+  fadeValues = fadeValues.CompMin(WSimdVec4f(1.0f)).CompMax(WSimdVec4f::MakeZero());
+  const WSimdFloat finalStrength = fadeValues.HorizontalMin<2>() * fadeValues.z() * WSimdFloat(GetWindInMetersPerSecond());
 
-  ezSimdVec4f dir = ezSimdVec4f(1, 0, 0, 0);
-  ezSimdVec4f vortexDir = dir.CrossRH(orthoDir);
+  WSimdVec4f dir = WSimdVec4f(1, 0, 0, 0);
+  WSimdVec4f vortexDir = dir.CrossRH(orthoDir);
   vortexDir.NormalizeIfNotZero<3>();
 
-  ezSimdVec4b isVortex(m_Mode == ezWindVolumeCylinderMode::Vortex);
-  dir = ezSimdVec4f::Select(isVortex, vortexDir, dir);
+  WSimdVec4b isVortex(m_Mode == WWindVolumeCylinderMode::Vortex);
+  dir = WSimdVec4f::Select(isVortex, vortexDir, dir);
 
   return dir * finalStrength;
 }
 
-void ezWindVolumeCylinderComponent::SetRadius(float fVal)
+void WWindVolumeCylinderComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(fVal, 0.1f);
+  m_fRadius = WMath::Max(fVal, 0.1f);
 
   ComputeScaleBiasValues();
 
@@ -350,16 +350,16 @@ void ezWindVolumeCylinderComponent::SetRadius(float fVal)
   }
 }
 
-void ezWindVolumeCylinderComponent::SetRadiusFalloff(float fVal)
+void WWindVolumeCylinderComponent::SetRadiusFalloff(float fVal)
 {
-  m_fRadiusFalloff = ezMath::Saturate(fVal);
+  m_fRadiusFalloff = WMath::Saturate(fVal);
 
   ComputeScaleBiasValues();
 }
 
-void ezWindVolumeCylinderComponent::SetLength(float fVal)
+void WWindVolumeCylinderComponent::SetLength(float fVal)
 {
-  m_fLength = ezMath::Max(fVal, 0.1f);
+  m_fLength = WMath::Max(fVal, 0.1f);
 
   if (IsActiveAndInitialized())
   {
@@ -367,38 +367,38 @@ void ezWindVolumeCylinderComponent::SetLength(float fVal)
   }
 }
 
-void ezWindVolumeCylinderComponent::SetPositiveFalloff(float fVal)
+void WWindVolumeCylinderComponent::SetPositiveFalloff(float fVal)
 {
-  m_fPositiveFalloff = ezMath::Saturate(fVal);
+  m_fPositiveFalloff = WMath::Saturate(fVal);
 
   ComputeScaleBiasValues();
 }
 
-void ezWindVolumeCylinderComponent::SetNegativeFalloff(float fVal)
+void WWindVolumeCylinderComponent::SetNegativeFalloff(float fVal)
 {
-  m_fNegativeFalloff = ezMath::Saturate(fVal);
+  m_fNegativeFalloff = WMath::Saturate(fVal);
 
   ComputeScaleBiasValues();
 }
 
-void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WWindVolumeCylinderComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  const ezVec3 halfExtents(m_fLength * 0.5f, m_fRadius, m_fRadius);
+  const WVec3 halfExtents(m_fLength * 0.5f, m_fRadius, m_fRadius);
   const float sphereRadius = halfExtents.GetAsVec2().GetLength();
 
-  msg.AddBounds(ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), halfExtents, sphereRadius), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(WBoundingBoxSphere::MakeFromCenterExtents(WVec3::MakeZero(), halfExtents, sphereRadius), WWindVolumeComponent::SpatialDataCategory);
 }
 
-void ezWindVolumeCylinderComponent::ComputeScaleBiasValues()
+void WWindVolumeCylinderComponent::ComputeScaleBiasValues()
 {
-  const float fPositiveScale = -1.0f / ezMath::Max(m_fLength * m_fPositiveFalloff, 0.0001f);
+  const float fPositiveScale = -1.0f / WMath::Max(m_fLength * m_fPositiveFalloff, 0.0001f);
   const float fPositiveBias = -fPositiveScale * m_fLength * 0.5f;
 
-  const float fNegativeFalloff = ezMath::Min(m_fNegativeFalloff, 1.0f - m_fPositiveFalloff);
-  const float fNegativeScale = 1.0f / ezMath::Max(m_fLength * fNegativeFalloff, 0.0001f);
+  const float fNegativeFalloff = WMath::Min(m_fNegativeFalloff, 1.0f - m_fPositiveFalloff);
+  const float fNegativeScale = 1.0f / WMath::Max(m_fLength * fNegativeFalloff, 0.0001f);
   const float fNegativeBias = fNegativeScale * m_fLength * 0.5f;
 
-  const float fRadiusScale = -1.0f / ezMath::Max(m_fRadius * m_fRadiusFalloff, 0.0001f);
+  const float fRadiusScale = -1.0f / WMath::Max(m_fRadius * m_fRadiusFalloff, 0.0001f);
   const float fRadiusBias = -fRadiusScale * m_fRadius;
 
   m_vScaleValues.Set(fPositiveScale, fNegativeScale, fRadiusScale, 0.0f);
@@ -410,32 +410,32 @@ void ezWindVolumeCylinderComponent::ComputeScaleBiasValues()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeConeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WWindVolumeConeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(45)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(179))),
-    EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(45)), new WClampValueAttribute(WAngle::MakeFromDegree(1), WAngle::MakeFromDegree(179))),
+    W_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Angle", 1.0f, "Length", ezColor::CornflowerBlue),
+    new WConeVisualizerAttribute(WBasisAxis::PositiveX, "Angle", 1.0f, "Length", WColor::CornflowerBlue),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezWindVolumeConeComponent::ezWindVolumeConeComponent() = default;
-ezWindVolumeConeComponent::~ezWindVolumeConeComponent() = default;
+WWindVolumeConeComponent::WWindVolumeConeComponent() = default;
+WWindVolumeConeComponent::~WWindVolumeConeComponent() = default;
 
-void ezWindVolumeConeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WWindVolumeConeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -444,41 +444,41 @@ void ezWindVolumeConeComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_Angle;
 }
 
-void ezWindVolumeConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WWindVolumeConeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fLength;
   s >> m_Angle;
 }
 
-ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
+WSimdVec4f WWindVolumeConeComponent::ComputeForceAtLocalPosition(const WSimdVec4f& vLocalPos) const
 {
-  const ezSimdFloat fConeDist = vLocalPos.x();
+  const WSimdFloat fConeDist = vLocalPos.x();
 
-  if (fConeDist <= ezSimdFloat::MakeZero() || fConeDist >= m_fLength)
-    return ezSimdVec4f::MakeZero();
+  if (fConeDist <= WSimdFloat::MakeZero() || fConeDist >= m_fLength)
+    return WSimdVec4f::MakeZero();
 
   // TODO: precompute base radius
-  const float fBaseRadius = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
+  const float fBaseRadius = WMath::Tan(m_Angle * 0.5f) * m_fLength;
 
   // TODO: precompute 1/length
-  const ezSimdFloat fConeRadius = (fConeDist / ezSimdFloat(m_fLength)) * ezSimdFloat(fBaseRadius);
+  const WSimdFloat fConeRadius = (fConeDist / WSimdFloat(m_fLength)) * WSimdFloat(fBaseRadius);
 
-  ezSimdVec4f orthoDir = vLocalPos;
+  WSimdVec4f orthoDir = vLocalPos;
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= fConeRadius * fConeRadius)
-    return ezSimdVec4f::MakeZero();
+    return WSimdVec4f::MakeZero();
 
   return vLocalPos.GetNormalized<3>() * GetWindInMetersPerSecond();
 }
 
-void ezWindVolumeConeComponent::SetLength(float fVal)
+void WWindVolumeConeComponent::SetLength(float fVal)
 {
-  m_fLength = ezMath::Max(fVal, 0.1f);
+  m_fLength = WMath::Max(fVal, 0.1f);
 
   if (IsActiveAndInitialized())
   {
@@ -486,9 +486,9 @@ void ezWindVolumeConeComponent::SetLength(float fVal)
   }
 }
 
-void ezWindVolumeConeComponent::SetAngle(ezAngle val)
+void WWindVolumeConeComponent::SetAngle(WAngle val)
 {
-  m_Angle = ezMath::Max(val, ezAngle::MakeFromDegree(1.0f));
+  m_Angle = WMath::Max(val, WAngle::MakeFromDegree(1.0f));
 
   if (IsActiveAndInitialized())
   {
@@ -496,19 +496,19 @@ void ezWindVolumeConeComponent::SetAngle(ezAngle val)
   }
 }
 
-void ezWindVolumeConeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WWindVolumeConeComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  ezVec3 c0, c1;
+  WVec3 c0, c1;
   c0.x = 0;
-  c0.y = -ezMath::Tan(m_Angle * 0.5f) * m_fLength;
+  c0.y = -WMath::Tan(m_Angle * 0.5f) * m_fLength;
   c0.z = c0.y;
 
   c1.x = m_fLength;
-  c1.y = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
+  c1.y = WMath::Tan(m_Angle * 0.5f) * m_fLength;
   c1.z = c1.y;
 
-  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(c0, c1)), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(c0, c1)), WWindVolumeComponent::SpatialDataCategory);
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_Wind_Implementation_WindVolumeComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Effects_Wind_Implementation_WindVolumeComponent);

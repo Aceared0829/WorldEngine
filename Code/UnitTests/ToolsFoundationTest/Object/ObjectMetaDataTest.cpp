@@ -4,18 +4,18 @@
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 
 
-EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
+W_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Pointers / int")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Pointers / int")
   {
-    ezObjectMetaData<void*, ezInt32> meta;
+    WObjectMetaData<void*, WInt32> meta;
 
     int a = 0, b = 1, c = 2, d = 3;
 
-    EZ_TEST_BOOL(!meta.HasMetaData(&a));
-    EZ_TEST_BOOL(!meta.HasMetaData(&b));
-    EZ_TEST_BOOL(!meta.HasMetaData(&c));
-    EZ_TEST_BOOL(!meta.HasMetaData(&d));
+    W_TEST_BOOL(!meta.HasMetaData(&a));
+    W_TEST_BOOL(!meta.HasMetaData(&b));
+    W_TEST_BOOL(!meta.HasMetaData(&c));
+    W_TEST_BOOL(!meta.HasMetaData(&d));
 
     {
       auto pData = meta.BeginModifyMetaData(&a);
@@ -31,26 +31,26 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
       meta.EndModifyMetaData();
     }
 
-    EZ_TEST_BOOL(meta.HasMetaData(&a));
-    EZ_TEST_BOOL(meta.HasMetaData(&b));
-    EZ_TEST_BOOL(meta.HasMetaData(&c));
-    EZ_TEST_BOOL(!meta.HasMetaData(&d));
+    W_TEST_BOOL(meta.HasMetaData(&a));
+    W_TEST_BOOL(meta.HasMetaData(&b));
+    W_TEST_BOOL(meta.HasMetaData(&c));
+    W_TEST_BOOL(!meta.HasMetaData(&d));
 
     {
       auto pDataR = meta.BeginReadMetaData(&a);
-      EZ_TEST_INT(*pDataR, a);
+      W_TEST_INT(*pDataR, a);
       meta.EndReadMetaData();
 
       pDataR = meta.BeginReadMetaData(&b);
-      EZ_TEST_INT(*pDataR, b);
+      W_TEST_INT(*pDataR, b);
       meta.EndReadMetaData();
 
       pDataR = meta.BeginReadMetaData(&c);
-      EZ_TEST_INT(*pDataR, c);
+      W_TEST_INT(*pDataR, c);
       meta.EndReadMetaData();
 
       pDataR = meta.BeginReadMetaData(&d);
-      EZ_TEST_INT(*pDataR, 0);
+      W_TEST_INT(*pDataR, 0);
       meta.EndReadMetaData();
     }
   }
@@ -59,25 +59,25 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
   {
     md() { b = false; }
 
-    ezString s;
+    WString s;
     bool b;
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UUID / struct")
+  W_TEST_BLOCK(WTestBlock::Enabled, "UUID / struct")
   {
-    ezObjectMetaData<ezUuid, md> meta;
+    WObjectMetaData<WUuid, md> meta;
 
     const int num = 100;
 
-    ezDynamicArray<ezUuid> obj;
+    WDynamicArray<WUuid> obj;
     obj.SetCount(num);
 
-    for (ezUInt32 i = 0; i < num; ++i)
+    for (WUInt32 i = 0; i < num; ++i)
     {
-      ezUuid& uid = obj[i];
-      uid = ezUuid::MakeUuid();
+      WUuid& uid = obj[i];
+      uid = WUuid::MakeUuid();
 
-      if (ezMath::IsEven(i))
+      if (WMath::IsEven(i))
       {
         auto d1 = meta.BeginModifyMetaData(uid);
         d1->b = true;
@@ -86,28 +86,28 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
         meta.EndModifyMetaData();
       }
 
-      EZ_TEST_BOOL(meta.HasMetaData(uid) == ezMath::IsEven(i));
+      W_TEST_BOOL(meta.HasMetaData(uid) == WMath::IsEven(i));
     }
 
-    for (ezUInt32 i = 0; i < num; ++i)
+    for (WUInt32 i = 0; i < num; ++i)
     {
-      const ezUuid& uid = obj[i];
+      const WUuid& uid = obj[i];
 
       auto p = meta.BeginReadMetaData(uid);
 
-      EZ_TEST_BOOL(p->b == ezMath::IsEven(i));
+      W_TEST_BOOL(p->b == WMath::IsEven(i));
 
-      if (ezMath::IsEven(i))
+      if (WMath::IsEven(i))
       {
-        EZ_TEST_STRING(p->s, "test");
+        W_TEST_STRING(p->s, "test");
       }
       else
       {
-        EZ_TEST_BOOL(p->s.IsEmpty());
+        W_TEST_BOOL(p->s.IsEmpty());
       }
 
       meta.EndReadMetaData();
-      EZ_TEST_BOOL(meta.HasMetaData(uid) == ezMath::IsEven(i));
+      W_TEST_BOOL(meta.HasMetaData(uid) == WMath::IsEven(i));
     }
   }
 }

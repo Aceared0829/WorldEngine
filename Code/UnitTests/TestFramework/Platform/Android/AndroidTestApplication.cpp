@@ -1,6 +1,6 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Android/Utils/AndroidJni.h>
@@ -12,15 +12,15 @@
 #  include <android/native_activity.h>
 #  include <android_native_app_glue.h>
 
-ezAndroidTestApplication::ezAndroidTestApplication(struct android_app* pApp)
+WAndroidTestApplication::WAndroidTestApplication(struct android_app* pApp)
   : m_pApp(pApp)
 {
   pApp->userData = this;
-  pApp->onAppCmd = ezAndroidHandleCmd;
-  ezAndroidUtils::SetAndroidApp(pApp);
+  pApp->onAppCmd = WAndroidHandleCmd;
+  WAndroidUtils::SetAndroidApp(pApp);
 }
 
-void ezAndroidTestApplication::HandleCmd(int32_t cmd)
+void WAndroidTestApplication::HandleCmd(int32_t cmd)
 {
   switch (cmd)
   {
@@ -28,37 +28,37 @@ void ezAndroidTestApplication::HandleCmd(int32_t cmd)
       if (m_pApp->window != nullptr)
       {
         // Retrieve command line arguments from Intent extras.
-        ezDynamicArray<ezString> args;
-        ezDynamicArray<const char*> argv;
+        WDynamicArray<WString> args;
+        WDynamicArray<const char*> argv;
         {
-          ezJniAttachment jni;
-          ezJniObject activity = jni.GetActivity();
-          ezJniObject intent = activity.Call<ezJniObject>("getIntent");
+          WJniAttachment jni;
+          WJniObject activity = jni.GetActivity();
+          WJniObject intent = activity.Call<WJniObject>("getIntent");
           if (!intent.IsNull())
           {
-            ezJniString argsExtra = intent.Call<ezJniString>("getStringExtra", ezJniString("args"));
+            WJniString argsExtra = intent.Call<WJniString>("getStringExtra", WJniString("args"));
             if (!argsExtra.IsNull())
             {
               const char* szArgs = argsExtra.GetData();
-              __android_log_print(ANDROID_LOG_INFO, "ezEngine", "Received arguments from Intent: '%s'", szArgs);
-              ezCommandLineUtils::SplitCommandLineString(szArgs, false, args, argv);
+              __android_log_print(ANDROID_LOG_INFO, "WorldEngine", "Received arguments from Intent: '%s'", szArgs);
+              WCommandLineUtils::SplitCommandLineString(szArgs, false, args, argv);
             }
           }
         }
 
-        ezAndroidMain(static_cast<int>(argv.GetCount()), argv.IsEmpty() ? nullptr : const_cast<char**>(argv.GetData()));
+        WAndroidMain(static_cast<int>(argv.GetCount()), argv.IsEmpty() ? nullptr : const_cast<char**>(argv.GetData()));
         m_bStarted = true;
 
         int width = ANativeWindow_getWidth(m_pApp->window);
         int height = ANativeWindow_getHeight(m_pApp->window);
-        ezLog::Info("Init Window: {}x{}", width, height);
+        WLog::Info("Init Window: {}x{}", width, height);
       }
       break;
     default:
       break;
   }
 }
-void ezAndroidTestApplication::AndroidRun()
+void WAndroidTestApplication::AndroidRun()
 {
   bool bRun = true;
   while (true)
@@ -76,7 +76,7 @@ void ezAndroidTestApplication::AndroidRun()
     if (!m_bStarted)
       continue;
 
-    if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)
+    if (bRun && WTestSetup::RunTests() != WTestAppRun::Continue)
     {
       bRun = false;
       ANativeActivity_finish(m_pApp->activity);
@@ -88,9 +88,9 @@ void ezAndroidTestApplication::AndroidRun()
   }
 }
 
-void ezAndroidTestApplication::ezAndroidHandleCmd(struct android_app* pApp, int32_t cmd)
+void WAndroidTestApplication::WAndroidHandleCmd(struct android_app* pApp, int32_t cmd)
 {
-  ezAndroidTestApplication* pAndroidApp = static_cast<ezAndroidTestApplication*>(pApp->userData);
+  WAndroidTestApplication* pAndroidApp = static_cast<WAndroidTestApplication*>(pApp->userData);
   pAndroidApp->HandleCmd(cmd);
 }
 

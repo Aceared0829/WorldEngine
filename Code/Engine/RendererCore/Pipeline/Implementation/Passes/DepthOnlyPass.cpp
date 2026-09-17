@@ -11,37 +11,37 @@
 #include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 3, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDepthOnlyPass, 3, WRTTIDefaultAllocator<WDepthOnlyPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("RenderStaticObjects", m_bRenderStaticObjects)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("RenderDynamicObjects", m_bRenderDynamicObjects)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("RenderTransparentObjects", m_bRenderTransparentObjects),
+    W_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    W_MEMBER_PROPERTY("RenderStaticObjects", m_bRenderStaticObjects)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("RenderDynamicObjects", m_bRenderDynamicObjects)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("RenderTransparentObjects", m_bRenderTransparentObjects),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering")
+    new WCategoryAttribute("Rendering")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WDepthOnlyPass::WDepthOnlyPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
 }
 
-ezDepthOnlyPass::~ezDepthOnlyPass() = default;
+WDepthOnlyPass::~WDepthOnlyPass() = default;
 
-ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WDepthOnlyPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepthStencil.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+    return WStatus(WFmt("DepthStencil: Not connected"));
 
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
@@ -50,54 +50,54 @@ ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCa
   pass.SetStereoscopic(camera.IsStereoscopic());
   if (m_bRenderStaticObjects)
   {
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, pass);
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedStatic, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitMaskedStatic, ref_graph, pass);
   }
   if (m_bRenderDynamicObjects)
   {
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, pass);
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, pass);
   }
   if (m_bRenderTransparentObjects)
   {
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitTransparent, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::LitTransparent, ref_graph, pass);
   }
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     renderViewContext.UpdateViewport();
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
 
     if (m_bRenderStaticObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitOpaqueStatic);
     if (m_bRenderDynamicObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitOpaqueDynamic);
     if (m_bRenderStaticObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitMaskedStatic);
     if (m_bRenderDynamicObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitMaskedDynamic);
     if (m_bRenderTransparentObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent); });
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::LitTransparent); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: renderpass-serialization
-ezResult ezDepthOnlyPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WDepthOnlyPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_bRenderStaticObjects;
   inout_stream << m_bRenderDynamicObjects;
   inout_stream << m_bRenderTransparentObjects;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
+WResult WDepthOnlyPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
   if (uiVersion >= 3)
   {
@@ -110,10 +110,10 @@ ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> m_bRenderTransparentObjects;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 // END-DOCS-CODE-SNIPPET
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_DepthOnlyPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_DepthOnlyPass);

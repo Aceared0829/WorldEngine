@@ -10,100 +10,100 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptVariableType, 1)
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Bool),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Byte),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Int),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Int64),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Float),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Double),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Color),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector2),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector3),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector4),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Quaternion),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Transform),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Time),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Angle),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::String),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::HashedString),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::GameObject),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Component),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::TypedPointer),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Variant),
-  // EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Resource), // Not yet supported in the editor
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WVisualScriptVariableType, 1)
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Bool),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Byte),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Int),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Int64),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Float),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Double),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Color),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Vector2),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Vector3),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Vector4),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Quaternion),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Transform),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Time),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Angle),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::String),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::HashedString),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::GameObject),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Component),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::TypedPointer),
+  W_ENUM_CONSTANT(WVisualScriptVariableType::Variant),
+  // W_ENUM_CONSTANT(WVisualScriptVariableType::Resource), // Not yet supported in the editor
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-static_assert(static_cast<int>(ezVisualScriptVariableType::Variant) == static_cast<int>(ezVisualScriptDataType::Variant));
-static_assert(static_cast<int>(ezVisualScriptVariableType::Resource) == static_cast<int>(ezVisualScriptDataType::Resource));
+static_assert(static_cast<int>(WVisualScriptVariableType::Variant) == static_cast<int>(WVisualScriptDataType::Variant));
+static_assert(static_cast<int>(WVisualScriptVariableType::Resource) == static_cast<int>(WVisualScriptDataType::Resource));
 
 ///////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptVariableCategory, 1)
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableCategory::Member),
-  EZ_ENUM_CONSTANT(ezVisualScriptVariableCategory::Array),
-  // EZ_ENUM_CONSTANT(ezVisualScriptVariableCategory::Map), // Maps are not supported yet
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WVisualScriptVariableCategory, 1)
+  W_ENUM_CONSTANT(WVisualScriptVariableCategory::Member),
+  W_ENUM_CONSTANT(WVisualScriptVariableCategory::Array),
+  // W_ENUM_CONSTANT(WVisualScriptVariableCategory::Map), // Maps are not supported yet
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static
-ezPropertyCategory::Enum ezVisualScriptVariableCategory::GetPropertyCategory(Enum category)
+WPropertyCategory::Enum WVisualScriptVariableCategory::GetPropertyCategory(Enum category)
 {
   switch (category)
   {
     case Member:
-      return ezPropertyCategory::Member;
+      return WPropertyCategory::Member;
     case Array:
-      return ezPropertyCategory::Array;
+      return WPropertyCategory::Array;
     case Map:
-      return ezPropertyCategory::Map;
+      return WPropertyCategory::Map;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return ezPropertyCategory::Member;
+      W_ASSERT_NOT_IMPLEMENTED;
+      return WPropertyCategory::Member;
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariableTypeDeclaration, ezNoBase, 1, ezRTTIDefaultAllocator<ezVisualScriptVariableTypeDeclaration>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVisualScriptVariableTypeDeclaration, WNoBase, 1, WRTTIDefaultAllocator<WVisualScriptVariableTypeDeclaration>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Type", ezVisualScriptVariableType, m_Type),
-    EZ_ENUM_MEMBER_PROPERTY("Category", ezVisualScriptVariableCategory, m_Category),
-    EZ_MEMBER_PROPERTY("Public", m_bPublic),
+    W_ENUM_MEMBER_PROPERTY("Type", WVisualScriptVariableType, m_Type),
+    W_ENUM_MEMBER_PROPERTY("Category", WVisualScriptVariableCategory, m_Category),
+    W_MEMBER_PROPERTY("Public", m_bPublic),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezVisualScriptVariableTypeDeclaration);
+W_END_STATIC_REFLECTED_TYPE;
+W_DEFINE_CUSTOM_VARIANT_TYPE(WVisualScriptVariableTypeDeclaration);
 // clang-format on
 
-ezVisualScriptDataType::Enum ezVisualScriptVariableTypeDeclaration::GetDataType() const
+WVisualScriptDataType::Enum WVisualScriptVariableTypeDeclaration::GetDataType() const
 {
-  if (m_Category == ezVisualScriptVariableCategory::Array)
+  if (m_Category == WVisualScriptVariableCategory::Array)
   {
-    return ezVisualScriptDataType::Array;
+    return WVisualScriptDataType::Array;
   }
-  else if (m_Category == ezVisualScriptVariableCategory::Map)
+  else if (m_Category == WVisualScriptVariableCategory::Map)
   {
-    return ezVisualScriptDataType::Map;
+    return WVisualScriptDataType::Map;
   }
 
-  return static_cast<ezVisualScriptDataType::Enum>(m_Type.GetValue());
+  return static_cast<WVisualScriptDataType::Enum>(m_Type.GetValue());
 }
 
-void operator<<(ezStreamWriter& inout_stream, const ezVisualScriptVariableTypeDeclaration& value)
+void operator<<(WStreamWriter& inout_stream, const WVisualScriptVariableTypeDeclaration& value)
 {
   inout_stream << value.m_Type;
   inout_stream << value.m_Category;
   inout_stream << value.m_bPublic;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezVisualScriptVariableTypeDeclaration& value)
+void operator>>(WStreamReader& inout_stream, WVisualScriptVariableTypeDeclaration& value)
 {
   inout_stream >> value.m_Type;
   inout_stream >> value.m_Category;
@@ -113,31 +113,31 @@ void operator>>(ezStreamReader& inout_stream, ezVisualScriptVariableTypeDeclarat
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptVariableAttribute, 1, ezRTTIDefaultAllocator<ezVisualScriptVariableAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVisualScriptVariableAttribute, 1, WRTTIDefaultAllocator<WVisualScriptVariableAttribute>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptVariableWidget::ezQtVisualScriptVariableWidget() = default;
-ezQtVisualScriptVariableWidget::~ezQtVisualScriptVariableWidget() = default;
+WQtVisualScriptVariableWidget::WQtVisualScriptVariableWidget() = default;
+WQtVisualScriptVariableWidget::~WQtVisualScriptVariableWidget() = default;
 
-void ezQtVisualScriptVariableWidget::InternalSetValue(const ezVariant& value)
+void WQtVisualScriptVariableWidget::InternalSetValue(const WVariant& value)
 {
-  ezQtVariantPropertyWidget::InternalSetValue(value);
+  WQtVariantPropertyWidget::InternalSetValue(value);
 
   bool bEnableTypeSelection = true;
   for (const auto& item : m_Items)
   {
-    ezVariant typeDeclVar;
+    WVariant typeDeclVar;
     if (m_pObjectAccessor->GetValueByName(item.m_pObject, "Type", typeDeclVar, item.m_Index).Failed())
       break;
 
-    if (typeDeclVar.GetReflectedType() != ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>())
+    if (typeDeclVar.GetReflectedType() != WGetStaticRTTI<WVisualScriptVariableTypeDeclaration>())
       break;
 
-    auto typeDecl = typeDeclVar.Get<ezVisualScriptVariableTypeDeclaration>();
-    if (typeDecl.m_Type != ezVisualScriptVariableType::Variant || typeDecl.m_Category != ezVisualScriptVariableCategory::Member)
+    auto typeDecl = typeDeclVar.Get<WVisualScriptVariableTypeDeclaration>();
+    if (typeDecl.m_Type != WVisualScriptVariableType::Variant || typeDecl.m_Category != WVisualScriptVariableCategory::Member)
     {
       bEnableTypeSelection = false;
       break;
@@ -147,37 +147,37 @@ void ezQtVisualScriptVariableWidget::InternalSetValue(const ezVariant& value)
   EnableTypeSelection(bEnableTypeSelection);
 }
 
-ezResult ezQtVisualScriptVariableWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
+WResult WQtVisualScriptVariableWidget::GetVariantTypeDisplayName(WVariantType::Enum type, WStringBuilder& out_sName) const
 {
-  if (type == ezVariantType::Int8 ||
-      type == ezVariantType::Int16 ||
-      type == ezVariantType::UInt16 ||
-      type == ezVariantType::UInt32 ||
-      type == ezVariantType::UInt64 ||
-      type == ezVariantType::Vector2I ||
-      type == ezVariantType::Vector3I ||
-      type == ezVariantType::Vector4I ||
-      type == ezVariantType::Vector2U ||
-      type == ezVariantType::Vector3U ||
-      type == ezVariantType::Vector4U ||
-      type == ezVariantType::StringView ||
-      type == ezVariantType::TempHashedString)
-    return EZ_FAILURE;
+  if (type == WVariantType::Int8 ||
+      type == WVariantType::Int16 ||
+      type == WVariantType::UInt16 ||
+      type == WVariantType::UInt32 ||
+      type == WVariantType::UInt64 ||
+      type == WVariantType::Vector2I ||
+      type == WVariantType::Vector3I ||
+      type == WVariantType::Vector4I ||
+      type == WVariantType::Vector2U ||
+      type == WVariantType::Vector3U ||
+      type == WVariantType::Vector4U ||
+      type == WVariantType::StringView ||
+      type == WVariantType::TempHashedString)
+    return W_FAILURE;
 
-  ezVisualScriptDataType::Enum dataType = ezVisualScriptDataType::FromVariantType(type);
-  if (type != ezVariantType::Invalid && dataType == ezVisualScriptDataType::Invalid)
-    return EZ_FAILURE;
+  WVisualScriptDataType::Enum dataType = WVisualScriptDataType::FromVariantType(type);
+  if (type != WVariantType::Invalid && dataType == WVisualScriptDataType::Invalid)
+    return W_FAILURE;
 
-  const ezRTTI* pVisualScriptDataType = ezGetStaticRTTI<ezVisualScriptDataType>();
-  if (ezReflectionUtils::EnumerationToString(pVisualScriptDataType, dataType, out_sName) == false)
-    return EZ_FAILURE;
+  const WRTTI* pVisualScriptDataType = WGetStaticRTTI<WVisualScriptDataType>();
+  if (WReflectionUtils::EnumerationToString(pVisualScriptDataType, dataType, out_sName) == false)
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptVariableTypeDeclarationWidget::ezQtVisualScriptVariableTypeDeclarationWidget()
+WQtVisualScriptVariableTypeDeclarationWidget::WQtVisualScriptVariableTypeDeclarationWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 4);
@@ -207,17 +207,17 @@ ezQtVisualScriptVariableTypeDeclarationWidget::ezQtVisualScriptVariableTypeDecla
   m_pLayout->addWidget(m_pVisibilityButton);
 }
 
-ezQtVisualScriptVariableTypeDeclarationWidget::~ezQtVisualScriptVariableTypeDeclarationWidget() = default;
+WQtVisualScriptVariableTypeDeclarationWidget::~WQtVisualScriptVariableTypeDeclarationWidget() = default;
 
-void ezQtVisualScriptVariableTypeDeclarationWidget::OnInit()
+void WQtVisualScriptVariableTypeDeclarationWidget::OnInit()
 {
-  ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+  WTempHybridArray<WReflectionUtils::EnumKeyValuePair, 16> enumValues;
 
   {
-    ezReflectionUtils::GetEnumKeysAndValues(ezGetStaticRTTI<ezVisualScriptVariableType>(), enumValues);
+    WReflectionUtils::GetEnumKeysAndValues(WGetStaticRTTI<WVisualScriptVariableType>(), enumValues);
     for (auto& val : enumValues)
     {
-      m_pTypeList->addItem(ezMakeQString(ezTranslate(val.m_sKey)), val.m_iValue);
+      m_pTypeList->addItem(WMakeQString(WTranslate(val.m_sKey)), val.m_iValue);
     }
 
     connect(m_pTypeList, &QComboBox::currentIndexChanged, [this](int iIndex)
@@ -226,21 +226,21 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::OnInit()
 
   {
     QActionGroup* pActionGroup = new QActionGroup(this);
-    ezReflectionUtils::GetEnumKeysAndValues(ezGetStaticRTTI<ezVisualScriptVariableCategory>(), enumValues);
+    WReflectionUtils::GetEnumKeysAndValues(WGetStaticRTTI<WVisualScriptVariableCategory>(), enumValues);
 
     QString sIcons[] = {
       ":/EditorPluginVisualScript/Icons/VariableCategoryMember.svg",
       ":/EditorPluginVisualScript/Icons/VariableCategoryArray.svg",
       ":/EditorPluginVisualScript/Icons/VariableCategoryMap.svg"};
 
-    EZ_ASSERT_DEV(EZ_ARRAY_SIZE(sIcons) >= enumValues.GetCount(), "Need exactly one icon per category");
+    W_ASSERT_DEV(W_ARRAY_SIZE(sIcons) >= enumValues.GetCount(), "Need exactly one icon per category");
 
-    for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
+    for (WUInt32 i = 0; i < enumValues.GetCount(); ++i)
     {
       QIcon icon;
       icon.addFile(sIcons[i]);
 
-      QAction* pAction = new QAction(icon, ezMakeQString(ezTranslate(enumValues[i].m_sKey)), this);
+      QAction* pAction = new QAction(icon, WMakeQString(WTranslate(enumValues[i].m_sKey)), this);
       pAction->setCheckable(true);
 
       connect(pAction, &QAction::triggered, [this]()
@@ -255,12 +255,12 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::OnInit()
     { ChangeType(); });
 }
 
-void ezQtVisualScriptVariableTypeDeclarationWidget::InternalSetValue(const ezVariant& value)
+void WQtVisualScriptVariableTypeDeclarationWidget::InternalSetValue(const WVariant& value)
 {
-  auto typeDecl = value.Get<ezVisualScriptVariableTypeDeclaration>();
+  auto typeDecl = value.Get<WVisualScriptVariableTypeDeclaration>();
 
   {
-    ezQtScopedBlockSignals bs(m_pTypeList);
+    WQtScopedBlockSignals bs(m_pTypeList);
     for (int i = 0; i < m_pTypeList->count(); ++i)
     {
       if (m_pTypeList->itemData(i).toInt() == typeDecl.m_Type)
@@ -272,7 +272,7 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::InternalSetValue(const ezVar
   }
 
   {
-    ezQtScopedBlockSignals bs(m_pCategoryList);
+    WQtScopedBlockSignals bs(m_pCategoryList);
     QAction* pAction = m_pCategoryList->actions()[typeDecl.m_Category];
     pAction->setChecked(true);
 
@@ -280,15 +280,15 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::InternalSetValue(const ezVar
   }
 
   {
-    ezQtScopedBlockSignals bs(m_pVisibilityButton);
+    WQtScopedBlockSignals bs(m_pVisibilityButton);
     m_pVisibilityButton->setChecked(typeDecl.m_bPublic);
   }
 }
 
-void ezQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
+void WQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
 {
   QAction* pAction = nullptr;
-  ezUInt32 uiCategory = 0;
+  WUInt32 uiCategory = 0;
   for (auto action : m_pCategoryList->actions())
   {
     if (action->isChecked())
@@ -298,16 +298,16 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
     }
     ++uiCategory;
   }
-  EZ_ASSERT_DEV(pAction != nullptr, "No category selected");
+  W_ASSERT_DEV(pAction != nullptr, "No category selected");
 
   m_pObjectAccessor->StartTransaction("Change variable type");
 
   for (const auto& item : m_Items)
   {
-    ezVisualScriptVariableTypeDeclaration typeDecl;
+    WVisualScriptVariableTypeDeclaration typeDecl;
 
-    typeDecl.m_Type = static_cast<ezVisualScriptVariableType::Enum>(m_pTypeList->currentData().toInt());
-    typeDecl.m_Category = static_cast<ezVisualScriptVariableCategory::Enum>(uiCategory);
+    typeDecl.m_Type = static_cast<WVisualScriptVariableType::Enum>(m_pTypeList->currentData().toInt());
+    typeDecl.m_Category = static_cast<WVisualScriptVariableCategory::Enum>(uiCategory);
     typeDecl.m_bPublic = m_pVisibilityButton->isChecked();
 
     m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, typeDecl, item.m_Index).AssertSuccess();
@@ -321,51 +321,51 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
 ///////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 3, ezRTTIDefaultAllocator<ezVisualScriptVariable>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVisualScriptVariable, WNoBase, 3, WRTTIDefaultAllocator<WVisualScriptVariable>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Type", m_TypeDecl),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0), new ezVisualScriptVariableAttribute()),
-    EZ_MEMBER_PROPERTY("ClampRange", m_bClampRange),
-    EZ_MEMBER_PROPERTY("MinValue", m_fMinValue),
-    EZ_MEMBER_PROPERTY("MaxValue", m_fMaxValue)->AddAttributes(new ezDefaultValueAttribute(1)),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_MEMBER_PROPERTY("Type", m_TypeDecl),
+    W_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new WDefaultValueAttribute(0), new WVisualScriptVariableAttribute()),
+    W_MEMBER_PROPERTY("ClampRange", m_bClampRange),
+    W_MEMBER_PROPERTY("MinValue", m_fMinValue),
+    W_MEMBER_PROPERTY("MaxValue", m_fMaxValue)->AddAttributes(new WDefaultValueAttribute(1)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 // static
-void ezVisualScriptVariable::ConvertDefaultValue(ezVariant& inout_defaultValue, ezVisualScriptVariableTypeDeclaration targetTypeDecl)
+void WVisualScriptVariable::ConvertDefaultValue(WVariant& inout_defaultValue, WVisualScriptVariableTypeDeclaration targetTypeDecl)
 {
-  auto ConvertOrSetToDefault = [](ezVariant& v, ezVisualScriptDataType::Enum targetType)
+  auto ConvertOrSetToDefault = [](WVariant& v, WVisualScriptDataType::Enum targetType)
   {
-    if (targetType == ezVisualScriptDataType::Variant)
+    if (targetType == WVisualScriptDataType::Variant)
       return;
 
-    auto variantTargetType = ezVisualScriptDataType::GetVariantType(targetType);
-    if (variantTargetType == ezVariantType::Invalid || variantTargetType == ezVariantType::TypedObject || variantTargetType == ezVariantType::TypedPointer)
+    auto variantTargetType = WVisualScriptDataType::GetVariantType(targetType);
+    if (variantTargetType == WVariantType::Invalid || variantTargetType == WVariantType::TypedObject || variantTargetType == WVariantType::TypedPointer)
     {
-      v = ezVariant();
+      v = WVariant();
       return;
     }
 
-    ezResult res = EZ_SUCCESS;
+    WResult res = W_SUCCESS;
     v = v.ConvertTo(variantTargetType, &res);
     if (res.Failed())
     {
-      v = ezReflectionUtils::GetDefaultVariantFromType(ezVisualScriptDataType::GetRtti(targetType));
+      v = WReflectionUtils::GetDefaultVariantFromType(WVisualScriptDataType::GetRtti(targetType));
     }
   };
 
-  auto targetType = static_cast<ezVisualScriptDataType::Enum>(targetTypeDecl.m_Type.GetValue());
-  if (targetTypeDecl.m_Category == ezVisualScriptVariableCategory::Array)
+  auto targetType = static_cast<WVisualScriptDataType::Enum>(targetTypeDecl.m_Type.GetValue());
+  if (targetTypeDecl.m_Category == WVisualScriptVariableCategory::Array)
   {
-    if (inout_defaultValue.IsA<ezVariantArray>())
+    if (inout_defaultValue.IsA<WVariantArray>())
     {
-      ezVariantArray a = inout_defaultValue.Get<ezVariantArray>();
+      WVariantArray a = inout_defaultValue.Get<WVariantArray>();
       for (auto& v : a)
       {
         ConvertOrSetToDefault(v, targetType);
@@ -374,20 +374,20 @@ void ezVisualScriptVariable::ConvertDefaultValue(ezVariant& inout_defaultValue, 
     }
     else
     {
-      ezVariantArray a;
+      WVariantArray a;
       ConvertOrSetToDefault(inout_defaultValue, targetType);
       a.PushBack(inout_defaultValue);
       inout_defaultValue = a;
     }
   }
-  else if (targetTypeDecl.m_Category == ezVisualScriptVariableCategory::Map)
+  else if (targetTypeDecl.m_Category == WVisualScriptVariableCategory::Map)
   {
-    if (inout_defaultValue.IsA<ezVariantDictionary>())
+    if (inout_defaultValue.IsA<WVariantDictionary>())
     {
-      ezVariantDictionary d = inout_defaultValue.Get<ezVariantDictionary>();
+      WVariantDictionary d = inout_defaultValue.Get<WVariantDictionary>();
       for (auto it = d.GetIterator(); it.IsValid(); it.Next())
       {
-        ezVariant v = it.Value();
+        WVariant v = it.Value();
         ConvertOrSetToDefault(v, targetType);
         d[it.Key()] = v;
       }
@@ -395,7 +395,7 @@ void ezVisualScriptVariable::ConvertDefaultValue(ezVariant& inout_defaultValue, 
     }
     else
     {
-      ezVariantDictionary d;
+      WVariantDictionary d;
       ConvertOrSetToDefault(inout_defaultValue, targetType);
       d["Key"] = inout_defaultValue;
       inout_defaultValue = d;
@@ -409,38 +409,38 @@ void ezVisualScriptVariable::ConvertDefaultValue(ezVariant& inout_defaultValue, 
 
 /////////////////////////////////////////////////////////////////////////////
 
-static ezQtPropertyWidget* VisualScriptVariableTypeCreator(const ezRTTI* pRtti)
+static WQtPropertyWidget* VisualScriptVariableTypeCreator(const WRTTI* pRtti)
 {
-  return new ezQtVisualScriptVariableWidget();
+  return new WQtVisualScriptVariableWidget();
 }
 
-static ezQtPropertyWidget* VisualScriptVariableTypeDeclarationCreator(const ezRTTI* pRtti)
+static WQtPropertyWidget* VisualScriptVariableTypeDeclarationCreator(const WRTTI* pRtti)
 {
-  return new ezQtVisualScriptVariableTypeDeclarationWidget();
+  return new WQtVisualScriptVariableTypeDeclarationWidget();
 }
 
-void ezVisualScriptVariable_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WVisualScriptVariable_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezVisualScriptVariable>();
+  const WRTTI* pRtti = WGetStaticRTTI<WVisualScriptVariable>();
 
   auto& typeAccessor = e.m_pObject->GetTypeAccessor();
 
   if (typeAccessor.GetType() != pRtti)
     return;
 
-  auto typeDecl = typeAccessor.GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
-  const bool bIsPublicNumberType = typeDecl.m_bPublic && ezVisualScriptDataType::IsNumber(static_cast<ezVisualScriptDataType::Enum>(typeDecl.m_Type.GetValue()));
+  auto typeDecl = typeAccessor.GetValue("Type").Get<WVisualScriptVariableTypeDeclaration>();
+  const bool bIsPublicNumberType = typeDecl.m_bPublic && WVisualScriptDataType::IsNumber(static_cast<WVisualScriptDataType::Enum>(typeDecl.m_Type.GetValue()));
 
   auto& props = *e.m_pPropertyStates;
 
-  auto clampRangeVisibility = bIsPublicNumberType ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  auto clampRangeVisibility = bIsPublicNumberType ? WPropertyUiState::Default : WPropertyUiState::Invisible;
   props["ClampRange"].m_Visibility = clampRangeVisibility;
   props["MinValue"].m_Visibility = clampRangeVisibility;
   props["MaxValue"].m_Visibility = clampRangeVisibility;
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, VisualScriptVariable)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, VisualScriptVariable)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "ToolsFoundation", "PropertyMetaState"
@@ -448,55 +448,55 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, VisualScriptVariable)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>(), VisualScriptVariableTypeCreator);
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>(), VisualScriptVariableTypeDeclarationCreator);
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WVisualScriptVariableAttribute>(), VisualScriptVariableTypeCreator);
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WVisualScriptVariableTypeDeclaration>(), VisualScriptVariableTypeDeclarationCreator);
 
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezVisualScriptVariable_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WVisualScriptVariable_PropertyMetaStateEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WVisualScriptVariableAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WVisualScriptVariableTypeDeclaration>());
 
-    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezVisualScriptVariable_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WVisualScriptVariable_PropertyMetaStateEventHandler);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ///////////////////////////////////////////////////////////////////////////
 
-class ezVisualScriptVariablePatch_1_2 : public ezGraphPatch
+class WVisualScriptVariablePatch_1_2 : public WGraphPatch
 {
 public:
-  ezVisualScriptVariablePatch_1_2()
-    : ezGraphPatch("ezVisualScriptVariable", 2)
+  WVisualScriptVariablePatch_1_2()
+    : WGraphPatch("WVisualScriptVariable", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pDefaultValue = pNode->FindProperty("DefaultValue");
     auto* pExpose = pNode->FindProperty("Expose");
 
     if (pDefaultValue && pExpose)
     {
-      ezVisualScriptVariableTypeDeclaration typeDecl;
+      WVisualScriptVariableTypeDeclaration typeDecl;
 
-      ezVariantType::Enum variantType = pDefaultValue->m_Value.GetType();
-      typeDecl.m_Type = static_cast<ezVisualScriptVariableType::Enum>(ezVisualScriptDataType::FromVariantType(variantType));
-      typeDecl.m_Category = ezVisualScriptVariableCategory::Member;
+      WVariantType::Enum variantType = pDefaultValue->m_Value.GetType();
+      typeDecl.m_Type = static_cast<WVisualScriptVariableType::Enum>(WVisualScriptDataType::FromVariantType(variantType));
+      typeDecl.m_Category = WVisualScriptVariableCategory::Member;
 
-      if (variantType == ezVariantType::VariantArray)
+      if (variantType == WVariantType::VariantArray)
       {
-        typeDecl.m_Type = ezVisualScriptVariableType::Variant;
-        typeDecl.m_Category = ezVisualScriptVariableCategory::Array;
+        typeDecl.m_Type = WVisualScriptVariableType::Variant;
+        typeDecl.m_Category = WVisualScriptVariableCategory::Array;
       }
-      else if (variantType == ezVariantType::VariantDictionary)
+      else if (variantType == WVariantType::VariantDictionary)
       {
-        typeDecl.m_Type = ezVisualScriptVariableType::Variant;
-        typeDecl.m_Category = ezVisualScriptVariableCategory::Map;
+        typeDecl.m_Type = WVisualScriptVariableType::Variant;
+        typeDecl.m_Category = WVisualScriptVariableCategory::Map;
       }
 
       typeDecl.m_bPublic = pExpose->m_Value.ConvertTo<bool>();
@@ -506,91 +506,91 @@ public:
   }
 };
 
-ezVisualScriptVariablePatch_1_2 g_ezVisualScriptVariablePatch_1_2;
+WVisualScriptVariablePatch_1_2 g_WVisualScriptVariablePatch_1_2;
 
-class ezVisualScriptVariable_2_3 : public ezGraphPatch
+class WVisualScriptVariable_2_3 : public WGraphPatch
 {
 public:
-  ezVisualScriptVariable_2_3()
-    : ezGraphPatch("ezVisualScriptVariable", 3)
+  WVisualScriptVariable_2_3()
+    : WGraphPatch("WVisualScriptVariable", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // The patch from 1 to 2 will already set the correct values for types.
     if (pNode->GetTypeVersion() < 2)
       return;
 
     auto* pType = pNode->FindProperty("Type");
-    if (pType && pType->m_Value.IsA<ezVisualScriptVariableTypeDeclaration>())
+    if (pType && pType->m_Value.IsA<WVisualScriptVariableTypeDeclaration>())
     {
-      auto typeDecl = pType->m_Value.Get<ezVisualScriptVariableTypeDeclaration>();
+      auto typeDecl = pType->m_Value.Get<WVisualScriptVariableTypeDeclaration>();
 
-      constexpr ezUInt32 uiOldVector3TypeValue = 8;
+      constexpr WUInt32 uiOldVector3TypeValue = 8;
       if (typeDecl.m_Type.GetValue() == uiOldVector3TypeValue)
       {
-        typeDecl.m_Type = ezVisualScriptVariableType::Vector3;
+        typeDecl.m_Type = WVisualScriptVariableType::Vector3;
         pType->m_Value = typeDecl;
         return;
       }
 
-      constexpr ezUInt32 uiOldQuaternionTypeValue = 9;
-      constexpr ezUInt32 uiOffsetToQuaternion = static_cast<ezUInt32>(ezVisualScriptVariableType::Quaternion) - uiOldQuaternionTypeValue;
+      constexpr WUInt32 uiOldQuaternionTypeValue = 9;
+      constexpr WUInt32 uiOffsetToQuaternion = static_cast<WUInt32>(WVisualScriptVariableType::Quaternion) - uiOldQuaternionTypeValue;
       if (typeDecl.m_Type.GetValue() >= uiOldQuaternionTypeValue)
       {
-        typeDecl.m_Type = static_cast<ezVisualScriptVariableType::Enum>(typeDecl.m_Type.GetValue() + uiOffsetToQuaternion);
+        typeDecl.m_Type = static_cast<WVisualScriptVariableType::Enum>(typeDecl.m_Type.GetValue() + uiOffsetToQuaternion);
         pType->m_Value = typeDecl;
       }
     }
   }
 };
 
-ezVisualScriptVariable_2_3 g_ezVisualScriptVariable_2_3;
+WVisualScriptVariable_2_3 g_WVisualScriptVariable_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptExpressionDataType, 1)
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Int),
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Float),
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector2),
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector3),
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector4),
-  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Color),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WVisualScriptExpressionDataType, 1)
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Int),
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Float),
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Vector2),
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Vector3),
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Vector4),
+  W_ENUM_CONSTANT(WVisualScriptExpressionDataType::Color),
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptExpressionVariable, ezNoBase, 1, ezRTTIDefaultAllocator<ezVisualScriptExpressionVariable>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVisualScriptExpressionVariable, WNoBase, 1, WRTTIDefaultAllocator<WVisualScriptExpressionVariable>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_ENUM_MEMBER_PROPERTY("Type", ezVisualScriptExpressionDataType, m_Type),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_ENUM_MEMBER_PROPERTY("Type", WVisualScriptExpressionDataType, m_Type),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptDataType::Enum ezVisualScriptExpressionDataType::GetVisualScriptDataType(Enum dataType)
+WVisualScriptDataType::Enum WVisualScriptExpressionDataType::GetVisualScriptDataType(Enum dataType)
 {
   switch (dataType)
   {
     case Int:
-      return ezVisualScriptDataType::Int;
+      return WVisualScriptDataType::Int;
     case Float:
-      return ezVisualScriptDataType::Float;
+      return WVisualScriptDataType::Float;
     case Vector2:
-      return ezVisualScriptDataType::Vector2;
+      return WVisualScriptDataType::Vector2;
     case Vector3:
-      return ezVisualScriptDataType::Vector3;
+      return WVisualScriptDataType::Vector3;
     case Vector4:
-      return ezVisualScriptDataType::Vector4;
+      return WVisualScriptDataType::Vector4;
     case Color:
-      return ezVisualScriptDataType::Color;
+      return WVisualScriptDataType::Color;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  return ezVisualScriptDataType::Invalid;
+  return WVisualScriptDataType::Invalid;
 }

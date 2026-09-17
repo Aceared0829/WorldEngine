@@ -5,12 +5,12 @@
 #include <Foundation/Tracks/CurveEditData.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// How velocity behavior changes particle speed
-struct EZ_PARTICLEPLUGIN_DLL ezVelocityChangeMode
+struct W_PARTICLEPLUGIN_DLL WVelocityChangeMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -22,58 +22,58 @@ struct EZ_PARTICLEPLUGIN_DLL ezVelocityChangeMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezVelocityChangeMode);
+W_DECLARE_REFLECTABLE_TYPE(W_PARTICLEPLUGIN_DLL, WVelocityChangeMode);
 
 /// Behavior that applies friction and rise/fall forces to particles
 ///
 /// Friction reduces particle velocity over time.
 /// Rise speed makes particles move along the inverse gravity direction.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Velocity final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Velocity, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Velocity, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Velocity();
-  ~ezParticleBehaviorFactory_Velocity();
+  WParticleBehaviorFactory_Velocity();
+  ~WParticleBehaviorFactory_Velocity();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
   float m_fFriction = 0;
-  ezEnum<ezVelocityChangeMode> m_ChangeSpeedWith;
-  ezSingleCurveData m_SpeedCurve;
-  ezCurve1DResourceHandle m_hSpeedSharedCurve;
+  WEnum<WVelocityChangeMode> m_ChangeSpeedWith;
+  WSingleCurveData m_SpeedCurve;
+  WCurve1DResourceHandle m_hSpeedSharedCurve;
   float m_fSpeedCurveOffset = 0.0f;
   float m_fSpeedCurveScale = 1.0f;
-  mutable ezCurve1D m_RuntimeSpeedCurve;
+  mutable WCurve1D m_RuntimeSpeedCurve;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Velocity final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Velocity, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Velocity, WParticleBehavior);
 
 public:
   virtual void CreateRequiredStreams() override;
 
-  ezEnum<ezVelocityChangeMode> m_ChangeSpeedWith;
-  const ezCurve1D* m_pCurve = nullptr;
+  WEnum<WVelocityChangeMode> m_ChangeSpeedWith;
+  const WCurve1D* m_pCurve = nullptr;
   float m_fSpeedCurveOffset = 0;
   float m_fSpeedCurveScale = 1;
   float m_fFriction = 0;
 
 protected:
-  friend class ezParticleBehaviorFactory_Velocity;
+  friend class WParticleBehaviorFactory_Velocity;
 
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) override;
 
-  ezProcessingStream* m_pStreamVelocity = nullptr;
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
 };

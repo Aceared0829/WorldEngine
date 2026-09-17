@@ -11,53 +11,53 @@
 #include <TerrainPlugin/TerrainSystem.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_TerrainVoxelCollision, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_TerrainVoxelCollision>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSceneExportModifier_TerrainVoxelCollision, 1, WRTTIDefaultAllocator<WSceneExportModifier_TerrainVoxelCollision>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static bool CheckExistingVoxelMeshFileContentHash(ezStringView sPath, ezUInt64 uiExpectedHash)
+static bool CheckExistingVoxelMeshFileContentHash(WStringView sPath, WUInt64 uiExpectedHash)
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
     return false;
 
   // JoltMeshResource files written via WriteMeshResource start with an asset file header,
   // followed by the version byte, compression mode, and content hash.
-  ezAssetFileHeader header;
+  WAssetFileHeader header;
   if (header.Read(file).Failed())
     return false;
 
-  ezUInt8 uiVersion = 0;
-  ezUInt8 uiCompressionMode = 0;
+  WUInt8 uiVersion = 0;
+  WUInt8 uiCompressionMode = 0;
   file >> uiVersion;
   file >> uiCompressionMode;
 
   if (uiVersion < 4)
     return false;
 
-  ezUInt64 uiStoredHash = 0;
+  WUInt64 uiStoredHash = 0;
   file >> uiStoredHash;
 
   return uiStoredHash == uiExpectedHash;
 }
 
-void ezSceneExportModifier_TerrainVoxelCollision::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void WSceneExportModifier_TerrainVoxelCollision::ModifyWorld(WWorld& ref_world, WStringView sDocumentType, const WUuid& documentGuid, bool bForExport)
 {
-  EZ_LOCK(ref_world.GetWriteMarker());
+  W_LOCK(ref_world.GetWriteMarker());
 
-  ezTerrainSystem* pTerrain = ref_world.GetOrCreateModule<ezTerrainSystem>();
+  WTerrainSystem* pTerrain = ref_world.GetOrCreateModule<WTerrainSystem>();
   if (pTerrain == nullptr)
     return;
 
-  auto* pVolumeMan = ref_world.GetComponentManager<ezTerrainVolumeComponentManager>();
+  auto* pVolumeMan = ref_world.GetComponentManager<WTerrainVolumeComponentManager>();
   if (pVolumeMan == nullptr)
     return;
 
-  auto* pActorMan = ref_world.GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
+  auto* pActorMan = ref_world.GetOrCreateComponentManager<WJoltStaticActorComponentManager>();
 
   for (auto it = pVolumeMan->GetComponents(); it.IsValid(); ++it)
   {
-    ezTerrainVolumeComponent* pVolume = it;
+    WTerrainVolumeComponent* pVolume = it;
 
     if (!pVolume->IsActive())
       continue;
@@ -65,90 +65,90 @@ void ezSceneExportModifier_TerrainVoxelCollision::ModifyWorld(ezWorld& ref_world
     if (!pVolume->GetEnableCollider())
       continue;
 
-    const ezUInt32 uiVoxelIdx = pVolume->GetVoxelIndex();
-    if (uiVoxelIdx == ezInvalidIndex)
+    const WUInt32 uiVoxelIdx = pVolume->GetVoxelIndex();
+    if (uiVoxelIdx == WInvalidIndex)
       continue;
 
-    const ezUInt64 uiContentHash = pVolume->ComputeColliderContentHash(pTerrain->GetVoxelBrushOverlapHash(uiVoxelIdx));
+    const WUInt64 uiContentHash = pVolume->ComputeColliderContentHash(pTerrain->GetVoxelBrushOverlapHash(uiVoxelIdx));
 
-    ezStringBuilder sPath;
-    sPath.SetFormat(":project/AssetCache/Generated/TerrainVolume_{}.ezBinJoltTriangleMesh", ezArgU(pVolume->GetStableId(), 16, true, 16, true));
+    WStringBuilder sPath;
+    sPath.SetFormat(":project/AssetCache/Generated/TerrainVolume_{}.WBinJoltTriangleMesh", WArgU(pVolume->GetStableId(), 16, true, 16, true));
 
     const bool bFileUpToDate = CheckExistingVoxelMeshFileContentHash(sPath, uiContentHash);
 
     if (!bFileUpToDate)
     {
-      ezTempArray<VoxelGpuVertex> cpuVerts;
-      ezTempArray<ezUInt32> cpuIdxs;
-      ezUInt32 uiVertCount = 0;
-      ezUInt32 uiTriCount = 0;
+      WTempArray<VoxelGpuVertex> cpuVerts;
+      WTempArray<WUInt32> cpuIdxs;
+      WUInt32 uiVertCount = 0;
+      WUInt32 uiTriCount = 0;
       if (pTerrain->ReadbackVoxelData(uiVoxelIdx, cpuVerts, cpuIdxs, uiVertCount, uiTriCount).Failed())
       {
-        ezLog::Warning("TerrainVoxelExportModifier: ReadbackVoxelData failed for volume (stableId={}), skipping baked collider.", pVolume->GetStableId());
+        WLog::Warning("TerrainVoxelExportModifier: ReadbackVoxelData failed for volume (stableId={}), skipping baked collider.", pVolume->GetStableId());
         continue;
       }
 
       if (uiVertCount == 0 || uiTriCount == 0)
         continue;
 
-      ezJoltMeshDesc meshDesc;
+      WJoltMeshDesc meshDesc;
       meshDesc.m_uiContentHash = uiContentHash;
-      meshDesc.m_Type = ezJoltMeshDesc::Type::Triangle;
+      meshDesc.m_Type = WJoltMeshDesc::Type::Triangle;
 
       meshDesc.m_Vertices.SetCountUninitialized(uiVertCount);
-      for (ezUInt32 i = 0; i < uiVertCount; ++i)
+      for (WUInt32 i = 0; i < uiVertCount; ++i)
       {
         meshDesc.m_Vertices[i] = cpuVerts[i].Position;
       }
 
-      const ezUInt32 uiIdxCount = uiTriCount * 3;
+      const WUInt32 uiIdxCount = uiTriCount * 3;
       meshDesc.m_TriangleIndices.SetCountUninitialized(uiIdxCount);
-      ezMemoryUtils::Copy(meshDesc.m_TriangleIndices.GetData(), cpuIdxs.GetData(), uiIdxCount);
+      WMemoryUtils::Copy(meshDesc.m_TriangleIndices.GetData(), cpuIdxs.GetData(), uiIdxCount);
 
-      const ezUInt32 uiNumSurfaces = pVolume->Surfaces_GetCount();
+      const WUInt32 uiNumSurfaces = pVolume->Surfaces_GetCount();
       if (uiNumSurfaces > 0)
       {
         meshDesc.m_Surfaces.SetCount(uiNumSurfaces);
-        for (ezUInt32 s = 0; s < uiNumSurfaces; ++s)
+        for (WUInt32 s = 0; s < uiNumSurfaces; ++s)
         {
           meshDesc.m_Surfaces[s] = pVolume->Surfaces_GetValue(s);
         }
 
-        const ezUInt8 uiFallback = pVolume->GetBaseMaterialIndex();
+        const WUInt8 uiFallback = pVolume->GetBaseMaterialIndex();
         meshDesc.m_TriangleSurfaceID.SetCountUninitialized(uiTriCount);
 
-        for (ezUInt32 tri = 0; tri < uiTriCount; ++tri)
+        for (WUInt32 tri = 0; tri < uiTriCount; ++tri)
         {
-          ezUInt8 votes[3];
-          for (ezUInt32 v = 0; v < 3; ++v)
+          WUInt8 votes[3];
+          for (WUInt32 v = 0; v < 3; ++v)
           {
-            const ezUInt32 idx = cpuIdxs[tri * 3 + v];
+            const WUInt32 idx = cpuIdxs[tri * 3 + v];
             const VoxelGpuVertex& vert = cpuVerts[idx];
-            const ezUInt8 raw = (vert.Material != 0xFFFFFFFFu) ? static_cast<ezUInt8>(vert.Material) : 0;
+            const WUInt8 raw = (vert.Material != 0xFFFFFFFFu) ? static_cast<WUInt8>(vert.Material) : 0;
             votes[v] = (vert.MaterialStrength > 0.5f && raw < uiNumSurfaces) ? raw : uiFallback;
           }
-          ezUInt8 chosen = votes[0];
+          WUInt8 chosen = votes[0];
           if (votes[1] == votes[2] && votes[1] != votes[0])
           {
             chosen = votes[1];
           }
 
-          meshDesc.m_TriangleSurfaceID[tri] = static_cast<ezUInt16>(chosen);
+          meshDesc.m_TriangleSurfaceID[tri] = static_cast<WUInt16>(chosen);
         }
       }
 
-      ezDeferredFileWriter fileWriter;
+      WDeferredFileWriter fileWriter;
       fileWriter.SetOutput(sPath);
 
-      if (ezJoltMeshResourceWriter::WriteMeshResource(meshDesc, fileWriter, true, 0).Failed())
+      if (WJoltMeshResourceWriter::WriteMeshResource(meshDesc, fileWriter, true, 0).Failed())
       {
-        ezLog::Error("TerrainVoxelExportModifier: failed to cook mesh for '{}'.", sPath);
+        WLog::Error("TerrainVoxelExportModifier: failed to cook mesh for '{}'.", sPath);
         continue;
       }
 
       if (fileWriter.Close().Failed())
       {
-        ezLog::Error("TerrainVoxelExportModifier: failed to write file '{}'.", sPath);
+        WLog::Error("TerrainVoxelExportModifier: failed to write file '{}'.", sPath);
         continue;
       }
     }
@@ -156,11 +156,11 @@ void ezSceneExportModifier_TerrainVoxelCollision::ModifyWorld(ezWorld& ref_world
     pVolume->SetEnableCollider(false);
 
     // Create or reuse the "VoxelCollider" child game object.
-    ezGameObject* pColliderObject = nullptr;
-    ezGameObject* pVolumeOwner = pVolume->GetOwner();
+    WGameObject* pColliderObject = nullptr;
+    WGameObject* pVolumeOwner = pVolume->GetOwner();
     for (auto childIt = pVolumeOwner->GetChildren(); childIt.IsValid(); ++childIt)
     {
-      if (childIt->GetNameHashed() == ezTempHashedString("VoxelCollider"))
+      if (childIt->GetNameHashed() == WTempHashedString("VoxelCollider"))
       {
         pColliderObject = &(*childIt);
         break;
@@ -169,20 +169,20 @@ void ezSceneExportModifier_TerrainVoxelCollision::ModifyWorld(ezWorld& ref_world
 
     if (pColliderObject == nullptr)
     {
-      ezGameObjectDesc objDesc;
+      WGameObjectDesc objDesc;
       objDesc.m_sName.Assign("VoxelCollider");
       objDesc.m_hParent = pVolumeOwner->GetHandle();
       ref_world.CreateObject(objDesc, pColliderObject);
     }
 
-    ezJoltStaticActorComponent* pActor = nullptr;
+    WJoltStaticActorComponent* pActor = nullptr;
     if (!pColliderObject->TryGetComponentOfBaseType(pActor))
     {
       pActorMan->CreateComponent(pColliderObject, pActor);
     }
 
-    pActor->SetMesh(ezResourceManager::LoadResource<ezJoltMeshResource>(sPath));
+    pActor->SetMesh(WResourceManager::LoadResource<WJoltMeshResource>(sPath));
   }
 }
 
-EZ_STATICLINK_FILE(EnginePluginTerrain, EnginePluginTerrain_SceneExport_TerrainVoxelExportModifier);
+W_STATICLINK_FILE(EnginePluginTerrain, EnginePluginTerrain_SceneExport_TerrainVoxelExportModifier);

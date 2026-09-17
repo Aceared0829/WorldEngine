@@ -1,73 +1,73 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 #  include <Foundation/Platform/Android/Utils/AndroidJni.h>
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
-#  define EZ_POSIX_FILE_NOGETAPPLICATIONPATH
-#  define EZ_POSIX_FILE_NOGETUSERDATAFOLDER
-#  define EZ_POSIX_FILE_NOGETTEMPDATAFOLDER
-#  define EZ_POSIX_FILE_NOGETUSERDOCUMENTSFOLDER
+#  define W_POSIX_FILE_NOGETAPPLICATIONPATH
+#  define W_POSIX_FILE_NOGETUSERDATAFOLDER
+#  define W_POSIX_FILE_NOGETTEMPDATAFOLDER
+#  define W_POSIX_FILE_NOGETUSERDOCUMENTSFOLDER
 
 #  include <Foundation/Platform/Posix/OSFile_Posix.inl>
 
-ezStringView ezOSFile::GetApplicationPath()
+WStringView WOSFile::GetApplicationPath()
 {
   if (s_sApplicationPath.IsEmpty())
   {
-    ezJniAttachment attachment;
+    WJniAttachment attachment;
 
-    ezJniString packagePath = attachment.GetActivity().Call<ezJniString>("getPackageCodePath");
+    WJniString packagePath = attachment.GetActivity().Call<WJniString>("getPackageCodePath");
     // By convention, android requires assets to be placed in the 'Assets' folder
     // inside the apk thus we use that as our SDK root.
-    ezStringBuilder sTemp = packagePath.GetData();
-    sTemp.AppendPath("Assets/ezDummyBin");
+    WStringBuilder sTemp = packagePath.GetData();
+    sTemp.AppendPath("Assets/WDummyBin");
     s_sApplicationPath = sTemp;
   }
 
   return s_sApplicationPath;
 }
 
-ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
+WString WOSFile::GetUserDataFolder(WStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
-    android_app* app = ezAndroidUtils::GetAndroidApp();
+    android_app* app = WAndroidUtils::GetAndroidApp();
     s_sUserDataPath = app->activity->internalDataPath;
   }
 
-  ezStringBuilder s = s_sUserDataPath;
+  WStringBuilder s = s_sUserDataPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
 
-ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
+WString WOSFile::GetTempDataFolder(WStringView sSubFolder)
 {
   if (s_sTempDataPath.IsEmpty())
   {
-    ezJniAttachment attachment;
+    WJniAttachment attachment;
 
-    ezJniObject cacheDir = attachment.GetActivity().Call<ezJniObject>("getCacheDir");
-    ezJniString path = cacheDir.Call<ezJniString>("getPath");
+    WJniObject cacheDir = attachment.GetActivity().Call<WJniObject>("getCacheDir");
+    WJniString path = cacheDir.Call<WJniString>("getPath");
     s_sTempDataPath = path.GetData();
   }
 
-  ezStringBuilder s = s_sTempDataPath;
+  WStringBuilder s = s_sTempDataPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
 
-ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
+WString WOSFile::GetUserDocumentsFolder(WStringView sSubFolder)
 {
   if (s_sUserDocumentsPath.IsEmpty())
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
   }
 
-  ezStringBuilder s = s_sUserDocumentsPath;
+  WStringBuilder s = s_sUserDocumentsPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;

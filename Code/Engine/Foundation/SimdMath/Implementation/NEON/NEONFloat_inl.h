@@ -1,184 +1,184 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat()
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  m_v = vmovq_n_f32(ezMath::NaN<float>());
+  m_v = vmovq_n_f32(WMath::NaN<float>());
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(float f)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(float f)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = vmovq_n_f32(f);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WInt32 i)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = vcvtq_f32_s32(vmovq_n_s32(i));
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WUInt32 i)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = vcvtq_f32_u32(vmovq_n_u32(i));
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezAngle a)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WAngle a)
 {
-  EZ_CHECK_SIMD_ALIGNMENT(this);
+  W_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = vmovq_n_f32(a.GetRadian());
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
+W_ALWAYS_INLINE WSimdFloat::WSimdFloat(WInternal::QuadFloat v)
 {
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
+W_ALWAYS_INLINE WSimdFloat::operator float() const
 {
   return vgetq_lane_f32(m_v, 0);
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::MakeZero()
 {
   return vmovq_n_f32(0.0f);
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::MakeNaN()
 {
-  return vmovq_n_f32(ezMath::NaN<float>());
+  return vmovq_n_f32(WMath::NaN<float>());
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator+(const WSimdFloat& f) const
 {
   return vaddq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator-(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator-(const WSimdFloat& f) const
 {
   return vsubq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator*(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator*(const WSimdFloat& f) const
 {
   return vmulq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator/(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::operator/(const WSimdFloat& f) const
 {
   return vdivq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator+=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator+=(const WSimdFloat& f)
 {
   m_v = vaddq_f32(m_v, f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator-=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator-=(const WSimdFloat& f)
 {
   m_v = vsubq_f32(m_v, f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator*=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator*=(const WSimdFloat& f)
 {
   m_v = vmulq_f32(m_v, f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator/=(const ezSimdFloat& f)
+W_ALWAYS_INLINE WSimdFloat& WSimdFloat::operator/=(const WSimdFloat& f)
 {
   m_v = vdivq_f32(m_v, f.m_v);
   return *this;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::IsEqual(const ezSimdFloat& rhs, const ezSimdFloat& fEpsilon) const
+W_ALWAYS_INLINE bool WSimdFloat::IsEqual(const WSimdFloat& rhs, const WSimdFloat& fEpsilon) const
 {
-  ezSimdFloat minusEps = rhs - fEpsilon;
-  ezSimdFloat plusEps = rhs + fEpsilon;
+  WSimdFloat minusEps = rhs - fEpsilon;
+  WSimdFloat plusEps = rhs + fEpsilon;
   return ((*this >= minusEps) && (*this <= plusEps));
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator==(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator==(const WSimdFloat& f) const
 {
   return vgetq_lane_u32(vceqq_f32(m_v, f.m_v), 0) & 1;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator!=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator!=(const WSimdFloat& f) const
 {
   return !operator==(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>=(const WSimdFloat& f) const
 {
   return vgetq_lane_u32(vcgeq_f32(m_v, f.m_v), 0) & 1;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>(const WSimdFloat& f) const
 {
   return vgetq_lane_u32(vcgtq_f32(m_v, f.m_v), 0) & 1;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<=(const WSimdFloat& f) const
 {
   return vgetq_lane_u32(vcleq_f32(m_v, f.m_v), 0) & 1;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<(const ezSimdFloat& f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<(const WSimdFloat& f) const
 {
   return vgetq_lane_u32(vcltq_f32(m_v, f.m_v), 0) & 1;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator==(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator==(float f) const
 {
-  return (*this) == ezSimdFloat(f);
+  return (*this) == WSimdFloat(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator!=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator!=(float f) const
 {
-  return (*this) != ezSimdFloat(f);
+  return (*this) != WSimdFloat(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>(float f) const
 {
-  return (*this) > ezSimdFloat(f);
+  return (*this) > WSimdFloat(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator>=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator>=(float f) const
 {
-  return (*this) >= ezSimdFloat(f);
+  return (*this) >= WSimdFloat(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<(float f) const
 {
-  return (*this) < ezSimdFloat(f);
+  return (*this) < WSimdFloat(f);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(float f) const
+W_ALWAYS_INLINE bool WSimdFloat::operator<=(float f) const
 {
-  return (*this) <= ezSimdFloat(f);
+  return (*this) <= WSimdFloat(f);
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::FULL>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetReciprocal<WMathAcc::FULL>() const
 {
   return vdivq_f32(vmovq_n_f32(1.0f), m_v);
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_23>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetReciprocal<WMathAcc::BITS_23>() const
 {
   float32x4_t x0 = vrecpeq_f32(m_v);
 
@@ -190,7 +190,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_23>() co
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_12>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetReciprocal<WMathAcc::BITS_12>() const
 {
   float32x4_t x0 = vrecpeq_f32(m_v);
 
@@ -201,13 +201,13 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_12>() co
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::FULL>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetInvSqrt<WMathAcc::FULL>() const
 {
   return vdivq_f32(vmovq_n_f32(1.0f), vsqrtq_f32(m_v));
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_23>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetInvSqrt<WMathAcc::BITS_23>() const
 {
   const float32x4_t x0 = vrsqrteq_f32(m_v);
 
@@ -217,7 +217,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_23>() const
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_12>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetInvSqrt<WMathAcc::BITS_12>() const
 {
   const float32x4_t x0 = vrsqrteq_f32(m_v);
 
@@ -226,34 +226,34 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_12>() const
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::FULL>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetSqrt<WMathAcc::FULL>() const
 {
   return vsqrtq_f32(m_v);
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::BITS_23>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetSqrt<WMathAcc::BITS_23>() const
 {
-  return (*this) * GetInvSqrt<ezMathAcc::BITS_23>();
+  return (*this) * GetInvSqrt<WMathAcc::BITS_23>();
 }
 
 template <>
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::BITS_12>() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::GetSqrt<WMathAcc::BITS_12>() const
 {
-  return (*this) * GetInvSqrt<ezMathAcc::BITS_12>();
+  return (*this) * GetInvSqrt<WMathAcc::BITS_12>();
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Max(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Max(const WSimdFloat& f) const
 {
   return vmaxq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Min(const ezSimdFloat& f) const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Min(const WSimdFloat& f) const
 {
   return vminq_f32(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
+W_ALWAYS_INLINE WSimdFloat WSimdFloat::Abs() const
 {
   return vabsq_f32(m_v);
 }

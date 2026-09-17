@@ -2,7 +2,7 @@
 
 #include <ModelImporter2/Importer/Importer.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   /// Importer implementation to import Source engine BSP files.
   class ImporterMagicaVoxel : public Importer
@@ -12,6 +12,6 @@ namespace ezModelImporter2
     ~ImporterMagicaVoxel();
 
   protected:
-    virtual ezResult DoImport() override;
+    virtual WResult DoImport() override;
   };
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

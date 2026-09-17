@@ -8,163 +8,163 @@
 #include <RendererCore/Utils/BlackboardHelper.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFogRenderData, 1, WRTTIDefaultAllocator<WFogRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 3, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WFogComponent, 3, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
-    EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("StartDistance", GetStartDistance, SetStartDistance),
-    EZ_ACCESSOR_PROPERTY("HeightFalloff", GetHeightFalloff, SetHeightFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
-    EZ_ACCESSOR_PROPERTY("ModulateWithSkyColor", GetModulateWithSkyColor, SetModulateWithSkyColor),
-    EZ_ACCESSOR_PROPERTY("SkyDistance", GetSkyDistance, SetSkyDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1000.0f)),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WDefaultValueAttribute(WColorGammaUB(WColor(0.2f, 0.2f, 0.3f)))),
+    W_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
+    W_ACCESSOR_PROPERTY("StartDistance", GetStartDistance, SetStartDistance),
+    W_ACCESSOR_PROPERTY("HeightFalloff", GetHeightFalloff, SetHeightFalloff)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(10.0f)),
+    W_ACCESSOR_PROPERTY("ModulateWithSkyColor", GetModulateWithSkyColor, SetModulateWithSkyColor),
+    W_ACCESSOR_PROPERTY("SkyDistance", GetSkyDistance, SetSkyDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1000.0f)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new WCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezFogComponent::ezFogComponent() = default;
-ezFogComponent::~ezFogComponent() = default;
+WFogComponent::WFogComponent() = default;
+WFogComponent::~WFogComponent() = default;
 
-void ezFogComponent::Deinitialize()
+void WFogComponent::Deinitialize()
 {
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 
   SUPER::Deinitialize();
 }
 
-void ezFogComponent::OnActivated()
+void WFogComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezFogComponent::OnDeactivated()
+void WFogComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezFogComponent::SetColor(ezColor color)
+void WFogComponent::SetColor(WColor color)
 {
   m_Color = color;
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-ezColor ezFogComponent::GetColor() const
+WColor WFogComponent::GetColor() const
 {
   return m_Color;
 }
 
-void ezFogComponent::SetDensity(float fDensity)
+void WFogComponent::SetDensity(float fDensity)
 {
-  m_fDensity = ezMath::Max(fDensity, 0.0f);
+  m_fDensity = WMath::Max(fDensity, 0.0f);
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-float ezFogComponent::GetDensity() const
+float WFogComponent::GetDensity() const
 {
   return m_fDensity;
 }
 
-void ezFogComponent::SetHeightFalloff(float fHeightFalloff)
+void WFogComponent::SetHeightFalloff(float fHeightFalloff)
 {
-  m_fHeightFalloff = ezMath::Max(fHeightFalloff, 0.0f);
+  m_fHeightFalloff = WMath::Max(fHeightFalloff, 0.0f);
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-float ezFogComponent::GetHeightFalloff() const
+float WFogComponent::GetHeightFalloff() const
 {
   return m_fHeightFalloff;
 }
 
-void ezFogComponent::SetModulateWithSkyColor(bool bModulate)
+void WFogComponent::SetModulateWithSkyColor(bool bModulate)
 {
   m_bModulateWithSkyColor = bModulate;
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-bool ezFogComponent::GetModulateWithSkyColor() const
+bool WFogComponent::GetModulateWithSkyColor() const
 {
   return m_bModulateWithSkyColor;
 }
 
-void ezFogComponent::SetSkyDistance(float fDistance)
+void WFogComponent::SetSkyDistance(float fDistance)
 {
   m_fSkyDistance = fDistance;
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-float ezFogComponent::GetSkyDistance() const
+float WFogComponent::GetSkyDistance() const
 {
   return m_fSkyDistance;
 }
 
-void ezFogComponent::SetStartDistance(float fDistance)
+void WFogComponent::SetStartDistance(float fDistance)
 {
   m_fStartDistance = fDistance;
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 
-float ezFogComponent::GetStartDistance() const
+float WFogComponent::GetStartDistance() const
 {
   return m_fStartDistance;
 }
 
-void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WFogComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? WDefaultSpatialDataCategories::RenderDynamic : WDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WFogComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory)
     return;
 
-  const ezBlackboard& blackboard = *GetWorld()->GetBlackboard().Borrow();
-  const ezColor color = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_Color, blackboard, Fog.Color);
-  const float fDensity = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fDensity, blackboard, Fog.Density);
-  const float fHeightFalloff = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fHeightFalloff, blackboard, Fog.HeightFalloff);
-  const float fStartDistance = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fStartDistance, blackboard, Fog.StartDistance);
+  const WBlackboard& blackboard = *GetWorld()->GetBlackboard().Borrow();
+  const WColor color = W_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_Color, blackboard, Fog.Color);
+  const float fDensity = W_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fDensity, blackboard, Fog.Density);
+  const float fHeightFalloff = W_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fHeightFalloff, blackboard, Fog.HeightFalloff);
+  const float fStartDistance = W_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fStartDistance, blackboard, Fog.StartDistance);
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WFogRenderData>(GetOwner());
 
   pRenderData->m_Color = color;
   pRenderData->m_fDensity = fDensity / 100.0f;
@@ -172,16 +172,16 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_fHeightFalloff = fHeightFalloff;
   pRenderData->m_fInvSkyDistance = m_bModulateWithSkyColor ? 1.0f / m_fSkyDistance : 0.0f;
   pRenderData->m_fFogStartDistance = fStartDistance;
-  pRenderData->m_uiSortingKey = ezInvalidIndex;
+  pRenderData->m_uiSortingKey = WInvalidIndex;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::Light, WRenderData::Caching::Never);
 }
 
-void ezFogComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WFogComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_Color;
   s << m_fDensity;
@@ -191,11 +191,11 @@ void ezFogComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fStartDistance;
 }
 
-void ezFogComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WFogComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_fDensity;
@@ -213,4 +213,4 @@ void ezFogComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_FogComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_FogComponent);

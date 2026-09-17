@@ -8,51 +8,51 @@ class QWidget;
 class QKeyEvent;
 class QMouseEvent;
 class QWheelEvent;
-class ezDocument;
-class ezQtEngineDocumentWindow;
-class ezQtEngineViewWidget;
+class WDocument;
+class WQtEngineDocumentWindow;
+class WQtEngineViewWidget;
 
-enum class ezEditorInput
+enum class WEditorInput
 {
   MayBeHandledByOthers,
   WasExclusivelyHandled,
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
+class W_EDITORFRAMEWORK_DLL WEditorInputContext : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEditorInputContext, WReflectedClass);
 
 public:
-  ezEditorInputContext();
+  WEditorInputContext();
 
-  virtual ~ezEditorInputContext();
+  virtual ~WEditorInputContext();
 
   void FocusLost(bool bCancel);
 
-  ezEditorInput KeyPressEvent(QKeyEvent* e) { return DoKeyPressEvent(e); }
-  ezEditorInput KeyReleaseEvent(QKeyEvent* e) { return DoKeyReleaseEvent(e); }
-  ezEditorInput MousePressEvent(QMouseEvent* e) { return DoMousePressEvent(e); }
-  ezEditorInput MouseReleaseEvent(QMouseEvent* e) { return DoMouseReleaseEvent(e); }
-  ezEditorInput MouseMoveEvent(QMouseEvent* e);
-  ezEditorInput WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
+  WEditorInput KeyPressEvent(QKeyEvent* e) { return DoKeyPressEvent(e); }
+  WEditorInput KeyReleaseEvent(QKeyEvent* e) { return DoKeyReleaseEvent(e); }
+  WEditorInput MousePressEvent(QMouseEvent* e) { return DoMousePressEvent(e); }
+  WEditorInput MouseReleaseEvent(QMouseEvent* e) { return DoMouseReleaseEvent(e); }
+  WEditorInput MouseMoveEvent(QMouseEvent* e);
+  WEditorInput WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
 
-  static void SetActiveInputContext(ezEditorInputContext* pContext);
+  static void SetActiveInputContext(WEditorInputContext* pContext);
 
   void MakeActiveInputContext(bool bActive = true);
 
   static bool IsAnyInputContextActive() { return s_pActiveInputContext != nullptr; }
 
-  static ezEditorInputContext* GetActiveInputContext() { return s_pActiveInputContext; }
+  static WEditorInputContext* GetActiveInputContext() { return s_pActiveInputContext; }
 
   static void UpdateActiveInputContext();
 
   bool IsActiveInputContext() const;
 
-  void SetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
+  void SetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView);
 
-  ezQtEngineDocumentWindow* GetOwnerWindow() const;
+  WQtEngineDocumentWindow* GetOwnerWindow() const;
 
-  ezQtEngineViewWidget* GetOwnerView() const;
+  WQtEngineViewWidget* GetOwnerView() const;
 
   bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
 
@@ -74,42 +74,42 @@ public:
   /// state.
   ///
   /// The return value is the current global mouse position. Can be used to initialize a 'Last Mouse Position' variable.
-  ezVec2I32 SetMouseMode(MouseMode mode);
+  WVec2I32 SetMouseMode(MouseMode mode);
 
   /// Updates the mouse position. Can always be called but will only have an effect if SetMouseMode() was called with one of the wrap modes.
   ///
   /// Returns the new global mouse position, which may change drastically if the mouse cursor needed to be wrapped around the screen.
   /// Should be used to update a "Last Mouse Position" variable.
-  ezVec2I32 UpdateMouseMode(QMouseEvent* e);
+  WVec2I32 UpdateMouseMode(QMouseEvent* e);
 
-  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) {}
+  virtual void UpdateStatusBarText(WQtEngineDocumentWindow* pWindow) {}
 
 protected:
   virtual void DoFocusLost(bool bCancel) {}
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) = 0;
 
   virtual void OnActivated() {}
   virtual void OnDeactivated() {}
-  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e);
-  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
-  virtual ezEditorInput DoWheelEvent(QWheelEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
+  virtual WEditorInput DoKeyPressEvent(QKeyEvent* e);
+  virtual WEditorInput DoKeyReleaseEvent(QKeyEvent* e) { return WEditorInput::MayBeHandledByOthers; }
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) { return WEditorInput::MayBeHandledByOthers; }
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) { return WEditorInput::MayBeHandledByOthers; }
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) { return WEditorInput::MayBeHandledByOthers; }
+  virtual WEditorInput DoWheelEvent(QWheelEvent* e) { return WEditorInput::MayBeHandledByOthers; }
 
 private:
-  static ezEditorInputContext* s_pActiveInputContext;
+  static WEditorInputContext* s_pActiveInputContext;
 
-  ezQtEngineDocumentWindow* m_pOwnerWindow;
-  ezQtEngineViewWidget* m_pOwnerView;
+  WQtEngineDocumentWindow* m_pOwnerWindow;
+  WQtEngineViewWidget* m_pOwnerView;
   bool m_bDisableShortcuts;
   bool m_bJustWrappedMouse;
   MouseMode m_MouseMode;
-  ezVec2I32 m_vMouseRestorePosition;
-  ezVec2I32 m_vMousePosBeforeWrap;
-  ezVec2I32 m_vExpectedMousePosition;
-  ezRectU32 m_MouseWrapRect;
+  WVec2I32 m_vMouseRestorePosition;
+  WVec2I32 m_vMousePosBeforeWrap;
+  WVec2I32 m_vExpectedMousePosition;
+  WRectU32 m_MouseWrapRect;
 
   virtual void UpdateContext() {}
 };

@@ -2,17 +2,17 @@
 
 #include <Foundation/IO/ChunkStream.h>
 
-ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& inout_stream)
+WChunkStreamWriter::WChunkStreamWriter(WStreamWriter& inout_stream)
   : m_Stream(inout_stream)
 {
   m_bWritingFile = false;
   m_bWritingChunk = false;
 }
 
-void ezChunkStreamWriter::BeginStream(ezUInt16 uiVersion)
+void WChunkStreamWriter::BeginStream(WUInt16 uiVersion)
 {
-  EZ_ASSERT_DEV(!m_bWritingFile, "Already writing the file.");
-  EZ_ASSERT_DEV(uiVersion > 0, "The version number must be larger than 0");
+  W_ASSERT_DEV(!m_bWritingFile, "Already writing the file.");
+  W_ASSERT_DEV(uiVersion > 0, "The version number must be larger than 0");
 
   m_bWritingFile = true;
 
@@ -21,10 +21,10 @@ void ezChunkStreamWriter::BeginStream(ezUInt16 uiVersion)
   m_Stream.WriteBytes(&uiVersion, 2).IgnoreResult();
 }
 
-void ezChunkStreamWriter::EndStream()
+void WChunkStreamWriter::EndStream()
 {
-  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '{0}'", m_sChunkName);
+  W_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  W_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '{0}'", m_sChunkName);
 
   m_bWritingFile = false;
 
@@ -32,10 +32,10 @@ void ezChunkStreamWriter::EndStream()
   m_Stream.WriteBytes(szTag, 8).IgnoreResult();
 }
 
-void ezChunkStreamWriter::BeginChunk(ezStringView sName, ezUInt32 uiVersion)
+void WChunkStreamWriter::BeginChunk(WStringView sName, WUInt32 uiVersion)
 {
-  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName);
+  W_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  W_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName);
 
   m_sChunkName = sName;
 
@@ -49,22 +49,22 @@ void ezChunkStreamWriter::BeginChunk(ezStringView sName, ezUInt32 uiVersion)
 }
 
 
-void ezChunkStreamWriter::EndChunk()
+void WChunkStreamWriter::EndChunk()
 {
-  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(m_bWritingChunk, "No chunk is currently open.");
+  W_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  W_ASSERT_DEV(m_bWritingChunk, "No chunk is currently open.");
 
   m_bWritingChunk = false;
 
-  const ezUInt32 uiStorageSize = m_Storage.GetCount();
+  const WUInt32 uiStorageSize = m_Storage.GetCount();
   m_Stream << uiStorageSize;
   /// \todo Write Chunk CRC
 
-  for (ezUInt32 i = 0; i < uiStorageSize;)
+  for (WUInt32 i = 0; i < uiStorageSize;)
   {
-    const ezUInt32 uiRange = m_Storage.GetContiguousRange(i);
+    const WUInt32 uiRange = m_Storage.GetContiguousRange(i);
 
-    EZ_ASSERT_DEBUG(uiRange > 0, "Invalid contiguous range");
+    W_ASSERT_DEBUG(uiRange > 0, "Invalid contiguous range");
 
     m_Stream.WriteBytes(&m_Storage[i], uiRange).IgnoreResult();
     i += uiRange;
@@ -73,38 +73,38 @@ void ezChunkStreamWriter::EndChunk()
   m_Storage.Clear();
 }
 
-ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+WResult WChunkStreamWriter::WriteBytes(const void* pWriteBuffer, WUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT_DEV(m_bWritingChunk, "No chunk is currently written to");
+  W_ASSERT_DEV(m_bWritingChunk, "No chunk is currently written to");
 
-  const ezUInt8* pBytes = (const ezUInt8*)pWriteBuffer;
+  const WUInt8* pBytes = (const WUInt8*)pWriteBuffer;
 
-  for (ezUInt64 i = 0; i < uiBytesToWrite; ++i)
+  for (WUInt64 i = 0; i < uiBytesToWrite; ++i)
     m_Storage.PushBack(pBytes[i]);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-ezChunkStreamReader::ezChunkStreamReader(ezStreamReader& inout_stream)
+WChunkStreamReader::WChunkStreamReader(WStreamReader& inout_stream)
   : m_Stream(inout_stream)
 {
   m_ChunkInfo.m_bValid = false;
   m_EndChunkFileMode = EndChunkFileMode::JustClose;
 }
 
-ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+WUInt64 WChunkStreamReader::ReadBytes(void* pReadBuffer, WUInt64 uiBytesToRead)
 {
-  EZ_ASSERT_DEV(m_ChunkInfo.m_bValid, "No valid chunk available.");
+  W_ASSERT_DEV(m_ChunkInfo.m_bValid, "No valid chunk available.");
 
-  uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToRead, m_ChunkInfo.m_uiUnreadChunkBytes);
-  m_ChunkInfo.m_uiUnreadChunkBytes -= (ezUInt32)uiBytesToRead;
+  uiBytesToRead = WMath::Min<WUInt64>(uiBytesToRead, m_ChunkInfo.m_uiUnreadChunkBytes);
+  m_ChunkInfo.m_uiUnreadChunkBytes -= (WUInt32)uiBytesToRead;
 
   return m_Stream.ReadBytes(pReadBuffer, uiBytesToRead);
 }
 
-ezUInt16 ezChunkStreamReader::BeginStream()
+WUInt16 WChunkStreamReader::BeginStream()
 {
   m_ChunkInfo.m_bValid = false;
 
@@ -112,23 +112,23 @@ ezUInt16 ezChunkStreamReader::BeginStream()
   m_Stream.ReadBytes(szTag, 8);
   szTag[8] = '\0';
 
-  ezUInt16 uiVersion = 0;
+  WUInt16 uiVersion = 0;
 
-  if (ezStringUtils::IsEqual(szTag, "BGNCHNK2"))
+  if (WStringUtils::IsEqual(szTag, "BGNCHNK2"))
   {
     m_Stream.ReadBytes(&uiVersion, 2);
   }
   else
   {
     // "BGN CHNK" is the old chunk identifier, before a version number was written
-    EZ_ASSERT_DEV(ezStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
+    W_ASSERT_DEV(WStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
   }
 
   TryReadChunkHeader();
   return uiVersion;
 }
 
-void ezChunkStreamReader::EndStream()
+void WChunkStreamReader::EndStream()
 {
   if (m_EndChunkFileMode == EndChunkFileMode::SkipToEnd)
   {
@@ -137,7 +137,7 @@ void ezChunkStreamReader::EndStream()
   }
 }
 
-void ezChunkStreamReader::TryReadChunkHeader()
+void WChunkStreamReader::TryReadChunkHeader()
 {
   m_ChunkInfo.m_bValid = false;
 
@@ -145,10 +145,10 @@ void ezChunkStreamReader::TryReadChunkHeader()
   m_Stream.ReadBytes(szTag, 8);
   szTag[8] = '\0';
 
-  if (ezStringUtils::IsEqual(szTag, "END CHNK"))
+  if (WStringUtils::IsEqual(szTag, "END CHNK"))
     return;
 
-  if (ezStringUtils::IsEqual(szTag, "NXT CHNK"))
+  if (WStringUtils::IsEqual(szTag, "NXT CHNK"))
   {
     m_Stream >> m_ChunkInfo.m_sChunkName;
     m_Stream >> m_ChunkInfo.m_uiChunkVersion;
@@ -160,17 +160,17 @@ void ezChunkStreamReader::TryReadChunkHeader()
     return;
   }
 
-  EZ_REPORT_FAILURE("Invalid chunk file, tag is '{0}'", szTag);
+  W_REPORT_FAILURE("Invalid chunk file, tag is '{0}'", szTag);
 }
 
-void ezChunkStreamReader::NextChunk()
+void WChunkStreamReader::NextChunk()
 {
   if (!m_ChunkInfo.m_bValid)
     return;
 
-  const ezUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
-  const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
-  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
+  const WUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
+  const WUInt64 uiSkipped = SkipBytes(uiToSkip);
+  W_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
   TryReadChunkHeader();
 }

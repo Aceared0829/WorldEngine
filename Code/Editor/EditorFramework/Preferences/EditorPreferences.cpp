@@ -10,73 +10,73 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocator<ezEditorPreferencesUser>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorPreferencesUser, 1, WRTTIDefaultAllocator<WEditorPreferencesUser>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RestoreProjectOnStartup", m_bLoadLastProjectAtStartup)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ShowSplashscreen", m_bShowSplashscreen)->AddAttributes(new ezDefaultValueAttribute(false)),
-    EZ_MEMBER_PROPERTY("BackgroundAssetProcessing", m_bBackgroundAssetProcessing)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("MaxAssetProcessors", m_uiMaxAssetProcessors)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(1, 8)),
-    EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
-    EZ_MEMBER_PROPERTY("CameraRotationSpeed", m_fCameraRotationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_MEMBER_PROPERTY("MaxFramerate", m_uiMaxFramerate)->AddAttributes(new ezDefaultValueAttribute(60)),
-    EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
-    EZ_ACCESSOR_PROPERTY("ShapeIconSize", GetShapeIconSize, SetShapeIconSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
-    EZ_ACCESSOR_PROPERTY("ShapeIconFadeDistance", GetShapeIconFadeDistance, SetShapeIconFadeDistance)->AddAttributes(new ezDefaultValueAttribute(75.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
-    EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
-    EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f)), new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.125f), new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("TranslationSnap", m_fTranslationSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("UsePrecompiledTools", m_bUsePrecompiledTools)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("CustomPrecompiledToolsFolder", m_sCustomPrecompiledToolsFolder),
-    EZ_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("CombinedEditorAndEngineLogs", m_bCombinedEditorAndEngineLogs)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
-    EZ_MEMBER_PROPERTY("AssetBrowserShowItemsInSubFolders", m_bAssetBrowserShowItemsInSubFolders)->AddAttributes(new ezDefaultValueAttribute(true), new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("AutoSaveMinutes", m_uiAutoSaveMinutes)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(0, 24 * 60)),
+    W_MEMBER_PROPERTY("RestoreProjectOnStartup", m_bLoadLastProjectAtStartup)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("ShowSplashscreen", m_bShowSplashscreen)->AddAttributes(new WDefaultValueAttribute(false)),
+    W_MEMBER_PROPERTY("BackgroundAssetProcessing", m_bBackgroundAssetProcessing)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("MaxAssetProcessors", m_uiMaxAssetProcessors)->AddAttributes(new WDefaultValueAttribute(8), new WClampValueAttribute(1, 8)),
+    W_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new WDefaultValueAttribute(70.0f), new WClampValueAttribute(10.0f, 150.0f)),
+    W_MEMBER_PROPERTY("CameraRotationSpeed", m_fCameraRotationSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_MEMBER_PROPERTY("MaxFramerate", m_uiMaxFramerate)->AddAttributes(new WDefaultValueAttribute(60)),
+    W_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.2f, 5.0f)),
+    W_ACCESSOR_PROPERTY("ShapeIconSize", GetShapeIconSize, SetShapeIconSize)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.2f, 5.0f)),
+    W_ACCESSOR_PROPERTY("ShapeIconFadeDistance", GetShapeIconFadeDistance, SetShapeIconFadeDistance)->AddAttributes(new WDefaultValueAttribute(75.0f), new WClampValueAttribute(0.01f, 10000.0f)),
+    W_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
+    W_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(15.0f)), new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new WDefaultValueAttribute(0.125f), new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("TranslationSnap", m_fTranslationSnapValue)->AddAttributes(new WDefaultValueAttribute(0.25f), new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("UsePrecompiledTools", m_bUsePrecompiledTools)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("CustomPrecompiledToolsFolder", m_sCustomPrecompiledToolsFolder),
+    W_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("CombinedEditorAndEngineLogs", m_bCombinedEditorAndEngineLogs)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
+    W_MEMBER_PROPERTY("AssetBrowserShowItemsInSubFolders", m_bAssetBrowserShowItemsInSubFolders)->AddAttributes(new WDefaultValueAttribute(true), new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("AutoSaveMinutes", m_uiAutoSaveMinutes)->AddAttributes(new WDefaultValueAttribute(5), new WClampValueAttribute(0, 24 * 60)),
 
     // START GROUP Engine View Light Settings
-    EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),
-    EZ_MEMBER_PROPERTY("SkyLight", m_bSkyLight)->AddAttributes(new ezDefaultValueAttribute(true), new ezClampValueAttribute(0.0f, 2.0f)),
-    EZ_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap)->AddAttributes(new ezDefaultValueAttribute(ezStringView("{ 0b202e08-a64f-465d-b38e-15b81d161822 }")), new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
-    EZ_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 20.0f)),
-    EZ_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(70.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f))),
-    EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
-    EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("Fog", m_bFog),
-    EZ_MAP_ACCESSOR_PROPERTY("RecentLists", GetRecentLists, GetRecentList, SetRecentList, RemoveRecentList)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new WDefaultValueAttribute(true), new WGroupAttribute("Engine View Light Settings")),
+    W_MEMBER_PROPERTY("SkyLight", m_bSkyLight)->AddAttributes(new WDefaultValueAttribute(true), new WClampValueAttribute(0.0f, 2.0f)),
+    W_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap)->AddAttributes(new WDefaultValueAttribute(WStringView("{ 0b202e08-a64f-465d-b38e-15b81d161822 }")), new WAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
+    W_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 20.0f)),
+    W_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(70.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(360.0f))),
+    W_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
+    W_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new WDefaultValueAttribute(10.0f)),
+    W_MEMBER_PROPERTY("Fog", m_bFog),
+    W_MAP_ACCESSOR_PROPERTY("RecentLists", GetRecentLists, GetRecentList, SetRecentList, RemoveRecentList)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezEditorPreferencesUser::ezEditorPreferencesUser()
-  : ezPreferences(Domain::Application, "General")
+WEditorPreferencesUser::WEditorPreferencesUser()
+  : WPreferences(Domain::Application, "General")
 {
-  ezQtSearchableMenuRecentList::SetStorage(&m_RecentLists);
+  WQtSearchableMenuRecentList::SetStorage(&m_RecentLists);
 }
 
-ezEditorPreferencesUser::~ezEditorPreferencesUser()
+WEditorPreferencesUser::~WEditorPreferencesUser()
 {
-  ezQtSearchableMenuRecentList::SetStorage(nullptr);
+  WQtSearchableMenuRecentList::SetStorage(nullptr);
 }
 
-const ezRangeView<const char*, ezUInt32> ezEditorPreferencesUser::GetRecentLists() const
+const WRangeView<const char*, WUInt32> WEditorPreferencesUser::GetRecentLists() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_RecentLists.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     {
       auto it = m_RecentLists.GetIterator();
-      for (ezUInt32 i = 0; i < uiIt; ++i)
+      for (WUInt32 i = 0; i < uiIt; ++i)
       {
         ++it;
       }
@@ -84,35 +84,35 @@ const ezRangeView<const char*, ezUInt32> ezEditorPreferencesUser::GetRecentLists
     });
 }
 
-void ezEditorPreferencesUser::SetRecentList(const char* szKey, const ezString& sValue)
+void WEditorPreferencesUser::SetRecentList(const char* szKey, const WString& sValue)
 {
-  ezDynamicArray<ezString>& list = m_RecentLists[szKey];
+  WDynamicArray<WString>& list = m_RecentLists[szKey];
   list.Clear();
 
-  ezTempHybridArray<ezStringView, 32> entries;
-  ezStringView(sValue).Split(false, entries, ";");
+  WTempHybridArray<WStringView, 32> entries;
+  WStringView(sValue).Split(false, entries, ";");
 
-  for (ezStringView sEntry : entries)
+  for (WStringView sEntry : entries)
   {
     list.PushBack(sEntry);
   }
 }
 
-void ezEditorPreferencesUser::RemoveRecentList(const char* szKey)
+void WEditorPreferencesUser::RemoveRecentList(const char* szKey)
 {
   m_RecentLists.Remove(szKey);
 }
 
-bool ezEditorPreferencesUser::GetRecentList(const char* szKey, ezString& out_sValue) const
+bool WEditorPreferencesUser::GetRecentList(const char* szKey, WString& out_sValue) const
 {
   auto it = m_RecentLists.Find(szKey);
 
   if (!it.IsValid())
     return false;
 
-  ezStringBuilder sTmp;
+  WStringBuilder sTmp;
 
-  for (const ezString& sEntry : it.Value())
+  for (const WString& sEntry : it.Value())
   {
     if (!sTmp.IsEmpty())
     {
@@ -126,7 +126,7 @@ bool ezEditorPreferencesUser::GetRecentList(const char* szKey, ezString& out_sVa
   return true;
 }
 
-void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)
+void WEditorPreferencesUser::ApplyDefaultValues(WEngineViewLightSettings& ref_settings)
 {
   ref_settings.SetSkyBox(m_bSkyBox);
   ref_settings.SetSkyLight(m_bSkyLight);
@@ -139,7 +139,7 @@ void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_
   ref_settings.SetFog(m_bFog);
 }
 
-void ezEditorPreferencesUser::SetAsDefaultValues(const ezEngineViewLightSettings& settings)
+void WEditorPreferencesUser::SetAsDefaultValues(const WEngineViewLightSettings& settings)
 {
   m_bSkyBox = settings.GetSkyBox();
   m_bSkyLight = settings.GetSkyLight();
@@ -153,39 +153,39 @@ void ezEditorPreferencesUser::SetAsDefaultValues(const ezEngineViewLightSettings
   TriggerPreferencesChangedEvent();
 }
 
-void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
+void WEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
 {
   m_bShowInDevelopmentFeatures = b;
 
-  ezQtTypeMenu::s_bShowInDevelopmentFeatures = b;
+  WQtTypeMenu::s_bShowInDevelopmentFeatures = b;
 }
 
-void ezEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)
+void WEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)
 {
   m_bHighlightUntranslatedUI = b;
 
-  ezTranslator::HighlightUntranslated(m_bHighlightUntranslatedUI);
+  WTranslator::HighlightUntranslated(m_bHighlightUntranslatedUI);
 }
 
-void ezEditorPreferencesUser::SetGizmoSize(float f)
+void WEditorPreferencesUser::SetGizmoSize(float f)
 {
   m_fGizmoSize = f;
   SyncGlobalSettingsToEngine();
 }
 
-void ezEditorPreferencesUser::SetShapeIconSize(float f)
+void WEditorPreferencesUser::SetShapeIconSize(float f)
 {
   m_fShapeIconSize = f;
   SyncGlobalSettingsToEngine();
 }
 
-void ezEditorPreferencesUser::SetShapeIconFadeDistance(float f)
+void WEditorPreferencesUser::SetShapeIconFadeDistance(float f)
 {
   m_fShapeIconFadeDistance = f;
   SyncGlobalSettingsToEngine();
 }
 
-void ezEditorPreferencesUser::SetMaxFramerate(ezUInt16 uiFPS)
+void WEditorPreferencesUser::SetMaxFramerate(WUInt16 uiFPS)
 {
   if (m_uiMaxFramerate == uiFPS)
     return;
@@ -193,18 +193,18 @@ void ezEditorPreferencesUser::SetMaxFramerate(ezUInt16 uiFPS)
   m_uiMaxFramerate = uiFPS;
 }
 
-void ezEditorPreferencesUser::SyncGlobalSettingsToEngine()
+void WEditorPreferencesUser::SyncGlobalSettingsToEngine()
 {
-  ezGlobalSettingsMsgToEngine msg;
+  WGlobalSettingsMsgToEngine msg;
   msg.m_fGizmoScale = m_fGizmoSize;
   msg.m_fShapeIconScale = m_fShapeIconSize;
   msg.m_fShapeIconFadeDistance = m_fShapeIconFadeDistance;
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtEditorApp::LoadEditorPreferences()
+void WQtEditorApp::LoadEditorPreferences()
 {
-  EZ_PROFILE_SCOPE("Preferences");
-  ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  W_PROFILE_SCOPE("Preferences");
+  WPreferences::QueryPreferences<WEditorPreferencesUser>();
 }

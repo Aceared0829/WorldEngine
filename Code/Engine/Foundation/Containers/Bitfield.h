@@ -10,53 +10,53 @@
 ///
 /// This class provides an interface to work with single bits, to store true/false values.
 /// The underlying container is configurable, though it must support random access and a 'SetCount' function and it must use elements of type
-/// ezUInt32. In most cases a dynamic array should be used. For this case the ezDynamicBitfield typedef is already available. There is also an
-/// ezHybridBitfield typedef.
+/// WUInt32. In most cases a dynamic array should be used. For this case the WDynamicBitfield typedef is already available. There is also an
+/// WHybridBitfield typedef.
 template <class Container>
-class ezBitfield
+class WBitfield
 {
 public:
-  ezBitfield() = default;
+  WBitfield() = default;
 
   /// Returns the number of bits that this bitfield stores.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Resizes the Bitfield to hold the given number of bits. This version does NOT initialize new bits!
   template <typename = void>                       // Template is used to only conditionally compile this function in when it is actually used.
-  void SetCountUninitialized(ezUInt32 uiBitCount); // [tested]
+  void SetCountUninitialized(WUInt32 uiBitCount); // [tested]
 
   /// Resizes the Bitfield to hold the given number of bits. If \a bSetNew is true, new bits are set to 1, otherwise they are cleared to 0.
-  void SetCount(ezUInt32 uiBitCount, bool bSetNew = false); // [tested]
+  void SetCount(WUInt32 uiBitCount, bool bSetNew = false); // [tested]
 
   /// Returns true, if the bitfield does not store any bits.
   bool IsEmpty() const; // [tested]
 
   /// Returns true, if the bitfield is not empty and any bit is 1.
-  bool IsAnyBitSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
+  bool IsAnyBitSet(WUInt32 uiFirstBit = 0, WUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
   /// Returns true, if the bitfield is empty or all bits are set to zero.
-  bool IsNoBitSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
+  bool IsNoBitSet(WUInt32 uiFirstBit = 0, WUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
   /// Returns true, if the bitfield is not empty and all bits are set to one.
-  bool AreAllBitsSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
+  bool AreAllBitsSet(WUInt32 uiFirstBit = 0, WUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
   /// Discards all bits and sets count to zero.
   void Clear(); // [tested]
 
   /// Sets the given bit to 1.
-  void SetBit(ezUInt32 uiBit); // [tested]
+  void SetBit(WUInt32 uiBit); // [tested]
 
   /// Clears the given bit to 0.
-  void ClearBit(ezUInt32 uiBit); // [tested]
+  void ClearBit(WUInt32 uiBit); // [tested]
 
   /// Flips the given bit to the opposite value.
-  void FlipBit(ezUInt32 uiBit); // [tested]
+  void FlipBit(WUInt32 uiBit); // [tested]
 
   /// Sets the given bit to 1 or 0 depending on the given value.
-  void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
+  void SetBitValue(WUInt32 uiBit, bool bValue); // [tested]
 
   /// Returns true, if the given bit is set to 1.
-  bool IsBitSet(ezUInt32 uiBit) const; // [tested]
+  bool IsBitSet(WUInt32 uiBit) const; // [tested]
 
   /// Clears all bits to 0.
   void ClearAllBits(); // [tested]
@@ -65,33 +65,33 @@ public:
   void SetAllBits(); // [tested]
 
   /// Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
-  void SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+  void SetBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits); // [tested]
 
   /// Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
-  void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+  void ClearBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits); // [tested]
 
   /// Flips the range starting at uiFirstBit up to (and including) uiLastBit.
-  void FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+  void FlipBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits); // [tested]
 
   /// Swaps two bitfields
-  void Swap(ezBitfield<Container>& other); // [tested]
+  void Swap(WBitfield<Container>& other); // [tested]
   struct ConstIterator
   {
     using iterator_category = std::forward_iterator_tag;
-    using value_type = ezUInt32;
-    using sub_iterator = ::ezBitIterator<ezUInt32, true>;
+    using value_type = WUInt32;
+    using sub_iterator = ::WBitIterator<WUInt32, true>;
 
     // Invalid iterator (end)
-    EZ_FORCE_INLINE ConstIterator() = default; // [tested]
+    W_FORCE_INLINE ConstIterator() = default; // [tested]
 
     // Start iterator.
-    explicit ConstIterator(const ezBitfield<Container>& bitfield); // [tested]
+    explicit ConstIterator(const WBitfield<Container>& bitfield); // [tested]
 
     /// Checks whether this iterator points to a valid element.
     bool IsValid() const; // [tested]
 
     /// Returns the 'value' of the element that this iterator points to.
-    ezUInt32 Value() const; // [tested]
+    WUInt32 Value() const; // [tested]
 
     /// Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next();                                       // [tested]
@@ -100,18 +100,18 @@ public:
     bool operator!=(const ConstIterator& other) const; // [tested]
 
     /// Returns 'Value()' to enable foreach.
-    ezUInt32 operator*() const; // [tested]
+    WUInt32 operator*() const; // [tested]
 
     /// Shorthand for 'Next'.
     void operator++(); // [tested]
 
   private:
-    void FindNextChunk(ezUInt32 uiStartChunk);
+    void FindNextChunk(WUInt32 uiStartChunk);
 
   private:
-    ezUInt32 m_uiChunk = 0;
+    WUInt32 m_uiChunk = 0;
     sub_iterator m_Iterator;
-    const ezBitfield<Container>* m_pBitfield = nullptr;
+    const WBitfield<Container>* m_pBitfield = nullptr;
   };
 
   /// Returns a constant iterator to the very first set bit.
@@ -124,42 +124,42 @@ public:
 private:
   friend struct ConstIterator;
 
-  ezUInt32 GetBitInt(ezUInt32 uiBitIndex) const;
-  ezUInt32 GetBitMask(ezUInt32 uiBitIndex) const;
+  WUInt32 GetBitInt(WUInt32 uiBitIndex) const;
+  WUInt32 GetBitMask(WUInt32 uiBitIndex) const;
 
-  ezUInt32 m_uiCount = 0;
+  WUInt32 m_uiCount = 0;
   Container m_Container;
 };
 
 /// This should be the main type of bitfield to use, although other internal container types are possible.
-using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>>;
+using WDynamicBitfield = WBitfield<WDynamicArray<WUInt32>>;
 
-/// An ezBitfield that uses a hybrid array as internal container.
-template <ezUInt32 BITS>
-using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS + 31) / 32>>;
+/// An WBitfield that uses a hybrid array as internal container.
+template <WUInt32 BITS>
+using WHybridBitfield = WBitfield<WHybridArray<WUInt32, (BITS + 31) / 32>>;
 
 //////////////////////////////////////////////////////////////////////////
 // begin() /end() for range-based for-loop support
 template <typename Container>
-typename ezBitfield<Container>::ConstIterator begin(const ezBitfield<Container>& container)
+typename WBitfield<Container>::ConstIterator begin(const WBitfield<Container>& container)
 {
   return container.GetIterator();
 }
 
 template <typename Container>
-typename ezBitfield<Container>::ConstIterator cbegin(const ezBitfield<Container>& container)
+typename WBitfield<Container>::ConstIterator cbegin(const WBitfield<Container>& container)
 {
   return container.GetIterator();
 }
 
 template <typename Container>
-typename ezBitfield<Container>::ConstIterator end(const ezBitfield<Container>& container)
+typename WBitfield<Container>::ConstIterator end(const WBitfield<Container>& container)
 {
   return container.GetEndIterator();
 }
 
 template <typename Container>
-typename ezBitfield<Container>::ConstIterator cend(const ezBitfield<Container>& container)
+typename WBitfield<Container>::ConstIterator cend(const WBitfield<Container>& container)
 {
   return container.GetEndIterator();
 }
@@ -169,18 +169,18 @@ typename ezBitfield<Container>::ConstIterator cend(const ezBitfield<Container>& 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class ezStaticBitfield
+class WStaticBitfield
 {
 public:
   using StorageType = T;
-  using ConstIterator = ezBitIterator<StorageType, true, ezUInt32>;
+  using ConstIterator = WBitIterator<StorageType, true, WUInt32>;
 
-  static constexpr ezUInt32 GetStorageTypeBitCount() { return ezMath::NumBits<T>(); }
+  static constexpr WUInt32 GetStorageTypeBitCount() { return WMath::NumBits<T>(); }
 
   /// Initializes the bitfield to all zero.
-  ezStaticBitfield();
+  WStaticBitfield();
 
-  static ezStaticBitfield<T> MakeFromMask(StorageType bits);
+  static WStaticBitfield<T> MakeFromMask(StorageType bits);
 
   /// Returns true, if the bitfield is not zero.
   bool IsAnyBitSet() const; // [tested]
@@ -192,16 +192,16 @@ public:
   bool AreAllBitsSet() const; // [tested]
 
   /// Sets the given bit to 1.
-  void SetBit(ezUInt32 uiBit); // [tested]
+  void SetBit(WUInt32 uiBit); // [tested]
 
   /// Clears the given bit to 0.
-  void ClearBit(ezUInt32 uiBit); // [tested]
+  void ClearBit(WUInt32 uiBit); // [tested]
 
   /// Sets the given bit to 1 or 0 depending on the given value.
-  void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
+  void SetBitValue(WUInt32 uiBit, bool bValue); // [tested]
 
   /// Returns true, if the given bit is set to 1.
-  bool IsBitSet(ezUInt32 uiBit) const; // [tested]
+  bool IsBitSet(WUInt32 uiBit) const; // [tested]
 
   /// Clears all bits to 0. Same as Clear().
   void ClearAllBits(); // [tested]
@@ -210,19 +210,19 @@ public:
   void SetAllBits(); // [tested]
 
   /// Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
-  void SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+  void SetBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits); // [tested]
 
   /// Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
-  void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+  void ClearBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits); // [tested]
 
   /// Returns the index of the lowest bit that is set. Returns the max index+1 in case no bit is set, at all.
-  ezUInt32 GetLowestBitSet() const; // [tested]
+  WUInt32 GetLowestBitSet() const; // [tested]
 
   /// Returns the index of the highest bit that is set. Returns the max index+1 in case no bit is set, at all.
-  ezUInt32 GetHighestBitSet() const; // [tested]
+  WUInt32 GetHighestBitSet() const; // [tested]
 
   /// Returns the count of how many bits are set in total.
-  ezUInt32 GetNumBitsSet() const; // [tested]
+  WUInt32 GetNumBitsSet() const; // [tested]
 
   /// Returns the raw uint that stores all bits.
   T GetValue() const; // [tested]
@@ -231,26 +231,26 @@ public:
   void SetValue(T value); // [tested]
 
   /// Swaps two bitfields
-  void Swap(ezStaticBitfield<T>& other); // [tested]
+  void Swap(WStaticBitfield<T>& other); // [tested]
 
   /// Modifies \a this to also contain the bits from \a rhs.
-  EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }
+  W_ALWAYS_INLINE void operator|=(const WStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }
 
   /// Modifies \a this to only contain the bits that were set in \a this and \a rhs.
-  EZ_ALWAYS_INLINE void operator&=(const ezStaticBitfield<T>& rhs) { m_Storage &= rhs.m_Storage; }
+  W_ALWAYS_INLINE void operator&=(const WStaticBitfield<T>& rhs) { m_Storage &= rhs.m_Storage; }
 
-  ezResult Serialize(ezStreamWriter& inout_writer) const
+  WResult Serialize(WStreamWriter& inout_writer) const
   {
     inout_writer.WriteVersion(s_Version);
     inout_writer << m_Storage;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult Deserialize(ezStreamReader& inout_reader)
+  WResult Deserialize(WStreamReader& inout_reader)
   {
     /*auto version =*/inout_reader.ReadVersion(s_Version);
     inout_reader >> m_Storage;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   /// Returns a constant iterator to the very first set bit.
@@ -267,57 +267,57 @@ public:
   };
 
 private:
-  static constexpr ezTypeVersion s_Version = 1;
+  static constexpr WTypeVersion s_Version = 1;
 
-  ezStaticBitfield(StorageType initValue)
+  WStaticBitfield(StorageType initValue)
     : m_Storage(initValue)
   {
   }
 
   template <typename U>
-  friend ezStaticBitfield<U> operator|(ezStaticBitfield<U> lhs, ezStaticBitfield<U> rhs);
+  friend WStaticBitfield<U> operator|(WStaticBitfield<U> lhs, WStaticBitfield<U> rhs);
 
   template <typename U>
-  friend ezStaticBitfield<U> operator&(ezStaticBitfield<U> lhs, ezStaticBitfield<U> rhs);
+  friend WStaticBitfield<U> operator&(WStaticBitfield<U> lhs, WStaticBitfield<U> rhs);
 
   template <typename U>
-  friend ezStaticBitfield<U> operator^(ezStaticBitfield<U> lhs, ezStaticBitfield<U> rhs);
+  friend WStaticBitfield<U> operator^(WStaticBitfield<U> lhs, WStaticBitfield<U> rhs);
 
   template <typename U>
-  friend bool operator==(ezStaticBitfield<U> lhs, ezStaticBitfield<U> rhs);
+  friend bool operator==(WStaticBitfield<U> lhs, WStaticBitfield<U> rhs);
 
   template <typename U>
-  friend bool operator!=(ezStaticBitfield<U> lhs, ezStaticBitfield<U> rhs);
+  friend bool operator!=(WStaticBitfield<U> lhs, WStaticBitfield<U> rhs);
 
   StorageType m_Storage = 0;
 };
 
 template <typename T>
-inline ezStaticBitfield<T> operator|(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
+inline WStaticBitfield<T> operator|(WStaticBitfield<T> lhs, WStaticBitfield<T> rhs)
 {
-  return ezStaticBitfield<T>(lhs.m_Storage | rhs.m_Storage);
+  return WStaticBitfield<T>(lhs.m_Storage | rhs.m_Storage);
 }
 
 template <typename T>
-inline ezStaticBitfield<T> operator&(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
+inline WStaticBitfield<T> operator&(WStaticBitfield<T> lhs, WStaticBitfield<T> rhs)
 {
-  return ezStaticBitfield<T>(lhs.m_Storage & rhs.m_Storage);
+  return WStaticBitfield<T>(lhs.m_Storage & rhs.m_Storage);
 }
 
 template <typename T>
-inline ezStaticBitfield<T> operator^(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
+inline WStaticBitfield<T> operator^(WStaticBitfield<T> lhs, WStaticBitfield<T> rhs)
 {
-  return ezStaticBitfield<T>(lhs.m_Storage ^ rhs.m_Storage);
+  return WStaticBitfield<T>(lhs.m_Storage ^ rhs.m_Storage);
 }
 
 template <typename T>
-inline bool operator==(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
+inline bool operator==(WStaticBitfield<T> lhs, WStaticBitfield<T> rhs)
 {
   return lhs.m_Storage == rhs.m_Storage;
 }
 
 template <typename T>
-inline bool operator!=(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
+inline bool operator!=(WStaticBitfield<T> lhs, WStaticBitfield<T> rhs)
 {
   return lhs.m_Storage != rhs.m_Storage;
 }
@@ -325,32 +325,32 @@ inline bool operator!=(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
 //////////////////////////////////////////////////////////////////////////
 // begin() /end() for range-based for-loop support
 template <typename Container>
-typename ezStaticBitfield<Container>::ConstIterator begin(const ezStaticBitfield<Container>& container)
+typename WStaticBitfield<Container>::ConstIterator begin(const WStaticBitfield<Container>& container)
 {
   return container.GetIterator();
 }
 
 template <typename Container>
-typename ezStaticBitfield<Container>::ConstIterator cbegin(const ezStaticBitfield<Container>& container)
+typename WStaticBitfield<Container>::ConstIterator cbegin(const WStaticBitfield<Container>& container)
 {
   return container.GetIterator();
 }
 
 template <typename Container>
-typename ezStaticBitfield<Container>::ConstIterator end(const ezStaticBitfield<Container>& container)
+typename WStaticBitfield<Container>::ConstIterator end(const WStaticBitfield<Container>& container)
 {
   return container.GetEndIterator();
 }
 
 template <typename Container>
-typename ezStaticBitfield<Container>::ConstIterator cend(const ezStaticBitfield<Container>& container)
+typename WStaticBitfield<Container>::ConstIterator cend(const WStaticBitfield<Container>& container)
 {
   return container.GetEndIterator();
 }
 
-using ezStaticBitfield8 = ezStaticBitfield<ezUInt8>;
-using ezStaticBitfield16 = ezStaticBitfield<ezUInt16>;
-using ezStaticBitfield32 = ezStaticBitfield<ezUInt32>;
-using ezStaticBitfield64 = ezStaticBitfield<ezUInt64>;
+using WStaticBitfield8 = WStaticBitfield<WUInt8>;
+using WStaticBitfield16 = WStaticBitfield<WUInt16>;
+using WStaticBitfield32 = WStaticBitfield<WUInt32>;
+using WStaticBitfield64 = WStaticBitfield<WUInt64>;
 
 #include <Foundation/Containers/Implementation/Bitfield_inl.h>

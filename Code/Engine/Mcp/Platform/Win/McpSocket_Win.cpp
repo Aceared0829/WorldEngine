@@ -1,6 +1,6 @@
 #include <Mcp/McpPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 
 #  include <Mcp/McpSocket.h>
 
@@ -11,7 +11,7 @@
 
 namespace
 {
-  ezAtomicInteger32 g_iWinsockRefCount;
+  WAtomicInteger32 g_iWinsockRefCount;
 
   /// Winsock has to be initialised per process, but the MCP library has no startup of its own and may
   /// be used by a plugin that is loaded and unloaded repeatedly. Ref counting it around the sockets
@@ -24,7 +24,7 @@ namespace
     WSADATA data;
     if (WSAStartup(MAKEWORD(2, 2), &data) != 0)
     {
-      ezLog::Error("MCP: WSAStartup failed: {}", WSAGetLastError());
+      WLog::Error("MCP: WSAStartup failed: {}", WSAGetLastError());
     }
   }
 
@@ -36,24 +36,24 @@ namespace
     }
   }
 
-  SOCKET ToSocket(ezInt64 iSocket)
+  SOCKET ToSocket(WInt64 iSocket)
   {
     return iSocket < 0 ? INVALID_SOCKET : static_cast<SOCKET>(iSocket);
   }
 } // namespace
 
-ezMcpSocket::ezMcpSocket()
+WMcpSocket::WMcpSocket()
 {
   AddWinsockRef();
 }
 
-ezMcpSocket::~ezMcpSocket()
+WMcpSocket::~WMcpSocket()
 {
   Close();
   ReleaseWinsockRef();
 }
 
-ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
+WResult WMcpSocket::Listen(WUInt16 uiPort)
 {
   Close();
 
@@ -61,8 +61,8 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
 
   if (sock == INVALID_SOCKET)
   {
-    ezLog::Error("MCP: Could not create a socket: {}", WSAGetLastError());
-    return EZ_FAILURE;
+    WLog::Error("MCP: Could not create a socket: {}", WSAGetLastError());
+    return W_FAILURE;
   }
 
   // Not SO_REUSEADDR: on Windows that does not only cover a port left over from an exited process, it
@@ -80,16 +80,16 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
 
   if (bind(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) == SOCKET_ERROR)
   {
-    ezLog::Warning("MCP: Could not bind to port {}: {}", uiPort, WSAGetLastError());
+    WLog::Warning("MCP: Could not bind to port {}: {}", uiPort, WSAGetLastError());
     closesocket(sock);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (listen(sock, SOMAXCONN) == SOCKET_ERROR)
   {
-    ezLog::Error("MCP: Could not listen on port {}: {}", uiPort, WSAGetLastError());
+    WLog::Error("MCP: Could not listen on port {}: {}", uiPort, WSAGetLastError());
     closesocket(sock);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // read the port back off the socket, so that a caller which passed 0 learns what it actually got
@@ -105,11 +105,11 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
     m_uiPort = uiPort;
   }
 
-  m_iSocket = static_cast<ezInt64>(sock);
-  return EZ_SUCCESS;
+  m_iSocket = static_cast<WInt64>(sock);
+  return W_SUCCESS;
 }
 
-void ezMcpSocket::Close()
+void WMcpSocket::Close()
 {
   if (m_iSocket < 0)
     return;
@@ -120,10 +120,10 @@ void ezMcpSocket::Close()
   m_uiPort = 0;
 }
 
-ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
+WResult WMcpSocket::Accept(WMcpSocket& out_client, WTime timeout)
 {
   if (m_iSocket < 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const SOCKET listener = ToSocket(m_iSocket);
 
@@ -133,16 +133,16 @@ ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
 
   timeval tv = {};
   tv.tv_sec = static_cast<long>(timeout.GetSeconds());
-  tv.tv_usec = static_cast<long>((timeout - ezTime::MakeFromSeconds(tv.tv_sec)).GetMicroseconds());
+  tv.tv_usec = static_cast<long>((timeout - WTime::MakeFromSeconds(tv.tv_sec)).GetMicroseconds());
 
   // the first argument is ignored on Windows, but is part of the signature
   if (select(0, &readable, nullptr, nullptr, &tv) != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const SOCKET client = accept(listener, nullptr, nullptr);
 
   if (client == INVALID_SOCKET)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // A client that connects and then never sends anything would otherwise hold the transport thread
   // forever, and with it every later request.
@@ -150,37 +150,37 @@ ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
   setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&uiTimeoutMS), sizeof(uiTimeoutMS));
 
   out_client.Close();
-  out_client.m_iSocket = static_cast<ezInt64>(client);
-  return EZ_SUCCESS;
+  out_client.m_iSocket = static_cast<WInt64>(client);
+  return W_SUCCESS;
 }
 
-ezInt32 ezMcpSocket::Receive(void* pBuffer, ezUInt32 uiSize)
+WInt32 WMcpSocket::Receive(void* pBuffer, WUInt32 uiSize)
 {
   if (m_iSocket < 0)
     return -1;
 
-  return static_cast<ezInt32>(recv(ToSocket(m_iSocket), static_cast<char*>(pBuffer), static_cast<int>(uiSize), 0));
+  return static_cast<WInt32>(recv(ToSocket(m_iSocket), static_cast<char*>(pBuffer), static_cast<int>(uiSize), 0));
 }
 
-ezResult ezMcpSocket::SendAll(const void* pBuffer, ezUInt32 uiSize)
+WResult WMcpSocket::SendAll(const void* pBuffer, WUInt32 uiSize)
 {
   if (m_iSocket < 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const char* pBytes = static_cast<const char*>(pBuffer);
-  ezUInt32 uiSent = 0;
+  WUInt32 uiSent = 0;
 
   while (uiSent < uiSize)
   {
     const int iResult = send(ToSocket(m_iSocket), pBytes + uiSent, static_cast<int>(uiSize - uiSent), 0);
 
     if (iResult <= 0)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    uiSent += static_cast<ezUInt32>(iResult);
+    uiSent += static_cast<WUInt32>(iResult);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

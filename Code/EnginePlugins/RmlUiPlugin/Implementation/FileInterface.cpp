@@ -4,24 +4,24 @@
 
 #include <RmlUiPlugin/Implementation/FileInterface.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   FileInterface::FileInterface() = default;
 
   FileInterface::~FileInterface()
   {
-    EZ_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files");
+    W_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files");
   }
 
   Rml::FileHandle FileInterface::Open(const Rml::String& sPath)
   {
-    ezFileReader fileReader;
-    if (fileReader.Open(ezRmlUiConversionUtils::ToStringView(sPath)).Failed())
+    WFileReader fileReader;
+    if (fileReader.Open(WRmlUiConversionUtils::ToStringView(sPath)).Failed())
     {
       return 0;
     }
 
-    ezUniquePtr<OpenFile> pOpenFile = EZ_DEFAULT_NEW(OpenFile);
+    WUniquePtr<OpenFile> pOpenFile = W_DEFAULT_NEW(OpenFile);
     pOpenFile->m_Storage.ReadAll(fileReader);
     pOpenFile->m_Reader.SetStorage(&pOpenFile->m_Storage);
 
@@ -30,7 +30,7 @@ namespace ezRmlUiInternal
 
   void FileInterface::Close(Rml::FileHandle hFile)
   {
-    EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(hFile)), "Invalid file handle {}", hFile);
+    W_VERIFY(m_OpenFiles.Remove(FileId::FromRml(hFile)), "Invalid file handle {}", hFile);
   }
 
   size_t FileInterface::Read(void* pBuffer, size_t uiSize, Rml::FileHandle hFile)
@@ -66,7 +66,7 @@ namespace ezRmlUiInternal
       return true;
     }
 
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    W_ASSERT_NOT_IMPLEMENTED;
     return false;
   }
 
@@ -84,4 +84,4 @@ namespace ezRmlUiInternal
     return static_cast<size_t>(pOpenFile->m_Reader.GetByteCount64());
   }
 
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

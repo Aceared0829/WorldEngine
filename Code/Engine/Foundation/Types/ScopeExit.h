@@ -17,32 +17,32 @@
 /// ```cpp
 /// {
 ///   FILE* file = fopen("test.txt", "r");
-///   EZ_SCOPE_EXIT(if (file) fclose(file););
+///   W_SCOPE_EXIT(if (file) fclose(file););
 ///   // file will be closed automatically when scope ends
 /// }
 /// ```
-#define EZ_SCOPE_EXIT(code) auto EZ_PP_CONCAT(scopeExit_, EZ_SOURCE_LINE) = ezMakeScopeExit([&]() { code; })
+#define W_SCOPE_EXIT(code) auto W_PP_CONCAT(scopeExit_, W_SOURCE_LINE) = WMakeScopeExit([&]() { code; })
 
 /// \internal Helper class implementing RAII scope exit functionality
 ///
 /// Stores a callable object and executes it in the destructor. Used internally
-/// by the EZ_SCOPE_EXIT macro to provide exception-safe cleanup operations.
+/// by the W_SCOPE_EXIT macro to provide exception-safe cleanup operations.
 template <typename T>
-struct ezScopeExit
+struct WScopeExit
 {
-  EZ_ALWAYS_INLINE ezScopeExit(T&& func)
+  W_ALWAYS_INLINE WScopeExit(T&& func)
     : m_func(std::forward<T>(func))
   {
   }
 
-  EZ_ALWAYS_INLINE ~ezScopeExit() { m_func(); }
+  W_ALWAYS_INLINE ~WScopeExit() { m_func(); }
 
   T m_func;
 };
 
-/// \internal Helper function to implement EZ_SCOPE_EXIT
+/// \internal Helper function to implement W_SCOPE_EXIT
 template <typename T>
-EZ_ALWAYS_INLINE ezScopeExit<T> ezMakeScopeExit(T&& func)
+W_ALWAYS_INLINE WScopeExit<T> WMakeScopeExit(T&& func)
 {
-  return ezScopeExit<T>(std::forward<T>(func));
+  return WScopeExit<T>(std::forward<T>(func));
 }

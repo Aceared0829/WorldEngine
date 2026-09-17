@@ -11,36 +11,36 @@
 ///  From this object we follow m_Steps (member arrays, structs) to execute m_Change at the end target.
 ///
 /// In case of an NodeAdded operation, m_GraphData contains the entire subgraph of this node.
-class EZ_TOOLSFOUNDATION_DLL ezObjectChange
+class W_TOOLSFOUNDATION_DLL WObjectChange
 {
 public:
-  ezObjectChange() = default;
-  ezObjectChange(const ezObjectChange&);
-  ezObjectChange(ezObjectChange&& rhs);
-  void operator=(ezObjectChange&& rhs);
-  void operator=(ezObjectChange& rhs);
-  void GetGraph(ezAbstractObjectGraph& ref_graph) const;
-  void SetGraph(ezAbstractObjectGraph& ref_graph);
+  WObjectChange() = default;
+  WObjectChange(const WObjectChange&);
+  WObjectChange(WObjectChange&& rhs);
+  void operator=(WObjectChange&& rhs);
+  void operator=(WObjectChange& rhs);
+  void GetGraph(WAbstractObjectGraph& ref_graph) const;
+  void SetGraph(WAbstractObjectGraph& ref_graph);
 
-  ezUuid m_Root;                                //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
-  ezHybridArray<ezPropertyPathStep, 2> m_Steps; //< Path from root to target of change.
-  ezDiffOperation m_Change;                     //< Change at the target.
-  ezDataBuffer m_GraphData;                     //< In case of ObjectAdded, this holds the binary serialized object graph.
+  WUuid m_Root;                                //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
+  WHybridArray<WPropertyPathStep, 2> m_Steps; //< Path from root to target of change.
+  WDiffOperation m_Change;                     //< Change at the target.
+  WDataBuffer m_GraphData;                     //< In case of ObjectAdded, this holds the binary serialized object graph.
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
+W_DECLARE_REFLECTABLE_TYPE(W_TOOLSFOUNDATION_DLL, WObjectChange);
 
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMirror
+class W_TOOLSFOUNDATION_DLL WDocumentObjectMirror
 {
 public:
-  ezDocumentObjectMirror();
-  virtual ~ezDocumentObjectMirror();
+  WDocumentObjectMirror();
+  virtual ~WDocumentObjectMirror();
 
-  void InitSender(const ezDocumentObjectManager* pManager);
-  void InitReceiver(ezRttiConverterContext* pContext);
+  void InitSender(const WDocumentObjectManager* pManager);
+  void InitReceiver(WRttiConverterContext* pContext);
   void DeInit();
 
-  using FilterFunction = ezDelegate<bool(const ezDocumentObject*, ezStringView)>;
+  using FilterFunction = WDelegate<bool(const WDocumentObject*, WStringView)>;
 
   /// \param filter
   ///   Filter that defines whether an object property should be mirrored or not.
@@ -49,25 +49,25 @@ public:
   void SendDocument();
   void Clear();
 
-  void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void TreeStructureEventHandler(const WDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e);
 
-  void* GetNativeObjectPointer(const ezDocumentObject* pObject);
-  const void* GetNativeObjectPointer(const ezDocumentObject* pObject) const;
-
-protected:
-  bool IsRootObject(const ezDocumentObject* pParent);
-  bool IsHeapAllocated(const ezDocumentObject* pParent, ezStringView sParentProperty);
-  bool IsDiscardedByFilter(const ezDocumentObject* pObject, ezStringView sProperty) const;
-  static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, ezStringView sProperty);
-  static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_path);
-  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezDynamicArray<ezPropertyPathStep>& out_steps);
-
-  virtual void ApplyOp(ezObjectChange& change);
-  void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);
+  void* GetNativeObjectPointer(const WDocumentObject* pObject);
+  const void* GetNativeObjectPointer(const WDocumentObject* pObject) const;
 
 protected:
-  ezRttiConverterContext* m_pContext;
-  const ezDocumentObjectManager* m_pManager;
+  bool IsRootObject(const WDocumentObject* pParent);
+  bool IsHeapAllocated(const WDocumentObject* pParent, WStringView sParentProperty);
+  bool IsDiscardedByFilter(const WDocumentObject* pObject, WStringView sProperty) const;
+  static void CreatePath(WObjectChange& out_change, const WDocumentObject* pRoot, WStringView sProperty);
+  static WUuid FindRootOpObject(const WDocumentObject* pObject, WDynamicArray<const WDocumentObject*>& out_path);
+  static void FlattenSteps(const WArrayPtr<const WDocumentObject* const> path, WDynamicArray<WPropertyPathStep>& out_steps);
+
+  virtual void ApplyOp(WObjectChange& change);
+  void ApplyOp(WRttiConverterObject object, const WObjectChange& change);
+
+protected:
+  WRttiConverterContext* m_pContext;
+  const WDocumentObjectManager* m_pManager;
   FilterFunction m_Filter;
 };

@@ -6,35 +6,35 @@
 #include <TerrainPlugin/TerrainPluginDLL.h>
 #include <TerrainPlugin/TerrainSystem.h>
 
-struct ezMsgTransformChanged;
-struct ezMsgSplineChanged;
+struct WMsgTransformChanged;
+struct WMsgSplineChanged;
 
 /// Abstract base for all terrain brush components.
 ///
 /// Handles creation and cleanup of TerrainSystem brushes, including automatic spline-path support:
-/// if an ezSplineComponent exists on the same game object the brush stamps along the spline instead of
+/// if an WSplineComponent exists on the same game object the brush stamps along the spline instead of
 /// acting as a single brush. Properties common to 2D and 3D brushes are declared here and inherited by
-/// both ezTerrainBrush2DComponent and ezTerrainBrush3DComponent.
-class EZ_TERRAINPLUGIN_DLL ezTerrainBrushBaseComponent : public ezComponent
+/// both WTerrainBrush2DComponent and WTerrainBrush3DComponent.
+class W_TERRAINPLUGIN_DLL WTerrainBrushBaseComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezTerrainBrushBaseComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WTerrainBrushBaseComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTerrainBrushBaseComponent
+  // WTerrainBrushBaseComponent
 
 public:
-  ezTerrainBrushBaseComponent();
-  ~ezTerrainBrushBaseComponent();
+  WTerrainBrushBaseComponent();
+  ~WTerrainBrushBaseComponent();
 
   void SetHalfSizeX(float fSize);                                //< [ property ]
   float GetHalfSizeX() const { return m_fHalfSizeX; }            //< [ property ]
@@ -48,8 +48,8 @@ public:
   void SetFalloff(float fFalloff);                               //< [ property ]
   float GetFalloff() const { return m_fFalloff; }                //< [ property ]
 
-  void SetMaterialIndex(ezUInt8 uiIndex);                        //< [ property ]
-  ezUInt8 GetMaterialIndex() const { return m_uiMaterialIndex; } //< [ property ]
+  void SetMaterialIndex(WUInt8 uiIndex);                        //< [ property ]
+  WUInt8 GetMaterialIndex() const { return m_uiMaterialIndex; } //< [ property ]
 
   /// Blend strength for material painting in [0, 1]. 0 = disabled.
   void SetMaterialStrength(float fStrength);                        //< [ property ]
@@ -68,27 +68,27 @@ public:
   float GetNoiseFrequency() const { return m_fNoiseFrequency; }     //< [ property ]
 
   /// Brush application order. Higher = applied later = wins. Equal priorities use mode-based ordering.
-  void SetPriority(ezInt8 iPriority);                //< [ property ]
-  ezInt8 GetPriority() const { return m_iPriority; } //< [ property ]
+  void SetPriority(WInt8 iPriority);                //< [ property ]
+  WInt8 GetPriority() const { return m_iPriority; } //< [ property ]
 
-  const ezTagSet& GetTags() const { return m_Tags; } //< [ property ]
+  const WTagSet& GetTags() const { return m_Tags; } //< [ property ]
   void Reflection_SetTag(const char* szTagName);     //< [ property ]
   void Reflection_RemoveTag(const char* szTagName);  //< [ property ]
 
 protected:
-  void OnMsgTransformChanged(ezMsgTransformChanged& msg);
-  void OnMsgSplineChanged(ezMsgSplineChanged& msg);
+  void OnMsgTransformChanged(WMsgTransformChanged& msg);
+  void OnMsgSplineChanged(WMsgSplineChanged& msg);
 
   void RefreshBrushes();
   void ClearBrushes();
 
   /// Fills transform, HalfSizeX, and all common properties, then calls FillBrushSpecificProperties.
-  void FillBrush(ezTerrainData_Brush& brush, const ezTransform& transform, float fHalfSizeX);
+  void FillBrush(WTerrainData_Brush& brush, const WTransform& transform, float fHalfSizeX);
 
   /// Subclass fills: ModifyMode, m_vHalfExtents.y, m_fHalfExtentYTop, m_fHalfExtentZ.
-  virtual void FillBrushSpecificProperties(ezTerrainData_Brush& brush, float fHalfSizeX) = 0;
+  virtual void FillBrushSpecificProperties(WTerrainData_Brush& brush, float fHalfSizeX) = 0;
 
-  ezSmallArray<ezUInt32, 1> m_BrushIndices;
+  WSmallArray<WUInt32, 1> m_BrushIndices;
 
   float m_fHalfSizeX = 0.0f;
   float m_fInnerRadius = 0.0f;
@@ -97,10 +97,10 @@ protected:
   float m_fNoiseStrength = 0.0f;
   float m_fNoiseFrequency = 1.0f;
   float m_fMaterialStrength = 0.0f;
-  ezUInt8 m_uiMaterialIndex = 0;
-  ezInt8 m_iPriority = 0;
+  WUInt8 m_uiMaterialIndex = 0;
+  WInt8 m_iPriority = 0;
   bool m_bAffectPatches = true;
   bool m_bAffectVolumes = true;
   /// If non-empty, brush only affects terrain objects that have at least one matching tag.
-  ezTagSet m_Tags;
+  WTagSet m_Tags;
 };

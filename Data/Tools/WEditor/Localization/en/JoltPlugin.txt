@@ -1,0 +1,64 @@
+﻿# Asset Types
+
+Jolt_Colmesh_Convex;Jolt Convex Collision Mesh;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+Jolt_Colmesh_Triangle;Jolt Triangle Collision Mesh;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+
+# Component Types
+
+WJoltDynamicActorComponent;Dynamic Actor (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-dynamic-actor-component.html
+WJoltStaticActorComponent;Static Actor (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-static-actor-component.html
+WJoltShapeConvexHullComponent;Convex Hull Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-convex-shape-component.html
+WJoltShapeBoxComponent;Box Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-box-shape-component.html
+WJoltShapeSphereComponent;Sphere Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-sphere-shape-component.html
+WJoltShapeCylinderComponent;Cylinder Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-cylinder-shape-component.html
+WJoltShapeCapsuleComponent;Capsule Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-capsule-shape-component.html
+WJoltTriggerComponent;Physics Trigger (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-trigger-component.html
+WJoltVisColMeshComponent;Collision Mesh Visualizer (Jolt);;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
+WJoltSettingsComponent;Physics Settings (Jolt);;https://ezengine.net/pages/docs/physics/jolt/jolt-settings-component.html
+WJolt6DOFConstraintComponent;6DOF Constraint (Jolt)
+WJoltDistanceConstraintComponent;Distance Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-distance-constraint-component.html
+WJoltFixedConstraintComponent;Fixed Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-fixed-constraint-component.html
+WJoltSliderConstraintComponent;Slider Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-slider-constraint-component.html
+WJoltHingeConstraintComponent;Hinge Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-hinge-constraint-component.html
+WJoltPointConstraintComponent;Point Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-point-constraint-component.html
+WJoltRopeComponent;Physical Rope (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-rope-component.html
+WJoltRagdollComponent;Ragdoll (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-ragdoll-component.html
+WJoltConeConstraintComponent;Cone Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-cone-constraint-component.html
+WJoltQueryShapeActorComponent;Query Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-queryshape-actor-component.html
+WJoltSwingTwistConstraintComponent;Swing Twist Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-swing-twist-constraint-component.html
+WJoltHitboxComponent;Hitboxes (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-hitbox-component.html
+WJoltCharacterControllerComponent;Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
+WJoltDefaultCharacterComponent;Default Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
+WJoltGrabObjectComponent;Grab Object (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html
+WJoltClothSheetComponent;Cloth Sheet (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-cloth-sheet-component.html
+WJoltBreakableSlabComponent;Breakable Slab (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-breakable-slab-component.html
+WJoltGenerateCollisionComponent;Generate Collision Mesh (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-generate-collision-component.html
+WJoltWaterVolumeComponent;Water Volume;;https://ezengine.net/pages/docs/physics/jolt/special/jolt-water-volume-component.html
+
+
+# UI
+
+Jolt.Settings.Project;Jolt Project Settings...
+
+# Enums
+
+WJoltSurfaceResourceSlot;Surface
+
+WJoltSteppingMode::Variable;Variable Stepping
+WJoltSteppingMode::Fixed;Fixed Stepping
+WJoltSteppingMode::SemiFixed;Semi-Fixed Stepping
+
+WJoltConstraintDriveMode::DriveVelocity;Reach Velocity
+WJoltConstraintDriveMode::DrivePosition;Reach Position
+
+WJoltCharacterDebugFlags::VisShape;Visualize Shape
+WJoltCharacterDebugFlags::VisGroundContact;Visualize Ground Contact
+WJoltCharacterDebugFlags::VisCasts;Visualize Casts
+WJoltCharacterDebugFlags::PrintState;Print Stats
+WJoltCharacterDebugFlags::VisContacts;Visualize All Contacts
+WJoltCharacterDebugFlags::VisFootCheck;Visualize Foot Check
+
+# Collision Meshes from Meshes
+
+Jolt.CreateColliderFromMesh;Create Collider...;Creates a Jolt collision mesh asset from this mesh asset, using the same import settings
+Jolt.CreateColliderFromMeshDocument;Create Collider...;Creates a Jolt collision mesh asset from this mesh asset, using the same import settings

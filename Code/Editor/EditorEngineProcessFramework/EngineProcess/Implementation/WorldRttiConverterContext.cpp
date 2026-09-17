@@ -2,9 +2,9 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
-void ezWorldRttiConverterContext::Clear()
+void WWorldRttiConverterContext::Clear()
 {
-  ezRttiConverterContext::Clear();
+  WRttiConverterContext::Clear();
 
   m_pWorld = nullptr;
   m_GameObjectMap.Clear();
@@ -16,21 +16,21 @@ void ezWorldRttiConverterContext::Clear()
   m_UnknownTypes.Clear();
 }
 
-void ezWorldRttiConverterContext::DeleteExistingObjects()
+void WWorldRttiConverterContext::DeleteExistingObjects()
 {
   if (m_pWorld == nullptr)
     return;
 
   m_UnknownTypes.Clear();
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
   const auto& map = m_GameObjectMap.GetHandleToGuidMap();
   while (!map.IsEmpty())
   {
     auto it = map.GetIterator();
 
-    ezGameObject* pGameObject = nullptr;
+    WGameObject* pGameObject = nullptr;
     if (m_pWorld->TryGetObject(it.Key(), pGameObject))
     {
       DeleteObject(it.Value());
@@ -42,7 +42,7 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   }
 
   // call base class clear, not the overridden one
-  ezRttiConverterContext::Clear();
+  WRttiConverterContext::Clear();
 
   m_GameObjectMap.Clear();
   m_ComponentMap.Clear();
@@ -56,20 +56,20 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   // m_OtherPickingMap.Clear(); // do not clear this
 }
 
-ezInternal::NewInstance<void> ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+WInternal::NewInstance<void> WWorldRttiConverterContext::CreateObject(const WUuid& guid, const WRTTI* pRtti)
 {
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
+  W_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
 
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  if (pRtti == WGetStaticRTTI<WGameObject>())
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
-    ezGameObjectDesc d;
-    d.m_sName.Assign(ezConversionUtils::ToString(guid, tmp).GetData());
-    d.m_uiStableRandomSeed = ezHashingUtils::xxHash32(tmp.GetData(), tmp.GetElementCount());
+    WGameObjectDesc d;
+    d.m_sName.Assign(WConversionUtils::ToString(guid, tmp).GetData());
+    d.m_uiStableRandomSeed = WHashingUtils::xxHash32(tmp.GetData(), tmp.GetElementCount());
 
-    ezGameObjectHandle hObject = m_pWorld->CreateObject(d);
-    ezGameObject* pObject;
+    WGameObjectHandle hObject = m_pWorld->CreateObject(d);
+    WGameObject* pObject;
     if (m_pWorld->TryGetObject(hObject, pObject))
     {
       RegisterObject(guid, pRtti, pObject);
@@ -83,22 +83,22 @@ ezInternal::NewInstance<void> ezWorldRttiConverterContext::CreateObject(const ez
     }
     else
     {
-      ezLog::Error("Failed to create ezGameObject!");
+      WLog::Error("Failed to create WGameObject!");
       return nullptr;
     }
   }
-  else if (pRtti->IsDerivedFrom<ezComponent>())
+  else if (pRtti->IsDerivedFrom<WComponent>())
   {
-    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
+    WComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      WLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return nullptr;
     }
 
     // Component is added via reflection shortly so passing a nullptr as owner is fine here.
-    ezComponentHandle hComponent = pMan->CreateComponent(nullptr);
-    ezComponent* pComponent;
+    WComponentHandle hComponent = pMan->CreateComponent(nullptr);
+    WComponent* pComponent;
     if (pMan->TryGetComponent(hComponent, pComponent))
     {
       RegisterObject(guid, pRtti, pComponent);
@@ -106,29 +106,29 @@ ezInternal::NewInstance<void> ezWorldRttiConverterContext::CreateObject(const ez
     }
     else
     {
-      ezLog::Error("Component of type '{0}' cannot be found after creation", pRtti->GetTypeName());
+      WLog::Error("Component of type '{0}' cannot be found after creation", pRtti->GetTypeName());
       return nullptr;
     }
   }
   else
   {
-    return ezRttiConverterContext::CreateObject(guid, pRtti);
+    return WRttiConverterContext::CreateObject(guid, pRtti);
   }
 }
 
-void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
+void WWorldRttiConverterContext::DeleteObject(const WUuid& guid)
 {
-  ezRttiConverterObject object = GetObjectByGUID(guid);
+  WRttiConverterObject object = GetObjectByGUID(guid);
 
   // this can happen when manipulating scenes during simulation
   // and when creating two components of a type that acts like a singleton (and therefore ignores the second instance creation)
   if (object.m_pObject == nullptr)
     return;
 
-  const ezRTTI* pRtti = object.m_pType;
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object does not exist!");
+  const WRTTI* pRtti = object.m_pType;
+  W_ASSERT_DEBUG(pRtti != nullptr, "Object does not exist!");
 
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  if (pRtti == WGetStaticRTTI<WGameObject>())
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
     UnregisterObject(guid);
@@ -139,13 +139,13 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
     e.m_ObjectGuid = guid;
     m_Events.Broadcast(e);
   }
-  else if (pRtti->IsDerivedFrom<ezComponent>())
+  else if (pRtti->IsDerivedFrom<WComponent>())
   {
-    ezComponentHandle hComponent = m_ComponentMap.GetHandle(guid);
-    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
+    WComponentHandle hComponent = m_ComponentMap.GetHandle(guid);
+    WComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      WLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return;
     }
 
@@ -154,73 +154,73 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
   }
   else
   {
-    ezRttiConverterContext::DeleteObject(guid);
+    WRttiConverterContext::DeleteObject(guid);
   }
 }
 
-void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
+void WWorldRttiConverterContext::RegisterObject(const WUuid& guid, const WRTTI* pRtti, void* pObject)
 {
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  if (pRtti == WGetStaticRTTI<WGameObject>())
   {
-    ezGameObject* pGameObject = static_cast<ezGameObject*>(pObject);
+    WGameObject* pGameObject = static_cast<WGameObject*>(pObject);
     m_GameObjectMap.RegisterObject(guid, pGameObject->GetHandle());
   }
-  else if (pRtti->IsDerivedFrom<ezComponent>())
+  else if (pRtti->IsDerivedFrom<WComponent>())
   {
-    ezComponent* pComponent = static_cast<ezComponent*>(pObject);
+    WComponent* pComponent = static_cast<WComponent*>(pObject);
 
-    EZ_ASSERT_DEV(m_pWorld != nullptr && pComponent->GetWorld() == m_pWorld, "Invalid object to register");
+    W_ASSERT_DEV(m_pWorld != nullptr && pComponent->GetWorld() == m_pWorld, "Invalid object to register");
 
     m_ComponentMap.RegisterObject(guid, pComponent->GetHandle());
     pComponent->SetUniqueID(m_uiNextComponentPickingID++);
     m_ComponentPickingMap.RegisterObject(guid, pComponent->GetUniqueID());
   }
 
-  ezRttiConverterContext::RegisterObject(guid, pRtti, pObject);
+  WRttiConverterContext::RegisterObject(guid, pRtti, pObject);
 }
 
-void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
+void WWorldRttiConverterContext::UnregisterObject(const WUuid& guid)
 {
-  ezRttiConverterObject object = GetObjectByGUID(guid);
+  WRttiConverterObject object = GetObjectByGUID(guid);
 
   // this can happen when running a game simulation and the object is destroyed by the game code
-  // EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
+  // W_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
 
   if (object.m_pType != nullptr)
   {
-    const ezRTTI* pRtti = object.m_pType;
-    if (pRtti == ezGetStaticRTTI<ezGameObject>())
+    const WRTTI* pRtti = object.m_pType;
+    if (pRtti == WGetStaticRTTI<WGameObject>())
     {
       m_GameObjectMap.UnregisterObject(guid);
     }
-    else if (pRtti->IsDerivedFrom<ezComponent>())
+    else if (pRtti->IsDerivedFrom<WComponent>())
     {
       m_ComponentMap.UnregisterObject(guid);
       m_ComponentPickingMap.UnregisterObject(guid);
     }
   }
 
-  ezRttiConverterContext::UnregisterObject(guid);
+  WRttiConverterContext::UnregisterObject(guid);
 }
 
-ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
+WRttiConverterObject WWorldRttiConverterContext::GetObjectByGUID(const WUuid& guid) const
 {
-  ezRttiConverterObject object = ezRttiConverterContext::GetObjectByGUID(guid);
+  WRttiConverterObject object = WRttiConverterContext::GetObjectByGUID(guid);
 
   if (!guid.IsValid() || object.m_pType == nullptr)
     return object;
 
   // We can't look up the ptr via the base class map as it keeps changing, we we need to use the handle.
-  if (object.m_pType == ezGetStaticRTTI<ezGameObject>())
+  if (object.m_pType == WGetStaticRTTI<WGameObject>())
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
-    ezGameObject* pGameObject = nullptr;
+    WGameObject* pGameObject = nullptr;
     if (!m_pWorld->TryGetObject(hObject, pGameObject))
     {
       object.m_pObject = nullptr;
       object.m_pType = nullptr;
       // this can happen when one manipulates a running scene, and an object just deleted itself
-      // EZ_REPORT_FAILURE("Can't resolve game object GUID!");
+      // W_REPORT_FAILURE("Can't resolve game object GUID!");
       return object;
     }
 
@@ -232,16 +232,16 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
       m_ObjectToGuid.Insert(object.m_pObject, guid);
     }
   }
-  else if (object.m_pType->IsDerivedFrom<ezComponent>())
+  else if (object.m_pType->IsDerivedFrom<WComponent>())
   {
     auto hComponent = m_ComponentMap.GetHandle(guid);
-    ezComponent* pComponent = nullptr;
+    WComponent* pComponent = nullptr;
     if (!m_pWorld->TryGetComponent(hComponent, pComponent))
     {
       object.m_pObject = nullptr;
       object.m_pType = nullptr;
       // this can happen when one manipulates a running scene, and an object just deleted itself
-      // EZ_REPORT_FAILURE("Can't resolve component GUID!");
+      // W_REPORT_FAILURE("Can't resolve component GUID!");
       return object;
     }
 
@@ -256,24 +256,24 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
   return object;
 }
 
-ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const
+WUuid WWorldRttiConverterContext::GetObjectGUID(const WRTTI* pRtti, const void* pObject) const
 {
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  if (pRtti == WGetStaticRTTI<WGameObject>())
   {
-    const ezGameObject* pGameObject = static_cast<const ezGameObject*>(pObject);
+    const WGameObject* pGameObject = static_cast<const WGameObject*>(pObject);
     return m_GameObjectMap.GetGuid(pGameObject->GetHandle());
   }
-  else if (pRtti->IsDerivedFrom<ezComponent>())
+  else if (pRtti->IsDerivedFrom<WComponent>())
   {
-    const ezComponent* pComponent = static_cast<const ezComponent*>(pObject);
+    const WComponent* pComponent = static_cast<const WComponent*>(pObject);
     return m_ComponentMap.GetGuid(pComponent->GetHandle());
   }
-  return ezRttiConverterContext::GetObjectGUID(pRtti, pObject);
+  return WRttiConverterContext::GetObjectGUID(pRtti, pObject);
 }
 
-void ezWorldRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
+void WWorldRttiConverterContext::OnUnknownTypeError(WStringView sTypeName)
 {
-  ezRttiConverterContext::OnUnknownTypeError(sTypeName);
+  WRttiConverterContext::OnUnknownTypeError(sTypeName);
 
   m_UnknownTypes.Insert(sTypeName);
 }

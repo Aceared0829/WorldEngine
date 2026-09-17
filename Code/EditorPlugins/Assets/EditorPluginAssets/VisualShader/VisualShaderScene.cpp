@@ -5,26 +5,26 @@
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 
 
-ezQtVisualShaderScene::ezQtVisualShaderScene(QObject* pParent)
-  : ezQtVisualGraphScene(pParent)
+WQtVisualShaderScene::WQtVisualShaderScene(QObject* pParent)
+  : WQtVisualGraphScene(pParent)
 {
 }
 
-ezQtVisualShaderScene::~ezQtVisualShaderScene() = default;
+WQtVisualShaderScene::~WQtVisualShaderScene() = default;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualShaderPin::ezQtVisualShaderPin() = default;
+WQtVisualShaderPin::WQtVisualShaderPin() = default;
 
-void ezQtVisualShaderPin::SetPin(const ezVisualGraphPin& pin)
+void WQtVisualShaderPin::SetPin(const WVisualGraphPin& pin)
 {
-  ezQtVisualGraphPin::SetPin(pin);
+  WQtVisualGraphPin::SetPin(pin);
 
-  const ezVisualShaderPin& shaderPin = ezStaticCast<const ezVisualShaderPin&>(pin);
+  const WVisualShaderPin& shaderPin = WStaticCast<const WVisualShaderPin&>(pin);
 
-  ezStringBuilder sTooltip;
+  WStringBuilder sTooltip;
   if (!shaderPin.GetTooltip().IsEmpty())
   {
     sTooltip = shaderPin.GetTooltip();
@@ -45,17 +45,17 @@ void ezQtVisualShaderPin::SetPin(const ezVisualGraphPin& pin)
   setToolTip(sTooltip.GetData());
 }
 
-void ezQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
+void WQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
   QPainterPath p = path();
 
-  const ezVisualShaderPin* pVsPin = static_cast<const ezVisualShaderPin*>(GetPin());
+  const WVisualShaderPin* pVsPin = static_cast<const WVisualShaderPin*>(GetPin());
 
   pPainter->save();
   pPainter->setBrush(brush());
   pPainter->setPen(pen());
 
-  if (pVsPin->GetType() == ezVisualGraphPin::Type::Input && GetConnections().IsEmpty())
+  if (pVsPin->GetType() == WVisualGraphPin::Type::Input && GetConnections().IsEmpty())
   {
     if (pVsPin->GetDescriptor()->m_sDefaultValue.IsEmpty())
     {
@@ -84,34 +84,34 @@ void ezQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsIt
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualShaderNode::ezQtVisualShaderNode() = default;
+WQtVisualShaderNode::WQtVisualShaderNode() = default;
 
-void ezQtVisualShaderNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
+void WQtVisualShaderNode::InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject)
 {
-  ezQtVisualGraphNode::InitNode(pManager, pObject);
+  WQtVisualGraphNode::InitNode(pManager, pObject);
 
-  if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
+  if (auto pDesc = WVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {
-    m_HeaderColor = ezToQtColor(pDesc->m_Color);
-    m_pTitleLabel->setToolTip(ezMakeQString(pDesc->m_sDocs));
+    m_HeaderColor = WToQtColor(pDesc->m_Color);
+    m_pTitleLabel->setToolTip(WMakeQString(pDesc->m_sDocs));
   }
   else
   {
     m_HeaderColor = qRgb(255, 0, 0);
-    ezLog::Error("Could not initialize node type, node descriptor is invalid");
+    WLog::Error("Could not initialize node type, node descriptor is invalid");
   }
 }
 
-void ezQtVisualShaderNode::UpdateState()
+void WQtVisualShaderNode::UpdateState()
 {
   TitleFormat format;
   format.m_uiMaxStringLength = 0;
   format.m_bQuoteStrings = false;
   format.m_bSplitAtDoubleColon = false;
 
-  auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
+  auto pDesc = WVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
 
-  ezStringBuilder sTemplate;
+  WStringBuilder sTemplate;
   if (pDesc != nullptr && !pDesc->m_sTitle.IsEmpty())
   {
     sTemplate = pDesc->m_sTitle;
@@ -125,29 +125,29 @@ void ezQtVisualShaderNode::UpdateState()
     }
   }
 
-  ezStringBuilder sTitle;
-  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+  WStringBuilder sTitle;
+  WTokenParseUtils::RenderTemplate(sTemplate, [&](WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)
     { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   SetTitleAndSubtitle(sTitle, format);
 }
 
-void ezQtVisualShaderNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtVisualShaderNode::ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
-  auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
+  auto pDesc = WVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
 
   if (pDesc != nullptr)
   {
     // the titles refer to pins and properties by position, e.g. {$in0} and {$prop0}
-    ezUInt32 uiSlot = 0;
+    WUInt32 uiSlot = 0;
 
-    if (TryParseSlotPlaceholder(sPlaceholder, "in"_ezsv, pDesc->m_InputPins.GetCount(), uiSlot))
+    if (TryParseSlotPlaceholder(sPlaceholder, "in"_wsv, pDesc->m_InputPins.GetCount(), uiSlot))
     {
       AppendInputPinValue(pDesc->m_InputPins[uiSlot], uiSlot, format, ref_sOutput);
       return;
     }
 
-    if (TryParseSlotPlaceholder(sPlaceholder, "prop"_ezsv, pDesc->m_Properties.GetCount(), uiSlot))
+    if (TryParseSlotPlaceholder(sPlaceholder, "prop"_wsv, pDesc->m_Properties.GetCount(), uiSlot))
     {
       ResolvePropertyPlaceholder(pDesc->m_Properties[uiSlot].m_sName, index, bOptional, format, ref_sOutput);
       return;
@@ -157,22 +157,22 @@ void ezQtVisualShaderNode::ResolvePlaceholder(ezStringView sPlaceholder, const e
   ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput);
 }
 
-bool ezQtVisualShaderNode::TryParseSlotPlaceholder(ezStringView sPlaceholder, ezStringView sPrefix, ezUInt32 uiSlotCount, ezUInt32& out_uiSlot)
+bool WQtVisualShaderNode::TryParseSlotPlaceholder(WStringView sPlaceholder, WStringView sPrefix, WUInt32 uiSlotCount, WUInt32& out_uiSlot)
 {
   if (!sPlaceholder.StartsWith(sPrefix))
     return false;
 
   sPlaceholder.Shrink(sPrefix.GetElementCount(), 0);
 
-  ezInt32 iSlot = 0;
-  if (ezConversionUtils::StringToInt(sPlaceholder, iSlot).Failed() || iSlot < 0 || static_cast<ezUInt32>(iSlot) >= uiSlotCount)
+  WInt32 iSlot = 0;
+  if (WConversionUtils::StringToInt(sPlaceholder, iSlot).Failed() || iSlot < 0 || static_cast<WUInt32>(iSlot) >= uiSlotCount)
     return false;
 
-  out_uiSlot = static_cast<ezUInt32>(iSlot);
+  out_uiSlot = static_cast<WUInt32>(iSlot);
   return true;
 }
 
-void ezQtVisualShaderNode::AppendInputPinValue(const ezVisualShaderPinDescriptor& pinDesc, ezUInt32 uiPin, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtVisualShaderNode::AppendInputPinValue(const WVisualShaderPinDescriptor& pinDesc, WUInt32 uiPin, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
   const auto& inputPins = GetInputPins();
 
@@ -184,10 +184,10 @@ void ezQtVisualShaderNode::AppendInputPinValue(const ezVisualShaderPinDescriptor
 
   if (pinDesc.m_bExposeAsProperty)
   {
-    const ezAbstractProperty* pProp = GetObject()->GetType()->FindPropertyByName(pinDesc.m_PropertyDesc.m_sName);
-    const ezVariant value = GetObject()->GetTypeAccessor().GetValue(pinDesc.m_PropertyDesc.m_sName);
+    const WAbstractProperty* pProp = GetObject()->GetType()->FindPropertyByName(pinDesc.m_PropertyDesc.m_sName);
+    const WVariant value = GetObject()->GetTypeAccessor().GetValue(pinDesc.m_PropertyDesc.m_sName);
 
-    if (pProp != nullptr && value.IsValid() && value.CanConvertTo<ezString>())
+    if (pProp != nullptr && value.IsValid() && value.CanConvertTo<WString>())
     {
       AppendPropertyValue(pProp, {}, false, format, ref_sOutput);
     }

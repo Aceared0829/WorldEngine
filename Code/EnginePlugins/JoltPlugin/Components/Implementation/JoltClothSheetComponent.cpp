@@ -14,52 +14,52 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltClothSheetFlags, 1)
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedCornerTopLeft),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedCornerTopRight),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedCornerBottomRight),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedCornerBottomLeft),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeTop),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeRight),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeBottom),
-  EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeLeft),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WJoltClothSheetFlags, 1)
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedCornerTopLeft),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedCornerTopRight),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedCornerBottomRight),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedCornerBottomLeft),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedEdgeTop),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedEdgeRight),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedEdgeBottom),
+  W_ENUM_CONSTANT(WJoltClothSheetFlags::FixedEdgeLeft),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltClothSheetComponent, 4, WComponentMode::Static)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.5f, 0.5f))),
-      EZ_ACCESSOR_PROPERTY("Segments", GetSegments, SetSegments)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(16, 16)), new ezClampValueAttribute(ezVec2U32(2, 2), ezVec2U32(64, 64))),
-      EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 10.0f)),
-      EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-      EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-      EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, 0.5f)),
-      EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezJoltClothSheetFlags, GetFlags, SetFlags),
-      EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
-      EZ_MEMBER_PROPERTY("TextureScale", m_vTextureScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
-      EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
+      W_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new WDefaultValueAttribute(WVec2(0.5f, 0.5f))),
+      W_ACCESSOR_PROPERTY("Segments", GetSegments, SetSegments)->AddAttributes(new WDefaultValueAttribute(WVec2U32(16, 16)), new WClampValueAttribute(WVec2U32(2, 2), WVec2U32(64, 64))),
+      W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+      W_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new WDefaultValueAttribute(0.3f), new WClampValueAttribute(0.0f, 10.0f)),
+      W_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+      W_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 1.0f)),
+      W_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new WDefaultValueAttribute(0.05f), new WClampValueAttribute(0.0f, 0.5f)),
+      W_BITFLAGS_ACCESSOR_PROPERTY("Flags", WJoltClothSheetFlags, GetFlags, SetFlags),
+      W_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material"), new WRequiredAttribute()),
+      W_MEMBER_PROPERTY("TextureScale", m_vTextureScale)->AddAttributes(new WDefaultValueAttribute(WVec2(1.0f))),
+      W_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new WDefaultValueAttribute(WColor::White)),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Physics/Jolt/Effects"),
+      new WCategoryAttribute("Physics/Jolt/Effects"),
     }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+    W_END_ATTRIBUTES;
+    W_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+      W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
     }
-    EZ_END_MESSAGEHANDLERS;
+    W_END_MESSAGEHANDLERS;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltClothSheetComponent::ezJoltClothSheetComponent() = default;
-ezJoltClothSheetComponent::~ezJoltClothSheetComponent() = default;
+WJoltClothSheetComponent::WJoltClothSheetComponent() = default;
+WJoltClothSheetComponent::~WJoltClothSheetComponent() = default;
 
-void ezJoltClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltClothSheetComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -77,12 +77,12 @@ void ezJoltClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_fThickness;
 }
 
-void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltClothSheetComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  EZ_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
+  W_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
   if (uiVersion < 4)
     return;
 
@@ -101,22 +101,22 @@ void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_fThickness;
 }
 
-void ezJoltClothSheetComponent::OnActivated()
+void WJoltClothSheetComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   SetupCloth();
 }
 
-void ezJoltClothSheetComponent::OnSimulationStarted()
+void WJoltClothSheetComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (m_uiObjectFilterID == ezInvalidIndex)
+  if (m_uiObjectFilterID == WInvalidIndex)
   {
     // only create a new filter ID, if none has been passed in manually
 
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     m_uiObjectFilterID = pModule->CreateObjectFilterID();
   }
 
@@ -125,14 +125,14 @@ void ezJoltClothSheetComponent::OnSimulationStarted()
   m_BodyGlobalTransform = GetOwner()->GetGlobalTransform();
 }
 
-void ezJoltClothSheetComponent::OnDeactivated()
+void WJoltClothSheetComponent::OnDeactivated()
 {
-  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  WRenderDataManager* pRenderDataManager = GetWorld()->GetModule<WRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   RemoveBody();
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   pModule->DeallocateUserData(m_uiUserDataIndex);
 
   pModule->DeleteObjectFilterID(m_uiObjectFilterID);
@@ -140,36 +140,36 @@ void ezJoltClothSheetComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezJoltClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WJoltClothSheetComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
   if (m_BSphere.IsValid())
   {
-    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromSphere(m_BSphere));
+    ref_bounds.ExpandToInclude(WBoundingBoxSphere::MakeFromSphere(m_BSphere));
   }
   else
   {
-    ezBoundingBox box = ezBoundingBox::MakeInvalid();
-    box.ExpandToInclude(ezVec3::MakeZero());
-    box.ExpandToInclude(ezVec3(0, 0, -0.1f));
-    box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0.1f));
+    WBoundingBox box = WBoundingBox::MakeInvalid();
+    box.ExpandToInclude(WVec3::MakeZero());
+    box.ExpandToInclude(WVec3(0, 0, -0.1f));
+    box.ExpandToInclude(WVec3(m_vSize.x, m_vSize.y, 0.1f));
 
-    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(box));
+    ref_bounds.ExpandToInclude(WBoundingBoxSphere::MakeFromBox(box));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezJoltClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WJoltClothSheetComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_hDynamicMeshBuffer.IsValid())
     return;
 
   // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
   const bool bDynamic = true;
-  const ezTransform globalTransform = IsActiveAndSimulating() ? m_BodyGlobalTransform : GetOwner()->GetGlobalTransform();
+  const WTransform globalTransform = IsActiveAndSimulating() ? m_BodyGlobalTransform : GetOwner()->GetGlobalTransform();
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
-  ezCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
+  WCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WCustomMeshRenderData>(GetOwner());
   {
     pRenderData->m_uiNumInstances = 1;
     pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
@@ -181,24 +181,24 @@ void ezJoltClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     pRenderData->m_uiFirstPrimitive = 0;
     pRenderData->m_uiNumPrimitives = (m_vNumVertices.x - 1) * (m_vNumVertices.y - 1) * 2;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
 #endif
 
     pRenderData->FillSortingKey();
   }
 
-  ezRenderData::Category category = m_RenderDataCategory;
+  WRenderData::Category category = m_RenderDataCategory;
   if (!category.IsValid())
   {
-    category = ezDefaultRenderDataCategories::LitOpaque; // use as default fallback
+    category = WDefaultRenderDataCategories::LitOpaque; // use as default fallback
 
     if (m_hMaterial.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+      WResourceLock<WMaterialResource> pMaterial(m_hMaterial, WResourceAcquireMode::AllowLoadingFallback);
       category = pMaterial->GetRenderDataCategory();
 
-      if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::LoadingFallback)
+      if (pMaterial.GetAcquireResult() != WResourceAcquireResult::LoadingFallback)
       {
         // if this is the final result, cache it
         m_RenderDataCategory = category;
@@ -206,39 +206,39 @@ void ezJoltClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     }
   }
 
-  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, category, WRenderData::Caching::Never);
 }
 
-void ezJoltClothSheetComponent::SetSize(ezVec2 vVal)
+void WJoltClothSheetComponent::SetSize(WVec2 vVal)
 {
   m_vSize = vVal;
   SetupCloth();
 }
 
-void ezJoltClothSheetComponent::SetSegments(ezVec2U32 vVal)
+void WJoltClothSheetComponent::SetSegments(WVec2U32 vVal)
 {
   m_vNumVertices = vVal;
   SetupCloth();
 }
 
-void ezJoltClothSheetComponent::SetFlags(ezBitflags<ezJoltClothSheetFlags> flags)
+void WJoltClothSheetComponent::SetFlags(WBitflags<WJoltClothSheetFlags> flags)
 {
   m_Flags = flags;
   SetupCloth();
 }
 
-void ezJoltClothSheetComponent::UpdatePreAsync()
+void WJoltClothSheetComponent::UpdatePreAsync()
 {
-  if (GetOwner()->GetVisibilityState(60) == ezVisibilityState::Direct)
+  if (GetOwner()->GetVisibilityState(60) == WVisibilityState::Direct)
   {
     // only apply wind to directly visible pieces of cloth
     ApplyWind();
   }
 }
 
-void ezJoltClothSheetComponent::UpdatePostAsync()
+void WJoltClothSheetComponent::UpdatePostAsync()
 {
-  const ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  const WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   auto* pSystem = pModule->GetJoltSystem();
   const JPH::BodyLockInterface* pLi = &pSystem->GetBodyLockInterface();
 
@@ -255,7 +255,7 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
   const JPH::Body& body = lock.GetBody();
 
   {
-    ezBoundingSphere prevBounds = m_BSphere;
+    WBoundingSphere prevBounds = m_BSphere;
 
     // TODO: should rather iterate over all active (soft) bodies, than to check this here
     if (!body.IsActive())
@@ -263,12 +263,12 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
 
     const JPH::AABox box = body.GetWorldSpaceBounds();
 
-    const ezTransform t = GetOwner()->GetGlobalTransform().GetInverse();
+    const WTransform t = GetOwner()->GetGlobalTransform().GetInverse();
 
-    m_BSphere.m_vCenter = t.TransformPosition(ezJoltConversionUtils::ToVec3(box.GetCenter()));
+    m_BSphere.m_vCenter = t.TransformPosition(WJoltConversionUtils::ToVec3(box.GetCenter()));
 
-    const ezVec3 ext = ezJoltConversionUtils::ToVec3(box.GetExtent());
-    m_BSphere.m_fRadius = ezMath::Max(ext.x, ext.y, ext.z);
+    const WVec3 ext = WJoltConversionUtils::ToVec3(box.GetExtent());
+    m_BSphere.m_fRadius = WMath::Max(ext.x, ext.y, ext.z);
 
     if (prevBounds != m_BSphere)
     {
@@ -277,28 +277,28 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
   }
 
   // Don't update mesh and transform when invisible
-  if (GetOwner()->GetVisibilityState() == ezVisibilityState::Invisible)
+  if (GetOwner()->GetVisibilityState() == WVisibilityState::Invisible)
     return;
 
   {
     const JPH::SoftBodyMotionProperties* pMotion = static_cast<const JPH::SoftBodyMotionProperties*>(body.GetMotionProperties());
     const JPH::Array<JPH::SoftBodyMotionProperties::Vertex>& particles = pMotion->GetVertices();
 
-    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, WResourceAcquireMode::BlockTillLoaded);
     auto positions = pDynamicMeshBuffer->AccessPositionData();
 
-    const ezVec2U32 vNumVertices = m_vNumVertices;
+    const WVec2U32 vNumVertices = m_vNumVertices;
 
-    ezUInt32 vidx = 0;
-    for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+    WUInt32 vidx = 0;
+    for (WUInt32 y = 0; y < vNumVertices.y; ++y)
     {
-      for (ezUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
+      for (WUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
       {
-        positions[vidx] = ezJoltConversionUtils::ToVec3(particles[vidx].mPosition);
+        positions[vidx] = WJoltConversionUtils::ToVec3(particles[vidx].mPosition);
       }
     }
 
-    ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
+    WDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
   }
 
   {
@@ -307,13 +307,13 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
     const auto& transformed_shape = body.GetTransformedShape();
     JPH::RMat44 matrix = transformed_shape.GetCenterOfMassTransform();
 
-    m_BodyGlobalTransform.m_vPosition = ezJoltConversionUtils::ToVec3(matrix.GetTranslation());
-    m_BodyGlobalTransform.m_qRotation = ezJoltConversionUtils::ToQuat(matrix.GetRotation().GetQuaternion());
+    m_BodyGlobalTransform.m_vPosition = WJoltConversionUtils::ToVec3(matrix.GetTranslation());
+    m_BodyGlobalTransform.m_qRotation = WJoltConversionUtils::ToQuat(matrix.GetRotation().GetQuaternion());
   }
 }
 
 
-void ezJoltClothSheetComponent::ApplyWind()
+void WJoltClothSheetComponent::ApplyWind()
 {
   if (m_fWindInfluence <= 0.0f)
     return;
@@ -321,20 +321,20 @@ void ezJoltClothSheetComponent::ApplyWind()
   if (!m_BSphere.IsValid())
     return;
 
-  if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  if (const WWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<WWindWorldModuleInterface>())
   {
-    const ezVec3 vSamplePos = GetOwner()->GetGlobalTransform().TransformPosition(m_BSphere.m_vCenter);
+    const WVec3 vSamplePos = GetOwner()->GetGlobalTransform().TransformPosition(m_BSphere.m_vCenter);
 
-    const ezVec3 vWind = pWind->GetWindAt(vSamplePos) * m_fWindInfluence;
+    const WVec3 vWind = pWind->GetWindAt(vSamplePos) * m_fWindInfluence;
 
     if (!vWind.IsZero())
     {
-      ezVec3 windForce = vWind;
+      WVec3 windForce = vWind;
       windForce += pWind->ComputeWindFlutter(vWind, vWind.GetOrthogonalVector(), 5.0f, GetOwner()->GetStableRandomSeed());
 
-      JPH::Vec3 windVel = ezJoltConversionUtils::ToVec3(windForce);
+      JPH::Vec3 windVel = WJoltConversionUtils::ToVec3(windForce);
 
-      ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+      WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
       auto* pSystem = pModule->GetJoltSystem();
       const JPH::BodyLockInterface* pLi = &pSystem->GetBodyLockInterface();
 
@@ -360,10 +360,10 @@ void ezJoltClothSheetComponent::ApplyWind()
 
       // randomize which vertices get the wind velocity applied,
       // both to save performance and also to introduce a nice ripple effect
-      const ezUInt32 uiStart = GetWorld()->GetRandomNumberGenerator().UIntInRange(ezMath::Min<ezUInt32>(16u, (ezUInt32)particles.size()));
-      const ezUInt32 uiStep = GetWorld()->GetRandomNumberGenerator().IntMinMax(16, 16 + 32);
+      const WUInt32 uiStart = GetWorld()->GetRandomNumberGenerator().UIntInRange(WMath::Min<WUInt32>(16u, (WUInt32)particles.size()));
+      const WUInt32 uiStep = GetWorld()->GetRandomNumberGenerator().IntMinMax(16, 16 + 32);
 
-      for (ezUInt32 i = uiStart; i < particles.size(); i += uiStep)
+      for (WUInt32 i = uiStart; i < particles.size(); i += uiStep)
       {
         if (particles[i].mInvMass > 0)
         {
@@ -374,16 +374,16 @@ void ezJoltClothSheetComponent::ApplyWind()
   }
 }
 
-static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vNumVertices, ezVec2 vSpacing, ezBitflags<ezJoltClothSheetFlags> flags, float fPerVertexMass)
+static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(WVec2U32 vNumVertices, WVec2 vSpacing, WBitflags<WJoltClothSheetFlags> flags, float fPerVertexMass)
 {
   // Create settings
   JPH::SoftBodySharedSettings* settings = new JPH::SoftBodySharedSettings;
 
   const float fInvVtxMass = 1.0f / fPerVertexMass;
 
-  for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+  for (WUInt32 y = 0; y < vNumVertices.y; ++y)
   {
-    for (ezUInt32 x = 0; x < vNumVertices.x; ++x)
+    for (WUInt32 x = 0; x < vNumVertices.x; ++x)
     {
       JPH::SoftBodySharedSettings::Vertex v;
       v.mPosition = JPH::Float3(x * vSpacing.x, y * vSpacing.y, 0.0f);
@@ -393,60 +393,60 @@ static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vNumVertices,
   }
 
   // Function to get the vertex index of a point on the cloth
-  auto GetIdx = [vNumVertices](ezUInt32 x, ezUInt32 y) -> ezUInt32
+  auto GetIdx = [vNumVertices](WUInt32 x, WUInt32 y) -> WUInt32
   {
     return x + y * vNumVertices.x;
   };
 
   if (flags.IsAnyFlagSet())
   {
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedCornerTopLeft))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedCornerTopLeft))
     {
       settings->mVertices[GetIdx(0, 0)].mInvMass = 0.0f;
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedCornerTopRight))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedCornerTopRight))
     {
       settings->mVertices[GetIdx(vNumVertices.x - 1, 0)].mInvMass = 0.0f;
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedCornerBottomLeft))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedCornerBottomLeft))
     {
       settings->mVertices[GetIdx(0, vNumVertices.y - 1)].mInvMass = 0.0f;
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedCornerBottomRight))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedCornerBottomRight))
     {
       settings->mVertices[GetIdx(vNumVertices.x - 1, vNumVertices.y - 1)].mInvMass = 0.0f;
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedEdgeTop))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedEdgeTop))
     {
-      for (ezUInt32 x = 0; x < vNumVertices.x; ++x)
+      for (WUInt32 x = 0; x < vNumVertices.x; ++x)
       {
         settings->mVertices[GetIdx(x, 0)].mInvMass = 0.0f;
       }
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedEdgeBottom))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedEdgeBottom))
     {
-      for (ezUInt32 x = 0; x < vNumVertices.x; ++x)
+      for (WUInt32 x = 0; x < vNumVertices.x; ++x)
       {
         settings->mVertices[GetIdx(x, vNumVertices.y - 1)].mInvMass = 0.0f;
       }
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedEdgeLeft))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedEdgeLeft))
     {
-      for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+      for (WUInt32 y = 0; y < vNumVertices.y; ++y)
       {
         settings->mVertices[GetIdx(0, y)].mInvMass = 0.0f;
       }
     }
 
-    if (flags.IsSet(ezJoltClothSheetFlags::FixedEdgeRight))
+    if (flags.IsSet(WJoltClothSheetFlags::FixedEdgeRight))
     {
-      for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+      for (WUInt32 y = 0; y < vNumVertices.y; ++y)
       {
         settings->mVertices[GetIdx(vNumVertices.x - 1, y)].mInvMass = 0.0f;
       }
@@ -454,9 +454,9 @@ static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vNumVertices,
   }
 
   // Create edges
-  for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+  for (WUInt32 y = 0; y < vNumVertices.y; ++y)
   {
-    for (ezUInt32 x = 0; x < vNumVertices.x; ++x)
+    for (WUInt32 x = 0; x < vNumVertices.x; ++x)
     {
       JPH::SoftBodySharedSettings::Edge e;
       e.mCompliance = 0.00001f;
@@ -486,9 +486,9 @@ static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vNumVertices,
   settings->CalculateEdgeLengths();
 
   // Create faces
-  for (ezUInt32 y = 0; y < vNumVertices.y - 1; ++y)
+  for (WUInt32 y = 0; y < vNumVertices.y - 1; ++y)
   {
-    for (ezUInt32 x = 0; x < vNumVertices.x - 1; ++x)
+    for (WUInt32 x = 0; x < vNumVertices.x - 1; ++x)
     {
       JPH::SoftBodySharedSettings::Face f;
       f.mVertex[0] = GetIdx(x, y);
@@ -508,9 +508,9 @@ static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vNumVertices,
 }
 
 
-void ezJoltClothSheetComponent::SetupCloth()
+void WJoltClothSheetComponent::SetupCloth()
 {
-  m_BSphere = ezBoundingSphere::MakeInvalid();
+  m_BSphere = WBoundingSphere::MakeInvalid();
 
   if (IsActiveAndSimulating())
   {
@@ -518,25 +518,25 @@ void ezJoltClothSheetComponent::SetupCloth()
 
     float fPerVertexMass = 1.0f; // default value
 
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     auto* pSystem = pModule->GetJoltSystem();
     auto* pBodies = &pSystem->GetBodyInterface();
 
-    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vNumVertices, m_vSize.CompDiv(ezVec2(static_cast<float>(m_vNumVertices.x - 1), static_cast<float>(m_vNumVertices.y - 1))), m_Flags, fPerVertexMass);
+    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vNumVertices, m_vSize.CompDiv(WVec2(static_cast<float>(m_vNumVertices.x - 1), static_cast<float>(m_vNumVertices.y - 1))), m_Flags, fPerVertexMass);
 
-    ezTransform t = GetOwner()->GetGlobalTransform();
+    WTransform t = GetOwner()->GetGlobalTransform();
 
-    ezJoltUserData* pUserData = nullptr;
+    WJoltUserData* pUserData = nullptr;
     m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
     pUserData->Init(this);
 
-    JPH::SoftBodyCreationSettings cloth(settings, ezJoltConversionUtils::ToVec3(t.m_vPosition), ezJoltConversionUtils::ToQuat(t.m_qRotation), ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Cloth));
+    JPH::SoftBodyCreationSettings cloth(settings, WJoltConversionUtils::ToVec3(t.m_vPosition), WJoltConversionUtils::ToQuat(t.m_qRotation), WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Cloth));
 
     cloth.mVertexRadius = m_fThickness;
     cloth.mPressure = 0.0f;
     cloth.mLinearDamping = m_fDamping;
     cloth.mGravityFactor = m_fGravityFactor;
-    cloth.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+    cloth.mUserData = reinterpret_cast<WUInt64>(pUserData);
     cloth.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
     // cloth.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // the group filter is only needed for objects constrained via joints
 
@@ -549,31 +549,31 @@ void ezJoltClothSheetComponent::SetupCloth()
 
   if (IsActiveAndInitialized() && m_vSize.x > 0 && m_vSize.y > 0 && m_vNumVertices.x > 1 && m_vNumVertices.y > 1)
   {
-    ezStringBuilder sResourceName;
-    sResourceName.SetFormat("JoltClothSheet_{}_{}x{}_{}x{}_{}x{}", ezArgP(this), m_vSize.x, m_vSize.y, m_vNumVertices.x, m_vNumVertices.y, m_vTextureScale.x, m_vTextureScale.y);
+    WStringBuilder sResourceName;
+    sResourceName.SetFormat("JoltClothSheet_{}_{}x{}_{}x{}_{}x{}", WArgP(this), m_vSize.x, m_vSize.y, m_vNumVertices.x, m_vNumVertices.y, m_vTextureScale.x, m_vTextureScale.y);
 
-    m_hDynamicMeshBuffer = ezResourceManager::GetExistingResource<ezDynamicMeshBufferResource>(sResourceName);
+    m_hDynamicMeshBuffer = WResourceManager::GetExistingResource<WDynamicMeshBufferResource>(sResourceName);
 
     if (!m_hDynamicMeshBuffer.IsValid())
     {
-      ezDynamicMeshBufferResourceDescriptor desc;
+      WDynamicMeshBufferResourceDescriptor desc;
       desc.m_uiMaxVertices = m_vNumVertices.x * m_vNumVertices.y;
-      desc.m_IndexType = ezGALIndexType::UShort;
+      desc.m_IndexType = WGALIndexType::UShort;
       desc.m_uiMaxPrimitives = (m_vNumVertices.x - 1) * (m_vNumVertices.y - 1) * 2;
 
-      m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>(sResourceName, std::move(desc));
+      m_hDynamicMeshBuffer = WResourceManager::GetOrCreateResource<WDynamicMeshBufferResource>(sResourceName, std::move(desc));
     }
 
-    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
-    ezDynamicMeshBufferResource::CreateGridXY(pDynamicMeshBuffer.GetPointerNonConst(), m_vSize, m_vNumVertices);
+    WResourceLock<WDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, WResourceAcquireMode::BlockTillLoaded);
+    WDynamicMeshBufferResource::CreateGridXY(pDynamicMeshBuffer.GetPointerNonConst(), m_vSize, m_vNumVertices);
   }
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezJoltClothSheetComponent::RemoveBody()
+void WJoltClothSheetComponent::RemoveBody()
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
 
   JPH::BodyID bodyId(m_uiJoltBodyID);
 
@@ -598,37 +598,37 @@ void ezJoltClothSheetComponent::RemoveBody()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltClothSheetComponentManager::ezJoltClothSheetComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WJoltClothSheetComponentManager::WJoltClothSheetComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-ezJoltClothSheetComponentManager::~ezJoltClothSheetComponentManager() = default;
+WJoltClothSheetComponentManager::~WJoltClothSheetComponentManager() = default;
 
-void ezJoltClothSheetComponentManager::Initialize()
+void WJoltClothSheetComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::UpdatePreAsync, this);
-    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltClothSheetComponentManager::UpdatePreAsync, this);
+    desc.m_Phase = WWorldUpdatePhase::PreAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::UpdatePostAsync, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WJoltClothSheetComponentManager::UpdatePostAsync, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezJoltClothSheetComponentManager::UpdatePreAsync(const ezWorldModule::UpdateContext& context)
+void WJoltClothSheetComponentManager::UpdatePreAsync(const WWorldModule::UpdateContext& context)
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   if (pModule == nullptr || pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
   {
     // skip cloth updates, when there was no Jolt update yet
@@ -646,9 +646,9 @@ void ezJoltClothSheetComponentManager::UpdatePreAsync(const ezWorldModule::Updat
   }
 }
 
-void ezJoltClothSheetComponentManager::UpdatePostAsync(const ezWorldModule::UpdateContext& context)
+void WJoltClothSheetComponentManager::UpdatePostAsync(const WWorldModule::UpdateContext& context)
 {
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetModule<WJoltWorldModule>();
   if (pModule == nullptr || pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
   {
     // skip cloth updates, when there was no Jolt update yet
@@ -665,4 +665,4 @@ void ezJoltClothSheetComponentManager::UpdatePostAsync(const ezWorldModule::Upda
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltClothSheetComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltClothSheetComponent);

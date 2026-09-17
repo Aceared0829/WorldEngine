@@ -4,47 +4,47 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WRotateGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WRotateGizmo, WGizmo);
 
 public:
-  ezRotateGizmo();
+  WRotateGizmo();
 
-  const ezQuat& GetRotationResult() const { return m_qCurrentRotation; }
+  const WQuat& GetRotationResult() const { return m_qCurrentRotation; }
 
-  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+  virtual void UpdateStatusBarText(WQtEngineDocumentWindow* pWindow) override;
 
   void EnableAxis(bool x, bool y, bool z);
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
 private:
   bool m_bEnableAxisX = true;
   bool m_bEnableAxisY = true;
   bool m_bEnableAxisZ = true;
 
-  ezEngineGizmoHandle m_hAxisX;
-  ezEngineGizmoHandle m_hAxisY;
-  ezEngineGizmoHandle m_hAxisZ;
+  WEngineGizmoHandle m_hAxisX;
+  WEngineGizmoHandle m_hAxisY;
+  WEngineGizmoHandle m_hAxisZ;
 
-  ezQuat m_qStartRotation;
-  ezQuat m_qCurrentRotation;
-  ezAngle m_Rotation;
+  WQuat m_qStartRotation;
+  WQuat m_qCurrentRotation;
+  WAngle m_Rotation;
 
-  ezVec2I32 m_vLastMousePos;
+  WVec2I32 m_vLastMousePos;
 
-  ezTime m_LastInteraction;
-  ezVec3 m_vRotationAxis;
-  ezMat4 m_mInvViewProj;
-  ezVec2 m_vScreenTangent;
+  WTime m_LastInteraction;
+  WVec3 m_vRotationAxis;
+  WMat4 m_mInvViewProj;
+  WVec2 m_vScreenTangent;
 };

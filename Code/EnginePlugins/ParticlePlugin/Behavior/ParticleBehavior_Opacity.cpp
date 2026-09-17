@@ -7,37 +7,37 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Opacity, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Opacity>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_Opacity, 2, WRTTIDefaultAllocator<WParticleBehaviorFactory_Opacity>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ChangeOpacityWith", ezCurveSource, m_CurveSource),
-    EZ_MEMBER_PROPERTY("OpacityCurve", m_Curve),
-    EZ_RESOURCE_MEMBER_PROPERTY("SharedOpacityCurve", m_hSharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_ENUM_MEMBER_PROPERTY("ChangeOpacityWith", WCurveSource, m_CurveSource),
+    W_MEMBER_PROPERTY("OpacityCurve", m_Curve),
+    W_RESOURCE_MEMBER_PROPERTY("SharedOpacityCurve", m_hSharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Opacity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Opacity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_Opacity, 1, WRTTIDefaultAllocator<WParticleBehavior_Opacity>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_Opacity::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_Opacity::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Opacity>();
+  return WGetStaticRTTI<WParticleBehavior_Opacity>();
 }
 
-void ezParticleBehaviorFactory_Opacity::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_Opacity::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_Opacity* pBehavior = static_cast<ezParticleBehavior_Opacity*>(pObject);
+  WParticleBehavior_Opacity* pBehavior = static_cast<WParticleBehavior_Opacity*>(pObject);
 
   pBehavior->m_pCurve = &m_RuntimeCurve;
 }
 
-void ezParticleBehaviorFactory_Opacity::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_Opacity::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
   inout_stream << uiVersion;
 
   inout_stream << m_CurveSource;
@@ -48,9 +48,9 @@ void ezParticleBehaviorFactory_Opacity::Save(ezStreamWriter& inout_stream) const
   m_RuntimeCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Opacity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_Opacity::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   inout_stream >> m_CurveSource;
@@ -60,23 +60,23 @@ void ezParticleBehaviorFactory_Opacity::Load(ezStreamReader& inout_stream, const
   m_RuntimeCurve.SortControlPoints(); // also updates the aabb
   m_RuntimeCurve.CreateLinearApproximation();
 
-  if (m_CurveSource == ezCurveSource::SharedCurve && m_hSharedCurve.IsValid())
+  if (m_CurveSource == WCurveSource::SharedCurve && m_hSharedCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurveResource(m_hSharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-    if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+    WResourceLock<WCurve1DResource> pCurveResource(m_hSharedCurve, WResourceAcquireMode::BlockTillLoaded);
+    if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
     {
       m_RuntimeCurve = pCurveResource->GetDescriptor().m_Curves[0];
     }
   }
 }
 
-void ezParticleBehavior_Opacity::CreateRequiredStreams()
+void WParticleBehavior_Opacity::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+  CreateStream("Color", WProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_Opacity::Process(WUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
   {
@@ -90,17 +90,17 @@ void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
   if (m_pCurve == nullptr || m_pCurve->IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("PFX: Opacity");
+  W_PROFILE_SCOPE("PFX: Opacity");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  WProcessingStreamIterator<WColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   double fMinX, fMaxX;
   m_pCurve->QueryExtents(fMinX, fMaxX);
 
   // make sure the curve has a length of at least 1
-  fMinX = ezMath::Min(fMinX, 0.0);
-  fMaxX = ezMath::Max(fMaxX, 1.0);
+  fMinX = WMath::Min(fMinX, 0.0);
+  fMaxX = WMath::Max(fMaxX, 1.0);
 
   // skip the first n particles
   itLifeTime.Advance(m_uiFirstToUpdate);
@@ -111,10 +111,10 @@ void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
     // particle age: 0 at birth, increases to 1 at death
     const float fInvParticleAge = itLifeTime.Current().x * itLifeTime.Current().y;
 
-    const double evalPos = ezMath::Lerp(fMaxX, fMinX, fInvParticleAge);
+    const double evalPos = WMath::Lerp(fMaxX, fMinX, fInvParticleAge);
     const float fOpacity = (float)m_pCurve->Evaluate(evalPos);
 
-    itColor.Current().a = ezMath::Clamp(fOpacity, 0.0f, 1.0f);
+    itColor.Current().a = WMath::Clamp(fOpacity, 0.0f, 1.0f);
 
     // skip the next n items
     // this is to reduce the number of particles that need to be fully evaluated,
@@ -136,4 +136,4 @@ void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Opacity);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Opacity);

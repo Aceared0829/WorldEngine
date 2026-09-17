@@ -5,27 +5,27 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezPreferences;
+class WPreferences;
 
-class EZ_EDITORPLUGINMINIAUDIO_DLL ezMiniAudioActions
+class W_EDITORPLUGINMINIAUDIO_DLL WMiniAudioActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapPluginMenuActions(ezStringView sMapping);
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapPluginMenuActions(WStringView sMapping);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategoryMiniAudio;
-  static ezActionDescriptorHandle s_hMute;
-  static ezActionDescriptorHandle s_hVolume;
+  static WActionDescriptorHandle s_hCategoryMiniAudio;
+  static WActionDescriptorHandle s_hMute;
+  static WActionDescriptorHandle s_hVolume;
 };
 
 
-class EZ_EDITORPLUGINMINIAUDIO_DLL ezMiniAudioAction : public ezButtonAction
+class W_EDITORPLUGINMINIAUDIO_DLL WMiniAudioAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -33,20 +33,20 @@ public:
     Mute,
   };
 
-  ezMiniAudioAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezMiniAudioAction();
+  WMiniAudioAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WMiniAudioAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void OnPreferenceChange(ezPreferences* pref);
+  void OnPreferenceChange(WPreferences* pref);
 
   ActionType m_Type;
 };
 
-class EZ_EDITORPLUGINMINIAUDIO_DLL ezMiniAudioSliderAction : public ezSliderAction
+class W_EDITORPLUGINMINIAUDIO_DLL WMiniAudioSliderAction : public WSliderAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSliderAction, ezSliderAction);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioSliderAction, WSliderAction);
 
 public:
   enum class ActionType
@@ -54,13 +54,13 @@ public:
     Volume,
   };
 
-  ezMiniAudioSliderAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezMiniAudioSliderAction();
+  WMiniAudioSliderAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WMiniAudioSliderAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void OnPreferenceChange(ezPreferences* pref);
+  void OnPreferenceChange(WPreferences* pref);
   void UpdateState();
 
   ActionType m_Type;

@@ -6,12 +6,12 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <Texture/Image/Image.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
+#include <Texture/WTexFormat/WTexFormat.h>
 
 /// Resource loader for texture resources.
 ///
-/// Loads textures from .ezTex files which contain compressed texture data and metadata.
-class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
+/// Loads textures from .WTex files which contain compressed texture data and metadata.
+class W_RENDERERCORE_DLL WTextureResourceLoader : public WResourceTypeLoader
 {
 public:
   /// Data structure for loaded texture information.
@@ -22,21 +22,21 @@ public:
     {
     }
 
-    ezContiguousMemoryStreamStorage m_Storage;
-    ezMemoryStreamReader m_Reader;
-    ezImage m_Image;
+    WContiguousMemoryStreamStorage m_Storage;
+    WMemoryStreamReader m_Reader;
+    WImage m_Image;
 
     bool m_bIsFallback = false;
-    ezTexFormat m_TexFormat; ///< Texture format information from the .ezTex file.
+    WTexFormat m_TexFormat; ///< Texture format information from the .WTex file.
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual WResourceLoadData OpenDataStream(const WResource* pResource) override;
+  virtual void CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData) override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 
-  /// Loads texture data from a .ezTex file stream.
-  static ezResult LoadTexFile(ezStreamReader& inout_stream, LoadedData& ref_data);
+  /// Loads texture data from a .WTex file stream.
+  static WResult LoadTexFile(WStreamReader& inout_stream, LoadedData& ref_data);
 
   /// Writes texture data to a stream in the loader's internal format.
-  static void WriteTextureLoadStream(ezStreamWriter& inout_stream, const LoadedData& data);
+  static void WriteTextureLoadStream(WStreamWriter& inout_stream, const LoadedData& data);
 };

@@ -6,7 +6,7 @@
 #include <Core/World/World.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-using ezParticleAttractorComponentManager = ezComponentManager<class ezParticleAttractorComponent, ezBlockStorageType::Compact>;
+using WParticleAttractorComponentManager = WComponentManager<class WParticleAttractorComponent, WBlockStorageType::Compact>;
 
 /// Defines an attractor (or repulsor) volume for nearby particles.
 ///
@@ -15,27 +15,27 @@ using ezParticleAttractorComponentManager = ezComponentManager<class ezParticleA
 /// category ("ParticleAttractor") so they can all be found with a single query.
 ///
 /// Negative \a Strength values turn the attractor into a repulsor.
-class EZ_PARTICLEPLUGIN_DLL ezParticleAttractorComponent : public ezComponent
+class W_PARTICLEPLUGIN_DLL WParticleAttractorComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezParticleAttractorComponent, ezComponent, ezParticleAttractorComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WParticleAttractorComponent, WComponent, WParticleAttractorComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezParticleAttractorComponent
+  // WParticleAttractorComponent
 
 public:
-  ezParticleAttractorComponent();
-  ~ezParticleAttractorComponent();
+  WParticleAttractorComponent();
+  ~WParticleAttractorComponent();
 
   /// Influence radius. Particles further away than this are not affected.
   float m_fRadius = 5.0f; // [ property ]
@@ -50,8 +50,8 @@ public:
   float m_fKillDistance = 0.0f; // [ property ]
 
   /// The spatial category shared by all particle attractor components.
-  static ezSpatialData::Category GetSpatialCategory();
+  static WSpatialData::Category GetSpatialCategory();
 
 protected:
-  void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
+  void OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const; // [ msg handler ]
 };

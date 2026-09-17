@@ -8,89 +8,89 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVolumeSamplerValue, ezNoBase, 1, ezRTTIDefaultAllocator<ezVolumeSamplerValue>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WVolumeSamplerValue, WNoBase, 1, WRTTIDefaultAllocator<WVolumeSamplerValue>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
-    EZ_MEMBER_PROPERTY("InterpolationDuration", m_InterpolationDuration),
+    W_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new WDynamicStringEnumAttribute("BlackboardKeysEnum")),
+    W_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
+    W_MEMBER_PROPERTY("InterpolationDuration", m_InterpolationDuration),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezVolumeSamplerValue::Serialize(ezStreamWriter& inout_stream) const
+WResult WVolumeSamplerValue::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_sName;
   inout_stream << m_DefaultValue;
   inout_stream << m_InterpolationDuration;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezVolumeSamplerValue::Deserialize(ezStreamReader& inout_stream)
+WResult WVolumeSamplerValue::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_sName;
   inout_stream >> m_DefaultValue;
   inout_stream >> m_InterpolationDuration;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVolumeSamplerComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WVolumeSamplerComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("VolumeType", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Values", Values_GetCount, Values_GetMapping, Values_SetMapping, Values_Insert, Values_Remove),
-    EZ_ACCESSOR_PROPERTY("AttachToMainCamera", GetAttachToMainCamera, SetAttachToMainCamera),
-    EZ_ACCESSOR_PROPERTY("WriteToBlackboard", GetWriteToBlackboard, SetWriteToBlackboard),
-    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
+    W_ACCESSOR_PROPERTY("VolumeType", GetVolumeType, SetVolumeType)->AddAttributes(new WDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new WDefaultValueAttribute("GenericVolume")),
+    W_ARRAY_ACCESSOR_PROPERTY("Values", Values_GetCount, Values_GetMapping, Values_SetMapping, Values_Insert, Values_Remove),
+    W_ACCESSOR_PROPERTY("AttachToMainCamera", GetAttachToMainCamera, SetAttachToMainCamera),
+    W_ACCESSOR_PROPERTY("WriteToBlackboard", GetWriteToBlackboard, SetWriteToBlackboard),
+    W_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new WDynamicStringEnumAttribute("BlackboardNamesEnum")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(RegisterValue, In, "Name", In, "DefaultValue", In, "InterpolationDuration"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name", In, "FallbackValue"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetColorValue, In, "Name", In, "FallbackValue"),
+    W_SCRIPT_FUNCTION_PROPERTY(RegisterValue, In, "Name", In, "DefaultValue", In, "InterpolationDuration"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name", In, "FallbackValue"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetColorValue, In, "Name", In, "FallbackValue"),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new WCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezVolumeSamplerComponent::ezVolumeSamplerComponent()
+WVolumeSamplerComponent::WVolumeSamplerComponent()
 {
-  m_pSampler = EZ_DEFAULT_NEW(ezVolumeSampler);
+  m_pSampler = W_DEFAULT_NEW(WVolumeSampler);
 }
 
-ezVolumeSamplerComponent::ezVolumeSamplerComponent(ezVolumeSamplerComponent&& other) = default;
-ezVolumeSamplerComponent::~ezVolumeSamplerComponent() = default;
-ezVolumeSamplerComponent& ezVolumeSamplerComponent::operator=(ezVolumeSamplerComponent&& other) = default;
+WVolumeSamplerComponent::WVolumeSamplerComponent(WVolumeSamplerComponent&& other) = default;
+WVolumeSamplerComponent::~WVolumeSamplerComponent() = default;
+WVolumeSamplerComponent& WVolumeSamplerComponent::operator=(WVolumeSamplerComponent&& other) = default;
 
-void ezVolumeSamplerComponent::OnActivated()
+void WVolumeSamplerComponent::OnActivated()
 {
-  m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+  m_pBlackboard = WBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
 }
 
-void ezVolumeSamplerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WVolumeSamplerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
-  auto& sCategory = ezSpatialData::GetCategoryName(m_SpatialCategory);
+  auto& sCategory = WSpatialData::GetCategoryName(m_SpatialCategory);
   s << sCategory;
   s << m_bAttachToMainCamera;
   s << m_bWriteToBlackboard;
@@ -99,15 +99,15 @@ void ezVolumeSamplerComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s.WriteArray(m_Values).IgnoreResult();
 }
 
-void ezVolumeSamplerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WVolumeSamplerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
-  ezHashedString sCategory;
+  WHashedString sCategory;
   s >> sCategory;
-  m_SpatialCategory = ezSpatialData::RegisterCategory(sCategory, ezSpatialData::Flags::None);
+  m_SpatialCategory = WSpatialData::RegisterCategory(sCategory, WSpatialData::Flags::None);
 
   s >> m_bAttachToMainCamera;
 
@@ -117,32 +117,32 @@ void ezVolumeSamplerComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_sBlackboardName;
   }
 
-  ezDynamicArray<ezVolumeSamplerValue> values;
+  WDynamicArray<WVolumeSamplerValue> values;
   s.ReadArray(values).IgnoreResult();
   RegisterSamplerValues(values);
 }
 
-void ezVolumeSamplerComponent::SetVolumeType(const char* szType)
+void WVolumeSamplerComponent::SetVolumeType(const char* szType)
 {
-  m_SpatialCategory = ezSpatialData::RegisterCategory(szType, ezSpatialData::Flags::None);
+  m_SpatialCategory = WSpatialData::RegisterCategory(szType, WSpatialData::Flags::None);
 }
 
-const char* ezVolumeSamplerComponent::GetVolumeType() const
+const char* WVolumeSamplerComponent::GetVolumeType() const
 {
-  return ezSpatialData::GetCategoryName(m_SpatialCategory);
+  return WSpatialData::GetCategoryName(m_SpatialCategory);
 }
 
-void ezVolumeSamplerComponent::SetAttachToMainCamera(bool bAttach)
+void WVolumeSamplerComponent::SetAttachToMainCamera(bool bAttach)
 {
   m_bAttachToMainCamera = bAttach;
 }
 
-void ezVolumeSamplerComponent::SetWriteToBlackboard(bool bWriteToBlackboard)
+void WVolumeSamplerComponent::SetWriteToBlackboard(bool bWriteToBlackboard)
 {
   m_bWriteToBlackboard = bWriteToBlackboard;
 }
 
-void ezVolumeSamplerComponent::SetBlackboardName(const ezHashedString& sName)
+void WVolumeSamplerComponent::SetBlackboardName(const WHashedString& sName)
 {
   if (m_sBlackboardName == sName)
     return;
@@ -151,23 +151,23 @@ void ezVolumeSamplerComponent::SetBlackboardName(const ezHashedString& sName)
 
   if (IsActiveAndInitialized())
   {
-    m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+    m_pBlackboard = WBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
   }
 }
 
-void ezVolumeSamplerComponent::RegisterValue(const ezHashedString& sName, const ezVariant& defaultValue, ezTime interpolationDuration)
+void WVolumeSamplerComponent::RegisterValue(const WHashedString& sName, const WVariant& defaultValue, WTime interpolationDuration)
 {
   m_pSampler->RegisterValue(sName, defaultValue, interpolationDuration);
 }
 
-ezVariant ezVolumeSamplerComponent::GetValue(const ezHashedString& sName) const
+WVariant WVolumeSamplerComponent::GetValue(const WHashedString& sName) const
 {
   return m_pSampler->GetValue(sName);
 }
 
-float ezVolumeSamplerComponent::GetFloatValue(const ezHashedString& sName, float fFallbackValue) const
+float WVolumeSamplerComponent::GetFloatValue(const WHashedString& sName, float fFallbackValue) const
 {
-  ezVariant varValue = GetValue(sName);
+  WVariant varValue = GetValue(sName);
   if (varValue.CanConvertTo<float>())
   {
     return varValue.ConvertTo<float>();
@@ -176,18 +176,18 @@ float ezVolumeSamplerComponent::GetFloatValue(const ezHashedString& sName, float
   return fFallbackValue;
 }
 
-ezColor ezVolumeSamplerComponent::GetColorValue(const ezHashedString& sName, const ezColor& fallbackValue) const
+WColor WVolumeSamplerComponent::GetColorValue(const WHashedString& sName, const WColor& fallbackValue) const
 {
-  ezVariant varValue = GetValue(sName);
-  if (varValue.CanConvertTo<ezColor>())
+  WVariant varValue = GetValue(sName);
+  if (varValue.CanConvertTo<WColor>())
   {
-    return varValue.ConvertTo<ezColor>();
+    return varValue.ConvertTo<WColor>();
   }
 
   return fallbackValue;
 }
 
-void ezVolumeSamplerComponent::Values_SetMapping(ezUInt32 i, const ezVolumeSamplerValue& mapping)
+void WVolumeSamplerComponent::Values_SetMapping(WUInt32 i, const WVolumeSamplerValue& mapping)
 {
   m_Values.EnsureCount(i + 1);
   m_Values[i] = mapping;
@@ -195,21 +195,21 @@ void ezVolumeSamplerComponent::Values_SetMapping(ezUInt32 i, const ezVolumeSampl
   RegisterSamplerValues(m_Values);
 }
 
-void ezVolumeSamplerComponent::Values_Insert(ezUInt32 uiIndex, const ezVolumeSamplerValue& mapping)
+void WVolumeSamplerComponent::Values_Insert(WUInt32 uiIndex, const WVolumeSamplerValue& mapping)
 {
   m_Values.InsertAt(uiIndex, mapping);
 
   RegisterSamplerValues(m_Values);
 }
 
-void ezVolumeSamplerComponent::Values_Remove(ezUInt32 uiIndex)
+void WVolumeSamplerComponent::Values_Remove(WUInt32 uiIndex)
 {
   m_Values.RemoveAtAndCopy(uiIndex);
 
   RegisterSamplerValues(m_Values);
 }
 
-void ezVolumeSamplerComponent::RegisterSamplerValues(ezArrayPtr<const ezVolumeSamplerValue> values)
+void WVolumeSamplerComponent::RegisterSamplerValues(WArrayPtr<const WVolumeSamplerValue> values)
 {
   m_pSampler->DeregisterAllValues();
 
@@ -222,30 +222,30 @@ void ezVolumeSamplerComponent::RegisterSamplerValues(ezArrayPtr<const ezVolumeSa
   }
 }
 
-void ezVolumeSamplerComponent::Update()
+void WVolumeSamplerComponent::Update()
 {
-  ezWorld* pWorld = GetWorld();
-  ezVec3 vSamplePos = GetOwner()->GetGlobalPosition();
+  WWorld* pWorld = GetWorld();
+  WVec3 vSamplePos = GetOwner()->GetGlobalPosition();
 
   if (GetAttachToMainCamera())
   {
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, pWorld))
+    if (WView* pView = WRenderWorld::GetViewByUsageHint(WCameraUsageHint::MainView, WCameraUsageHint::EditorView, pWorld))
     {
       vSamplePos = pView->GetCullingCamera()->GetCenterPosition();
     }
   }
 
-  ezTime deltaTime;
+  WTime deltaTime;
   if (pWorld->GetWorldSimulationEnabled())
   {
     deltaTime = pWorld->GetClock().GetTimeDiff();
   }
   else
   {
-    deltaTime = ezClock::GetGlobalClock()->GetTimeDiff();
+    deltaTime = WClock::GetGlobalClock()->GetTimeDiff();
   }
 
-  ezBlackboard* pBlackboard = m_bWriteToBlackboard ? m_pBlackboard.Borrow() : nullptr;
+  WBlackboard* pBlackboard = m_bWriteToBlackboard ? m_pBlackboard.Borrow() : nullptr;
   m_pSampler->SampleAtPosition(*pWorld, m_SpatialCategory, vSamplePos, deltaTime, pBlackboard);
 }
 
@@ -255,39 +255,39 @@ void ezVolumeSamplerComponent::Update()
 #include <Foundation/Serialization/GraphPatch.h>
 
 // Migrate post processing component to volume sampler component
-class ezVolumeSamplerComponent_1_2 : public ezGraphPatch
+class WVolumeSamplerComponent_1_2 : public WGraphPatch
 {
 public:
-  ezVolumeSamplerComponent_1_2()
-    : ezGraphPatch("ezPostProcessingComponent", 2)
+  WVolumeSamplerComponent_1_2()
+    : WGraphPatch("WPostProcessingComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezVolumeSamplerComponent");
+    ref_context.RenameClass("WVolumeSamplerComponent");
 
     // Migrate mappings
-    ezVariantArray newValues;
+    WVariantArray newValues;
     if (auto pMappings = pNode->FindProperty("Mappings"))
     {
-      if (pMappings->m_Value.IsA<ezVariantArray>())
+      if (pMappings->m_Value.IsA<WVariantArray>())
       {
-        auto& mappings = pMappings->m_Value.Get<ezVariantArray>();
+        auto& mappings = pMappings->m_Value.Get<WVariantArray>();
         for (auto& mapping : mappings)
         {
-          if (!mapping.IsA<ezUuid>())
+          if (!mapping.IsA<WUuid>())
             continue;
 
-          auto pMappingNode = pGraph->GetNode(mapping.Get<ezUuid>());
+          auto pMappingNode = pGraph->GetNode(mapping.Get<WUuid>());
           if (!pMappingNode)
             continue;
 
-          ezUuid newGuid = ezUuid::MakeUuid();
-          auto* pNewNode = pGraph->AddNode(newGuid, "ezVolumeSamplerValue", 1);
+          WUuid newGuid = WUuid::MakeUuid();
+          auto* pNewNode = pGraph->AddNode(newGuid, "WVolumeSamplerValue", 1);
 
-          ezStringBuilder name = pMappingNode->FindProperty("RenderPass")->m_Value.Get<ezHashedString>().GetView();
-          name.Append(".", pMappingNode->FindProperty("Property")->m_Value.Get<ezHashedString>());
+          WStringBuilder name = pMappingNode->FindProperty("RenderPass")->m_Value.Get<WHashedString>().GetView();
+          name.Append(".", pMappingNode->FindProperty("Property")->m_Value.Get<WHashedString>());
 
           pNewNode->AddProperty("Name", name.GetView());
           pNewNode->AddProperty("DefaultValue", pMappingNode->FindProperty("DefaultValue")->m_Value);
@@ -304,7 +304,7 @@ public:
   }
 };
 
-ezVolumeSamplerComponent_1_2 g_ezVolumeSamplerComponent_1_2;
+WVolumeSamplerComponent_1_2 g_WVolumeSamplerComponent_1_2;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSamplerComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSamplerComponent);

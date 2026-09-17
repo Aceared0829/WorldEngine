@@ -5,17 +5,17 @@
 #include <MiniAudio/miniaudio.h>
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
-EZ_DEFINE_AS_POD_TYPE(ma_sound);
+W_DEFINE_AS_POD_TYPE(ma_sound);
 
 // <StaticLinkUtil::StartHere>
 // all include's before this will be left alone and not replaced by the StaticLinkUtil
 // all include's AFTER this will be removed by the StaticLinkUtil and updated by what is actually used throughout the library
 
-#define EZ_MA_CHECK(x)                                  \
+#define W_MA_CHECK(x)                                  \
   do                                                    \
   {                                                     \
     if (int resVar = (x); resVar != MA_SUCCESS)         \
     {                                                   \
-      EZ_REPORT_FAILURE("MiniAudio error: {}", resVar); \
+      W_REPORT_FAILURE("MiniAudio error: {}", resVar); \
     }                                                   \
   } while (false)\

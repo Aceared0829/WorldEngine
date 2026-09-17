@@ -10,22 +10,22 @@
 #include <TerrainPlugin/TerrainSystem.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezTerrainBrushBaseComponent, 2)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WTerrainBrushBaseComponent, 2)
 {
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
-    EZ_MESSAGE_HANDLER(ezMsgSplineChanged, OnMsgSplineChanged),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnMsgTransformChanged),
+    W_MESSAGE_HANDLER(WMsgSplineChanged, OnMsgSplineChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+W_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezTerrainBrushBaseComponent::ezTerrainBrushBaseComponent() = default;
-ezTerrainBrushBaseComponent::~ezTerrainBrushBaseComponent() = default;
+WTerrainBrushBaseComponent::WTerrainBrushBaseComponent() = default;
+WTerrainBrushBaseComponent::~WTerrainBrushBaseComponent() = default;
 
-void ezTerrainBrushBaseComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WTerrainBrushBaseComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -45,12 +45,12 @@ void ezTerrainBrushBaseComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_bAffectVolumes;
 }
 
-void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WTerrainBrushBaseComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
   auto& s = inout_stream.GetStream();
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_fHalfSizeX;
   s >> m_fInnerRadius;
@@ -61,7 +61,7 @@ void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stre
   s >> m_uiMaterialIndex;
   s >> m_fMaterialStrength;
   s >> m_iPriority;
-  m_Tags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_Tags.Load(s, WTagRegistry::GetGlobalRegistry());
 
   if (uiVersion >= 2)
   {
@@ -70,41 +70,41 @@ void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stre
   }
 }
 
-void ezTerrainBrushBaseComponent::OnActivated()
+void WTerrainBrushBaseComponent::OnActivated()
 {
   SUPER::OnActivated();
   GetOwner()->EnableStaticTransformChangesNotifications();
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::OnDeactivated()
+void WTerrainBrushBaseComponent::OnDeactivated()
 {
   ClearBrushes();
   SUPER::OnDeactivated();
 }
 
-void ezTerrainBrushBaseComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
+void WTerrainBrushBaseComponent::OnMsgTransformChanged(WMsgTransformChanged& msg)
 {
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::OnMsgSplineChanged(ezMsgSplineChanged& msg)
+void WTerrainBrushBaseComponent::OnMsgSplineChanged(WMsgSplineChanged& msg)
 {
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::ClearBrushes()
+void WTerrainBrushBaseComponent::ClearBrushes()
 {
   if (m_BrushIndices.IsEmpty())
     return;
 
-  auto* pSystem = GetWorld()->GetOrCreateModule<ezTerrainSystem>();
-  for (ezUInt32 uiIdx : m_BrushIndices)
+  auto* pSystem = GetWorld()->GetOrCreateModule<WTerrainSystem>();
+  for (WUInt32 uiIdx : m_BrushIndices)
     pSystem->RemoveBrushData(uiIdx);
   m_BrushIndices.Clear();
 }
 
-void ezTerrainBrushBaseComponent::FillBrush(ezTerrainData_Brush& brush, const ezTransform& transform, float fHalfSizeX)
+void WTerrainBrushBaseComponent::FillBrush(WTerrainData_Brush& brush, const WTransform& transform, float fHalfSizeX)
 {
   brush.m_vPosition = transform.m_vPosition;
   brush.m_qRotation = transform.m_qRotation;
@@ -123,16 +123,16 @@ void ezTerrainBrushBaseComponent::FillBrush(ezTerrainData_Brush& brush, const ez
   FillBrushSpecificProperties(brush, fHalfSizeX);
 }
 
-void ezTerrainBrushBaseComponent::RefreshBrushes()
+void WTerrainBrushBaseComponent::RefreshBrushes()
 {
   ClearBrushes();
 
   if (!IsActiveAndInitialized())
     return;
 
-  auto* pSystem = GetWorld()->GetOrCreateModule<ezTerrainSystem>();
+  auto* pSystem = GetWorld()->GetOrCreateModule<WTerrainSystem>();
 
-  const ezSplineComponent* pSpline = nullptr;
+  const WSplineComponent* pSpline = nullptr;
   if (GetOwner()->TryGetComponentOfBaseType(pSpline))
   {
     const float fTotalLength = pSpline->GetTotalLength();
@@ -147,9 +147,9 @@ void ezTerrainBrushBaseComponent::RefreshBrushes()
     {
       const float dMid = (d0 + d1) * 0.5f;
       const float fSegmentHalfLength = (d1 - d0) * 0.5f;
-      const ezTransform trans = pSpline->GetTransformAtDistance(dMid, ezSplineComponentSpace::Global);
+      const WTransform trans = pSpline->GetTransformAtDistance(dMid, WSplineComponentSpace::Global);
 
-      const ezUInt32 uiIdx = pSystem->CreateBrushData();
+      const WUInt32 uiIdx = pSystem->CreateBrushData();
       m_BrushIndices.PushBack(uiIdx);
       FillBrush(pSystem->ModifyBrushData(uiIdx), trans, fSegmentHalfLength);
     };
@@ -167,9 +167,9 @@ void ezTerrainBrushBaseComponent::RefreshBrushes()
 
       if (fLength <= fMaxStep)
       {
-        const ezVec3 p0 = pSpline->GetTransformAtDistance(d0, ezSplineComponentSpace::Global).m_vPosition;
-        const ezVec3 p1 = pSpline->GetTransformAtDistance(d1, ezSplineComponentSpace::Global).m_vPosition;
-        const ezVec3 pMidActual = pSpline->GetTransformAtDistance(dMid, ezSplineComponentSpace::Global).m_vPosition;
+        const WVec3 p0 = pSpline->GetTransformAtDistance(d0, WSplineComponentSpace::Global).m_vPosition;
+        const WVec3 p1 = pSpline->GetTransformAtDistance(d1, WSplineComponentSpace::Global).m_vPosition;
+        const WVec3 pMidActual = pSpline->GetTransformAtDistance(dMid, WSplineComponentSpace::Global).m_vPosition;
 
         if ((pMidActual - (p0 + p1) * 0.5f).GetLength() <= fTolerance)
         {
@@ -186,13 +186,13 @@ void ezTerrainBrushBaseComponent::RefreshBrushes()
   }
   else
   {
-    const ezUInt32 uiIdx = pSystem->CreateBrushData();
+    const WUInt32 uiIdx = pSystem->CreateBrushData();
     m_BrushIndices.PushBack(uiIdx);
     FillBrush(pSystem->ModifyBrushData(uiIdx), GetOwner()->GetGlobalTransform(), m_fHalfSizeX);
   }
 }
 
-void ezTerrainBrushBaseComponent::SetHalfSizeX(float fSize)
+void WTerrainBrushBaseComponent::SetHalfSizeX(float fSize)
 {
   if (m_fHalfSizeX == fSize)
     return;
@@ -200,7 +200,7 @@ void ezTerrainBrushBaseComponent::SetHalfSizeX(float fSize)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetInnerRadius(float fRadius)
+void WTerrainBrushBaseComponent::SetInnerRadius(float fRadius)
 {
   if (m_fInnerRadius == fRadius)
     return;
@@ -208,7 +208,7 @@ void ezTerrainBrushBaseComponent::SetInnerRadius(float fRadius)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetOuterRadius(float fRadius)
+void WTerrainBrushBaseComponent::SetOuterRadius(float fRadius)
 {
   if (m_fOuterRadius == fRadius)
     return;
@@ -216,7 +216,7 @@ void ezTerrainBrushBaseComponent::SetOuterRadius(float fRadius)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetFalloff(float fFalloff)
+void WTerrainBrushBaseComponent::SetFalloff(float fFalloff)
 {
   if (m_fFalloff == fFalloff)
     return;
@@ -224,7 +224,7 @@ void ezTerrainBrushBaseComponent::SetFalloff(float fFalloff)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetMaterialIndex(ezUInt8 uiIndex)
+void WTerrainBrushBaseComponent::SetMaterialIndex(WUInt8 uiIndex)
 {
   if (m_uiMaterialIndex == uiIndex)
     return;
@@ -232,7 +232,7 @@ void ezTerrainBrushBaseComponent::SetMaterialIndex(ezUInt8 uiIndex)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetMaterialStrength(float fStrength)
+void WTerrainBrushBaseComponent::SetMaterialStrength(float fStrength)
 {
   if (m_fMaterialStrength == fStrength)
     return;
@@ -240,7 +240,7 @@ void ezTerrainBrushBaseComponent::SetMaterialStrength(float fStrength)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetAffectPatches(bool b)
+void WTerrainBrushBaseComponent::SetAffectPatches(bool b)
 {
   if (m_bAffectPatches == b)
     return;
@@ -248,7 +248,7 @@ void ezTerrainBrushBaseComponent::SetAffectPatches(bool b)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetAffectVolumes(bool b)
+void WTerrainBrushBaseComponent::SetAffectVolumes(bool b)
 {
   if (m_bAffectVolumes == b)
     return;
@@ -256,7 +256,7 @@ void ezTerrainBrushBaseComponent::SetAffectVolumes(bool b)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetNoiseStrength(float fNoise)
+void WTerrainBrushBaseComponent::SetNoiseStrength(float fNoise)
 {
   if (m_fNoiseStrength == fNoise)
     return;
@@ -264,7 +264,7 @@ void ezTerrainBrushBaseComponent::SetNoiseStrength(float fNoise)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetNoiseFrequency(float fNoise)
+void WTerrainBrushBaseComponent::SetNoiseFrequency(float fNoise)
 {
   if (m_fNoiseFrequency == fNoise)
     return;
@@ -272,7 +272,7 @@ void ezTerrainBrushBaseComponent::SetNoiseFrequency(float fNoise)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::SetPriority(ezInt8 iPriority)
+void WTerrainBrushBaseComponent::SetPriority(WInt8 iPriority)
 {
   if (m_iPriority == iPriority)
     return;
@@ -280,22 +280,22 @@ void ezTerrainBrushBaseComponent::SetPriority(ezInt8 iPriority)
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::Reflection_SetTag(const char* szTagName)
+void WTerrainBrushBaseComponent::Reflection_SetTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
+  const WTag& tag = WTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
   if (m_Tags.IsSet(tag))
     return;
   m_Tags.Set(tag);
   RefreshBrushes();
 }
 
-void ezTerrainBrushBaseComponent::Reflection_RemoveTag(const char* szTagName)
+void WTerrainBrushBaseComponent::Reflection_RemoveTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
-  if (const ezTag* pTag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTagName)))
+  if (const WTag* pTag = WTagRegistry::GetGlobalRegistry().GetTagByName(WTempHashedString(szTagName)))
   {
     if (!m_Tags.IsSet(*pTag))
       return;

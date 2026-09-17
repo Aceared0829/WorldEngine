@@ -2,13 +2,13 @@
 
 #include <Foundation/Strings/StringConversion.h>
 
-inline ezStringBuilder::ezStringBuilder(ezAllocator* pAllocator)
+inline WStringBuilder::WStringBuilder(WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   AppendTerminator();
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
+inline WStringBuilder::WStringBuilder(const WStringBuilder& rhs)
   : m_Data(rhs.GetAllocator())
 {
   AppendTerminator();
@@ -16,7 +16,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
   *this = rhs;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
+inline WStringBuilder::WStringBuilder(WStringBuilder&& rhs) noexcept
   : m_Data(rhs.GetAllocator())
 {
   AppendTerminator();
@@ -24,7 +24,7 @@ inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
   *this = std::move(rhs);
 }
 
-inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAllocator)
+inline WStringBuilder::WStringBuilder(const char* szUTF8, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   AppendTerminator();
@@ -32,7 +32,7 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAlloca
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAllocator)
+inline WStringBuilder::WStringBuilder(const wchar_t* pWChar, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   AppendTerminator();
@@ -40,7 +40,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAll
   *this = pWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocator* pAllocator)
+inline WStringBuilder::WStringBuilder(WStringView rhs, WAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   AppendTerminator();
@@ -48,143 +48,143 @@ inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocator* pAllocato
   *this = rhs;
 }
 
-EZ_ALWAYS_INLINE ezAllocator* ezStringBuilder::GetAllocator() const
+W_ALWAYS_INLINE WAllocator* WStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const char* szUTF8)
+W_ALWAYS_INLINE void WStringBuilder::operator=(const char* szUTF8)
 {
   Set(szUTF8);
 }
 
-EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* pWChar)
+W_FORCE_INLINE void WStringBuilder::operator=(const wchar_t* pWChar)
 {
   // fine to do this, szWChar can never come from the stringbuilder's own data array
   Clear();
   Append(pWChar);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
+W_ALWAYS_INLINE void WStringBuilder::operator=(const WStringBuilder& rhs)
 {
   m_Data = rhs.m_Data;
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs) noexcept
+W_ALWAYS_INLINE void WStringBuilder::operator=(WStringBuilder&& rhs) noexcept
 {
   m_Data = std::move(rhs.m_Data);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetElementCount() const
+W_ALWAYS_INLINE WUInt32 WStringBuilder::GetElementCount() const
 {
   return m_Data.GetCount() - 1; // exclude the '\0' terminator
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
+W_ALWAYS_INLINE WUInt32 WStringBuilder::GetCharacterCount() const
 {
-  return ezStringUtils::GetCharacterCount(m_Data.GetData());
+  return WStringUtils::GetCharacterCount(m_Data.GetData());
 }
 
-EZ_FORCE_INLINE void ezStringBuilder::Clear()
+W_FORCE_INLINE void WStringBuilder::Clear()
 {
   m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
 }
 
-inline void ezStringBuilder::Append(ezUInt32 uiChar)
+inline void WStringBuilder::Append(WUInt32 uiChar)
 {
   char szChar[6] = {0, 0, 0, 0, 0, 0};
   char* pChar = &szChar[0];
 
-  ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
-  ezUInt32 uiCharLen = (ezUInt32)(pChar - szChar);
-  ezUInt32 uiOldCount = m_Data.GetCount();
+  WUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
+  WUInt32 uiCharLen = (WUInt32)(pChar - szChar);
+  WUInt32 uiOldCount = m_Data.GetCount();
   m_Data.SetCountUninitialized(uiOldCount + uiCharLen);
   uiOldCount--;
-  for (ezUInt32 i = 0; i < uiCharLen; i++)
+  for (WUInt32 i = 0; i < uiCharLen; i++)
   {
     m_Data[uiOldCount + i] = szChar[i];
   }
   m_Data[uiOldCount + uiCharLen] = '\0';
 }
 
-inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
+inline void WStringBuilder::Prepend(WUInt32 uiChar)
 {
   char szChar[6] = {0, 0, 0, 0, 0, 0};
   char* pChar = &szChar[0];
 
-  ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
+  WUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
   Prepend(szChar);
 }
 
-inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void WStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
-  ezStringUtf8 s1(pData1, m_Data.GetAllocator());
-  ezStringUtf8 s2(pData2, m_Data.GetAllocator());
-  ezStringUtf8 s3(pData3, m_Data.GetAllocator());
-  ezStringUtf8 s4(pData4, m_Data.GetAllocator());
-  ezStringUtf8 s5(pData5, m_Data.GetAllocator());
-  ezStringUtf8 s6(pData6, m_Data.GetAllocator());
+  WStringUtf8 s1(pData1, m_Data.GetAllocator());
+  WStringUtf8 s2(pData2, m_Data.GetAllocator());
+  WStringUtf8 s3(pData3, m_Data.GetAllocator());
+  WStringUtf8 s4(pData4, m_Data.GetAllocator());
+  WStringUtf8 s5(pData5, m_Data.GetAllocator());
+  WStringUtf8 s6(pData6, m_Data.GetAllocator());
 
   Append(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
-inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void WStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
-  ezStringUtf8 s1(pData1, m_Data.GetAllocator());
-  ezStringUtf8 s2(pData2, m_Data.GetAllocator());
-  ezStringUtf8 s3(pData3, m_Data.GetAllocator());
-  ezStringUtf8 s4(pData4, m_Data.GetAllocator());
-  ezStringUtf8 s5(pData5, m_Data.GetAllocator());
-  ezStringUtf8 s6(pData6, m_Data.GetAllocator());
+  WStringUtf8 s1(pData1, m_Data.GetAllocator());
+  WStringUtf8 s2(pData2, m_Data.GetAllocator());
+  WStringUtf8 s3(pData3, m_Data.GetAllocator());
+  WStringUtf8 s4(pData4, m_Data.GetAllocator());
+  WStringUtf8 s5(pData5, m_Data.GetAllocator());
+  WStringUtf8 s6(pData6, m_Data.GetAllocator());
 
   Prepend(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
-EZ_ALWAYS_INLINE const char* ezStringBuilder::GetData() const
+W_ALWAYS_INLINE const char* WStringBuilder::GetData() const
 {
-  EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezStringBuilder has been corrupted, the array can never be empty.");
+  W_ASSERT_DEBUG(!m_Data.IsEmpty(), "WStringBuilder has been corrupted, the array can never be empty.");
 
   return &m_Data[0];
 }
 
-inline void ezStringBuilder::AppendTerminator()
+inline void WStringBuilder::AppendTerminator()
 {
   // make sure the string terminates with a zero.
   if (m_Data.IsEmpty() || (m_Data.PeekBack() != '\0'))
     m_Data.PushBack('\0');
 }
 
-inline void ezStringBuilder::ToUpper()
+inline void WStringBuilder::ToUpper()
 {
-  const ezUInt32 uiNewStringLength = ezStringUtils::ToUpperString(&m_Data[0]);
+  const WUInt32 uiNewStringLength = WStringUtils::ToUpperString(&m_Data[0]);
 
   // the array stores the number of bytes, so set the count to the actually used number of bytes
   m_Data.SetCountUninitialized(uiNewStringLength + 1);
 }
 
-inline void ezStringBuilder::ToLower()
+inline void WStringBuilder::ToLower()
 {
-  const ezUInt32 uiNewStringLength = ezStringUtils::ToLowerString(&m_Data[0]);
+  const WUInt32 uiNewStringLength = WStringUtils::ToLowerString(&m_Data[0]);
 
   // the array stores the number of bytes, so set the count to the actually used number of bytes
   m_Data.SetCountUninitialized(uiNewStringLength + 1);
 }
 
-inline void ezStringBuilder::ChangeCharacter(iterator& ref_it, ezUInt32 uiCharacter)
+inline void WStringBuilder::ChangeCharacter(iterator& ref_it, WUInt32 uiCharacter)
 {
-  EZ_ASSERT_DEV(ref_it.IsValid(), "The given character iterator does not point to a valid character.");
-  EZ_ASSERT_DEV(ref_it.GetData() >= GetData() && ref_it.GetData() < GetData() + GetElementCount(),
+  W_ASSERT_DEV(ref_it.IsValid(), "The given character iterator does not point to a valid character.");
+  W_ASSERT_DEV(ref_it.GetData() >= GetData() && ref_it.GetData() < GetData() + GetElementCount(),
     "The given character iterator does not point into this string. It was either created from another string, or this string "
     "has been reallocated in the mean time.");
 
   // this is only an optimization for pure ASCII strings
   // without it, the code below would still work
-  if (ezUnicodeUtils::IsASCII(*ref_it) && ezUnicodeUtils::IsASCII(uiCharacter))
+  if (WUnicodeUtils::IsASCII(*ref_it) && WUnicodeUtils::IsASCII(uiCharacter))
   {
     char* pPos = const_cast<char*>(ref_it.GetData()); // yes, I know...
     *pPos = uiCharacter & 0xFF;
@@ -194,44 +194,44 @@ inline void ezStringBuilder::ChangeCharacter(iterator& ref_it, ezUInt32 uiCharac
   ChangeCharacterNonASCII(ref_it, uiCharacter);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
+W_ALWAYS_INLINE void WStringBuilder::Reserve(WUInt32 uiNumElements)
 {
   m_Data.Reserve(uiNumElements);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStringView sTextToInsert)
+W_ALWAYS_INLINE void WStringBuilder::Insert(const char* szInsertAtPos, WStringView sTextToInsert)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, sTextToInsert);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
+W_ALWAYS_INLINE void WStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
-  ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
+  ReplaceSubString(szRemoveFromPos, szRemoveToPos, WStringView());
 }
 
 template <typename Container>
-bool ezUnicodeUtils::RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_result)
+bool WUnicodeUtils::RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_result)
 {
-  if (ezUnicodeUtils::IsValidUtf8(pStartData, pEndData))
+  if (WUnicodeUtils::IsValidUtf8(pStartData, pEndData))
   {
-    out_result = ezStringView(pStartData, pEndData);
+    out_result = WStringView(pStartData, pEndData);
     return false;
   }
 
   out_result.Clear();
 
-  ezHybridArray<char, 1024> fixedText;
-  ezUnicodeUtils::UtfInserter<char, decltype(fixedText)> inserter(&fixedText);
+  WHybridArray<char, 1024> fixedText;
+  WUnicodeUtils::UtfInserter<char, decltype(fixedText)> inserter(&fixedText);
 
   while (pStartData < pEndData)
   {
-    const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pStartData);
-    ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, inserter);
+    const WUInt32 uiChar = WUnicodeUtils::DecodeUtf8ToUtf32(pStartData);
+    WUnicodeUtils::EncodeUtf32ToUtf8(uiChar, inserter);
   }
 
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(fixedText.GetData(), fixedText.GetData() + fixedText.GetCount()), "Repaired text is still not a valid Utf8 string.");
+  W_ASSERT_DEV(WUnicodeUtils::IsValidUtf8(fixedText.GetData(), fixedText.GetData() + fixedText.GetCount()), "Repaired text is still not a valid Utf8 string.");
 
-  out_result = ezStringView(fixedText.GetData(), fixedText.GetCount());
+  out_result = WStringView(fixedText.GetData(), fixedText.GetCount());
   return true;
 }
 

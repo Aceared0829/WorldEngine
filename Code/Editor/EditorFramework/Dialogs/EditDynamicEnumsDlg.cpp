@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtEditDynamicEnumsDlg::WQtEditDynamicEnumsDlg(WDynamicStringEnum* pEnum, QWidget* pParent)
+  : WQtDialog(pParent)
 {
   m_pEnum = pEnum;
   m_Values = m_pEnum->GetAllValidValues();
@@ -14,7 +14,7 @@ ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWi
   FillList();
 }
 
-void ezQtEditDynamicEnumsDlg::FillList()
+void WQtEditDynamicEnumsDlg::FillList()
 {
   EnumValues->blockSignals(true);
 
@@ -30,7 +30,7 @@ void ezQtEditDynamicEnumsDlg::FillList()
   // on_EnumValues_itemSelectionChanged();
 }
 
-bool ezQtEditDynamicEnumsDlg::EditItem(ezString& item)
+bool WQtEditDynamicEnumsDlg::EditItem(WString& item)
 {
   bool ok = false;
   QString newValue = QInputDialog::getText(this, "Edit Value", "Value:", QLineEdit::Normal, item.GetData(), &ok);
@@ -44,7 +44,7 @@ bool ezQtEditDynamicEnumsDlg::EditItem(ezString& item)
   return true;
 }
 
-void ezQtEditDynamicEnumsDlg::on_ButtonAdd_clicked()
+void WQtEditDynamicEnumsDlg::on_ButtonAdd_clicked()
 {
   m_Values.PushBack("New Item");
 
@@ -56,16 +56,16 @@ void ezQtEditDynamicEnumsDlg::on_ButtonAdd_clicked()
 
   FillList();
 
-  EnumValues->setCurrentRow((ezInt32)m_Values.GetCount() - 1);
+  EnumValues->setCurrentRow((WInt32)m_Values.GetCount() - 1);
 
-  // EnumValues->setCurrentIndex(QModelIndex((ezInt32)m_Values.GetCount() - 1, 0));
+  // EnumValues->setCurrentIndex(QModelIndex((WInt32)m_Values.GetCount() - 1, 0));
 }
 
-void ezQtEditDynamicEnumsDlg::on_ButtonRemove_clicked()
+void WQtEditDynamicEnumsDlg::on_ButtonRemove_clicked()
 {
-  const ezInt32 idx = EnumValues->currentIndex().row();
+  const WInt32 idx = EnumValues->currentIndex().row();
 
-  if (idx < 0 || idx >= (ezInt32)m_Values.GetCount())
+  if (idx < 0 || idx >= (WInt32)m_Values.GetCount())
     return;
 
   // if (QMessageBox::question(this, "Remove Item?", QString("Remove item '%1' ?").arg(m_Values[idx].GetData()), QMessageBox::Yes | QMessageBox::No,
@@ -76,10 +76,10 @@ void ezQtEditDynamicEnumsDlg::on_ButtonRemove_clicked()
   m_Values.RemoveAtAndCopy(idx);
 
   FillList();
-  EnumValues->setCurrentRow(ezMath::Min(idx, (ezInt32)m_Values.GetCount() - 1));
+  EnumValues->setCurrentRow(WMath::Min(idx, (WInt32)m_Values.GetCount() - 1));
 }
 
-void ezQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
+void WQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
 {
   if (button == Buttons->button(QDialogButtonBox::Cancel))
   {
@@ -110,7 +110,7 @@ void ezQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
     {
       const auto& values = m_pEnum->GetAllValidValues();
       m_iSelectedItem = values.IndexOf(pItem->text().toUtf8().data());
-      m_iSelectedItem = ezMath::Min(m_iSelectedItem, (ezInt32)values.GetCount() - 1);
+      m_iSelectedItem = WMath::Min(m_iSelectedItem, (WInt32)values.GetCount() - 1);
     }
 
     accept();
@@ -118,11 +118,11 @@ void ezQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
   }
 }
 
-void ezQtEditDynamicEnumsDlg::on_EnumValues_itemDoubleClicked(QListWidgetItem* item)
+void WQtEditDynamicEnumsDlg::on_EnumValues_itemDoubleClicked(QListWidgetItem* item)
 {
-  const ezInt32 idx = EnumValues->currentIndex().row();
+  const WInt32 idx = EnumValues->currentIndex().row();
 
-  if (idx < 0 || idx >= (ezInt32)m_Values.GetCount())
+  if (idx < 0 || idx >= (WInt32)m_Values.GetCount())
     return;
 
   if (!EditItem(m_Values[idx]))

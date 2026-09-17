@@ -6,59 +6,59 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WSubSystem);
 
-bool ezStartup::s_bPrintAllSubSystems = true;
-ezStartupStage::Enum ezStartup::s_CurrentState = ezStartupStage::None;
-ezDynamicArray<const char*> ezStartup::s_ApplicationTags;
+bool WStartup::s_bPrintAllSubSystems = true;
+WStartupStage::Enum WStartup::s_CurrentState = WStartupStage::None;
+WDynamicArray<const char*> WStartup::s_ApplicationTags;
 
 
-void ezStartup::AddApplicationTag(const char* szTag)
+void WStartup::AddApplicationTag(const char* szTag)
 {
   s_ApplicationTags.PushBack(szTag);
 }
 
-bool ezStartup::HasApplicationTag(const char* szTag)
+bool WStartup::HasApplicationTag(const char* szTag)
 {
-  for (ezUInt32 i = 0; i < s_ApplicationTags.GetCount(); ++i)
+  for (WUInt32 i = 0; i < s_ApplicationTags.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual_NoCase(s_ApplicationTags[i], szTag))
+    if (WStringUtils::IsEqual_NoCase(s_ApplicationTags[i], szTag))
       return true;
   }
 
   return false;
 }
 
-void ezStartup::PrintAllSubsystems()
+void WStartup::PrintAllSubsystems()
 {
-  EZ_LOG_BLOCK("Available Subsystems");
+  W_LOG_BLOCK("Available Subsystems");
 
-  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+  WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
   while (pSub)
   {
-    ezLog::Debug("Subsystem: '{0}::{1}'", pSub->GetGroupName(), pSub->GetSubSystemName());
+    WLog::Debug("Subsystem: '{0}::{1}'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
     if (pSub->GetDependency(0) == nullptr)
-      ezLog::Debug("  <no dependencies>");
+      WLog::Debug("  <no dependencies>");
     else
     {
-      for (ezInt32 i = 0; pSub->GetDependency(i) != nullptr; ++i)
-        ezLog::Debug("  depends on '{0}'", pSub->GetDependency(i));
+      for (WInt32 i = 0; pSub->GetDependency(i) != nullptr; ++i)
+        WLog::Debug("  depends on '{0}'", pSub->GetDependency(i));
     }
 
-    ezLog::Debug("");
+    WLog::Debug("");
 
     pSub = pSub->GetNextInstance();
   }
 }
 
-void ezStartup::AssignSubSystemPlugin(ezStringView sPluginName)
+void WStartup::AssignSubSystemPlugin(WStringView sPluginName)
 {
   // iterates over all existing subsystems and finds those that have no plugin name yet
   // assigns the given name to them
 
-  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+  WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
   while (pSub)
   {
@@ -71,31 +71,31 @@ void ezStartup::AssignSubSystemPlugin(ezStringView sPluginName)
   }
 }
 
-void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
+void WStartup::PluginEventHandler(const WPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPluginEvent::BeforeLoading:
+    case WPluginEvent::BeforeLoading:
     {
       AssignSubSystemPlugin("Static");
     }
     break;
 
-    case ezPluginEvent::AfterLoadingBeforeInit:
+    case WPluginEvent::AfterLoadingBeforeInit:
     {
       AssignSubSystemPlugin(EventData.m_sPluginBinary);
     }
     break;
 
-    case ezPluginEvent::StartupShutdown:
+    case WPluginEvent::StartupShutdown:
     {
-      ezStartup::UnloadPluginSubSystems(EventData.m_sPluginBinary);
+      WStartup::UnloadPluginSubSystems(EventData.m_sPluginBinary);
     }
     break;
 
-    case ezPluginEvent::AfterPluginChanges:
+    case WPluginEvent::AfterPluginChanges:
     {
-      ezStartup::ReinitToCurrentState();
+      WStartup::ReinitToCurrentState();
     }
     break;
 
@@ -104,9 +104,9 @@ void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-static bool IsGroupName(ezStringView sName)
+static bool IsGroupName(WStringView sName)
 {
-  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+  WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
   bool bGroup = false;
   bool bSubSystem = false;
@@ -122,14 +122,14 @@ static bool IsGroupName(ezStringView sName)
     pSub = pSub->GetNextInstance();
   }
 
-  EZ_ASSERT_ALWAYS(!bGroup || !bSubSystem, "There cannot be a SubSystem AND a Group called '{0}'.", sName);
+  W_ASSERT_ALWAYS(!bGroup || !bSubSystem, "There cannot be a SubSystem AND a Group called '{0}'.", sName);
 
   return bGroup;
 }
 
-static ezStringView GetGroupSubSystems(ezStringView sGroup, ezInt32 iSubSystem)
+static WStringView GetGroupSubSystems(WStringView sGroup, WInt32 iSubSystem)
 {
-  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+  WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
   while (pSub)
   {
@@ -147,10 +147,10 @@ static ezStringView GetGroupSubSystems(ezStringView sGroup, ezInt32 iSubSystem)
   return nullptr;
 }
 
-void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
+void WStartup::ComputeOrder(WDeque<WSubSystem*>& Order)
 {
   Order.Clear();
-  ezSet<ezString> sSystemsInited;
+  WSet<WString> sSystemsInited;
 
   bool bCouldInitAny = true;
 
@@ -158,21 +158,21 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
   {
     bCouldInitAny = false;
 
-    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+    WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
     while (pSub)
     {
       if (!sSystemsInited.Find(pSub->GetSubSystemName()).IsValid())
       {
         bool bAllDependsFulfilled = true;
-        ezInt32 iDep = 0;
+        WInt32 iDep = 0;
 
         while (pSub->GetDependency(iDep) != nullptr)
         {
           if (IsGroupName(pSub->GetDependency(iDep)))
           {
-            ezInt32 iSubSystemIndex = 0;
-            ezStringView sNextSubSystem = GetGroupSubSystems(pSub->GetDependency(iDep), iSubSystemIndex);
+            WInt32 iSubSystemIndex = 0;
+            WStringView sNextSubSystem = GetGroupSubSystems(pSub->GetDependency(iDep), iSubSystemIndex);
             while (sNextSubSystem.IsValid())
             {
               if (!sSystemsInited.Find(sNextSubSystem).IsValid())
@@ -210,20 +210,20 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
   }
 }
 
-void ezStartup::Startup(ezStartupStage::Enum stage)
+void WStartup::Startup(WStartupStage::Enum stage)
 {
-  if (stage == ezStartupStage::BaseSystems)
+  if (stage == WStartupStage::BaseSystems)
   {
-    ezFoundation::Initialize();
+    WFoundation::Initialize();
   }
 
   const char* szStartup[] = {"Startup Base", "Startup Core", "Startup Engine"};
 
-  if (stage == ezStartupStage::CoreSystems)
+  if (stage == WStartupStage::CoreSystems)
   {
-    Startup(ezStartupStage::BaseSystems);
+    Startup(WStartupStage::BaseSystems);
 
-    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN);
+    WGlobalEvent::Broadcast(W_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN);
 
     if (s_bPrintAllSubSystems)
     {
@@ -232,19 +232,19 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
     }
   }
 
-  if (stage == ezStartupStage::HighLevelSystems)
+  if (stage == WStartupStage::HighLevelSystems)
   {
-    Startup(ezStartupStage::CoreSystems);
+    Startup(WStartupStage::CoreSystems);
 
-    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN);
+    WGlobalEvent::Broadcast(W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN);
   }
 
-  EZ_LOG_BLOCK(szStartup[stage]);
+  W_LOG_BLOCK(szStartup[stage]);
 
-  ezDeque<ezSubSystem*> Order;
+  WDeque<WSubSystem*> Order;
   ComputeOrder(Order);
 
-  for (ezUInt32 i = 0; i < Order.GetCount(); ++i)
+  for (WUInt32 i = 0; i < Order.GetCount(); ++i)
   {
     if (!Order[i]->m_bStartupDone[stage])
     {
@@ -252,16 +252,16 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
       switch (stage)
       {
-        case ezStartupStage::BaseSystems:
-          ezLog::Debug("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+        case WStartupStage::BaseSystems:
+          WLog::Debug("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnBaseSystemsStartup();
           break;
-        case ezStartupStage::CoreSystems:
-          ezLog::Debug("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+        case WStartupStage::CoreSystems:
+          WLog::Debug("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnCoreSystemsStartup();
           break;
-        case ezStartupStage::HighLevelSystems:
-          ezLog::Debug("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+        case WStartupStage::HighLevelSystems:
+          WLog::Debug("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnHighLevelSystemsStartup();
           break;
 
@@ -273,11 +273,11 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   // now everything should be started
   {
-    EZ_LOG_BLOCK("Failed SubSystems");
+    W_LOG_BLOCK("Failed SubSystems");
 
-    ezSet<ezString> sSystemsFound;
+    WSet<WString> sSystemsFound;
 
-    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+    WSubSystem* pSub = WSubSystem::GetFirstInstance();
 
     while (pSub)
     {
@@ -285,24 +285,24 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       pSub = pSub->GetNextInstance();
     }
 
-    pSub = ezSubSystem::GetFirstInstance();
+    pSub = WSubSystem::GetFirstInstance();
 
     while (pSub)
     {
       if (!pSub->m_bStartupDone[stage])
       {
-        ezInt32 iDep = 0;
+        WInt32 iDep = 0;
 
         while (pSub->GetDependency(iDep) != nullptr)
         {
           if (!sSystemsFound.Find(pSub->GetDependency(iDep)).IsValid())
           {
-            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' is unknown.", pSub->GetGroupName(),
+            WLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' is unknown.", pSub->GetGroupName(),
               pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
           else
           {
-            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' has not been initialized.", pSub->GetGroupName(),
+            WLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' has not been initialized.", pSub->GetGroupName(),
               pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
 
@@ -316,71 +316,71 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   switch (stage)
   {
-    case ezStartupStage::BaseSystems:
+    case WStartupStage::BaseSystems:
       break;
-    case ezStartupStage::CoreSystems:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END);
+    case WStartupStage::CoreSystems:
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_STARTUP_CORESYSTEMS_END);
       break;
-    case ezStartupStage::HighLevelSystems:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END);
+    case WStartupStage::HighLevelSystems:
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END);
       break;
 
     default:
       break;
   }
 
-  if (s_CurrentState == ezStartupStage::None)
+  if (s_CurrentState == WStartupStage::None)
   {
-    ezPlugin::Events().AddEventHandler(PluginEventHandler);
+    WPlugin::Events().AddEventHandler(PluginEventHandler);
   }
 
   s_CurrentState = stage;
 }
 
-void ezStartup::Shutdown(ezStartupStage::Enum stage)
+void WStartup::Shutdown(WStartupStage::Enum stage)
 {
   // without that we cannot function, so make sure it is up and running
-  ezFoundation::Initialize();
+  WFoundation::Initialize();
 
   {
     const char* szStartup[] = {"Shutdown Base", "Shutdown Core", "Shutdown Engine"};
 
-    if (stage == ezStartupStage::BaseSystems)
+    if (stage == WStartupStage::BaseSystems)
     {
-      Shutdown(ezStartupStage::CoreSystems);
+      Shutdown(WStartupStage::CoreSystems);
     }
 
-    if (stage == ezStartupStage::CoreSystems)
+    if (stage == WStartupStage::CoreSystems)
     {
-      Shutdown(ezStartupStage::HighLevelSystems);
+      Shutdown(WStartupStage::HighLevelSystems);
       s_bPrintAllSubSystems = true;
 
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN);
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN);
     }
 
-    if (stage == ezStartupStage::HighLevelSystems)
+    if (stage == WStartupStage::HighLevelSystems)
     {
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN);
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN);
     }
 
-    EZ_LOG_BLOCK(szStartup[stage]);
+    W_LOG_BLOCK(szStartup[stage]);
 
-    ezDeque<ezSubSystem*> Order;
+    WDeque<WSubSystem*> Order;
     ComputeOrder(Order);
 
-    for (ezInt32 i = (ezInt32)Order.GetCount() - 1; i >= 0; --i)
+    for (WInt32 i = (WInt32)Order.GetCount() - 1; i >= 0; --i)
     {
       if (Order[i]->m_bStartupDone[stage])
       {
         switch (stage)
         {
-          case ezStartupStage::CoreSystems:
-            ezLog::Debug("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
+          case WStartupStage::CoreSystems:
+            WLog::Debug("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
             Order[i]->OnCoreSystemsShutdown();
             break;
 
-          case ezStartupStage::HighLevelSystems:
-            ezLog::Debug("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
+          case WStartupStage::HighLevelSystems:
+            WLog::Debug("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
             Order[i]->OnHighLevelSystemsShutdown();
             break;
 
@@ -395,37 +395,37 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
   switch (stage)
   {
-    case ezStartupStage::CoreSystems:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END);
+    case WStartupStage::CoreSystems:
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END);
       break;
 
-    case ezStartupStage::HighLevelSystems:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END);
+    case WStartupStage::HighLevelSystems:
+      WGlobalEvent::Broadcast(W_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END);
       break;
 
     default:
       break;
   }
 
-  if (s_CurrentState != ezStartupStage::None)
+  if (s_CurrentState != WStartupStage::None)
   {
-    s_CurrentState = (ezStartupStage::Enum)(((ezInt32)stage) - 1);
+    s_CurrentState = (WStartupStage::Enum)(((WInt32)stage) - 1);
 
-    if (s_CurrentState == ezStartupStage::None)
+    if (s_CurrentState == WStartupStage::None)
     {
-      ezPlugin::Events().RemoveEventHandler(PluginEventHandler);
+      WPlugin::Events().RemoveEventHandler(PluginEventHandler);
     }
   }
 }
 
-bool ezStartup::HasDependencyOnPlugin(ezSubSystem* pSubSystem, ezStringView sModule)
+bool WStartup::HasDependencyOnPlugin(WSubSystem* pSubSystem, WStringView sModule)
 {
   if (pSubSystem->m_sPluginName == sModule)
     return true;
 
-  for (ezUInt32 i = 0; pSubSystem->GetDependency(i) != nullptr; ++i)
+  for (WUInt32 i = 0; pSubSystem->GetDependency(i) != nullptr; ++i)
   {
-    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+    WSubSystem* pSub = WSubSystem::GetFirstInstance();
     while (pSub)
     {
       if (pSub->GetSubSystemName() == pSubSystem->GetDependency(i))
@@ -443,42 +443,42 @@ bool ezStartup::HasDependencyOnPlugin(ezSubSystem* pSubSystem, ezStringView sMod
   return false;
 }
 
-void ezStartup::UnloadPluginSubSystems(ezStringView sPluginName)
+void WStartup::UnloadPluginSubSystems(WStringView sPluginName)
 {
-  EZ_LOG_BLOCK("Unloading Plugin SubSystems", sPluginName);
-  ezLog::Dev("Plugin to unload: '{0}'", sPluginName);
+  W_LOG_BLOCK("Unloading Plugin SubSystems", sPluginName);
+  WLog::Dev("Plugin to unload: '{0}'", sPluginName);
 
-  ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN, ezVariant(sPluginName));
+  WGlobalEvent::Broadcast(W_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN, WVariant(sPluginName));
 
-  ezDeque<ezSubSystem*> Order;
+  WDeque<WSubSystem*> Order;
   ComputeOrder(Order);
 
-  for (ezInt32 i = (ezInt32)Order.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)Order.GetCount() - 1; i >= 0; --i)
   {
-    if (Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] && HasDependencyOnPlugin(Order[i], sPluginName))
+    if (Order[i]->m_bStartupDone[WStartupStage::HighLevelSystems] && HasDependencyOnPlugin(Order[i], sPluginName))
     {
-      ezLog::Info("Engine shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), sPluginName);
+      WLog::Info("Engine shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), sPluginName);
       Order[i]->OnHighLevelSystemsShutdown();
-      Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] = false;
+      Order[i]->m_bStartupDone[WStartupStage::HighLevelSystems] = false;
     }
   }
 
-  for (ezInt32 i = (ezInt32)Order.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)Order.GetCount() - 1; i >= 0; --i)
   {
-    if (Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] && HasDependencyOnPlugin(Order[i], sPluginName))
+    if (Order[i]->m_bStartupDone[WStartupStage::CoreSystems] && HasDependencyOnPlugin(Order[i], sPluginName))
     {
-      ezLog::Info("Core shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), sPluginName);
+      WLog::Info("Core shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), sPluginName);
       Order[i]->OnCoreSystemsShutdown();
-      Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] = false;
+      Order[i]->m_bStartupDone[WStartupStage::CoreSystems] = false;
     }
   }
 
 
-  ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_UNLOAD_PLUGIN_END, ezVariant(sPluginName));
+  WGlobalEvent::Broadcast(W_GLOBALEVENT_UNLOAD_PLUGIN_END, WVariant(sPluginName));
 }
 
-void ezStartup::ReinitToCurrentState()
+void WStartup::ReinitToCurrentState()
 {
-  if (s_CurrentState != ezStartupStage::None)
+  if (s_CurrentState != WStartupStage::None)
     Startup(s_CurrentState);
 }

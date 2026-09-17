@@ -13,38 +13,38 @@ namespace
 {
   struct AssetToCheck
   {
-    ezUuid m_Guid;
-    ezString m_sAbsPath;
-    ezString m_sRelPath;
-    ezString m_sDocTypeName;
+    WUuid m_Guid;
+    WString m_sAbsPath;
+    WString m_sRelPath;
+    WString m_sDocTypeName;
   };
 } // namespace
 
-void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary& out_summary)
+void WAssetChecker::Run(const WAssetCheckOptions& options, WAssetCheckSummary& out_summary)
 {
-  ezSearchPatternFilter nameFilter;
+  WSearchPatternFilter nameFilter;
   nameFilter.SetSearchText(options.m_sNameFilter);
 
   // Cache per-document-type whether any selected rule applies, so we don't re-check all rules for every asset.
-  ezMap<ezString, bool> ruleAppliesToDocType;
+  WMap<WString, bool> ruleAppliesToDocType;
 
   // 1. Snapshot the matching assets under the curator lock, then release it before opening documents.
-  ezDynamicArray<AssetToCheck> assets;
+  WDynamicArray<AssetToCheck> assets;
   {
-    auto pKnownAssets = ezAssetCurator::GetSingleton()->GetKnownAssets();
+    auto pKnownAssets = WAssetCurator::GetSingleton()->GetKnownAssets();
 
     for (auto it = pKnownAssets->GetIterator(); it.IsValid(); ++it)
     {
-      const ezAssetInfo* pInfo = it.Value();
+      const WAssetInfo* pInfo = it.Value();
       if (pInfo == nullptr || pInfo->m_pDocumentTypeDescriptor == nullptr)
         continue;
 
-      const ezString& sDocTypeName = pInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+      const WString& sDocTypeName = pInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
 
       if (!options.m_sDocumentTypeName.IsEmpty() && options.m_sDocumentTypeName != sDocTypeName)
         continue;
 
-      const ezStringView sRelPath = pInfo->m_Path.GetDataDirParentRelativePath();
+      const WStringView sRelPath = pInfo->m_Path.GetDataDirParentRelativePath();
 
       if (!nameFilter.IsEmpty() && !nameFilter.PassesFilters(sRelPath))
         continue;
@@ -57,7 +57,7 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
       }
       else
       {
-        for (const ezAssetCheckRule* pRule : options.m_Rules)
+        for (const WAssetCheckRule* pRule : options.m_Rules)
         {
           if (pRule->AppliesToDocumentType(sDocTypeName))
           {
@@ -83,7 +83,7 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
   if (assets.IsEmpty())
     return;
 
-  ezProgressRange range("Checking Assets", assets.GetCount(), true);
+  WProgressRange range("Checking Assets", assets.GetCount(), true);
 
   for (const AssetToCheck& asset : assets)
   {
@@ -93,31 +93,31 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
       break;
     }
 
-    ezStringBuilder sFileName = asset.m_sRelPath;
+    WStringBuilder sFileName = asset.m_sRelPath;
     range.BeginNextStep(sFileName.GetFileNameAndExtension());
 
     ++out_summary.m_uiAssetsChecked;
 
     // 3. Open the document (reuse an already open one).
     bool bWasOpen = false;
-    ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(asset.m_Guid);
+    WDocument* pDoc = WDocumentManager::GetDocumentByGuid(asset.m_Guid);
     if (pDoc != nullptr)
     {
       bWasOpen = true;
     }
     else
     {
-      pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(asset.m_sAbsPath, ezDocumentFlags::None);
+      pDoc = WQtEditorApp::GetSingleton()->OpenDocument(asset.m_sAbsPath, WDocumentFlags::None);
     }
 
     if (pDoc == nullptr)
     {
-      ezAssetCheckResult& result = out_summary.m_Results.ExpandAndGetRef();
+      WAssetCheckResult& result = out_summary.m_Results.ExpandAndGetRef();
       result.m_AssetGuid = asset.m_Guid;
       result.m_sAssetPath = asset.m_sRelPath;
       result.m_sAbsAssetPath = asset.m_sAbsPath;
-      ezAssetCheckNote& note = result.m_Notes.ExpandAndGetRef();
-      note.m_Severity = ezAssetCheckSeverity::Error;
+      WAssetCheckNote& note = result.m_Notes.ExpandAndGetRef();
+      note.m_Severity = WAssetCheckSeverity::Error;
       note.m_sMessage = "Could not open asset document.";
       ++out_summary.m_uiErrors;
       continue;
@@ -125,18 +125,18 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
 
     const bool bHadUnsavedChanges = pDoc->IsModified();
 
-    ezDynamicArray<ezAssetCheckNote> notes;
-    ezUInt32 uiTotalFixes = 0;
+    WDynamicArray<WAssetCheckNote> notes;
+    WUInt32 uiTotalFixes = 0;
 
-    ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
+    WObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
 
     // 5. Run each rule that applies to this document type.
-    for (ezAssetCheckRule* pRule : options.m_Rules)
+    for (WAssetCheckRule* pRule : options.m_Rules)
     {
       if (!pRule->AppliesToDocumentType(asset.m_sDocTypeName))
         continue;
 
-      ezAssetCheckContext ctx;
+      WAssetCheckContext ctx;
       ctx.m_pDocument = pDoc;
       ctx.m_pNotes = &notes;
       ctx.m_uiFixCount = 0;
@@ -144,7 +144,7 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
 
       if (ctx.m_bAutoFix)
       {
-        ezStringBuilder sTransaction;
+        WStringBuilder sTransaction;
         sTransaction.SetFormat("Asset Check: {}", pRule->GetDisplayName());
         pAcc->StartTransaction(sTransaction);
 
@@ -169,19 +169,19 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
     {
       if (bHadUnsavedChanges)
       {
-        ezAssetCheckNote& note = notes.ExpandAndGetRef();
-        note.m_Severity = ezAssetCheckSeverity::Warning;
+        WAssetCheckNote& note = notes.ExpandAndGetRef();
+        note.m_Severity = WAssetCheckSeverity::Warning;
         note.m_sMessage = "Document had unsaved changes; fixes were applied but the document was not saved automatically.";
       }
       else
       {
-        const ezStatus res = pDoc->SaveDocument(true);
+        const WStatus res = pDoc->SaveDocument(true);
         if (res.Failed())
         {
-          ezStringBuilder sMsg;
+          WStringBuilder sMsg;
           sMsg.SetFormat("Failed to save document: {}", res.GetMessageString());
-          ezAssetCheckNote& note = notes.ExpandAndGetRef();
-          note.m_Severity = ezAssetCheckSeverity::Error;
+          WAssetCheckNote& note = notes.ExpandAndGetRef();
+          note.m_Severity = WAssetCheckSeverity::Error;
           note.m_sMessage = sMsg;
         }
         else
@@ -201,16 +201,16 @@ void ezAssetChecker::Run(const ezAssetCheckOptions& options, ezAssetCheckSummary
     // 8. Accumulate counts and record the result if there is anything to report.
     if (!notes.IsEmpty())
     {
-      ezAssetCheckResult& result = out_summary.m_Results.ExpandAndGetRef();
+      WAssetCheckResult& result = out_summary.m_Results.ExpandAndGetRef();
       result.m_AssetGuid = asset.m_Guid;
       result.m_sAssetPath = asset.m_sRelPath;
       result.m_sAbsAssetPath = asset.m_sAbsPath;
       result.m_Notes = notes;
       result.m_bSaved = bSaved;
 
-      for (const ezAssetCheckNote& note : notes)
+      for (const WAssetCheckNote& note : notes)
       {
-        if (note.m_Severity == ezAssetCheckSeverity::Error)
+        if (note.m_Severity == WAssetCheckSeverity::Error)
           ++out_summary.m_uiErrors;
         else
           ++out_summary.m_uiWarnings;

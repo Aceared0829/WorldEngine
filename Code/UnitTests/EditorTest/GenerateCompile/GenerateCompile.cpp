@@ -5,201 +5,201 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-static ezEditorTestGenerateCompilePacMan s_ezEditorTestGenerateCompilePacMan;
+static WEditorTestGenerateCompilePacMan s_WEditorTestGenerateCompilePacMan;
 
-const char* ezEditorTestGenerateCompilePacMan::GetTestName() const
+const char* WEditorTestGenerateCompilePacMan::GetTestName() const
 {
   return "Generate and Compile";
 }
 
-void ezEditorTestGenerateCompilePacMan::SetupSubTests()
+void WEditorTestGenerateCompilePacMan::SetupSubTests()
 {
   AddSubTest("01 - Generate and Compile", SubTests::ST_GenerateAndCompile);
   AddSubTest("02 - EditorProcessor: Compile Only", SubTests::ST_EditorProcessorCompileOnly);
   AddSubTest("03 - EditorProcessor: Compile and Transform", SubTests::ST_EditorProcessorCompileAndTransform);
 }
 
-ezResult ezEditorTestGenerateCompilePacMan::InitializeTest()
+WResult WEditorTestGenerateCompilePacMan::InitializeTest()
 {
   if (SUPER::InitializeTest().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (SUPER::OpenProject("Data/Samples/PacMan").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (ezCppProject::ForceSdkCompatibleCompiler().Failed())
+  if (WCppProject::ForceSdkCompatibleCompiler().Failed())
   {
-    ezLog::Error("Failed to autodetect SDK compatible compiler for testing");
-    return EZ_FAILURE;
+    WLog::Error("Failed to autodetect SDK compatible compiler for testing");
+    return W_FAILURE;
   }
-  ezPreferences::SaveApplicationPreferences();
+  WPreferences::SaveApplicationPreferences();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorTestGenerateCompilePacMan::DeInitializeTest()
+WResult WEditorTestGenerateCompilePacMan::DeInitializeTest()
 {
   if (!m_sProjectPath.IsEmpty())
   {
     // The build results take up vast amounts of memory and prolong test result upload.
-    ezStringBuilder buildOutput = m_sProjectPath;
+    WStringBuilder buildOutput = m_sProjectPath;
     buildOutput.AppendPath("CppSource", "Build");
-    ezOSFile::DeleteFolder(buildOutput).IgnoreResult();
+    WOSFile::DeleteFolder(buildOutput).IgnoreResult();
   }
 
   if (SUPER::DeInitializeTest().Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezEditorTestGenerateCompile::PrepareCompile(ezStringBuilder& dllPath)
+WStatus WEditorTestGenerateCompile::PrepareCompile(WStringBuilder& dllPath)
 {
   // Delete any existing build artifacts
-  dllPath = ezOSFile::GetApplicationDirectory();
+  dllPath = WOSFile::GetApplicationDirectory();
   dllPath.AppendPath(m_sProjectName);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   dllPath.Append("Plugin.dll");
 #else
   dllPath.Append("Plugin.so");
 #endif
 
-  ezOSFile::DeleteFile(dllPath).IgnoreResult();
+  WOSFile::DeleteFile(dllPath).IgnoreResult();
 
-  if (!EZ_TEST_BOOL(!ezOSFile::ExistsFile(dllPath)))
+  if (!W_TEST_BOOL(!WOSFile::ExistsFile(dllPath)))
   {
-    return ezStatus("Failed to delete existing build artifacts - DLL or bundle file still exists");
+    return WStatus("Failed to delete existing build artifacts - DLL or bundle file still exists");
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileOnly()
+WStatus WEditorTestGenerateCompile::EditorProcessorCompileOnly()
 {
-  ezStringBuilder dllPath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
+  WStringBuilder dllPath;
+  W_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
   // Run EditorProcessor with -compile flag
-  ezDynamicArray<ezString> arguments;
+  WDynamicArray<WString> arguments;
   arguments.PushBack("-project");
   arguments.PushBack(m_sProjectPath);
   arguments.PushBack("-compile");
   arguments.PushBack("-outputDir");
-  ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder userDataDir = WTestFramework::GetInstance()->GetAbsOutputPath();
   userDataDir.AppendPath(GetTestName());
   userDataDir.MakeCleanPath();
   arguments.PushBack(userDataDir);
 
-  EZ_SUCCEED_OR_RETURN(RunEditorProcessor(arguments));
+  W_SUCCEED_OR_RETURN(RunEditorProcessor(arguments));
 
   // Verify that the DLL and bundle files have been created
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(dllPath));
+  W_TEST_BOOL(WOSFile::ExistsFile(dllPath));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileAndTransform()
+WStatus WEditorTestGenerateCompile::EditorProcessorCompileAndTransform()
 {
   // Delete AssetCache folder before the test
-  ezStringBuilder assetCachePath = m_sProjectPath;
+  WStringBuilder assetCachePath = m_sProjectPath;
   assetCachePath.AppendPath("AssetCache");
 
-  if (ezOSFile::ExistsDirectory(assetCachePath) && ezOSFile::DeleteFolder(assetCachePath).Failed())
+  if (WOSFile::ExistsDirectory(assetCachePath) && WOSFile::DeleteFolder(assetCachePath).Failed())
   {
-    return ezStatus(ezFmt("Failed to delete asset cache folder: {}", assetCachePath));
+    return WStatus(WFmt("Failed to delete asset cache folder: {}", assetCachePath));
   }
 
-  ezStringBuilder dllPath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
+  WStringBuilder dllPath;
+  W_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
   // Run EditorProcessor with -compile and -transform flags
-  ezDynamicArray<ezString> arguments;
+  WDynamicArray<WString> arguments;
   arguments.PushBack("-project");
   arguments.PushBack(m_sProjectPath);
   arguments.PushBack("-compile");
   arguments.PushBack("-transform");
   arguments.PushBack("Default");
   arguments.PushBack("-outputDir");
-  ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder userDataDir = WTestFramework::GetInstance()->GetAbsOutputPath();
   userDataDir.AppendPath(GetTestName());
   userDataDir.MakeCleanPath();
   arguments.PushBack(userDataDir);
 
-  EZ_SUCCEED_OR_RETURN(RunEditorProcessor(arguments));
+  W_SUCCEED_OR_RETURN(RunEditorProcessor(arguments));
 
   // Verify that the AssetCache folder has been created
-  EZ_TEST_BOOL(ezOSFile::ExistsDirectory(assetCachePath));
+  W_TEST_BOOL(WOSFile::ExistsDirectory(assetCachePath));
 
-  // Verify that Default.ezAidlt exists in AssetCache
-  ezStringBuilder aidltPath = assetCachePath;
-  aidltPath.AppendPath("Default.ezAidlt");
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(aidltPath));
+  // Verify that Default.WAidlt exists in AssetCache
+  WStringBuilder aidltPath = assetCachePath;
+  aidltPath.AppendPath("Default.WAidlt");
+  W_TEST_BOOL(WOSFile::ExistsFile(aidltPath));
 
   // Verify that the DLL and bundle files have been created
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(dllPath));
+  W_TEST_BOOL(WOSFile::ExistsFile(dllPath));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezEditorTestGenerateCompile::GenerateAndCompile()
+WStatus WEditorTestGenerateCompile::GenerateAndCompile()
 {
-  ezStringBuilder dllPath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
+  WStringBuilder dllPath;
+  W_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
-  ezCppSettings cpp;
-  if (!EZ_TEST_RESULT(cpp.Load()))
-    return ezStatus(EZ_FAILURE);
+  WCppSettings cpp;
+  if (!W_TEST_RESULT(cpp.Load()))
+    return WStatus(W_FAILURE);
 
-  ezString sBuildDir = ezCppProject::GetBuildDir(cpp);
-  if (ezOSFile::ExistsDirectory(sBuildDir))
+  WString sBuildDir = WCppProject::GetBuildDir(cpp);
+  if (WOSFile::ExistsDirectory(sBuildDir))
   {
-    if (!EZ_TEST_RESULT(ezOSFile::DeleteFolder(sBuildDir)))
-      return ezStatus(EZ_FAILURE);
+    if (!W_TEST_RESULT(WOSFile::DeleteFolder(sBuildDir)))
+      return WStatus(W_FAILURE);
   }
 
-  if (!EZ_TEST_RESULT(ezCppProject::RunCMake(cpp)))
-    return ezStatus(EZ_FAILURE);
+  if (!W_TEST_RESULT(WCppProject::RunCMake(cpp)))
+    return WStatus(W_FAILURE);
 
-  EZ_TEST_BOOL(ezCppProject::ExistsProjectCMakeListsTxt());
-  EZ_TEST_BOOL(ezCppProject::ExistsSolution(cpp));
+  W_TEST_BOOL(WCppProject::ExistsProjectCMakeListsTxt());
+  W_TEST_BOOL(WCppProject::ExistsSolution(cpp));
 
-  EZ_TEST_RESULT(ezCppProject::BuildCodeIfNecessary(cpp));
+  W_TEST_RESULT(WCppProject::BuildCodeIfNecessary(cpp));
   ProcessEvents();
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTestAppRun ezEditorTestGenerateCompilePacMan::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WEditorTestGenerateCompilePacMan::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   ProcessEvents();
   switch (iIdentifier)
   {
     case SubTests::ST_GenerateAndCompile:
     {
-      EZ_TEST_STATUS(GenerateAndCompile());
+      W_TEST_STATUS(GenerateAndCompile());
     }
     break;
     case SubTests::ST_EditorProcessorCompileOnly:
     {
-      EZ_TEST_STATUS(EditorProcessorCompileOnly());
+      W_TEST_STATUS(EditorProcessorCompileOnly());
     }
     break;
     case SubTests::ST_EditorProcessorCompileAndTransform:
     {
-      EZ_TEST_STATUS(EditorProcessorCompileAndTransform());
+      W_TEST_STATUS(EditorProcessorCompileAndTransform());
     }
     break;
   }
   ProcessEvents();
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
-ezResult ezEditorTestGenerateCompilePacMan::InitializeSubTest(ezInt32 iIdentifier)
+WResult WEditorTestGenerateCompilePacMan::InitializeSubTest(WInt32 iIdentifier)
 {
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezEditorTestGenerateCompilePacMan::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WEditorTestGenerateCompilePacMan::DeInitializeSubTest(WInt32 iIdentifier)
 {
-  ezDocumentManager::CloseAllDocuments();
-  return EZ_SUCCESS;
+  WDocumentManager::CloseAllDocuments();
+  return W_SUCCESS;
 }

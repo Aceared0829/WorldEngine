@@ -34,25 +34,25 @@ protected:
 };
 
 
-ezQtSearchableMenu::ezQtSearchableMenu(QObject* pParent)
+WQtSearchableMenu::WQtSearchableMenu(QObject* pParent)
   : QWidgetAction(pParent)
 {
   m_pGroup = new QNullWidget();
   m_pGroup->setLayout(new QVBoxLayout(m_pGroup));
   m_pGroup->setContentsMargins(0, 0, 0, 0);
 
-  m_pSearch = new ezQtSearchWidget(m_pGroup);
-  connect(m_pSearch, &ezQtSearchWidget::enterPressed, this, &ezQtSearchableMenu::OnEnterPressed);
-  connect(m_pSearch, &ezQtSearchWidget::specialKeyPressed, this, &ezQtSearchableMenu::OnSpecialKeyPressed);
-  connect(m_pSearch, &ezQtSearchWidget::textChanged, this, &ezQtSearchableMenu::OnSearchChanged);
-  connect(m_pSearch, &ezQtSearchWidget::visibleEvent, this, &ezQtSearchableMenu::OnShow);
+  m_pSearch = new WQtSearchWidget(m_pGroup);
+  connect(m_pSearch, &WQtSearchWidget::enterPressed, this, &WQtSearchableMenu::OnEnterPressed);
+  connect(m_pSearch, &WQtSearchWidget::specialKeyPressed, this, &WQtSearchableMenu::OnSpecialKeyPressed);
+  connect(m_pSearch, &WQtSearchWidget::textChanged, this, &WQtSearchableMenu::OnSearchChanged);
+  connect(m_pSearch, &WQtSearchWidget::visibleEvent, this, &WQtSearchableMenu::OnShow);
 
   m_pGroup->layout()->addWidget(m_pSearch);
   m_pGroup->layout()->setContentsMargins(1, 1, 1, 1);
 
   m_pItemModel = new QStandardItemModel(m_pGroup);
 
-  m_pFilterModel = new ezQtTreeSearchFilterModel(m_pGroup);
+  m_pFilterModel = new WQtTreeSearchFilterModel(m_pGroup);
   m_pFilterModel->SetIncludeChildren(true);
   m_pFilterModel->setSourceModel(m_pItemModel);
 
@@ -62,7 +62,7 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* pParent)
   m_pTreeView->setHeaderHidden(true);
   m_pTreeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   m_pTreeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
-  connect(m_pTreeView, &QTreeView::activated, this, &ezQtSearchableMenu::OnItemActivated);
+  connect(m_pTreeView, &QTreeView::activated, this, &WQtSearchableMenu::OnItemActivated);
 
 
   m_pGroup->layout()->addWidget(m_pTreeView);
@@ -70,7 +70,7 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* pParent)
   setDefaultWidget(m_pGroup);
 }
 
-QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
+QStandardItem* WQtSearchableMenu::CreateCategoryMenu(WStringView sCategory)
 {
   if (sCategory.IsEmpty())
     return m_pItemModel->invisibleRootItem();
@@ -79,7 +79,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
   if (it.IsValid())
     return it.Value();
 
-  ezStringBuilder sPath = sCategory;
+  WStringBuilder sPath = sCategory;
   sPath.PathParentDirectory();
   sPath.Trim("/");
 
@@ -95,7 +95,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
 
   QStandardItem* pThisItem = new QStandardItem(sPath.GetData());
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-  pThisItem->setData(ezMakeQString(sPath).toLower(), SortRole);
+  pThisItem->setData(WMakeQString(sPath).toLower(), SortRole);
 
   pParentMenu->appendRow(pThisItem);
 
@@ -104,7 +104,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
   return pThisItem;
 }
 
-bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
+bool WQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
 {
   const int iRows = m_pFilterModel->rowCount(parent);
 
@@ -133,7 +133,7 @@ bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
   return false;
 }
 
-bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
+bool WQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
 {
   if (pObject == m_pTreeView)
   {
@@ -152,34 +152,34 @@ bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
   return false;
 }
 
-void ezQtSearchableMenu::AddItem(ezStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon)
+void WQtSearchableMenu::AddItem(WStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon)
 {
   QStandardItem* pParent = m_pItemModel->invisibleRootItem();
 
-  const char* szLastCat = ezStringUtils::FindLastSubString(szInternalPath, "/");
+  const char* szLastCat = WStringUtils::FindLastSubString(szInternalPath, "/");
   if (szLastCat != nullptr)
   {
-    ezStringView sCategory(szInternalPath, szLastCat);
+    WStringView sCategory(szInternalPath, szLastCat);
 
     pParent = CreateCategoryMenu(sCategory);
   }
 
-  QStandardItem* pThisItem = new QStandardItem(ezMakeQString(sDisplayName));
+  QStandardItem* pThisItem = new QStandardItem(WMakeQString(sDisplayName));
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
   pThisItem->setData(szInternalPath, InternalPathRole);
   pThisItem->setData(variant, VariantRole);
   pThisItem->setIcon(icon);
-  pThisItem->setData(ezMakeQString(sDisplayName).toLower(), SortRole);
+  pThisItem->setData(WMakeQString(sDisplayName).toLower(), SortRole);
 
   pParent->appendRow(pThisItem);
 }
 
-QString ezQtSearchableMenu::GetSearchText() const
+QString WQtSearchableMenu::GetSearchText() const
 {
   return m_pSearch->text();
 }
 
-void ezQtSearchableMenu::Finalize(const QString& sSearchText)
+void WQtSearchableMenu::Finalize(const QString& sSearchText)
 {
   m_pItemModel->setSortRole(SortRole);
   m_pItemModel->sort(0);
@@ -189,7 +189,7 @@ void ezQtSearchableMenu::Finalize(const QString& sSearchText)
   m_pSearch->selectAll();
 }
 
-void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
+void WQtSearchableMenu::OnItemActivated(const QModelIndex& index)
 {
   if (!index.isValid())
     return;
@@ -206,7 +206,7 @@ void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
   Q_EMIT MenuItemTriggered(sName, variant);
 }
 
-void ezQtSearchableMenu::OnEnterPressed()
+void WQtSearchableMenu::OnEnterPressed()
 {
   auto selection = m_pTreeView->selectionModel()->selection();
 
@@ -216,7 +216,7 @@ void ezQtSearchableMenu::OnEnterPressed()
   OnItemActivated(selection.indexes()[0]);
 }
 
-void ezQtSearchableMenu::OnSpecialKeyPressed(Qt::Key key)
+void WQtSearchableMenu::OnSpecialKeyPressed(Qt::Key key)
 {
   if (key == Qt::Key_Down || key == Qt::Key_Up || key == Qt::Key_Tab || key == Qt::Key_Backtab)
   {
@@ -224,7 +224,7 @@ void ezQtSearchableMenu::OnSpecialKeyPressed(Qt::Key key)
   }
 }
 
-void ezQtSearchableMenu::OnSearchChanged(const QString& text)
+void WQtSearchableMenu::OnSearchChanged(const QString& text)
 {
   m_pFilterModel->SetFilterText(text);
 
@@ -237,7 +237,7 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
   Q_EMIT SearchTextChanged(text);
 }
 
-void ezQtSearchableMenu::OnShow()
+void WQtSearchableMenu::OnShow()
 {
   if (m_pFilterModel->rowCount() > 0)
   {

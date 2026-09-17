@@ -6,37 +6,37 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezStageSpaceComponentManager = ezSettingsComponentManager<class ezStageSpaceComponent>;
+using WStageSpaceComponentManager = WSettingsComponentManager<class WStageSpaceComponent>;
 
 /// Singleton to set the type of stage space and its global transform in the world.
 ///
 /// The global transform of the owner and the set stage space are read out by the XR
 /// implementation every frame.
-class EZ_GAMEENGINE_DLL ezStageSpaceComponent : public ezComponent
+class W_GAMEENGINE_DLL WStageSpaceComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezStageSpaceComponent, ezComponent, ezStageSpaceComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WStageSpaceComponent, WComponent, WStageSpaceComponentManager);
 
 public:
-  ezStageSpaceComponent();
-  ~ezStageSpaceComponent();
+  WStageSpaceComponent();
+  ~WStageSpaceComponent();
 
   //
-  // ezDeviceTrackingComponent Interface
+  // WDeviceTrackingComponent Interface
   //
 
   /// Sets the stage space used by the XR experience.
-  void SetStageSpace(ezEnum<ezXRStageSpace> space);
-  ezEnum<ezXRStageSpace> GetStageSpace() const;
+  void SetStageSpace(WEnum<WXRStageSpace> space);
+  WEnum<WXRStageSpace> GetStageSpace() const;
 
 protected:
   //
-  // ezComponent Interface
+  // WComponent Interface
   //
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
 private:
-  ezEnum<ezXRStageSpace> m_Space;
+  WEnum<WXRStageSpace> m_Space;
 };

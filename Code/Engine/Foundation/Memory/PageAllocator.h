@@ -15,7 +15,7 @@
 /// - Memory must be page-aligned for specific algorithms or OS APIs
 /// - You want to minimize memory overhead for large allocations
 /// - You're implementing higher-level allocators that need backing storage
-class EZ_FOUNDATION_DLL ezPageAllocator
+class W_FOUNDATION_DLL WPageAllocator
 {
 public:
   /// Allocates a page-aligned memory block of at least the specified size.
@@ -25,5 +25,5 @@ public:
   static void DeallocatePage(void* pPtr);
 
   /// Returns the allocator identifier for tracking and debugging purposes.
-  static ezAllocatorId GetId();
+  static WAllocatorId GetId();
 };

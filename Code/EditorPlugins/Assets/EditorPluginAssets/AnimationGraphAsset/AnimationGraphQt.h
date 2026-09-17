@@ -9,10 +9,10 @@
 /// Qt graphics item for animation graph nodes.
 ///
 /// Visual representation of nodes in an animation graph, such as animation clips, blend nodes, or state transitions.
-class ezQtAnimationGraphNode : public ezQtVisualGraphNode
+class WQtAnimationGraphNode : public WQtVisualGraphNode
 {
 public:
-  ezQtAnimationGraphNode();
+  WQtAnimationGraphNode();
 
   virtual void UpdateState() override;
 };

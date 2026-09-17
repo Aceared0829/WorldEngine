@@ -9,7 +9,7 @@
 /// The indented usage patterns is that data is allocated and written to the buffer during game play or extraction code.
 /// After all data has been written UploadChangesForNextFrame needs to be called to upload changed data to the GPU buffer.
 /// The renderer would then call GetBufferForRendering to get the correct buffer for rendering.
-class EZ_RENDERERFOUNDATION_DLL ezGALDynamicBuffer
+class W_RENDERERFOUNDATION_DLL WGALDynamicBuffer
 {
 public:
   /// Deallocates all data.
@@ -17,12 +17,12 @@ public:
 
   struct AllocateFlags
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
       None,
-      ZeroFill = EZ_BIT(0),
+      ZeroFill = W_BIT(0),
 
       Default = None
     };
@@ -38,10 +38,10 @@ public:
   ///
   /// The user data can be used to store additional information, typically the owner of the allocation, like e.g. a component handle.
   template <typename U>
-  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None, ezAllocator* pTempAllocator = nullptr)
+  WUInt32 Allocate(const U& userData, WUInt32 uiCount = 1, WBitflags<AllocateFlags> allocateFlags = AllocateFlags::None, WAllocator* pTempAllocator = nullptr)
   {
-    static_assert(sizeof(U) <= sizeof(ezUInt64), "userData is too large");
-    ezUInt64 uiUserData = 0;
+    static_assert(sizeof(U) <= sizeof(WUInt64), "userData is too large");
+    WUInt64 uiUserData = 0;
     *reinterpret_cast<U*>(&uiUserData) = userData;
 
     return Allocate(uiUserData, uiCount, allocateFlags, pTempAllocator);
@@ -49,35 +49,35 @@ public:
 
   /// Removes an allocation at the given offset. The offset must have been returned by Allocate.
   /// This will create unused space in the buffer that can be filled by subsequent allocations or closed later by compaction.
-  void Deallocate(ezUInt32 uiOffset);
+  void Deallocate(WUInt32 uiOffset);
 
   /// Maps a range of elements for writing.
   template <typename T>
-  ezArrayPtr<T> MapForWriting(ezUInt32 uiOffset)
+  WArrayPtr<T> MapForWriting(WUInt32 uiOffset)
   {
-    ezUInt32 uiCount = 0;
-    ezByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
-    EZ_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
-    return ezArrayPtr<T>(reinterpret_cast<T*>(byteData.GetPtr()), uiCount);
+    WUInt32 uiCount = 0;
+    WByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
+    W_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
+    return WArrayPtr<T>(reinterpret_cast<T*>(byteData.GetPtr()), uiCount);
   }
 
   /// Maps a range of bytes for writing.
-  ezByteArrayPtr MapBytesForWriting(ezUInt32 uiOffset)
+  WByteArrayPtr MapBytesForWriting(WUInt32 uiOffset)
   {
-    ezUInt32 uiCount = 0;
-    ezByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
-    EZ_ASSERT_DEBUG(byteData.GetCount() == uiCount * m_Desc.m_uiStructSize, "Implementation error");
+    WUInt32 uiCount = 0;
+    WByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
+    W_ASSERT_DEBUG(byteData.GetCount() == uiCount * m_Desc.m_uiStructSize, "Implementation error");
     return byteData;
   }
 
   /// Maps a range of elements for reading.
   template <typename T>
-  ezArrayPtr<const T> MapForReading(ezUInt32 uiOffset) const
+  WArrayPtr<const T> MapForReading(WUInt32 uiOffset) const
   {
-    ezUInt32 uiCount = 0;
-    ezConstByteArrayPtr byteData = MapForReading(uiOffset, uiCount);
-    EZ_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
-    return ezArrayPtr<const T>(reinterpret_cast<const T*>(byteData.GetPtr()), uiCount);
+    WUInt32 uiCount = 0;
+    WConstByteArrayPtr byteData = MapForReading(uiOffset, uiCount);
+    W_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
+    return WArrayPtr<const T>(reinterpret_cast<const T*>(byteData.GetPtr()), uiCount);
   }
 
   /// Upload all changed data to the GPU buffer for the next rendering frame, aka the next time BeginFrame is called on the GALDevice.
@@ -85,88 +85,88 @@ public:
 
   struct ChangedAllocation
   {
-    ezUInt64 m_uiUserData = 0;
-    ezUInt32 m_uiNewOffset = 0;
+    WUInt64 m_uiUserData = 0;
+    WUInt32 m_uiNewOffset = 0;
   };
 
   /// Tries to compact the buffer by moving allocations to free ranges. All moved allocations are returned in out_changedAllocations.
   ///
   /// The user data can be used to update the owner of the allocation.
   /// To prevent too many changes per frame only uiMaxSteps are executed which corresponds to the number of allocations which can be moved.
-  void RunCompactionSteps(ezDynamicArray<ChangedAllocation>& out_changedAllocations, ezUInt32 uiMaxSteps = 16);
+  void RunCompactionSteps(WDynamicArray<ChangedAllocation>& out_changedAllocations, WUInt32 uiMaxSteps = 16);
 
   /// This should be called inside the rendering code to retrieve the underlying buffer for rendering.
   ///
   /// It is ensured that it will always return the same buffer until the next time BeginFrame is called on the GALDevice even if the buffer
   /// has been resized due to more allocations on the game play or extraction side.
-  const ezGALBufferHandle& GetBufferForRendering() const { return m_hBufferForRendering; }
+  const WGALBufferHandle& GetBufferForRendering() const { return m_hBufferForRendering; }
 
   /// Returns the description that was used to create this dynamic buffer.
-  const ezGALBufferCreationDescription& GetDescription() const { return m_Desc; }
+  const WGALBufferCreationDescription& GetDescription() const { return m_Desc; }
 
   /// Returns the debug name that was used to create this dynamic buffer.
-  ezStringView GetDebugName() const { return m_sDebugName; }
+  WStringView GetDebugName() const { return m_sDebugName; }
 
 private:
-  friend class ezMemoryUtils;
-  friend class ezGALDevice;
+  friend class WMemoryUtils;
+  friend class WGALDevice;
 
-  ezGALDynamicBuffer() = default;
-  ~ezGALDynamicBuffer();
+  WGALDynamicBuffer() = default;
+  ~WGALDynamicBuffer();
 
-  void Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName);
+  void Initialize(const WGALBufferCreationDescription& desc, WStringView sDebugName);
   void Deinitialize();
 
-  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator);
-  ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
-  ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
+  WUInt32 Allocate(WUInt64 uiUserData, WUInt32 uiCount, WBitflags<AllocateFlags> allocateFlags, WAllocator* pTempAllocator);
+  WByteArrayPtr MapForWriting(WUInt32 uiOffset, WUInt32& out_uiCount);
+  WConstByteArrayPtr MapForReading(WUInt32 uiOffset, WUInt32& out_uiCount) const;
 
-  ezUInt32 AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator);
+  WUInt32 AllocateTempData(WUInt32 uiStartOffset, WUInt32 uiNewCount, WAllocator* pTempAllocator);
 
   void SwapBuffers()
   {
     m_hBufferForRendering = m_hBufferForUpload;
   }
 
-  mutable ezMutex m_Mutex;
+  mutable WMutex m_Mutex;
 
-  ezUInt32 m_uiCapacity = 0;   ///< in number of elements
-  ezUInt32 m_uiNextOffset = 0; ///< in number of elements
+  WUInt32 m_uiCapacity = 0;   ///< in number of elements
+  WUInt32 m_uiNextOffset = 0; ///< in number of elements
 
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
+  WDynamicArray<WUInt8, WAlignedAllocatorWrapper> m_Data;
 
   struct TempData
   {
-    ezAllocator* m_pAllocator = nullptr;
-    ezUInt8* m_pData = nullptr;
-    ezUInt32 m_uiStartByteOffset = 0;
-    ezUInt32 m_uiByteSize = 0;
+    WAllocator* m_pAllocator = nullptr;
+    WUInt8* m_pData = nullptr;
+    WUInt32 m_uiStartByteOffset = 0;
+    WUInt32 m_uiByteSize = 0;
   };
 
-  ezSmallArray<TempData, 2> m_TempData;
+  WSmallArray<TempData, 2> m_TempData;
 
   struct Allocation
   {
-    ezUInt64 m_uiUserData = 0;
-    ezUInt32 m_uiCount = 0;
-    ezUInt32 m_uiDataIndex = 0; ///< 0 is full buffer, greater than 0 are temp buffers
+    WUInt64 m_uiUserData = 0;
+    WUInt32 m_uiCount = 0;
+    WUInt32 m_uiDataIndex = 0; ///< 0 is full buffer, greater than 0 are temp buffers
   };
 
-  ezMap<ezUInt32, Allocation> m_Allocations;
+  WMap<WUInt32, Allocation> m_Allocations;
 
-  ezDynamicArray<ezGAL::ModifiedRange> m_FreeRanges;
-  ezGAL::ModifiedRange m_DirtyRange;
+  WDynamicArray<WGAL::ModifiedRange> m_FreeRanges;
+  WGAL::ModifiedRange m_DirtyRange;
 
-  ezGALBufferCreationDescription m_Desc;
+  WGALBufferCreationDescription m_Desc;
 
-  ezGALBufferHandle m_hBufferForUpload;
-  ezGALBufferHandle m_hBufferForRendering;
+  WGALBufferHandle m_hBufferForUpload;
+  WGALBufferHandle m_hBufferForRendering;
 
-  ezString m_sDebugName;
+  WString m_sDebugName;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
   void CheckSelf() const;
 #endif
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezGALDynamicBuffer::AllocateFlags);
+W_DECLARE_FLAGS_OPERATORS(WGALDynamicBuffer::AllocateFlags);

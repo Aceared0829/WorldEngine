@@ -17,28 +17,28 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_WORLD_MODULE(WParticleWorldModule);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WParticleWorldModule::WParticleWorldModule(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
 }
 
-ezParticleWorldModule::~ezParticleWorldModule()
+WParticleWorldModule::~WParticleWorldModule()
 {
   ClearParticleStreamFactories();
 }
 
-void ezParticleWorldModule::Initialize()
+void WParticleWorldModule::Initialize()
 {
   ConfigureParticleStreamFactories();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::UpdateEffects, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    auto updateDesc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WParticleWorldModule::UpdateEffects, this);
+    updateDesc.m_Phase = WWorldUpdatePhase::PreAsync;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
     updateDesc.m_fPriority = 1000.0f; // kick off particle tasks as early as possible
 
@@ -46,56 +46,56 @@ void ezParticleWorldModule::Initialize()
   }
 
   {
-    auto finishDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::EnsureUpdatesFinished, this);
-    finishDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto finishDesc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WParticleWorldModule::EnsureUpdatesFinished, this);
+    finishDesc.m_Phase = WWorldUpdatePhase::PostTransform;
     finishDesc.m_bOnlyUpdateWhenSimulating = true;
     finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
 
     RegisterUpdateFunction(finishDesc);
   }
 
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WParticleWorldModule::ResourceEventHandler, this));
 
-  ezRTTI::ForEachDerivedType<ezParticleModule>(
-    [this](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WParticleModule>(
+    [this](const WRTTI* pRtti)
     {
-      ezUniquePtr<ezParticleModule> pModule = pRtti->GetAllocator()->Allocate<ezParticleModule>();
+      WUniquePtr<WParticleModule> pModule = pRtti->GetAllocator()->Allocate<WParticleModule>();
       pModule->RequestRequiredWorldModulesForCache(this);
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
 
-void ezParticleWorldModule::Deinitialize()
+void WParticleWorldModule::Deinitialize()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WParticleWorldModule::ResourceEventHandler, this));
 
   WorldClear();
 }
 
-void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context)
+void WParticleWorldModule::EnsureUpdatesFinished(const WWorldModule::UpdateContext& context)
 {
   // do NOT lock here, otherwise tasks cannot enter the lock
-  ezTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
+  WTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     // The simulation tasks are done and the game objects have their global transform updated at this point, so we can push the transform
     // to the particle effects for the next simulation step and also ensure that the bounding volumes are correct for culling and rendering.
-    if (ezParticleComponentManager* pManager = GetWorld()->GetComponentManager<ezParticleComponentManager>())
+    if (WParticleComponentManager* pManager = GetWorld()->GetComponentManager<WParticleComponentManager>())
     {
       pManager->UpdatePfxTransformsAndBounds();
     }
 
-    if (ezParticleFinisherComponentManager* pManager = GetWorld()->GetComponentManager<ezParticleFinisherComponentManager>())
+    if (WParticleFinisherComponentManager* pManager = GetWorld()->GetComponentManager<WParticleFinisherComponentManager>())
     {
       pManager->UpdateBounds();
     }
 
-    for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
     {
       CreateFinisherComponent(m_NeedFinisherComponent[i]);
     }
@@ -104,15 +104,15 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   }
 }
 
-void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const
+void WParticleWorldModule::ExtractEffectRenderData(const WParticleEffectInstance* pEffect, WMsgExtractRenderData& ref_msg, const WTransform& systemTransform) const
 {
-  EZ_ASSERT_DEBUG(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
+  W_ASSERT_DEBUG(WTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
+  for (WUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
   {
-    const ezParticleSystemInstance* pSystem = pEffect->GetParticleSystems()[i];
+    const WParticleSystemInstance* pSystem = pEffect->GetParticleSystems()[i];
 
     if (pSystem == nullptr)
       continue;
@@ -124,16 +124,16 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
   }
 }
 
-void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
+void WParticleWorldModule::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WParticleEffectResource>())
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
-    ezParticleEffectResourceHandle hResource((ezParticleEffectResource*)(e.m_pResource));
+    WParticleEffectResourceHandle hResource((WParticleEffectResource*)(e.m_pResource));
 
-    const ezUInt32 numEffects = m_ParticleEffects.GetCount();
-    for (ezUInt32 i = 0; i < numEffects; ++i)
+    const WUInt32 numEffects = m_ParticleEffects.GetCount();
+    for (WUInt32 i = 0; i < numEffects; ++i)
     {
       if (m_ParticleEffects[i].GetResource() == hResource)
       {
@@ -143,21 +143,21 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
   }
 }
 
-void ezParticleWorldModule::ConfigureParticleStreamFactories()
+void WParticleWorldModule::ConfigureParticleStreamFactories()
 {
   ClearParticleStreamFactories();
 
-  ezRTTI::ForEachDerivedType<ezParticleStreamFactory>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WParticleStreamFactory>(
+    [&](const WRTTI* pRtti)
     {
-      ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
+      WParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<WParticleStreamFactory>();
 
       m_StreamFactories[pFactory->GetStreamName()] = pFactory;
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
-void ezParticleWorldModule::ClearParticleStreamFactories()
+void WParticleWorldModule::ClearParticleStreamFactories()
 {
   for (auto it : m_StreamFactories)
   {
@@ -167,7 +167,7 @@ void ezParticleWorldModule::ClearParticleStreamFactories()
   m_StreamFactories.Clear();
 }
 
-ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const
+WParticleStream* WParticleWorldModule::CreateStreamDefaultInitializer(WParticleSystemInstance* pOwner, const char* szFullStreamName) const
 {
   auto it = m_StreamFactories.Find(szFullStreamName);
   if (!it.IsValid())
@@ -176,51 +176,51 @@ ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezPartic
   return it.Value()->CreateParticleStream(pOwner);
 }
 
-ezWorldModule* ezParticleWorldModule::GetCachedWorldModule(const ezRTTI* pRtti) const
+WWorldModule* WParticleWorldModule::GetCachedWorldModule(const WRTTI* pRtti) const
 {
-  ezWorldModule* pModule = nullptr;
+  WWorldModule* pModule = nullptr;
   m_WorldModuleCache.TryGetValue(pRtti, pModule);
   return pModule;
 }
 
-void ezParticleWorldModule::CacheWorldModule(const ezRTTI* pRtti)
+void WParticleWorldModule::CacheWorldModule(const WRTTI* pRtti)
 {
   m_WorldModuleCache[pRtti] = GetWorld()->GetOrCreateModule(pRtti);
 }
 
-void ezParticleWorldModule::CreateFinisherComponent(ezParticleEffectInstance* pEffect)
+void WParticleWorldModule::CreateFinisherComponent(WParticleEffectInstance* pEffect)
 {
   if (pEffect && !pEffect->IsSharedEffect())
   {
     pEffect->SetVisibleIf(nullptr);
 
-    ezWorld* pWorld = GetWorld();
+    WWorld* pWorld = GetWorld();
 
-    const ezTransform transform = pEffect->GetTransform();
+    const WTransform transform = pEffect->GetTransform();
 
-    ezGameObjectDesc go;
+    WGameObjectDesc go;
     go.m_LocalPosition = transform.m_vPosition;
     go.m_LocalRotation = transform.m_qRotation;
     go.m_LocalScaling = transform.m_vScale;
     // go.m_Tags = GetOwner()->GetTags(); // TODO: pass along tags -> needed for rendering filters
 
-    ezGameObject* pFinisher;
+    WGameObject* pFinisher;
     pWorld->CreateObject(go, pFinisher);
 
-    ezParticleFinisherComponent* pFinisherComp;
-    ezParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
+    WParticleFinisherComponent* pFinisherComp;
+    WParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
 
-    pFinisherComp->m_EffectController = ezParticleEffectController(this, pEffect->GetHandle());
-    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::MakeZero()); // clear the velocity
+    pFinisherComp->m_EffectController = WParticleEffectController(this, pEffect->GetHandle());
+    pFinisherComp->m_EffectController.SetTransform(transform, WVec3::MakeZero()); // clear the velocity
   }
 }
 
-void ezParticleWorldModule::WorldClear()
+void WParticleWorldModule::WorldClear()
 {
   // make sure no particle update task is still in the pipeline
-  ezTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
+  WTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   m_FinishingEffects.Clear();
   m_NeedFinisherComponent.Clear();
@@ -232,4 +232,4 @@ void ezParticleWorldModule::WorldClear()
   m_ParticleSystemFreeList.Clear();
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);

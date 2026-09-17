@@ -2,15 +2,15 @@
 
 #include <EditorFramework/Preferences/Preferences.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezScenePreferencesUser : public ezPreferences
+class W_EDITORFRAMEWORK_DLL WScenePreferencesUser : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScenePreferencesUser, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WScenePreferencesUser, WPreferences);
 
 public:
-  ezScenePreferencesUser();
+  WScenePreferencesUser();
 
-  void SetCameraSpeed(ezInt32 value);
-  ezInt32 GetCameraSpeed() const { return m_iCameraSpeed; }
+  void SetCameraSpeed(WInt32 value);
+  WInt32 GetCameraSpeed() const { return m_iCameraSpeed; }
 
   void SetShowGrid(bool bShow);
   bool GetShowGrid() const { return m_bShowGrid; }

@@ -7,28 +7,28 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypePointFactory, 1, WRTTIDefaultAllocator<WParticleTypePointFactory>)
 {
-  //EZ_BEGIN_ATTRIBUTES
+  //W_BEGIN_ATTRIBUTES
   //{
-  //  new ezHiddenAttribute()
+  //  new WHiddenAttribute()
   //}
-  //EZ_END_ATTRIBUTES;
+  //W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePoint, 1, ezRTTIDefaultAllocator<ezParticleTypePoint>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleTypePoint, 1, WRTTIDefaultAllocator<WParticleTypePoint>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
+const WRTTI* WParticleTypePointFactory::GetTypeType() const
 {
-  return ezGetStaticRTTI<ezParticleTypePoint>();
+  return WGetStaticRTTI<WParticleTypePoint>();
 }
 
-void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
+void WParticleTypePointFactory::CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const
 {
-  // ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
+  // WParticleTypePoint* pType = static_cast<WParticleTypePoint*>(pObject);
 }
 
 enum class TypePointVersion
@@ -41,65 +41,65 @@ enum class TypePointVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypePointFactory::Save(ezStreamWriter& inout_stream) const
+void WParticleTypePointFactory::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)TypePointVersion::Version_Current;
+  const WUInt8 uiVersion = (int)TypePointVersion::Version_Current;
   inout_stream << uiVersion;
 }
 
-void ezParticleTypePointFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleTypePointFactory::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypePointVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)TypePointVersion::Version_Current, "Invalid version {0}", uiVersion);
 }
 
-void ezParticleTypePoint::CreateRequiredStreams()
+void WParticleTypePoint::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Color", WProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void WParticleTypePoint::ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const
 {
-  EZ_PROFILE_SCOPE("PFX: Point");
+  W_PROFILE_SCOPE("PFX: Point");
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const WUInt32 numParticles = (WUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
   if (numParticles == 0)
     return;
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if (m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
+  if (m_uiLastExtractedFrame != WRenderWorld::GetFrameCounter())
   {
-    m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
+    m_uiLastExtractedFrame = WRenderWorld::GetFrameCounter();
 
-    const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-    const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
+    const WVec4* pPosition = m_pStreamPosition->GetData<WVec4>();
+    const WColorLinear16f* pColor = m_pStreamColor->GetData<WColorLinear16f>();
 
     // this will automatically be deallocated at the end of the frame
-    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
-    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardQuadParticleShaderData, numParticles);
+    m_BaseParticleData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WBaseParticleShaderData, numParticles);
+    m_BillboardParticleData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WBillboardQuadParticleShaderData, numParticles);
 
-    for (ezUInt32 p = 0; p < numParticles; ++p)
+    for (WUInt32 p = 0; p < numParticles; ++p)
     {
       m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
       m_BillboardParticleData[p].Position = pPosition[p].GetAsVec3();
     }
   }
 
-  auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr);
+  auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WParticlePointRenderData>(nullptr);
 
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
-  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
+  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : WTransform::MakeIdentity();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 
-  ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
+  ref_msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::LitTransparent, WRenderData::Caching::Never);
 }
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_ParticleTypePoint);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_ParticleTypePoint);

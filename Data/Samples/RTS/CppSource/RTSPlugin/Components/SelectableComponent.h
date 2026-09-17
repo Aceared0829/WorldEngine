@@ -4,33 +4,33 @@
 
 #include <Core/World/ComponentManager.h>
 
-using RtsSelectableComponentManager = ezComponentManager<class RtsSelectableComponent, ezBlockStorageType::Compact>;
+using RtsSelectableComponentManager = WComponentManager<class RtsSelectableComponent, WBlockStorageType::Compact>;
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
-class EZ_RTSPLUGIN_DLL RtsSelectableComponent : public ezComponent
+class W_RTSPLUGIN_DLL RtsSelectableComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(RtsSelectableComponent, ezComponent, RtsSelectableComponentManager);
+  W_DECLARE_COMPONENT_TYPE(RtsSelectableComponent, WComponent, RtsSelectableComponentManager);
 
 public:
   RtsSelectableComponent();
   ~RtsSelectableComponent();
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // WComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   virtual void OnActivated() override;
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
   float m_fSelectionRadius = 1.0f;
 
-  static ezSpatialData::Category s_SelectableCategory;
+  static WSpatialData::Category s_SelectableCategory;
 
 protected:
 };

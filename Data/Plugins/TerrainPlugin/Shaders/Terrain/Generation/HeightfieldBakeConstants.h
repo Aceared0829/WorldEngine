@@ -10,7 +10,7 @@
 /// would need corner weights from several cells, and each cell's weights are ordered against its own
 /// material set, so they cannot be mixed.
 ///
-/// Changing this requires a re-bake, and ezTerrainMaterialCellStep in TerrainSystem.h must match.
+/// Changing this requires a re-bake, and WTerrainMaterialCellStep in TerrainSystem.h must match.
 #define TERRAIN_MATERIAL_CELL_STEP 4
 
 /// Push constants for HeightfieldTerrainBakeStep1CS and HeightfieldTerrainBakeStep2CS.

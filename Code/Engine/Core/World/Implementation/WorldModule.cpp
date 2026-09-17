@@ -3,45 +3,45 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezWorldModule::ezWorldModule(ezWorld* pWorld)
+WWorldModule::WWorldModule(WWorld* pWorld)
   : m_pWorld(pWorld)
 {
 }
 
-ezWorldModule::~ezWorldModule() = default;
+WWorldModule::~WWorldModule() = default;
 
-ezUInt32 ezWorldModule::GetWorldIndex() const
+WUInt32 WWorldModule::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
 }
 
 // protected methods
 
-void ezWorldModule::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
+void WWorldModule::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
 {
   m_pWorld->RegisterUpdateFunction(desc);
 }
 
-void ezWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
+void WWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
 {
   m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-ezAllocator* ezWorldModule::GetAllocator()
+WAllocator* WWorldModule::GetAllocator()
 {
   return m_pWorld->GetAllocator();
 }
 
-ezInternal::WorldLargeBlockAllocator* ezWorldModule::GetBlockAllocator()
+WInternal::WorldLargeBlockAllocator* WWorldModule::GetBlockAllocator()
 {
   return m_pWorld->GetBlockAllocator();
 }
 
-bool ezWorldModule::GetWorldSimulationEnabled() const
+bool WWorldModule::GetWorldSimulationEnabled() const
 {
   return m_pWorld->GetWorldSimulationEnabled();
 }
@@ -49,7 +49,7 @@ bool ezWorldModule::GetWorldSimulationEnabled() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
+W_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Reflection"
@@ -57,39 +57,39 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::Events().AddEventHandler(ezWorldModuleFactory::PluginEventHandler);
-    ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
+    WPlugin::Events().AddEventHandler(WWorldModuleFactory::PluginEventHandler);
+    WWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::Events().RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
+    WPlugin::Events().RemoveEventHandler(WWorldModuleFactory::PluginEventHandler);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-static ezWorldModuleTypeId s_uiNextTypeId = 0;
-static ezDynamicArray<ezWorldModuleTypeId> s_freeTypeIds;
-static constexpr ezWorldModuleTypeId s_InvalidWorldModuleTypeId = ezWorldModuleTypeId(-1);
+static WWorldModuleTypeId s_uiNextTypeId = 0;
+static WDynamicArray<WWorldModuleTypeId> s_freeTypeIds;
+static constexpr WWorldModuleTypeId s_InvalidWorldModuleTypeId = WWorldModuleTypeId(-1);
 
-ezWorldModuleFactory::ezWorldModuleFactory() = default;
+WWorldModuleFactory::WWorldModuleFactory() = default;
 
 // static
-ezWorldModuleFactory* ezWorldModuleFactory::GetInstance()
+WWorldModuleFactory* WWorldModuleFactory::GetInstance()
 {
-  static ezWorldModuleFactory* pInstance = new ezWorldModuleFactory();
+  static WWorldModuleFactory* pInstance = new WWorldModuleFactory();
   return pInstance;
 }
 
-ezWorldModuleTypeId ezWorldModuleFactory::GetTypeId(const ezRTTI* pRtti)
+WWorldModuleTypeId WWorldModuleFactory::GetTypeId(const WRTTI* pRtti)
 {
-  ezWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
+  WWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
   m_TypeToId.TryGetValue(pRtti, uiTypeId);
   return uiTypeId;
 }
 
-ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezWorldModuleTypeId typeId, ezWorld* pWorld)
+WWorldModule* WWorldModuleFactory::CreateWorldModule(WWorldModuleTypeId typeId, WWorld* pWorld)
 {
   if (typeId < m_CreatorFuncs.GetCount())
   {
@@ -100,15 +100,15 @@ ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezWorldModuleTypeId typeI
   return nullptr;
 }
 
-void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
+void WWorldModuleFactory::RegisterInterfaceImplementation(WStringView sInterfaceName, WStringView sImplementationName)
 {
   m_InterfaceImplementations.Insert(sInterfaceName, sImplementationName);
 
-  ezStringBuilder sTemp = sInterfaceName;
-  const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(sTemp);
+  WStringBuilder sTemp = sInterfaceName;
+  const WRTTI* pInterfaceRtti = WRTTI::FindTypeByName(sTemp);
 
   sTemp = sImplementationName;
-  const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(sTemp);
+  const WRTTI* pImplementationRtti = WRTTI::FindTypeByName(sTemp);
 
   if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
   {
@@ -117,23 +117,23 @@ void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfa
   }
 
   // Clear existing mapping if it maps to the wrong type
-  ezUInt16 uiTypeId;
+  WUInt16 uiTypeId;
   if (pInterfaceRtti != nullptr && m_TypeToId.TryGetValue(pInterfaceRtti, uiTypeId))
   {
     if (m_CreatorFuncs[uiTypeId].m_pRtti->GetTypeName() != sImplementationName)
     {
-      EZ_ASSERT_DEV(pImplementationRtti == nullptr, "Implementation error");
+      W_ASSERT_DEV(pImplementationRtti == nullptr, "Implementation error");
       m_TypeToId.Remove(pInterfaceRtti);
     }
   }
 }
-ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
+WWorldModuleTypeId WWorldModuleFactory::RegisterWorldModule(const WRTTI* pRtti, CreatorFunc creatorFunc)
 {
-  EZ_ASSERT_DEV(pRtti != ezGetStaticRTTI<ezWorldModule>(), "Trying to register a world module that is not reflected!");
-  EZ_ASSERT_DEV(
-    m_TypeToId.GetCount() < ezWorld::GetMaxNumWorldModules(), "Max number of world modules reached: {}", ezWorld::GetMaxNumWorldModules());
+  W_ASSERT_DEV(pRtti != WGetStaticRTTI<WWorldModule>(), "Trying to register a world module that is not reflected!");
+  W_ASSERT_DEV(
+    m_TypeToId.GetCount() < WWorld::GetMaxNumWorldModules(), "Max number of world modules reached: {}", WWorld::GetMaxNumWorldModules());
 
-  ezWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
+  WWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
   if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
   {
     return uiTypeId;
@@ -141,7 +141,7 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
 
   if (s_freeTypeIds.IsEmpty())
   {
-    EZ_ASSERT_DEV(s_uiNextTypeId < EZ_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
+    W_ASSERT_DEV(s_uiNextTypeId < W_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
 
     uiTypeId = s_uiNextTypeId++;
   }
@@ -163,16 +163,16 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
 }
 
 // static
-void ezWorldModuleFactory::PluginEventHandler(const ezPluginEvent& EventData)
+void WWorldModuleFactory::PluginEventHandler(const WPluginEvent& EventData)
 {
-  if (EventData.m_EventType == ezPluginEvent::AfterLoadingBeforeInit)
+  if (EventData.m_EventType == WPluginEvent::AfterLoadingBeforeInit)
   {
-    ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
+    WWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
-  if (EventData.m_EventType == ezPluginEvent::AfterUnloading)
+  if (EventData.m_EventType == WPluginEvent::AfterUnloading)
   {
-    ezWorldModuleFactory::GetInstance()->ClearUnloadedTypeToIDs();
+    WWorldModuleFactory::GetInstance()->ClearUnloadedTypeToIDs();
   }
 }
 
@@ -180,33 +180,33 @@ namespace
 {
   struct NewEntry
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    const ezRTTI* m_pRtti;
-    ezWorldModuleTypeId m_uiTypeId;
+    const WRTTI* m_pRtti;
+    WWorldModuleTypeId m_uiTypeId;
   };
 } // namespace
 
-void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId)
+void WWorldModuleFactory::AdjustBaseTypeId(const WRTTI* pParentRtti, const WRTTI* pRtti, WUInt16 uiParentTypeId)
 {
-  ezDynamicArray<ezPlugin::PluginInfo> infos;
-  ezPlugin::GetAllPluginInfos(infos);
+  WDynamicArray<WPlugin::PluginInfo> infos;
+  WPlugin::GetAllPluginInfos(infos);
 
-  auto HasManualDependency = [&](ezStringView sPluginName) -> bool
+  auto HasManualDependency = [&](WStringView sPluginName) -> bool
   {
     for (const auto& p : infos)
     {
       if (p.m_sName == sPluginName)
       {
-        return !p.m_LoadFlags.IsSet(ezPluginLoadFlags::CustomDependency);
+        return !p.m_LoadFlags.IsSet(WPluginLoadFlags::CustomDependency);
       }
     }
 
     return false;
   };
 
-  ezStringView szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
-  ezStringView szPlugin2 = pRtti->GetPluginName();
+  WStringView szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
+  WStringView szPlugin2 = pRtti->GetPluginName();
 
   const bool bPrio1 = HasManualDependency(szPlugin1);
   const bool bPrio2 = HasManualDependency(szPlugin2);
@@ -224,26 +224,26 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
     return;
   }
 
-  ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.ddl config file.", pParentRtti->GetTypeName(), m_CreatorFuncs[uiParentTypeId].m_pRtti->GetTypeName());
+  WLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.ddl config file.", pParentRtti->GetTypeName(), m_CreatorFuncs[uiParentTypeId].m_pRtti->GetTypeName());
 }
 
-void ezWorldModuleFactory::FillBaseTypeIds()
+void WWorldModuleFactory::FillBaseTypeIds()
 {
-  // m_TypeToId contains RTTI types for ezWorldModules and ezComponents
-  // m_TypeToId[ezComponent] maps to TypeID for its respective ezComponentManager
-  // m_TypeToId[ezWorldModule] maps to TypeID for itself OR in case of an interface to the derived type that implements the interface
-  // after types are registered we only have a mapping for m_TypeToId[ezWorldModule(impl)] and now we want to add
-  // the mapping for m_TypeToId[ezWorldModule(interface)], such that querying the TypeID for the interface works as well
+  // m_TypeToId contains RTTI types for WWorldModules and WComponents
+  // m_TypeToId[WComponent] maps to TypeID for its respective WComponentManager
+  // m_TypeToId[WWorldModule] maps to TypeID for itself OR in case of an interface to the derived type that implements the interface
+  // after types are registered we only have a mapping for m_TypeToId[WWorldModule(impl)] and now we want to add
+  // the mapping for m_TypeToId[WWorldModule(interface)], such that querying the TypeID for the interface works as well
   // and yields the implementation
 
-  ezTempHybridArray<NewEntry, 64> newEntries;
-  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
+  WTempHybridArray<NewEntry, 64> newEntries;
+  const WRTTI* pModuleRtti = WGetStaticRTTI<WWorldModule>(); // base type where we want to stop iterating upwards
 
   // explicit mappings
   for (auto it = m_InterfaceImplementations.GetIterator(); it.IsValid(); ++it)
   {
-    const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(it.Key());
-    const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(it.Value());
+    const WRTTI* pInterfaceRtti = WRTTI::FindTypeByName(it.Key());
+    const WRTTI* pImplementationRtti = WRTTI::FindTypeByName(it.Value());
 
     if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
     {
@@ -254,18 +254,18 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   // automatic mappings
   for (auto it = m_TypeToId.GetIterator(); it.IsValid(); ++it)
   {
-    const ezRTTI* pRtti = it.Key();
+    const WRTTI* pRtti = it.Key();
 
     // ignore components, we only want to fill out mappings for the base types of world modules
-    if (!pRtti->IsDerivedFrom<ezWorldModule>())
+    if (!pRtti->IsDerivedFrom<WWorldModule>())
       continue;
 
-    const ezWorldModuleTypeId uiTypeId = it.Value();
+    const WWorldModuleTypeId uiTypeId = it.Value();
 
-    for (const ezRTTI* pParentRtti = pRtti->GetParentType(); pParentRtti != pModuleRtti; pParentRtti = pParentRtti->GetParentType())
+    for (const WRTTI* pParentRtti = pRtti->GetParentType(); pParentRtti != pModuleRtti; pParentRtti = pParentRtti->GetParentType())
     {
       // we are only interested in parent types that are pure interfaces
-      if (!pParentRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+      if (!pParentRtti->GetTypeFlags().IsSet(WTypeFlags::Abstract))
         continue;
 
       // skip if we have an explicit mapping for this interface, they are already handled above
@@ -273,7 +273,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
         continue;
 
 
-      if (ezUInt16* pParentTypeId = m_TypeToId.GetValue(pParentRtti))
+      if (WUInt16* pParentTypeId = m_TypeToId.GetValue(pParentRtti))
       {
         if (*pParentTypeId != uiTypeId)
         {
@@ -296,18 +296,18 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   }
 }
 
-void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
+void WWorldModuleFactory::ClearUnloadedTypeToIDs()
 {
-  ezSet<const ezRTTI*> allRttis;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+  WSet<const WRTTI*> allRttis;
+  WRTTI::ForEachType([&](const WRTTI* pRtti)
     { allRttis.Insert(pRtti); });
 
-  ezSet<ezWorldModuleTypeId> mappedIdsToRemove;
+  WSet<WWorldModuleTypeId> mappedIdsToRemove;
 
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
   {
-    const ezRTTI* pRtti = it.Key();
-    const ezWorldModuleTypeId uiTypeId = it.Value();
+    const WRTTI* pRtti = it.Key();
+    const WWorldModuleTypeId uiTypeId = it.Value();
 
     if (!allRttis.Contains(pRtti))
     {
@@ -327,7 +327,7 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
   // this can be more than one, since we can map multiple (interface) types to the same implementation
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
   {
-    const ezWorldModuleTypeId uiTypeId = it.Value();
+    const WWorldModuleTypeId uiTypeId = it.Value();
 
     if (mappedIdsToRemove.Contains(uiTypeId))
     {
@@ -340,10 +340,10 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
   }
 
   // Finally, adding all invalid typeIds to the free list for reusing later
-  for (ezWorldModuleTypeId removedId : mappedIdsToRemove)
+  for (WWorldModuleTypeId removedId : mappedIdsToRemove)
   {
     s_freeTypeIds.PushBack(removedId);
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);
+W_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);

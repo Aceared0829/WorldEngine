@@ -6,17 +6,17 @@
 #include <Foundation/Strings/String.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezDynamicStringEnum;
+class WDynamicStringEnum;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtEditDynamicEnumsDlg : public ezQtDialog, public Ui_ezQtEditDynamicEnumsDlg
+class W_EDITORFRAMEWORK_DLL WQtEditDynamicEnumsDlg : public WQtDialog, public Ui_WQtEditDynamicEnumsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* pParent);
+  WQtEditDynamicEnumsDlg(WDynamicStringEnum* pEnum, QWidget* pParent);
 
-  ezInt32 GetSelectedItem() const { return m_iSelectedItem; }
+  WInt32 GetSelectedItem() const { return m_iSelectedItem; }
 
 private Q_SLOTS:
   void on_ButtonAdd_clicked();
@@ -26,10 +26,10 @@ private Q_SLOTS:
 
 private:
   void FillList();
-  bool EditItem(ezString& item);
+  bool EditItem(WString& item);
 
   bool m_bModified = false;
-  ezDynamicStringEnum* m_pEnum = nullptr;
-  ezDynamicArray<ezString> m_Values;
-  ezInt32 m_iSelectedItem = -1;
+  WDynamicStringEnum* m_pEnum = nullptr;
+  WDynamicArray<WString> m_Values;
+  WInt32 m_iSelectedItem = -1;
 };

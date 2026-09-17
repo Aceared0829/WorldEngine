@@ -4,190 +4,190 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1, ezTexture2DChannelMappingEnum::R1_ALPHA)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RG1, ezTexture2DChannelMappingEnum::R1_G2)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGB1, ezTexture2DChannelMappingEnum::RGB1_ABLACK, ezTexture2DChannelMappingEnum::R1_G2_B3)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBA1, ezTexture2DChannelMappingEnum::RGB1_A2, ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBWHITE_A1, ezTexture2DChannelMappingEnum::RGBWHITE_R1)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTexture2DChannelMappingEnum, 1)
+  W_ENUM_CONSTANTS(WTexture2DChannelMappingEnum::R1, WTexture2DChannelMappingEnum::R1_ALPHA)
+  W_ENUM_CONSTANTS(WTexture2DChannelMappingEnum::RG1, WTexture2DChannelMappingEnum::R1_G2)
+  W_ENUM_CONSTANTS(WTexture2DChannelMappingEnum::RGB1, WTexture2DChannelMappingEnum::RGB1_ABLACK, WTexture2DChannelMappingEnum::R1_G2_B3)
+  W_ENUM_CONSTANTS(WTexture2DChannelMappingEnum::RGBA1, WTexture2DChannelMappingEnum::RGB1_A2, WTexture2DChannelMappingEnum::R1_G2_B3_A4)
+  W_ENUM_CONSTANTS(WTexture2DChannelMappingEnum::RGBWHITE_A1, WTexture2DChannelMappingEnum::RGBWHITE_R1)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureArrayChannelMappingEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTextureArrayChannelMappingEnum::RGBA, ezTextureArrayChannelMappingEnum::RGB, ezTextureArrayChannelMappingEnum::RG)
-  EZ_ENUM_CONSTANTS(ezTextureArrayChannelMappingEnum::R_Red, ezTextureArrayChannelMappingEnum::R_Green, ezTextureArrayChannelMappingEnum::R_Blue, ezTextureArrayChannelMappingEnum::R_Alpha)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTextureArrayChannelMappingEnum, 1)
+  W_ENUM_CONSTANTS(WTextureArrayChannelMappingEnum::RGBA, WTextureArrayChannelMappingEnum::RGB, WTextureArrayChannelMappingEnum::RG)
+  W_ENUM_CONSTANTS(WTextureArrayChannelMappingEnum::R_Red, WTextureArrayChannelMappingEnum::R_Green, WTextureArrayChannelMappingEnum::R_Blue, WTextureArrayChannelMappingEnum::R_Alpha)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024, ezTexture2DResolution::Fixed2048x2048)
-  EZ_ENUM_CONSTANTS(ezTexture2DResolution::CVarRtResolution1, ezTexture2DResolution::CVarRtResolution2)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTexture2DResolution, 1)
+  W_ENUM_CONSTANTS(WTexture2DResolution::Fixed64x64, WTexture2DResolution::Fixed128x128, WTexture2DResolution::Fixed256x256, WTexture2DResolution::Fixed512x512, WTexture2DResolution::Fixed1024x1024, WTexture2DResolution::Fixed2048x2048)
+  W_ENUM_CONSTANTS(WTexture2DResolution::CVarRtResolution1, WTexture2DResolution::CVarRtResolution2)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
-  EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
-  EZ_ENUM_CONSTANTS(ezRenderTargetFormat::R8, ezRenderTargetFormat::R16, ezRenderTargetFormat::R32)
-  EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RG8, ezRenderTargetFormat::RG16, ezRenderTargetFormat::RG32)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WRenderTargetFormat, 1)
+  W_ENUM_CONSTANTS(WRenderTargetFormat::RGBA8sRgb, WRenderTargetFormat::RGBA8, WRenderTargetFormat::RGB10, WRenderTargetFormat::RGBA16)
+  W_ENUM_CONSTANTS(WRenderTargetFormat::R8, WRenderTargetFormat::R16, WRenderTargetFormat::R32)
+  W_ENUM_CONSTANTS(WRenderTargetFormat::RG8, WRenderTargetFormat::RG16, WRenderTargetFormat::RG32)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 6, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureAssetProperties, 6, WRTTIDefaultAllocator<WTextureAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
-    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
-    EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
+    W_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new WHiddenAttribute),
+    W_ENUM_MEMBER_PROPERTY("Usage", WTexConvUsage, m_TextureUsage),
+    W_ENUM_MEMBER_PROPERTY("CompressionMode", WTexConvCompressionMode, m_CompressionMode),
 
-    EZ_ENUM_MEMBER_PROPERTY("Format", ezRenderTargetFormat, m_RtFormat),
-    EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
-    EZ_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+    W_ENUM_MEMBER_PROPERTY("Format", WRenderTargetFormat, m_RtFormat),
+    W_ENUM_MEMBER_PROPERTY("Resolution", WTexture2DResolution, m_Resolution),
+    W_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.1f, 10.0f)),
 
-    EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeU", ezImageAddressMode, m_AddressModeU),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeV", ezImageAddressMode, m_AddressModeV),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeW", ezImageAddressMode, m_AddressModeW),
+    W_ENUM_MEMBER_PROPERTY("TextureFilter", WTextureFilterSetting, m_TextureFilter),
+    W_ENUM_MEMBER_PROPERTY("AddressModeU", WImageAddressMode, m_AddressModeU),
+    W_ENUM_MEMBER_PROPERTY("AddressModeV", WImageAddressMode, m_AddressModeV),
+    W_ENUM_MEMBER_PROPERTY("AddressModeW", WImageAddressMode, m_AddressModeW),
 
-    EZ_MEMBER_PROPERTY("IsArrayTexture", m_bIsArrayTexture),
+    W_MEMBER_PROPERTY("IsArrayTexture", m_bIsArrayTexture),
 
-    EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
-    EZ_MEMBER_PROPERTY("PreserveAlphaCoverage", m_bPreserveAlphaCoverage),
-    EZ_MEMBER_PROPERTY("AlphaThreshold", m_fAlphaThreshold)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
+    W_ENUM_MEMBER_PROPERTY("MipmapMode", WTexConvMipmapMode, m_MipmapMode),
+    W_MEMBER_PROPERTY("PreserveAlphaCoverage", m_bPreserveAlphaCoverage),
+    W_MEMBER_PROPERTY("AlphaThreshold", m_fAlphaThreshold)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
 
-    EZ_MEMBER_PROPERTY("DilateColor", m_bDilateColor)->AddAttributes(new ezDefaultValueAttribute(false)),
-    EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
-    EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
+    W_MEMBER_PROPERTY("DilateColor", m_bDilateColor)->AddAttributes(new WDefaultValueAttribute(false)),
+    W_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
+    W_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new WClampValueAttribute(-20.0f, 20.0f)),
 
-    EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezTexture2DChannelMappingEnum, m_ChannelMapping),
-    EZ_ENUM_MEMBER_PROPERTY("ArrayChannelMapping", ezTextureArrayChannelMappingEnum, m_ArrayChannelMapping),
+    W_ENUM_MEMBER_PROPERTY("ChannelMapping", WTexture2DChannelMappingEnum, m_ChannelMapping),
+    W_ENUM_MEMBER_PROPERTY("ArrayChannelMapping", WTextureArrayChannelMappingEnum, m_ArrayChannelMapping),
 
-    EZ_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
 
-    EZ_ARRAY_MEMBER_PROPERTY("ArraySlices", m_ArraySlices)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ARRAY_MEMBER_PROPERTY("ArraySlices", m_ArraySlices)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
 
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WTextureAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezTextureAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WTextureAssetProperties>())
   {
     auto& props = *e.m_pPropertyStates;
 
     const bool isRenderTarget = e.m_pObject->GetTypeAccessor().GetValue("IsRenderTarget").ConvertTo<bool>();
     const bool isTextureArray = e.m_pObject->GetTypeAccessor().GetValue("IsArrayTexture").ConvertTo<bool>();
 
-    props["AddressModeW"].m_Visibility = ezPropertyUiState::Invisible;
+    props["AddressModeW"].m_Visibility = WPropertyUiState::Invisible;
 
     if (isRenderTarget)
     {
-      const ezInt32 resMode = e.m_pObject->GetTypeAccessor().GetValue("Resolution").ConvertTo<ezInt32>();
-      const bool resIsCVar = resMode == ezTexture2DResolution::CVarRtResolution1 || resMode == ezTexture2DResolution::CVarRtResolution2;
+      const WInt32 resMode = e.m_pObject->GetTypeAccessor().GetValue("Resolution").ConvertTo<WInt32>();
+      const bool resIsCVar = resMode == WTexture2DResolution::CVarRtResolution1 || resMode == WTexture2DResolution::CVarRtResolution2;
 
-      props["CVarResScale"].m_Visibility = resIsCVar ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
-      props["Usage"].m_Visibility = ezPropertyUiState::Invisible;
-      props["MipmapMode"].m_Visibility = ezPropertyUiState::Invisible;
-      props["CompressionMode"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
-      props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
-      props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
-      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Invisible;
-      props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
-      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Invisible;
-      props["DilateColor"].m_Visibility = ezPropertyUiState::Invisible;
+      props["CVarResScale"].m_Visibility = resIsCVar ? WPropertyUiState::Default : WPropertyUiState::Disabled;
+      props["Usage"].m_Visibility = WPropertyUiState::Invisible;
+      props["MipmapMode"].m_Visibility = WPropertyUiState::Invisible;
+      props["CompressionMode"].m_Visibility = WPropertyUiState::Invisible;
+      props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Invisible;
+      props["FlipHorizontal"].m_Visibility = WPropertyUiState::Invisible;
+      props["ChannelMapping"].m_Visibility = WPropertyUiState::Invisible;
+      props["ArrayChannelMapping"].m_Visibility = WPropertyUiState::Invisible;
+      props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Invisible;
+      props["AlphaThreshold"].m_Visibility = WPropertyUiState::Invisible;
+      props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Invisible;
+      props["HdrExposureBias"].m_Visibility = WPropertyUiState::Invisible;
+      props["DilateColor"].m_Visibility = WPropertyUiState::Invisible;
 
-      props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
-      props["ArraySlices"].m_Visibility = ezPropertyUiState::Invisible;
-      props["IsArrayTexture"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input1"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input2"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input3"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input4"].m_Visibility = WPropertyUiState::Invisible;
+      props["ArraySlices"].m_Visibility = WPropertyUiState::Invisible;
+      props["IsArrayTexture"].m_Visibility = WPropertyUiState::Invisible;
 
-      props["Format"].m_Visibility = ezPropertyUiState::Default;
-      props["Resolution"].m_Visibility = ezPropertyUiState::Default;
+      props["Format"].m_Visibility = WPropertyUiState::Default;
+      props["Resolution"].m_Visibility = WPropertyUiState::Default;
     }
     else if (isTextureArray)
     {
-      props["CVarResScale"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Format"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
+      props["CVarResScale"].m_Visibility = WPropertyUiState::Invisible;
+      props["Format"].m_Visibility = WPropertyUiState::Invisible;
+      props["Resolution"].m_Visibility = WPropertyUiState::Invisible;
 
-      props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
-      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Default;
-      props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
-      props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
-      props["DilateColor"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Invisible;
-      props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Invisible;
-      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Invisible;
+      props["ChannelMapping"].m_Visibility = WPropertyUiState::Invisible;
+      props["ArrayChannelMapping"].m_Visibility = WPropertyUiState::Default;
+      props["Input1"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input2"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input3"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input4"].m_Visibility = WPropertyUiState::Invisible;
+      props["FlipHorizontal"].m_Visibility = WPropertyUiState::Invisible;
+      props["DilateColor"].m_Visibility = WPropertyUiState::Invisible;
+      props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Invisible;
+      props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Invisible;
+      props["AlphaThreshold"].m_Visibility = WPropertyUiState::Invisible;
+      props["HdrExposureBias"].m_Visibility = WPropertyUiState::Invisible;
 
-      props["Usage"].m_Visibility = ezPropertyUiState::Default;
-      props["MipmapMode"].m_Visibility = ezPropertyUiState::Default;
-      props["CompressionMode"].m_Visibility = ezPropertyUiState::Default;
-      props["TextureFilter"].m_Visibility = ezPropertyUiState::Default;
-      props["AddressModeU"].m_Visibility = ezPropertyUiState::Default;
-      props["AddressModeV"].m_Visibility = ezPropertyUiState::Default;
-      props["ArraySlices"].m_Visibility = ezPropertyUiState::Default;
-      props["IsArrayTexture"].m_Visibility = ezPropertyUiState::Default;
+      props["Usage"].m_Visibility = WPropertyUiState::Default;
+      props["MipmapMode"].m_Visibility = WPropertyUiState::Default;
+      props["CompressionMode"].m_Visibility = WPropertyUiState::Default;
+      props["TextureFilter"].m_Visibility = WPropertyUiState::Default;
+      props["AddressModeU"].m_Visibility = WPropertyUiState::Default;
+      props["AddressModeV"].m_Visibility = WPropertyUiState::Default;
+      props["ArraySlices"].m_Visibility = WPropertyUiState::Default;
+      props["IsArrayTexture"].m_Visibility = WPropertyUiState::Default;
 
-      const ezInt64 arrayMapping = e.m_pObject->GetTypeAccessor().GetValue("ArrayChannelMapping").ConvertTo<ezInt64>();
-      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<ezInt32>() != ezTexConvMipmapMode::None;
+      const WInt64 arrayMapping = e.m_pObject->GetTypeAccessor().GetValue("ArrayChannelMapping").ConvertTo<WInt64>();
+      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<WInt32>() != WTexConvMipmapMode::None;
 
-      if (arrayMapping == ezTextureArrayChannelMappingEnum::RGBA)
+      if (arrayMapping == WTextureArrayChannelMappingEnum::RGBA)
       {
-        props["DilateColor"].m_Visibility = ezPropertyUiState::Default;
+        props["DilateColor"].m_Visibility = WPropertyUiState::Default;
 
         if (hasMips)
         {
-          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
-          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+          props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = WPropertyUiState::Default;
         }
       }
 
-      if (e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr)
+      if (e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<WInt32>() == WTexConvUsage::Hdr)
       {
-        props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
+        props["HdrExposureBias"].m_Visibility = WPropertyUiState::Default;
       }
     }
     else
     {
-      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<ezInt32>() != ezTexConvMipmapMode::None;
-      const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr;
+      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<WInt32>() != WTexConvMipmapMode::None;
+      const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<WInt32>() == WTexConvUsage::Hdr;
 
-      props["CVarResScale"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Usage"].m_Visibility = ezPropertyUiState::Default;
-      props["Mipmaps"].m_Visibility = ezPropertyUiState::Default;
-      props["Compression"].m_Visibility = ezPropertyUiState::Default;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Disabled;
-      props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Default;
-      props["ChannelMapping"].m_Visibility = ezPropertyUiState::Default;
-      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Format"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
-      props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Disabled;
-      props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Disabled;
-      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Disabled;
-      props["DilateColor"].m_Visibility = ezPropertyUiState::Disabled;
-      props["ArraySlices"].m_Visibility = ezPropertyUiState::Invisible;
-      props["IsArrayTexture"].m_Visibility = ezPropertyUiState::Default;
+      props["CVarResScale"].m_Visibility = WPropertyUiState::Invisible;
+      props["Usage"].m_Visibility = WPropertyUiState::Default;
+      props["Mipmaps"].m_Visibility = WPropertyUiState::Default;
+      props["Compression"].m_Visibility = WPropertyUiState::Default;
+      props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Disabled;
+      props["FlipHorizontal"].m_Visibility = WPropertyUiState::Default;
+      props["ChannelMapping"].m_Visibility = WPropertyUiState::Default;
+      props["ArrayChannelMapping"].m_Visibility = WPropertyUiState::Invisible;
+      props["Format"].m_Visibility = WPropertyUiState::Invisible;
+      props["Resolution"].m_Visibility = WPropertyUiState::Invisible;
+      props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Disabled;
+      props["AlphaThreshold"].m_Visibility = WPropertyUiState::Disabled;
+      props["HdrExposureBias"].m_Visibility = WPropertyUiState::Disabled;
+      props["DilateColor"].m_Visibility = WPropertyUiState::Disabled;
+      props["ArraySlices"].m_Visibility = WPropertyUiState::Invisible;
+      props["IsArrayTexture"].m_Visibility = WPropertyUiState::Default;
 
-      const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
+      const WInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<WInt64>();
 
-      props["Usage"].m_Visibility = ezPropertyUiState::Default;
-      props["Input1"].m_Visibility = ezPropertyUiState::Default;
-      props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Usage"].m_Visibility = WPropertyUiState::Default;
+      props["Input1"].m_Visibility = WPropertyUiState::Default;
+      props["Input2"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input3"].m_Visibility = WPropertyUiState::Invisible;
+      props["Input4"].m_Visibility = WPropertyUiState::Invisible;
 
       {
         props["Input1"].m_sNewLabelText = "TextureAsset::Input1";
@@ -198,101 +198,101 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
       switch (mapping)
       {
-        case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
-          props["Input4"].m_Visibility = ezPropertyUiState::Default;
+        case WTexture2DChannelMappingEnum::R1_G2_B3_A4:
+          props["Input4"].m_Visibility = WPropertyUiState::Default;
           // fall through
 
-        case ezTexture2DChannelMappingEnum::R1_G2_B3:
-          props["Input3"].m_Visibility = ezPropertyUiState::Default;
+        case WTexture2DChannelMappingEnum::R1_G2_B3:
+          props["Input3"].m_Visibility = WPropertyUiState::Default;
           // fall through
 
-        case ezTexture2DChannelMappingEnum::RGB1_A2:
-        case ezTexture2DChannelMappingEnum::R1_G2:
-          props["Input2"].m_Visibility = ezPropertyUiState::Default;
+        case WTexture2DChannelMappingEnum::RGB1_A2:
+        case WTexture2DChannelMappingEnum::R1_G2:
+          props["Input2"].m_Visibility = WPropertyUiState::Default;
           break;
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::R1 || mapping == ezTexture2DChannelMappingEnum::R1_ALPHA || mapping == ezTexture2DChannelMappingEnum::RGBA1 ||
-          mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 || mapping == ezTexture2DChannelMappingEnum::RGB1_A2 ||
-          mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
+      if (mapping == WTexture2DChannelMappingEnum::R1 || mapping == WTexture2DChannelMappingEnum::R1_ALPHA || mapping == WTexture2DChannelMappingEnum::RGBA1 ||
+          mapping == WTexture2DChannelMappingEnum::R1_G2_B3_A4 || mapping == WTexture2DChannelMappingEnum::RGB1_A2 ||
+          mapping == WTexture2DChannelMappingEnum::R1_G2_B3_A4)
       {
-        if (mapping != ezTexture2DChannelMappingEnum::R1)
+        if (mapping != WTexture2DChannelMappingEnum::R1)
         {
-          props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
-          props["DilateColor"].m_Visibility = ezPropertyUiState::Default;
+          props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Default;
+          props["DilateColor"].m_Visibility = WPropertyUiState::Default;
         }
 
         if (hasMips)
         {
-          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
-          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+          props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = WPropertyUiState::Default;
         }
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::RGBWHITE_A1 || mapping == ezTexture2DChannelMappingEnum::RGBWHITE_R1)
+      if (mapping == WTexture2DChannelMappingEnum::RGBWHITE_A1 || mapping == WTexture2DChannelMappingEnum::RGBWHITE_R1)
       {
         // RGB is a constant white, so dilating the color into transparent areas is pointless,
         // but keeping the mask's coverage across mips is not.
         if (hasMips)
         {
-          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
-          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+          props["PreserveAlphaCoverage"].m_Visibility = WPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = WPropertyUiState::Default;
         }
       }
 
       if (isHDR)
       {
-        props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
+        props["HdrExposureBias"].m_Visibility = WPropertyUiState::Default;
       }
     }
 
     // always hide this, feature may be removed at some point
-    props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
+    props["PremultipliedAlpha"].m_Visibility = WPropertyUiState::Invisible;
   }
 }
 
-ezString ezTextureAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) const
+WString WTextureAssetProperties::GetAbsoluteInputFilePath(WInt32 iInput) const
 {
-  ezStringBuilder sPath = m_Input[iInput];
+  WStringBuilder sPath = m_Input[iInput];
   sPath.MakeCleanPath();
 
   if (!sPath.IsAbsolutePath())
   {
-    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
   }
 
   return sPath;
 }
 
-ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
+WInt32 WTextureAssetProperties::GetNumInputFiles() const
 {
   if (m_bIsRenderTarget)
     return 0;
 
   switch (m_ChannelMapping)
   {
-    case ezTexture2DChannelMappingEnum::R1:
-    case ezTexture2DChannelMappingEnum::R1_ALPHA:
-    case ezTexture2DChannelMappingEnum::RG1:
-    case ezTexture2DChannelMappingEnum::RGB1:
-    case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
-    case ezTexture2DChannelMappingEnum::RGBA1:
-    case ezTexture2DChannelMappingEnum::RGBWHITE_A1:
-    case ezTexture2DChannelMappingEnum::RGBWHITE_R1:
+    case WTexture2DChannelMappingEnum::R1:
+    case WTexture2DChannelMappingEnum::R1_ALPHA:
+    case WTexture2DChannelMappingEnum::RG1:
+    case WTexture2DChannelMappingEnum::RGB1:
+    case WTexture2DChannelMappingEnum::RGB1_ABLACK:
+    case WTexture2DChannelMappingEnum::RGBA1:
+    case WTexture2DChannelMappingEnum::RGBWHITE_A1:
+    case WTexture2DChannelMappingEnum::RGBWHITE_R1:
       return 1;
 
-    case ezTexture2DChannelMappingEnum::R1_G2:
-    case ezTexture2DChannelMappingEnum::RGB1_A2:
+    case WTexture2DChannelMappingEnum::R1_G2:
+    case WTexture2DChannelMappingEnum::RGB1_A2:
       return 2;
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3:
+    case WTexture2DChannelMappingEnum::R1_G2_B3:
       return 3;
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
+    case WTexture2DChannelMappingEnum::R1_G2_B3_A4:
       return 4;
   }
 
-  EZ_REPORT_FAILURE("Invalid Code Path");
+  W_REPORT_FAILURE("Invalid Code Path");
   return 1;
 }
 
@@ -303,118 +303,118 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezTextureAssetPropertiesPatch_2_3 : public ezGraphPatch
+class WTextureAssetPropertiesPatch_2_3 : public WGraphPatch
 {
 public:
-  ezTextureAssetPropertiesPatch_2_3()
-    : ezGraphPatch("ezTextureAssetProperties", 3)
+  WTextureAssetPropertiesPatch_2_3()
+    : WGraphPatch("WTextureAssetProperties", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pMipmaps = pNode->FindProperty("Mipmaps");
     if (pMipmaps && pMipmaps->m_Value.IsA<bool>())
     {
       if (pMipmaps->m_Value.Get<bool>())
-        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Kaiser);
+        pNode->AddProperty("MipmapMode", (WInt32)WTexConvMipmapMode::Kaiser);
       else
-        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::None);
+        pNode->AddProperty("MipmapMode", (WInt32)WTexConvMipmapMode::None);
     }
 
     auto* pCompression = pNode->FindProperty("Compression");
     if (pCompression && pCompression->m_Value.IsA<bool>())
     {
       if (pCompression->m_Value.Get<bool>())
-        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::High);
+        pNode->AddProperty("CompressionMode", (WInt32)WTexConvCompressionMode::High);
       else
-        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::None);
+        pNode->AddProperty("CompressionMode", (WInt32)WTexConvCompressionMode::None);
     }
   }
 };
 
-ezTextureAssetPropertiesPatch_2_3 g_ezTextureAssetPropertiesPatch_2_3;
+WTextureAssetPropertiesPatch_2_3 g_WTextureAssetPropertiesPatch_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezTextureAssetPropertiesPatch_3_4 : public ezGraphPatch
+class WTextureAssetPropertiesPatch_3_4 : public WGraphPatch
 {
 public:
-  ezTextureAssetPropertiesPatch_3_4()
-    : ezGraphPatch("ezTextureAssetProperties", 4)
+  WTextureAssetPropertiesPatch_3_4()
+    : WGraphPatch("WTextureAssetProperties", 4)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     const char* szAddressModes[] = {"AddressModeU", "AddressModeV", "AddressModeW"};
 
-    for (ezUInt32 i = 0; i < 3; ++i)
+    for (WUInt32 i = 0; i < 3; ++i)
     {
       auto* pAddress = pNode->FindProperty(szAddressModes[i]);
-      if (pAddress && pAddress->m_Value.IsA<ezString>())
+      if (pAddress && pAddress->m_Value.IsA<WString>())
       {
-        if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Wrap")
+        if (pAddress->m_Value.Get<WString>() == "WTexture2DAddressMode::Wrap")
         {
-          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Repeat);
+          pNode->ChangeProperty(szAddressModes[i], (WInt32)WImageAddressMode::Repeat);
         }
-        else if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Clamp")
+        else if (pAddress->m_Value.Get<WString>() == "WTexture2DAddressMode::Clamp")
         {
-          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Clamp);
+          pNode->ChangeProperty(szAddressModes[i], (WInt32)WImageAddressMode::Clamp);
         }
-        else if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Mirror")
+        else if (pAddress->m_Value.Get<WString>() == "WTexture2DAddressMode::Mirror")
         {
-          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Mirror);
+          pNode->ChangeProperty(szAddressModes[i], (WInt32)WImageAddressMode::Mirror);
         }
       }
     }
   }
 };
 
-ezTextureAssetPropertiesPatch_3_4 g_ezTextureAssetPropertiesPatch_3_4;
+WTextureAssetPropertiesPatch_3_4 g_WTextureAssetPropertiesPatch_3_4;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezTextureAssetPropertiesPatch_4_5 : public ezGraphPatch
+class WTextureAssetPropertiesPatch_4_5 : public WGraphPatch
 {
 public:
-  ezTextureAssetPropertiesPatch_4_5()
-    : ezGraphPatch("ezTextureAssetProperties", 5)
+  WTextureAssetPropertiesPatch_4_5()
+    : WGraphPatch("WTextureAssetProperties", 5)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pUsage = pNode->FindProperty("Usage");
-    if (pUsage && pUsage->m_Value.IsA<ezString>())
+    if (pUsage && pUsage->m_Value.IsA<WString>())
     {
-      if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Unknown")
+      if (pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Unknown")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Auto);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Auto);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Other_sRGB" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Diffuse" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::EmissiveColor")
+      else if (pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Other_sRGB" ||
+               pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Diffuse" ||
+               pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::EmissiveColor")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Color);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Color);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Height" || pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Mask" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::LookupTable" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Other_Linear" ||
-               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::EmissiveMask")
+      else if (pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Height" || pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Mask" ||
+               pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::LookupTable" ||
+               pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::Other_Linear" ||
+               pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::EmissiveMask")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Linear);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Linear);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::NormalMap")
+      else if (pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::NormalMap")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::NormalMap);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::NormalMap);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::HDR")
+      else if (pUsage->m_Value.Get<WString>() == "WTexture2DUsageEnum::HDR")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Hdr);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Hdr);
       }
     }
   }
 };
 
-ezTextureAssetPropertiesPatch_4_5 g_ezTextureAssetPropertiesPatch_4_5;
+WTextureAssetPropertiesPatch_4_5 g_WTextureAssetPropertiesPatch_4_5;

@@ -7,59 +7,59 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 
 // The POSIX functions are not thread safe by definition.
-static ezMutex s_EnvVarMutex;
+static WMutex s_EnvVarMutex;
 
 
-ezString ezEnvironmentVariableUtils::GetValueString(ezStringView sName, ezStringView sDefault /*= nullptr*/)
+WString WEnvironmentVariableUtils::GetValueString(WStringView sName, WStringView sDefault /*= nullptr*/)
 {
-  EZ_ASSERT_DEV(!sName.IsEmpty(), "Null or empty name passed to ezEnvironmentVariableUtils::GetValueString()");
+  W_ASSERT_DEV(!sName.IsEmpty(), "Null or empty name passed to WEnvironmentVariableUtils::GetValueString()");
 
-  EZ_LOCK(s_EnvVarMutex);
+  W_LOCK(s_EnvVarMutex);
 
   return GetValueStringImpl(sName, sDefault);
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueString(ezStringView sName, ezStringView sValue)
+WResult WEnvironmentVariableUtils::SetValueString(WStringView sName, WStringView sValue)
 {
-  EZ_LOCK(s_EnvVarMutex);
+  W_LOCK(s_EnvVarMutex);
 
   return SetValueStringImpl(sName, sValue);
 }
 
-ezInt32 ezEnvironmentVariableUtils::GetValueInt(ezStringView sName, ezInt32 iDefault /*= -1*/)
+WInt32 WEnvironmentVariableUtils::GetValueInt(WStringView sName, WInt32 iDefault /*= -1*/)
 {
-  EZ_LOCK(s_EnvVarMutex);
+  W_LOCK(s_EnvVarMutex);
 
-  ezString value = GetValueString(sName);
+  WString value = GetValueString(sName);
 
   if (value.IsEmpty())
     return iDefault;
 
-  ezInt32 iRetVal = 0;
-  if (ezConversionUtils::StringToInt(value, iRetVal).Succeeded())
+  WInt32 iRetVal = 0;
+  if (WConversionUtils::StringToInt(value, iRetVal).Succeeded())
     return iRetVal;
   else
     return iDefault;
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueInt(ezStringView sName, ezInt32 iValue)
+WResult WEnvironmentVariableUtils::SetValueInt(WStringView sName, WInt32 iValue)
 {
-  ezStringBuilder sb;
+  WStringBuilder sb;
   sb.SetFormat("{}", iValue);
 
   return SetValueString(sName, sb);
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSet(ezStringView sName)
+bool WEnvironmentVariableUtils::IsVariableSet(WStringView sName)
 {
-  EZ_LOCK(s_EnvVarMutex);
+  W_LOCK(s_EnvVarMutex);
 
   return IsVariableSetImpl(sName);
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
+WResult WEnvironmentVariableUtils::UnsetVariable(WStringView sName)
 {
-  EZ_LOCK(s_EnvVarMutex);
+  W_LOCK(s_EnvVarMutex);
 
   return UnsetVariableImpl(sName);
 }

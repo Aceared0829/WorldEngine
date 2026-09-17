@@ -12,9 +12,9 @@
 #include <QUrl>
 #include <qdesktopservices.h>
 
-ezQtDataWidget* ezQtDataWidget::s_pWidget = nullptr;
+WQtDataWidget* WQtDataWidget::s_pWidget = nullptr;
 
-ezQtDataWidget::ezQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+WQtDataWidget::WQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent)
   : ads::CDockWidget(pDockManager, "Data Transfer Widget", pParent)
 {
   /// \todo Improve Data Transfer UI
@@ -29,21 +29,21 @@ ezQtDataWidget::ezQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent
   ResetStats();
 }
 
-void ezQtDataWidget::ResetStats()
+void WQtDataWidget::ResetStats()
 {
   m_Transfers.Clear();
   ComboTransfers->clear();
   ComboItems->clear();
 }
 
-void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
+void WQtDataWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
 
-  while (ezTelemetry::RetrieveMessage('TRAN', msg) == EZ_SUCCESS)
+  while (WTelemetry::RetrieveMessage('TRAN', msg) == W_SUCCESS)
   {
     if (msg.GetMessageID() == ' CLR')
     {
@@ -52,26 +52,26 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'ENBL')
     {
-      ezString sName;
+      WString sName;
       msg.GetReader() >> sName;
 
       // this will create the item, do not remove!
       TransferData& td = s_pWidget->m_Transfers[sName];
-      EZ_IGNORE_UNUSED(td);
+      W_IGNORE_UNUSED(td);
 
       s_pWidget->ComboTransfers->addItem(sName.GetData());
     }
 
     if (msg.GetMessageID() == 'DSBL')
     {
-      ezString sName;
+      WString sName;
       msg.GetReader() >> sName;
 
       auto it = s_pWidget->m_Transfers.Find(sName);
 
       if (it.IsValid())
       {
-        ezInt32 iIndex = s_pWidget->ComboTransfers->findText(sName.GetData());
+        WInt32 iIndex = s_pWidget->ComboTransfers->findText(sName.GetData());
 
         if (iIndex >= 0)
           s_pWidget->ComboTransfers->removeItem(iIndex);
@@ -80,7 +80,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'DATA')
     {
-      ezString sBelongsTo, sName, sMimeType, sExtension;
+      WString sBelongsTo, sName, sMimeType, sExtension;
 
       msg.GetReader() >> sBelongsTo;
       msg.GetReader() >> sName;
@@ -95,13 +95,13 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
         tdo.m_sMimeType = sMimeType;
         tdo.m_sExtension = sExtension;
 
-        ezMemoryStreamWriter Writer(&tdo.m_Storage);
+        WMemoryStreamWriter Writer(&tdo.m_Storage);
 
         // copy the entire memory stream over and store it for later
         while (true)
         {
-          ezUInt8 uiTemp[1024];
-          const ezUInt64 uiRead = msg.GetReader().ReadBytes(uiTemp, 1024);
+          WUInt8 uiTemp[1024];
+          const WUInt64 uiRead = msg.GetReader().ReadBytes(uiTemp, 1024);
 
           if (uiRead == 0)
             break;
@@ -115,12 +115,12 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezQtDataWidget::on_ButtonRefresh_clicked()
+void WQtDataWidget::on_ButtonRefresh_clicked()
 {
   if (ComboTransfers->currentIndex() < 0)
     return;
 
-  const ezStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
+  const WStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
 
   auto it = m_Transfers.Find(sName);
 
@@ -130,20 +130,20 @@ void ezQtDataWidget::on_ButtonRefresh_clicked()
   LabelImage->setPixmap(QPixmap());
   LabelImage->setText("Waiting for data transfer...");
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID('DTRA', ' REQ');
   msg.GetWriter() << it.Key();
-  ezTelemetry::SendToServer(msg);
+  WTelemetry::SendToServer(msg);
 }
 
-void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
+void WQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
 {
   ComboItems->clear();
 
   if (index < 0)
     return;
 
-  ezStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
+  WStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
 
   auto itTransfer = m_Transfers.Find(sName);
 
@@ -151,7 +151,7 @@ void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
     return;
 
   {
-    ezQtScopedUpdatesDisabled _1(ComboItems);
+    WQtScopedUpdatesDisabled _1(ComboItems);
 
     for (auto itItem = itTransfer.Value().m_Items.GetIterator(); itItem.IsValid(); ++itItem)
     {
@@ -164,14 +164,14 @@ void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
   on_ComboItems_currentIndexChanged(ComboItems->currentIndex());
 }
 
-ezQtDataWidget::TransferDataObject* ezQtDataWidget::GetCurrentItem()
+WQtDataWidget::TransferDataObject* WQtDataWidget::GetCurrentItem()
 {
   auto Transfer = GetCurrentTransfer();
 
   if (Transfer == nullptr)
     return nullptr;
 
-  ezString sItem = ComboItems->currentText().toUtf8().data();
+  WString sItem = ComboItems->currentText().toUtf8().data();
 
   auto itItem = Transfer->m_Items.Find(sItem);
   if (!itItem.IsValid())
@@ -180,9 +180,9 @@ ezQtDataWidget::TransferDataObject* ezQtDataWidget::GetCurrentItem()
   return &itItem.Value();
 }
 
-ezQtDataWidget::TransferData* ezQtDataWidget::GetCurrentTransfer()
+WQtDataWidget::TransferData* WQtDataWidget::GetCurrentTransfer()
 {
-  ezString sTransfer = ComboTransfers->currentText().toUtf8().data();
+  WString sTransfer = ComboTransfers->currentText().toUtf8().data();
 
   auto itTransfer = m_Transfers.Find(sTransfer);
   if (!itTransfer.IsValid())
@@ -191,7 +191,7 @@ ezQtDataWidget::TransferData* ezQtDataWidget::GetCurrentTransfer()
   return &itTransfer.Value();
 }
 
-void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
+void WQtDataWidget::on_ComboItems_currentIndexChanged(int index)
 {
   if (index < 0)
     return;
@@ -201,18 +201,18 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   if (!pItem)
     return;
 
-  const ezString sMime = pItem->m_sMimeType;
+  const WString sMime = pItem->m_sMimeType;
   auto& Stream = pItem->m_Storage;
 
-  ezMemoryStreamReader Reader(&Stream);
+  WMemoryStreamReader Reader(&Stream);
 
   if (sMime == "image/rgba8")
   {
-    ezUInt32 uiWidth, uiHeight;
+    WUInt32 uiWidth, uiHeight;
     Reader >> uiWidth;
     Reader >> uiHeight;
 
-    ezDynamicArray<ezUInt8> Image;
+    WDynamicArray<WUInt8> Image;
     Image.SetCountUninitialized(uiWidth * uiHeight * 4);
 
     Reader.ReadBytes(&Image[0], Image.GetCount());
@@ -223,9 +223,9 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   }
   else if (sMime == "text/xml" || sMime == "application/json" || sMime == "text/plain")
   {
-    const ezUInt32 uiMaxBytes = ezMath::Min<ezUInt32>(1024 * 16, Reader.GetByteCount32());
+    const WUInt32 uiMaxBytes = WMath::Min<WUInt32>(1024 * 16, Reader.GetByteCount32());
 
-    ezTempHybridArray<ezUInt8, 1024> Temp;
+    WTempHybridArray<WUInt8, 1024> Temp;
     Temp.SetCountUninitialized(uiMaxBytes + 1);
 
     Reader.ReadBytes(Temp.GetData(), uiMaxBytes);
@@ -235,19 +235,19 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   }
   else
   {
-    ezStringBuilder sText;
+    WStringBuilder sText;
     sText.SetFormat("Cannot display data of Mime-Type '{0}'", sMime);
 
     LabelImage->setText(sText.GetData());
   }
 }
 
-bool ezQtDataWidget::SaveToFile(TransferDataObject& item, ezStringView sFile)
+bool WQtDataWidget::SaveToFile(TransferDataObject& item, WStringView sFile)
 {
   auto& Stream = item.m_Storage;
-  ezMemoryStreamReader Reader(&Stream);
+  WMemoryStreamReader Reader(&Stream);
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   QFile FileOut(sFile.GetData(tmp));
   if (!FileOut.open(QIODevice::WriteOnly))
   {
@@ -255,7 +255,7 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, ezStringView sFile)
     return false;
   }
 
-  ezTempHybridArray<ezUInt8, 1024> Temp;
+  WTempHybridArray<WUInt8, 1024> Temp;
   Temp.SetCountUninitialized(Reader.GetByteCount32());
 
   Reader.ReadBytes(&Temp[0], Reader.GetByteCount32());
@@ -267,13 +267,13 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, ezStringView sFile)
   return true;
 }
 
-void ezQtDataWidget::on_ButtonSave_clicked()
+void WQtDataWidget::on_ButtonSave_clicked()
 {
   auto pItem = GetCurrentItem();
 
   if (!pItem)
   {
-    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("WInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
     return;
   }
 
@@ -298,13 +298,13 @@ void ezQtDataWidget::on_ButtonSave_clicked()
   SaveToFile(*pItem, pItem->m_sFileName.GetData());
 }
 
-void ezQtDataWidget::on_ButtonOpen_clicked()
+void WQtDataWidget::on_ButtonOpen_clicked()
 {
   auto pItem = GetCurrentItem();
 
   if (!pItem)
   {
-    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("WInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
     return;
   }
 
@@ -317,5 +317,5 @@ void ezQtDataWidget::on_ButtonOpen_clicked()
   SaveToFile(*pItem, pItem->m_sFileName.GetData());
 
   if (!QDesktopServices::openUrl(QUrl(pItem->m_sFileName.GetData())))
-    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("Could not open the file. There is probably no application registered to handle this file type."), QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("WInspector"), QLatin1String("Could not open the file. There is probably no application registered to handle this file type."), QMessageBox::Ok, QMessageBox::Ok);
 }

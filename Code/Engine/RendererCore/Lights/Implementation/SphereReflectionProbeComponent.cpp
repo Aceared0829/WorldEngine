@@ -13,150 +13,150 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSphereReflectionProbeComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSphereReflectionProbeComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezClampValueAttribute(0.0f, {}), new ezDefaultValueAttribute(5.0f)),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.1f)),
-    EZ_ACCESSOR_PROPERTY("SphereProjection", GetSphereProjection, SetSphereProjection)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WClampValueAttribute(0.0f, {}), new WDefaultValueAttribute(5.0f)),
+    W_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new WClampValueAttribute(0.0f, 1.0f), new WDefaultValueAttribute(0.1f)),
+    W_ACCESSOR_PROPERTY("SphereProjection", GetSphereProjection, SetSphereProjection)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+    W_FUNCTION_PROPERTY(OnObjectCreated),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_FUNCTIONS;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnTransformChanged),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Reflections"),
-    new ezSphereVisualizerAttribute("Radius", ezColorScheme::LightUI(ezColorScheme::Blue)),
-    new ezSphereManipulatorAttribute("Radius"),
+    new WCategoryAttribute("Rendering/Reflections"),
+    new WSphereVisualizerAttribute("Radius", WColorScheme::LightUI(WColorScheme::Blue)),
+    new WSphereManipulatorAttribute("Radius"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSphereReflectionProbeComponentManager::ezSphereReflectionProbeComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezSphereReflectionProbeComponent, ezBlockStorageType::Compact>(pWorld)
+WSphereReflectionProbeComponentManager::WSphereReflectionProbeComponentManager(WWorld* pWorld)
+  : WComponentManager<WSphereReflectionProbeComponent, WBlockStorageType::Compact>(pWorld)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSphereReflectionProbeComponent::ezSphereReflectionProbeComponent() = default;
-ezSphereReflectionProbeComponent::~ezSphereReflectionProbeComponent() = default;
+WSphereReflectionProbeComponent::WSphereReflectionProbeComponent() = default;
+WSphereReflectionProbeComponent::~WSphereReflectionProbeComponent() = default;
 
-void ezSphereReflectionProbeComponent::SetRadius(float fRadius)
+void WSphereReflectionProbeComponent::SetRadius(float fRadius)
 {
-  m_fRadius = ezMath::Max(fRadius, 0.0f);
+  m_fRadius = WMath::Max(fRadius, 0.0f);
   m_bStatesDirty = true;
 }
 
-float ezSphereReflectionProbeComponent::GetRadius() const
+float WSphereReflectionProbeComponent::GetRadius() const
 {
   return m_fRadius;
 }
 
-void ezSphereReflectionProbeComponent::SetFalloff(float fFalloff)
+void WSphereReflectionProbeComponent::SetFalloff(float fFalloff)
 {
-  m_fFalloff = ezMath::Clamp(fFalloff, ezMath::DefaultEpsilon<float>(), 1.0f);
+  m_fFalloff = WMath::Clamp(fFalloff, WMath::DefaultEpsilon<float>(), 1.0f);
 }
 
-void ezSphereReflectionProbeComponent::SetSphereProjection(bool bSphereProjection)
+void WSphereReflectionProbeComponent::SetSphereProjection(bool bSphereProjection)
 {
   m_bSphereProjection = bSphereProjection;
 }
 
-void ezSphereReflectionProbeComponent::OnActivated()
+void WSphereReflectionProbeComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
-  m_Id = ezReflectionPool::RegisterReflectionProbe(GetWorld(), m_Desc, this);
+  m_Id = WReflectionPool::RegisterReflectionProbe(GetWorld(), m_Desc, this);
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezSphereReflectionProbeComponent::OnDeactivated()
+void WSphereReflectionProbeComponent::OnDeactivated()
 {
-  ezReflectionPool::DeregisterReflectionProbe(GetWorld(), m_Id);
+  WReflectionPool::DeregisterReflectionProbe(GetWorld(), m_Id);
   m_Id.Invalidate();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezSphereReflectionProbeComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void WSphereReflectionProbeComponent::OnObjectCreated(const WAbstractObjectNode& node)
 {
   m_Desc.m_uniqueID = node.GetGuid();
 }
 
-void ezSphereReflectionProbeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WSphereReflectionProbeComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible(ezDefaultSpatialDataCategories::RenderDynamic);
+  msg.SetAlwaysVisible(WDefaultSpatialDataCategories::RenderDynamic);
 }
 
-void ezSphereReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSphereReflectionProbeComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't trigger reflection rendering in shadow or other reflection views.
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Reflection)
     return;
 
   if (m_bStatesDirty)
   {
     m_bStatesDirty = false;
-    ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
+    WReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
   }
 
   auto globalTransform = GetOwner()->GetGlobalTransform();
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WReflectionProbeRenderData>(GetOwner());
   pRenderData->m_vGlobalPosition = globalTransform * m_Desc.m_vCaptureOffset;
   pRenderData->m_GlobalTransform = globalTransform;
-  pRenderData->m_vHalfExtents = ezVec3(m_fRadius);
-  pRenderData->m_vInfluenceScale = ezVec3(1.0f);
-  pRenderData->m_vInfluenceShift = ezVec3(0.0f);
-  pRenderData->m_vPositiveFalloff = ezVec3(m_fFalloff);
-  pRenderData->m_vNegativeFalloff = ezVec3(m_fFalloff);
+  pRenderData->m_vHalfExtents = WVec3(m_fRadius);
+  pRenderData->m_vInfluenceScale = WVec3(1.0f);
+  pRenderData->m_vInfluenceShift = WVec3(0.0f);
+  pRenderData->m_vPositiveFalloff = WVec3(m_fFalloff);
+  pRenderData->m_vNegativeFalloff = WVec3(m_fFalloff);
   pRenderData->m_Id = m_Id;
   pRenderData->m_uiIndex = REFLECTION_PROBE_IS_SPHERE;
   if (m_bSphereProjection)
     pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
-  const ezVec3 vScale = globalTransform.m_vScale * m_fRadius;
-  constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();
-  const float fEllipsoidVolume = fSphereConstant * ezMath::Abs(vScale.x * vScale.y * vScale.z);
+  const WVec3 vScale = globalTransform.m_vScale * m_fRadius;
+  constexpr float fSphereConstant = (4.0f / 3.0f) * WMath::Pi<float>();
+  const float fEllipsoidVolume = fSphereConstant * WMath::Abs(vScale.x * vScale.y * vScale.z);
 
   float fPriority = ComputePriority(msg, pRenderData, fEllipsoidVolume, vScale);
-  ezReflectionPool::ExtractReflectionProbe(this, msg, pRenderData, GetWorld(), m_Id, fPriority);
+  WReflectionPool::ExtractReflectionProbe(this, msg, pRenderData, GetWorld(), m_Id, fPriority);
 }
 
-void ezSphereReflectionProbeComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+void WSphereReflectionProbeComponent::OnTransformChanged(WMsgTransformChanged& msg)
 {
   m_bStatesDirty = true;
 }
 
-void ezSphereReflectionProbeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSphereReflectionProbeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFalloff;
   s << m_bSphereProjection;
 }
 
-void ezSphereReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSphereReflectionProbeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
@@ -177,20 +177,20 @@ void ezSphereReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSphereReflectionProbeComponent_1_2 : public ezGraphPatch
+class WSphereReflectionProbeComponent_1_2 : public WGraphPatch
 {
 public:
-  ezSphereReflectionProbeComponent_1_2()
-    : ezGraphPatch("ezSphereReflectionProbeComponent", 2)
+  WSphereReflectionProbeComponent_1_2()
+    : WGraphPatch("WSphereReflectionProbeComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->AddProperty("SphereProjection", false);
   }
 };
 
-ezSphereReflectionProbeComponent_1_2 g_ezSphereReflectionProbeComponent_1_2;
+WSphereReflectionProbeComponent_1_2 g_WSphereReflectionProbeComponent_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SphereReflectionProbeComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SphereReflectionProbeComponent);

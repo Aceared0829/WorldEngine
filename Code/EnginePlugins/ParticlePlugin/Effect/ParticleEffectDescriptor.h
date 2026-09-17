@@ -4,39 +4,39 @@
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectDescriptor final : public ezReflectedClass
+class W_PARTICLEPLUGIN_DLL WParticleEffectDescriptor final : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEffectDescriptor, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEffectDescriptor, WReflectedClass);
 
 public:
-  ezParticleEffectDescriptor();
-  ~ezParticleEffectDescriptor();
+  WParticleEffectDescriptor();
+  ~WParticleEffectDescriptor();
 
-  void AddParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.PushBack(pSystem); }
-  void RemoveParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.RemoveAndCopy(pSystem); }
-  const ezHybridArray<ezParticleSystemDescriptor*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
+  void AddParticleSystem(WParticleSystemDescriptor* pSystem) { m_ParticleSystems.PushBack(pSystem); }
+  void RemoveParticleSystem(WParticleSystemDescriptor* pSystem) { m_ParticleSystems.RemoveAndCopy(pSystem); }
+  const WHybridArray<WParticleSystemDescriptor*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
-  void AddEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.PushBack(pSystem); }
-  void RemoveEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.RemoveAndCopy(pSystem); }
-  const ezHybridArray<ezParticleEventReactionFactory*, 4>& GetEventReactions() const { return m_EventReactions; }
+  void AddEventReaction(WParticleEventReactionFactory* pSystem) { m_EventReactions.PushBack(pSystem); }
+  void RemoveEventReaction(WParticleEventReactionFactory* pSystem) { m_EventReactions.RemoveAndCopy(pSystem); }
+  const WHybridArray<WParticleEventReactionFactory*, 4>& GetEventReactions() const { return m_EventReactions; }
 
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
 
   void ClearSystems();
   void ClearEventReactions();
 
-  ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
+  WEnum<WEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
   bool m_bSimulateInLocalSpace = false;
   bool m_bAlwaysShared = false;
   float m_fApplyInstanceVelocity = 0.0f;
-  ezTime m_PreSimulateDuration;
-  ezVec3U32 m_vNumWindSamples = ezVec3U32(1);
-  ezMap<ezString, float> m_FloatParameters;
-  ezMap<ezString, ezColor> m_ColorParameters;
+  WTime m_PreSimulateDuration;
+  WVec3U32 m_vNumWindSamples = WVec3U32(1);
+  WMap<WString, float> m_FloatParameters;
+  WMap<WString, WColor> m_ColorParameters;
 
 private:
-  ezHybridArray<ezParticleSystemDescriptor*, 4> m_ParticleSystems;
-  ezHybridArray<ezParticleEventReactionFactory*, 4> m_EventReactions;
+  WHybridArray<WParticleSystemDescriptor*, 4> m_ParticleSystems;
+  WHybridArray<WParticleEventReactionFactory*, 4> m_EventReactions;
 };

@@ -1,0 +1,204 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{8562727052900731054,4703681621695519470}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"RmlUi"}
+		VarArray %Dependencies
+		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		Uuid %DocumentID{u4{8562727052900731054,4703681621695519470}}
+		u4 %Hash{15534666862754515642}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		VarArray %References
+		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{259631882936260025,5400946307851332833}}
+	s %t{"WRmlUiAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %ReferenceResolution{u3{512,512}}
+		s %RmlFile{"UI/worldui-example.rml"}
+		s %ScaleMode{"WRmlUiScaleMode::Fixed"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{259631882936260025,5400946307851332833}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1279131488575532460,14268837862471452239}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"WRmlUiScaleMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2584129773188116390,18425100896451606385}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"WRmlUiAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+}

@@ -13,10 +13,10 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentManager, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation"
@@ -24,32 +24,32 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::Events().AddEventHandler(ezDocumentManager::OnPluginEvent);
+    WPlugin::Events().AddEventHandler(WDocumentManager::OnPluginEvent);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPlugin::Events().RemoveEventHandler(ezDocumentManager::OnPluginEvent);
+    WPlugin::Events().RemoveEventHandler(WDocumentManager::OnPluginEvent);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezSet<const ezRTTI*> ezDocumentManager::s_KnownManagers;
-ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
-ezMap<ezString, const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors; // maps from "sDocumentTypeName" to descriptor
-ezCopyOnBroadcastEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
-ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
-ezMap<ezString, ezDocumentManager::CustomAction> ezDocumentManager::s_CustomActions;
+WSet<const WRTTI*> WDocumentManager::s_KnownManagers;
+WHybridArray<WDocumentManager*, 16> WDocumentManager::s_AllDocumentManagers;
+WMap<WString, const WDocumentTypeDescriptor*> WDocumentManager::s_AllDocumentDescriptors; // maps from "sDocumentTypeName" to descriptor
+WCopyOnBroadcastEvent<const WDocumentManager::Event&> WDocumentManager::s_Events;
+WEvent<WDocumentManager::Request&> WDocumentManager::s_Requests;
+WMap<WString, WDocumentManager::CustomAction> WDocumentManager::s_CustomActions;
 
-void ezDocumentManager::OnPluginEvent(const ezPluginEvent& e)
+void WDocumentManager::OnPluginEvent(const WPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPluginEvent::BeforeUnloading:
+    case WPluginEvent::BeforeUnloading:
       UpdateBeforeUnloadingPlugins(e);
       break;
-    case ezPluginEvent::AfterPluginChanges:
+    case WPluginEvent::AfterPluginChanges:
       UpdatedAfterLoadingPlugins();
       break;
 
@@ -58,7 +58,7 @@ void ezDocumentManager::OnPluginEvent(const ezPluginEvent& e)
   }
 }
 
-void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
+void WDocumentManager::UpdateBeforeUnloadingPlugins(const WPluginEvent& e)
 {
   bool bChanges = false;
 
@@ -66,9 +66,9 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
   s_AllDocumentDescriptors.Clear();
 
   // remove all document managers that belong to this plugin
-  for (ezUInt32 i = 0; i < s_AllDocumentManagers.GetCount();)
+  for (WUInt32 i = 0; i < s_AllDocumentManagers.GetCount();)
   {
-    const ezRTTI* pRtti = s_AllDocumentManagers[i]->GetDynamicRTTI();
+    const WRTTI* pRtti = s_AllDocumentManagers[i]->GetDynamicRTTI();
 
     if (pRtti->GetPluginName() == e.m_sPluginBinary)
     {
@@ -91,12 +91,12 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
   }
 }
 
-void ezDocumentManager::UpdatedAfterLoadingPlugins()
+void WDocumentManager::UpdatedAfterLoadingPlugins()
 {
   bool bChanges = false;
 
-  ezRTTI::ForEachDerivedType<ezDocumentManager>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WDocumentManager>(
+    [&](const WRTTI* pRtti)
     {
       // add the ones that we don't know yet
       if (!s_KnownManagers.Find(pRtti).IsValid())
@@ -107,7 +107,7 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
         if (pRtti->GetAllocator()->CanAllocate())
         {
           // create one instance of each manager type
-          ezDocumentManager* pManager = pRtti->GetAllocator()->Allocate<ezDocumentManager>();
+          WDocumentManager* pManager = pRtti->GetAllocator()->Allocate<WDocumentManager>();
           s_AllDocumentManagers.PushBack(pManager);
 
           bChanges = true;
@@ -127,45 +127,45 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
   }
 }
 
-void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const
+void WDocumentManager::GetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_documentTypes) const
 {
   InternalGetSupportedDocumentTypes(inout_documentTypes);
 
   for (auto& dt : inout_documentTypes)
   {
-    EZ_ASSERT_DEBUG(dt->m_bCanCreate == false || dt->m_pDocumentType != nullptr, "No document type is set");
-    EZ_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");
-    EZ_ASSERT_DEBUG(dt->m_pManager != nullptr, "Document manager must be set");
+    W_ASSERT_DEBUG(dt->m_bCanCreate == false || dt->m_pDocumentType != nullptr, "No document type is set");
+    W_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");
+    W_ASSERT_DEBUG(dt->m_pManager != nullptr, "Document manager must be set");
   }
 }
 
-ezStatus ezDocumentManager::CanOpenDocument(ezStringView sFilePath) const
+WStatus WDocumentManager::CanOpenDocument(WStringView sFilePath) const
 {
-  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  WTempHybridArray<const WDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
-  ezStringBuilder sPath = sFilePath;
-  ezStringBuilder sExt = sPath.GetFileExtension();
+  WStringBuilder sPath = sFilePath;
+  WStringBuilder sExt = sPath.GetFileExtension();
 
   // check whether the file extension is in the list of possible extensions
   // if not, we can definitely not open this file
-  for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
   {
     if (DocumentTypes[i]->m_sFileExtension.IsEqual_NoCase(sExt))
     {
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
 
-  return ezStatus("File extension is not handled by any registered type");
+  return WStatus("File extension is not handled by any registered type");
 }
 
-void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
+void WDocumentManager::EnsureWindowRequested(WDocument* pDocument, const WDocumentObject* pOpenContext /*= nullptr*/)
 {
   if (pDocument->m_bWindowRequested)
     return;
 
-  EZ_PROFILE_SCOPE("EnsureWindowRequested");
+  W_PROFILE_SCOPE("EnsureWindowRequested");
   pDocument->m_bWindowRequested = true;
 
   Event e;
@@ -180,17 +180,17 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath2, ezDocument*& out_pDocument,
-  ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext /*= nullptr*/)
+WStatus WDocumentManager::CreateOrOpenDocument(bool bCreate, WStringView sDocumentTypeName, WStringView sPath2, WDocument*& out_pDocument,
+  WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext /*= nullptr*/)
 {
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  ezFileStats fs;
-  ezStringBuilder sPath = sPath2;
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
+  WFileStats fs;
+  WStringBuilder sPath = sPath2;
   sPath.MakeCleanPath();
-  ezPathUtils::NormalizeWindowsDriveLetter(sPath);
-  if (!bCreate && ezOSFile::GetFileStats(sPath, fs).Failed())
+  WPathUtils::NormalizeWindowsDriveLetter(sPath);
+  if (!bCreate && WOSFile::GetFileStats(sPath, fs).Failed())
   {
-    return ezStatus("The file does not exist.");
+    return WStatus("The file does not exist.");
   }
 
   Request r;
@@ -205,45 +205,45 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   out_pDocument = nullptr;
 
-  ezStatus status(EZ_SUCCESS);
+  WStatus status(W_SUCCESS);
 
-  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  WTempHybridArray<const WDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
-  for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
+  for (WUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
   {
     if (DocumentTypes[i]->m_sDocumentTypeName == sDocumentTypeName)
     {
       // See if there is a default asset document registered for the type, if so clone
       // it and use that as the new document instead of creating one from scratch.
-      if (bCreate && !flags.IsSet(ezDocumentFlags::EmptyDocument))
+      if (bCreate && !flags.IsSet(WDocumentFlags::EmptyDocument))
       {
-        ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
+        WStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
         sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());
 
-        if (ezFileSystem::ExistsFile(sTemplateDoc))
+        if (WFileSystem::ExistsFile(sTemplateDoc))
         {
-          ezUuid CloneUuid;
+          WUuid CloneUuid;
           if (CloneDocument(sTemplateDoc, sPath, CloneUuid).Succeeded())
           {
             if (OpenDocument(sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
             {
-              return EZ_SUCCESS;
+              return W_SUCCESS;
             }
           }
 
-          ezLog::Warning("Failed to create document from template '{}'", sTemplateDoc);
+          WLog::Warning("Failed to create document from template '{}'", sTemplateDoc);
         }
       }
 
-      EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", sDocumentTypeName);
+      W_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", sDocumentTypeName);
 
       {
-        EZ_PROFILE_SCOPE(sDocumentTypeName);
-        status = EZ_SUCCESS;
+        W_PROFILE_SCOPE(sDocumentTypeName);
+        status = W_SUCCESS;
         InternalCreateDocument(sDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
-      out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
+      out_pDocument->SetAddToResetFilesList(flags.IsSet(WDocumentFlags::AddToRecentFilesList));
 
       if (status.Succeeded())
       {
@@ -258,17 +258,17 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
         }
 
         {
-          EZ_PROFILE_SCOPE("InitializeAfterLoading");
+          W_PROFILE_SCOPE("InitializeAfterLoading");
           out_pDocument->InitializeAfterLoading(bCreate);
         }
 
         if (bCreate)
         {
           out_pDocument->SetModified(true);
-          if (flags.IsSet(ezDocumentFlags::AsyncSave))
+          if (flags.IsSet(WDocumentFlags::AsyncSave))
           {
             out_pDocument->SaveDocumentAsync({});
-            status = ezStatus(EZ_SUCCESS);
+            status = WStatus(W_SUCCESS);
           }
           else
           {
@@ -277,7 +277,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
         }
 
         {
-          EZ_PROFILE_SCOPE("InitializeAfterLoadingAndSaving");
+          W_PROFILE_SCOPE("InitializeAfterLoadingAndSaving");
           out_pDocument->InitializeAfterLoadingAndSaving();
         }
 
@@ -287,7 +287,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
         s_Events.Broadcast(e);
 
-        if (flags.IsSet(ezDocumentFlags::RequestWindow))
+        if (flags.IsSet(WDocumentFlags::RequestWindow))
           EnsureWindowRequested(out_pDocument, pOpenContext);
       }
 
@@ -295,64 +295,64 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
     }
   }
 
-  EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", sDocumentTypeName);
+  W_REPORT_FAILURE("This document manager does not support the document type '{0}'", sDocumentTypeName);
   return status;
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezStatus("Not implemented");
+  W_ASSERT_NOT_IMPLEMENTED;
+  return WStatus("Not implemented");
 #endif
 }
 
-ezStatus ezDocumentManager::CreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+WStatus WDocumentManager::CreateDocument(WStringView sDocumentTypeName, WStringView sPath, WDocument*& out_pDocument, WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext)
 {
   return CreateOrOpenDocument(true, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }
 
-ezStatus ezDocumentManager::OpenDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
-  ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+WStatus WDocumentManager::OpenDocument(WStringView sDocumentTypeName, WStringView sPath, WDocument*& out_pDocument,
+  WBitflags<WDocumentFlags> flags, const WDocumentObject* pOpenContext)
 {
   return CreateOrOpenDocument(false, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }
 
 
-ezStatus ezDocumentManager::CloneDocument(ezStringView sPath, ezStringView sClonePath, ezUuid& inout_cloneGuid)
+WStatus WDocumentManager::CloneDocument(WStringView sPath, WStringView sClonePath, WUuid& inout_cloneGuid)
 {
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(sClonePath, &pTypeDesc);
+  const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+  WStatus res = WDocumentUtils::IsValidSaveLocationForDocument(sClonePath, &pTypeDesc);
   if (res.Failed())
     return res;
 
-  ezUniquePtr<ezAbstractObjectGraph> header;
-  ezUniquePtr<ezAbstractObjectGraph> objects;
-  ezUniquePtr<ezAbstractObjectGraph> types;
+  WUniquePtr<WAbstractObjectGraph> header;
+  WUniquePtr<WAbstractObjectGraph> objects;
+  WUniquePtr<WAbstractObjectGraph> types;
 
-  res = ezDocument::ReadDocument(sPath, header, objects, types);
+  res = WDocument::ReadDocument(sPath, header, objects, types);
   if (res.Failed())
     return res;
 
-  ezUuid documentId;
-  ezAbstractObjectNode::Property* documentIdProp = nullptr;
+  WUuid documentId;
+  WAbstractObjectNode::Property* documentIdProp = nullptr;
   {
     auto* pHeaderNode = header->GetNodeByName("Header");
-    EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", sPath);
+    W_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", sPath);
     documentIdProp = pHeaderNode->FindProperty("DocumentID");
-    EZ_ASSERT_DEV(documentIdProp, "No document ID property found in header, document document '{0}' is corrupted.", sPath);
-    documentId = documentIdProp->m_Value.Get<ezUuid>();
+    W_ASSERT_DEV(documentIdProp, "No document ID property found in header, document document '{0}' is corrupted.", sPath);
+    documentId = documentIdProp->m_Value.Get<WUuid>();
   }
 
-  ezUuid seedGuid;
+  WUuid seedGuid;
   if (inout_cloneGuid.IsValid())
   {
     seedGuid = inout_cloneGuid;
     seedGuid.RevertCombinationWithSeed(documentId);
 
-    ezUuid test = documentId;
+    WUuid test = documentId;
     test.CombineWithSeed(seedGuid);
-    EZ_ASSERT_DEV(test == inout_cloneGuid, "");
+    W_ASSERT_DEV(test == inout_cloneGuid, "");
   }
   else
   {
-    seedGuid = ezUuid::MakeUuid();
+    seedGuid = WUuid::MakeUuid();
     inout_cloneGuid = documentId;
     inout_cloneGuid.CombineWithSeed(seedGuid);
   }
@@ -360,18 +360,18 @@ ezStatus ezDocumentManager::CloneDocument(ezStringView sPath, ezStringView sClon
   InternalCloneDocument(sPath, sClonePath, documentId, seedGuid, inout_cloneGuid, header.Borrow(), objects.Borrow(), types.Borrow());
 
   {
-    ezDeferredFileWriter file;
+    WDeferredFileWriter file;
     file.SetOutput(sClonePath);
-    ezAbstractGraphDdlSerializer::WriteDocument(file, header.Borrow(), objects.Borrow(), types.Borrow(), false);
-    if (file.Close() == EZ_FAILURE)
+    WAbstractGraphDdlSerializer::WriteDocument(file, header.Borrow(), objects.Borrow(), types.Borrow(), false);
+    if (file.Close() == W_FAILURE)
     {
-      return ezStatus(ezFmt("Unable to open file '{0}' for writing!", sClonePath));
+      return WStatus(WFmt("Unable to open file '{0}' for writing!", sClonePath));
     }
   }
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezDocumentManager::InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* header, ezAbstractObjectGraph* objects, ezAbstractObjectGraph* types)
+void WDocumentManager::InternalCloneDocument(WStringView sPath, WStringView sClonePath, const WUuid& documentId, const WUuid& seedGuid, const WUuid& cloneGuid, WAbstractObjectGraph* header, WAbstractObjectGraph* objects, WAbstractObjectGraph* types)
 {
   // Remap
   header->ReMapNodeGuids(seedGuid);
@@ -387,19 +387,19 @@ void ezDocumentManager::InternalCloneDocument(ezStringView sPath, ezStringView s
   for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
-    if (pProp && pProp->m_Value.IsA<ezUuid>())
+    WAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
+    if (pProp && pProp->m_Value.IsA<WUuid>())
     {
-      ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
+      WUuid prefabSeed = pProp->m_Value.Get<WUuid>();
       prefabSeed.CombineWithSeed(seedGuid);
       pProp->m_Value = prefabSeed;
     }
   }
 }
 
-void ezDocumentManager::CloseDocument(ezDocument* pDocument)
+void WDocumentManager::CloseDocument(WDocument* pDocument)
 {
-  EZ_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
+  W_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
 
   if (!m_AllOpenDocuments.RemoveAndCopy(pDocument))
     return;
@@ -420,7 +420,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   s_Events.Broadcast(e);
 }
 
-void ezDocumentManager::CloseAllDocumentsOfManager()
+void WDocumentManager::CloseAllDocumentsOfManager()
 {
   while (!m_AllOpenDocuments.IsEmpty())
   {
@@ -428,20 +428,20 @@ void ezDocumentManager::CloseAllDocumentsOfManager()
   }
 }
 
-void ezDocumentManager::CloseAllDocuments()
+void WDocumentManager::CloseAllDocuments()
 {
-  for (ezDocumentManager* pMan : s_AllDocumentManagers)
+  for (WDocumentManager* pMan : s_AllDocumentManagers)
   {
     pMan->CloseAllDocumentsOfManager();
   }
 }
 
-ezDocument* ezDocumentManager::GetDocumentByPath(ezStringView sPath) const
+WDocument* WDocumentManager::GetDocumentByPath(WStringView sPath) const
 {
-  ezStringBuilder sPath2 = sPath;
+  WStringBuilder sPath2 = sPath;
   sPath2.MakeCleanPath();
 
-  for (ezDocument* pDoc : m_AllOpenDocuments)
+  for (WDocument* pDoc : m_AllOpenDocuments)
   {
     if (sPath2.IsEqual_NoCase(pDoc->GetDocumentPath()))
       return pDoc;
@@ -451,7 +451,7 @@ ezDocument* ezDocumentManager::GetDocumentByPath(ezStringView sPath) const
 }
 
 
-ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
+WDocument* WDocumentManager::GetDocumentByGuid(const WUuid& guid)
 {
   for (auto man : s_AllDocumentManagers)
   {
@@ -466,7 +466,7 @@ ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
 }
 
 
-bool ezDocumentManager::EnsureDocumentIsClosedInAllManagers(ezStringView sPath)
+bool WDocumentManager::EnsureDocumentIsClosedInAllManagers(WStringView sPath)
 {
   bool bClosedAny = false;
   for (auto man : s_AllDocumentManagers)
@@ -478,7 +478,7 @@ bool ezDocumentManager::EnsureDocumentIsClosedInAllManagers(ezStringView sPath)
   return bClosedAny;
 }
 
-bool ezDocumentManager::EnsureDocumentIsClosed(ezStringView sPath)
+bool WDocumentManager::EnsureDocumentIsClosed(WStringView sPath)
 {
   auto pDoc = GetDocumentByPath(sPath);
 
@@ -490,9 +490,9 @@ bool ezDocumentManager::EnsureDocumentIsClosed(ezStringView sPath)
   return true;
 }
 
-ezResult ezDocumentManager::FindDocumentTypeFromPath(ezStringView sPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc)
+WResult WDocumentManager::FindDocumentTypeFromPath(WStringView sPath, bool bForCreation, const WDocumentTypeDescriptor*& out_pTypeDesc)
 {
-  const ezString sFileExt = ezPathUtils::GetFileExtension(sPath);
+  const WString sFileExt = WPathUtils::GetFileExtension(sPath);
 
   const auto& allDesc = GetAllDocumentDescriptors();
 
@@ -506,20 +506,20 @@ ezResult ezDocumentManager::FindDocumentTypeFromPath(ezStringView sPath, bool bF
     if (desc->m_sFileExtension.IsEqual_NoCase(sFileExt))
     {
       out_pTypeDesc = desc;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAllDocumentDescriptors()
+const WMap<WString, const WDocumentTypeDescriptor*>& WDocumentManager::GetAllDocumentDescriptors()
 {
   if (s_AllDocumentDescriptors.IsEmpty())
   {
-    for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+    for (WDocumentManager* pMan : WDocumentManager::GetAllDocumentManagers())
     {
-      ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
+      WTempHybridArray<const WDocumentTypeDescriptor*, 4> descriptors;
       pMan->GetSupportedDocumentTypes(descriptors);
 
       for (auto pDesc : descriptors)
@@ -532,7 +532,7 @@ const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAl
   return s_AllDocumentDescriptors;
 }
 
-const ezDocumentTypeDescriptor* ezDocumentManager::GetDescriptorForDocumentType(ezStringView sDocumentType)
+const WDocumentTypeDescriptor* WDocumentManager::GetDescriptorForDocumentType(WStringView sDocumentType)
 {
   return GetAllDocumentDescriptors().GetValueOrDefault(sDocumentType, nullptr);
 }

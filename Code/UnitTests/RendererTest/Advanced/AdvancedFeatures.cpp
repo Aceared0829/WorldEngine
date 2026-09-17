@@ -11,7 +11,7 @@
 #include <RendererTest/Advanced/AdvancedFeatures.h>
 #include <RendererTest/Basics/RendererTestUtils.h>
 #undef CreateWindow
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
 #  include <sys/prctl.h>
 #endif
 
@@ -22,7 +22,7 @@ namespace
   {
     const char* m_szName;
     bool m_bSloped;        ///< Whether the quads are tilted, which is what makes the slope scaled bias do anything.
-    ezInt32 m_iDepthBias;
+    WInt32 m_iDepthBias;
     float m_fSlopeScaledDepthBias;
     float m_fClampUnits;   ///< Depth bias clamp, in depth format units. Zero means no clamping.
     bool m_bExpectVisible; ///< Whether the biased quad is expected to pass the depth test.
@@ -47,8 +47,8 @@ namespace
     {"ClampAboveGap", false, -4000, 0.0f, -2000.0f, true},
   };
 
-  constexpr ezUInt32 s_uiDepthBiasCaseCount = EZ_ARRAY_SIZE(s_DepthBiasCases);
-  constexpr ezUInt32 s_uiDepthBiasCellSize = 32;
+  constexpr WUInt32 s_uiDepthBiasCaseCount = W_ARRAY_SIZE(s_DepthBiasCases);
+  constexpr WUInt32 s_uiDepthBiasCellSize = 32;
   constexpr float s_fDepthBiasBaseDepth = 0.5f;
   /// Depth difference between the reference and the biased quad, in depth format units. Small enough that every 'visible' case clears it by at least a factor of four, large enough that the depth buffer quantization cannot swallow it.
   constexpr float s_fDepthBiasGapUnits = 200.0f;
@@ -62,8 +62,8 @@ namespace
     const char* m_szName;
     bool m_bSubPixel; ///< Whether the quad is the sub-pixel one. Otherwise it is the 8x8 pixel one.
     bool m_bConservative;
-    ezUInt32 m_uiMinLitPixels;
-    ezUInt32 m_uiMaxLitPixels;
+    WUInt32 m_uiMinLitPixels;
+    WUInt32 m_uiMaxLitPixels;
   };
 
   constexpr ConservativeRasterCase s_ConservativeRasterCases[] = {
@@ -76,8 +76,8 @@ namespace
     {"CoveringConservative", false, true, 64, 100},
   };
 
-  constexpr ezUInt32 s_uiConservativeRasterCaseCount = EZ_ARRAY_SIZE(s_ConservativeRasterCases);
-  constexpr ezUInt32 s_uiConservativeRasterCellSize = 16;
+  constexpr WUInt32 s_uiConservativeRasterCaseCount = W_ARRAY_SIZE(s_ConservativeRasterCases);
+  constexpr WUInt32 s_uiConservativeRasterCellSize = 16;
   /// Window space rect of the sub-pixel quad within its cell. It lies inside pixel 8 but excludes that pixel's center at 8.5.
   constexpr float s_fConservativeRasterSubPixelMin = 8.05f;
   constexpr float s_fConservativeRasterSubPixelMax = 8.45f;
@@ -87,27 +87,27 @@ namespace
   constexpr float s_fConservativeRasterCoveringMax = 11.6f;
 } // namespace
 
-void ezRendererTestAdvancedFeatures::SetupSubTests()
+void WRendererTestAdvancedFeatures::SetupSubTests()
 {
-  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
+  const WGALDeviceCapabilities& caps = GetDeviceCapabilities();
 
   AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
   if (caps.m_bSupportsVSRenderTargetArrayIndex)
   {
     AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
   }
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
   if (caps.m_bSupportsSharedTextures)
   {
     AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
 #endif
 
-  if (caps.m_bShaderStageSupported[ezGALShaderStage::HullShader])
+  if (caps.m_bShaderStageSupported[WGALShaderStage::HullShader])
   {
     AddSubTest("04 - Tessellation", SubTests::ST_Tessellation);
   }
-  if (caps.m_bShaderStageSupported[ezGALShaderStage::ComputeShader])
+  if (caps.m_bShaderStageSupported[WGALShaderStage::ComputeShader])
   {
     AddSubTest("05 - Compute", SubTests::ST_Compute);
   }
@@ -116,13 +116,13 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   AddSubTest("08 - Material", SubTests::ST_Material);
 
   // MSAA support is per-format. We pick the first sample count that the swap chain color format and the depth format both support.
-  const auto colorSupport = caps.m_FormatSupport[ezGALResourceFormat::BGRAUByteNormalized];
-  const auto depthSupport = caps.m_FormatSupport[ezGALResourceFormat::D24S8];
-  if (colorSupport.AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::MSAA4x) && depthSupport.IsSet(ezGALResourceFormatSupport::MSAA4x))
+  const auto colorSupport = caps.m_FormatSupport[WGALResourceFormat::BGRAUByteNormalized];
+  const auto depthSupport = caps.m_FormatSupport[WGALResourceFormat::D24S8];
+  if (colorSupport.AreAllSet(WGALResourceFormatSupport::RenderTarget | WGALResourceFormatSupport::MSAA4x) && depthSupport.IsSet(WGALResourceFormatSupport::MSAA4x))
   {
     AddSubTest("09 - MSAAResolve", SubTests::ST_MSAAResolve);
   }
-  else if (colorSupport.AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::MSAA2x) && depthSupport.IsSet(ezGALResourceFormatSupport::MSAA2x))
+  else if (colorSupport.AreAllSet(WGALResourceFormatSupport::RenderTarget | WGALResourceFormatSupport::MSAA2x) && depthSupport.IsSet(WGALResourceFormatSupport::MSAA2x))
   {
     AddSubTest("09 - MSAAResolve", SubTests::ST_MSAAResolve);
   }
@@ -135,32 +135,32 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   }
 }
 
-ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestAdvancedFeatures::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
+  W_SUCCEED_OR_RETURN(WGraphicsTest::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(CreateWindow(320, 240));
 
   if (iIdentifier == ST_ReadRenderTarget)
   {
     // Texture2D
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, WGALResourceFormat::BGRAUByteNormalizedsRGB, WGALMSAASampleCount::None);
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
     m_Texture2DRange = {};
     m_Texture2DRange.m_uiMipLevels = 1;
     m_Texture2DRange.m_uiBaseMipLevel = 0;
 
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColor.WShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2D.WShader");
   }
 
   if (iIdentifier == ST_ProxyTexture)
   {
     // Texture2DArray
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
-    desc.m_Type = ezGALTextureType::Texture2DArray;
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, WGALResourceFormat::BGRAUByteNormalizedsRGB, WGALMSAASampleCount::None);
+    desc.m_Type = WGALTextureType::Texture2DArray;
     desc.m_uiArraySize = 2;
     m_hTexture2DArray = m_pDevice->CreateTexture(desc);
 
@@ -168,100 +168,100 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hProxyTexture2D[0] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 0);
     m_hProxyTexture2D[1] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 1);
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
-    m_hShader3 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor2.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2D.WShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColor.WShader");
+    m_hShader3 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColor2.WShader");
   }
 
   if (iIdentifier == ST_ViewFormatOverride)
   {
     // Rendering through both the UNorm and the sRGB view of one image is only guaranteed for one of the two channel orders, so use whichever the device supports.
-    const ezGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
-    auto IsRenderTarget = [&](ezGALResourceFormat::Enum format)
-    { return caps.m_FormatSupport[format].IsSet(ezGALResourceFormatSupport::RenderTarget); };
+    const WGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
+    auto IsRenderTarget = [&](WGALResourceFormat::Enum format)
+    { return caps.m_FormatSupport[format].IsSet(WGALResourceFormatSupport::RenderTarget); };
 
-    ezEnum<ezGALResourceFormat> unormFormat;
-    if (IsRenderTarget(ezGALResourceFormat::BGRAUByteNormalized) && IsRenderTarget(ezGALResourceFormat::BGRAUByteNormalizedsRGB))
+    WEnum<WGALResourceFormat> unormFormat;
+    if (IsRenderTarget(WGALResourceFormat::BGRAUByteNormalized) && IsRenderTarget(WGALResourceFormat::BGRAUByteNormalizedsRGB))
     {
-      unormFormat = ezGALResourceFormat::BGRAUByteNormalized;
-      m_OverrideSrgbFormat = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      unormFormat = WGALResourceFormat::BGRAUByteNormalized;
+      m_OverrideSrgbFormat = WGALResourceFormat::BGRAUByteNormalizedsRGB;
     }
-    else if (IsRenderTarget(ezGALResourceFormat::RGBAUByteNormalized) && IsRenderTarget(ezGALResourceFormat::RGBAUByteNormalizedsRGB))
+    else if (IsRenderTarget(WGALResourceFormat::RGBAUByteNormalized) && IsRenderTarget(WGALResourceFormat::RGBAUByteNormalizedsRGB))
     {
-      unormFormat = ezGALResourceFormat::RGBAUByteNormalized;
-      m_OverrideSrgbFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      unormFormat = WGALResourceFormat::RGBAUByteNormalized;
+      m_OverrideSrgbFormat = WGALResourceFormat::RGBAUByteNormalizedsRGB;
     }
     else
     {
-      EZ_TEST_FAILURE("No suitable format", "Neither the BGRA nor the RGBA UNorm/sRGB pair is supported as a render target, at least one of them has to be.");
-      return EZ_FAILURE;
+      W_TEST_FAILURE("No suitable format", "Neither the BGRA nor the RGBA UNorm/sRGB pair is supported as a render target, at least one of them has to be.");
+      return W_FAILURE;
     }
 
     // Both textures are created as UNorm, the second one is rendered into through an sRGB render target view so the hardware applies the linear -> sRGB transfer function on write and the stored bits differ. Combining both with an sRGB sampled view isolates the write-side and read-side effects of the format override against each other.
-    for (ezUInt32 i = 0; i < 2; i++)
+    for (WUInt32 i = 0; i < 2; i++)
     {
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(8, 8, unormFormat, ezGALMSAASampleCount::None);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(8, 8, unormFormat, WGALMSAASampleCount::None);
       m_hOverrideTexture2D[i] = m_pDevice->CreateTexture(desc);
 
-      ezGALRenderTargetViewCreationDescription viewDesc;
+      WGALRenderTargetViewCreationDescription viewDesc;
       viewDesc.m_hTexture = m_hOverrideTexture2D[i];
-      viewDesc.m_OverrideViewFormat = i == 0 ? ezEnum<ezGALResourceFormat>(ezGALResourceFormat::Invalid) : m_OverrideSrgbFormat;
+      viewDesc.m_OverrideViewFormat = i == 0 ? WEnum<WGALResourceFormat>(WGALResourceFormat::Invalid) : m_OverrideSrgbFormat;
 
       m_hOverrideRTV[i] = m_pDevice->GetRenderTargetView(viewDesc);
-      if (!EZ_TEST_BOOL(!m_hOverrideRTV[i].IsInvalidated()))
-        return EZ_FAILURE;
+      if (!W_TEST_BOOL(!m_hOverrideRTV[i].IsInvalidated()))
+        return W_FAILURE;
     }
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2D.WShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColor.WShader");
   }
 
   if (iIdentifier == ST_FloatSampling)
   {
     // Texture2DArray
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::D16, ezGALMSAASampleCount::None);
-    desc.m_Type = ezGALTextureType::Texture2DArray;
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, WGALResourceFormat::D16, WGALMSAASampleCount::None);
+    desc.m_Type = WGALTextureType::Texture2DArray;
     m_hTexture2DArray = m_pDevice->CreateTexture(desc);
 
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SampleLevel_PointClampBorder.ezShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/ReadbackDepth.WShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/SampleLevel_PointClampBorder.WShader");
 
-    ezGALSamplerStateCreationDescription samplerDesc;
-    samplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_BorderColor = ezColor::White;
+    WGALSamplerStateCreationDescription samplerDesc;
+    samplerDesc.m_MinFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_MagFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_MipFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_AddressU = WImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressV = WImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressW = WImageAddressMode::ClampBorder;
+    samplerDesc.m_BorderColor = WColor::White;
 
-    m_hDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(samplerDesc);
+    m_hDepthSamplerState = WGALDevice::GetDefaultDevice()->CreateSamplerState(samplerDesc);
   }
 
   if (iIdentifier == ST_Compute)
   {
     // Texture2D as compute RW target. Note that SRGB and depth formats are not supported by most graphics cards for this purpose.
-    ezEnum<ezGALResourceFormat> textureFormat;
-    ezGALResourceFormat::Enum formats[] = {ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalized};
+    WEnum<WGALResourceFormat> textureFormat;
+    WGALResourceFormat::Enum formats[] = {WGALResourceFormat::RGBAFloat, WGALResourceFormat::BGRAUByteNormalized, WGALResourceFormat::RGBAUByteNormalized};
     for (auto format : formats)
     {
-      if (m_pDevice->GetCapabilities().m_FormatSupport[format].IsSet(ezGALResourceFormatSupport::TextureRW))
+      if (m_pDevice->GetCapabilities().m_FormatSupport[format].IsSet(WGALResourceFormatSupport::TextureRW))
       {
         textureFormat = format;
         break;
       }
     }
-    if (!EZ_TEST_BOOL(textureFormat != ezGALResourceFormat::Invalid))
-      return EZ_FAILURE;
+    if (!W_TEST_BOOL(textureFormat != WGALResourceFormat::Invalid))
+      return W_FAILURE;
 
     // We are only rendering to mip map level 4 (8x8).
     // The array and levels and mip size is only here to test sub-resource views and Nvidia bugs (image will be too dark): https://forums.developer.nvidia.com/t/vulkan-driver-bug-regression-in-hlsl-getdimensions-on-rwtexture2darray/315282
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(128, 128, textureFormat, ezGALMSAASampleCount::None);
-    desc.m_Type = ezGALTextureType::Texture2DArray;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(128, 128, textureFormat, WGALMSAASampleCount::None);
+    desc.m_Type = WGALTextureType::Texture2DArray;
+    desc.m_TextureFlags = WGALTextureUsageFlags::ShaderResource | WGALTextureUsageFlags::UnorderedAccess;
     desc.m_uiArraySize = 2;
     desc.m_uiMipLevelCount = 6;
     desc.m_ResourceAccess.m_bImmutable = false;
@@ -273,106 +273,106 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_Texture2DRange.m_uiBaseArraySlice = 0;
     m_Texture2DRange.m_uiArraySlices = 1;
 
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/UVColorCompute.WShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.WShader");
   }
 
   if (iIdentifier == ST_VertexShaderRenderTargetArrayIndex)
   {
     // Texture2DArray
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(320 / 2, 240, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
-    desc.m_Type = ezGALTextureType::Texture2DArray;
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(320 / 2, 240, WGALResourceFormat::BGRAUByteNormalizedsRGB, WGALMSAASampleCount::None);
+    desc.m_Type = WGALTextureType::Texture2DArray;
     desc.m_uiArraySize = 2;
     m_hTexture2DArray = m_pDevice->CreateTexture(desc);
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Stereo.ezShader");
-    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StereoPreview.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Stereo.WShader");
+    m_hShader2 = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/StereoPreview.WShader");
   }
 
   if (iIdentifier == ST_Material)
   {
     // Texture Resource
-    ezGALTextureCreationDescription galTexDesc;
+    WGALTextureCreationDescription galTexDesc;
     galTexDesc.m_uiWidth = 8;
     galTexDesc.m_uiHeight = 8;
     galTexDesc.m_uiMipLevelCount = 1;
-    galTexDesc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+    galTexDesc.m_Format = WGALResourceFormat::BGRAUByteNormalizedsRGB;
 
-    ezImage coloredMips;
-    ezRendererTestUtils::CreateImage(coloredMips, galTexDesc.m_uiWidth, galTexDesc.m_uiHeight, 1, true);
+    WImage coloredMips;
+    WRendererTestUtils::CreateImage(coloredMips, galTexDesc.m_uiWidth, galTexDesc.m_uiHeight, 1, true);
 
-    ezTempHybridArray<ezGALSystemMemoryDescription, 1> initialData;
+    WTempHybridArray<WGALSystemMemoryDescription, 1> initialData;
     initialData.SetCount(galTexDesc.m_uiMipLevelCount);
-    for (ezUInt32 m = 0; m < galTexDesc.m_uiMipLevelCount; m++)
+    for (WUInt32 m = 0; m < galTexDesc.m_uiMipLevelCount; m++)
     {
-      ezGALSystemMemoryDescription& memoryDesc = initialData[m];
+      WGALSystemMemoryDescription& memoryDesc = initialData[m];
       memoryDesc.m_pData = coloredMips.GetSubImageView(m).GetByteBlobPtr();
-      memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips.GetRowPitch(m));
-      memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips.GetDepthPitch(m));
+      memoryDesc.m_uiRowPitch = static_cast<WUInt32>(coloredMips.GetRowPitch(m));
+      memoryDesc.m_uiSlicePitch = static_cast<WUInt32>(coloredMips.GetDepthPitch(m));
     }
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/TestMaterial.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/TestMaterial.WShader");
 
-    ezGALSamplerStateCreationDescription samplerDesc;
-    samplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-    samplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_BorderColor = ezColor::White;
+    WGALSamplerStateCreationDescription samplerDesc;
+    samplerDesc.m_MinFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_MagFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_MipFilter = WGALTextureFilterMode::Point;
+    samplerDesc.m_AddressU = WImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressV = WImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressW = WImageAddressMode::ClampBorder;
+    samplerDesc.m_BorderColor = WColor::White;
 
-    ezTexture2DResourceDescriptor texDesc;
+    WTexture2DResourceDescriptor texDesc;
     texDesc.m_DescGAL = galTexDesc;
     texDesc.m_InitialContent = initialData;
     texDesc.m_SamplerDesc = samplerDesc;
 
-    m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
-    m_hTexture2 = ezResourceManager::CreateResource<ezTexture2DResource>("TestTexture", std::move(texDesc), "A Test Texture");
+    m_hTexture = WResourceManager::LoadResource<WTexture2DResource>("White.color");
+    m_hTexture2 = WResourceManager::CreateResource<WTexture2DResource>("TestTexture", std::move(texDesc), "A Test Texture");
 
     // Material
-    ezMaterialResourceDescriptor matDesc;
+    WMaterialResourceDescriptor matDesc;
     matDesc.m_hShader = m_hShader;
-    matDesc.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
+    matDesc.m_RenderDataCategory = WDefaultRenderDataCategories::LitOpaque;
     m_sBaseColor.Assign("BaseColor");
     m_sBaseColor2.Assign("BaseColor2");
-    matDesc.m_Parameters.PushBack({m_sBaseColor, ezColor::White});
-    matDesc.m_Parameters.PushBack({m_sBaseColor2, ezColor::White});
+    matDesc.m_Parameters.PushBack({m_sBaseColor, WColor::White});
+    matDesc.m_Parameters.PushBack({m_sBaseColor2, WColor::White});
 
     m_sTexture.Assign("DiffuseTexture");
     matDesc.m_Texture2DBindings.PushBack({m_sTexture, m_hTexture});
 
-    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>("TestMaterial", std::move(matDesc), "A Test Material");
+    m_hMaterial = WResourceManager::CreateResource<WMaterialResource>("TestMaterial", std::move(matDesc), "A Test Material");
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
   if (iIdentifier == ST_SharedTexture)
   {
-    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
-    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    WCVarFloat* pProfilingThreshold = (WCVarFloat*)WCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    W_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
     m_fOldProfilingThreshold = *pProfilingThreshold;
     *pProfilingThreshold = 0.0f;
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Texture2D.WShader");
 
-    const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+    const WStringBuilder pathToSelf = WCommandLineUtils::GetGlobalInstance()->GetParameter(0);
 
-    ezProcessOptions opt;
+    WProcessOptions opt;
     opt.m_sProcess = pathToSelf;
 
-    ezStringBuilder sIPC;
-    ezConversionUtils::ToString(ezUuid::MakeUuid(), sIPC);
+    WStringBuilder sIPC;
+    WConversionUtils::ToString(WUuid::MakeUuid(), sIPC);
 
-    ezStringBuilder sPID;
-    ezConversionUtils::ToString(ezProcess::GetCurrentProcessID(), sPID);
+    WStringBuilder sPID;
+    WConversionUtils::ToString(WProcess::GetCurrentProcessID(), sPID);
 
 #  ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
     constexpr const char* szDefaultRenderer = "Vulkan";
 #  else
     constexpr const char* szDefaultRenderer = "DX11";
 #  endif
-    ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+    WStringView sRendererName = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
 
     opt.m_Arguments.PushBack("-offscreen");
     opt.m_Arguments.PushBack("-IPC");
@@ -382,68 +382,68 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     opt.m_Arguments.PushBack("-renderer");
     opt.m_Arguments.PushBack(sRendererName);
     opt.m_Arguments.PushBack("-outputDir");
-    opt.m_Arguments.PushBack(ezTestFramework::GetInstance()->GetAbsOutputPath());
-    m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
+    opt.m_Arguments.PushBack(WTestFramework::GetInstance()->GetAbsOutputPath());
+    m_pOffscreenProcess = W_DEFAULT_NEW(WProcess);
 
     // Start the IPC server and wait for the "Connecting" state before starting the client process or it will fail to connect.
-    m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
-    m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
-    m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
-    EZ_SUCCEED_OR_RETURN(m_pChannel->Connect());
-    while (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+    m_pChannel = WIpcChannel::CreatePipeChannel(sIPC, WIpcChannel::Mode::Server);
+    m_pProtocol = W_DEFAULT_NEW(WIpcProcessMessageProtocol, m_pChannel.Borrow());
+    m_pProtocol->m_MessageEvent.AddEventHandler(WMakeDelegate(&WRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
+    W_SUCCEED_OR_RETURN(m_pChannel->Connect());
+    while (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connecting)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(16));
     }
 
-    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
+    W_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if W_ENABLED(W_PLATFORM_LINUX)
     // pidfd_getfd which is used to open the shared textures on Linux Vulkan is blocked by Yama ptrace_scope. With this command we allow our child process to ptrace us.
     if (prctl(PR_SET_PTRACER, m_pOffscreenProcess->GetProcessID()) != 0)
     {
-      ezLog::Error("prctl command failed with: {}", ezArgErrno(errno));
+      WLog::Error("prctl command failed with: {}", WArgErrno(errno));
     }
 #  endif
 
     m_bExiting = false;
     m_uiReceivedTextures = 0;
 
-    m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
-    m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
+    m_SharedTextureDesc.SetAsRenderTarget(8, 8, WGALResourceFormat::BGRAUByteNormalizedsRGB);
+    m_SharedTextureDesc.m_Type = WGALTextureType::Texture2DShared;
 
     m_SharedTextureQueue.Clear();
-    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    for (WUInt32 i = 0; i < s_SharedTextureCount; i++)
     {
       m_hSharedTextures[i] = m_pDevice->CreateSharedTexture(m_SharedTextureDesc);
-      EZ_TEST_BOOL(!m_hSharedTextures[i].IsInvalidated());
+      W_TEST_BOOL(!m_hSharedTextures[i].IsInvalidated());
       m_SharedTextureQueue.PushBack({i, 0});
     }
 
-    while (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
+    while (m_pChannel->GetConnectionState() == WIpcChannel::ConnectionState::Connecting)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
-      if (m_pOffscreenProcess->GetState() == ezProcessState::Finished)
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(16));
+      if (m_pOffscreenProcess->GetState() == WProcessState::Finished)
       {
-        ezUInt32 uiExitCode = m_pOffscreenProcess->GetExitCode();
-        ezLog::Error("Process exited prematurely with code: {}", uiExitCode);
-        return EZ_FAILURE;
+        WUInt32 uiExitCode = m_pOffscreenProcess->GetExitCode();
+        WLog::Error("Process exited prematurely with code: {}", uiExitCode);
+        return W_FAILURE;
       }
     }
 
-    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+    if (m_pChannel->GetConnectionState() != WIpcChannel::ConnectionState::Connected)
     {
-      ezLog::Error("Failed to connect to offscreen process");
-      return EZ_FAILURE;
+      WLog::Error("Failed to connect to offscreen process");
+      return W_FAILURE;
     }
 
-    ezOffscreenTest_OpenMsg msg;
+    WOffscreenTest_OpenMsg msg;
     msg.m_TextureDesc = m_SharedTextureDesc;
     for (auto& hSharedTexture : m_hSharedTextures)
     {
-      const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
+      const WGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
       if (pSharedTexture == nullptr)
       {
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
 
       msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
@@ -455,146 +455,146 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
   if (iIdentifier == ST_Tessellation)
   {
     {
-      ezGeometry geom;
+      WGeometry geom;
       geom.AddStackedSphere(0.5f, 3, 2);
 
-      ezMeshBufferResourceDescriptor desc;
+      WMeshBufferResourceDescriptor desc;
       desc.AddCommonStreams();
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
+      m_hSphereMesh = WResourceManager::CreateResource<WMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
     }
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Tessellation.ezShader");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/Tessellation.WShader");
   }
 
   if (iIdentifier == ST_MSAAResolve)
   {
-    const auto colorSupport = m_pDevice->GetCapabilities().m_FormatSupport[ezGALResourceFormat::BGRAUByteNormalized];
-    const auto depthSupport = m_pDevice->GetCapabilities().m_FormatSupport[ezGALResourceFormat::D24S8];
-    if (colorSupport.IsSet(ezGALResourceFormatSupport::MSAA4x) && depthSupport.IsSet(ezGALResourceFormatSupport::MSAA4x))
-      m_MSAASamples = ezGALMSAASampleCount::FourSamples;
+    const auto colorSupport = m_pDevice->GetCapabilities().m_FormatSupport[WGALResourceFormat::BGRAUByteNormalized];
+    const auto depthSupport = m_pDevice->GetCapabilities().m_FormatSupport[WGALResourceFormat::D24S8];
+    if (colorSupport.IsSet(WGALResourceFormatSupport::MSAA4x) && depthSupport.IsSet(WGALResourceFormatSupport::MSAA4x))
+      m_MSAASamples = WGALMSAASampleCount::FourSamples;
     else
-      m_MSAASamples = ezGALMSAASampleCount::TwoSamples;
+      m_MSAASamples = WGALMSAASampleCount::TwoSamples;
 
-    constexpr ezUInt32 uiW = 64;
-    constexpr ezUInt32 uiH = 64;
+    constexpr WUInt32 uiW = 64;
+    constexpr WUInt32 uiH = 64;
 
     {
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(uiW, uiH, ezGALResourceFormat::BGRAUByteNormalized, m_MSAASamples);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(uiW, uiH, WGALResourceFormat::BGRAUByteNormalized, m_MSAASamples);
       m_hMSAAColor = m_pDevice->CreateTexture(desc);
-      EZ_TEST_BOOL(!m_hMSAAColor.IsInvalidated());
+      W_TEST_BOOL(!m_hMSAAColor.IsInvalidated());
     }
     {
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(uiW, uiH, ezGALResourceFormat::D24S8, m_MSAASamples);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(uiW, uiH, WGALResourceFormat::D24S8, m_MSAASamples);
       m_hMSAADepthStencil = m_pDevice->CreateTexture(desc);
-      EZ_TEST_BOOL(!m_hMSAADepthStencil.IsInvalidated());
+      W_TEST_BOOL(!m_hMSAADepthStencil.IsInvalidated());
     }
     {
       // Resolve target must match the MSAA color format and is read back for verification, so it needs the default usage flags only.
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(uiW, uiH, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(uiW, uiH, WGALResourceFormat::BGRAUByteNormalized, WGALMSAASampleCount::None);
       m_hMSAAResolveTarget = m_pDevice->CreateTexture(desc);
-      EZ_TEST_BOOL(!m_hMSAAResolveTarget.IsInvalidated());
+      W_TEST_BOOL(!m_hMSAAResolveTarget.IsInvalidated());
     }
 
     {
-      // A simple full-NDC quad. The stencil shader (StencilColor.ezShader) only reads POSITION.
-      ezGeometry geom;
-      geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+      // A simple full-NDC quad. The stencil shader (StencilColor.WShader) only reads POSITION.
+      WGeometry geom;
+      geom.AddRect(WVec2(2.0f, 2.0f), 1, 1);
 
-      ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezMeshVertexStreamType::Position);
-      desc.AddStream(ezMeshVertexStreamType::Color0);
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      WMeshBufferResourceDescriptor desc;
+      desc.AddStream(WMeshVertexStreamType::Position);
+      desc.AddStream(WMeshVertexStreamType::Color0);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      m_hMSAAQuadMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("MSAAResolveQuad", std::move(desc), "MSAAResolveQuad");
+      m_hMSAAQuadMesh = WResourceManager::GetOrCreateResource<WMeshBufferResource>("MSAAResolveQuad", std::move(desc), "MSAAResolveQuad");
     }
 
-    m_hMSAAStencilShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
+    m_hMSAAStencilShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/StencilColor.WShader");
   }
 
   if (iIdentifier == ST_DepthBias)
   {
     // The depth bias is expressed in multiples of the smallest resolvable difference of the depth format, so only formats with a known fixed-point
     // representation can be used here. For a floating point depth buffer that unit depends on the depth values of the primitive itself.
-    const ezGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
-    ezEnum<ezGALResourceFormat> depthFormat;
-    if (caps.m_FormatSupport[ezGALResourceFormat::D16].IsSet(ezGALResourceFormatSupport::RenderTarget))
+    const WGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
+    WEnum<WGALResourceFormat> depthFormat;
+    if (caps.m_FormatSupport[WGALResourceFormat::D16].IsSet(WGALResourceFormatSupport::RenderTarget))
     {
-      depthFormat = ezGALResourceFormat::D16;
+      depthFormat = WGALResourceFormat::D16;
       m_fDepthBiasUnit = 1.0f / 65535.0f;
     }
-    else if (caps.m_FormatSupport[ezGALResourceFormat::D24S8].IsSet(ezGALResourceFormatSupport::RenderTarget))
+    else if (caps.m_FormatSupport[WGALResourceFormat::D24S8].IsSet(WGALResourceFormatSupport::RenderTarget))
     {
-      depthFormat = ezGALResourceFormat::D24S8;
+      depthFormat = WGALResourceFormat::D24S8;
       m_fDepthBiasUnit = 1.0f / 16777215.0f;
     }
     else
     {
-      EZ_TEST_FAILURE("No suitable format", "Neither D16 nor D24S8 is supported as a depth target, at least one of them has to be.");
-      return EZ_FAILURE;
+      W_TEST_FAILURE("No suitable format", "Neither D16 nor D24S8 is supported as a depth target, at least one of them has to be.");
+      return W_FAILURE;
     }
 
     {
       // Linear format so the readback values can be compared without an sRGB conversion.
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, WGALResourceFormat::BGRAUByteNormalized, WGALMSAASampleCount::None);
       m_hDepthBiasColor = m_pDevice->CreateTexture(desc);
-      if (!EZ_TEST_BOOL(!m_hDepthBiasColor.IsInvalidated()))
-        return EZ_FAILURE;
+      if (!W_TEST_BOOL(!m_hDepthBiasColor.IsInvalidated()))
+        return W_FAILURE;
     }
     {
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, depthFormat, ezGALMSAASampleCount::None);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, depthFormat, WGALMSAASampleCount::None);
       m_hDepthBiasDepth = m_pDevice->CreateTexture(desc);
-      if (!EZ_TEST_BOOL(!m_hDepthBiasDepth.IsInvalidated()))
-        return EZ_FAILURE;
+      if (!W_TEST_BOOL(!m_hDepthBiasDepth.IsInvalidated()))
+        return W_FAILURE;
     }
 
     {
-      // A full-NDC quad. StencilColor.ezShader only reads POSITION, the depth of each quad comes entirely from its transform.
-      ezGeometry geom;
-      geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+      // A full-NDC quad. StencilColor.WShader only reads POSITION, the depth of each quad comes entirely from its transform.
+      WGeometry geom;
+      geom.AddRect(WVec2(2.0f, 2.0f), 1, 1);
 
-      ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezMeshVertexStreamType::Position);
-      desc.AddStream(ezMeshVertexStreamType::Color0);
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      WMeshBufferResourceDescriptor desc;
+      desc.AddStream(WMeshVertexStreamType::Position);
+      desc.AddStream(WMeshVertexStreamType::Color0);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      m_hDepthBiasQuadMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("DepthBiasQuad", std::move(desc), "DepthBiasQuad");
+      m_hDepthBiasQuadMesh = WResourceManager::GetOrCreateResource<WMeshBufferResource>("DepthBiasQuad", std::move(desc), "DepthBiasQuad");
     }
 
-    m_hDepthBiasShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
+    m_hDepthBiasShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/StencilColor.WShader");
   }
 
   if (iIdentifier == ST_ConservativeRasterization)
   {
     {
       // Linear format so the readback values can be compared without an sRGB conversion.
-      ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount, s_uiConservativeRasterCellSize, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+      WGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount, s_uiConservativeRasterCellSize, WGALResourceFormat::BGRAUByteNormalized, WGALMSAASampleCount::None);
       m_hConservativeRasterColor = m_pDevice->CreateTexture(desc);
-      if (!EZ_TEST_BOOL(!m_hConservativeRasterColor.IsInvalidated()))
-        return EZ_FAILURE;
+      if (!W_TEST_BOOL(!m_hConservativeRasterColor.IsInvalidated()))
+        return W_FAILURE;
     }
 
     {
-      // A full-NDC quad. StencilColor.ezShader only reads POSITION, the position of each quad comes entirely from its transform.
-      ezGeometry geom;
-      geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+      // A full-NDC quad. StencilColor.WShader only reads POSITION, the position of each quad comes entirely from its transform.
+      WGeometry geom;
+      geom.AddRect(WVec2(2.0f, 2.0f), 1, 1);
 
-      ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezMeshVertexStreamType::Position);
-      desc.AddStream(ezMeshVertexStreamType::Color0);
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      WMeshBufferResourceDescriptor desc;
+      desc.AddStream(WMeshVertexStreamType::Position);
+      desc.AddStream(WMeshVertexStreamType::Color0);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      m_hConservativeRasterQuadMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("ConservativeRasterQuad", std::move(desc), "ConservativeRasterQuad");
+      m_hConservativeRasterQuadMesh = WResourceManager::GetOrCreateResource<WMeshBufferResource>("ConservativeRasterQuad", std::move(desc), "ConservativeRasterQuad");
     }
 
-    m_hConservativeRasterShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
+    m_hConservativeRasterShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/StencilColor.WShader");
   }
 
   switch (iIdentifier)
@@ -635,67 +635,67 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       // Uses readback for verification
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestAdvancedFeatures::DeInitializeSubTest(WInt32 iIdentifier)
 {
   if (iIdentifier == ST_Tessellation)
   {
     m_hSphereMesh.Invalidate();
   }
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
   else if (iIdentifier == ST_SharedTexture)
   {
-    EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
-    EZ_TEST_BOOL(m_pOffscreenProcess->GetState() == ezProcessState::Finished);
-    EZ_TEST_INT(m_pOffscreenProcess->GetExitCode(), 0);
+    W_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(WTime::MakeFromSeconds(5)).Succeeded());
+    W_TEST_BOOL(m_pOffscreenProcess->GetState() == WProcessState::Finished);
+    W_TEST_INT(m_pOffscreenProcess->GetExitCode(), 0);
     m_pOffscreenProcess = nullptr;
 
     m_pProtocol = nullptr;
     m_pChannel = nullptr;
 
-    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    for (WUInt32 i = 0; i < s_SharedTextureCount; i++)
     {
       m_pDevice->DestroySharedTexture(m_hSharedTextures[i]);
     }
     m_SharedTextureQueue.Clear();
 
-    ezStringView sPath = ":imgout/Profiling/sharedTexture.json"_ezsv;
-    EZ_TEST_RESULT(ezProfilingUtils::SaveProfilingCapture(sPath));
-    ezStringView sPath2 = ":imgout/Profiling/offscreenProfiling.json"_ezsv;
-    ezStringView sMergedFile = ":imgout/Profiling/sharedTexturesMerged.json"_ezsv;
-    EZ_TEST_RESULT(ezProfilingUtils::MergeProfilingCaptures(sPath, sPath2, sMergedFile));
+    WStringView sPath = ":imgout/Profiling/sharedTexture.json"_wsv;
+    W_TEST_RESULT(WProfilingUtils::SaveProfilingCapture(sPath));
+    WStringView sPath2 = ":imgout/Profiling/offscreenProfiling.json"_wsv;
+    WStringView sMergedFile = ":imgout/Profiling/sharedTexturesMerged.json"_wsv;
+    W_TEST_RESULT(WProfilingUtils::MergeProfilingCaptures(sPath, sPath2, sMergedFile));
 
-    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
-    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    WCVarFloat* pProfilingThreshold = (WCVarFloat*)WCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    W_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
     *pProfilingThreshold = m_fOldProfilingThreshold;
   }
 #endif
   else if (iIdentifier == ST_FloatSampling)
   {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
+    WGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
   }
 
   if (iIdentifier == ST_ProxyTexture)
   {
-    for (ezUInt32 i = 0; i < 2; i++)
+    for (WUInt32 i = 0; i < 2; i++)
     {
-      ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hProxyTexture2D[i]);
+      WGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hProxyTexture2D[i]);
     }
   }
   if (iIdentifier == ST_ViewFormatOverride)
   {
-    for (ezUInt32 i = 0; i < 2; i++)
+    for (WUInt32 i = 0; i < 2; i++)
     {
       m_hOverrideRTV[i].Invalidate();
       m_pDevice->DestroyTexture(m_hOverrideTexture2D[i]);
     }
-    m_OverrideSrgbFormat = ezGALResourceFormat::Invalid;
+    m_OverrideSrgbFormat = WGALResourceFormat::Invalid;
   }
   m_hShader2.Invalidate();
   m_hShader3.Invalidate();
@@ -736,16 +736,16 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
   }
 
   DestroyWindow();
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(WGraphicsTest::DeInitializeSubTest(iIdentifier));
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WRendererTestAdvancedFeatures::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
   if (iIdentifier == ST_SharedTexture)
   {
     return SharedTexture();
@@ -765,7 +765,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       break;
     case SubTests::ST_VertexShaderRenderTargetArrayIndex:
       if (!m_pDevice->GetCapabilities().m_bSupportsVSRenderTargetArrayIndex)
-        return ezTestAppRun::Quit;
+        return WTestAppRun::Quit;
       VertexShaderRenderTargetArrayIndex();
       break;
     case SubTests::ST_Tessellation:
@@ -793,7 +793,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       ConservativeRasterization();
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
@@ -801,110 +801,110 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
 
   if (m_ImgCompFrames.IsEmpty() || m_ImgCompFrames.PeekBack() == m_iFrame)
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
-void ezRendererTestAdvancedFeatures::ReadRenderTarget()
+void WRendererTestAdvancedFeatures::ReadRenderTarget()
 {
   BeginCommands("Offscreen");
   {
-    TransitionTexture(m_hTexture2D, ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2D, WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2D));
-    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+    renderingSetup.SetClearColor(0, WColor::RebeccaPurple);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRectFloat viewport = WRectFloat(0, 0, 8, 8);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
 
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  const ezUInt32 uiColumns = 2;
-  const ezUInt32 uiRows = 2;
+  const WUInt32 uiColumns = 2;
+  const WUInt32 uiRows = 2;
   const float fElementWidth = fWidth / uiColumns;
   const float fElementHeight = fHeight / uiRows;
 
-  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  const WMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   BeginCommands("Texture2D");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, m_Texture2DRange);
-    TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2D, WGALResourceState::ShaderResource, m_Texture2DRange);
+    TransitionTexture(m_hDepthStencilTexture, WGALResourceState::DepthStencilWrite);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    WRectFloat viewport = WRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, m_Texture2DRange);
-    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    viewport = WRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
-    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    viewport = WRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
     m_bCaptureImage = true;
-    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    viewport = WRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
   }
   EndCommands();
 }
 
-void ezRendererTestAdvancedFeatures::FloatSampling()
+void WRendererTestAdvancedFeatures::FloatSampling()
 {
   BeginCommands("Offscreen");
   {
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::DepthStencilWrite);
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::DepthStencilWrite);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
     renderingSetup.SetClearDepth();
 
-    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRectFloat viewport = WRectFloat(0, 0, 8, 8);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
 
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  const ezUInt32 uiColumns = 2;
-  const ezUInt32 uiRows = 2;
+  const WUInt32 uiColumns = 2;
+  const WUInt32 uiRows = 2;
   const float fElementWidth = fWidth / uiColumns;
   const float fElementHeight = fHeight / uiRows;
 
-  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  const WMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   BeginCommands("FloatSampling");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::DepthStencilRead);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::DepthStencilRead);
 
-    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
     bindGroupTest.BindSampler("DepthSampler", m_hDepthSamplerState);
     bindGroupTest.BindTexture("DepthTexture", m_hTexture2DArray);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    WRectFloat viewport = WRectFloat(0, 0, fElementWidth, fElementHeight);
     {
-      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
-      RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+      WGALCommandEncoder* pCommandEncoder = BeginRendering(WColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+      RenderObject(m_hCubeUV, mMVP, WColor(1, 1, 1, 1), WShaderBindFlags::None);
       EndRendering();
       if (m_ImgCompFrames.Contains(m_iFrame))
       {
-        TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-        EZ_TEST_IMAGE(m_iFrame, 100);
+        TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+        W_TEST_IMAGE(m_iFrame, 100);
       }
     }
   }
@@ -912,79 +912,79 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
 }
 
 
-void ezRendererTestAdvancedFeatures::ProxyTexture()
+void WRendererTestAdvancedFeatures::ProxyTexture()
 {
   // We render normal pattern to layer 0 and the blue pattern to layer 1.
   BeginCommands("Offscreen");
-  for (ezUInt8 i = 0; i < 2; i++)
+  for (WUInt8 i = 0; i < 2; i++)
   {
-    TransitionTexture(m_hProxyTexture2D[i], ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hProxyTexture2D[i], WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hProxyTexture2D[i]));
-    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+    renderingSetup.SetClearColor(0, WColor::RebeccaPurple);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRectFloat viewport = WRectFloat(0, 0, 8, 8);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(i == 0 ? m_hShader2 : m_hShader3);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(i == 0 ? m_hShader2 : m_hShader3);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
 
   // Render both layers using proxy texture (2D) and manually created resource view (2DArray).
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  const ezUInt32 uiColumns = 2;
-  const ezUInt32 uiRows = 2;
+  const WUInt32 uiColumns = 2;
+  const WUInt32 uiRows = 2;
   const float fElementWidth = fWidth / uiColumns;
   const float fElementHeight = fHeight / uiRows;
 
-  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  const WMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   BeginCommands("Texture2DProxy");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {0, 1, 0, 1});
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {1, 1, 0, 1});
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::ShaderResource, {0, 1, 0, 1});
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::ShaderResource, {1, 1, 0, 1});
 
-    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    WRectFloat viewport = WRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hProxyTexture2D[0]);
-    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    viewport = WRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hProxyTexture2D[1]);
-    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    viewport = WRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {0, 1, 0, 1});
     m_bCaptureImage = true;
-    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    viewport = WRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 0, 1});
   }
   EndCommands();
 }
 
-void ezRendererTestAdvancedFeatures::ViewFormatOverride()
+void WRendererTestAdvancedFeatures::ViewFormatOverride()
 {
   // Render the same gradient into two identically created UNorm textures, the second one through an sRGB render target view.
   BeginCommands("Offscreen");
-  for (ezUInt32 i = 0; i < 2; i++)
+  for (WUInt32 i = 0; i < 2; i++)
   {
-    TransitionTexture(m_hOverrideTexture2D[i], ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hOverrideTexture2D[i], WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_hOverrideRTV[i]);
-    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+    renderingSetup.SetClearColor(0, WColor::RebeccaPurple);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRectFloat viewport = WRectFloat(0, 0, 8, 8);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
 
@@ -995,164 +995,164 @@ void ezRendererTestAdvancedFeatures::ViewFormatOverride()
   // 3: write sRGB,  read sRGB  - the encode cancels the decode, so this must match column 0.
   struct Column
   {
-    ezUInt32 m_uiTexture;
-    ezEnum<ezGALResourceFormat> m_ReadFormat;
+    WUInt32 m_uiTexture;
+    WEnum<WGALResourceFormat> m_ReadFormat;
   };
   const Column columns[] = {
-    {0, ezGALResourceFormat::Invalid},
-    {1, ezGALResourceFormat::Invalid},
+    {0, WGALResourceFormat::Invalid},
+    {1, WGALResourceFormat::Invalid},
     {0, m_OverrideSrgbFormat},
     {1, m_OverrideSrgbFormat},
   };
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  const ezUInt32 uiColumns = EZ_ARRAY_SIZE(columns);
+  const WUInt32 uiColumns = W_ARRAY_SIZE(columns);
   const float fElementWidth = fWidth / uiColumns;
 
-  const ezMat4 mMVP = CreateSimpleMVP(fElementWidth / fHeight);
+  const WMat4 mMVP = CreateSimpleMVP(fElementWidth / fHeight);
   BeginCommands("ViewFormatOverride");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
-    TransitionTexture(m_hOverrideTexture2D[0], ezGALResourceState::ShaderResource);
-    TransitionTexture(m_hOverrideTexture2D[1], ezGALResourceState::ShaderResource);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    TransitionTexture(m_hDepthStencilTexture, WGALResourceState::DepthStencilWrite);
+    TransitionTexture(m_hOverrideTexture2D[0], WGALResourceState::ShaderResource);
+    TransitionTexture(m_hOverrideTexture2D[1], WGALResourceState::ShaderResource);
 
-    for (ezUInt32 i = 0; i < uiColumns; i++)
+    for (WUInt32 i = 0; i < uiColumns; i++)
     {
       if (i == uiColumns - 1)
         m_bCaptureImage = true;
 
-      ezRectFloat viewport = ezRectFloat(fElementWidth * i, 0, fElementWidth, fHeight);
-      BeginRendering(ezColor::RebeccaPurple, i == 0 ? 0xFFFFFFFF : 0, &viewport);
+      WRectFloat viewport = WRectFloat(fElementWidth * i, 0, fElementWidth, fHeight);
+      BeginRendering(WColor::RebeccaPurple, i == 0 ? 0xFFFFFFFF : 0, &viewport);
       {
-        ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+        WBindGroupBuilder& bindGroup = WRenderContext::GetDefaultInstance()->GetBindGroup();
         bindGroup.BindTexture("DiffuseTexture", m_hOverrideTexture2D[columns[i].m_uiTexture], {}, columns[i].m_ReadFormat);
-        RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+        RenderObject(m_hCubeUV, mMVP, WColor(1, 1, 1, 1), WShaderBindFlags::None);
       }
       EndRendering();
 
       if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
       {
-        TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-        EZ_TEST_IMAGE(m_iFrame, 100);
+        TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+        W_TEST_IMAGE(m_iFrame, 100);
       }
     }
   }
   EndCommands();
 }
 
-void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
+void WRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 {
   m_bCaptureImage = true;
-  const ezMat4 mMVP = CreateSimpleMVP((m_pWindow->GetClientAreaSize().width / 2.0f) / (float)m_pWindow->GetClientAreaSize().height);
+  const WMat4 mMVP = CreateSimpleMVP((m_pWindow->GetClientAreaSize().width / 2.0f) / (float)m_pWindow->GetClientAreaSize().height);
   BeginCommands("Offscreen Stereo");
   {
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
-    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+    renderingSetup.SetClearColor(0, WColor::RebeccaPurple);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, m_pWindow->GetClientAreaSize().width / 2.0f, (float)m_pWindow->GetClientAreaSize().height);
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    WRectFloat viewport = WRectFloat(0, 0, m_pWindow->GetClientAreaSize().width / 2.0f, (float)m_pWindow->GetClientAreaSize().height);
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ezShaderBindFlags::None);
-    ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+    WRenderContext::GetDefaultInstance()->BindShader(m_hShader, WShaderBindFlags::None);
+    ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mMVP;
-    ocb->m_Color = ezColor(1, 1, 1, 1);
-    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    ocb->m_Color = WColor(1, 1, 1, 1);
+    WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
     bindGroupTest.BindBuffer("PerObject", m_hObjectTransformCB);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(0xFFFFFFFF, 0, 2).IgnoreResult();
+    WRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer(0xFFFFFFFF, 0, 2).IgnoreResult();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
   }
   EndCommands();
 
 
   BeginCommands("Texture2DArray");
   {
-    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource);
+    TransitionTexture(m_hTexture2DArray, WGALResourceState::ShaderResource);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
+    WRectFloat viewport = WRectFloat(0, 0, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    WGALCommandEncoder* pCommandEncoder = BeginRendering(WColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
     bindGroupTest.BindTexture("DiffuseTexture", m_hTexture2DArray);
 
-    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    WRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    WRenderContext::GetDefaultInstance()->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     EndRendering();
     if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
     {
-      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-      EZ_TEST_IMAGE(m_iFrame, 100);
+      TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+      W_TEST_IMAGE(m_iFrame, 100);
     }
   }
   EndCommands();
 }
 
-void ezRendererTestAdvancedFeatures::Tessellation()
+void WRendererTestAdvancedFeatures::Tessellation()
 {
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-  const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+  const WMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
   BeginCommands("Tessellation");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
-    RenderObject(m_hSphereMesh, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    WRectFloat viewport = WRectFloat(0, 0, fWidth, fHeight);
+    WGALCommandEncoder* pCommandEncoder = BeginRendering(WColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    RenderObject(m_hSphereMesh, mMVP, WColor(1, 1, 1, 1), WShaderBindFlags::None);
 
     EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
-      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-      EZ_TEST_IMAGE(m_iFrame, 100);
+      TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+      W_TEST_IMAGE(m_iFrame, 100);
     }
   }
   EndCommands();
 }
 
 
-void ezRendererTestAdvancedFeatures::Compute()
+void WRendererTestAdvancedFeatures::Compute()
 {
   BeginCommands("Compute");
   {
-    ezUInt32 uiWidth = 8;
-    ezUInt32 uiHeight = 8;
+    WUInt32 uiWidth = 8;
+    WUInt32 uiHeight = 8;
 
-    ezRenderContext::GetDefaultInstance()->BeginCompute("Compute");
+    WRenderContext::GetDefaultInstance()->BeginCompute("Compute");
     {
-      ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      WRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+      WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
 
-      ezGALTextureRange textureRange;
+      WGALTextureRange textureRange;
       textureRange.m_uiBaseMipLevel = 4;
       textureRange.m_uiMipLevels = 1;
       textureRange.m_uiBaseArraySlice = 0;
       textureRange.m_uiArraySlices = 2;
 
-      TransitionTexture(m_hTexture2D, ezGALResourceState::UnorderedAccess, textureRange);
+      TransitionTexture(m_hTexture2D, WGALResourceState::UnorderedAccess, textureRange);
 
       bindGroupTest.BindTexture("OutputTexture", m_hTexture2D, textureRange);
 
       // The compute shader uses [numthreads(8, 8, 1)], so we need to compute how many of these groups we need to dispatch to fill the entire image.
-      constexpr ezUInt32 uiThreadsX = 8;
-      constexpr ezUInt32 uiThreadsY = 8;
-      const ezUInt32 uiDispatchX = (uiWidth + uiThreadsX - 1) / uiThreadsX;
-      const ezUInt32 uiDispatchY = (uiHeight + uiThreadsY - 1) / uiThreadsY;
+      constexpr WUInt32 uiThreadsX = 8;
+      constexpr WUInt32 uiThreadsY = 8;
+      const WUInt32 uiDispatchX = (uiWidth + uiThreadsX - 1) / uiThreadsX;
+      const WUInt32 uiDispatchY = (uiHeight + uiThreadsY - 1) / uiThreadsY;
       // As the image is exactly as big as one of our groups, we need to dispatch exactly one group:
-      EZ_TEST_INT(uiDispatchX, 1);
-      EZ_TEST_INT(uiDispatchY, 1);
-      ezRenderContext::GetDefaultInstance()->Dispatch(uiDispatchX, uiDispatchY, 2).AssertSuccess();
+      W_TEST_INT(uiDispatchX, 1);
+      W_TEST_INT(uiDispatchY, 1);
+      WRenderContext::GetDefaultInstance()->Dispatch(uiDispatchX, uiDispatchY, 2).AssertSuccess();
     }
-    ezRenderContext::GetDefaultInstance()->EndCompute();
+    WRenderContext::GetDefaultInstance()->EndCompute();
   }
   EndCommands();
 
@@ -1160,78 +1160,78 @@ void ezRendererTestAdvancedFeatures::Compute()
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
 
-  const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+  const WMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
   BeginCommands("Texture2D");
   {
-    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, m_Texture2DRange);
+    TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2D, WGALResourceState::ShaderResource, m_Texture2DRange);
 
     m_bCaptureImage = true;
-    ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
+    WRectFloat viewport = WRectFloat(0, 0, fWidth, fHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, m_Texture2DRange);
   }
   EndCommands();
 }
 
-void ezRendererTestAdvancedFeatures::MSAAResolve()
+void WRendererTestAdvancedFeatures::MSAAResolve()
 {
   // Exercises three currently-untested encoder paths in one pass:
   // 1. Rendering into MSAA color + MSAA depth-stencil targets with stencil writes / tests.
-  // 2. ezGALCommandEncoder::Clear inside an active render pass (color-only clear that must preserve the stencil contents).
-  // 3. ezGALCommandEncoder::ResolveTexture to downsample the MSAA color into a single-sample texture.
+  // 2. WGALCommandEncoder::Clear inside an active render pass (color-only clear that must preserve the stencil contents).
+  // 3. WGALCommandEncoder::ResolveTexture to downsample the MSAA color into a single-sample texture.
   //
   // Verification is done via readback of the resolved texture so the test does not need a reference image.
 
-  constexpr ezUInt32 uiW = 64;
-  constexpr ezUInt32 uiH = 64;
+  constexpr WUInt32 uiW = 64;
+  constexpr WUInt32 uiH = 64;
 
-  ezGALDepthStencilStateCreationDescription writeStencilDesc;
+  WGALDepthStencilStateCreationDescription writeStencilDesc;
   writeStencilDesc.m_bDepthEnable = false;
   writeStencilDesc.m_bDepthWrite = false;
   writeStencilDesc.m_bStencilEnable = true;
   writeStencilDesc.m_uiStencilReadMask = 0xFF;
   writeStencilDesc.m_uiStencilWriteMask = 0xFF;
-  writeStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = ezGALCompareFunc::Always;
-  writeStencilDesc.m_FrontFaceStencilOp.m_PassOp = ezGALStencilOp::Replace;
+  writeStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = WGALCompareFunc::Always;
+  writeStencilDesc.m_FrontFaceStencilOp.m_PassOp = WGALStencilOp::Replace;
   writeStencilDesc.m_BackFaceStencilOp = writeStencilDesc.m_FrontFaceStencilOp;
 
-  ezGALDepthStencilStateCreationDescription testStencilDesc;
+  WGALDepthStencilStateCreationDescription testStencilDesc;
   testStencilDesc.m_bDepthEnable = false;
   testStencilDesc.m_bDepthWrite = false;
   testStencilDesc.m_bStencilEnable = true;
   testStencilDesc.m_uiStencilReadMask = 0xFF;
   testStencilDesc.m_uiStencilWriteMask = 0x00;
-  testStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = ezGALCompareFunc::Equal;
+  testStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = WGALCompareFunc::Equal;
   testStencilDesc.m_BackFaceStencilOp = testStencilDesc.m_FrontFaceStencilOp;
 
-  ezGALDepthStencilStateHandle hWriteStencil = m_pDevice->CreateDepthStencilState(writeStencilDesc);
-  ezGALDepthStencilStateHandle hTestStencil = m_pDevice->CreateDepthStencilState(testStencilDesc);
+  WGALDepthStencilStateHandle hWriteStencil = m_pDevice->CreateDepthStencilState(writeStencilDesc);
+  WGALDepthStencilStateHandle hTestStencil = m_pDevice->CreateDepthStencilState(testStencilDesc);
 
   // Pre-multiplied identity MVP. The full-screen quad uses a 2x2 NDC rect (geom.AddRect(2x2)), so identity already covers the viewport.
-  ezMat4 mFull = ezMat4::MakeIdentity();
+  WMat4 mFull = WMat4::MakeIdentity();
   // A centered half-size quad for the stencil-write pass.
-  ezMat4 mCenter = ezMat4::MakeScaling(ezVec3(0.5f, 0.5f, 1.0f));
-  if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
+  WMat4 mCenter = WMat4::MakeScaling(WVec3(0.5f, 0.5f, 1.0f));
+  if (WClipSpaceYMode::RenderToTextureDefault == WClipSpaceYMode::Flipped)
   {
-    ezMat4 flipY = ezMat4::MakeScaling(ezVec3(1.0f, -1.0f, 1.0f));
+    WMat4 flipY = WMat4::MakeScaling(WVec3(1.0f, -1.0f, 1.0f));
     mFull = flipY * mFull;
     mCenter = flipY * mCenter;
   }
 
-  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pRenderContext = WRenderContext::GetDefaultInstance();
 
   BeginCommands("MSAAResolve");
   {
-    TransitionTexture(m_hMSAAColor, ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hMSAADepthStencil, ezGALResourceState::DepthStencilWrite);
+    TransitionTexture(m_hMSAAColor, WGALResourceState::RenderTarget);
+    TransitionTexture(m_hMSAADepthStencil, WGALResourceState::DepthStencilWrite);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hMSAAColor));
-    renderingSetup.SetClearColor(0, ezColor::Black);
+    renderingSetup.SetClearColor(0, WColor::Black);
     renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hMSAADepthStencil));
     renderingSetup.SetClearDepth().SetClearStencil();
 
-    ezRectFloat viewport = ezRectFloat(0, 0, (float)uiW, (float)uiH);
+    WRectFloat viewport = WRectFloat(0, 0, (float)uiW, (float)uiH);
     pRenderContext->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
@@ -1240,33 +1240,33 @@ void ezRendererTestAdvancedFeatures::MSAAResolve()
       pRenderContext->SetDepthStencilState(hWriteStencil);
       pRenderContext->SetStencilRefValue(1);
 
-      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
       ocb->m_MVP = mCenter;
-      ocb->m_Color = ezColor::Black;
-      ezBindGroupBuilder& bg = pRenderContext->GetBindGroup();
+      ocb->m_Color = WColor::Black;
+      WBindGroupBuilder& bg = pRenderContext->GetBindGroup();
       bg.BindBuffer("PerObject", m_hObjectTransformCB);
 
-      pRenderContext->BindShader(m_hMSAAStencilShader, ezShaderBindFlags::NoDepthStencilState);
+      pRenderContext->BindShader(m_hMSAAStencilShader, WShaderBindFlags::NoDepthStencilState);
       pRenderContext->BindMeshBuffer(m_hMSAAQuadMesh);
       pRenderContext->DrawMeshBuffer().AssertSuccess();
     }
 
-    // 2. Clear color to red but preserve the stencil buffer. This exercises ezGALCommandEncoder::Clear.
-    m_pEncoder->Clear(ezColor::Red, 0xFFFFFFFFu, false, false);
+    // 2. Clear color to red but preserve the stencil buffer. This exercises WGALCommandEncoder::Clear.
+    m_pEncoder->Clear(WColor::Red, 0xFFFFFFFFu, false, false);
 
     // 3. Draw a full-screen quad in green where stencil == 1. Pixels outside the centered region keep their red color from the Clear.
     {
       pRenderContext->SetDepthStencilState(hTestStencil);
       pRenderContext->SetStencilRefValue(1);
 
-      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
       ocb->m_MVP = mFull;
-      // Use linear pure green directly. ezColor::Green is the HTML #008000 dark green and would readback as ~55/255 due to sRGB->linear conversion.
-      ocb->m_Color = ezColor(0.0f, 1.0f, 0.0f);
-      ezBindGroupBuilder& bg = pRenderContext->GetBindGroup();
+      // Use linear pure green directly. WColor::Green is the HTML #008000 dark green and would readback as ~55/255 due to sRGB->linear conversion.
+      ocb->m_Color = WColor(0.0f, 1.0f, 0.0f);
+      WBindGroupBuilder& bg = pRenderContext->GetBindGroup();
       bg.BindBuffer("PerObject", m_hObjectTransformCB);
 
-      pRenderContext->BindShader(m_hMSAAStencilShader, ezShaderBindFlags::NoDepthStencilState);
+      pRenderContext->BindShader(m_hMSAAStencilShader, WShaderBindFlags::NoDepthStencilState);
       pRenderContext->BindMeshBuffer(m_hMSAAQuadMesh);
       pRenderContext->DrawMeshBuffer().AssertSuccess();
     }
@@ -1274,12 +1274,12 @@ void ezRendererTestAdvancedFeatures::MSAAResolve()
     pRenderContext->EndRendering();
 
     // 4. Resolve the MSAA color into the single-sample target.
-    TransitionTexture(m_hMSAAColor, ezGALResourceState::ResolveSource);
-    TransitionTexture(m_hMSAAResolveTarget, ezGALResourceState::ResolveDestination);
-    m_pEncoder->ResolveTexture(m_hMSAAResolveTarget, ezGALTextureSubresource(), m_hMSAAColor, ezGALTextureSubresource());
+    TransitionTexture(m_hMSAAColor, WGALResourceState::ResolveSource);
+    TransitionTexture(m_hMSAAResolveTarget, WGALResourceState::ResolveDestination);
+    m_pEncoder->ResolveTexture(m_hMSAAResolveTarget, WGALTextureSubresource(), m_hMSAAColor, WGALTextureSubresource());
 
     // 5. Read the resolved texture back so we can verify pixel values.
-    TransitionTexture(m_hMSAAResolveTarget, ezGALResourceState::CopySource);
+    TransitionTexture(m_hMSAAResolveTarget, WGALResourceState::CopySource);
     m_MSAAReadback.ReadbackTexture(*m_pEncoder, m_hMSAAResolveTarget);
   }
   EndCommands();
@@ -1287,40 +1287,40 @@ void ezRendererTestAdvancedFeatures::MSAAResolve()
   m_pDevice->DestroyDepthStencilState(hWriteStencil);
   m_pDevice->DestroyDepthStencilState(hTestStencil);
 
-  ezEnum<ezGALAsyncResult> res = m_MSAAReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-  if (!EZ_TEST_BOOL_MSG(res == ezGALAsyncResult::Ready, "MSAA readback timed out"))
+  WEnum<WGALAsyncResult> res = m_MSAAReadback.GetReadbackResult(WTime::MakeFromHours(1));
+  if (!W_TEST_BOOL_MSG(res == WGALAsyncResult::Ready, "MSAA readback timed out"))
     return;
 
-  ezGALTextureSubresource sub;
-  ezArrayPtr<ezGALTextureSubresource> subs(&sub, 1);
-  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-  ezReadbackTextureLock lock = m_MSAAReadback.LockTexture(subs, memory);
-  EZ_ASSERT_ALWAYS(lock, "Failed to lock MSAA readback texture");
+  WGALTextureSubresource sub;
+  WArrayPtr<WGALTextureSubresource> subs(&sub, 1);
+  WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
+  WReadbackTextureLock lock = m_MSAAReadback.LockTexture(subs, memory);
+  W_ASSERT_ALWAYS(lock, "Failed to lock MSAA readback texture");
 
   // BGRAUByteNormalized, 4 bytes per pixel as B, G, R, A.
-  auto sampleBGRA = [&](ezUInt32 x, ezUInt32 y) -> ezColorLinearUB
+  auto sampleBGRA = [&](WUInt32 x, WUInt32 y) -> WColorLinearUB
   {
-    const ezUInt8* pRow = static_cast<const ezUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
-    const ezUInt8* p = pRow + x * 4;
-    return ezColorLinearUB(p[2], p[1], p[0], p[3]);
+    const WUInt8* pRow = static_cast<const WUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
+    const WUInt8* p = pRow + x * 4;
+    return WColorLinearUB(p[2], p[1], p[0], p[3]);
   };
 
   // The center is inside the stencil-marked region, so it must be green.
-  const ezColorLinearUB centerPixel = sampleBGRA(uiW / 2, uiH / 2);
-  EZ_TEST_INT(centerPixel.r, 0);
-  EZ_TEST_BOOL_MSG(centerPixel.g > 200, "Center pixel should be green (stencil pass)");
-  EZ_TEST_INT(centerPixel.b, 0);
+  const WColorLinearUB centerPixel = sampleBGRA(uiW / 2, uiH / 2);
+  W_TEST_INT(centerPixel.r, 0);
+  W_TEST_BOOL_MSG(centerPixel.g > 200, "Center pixel should be green (stencil pass)");
+  W_TEST_INT(centerPixel.b, 0);
 
   // The corner is outside the stencil-marked region, so the encoder Clear color (red) must be visible.
-  const ezColorLinearUB cornerPixel = sampleBGRA(1, 1);
-  EZ_TEST_BOOL_MSG(cornerPixel.r > 200, "Corner pixel should be red (encoder Clear, stencil != 1)");
-  EZ_TEST_INT(cornerPixel.g, 0);
-  EZ_TEST_INT(cornerPixel.b, 0);
+  const WColorLinearUB cornerPixel = sampleBGRA(1, 1);
+  W_TEST_BOOL_MSG(cornerPixel.r > 200, "Corner pixel should be red (encoder Clear, stencil != 1)");
+  W_TEST_INT(cornerPixel.g, 0);
+  W_TEST_INT(cornerPixel.b, 0);
 }
 
-void ezRendererTestAdvancedFeatures::DepthBias()
+void WRendererTestAdvancedFeatures::DepthBias()
 {
-  // Verifies ezGALRasterizerStateCreationDescription::m_iDepthBias, m_fSlopeScaledDepthBias and m_fDepthBiasClamp.
+  // Verifies WGALRasterizerStateCreationDescription::m_iDepthBias, m_fSlopeScaledDepthBias and m_fDepthBiasClamp.
   //
   // Every case gets its own square cell of the render target. In each cell a reference quad is drawn with an unbiased rasterizer state and depth writes enabled, then the exact same quad is drawn again, moved away from the viewer by a fixed gap and rasterized with the depth bias under test. Because both quads are coplanar apart from that gap, the biased quad passes the 'Less' depth test if and only if the applied bias exceeds the gap towards the viewer. The result is therefore a binary green (biased quad won) / red (reference quad still visible) per cell, which is
   // verified via readback instead of a reference image.
@@ -1330,31 +1330,31 @@ void ezRendererTestAdvancedFeatures::DepthBias()
   const bool bSupportsClamp = m_pDevice->GetCapabilities().m_bSupportsDepthBiasClamp;
   if (!bSupportsClamp)
   {
-    ezLog::Info("The depth bias clamp is not supported by this device, skipping the cases that rely on it.");
+    WLog::Info("The depth bias clamp is not supported by this device, skipping the cases that rely on it.");
   }
 
-  ezGALDepthStencilStateCreationDescription writeDepthDesc;
+  WGALDepthStencilStateCreationDescription writeDepthDesc;
   writeDepthDesc.m_bDepthEnable = true;
   writeDepthDesc.m_bDepthWrite = true;
-  writeDepthDesc.m_DepthTestFunc = ezGALCompareFunc::Always;
+  writeDepthDesc.m_DepthTestFunc = WGALCompareFunc::Always;
 
-  ezGALDepthStencilStateCreationDescription testDepthDesc;
+  WGALDepthStencilStateCreationDescription testDepthDesc;
   testDepthDesc.m_bDepthEnable = true;
   testDepthDesc.m_bDepthWrite = false;
-  testDepthDesc.m_DepthTestFunc = ezGALCompareFunc::Less;
+  testDepthDesc.m_DepthTestFunc = WGALCompareFunc::Less;
 
-  ezGALDepthStencilStateHandle hWriteDepth = m_pDevice->CreateDepthStencilState(writeDepthDesc);
-  ezGALDepthStencilStateHandle hTestDepth = m_pDevice->CreateDepthStencilState(testDepthDesc);
+  WGALDepthStencilStateHandle hWriteDepth = m_pDevice->CreateDepthStencilState(writeDepthDesc);
+  WGALDepthStencilStateHandle hTestDepth = m_pDevice->CreateDepthStencilState(testDepthDesc);
 
-  ezGALRasterizerStateCreationDescription rasterDesc;
-  rasterDesc.m_CullMode = ezGALCullMode::None;
-  ezGALRasterizerStateHandle hNoBias = m_pDevice->CreateRasterizerState(rasterDesc);
+  WGALRasterizerStateCreationDescription rasterDesc;
+  rasterDesc.m_CullMode = WGALCullMode::None;
+  WGALRasterizerStateHandle hNoBias = m_pDevice->CreateRasterizerState(rasterDesc);
 
-  ezHybridArray<ezGALRasterizerStateHandle, s_uiDepthBiasCaseCount> biasStates;
+  WHybridArray<WGALRasterizerStateHandle, s_uiDepthBiasCaseCount> biasStates;
   for (const DepthBiasCase& testCase : s_DepthBiasCases)
   {
-    ezGALRasterizerStateCreationDescription desc;
-    desc.m_CullMode = ezGALCullMode::None;
+    WGALRasterizerStateCreationDescription desc;
+    desc.m_CullMode = WGALCullMode::None;
     desc.m_iDepthBias = testCase.m_iDepthBias;
     desc.m_fSlopeScaledDepthBias = testCase.m_fSlopeScaledDepthBias;
     desc.m_fDepthBiasClamp = testCase.m_fClampUnits * m_fDepthBiasUnit;
@@ -1362,59 +1362,59 @@ void ezRendererTestAdvancedFeatures::DepthBias()
   }
 
   // Maps the quad's local NDC space onto the cell of the given case and places it at s_fDepthBiasBaseDepth, optionally tilted along x.
-  auto MakeTransform = [](ezUInt32 uiCase, bool bSloped, float fDepthOffset) -> ezMat4
+  auto MakeTransform = [](WUInt32 uiCase, bool bSloped, float fDepthOffset) -> WMat4
   {
     const float fScaleX = 1.0f / s_uiDepthBiasCaseCount;
     const float fCenterX = -1.0f + (2.0f * uiCase + 1.0f) * fScaleX;
 
-    ezMat4 m = ezMat4::MakeIdentity();
-    m.SetRow(0, ezVec4(fScaleX, 0.0f, 0.0f, fCenterX));
-    m.SetRow(2, ezVec4(bSloped ? s_fDepthBiasSlope : 0.0f, 0.0f, 1.0f, s_fDepthBiasBaseDepth + fDepthOffset));
+    WMat4 m = WMat4::MakeIdentity();
+    m.SetRow(0, WVec4(fScaleX, 0.0f, 0.0f, fCenterX));
+    m.SetRow(2, WVec4(bSloped ? s_fDepthBiasSlope : 0.0f, 0.0f, 1.0f, s_fDepthBiasBaseDepth + fDepthOffset));
     return m;
   };
 
-  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pRenderContext = WRenderContext::GetDefaultInstance();
 
-  auto DrawQuad = [&](const ezMat4& mTransform, const ezColor& color, ezGALDepthStencilStateHandle hDepthStencil, ezGALRasterizerStateHandle hRasterizer)
+  auto DrawQuad = [&](const WMat4& mTransform, const WColor& color, WGALDepthStencilStateHandle hDepthStencil, WGALRasterizerStateHandle hRasterizer)
   {
     pRenderContext->SetDepthStencilState(hDepthStencil);
     pRenderContext->SetRasterizerState(hRasterizer);
 
-    ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+    ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mTransform;
     ocb->m_Color = color;
     pRenderContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
 
-    pRenderContext->BindShader(m_hDepthBiasShader, ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState);
+    pRenderContext->BindShader(m_hDepthBiasShader, WShaderBindFlags::NoRasterizerState | WShaderBindFlags::NoDepthStencilState);
     pRenderContext->BindMeshBuffer(m_hDepthBiasQuadMesh);
     pRenderContext->DrawMeshBuffer().AssertSuccess();
   };
 
   BeginCommands("DepthBias");
   {
-    TransitionTexture(m_hDepthBiasColor, ezGALResourceState::RenderTarget);
-    TransitionTexture(m_hDepthBiasDepth, ezGALResourceState::DepthStencilWrite);
+    TransitionTexture(m_hDepthBiasColor, WGALResourceState::RenderTarget);
+    TransitionTexture(m_hDepthBiasDepth, WGALResourceState::DepthStencilWrite);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasColor));
-    renderingSetup.SetClearColor(0, ezColor::Black);
+    renderingSetup.SetClearColor(0, WColor::Black);
     renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasDepth));
     renderingSetup.SetClearDepth();
 
-    ezRectFloat viewport = ezRectFloat(0, 0, (float)(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount), (float)s_uiDepthBiasCellSize);
+    WRectFloat viewport = WRectFloat(0, 0, (float)(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount), (float)s_uiDepthBiasCellSize);
     pRenderContext->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    for (ezUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
+    for (WUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
     {
       const DepthBiasCase& testCase = s_DepthBiasCases[i];
-      DrawQuad(MakeTransform(i, testCase.m_bSloped, 0.0f), ezColor(1.0f, 0.0f, 0.0f), hWriteDepth, hNoBias);
-      DrawQuad(MakeTransform(i, testCase.m_bSloped, s_fDepthBiasGapUnits * m_fDepthBiasUnit), ezColor(0.0f, 1.0f, 0.0f), hTestDepth, biasStates[i]);
+      DrawQuad(MakeTransform(i, testCase.m_bSloped, 0.0f), WColor(1.0f, 0.0f, 0.0f), hWriteDepth, hNoBias);
+      DrawQuad(MakeTransform(i, testCase.m_bSloped, s_fDepthBiasGapUnits * m_fDepthBiasUnit), WColor(0.0f, 1.0f, 0.0f), hTestDepth, biasStates[i]);
     }
 
     pRenderContext->EndRendering();
 
-    TransitionTexture(m_hDepthBiasColor, ezGALResourceState::CopySource);
+    TransitionTexture(m_hDepthBiasColor, WGALResourceState::CopySource);
     m_DepthBiasReadback.ReadbackTexture(*m_pEncoder, m_hDepthBiasColor);
   }
   EndCommands();
@@ -1422,76 +1422,76 @@ void ezRendererTestAdvancedFeatures::DepthBias()
   m_pDevice->DestroyDepthStencilState(hWriteDepth);
   m_pDevice->DestroyDepthStencilState(hTestDepth);
   m_pDevice->DestroyRasterizerState(hNoBias);
-  for (ezGALRasterizerStateHandle hState : biasStates)
+  for (WGALRasterizerStateHandle hState : biasStates)
   {
     m_pDevice->DestroyRasterizerState(hState);
   }
 
-  ezEnum<ezGALAsyncResult> res = m_DepthBiasReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-  if (!EZ_TEST_BOOL_MSG(res == ezGALAsyncResult::Ready, "Depth bias readback timed out"))
+  WEnum<WGALAsyncResult> res = m_DepthBiasReadback.GetReadbackResult(WTime::MakeFromHours(1));
+  if (!W_TEST_BOOL_MSG(res == WGALAsyncResult::Ready, "Depth bias readback timed out"))
     return;
 
-  ezGALTextureSubresource sub;
-  ezArrayPtr<ezGALTextureSubresource> subs(&sub, 1);
-  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-  ezReadbackTextureLock lock = m_DepthBiasReadback.LockTexture(subs, memory);
-  EZ_ASSERT_ALWAYS(lock, "Failed to lock depth bias readback texture");
+  WGALTextureSubresource sub;
+  WArrayPtr<WGALTextureSubresource> subs(&sub, 1);
+  WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
+  WReadbackTextureLock lock = m_DepthBiasReadback.LockTexture(subs, memory);
+  W_ASSERT_ALWAYS(lock, "Failed to lock depth bias readback texture");
 
   // BGRAUByteNormalized, 4 bytes per pixel as B, G, R, A.
-  auto SampleBGRA = [&](ezUInt32 x, ezUInt32 y) -> ezColorLinearUB
+  auto SampleBGRA = [&](WUInt32 x, WUInt32 y) -> WColorLinearUB
   {
-    const ezUInt8* pRow = static_cast<const ezUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
-    const ezUInt8* p = pRow + x * 4;
-    return ezColorLinearUB(p[2], p[1], p[0], p[3]);
+    const WUInt8* pRow = static_cast<const WUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
+    const WUInt8* p = pRow + x * 4;
+    return WColorLinearUB(p[2], p[1], p[0], p[3]);
   };
 
-  for (ezUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
+  for (WUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
   {
     const DepthBiasCase& testCase = s_DepthBiasCases[i];
     if (testCase.m_fClampUnits != 0.0f && !bSupportsClamp)
       continue;
 
-    const ezColorLinearUB pixel = SampleBGRA(i * s_uiDepthBiasCellSize + s_uiDepthBiasCellSize / 2, s_uiDepthBiasCellSize / 2);
+    const WColorLinearUB pixel = SampleBGRA(i * s_uiDepthBiasCellSize + s_uiDepthBiasCellSize / 2, s_uiDepthBiasCellSize / 2);
     const bool bVisible = pixel.g > 200 && pixel.r < 55;
     const bool bHidden = pixel.r > 200 && pixel.g < 55;
 
-    if (!EZ_TEST_BOOL_MSG(bVisible || bHidden, "'%s': neither quad is clearly visible, got RGB (%d, %d, %d)", testCase.m_szName, (int)pixel.r, (int)pixel.g, (int)pixel.b))
+    if (!W_TEST_BOOL_MSG(bVisible || bHidden, "'%s': neither quad is clearly visible, got RGB (%d, %d, %d)", testCase.m_szName, (int)pixel.r, (int)pixel.g, (int)pixel.b))
       continue;
 
-    EZ_TEST_BOOL_MSG(bVisible == testCase.m_bExpectVisible, "'%s': the biased quad is %s but was expected to be %s", testCase.m_szName, bVisible ? "visible" : "hidden", testCase.m_bExpectVisible ? "visible" : "hidden");
+    W_TEST_BOOL_MSG(bVisible == testCase.m_bExpectVisible, "'%s': the biased quad is %s but was expected to be %s", testCase.m_szName, bVisible ? "visible" : "hidden", testCase.m_bExpectVisible ? "visible" : "hidden");
   }
 }
 
-void ezRendererTestAdvancedFeatures::ConservativeRasterization()
+void WRendererTestAdvancedFeatures::ConservativeRasterization()
 {
-  // Verifies ezGALRasterizerStateCreationDescription::m_bConservativeRasterization.
+  // Verifies WGALRasterizerStateCreationDescription::m_bConservativeRasterization.
   //
   // Every case gets its own square cell of the render target and draws a single white quad into it. Standard rasterization only produces a fragment when the pixel center lies inside the primitive, conservative (overestimated) rasterization produces one for every pixel the primitive touches at all. Feeding a quad that is smaller than a pixel and placed so that it misses that pixel's center therefore yields nothing without the feature and at least one lit pixel with it. The two remaining cells draw a quad that covers whole pixels to confirm that ordinary geometry is unaffected.
   //
   // The number of lit pixels per cell is verified via readback instead of a reference image.
 
-  constexpr ezUInt32 uiWidth = s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount;
-  constexpr ezUInt32 uiHeight = s_uiConservativeRasterCellSize;
+  constexpr WUInt32 uiWidth = s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount;
+  constexpr WUInt32 uiHeight = s_uiConservativeRasterCellSize;
 
   // Maps the quad's local NDC space onto the given window space rect of the render target.
-  auto MakeTransform = [](float fMinX, float fMinY, float fMaxX, float fMaxY) -> ezMat4
+  auto MakeTransform = [](float fMinX, float fMinY, float fMaxX, float fMaxY) -> WMat4
   {
-    ezMat4 m = ezMat4::MakeIdentity();
-    m.SetRow(0, ezVec4((fMaxX - fMinX) / uiWidth, 0.0f, 0.0f, (fMinX + fMaxX) / uiWidth - 1.0f));
-    m.SetRow(1, ezVec4(0.0f, (fMaxY - fMinY) / uiHeight, 0.0f, (fMinY + fMaxY) / uiHeight - 1.0f));
+    WMat4 m = WMat4::MakeIdentity();
+    m.SetRow(0, WVec4((fMaxX - fMinX) / uiWidth, 0.0f, 0.0f, (fMinX + fMaxX) / uiWidth - 1.0f));
+    m.SetRow(1, WVec4(0.0f, (fMaxY - fMinY) / uiHeight, 0.0f, (fMinY + fMaxY) / uiHeight - 1.0f));
     return m;
   };
 
-  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+  WRenderContext* pRenderContext = WRenderContext::GetDefaultInstance();
 
-  ezHybridArray<ezGALRasterizerStateHandle, s_uiConservativeRasterCaseCount> rasterStates;
+  WHybridArray<WGALRasterizerStateHandle, s_uiConservativeRasterCaseCount> rasterStates;
   for (const ConservativeRasterCase& testCase : s_ConservativeRasterCases)
   {
-    ezGALRasterizerStateCreationDescription desc;
-    desc.m_CullMode = ezGALCullMode::None;
+    WGALRasterizerStateCreationDescription desc;
+    desc.m_CullMode = WGALCullMode::None;
     desc.m_bConservativeRasterization = testCase.m_bConservative;
-    ezGALRasterizerStateHandle hState = m_pDevice->CreateRasterizerState(desc);
-    if (!EZ_TEST_BOOL_MSG(!hState.IsInvalidated(), "'%s': failed to create the rasterizer state", testCase.m_szName))
+    WGALRasterizerStateHandle hState = m_pDevice->CreateRasterizerState(desc);
+    if (!W_TEST_BOOL_MSG(!hState.IsInvalidated(), "'%s': failed to create the rasterizer state", testCase.m_szName))
       return;
 
     rasterStates.PushBack(hState);
@@ -1499,17 +1499,17 @@ void ezRendererTestAdvancedFeatures::ConservativeRasterization()
 
   BeginCommands("ConservativeRasterization");
   {
-    TransitionTexture(m_hConservativeRasterColor, ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hConservativeRasterColor, WGALResourceState::RenderTarget);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hConservativeRasterColor));
-    renderingSetup.SetClearColor(0, ezColor::Black);
+    renderingSetup.SetClearColor(0, WColor::Black);
 
-    ezRectFloat viewport = ezRectFloat(0, 0, (float)uiWidth, (float)uiHeight);
+    WRectFloat viewport = WRectFloat(0, 0, (float)uiWidth, (float)uiHeight);
     pRenderContext->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
-    for (ezUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
+    for (WUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
     {
       const ConservativeRasterCase& testCase = s_ConservativeRasterCases[i];
       const float fCellOffset = (float)(i * s_uiConservativeRasterCellSize);
@@ -1518,89 +1518,89 @@ void ezRendererTestAdvancedFeatures::ConservativeRasterization()
 
       pRenderContext->SetRasterizerState(rasterStates[i]);
 
-      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
       ocb->m_MVP = MakeTransform(fCellOffset + fMin, fMin, fCellOffset + fMax, fMax);
-      ocb->m_Color = ezColor::White;
+      ocb->m_Color = WColor::White;
       pRenderContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
 
-      pRenderContext->BindShader(m_hConservativeRasterShader, ezShaderBindFlags::NoRasterizerState);
+      pRenderContext->BindShader(m_hConservativeRasterShader, WShaderBindFlags::NoRasterizerState);
       pRenderContext->BindMeshBuffer(m_hConservativeRasterQuadMesh);
       pRenderContext->DrawMeshBuffer().AssertSuccess();
     }
 
     pRenderContext->EndRendering();
-    TransitionTexture(m_hConservativeRasterColor, ezGALResourceState::CopySource);
+    TransitionTexture(m_hConservativeRasterColor, WGALResourceState::CopySource);
     m_ConservativeRasterReadback.ReadbackTexture(*m_pEncoder, m_hConservativeRasterColor);
   }
   EndCommands();
 
-  for (ezGALRasterizerStateHandle hState : rasterStates)
+  for (WGALRasterizerStateHandle hState : rasterStates)
   {
     m_pDevice->DestroyRasterizerState(hState);
   }
 
-  ezEnum<ezGALAsyncResult> res = m_ConservativeRasterReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-  if (!EZ_TEST_BOOL_MSG(res == ezGALAsyncResult::Ready, "Conservative rasterization readback timed out"))
+  WEnum<WGALAsyncResult> res = m_ConservativeRasterReadback.GetReadbackResult(WTime::MakeFromHours(1));
+  if (!W_TEST_BOOL_MSG(res == WGALAsyncResult::Ready, "Conservative rasterization readback timed out"))
     return;
 
-  ezGALTextureSubresource sub;
-  ezArrayPtr<ezGALTextureSubresource> subs(&sub, 1);
-  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-  ezReadbackTextureLock lock = m_ConservativeRasterReadback.LockTexture(subs, memory);
-  EZ_ASSERT_ALWAYS(lock, "Failed to lock conservative rasterization readback texture");
+  WGALTextureSubresource sub;
+  WArrayPtr<WGALTextureSubresource> subs(&sub, 1);
+  WTempHybridArray<WGALSystemMemoryDescription, 1> memory;
+  WReadbackTextureLock lock = m_ConservativeRasterReadback.LockTexture(subs, memory);
+  W_ASSERT_ALWAYS(lock, "Failed to lock conservative rasterization readback texture");
 
-  for (ezUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
+  for (WUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
   {
     const ConservativeRasterCase& testCase = s_ConservativeRasterCases[i];
 
-    ezUInt32 uiLitPixels = 0;
-    for (ezUInt32 y = 0; y < s_uiConservativeRasterCellSize; ++y)
+    WUInt32 uiLitPixels = 0;
+    for (WUInt32 y = 0; y < s_uiConservativeRasterCellSize; ++y)
     {
       // BGRAUByteNormalized, 4 bytes per pixel as B, G, R, A.
-      const ezUInt8* pRow = static_cast<const ezUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
-      for (ezUInt32 x = 0; x < s_uiConservativeRasterCellSize; ++x)
+      const WUInt8* pRow = static_cast<const WUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
+      for (WUInt32 x = 0; x < s_uiConservativeRasterCellSize; ++x)
       {
         if (pRow[(i * s_uiConservativeRasterCellSize + x) * 4] > 128)
           ++uiLitPixels;
       }
     }
 
-    EZ_TEST_BOOL_MSG(uiLitPixels >= testCase.m_uiMinLitPixels && uiLitPixels <= testCase.m_uiMaxLitPixels, "'%s': %d pixels are lit, expected between %d and %d", testCase.m_szName, (int)uiLitPixels, (int)testCase.m_uiMinLitPixels, (int)testCase.m_uiMaxLitPixels);
+    W_TEST_BOOL_MSG(uiLitPixels >= testCase.m_uiMinLitPixels && uiLitPixels <= testCase.m_uiMaxLitPixels, "'%s': %d pixels are lit, expected between %d and %d", testCase.m_szName, (int)uiLitPixels, (int)testCase.m_uiMinLitPixels, (int)testCase.m_uiMaxLitPixels);
   }
 }
 
-ezTestAppRun ezRendererTestAdvancedFeatures::Material()
+WTestAppRun WRendererTestAdvancedFeatures::Material()
 {
   {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    const ezMaterialResourceDescriptor& desc = pMaterial->GetCurrentDesc();
-    EZ_TEST_INT(desc.m_PermutationVars.GetCount(), 0);
-    EZ_TEST_INT(desc.m_Parameters.GetCount(), 2);
-    EZ_TEST_INT(desc.m_Texture2DBindings.GetCount(), 1);
-    EZ_TEST_INT(desc.m_TextureCubeBindings.GetCount(), 0);
-    ezVariant color1 = pMaterial->GetParameter(m_sBaseColor);
-    ezVariant color2 = pMaterial->GetParameter(m_sBaseColor2);
-    ezTexture2DResourceHandle hTexture = pMaterial->GetTexture2DBinding(m_sTexture);
+    WResourceLock<WMaterialResource> pMaterial(m_hMaterial, WResourceAcquireMode::BlockTillLoaded);
+    const WMaterialResourceDescriptor& desc = pMaterial->GetCurrentDesc();
+    W_TEST_INT(desc.m_PermutationVars.GetCount(), 0);
+    W_TEST_INT(desc.m_Parameters.GetCount(), 2);
+    W_TEST_INT(desc.m_Texture2DBindings.GetCount(), 1);
+    W_TEST_INT(desc.m_TextureCubeBindings.GetCount(), 0);
+    WVariant color1 = pMaterial->GetParameter(m_sBaseColor);
+    WVariant color2 = pMaterial->GetParameter(m_sBaseColor2);
+    WTexture2DResourceHandle hTexture = pMaterial->GetTexture2DBinding(m_sTexture);
 
     if (m_iFrame == ImageCaptureFrames::Material_ColorChange)
     {
-      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::White);
-      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
-      EZ_TEST_BOOL(hTexture == m_hTexture);
-      pMaterial->SetParameter(m_sBaseColor, ezColor::Yellow);
+      W_TEST_BOOL(color1.IsA<WColor>() && color1.Get<WColor>() == WColor::White);
+      W_TEST_BOOL(color2.IsA<WColor>() && color2.Get<WColor>() == WColor::White);
+      W_TEST_BOOL(hTexture == m_hTexture);
+      pMaterial->SetParameter(m_sBaseColor, WColor::Yellow);
     }
     else if (m_iFrame == ImageCaptureFrames::Material_ColorChange2)
     {
-      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
-      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
-      EZ_TEST_BOOL(hTexture == m_hTexture);
-      pMaterial->SetParameter(m_sBaseColor2, ezColor::Cyan);
+      W_TEST_BOOL(color1.IsA<WColor>() && color1.Get<WColor>() == WColor::Yellow);
+      W_TEST_BOOL(color2.IsA<WColor>() && color2.Get<WColor>() == WColor::White);
+      W_TEST_BOOL(hTexture == m_hTexture);
+      pMaterial->SetParameter(m_sBaseColor2, WColor::Cyan);
     }
     else if (m_iFrame == ImageCaptureFrames::Material_ChangeTexture)
     {
-      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
-      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::Cyan);
-      EZ_TEST_BOOL(hTexture == m_hTexture);
+      W_TEST_BOOL(color1.IsA<WColor>() && color1.Get<WColor>() == WColor::Yellow);
+      W_TEST_BOOL(color2.IsA<WColor>() && color2.Get<WColor>() == WColor::Cyan);
+      W_TEST_BOOL(hTexture == m_hTexture);
       pMaterial->SetTexture2DBinding(m_sTexture, m_hTexture2);
     }
   }
@@ -1609,32 +1609,32 @@ ezTestAppRun ezRendererTestAdvancedFeatures::Material()
   {
     const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-    const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+    const WMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
     BeginCommands("MaterialTest");
     {
-      TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-      ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+      TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+      WRectFloat viewport = WRectFloat(0, 0, fWidth, fHeight);
+      WGALCommandEncoder* pCommandEncoder = BeginRendering(WColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-      ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+      WRenderContext* pContext = WRenderContext::GetDefaultInstance();
       pContext->SetAllowAsyncShaderLoading(false);
       pContext->BindMaterial(m_hMaterial);
 
-      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ObjectCB* ocb = WRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
       ocb->m_MVP = mMVP;
-      ocb->m_Color = ezColor(1, 1, 1, 1);
+      ocb->m_Color = WColor(1, 1, 1, 1);
 
-      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupTest.BindBuffer("PerObject", m_hObjectTransformCB);
 
-      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
-      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+      WRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
+      WRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
       EndRendering();
       if (m_ImgCompFrames.Contains(m_iFrame))
       {
-        TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-        EZ_TEST_IMAGE(m_iFrame, 100);
+        TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+        W_TEST_IMAGE(m_iFrame, 100);
       }
     }
     EndCommands();
@@ -1643,66 +1643,66 @@ ezTestAppRun ezRendererTestAdvancedFeatures::Material()
 
   if (m_ImgCompFrames.IsEmpty() || m_ImgCompFrames.PeekBack() == m_iFrame)
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
+WTestAppRun WRendererTestAdvancedFeatures::SharedTexture()
 {
-  if (m_pOffscreenProcess->GetState() != ezProcessState::Running)
+  if (m_pOffscreenProcess->GetState() != WProcessState::Running)
   {
-    EZ_TEST_BOOL(m_bExiting);
-    return ezTestAppRun::Quit;
+    W_TEST_BOOL(m_bExiting);
+    return WTestAppRun::Quit;
   }
 
-  m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(16)).IgnoreResult();
+  m_pProtocol->WaitForMessages(WTime::MakeFromMilliseconds(16)).IgnoreResult();
 
-  ezOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
+  WOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
   m_SharedTextureQueue.PopFront();
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
   sTemp.SetFormat("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
-  EZ_PROFILE_SCOPE(sTemp);
+  W_PROFILE_SCOPE(sTemp);
   BeginFrame();
   {
-    const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
-    EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
+    const WGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
+    W_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
 
     pSharedTexture->WaitSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
 
     const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
-    const ezUInt32 uiColumns = 1;
-    const ezUInt32 uiRows = 1;
+    const WUInt32 uiColumns = 1;
+    const WUInt32 uiRows = 1;
     const float fElementWidth = fWidth / uiColumns;
     const float fElementHeight = fHeight / uiRows;
 
-    const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+    const WMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
     BeginCommands("Texture2D");
     {
-      TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-      TransitionTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex], ezGALResourceState::ShaderResource);
+      TransitionTexture(GetBackbuffer(), WGALResourceState::RenderTarget);
+      TransitionTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex], WGALResourceState::ShaderResource);
 
-      ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+      WRectFloat viewport = WRectFloat(0, 0, fElementWidth, fElementHeight);
       m_bCaptureImage = true;
-      viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+      viewport = WRectFloat(0, 0, fElementWidth, fElementHeight);
 
-      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+      WGALCommandEncoder* pCommandEncoder = BeginRendering(WColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      WBindGroupBuilder& bindGroupTest = WRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupTest.BindTexture("DiffuseTexture", m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
-      RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+      RenderObject(m_hCubeUV, mMVP, WColor(1, 1, 1, 1), WShaderBindFlags::None);
 
       EndRendering();
       if (!m_bExiting && m_uiReceivedTextures > 10)
       {
-        TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
-        EZ_TEST_IMAGE(0, 10);
+        TransitionTexture(GetBackbuffer(), WGALResourceState::CopySource);
+        W_TEST_IMAGE(0, 10);
 
-        ezOffscreenTest_CloseMsg msg;
-        EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+        WOffscreenTest_CloseMsg msg;
+        W_TEST_BOOL(m_pProtocol->Send(&msg));
         m_bExiting = true;
       }
     }
@@ -1719,25 +1719,25 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
   }
   else if (!m_bExiting)
   {
-    ezOffscreenTest_RenderMsg msg;
+    WOffscreenTest_RenderMsg msg;
     msg.m_Texture = texture;
-    EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+    W_TEST_BOOL(m_pProtocol->Send(&msg));
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }
 
-void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
+void WRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const WIpcProcessMessageProtocol::Event& msg)
 {
-  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(msg.m_pMessage))
+  if (const auto* pAction = WDynamicCast<const WOffscreenTest_RenderResponseMsg*>(msg.m_pMessage))
   {
     m_uiReceivedTextures++;
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
     sTemp.SetFormat("Receive {}|{}", pAction->m_Texture.m_uiCurrentTextureIndex, pAction->m_Texture.m_uiCurrentSemaphoreValue);
-    EZ_PROFILE_SCOPE(sTemp);
+    W_PROFILE_SCOPE(sTemp);
     m_SharedTextureQueue.PushBack(pAction->m_Texture);
   }
 }
 #endif
 
-static ezRendererTestAdvancedFeatures g_AdvancedFeaturesTest;
+static WRendererTestAdvancedFeatures g_AdvancedFeaturesTest;

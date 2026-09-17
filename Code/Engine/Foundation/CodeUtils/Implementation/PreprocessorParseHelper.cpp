@@ -2,70 +2,70 @@
 
 #include <Foundation/CodeUtils/Preprocessor.h>
 
-using namespace ezTokenParseUtils;
+using namespace WTokenParseUtils;
 
-ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken, ezUInt32* pAccepted)
+WResult WPreprocessor::Expect(const TokenStream& Tokens, WUInt32& uiCurToken, WStringView sToken, WUInt32* pAccepted)
 {
   if (Tokens.GetCount() < 1)
   {
-    ezLog::Error(m_pLog, "Expected token '{0}', got empty token stream", sToken);
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Expected token '{0}', got empty token stream", sToken);
+    return W_FAILURE;
   }
 
   if (Accept(Tokens, uiCurToken, sToken, pAccepted))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
-  ezString sErrorToken = Tokens[uiErrorToken]->m_DataView;
+  const WUInt32 uiErrorToken = WMath::Min(Tokens.GetCount() - 1, uiCurToken);
+  WString sErrorToken = Tokens[uiErrorToken]->m_DataView;
   PP_LOG(Error, "Expected token '{0}' got '{1}'", Tokens[uiErrorToken], sToken, sErrorToken);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted)
+WResult WPreprocessor::Expect(const TokenStream& Tokens, WUInt32& uiCurToken, WTokenType::Enum Type, WUInt32* pAccepted)
 {
   if (Tokens.GetCount() < 1)
   {
-    ezLog::Error(m_pLog, "Expected token of type '{0}', got empty token stream", ezTokenType::EnumNames[Type]);
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Expected token of type '{0}', got empty token stream", WTokenType::EnumNames[Type]);
+    return W_FAILURE;
   }
 
   if (Accept(Tokens, uiCurToken, Type, pAccepted))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
-  PP_LOG(Error, "Expected token of type '{0}' got type '{1}' instead", Tokens[uiErrorToken], ezTokenType::EnumNames[Type], ezTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
+  const WUInt32 uiErrorToken = WMath::Min(Tokens.GetCount() - 1, uiCurToken);
+  PP_LOG(Error, "Expected token of type '{0}' got type '{1}' instead", Tokens[uiErrorToken], WTokenType::EnumNames[Type], WTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
+WResult WPreprocessor::Expect(const TokenStream& Tokens, WUInt32& uiCurToken, WStringView sToken1, WStringView sToken2, WUInt32* pAccepted)
 {
   if (Tokens.GetCount() < 2)
   {
-    ezLog::Error(m_pLog, "Expected tokens '{0}{1}', got empty token stream", sToken1, sToken2);
-    return EZ_FAILURE;
+    WLog::Error(m_pLog, "Expected tokens '{0}{1}', got empty token stream", sToken1, sToken2);
+    return W_FAILURE;
   }
 
   if (Accept(Tokens, uiCurToken, sToken1, sToken2, pAccepted))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 2, uiCurToken);
-  ezString sErrorToken1 = Tokens[uiErrorToken]->m_DataView;
-  ezString sErrorToken2 = Tokens[uiErrorToken + 1]->m_DataView;
+  const WUInt32 uiErrorToken = WMath::Min(Tokens.GetCount() - 2, uiCurToken);
+  WString sErrorToken1 = Tokens[uiErrorToken]->m_DataView;
+  WString sErrorToken2 = Tokens[uiErrorToken + 1]->m_DataView;
   PP_LOG(Error, "Expected tokens '{0}{1}', got '{2}{3}'", Tokens[uiErrorToken], sToken1, sToken2, sErrorToken1, sErrorToken2);
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken)
+WResult WPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, WUInt32 uiCurToken)
 {
   if (!IsEndOfLine(Tokens, uiCurToken, true))
   {
-    ezString sToken = Tokens[uiCurToken]->m_DataView;
+    WString sToken = Tokens[uiCurToken]->m_DataView;
     PP_LOG(Warning, "Expected end-of-line, found token '{0}'", Tokens[uiCurToken], sToken);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

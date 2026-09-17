@@ -4,22 +4,22 @@
 #include <RendererFoundation/Shader/PipelineLayout.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-class ezGALPipelineLayoutVulkan : public ezGALPipelineLayout
+class WGALPipelineLayoutVulkan : public WGALPipelineLayout
 {
 public:
   inline vk::PushConstantRange GetPushConstantRange() const { return m_PushConstants; }
   inline vk::PipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
 
 protected:
-  friend class ezGALDeviceVulkan;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceVulkan;
+  friend class WMemoryUtils;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALPipelineLayoutVulkan(const ezGALPipelineLayoutCreationDescription& Description);
+  WGALPipelineLayoutVulkan(const WGALPipelineLayoutCreationDescription& Description);
 
-  virtual ~ezGALPipelineLayoutVulkan();
+  virtual ~WGALPipelineLayoutVulkan();
 
 private:
   vk::PushConstantRange m_PushConstants;

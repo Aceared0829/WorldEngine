@@ -6,13 +6,13 @@
 ///
 /// Typically a context is created before any serialization happens and can then be accessed anywhere through the GetContext method.
 template <typename Derived>
-class ezSerializationContext
+class WSerializationContext
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSerializationContext);
+  W_DISALLOW_COPY_AND_ASSIGN(WSerializationContext);
 
 public:
-  ezSerializationContext() { Derived::SetContext(this); }
-  ~ezSerializationContext() { Derived::SetContext(nullptr); }
+  WSerializationContext() { Derived::SetContext(this); }
+  ~WSerializationContext() { Derived::SetContext(nullptr); }
 
   /// Set the context as active which means it can be accessed via GetContext in serialization methods.
   ///
@@ -22,24 +22,24 @@ public:
 };
 
 /// Declares the necessary functions to access a serialization context
-#define EZ_DECLARE_SERIALIZATION_CONTEXT(type) \
+#define W_DECLARE_SERIALIZATION_CONTEXT(type) \
 public:                                        \
   static type* GetContext();                   \
                                                \
 protected:                                     \
-  friend class ezSerializationContext<type>;   \
-  static void SetContext(ezSerializationContext* pContext);
+  friend class WSerializationContext<type>;   \
+  static void SetContext(WSerializationContext* pContext);
 
 
 /// Implements the necessary functions to access a serialization context through GetContext.
-#define EZ_IMPLEMENT_SERIALIZATION_CONTEXT(type)                                                                                        \
-  thread_local type* EZ_PP_CONCAT(s_pActiveContext, type);                                                                              \
+#define W_IMPLEMENT_SERIALIZATION_CONTEXT(type)                                                                                        \
+  thread_local type* W_PP_CONCAT(s_pActiveContext, type);                                                                              \
   type* type::GetContext()                                                                                                              \
   {                                                                                                                                     \
-    return EZ_PP_CONCAT(s_pActiveContext, type);                                                                                        \
+    return W_PP_CONCAT(s_pActiveContext, type);                                                                                        \
   }                                                                                                                                     \
-  void type::SetContext(ezSerializationContext* pContext)                                                                               \
+  void type::SetContext(WSerializationContext* pContext)                                                                               \
   {                                                                                                                                     \
-    EZ_ASSERT_DEV(pContext == nullptr || EZ_PP_CONCAT(s_pActiveContext, type) == nullptr, "Only one context can be active at a time."); \
-    EZ_PP_CONCAT(s_pActiveContext, type) = static_cast<type*>(pContext);                                                                \
+    W_ASSERT_DEV(pContext == nullptr || W_PP_CONCAT(s_pActiveContext, type) == nullptr, "Only one context can be active at a time."); \
+    W_PP_CONCAT(s_pActiveContext, type) = static_cast<type*>(pContext);                                                                \
   }

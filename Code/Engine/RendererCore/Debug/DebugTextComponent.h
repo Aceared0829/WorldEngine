@@ -3,29 +3,29 @@
 #include <Core/World/World.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-struct ezMsgExtractRenderData;
+struct WMsgExtractRenderData;
 
-using ezDebugTextComponentManager = ezComponentManager<class ezDebugTextComponent, ezBlockStorageType::Compact>;
+using WDebugTextComponentManager = WComponentManager<class WDebugTextComponent, WBlockStorageType::Compact>;
 
 /// This component prints debug text at the owner object's position.
-class EZ_RENDERERCORE_DLL ezDebugTextComponent : public ezComponent
+class W_RENDERERCORE_DLL WDebugTextComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezDebugTextComponent, ezComponent, ezDebugTextComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WDebugTextComponent, WComponent, WDebugTextComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezDebugTextComponent
+  // WDebugTextComponent
 public:
-  ezDebugTextComponent();
-  ~ezDebugTextComponent();
+  WDebugTextComponent();
+  ~WDebugTextComponent();
 
-  ezString m_sText;                                               // [ property ]
-  ezColorGammaUB m_Color;                                         // [ property ]
+  WString m_sText;                                               // [ property ]
+  WColorGammaUB m_Color;                                         // [ property ]
 
   float m_fValue0 = 0.0f;                                         // [ property ]
   float m_fValue1 = 0.0f;                                         // [ property ]
@@ -35,5 +35,5 @@ public:
   float m_fMaxDistance = 10.0f;                                   // [ property ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const; // [ msg handler ]
 };

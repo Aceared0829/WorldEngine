@@ -12,39 +12,39 @@
 
 #include <QPointer>
 
-class ezQtOrbitCamViewWidget;
+class WQtOrbitCamViewWidget;
 
-class ezQtMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtMeshAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
-  ~ezQtMeshAssetDocumentWindow();
+  WQtMeshAssetDocumentWindow(WMeshAssetDocument* pDocument);
+  ~WQtMeshAssetDocumentWindow();
 
-  ezMeshAssetDocument* GetMeshDocument();
+  WMeshAssetDocument* GetMeshDocument();
 
   virtual int GetCameraMode() const override { return m_iCameraMode; }
   virtual void SetCameraMode(int iMode) override;
 
 protected:
   virtual void InternalRedraw() override;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
 
 protected Q_SLOTS:
   void HighlightTimer();
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose = 0);
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void QueryObjectBBox(WInt32 iPurpose = 0);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
   bool UpdatePreview();
 
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget;
-  ezUniquePtr<ezMeshEditorInputContext> m_pMeshEditorInputContext;
-  ezUniquePtr<ezCameraMoveContext> m_pCameraFlyContext;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget;
+  WUniquePtr<WMeshEditorInputContext> m_pMeshEditorInputContext;
+  WUniquePtr<WCameraMoveContext> m_pCameraFlyContext;
   int m_iCameraMode = 0;
-  ezUInt32 m_uiHighlightSlots = 0;
+  WUInt32 m_uiHighlightSlots = 0;
   QPointer<QTimer> m_pHighlightTimer;
 };

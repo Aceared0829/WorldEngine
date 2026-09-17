@@ -9,29 +9,29 @@
 #include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointType, 1)
-  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::Fixed, ezSkeletonJointType::SwingTwist)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSkeletonJointType, 1)
+  W_ENUM_CONSTANTS(WSkeletonJointType::None, WSkeletonJointType::Fixed, WSkeletonJointType::SwingTwist)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezSkeleton::ezSkeleton() = default;
-ezSkeleton::~ezSkeleton() = default;
+WSkeleton::WSkeleton() = default;
+WSkeleton::~WSkeleton() = default;
 
-ezSkeleton::ezSkeleton(ezSkeleton&& rhs)
+WSkeleton::WSkeleton(WSkeleton&& rhs)
 {
   *this = std::move(rhs);
 }
 
-void ezSkeleton::operator=(ezSkeleton&& rhs)
+void WSkeleton::operator=(WSkeleton&& rhs)
 {
   m_Joints = std::move(rhs.m_Joints);
   m_pOzzSkeleton = std::move(rhs.m_pOzzSkeleton);
 }
 
-ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
+WUInt16 WSkeleton::FindJointByName(const WTempHashedString& sJointName) const
 {
-  const ezUInt16 uiJointCount = static_cast<ezUInt16>(m_Joints.GetCount());
-  for (ezUInt16 i = 0; i < uiJointCount; ++i)
+  const WUInt16 uiJointCount = static_cast<WUInt16>(m_Joints.GetCount());
+  for (WUInt16 i = 0; i < uiJointCount; ++i)
   {
     if (m_Joints[i].GetName() == sJointName)
     {
@@ -39,17 +39,17 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
     }
   }
 
-  return ezInvalidJointIndex;
+  return WInvalidJointIndex;
 }
 
-void ezSkeleton::Save(ezStreamWriter& inout_stream) const
+void WSkeleton::Save(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(7);
 
-  const ezUInt32 uiNumJoints = m_Joints.GetCount();
+  const WUInt32 uiNumJoints = m_Joints.GetCount();
   inout_stream << uiNumJoints;
 
-  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+  for (WUInt32 i = 0; i < uiNumJoints; ++i)
   {
     inout_stream << m_Joints[i].m_sName;
     inout_stream << m_Joints[i].m_uiParentIndex;
@@ -70,22 +70,22 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_BoneDirection;
 }
 
-void ezSkeleton::Load(ezStreamReader& inout_stream)
+void WSkeleton::Load(WStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(7);
+  const WTypeVersion version = inout_stream.ReadVersion(7);
   if (version < 3)
     return;
 
   m_Joints.Clear();
 
-  ezUInt32 uiNumJoints = 0;
+  WUInt32 uiNumJoints = 0;
   inout_stream >> uiNumJoints;
 
   m_Joints.Reserve(uiNumJoints);
 
-  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+  for (WUInt32 i = 0; i < uiNumJoints; ++i)
   {
-    ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
+    WSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
 
     inout_stream >> joint.m_sName;
     inout_stream >> joint.m_uiParentIndex;
@@ -119,12 +119,12 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
   }
 }
 
-bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const
+bool WSkeleton::IsJointDescendantOf(WUInt16 uiJoint, WUInt16 uiExpectedParent) const
 {
-  if (uiExpectedParent == ezInvalidJointIndex)
+  if (uiExpectedParent == WInvalidJointIndex)
     return true;
 
-  while (uiJoint != ezInvalidJointIndex)
+  while (uiJoint != WInvalidJointIndex)
   {
     if (uiJoint == uiExpectedParent)
       return true;
@@ -135,11 +135,11 @@ bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent
   return false;
 }
 
-static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& ref_dstBones)
+static void BuildRawOzzSkeleton(const WSkeleton& skeleton, WUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& ref_dstBones)
 {
-  ezTempHybridArray<ezUInt16, 6> children;
+  WTempHybridArray<WUInt16, 6> children;
 
-  for (ezUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
+  for (WUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
   {
     if (skeleton.GetJointByIndex(i).GetParentIndex() == uiExpectedParent)
     {
@@ -149,7 +149,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
 
   ref_dstBones.resize((size_t)children.GetCount());
 
-  for (ezUInt16 i = 0; i < children.GetCount(); ++i)
+  for (WUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
     const auto& srcTransform = srcJoint.GetRestPoseLocalTransform();
@@ -172,27 +172,27 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
   }
 }
 
-const ozz::animation::Skeleton& ezSkeleton::GetOzzSkeleton() const
+const ozz::animation::Skeleton& WSkeleton::GetOzzSkeleton() const
 {
   if (m_pOzzSkeleton)
     return *m_pOzzSkeleton.Borrow();
 
   // caching the skeleton isn't thread-safe
-  static ezMutex cacheSkeletonMutex;
-  EZ_LOCK(cacheSkeletonMutex);
+  static WMutex cacheSkeletonMutex;
+  W_LOCK(cacheSkeletonMutex);
 
   // skip this, if the skeleton has been created in the mean-time
   if (m_pOzzSkeleton == nullptr)
   {
     ozz::animation::offline::RawSkeleton rawSkeleton;
-    BuildRawOzzSkeleton(*this, ezInvalidJointIndex, rawSkeleton.roots);
+    BuildRawOzzSkeleton(*this, WInvalidJointIndex, rawSkeleton.roots);
 
     ozz::animation::offline::SkeletonBuilder skeletonBuilder;
     const auto pOzzSkeleton = skeletonBuilder(rawSkeleton);
 
-    auto ozzSkeleton = EZ_DEFAULT_NEW(ozz::animation::Skeleton);
+    auto ozzSkeleton = W_DEFAULT_NEW(ozz::animation::Skeleton);
 
-    ezOzzUtils::CopySkeleton(ozzSkeleton, pOzzSkeleton.get());
+    WOzzUtils::CopySkeleton(ozzSkeleton, pOzzSkeleton.get());
 
     // since the pointer is read outside the mutex, only assign it, once it is fully ready for use
     m_pOzzSkeleton = ozzSkeleton;
@@ -201,31 +201,31 @@ const ozz::animation::Skeleton& ezSkeleton::GetOzzSkeleton() const
   return *m_pOzzSkeleton.Borrow();
 }
 
-ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
+WUInt64 WSkeleton::GetHeapMemoryUsage() const
 {
   return m_Joints.GetHeapMemoryUsage(); // TODO: + ozz skeleton
 }
 
-ezAngle ezSkeletonJoint::GetTwistLimitLow() const
+WAngle WSkeletonJoint::GetTwistLimitLow() const
 {
-  ezAngle base = m_TwistLimitCenterAngle;
+  WAngle base = m_TwistLimitCenterAngle;
   base.NormalizeRange();
 
-  if (base > ezAngle::MakeFromDegree(180))
-    base -= ezAngle::MakeFromDegree(360);
+  if (base > WAngle::MakeFromDegree(180))
+    base -= WAngle::MakeFromDegree(360);
 
-  return ezMath::Max(ezAngle::MakeFromDegree(-179), base - m_TwistLimitHalfAngle);
+  return WMath::Max(WAngle::MakeFromDegree(-179), base - m_TwistLimitHalfAngle);
 }
 
-ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
+WAngle WSkeletonJoint::GetTwistLimitHigh() const
 {
-  ezAngle base = m_TwistLimitCenterAngle;
+  WAngle base = m_TwistLimitCenterAngle;
   base.NormalizeRange();
 
-  if (base > ezAngle::MakeFromDegree(180))
-    base -= ezAngle::MakeFromDegree(360);
+  if (base > WAngle::MakeFromDegree(180))
+    base -= WAngle::MakeFromDegree(360);
 
-  return ezMath::Min(ezAngle::MakeFromDegree(179), base + m_TwistLimitHalfAngle);
+  return WMath::Min(WAngle::MakeFromDegree(179), base + m_TwistLimitHalfAngle);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

@@ -5,62 +5,62 @@
 #include <EditorFramework/Manipulators/SplineTangentManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSplineTangentManipulatorAdapter::ezSplineTangentManipulatorAdapter() = default;
-ezSplineTangentManipulatorAdapter::~ezSplineTangentManipulatorAdapter() = default;
+WSplineTangentManipulatorAdapter::WSplineTangentManipulatorAdapter() = default;
+WSplineTangentManipulatorAdapter::~WSplineTangentManipulatorAdapter() = default;
 
-void ezSplineTangentManipulatorAdapter::Finalize()
+void WSplineTangentManipulatorAdapter::Finalize()
 {
   ConfigureGizmos();
 }
 
-void ezSplineTangentManipulatorAdapter::Update()
+void WSplineTangentManipulatorAdapter::Update()
 {
   BuildSpline();
   UpdateGizmoTransform();
 }
 
-void ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler(const ezGizmoEvent& e)
+void WSplineTangentManipulatorAdapter::TangentGizmoEventHandler(const WGizmoEvent& e)
 {
   auto& cp = m_Spline.m_ControlPoints[m_uiNodeIndex];
 
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
-      m_vLastTangent = m_bIsTangentIn ? ezSimdConversion::ToVec3(cp.m_vPosTangentIn) : ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
+    case WGizmoEvent::Type::BeginInteractions:
+      m_vLastTangent = m_bIsTangentIn ? WSimdConversion::ToVec3(cp.m_vPosTangentIn) : WSimdConversion::ToVec3(cp.m_vPosTangentOut);
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      ezVec3 newTangent;
+      WVec3 newTangent;
 
       if (e.m_pGizmo == &m_RotateGizmo)
       {
-        const ezQuat qRot = m_RotateGizmo.GetRotationResult();
+        const WQuat qRot = m_RotateGizmo.GetRotationResult();
         newTangent = qRot * m_vLastTangent;
       }
       else
       {
-        EZ_ASSERT_DEV(e.m_pGizmo == &m_ScaleGizmo, "Implementation error");
+        W_ASSERT_DEV(e.m_pGizmo == &m_ScaleGizmo, "Implementation error");
 
         const float fScale = m_ScaleGizmo.GetScalingResult().x;
         newTangent = m_vLastTangent * fScale;
       }
 
-      const ezSplineTangentManipulatorAttribute* pAttr = static_cast<const ezSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
+      const WSplineTangentManipulatorAttribute* pAttr = static_cast<const WSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
 
       if (CustomTangentsLinked())
       {
-        ezStringBuilder sOtherTangentModeProp = pAttr->GetTangentModeProperty();
-        ezStringBuilder sOtherCustomTangentProp = pAttr->GetCustomTangentProperty();
+        WStringBuilder sOtherTangentModeProp = pAttr->GetTangentModeProperty();
+        WStringBuilder sOtherCustomTangentProp = pAttr->GetCustomTangentProperty();
 
         if (m_bIsTangentIn)
         {
@@ -79,60 +79,60 @@ void ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler(const ezGizmoEv
           sOtherCustomTangentProp.Append("In");
         }
 
-        ChangeProperties(pAttr->GetTangentModeProperty(), ezSplineTangentMode::Custom, pAttr->GetCustomTangentProperty(), newTangent, sOtherTangentModeProp, ezSplineTangentMode::Custom, sOtherCustomTangentProp, -newTangent);
+        ChangeProperties(pAttr->GetTangentModeProperty(), WSplineTangentMode::Custom, pAttr->GetCustomTangentProperty(), newTangent, sOtherTangentModeProp, WSplineTangentMode::Custom, sOtherCustomTangentProp, -newTangent);
       }
       else
       {
-        ChangeProperties(pAttr->GetTangentModeProperty(), ezSplineTangentMode::Custom, pAttr->GetCustomTangentProperty(), newTangent);
+        ChangeProperties(pAttr->GetTangentModeProperty(), WSplineTangentMode::Custom, pAttr->GetCustomTangentProperty(), newTangent);
       }
     }
     break;
   }
 }
 
-void ezSplineTangentManipulatorAdapter::UpdateGizmoTransform()
+void WSplineTangentManipulatorAdapter::UpdateGizmoTransform()
 {
-  if (m_uiNodeIndex == ezInvalidIndex || m_Spline.m_ControlPoints.IsEmpty())
+  if (m_uiNodeIndex == WInvalidIndex || m_Spline.m_ControlPoints.IsEmpty())
     return;
 
   auto& cp = m_Spline.m_ControlPoints[m_uiNodeIndex];
-  ezTransform ownerTransform = GetObjectTransform();
+  WTransform ownerTransform = GetObjectTransform();
 
   // Remove scale since is does not have any effect on tangents
   ownerTransform.m_vScale.Set(1.0f);
 
-  const ezVec3 forwardDir = m_bIsTangentIn ? ezSimdConversion::ToVec3(cp.m_vPosTangentIn) : ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
-  const ezVec3 upDir = ezSimdConversion::ToVec3(cp.m_vUpDirAndRoll);
+  const WVec3 forwardDir = m_bIsTangentIn ? WSimdConversion::ToVec3(cp.m_vPosTangentIn) : WSimdConversion::ToVec3(cp.m_vPosTangentOut);
+  const WVec3 upDir = WSimdConversion::ToVec3(cp.m_vUpDirAndRoll);
 
-  const ezTransform gizmoTransform = [&]()
+  const WTransform gizmoTransform = [&]()
   {
-    ezVec3 vFwd = forwardDir;
+    WVec3 vFwd = forwardDir;
     vFwd.NormalizeIfNotZero().IgnoreResult();
 
-    const ezVec3 vRight = upDir.CrossRH(vFwd).GetNormalized();
-    const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
+    const WVec3 vRight = upDir.CrossRH(vFwd).GetNormalized();
+    const WVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
 
-    ezMat3 mLook;
+    WMat3 mLook;
     mLook.SetColumn(0, vFwd);
     mLook.SetColumn(1, vRight);
     mLook.SetColumn(2, vUp2);
 
-    ezTransform t = ezTransform::Make(ezVec3::MakeZero(), ezQuat::MakeFromMat3(mLook));
+    WTransform t = WTransform::Make(WVec3::MakeZero(), WQuat::MakeFromMat3(mLook));
 
-    return ezTransform::MakeGlobalTransform(ownerTransform, t);
+    return WTransform::MakeGlobalTransform(ownerTransform, t);
   }();
 
   m_RotateGizmo.SetTransformation(gizmoTransform);
   m_ScaleGizmo.SetTransformation(gizmoTransform);
 }
 
-void ezSplineTangentManipulatorAdapter::BuildSpline()
+void WSplineTangentManipulatorAdapter::BuildSpline()
 {
-  const ezDocumentObject* pSplineObject = nullptr;
-  ezStringView sNodeName;
+  const WDocumentObject* pSplineObject = nullptr;
+  WStringView sNodeName;
   {
-    const ezDocumentObject* pSplineTangentObject = m_pObject->GetParent();
-    sNodeName = pSplineTangentObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
+    const WDocumentObject* pSplineTangentObject = m_pObject->GetParent();
+    sNodeName = pSplineTangentObject->GetTypeAccessor().GetValue("Name").Get<WString>();
 
     if (pSplineTangentObject->GetParent() == nullptr)
       return;
@@ -140,18 +140,18 @@ void ezSplineTangentManipulatorAdapter::BuildSpline()
     pSplineObject = pSplineTangentObject->GetParent();
   }
 
-  const ezDocumentObject* pSplineComponent = nullptr;
+  const WDocumentObject* pSplineComponent = nullptr;
   {
-    ezVariantArray componentUuids;
+    WVariantArray componentUuids;
     if (!pSplineObject->GetTypeAccessor().GetValues("Components", componentUuids))
       return;
 
     for (const auto& v : componentUuids)
     {
-      if (v.IsA<ezUuid>())
+      if (v.IsA<WUuid>())
       {
-        pSplineComponent = pSplineObject->GetDocumentObjectManager()->GetObject(v.Get<ezUuid>());
-        if (pSplineComponent != nullptr && pSplineComponent->GetType()->GetTypeName() == "ezSplineComponent")
+        pSplineComponent = pSplineObject->GetDocumentObjectManager()->GetObject(v.Get<WUuid>());
+        if (pSplineComponent != nullptr && pSplineComponent->GetType()->GetTypeName() == "WSplineComponent")
           break;
       }
     }
@@ -160,34 +160,34 @@ void ezSplineTangentManipulatorAdapter::BuildSpline()
       return;
   }
 
-  ezSplineManipulatorAdapter::BuildSpline(pSplineComponent, "Closed", m_Spline, sNodeName, &m_uiNodeIndex).AssertSuccess();
+  WSplineManipulatorAdapter::BuildSpline(pSplineComponent, "Closed", m_Spline, sNodeName, &m_uiNodeIndex).AssertSuccess();
 }
 
-void ezSplineTangentManipulatorAdapter::ConfigureGizmos()
+void WSplineTangentManipulatorAdapter::ConfigureGizmos()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_RotateGizmo.SetOwner(pEngineWindow, nullptr);
   m_RotateGizmo.EnableAxis(false, true, true);
   m_RotateGizmo.SetVisible(true);
-  m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WSplineTangentManipulatorAdapter::TangentGizmoEventHandler, this));
 
   m_ScaleGizmo.SetOwner(pEngineWindow, nullptr);
   m_ScaleGizmo.EnableAxis(true, false, false, false);
   m_ScaleGizmo.SetVisible(true);
-  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WSplineTangentManipulatorAdapter::TangentGizmoEventHandler, this));
 
   {
-    const ezSplineTangentManipulatorAttribute* pAttr = static_cast<const ezSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
+    const WSplineTangentManipulatorAttribute* pAttr = static_cast<const WSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
     m_bIsTangentIn = pAttr->GetTangentModeProperty().EndsWith("In");
   }
 }
 
-bool ezSplineTangentManipulatorAdapter::CustomTangentsLinked() const
+bool WSplineTangentManipulatorAdapter::CustomTangentsLinked() const
 {
-  ezVariant linkedVar = m_pObject->GetTypeAccessor().GetValue("LinkCustomTangents");
+  WVariant linkedVar = m_pObject->GetTypeAccessor().GetValue("LinkCustomTangents");
   return linkedVar.IsA<bool>() && linkedVar.Get<bool>();
 }

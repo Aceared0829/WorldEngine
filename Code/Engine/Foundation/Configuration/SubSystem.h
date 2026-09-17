@@ -4,7 +4,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 
 /// Describes the different stages during startup and shutdown
-struct ezStartupStage
+struct WStartupStage
 {
   enum Enum
   {
@@ -19,49 +19,49 @@ struct ezStartupStage
 
 /// Base class for all subsystems.
 ///
-/// ezStartup will initialize and shut down all instances of this class, according to their dependencies etc.
+/// WStartup will initialize and shut down all instances of this class, according to their dependencies etc.
 /// If you have a subsystem that is a non-static class, just derive from this base class and override the
 /// virtual functions as required.
 /// If you have a subsystem that is implemented in a purely static way (there is no class instance),
-/// just use the macros EZ_BEGIN_SUBSYSTEM_DECLARATION, EZ_END_SUBSYSTEM_DECLARATION etc.
-/// Those macros will create a wrapper object (derived from ezSubSystem) to handle initialization.
-class EZ_FOUNDATION_DLL ezSubSystem : public ezEnumerable<ezSubSystem>
+/// just use the macros W_BEGIN_SUBSYSTEM_DECLARATION, W_END_SUBSYSTEM_DECLARATION etc.
+/// Those macros will create a wrapper object (derived from WSubSystem) to handle initialization.
+class W_FOUNDATION_DLL WSubSystem : public WEnumerable<WSubSystem>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezSubSystem);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSubSystem);
+  W_DECLARE_ENUMERABLE_CLASS(WSubSystem);
+  W_DISALLOW_COPY_AND_ASSIGN(WSubSystem);
 
 public:
-  ezSubSystem()
+  WSubSystem()
   {
-    for (ezInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
+    for (WInt32 i = 0; i < WStartupStage::ENUM_COUNT; ++i)
       m_bStartupDone[i] = false;
   }
 
-  virtual ~ezSubSystem() = default;
+  virtual ~WSubSystem() = default;
 
   /// Returns the name of the subsystem. Must be overridden.
-  virtual ezStringView GetSubSystemName() const = 0;
+  virtual WStringView GetSubSystemName() const = 0;
 
   /// Returns the name of the group to which this subsystem belongs. Must be overridden.
-  virtual ezStringView GetGroupName() const = 0;
+  virtual WStringView GetGroupName() const = 0;
 
   /// Returns a series of strings with the names of the subsystem, which this subsystem depends on. nullptr indicates the last entry.
   /// Must be overridden.
-  virtual ezStringView GetDependency(ezInt32 iDep)
+  virtual WStringView GetDependency(WInt32 iDep)
   {
-    EZ_IGNORE_UNUSED(iDep);
+    W_IGNORE_UNUSED(iDep);
     return {};
   }
 
   /// Returns the plugin name to which this subsystem belongs.
-  ezStringView GetPluginName() const { return m_sPluginName; }
+  WStringView GetPluginName() const { return m_sPluginName; }
 
   /// Returns whether the given startup stage has been done on this subsystem.
-  bool IsStartupPhaseDone(ezStartupStage::Enum stage) const { return m_bStartupDone[stage]; }
+  bool IsStartupPhaseDone(WStartupStage::Enum stage) const { return m_bStartupDone[stage]; }
 
 private:
   // only the startup system may access the following functionality
-  friend class ezStartup;
+  friend class WStartup;
 
   /// This will be called to initialize the subsystems base components. Can be overridden to handle this event.
   virtual void OnBaseSystemsStartup() {}
@@ -78,11 +78,11 @@ private:
   /// This will be called to shut down the subsystems engine / rendering components. Can be overridden to handle this event.
   virtual void OnHighLevelSystemsShutdown() {}
 
-  /// Set by ezStartup to store to which plugin this subsystem belongs.
-  ezStringView m_sPluginName;
+  /// Set by WStartup to store to which plugin this subsystem belongs.
+  WStringView m_sPluginName;
 
   /// Stores which startup phase has been done already.
-  bool m_bStartupDone[ezStartupStage::ENUM_COUNT];
+  bool m_bStartupDone[WStartupStage::ENUM_COUNT];
 };
 
 #include <Foundation/Configuration/StaticSubSystem.h>

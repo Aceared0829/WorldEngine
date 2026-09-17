@@ -6,13 +6,13 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestDynamicTextureAtlas : public ezGameEngineTest
+class WGameEngineTestDynamicTextureAtlas : public WGameEngineTest
 {
-  using SUPER = ezGameEngineTest;
+  using SUPER = WGameEngineTest;
 
 public:
   virtual const char* GetTestName() const override;
-  virtual ezGameEngineTestApplication* CreateApplication() override;
+  virtual WGameEngineTestApplication* CreateApplication() override;
 
 private:
   enum SubTests
@@ -26,13 +26,13 @@ private:
 
   virtual void SetupSubTests() override;
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
 private:
-  ezInt32 m_iFrame = 0;
-  ezGameEngineTestApplication* m_pOwnApplication = nullptr;
+  WInt32 m_iFrame = 0;
+  WGameEngineTestApplication* m_pOwnApplication = nullptr;
 
-  ezDynamicTextureAtlas m_TextureAtlas;
+  WDynamicTextureAtlas m_TextureAtlas;
 };

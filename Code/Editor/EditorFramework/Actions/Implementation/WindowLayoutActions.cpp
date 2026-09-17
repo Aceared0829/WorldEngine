@@ -16,12 +16,12 @@
 #include <QSettings>
 #include <ads/DockManager.h>
 
-ezActionDescriptorHandle ezWindowLayoutActions::s_hCatWindowLayout;
-ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToDefaultPinned;
-ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToDefaultUnpinned;
-ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToAbBottom;
-ezActionDescriptorHandle ezWindowLayoutActions::s_hSaveLayout;
-ezActionDescriptorHandle ezWindowLayoutActions::s_hLoadLayout;
+WActionDescriptorHandle WWindowLayoutActions::s_hCatWindowLayout;
+WActionDescriptorHandle WWindowLayoutActions::s_hSetToDefaultPinned;
+WActionDescriptorHandle WWindowLayoutActions::s_hSetToDefaultUnpinned;
+WActionDescriptorHandle WWindowLayoutActions::s_hSetToAbBottom;
+WActionDescriptorHandle WWindowLayoutActions::s_hSaveLayout;
+WActionDescriptorHandle WWindowLayoutActions::s_hLoadLayout;
 
 static const char* s_szDefaultLayoutName = "Default";
 static const char* s_szSettingsGroup = "EditorWindowLayouts";
@@ -29,30 +29,30 @@ static const int s_iNumUserLayoutSlots = 3;
 
 static QByteArray s_DefaultLayoutState;
 
-void ezWindowLayoutActions::RegisterActions()
+void WWindowLayoutActions::RegisterActions()
 {
-  s_hCatWindowLayout = EZ_REGISTER_MENU("WindowLayout");
-  s_hSetToDefaultPinned = EZ_REGISTER_ACTION_1("Layout.DefaultPinned", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToDefaultPinned);
-  s_hSetToDefaultUnpinned = EZ_REGISTER_ACTION_1("Layout.DefaultUnpinned", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToDefaultUnpinned);
-  s_hSetToAbBottom = EZ_REGISTER_ACTION_1("Layout.AbBottom", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToAbBottom);
-  s_hSaveLayout = EZ_REGISTER_DYNAMIC_MENU("Layout.SaveLayout", ezSaveLayoutMenuAction, "Save Layout");
-  s_hLoadLayout = EZ_REGISTER_DYNAMIC_MENU("Layout.LoadLayout", ezLoadLayoutMenuAction, "Load Layout");
+  s_hCatWindowLayout = W_REGISTER_MENU("WindowLayout");
+  s_hSetToDefaultPinned = W_REGISTER_ACTION_1("Layout.DefaultPinned", WActionScope::Global, "Layout", "", WWindowLayoutAction, WWindowLayoutAction::ButtonType::SetToDefaultPinned);
+  s_hSetToDefaultUnpinned = W_REGISTER_ACTION_1("Layout.DefaultUnpinned", WActionScope::Global, "Layout", "", WWindowLayoutAction, WWindowLayoutAction::ButtonType::SetToDefaultUnpinned);
+  s_hSetToAbBottom = W_REGISTER_ACTION_1("Layout.AbBottom", WActionScope::Global, "Layout", "", WWindowLayoutAction, WWindowLayoutAction::ButtonType::SetToAbBottom);
+  s_hSaveLayout = W_REGISTER_DYNAMIC_MENU("Layout.SaveLayout", WSaveLayoutMenuAction, "Save Layout");
+  s_hLoadLayout = W_REGISTER_DYNAMIC_MENU("Layout.LoadLayout", WLoadLayoutMenuAction, "Load Layout");
 }
 
-void ezWindowLayoutActions::UnregisterActions()
+void WWindowLayoutActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCatWindowLayout);
-  ezActionManager::UnregisterAction(s_hSetToDefaultPinned);
-  ezActionManager::UnregisterAction(s_hSetToDefaultUnpinned);
-  ezActionManager::UnregisterAction(s_hSetToAbBottom);
-  ezActionManager::UnregisterAction(s_hSaveLayout);
-  ezActionManager::UnregisterAction(s_hLoadLayout);
+  WActionManager::UnregisterAction(s_hCatWindowLayout);
+  WActionManager::UnregisterAction(s_hSetToDefaultPinned);
+  WActionManager::UnregisterAction(s_hSetToDefaultUnpinned);
+  WActionManager::UnregisterAction(s_hSetToAbBottom);
+  WActionManager::UnregisterAction(s_hSaveLayout);
+  WActionManager::UnregisterAction(s_hLoadLayout);
 }
 
-void ezWindowLayoutActions::MapActions(ezStringView sMapping)
+void WWindowLayoutActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCatWindowLayout, "G.Panels", 2.0f);
   pMap->MapAction(s_hSetToDefaultPinned, "WindowLayout", 1.0f);
@@ -62,9 +62,9 @@ void ezWindowLayoutActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hLoadLayout, "G.Panels", 4.0f);
 }
 
-void ezWindowLayoutActions::RestoreUserLayout()
+void WWindowLayoutActions::RestoreUserLayout()
 {
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   if (pContainer == nullptr)
     return;
 
@@ -80,9 +80,9 @@ void ezWindowLayoutActions::RestoreUserLayout()
   pDockManager->openPerspective(s_szDefaultLayoutName);
 }
 
-void ezWindowLayoutActions::SaveUserLayout()
+void WWindowLayoutActions::SaveUserLayout()
 {
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   if (pContainer == nullptr)
     return;
 
@@ -99,14 +99,14 @@ void ezWindowLayoutActions::SaveUserLayout()
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezWindowLayoutAction
+// WWindowLayoutAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWindowLayoutAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WWindowLayoutAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezWindowLayoutAction::ezWindowLayoutAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WWindowLayoutAction::WWindowLayoutAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
@@ -119,9 +119,9 @@ ezWindowLayoutAction::ezWindowLayoutAction(const ezActionContext& context, const
   }
 }
 
-void ezWindowLayoutAction::Execute(const ezVariant& value)
+void WWindowLayoutAction::Execute(const WVariant& value)
 {
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   if (pContainer == nullptr)
     return;
 
@@ -130,20 +130,20 @@ void ezWindowLayoutAction::Execute(const ezVariant& value)
     return;
 
   // Get all application panels
-  const ezDynamicArray<ezQtApplicationPanel*>& allPanels = ezQtApplicationPanel::GetAllApplicationPanels();
+  const WDynamicArray<WQtApplicationPanel*>& allPanels = WQtApplicationPanel::GetAllApplicationPanels();
 
   // Find the specific panels we need
-  ezQtApplicationPanel* pAssetBrowserPanel = ezQtAssetBrowserPanel::GetSingleton();
-  ezQtApplicationPanel* pAssetCuratorPanel = ezQtAssetCuratorPanel::GetSingleton();
-  ezQtApplicationPanel* pLogPanel = ezQtLogPanel::GetSingleton();
-  ezQtApplicationPanel* pCVarPanel = ezQtCVarPanel::GetSingleton();
-  ezQtApplicationPanel* pLongOpsPanel = ezQtLongOpsPanel::GetSingleton();
+  WQtApplicationPanel* pAssetBrowserPanel = WQtAssetBrowserPanel::GetSingleton();
+  WQtApplicationPanel* pAssetCuratorPanel = WQtAssetCuratorPanel::GetSingleton();
+  WQtApplicationPanel* pLogPanel = WQtLogPanel::GetSingleton();
+  WQtApplicationPanel* pCVarPanel = WQtCVarPanel::GetSingleton();
+  WQtApplicationPanel* pLongOpsPanel = WQtLongOpsPanel::GetSingleton();
 
   switch (m_ButtonType)
   {
     case ButtonType::SetToDefaultPinned:
     {
-      // Arrange panels the same way as in ezQtEditorApp::CreatePanels()
+      // Arrange panels the same way as in WQtEditorApp::CreatePanels()
       if (pAssetBrowserPanel)
       {
         pDockManager->removeDockWidget(pAssetBrowserPanel);
@@ -175,7 +175,7 @@ void ezWindowLayoutAction::Execute(const ezVariant& value)
 
     case ButtonType::SetToDefaultUnpinned:
     {
-      // Arrange panels the same way as in ezQtEditorApp::CreatePanels()
+      // Arrange panels the same way as in WQtEditorApp::CreatePanels()
       // but set them all to unpinned (auto hide)
       if (pAssetBrowserPanel)
       {
@@ -212,7 +212,7 @@ void ezWindowLayoutAction::Execute(const ezVariant& value)
 
     case ButtonType::SetToAbBottom:
     {
-      // Arrange most panels as in ezQtEditorApp::CreatePanels()
+      // Arrange most panels as in WQtEditorApp::CreatePanels()
       // but dock the asset browser at the bottom of the screen (pinned / not auto-hide)
       if (pAssetBrowserPanel)
       {
@@ -267,25 +267,25 @@ void ezWindowLayoutAction::Execute(const ezVariant& value)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezSaveLayoutMenuAction
+// WSaveLayoutMenuAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveLayoutMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSaveLayoutMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSaveLayoutMenuAction::ezSaveLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WSaveLayoutMenuAction::WSaveLayoutMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
 }
 
-void ezSaveLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WSaveLayoutMenuAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
   QSettings settings;
   settings.beginGroup(s_szSettingsGroup);
 
-  ezStringBuilder sDisplay;
+  WStringBuilder sDisplay;
   for (int i = 0; i < s_iNumUserLayoutSlots; ++i)
   {
     const QString sNameKey = QString("UserSlot_%1_Name").arg(i);
@@ -308,9 +308,9 @@ void ezSaveLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
   settings.endGroup();
 }
 
-void ezSaveLayoutMenuAction::Execute(const ezVariant& value)
+void WSaveLayoutMenuAction::Execute(const WVariant& value)
 {
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   if (pContainer == nullptr)
     return;
 
@@ -327,8 +327,8 @@ void ezSaveLayoutMenuAction::Execute(const ezVariant& value)
   const QString sStateKey = QString("UserSlot_%1_State").arg(iSlot);
   const QString sExistingName = settings.value(sNameKey, QString()).toString();
 
-  // native window, so not covered by ezQtDialog
-  if (ezQtUiServices::SuppressModalWindow("Save Layout (name prompt)"))
+  // native window, so not covered by WQtDialog
+  if (WQtUiServices::SuppressModalWindow("Save Layout (name prompt)"))
   {
     settings.endGroup();
     return;
@@ -350,25 +350,25 @@ void ezSaveLayoutMenuAction::Execute(const ezVariant& value)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezLoadLayoutMenuAction
+// WLoadLayoutMenuAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLoadLayoutMenuAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLoadLayoutMenuAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezLoadLayoutMenuAction::ezLoadLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+WLoadLayoutMenuAction::WLoadLayoutMenuAction(const WActionContext& context, const char* szName, const char* szIconPath)
+  : WDynamicMenuAction(context, szName, szIconPath)
 {
 }
 
-void ezLoadLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WLoadLayoutMenuAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
   QSettings settings;
   settings.beginGroup(s_szSettingsGroup);
 
-  ezStringBuilder sDisplay;
+  WStringBuilder sDisplay;
   for (int i = 0; i < s_iNumUserLayoutSlots; ++i)
   {
     const QString sNameKey = QString("UserSlot_%1_Name").arg(i);
@@ -387,9 +387,9 @@ void ezLoadLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
   settings.endGroup();
 }
 
-void ezLoadLayoutMenuAction::Execute(const ezVariant& value)
+void WLoadLayoutMenuAction::Execute(const WVariant& value)
 {
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pContainer = WQtContainerWindow::GetContainerWindow();
   if (pContainer == nullptr)
     return;
 

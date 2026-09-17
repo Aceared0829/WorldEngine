@@ -4,8 +4,8 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
 
-struct ezMsgMoveCharacterController;
-struct ezMsgUpdateLocalBounds;
+struct WMsgMoveCharacterController;
+struct WMsgUpdateLocalBounds;
 
 namespace JPH
 {
@@ -13,45 +13,45 @@ namespace JPH
   class TempAllocator;
 } // namespace JPH
 
-EZ_DECLARE_FLAGS(ezUInt32, ezJoltCharacterDebugFlags, PrintState, VisShape, VisContacts, VisCasts, VisGroundContact, VisFootCheck);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltCharacterDebugFlags);
+W_DECLARE_FLAGS(WUInt32, WJoltCharacterDebugFlags, PrintState, VisShape, VisContacts, VisCasts, VisGroundContact, VisFootCheck);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltCharacterDebugFlags);
 
 /// Base class for character controllers (CC).
 ///
 /// This class provides general functionality for building a character controller.
 /// It tries not to implement things that are game specific.
 /// It is assumed that most games implement their own character controller to be able to build very specific behavior.
-/// The ezJoltDefaultCharacterComponent is an example implementation that shows how this can be achieved on top of this class.
-class EZ_JOLTPLUGIN_DLL ezJoltCharacterControllerComponent : public ezComponent
+/// The WJoltDefaultCharacterComponent is an example implementation that shows how this can be achieved on top of this class.
+class W_JOLTPLUGIN_DLL WJoltCharacterControllerComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WJoltCharacterControllerComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltCharacterControllerComponent
+  // WJoltCharacterControllerComponent
 
 public:
-  ezJoltCharacterControllerComponent();
-  ~ezJoltCharacterControllerComponent();
+  WJoltCharacterControllerComponent();
+  ~WJoltCharacterControllerComponent();
 
   /// Describes a point where the CC collided with other geometry.
   struct ContactPoint
   {
     float m_fCastFraction = 0.0f;
     float m_fPenetrationDepth = 0.0f;
-    ezVec3 m_vPosition;
-    ezVec3 m_vSurfaceNormal;
-    ezVec3 m_vContactNormal;
+    WVec3 m_vPosition;
+    WVec3 m_vSurfaceNormal;
+    WVec3 m_vContactNormal;
     JPH::BodyID m_BodyID;
     JPH::SubShapeID m_SubShapeID;
   };
@@ -62,26 +62,26 @@ public:
   /// so that there are no unintended collisions.
   ///
   /// Call ClearObjectToIgnore() to re-enable collisions.
-  void SetObjectToIgnore(ezUInt32 uiObjectFilterID);
+  void SetObjectToIgnore(WUInt32 uiObjectFilterID);
 
   /// \see SetObjectToIgnore()
   void ClearObjectToIgnore();
 
 public:
-  /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  /// The collision layer determines with which other actors this actor collides. \see WJoltActorComponent
+  WUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   /// In case a 'presence shape' is used, this defines which geometry the presence bodies collides with.
-  ezUInt8 m_uiPresenceCollisionLayer = 0; // [ property ]
+  WUInt8 m_uiPresenceCollisionLayer = 0; // [ property ]
 
   /// What aspects of the CC to visualize.
-  ezBitflags<ezJoltCharacterDebugFlags> m_DebugFlags; // [ property ]
+  WBitflags<WJoltCharacterDebugFlags> m_DebugFlags; // [ property ]
 
   /// The maximum slope that the character can walk up.
-  void SetMaxClimbingSlope(ezAngle slope);                           // [ property ]
-  ezAngle GetMaxClimbingSlope() const { return m_MaxClimbingSlope; } // [ property ]
+  void SetMaxClimbingSlope(WAngle slope);                           // [ property ]
+  WAngle GetMaxClimbingSlope() const { return m_MaxClimbingSlope; } // [ property ]
 
-  ezUInt8 m_uiWeightCategory = 0;                                    // [ property ]
+  WUInt8 m_uiWeightCategory = 0;                                    // [ property ]
   float m_fWeightMass = 50.0f;                                       // [ property ]
   float m_fWeightScale = 1.0f;                                       // [ property ]
 
@@ -92,7 +92,7 @@ public:
   float GetMass() const { return m_fMass; }
 
 private:
-  ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(45); // [ property ]
+  WAngle m_MaxClimbingSlope = WAngle::MakeFromDegree(45); // [ property ]
   float m_fStrength = 500.0f;                               // [ property ]
 
   float GetWeight_Mass() const { return m_fWeightMass; }
@@ -102,10 +102,10 @@ private:
 
 protected:
   /// Returns the time delta to use for updating the character. This may differ from the world delta.
-  EZ_ALWAYS_INLINE float GetUpdateTimeDelta() const { return m_fUpdateTimeDelta; }
+  W_ALWAYS_INLINE float GetUpdateTimeDelta() const { return m_fUpdateTimeDelta; }
 
   /// Returns the inverse of update time delta.
-  EZ_ALWAYS_INLINE float GetInverseUpdateTimeDelta() const { return m_fInverseUpdateTimeDelta; }
+  W_ALWAYS_INLINE float GetInverseUpdateTimeDelta() const { return m_fInverseUpdateTimeDelta; }
 
   /// Returns the shape that the character is supposed to use next.
   ///
@@ -129,19 +129,19 @@ protected:
   const JPH::CharacterVirtual* GetJoltCharacter() const { return m_pCharacter; }
 
   /// Attempts to change the character shape to the new one. Fails if the new shape overlaps with surrounding geometry.
-  ezResult TryChangeShape(JPH::Shape* pNewShape);
+  WResult TryChangeShape(JPH::Shape* pNewShape);
 
   /// Moves the character using the given velocity and timestep, making it collide with and slide along obstacles.
-  void RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp, float fMaxStepDown);
+  void RawMoveWithVelocity(const WVec3& vVelocity, float fMaxStairStepUp, float fMaxStepDown);
 
   /// Variant of RawMoveWithVelocity() that takes a direction vector instead.
-  void RawMoveIntoDirection(const ezVec3& vDirection);
+  void RawMoveIntoDirection(const WVec3& vDirection);
 
   /// Variant of RawMoveWithVelocity() that takes a target position instead.
-  void RawMoveToPosition(const ezVec3& vTargetPosition);
+  void RawMoveToPosition(const WVec3& vTargetPosition);
 
   /// Teleports the character to the destination position, even if it would get stuck there.
-  void TeleportToPosition(const ezVec3& vGlobalFootPos);
+  void TeleportToPosition(const WVec3& vGlobalFootPos);
 
   /// If the CC is slightly above the ground, this will move it down so that it touches the ground.
   ///
@@ -149,12 +149,12 @@ protected:
   bool StickToGround(float fMaxDist);
 
   /// Gathers all contact points that are found by sweeping the shape along a direction
-  void CollectCastContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, const ezVec3& vSweepDir) const;
+  void CollectCastContacts(WDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const WVec3& vQueryPosition, const WQuat& qQueryRotation, const WVec3& vSweepDir) const;
 
   /// Gathers all contact points of the shape at the target position.
   ///
   /// Use fMaxSeparationDistance > 0 (e.g. 0.02f) to find contacts with walls/ground that the shape is touching but not penetrating.
-  void CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fMaxSeparationDistance) const;
+  void CollectContacts(WDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const WVec3& vQueryPosition, const WQuat& qQueryRotation, float fMaxSeparationDistance) const;
 
   /// Detects the velocity at the contact point. If it is a dynamic body, a force pushing it away is applied.
   ///
@@ -162,23 +162,23 @@ protected:
   /// It can then be incorporated into the movement, such that the character rides along.
   /// If the body at the contact point is dynamic, optionally a force can be applied, simulating that the character's
   /// weight pushes down on it.
-  ezVec3 GetContactVelocityAndPushAway(const ContactPoint& contact, float fPushForce);
+  WVec3 GetContactVelocityAndPushAway(const ContactPoint& contact, float fPushForce);
 
   /// Spawns a surface interaction prefab at the given contact point.
   ///
   /// hFallbackSurface is used, if no other surface could be determined from the contact point.
-  void SpawnContactInteraction(const ContactPoint& contact, const ezHashedString& sSurfaceInteraction, ezSurfaceResourceHandle hFallbackSurface, const ezVec3& vInteractionNormal = ezVec3(0, 0, 1));
+  void SpawnContactInteraction(const ContactPoint& contact, const WHashedString& sSurfaceInteraction, WSurfaceResourceHandle hFallbackSurface, const WVec3& vInteractionNormal = WVec3(0, 0, 1));
 
   /// Debug draws the contact point.
-  void VisualizeContact(const ContactPoint& contact, const ezColor& color) const;
+  void VisualizeContact(const ContactPoint& contact, const WColor& color) const;
 
   /// Debug draws all the contact points.
-  void VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const;
+  void VisualizeContacts(const WDynamicArray<ContactPoint>& contacts, const WColor& color) const;
 
 private:
-  friend class ezJoltWorldModule;
+  friend class WJoltWorldModule;
 
-  void Update(ezTime deltaTime);
+  void Update(WTime deltaTime);
 
   float m_fMass = 50.0f;
   float m_fUpdateTimeDelta = 0.1f;
@@ -187,10 +187,10 @@ private:
 
   void CreatePresenceBody();
   void RemovePresenceBody();
-  void MovePresenceBody(ezTime deltaTime);
+  void MovePresenceBody(WTime deltaTime);
 
-  ezUInt32 m_uiPresenceBodyID = ezInvalidIndex;
+  WUInt32 m_uiPresenceBodyID = WInvalidIndex;
 
-  ezJoltBodyFilter m_BodyFilter;
-  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
+  WJoltBodyFilter m_BodyFilter;
+  WUInt32 m_uiUserDataIndex = WInvalidIndex;
 };

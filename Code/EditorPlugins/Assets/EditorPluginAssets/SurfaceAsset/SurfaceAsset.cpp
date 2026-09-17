@@ -2,20 +2,20 @@
 
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 3, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSurfaceAssetDocument, 3, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSurfaceAssetDocument::ezSurfaceAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(sDocumentPath, ezAssetDocEngineConnection::None)
+WSurfaceAssetDocument::WSurfaceAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WSurfaceResourceDescriptor>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WSurfaceAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+  const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  const ezSurfaceResourceDescriptor* pProp = GetProperties();
+  const WSurfaceResourceDescriptor* pProp = GetProperties();
 
   pProp->Save(stream);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

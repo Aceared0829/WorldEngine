@@ -4,7 +4,7 @@
 #include <AiPlugin/Navigation/Implementation/NavMeshGeneration.h>
 #include <Core/World/WorldModule.h>
 
-class ezAiNavMesh;
+class WAiNavMesh;
 class dtNavMesh;
 
 /// This world module keeps track of all the configured navmeshes (for different character types)
@@ -12,38 +12,38 @@ class dtNavMesh;
 ///
 /// Through this you can get access to one of the available navmeshes.
 /// Additionally, it also provides access to the different path search filters.
-class EZ_AIPLUGIN_DLL ezAiNavMeshWorldModule final : public ezWorldModule
+class W_AIPLUGIN_DLL WAiNavMeshWorldModule final : public WWorldModule
 {
-  EZ_DECLARE_WORLD_MODULE();
-  EZ_ADD_DYNAMIC_REFLECTION(ezAiNavMeshWorldModule, ezWorldModule);
+  W_DECLARE_WORLD_MODULE();
+  W_ADD_DYNAMIC_REFLECTION(WAiNavMeshWorldModule, WWorldModule);
 
 public:
-  ezAiNavMeshWorldModule(ezWorld* pWorld);
-  ~ezAiNavMeshWorldModule();
+  WAiNavMeshWorldModule(WWorld* pWorld);
+  ~WAiNavMeshWorldModule();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  ezAiNavMesh* GetNavMesh(ezStringView sName);
-  const ezAiNavMesh* GetNavMesh(ezStringView sName) const;
+  WAiNavMesh* GetNavMesh(WStringView sName);
+  const WAiNavMesh* GetNavMesh(WStringView sName) const;
 
-  const dtQueryFilter& GetPathSearchFilter(ezStringView sName) const;
+  const dtQueryFilter& GetPathSearchFilter(WStringView sName) const;
 
-  const ezAiNavigationConfig& GetConfig() const { return m_Config; }
+  const WAiNavigationConfig& GetConfig() const { return m_Config; }
 
 private:
   void Update(const UpdateContext& ctxt);
 
-  ezMap<ezString, ezAiNavMesh*> m_WorldNavMeshes;
+  WMap<WString, WAiNavMesh*> m_WorldNavMeshes;
 
   // TODO: this is a hacky solution to delay the navmesh generation until after Physics has been set up.
-  ezUInt32 m_uiUpdateDelay = 10;
-  ezTaskGroupID m_GenerateSectorTaskID;
-  ezSharedPtr<ezNavMeshSectorGenerationTask> m_pGenerateSectorTask;
+  WUInt32 m_uiUpdateDelay = 10;
+  WTaskGroupID m_GenerateSectorTaskID;
+  WSharedPtr<WNavMeshSectorGenerationTask> m_pGenerateSectorTask;
 
-  ezAiNavigationConfig m_Config;
+  WAiNavigationConfig m_Config;
 
-  ezMap<ezString, dtQueryFilter> m_PathSearchFilters;
+  WMap<WString, dtQueryFilter> m_PathSearchFilters;
 };
 
 /* TODO:

@@ -6,36 +6,36 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ads/DockWidget.h>
 
-class ezQtContainerWindow;
+class WQtContainerWindow;
 namespace ads
 {
   class CDockManager;
 }
 
 /// Base class for all panels that are supposed to be application wide (not tied to some document).
-class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public ads::CDockWidget
+class W_GUIFOUNDATION_DLL WQtApplicationPanel : public ads::CDockWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName);
-  ~ezQtApplicationPanel();
+  WQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName);
+  ~WQtApplicationPanel();
 
   void EnsureVisible();
 
-  static const ezDynamicArray<ezQtApplicationPanel*>& GetAllApplicationPanels() { return s_AllApplicationPanels; }
+  static const WDynamicArray<WQtApplicationPanel*>& GetAllApplicationPanels() { return s_AllApplicationPanels; }
 
 protected:
-  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  virtual void ToolsProjectEventHandler(const WToolsProjectEvent& e);
   virtual bool event(QEvent* event) override;
 
 private:
-  friend class ezQtContainerWindow;
+  friend class WQtContainerWindow;
 
-  static ezDynamicArray<ezQtApplicationPanel*> s_AllApplicationPanels;
+  static WDynamicArray<WQtApplicationPanel*> s_AllApplicationPanels;
 
-  ezQtContainerWindow* m_pContainerWindow = nullptr;
+  WQtContainerWindow* m_pContainerWindow = nullptr;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezQtApplicationPanel);
+W_DECLARE_REFLECTABLE_TYPE(W_GUIFOUNDATION_DLL, WQtApplicationPanel);

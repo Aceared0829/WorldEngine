@@ -26,17 +26,17 @@
 
 static bool g_bWindowResized = false;
 
-ezShaderExplorerApp::ezShaderExplorerApp()
-  : ezApplication("Shader Explorer")
+WShaderExplorerApp::WShaderExplorerApp()
+  : WApplication("Shader Explorer")
 {
 }
 
-void ezShaderExplorerApp::Run()
+void WShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
   if (!m_pWindow->IsVisible())
   {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(16));
     return;
   }
 
@@ -46,50 +46,50 @@ void ezShaderExplorerApp::Run()
     UpdateSwapChain();
   }
 
-  if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("Main", "CloseApp") == WKeyState::Pressed)
   {
     QuitApplication();
     return;
   }
 
   // make sure time goes on
-  ezClock::GetGlobalClock()->Update();
+  WClock::GetGlobalClock()->Update();
 
   // update all input state
-  ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
+  WInputManager::Update(WClock::GetGlobalClock()->GetTimeDiff());
 
   // mouse look
-  if (ezInputManager::GetInputActionState("Main", "Look") == ezKeyState::Down)
+  if (WInputManager::GetInputActionState("Main", "Look") == WKeyState::Down)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
     {
       pInput->SetShowMouseCursor(false);
-      pInput->SetClipMouseCursor(ezMouseCursorClipMode::ClipToPosition);
+      pInput->SetClipMouseCursor(WMouseCursorClipMode::ClipToPosition);
     }
 
     float fInputValue = 0.0f;
     const float fMouseSpeed = 0.01f;
 
-    ezVec3 mouseMotion(0.0f);
+    WVec3 mouseMotion(0.0f);
 
-    if (ezInputManager::GetInputActionState("Main", "LookPosX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "LookPosX", &fInputValue) != WKeyState::Up)
       mouseMotion.x += fInputValue * fMouseSpeed;
-    if (ezInputManager::GetInputActionState("Main", "LookNegX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "LookNegX", &fInputValue) != WKeyState::Up)
       mouseMotion.x -= fInputValue * fMouseSpeed;
-    if (ezInputManager::GetInputActionState("Main", "LookPosY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "LookPosY", &fInputValue) != WKeyState::Up)
       mouseMotion.y -= fInputValue * fMouseSpeed;
-    if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != WKeyState::Up)
       mouseMotion.y += fInputValue * fMouseSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateLocally(WAngle::MakeFromRadian(0.0), WAngle::MakeFromRadian(mouseMotion.y), WAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(WAngle::MakeFromRadian(0.0), WAngle::MakeFromRadian(mouseMotion.x), WAngle::MakeFromRadian(0.0));
   }
   else
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
+    if (auto pInput = WDynamicCast<WInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
     {
       pInput->SetShowMouseCursor(true);
-      pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+      pInput->SetClipMouseCursor(WMouseCursorClipMode::NoClip);
     }
   }
 
@@ -98,46 +98,46 @@ void ezShaderExplorerApp::Run()
     float fInputValue = 0.0f;
     const float fTurnSpeed = 1.0f;
 
-    ezVec3 mouseMotion(0.0f);
+    WVec3 mouseMotion(0.0f);
 
-    if (ezInputManager::GetInputActionState("Main", "TurnPosX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "TurnPosX", &fInputValue) != WKeyState::Up)
       mouseMotion.x += fInputValue * fTurnSpeed;
-    if (ezInputManager::GetInputActionState("Main", "TurnNegX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "TurnNegX", &fInputValue) != WKeyState::Up)
       mouseMotion.x -= fInputValue * fTurnSpeed;
-    if (ezInputManager::GetInputActionState("Main", "TurnPosY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "TurnPosY", &fInputValue) != WKeyState::Up)
       mouseMotion.y += fInputValue * fTurnSpeed;
-    if (ezInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != WKeyState::Up)
       mouseMotion.y -= fInputValue * fTurnSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateLocally(WAngle::MakeFromRadian(0.0), WAngle::MakeFromRadian(mouseMotion.y), WAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(WAngle::MakeFromRadian(0.0), WAngle::MakeFromRadian(mouseMotion.x), WAngle::MakeFromRadian(0.0));
   }
 
   // movement
   {
     float fInputValue = 0.0f;
-    ezVec3 cameraMotion(0.0f);
+    WVec3 cameraMotion(0.0f);
 
-    if (ezInputManager::GetInputActionState("Main", "MovePosX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "MovePosX", &fInputValue) != WKeyState::Up)
       cameraMotion.x += fInputValue;
-    if (ezInputManager::GetInputActionState("Main", "MoveNegX", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "MoveNegX", &fInputValue) != WKeyState::Up)
       cameraMotion.x -= fInputValue;
-    if (ezInputManager::GetInputActionState("Main", "MovePosY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "MovePosY", &fInputValue) != WKeyState::Up)
       cameraMotion.y += fInputValue;
-    if (ezInputManager::GetInputActionState("Main", "MoveNegY", &fInputValue) != ezKeyState::Up)
+    if (WInputManager::GetInputActionState("Main", "MoveNegY", &fInputValue) != WKeyState::Up)
       cameraMotion.y -= fInputValue;
 
     m_pCamera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
   }
 
-#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
+#if W_ENABLED(USE_DIRECTORY_WATCHER)
   {
     m_bStuffChanged = false;
-    m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
+    m_pDirectoryWatcher->EnumerateChanges(WMakeDelegate(&WShaderExplorerApp::OnFileChanged, this));
 
     if (m_bStuffChanged)
     {
-      ezResourceManager::ReloadAllResources(false);
+      WResourceManager::ReloadAllResources(false);
     }
   }
 #endif
@@ -148,85 +148,85 @@ void ezShaderExplorerApp::Run()
     m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
     m_pDevice->BeginFrame();
 
-    ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezShaderExplorerMainPass");
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
-    ezGALRenderTargetViewHandle hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
-    ezGALRenderTargetViewHandle hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
+    WGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("WShaderExplorerMainPass");
+    const WGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    WGALRenderTargetViewHandle hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
+    WGALRenderTargetViewHandle hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
 
-    ezGALRenderingSetup renderingSetup;
+    WGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, hBBRTV).SetDepthStencilTarget(hBBDSV);
     renderingSetup.SetClearColor(0).SetClearDepth().SetClearStencil();
 
     const float fWindowWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fWindowHeight = (float)m_pWindow->GetClientAreaSize().height;
 
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
+    WRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, WRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
 
-    auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
-    ezMemoryUtils::ZeroFill(&gc, 1);
+    auto& gc = WRenderContext::GetDefaultInstance()->WriteGlobalConstants();
+    WMemoryUtils::ZeroFill(&gc, 1);
 
-    ezMat4 m0, m1;
-    m0 = m_pCamera->GetViewMatrix(ezCameraEye::Left);
-    m1 = m_pCamera->GetViewMatrix(ezCameraEye::Right);
+    WMat4 m0, m1;
+    m0 = m_pCamera->GetViewMatrix(WCameraEye::Left);
+    m1 = m_pCamera->GetViewMatrix(WCameraEye::Right);
     gc.WorldToCameraMatrix[0] = m0;
     gc.WorldToCameraMatrix[1] = m1;
     gc.CameraToWorldMatrix[0] = m0.GetInverse();
     gc.CameraToWorldMatrix[1] = m1.GetInverse();
-    gc.ViewportSize = ezVec4(fWindowWidth, fWindowHeight, 1.0f / fWindowWidth, 1.0f / fWindowHeight);
+    gc.ViewportSize = WVec4(fWindowWidth, fWindowHeight, 1.0f / fWindowWidth, 1.0f / fWindowHeight);
     // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
-    gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
+    gc.GlobalTime = (float)WMath::Mod(WClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
     gc.WorldTime = gc.GlobalTime;
 
-    ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+    WRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
+    WRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
+    WRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
 
-    ezRenderContext::GetDefaultInstance()->EndRendering();
+    WRenderContext::GetDefaultInstance()->EndRendering();
     m_pDevice->EndCommands(pCommandEncoder);
 
     m_pDevice->EndFrame();
   }
 
   // needs to be called once per frame
-  ezResourceManager::PerFrameUpdate();
+  WResourceManager::PerFrameUpdate();
 
   // tell the task system to finish its work for this frame
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
-  ezTaskSystem::FinishFrameTasks();
+  WTaskSystem::FinishFrameTasks();
 
   // for plugins (like FileServe) that need to hook into the game update
-  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+  W_BROADCAST_EVENT(GameApp_UpdatePlugins);
 }
 
-void ezShaderExplorerApp::AfterCoreSystemsStartup()
+void WShaderExplorerApp::AfterCoreSystemsStartup()
 {
-#if EZ_ENABLED(USE_FILESERVE)
-  ezPlugin::LoadPlugin("ezFileservePlugin").AssertSuccess("Failed to load FileServe plugin");
+#if W_ENABLED(USE_FILESERVE)
+  WPlugin::LoadPlugin("WFileservePlugin").AssertSuccess("Failed to load FileServe plugin");
 #endif
 
-  m_pCamera = EZ_DEFAULT_NEW(ezCamera);
-  m_pCamera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+  m_pCamera = W_DEFAULT_NEW(WCamera);
+  m_pCamera->LookAt(WVec3(3, 3, 1.5), WVec3(0, 0, 0), WVec3(0, 1, 0));
 
-  ezStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
-  ezStringBuilder sProjectDirResolved;
-  ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).IgnoreResult();
-  ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
+  WStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
+  WStringBuilder sProjectDirResolved;
+  WFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).IgnoreResult();
+  WFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
-  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-  m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).AssertSuccess("Failed to watch project directory");
+#if W_ENABLED(USE_DIRECTORY_WATCHER)
+  m_pDirectoryWatcher = W_DEFAULT_NEW(WDirectoryWatcher);
+  m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, WDirectoryWatcher::Watch::Writes | WDirectoryWatcher::Watch::Subdirectories).AssertSuccess("Failed to watch project directory");
 #endif
 
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
-  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
-  ezFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
+  WFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", WDataDirUsage::AllowWrites).AssertSuccess();
+  WFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
+  WFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
 
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
 
-  ezTelemetry::CreateServer();
-  ezPlugin::LoadPlugin("ezInspectorPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  WTelemetry::CreateServer();
+  WPlugin::LoadPlugin("WInspectorPlugin", WPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
   constexpr const char* szDefaultRenderer = "Vulkan";
@@ -234,133 +234,133 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-  ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  WStringView sRendererName = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
+  WGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
-  ezShaderManager::Configure(szShaderModel, true);
-  ezPlugin::LoadPlugin(szShaderCompiler).IgnoreResult();
+  WShaderManager::Configure(szShaderModel, true);
+  WPlugin::LoadPlugin(szShaderCompiler).IgnoreResult();
 
   // Register Input
   {
     {
-      m_pLeftStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-      m_pLeftStick->SetInputArea(ezVec2(0, 0), ezVec2(0.5, 1), 0.25f, 1.0f, ezVirtualThumbStick::CenterMode::ActivationPoint);
-      m_pLeftStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-      m_pLeftStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
-      m_pLeftStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::ActivateImmediately, ezInputActionConfig::OnLeaveArea::KeepFocus);
+      m_pLeftStick = W_DEFAULT_NEW(WVirtualThumbStick);
+      m_pLeftStick->SetInputArea(WVec2(0, 0), WVec2(0.5, 1), 0.25f, 1.0f, WVirtualThumbStick::CenterMode::ActivationPoint);
+      m_pLeftStick->SetTriggerInputSlot(WVirtualThumbStick::Input::Touchpoint);
+      m_pLeftStick->SetThumbstickOutput(WVirtualThumbStick::Output::Controller0_LeftStick);
+      m_pLeftStick->SetAreaFocusMode(WInputActionConfig::OnEnterArea::ActivateImmediately, WInputActionConfig::OnLeaveArea::KeepFocus);
       m_pLeftStick->SetEnabled(true);
     }
     {
-      m_pRightStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-      m_pRightStick->SetInputArea(ezVec2(0.5, 0), ezVec2(1, 1), 0.25f, 1.0f, ezVirtualThumbStick::CenterMode::ActivationPoint);
-      m_pRightStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-      m_pRightStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
-      m_pRightStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::ActivateImmediately, ezInputActionConfig::OnLeaveArea::KeepFocus);
+      m_pRightStick = W_DEFAULT_NEW(WVirtualThumbStick);
+      m_pRightStick->SetInputArea(WVec2(0.5, 0), WVec2(1, 1), 0.25f, 1.0f, WVirtualThumbStick::CenterMode::ActivationPoint);
+      m_pRightStick->SetTriggerInputSlot(WVirtualThumbStick::Input::Touchpoint);
+      m_pRightStick->SetThumbstickOutput(WVirtualThumbStick::Output::Controller0_RightStick);
+      m_pRightStick->SetAreaFocusMode(WInputActionConfig::OnEnterArea::ActivateImmediately, WInputActionConfig::OnLeaveArea::KeepFocus);
       m_pRightStick->SetEnabled(true);
     }
 
 
-    ezInputActionConfig cfg;
+    WInputActionConfig cfg;
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-    ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
+    cfg = WInputManager::GetInputActionConfig("Main", "CloseApp");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyEscape;
+    WInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "LookPosX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosX;
+    cfg = WInputManager::GetInputActionConfig("Main", "LookPosX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_MouseMovePosX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "LookPosX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "LookPosX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "LookNegX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegX;
+    cfg = WInputManager::GetInputActionConfig("Main", "LookNegX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_MouseMoveNegX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "LookNegX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "LookNegX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "LookPosY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosY;
+    cfg = WInputManager::GetInputActionConfig("Main", "LookPosY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_MouseMovePosY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "LookPosY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "LookPosY", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "LookNegY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegY;
+    cfg = WInputManager::GetInputActionConfig("Main", "LookNegY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_MouseMoveNegY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "LookNegY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "LookNegY", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "TurnPosX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyRight;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_RightStick_PosX;
+    cfg = WInputManager::GetInputActionConfig("Main", "TurnPosX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyRight;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_RightStick_PosX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "TurnPosX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "TurnPosX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "TurnNegX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyLeft;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_RightStick_NegX;
+    cfg = WInputManager::GetInputActionConfig("Main", "TurnNegX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyLeft;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_RightStick_NegX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "TurnNegX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "TurnNegX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "TurnPosY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDown;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_RightStick_PosY;
+    cfg = WInputManager::GetInputActionConfig("Main", "TurnPosY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyDown;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_RightStick_PosY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "TurnPosY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "TurnPosY", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "TurnNegY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyUp;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_RightStick_NegY;
+    cfg = WInputManager::GetInputActionConfig("Main", "TurnNegY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyUp;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_RightStick_NegY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "TurnNegY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "TurnNegY", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "Look");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseButton0;
+    cfg = WInputManager::GetInputActionConfig("Main", "Look");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_MouseButton0;
     cfg.m_bApplyTimeScaling = false;
-    ezInputManager::SetInputActionConfig("Main", "Look", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "Look", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "MovePosX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyD;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_LeftStick_PosX;
+    cfg = WInputManager::GetInputActionConfig("Main", "MovePosX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyD;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_LeftStick_PosX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "MovePosX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "MovePosX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "MoveNegX");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyA;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_LeftStick_NegX;
+    cfg = WInputManager::GetInputActionConfig("Main", "MoveNegX");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyA;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_LeftStick_NegX;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "MoveNegX", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "MoveNegX", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "MovePosY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyW;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_LeftStick_PosY;
+    cfg = WInputManager::GetInputActionConfig("Main", "MovePosY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyW;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_LeftStick_PosY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "MovePosY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "MovePosY", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "MoveNegY");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyS;
-    cfg.m_sInputSlotTrigger[1] = ezInputSlot_Controller0_LeftStick_NegY;
+    cfg = WInputManager::GetInputActionConfig("Main", "MoveNegY");
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyS;
+    cfg.m_sInputSlotTrigger[1] = WInputSlot_Controller0_LeftStick_NegY;
     cfg.m_bApplyTimeScaling = true;
-    ezInputManager::SetInputActionConfig("Main", "MoveNegY", cfg, true);
+    WInputManager::SetInputActionConfig("Main", "MoveNegY", cfg, true);
   }
 
   // Create a window for rendering
   {
-    ezWindowCreationDesc WindowCreationDesc;
+    WWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = 1024;
     WindowCreationDesc.m_Resolution.height = 768;
     WindowCreationDesc.m_Title = "Shader Explorer";
     WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_bClipMouseCursor = false;
-    WindowCreationDesc.m_WindowMode = ezWindowMode::WindowResizable;
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    WindowCreationDesc.m_WindowMode = WWindowMode::WindowResizable;
+    m_pWindow = W_DEFAULT_NEW(WWindow);
     m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
 
-    m_pWindow->WindowEvents().AddEventHandler([this](const ezWindowEvent& e)
+    m_pWindow->WindowEvents().AddEventHandler([this](const WWindowEvent& e)
       {
-        if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+        if (e.m_Type == WWindowEvent::Type::CloseButtonClicked)
         {
           this->QuitApplication();
         }
-        if (e.m_Type == ezWindowEvent::Type::SizeChanged)
+        if (e.m_Type == WWindowEvent::Type::SizeChanged)
         {
           g_bWindowResized = true;
         }
@@ -370,36 +370,36 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   // Create a device
   {
-    ezGALDeviceCreationDescription DeviceInit;
+    WGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = true;
 
-    m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
-    EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+    m_pDevice = WGALDeviceFactory::CreateDevice(sRendererName, WFoundation::GetDefaultAllocator(), DeviceInit);
+    W_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
+    W_VERIFY(m_pDevice->Init() == W_SUCCESS, "Device init failed!");
 
-    ezGALDevice::SetDefaultDevice(m_pDevice);
+    WGALDevice::SetDefaultDevice(m_pDevice);
   }
 
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 
   UpdateSwapChain();
 
   // Setup Shaders and Materials
   {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/screen.ezMaterial");
+    m_hMaterial = WResourceManager::LoadResource<WMaterialResource>("Materials/screen.WMaterial");
 
     // Create the mesh that we use for rendering
     CreateScreenQuad();
   }
 }
 
-void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
+void WShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 {
-  ezTelemetry::CloseConnection();
+  WTelemetry::CloseConnection();
   m_pLeftStick.Clear();
   m_pRightStick.Clear();
-#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
+#if W_ENABLED(USE_DIRECTORY_WATCHER)
   m_pDirectoryWatcher->CloseDirectory();
   m_pDirectoryWatcher.Clear();
 #endif
@@ -412,34 +412,34 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
-  ezStartup::ShutdownHighLevelSystems();
+  WStartup::ShutdownHighLevelSystems();
 
   // now we can destroy the graphics device
   m_pDevice->Shutdown().IgnoreResult();
 
-  EZ_DEFAULT_DELETE(m_pDevice);
+  W_DEFAULT_DELETE(m_pDevice);
 
   // finally destroy the window
   m_pWindow->DestroyWindow();
-  EZ_DEFAULT_DELETE(m_pWindow);
+  W_DEFAULT_DELETE(m_pWindow);
 
   m_pCamera.Clear();
 }
 
-void ezShaderExplorerApp::UpdateSwapChain()
+void WShaderExplorerApp::UpdateSwapChain()
 {
   // Create a Swapchain
   if (m_hSwapChain.IsInvalidated())
   {
-    ezGALWindowSwapChainCreationDescription swapChainDesc;
+    WGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
-    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_InitialPresentMode = ezGALPresentMode::VSync;
-    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+    swapChainDesc.m_SampleCount = WGALMSAASampleCount::None;
+    swapChainDesc.m_InitialPresentMode = WGALPresentMode::VSync;
+    m_hSwapChain = WGALWindowSwapChain::Create(swapChainDesc);
   }
   else
   {
-    m_pDevice->UpdateSwapChain(m_hSwapChain, ezGALPresentMode::VSync).IgnoreResult();
+    m_pDevice->UpdateSwapChain(m_hSwapChain, WGALPresentMode::VSync).IgnoreResult();
   }
 
   if (!m_hSwapChain.IsInvalidated())
@@ -449,42 +449,42 @@ void ezShaderExplorerApp::UpdateSwapChain()
   }
   // Create depth texture
   {
-    ezGALTextureCreationDescription texDesc;
+    WGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
     texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
-    texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+    texDesc.m_Format = WGALResourceFormat::D24S8;
+    texDesc.m_TextureFlags.Add(WGALTextureUsageFlags::RenderTarget);
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 }
 
-void ezShaderExplorerApp::CreateScreenQuad()
+void WShaderExplorerApp::CreateScreenQuad()
 {
-  ezGeometry geom;
-  ezGeometry::GeoOptions opt;
-  opt.m_Color = ezColor::Black;
-  geom.AddRect(ezVec2(2, 2), 1, 1, opt);
+  WGeometry geom;
+  WGeometry::GeoOptions opt;
+  opt.m_Color = WColor::Black;
+  geom.AddRect(WVec2(2, 2), 1, 1, opt);
 
-  ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezMeshVertexStreamType::Position);
+  WMeshBufferResourceDescriptor desc;
+  desc.AddStream(WMeshVertexStreamType::Position);
   desc.AllocateStreamsFromGeometry(geom);
 
-  m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
+  m_hQuadMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
   if (!m_hQuadMeshBuffer.IsValid())
-    m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+    m_hQuadMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
-#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
-void ezShaderExplorerApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+#if W_ENABLED(USE_DIRECTORY_WATCHER)
+void WShaderExplorerApp::OnFileChanged(WStringView sFilename, WDirectoryWatcherAction action, WDirectoryWatcherType type)
 {
-  if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
+  if (action == WDirectoryWatcherAction::Modified && type == WDirectoryWatcherType::File)
   {
-    ezLog::Info("The file {0} was modified", sFilename);
+    WLog::Info("The file {0} was modified", sFilename);
     m_bStuffChanged = true;
   }
 }
 #endif
 
-EZ_APPLICATION_ENTRY_POINT(ezShaderExplorerApp);
+W_APPLICATION_ENTRY_POINT(WShaderExplorerApp);

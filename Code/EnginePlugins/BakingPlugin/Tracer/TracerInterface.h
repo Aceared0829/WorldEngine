@@ -2,30 +2,30 @@
 
 #include <BakingPlugin/BakingPluginDLL.h>
 
-class ezBakingScene;
+class WBakingScene;
 
-class EZ_BAKINGPLUGIN_DLL ezTracerInterface
+class W_BAKINGPLUGIN_DLL WTracerInterface
 {
 public:
-  virtual ezResult BuildScene(const ezBakingScene& scene) = 0;
+  virtual WResult BuildScene(const WBakingScene& scene) = 0;
 
   struct Ray
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec3 m_vStartPos;
-    ezVec3 m_vDir;
+    WVec3 m_vStartPos;
+    WVec3 m_vDir;
     float m_fDistance;
   };
 
   struct Hit
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec3 m_vPosition;
-    ezVec3 m_vNormal;
+    WVec3 m_vPosition;
+    WVec3 m_vNormal;
     float m_fDistance;
   };
 
-  virtual void TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits) = 0;
+  virtual void TraceRays(WArrayPtr<const Ray> rays, WArrayPtr<Hit> hits) = 0;
 };

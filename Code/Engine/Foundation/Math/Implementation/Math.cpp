@@ -8,12 +8,12 @@
 #include <Foundation/Reflection/Reflection.h>
 
 // Default are D3D convention before a renderer is initialized.
-ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
-ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
+WClipSpaceDepthRange::Enum WClipSpaceDepthRange::Default = WClipSpaceDepthRange::ZeroToOne;
+WClipSpaceYMode::Enum WClipSpaceYMode::RenderToTextureDefault = WClipSpaceYMode::Regular;
 
-ezHandedness::Enum ezHandedness::Default = ezHandedness::LeftHanded;
+WHandedness::Enum WHandedness::Default = WHandedness::LeftHanded;
 
-bool ezMath::IsPowerOf(ezInt32 value, ezInt32 iBase)
+bool WMath::IsPowerOf(WInt32 value, WInt32 iBase)
 {
   if (value == 1)
     return true;
@@ -29,17 +29,17 @@ bool ezMath::IsPowerOf(ezInt32 value, ezInt32 iBase)
   return (value == iBase);
 }
 
-ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 uiNpot)
+WUInt32 WMath::PowerOfTwo_Floor(WUInt32 uiNpot)
 {
-  return static_cast<ezUInt32>(PowerOfTwo_Floor(static_cast<ezUInt64>(uiNpot)));
+  return static_cast<WUInt32>(PowerOfTwo_Floor(static_cast<WUInt64>(uiNpot)));
 }
 
-ezUInt64 ezMath::PowerOfTwo_Floor(ezUInt64 uiNpot)
+WUInt64 WMath::PowerOfTwo_Floor(WUInt64 uiNpot)
 {
   if (IsPowerOf2(uiNpot))
     return (uiNpot);
 
-  for (ezUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
+  for (WUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
   {
     uiNpot >>= 1;
 
@@ -50,17 +50,17 @@ ezUInt64 ezMath::PowerOfTwo_Floor(ezUInt64 uiNpot)
   return (1);
 }
 
-ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 uiNpot)
+WUInt32 WMath::PowerOfTwo_Ceil(WUInt32 uiNpot)
 {
-  return static_cast<ezUInt32>(PowerOfTwo_Ceil(static_cast<ezUInt64>(uiNpot)));
+  return static_cast<WUInt32>(PowerOfTwo_Ceil(static_cast<WUInt64>(uiNpot)));
 }
 
-ezUInt64 ezMath::PowerOfTwo_Ceil(ezUInt64 uiNpot)
+WUInt64 WMath::PowerOfTwo_Ceil(WUInt64 uiNpot)
 {
   if (IsPowerOf2(uiNpot))
     return (uiNpot);
 
-  for (ezUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
+  for (WUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
   {
     uiNpot >>= 1;
 
@@ -76,7 +76,7 @@ ezUInt64 ezMath::PowerOfTwo_Ceil(ezUInt64 uiNpot)
 }
 
 
-ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
+WUInt32 WMath::GreatestCommonDivisor(WUInt32 a, WUInt32 b)
 {
   // https://lemire.me/blog/2013/12/26/fastest-way-to-compute-the-greatest-common-divisor/
   if (a == 0)
@@ -88,7 +88,7 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
     return a;
   }
 
-  ezUInt32 shift = FirstBitLow(a | b);
+  WUInt32 shift = FirstBitLow(a | b);
   a >>= FirstBitLow(a);
   do
   {
@@ -102,115 +102,115 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   return a << shift;
 }
 
-ezResult ezMath::TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
+WResult WMath::TryMultiply32(WUInt32& out_uiResult, WUInt32 a, WUInt32 b, WUInt32 c, WUInt32 d)
 {
-  ezUInt64 result = static_cast<ezUInt64>(a) * static_cast<ezUInt64>(b);
+  WUInt64 result = static_cast<WUInt64>(a) * static_cast<WUInt64>(b);
 
   if (result > 0xFFFFFFFFllu)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  result *= static_cast<ezUInt64>(c);
+  result *= static_cast<WUInt64>(c);
 
   if (result > 0xFFFFFFFFllu)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  result *= static_cast<ezUInt64>(d);
+  result *= static_cast<WUInt64>(d);
 
   if (result > 0xFFFFFFFFllu)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  out_uiResult = static_cast<ezUInt32>(result & 0xFFFFFFFFllu);
-  return EZ_SUCCESS;
+  out_uiResult = static_cast<WUInt32>(result & 0xFFFFFFFFllu);
+  return W_SUCCESS;
 }
 
-ezUInt32 ezMath::SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
+WUInt32 WMath::SafeMultiply32(WUInt32 a, WUInt32 b, WUInt32 c, WUInt32 d)
 {
-  ezUInt32 result = 0;
+  WUInt32 result = 0;
   if (TryMultiply32(result, a, b, c, d).Succeeded())
   {
     return result;
   }
 
-  EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds UInt32 range.", a, b, c, d);
+  W_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds UInt32 range.", a, b, c, d);
   std::terminate();
 }
 
-ezResult ezMath::TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
+WResult WMath::TryMultiply64(WUInt64& out_uiResult, WUInt64 a, WUInt64 b, WUInt64 c, WUInt64 d)
 {
   if (a == 0 || b == 0 || c == 0 || d == 0)
   {
     out_uiResult = 0;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if W_ENABLED(W_PLATFORM_ARCH_X86) && W_ENABLED(W_PLATFORM_64BIT) && W_ENABLED(W_COMPILER_MSVC)
 
-  ezUInt64 uiHighBits = 0;
+  WUInt64 uiHighBits = 0;
 
-  const ezUInt64 ab = _umul128(a, b, &uiHighBits);
+  const WUInt64 ab = _umul128(a, b, &uiHighBits);
   if (uiHighBits != 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  const ezUInt64 abc = _umul128(ab, c, &uiHighBits);
+  const WUInt64 abc = _umul128(ab, c, &uiHighBits);
   if (uiHighBits != 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  const ezUInt64 abcd = _umul128(abc, d, &uiHighBits);
+  const WUInt64 abcd = _umul128(abc, d, &uiHighBits);
   if (uiHighBits != 0)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
 #else
-  const ezUInt64 ab = a * b;
-  const ezUInt64 abc = ab * c;
-  const ezUInt64 abcd = abc * d;
+  const WUInt64 ab = a * b;
+  const WUInt64 abc = ab * c;
+  const WUInt64 abcd = abc * d;
 
   if (a > 1 && b > 1 && (ab / a != b))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (c > 1 && (abc / c != ab))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (d > 1 && (abcd / d != abc))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
 #endif
 
   out_uiResult = abcd;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
+WUInt64 WMath::SafeMultiply64(WUInt64 a, WUInt64 b, WUInt64 c, WUInt64 d)
 {
-  ezUInt64 result = 0;
+  WUInt64 result = 0;
   if (TryMultiply64(result, a, b, c, d).Succeeded())
   {
     return result;
   }
 
-  EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds ezUInt64 range.", a, b, c, d);
+  W_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds WUInt64 range.", a, b, c, d);
   std::terminate();
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
+#if W_ENABLED(W_PLATFORM_32BIT)
+size_t WMath::SafeConvertToSizeT(WUInt64 uiValue)
 {
   size_t result = 0;
   if (TryConvertToSizeT(result, uiValue).Succeeded())
@@ -218,109 +218,109 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
     return result;
   }
 
-  EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
+  W_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
   std::terminate();
 }
 #endif
 
 
-float ezMath::ReplaceNaN(float fValue, float fFallback)
+float WMath::ReplaceNaN(float fValue, float fFallback)
 {
   // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
   // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
   // As an out-of-line function it works.
 
-  if (ezMath::IsNaN(fValue))
+  if (WMath::IsNaN(fValue))
     return fFallback;
 
   return fValue;
 }
 
-double ezMath::ReplaceNaN(double fValue, double fFallback)
+double WMath::ReplaceNaN(double fValue, double fFallback)
 {
   // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
   // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
   // As an out-of-line function it works.
 
-  if (ezMath::IsNaN(fValue))
+  if (WMath::IsNaN(fValue))
     return fFallback;
 
   return fValue;
 }
 
-ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
+WVec3 WBasisAxis::GetBasisVector(Enum basisAxis)
 {
   switch (basisAxis)
   {
-    case ezBasisAxis::PositiveX:
-      return ezVec3(1.0f, 0.0f, 0.0f);
+    case WBasisAxis::PositiveX:
+      return WVec3(1.0f, 0.0f, 0.0f);
 
-    case ezBasisAxis::NegativeX:
-      return ezVec3(-1.0f, 0.0f, 0.0f);
+    case WBasisAxis::NegativeX:
+      return WVec3(-1.0f, 0.0f, 0.0f);
 
-    case ezBasisAxis::PositiveY:
-      return ezVec3(0.0f, 1.0f, 0.0f);
+    case WBasisAxis::PositiveY:
+      return WVec3(0.0f, 1.0f, 0.0f);
 
-    case ezBasisAxis::NegativeY:
-      return ezVec3(0.0f, -1.0f, 0.0f);
+    case WBasisAxis::NegativeY:
+      return WVec3(0.0f, -1.0f, 0.0f);
 
-    case ezBasisAxis::PositiveZ:
-      return ezVec3(0.0f, 0.0f, 1.0f);
+    case WBasisAxis::PositiveZ:
+      return WVec3(0.0f, 0.0f, 1.0f);
 
-    case ezBasisAxis::NegativeZ:
-      return ezVec3(0.0f, 0.0f, -1.0f);
+    case WBasisAxis::NegativeZ:
+      return WVec3(0.0f, 0.0f, -1.0f);
 
     default:
-      EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
-      return ezVec3::MakeZero();
+      W_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
+      return WVec3::MakeZero();
   }
 }
 
-ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum dir, float fUniformScale /*= 1.0f*/, float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
+WMat3 WBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum dir, float fUniformScale /*= 1.0f*/, float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
 {
-  ezMat3 mResult;
-  mResult.SetRow(0, ezBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
-  mResult.SetRow(1, ezBasisAxis::GetBasisVector(rightDir) * fUniformScale * fScaleY);
-  mResult.SetRow(2, ezBasisAxis::GetBasisVector(dir) * fUniformScale * fScaleZ);
+  WMat3 mResult;
+  mResult.SetRow(0, WBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
+  mResult.SetRow(1, WBasisAxis::GetBasisVector(rightDir) * fUniformScale * fScaleY);
+  mResult.SetRow(2, WBasisAxis::GetBasisVector(dir) * fUniformScale * fScaleZ);
 
   return mResult;
 }
 
 
-ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
+WQuat WBasisAxis::GetBasisRotation_PosX(Enum axis)
 {
-  return ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), GetBasisVector(axis));
+  return WQuat::MakeShortestRotation(WVec3::MakeAxisX(), GetBasisVector(axis));
 }
 
-ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
+WQuat WBasisAxis::GetBasisRotation(Enum identity, Enum axis)
 {
-  return ezQuat::MakeShortestRotation(GetBasisVector(identity), GetBasisVector(axis));
+  return WQuat::MakeShortestRotation(GetBasisVector(identity), GetBasisVector(axis));
 }
 
-ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bFlip)
+WBasisAxis::Enum WBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bFlip)
 {
-  const ezVec3 a1 = ezBasisAxis::GetBasisVector(axis1);
-  const ezVec3 a2 = ezBasisAxis::GetBasisVector(axis2);
+  const WVec3 a1 = WBasisAxis::GetBasisVector(axis1);
+  const WVec3 a2 = WBasisAxis::GetBasisVector(axis2);
 
-  ezVec3 c = a1.CrossRH(a2);
+  WVec3 c = a1.CrossRH(a2);
 
   if (bFlip)
     c = -c;
 
-  if (c.IsEqual(ezVec3::MakeAxisX(), 0.01f))
-    return ezBasisAxis::PositiveX;
-  if (c.IsEqual(-ezVec3::MakeAxisX(), 0.01f))
-    return ezBasisAxis::NegativeX;
+  if (c.IsEqual(WVec3::MakeAxisX(), 0.01f))
+    return WBasisAxis::PositiveX;
+  if (c.IsEqual(-WVec3::MakeAxisX(), 0.01f))
+    return WBasisAxis::NegativeX;
 
-  if (c.IsEqual(ezVec3::MakeAxisY(), 0.01f))
-    return ezBasisAxis::PositiveY;
-  if (c.IsEqual(-ezVec3::MakeAxisY(), 0.01f))
-    return ezBasisAxis::NegativeY;
+  if (c.IsEqual(WVec3::MakeAxisY(), 0.01f))
+    return WBasisAxis::PositiveY;
+  if (c.IsEqual(-WVec3::MakeAxisY(), 0.01f))
+    return WBasisAxis::NegativeY;
 
-  if (c.IsEqual(ezVec3::MakeAxisZ(), 0.01f))
-    return ezBasisAxis::PositiveZ;
-  if (c.IsEqual(-ezVec3::MakeAxisZ(), 0.01f))
-    return ezBasisAxis::NegativeZ;
+  if (c.IsEqual(WVec3::MakeAxisZ(), 0.01f))
+    return WBasisAxis::PositiveZ;
+  if (c.IsEqual(-WVec3::MakeAxisZ(), 0.01f))
+    return WBasisAxis::NegativeZ;
 
   return axis1;
 }
@@ -328,51 +328,51 @@ ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bF
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Equal, ezComparisonOperator::NotEqual)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
-  EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WComparisonOperator, 1)
+  W_ENUM_CONSTANTS(WComparisonOperator::Equal, WComparisonOperator::NotEqual)
+  W_ENUM_CONSTANTS(WComparisonOperator::Less, WComparisonOperator::LessEqual)
+  W_ENUM_CONSTANTS(WComparisonOperator::Greater, WComparisonOperator::GreaterEqual)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveFunction, 1)
- EZ_ENUM_CONSTANT(ezCurveFunction::Linear),
- EZ_ENUM_CONSTANT(ezCurveFunction::ConstantZero),
- EZ_ENUM_CONSTANT(ezCurveFunction::ConstantOne),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInSine),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutSine),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutSine),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuad),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuad),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuad),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCubic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCubic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCubic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuartic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuartic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuartic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuintic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuintic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuintic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInExpo),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutExpo),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutExpo),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCirc),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCirc),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCirc),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBack),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBack),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBack), 
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInElastic), 
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutElastic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutElastic),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBounce),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBounce),
- EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBounce),
- EZ_ENUM_CONSTANT(ezCurveFunction::Conical),
- EZ_ENUM_CONSTANT(ezCurveFunction::FadeInHoldFadeOut),
- EZ_ENUM_CONSTANT(ezCurveFunction::FadeInFadeOut),
- EZ_ENUM_CONSTANT(ezCurveFunction::Bell),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WCurveFunction, 1)
+ W_ENUM_CONSTANT(WCurveFunction::Linear),
+ W_ENUM_CONSTANT(WCurveFunction::ConstantZero),
+ W_ENUM_CONSTANT(WCurveFunction::ConstantOne),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInSine),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutSine),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutSine),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInQuad),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutQuad),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutQuad),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInCubic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutCubic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutCubic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInQuartic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutQuartic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutQuartic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInQuintic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutQuintic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutQuintic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInExpo),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutExpo),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutExpo),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInCirc),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutCirc),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutCirc),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInBack),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutBack),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutBack),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInElastic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutElastic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutElastic),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInBounce),
+ W_ENUM_CONSTANT(WCurveFunction::EaseOutBounce),
+ W_ENUM_CONSTANT(WCurveFunction::EaseInOutBounce),
+ W_ENUM_CONSTANT(WCurveFunction::Conical),
+ W_ENUM_CONSTANT(WCurveFunction::FadeInHoldFadeOut),
+ W_ENUM_CONSTANT(WCurveFunction::FadeInFadeOut),
+ W_ENUM_CONSTANT(WCurveFunction::Bell),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);
+W_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

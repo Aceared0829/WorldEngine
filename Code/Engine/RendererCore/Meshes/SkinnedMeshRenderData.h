@@ -2,39 +2,39 @@
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-class ezShaderTransform;
+class WShaderTransform;
 
 /// Render data for skinned meshes.
 ///
 /// Extends mesh render data with a GPU buffer handle for bone transformation matrices.
-class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
+class W_RENDERERCORE_DLL WSkinnedMeshRenderData : public WMeshRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkinnedMeshRenderData, ezMeshRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WSkinnedMeshRenderData, WMeshRenderData);
 
 public:
-  virtual bool CanBatch(const ezRenderData& other) const override;
+  virtual bool CanBatch(const WRenderData& other) const override;
 
-  ezGALDynamicBufferHandle m_hSkinningBuffer;
+  WGALDynamicBufferHandle m_hSkinningBuffer;
 };
 
 /// Manages the skinning state for an animated mesh.
 ///
-/// Wraps around the ezRenderDataManager functions to manage skinning data for skinned meshes.
-struct EZ_RENDERERCORE_DLL ezSkinningState
+/// Wraps around the WRenderDataManager functions to manage skinning data for skinned meshes.
+struct W_RENDERERCORE_DLL WSkinningState
 {
-  ezSkinningState();
-  ~ezSkinningState();
+  WSkinningState();
+  ~WSkinningState();
 
   void Clear();
 
   /// Returns a writable array of bone transforms, allocating or reallocating the buffer as needed. Note that existing data is lost on reallocation.
-  ezArrayPtr<ezShaderTransform> GetOrCreateBoneTransformsForWriting(ezComponent& ref_ownerComponent, ezUInt32 uiNumBones);
+  WArrayPtr<WShaderTransform> GetOrCreateBoneTransformsForWriting(WComponent& ref_ownerComponent, WUInt32 uiNumBones);
 
-  ezArrayPtr<const ezShaderTransform> GetBoneTransformsForReading() const;
+  WArrayPtr<const WShaderTransform> GetBoneTransformsForReading() const;
 
   bool HasBoneTransforms() const { return m_uiNumBones > 0; }
 
-  ezCustomInstanceDataOffset m_DataOffset;
-  ezUInt32 m_uiNumBones = 0;
-  ezWorld* m_pWorld = nullptr;
+  WCustomInstanceDataOffset m_DataOffset;
+  WUInt32 m_uiNumBones = 0;
+  WWorld* m_pWorld = nullptr;
 };

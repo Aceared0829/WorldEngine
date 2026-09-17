@@ -5,47 +5,47 @@
 #include <Foundation/Containers/HashTable.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
-class ezRenderPipeline;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
+class WRenderPipeline;
 
 /// Descriptor for creating a render pipeline resource.
 ///
 /// Contains the serialized pipeline configuration including passes, extractors, and connections.
-struct ezRenderPipelineResourceDescriptor
+struct WRenderPipelineResourceDescriptor
 {
   void Clear() {}
 
-  ezDynamicArray<ezUInt8> m_SerializedPipeline;
-  ezString m_sPath;
+  WDynamicArray<WUInt8> m_SerializedPipeline;
+  WString m_sPath;
 };
 
 /// Runtime resource representing a render pipeline configuration.
 ///
-/// Stores a serialized render pipeline that can be instantiated to create runtime ezRenderPipeline objects.
+/// Stores a serialized render pipeline that can be instantiated to create runtime WRenderPipeline objects.
 /// Multiple views can share the same pipeline resource but each creates its own pipeline instance.
-class EZ_RENDERERCORE_DLL ezRenderPipelineResource : public ezResource
+class W_RENDERERCORE_DLL WRenderPipelineResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezRenderPipelineResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WRenderPipelineResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WRenderPipelineResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WRenderPipelineResource, WRenderPipelineResourceDescriptor);
 
 public:
-  ezRenderPipelineResource();
+  WRenderPipelineResource();
 
-  EZ_ALWAYS_INLINE const ezRenderPipelineResourceDescriptor& GetDescriptor() { return m_Desc; }
+  W_ALWAYS_INLINE const WRenderPipelineResourceDescriptor& GetDescriptor() { return m_Desc; }
 
   /// Creates a new runtime render pipeline instance from this resource.
-  ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline() const;
+  WInternal::NewInstance<WRenderPipeline> CreateRenderPipeline() const;
 
 public:
   /// Returns a fallback pipeline resource used when the requested pipeline cannot be loaded.
-  static ezRenderPipelineResourceHandle CreateMissingPipeline();
+  static WRenderPipelineResourceHandle CreateMissingPipeline();
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezRenderPipelineResourceDescriptor m_Desc;
+  WRenderPipelineResourceDescriptor m_Desc;
 };

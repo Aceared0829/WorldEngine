@@ -6,10 +6,10 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOrthoGizmoContext, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WOrthoGizmoContext, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezOrthoGizmoContext::ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
+WOrthoGizmoContext::WOrthoGizmoContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView, const WCamera* pCamera)
 {
   m_pCamera = pCamera;
   m_bCanInteract = false;
@@ -18,11 +18,11 @@ ezOrthoGizmoContext::ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow,
 }
 
 
-void ezOrthoGizmoContext::FocusLost(bool bCancel)
+void WOrthoGizmoContext::FocusLost(bool bCancel)
 {
-  ezGizmoEvent e;
+  WGizmoEvent e;
   e.m_pGizmo = this;
-  e.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
+  e.m_Type = bCancel ? WGizmoEvent::Type::CancelInteractions : WGizmoEvent::Type::EndInteractions;
 
   m_GizmoEvents.Broadcast(e);
 
@@ -30,64 +30,64 @@ void ezOrthoGizmoContext::FocusLost(bool bCancel)
   m_bCanInteract = false;
   SetActiveInputContext(nullptr);
 
-  ezEditorInputContext::FocusLost(bCancel);
+  WEditorInputContext::FocusLost(bCancel);
 }
 
-ezEditorInput ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
+WEditorInput WOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (!IsViewInOrthoMode())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   if (GetOwnerWindow()->GetDocument()->GetSelectionManager()->IsSelectionEmpty())
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     m_bCanInteract = true;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInput ezOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
+WEditorInput WOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
   {
     m_bCanInteract = false;
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   }
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     FocusLost(false);
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
+WEditorInput WOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!e->buttons().testFlag(Qt::MouseButton::LeftButton))
   {
     m_bCanInteract = false;
-    return ezEditorInput::MayBeHandledByOthers;
+    return WEditorInput::MayBeHandledByOthers;
   }
 
   if (IsActiveInputContext())
   {
     float fDistPerPixel = 0;
 
-    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+    if (m_pCamera->GetCameraMode() == WCameraMode::OrthoFixedHeight)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().height();
 
-    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+    if (m_pCamera->GetCameraMode() == WCameraMode::OrthoFixedWidth)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
-    const ezVec3 vLastTranslationResult = m_vTranslationResult;
+    const WVec3 vLastTranslationResult = m_vTranslationResult;
 
     const QPoint mousePosition = e->globalPosition().toPoint();
 
-    const ezVec2I32 diff = ezVec2I32(mousePosition.x(), mousePosition.y()) - m_vLastMousePos;
+    const WVec2I32 diff = WVec2I32(mousePosition.x(), mousePosition.y()) - m_vLastMousePos;
 
     m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float)diff.x * fDistPerPixel;
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y * fDistPerPixel;
@@ -96,19 +96,19 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     // disable snapping when SHIFT is pressed
     if (!e->modifiers().testFlag(Qt::ShiftModifier))
-      ezSnapProvider::SnapTranslation(m_vTranslationResult);
+      WSnapProvider::SnapTranslation(m_vTranslationResult);
 
     m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
 
-    m_UnsnappedRotationResult += ezAngle::MakeFromDegree(-diff.x);
+    m_UnsnappedRotationResult += WAngle::MakeFromDegree(-diff.x);
 
-    ezAngle snappedRotation = m_UnsnappedRotationResult;
+    WAngle snappedRotation = m_UnsnappedRotationResult;
 
     // disable snapping when SHIFT is pressed
     if (!e->modifiers().testFlag(Qt::ShiftModifier))
-      ezSnapProvider::SnapRotation(snappedRotation);
+      WSnapProvider::SnapRotation(snappedRotation);
 
-    m_qRotationResult = ezQuat::MakeFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
+    m_qRotationResult = WQuat::MakeFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
 
     {
       m_fScaleMouseMove += diff.x;
@@ -125,27 +125,27 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
       // disable snapping when SHIFT is pressed
       if (!e->modifiers().testFlag(Qt::ShiftModifier))
-        ezSnapProvider::SnapScale(m_fScalingResult);
+        WSnapProvider::SnapScale(m_fScalingResult);
     }
 
     m_vLastMousePos = UpdateMouseMode(e);
 
-    ezGizmoEvent ev;
+    WGizmoEvent ev;
     ev.m_pGizmo = this;
-    ev.m_Type = ezGizmoEvent::Type::Interaction;
+    ev.m_Type = WGizmoEvent::Type::Interaction;
 
     m_GizmoEvents.Broadcast(ev);
 
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
   if (m_bCanInteract)
   {
-    m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
+    m_vLastMousePos = SetMouseMode(WEditorInputContext::MouseMode::WrapAtScreenBorders);
     m_vTranslationResult.SetZero();
     m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();
-    m_UnsnappedRotationResult = ezAngle::MakeFromRadian(0.0f);
+    m_UnsnappedRotationResult = WAngle::MakeFromRadian(0.0f);
     m_fScalingResult = 1.0f;
     m_fUnsnappedScalingResult = 1.0f;
     m_fScaleMouseMove = 0.0f;
@@ -153,18 +153,18 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     m_bCanInteract = false;
     SetActiveInputContext(this);
 
-    ezGizmoEvent ev;
+    WGizmoEvent ev;
     ev.m_pGizmo = this;
-    ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
+    ev.m_Type = WGizmoEvent::Type::BeginInteractions;
 
     m_GizmoEvents.Broadcast(ev);
-    return ezEditorInput::WasExclusivelyHandled;
+    return WEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInput::MayBeHandledByOthers;
+  return WEditorInput::MayBeHandledByOthers;
 }
 
-bool ezOrthoGizmoContext::IsViewInOrthoMode() const
+bool WOrthoGizmoContext::IsViewInOrthoMode() const
 {
-  return (GetOwnerView()->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective);
+  return (GetOwnerView()->m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective);
 }

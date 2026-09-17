@@ -9,66 +9,66 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
-const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
-const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
+const char* ToCompressionMode(WTexConvCompressionMode::Enum mode);
+const char* ToMipmapMode(WTexConvMipmapMode::Enum mode);
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDecalAssetDocumentManager, 1, WRTTIDefaultAllocator<WDecalAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
+WDecalAssetDocumentManager::WDecalAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // texture asset source files
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
+  WAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Decal";
-  m_DocTypeDesc.m_sFileExtension = "ezDecalAsset";
+  m_DocTypeDesc.m_sFileExtension = "WDecalAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.svg";
   m_DocTypeDesc.m_sAssetCategory = "Effects";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WDecalAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Decal");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinDecal";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinDecal";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail;
 }
 
-ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
+WDecalAssetDocumentManager::~WDecalAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const
+void WDecalAssetDocumentManager::AddEntriesToAssetTable(WStringView sDataDirectory, const WPlatformProfile* pAssetProfile, WDelegate<void(WStringView sGuid, WStringView sPath, WStringView sType)> addEntry) const
 {
-  ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder projectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
   projectDir.Append("/");
 
   if (projectDir.StartsWith_NoCase(sDataDirectory))
   {
-    addEntry("{ ProjectDecalAtlas }", "Default/Decals.ezBinTextureAtlas", "Decal Atlas");
+    addEntry("{ ProjectDecalAtlas }", "Default/Decals.WBinTextureAtlas", "Decal Atlas");
   }
 }
 
-ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
+WString WDecalAssetDocumentManager::GetAssetTableEntry(const WSubAsset* pSubAsset, WStringView sDataDirectory, const WPlatformProfile* pAssetProfile) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
-  return ezString();
+  return WString();
 }
 
-void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WDecalAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezDecalAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WDecalAssetDocument>())
       {
-        new ezQtDecalAssetDocumentWindow(static_cast<ezDecalAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
+        new WQtDecalAssetDocumentWindow(static_cast<WDecalAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -78,28 +78,28 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-void ezDecalAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WDecalAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezDecalAssetDocument(sPath);
+  out_pDocument = new WDecalAssetDocument(sPath);
 }
 
-void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
+WUInt64 WDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const WPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;
 }
 
-ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfile* pAssetProfile)
+WStatus WDecalAssetDocumentManager::GenerateDecalTexture(const WPlatformProfile* pAssetProfile)
 {
-  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  WAssetCurator* pCurator = WAssetCurator::GetSingleton();
   const auto& allAssets = pCurator->GetKnownSubAssets();
 
-  ezUInt64 uiAssetHash = 1;
+  WUInt64 uiAssetHash = 1;
 
   for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
   {
@@ -112,29 +112,29 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   }
 
   // the atlas has to be regenerated when the asset types change, because that may change the layout of the generated file
-  ezUInt16 uiAssetVersion = ezGetStaticRTTI<ezDecalAssetDocument>()->GetTypeVersion() & 0xFF;
-  uiAssetVersion |= (ezGetStaticRTTI<ezDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
+  WUInt16 uiAssetVersion = WGetStaticRTTI<WDecalAssetDocument>()->GetTypeVersion() & 0xFF;
+  uiAssetVersion |= (WGetStaticRTTI<WDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
 
-  ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder decalFile = WToolsProject::GetSingleton()->GetProjectDirectory();
   decalFile.AppendPath("AssetCache", GetDecalTexturePath(pAssetProfile));
 
   if (IsDecalTextureUpToDate(decalFile, uiAssetHash, uiAssetVersion))
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
-  ezTextureAtlasCreationDesc atlasDesc;
+  WTextureAtlasCreationDesc atlasDesc;
 
   // find all decal assets, extract their file information to pass it along to TexConv
   {
     atlasDesc.m_Layers.SetCount(3);
-    atlasDesc.m_Layers[0].m_Usage = ezTexConvUsage::Color;
-    atlasDesc.m_Layers[1].m_Usage = ezTexConvUsage::NormalMap;
-    atlasDesc.m_Layers[2].m_Usage = ezTexConvUsage::Linear;
+    atlasDesc.m_Layers[0].m_Usage = WTexConvUsage::Color;
+    atlasDesc.m_Layers[1].m_Usage = WTexConvUsage::NormalMap;
+    atlasDesc.m_Layers[2].m_Usage = WTexConvUsage::Linear;
     atlasDesc.m_Layers[2].m_uiNumChannels = 3;
 
     atlasDesc.m_Items.Reserve(64);
 
-    ezQtEditorApp* pEditorApp = ezQtEditorApp::GetSingleton();
-    ezStringBuilder sAbsPath;
+    WQtEditorApp* pEditorApp = WQtEditorApp::GetSingleton();
+    WStringBuilder sAbsPath;
 
     for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
     {
@@ -143,27 +143,27 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
+      W_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
-      ezDocument* pDoc = GetDocumentByPath(asset.m_pAssetInfo->m_Path.GetAbsolutePath());
+      WDocument* pDoc = GetDocumentByPath(asset.m_pAssetInfo->m_Path.GetAbsolutePath());
       if (pDoc)
         bWasOpen = true;
       else
-        pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_Path.GetAbsolutePath(), ezDocumentFlags::None);
+        pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_Path.GetAbsolutePath(), WDocumentFlags::None);
 
       if (pDoc == nullptr)
-        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath()));
+        return WStatus(WFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath()));
 
-      ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
+      WDecalAssetDocument* pDecalAsset = static_cast<WDecalAssetDocument*>(pDoc);
 
       {
         auto& item = atlasDesc.m_Items.ExpandAndGetRef();
 
         // store the GUID as the decal identifier
-        ezConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
-        item.m_uiUniqueID = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sAbsPath));
+        WConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
+        item.m_uiUniqueID = WHashingUtils::StringHashTo32(WHashingUtils::StringHash(sAbsPath));
 
         auto pDecalProps = pDecalAsset->GetProperties();
         item.m_uiFlags = 0;
@@ -172,12 +172,12 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         item.m_uiFlags |= pDecalProps->NeedsEmissive() ? DECAL_USE_EMISSIVE : 0;
         item.m_uiFlags |= pDecalProps->m_bBlendModeColorize ? DECAL_BLEND_MODE_COLORIZE : 0;
 
-        item.m_uiNumVariationsX = ezMath::Max<ezUInt8>(1, pDecalProps->m_uiNumVariationsX);
-        item.m_uiNumVariationsY = ezMath::Max<ezUInt8>(1, pDecalProps->m_uiNumVariationsY);
+        item.m_uiNumVariationsX = WMath::Max<WUInt8>(1, pDecalProps->m_uiNumVariationsX);
+        item.m_uiNumVariationsY = WMath::Max<WUInt8>(1, pDecalProps->m_uiNumVariationsY);
 
         if (!pDecalProps->NeedsBaseColor() && pDecalProps->m_sAlphaMask.IsEmpty())
         {
-          return ezStatus("Decal has neither a base color nor an alpha mask texture");
+          return WStatus("Decal has neither a base color nor an alpha mask texture");
         }
 
         if (!pDecalProps->m_sAlphaMask.IsEmpty())
@@ -185,7 +185,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
           sAbsPath = pDecalAsset->GetProperties()->m_sAlphaMask;
           if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
-            return ezStatus(ezFmt("Invalid alpha mask texture path '{0}'", sAbsPath));
+            return WStatus(WFmt("Invalid alpha mask texture path '{0}'", sAbsPath));
           }
 
           item.m_sAlphaInput = sAbsPath;
@@ -196,7 +196,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
           sAbsPath = pDecalAsset->GetProperties()->m_sBaseColor;
           if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
-            return ezStatus(ezFmt("Invalid base color texture path '{0}'", sAbsPath));
+            return WStatus(WFmt("Invalid base color texture path '{0}'", sAbsPath));
           }
 
           item.m_sLayerInput[0] = sAbsPath;
@@ -207,7 +207,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
           sAbsPath = pDecalAsset->GetProperties()->m_sNormal;
           if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
-            return ezStatus(ezFmt("Invalid normal texture path '{0}'", sAbsPath));
+            return WStatus(WFmt("Invalid normal texture path '{0}'", sAbsPath));
           }
 
           item.m_sLayerInput[1] = sAbsPath;
@@ -218,7 +218,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
           sAbsPath = pDecalAsset->GetProperties()->m_sORM;
           if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
-            return ezStatus(ezFmt("Invalid ORM texture path '{0}'", sAbsPath));
+            return WStatus(WFmt("Invalid ORM texture path '{0}'", sAbsPath));
           }
 
           item.m_sLayerInput[2] = sAbsPath;
@@ -229,7 +229,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
           sAbsPath = pDecalAsset->GetProperties()->m_sEmissive;
           if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
-            return ezStatus(ezFmt("Invalid emissive texture path '{0}'", sAbsPath));
+            return WStatus(WFmt("Invalid emissive texture path '{0}'", sAbsPath));
           }
 
           item.m_sLayerInput[2] = sAbsPath;
@@ -242,41 +242,41 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     }
   }
 
-  ezAssetFileHeader header;
+  WAssetFileHeader header;
   header.SetFileHashAndVersion(uiAssetHash, uiAssetVersion);
 
-  ezStatus result(EZ_SUCCESS);
+  WStatus result(W_SUCCESS);
 
   // Send information to TexConv to do all the work
   {
-    ezStringBuilder texGroupFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    WStringBuilder texGroupFile = WToolsProject::GetSingleton()->GetProjectDirectory();
     texGroupFile.AppendPath("AssetCache", GetDecalTexturePath(pAssetProfile));
-    texGroupFile.ChangeFileExtension("ezDecalAtlasDesc");
+    texGroupFile.ChangeFileExtension("WDecalAtlasDesc");
 
     if (atlasDesc.Save(texGroupFile).Failed())
-      return ezStatus(ezFmt("Failed to save texture atlas descriptor file '{0}'", texGroupFile));
+      return WStatus(WFmt("Failed to save texture atlas descriptor file '{0}'", texGroupFile));
 
     result = RunTexConv(decalFile, texGroupFile, header);
   }
 
-  ezFileStats stat;
-  if (ezOSFile::GetFileStats(decalFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+  WFileStats stat;
+  if (WOSFile::GetFileStats(decalFile, stat).Succeeded() && stat.m_uiFileSize == 0)
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(decalFile).IgnoreResult();
-    result = ezStatus(ezFmt("File does not exist: '{}'", decalFile));
+    WOSFile::DeleteFile(decalFile).IgnoreResult();
+    result = WStatus(WFmt("File does not exist: '{}'", decalFile));
   }
 
   return result;
 }
 
-bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash, ezUInt16 uiAssetVersion) const
+bool WDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, WUInt64 uiAssetHash, WUInt16 uiAssetVersion) const
 {
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(szDecalFile).Succeeded())
   {
-    ezAssetFileHeader header;
+    WAssetFileHeader header;
     header.Read(file).IgnoreResult();
 
     return header.IsFileUpToDate(uiAssetHash, uiAssetVersion);
@@ -285,37 +285,37 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
   return false;
 }
 
-ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezPlatformProfile* pAssetProfile0) const
+WString WDecalAssetDocumentManager::GetDecalTexturePath(const WPlatformProfile* pAssetProfile0) const
 {
-  const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
-  ezStringBuilder result = "Decals";
-  GenerateOutputFilename(result, pAssetProfile, "ezBinTextureAtlas", true);
+  const WPlatformProfile* pAssetProfile = WAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
+  WStringBuilder result = "Decals";
+  GenerateOutputFilename(result, pAssetProfile, "WBinTextureAtlas", true);
 
   return result;
 }
 
-ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const char* szInputFile, const ezAssetFileHeader& AssetHeader)
+WStatus WDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const char* szInputFile, const WAssetFileHeader& AssetHeader)
 {
   QStringList arguments;
-  ezStringBuilder temp;
+  WStringBuilder temp;
 
   // Asset Version
   {
     arguments << "-assetVersion";
-    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
+    arguments << WConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
   }
 
   // Asset Hash
   {
-    const ezUInt64 uiHash64 = AssetHeader.GetFileHash();
-    const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
-    const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
+    const WUInt64 uiHash64 = AssetHeader.GetFileHash();
+    const WUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
+    const WUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -328,15 +328,15 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "Atlas";
 
   arguments << "-compression";
-  arguments << ToCompressionMode(ezTexConvCompressionMode::High);
+  arguments << ToCompressionMode(WTexConvCompressionMode::High);
 
   arguments << "-mipmaps";
-  arguments << ToMipmapMode(ezTexConvMipmapMode::Linear);
+  arguments << ToMipmapMode(WTexConvMipmapMode::Linear);
 
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  W_SUCCEED_OR_RETURN(WQtEditorApp::GetSingleton()->ExecuteTool("WTexConv", arguments, 180, WLog::GetThreadLocalLogSystem()));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

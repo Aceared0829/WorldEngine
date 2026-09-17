@@ -11,49 +11,49 @@
 #include <Foundation/Profiling/Profiling.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltWaterVolumeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltWaterVolumeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
-    EZ_MEMBER_PROPERTY("Flow", m_vFlow),
-    EZ_MEMBER_PROPERTY("NoiseStrength", m_fNoiseStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
+    W_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new WDefaultValueAttribute(WVec3(10.0f)), new WClampValueAttribute(WVec3(0.0f), WVariant())),
+    W_MEMBER_PROPERTY("Flow", m_vFlow),
+    W_MEMBER_PROPERTY("NoiseStrength", m_fNoiseStrength)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new WDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTriggerTriggered, OnMsgTriggerTriggered),
+    W_MESSAGE_HANDLER(WMsgTriggerTriggered, OnMsgTriggerTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Effects"),
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::GetCategoryColor("Physics", ezColorScheme::CategoryColorUsage::ViewportIcon)),
-    new ezDirectionVisualizerAttribute("Flow", 1.0f, ezColorScheme::GetCategoryColor("Physics", ezColorScheme::CategoryColorUsage::ViewportIcon)),
+    new WCategoryAttribute("Physics/Jolt/Effects"),
+    new WBoxManipulatorAttribute("Extents", 1.0f, true),
+    new WBoxVisualizerAttribute("Extents", 1.0f, WColorScheme::GetCategoryColor("Physics", WColorScheme::CategoryColorUsage::ViewportIcon)),
+    new WDirectionVisualizerAttribute("Flow", 1.0f, WColorScheme::GetCategoryColor("Physics", WColorScheme::CategoryColorUsage::ViewportIcon)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltWaterVolumeComponentManager::ezJoltWaterVolumeComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezJoltWaterVolumeComponent, ezBlockStorageType::FreeList>(pWorld)
+WJoltWaterVolumeComponentManager::WJoltWaterVolumeComponentManager(WWorld* pWorld)
+  : WComponentManager<WJoltWaterVolumeComponent, WBlockStorageType::FreeList>(pWorld)
   , m_Noise(12345)
 {
 }
 
-ezJoltWaterVolumeComponentManager::~ezJoltWaterVolumeComponentManager() = default;
+WJoltWaterVolumeComponentManager::~WJoltWaterVolumeComponentManager() = default;
 
-void ezJoltWaterVolumeComponentManager::UpdateWaterVolumes(ezTime deltaTime)
+void WJoltWaterVolumeComponentManager::UpdateWaterVolumes(WTime deltaTime)
 {
-  EZ_PROFILE_SCOPE("UpdateWaterVolumes");
+  W_PROFILE_SCOPE("UpdateWaterVolumes");
 
-  auto pJoltSystem = GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem();
+  auto pJoltSystem = GetWorld()->GetModule<WJoltWorldModule>()->GetJoltSystem();
 
   for (auto it = GetComponents(0); it.IsValid(); it.Next())
   {
@@ -66,22 +66,22 @@ void ezJoltWaterVolumeComponentManager::UpdateWaterVolumes(ezTime deltaTime)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezJoltWaterVolumeComponent::ezJoltWaterVolumeComponent() = default;
-ezJoltWaterVolumeComponent::~ezJoltWaterVolumeComponent() = default;
+WJoltWaterVolumeComponent::WJoltWaterVolumeComponent() = default;
+WJoltWaterVolumeComponent::~WJoltWaterVolumeComponent() = default;
 
-void ezJoltWaterVolumeComponent::OnSimulationStarted()
+void WJoltWaterVolumeComponent::OnSimulationStarted()
 {
-  ezJoltTriggerComponent* pTriggerComponent = nullptr;
+  WJoltTriggerComponent* pTriggerComponent = nullptr;
   if (GetOwner()->TryGetComponentOfBaseType(pTriggerComponent) == false)
   {
-    ezLog::Warning("ezJoltWaterVolumeComponent requires an ezJoltTriggerComponent on the same game object.");
+    WLog::Warning("WJoltWaterVolumeComponent requires an WJoltTriggerComponent on the same game object.");
   }
 
-  auto pJoltSystem = GetWorld()->GetOrCreateModule<ezJoltWorldModule>()->GetJoltSystem();
-  UpdateWaterPlane(ezJoltConversionUtils::ToVec3(pJoltSystem->GetGravity()));
+  auto pJoltSystem = GetWorld()->GetOrCreateModule<WJoltWorldModule>()->GetJoltSystem();
+  UpdateWaterPlane(WJoltConversionUtils::ToVec3(pJoltSystem->GetGravity()));
 }
 
-void ezJoltWaterVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltWaterVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -93,10 +93,10 @@ void ezJoltWaterVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_sInteraction;
 }
 
-void ezJoltWaterVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltWaterVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  /*const ezUInt32 uiVersion =*/inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  /*const WUInt32 uiVersion =*/inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_vExtents;
@@ -106,89 +106,89 @@ void ezJoltWaterVolumeComponent::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_sInteraction;
 }
 
-void ezJoltWaterVolumeComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
+void WJoltWaterVolumeComponent::OnMsgTriggerTriggered(WMsgTriggerTriggered& msg)
 {
-  if (msg.m_TriggerState != ezTriggerState::Activated && msg.m_TriggerState != ezTriggerState::Deactivated)
+  if (msg.m_TriggerState != WTriggerState::Activated && msg.m_TriggerState != WTriggerState::Deactivated)
     return;
 
-  ezGameObject* pSubmergedObject = nullptr;
+  WGameObject* pSubmergedObject = nullptr;
   if (!GetWorld()->TryGetObject(msg.m_hTriggeringObject, pSubmergedObject))
     return;
 
-  ezJoltDynamicActorComponent* pActorComponent = nullptr;
+  WJoltDynamicActorComponent* pActorComponent = nullptr;
   if (!pSubmergedObject->TryGetComponentOfBaseType(pActorComponent) || pActorComponent->GetKinematic())
     return;
 
-  if (msg.m_TriggerState == ezTriggerState::Activated)
+  if (msg.m_TriggerState == WTriggerState::Activated)
   {
     if (m_hSurface.IsValid() && m_sInteraction.IsEmpty() == false)
     {
-      ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WSurfaceResource> pSurface(m_hSurface, WResourceAcquireMode::BlockTillLoaded);
 
-      const ezVec3 vPos = m_SurfacePlane.ProjectOntoPlane(pSubmergedObject->GetGlobalPosition());
-      const ezVec3 vNormal = m_SurfacePlane.m_vNormal;
-      const ezVec3 vDirection = pSubmergedObject->GetLinearVelocity();
+      const WVec3 vPos = m_SurfacePlane.ProjectOntoPlane(pSubmergedObject->GetGlobalPosition());
+      const WVec3 vNormal = m_SurfacePlane.m_vNormal;
+      const WVec3 vDirection = pSubmergedObject->GetLinearVelocity();
 
-      pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), vPos, vNormal, vDirection, m_sInteraction, &GetOwner()->GetTeamID());
+      pSurface->InteractWithSurface(GetWorld(), WGameObjectHandle(), vPos, vNormal, vDirection, m_sInteraction, &GetOwner()->GetTeamID());
     }
 
     m_SubmergedActors.Insert(pActorComponent->GetHandle());
   }
-  else if (msg.m_TriggerState == ezTriggerState::Deactivated)
+  else if (msg.m_TriggerState == WTriggerState::Deactivated)
   {
     m_SubmergedActors.Remove(pActorComponent->GetHandle());
   }
 }
 
-void ezJoltWaterVolumeComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+void WJoltWaterVolumeComponent::CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial)
 {
   // can't create boxes smaller than this
-  ezVec3 size = m_vExtents * 0.5f;
-  size.x = ezMath::Max(size.x, JPH::cDefaultConvexRadius);
-  size.y = ezMath::Max(size.y, JPH::cDefaultConvexRadius);
-  size.z = ezMath::Max(size.z, JPH::cDefaultConvexRadius);
+  WVec3 size = m_vExtents * 0.5f;
+  size.x = WMath::Max(size.x, JPH::cDefaultConvexRadius);
+  size.y = WMath::Max(size.y, JPH::cDefaultConvexRadius);
+  size.z = WMath::Max(size.z, JPH::cDefaultConvexRadius);
 
-  auto pNewShape = new JPH::BoxShape(ezJoltConversionUtils::ToVec3(size));
+  auto pNewShape = new JPH::BoxShape(WJoltConversionUtils::ToVec3(size));
   pNewShape->AddRef();
   pNewShape->SetDensity(fDensity);
-  pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
+  pNewShape->SetUserData(reinterpret_cast<WUInt64>(GetUserData()));
   pNewShape->SetMaterial(pMaterial);
 
-  ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+  WJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+  sub.m_Transform = WTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
-void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime deltaTime)
+void WJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, WTime deltaTime)
 {
-  const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
-  const ezVec3 vScaledExtents = m_vExtents.CompMul(globalTransform.m_vScale);
+  const WTransform globalTransform = GetOwner()->GetGlobalTransform();
+  const WVec3 vScaledExtents = m_vExtents.CompMul(globalTransform.m_vScale);
 
-  if (vScaledExtents.x * vScaledExtents.y * vScaledExtents.z < ezMath::DefaultEpsilon<float>())
+  if (vScaledExtents.x * vScaledExtents.y * vScaledExtents.z < WMath::DefaultEpsilon<float>())
     return;
 
-  const ezVec3 gravity = ezJoltConversionUtils::ToVec3(joltSystem.GetGravity());
+  const WVec3 gravity = WJoltConversionUtils::ToVec3(joltSystem.GetGravity());
 
-  if (GetOwner()->IsDynamic() || m_vGravity.IsEqual(gravity, ezMath::DefaultEpsilon<float>()) == false)
+  if (GetOwner()->IsDynamic() || m_vGravity.IsEqual(gravity, WMath::DefaultEpsilon<float>()) == false)
   {
     UpdateWaterPlane(gravity);
   }
 
-  const JPH::Vec3 flow = ezJoltConversionUtils::ToVec3(globalTransform.TransformDirection(m_vFlow));
+  const JPH::Vec3 flow = WJoltConversionUtils::ToVec3(globalTransform.TransformDirection(m_vFlow));
   const float fDeltaTime = deltaTime.AsFloatInSeconds();
 
-  const ezVec3 vSurfaceTangent = m_SurfacePlane.m_vNormal.GetOrthogonalVector().GetNormalized();
-  const ezVec3 vSurfaceBitangent = m_SurfacePlane.m_vNormal.CrossRH(vSurfaceTangent).GetNormalized();
+  const WVec3 vSurfaceTangent = m_SurfacePlane.m_vNormal.GetOrthogonalVector().GetNormalized();
+  const WVec3 vSurfaceBitangent = m_SurfacePlane.m_vNormal.CrossRH(vSurfaceTangent).GetNormalized();
 
   m_fNoiseTime += fDeltaTime * 0.5f;
   if (m_fNoiseTime > 1000.0f)
     m_fNoiseTime -= 1000.0f;
 
-  auto& noise = static_cast<ezJoltWaterVolumeComponentManager*>(GetOwningManager())->m_Noise;
+  auto& noise = static_cast<WJoltWaterVolumeComponentManager*>(GetOwningManager())->m_Noise;
 
   for (auto it : m_SubmergedActors)
   {
-    ezJoltDynamicActorComponent* pActorComponent = nullptr;
+    WJoltDynamicActorComponent* pActorComponent = nullptr;
     if (!GetWorld()->TryGetComponent(it, pActorComponent) || pActorComponent->IsActiveAndSimulating() == false)
       continue;
 
@@ -196,24 +196,24 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
     JPH::Body& body = lock.GetBody();
     if (body.IsActive() && body.IsDynamic())
     {
-      const ezVec3 pos = ezJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
-      ezVec3 surfacePosition = m_SurfacePlane.ProjectOntoPlane(pos);
+      const WVec3 pos = WJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
+      WVec3 surfacePosition = m_SurfacePlane.ProjectOntoPlane(pos);
 
       if (m_fNoiseStrength != 0.0f)
       {
         const float noisePosX = vSurfaceTangent.Dot(surfacePosition);
         const float noisePosY = vSurfaceBitangent.Dot(surfacePosition);
 
-        ezSimdVec4f noisePos = ezSimdConversion::ToVec3(ezVec3(noisePosX, noisePosY, m_fNoiseTime));
-        ezSimdVec4f noiseValue = noise.NoiseZeroToOne(ezSimdVec4f(noisePos.x()), ezSimdVec4f(noisePos.y()), ezSimdVec4f(noisePos.z()));
+        WSimdVec4f noisePos = WSimdConversion::ToVec3(WVec3(noisePosX, noisePosY, m_fNoiseTime));
+        WSimdVec4f noiseValue = noise.NoiseZeroToOne(WSimdVec4f(noisePos.x()), WSimdVec4f(noisePos.y()), WSimdVec4f(noisePos.z()));
 
         surfacePosition += m_SurfacePlane.m_vNormal * (float(noiseValue.x()) * 2 - 1) * m_fNoiseStrength;
 
         body.ResetSleepTimer();
       }
 
-      const JPH::Vec3 surfacePositionJolt = ezJoltConversionUtils::ToVec3(surfacePosition);
-      const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_SurfacePlane.m_vNormal);
+      const JPH::Vec3 surfacePositionJolt = WJoltConversionUtils::ToVec3(surfacePosition);
+      const JPH::Vec3 surfaceNormal = WJoltConversionUtils::ToVec3(m_SurfacePlane.m_vNormal);
       const float fBuoyancyFactor = pActorComponent->m_fBuoyancyFactor;
 
       body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, fBuoyancyFactor, 0.3f, 0.05f, flow, joltSystem.GetGravity(), fDeltaTime);
@@ -221,24 +221,24 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
   }
 }
 
-void ezJoltWaterVolumeComponent::UpdateWaterPlane(const ezVec3& vGravity)
+void WJoltWaterVolumeComponent::UpdateWaterPlane(const WVec3& vGravity)
 {
-  const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
-  const ezVec3 halfExtents = m_vExtents * 0.5f;
-  const ezVec3 vGravityDir = vGravity.GetNormalized();
+  const WTransform globalTransform = GetOwner()->GetGlobalTransform();
+  const WVec3 halfExtents = m_vExtents * 0.5f;
+  const WVec3 vGravityDir = vGravity.GetNormalized();
   float fMinDot = 1000.0f;
 
-  for (ezUInt32 i = 0; i < 6; ++i)
+  for (WUInt32 i = 0; i < 6; ++i)
   {
-    ezVec3 vNormal = ezBasisAxis::GetBasisVector(static_cast<ezBasisAxis::Enum>(i));
-    ezVec3 vPoint = vNormal.CompMul(halfExtents);
+    WVec3 vNormal = WBasisAxis::GetBasisVector(static_cast<WBasisAxis::Enum>(i));
+    WVec3 vPoint = vNormal.CompMul(halfExtents);
     vNormal = globalTransform.TransformDirection(vNormal).GetNormalized();
 
     float fDot = vNormal.Dot(vGravityDir);
     if (fDot < fMinDot)
     {
       vPoint = globalTransform.TransformPosition(vPoint);
-      m_SurfacePlane = ezPlane::MakeFromNormalAndPoint(vNormal, vPoint);
+      m_SurfacePlane = WPlane::MakeFromNormalAndPoint(vNormal, vPoint);
 
       fMinDot = fDot;
     }
@@ -247,4 +247,4 @@ void ezJoltWaterVolumeComponent::UpdateWaterPlane(const ezVec3& vGravity)
   m_vGravity = vGravity;
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltWaterVolumeComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltWaterVolumeComponent);

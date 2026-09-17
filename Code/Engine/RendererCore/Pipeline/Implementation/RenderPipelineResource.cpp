@@ -9,50 +9,50 @@
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineResource, 1, WRTTIDefaultAllocator<WRenderPipelineResource>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRenderPipelineResource);
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WRenderPipelineResource);
 // clang-format on
 
-ezRenderPipelineResource::ezRenderPipelineResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WRenderPipelineResource::WRenderPipelineResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRenderPipeline() const
+WInternal::NewInstance<WRenderPipeline> WRenderPipelineResource::CreateRenderPipeline() const
 {
-  if (GetLoadingState() != ezResourceState::Loaded)
+  if (GetLoadingState() != WResourceState::Loaded)
   {
-    ezLog::Error("Can't create render pipeline '{0}', the resource is not loaded!", GetResourceID());
-    return ezInternal::NewInstance<ezRenderPipeline>(nullptr, nullptr);
+    WLog::Error("Can't create render pipeline '{0}', the resource is not loaded!", GetResourceID());
+    return WInternal::NewInstance<WRenderPipeline>(nullptr, nullptr);
   }
 
-  return ezRenderPipelineResourceLoader::CreateRenderPipeline(m_Desc);
+  return WRenderPipelineResourceLoader::CreateRenderPipeline(m_Desc);
 }
 
 // static
-ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
+WRenderPipelineResourceHandle WRenderPipelineResource::CreateMissingPipeline()
 {
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  ezDynamicArray<const ezRenderPipelinePass*> passPointers;
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  WDynamicArray<const WRenderPipelinePass*> passPointers;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
 
   {
-    ezUniquePtr<ezSourcePass> pPass = EZ_DEFAULT_NEW(ezSourcePass, "ColorSource");
+    WUniquePtr<WSourcePass> pPass = W_DEFAULT_NEW(WSourcePass, "ColorSource");
     passPointers.PushBack(pPass.Borrow());
     passes.PushBack(std::move(pPass));
   }
 
   {
-    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    WUniquePtr<WSimpleRenderPass> pPass = W_DEFAULT_NEW(WSimpleRenderPass);
     pPass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
     passPointers.PushBack(pPass.Borrow());
     passes.PushBack(std::move(pPass));
   }
 
   {
-    ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    WUniquePtr<WTargetPass> pPass = W_DEFAULT_NEW(WTargetPass);
     passPointers.PushBack(pPass.Borrow());
     passes.PushBack(std::move(pPass));
   }
@@ -60,92 +60,92 @@ ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
   connections.PushBack({0, 1, "Output", "Color"});
   connections.PushBack({1, 2, "Color", "Color0"});
 
-  ezRenderPipelineResourceDescriptor desc;
-  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
-  ezMemoryStreamWriter writer(&storage);
-  ezRenderPipelineResourceLoader::ExportPipeline(passPointers, {}, connections, writer).AssertSuccess("Failed to serialize missing render pipeline");
+  WRenderPipelineResourceDescriptor desc;
+  WMemoryStreamContainerWrapperStorage<WDynamicArray<WUInt8>> storage(&desc.m_SerializedPipeline);
+  WMemoryStreamWriter writer(&storage);
+  WRenderPipelineResourceLoader::ExportPipeline(passPointers, {}, connections, writer).AssertSuccess("Failed to serialize missing render pipeline");
 
-  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MissingRenderPipeline", std::move(desc), "MissingRenderPipeline");
+  return WResourceManager::CreateResource<WRenderPipelineResource>("MissingRenderPipeline", std::move(desc), "MissingRenderPipeline");
 }
 
-ezResourceLoadDesc ezRenderPipelineResource::UnloadData(Unload WhatToUnload)
+WResourceLoadDesc WRenderPipelineResource::UnloadData(Unload WhatToUnload)
 {
   m_Desc.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = WResourceState::Unloaded;
 
   return res;
 }
 
-ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Stream)
+WResourceLoadDesc WRenderPipelineResource::UpdateContent(WStreamReader* Stream)
 {
   m_Desc.Clear();
 
-  ezResourceLoadDesc res;
+  WResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
+  res.m_State = WResourceState::Loaded;
 
   if (Stream == nullptr)
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
+    res.m_State = WResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezStringBuilder sAbsFilePath;
+  WStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  if (sAbsFilePath.HasExtension("ezBinRenderPipeline"))
+  if (sAbsFilePath.HasExtension("WBinRenderPipeline"))
   {
-    ezStringBuilder sTemp, sTemp2;
+    WStringBuilder sTemp, sTemp2;
 
-    ezAssetFileHeader AssetHash;
+    WAssetFileHeader AssetHash;
     AssetHash.Read(*Stream).IgnoreResult();
 
-    ezUInt8 uiVersion = 0;
+    WUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
 
     // Version 1 was using old tooling serialization. Code path removed.
     if (uiVersion == 1)
     {
-      res.m_State = ezResourceState::LoadedResourceMissing;
-      ezLog::Error("Failed to load old ezRenderPipelineResource '{}'. Needs re-transform.", sAbsFilePath);
+      res.m_State = WResourceState::LoadedResourceMissing;
+      WLog::Error("Failed to load old WRenderPipelineResource '{}'. Needs re-transform.", sAbsFilePath);
       return res;
     }
-    EZ_ASSERT_DEV(uiVersion == 2, "Unknown ezBinRenderPipeline version {0}", uiVersion);
+    W_ASSERT_DEV(uiVersion == 2, "Unknown WBinRenderPipeline version {0}", uiVersion);
 
-    ezUInt32 uiSize = 0;
+    WUInt32 uiSize = 0;
     (*Stream) >> uiSize;
 
     m_Desc.m_SerializedPipeline.SetCountUninitialized(uiSize);
     Stream->ReadBytes(m_Desc.m_SerializedPipeline.GetData(), uiSize);
 
-    EZ_ASSERT_DEV(uiSize > 0, "RenderPipeline resourse contains no pipeline data!");
+    W_ASSERT_DEV(uiSize > 0, "RenderPipeline resourse contains no pipeline data!");
   }
   else
   {
-    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezBinRenderPipeline' files can be loaded as ezRenderPipelineResource", sAbsFilePath);
+    W_REPORT_FAILURE("The file '{0}' is unsupported, only '.WBinRenderPipeline' files can be loaded as WRenderPipelineResource", sAbsFilePath);
   }
 
   return res;
 }
 
-void ezRenderPipelineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void WRenderPipelineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezRenderPipelineResource) + (ezUInt32)(m_Desc.m_SerializedPipeline.GetCount());
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(WRenderPipelineResource) + (WUInt32)(m_Desc.m_SerializedPipeline.GetCount());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResourceDescriptor)
+W_RESOURCE_IMPLEMENT_CREATEABLE(WRenderPipelineResource, WRenderPipelineResourceDescriptor)
 {
   m_Desc = descriptor;
 
-  ezResourceLoadDesc res;
-  res.m_State = ezResourceState::Loaded;
+  WResourceLoadDesc res;
+  res.m_State = WResourceState::Loaded;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
@@ -154,4 +154,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResou
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResource);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResource);

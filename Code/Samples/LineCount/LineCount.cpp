@@ -16,10 +16,10 @@
 // If you create a variable that somehow needs to have an allocator, an assert will fail.
 // Instead you should initialize such variables dynamically (e.g. make it into a pointer and create it at startup,
 // and destroy it before shutdown, to prevent messages about memory leaks).
-// However, if you absolutely need a global/static variable and cannot initialize it dynamically, wrap it inside the 'ezStatic'
+// However, if you absolutely need a global/static variable and cannot initialize it dynamically, wrap it inside the 'WStatic'
 // template. This will make sure that the variable uses a different allocator, such that it won't be counted as a memory leak
 // at shutdown.
-ezLogWriter::HTML g_HtmlLog;
+WLogWriter::HTML g_HtmlLog;
 
 struct FileStats
 {
@@ -43,38 +43,38 @@ struct FileStats
     m_uiWords += rhs.m_uiWords;
   }
 
-  ezUInt32 m_uiFileCount;
-  ezUInt32 m_uiLines;
-  ezUInt32 m_uiEmptyLines;
-  ezUInt32 m_uiBytes;
-  ezUInt32 m_uiCharacters;
-  ezUInt32 m_uiWords;
+  WUInt32 m_uiFileCount;
+  WUInt32 m_uiLines;
+  WUInt32 m_uiEmptyLines;
+  WUInt32 m_uiBytes;
+  WUInt32 m_uiCharacters;
+  WUInt32 m_uiWords;
 };
 
-ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_fileContent)
+WResult ReadCompleteFile(const char* szFile, WDynamicArray<WUInt8>& out_fileContent)
 {
   out_fileContent.Clear();
 
-  ezFileReader File;
-  if (File.Open(szFile) == EZ_FAILURE)
-    return EZ_FAILURE;
+  WFileReader File;
+  if (File.Open(szFile) == W_FAILURE)
+    return W_FAILURE;
 
-  ezUInt8 uiTemp[1024];
+  WUInt8 uiTemp[1024];
   while (true)
   {
-    const ezUInt64 uiRead = File.ReadBytes(uiTemp, 1023);
+    const WUInt64 uiRead = File.ReadBytes(uiTemp, 1023);
 
     if (uiRead == 0)
-      return EZ_SUCCESS; // file is automatically closed here
+      return W_SUCCESS; // file is automatically closed here
 
-    out_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32)uiRead));
+    out_fileContent.PushBackRange(WArrayPtr<WUInt8>(uiTemp, (WUInt32)uiRead));
   }
 
-  return EZ_SUCCESS; // file is automatically closed here
+  return W_SUCCESS; // file is automatically closed here
 }
 
 // Removes all spaces and tabs from the front and end of a line
-void TrimWhitespaces(ezStringBuilder& ref_sLine)
+void TrimWhitespaces(WStringBuilder& ref_sLine)
 {
   bool b = true;
 
@@ -109,33 +109,33 @@ FileStats GetFileStats(const char* szFile)
 {
   FileStats s;
 
-  ezDynamicArray<ezUInt8> FileContent;
-  if (ReadCompleteFile(szFile, FileContent) == EZ_FAILURE)
+  WDynamicArray<WUInt8> FileContent;
+  if (ReadCompleteFile(szFile, FileContent) == W_FAILURE)
     return s;
 
   FileContent.PushBack('\0');
 
-  if (!ezUnicodeUtils::IsValidUtf8((const char*)&FileContent[0]))
+  if (!WUnicodeUtils::IsValidUtf8((const char*)&FileContent[0]))
   {
-    ezLog::Warning("File is not valid Utf-8: '{0}'", szFile);
+    WLog::Warning("File is not valid Utf-8: '{0}'", szFile);
     return s;
   }
 
-  // We should not append that directly at the ezStringBuilder, as the file read operations may end
-  // in between a Utf8 sequence and then ezStringBuilder will complain about invalid Utf8 strings.
-  ezStringBuilder sContent = (const char*)&FileContent[0];
+  // We should not append that directly at the WStringBuilder, as the file read operations may end
+  // in between a Utf8 sequence and then WStringBuilder will complain about invalid Utf8 strings.
+  WStringBuilder sContent = (const char*)&FileContent[0];
 
   // count the number of lines
   {
-    ezDynamicArray<ezString> Lines;
+    WDynamicArray<WString> Lines;
     sContent.ReplaceAll("\r", ""); // remove carriage return
 
     // splits the string at occurrence of '\n' and adds each line to the 'Lines' container
     sContent.Split(true, Lines, "\n");
 
-    ezStringBuilder sLine;
+    WStringBuilder sLine;
 
-    for (ezUInt32 l = 0; l < Lines.GetCount(); ++l)
+    for (WUInt32 l = 0; l < Lines.GetCount(); ++l)
     {
       sLine = Lines[l].GetData();
 
@@ -147,12 +147,12 @@ FileStats GetFileStats(const char* szFile)
       {
         ++s.m_uiLines;
 
-        ezStringView LineIt = sLine;
+        WStringView LineIt = sLine;
 
         bool bIsInWord = false;
         while (!LineIt.IsEmpty())
         {
-          const bool bNewWord = ezStringUtils::IsIdentifierDelimiter_C_Code(LineIt.GetCharacter());
+          const bool bNewWord = WStringUtils::IsIdentifierDelimiter_C_Code(LineIt.GetCharacter());
 
           if (bIsInWord != bNewWord)
           {
@@ -174,59 +174,59 @@ FileStats GetFileStats(const char* szFile)
 }
 
 
-class ezLineCountApp : public ezApplication
+class WLineCountApp : public WApplication
 {
 private:
-  ezString m_sSearchDir;
+  WString m_sSearchDir;
 
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezLineCountApp()
-    : ezApplication("LineCountApp")
+  WLineCountApp()
+    : WApplication("LineCountApp")
   {
     m_sSearchDir = "";
   }
 
   virtual void AfterCoreSystemsStartup() override
   {
-    auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+    auto pCmd = WCommandLineUtils::GetGlobalInstance();
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     if (pCmd->GetParameterCount() > 1)
-      m_sSearchDir = ezCommandLineUtils::GetGlobalInstance()->GetParameter(1);
+      m_sSearchDir = WCommandLineUtils::GetGlobalInstance()->GetParameter(1);
 
     if (m_sSearchDir.IsEmpty())
     {
-      ezStringBuilder sEzCode = ezFileSystem::GetSdkRootDirectory();
+      WStringBuilder sEzCode = WFileSystem::GetSdkRootDirectory();
       sEzCode.AppendPath("Code");
       sEzCode.MakeCleanPath();
 
       m_sSearchDir = sEzCode;
     }
 
-    ezLog::Info("Search-dir: {}", m_sSearchDir);
+    WLog::Info("Search-dir: {}", m_sSearchDir);
 
     // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
     // As we only need access to files through global paths, we add the "empty data directory"
     // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
     // since we don't add any further data dirs, this is it
-    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+    WFileSystem::AddDataDirectory("", "", ":", WDataDirUsage::AllowWrites).IgnoreResult();
 
 
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
 
-    ezStringBuilder sLogPath = m_sSearchDir;
+    WStringBuilder sLogPath = m_sSearchDir;
     sLogPath.PathParentDirectory(); // go one folder up
     sLogPath.AppendPath("CodeStatistics.htm");
 
     // The console log writer will pass all log messages to the standard console window
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
     // The Visual Studio log writer will pass all messages to the output window in VS
-    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
     // The HTML log writer will write all log messages to an HTML file
     g_HtmlLog.BeginLog(sLogPath.GetData(), "Code Statistics");
-    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog));
+    WGlobalLog::AddLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &g_HtmlLog));
   }
 
   virtual void BeforeCoreSystemsShutdown() override
@@ -237,19 +237,19 @@ public:
 
   virtual void Run() override
   {
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS) || defined(W_DOCS)
 
-    ezUInt32 uiDirectories = 0;
-    ezUInt32 uiFiles = 0;
-    ezMap<ezString, FileStats> FileTypeStatistics;
+    WUInt32 uiDirectories = 0;
+    WUInt32 uiFiles = 0;
+    WMap<WString, FileStats> FileTypeStatistics;
 
     // get a directory iterator for the search directory
-    ezFileSystemIterator it;
+    WFileSystemIterator it;
     it.StartSearch(m_sSearchDir);
 
     if (it.IsValid())
     {
-      ezStringBuilder b, sExt;
+      WStringBuilder b, sExt;
 
       // while there are additional files / folders
       for (; it.IsValid(); it.Next())
@@ -259,7 +259,7 @@ public:
         b.AppendPath(it.GetStats().m_sName.GetData());
 
         // log some info
-        ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b);
+        WLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b);
 
         if (it.GetStats().m_bIsDirectory)
         {
@@ -284,15 +284,15 @@ public:
       }
 
       // now output some statistics
-      ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float)uiDirectories, 1));
+      WLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, WArgF(uiFiles / (float)uiDirectories, 1));
 
       FileStats AllTypes;
 
       // iterate over all elements in the amp
-      ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
+      WMap<WString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes,
+        WLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes,
           MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
@@ -300,19 +300,19 @@ public:
         ++MapIt;
       }
 
-      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes,
+      WLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes,
         AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
     {
-      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
+      WLog::Error("Could not search the directory '{0}'", m_sSearchDir);
     }
 #else
-    EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
+    W_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif
 
     QuitApplication();
   }
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezLineCountApp);
+W_APPLICATION_ENTRY_POINT(WLineCountApp);

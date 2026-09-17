@@ -5,41 +5,41 @@
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 
-ezResult ezSoundInterface::PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+WResult WSoundInterface::PlaySound(WWorld* pWorld, WStringView sResourceID, const WTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  if (WSoundInterface* pSoundInterface = WSingletonRegistry::GetSingletonInstance<WSoundInterface>())
   {
     return pSoundInterface->OneShotSound(pWorld, sResourceID, globalPosition, fPitch, fVolume, bBlockIfNotLoaded);
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Sound, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_Sound, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(PlaySound, In, "World", In, "Resource", In, "GlobalPosition", In, "GlobalRotation", In, "Pitch", In, "Volume", In, "BlockToLoad")->AddAttributes(
-      new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(1.0f)),
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(1.0f)),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true))
+    W_SCRIPT_FUNCTION_PROPERTY(PlaySound, In, "World", In, "Resource", In, "GlobalPosition", In, "GlobalRotation", In, "Pitch", In, "Volume", In, "BlockToLoad")->AddAttributes(
+      new WFunctionArgumentAttributes(3, new WDefaultValueAttribute(1.0f)),
+      new WFunctionArgumentAttributes(4, new WDefaultValueAttribute(1.0f)),
+      new WFunctionArgumentAttributes(5, new WDefaultValueAttribute(true))
     ),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("Sound"),
+    new WScriptExtensionAttribute("Sound"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezScriptExtensionClass_Sound::PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+void WScriptExtensionClass_Sound::PlaySound(WWorld* pWorld, WStringView sResourceID, const WVec3& vGlobalPos, const WQuat& qGlobalRot, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
-  ezSoundInterface::PlaySound(pWorld, sResourceID, ezTransform(vGlobalPos, qGlobalRot), fPitch, fVolume, bBlockIfNotLoaded).IgnoreResult();
+  WSoundInterface::PlaySound(pWorld, sResourceID, WTransform(vGlobalPos, qGlobalRot), fPitch, fVolume, bBlockIfNotLoaded).IgnoreResult();
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Interfaces_SoundInterface);
+W_STATICLINK_FILE(Core, Core_Interfaces_SoundInterface);

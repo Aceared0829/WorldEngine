@@ -10,67 +10,67 @@
 #include <Core/Graphics/Camera.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezStereoTestPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStereoTestPass, 1, WRTTIDefaultAllocator<WStereoTestPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input", m_PinInput),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput)
+    W_MEMBER_PROPERTY("Input", m_PinInput),
+    W_MEMBER_PROPERTY("Output", m_PinOutput)
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Unit Tests")
+    new WCategoryAttribute("Unit Tests")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStereoTestPass::ezStereoTestPass()
-  : ezRenderPipelinePass("StereoTestPass", true)
+WStereoTestPass::WStereoTestPass()
+  : WRenderPipelinePass("StereoTestPass", true)
 {
   {
     // Load shader.
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/StereoTest.ezShader");
-    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load stereo test shader!");
+    m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/StereoTest.WShader");
+    W_ASSERT_DEV(m_hShader.IsValid(), "Could not load stereo test shader!");
   }
 }
 
-ezStereoTestPass::~ezStereoTestPass() = default;
+WStereoTestPass::~WStereoTestPass() = default;
 
-ezStatus ezStereoTestPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WStereoTestPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
-    return ezStatus(ezFmt("Input: Not connected"));
+    return WStatus(WFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
-  ezGALTextureCreationDescription outputDesc = inputDesc;
-  outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
-  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
+  const WGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
+  WGALTextureCreationDescription outputDesc = inputDesc;
+  outputDesc.m_SampleCount = WGALMSAASampleCount::None;
+  WRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   auto pass = ref_graph.AddGraphicsPass("StereoTest");
   pass.AddColorTarget(hOutput);
-  pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.ReadTexture(hInput, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
     renderViewContext.UpdateViewport();
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    WBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_StereoTestPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_StereoTestPass);

@@ -20,56 +20,56 @@
 #include <TerrainPlugin/TerrainSystem.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTerrainVolumeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WTerrainVolumeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Resolution", ezTerrainResolution, GetResolution, SetResolution),
-    EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(1.0f, 1024.0f), new ezDefaultValueAttribute(64.0f)),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Terrain-Voxel"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("BaseMaterialIndex", GetBaseMaterialIndex, SetBaseMaterialIndex)->AddAttributes(new ezClampValueAttribute(0, 15)),
-    EZ_ACCESSOR_PROPERTY("FillHeight", GetFillHeight, SetFillHeight)->AddAttributes(new ezDefaultValueAttribute(-0.01f), new ezClampValueAttribute(-0.01f, 100.0f), new ezMinValueTextAttribute("Off")),
-    EZ_ACCESSOR_PROPERTY("EnableCollider", GetEnableCollider, SetEnableCollider)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("CleanupIterations", GetCleanupIterations, SetCleanupIterations)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 4)),
-    EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Surfaces", Surfaces_GetCount, Surfaces_GetValue, Surfaces_SetValue, Surfaces_Insert, Surfaces_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+    W_ENUM_ACCESSOR_PROPERTY("Resolution", WTerrainResolution, GetResolution, SetResolution),
+    W_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new WClampValueAttribute(1.0f, 1024.0f), new WDefaultValueAttribute(64.0f)),
+    W_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Material", "Terrain-Voxel"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("BaseMaterialIndex", GetBaseMaterialIndex, SetBaseMaterialIndex)->AddAttributes(new WClampValueAttribute(0, 15)),
+    W_ACCESSOR_PROPERTY("FillHeight", GetFillHeight, SetFillHeight)->AddAttributes(new WDefaultValueAttribute(-0.01f), new WClampValueAttribute(-0.01f, 100.0f), new WMinValueTextAttribute("Off")),
+    W_ACCESSOR_PROPERTY("EnableCollider", GetEnableCollider, SetEnableCollider)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("CleanupIterations", GetCleanupIterations, SetCleanupIterations)->AddAttributes(new WDefaultValueAttribute(2), new WClampValueAttribute(0, 4)),
+    W_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new WTagSetWidgetAttribute("Terrain")),
+    W_ARRAY_ACCESSOR_PROPERTY("Surfaces", Surfaces_GetCount, Surfaces_GetValue, Surfaces_SetValue, Surfaces_Insert, Surfaces_Remove)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    W_MESSAGE_HANDLER(WMsgTransformChanged, OnMsgTransformChanged),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+    W_FUNCTION_PROPERTY(OnObjectCreated),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Terrain"),
-    new ezBoxVisualizerAttribute("Size", 1.0f, ezColorScheme::LightUI(ezColorScheme::Green), nullptr, ezVisualizerAnchor::NegX | ezVisualizerAnchor::NegY | ezVisualizerAnchor::NegZ),
+    new WCategoryAttribute("Terrain"),
+    new WBoxVisualizerAttribute("Size", 1.0f, WColorScheme::LightUI(WColorScheme::Green), nullptr, WVisualizerAnchor::NegX | WVisualizerAnchor::NegY | WVisualizerAnchor::NegZ),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTerrainVolumeComponent::ezTerrainVolumeComponent() = default;
-ezTerrainVolumeComponent::~ezTerrainVolumeComponent() = default;
+WTerrainVolumeComponent::WTerrainVolumeComponent() = default;
+WTerrainVolumeComponent::~WTerrainVolumeComponent() = default;
 
-void ezTerrainVolumeComponent::SetResolution(ezEnum<ezTerrainResolution> resolution)
+void WTerrainVolumeComponent::SetResolution(WEnum<WTerrainResolution> resolution)
 {
   if (m_Resolution == resolution)
     return;
 
   m_Resolution = resolution;
 
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
     {
       pSystem->RemoveVoxelTerrain(m_uiVoxelIndex);
       const float fVoxelSize = m_fSize / static_cast<float>(m_Resolution.GetValue());
@@ -86,16 +86,16 @@ void ezTerrainVolumeComponent::SetResolution(ezEnum<ezTerrainResolution> resolut
   TriggerLocalBoundsUpdate();
 }
 
-void ezTerrainVolumeComponent::SetSize(float f)
+void WTerrainVolumeComponent::SetSize(float f)
 {
   if (m_fSize == f)
     return;
 
   m_fSize = f;
 
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
     {
       pSystem->ModifyVoxelTerrain(m_uiVoxelIndex).m_fVoxelSize = m_fSize / static_cast<float>(m_Resolution.GetValue());
     }
@@ -104,28 +104,28 @@ void ezTerrainVolumeComponent::SetSize(float f)
   TriggerLocalBoundsUpdate();
 }
 
-void ezTerrainVolumeComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial)
+void WTerrainVolumeComponent::SetMaterial(const WMaterialResourceHandle& hMaterial)
 {
   m_hMaterial = hMaterial;
   InvalidateCachedRenderData();
 }
 
-void ezTerrainVolumeComponent::SetBaseMaterialIndex(ezUInt8 i)
+void WTerrainVolumeComponent::SetBaseMaterialIndex(WUInt8 i)
 {
   m_uiBaseMaterialIndex = i;
   InvalidateCachedRenderData();
 }
 
-void ezTerrainVolumeComponent::SetFillHeight(float f)
+void WTerrainVolumeComponent::SetFillHeight(float f)
 {
   if (m_fFillHeight == f)
     return;
 
   m_fFillHeight = f;
 
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
     {
       auto& vol = pSystem->ModifyVoxelTerrain(m_uiVoxelIndex);
       vol.m_fFillHeight = f;
@@ -134,71 +134,71 @@ void ezTerrainVolumeComponent::SetFillHeight(float f)
   }
 }
 
-void ezTerrainVolumeComponent::SetEnableCollider(bool bEnable)
+void WTerrainVolumeComponent::SetEnableCollider(bool bEnable)
 {
   m_bEnableCollider = bEnable;
 }
 
-void ezTerrainVolumeComponent::SetCleanupIterations(ezUInt8 n)
+void WTerrainVolumeComponent::SetCleanupIterations(WUInt8 n)
 {
-  n = ezMath::Clamp(n, (ezUInt8)0, (ezUInt8)4);
+  n = WMath::Clamp(n, (WUInt8)0, (WUInt8)4);
 
   if (m_uiCleanupIterations == n)
     return;
 
   m_uiCleanupIterations = n;
 
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
       pSystem->ModifyVoxelTerrain(m_uiVoxelIndex).m_uiCleanupIterations = m_uiCleanupIterations;
   }
 }
 
-void ezTerrainVolumeComponent::Reflection_SetTag(const char* szTagName)
+void WTerrainVolumeComponent::Reflection_SetTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
 
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
+  const WTag& tag = WTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
   if (m_Tags.IsSet(tag))
     return;
 
   m_Tags.Set(tag);
 
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
       pSystem->ModifyVoxelTerrain(m_uiVoxelIndex).m_Tags = m_Tags;
   }
 }
 
-void ezTerrainVolumeComponent::Reflection_RemoveTag(const char* szTagName)
+void WTerrainVolumeComponent::Reflection_RemoveTag(const char* szTagName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szTagName))
+  if (WStringUtils::IsNullOrEmpty(szTagName))
     return;
 
-  if (const ezTag* pTag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTagName)))
+  if (const WTag* pTag = WTagRegistry::GetGlobalRegistry().GetTagByName(WTempHashedString(szTagName)))
   {
     if (!m_Tags.IsSet(*pTag))
       return;
 
     m_Tags.Remove(*pTag);
 
-    if (m_uiVoxelIndex != ezInvalidIndex)
+    if (m_uiVoxelIndex != WInvalidIndex)
     {
-      if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+      if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
         pSystem->ModifyVoxelTerrain(m_uiVoxelIndex).m_Tags = m_Tags;
     }
   }
 }
 
-ezUInt32 ezTerrainVolumeComponent::Surfaces_GetCount() const
+WUInt32 WTerrainVolumeComponent::Surfaces_GetCount() const
 {
   return m_Surfaces.GetCount();
 }
 
-ezString ezTerrainVolumeComponent::Surfaces_GetValue(ezUInt32 uiIndex) const
+WString WTerrainVolumeComponent::Surfaces_GetValue(WUInt32 uiIndex) const
 {
   if (uiIndex >= m_Surfaces.GetCount() || !m_Surfaces[uiIndex].IsValid())
     return {};
@@ -206,32 +206,32 @@ ezString ezTerrainVolumeComponent::Surfaces_GetValue(ezUInt32 uiIndex) const
   return m_Surfaces[uiIndex].GetResourceID();
 }
 
-void ezTerrainVolumeComponent::Surfaces_SetValue(ezUInt32 uiIndex, ezString sValue)
+void WTerrainVolumeComponent::Surfaces_SetValue(WUInt32 uiIndex, WString sValue)
 {
   m_Surfaces.EnsureCount(uiIndex + 1);
 
   if (!sValue.IsEmpty())
-    m_Surfaces[uiIndex] = ezResourceManager::LoadResource<ezSurfaceResource>(sValue);
+    m_Surfaces[uiIndex] = WResourceManager::LoadResource<WSurfaceResource>(sValue);
   else
     m_Surfaces[uiIndex].Invalidate();
 }
 
-void ezTerrainVolumeComponent::Surfaces_Insert(ezUInt32 uiIndex, ezString sValue)
+void WTerrainVolumeComponent::Surfaces_Insert(WUInt32 uiIndex, WString sValue)
 {
-  ezSurfaceResourceHandle hSurface;
+  WSurfaceResourceHandle hSurface;
 
   if (!sValue.IsEmpty())
-    hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sValue);
+    hSurface = WResourceManager::LoadResource<WSurfaceResource>(sValue);
 
   m_Surfaces.InsertAt(uiIndex, hSurface);
 }
 
-void ezTerrainVolumeComponent::Surfaces_Remove(ezUInt32 uiIndex)
+void WTerrainVolumeComponent::Surfaces_Remove(WUInt32 uiIndex)
 {
   m_Surfaces.RemoveAtAndCopy(uiIndex);
 }
 
-void ezTerrainVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WTerrainVolumeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -245,43 +245,43 @@ void ezTerrainVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   m_Tags.Save(s);
   s << m_uiStableId;
 
-  const ezUInt32 uiNumSurfaces = m_Surfaces.GetCount();
+  const WUInt32 uiNumSurfaces = m_Surfaces.GetCount();
   s << uiNumSurfaces;
   for (const auto& hSurface : m_Surfaces)
     s << hSurface;
 }
 
-void ezTerrainVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WTerrainVolumeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
   s >> m_hMaterial;
-  ezUInt16 uiRes = 0;
+  WUInt16 uiRes = 0;
   s >> uiRes;
-  m_Resolution = static_cast<ezTerrainResolution::Enum>(uiRes);
+  m_Resolution = static_cast<WTerrainResolution::Enum>(uiRes);
   s >> m_fSize;
   s >> m_uiBaseMaterialIndex;
   s >> m_fFillHeight;
   s >> m_bEnableCollider;
   s >> m_uiCleanupIterations;
-  m_Tags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_Tags.Load(s, WTagRegistry::GetGlobalRegistry());
   s >> m_uiStableId;
 
-  ezUInt32 uiNumSurfaces = 0;
+  WUInt32 uiNumSurfaces = 0;
   s >> uiNumSurfaces;
   m_Surfaces.SetCount(uiNumSurfaces);
   for (auto& hSurface : m_Surfaces)
     s >> hSurface;
 }
 
-void ezTerrainVolumeComponent::OnActivated()
+void WTerrainVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   GetOwner()->EnableStaticTransformChangesNotifications();
 
-  auto* pSystem = GetWorld()->GetOrCreateModule<ezTerrainSystem>();
+  auto* pSystem = GetWorld()->GetOrCreateModule<WTerrainSystem>();
   const float fVoxelSize = m_fSize / static_cast<float>(m_Resolution.GetValue());
   m_uiVoxelIndex = pSystem->CreateVoxelTerrain(m_Resolution.GetValue(), fVoxelSize);
   auto& vol = pSystem->ModifyVoxelTerrain(m_uiVoxelIndex);
@@ -294,39 +294,39 @@ void ezTerrainVolumeComponent::OnActivated()
   TriggerLocalBoundsUpdate();
 }
 
-void ezTerrainVolumeComponent::OnDeactivated()
+void WTerrainVolumeComponent::OnDeactivated()
 {
-  if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+  if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
   {
     pSystem->RemoveVoxelTerrain(m_uiVoxelIndex);
   }
 
-  if (auto* pRDM = GetWorld()->GetModule<ezRenderDataManager>())
+  if (auto* pRDM = GetWorld()->GetModule<WRenderDataManager>())
   {
     pRDM->DeleteInstanceData(m_InstanceDataOffset);
   }
 
-  m_uiVoxelIndex = ezInvalidIndex;
+  m_uiVoxelIndex = WInvalidIndex;
 
   SUPER::OnDeactivated();
 }
 
-void ezTerrainVolumeComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void WTerrainVolumeComponent::OnObjectCreated(const WAbstractObjectNode& node)
 {
-  m_uiStableId = ezHashingUtils::xxHash64(&node.GetGuid(), sizeof(ezUuid));
+  m_uiStableId = WHashingUtils::xxHash64(&node.GetGuid(), sizeof(WUuid));
 }
 
-ezResult ezTerrainVolumeComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WTerrainVolumeComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  ref_bounds = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(ezVec3::MakeZero(), ezVec3(m_fSize)));
-  return EZ_SUCCESS;
+  ref_bounds = WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromMinMax(WVec3::MakeZero(), WVec3(m_fSize)));
+  return W_SUCCESS;
 }
 
-void ezTerrainVolumeComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
+void WTerrainVolumeComponent::OnMsgTransformChanged(WMsgTransformChanged& msg)
 {
-  if (m_uiVoxelIndex != ezInvalidIndex)
+  if (m_uiVoxelIndex != WInvalidIndex)
   {
-    if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
+    if (auto* pSystem = GetWorld()->GetModule<WTerrainSystem>())
     {
       auto& vol = pSystem->ModifyVoxelTerrain(m_uiVoxelIndex);
       vol.m_GlobalTransform = msg.m_NewGlobalTransform;
@@ -334,26 +334,26 @@ void ezTerrainVolumeComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
   }
 }
 
-void ezTerrainVolumeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WTerrainVolumeComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (!m_hMaterial.IsValid() || m_uiVoxelIndex == ezInvalidIndex)
+  if (!m_hMaterial.IsValid() || m_uiVoxelIndex == WInvalidIndex)
     return;
 
-  const auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>();
+  const auto* pSystem = GetWorld()->GetModule<WTerrainSystem>();
   if (pSystem == nullptr)
     return;
 
-  const ezGALBufferHandle hVerts = pSystem->GetVoxelVolumeGpuMeshVertexBuffer(m_uiVoxelIndex);
-  const ezGALBufferHandle hIdxs = pSystem->GetVoxelVolumeGpuMeshIndexBuffer(m_uiVoxelIndex);
+  const WGALBufferHandle hVerts = pSystem->GetVoxelVolumeGpuMeshVertexBuffer(m_uiVoxelIndex);
+  const WGALBufferHandle hIdxs = pSystem->GetVoxelVolumeGpuMeshIndexBuffer(m_uiVoxelIndex);
   if (hVerts.IsInvalidated() || hIdxs.IsInvalidated())
     return;
 
   const bool bDynamic = GetOwner()->IsDynamic();
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(
     *this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset,
-    GetUniqueIdForRendering(), ezColor::White, ezVec4(0, 1, 0, 1));
+    GetUniqueIdForRendering(), WColor::White, WVec4(0, 1, 0, 1));
 
-  ezTerrainVoxelRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezTerrainVoxelRenderData>(GetOwner());
+  WTerrainVoxelRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WTerrainVoxelRenderData>(GetOwner());
   pRenderData->m_uiNumInstances = 1;
   pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
   pRenderData->m_hInstanceDataBuffer = hInstanceDataBuffer;
@@ -364,35 +364,35 @@ void ezTerrainVolumeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   pRenderData->m_uiBaseMaterialIndex = m_uiBaseMaterialIndex;
   pRenderData->m_uiSortingKey = 0;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, WDefaultRenderDataCategories::LitOpaque, WRenderData::Caching::IfStatic);
 
   // The vertex shader reads the voxel mesh buffers as SRVs and emulates indexed drawing, so declare
   // them as render-graph dependencies for the categories that render this volume.
-  const ezGALBufferHandle hDrawArgs = pSystem->GetVoxelVolumeGpuMeshDrawArgsBuffer(m_uiVoxelIndex);
+  const WGALBufferHandle hDrawArgs = pSystem->GetVoxelVolumeGpuMeshDrawArgsBuffer(m_uiVoxelIndex);
   if (!hVerts.IsInvalidated())
-    msg.AddDependency(hVerts, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
+    msg.AddDependency(hVerts, WDefaultRenderDataCategories::LitOpaque, WGALResourceState::ShaderResource, WGALShaderStageFlags::VertexShader);
   if (!hIdxs.IsInvalidated())
-    msg.AddDependency(hIdxs, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
+    msg.AddDependency(hIdxs, WDefaultRenderDataCategories::LitOpaque, WGALResourceState::ShaderResource, WGALShaderStageFlags::VertexShader);
   if (!hDrawArgs.IsInvalidated())
-    msg.AddDependency(hDrawArgs, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::DrawIndirect);
+    msg.AddDependency(hDrawArgs, WDefaultRenderDataCategories::LitOpaque, WGALResourceState::DrawIndirect);
 }
 
-ezCpuMeshResourceHandle ezTerrainVolumeComponent::GenerateCpuMesh() const
+WCpuMeshResourceHandle WTerrainVolumeComponent::GenerateCpuMesh() const
 {
-  if (m_uiVoxelIndex == ezInvalidIndex)
-    return ezCpuMeshResourceHandle();
+  if (m_uiVoxelIndex == WInvalidIndex)
+    return WCpuMeshResourceHandle();
 
   // Geometry extraction only holds a read lock on the world, so the module must not be created here.
   // Reading the mesh back does mutate the terrain system, hence the const_cast.
-  const ezTerrainSystem* pConstTerrain = GetWorld()->GetModule<ezTerrainSystem>();
+  const WTerrainSystem* pConstTerrain = GetWorld()->GetModule<WTerrainSystem>();
   if (pConstTerrain == nullptr)
-    return ezCpuMeshResourceHandle();
+    return WCpuMeshResourceHandle();
 
-  ezTerrainSystem* pTerrain = const_cast<ezTerrainSystem*>(pConstTerrain);
+  WTerrainSystem* pTerrain = const_cast<WTerrainSystem*>(pConstTerrain);
 
   // The hash covers everything that changes the shape of the mesh, so as long as it matches, the
   // cached mesh is still the right one. Without this check, edits to the volume would go unnoticed.
-  const ezUInt64 uiContentHash = ComputeColliderContentHash(pTerrain->GetVoxelBrushOverlapHash(m_uiVoxelIndex));
+  const WUInt64 uiContentHash = ComputeColliderContentHash(pTerrain->GetVoxelBrushOverlapHash(m_uiVoxelIndex));
 
   if (m_hCpuMesh.IsValid() && m_uiCpuMeshHash == uiContentHash)
     return m_hCpuMesh;
@@ -400,71 +400,71 @@ ezCpuMeshResourceHandle ezTerrainVolumeComponent::GenerateCpuMesh() const
   m_hCpuMesh.Invalidate();
   m_uiCpuMeshHash = uiContentHash;
 
-  ezStringBuilder sResourceName;
-  sResourceName.SetFormat("TerrainVolumeCpuMesh:{}-{}", ezArgU(m_uiStableId, 16, true, 16, true), uiContentHash);
+  WStringBuilder sResourceName;
+  sResourceName.SetFormat("TerrainVolumeCpuMesh:{}-{}", WArgU(m_uiStableId, 16, true, 16, true), uiContentHash);
 
-  m_hCpuMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  m_hCpuMesh = WResourceManager::GetExistingResource<WCpuMeshResource>(sResourceName);
   if (m_hCpuMesh.IsValid())
     return m_hCpuMesh;
 
   // Reading back from the GPU blocks, so this is deliberately only done on demand.
-  ezTempArray<VoxelGpuVertex> verts;
-  ezTempArray<ezUInt32> indices;
-  ezUInt32 uiVertexCount = 0;
-  ezUInt32 uiTriangleCount = 0;
+  WTempArray<VoxelGpuVertex> verts;
+  WTempArray<WUInt32> indices;
+  WUInt32 uiVertexCount = 0;
+  WUInt32 uiTriangleCount = 0;
 
   if (pTerrain->ReadbackVoxelData(m_uiVoxelIndex, verts, indices, uiVertexCount, uiTriangleCount).Failed())
   {
-    ezLog::Warning("ezTerrainVolumeComponent: could not read back the voxel mesh, the volume provides no geometry.");
-    return ezCpuMeshResourceHandle();
+    WLog::Warning("WTerrainVolumeComponent: could not read back the voxel mesh, the volume provides no geometry.");
+    return WCpuMeshResourceHandle();
   }
 
   // An empty volume is the normal case for one that no brush overlaps.
   if (uiVertexCount == 0 || uiTriangleCount == 0)
-    return ezCpuMeshResourceHandle();
+    return WCpuMeshResourceHandle();
 
   if (verts.GetCount() < uiVertexCount || indices.GetCount() < uiTriangleCount * 3)
-    return ezCpuMeshResourceHandle();
+    return WCpuMeshResourceHandle();
 
-  ezMeshResourceDescriptor desc;
-  desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+  WMeshResourceDescriptor desc;
+  desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.WMaterialAsset
   desc.MeshBufferDesc().AddCommonStreams();
 
   auto& mb = desc.MeshBufferDesc();
-  mb.AllocateStreams(uiVertexCount, ezGALPrimitiveTopology::Triangles, uiTriangleCount);
+  mb.AllocateStreams(uiVertexCount, WGALPrimitiveTopology::Triangles, uiTriangleCount);
 
   // Only positions are filled in; normals and texture coordinates carry no information that a
   // consumer of this mesh (navmesh generation, geometry export) would use.
   auto positionData = mb.GetPositionData();
 
-  ezBoundingBox bounds = ezBoundingBox::MakeInvalid();
+  WBoundingBox bounds = WBoundingBox::MakeInvalid();
 
-  for (ezUInt32 i = 0; i < uiVertexCount; ++i)
+  for (WUInt32 i = 0; i < uiVertexCount; ++i)
   {
     positionData.GetPtr()[i] = verts[i].Position;
     bounds.ExpandToInclude(verts[i].Position);
   }
 
-  for (ezUInt32 uiTriangle = 0; uiTriangle < uiTriangleCount; ++uiTriangle)
+  for (WUInt32 uiTriangle = 0; uiTriangle < uiTriangleCount; ++uiTriangle)
   {
     mb.SetTriangleIndices(uiTriangle, indices[uiTriangle * 3 + 0], indices[uiTriangle * 3 + 1], indices[uiTriangle * 3 + 2]);
   }
 
-  desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(bounds));
+  desc.SetBounds(WBoundingBoxSphere::MakeFromBox(bounds));
   desc.AddSubMesh(mb.GetPrimitiveCount(), 0, 0);
 
-  m_hCpuMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+  m_hCpuMesh = WResourceManager::GetOrCreateResource<WCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   return m_hCpuMesh;
 }
 
-void ezTerrainVolumeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+void WTerrainVolumeComponent::OnMsgExtractGeometry(WMsgExtractGeometry& msg) const
 {
   // A volume without a collider is not part of the world's physical representation, so it stays out of
   // navmeshes and collision exports. It is still included when the render geometry is what's wanted.
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && !m_bEnableCollider)
+  if (msg.m_Mode == WWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && !m_bEnableCollider)
     return;
 
-  ezCpuMeshResourceHandle hMesh = GenerateCpuMesh();
+  WCpuMeshResourceHandle hMesh = GenerateCpuMesh();
 
   if (!hMesh.IsValid())
     return;
@@ -473,18 +473,18 @@ void ezTerrainVolumeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) c
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
-ezUInt64 ezTerrainVolumeComponent::ComputeColliderContentHash(ezUInt64 uiBrushOverlapHash) const
+WUInt64 WTerrainVolumeComponent::ComputeColliderContentHash(WUInt64 uiBrushOverlapHash) const
 {
-  const ezUInt8 uiVersion = 1;
+  const WUInt8 uiVersion = 1;
 
-  ezHashStreamWriter64 hashWriter;
+  WHashStreamWriter64 hashWriter;
   hashWriter << uiVersion;
   hashWriter << uiBrushOverlapHash;
   hashWriter << m_Resolution;
   hashWriter << m_fSize;
   hashWriter << m_fFillHeight;
 
-  for (ezUInt32 s = 0; s < m_Surfaces.GetCount(); ++s)
+  for (WUInt32 s = 0; s < m_Surfaces.GetCount(); ++s)
     hashWriter << m_Surfaces[s];
 
   return hashWriter.GetHashValue();

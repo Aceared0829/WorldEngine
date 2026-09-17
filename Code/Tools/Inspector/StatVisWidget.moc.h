@@ -10,22 +10,22 @@
 #include <QListWidgetItem>
 #include <ads/DockWidget.h>
 
-class ezQtStatVisWidget : public ads::CDockWidget, public Ui_StatVisWidget
+class WQtStatVisWidget : public ads::CDockWidget, public Ui_StatVisWidget
 {
 public:
   Q_OBJECT
 
 public:
-  static const ezUInt8 s_uiMaxColors = 9;
+  static const WUInt8 s_uiMaxColors = 9;
 
-  ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, ezInt32 iWindowNumber);
-  ~ezQtStatVisWidget();
+  WQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, WInt32 iWindowNumber);
+  ~WQtStatVisWidget();
 
   void UpdateStats();
 
-  static ezQtStatVisWidget* s_pWidget;
+  static WQtStatVisWidget* s_pWidget;
 
-  void AddStat(const ezString& sStatPath, bool bEnabled = true, bool bRaiseWindow = true);
+  void AddStat(const WString& sStatPath, bool bEnabled = true, bool bRaiseWindow = true);
 
   void Save();
   void Load();
@@ -48,17 +48,17 @@ private:
   QGraphicsPathItem* m_pPathMax;
   QGraphicsScene m_Scene;
 
-  static ezInt32 s_iCurColor;
+  static WInt32 s_iCurColor;
 
-  ezTime m_DisplayInterval;
+  WTime m_DisplayInterval;
 
-  ezInt32 m_iWindowNumber;
+  WInt32 m_iWindowNumber;
 
   struct StatsData
   {
     QListWidgetItem* m_pListItem = nullptr;
-    ezUInt8 m_uiColor = 0;
+    WUInt8 m_uiColor = 0;
   };
 
-  ezMap<ezString, StatsData> m_Stats;
+  WMap<WString, StatsData> m_Stats;
 };

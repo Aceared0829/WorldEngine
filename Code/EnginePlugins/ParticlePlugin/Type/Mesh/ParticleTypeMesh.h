@@ -5,28 +5,28 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using WMeshResourceHandle = WTypedResourceHandle<class WMeshResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
 
 /// Factory for creating mesh particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMeshFactory final : public ezParticleTypeFactory
+class W_PARTICLEPLUGIN_DLL WParticleTypeMeshFactory final : public WParticleTypeFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeMeshFactory, ezParticleTypeFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeMeshFactory, WParticleTypeFactory);
 
 public:
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetTypeType() const override;
+  virtual void CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezHashedString m_sMesh;
-  ezHashedString m_sMaterial;
+  WHashedString m_sMesh;
+  WHashedString m_sMaterial;
   float m_fScale = 1.0f;
-  ezHashedString m_sTintColorParameter;
+  WHashedString m_sTintColorParameter;
 
-  ezMeshResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hMaterial;
+  WMeshResourceHandle m_hMesh;
+  WMaterialResourceHandle m_hMaterial;
 };
 
 /// Renders particles as instanced 3D meshes.
@@ -35,48 +35,48 @@ public:
 /// its rotation axis. Materials can be overridden globally or use the mesh's
 /// default materials. Uses instanced rendering for performance when many particles
 /// share the same mesh.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMesh final : public ezParticleType
+class W_PARTICLEPLUGIN_DLL WParticleTypeMesh final : public WParticleType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeMesh, ezParticleType);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeMesh, WParticleType);
 
 public:
-  ezParticleTypeMesh();
-  ~ezParticleTypeMesh();
+  WParticleTypeMesh();
+  ~WParticleTypeMesh();
 
   virtual void CreateRequiredStreams() override;
 
-  ezMeshResourceHandle m_hMesh;
-  mutable ezMaterialResourceHandle m_hMaterial;
+  WMeshResourceHandle m_hMesh;
+  mutable WMaterialResourceHandle m_hMaterial;
   float m_fScale = 1.0f;
-  ezTempHashedString m_sTintColorParameter;
+  WTempHashedString m_sTintColorParameter;
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+  virtual void ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const override;
 
 protected:
-  friend class ezParticleTypeMeshFactory;
+  friend class WParticleTypeMeshFactory;
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override {}
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override {}
 
   /// Queries and caches mesh and material information from resources.
   bool QueryMeshAndMaterialInfo() const;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) override;
 
-  ezRenderDataManager* m_pRenderDataManager = nullptr;
+  WRenderDataManager* m_pRenderDataManager = nullptr;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamSize = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
-  ezProcessingStream* m_pStreamRotationOffset = nullptr;
-  ezProcessingStream* m_pStreamAxis = nullptr;
-  ezProcessingStream* m_pStreamVariation = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamSize = nullptr;
+  WProcessingStream* m_pStreamColor = nullptr;
+  WProcessingStream* m_pStreamRotationSpeed = nullptr;
+  WProcessingStream* m_pStreamRotationOffset = nullptr;
+  WProcessingStream* m_pStreamAxis = nullptr;
+  WProcessingStream* m_pStreamVariation = nullptr;
 
   mutable bool m_bRenderDataCached = false;
-  mutable ezRenderData::Category m_RenderCategory;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
-  mutable ezUInt8 m_uiNumSubMeshes = 0;
-  mutable ezDynamicArray<ezMaterialResourceHandle> m_CachedSubMeshMaterials;
+  mutable WRenderData::Category m_RenderCategory;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
+  mutable WUInt8 m_uiNumSubMeshes = 0;
+  mutable WDynamicArray<WMaterialResourceHandle> m_CachedSubMeshMaterials;
   bool m_bMaterialOverride = false;
 };

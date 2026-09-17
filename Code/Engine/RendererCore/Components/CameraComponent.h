@@ -5,42 +5,42 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezBlackboard;
-class ezView;
-struct ezResourceEvent;
+class WBlackboard;
+class WView;
+struct WResourceEvent;
 
-class EZ_RENDERERCORE_DLL ezCameraComponentManager : public ezComponentManager<class ezCameraComponent, ezBlockStorageType::Compact>
+class W_RENDERERCORE_DLL WCameraComponentManager : public WComponentManager<class WCameraComponent, WBlockStorageType::Compact>
 {
 public:
-  ezCameraComponentManager(ezWorld* pWorld);
-  ~ezCameraComponentManager();
+  WCameraComponentManager(WWorld* pWorld);
+  ~WCameraComponentManager();
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Update(const WWorldModule::UpdateContext& context);
 
   void ReinitializeAllRenderTargetCameras();
 
-  const ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const;
-  ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint);
+  const WCameraComponent* GetCameraByUsageHint(WCameraUsageHint::Enum usageHint) const;
+  WCameraComponent* GetCameraByUsageHint(WCameraUsageHint::Enum usageHint);
 
 private:
-  friend class ezCameraComponent;
+  friend class WCameraComponent;
 
-  void AddRenderTargetCamera(ezCameraComponent* pComponent);
-  void RemoveRenderTargetCamera(ezCameraComponent* pComponent);
+  void AddRenderTargetCamera(WCameraComponent* pComponent);
+  void RemoveRenderTargetCamera(WCameraComponent* pComponent);
 
-  void OnViewCreated(ezView* pView);
+  void OnViewCreated(WView* pView);
   void OnCameraConfigsChanged(void* dummy);
 
-  ezDynamicArray<ezComponentHandle> m_ModifiedCameras;
-  ezDynamicArray<ezComponentHandle> m_RenderTargetCameras;
+  WDynamicArray<WComponentHandle> m_ModifiedCameras;
+  WDynamicArray<WComponentHandle> m_RenderTargetCameras;
 };
 
 /// Adds a camera to the scene.
 ///
-/// Cameras have different use cases which are selected through the ezCameraUsageHint property.
+/// Cameras have different use cases which are selected through the WCameraUsageHint property.
 /// A game needs (exactly) one camera with the usage hint "MainView", since that is what the renderer uses to render the output.
 /// Other cameras are optional or for specialized use cases.
 ///
@@ -48,53 +48,53 @@ private:
 /// which render pipeline to use, which objects to include and exclude in the rendered image and various other options.
 ///
 /// A camera object may be created and controlled through a player prefab, for example in a first person or third person game.
-/// It may also be created by an ezGameState and controlled by its game logic, for example in top-down games that don't
+/// It may also be created by an WGameState and controlled by its game logic, for example in top-down games that don't
 /// really have a player object.
 ///
 /// Ultimately camera components don't have functionality, they mostly exist and store some data.
 /// It is the game state's decision how the game camera works. By default, the game state iterates over all camera components
 /// and picks the best one (usually the "MainView") to place the renderer camera.
-class EZ_RENDERERCORE_DLL ezCameraComponent : public ezComponent
+class W_RENDERERCORE_DLL WCameraComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezCameraComponent, ezComponent, ezCameraComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WCameraComponent, WComponent, WCameraComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCameraComponent
+  // WCameraComponent
 
 public:
-  ezCameraComponent();
-  ~ezCameraComponent();
+  WCameraComponent();
+  ~WCameraComponent();
 
   /// Sets what the camera should be used for.
-  void SetUsageHint(ezEnum<ezCameraUsageHint> val);                      // [ property ]
-  ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; } // [ property ]
+  void SetUsageHint(WEnum<WCameraUsageHint> val);                      // [ property ]
+  WEnum<WCameraUsageHint> GetUsageHint() const { return m_UsageHint; } // [ property ]
 
   /// Sets the asset name (or path) to a render target resource, in case this camera should render to texture.
-  void SetRenderTargetFile(ezStringView sFile); // [ property ]
-  ezStringView GetRenderTargetFile() const;     // [ property ]
+  void SetRenderTargetFile(WStringView sFile); // [ property ]
+  WStringView GetRenderTargetFile() const;     // [ property ]
 
   /// An offset to render only to a part of a texture.
-  void SetRenderTargetRectOffset(ezVec2 value);                                  // [ property ]
-  ezVec2 GetRenderTargetRectOffset() const { return m_vRenderTargetRectOffset; } // [ property ]
+  void SetRenderTargetRectOffset(WVec2 value);                                  // [ property ]
+  WVec2 GetRenderTargetRectOffset() const { return m_vRenderTargetRectOffset; } // [ property ]
 
   /// A size to render only to a part of a texture.
-  void SetRenderTargetRectSize(ezVec2 value);                                // [ property ]
-  ezVec2 GetRenderTargetRectSize() const { return m_vRenderTargetRectSize; } // [ property ]
+  void SetRenderTargetRectSize(WVec2 value);                                // [ property ]
+  WVec2 GetRenderTargetRectSize() const { return m_vRenderTargetRectSize; } // [ property ]
 
   /// Specifies whether the camera should be perspective or orthogonal and how to use the aspect ratio.
-  void SetCameraMode(ezEnum<ezCameraMode> val);                 // [ property ]
-  ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; } // [ property ]
+  void SetCameraMode(WEnum<WCameraMode> val);                 // [ property ]
+  WEnum<WCameraMode> GetCameraMode() const { return m_Mode; } // [ property ]
 
   /// Configures the distance of the near plane. Objects in front of the near plane get culled and clipped.
   void SetNearPlane(float fVal);                      // [ property ]
@@ -113,13 +113,13 @@ public:
   float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
 
   /// Returns the handle to the render pipeline that is in use.
-  ezRenderPipelineResourceHandle GetRenderPipeline() const;
+  WRenderPipelineResourceHandle GetRenderPipeline() const;
 
   /// Returns the blackboard that is in use.
-  ezSharedPtr<ezBlackboard> GetBlackboard() const;
+  WSharedPtr<WBlackboard> GetBlackboard() const;
 
   /// Returns a handle to the view that the camera renders to.
-  ezViewHandle GetRenderTargetView() const;
+  WViewHandle GetRenderTargetView() const;
 
   /// Sets the name of the render pipeline to use.
   void SetRenderPipelineEnum(const char* szFile);                           // [ property ]
@@ -131,8 +131,8 @@ public:
   void SetAperture(float fAperture);                                        // [ property ]
   float GetAperture() const { return m_fAperture; }                         // [ property ]
 
-  void SetShutterTime(ezTime shutterTime);                                  // [ property ]
-  ezTime GetShutterTime() const { return m_ShutterTime; }                   // [ property ]
+  void SetShutterTime(WTime shutterTime);                                  // [ property ]
+  WTime GetShutterTime() const { return m_ShutterTime; }                   // [ property ]
 
   void SetISO(float fISO);                                                  // [ property ]
   float GetISO() const { return m_fISO; }                                   // [ property ]
@@ -144,52 +144,52 @@ public:
   float GetExposure() const;                                                // [ property ]
 
   /// If non-empty, only objects with these tags will be included in this camera's output.
-  ezTagSet m_IncludeTags; // [ property ]
+  WTagSet m_IncludeTags; // [ property ]
 
   /// If non-empty, objects with these tags will be excluded from this camera's output.
-  ezTagSet m_ExcludeTags; // [ property ]
+  WTagSet m_ExcludeTags; // [ property ]
 
-  void ApplySettingsToView(ezView* pView) const;
+  void ApplySettingsToView(WView* pView) const;
 
 private:
   void UpdateRenderTargetCamera();
-  void ShowStats(ezView* pView);
+  void ShowStats(WView* pView);
 
-  void ResourceChangeEventHandler(const ezResourceEvent& e);
+  void ResourceChangeEventHandler(const WResourceEvent& e);
 
-  ezEnum<ezCameraUsageHint> m_UsageHint;
-  ezEnum<ezCameraMode> m_Mode;
-  ezRenderToTexture2DResourceHandle m_hRenderTarget;
+  WEnum<WCameraUsageHint> m_UsageHint;
+  WEnum<WCameraMode> m_Mode;
+  WRenderToTexture2DResourceHandle m_hRenderTarget;
   float m_fNearPlane = 0.25f;
   float m_fFarPlane = 1000.0f;
   float m_fPerspectiveFieldOfView = 60.0f;
   float m_fOrthoDimension = 10.0f;
-  ezRenderPipelineResourceHandle m_hCachedRenderPipeline;
+  WRenderPipelineResourceHandle m_hCachedRenderPipeline;
 
   float m_fAperture = 1.0f;
-  ezTime m_ShutterTime = ezTime::MakeFromSeconds(1.0f);
+  WTime m_ShutterTime = WTime::MakeFromSeconds(1.0f);
   float m_fISO = 100.0f;
   float m_fExposureCompensation = 0.0f;
 
   void MarkAsModified();
-  void MarkAsModified(ezCameraComponentManager* pCameraManager);
+  void MarkAsModified(WCameraComponentManager* pCameraManager);
 
   bool m_bIsModified = false;
   bool m_bShowStats = false;
   bool m_bRenderTargetInitialized = false;
 
   // -1 for none, 0 to 9 for ALT+Number
-  ezInt8 m_iEditorShortcut = -1; // [ property ]
+  WInt8 m_iEditorShortcut = -1; // [ property ]
 
   void ActivateRenderToTexture();
   void DeactivateRenderToTexture();
 
-  ezViewHandle m_hRenderTargetView;
-  ezVec2 m_vRenderTargetRectOffset = ezVec2(0.0f);
-  ezVec2 m_vRenderTargetRectSize = ezVec2(1.0f);
-  ezCamera m_RenderTargetCamera;
-  ezHashedString m_sRenderPipeline;
-  ezHashedString m_sBlackboardName;
+  WViewHandle m_hRenderTargetView;
+  WVec2 m_vRenderTargetRectOffset = WVec2(0.0f);
+  WVec2 m_vRenderTargetRectSize = WVec2(1.0f);
+  WCamera m_RenderTargetCamera;
+  WHashedString m_sRenderPipeline;
+  WHashedString m_sBlackboardName;
 
-  ezSharedPtr<ezBlackboard> m_pBlackboard;
+  WSharedPtr<WBlackboard> m_pBlackboard;
 };

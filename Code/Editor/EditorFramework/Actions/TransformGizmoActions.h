@@ -5,66 +5,66 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 enum class ActiveGizmo;
-class ezGameObjectDocument;
-struct ezSnapProviderEvent;
-struct ezGameObjectEvent;
+class WGameObjectDocument;
+struct WSnapProviderEvent;
+struct WGameObjectEvent;
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezTransformGizmoActions
+class W_EDITORFRAMEWORK_DLL WTransformGizmoActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hGizmoCategory;
-  static ezActionDescriptorHandle s_hGizmoMenu;
-  static ezActionDescriptorHandle s_hNoGizmo;
-  static ezActionDescriptorHandle s_hTranslateGizmo;
-  static ezActionDescriptorHandle s_hRotateGizmo;
-  static ezActionDescriptorHandle s_hScaleGizmo;
-  static ezActionDescriptorHandle s_hDragToPositionGizmo;
-  static ezActionDescriptorHandle s_hWorldSpace;
-  static ezActionDescriptorHandle s_hMoveParentOnly;
-  static ezActionDescriptorHandle s_SnapSettings;
-  static ezActionDescriptorHandle s_SnapTranslationMenu;
-  static ezActionDescriptorHandle s_SnapRotationMenu;
-  static ezActionDescriptorHandle s_SnapScaleMenu;
+  static WActionDescriptorHandle s_hGizmoCategory;
+  static WActionDescriptorHandle s_hGizmoMenu;
+  static WActionDescriptorHandle s_hNoGizmo;
+  static WActionDescriptorHandle s_hTranslateGizmo;
+  static WActionDescriptorHandle s_hRotateGizmo;
+  static WActionDescriptorHandle s_hScaleGizmo;
+  static WActionDescriptorHandle s_hDragToPositionGizmo;
+  static WActionDescriptorHandle s_hWorldSpace;
+  static WActionDescriptorHandle s_hMoveParentOnly;
+  static WActionDescriptorHandle s_SnapSettings;
+  static WActionDescriptorHandle s_SnapTranslationMenu;
+  static WActionDescriptorHandle s_SnapRotationMenu;
+  static WActionDescriptorHandle s_SnapScaleMenu;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezGizmoAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WGizmoAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WGizmoAction, WButtonAction);
 
 public:
-  ezGizmoAction(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType);
-  ~ezGizmoAction();
+  WGizmoAction(const WActionContext& context, const char* szName, const WRTTI* pGizmoType);
+  ~WGizmoAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 protected:
   void UpdateState();
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
+  void GameObjectEventHandler(const WGameObjectEvent& e);
 
-  ezGameObjectDocument* m_pGameObjectDocument = nullptr;
-  const ezRTTI* m_pGizmoType = nullptr;
+  WGameObjectDocument* m_pGameObjectDocument = nullptr;
+  const WRTTI* m_pGizmoType = nullptr;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezToggleWorldSpaceGizmo : public ezGizmoAction
+class W_EDITORFRAMEWORK_DLL WToggleWorldSpaceGizmo : public WGizmoAction
 {
 public:
-  ezToggleWorldSpaceGizmo(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType);
-  virtual void Execute(const ezVariant& value) override;
+  WToggleWorldSpaceGizmo(const WActionContext& context, const char* szName, const WRTTI* pGizmoType);
+  virtual void Execute(const WVariant& value) override;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezTransformGizmoAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WTransformGizmoAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTransformGizmoAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WTransformGizmoAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -74,34 +74,34 @@ public:
     GizmoSnapSettings,
   };
 
-  ezTransformGizmoAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezTransformGizmoAction();
+  WTransformGizmoAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WTransformGizmoAction();
 
-  virtual void Execute(const ezVariant& value) override;
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
+  virtual void Execute(const WVariant& value) override;
+  void GameObjectEventHandler(const WGameObjectEvent& e);
 
 private:
   void UpdateState();
 
-  ezGameObjectDocument* m_pGameObjectDocument;
+  WGameObjectDocument* m_pGameObjectDocument;
   ActionType m_Type;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmoAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WTranslateGizmoAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WTranslateGizmoAction, WButtonAction);
 
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
 private:
-  static ezActionDescriptorHandle s_hSnappingValueMenu;
-  static ezActionDescriptorHandle s_hSnapPivotToGrid;
-  static ezActionDescriptorHandle s_hSnapObjectsToGrid;
+  static WActionDescriptorHandle s_hSnappingValueMenu;
+  static WActionDescriptorHandle s_hSnapPivotToGrid;
+  static WActionDescriptorHandle s_hSnapObjectsToGrid;
 
 public:
   enum class ActionType
@@ -110,11 +110,11 @@ public:
     SnapEachSelectedObjectToGrid,
   };
 
-  ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type);
+  WTranslateGizmoAction(const WActionContext& context, const char* szName, ActionType type);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  const ezGameObjectDocument* m_pSceneDocument;
+  const WGameObjectDocument* m_pSceneDocument;
   ActionType m_Type;
 };

@@ -4,27 +4,27 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-static ezGameEngineTestRmlUi s_GameEngineTestAnimations;
+static WGameEngineTestRmlUi s_GameEngineTestAnimations;
 
-const char* ezGameEngineTestRmlUi::GetTestName() const
+const char* WGameEngineTestRmlUi::GetTestName() const
 {
   return "RmlUi Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestRmlUi::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestRmlUi::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "RmlUi");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "RmlUi");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestRmlUi::SetupSubTests()
+void WGameEngineTestRmlUi::SetupSubTests()
 {
   AddSubTest("Demo", SubTests::Demo);
 }
 
-ezResult ezGameEngineTestRmlUi::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestRmlUi::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -38,34 +38,34 @@ ezResult ezGameEngineTestRmlUi::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(10);
     m_ImgCompFrames.PushBack(13);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("RmlUi/AssetCache/Common/Scenes/Demo.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("RmlUi/AssetCache/Common/Scenes/Demo.WBinScene"));
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestRmlUi::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestRmlUi::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
+  const bool bVulkan = WGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    W_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

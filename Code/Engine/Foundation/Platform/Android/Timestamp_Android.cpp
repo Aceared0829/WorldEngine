@@ -1,22 +1,22 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Time/Timestamp.h>
 
-#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#  if W_ENABLED(W_PLATFORM_64BIT)
 // On 64-bit android platforms we can just use the Posix implementation.
 #    include <Foundation/Platform/Posix/Timestamp_Posix.h>
 #  else
 // On 32-bit android platforms time.h uses 32bit time stamps. So we have to use time64.h instead
 #    include <time64.h>
 
-const ezTimestamp ezTimestamp::CurrentTimestamp()
+const WTimestamp WTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return WTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, WSIUnitOfTime::Microsecond);
 }
 
 bool operator!=(const tm& lhs, const tm& rhs)
@@ -36,7 +36,7 @@ bool operator!=(const tm& lhs, const tm& rhs)
   }
 }
 
-const ezTimestamp ezDateTime::GetTimestamp() const
+const WTimestamp WDateTime::GetTimestamp() const
 {
   tm timeinfo = {0};
 
@@ -53,25 +53,25 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   // If it can't round trip it is assumed to be invalid.
   tm timeinfoRoundtrip = {0};
   if (gmtime64_r(&iTimeStamp, &timeinfoRoundtrip) == nullptr)
-    return ezTimestamp::MakeInvalid();
+    return WTimestamp::MakeInvalid();
 
   // mktime may have 'patched' our time to be valid, we don't want that to count as a valid date.
   if (timeinfoRoundtrip != timeinfo)
-    return ezTimestamp::MakeInvalid();
+    return WTimestamp::MakeInvalid();
 
   iTimeStamp += timeinfo.tm_gmtoff;
   // Subtract one hour if daylight saving time was activated by mktime.
   if (timeinfo.tm_isdst == 1)
     iTimeStamp -= 3600;
-  return ezTimestamp::MakeFromInt(iTimeStamp, ezSIUnitOfTime::Second);
+  return WTimestamp::MakeFromInt(iTimeStamp, WSIUnitOfTime::Second);
 }
 
-ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
+WResult WDateTime::SetFromTimestamp(WTimestamp timestamp)
 {
   tm timeinfo = {0};
-  time64_t iTime = (time64_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
+  time64_t iTime = (time64_t)timestamp.GetInt64(WSIUnitOfTime::Second);
   if (gmtime64_r(&iTime, &timeinfo) == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_iYear = timeinfo.tm_year + 1900;
   m_uiMonth = timeinfo.tm_mon + 1;
@@ -79,10 +79,10 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
   m_uiHour = timeinfo.tm_hour;
   m_uiMinute = timeinfo.tm_min;
   m_uiSecond = timeinfo.tm_sec;
-  m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
+  m_uiDayOfWeek = WMath::MaxValue<WUInt8>(); // TODO: no day of week exists, setting to uint8 max.
   m_uiMicroseconds = 0;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #  endif

@@ -9,15 +9,15 @@
 
 class QWidget;
 
-class EZ_GUIFOUNDATION_DLL ezQtTreeSearchFilterModel : public QSortFilterProxyModel
+class W_GUIFOUNDATION_DLL WQtTreeSearchFilterModel : public QSortFilterProxyModel
 {
   Q_OBJECT
 
 public:
   /// Return true to indicate that the model index shall be visible.
-  using CustomFilterFunc = ezDelegate<bool(QModelIndex, const ezSearchPatternFilter&)>;
+  using CustomFilterFunc = WDelegate<bool(QModelIndex, const WSearchPatternFilter&)>;
 
-  ezQtTreeSearchFilterModel(QWidget* pParent);
+  WQtTreeSearchFilterModel(QWidget* pParent);
 
   void SetFilterText(const QString& sText);
 
@@ -35,7 +35,7 @@ protected:
 
   bool m_bIncludeChildren;
   QAbstractItemModel* m_pSourceModel;
-  ezSearchPatternFilter m_Filter;
-  ezMap<QModelIndex, bool> m_Visible;
+  WSearchPatternFilter m_Filter;
+  WMap<QModelIndex, bool> m_Visible;
   CustomFilterFunc m_CustomFilterFunc;
 };

@@ -5,10 +5,10 @@
 #include <QApplication>
 #include <QPalette>
 
-ezQtVisualGraphConnection::ezQtVisualGraphConnection(QGraphicsItem* pParent)
+WQtVisualGraphConnection::WQtVisualGraphConnection(QGraphicsItem* pParent)
   : QGraphicsPathItem(pParent)
 {
-  QPen pen(ezToQtColor(ezColor::White), 3, Qt::SolidLine);
+  QPen pen(WToQtColor(WColor::White), 3, Qt::SolidLine);
   setPen(pen);
   setBrush(Qt::NoBrush);
 
@@ -17,39 +17,39 @@ ezQtVisualGraphConnection::ezQtVisualGraphConnection(QGraphicsItem* pParent)
   setZValue(-1);
 }
 
-ezQtVisualGraphConnection::~ezQtVisualGraphConnection() = default;
+WQtVisualGraphConnection::~WQtVisualGraphConnection() = default;
 
-void ezQtVisualGraphConnection::InitConnection(const ezDocumentObject* pObject, const ezVisualGraphConnection* pConnection)
+void WQtVisualGraphConnection::InitConnection(const WDocumentObject* pObject, const WVisualGraphConnection* pConnection)
 {
   m_pObject = pObject;
   m_pConnection = pConnection;
 }
 
-void ezQtVisualGraphConnection::SetPosIn(const QPointF& point)
+void WQtVisualGraphConnection::SetPosIn(const QPointF& point)
 {
   m_InPoint = point;
   UpdateGeometry();
 }
 
-void ezQtVisualGraphConnection::SetPosOut(const QPointF& point)
+void WQtVisualGraphConnection::SetPosOut(const QPointF& point)
 {
   m_OutPoint = point;
   UpdateGeometry();
 }
 
-void ezQtVisualGraphConnection::SetDirIn(const QPointF& dir)
+void WQtVisualGraphConnection::SetDirIn(const QPointF& dir)
 {
   m_InDir = dir;
   UpdateGeometry();
 }
 
-void ezQtVisualGraphConnection::SetDirOut(const QPointF& dir)
+void WQtVisualGraphConnection::SetDirOut(const QPointF& dir)
 {
   m_OutDir = dir;
   UpdateGeometry();
 }
 
-void ezQtVisualGraphConnection::UpdateGeometry()
+void WQtVisualGraphConnection::UpdateGeometry()
 {
   constexpr float arrowHalfSize = 8.0f;
 
@@ -58,15 +58,15 @@ void ezQtVisualGraphConnection::UpdateGeometry()
   QPainterPath p;
   QPointF dir = m_InPoint - m_OutPoint;
 
-  auto pScene = static_cast<ezQtVisualGraphScene*>(scene());
-  if (pScene->GetConnectionStyle() == ezQtVisualGraphScene::ConnectionStyle::StraightLine)
+  auto pScene = static_cast<WQtVisualGraphScene*>(scene());
+  if (pScene->GetConnectionStyle() == WQtVisualGraphScene::ConnectionStyle::StraightLine)
   {
     QPointF startPoint = m_OutPoint;
     QPointF endPoint = m_InPoint;
 
-    if (pScene->GetConnectionDecorationFlags().IsSet(ezQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows))
+    if (pScene->GetConnectionDecorationFlags().IsSet(WQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows))
     {
-      const float length = ezMath::Sqrt(dir.x() * dir.x() + dir.y() * dir.y());
+      const float length = WMath::Sqrt(dir.x() * dir.x() + dir.y() * dir.y());
       const float invLength = length != 0.0f ? 1.0f / length : 1.0f;
       const QPointF dirNorm = dir * invLength;
       const QPointF normal = QPointF(dirNorm.y(), -dirNorm.x());
@@ -91,7 +91,7 @@ void ezQtVisualGraphConnection::UpdateGeometry()
     p.moveTo(startPoint);
     p.lineTo(endPoint);
   }
-  else if (pScene->GetConnectionStyle() == ezQtVisualGraphScene::ConnectionStyle::SubwayLines)
+  else if (pScene->GetConnectionStyle() == WQtVisualGraphScene::ConnectionStyle::SubwayLines)
   {
     // Used to enforce a small padding connection from the node itself to help readability.
     const float fPaddingFromNode = 20.0f;
@@ -112,14 +112,14 @@ void ezQtVisualGraphConnection::UpdateGeometry()
   else
   {
     p.moveTo(m_OutPoint);
-    float fDotOut = ezMath::Abs(QPointF::dotProduct(m_OutDir, dir));
-    float fDotIn = ezMath::Abs(QPointF::dotProduct(m_InDir, -dir));
+    float fDotOut = WMath::Abs(QPointF::dotProduct(m_OutDir, dir));
+    float fDotIn = WMath::Abs(QPointF::dotProduct(m_InDir, -dir));
 
-    float fMinDistance = ezMath::Abs(QPointF::dotProduct(m_OutDir.transposed(), dir));
-    fMinDistance = ezMath::Min(200.0f, fMinDistance);
+    float fMinDistance = WMath::Abs(QPointF::dotProduct(m_OutDir.transposed(), dir));
+    fMinDistance = WMath::Min(200.0f, fMinDistance);
 
-    fDotOut = ezMath::Max(fMinDistance, fDotOut);
-    fDotIn = ezMath::Max(fMinDistance, fDotIn);
+    fDotOut = WMath::Max(fMinDistance, fDotOut);
+    fDotIn = WMath::Max(fMinDistance, fDotIn);
 
     QPointF ctr1 = m_OutPoint + m_OutDir * (fDotOut * 0.5f);
     QPointF ctr2 = m_InPoint + m_InDir * (fDotIn * 0.5f);
@@ -130,50 +130,50 @@ void ezQtVisualGraphConnection::UpdateGeometry()
   setPath(p);
 }
 
-QPen ezQtVisualGraphConnection::DeterminePen() const
+QPen WQtVisualGraphConnection::DeterminePen() const
 {
   if (m_pConnection == nullptr)
   {
     return pen();
   }
 
-  ezColor color;
-  const ezColor sourceColor = m_pConnection->GetSourcePin().GetColor();
-  const ezColor targetColor = m_pConnection->GetTargetPin().GetColor();
+  WColor color;
+  const WColor sourceColor = m_pConnection->GetSourcePin().GetColor();
+  const WColor targetColor = m_pConnection->GetTargetPin().GetColor();
 
   const bool isSourceGrey = (sourceColor.r == sourceColor.g && sourceColor.r == sourceColor.b);
   const bool isTargetGrey = (targetColor.r == targetColor.g && targetColor.r == targetColor.b);
 
   if (!isSourceGrey)
   {
-    color = ezMath::Lerp(sourceColor, targetColor, 0.2f);
+    color = WMath::Lerp(sourceColor, targetColor, 0.2f);
   }
   else if (!isTargetGrey)
   {
-    color = ezMath::Lerp(sourceColor, targetColor, 0.8f);
+    color = WMath::Lerp(sourceColor, targetColor, 0.8f);
   }
   else if (m_bHighlight)
   {
-    color = ezMath::Lerp(color, ezColor::White, 0.3f);
-    return QPen(QBrush(ezToQtColor(color)), 4, Qt::SolidLine);
+    color = WMath::Lerp(color, WColor::White, 0.3f);
+    return QPen(QBrush(WToQtColor(color)), 4, Qt::SolidLine);
   }
   else
   {
-    color = ezMath::Lerp(sourceColor, targetColor, 0.5f);
+    color = WMath::Lerp(sourceColor, targetColor, 0.5f);
   }
 
   if (m_bAdjacentNodeSelected)
   {
-    color = ezMath::Lerp(color, ezColor::White, 0.1f);
-    return QPen(QBrush(ezToQtColor(color)), 3, Qt::DashLine);
+    color = WMath::Lerp(color, WColor::White, 0.1f);
+    return QPen(QBrush(WToQtColor(color)), 3, Qt::DashLine);
   }
   else
   {
-    return QPen(QBrush(ezToQtColor(color)), 2, Qt::SolidLine);
+    return QPen(QBrush(WToQtColor(color)), 2, Qt::SolidLine);
   }
 }
 
-void ezQtVisualGraphConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void WQtVisualGraphConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
   auto palette = QApplication::palette();
 
@@ -184,17 +184,17 @@ void ezQtVisualGraphConnection::paint(QPainter* painter, const QStyleOptionGraph
   }
   painter->setPen(p);
 
-  auto decorationFlags = static_cast<ezQtVisualGraphScene*>(scene())->GetConnectionDecorationFlags();
-  if (decorationFlags.IsSet(ezQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows))
+  auto decorationFlags = static_cast<WQtVisualGraphScene*>(scene())->GetConnectionDecorationFlags();
+  if (decorationFlags.IsSet(WQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows))
   {
     painter->setBrush(p.brush());
   }
 
   painter->drawPath(path());
 
-  if (decorationFlags.IsSet(ezQtVisualGraphScene::ConnectionDecorationFlags::DrawDebugging))
+  if (decorationFlags.IsSet(WQtVisualGraphScene::ConnectionDecorationFlags::DrawDebugging))
   {
-    const float offset = fmod(ezTime::Now().GetSeconds(), 1.0f);
+    const float offset = fmod(WTime::Now().GetSeconds(), 1.0f);
     const qreal segments = path().length() / 16;
 
     for (qreal length = 0; length < segments + 0.0005f; ++length)
@@ -204,7 +204,7 @@ void ezQtVisualGraphConnection::paint(QPainter* painter, const QStyleOptionGraph
   }
 }
 
-void ezQtVisualGraphConnection::DrawSubwayPath(QPainterPath& path, const QPointF& startPoint, const QPointF& endPoint)
+void WQtVisualGraphConnection::DrawSubwayPath(QPainterPath& path, const QPointF& startPoint, const QPointF& endPoint)
 {
   const bool isStartAboveTarget = startPoint.y() <= endPoint.y();
   const bool isStartLeftOfTarget = startPoint.x() <= endPoint.x();

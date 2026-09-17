@@ -8,24 +8,24 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 
-class ezMeshRenderData;
-class ezGeometry;
-struct ezMsgExtractRenderData;
-struct ezMsgBuildStaticMesh;
-struct ezMsgExtractGeometry;
-struct ezMsgExtractOccluderData;
-struct ezMsgSetMeshMaterial;
-struct ezMsgSetColor;
-class ezMeshResourceDescriptor;
-struct ezMsgSetCustomData;
-using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+class WMeshRenderData;
+class WGeometry;
+struct WMsgExtractRenderData;
+struct WMsgBuildStaticMesh;
+struct WMsgExtractGeometry;
+struct WMsgExtractOccluderData;
+struct WMsgSetMeshMaterial;
+struct WMsgSetColor;
+class WMeshResourceDescriptor;
+struct WMsgSetCustomData;
+using WMeshResourceHandle = WTypedResourceHandle<class WMeshResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
 
-using ezGreyBoxComponentManager = ezComponentManager<class ezGreyBoxComponent, ezBlockStorageType::Compact>;
+using WGreyBoxComponentManager = WComponentManager<class WGreyBoxComponent, WBlockStorageType::Compact>;
 
-struct EZ_GAMEENGINE_DLL ezGreyBoxShape
+struct W_GAMEENGINE_DLL WGreyBoxShape
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -47,50 +47,50 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGreyBoxShape)
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WGreyBoxShape)
 
 /// Creates basic geometry for prototyping levels.
 ///
 /// It automatically creates physics collision geometry and also sets up rendering occluders to improve performance.
-class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
+class W_GAMEENGINE_DLL WGreyBoxComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezGreyBoxComponent, ezRenderComponent, ezGreyBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WGreyBoxComponent, WRenderComponent, WGreyBoxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg) override;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGreyBoxComponent
+  // WGreyBoxComponent
 
 public:
-  ezGreyBoxComponent();
-  ~ezGreyBoxComponent();
+  WGreyBoxComponent();
+  ~WGreyBoxComponent();
 
   /// The geometry type to build.
-  void SetShape(ezEnum<ezGreyBoxShape> shape);                // [ property ]
-  ezEnum<ezGreyBoxShape> GetShape() const { return m_Shape; } // [ property ]
+  void SetShape(WEnum<WGreyBoxShape> shape);                // [ property ]
+  WEnum<WGreyBoxShape> GetShape() const { return m_Shape; } // [ property ]
 
   /// An additional tint color passed to the renderer to modify the mesh.
-  void SetColor(const ezColor& color); // [ property ]
-  const ezColor& GetColor() const;     // [ property ]
+  void SetColor(const WColor& color); // [ property ]
+  const WColor& GetColor() const;     // [ property ]
 
   /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
-  void SetCustomData(const ezVec4& vData); // [ property ]
-  const ezVec4& GetCustomData() const;     // [ property ]
+  void SetCustomData(const WVec4& vData); // [ property ]
+  const WVec4& GetCustomData() const;     // [ property ]
 
   /// Sets the extent along the negative X axis of the bounding box.
   void SetSizeNegX(float f);                        // [ property ]
@@ -117,12 +117,12 @@ public:
   float GetSizePosZ() const { return m_fSizePosZ; } // [ property ]
 
   /// Sets the detail of the geometry. The meaning is geometry type specific, e.g. for cylinders this is the number of polygons around the perimeter.
-  void SetDetail(ezUInt32 uiDetail);                // [ property ]
-  ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
+  void SetDetail(WUInt32 uiDetail);                // [ property ]
+  WUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
   /// Geometry type specific: Sets an angle, used to curve stairs, etc.
-  void SetCurvature(ezAngle curvature);                // [ property ]
-  ezAngle GetCurvature() const { return m_Curvature; } // [ property ]
+  void SetCurvature(WAngle curvature);                // [ property ]
+  WAngle GetCurvature() const { return m_Curvature; } // [ property ]
 
   /// For curved stairs to make the top smooth.
   void SetSlopedTop(bool b);                         // [ property ]
@@ -140,31 +140,31 @@ public:
   void SetGenerateCollision(bool b);                                 // [ property ]
   bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
 
-  /// Sets the ezMaterialResource to use for rendering.
-  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
-  ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
+  /// Sets the WMaterialResource to use for rendering.
+  void SetMaterial(const WMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
+  WMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
 
 protected:
-  void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
-  void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
+  void OnBuildStaticMesh(WMsgBuildStaticMesh& msg) const;
+  void OnMsgExtractGeometry(WMsgExtractGeometry& msg) const;
+  void OnMsgExtractOccluderData(WMsgExtractOccluderData& msg) const;
 
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
-  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
+  void OnMsgSetMeshMaterial(WMsgSetMeshMaterial& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(WMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetCustomData(WMsgSetCustomData& ref_msg);     // [ msg handler ]
 
-  ezEnum<ezGreyBoxShape> m_Shape;
-  ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  WEnum<WGreyBoxShape> m_Shape;
+  WMaterialResourceHandle m_hMaterial;
+  WColor m_Color = WColor::White;
+  WVec4 m_vCustomData = WVec4(0, 1, 0, 1);
   float m_fSizeNegX = 0;
   float m_fSizePosX = 0;
   float m_fSizeNegY = 0;
   float m_fSizePosY = 0;
   float m_fSizeNegZ = 0;
   float m_fSizePosZ = 0;
-  ezUInt32 m_uiDetail = 16;
-  ezAngle m_Curvature;
+  WUInt32 m_uiDetail = 16;
+  WAngle m_Curvature;
   float m_fThickness = 0.5f;
   bool m_bSlopedTop = false;
   bool m_bSlopedBottom = false;
@@ -172,16 +172,16 @@ protected:
   bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();
-  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const;
+  void BuildGeometry(WGeometry& geom, WEnum<WGreyBoxShape> shape, bool bOnlyRoughDetails) const;
 
   template <typename ResourceType>
-  ezTypedResourceHandle<ResourceType> GenerateMesh() const;
+  WTypedResourceHandle<ResourceType> GenerateMesh() const;
 
-  void GenerateMeshName(ezStringBuilder& out_sName) const;
-  void GenerateMeshResourceDescriptor(ezMeshResourceDescriptor& desc) const;
+  void GenerateMeshName(WStringBuilder& out_sName) const;
+  void GenerateMeshResourceDescriptor(WMeshResourceDescriptor& desc) const;
 
-  ezMeshResourceHandle m_hMesh;
+  WMeshResourceHandle m_hMesh;
 
-  mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WSharedPtr<const WRasterizerObject> m_pOccluderObject;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

@@ -4,10 +4,10 @@
 #include <Foundation/Communication/Event.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 
-class ezParticleEffectAssetDocument;
-struct ezPropertyMetaStateEvent;
+class WParticleEffectAssetDocument;
+struct WPropertyMetaStateEvent;
 
-struct ezParticleEffectAssetEvent
+struct WParticleEffectAssetEvent
 {
   enum Type
   {
@@ -17,24 +17,24 @@ struct ezParticleEffectAssetEvent
     RenderVisualizersChanged,
   };
 
-  ezParticleEffectAssetDocument* m_pDocument;
+  WParticleEffectAssetDocument* m_pDocument;
   Type m_Type;
 };
 
-class ezParticleEffectAssetDocument : public ezSimpleAssetDocument<ezParticleEffectDescriptor>
+class WParticleEffectAssetDocument : public WSimpleAssetDocument<WParticleEffectDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEffectAssetDocument, ezSimpleAssetDocument<ezParticleEffectDescriptor>);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEffectAssetDocument, WSimpleAssetDocument<WParticleEffectDescriptor>);
 
 public:
-  ezParticleEffectAssetDocument(ezStringView sDocumentPath);
+  WParticleEffectAssetDocument(WStringView sDocumentPath);
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  void WriteResource(ezStreamWriter& inout_stream) const;
+  void WriteResource(WStreamWriter& inout_stream) const;
 
   void TriggerRestartEffect();
 
-  ezEvent<const ezParticleEffectAssetEvent&> m_Events;
+  WEvent<const WParticleEffectAssetEvent&> m_Events;
 
   void SetAutoRestart(bool bEnable);
   bool GetAutoRestart() const { return m_bAutoRestart; }
@@ -49,13 +49,13 @@ public:
   void SetRenderVisualizers(bool b);
 
   // Overridden to enable support for visualizers/manipulators
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const override;
+  virtual WResult ComputeObjectTransformation(const WDocumentObject* pObject, WTransform& out_result) const override;
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
 private:
   bool m_bSimulationPaused = false;

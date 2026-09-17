@@ -141,7 +141,7 @@ if (-not (Test-Path $jdkTarget)) {
         $jdkUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_${jdkPlatform}_hotspot_17.0.6_10.${jdkExt}"
     }
 
-    $tmpJdkDir = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath "ez_jdk_install"
+    $tmpJdkDir = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath "W_jdk_install"
     if (Test-Path $tmpJdkDir) { Remove-Item -LiteralPath $tmpJdkDir -Recurse -Force -ErrorAction SilentlyContinue }
     New-Item -ItemType Directory -Path $tmpJdkDir | Out-Null
 

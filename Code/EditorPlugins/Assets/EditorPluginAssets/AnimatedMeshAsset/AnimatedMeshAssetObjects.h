@@ -3,22 +3,22 @@
 #include <EditorPluginAssets/Util/AssetUtils.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
-struct ezPropertyMetaStateEvent;
+struct WPropertyMetaStateEvent;
 
-class ezAnimatedMeshAssetProperties : public ezReflectedClass
+class WAnimatedMeshAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimatedMeshAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAnimatedMeshAssetProperties, WReflectedClass);
 
 public:
-  ezAnimatedMeshAssetProperties();
-  ~ezAnimatedMeshAssetProperties();
+  WAnimatedMeshAssetProperties();
+  ~WAnimatedMeshAssetProperties();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezString m_sMeshFile;
-  ezString m_sMeshIncludeTags;
-  ezString m_sMeshExcludeTags;
-  ezString m_sDefaultSkeleton;
+  WString m_sMeshFile;
+  WString m_sMeshIncludeTags;
+  WString m_sMeshExcludeTags;
+  WString m_sDefaultSkeleton;
 
   bool m_bRecalculateNormals = false;
   bool m_bRecalculateTangents = true;
@@ -26,13 +26,13 @@ public:
   bool m_bImportMaterials = true;
 
   bool m_bHighPrecision = false;
-  ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
+  WEnum<WMeshVertexColorConversion> m_VertexColorConversion;
 
-  ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
+  WHybridArray<WMaterialResourceSlot, 8> m_Slots;
 
   bool m_bSimplifyMesh = false;
   float m_fNormalWeight = 0.5f;
   bool m_bAggressiveSimplification = false;
-  ezUInt8 m_uiMeshSimplification = 50;
-  ezUInt8 m_uiMaxSimplificationError = 5;
+  WUInt8 m_uiMeshSimplification = 50;
+  WUInt8 m_uiMaxSimplificationError = 5;
 };

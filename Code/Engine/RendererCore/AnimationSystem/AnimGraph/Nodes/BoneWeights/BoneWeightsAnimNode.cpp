@@ -9,98 +9,98 @@
 #include <ozz/animation/runtime/skeleton_utils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator<ezBoneWeightsAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoneWeightsAnimNode, 1, WRTTIDefaultAllocator<WBoneWeightsAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ARRAY_ACCESSOR_PROPERTY("RootBones", RootBones_GetCount, RootBones_GetValue, RootBones_SetValue, RootBones_Insert, RootBones_Remove),
+    W_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
+    W_ARRAY_ACCESSOR_PROPERTY("RootBones", RootBones_GetCount, RootBones_GetValue, RootBones_SetValue, RootBones_Insert, RootBones_Remove),
 
-    EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InverseWeights", m_InverseWeightsPin)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("InverseWeights", m_InverseWeightsPin)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Weights"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Teal)),
-    new ezTitleAttribute("Bone Weights '{RootBones[0]}' '{RootBones[1]}' '{RootBones[2]}'"),
+    new WCategoryAttribute("Weights"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Teal)),
+    new WTitleAttribute("Bone Weights '{RootBones[0]}' '{RootBones[1]}' '{RootBones[2]}'"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoneWeightsAnimNode::ezBoneWeightsAnimNode() = default;
-ezBoneWeightsAnimNode::~ezBoneWeightsAnimNode() = default;
+WBoneWeightsAnimNode::WBoneWeightsAnimNode() = default;
+WBoneWeightsAnimNode::~WBoneWeightsAnimNode() = default;
 
-ezUInt32 ezBoneWeightsAnimNode::RootBones_GetCount() const
+WUInt32 WBoneWeightsAnimNode::RootBones_GetCount() const
 {
   return m_RootBones.GetCount();
 }
 
-const char* ezBoneWeightsAnimNode::RootBones_GetValue(ezUInt32 uiIndex) const
+const char* WBoneWeightsAnimNode::RootBones_GetValue(WUInt32 uiIndex) const
 {
   return m_RootBones[uiIndex].GetString();
 }
 
-void ezBoneWeightsAnimNode::RootBones_SetValue(ezUInt32 uiIndex, const char* value)
+void WBoneWeightsAnimNode::RootBones_SetValue(WUInt32 uiIndex, const char* value)
 {
   m_RootBones[uiIndex].Assign(value);
 }
 
-void ezBoneWeightsAnimNode::RootBones_Insert(ezUInt32 uiIndex, const char* value)
+void WBoneWeightsAnimNode::RootBones_Insert(WUInt32 uiIndex, const char* value)
 {
-  ezHashedString tmp;
+  WHashedString tmp;
   tmp.Assign(value);
   m_RootBones.InsertAt(uiIndex, tmp);
 }
 
-void ezBoneWeightsAnimNode::RootBones_Remove(ezUInt32 uiIndex)
+void WBoneWeightsAnimNode::RootBones_Remove(WUInt32 uiIndex)
 {
   m_RootBones.RemoveAtAndCopy(uiIndex);
 }
 
-ezResult ezBoneWeightsAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WBoneWeightsAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_RootBones));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_RootBones));
 
   stream << m_fWeight;
 
-  EZ_SUCCEED_OR_RETURN(m_WeightsPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InverseWeightsPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_WeightsPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InverseWeightsPin.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WBoneWeightsAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_RootBones));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_RootBones));
 
   stream >> m_fWeight;
 
-  EZ_SUCCEED_OR_RETURN(m_WeightsPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InverseWeightsPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_WeightsPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InverseWeightsPin.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WBoneWeightsAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected())
     return;
 
   if (m_RootBones.IsEmpty())
   {
-    ezLog::Warning("No root-bones added to bone weight node in animation controller.");
+    WLog::Warning("No root-bones added to bone weight node in animation controller.");
     return;
   }
 
@@ -110,7 +110,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
   {
     const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
-    ezStringBuilder name;
+    WStringBuilder name;
     name.SetFormat("{}", pSkeleton->GetResourceIDHash());
 
     for (const auto& rootBone : m_RootBones)
@@ -118,14 +118,14 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
       name.AppendFormat("-{}", rootBone);
     }
 
-    pInstance->m_pSharedBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw)
+    pInstance->m_pSharedBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](WAnimGraphSharedBoneWeights& ref_bw)
       {
       for (const auto& rootBone : m_RootBones)
       {
         int iRootBone = -1;
         for (int iBone = 0; iBone < pOzzSkeleton->num_joints(); ++iBone)
         {
-          if (ezStringUtils::IsEqual(pOzzSkeleton->joint_names()[iBone], rootBone.GetData()))
+          if (WStringUtils::IsEqual(pOzzSkeleton->joint_names()[iBone], rootBone.GetData()))
           {
             iRootBone = iBone;
             break;
@@ -149,11 +149,11 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     {
       name.Append("-inv");
 
-      pInstance->m_pSharedInverseBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw)
+      pInstance->m_pSharedInverseBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pInstance](WAnimGraphSharedBoneWeights& ref_bw)
         {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
-        for (ezUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)
+        for (WUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)
         {
           ref_bw.m_Weights[b] = ozz::math::MSub(oneBone, oneBone, pInstance->m_pSharedBoneWeights->m_Weights[b]);
         } });
@@ -167,7 +167,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
 
   if (m_WeightsPin.IsConnected())
   {
-    ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
+    WAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedBoneWeights.Borrow();
 
@@ -176,7 +176,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
 
   if (m_InverseWeightsPin.IsConnected())
   {
-    ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
+    WAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedInverseBoneWeights.Borrow();
 
@@ -184,10 +184,10 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
   }
 }
 
-bool ezBoneWeightsAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WBoneWeightsAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_BoneWeights_BoneWeightsAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_BoneWeights_BoneWeightsAnimNode);

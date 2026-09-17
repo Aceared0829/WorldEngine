@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Strings/StringBuilder.h>
@@ -8,13 +8,13 @@
 #  include <Foundation/Types/Enum.h>
 #  include <jni.h>
 
-class ezJniObject;
-class ezJniClass;
-class ezJniString;
+class WJniObject;
+class WJniClass;
+class WJniString;
 
-struct ezJniError
+struct WJniError
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
   enum Enum
   {
     /// No JNI error occurred.
@@ -40,11 +40,11 @@ struct ezJniError
 
     Default = SUCCESS
   };
-  EZ_ENUM_TO_STRING(SUCCESS, PENDING_EXCEPTION, NO_MATCHING_METHOD, AMBIGUOUS_CALL, NO_MATCHING_FIELD, CALL_ON_NULL_OBJECT, CLASS_NOT_FOUND);
+  W_ENUM_TO_STRING(SUCCESS, PENDING_EXCEPTION, NO_MATCHING_METHOD, AMBIGUOUS_CALL, NO_MATCHING_FIELD, CALL_ON_NULL_OBJECT, CLASS_NOT_FOUND);
 };
 
-using ezJniErrorState = ezEnum<ezJniError>;
-using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
+using WJniErrorState = WEnum<WJniError>;
+using WJniErrorHandler = WDelegate<void(WJniErrorState)>;
 
 /// Attaches the current thread to the Java virtual machine.
 ///
@@ -55,24 +55,24 @@ using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 ///   \code
 ///     void foo()
 ///     {
-///       ezJniAttachment attachment;
-///       ezJniObject activity = attachment.GetActivity();
+///       WJniAttachment attachment;
+///       WJniObject activity = attachment.GetActivity();
 ///
 ///       // Perform Java calls
-///       ezJniClass myClassType = activity.Call<ezJniObject>("getClassLoader").Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
+///       WJniClass myClassType = activity.Call<WJniObject>("getClassLoader").Call<WJniClass>("loadClass", WJniString("com.myproject.MyClass"));
 ///     }
 ///   \endcode
 ///
-/// Note that all JNICalls may fail, including the construction of ezJniClass and ezJniObject instances.
+/// Note that all JNICalls may fail, including the construction of WJniClass and WJniObject instances.
 /// You may use GetLastError() and ClearLastError() to check for, and do your own error-specific handling.
 /// \example
 ///   \code
 ///     void foo()
 ///     {
-///       ezJniAttachment attachment;
-///       ezJniObject activity = attachment.GetActivity();
-///       ezJniClass myClassType = activity.Call<ezJniObject>("getClassLoader").Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
-///       if(attachment.GetLastError() == ezJniErrorState::NO_MATCHING_METHOD){SpecificErrorHandling();}
+///       WJniAttachment attachment;
+///       WJniObject activity = attachment.GetActivity();
+///       WJniClass myClassType = activity.Call<WJniObject>("getClassLoader").Call<WJniClass>("loadClass", WJniString("com.myproject.MyClass"));
+///       if(attachment.GetLastError() == WJniErrorState::NO_MATCHING_METHOD){SpecificErrorHandling();}
 ///     }
 ///   \endcode
 ///
@@ -82,37 +82,37 @@ using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 ///   \code
 ///     void foo()
 ///     {
-///       ezJniAttachment attachment;
+///       WJniAttachment attachment;
 ///       attachment.InstallErrorHandler(&ThrowRuntimeError);
 ///
 ///       try{
 ///         attachment
 ///           .GetActivity()
-///           .Call<ezJniObject>("getClassLoader")
-///           .Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass")
+///           .Call<WJniObject>("getClassLoader")
+///           .Call<WJniClass>("loadClass", WJniString("com.myproject.MyClass")
 ///           .CreateInstance()
-///           .Call<ezJniObject>("MyMethod");
+///           .Call<WJniObject>("MyMethod");
 ///       }
 ///       catch(const std::runtime_error& error)}
 ///       }
 ///     }
 ///   \endcode
 ///
-/// Either way, the error is always internally logged with ezLog::Error.
-/// ClearLastError() is called whenever a ezJniAttachment is destroyed, so you needn't worry about cleanup in that case.
-class EZ_FOUNDATION_DLL ezJniAttachment
+/// Either way, the error is always internally logged with WLog::Error.
+/// ClearLastError() is called whenever a WJniAttachment is destroyed, so you needn't worry about cleanup in that case.
+class W_FOUNDATION_DLL WJniAttachment
 {
 public:
   /// Constructor.
-  ezJniAttachment();
+  WJniAttachment();
 
   /// Destructor.
-  ~ezJniAttachment();
+  ~WJniAttachment();
 
   /// Returns the Activity of the native application.
   ///
   /// The returned object wraps around activity->clazz of the native application.
-  static ezJniObject GetActivity();
+  static WJniObject GetActivity();
 
   /// Returns the environment the current thread is attached to.
   static JNIEnv* GetEnv();
@@ -121,7 +121,7 @@ public:
   ///
   /// This error state covers general failures during JNI interop, but not exceptions that occurred during Java method execution.
   /// However, attempting to perform a Java call while an exception is pending will result in an error.
-  static ezJniErrorState GetLastError();
+  static WJniErrorState GetLastError();
 
   /// Clears the last error that occurred while trying to perform a checked JNI call.
   ///
@@ -137,36 +137,36 @@ public:
   /// Returns the exception that has been thrown in the last called Java method, or a null object.
   ///
   /// If an exception occurred, no other Java method may be called until ClearPendingException has been called.
-  static ezJniObject GetPendingException();
+  static WJniObject GetPendingException();
 
   /// Clears the exception that has been thrown in the last called Java method, if any.
   static void ClearPendingException();
 
   /// Used internally. Sets the last error state.
-  static void SetLastError(ezJniErrorState state);
+  static void SetLastError(WJniErrorState state);
 
   /// Used internally. Returns true and logs a message is an error or exception is pending.
   static bool FailOnPendingErrorOrException();
 
-  /// Installs an error handler valid for the current ezJniAttachment's lifetime. Called for all ezJniErrorStates but SUCCESS.
-  /// There must not be any other ezJniAttachments existing on the same thread for the call to succeed.
-  /// There must not be any new ezJniAttachments instances created before the current ezJniAttachment is destroyed.
+  /// Installs an error handler valid for the current WJniAttachment's lifetime. Called for all WJniErrorStates but SUCCESS.
+  /// There must not be any other WJniAttachments existing on the same thread for the call to succeed.
+  /// There must not be any new WJniAttachments instances created before the current WJniAttachment is destroyed.
   /// These invariants should hold true with correct usage and are guarded by asserts.
   /// May be called more than once to replace an existing error handler on the same instance.
-  void InstallErrorHandler(ezJniErrorHandler onError);
+  void InstallErrorHandler(WJniErrorHandler onError);
 
 private:
   static thread_local JNIEnv* s_env;
   static thread_local bool s_ownsEnv;
   static thread_local int s_attachCount;
-  static thread_local ezJniErrorState s_lastError;
+  static thread_local WJniErrorState s_lastError;
 
-  ezJniAttachment(const ezJniAttachment&);
-  ezJniAttachment& operator=(const ezJniAttachment&);
+  WJniAttachment(const WJniAttachment&);
+  WJniAttachment& operator=(const WJniAttachment&);
 };
 
 /// Describes the ownership handling of the local JNI reference.
-enum class ezJniOwnerShip
+enum class WJniOwnerShip
 {
   /// The local reference belongs to the class, and will be deleted when it goes out of scope.
   OWN,
@@ -179,64 +179,64 @@ enum class ezJniOwnerShip
 };
 
 /// Class that manages a local reference to a Java object.
-class EZ_FOUNDATION_DLL ezJniObject
+class W_FOUNDATION_DLL WJniObject
 {
 public:
   /// Creates a null object.
-  ezJniObject();
+  WJniObject();
 
   /// Constructs an object from a JNI object handle.
   ///
   /// \param object The JNI object handle.
-  /// \param ownerShip How the object handle should be managed. See ezJniOwnerShip.
-  inline ezJniObject(jobject object, ezJniOwnerShip ownerShip);
+  /// \param ownerShip How the object handle should be managed. See WJniOwnerShip.
+  inline WJniObject(jobject object, WJniOwnerShip ownerShip);
 
   /// Copy constructor. Both instances will reference the same Java object.
-  inline ezJniObject(const ezJniObject& other);
+  inline WJniObject(const WJniObject& other);
 
   /// Move constructor.
-  inline ezJniObject(ezJniObject&& other);
+  inline WJniObject(WJniObject&& other);
 
   /// Assignment operator.
-  inline ezJniObject& operator=(const ezJniObject& other);
+  inline WJniObject& operator=(const WJniObject& other);
 
   /// Move assignment operator.
-  inline ezJniObject& operator=(ezJniObject&& other);
+  inline WJniObject& operator=(WJniObject&& other);
 
   /// Destructor.
-  inline virtual ~ezJniObject();
+  inline virtual ~WJniObject();
 
   /// Compares if the two objects reference the same Java object.
   /// \param other The object to compare to.
   ///
-  /// This method returns true if two ezJniObjects reference the same Java object.
+  /// This method returns true if two WJniObjects reference the same Java object.
   ///
   /// In order to compare the objects using \c Object.equals, use the following code instead:
   ///
   /// \code
-  ///   ezJniObject o1, o2;
+  ///   WJniObject o1, o2;
   ///   if(o1.Call<bool>("equals", o2))
   ///   {
   ///      // ...
   ///   }
   /// \endcode
-  inline bool operator==(const ezJniObject& other) const;
+  inline bool operator==(const WJniObject& other) const;
 
   /// Compares if the two objects reference different Java objects.
   /// \param other The object to compare to.
   ///
-  /// This method returns true if two ezJniObjects reference different Java objects.
+  /// This method returns true if two WJniObjects reference different Java objects.
   ///
   /// In order to compare the objects using \c Object.equals, use the following code instead:
   ///
   /// \code
-  ///   ezJniObject o1, o2;
+  ///   WJniObject o1, o2;
   ///   if(!o1.Call<bool>("equals", o2))
   ///   {
   ///      // ...
   ///   }
   /// \endcode
-  inline bool operator!=(const ezJniObject& other) const;
+  inline bool operator!=(const WJniObject& other) const;
 
   /// Returns true if the object is null.
   bool IsNull() const { return m_object == nullptr; }
@@ -247,15 +247,15 @@ public:
   /// Returns the class type of the object.
   ///
   /// This Call is equivalent to \c o.getClass() in Java.
-  ezJniClass GetClass() const;
+  WJniClass GetClass() const;
 
   /// Returns a string representation of the object.
   ///
   /// This call is equivalent to \c o.ToString() in Java.
-  ezJniString ToString() const;
+  WJniString ToString() const;
 
   /// Returns true if the object is an instance of the given type.
-  bool IsInstanceOf(const ezJniClass& clazz) const;
+  bool IsInstanceOf(const WJniClass& clazz) const;
 
   /// Calls an instance method on the object.
   /// \param name The name of the method to call.
@@ -277,7 +277,7 @@ public:
   ///
   /// \example
   ///   \code
-  ///     ezJniObject myClassInstance;
+  ///     WJniObject myClassInstance;
   ///
   ///     // --- Overload resolution
   ///
@@ -286,10 +286,10 @@ public:
   ///     //   public Player getPlayer(String playerName)
   ///
   ///     // Call the first overload
-  ///     ezJniObject player = myClassInstance.Call<ezJniObject>("getPlayer", 0);
+  ///     WJniObject player = myClassInstance.Call<WJniObject>("getPlayer", 0);
   ///
   ///     // Call the second overload
-  ///     ezJniObject player = myClassInstance.Call<ezJniObject>("getPlayer", ezJniString("player1"));
+  ///     WJniObject player = myClassInstance.Call<WJniObject>("getPlayer", WJniString("player1"));
   ///
   ///     // This call will fail at runtime since there is no method getPlayer that returns int.
   ///     int player = myClassInstance.Call<int>("getPlayer", 0);
@@ -299,7 +299,7 @@ public:
   ///     // Java declaration: public Player getPlayerById(long playerId)
   ///
   ///     // This call will fail at runtime: There is no method named getPlayerById that takes a parameter of type int.
-  ///     ezJniObject player = myClassInstance.Call<ezJniObject>("getPlayerById", 0);
+  ///     WJniObject player = myClassInstance.Call<WJniObject>("getPlayerById", 0);
   ///
   ///     // Instead, explicitly cast the function parameter to the expected type according to the following table:
   ///     //
@@ -313,7 +313,7 @@ public:
   ///     //    float       <=>  jfloat or float
   ///     //    double      <=>  jdouble or double
   ///     //
-  ///     ezJniObject player = myClassInstance.Call<ezJniObject>("getPlayerById", jlong(0));
+  ///     WJniObject player = myClassInstance.Call<WJniObject>("getPlayerById", jlong(0));
   ///
   ///    // --- Manual boxing/unboxing
   ///
@@ -324,10 +324,10 @@ public:
   ///     jlong result = myClassInstance.Call<jlong>("SomeMethodWithBoxedTypes", param);
   ///
   ///     // Instead, convert parameter into boxed type...
-  ///     ezJniObject boxedParam = ezJniClass("java/lang/Integer").CreateInstance(param);
+  ///     WJniObject boxedParam = WJniClass("java/lang/Integer").CreateInstance(param);
   ///
   ///     // .. Call the method...
-  ///     ezJniObject boxedResult = myClassInstance.Call<ezJniObject>("SomeMethodWithBoxedTypes", boxedParam);
+  ///     WJniObject boxedResult = myClassInstance.Call<WJniObject>("SomeMethodWithBoxedTypes", boxedParam);
   ///
   ///     // ...and unbox the result
   ///     jlong result = boxedResult.Call<jlong>("longValue");
@@ -342,7 +342,7 @@ public:
   /// \example
   ///   \code
   ///     jint intField = myClassInstance.GetField<jint>("IntField");
-  ///     ezJniObject objectField = myClassInstance.GetField<ezJniObject>("ObjectField");
+  ///     WJniObject objectField = myClassInstance.GetField<WJniObject>("ObjectField");
   ///   \endcode
   template <typename Ret>
   Ret GetField(const char* name) const;
@@ -355,7 +355,7 @@ public:
   /// \example
   ///   \code
   ///     myClassInstance.SetField("IntField", jint(1234));
-  ///     myClassInstance.SetField("ObjectField", ezJniString("SomeString");
+  ///     myClassInstance.SetField("ObjectField", WJniString("SomeString");
   ///   \endcode
   template <typename T>
   void SetField(const char* name, const T& arg) const;
@@ -376,15 +376,15 @@ protected:
   inline void Reset();
   inline jobject GetJObject() const;
 
-  static void DumpTypes(const ezJniClass* inputTypes, int N, const ezJniClass* returnType);
+  static void DumpTypes(const WJniClass* inputTypes, int N, const WJniClass* returnType);
 
-  static int CompareMethodSpecificity(const ezJniObject& method1, const ezJniObject& method2);
-  static bool IsMethodViable(bool bStatic, const ezJniObject& candidateMethod, const ezJniClass& returnType, ezJniClass* inputTypes, int N);
-  static ezJniObject FindMethod(bool bStatic, const char* name, const ezJniClass& type, const ezJniClass& returnType, ezJniClass* inputTypes, int N);
+  static int CompareMethodSpecificity(const WJniObject& method1, const WJniObject& method2);
+  static bool IsMethodViable(bool bStatic, const WJniObject& candidateMethod, const WJniClass& returnType, WJniClass* inputTypes, int N);
+  static WJniObject FindMethod(bool bStatic, const char* name, const WJniClass& type, const WJniClass& returnType, WJniClass* inputTypes, int N);
 
-  static int CompareConstructorSpecificity(const ezJniObject& method1, const ezJniObject& method2);
-  static bool IsConstructorViable(const ezJniObject& candidateMethod, ezJniClass* inputTypes, int N);
-  static ezJniObject FindConstructor(const ezJniClass& type, ezJniClass* inputTypes, int N);
+  static int CompareConstructorSpecificity(const WJniObject& method1, const WJniObject& method2);
+  static bool IsConstructorViable(const WJniObject& candidateMethod, WJniClass* inputTypes, int N);
+  static WJniObject FindConstructor(const WJniClass& type, WJniClass* inputTypes, int N);
 
 private:
   jobject m_object;
@@ -398,35 +398,35 @@ private:
 /// This encoding is identical to UTF-8, except that null characters inside the string are encoded as 0xC0, 0x80,
 /// and that code points above 0xFFFF are represented by separately encoding each of the two UTF-16 surrogate characters
 /// as 3 bytes each.
-class EZ_FOUNDATION_DLL ezJniString : public ezJniObject
+class W_FOUNDATION_DLL WJniString : public WJniObject
 {
 public:
   /// Constructs a null String.
-  ezJniString();
+  WJniString();
 
   /// Constructs a String from a modified UTF-8 string.
-  ezJniString(const char* str);
+  WJniString(const char* str);
 
   /// Constructs a String from a JNI string  handle.
   ///
   /// \param string The JNI string handle.
-  /// \param ownerShip How the object handle should be managed. See ezJniObject::OwnerShip.
-  ezJniString(jstring string, ezJniOwnerShip ownerShip);
+  /// \param ownerShip How the object handle should be managed. See WJniObject::OwnerShip.
+  WJniString(jstring string, WJniOwnerShip ownerShip);
 
   /// Copy constructor. Both instances will reference the same Java String.
-  ezJniString(const ezJniString& other);
+  WJniString(const WJniString& other);
 
   /// Move constructor.
-  ezJniString(ezJniString&& other);
+  WJniString(WJniString&& other);
 
   /// Assignment operator. Both instances will reference the same Java String.
-  ezJniString& operator=(const ezJniString& other);
+  WJniString& operator=(const WJniString& other);
 
   /// Move assignment operator.
-  ezJniString& operator=(ezJniString&& other);
+  WJniString& operator=(WJniString&& other);
 
   /// Destructor.
-  virtual ~ezJniString();
+  virtual ~WJniString();
 
   /// Returns the string as a modified UTF-8 string. The pointer is only valid over the lifetime of this object.
   const char* GetData() const;
@@ -436,11 +436,11 @@ private:
 };
 
 /// Class holding a local reference to a Java object of type Class.
-class EZ_FOUNDATION_DLL ezJniClass : public ezJniObject
+class W_FOUNDATION_DLL WJniClass : public WJniObject
 {
 public:
   /// Constructs a null Class.
-  ezJniClass();
+  WJniClass();
 
   /// Constructs a class by searching for the class of the given name.
   ///
@@ -448,33 +448,33 @@ public:
   ///   The class name encoded in the JNI class name format, e.g. "java/lang/Object". Note that this
   ///   is different from the format used by ClassLoader.loadClass, which uses "java.lang.Object".
   ///
-  /// If the class could not be found, isNull() will return true and ezJniAttachment::getLastError will return ezJniAttachment::CLASS_NOT_FOUND.
+  /// If the class could not be found, isNull() will return true and WJniAttachment::getLastError will return WJniAttachment::CLASS_NOT_FOUND.
   ///
   /// In order to load classes from the application package, you will have to use the activity's class loader instead.
   /// For example:
   /// \code
-  ///   ezJniObject classLoader = attachment.GetActivity().Call<ezJniObject>("getClassLoader");
-  ///   ezJniClass myClass = classLoader.Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
+  ///   WJniObject classLoader = attachment.GetActivity().Call<WJniObject>("getClassLoader");
+  ///   WJniClass myClass = classLoader.Call<WJniClass>("loadClass", WJniString("com.myproject.MyClass"));
   /// \endcode
-  ezJniClass(const char* className);
+  WJniClass(const char* className);
 
   /// Constructs a Class from a JNI class handle.
   ///
   /// \param clazz The JNI class handle.
-  /// \param ownerShip How the object handle should be managed. See ezJniObject::OwnerShip.
-  ezJniClass(jclass clazz, ezJniOwnerShip ownerShip);
+  /// \param ownerShip How the object handle should be managed. See WJniObject::OwnerShip.
+  WJniClass(jclass clazz, WJniOwnerShip ownerShip);
 
   /// Copy constructor. Both instances will reference the same Java class.
-  ezJniClass(const ezJniClass& other);
+  WJniClass(const WJniClass& other);
 
   /// Move constructor.
-  ezJniClass(ezJniClass&& other);
+  WJniClass(WJniClass&& other);
 
   /// Assignment operator. Both instances will reference the same Java class.
-  ezJniClass& operator=(const ezJniClass& other);
+  WJniClass& operator=(const WJniClass& other);
 
   /// Move assignment operator.
-  ezJniClass& operator=(ezJniClass&& other);
+  WJniClass& operator=(WJniClass&& other);
 
   /// Returns the JNI handle of the object.
   jclass GetHandle() const;
@@ -487,21 +487,21 @@ public:
   /// \example
   ///   \code
   ///     // Same as Class myClassType = activity.GetClassLoader().LoadClass("com.myproject.MyClass") in Java
-  ///     ezJniClass myClassType = activity.Call<ezJniObject>("getClassLoader").Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
+  ///     WJniClass myClassType = activity.Call<WJniObject>("getClassLoader").Call<WJniClass>("loadClass", WJniString("com.myproject.MyClass"));
   ///
   ///     // Same as MyClass myClassInstance = new MyClass(true, "some string", 12345) in Java
-  ///     ezJniObject myClassInstance = myClassType.CreateInstance(true, ezJniString("some string"), 12345);
+  ///     WJniObject myClassInstance = myClassType.CreateInstance(true, WJniString("some string"), 12345);
   ///   \endcode
   ///
-  /// See ezJniObject::Call for more information on overload resolution and argument conversion.
+  /// See WJniObject::Call for more information on overload resolution and argument conversion.
   template <typename... Args>
-  ezJniObject CreateInstance(const Args&... args) const;
+  WJniObject CreateInstance(const Args&... args) const;
 
   /// Returns true if an instance of this class can be assigned from \c other.
   /// \param other A Java class.
   ///
   /// This call is equivalent to Class.IsAssignableFrom() in Java.
-  bool IsAssignableFrom(const ezJniClass& other) const;
+  bool IsAssignableFrom(const WJniClass& other) const;
 
   /// Returns true if this class is primitive, i.e., one of boolean, byte, char, short, int, long, float, or double.
   bool IsPrimitive();
@@ -511,33 +511,33 @@ public:
   /// \param name The name of the method to call.
   /// \param args The function arguments to pass.
   ///
-  /// See ezJniObject::Call() for details on argument handling.
+  /// See WJniObject::Call() for details on argument handling.
   ///
   /// \example
   ///   \code
   ///     // To call a static method of a type directly:
-  ///     ezJniClass myClassType;
+  ///     WJniClass myClassType;
   ///     myClassType.CallStatic("SomeStaticMethod");
-  ///     ezJniObject result = myClassType.CallStatic<ezJniObject>("SomeStaticMethodReturningObject");
+  ///     WJniObject result = myClassType.CallStatic<WJniObject>("SomeStaticMethodReturningObject");
   ///
   ///     // To call a static method of the type of a class instance:
-  ///     ezJniObject myClassInstance;
+  ///     WJniObject myClassInstance;
   ///     myClassInstance.getClass().CallStatic("SomeStaticMethod");
-  ///     ezJniObject result = myClassInstance.GetClass().CallStatic<ezJniObject>("SomeStaticMethodReturningObject");
+  ///     WJniObject result = myClassInstance.GetClass().CallStatic<WJniObject>("SomeStaticMethodReturningObject");
   ///   \endcode
   template <typename Ret = void, typename... Args>
   Ret CallStatic(const char* name, const Args&... args) const;
 
   /// Returns the value of the static field with the given name.
   /// \param name The name of the static field.
-  /// \sa ezJniObject::GetField()
+  /// \sa WJniObject::GetField()
   template <typename Ret>
   Ret GetStaticField(const char* name) const;
 
   /// Sets the value of the static field with the given name.
   /// \param name The name of the static field.
   /// \param arg The new value of the static field.
-  /// \sa ezJniObject::SetField()
+  /// \sa WJniObject::SetField()
   template <typename T>
   void SetStaticField(const char* name, const T& arg) const;
 
@@ -554,23 +554,23 @@ public:
   void UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const;
 };
 
-/// Represents the null value of an ezJniClass.
-/// Passing null / nullptr directly to ezJni results in type information being lost,
-/// without which ezJni can't make the appropriate JNI calls.
-/// create an ezJniClass instance instead, and wrap it in an ezJniNullPtr instance.
-/// You may then pass that ezJniNullPtr instance to any ezJni calls you make.
-class EZ_FOUNDATION_DLL ezJniNullPtr
+/// Represents the null value of an WJniClass.
+/// Passing null / nullptr directly to WJni results in type information being lost,
+/// without which WJni can't make the appropriate JNI calls.
+/// create an WJniClass instance instead, and wrap it in an WJniNullPtr instance.
+/// You may then pass that WJniNullPtr instance to any WJni calls you make.
+class W_FOUNDATION_DLL WJniNullPtr
 {
-  ezJniClass m_class;
+  WJniClass m_class;
 
 public:
-  /// Constructs a Class from a ezJniClass.
+  /// Constructs a Class from a WJniClass.
   ///
-  /// \param clazz The ezJniClass.
-  explicit ezJniNullPtr(ezJniClass& clazz);
+  /// \param clazz The WJniClass.
+  explicit WJniNullPtr(WJniClass& clazz);
 
-  /// Returns the fully qualified name of the ezJniClass that was passed into the constructor, e.g. "java/lang/String"
-  const ezJniString GetTypeSignature() const;
+  /// Returns the fully qualified name of the WJniClass that was passed into the constructor, e.g. "java/lang/String"
+  const WJniString GetTypeSignature() const;
 };
 
 #  include <Foundation/Platform/Android/Utils/AndroidJni.inl>

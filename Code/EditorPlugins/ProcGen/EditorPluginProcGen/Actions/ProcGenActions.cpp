@@ -4,35 +4,35 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-ezActionDescriptorHandle ezProcGenActions::s_hCategory;
-ezActionDescriptorHandle ezProcGenActions::s_hDumpAST;
-ezActionDescriptorHandle ezProcGenActions::s_hDumpDisassembly;
+WActionDescriptorHandle WProcGenActions::s_hCategory;
+WActionDescriptorHandle WProcGenActions::s_hDumpAST;
+WActionDescriptorHandle WProcGenActions::s_hDumpDisassembly;
 
-void ezProcGenActions::RegisterActions()
+void WProcGenActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("ProcGen");
-  s_hDumpAST = EZ_REGISTER_ACTION_1("ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpDisassembly);
+  s_hCategory = W_REGISTER_CATEGORY("ProcGen");
+  s_hDumpAST = W_REGISTER_ACTION_1("ProcGen.DumpAST", WActionScope::Document, "ProcGen Graph", "", WProcGenAction, WProcGenAction::ActionType::DumpAST);
+  s_hDumpDisassembly = W_REGISTER_ACTION_1("ProcGen.DumpDisassembly", WActionScope::Document, "ProcGen Graph", "", WProcGenAction, WProcGenAction::ActionType::DumpDisassembly);
 }
 
-void ezProcGenActions::UnregisterActions()
+void WProcGenActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hDumpAST);
-  ezActionManager::UnregisterAction(s_hDumpDisassembly);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hDumpAST);
+  WActionManager::UnregisterAction(s_hDumpDisassembly);
 }
 
-void ezProcGenActions::MapMenuActions()
+void WProcGenActions::MapMenuActions()
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("ProcGenAssetMenuBar");
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap("ProcGenAssetMenuBar");
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategory, "G.Tools.Document", 10.0f);
   pMap->MapAction(s_hDumpAST, "G.Tools.Document", "ProcGen", 1.0f);
   pMap->MapAction(s_hDumpDisassembly, "G.Tools.Document", "ProcGen", 2.0f);
 
-  pMap = ezActionMapManager::GetActionMap("ProcGenAssetToolBar");
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  pMap = WActionMapManager::GetActionMap("ProcGenAssetToolBar");
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategory, "", 10.0f);
   pMap->MapAction(s_hDumpAST, "ProcGen", 1.0f);
@@ -41,20 +41,20 @@ void ezProcGenActions::MapMenuActions()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcGenAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezProcGenAction::ezProcGenAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WProcGenAction::WProcGenAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
   , m_Type(type)
 {
 }
 
-ezProcGenAction::~ezProcGenAction() = default;
+WProcGenAction::~WProcGenAction() = default;
 
-void ezProcGenAction::Execute(const ezVariant& value)
+void WProcGenAction::Execute(const WVariant& value)
 {
-  if (auto pAssetDocument = ezDynamicCast<ezProcGenGraphAssetDocument*>(GetContext().m_pDocument))
+  if (auto pAssetDocument = WDynamicCast<WProcGenGraphAssetDocument*>(GetContext().m_pDocument))
   {
     pAssetDocument->DumpSelectedOutput(m_Type == ActionType::DumpAST, m_Type == ActionType::DumpDisassembly);
   }

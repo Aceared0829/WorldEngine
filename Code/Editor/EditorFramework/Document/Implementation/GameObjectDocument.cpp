@@ -16,80 +16,80 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectMetaData, 1, WRTTINoAllocator)
 {
-  //EZ_BEGIN_PROPERTIES
+  //W_BEGIN_PROPERTIES
   //{
-  //  //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+  //  //W_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
   //}
-  //EZ_END_PROPERTIES;
+  //W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectDocument, 2, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
+WEvent<const WGameObjectDocumentEvent&> WGameObjectDocument::s_GameObjectDocumentEvents;
 
-ezGameObjectDocument::ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
+WGameObjectDocument::WGameObjectDocument(WStringView sDocumentPath, WDocumentObjectManager* pObjectManager, WAssetDocEngineConnection engineConnectionType)
+  : WAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
-  using Meta = ezObjectMetaData<ezUuid, ezGameObjectMetaData>;
-  m_GameObjectMetaData = EZ_DEFAULT_NEW(Meta);
+  using Meta = WObjectMetaData<WUuid, WGameObjectMetaData>;
+  m_GameObjectMetaData = W_DEFAULT_NEW(Meta);
 
-  EZ_ASSERT_DEV(engineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring,
-    "ezGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
+  W_ASSERT_DEV(engineConnectionType == WAssetDocEngineConnection::FullObjectMirroring,
+    "WGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
   m_CurrentMode.m_bRenderVisualizers = true;
 }
 
-ezGameObjectDocument::~ezGameObjectDocument()
+WGameObjectDocument::~WGameObjectDocument()
 {
   UnsubscribeGameObjectEventHandlers();
   DeallocateEditTools();
 }
 
-void ezGameObjectDocument::SubscribeGameObjectEventHandlers()
+void WGameObjectDocument::SubscribeGameObjectEventHandlers()
 {
-  m_SelectionManagerEventHandlerID = GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
-  m_ObjectPropertyEventHandlerID = GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
-  m_ObjectStructureEventHandlerID = GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
-  m_ObjectEventHandlerID = GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
+  m_SelectionManagerEventHandlerID = GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectDocument::SelectionManagerEventHandler, this));
+  m_ObjectPropertyEventHandlerID = GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WGameObjectDocument::ObjectPropertyEventHandler, this));
+  m_ObjectStructureEventHandlerID = GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WGameObjectDocument::ObjectStructureEventHandler, this));
+  m_ObjectEventHandlerID = GetObjectManager()->m_ObjectEvents.AddEventHandler(WMakeDelegate(&WGameObjectDocument::ObjectEventHandler, this));
 
-  s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
+  s_GameObjectDocumentEvents.AddEventHandler(WMakeDelegate(&WGameObjectDocument::GameObjectDocumentEventHandler, this));
 }
 
-void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
+void WGameObjectDocument::UnsubscribeGameObjectEventHandlers()
 {
   GetSelectionManager()->m_Events.RemoveEventHandler(m_SelectionManagerEventHandlerID);
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_ObjectPropertyEventHandlerID);
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(m_ObjectStructureEventHandlerID);
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(m_ObjectEventHandlerID);
 
-  s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
+  s_GameObjectDocumentEvents.RemoveEventHandler(WMakeDelegate(&WGameObjectDocument::GameObjectDocumentEventHandler, this));
 }
 
-void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e)
+void WGameObjectDocument::GameObjectDocumentEventHandler(const WGameObjectDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-    // case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal: // the external player doesn't log to the editor panel, so don't need to clear that
-    case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
-    case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
+    // case WGameObjectDocumentEvent::Type::GameMode_StartingExternal: // the external player doesn't log to the editor panel, so don't need to clear that
+    case WGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case WGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
     {
-      auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      auto pEditorPrefsUser = WPreferences::QueryPreferences<WEditorPreferencesUser>();
       if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
       {
-        ezQtLogPanel::GetSingleton()->CombinedLog->GetLog()->Clear();
+        WQtLogPanel::GetSingleton()->CombinedLog->GetLog()->Clear();
 
         // on play, the engine log has a lot of activity, so makes sense to clear that first
-        ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
+        WQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
 
         // but I think we usually want to keep the editor log around
-        // ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+        // WQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }
     }
     break;
@@ -98,7 +98,7 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
   }
 }
 
-ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
+WEditorInputContext* WGameObjectDocument::GetEditorInputContextOverride()
 {
   if (GetActiveEditTool() && GetActiveEditTool()->GetEditorInputContextOverride() != nullptr)
   {
@@ -108,12 +108,12 @@ ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
   return nullptr;
 }
 
-void ezGameObjectDocument::SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate)
+void WGameObjectDocument::SetEditToolConfigDelegate(WDelegate<void(WGameObjectEditTool*)> configDelegate)
 {
   m_EditToolConfigDelegate = configDelegate;
 }
 
-bool ezGameObjectDocument::IsActiveEditTool(const ezRTTI* pEditToolType) const
+bool WGameObjectDocument::IsActiveEditTool(const WRTTI* pEditToolType) const
 {
   if (m_pActiveEditTool == nullptr)
     return pEditToolType == nullptr;
@@ -124,9 +124,9 @@ bool ezGameObjectDocument::IsActiveEditTool(const ezRTTI* pEditToolType) const
   return m_pActiveEditTool->IsInstanceOf(pEditToolType);
 }
 
-void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
+void WGameObjectDocument::SetActiveEditTool(const WRTTI* pEditToolType)
 {
-  ezGameObjectEditTool* pEditTool = nullptr;
+  WGameObjectEditTool* pEditTool = nullptr;
 
   if (pEditToolType != nullptr)
   {
@@ -137,9 +137,9 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
     }
     else
     {
-      EZ_ASSERT_DEBUG(m_EditToolConfigDelegate.IsValid(), "Window did not specify a delegate to configure edit tools");
+      W_ASSERT_DEBUG(m_EditToolConfigDelegate.IsValid(), "Window did not specify a delegate to configure edit tools");
 
-      pEditTool = pEditToolType->GetAllocator()->Allocate<ezGameObjectEditTool>();
+      pEditTool = pEditToolType->GetAllocator()->Allocate<WGameObjectEditTool>();
       m_CreatedEditTools[pEditToolType] = pEditTool;
 
       m_EditToolConfigDelegate(pEditTool);
@@ -151,7 +151,7 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
     if (m_pActiveEditTool == nullptr)
     {
       // if there is currently no active edit tool, cycle through the manipulators available on the selected object
-      ezManipulatorManager::GetSingleton()->CycleActiveManipulator(this);
+      WManipulatorManager::GetSingleton()->CycleActiveManipulator(this);
     }
 
     return;
@@ -165,37 +165,37 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
   if (m_pActiveEditTool)
     m_pActiveEditTool->SetActive(true);
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::SetAddAmbientLight(bool b)
+void WGameObjectDocument::SetAddAmbientLight(bool b)
 {
   if (m_bAddAmbientLight == b)
     return;
 
   m_bAddAmbientLight = b;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::AddAmbientLightChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::AddAmbientLightChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Ambient Light: {}", m_bAddAmbientLight ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Ambient Light: {}", m_bAddAmbientLight ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::SetPickTransparent(bool b)
+void WGameObjectDocument::SetPickTransparent(bool b)
 {
   if (m_bPickTransparent == b)
     return;
 
   m_bPickTransparent = b;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::PickTransparentChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::PickTransparentChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Select Transparent: {}", m_bPickTransparent ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Select Transparent: {}", m_bPickTransparent ? "ON" : "OFF"));
 
   if (m_bPickTransparent == false)
   {
@@ -204,58 +204,58 @@ void ezGameObjectDocument::SetPickTransparent(bool b)
   }
 }
 
-void ezGameObjectDocument::SetActiveParent(ezUuid object)
+void WGameObjectDocument::SetActiveParent(WUuid object)
 {
   if (m_ActiveParent != object)
   {
     if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
     {
-      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+      m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::ActiveParentFlag);
     }
 
     m_ActiveParent = object;
 
     if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
     {
-      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+      m_DocumentObjectMetaData->EndModifyMetaData(WDocumentObjectMetaData::ActiveParentFlag);
     }
   }
 }
 
-void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
+void WGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
     return;
 
   m_bGizmoWorldSpace = bWorldSpace;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Transform in {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
+  ShowDocumentStatus(WFmt("Transform in {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
 }
 
-bool ezGameObjectDocument::GetGizmoWorldSpace() const
+bool WGameObjectDocument::GetGizmoWorldSpace() const
 {
   return m_bGizmoWorldSpace;
 }
 
-void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
+void WGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
 {
   if (m_bGizmoMoveParentOnly == bMoveParent)
     return;
 
   m_bGizmoMoveParentOnly = bMoveParent;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_sResult, QIcon* out_pIcon /*= nullptr*/) const
+void WGameObjectDocument::DetermineNodeName(const WDocumentObject* pObject, const WUuid& prefabGuid, WStringBuilder& out_sResult, QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -263,11 +263,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
   if (prefabGuid.IsValid())
   {
-    auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefabGuid);
+    auto pInfo = WAssetCurator::GetSingleton()->GetSubAsset(prefabGuid);
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
+      WStringBuilder sPath = pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
       sPath = sPath.GetFileName();
 
       out_sResult.Set("Prefab: ", sPath);
@@ -278,43 +278,43 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
   const bool bHasChildren = pObject->GetTypeAccessor().GetCount("Children") > 0;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
-  for (ezInt32 i = 0; i < iComponents; i++)
+  const WInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
+  for (WInt32 i = 0; i < iComponents; i++)
   {
-    ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
-    auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
-    EZ_ASSERT_DEBUG(pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>(), "Non-component found in component set.");
+    WVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
+    auto pChild = GetObjectManager()->GetObject(value.Get<WUuid>());
+    W_ASSERT_DEBUG(pChild->GetTypeAccessor().GetType()->IsDerivedFrom<WComponent>(), "Non-component found in component set.");
     // take the first components name
     if (!bHasIcon && out_pIcon != nullptr)
     {
       bHasIcon = true;
 
-      ezColor color = ezColor::MakeZero();
+      WColor color = WColor::MakeZero();
 
-      if (auto pCatAttr = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezCategoryAttribute>())
+      if (auto pCatAttr = pChild->GetTypeAccessor().GetType()->GetAttributeByType<WCategoryAttribute>())
       {
-        color = ezColorScheme::GetCategoryColor(pCatAttr->GetCategory(), ezColorScheme::CategoryColorUsage::SceneTreeIcon);
+        color = WColorScheme::GetCategoryColor(pCatAttr->GetCategory(), WColorScheme::CategoryColorUsage::SceneTreeIcon);
       }
 
-      ezStringBuilder sIconName;
+      WStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName(), ".svg");
-      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), color);
+      *out_pIcon = WQtUiServices::GetCachedIconResource(sIconName.GetData(), color);
     }
 
     if (out_sResult.IsEmpty())
     {
       // try to translate the component name, that will typically make it a nice clean name already
-      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
+      out_sResult = WTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
 
       // if no translation is available, clean up the component name in a simple way
       if (out_sResult.EndsWith_NoCase("Component"))
         out_sResult.Shrink(0, 9);
-      if (out_sResult.StartsWith("ez"))
+      if (out_sResult.StartsWith("W"))
         out_sResult.Shrink(2, 0);
 
-      if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezInDevelopmentAttribute>())
+      if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<WInDevelopmentAttribute>())
       {
         out_sResult.AppendFormat(" [ {} ]", pInDev->GetString());
       }
@@ -331,28 +331,28 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
       // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most
       // relevant property
-      if ((type == ezGetStaticRTTI<const char*>() || type == ezGetStaticRTTI<ezString>() || type == ezGetStaticRTTI<ezStringView>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+      if ((type == WGetStaticRTTI<const char*>() || type == WGetStaticRTTI<WString>() || type == WGetStaticRTTI<WStringView>()) && pProperty->GetAttributeByType<WAssetBrowserAttribute>() != nullptr)
       {
-        ezStringBuilder sValue;
-        if (pProperty->GetCategory() == ezPropertyCategory::Member)
+        WStringBuilder sValue;
+        if (pProperty->GetCategory() == WPropertyCategory::Member)
         {
-          sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+          sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<WString>();
         }
-        else if (pProperty->GetCategory() == ezPropertyCategory::Array)
+        else if (pProperty->GetCategory() == WPropertyCategory::Array)
         {
-          const ezInt32 iCount = pChild->GetTypeAccessor().GetCount(pProperty->GetPropertyName());
+          const WInt32 iCount = pChild->GetTypeAccessor().GetCount(pProperty->GetPropertyName());
           if (iCount > 0)
           {
-            sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<ezString>();
+            sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<WString>();
           }
         }
 
         // if the property is a full asset guid reference, convert it to a file name
-        if (ezConversionUtils::IsStringUuid(sValue))
+        if (WConversionUtils::IsStringUuid(sValue))
         {
-          const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
+          const WUuid AssetGuid = WConversionUtils::ConvertStringToUuid(sValue);
 
-          auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
+          auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
           if (pAsset)
             sValue = pAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
@@ -373,7 +373,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
   if (!bHasIcon && out_pIcon)
   {
-    *out_pIcon = ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Object.svg");
+    *out_pIcon = WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Object.svg");
   }
 
   if (!out_sResult.IsEmpty())
@@ -386,11 +386,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 }
 
 
-void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
+void WGameObjectDocument::QueryCachedNodeName(const WDocumentObject* pObject, WStringBuilder& out_sResult, WUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData->BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
-  const ezUuid prefabGuid = pMetaDoc->m_CreateFromPrefab;
+  const WUuid prefabGuid = pMetaDoc->m_CreateFromPrefab;
 
   if (out_pPrefabGuid != nullptr)
     *out_pPrefabGuid = prefabGuid;
@@ -409,7 +409,7 @@ void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, 
 
     QIcon icon;
     DetermineNodeName(pObject, prefabGuid, out_sResult, &icon);
-    ezString sNodeName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+    WString sNodeName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<WString>();
     if (!sNodeName.IsEmpty())
     {
       out_sResult = sNodeName;
@@ -425,35 +425,35 @@ void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, 
 }
 
 
-void ezGameObjectDocument::GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const
+void WGameObjectDocument::GenerateFullDisplayName(const WDocumentObject* pRoot, WStringBuilder& out_sFullPath) const
 {
   if (pRoot == nullptr || pRoot == GetObjectManager()->GetRootObject())
     return;
 
   GenerateFullDisplayName(pRoot->GetParent(), out_sFullPath);
 
-  if (!pRoot->GetType()->IsDerivedFrom<ezComponent>())
+  if (!pRoot->GetType()->IsDerivedFrom<WComponent>())
   {
-    ezStringBuilder sObjectName;
+    WStringBuilder sObjectName;
     QueryCachedNodeName(pRoot, sObjectName);
 
     out_sFullPath.AppendPath(sObjectName);
   }
 }
 
-ezTransform ezGameObjectDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
+WTransform WGameObjectDocument::GetGlobalTransform(const WDocumentObject* pObject) const
 {
   if (!m_GlobalTransforms.Contains(pObject))
   {
     ComputeGlobalTransform(pObject);
   }
 
-  return ezSimdConversion::ToTransform(m_GlobalTransforms[pObject]);
+  return WSimdConversion::ToTransform(m_GlobalTransforms[pObject]);
 }
 
-void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
+void WGameObjectDocument::SetGlobalTransform(const WDocumentObject* pObject, const WTransform& t, WUInt8 uiTransformationChanges) const
 {
-  ezObjectAccessorBase* pAccessor = GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetObjectAccessor();
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
   {
@@ -461,10 +461,10 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
     return;
   }
 
-  const ezDocumentObject* pParent = pObject->GetParent();
+  const WDocumentObject* pParent = pObject->GetParent();
 
-  ezSimdTransform tLocal;
-  ezSimdTransform simdT = ezSimdConversion::ToTransform(t);
+  WSimdTransform tLocal;
+  WSimdTransform simdT = WSimdConversion::ToTransform(t);
 
   if (pParent != nullptr)
   {
@@ -473,18 +473,18 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
       ComputeGlobalTransform(pParent);
     }
 
-    ezSimdTransform tParent = m_GlobalTransforms[pParent];
+    WSimdTransform tParent = m_GlobalTransforms[pParent];
 
-    tLocal = ezSimdTransform::MakeLocalTransform(tParent, simdT);
+    tLocal = WSimdTransform::MakeLocalTransform(tParent, simdT);
   }
   else
   {
     tLocal = simdT;
   }
 
-  ezVec3 vLocalPos = ezSimdConversion::ToVec3(tLocal.m_Position);
-  ezVec3 vLocalScale = ezSimdConversion::ToVec3(tLocal.m_Scale);
-  ezQuat qLocalRot = ezSimdConversion::ToQuat(tLocal.m_Rotation);
+  WVec3 vLocalPos = WSimdConversion::ToVec3(tLocal.m_Position);
+  WVec3 vLocalScale = WSimdConversion::ToVec3(tLocal.m_Scale);
+  WQuat qLocalRot = WSimdConversion::ToQuat(tLocal.m_Rotation);
   float fUniformScale = 1.0f;
 
   if (vLocalScale.x == vLocalScale.y && vLocalScale.x == vLocalScale.z)
@@ -498,19 +498,19 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   // therefore when the original position and the new position are identical, that means the user dragged the object to the previous
   // position it does NOT mean that there is no change, in fact there is a change, just back to the original value
 
-  // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
+  // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>() != vLocalPos)
   if ((uiTransformationChanges & TransformationChanges::Translation) != 0)
   {
     pAccessor->SetValueByName(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
-  // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
+  // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<WQuat>() != qLocalRot)
   if ((uiTransformationChanges & TransformationChanges::Rotation) != 0)
   {
     pAccessor->SetValueByName(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
-  // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
+  // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>() != vLocalScale)
   if ((uiTransformationChanges & TransformationChanges::Scale) != 0)
   {
     pAccessor->SetValueByName(pObject, "LocalScaling", vLocalScale).LogFailure();
@@ -521,29 +521,29 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
+void WGameObjectDocument::SetGlobalTransformParentOnly(const WDocumentObject* pObject, const WTransform& t, WUInt8 uiTransformationChanges) const
 {
-  ezTempHybridArray<ezTransform, 16> childTransforms;
+  WTempHybridArray<WTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
 
   childTransforms.SetCountUninitialized(children.GetCount());
 
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    const ezDocumentObject* pChild = children[i];
+    const WDocumentObject* pChild = children[i];
     childTransforms[i] = GetGlobalTransform(pChild);
   }
 
   SetGlobalTransform(pObject, t, uiTransformationChanges);
 
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    const ezDocumentObject* pChild = children[i];
+    const WDocumentObject* pChild = children[i];
     SetGlobalTransform(pChild, childTransforms[i], TransformationChanges::All);
   }
 }
 
-void ezGameObjectDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const
+void WGameObjectDocument::InvalidateGlobalTransformValue(const WDocumentObject* pObject) const
 {
   // will be recomputed the next time it is queried
   m_GlobalTransforms.Remove(pObject);
@@ -556,11 +556,11 @@ void ezGameObjectDocument::InvalidateGlobalTransformValue(const ezDocumentObject
   }
 }
 
-ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const
+WResult WGameObjectDocument::ComputeObjectTransformation(const WDocumentObject* pObject, WTransform& out_result) const
 {
-  const ezDocumentObject* pObj = pObject;
+  const WDocumentObject* pObj = pObject;
 
-  while (pObj && !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  while (pObj && !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
   {
     pObj = pObj->GetParent();
   }
@@ -568,21 +568,21 @@ ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObjec
   if (pObj)
   {
     out_result = ComputeGlobalTransform(pObj);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
     out_result.SetIdentity();
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 }
 
-bool ezGameObjectDocument::GetGizmoMoveParentOnly() const
+bool WGameObjectDocument::GetGizmoMoveParentOnly() const
 {
   return m_bGizmoMoveParentOnly;
 }
 
-void ezGameObjectDocument::DeallocateEditTools()
+void WGameObjectDocument::DeallocateEditTools()
 {
   for (auto it = m_CreatedEditTools.GetIterator(); it.IsValid(); ++it)
   {
@@ -592,108 +592,108 @@ void ezGameObjectDocument::DeallocateEditTools()
   m_CreatedEditTools.Clear();
 }
 
-void ezGameObjectDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WGameObjectDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   SubscribeGameObjectEventHandlers();
 }
 
 
-void ezGameObjectDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+void WGameObjectDocument::AttachMetaDataBeforeSaving(WAbstractObjectGraph& graph) const
 {
-  ezAssetDocument::AttachMetaDataBeforeSaving(graph);
+  WAssetDocument::AttachMetaDataBeforeSaving(graph);
 
   m_GameObjectMetaData->AttachMetaDataToAbstractGraph(graph);
 }
 
-void ezGameObjectDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
+void WGameObjectDocument::RestoreMetaDataAfterLoading(const WAbstractObjectGraph& graph, bool bUndoable)
 {
-  ezAssetDocument::RestoreMetaDataAfterLoading(graph, bUndoable);
+  WAssetDocument::RestoreMetaDataAfterLoading(graph, bUndoable);
 
   m_GameObjectMetaData->RestoreMetaDataFromAbstractGraph(graph);
 }
 
-void ezGameObjectDocument::TriggerExpandScenegraph() const
+void WGameObjectDocument::TriggerExpandScenegraph() const
 {
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::TriggerExpandScenegraph;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::TriggerExpandScenegraph;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::TriggerShowSelectionInScenegraph() const
-{
-  if (GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::TriggerShowSelectionInScenegraph;
-  m_GameObjectEvents.Broadcast(e);
-}
-
-void ezGameObjectDocument::TriggerFocusOnSelection(bool bAllViews) const
+void WGameObjectDocument::TriggerShowSelectionInScenegraph() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  ezGameObjectEvent e;
-  e.m_Type = bAllViews ? ezGameObjectEvent::Type::TriggerFocusOnSelection_All : ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::TriggerShowSelectionInScenegraph;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::TriggerSnapPivotToGrid() const
+void WGameObjectDocument::TriggerFocusOnSelection(bool bAllViews) const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid;
+  WGameObjectEvent e;
+  e.m_Type = bAllViews ? WGameObjectEvent::Type::TriggerFocusOnSelection_All : WGameObjectEvent::Type::TriggerFocusOnSelection_Hovered;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::TriggerSnapEachObjectToGrid() const
+void WGameObjectDocument::TriggerSnapPivotToGrid() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::SnapCameraToObject()
+void WGameObjectDocument::TriggerSnapEachObjectToGrid() const
+{
+  if (GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid;
+  m_GameObjectEvents.Broadcast(e);
+}
+
+void WGameObjectDocument::SnapCameraToObject()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
 
   if (selection.GetCount() != 1)
     return;
 
-  ezTransform trans;
+  WTransform trans;
   if (ComputeObjectTransformation(selection[0], trans).Failed())
     return;
 
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
   if (ctxt.m_pLastHoveredViewWidget == nullptr)
     return;
 
-  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective)
   {
     ShowDocumentStatus("Note: This operation can only be performed in perspective views.");
     return;
   }
 
-  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+  const WCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
-  const ezVec3 vForward = trans.m_qRotation * ezVec3(1, 0, 0);
-  const ezVec3 vUp = trans.m_qRotation * ezVec3(0, 0, 1);
+  const WVec3 vForward = trans.m_qRotation * WVec3(1, 0, 0);
+  const WVec3 vUp = trans.m_qRotation * WVec3(0, 0, 1);
 
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
 
-void ezGameObjectDocument::MoveCameraHere()
+void WGameObjectDocument::MoveCameraHere()
 {
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const auto& ctxt = WQtEngineViewWidget::GetInteractionContext();
 
   if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr)
     return;
@@ -701,18 +701,18 @@ void ezGameObjectDocument::MoveCameraHere()
   if (ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN())
     return;
 
-  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+  const WCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
-  const ezVec3 vCurPos = pCamera->GetCenterPosition();
-  const ezVec3 vDirToPos = ctxt.m_pLastPickingResult->m_vPickedPosition - vCurPos;
+  const WVec3 vCurPos = pCamera->GetCenterPosition();
+  const WVec3 vDirToPos = ctxt.m_pLastPickingResult->m_vPickedPosition - vCurPos;
 
   // don't move the entire distance, keep some distance to the target position
-  ezVec3 vPos = vCurPos + 0.9f * vDirToPos;
-  ezVec3 vCamDir = pCamera->GetCenterDirForwards();
-  ezVec3 vCamUp = pCamera->GetCenterDirUp();
+  WVec3 vPos = vCurPos + 0.9f * vDirToPos;
+  WVec3 vCamDir = pCamera->GetCenterDirForwards();
+  WVec3 vCamUp = pCamera->GetCenterDirUp();
 
   // if the projection mode of the view is orthographic, ignore the direction
-  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != WSceneViewPerspective::Perspective)
   {
     const auto& oldCam = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
@@ -721,13 +721,13 @@ void ezGameObjectDocument::MoveCameraHere()
 
     switch (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective)
     {
-      case ezSceneViewPerspective::Orthogonal_Front:
+      case WSceneViewPerspective::Orthogonal_Front:
         vPos.x = oldCam.GetCenterPosition().x;
         break;
-      case ezSceneViewPerspective::Orthogonal_Right:
+      case WSceneViewPerspective::Orthogonal_Right:
         vPos.y = oldCam.GetCenterPosition().y;
         break;
-      case ezSceneViewPerspective::Orthogonal_Top:
+      case WSceneViewPerspective::Orthogonal_Top:
         vPos.z = oldCam.GetCenterPosition().z;
         break;
 
@@ -749,88 +749,88 @@ void ezGameObjectDocument::MoveCameraHere()
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vCamDir, pCamera->GetFovOrDim(), &vCamUp);
 }
 
-void ezGameObjectDocument::ScheduleSendObjectSelection()
+void WGameObjectDocument::ScheduleSendObjectSelection()
 {
   m_iResendSelection = 2;
 }
 
-void ezGameObjectDocument::SendGameWorldToEngine()
+void WGameObjectDocument::SendGameWorldToEngine()
 {
   SendDocumentOpenMessage(true);
 }
 
-void ezGameObjectDocument::SetSimulationSpeed(float f)
+void WGameObjectDocument::SetSimulationSpeed(float f)
 {
   if (m_fSimulationSpeed == f)
     return;
 
   m_fSimulationSpeed = f;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::SimulationSpeedChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::SimulationSpeedChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Simulation Speed: {0}%%", (ezInt32)(m_fSimulationSpeed * 100.0f)));
+  ShowDocumentStatus(WFmt("Simulation Speed: {0}%%", (WInt32)(m_fSimulationSpeed * 100.0f)));
 }
 
-void ezGameObjectDocument::SetPauseSimulation(bool b)
+void WGameObjectDocument::SetPauseSimulation(bool b)
 {
   if (m_bPauseSimulation == b)
     return;
 
   m_bPauseSimulation = b;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::SimulationSpeedChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::SimulationSpeedChanged;
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::SetRenderSelectionOverlay(bool b)
+void WGameObjectDocument::SetRenderSelectionOverlay(bool b)
 {
   if (m_CurrentMode.m_bRenderSelectionOverlay == b)
     return;
 
   m_CurrentMode.m_bRenderSelectionOverlay = b;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::RenderSelectionOverlayChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::RenderSelectionOverlayChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Selection Overlay: {}", m_CurrentMode.m_bRenderSelectionOverlay ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Selection Overlay: {}", m_CurrentMode.m_bRenderSelectionOverlay ? "ON" : "OFF"));
 }
 
 
-void ezGameObjectDocument::SetRenderVisualizers(bool b)
+void WGameObjectDocument::SetRenderVisualizers(bool b)
 {
   if (m_CurrentMode.m_bRenderVisualizers == b)
     return;
 
   m_CurrentMode.m_bRenderVisualizers = b;
 
-  ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetActiveSubDocument(), m_CurrentMode.m_bRenderVisualizers);
+  WVisualizerManager::GetSingleton()->SetVisualizersActive(GetActiveSubDocument(), m_CurrentMode.m_bRenderVisualizers);
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::RenderVisualizersChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::RenderVisualizersChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Visualizers: {}", m_CurrentMode.m_bRenderVisualizers ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Visualizers: {}", m_CurrentMode.m_bRenderVisualizers ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::SetRenderShapeIcons(bool b)
+void WGameObjectDocument::SetRenderShapeIcons(bool b)
 {
   if (m_CurrentMode.m_bRenderShapeIcons == b)
     return;
 
   m_CurrentMode.m_bRenderShapeIcons = b;
 
-  ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::RenderShapeIconsChanged;
+  WGameObjectEvent e;
+  e.m_Type = WGameObjectEvent::Type::RenderShapeIconsChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Shape Icons: {}", m_CurrentMode.m_bRenderShapeIcons ? "ON" : "OFF"));
+  ShowDocumentStatus(WFmt("Shape Icons: {}", m_CurrentMode.m_bRenderShapeIcons ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WGameObjectDocument::ObjectPropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (e.m_sProperty == "LocalPosition" || e.m_sProperty == "LocalRotation" || e.m_sProperty == "LocalScaling" ||
       e.m_sProperty == "LocalUniformScaling")
@@ -842,27 +842,27 @@ void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectProp
   {
     auto pMetaWrite = m_GameObjectMetaData->BeginModifyMetaData(e.m_pObject->GetGuid());
     pMetaWrite->m_CachedNodeName.Clear();
-    m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
+    m_GameObjectMetaData->EndModifyMetaData(WGameObjectMetaData::CachedName);
   }
 }
 
-void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WGameObjectDocument::ObjectStructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  if (e.m_pObject && e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (e.m_pObject && e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
   {
     switch (e.m_EventType)
     {
-      case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+      case WDocumentObjectStructureEvent::Type::BeforeObjectMoved:
       {
         // make sure the cache is filled with a proper value
         GetGlobalTransform(e.m_pObject);
       }
       break;
 
-      case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       {
         // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
-        ezTransform t = GetGlobalTransform(e.m_pObject);
+        WTransform t = GetGlobalTransform(e.m_pObject);
 
         SetGlobalTransform(e.m_pObject, t, TransformationChanges::All);
       }
@@ -876,23 +876,23 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
   {
     switch (e.m_EventType)
     {
-      case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-      case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-      case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+      case WDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
         if (e.m_sParentProperty == "Components")
         {
           if (e.m_pPreviousParent != nullptr)
           {
             auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
             pMeta->m_CachedNodeName.Clear();
-            m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
+            m_GameObjectMetaData->EndModifyMetaData(WGameObjectMetaData::CachedName);
           }
 
           if (e.m_pNewParent != nullptr)
           {
             auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(e.m_pNewParent->GetGuid());
             pMeta->m_CachedNodeName.Clear();
-            m_GameObjectMetaData->EndModifyMetaData(ezGameObjectMetaData::CachedName);
+            m_GameObjectMetaData->EndModifyMetaData(WGameObjectMetaData::CachedName);
           }
         }
         break;
@@ -904,14 +904,14 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
 }
 
 
-void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
+void WGameObjectDocument::ObjectEventHandler(const WDocumentObjectEvent& e)
 {
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
     return;
 
   switch (e.m_EventType)
   {
-    case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
+    case WDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       // clean up object meta data upon object destruction, because we can :-P
       if (GetObjectManager()->GetObject(e.m_pObject->GetGuid()) == nullptr)
@@ -933,11 +933,11 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 }
 
 
-void ezGameObjectDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+void WGameObjectDocument::SelectionManagerEventHandler(const WSelectionManagerEvent& e)
 {
   ScheduleSendObjectSelection();
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
 
   if (pPreferences->m_bExpandSceneTreeOnSelection)
   {
@@ -945,7 +945,7 @@ void ezGameObjectDocument::SelectionManagerEventHandler(const ezSelectionManager
   }
 }
 
-void ezGameObjectDocument::SendObjectSelection()
+void WGameObjectDocument::SendObjectSelection()
 {
   if (m_iResendSelection <= 0)
     return;
@@ -954,13 +954,13 @@ void ezGameObjectDocument::SendObjectSelection()
 
   const auto& sel = GetSelectionManager()->GetRuntimeOverrideSelection().IsEmpty() ? GetSelectionManager()->GetSelection() : GetSelectionManager()->GetRuntimeOverrideSelection();
 
-  ezObjectSelectionMsgToEngine msg;
-  ezStringBuilder sTemp;
-  ezStringBuilder sGuid;
+  WObjectSelectionMsgToEngine msg;
+  WStringBuilder sTemp;
+  WStringBuilder sGuid;
 
   for (const auto& item : sel)
   {
-    ezConversionUtils::ToString(item->GetGuid(), sGuid);
+    WConversionUtils::ToString(item->GetGuid(), sGuid);
 
     sTemp.Append(";", sGuid);
   }
@@ -970,58 +970,58 @@ void ezGameObjectDocument::SendObjectSelection()
   GetEditorEngineConnection()->SendMessage(&msg);
 }
 // static
-ezTransform ezGameObjectDocument::QueryLocalTransform(const ezDocumentObject* pObject)
+WTransform WGameObjectDocument::QueryLocalTransform(const WDocumentObject* pObject)
 {
-  const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-  const ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+  const WVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>();
+  const WVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>();
+  const WQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<WQuat>();
   const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  return ezTransform(vTranslation, qRotation, vScaling * fScaling);
+  return WTransform(vTranslation, qRotation, vScaling * fScaling);
 }
 
 // static
-ezSimdTransform ezGameObjectDocument::QueryLocalTransformSimd(const ezDocumentObject* pObject)
+WSimdTransform WGameObjectDocument::QueryLocalTransformSimd(const WDocumentObject* pObject)
 {
-  const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-  const ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+  const WVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<WVec3>();
+  const WVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>();
+  const WQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<WQuat>();
   const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  return ezSimdTransform(ezSimdConversion::ToVec3(vTranslation), ezSimdConversion::ToQuat(qRotation), ezSimdConversion::ToVec3(vScaling * fScaling));
+  return WSimdTransform(WSimdConversion::ToVec3(vTranslation), WSimdConversion::ToQuat(qRotation), WSimdConversion::ToVec3(vScaling * fScaling));
 }
 
 
-ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject* pObject) const
+WTransform WGameObjectDocument::ComputeGlobalTransform(const WDocumentObject* pObject) const
 {
-  if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+  if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != WGetStaticRTTI<WGameObject>())
   {
-    m_GlobalTransforms[pObject] = ezSimdTransform::MakeIdentity();
-    return ezTransform::MakeIdentity();
+    m_GlobalTransforms[pObject] = WSimdTransform::MakeIdentity();
+    return WTransform::MakeIdentity();
   }
 
-  const ezSimdTransform tParent = ezSimdConversion::ToTransform(ComputeGlobalTransform(pObject->GetParent()));
-  const ezSimdTransform tLocal = QueryLocalTransformSimd(pObject);
+  const WSimdTransform tParent = WSimdConversion::ToTransform(ComputeGlobalTransform(pObject->GetParent()));
+  const WSimdTransform tLocal = QueryLocalTransformSimd(pObject);
 
-  ezSimdTransform tGlobal = ezSimdTransform::MakeGlobalTransform(tParent, tLocal);
+  WSimdTransform tGlobal = WSimdTransform::MakeGlobalTransform(tParent, tLocal);
 
   m_GlobalTransforms[pObject] = tGlobal;
 
-  return ezSimdConversion::ToTransform(tGlobal);
+  return WSimdConversion::ToTransform(tGlobal);
 }
 
-void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_selection)
+void WGameObjectDocument::ComputeTopLevelSelectedGameObjects(WDeque<WSelectedGameObject>& out_selection)
 {
   // Get the list of all objects that are manipulated
   // and store their original transformation
 
   out_selection.Clear();
 
-  auto hType = ezGetStaticRTTI<ezGameObject>();
+  auto hType = WGetStaticRTTI<WGameObject>();
 
   auto pSelMan = GetSelectionManager();
   const auto& Selection = pSelMan->GetSelection();
-  for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+  for (WUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
   {
     if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
       continue;
@@ -1031,69 +1031,69 @@ void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelected
     if (pSelMan->IsParentSelected(Selection[sel]))
       continue;
 
-    ezSelectedGameObject& sgo = out_selection.ExpandAndGetRef();
+    WSelectedGameObject& sgo = out_selection.ExpandAndGetRef();
     sgo.m_pObject = Selection[sel];
     sgo.m_GlobalTransform = GetGlobalTransform(sgo.m_pObject);
-    sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<WVec3>();
     sgo.m_fLocalUniformScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
   }
 }
 
-void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WGameObjectDocument::HandleEngineMessage(const WEditorEngineDocumentMsg* pMsg)
 {
   SUPER::HandleEngineMessage(pMsg);
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WDocumentOpenResponseMsgToEditor>())
   {
     ScheduleSendObjectSelection();
   }
 }
 
-// the following method is similar to "ezAssetCurator::ReplaceAssetReferenceInObject"
+// the following method is similar to "WAssetCurator::ReplaceAssetReferenceInObject"
 
-void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const
+void WGameObjectDocument::FindAssetUsages(WStringView sAssetToFind, WDynamicArray<AssetUsage>& out_usages, WUInt32 uiMaxResults) const
 {
   out_usages.Clear();
   FindAssetUsagesInternal(sAssetToFind, GetObjectManager()->GetRootObject(), out_usages, uiMaxResults);
 }
 
-void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const
+void WGameObjectDocument::FindAssetUsagesInternal(WStringView sAssetToFind, const WDocumentObject* pObject, WDynamicArray<AssetUsage>& out_usages, WUInt32 uiMaxResults) const
 {
   auto pAccessor = GetObjectAccessor();
 
-  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  const WRTTI* pType = pObject->GetTypeAccessor().GetType();
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  for (const ezAbstractProperty* pProp : properties)
+  for (const WAbstractProperty* pProp : properties)
   {
     // Check if this is an asset reference property
-    const ezAssetBrowserAttribute* pAssetAttr = pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+    const WAssetBrowserAttribute* pAssetAttr = pProp->GetAttributeByType<WAssetBrowserAttribute>();
     if (pAssetAttr == nullptr)
       continue;
 
     // Must be string type
     const auto propVarType = pProp->GetSpecificType()->GetVariantType();
-    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+    if (propVarType != WVariantType::String && propVarType != WVariantType::StringView)
       continue;
 
     // Skip temporary properties
-    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pProp->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
         {
-          ezVariant value;
+          WVariant value;
           if (pAccessor->GetValue(pObject, pProp, value).Succeeded())
           {
-            const ezString& sValue = value.Get<ezString>();
+            const WString& sValue = value.Get<WString>();
             if (sValue == sAssetToFind)
             {
-              ezStringBuilder sFullPath;
+              WStringBuilder sFullPath;
               GenerateFullDisplayName(pObject, sFullPath);
 
               auto& au = out_usages.ExpandAndGetRef();
@@ -1108,22 +1108,22 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
       }
       break;
 
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
         {
-          ezInt32 iCount = pAccessor->GetCount(pObject, pProp);
+          WInt32 iCount = pAccessor->GetCount(pObject, pProp);
 
-          for (ezInt32 i = 0; i < iCount; ++i)
+          for (WInt32 i = 0; i < iCount; ++i)
           {
-            ezVariant value;
+            WVariant value;
             if (pAccessor->GetValue(pObject, pProp, value, i).Succeeded())
             {
-              const ezString& sValue = value.Get<ezString>();
+              const WString& sValue = value.Get<WString>();
               if (sValue == sAssetToFind)
               {
-                ezStringBuilder sFullPath;
+                WStringBuilder sFullPath;
                 GenerateFullDisplayName(pObject, sFullPath);
 
                 auto& au = out_usages.ExpandAndGetRef();
@@ -1139,22 +1139,22 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
       }
       break;
 
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        if (pProp->GetFlags().IsSet(WPropertyFlags::StandardType))
         {
-          ezDynamicArray<ezVariant> keys;
+          WDynamicArray<WVariant> keys;
           if (pAccessor->GetKeys(pObject, pProp, keys).Succeeded())
           {
-            for (const ezVariant& key : keys)
+            for (const WVariant& key : keys)
             {
-              ezVariant value;
+              WVariant value;
               if (pAccessor->GetValue(pObject, pProp, value, key).Succeeded())
               {
-                const ezString& sValue = value.Get<ezString>();
+                const WString& sValue = value.Get<WString>();
                 if (sValue == sAssetToFind)
                 {
-                  ezStringBuilder sFullPath;
+                  WStringBuilder sFullPath;
                   GenerateFullDisplayName(pObject, sFullPath);
 
                   auto& au = out_usages.ExpandAndGetRef();
@@ -1178,10 +1178,10 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
 
 
   // Process children recursively
-  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  for (const WDocumentObject* pChild : pObject->GetChildren())
   {
     if (pChild->GetParentPropertyType() != nullptr &&
-        pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+        pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     FindAssetUsagesInternal(sAssetToFind, pChild, out_usages, uiMaxResults);

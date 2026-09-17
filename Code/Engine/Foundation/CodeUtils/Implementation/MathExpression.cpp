@@ -4,16 +4,16 @@
 #include <Foundation/CodeUtils/Expression/ExpressionParser.h>
 #include <Foundation/CodeUtils/MathExpression.h>
 
-static ezHashedString s_sOutput = ezMakeHashedString("output");
+static WHashedString s_sOutput = WMakeHashedString("output");
 
-ezMathExpression::ezMathExpression() = default;
+WMathExpression::WMathExpression() = default;
 
-ezMathExpression::ezMathExpression(ezStringView sExpressionString)
+WMathExpression::WMathExpression(WStringView sExpressionString)
 {
   Reset(sExpressionString);
 }
 
-void ezMathExpression::Reset(ezStringView sExpressionString)
+void WMathExpression::Reset(WStringView sExpressionString)
 {
   m_sOriginalExpression.Assign(sExpressionString);
   m_ByteCode.Clear();
@@ -22,53 +22,53 @@ void ezMathExpression::Reset(ezStringView sExpressionString)
   if (sExpressionString.IsEmpty())
     return;
 
-  ezStringBuilder tmp = s_sOutput.GetView();
+  WStringBuilder tmp = s_sOutput.GetView();
   tmp.Append(" = ", sExpressionString);
 
-  ezExpression::StreamDesc outputs[] = {
-    {s_sOutput, ezProcessingStream::DataType::Float},
+  WExpression::StreamDesc outputs[] = {
+    {s_sOutput, WProcessingStream::DataType::Float},
   };
 
-  ezExpressionParser parser;
-  ezExpressionParser::Options parserOptions;
+  WExpressionParser parser;
+  WExpressionParser::Options parserOptions;
   parserOptions.m_bTreatUnknownVariablesAsInputs = true;
 
-  ezExpressionAST ast;
-  if (parser.Parse(tmp, ezArrayPtr<ezExpression::StreamDesc>(), outputs, parserOptions, ast).Failed())
+  WExpressionAST ast;
+  if (parser.Parse(tmp, WArrayPtr<WExpression::StreamDesc>(), outputs, parserOptions, ast).Failed())
     return;
 
-  ezExpressionCompiler compiler;
+  WExpressionCompiler compiler;
   if (compiler.Compile(ast, m_ByteCode).Failed())
     return;
 
   m_bIsValid = true;
 }
 
-float ezMathExpression::Evaluate(ezArrayPtr<Input> inputs)
+float WMathExpression::Evaluate(WArrayPtr<Input> inputs)
 {
-  float fOutput = ezMath::NaN<float>();
+  float fOutput = WMath::NaN<float>();
 
   if (!IsValid() || m_ByteCode.IsEmpty())
   {
-    ezLog::Error("Can't evaluate invalid math expression '{0}'", m_sOriginalExpression);
+    WLog::Error("Can't evaluate invalid math expression '{0}'", m_sOriginalExpression);
     return fOutput;
   }
 
-  ezTempHybridArray<ezProcessingStream, 8> inputStreams;
+  WTempHybridArray<WProcessingStream, 8> inputStreams;
   for (auto& input : inputs)
   {
     if (input.m_sName.IsEmpty())
       continue;
 
-    inputStreams.PushBack(ezProcessingStream(input.m_sName, ezMakeArrayPtr(&input.m_fValue, 1).ToByteArray(), ezProcessingStream::DataType::Float));
+    inputStreams.PushBack(WProcessingStream(input.m_sName, WMakeArrayPtr(&input.m_fValue, 1).ToByteArray(), WProcessingStream::DataType::Float));
   }
 
-  ezProcessingStream outputStream(s_sOutput, ezMakeArrayPtr(&fOutput, 1).ToByteArray(), ezProcessingStream::DataType::Float);
-  ezArrayPtr<ezProcessingStream> outputStreams = ezMakeArrayPtr(&outputStream, 1);
+  WProcessingStream outputStream(s_sOutput, WMakeArrayPtr(&fOutput, 1).ToByteArray(), WProcessingStream::DataType::Float);
+  WArrayPtr<WProcessingStream> outputStreams = WMakeArrayPtr(&outputStream, 1);
 
   if (m_VM.Execute(m_ByteCode, inputStreams, outputStreams, 1).Failed())
   {
-    ezLog::Error("Failed to execute expression VM");
+    WLog::Error("Failed to execute expression VM");
   }
 
   return fOutput;

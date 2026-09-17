@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Core/System/Window.h>
 #  include <Foundation/Basics.h>
@@ -15,84 +15,84 @@ struct ANativeWindow;
 namespace
 {
   ANativeWindow* s_androidWindow = nullptr;
-  ezEventSubscriptionID s_androidCommandID = 0;
+  WEventSubscriptionID s_androidCommandID = 0;
 } // namespace
 
-ezWindowAndroid::~ezWindowAndroid()
+WWindowAndroid::~WWindowAndroid()
 {
   DestroyWindow();
 }
 
-ezResult ezWindowAndroid::InitializeWindow()
+WResult WWindowAndroid::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindowAndroid::Initialize", m_CreationDescription.m_Title.GetData());
+  W_LOG_BLOCK("WWindowAndroid::Initialize", m_CreationDescription.m_Title.GetData());
   if (m_bInitialized)
   {
     DestroyWindow();
   }
 
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
+  if (m_CreationDescription.m_WindowMode == WWindowMode::WindowResizable)
   {
-    s_androidCommandID = ezAndroidUtils::s_AppCommandEvent.AddEventHandler([this](ezInt32 iCmd)
+    s_androidCommandID = WAndroidUtils::s_AppCommandEvent.AddEventHandler([this](WInt32 iCmd)
       {
       if (iCmd == APP_CMD_WINDOW_RESIZED)
       {
-        ezTempHybridArray<ezScreenInfo, 2> screens;
-        if (ezScreen::EnumerateScreens(screens).Succeeded())
+        WTempHybridArray<WScreenInfo, 2> screens;
+        if (WScreen::EnumerateScreens(screens).Succeeded())
         {
           m_CreationDescription.m_Resolution.width = screens[0].m_iResolutionX;
           m_CreationDescription.m_Resolution.height = screens[0].m_iResolutionY;
-          this->OnResize(ezSizeU32(screens[0].m_iResolutionX, screens[0].m_iResolutionY));
+          this->OnResize(WSizeU32(screens[0].m_iResolutionX, screens[0].m_iResolutionY));
         }
       } });
   }
 
   // Checking and adjustments to creation desc.
   if (m_CreationDescription.AdjustWindowSizeAndPosition().Failed())
-    ezLog::Warning("Failed to adjust window size and position settings.");
+    WLog::Warning("Failed to adjust window size and position settings.");
 
-  EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
-  EZ_ASSERT_RELEASE(s_androidWindow == nullptr, "Window already exists. Only one Android window is supported at any time!");
+  W_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
+  W_ASSERT_RELEASE(s_androidWindow == nullptr, "Window already exists. Only one Android window is supported at any time!");
 
-  s_androidWindow = ezAndroidUtils::GetAndroidApp()->window;
+  s_androidWindow = WAndroidUtils::GetAndroidApp()->window;
   m_hWindowHandle = s_androidWindow;
-  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDevice_Android);
+  m_pInputDevice = W_DEFAULT_NEW(WInputDevice_Android);
   m_bInitialized = true;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowAndroid::DestroyWindow()
+void WWindowAndroid::DestroyWindow()
 {
   if (!m_bInitialized)
     return;
 
-  EZ_LOG_BLOCK("ezWindowAndroid::Destroy");
+  W_LOG_BLOCK("WWindowAndroid::Destroy");
 
   s_androidWindow = nullptr;
 
   if (s_androidCommandID != 0)
   {
-    ezAndroidUtils::s_AppCommandEvent.RemoveEventHandler(s_androidCommandID);
+    WAndroidUtils::s_AppCommandEvent.RemoveEventHandler(s_androidCommandID);
   }
 
-  ezLog::Success("Window destroyed.");
+  WLog::Success("Window destroyed.");
 }
 
-ezResult ezWindowAndroid::Resize(const ezSizeU32& newWindowSize)
+WResult WWindowAndroid::Resize(const WSizeU32& newWindowSize)
 {
   // No need to resize on Android, swapchain can take any size at any time.
   m_CreationDescription.m_Resolution.width = newWindowSize.width;
   m_CreationDescription.m_Resolution.height = newWindowSize.height;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezWindowAndroid::ProcessWindowMessages()
+void WWindowAndroid::ProcessWindowMessages()
 {
-  EZ_ASSERT_RELEASE(s_androidWindow != nullptr, "No window data available.");
+  W_ASSERT_RELEASE(s_androidWindow != nullptr, "No window data available.");
 }
 
-ezWindowHandle ezWindowAndroid::GetNativeWindowHandle() const
+WWindowHandle WWindowAndroid::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

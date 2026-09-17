@@ -2,12 +2,12 @@
 
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
-void ezSearchPatternFilter::SetSearchText(ezStringView sSearchText)
+void WSearchPatternFilter::SetSearchText(WStringView sSearchText)
 {
   m_sSearchText = sSearchText;
   m_Parts.Clear();
 
-  ezTempHybridArray<ezStringView, 4> searchParts;
+  WTempHybridArray<WStringView, 4> searchParts;
   m_sSearchText.Split(false, searchParts, " ");
 
   for (auto& searchPart : searchParts)
@@ -22,7 +22,7 @@ void ezSearchPatternFilter::SetSearchText(ezStringView sSearchText)
   }
 }
 
-bool ezSearchPatternFilter::ContainsExclusions() const
+bool WSearchPatternFilter::ContainsExclusions() const
 {
   for (auto& part : m_Parts)
   {
@@ -33,7 +33,7 @@ bool ezSearchPatternFilter::ContainsExclusions() const
   return false;
 }
 
-bool ezSearchPatternFilter::PassesFilters(ezStringView sText) const
+bool WSearchPatternFilter::PassesFilters(WStringView sText) const
 {
   for (auto& part : m_Parts)
   {

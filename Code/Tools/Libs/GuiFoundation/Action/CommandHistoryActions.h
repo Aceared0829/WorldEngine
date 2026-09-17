@@ -5,24 +5,24 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
 ///
-class EZ_GUIFOUNDATION_DLL ezCommandHistoryActions
+class W_GUIFOUNDATION_DLL WCommandHistoryActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping, ezStringView sTargetMenu = "G.Edit");
+  static void MapActions(WStringView sMapping, WStringView sTargetMenu = "G.Edit");
 
-  static ezActionDescriptorHandle s_hCommandHistoryCategory;
-  static ezActionDescriptorHandle s_hUndo;
-  static ezActionDescriptorHandle s_hRedo;
+  static WActionDescriptorHandle s_hCommandHistoryCategory;
+  static WActionDescriptorHandle s_hUndo;
+  static WActionDescriptorHandle s_hRedo;
 };
 
 
 ///
-class EZ_GUIFOUNDATION_DLL ezCommandHistoryAction : public ezDynamicActionAndMenuAction
+class W_GUIFOUNDATION_DLL WCommandHistoryAction : public WDynamicActionAndMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction, ezDynamicActionAndMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WCommandHistoryAction, WDynamicActionAndMenuAction);
 
 public:
   enum class ButtonType
@@ -31,15 +31,15 @@ public:
     Redo,
   };
 
-  ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezCommandHistoryAction();
+  WCommandHistoryAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WCommandHistoryAction();
 
-  virtual void Execute(const ezVariant& value) override;
-  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
+  virtual void Execute(const WVariant& value) override;
+  virtual void GetEntries(WDynamicArray<Item>& out_entries) override;
 
 private:
   void UpdateState();
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  void CommandHistoryEventHandler(const WCommandHistoryEvent& e);
 
   ButtonType m_ButtonType;
 };

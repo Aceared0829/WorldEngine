@@ -4,606 +4,606 @@
 
 // clang-format off
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSyncWithProcessMsgToEngine, 1, WRTTIDefaultAllocator<WSyncWithProcessMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
+    W_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEditor, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSyncWithProcessMsgToEditor, 1, WRTTIDefaultAllocator<WSyncWithProcessMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
+    W_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
+///////////////////////////////////// WEditorEngineMsg /////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, 1, ezRTTINoAllocator )
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineMsg, 1, WRTTINoAllocator )
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, 1, ezRTTIDefaultAllocator<ezUpdateReflectionTypeMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WUpdateReflectionTypeMsgToEditor, 1, WRTTIDefaultAllocator<WUpdateReflectionTypeMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Descriptor", m_desc),
+    W_MEMBER_PROPERTY("Descriptor", m_desc),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, 1, ezRTTIDefaultAllocator<ezSetupProjectMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSetupProjectMsgToEngine, 1, WRTTIDefaultAllocator<WSetupProjectMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ProjectDir", m_sProjectDir),
-    EZ_MEMBER_PROPERTY("FileSystemConfig", m_FileSystemConfig),
-    EZ_MEMBER_PROPERTY("PluginConfig", m_PluginConfig),
-    EZ_MEMBER_PROPERTY("FileserveAddress", m_sFileserveAddress),
-    EZ_MEMBER_PROPERTY("Platform", m_sAssetProfile),
-    EZ_MEMBER_PROPERTY("DevicePixelRatio", m_fDevicePixelRatio),
+    W_MEMBER_PROPERTY("ProjectDir", m_sProjectDir),
+    W_MEMBER_PROPERTY("FileSystemConfig", m_FileSystemConfig),
+    W_MEMBER_PROPERTY("PluginConfig", m_PluginConfig),
+    W_MEMBER_PROPERTY("FileserveAddress", m_sFileserveAddress),
+    W_MEMBER_PROPERTY("Platform", m_sAssetProfile),
+    W_MEMBER_PROPERTY("DevicePixelRatio", m_fDevicePixelRatio),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShutdownProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezShutdownProcessMsgToEngine>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WShutdownProcessMsgToEngine, 1, WRTTIDefaultAllocator<WShutdownProcessMsgToEngine>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> )
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProjectReadyMsgToEditor, 1, WRTTIDefaultAllocator<WProjectReadyMsgToEditor> )
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimpleConfigMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimpleConfigMsgToEngine, 1, WRTTIDefaultAllocator<WSimpleConfigMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
-    EZ_MEMBER_PROPERTY("Payload", m_sPayload),
-    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
+    W_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    W_MEMBER_PROPERTY("Payload", m_sPayload),
+    W_MEMBER_PROPERTY("PayloadValue", m_fPayload),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveProfilingResponseToEditor, 1, ezRTTIDefaultAllocator<ezSaveProfilingResponseToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSaveProfilingResponseToEditor, 1, WRTTIDefaultAllocator<WSaveProfilingResponseToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ProfilingFile", m_sProfilingFile),
+    W_MEMBER_PROPERTY("ProfilingFile", m_sProfilingFile),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReloadResourceMsgToEngine, 1, ezRTTIDefaultAllocator<ezReloadResourceMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WReloadResourceMsgToEngine, 1, WRTTIDefaultAllocator<WReloadResourceMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
-    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
+    W_MEMBER_PROPERTY("Type", m_sResourceType),
+    W_MEMBER_PROPERTY("ID", m_sResourceID),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceUpdateMsgToEngine, 1, ezRTTIDefaultAllocator<ezResourceUpdateMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WResourceUpdateMsgToEngine, 1, WRTTIDefaultAllocator<WResourceUpdateMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
-    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
-    EZ_MEMBER_PROPERTY("Data", m_Data),
+    W_MEMBER_PROPERTY("Type", m_sResourceType),
+    W_MEMBER_PROPERTY("ID", m_sResourceID),
+    W_MEMBER_PROPERTY("Data", m_Data),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRestoreResourceMsgToEngine, 1, ezRTTIDefaultAllocator<ezRestoreResourceMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRestoreResourceMsgToEngine, 1, WRTTIDefaultAllocator<WRestoreResourceMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
-    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
+    W_MEMBER_PROPERTY("Type", m_sResourceType),
+    W_MEMBER_PROPERTY("ID", m_sResourceID),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocator<ezChangeCVarMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WChangeCVarMsgToEngine, 1, WRTTIDefaultAllocator<WChangeCVarMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sCVarName),
-    EZ_MEMBER_PROPERTY("Value", m_NewValue),
+    W_MEMBER_PROPERTY("Name", m_sCVarName),
+    W_MEMBER_PROPERTY("Value", m_NewValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdMsgToEngine, 1, ezRTTIDefaultAllocator<ezConsoleCmdMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WConsoleCmdMsgToEngine, 1, WRTTIDefaultAllocator<WConsoleCmdMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Type", m_iType),
-    EZ_MEMBER_PROPERTY("Cmd", m_sCommand),
+    W_MEMBER_PROPERTY("Type", m_iType),
+    W_MEMBER_PROPERTY("Cmd", m_sCommand),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezConsoleCmdResultMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WConsoleCmdResultMsgToEditor, 1, WRTTIDefaultAllocator<WConsoleCmdResultMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Result", m_sResult),
+    W_MEMBER_PROPERTY("Result", m_sResult),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumMsgToEditor, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDynamicStringEnumMsgToEditor, 1, WRTTIDefaultAllocator<WDynamicStringEnumMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EnumName", m_sEnumName),
-    EZ_ARRAY_MEMBER_PROPERTY("EnumValues", m_EnumValues),
+    W_MEMBER_PROPERTY("EnumName", m_sEnumName),
+    W_ARRAY_MEMBER_PROPERTY("EnumValues", m_EnumValues),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOpReplicationMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpReplicationMsg, 1, WRTTIDefaultAllocator<WLongOpReplicationMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
-    EZ_MEMBER_PROPERTY("DocGuid", m_DocumentGuid),
-    EZ_MEMBER_PROPERTY("Type", m_sReplicationType),
-    EZ_MEMBER_PROPERTY("Data", m_ReplicationData),
+    W_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
+    W_MEMBER_PROPERTY("DocGuid", m_DocumentGuid),
+    W_MEMBER_PROPERTY("Type", m_sReplicationType),
+    W_MEMBER_PROPERTY("Data", m_ReplicationData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProgressMsg, 1, ezRTTIDefaultAllocator<ezLongOpProgressMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpProgressMsg, 1, WRTTIDefaultAllocator<WLongOpProgressMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
-    EZ_MEMBER_PROPERTY("Completion", m_fCompletion),
+    W_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
+    W_MEMBER_PROPERTY("Completion", m_fCompletion),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpResultMsg, 1, ezRTTIDefaultAllocator<ezLongOpResultMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLongOpResultMsg, 1, WRTTIDefaultAllocator<WLongOpResultMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
-    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
-    EZ_MEMBER_PROPERTY("Data", m_ResultData),
+    W_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
+    W_MEMBER_PROPERTY("Success", m_bSuccess),
+    W_MEMBER_PROPERTY("Data", m_ResultData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
+///////////////////////////////////// WEditorEngineDocumentMsg /////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineDocumentMsg, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DocumentGuid", m_DocumentGuid),
+    W_MEMBER_PROPERTY("DocumentGuid", m_DocumentGuid),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezDocumentConfigMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentConfigMsgToEngine, 1, WRTTIDefaultAllocator<WDocumentConfigMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
-    EZ_MEMBER_PROPERTY("Int", m_iValue),
-    EZ_MEMBER_PROPERTY("Float", m_fValue),
-    EZ_MEMBER_PROPERTY("String", m_sValue),
+    W_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    W_MEMBER_PROPERTY("Int", m_iValue),
+    W_MEMBER_PROPERTY("Float", m_fValue),
+    W_MEMBER_PROPERTY("String", m_sValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineViewMsg, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineViewMsg, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    W_MEMBER_PROPERTY("ViewID", m_uiViewID),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenMsgToEngine, 1, ezRTTIDefaultAllocator<ezDocumentOpenMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentOpenMsgToEngine, 1, WRTTIDefaultAllocator<WDocumentOpenMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DocumentOpen", m_bDocumentOpen),
-    EZ_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
-    EZ_MEMBER_PROPERTY("DocumentMetaData", m_DocumentMetaData),
+    W_MEMBER_PROPERTY("DocumentOpen", m_bDocumentOpen),
+    W_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
+    W_MEMBER_PROPERTY("DocumentMetaData", m_DocumentMetaData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentClearMsgToEngine, 1, ezRTTIDefaultAllocator<ezDocumentClearMsgToEngine>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentClearMsgToEngine, 1, WRTTIDefaultAllocator<WDocumentClearMsgToEngine>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenResponseMsgToEditor, 1, ezRTTIDefaultAllocator<ezDocumentOpenResponseMsgToEditor> )
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentOpenResponseMsgToEditor, 1, WRTTIDefaultAllocator<WDocumentOpenResponseMsgToEditor> )
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewDestroyedMsgToEngine>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewDestroyedMsgToEngine, 1, WRTTIDefaultAllocator<WViewDestroyedMsgToEngine>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedResponseMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewDestroyedResponseMsgToEditor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewDestroyedResponseMsgToEditor, 1, WRTTIDefaultAllocator<WViewDestroyedResponseMsgToEditor>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewRedrawMsgToEngine, 1, WRTTIDefaultAllocator<WViewRedrawMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
-    EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
-    EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
-    EZ_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
-    EZ_MEMBER_PROPERTY("EnablePickSelected", m_bEnablePickingSelected),
-    EZ_MEMBER_PROPERTY("EnablePickTransparent", m_bEnablePickTransparent),
-    EZ_MEMBER_PROPERTY("UseCamOnDevice", m_bUseCameraTransformOnDevice),
-    EZ_MEMBER_PROPERTY("CameraMode", m_iCameraMode),
-    EZ_MEMBER_PROPERTY("NearPlane", m_fNearPlane),
-    EZ_MEMBER_PROPERTY("FarPlane", m_fFarPlane),
-    EZ_MEMBER_PROPERTY("FovOrDim", m_fFovOrDim),
-    EZ_MEMBER_PROPERTY("Position", m_vPosition),
-    EZ_MEMBER_PROPERTY("Forwards", m_vDirForwards),
-    EZ_MEMBER_PROPERTY("Up", m_vDirUp),
-    EZ_MEMBER_PROPERTY("Right", m_vDirRight),
-    EZ_MEMBER_PROPERTY("ViewMat", m_ViewMatrix),
-    EZ_MEMBER_PROPERTY("ProjMat", m_ProjMatrix),
-    EZ_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
+    W_MEMBER_PROPERTY("HWND", m_uiHWND),
+    W_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
+    W_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
+    W_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
+    W_MEMBER_PROPERTY("EnablePickSelected", m_bEnablePickingSelected),
+    W_MEMBER_PROPERTY("EnablePickTransparent", m_bEnablePickTransparent),
+    W_MEMBER_PROPERTY("UseCamOnDevice", m_bUseCameraTransformOnDevice),
+    W_MEMBER_PROPERTY("CameraMode", m_iCameraMode),
+    W_MEMBER_PROPERTY("NearPlane", m_fNearPlane),
+    W_MEMBER_PROPERTY("FarPlane", m_fFarPlane),
+    W_MEMBER_PROPERTY("FovOrDim", m_fFovOrDim),
+    W_MEMBER_PROPERTY("Position", m_vPosition),
+    W_MEMBER_PROPERTY("Forwards", m_vDirForwards),
+    W_MEMBER_PROPERTY("Up", m_vDirUp),
+    W_MEMBER_PROPERTY("Right", m_vDirRight),
+    W_MEMBER_PROPERTY("ViewMat", m_ViewMatrix),
+    W_MEMBER_PROPERTY("ProjMat", m_ProjMatrix),
+    W_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewScreenshotMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewScreenshotMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewScreenshotMsgToEngine, 1, WRTTIDefaultAllocator<WViewScreenshotMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sOutputFile)
+    W_MEMBER_PROPERTY("File", m_sOutputFile)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActivateRemoteViewMsgToEngine, 1, ezRTTIDefaultAllocator<ezActivateRemoteViewMsgToEngine>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WActivateRemoteViewMsgToEngine, 1, WRTTIDefaultAllocator<WActivateRemoteViewMsgToEngine>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEntityMsgToEngine, 1, WRTTIDefaultAllocator<WEntityMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Change", m_change),
+    W_MEMBER_PROPERTY("Change", m_change),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimpleDocumentConfigMsgToEngine, 1, WRTTIDefaultAllocator<WSimpleDocumentConfigMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
-    EZ_MEMBER_PROPERTY("Payload1", m_sPayload),
-    EZ_MEMBER_PROPERTY("Payload2", m_PayloadValue),
+    W_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    W_MEMBER_PROPERTY("Payload1", m_sPayload),
+    W_MEMBER_PROPERTY("Payload2", m_PayloadValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEditor, 1, ezRTTIDefaultAllocator<ezSimpleDocumentConfigMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimpleDocumentConfigMsgToEditor, 1, WRTTIDefaultAllocator<WSimpleDocumentConfigMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
-    EZ_MEMBER_PROPERTY("Payload1", m_sPayload),
-    EZ_MEMBER_PROPERTY("Payload2", m_PayloadValue),
+    W_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    W_MEMBER_PROPERTY("Payload1", m_sPayload),
+    W_MEMBER_PROPERTY("Payload2", m_PayloadValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExportDocumentMsgToEngine, 1, WRTTIDefaultAllocator<WExportDocumentMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OutputFile", m_sOutputFile),
-    EZ_MEMBER_PROPERTY("AssetHash", m_uiAssetHash),
-    EZ_MEMBER_PROPERTY("AssetVersion", m_uiVersion),
+    W_MEMBER_PROPERTY("OutputFile", m_sOutputFile),
+    W_MEMBER_PROPERTY("AssetHash", m_uiAssetHash),
+    W_MEMBER_PROPERTY("AssetVersion", m_uiVersion),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEditor, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExportDocumentMsgToEditor, 1, WRTTIDefaultAllocator<WExportDocumentMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OutputSuccess", m_bOutputSuccess),
-    EZ_MEMBER_PROPERTY("FailureMsg", m_sFailureMsg),
+    W_MEMBER_PROPERTY("OutputSuccess", m_bOutputSuccess),
+    W_MEMBER_PROPERTY("FailureMsg", m_sFailureMsg),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEngine, 1, ezRTTIDefaultAllocator<ezCreateThumbnailMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCreateThumbnailMsgToEngine, 1, WRTTIDefaultAllocator<WCreateThumbnailMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Width", m_uiWidth),
-    EZ_MEMBER_PROPERTY("Height", m_uiHeight),
-    EZ_ARRAY_MEMBER_PROPERTY("ViewExcludeTags", m_ViewExcludeTags),
+    W_MEMBER_PROPERTY("Width", m_uiWidth),
+    W_MEMBER_PROPERTY("Height", m_uiHeight),
+    W_ARRAY_MEMBER_PROPERTY("ViewExcludeTags", m_ViewExcludeTags),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEditor, 1, ezRTTIDefaultAllocator<ezCreateThumbnailMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCreateThumbnailMsgToEditor, 1, WRTTIDefaultAllocator<WCreateThumbnailMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ThumbnailData", m_ThumbnailData),
+    W_MEMBER_PROPERTY("ThumbnailData", m_ThumbnailData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewPickingMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewPickingMsgToEngine, 1, WRTTIDefaultAllocator<WViewPickingMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PickPosX", m_uiPickPosX),
-    EZ_MEMBER_PROPERTY("PickPosY", m_uiPickPosY),
+    W_MEMBER_PROPERTY("PickPosX", m_uiPickPosX),
+    W_MEMBER_PROPERTY("PickPosY", m_uiPickPosY),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewPickingResultMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewPickingResultMsgToEditor, 1, WRTTIDefaultAllocator<WViewPickingResultMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
-    EZ_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
-    EZ_MEMBER_PROPERTY("OtherGuid", m_OtherGuid),
-    EZ_MEMBER_PROPERTY("PartIndex", m_uiPartIndex),
-    EZ_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
-    EZ_MEMBER_PROPERTY("PickedNormal", m_vPickedNormal),
-    EZ_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
+    W_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    W_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
+    W_MEMBER_PROPERTY("OtherGuid", m_OtherGuid),
+    W_MEMBER_PROPERTY("PartIndex", m_uiPartIndex),
+    W_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
+    W_MEMBER_PROPERTY("PickedNormal", m_vPickedNormal),
+    W_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewMarqueePickingMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewMarqueePickingMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewMarqueePickingMsgToEngine, 1, WRTTIDefaultAllocator<WViewMarqueePickingMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PickPosX0", m_uiPickPosX0),
-    EZ_MEMBER_PROPERTY("PickPosY0", m_uiPickPosY0),
-    EZ_MEMBER_PROPERTY("PickPosX1", m_uiPickPosX1),
-    EZ_MEMBER_PROPERTY("PickPosY1", m_uiPickPosY1),
-    EZ_MEMBER_PROPERTY("what", m_uiWhatToDo),
-    EZ_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
+    W_MEMBER_PROPERTY("PickPosX0", m_uiPickPosX0),
+    W_MEMBER_PROPERTY("PickPosY0", m_uiPickPosY0),
+    W_MEMBER_PROPERTY("PickPosX1", m_uiPickPosX1),
+    W_MEMBER_PROPERTY("PickPosY1", m_uiPickPosY1),
+    W_MEMBER_PROPERTY("what", m_uiWhatToDo),
+    W_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewMarqueePickingResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewMarqueePickingResultMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewMarqueePickingResultMsgToEditor, 1, WRTTIDefaultAllocator<WViewMarqueePickingResultMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectGuids),
-    EZ_MEMBER_PROPERTY("what", m_uiWhatToDo),
-    EZ_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
+    W_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectGuids),
+    W_MEMBER_PROPERTY("what", m_uiWhatToDo),
+    W_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewHighlightMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewHighlightMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewHighlightMsgToEngine, 1, WRTTIDefaultAllocator<WViewHighlightMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("HighlightObject", m_HighlightObject),
+    W_MEMBER_PROPERTY("HighlightObject", m_HighlightObject),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLogMsgToEditor, 1, WRTTIDefaultAllocator<WLogMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Entry", m_Entry),
+    W_MEMBER_PROPERTY("Entry", m_Entry),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCVarMsgToEditor, 1, ezRTTIDefaultAllocator<ezCVarMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCVarMsgToEditor, 1, WRTTIDefaultAllocator<WCVarMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Plugin", m_sPlugin),
-    EZ_MEMBER_PROPERTY("Desc", m_sDescription),
-    EZ_MEMBER_PROPERTY("Value", m_Value),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_MEMBER_PROPERTY("Plugin", m_sPlugin),
+    W_MEMBER_PROPERTY("Desc", m_sDescription),
+    W_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSyncObjectMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineSyncObjectMsg, 1, WRTTIDefaultAllocator<WEditorEngineSyncObjectMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
-    EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
-    EZ_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
+    W_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    W_MEMBER_PROPERTY("ObjectType", m_sObjectType),
+    W_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTagMsgToEngine, 1, ezRTTIDefaultAllocator<ezObjectTagMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectTagMsgToEngine, 1, WRTTIDefaultAllocator<WObjectTagMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
-    EZ_MEMBER_PROPERTY("Tag", m_sTag),
-    EZ_MEMBER_PROPERTY("Set", m_bSetTag),
-    EZ_MEMBER_PROPERTY("Recursive", m_bApplyOnAllChildren),
+    W_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    W_MEMBER_PROPERTY("Tag", m_sTag),
+    W_MEMBER_PROPERTY("Set", m_bSetTag),
+    W_MEMBER_PROPERTY("Recursive", m_bApplyOnAllChildren),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectSelectionMsgToEngine, 1, ezRTTIDefaultAllocator<ezObjectSelectionMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectSelectionMsgToEngine, 1, WRTTIDefaultAllocator<WObjectSelectionMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Selection", m_sSelection),
+    W_MEMBER_PROPERTY("Selection", m_sSelection),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimulationSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimulationSettingsMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimulationSettingsMsgToEngine, 1, WRTTIDefaultAllocator<WSimulationSettingsMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SimulateWorld", m_bSimulateWorld),
-    EZ_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
+    W_MEMBER_PROPERTY("SimulateWorld", m_bSimulateWorld),
+    W_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezGridSettingsMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGridSettingsMsgToEngine, 1, WRTTIDefaultAllocator<WGridSettingsMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GridDensity", m_fGridDensity),
-    EZ_MEMBER_PROPERTY("GridCenter", m_vGridCenter),
-    EZ_MEMBER_PROPERTY("GridTangent1", m_vGridTangent1),
-    EZ_MEMBER_PROPERTY("GridTangent2", m_vGridTangent2),
+    W_MEMBER_PROPERTY("GridDensity", m_fGridDensity),
+    W_MEMBER_PROPERTY("GridCenter", m_vGridCenter),
+    W_MEMBER_PROPERTY("GridTangent1", m_vGridTangent1),
+    W_MEMBER_PROPERTY("GridTangent2", m_vGridTangent2),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGlobalSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezGlobalSettingsMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGlobalSettingsMsgToEngine, 1, WRTTIDefaultAllocator<WGlobalSettingsMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
-    EZ_MEMBER_PROPERTY("ShapeIconScale", m_fShapeIconScale),
-    EZ_MEMBER_PROPERTY("ShapeIconFadeDistance", m_fShapeIconFadeDistance),
+    W_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
+    W_MEMBER_PROPERTY("ShapeIconScale", m_fShapeIconScale),
+    W_MEMBER_PROPERTY("ShapeIconFadeDistance", m_fShapeIconFadeDistance),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezWorldSettingsMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WWorldSettingsMsgToEngine, 1, WRTTIDefaultAllocator<WWorldSettingsMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
-    EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
-    EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
-    EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
+    W_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
+    W_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
+    W_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
+    W_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameModeMsgToEngine, 1, ezRTTIDefaultAllocator<ezGameModeMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameModeMsgToEngine, 1, WRTTIDefaultAllocator<WGameModeMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Run", m_bEnablePTG),
-    EZ_MEMBER_PROPERTY("UsePos", m_bUseStartPosition),
-    EZ_MEMBER_PROPERTY("Pos", m_vStartPosition),
-    EZ_MEMBER_PROPERTY("Dir", m_vStartDirection),
+    W_MEMBER_PROPERTY("Run", m_bEnablePTG),
+    W_MEMBER_PROPERTY("UsePos", m_bUseStartPosition),
+    W_MEMBER_PROPERTY("Pos", m_vStartPosition),
+    W_MEMBER_PROPERTY("Dir", m_vStartDirection),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameModeMsgToEditor, 1, ezRTTIDefaultAllocator<ezGameModeMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameModeMsgToEditor, 1, WRTTIDefaultAllocator<WGameModeMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Run", m_bRunningPTG),
+    W_MEMBER_PROPERTY("Run", m_bRunningPTG),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxMsgToEngine, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WQuerySelectionBBoxMsgToEngine, 1, WRTTIDefaultAllocator<WQuerySelectionBBoxMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
-    EZ_MEMBER_PROPERTY("Purpose", m_iPurpose),
+    W_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    W_MEMBER_PROPERTY("Purpose", m_iPurpose),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxResultMsgToEditor>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WQuerySelectionBBoxResultMsgToEditor, 1, WRTTIDefaultAllocator<WQuerySelectionBBoxResultMsgToEditor>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Center", m_vCenter),
-    EZ_MEMBER_PROPERTY("Extents", m_vHalfExtents),
-    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
-    EZ_MEMBER_PROPERTY("Purpose", m_iPurpose),
+    W_MEMBER_PROPERTY("Center", m_vCenter),
+    W_MEMBER_PROPERTY("Extents", m_vHalfExtents),
+    W_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    W_MEMBER_PROPERTY("Purpose", m_iPurpose),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGatherObjectsOfTypeMsgInterDoc, 1, ezRTTIDefaultAllocator<ezGatherObjectsOfTypeMsgInterDoc>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGatherObjectsOfTypeMsgInterDoc, 1, WRTTIDefaultAllocator<WGatherObjectsOfTypeMsgInterDoc>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGatherObjectsForDebugVisMsgInterDoc, 1, ezRTTIDefaultAllocator<ezGatherObjectsForDebugVisMsgInterDoc>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGatherObjectsForDebugVisMsgInterDoc, 1, WRTTIDefaultAllocator<WGatherObjectsForDebugVisMsgInterDoc>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectsForDebugVisMsgToEngine, 1, ezRTTIDefaultAllocator<ezObjectsForDebugVisMsgToEngine>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectsForDebugVisMsgToEngine, 1, WRTTIDefaultAllocator<WObjectsForDebugVisMsgToEngine>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Objects", m_Objects),
+    W_MEMBER_PROPERTY("Objects", m_Objects),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 

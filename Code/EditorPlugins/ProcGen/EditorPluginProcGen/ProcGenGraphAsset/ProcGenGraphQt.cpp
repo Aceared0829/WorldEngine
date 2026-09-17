@@ -10,37 +10,37 @@
 
 namespace
 {
-  static ezColorGammaUB CategoryColor(const char* szCategory)
+  static WColorGammaUB CategoryColor(const char* szCategory)
   {
-    ezColorScheme::Enum color = ezColorScheme::Green;
-    if (ezStringUtils::IsEqual(szCategory, "Input"))
-      color = ezColorScheme::Lime;
-    else if (ezStringUtils::IsEqual(szCategory, "Output"))
-      color = ezColorScheme::Cyan;
-    else if (ezStringUtils::IsEqual(szCategory, "Math"))
-      color = ezColorScheme::Blue;
+    WColorScheme::Enum color = WColorScheme::Green;
+    if (WStringUtils::IsEqual(szCategory, "Input"))
+      color = WColorScheme::Lime;
+    else if (WStringUtils::IsEqual(szCategory, "Output"))
+      color = WColorScheme::Cyan;
+    else if (WStringUtils::IsEqual(szCategory, "Math"))
+      color = WColorScheme::Blue;
 
-    return ezColorScheme::DarkUI(color);
+    return WColorScheme::DarkUI(color);
   }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenNode::ezQtProcGenNode() = default;
+WQtProcGenNode::WQtProcGenNode() = default;
 
-void ezQtProcGenNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
+void WQtProcGenNode::InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject)
 {
-  ezQtVisualGraphNode::InitNode(pManager, pObject);
+  WQtVisualGraphNode::InitNode(pManager, pObject);
 
-  const ezRTTI* pRtti = pObject->GetType();
+  const WRTTI* pRtti = pObject->GetType();
 
-  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+  if (const WCategoryAttribute* pAttr = pRtti->GetAttributeByType<WCategoryAttribute>())
   {
-    m_HeaderColor = ezToQtColor(CategoryColor(pAttr->GetCategory()));
+    m_HeaderColor = WToQtColor(CategoryColor(pAttr->GetCategory()));
   }
 }
 
-void ezQtProcGenNode::UpdateState()
+void WQtProcGenNode::UpdateState()
 {
   TitleFormat format;
   format.m_uiMaxStringLength = 0;
@@ -48,31 +48,31 @@ void ezQtProcGenNode::UpdateState()
   format.m_bSplitAtDoubleColon = false;
   format.m_bBoolsAsTicks = true;
 
-  ezStringBuilder sTemplate;
+  WStringBuilder sTemplate;
   if (!TryGetTitleTemplateFromAttribute(sTemplate))
   {
     sTemplate = GetObject()->GetType()->GetTypeName();
-    if (sTemplate.StartsWith_NoCase("ezProcGen"))
+    if (sTemplate.StartsWith_NoCase("WProcGen"))
     {
       sTemplate.Shrink(9, 0);
     }
     sTemplate.TrimLeft("_");
   }
 
-  ezStringBuilder sTitle;
-  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+  WStringBuilder sTitle;
+  WTokenParseUtils::RenderTemplate(sTemplate, [&](WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)
     { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   SetTitleAndSubtitle(sTitle, format);
 
-  ezVariant active = GetObject()->GetTypeAccessor().GetValue("Active");
+  WVariant active = GetObject()->GetTypeAccessor().GetValue("Active");
   if (active.IsA<bool>())
   {
     SetActive(active.Get<bool>());
   }
 }
 
-void ezQtProcGenNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtProcGenNode::ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
   for (const auto& pin : GetInputPins())
   {
@@ -89,7 +89,7 @@ void ezQtProcGenNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVari
     else
     {
       // an unconnected pin falls back to the constant stored in the matching 'Input<PinName>' property
-      ezStringBuilder sInputProperty("Input", sPlaceholder);
+      WStringBuilder sInputProperty("Input", sPlaceholder);
       ResolvePropertyPlaceholder(sInputProperty, index, bOptional, format, ref_sOutput);
     }
 
@@ -101,10 +101,10 @@ void ezQtProcGenNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVari
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenPin::ezQtProcGenPin() = default;
-ezQtProcGenPin::~ezQtProcGenPin() = default;
+WQtProcGenPin::WQtProcGenPin() = default;
+WQtProcGenPin::~WQtProcGenPin() = default;
 
-void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
+void WQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
 {
   QAction* pAction = new QAction("Debug", &ref_menu);
   pAction->setCheckable(true);
@@ -115,17 +115,17 @@ void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
   ref_menu.addAction(pAction);
 }
 
-void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
+void WQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 {
-  if (ezQtUtils::IsEquivalentQtKey(pEvent, Qt::Key_D) || pEvent->key() == Qt::Key_F9)
+  if (WQtUtils::IsEquivalentQtKey(pEvent, Qt::Key_D) || pEvent->key() == Qt::Key_F9)
   {
     SetDebug(!m_bDebug);
   }
 }
 
-void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
+void WQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
-  ezQtVisualGraphPin::paint(pPainter, pOption, pWidget);
+  WQtVisualGraphPin::paint(pPainter, pOption, pWidget);
 
   pPainter->save();
   pPainter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
@@ -141,19 +141,19 @@ void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* p
   pPainter->restore();
 }
 
-QRectF ezQtProcGenPin::boundingRect() const
+QRectF WQtProcGenPin::boundingRect() const
 {
-  QRectF bounds = ezQtVisualGraphPin::boundingRect();
+  QRectF bounds = WQtVisualGraphPin::boundingRect();
   return bounds.adjusted(-6, -6, 6, 6);
 }
 
-void ezQtProcGenPin::SetDebug(bool bDebug)
+void WQtProcGenPin::SetDebug(bool bDebug)
 {
   if (m_bDebug != bDebug)
   {
     m_bDebug = bDebug;
 
-    auto pScene = static_cast<ezQtProcGenScene*>(scene());
+    auto pScene = static_cast<WQtProcGenScene*>(scene());
     pScene->SetDebugPin(bDebug ? this : nullptr);
 
     update();
@@ -162,14 +162,14 @@ void ezQtProcGenPin::SetDebug(bool bDebug)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenScene::ezQtProcGenScene(QObject* pParent /*= nullptr*/)
-  : ezQtVisualGraphScene(pParent)
+WQtProcGenScene::WQtProcGenScene(QObject* pParent /*= nullptr*/)
+  : WQtVisualGraphScene(pParent)
 {
 }
 
-ezQtProcGenScene::~ezQtProcGenScene() = default;
+WQtProcGenScene::~WQtProcGenScene() = default;
 
-void ezQtProcGenScene::SetDebugPin(ezQtProcGenPin* pDebugPin)
+void WQtProcGenScene::SetDebugPin(WQtProcGenPin* pDebugPin)
 {
   if (m_pDebugPin == pDebugPin || m_bUpdatingDebugPin)
     return;
@@ -186,14 +186,14 @@ void ezQtProcGenScene::SetDebugPin(ezQtProcGenPin* pDebugPin)
 
   m_pDebugPin = pDebugPin;
 
-  if (ezQtDocumentWindow* window = qobject_cast<ezQtDocumentWindow*>(parent()))
+  if (WQtDocumentWindow* window = qobject_cast<WQtDocumentWindow*>(parent()))
   {
-    auto document = static_cast<ezProcGenGraphAssetDocument*>(window->GetDocument());
+    auto document = static_cast<WProcGenGraphAssetDocument*>(window->GetDocument());
     document->SetDebugPin(pDebugPin != nullptr ? pDebugPin->GetPin() : nullptr);
   }
 }
 
-ezStatus ezQtProcGenScene::RemoveNode(ezQtVisualGraphNode* pNode)
+WStatus WQtProcGenScene::RemoveNode(WQtVisualGraphNode* pNode)
 {
   auto pins = pNode->GetInputPins();
   pins.PushBackRange(pNode->GetOutputPins());
@@ -206,5 +206,5 @@ ezStatus ezQtProcGenScene::RemoveNode(ezQtVisualGraphNode* pNode)
     }
   }
 
-  return ezQtVisualGraphScene::RemoveNode(pNode);
+  return WQtVisualGraphScene::RemoveNode(pNode);
 }

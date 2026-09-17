@@ -1,84 +1,84 @@
 #pragma once
 
-inline ezVec3 ezCamera::GetCenterPosition() const
+inline WVec3 WCamera::GetCenterPosition() const
 {
-  if (m_Mode == ezCameraMode::Stereo)
-    return (GetPosition(ezCameraEye::Left) + GetPosition(ezCameraEye::Right)) * 0.5f;
+  if (m_Mode == WCameraMode::Stereo)
+    return (GetPosition(WCameraEye::Left) + GetPosition(WCameraEye::Right)) * 0.5f;
   else
     return GetPosition();
 }
 
-inline ezVec3 ezCamera::GetCenterDirForwards() const
+inline WVec3 WCamera::GetCenterDirForwards() const
 {
-  if (m_Mode == ezCameraMode::Stereo)
-    return (GetDirForwards(ezCameraEye::Left) + GetDirForwards(ezCameraEye::Right)).GetNormalized();
+  if (m_Mode == WCameraMode::Stereo)
+    return (GetDirForwards(WCameraEye::Left) + GetDirForwards(WCameraEye::Right)).GetNormalized();
   else
     return GetDirForwards();
 }
 
-inline ezVec3 ezCamera::GetCenterDirUp() const
+inline WVec3 WCamera::GetCenterDirUp() const
 {
-  if (m_Mode == ezCameraMode::Stereo)
-    return (GetDirUp(ezCameraEye::Left) + GetDirUp(ezCameraEye::Right)).GetNormalized();
+  if (m_Mode == WCameraMode::Stereo)
+    return (GetDirUp(WCameraEye::Left) + GetDirUp(WCameraEye::Right)).GetNormalized();
   else
     return GetDirUp();
 }
 
-inline ezVec3 ezCamera::GetCenterDirRight() const
+inline WVec3 WCamera::GetCenterDirRight() const
 {
-  if (m_Mode == ezCameraMode::Stereo)
-    return (GetDirRight(ezCameraEye::Left) + GetDirRight(ezCameraEye::Right)).GetNormalized();
+  if (m_Mode == WCameraMode::Stereo)
+    return (GetDirRight(WCameraEye::Left) + GetDirRight(WCameraEye::Right)).GetNormalized();
   else
     return GetDirRight();
 }
 
-EZ_ALWAYS_INLINE float ezCamera::GetNearPlane() const
+W_ALWAYS_INLINE float WCamera::GetNearPlane() const
 {
   return m_fNearPlane;
 }
 
-EZ_ALWAYS_INLINE float ezCamera::GetFarPlane() const
+W_ALWAYS_INLINE float WCamera::GetFarPlane() const
 {
   return m_fFarPlane;
 }
 
-EZ_ALWAYS_INLINE float ezCamera::GetFovOrDim() const
+W_ALWAYS_INLINE float WCamera::GetFovOrDim() const
 {
   return m_fFovOrDim;
 }
 
-EZ_ALWAYS_INLINE ezCameraMode::Enum ezCamera::GetCameraMode() const
+W_ALWAYS_INLINE WCameraMode::Enum WCamera::GetCameraMode() const
 {
   return m_Mode;
 }
 
-EZ_ALWAYS_INLINE bool ezCamera::IsPerspective() const
+W_ALWAYS_INLINE bool WCamera::IsPerspective() const
 {
-  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY ||
-         m_Mode == ezCameraMode::Stereo; // All HMD stereo cameras are perspective!
+  return m_Mode == WCameraMode::PerspectiveFixedFovX || m_Mode == WCameraMode::PerspectiveFixedFovY ||
+         m_Mode == WCameraMode::Stereo; // All HMD stereo cameras are perspective!
 }
 
-EZ_ALWAYS_INLINE bool ezCamera::IsOrthographic() const
+W_ALWAYS_INLINE bool WCamera::IsOrthographic() const
 {
-  return m_Mode == ezCameraMode::OrthoFixedWidth || m_Mode == ezCameraMode::OrthoFixedHeight;
+  return m_Mode == WCameraMode::OrthoFixedWidth || m_Mode == WCameraMode::OrthoFixedHeight;
 }
 
-EZ_ALWAYS_INLINE bool ezCamera::IsStereoscopic() const
+W_ALWAYS_INLINE bool WCamera::IsStereoscopic() const
 {
-  return m_Mode == ezCameraMode::Stereo;
+  return m_Mode == WCameraMode::Stereo;
 }
 
-EZ_ALWAYS_INLINE float ezCamera::GetExposure() const
+W_ALWAYS_INLINE float WCamera::GetExposure() const
 {
   return m_fExposure;
 }
 
-EZ_ALWAYS_INLINE void ezCamera::SetExposure(float fExposure)
+W_ALWAYS_INLINE void WCamera::SetExposure(float fExposure)
 {
   m_fExposure = fExposure;
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezCamera::GetViewMatrix(ezCameraEye eye) const
+W_ALWAYS_INLINE const WMat4& WCamera::GetViewMatrix(WCameraEye eye) const
 {
   return m_mViewMatrix[static_cast<int>(eye)];
 }

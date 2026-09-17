@@ -7,10 +7,10 @@
 ///
 /// Contains both the old and new global transforms, allowing components to respond
 /// to position, rotation, or scale changes and calculate movement deltas if needed.
-struct EZ_CORE_DLL ezMsgTransformChanged : public ezMessage
+struct W_CORE_DLL WMsgTransformChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgTransformChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgTransformChanged, WMessage);
 
-  ezTransform m_OldGlobalTransform;
-  ezTransform m_NewGlobalTransform;
+  WTransform m_OldGlobalTransform;
+  WTransform m_NewGlobalTransform;
 };

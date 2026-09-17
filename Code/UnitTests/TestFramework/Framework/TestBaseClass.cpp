@@ -2,58 +2,58 @@
 
 #include <TestFramework/Framework/TestFramework.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WTestBaseClass);
 
-const char* ezTestBaseClass::GetSubTestName(ezInt32 iIdentifier) const
+const char* WTestBaseClass::GetSubTestName(WInt32 iIdentifier) const
 {
-  const ezInt32 entryIndex = FindEntryForIdentifier(iIdentifier);
+  const WInt32 entryIndex = FindEntryForIdentifier(iIdentifier);
 
   if (entryIndex < 0)
   {
-    ezLog::Error("Tried to access retrieve sub-test name using invalid identifier.");
+    WLog::Error("Tried to access retrieve sub-test name using invalid identifier.");
     return "";
   }
 
   return m_Entries[entryIndex].m_szName;
 }
 
-void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& ref_config) const
+void WTestBaseClass::UpdateConfiguration(WTestConfiguration& ref_config) const
 {
-  // If the configuration hasn't been set yet this is the first instance of ezTestBaseClass being called
+  // If the configuration hasn't been set yet this is the first instance of WTestBaseClass being called
   // to fill in the configuration and we thus have to do so.
   // Derived classes can have more information (e.g.GPU info) and there is no way to know which instance
-  // of ezTestBaseClass may have additional information so we ask all of them and each one early outs
+  // of WTestBaseClass may have additional information so we ask all of them and each one early outs
   // if the information it knows about is already present.
   if (ref_config.m_uiInstalledMainMemory == 0)
   {
-    const ezSystemInformation& pSysInfo = ezSystemInformation::Get();
+    const WSystemInformation& pSysInfo = WSystemInformation::Get();
     ref_config.m_uiInstalledMainMemory = pSysInfo.GetInstalledMainMemory();
     ref_config.m_uiMemoryPageSize = pSysInfo.GetMemoryPageSize();
     ref_config.m_uiCPUCoreCount = pSysInfo.GetCPUCoreCount();
     ref_config.m_sPlatformName = pSysInfo.GetPlatformName();
     ref_config.m_b64BitOS = pSysInfo.Is64BitOS();
-    ref_config.m_b64BitApplication = EZ_ENABLED(EZ_PLATFORM_64BIT);
+    ref_config.m_b64BitApplication = W_ENABLED(W_PLATFORM_64BIT);
     ref_config.m_sBuildConfiguration = pSysInfo.GetBuildConfiguration();
-    ref_config.m_iDateTime = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second);
-    ref_config.m_iRCSRevision = ezTestFramework::GetInstance()->GetSettings().m_iRevision;
+    ref_config.m_iDateTime = WTimestamp::CurrentTimestamp().GetInt64(WSIUnitOfTime::Second);
+    ref_config.m_iRCSRevision = WTestFramework::GetInstance()->GetSettings().m_iRevision;
     ref_config.m_sHostName = pSysInfo.GetHostName();
   }
 }
 
-void ezTestBaseClass::MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
+void WTestBaseClass::MapImageNumberToString(const char* szTestName, const WSubTestEntry& subTest, WUInt32 uiImageNumber, WStringBuilder& out_sString) const
 {
-  out_sString.SetFormat("{0}_{1}_{2}", szTestName, subTest.m_szSubTestName, ezArgI(uiImageNumber, 3, true));
+  out_sString.SetFormat("{0}_{1}_{2}", szTestName, subTest.m_szSubTestName, WArgI(uiImageNumber, 3, true));
   out_sString.ReplaceAll(" ", "_");
 }
 
-void ezTestBaseClass::ClearSubTests()
+void WTestBaseClass::ClearSubTests()
 {
   m_Entries.clear();
 }
 
-void ezTestBaseClass::AddSubTest(const char* szName, ezInt32 iIdentifier)
+void WTestBaseClass::AddSubTest(const char* szName, WInt32 iIdentifier)
 {
-  EZ_ASSERT_DEV(szName != nullptr, "Sub test name must not be nullptr");
+  W_ASSERT_DEV(szName != nullptr, "Sub test name must not be nullptr");
 
   TestEntry e;
   e.m_szName = szName;
@@ -62,101 +62,101 @@ void ezTestBaseClass::AddSubTest(const char* szName, ezInt32 iIdentifier)
   m_Entries.push_back(e);
 }
 
-ezResult ezTestBaseClass::DoTestInitialization()
+WResult WTestBaseClass::DoTestInitialization()
 {
   try
   {
-    if (InitializeTest() == EZ_FAILURE)
+    if (InitializeTest() == W_FAILURE)
     {
-      ezTestFramework::Output(ezTestOutput::Error, "Test Initialization failed.");
-      return EZ_FAILURE;
+      WTestFramework::Output(WTestOutput::Error, "Test Initialization failed.");
+      return W_FAILURE;
     }
   }
   catch (...)
   {
-    ezTestFramework::Output(ezTestOutput::Error, "Exception during test initialization.");
-    return EZ_FAILURE;
+    WTestFramework::Output(WTestOutput::Error, "Exception during test initialization.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezTestBaseClass::DoTestDeInitialization()
+void WTestBaseClass::DoTestDeInitialization()
 {
   try
 
   {
-    if (DeInitializeTest() == EZ_FAILURE)
-      ezTestFramework::Output(ezTestOutput::Error, "Test DeInitialization failed.");
+    if (DeInitializeTest() == W_FAILURE)
+      WTestFramework::Output(WTestOutput::Error, "Test DeInitialization failed.");
   }
   catch (...)
   {
-    ezTestFramework::Output(ezTestOutput::Error, "Exception during test de-initialization.");
+    WTestFramework::Output(WTestOutput::Error, "Exception during test de-initialization.");
   }
 }
 
-ezResult ezTestBaseClass::DoSubTestInitialization(ezInt32 iIdentifier)
+WResult WTestBaseClass::DoSubTestInitialization(WInt32 iIdentifier)
 {
   try
   {
-    if (InitializeSubTest(iIdentifier) == EZ_FAILURE)
+    if (InitializeSubTest(iIdentifier) == W_FAILURE)
     {
-      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test Initialization failed, skipping Test.");
-      return EZ_FAILURE;
+      WTestFramework::Output(WTestOutput::Error, "Sub-Test Initialization failed, skipping Test.");
+      return W_FAILURE;
     }
   }
   catch (...)
   {
-    ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test initialization.");
-    return EZ_FAILURE;
+    WTestFramework::Output(WTestOutput::Error, "Exception during sub-test initialization.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezTestBaseClass::DoSubTestDeInitialization(ezInt32 iIdentifier)
+void WTestBaseClass::DoSubTestDeInitialization(WInt32 iIdentifier)
 {
   try
   {
-    if (DeInitializeSubTest(iIdentifier) == EZ_FAILURE)
-      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test De-Initialization failed.");
+    if (DeInitializeSubTest(iIdentifier) == W_FAILURE)
+      WTestFramework::Output(WTestOutput::Error, "Sub-Test De-Initialization failed.");
   }
   catch (...)
   {
-    ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test de-initialization.");
+    WTestFramework::Output(WTestOutput::Error, "Exception during sub-test de-initialization.");
   }
 }
 
-ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuration, ezUInt32 uiInvocationCount)
+WTestAppRun WTestBaseClass::DoSubTestRun(WInt32 iIdentifier, double& fDuration, WUInt32 uiInvocationCount)
 {
   fDuration = 0.0;
 
-  ezTestAppRun ret = ezTestAppRun::Quit;
+  WTestAppRun ret = WTestAppRun::Quit;
 
   try
   {
-    ezTime StartTime = ezTime::Now();
+    WTime StartTime = WTime::Now();
 
     ret = RunSubTest(iIdentifier, uiInvocationCount);
 
-    fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
+    fDuration = (WTime::Now() - StartTime).GetMilliseconds();
   }
   catch (...)
   {
-    const ezInt32 iEntry = FindEntryForIdentifier(iIdentifier);
+    const WInt32 iEntry = FindEntryForIdentifier(iIdentifier);
 
     if (iEntry >= 0)
-      ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test '%s'.", m_Entries[iEntry].m_szName);
+      WTestFramework::Output(WTestOutput::Error, "Exception during sub-test '%s'.", m_Entries[iEntry].m_szName);
     else
-      ezTestFramework::Output(ezTestOutput::Error, "Exception during unknown sub-test.");
+      WTestFramework::Output(WTestOutput::Error, "Exception during unknown sub-test.");
   }
 
   return ret;
 }
 
-ezInt32 ezTestBaseClass::FindEntryForIdentifier(ezInt32 iIdentifier) const
+WInt32 WTestBaseClass::FindEntryForIdentifier(WInt32 iIdentifier) const
 {
-  for (ezInt32 i = 0; i < (ezInt32)m_Entries.size(); ++i)
+  for (WInt32 i = 0; i < (WInt32)m_Entries.size(); ++i)
   {
     if (m_Entries[i].m_iIdentifier == iIdentifier)
     {

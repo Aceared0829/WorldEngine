@@ -14,122 +14,122 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/SelectionHighlightConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAllocator<ezSelectionHighlightPass>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSelectionHighlightPass, 1, WRTTIDefaultAllocator<WSelectionHighlightPass>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    W_MEMBER_PROPERTY("Color", m_PinColor),
+    W_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
 
-    EZ_MEMBER_PROPERTY("HighlightColor", m_HighlightColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::LightUI(ezColorScheme::Yellow))),
-    EZ_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new ezDefaultValueAttribute(0.1f))
+    W_MEMBER_PROPERTY("HighlightColor", m_HighlightColor)->AddAttributes(new WDefaultValueAttribute(WColorScheme::LightUI(WColorScheme::Yellow))),
+    W_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new WDefaultValueAttribute(0.1f))
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects")
+    new WCategoryAttribute("Effects")
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
-  : ezRenderPipelinePass(szName, true)
+WSelectionHighlightPass::WSelectionHighlightPass(const char* szName)
+  : WRenderPipelinePass(szName, true)
 {
   // Load shader.
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SelectionHighlight.ezShader");
-  EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load selection highlight shader!");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Pipeline/SelectionHighlight.WShader");
+  W_ASSERT_DEV(m_hShader.IsValid(), "Could not load selection highlight shader!");
 
-  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezSelectionHighlightConstants>();
+  m_hConstantBuffer = WRenderContext::CreateConstantBufferStorage<WSelectionHighlightConstants>();
 }
 
-ezSelectionHighlightPass::~ezSelectionHighlightPass()
+WSelectionHighlightPass::~WSelectionHighlightPass()
 {
-  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+WStatus WSelectionHighlightPass::AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs)
 {
-  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
-    return ezStatus(ezFmt("Color: Not connected"));
+    return WStatus(WFmt("Color: Not connected"));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
-  ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  WRenderGraphTextureHandle hDepth = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepth.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+    return WStatus(WFmt("DepthStencil: Not connected"));
 
   // Create temp depth texture for selection rendering
-  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
-  ezGALTextureCreationDescription depthDesc;
-  depthDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiArraySize, ezGALResourceFormat::D24S8, colorDesc.m_SampleCount);
-  ezRenderGraphTextureHandle hSelectionDepth = ref_graph.CreateTexture(depthDesc);
+  const WGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
+  WGALTextureCreationDescription depthDesc;
+  depthDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiArraySize, WGALResourceFormat::D24S8, colorDesc.m_SampleCount);
+  WRenderGraphTextureHandle hSelectionDepth = ref_graph.CreateTexture(depthDesc);
 
   // Render selection objects to depth only
   {
     auto pass = ref_graph.AddGraphicsPass("SelectionDepth");
-    pass.AddDepthStencilTarget(hSelectionDepth, {}, ezGALRenderTargetLoadOp::Clear, {}, ezGALRenderTargetLoadOp::Clear);
+    pass.AddDepthStencilTarget(hSelectionDepth, {}, WGALRenderTargetLoadOp::Clear, {}, WGALRenderTargetLoadOp::Clear);
     pass.SetClearDepth();
     pass.SetClearStencil();
     pass.SetStereoscopic(camera.IsStereoscopic());
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::Selection, ref_graph, pass);
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    DeclareRendererDependenciesForCategory(WDefaultRenderDataCategories::Selection, ref_graph, pass);
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
       renderViewContext.UpdateViewport();
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection); });
+      RenderDataWithCategory(renderViewContext, WDefaultRenderDataCategories::Selection); });
   }
 
   // Reconstruct selection overlay from depth
   {
     auto pass = ref_graph.AddGraphicsPass("SelectionHighlight");
     pass.AddColorTarget(hColor);
-    pass.ReadTexture(hSelectionDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
-    pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hSelectionDepth, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hDepth, {}, WGALResourceState::ShaderResource, WGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
-    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([=](const WRenderGraphContext& ctx)
       {
-      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const WRenderViewContext& renderViewContext = *ctx.GetUserData<WRenderViewContext>();
       renderViewContext.UpdateViewport();
 
-      auto constants = ezRenderContext::GetConstantBufferData<ezSelectionHighlightConstants>(m_hConstantBuffer);
+      auto constants = WRenderContext::GetConstantBufferData<WSelectionHighlightConstants>(m_hConstantBuffer);
       constants->HighlightColor = m_HighlightColor;
       constants->OverlayOpacity = m_fOverlayOpacity;
 
       renderViewContext.m_pRenderContext->BindShader(m_hShader);
-      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, 1);
 
-      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-      bindGroupRenderPass.BindBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
+      WBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
+      bindGroupRenderPass.BindBuffer("WSelectionHighlightConstants", m_hConstantBuffer);
       bindGroupRenderPass.BindTexture("SelectionDepthTexture", ctx.ResolveTexture(hSelectionDepth));
       bindGroupRenderPass.BindTexture("SceneDepthTexture", ctx.ResolveTexture(hDepth));
 
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSelectionHighlightPass::Serialize(ezStreamWriter& inout_stream) const
+WResult WSelectionHighlightPass::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_HighlightColor;
   inout_stream << m_fOverlayOpacity;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSelectionHighlightPass::Deserialize(ezStreamReader& inout_stream)
+WResult WSelectionHighlightPass::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_HighlightColor;
   inout_stream >> m_fOverlayOpacity;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SelectionHighlightPass);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SelectionHighlightPass);

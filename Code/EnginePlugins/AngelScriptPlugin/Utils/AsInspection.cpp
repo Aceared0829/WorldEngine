@@ -3,20 +3,20 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 
-void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_infos)
+void WAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, WAsInfos& out_infos)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   // Enumerations
   {
-    for (ezUInt32 idx = 0; idx < pEngine->GetEnumCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetEnumCount(); ++idx)
     {
       const asITypeInfo* pType = pEngine->GetEnumByIndex(idx);
 
       out_infos.m_Types.Insert(pType->GetName());
       out_infos.m_Namespaces.Insert(pType->GetNamespace());
 
-      for (ezUInt32 valIdx = 0; valIdx < pType->GetEnumValueCount(); ++valIdx)
+      for (WUInt32 valIdx = 0; valIdx < pType->GetEnumValueCount(); ++valIdx)
       {
         int value;
         const char* szString = pType->GetEnumValueByIndex(valIdx, &value);
@@ -31,22 +31,22 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
   // Object Types
   {
-    for (ezUInt32 idx = 0; idx < pEngine->GetObjectTypeCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetObjectTypeCount(); ++idx)
     {
       const asITypeInfo* pType = pEngine->GetObjectTypeByIndex(idx);
-      const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
+      const WRTTI* pRtti = WAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
 
       out_infos.m_Types.Insert(pType->GetName());
       out_infos.m_Namespaces.Insert(pType->GetNamespace());
 
-      for (ezUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
+      for (WUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
       {
         const asIScriptFunction* pFunc = pType->GetMethodByIndex(methodIdx, false);
 
         if (pFunc->IsPrivate())
           continue;
 
-        const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(ezAsUserData::FuncFlags));
+        const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(WAsUserData::FuncFlags));
 
         if ((flags & 0x01) != 0) // duplicate function to fake inheritance
           continue;
@@ -73,7 +73,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
   // Global Functions
   {
-    for (ezUInt32 funcIdx = 0; funcIdx < pEngine->GetGlobalFunctionCount(); ++funcIdx)
+    for (WUInt32 funcIdx = 0; funcIdx < pEngine->GetGlobalFunctionCount(); ++funcIdx)
     {
       const asIScriptFunction* pFunc = pEngine->GetGlobalFunctionByIndex(funcIdx);
 
@@ -85,9 +85,9 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
   // Global Properties
   {
-    ezStringBuilder sNamespace;
+    WStringBuilder sNamespace;
 
-    for (ezUInt32 idx = 0; idx < pEngine->GetGlobalPropertyCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetGlobalPropertyCount(); ++idx)
     {
       const char* szName;
       const char* szNamespace;
@@ -98,7 +98,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
       out_infos.m_Namespaces.Insert(szNamespace);
       out_infos.m_Properties.Insert(szName);
 
-      if (ezStringUtils::IsNullOrEmpty(szNamespace))
+      if (WStringUtils::IsNullOrEmpty(szNamespace))
       {
         tmp.Set(pEngine->GetTypeDeclaration(typeId, true), " ", szName);
       }
@@ -113,7 +113,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
   // Callbacks
   {
-    for (ezUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
     {
       const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
 
@@ -123,7 +123,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
       out_infos.m_Namespaces.Insert(pFunc->GetNamespace());
       out_infos.m_Types.Insert(pFunc->GetName());
 
-      tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature());
+      tmp = WAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature());
 
       tmp.Prepend("funcdef ");
       out_infos.m_AllDeclarations.Insert(tmp);
@@ -133,7 +133,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
 //////////////////////////////////////////////////////////////////////////
 
-static void InsertInOrder(ezDynamicArray<ezString>& ref_typeOrder, const ezRTTI* pRtti)
+static void InsertInOrder(WDynamicArray<WString>& ref_typeOrder, const WRTTI* pRtti)
 {
   if (pRtti == nullptr)
     return;
@@ -145,7 +145,7 @@ static void InsertInOrder(ezDynamicArray<ezString>& ref_typeOrder, const ezRTTI*
   ref_typeOrder.PushBack(pRtti->GetTypeName());
 }
 
-static ezStringView DealWithNamespace(ezStringBuilder& inout_sNamespace, const char* szNewNamespace, ezStringBuilder& out_sContent)
+static WStringView DealWithNamespace(WStringBuilder& inout_sNamespace, const char* szNewNamespace, WStringBuilder& out_sContent)
 {
   if (inout_sNamespace != szNewNamespace)
   {
@@ -165,24 +165,24 @@ static ezStringView DealWithNamespace(ezStringBuilder& inout_sNamespace, const c
   return inout_sNamespace.IsEmpty() ? "" : "  ";
 }
 
-void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezStringBuilder& out_sContent)
+void WAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, WStringBuilder& out_sContent)
 {
   out_sContent.Clear();
   out_sContent.Reserve(1024 * 32);
 
-  ezStringView sIndent = "  ";
-  ezStringBuilder tmp;
-  ezStringBuilder sNamespace;
+  WStringView sIndent = "  ";
+  WStringBuilder tmp;
+  WStringBuilder sNamespace;
 
   // first all the typedefs
   {
     out_sContent.Append("// *** TYPEDEFS *** \n\n");
 
-    for (ezUInt32 idx = 0; idx < pEngine->GetTypedefCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetTypedefCount(); ++idx)
     {
       const asITypeInfo* pType = pEngine->GetTypedefByIndex(idx);
 
-      out_sContent.Append("typedef ", ezAngelScriptUtils::GetAsTypeName(pEngine, pType->GetTypedefTypeId()), " ", pType->GetName(), ";\n");
+      out_sContent.Append("typedef ", WAngelScriptUtils::GetAsTypeName(pEngine, pType->GetTypedefTypeId()), " ", pType->GetName(), ";\n");
     }
   }
 
@@ -190,7 +190,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
   {
     out_sContent.Append("\n// *** ENUMS *** \n\n");
 
-    for (ezUInt32 idx = 0; idx < pEngine->GetEnumCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetEnumCount(); ++idx)
     {
       const asITypeInfo* pType = pEngine->GetEnumByIndex(idx);
 
@@ -198,7 +198,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
 
       out_sContent.Append("enum ", pType->GetName(), "\n{\n");
 
-      for (ezUInt32 valIdx = 0; valIdx < pType->GetEnumValueCount(); ++valIdx)
+      for (WUInt32 valIdx = 0; valIdx < pType->GetEnumValueCount(); ++valIdx)
       {
         int value;
         const char* szString = pType->GetEnumValueByIndex(valIdx, &value);
@@ -219,7 +219,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
   {
     out_sContent.Append("\n// *** CALLBACKS *** \n\n");
 
-    for (ezUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
     {
       const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
 
@@ -228,7 +228,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
 
       sIndent = DealWithNamespace(sNamespace, pFunc->GetNamespace(), out_sContent);
 
-      out_sContent.Append(sIndent, "funcdef ", ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature()), ";\n");
+      out_sContent.Append(sIndent, "funcdef ", WAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature()), ";\n");
     }
 
     if (!sNamespace.IsEmpty())
@@ -243,12 +243,12 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
     out_sContent.Append("\n// *** TYPES *** \n\n");
 
     // first find all types and sort them by inheritance, so that base classes are defined first
-    ezDynamicArray<ezString> typeOrder;
+    WDynamicArray<WString> typeOrder;
 
-    for (ezUInt32 typeIdx = 0; typeIdx < pEngine->GetObjectTypeCount(); ++typeIdx)
+    for (WUInt32 typeIdx = 0; typeIdx < pEngine->GetObjectTypeCount(); ++typeIdx)
     {
       const asITypeInfo* pType = pEngine->GetObjectTypeByIndex(typeIdx);
-      const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
+      const WRTTI* pRtti = WAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
 
       if (pRtti != nullptr)
       {
@@ -260,16 +260,16 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       }
     }
 
-    ezStringBuilder sTemplateName;
+    WStringBuilder sTemplateName;
 
-    for (const ezString& sType : typeOrder)
+    for (const WString& sType : typeOrder)
     {
       const asITypeInfo* pType = pEngine->GetTypeInfoByName(sType);
       if (pType == nullptr)
         continue;
 
       // mark it as a string type
-      if (ezStringUtils::FindSubString(pType->GetName(), "String") != nullptr)
+      if (WStringUtils::FindSubString(pType->GetName(), "String") != nullptr)
       {
         out_sContent.Append("[BuiltinString]\n");
       }
@@ -283,9 +283,9 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       }
 
       // append base class if available
-      if (const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine))
+      if (const WRTTI* pRtti = WAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine))
       {
-        if (pRtti->GetParentType() && pRtti->GetParentType() != ezGetStaticRTTI<ezReflectedClass>())
+        if (pRtti->GetParentType() && pRtti->GetParentType() != WGetStaticRTTI<WReflectedClass>())
         {
           if (pEngine->GetTypeInfoByName(pRtti->GetParentType()->GetTypeName().GetStartPointer()))
           {
@@ -297,17 +297,17 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       out_sContent.Append("\n{\n");
 
       // child funcdefs
-      for (ezUInt32 idx = 0; idx < pType->GetChildFuncdefCount(); ++idx)
+      for (WUInt32 idx = 0; idx < pType->GetChildFuncdefCount(); ++idx)
       {
         auto pFuncDefType = pType->GetChildFuncdef(idx);
 
-        tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFuncDefType->GetFuncdefSignature());
+        tmp = WAngelScriptUtils::GetNiceFunctionDeclaration(pFuncDefType->GetFuncdefSignature());
         tmp.ReplaceAll("T[]", sTemplateName);
         out_sContent.Append(sIndent, "  funcdef ", tmp, ";\n");
       }
 
       // append all the properties (members)
-      for (ezUInt32 idx = 0; idx < pType->GetPropertyCount(); ++idx)
+      for (WUInt32 idx = 0; idx < pType->GetPropertyCount(); ++idx)
       {
         const char* szName;
         int typeId;
@@ -318,7 +318,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         if (isPrivate || isProtected)
           continue;
 
-        ezStringBuilder sDecl = pType->GetPropertyDeclaration(idx);
+        WStringBuilder sDecl = pType->GetPropertyDeclaration(idx);
         out_sContent.Append(sIndent, "  ", sDecl, ";\n");
       }
 
@@ -326,7 +326,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         out_sContent.Append("\n");
 
       // now all the constructors (we don't need the destructors)
-      for (ezUInt32 methodIdx = 0; methodIdx < pType->GetBehaviourCount(); ++methodIdx)
+      for (WUInt32 methodIdx = 0; methodIdx < pType->GetBehaviourCount(); ++methodIdx)
       {
         asEBehaviours behavior;
         const asIScriptFunction* pFunc = pType->GetBehaviourByIndex(methodIdx, &behavior);
@@ -337,7 +337,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         if (behavior != asEBehaviours::asBEHAVE_CONSTRUCT)
           continue;
 
-        tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
+        tmp = WAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
         out_sContent.Append(sIndent, "  ", tmp, ";\n");
       }
 
@@ -345,14 +345,14 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         out_sContent.Append("\n");
 
       // now write out all the methods
-      for (ezUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
+      for (WUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
       {
         const asIScriptFunction* pFunc = pType->GetMethodByIndex(methodIdx, false);
 
         if (pFunc->IsPrivate())
           continue;
 
-        const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(ezAsUserData::FuncFlags));
+        const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(WAsUserData::FuncFlags));
 
         // ignore the methods that are flagged as duplicates because they are inherited from a base class
         if ((flags & 0x01) != 0)
@@ -367,7 +367,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
           // only continue for getters, where we can inspect the return value
           if (tmp.TrimWordStart("get_"))
           {
-            if (const char* szRetTypeName = ezAngelScriptUtils::GetAsTypeName(pEngine, pFunc->GetReturnTypeId()))
+            if (const char* szRetTypeName = WAngelScriptUtils::GetAsTypeName(pEngine, pFunc->GetReturnTypeId()))
             {
               tmp.Prepend(szRetTypeName, " ");
             }
@@ -381,13 +381,13 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         }
         else
         {
-          if (ezStringUtils::IsEqual(pFunc->GetName(), "opImplCast"))
+          if (WStringUtils::IsEqual(pFunc->GetName(), "opImplCast"))
           {
             // not needed, we have the base class
             continue;
           }
 
-          tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
+          tmp = WAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
           tmp.ReplaceAll("T[]", sTemplateName);
           out_sContent.Append(sIndent, "  ", tmp, ";\n");
         }
@@ -402,13 +402,13 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
     out_sContent.Append("\n// *** EXTRA *** \n\n");
 
     const char* szClassCode = R"(
-// Base class for objects that one shall be able to instantiate through the ezScriptComponent.
-class ezAngelScriptClass : ezIAngelScriptClass
+// Base class for objects that one shall be able to instantiate through the WScriptComponent.
+class WAngelScriptClass : WIAngelScriptClass
 {
-    ezScriptComponent@ GetOwnerComponent();
-    ezGameObject@ GetOwner();
-    ezWorld@ GetWorld();
-    void SetUpdateInterval(ezTime interval);
+    WScriptComponent@ GetOwnerComponent();
+    WGameObject@ GetOwner();
+    WWorld@ GetWorld();
+    void SetUpdateInterval(WTime interval);
 
     // Functions to override:
     // void OnActivated();
@@ -425,13 +425,13 @@ class ezAngelScriptClass : ezIAngelScriptClass
   {
     out_sContent.Append("\n// *** GLOBAL FUNCTIONS *** \n\n");
 
-    for (ezUInt32 funcIdx = 0; funcIdx < pEngine->GetGlobalFunctionCount(); ++funcIdx)
+    for (WUInt32 funcIdx = 0; funcIdx < pEngine->GetGlobalFunctionCount(); ++funcIdx)
     {
       const asIScriptFunction* pFunc = pEngine->GetGlobalFunctionByIndex(funcIdx);
 
       sIndent = DealWithNamespace(sNamespace, pFunc->GetNamespace(), out_sContent);
 
-      out_sContent.Append(sIndent, ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc), ";\n");
+      out_sContent.Append(sIndent, WAngelScriptUtils::GetNiceFunctionDeclaration(pFunc), ";\n");
     }
 
     if (!sNamespace.IsEmpty())
@@ -445,9 +445,9 @@ class ezAngelScriptClass : ezIAngelScriptClass
   {
     out_sContent.Append("\n// *** GLOBAL PROPERTIES *** \n\n");
 
-    ezStringBuilder sNamespace;
+    WStringBuilder sNamespace;
 
-    for (ezUInt32 idx = 0; idx < pEngine->GetGlobalPropertyCount(); ++idx)
+    for (WUInt32 idx = 0; idx < pEngine->GetGlobalPropertyCount(); ++idx)
     {
       const char* szName;
       const char* szNewNamespace;

@@ -13,7 +13,7 @@
 #include <QGraphicsPixmapItem>
 #include <QPainter>
 
-ezQtVisualGraphNode::ezQtVisualGraphNode()
+WQtVisualGraphNode::WQtVisualGraphNode()
 {
   auto palette = QApplication::palette();
 
@@ -49,12 +49,12 @@ ezQtVisualGraphNode::ezQtVisualGraphNode()
   m_HeaderColor = palette.alternateBase().color();
 }
 
-ezQtVisualGraphNode::~ezQtVisualGraphNode()
+WQtVisualGraphNode::~WQtVisualGraphNode()
 {
   EnableDropShadow(false);
 }
 
-void ezQtVisualGraphNode::EnableDropShadow(bool bEnable)
+void WQtVisualGraphNode::EnableDropShadow(bool bEnable)
 {
   if (bEnable && m_pShadow == nullptr)
   {
@@ -74,7 +74,7 @@ void ezQtVisualGraphNode::EnableDropShadow(bool bEnable)
   }
 }
 
-void ezQtVisualGraphNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
+void WQtVisualGraphNode::InitNode(const WVisualGraphObjectManager* pManager, const WDocumentObject* pObject)
 {
   m_pManager = pManager;
   m_pObject = pObject;
@@ -83,15 +83,15 @@ void ezQtVisualGraphNode::InitNode(const ezVisualGraphObjectManager* pManager, c
 
   UpdateGeometry();
 
-  if (const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>())
+  if (const WColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<WColorAttribute>())
   {
-    m_HeaderColor = ezToQtColor(pColorAttr->GetColor());
+    m_HeaderColor = WToQtColor(pColorAttr->GetColor());
   }
 
-  m_DirtyFlags.Add(ezQtVisualGraphNodeFlags::UpdateTitle);
+  m_DirtyFlags.Add(WQtVisualGraphNodeFlags::UpdateTitle);
 }
 
-void ezQtVisualGraphNode::UpdateGeometry()
+void WQtVisualGraphNode::UpdateGeometry()
 {
   prepareGeometryChange();
 
@@ -122,18 +122,18 @@ void ezQtVisualGraphNode::UpdateGeometry()
     subtitleRect.moveTo(m_pSubtitleLabel->pos());
   }
 
-  int h = ezMath::Max(titleRect.bottom(), subtitleRect.bottom()) + 5;
+  int h = WMath::Max(titleRect.bottom(), subtitleRect.bottom()) + 5;
 
   int y = h;
 
   // Align inputs
   int maxInputWidth = 10;
-  for (ezQtVisualGraphPin* pQtPin : m_Inputs)
+  for (WQtVisualGraphPin* pQtPin : m_Inputs)
   {
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
-    maxInputWidth = ezMath::Max(maxInputWidth, (int)rectPin.width());
+    maxInputWidth = WMath::Max(maxInputWidth, (int)rectPin.width());
     y += rectPin.height();
   }
 
@@ -142,30 +142,30 @@ void ezQtVisualGraphNode::UpdateGeometry()
 
   // Align outputs
   int maxOutputWidth = 10;
-  for (ezQtVisualGraphPin* pQtPin : m_Outputs)
+  for (WQtVisualGraphPin* pQtPin : m_Outputs)
   {
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
-    maxOutputWidth = ezMath::Max(maxOutputWidth, (int)rectPin.width());
+    maxOutputWidth = WMath::Max(maxOutputWidth, (int)rectPin.width());
     y += rectPin.height();
   }
 
   int w = maxInputWidth + maxOutputWidth + 20;
 
-  const int headerWidth = ezMath::Max(titleRect.width(), subtitleRect.width()) + iconRect.width();
-  w = ezMath::Max(w, headerWidth);
+  const int headerWidth = WMath::Max(titleRect.width(), subtitleRect.width()) + iconRect.width();
+  w = WMath::Max(w, headerWidth);
 
-  maxheight = ezMath::Max(maxheight, y);
+  maxheight = WMath::Max(maxheight, y);
 
   // Align outputs to the right
-  for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
   {
     auto rectPin = m_Outputs[i]->GetPinRect();
     m_Outputs[i]->setX(w - rectPin.width());
   }
 
-  m_HeaderRect = QRectF(-5, -3, w + 10, ezMath::Max(titleRect.bottom(), subtitleRect.bottom()) + 5);
+  m_HeaderRect = QRectF(-5, -3, w + 10, WMath::Max(titleRect.bottom(), subtitleRect.bottom()) + 5);
 
   {
     QPainterPath p;
@@ -174,36 +174,36 @@ void ezQtVisualGraphNode::UpdateGeometry()
   }
 }
 
-void ezQtVisualGraphNode::UpdateState()
+void WQtVisualGraphNode::UpdateState()
 {
   const TitleFormat format;
 
-  ezStringBuilder sTemplate;
+  WStringBuilder sTemplate;
   if (!TryGetTitleTemplateFromProperty("CustomTitle", sTemplate) && !TryGetTitleTemplateFromAttribute(sTemplate))
   {
     GetDefaultTitleTemplate(sTemplate);
   }
 
-  ezStringBuilder sTitle;
-  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+  WStringBuilder sTitle;
+  WTokenParseUtils::RenderTemplate(sTemplate, [&](WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)
     { ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   SetTitleAndSubtitle(sTitle, format);
 }
 
-bool ezQtVisualGraphNode::TryGetTitleTemplateFromProperty(ezStringView sPropertyName, ezStringBuilder& out_sTemplate)
+bool WQtVisualGraphNode::TryGetTitleTemplateFromProperty(WStringView sPropertyName, WStringBuilder& out_sTemplate)
 {
-  const ezVariant value = GetObject()->GetTypeAccessor().GetValue(sPropertyName);
-  if (!value.IsValid() || !value.CanConvertTo<ezString>())
+  const WVariant value = GetObject()->GetTypeAccessor().GetValue(sPropertyName);
+  if (!value.IsValid() || !value.CanConvertTo<WString>())
     return false;
 
-  out_sTemplate = value.ConvertTo<ezString>();
+  out_sTemplate = value.ConvertTo<WString>();
   return !out_sTemplate.IsEmpty();
 }
 
-bool ezQtVisualGraphNode::TryGetTitleTemplateFromAttribute(ezStringBuilder& out_sTemplate)
+bool WQtVisualGraphNode::TryGetTitleTemplateFromAttribute(WStringBuilder& out_sTemplate)
 {
-  auto pTitleAttribute = GetObject()->GetType()->GetAttributeByType<ezTitleAttribute>();
+  auto pTitleAttribute = GetObject()->GetType()->GetAttributeByType<WTitleAttribute>();
   if (pTitleAttribute == nullptr)
     return false;
 
@@ -211,48 +211,48 @@ bool ezQtVisualGraphNode::TryGetTitleTemplateFromAttribute(ezStringBuilder& out_
   return true;
 }
 
-void ezQtVisualGraphNode::GetDefaultTitleTemplate(ezStringBuilder& out_sTemplate)
+void WQtVisualGraphNode::GetDefaultTitleTemplate(WStringBuilder& out_sTemplate)
 {
   auto& typeAccessor = GetObject()->GetTypeAccessor();
 
-  ezVariant name = typeAccessor.GetValue("Name");
-  if (name.IsA<ezString>() && !name.Get<ezString>().IsEmpty())
+  WVariant name = typeAccessor.GetValue("Name");
+  if (name.IsA<WString>() && !name.Get<WString>().IsEmpty())
   {
-    out_sTemplate = name.Get<ezString>();
+    out_sTemplate = name.Get<WString>();
   }
   else
   {
-    out_sTemplate = ezTranslate(typeAccessor.GetType()->GetTypeName());
+    out_sTemplate = WTranslate(typeAccessor.GetType()->GetTypeName());
   }
 }
 
-void ezQtVisualGraphNode::ResolvePropertyPlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtVisualGraphNode::ResolvePropertyPlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
-  const ezAbstractProperty* pProp = GetObject()->GetType()->FindPropertyByName(sPlaceholder);
+  const WAbstractProperty* pProp = GetObject()->GetType()->FindPropertyByName(sPlaceholder);
   if (pProp == nullptr)
     return;
 
   AppendPropertyValue(pProp, index, bOptional, format, ref_sOutput);
 }
 
-void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtVisualGraphNode::AppendPropertyValue(const WAbstractProperty* pProp, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
-  if ((pProp->GetCategory() == ezPropertyCategory::Set || pProp->GetCategory() == ezPropertyCategory::Array) && !index.IsValid())
+  if ((pProp->GetCategory() == WPropertyCategory::Set || pProp->GetCategory() == WPropertyCategory::Array) && !index.IsValid())
   {
-    ezTempHybridArray<ezVariant, 16> values;
+    WTempHybridArray<WVariant, 16> values;
     GetObject()->GetTypeAccessor().GetValues(pProp->GetPropertyName(), values);
 
     if (bOptional && values.IsEmpty())
       return;
 
-    ezStringBuilder sSet("{");
+    WStringBuilder sSet("{");
     for (const auto& setValue : values)
     {
       if (sSet.GetElementCount() > 1)
       {
         sSet.Append(", ");
       }
-      sSet.Append(setValue.ConvertTo<ezString>().GetView());
+      sSet.Append(setValue.ConvertTo<WString>().GetView());
     }
     sSet.Append("}");
 
@@ -260,7 +260,7 @@ void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, c
     return;
   }
 
-  const ezVariant value = GetObject()->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
+  const WVariant value = GetObject()->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
 
   if (!value.IsValid())
   {
@@ -273,19 +273,19 @@ void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, c
 
   if (bOptional)
   {
-    if (value == ezVariant(0))
+    if (value == WVariant(0))
       return;
 
-    if ((value.IsA<ezString>() || value.IsA<ezHashedString>()) && value.ConvertTo<ezString>().IsEmpty())
+    if ((value.IsA<WString>() || value.IsA<WHashedString>()) && value.ConvertTo<WString>().IsEmpty())
       return;
   }
 
 
-  ezStringBuilder sValue;
-  if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+  WStringBuilder sValue;
+  if (pProp->GetSpecificType()->IsDerivedFrom<WEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<WBitflagsBase>())
   {
-    ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), value.ConvertTo<ezInt64>(), sValue);
-    sValue = ezTranslate(sValue);
+    WReflectionUtils::EnumerationToString(pProp->GetSpecificType(), value.ConvertTo<WInt64>(), sValue);
+    sValue = WTranslate(sValue);
   }
   else if (value.IsA<bool>())
   {
@@ -294,41 +294,41 @@ void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, c
     else
       sValue.Set(value.Get<bool>() ? "true" : "false");
   }
-  else if (value.IsA<ezColor>())
+  else if (value.IsA<WColor>())
   {
-    sValue = ezConversionUtils::GetColorName(value.Get<ezColor>());
+    sValue = WConversionUtils::GetColorName(value.Get<WColor>());
   }
-  else if (value.IsA<ezColorGammaUB>())
+  else if (value.IsA<WColorGammaUB>())
   {
-    sValue = ezConversionUtils::GetColorName(ezColor(value.Get<ezColorGammaUB>()));
+    sValue = WConversionUtils::GetColorName(WColor(value.Get<WColorGammaUB>()));
   }
-  else if (value.IsA<ezVec2>())
+  else if (value.IsA<WVec2>())
   {
-    const ezVec2 v = value.Get<ezVec2>();
-    sValue.SetFormat("({}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2));
+    const WVec2 v = value.Get<WVec2>();
+    sValue.SetFormat("({}, {})", WArgF(v.x, 2), WArgF(v.y, 2));
   }
-  else if (value.IsA<ezVec3>())
+  else if (value.IsA<WVec3>())
   {
-    const ezVec3 v = value.Get<ezVec3>();
-    sValue.SetFormat("({}, {}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2), ezArgF(v.z, 2));
+    const WVec3 v = value.Get<WVec3>();
+    sValue.SetFormat("({}, {}, {})", WArgF(v.x, 2), WArgF(v.y, 2), WArgF(v.z, 2));
   }
-  else if (value.IsA<ezVec4>())
+  else if (value.IsA<WVec4>())
   {
-    const ezVec4 v = value.Get<ezVec4>();
-    sValue.SetFormat("({}, {}, {}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2), ezArgF(v.z, 2), ezArgF(v.w, 2));
+    const WVec4 v = value.Get<WVec4>();
+    sValue.SetFormat("({}, {}, {}, {})", WArgF(v.x, 2), WArgF(v.y, 2), WArgF(v.z, 2), WArgF(v.w, 2));
   }
-  else if (value.IsA<ezString>() || value.IsA<ezHashedString>())
+  else if (value.IsA<WString>() || value.IsA<WHashedString>())
   {
-    sValue = value.ConvertTo<ezString>();
+    sValue = value.ConvertTo<WString>();
 
     // asset references are stored as document GUIDs, which are meaningless to the user
-    if (ezConversionUtils::IsStringUuid(sValue) && ezToolsProject::GetSingleton() != nullptr)
+    if (WConversionUtils::IsStringUuid(sValue) && WToolsProject::GetSingleton() != nullptr)
     {
-      const ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetPathForDocumentGuid(ezConversionUtils::ConvertStringToUuid(sValue));
+      const WStringBuilder sPath = WToolsProject::GetSingleton()->GetPathForDocumentGuid(WConversionUtils::ConvertStringToUuid(sValue));
 
       if (!sPath.IsEmpty())
       {
-        sValue = ezPathUtils::GetFileName(sPath);
+        sValue = WPathUtils::GetFileName(sPath);
       }
     }
 
@@ -347,9 +347,9 @@ void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, c
       sValue.Append("\"");
     }
   }
-  else if (value.CanConvertTo<ezString>())
+  else if (value.CanConvertTo<WString>())
   {
-    sValue = value.ConvertTo<ezString>();
+    sValue = value.ConvertTo<WString>();
   }
   else
   {
@@ -359,9 +359,9 @@ void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, c
   ref_sOutput.Append(sValue.GetView());
 }
 
-void ezQtVisualGraphNode::SetTitleAndSubtitle(ezStringView sTitle, const TitleFormat& format)
+void WQtVisualGraphNode::SetTitleAndSubtitle(WStringView sTitle, const TitleFormat& format)
 {
-  ezStringBuilder sCleaned = sTitle;
+  WStringBuilder sCleaned = sTitle;
 
   if (format.m_uiMaxTitleLength > 0 && sCleaned.GetCharacterCount() > format.m_uiMaxTitleLength)
   {
@@ -371,7 +371,7 @@ void ezQtVisualGraphNode::SetTitleAndSubtitle(ezStringView sTitle, const TitleFo
 
   if (!format.m_bSplitAtDoubleColon)
   {
-    m_pTitleLabel->setPlainText(ezMakeQString(sCleaned));
+    m_pTitleLabel->setPlainText(WMakeQString(sCleaned));
     return;
   }
 
@@ -379,18 +379,18 @@ void ezQtVisualGraphNode::SetTitleAndSubtitle(ezStringView sTitle, const TitleFo
   {
     m_pTitleLabel->setPlainText(szSeparator + 2);
 
-    ezStringBuilder sSubTitle = ezStringView(sCleaned.GetData(), szSeparator);
+    WStringBuilder sSubTitle = WStringView(sCleaned.GetData(), szSeparator);
     sSubTitle.Trim("\"");
-    m_pSubtitleLabel->setPlainText(ezMakeQString(sSubTitle));
+    m_pSubtitleLabel->setPlainText(WMakeQString(sSubTitle));
   }
   else
   {
-    m_pTitleLabel->setPlainText(ezMakeQString(sCleaned));
+    m_pTitleLabel->setPlainText(WMakeQString(sCleaned));
     m_pSubtitleLabel->setPlainText(QString());
   }
 }
 
-void ezQtVisualGraphNode::SetActive(bool bActive)
+void WQtVisualGraphNode::SetActive(bool bActive)
 {
   if (m_bIsActive != bActive)
   {
@@ -410,7 +410,7 @@ void ezQtVisualGraphNode::SetActive(bool bActive)
   update();
 }
 
-void ezQtVisualGraphNode::CreatePins()
+void WQtVisualGraphNode::CreatePins()
 {
   for (auto pQtPin : m_Inputs)
   {
@@ -427,10 +427,10 @@ void ezQtVisualGraphNode::CreatePins()
   auto inputs = m_pManager->GetInputPins(m_pObject);
   for (auto& pPinTarget : inputs)
   {
-    ezQtVisualGraphPin* pQtPin = ezQtVisualGraphScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
+    WQtVisualGraphPin* pQtPin = WQtVisualGraphScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtVisualGraphPin();
+      pQtPin = new WQtVisualGraphPin();
     }
     pQtPin->setParentItem(this);
     m_Inputs.PushBack(pQtPin);
@@ -441,10 +441,10 @@ void ezQtVisualGraphNode::CreatePins()
   auto outputs = m_pManager->GetOutputPins(m_pObject);
   for (auto& pPinSource : outputs)
   {
-    ezQtVisualGraphPin* pQtPin = ezQtVisualGraphScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
+    WQtVisualGraphPin* pQtPin = WQtVisualGraphScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtVisualGraphPin();
+      pQtPin = new WQtVisualGraphPin();
     }
 
     pQtPin->setParentItem(this);
@@ -454,9 +454,9 @@ void ezQtVisualGraphNode::CreatePins()
   }
 }
 
-ezQtVisualGraphPin* ezQtVisualGraphNode::GetInputPin(const ezVisualGraphPin& pin)
+WQtVisualGraphPin* WQtVisualGraphNode::GetInputPin(const WVisualGraphPin& pin)
 {
-  for (ezQtVisualGraphPin* pQtPin : m_Inputs)
+  for (WQtVisualGraphPin* pQtPin : m_Inputs)
   {
     if (pQtPin->GetPin() == &pin)
       return pQtPin;
@@ -464,9 +464,9 @@ ezQtVisualGraphPin* ezQtVisualGraphNode::GetInputPin(const ezVisualGraphPin& pin
   return nullptr;
 }
 
-ezQtVisualGraphPin* ezQtVisualGraphNode::GetOutputPin(const ezVisualGraphPin& pin)
+WQtVisualGraphPin* WQtVisualGraphNode::GetOutputPin(const WVisualGraphPin& pin)
 {
-  for (ezQtVisualGraphPin* pQtPin : m_Outputs)
+  for (WQtVisualGraphPin* pQtPin : m_Outputs)
   {
     if (pQtPin->GetPin() == &pin)
       return pQtPin;
@@ -474,23 +474,23 @@ ezQtVisualGraphPin* ezQtVisualGraphNode::GetOutputPin(const ezVisualGraphPin& pi
   return nullptr;
 }
 
-ezBitflags<ezQtVisualGraphNodeFlags> ezQtVisualGraphNode::GetFlags() const
+WBitflags<WQtVisualGraphNodeFlags> WQtVisualGraphNode::GetFlags() const
 {
   return m_DirtyFlags;
 }
 
-void ezQtVisualGraphNode::ResetFlags()
+void WQtVisualGraphNode::ResetFlags()
 {
-  m_DirtyFlags = ezQtVisualGraphNodeFlags::UpdateTitle;
+  m_DirtyFlags = WQtVisualGraphNodeFlags::UpdateTitle;
 }
 
-void ezQtVisualGraphNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void WQtVisualGraphNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  if (m_DirtyFlags.IsSet(ezQtVisualGraphNodeFlags::UpdateTitle))
+  if (m_DirtyFlags.IsSet(WQtVisualGraphNodeFlags::UpdateTitle))
   {
     UpdateState();
     UpdateGeometry();
-    m_DirtyFlags.Remove(ezQtVisualGraphNodeFlags::UpdateTitle);
+    m_DirtyFlags.Remove(WQtVisualGraphNodeFlags::UpdateTitle);
   }
 
   auto palette = QApplication::palette();
@@ -534,7 +534,7 @@ void ezQtVisualGraphNode::paint(QPainter* painter, const QStyleOptionGraphicsIte
     p.setColor(palette.highlight().color());
     painter->setPen(p);
 
-    labelColor = ezToQtColor(ezColor::White);
+    labelColor = WToQtColor(WColor::White);
   }
   else
   {
@@ -562,18 +562,18 @@ void ezQtVisualGraphNode::paint(QPainter* painter, const QStyleOptionGraphicsIte
   painter->drawPath(path());
 }
 
-QVariant ezQtVisualGraphNode::itemChange(GraphicsItemChange change, const QVariant& value)
+QVariant WQtVisualGraphNode::itemChange(GraphicsItemChange change, const QVariant& value)
 {
   if (!m_pObject)
     return QGraphicsPathItem::itemChange(change, value);
 
-  ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
+  WCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
   switch (change)
   {
     case QGraphicsItem::ItemPositionHasChanged:
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
-        m_DirtyFlags.Add(ezQtVisualGraphNodeFlags::Moved);
+        m_DirtyFlags.Add(WQtVisualGraphNodeFlags::Moved);
     }
     break;
 

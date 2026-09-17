@@ -12,127 +12,127 @@
 #include <ozz/animation/runtime/skeleton.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
-EZ_ENUM_CONSTANTS(ezSkeletonJointGeometryType::None, ezSkeletonJointGeometryType::Capsule, ezSkeletonJointGeometryType::CapsuleSideways, ezSkeletonJointGeometryType::Sphere, ezSkeletonJointGeometryType::Box)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSkeletonJointGeometryType, 1)
+W_ENUM_CONSTANTS(WSkeletonJointGeometryType::None, WSkeletonJointGeometryType::Capsule, WSkeletonJointGeometryType::CapsuleSideways, WSkeletonJointGeometryType::Sphere, WSkeletonJointGeometryType::Box)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBoneShape, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBoneShape>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditableSkeletonBoneShape, 1, WRTTIDefaultAllocator<WEditableSkeletonBoneShape>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
-    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
-    EZ_MEMBER_PROPERTY("Rotation", m_qRotation),
-    EZ_MEMBER_PROPERTY("Length", m_fLength)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.01f, 10.0f)),
-    EZ_MEMBER_PROPERTY("Width", m_fWidth)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 10.0f)),
-    EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 10.0f)),
+    W_ENUM_MEMBER_PROPERTY("Geometry", WSkeletonJointGeometryType, m_Geometry),
+    W_MEMBER_PROPERTY("Offset", m_vOffset),
+    W_MEMBER_PROPERTY("Rotation", m_qRotation),
+    W_MEMBER_PROPERTY("Length", m_fLength)->AddAttributes(new WDefaultValueAttribute(0.1f), new WClampValueAttribute(0.01f, 10.0f)),
+    W_MEMBER_PROPERTY("Width", m_fWidth)->AddAttributes(new WDefaultValueAttribute(0.05f), new WClampValueAttribute(0.01f, 10.0f)),
+    W_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new WDefaultValueAttribute(0.05f), new WClampValueAttribute(0.01f, 10.0f)),
 
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBoneCollider, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBoneCollider>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditableSkeletonBoneCollider, 1, WRTTIDefaultAllocator<WEditableSkeletonBoneCollider>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Identifier", m_sIdentifier)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ARRAY_MEMBER_PROPERTY("VertexPositions", m_VertexPositions)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ARRAY_MEMBER_PROPERTY("TriangleIndices", m_TriangleIndices)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("Identifier", m_sIdentifier)->AddAttributes(new WHiddenAttribute()),
+    W_ARRAY_MEMBER_PROPERTY("VertexPositions", m_VertexPositions)->AddAttributes(new WHiddenAttribute()),
+    W_ARRAY_MEMBER_PROPERTY("TriangleIndices", m_TriangleIndices)->AddAttributes(new WHiddenAttribute()),
 
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocator<ezEditableSkeletonJoint>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditableSkeletonJoint, 2, WRTTIDefaultAllocator<WEditableSkeletonJoint>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Transform", m_LocalTransform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::MakeIdentity())),
-    EZ_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetTranslationRO", m_vGizmoOffsetPositionRO)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetRotationRO", m_qGizmoOffsetRotationRO)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("LocalRotation", m_qLocalJointRotation),
-    EZ_ENUM_MEMBER_PROPERTY("JointType", ezSkeletonJointType, m_JointType),
-    EZ_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
-    EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(10), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle),
-    EZ_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
-    EZ_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("OverrideCollisionLayer", m_bOverrideCollisionLayer),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayerOverride)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_ACCESSOR_PROPERTY("Name", GetName, SetName)->AddAttributes(new WReadOnlyAttribute()),
+    W_MEMBER_PROPERTY("Transform", m_LocalTransform)->AddFlags(WPropertyFlags::Hidden)->AddAttributes(new WDefaultValueAttribute(WTransform::MakeIdentity())),
+    W_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetTranslationRO", m_vGizmoOffsetPositionRO)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetRotationRO", m_qGizmoOffsetRotationRO)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("LocalRotation", m_qLocalJointRotation),
+    W_ENUM_MEMBER_PROPERTY("JointType", WSkeletonJointType, m_JointType),
+    W_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new WDefaultValueAttribute(10.0f)),
+    W_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(170)), new WDefaultValueAttribute(WAngle::MakeFromDegree(30))),
+    W_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(170)), new WDefaultValueAttribute(WAngle::MakeFromDegree(30))),
+    W_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new WClampValueAttribute(WAngle::MakeFromDegree(10), WAngle::MakeFromDegree(170)), new WDefaultValueAttribute(WAngle::MakeFromDegree(30))),
+    W_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle),
+    W_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
+    W_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("OverrideCollisionLayer", m_bOverrideCollisionLayer),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayerOverride)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
 
-    EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
-    EZ_ARRAY_MEMBER_PROPERTY("Colliders", m_BoneColliders)->AddAttributes(new ezContainerAttribute(false, false, false)),
+    W_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(WPropertyFlags::PointerOwner | WPropertyFlags::Hidden),
+    W_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
+    W_ARRAY_MEMBER_PROPERTY("Colliders", m_BoneColliders)->AddAttributes(new WContainerAttribute(false, false, false)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezTransformManipulatorAttribute(nullptr, "LocalRotation", nullptr, "GizmoOffsetTranslationRO", "GizmoOffsetRotationRO"),
+    new WTransformManipulatorAttribute(nullptr, "LocalRotation", nullptr, "GizmoOffsetTranslationRO", "GizmoOffsetRotationRO"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 2, ezRTTIDefaultAllocator<ezEditableSkeleton>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditableSkeleton, 2, WRTTIDefaultAllocator<WEditableSkeleton>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::MeshesWithAnimations), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
-    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
-    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("BoneDirection", ezBasisAxis, m_BoneDirection)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("Surface", m_sSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("MaxImpulse", m_fMaxImpulse)->AddAttributes(new ezDefaultValueAttribute(100.f)),
-    EZ_MEMBER_PROPERTY("LeftFootJoint", m_sLeftFootJoint),
-    EZ_MEMBER_PROPERTY("RightFootJoint", m_sRightFootJoint),
+    W_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new WFileBrowserAttribute("Select Mesh", WFileBrowserAttribute::MeshesWithAnimations), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("ImportTransform", WMeshImportTransform, m_ImportTransform),
+    W_ENUM_MEMBER_PROPERTY("RightDir", WBasisAxis, m_RightDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::NegativeX)),
+    W_ENUM_MEMBER_PROPERTY("UpDir", WBasisAxis, m_UpDir)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::PositiveY)),
+    W_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
+    W_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0001f, 10000.0f)),
+    W_ENUM_MEMBER_PROPERTY("BoneDirection", WBasisAxis, m_BoneDirection)->AddAttributes(new WDefaultValueAttribute((int)WBasisAxis::PositiveY)),
+    W_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", WDependencyFlags::None)),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("Surface", m_sSurfaceFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("MaxImpulse", m_fMaxImpulse)->AddAttributes(new WDefaultValueAttribute(100.f)),
+    W_MEMBER_PROPERTY("LeftFootJoint", m_sLeftFootJoint),
+    W_MEMBER_PROPERTY("RightFootJoint", m_sRightFootJoint),
 
-    EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
+    W_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(WPropertyFlags::PointerOwner | WPropertyFlags::Hidden),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedBone, ezNoBase, 1, ezRTTIDefaultAllocator<ezExposedBone>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WExposedBone, WNoBase, 1, WRTTIDefaultAllocator<WExposedBone>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Parent", m_sParent),
-    EZ_MEMBER_PROPERTY("Transform", m_Transform),
+    W_MEMBER_PROPERTY("Name", m_sName),
+    W_MEMBER_PROPERTY("Parent", m_sParent),
+    W_MEMBER_PROPERTY("Transform", m_Transform),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezExposedBone);
+W_DEFINE_CUSTOM_VARIANT_TYPE(WExposedBone);
 // clang-format on
 
 
-void operator<<(ezStreamWriter& inout_stream, const ezExposedBone& bone)
+void operator<<(WStreamWriter& inout_stream, const WExposedBone& bone)
 {
   inout_stream << bone.m_sName;
   inout_stream << bone.m_sParent;
   inout_stream << bone.m_Transform;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezExposedBone& ref_bone)
+void operator>>(WStreamReader& inout_stream, WExposedBone& ref_bone)
 {
   inout_stream >> ref_bone.m_sName;
   inout_stream >> ref_bone.m_sParent;
   inout_stream >> ref_bone.m_Transform;
 }
 
-bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs)
+bool operator==(const WExposedBone& lhs, const WExposedBone& rhs)
 {
   if (lhs.m_sName != rhs.m_sName)
     return false;
@@ -143,30 +143,30 @@ bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs)
   return true;
 }
 
-ezEditableSkeleton::ezEditableSkeleton() = default;
-ezEditableSkeleton::~ezEditableSkeleton()
+WEditableSkeleton::WEditableSkeleton() = default;
+WEditableSkeleton::~WEditableSkeleton()
 {
   ClearJoints();
 }
 
-void ezEditableSkeleton::ClearJoints()
+void WEditableSkeleton::ClearJoints()
 {
-  for (ezEditableSkeletonJoint* pChild : m_Children)
+  for (WEditableSkeletonJoint* pChild : m_Children)
   {
-    EZ_DEFAULT_DELETE(pChild);
+    W_DEFAULT_DELETE(pChild);
   }
 
   m_Children.Clear();
 }
 
-void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const
+void WEditableSkeleton::CreateJointsRecursive(WSkeletonBuilder& ref_sb, WSkeletonResourceDescriptor& ref_desc, const WEditableSkeletonJoint* pParentJoint, const WEditableSkeletonJoint* pThisJoint, WUInt16 uiThisJointIdx, const WQuat& qParentAccuRot, const WMat4& mRootTransform) const
 {
   for (auto& shape : pThisJoint->m_BoneShapes)
   {
     auto& geo = ref_desc.m_Geometry.ExpandAndGetRef();
 
     geo.m_Type = shape.m_Geometry;
-    geo.m_uiAttachedToJoint = static_cast<ezUInt16>(uiThisJointIdx);
+    geo.m_uiAttachedToJoint = static_cast<WUInt16>(uiThisJointIdx);
     geo.m_Transform.SetIdentity();
     geo.m_Transform.m_vScale.Set(shape.m_fLength, shape.m_fWidth, shape.m_fThickness);
     geo.m_Transform.m_vPosition = shape.m_vOffset;
@@ -176,29 +176,29 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkel
   for (auto& shape : pThisJoint->m_BoneColliders)
   {
     auto& geo = ref_desc.m_Geometry.ExpandAndGetRef();
-    geo.m_Type = ezSkeletonJointGeometryType::ConvexMesh;
-    geo.m_uiAttachedToJoint = static_cast<ezUInt16>(uiThisJointIdx);
+    geo.m_Type = WSkeletonJointGeometryType::ConvexMesh;
+    geo.m_uiAttachedToJoint = static_cast<WUInt16>(uiThisJointIdx);
     geo.m_Transform.SetIdentity();
     geo.m_VertexPositions = shape.m_VertexPositions;
     geo.m_TriangleIndices = shape.m_TriangleIndices;
   }
 
-  const ezVec3 s = pThisJoint->m_LocalTransform.m_vScale;
-  if (!s.IsEqual(ezVec3(1), 0.1f))
+  const WVec3 s = pThisJoint->m_LocalTransform.m_vScale;
+  if (!s.IsEqual(WVec3(1), 0.1f))
   {
-    // ezLog::Warning("Mesh bone '{}' has scaling values of {}/{}/{} - this is not supported.", pThisJoint->m_sName, s.x, s.y, s.z);
+    // WLog::Warning("Mesh bone '{}' has scaling values of {}/{}/{} - this is not supported.", pThisJoint->m_sName, s.x, s.y, s.z);
   }
 
-  const ezQuat qThisAccuRot = qParentAccuRot * pThisJoint->m_LocalTransform.m_qRotation;
-  ezQuat qParentGlobalRot;
+  const WQuat qThisAccuRot = qParentAccuRot * pThisJoint->m_LocalTransform.m_qRotation;
+  WQuat qParentGlobalRot;
 
   {
     // as always, the root transform is the bane of my existence
     // since it can contain mirroring, the final global rotation of a joint will be incorrect if we don't incorporate the root scale
     // unfortunately this can't be done once for the first node, but has to be done on the result instead
 
-    ezMat4 full;
-    ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(mRootTransform, qParentAccuRot.GetAsMat4(), full, qParentGlobalRot);
+    WMat4 full;
+    WMsgAnimationPoseUpdated::ComputeFullBoneTransform(mRootTransform, qParentAccuRot.GetAsMat4(), full, qParentGlobalRot);
   }
 
   ref_sb.SetJointLimit(uiThisJointIdx, pThisJoint->m_qLocalJointRotation, pThisJoint->m_JointType, pThisJoint->m_SwingLimitY, pThisJoint->m_SwingLimitZ, pThisJoint->m_TwistLimitHalfAngle, pThisJoint->m_TwistLimitCenterAngle, pThisJoint->m_fStiffness);
@@ -208,33 +208,33 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkel
 
   for (const auto* pChildJoint : pThisJoint->m_Children)
   {
-    const ezUInt16 uiChildJointIdx = ref_sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_LocalTransform, uiThisJointIdx);
+    const WUInt16 uiChildJointIdx = ref_sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_LocalTransform, uiThisJointIdx);
 
     CreateJointsRecursive(ref_sb, ref_desc, pThisJoint, pChildJoint, uiChildJointIdx, qThisAccuRot, mRootTransform);
   }
 }
 
-void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& ref_desc) const
+void WEditableSkeleton::FillResourceDescriptor(WSkeletonResourceDescriptor& ref_desc) const
 {
   ref_desc.m_fMaxImpulse = m_fMaxImpulse;
   ref_desc.m_Geometry.Clear();
 
-  ezSkeletonBuilder sb;
+  WSkeletonBuilder sb;
   for (const auto* pJoint : m_Children)
   {
-    const ezUInt16 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
+    const WUInt16 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
 
-    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, ezQuat::MakeIdentity(), ref_desc.m_RootTransform.GetAsMat4());
+    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, WQuat::MakeIdentity(), ref_desc.m_RootTransform.GetAsMat4());
   }
 
   sb.BuildSkeleton(ref_desc.m_Skeleton);
   ref_desc.m_Skeleton.m_BoneDirection = m_BoneDirection;
 
-  ref_desc.m_uiLeftFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sLeftFootJoint));
-  ref_desc.m_uiRightFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sRightFootJoint));
+  ref_desc.m_uiLeftFootJoint = ref_desc.m_Skeleton.FindJointByName(WTempHashedString(m_sLeftFootJoint));
+  ref_desc.m_uiRightFootJoint = ref_desc.m_Skeleton.FindJointByName(WTempHashedString(m_sRightFootJoint));
 }
 
-static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& ref_dstJoint)
+static void BuildOzzRawSkeleton(const WEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& ref_dstJoint)
 {
   ref_dstJoint.name = srcJoint.m_sName.GetString();
   ref_dstJoint.transform.translation.x = srcJoint.m_LocalTransform.m_vPosition.x;
@@ -250,23 +250,23 @@ static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::an
 
   ref_dstJoint.children.resize((size_t)srcJoint.m_Children.GetCount());
 
-  for (ezUInt32 b = 0; b < srcJoint.m_Children.GetCount(); ++b)
+  for (WUInt32 b = 0; b < srcJoint.m_Children.GetCount(); ++b)
   {
     BuildOzzRawSkeleton(*srcJoint.m_Children[b], ref_dstJoint.children[b]);
   }
 }
 
-void ezEditableSkeleton::GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_skeleton) const
+void WEditableSkeleton::GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_skeleton) const
 {
   out_skeleton.roots.resize((size_t)m_Children.GetCount());
 
-  for (ezUInt32 b = 0; b < m_Children.GetCount(); ++b)
+  for (WUInt32 b = 0; b < m_Children.GetCount(); ++b)
   {
     BuildOzzRawSkeleton(*m_Children[b], out_skeleton.roots[b]);
   }
 }
 
-void ezEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_skeleton) const
+void WEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_skeleton) const
 {
   ozz::animation::offline::RawSkeleton rawSkeleton;
   GenerateRawOzzSkeleton(rawSkeleton);
@@ -274,36 +274,36 @@ void ezEditableSkeleton::GenerateOzzSkeleton(ozz::animation::Skeleton& out_skele
   ozz::animation::offline::SkeletonBuilder skeletonBuilder;
   auto pNewOzzSkeleton = skeletonBuilder(rawSkeleton);
 
-  ezOzzUtils::CopySkeleton(&out_skeleton, pNewOzzSkeleton.get());
+  WOzzUtils::CopySkeleton(&out_skeleton, pNewOzzSkeleton.get());
 }
 
-ezEditableSkeletonJoint::ezEditableSkeletonJoint() = default;
+WEditableSkeletonJoint::WEditableSkeletonJoint() = default;
 
-ezEditableSkeletonJoint::~ezEditableSkeletonJoint()
+WEditableSkeletonJoint::~WEditableSkeletonJoint()
 {
   ClearJoints();
 }
 
-const char* ezEditableSkeletonJoint::GetName() const
+const char* WEditableSkeletonJoint::GetName() const
 {
   return m_sName.GetData();
 }
 
-void ezEditableSkeletonJoint::SetName(const char* szSz)
+void WEditableSkeletonJoint::SetName(const char* szSz)
 {
   m_sName.Assign(szSz);
 }
 
-void ezEditableSkeletonJoint::ClearJoints()
+void WEditableSkeletonJoint::ClearJoints()
 {
-  for (ezEditableSkeletonJoint* pChild : m_Children)
+  for (WEditableSkeletonJoint* pChild : m_Children)
   {
-    EZ_DEFAULT_DELETE(pChild);
+    W_DEFAULT_DELETE(pChild);
   }
   m_Children.Clear();
 }
 
-void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint)
+void WEditableSkeletonJoint::CopyPropertiesFrom(const WEditableSkeletonJoint* pJoint)
 {
   // copy existing (user edited) properties from pJoint into this joint
   // which has just been imported from file
@@ -315,11 +315,11 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   //  bone collider geometry (vertices, indices)
 
   // synchronize user config of bone colliders
-  for (ezUInt32 i = 0; i < m_BoneColliders.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_BoneColliders.GetCount(); ++i)
   {
     auto& dst = m_BoneColliders[i];
 
-    for (ezUInt32 j = 0; j < pJoint->m_BoneColliders.GetCount(); ++j)
+    for (WUInt32 j = 0; j < pJoint->m_BoneColliders.GetCount(); ++j)
     {
       const auto& src = pJoint->m_BoneColliders[j];
 
@@ -349,4 +349,4 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   m_uiCollisionLayerOverride = pJoint->m_uiCollisionLayerOverride;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_EditableSkeleton);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_EditableSkeleton);

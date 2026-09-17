@@ -6,45 +6,45 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
-ezGizmoComponentManager::ezGizmoComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WGizmoComponentManager::WGizmoComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGizmoRenderData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGizmoComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WGizmoComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezHiddenAttribute(),
+    new WHiddenAttribute(),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezGizmoComponent::ezGizmoComponent() = default;
-ezGizmoComponent::~ezGizmoComponent() = default;
+WGizmoComponent::WGizmoComponent() = default;
+WGizmoComponent::~WGizmoComponent() = default;
 
-ezMeshRenderData* ezGizmoComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
+WMeshRenderData* WGizmoComponent::CreateRenderData(const WRenderDataManager* pRenderDataManager) const
 {
-  ezColor color = m_GizmoColor;
+  WColor color = m_GizmoColor;
 
-  auto pManager = static_cast<const ezGizmoComponentManager*>(GetOwningManager());
+  auto pManager = static_cast<const WGizmoComponentManager*>(GetOwningManager());
   if (GetUniqueID() == pManager->m_uiHighlightID)
   {
-    color = ezColor(0.9f, 0.9f, 0.1f, color.a);
+    color = WColor(0.9f, 0.9f, 0.1f, color.a);
   }
 
-  ezGizmoRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner());
+  WGizmoRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<WGizmoRenderData>(GetOwner());
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_GizmoColor = color;
   pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
@@ -53,21 +53,21 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData(const ezRenderDataManager* 
   return pRenderData;
 }
 
-void ezGizmoComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WGizmoComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   if (!m_Lines.IsEmpty())
   {
-    ezTempHybridArray<ezDebugRendererLine, 64> lines;
+    WTempHybridArray<WDebugRendererLine, 64> lines;
     lines.Reserve(m_Lines.GetCount() / 2);
-    for (ezUInt32 v = 0; v < m_Lines.GetCount(); v += 2)
+    for (WUInt32 v = 0; v < m_Lines.GetCount(); v += 2)
     {
       auto& l = lines.ExpandAndGetRef();
       l.m_start = m_Lines[v];
       l.m_end = m_Lines[v + 1];
     }
 
-    ezDebugRenderer::DrawLinesOccluded(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor.GetDarker(), GetOwner()->GetGlobalTransform());
-    ezDebugRenderer::DrawLines(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor, GetOwner()->GetGlobalTransform());
+    WDebugRenderer::DrawLinesOccluded(WDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor.GetDarker(), GetOwner()->GetGlobalTransform());
+    WDebugRenderer::DrawLines(WDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor, GetOwner()->GetGlobalTransform());
 
     if (!m_hMesh.IsValid())
       return;
@@ -76,15 +76,15 @@ void ezGizmoComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   SUPER::OnMsgExtractRenderData(msg);
 }
 
-ezResult ezGizmoComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+WResult WGizmoComponent::GetLocalBounds(WBoundingBoxSphere& bounds, bool& bAlwaysVisible, WMsgUpdateLocalBounds& msg)
 {
-  ezResult r = EZ_SUCCESS;
+  WResult r = W_SUCCESS;
 
   if (!m_Lines.IsEmpty())
   {
     // The actual line data lives in the component and can be updated without touching bounds.
     // A unit-sized placeholder is enough because the gizmo is flagged as always visible.
-    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3(0), ezVec3(1), 1);
+    bounds = WBoundingBoxSphere::MakeFromCenterExtents(WVec3(0), WVec3(1), 1);
   }
   else
   {

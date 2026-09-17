@@ -7,9 +7,9 @@
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 
-ezMap<ezString, QString> ezQtDynamicStringEnumMenuButton::s_LastSearch;
+WMap<WString, QString> WQtDynamicStringEnumMenuButton::s_LastSearch;
 
-ezQtDynamicStringEnumMenuButton::ezQtDynamicStringEnumMenuButton(QWidget* pParent)
+WQtDynamicStringEnumMenuButton::WQtDynamicStringEnumMenuButton(QWidget* pParent)
   : QPushButton(pParent)
 {
   setText("Select");
@@ -17,31 +17,31 @@ ezQtDynamicStringEnumMenuButton::ezQtDynamicStringEnumMenuButton(QWidget* pParen
 
   m_pMenu = new QMenu(this);
   m_pMenu->setToolTipsVisible(false);
-  connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtDynamicStringEnumMenuButton::onMenuAboutToShow);
+  connect(m_pMenu, &QMenu::aboutToShow, this, &WQtDynamicStringEnumMenuButton::onMenuAboutToShow);
   setMenu(m_pMenu);
 }
 
-void ezQtDynamicStringEnumMenuButton::SetEnum(ezStringView sEnumName)
+void WQtDynamicStringEnumMenuButton::SetEnum(WStringView sEnumName)
 {
   m_sEnumName = sEnumName;
-  m_pEnum = &ezDynamicStringEnum::GetDynamicEnum(m_sEnumName);
+  m_pEnum = &WDynamicStringEnum::GetDynamicEnum(m_sEnumName);
 }
 
-void ezQtDynamicStringEnumMenuButton::SetCurrentValue(ezStringView sValue)
+void WQtDynamicStringEnumMenuButton::SetCurrentValue(WStringView sValue)
 {
-  setText(ezMakeQString(sValue));
+  setText(WMakeQString(sValue));
 }
 
-void ezQtDynamicStringEnumMenuButton::onMenuAboutToShow()
+void WQtDynamicStringEnumMenuButton::onMenuAboutToShow()
 {
   if (m_pEnum == nullptr)
     return;
 
   m_pMenu->clear();
 
-  m_pSearchableMenu = new ezQtSearchableMenu(m_pMenu);
+  m_pSearchableMenu = new WQtSearchableMenu(m_pMenu);
 
-  connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+  connect(m_pSearchableMenu, &WQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
     {
       if (variant.toString() == "<item>")
       {
@@ -49,33 +49,33 @@ void ezQtDynamicStringEnumMenuButton::onMenuAboutToShow()
       }
       else if (variant.toString() == "<edit>")
       {
-        ezQtEditDynamicEnumsDlg dlg(m_pEnum, this);
+        WQtEditDynamicEnumsDlg dlg(m_pEnum, this);
         if (dlg.exec() == QDialog::Accepted)
         {
-          ezInt32 iEnum = dlg.GetSelectedItem();
+          WInt32 iEnum = dlg.GetSelectedItem();
           if (iEnum >= 0)
           {
-            Q_EMIT ValueSelected(ezMakeQString(m_pEnum->GetAllValidValues()[iEnum]));
+            Q_EMIT ValueSelected(WMakeQString(m_pEnum->GetAllValidValues()[iEnum]));
           }
         }
       }
       else if (variant.toString() == "<cmd>")
       {
-        ezActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), ezActionContext(const_cast<ezDocument*>(m_pDocument)), m_pEnum->GetEditCommandValue()).AssertSuccess();
+        WActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), WActionContext(const_cast<WDocument*>(m_pDocument)), m_pEnum->GetEditCommandValue()).AssertSuccess();
       }
 
       m_pMenu->close(); });
 
-  connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
+  connect(m_pSearchableMenu, &WQtSearchableMenu::SearchTextChanged, m_pMenu,
     [this](const QString& sText)
     { s_LastSearch[m_sEnumName] = sText; });
 
   {
-    ezDynamicStringEnum::RefreshValuesEvent e;
+    WDynamicStringEnum::RefreshValuesEvent e;
     e.m_sEnumName = m_sEnumName;
     e.m_pDocument = m_pDocument;
     e.m_pEnum = m_pEnum;
-    ezDynamicStringEnum::s_RefreshValuesEvent.Broadcast(e);
+    WDynamicStringEnum::s_RefreshValuesEvent.Broadcast(e);
   }
 
   for (const auto& val : m_pEnum->GetAllValidValues())

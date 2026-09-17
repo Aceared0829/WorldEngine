@@ -1,6 +1,6 @@
-# ezEngine Documentation
+# WorldEngine Documentation
 
-The ezEngine documentation is available at [ezEngine.net](https://ezengine.net). The C++ API docs are hosted [here](https://ezengine.github.io/api-docs/).
+The WorldEngine documentation is available at [ezEngine.net](https://ezengine.net). The C++ API docs are hosted [here](https://ezengine.github.io/api-docs/).
 
 The text below explains how to generate the API docs locally (not meant for regular users).
 
@@ -15,15 +15,15 @@ The text below explains how to generate the API docs locally (not meant for regu
 ## Generate Docs
 
 * Use the *Doxyfile* in this directory.
-* Set `%ezEngine%/Documentation` as the working directory.
+* Set `%WorldEngine%/Documentation` as the working directory.
 
 Either run it with the *Doxywizard*, or from the command line:
 
 ```cmd
-%ezEngine%\Documentation>"C:\Program Files\doxygen\bin\doxygen.exe" Doxyfile
+%WorldEngine%\Documentation>"C:\Program Files\doxygen\bin\doxygen.exe" Doxyfile
 ```
 
-The output is written to: `%ezEngine%/Output/Doxygen/html/index.htm`
+The output is written to: `%WorldEngine%/Output/Doxygen/html/index.htm`
 
 ## Searchdata.xml
 

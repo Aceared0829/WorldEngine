@@ -2,33 +2,33 @@
 
 #include <Foundation/Threading/TaskSystem.h>
 
-class ezTaskSystemThreadState
+class WTaskSystemThreadState
 {
 private:
-  friend class ezTaskSystem;
-  friend class ezTaskWorkerThread;
+  friend class WTaskSystem;
+  friend class WTaskWorkerThread;
 
   // The arrays of all the active worker threads.
-  ezDynamicArray<ezTaskWorkerThread*> m_Workers[ezWorkerThreadType::ENUM_COUNT];
+  WDynamicArray<WTaskWorkerThread*> m_Workers[WWorkerThreadType::ENUM_COUNT];
 
   // the number of allocated (non-null) worker threads in m_Workers
-  ezAtomicInteger32 m_iAllocatedWorkers[ezWorkerThreadType::ENUM_COUNT];
+  WAtomicInteger32 m_iAllocatedWorkers[WWorkerThreadType::ENUM_COUNT];
 
   // the maximum number of worker threads that should be non-idle (and not blocked) at any time
-  ezUInt32 m_uiMaxWorkersToUse[ezWorkerThreadType::ENUM_COUNT] = {};
+  WUInt32 m_uiMaxWorkersToUse[WWorkerThreadType::ENUM_COUNT] = {};
 };
 
-class ezTaskSystemState
+class WTaskSystemState
 {
 private:
-  friend class ezTaskSystem;
+  friend class WTaskSystem;
 
   // The target frame time used by FinishFrameTasks()
-  ezTime m_TargetFrameTime = ezTime::MakeFromSeconds(1.0 / 40.0); // => 25 ms
+  WTime m_TargetFrameTime = WTime::MakeFromSeconds(1.0 / 40.0); // => 25 ms
 
-  // The deque can grow without relocating existing data, therefore the ezTaskGroupID's can store pointers directly to the data
-  ezDeque<ezTaskGroup> m_TaskGroups;
+  // The deque can grow without relocating existing data, therefore the WTaskGroupID's can store pointers directly to the data
+  WDeque<WTaskGroup> m_TaskGroups;
 
   // The lists of all scheduled tasks, for each priority.
-  ezList<ezTaskSystem::TaskData> m_Tasks[ezTaskPriority::ENUM_COUNT];
+  WList<WTaskSystem::TaskData> m_Tasks[WTaskPriority::ENUM_COUNT];
 };

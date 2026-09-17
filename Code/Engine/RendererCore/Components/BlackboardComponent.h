@@ -6,32 +6,32 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Utils/Blackboard.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
 
-using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
+using WBlackboardTemplateResourceHandle = WTypedResourceHandle<class WBlackboardTemplateResource>;
 
-struct ezBlackboardEntry
+struct WBlackboardEntry
 {
-  ezHashedString m_sName;
-  ezVariant m_InitialValue;
-  ezBitflags<ezBlackboardEntryFlags> m_Flags;
+  WHashedString m_sName;
+  WVariant m_InitialValue;
+  WBitflags<WBlackboardEntryFlags> m_Flags;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezBlackboardEntry);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezMsgBlackboardEntryChanged : public ezMessage
+struct W_RENDERERCORE_DLL WMsgBlackboardEntryChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgBlackboardEntryChanged, WMessage);
 
-  ezHashedString m_sName;
-  ezVariant m_OldValue;
-  ezVariant m_NewValue;
+  WHashedString m_sName;
+  WVariant m_OldValue;
+  WVariant m_NewValue;
 
 private:
   const char* GetName() const { return m_sName; }
@@ -40,77 +40,77 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// This base component represents an ezBlackboard, which can be used to share state between multiple components and objects.
+/// This base component represents an WBlackboard, which can be used to share state between multiple components and objects.
 ///
 /// The derived implementations may either create their own blackboards or reference other blackboards.
-class EZ_RENDERERCORE_DLL ezBlackboardComponent : public ezComponent
+class W_RENDERERCORE_DLL WBlackboardComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezBlackboardComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WBlackboardComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezBlackboardComponent
+  // WBlackboardComponent
 
 public:
-  ezBlackboardComponent();
-  ~ezBlackboardComponent();
+  WBlackboardComponent();
+  ~WBlackboardComponent();
 
-  /// Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
+  /// Try to find a WBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
   ///
   /// The blackboard name is only checked if the given name is not empty.
   /// If no matching blackboard component is found and NO name is given the world's blackboard is returned.
-  /// If no matching blackboard component is found and a name is given, the function will call ezBlackboard::GetOrCreateGlobal() with the given name.
+  /// If no matching blackboard component is found and a name is given, the function will call WBlackboard::GetOrCreateGlobal() with the given name.
   /// Thus you will always get a result, either from a component, the world or from the global storage.
   ///
-  /// \sa ezBlackboard::GetOrCreateGlobal()
-  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject& ref_searchObject, ezStringView sBlackboardName = ezStringView());
+  /// \sa WBlackboard::GetOrCreateGlobal()
+  static WSharedPtr<WBlackboard> FindBlackboard(WGameObject& ref_searchObject, WStringView sBlackboardName = WStringView());
 
   /// Returns the blackboard owned by this component
-  const ezSharedPtr<ezBlackboard>& GetBoard();
-  ezSharedPtr<const ezBlackboard> GetBoard() const;
+  const WSharedPtr<WBlackboard>& GetBoard();
+  WSharedPtr<const WBlackboard> GetBoard() const;
 
   void SetShowDebugInfo(bool bShow);                              // [ property ]
   bool GetShowDebugInfo() const;                                  // [ property ]
 
-  void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
-  ezVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
+  void SetEntryValue(const char* szName, const WVariant& value); // [ scriptable ]
+  WVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
 
 protected:
-  static ezBlackboard* Reflection_FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName);
+  static WBlackboard* Reflection_FindBlackboard(WGameObject* pSearchObject, WStringView sBlackboardName);
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
+  void OnExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezSharedPtr<ezBlackboard> m_pBoard;
+  WSharedPtr<WBlackboard> m_pBoard;
 
-  ezBlackboardTemplateResourceHandle m_hTemplate;
+  WBlackboardTemplateResourceHandle m_hTemplate;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezLocalBlackboardComponentManager = ezComponentManager<class ezLocalBlackboardComponent, ezBlockStorageType::Compact>;
+using WLocalBlackboardComponentManager = WComponentManager<class WLocalBlackboardComponent, WBlockStorageType::Compact>;
 
-/// This component creates its own ezBlackboard, and thus locally holds state.
-class EZ_RENDERERCORE_DLL ezLocalBlackboardComponent : public ezBlackboardComponent
+/// This component creates its own WBlackboard, and thus locally holds state.
+class W_RENDERERCORE_DLL WLocalBlackboardComponent : public WBlackboardComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLocalBlackboardComponent, ezBlackboardComponent, ezLocalBlackboardComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLocalBlackboardComponent, WBlackboardComponent, WLocalBlackboardComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
@@ -119,14 +119,14 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezBlackboardComponent
+  // WBlackboardComponent
 
 public:
-  ezLocalBlackboardComponent();
-  ezLocalBlackboardComponent(ezLocalBlackboardComponent&& other);
-  ~ezLocalBlackboardComponent();
+  WLocalBlackboardComponent();
+  WLocalBlackboardComponent(WLocalBlackboardComponent&& other);
+  ~WLocalBlackboardComponent();
 
-  ezLocalBlackboardComponent& operator=(ezLocalBlackboardComponent&& other);
+  WLocalBlackboardComponent& operator=(WLocalBlackboardComponent&& other);
 
   void SetSendEntryChangedMessage(bool bSend); // [ property ]
   bool GetSendEntryChangedMessage() const;     // [ property ]
@@ -135,29 +135,29 @@ public:
   const char* GetBlackboardName() const;       // [ property ]
 
 private:
-  ezUInt32 Entries_GetCount() const;
-  ezBlackboardEntry Entries_GetValue(ezUInt32 uiIndex) const;
-  void Entries_SetValue(ezUInt32 uiIndex, ezBlackboardEntry entry);
-  void Entries_Insert(ezUInt32 uiIndex, ezBlackboardEntry entry);
-  void Entries_Remove(ezUInt32 uiIndex);
+  WUInt32 Entries_GetCount() const;
+  WBlackboardEntry Entries_GetValue(WUInt32 uiIndex) const;
+  void Entries_SetValue(WUInt32 uiIndex, WBlackboardEntry entry);
+  void Entries_Insert(WUInt32 uiIndex, WBlackboardEntry entry);
+  void Entries_Remove(WUInt32 uiIndex);
 
-  void OnEntryChanged(const ezBlackboard::EntryEvent& e);
+  void OnEntryChanged(const WBlackboard::EntryEvent& e);
   void InitializeFromTemplate();
   bool IsEditor() const;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
-  ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
+  WDynamicArray<WBlackboardEntry> m_InitialEntries;
 
-  ezEventMessageSender<ezMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
+  WEventMessageSender<WMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-struct ezGlobalBlackboardInitMode
+struct WGlobalBlackboardInitMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum : StorageType
   {
@@ -169,23 +169,23 @@ struct ezGlobalBlackboardInitMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezGlobalBlackboardInitMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WGlobalBlackboardInitMode);
 
-using ezGlobalBlackboardComponentManager = ezComponentManager<class ezGlobalBlackboardComponent, ezBlockStorageType::Compact>;
+using WGlobalBlackboardComponentManager = WComponentManager<class WGlobalBlackboardComponent, WBlockStorageType::Compact>;
 
 /// This component references a global blackboard by name. If necessary, the blackboard will be created.
 ///
 /// This allows to initialize a global blackboard with known values.
-class EZ_RENDERERCORE_DLL ezGlobalBlackboardComponent : public ezBlackboardComponent
+class W_RENDERERCORE_DLL WGlobalBlackboardComponent : public WBlackboardComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezGlobalBlackboardComponent, ezBlackboardComponent, ezGlobalBlackboardComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WGlobalBlackboardComponent, WBlackboardComponent, WGlobalBlackboardComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
@@ -194,22 +194,22 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGlobalBlackboardComponent
+  // WGlobalBlackboardComponent
 
 public:
-  ezGlobalBlackboardComponent();
-  ezGlobalBlackboardComponent(ezGlobalBlackboardComponent&& other);
-  ~ezGlobalBlackboardComponent();
+  WGlobalBlackboardComponent();
+  WGlobalBlackboardComponent(WGlobalBlackboardComponent&& other);
+  ~WGlobalBlackboardComponent();
 
-  ezGlobalBlackboardComponent& operator=(ezGlobalBlackboardComponent&& other);
+  WGlobalBlackboardComponent& operator=(WGlobalBlackboardComponent&& other);
 
   void SetBlackboardName(const char* szName);    // [ property ]
   const char* GetBlackboardName() const;         // [ property ]
 
-  ezEnum<ezGlobalBlackboardInitMode> m_InitMode; // [ property ]
+  WEnum<WGlobalBlackboardInitMode> m_InitMode; // [ property ]
 
 private:
   void InitializeFromTemplate();
 
-  ezHashedString m_sName;
+  WHashedString m_sName;
 };

@@ -8,28 +8,28 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 
-class ezTestDocumentObjectManager : public ezDocumentObjectManager
+class WTestDocumentObjectManager : public WDocumentObjectManager
 {
 public:
-  ezTestDocumentObjectManager();
-  ~ezTestDocumentObjectManager();
+  WTestDocumentObjectManager();
+  ~WTestDocumentObjectManager();
 };
 
 
-class ezTestDocument : public ezDocument
+class WTestDocument : public WDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestDocument, ezDocument);
+  W_ADD_DYNAMIC_REFLECTION(WTestDocument, WDocument);
 
 public:
-  ezTestDocument(ezStringView sDocumentPath, bool bUseIPCObjectMirror = false);
-  ~ezTestDocument();
+  WTestDocument(WStringView sDocumentPath, bool bUseIPCObjectMirror = false);
+  ~WTestDocument();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  void ApplyNativePropertyChangesToObjectManager(ezDocumentObject* pObject);
-  virtual ezDocumentInfo* CreateDocumentInfo() override;
+  void ApplyNativePropertyChangesToObjectManager(WDocumentObject* pObject);
+  virtual WDocumentInfo* CreateDocumentInfo() override;
 
-  ezDocumentObjectMirror m_ObjectMirror;
-  ezRttiConverterContext m_Context;
+  WDocumentObjectMirror m_ObjectMirror;
+  WRttiConverterContext m_Context;
 
 
 

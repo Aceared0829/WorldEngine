@@ -4,7 +4,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezViewActions
+class W_EDITORFRAMEWORK_DLL WViewActions
 {
 public:
   static void RegisterActions();
@@ -12,44 +12,44 @@ public:
 
   enum Flags
   {
-    PerspectiveMode = EZ_BIT(0),
-    RenderMode = EZ_BIT(1),
-    ActivateRemoteProcess = EZ_BIT(2),
+    PerspectiveMode = W_BIT(0),
+    RenderMode = W_BIT(1),
+    ActivateRemoteProcess = W_BIT(2),
   };
 
-  static void MapToolbarActions(ezStringView sMapping, ezUInt32 uiFlags);
+  static void MapToolbarActions(WStringView sMapping, WUInt32 uiFlags);
 
-  static ezActionDescriptorHandle s_hRenderMode;
-  static ezActionDescriptorHandle s_hPerspective;
-  static ezActionDescriptorHandle s_hActivateRemoteProcess;
-  static ezActionDescriptorHandle s_hLinkDeviceCamera;
+  static WActionDescriptorHandle s_hRenderMode;
+  static WActionDescriptorHandle s_hPerspective;
+  static WActionDescriptorHandle s_hActivateRemoteProcess;
+  static WActionDescriptorHandle s_hLinkDeviceCamera;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezRenderModeAction : public ezEnumerationMenuAction
+class W_EDITORFRAMEWORK_DLL WRenderModeAction : public WEnumerationMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderModeAction, ezEnumerationMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WRenderModeAction, WEnumerationMenuAction);
 
 public:
-  ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual ezInt64 GetValue() const override;
-  virtual void Execute(const ezVariant& value) override;
+  WRenderModeAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual WInt64 GetValue() const override;
+  virtual void Execute(const WVariant& value) override;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezPerspectiveAction : public ezEnumerationMenuAction
+class W_EDITORFRAMEWORK_DLL WPerspectiveAction : public WEnumerationMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPerspectiveAction, ezEnumerationMenuAction);
+  W_ADD_DYNAMIC_REFLECTION(WPerspectiveAction, WEnumerationMenuAction);
 
 public:
-  ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath);
-  virtual ezInt64 GetValue() const override;
-  virtual void Execute(const ezVariant& value) override;
+  WPerspectiveAction(const WActionContext& context, const char* szName, const char* szIconPath);
+  virtual WInt64 GetValue() const override;
+  virtual void Execute(const WVariant& value) override;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WViewAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WViewAction, WButtonAction);
 
 public:
   enum class ButtonType
@@ -58,10 +58,10 @@ public:
     LinkDeviceCamera,
   };
 
-  ezViewAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezViewAction();
+  WViewAction(const WActionContext& context, const char* szName, ButtonType button);
+  ~WViewAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ButtonType m_ButtonType;

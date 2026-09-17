@@ -7,15 +7,15 @@
 #include <Inspector/ui_GlobalEventsWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtGlobalEventsWidget : public ads::CDockWidget, public Ui_GlobalEventsWidget
+class WQtGlobalEventsWidget : public ads::CDockWidget, public Ui_GlobalEventsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtGlobalEventsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtGlobalEventsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtGlobalEventsWidget* s_pWidget;
+  static WQtGlobalEventsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -27,10 +27,10 @@ private:
 
   struct GlobalEventsData
   {
-    ezInt32 m_iTableRow;
-    ezUInt32 m_uiTimesFired;
-    ezUInt16 m_uiNumHandlers;
-    ezUInt16 m_uiNumHandlersOnce;
+    WInt32 m_iTableRow;
+    WUInt32 m_uiTimesFired;
+    WUInt16 m_uiNumHandlers;
+    WUInt16 m_uiNumHandlersOnce;
 
     GlobalEventsData()
     {
@@ -42,5 +42,5 @@ private:
     }
   };
 
-  ezMap<ezString, GlobalEventsData> m_Events;
+  WMap<WString, GlobalEventsData> m_Events;
 };

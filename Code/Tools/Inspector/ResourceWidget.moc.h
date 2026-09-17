@@ -8,15 +8,15 @@
 #include <Inspector/ui_ResourceWidget.h>
 #include <ads/DockWidget.h>
 
-class ezQtResourceWidget : public ads::CDockWidget, public Ui_ResourceWidget
+class WQtResourceWidget : public ads::CDockWidget, public Ui_ResourceWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtResourceWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
+  WQtResourceWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
-  static ezQtResourceWidget* s_pWidget;
+  static WQtResourceWidget* s_pWidget;
 
 private Q_SLOTS:
 
@@ -46,22 +46,22 @@ private:
 
     bool m_bUpdate;
     QTableWidgetItem* m_pMainItem;
-    ezString m_sResourceID;
-    ezString m_sResourceType;
-    ezResourcePriority m_Priority;
-    ezBitflags<ezResourceFlags> m_Flags;
-    ezResourceLoadDesc m_LoadingState;
-    ezResource::MemoryUsage m_Memory;
-    ezString m_sResourceDescription;
+    WString m_sResourceID;
+    WString m_sResourceType;
+    WResourcePriority m_Priority;
+    WBitflags<WResourceFlags> m_Flags;
+    WResourceLoadDesc m_LoadingState;
+    WResource::MemoryUsage m_Memory;
+    WString m_sResourceDescription;
   };
 
   bool m_bShowDeleted;
-  ezString m_sTypeFilter;
-  ezString m_sNameFilter;
-  ezTime m_LastTableUpdate;
+  WString m_sTypeFilter;
+  WString m_sNameFilter;
+  WTime m_LastTableUpdate;
   bool m_bUpdateTable;
 
   bool m_bUpdateTypeBox;
-  ezSet<ezString> m_ResourceTypes;
-  ezHashTable<ezUInt64, ResourceData> m_Resources;
+  WSet<WString> m_ResourceTypes;
+  WHashTable<WUInt64, ResourceData> m_Resources;
 };

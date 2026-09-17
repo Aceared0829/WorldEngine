@@ -14,30 +14,30 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/PropertyGrid/Declarations.h>
 
-struct ezEngineViewPreferences;
+struct WEngineViewPreferences;
 class QGridLayout;
-class ezQtViewWidgetContainer;
-class ezQtSceneViewWidget;
+class WQtViewWidgetContainer;
+class WQtSceneViewWidget;
 class QSettings;
-struct ezManipulatorManagerEvent;
-class ezPreferences;
-class ezQtQuadViewWidget;
-struct ezEngineWindowEvent;
-class ezSceneDocument;
+struct WManipulatorManagerEvent;
+class WPreferences;
+class WQtQuadViewWidget;
+struct WEngineWindowEvent;
+class WSceneDocument;
 class QMenu;
-class ezQtPropertyWidget;
+class WQtPropertyWidget;
 
-Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
+Q_DECLARE_OPAQUE_POINTER(WQtSceneViewWidget*);
 
-class ezQtSceneDocumentWindowBase : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
+class WQtSceneDocumentWindowBase : public WQtGameObjectDocumentWindow, public WGameObjectGizmoInterface
 {
   Q_OBJECT
 
 public:
-  ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument);
-  ~ezQtSceneDocumentWindowBase();
+  WQtSceneDocumentWindowBase(WSceneDocument* pDocument);
+  ~WQtSceneDocumentWindowBase();
 
-  ezSceneDocument* GetSceneDocument() const;
+  WSceneDocument* GetSceneDocument() const;
 
   virtual void CreateImageCapture(const char* szOutputPath) override;
 
@@ -45,31 +45,31 @@ public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
 public:
-  /// \name ezGameObjectGizmoInterface implementation
+  /// \name WGameObjectGizmoInterface implementation
   ///@{
-  virtual ezObjectAccessorBase* GetObjectAccessor() override;
+  virtual WObjectAccessorBase* GetObjectAccessor() override;
   virtual bool CanDuplicateSelection() const override;
   virtual void DuplicateSelection() override;
   ///@}
 
 protected:
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
   virtual void InternalRedraw() override;
 
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
+  void GameObjectEventHandler(const WGameObjectEvent& e);
   void SnapSelectionToPosition(bool bSnapEachObject);
   void SendRedrawMsg();
-  void ExtendPropertyGridContextMenu(QMenu& menu, ezQtPropertyWidget* pPropWidget);
+  void ExtendPropertyGridContextMenu(QMenu& menu, WQtPropertyWidget* pPropWidget);
 
 protected:
-  ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;
+  WQtQuadViewWidget* m_pQuadViewWidget = nullptr;
 };
 
-class ezQtSceneDocumentWindow : public ezQtSceneDocumentWindowBase
+class WQtSceneDocumentWindow : public WQtSceneDocumentWindowBase
 {
   Q_OBJECT
 
 public:
-  ezQtSceneDocumentWindow(ezSceneDocument* pDocument);
-  ~ezQtSceneDocumentWindow();
+  WQtSceneDocumentWindow(WSceneDocument* pDocument);
+  ~WQtSceneDocumentWindow();
 };

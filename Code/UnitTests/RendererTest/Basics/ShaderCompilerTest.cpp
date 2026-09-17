@@ -8,130 +8,130 @@
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererTest/Basics/ShaderCompilerTest.h>
 
-void ezRendererTestShaderCompiler::SetupSubTests()
+void WRendererTestShaderCompiler::SetupSubTests()
 {
   AddSubTest("Shader Resources", SubTests::ST_ShaderResources);
 }
 
-ezResult ezRendererTestShaderCompiler::InitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestShaderCompiler::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(WGraphicsTest::InitializeSubTest(iIdentifier));
 
-  m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ShaderCompilerTest.ezShader");
+  m_hUVColorShader = WResourceManager::LoadResource<WShaderResource>("RendererTest/Shaders/ShaderCompilerTest.WShader");
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRendererTestShaderCompiler::DeInitializeSubTest(ezInt32 iIdentifier)
+WResult WRendererTestShaderCompiler::DeInitializeSubTest(WInt32 iIdentifier)
 {
   // m_hShader.Invalidate();
   m_hUVColorShader.Invalidate();
 
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  if (WGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WRendererTestShaderCompiler::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
-  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
-  ezShaderPermutationResourceHandle m_hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(m_hUVColorShader, m_PermutationVariables, false);
+  WHashTable<WHashedString, WHashedString> m_PermutationVariables;
+  WShaderPermutationResourceHandle m_hActiveShaderPermutation = WShaderManager::PreloadSinglePermutation(m_hUVColorShader, m_PermutationVariables, false);
 
-  if (!EZ_TEST_BOOL(m_hActiveShaderPermutation.IsValid()))
-    return ezTestAppRun::Quit;
+  if (!W_TEST_BOOL(m_hActiveShaderPermutation.IsValid()))
+    return WTestAppRun::Quit;
 
   {
-    ezResourceLock<ezShaderPermutationResource> pResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WShaderPermutationResource> pResource(m_hActiveShaderPermutation, WResourceAcquireMode::BlockTillLoaded);
 
-    ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource.GetPointer())->GetPermutationVars();
+    WArrayPtr<const WPermutationVar> permutationVars = static_cast<const WShaderPermutationResource*>(pResource.GetPointer())->GetPermutationVars();
 
-    const ezGALShaderByteCode* pVertex = pResource->GetShaderByteCode(ezGALShaderStage::VertexShader);
-    EZ_TEST_BOOL(pVertex);
+    const WGALShaderByteCode* pVertex = pResource->GetShaderByteCode(WGALShaderStage::VertexShader);
+    W_TEST_BOOL(pVertex);
     const auto& vertexDecl = pVertex->m_ShaderVertexInput;
-    if (EZ_TEST_INT(vertexDecl.GetCount(), 12))
+    if (W_TEST_INT(vertexDecl.GetCount(), 12))
     {
-      auto CheckVertexDecl = [&](ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt8 uiLocation)
+      auto CheckVertexDecl = [&](WGALVertexAttributeSemantic::Enum semantic, WGALResourceFormat::Enum format, WUInt8 uiLocation)
       {
-        EZ_TEST_INT(vertexDecl[uiLocation].m_eSemantic, semantic);
-        EZ_TEST_INT(vertexDecl[uiLocation].m_eFormat, format);
-        EZ_TEST_INT(vertexDecl[uiLocation].m_uiLocation, uiLocation);
+        W_TEST_INT(vertexDecl[uiLocation].m_eSemantic, semantic);
+        W_TEST_INT(vertexDecl[uiLocation].m_eFormat, format);
+        W_TEST_INT(vertexDecl[uiLocation].m_uiLocation, uiLocation);
       };
-      CheckVertexDecl(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::RGBAFloat, 0);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::RGBFloat, 1);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::RGFloat, 2);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RFloat, 3);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::Color7, ezGALResourceFormat::RGBAUInt, 4);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::RGBUInt, 5);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::TexCoord9, ezGALResourceFormat::RGUInt, 6);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::BiTangent, ezGALResourceFormat::RUInt, 7);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAInt, 8);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::BoneWeights1, ezGALResourceFormat::RGBInt, 9);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGInt, 10);
-      CheckVertexDecl(ezGALVertexAttributeSemantic::BoneIndices1, ezGALResourceFormat::RInt, 11);
+      CheckVertexDecl(WGALVertexAttributeSemantic::Position, WGALResourceFormat::RGBAFloat, 0);
+      CheckVertexDecl(WGALVertexAttributeSemantic::Normal, WGALResourceFormat::RGBFloat, 1);
+      CheckVertexDecl(WGALVertexAttributeSemantic::Tangent, WGALResourceFormat::RGFloat, 2);
+      CheckVertexDecl(WGALVertexAttributeSemantic::Color0, WGALResourceFormat::RFloat, 3);
+      CheckVertexDecl(WGALVertexAttributeSemantic::Color7, WGALResourceFormat::RGBAUInt, 4);
+      CheckVertexDecl(WGALVertexAttributeSemantic::TexCoord0, WGALResourceFormat::RGBUInt, 5);
+      CheckVertexDecl(WGALVertexAttributeSemantic::TexCoord9, WGALResourceFormat::RGUInt, 6);
+      CheckVertexDecl(WGALVertexAttributeSemantic::BiTangent, WGALResourceFormat::RUInt, 7);
+      CheckVertexDecl(WGALVertexAttributeSemantic::BoneWeights0, WGALResourceFormat::RGBAInt, 8);
+      CheckVertexDecl(WGALVertexAttributeSemantic::BoneWeights1, WGALResourceFormat::RGBInt, 9);
+      CheckVertexDecl(WGALVertexAttributeSemantic::BoneIndices0, WGALResourceFormat::RGInt, 10);
+      CheckVertexDecl(WGALVertexAttributeSemantic::BoneIndices1, WGALResourceFormat::RInt, 11);
     }
 
-    const ezGALShaderByteCode* pPixel = pResource->GetShaderByteCode(ezGALShaderStage::PixelShader);
-    EZ_TEST_BOOL(pPixel);
-    const ezHybridArray<ezShaderResourceBinding, 8>& bindings = pPixel->m_ShaderResourceBindings;
+    const WGALShaderByteCode* pPixel = pResource->GetShaderByteCode(WGALShaderStage::PixelShader);
+    W_TEST_BOOL(pPixel);
+    const WHybridArray<WShaderResourceBinding, 8>& bindings = pPixel->m_ShaderResourceBindings;
     {
-      auto CheckBinding = [&](ezStringView sName, ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType = ezGALShaderTextureType::Unknown, ezBitflags<ezGALShaderStageFlags> stages = ezGALShaderStageFlags::PixelShader, ezUInt32 uiArraySize = 1)
+      auto CheckBinding = [&](WStringView sName, WGALShaderResourceType::Enum descriptorType, WGALShaderTextureType::Enum textureType = WGALShaderTextureType::Unknown, WBitflags<WGALShaderStageFlags> stages = WGALShaderStageFlags::PixelShader, WUInt32 uiArraySize = 1)
       {
-        for (ezUInt32 i = 0; i < bindings.GetCount(); ++i)
+        for (WUInt32 i = 0; i < bindings.GetCount(); ++i)
         {
           if (bindings[i].m_sName.GetView() == sName)
           {
-            EZ_TEST_INT(bindings[i].m_ResourceType, descriptorType);
-            EZ_TEST_INT(bindings[i].m_TextureType, textureType);
-            EZ_TEST_INT(bindings[i].m_Stages.GetValue(), stages.GetValue());
-            EZ_TEST_INT(bindings[i].m_uiArraySize, uiArraySize);
+            W_TEST_INT(bindings[i].m_ResourceType, descriptorType);
+            W_TEST_INT(bindings[i].m_TextureType, textureType);
+            W_TEST_INT(bindings[i].m_Stages.GetValue(), stages.GetValue());
+            W_TEST_INT(bindings[i].m_uiArraySize, uiArraySize);
             return;
           }
         }
-        EZ_TEST_BOOL_MSG(false, "Shader resource not found in binding list");
+        W_TEST_BOOL_MSG(false, "Shader resource not found in binding list");
       };
-      const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
-      CheckBinding("PointClampSampler"_ezsv, ezGALShaderResourceType::Sampler);
-      CheckBinding("PerFrame"_ezsv, ezGALShaderResourceType::ConstantBuffer);
-      // CheckBinding("RES_Texture1D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1D);
-      // CheckBinding("RES_Texture1DArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1DArray);
-      CheckBinding("RES_Texture2D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D);
-      CheckBinding("RES_Texture2DArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray);
-      CheckBinding("RES_Texture2DMS"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS);
+      const WGALDeviceCapabilities& caps = WGALDevice::GetDefaultDevice()->GetCapabilities();
+      CheckBinding("PointClampSampler"_wsv, WGALShaderResourceType::Sampler);
+      CheckBinding("PerFrame"_wsv, WGALShaderResourceType::ConstantBuffer);
+      // CheckBinding("RES_Texture1D"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture1D);
+      // CheckBinding("RES_Texture1DArray"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture1DArray);
+      CheckBinding("RES_Texture2D"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture2D);
+      CheckBinding("RES_Texture2DArray"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture2DArray);
+      CheckBinding("RES_Texture2DMS"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture2DMS);
       if (caps.m_bSupportsMultiSampledArrays)
       {
-        CheckBinding("RES_Texture2DMSArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray);
+        CheckBinding("RES_Texture2DMSArray"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture2DMSArray);
       }
-      CheckBinding("RES_Texture3D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D);
-      CheckBinding("RES_TextureCube"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube);
-      CheckBinding("RES_TextureCubeArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray);
+      CheckBinding("RES_Texture3D"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::Texture3D);
+      CheckBinding("RES_TextureCube"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::TextureCube);
+      CheckBinding("RES_TextureCubeArray"_wsv, WGALShaderResourceType::Texture, WGALShaderTextureType::TextureCubeArray);
 
       if (caps.m_bSupportsTexelBuffer)
       {
-        CheckBinding("RES_Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
+        CheckBinding("RES_Buffer"_wsv, WGALShaderResourceType::TexelBuffer);
       }
-      CheckBinding("RES_StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
-      CheckBinding("RES_ByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBuffer);
+      CheckBinding("RES_StructuredBuffer"_wsv, WGALShaderResourceType::StructuredBuffer);
+      CheckBinding("RES_ByteAddressBuffer"_wsv, WGALShaderResourceType::ByteAddressBuffer);
 
-      // CheckBinding("RES_RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1D);
-      // CheckBinding("RES_RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1DArray);
-      CheckBinding("RES_RWTexture2D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2D);
-      CheckBinding("RES_RWTexture2DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2DArray);
-      CheckBinding("RES_RWTexture3D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture3D);
+      // CheckBinding("RES_RWTexture1D"_wsv, WGALShaderResourceType::TextureRW, WGALShaderTextureType::Texture1D);
+      // CheckBinding("RES_RWTexture1DArray"_wsv, WGALShaderResourceType::TextureRW, WGALShaderTextureType::Texture1DArray);
+      CheckBinding("RES_RWTexture2D"_wsv, WGALShaderResourceType::TextureRW, WGALShaderTextureType::Texture2D);
+      CheckBinding("RES_RWTexture2DArray"_wsv, WGALShaderResourceType::TextureRW, WGALShaderTextureType::Texture2DArray);
+      CheckBinding("RES_RWTexture3D"_wsv, WGALShaderResourceType::TextureRW, WGALShaderTextureType::Texture3D);
       if (caps.m_bSupportsTexelBuffer)
       {
-        CheckBinding("RES_RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
+        CheckBinding("RES_RWBuffer"_wsv, WGALShaderResourceType::TexelBufferRW);
       }
-      CheckBinding("RES_RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-      CheckBinding("RES_RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBufferRW);
+      CheckBinding("RES_RWStructuredBuffer"_wsv, WGALShaderResourceType::StructuredBufferRW);
+      CheckBinding("RES_RWByteAddressBuffer"_wsv, WGALShaderResourceType::ByteAddressBufferRW);
 
-      CheckBinding("RES_AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-      CheckBinding("RES_ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+      CheckBinding("RES_AppendStructuredBuffer"_wsv, WGALShaderResourceType::StructuredBufferRW);
+      CheckBinding("RES_ConsumeStructuredBuffer"_wsv, WGALShaderResourceType::StructuredBufferRW);
     }
   }
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
 
-static ezRendererTestShaderCompiler g_ShaderCompilerTest;
+static WRendererTestShaderCompiler g_ShaderCompilerTest;

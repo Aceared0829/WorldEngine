@@ -5,74 +5,74 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAnimationTrack, 1, WRTTIDefaultAllocator<WPropertyAnimationTrack>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ObjectPath", m_sObjectSearchSequence),
-    EZ_MEMBER_PROPERTY("ComponentType", m_sComponentType),
-    EZ_MEMBER_PROPERTY("Property", m_sPropertyPath),
-    EZ_ENUM_MEMBER_PROPERTY("Target", ezPropertyAnimTarget, m_Target),
-    EZ_MEMBER_PROPERTY("FloatCurve", m_FloatCurve),
-    EZ_MEMBER_PROPERTY("Gradient", m_ColorGradient),
+    W_MEMBER_PROPERTY("ObjectPath", m_sObjectSearchSequence),
+    W_MEMBER_PROPERTY("ComponentType", m_sComponentType),
+    W_MEMBER_PROPERTY("Property", m_sPropertyPath),
+    W_ENUM_MEMBER_PROPERTY("Target", WPropertyAnimTarget, m_Target),
+    W_MEMBER_PROPERTY("FloatCurve", m_FloatCurve),
+    W_MEMBER_PROPERTY("Gradient", m_ColorGradient),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrackGroup>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAnimationTrackGroup, 1, WRTTIDefaultAllocator<WPropertyAnimationTrackGroup>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
-    EZ_MEMBER_PROPERTY("Duration", m_uiCurveDuration)->AddAttributes(new ezDefaultValueAttribute(480)),
-    EZ_ARRAY_MEMBER_PROPERTY("Tracks", m_Tracks)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack),
+    W_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new WDefaultValueAttribute(60)),
+    W_MEMBER_PROPERTY("Duration", m_uiCurveDuration)->AddAttributes(new WDefaultValueAttribute(480)),
+    W_ARRAY_MEMBER_PROPERTY("Tracks", m_Tracks)->AddFlags(WPropertyFlags::PointerOwner),
+    W_MEMBER_PROPERTY("EventTrack", m_EventTrack),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocument, 2, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPropertyAnimAssetDocument, 2, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPropertyAnimationTrackGroup::~ezPropertyAnimationTrackGroup()
+WPropertyAnimationTrackGroup::~WPropertyAnimationTrackGroup()
 {
-  for (ezPropertyAnimationTrack* pTrack : m_Tracks)
+  for (WPropertyAnimationTrack* pTrack : m_Tracks)
   {
-    EZ_DEFAULT_DELETE(pTrack);
+    W_DEFAULT_DELETE(pTrack);
   }
 }
 
-ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(
-      EZ_DEFAULT_NEW(ezPropertyAnimObjectManager), sDocumentPath, ezAssetDocEngineConnection::FullObjectMirroring)
+WPropertyAnimAssetDocument::WPropertyAnimAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WPropertyAnimationTrackGroup, WGameObjectContextDocument>(
+      W_DEFAULT_NEW(WPropertyAnimObjectManager), sDocumentPath, WAssetDocEngineConnection::FullObjectMirroring)
 {
-  m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());
+  m_GameObjectContextEvents.AddEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
+  m_pObjectAccessor = W_DEFAULT_NEW(WPropertyAnimObjectAccessor, this, GetCommandHistory());
 }
 
-ezPropertyAnimAssetDocument::~ezPropertyAnimAssetDocument()
+WPropertyAnimAssetDocument::~WPropertyAnimAssetDocument()
 {
-  m_GameObjectContextEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
+  m_GameObjectContextEvents.RemoveEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
 
-  GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));
-  GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreePropertyEventHandler, this));
+  GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::TreeStructureEventHandler, this));
+  GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::TreePropertyEventHandler, this));
 }
 
-void ezPropertyAnimAssetDocument::SetAnimationDurationTicks(ezUInt64 uiNumTicks)
+void WPropertyAnimAssetDocument::SetAnimationDurationTicks(WUInt64 uiNumTicks)
 {
-  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+  const WPropertyAnimationTrackGroup* pProp = GetProperties();
 
   if (pProp->m_uiCurveDuration == uiNumTicks)
     return;
 
   {
-    ezCommandHistory* history = GetCommandHistory();
+    WCommandHistory* history = GetCommandHistory();
     history->StartTransaction("Set Animation Duration");
 
-    ezSetObjectPropertyCommand cmdSet;
+    WSetObjectPropertyCommand cmdSet;
     cmdSet.m_Object = GetPropertyObject()->GetGuid();
     cmdSet.m_sProperty = "Duration";
     cmdSet.m_NewValue = uiNumTicks;
@@ -82,78 +82,78 @@ void ezPropertyAnimAssetDocument::SetAnimationDurationTicks(ezUInt64 uiNumTicks)
   }
 
   {
-    ezPropertyAnimAssetDocumentEvent e;
+    WPropertyAnimAssetDocumentEvent e;
     e.m_pDocument = this;
-    e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged;
+    e.m_Type = WPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged;
     m_PropertyAnimEvents.Broadcast(e);
   }
 }
 
-ezUInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
+WUInt64 WPropertyAnimAssetDocument::GetAnimationDurationTicks() const
 {
-  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+  const WPropertyAnimationTrackGroup* pProp = GetProperties();
 
   return pProp->m_uiCurveDuration;
 }
 
 
-ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
+WTime WPropertyAnimAssetDocument::GetAnimationDurationTime() const
 {
-  const ezInt64 ticks = GetAnimationDurationTicks();
+  const WInt64 ticks = GetAnimationDurationTicks();
 
-  return ezTime::MakeFromSeconds(ticks / 4800.0);
+  return WTime::MakeFromSeconds(ticks / 4800.0);
 }
 
-void ezPropertyAnimAssetDocument::AdjustDuration()
+void WPropertyAnimAssetDocument::AdjustDuration()
 {
-  ezUInt64 uiDuration = 480;
+  WUInt64 uiDuration = 480;
 
-  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+  const WPropertyAnimationTrackGroup* pProp = GetProperties();
 
-  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
-    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+    const WPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
 
     for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
     {
-      uiDuration = ezMath::Max(uiDuration, (ezUInt64)cp.m_iTick);
+      uiDuration = WMath::Max(uiDuration, (WUInt64)cp.m_iTick);
     }
 
-    ezUInt32 uiRgb = 0;
-    ezUInt32 uiAlpha = 0;
-    ezUInt32 uiIntensity = 0;
+    WUInt32 uiRgb = 0;
+    WUInt32 uiAlpha = 0;
+    WUInt32 uiIntensity = 0;
     pTrack->m_ColorGradient.m_Gradient.GetNumControlPoints(uiRgb, uiAlpha, uiIntensity);
 
-    for (ezUInt32 i = 0; i < uiRgb; ++i)
+    for (WUInt32 i = 0; i < uiRgb; ++i)
     {
       const auto& cp = pTrack->m_ColorGradient.m_Gradient.GetColorControlPoint(i);
-      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+      uiDuration = WMath::Max<WInt64>(uiDuration, cp.m_iTick);
     }
 
-    for (ezUInt32 i = 0; i < uiAlpha; ++i)
+    for (WUInt32 i = 0; i < uiAlpha; ++i)
     {
       const auto& cp = pTrack->m_ColorGradient.m_Gradient.GetAlphaControlPoint(i);
-      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+      uiDuration = WMath::Max<WInt64>(uiDuration, cp.m_iTick);
     }
 
-    for (ezUInt32 i = 0; i < uiIntensity; ++i)
+    for (WUInt32 i = 0; i < uiIntensity; ++i)
     {
       const auto& cp = pTrack->m_ColorGradient.m_Gradient.GetIntensityControlPoint(i);
-      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+      uiDuration = WMath::Max<WInt64>(uiDuration, cp.m_iTick);
     }
   }
 
   SetAnimationDurationTicks(uiDuration);
 }
 
-bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
+bool WPropertyAnimAssetDocument::SetScrubberPosition(WUInt64 uiTick)
 {
   if (!m_bPlayAnimation)
   {
-    const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
-    uiTick = (ezUInt64)ezMath::RoundToMultiple((double)uiTick, (double)uiTicksPerFrame);
+    const WUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
+    uiTick = (WUInt64)WMath::RoundToMultiple((double)uiTick, (double)uiTicksPerFrame);
   }
-  uiTick = ezMath::Clamp<ezUInt64>(uiTick, 0, GetAnimationDurationTicks());
+  uiTick = WMath::Clamp<WUInt64>(uiTick, 0, GetAnimationDurationTicks());
 
   if (m_uiScrubberTickPos == uiTick)
     return false;
@@ -161,27 +161,27 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
   m_uiScrubberTickPos = uiTick;
   ApplyAnimation();
 
-  ezPropertyAnimAssetDocumentEvent e;
+  WPropertyAnimAssetDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged;
+  e.m_Type = WPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged;
   m_PropertyAnimEvents.Broadcast(e);
 
   return true;
 }
 
-ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WPropertyAnimAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+  const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+  const WPropertyAnimationTrackGroup* pProp = GetProperties();
 
-  ezPropertyAnimResourceDescriptor desc;
+  WPropertyAnimResourceDescriptor desc;
   desc.m_AnimationDuration = GetAnimationDurationTime();
 
-  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
-    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+    const WPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
 
-    if (pTrack->m_Target == ezPropertyAnimTarget::Color)
+    if (pTrack->m_Target == WPropertyAnimTarget::Color)
     {
       auto& anim = desc.m_ColorAnimations.ExpandAndGetRef();
       anim.m_sObjectSearchSequence = pTrack->m_sObjectSearchSequence;
@@ -206,9 +206,9 @@ ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWr
 
   // sort animation tracks by object path for better cache reuse at runtime
   {
-    desc.m_FloatAnimations.Sort([](const ezFloatPropertyAnimEntry& lhs, const ezFloatPropertyAnimEntry& rhs) -> bool
+    desc.m_FloatAnimations.Sort([](const WFloatPropertyAnimEntry& lhs, const WFloatPropertyAnimEntry& rhs) -> bool
       {
-      const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
+      const WInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
       if (res < 0)
         return true;
       if (res > 0)
@@ -216,9 +216,9 @@ ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWr
 
       return lhs.m_sComponentType < rhs.m_sComponentType; });
 
-    desc.m_ColorAnimations.Sort([](const ezColorPropertyAnimEntry& lhs, const ezColorPropertyAnimEntry& rhs) -> bool
+    desc.m_ColorAnimations.Sort([](const WColorPropertyAnimEntry& lhs, const WColorPropertyAnimEntry& rhs) -> bool
       {
-      const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
+      const WInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
       if (res < 0)
         return true;
       if (res > 0)
@@ -231,60 +231,60 @@ ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWr
 
   desc.Save(stream);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
-void ezPropertyAnimAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+void WPropertyAnimAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  m_pMirror = EZ_DEFAULT_NEW(ezIPCObjectMirrorEditor);
+  m_pMirror = W_DEFAULT_NEW(WIPCObjectMirrorEditor);
   // Filter needs to be set before base class init as that one sends the doc.
   // (Local mirror ignores temporaries, i.e. only mirrors the asset itself)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_ObjectMirror.SetFilterFunction([this](const WDocumentObject* pObject, WStringView sProperty) -> bool
+    { return !static_cast<WPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   // (Remote IPC mirror only sends temporaries, i.e. the context)
-  m_pMirror->SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_pMirror->SetFilterFunction([this](const WDocumentObject* pObject, WStringView sProperty) -> bool
+    { return static_cast<WPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   // Important to do these after base class init as we want our subscriptions to happen after the mirror of the base class.
-  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));
-  GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreePropertyEventHandler, this));
+  GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::TreeStructureEventHandler, this));
+  GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WPropertyAnimAssetDocument::TreePropertyEventHandler, this));
   // Subscribe here as otherwise base init will fire a context changed event when we are not set up yet.
   // RebuildMapping();
 }
 
-void ezPropertyAnimAssetDocument::GameObjectContextEventHandler(const ezGameObjectContextEvent& e)
+void WPropertyAnimAssetDocument::GameObjectContextEventHandler(const WGameObjectContextEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectContextEvent::Type::ContextAboutToBeChanged:
-      static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(true);
+    case WGameObjectContextEvent::Type::ContextAboutToBeChanged:
+      static_cast<WPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(true);
       break;
-    case ezGameObjectContextEvent::Type::ContextChanged:
-      static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(false);
+    case WGameObjectContextEvent::Type::ContextChanged:
+      static_cast<WPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(false);
       RebuildMapping();
       break;
   }
 }
 
-void ezPropertyAnimAssetDocument::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WPropertyAnimAssetDocument::TreeStructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  auto pManager = static_cast<ezPropertyAnimObjectManager*>(GetObjectManager());
+  auto pManager = static_cast<WPropertyAnimObjectManager*>(GetObjectManager());
   if (e.m_pPreviousParent && pManager->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
     return;
   if (e.m_pNewParent && pManager->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
     return;
 
-  if (e.m_pObject->GetType() == ezGetStaticRTTI<ezPropertyAnimationTrack>())
+  if (e.m_pObject->GetType() == WGetStaticRTTI<WPropertyAnimationTrack>())
   {
     switch (e.m_EventType)
     {
-      case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-      case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+      case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      case WDocumentObjectStructureEvent::Type::AfterObjectMoved:
         AddTrack(e.m_pObject->GetGuid());
         return;
-      case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
-      case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+      case WDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+      case WDocumentObjectStructureEvent::Type::BeforeObjectMoved:
         RemoveTrack(e.m_pObject->GetGuid());
         return;
 
@@ -298,15 +298,15 @@ void ezPropertyAnimAssetDocument::TreeStructureEventHandler(const ezDocumentObje
   }
 }
 
-void ezPropertyAnimAssetDocument::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WPropertyAnimAssetDocument::TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
-  auto pManager = static_cast<ezPropertyAnimObjectManager*>(GetObjectManager());
+  auto pManager = static_cast<WPropertyAnimObjectManager*>(GetObjectManager());
   if (pManager->IsTemporary(e.m_pObject))
     return;
 
-  if (e.m_pObject->GetType() == ezGetStaticRTTI<ezPropertyAnimationTrack>())
+  if (e.m_pObject->GetType() == WGetStaticRTTI<WPropertyAnimationTrack>())
   {
-    if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
+    if (e.m_EventType == WDocumentObjectPropertyEvent::Type::PropertySet)
     {
       RemoveTrack(e.m_pObject->GetGuid());
       AddTrack(e.m_pObject->GetGuid());
@@ -319,28 +319,28 @@ void ezPropertyAnimAssetDocument::TreePropertyEventHandler(const ezDocumentObjec
   }
 }
 
-void ezPropertyAnimAssetDocument::RebuildMapping()
+void WPropertyAnimAssetDocument::RebuildMapping()
 {
   while (!m_TrackTable.IsEmpty())
   {
     RemoveTrack(m_TrackTable.GetIterator().Key());
   }
-  EZ_ASSERT_DEBUG(m_PropertyTable.IsEmpty() && m_TrackTable.IsEmpty(), "All tracks should be removed.");
+  W_ASSERT_DEBUG(m_PropertyTable.IsEmpty() && m_TrackTable.IsEmpty(), "All tracks should be removed.");
 
-  const ezAbstractProperty* pTracksProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks");
-  EZ_ASSERT_DEBUG(pTracksProp, "Name of property ezPropertyAnimationTrackGroup::m_Tracks has changed.");
-  ezTempHybridArray<ezVariant, 16> values;
+  const WAbstractProperty* pTracksProp = WGetStaticRTTI<WPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks");
+  W_ASSERT_DEBUG(pTracksProp, "Name of property WPropertyAnimationTrackGroup::m_Tracks has changed.");
+  WTempHybridArray<WVariant, 16> values;
   m_pObjectAccessor->GetValues(GetPropertyObject(), pTracksProp, values).AssertSuccess();
-  for (const ezVariant& value : values)
+  for (const WVariant& value : values)
   {
-    AddTrack(value.Get<ezUuid>());
+    AddTrack(value.Get<WUuid>());
   }
 }
 
-void ezPropertyAnimAssetDocument::RemoveTrack(const ezUuid& track)
+void WPropertyAnimAssetDocument::RemoveTrack(const WUuid& track)
 {
   auto& keys = *m_TrackTable.GetValue(track);
-  for (const ezPropertyReference& key : keys)
+  for (const WPropertyReference& key : keys)
   {
     PropertyValue& value = *m_PropertyTable.GetValue(key);
     value.m_Tracks.RemoveAndSwap(track);
@@ -351,23 +351,23 @@ void ezPropertyAnimAssetDocument::RemoveTrack(const ezUuid& track)
   m_TrackTable.Remove(track);
 }
 
-void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
+void WPropertyAnimAssetDocument::AddTrack(const WUuid& track)
 {
-  EZ_ASSERT_DEV(!m_TrackTable.Contains(track), "Track already exists.");
+  W_ASSERT_DEV(!m_TrackTable.Contains(track), "Track already exists.");
   auto& keys = m_TrackTable[track];
-  const ezDocumentObject* pContext = GetContextObject();
+  const WDocumentObject* pContext = GetContextObject();
   if (!pContext)
     return;
 
   auto pTrack = GetTrack(track);
   FindTrackKeys(pTrack->m_sObjectSearchSequence.GetData(), pTrack->m_sComponentType.GetData(), pTrack->m_sPropertyPath.GetData(), keys).IgnoreResult();
 
-  for (const ezPropertyReference& key : keys)
+  for (const WPropertyReference& key : keys)
   {
     if (!m_PropertyTable.Contains(key))
     {
       PropertyValue value;
-      EZ_VERIFY(m_pObjectAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value.m_InitialValue, key.m_Index).Succeeded(),
+      W_VERIFY(m_pObjectAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value.m_InitialValue, key.m_Index).Succeeded(),
         "Computed key invalid, does not resolve to a value.");
       m_PropertyTable.Insert(key, value);
     }
@@ -379,24 +379,24 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
 }
 
 
-ezStatus ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezDynamicArray<ezPropertyReference>& keys) const
+WStatus WPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, WDynamicArray<WPropertyReference>& keys) const
 {
-  ezObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
+  WObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
 
   keys.Clear();
-  return ezObjectPropertyPath::ResolvePath(context, keys, szObjectSearchSequence, szComponentType, szPropertyPath);
+  return WObjectPropertyPath::ResolvePath(context, keys, szObjectSearchSequence, szComponentType, szPropertyPath);
 }
 
 
-void ezPropertyAnimAssetDocument::GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-  ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const
+void WPropertyAnimAssetDocument::GenerateTrackInfo(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index,
+  WStringBuilder& sObjectSearchSequence, WStringBuilder& sComponentType, WStringBuilder& sPropertyPath) const
 {
-  ezObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pProp, index};
-  ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath).AssertSuccess();
+  WObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
+  WPropertyReference propertyRef = {pObject->GetGuid(), pProp, index};
+  WObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath).AssertSuccess();
 }
 
-void ezPropertyAnimAssetDocument::ApplyAnimation()
+void WPropertyAnimAssetDocument::ApplyAnimation()
 {
   for (auto it = m_PropertyTable.GetIterator(); it.IsValid(); ++it)
   {
@@ -404,63 +404,63 @@ void ezPropertyAnimAssetDocument::ApplyAnimation()
   }
 }
 
-void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value)
+void WPropertyAnimAssetDocument::ApplyAnimation(const WPropertyReference& key, const PropertyValue& value)
 {
-  ezVariant animValue = value.m_InitialValue;
-  ezAngle euler[3];
+  WVariant animValue = value.m_InitialValue;
+  WAngle euler[3];
   bool bIsRotation = false;
 
-  for (const ezUuid& track : value.m_Tracks)
+  for (const WUuid& track : value.m_Tracks)
   {
     auto pTrack = GetTrack(track);
-    const ezRTTI* pPropRtti = key.m_pProperty->GetSpecificType();
+    const WRTTI* pPropRtti = key.m_pProperty->GetSpecificType();
 
     // #TODO apply pTrack to animValue
     switch (pTrack->m_Target)
     {
-      case ezPropertyAnimTarget::Number:
+      case WPropertyAnimTarget::Number:
       {
-        if (pPropRtti->GetVariantType() >= ezVariantType::Bool && pPropRtti->GetVariantType() <= ezVariantType::Double)
+        if (pPropRtti->GetVariantType() >= WVariantType::Bool && pPropRtti->GetVariantType() <= WVariantType::Double)
         {
-          ezVariant value2 = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
+          WVariant value2 = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
           animValue = value2.ConvertTo(animValue.GetType());
         }
       }
       break;
 
-      case ezPropertyAnimTarget::VectorX:
-      case ezPropertyAnimTarget::VectorY:
-      case ezPropertyAnimTarget::VectorZ:
-      case ezPropertyAnimTarget::VectorW:
+      case WPropertyAnimTarget::VectorX:
+      case WPropertyAnimTarget::VectorY:
+      case WPropertyAnimTarget::VectorZ:
+      case WPropertyAnimTarget::VectorW:
       {
-        if (pPropRtti->GetVariantType() >= ezVariantType::Vector2 && pPropRtti->GetVariantType() <= ezVariantType::Vector4U)
+        if (pPropRtti->GetVariantType() >= WVariantType::Vector2 && pPropRtti->GetVariantType() <= WVariantType::Vector4U)
         {
           const double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
 
-          ezReflectionUtils::SetComponent(animValue, (ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::VectorX, fValue);
+          WReflectionUtils::SetComponent(animValue, (WUInt32)pTrack->m_Target - WPropertyAnimTarget::VectorX, fValue);
         }
       }
       break;
 
-      case ezPropertyAnimTarget::RotationX:
-      case ezPropertyAnimTarget::RotationY:
-      case ezPropertyAnimTarget::RotationZ:
+      case WPropertyAnimTarget::RotationX:
+      case WPropertyAnimTarget::RotationY:
+      case WPropertyAnimTarget::RotationZ:
       {
-        if (pPropRtti->GetVariantType() == ezVariantType::Quaternion)
+        if (pPropRtti->GetVariantType() == WVariantType::Quaternion)
         {
           bIsRotation = true;
           const double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
 
-          euler[(ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::RotationX] = ezAngle::MakeFromDegree(fValue);
+          euler[(WUInt32)pTrack->m_Target - WPropertyAnimTarget::RotationX] = WAngle::MakeFromDegree(fValue);
         }
       }
       break;
 
-      case ezPropertyAnimTarget::Color:
+      case WPropertyAnimTarget::Color:
       {
-        if (pPropRtti->GetVariantType() == ezVariantType::Color || pPropRtti->GetVariantType() == ezVariantType::ColorGamma)
+        if (pPropRtti->GetVariantType() == WVariantType::Color || pPropRtti->GetVariantType() == WVariantType::ColorGamma)
         {
-          ezVariant value2 = pTrack->m_ColorGradient.Evaluate(m_uiScrubberTickPos);
+          WVariant value2 = pTrack->m_ColorGradient.Evaluate(m_uiScrubberTickPos);
           animValue = value2.ConvertTo(animValue.GetType());
         }
       }
@@ -470,14 +470,14 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
 
   if (bIsRotation)
   {
-    ezQuat qRotation;
-    qRotation = ezQuat::MakeFromEulerAngles(euler[0], euler[1], euler[2]);
+    WQuat qRotation;
+    qRotation = WQuat::MakeFromEulerAngles(euler[0], euler[1], euler[2]);
     animValue = qRotation;
   }
 
-  ezDocumentObject* pObj = GetObjectManager()->GetObject(key.m_Object);
-  ezVariant oldValue;
-  EZ_VERIFY(m_pObjectAccessor->GetValue(pObj, key.m_pProperty, oldValue, key.m_Index).Succeeded(), "Retrieving old value failed.");
+  WDocumentObject* pObj = GetObjectManager()->GetObject(key.m_Object);
+  WVariant oldValue;
+  W_VERIFY(m_pObjectAccessor->GetValue(pObj, key.m_pProperty, oldValue, key.m_Index).Succeeded(), "Retrieving old value failed.");
 
   if (oldValue != animValue)
     GetObjectManager()->SetValue(pObj, key.m_pProperty->GetPropertyName(), animValue, key.m_Index).AssertSuccess();
@@ -485,13 +485,13 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
   // tell the gizmos and manipulators that they should update their transform
   // usually they listen to the command history and selection events, but in this case no commands are executed
   {
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::GizmoTransformMayBeInvalid;
+    WGameObjectEvent e;
+    e.m_Type = WGameObjectEvent::Type::GizmoTransformMayBeInvalid;
     m_GameObjectEvents.Broadcast(e);
   }
 }
 
-void ezPropertyAnimAssetDocument::SetPlayAnimation(bool bPlay)
+void WPropertyAnimAssetDocument::SetPlayAnimation(bool bPlay)
 {
   if (m_bPlayAnimation == bPlay)
     return;
@@ -505,38 +505,38 @@ void ezPropertyAnimAssetDocument::SetPlayAnimation(bool bPlay)
     // During playback we do not round to frames, so we need to round it again on stop.
     SetScrubberPosition(GetScrubberPosition());
   }
-  m_LastFrameTime = ezTime::Now();
+  m_LastFrameTime = WTime::Now();
 
-  ezPropertyAnimAssetDocumentEvent e;
+  WPropertyAnimAssetDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
+  e.m_Type = WPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
   m_PropertyAnimEvents.Broadcast(e);
 }
 
-void ezPropertyAnimAssetDocument::SetRepeatAnimation(bool bRepeat)
+void WPropertyAnimAssetDocument::SetRepeatAnimation(bool bRepeat)
 {
   if (m_bRepeatAnimation == bRepeat)
     return;
 
   m_bRepeatAnimation = bRepeat;
 
-  ezPropertyAnimAssetDocumentEvent e;
+  WPropertyAnimAssetDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
+  e.m_Type = WPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
   m_PropertyAnimEvents.Broadcast(e);
 }
 
-void ezPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
+void WPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
 {
-  const ezTime currentTime = ezTime::Now();
-  const ezTime tDiff = (currentTime - m_LastFrameTime) * GetSimulationSpeed();
-  const ezUInt64 uiTicks = (ezUInt64)(tDiff.GetSeconds() * 4800.0);
+  const WTime currentTime = WTime::Now();
+  const WTime tDiff = (currentTime - m_LastFrameTime) * GetSimulationSpeed();
+  const WUInt64 uiTicks = (WUInt64)(tDiff.GetSeconds() * 4800.0);
   // Accumulate further if we render too fast and round ticks to zero.
   if (uiTicks == 0)
     return;
 
   m_LastFrameTime = currentTime;
-  const ezUInt64 uiNewPos = GetScrubberPosition() + uiTicks;
+  const WUInt64 uiNewPos = GetScrubberPosition() + uiTicks;
   SetScrubberPosition(uiNewPos);
 
   if (uiNewPos > GetAnimationDurationTicks())
@@ -548,174 +548,174 @@ void ezPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
   }
 }
 
-const ezPropertyAnimationTrack* ezPropertyAnimAssetDocument::GetTrack(const ezUuid& track) const
+const WPropertyAnimationTrack* WPropertyAnimAssetDocument::GetTrack(const WUuid& track) const
 {
-  return const_cast<ezPropertyAnimAssetDocument*>(this)->GetTrack(track);
+  return const_cast<WPropertyAnimAssetDocument*>(this)->GetTrack(track);
 }
 
-ezPropertyAnimationTrack* ezPropertyAnimAssetDocument::GetTrack(const ezUuid& track)
+WPropertyAnimationTrack* WPropertyAnimAssetDocument::GetTrack(const WUuid& track)
 {
   auto obj = m_Context.GetObjectByGUID(track);
-  EZ_ASSERT_DEBUG(obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(),
+  W_ASSERT_DEBUG(obj.m_pType == WGetStaticRTTI<WPropertyAnimationTrack>(),
     "Track guid does not resolve to a track, "
     "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
-  auto pTrack = static_cast<ezPropertyAnimationTrack*>(obj.m_pObject);
+  auto pTrack = static_cast<WPropertyAnimationTrack*>(obj.m_pObject);
   return pTrack;
 }
 
 
-ezStatus ezPropertyAnimAssetDocument::CanAnimate(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const
+WStatus WPropertyAnimAssetDocument::CanAnimate(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target) const
 {
   if (!pObject)
-    return ezStatus("Object is null.");
+    return WStatus("Object is null.");
   if (!pProp)
-    return ezStatus("Property is null.");
+    return WStatus("Property is null.");
   if (index.IsValid())
-    return ezStatus("Property indices not supported.");
+    return WStatus("Property indices not supported.");
 
   if (!GetContextObject())
-    return ezStatus("No context set.");
+    return WStatus("No context set.");
 
   {
-    const ezDocumentObject* pNode = pObject;
+    const WDocumentObject* pNode = pObject;
     while (pNode && pNode != GetContextObject())
     {
       pNode = pNode->GetParent();
     }
     if (!pNode)
     {
-      return ezStatus("Object not below context sub-tree.");
+      return WStatus("Object not below context sub-tree.");
     }
   }
-  ezPropertyReference key;
+  WPropertyReference key;
   key.m_Object = pObject->GetGuid();
   key.m_pProperty = pProp;
   key.m_Index = index;
 
-  ezStringBuilder sObjectSearchSequence;
-  ezStringBuilder sComponentType;
-  ezStringBuilder sPropertyPath;
+  WStringBuilder sObjectSearchSequence;
+  WStringBuilder sComponentType;
+  WStringBuilder sPropertyPath;
   GenerateTrackInfo(pObject, pProp, index, sObjectSearchSequence, sComponentType, sPropertyPath);
 
-  const ezAbstractProperty* pName = ezGetStaticRTTI<ezGameObject>()->FindPropertyByName("Name");
-  const ezDocumentObject* pNode = pObject;
-  while (pNode != GetContextObject() && pNode->GetType() != ezGetStaticRTTI<ezGameObject>())
+  const WAbstractProperty* pName = WGetStaticRTTI<WGameObject>()->FindPropertyByName("Name");
+  const WDocumentObject* pNode = pObject;
+  while (pNode != GetContextObject() && pNode->GetType() != WGetStaticRTTI<WGameObject>())
   {
     pNode = pNode->GetParent();
   }
-  ezString sName = m_pObjectAccessor->Get<ezString>(pNode, pName);
+  WString sName = m_pObjectAccessor->Get<WString>(pNode, pName);
 
   if (sName.IsEmpty() && pNode != GetContextObject())
   {
-    return ezStatus("Empty node name only allowed on context root object animations.");
+    return WStatus("Empty node name only allowed on context root object animations.");
   }
 
-  ezTempHybridArray<ezPropertyReference, 1> keys;
+  WTempHybridArray<WPropertyReference, 1> keys;
   return FindTrackKeys(sObjectSearchSequence.GetData(), sComponentType.GetData(), sPropertyPath.GetData(), keys);
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindTrack(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const
+WUuid WPropertyAnimAssetDocument::FindTrack(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target) const
 {
-  ezPropertyReference key;
+  WPropertyReference key;
   key.m_Object = pObject->GetGuid();
   key.m_pProperty = pProp;
   key.m_Index = index;
   if (const PropertyValue* value = m_PropertyTable.GetValue(key))
   {
-    for (const ezUuid& track : value->m_Tracks)
+    for (const WUuid& track : value->m_Tracks)
     {
       auto pTrack = GetTrack(track);
       if (pTrack->m_Target == target)
         return track;
     }
   }
-  return ezUuid();
+  return WUuid();
 }
 
-static ezColorGammaUB g_CurveColors[10][3] = {
-  {ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255)},
-  {ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0, 255)},
-  {ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188)},
-  {ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255)},
-  {ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255)},
-  {ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250)},
-  {ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225)},
-  {ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235)},
-  {ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180)},
-  {ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237)},
+static WColorGammaUB g_CurveColors[10][3] = {
+  {WColorGammaUB(255, 102, 0), WColorGammaUB(76, 255, 0), WColorGammaUB(0, 255, 255)},
+  {WColorGammaUB(239, 35, 0), WColorGammaUB(127, 255, 0), WColorGammaUB(0, 0, 255)},
+  {WColorGammaUB(205, 92, 92), WColorGammaUB(120, 158, 39), WColorGammaUB(81, 120, 188)},
+  {WColorGammaUB(255, 105, 180), WColorGammaUB(0, 250, 154), WColorGammaUB(0, 191, 255)},
+  {WColorGammaUB(220, 20, 60), WColorGammaUB(0, 255, 127), WColorGammaUB(30, 144, 255)},
+  {WColorGammaUB(240, 128, 128), WColorGammaUB(60, 179, 113), WColorGammaUB(135, 206, 250)},
+  {WColorGammaUB(178, 34, 34), WColorGammaUB(46, 139, 87), WColorGammaUB(65, 105, 225)},
+  {WColorGammaUB(211, 122, 122), WColorGammaUB(144, 238, 144), WColorGammaUB(135, 206, 235)},
+  {WColorGammaUB(219, 112, 147), WColorGammaUB(0, 128, 0), WColorGammaUB(70, 130, 180)},
+  {WColorGammaUB(255, 182, 193), WColorGammaUB(102, 205, 170), WColorGammaUB(100, 149, 237)},
 };
 
-static ezColorGammaUB g_FloatColors[10] = {
-  ezColorGammaUB(138, 43, 226),
-  ezColorGammaUB(139, 0, 139),
-  ezColorGammaUB(153, 50, 204),
-  ezColorGammaUB(148, 0, 211),
-  ezColorGammaUB(218, 112, 214),
-  ezColorGammaUB(221, 160, 221),
-  ezColorGammaUB(128, 0, 128),
-  ezColorGammaUB(102, 51, 153),
-  ezColorGammaUB(106, 90, 205),
-  ezColorGammaUB(238, 130, 238),
+static WColorGammaUB g_FloatColors[10] = {
+  WColorGammaUB(138, 43, 226),
+  WColorGammaUB(139, 0, 139),
+  WColorGammaUB(153, 50, 204),
+  WColorGammaUB(148, 0, 211),
+  WColorGammaUB(218, 112, 214),
+  WColorGammaUB(221, 160, 221),
+  WColorGammaUB(128, 0, 128),
+  WColorGammaUB(102, 51, 153),
+  WColorGammaUB(106, 90, 205),
+  WColorGammaUB(238, 130, 238),
 };
 
-ezUuid ezPropertyAnimAssetDocument::CreateTrack(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
+WUuid WPropertyAnimAssetDocument::CreateTrack(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WPropertyAnimTarget::Enum target)
 {
-  ezStringBuilder sObjectSearchSequence;
-  ezStringBuilder sComponentType;
-  ezStringBuilder sPropertyPath;
+  WStringBuilder sObjectSearchSequence;
+  WStringBuilder sComponentType;
+  WStringBuilder sPropertyPath;
   GenerateTrackInfo(pObject, pProp, index, sObjectSearchSequence, sComponentType, sPropertyPath);
 
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  const ezRTTI* pTrackType = ezGetStaticRTTI<ezPropertyAnimationTrack>();
-  ezUuid newTrack;
-  EZ_VERIFY(
-    accessor.AddObject(GetPropertyObject(), ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks"), -1, pTrackType, newTrack)
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  const WRTTI* pTrackType = WGetStaticRTTI<WPropertyAnimationTrack>();
+  WUuid newTrack;
+  W_VERIFY(
+    accessor.AddObject(GetPropertyObject(), WGetStaticRTTI<WPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks"), -1, pTrackType, newTrack)
       .Succeeded(),
     "Adding track failed.");
-  const ezDocumentObject* pTrackObj = accessor.GetObject(newTrack);
-  ezVariant value = sObjectSearchSequence.GetData();
-  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ObjectPath"), value).Succeeded(), "Adding track failed.");
+  const WDocumentObject* pTrackObj = accessor.GetObject(newTrack);
+  WVariant value = sObjectSearchSequence.GetData();
+  W_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ObjectPath"), value).Succeeded(), "Adding track failed.");
   value = sComponentType.GetData();
-  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ComponentType"), value).Succeeded(), "Adding track failed.");
+  W_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ComponentType"), value).Succeeded(), "Adding track failed.");
   value = sPropertyPath.GetData();
-  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Property"), value).Succeeded(), "Adding track failed.");
+  W_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Property"), value).Succeeded(), "Adding track failed.");
   value = (int)target;
-  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Target"), value).Succeeded(), "Adding track failed.");
+  W_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Target"), value).Succeeded(), "Adding track failed.");
 
   {
-    const ezAbstractProperty* pFloatCurveProp = pTrackType->FindPropertyByName("FloatCurve");
-    ezUuid floatCurveGuid = accessor.Get<ezUuid>(pTrackObj, pFloatCurveProp);
-    const ezDocumentObject* pFloatCurveObject = GetObjectManager()->GetObject(floatCurveGuid);
+    const WAbstractProperty* pFloatCurveProp = pTrackType->FindPropertyByName("FloatCurve");
+    WUuid floatCurveGuid = accessor.Get<WUuid>(pTrackObj, pFloatCurveProp);
+    const WDocumentObject* pFloatCurveObject = GetObjectManager()->GetObject(floatCurveGuid);
 
-    const ezAbstractProperty* pColorProp = ezGetStaticRTTI<ezSingleCurveData>()->FindPropertyByName("Color");
+    const WAbstractProperty* pColorProp = WGetStaticRTTI<WSingleCurveData>()->FindPropertyByName("Color");
 
-    ezColorGammaUB color = ezColor::White;
+    WColorGammaUB color = WColor::White;
 
-    const ezUInt32 uiNameHash = ezHashingUtils::xxHash32(sObjectSearchSequence.GetData(), sObjectSearchSequence.GetElementCount());
-    const ezUInt32 uiColorIdx = uiNameHash % EZ_ARRAY_SIZE(g_CurveColors);
+    const WUInt32 uiNameHash = WHashingUtils::xxHash32(sObjectSearchSequence.GetData(), sObjectSearchSequence.GetElementCount());
+    const WUInt32 uiColorIdx = uiNameHash % W_ARRAY_SIZE(g_CurveColors);
 
     switch (target)
     {
-      case ezPropertyAnimTarget::Number:
+      case WPropertyAnimTarget::Number:
         color = g_FloatColors[uiColorIdx];
         break;
-      case ezPropertyAnimTarget::VectorX:
-      case ezPropertyAnimTarget::RotationX:
+      case WPropertyAnimTarget::VectorX:
+      case WPropertyAnimTarget::RotationX:
         color = g_CurveColors[uiColorIdx][0];
         break;
-      case ezPropertyAnimTarget::VectorY:
-      case ezPropertyAnimTarget::RotationY:
+      case WPropertyAnimTarget::VectorY:
+      case WPropertyAnimTarget::RotationY:
         color = g_CurveColors[uiColorIdx][1];
         break;
-      case ezPropertyAnimTarget::VectorZ:
-      case ezPropertyAnimTarget::RotationZ:
+      case WPropertyAnimTarget::VectorZ:
+      case WPropertyAnimTarget::RotationZ:
         color = g_CurveColors[uiColorIdx][2];
         break;
-      case ezPropertyAnimTarget::VectorW:
-        color = ezColor::Beige;
+      case WPropertyAnimTarget::VectorW:
+        color = WColor::Beige;
         break;
       default:
         break;
@@ -727,238 +727,238 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(
   return newTrack;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindCurveCp(const ezUuid& trackGuid, ezInt64 iTickX)
+WUuid WPropertyAnimAssetDocument::FindCurveCp(const WUuid& trackGuid, WInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
-  ezInt32 iIndex = -1;
-  for (ezUInt32 i = 0; i < pTrack->m_FloatCurve.m_ControlPoints.GetCount(); i++)
+  WInt32 iIndex = -1;
+  for (WUInt32 i = 0; i < pTrack->m_FloatCurve.m_ControlPoints.GetCount(); i++)
   {
     if (pTrack->m_FloatCurve.m_ControlPoints[i].m_iTick == iTickX)
     {
-      iIndex = (ezInt32)i;
+      iIndex = (WInt32)i;
       break;
     }
   }
   if (iIndex == -1)
-    return ezUuid();
+    return WUuid();
 
-  const ezAbstractProperty* pCurveProp = ezGetStaticRTTI<ezPropertyAnimationTrack>()->FindPropertyByName("FloatCurve");
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  ezUuid curveGuid = m_pObjectAccessor->Get<ezUuid>(trackObject, pCurveProp);
-  const ezAbstractProperty* pControlPointsProp = ezGetStaticRTTI<ezSingleCurveData>()->FindPropertyByName("ControlPoints");
-  const ezDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
-  ezUuid cpGuid = m_pObjectAccessor->Get<ezUuid>(curveObject, pControlPointsProp, iIndex);
+  const WAbstractProperty* pCurveProp = WGetStaticRTTI<WPropertyAnimationTrack>()->FindPropertyByName("FloatCurve");
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  WUuid curveGuid = m_pObjectAccessor->Get<WUuid>(trackObject, pCurveProp);
+  const WAbstractProperty* pControlPointsProp = WGetStaticRTTI<WSingleCurveData>()->FindPropertyByName("ControlPoints");
+  const WDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
+  WUuid cpGuid = m_pObjectAccessor->Get<WUuid>(curveObject, pControlPointsProp, iIndex);
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64 iTickX, double fNewPosY)
+WUuid WPropertyAnimAssetDocument::InsertCurveCpAt(const WUuid& track, WInt64 iTickX, double fNewPosY)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
   acc.StartTransaction("Insert Control Point");
 
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(track);
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(track);
+  const WVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(curveGuid.Get<ezUuid>()), "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(), newObjectGuid).Succeeded(),
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(accessor.GetObject(curveGuid.Get<WUuid>()), "ControlPoints", -1, WGetStaticRTTI<WCurveControlPointData>(), newObjectGuid).Succeeded(),
     "");
   auto curveCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(curveCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(curveCPObj, "Value", fNewPosY).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(curveCPObj, "LeftTangent", ezVec2(-0.1f, 0.0f)).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(curveCPObj, "RightTangent", ezVec2(+0.1f, 0.0f)).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(curveCPObj, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(curveCPObj, "Value", fNewPosY).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(curveCPObj, "LeftTangent", WVec2(-0.1f, 0.0f)).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(curveCPObj, "RightTangent", WVec2(+0.1f, 0.0f)).Succeeded(), "");
 
   acc.FinishTransaction();
 
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientColorCp(const ezUuid& trackGuid, ezInt64 iTickX)
+WUuid WPropertyAnimAssetDocument::FindGradientColorCp(const WUuid& trackGuid, WInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
-  ezInt32 iIndex = -1;
-  ezUInt32 numRgb, numAlpha, numIntensity;
+  WInt32 iIndex = -1;
+  WUInt32 numRgb, numAlpha, numIntensity;
   pTrack->m_ColorGradient.m_Gradient.GetNumControlPoints(numRgb, numAlpha, numIntensity);
-  for (ezUInt32 i = 0; i < numRgb; i++)
+  for (WUInt32 i = 0; i < numRgb; i++)
   {
     if (pTrack->m_ColorGradient.m_Gradient.GetColorControlPoint(i).m_iTick == iTickX)
     {
-      iIndex = (ezInt32)i;
+      iIndex = (WInt32)i;
       break;
     }
   }
   if (iIndex == -1)
-    return ezUuid();
+    return WUuid();
 
-  const ezAbstractProperty* pCurveProp = ezGetStaticRTTI<ezPropertyAnimationTrack>()->FindPropertyByName("Gradient");
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  ezUuid curveGuid = m_pObjectAccessor->Get<ezUuid>(trackObject, pCurveProp);
-  const ezDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
+  const WAbstractProperty* pCurveProp = WGetStaticRTTI<WPropertyAnimationTrack>()->FindPropertyByName("Gradient");
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  WUuid curveGuid = m_pObjectAccessor->Get<WUuid>(trackObject, pCurveProp);
+  const WDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
 
   // Get the nested Gradient object
-  const ezAbstractProperty* pGradientProp = ezGetStaticRTTI<ezColorGradientAssetData>()->FindPropertyByName("Gradient");
-  ezUuid gradientSubGuid = m_pObjectAccessor->Get<ezUuid>(curveObject, pGradientProp);
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WAbstractProperty* pGradientProp = WGetStaticRTTI<WColorGradientAssetData>()->FindPropertyByName("Gradient");
+  WUuid gradientSubGuid = m_pObjectAccessor->Get<WUuid>(curveObject, pGradientProp);
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  const ezAbstractProperty* pControlPointsProp = ezGetStaticRTTI<ezColorGradient>()->FindPropertyByName("ColorCPs");
-  ezUuid cpGuid = m_pObjectAccessor->Get<ezUuid>(gradientSubObject, pControlPointsProp, iIndex);
+  const WAbstractProperty* pControlPointsProp = WGetStaticRTTI<WColorGradient>()->FindPropertyByName("ColorCPs");
+  WUuid cpGuid = m_pObjectAccessor->Get<WUuid>(gradientSubObject, pControlPointsProp, iIndex);
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 iTickX, const ezColorGammaUB& color)
+WUuid WPropertyAnimAssetDocument::InsertGradientColorCpAt(const WUuid& trackGuid, WInt64 iTickX, const WColorGammaUB& color)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
 
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
 
   acc.StartTransaction("Add Color Control Point");
 
   // Get the Gradient sub-object
-  const ezUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(gradientSubObject, "ColorCPs", -1, ezGetStaticRTTI<ezColorGradientColorCP>(), newObjectGuid).Succeeded(), "");
-  const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Red", color.r).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Green", color.g).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Blue", color.b).Succeeded(), "");
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(gradientSubObject, "ColorCPs", -1, WGetStaticRTTI<WColorGradientColorCP>(), newObjectGuid).Succeeded(), "");
+  const WDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
+  W_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(cpObject, "Red", color.r).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(cpObject, "Green", color.g).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(cpObject, "Blue", color.b).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 iTickX)
+WUuid WPropertyAnimAssetDocument::FindGradientAlphaCp(const WUuid& trackGuid, WInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
-  ezInt32 iIndex = -1;
-  ezUInt32 numRgb, numAlpha, numIntensity;
+  WInt32 iIndex = -1;
+  WUInt32 numRgb, numAlpha, numIntensity;
   pTrack->m_ColorGradient.m_Gradient.GetNumControlPoints(numRgb, numAlpha, numIntensity);
-  for (ezUInt32 i = 0; i < numAlpha; i++)
+  for (WUInt32 i = 0; i < numAlpha; i++)
   {
     if (pTrack->m_ColorGradient.m_Gradient.GetAlphaControlPoint(i).m_iTick == iTickX)
     {
-      iIndex = (ezInt32)i;
+      iIndex = (WInt32)i;
       break;
     }
   }
   if (iIndex == -1)
-    return ezUuid();
+    return WUuid();
 
-  const ezAbstractProperty* pCurveProp = ezGetStaticRTTI<ezPropertyAnimationTrack>()->FindPropertyByName("Gradient");
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  ezUuid curveGuid = m_pObjectAccessor->Get<ezUuid>(trackObject, pCurveProp);
-  const ezDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
+  const WAbstractProperty* pCurveProp = WGetStaticRTTI<WPropertyAnimationTrack>()->FindPropertyByName("Gradient");
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  WUuid curveGuid = m_pObjectAccessor->Get<WUuid>(trackObject, pCurveProp);
+  const WDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
 
   // Get the nested Gradient object
-  const ezAbstractProperty* pGradientProp = ezGetStaticRTTI<ezColorGradientAssetData>()->FindPropertyByName("Gradient");
-  ezUuid gradientSubGuid = m_pObjectAccessor->Get<ezUuid>(curveObject, pGradientProp);
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WAbstractProperty* pGradientProp = WGetStaticRTTI<WColorGradientAssetData>()->FindPropertyByName("Gradient");
+  WUuid gradientSubGuid = m_pObjectAccessor->Get<WUuid>(curveObject, pGradientProp);
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  const ezAbstractProperty* pControlPointsProp = ezGetStaticRTTI<ezColorGradient>()->FindPropertyByName("AlphaCPs");
-  ezUuid cpGuid = m_pObjectAccessor->Get<ezUuid>(gradientSubObject, pControlPointsProp, iIndex);
+  const WAbstractProperty* pControlPointsProp = WGetStaticRTTI<WColorGradient>()->FindPropertyByName("AlphaCPs");
+  WUuid cpGuid = m_pObjectAccessor->Get<WUuid>(gradientSubObject, pControlPointsProp, iIndex);
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 iTickX, ezUInt8 uiAlpha)
+WUuid WPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const WUuid& trackGuid, WInt64 iTickX, WUInt8 uiAlpha)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
 
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
 
   acc.StartTransaction("Add Alpha Control Point");
 
   // Get the Gradient sub-object
-  const ezUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(gradientSubObject, "AlphaCPs", -1, ezGetStaticRTTI<ezColorGradientAlphaCP>(), newObjectGuid).Succeeded(), "");
-  const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Alpha", uiAlpha).Succeeded(), "");
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(gradientSubObject, "AlphaCPs", -1, WGetStaticRTTI<WColorGradientAlphaCP>(), newObjectGuid).Succeeded(), "");
+  const WDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
+  W_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(cpObject, "Alpha", uiAlpha).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 iTickX)
+WUuid WPropertyAnimAssetDocument::FindGradientIntensityCp(const WUuid& trackGuid, WInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
-  ezInt32 iIndex = -1;
-  ezUInt32 numRgb, numAlpha, numIntensity;
+  WInt32 iIndex = -1;
+  WUInt32 numRgb, numAlpha, numIntensity;
   pTrack->m_ColorGradient.m_Gradient.GetNumControlPoints(numRgb, numAlpha, numIntensity);
-  for (ezUInt32 i = 0; i < numIntensity; i++)
+  for (WUInt32 i = 0; i < numIntensity; i++)
   {
     if (pTrack->m_ColorGradient.m_Gradient.GetIntensityControlPoint(i).m_iTick == iTickX)
     {
-      iIndex = (ezInt32)i;
+      iIndex = (WInt32)i;
       break;
     }
   }
   if (iIndex == -1)
-    return ezUuid();
+    return WUuid();
 
-  const ezAbstractProperty* pCurveProp = ezGetStaticRTTI<ezPropertyAnimationTrack>()->FindPropertyByName("Gradient");
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  ezUuid curveGuid = m_pObjectAccessor->Get<ezUuid>(trackObject, pCurveProp);
-  const ezDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
+  const WAbstractProperty* pCurveProp = WGetStaticRTTI<WPropertyAnimationTrack>()->FindPropertyByName("Gradient");
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  WUuid curveGuid = m_pObjectAccessor->Get<WUuid>(trackObject, pCurveProp);
+  const WDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
 
   // Get the nested Gradient object
-  const ezAbstractProperty* pGradientProp = ezGetStaticRTTI<ezColorGradientAssetData>()->FindPropertyByName("Gradient");
-  ezUuid gradientSubGuid = m_pObjectAccessor->Get<ezUuid>(curveObject, pGradientProp);
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WAbstractProperty* pGradientProp = WGetStaticRTTI<WColorGradientAssetData>()->FindPropertyByName("Gradient");
+  WUuid gradientSubGuid = m_pObjectAccessor->Get<WUuid>(curveObject, pGradientProp);
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  const ezAbstractProperty* pControlPointsProp = ezGetStaticRTTI<ezColorGradient>()->FindPropertyByName("IntensityCPs");
-  ezUuid cpGuid = m_pObjectAccessor->Get<ezUuid>(gradientSubObject, pControlPointsProp, iIndex);
+  const WAbstractProperty* pControlPointsProp = WGetStaticRTTI<WColorGradient>()->FindPropertyByName("IntensityCPs");
+  WUuid cpGuid = m_pObjectAccessor->Get<WUuid>(gradientSubObject, pControlPointsProp, iIndex);
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 iTickX, float fIntensity)
+WUuid WPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const WUuid& trackGuid, WInt64 iTickX, float fIntensity)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
 
-  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
+  const WDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  const WUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientObject = GetObjectManager()->GetObject(gradientGuid);
 
   acc.StartTransaction("Add Intensity Control Point");
 
   // Get the Gradient sub-object
-  const ezUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
+  const WUuid gradientSubGuid = gradientObject->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* gradientSubObject = GetObjectManager()->GetObject(gradientSubGuid);
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(gradientSubObject, "IntensityCPs", -1, ezGetStaticRTTI<ezColorGradientIntensityCP>(), newObjectGuid).Succeeded(), "");
-  const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(cpObject, "Intensity", fIntensity).Succeeded(), "");
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(gradientSubObject, "IntensityCPs", -1, WGetStaticRTTI<WColorGradientIntensityCP>(), newObjectGuid).Succeeded(), "");
+  const WDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
+  W_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(cpObject, "Intensity", fIntensity).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue)
+WUuid WPropertyAnimAssetDocument::InsertEventTrackCpAt(WInt64 iTickX, const char* szValue)
 {
-  ezObjectCommandAccessor accessor(GetCommandHistory());
-  ezObjectAccessorBase& acc = accessor;
+  WObjectCommandAccessor accessor(GetCommandHistory());
+  WObjectAccessorBase& acc = accessor;
   acc.StartTransaction("Insert Event");
 
-  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
-  ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
+  const WAbstractProperty* pTrackProp = WGetStaticRTTI<WPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  WUuid trackGuid = accessor.Get<WUuid>(GetPropertyObject(), pTrackProp);
 
-  ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
+  WUuid newObjectGuid;
+  W_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, WGetStaticRTTI<WEventTrackControlPointData>(), newObjectGuid).Succeeded(),
     "");
-  const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
+  const WDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
+  W_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
+  W_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
 

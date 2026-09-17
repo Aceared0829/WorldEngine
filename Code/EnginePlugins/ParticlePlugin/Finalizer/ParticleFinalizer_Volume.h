@@ -3,19 +3,19 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// Factory for volume finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume final : public ezParticleFinalizerFactory
+class W_PARTICLEPLUGIN_DLL WParticleFinalizerFactory_Volume final : public WParticleFinalizerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Volume, ezParticleFinalizerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizerFactory_Volume, WParticleFinalizerFactory);
 
 public:
-  ezParticleFinalizerFactory_Volume();
-  ~ezParticleFinalizerFactory_Volume();
+  WParticleFinalizerFactory_Volume();
+  ~WParticleFinalizerFactory_Volume();
 
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetFinalizerType() const override;
+  virtual void CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const override;
 };
 
 
@@ -24,20 +24,20 @@ public:
 /// Calculates a bounding box-sphere from all particle positions and optionally considers
 /// particle sizes to determine the maximum extent. The computed volume is used for culling
 /// and rendering optimizations. If no particles exist, the process is skipped.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Volume final : public ezParticleFinalizer
+class W_PARTICLEPLUGIN_DLL WParticleFinalizer_Volume final : public WParticleFinalizer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Volume, ezParticleFinalizer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizer_Volume, WParticleFinalizer);
 
 public:
-  ezParticleFinalizer_Volume();
-  ~ezParticleFinalizer_Volume();
+  WParticleFinalizer_Volume();
+  ~WParticleFinalizer_Volume();
 
   virtual void CreateRequiredStreams() override;
   virtual void QueryOptionalStreams() override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  const ezProcessingStream* m_pStreamSize = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  const WProcessingStream* m_pStreamSize = nullptr;
 };

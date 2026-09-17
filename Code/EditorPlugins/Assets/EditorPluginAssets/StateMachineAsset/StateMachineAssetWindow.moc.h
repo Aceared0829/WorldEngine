@@ -4,20 +4,20 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtStateMachineAssetScene;
-class ezQtVisualGraphView;
+class WQtStateMachineAssetScene;
+class WQtVisualGraphView;
 
-class ezQtStateMachineAssetDocumentWindow : public ezQtDocumentWindow
+class WQtStateMachineAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtStateMachineAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtStateMachineAssetDocumentWindow();
+  WQtStateMachineAssetDocumentWindow(WDocument* pDocument);
+  ~WQtStateMachineAssetDocumentWindow();
 
 private Q_SLOTS:
 
 private:
-  ezQtStateMachineAssetScene* m_pScene;
-  ezQtVisualGraphView* m_pView;
+  WQtStateMachineAssetScene* m_pScene;
+  WQtVisualGraphView* m_pView;
 };

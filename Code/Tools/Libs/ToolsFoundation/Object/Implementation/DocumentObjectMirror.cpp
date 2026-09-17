@@ -7,43 +7,43 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChange>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WObjectChange, WNoBase, 1, WRTTIDefaultAllocator<WObjectChange>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Change", m_Change),
-    EZ_MEMBER_PROPERTY("Root", m_Root),
-    EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
-    EZ_MEMBER_PROPERTY("Graph", m_GraphData),
+    W_MEMBER_PROPERTY("Change", m_Change),
+    W_MEMBER_PROPERTY("Root", m_Root),
+    W_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
+    W_MEMBER_PROPERTY("Graph", m_GraphData),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezObjectChange::ezObjectChange(const ezObjectChange&)
+WObjectChange::WObjectChange(const WObjectChange&)
 {
-  EZ_REPORT_FAILURE("Not supported!");
+  W_REPORT_FAILURE("Not supported!");
 }
 
-void ezObjectChange::GetGraph(ezAbstractObjectGraph& ref_graph) const
+void WObjectChange::GetGraph(WAbstractObjectGraph& ref_graph) const
 {
   ref_graph.Clear();
 
-  ezRawMemoryStreamReader reader(m_GraphData);
-  ezAbstractGraphBinarySerializer::Read(reader, &ref_graph);
+  WRawMemoryStreamReader reader(m_GraphData);
+  WAbstractGraphBinarySerializer::Read(reader, &ref_graph);
 }
 
-void ezObjectChange::SetGraph(ezAbstractObjectGraph& ref_graph)
+void WObjectChange::SetGraph(WAbstractObjectGraph& ref_graph)
 {
-  ezContiguousMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphBinarySerializer::Write(writer, &ref_graph);
+  WContiguousMemoryStreamStorage storage;
+  WMemoryStreamWriter writer(&storage);
+  WAbstractGraphBinarySerializer::Write(writer, &ref_graph);
 
   m_GraphData = {storage.GetData(), storage.GetStorageSize32()};
 }
 
-ezObjectChange::ezObjectChange(ezObjectChange&& rhs)
+WObjectChange::WObjectChange(WObjectChange&& rhs)
 {
   m_Change = std::move(rhs.m_Change);
   m_Root = rhs.m_Root;
@@ -51,7 +51,7 @@ ezObjectChange::ezObjectChange(ezObjectChange&& rhs)
   m_GraphData = std::move(rhs.m_GraphData);
 }
 
-void ezObjectChange::operator=(ezObjectChange&& rhs)
+void WObjectChange::operator=(WObjectChange&& rhs)
 {
   m_Change = std::move(rhs.m_Change);
   m_Root = rhs.m_Root;
@@ -59,41 +59,41 @@ void ezObjectChange::operator=(ezObjectChange&& rhs)
   m_GraphData = std::move(rhs.m_GraphData);
 }
 
-void ezObjectChange::operator=(ezObjectChange& rhs)
+void WObjectChange::operator=(WObjectChange& rhs)
 {
-  EZ_REPORT_FAILURE("Not supported!");
+  W_REPORT_FAILURE("Not supported!");
 }
 
 
-ezDocumentObjectMirror::ezDocumentObjectMirror()
+WDocumentObjectMirror::WDocumentObjectMirror()
 {
   m_pContext = nullptr;
   m_pManager = nullptr;
 }
 
-ezDocumentObjectMirror::~ezDocumentObjectMirror()
+WDocumentObjectMirror::~WDocumentObjectMirror()
 {
-  EZ_ASSERT_DEV(m_pManager == nullptr && m_pContext == nullptr, "Need to call DeInit before d-tor!");
+  W_ASSERT_DEV(m_pManager == nullptr && m_pContext == nullptr, "Need to call DeInit before d-tor!");
 }
 
-void ezDocumentObjectMirror::InitSender(const ezDocumentObjectManager* pManager)
+void WDocumentObjectMirror::InitSender(const WDocumentObjectManager* pManager)
 {
   m_pManager = pManager;
-  m_pManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezDocumentObjectMirror::TreeStructureEventHandler, this));
-  m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezDocumentObjectMirror::TreePropertyEventHandler, this));
+  m_pManager->m_StructureEvents.AddEventHandler(WMakeDelegate(&WDocumentObjectMirror::TreeStructureEventHandler, this));
+  m_pManager->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WDocumentObjectMirror::TreePropertyEventHandler, this));
 }
 
-void ezDocumentObjectMirror::InitReceiver(ezRttiConverterContext* pContext)
+void WDocumentObjectMirror::InitReceiver(WRttiConverterContext* pContext)
 {
   m_pContext = pContext;
 }
 
-void ezDocumentObjectMirror::DeInit()
+void WDocumentObjectMirror::DeInit()
 {
   if (m_pManager)
   {
-    m_pManager->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentObjectMirror::TreeStructureEventHandler, this));
-    m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentObjectMirror::TreePropertyEventHandler, this));
+    m_pManager->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WDocumentObjectMirror::TreeStructureEventHandler, this));
+    m_pManager->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WDocumentObjectMirror::TreePropertyEventHandler, this));
     m_pManager = nullptr;
   }
 
@@ -103,12 +103,12 @@ void ezDocumentObjectMirror::DeInit()
   }
 }
 
-void ezDocumentObjectMirror::SetFilterFunction(FilterFunction filter)
+void WDocumentObjectMirror::SetFilterFunction(FilterFunction filter)
 {
   m_Filter = filter;
 }
 
-void ezDocumentObjectMirror::SendDocument()
+void WDocumentObjectMirror::SendDocument()
 {
   const auto* pRoot = m_pManager->GetRootObject();
   for (auto* pChild : pRoot->GetChildren())
@@ -116,12 +116,12 @@ void ezDocumentObjectMirror::SendDocument()
     if (IsDiscardedByFilter(pRoot, pChild->GetParentProperty()))
       continue;
 
-    ezObjectChange change;
-    change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
+    WObjectChange change;
+    change.m_Change.m_Operation = WObjectChangeType::NodeAdded;
     change.m_Change.m_Value = pChild->GetGuid();
 
-    ezAbstractObjectGraph graph;
-    ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
+    WAbstractObjectGraph graph;
+    WDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
     objectConverter.AddObjectToGraph(pChild, "Object");
     change.SetGraph(graph);
 
@@ -129,20 +129,20 @@ void ezDocumentObjectMirror::SendDocument()
   }
 }
 
-void ezDocumentObjectMirror::Clear()
+void WDocumentObjectMirror::Clear()
 {
   if (m_pManager)
   {
     const auto* pRoot = m_pManager->GetRootObject();
     for (auto* pChild : pRoot->GetChildren())
     {
-      ezObjectChange change;
-      change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
+      WObjectChange change;
+      change.m_Change.m_Operation = WObjectChangeType::NodeRemoved;
       change.m_Change.m_Value = pChild->GetGuid();
 
-      /*ezAbstractObjectGraph graph;
-      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
-      ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pChild, "Object");
+      /*WAbstractObjectGraph graph;
+      WDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
+      WAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pChild, "Object");
       change.SetGraph(graph);*/
 
       ApplyOp(change);
@@ -155,7 +155,7 @@ void ezDocumentObjectMirror::Clear()
   }
 }
 
-void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WDocumentObjectMirror::TreeStructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   if (e.m_pNewParent && IsDiscardedByFilter(e.m_pNewParent, e.m_sParentProperty))
     return;
@@ -164,7 +164,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
       if (IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty))
       {
@@ -174,15 +174,15 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
           break;
         }
 
-        if (e.GetProperty()->GetCategory() == ezPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
+        if (e.GetProperty()->GetCategory() == WPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
         {
           // Sets only have ordering in the editor. We can ignore set order changes in the mirror.
           break;
         }
-        ezObjectChange change;
+        WObjectChange change;
         CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
 
-        change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
+        change.m_Change.m_Operation = WObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = e.getInsertIndex();
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -191,46 +191,46 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       }
       // Intended falltrough as non ptr object might as well be destroyed and rebuild.
     }
-      // case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      // case WDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+    case WDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
-      ezObjectChange change;
+      WObjectChange change;
       CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
 
-      change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
+      change.m_Change.m_Operation = WObjectChangeType::NodeAdded;
       change.m_Change.m_Index = e.getInsertIndex();
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
-      ezAbstractObjectGraph graph;
-      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
+      WAbstractObjectGraph graph;
+      WDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
       objectConverter.AddObjectToGraph(e.m_pObject, "Object");
       change.SetGraph(graph);
 
       ApplyOp(change);
     }
     break;
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+    case WDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
       if (IsHeapAllocated(e.m_pPreviousParent, e.m_sParentProperty))
       {
-        EZ_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty), "Old and new parent must have the same heap allocation state!");
+        W_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty), "Old and new parent must have the same heap allocation state!");
         if (e.m_pPreviousParent == nullptr || e.m_pPreviousParent == m_pManager->GetRootObject())
         {
           // Object is currently a root object, nothing to do to detach it from its parent.
           break;
         }
 
-        if (e.GetProperty()->GetCategory() == ezPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
+        if (e.GetProperty()->GetCategory() == WPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
         {
           // Sets only have ordering in the editor. We can ignore set order changes in the mirror.
           break;
         }
 
-        ezObjectChange change;
+        WObjectChange change;
         CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
         // Do not delete heap object, just remove it from its owner.
-        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Operation = WObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = e.m_OldPropertyIndex;
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -239,10 +239,10 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       }
       else
       {
-        ezObjectChange change;
+        WObjectChange change;
         CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
-        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Operation = WObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = e.m_OldPropertyIndex;
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -250,13 +250,13 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         break;
       }
     }
-      // case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+      // case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
-      ezObjectChange change;
+      WObjectChange change;
       CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
-      change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
+      change.m_Change.m_Operation = WObjectChangeType::NodeRemoved;
       change.m_Change.m_Index = e.m_OldPropertyIndex;
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -269,58 +269,58 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
   }
 }
 
-void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WDocumentObjectMirror::TreePropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (IsDiscardedByFilter(e.m_pObject, e.m_sProperty))
     return;
 
   switch (e.m_EventType)
   {
-    case ezDocumentObjectPropertyEvent::Type::PropertySet:
+    case WDocumentObjectPropertyEvent::Type::PropertySet:
     {
-      ezObjectChange change;
+      WObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
 
-      change.m_Change.m_Operation = ezObjectChangeType::PropertySet;
+      change.m_Change.m_Operation = WObjectChangeType::PropertySet;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
       ApplyOp(change);
     }
     break;
-    case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
+    case WDocumentObjectPropertyEvent::Type::PropertyInserted:
     {
-      ezObjectChange change;
+      WObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
 
-      change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
+      change.m_Change.m_Operation = WObjectChangeType::PropertyInserted;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
       ApplyOp(change);
     }
     break;
-    case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
+    case WDocumentObjectPropertyEvent::Type::PropertyRemoved:
     {
-      ezObjectChange change;
+      WObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
 
-      change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
+      change.m_Change.m_Operation = WObjectChangeType::PropertyRemoved;
       change.m_Change.m_Index = e.m_OldIndex;
       change.m_Change.m_Value = e.m_OldValue;
       ApplyOp(change);
     }
     break;
-    case ezDocumentObjectPropertyEvent::Type::PropertyMoved:
+    case WDocumentObjectPropertyEvent::Type::PropertyMoved:
     {
-      ezUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<ezUInt32>();
-      ezUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<ezUInt32>();
+      WUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<WUInt32>();
+      WUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<WUInt32>();
       // NewValue can be invalid if an invalid variant in a variant array is moved
-      // EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
+      // W_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
 
       {
-        ezObjectChange change;
+        WObjectChange change;
         CreatePath(change, e.m_pObject, e.m_sProperty);
 
-        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Operation = WObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = uiOldIndex;
         change.m_Change.m_Value = e.m_NewValue;
         ApplyOp(change);
@@ -332,10 +332,10 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       }
 
       {
-        ezObjectChange change;
+        WObjectChange change;
         CreatePath(change, e.m_pObject, e.m_sProperty);
 
-        change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
+        change.m_Change.m_Operation = WObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = uiNewIndex;
         change.m_Change.m_Value = e.m_NewValue;
         ApplyOp(change);
@@ -347,36 +347,36 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
   }
 }
 
-void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject)
+void* WDocumentObjectMirror::GetNativeObjectPointer(const WDocumentObject* pObject)
 {
   auto object = m_pContext->GetObjectByGUID(pObject->GetGuid());
   return object.m_pObject;
 }
 
-const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject) const
+const void* WDocumentObjectMirror::GetNativeObjectPointer(const WDocumentObject* pObject) const
 {
   auto object = m_pContext->GetObjectByGUID(pObject->GetGuid());
   return object.m_pObject;
 }
 
-bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObject* pParent)
+bool WDocumentObjectMirror::IsRootObject(const WDocumentObject* pParent)
 {
   return (pParent == nullptr || pParent == m_pManager->GetRootObject());
 }
 
-bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, ezStringView sParentProperty)
+bool WDocumentObjectMirror::IsHeapAllocated(const WDocumentObject* pParent, WStringView sParentProperty)
 {
   if (pParent == nullptr || pParent == m_pManager->GetRootObject())
     return true;
 
-  const ezRTTI* pRtti = pParent->GetTypeAccessor().GetType();
+  const WRTTI* pRtti = pParent->GetTypeAccessor().GetType();
 
   auto* pProp = pRtti->FindPropertyByName(sParentProperty);
-  return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
+  return pProp->GetFlags().IsSet(WPropertyFlags::PointerOwner);
 }
 
 
-bool ezDocumentObjectMirror::IsDiscardedByFilter(const ezDocumentObject* pObject, ezStringView sProperty) const
+bool WDocumentObjectMirror::IsDiscardedByFilter(const WDocumentObject* pObject, WStringView sProperty) const
 {
   if (m_Filter.IsValid())
   {
@@ -385,11 +385,11 @@ bool ezDocumentObjectMirror::IsDiscardedByFilter(const ezDocumentObject* pObject
   return false;
 }
 
-void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, ezStringView sProperty)
+void WDocumentObjectMirror::CreatePath(WObjectChange& out_change, const WDocumentObject* pRoot, WStringView sProperty)
 {
   if (pRoot && pRoot->GetDocumentObjectManager()->GetRootObject() != pRoot)
   {
-    ezTempHybridArray<const ezDocumentObject*, 8> path;
+    WTempHybridArray<const WDocumentObject*, 8> path;
     out_change.m_Root = FindRootOpObject(pRoot, path);
     FlattenSteps(path, out_change.m_Steps);
   }
@@ -397,7 +397,7 @@ void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocu
   out_change.m_Change.m_sProperty = sProperty;
 }
 
-ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezDynamicArray<const ezDocumentObject*>& out_path)
+WUuid WDocumentObjectMirror::FindRootOpObject(const WDocumentObject* pParent, WDynamicArray<const WDocumentObject*>& out_path)
 {
   out_path.PushBack(pParent);
 
@@ -411,69 +411,69 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
   }
 }
 
-void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezDynamicArray<ezPropertyPathStep>& out_steps)
+void WDocumentObjectMirror::FlattenSteps(const WArrayPtr<const WDocumentObject* const> path, WDynamicArray<WPropertyPathStep>& out_steps)
 {
-  ezUInt32 uiCount = path.GetCount();
-  EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
-  EZ_ASSERT_DEV(path[uiCount - 1]->IsOnHeap(), "Root of steps must be on heap!");
+  WUInt32 uiCount = path.GetCount();
+  W_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
+  W_ASSERT_DEV(path[uiCount - 1]->IsOnHeap(), "Root of steps must be on heap!");
 
   // Only root object? Then there is no path from it.
   if (uiCount == 1)
     return;
 
-  for (ezInt32 i = (ezInt32)uiCount - 2; i >= 0; --i)
+  for (WInt32 i = (WInt32)uiCount - 2; i >= 0; --i)
   {
-    const ezDocumentObject* pObject = path[i];
-    out_steps.PushBack(ezPropertyPathStep({pObject->GetParentProperty(), pObject->GetPropertyIndex()}));
+    const WDocumentObject* pObject = path[i];
+    out_steps.PushBack(WPropertyPathStep({pObject->GetParentProperty(), pObject->GetPropertyIndex()}));
   }
 }
 
-void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
+void WDocumentObjectMirror::ApplyOp(WObjectChange& change)
 {
-  ezRttiConverterObject object;
+  WRttiConverterObject object;
   if (change.m_Root.IsValid())
   {
     object = m_pContext->GetObjectByGUID(change.m_Root);
     if (!object.m_pObject)
       return;
-    // EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root object does not exist in mirrored native object!");
+    // W_ASSERT_DEV(object.m_pObject != nullptr, "Root object does not exist in mirrored native object!");
   }
 
-  ezPropertyPath propPath;
+  WPropertyPath propPath;
   if (propPath.InitializeFromPath(object.m_pType, change.m_Steps).Failed())
   {
-    ezLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
+    WLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
     return;
   }
 
-  propPath.WriteToLeafObject(object.m_pObject, object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type)
-            { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
+  propPath.WriteToLeafObject(object.m_pObject, object.m_pType, [this, &change](void* pLeaf, const WRTTI& type)
+            { ApplyOp(WRttiConverterObject(&type, pLeaf), change); })
     .IgnoreResult();
 }
 
-void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
+void WDocumentObjectMirror::ApplyOp(WRttiConverterObject object, const WObjectChange& change)
 {
-  const ezAbstractProperty* pProp = nullptr;
+  const WAbstractProperty* pProp = nullptr;
 
   if (object.m_pType != nullptr)
   {
     pProp = object.m_pType->FindPropertyByName(change.m_Change.m_sProperty);
     if (pProp == nullptr)
     {
-      ezLog::Error("Property '{0}' not found, can't apply mirror op!", change.m_Change.m_sProperty);
+      WLog::Error("Property '{0}' not found, can't apply mirror op!", change.m_Change.m_sProperty);
       return;
     }
   }
 
   switch (change.m_Change.m_Operation)
   {
-    case ezObjectChangeType::NodeAdded:
+    case WObjectChangeType::NodeAdded:
     {
-      ezAbstractObjectGraph graph;
+      WAbstractObjectGraph graph;
       change.GetGraph(graph);
-      ezRttiConverterReader reader(&graph, m_pContext);
-      const ezAbstractObjectNode* pNode = graph.GetNodeByName("Object");
-      const ezRTTI* pType = m_pContext->FindTypeByName(pNode->GetType());
+      WRttiConverterReader reader(&graph, m_pContext);
+      const WAbstractObjectNode* pNode = graph.GetNodeByName("Object");
+      const WRTTI* pType = m_pContext->FindTypeByName(pNode->GetType());
       void* pValue = reader.CreateObjectFromNode(pNode);
       if (!pValue)
       {
@@ -487,10 +487,10 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         return;
       }
 
-      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      if (pProp->GetCategory() == WPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        auto pSpecificProp = static_cast<const WAbstractMemberProperty*>(pProp);
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
           pSpecificProp->SetValuePtr(object.m_pObject, &pValue);
         }
@@ -499,162 +499,162 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
           pSpecificProp->SetValuePtr(object.m_pObject, pValue);
         }
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Array)
+      else if (pProp->GetCategory() == WPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        auto pSpecificProp = static_cast<const WAbstractArrayProperty*>(pProp);
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), &pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<WUInt32>(), &pValue);
         }
         else
         {
-          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<WUInt32>(), pValue);
         }
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Set)
+      else if (pProp->GetCategory() == WPropertyCategory::Set)
       {
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
-        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(pValue, pType));
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::Pointer), "Set object must always be pointers!");
+        auto pSpecificProp = static_cast<const WAbstractSetProperty*>(pProp);
+        WReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, WVariant(pValue, pType));
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      else if (pProp->GetCategory() == WPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        auto pSpecificProp = static_cast<const WAbstractMapProperty*>(pProp);
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<ezString>(), &pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<WString>(), &pValue);
         }
         else
         {
-          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<ezString>(), pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<WString>(), pValue);
         }
       }
 
-      if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+      if (!pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
       {
         m_pContext->DeleteObject(pNode->GetGuid());
       }
     }
     break;
-    case ezObjectChangeType::NodeRemoved:
+    case WObjectChangeType::NodeRemoved:
     {
       if (!change.m_Root.IsValid())
       {
         // Delete root object
-        m_pContext->DeleteObject(change.m_Change.m_Value.Get<ezUuid>());
+        m_pContext->DeleteObject(change.m_Change.m_Value.Get<WUuid>());
         return;
       }
 
-      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      if (pProp->GetCategory() == WPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-        if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+        auto pSpecificProp = static_cast<const WAbstractMemberProperty*>(pProp);
+        if (!pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
         {
-          ezLog::Error("Property '{0}' not a pointer, can't remove object!", change.m_Change.m_sProperty);
+          WLog::Error("Property '{0}' not a pointer, can't remove object!", change.m_Change.m_sProperty);
           return;
         }
 
         void* pValue = nullptr;
         pSpecificProp->SetValuePtr(object.m_pObject, &pValue);
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Array)
+      else if (pProp->GetCategory() == WPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        auto pSpecificProp = static_cast<const WAbstractArrayProperty*>(pProp);
+        WReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<WUInt32>());
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Set)
+      else if (pProp->GetCategory() == WPropertyCategory::Set)
       {
-        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
-        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
-        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(valueObject.m_pObject, valueObject.m_pType));
+        W_ASSERT_DEV(pProp->GetFlags().IsSet(WPropertyFlags::Pointer), "Set object must always be pointers!");
+        auto pSpecificProp = static_cast<const WAbstractSetProperty*>(pProp);
+        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<WUuid>());
+        WReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, WVariant(valueObject.m_pObject, valueObject.m_pType));
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      else if (pProp->GetCategory() == WPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
-        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
-      }
-
-      if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
-      {
-        m_pContext->DeleteObject(change.m_Change.m_Value.Get<ezUuid>());
-      }
-    }
-    break;
-    case ezObjectChangeType::PropertySet:
-    {
-      if (pProp->GetCategory() == ezPropertyCategory::Member)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-        ezReflectionUtils::SetMemberPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
-      }
-      else if (pProp->GetCategory() == ezPropertyCategory::Array)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::SetArrayPropertyValue(
-          pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
-      }
-      else if (pProp->GetCategory() == ezPropertyCategory::Set)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
-      }
-      else if (pProp->GetCategory() == ezPropertyCategory::Map)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
-        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), change.m_Change.m_Value);
-      }
-    }
-    break;
-    case ezObjectChangeType::PropertyInserted:
-    {
-      ezVariant value = change.m_Change.m_Value;
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        value = ezTypedPointer(valueObject.m_pObject, valueObject.m_pType);
+        auto pSpecificProp = static_cast<const WAbstractMapProperty*>(pProp);
+        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<WString>());
       }
 
-      if (pProp->GetCategory() == ezPropertyCategory::Array)
+      if (pProp->GetFlags().AreAllSet(WPropertyFlags::Pointer | WPropertyFlags::PointerOwner))
       {
-        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::InsertArrayPropertyValue(pSpecificProp, object.m_pObject, value, change.m_Change.m_Index.ConvertTo<ezUInt32>());
-      }
-      else if (pProp->GetCategory() == ezPropertyCategory::Set)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, value);
-      }
-      else if (pProp->GetCategory() == ezPropertyCategory::Map)
-      {
-        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
-        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), value);
+        m_pContext->DeleteObject(change.m_Change.m_Value.Get<WUuid>());
       }
     }
     break;
-    case ezObjectChangeType::PropertyRemoved:
+    case WObjectChangeType::PropertySet:
     {
-      if (pProp->GetCategory() == ezPropertyCategory::Array)
+      if (pProp->GetCategory() == WPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        auto pSpecificProp = static_cast<const WAbstractMemberProperty*>(pProp);
+        WReflectionUtils::SetMemberPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Set)
+      else if (pProp->GetCategory() == WPropertyCategory::Array)
       {
-        ezVariant value = change.m_Change.m_Value;
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        auto pSpecificProp = static_cast<const WAbstractArrayProperty*>(pProp);
+        WReflectionUtils::SetArrayPropertyValue(
+          pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<WUInt32>(), change.m_Change.m_Value);
+      }
+      else if (pProp->GetCategory() == WPropertyCategory::Set)
+      {
+        auto pSpecificProp = static_cast<const WAbstractSetProperty*>(pProp);
+        WReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
+      }
+      else if (pProp->GetCategory() == WPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<const WAbstractMapProperty*>(pProp);
+        WReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<WString>(), change.m_Change.m_Value);
+      }
+    }
+    break;
+    case WObjectChangeType::PropertyInserted:
+    {
+      WVariant value = change.m_Change.m_Value;
+      if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
+      {
+        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<WUuid>());
+        value = WTypedPointer(valueObject.m_pObject, valueObject.m_pType);
+      }
+
+      if (pProp->GetCategory() == WPropertyCategory::Array)
+      {
+        auto pSpecificProp = static_cast<const WAbstractArrayProperty*>(pProp);
+        WReflectionUtils::InsertArrayPropertyValue(pSpecificProp, object.m_pObject, value, change.m_Change.m_Index.ConvertTo<WUInt32>());
+      }
+      else if (pProp->GetCategory() == WPropertyCategory::Set)
+      {
+        auto pSpecificProp = static_cast<const WAbstractSetProperty*>(pProp);
+        WReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, value);
+      }
+      else if (pProp->GetCategory() == WPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<const WAbstractMapProperty*>(pProp);
+        WReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<WString>(), value);
+      }
+    }
+    break;
+    case WObjectChangeType::PropertyRemoved:
+    {
+      if (pProp->GetCategory() == WPropertyCategory::Array)
+      {
+        auto pSpecificProp = static_cast<const WAbstractArrayProperty*>(pProp);
+        WReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<WUInt32>());
+      }
+      else if (pProp->GetCategory() == WPropertyCategory::Set)
+      {
+        WVariant value = change.m_Change.m_Value;
+        if (pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
         {
-          auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-          value = ezTypedPointer(valueObject.m_pObject, valueObject.m_pType);
+          auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<WUuid>());
+          value = WTypedPointer(valueObject.m_pObject, valueObject.m_pType);
         }
 
-        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, value);
+        auto pSpecificProp = static_cast<const WAbstractSetProperty*>(pProp);
+        WReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      else if (pProp->GetCategory() == WPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
-        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
+        auto pSpecificProp = static_cast<const WAbstractMapProperty*>(pProp);
+        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<WString>());
       }
     }
     break;

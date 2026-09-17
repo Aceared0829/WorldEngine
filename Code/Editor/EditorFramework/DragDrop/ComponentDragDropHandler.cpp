@@ -7,80 +7,80 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WComponentDragDropHandler, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex)
+void WComponentDragDropHandler::CreateDropObject(const WVec3& vPosition, const char* szType, const char* szProperty, const WVariant& value, WUuid parent, WInt32 iInsertChildIndex)
 {
-  ezVec3 vPos = vPosition;
+  WVec3 vPos = vPosition;
 
   if (vPos.IsNaN())
     vPos.SetZero();
 
-  ezUuid ObjectGuid = ezUuid::MakeUuid();
+  WUuid ObjectGuid = WUuid::MakeUuid();
 
-  ezAddObjectCommand cmd;
+  WAddObjectCommand cmd;
   cmd.m_Parent = parent;
   cmd.m_Index = iInsertChildIndex;
-  cmd.SetType("ezGameObject");
+  cmd.SetType("WGameObject");
   cmd.m_NewObjectGuid = ObjectGuid;
   cmd.m_sParentProperty = "Children";
 
   auto history = m_pDocument->GetCommandHistory();
 
-  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
+  W_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
-  ezSetObjectPropertyCommand cmd2;
+  WSetObjectPropertyCommand cmd2;
   cmd2.m_Object = ObjectGuid;
 
   cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPos;
-  EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
+  W_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
 
   AttachComponentToObject(szType, szProperty, value, ObjectGuid);
 
   m_DraggedObjects.PushBack(ObjectGuid);
 }
 
-void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, const char* szProperty, const ezVariant& value, ezUuid ObjectGuid)
+void WComponentDragDropHandler::AttachComponentToObject(const char* szType, const char* szProperty, const WVariant& value, WUuid ObjectGuid)
 {
   auto history = m_pDocument->GetCommandHistory();
 
-  ezUuid CmpGuid = ezUuid::MakeUuid();
+  WUuid CmpGuid = WUuid::MakeUuid();
 
-  ezAddObjectCommand cmd;
+  WAddObjectCommand cmd;
 
   cmd.SetType(szType);
   cmd.m_sParentProperty = "Components";
   cmd.m_Index = -1;
   cmd.m_NewObjectGuid = CmpGuid;
   cmd.m_Parent = ObjectGuid;
-  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
+  W_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
-  if (value.IsA<ezVariantArray>())
+  if (value.IsA<WVariantArray>())
   {
-    ezResizeAndSetObjectPropertyCommand cmd2;
+    WResizeAndSetObjectPropertyCommand cmd2;
     cmd2.m_Object = CmpGuid;
     cmd2.m_sProperty = szProperty;
-    cmd2.m_NewValue = value.Get<ezVariantArray>()[0];
+    cmd2.m_NewValue = value.Get<WVariantArray>()[0];
     cmd2.m_Index = 0;
-    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
+    W_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
   else
   {
-    ezSetObjectPropertyCommand cmd2;
+    WSetObjectPropertyCommand cmd2;
     cmd2.m_Object = CmpGuid;
     cmd2.m_sProperty = szProperty;
     cmd2.m_NewValue = value;
-    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
+    W_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
 }
 
-void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition, const ezQuat& qRotation)
+void WComponentDragDropHandler::MoveObjectToPosition(const WUuid& guid, const WVec3& vPosition, const WQuat& qRotation)
 {
   auto history = m_pDocument->GetCommandHistory();
 
-  ezSetObjectPropertyCommand cmd2;
+  WSetObjectPropertyCommand cmd2;
   cmd2.m_Object = guid;
 
   cmd2.m_sProperty = "LocalPosition";
@@ -95,42 +95,42 @@ void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const 
   }
 }
 
-void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap, const ezVec3& normal)
+void WComponentDragDropHandler::MoveDraggedObjectsToPosition(WVec3 vPosition, bool bAllowSnap, const WVec3& normal)
 {
   if (m_DraggedObjects.IsEmpty() || !vPosition.IsValid())
     return;
 
   if (bAllowSnap)
   {
-    ezSnapProvider::SnapTranslation(vPosition);
+    WSnapProvider::SnapTranslation(vPosition);
   }
 
   auto history = m_pDocument->GetCommandHistory();
 
-  ezGameObjectDocument* pGameDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocument);
+  WGameObjectDocument* pGameDoc = WDynamicCast<WGameObjectDocument*>(m_pDocument);
 
   history->StartTransaction("Move to Position");
 
-  ezQuat rot;
+  WQuat rot;
   rot.SetIdentity();
 
   if (normal.IsValid() && !m_vAlignAxisWithNormal.IsZero(0.01f))
   {
-    rot = ezQuat::MakeShortestRotation(m_vAlignAxisWithNormal, normal);
+    rot = WQuat::MakeShortestRotation(m_vAlignAxisWithNormal, normal);
   }
 
   for (const auto& guid : m_DraggedObjects)
   {
-    ezVec3 vNewPos = vPosition;
-    ezQuat qNewRot = rot;
+    WVec3 vNewPos = vPosition;
+    WQuat qNewRot = rot;
 
     if (pGameDoc)
     {
-      const ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(guid);
-      if (const ezDocumentObject* pParent = pObject->GetParent())
+      const WDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(guid);
+      if (const WDocumentObject* pParent = pObject->GetParent())
       {
-        const ezTransform tParent = pGameDoc->GetGlobalTransform(pParent);
-        const ezTransform rRel = ezTransform::MakeLocalTransform(tParent, ezTransform(vNewPos, qNewRot));
+        const WTransform tParent = pGameDoc->GetGlobalTransform(pParent);
+        const WTransform rRel = WTransform::MakeLocalTransform(tParent, WTransform(vNewPos, qNewRot));
 
         vNewPos = rRel.m_vPosition;
         qNewRot = rRel.m_qRotation;
@@ -143,9 +143,9 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
   history->FinishTransaction();
 }
 
-void ezComponentDragDropHandler::SelectCreatedObjects()
+void WComponentDragDropHandler::SelectCreatedObjects()
 {
-  ezDeque<const ezDocumentObject*> NewSel;
+  WDeque<const WDocumentObject*> NewSel;
   for (const auto& id : m_DraggedObjects)
   {
     NewSel.PushBack(m_pDocument->GetObjectManager()->GetObject(id));
@@ -162,17 +162,17 @@ void ezComponentDragDropHandler::SelectCreatedObjects()
   }
 }
 
-void ezComponentDragDropHandler::BeginTemporaryCommands()
+void WComponentDragDropHandler::BeginTemporaryCommands()
 {
   m_pDocument->GetCommandHistory()->BeginTemporaryCommands("Adjust Objects");
 }
 
-void ezComponentDragDropHandler::EndTemporaryCommands()
+void WComponentDragDropHandler::EndTemporaryCommands()
 {
   m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
 }
 
-void ezComponentDragDropHandler::CancelTemporaryCommands()
+void WComponentDragDropHandler::CancelTemporaryCommands()
 {
   if (m_DraggedObjects.IsEmpty())
     return;
@@ -180,30 +180,30 @@ void ezComponentDragDropHandler::CancelTemporaryCommands()
   m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
 }
 
-void ezComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  m_pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
-  EZ_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
+  m_pDocument = WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
+  W_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
 
   m_pDocument->GetCommandHistory()->StartTransaction("Drag Object");
 }
 
-void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
+void WComponentDragDropHandler::OnDragUpdate(const WDragDropInfo* pInfo)
 {
-  ezVec3 vPos = pInfo->m_vDropPosition;
+  WVec3 vPos = pInfo->m_vDropPosition;
 
   if (vPos.IsNaN() || !pInfo->m_TargetObject.IsValid())
     vPos.SetZero();
 
-  ezVec3 vNormal = pInfo->m_vDropNormal;
+  WVec3 vNormal = pInfo->m_vDropNormal;
 
   if (!vNormal.IsValid() || vNormal.IsZero())
-    vNormal = ezVec3(1, 0, 0);
+    vNormal = WVec3(1, 0, 0);
 
   MoveDraggedObjectsToPosition(vPos, !pInfo->m_bShiftKeyDown, vNormal);
 }
 
-void ezComponentDragDropHandler::OnDragCancel()
+void WComponentDragDropHandler::OnDragCancel()
 {
   CancelTemporaryCommands();
   m_pDocument->GetCommandHistory()->CancelTransaction();
@@ -213,7 +213,7 @@ void ezComponentDragDropHandler::OnDragCancel()
   m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection({});
 }
 
-void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
+void WComponentDragDropHandler::OnDrop(const WDragDropInfo* pInfo)
 {
   EndTemporaryCommands();
   m_pDocument->GetCommandHistory()->FinishTransaction();
@@ -224,14 +224,14 @@ void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
   m_DraggedObjects.Clear();
 }
 
-float ezComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
   if (pInfo->m_sTargetContext != "viewport" && pInfo->m_sTargetContext != "scenetree")
     return 0.0f;
 
-  const ezDocument* pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
+  const WDocument* pDocument = WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
 
-  const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+  const WRTTI* pRttiScene = WRTTI::FindTypeByName("WSceneDocument");
 
   if (pRttiScene == nullptr)
     return 0.0f;

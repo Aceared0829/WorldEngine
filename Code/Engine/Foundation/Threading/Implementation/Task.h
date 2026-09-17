@@ -6,13 +6,13 @@
 #include <Foundation/Types/RefCounted.h>
 
 /// Base class for custom tasks.
-class EZ_FOUNDATION_DLL ezTask : public ezRefCounted
+class W_FOUNDATION_DLL WTask : public WRefCounted
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTask);
+  W_DISALLOW_COPY_AND_ASSIGN(WTask);
 
 public:
-  ezTask();
-  virtual ~ezTask();
+  WTask();
+  virtual ~WTask();
 
   /// Sets the most important task properties. This has to be done before the task is added to a task group for the first time.
   ///
@@ -20,18 +20,18 @@ public:
   ///  Will be displayed in profiling tools and is useful for debugging.
   ///
   /// \param nestingMode
-  /// See ezTaskNesting
+  /// See WTaskNesting
   ///
   /// \param Callback
   /// A callback to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at that time.
-  void ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, ezOnTaskFinishedCallback callback = ezOnTaskFinishedCallback()); // [tested]
+  void ConfigureTask(const char* szTaskName, WTaskNesting nestingMode, WOnTaskFinishedCallback callback = WOnTaskFinishedCallback()); // [tested]
 
   /// Changes the multiplicity of this task.
   ///
   /// This has to be set before the task is scheduled, ie. before the task group that the task belongs to
   /// has all its dependencies fulfilled and has its tasks queued for execution.
-  /// It is allowed to change the multiplicity after the task is added to the ezTaskSystem, as long
+  /// It is allowed to change the multiplicity after the task is added to the WTaskSystem, as long
   /// as the calling code guarantees to set this value in time.
   ///
   /// A task that has a multiplicity of zero (the default) will have its Execute() function called exactly once.
@@ -39,10 +39,10 @@ public:
   /// potentially in parallel on multiple threads.
   /// Since N can be dynamically decided each frame, one can dynamically scale the amount of parallelism
   /// according to the workload.
-  void SetMultiplicity(ezUInt32 uiMultiplicity); // [tested]
+  void SetMultiplicity(WUInt32 uiMultiplicity); // [tested]
 
   /// \sa SetMultiplicity
-  ezUInt32 GetMultiplicity() const { return m_uiMultiplicity; } // [tested]
+  WUInt32 GetMultiplicity() const { return m_uiMultiplicity; } // [tested]
 
   /// Returns whether the task has been finished. This includes being canceled.
   ///
@@ -50,7 +50,7 @@ public:
   /// So that limits its usage to the time frame while the task is in use, and it should only
   /// be queried by code that actually manages when to reuse the task.
   /// If other code needs to be able to check whether a task is finished, you should give it
-  /// the ezTaskGroupID of the task's group. That one can be used to query whether the group
+  /// the WTaskGroupID of the task's group. That one can be used to query whether the group
   /// has finished, even minutes later.
   bool IsTaskFinished() const { return m_iRemainingRuns == 0; } // [tested]
 
@@ -61,32 +61,32 @@ protected:
   /// Override this to implement the task's supposed functionality.
   ///
   /// This function is called for tasks that do not use multiplicity.
-  /// They are executed a single time for each time they are added to the ezTaskSystem.
+  /// They are executed a single time for each time they are added to the WTaskSystem.
   virtual void Execute() {} // [tested]
 
   /// Override this to implement the task's supposed functionality.
   ///
   /// This function is called for tasks that use multiplicity.
-  /// A task that uses multiplicity is automatically run N times by the ezTaskSystem,
+  /// A task that uses multiplicity is automatically run N times by the WTaskSystem,
   /// each time with an increasing invocation index. This allows to have a single task
   /// to handle something, but then decide dynamically how often to execute it, to subdivide
   /// the workload into multiple pieces.
   /// Since the same task is executed multiple times in parallel, tasks with multiplicity should
   /// not have any mutable state, which is why this function is const.
-  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const { EZ_IGNORE_UNUSED(uiInvocation); } // [tested]
+  virtual void ExecuteWithMultiplicity(WUInt32 uiInvocation) const { W_IGNORE_UNUSED(uiInvocation); } // [tested]
 
 private:
   // The task system and its worker threads implement most of the functionality of the task handling.
   // Therefore they are allowed to modify all this internal state.
-  friend class ezTaskSystem;
+  friend class WTaskSystem;
 
   void Reset();
 
-  /// Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
-  void Run(ezUInt32 uiInvocation);
+  /// Called by WTaskSystem to execute the task. Calls 'Execute' internally.
+  void Run(WUInt32 uiInvocation);
 
   /// Decremented when a task is finished, set to zero when canceled.
-  ezAtomicInteger32 m_iRemainingRuns;
+  WAtomicInteger32 m_iRemainingRuns;
 
   /// Set to true when the task is SUPPOSED to cancel. Whether the task is able to do that, depends on its implementation.
   bool m_bCancelExecution = false;
@@ -97,16 +97,16 @@ private:
   /// Double buffers the state whether this task uses multiplicity, since it can't read m_uiMultiplicity while the task is scheduled.
   bool m_bUsesMultiplicity = false;
 
-  ezUInt32 m_uiMultiplicity = 0;
+  WUInt32 m_uiMultiplicity = 0;
 
-  /// Whether this task may wait (indirectly) on other tasks. See ezTaskNesting.
-  ezTaskNesting m_NestingMode = ezTaskNesting::Maybe;
+  /// Whether this task may wait (indirectly) on other tasks. See WTaskNesting.
+  WTaskNesting m_NestingMode = WTaskNesting::Maybe;
 
   /// Optional callback to be fired when the task has finished or was canceled.
-  ezOnTaskFinishedCallback m_OnTaskFinished;
+  WOnTaskFinishedCallback m_OnTaskFinished;
 
   /// The parent group to which this task belongs.
-  ezTaskGroupID m_BelongsToGroup;
+  WTaskGroupID m_BelongsToGroup;
 
-  ezString m_sTaskName;
+  WString m_sTaskName;
 };

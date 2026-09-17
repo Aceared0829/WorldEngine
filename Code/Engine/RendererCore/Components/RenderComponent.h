@@ -5,12 +5,12 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 /// Base class for objects that should be rendered.
-class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
+class W_RENDERERCORE_DLL WRenderComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WRenderComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void OnActivated() override;
@@ -18,17 +18,17 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  ezRenderComponent();
-  ~ezRenderComponent();
+  WRenderComponent();
+  ~WRenderComponent();
 
-  /// Called by ezRenderComponent::OnUpdateLocalBounds().
+  /// Called by WRenderComponent::OnUpdateLocalBounds().
   ///
-  /// If EZ_SUCCESS is returned, out_bounds and out_bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds ref_msg,
+  /// If W_SUCCESS is returned, out_bounds and out_bAlwaysVisible will be integrated into the WMsgUpdateLocalBounds ref_msg,
   /// otherwise the out values are simply ignored.
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) = 0;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) = 0;
 
   /// Call this when some value was modified that affects the size of the local bounding box and it should be recomputed.
   void TriggerLocalBoundsUpdate();
@@ -37,15 +37,15 @@ public:
   void QueueLocalBoundsUpdate();
 
   /// Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component);
+  static WUInt32 GetUniqueIdForRendering(const WComponent& component);
 
   /// Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering() const
+  W_ALWAYS_INLINE WUInt32 GetUniqueIdForRendering() const
   {
     return GetUniqueIdForRendering(*this);
   }
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg);
   void InvalidateCachedRenderData();
 };

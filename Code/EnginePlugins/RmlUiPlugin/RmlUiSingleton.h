@@ -7,54 +7,54 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezRmlUiContext;
-struct ezMsgExtractRenderData;
+class WRmlUiContext;
+struct WMsgExtractRenderData;
 
-using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
+using WRmlUiResourceHandle = WTypedResourceHandle<class WRmlUiResource>;
 
 /// The RML configuration to be used on a specific platform
-struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
+struct W_RMLUIPLUGIN_DLL WRmlUiConfiguration
 {
-  ezDynamicArray<ezString> m_Fonts;
+  WDynamicArray<WString> m_Fonts;
 
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/RmlUiConfig.ddl"_ezsv;
+  static constexpr const WStringView s_sConfigFile = ":project/RuntimeConfigs/RmlUiConfig.ddl"_wsv;
 
-  ezResult Save(ezStringView sFile = s_sConfigFile) const;
-  ezResult Load(ezStringView sFile = s_sConfigFile);
+  WResult Save(WStringView sFile = s_sConfigFile) const;
+  WResult Load(WStringView sFile = s_sConfigFile);
 
-  bool operator==(const ezRmlUiConfiguration& rhs) const;
-  bool operator!=(const ezRmlUiConfiguration& rhs) const { return !operator==(rhs); }
+  bool operator==(const WRmlUiConfiguration& rhs) const;
+  bool operator!=(const WRmlUiConfiguration& rhs) const { return !operator==(rhs); }
 };
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUi
+class W_RMLUIPLUGIN_DLL WRmlUi
 {
-  EZ_DECLARE_SINGLETON(ezRmlUi);
+  W_DECLARE_SINGLETON(WRmlUi);
 
 public:
-  ezRmlUi();
-  ~ezRmlUi();
+  WRmlUi();
+  ~WRmlUi();
 
-  ezRmlUiContext* CreateContext(const char* szName, const ezVec2U32& vInitialSize);
-  void DeleteContext(ezRmlUiContext* pContext);
+  WRmlUiContext* CreateContext(const char* szName, const WVec2U32& vInitialSize);
+  void DeleteContext(WRmlUiContext* pContext);
 
   bool AnyContextWantsInput();
 
-  ezResult LoadDocumentFromResource(ezRmlUiContext& ref_context, const ezRmlUiResourceHandle& hResource);
-  ezResult LoadDocumentFromString(ezRmlUiContext& ref_context, const ezStringView& sContent);
+  WResult LoadDocumentFromResource(WRmlUiContext& ref_context, const WRmlUiResourceHandle& hResource);
+  WResult LoadDocumentFromString(WRmlUiContext& ref_context, const WStringView& sContent);
 
-  void UnloadDocument(ezRmlUiContext& ref_context);
+  void UnloadDocument(WRmlUiContext& ref_context);
 
   void ClearCaches();
 
-  void ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture);
+  void ExtractContext(WRmlUiContext& ref_context, WGALTextureHandle hTexture);
 
-  ezMutex& GetContextMutex();
+  WMutex& GetContextMutex();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  void DebugContext(ezRmlUiContext* pContext);
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  void DebugContext(WRmlUiContext* pContext);
 #endif
 
 private:
   struct Data;
-  ezUniquePtr<Data> m_pData;
+  WUniquePtr<Data> m_pData;
 };

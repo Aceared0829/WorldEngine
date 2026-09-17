@@ -1,8 +1,8 @@
 #pragma once
 
 // On MSVC 2008 in 64 Bit <cmath> generates a lot of warnings (actually it is math.h, which is included by cmath)
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_MSVC(4985)
+W_WARNING_PUSH()
+W_WARNING_DISABLE_MSVC(4985)
 
 // include std header
 #include <cmath>
@@ -13,7 +13,7 @@ EZ_WARNING_DISABLE_MSVC(4985)
 #include <cwctype>
 #include <new>
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
 // redefine NULL to nullptr
 #ifdef NULL
@@ -26,130 +26,130 @@ EZ_WARNING_POP()
 #include <utility>
 
 /// Disallow the copy constructor and the assignment operator for this type.
-#define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
+#define W_DISALLOW_COPY_AND_ASSIGN(type) \
   type(const type&) = delete;             \
   void operator=(const type&) = delete
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 /// Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define W_CHECK_ALIGNMENT(ptr, alignment) W_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
 #else
 /// Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment)
+#  define W_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
-#define EZ_WINCHECK_1 1          // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ defined (stringyfied to nothing)
-#define EZ_WINCHECK_1_WINDOWS_ 1 // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
-#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H \
-  0                              // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ defined (stringyfied to nothing)
-#define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H_WINDOWS_ \
-  1                              // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
+#define W_WINCHECK_1 1          // W_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ defined (stringyfied to nothing)
+#define W_WINCHECK_1_WINDOWS_ 1 // W_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
+#define W_WINCHECK_W_INCLUDED_WINDOWS_H \
+  0                              // W_INCLUDED_WINDOWS_H undefined (stringyfied to "W_INCLUDED_WINDOWS_H", _WINDOWS_ defined (stringyfied to nothing)
+#define W_WINCHECK_W_INCLUDED_WINDOWS_H_WINDOWS_ \
+  1                              // W_INCLUDED_WINDOWS_H undefined (stringyfied to "W_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 
 /// Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
-#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                               \
-  static_assert(EZ_PP_CONCAT(EZ_WINCHECK_, EZ_PP_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
-    "Windows.h has been included but not through ez. #include <Foundation/Platform/Win/Utils/IncludeWindows.h> instead of Windows.h");
+#define W_CHECK_WINDOWS_INCLUDE(W_WINH_INCLUDED, WINH_INCLUDED)                               \
+  static_assert(W_PP_CONCAT(W_WINCHECK_, W_PP_CONCAT(W_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
+    "Windows.h has been included but not through W. #include <Foundation/Platform/Win/Utils/IncludeWindows.h> instead of Windows.h");
 
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
 /// The tool 'StaticLinkUtil' inserts this macro into each file in a library.
-/// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
+/// Each library also needs to contain exactly one instance of W_STATICLINK_LIBRARY.
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName) EZ_CHECK_WINDOWS_INCLUDE(EZ_INCLUDED_WINDOWS_H, _WINDOWS_)
+#  define W_STATICLINK_FILE(LibraryName, UniqueName) W_CHECK_WINDOWS_INCLUDE(W_INCLUDED_WINDOWS_H, _WINDOWS_)
 
-/// Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
-/// files inside a library. \see EZ_STATICLINK_FILE
-#  define EZ_STATICLINK_REFERENCE(UniqueName)
+/// Used by the tool 'StaticLinkUtil' to generate the block after W_STATICLINK_LIBRARY, to create references to all
+/// files inside a library. \see W_STATICLINK_FILE
+#  define W_STATICLINK_REFERENCE(UniqueName)
 
-/// This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
-#  define EZ_STATICLINK_LIBRARY(LibraryName) void ezReferenceFunction_##LibraryName(bool bReturn = true)
+/// This must occur exactly once in each static library, such that all W_STATICLINK_FILE macros can reference it.
+#  define W_STATICLINK_LIBRARY(LibraryName) void WReferenceFunction_##LibraryName(bool bReturn = true)
 
 /// Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
 ///
 /// Add a line like this to a CPP file of your application:
-/// EZ_STATICLINK_PLUGIN(ParticlePlugin);
+/// W_STATICLINK_PLUGIN(ParticlePlugin);
 ///
 /// When statically linking, this ensures that all relevant code of that plugin gets added to your app.
 /// Without it, the linker may optimize too much code away, such that, for example, component types are unknown at runtime.
 ///
 /// When dynamic linking is used, this macro has no effect, at all.
-#  define EZ_STATICLINK_PLUGIN(PluginName)
+#  define W_STATICLINK_PLUGIN(PluginName)
 
 /// A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
 ///
-/// Needed when a CPP file contains a global variable that's used for registering something (for example an ezEnumerable),
+/// Needed when a CPP file contains a global variable that's used for registering something (for example an WEnumerable),
 /// and there is no other indication for the StaticLinkUtil to consider the file.
-#  define EZ_STATICLINK_FORCE
+#  define W_STATICLINK_FORCE
 
 #else
 
-struct ezStaticLinkHelper
+struct WStaticLinkHelper
 {
   using Func = void (*)(bool);
-  ezStaticLinkHelper(Func f) { f(true); }
+  WStaticLinkHelper(Func f) { f(true); }
 };
 
 /// Helper struct to register the existence of statically linked plugins.
-/// The macro EZ_STATICLINK_LIBRARY will register a the given library name prepended with `ez` to the ezPlugin system.
+/// The macro W_STATICLINK_LIBRARY will register a the given library name prepended with `W` to the WPlugin system.
 /// Implemented in Plugin.cpp.
-struct EZ_FOUNDATION_DLL ezPluginRegister
+struct W_FOUNDATION_DLL WPluginRegister
 {
-  ezPluginRegister(const char* szName);
+  WPluginRegister(const char* szName);
 };
 
 /// The tool 'StaticLinkUtil' inserts this macro into each file in a library.
-/// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
+/// Each library also needs to contain exactly one instance of W_STATICLINK_LIBRARY.
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)       \
+#  define W_STATICLINK_FILE(LibraryName, UniqueName)       \
     extern "C"                                              \
     {                                                       \
-      void ezReferenceFunction_##UniqueName(bool bReturn)   \
+      void WReferenceFunction_##UniqueName(bool bReturn)   \
       {                                                     \
         (void)bReturn;                                      \
       }                                                     \
-      void ezReferenceFunction_##LibraryName(bool bReturn); \
+      void WReferenceFunction_##LibraryName(bool bReturn); \
     }                                                       \
-    static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
+    static WStaticLinkHelper StaticLinkHelper_##UniqueName(WReferenceFunction_##LibraryName);
 
-/// Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
-/// files inside a library. \see EZ_STATICLINK_FILE
-#  define EZ_STATICLINK_REFERENCE(UniqueName)                   \
-    void ezReferenceFunction_##UniqueName(bool bReturn = true); \
-    ezReferenceFunction_##UniqueName()
+/// Used by the tool 'StaticLinkUtil' to generate the block after W_STATICLINK_LIBRARY, to create references to all
+/// files inside a library. \see W_STATICLINK_FILE
+#  define W_STATICLINK_REFERENCE(UniqueName)                   \
+    void WReferenceFunction_##UniqueName(bool bReturn = true); \
+    WReferenceFunction_##UniqueName()
 
-/// This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
-#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                         \
-    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_PP_CONCAT(ez, LibraryName))); \
-    extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
+/// This must occur exactly once in each static library, such that all W_STATICLINK_FILE macros can reference it.
+#  define W_STATICLINK_LIBRARY(LibraryName)                                                         \
+    WPluginRegister WPluginRegister_##LibraryName(W_PP_STRINGIFY(W_PP_CONCAT(W, LibraryName))); \
+    extern "C" void WReferenceFunction_##LibraryName(bool bReturn = true)
 
 /// Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
 ///
 /// Add a line like this to a CPP file of your application:
-/// EZ_STATICLINK_PLUGIN(ParticlePlugin);
+/// W_STATICLINK_PLUGIN(ParticlePlugin);
 ///
 /// When statically linking, this ensures that all relevant code of that plugin gets added to your app.
 /// Without it, the linker may optimize too much code away, such that, for example, component types are unknown at runtime.
 ///
 /// When dynamic linking is used, this macro has no effect, at all.
-#  define EZ_STATICLINK_PLUGIN(PluginName)                                               \
-    extern "C" void EZ_PP_CONCAT(ezReferenceFunction_, PluginName)(bool bReturn = true); \
-    ezStaticLinkHelper EZ_PP_CONCAT(ezStaticLinkHelper_, PluginName)(EZ_PP_CONCAT(ezReferenceFunction_, PluginName));
+#  define W_STATICLINK_PLUGIN(PluginName)                                               \
+    extern "C" void W_PP_CONCAT(WReferenceFunction_, PluginName)(bool bReturn = true); \
+    WStaticLinkHelper W_PP_CONCAT(WStaticLinkHelper_, PluginName)(W_PP_CONCAT(WReferenceFunction_, PluginName));
 
 /// A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
 ///
-/// Needed when a CPP file contains a global variable that's used for registering something (for example an ezEnumerable),
+/// Needed when a CPP file contains a global variable that's used for registering something (for example an WEnumerable),
 /// and there is no other indication for the StaticLinkUtil to consider the file.
-#  define EZ_STATICLINK_FORCE
+#  define W_STATICLINK_FORCE
 
 #endif
 
-namespace ezInternal
+namespace WInternal
 {
   template <typename T>
   constexpr bool AlwaysFalse = false;
@@ -166,28 +166,28 @@ namespace ezInternal
     static constexpr size_t value = N;
   };
 
-} // namespace ezInternal
+} // namespace WInternal
 
 /// Macro to determine the size of a static array
-#define EZ_ARRAY_SIZE(a) (ezInternal::ArraySizeHelper<decltype(a)>::value)
+#define W_ARRAY_SIZE(a) (WInternal::ArraySizeHelper<decltype(a)>::value)
 
 /// Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template <class T>
-void EZ_IGNORE_UNUSED(const T&)
+void W_IGNORE_UNUSED(const T&)
 {
 }
 
 #if (__cplusplus >= 202002L || _MSVC_LANG >= 202002L)
-#  undef EZ_USE_CPP20_OPERATORS
-#  define EZ_USE_CPP20_OPERATORS EZ_ON
+#  undef W_USE_CPP20_OPERATORS
+#  define W_USE_CPP20_OPERATORS W_ON
 #endif
 
-#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+#if W_ENABLED(W_USE_CPP20_OPERATORS)
 // in C++ 20 we don't need to declare an operator!=, it is automatically generated from operator==
-#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
+#  define W_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
 #else
-#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)                                   \
-    EZ_ALWAYS_INLINE bool operator!=(EZ_EXPAND_ARGS_COMMA(__VA_ARGS__) rhs) const \
+#  define W_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)                                   \
+    W_ALWAYS_INLINE bool operator!=(W_EXPAND_ARGS_COMMA(__VA_ARGS__) rhs) const \
     {                                                                             \
       return !(*this == rhs);                                                     \
     }

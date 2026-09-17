@@ -6,21 +6,21 @@
 ///
 /// Used for depth pre-pass, shadow map generation, or depth-only rendering.
 /// Can selectively render static, dynamic, and transparent objects.
-class EZ_RENDERERCORE_DLL ezDepthOnlyPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WDepthOnlyPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDepthOnlyPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WDepthOnlyPass, WRenderPipelinePass);
 
 public:
-  ezDepthOnlyPass(const char* szName = "DepthOnlyPass");
-  ~ezDepthOnlyPass();
+  WDepthOnlyPass(const char* szName = "DepthOnlyPass");
+  ~WDepthOnlyPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Depth-stencil target for depth writes.
+  WRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Depth-stencil target for depth writes.
 
   bool m_bRenderStaticObjects = true;                   ///< Whether to render static objects.
   bool m_bRenderDynamicObjects = true;                  ///< Whether to render dynamic objects.

@@ -11,7 +11,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
 /// Describes the current meta state of a property for display purposes in the property grid
-struct ezPropertyUiState
+struct WPropertyUiState
 {
   enum Visibility
   {
@@ -21,74 +21,74 @@ struct ezPropertyUiState
                ///< disabled, the disabled state takes precedence
   };
 
-  ezPropertyUiState()
+  WPropertyUiState()
   {
     m_Visibility = Visibility::Default;
   }
 
   Visibility m_Visibility;
-  ezString m_sNewLabelText;
+  WString m_sNewLabelText;
 };
 
 /// Event that is broadcast whenever information about how to present properties is required
-struct ezPropertyMetaStateEvent
+struct WPropertyMetaStateEvent
 {
   /// The object for which the information is queried
-  const ezDocumentObject* m_pObject = nullptr;
+  const WDocumentObject* m_pObject = nullptr;
 
   /// The map into which event handlers should write their information about the state of each property.
   /// The string is the property name that identifies the property in m_pObject.
-  ezMap<ezString, ezPropertyUiState>* m_pPropertyStates = nullptr;
+  WMap<WString, WPropertyUiState>* m_pPropertyStates = nullptr;
 };
 
 /// Event that is broadcast whenever information about how to present elements in a container is required
-struct ezContainerElementMetaStateEvent
+struct WContainerElementMetaStateEvent
 {
   /// The object for which the information is queried
-  const ezDocumentObject* m_pObject = nullptr;
+  const WDocumentObject* m_pObject = nullptr;
   /// The Container property
   const char* m_szProperty = nullptr;
   /// The map into which event handlers should write their information about the state of each container element.
-  /// The ezVariant should be the key of the container element, either ezUInt32 for arrays and sets or ezString for maps.
-  ezHashTable<ezVariant, ezPropertyUiState>* m_pContainerElementStates = nullptr;
+  /// The WVariant should be the key of the container element, either WUInt32 for arrays and sets or WString for maps.
+  WHashTable<WVariant, WPropertyUiState>* m_pContainerElementStates = nullptr;
 };
 
 /// This class allows to query additional information about how to present properties in the property grid
 ///
-/// The property grid calls GetTypePropertiesState() and GetContainerElementsState() with the current selection of ezDocumentObject's.
-/// This triggers the ezPropertyMetaStateEvent to be broadcast, which allows for other code to determine additional
+/// The property grid calls GetTypePropertiesState() and GetContainerElementsState() with the current selection of WDocumentObject's.
+/// This triggers the WPropertyMetaStateEvent to be broadcast, which allows for other code to determine additional
 /// information for the properties and write it into the event data.
-class EZ_GUIFOUNDATION_DLL ezPropertyMetaState
+class W_GUIFOUNDATION_DLL WPropertyMetaState
 {
-  EZ_DECLARE_SINGLETON(ezPropertyMetaState);
+  W_DECLARE_SINGLETON(WPropertyMetaState);
 
 public:
-  ezPropertyMetaState();
+  WPropertyMetaState();
 
-  /// Queries the property meta state for a single ezDocumentObject
-  void GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
+  /// Queries the property meta state for a single WDocumentObject
+  void GetTypePropertiesState(const WDocumentObject* pObject, WMap<WString, WPropertyUiState>& out_propertyStates);
 
-  /// Queries the property meta state for a multi selection of ezDocumentObject's
+  /// Queries the property meta state for a multi selection of WDocumentObject's
   ///
   /// This will query the information for every single selected object and then merge the result into one.
-  void GetTypePropertiesState(const ezArrayPtr<ezPropertySelection>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
+  void GetTypePropertiesState(const WArrayPtr<WPropertySelection>& items, WMap<WString, WPropertyUiState>& out_propertyStates);
 
-  /// Queries the meta state for the elements of a single container property on one ezDocumentObject.
-  void GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);
+  /// Queries the meta state for the elements of a single container property on one WDocumentObject.
+  void GetContainerElementsState(const WDocumentObject* pObject, const char* szProperty, WHashTable<WVariant, WPropertyUiState>& out_propertyStates);
 
-  /// Queries the meta state for the elements of a single container property on a multi selection of ezDocumentObjects.
+  /// Queries the meta state for the elements of a single container property on a multi selection of WDocumentObjects.
   ///
   /// This will query the information for every single selected object and then merge the result into one.
-  void GetContainerElementsState(const ezArrayPtr<ezPropertySelection>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);
+  void GetContainerElementsState(const WArrayPtr<WPropertySelection>& items, const char* szProperty, WHashTable<WVariant, WPropertyUiState>& out_propertyStates);
 
   /// Attach to this event to get notified of property state queries.
-  /// Add information to ezPropertyMetaStateEvent::m_pPropertyStates to return data.
-  ezEvent<ezPropertyMetaStateEvent&> m_Events;
+  /// Add information to WPropertyMetaStateEvent::m_pPropertyStates to return data.
+  WEvent<WPropertyMetaStateEvent&> m_Events;
   /// Attach to this event to get notified of container element state queries.
-  /// Add information to ezContainerElementMetaStateEvent::m_pContainerElementStates to return data.
-  ezEvent<ezContainerElementMetaStateEvent&> m_ContainerEvents;
+  /// Add information to WContainerElementMetaStateEvent::m_pContainerElementStates to return data.
+  WEvent<WContainerElementMetaStateEvent&> m_ContainerEvents;
 
 private:
-  ezMap<ezString, ezPropertyUiState> m_Temp;
-  ezHashTable<ezVariant, ezPropertyUiState> m_Temp2;
+  WMap<WString, WPropertyUiState> m_Temp;
+  WHashTable<WVariant, WPropertyUiState> m_Temp2;
 };

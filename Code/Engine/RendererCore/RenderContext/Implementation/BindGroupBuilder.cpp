@@ -15,28 +15,28 @@
 #include <RendererFoundation/Resources/RendererFallbackResources.h>
 #include <RendererFoundation/Shader/BindGroupLayout.h>
 
-ezUInt32 ezBindGroupBuilder::s_uiWrites = 0;
-ezUInt32 ezBindGroupBuilder::s_uiReads = 0;
+WUInt32 WBindGroupBuilder::s_uiWrites = 0;
+WUInt32 WBindGroupBuilder::s_uiReads = 0;
 
-ezBindGroupBuilder::ezBindGroupBuilder() = default;
+WBindGroupBuilder::WBindGroupBuilder() = default;
 
 namespace
 {
   template <typename T>
-  ezBitflags<ezGALBindGroupItemFlags> GetMetaFlags(const ezResourceLock<T>& resource)
+  WBitflags<WGALBindGroupItemFlags> GetMetaFlags(const WResourceLock<T>& resource)
   {
-    ezBitflags<ezGALBindGroupItemFlags> metaFlags;
-    const bool isFallback = resource.GetAcquireResult() != ezResourceAcquireResult::Final;
+    WBitflags<WGALBindGroupItemFlags> metaFlags;
+    const bool isFallback = resource.GetAcquireResult() != WResourceAcquireResult::Final;
     const bool isPartiallyLoaded = resource->GetNumQualityLevelsLoadable() != 0;
     if (isFallback)
-      metaFlags.Add(ezGALBindGroupItemFlags::FallbackResource);
+      metaFlags.Add(WGALBindGroupItemFlags::FallbackResource);
     if (isPartiallyLoaded)
-      metaFlags.Add(ezGALBindGroupItemFlags::PartiallyLoaded);
+      metaFlags.Add(WGALBindGroupItemFlags::PartiallyLoaded);
     return metaFlags;
   }
 } // namespace
 
-void ezBindGroupBuilder::ResetBoundResources(const ezGALDevice* pDevice)
+void WBindGroupBuilder::ResetBoundResources(const WGALDevice* pDevice)
 {
   m_pDevice = pDevice;
   m_bModified = true;
@@ -46,11 +46,11 @@ void ezBindGroupBuilder::ResetBoundResources(const ezGALDevice* pDevice)
   m_BoundTextures.Clear();
 
   // Platforms that do not support immutable samplers like DX11 still need them to be bound manually, so they are bound here.
-  ezTempHashedString sLinearSampler("LinearSampler");
-  for (auto it : ezGALImmutableSamplers::GetImmutableSamplers())
+  WTempHashedString sLinearSampler("LinearSampler");
+  for (auto it : WGALImmutableSamplers::GetImmutableSamplers())
   {
-    ezGALBindGroupItem item;
-    item.m_Flags = ezGALBindGroupItemFlags::Sampler;
+    WGALBindGroupItem item;
+    item.m_Flags = WGALBindGroupItemFlags::Sampler;
     item.m_Sampler.m_hSampler = it.Value();
     m_BoundSamplers.Insert(it.Key().GetHash(), item);
 
@@ -59,15 +59,15 @@ void ezBindGroupBuilder::ResetBoundResources(const ezGALDevice* pDevice)
       m_hDefaultSampler = it.Value();
     }
   }
-  EZ_ASSERT_DEBUG(!m_hDefaultSampler.IsInvalidated(), "LinearSampler should have been registered at this point.");
+  W_ASSERT_DEBUG(!m_hDefaultSampler.IsInvalidated(), "LinearSampler should have been registered at this point.");
 }
 
-void ezBindGroupBuilder::BindSampler(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler, ezBitflags<ezGALBindGroupItemFlags> metaFlags)
+void WBindGroupBuilder::BindSampler(WTempHashedString sSlotName, WGALSamplerStateHandle hSampler, WBitflags<WGALBindGroupItemFlags> metaFlags)
 {
-  EZ_ASSERT_DEBUG(sSlotName != "LinearSampler", "'LinearSampler' is a reserved sampler name and must not be set manually.");
-  EZ_ASSERT_DEBUG(sSlotName != "LinearClampSampler", "'LinearClampSampler' is a reserved sampler name and must not be set manually.");
-  EZ_ASSERT_DEBUG(sSlotName != "PointSampler", "'PointSampler' is a reserved sampler name and must not be set manually.");
-  EZ_ASSERT_DEBUG(sSlotName != "PointClampSampler", "'PointClampSampler' is a reserved sampler name and must not be set manually.");
+  W_ASSERT_DEBUG(sSlotName != "LinearSampler", "'LinearSampler' is a reserved sampler name and must not be set manually.");
+  W_ASSERT_DEBUG(sSlotName != "LinearClampSampler", "'LinearClampSampler' is a reserved sampler name and must not be set manually.");
+  W_ASSERT_DEBUG(sSlotName != "PointSampler", "'PointSampler' is a reserved sampler name and must not be set manually.");
+  W_ASSERT_DEBUG(sSlotName != "PointClampSampler", "'PointClampSampler' is a reserved sampler name and must not be set manually.");
 
   if (hSampler.IsInvalidated())
   {
@@ -75,15 +75,15 @@ void ezBindGroupBuilder::BindSampler(ezTempHashedString sSlotName, ezGALSamplerS
     return;
   }
 
-  ezGALBindGroupItem item;
-  item.m_Flags = (metaFlags & ezGALBindGroupItemFlags::MetaFlags) | ezGALBindGroupItemFlags::Sampler;
+  WGALBindGroupItem item;
+  item.m_Flags = (metaFlags & WGALBindGroupItemFlags::MetaFlags) | WGALBindGroupItemFlags::Sampler;
   item.m_Sampler.m_hSampler = hSampler;
-  EZ_ASSERT_DEBUG(m_pDevice->GetSamplerState(item.m_Sampler.m_hSampler) != nullptr, "Invalid sampler handle bound.");
+  W_ASSERT_DEBUG(m_pDevice->GetSamplerState(item.m_Sampler.m_hSampler) != nullptr, "Invalid sampler handle bound.");
 
   InsertItem(sSlotName, item, m_BoundSamplers);
 }
 
-void ezBindGroupBuilder::BindBuffer(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat, ezBitflags<ezGALBindGroupItemFlags> metaFlags)
+void WBindGroupBuilder::BindBuffer(WTempHashedString sSlotName, WGALBufferHandle hBuffer, WGALBufferRange bufferRange, WEnum<WGALResourceFormat> overrideTexelBufferFormat, WBitflags<WGALBindGroupItemFlags> metaFlags)
 {
   if (hBuffer.IsInvalidated())
   {
@@ -91,10 +91,10 @@ void ezBindGroupBuilder::BindBuffer(ezTempHashedString sSlotName, ezGALBufferHan
     return;
   }
 
-  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
-  EZ_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle bound.");
-  ezGALBindGroupItem item;
-  item.m_Flags = (metaFlags & ezGALBindGroupItemFlags::MetaFlags) | ezGALBindGroupItemFlags::Buffer;
+  const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+  W_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle bound.");
+  WGALBindGroupItem item;
+  item.m_Flags = (metaFlags & WGALBindGroupItemFlags::MetaFlags) | WGALBindGroupItemFlags::Buffer;
   item.m_Buffer.m_hBuffer = hBuffer;
   item.m_Buffer.m_BufferRange = pBuffer->ClampRange(bufferRange);
   item.m_Buffer.m_OverrideTexelBufferFormat = overrideTexelBufferFormat;
@@ -102,7 +102,7 @@ void ezBindGroupBuilder::BindBuffer(ezTempHashedString sSlotName, ezGALBufferHan
   InsertItem(sSlotName, item, m_BoundBuffers);
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType, ezBitflags<ezGALBindGroupItemFlags> metaFlags)
+void WBindGroupBuilder::BindTexture(WTempHashedString sSlotName, WGALTextureHandle hTexture, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType, WBitflags<WGALBindGroupItemFlags> metaFlags)
 {
   if (hTexture.IsInvalidated())
   {
@@ -110,19 +110,19 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureH
     return;
   }
 
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
-  EZ_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle bound.");
+  const WGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+  W_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle bound.");
   // Resolve proxy texture as they only cause pain down the pipeline.
-  if (pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy)
+  if (pTexture->GetDescription().m_Type == WGALTextureType::Texture2DProxy)
   {
-    const auto pProxy = static_cast<const ezGALProxyTexture*>(pTexture);
+    const auto pProxy = static_cast<const WGALProxyTexture*>(pTexture);
     hTexture = pProxy->GetParentTextureHandle();
-    pTexture = static_cast<const ezGALTexture*>(pProxy->GetParentResource());
-    textureRange = {pProxy->GetSlice(), 1, 0, EZ_GAL_ALL_MIP_LEVELS};
+    pTexture = static_cast<const WGALTexture*>(pProxy->GetParentResource());
+    textureRange = {pProxy->GetSlice(), 1, 0, W_GAL_ALL_MIP_LEVELS};
   }
 
-  ezGALBindGroupItem item;
-  item.m_Flags = (metaFlags & ezGALBindGroupItemFlags::MetaFlags) | ezGALBindGroupItemFlags::Texture;
+  WGALBindGroupItem item;
+  item.m_Flags = (metaFlags & WGALBindGroupItemFlags::MetaFlags) | WGALBindGroupItemFlags::Texture;
   item.m_Texture.m_hTexture = hTexture;
   item.m_Texture.m_hSampler = {};
   item.m_Texture.m_TextureRange = pTexture->ClampRange(textureRange);
@@ -132,12 +132,12 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureH
   InsertItem(sSlotName, item, m_BoundTextures);
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WBindGroupBuilder::BindTexture(WTempHashedString sSlotName, const WTexture2DResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTexture2DResource> pTexture(hTexture, acquireMode);
-    ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
+    WResourceLock<WTexture2DResource> pTexture(hTexture, acquireMode);
+    WBitflags<WGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
     BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
@@ -148,12 +148,12 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextu
   }
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WBindGroupBuilder::BindTexture(WTempHashedString sSlotName, const WTexture3DResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTexture3DResource> pTexture(hTexture, acquireMode);
-    ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
+    WResourceLock<WTexture3DResource> pTexture(hTexture, acquireMode);
+    WBitflags<WGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
     BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
@@ -164,12 +164,12 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextu
   }
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+void WBindGroupBuilder::BindTexture(WTempHashedString sSlotName, const WTextureCubeResourceHandle& hTexture, WResourceAcquireMode acquireMode, WGALTextureRange textureRange, WEnum<WGALResourceFormat> overrideViewFormat, WEnum<WGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(hTexture, acquireMode);
-    ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
+    WResourceLock<WTextureCubeResource> pTexture(hTexture, acquireMode);
+    WBitflags<WGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
     BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
@@ -180,63 +180,63 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextu
   }
 }
 
-void ezBindGroupBuilder::BindBuffer(ezTempHashedString sSlotName, ezConstantBufferStorageHandle hBuffer, ezGALBufferRange bufferRange, ezGALResourceFormat::Enum overrideTexelBufferFormat)
+void WBindGroupBuilder::BindBuffer(WTempHashedString sSlotName, WConstantBufferStorageHandle hBuffer, WGALBufferRange bufferRange, WGALResourceFormat::Enum overrideTexelBufferFormat)
 {
-  ezConstantBufferStorageBase* pStorage = nullptr;
-  if (ezRenderContext::TryGetConstantBufferStorage(hBuffer, pStorage))
+  WConstantBufferStorageBase* pStorage = nullptr;
+  if (WRenderContext::TryGetConstantBufferStorage(hBuffer, pStorage))
   {
     BindBuffer(sSlotName, pStorage->GetGALBufferHandle(), bufferRange, overrideTexelBufferFormat);
   }
   else
   {
-    BindBuffer(sSlotName, ezGALBufferHandle(), bufferRange, overrideTexelBufferFormat);
+    BindBuffer(sSlotName, WGALBufferHandle(), bufferRange, overrideTexelBufferFormat);
   }
 }
 
-void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_bindGroup, ezBitflags<ezGALBindGroupItemFlags>& out_metaFlags)
+void WBindGroupBuilder::CreateBindGroup(WGALBindGroupLayoutHandle hBindGroupLayout, WGALBindGroupCreationDescription& out_bindGroup, WBitflags<WGALBindGroupItemFlags>& out_metaFlags)
 {
   out_metaFlags = {};
-  const ezGALBindGroupLayout* pLayout = m_pDevice->GetBindGroupLayout(hBindGroupLayout);
-  EZ_ASSERT_DEBUG(pLayout != nullptr, "Bind group layout is null.");
+  const WGALBindGroupLayout* pLayout = m_pDevice->GetBindGroupLayout(hBindGroupLayout);
+  W_ASSERT_DEBUG(pLayout != nullptr, "Bind group layout is null.");
 
-  const ezArrayPtr<const ezShaderResourceBinding> resourceBindings = pLayout->GetDescription().m_ResourceBindings;
-  const ezUInt32 uiBindings = resourceBindings.GetCount();
+  const WArrayPtr<const WShaderResourceBinding> resourceBindings = pLayout->GetDescription().m_ResourceBindings;
+  const WUInt32 uiBindings = resourceBindings.GetCount();
   out_bindGroup.m_hBindGroupLayout = hBindGroupLayout;
   out_bindGroup.m_BindGroupItems.Clear();
   out_bindGroup.m_BindGroupItems.Reserve(uiBindings);
 
-  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  for (WUInt32 i = 0; i < uiBindings; ++i)
   {
-    const ezShaderResourceBinding& binding = resourceBindings[i];
-    ezGALBindGroupItem& item = out_bindGroup.m_BindGroupItems.ExpandAndGetRef();
+    const WShaderResourceBinding& binding = resourceBindings[i];
+    WGALBindGroupItem& item = out_bindGroup.m_BindGroupItems.ExpandAndGetRef();
 
     switch (binding.m_ResourceType)
     {
-      case ezGALShaderResourceType::Sampler:
+      case WGALShaderResourceType::Sampler:
       {
         s_uiReads++;
         if (!m_BoundSamplers.TryGetValue(binding.m_sName.GetHash(), item))
         {
-          item.m_Flags = ezGALBindGroupItemFlags::Sampler | ezGALBindGroupItemFlags::EmptyBinding;
+          item.m_Flags = WGALBindGroupItemFlags::Sampler | WGALBindGroupItemFlags::EmptyBinding;
           item.m_Sampler.m_hSampler = m_hDefaultSampler;
         }
       }
       break;
-      case ezGALShaderResourceType::ConstantBuffer:
-      case ezGALShaderResourceType::TexelBuffer:
-      case ezGALShaderResourceType::StructuredBuffer:
-      case ezGALShaderResourceType::ByteAddressBuffer:
-      case ezGALShaderResourceType::TexelBufferRW:
-      case ezGALShaderResourceType::StructuredBufferRW:
-      case ezGALShaderResourceType::ByteAddressBufferRW:
+      case WGALShaderResourceType::ConstantBuffer:
+      case WGALShaderResourceType::TexelBuffer:
+      case WGALShaderResourceType::StructuredBuffer:
+      case WGALShaderResourceType::ByteAddressBuffer:
+      case WGALShaderResourceType::TexelBufferRW:
+      case WGALShaderResourceType::StructuredBufferRW:
+      case WGALShaderResourceType::ByteAddressBufferRW:
       {
         s_uiReads++;
         if (!m_BoundBuffers.TryGetValue(binding.m_sName.GetHash(), item))
         {
-          ezGALBufferHandle hBuffer = ezGALRendererFallbackResources::GetFallbackBuffer(binding.m_ResourceType);
-          EZ_ASSERT_DEBUG(!hBuffer.IsInvalidated(), "Missing fallback resource for binding resource type {}", ezArgEnum(binding.m_ResourceType));
-          const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
-          item.m_Flags = ezGALBindGroupItemFlags::Buffer | ezGALBindGroupItemFlags::EmptyBinding;
+          WGALBufferHandle hBuffer = WGALRendererFallbackResources::GetFallbackBuffer(binding.m_ResourceType);
+          W_ASSERT_DEBUG(!hBuffer.IsInvalidated(), "Missing fallback resource for binding resource type {}", WArgEnum(binding.m_ResourceType));
+          const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+          item.m_Flags = WGALBindGroupItemFlags::Buffer | WGALBindGroupItemFlags::EmptyBinding;
           item.m_Buffer.m_hBuffer = hBuffer;
           item.m_Buffer.m_BufferRange = pBuffer->ClampRange({});
           item.m_Buffer.m_OverrideTexelBufferFormat = {};
@@ -244,31 +244,31 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
       }
       break;
 
-      case ezGALShaderResourceType::Texture:
-      case ezGALShaderResourceType::TextureRW:
-      case ezGALShaderResourceType::TextureAndSampler:
+      case WGALShaderResourceType::Texture:
+      case WGALShaderResourceType::TextureRW:
+      case WGALShaderResourceType::TextureAndSampler:
       {
         s_uiReads++;
         if (!m_BoundTextures.TryGetValue(binding.m_sName.GetHash(), item))
         {
           const bool bDepth = binding.m_sName.GetString().FindSubString_NoCase("shadow") != nullptr || binding.m_sName.GetString().FindSubString_NoCase("depth");
-          ezGALTextureHandle hTexture = ezGALRendererFallbackResources::GetFallbackTexture(binding.m_ResourceType, binding.m_TextureType, bDepth);
-          EZ_ASSERT_DEBUG(!hTexture.IsInvalidated(), "Missing fallback resource for binding resource type {}, texture type {}, depth {}", ezArgEnum(binding.m_ResourceType), ezArgEnum(binding.m_TextureType), bDepth);
-          const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
-          item.m_Flags = ezGALBindGroupItemFlags::Texture | ezGALBindGroupItemFlags::EmptyBinding;
+          WGALTextureHandle hTexture = WGALRendererFallbackResources::GetFallbackTexture(binding.m_ResourceType, binding.m_TextureType, bDepth);
+          W_ASSERT_DEBUG(!hTexture.IsInvalidated(), "Missing fallback resource for binding resource type {}, texture type {}, depth {}", WArgEnum(binding.m_ResourceType), WArgEnum(binding.m_TextureType), bDepth);
+          const WGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+          item.m_Flags = WGALBindGroupItemFlags::Texture | WGALBindGroupItemFlags::EmptyBinding;
           item.m_Texture.m_hTexture = hTexture;
           item.m_Texture.m_hSampler = {};
           item.m_Texture.m_TextureRange = pTexture->ClampRange({});
           item.m_Texture.m_OverrideViewFormat = {};
         }
 
-        if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
+        if (binding.m_ResourceType == WGALShaderResourceType::TextureAndSampler)
         {
           s_uiReads++;
-          const ezGALBindGroupItem* pSamplerItem = nullptr;
+          const WGALBindGroupItem* pSamplerItem = nullptr;
           if (!m_BoundSamplers.TryGetValue(binding.m_sName.GetHash(), pSamplerItem))
           {
-            item.m_Flags |= ezGALBindGroupItemFlags::EmptyBinding;
+            item.m_Flags |= WGALBindGroupItemFlags::EmptyBinding;
             item.m_Texture.m_hSampler = m_hDefaultSampler;
           }
           else
@@ -277,24 +277,24 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
           }
         }
 
-        if (!ezGALShaderTextureType::IsArray(binding.m_TextureType))
+        if (!WGALShaderTextureType::IsArray(binding.m_TextureType))
         {
-          item.m_Texture.m_TextureRange.m_uiArraySlices = binding.m_TextureType == ezGALShaderTextureType::TextureCube ? 6 : 1;
+          item.m_Texture.m_TextureRange.m_uiArraySlices = binding.m_TextureType == WGALShaderTextureType::TextureCube ? 6 : 1;
         }
       }
       break;
-      case ezGALShaderResourceType::PushConstants:
-      case ezGALShaderResourceType::Unknown:
+      case WGALShaderResourceType::PushConstants:
+      case WGALShaderResourceType::Unknown:
       default:
-        EZ_REPORT_FAILURE("Unsupported resource type for binding '{0}'", binding.m_sName, binding.m_ResourceType);
+        W_REPORT_FAILURE("Unsupported resource type for binding '{0}'", binding.m_sName, binding.m_ResourceType);
         break;
     }
-    out_metaFlags |= (item.m_Flags & ezGALBindGroupItemFlags::MetaFlags);
+    out_metaFlags |= (item.m_Flags & WGALBindGroupItemFlags::MetaFlags);
   }
   m_bModified = false;
 }
 
-void ezBindGroupBuilder::RemoveItem(ezTempHashedString sSlotName, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container)
+void WBindGroupBuilder::RemoveItem(WTempHashedString sSlotName, WHashTable<WUInt64, WGALBindGroupItem>& ref_Container)
 {
   s_uiReads++;
   if (ref_Container.Remove(sSlotName.GetHash()))
@@ -304,10 +304,10 @@ void ezBindGroupBuilder::RemoveItem(ezTempHashedString sSlotName, ezHashTable<ez
   }
 }
 
-void ezBindGroupBuilder::InsertItem(ezTempHashedString sSlotName, const ezGALBindGroupItem& item, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container)
+void WBindGroupBuilder::InsertItem(WTempHashedString sSlotName, const WGALBindGroupItem& item, WHashTable<WUInt64, WGALBindGroupItem>& ref_Container)
 {
   s_uiReads++;
-  ezGALBindGroupItem oldItem;
+  WGALBindGroupItem oldItem;
   if (ref_Container.Insert(sSlotName.GetHash(), item, &oldItem))
   {
     if (oldItem != item)

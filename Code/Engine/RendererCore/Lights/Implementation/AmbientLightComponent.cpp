@@ -8,54 +8,54 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WAmbientLightComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TopColor", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
-    EZ_ACCESSOR_PROPERTY("BottomColor", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.1f, 0.1f, 0.15f)))),
-    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f))
+    W_ACCESSOR_PROPERTY("TopColor", GetTopColor, SetTopColor)->AddAttributes(new WDefaultValueAttribute(WColorGammaUB(WColor(0.2f, 0.2f, 0.3f)))),
+    W_ACCESSOR_PROPERTY("BottomColor", GetBottomColor, SetBottomColor)->AddAttributes(new WDefaultValueAttribute(WColorGammaUB(WColor(0.1f, 0.1f, 0.15f)))),
+    W_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f))
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Lighting"),
+    new WCategoryAttribute("Lighting"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezAmbientLightComponent::ezAmbientLightComponent() = default;
-ezAmbientLightComponent::~ezAmbientLightComponent() = default;
+WAmbientLightComponent::WAmbientLightComponent() = default;
+WAmbientLightComponent::~WAmbientLightComponent() = default;
 
-void ezAmbientLightComponent::Deinitialize()
+void WAmbientLightComponent::Deinitialize()
 {
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  WRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 
   SUPER::Deinitialize();
 }
 
-void ezAmbientLightComponent::OnActivated()
+void WAmbientLightComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
 
   UpdateSkyIrradiance();
 }
 
-void ezAmbientLightComponent::OnDeactivated()
+void WAmbientLightComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 
-  ezReflectionPool::ResetConstantSkyIrradiance(GetWorld());
+  WReflectionPool::ResetConstantSkyIrradiance(GetWorld());
 }
 
-void ezAmbientLightComponent::SetTopColor(ezColorGammaUB color)
+void WAmbientLightComponent::SetTopColor(WColorGammaUB color)
 {
   m_TopColor = color;
 
@@ -65,12 +65,12 @@ void ezAmbientLightComponent::SetTopColor(ezColorGammaUB color)
   }
 }
 
-ezColorGammaUB ezAmbientLightComponent::GetTopColor() const
+WColorGammaUB WAmbientLightComponent::GetTopColor() const
 {
   return m_TopColor;
 }
 
-void ezAmbientLightComponent::SetBottomColor(ezColorGammaUB color)
+void WAmbientLightComponent::SetBottomColor(WColorGammaUB color)
 {
   m_BottomColor = color;
 
@@ -80,12 +80,12 @@ void ezAmbientLightComponent::SetBottomColor(ezColorGammaUB color)
   }
 }
 
-ezColorGammaUB ezAmbientLightComponent::GetBottomColor() const
+WColorGammaUB WAmbientLightComponent::GetBottomColor() const
 {
   return m_BottomColor;
 }
 
-void ezAmbientLightComponent::SetIntensity(float fIntensity)
+void WAmbientLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
 
@@ -95,53 +95,53 @@ void ezAmbientLightComponent::SetIntensity(float fIntensity)
   }
 }
 
-float ezAmbientLightComponent::GetIntensity() const
+float WAmbientLightComponent::GetIntensity() const
 {
   return m_fIntensity;
 }
 
-void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void WAmbientLightComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? WDefaultSpatialDataCategories::RenderDynamic : WDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAmbientLightComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_TopColor;
   s << m_BottomColor;
   s << m_fIntensity;
 }
 
-void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAmbientLightComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_TopColor;
   s >> m_BottomColor;
   s >> m_fIntensity;
 }
 
-void ezAmbientLightComponent::UpdateSkyIrradiance()
+void WAmbientLightComponent::UpdateSkyIrradiance()
 {
-  ezColor topColor = ezColor(m_TopColor) * m_fIntensity;
-  ezColor bottomColor = ezColor(m_BottomColor) * m_fIntensity;
-  ezColor midColor = ezMath::Lerp(bottomColor, topColor, 0.5f);
+  WColor topColor = WColor(m_TopColor) * m_fIntensity;
+  WColor bottomColor = WColor(m_BottomColor) * m_fIntensity;
+  WColor midColor = WMath::Lerp(bottomColor, topColor, 0.5f);
 
-  ezAmbientCube<ezColor> ambientLightIrradiance;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosX] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegX] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosY] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegY] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosZ] = topColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegZ] = bottomColor;
+  WAmbientCube<WColor> ambientLightIrradiance;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::PosX] = midColor;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::NegX] = midColor;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::PosY] = midColor;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::NegY] = midColor;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::PosZ] = topColor;
+  ambientLightIrradiance.m_Values[WAmbientCubeBasis::NegZ] = bottomColor;
 
-  ezReflectionPool::SetConstantSkyIrradiance(GetWorld(), ambientLightIrradiance);
+  WReflectionPool::SetConstantSkyIrradiance(GetWorld(), ambientLightIrradiance);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,23 +151,23 @@ void ezAmbientLightComponent::UpdateSkyIrradiance()
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezAmbientLightComponentPatch_1_2 : public ezGraphPatch
+class WAmbientLightComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezAmbientLightComponentPatch_1_2()
-    : ezGraphPatch("ezAmbientLightComponent", 2)
+  WAmbientLightComponentPatch_1_2()
+    : WGraphPatch("WAmbientLightComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Top Color", "TopColor");
     pNode->RenameProperty("Bottom Color", "BottomColor");
   }
 };
 
-ezAmbientLightComponentPatch_1_2 g_ezAmbientLightComponentPatch_1_2;
+WAmbientLightComponentPatch_1_2 g_WAmbientLightComponentPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_AmbientLightComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_AmbientLightComponent);

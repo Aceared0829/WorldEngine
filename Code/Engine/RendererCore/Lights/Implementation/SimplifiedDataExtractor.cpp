@@ -8,50 +8,50 @@
 #include <RendererFoundation/Device/Device.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightDataSimplified.h>
-EZ_DEFINE_AS_POD_TYPE(ezSimplifiedDataConstants);
+W_DEFINE_AS_POD_TYPE(WSimplifiedDataConstants);
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimplifiedDataCPU, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimplifiedDataCPU, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSimplifiedDataCPU::ezSimplifiedDataCPU() = default;
-ezSimplifiedDataCPU::~ezSimplifiedDataCPU() = default;
+WSimplifiedDataCPU::WSimplifiedDataCPU() = default;
+WSimplifiedDataCPU::~WSimplifiedDataCPU() = default;
 
-ezSimplifiedDataGPU::ezSimplifiedDataGPU()
+WSimplifiedDataGPU::WSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
-  ezGALBufferCreationDescription desc;
+  WGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
-  desc.m_uiTotalSize = sizeof(ezSimplifiedDataConstants);
-  desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
+  desc.m_uiTotalSize = sizeof(WSimplifiedDataConstants);
+  desc.m_BufferFlags = WGALBufferUsageFlags::ConstantBuffer;
   m_hConstantBuffer = pDevice->CreateBuffer(desc);
 }
 
-ezSimplifiedDataGPU::~ezSimplifiedDataGPU()
+WSimplifiedDataGPU::~WSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
   pDevice->DestroyBuffer(m_hConstantBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimplifiedDataExtractor, 1, ezRTTIDefaultAllocator<ezSimplifiedDataExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSimplifiedDataExtractor, 1, WRTTIDefaultAllocator<WSimplifiedDataExtractor>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSimplifiedDataExtractor::ezSimplifiedDataExtractor(const char* szName)
-  : ezExtractor(szName)
+WSimplifiedDataExtractor::WSimplifiedDataExtractor(const char* szName)
+  : WExtractor(szName)
 {
-  m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
+  m_DependsOn.PushBack(WMakeHashedString("WVisibleObjectsExtractor"));
 }
 
-ezSimplifiedDataExtractor::~ezSimplifiedDataExtractor() = default;
+WSimplifiedDataExtractor::~WSimplifiedDataExtractor() = default;
 
-void ezSimplifiedDataExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void WSimplifiedDataExtractor::PostSortAndBatch(
+  const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData)
 {
-  ezSimplifiedDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezSimplifiedDataCPU);
+  WSimplifiedDataCPU* pData = W_NEW(WFrameAllocator::GetCurrentAllocator(), WSimplifiedDataCPU);
 
   pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
   pData->m_cameraUsageHint = view.GetCameraUsageHint();
@@ -62,50 +62,50 @@ void ezSimplifiedDataExtractor::PostSortAndBatch(
   ref_extractedRenderData.AddFrameData(pData);
 }
 
-ezResult ezSimplifiedDataExtractor::Serialize(ezStreamWriter& inout_stream) const
+WResult WSimplifiedDataExtractor::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return W_SUCCESS;
 }
 
-ezResult ezSimplifiedDataExtractor::Deserialize(ezStreamReader& inout_stream)
+WResult WSimplifiedDataExtractor::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
+  return W_SUCCESS;
 }
 
-void ezSimplifiedDataExtractor::UpdateGpuData(const ezView& view, const ezSimplifiedDataCPU* pData)
+void WSimplifiedDataExtractor::UpdateGpuData(const WView& view, const WSimplifiedDataCPU* pData)
 {
-  EZ_IGNORE_UNUSED(view);
+  W_IGNORE_UNUSED(view);
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   m_DataGPU.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
   m_DataGPU.m_cameraUsageHint = pData->m_cameraUsageHint;
 
-  ezSimplifiedDataConstants constants = {};
+  WSimplifiedDataConstants constants = {};
   constants.SkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
 
-  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hConstantBuffer, ezMakeByteArrayPtr(&constants, 1), 0);
+  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hConstantBuffer, WMakeByteArrayPtr(&constants, 1), 0);
 }
 
-void ezSimplifiedDataExtractor::AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData)
+void WSimplifiedDataExtractor::AddGpuData(const WView& view, WExtractedRenderData& ref_extractedRenderData)
 {
-  const ezEnum<ezCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
+  const WEnum<WCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
   // Reflection specular and sky irradiance textures
   {
-    ezGALTextureHandle hReflSpec = ezReflectionPool::GetReflectionSpecularTexture(view.GetWorld()->GetIndex(), cameraUsageHint);
-    ref_extractedRenderData.AddViewDependency(hReflSpec, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
-    ref_extractedRenderData.AddTextureBinding(ezTempHashedString("ReflectionSpecularTexture"), hReflSpec);
+    WGALTextureHandle hReflSpec = WReflectionPool::GetReflectionSpecularTexture(view.GetWorld()->GetIndex(), cameraUsageHint);
+    ref_extractedRenderData.AddViewDependency(hReflSpec, WGALResourceState::ShaderResource, WGALShaderStageFlags::Auto);
+    ref_extractedRenderData.AddTextureBinding(WTempHashedString("ReflectionSpecularTexture"), hReflSpec);
 
-    ezGALTextureHandle hSkyIrradiance = ezReflectionPool::GetSkyIrradianceTexture();
-    ref_extractedRenderData.AddViewDependency(hSkyIrradiance, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
-    ref_extractedRenderData.AddTextureBinding(ezTempHashedString("SkyIrradianceTexture"), hSkyIrradiance);
+    WGALTextureHandle hSkyIrradiance = WReflectionPool::GetSkyIrradianceTexture();
+    ref_extractedRenderData.AddViewDependency(hSkyIrradiance, WGALResourceState::ShaderResource, WGALShaderStageFlags::Auto);
+    ref_extractedRenderData.AddTextureBinding(WTempHashedString("SkyIrradianceTexture"), hSkyIrradiance);
   }
 
-  ref_extractedRenderData.AddBufferBinding("ezSimplifiedDataConstants", m_DataGPU.m_hConstantBuffer);
+  ref_extractedRenderData.AddBufferBinding("WSimplifiedDataConstants", m_DataGPU.m_hConstantBuffer);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SimplifiedDataExtractor);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SimplifiedDataExtractor);

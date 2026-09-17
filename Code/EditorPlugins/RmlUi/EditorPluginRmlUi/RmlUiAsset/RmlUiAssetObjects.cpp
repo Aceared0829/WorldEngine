@@ -3,18 +3,18 @@
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetObjects.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetProperties, 1, ezRTTIDefaultAllocator<ezRmlUiAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiAssetProperties, 1, WRTTIDefaultAllocator<WRmlUiAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RmlFile", m_sRmlFile)->AddAttributes(new ezFileBrowserAttribute("Select Rml file", "*.rml", {}, "RmlUI", ezDependencyFlags::Package | ezDependencyFlags::Thumbnail | ezDependencyFlags::Transform), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("ScaleMode", ezRmlUiScaleMode, m_ScaleMode),
-    EZ_MEMBER_PROPERTY("ReferenceResolution", m_ReferenceResolution)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(1920, 1080))),
+    W_MEMBER_PROPERTY("RmlFile", m_sRmlFile)->AddAttributes(new WFileBrowserAttribute("Select Rml file", "*.rml", {}, "RmlUI", WDependencyFlags::Package | WDependencyFlags::Thumbnail | WDependencyFlags::Transform), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("ScaleMode", WRmlUiScaleMode, m_ScaleMode),
+    W_MEMBER_PROPERTY("ReferenceResolution", m_ReferenceResolution)->AddAttributes(new WDefaultValueAttribute(WVec2U32(1920, 1080))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiAssetProperties::ezRmlUiAssetProperties() = default;
-ezRmlUiAssetProperties::~ezRmlUiAssetProperties() = default;
+WRmlUiAssetProperties::WRmlUiAssetProperties() = default;
+WRmlUiAssetProperties::~WRmlUiAssetProperties() = default;

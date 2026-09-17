@@ -9,41 +9,41 @@
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessingStreamSpawnerZeroInitialized, 1, ezRTTIDefaultAllocator<ezProcessingStreamSpawnerZeroInitialized>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcessingStreamSpawnerZeroInitialized, 1, WRTTIDefaultAllocator<WProcessingStreamSpawnerZeroInitialized>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
+WProcessingStreamSpawnerZeroInitialized::WProcessingStreamSpawnerZeroInitialized()
 
   = default;
 
-void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(ezStringView sStreamName)
+void WProcessingStreamSpawnerZeroInitialized::SetStreamName(WStringView sStreamName)
 {
   m_sStreamName.Assign(sStreamName);
 }
 
-ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
+WResult WProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
 {
-  EZ_ASSERT_DEBUG(!m_sStreamName.IsEmpty(), "ezProcessingStreamSpawnerZeroInitialized: Stream name has not been configured");
+  W_ASSERT_DEBUG(!m_sStreamName.IsEmpty(), "WProcessingStreamSpawnerZeroInitialized: Stream name has not been configured");
 
   m_pStream = m_pStreamGroup->GetStreamByName(m_sStreamName);
-  return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
+  return m_pStream ? W_SUCCESS : W_FAILURE;
 }
 
 
-void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WProcessingStreamSpawnerZeroInitialized::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  const ezUInt64 uiElementSize = m_pStream->GetElementSize();
-  const ezUInt64 uiElementStride = m_pStream->GetElementStride();
+  const WUInt64 uiElementSize = m_pStream->GetElementSize();
+  const WUInt64 uiElementStride = m_pStream->GetElementStride();
 
-  for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+  for (WUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezMemoryUtils::ZeroFill<ezUInt8>(
-      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<std::ptrdiff_t>(i * uiElementStride))),
+    WMemoryUtils::ZeroFill<WUInt8>(
+      static_cast<WUInt8*>(WMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<std::ptrdiff_t>(i * uiElementStride))),
       static_cast<size_t>(uiElementSize));
   }
 }
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
+W_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);

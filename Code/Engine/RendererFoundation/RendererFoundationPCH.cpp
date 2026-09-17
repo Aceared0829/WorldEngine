@@ -1,15 +1,15 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
-EZ_STATICLINK_LIBRARY(RendererFoundation)
+W_STATICLINK_LIBRARY(RendererFoundation)
 {
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_ImmutableSamplers);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SharedTextureSwapChain);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Profiling_Implementation_Profiling);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_RendererReflection);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_RendererFallbackResources);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_State_Implementation_PipelineCache);
+  W_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_ImmutableSamplers);
+  W_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SharedTextureSwapChain);
+  W_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
+  W_STATICLINK_REFERENCE(RendererFoundation_Profiling_Implementation_Profiling);
+  W_STATICLINK_REFERENCE(RendererFoundation_RendererReflection);
+  W_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_RendererFallbackResources);
+  W_STATICLINK_REFERENCE(RendererFoundation_State_Implementation_PipelineCache);
 }

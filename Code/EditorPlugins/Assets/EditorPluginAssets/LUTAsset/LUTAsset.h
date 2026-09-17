@@ -4,37 +4,37 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
 
-class ezTextureAssetProfileConfig;
+class WTextureAssetProfileConfig;
 
-class ezLUTAssetDocument : public ezSimpleAssetDocument<ezLUTAssetProperties>
+class WLUTAssetDocument : public WSimpleAssetDocument<WLUTAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLUTAssetDocument, ezSimpleAssetDocument<ezLUTAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WLUTAssetDocument, WSimpleAssetDocument<WLUTAssetProperties>);
 
 public:
-  ezLUTAssetDocument(ezStringView sDocumentPath);
+  WLUTAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override
   {
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezLUTAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WLUTAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLUTAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WLUTAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezLUTAssetDocumentGenerator();
-  ~ezLUTAssetDocumentGenerator();
+  WLUTAssetDocumentGenerator();
+  ~WLUTAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezLUTAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "LUTs"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WLUTAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "LUTs"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

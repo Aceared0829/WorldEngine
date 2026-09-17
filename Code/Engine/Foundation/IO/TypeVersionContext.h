@@ -4,61 +4,61 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/SerializationContext.h>
 
-class ezStreamWriter;
-class ezStreamReader;
+class WStreamWriter;
+class WStreamReader;
 
 /// This class allows for writing type versions to a stream in a centralized place so that
 /// each object doesn't need to write its own version manually.
 ///
 /// To use, create an object of this type on the stack, call Begin() and use the returned
-/// ezStreamWriter for subsequent serialization operations. Call AddType to add a type and its parent types to the version table.
+/// WStreamWriter for subsequent serialization operations. Call AddType to add a type and its parent types to the version table.
 /// Call End() once you want to finish writing the type versions.
-class EZ_FOUNDATION_DLL ezTypeVersionWriteContext : public ezSerializationContext<ezTypeVersionWriteContext>
+class W_FOUNDATION_DLL WTypeVersionWriteContext : public WSerializationContext<WTypeVersionWriteContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezTypeVersionWriteContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WTypeVersionWriteContext);
 
 public:
-  ezTypeVersionWriteContext();
-  ~ezTypeVersionWriteContext();
+  WTypeVersionWriteContext();
+  ~WTypeVersionWriteContext();
 
   /// Call this method to begin collecting type version info. You need to use the returned stream writer for subsequent serialization operations until
   /// End() is called.
-  ezStreamWriter& Begin(ezStreamWriter& ref_originalStream);
+  WStreamWriter& Begin(WStreamWriter& ref_originalStream);
 
   /// Ends the type version collection and writes the data to the original stream.
-  ezResult End();
+  WResult End();
 
   /// Adds the given type and its parent types to the version table.
-  void AddType(const ezRTTI* pRtti);
+  void AddType(const WRTTI* pRtti);
 
   /// Manually write the version table to the given stream.
   /// Can be used instead of Begin()/End() if all necessary types are available in one place anyways.
-  void WriteTypeVersions(ezStreamWriter& inout_stream) const;
+  void WriteTypeVersions(WStreamWriter& inout_stream) const;
 
   /// Returns the original stream that was passed to Begin().
-  ezStreamWriter& GetOriginalStream() { return *m_pOriginalStream; }
+  WStreamWriter& GetOriginalStream() { return *m_pOriginalStream; }
 
 protected:
-  ezStreamWriter* m_pOriginalStream = nullptr;
+  WStreamWriter* m_pOriginalStream = nullptr;
 
-  ezDefaultMemoryStreamStorage m_TempStreamStorage;
-  ezMemoryStreamWriter m_TempStreamWriter;
+  WDefaultMemoryStreamStorage m_TempStreamStorage;
+  WMemoryStreamWriter m_TempStreamWriter;
 
-  ezHashSet<const ezRTTI*> m_KnownTypes;
+  WHashSet<const WRTTI*> m_KnownTypes;
 };
 
-/// Use this class to restore type versions written to a stream using a ezTypeVersionWriteContext.
-class EZ_FOUNDATION_DLL ezTypeVersionReadContext : public ezSerializationContext<ezTypeVersionReadContext>
+/// Use this class to restore type versions written to a stream using a WTypeVersionWriteContext.
+class W_FOUNDATION_DLL WTypeVersionReadContext : public WSerializationContext<WTypeVersionReadContext>
 {
-  EZ_DECLARE_SERIALIZATION_CONTEXT(ezTypeVersionReadContext);
+  W_DECLARE_SERIALIZATION_CONTEXT(WTypeVersionReadContext);
 
 public:
   /// Reads the type version table from the stream
-  ezTypeVersionReadContext(ezStreamReader& inout_stream);
-  ~ezTypeVersionReadContext();
+  WTypeVersionReadContext(WStreamReader& inout_stream);
+  ~WTypeVersionReadContext();
 
-  ezUInt32 GetTypeVersion(const ezRTTI* pRtti) const;
+  WUInt32 GetTypeVersion(const WRTTI* pRtti) const;
 
 protected:
-  ezHashTable<const ezRTTI*, ezUInt32> m_TypeVersions;
+  WHashTable<const WRTTI*, WUInt32> m_TypeVersions;
 };

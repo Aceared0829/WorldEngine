@@ -1,10 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
 
 #  include <Foundation/System/ProcessGroup.h>
 
-const ezHybridArray<ezProcess, 8>& ezProcessGroup::GetProcesses() const
+const WHybridArray<WProcess, 8>& WProcessGroup::GetProcesses() const
 {
   return m_Processes;
 }

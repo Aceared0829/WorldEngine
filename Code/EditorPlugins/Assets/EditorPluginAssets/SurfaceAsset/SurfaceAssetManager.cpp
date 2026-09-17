@@ -4,41 +4,41 @@
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSurfaceAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSurfaceAssetDocumentManager, 1, WRTTIDefaultAllocator<WSurfaceAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
+WSurfaceAssetDocumentManager::WSurfaceAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Surface";
-  m_DocTypeDesc.m_sFileExtension = "ezSurfaceAsset";
+  m_DocTypeDesc.m_sFileExtension = "WSurfaceAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg";
   m_DocTypeDesc.m_sAssetCategory = "Utilities";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WSurfaceAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinSurface";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinSurface";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.svg"));
 }
 
-ezSurfaceAssetDocumentManager::~ezSurfaceAssetDocumentManager()
+WSurfaceAssetDocumentManager::~WSurfaceAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WSurfaceAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSurfaceAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WSurfaceAssetDocument>())
       {
-        new ezQtSurfaceAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WQtSurfaceAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,12 +48,12 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezSurfaceAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WSurfaceAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSurfaceAssetDocument(sPath);
+  out_pDocument = new WSurfaceAssetDocument(sPath);
 }
 
-void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

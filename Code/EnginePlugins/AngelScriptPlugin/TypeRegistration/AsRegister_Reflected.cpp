@@ -5,28 +5,28 @@
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg)
+bool WAngelScriptEngineSingleton::AppendType(WStringBuilder& decl, const WRTTI* pRtti, const WScriptableFunctionAttribute* pFuncAttr, WUInt32 uiArg)
 {
-  const bool bIsReturnValue = uiArg == ezInvalidIndex;
-  const auto argType = pFuncAttr ? pFuncAttr->GetArgumentType(uiArg) : ezScriptableFunctionAttribute::ArgType::In;
+  const bool bIsReturnValue = uiArg == WInvalidIndex;
+  const auto argType = pFuncAttr ? pFuncAttr->GetArgumentType(uiArg) : WScriptableFunctionAttribute::ArgType::In;
 
-  if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezVariantArray>())
+  if (pRtti == nullptr || pRtti == WGetStaticRTTI<WVariantArray>())
   {
     decl.Append("void");
     return bIsReturnValue;
   }
 
-  if (argType == ezScriptableFunctionAttribute::ArgType::Inout)
+  if (argType == WScriptableFunctionAttribute::ArgType::Inout)
   {
     // not yet supported for most types
     return false;
   }
 
-  if (const char* szTypeName = ezAngelScriptUtils::VariantTypeToString(pRtti->GetVariantType()); szTypeName != nullptr)
+  if (const char* szTypeName = WAngelScriptUtils::VariantTypeToString(pRtti->GetVariantType()); szTypeName != nullptr)
   {
     decl.Append(szTypeName);
 
-    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == WScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -34,11 +34,11 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
     return true;
   }
 
-  if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+  if (pRtti->GetTypeFlags().IsAnySet(WTypeFlags::IsEnum | WTypeFlags::Bitflags))
   {
-    decl.Append(ezAngelScriptUtils::RegisterEnumType(m_pEngine, pRtti));
+    decl.Append(WAngelScriptUtils::RegisterEnumType(m_pEngine, pRtti));
 
-    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == WScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -47,24 +47,24 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
 
   if (!bIsReturnValue)
   {
-    if (pRtti == ezGetStaticRTTI<ezVariant>())
+    if (pRtti == WGetStaticRTTI<WVariant>())
     {
       decl.Append("?& in");
       return true;
     }
 
-    if (pRtti == ezGetStaticRTTI<ezWorld>())
+    if (pRtti == WGetStaticRTTI<WWorld>())
     {
       // skip
       return true;
     }
   }
 
-  if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>() || pRtti == ezGetStaticRTTI<ezComponentHandle>())
+  if (pRtti == WGetStaticRTTI<WGameObjectHandle>() || pRtti == WGetStaticRTTI<WComponentHandle>())
   {
     decl.Append(pRtti->GetTypeName());
 
-    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == WScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -83,11 +83,11 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
   return false;
 }
 
-bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const ezAbstractFunctionProperty* pFunc, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg)
+bool WAngelScriptEngineSingleton::AppendFuncArgs(WStringBuilder& decl, const WAbstractFunctionProperty* pFunc, const WScriptableFunctionAttribute* pFuncAttr, WUInt32 uiArg)
 {
   if (uiArg > 12)
   {
-    EZ_ASSERT_DEBUG(false, "Too many function arguments");
+    W_ASSERT_DEBUG(false, "Too many function arguments");
     return false;
   }
 
@@ -99,22 +99,22 @@ bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const e
   return AppendType(decl, pFunc->GetArgumentType(uiArg), pFuncAttr, uiArg);
 }
 
-void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
+void WAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
 {
-  EZ_LOG_BLOCK("Register_GlobalReflectedFunctions");
+  W_LOG_BLOCK("Register_GlobalReflectedFunctions");
 
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+  WRTTI::ForEachType([&](const WRTTI* pRtti)
     {
-      if (pRtti->GetParentType() != nullptr && pRtti->GetParentType() != ezGetStaticRTTI<ezNoBase>())
+      if (pRtti->GetParentType() != nullptr && pRtti->GetParentType() != WGetStaticRTTI<WNoBase>())
         return;
 
       for (auto pFunc : pRtti->GetFunctions())
       {
-        auto pFuncAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+        auto pFuncAttr = pFunc->GetAttributeByType<WScriptableFunctionAttribute>();
         if (!pFuncAttr)
           continue;
 
-        if (pFunc->GetFunctionType() != ezFunctionType::StaticMember)
+        if (pFunc->GetFunctionType() != WFunctionType::StaticMember)
           continue;
 
         RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, false);
@@ -128,9 +128,9 @@ static void CastToBase(asIScriptGeneric* pGen)
 {
   int derivedTypeId = pGen->GetObjectTypeId();
   auto derivedTypeInfo = pGen->GetEngine()->GetTypeInfoById(derivedTypeId);
-  const ezRTTI* pDerivedRtti = (const ezRTTI*)derivedTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+  const WRTTI* pDerivedRtti = (const WRTTI*)derivedTypeInfo->GetUserData(WAsUserData::RttiPtr);
 
-  const ezRTTI* pBaseRtti = (const ezRTTI*)pGen->GetAuxiliary();
+  const WRTTI* pBaseRtti = (const WRTTI*)pGen->GetAuxiliary();
 
   if (pDerivedRtti != nullptr && pBaseRtti != nullptr)
   {
@@ -148,9 +148,9 @@ static void CastToDerived(asIScriptGeneric* pGen)
 {
   int baseTypeId = pGen->GetObjectTypeId();
   auto baseTypeInfo = pGen->GetEngine()->GetTypeInfoById(baseTypeId);
-  const ezRTTI* pBaseRtti = (const ezRTTI*)baseTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+  const WRTTI* pBaseRtti = (const WRTTI*)baseTypeInfo->GetUserData(WAsUserData::RttiPtr);
 
-  const ezRTTI* pDerivedRtti = (const ezRTTI*)pGen->GetAuxiliary();
+  const WRTTI* pDerivedRtti = (const WRTTI*)pGen->GetAuxiliary();
 
   if (pBaseRtti != nullptr && pDerivedRtti != nullptr)
   {
@@ -166,33 +166,33 @@ static void CastToDerived(asIScriptGeneric* pGen)
 
 struct RefInstance
 {
-  ezUInt32 m_uiRefCount = 1;
-  const ezRTTI* m_pRtti = nullptr;
+  WUInt32 m_uiRefCount = 1;
+  const WRTTI* m_pRtti = nullptr;
 };
 
-static ezMutex s_RefCountMutex;
-static ezMap<void*, RefInstance> s_RefCounts;
+static WMutex s_RefCountMutex;
+static WMap<void*, RefInstance> s_RefCounts;
 
-static void* ezRtti_Create(const ezRTTI* pRtti)
+static void* WRtti_Create(const WRTTI* pRtti)
 {
-  auto inst = pRtti->GetAllocator()->Allocate<ezReflectedClass>();
+  auto inst = pRtti->GetAllocator()->Allocate<WReflectedClass>();
 
-  EZ_LOCK(s_RefCountMutex);
+  W_LOCK(s_RefCountMutex);
   auto& ref = s_RefCounts[inst.m_pInstance];
   ref.m_pRtti = pRtti;
 
   return inst.m_pInstance;
 }
 
-static void ezRtti_AddRef(void* pInstance)
+static void WRtti_AddRef(void* pInstance)
 {
-  EZ_LOCK(s_RefCountMutex);
+  W_LOCK(s_RefCountMutex);
   ++s_RefCounts[pInstance].m_uiRefCount;
 }
 
-static void ezRtti_Release(void* pInstance)
+static void WRtti_Release(void* pInstance)
 {
-  EZ_LOCK(s_RefCountMutex);
+  W_LOCK(s_RefCountMutex);
   auto it = s_RefCounts.Find(pInstance);
   RefInstance& ri = it.Value();
   if (--ri.m_uiRefCount == 0)
@@ -203,17 +203,17 @@ static void ezRtti_Release(void* pInstance)
 }
 
 
-void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable)
+void WAngelScriptEngineSingleton::Register_ReflectedType(const WRTTI* pBaseType, bool bCreatable)
 {
-  EZ_LOG_BLOCK("Register_ReflectedType", pBaseType->GetTypeName());
+  W_LOG_BLOCK("Register_ReflectedType", pBaseType->GetTypeName());
 
   // first register the type
-  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType(pBaseType, [&](const WRTTI* pRtti)
     {
-      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
+      if (pRtti->GetAttributeByType<WHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<WExcludeFromScript>() != nullptr)
         return;
 
-      ezStringBuilder typeName = pRtti->GetTypeName();
+      WStringBuilder typeName = pRtti->GetTypeName();
       auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
 
       m_WhitelistedRefTypes.Insert(typeName);
@@ -228,10 +228,10 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
 
           if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
           {
-            const ezStringBuilder sFactoryOp(typeName, "@ f()");
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, sFactoryOp, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            const WStringBuilder sFactoryOp(typeName, "@ f()");
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, sFactoryOp, asFUNCTION(WRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(WRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(WRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
           }
         }
         else
@@ -244,31 +244,31 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
         }
       }
 
-      pTypeInfo->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
+      pTypeInfo->SetUserData((void*)pRtti, WAsUserData::RttiPtr);
 
       AddForbiddenType(typeName);
 
       RegisterTypeFunctions(typeName, pRtti, false);
-      ezAngelScriptUtils::RegisterTypeProperties(m_pEngine, typeName, pRtti, false);
+      WAngelScriptUtils::RegisterTypeProperties(m_pEngine, typeName, pRtti, false);
 
       //
     },
-    ezRTTI::ForEachOptions::None);
+    WRTTI::ForEachOptions::None);
 
   // then register the type hierarchy
-  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType(pBaseType, [&](const WRTTI* pRtti)
     {
       if (pRtti == pBaseType)
         return;
 
-      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
+      if (pRtti->GetAttributeByType<WHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<WExcludeFromScript>() != nullptr)
         return;
 
-      const ezStringBuilder typeName = pRtti->GetTypeName();
+      const WStringBuilder typeName = pRtti->GetTypeName();
 
-      const ezRTTI* pParentRtti = pRtti->GetParentType();
+      const WRTTI* pParentRtti = pRtti->GetParentType();
 
-      ezStringBuilder parentName, castOp;
+      WStringBuilder parentName, castOp;
 
       while (pParentRtti)
       {
@@ -287,17 +287,17 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
       }
       //
     },
-    ezRTTI::ForEachOptions::None);
+    WRTTI::ForEachOptions::None);
 }
 
-void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)
+void WAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const WRTTI* pRtti, bool bIsInherited)
 {
-  if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezReflectedClass>())
+  if (pRtti == nullptr || pRtti == WGetStaticRTTI<WReflectedClass>())
     return;
 
   for (auto pFunc : pRtti->GetFunctions())
   {
-    auto pFuncAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+    auto pFuncAttr = pFunc->GetAttributeByType<WScriptableFunctionAttribute>();
 
     if (!pFuncAttr)
       continue;
@@ -308,16 +308,16 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
   RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), true);
 }
 
-static void CollectFunctionArgumentAttributes(const ezAbstractFunctionProperty* pFuncProp, ezDynamicArray<const ezFunctionArgumentAttributes*>& out_attributes)
+static void CollectFunctionArgumentAttributes(const WAbstractFunctionProperty* pFuncProp, WDynamicArray<const WFunctionArgumentAttributes*>& out_attributes)
 {
   for (auto pAttr : pFuncProp->GetAttributes())
   {
-    if (auto pFuncArgAttr = ezDynamicCast<const ezFunctionArgumentAttributes*>(pAttr))
+    if (auto pFuncArgAttr = WDynamicCast<const WFunctionArgumentAttributes*>(pAttr))
     {
-      ezUInt32 uiArgIndex = pFuncArgAttr->GetArgumentIndex();
+      WUInt32 uiArgIndex = pFuncArgAttr->GetArgumentIndex();
       out_attributes.EnsureCount(uiArgIndex + 1);
-      EZ_ASSERT_DEV(out_attributes[uiArgIndex] == nullptr, "Multiple argument attributes for argument {} of '{}'", uiArgIndex, pFuncProp->GetPropertyName());
-      EZ_ASSERT_DEV(uiArgIndex < pFuncProp->GetArgumentCount(), "Function argument attribute for argument {} of '{}' which only has {} arguments.", uiArgIndex, pFuncProp->GetPropertyName(), pFuncProp->GetArgumentCount());
+      W_ASSERT_DEV(out_attributes[uiArgIndex] == nullptr, "Multiple argument attributes for argument {} of '{}'", uiArgIndex, pFuncProp->GetPropertyName());
+      W_ASSERT_DEV(uiArgIndex < pFuncProp->GetArgumentCount(), "Function argument attribute for argument {} of '{}' which only has {} arguments.", uiArgIndex, pFuncProp->GetPropertyName(), pFuncProp->GetArgumentCount());
       out_attributes[uiArgIndex] = pFuncArgAttr;
     }
   }
@@ -325,11 +325,11 @@ static void CollectFunctionArgumentAttributes(const ezAbstractFunctionProperty* 
 
 static bool ExistsGlobalFunc(asIScriptEngine* pEngine, const char* szNamespace, const char* szName)
 {
-  for (ezUInt32 i = 0; i < pEngine->GetGlobalFunctionCount(); ++i)
+  for (WUInt32 i = 0; i < pEngine->GetGlobalFunctionCount(); ++i)
   {
     auto pFunc = pEngine->GetGlobalFunctionByIndex(i);
 
-    if (ezStringUtils::IsEqual(pFunc->GetNamespace(), szNamespace) && ezStringUtils::IsEqual(pFunc->GetName(), szName))
+    if (WStringUtils::IsEqual(pFunc->GetNamespace(), szNamespace) && WStringUtils::IsEqual(pFunc->GetName(), szName))
     {
       return true;
     }
@@ -338,53 +338,53 @@ static bool ExistsGlobalFunc(asIScriptEngine* pEngine, const char* szNamespace, 
   return false;
 }
 
-void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited)
+void WAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const WAbstractFunctionProperty* const pFunc, const WScriptableFunctionAttribute* pFuncAttr, bool bIsInherited)
 {
-  ezStringBuilder sFuncName = pFunc->GetPropertyName();
+  WStringBuilder sFuncName = pFunc->GetPropertyName();
   sFuncName.TrimWordStart("Reflection_");
 
-  if (pFunc->GetReturnType() == ezGetStaticRTTI<ezVariant>())
+  if (pFunc->GetReturnType() == WGetStaticRTTI<WVariant>())
   {
-    ezStringBuilder sFuncName2;
+    WStringBuilder sFuncName2;
 
     sFuncName2.Set(sFuncName, "_asBool");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<bool>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<bool>());
 
     sFuncName2.Set(sFuncName, "_asInt32");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezInt32>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WInt32>());
 
     sFuncName2.Set(sFuncName, "_asFloat");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<float>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<float>());
 
     sFuncName2.Set(sFuncName, "_asTime");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezTime>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WTime>());
 
     sFuncName2.Set(sFuncName, "_asAngle");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezAngle>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WAngle>());
 
     sFuncName2.Set(sFuncName, "_asVec2");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezVec2>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WVec2>());
 
     sFuncName2.Set(sFuncName, "_asVec3");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezVec3>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WVec3>());
 
     sFuncName2.Set(sFuncName, "_asVec4");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezVec4>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WVec4>());
 
     sFuncName2.Set(sFuncName, "_asQuat");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezQuat>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WQuat>());
 
     sFuncName2.Set(sFuncName, "_asColor");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezColor>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WColor>());
 
     sFuncName2.Set(sFuncName, "_asString");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezString>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WString>());
 
     sFuncName2.Set(sFuncName, "_asGameObjectHandle");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezGameObjectHandle>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WGameObjectHandle>());
 
     sFuncName2.Set(sFuncName, "_asComponentHandle");
-    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, ezGetStaticRTTI<ezComponentHandle>());
+    RegisterSingleGenericFunction(sFuncName2, szTypeName, pFunc, pFuncAttr, bIsInherited, WGetStaticRTTI<WComponentHandle>());
   }
   else
   {
@@ -392,33 +392,33 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
   }
 }
 
-void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szFuncName, const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited, const ezRTTI* pReturnType)
+void WAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szFuncName, const char* szTypeName, const WAbstractFunctionProperty* const pFunc, const WScriptableFunctionAttribute* pFuncAttr, bool bIsInherited, const WRTTI* pReturnType)
 {
   bool bVarArgs = false;
-  if (const ezDynamicPinAttribute* pVarArgsAttr = pFunc->GetAttributeByType<ezDynamicPinAttribute>())
+  if (const WDynamicPinAttribute* pVarArgsAttr = pFunc->GetAttributeByType<WDynamicPinAttribute>())
   {
-    EZ_ASSERT_DEV(pVarArgsAttr->GetProperty() == pFuncAttr->GetArgumentName(pFuncAttr->GetArgumentCount() - 1), "Var args must be on the last argument of the function");
+    W_ASSERT_DEV(pVarArgsAttr->GetProperty() == pFuncAttr->GetArgumentName(pFuncAttr->GetArgumentCount() - 1), "Var args must be on the last argument of the function");
     bVarArgs = true;
   }
 
-  ezStringBuilder decl;
+  WStringBuilder decl;
 
-  if (!AppendType(decl, pReturnType, nullptr, ezInvalidIndex))
+  if (!AppendType(decl, pReturnType, nullptr, WInvalidIndex))
   {
     return;
   }
 
-  ezStringBuilder sNamespace;
+  WStringBuilder sNamespace;
   decl.Append(" ");
 
-  if (pFunc->GetFunctionType() == ezFunctionType::StaticMember)
+  if (pFunc->GetFunctionType() == WFunctionType::StaticMember)
   {
-    // turn things like 'ezScriptExtensionClass_CVar' into 'ezCVar'
-    if (const char* szUnderScore = ezStringUtils::FindLastSubString(szTypeName, "_"))
+    // turn things like 'WScriptExtensionClass_CVar' into 'WCVar'
+    if (const char* szUnderScore = WStringUtils::FindLastSubString(szTypeName, "_"))
     {
-      if (ezStringUtils::StartsWith(szTypeName, "ez"))
+      if (WStringUtils::StartsWith(szTypeName, "W"))
       {
-        sNamespace.Append("ez");
+        sNamespace.Append("W");
       }
 
       sNamespace.Append(szUnderScore + 1);
@@ -431,18 +431,18 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
   decl.Append(szFuncName, "(");
 
-  ezTempHybridArray<const ezFunctionArgumentAttributes*, 8> argAttributes;
-  if (const ezFunctionArgumentAttributes* pArgAttr = pFunc->GetAttributeByType<ezFunctionArgumentAttributes>())
+  WTempHybridArray<const WFunctionArgumentAttributes*, 8> argAttributes;
+  if (const WFunctionArgumentAttributes* pArgAttr = pFunc->GetAttributeByType<WFunctionArgumentAttributes>())
   {
     argAttributes.SetCount(pFunc->GetArgumentCount());
     CollectFunctionArgumentAttributes(pFunc, argAttributes);
   }
 
   bool bHasDefaultArgs = false;
-  ezVariant defaultValue;
+  WVariant defaultValue;
 
-  const ezUInt32 uiArgCount = bVarArgs ? pFunc->GetArgumentCount() - 1 : pFunc->GetArgumentCount();
-  for (ezUInt32 uiArg = 0; uiArg < uiArgCount; ++uiArg)
+  const WUInt32 uiArgCount = bVarArgs ? pFunc->GetArgumentCount() - 1 : pFunc->GetArgumentCount();
+  for (WUInt32 uiArg = 0; uiArg < uiArgCount; ++uiArg)
   {
     if (!AppendFuncArgs(decl, pFunc, pFuncAttr, uiArg))
       return;
@@ -460,7 +460,7 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
         continue;
       }
 
-      const ezRTTI* pArgType = pFunc->GetArgumentType(uiArg);
+      const WRTTI* pArgType = pFunc->GetArgumentType(uiArg);
 
       if (const char* szName = pFuncAttr->GetArgumentName(uiArg))
       {
@@ -469,14 +469,14 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
       if (bHasDefaultArgs)
       {
-        defaultValue = ezReflectionUtils::GetDefaultVariantFromType(pArgType);
+        defaultValue = WReflectionUtils::GetDefaultVariantFromType(pArgType);
       }
 
       if (!argAttributes.IsEmpty() && argAttributes[uiArg])
       {
         for (auto pArgAttr : argAttributes[uiArg]->GetArgumentAttributes())
         {
-          if (const ezDefaultValueAttribute* pDef = ezDynamicCast<const ezDefaultValueAttribute*>(pArgAttr))
+          if (const WDefaultValueAttribute* pDef = WDynamicCast<const WDefaultValueAttribute*>(pArgAttr))
           {
             bHasDefaultArgs = true;
             defaultValue = pDef->GetValue();
@@ -486,7 +486,7 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
       if (bHasDefaultArgs)
       {
-        const bool bIsEnum = pArgType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags);
+        const bool bIsEnum = pArgType->GetTypeFlags().IsAnySet(WTypeFlags::IsEnum | WTypeFlags::Bitflags);
 
         decl.Append(" = ");
 
@@ -498,8 +498,8 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
         if (defaultValue.IsValid())
         {
           // AngelScript enums are 32 bit, so bitflag defaults like 0xFFFFFFFF have to be written as -1
-          ezVariantType::Enum expectedType = bIsEnum ? ezVariantType::Int32 : pArgType->GetVariantType();
-          decl.Append(ezAngelScriptUtils::DefaultValueToString(defaultValue, expectedType));
+          WVariantType::Enum expectedType = bIsEnum ? WVariantType::Int32 : pArgType->GetVariantType();
+          decl.Append(WAngelScriptUtils::DefaultValueToString(defaultValue, expectedType));
         }
         else
         {
@@ -520,26 +520,26 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
     flags |= 0x01;
   }
 
-  for (ezUInt32 uiVarArgOpt = 0; uiVarArgOpt < 9; ++uiVarArgOpt)
+  for (WUInt32 uiVarArgOpt = 0; uiVarArgOpt < 9; ++uiVarArgOpt)
   {
     decl.Append(")");
 
-    if (pFunc->GetFunctionType() == ezFunctionType::Member)
+    if (pFunc->GetFunctionType() == WFunctionType::Member)
     {
-      if (pFunc->GetFlags().IsSet(ezPropertyFlags::Const))
+      if (pFunc->GetFlags().IsSet(WPropertyFlags::Const))
         decl.Append(" const");
 
       // only register methods that have not been registered before
       // this allows us to register more optimized versions first
       if (m_pEngine->GetTypeInfoByName(szTypeName)->GetMethodByDecl(decl) == nullptr)
       {
-        const int funcID = m_pEngine->RegisterObjectMethod(szTypeName, decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
+        const int funcID = m_pEngine->RegisterObjectMethod(szTypeName, decl, asFUNCTION(WAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
         AS_CHECK(funcID);
 
-        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
       }
     }
-    else if (pFunc->GetFunctionType() == ezFunctionType::StaticMember)
+    else if (pFunc->GetFunctionType() == WFunctionType::StaticMember)
     {
       m_pEngine->SetDefaultNamespace(sNamespace);
 
@@ -547,10 +547,10 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
       // this allows us to register more optimized versions first
       if (uiVarArgOpt > 0 || !ExistsGlobalFunc(m_pEngine, sNamespace, szFuncName))
       {
-        const int funcID = m_pEngine->RegisterGlobalFunction(decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
+        const int funcID = m_pEngine->RegisterGlobalFunction(decl, asFUNCTION(WAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
         AS_CHECK(funcID);
 
-        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), WAsUserData::FuncFlags);
       }
 
       m_pEngine->SetDefaultNamespace("");

@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezDownscaleDepthConstants, 3)
+CONSTANT_BUFFER(WDownscaleDepthConstants, 3)
 {
   FLOAT2(PixelSize);
   FLOAT1(FadeOutEnd);

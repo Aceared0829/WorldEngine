@@ -7,75 +7,75 @@
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererFoundation/Resources/BufferPool.h>
 
-class ezRenderDataBatch;
-class ezSceneContext;
+class WRenderDataBatch;
+class WSceneContext;
 
-using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
+using WShaderResourceHandle = WTypedResourceHandle<class WShaderResource>;
 
-class ezGridRenderData : public ezRenderData
+class WGridRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGridRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WGridRenderData, WRenderData);
 
 public:
-  ezQuat m_qGlobalRotation;
+  WQuat m_qGlobalRotation;
   float m_fDensity;
-  ezInt32 m_iFirstLine1;
-  ezInt32 m_iLastLine1;
-  ezInt32 m_iFirstLine2;
-  ezInt32 m_iLastLine2;
+  WInt32 m_iFirstLine1;
+  WInt32 m_iLastLine1;
+  WInt32 m_iFirstLine2;
+  WInt32 m_iLastLine2;
   bool m_bOrthoMode;
   bool m_bGlobal;
 };
 
-class ezEditorGridExtractor : public ezExtractor
+class WEditorGridExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorGridExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WEditorGridExtractor, WExtractor);
 
 public:
-  ezEditorGridExtractor(const char* szName = "EditorGridExtractor");
+  WEditorGridExtractor(const char* szName = "EditorGridExtractor");
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
-  ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
+  void SetSceneContext(WSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
+  WSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  ezSceneContext* m_pSceneContext;
+  WSceneContext* m_pSceneContext;
 };
 
 struct alignas(16) GridVertex
 {
-  ezVec3 m_position;
-  ezColorLinearUB m_color;
+  WVec3 m_position;
+  WColorLinearUB m_color;
 };
 
-class ezGridRenderer : public ezRenderer
+class WGridRenderer : public WRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGridRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezGridRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WGridRenderer, WRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WGridRenderer);
 
 public:
-  ezGridRenderer();
+  WGridRenderer();
 
-  // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  // WRenderer implementation
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
+  virtual void RenderBatch(const WRenderViewContext& renderContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
 protected:
   void CreateVertexBuffer();
 
-  static constexpr ezUInt32 s_uiBufferSize = 1024 * 8;
-  static constexpr ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
+  static constexpr WUInt32 s_uiBufferSize = 1024 * 8;
+  static constexpr WUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
 
-  ezShaderResourceHandle m_hShader;
-  ezGALBufferPool m_VertexBuffer;
-  ezSmallArray<ezGALVertexAttribute, 2> m_VertexAttributes;
-  mutable ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
+  WShaderResourceHandle m_hShader;
+  WGALBufferPool m_VertexBuffer;
+  WSmallArray<WGALVertexAttribute, 2> m_VertexAttributes;
+  mutable WDynamicArray<GridVertex, WAlignedAllocatorWrapper> m_Vertices;
 
 private:
-  void CreateGrid(const ezGridRenderData& rd) const;
+  void CreateGrid(const WGridRenderData& rd) const;
 };

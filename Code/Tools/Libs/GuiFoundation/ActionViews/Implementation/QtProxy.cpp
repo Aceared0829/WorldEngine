@@ -15,44 +15,44 @@
 #include <QWidgetAction>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
-ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
-ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
-ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> ezQtProxy::s_DocumentActions;
-ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> ezQtProxy::s_WindowActions;
-QObject* ezQtProxy::s_pSignalProxy = nullptr;
+WRttiMappedObjectFactory<WQtProxy> WQtProxy::s_Factory;
+WMap<WActionDescriptorHandle, QWeakPointer<WQtProxy>> WQtProxy::s_GlobalActions;
+WMap<const WDocument*, WMap<WActionDescriptorHandle, QWeakPointer<WQtProxy>>> WQtProxy::s_DocumentActions;
+WMap<QWidget*, WMap<WActionDescriptorHandle, QWeakPointer<WQtProxy>>> WQtProxy::s_WindowActions;
+QObject* WQtProxy::s_pSignalProxy = nullptr;
 
-static ezQtProxy* QtMenuProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtMenuProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtMenuProxy);
+  return new (WQtMenuProxy);
 }
 
-static ezQtProxy* QtCategoryProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtCategoryProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtCategoryProxy);
+  return new (WQtCategoryProxy);
 }
 
-static ezQtProxy* QtButtonProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtButtonProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtButtonProxy);
+  return new (WQtButtonProxy);
 }
 
-static ezQtProxy* QtDynamicMenuProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtDynamicMenuProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtDynamicMenuProxy);
+  return new (WQtDynamicMenuProxy);
 }
 
-static ezQtProxy* QtDynamicActionAndMenuProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtDynamicActionAndMenuProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtDynamicActionAndMenuProxy);
+  return new (WQtDynamicActionAndMenuProxy);
 }
 
-static ezQtProxy* QtSliderProxyCreator(const ezRTTI* pRtti)
+static WQtProxy* QtSliderProxyCreator(const WRTTI* pRtti)
 {
-  return new (ezQtSliderProxy);
+  return new (WQtSliderProxy);
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "ToolsFoundation",
@@ -61,47 +61,47 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
-    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
-    ezQtProxy::s_pSignalProxy = new QObject;
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WMenuAction>(), QtMenuProxyCreator);
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WCategoryAction>(), QtCategoryProxyCreator);
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WDynamicMenuAction>(), QtDynamicMenuProxyCreator);
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WButtonAction>(), QtButtonProxyCreator);
+    WQtProxy::GetFactory().RegisterCreator(WGetStaticRTTI<WSliderAction>(), QtSliderProxyCreator);
+    WQtProxy::s_pSignalProxy = new QObject;
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezMenuAction>());
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCategoryAction>());
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>());
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>());
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezButtonAction>());
-    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezSliderAction>());
-    ezQtProxy::s_GlobalActions.Clear();
-    ezQtProxy::s_DocumentActions.Clear();
-    ezQtProxy::s_WindowActions.Clear();
-    delete ezQtProxy::s_pSignalProxy;
-    ezQtProxy::s_pSignalProxy = nullptr;
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WMenuAction>());
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WCategoryAction>());
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WDynamicMenuAction>());
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WDynamicActionAndMenuAction>());
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WButtonAction>());
+    WQtProxy::GetFactory().UnregisterCreator(WGetStaticRTTI<WSliderAction>());
+    WQtProxy::s_GlobalActions.Clear();
+    WQtProxy::s_DocumentActions.Clear();
+    WQtProxy::s_WindowActions.Clear();
+    delete WQtProxy::s_pSignalProxy;
+    WQtProxy::s_pSignalProxy = nullptr;
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent, bool bTestOnly)
+bool WQtProxy::TriggerDocumentAction(WDocument* pDocument, QKeyEvent* pEvent, bool bTestOnly)
 {
-  auto CheckActions = [&](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool
+  auto CheckActions = [&](QKeyEvent* pEvent, WMap<WActionDescriptorHandle, QWeakPointer<WQtProxy>>& ref_actions) -> bool
   {
     for (auto weakActionProxy : ref_actions)
     {
       if (auto pProxy = weakActionProxy.Value().toStrongRef())
       {
         QAction* pQAction = nullptr;
-        if (auto pActionProxy = qobject_cast<ezQtActionProxy*>(pProxy))
+        if (auto pActionProxy = qobject_cast<WQtActionProxy*>(pProxy))
         {
           pQAction = pActionProxy->GetQAction();
         }
-        else if (auto pActionProxy2 = qobject_cast<ezQtDynamicActionAndMenuProxy*>(pProxy))
+        else if (auto pActionProxy2 = qobject_cast<WQtDynamicActionAndMenuProxy*>(pProxy))
         {
           pQAction = pActionProxy2->GetQAction();
         }
@@ -126,42 +126,42 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent, 
 
   if (pDocument)
   {
-    ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& actions = s_DocumentActions[pDocument];
+    WMap<WActionDescriptorHandle, QWeakPointer<WQtProxy>>& actions = s_DocumentActions[pDocument];
     if (CheckActions(pEvent, actions))
       return true;
   }
   return CheckActions(pEvent, s_GlobalActions);
 }
 
-ezRttiMappedObjectFactory<ezQtProxy>& ezQtProxy::GetFactory()
+WRttiMappedObjectFactory<WQtProxy>& WQtProxy::GetFactory()
 {
   return s_Factory;
 }
-QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezActionDescriptorHandle hDesc)
+QSharedPointer<WQtProxy> WQtProxy::GetProxy(WActionContext& ref_context, WActionDescriptorHandle hDesc)
 {
-  QSharedPointer<ezQtProxy> pProxy;
-  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
-  if (pDesc->m_Type != ezActionType::Action && pDesc->m_Type != ezActionType::ActionAndMenu)
+  QSharedPointer<WQtProxy> pProxy;
+  const WActionDescriptor* pDesc = hDesc.GetDescriptor();
+  if (pDesc->m_Type != WActionType::Action && pDesc->m_Type != WActionType::ActionAndMenu)
   {
     auto pAction = pDesc->CreateAction(ref_context);
-    pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
+    pProxy = QSharedPointer<WQtProxy>(WQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
+    W_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
     pProxy->SetAction(pAction);
-    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == ref_context.m_pDocument, "invalid document pointer");
+    W_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == ref_context.m_pDocument, "invalid document pointer");
     return pProxy;
   }
 
-  // ezActionType::Action will be cached to ensure only one QAction exist in its scope to prevent shortcut collisions.
+  // WActionType::Action will be cached to ensure only one QAction exist in its scope to prevent shortcut collisions.
   switch (pDesc->m_Scope)
   {
-    case ezActionScope::Global:
+    case WActionScope::Global:
     {
-      QWeakPointer<ezQtProxy> pTemp = s_GlobalActions[hDesc];
+      QWeakPointer<WQtProxy> pTemp = s_GlobalActions[hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(ref_context);
-        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
+        pProxy = QSharedPointer<WQtProxy>(WQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
+        W_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
         s_GlobalActions[hDesc] = pProxy.toWeakRef();
       }
@@ -173,16 +173,16 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezAc
       break;
     }
 
-    case ezActionScope::Document:
+    case WActionScope::Document:
     {
-      const ezDocument* pDocument = ref_context.m_pDocument; // may be null
+      const WDocument* pDocument = ref_context.m_pDocument; // may be null
 
-      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[pDocument][hDesc];
+      QWeakPointer<WQtProxy> pTemp = s_DocumentActions[pDocument][hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(ref_context);
-        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
+        pProxy = QSharedPointer<WQtProxy>(WQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
+        W_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
         s_DocumentActions[pDocument][hDesc] = pProxy;
       }
@@ -194,7 +194,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezAc
       break;
     }
 
-    case ezActionScope::Window:
+    case WActionScope::Window:
     {
       bool bExisted = true;
       auto it = s_WindowActions.FindOrAdd(ref_context.m_pWindow, &bExisted);
@@ -203,12 +203,12 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezAc
         s_pSignalProxy->connect(ref_context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [ref_context]()
           { s_WindowActions.Remove(ref_context.m_pWindow); });
       }
-      QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
+      QWeakPointer<WQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(ref_context);
-        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
+        pProxy = QSharedPointer<WQtProxy>(WQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
+        W_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
         it.Value()[hDesc] = pProxy;
       }
@@ -224,90 +224,90 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezAc
   // make sure we don't use actions that are meant for a different document
   if (pProxy != nullptr && pProxy->GetAction()->GetContext().m_pDocument != nullptr)
   {
-    // if this assert fires, you might have tried to map an action into multiple documents, which uses ezActionScope::Global
-    ezAction* pAction = pProxy->GetAction();
-    const ezActionContext& ctxt = pAction->GetContext();
-    ezDocument* pDoc = ctxt.m_pDocument;
-    EZ_ASSERT_DEV(pDoc == ref_context.m_pDocument, "invalid document pointer");
+    // if this assert fires, you might have tried to map an action into multiple documents, which uses WActionScope::Global
+    WAction* pAction = pProxy->GetAction();
+    const WActionContext& ctxt = pAction->GetContext();
+    WDocument* pDoc = ctxt.m_pDocument;
+    W_ASSERT_DEV(pDoc == ref_context.m_pDocument, "invalid document pointer");
   }
   return pProxy;
 }
 
-ezQtProxy::ezQtProxy()
+WQtProxy::WQtProxy()
 {
   m_pAction = nullptr;
 }
 
-ezQtProxy::~ezQtProxy()
+WQtProxy::~WQtProxy()
 {
   if (m_pAction != nullptr)
-    ezActionManager::GetActionDescriptor(m_pAction->GetDescriptorHandle())->DeleteAction(m_pAction);
+    WActionManager::GetActionDescriptor(m_pAction->GetDescriptorHandle())->DeleteAction(m_pAction);
 }
 
-void ezQtProxy::SetAction(ezAction* pAction)
+void WQtProxy::SetAction(WAction* pAction)
 {
   m_pAction = pAction;
 }
 
-//////////////////// ezQtMenuProxy /////////////////////
+//////////////////// WQtMenuProxy /////////////////////
 
-ezQtMenuProxy::ezQtMenuProxy()
+WQtMenuProxy::WQtMenuProxy()
 {
   m_pMenu = nullptr;
 }
 
-ezQtMenuProxy::~ezQtMenuProxy()
+WQtMenuProxy::~WQtMenuProxy()
 {
-  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtMenuProxy::StatusUpdateEventHandler, this));
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(WMakeDelegate(&WQtMenuProxy::StatusUpdateEventHandler, this));
 
   m_pMenu->deleteLater();
   delete m_pMenu;
 }
 
-void ezQtMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
+void WQtMenuProxy::StatusUpdateEventHandler(WAction* pAction)
 {
   Update();
 }
 
-void ezQtMenuProxy::Update()
+void WQtMenuProxy::Update()
 {
-  auto pMenu = static_cast<ezMenuAction*>(m_pAction);
+  auto pMenu = static_cast<WMenuAction*>(m_pAction);
 
   // note that setting the icon on the menu is pretty pointless, because you'd need to set the icon on something like a QToolButton.
-  // therefore there is another event handler in ezQtToolBarActionMapView::CreateView()
-  m_pMenu->setIcon(ezQtUiServices::GetCachedIconResource(pMenu->GetIconPath()));
-  m_pMenu->setTitle(ezMakeQString(ezTranslate(pMenu->GetName())));
-  m_pMenu->setToolTip(ezMakeQString(ezTranslateTooltip(pMenu->GetName())));
+  // therefore there is another event handler in WQtToolBarActionMapView::CreateView()
+  m_pMenu->setIcon(WQtUiServices::GetCachedIconResource(pMenu->GetIconPath()));
+  m_pMenu->setTitle(WMakeQString(WTranslate(pMenu->GetName())));
+  m_pMenu->setToolTip(WMakeQString(WTranslateTooltip(pMenu->GetName())));
 }
 
-void ezQtMenuProxy::SetAction(ezAction* pAction)
+void WQtMenuProxy::SetAction(WAction* pAction)
 {
-  ezQtProxy::SetAction(pAction);
+  WQtProxy::SetAction(pAction);
 
   m_pMenu = new QMenu();
   m_pMenu->setToolTipsVisible(true);
   Update();
 
-  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtMenuProxy::StatusUpdateEventHandler, this));
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(WMakeDelegate(&WQtMenuProxy::StatusUpdateEventHandler, this));
 }
 
-QMenu* ezQtMenuProxy::GetQMenu()
+QMenu* WQtMenuProxy::GetQMenu()
 {
   return m_pMenu;
 }
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////// ezQtButtonProxy /////////////////////
+//////////////////// WQtButtonProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtButtonProxy::ezQtButtonProxy()
+WQtButtonProxy::WQtButtonProxy()
 {
   m_pQtAction = nullptr;
 }
 
-ezQtButtonProxy::~ezQtButtonProxy()
+WQtButtonProxy::~WQtButtonProxy()
 {
-  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(WMakeDelegate(&WQtButtonProxy::StatusUpdateEventHandler, this));
 
   if (m_pQtAction != nullptr)
   {
@@ -316,21 +316,21 @@ ezQtButtonProxy::~ezQtButtonProxy()
   m_pQtAction = nullptr;
 }
 
-void ezQtButtonProxy::Update()
+void WQtButtonProxy::Update()
 {
   if (m_pQtAction == nullptr)
     return;
 
-  auto pButton = static_cast<ezButtonAction*>(m_pAction);
+  auto pButton = static_cast<WButtonAction*>(m_pAction);
 
 
-  const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+  const WActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
-  QString sTooltip = ezMakeQString(ezTranslateTooltip(pButton->GetName()));
+  QString sTooltip = WMakeQString(WTranslateTooltip(pButton->GetName()));
 
-  ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+  WStringBuilder sDisplay = WTranslate(pButton->GetName());
 
   if (sTooltip.isEmpty())
   {
@@ -348,7 +348,7 @@ void ezQtButtonProxy::Update()
   if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
-  m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
+  m_pQtAction->setIcon(WQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
   m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setCheckable(pButton->IsCheckable());
@@ -358,37 +358,37 @@ void ezQtButtonProxy::Update()
 }
 
 
-void SetupQAction(ezAction* pAction, QPointer<QAction>& ref_pQtAction, QObject* pTarget)
+void SetupQAction(WAction* pAction, QPointer<QAction>& ref_pQtAction, QObject* pTarget)
 {
-  ezActionDescriptorHandle hDesc = pAction->GetDescriptorHandle();
-  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
+  WActionDescriptorHandle hDesc = pAction->GetDescriptorHandle();
+  const WActionDescriptor* pDesc = hDesc.GetDescriptor();
 
   if (ref_pQtAction == nullptr)
   {
     ref_pQtAction = new QAction(nullptr);
-    EZ_VERIFY(QObject::connect(ref_pQtAction, SIGNAL(triggered(bool)), pTarget, SLOT(OnTriggered())) != nullptr, "connection failed");
+    W_VERIFY(QObject::connect(ref_pQtAction, SIGNAL(triggered(bool)), pTarget, SLOT(OnTriggered())) != nullptr, "connection failed");
 
     switch (pDesc->m_Scope)
     {
-      case ezActionScope::Global:
+      case WActionScope::Global:
       {
         // Parent is null so the global actions don't get deleted.
         ref_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
       }
       break;
-      case ezActionScope::Document:
+      case WActionScope::Document:
       {
         if (pAction->GetContext().m_pDocument)
         {
           // Parent is set to the window belonging to the document.
-          ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
-          EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
+          WQtDocumentWindow* pWindow = WQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
+          W_ASSERT_DEBUG(pWindow != nullptr, "You can't map a WActionScope::Document action without that document existing!");
           ref_pQtAction->setParent(pWindow);
           ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
         }
       }
       break;
-      case ezActionScope::Window:
+      case WActionScope::Window:
       {
         ref_pQtAction->setParent(pAction->GetContext().m_pWindow);
         ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
@@ -398,29 +398,29 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& ref_pQtAction, QObject* 
   }
 }
 
-void ezQtButtonProxy::SetAction(ezAction* pAction)
+void WQtButtonProxy::SetAction(WAction* pAction)
 {
-  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
+  W_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
 
-  ezQtProxy::SetAction(pAction);
-  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
+  WQtProxy::SetAction(pAction);
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(WMakeDelegate(&WQtButtonProxy::StatusUpdateEventHandler, this));
 
   SetupQAction(m_pAction, m_pQtAction, this);
 
   Update();
 }
 
-QAction* ezQtButtonProxy::GetQAction()
+QAction* WQtButtonProxy::GetQAction()
 {
   return m_pQtAction;
 }
 
-void ezQtButtonProxy::StatusUpdateEventHandler(ezAction* pAction)
+void WQtButtonProxy::StatusUpdateEventHandler(WAction* pAction)
 {
   Update();
 }
 
-void ezQtButtonProxy::OnTriggered()
+void WQtButtonProxy::OnTriggered()
 {
   // make sure all focus is lost, to trigger pending changes
   QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
@@ -433,18 +433,18 @@ void ezQtButtonProxy::OnTriggered()
     pFocusWidget->setFocus();
 }
 
-void ezQtDynamicMenuProxy::SetAction(ezAction* pAction)
+void WQtDynamicMenuProxy::SetAction(WAction* pAction)
 {
-  ezQtMenuProxy::SetAction(pAction);
+  WQtMenuProxy::SetAction(pAction);
 
-  EZ_VERIFY(connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(SlotMenuAboutToShow())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(SlotMenuAboutToShow())) != nullptr, "signal/slot connection failed");
 }
 
-void ezQtDynamicMenuProxy::SlotMenuAboutToShow()
+void WQtDynamicMenuProxy::SlotMenuAboutToShow()
 {
   m_pMenu->clear();
 
-  static_cast<ezDynamicMenuAction*>(m_pAction)->GetEntries(m_Entries);
+  static_cast<WDynamicMenuAction*>(m_pAction)->GetEntries(m_Entries);
 
   if (m_Entries.IsEmpty())
   {
@@ -452,29 +452,29 @@ void ezQtDynamicMenuProxy::SlotMenuAboutToShow()
   }
   else
   {
-    for (ezUInt32 i = 0; i < m_Entries.GetCount(); ++i)
+    for (WUInt32 i = 0; i < m_Entries.GetCount(); ++i)
     {
       const auto& p = m_Entries[i];
 
-      if (p.m_ItemFlags.IsSet(ezDynamicMenuAction::Item::ItemFlags::Separator))
+      if (p.m_ItemFlags.IsSet(WDynamicMenuAction::Item::ItemFlags::Separator))
       {
         m_pMenu->addSeparator();
       }
       else
       {
-        auto pAction = m_pMenu->addAction(ezMakeQString(p.m_sDisplay));
+        auto pAction = m_pMenu->addAction(WMakeQString(p.m_sDisplay));
         pAction->setData(i);
         pAction->setIcon(p.m_Icon);
-        pAction->setCheckable(p.m_CheckState != ezDynamicMenuAction::Item::CheckMark::NotCheckable);
-        pAction->setChecked(p.m_CheckState == ezDynamicMenuAction::Item::CheckMark::Checked);
+        pAction->setCheckable(p.m_CheckState != WDynamicMenuAction::Item::CheckMark::NotCheckable);
+        pAction->setChecked(p.m_CheckState == WDynamicMenuAction::Item::CheckMark::Checked);
 
-        EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
+        W_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
       }
     }
   }
 }
 
-void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
+void WQtDynamicMenuProxy::SlotMenuEntryTriggered()
 {
   QAction* pAction = qobject_cast<QAction*>(sender());
   if (!pAction)
@@ -485,7 +485,7 @@ void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
   if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
-  ezUInt32 index = pAction->data().toUInt();
+  WUInt32 index = pAction->data().toUInt();
   m_pAction->Execute(m_Entries[index].m_UserValue);
 
   if (pFocusWidget)
@@ -493,15 +493,15 @@ void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
 }
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////// ezQtDynamicActionAndMenuProxy /////////////////////
+//////////////////// WQtDynamicActionAndMenuProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtDynamicActionAndMenuProxy::ezQtDynamicActionAndMenuProxy()
+WQtDynamicActionAndMenuProxy::WQtDynamicActionAndMenuProxy()
 {
   m_pQtAction = nullptr;
 }
 
-ezQtDynamicActionAndMenuProxy::~ezQtDynamicActionAndMenuProxy()
+WQtDynamicActionAndMenuProxy::~WQtDynamicActionAndMenuProxy()
 {
   if (m_pQtAction != nullptr)
   {
@@ -511,25 +511,25 @@ ezQtDynamicActionAndMenuProxy::~ezQtDynamicActionAndMenuProxy()
 }
 
 
-void ezQtDynamicActionAndMenuProxy::Update()
+void WQtDynamicActionAndMenuProxy::Update()
 {
-  ezQtDynamicMenuProxy::Update();
+  WQtDynamicMenuProxy::Update();
 
   if (m_pQtAction == nullptr)
     return;
 
-  auto pButton = static_cast<ezDynamicActionAndMenuAction*>(m_pAction);
+  auto pButton = static_cast<WDynamicActionAndMenuAction*>(m_pAction);
 
-  const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+  const WActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
-  ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+  WStringBuilder sDisplay = WTranslate(pButton->GetName());
 
   if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
-  QString sTooltip = ezMakeQString(ezTranslateTooltip(pButton->GetName()));
+  QString sTooltip = WMakeQString(WTranslateTooltip(pButton->GetName()));
 
   if (sTooltip.isEmpty())
   {
@@ -544,7 +544,7 @@ void ezQtDynamicActionAndMenuProxy::Update()
     sTooltip.append(")");
   }
 
-  m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
+  m_pQtAction->setIcon(WQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
   m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setEnabled(pButton->IsEnabled());
@@ -552,43 +552,43 @@ void ezQtDynamicActionAndMenuProxy::Update()
 }
 
 
-void ezQtDynamicActionAndMenuProxy::SetAction(ezAction* pAction)
+void WQtDynamicActionAndMenuProxy::SetAction(WAction* pAction)
 {
-  ezQtDynamicMenuProxy::SetAction(pAction);
+  WQtDynamicMenuProxy::SetAction(pAction);
 
   SetupQAction(m_pAction, m_pQtAction, this);
 
   Update();
 }
 
-QAction* ezQtDynamicActionAndMenuProxy::GetQAction()
+QAction* WQtDynamicActionAndMenuProxy::GetQAction()
 {
   return m_pQtAction;
 }
 
-void ezQtDynamicActionAndMenuProxy::OnTriggered()
+void WQtDynamicActionAndMenuProxy::OnTriggered()
 {
   // make sure all focus is lost, to trigger pending changes
   QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
   if (pFocusWidget)
     QApplication::focusWidget()->clearFocus();
 
-  m_pAction->Execute(ezVariant());
+  m_pAction->Execute(WVariant());
 
   if (pFocusWidget)
     pFocusWidget->setFocus();
 }
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////// ezQtSliderProxy /////////////////////
+//////////////////// WQtSliderProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* pParent)
+WQtSliderWidgetAction::WQtSliderWidgetAction(QWidget* pParent)
   : QWidgetAction(pParent)
 {
 }
 
-ezQtLabeledSlider::ezQtLabeledSlider(QWidget* pParent)
+WQtLabeledSlider::WQtLabeledSlider(QWidget* pParent)
   : QWidget(pParent)
 {
   m_pLabel = new QLabel(this);
@@ -601,7 +601,7 @@ ezQtLabeledSlider::ezQtLabeledSlider(QWidget* pParent)
   setMaximumWidth(300);
 }
 
-void ezQtSliderWidgetAction::setMinimum(int value)
+void WQtSliderWidgetAction::setMinimum(int value)
 {
   m_iMinimum = value;
 
@@ -609,12 +609,12 @@ void ezQtSliderWidgetAction::setMinimum(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    WQtLabeledSlider* pGroup = qobject_cast<WQtLabeledSlider*>(pWidget);
     pGroup->m_pSlider->setMinimum(m_iMinimum);
   }
 }
 
-void ezQtSliderWidgetAction::setMaximum(int value)
+void WQtSliderWidgetAction::setMaximum(int value)
 {
   m_iMaximum = value;
 
@@ -622,12 +622,12 @@ void ezQtSliderWidgetAction::setMaximum(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    WQtLabeledSlider* pGroup = qobject_cast<WQtLabeledSlider*>(pWidget);
     pGroup->m_pSlider->setMaximum(m_iMaximum);
   }
 }
 
-void ezQtSliderWidgetAction::setValue(int value)
+void WQtSliderWidgetAction::setValue(int value)
 {
   m_iValue = value;
 
@@ -635,22 +635,22 @@ void ezQtSliderWidgetAction::setValue(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    WQtLabeledSlider* pGroup = qobject_cast<WQtLabeledSlider*>(pWidget);
     pGroup->m_pSlider->setValue(m_iValue);
   }
 }
 
-void ezQtSliderWidgetAction::OnValueChanged(int value)
+void WQtSliderWidgetAction::OnValueChanged(int value)
 {
   Q_EMIT valueChanged(value);
 }
 
-QWidget* ezQtSliderWidgetAction::createWidget(QWidget* parent)
+QWidget* WQtSliderWidgetAction::createWidget(QWidget* parent)
 {
-  ezQtLabeledSlider* pGroup = new ezQtLabeledSlider(parent);
+  WQtLabeledSlider* pGroup = new WQtLabeledSlider(parent);
   pGroup->m_pSlider->setOrientation(Qt::Orientation::Horizontal);
 
-  EZ_VERIFY(connect(pGroup->m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
+  W_VERIFY(connect(pGroup->m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
 
   pGroup->m_pLabel->setText(text());
   pGroup->m_pLabel->installEventFilter(this);
@@ -664,7 +664,7 @@ QWidget* ezQtSliderWidgetAction::createWidget(QWidget* parent)
   return pGroup;
 }
 
-bool ezQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
+bool WQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
 {
   if (e->type() == QEvent::Type::MouseButtonPress || e->type() == QEvent::Type::MouseButtonRelease || e->type() == QEvent::Type::MouseButtonDblClick)
   {
@@ -675,14 +675,14 @@ bool ezQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
   return false;
 }
 
-ezQtSliderProxy::ezQtSliderProxy()
+WQtSliderProxy::WQtSliderProxy()
 {
   m_pQtAction = nullptr;
 }
 
-ezQtSliderProxy::~ezQtSliderProxy()
+WQtSliderProxy::~WQtSliderProxy()
 {
-  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSliderProxy::StatusUpdateEventHandler, this));
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(WMakeDelegate(&WQtSliderProxy::StatusUpdateEventHandler, this));
 
   if (m_pQtAction != nullptr)
   {
@@ -691,56 +691,56 @@ ezQtSliderProxy::~ezQtSliderProxy()
   m_pQtAction = nullptr;
 }
 
-void ezQtSliderProxy::Update()
+void WQtSliderProxy::Update()
 {
   if (m_pQtAction == nullptr)
     return;
 
-  auto pAction = static_cast<ezSliderAction*>(m_pAction);
+  auto pAction = static_cast<WSliderAction*>(m_pAction);
 
-  const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+  const WActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
 
-  ezQtSliderWidgetAction* pSliderAction = qobject_cast<ezQtSliderWidgetAction*>(m_pQtAction);
-  ezQtScopedBlockSignals bs(pSliderAction);
+  WQtSliderWidgetAction* pSliderAction = qobject_cast<WQtSliderWidgetAction*>(m_pQtAction);
+  WQtScopedBlockSignals bs(pSliderAction);
 
-  ezInt32 minVal, maxVal;
+  WInt32 minVal, maxVal;
   pAction->GetRange(minVal, maxVal);
   pSliderAction->setMinimum(minVal);
   pSliderAction->setMaximum(maxVal);
   pSliderAction->setValue(pAction->GetValue());
-  pSliderAction->setText(ezMakeQString(ezTranslate(pAction->GetName())));
-  pSliderAction->setToolTip(ezMakeQString(ezTranslateTooltip(pAction->GetName())));
+  pSliderAction->setText(WMakeQString(WTranslate(pAction->GetName())));
+  pSliderAction->setToolTip(WMakeQString(WTranslateTooltip(pAction->GetName())));
   pSliderAction->setEnabled(pAction->IsEnabled());
   pSliderAction->setVisible(pAction->IsVisible());
 }
 
-void ezQtSliderProxy::SetAction(ezAction* pAction)
+void WQtSliderProxy::SetAction(WAction* pAction)
 {
-  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
+  W_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
 
-  ezQtProxy::SetAction(pAction);
-  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtSliderProxy::StatusUpdateEventHandler, this));
+  WQtProxy::SetAction(pAction);
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(WMakeDelegate(&WQtSliderProxy::StatusUpdateEventHandler, this));
 
-  ezActionDescriptorHandle hDesc = m_pAction->GetDescriptorHandle();
-  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
+  WActionDescriptorHandle hDesc = m_pAction->GetDescriptorHandle();
+  const WActionDescriptor* pDesc = hDesc.GetDescriptor();
 
   if (m_pQtAction == nullptr)
   {
-    m_pQtAction = new ezQtSliderWidgetAction(nullptr);
+    m_pQtAction = new WQtSliderWidgetAction(nullptr);
 
-    EZ_VERIFY(connect(m_pQtAction, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
+    W_VERIFY(connect(m_pQtAction, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
   }
 
   Update();
 }
 
-QAction* ezQtSliderProxy::GetQAction()
+QAction* WQtSliderProxy::GetQAction()
 {
   return m_pQtAction;
 }
 
 
-void ezQtSliderProxy::OnValueChanged(int value)
+void WQtSliderProxy::OnValueChanged(int value)
 {
   // make sure all focus is lost, to trigger pending changes
   QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
@@ -755,7 +755,7 @@ void ezQtSliderProxy::OnValueChanged(int value)
     pFocusWidget->setFocus();
 }
 
-void ezQtSliderProxy::StatusUpdateEventHandler(ezAction* pAction)
+void WQtSliderProxy::StatusUpdateEventHandler(WAction* pAction)
 {
   Update();
 }

@@ -1,20 +1,20 @@
-class TargetSphere : ezAngelScriptClass
+class TargetSphere : WAngelScriptClass
 {
     private int curDamage = 0;
 
     void OnSimulationStarted()
     {
-        SetUpdateInterval(ezTime::Milliseconds(100));
+        SetUpdateInterval(WTime::Milliseconds(100));
     }
 
-    void OnMsgDamage(ezMsgDamage@ msg)
+    void OnMsgDamage(WMsgDamage@ msg)
     {
         curDamage += int(msg.Damage);
     }
 
-    void OnMsgInputActionTriggered(ezMsgInputActionTriggered@ msg)
+    void OnMsgInputActionTriggered(WMsgInputActionTriggered@ msg)
     {
-        if (msg.TriggerState == ezTriggerState::Activated)
+        if (msg.TriggerState == WTriggerState::Activated)
         {
             if (msg.InputAction == "Heal")
             {
@@ -25,15 +25,15 @@ class TargetSphere : ezAngelScriptClass
 
     void Update()
     {
-        curDamage = ezMath::Clamp(curDamage - 1, 0, 1000.0f);
+        curDamage = WMath::Clamp(curDamage - 1, 0, 1000.0f);
         float dmg = curDamage / 100.0f;
 
-        ezMsgSetColor msgCol;
-        msgCol.Color = ezColor::MakeRGBA(dmg, dmg * 0.05, dmg * 0.05, 1.0);
+        WMsgSetColor msgCol;
+        msgCol.Color = WColor::MakeRGBA(dmg, dmg * 0.05, dmg * 0.05, 1.0);
 
         GetOwner().SendMessageRecursive(msgCol);
 
-        ezParticleComponent@ fireFX;
+        WParticleComponent@ fireFX;
         if (GetOwner().TryGetComponentOfBaseType(@fireFX))
         {
             if (dmg > 1.0)

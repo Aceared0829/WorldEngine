@@ -2,45 +2,45 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class ezPhysicsWorldModuleInterface;
+class WPhysicsWorldModuleInterface;
 
 /// Behavior that restricts particles to a box volume
 ///
 /// Particles can be killed, teleported or bounced when leaving the box bounds.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Bounds final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_Bounds final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Bounds, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_Bounds, WParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Bounds();
+  WParticleBehaviorFactory_Bounds();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezVec3 m_vPositionOffset;
-  ezVec3 m_vBoxExtents;
-  ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
+  WVec3 m_vPositionOffset;
+  WVec3 m_vBoxExtents;
+  WEnum<WParticleOutOfBoundsMode> m_OutOfBoundsMode;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Bounds final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_Bounds final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Bounds, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_Bounds, WParticleBehavior);
 
 public:
-  ezVec3 m_vPositionOffset;
-  ezVec3 m_vBoxExtents;
-  ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
+  WVec3 m_vPositionOffset;
+  WVec3 m_vBoxExtents;
+  WEnum<WParticleOutOfBoundsMode> m_OutOfBoundsMode;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
   virtual void CreateRequiredStreams() override;
   virtual void QueryOptionalStreams() override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamLastPosition = nullptr;
 };

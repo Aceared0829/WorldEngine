@@ -2,9 +2,9 @@
 
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 
-ezQtScenegraphModel::ezQtScenegraphModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root)
-  : ezQtGameObjectModel(pObjectManager, root)
+WQtScenegraphModel::WQtScenegraphModel(const WDocumentObjectManager* pObjectManager, const WUuid& root)
+  : WQtGameObjectModel(pObjectManager, root)
 {
 }
 
-ezQtScenegraphModel::~ezQtScenegraphModel() = default;
+WQtScenegraphModel::~WQtScenegraphModel() = default;

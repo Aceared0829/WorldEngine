@@ -8,15 +8,15 @@
 #include <QTextDocument>
 #include <QWidget>
 
-class ezQtLogModel;
-class ezQtSearchWidget;
+class WQtLogModel;
+class WQtSearchWidget;
 
 /// Renders log entries that contain embedded [[text|target]] links and handles navigation on double-click or middle-click.
-class ezQtLogWidgetItemDelegate : public ezQtItemDelegate
+class WQtLogWidgetItemDelegate : public WQtItemDelegate
 {
   Q_OBJECT
 public:
-  ezQtLogWidgetItemDelegate(QObject* pParent);
+  WQtLogWidgetItemDelegate(QObject* pParent);
   virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual bool mouseHoverEvent(QHoverEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   virtual bool mouseDoubleClickEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
@@ -29,26 +29,26 @@ private:
 };
 
 /// The application wide panel that shows the engine log output and the editor log output
-class EZ_GUIFOUNDATION_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
+class W_GUIFOUNDATION_DLL WQtLogWidget : public QWidget, public Ui_LogWidget
 {
   Q_OBJECT
 
 public:
-  ezQtLogWidget(QWidget* pParent);
-  ~ezQtLogWidget();
+  WQtLogWidget(QWidget* pParent);
+  ~WQtLogWidget();
 
   void ShowControls(bool bShow);
 
-  ezQtLogModel* GetLog();
-  ezQtSearchWidget* GetSearchWidget();
-  void SetLogLevel(ezLogMsgType::Enum logLevel);
-  ezLogMsgType::Enum GetLogLevel() const;
+  WQtLogModel* GetLog();
+  WQtSearchWidget* GetSearchWidget();
+  void SetLogLevel(WLogMsgType::Enum logLevel);
+  WLogMsgType::Enum GetLogLevel() const;
 
   virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 
-  using LogItemContextActionCallback = ezDelegate<void(const ezStringView& sLogText)>;
-  static bool AddLogItemContextActionCallback(const ezStringView& sName, const LogItemContextActionCallback& logCallback);
-  static bool RemoveLogItemContextActionCallback(const ezStringView& sName);
+  using LogItemContextActionCallback = WDelegate<void(const WStringView& sLogText)>;
+  static bool AddLogItemContextActionCallback(const WStringView& sName, const LogItemContextActionCallback& logCallback);
+  static bool RemoveLogItemContextActionCallback(const WStringView& sName);
 
 private Q_SLOTS:
   void on_ButtonClearLog_clicked();
@@ -57,11 +57,11 @@ private Q_SLOTS:
   void OnItemDoubleClicked(QModelIndex idx);
 
 private:
-  ezQtLogModel* m_pLog;
+  WQtLogModel* m_pLog;
   void ScrollToBottomIfAtEnd(int iFirstNewRow);
 
-  ezQtLogWidgetItemDelegate* m_pDelegate = nullptr;
+  WQtLogWidgetItemDelegate* m_pDelegate = nullptr;
 
   /// List of callbacks invoked when the user double clicks a log message
-  static ezMap<ezString, LogItemContextActionCallback> s_LogCallbacks;
+  static WMap<WString, LogItemContextActionCallback> s_LogCallbacks;
 };

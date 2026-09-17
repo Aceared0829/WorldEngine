@@ -4,107 +4,107 @@ void ExecuteTests()
 {
     // typedef to basic type
     {
-        ezUInt32 test = 5;
-        array<ezUInt32> elements;
+        WUInt32 test = 5;
+        array<WUInt32> elements;
 
-        EZ_TEST_BOOL(elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 0);
-        EZ_TEST_BOOL(!elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), -1);
+        W_TEST_BOOL(elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 0);
+        W_TEST_BOOL(!elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), -1);
         elements.PushBack(test);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 1);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 1);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_BOOL(elements[0] == test);
     }
 
     // pod value type
     {
-        ezGameObjectHandle test;
-        array<ezGameObjectHandle> elements;
+        WGameObjectHandle test;
+        array<WGameObjectHandle> elements;
 
-        EZ_TEST_BOOL(elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 0);
-        EZ_TEST_BOOL(!elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), -1);
+        W_TEST_BOOL(elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 0);
+        W_TEST_BOOL(!elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), -1);
         elements.PushBack(test);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 1);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 1);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_BOOL(elements[0] == test);
     }
 
     // Bigger pod value type
     {
-        ezVec4 test(1.0f, 2.0f, 3.0f, 4.0f);
-        ezVec4 test2(5.0f, 6.0f, 7.0f, 8.0f);
-        array<ezVec4> elements;
+        WVec4 test(1.0f, 2.0f, 3.0f, 4.0f);
+        WVec4 test2(5.0f, 6.0f, 7.0f, 8.0f);
+        array<WVec4> elements;
 
-        EZ_TEST_BOOL(elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 0);
-        EZ_TEST_BOOL(!elements.Contains(test));
-        EZ_TEST_BOOL(!elements.Contains(test2));
-        EZ_TEST_INT(elements.IndexOf(test), -1);
-        EZ_TEST_INT(elements.IndexOf(test2), -1);
+        W_TEST_BOOL(elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 0);
+        W_TEST_BOOL(!elements.Contains(test));
+        W_TEST_BOOL(!elements.Contains(test2));
+        W_TEST_INT(elements.IndexOf(test), -1);
+        W_TEST_INT(elements.IndexOf(test2), -1);
 
         elements.PushBack(test);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 1);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_BOOL(elements[0] == test);
-        EZ_TEST_BOOL(elements[0] != test2);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 1);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(elements[0] != test2);
 
         elements.PushBack(test2);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 2);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_BOOL(elements.Contains(test2));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_INT(elements.IndexOf(test2), 1);
-        EZ_TEST_BOOL(elements[0] == test);
-        EZ_TEST_BOOL(elements[1] == test2);
-        EZ_TEST_BOOL(elements[0] != test2);
-        EZ_TEST_BOOL(elements[1] != test);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 2);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_BOOL(elements.Contains(test2));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_INT(elements.IndexOf(test2), 1);
+        W_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(elements[1] == test2);
+        W_TEST_BOOL(elements[0] != test2);
+        W_TEST_BOOL(elements[1] != test);
 
-        elements.PushBack(ezVec4(9.0f, 10.0f, 11.0f, 12.0f));
-        EZ_TEST_BOOL(elements.Contains(ezVec4(9.0f, 10.0f, 11.0f, 12.0f)));
-        EZ_TEST_BOOL(elements[2] == ezVec4(9.0f, 10.0f, 11.0f, 12.0f));
+        elements.PushBack(WVec4(9.0f, 10.0f, 11.0f, 12.0f));
+        W_TEST_BOOL(elements.Contains(WVec4(9.0f, 10.0f, 11.0f, 12.0f)));
+        W_TEST_BOOL(elements[2] == WVec4(9.0f, 10.0f, 11.0f, 12.0f));
     }
 
     // non-pod value type
     {
-        ezString test = "Test";
-        array<ezString> elements;
+        WString test = "Test";
+        array<WString> elements;
 
-        EZ_TEST_BOOL(elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 0);
-        EZ_TEST_BOOL(!elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), -1);
+        W_TEST_BOOL(elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 0);
+        W_TEST_BOOL(!elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), -1);
         elements.PushBack(test);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 1);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 1);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_BOOL(elements[0] == test);
     }
 
-    // ezStringView
+    // WStringView
     {
-        ezStringView test = "Test";
-        array<ezStringView> elements;
+        WStringView test = "Test";
+        array<WStringView> elements;
 
-        EZ_TEST_BOOL(elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 0);
-        EZ_TEST_BOOL(!elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), -1);
+        W_TEST_BOOL(elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 0);
+        W_TEST_BOOL(!elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), -1);
         elements.PushBack(test);
-        EZ_TEST_BOOL(!elements.IsEmpty());
-        EZ_TEST_BOOL(elements.GetCount() == 1);
-        EZ_TEST_BOOL(elements.Contains(test));
-        EZ_TEST_INT(elements.IndexOf(test), 0);
-        EZ_TEST_BOOL(elements[0] == test);
+        W_TEST_BOOL(!elements.IsEmpty());
+        W_TEST_BOOL(elements.GetCount() == 1);
+        W_TEST_BOOL(elements.Contains(test));
+        W_TEST_INT(elements.IndexOf(test), 0);
+        W_TEST_BOOL(elements[0] == test);
     }
 }

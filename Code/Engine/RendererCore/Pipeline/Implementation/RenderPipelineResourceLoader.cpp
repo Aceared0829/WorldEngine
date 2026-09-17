@@ -14,92 +14,92 @@
 
 namespace
 {
-  bool IsInputBoundaryNode(const ezRTTI* pType)
+  bool IsInputBoundaryNode(const WRTTI* pType)
   {
-    return pType == ezGetStaticRTTI<ezSubGraphTextureInputNode>() || pType == ezGetStaticRTTI<ezSubGraphBufferInputNode>();
+    return pType == WGetStaticRTTI<WSubGraphTextureInputNode>() || pType == WGetStaticRTTI<WSubGraphBufferInputNode>();
   }
 
-  bool IsOutputBoundaryNode(const ezRTTI* pType)
+  bool IsOutputBoundaryNode(const WRTTI* pType)
   {
-    return pType == ezGetStaticRTTI<ezSubGraphTextureOutputNode>() || pType == ezGetStaticRTTI<ezSubGraphBufferOutputNode>();
+    return pType == WGetStaticRTTI<WSubGraphTextureOutputNode>() || pType == WGetStaticRTTI<WSubGraphBufferOutputNode>();
   }
 
-  bool IsBoundaryNode(const ezRTTI* pType)
+  bool IsBoundaryNode(const WRTTI* pType)
   {
     return IsInputBoundaryNode(pType) || IsOutputBoundaryNode(pType);
   }
 } // namespace
 
 ////////////////////////////////////////////////////////////////////////
-// ezVisualGraphObjectManager Internal
+// WVisualGraphObjectManager Internal
 ////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineResourceLoaderConnection, ezNoBase, 1, ezRTTIDefaultAllocator<ezRenderPipelineResourceLoaderConnection>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WRenderPipelineResourceLoaderConnection, WNoBase, 1, WRTTIDefaultAllocator<WRenderPipelineResourceLoaderConnection>)
 {
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezRenderPipelineResourceLoaderConnection::Serialize(ezStreamWriter& inout_stream) const
+WResult WRenderPipelineResourceLoaderConnection::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_uiSource;
   inout_stream << m_uiTarget;
   inout_stream << m_sSourcePin;
   inout_stream << m_sTargetPin;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezRenderPipelineResourceLoaderConnection::Deserialize(ezStreamReader& inout_stream)
+WResult WRenderPipelineResourceLoaderConnection::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_VERIFY(ezTypeVersionReadContext::GetContext()->GetTypeVersion(ezGetStaticRTTI<ezRenderPipelineResourceLoaderConnection>()) == 1, "Unknown version");
+  W_VERIFY(WTypeVersionReadContext::GetContext()->GetTypeVersion(WGetStaticRTTI<WRenderPipelineResourceLoaderConnection>()) == 1, "Unknown version");
 
   inout_stream >> m_uiSource;
   inout_stream >> m_uiTarget;
   inout_stream >> m_sSourcePin;
   inout_stream >> m_sTargetPin;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-constexpr ezTypeVersion s_RenderPipelineDescriptorVersion = 1;
+constexpr WTypeVersion s_RenderPipelineDescriptorVersion = 1;
 
 // static
-ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_streamReader, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& out_passes, ezDynamicArray<ezUniquePtr<ezExtractor>>& out_extractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& out_connections)
+WStatus WRenderPipelineResourceLoader::ImportPipeline(WStreamReader& ref_streamReader, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& out_passes, WDynamicArray<WUniquePtr<WExtractor>>& out_extractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& out_connections)
 {
   out_passes.Clear();
   out_extractors.Clear();
   out_connections.Clear();
 
   const auto uiVersion = ref_streamReader.ReadVersion(s_RenderPipelineDescriptorVersion);
-  EZ_IGNORE_UNUSED(uiVersion);
+  W_IGNORE_UNUSED(uiVersion);
 
-  ezStringDeduplicationReadContext stringDeduplicationReadContext(ref_streamReader);
-  ezTypeVersionReadContext typeVersionReadContext(ref_streamReader);
+  WStringDeduplicationReadContext stringDeduplicationReadContext(ref_streamReader);
+  WTypeVersionReadContext typeVersionReadContext(ref_streamReader);
 
-  ezStringBuilder sTypeName;
+  WStringBuilder sTypeName;
 
   // Passes
   {
-    ezUInt32 uiNumPasses = 0;
+    WUInt32 uiNumPasses = 0;
     ref_streamReader >> uiNumPasses;
     out_passes.Reserve(uiNumPasses);
 
-    for (ezUInt32 i = 0; i < uiNumPasses; ++i)
+    for (WUInt32 i = 0; i < uiNumPasses; ++i)
     {
       ref_streamReader >> sTypeName;
-      const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
+      const WRTTI* pType = WRTTI::FindTypeByName(sTypeName);
       if (pType == nullptr)
-        return ezStatus(ezFmt("Render pipeline pass type '{}' is unknown.", sTypeName));
-      if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
-        return ezStatus(ezFmt("Render pipeline pass type '{}' is not derived from ezRenderPipelinePass.", sTypeName));
+        return WStatus(WFmt("Render pipeline pass type '{}' is unknown.", sTypeName));
+      if (!pType->IsDerivedFrom<WRenderPipelinePass>())
+        return WStatus(WFmt("Render pipeline pass type '{}' is not derived from WRenderPipelinePass.", sTypeName));
       if (pType->GetAllocator() == nullptr || !pType->GetAllocator()->CanAllocate())
-        return ezStatus(ezFmt("Render pipeline pass type '{}' cannot be allocated.", sTypeName));
+        return WStatus(WFmt("Render pipeline pass type '{}' cannot be allocated.", sTypeName));
 
-      ezUniquePtr<ezRenderPipelinePass> pPass = pType->GetAllocator()->Allocate<ezRenderPipelinePass>();
+      WUniquePtr<WRenderPipelinePass> pPass = pType->GetAllocator()->Allocate<WRenderPipelinePass>();
       if (pPass->Deserialize(ref_streamReader).Failed())
-        return ezStatus(ezFmt("Failed to deserialize render pipeline pass of type '{}'.", sTypeName));
+        return WStatus(WFmt("Failed to deserialize render pipeline pass of type '{}'.", sTypeName));
 
       out_passes.PushBack(std::move(pPass));
     }
@@ -107,24 +107,24 @@ ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_stre
 
   // Extractors
   {
-    ezUInt32 uiNumExtractors = 0;
+    WUInt32 uiNumExtractors = 0;
     ref_streamReader >> uiNumExtractors;
     out_extractors.Reserve(uiNumExtractors);
 
-    for (ezUInt32 i = 0; i < uiNumExtractors; ++i)
+    for (WUInt32 i = 0; i < uiNumExtractors; ++i)
     {
       ref_streamReader >> sTypeName;
-      const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
+      const WRTTI* pType = WRTTI::FindTypeByName(sTypeName);
       if (pType == nullptr)
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' is unknown.", sTypeName));
-      if (!pType->IsDerivedFrom<ezExtractor>())
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' is not derived from ezExtractor.", sTypeName));
+        return WStatus(WFmt("Render pipeline extractor type '{}' is unknown.", sTypeName));
+      if (!pType->IsDerivedFrom<WExtractor>())
+        return WStatus(WFmt("Render pipeline extractor type '{}' is not derived from WExtractor.", sTypeName));
       if (pType->GetAllocator() == nullptr || !pType->GetAllocator()->CanAllocate())
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' cannot be allocated.", sTypeName));
+        return WStatus(WFmt("Render pipeline extractor type '{}' cannot be allocated.", sTypeName));
 
-      ezUniquePtr<ezExtractor> pExtractor = pType->GetAllocator()->Allocate<ezExtractor>();
+      WUniquePtr<WExtractor> pExtractor = pType->GetAllocator()->Allocate<WExtractor>();
       if (pExtractor->Deserialize(ref_streamReader).Failed())
-        return ezStatus(ezFmt("Failed to deserialize render pipeline extractor of type '{}'.", sTypeName));
+        return WStatus(WFmt("Failed to deserialize render pipeline extractor of type '{}'.", sTypeName));
 
       out_extractors.PushBack(std::move(pExtractor));
     }
@@ -132,60 +132,60 @@ ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_stre
 
   // Connections
   {
-    ezUInt32 uiNumConnections = 0;
+    WUInt32 uiNumConnections = 0;
     ref_streamReader >> uiNumConnections;
     out_connections.SetCount(uiNumConnections);
 
-    for (ezUInt32 i = 0; i < uiNumConnections; ++i)
+    for (WUInt32 i = 0; i < uiNumConnections; ++i)
     {
       if (out_connections[i].Deserialize(ref_streamReader).Failed())
-        return ezStatus(ezFmt("Failed to deserialize render pipeline connection {}.", i));
+        return WStatus(WFmt("Failed to deserialize render pipeline connection {}.", i));
 
       if (out_connections[i].m_uiSource >= out_passes.GetCount() || out_connections[i].m_uiTarget >= out_passes.GetCount())
-        return ezStatus(ezFmt("Render pipeline connection {} references a pass index outside of the {} passes in the pipeline.", i, out_passes.GetCount()));
+        return WStatus(WFmt("Render pipeline connection {} references a pass index outside of the {} passes in the pipeline.", i, out_passes.GetCount()));
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<ezRenderPipelineNode*>& ref_nodes, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_ownedPasses, ezDynamicArray<ezExtractor*>& ref_extractors, ezDynamicArray<ezUniquePtr<ezExtractor>>& ref_ownedExtractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& ref_connections, const ImportPipelineCallback& importPipeline)
+WStatus WRenderPipelineResourceLoader::InlineImportedSubGraphs(WDynamicArray<WRenderPipelineNode*>& ref_nodes, WDynamicArray<WUniquePtr<WRenderPipelinePass>>& ref_ownedPasses, WDynamicArray<WExtractor*>& ref_extractors, WDynamicArray<WUniquePtr<WExtractor>>& ref_ownedExtractors, WDynamicArray<WRenderPipelineResourceLoaderConnection>& ref_connections, const ImportPipelineCallback& importPipeline)
 {
-  ezSet<const ezRTTI*> extractorTypes;
-  for (const ezExtractor* pExtractor : ref_extractors)
+  WSet<const WRTTI*> extractorTypes;
+  for (const WExtractor* pExtractor : ref_extractors)
   {
     extractorTypes.Insert(pExtractor->GetDynamicRTTI());
   }
 
-  for (ezUInt32 iSub = 0; iSub < ref_nodes.GetCount(); ++iSub)
+  for (WUInt32 iSub = 0; iSub < ref_nodes.GetCount(); ++iSub)
   {
-    const ezSubGraphNode* pSubGraph = ezDynamicCast<const ezSubGraphNode*>(ref_nodes[iSub]);
+    const WSubGraphNode* pSubGraph = WDynamicCast<const WSubGraphNode*>(ref_nodes[iSub]);
     if (pSubGraph == nullptr)
       continue;
 
-    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> importedPasses;
-    ezDynamicArray<ezUniquePtr<ezExtractor>> importedExtractors;
-    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> importedConnections;
+    WDynamicArray<WUniquePtr<WRenderPipelinePass>> importedPasses;
+    WDynamicArray<WUniquePtr<WExtractor>> importedExtractors;
+    WDynamicArray<WRenderPipelineResourceLoaderConnection> importedConnections;
 
     // Sub-pipeline binaries are already fully inlined because dependencies are transformed first.
     // Therefore, no imported pipeline can contain another Subgraph node at this point.
-    ezStatus res = importPipeline(pSubGraph->m_sPipeline, importedPasses, importedExtractors, importedConnections);
+    WStatus res = importPipeline(pSubGraph->m_sPipeline, importedPasses, importedExtractors, importedConnections);
     if (res.Failed())
-      return ezStatus(ezFmt("Failed to import sub-graph pipeline '{}': {}", pSubGraph->m_sPipeline, res.GetMessageString()));
+      return WStatus(WFmt("Failed to import sub-graph pipeline '{}': {}", pSubGraph->m_sPipeline, res.GetMessageString()));
 
-    for (const ezRenderPipelineResourceLoaderConnection& connection : importedConnections)
+    for (const WRenderPipelineResourceLoaderConnection& connection : importedConnections)
     {
       if (connection.m_uiSource >= importedPasses.GetCount() || connection.m_uiTarget >= importedPasses.GetCount())
-        return ezStatus(ezFmt("Sub-graph pipeline '{}' contains a connection with an invalid node index.", pSubGraph->m_sPipeline));
+        return WStatus(WFmt("Sub-graph pipeline '{}' contains a connection with an invalid node index.", pSubGraph->m_sPipeline));
     }
 
     // Map sub-graph pass indices to parent pass indices. Boundary nodes are eliminated during
-    // inlining and retain ezInvalidIndex in this mapping.
-    ezDynamicArray<ezUInt32> subToParentIndex;
-    subToParentIndex.SetCount(importedPasses.GetCount(), ezInvalidIndex);
-    for (ezUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
+    // inlining and retain WInvalidIndex in this mapping.
+    WDynamicArray<WUInt32> subToParentIndex;
+    subToParentIndex.SetCount(importedPasses.GetCount(), WInvalidIndex);
+    for (WUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
     {
-      ezRenderPipelinePass* pPass = importedPasses[iSubNode].Borrow();
+      WRenderPipelinePass* pPass = importedPasses[iSubNode].Borrow();
       if (IsBoundaryNode(pPass->GetDynamicRTTI()))
         continue;
 
@@ -194,14 +194,14 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
     }
 
     // Add internal sub-graph connections between non-boundary passes.
-    for (const ezRenderPipelineResourceLoaderConnection& subConn : importedConnections)
+    for (const WRenderPipelineResourceLoaderConnection& subConn : importedConnections)
     {
       const bool bSourceIsBoundary = IsBoundaryNode(importedPasses[subConn.m_uiSource]->GetDynamicRTTI());
       const bool bTargetIsBoundary = IsBoundaryNode(importedPasses[subConn.m_uiTarget]->GetDynamicRTTI());
       if (bSourceIsBoundary || bTargetIsBoundary)
         continue;
 
-      ezRenderPipelineResourceLoaderConnection& newConn = ref_connections.ExpandAndGetRef();
+      WRenderPipelineResourceLoaderConnection& newConn = ref_connections.ExpandAndGetRef();
       newConn = subConn;
       newConn.m_uiSource = subToParentIndex[subConn.m_uiSource];
       newConn.m_uiTarget = subToParentIndex[subConn.m_uiTarget];
@@ -209,24 +209,24 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
 
     struct BoundaryPassthrough
     {
-      ezString m_sOutput;
-      ezUInt32 m_uiSource = ezInvalidIndex;
-      ezString m_sSourcePin;
+      WString m_sOutput;
+      WUInt32 m_uiSource = WInvalidIndex;
+      WString m_sSourcePin;
     };
 
     // Find connections that connect an input directly to an output node (i.e. direct passthrough)
-    ezDynamicArray<BoundaryPassthrough> boundaryPassthroughs;
-    for (const ezRenderPipelineResourceLoaderConnection& subConn : importedConnections)
+    WDynamicArray<BoundaryPassthrough> boundaryPassthroughs;
+    for (const WRenderPipelineResourceLoaderConnection& subConn : importedConnections)
     {
-      ezRenderPipelinePass* pInputBoundary = importedPasses[subConn.m_uiSource].Borrow();
-      ezRenderPipelinePass* pOutputBoundary = importedPasses[subConn.m_uiTarget].Borrow();
+      WRenderPipelinePass* pInputBoundary = importedPasses[subConn.m_uiSource].Borrow();
+      WRenderPipelinePass* pOutputBoundary = importedPasses[subConn.m_uiTarget].Borrow();
       if (!IsInputBoundaryNode(pInputBoundary->GetDynamicRTTI()) || !IsOutputBoundaryNode(pOutputBoundary->GetDynamicRTTI()))
         continue;
 
       BoundaryPassthrough& forward = boundaryPassthroughs.ExpandAndGetRef();
       forward.m_sOutput = pOutputBoundary->GetName();
 
-      for (const ezRenderPipelineResourceLoaderConnection& parentConn : ref_connections)
+      for (const WRenderPipelineResourceLoaderConnection& parentConn : ref_connections)
       {
         if (parentConn.m_uiTarget == iSub && parentConn.m_sTargetPin == pInputBoundary->GetName())
         {
@@ -239,27 +239,27 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
 
     // Remap connections to SubGraph input pins to every internal consumer of the matching input
     // boundary. Iterate only over existing parent connections because fan-out adds new entries.
-    const ezUInt32 uiConnCountBeforeInputRemap = ref_connections.GetCount();
-    for (ezUInt32 iConn = 0; iConn < uiConnCountBeforeInputRemap; ++iConn)
+    const WUInt32 uiConnCountBeforeInputRemap = ref_connections.GetCount();
+    for (WUInt32 iConn = 0; iConn < uiConnCountBeforeInputRemap; ++iConn)
     {
       if (ref_connections[iConn].m_uiTarget != iSub)
         continue;
 
-      const ezString sPinName = ref_connections[iConn].m_sTargetPin;
+      const WString sPinName = ref_connections[iConn].m_sTargetPin;
       bool bPinFound = false;
       bool bRemapped = false;
-      for (ezUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
+      for (WUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
       {
-        ezRenderPipelinePass* pBoundary = importedPasses[iSubNode].Borrow();
+        WRenderPipelinePass* pBoundary = importedPasses[iSubNode].Borrow();
         if (!IsInputBoundaryNode(pBoundary->GetDynamicRTTI()) || pBoundary->GetName() != sPinName)
           continue;
 
         bPinFound = true;
-        for (const ezRenderPipelineResourceLoaderConnection& subConn : importedConnections)
+        for (const WRenderPipelineResourceLoaderConnection& subConn : importedConnections)
         {
           if (subConn.m_uiSource != iSubNode || subConn.m_sSourcePin != "Value")
             continue;
-          if (subToParentIndex[subConn.m_uiTarget] == ezInvalidIndex)
+          if (subToParentIndex[subConn.m_uiTarget] == WInvalidIndex)
             continue;
 
           if (!bRemapped)
@@ -270,7 +270,7 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
           }
           else
           {
-            ezRenderPipelineResourceLoaderConnection extra = ref_connections[iConn];
+            WRenderPipelineResourceLoaderConnection extra = ref_connections[iConn];
             extra.m_uiTarget = subToParentIndex[subConn.m_uiTarget];
             extra.m_sTargetPin = subConn.m_sTargetPin;
             ref_connections.PushBack(std::move(extra));
@@ -280,33 +280,33 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
       }
 
       if (!bPinFound)
-        return ezStatus(ezFmt("Sub-graph '{}' no longer has an input pin named '{}'.", pSubGraph->m_sPipeline, sPinName));
+        return WStatus(WFmt("Sub-graph '{}' no longer has an input pin named '{}'.", pSubGraph->m_sPipeline, sPinName));
       if (!bRemapped)
-        ref_connections[iConn].m_uiSource = ezInvalidIndex;
+        ref_connections[iConn].m_uiSource = WInvalidIndex;
     }
 
     // Remap connections from SubGraph output pins to the internal producer of the matching output
     // boundary. Direct input-to-output connections use the captured parent input endpoint.
-    for (ezRenderPipelineResourceLoaderConnection& parentConn : ref_connections)
+    for (WRenderPipelineResourceLoaderConnection& parentConn : ref_connections)
     {
       if (parentConn.m_uiSource != iSub)
         continue;
 
-      const ezString sPinName = parentConn.m_sSourcePin;
+      const WString sPinName = parentConn.m_sSourcePin;
       bool bPinFound = false;
       bool bRemapped = false;
-      for (ezUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
+      for (WUInt32 iSubNode = 0; iSubNode < importedPasses.GetCount(); ++iSubNode)
       {
-        ezRenderPipelinePass* pBoundary = importedPasses[iSubNode].Borrow();
+        WRenderPipelinePass* pBoundary = importedPasses[iSubNode].Borrow();
         if (!IsOutputBoundaryNode(pBoundary->GetDynamicRTTI()) || pBoundary->GetName() != sPinName)
           continue;
 
         bPinFound = true;
-        for (const ezRenderPipelineResourceLoaderConnection& subConn : importedConnections)
+        for (const WRenderPipelineResourceLoaderConnection& subConn : importedConnections)
         {
           if (subConn.m_uiTarget != iSubNode || subConn.m_sTargetPin != "Value")
             continue;
-          if (subToParentIndex[subConn.m_uiSource] == ezInvalidIndex)
+          if (subToParentIndex[subConn.m_uiSource] == WInvalidIndex)
           {
             for (const BoundaryPassthrough& forward : boundaryPassthroughs)
             {
@@ -314,7 +314,7 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
               {
                 parentConn.m_uiSource = forward.m_uiSource;
                 parentConn.m_sSourcePin = forward.m_sSourcePin;
-                bRemapped = forward.m_uiSource != ezInvalidIndex;
+                bRemapped = forward.m_uiSource != WInvalidIndex;
                 break;
               }
             }
@@ -330,13 +330,13 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
       }
 
       if (!bPinFound)
-        return ezStatus(ezFmt("Sub-graph '{}' no longer has an output pin named '{}'.", pSubGraph->m_sPipeline, sPinName));
+        return WStatus(WFmt("Sub-graph '{}' no longer has an output pin named '{}'.", pSubGraph->m_sPipeline, sPinName));
       if (!bRemapped)
-        parentConn.m_uiSource = ezInvalidIndex;
+        parentConn.m_uiSource = WInvalidIndex;
     }
 
     // Parent extractors override imported extractors of the same type.
-    for (ezUniquePtr<ezExtractor>& pExtractor : importedExtractors)
+    for (WUniquePtr<WExtractor>& pExtractor : importedExtractors)
     {
       if (extractorTypes.Contains(pExtractor->GetDynamicRTTI()))
         continue;
@@ -347,21 +347,21 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
     }
 
     // Keep imported passes alive until the flattened pipeline has been serialized.
-    for (ezUniquePtr<ezRenderPipelinePass>& pPass : importedPasses)
+    for (WUniquePtr<WRenderPipelinePass>& pPass : importedPasses)
     {
       ref_ownedPasses.PushBack(std::move(pPass));
     }
 
     // Remove connections to unconnected boundaries.
-    for (ezUInt32 iConn = ref_connections.GetCount(); iConn-- > 0;)
+    for (WUInt32 iConn = ref_connections.GetCount(); iConn-- > 0;)
     {
-      if (ref_connections[iConn].m_uiSource == ezInvalidIndex || ref_connections[iConn].m_uiTarget == ezInvalidIndex)
+      if (ref_connections[iConn].m_uiSource == WInvalidIndex || ref_connections[iConn].m_uiTarget == WInvalidIndex)
         ref_connections.RemoveAtAndCopy(iConn);
     }
 
     // Remove the SubGraph placeholder and update indices shifted by RemoveAtAndCopy.
     ref_nodes.RemoveAtAndCopy(iSub);
-    for (ezRenderPipelineResourceLoaderConnection& conn : ref_connections)
+    for (WRenderPipelineResourceLoaderConnection& conn : ref_connections)
     {
       if (conn.m_uiSource > iSub)
         --conn.m_uiSource;
@@ -372,37 +372,37 @@ ezStatus ezRenderPipelineResourceLoader::InlineImportedSubGraphs(ezDynamicArray<
     --iSub;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 // static
-ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
+WInternal::NewInstance<WRenderPipeline> WRenderPipelineResourceLoader::CreateRenderPipeline(const WRenderPipelineResourceDescriptor& desc)
 {
-  ezRawMemoryStreamReader stream(desc.m_SerializedPipeline);
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
-  ezDynamicArray<ezUniquePtr<ezExtractor>> extractors;
-  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
-  const ezStatus res = ImportPipeline(stream, passes, extractors, connections);
+  WRawMemoryStreamReader stream(desc.m_SerializedPipeline);
+  WDynamicArray<WUniquePtr<WRenderPipelinePass>> passes;
+  WDynamicArray<WUniquePtr<WExtractor>> extractors;
+  WDynamicArray<WRenderPipelineResourceLoaderConnection> connections;
+  const WStatus res = ImportPipeline(stream, passes, extractors, connections);
   if (res.Failed())
   {
-    ezLog::Error("Failed to import render pipeline '{}': {}", desc.m_sPath, res.GetMessageString());
+    WLog::Error("Failed to import render pipeline '{}': {}", desc.m_sPath, res.GetMessageString());
     return nullptr;
   }
 
-  return EZ_DEFAULT_NEW(ezRenderPipeline, std::move(passes), std::move(extractors), connections.GetArrayPtr());
+  return W_DEFAULT_NEW(WRenderPipeline, std::move(passes), std::move(extractors), connections.GetArrayPtr());
 }
 
-ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezStreamWriter& ref_streamWriter)
+WResult WRenderPipelineResourceLoader::ExportPipeline(WArrayPtr<const WRenderPipelinePass* const> passes, WArrayPtr<const WExtractor* const> extractors, WArrayPtr<const WRenderPipelineResourceLoaderConnection> connections, WStreamWriter& ref_streamWriter)
 {
   ref_streamWriter.WriteVersion(s_RenderPipelineDescriptorVersion);
 
-  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_streamWriter);
-  ezTypeVersionWriteContext typeVersionWriteContext;
+  WStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_streamWriter);
+  WTypeVersionWriteContext typeVersionWriteContext;
   auto& stream = typeVersionWriteContext.Begin(stringDeduplicationWriteContext.Begin());
 
   // passes
   {
-    const ezUInt32 uiNumPasses = passes.GetCount();
+    const WUInt32 uiNumPasses = passes.GetCount();
     stream << uiNumPasses;
 
     for (auto& pass : passes)
@@ -411,13 +411,13 @@ ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRende
       typeVersionWriteContext.AddType(pPassType);
 
       stream << pPassType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(pass->Serialize(stream));
+      W_SUCCEED_OR_RETURN(pass->Serialize(stream));
     }
   }
 
   // extractors
   {
-    const ezUInt32 uiNumExtractors = extractors.GetCount();
+    const WUInt32 uiNumExtractors = extractors.GetCount();
     stream << uiNumExtractors;
 
     for (auto& extractor : extractors)
@@ -426,27 +426,27 @@ ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRende
       typeVersionWriteContext.AddType(pExtractorType);
 
       stream << pExtractorType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(extractor->Serialize(stream));
+      W_SUCCEED_OR_RETURN(extractor->Serialize(stream));
     }
   }
 
   // Connections
   {
-    const ezUInt32 uiNumConnections = connections.GetCount();
+    const WUInt32 uiNumConnections = connections.GetCount();
     stream << uiNumConnections;
 
-    typeVersionWriteContext.AddType(ezGetStaticRTTI<ezRenderPipelineResourceLoaderConnection>());
+    typeVersionWriteContext.AddType(WGetStaticRTTI<WRenderPipelineResourceLoaderConnection>());
 
     for (auto& connection : connections)
     {
-      EZ_SUCCEED_OR_RETURN(connection.Serialize(stream));
+      W_SUCCEED_OR_RETURN(connection.Serialize(stream));
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(typeVersionWriteContext.End());
-  EZ_SUCCEED_OR_RETURN(stringDeduplicationWriteContext.End());
+  W_SUCCEED_OR_RETURN(typeVersionWriteContext.End());
+  W_SUCCEED_OR_RETURN(stringDeduplicationWriteContext.End());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);
+W_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);

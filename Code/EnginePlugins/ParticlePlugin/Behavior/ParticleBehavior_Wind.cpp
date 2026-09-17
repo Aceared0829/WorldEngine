@@ -7,31 +7,31 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Wind, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Wind>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_Wind, 1, WRTTIDefaultAllocator<WParticleBehaviorFactory_Wind>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new WClampValueAttribute(0.0f, 10.0f), new WDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Wind, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Wind>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_Wind, 1, WRTTIDefaultAllocator<WParticleBehavior_Wind>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Wind::ezParticleBehaviorFactory_Wind() = default;
-ezParticleBehaviorFactory_Wind::~ezParticleBehaviorFactory_Wind() = default;
+WParticleBehaviorFactory_Wind::WParticleBehaviorFactory_Wind() = default;
+WParticleBehaviorFactory_Wind::~WParticleBehaviorFactory_Wind() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Wind::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_Wind::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Wind>();
+  return WGetStaticRTTI<WParticleBehavior_Wind>();
 }
 
-void ezParticleBehaviorFactory_Wind::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_Wind::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_Wind* pBehavior = static_cast<ezParticleBehavior_Wind*>(pObject);
+  WParticleBehavior_Wind* pBehavior = static_cast<WParticleBehavior_Wind*>(pObject);
 
   pBehavior->m_fWindInfluence = m_fWindInfluence;
 }
@@ -45,27 +45,27 @@ enum class BehaviorWindVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Wind::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_Wind::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorWindVersion::Version_Current;
+  const WUInt8 uiVersion = (int)BehaviorWindVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_fWindInfluence;
 }
 
-void ezParticleBehaviorFactory_Wind::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_Wind::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorWindVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)BehaviorWindVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_fWindInfluence;
 }
 
-void ezParticleBehavior_Wind::CreateRequiredStreams()
+void WParticleBehavior_Wind::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
 
   if (m_fWindInfluence > 0)
   {
@@ -73,32 +73,32 @@ void ezParticleBehavior_Wind::CreateRequiredStreams()
   }
 }
 
-void ezParticleBehavior_Wind::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_Wind::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Wind");
+  W_PROFILE_SCOPE("PFX: Wind");
 
   if (m_fWindInfluence <= 0)
     return;
 
   auto pOwner = GetOwnerEffect();
   const float tDiff = (float)m_TimeDiff.GetSeconds();
-  const ezSimdFloat fWindFactor = m_fWindInfluence * tDiff;
+  const WSimdFloat fWindFactor = m_fWindInfluence * tDiff;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
-    ezSimdVec4f windOffset = pOwner->GetWindAt(itPosition.Current()) * fWindFactor;
+    WSimdVec4f windOffset = pOwner->GetWindAt(itPosition.Current()) * fWindFactor;
     itPosition.Current() += windOffset;
 
     itPosition.Advance();
   }
 }
 
-void ezParticleBehavior_Wind::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void WParticleBehavior_Wind::RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule)
 {
-  pParticleModule->CacheWorldModule<ezWindWorldModuleInterface>();
+  pParticleModule->CacheWorldModule<WWindWorldModuleInterface>();
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Wind);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Wind);

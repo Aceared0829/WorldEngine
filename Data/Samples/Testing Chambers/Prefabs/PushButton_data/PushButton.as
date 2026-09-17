@@ -1,15 +1,15 @@
-class ScriptObject :  ezAngelScriptClass
+class ScriptObject :  WAngelScriptClass
 {
-    ezHashedString ButtonName;
+    WHashedString ButtonName;
 
-    void OnMsgGenericEvent(ezMsgGenericEvent@ msg)
+    void OnMsgGenericEvent(WMsgGenericEvent@ msg)
     {
         if (msg.Message != "Use")
             return;
          
-        ezGameObject@ button = GetOwner().FindChildByName("Button");
+        WGameObject@ button = GetOwner().FindChildByName("Button");
 
-        ezTransformComponent@ slider;
+        WTransformComponent@ slider;
         if (!button.TryGetComponentOfBaseType(@slider))
             return;
 
@@ -19,7 +19,7 @@ class ScriptObject :  ezAngelScriptClass
         slider.SetDirectionForwards(true);
         slider.Running = true;
 
-        ezMsgGenericEvent newMsg;
+        WMsgGenericEvent newMsg;
         newMsg.Message = ButtonName;
 
         GetOwnerComponent().BroadcastEventMsg(newMsg);

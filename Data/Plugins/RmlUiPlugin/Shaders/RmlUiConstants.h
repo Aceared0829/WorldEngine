@@ -1,6 +1,6 @@
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(ezRmlUiConstants, 4)
+CONSTANT_BUFFER(WRmlUiConstants, 4)
 {
   MAT4(UiTransform);
   FLOAT2(UiTranslation);
@@ -17,7 +17,7 @@ CONSTANT_BUFFER(ezRmlUiConstants, 4)
 #define GRADIENT_REPEATING_RADIAL 4
 #define GRADIENT_REPEATING_CONIC 5
 
-CONSTANT_BUFFER(ezRmlUiAdditionalConstants, 5)
+CONSTANT_BUFFER(WRmlUiAdditionalConstants, 5)
 {
   UINT1(GradientFunc); // one of the above definitions
   UINT1(GradientNumStops);

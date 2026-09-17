@@ -6,53 +6,53 @@
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/Events/EventAnimNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSendEventAnimNode, 1, ezRTTIDefaultAllocator<ezSendEventAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSendEventAnimNode, 1, WRTTIDefaultAllocator<WSendEventAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("EventName", GetEventName, SetEventName),
+    W_ACCESSOR_PROPERTY("EventName", GetEventName, SetEventName),
 
-    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Events"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Orange)),
-    new ezTitleAttribute("Send Event: '{EventName}'"),
+    new WCategoryAttribute("Events"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Orange)),
+    new WTitleAttribute("Send Event: '{EventName}'"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezSendEventAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSendEventAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sEventName;
 
-  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSendEventAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSendEventAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sEventName;
 
-  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSendEventAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSendEventAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (m_sEventName.IsEmpty())
     return;
@@ -60,11 +60,11 @@ void ezSendEventAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
   if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
-  ezMsgGenericEvent msg;
+  WMsgGenericEvent msg;
   msg.m_sMessage = m_sEventName;
 
   pTarget->SendEventMessage(msg, nullptr);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Events_EventAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Events_EventAnimNode);

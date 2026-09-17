@@ -5,125 +5,125 @@
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/Logging/Log.h>
 
-void ezDataDirectory::FileserveType::ReloadExternalConfigs()
+void WDataDirectory::FileserveType::ReloadExternalConfigs()
 {
-  EZ_LOCK(m_RedirectionMutex);
+  W_LOCK(m_RedirectionMutex);
   m_FileRedirection.Clear();
 
   if (!s_sRedirectionFile.IsEmpty())
   {
-    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile, true, nullptr).IgnoreResult();
+    WFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile, true, nullptr).IgnoreResult();
   }
 
   FolderType::ReloadExternalConfigs();
 }
 
-ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+WDataDirectoryReader* WDataDirectory::FileserveType::OpenFileToRead(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
-  if (ezPathUtils::IsAbsolutePath(sFile))
+  if (WPathUtils::IsAbsolutePath(sFile))
     return nullptr;
 
-  ezStringBuilder sRedirected;
+  WStringBuilder sRedirected;
   if (ResolveAssetRedirection(sFile, sRedirected))
     bSpecificallyThisDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
-  if (ezConversionUtils::IsStringUuid(sRedirected))
+  if (WConversionUtils::IsStringUuid(sRedirected))
     return nullptr;
 
-  ezStringBuilder sFullPath;
-  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir, &sFullPath).Failed())
+  WStringBuilder sFullPath;
+  if (WFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir, &sFullPath).Failed())
     return nullptr;
 
   // It's fine to use the base class here as it will resurface in CreateFolderReader which gives us control of the important part.
   return FolderType::OpenFileToRead(sFullPath, FileShareMode, bSpecificallyThisDataDir);
 }
 
-ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode)
+WDataDirectoryWriter* WDataDirectory::FileserveType::OpenFileToWrite(WStringView sFile, WFileShareMode::Enum FileShareMode)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
-  if (ezPathUtils::IsAbsolutePath(sFile))
+  if (WPathUtils::IsAbsolutePath(sFile))
     return nullptr;
 
   return FolderType::OpenFileToWrite(sFile, FileShareMode);
 }
 
-ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(ezStringView sDirectory)
+WResult WDataDirectory::FileserveType::InternalInitializeDataDirectory(WStringView sDirectory)
 {
-  ezStringBuilder sDataDir = sDirectory;
+  WStringBuilder sDataDir = sDirectory;
   sDataDir.MakeCleanPath();
 
-  ezStringBuilder sCacheFolder, sCacheMetaFolder;
-  ezFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder, sCacheMetaFolder);
+  WStringBuilder sCacheFolder, sCacheMetaFolder;
+  WFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder, sCacheMetaFolder);
   m_sRedirectedDataDirPath = sCacheFolder;
   m_sFileserveCacheMetaFolder = sCacheMetaFolder;
 
   ReloadExternalConfigs();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezDataDirectory::FileserveType::RemoveDataDirectory()
+void WDataDirectory::FileserveType::RemoveDataDirectory()
 {
-  if (ezFileserveClient::GetSingleton())
+  if (WFileserveClient::GetSingleton())
   {
-    ezFileserveClient::GetSingleton()->UnmountDataDirectory(m_uiDataDirID);
+    WFileserveClient::GetSingleton()->UnmountDataDirectory(m_uiDataDirID);
   }
 
   FolderType::RemoveDataDirectory();
 }
 
-void ezDataDirectory::FileserveType::DeleteFile(ezStringView sFile)
+void WDataDirectory::FileserveType::DeleteFile(WStringView sFile)
 {
-  if (ezFileserveClient::GetSingleton())
+  if (WFileserveClient::GetSingleton())
   {
-    ezFileserveClient::GetSingleton()->DeleteFile(m_uiDataDirID, sFile);
+    WFileserveClient::GetSingleton()->DeleteFile(m_uiDataDirID, sFile);
   }
 
   FolderType::DeleteFile(sFile);
 }
 
-ezDataDirectory::FolderReader* ezDataDirectory::FileserveType::CreateFolderReader() const
+WDataDirectory::FolderReader* WDataDirectory::FileserveType::CreateFolderReader() const
 {
-  return EZ_DEFAULT_NEW(FileserveDataDirectoryReader, 0);
+  return W_DEFAULT_NEW(FileserveDataDirectoryReader, 0);
 }
 
-ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWriter() const
+WDataDirectory::FolderWriter* WDataDirectory::FileserveType::CreateFolderWriter() const
 {
-  return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
+  return W_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
-ezResult ezDataDirectory::FileserveType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+WResult WDataDirectory::FileserveType::GetFileStats(WStringView sFileOrFolder, bool bOneSpecificDataDir, WFileStats& out_Stats)
 {
-  ezStringBuilder sRedirected;
+  WStringBuilder sRedirected;
   if (ResolveAssetRedirection(sFileOrFolder, sRedirected))
     bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
-  if (ezConversionUtils::IsStringUuid(sRedirected))
-    return EZ_FAILURE;
+  if (WConversionUtils::IsStringUuid(sRedirected))
+    return W_FAILURE;
 
-  ezStringBuilder sFullPath;
-  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, &sFullPath));
-  return ezOSFile::GetFileStats(sFullPath, out_Stats);
+  WStringBuilder sFullPath;
+  W_SUCCEED_OR_RETURN(WFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, &sFullPath));
+  return WOSFile::GetFileStats(sFullPath, out_Stats);
 }
 
-bool ezDataDirectory::FileserveType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
+bool WDataDirectory::FileserveType::ExistsFile(WStringView sFile, bool bOneSpecificDataDir)
 {
-  ezStringBuilder sRedirected;
+  WStringBuilder sRedirected;
   if (ResolveAssetRedirection(sFile, sRedirected))
     bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
-  if (ezConversionUtils::IsStringUuid(sRedirected))
+  if (WConversionUtils::IsStringUuid(sRedirected))
     return false;
 
-  return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
+  return WFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
+WDataDirectoryType* WDataDirectory::FileserveType::Factory(WStringView sDataDirectory, WStringView sGroup, WStringView sRootName, WDataDirUsage usage)
 {
-  if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
+  if (!WFileserveClient::s_bEnableFileserve || WFileserveClient::GetSingleton() == nullptr)
     return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added
 
   // ignore the empty data dir, which handles absolute paths, as we cannot translate these paths to the fileserve host OS
@@ -135,56 +135,56 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(ezStringView sDataD
   if (!sDataDirectory.StartsWith(">"))
     return nullptr;
 
-  if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())
+  if (WFileserveClient::GetSingleton()->EnsureConnected().Failed())
     return nullptr;
 
-  ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);
-  pDataDir->m_uiDataDirID = ezFileserveClient::GetSingleton()->MountDataDirectory(sDataDirectory, sRootName);
+  WDataDirectory::FileserveType* pDataDir = W_DEFAULT_NEW(WDataDirectory::FileserveType);
+  pDataDir->m_uiDataDirID = WFileserveClient::GetSingleton()->MountDataDirectory(sDataDirectory, sRootName);
 
-  if (pDataDir->m_uiDataDirID < 0xffff && pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
+  if (pDataDir->m_uiDataDirID < 0xffff && pDataDir->InitializeDataDirectory(sDataDirectory) == W_SUCCESS)
     return pDataDir;
 
-  EZ_DEFAULT_DELETE(pDataDir);
+  W_DEFAULT_DELETE(pDataDir);
   return nullptr;
 }
 
-ezDataDirectory::FileserveDataDirectoryReader::FileserveDataDirectoryReader(ezInt32 iDataDirUserData)
+WDataDirectory::FileserveDataDirectoryReader::FileserveDataDirectoryReader(WInt32 iDataDirUserData)
   : FolderReader(iDataDirUserData)
 {
 }
 
-ezResult ezDataDirectory::FileserveDataDirectoryReader::InternalOpen(ezFileShareMode::Enum FileShareMode)
+WResult WDataDirectory::FileserveDataDirectoryReader::InternalOpen(WFileShareMode::Enum FileShareMode)
 {
-  return m_File.Open(GetFilePath().GetData(), ezFileOpenMode::Read, FileShareMode);
+  return m_File.Open(GetFilePath().GetData(), WFileOpenMode::Read, FileShareMode);
 }
 
-void ezDataDirectory::FileserveDataDirectoryWriter::InternalClose()
+void WDataDirectory::FileserveDataDirectoryWriter::InternalClose()
 {
   FolderWriter::InternalClose();
 
   static_cast<FileserveType*>(GetDataDirectory())->FinishedWriting(this);
 }
 
-void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
+void WDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
 {
-  if (ezFileserveClient::GetSingleton() == nullptr)
+  if (WFileserveClient::GetSingleton() == nullptr)
     return;
 
-  ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetRedirectedDataDirectoryPath();
+  WStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetRedirectedDataDirectoryPath();
   sAbsPath.AppendPath(pWriter->GetFilePath());
 
-  ezOSFile file;
-  if (file.Open(sAbsPath, ezFileOpenMode::Read).Failed())
+  WOSFile file;
+  if (file.Open(sAbsPath, WFileOpenMode::Read).Failed())
   {
-    ezLog::Error("Could not read file for upload: '{0}'", sAbsPath);
+    WLog::Error("Could not read file for upload: '{0}'", sAbsPath);
     return;
   }
 
-  ezDynamicArray<ezUInt8> content;
+  WDynamicArray<WUInt8> content;
   file.ReadAll(content);
   file.Close();
 
-  ezFileserveClient::GetSingleton()->UploadFile(m_uiDataDirID, pWriter->GetFilePath(), content);
+  WFileserveClient::GetSingleton()->UploadFile(m_uiDataDirID, pWriter->GetFilePath(), content);
 }
 
 

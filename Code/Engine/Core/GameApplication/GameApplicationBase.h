@@ -9,14 +9,14 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezWindowBase;
-struct ezWindowCreationDesc;
-class ezWorld;
+class WWindowBase;
+struct WWindowCreationDesc;
+class WWorld;
 
 /// Allows custom code to inject logic at specific points during
 /// initialization or during shutdown. The events are listed in
 /// the order in which they typically happen.
-struct ezGameApplicationStaticEvent
+struct WGameApplicationStaticEvent
 {
   enum class Type
   {
@@ -31,7 +31,7 @@ struct ezGameApplicationStaticEvent
 ///
 /// Allows custom code to inject logic at specific update points during each frame.
 /// The events are listed in the order in which they typically happen.
-struct ezGameApplicationExecutionEvent
+struct WGameApplicationExecutionEvent
 {
   enum class Type
   {
@@ -49,7 +49,7 @@ struct ezGameApplicationExecutionEvent
 };
 
 /// Defines different update modes for the game application.
-enum class ezGameUpdateMode
+enum class WGameUpdateMode
 {
   Skip,                 ///< Skip both updating and rendering
   Render,               ///< Only render, don't update input or game logic
@@ -58,26 +58,26 @@ enum class ezGameUpdateMode
 
 /// Base class for game applications that provides fundamental game loop and window management.
 ///
-/// Extends ezApplication with game-specific functionality including game state management,
+/// Extends WApplication with game-specific functionality including game state management,
 /// window creation, input handling, screenshot capture, and profiling. Serves as the foundation
 /// for both standalone games and editor applications.
-class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
+class W_CORE_DLL WGameApplicationBase : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezGameApplicationBase(ezStringView sAppName);
-  ~ezGameApplicationBase();
+  WGameApplicationBase(WStringView sAppName);
+  ~WGameApplicationBase();
 
   /// \name Basics
   ///@{
 
 public:
-  /// Returns the ezGameApplicationBase singleton
-  static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
+  /// Returns the WGameApplicationBase singleton
+  static WGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
 protected:
-  static ezGameApplicationBase* s_pGameApplicationBaseInstance;
+  static WGameApplicationBase* s_pGameApplicationBaseInstance;
 
   ///@}
   /// \name Capturing Data
@@ -94,15 +94,15 @@ public:
 
 protected:
   /// Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
-  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext = {});
+  virtual void StoreScreenshot(WImage&& image, WStringView sContext = {});
 
-  void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext = {});
+  void ExecuteTakeScreenshot(WWindowOutputTargetBase* pOutputTarget, WStringView sContext = {});
 
   bool m_bTakeScreenshot = false;
   bool m_bScreenshotPending = false;
 
   /// expose TakeScreenshot() as a console function
-  ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
+  WConsoleFunction<void()> m_ConFunc_TakeScreenshot;
 
   ///@}
   /// \name Frame Captures
@@ -125,16 +125,16 @@ public:
   bool GetContinousFrameCapture() const;
 
   /// Get the absolute base output path for frame captures.
-  virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath);
+  virtual WResult GetAbsFrameCaptureOutputPath(WStringBuilder& ref_sOutputPath);
 
 protected:
-  void ExecuteFrameCapture(ezWindowHandle targetWindowHandle, ezStringView sContext = {});
+  void ExecuteFrameCapture(WWindowHandle targetWindowHandle, WStringView sContext = {});
 
   bool m_bContinuousFrameCapture = false;
   bool m_bCaptureFrame = false;
 
   /// expose CaptureFrame() as a console function
-  ezConsoleFunction<void()> m_ConFunc_CaptureFrame;
+  WConsoleFunction<void()> m_ConFunc_CaptureFrame;
 
   ///@}
   /// \name GameState
@@ -148,25 +148,25 @@ public:
   /// In the editor case, there are cases where a 'player start position' is specified, which can be used
   /// by the game state to place the player.
   ///
-  /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
-  /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
-  void ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
+  /// Broadcasts local event: WGameApplicationStaticEvent::AfterGameStateActivated
+  /// Broadcasts global event: AfterGameStateActivation(WGameStateBase*)
+  void ActivateGameState(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset);
 
   /// Deactivates and destroys the active game state.
   ///
-  /// Broadcasts local event: ezGameApplicationStaticEvent::BeforeGameStateDeactivated
-  /// Broadcasts global event: BeforeGameStateDeactivation(ezGameStateBase*)
+  /// Broadcasts local event: WGameApplicationStaticEvent::BeforeGameStateDeactivated
+  /// Broadcasts global event: BeforeGameStateDeactivation(WGameStateBase*)
   void DeactivateGameState();
 
   /// Returns the currently active game state. Could be nullptr.
-  ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
+  WGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
 protected:
   /// Creates a game state for the application to use.
   ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState();
+  virtual WUniquePtr<WGameStateBase> CreateGameState();
 
   /// Allows to override whether a game state is created and activated at application startup.
   ///
@@ -174,54 +174,54 @@ protected:
   /// as they only want the game state to become active during simulation, not during editing.
   virtual void ActivateGameStateAtStartup();
 
-  ezUniquePtr<ezGameStateBase> m_pGameState;
+  WUniquePtr<WGameStateBase> m_pGameState;
 
   ///@}
   /// \name Platform Profile
   ///@{
 public:
-  /// Returns the ezPlatformProfile that has been loaded for this application
-  const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
+  /// Returns the WPlatformProfile that has been loaded for this application
+  const WPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
 
 
 protected:
-  ezPlatformProfile m_PlatformProfile;
+  WPlatformProfile m_PlatformProfile;
 
   ///@}
   /// \name Application Startup
   ///@{
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
   /// Returns the target of the 'project' special data directory.
   ///
-  /// The return value of this function will be passed into ezFileSystem::SetSpecialDirectory.
+  /// The return value of this function will be passed into WFileSystem::SetSpecialDirectory.
   /// Afterwards, any path starting with the special directory marker (">project/") will point
   /// into this directory.
-  virtual ezString FindProjectDirectory() const = 0;
+  virtual WString FindProjectDirectory() const = 0;
 
   /// Returns the target of the 'base' data directory.
   ///
   /// Path needs to start with a special directory marker (">marker/").
   /// This is passed into the target of the 'base' data directory. Target defaults to ">sdk/Data/Base".
-  virtual ezString GetBaseDataDirectoryPath() const;
+  virtual WString GetBaseDataDirectoryPath() const;
 
   /// Returns the target of the 'project' data directory.
   ///
   /// Path needs to start with a special directory marker (">marker/").
   /// This is passed into the target of the 'project' data directory. Target defaults to ">project/".
-  virtual ezString GetProjectDataDirectoryPath() const;
+  virtual WString GetProjectDataDirectoryPath() const;
 
   /// Executes all 'BaseInit_' functions. Typically done very early, before core system startup
   virtual void ExecuteBaseInitFunctions();
   virtual void BaseInit_ConfigureLogging();
 
-  ezEventSubscriptionID m_LogToConsoleID = 0;
-  ezEventSubscriptionID m_LogToVsID = 0;
-  ezEventSubscriptionID m_LogToTracingID = 0;
-  ezEventSubscriptionID m_LogToHTML = 0;
-  ezLogWriter::HTML m_LogHTML;
+  WEventSubscriptionID m_LogToConsoleID = 0;
+  WEventSubscriptionID m_LogToVsID = 0;
+  WEventSubscriptionID m_LogToTracingID = 0;
+  WEventSubscriptionID m_LogToHTML = 0;
+  WLogWriter::HTML m_LogHTML;
 
   /// Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();
@@ -239,7 +239,7 @@ protected:
   virtual void Init_SetupGraphicsDevice() = 0;
   virtual void Init_SetupDefaultResources();
 
-  ezEvent<const ezGameApplicationStaticEvent&> m_StaticEvents;
+  WEvent<const WGameApplicationStaticEvent&> m_StaticEvents;
 
   ///@}
   /// \name Application Shutdown
@@ -261,7 +261,7 @@ public:
 
   void RunOneFrame();
 
-  ezCopyOnBroadcastEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
+  WCopyOnBroadcastEvent<const WGameApplicationExecutionEvent&> m_ExecutionEvents;
 
   /// Lets a plugin report that it has work which nothing else is going to wake the app up for.
   ///
@@ -272,21 +272,21 @@ public:
   ///
   /// Returning true makes such an application come around again promptly instead of sleeping. Kept as a
   /// delegate so that neither side needs to know what the other's work is.
-  ezDelegate<bool()> m_HasPendingExternalWork;
+  WDelegate<bool()> m_HasPendingExternalWork;
 
-  ezTime GetFrameTime() const { return m_FrameTime; }
+  WTime GetFrameTime() const { return m_FrameTime; }
 
   /// The overridden version also quits the application when the active game state signals to quit.
   virtual bool ShouldApplicationQuit() const override;
 
 protected:
-  virtual ezGameUpdateMode GetGameUpdateMode() const { return ezGameUpdateMode::UpdateInputAndRender; }
+  virtual WGameUpdateMode GetGameUpdateMode() const { return WGameUpdateMode::UpdateInputAndRender; }
 
   void Run_InputUpdate();
 
   /// Override this to do custom input handling on the application level.
   ///
-  /// This is executed before ezGameState::ProcessInput().
+  /// This is executed before WGameState::ProcessInput().
   /// If it returns true, the game state also gets to process input, otherwise it is skipped.
   virtual bool Run_ProcessApplicationInput();
 
@@ -303,6 +303,6 @@ protected:
 
   void UpdateFrameTime();
 
-  ezTime m_FrameTime;
+  WTime m_FrameTime;
   ///@}
 };

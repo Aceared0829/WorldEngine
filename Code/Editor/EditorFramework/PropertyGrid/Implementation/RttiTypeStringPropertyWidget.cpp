@@ -5,8 +5,8 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 
-ezQtRttiTypeStringPropertyWidget::ezQtRttiTypeStringPropertyWidget()
-  : ezQtStandardPropertyWidget()
+WQtRttiTypeStringPropertyWidget::WQtRttiTypeStringPropertyWidget()
+  : WQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -23,22 +23,22 @@ ezQtRttiTypeStringPropertyWidget::ezQtRttiTypeStringPropertyWidget()
   m_pLayout->addWidget(m_pButton);
 }
 
-void ezQtRttiTypeStringPropertyWidget::OnInit()
+void WQtRttiTypeStringPropertyWidget::OnInit()
 {
   m_pMenu = new QMenu(m_pButton);
   m_pMenu->setToolTipsVisible(true);
-  connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtRttiTypeStringPropertyWidget::onMenuAboutToShow);
+  connect(m_pMenu, &QMenu::aboutToShow, this, &WQtRttiTypeStringPropertyWidget::onMenuAboutToShow);
   m_pButton->setMenu(m_pMenu);
   m_pButton->setObjectName("Button");
 
-  connect(&m_TypeMenu, &ezQtTypeMenu::TypeSelected, this, &ezQtRttiTypeStringPropertyWidget::OnTypeSelected);
+  connect(&m_TypeMenu, &WQtTypeMenu::TypeSelected, this, &WQtRttiTypeStringPropertyWidget::OnTypeSelected);
 }
 
-void ezQtRttiTypeStringPropertyWidget::InternalSetValue(const ezVariant& value)
+void WQtRttiTypeStringPropertyWidget::InternalSetValue(const WVariant& value)
 {
-  const ezString sTypeName = value.ConvertTo<ezString>();
+  const WString sTypeName = value.ConvertTo<WString>();
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName);
+  const WRTTI* pRtti = WRTTI::FindTypeByName(sTypeName);
 
   if (pRtti == nullptr)
   {
@@ -47,42 +47,42 @@ void ezQtRttiTypeStringPropertyWidget::InternalSetValue(const ezVariant& value)
     return;
   }
 
-  const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-  const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
+  const WCategoryAttribute* pCatA = pRtti->GetAttributeByType<WCategoryAttribute>();
+  const WColorAttribute* pColA = pRtti->GetAttributeByType<WColorAttribute>();
 
-  ezColor iconColor = ezColor::MakeZero();
+  WColor iconColor = WColor::MakeZero();
 
   if (pColA)
   {
     iconColor = pColA->GetColor();
   }
-  else if (pCatA && iconColor == ezColor::MakeZero())
+  else if (pCatA && iconColor == WColor::MakeZero())
   {
-    iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
+    iconColor = WColorScheme::GetCategoryColor(pCatA->GetCategory(), WColorScheme::CategoryColorUsage::MenuEntryIcon);
   }
 
-  ezStringBuilder sIconName;
+  WStringBuilder sIconName;
   sIconName.Set(":/TypeIcons/", sTypeName, ".svg");
-  const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
+  const QIcon actionIcon = WQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
 
   m_pButton->setText(sTypeName.GetData());
   m_pButton->setIcon(actionIcon);
 }
 
-void ezQtRttiTypeStringPropertyWidget::onMenuAboutToShow()
+void WQtRttiTypeStringPropertyWidget::onMenuAboutToShow()
 {
   if (m_pMenu->isEmpty())
   {
-    const ezRttiTypeStringAttribute* pTypeAttr = m_pProp->GetAttributeByType<ezRttiTypeStringAttribute>();
-    const ezRTTI* pBaseType = ezRTTI::FindTypeByName(pTypeAttr->GetBaseType());
+    const WRttiTypeStringAttribute* pTypeAttr = m_pProp->GetAttributeByType<WRttiTypeStringAttribute>();
+    const WRTTI* pBaseType = WRTTI::FindTypeByName(pTypeAttr->GetBaseType());
 
     m_TypeMenu.FillMenu(m_pMenu, pBaseType, true, false);
   }
 }
 
-void ezQtRttiTypeStringPropertyWidget::OnTypeSelected(QString sTypeName)
+void WQtRttiTypeStringPropertyWidget::OnTypeSelected(QString sTypeName)
 {
-  const ezString typeName = sTypeName.toUtf8().data();
+  const WString typeName = sTypeName.toUtf8().data();
 
   BroadcastValueChanged(typeName);
 }

@@ -4,23 +4,23 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
 
-class ezMeshResourceDescriptor;
-class ezMaterialAssetDocument;
+class WMeshResourceDescriptor;
+class WMaterialAssetDocument;
 
-class ezAnimatedMeshAssetDocument : public ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>
+class WAnimatedMeshAssetDocument : public WSimpleAssetDocument<WAnimatedMeshAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimatedMeshAssetDocument, ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WAnimatedMeshAssetDocument, WSimpleAssetDocument<WAnimatedMeshAssetProperties>);
 
 public:
-  ezAnimatedMeshAssetDocument(ezStringView sDocumentPath);
+  WAnimatedMeshAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  ezStatus CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
+  WStatus CreateMeshFromFile(WAnimatedMeshAssetProperties* pProp, WMeshResourceDescriptor& desc);
 
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };

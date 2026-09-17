@@ -5,36 +5,36 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
+W_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
-#define ezCVarValueDefault ezCVarValue::Default
-#define ezCVarValueStored ezCVarValue::Stored
-#define ezCVarValueRestart ezCVarValue::DelayedSync
+#define WCVarValueDefault WCVarValue::Default
+#define WCVarValueStored WCVarValue::Stored
+#define WCVarValueRestart WCVarValue::DelayedSync
 
-// Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
+// Interestingly using 'WCVarValue::Default' directly inside a macro does not work. (?!)
 #define CHECK_CVAR(var, Current, Default, Stored, Restart)      \
-  EZ_TEST_BOOL(var != nullptr);                                 \
+  W_TEST_BOOL(var != nullptr);                                 \
   if (var != nullptr)                                           \
   {                                                             \
-    EZ_TEST_BOOL(var->GetValue() == Current);                   \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default); \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);   \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart); \
+    W_TEST_BOOL(var->GetValue() == Current);                   \
+    W_TEST_BOOL(var->GetValue(WCVarValueDefault) == Default); \
+    W_TEST_BOOL(var->GetValue(WCVarValueStored) == Stored);   \
+    W_TEST_BOOL(var->GetValue(WCVarValueRestart) == Restart); \
   }
 
-static ezInt32 iChangedValue = 0;
-static ezInt32 iChangedRestart = 0;
+static WInt32 iChangedValue = 0;
+static WInt32 iChangedRestart = 0;
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_SUPPORTS_DYNAMIC_PLUGINS) && W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
-static void ChangedCVar(const ezCVarEvent& e)
+static void ChangedCVar(const WCVarEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezCVarEvent::ValueChanged:
+    case WCVarEvent::ValueChanged:
       ++iChangedValue;
       break;
-    case ezCVarEvent::DelayedSyncValueChanged:
+    case WCVarEvent::DelayedSyncValueChanged:
       ++iChangedRestart;
       break;
     default:
@@ -44,7 +44,7 @@ static void ChangedCVar(const ezCVarEvent& e)
 
 #endif
 
-EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
+W_CREATE_SIMPLE_TEST(Configuration, CVars)
 {
   iChangedValue = 0;
   iChangedRestart = 0;
@@ -52,48 +52,48 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   // setup the filesystem
   // we need it to test the storing of cvars (during plugin reloading)
 
-  ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFolder1 = WTestFramework::GetInstance()->GetAbsOutputPath();
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+  W_TEST_BOOL(WFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", WDataDirUsage::AllowWrites) == W_SUCCESS);
 
   // Delete all cvar setting files
   {
-    ezStringBuilder sConfigFile;
+    WStringBuilder sConfigFile;
 
-    sConfigFile = ":output/CVars/CVars_" ezFoundationTest_Plugin1 ".cfg";
+    sConfigFile = ":output/CVars/CVars_" WFoundationTest_Plugin1 ".cfg";
 
-    ezFileSystem::DeleteFile(sConfigFile.GetData());
+    WFileSystem::DeleteFile(sConfigFile.GetData());
 
-    sConfigFile = ":output/CVars/CVars_" ezFoundationTest_Plugin2 ".cfg";
+    sConfigFile = ":output/CVars/CVars_" WFoundationTest_Plugin2 ".cfg";
 
-    ezFileSystem::DeleteFile(sConfigFile.GetData());
+    WFileSystem::DeleteFile(sConfigFile.GetData());
   }
 
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Int2");
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("102");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Int2");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("102");
 
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Float2");
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("102.2");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Float2");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("102.2");
 
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Bool2");
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("false");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_Bool2");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("false");
 
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_String2");
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("test1c");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-test1_String2");
+  WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("test1c");
 
-  ezCVar::SetStorageFolder(":output/CVars");
-  ezCVar::LoadCVars(); // should do nothing (no settings files available)
+  WCVar::SetStorageFolder(":output/CVars");
+  WCVar::LoadCVars(); // should do nothing (no settings files available)
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
   {
-    const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
-    ezStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
+    const char* cvarConfigFileDir = WTestFramework::GetInstance()->GetAbsOutputPath();
+    W_TEST_BOOL_MSG(WFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", WDataDirUsage::AllowWrites) == W_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+    WStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
 
-    ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
-    ezCVarFloat testCVarFloat("testCVarFloat", 0.0f, ezCVarFlags::Default, "Test");
-    ezCVarBool testCVarBool("testCVarBool", false, ezCVarFlags::Save, "Test");
-    ezCVarString testCVarString("testCVarString", "", ezCVarFlags::Save, "Test");
+    WCVarInt testCVarInt("testCVarInt", 0, WCVarFlags::Default, "Test");
+    WCVarFloat testCVarFloat("testCVarFloat", 0.0f, WCVarFlags::Default, "Test");
+    WCVarBool testCVarBool("testCVarBool", false, WCVarFlags::Save, "Test");
+    WCVarString testCVarString("testCVarString", "", WCVarFlags::Save, "Test");
 
     // ignore save flag = false
     {
@@ -103,28 +103,28 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       testCVarString = "Hello World!";
 
       bool bIgnoreSaveFlag = false;
-      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
-      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+      WCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      W_TEST_BOOL(WFileSystem::ExistsFile(cvarConfigFile) == W_SUCCESS);
 
       testCVarInt = 0;
       testCVarFloat = 0.0f;
       testCVarBool = false;
       testCVarString = "";
 
-      ezDynamicArray<ezCVar*> outCVars;
+      WDynamicArray<WCVar*> outCVars;
       constexpr bool bOnlyNewOnes = false;
       constexpr bool bSetAsCurrentValue = true;
-      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+      WCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
 
-      EZ_TEST_INT(testCVarInt, 0);
-      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_BOOL(testCVarBool == true);
-      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+      W_TEST_INT(testCVarInt, 0);
+      W_TEST_FLOAT(testCVarFloat, 0.0f, WMath::DefaultEpsilon<float>());
+      W_TEST_BOOL(testCVarBool == true);
+      W_TEST_STRING(testCVarString.GetValue(), "Hello World!");
 
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+      W_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      W_TEST_BOOL(outCVars.Contains(&testCVarString));
 
       testCVarInt = 0;
       testCVarFloat = 0.0f;
@@ -133,19 +133,19 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
       // Even if we ignore the save flag the result should be same as above since we only stored CVars with the save flag in the file.
       bIgnoreSaveFlag = true;
-      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+      WCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
 
-      EZ_TEST_INT(testCVarInt, 0);
-      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_BOOL(testCVarBool == true);
-      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+      W_TEST_INT(testCVarInt, 0);
+      W_TEST_FLOAT(testCVarFloat, 0.0f, WMath::DefaultEpsilon<float>());
+      W_TEST_BOOL(testCVarBool == true);
+      W_TEST_STRING(testCVarString.GetValue(), "Hello World!");
 
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+      W_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      W_TEST_BOOL(outCVars.Contains(&testCVarString));
 
-      ezFileSystem::DeleteFile(cvarConfigFile);
+      WFileSystem::DeleteFile(cvarConfigFile);
     }
 
     // ignore save flag = true
@@ -156,30 +156,30 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       testCVarString = "Hello World!";
 
       bool bIgnoreSaveFlag = true;
-      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
-      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+      WCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      W_TEST_BOOL(WFileSystem::ExistsFile(cvarConfigFile) == W_SUCCESS);
 
       testCVarInt = 0;
       testCVarFloat = 0.0f;
       testCVarBool = false;
       testCVarString = "";
 
-      ezDynamicArray<ezCVar*> outCVars;
+      WDynamicArray<WCVar*> outCVars;
       constexpr bool bOnlyNewOnes = false;
       constexpr bool bSetAsCurrentValue = true;
       // Check whether the save flag is correctly checked during load now that we have saved all CVars to the file.
       bIgnoreSaveFlag = false;
-      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+      WCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
 
-      EZ_TEST_INT(testCVarInt, 0);
-      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_BOOL(testCVarBool == true);
-      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+      W_TEST_INT(testCVarInt, 0);
+      W_TEST_FLOAT(testCVarFloat, 0.0f, WMath::DefaultEpsilon<float>());
+      W_TEST_BOOL(testCVarBool == true);
+      W_TEST_STRING(testCVarString.GetValue(), "Hello World!");
 
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+      W_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      W_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      W_TEST_BOOL(outCVars.Contains(&testCVarString));
 
       testCVarInt = 0;
       testCVarFloat = 0.0f;
@@ -188,193 +188,193 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
       // Now load all cvars stored in the file.
       bIgnoreSaveFlag = true;
-      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+      WCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
 
-      EZ_TEST_INT(testCVarInt, 481516);
-      EZ_TEST_FLOAT(testCVarFloat, 23.42f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_BOOL(testCVarBool == true);
-      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+      W_TEST_INT(testCVarInt, 481516);
+      W_TEST_FLOAT(testCVarFloat, 23.42f, WMath::DefaultEpsilon<float>());
+      W_TEST_BOOL(testCVarBool == true);
+      W_TEST_STRING(testCVarString.GetValue(), "Hello World!");
 
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
-      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+      W_TEST_BOOL(outCVars.Contains(&testCVarInt));
+      W_TEST_BOOL(outCVars.Contains(&testCVarFloat));
+      W_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      W_TEST_BOOL(outCVars.Contains(&testCVarString));
 
-      ezFileSystem::DeleteFile(cvarConfigFile);
+      WFileSystem::DeleteFile(cvarConfigFile);
     }
 
 
-    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("CVarConfigTempDir"));
+    W_TEST_BOOL(WFileSystem::RemoveDataDirectory("CVarConfigTempDir"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")
+  W_TEST_BLOCK(WTestBlock::Enabled, "No Plugin Loaded")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_SUPPORTS_DYNAMIC_PLUGINS) && W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin1 Loaded")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Plugin1 Loaded")
   {
-    EZ_TEST_BOOL(ezPlugin::LoadPlugin(ezFoundationTest_Plugin1) == EZ_SUCCESS);
+    W_TEST_BOOL(WPlugin::LoadPlugin(WFoundationTest_Plugin1) == W_SUCCESS);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String") != nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int2") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float2") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool2") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String2") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int2") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float2") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool2") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String2") != nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_String") == nullptr);
 
-    ezPlugin::UnloadAllPlugins();
+    WPlugin::UnloadAllPlugins();
   }
 
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "No Plugin Loaded (2)")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_SUPPORTS_DYNAMIC_PLUGINS) && W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin2 Loaded")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Plugin2 Loaded")
   {
     // Plugin2 should automatically load Plugin1 with it
 
-    EZ_TEST_BOOL(ezPlugin::LoadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    W_TEST_BOOL(WPlugin::LoadPlugin(WFoundationTest_Plugin2) == W_SUCCESS);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String") != nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") != nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Int") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Float") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Bool") != nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_String") != nullptr);
 
-    ezPlugin::UnloadAllPlugins();
+    WPlugin::UnloadAllPlugins();
   }
 
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
+  W_TEST_BLOCK(WTestBlock::Enabled, "No Plugin Loaded (2)")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Int") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Float") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_Bool") == nullptr);
+    W_TEST_BOOL(WCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#if W_ENABLED(W_SUPPORTS_DYNAMIC_PLUGINS) && W_ENABLED(W_COMPILE_ENGINE_AS_DLL)
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Value Test")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Default Value Test")
   {
-    EZ_TEST_BOOL(ezPlugin::LoadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    W_TEST_BOOL(WPlugin::LoadPlugin(WFoundationTest_Plugin2) == W_SUCCESS);
 
     // CVars from Plugin 1
     {
-      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test1_Int");
+      WCVarInt* pInt = (WCVarInt*)WCVar::FindCVarByName("test1_Int");
       CHECK_CVAR(pInt, 11, 11, 11, 11);
 
       if (pInt)
       {
-        EZ_TEST_BOOL(pInt->GetType() == ezCVarType::Int);
-        EZ_TEST_BOOL(pInt->GetName() == "test1_Int");
-        EZ_TEST_BOOL(pInt->GetDescription() == "Desc: test1_Int");
+        W_TEST_BOOL(pInt->GetType() == WCVarType::Int);
+        W_TEST_BOOL(pInt->GetName() == "test1_Int");
+        W_TEST_BOOL(pInt->GetDescription() == "Desc: test1_Int");
 
         pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
 
         *pInt = 12;
         CHECK_CVAR(pInt, 12, 11, 11, 12);
-        EZ_TEST_INT(iChangedValue, 1);
-        EZ_TEST_INT(iChangedRestart, 0);
+        W_TEST_INT(iChangedValue, 1);
+        W_TEST_INT(iChangedRestart, 0);
 
         // no change
         *pInt = 12;
-        EZ_TEST_INT(iChangedValue, 1);
-        EZ_TEST_INT(iChangedRestart, 0);
+        W_TEST_INT(iChangedValue, 1);
+        W_TEST_INT(iChangedRestart, 0);
       }
 
-      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test1_Float");
+      WCVarFloat* pFloat = (WCVarFloat*)WCVar::FindCVarByName("test1_Float");
       CHECK_CVAR(pFloat, 1.1f, 1.1f, 1.1f, 1.1f);
 
       if (pFloat)
       {
-        EZ_TEST_BOOL(pFloat->GetType() == ezCVarType::Float);
-        EZ_TEST_BOOL(pFloat->GetName() == "test1_Float");
-        EZ_TEST_BOOL(pFloat->GetDescription() == "Desc: test1_Float");
+        W_TEST_BOOL(pFloat->GetType() == WCVarType::Float);
+        W_TEST_BOOL(pFloat->GetName() == "test1_Float");
+        W_TEST_BOOL(pFloat->GetDescription() == "Desc: test1_Float");
 
         pFloat->m_CVarEvents.AddEventHandler(ChangedCVar);
 
         *pFloat = 1.2f;
         CHECK_CVAR(pFloat, 1.1f, 1.1f, 1.1f, 1.2f);
 
-        EZ_TEST_INT(iChangedValue, 1);
-        EZ_TEST_INT(iChangedRestart, 1);
+        W_TEST_INT(iChangedValue, 1);
+        W_TEST_INT(iChangedRestart, 1);
 
         // no change
         *pFloat = 1.2f;
-        EZ_TEST_INT(iChangedValue, 1);
-        EZ_TEST_INT(iChangedRestart, 1);
+        W_TEST_INT(iChangedValue, 1);
+        W_TEST_INT(iChangedRestart, 1);
 
         pFloat->SetToDelayedSyncValue();
         CHECK_CVAR(pFloat, 1.2f, 1.1f, 1.1f, 1.2f);
 
-        EZ_TEST_INT(iChangedValue, 2);
-        EZ_TEST_INT(iChangedRestart, 1);
+        W_TEST_INT(iChangedValue, 2);
+        W_TEST_INT(iChangedRestart, 1);
       }
 
-      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test1_Bool");
+      WCVarBool* pBool = (WCVarBool*)WCVar::FindCVarByName("test1_Bool");
       CHECK_CVAR(pBool, false, false, false, false);
 
       if (pBool)
       {
-        EZ_TEST_BOOL(pBool->GetType() == ezCVarType::Bool);
-        EZ_TEST_BOOL(pBool->GetName() == "test1_Bool");
-        EZ_TEST_BOOL(pBool->GetDescription() == "Desc: test1_Bool");
+        W_TEST_BOOL(pBool->GetType() == WCVarType::Bool);
+        W_TEST_BOOL(pBool->GetName() == "test1_Bool");
+        W_TEST_BOOL(pBool->GetDescription() == "Desc: test1_Bool");
 
         *pBool = true;
         CHECK_CVAR(pBool, true, false, false, true);
       }
 
-      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test1_String");
+      WCVarString* pString = (WCVarString*)WCVar::FindCVarByName("test1_String");
       CHECK_CVAR(pString, "test1", "test1", "test1", "test1");
 
       if (pString)
       {
-        EZ_TEST_BOOL(pString->GetType() == ezCVarType::String);
-        EZ_TEST_BOOL(pString->GetName() == "test1_String");
-        EZ_TEST_BOOL(pString->GetDescription() == "Desc: test1_String");
+        W_TEST_BOOL(pString->GetType() == WCVarType::String);
+        W_TEST_BOOL(pString->GetName() == "test1_String");
+        W_TEST_BOOL(pString->GetDescription() == "Desc: test1_String");
 
         *pString = "test1_value2";
         CHECK_CVAR(pString, "test1_value2", "test1", "test1", "test1_value2");
@@ -383,7 +383,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     // CVars from Plugin 2
     {
-      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test2_Int");
+      WCVarInt* pInt = (WCVarInt*)WCVar::FindCVarByName("test2_Int");
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
       if (pInt)
@@ -392,11 +392,11 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
         *pInt = 23;
         CHECK_CVAR(pInt, 23, 22, 22, 23);
-        EZ_TEST_INT(iChangedValue, 3);
-        EZ_TEST_INT(iChangedRestart, 1);
+        W_TEST_INT(iChangedValue, 3);
+        W_TEST_INT(iChangedRestart, 1);
       }
 
-      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test2_Float");
+      WCVarFloat* pFloat = (WCVarFloat*)WCVar::FindCVarByName("test2_Float");
       CHECK_CVAR(pFloat, 2.2f, 2.2f, 2.2f, 2.2f);
 
       if (pFloat)
@@ -405,7 +405,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
         CHECK_CVAR(pFloat, 2.3f, 2.2f, 2.2f, 2.3f);
       }
 
-      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test2_Bool");
+      WCVarBool* pBool = (WCVarBool*)WCVar::FindCVarByName("test2_Bool");
       CHECK_CVAR(pBool, true, true, true, true);
 
       if (pBool)
@@ -414,7 +414,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
         CHECK_CVAR(pBool, false, true, true, false);
       }
 
-      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test2_String");
+      WCVarString* pString = (WCVarString*)WCVar::FindCVarByName("test2_String");
       CHECK_CVAR(pString, "test2", "test2", "test2", "test2");
 
       if (pString)
@@ -427,62 +427,62 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       }
     }
 
-    ezPlugin::UnloadAllPlugins();
+    WPlugin::UnloadAllPlugins();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loaded Value Test")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Loaded Value Test")
   {
-    EZ_TEST_BOOL(ezPlugin::LoadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
+    W_TEST_BOOL(WPlugin::LoadPlugin(WFoundationTest_Plugin2) == W_SUCCESS);
 
     // CVars from Plugin 1
     {
-      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test1_Int");
+      WCVarInt* pInt = (WCVarInt*)WCVar::FindCVarByName("test1_Int");
       CHECK_CVAR(pInt, 12, 11, 12, 12);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test1_Float");
+      WCVarFloat* pFloat = (WCVarFloat*)WCVar::FindCVarByName("test1_Float");
       CHECK_CVAR(pFloat, 1.2f, 1.1f, 1.2f, 1.2f);
 
-      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test1_Bool");
+      WCVarBool* pBool = (WCVarBool*)WCVar::FindCVarByName("test1_Bool");
       CHECK_CVAR(pBool, false, false, false, false);
 
-      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test1_String");
+      WCVarString* pString = (WCVarString*)WCVar::FindCVarByName("test1_String");
       CHECK_CVAR(pString, "test1", "test1", "test1", "test1");
     }
 
     // CVars from Plugin 1, overridden by command line
     {
-      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test1_Int2");
+      WCVarInt* pInt = (WCVarInt*)WCVar::FindCVarByName("test1_Int2");
       CHECK_CVAR(pInt, 102, 21, 102, 102);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test1_Float2");
+      WCVarFloat* pFloat = (WCVarFloat*)WCVar::FindCVarByName("test1_Float2");
       CHECK_CVAR(pFloat, 102.2f, 2.1f, 102.2f, 102.2f);
 
-      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test1_Bool2");
+      WCVarBool* pBool = (WCVarBool*)WCVar::FindCVarByName("test1_Bool2");
       CHECK_CVAR(pBool, false, true, false, false);
 
-      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test1_String2");
+      WCVarString* pString = (WCVarString*)WCVar::FindCVarByName("test1_String2");
       CHECK_CVAR(pString, "test1c", "test1b", "test1c", "test1c");
     }
 
     // CVars from Plugin 2
     {
-      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test2_Int");
+      WCVarInt* pInt = (WCVarInt*)WCVar::FindCVarByName("test2_Int");
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test2_Float");
+      WCVarFloat* pFloat = (WCVarFloat*)WCVar::FindCVarByName("test2_Float");
       CHECK_CVAR(pFloat, 2.2f, 2.2f, 2.2f, 2.2f);
 
-      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test2_Bool");
+      WCVarBool* pBool = (WCVarBool*)WCVar::FindCVarByName("test2_Bool");
       CHECK_CVAR(pBool, false, true, false, false);
 
-      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test2_String");
+      WCVarString* pString = (WCVarString*)WCVar::FindCVarByName("test2_String");
       CHECK_CVAR(pString, "test2_value2", "test2", "test2_value2", "test2_value2");
     }
 
-    ezPlugin::UnloadAllPlugins();
+    WPlugin::UnloadAllPlugins();
   }
 
 #endif
 
-  ezFileSystem::ClearAllDataDirectories();
+  WFileSystem::ClearAllDataDirectories();
 }

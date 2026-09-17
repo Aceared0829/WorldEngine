@@ -5,12 +5,12 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
-bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
-bool ezQtAssetBrowserDlg::s_bSortByRecentUse = true;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_PathFilter;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TypeFilter;
+bool WQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
+bool WQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
+bool WQtAssetBrowserDlg::s_bSortByRecentUse = true;
+WMap<WString, WString> WQtAssetBrowserDlg::s_TextFilter;
+WMap<WString, WString> WQtAssetBrowserDlg::s_PathFilter;
+WMap<WString, WString> WQtAssetBrowserDlg::s_TypeFilter;
 
 void ClampWindowGeometryToScreens(QRect& ref_windowGeometry)
 {
@@ -26,12 +26,12 @@ void ClampWindowGeometryToScreens(QRect& ref_windowGeometry)
   const QRect primaryGeom = QGuiApplication::primaryScreen()->availableGeometry();
 
   const QSize size = ref_windowGeometry.size();
-  ref_windowGeometry.setLeft(ezMath::Clamp(ref_windowGeometry.left(), primaryGeom.left(), primaryGeom.right() - ref_windowGeometry.width()));
-  ref_windowGeometry.setTop(ezMath::Clamp(ref_windowGeometry.top(), primaryGeom.top(), primaryGeom.bottom() - ref_windowGeometry.height()));
+  ref_windowGeometry.setLeft(WMath::Clamp(ref_windowGeometry.left(), primaryGeom.left(), primaryGeom.right() - ref_windowGeometry.width()));
+  ref_windowGeometry.setTop(WMath::Clamp(ref_windowGeometry.top(), primaryGeom.top(), primaryGeom.bottom() - ref_windowGeometry.height()));
   ref_windowGeometry.setSize(size);
 }
 
-void ezQtAssetBrowserDlg::Init(QWidget* pParent)
+void WQtAssetBrowserDlg::Init(QWidget* pParent)
 {
   setupUi(this);
 
@@ -67,19 +67,19 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_TypeFilter[m_sVisibleFilters]);
 }
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle, ezStringView sRequiredTag)
-  : ezQtDialog(pParent)
+WQtAssetBrowserDlg::WQtAssetBrowserDlg(QWidget* pParent, const WUuid& preselectedAsset, WStringView sVisibleFilters, WStringView sWindowTitle, WStringView sRequiredTag)
+  : WQtDialog(pParent)
 {
   {
-    ezStringBuilder temp = sVisibleFilters;
-    ezTempHybridArray<ezStringView, 4> compTypes;
+    WStringBuilder temp = sVisibleFilters;
+    WTempHybridArray<WStringView, 4> compTypes;
     temp.Split(false, compTypes, ";");
-    ezStringBuilder allFiltered = sVisibleFilters;
+    WStringBuilder allFiltered = sVisibleFilters;
 
-    for (const auto& descIt : ezAssetDocumentManager::GetAllDocumentDescriptors())
+    for (const auto& descIt : WAssetDocumentManager::GetAllDocumentDescriptors())
     {
-      const ezDocumentTypeDescriptor* pType = descIt.Value();
-      for (ezStringView ct : compTypes)
+      const WDocumentTypeDescriptor* pType = descIt.Value();
+      for (WStringView ct : compTypes)
       {
         if (pType->m_CompatibleTypes.Contains(ct))
         {
@@ -93,7 +93,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
   }
   Init(pParent);
 
-  AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::AssetPicker);
+  AssetBrowserWidget->SetMode(WQtAssetBrowserWidget::Mode::AssetPicker);
 
   if (m_sVisibleFilters != ";;") // that's an empty filter list
   {
@@ -108,28 +108,28 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 
   if (!sWindowTitle.IsEmpty())
   {
-    setWindowTitle(ezMakeQString(sWindowTitle));
+    setWindowTitle(WMakeQString(sWindowTitle));
   }
 }
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions)
-  : ezQtDialog(pParent)
+WQtAssetBrowserDlg::WQtAssetBrowserDlg(QWidget* pParent, WStringView sWindowTitle, WStringView sPreselectedFileAbs, WStringView sFileExtensions)
+  : WQtDialog(pParent)
 {
   m_sVisibleFilters = sFileExtensions;
 
   Init(pParent);
 
-  ezStringBuilder title(sFileExtensions, ")");
+  WStringBuilder title(sFileExtensions, ")");
   title.ReplaceAll(";", "; ");
   title.ReplaceAll("  ", " ");
   title.PrependFormat("{} (", sWindowTitle);
-  setWindowTitle(ezMakeQString(title));
+  setWindowTitle(WMakeQString(title));
 
-  AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::FilePicker);
+  AssetBrowserWidget->SetMode(WQtAssetBrowserWidget::Mode::FilePicker);
   AssetBrowserWidget->UseFileExtensionFilters(sFileExtensions);
 
-  ezStringBuilder sParentRelPath = sPreselectedFileAbs;
-  if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sParentRelPath))
+  WStringBuilder sParentRelPath = sPreselectedFileAbs;
+  if (WQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sParentRelPath))
   {
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTemporaryPinnedItem(sParentRelPath);
   }
@@ -139,7 +139,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowT
   AssetBrowserWidget->SearchWidget->setFocus();
 }
 
-ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
+WQtAssetBrowserDlg::~WQtAssetBrowserDlg()
 {
   s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInSubFolders();
   s_bShowItemsInHiddenFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInHiddenFolders();
@@ -160,18 +160,18 @@ ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
   AssetBrowserWidget->SaveState("AssetBrowserDlg");
 }
 
-void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
+void WQtAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags)
 {
   m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
   m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
 
-  const ezBitflags<ezAssetBrowserItemFlags> flags = (ezAssetBrowserItemFlags::Enum)uiAssetBrowserItemFlags;
+  const WBitflags<WAssetBrowserItemFlags> flags = (WAssetBrowserItemFlags::Enum)uiAssetBrowserItemFlags;
 
-  ButtonSelect->setEnabled(flags.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::File));
+  ButtonSelect->setEnabled(flags.IsAnySet(WAssetBrowserItemFlags::Asset | WAssetBrowserItemFlags::SubAsset | WAssetBrowserItemFlags::File));
 }
 
-void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
+void WQtAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags)
 {
   m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
@@ -180,12 +180,12 @@ void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString 
   accept();
 }
 
-void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemCleared()
+void WQtAssetBrowserDlg::on_AssetBrowserWidget_ItemCleared()
 {
   ButtonSelect->setEnabled(false);
 }
 
-void ezQtAssetBrowserDlg::on_ButtonSelect_clicked()
+void WQtAssetBrowserDlg::on_ButtonSelect_clicked()
 {
   accept();
 }

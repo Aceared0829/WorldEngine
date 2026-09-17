@@ -19,7 +19,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezQtPluginSelectionWidget" name="PluginSelectionWidget" native="true"/>
+    <widget class="WQtPluginSelectionWidget" name="PluginSelectionWidget" native="true"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="Buttons">
@@ -32,7 +32,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtPluginSelectionWidget</class>
+   <class>WQtPluginSelectionWidget</class>
    <extends>QWidget</extends>
    <header location="global">EditorFramework/Dialogs/PluginSelectionWidget.moc.h</header>
    <container>1</container>

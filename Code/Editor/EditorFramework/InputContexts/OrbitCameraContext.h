@@ -3,42 +3,42 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 
-class ezCamera;
+class WCamera;
 
 /// A simple orbit camera. Use LMB to rotate, wheel to zoom, Alt to slow down.
-class EZ_EDITORFRAMEWORK_DLL ezOrbitCameraContext : public ezEditorInputContext
+class W_EDITORFRAMEWORK_DLL WOrbitCameraContext : public WEditorInputContext
 {
 public:
-  ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
+  WOrbitCameraContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView);
 
-  void SetCamera(ezCamera* pCamera);
-  ezCamera* GetCamera() const;
+  void SetCamera(WCamera* pCamera);
+  WCamera* GetCamera() const;
 
-  void SetDefaultCameraRelative(const ezVec3& vDirection, float fDistanceScale);
-  void SetDefaultCameraFixed(const ezVec3& vPosition);
+  void SetDefaultCameraRelative(const WVec3& vDirection, float fDistanceScale);
+  void SetDefaultCameraFixed(const WVec3& vPosition);
 
   void MoveCameraToDefaultPosition();
 
   /// Defines the box in which the user may move the camera around
-  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize);
+  void SetOrbitVolume(const WVec3& vCenterPos, const WVec3& vHalfBoxSize);
 
   /// The center point around which the camera can be moved and rotated.
-  ezVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }
+  WVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }
 
   /// The half-size of the volume in which the camera may move around
-  ezVec3 GetVolumeHalfSize() const { return m_Volume.GetHalfExtents(); }
+  WVec3 GetVolumeHalfSize() const { return m_Volume.GetHalfExtents(); }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoWheelEvent(QWheelEvent* e) override;
-  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoWheelEvent(QWheelEvent* e) override;
+  virtual WEditorInput DoKeyPressEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override {}
 
 private:
   virtual void UpdateContext() override;
@@ -48,7 +48,7 @@ private:
   void ResetCursor();
   void SetCurrentMouseMode();
 
-  ezVec2I32 m_vLastMousePos;
+  WVec2I32 m_vLastMousePos;
 
   enum class Mode
   {
@@ -59,12 +59,12 @@ private:
   };
 
   Mode m_Mode = Mode::Off;
-  ezCamera* m_pCamera;
+  WCamera* m_pCamera;
 
-  ezBoundingBox m_Volume;
+  WBoundingBox m_Volume;
 
   bool m_bFixedDefaultCamera = true;
-  ezVec3 m_vDefaultCamera = ezVec3(1, 0, 0);
+  WVec3 m_vDefaultCamera = WVec3(1, 0, 0);
 
   bool m_bRun = false;
   bool m_bMoveForwards = false;
@@ -74,5 +74,5 @@ private:
   bool m_bMoveUp = false;
   bool m_bMoveDown = false;
 
-  ezTime m_LastUpdate;
+  WTime m_LastUpdate;
 };

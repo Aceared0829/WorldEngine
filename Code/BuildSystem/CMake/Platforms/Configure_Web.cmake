@@ -2,29 +2,29 @@ include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
 
 message(STATUS "Configuring Platform: Web")
 
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WEB ON)
-set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_WEBGPU ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_WEB ON)
+set_property(GLOBAL PROPERTY W_CMAKE_PLATFORM_SUPPORTS_WEBGPU ON)
 
-macro(ez_platform_pull_properties)
+macro(W_platform_pull_properties)
 
-	get_property(EZ_CMAKE_PLATFORM_WEB GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WEB)
+	get_property(W_CMAKE_PLATFORM_WEB GLOBAL PROPERTY W_CMAKE_PLATFORM_WEB)
 
 endmacro()
 
-macro(ez_platform_detect_generator)
+macro(W_platform_detect_generator)
 	if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-		message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+		message(STATUS "Buildsystem is Ninja (W_CMAKE_GENERATOR_NINJA)")
 
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_NINJA ON)
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_PREFIX "Ninja")
+		set_property(GLOBAL PROPERTY W_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 
 	else()
-		message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Web! Please extend ez_platform_detect_generator()")
+		message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Web! Please extend W_platform_detect_generator()")
 	endif()
 endmacro()
 
-macro (ez_platformhook_set_build_flags_clang TARGET_NAME)
+macro (W_platformhook_set_build_flags_clang TARGET_NAME)
 
 	target_compile_options(${TARGET_NAME} PRIVATE 
 		"-pthread"
@@ -36,20 +36,20 @@ macro (ez_platformhook_set_build_flags_clang TARGET_NAME)
 		"-msse4.2"
 
 		# Debug Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:-gsource-map>"
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:-g3>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEBUG_UPPER}>:-gsource-map>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEBUG_UPPER}>:-g3>"
 		
 		# Dev Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:-gsource-map>"
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:-g2>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEV_UPPER}>:-gsource-map>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEV_UPPER}>:-g2>"
 		
 		# Shipping Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_SHIPPING_UPPER}>:-g0>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_SHIPPING_UPPER}>:-g0>"
 	)
 
 endmacro()
 
-macro(ez_platformhook_set_application_properties TARGET_NAME)
+macro(W_platformhook_set_application_properties TARGET_NAME)
 
 	target_link_options(${TARGET_NAME} PRIVATE
 
@@ -81,21 +81,21 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
 		"-sOFFSCREENCANVAS_SUPPORT"
 
 		# Debug Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:-sSTACK_OVERFLOW_CHECK=1>"
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:-sASSERTIONS=1>"
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:-g3>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEBUG_UPPER}>:-sSTACK_OVERFLOW_CHECK=1>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEBUG_UPPER}>:-sASSERTIONS=1>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEBUG_UPPER}>:-g3>"
 
 		# Dev Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:-sASSERTIONS=1>"
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:-g2>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEV_UPPER}>:-sASSERTIONS=1>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_DEV_UPPER}>:-g2>"
 
 		# Shipping Build
-		"$<$<CONFIG:${EZ_BUILDTYPENAME_SHIPPING_UPPER}>:-g0>"
+		"$<$<CONFIG:${W_BUILDTYPENAME_SHIPPING_UPPER}>:-g0>"
 	)
 
 endmacro()
 
-macro(ez_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+macro(W_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
 
 	target_link_options(${TARGET_NAME} PRIVATE "SHELL: --preload-file ${SRC_FOLDER}@/${DST_FOLDER}")
 

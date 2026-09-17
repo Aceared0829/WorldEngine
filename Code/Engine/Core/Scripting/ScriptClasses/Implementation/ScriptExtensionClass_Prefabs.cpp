@@ -6,54 +6,54 @@
 #include <Core/Prefabs/PrefabResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Prefabs, ezNoBase, 1, ezRTTINoAllocator)
+W_BEGIN_STATIC_REFLECTED_TYPE(WScriptExtensionClass_Prefabs, WNoBase, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefab, In, "World", In, "Prefab", In, "GlobalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
-      new ezFunctionArgumentAttributes(1, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
-      new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(ezVariant(ezInvalidIndex))),
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(true)),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true))),
+    W_SCRIPT_FUNCTION_PROPERTY(SpawnPrefab, In, "World", In, "Prefab", In, "GlobalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
+      new WFunctionArgumentAttributes(1, new WAssetBrowserAttribute("CompatibleAsset_Prefab")),
+      new WFunctionArgumentAttributes(3, new WDefaultValueAttribute(WVariant(WInvalidIndex))),
+      new WFunctionArgumentAttributes(4, new WDefaultValueAttribute(true)),
+      new WFunctionArgumentAttributes(5, new WDefaultValueAttribute(true))),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefabAsChild, In, "World", In, "Prefab", In, "Parent", In, "LocalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
-      new ezFunctionArgumentAttributes(1, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(ezVariant(ezInvalidIndex))),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true)),
-      new ezFunctionArgumentAttributes(6, new ezDefaultValueAttribute(true))),
+    W_SCRIPT_FUNCTION_PROPERTY(SpawnPrefabAsChild, In, "World", In, "Prefab", In, "Parent", In, "LocalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
+      new WFunctionArgumentAttributes(1, new WAssetBrowserAttribute("CompatibleAsset_Prefab")),
+      new WFunctionArgumentAttributes(4, new WDefaultValueAttribute(WVariant(WInvalidIndex))),
+      new WFunctionArgumentAttributes(5, new WDefaultValueAttribute(true)),
+      new WFunctionArgumentAttributes(6, new WDefaultValueAttribute(true))),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezScriptExtensionAttribute("Prefabs"),
+    new WScriptExtensionAttribute("Prefabs"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void SpawnPrefabHelper(ezWorld& ref_world, ezStringView sPrefab, ezGameObjectHandle hParent, const ezTransform& transform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon, ezVariantArray& out_rootObjects)
+void SpawnPrefabHelper(WWorld& ref_world, WStringView sPrefab, WGameObjectHandle hParent, const WTransform& transform, WUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon, WVariantArray& out_rootObjects)
 {
-  ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(sPrefab);
+  WPrefabResourceHandle hPrefab = WResourceManager::LoadResource<WPrefabResource>(sPrefab);
 
-  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WResourceLock<WPrefabResource> pPrefab(hPrefab, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  if (pPrefab.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pPrefab.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
-  ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
-  ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
+  WTempHybridArray<WGameObject*, 8> createdRootObjects;
+  WTempHybridArray<WGameObject*, 8> createdChildObjects;
 
-  ezPrefabInstantiationOptions opt;
+  WPrefabInstantiationOptions opt;
   opt.m_hParent = hParent;
   opt.m_pCreatedRootObjectsOut = &createdRootObjects;
   opt.m_pCreatedChildObjectsOut = &createdChildObjects;
 
   pPrefab->InstantiatePrefab(ref_world, transform, opt);
 
-  auto FixupObject = [&](ezGameObject* pObject)
+  auto FixupObject = [&](WGameObject* pObject)
   {
-    if (uiUniqueID != ezInvalidIndex)
+    if (uiUniqueID != WInvalidIndex)
     {
       for (auto pComponent : pObject->GetComponents())
       {
@@ -80,25 +80,25 @@ void SpawnPrefabHelper(ezWorld& ref_world, ezStringView sPrefab, ezGameObjectHan
   }
 }
 
-ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefab(ezWorld* pWorld, ezStringView sPrefab, const ezTransform& globalTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
+WVariantArray WScriptExtensionClass_Prefabs::SpawnPrefab(WWorld* pWorld, WStringView sPrefab, const WTransform& globalTransform, WUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
 {
   if (pWorld == nullptr || sPrefab.IsEmpty())
     return {};
 
-  ezVariantArray rootObjects;
-  SpawnPrefabHelper(*pWorld, sPrefab, ezGameObjectHandle(), globalTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
+  WVariantArray rootObjects;
+  SpawnPrefabHelper(*pWorld, sPrefab, WGameObjectHandle(), globalTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
   return rootObjects;
 }
 
-ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefabAsChild(ezWorld* pWorld, ezStringView sPrefab, ezGameObject* pParent, const ezTransform& localTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
+WVariantArray WScriptExtensionClass_Prefabs::SpawnPrefabAsChild(WWorld* pWorld, WStringView sPrefab, WGameObject* pParent, const WTransform& localTransform, WUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
 {
   if (pWorld == nullptr || sPrefab.IsEmpty())
     return {};
 
-  ezVariantArray rootObjects;
-  SpawnPrefabHelper(*pWorld, sPrefab, pParent != nullptr ? pParent->GetHandle() : ezGameObjectHandle(), localTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
+  WVariantArray rootObjects;
+  SpawnPrefabHelper(*pWorld, sPrefab, pParent != nullptr ? pParent->GetHandle() : WGameObjectHandle(), localTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
   return rootObjects;
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
+W_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);

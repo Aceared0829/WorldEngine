@@ -6,18 +6,18 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetCheckRule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetCheckRule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezObjectAccessorBase* ezAssetCheckContext::GetObjectAccessor() const
+WObjectAccessorBase* WAssetCheckContext::GetObjectAccessor() const
 {
   return m_pDocument ? m_pDocument->GetObjectAccessor() : nullptr;
 }
 
-void ezAssetCheckContext::ReportIssue(ezAssetCheckSeverity::Enum severity, ezStringView sMessage, const ezDocumentObject* pObject /*= nullptr*/, bool bFixed /*= false*/)
+void WAssetCheckContext::ReportIssue(WAssetCheckSeverity::Enum severity, WStringView sMessage, const WDocumentObject* pObject /*= nullptr*/, bool bFixed /*= false*/)
 {
-  ezAssetCheckNote& note = m_pNotes->ExpandAndGetRef();
+  WAssetCheckNote& note = m_pNotes->ExpandAndGetRef();
   note.m_Severity = severity;
   note.m_sMessage = sMessage;
   note.m_bFixed = bFixed;
@@ -33,15 +33,15 @@ void ezAssetCheckContext::ReportIssue(ezAssetCheckSeverity::Enum severity, ezStr
   }
 }
 
-ezString ezAssetCheckContext::GetObjectDisplayName(const ezDocumentObject* pObject)
+WString WAssetCheckContext::GetObjectDisplayName(const WDocumentObject* pObject)
 {
   if (pObject == nullptr)
-    return ezString();
+    return WString();
 
-  const ezVariant name = pObject->GetTypeAccessor().GetValue("Name");
-  if (name.IsValid() && name.CanConvertTo<ezString>())
+  const WVariant name = pObject->GetTypeAccessor().GetValue("Name");
+  if (name.IsValid() && name.CanConvertTo<WString>())
   {
-    const ezString sName = name.ConvertTo<ezString>();
+    const WString sName = name.ConvertTo<WString>();
     if (!sName.IsEmpty())
       return sName;
   }
@@ -49,114 +49,114 @@ ezString ezAssetCheckContext::GetObjectDisplayName(const ezDocumentObject* pObje
   return pObject->GetType()->GetTypeName();
 }
 
-void ezAssetCheckRule::CheckDocument(ezAssetCheckContext& ref_ctx)
+void WAssetCheckRule::CheckDocument(WAssetCheckContext& ref_ctx)
 {
-  const ezDocumentObject* pRoot = ref_ctx.GetDocument()->GetObjectManager()->GetRootObject();
+  const WDocumentObject* pRoot = ref_ctx.GetDocument()->GetObjectManager()->GetRootObject();
   VisitObjectRecursive(ref_ctx, pRoot);
 }
 
-void ezAssetCheckRule::VisitObjectRecursive(ezAssetCheckContext& ref_ctx, const ezDocumentObject* pObject)
+void WAssetCheckRule::VisitObjectRecursive(WAssetCheckContext& ref_ctx, const WDocumentObject* pObject)
 {
   CheckObject(ref_ctx, pObject);
 
-  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  for (const WDocumentObject* pChild : pObject->GetChildren())
   {
     if (pChild->GetParentPropertyType() != nullptr &&
-        pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+        pChild->GetParentPropertyType()->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     VisitObjectRecursive(ref_ctx, pChild);
   }
 }
 
-void ezAssetCheckRule::CheckObject(ezAssetCheckContext& ref_ctx, const ezDocumentObject* pObject)
+void WAssetCheckRule::CheckObject(WAssetCheckContext& ref_ctx, const WDocumentObject* pObject)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  WHybridArray<const WAbstractProperty*, 32> properties;
   pObject->GetType()->GetAllProperties(properties);
 
-  for (const ezAbstractProperty* pProp : properties)
+  for (const WAbstractProperty* pProp : properties)
   {
-    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+    if (pProp->GetAttributeByType<WTemporaryAttribute>() != nullptr)
       continue;
 
     CheckProperty(ref_ctx, pObject, pProp);
   }
 }
 
-void ezAssetCheckRule::CheckProperty(ezAssetCheckContext& ref_ctx, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+void WAssetCheckRule::CheckProperty(WAssetCheckContext& ref_ctx, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
 }
 
-ezResult ezAssetCheckRule::GetPropertyValues(ezObjectAccessorBase* pAcc, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_indices, ezDynamicArray<ezVariant>& out_values)
+WResult WAssetCheckRule::GetPropertyValues(WObjectAccessorBase* pAcc, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_indices, WDynamicArray<WVariant>& out_values)
 {
   out_indices.Clear();
   out_values.Clear();
 
   switch (pProp->GetCategory())
   {
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
     {
-      ezVariant value;
+      WVariant value;
       if (pAcc->GetValue(pObject, pProp, value).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
-      out_indices.PushBack(ezVariant());
+      out_indices.PushBack(WVariant());
       out_values.PushBack(value);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Array:
+    case WPropertyCategory::Set:
     {
       if (pAcc->GetValues(pObject, pProp, out_values).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_indices.Reserve(out_values.GetCount());
-      for (ezUInt32 i = 0; i < out_values.GetCount(); ++i)
+      for (WUInt32 i = 0; i < out_values.GetCount(); ++i)
         out_indices.PushBack(i);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
     {
       if (pAcc->GetKeys(pObject, pProp, out_indices).Failed())
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       out_values.Reserve(out_indices.GetCount());
-      for (const ezVariant& key : out_indices)
+      for (const WVariant& key : out_indices)
       {
-        ezVariant value;
+        WVariant value;
         if (pAcc->GetValue(pObject, pProp, value, key).Failed())
-          return EZ_FAILURE;
+          return W_FAILURE;
 
         out_values.PushBack(value);
       }
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     default:
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 }
 
-void ezAssetCheckRule::CreateRules(ezDynamicArray<ezAssetCheckRule*>& out_rules)
+void WAssetCheckRule::CreateRules(WDynamicArray<WAssetCheckRule*>& out_rules)
 {
-  ezRTTI::ForEachDerivedType<ezAssetCheckRule>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WAssetCheckRule>(
+    [&](const WRTTI* pRtti)
     {
-      out_rules.PushBack(pRtti->GetAllocator()->Allocate<ezAssetCheckRule>());
+      out_rules.PushBack(pRtti->GetAllocator()->Allocate<WAssetCheckRule>());
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 
-  out_rules.Sort([](ezAssetCheckRule* lhs, ezAssetCheckRule* rhs) -> bool
+  out_rules.Sort([](WAssetCheckRule* lhs, WAssetCheckRule* rhs) -> bool
     {
       return lhs->GetDisplayName().Compare_NoCase(rhs->GetDisplayName()) < 0; //
     });
 }
 
-void ezAssetCheckRule::DestroyRules(ezDynamicArray<ezAssetCheckRule*>& ref_rules)
+void WAssetCheckRule::DestroyRules(WDynamicArray<WAssetCheckRule*>& ref_rules)
 {
-  for (ezAssetCheckRule* pRule : ref_rules)
+  for (WAssetCheckRule* pRule : ref_rules)
   {
     pRule->GetDynamicRTTI()->GetAllocator()->Deallocate(pRule);
   }

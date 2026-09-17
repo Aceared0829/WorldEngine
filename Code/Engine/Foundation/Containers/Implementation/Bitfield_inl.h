@@ -1,40 +1,40 @@
 #pragma once
 
 template <class Container>
-EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitInt(ezUInt32 uiBitIndex) const
+W_ALWAYS_INLINE WUInt32 WBitfield<Container>::GetBitInt(WUInt32 uiBitIndex) const
 {
   return (uiBitIndex >> 5); // div 32
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitMask(ezUInt32 uiBitIndex) const
+W_ALWAYS_INLINE WUInt32 WBitfield<Container>::GetBitMask(WUInt32 uiBitIndex) const
 {
   return 1 << (uiBitIndex & 0x1F); // modulo 32, shifted to bit position
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetCount() const
+W_ALWAYS_INLINE WUInt32 WBitfield<Container>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <class Container>
 template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do not support this.
-void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
+void WBitfield<Container>::SetCountUninitialized(WUInt32 uiBitCount)
 {
-  const ezUInt32 uiInts = (uiBitCount + 31) >> 5;
+  const WUInt32 uiInts = (uiBitCount + 31) >> 5;
   m_Container.SetCountUninitialized(uiInts);
 
   m_uiCount = uiBitCount;
 }
 
 template <class Container>
-void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount, bool bSetNew)
+void WBitfield<Container>::SetCount(WUInt32 uiBitCount, bool bSetNew)
 {
   if (m_uiCount == uiBitCount)
     return;
 
-  const ezUInt32 uiOldBits = m_uiCount;
+  const WUInt32 uiOldBits = m_uiCount;
 
   SetCountUninitialized(uiBitCount);
 
@@ -49,28 +49,28 @@ void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount, bool bSetNew)
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE bool ezBitfield<Container>::IsEmpty() const
+W_ALWAYS_INLINE bool WBitfield<Container>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <class Container>
-bool ezBitfield<Container>::IsAnyBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 uiNumBits /*= 0xFFFFFFFF*/) const
+bool WBitfield<Container>::IsAnyBitSet(WUInt32 uiFirstBit /*= 0*/, WUInt32 uiNumBits /*= 0xFFFFFFFF*/) const
 {
   if (m_uiCount == 0 || uiNumBits == 0)
     return false;
 
-  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+  W_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = ezMath::Min<ezUInt32>(uiFirstBit + uiNumBits, m_uiCount) - 1;
+  const WUInt32 uiLastBit = WMath::Min<WUInt32>(uiFirstBit + uiNumBits, m_uiCount) - 1;
 
-  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+  const WUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const WUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
   {
-    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
     {
       if (IsBitSet(i))
         return true;
@@ -78,25 +78,25 @@ bool ezBitfield<Container>::IsAnyBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 ui
   }
   else
   {
-    const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-    const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+    const WUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+    const WUInt32 uiPrevIntBit = uiLastInt * 32;
 
     // check the bits in the first int individually
-    for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    for (WUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
     {
       if (IsBitSet(i))
         return true;
     }
 
     // check the bits in the ints in between with one operation
-    for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    for (WUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
     {
       if ((m_Container[i] & 0xFFFFFFFF) != 0)
         return true;
     }
 
     // check the bits in the last int individually
-    for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     {
       if (IsBitSet(i))
         return true;
@@ -107,28 +107,28 @@ bool ezBitfield<Container>::IsAnyBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 ui
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE bool ezBitfield<Container>::IsNoBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 uiLastBit /*= 0xFFFFFFFF*/) const
+W_ALWAYS_INLINE bool WBitfield<Container>::IsNoBitSet(WUInt32 uiFirstBit /*= 0*/, WUInt32 uiLastBit /*= 0xFFFFFFFF*/) const
 {
   return !IsAnyBitSet(uiFirstBit, uiLastBit);
 }
 
 template <class Container>
-bool ezBitfield<Container>::AreAllBitsSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 uiNumBits /*= 0xFFFFFFFF*/) const
+bool WBitfield<Container>::AreAllBitsSet(WUInt32 uiFirstBit /*= 0*/, WUInt32 uiNumBits /*= 0xFFFFFFFF*/) const
 {
   if (m_uiCount == 0 || uiNumBits == 0)
     return false;
 
-  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+  W_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = ezMath::Min<ezUInt32>(uiFirstBit + uiNumBits, m_uiCount - 1);
+  const WUInt32 uiLastBit = WMath::Min<WUInt32>(uiFirstBit + uiNumBits, m_uiCount - 1);
 
-  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+  const WUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const WUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
   {
-    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
     {
       if (!IsBitSet(i))
         return false;
@@ -136,25 +136,25 @@ bool ezBitfield<Container>::AreAllBitsSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 
   }
   else
   {
-    const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-    const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+    const WUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+    const WUInt32 uiPrevIntBit = uiLastInt * 32;
 
     // check the bits in the first int individually
-    for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    for (WUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
     {
       if (!IsBitSet(i))
         return false;
     }
 
     // check the bits in the ints in between with one operation
-    for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    for (WUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
     {
       if (m_Container[i] != 0xFFFFFFFF)
         return false;
     }
 
     // check the bits in the last int individually
-    for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     {
       if (!IsBitSet(i))
         return false;
@@ -165,38 +165,38 @@ bool ezBitfield<Container>::AreAllBitsSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE void ezBitfield<Container>::Clear()
+W_ALWAYS_INLINE void WBitfield<Container>::Clear()
 {
   m_uiCount = 0;
   m_Container.Clear();
 }
 
 template <class Container>
-void ezBitfield<Container>::SetBit(ezUInt32 uiBit)
+void WBitfield<Container>::SetBit(WUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+  W_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
 
   m_Container[GetBitInt(uiBit)] |= GetBitMask(uiBit);
 }
 
 template <class Container>
-void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
+void WBitfield<Container>::ClearBit(WUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+  W_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
 
   m_Container[GetBitInt(uiBit)] &= ~GetBitMask(uiBit);
 }
 
 template <class Container>
-void ezBitfield<Container>::FlipBit(ezUInt32 uiBit)
+void WBitfield<Container>::FlipBit(WUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+  W_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
 
   m_Container[GetBitInt(uiBit)] ^= GetBitMask(uiBit);
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE void ezBitfield<Container>::SetBitValue(ezUInt32 uiBit, bool bValue)
+W_ALWAYS_INLINE void WBitfield<Container>::SetBitValue(WUInt32 uiBit, bool bValue)
 {
   if (bValue)
   {
@@ -209,184 +209,184 @@ EZ_ALWAYS_INLINE void ezBitfield<Container>::SetBitValue(ezUInt32 uiBit, bool bV
 }
 
 template <class Container>
-bool ezBitfield<Container>::IsBitSet(ezUInt32 uiBit) const
+bool WBitfield<Container>::IsBitSet(WUInt32 uiBit) const
 {
-  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+  W_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
 
   return (m_Container[GetBitInt(uiBit)] & GetBitMask(uiBit)) != 0;
 }
 
 template <class Container>
-void ezBitfield<Container>::ClearAllBits()
+void WBitfield<Container>::ClearAllBits()
 {
-  for (ezUInt32 i = 0; i < m_Container.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Container.GetCount(); ++i)
     m_Container[i] = 0;
 }
 
 template <class Container>
-void ezBitfield<Container>::SetAllBits()
+void WBitfield<Container>::SetAllBits()
 {
-  for (ezUInt32 i = 0; i < m_Container.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Container.GetCount(); ++i)
     m_Container[i] = 0xFFFFFFFF;
 }
 
 template <class Container>
-void ezBitfield<Container>::SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+void WBitfield<Container>::SetBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits)
 {
   if (m_uiCount == 0 || uiNumBits == 0)
     return;
 
-  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+  W_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
+  const WUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
 
-  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+  const WUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const WUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
   {
-    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
       SetBit(i);
 
     return;
   }
 
-  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+  const WUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+  const WUInt32 uiPrevIntBit = uiLastInt * 32;
 
   // set the bits in the first int individually
-  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+  for (WUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
     SetBit(i);
 
   // set the bits in the ints in between with one operation
-  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+  for (WUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
     m_Container[i] = 0xFFFFFFFF;
 
   // set the bits in the last int individually
-  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+  for (WUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     SetBit(i);
 }
 
 template <class Container>
-void ezBitfield<Container>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+void WBitfield<Container>::ClearBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits)
 {
   if (m_uiCount == 0 || uiNumBits == 0)
     return;
 
-  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+  W_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
+  const WUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
 
-  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+  const WUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const WUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
   {
-    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
       ClearBit(i);
 
     return;
   }
 
-  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+  const WUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+  const WUInt32 uiPrevIntBit = uiLastInt * 32;
 
   // set the bits in the first int individually
-  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+  for (WUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
     ClearBit(i);
 
   // set the bits in the ints in between with one operation
-  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+  for (WUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
     m_Container[i] = 0;
 
   // set the bits in the last int individually
-  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+  for (WUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     ClearBit(i);
 }
 
 template <class Container>
-void ezBitfield<Container>::FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+void WBitfield<Container>::FlipBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits)
 {
   if (m_uiCount == 0 || uiNumBits == 0)
     return;
 
-  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+  W_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
+  const WUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
 
-  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+  const WUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const WUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
   {
-    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+    for (WUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
       FlipBit(i);
 
     return;
   }
 
-  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+  const WUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+  const WUInt32 uiPrevIntBit = uiLastInt * 32;
 
   // flip the bits in the first int individually
-  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+  for (WUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
     FlipBit(i);
 
   // flip the bits in the ints in between with one operation
-  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+  for (WUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
     m_Container[i] = ~m_Container[i];
 
   // flip the bits in the last int individually
-  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+  for (WUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     FlipBit(i);
 }
 
 template <class Container>
-void ezBitfield<Container>::Swap(ezBitfield<Container>& other)
+void WBitfield<Container>::Swap(WBitfield<Container>& other)
 {
-  ezMath::Swap(m_uiCount, other.m_uiCount);
+  WMath::Swap(m_uiCount, other.m_uiCount);
   m_Container.Swap(other.m_Container);
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE typename ezBitfield<Container>::ConstIterator ezBitfield<Container>::GetIterator() const
+W_ALWAYS_INLINE typename WBitfield<Container>::ConstIterator WBitfield<Container>::GetIterator() const
 {
   return ConstIterator(*this);
 };
 
 template <class Container>
-EZ_ALWAYS_INLINE typename ezBitfield<Container>::ConstIterator ezBitfield<Container>::GetEndIterator() const
+W_ALWAYS_INLINE typename WBitfield<Container>::ConstIterator WBitfield<Container>::GetEndIterator() const
 {
   return ConstIterator();
 };
 
 //////////////////////////////////////////////////////////////////////////
-// ezBitfield<Container>::ConstIterator
+// WBitfield<Container>::ConstIterator
 
 template <class Container>
-ezBitfield<Container>::ConstIterator::ConstIterator(const ezBitfield<Container>& bitfield)
+WBitfield<Container>::ConstIterator::ConstIterator(const WBitfield<Container>& bitfield)
 {
   m_pBitfield = &bitfield;
   FindNextChunk(0);
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::IsValid() const
+W_ALWAYS_INLINE bool WBitfield<Container>::ConstIterator::IsValid() const
 {
   return m_pBitfield != nullptr;
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::ConstIterator::Value() const
+W_ALWAYS_INLINE WUInt32 WBitfield<Container>::ConstIterator::Value() const
 {
   return *m_Iterator + (m_uiChunk << 5);
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE void ezBitfield<Container>::ConstIterator::Next()
+W_ALWAYS_INLINE void WBitfield<Container>::ConstIterator::Next()
 {
   ++m_Iterator;
   if (!m_Iterator.IsValid())
@@ -396,36 +396,36 @@ EZ_ALWAYS_INLINE void ezBitfield<Container>::ConstIterator::Next()
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::operator==(const ConstIterator& other) const
+W_ALWAYS_INLINE bool WBitfield<Container>::ConstIterator::operator==(const ConstIterator& other) const
 {
   return m_pBitfield == other.m_pBitfield && m_Iterator == other.m_Iterator && m_uiChunk == other.m_uiChunk;
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::operator!=(const ConstIterator& other) const
+W_ALWAYS_INLINE bool WBitfield<Container>::ConstIterator::operator!=(const ConstIterator& other) const
 {
   return m_pBitfield != other.m_pBitfield || m_Iterator != other.m_Iterator || m_uiChunk != other.m_uiChunk;
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::ConstIterator::operator*() const
+W_ALWAYS_INLINE WUInt32 WBitfield<Container>::ConstIterator::operator*() const
 {
   return Value();
 }
 
 template <class Container>
-EZ_ALWAYS_INLINE void ezBitfield<Container>::ConstIterator::operator++()
+W_ALWAYS_INLINE void WBitfield<Container>::ConstIterator::operator++()
 {
   Next();
 }
 
 template <class Container>
-void ezBitfield<Container>::ConstIterator::FindNextChunk(ezUInt32 uiStartChunk)
+void WBitfield<Container>::ConstIterator::FindNextChunk(WUInt32 uiStartChunk)
 {
   if (uiStartChunk < m_pBitfield->m_Container.GetCount())
   {
-    const ezUInt32 uiLastChunk = m_pBitfield->m_Container.GetCount() - 1;
-    for (ezUInt32 i = uiStartChunk; i < uiLastChunk; ++i)
+    const WUInt32 uiLastChunk = m_pBitfield->m_Container.GetCount() - 1;
+    for (WUInt32 i = uiStartChunk; i < uiLastChunk; ++i)
     {
       if (m_pBitfield->m_Container[i] != 0)
       {
@@ -435,7 +435,7 @@ void ezBitfield<Container>::ConstIterator::FindNextChunk(ezUInt32 uiStartChunk)
       }
     }
 
-    const ezUInt32 uiMask = 0xFFFFFFFF >> (32 - (m_pBitfield->m_uiCount - (uiLastChunk << 5)));
+    const WUInt32 uiMask = 0xFFFFFFFF >> (32 - (m_pBitfield->m_uiCount - (uiLastChunk << 5)));
     if ((m_pBitfield->m_Container[uiLastChunk] & uiMask) != 0)
     {
       m_uiChunk = uiLastChunk;
@@ -455,40 +455,40 @@ void ezBitfield<Container>::ConstIterator::FindNextChunk(ezUInt32 uiStartChunk)
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-EZ_ALWAYS_INLINE ezStaticBitfield<T>::ezStaticBitfield()
+W_ALWAYS_INLINE WStaticBitfield<T>::WStaticBitfield()
 {
   static_assert(std::is_unsigned<T>::value, "Storage type must be unsigned");
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezStaticBitfield<T> ezStaticBitfield<T>::MakeFromMask(StorageType bits)
+W_ALWAYS_INLINE WStaticBitfield<T> WStaticBitfield<T>::MakeFromMask(StorageType bits)
 {
-  return ezStaticBitfield<T>(bits);
+  return WStaticBitfield<T>(bits);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsAnyBitSet() const
+W_ALWAYS_INLINE bool WStaticBitfield<T>::IsAnyBitSet() const
 {
   return m_Storage != 0;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsNoBitSet() const
+W_ALWAYS_INLINE bool WStaticBitfield<T>::IsNoBitSet() const
 {
   return m_Storage == 0;
 }
 
 template <typename T>
-bool ezStaticBitfield<T>::AreAllBitsSet() const
+bool WStaticBitfield<T>::AreAllBitsSet() const
 {
   const T inv = ~m_Storage;
   return inv == 0;
 }
 
 template <typename T>
-void ezStaticBitfield<T>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+void WStaticBitfield<T>::ClearBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits)
 {
-  EZ_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
+  W_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
 
   T mask = (uiNumBits / 8 >= sizeof(T)) ? (~static_cast<T>(0)) : ((static_cast<T>(1) << uiNumBits) - 1);
   mask <<= uiFirstBit;
@@ -497,9 +497,9 @@ void ezStaticBitfield<T>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
 }
 
 template <typename T>
-void ezStaticBitfield<T>::SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+void WStaticBitfield<T>::SetBitRange(WUInt32 uiFirstBit, WUInt32 uiNumBits)
 {
-  EZ_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
+  W_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
 
   T mask = (uiNumBits / 8 >= sizeof(T)) ? (~static_cast<T>(0)) : ((static_cast<T>(1) << uiNumBits) - 1);
   mask <<= uiFirstBit;
@@ -507,53 +507,53 @@ void ezStaticBitfield<T>::SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetNumBitsSet() const
+W_ALWAYS_INLINE WUInt32 WStaticBitfield<T>::GetNumBitsSet() const
 {
-  return ezMath::CountBits(m_Storage);
+  return WMath::CountBits(m_Storage);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetHighestBitSet() const
+W_ALWAYS_INLINE WUInt32 WStaticBitfield<T>::GetHighestBitSet() const
 {
-  return m_Storage == 0 ? GetStorageTypeBitCount() : ezMath::FirstBitHigh(m_Storage);
+  return m_Storage == 0 ? GetStorageTypeBitCount() : WMath::FirstBitHigh(m_Storage);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetLowestBitSet() const
+W_ALWAYS_INLINE WUInt32 WStaticBitfield<T>::GetLowestBitSet() const
 {
-  return m_Storage == 0 ? GetStorageTypeBitCount() : ezMath::FirstBitLow(m_Storage);
+  return m_Storage == 0 ? GetStorageTypeBitCount() : WMath::FirstBitLow(m_Storage);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetAllBits()
+W_ALWAYS_INLINE void WStaticBitfield<T>::SetAllBits()
 {
-  m_Storage = ezMath::MaxValue<T>(); // possible because we assert that T is unsigned
+  m_Storage = WMath::MaxValue<T>(); // possible because we assert that T is unsigned
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::ClearAllBits()
+W_ALWAYS_INLINE void WStaticBitfield<T>::ClearAllBits()
 {
   m_Storage = 0;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsBitSet(ezUInt32 uiBit) const
+W_ALWAYS_INLINE bool WStaticBitfield<T>::IsBitSet(WUInt32 uiBit) const
 {
-  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
+  W_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   return (m_Storage & (static_cast<T>(1u) << uiBit)) != 0;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::ClearBit(ezUInt32 uiBit)
+W_ALWAYS_INLINE void WStaticBitfield<T>::ClearBit(WUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
+  W_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   m_Storage &= ~(static_cast<T>(1u) << uiBit);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBitValue(ezUInt32 uiBit, bool bValue)
+W_ALWAYS_INLINE void WStaticBitfield<T>::SetBitValue(WUInt32 uiBit, bool bValue)
 {
   if (bValue)
   {
@@ -566,27 +566,27 @@ EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBitValue(ezUInt32 uiBit, bool bVal
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBit(ezUInt32 uiBit)
+W_ALWAYS_INLINE void WStaticBitfield<T>::SetBit(WUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
+  W_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   m_Storage |= static_cast<T>(1u) << uiBit;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetValue(T value)
+W_ALWAYS_INLINE void WStaticBitfield<T>::SetValue(T value)
 {
   m_Storage = value;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T ezStaticBitfield<T>::GetValue() const
+W_ALWAYS_INLINE T WStaticBitfield<T>::GetValue() const
 {
   return m_Storage;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStaticBitfield<T>::Swap(ezStaticBitfield<T>& other)
+W_ALWAYS_INLINE void WStaticBitfield<T>::Swap(WStaticBitfield<T>& other)
 {
-  ezMath::Swap(m_Storage, other.m_Storage);
+  WMath::Swap(m_Storage, other.m_Storage);
 }

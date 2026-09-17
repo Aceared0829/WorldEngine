@@ -11,20 +11,20 @@
 
 #  include "AngelScriptTest.h"
 
-static ezGameEngineTestAngelScript s_GameEngineTestAngelScript;
+static WGameEngineTestAngelScript s_GameEngineTestAngelScript;
 
-const char* ezGameEngineTestAngelScript::GetTestName() const
+const char* WGameEngineTestAngelScript::GetTestName() const
 {
   return "AngelScript Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestAngelScript::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestAngelScript::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication_AngelScript);
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication_AngelScript);
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestAngelScript::SetupSubTests()
+void WGameEngineTestAngelScript::SetupSubTests()
 {
   AddSubTest("Types", SubTests::Types);
   AddSubTest("Strings", SubTests::Strings);
@@ -38,25 +38,25 @@ void ezGameEngineTestAngelScript::SetupSubTests()
   AddSubTest("Misc", SubTests::Misc);
 }
 
-ezResult ezGameEngineTestAngelScript::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestAngelScript::InitializeSubTest(WInt32 iIdentifier)
 {
   m_pOwnApplication->SubTestBasicsSetup();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezTestAppRun ezGameEngineTestAngelScript::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestAngelScript::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   switch (iIdentifier)
   {
     case SubTests::Types:
       m_pOwnApplication->RunTestScript("Tests/Types/TypesTest.as");
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     case SubTests::Strings:
       m_pOwnApplication->RunTestScript("Tests/Types/StringsTest.as");
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     case SubTests::Arrays:
       m_pOwnApplication->RunTestScript("Tests/Types/ArraysTest.as");
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     default:
       return m_pOwnApplication->SubTestBasisExec(GetSubTestName(iIdentifier));
   }
@@ -64,118 +64,118 @@ ezTestAppRun ezGameEngineTestAngelScript::RunSubTest(ezInt32 iIdentifier, ezUInt
 
 //////////////////////////////////////////////////////////////////////////
 
-ezGameEngineTestApplication_AngelScript::ezGameEngineTestApplication_AngelScript()
-  : ezGameEngineTestApplication("AngelScript")
+WGameEngineTestApplication_AngelScript::WGameEngineTestApplication_AngelScript()
+  : WGameEngineTestApplication("AngelScript")
 {
 }
 
-void ezGameEngineTestApplication_AngelScript::SubTestBasicsSetup()
+void WGameEngineTestApplication_AngelScript::SubTestBasicsSetup()
 {
-  LoadScene("AngelScript/AssetCache/Common/Scenes/Main.ezBinScene").IgnoreResult();
+  LoadScene("AngelScript/AssetCache/Common/Scenes/Main.WBinScene").IgnoreResult();
 }
 
-ezTestAppRun ezGameEngineTestApplication_AngelScript::SubTestBasisExec(const char* szSubTestName)
+WTestAppRun WGameEngineTestApplication_AngelScript::SubTestBasisExec(const char* szSubTestName)
 {
   Run();
   if (ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  ezGameObject* pTests = nullptr;
+  WGameObject* pTests = nullptr;
   if (m_pWorld->TryGetObjectWithGlobalKey("Tests", pTests) == false)
   {
-    EZ_TEST_FAILURE("Failed to retrieve AngelScript Tests-Object", "");
-    return ezTestAppRun::Quit;
+    W_TEST_FAILURE("Failed to retrieve AngelScript Tests-Object", "");
+    return WTestAppRun::Quit;
   }
 
-  const ezStringBuilder sMsg(szSubTestName, "Test");
+  const WStringBuilder sMsg(szSubTestName, "Test");
 
-  ezMsgGenericEvent msg;
+  WMsgGenericEvent msg;
   msg.m_sMessage.Assign(sMsg);
   pTests->SendMessageRecursive(msg);
 
-  if (msg.m_sMessage == ezTempHashedString("repeat"))
-    return ezTestAppRun::Continue;
+  if (msg.m_sMessage == WTempHashedString("repeat"))
+    return WTestAppRun::Continue;
 
-  EZ_TEST_STRING(msg.m_sMessage, "done");
+  W_TEST_STRING(msg.m_sMessage, "done");
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 }
 
-void ezGameEngineTestApplication_AngelScript::RunTestScript(ezStringView sScriptPath)
+void WGameEngineTestApplication_AngelScript::RunTestScript(WStringView sScriptPath)
 {
   // Load and process test script
   {
-    ezStringBuilder sTestCode;
-    ezStringBuilder sProcessedCode;
+    WStringBuilder sTestCode;
+    WStringBuilder sProcessedCode;
     {
-      ezFileReader read;
+      WFileReader read;
       if (read.Open(sScriptPath).Failed())
       {
-        ezLog::Error("Failed to open file '{}'.", sScriptPath);
+        WLog::Error("Failed to open file '{}'.", sScriptPath);
         return;
       }
       sTestCode.ReadAll(read);
     }
-    if (ezAngelScriptEngineSingleton::PreprocessCode(sScriptPath, sTestCode, &sProcessedCode, nullptr).Failed())
+    if (WAngelScriptEngineSingleton::PreprocessCode(sScriptPath, sTestCode, &sProcessedCode, nullptr).Failed())
     {
-      ezLog::Error("Failed to preprocess code '{}'.", sScriptPath);
+      WLog::Error("Failed to preprocess code '{}'.", sScriptPath);
       return;
     }
     m_sCode = sProcessedCode;
     m_sCode.Split(true, m_Lines, "\n");
   }
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
-  auto pAsEngine = ezAngelScriptEngineSingleton::GetSingleton();
+  auto pAsEngine = WAngelScriptEngineSingleton::GetSingleton();
   asIScriptModule* pModule = pAsEngine->SetModuleCode("ScriptTest", m_sCode, true);
   if (pModule == nullptr)
   {
-    ezLog::Error("Failed to create AngelScript module.");
+    WLog::Error("Failed to create AngelScript module.");
     return;
   }
   asIScriptContext* m_pContext = pAsEngine->GetEngine()->CreateContext();
-  EZ_SCOPE_EXIT(m_pContext->Release(););
-  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(ezGameEngineTestApplication_AngelScript, TestScriptExceptionCallback), this, asCALL_THISCALL));
+  W_SCOPE_EXIT(m_pContext->Release(););
+  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(WGameEngineTestApplication_AngelScript, TestScriptExceptionCallback), this, asCALL_THISCALL));
 
   asIScriptFunction* func = pModule->GetFunctionByName("ExecuteTests");
   m_pContext->Prepare(func);
 
-  EZ_TEST_INT(m_pContext->Execute(), asEXECUTION_FINISHED);
+  W_TEST_INT(m_pContext->Execute(), asEXECUTION_FINISHED);
 }
 
-void ezGameEngineTestApplication_AngelScript::TestScriptExceptionCallback(asIScriptContext* pContext)
+void WGameEngineTestApplication_AngelScript::TestScriptExceptionCallback(asIScriptContext* pContext)
 {
-  ezLog::Error("AS Exception '{}'", pContext->GetExceptionString());
+  WLog::Error("AS Exception '{}'", pContext->GetExceptionString());
 
-  const ezUInt32 uiNumLevels = pContext->GetCallstackSize();
-  for (ezUInt32 i = 0; i < uiNumLevels; ++i)
+  const WUInt32 uiNumLevels = pContext->GetCallstackSize();
+  for (WUInt32 i = 0; i < uiNumLevels; ++i)
   {
     const char* szSection = nullptr;
-    const ezInt32 iOriginalLine = pContext->GetLineNumber(i, nullptr, &szSection);
+    const WInt32 iOriginalLine = pContext->GetLineNumber(i, nullptr, &szSection);
 
-    ezInt32 iLine = iOriginalLine;
-    ezStringView sSection = szSection;
-    ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(m_Lines, iLine, sSection);
+    WInt32 iLine = iOriginalLine;
+    WStringView sSection = szSection;
+    WAngelScriptEngineSingleton::FindCorrectSectionAndLine(m_Lines, iLine, sSection);
 
-    ezStringBuilder line("  ");
+    WStringBuilder line("  ");
     if (asIScriptFunction* pFunc = pContext->GetFunction(i))
     {
-      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
+      if (!WStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
       {
         line.Append(pFunc->GetNamespace(), "::");
       }
 
-      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
+      if (!WStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
       {
         line.Append(pFunc->GetObjectName(), "::");
       }
 
       line.AppendFormat("{}() [{}: {}] -> {}", pFunc->GetName(), sSection, iLine, m_Lines[iOriginalLine - 1]);
 
-      ezLog::Error(line);
+      WLog::Error(line);
     }
     else
     {

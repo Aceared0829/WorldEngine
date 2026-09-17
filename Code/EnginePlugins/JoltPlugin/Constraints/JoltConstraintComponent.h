@@ -3,7 +3,7 @@
 #include <Core/World/ComponentManager.h>
 #include <JoltPlugin/Declarations.h>
 
-class ezJoltDynamicActorComponent;
+class WJoltDynamicActorComponent;
 
 namespace JPH
 {
@@ -16,9 +16,9 @@ namespace JPH
 }
 
 /// Configures how a physics constraint's limit acts.
-struct ezJoltConstraintLimitMode
+struct WJoltConstraintLimitMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -30,12 +30,12 @@ struct ezJoltConstraintLimitMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltConstraintLimitMode);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltConstraintLimitMode);
 
 /// Configures how a drive on a constraint works.
-struct ezJoltConstraintDriveMode
+struct WJoltConstraintDriveMode
 {
-  using StorageType = ezInt8;
+  using StorageType = WInt8;
 
   enum Enum
   {
@@ -47,7 +47,7 @@ struct ezJoltConstraintDriveMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltConstraintDriveMode);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltConstraintDriveMode);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -69,27 +69,27 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltConstraintDriveMode);
 /// collisions between only those two actors. For example a door that is joined to a door frame may not work
 /// right, if the edge of the door still collides with the door frame. It is easier to make the door work smoothly
 /// if it doesn't collide with the frame and its movement is mainly limited by the constraint.
-class EZ_JOLTPLUGIN_DLL ezJoltConstraintComponent : public ezComponent
+class W_JOLTPLUGIN_DLL WJoltConstraintComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WJoltConstraintComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConstraintComponent
+  // WJoltConstraintComponent
 
 public:
-  ezJoltConstraintComponent();
-  ~ezJoltConstraintComponent();
+  WJoltConstraintComponent();
+  ~WJoltConstraintComponent();
 
   /// Removes the connection between the joined bodies. This cannot be reversed.
   void BreakConstraint();
@@ -111,42 +111,42 @@ public:
   void SetChildActorAnchorReference(const char* szReference); // [ property ]
 
   /// Sets which actor to attach the constraint to.
-  void SetParentActor(ezGameObjectHandle hActor);
+  void SetParentActor(WGameObjectHandle hActor);
   /// Sets which actor to attach to the constraint.
-  void SetChildActor(ezGameObjectHandle hActor);
+  void SetChildActor(WGameObjectHandle hActor);
   /// Sets an actor as a reference frame so that the constraint can start in a non-default configuration.
-  void SetChildActorAnchor(ezGameObjectHandle hActor);
+  void SetChildActorAnchor(WGameObjectHandle hActor);
 
   /// For manually providing actors and local frames to configure the start state. This is for advanced uses.
-  void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
+  void SetActors(WGameObjectHandle hActorA, const WTransform& localFrameA, WGameObjectHandle hActorB, const WTransform& localFrameB);
 
   /// Forwards to BreakConstraint().
-  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
+  void OnJoltMsgDisconnectConstraints(WJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
 
 protected:
-  friend class ezJoltWorldModule;
+  friend class WJoltWorldModule;
 
   virtual bool ExceededBreakingPoint() = 0;
   virtual void ApplySettings() = 0;
 
-  ezResult FindParentBody(ezUInt32& out_uiJoltBodyID, ezJoltDynamicActorComponent*& pRbComp);
-  ezResult FindChildBody(ezUInt32& out_uiJoltBodyID, ezJoltDynamicActorComponent*& pRbComp);
+  WResult FindParentBody(WUInt32& out_uiJoltBodyID, WJoltDynamicActorComponent*& pRbComp);
+  WResult FindChildBody(WUInt32& out_uiJoltBodyID, WJoltDynamicActorComponent*& pRbComp);
 
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) = 0;
 
-  ezTransform ComputeParentBodyGlobalFrame() const;
-  ezTransform ComputeChildBodyGlobalFrame() const;
+  WTransform ComputeParentBodyGlobalFrame() const;
+  WTransform ComputeChildBodyGlobalFrame() const;
 
   void QueueApplySettings();
 
-  ezGameObjectHandle m_hActorA;
-  ezGameObjectHandle m_hActorB;
-  ezGameObjectHandle m_hActorBAnchor;
+  WGameObjectHandle m_hActorA;
+  WGameObjectHandle m_hActorB;
+  WGameObjectHandle m_hActorBAnchor;
 
   // UserFlag0 specifies whether m_localFrameA is already set
-  ezTransform m_LocalFrameA;
+  WTransform m_LocalFrameA;
   // UserFlag1 specifies whether m_localFrameB is already set
-  ezTransform m_LocalFrameB;
+  WTransform m_LocalFrameB;
 
   JPH::Constraint* m_pConstraint = nullptr;
 

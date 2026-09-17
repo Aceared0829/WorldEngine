@@ -3,46 +3,46 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/SimdMath/SimdNoise.h>
 
-ezSimdPerlinNoise::ezSimdPerlinNoise()
+WSimdPerlinNoise::WSimdPerlinNoise()
 {
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_Permutations); ++i)
+  for (WUInt32 i = 0; i < W_ARRAY_SIZE(m_Permutations); ++i)
   {
-    m_Permutations[i] = static_cast<ezUInt8>(i);
+    m_Permutations[i] = static_cast<WUInt8>(i);
   }
 }
 
-ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
-  : ezSimdPerlinNoise()
+WSimdPerlinNoise::WSimdPerlinNoise(WUInt32 uiSeed)
+  : WSimdPerlinNoise()
 {
-  ezRandom rnd;
+  WRandom rnd;
   rnd.Initialize(uiSeed);
 
   Initialize(rnd);
 }
 
-void ezSimdPerlinNoise::Initialize(ezRandom& ref_rng)
+void WSimdPerlinNoise::Initialize(WRandom& ref_rng)
 {
-  for (ezUInt32 i = EZ_ARRAY_SIZE(m_Permutations) - 1; i > 0; --i)
+  for (WUInt32 i = W_ARRAY_SIZE(m_Permutations) - 1; i > 0; --i)
   {
-    ezUInt32 uiRandomIndex = ref_rng.UIntInRange(EZ_ARRAY_SIZE(m_Permutations));
-    ezMath::Swap(m_Permutations[i], m_Permutations[uiRandomIndex]);
+    WUInt32 uiRandomIndex = ref_rng.UIntInRange(W_ARRAY_SIZE(m_Permutations));
+    WMath::Swap(m_Permutations[i], m_Permutations[uiRandomIndex]);
   }
 }
 
-ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& vX, const ezSimdVec4f& vY, const ezSimdVec4f& vZ, ezUInt32 uiNumOctaves /*= 1*/)
+WSimdVec4f WSimdPerlinNoise::NoiseZeroToOne(const WSimdVec4f& vX, const WSimdVec4f& vY, const WSimdVec4f& vZ, WUInt32 uiNumOctaves /*= 1*/)
 {
-  ezSimdVec4f result = ezSimdVec4f::MakeZero();
-  ezSimdFloat amplitude = 1.0f;
-  ezUInt32 uiOffset = 0;
+  WSimdVec4f result = WSimdVec4f::MakeZero();
+  WSimdFloat amplitude = 1.0f;
+  WUInt32 uiOffset = 0;
 
-  uiNumOctaves = ezMath::Max(uiNumOctaves, 1u);
-  for (ezUInt32 i = 0; i < uiNumOctaves; ++i)
+  uiNumOctaves = WMath::Max(uiNumOctaves, 1u);
+  for (WUInt32 i = 0; i < uiNumOctaves; ++i)
   {
-    ezSimdFloat scale = static_cast<float>(EZ_BIT(i));
-    ezSimdVec4f offset = Permute(ezSimdVec4i(uiOffset) + ezSimdVec4i(0, 1, 2, 3)).ToFloat();
-    ezSimdVec4f x = vX * scale + offset.Get<ezSwizzle::XXXX>();
-    ezSimdVec4f y = vY * scale + offset.Get<ezSwizzle::YYYY>();
-    ezSimdVec4f z = vZ * scale + offset.Get<ezSwizzle::ZZZZ>();
+    WSimdFloat scale = static_cast<float>(W_BIT(i));
+    WSimdVec4f offset = Permute(WSimdVec4i(uiOffset) + WSimdVec4i(0, 1, 2, 3)).ToFloat();
+    WSimdVec4f x = vX * scale + offset.Get<WSwizzle::XXXX>();
+    WSimdVec4f y = vY * scale + offset.Get<WSwizzle::YYYY>();
+    WSimdVec4f z = vZ * scale + offset.Get<WSwizzle::ZZZZ>();
 
     result += Noise(x, y, z) * amplitude;
 
@@ -50,49 +50,49 @@ ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& vX, const ezSim
     uiOffset += 23;
   }
 
-  return result * 0.5f + ezSimdVec4f(0.5f);
+  return result * 0.5f + WSimdVec4f(0.5f);
 }
 
 namespace
 {
-  EZ_FORCE_INLINE ezSimdVec4f Fade(const ezSimdVec4f& t)
+  W_FORCE_INLINE WSimdVec4f Fade(const WSimdVec4f& t)
   {
-    return t.CompMul(t).CompMul(t).CompMul(t.CompMul(t * 6.0f - ezSimdVec4f(15.0f)) + ezSimdVec4f(10.0f));
+    return t.CompMul(t).CompMul(t).CompMul(t.CompMul(t * 6.0f - WSimdVec4f(15.0f)) + WSimdVec4f(10.0f));
   }
 
-  EZ_FORCE_INLINE ezSimdVec4f Grad(ezSimdVec4i vHash, const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z)
+  W_FORCE_INLINE WSimdVec4f Grad(WSimdVec4i vHash, const WSimdVec4f& x, const WSimdVec4f& y, const WSimdVec4f& z)
   {
     // convert low 4 bits of hash code into 12 gradient directions.
-    const ezSimdVec4i h = vHash & ezSimdVec4i(15);
-    const ezSimdVec4f u = ezSimdVec4f::Select(h < ezSimdVec4i(8), x, y);
-    const ezSimdVec4f v = ezSimdVec4f::Select(h < ezSimdVec4i(4), y, ezSimdVec4f::Select(h == ezSimdVec4i(12) || h == ezSimdVec4i(14), x, z));
-    return ezSimdVec4f::Select((h & ezSimdVec4i(1)) == ezSimdVec4i::MakeZero(), u, -u) +
-           ezSimdVec4f::Select((h & ezSimdVec4i(2)) == ezSimdVec4i::MakeZero(), v, -v);
+    const WSimdVec4i h = vHash & WSimdVec4i(15);
+    const WSimdVec4f u = WSimdVec4f::Select(h < WSimdVec4i(8), x, y);
+    const WSimdVec4f v = WSimdVec4f::Select(h < WSimdVec4i(4), y, WSimdVec4f::Select(h == WSimdVec4i(12) || h == WSimdVec4i(14), x, z));
+    return WSimdVec4f::Select((h & WSimdVec4i(1)) == WSimdVec4i::MakeZero(), u, -u) +
+           WSimdVec4f::Select((h & WSimdVec4i(2)) == WSimdVec4i::MakeZero(), v, -v);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f Lerp(const ezSimdVec4f& t, const ezSimdVec4f& a, const ezSimdVec4f& b)
+  W_ALWAYS_INLINE WSimdVec4f Lerp(const WSimdVec4f& t, const WSimdVec4f& a, const WSimdVec4f& b)
   {
-    return ezSimdVec4f::Lerp(a, b, t);
+    return WSimdVec4f::Lerp(a, b, t);
   }
 
 } // namespace
 
 // reference: https://mrl.nyu.edu/~perlin/noise/
-ezSimdVec4f ezSimdPerlinNoise::Noise(const ezSimdVec4f& inX, const ezSimdVec4f& inY, const ezSimdVec4f& inZ)
+WSimdVec4f WSimdPerlinNoise::Noise(const WSimdVec4f& inX, const WSimdVec4f& inY, const WSimdVec4f& inZ)
 {
-  ezSimdVec4f x = inX;
-  ezSimdVec4f y = inY;
-  ezSimdVec4f z = inZ;
+  WSimdVec4f x = inX;
+  WSimdVec4f y = inY;
+  WSimdVec4f z = inZ;
 
   // find unit cube that contains point.
-  const ezSimdVec4f xFloored = x.Floor();
-  const ezSimdVec4f yFloored = y.Floor();
-  const ezSimdVec4f zFloored = z.Floor();
+  const WSimdVec4f xFloored = x.Floor();
+  const WSimdVec4f yFloored = y.Floor();
+  const WSimdVec4f zFloored = z.Floor();
 
-  const ezSimdVec4i maxIndex = ezSimdVec4i(255);
-  const ezSimdVec4i X = ezSimdVec4i::Truncate(xFloored) & maxIndex;
-  const ezSimdVec4i Y = ezSimdVec4i::Truncate(yFloored) & maxIndex;
-  const ezSimdVec4i Z = ezSimdVec4i::Truncate(zFloored) & maxIndex;
+  const WSimdVec4i maxIndex = WSimdVec4i(255);
+  const WSimdVec4i X = WSimdVec4i::Truncate(xFloored) & maxIndex;
+  const WSimdVec4i Y = WSimdVec4i::Truncate(yFloored) & maxIndex;
+  const WSimdVec4i Z = WSimdVec4i::Truncate(zFloored) & maxIndex;
 
   // find relative x,y,z of point in cube.
   x -= xFloored;
@@ -100,35 +100,35 @@ ezSimdVec4f ezSimdPerlinNoise::Noise(const ezSimdVec4f& inX, const ezSimdVec4f& 
   z -= zFloored;
 
   // compute fade curves for each of x,y,z.
-  const ezSimdVec4f u = Fade(x);
-  const ezSimdVec4f v = Fade(y);
-  const ezSimdVec4f w = Fade(z);
+  const WSimdVec4f u = Fade(x);
+  const WSimdVec4f v = Fade(y);
+  const WSimdVec4f w = Fade(z);
 
   // hash coordinates of the 8 cube corners
-  const ezSimdVec4i i1 = ezSimdVec4i(1);
-  const ezSimdVec4i A = Permute(X) + Y;
-  const ezSimdVec4i AA = Permute(A) + Z;
-  const ezSimdVec4i AB = Permute(A + i1) + Z;
-  const ezSimdVec4i B = Permute(X + i1) + Y;
-  const ezSimdVec4i BA = Permute(B) + Z;
-  const ezSimdVec4i BB = Permute(B + i1) + Z;
+  const WSimdVec4i i1 = WSimdVec4i(1);
+  const WSimdVec4i A = Permute(X) + Y;
+  const WSimdVec4i AA = Permute(A) + Z;
+  const WSimdVec4i AB = Permute(A + i1) + Z;
+  const WSimdVec4i B = Permute(X + i1) + Y;
+  const WSimdVec4i BA = Permute(B) + Z;
+  const WSimdVec4i BB = Permute(B + i1) + Z;
 
-  const ezSimdVec4f f1 = ezSimdVec4f(1.0f);
+  const WSimdVec4f f1 = WSimdVec4f(1.0f);
 
   // and add blended results from 8 corners of cube.
-  const ezSimdVec4f c000 = Grad(Permute(AA), x, y, z);
-  const ezSimdVec4f c100 = Grad(Permute(BA), x - f1, y, z);
-  const ezSimdVec4f c010 = Grad(Permute(AB), x, y - f1, z);
-  const ezSimdVec4f c110 = Grad(Permute(BB), x - f1, y - f1, z);
-  const ezSimdVec4f c001 = Grad(Permute(AA + i1), x, y, z - f1);
-  const ezSimdVec4f c101 = Grad(Permute(BA + i1), x - f1, y, z - f1);
-  const ezSimdVec4f c011 = Grad(Permute(AB + i1), x, y - f1, z - f1);
-  const ezSimdVec4f c111 = Grad(Permute(BB + i1), x - f1, y - f1, z - f1);
+  const WSimdVec4f c000 = Grad(Permute(AA), x, y, z);
+  const WSimdVec4f c100 = Grad(Permute(BA), x - f1, y, z);
+  const WSimdVec4f c010 = Grad(Permute(AB), x, y - f1, z);
+  const WSimdVec4f c110 = Grad(Permute(BB), x - f1, y - f1, z);
+  const WSimdVec4f c001 = Grad(Permute(AA + i1), x, y, z - f1);
+  const WSimdVec4f c101 = Grad(Permute(BA + i1), x - f1, y, z - f1);
+  const WSimdVec4f c011 = Grad(Permute(AB + i1), x, y - f1, z - f1);
+  const WSimdVec4f c111 = Grad(Permute(BB + i1), x - f1, y - f1, z - f1);
 
-  const ezSimdVec4f c000_c100 = Lerp(u, c000, c100);
-  const ezSimdVec4f c010_c110 = Lerp(u, c010, c110);
-  const ezSimdVec4f c001_c101 = Lerp(u, c001, c101);
-  const ezSimdVec4f c011_c111 = Lerp(u, c011, c111);
+  const WSimdVec4f c000_c100 = Lerp(u, c000, c100);
+  const WSimdVec4f c010_c110 = Lerp(u, c010, c110);
+  const WSimdVec4f c001_c101 = Lerp(u, c001, c101);
+  const WSimdVec4f c011_c111 = Lerp(u, c011, c111);
 
   return Lerp(w, Lerp(v, c000_c100, c010_c110), Lerp(v, c001_c101, c011_c111));
 }

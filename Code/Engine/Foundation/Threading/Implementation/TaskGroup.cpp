@@ -5,16 +5,16 @@
 #include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Lock.h>
 
-ezTaskGroup::ezTaskGroup() = default;
-ezTaskGroup::~ezTaskGroup() = default;
+WTaskGroup::WTaskGroup() = default;
+WTaskGroup::~WTaskGroup() = default;
 
-void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
+void WTaskGroup::WaitForFinish(WTaskGroupID group) const
 {
   if (m_uiGroupCounter != group.m_uiGroupCounter)
     return;
 
-  EZ_PROFILE_SCOPE("ezTaskGroup::WaitForFinish");
-  EZ_LOCK(m_CondVarGroupFinished);
+  W_PROFILE_SCOPE("WTaskGroup::WaitForFinish");
+  W_LOCK(m_CondVarGroupFinished);
 
   while (m_uiGroupCounter == group.m_uiGroupCounter)
   {
@@ -22,7 +22,7 @@ void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
   }
 }
 
-void ezTaskGroup::Reuse(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback)
+void WTaskGroup::Reuse(WTaskPriority::Enum priority, WOnTaskGroupFinishedCallback callback)
 {
   m_bInUse = true;
   m_bStartedByUser = false;
@@ -34,17 +34,17 @@ void ezTaskGroup::Reuse(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCall
   m_OnFinishedCallback = callback;
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+void WTaskGroup::DebugCheckTaskGroup(WTaskGroupID groupID, WMutex& mutex)
 {
-  EZ_LOCK(mutex);
+  W_LOCK(mutex);
 
-  const ezTaskGroup* pGroup = groupID.m_pTaskGroup;
-  EZ_IGNORE_UNUSED(pGroup);
+  const WTaskGroup* pGroup = groupID.m_pTaskGroup;
+  W_IGNORE_UNUSED(pGroup);
 
-  EZ_ASSERT_DEV(pGroup != nullptr, "TaskGroupID is invalid.");
-  EZ_ASSERT_DEV(pGroup->m_uiGroupCounter == groupID.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
-  EZ_ASSERT_DEV(!pGroup->m_bStartedByUser, "The given TaskGroupID is already started, you cannot modify it anymore.");
-  EZ_ASSERT_DEV(pGroup->m_iNumActiveDependencies == 0, "Invalid active dependenices");
+  W_ASSERT_DEV(pGroup != nullptr, "TaskGroupID is invalid.");
+  W_ASSERT_DEV(pGroup->m_uiGroupCounter == groupID.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
+  W_ASSERT_DEV(!pGroup->m_bStartedByUser, "The given TaskGroupID is already started, you cannot modify it anymore.");
+  W_ASSERT_DEV(pGroup->m_iNumActiveDependencies == 0, "Invalid active dependenices");
 }
 #endif

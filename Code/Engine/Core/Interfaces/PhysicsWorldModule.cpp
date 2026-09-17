@@ -3,114 +3,114 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysicsWorldModuleInterface, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPhysicsWorldModuleInterface, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPhysicsShapeType, 1)
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Static),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Dynamic),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Query),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Trigger),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Character),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Ragdoll),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Rope),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Cloth),
-  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Debris),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WPhysicsShapeType, 1)
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Static),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Dynamic),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Query),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Trigger),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Character),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Ragdoll),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Rope),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Cloth),
+  W_BITFLAGS_CONSTANT(WPhysicsShapeType::Debris),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddImpulse);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocator<ezMsgPhysicsAddImpulse>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgPhysicsAddImpulse);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgPhysicsAddImpulse, 1, WRTTIDefaultAllocator<WMsgPhysicsAddImpulse>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
-    EZ_MEMBER_PROPERTY("Impulse", m_vImpulse),
-    EZ_MEMBER_PROPERTY("ObjectFilterID", m_uiObjectFilterID),
+    W_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
+    W_MEMBER_PROPERTY("Impulse", m_vImpulse),
+    W_MEMBER_PROPERTY("ObjectFilterID", m_uiObjectFilterID),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicCharacterContact);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicCharacterContact, 1, ezRTTIDefaultAllocator<ezMsgPhysicCharacterContact>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgPhysicCharacterContact);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgPhysicCharacterContact, 1, WRTTIDefaultAllocator<WMsgPhysicCharacterContact>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Character", m_hCharacter),
-    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
-    EZ_MEMBER_PROPERTY("Normal", m_vNormal),
-    EZ_MEMBER_PROPERTY("CharacterVelocity", m_vCharacterVelocity),
-    EZ_MEMBER_PROPERTY("Impact", m_fImpact),
+    W_MEMBER_PROPERTY("Character", m_hCharacter),
+    W_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
+    W_MEMBER_PROPERTY("Normal", m_vNormal),
+    W_MEMBER_PROPERTY("CharacterVelocity", m_vCharacterVelocity),
+    W_MEMBER_PROPERTY("Impact", m_fImpact),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicContact);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicContact, 1, ezRTTIDefaultAllocator<ezMsgPhysicContact>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgPhysicContact);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgPhysicContact, 1, WRTTIDefaultAllocator<WMsgPhysicContact>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OtherObject", m_hOtherObject),
-    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
-    EZ_MEMBER_PROPERTY("Normal", m_vNormal),
-    EZ_MEMBER_PROPERTY("ImpactSqr", m_fImpactSqr),
+    W_MEMBER_PROPERTY("OtherObject", m_hOtherObject),
+    W_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
+    W_MEMBER_PROPERTY("Normal", m_vNormal),
+    W_MEMBER_PROPERTY("ImpactSqr", m_fImpactSqr),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsJointBroke);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsJointBroke, 1, ezRTTIDefaultAllocator<ezMsgPhysicsJointBroke>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgPhysicsJointBroke);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgPhysicsJointBroke, 1, WRTTIDefaultAllocator<WMsgPhysicsJointBroke>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("JointObject", m_hJointObject)
+    W_MEMBER_PROPERTY("JointObject", m_hJointObject)
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+W_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgObjectGrabbed);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgObjectGrabbed, 1, ezRTTIDefaultAllocator<ezMsgObjectGrabbed>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgObjectGrabbed);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgObjectGrabbed, 1, WRTTIDefaultAllocator<WMsgObjectGrabbed>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GrabbedBy", m_hGrabbedBy),
-    EZ_MEMBER_PROPERTY("GotGrabbed", m_bGotGrabbed),
+    W_MEMBER_PROPERTY("GrabbedBy", m_hGrabbedBy),
+    W_MEMBER_PROPERTY("GotGrabbed", m_bGotGrabbed),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsMakeTemporarilyDynamic);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsMakeTemporarilyDynamic, 1, ezRTTIDefaultAllocator<ezMsgPhysicsMakeTemporarilyDynamic>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgPhysicsMakeTemporarilyDynamic);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgPhysicsMakeTemporarilyDynamic, 1, WRTTIDefaultAllocator<WMsgPhysicsMakeTemporarilyDynamic>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgReleaseObjectGrab);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgReleaseObjectGrab, 1, ezRTTIDefaultAllocator<ezMsgReleaseObjectGrab>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgReleaseObjectGrab);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgReleaseObjectGrab, 1, WRTTIDefaultAllocator<WMsgReleaseObjectGrab>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("GrabbedObjectToRelease", m_hGrabbedObjectToRelease),
+    W_MEMBER_PROPERTY("GrabbedObjectToRelease", m_hGrabbedObjectToRelease),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBuildStaticMesh);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBuildStaticMesh, 1, ezRTTIDefaultAllocator<ezMsgBuildStaticMesh>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgBuildStaticMesh);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgBuildStaticMesh, 1, WRTTIDefaultAllocator<WMsgBuildStaticMesh>)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezExcludeFromScript()
+    new WExcludeFromScript()
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(Core, Core_Interfaces_PhysicsWorldModule);
+W_STATICLINK_FILE(Core, Core_Interfaces_PhysicsWorldModule);

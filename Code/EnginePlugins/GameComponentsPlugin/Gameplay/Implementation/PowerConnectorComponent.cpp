@@ -7,51 +7,51 @@
 #include <GameComponentsPlugin/Gameplay/PowerConnectorComponent.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMsgSetPowerInput);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMsgSetPowerInput, 1, ezRTTIDefaultAllocator<ezEventMsgSetPowerInput>)
+W_IMPLEMENT_MESSAGE_TYPE(WEventMsgSetPowerInput);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEventMsgSetPowerInput, 1, WRTTIDefaultAllocator<WEventMsgSetPowerInput>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PrevValue", m_uiPrevValue),
-    EZ_MEMBER_PROPERTY("NewValue", m_uiNewValue),
+    W_MEMBER_PROPERTY("PrevValue", m_uiPrevValue),
+    W_MEMBER_PROPERTY("NewValue", m_uiNewValue),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPowerConnectorComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WPowerConnectorComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Output", GetOutput, SetOutput),
-    EZ_ACCESSOR_PROPERTY("Buddy", DummyGetter, SetBuddyReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_ACCESSOR_PROPERTY("ConnectedTo", DummyGetter, SetConnectedToReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    W_ACCESSOR_PROPERTY("Output", GetOutput, SetOutput),
+    W_ACCESSOR_PROPERTY("Buddy", DummyGetter, SetBuddyReference)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_ACCESSOR_PROPERTY("ConnectedTo", DummyGetter, SetConnectedToReference)->AddAttributes(new WGameObjectReferenceAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSensorDetectedObjectsChanged, OnMsgSensorDetectedObjectsChanged),
-    EZ_MESSAGE_HANDLER(ezMsgObjectGrabbed, OnMsgObjectGrabbed),
+    W_MESSAGE_HANDLER(WMsgSensorDetectedObjectsChanged, OnMsgSensorDetectedObjectsChanged),
+    W_MESSAGE_HANDLER(WMsgObjectGrabbed, OnMsgObjectGrabbed),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsConnected),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsAttached),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Detach),
-    // EZ_SCRIPT_FUNCTION_PROPERTY(Attach, In, "Object"), // not supported (yet)
+    W_SCRIPT_FUNCTION_PROPERTY(IsConnected),
+    W_SCRIPT_FUNCTION_PROPERTY(IsAttached),
+    W_SCRIPT_FUNCTION_PROPERTY(Detach),
+    // W_SCRIPT_FUNCTION_PROPERTY(Attach, In, "Object"), // not supported (yet)
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new WCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-void ezPowerConnectorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WPowerConnectorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -63,7 +63,7 @@ void ezPowerConnectorComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_uiOutput;
 }
 
-void ezPowerConnectorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WPowerConnectorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
 
@@ -75,12 +75,12 @@ void ezPowerConnectorComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_uiOutput;
 }
 
-void ezPowerConnectorComponent::ConnectToSocket(ezGameObjectHandle hSocket)
+void WPowerConnectorComponent::ConnectToSocket(WGameObjectHandle hSocket)
 {
   if (IsConnected())
     return;
 
-  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < ezTime::MakeFromSeconds(1))
+  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < WTime::MakeFromSeconds(1))
   {
     // recently detached -> wait a bit before allowing to attach again
     return;
@@ -89,7 +89,7 @@ void ezPowerConnectorComponent::ConnectToSocket(ezGameObjectHandle hSocket)
   Attach(hSocket);
 }
 
-void ezPowerConnectorComponent::SetOutput(ezUInt16 value)
+void WPowerConnectorComponent::SetOutput(WUInt16 value)
 {
   if (m_uiOutput == value)
     return;
@@ -99,7 +99,7 @@ void ezPowerConnectorComponent::SetOutput(ezUInt16 value)
   OutputChanged(m_uiOutput);
 }
 
-void ezPowerConnectorComponent::SetInput(ezUInt16 value)
+void WPowerConnectorComponent::SetInput(WUInt16 value)
 {
   if (m_uiInput == value)
     return;
@@ -108,7 +108,7 @@ void ezPowerConnectorComponent::SetInput(ezUInt16 value)
   m_uiInput = value;
 }
 
-void ezPowerConnectorComponent::SetBuddyReference(const char* szReference)
+void WPowerConnectorComponent::SetBuddyReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -118,7 +118,7 @@ void ezPowerConnectorComponent::SetBuddyReference(const char* szReference)
   SetBuddy(resolver(szReference, GetHandle(), "Buddy"));
 }
 
-void ezPowerConnectorComponent::SetBuddy(ezGameObjectHandle hNewBuddy)
+void WPowerConnectorComponent::SetBuddy(WGameObjectHandle hNewBuddy)
 {
   if (m_hBuddy == hNewBuddy)
     return;
@@ -129,13 +129,13 @@ void ezPowerConnectorComponent::SetBuddy(ezGameObjectHandle hNewBuddy)
     return;
   }
 
-  ezGameObjectHandle hPrevBuddy = m_hBuddy;
+  WGameObjectHandle hPrevBuddy = m_hBuddy;
   m_hBuddy = {};
 
-  ezGameObject* pBuddy;
+  WGameObject* pBuddy;
   if (GetOwner()->GetWorld()->TryGetObject(hPrevBuddy, pBuddy))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pBuddy->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetOutput(0);
@@ -147,7 +147,7 @@ void ezPowerConnectorComponent::SetBuddy(ezGameObjectHandle hNewBuddy)
 
   if (GetOwner()->GetWorld()->TryGetObject(hNewBuddy, pBuddy))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pBuddy->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetBuddy(GetOwner()->GetHandle());
@@ -156,7 +156,7 @@ void ezPowerConnectorComponent::SetBuddy(ezGameObjectHandle hNewBuddy)
   }
 }
 
-void ezPowerConnectorComponent::SetConnectedToReference(const char* szReference)
+void WPowerConnectorComponent::SetConnectedToReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -166,7 +166,7 @@ void ezPowerConnectorComponent::SetConnectedToReference(const char* szReference)
   SetConnectedTo(resolver(szReference, GetHandle(), "ConnectedTo"));
 }
 
-void ezPowerConnectorComponent::SetConnectedTo(ezGameObjectHandle hNewConnectedTo)
+void WPowerConnectorComponent::SetConnectedTo(WGameObjectHandle hNewConnectedTo)
 {
   if (m_hConnectedTo == hNewConnectedTo)
     return;
@@ -177,13 +177,13 @@ void ezPowerConnectorComponent::SetConnectedTo(ezGameObjectHandle hNewConnectedT
     return;
   }
 
-  ezGameObjectHandle hPrevConnectedTo = m_hConnectedTo;
+  WGameObjectHandle hPrevConnectedTo = m_hConnectedTo;
   m_hConnectedTo = {};
 
-  ezGameObject* pConnectedTo;
+  WGameObject* pConnectedTo;
   if (GetOwner()->GetWorld()->TryGetObject(hPrevConnectedTo, pConnectedTo))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pConnectedTo->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetInput(0);
@@ -195,7 +195,7 @@ void ezPowerConnectorComponent::SetConnectedTo(ezGameObjectHandle hNewConnectedT
 
   if (GetOwner()->GetWorld()->TryGetObject(hNewConnectedTo, pConnectedTo))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pConnectedTo->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetConnectedTo(GetOwner()->GetHandle());
@@ -210,18 +210,18 @@ void ezPowerConnectorComponent::SetConnectedTo(ezGameObjectHandle hNewConnectedT
   }
 }
 
-bool ezPowerConnectorComponent::IsConnected() const
+bool WPowerConnectorComponent::IsConnected() const
 {
   // since connectors automatically disconnect themselves from their peers upon destruction, this should be sufficient (no need to check object for existence)
   return !m_hConnectedTo.IsInvalidated();
 }
 
-bool ezPowerConnectorComponent::IsAttached() const
+bool WPowerConnectorComponent::IsAttached() const
 {
   return !m_hAttachPoint.IsInvalidated();
 }
 
-void ezPowerConnectorComponent::OnDeactivated()
+void WPowerConnectorComponent::OnDeactivated()
 {
   Detach();
   SetBuddy({});
@@ -229,11 +229,11 @@ void ezPowerConnectorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezPowerConnectorComponent::OnSimulationStarted()
+void WPowerConnectorComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezGameObjectHandle hAlreadyConnectedTo = m_hConnectedTo;
+  WGameObjectHandle hAlreadyConnectedTo = m_hConnectedTo;
   m_hConnectedTo.Invalidate();
 
   if (!hAlreadyConnectedTo.IsInvalidated())
@@ -252,7 +252,7 @@ void ezPowerConnectorComponent::OnSimulationStarted()
   }
 }
 
-void ezPowerConnectorComponent::OnMsgSensorDetectedObjectsChanged(ezMsgSensorDetectedObjectsChanged& msg)
+void WPowerConnectorComponent::OnMsgSensorDetectedObjectsChanged(WMsgSensorDetectedObjectsChanged& msg)
 {
   if (!msg.m_DetectedObjects.IsEmpty())
   {
@@ -260,7 +260,7 @@ void ezPowerConnectorComponent::OnMsgSensorDetectedObjectsChanged(ezMsgSensorDet
   }
 }
 
-void ezPowerConnectorComponent::OnMsgObjectGrabbed(ezMsgObjectGrabbed& msg)
+void WPowerConnectorComponent::OnMsgObjectGrabbed(WMsgObjectGrabbed& msg)
 {
   if (msg.m_bGotGrabbed)
   {
@@ -268,7 +268,7 @@ void ezPowerConnectorComponent::OnMsgObjectGrabbed(ezMsgObjectGrabbed& msg)
 
     m_hGrabbedBy = msg.m_hGrabbedBy;
 
-    if (ezGameObject* pSensor = GetOwner()->FindChildByName("ActiveWhenGrabbed"))
+    if (WGameObject* pSensor = GetOwner()->FindChildByName("ActiveWhenGrabbed"))
     {
       pSensor->SetActiveFlag(true);
     }
@@ -277,22 +277,22 @@ void ezPowerConnectorComponent::OnMsgObjectGrabbed(ezMsgObjectGrabbed& msg)
   {
     m_hGrabbedBy.Invalidate();
 
-    if (ezGameObject* pSensor = GetOwner()->FindChildByName("ActiveWhenGrabbed"))
+    if (WGameObject* pSensor = GetOwner()->FindChildByName("ActiveWhenGrabbed"))
     {
       pSensor->SetActiveFlag(false);
     }
   }
 }
 
-void ezPowerConnectorComponent::Attach(ezGameObjectHandle hSocket)
+void WPowerConnectorComponent::Attach(WGameObjectHandle hSocket)
 {
-  ezWorld* pWorld = GetOwner()->GetWorld();
+  WWorld* pWorld = GetOwner()->GetWorld();
 
-  ezGameObject* pSocket;
+  WGameObject* pSocket;
   if (!pWorld->TryGetObject(hSocket, pSocket))
     return;
 
-  ezPowerConnectorComponent* pConnector;
+  WPowerConnectorComponent* pConnector;
   if (pSocket->TryGetComponentOfBaseType(pConnector))
   {
     // don't connect to an already connected object
@@ -300,17 +300,17 @@ void ezPowerConnectorComponent::Attach(ezGameObjectHandle hSocket)
       return;
   }
 
-  const ezTransform tSocket = pSocket->GetGlobalTransform();
+  const WTransform tSocket = pSocket->GetGlobalTransform();
 
-  ezGameObjectDesc go;
+  WGameObjectDesc go;
   go.m_hParent = hSocket;
 
-  ezGameObject* pAttach;
+  WGameObject* pAttach;
   m_hAttachPoint = pWorld->CreateObject(go, pAttach);
 
-  ezPhysicsWorldModuleInterface* pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  WPhysicsWorldModuleInterface* pPhysicsWorldModule = GetWorld()->GetOrCreateModule<WPhysicsWorldModuleInterface>();
 
-  ezPhysicsWorldModuleInterface::FixedJointConfig cfg;
+  WPhysicsWorldModuleInterface::FixedJointConfig cfg;
   cfg.m_hActorA = {};
   cfg.m_hActorB = GetOwner()->GetHandle();
   cfg.m_LocalFrameA = tSocket;
@@ -320,17 +320,17 @@ void ezPowerConnectorComponent::Attach(ezGameObjectHandle hSocket)
 
   if (!m_hGrabbedBy.IsInvalidated())
   {
-    ezGameObject* pGrab;
+    WGameObject* pGrab;
     if (pWorld->TryGetObject(m_hGrabbedBy, pGrab))
     {
-      ezMsgReleaseObjectGrab msg;
+      WMsgReleaseObjectGrab msg;
       msg.m_hGrabbedObjectToRelease = GetOwner()->GetHandle();
       pGrab->SendMessage(msg);
     }
   }
 }
 
-void ezPowerConnectorComponent::Detach()
+void WPowerConnectorComponent::Detach()
 {
   if (IsConnected())
   {
@@ -346,24 +346,24 @@ void ezPowerConnectorComponent::Detach()
   }
 }
 
-void ezPowerConnectorComponent::InputChanged(ezUInt16 uiPrevInput, ezUInt16 uiInput)
+void WPowerConnectorComponent::InputChanged(WUInt16 uiPrevInput, WUInt16 uiInput)
 {
   if (!IsActiveAndSimulating())
     return;
 
-  ezEventMsgSetPowerInput msg;
+  WEventMsgSetPowerInput msg;
   msg.m_uiPrevValue = uiPrevInput;
   msg.m_uiNewValue = uiInput;
 
-  GetOwner()->PostEventMessage(msg, this, ezTime());
+  GetOwner()->PostEventMessage(msg, this, WTime());
 
   if (m_hBuddy.IsInvalidated())
     return;
 
-  ezGameObject* pBuddy;
+  WGameObject* pBuddy;
   if (GetOwner()->GetWorld()->TryGetObject(m_hBuddy, pBuddy))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pBuddy->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetOutput(uiInput);
@@ -371,7 +371,7 @@ void ezPowerConnectorComponent::InputChanged(ezUInt16 uiPrevInput, ezUInt16 uiIn
   }
 }
 
-void ezPowerConnectorComponent::OutputChanged(ezUInt16 uiOutput)
+void WPowerConnectorComponent::OutputChanged(WUInt16 uiOutput)
 {
   if (!IsActiveAndSimulating())
     return;
@@ -379,10 +379,10 @@ void ezPowerConnectorComponent::OutputChanged(ezUInt16 uiOutput)
   if (m_hConnectedTo.IsInvalidated())
     return;
 
-  ezGameObject* pConnectedTo;
+  WGameObject* pConnectedTo;
   if (GetOwner()->GetWorld()->TryGetObject(m_hConnectedTo, pConnectedTo))
   {
-    ezPowerConnectorComponent* pConnector;
+    WPowerConnectorComponent* pConnector;
     if (pConnectedTo->TryGetComponentOfBaseType(pConnector))
     {
       pConnector->SetInput(uiOutput);
@@ -391,4 +391,4 @@ void ezPowerConnectorComponent::OutputChanged(ezUInt16 uiOutput)
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_PowerConnectorComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_PowerConnectorComponent);

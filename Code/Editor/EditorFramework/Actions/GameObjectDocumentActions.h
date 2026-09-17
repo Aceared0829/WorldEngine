@@ -4,37 +4,37 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezPreferences;
-struct ezGameObjectEvent;
-class ezGameObjectDocument;
+class WPreferences;
+struct WGameObjectEvent;
+class WGameObjectDocument;
 ///
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocumentActions
+class W_EDITORFRAMEWORK_DLL WGameObjectDocumentActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapMenuSimulationSpeed(ezStringView sMapping);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapMenuSimulationSpeed(WStringView sMapping);
 
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hGameObjectCategory;
-  static ezActionDescriptorHandle s_hRenderSelectionOverlay;
-  static ezActionDescriptorHandle s_hRenderVisualizers;
-  static ezActionDescriptorHandle s_hRenderShapeIcons;
-  static ezActionDescriptorHandle s_hRenderGrid;
-  static ezActionDescriptorHandle s_hAddAmbientLight;
-  static ezActionDescriptorHandle s_hSimulationSpeedMenu;
-  static ezActionDescriptorHandle s_hSimulationSpeed[10];
-  static ezActionDescriptorHandle s_hCameraSpeed;
-  static ezActionDescriptorHandle s_hPickTransparent;
+  static WActionDescriptorHandle s_hGameObjectCategory;
+  static WActionDescriptorHandle s_hRenderSelectionOverlay;
+  static WActionDescriptorHandle s_hRenderVisualizers;
+  static WActionDescriptorHandle s_hRenderShapeIcons;
+  static WActionDescriptorHandle s_hRenderGrid;
+  static WActionDescriptorHandle s_hAddAmbientLight;
+  static WActionDescriptorHandle s_hSimulationSpeedMenu;
+  static WActionDescriptorHandle s_hSimulationSpeed[10];
+  static WActionDescriptorHandle s_hCameraSpeed;
+  static WActionDescriptorHandle s_hPickTransparent;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocumentAction : public ezButtonAction
+class W_EDITORFRAMEWORK_DLL WGameObjectDocumentAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocumentAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectDocumentAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -48,24 +48,24 @@ public:
     PickTransparent,
   };
 
-  ezGameObjectDocumentAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
-  ~ezGameObjectDocumentAction();
+  WGameObjectDocumentAction(const WActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
+  ~WGameObjectDocumentAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void SceneEventHandler(const ezGameObjectEvent& e);
-  void OnPreferenceChange(ezPreferences* pref);
+  void SceneEventHandler(const WGameObjectEvent& e);
+  void OnPreferenceChange(WPreferences* pref);
 
   float m_fSimSpeed;
-  ezGameObjectDocument* m_pGameObjectDocument;
+  WGameObjectDocument* m_pGameObjectDocument;
   ActionType m_Type;
 };
 
 
-class EZ_EDITORFRAMEWORK_DLL ezCameraSpeedSliderAction : public ezSliderAction
+class W_EDITORFRAMEWORK_DLL WCameraSpeedSliderAction : public WSliderAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCameraSpeedSliderAction, ezSliderAction);
+  W_ADD_DYNAMIC_REFLECTION(WCameraSpeedSliderAction, WSliderAction);
 
 public:
   enum class ActionType
@@ -73,15 +73,15 @@ public:
     CameraSpeed,
   };
 
-  ezCameraSpeedSliderAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezCameraSpeedSliderAction();
+  WCameraSpeedSliderAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WCameraSpeedSliderAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void OnPreferenceChange(ezPreferences* pref);
+  void OnPreferenceChange(WPreferences* pref);
   void UpdateState();
 
-  ezGameObjectDocument* m_pGameObjectDocument;
+  WGameObjectDocument* m_pGameObjectDocument;
   ActionType m_Type;
 };

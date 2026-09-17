@@ -7,63 +7,63 @@
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
 
-ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection)
+WQtGameObjectWidget::WQtGameObjectWidget(QWidget* pParent, WGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<WQtDocumentTreeModel> pCustomModel, WSelectionManager* pSelection)
 {
-  setObjectName("ezQtGameObjectWidget");
+  setObjectName("WQtGameObjectWidget");
 
   m_pDocument = pDocument;
   m_sContextMenuMapping = szContextMenuMapping;
-  m_pDelegate = new ezQtGameObjectDelegate(this, pDocument);
+  m_pDelegate = new WQtGameObjectDelegate(this, pDocument);
 
   setLayout(new QVBoxLayout());
   setContentsMargins(0, 0, 0, 0);
   layout()->setObjectName("QVBoxLayout1");
   layout()->setContentsMargins(0, 0, 0, 0);
 
-  m_pFilterWidget = new ezQtSearchWidget(this);
-  m_pFilterWidget->setObjectName("ezQtSearchWidget");
+  m_pFilterWidget = new WQtSearchWidget(this);
+  m_pFilterWidget->setObjectName("WQtSearchWidget");
   m_pFilterWidget->setPlaceholderText("Search by name or component type");
   m_pFilterWidget->setToolTip("Search by object name or component type name.\nUse 'ref:{GUID}' to show only objects that reference a specific asset.");
-  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectWidget::OnFilterTextChanged);
+  connect(m_pFilterWidget, &WQtSearchWidget::textChanged, this, &WQtGameObjectWidget::OnFilterTextChanged);
 
   layout()->addWidget(m_pFilterWidget);
 
-  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pCustomModel), pSelection);
-  m_pTreeWidget->setObjectName("ezQtDocumentTreeView");
+  m_pTreeWidget = new WQtDocumentTreeView(this, pDocument, std::move(pCustomModel), pSelection);
+  m_pTreeWidget->setObjectName("WQtDocumentTreeView");
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(true);
   layout()->addWidget(m_pTreeWidget);
   m_pTreeWidget->setItemDelegate(m_pDelegate);
 
-  m_pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
+  m_pDocument->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WQtGameObjectWidget::DocumentSceneEventHandler, this));
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr, "signal/slot connection failed");
 }
 
-ezQtGameObjectWidget::~ezQtGameObjectWidget()
+WQtGameObjectWidget::~WQtGameObjectWidget()
 {
-  m_pDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
+  m_pDocument->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WQtGameObjectWidget::DocumentSceneEventHandler, this));
 }
 
 
-void ezQtGameObjectWidget::DocumentSceneEventHandler(const ezGameObjectEvent& e)
+void WQtGameObjectWidget::DocumentSceneEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::TriggerShowSelectionInScenegraph:
+    case WGameObjectEvent::Type::TriggerShowSelectionInScenegraph:
     {
       m_pTreeWidget->EnsureLastSelectedItemVisible();
     }
     break;
-    case ezGameObjectEvent::Type::TriggerExpandScenegraph:
+    case WGameObjectEvent::Type::TriggerExpandScenegraph:
     {
       m_pTreeWidget->expandAll();
     }
     break;
-    case ezGameObjectEvent::Type::TriggerSetScenegraphFilter:
+    case WGameObjectEvent::Type::TriggerSetScenegraphFilter:
     {
       m_pFilterWidget->setText(QString::fromUtf8(e.m_sPayload.GetData()));
     }
@@ -74,16 +74,16 @@ void ezQtGameObjectWidget::DocumentSceneEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezQtGameObjectWidget::OnItemDoubleClicked(const QModelIndex&)
+void WQtGameObjectWidget::OnItemDoubleClicked(const QModelIndex&)
 {
   m_pDocument->TriggerFocusOnSelection(true);
 }
 
-void ezQtGameObjectWidget::OnRequestContextMenu(QPoint pos)
+void WQtGameObjectWidget::OnRequestContextMenu(QPoint pos)
 {
-  ezQtMenuActionMapView menu(nullptr);
+  WQtMenuActionMapView menu(nullptr);
 
-  ezActionContext context;
+  WActionContext context;
   context.m_sMapping = m_sContextMenuMapping;
   context.m_pDocument = m_pDocument;
   context.m_pWindow = this;
@@ -92,7 +92,7 @@ void ezQtGameObjectWidget::OnRequestContextMenu(QPoint pos)
   menu.exec(m_pTreeWidget->mapToGlobal(pos));
 }
 
-void ezQtGameObjectWidget::OnFilterTextChanged(const QString& text)
+void WQtGameObjectWidget::OnFilterTextChanged(const QString& text)
 {
   m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
 }
@@ -100,14 +100,14 @@ void ezQtGameObjectWidget::OnFilterTextChanged(const QString& text)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
-  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
+WQtGameObjectPanel::WQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, WGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<WQtDocumentTreeModel> pCustomModel)
+  : WQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("ScenegraphPanel");
-  setWindowTitle("ezQtGameObjectPanel");
+  setWindowTitle("WQtGameObjectPanel");
 
-  m_pMainWidget = new ezQtGameObjectWidget(this, pDocument, szContextMenuMapping, std::move(pCustomModel));
+  m_pMainWidget = new WQtGameObjectWidget(this, pDocument, szContextMenuMapping, std::move(pCustomModel));
   setWidget(m_pMainWidget);
 }
 
-ezQtGameObjectPanel::~ezQtGameObjectPanel() = default;
+WQtGameObjectPanel::~WQtGameObjectPanel() = default;

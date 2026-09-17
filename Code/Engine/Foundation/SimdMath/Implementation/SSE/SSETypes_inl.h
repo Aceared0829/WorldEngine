@@ -1,38 +1,38 @@
 #pragma once
 
-#if EZ_SSE_LEVEL >= EZ_SSE_20
+#if W_SSE_LEVEL >= W_SSE_20
 #  include <emmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_30
+#if W_SSE_LEVEL >= W_SSE_30
 #  include <pmmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_31
+#if W_SSE_LEVEL >= W_SSE_31
 #  include <tmmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if W_SSE_LEVEL >= W_SSE_41
 #  include <smmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_42
+#if W_SSE_LEVEL >= W_SSE_42
 #  include <nmmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#if W_SSE_LEVEL >= W_SSE_AVX
 #  include <immintrin.h>
 #endif
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#  define EZ_CHECK_SIMD_ALIGNMENT(x) EZ_CHECK_ALIGNMENT(x, 16)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+#  define W_CHECK_SIMD_ALIGNMENT(x) W_CHECK_ALIGNMENT(x, 16)
 #else
-#  define EZ_CHECK_SIMD_ALIGNMENT(x)
+#  define W_CHECK_SIMD_ALIGNMENT(x)
 #endif
 
-namespace ezInternal
+namespace WInternal
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#if W_SSE_LEVEL >= W_SSE_AVX
   using QuadDouble = __m256d;
   using QuadBoolWide = __m256d;
 
@@ -53,21 +53,21 @@ namespace ezInternal
   using QuadBool = __m128;
   using QuadInt = __m128i;
   using QuadUInt = __m128i;
-} // namespace ezInternal
+} // namespace WInternal
 
 #include <Foundation/SimdMath/SimdSwizzle.h>
 
-#define EZ_SHUFFLE(a0, a1, b2, b3) ((a0) | ((a1) << 2) | ((b2) << 4) | ((b3) << 6))
-#define EZ_SHUFFLE_2(a0, b1) ((a0) | ((b1) << 1))
+#define W_SHUFFLE(a0, a1, b2, b3) ((a0) | ((a1) << 2) | ((b2) << 4) | ((b3) << 6))
+#define W_SHUFFLE_2(a0, b1) ((a0) | ((b1) << 1))
 
 
 //swizzle to shuffle
-#define EZ_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))
+#define W_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))
 
 
 
 /// Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using SSE intrinsics on high and low parts.
-EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d lhsLow, __m128d lhsHigh, __m128d rhsLow, __m128d rhsHigh, int iImm8, __m128d& out_low, __m128d& out_high)
+W_ALWAYS_INLINE void W_WIDE_SHUFFLE_SSE(__m128d lhsLow, __m128d lhsHigh, __m128d rhsLow, __m128d rhsHigh, int iImm8, __m128d& out_low, __m128d& out_high)
 {
   int sel0 = iImm8 & 3;
   int sel1 = (iImm8 >> 2) & 3;
@@ -96,33 +96,33 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d lhsLow, __m128d lhsHigh, __m12
   out_high = _mm_unpacklo_pd(d2, d3);
 }
 
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#if W_SSE_LEVEL >= W_SSE_AVX
 
 /// @brief directly swizzle a 4 double __m256d to the output. AVX1
-EZ_ALWAYS_INLINE void EZ_WIDE_SWIZZLE_AVX1(__m256d a, ezSwizzle::Enum swizzle, __m256d& out)
+W_ALWAYS_INLINE void W_WIDE_SWIZZLE_AVX1(__m256d a, WSwizzle::Enum swizzle, __m256d& out)
 {
-  /// \todo use direct intrinsics. - remove EZ_WIDE_SHUFFLE_SSE
+  /// \todo use direct intrinsics. - remove W_WIDE_SHUFFLE_SSE
   __m128d a_lo = _mm256_castpd256_pd128(a);
   __m128d a_hi = _mm256_extractf128_pd(a, 1);
   __m128d out_lo;
   __m128d out_hi;
-  EZ_WIDE_SHUFFLE_SSE(a_lo, a_hi, a_lo, a_hi, EZ_TO_SHUFFLE(swizzle), out_lo, out_hi);
+  W_WIDE_SHUFFLE_SSE(a_lo, a_hi, a_lo, a_hi, W_TO_SHUFFLE(swizzle), out_lo, out_hi);
   out = _mm256_castpd128_pd256(out_lo);
   out = _mm256_insertf128_pd(out, out_hi, 1);
 }
 
 
 /// Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using avx1 intrinsics on high and low parts.
-EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_AVX1(__m256d a, __m256d b, int imm8, __m256d& out)
+W_ALWAYS_INLINE void W_WIDE_SHUFFLE_AVX1(__m256d a, __m256d b, int imm8, __m256d& out)
 {
-  /// \todo use direct intrinsics. - remove EZ_WIDE_SHUFFLE_SSE
+  /// \todo use direct intrinsics. - remove W_WIDE_SHUFFLE_SSE
   __m128d a_lo = _mm256_castpd256_pd128(a);
   __m128d a_hi = _mm256_extractf128_pd(a, 1);
   __m128d b_lo = _mm256_castpd256_pd128(b);
   __m128d b_hi = _mm256_extractf128_pd(b, 1);
   __m128d out_lo;
   __m128d out_hi;
-  EZ_WIDE_SHUFFLE_SSE(a_lo, a_hi, b_lo, b_hi, imm8, out_lo, out_hi);
+  W_WIDE_SHUFFLE_SSE(a_lo, a_hi, b_lo, b_hi, imm8, out_lo, out_hi);
   out = _mm256_castpd128_pd256(out_lo);
   out = _mm256_insertf128_pd(out, out_hi, 1);
 }

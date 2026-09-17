@@ -7,62 +7,62 @@
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
 #else
 #  include <TestFramework_Platform.h>
 #endif
 
-int ezTestSetup::s_iArgc = 0;
-const char** ezTestSetup::s_pArgv = nullptr;
+int WTestSetup::s_iArgc = 0;
+const char** WTestSetup::s_pArgv = nullptr;
 
-void OutputToConsole(ezTestOutput::Enum type, const char* szMsg);
+void OutputToConsole(WTestOutput::Enum type, const char* szMsg);
 
-ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
+WTestFramework* WTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
   s_iArgc = iArgc;
   s_pArgv = pArgv;
 
   // without a proper file system the current working directory is pretty much useless
-  std::string sTestFolder = std::string(ezOSFile::GetUserDataFolder());
+  std::string sTestFolder = std::string(WOSFile::GetUserDataFolder());
   if (*sTestFolder.rbegin() != '/')
     sTestFolder.append("/");
-  sTestFolder.append("ezEngine Tests/");
+  sTestFolder.append("WorldEngine Tests/");
   sTestFolder.append(szTestName);
 
   std::string sTestDataSubFolder = "Data/UnitTests/";
   sTestDataSubFolder.append(szTestName);
 
-#ifdef EZ_USE_QT
-  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
+#ifdef W_USE_QT
+  WTestFramework* pTestFramework = new WQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework_Platform(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
+  WTestFramework* pTestFramework = new WTestFramework_Platform(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file
   pTestFramework->RegisterOutputHandler(OutputToConsole);
-  pTestFramework->RegisterOutputHandler(ezOutputToHTML::OutputToHTML);
+  pTestFramework->RegisterOutputHandler(WOutputToHTML::OutputToHTML);
 
-  ezCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(pTestFramework->GetAbsOutputPath(), szTestName);
-  ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
+  WCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(pTestFramework->GetAbsOutputPath(), szTestName);
+  WCrashHandler::SetCrashHandler(&WCrashHandler_WriteMiniDump::g_Instance);
 
   return pTestFramework;
 }
 
-ezTestAppRun ezTestSetup::RunTests()
+WTestAppRun WTestSetup::RunTests()
 {
-  ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
+  WTestFramework* pTestFramework = WTestFramework::GetInstance();
 
   // If -list or -help was specified, just quit as these are not supposed to be combined with actual test runs.
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bListTests || settings.m_bShowHelp)
   {
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
   // Todo: Incorporate all the below in a virtual call of testFramework?
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
   if (settings.m_bNoGUI)
   {
     return pTestFramework->RunTestExecutionLoop();
@@ -77,7 +77,7 @@ ezTestAppRun ezTestSetup::RunTests()
   {
     bool ok = false;
     int iCount = qApp->property("Shared").toInt(&ok);
-    EZ_ASSERT_DEV(ok, "Existing QApplication was not constructed by EZ!");
+    W_ASSERT_DEV(ok, "Existing QApplication was not constructed by W!");
     qApp->setProperty("Shared", QVariant::fromValue(iCount + 1));
   }
   else
@@ -85,7 +85,7 @@ ezTestAppRun ezTestSetup::RunTests()
     new QApplication(argc, argv);
     qApp->setProperty("Shared", QVariant::fromValue((int)1));
     qApp->setApplicationName(pTestFramework->GetTestName());
-    ezQtTestGUI::SetDarkTheme();
+    WQtTestGUI::SetDarkTheme();
     // Locale fixes required by various third party libraries like RmlGui.
     QLocale::setDefault(QLocale::C);
     const char* locales[] = {"C.UTF-8", "C.utf8", "UTF-8"};
@@ -98,7 +98,7 @@ ezTestAppRun ezTestSetup::RunTests()
 
   // Create main window
   {
-    ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
+    WQtTestGUI mainWindow(*static_cast<WQtTestFramework*>(pTestFramework));
     mainWindow.show();
 
     qApp->exec();
@@ -115,24 +115,24 @@ ezTestAppRun ezTestSetup::RunTests()
     }
   }
 
-  return ezTestAppRun::Quit;
+  return WTestAppRun::Quit;
 #else
   // Run all the tests with the given order
   return pTestFramework->RunTests();
 #endif
 }
 
-void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
+void WTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
 {
-  ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
+  WTestFramework* pTestFramework = WTestFramework::GetInstance();
 
-  ezStartup::ShutdownCoreSystems();
+  WStartup::ShutdownCoreSystems();
 
   TestSettings settings = pTestFramework->GetSettings();
   if (!bSilent)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (ezSystemInformation::IsDebuggerAttached())
+#if W_ENABLED(W_PLATFORM_WINDOWS)
+    if (WSystemInformation::IsDebuggerAttached())
     {
       std::cout << "Press the any key to continue...\n";
       fflush(stdin);
@@ -148,7 +148,7 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   delete pTestFramework;
 }
 
-ezInt32 ezTestSetup::GetFailedTestCount()
+WInt32 WTestSetup::GetFailedTestCount()
 {
-  return ezTestFramework::GetInstance()->GetTestsFailedCount();
+  return WTestFramework::GetInstance()->GetTestsFailedCount();
 }

@@ -4,41 +4,41 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <optional>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) || W_ENABLED(W_PLATFORM_LINUX)
 
 class ChannelTester
 {
 public:
-  ChannelTester(ezIpcChannel* pChannel, bool bPing)
+  ChannelTester(WIpcChannel* pChannel, bool bPing)
   {
     m_bPing = bPing;
     m_pChannel = pChannel;
-    m_pChannel->SetReceiveCallback(ezMakeDelegate(&ChannelTester::ReceiveMessageData, this));
-    m_pChannel->m_Events.AddEventHandler(ezMakeDelegate(&ChannelTester::OnIpcEventReceived, this));
+    m_pChannel->SetReceiveCallback(WMakeDelegate(&ChannelTester::ReceiveMessageData, this));
+    m_pChannel->m_Events.AddEventHandler(WMakeDelegate(&ChannelTester::OnIpcEventReceived, this));
   }
   ~ChannelTester()
   {
-    m_pChannel->m_Events.RemoveEventHandler(ezMakeDelegate(&ChannelTester::OnIpcEventReceived, this));
+    m_pChannel->m_Events.RemoveEventHandler(WMakeDelegate(&ChannelTester::OnIpcEventReceived, this));
     m_pChannel->SetReceiveCallback({});
   }
 
-  void OnIpcEventReceived(const ezIpcChannelEvent& e)
+  void OnIpcEventReceived(const WIpcChannelEvent& e)
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     m_ReceivedEvents.ExpandAndGetRef() = e;
   }
 
-  std::optional<ezIpcChannelEvent> WaitForEvents(ezTime timeout)
+  std::optional<WIpcChannelEvent> WaitForEvents(WTime timeout)
   {
-    ezStopwatch sw;
+    WStopwatch sw;
 
     while (sw.GetRunningTotal() < timeout)
     {
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
-      EZ_LOCK(m_Mutex);
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
+      W_LOCK(m_Mutex);
       if (!m_ReceivedEvents.IsEmpty())
       {
-        ezIpcChannelEvent e = m_ReceivedEvents.PeekFront();
+        WIpcChannelEvent e = m_ReceivedEvents.PeekFront();
         m_ReceivedEvents.PopFront();
         return e;
       }
@@ -47,9 +47,9 @@ public:
     return {};
   }
 
-  void ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
+  void ReceiveMessageData(WArrayPtr<const WUInt8> data)
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     if (m_bPing)
     {
       m_pChannel->Send(data);
@@ -60,12 +60,12 @@ public:
     }
   }
 
-  std::optional<ezDynamicArray<ezUInt8>> WaitForMessage(ezTime timeout)
+  std::optional<WDynamicArray<WUInt8>> WaitForMessage(WTime timeout)
   {
-    ezResult res = m_pChannel->WaitForMessages(timeout);
+    WResult res = m_pChannel->WaitForMessages(timeout);
     if (res.Succeeded())
     {
-      EZ_LOCK(m_Mutex);
+      W_LOCK(m_Mutex);
       if (m_ReceivedMessages.GetCount() > 0)
       {
         auto res2 = m_ReceivedMessages.PeekFront();
@@ -78,162 +78,162 @@ public:
 
 private:
   bool m_bPing = false;
-  ezMutex m_Mutex;
-  ezIpcChannel* m_pChannel = nullptr;
-  ezDeque<ezDynamicArray<ezUInt8>> m_ReceivedMessages;
-  ezDeque<ezIpcChannelEvent> m_ReceivedEvents;
+  WMutex m_Mutex;
+  WIpcChannel* m_pChannel = nullptr;
+  WDeque<WDynamicArray<WUInt8>> m_ReceivedMessages;
+  WDeque<WIpcChannelEvent> m_ReceivedEvents;
 };
 
-void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcChannel* pClient, ChannelTester* pClientTester)
+void TestIPCChannel(WIpcChannel* pServer, ChannelTester* pServerTester, WIpcChannel* pClient, ChannelTester* pClientTester)
 {
-  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool
+  auto MessageMatches = [](const WStringView& sReference, const WDataBuffer& msg) -> bool
   {
-    ezStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
+    WStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
     return sTemp == sReference;
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Connect")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Connect")
   {
-    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
-    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pClient->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
     {
-      auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(!res.has_value());
-      auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(!res2.has_value());
+      auto res = pServerTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(!res.has_value());
+      auto res2 = pClientTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(!res2.has_value());
     }
     {
-      EZ_TEST_RESULT(pServer->Connect());
-      auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
-      EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
+      W_TEST_RESULT(pServer->Connect());
+      auto res = pServerTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connecting);
+      W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Connecting);
     }
     {
-      EZ_TEST_RESULT(pClient->Connect());
-      auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+      W_TEST_RESULT(pClient->Connect());
+      auto res = pClientTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connecting);
     }
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(3));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connected);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(3));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(3));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connected);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(3));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::Connected);
 
-    if (!EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+    if (!W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Connected))
       return;
-    if (!EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+    if (!W_TEST_BOOL(pClient->GetConnectionState() == WIpcChannel::ConnectionState::Connected))
       return;
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Connect When Already Connected")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Connect When Already Connected")
   {
-    EZ_TEST_BOOL(pServer->Connect().Failed());
-    EZ_TEST_BOOL(pClient->Connect().Failed());
+    W_TEST_BOOL(pServer->Connect().Failed());
+    W_TEST_BOOL(pClient->Connect().Failed());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ClientSend")
   {
-    ezStringView sMsg = "TestMessage"_ezsv;
+    WStringView sMsg = "TestMessage"_wsv;
 
-    EZ_TEST_BOOL(pClient->Send(ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
+    W_TEST_BOOL(pClient->Send(WConstByteArrayPtr(reinterpret_cast<const WUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
 
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::NewMessages);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::NewMessages);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::NewMessages);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::NewMessages);
 
-    auto res3 = pClientTester->WaitForMessage(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
+    auto res3 = pClientTester->WaitForMessage(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ServerSend")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ServerSend")
   {
-    ezStringView sMsg = "TestMessage2"_ezsv;
+    WStringView sMsg = "TestMessage2"_wsv;
 
-    EZ_TEST_BOOL(pServer->Send(ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
+    W_TEST_BOOL(pServer->Send(WConstByteArrayPtr(reinterpret_cast<const WUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
 
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::NewMessages);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::NewMessages);
 
-    auto res3 = pClientTester->WaitForMessage(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
+    auto res3 = pClientTester->WaitForMessage(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientDisconnect")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ClientDisconnect")
   {
     pClient->Disconnect();
     pClient->Disconnect();
 
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Disconnected);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Disconnected);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Disconnected);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::Disconnected);
 
-    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
-    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pClient->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reconnect")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Reconnect")
   {
     {
-      EZ_TEST_RESULT(pServer->Connect());
-      auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
-      EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
+      W_TEST_RESULT(pServer->Connect());
+      auto res = pServerTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connecting);
+      W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Connecting);
     }
     {
-      EZ_TEST_RESULT(pClient->Connect());
-      auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+      W_TEST_RESULT(pClient->Connect());
+      auto res = pClientTester->WaitForEvents(WTime::MakeFromMilliseconds(100));
+      W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connecting);
     }
 
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connected);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Connected);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::Connected);
 
-    if (!EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+    if (!W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Connected))
       return;
-    if (!EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+    if (!W_TEST_BOOL(pClient->GetConnectionState() == WIpcChannel::ConnectionState::Connected))
       return;
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend after reconnect")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ClientSend after reconnect")
   {
-    ezStringView sMsg = "TestMessage"_ezsv;
+    WStringView sMsg = "TestMessage"_wsv;
 
-    EZ_TEST_BOOL(pClient->Send(ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
+    W_TEST_BOOL(pClient->Send(WConstByteArrayPtr(reinterpret_cast<const WUInt8*>(sMsg.GetStartPointer()), sMsg.GetElementCount())));
 
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::NewMessages);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::NewMessages);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::NewMessages);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::NewMessages);
 
-    auto res3 = pClientTester->WaitForMessage(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
+    auto res3 = pClientTester->WaitForMessage(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ServerDisconnect")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ServerDisconnect")
   {
     pServer->Disconnect();
     pServer->Disconnect();
 
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Disconnected);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
-    EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Disconnected);
+    auto res = pServerTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res.has_value() && res->m_Type == WIpcChannelEvent::Disconnected);
+    auto res2 = pClientTester->WaitForEvents(WTime::MakeFromSeconds(1));
+    W_TEST_BOOL(res2.has_value() && res2->m_Type == WIpcChannelEvent::Disconnected);
 
-    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
-    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pServer->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
+    W_TEST_BOOL(pClient->GetConnectionState() == WIpcChannel::ConnectionState::Disconnected);
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Network)
+W_CREATE_SIMPLE_TEST(Communication, IpcChannel_Network)
 {
-  ezUniquePtr<ezIpcChannel> pServer = ezIpcChannel::CreateNetworkChannel("127.0.0.1:1050"_ezsv, ezIpcChannel::Mode::Server);
-  ezUniquePtr<ChannelTester> pServerTester = EZ_DEFAULT_NEW(ChannelTester, pServer.Borrow(), true);
+  WUniquePtr<WIpcChannel> pServer = WIpcChannel::CreateNetworkChannel("127.0.0.1:1050"_wsv, WIpcChannel::Mode::Server);
+  WUniquePtr<ChannelTester> pServerTester = W_DEFAULT_NEW(ChannelTester, pServer.Borrow(), true);
 
-  ezUniquePtr<ezIpcChannel> pClient = ezIpcChannel::CreateNetworkChannel("127.0.0.1:1050"_ezsv, ezIpcChannel::Mode::Client);
-  ezUniquePtr<ChannelTester> pClientTester = EZ_DEFAULT_NEW(ChannelTester, pClient.Borrow(), false);
+  WUniquePtr<WIpcChannel> pClient = WIpcChannel::CreateNetworkChannel("127.0.0.1:1050"_wsv, WIpcChannel::Mode::Client);
+  WUniquePtr<ChannelTester> pClientTester = W_DEFAULT_NEW(ChannelTester, pClient.Borrow(), false);
 
   TestIPCChannel(pServer.Borrow(), pServerTester.Borrow(), pClient.Borrow(), pClientTester.Borrow());
 
@@ -245,13 +245,13 @@ EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Network)
 }
 
 
-EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Pipe)
+W_CREATE_SIMPLE_TEST(Communication, IpcChannel_Pipe)
 {
-  ezUniquePtr<ezIpcChannel> pServer = ezIpcChannel::CreatePipeChannel("ezEngine_unit_test_channel", ezIpcChannel::Mode::Server);
-  ezUniquePtr<ChannelTester> pServerTester = EZ_DEFAULT_NEW(ChannelTester, pServer.Borrow(), true);
+  WUniquePtr<WIpcChannel> pServer = WIpcChannel::CreatePipeChannel("WorldEngine_unit_test_channel", WIpcChannel::Mode::Server);
+  WUniquePtr<ChannelTester> pServerTester = W_DEFAULT_NEW(ChannelTester, pServer.Borrow(), true);
 
-  ezUniquePtr<ezIpcChannel> pClient = ezIpcChannel::CreatePipeChannel("ezEngine_unit_test_channel", ezIpcChannel::Mode::Client);
-  ezUniquePtr<ChannelTester> pClientTester = EZ_DEFAULT_NEW(ChannelTester, pClient.Borrow(), false);
+  WUniquePtr<WIpcChannel> pClient = WIpcChannel::CreatePipeChannel("WorldEngine_unit_test_channel", WIpcChannel::Mode::Client);
+  WUniquePtr<ChannelTester> pClientTester = W_DEFAULT_NEW(ChannelTester, pClient.Borrow(), false);
 
   TestIPCChannel(pServer.Borrow(), pServerTester.Borrow(), pClient.Borrow(), pClientTester.Borrow());
 

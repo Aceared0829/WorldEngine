@@ -6,10 +6,10 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
-EZ_IMPLEMENT_SINGLETON(ezExposedParametersTypeRegistry);
+W_IMPLEMENT_SINGLETON(WExposedParametersTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ExposedParametersTypeRegistry)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ExposedParametersTypeRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager", "AssetCurator"
@@ -17,13 +17,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ExposedParametersTypeRegistry)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezExposedParametersTypeRegistry);
+    W_DEFAULT_NEW(WExposedParametersTypeRegistry);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezExposedParametersTypeRegistry* pDummy = ezExposedParametersTypeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WExposedParametersTypeRegistry* pDummy = WExposedParametersTypeRegistry::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -34,42 +34,42 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ExposedParametersTypeRegistry)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezExposedParametersTypeRegistry::ezExposedParametersTypeRegistry()
+WExposedParametersTypeRegistry::WExposedParametersTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-  ezReflectedTypeDescriptor desc;
-  desc.m_sTypeName = "ezExposedParametersTypeBase";
+  WReflectedTypeDescriptor desc;
+  desc.m_sTypeName = "WExposedParametersTypeBase";
   desc.m_sPluginName = "ExposedParametersTypes";
-  desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
+  desc.m_sParentTypeName = WGetStaticRTTI<WReflectedClass>()->GetTypeName();
+  desc.m_Flags = WTypeFlags::Abstract | WTypeFlags::Class;
   desc.m_uiTypeVersion = 0;
 
-  m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+  m_pBaseType = WPhantomRttiManager::RegisterType(desc);
 
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezExposedParametersTypeRegistry::AssetCuratorEventHandler, this));
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WExposedParametersTypeRegistry::AssetCuratorEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
 
-ezExposedParametersTypeRegistry::~ezExposedParametersTypeRegistry()
+WExposedParametersTypeRegistry::~WExposedParametersTypeRegistry()
 {
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezExposedParametersTypeRegistry::AssetCuratorEventHandler, this));
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  WAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(WMakeDelegate(&WExposedParametersTypeRegistry::AssetCuratorEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-const ezRTTI* ezExposedParametersTypeRegistry::GetExposedParametersType(const char* szResource)
+const WRTTI* WExposedParametersTypeRegistry::GetExposedParametersType(const char* szResource)
 {
-  if (ezStringUtils::IsNullOrEmpty(szResource))
+  if (WStringUtils::IsNullOrEmpty(szResource))
     return nullptr;
 
-  const auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(szResource);
+  const auto asset = WAssetCurator::GetSingleton()->FindSubAsset(szResource);
   if (!asset)
     return nullptr;
 
-  auto params = asset->m_pAssetInfo->m_Info->GetMetaInfo<ezExposedParameters>();
+  auto params = asset->m_pAssetInfo->m_Info->GetMetaInfo<WExposedParameters>();
   if (!params)
     return nullptr;
 
@@ -91,49 +91,49 @@ const ezRTTI* ezExposedParametersTypeRegistry::GetExposedParametersType(const ch
   return it.Value().m_pType;
 }
 
-void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& data, const ezExposedParameters& params)
+void WExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& data, const WExposedParameters& params)
 {
-  ezStringBuilder name;
-  name.SetFormat("ezExposedParameters_{0}", data.m_SubAssetGuid);
-  EZ_LOG_BLOCK("Updating Type", name.GetData());
-  ezReflectedTypeDescriptor desc;
+  WStringBuilder name;
+  name.SetFormat("WExposedParameters_{0}", data.m_SubAssetGuid);
+  W_LOG_BLOCK("Updating Type", name.GetData());
+  WReflectedTypeDescriptor desc;
   desc.m_sTypeName = name;
   desc.m_sPluginName = "ExposedParametersTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Class;
+  desc.m_Flags = WTypeFlags::Class;
   desc.m_uiTypeVersion = 2;
 
   for (const auto* parameter : params.m_Parameters)
   {
-    const ezRTTI* pType = ezReflectionUtils::GetTypeFromVariant(parameter->m_DefaultValue);
+    const WRTTI* pType = WReflectionUtils::GetTypeFromVariant(parameter->m_DefaultValue);
     if (!parameter->m_sType.IsEmpty())
     {
-      if (const ezRTTI* pType2 = ezRTTI::FindTypeByName(parameter->m_sType))
+      if (const WRTTI* pType2 = WRTTI::FindTypeByName(parameter->m_sType))
         pType = pType2;
     }
     if (pType == nullptr)
     {
-      ezLog::Warning("The exposed parameter '{}' on type '{}' does not have a type defined as is skipped.", parameter->m_sName, name);
+      WLog::Warning("The exposed parameter '{}' on type '{}' does not have a type defined as is skipped.", parameter->m_sName, name);
       continue;
     }
-    ezBitflags<ezPropertyFlags> flags;
-    if (pType->IsDerivedFrom<ezEnumBase>())
-      flags |= ezPropertyFlags::IsEnum;
-    if (pType->IsDerivedFrom<ezBitflagsBase>())
-      flags |= ezPropertyFlags::Bitflags;
-    if (ezReflectionUtils::IsBasicType(pType))
-      flags |= ezPropertyFlags::StandardType;
+    WBitflags<WPropertyFlags> flags;
+    if (pType->IsDerivedFrom<WEnumBase>())
+      flags |= WPropertyFlags::IsEnum;
+    if (pType->IsDerivedFrom<WBitflagsBase>())
+      flags |= WPropertyFlags::Bitflags;
+    if (WReflectionUtils::IsBasicType(pType))
+      flags |= WPropertyFlags::StandardType;
     else
-      flags |= ezPropertyFlags::Class;
+      flags |= WPropertyFlags::Class;
 
-    ezReflectedPropertyDescriptor propDesc(parameter->m_Category, parameter->m_sName, pType->GetTypeName(), flags);
+    WReflectedPropertyDescriptor propDesc(parameter->m_Category, parameter->m_sName, pType->GetTypeName(), flags);
     for (auto attrib : parameter->m_Attributes)
     {
-      propDesc.m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+      propDesc.m_Attributes.PushBack(WReflectionSerializer::Clone(attrib));
     }
     if (parameter->m_DefaultValue.IsValid())
     {
-      propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, parameter->m_DefaultValue));
+      propDesc.m_Attributes.PushBack(W_DEFAULT_NEW(WDefaultValueAttribute, parameter->m_DefaultValue));
     }
     desc.m_Properties.PushBack(propDesc);
   }
@@ -142,20 +142,20 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
   // and patch any existing instances of it so they should show up in the prop grid right away.
   {
     // This fkt is called by the property grid, but calling RegisterType will update the property grid
-    // and we will recurse into this. So we listen for the ezPhantomRttiManager events to fill out
+    // and we will recurse into this. So we listen for the WPhantomRttiManager events to fill out
     // the data.m_pType in it to make sure recursion into GetExposedParametersType does not return a nullptr.
     m_pAboutToBeRegistered = &data;
     data.m_bUpToDate = true;
-    data.m_pType = ezPhantomRttiManager::RegisterType(desc);
+    data.m_pType = WPhantomRttiManager::RegisterType(desc);
     m_pAboutToBeRegistered = nullptr;
   }
 }
 
-void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+void WExposedParametersTypeRegistry::AssetCuratorEventHandler(const WAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezAssetCuratorEvent::Type::AssetRemoved:
+    case WAssetCuratorEvent::Type::AssetRemoved:
     {
       // Ignore for now, doesn't hurt. Removing types is more hassle than it is worth.
       if (auto* data = m_ShaderTypes.GetValue(e.m_AssetGuid))
@@ -164,7 +164,7 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
       }
     }
     break;
-    case ezAssetCuratorEvent::Type::AssetListReset:
+    case WAssetCuratorEvent::Type::AssetListReset:
     {
       for (auto it = m_ShaderTypes.GetIterator(); it.IsValid(); ++it)
       {
@@ -172,12 +172,12 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
       }
     }
     break;
-    case ezAssetCuratorEvent::Type::AssetUpdated:
+    case WAssetCuratorEvent::Type::AssetUpdated:
     {
       if (auto* data = m_ShaderTypes.GetValue(e.m_AssetGuid))
       {
         data->m_bUpToDate = false;
-        if (auto params = e.m_pInfo->m_pAssetInfo->m_Info->GetMetaInfo<ezExposedParameters>())
+        if (auto params = e.m_pInfo->m_pAssetInfo->m_Info->GetMetaInfo<WExposedParameters>())
           UpdateExposedParametersType(*data, *params);
       }
     }
@@ -187,13 +187,13 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
   }
 }
 
-void ezExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+void WExposedParametersTypeRegistry::PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e)
 {
-  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded || e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
+  if (e.m_Type == WPhantomRttiManagerEvent::Type::TypeAdded || e.m_Type == WPhantomRttiManagerEvent::Type::TypeChanged)
   {
     if (e.m_pChangedType->GetParentType() == m_pBaseType && m_pAboutToBeRegistered)
     {
-      // We listen for the ezPhantomRttiManager events to fill out the m_pType pointer. This is needed as otherwise
+      // We listen for the WPhantomRttiManager events to fill out the m_pType pointer. This is needed as otherwise
       // Recursion into GetExposedParametersType would return a nullptr.
       m_pAboutToBeRegistered->m_pType = e.m_pChangedType;
     }

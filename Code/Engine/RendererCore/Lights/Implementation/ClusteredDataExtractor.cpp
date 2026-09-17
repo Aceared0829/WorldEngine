@@ -21,127 +21,127 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
-ezCVarInt cvar_RenderingLightingVisClusterDepthSlice("Rendering.Lighting.VisClusterDepthSlice", -1, ezCVarFlags::Default, "Show the debug visualization only for the given depth slice");
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+WCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, WCVarFlags::Default, "Enables debug visualization of clustered light data");
+WCVarInt cvar_RenderingLightingVisClusterDepthSlice("Rendering.Lighting.VisClusterDepthSlice", -1, WCVarFlags::Default, "Show the debug visualization only for the given depth slice");
 
 namespace
 {
-  void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData, ezArrayPtr<ezSimdBSphere> boundingSpheres)
+  void VisualizeClusteredData(const WView& view, const WClusteredDataCPU* pData, WArrayPtr<WSimdBSphere> boundingSpheres)
   {
     if (!cvar_RenderingLightingVisClusterData)
       return;
 
-    const ezCamera* pCamera = view.GetCullingCamera();
+    const WCamera* pCamera = view.GetCullingCamera();
 
     if (pCamera->IsOrthographic())
       return;
 
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
 
-    ezMat4 mProj;
+    WMat4 mProj;
     pCamera->GetProjectionMatrix(fAspectRatio, mProj);
 
-    const ezMat4& mInvView = pCamera->GetViewMatrix().GetInverse();
+    const WMat4& mInvView = pCamera->GetViewMatrix().GetInverse();
 
-    ezAngle fFovLeft;
-    ezAngle fFovRight;
-    ezAngle fFovBottom;
-    ezAngle fFovTop;
-    ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fFovLeft, fFovRight, fFovBottom, fFovTop);
+    WAngle fFovLeft;
+    WAngle fFovRight;
+    WAngle fFovBottom;
+    WAngle fFovTop;
+    WGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fFovLeft, fFovRight, fFovBottom, fFovTop);
 
-    const float fTanLeft = ezMath::Tan(fFovLeft);
-    const float fTanRight = ezMath::Tan(fFovRight);
-    const float fTanBottom = ezMath::Tan(fFovBottom);
-    const float fTanTop = ezMath::Tan(fFovTop);
+    const float fTanLeft = WMath::Tan(fFovLeft);
+    const float fTanRight = WMath::Tan(fFovRight);
+    const float fTanBottom = WMath::Tan(fFovBottom);
+    const float fTanTop = WMath::Tan(fFovTop);
 
-    ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f, 0.1f);
+    WColor lineColor = WColor(1.0f, 1.0f, 1.0f, 0.1f);
 
-    const ezInt32 debugSlice = cvar_RenderingLightingVisClusterDepthSlice;
+    const WInt32 debugSlice = cvar_RenderingLightingVisClusterDepthSlice;
     const bool bOnlyOneSlice = debugSlice >= 0;
-    const ezUInt32 maxSlice = bOnlyOneSlice ? debugSlice + 1 : NUM_CLUSTERS_Z;
-    const ezUInt32 minSlice = bOnlyOneSlice ? debugSlice : 0;
+    const WUInt32 maxSlice = bOnlyOneSlice ? debugSlice + 1 : NUM_CLUSTERS_Z;
+    const WUInt32 minSlice = bOnlyOneSlice ? debugSlice : 0;
 
     bool bDrawBoundingSphere = false;
-    ezStringBuilder sb;
+    WStringBuilder sb;
 
-    for (ezUInt32 z = maxSlice; z-- > minSlice;)
+    for (WUInt32 z = maxSlice; z-- > minSlice;)
     {
       float fZf = GetDepthFromSliceIndex(z);
       float fZn = (z > 0) ? GetDepthFromSliceIndex(z - 1) : 0.0f;
-      for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; ++y)
+      for (WInt32 y = 0; y < NUM_CLUSTERS_Y; ++y)
       {
-        for (ezInt32 x = 0; x < NUM_CLUSTERS_X; ++x)
+        for (WInt32 x = 0; x < NUM_CLUSTERS_X; ++x)
         {
-          ezUInt32 clusterIndex = GetClusterIndexFromCoord(x, y, z);
+          WUInt32 clusterIndex = GetClusterIndexFromCoord(x, y, z);
           auto& clusterData = pData->m_ClusterData[clusterIndex];
 
           if (clusterData.counts > 0)
           {
             if (bDrawBoundingSphere)
             {
-              ezBoundingSphere s = ezSimdConversion::ToBSphere(boundingSpheres[clusterIndex]);
+              WBoundingSphere s = WSimdConversion::ToBSphere(boundingSpheres[clusterIndex]);
               s.TransformFromOrigin(mInvView);
-              ezDebugRenderer::DrawLineSphere(view.GetHandle(), s, lineColor);
+              WDebugRenderer::DrawLineSphere(view.GetHandle(), s, lineColor);
             }
             else
             {
-              ezVec3 cc[8];
+              WVec3 cc[8];
               GetClusterCornerPoints(*pCamera, fZf, fZn, fTanLeft, fTanRight, fTanBottom, fTanTop, x, y, z, cc);
 
               const float lightCount = (float)GET_LIGHT_INDEX(clusterData.counts);
               const float decalCount = (float)GET_DECAL_INDEX(clusterData.counts);
               const float probeCount = (float)GET_PROBE_INDEX(clusterData.counts);
-              const float r = ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
-              const float g = ezMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
-              const float b = ezMath::Clamp(probeCount / 16.0f, 0.0f, 1.0f);
-              const ezColor color(r, g, b);
+              const float r = WMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
+              const float g = WMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
+              const float b = WMath::Clamp(probeCount / 16.0f, 0.0f, 1.0f);
+              const WColor color(r, g, b);
 
-              ezDebugRendererTriangle tris[12];
+              WDebugRendererTriangle tris[12];
               // back
-              tris[0] = ezDebugRendererTriangle(cc[0], cc[2], cc[1]);
-              tris[1] = ezDebugRendererTriangle(cc[2], cc[3], cc[1]);
+              tris[0] = WDebugRendererTriangle(cc[0], cc[2], cc[1]);
+              tris[1] = WDebugRendererTriangle(cc[2], cc[3], cc[1]);
               // front
-              tris[2] = ezDebugRendererTriangle(cc[4], cc[5], cc[6]);
-              tris[3] = ezDebugRendererTriangle(cc[6], cc[5], cc[7]);
+              tris[2] = WDebugRendererTriangle(cc[4], cc[5], cc[6]);
+              tris[3] = WDebugRendererTriangle(cc[6], cc[5], cc[7]);
               // top
-              tris[4] = ezDebugRendererTriangle(cc[4], cc[0], cc[5]);
-              tris[5] = ezDebugRendererTriangle(cc[0], cc[1], cc[5]);
+              tris[4] = WDebugRendererTriangle(cc[4], cc[0], cc[5]);
+              tris[5] = WDebugRendererTriangle(cc[0], cc[1], cc[5]);
               // bottom
-              tris[6] = ezDebugRendererTriangle(cc[6], cc[7], cc[2]);
-              tris[7] = ezDebugRendererTriangle(cc[2], cc[7], cc[3]);
+              tris[6] = WDebugRendererTriangle(cc[6], cc[7], cc[2]);
+              tris[7] = WDebugRendererTriangle(cc[2], cc[7], cc[3]);
               // left
-              tris[8] = ezDebugRendererTriangle(cc[4], cc[6], cc[0]);
-              tris[9] = ezDebugRendererTriangle(cc[0], cc[6], cc[2]);
+              tris[8] = WDebugRendererTriangle(cc[4], cc[6], cc[0]);
+              tris[9] = WDebugRendererTriangle(cc[0], cc[6], cc[2]);
               // right
-              tris[10] = ezDebugRendererTriangle(cc[5], cc[1], cc[7]);
-              tris[11] = ezDebugRendererTriangle(cc[1], cc[3], cc[7]);
+              tris[10] = WDebugRendererTriangle(cc[5], cc[1], cc[7]);
+              tris[11] = WDebugRendererTriangle(cc[1], cc[3], cc[7]);
 
-              ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, color.WithAlpha(0.1f));
+              WDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, color.WithAlpha(0.1f));
 
-              ezDebugRendererLine lines[12];
-              lines[0] = ezDebugRendererLine(cc[4], cc[5]);
-              lines[1] = ezDebugRendererLine(cc[5], cc[7]);
-              lines[2] = ezDebugRendererLine(cc[7], cc[6]);
-              lines[3] = ezDebugRendererLine(cc[6], cc[4]);
+              WDebugRendererLine lines[12];
+              lines[0] = WDebugRendererLine(cc[4], cc[5]);
+              lines[1] = WDebugRendererLine(cc[5], cc[7]);
+              lines[2] = WDebugRendererLine(cc[7], cc[6]);
+              lines[3] = WDebugRendererLine(cc[6], cc[4]);
 
-              lines[4] = ezDebugRendererLine(cc[0], cc[1]);
-              lines[5] = ezDebugRendererLine(cc[1], cc[3]);
-              lines[6] = ezDebugRendererLine(cc[3], cc[2]);
-              lines[7] = ezDebugRendererLine(cc[2], cc[0]);
+              lines[4] = WDebugRendererLine(cc[0], cc[1]);
+              lines[5] = WDebugRendererLine(cc[1], cc[3]);
+              lines[6] = WDebugRendererLine(cc[3], cc[2]);
+              lines[7] = WDebugRendererLine(cc[2], cc[0]);
 
-              lines[8] = ezDebugRendererLine(cc[4], cc[0]);
-              lines[9] = ezDebugRendererLine(cc[5], cc[1]);
-              lines[10] = ezDebugRendererLine(cc[7], cc[3]);
-              lines[11] = ezDebugRendererLine(cc[6], cc[2]);
+              lines[8] = WDebugRendererLine(cc[4], cc[0]);
+              lines[9] = WDebugRendererLine(cc[5], cc[1]);
+              lines[10] = WDebugRendererLine(cc[7], cc[3]);
+              lines[11] = WDebugRendererLine(cc[6], cc[2]);
 
-              ezDebugRenderer::DrawLines(view.GetHandle(), lines, color);
+              WDebugRenderer::DrawLines(view.GetHandle(), lines, color);
 
               if (bOnlyOneSlice)
               {
-                sb.SetFormat("L:{}\nD:{}\nR:{}", (ezUInt32)lightCount, (ezUInt32)decalCount, (ezUInt32)probeCount);
-                ezVec3 textPos = (cc[0] + cc[1] + cc[2] + cc[3] + cc[4] + cc[5] + cc[6] + cc[7]) / 8.0f;
-                ezDebugRenderer::Draw3DText(view.GetHandle(), sb, textPos, color * 4.0f, 16u, ezDebugTextHAlign::Center, ezDebugTextVAlign::Center);
+                sb.SetFormat("L:{}\nD:{}\nR:{}", (WUInt32)lightCount, (WUInt32)decalCount, (WUInt32)probeCount);
+                WVec3 textPos = (cc[0] + cc[1] + cc[2] + cc[3] + cc[4] + cc[5] + cc[6] + cc[7]) / 8.0f;
+                WDebugRenderer::Draw3DText(view.GetHandle(), sb, textPos, color * 4.0f, 16u, WDebugTextHAlign::Center, WDebugTextVAlign::Center);
               }
             }
           }
@@ -149,24 +149,24 @@ namespace
       }
 
       {
-        ezVec3 leftWidth = pCamera->GetDirRight() * fZf * fTanLeft;
-        ezVec3 rightWidth = pCamera->GetDirRight() * fZf * fTanRight;
-        ezVec3 bottomHeight = pCamera->GetDirUp() * fZf * fTanBottom;
-        ezVec3 topHeight = pCamera->GetDirUp() * fZf * fTanTop;
+        WVec3 leftWidth = pCamera->GetDirRight() * fZf * fTanLeft;
+        WVec3 rightWidth = pCamera->GetDirRight() * fZf * fTanRight;
+        WVec3 bottomHeight = pCamera->GetDirUp() * fZf * fTanBottom;
+        WVec3 topHeight = pCamera->GetDirUp() * fZf * fTanTop;
 
-        ezVec3 depthFar = pCamera->GetPosition() + pCamera->GetDirForwards() * fZf;
-        ezVec3 p0 = depthFar + rightWidth + topHeight;
-        ezVec3 p1 = depthFar + rightWidth + bottomHeight;
-        ezVec3 p2 = depthFar + leftWidth + bottomHeight;
-        ezVec3 p3 = depthFar + leftWidth + topHeight;
+        WVec3 depthFar = pCamera->GetPosition() + pCamera->GetDirForwards() * fZf;
+        WVec3 p0 = depthFar + rightWidth + topHeight;
+        WVec3 p1 = depthFar + rightWidth + bottomHeight;
+        WVec3 p2 = depthFar + leftWidth + bottomHeight;
+        WVec3 p3 = depthFar + leftWidth + topHeight;
 
-        ezDebugRendererLine lines[4];
-        lines[0] = ezDebugRendererLine(p0, p1);
-        lines[1] = ezDebugRendererLine(p1, p2);
-        lines[2] = ezDebugRendererLine(p2, p3);
-        lines[3] = ezDebugRendererLine(p3, p0);
+        WDebugRendererLine lines[4];
+        lines[0] = WDebugRendererLine(p0, p1);
+        lines[1] = WDebugRendererLine(p1, p2);
+        lines[2] = WDebugRendererLine(p2, p3);
+        lines[3] = WDebugRendererLine(p3, p0);
 
-        ezDebugRenderer::DrawLines(view.GetHandle(), lines, lineColor);
+        WDebugRenderer::DrawLines(view.GetHandle(), lines, lineColor);
       }
     }
   }
@@ -175,48 +175,48 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WClusteredDataCPU, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezClusteredDataCPU::ezClusteredDataCPU() = default;
-ezClusteredDataCPU::~ezClusteredDataCPU() = default;
+WClusteredDataCPU::WClusteredDataCPU() = default;
+WClusteredDataCPU::~WClusteredDataCPU() = default;
 
-ezClusteredDataGPU::ezClusteredDataGPU()
+WClusteredDataGPU::WClusteredDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
 
     {
-      desc.m_uiStructSize = sizeof(ezPerLightData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_LIGHTS;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_uiStructSize = sizeof(WPerLightData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * WClusteredDataCPU::MAX_NUM_LIGHTS;
+      desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hLightDataBuffer = pDevice->CreateBuffer(desc);
     }
 
     {
-      desc.m_uiStructSize = sizeof(ezPerDecalData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_DECALS;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_uiStructSize = sizeof(WPerDecalData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * WClusteredDataCPU::MAX_NUM_DECALS;
+      desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hDecalDataBuffer = pDevice->CreateBuffer(desc);
     }
 
     {
-      desc.m_uiStructSize = sizeof(ezPerReflectionProbeData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_uiStructSize = sizeof(WPerReflectionProbeData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * WClusteredDataCPU::MAX_NUM_REFLECTION_PROBES;
+      desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hReflectionProbeDataBuffer = pDevice->CreateBuffer(desc);
     }
 
     {
-      desc.m_uiStructSize = sizeof(ezPerClusterData);
+      desc.m_uiStructSize = sizeof(WPerClusterData);
       desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
 
       m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
@@ -224,41 +224,41 @@ ezClusteredDataGPU::ezClusteredDataGPU()
   }
 
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = 0;
-    desc.m_uiTotalSize = sizeof(ezClusteredDataConstants);
-    desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
+    desc.m_uiTotalSize = sizeof(WClusteredDataConstants);
+    desc.m_BufferFlags = WGALBufferUsageFlags::ConstantBuffer;
     m_hConstantBuffer = pDevice->CreateBuffer(desc);
   }
 
   {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_AddressU = ezImageAddressMode::Clamp;
-    desc.m_AddressV = ezImageAddressMode::Clamp;
-    desc.m_AddressW = ezImageAddressMode::Clamp;
-    desc.m_SampleCompareFunc = ezGALCompareFunc::Less;
+    WGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = WImageAddressMode::Clamp;
+    desc.m_AddressV = WImageAddressMode::Clamp;
+    desc.m_AddressW = WImageAddressMode::Clamp;
+    desc.m_SampleCompareFunc = WGALCompareFunc::Less;
 
     m_hShadowSampler = pDevice->CreateSamplerState(desc);
   }
 
-  m_hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
+  m_hDecalAtlas = WDecalManager::GetBakedDecalAtlas();
 
   {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_AddressU = ezImageAddressMode::Clamp;
-    desc.m_AddressV = ezImageAddressMode::Clamp;
-    desc.m_AddressW = ezImageAddressMode::Clamp;
+    WGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = WImageAddressMode::Clamp;
+    desc.m_AddressV = WImageAddressMode::Clamp;
+    desc.m_AddressW = WImageAddressMode::Clamp;
 
-    ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::DefaultQuality, desc);
-    desc.m_uiMaxAnisotropy = ezMath::Min<ezUInt8>(desc.m_uiMaxAnisotropy, 4u);
+    WTextureUtils::ConfigureSampler(WTextureFilterSetting::DefaultQuality, desc);
+    desc.m_uiMaxAnisotropy = WMath::Min<WUInt8>(desc.m_uiMaxAnisotropy, 4u);
 
     m_hDecalAtlasSampler = pDevice->CreateSamplerState(desc);
   }
 }
 
-ezClusteredDataGPU::~ezClusteredDataGPU()
+WClusteredDataGPU::~WClusteredDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   pDevice->DestroyBuffer(m_hLightDataBuffer);
   pDevice->DestroyBuffer(m_hDecalDataBuffer);
@@ -272,38 +272,38 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataExtractor, 1, ezRTTIDefaultAllocator<ezClusteredDataExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WClusteredDataExtractor, 1, WRTTIDefaultAllocator<WClusteredDataExtractor>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
-  : ezExtractor(szName)
+WClusteredDataExtractor::WClusteredDataExtractor(const char* szName)
+  : WExtractor(szName)
 {
-  m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
+  m_DependsOn.PushBack(WMakeHashedString("WVisibleObjectsExtractor"));
 
   m_TempLightsClusters.SetCountUninitialized(NUM_CLUSTERS);
   m_TempDecalsClusters.SetCountUninitialized(NUM_CLUSTERS);
   m_TempReflectionProbeClusters.SetCountUninitialized(NUM_CLUSTERS);
 
-  ezMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
-  ezMemoryUtils::ZeroFill(m_TempDecalsClusters.GetData(), NUM_CLUSTERS);
-  ezMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
+  WMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
+  WMemoryUtils::ZeroFill(m_TempDecalsClusters.GetData(), NUM_CLUSTERS);
+  WMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
 
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
   m_ClusterBoundingSpheresRightEye.SetCountUninitialized(NUM_CLUSTERS);
 }
 
-ezClusteredDataExtractor::~ezClusteredDataExtractor() = default;
+WClusteredDataExtractor::~WClusteredDataExtractor() = default;
 
-void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void WClusteredDataExtractor::PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData)
 {
-  EZ_PROFILE_SCOPE("PostSortAndBatch");
+  W_PROFILE_SCOPE("PostSortAndBatch");
 
-  const ezCamera* pCamera = view.GetCullingCamera();
+  const WCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
   const bool bIsStereo = pCamera->IsStereoscopic();
 
-  ezMat4 mProj;
-  pCamera->GetProjectionMatrix(fAspectRatio, mProj, ezCameraEye::Left);
+  WMat4 mProj;
+  pCamera->GetProjectionMatrix(fAspectRatio, mProj, WCameraEye::Left);
   if (m_mProjection != mProj)
   {
     m_mProjection = mProj;
@@ -312,10 +312,10 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   }
 
   // For stereo rendering, also compute right eye cluster bounding spheres
-  ezMat4 mProjRight;
+  WMat4 mProjRight;
   if (bIsStereo)
   {
-    pCamera->GetProjectionMatrix(fAspectRatio, mProjRight, ezCameraEye::Right);
+    pCamera->GetProjectionMatrix(fAspectRatio, mProjRight, WCameraEye::Right);
     if (m_mProjectionRightEye != mProjRight)
     {
       m_mProjectionRightEye = mProjRight;
@@ -324,59 +324,59 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     }
   }
 
-  ezClusteredDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezClusteredDataCPU);
-  pData->m_ClusterData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerClusterData, NUM_CLUSTERS);
+  WClusteredDataCPU* pData = W_NEW(WFrameAllocator::GetCurrentAllocator(), WClusteredDataCPU);
+  pData->m_ClusterData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WPerClusterData, NUM_CLUSTERS);
 
-  ezMat4 tmp = pCamera->GetViewMatrix(ezCameraEye::Left);
-  ezSimdMat4f viewMatrix = ezSimdConversion::ToMat4(tmp);
+  WMat4 tmp = pCamera->GetViewMatrix(WCameraEye::Left);
+  WSimdMat4f viewMatrix = WSimdConversion::ToMat4(tmp);
 
-  pCamera->GetProjectionMatrix(fAspectRatio, tmp, ezCameraEye::Left);
-  ezSimdMat4f projectionMatrix = ezSimdConversion::ToMat4(tmp);
-  ezSimdMat4f viewProjectionMatrix = projectionMatrix * viewMatrix;
+  pCamera->GetProjectionMatrix(fAspectRatio, tmp, WCameraEye::Left);
+  WSimdMat4f projectionMatrix = WSimdConversion::ToMat4(tmp);
+  WSimdMat4f viewProjectionMatrix = projectionMatrix * viewMatrix;
 
   // For stereo, also prepare the right eye matrices
-  ezSimdMat4f viewMatrixRight;
-  ezSimdMat4f projectionMatrixRight;
-  ezSimdMat4f viewProjectionMatrixRight;
+  WSimdMat4f viewMatrixRight;
+  WSimdMat4f projectionMatrixRight;
+  WSimdMat4f viewProjectionMatrixRight;
   if (bIsStereo)
   {
-    tmp = pCamera->GetViewMatrix(ezCameraEye::Right);
-    viewMatrixRight = ezSimdConversion::ToMat4(tmp);
+    tmp = pCamera->GetViewMatrix(WCameraEye::Right);
+    viewMatrixRight = WSimdConversion::ToMat4(tmp);
 
-    pCamera->GetProjectionMatrix(fAspectRatio, tmp, ezCameraEye::Right);
-    projectionMatrixRight = ezSimdConversion::ToMat4(tmp);
+    pCamera->GetProjectionMatrix(fAspectRatio, tmp, WCameraEye::Right);
+    projectionMatrixRight = WSimdConversion::ToMat4(tmp);
     viewProjectionMatrixRight = projectionMatrixRight * viewMatrixRight;
   }
 
   // Lights
   {
-    EZ_PROFILE_SCOPE("Lights");
+    W_PROFILE_SCOPE("Lights");
     m_TempLightData.Clear();
 
-    ezUInt32 uiBrightestDirectionalLightIndex = ezInvalidIndex;
+    WUInt32 uiBrightestDirectionalLightIndex = WInvalidIndex;
     float fBrightestDirectionalLightIntensity = 0.0f;
 
-    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
-    const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-    for (ezUInt32 i = 0; i < uiBatchCount; ++i)
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(WDefaultRenderDataCategories::Light);
+    const WUInt32 uiBatchCount = batchList.GetBatchCount();
+    for (WUInt32 i = 0; i < uiBatchCount; ++i)
     {
-      const ezRenderDataBatch& batch = batchList.GetBatch(i);
+      const WRenderDataBatch& batch = batchList.GetBatch(i);
 
-      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+      for (auto it = batch.GetIterator<WRenderData>(); it.IsValid(); ++it)
       {
-        const ezUInt32 uiLightIndex = m_TempLightData.GetCount();
+        const WUInt32 uiLightIndex = m_TempLightData.GetCount();
 
-        if (uiLightIndex == ezClusteredDataCPU::MAX_NUM_LIGHTS)
+        if (uiLightIndex == WClusteredDataCPU::MAX_NUM_LIGHTS)
         {
-          ezLog::Warning("Maximum number of lights reached ({0}). Further lights will be discarded.", ezClusteredDataCPU::MAX_NUM_LIGHTS);
+          WLog::Warning("Maximum number of lights reached ({0}). Further lights will be discarded.", WClusteredDataCPU::MAX_NUM_LIGHTS);
           break;
         }
 
-        if (auto pPointLightRenderData = ezDynamicCast<const ezPointLightRenderData*>(it))
+        if (auto pPointLightRenderData = WDynamicCast<const WPointLightRenderData*>(it))
         {
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange + pPointLightRenderData->m_fLength * 0.5f);
+          WSimdBSphere pointLightSphere = WSimdBSphere(WSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange + pPointLightRenderData->m_fLength * 0.5f);
           RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
@@ -387,28 +387,28 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           if (false)
           {
-            ezSimdBSphere viewSpaceSphere(viewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
-            ezSimdBBox ssb = GetScreenSpaceBounds(viewSpaceSphere, projectionMatrix);
+            WSimdBSphere viewSpaceSphere(viewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
+            WSimdBBox ssb = GetScreenSpaceBounds(viewSpaceSphere, projectionMatrix);
             float minX = ((float)ssb.m_Min.x() * 0.5f + 0.5f) * view.GetViewport().width;
             float maxX = ((float)ssb.m_Max.x() * 0.5f + 0.5f) * view.GetViewport().width;
             float minY = ((float)ssb.m_Max.y() * -0.5f + 0.5f) * view.GetViewport().height;
             float maxY = ((float)ssb.m_Min.y() * -0.5f + 0.5f) * view.GetViewport().height;
 
-            ezRectFloat rect(minX, minY, maxX - minX, maxY - minY);
-            ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rect, 0.0f, ezColor::Blue.WithAlpha(0.3f));
+            WRectFloat rect(minX, minY, maxX - minX, maxY - minY);
+            WDebugRenderer::Draw2DRectangle(view.GetHandle(), rect, 0.0f, WColor::Blue.WithAlpha(0.3f));
           }
         }
-        else if (auto pSpotLightRenderData = ezDynamicCast<const ezSpotLightRenderData*>(it))
+        else if (auto pSpotLightRenderData = WDynamicCast<const WSpotLightRenderData*>(it))
         {
           FillSpotLightData(m_TempLightData.ExpandAndGetRef(), pSpotLightRenderData);
 
-          ezAngle halfAngle = pSpotLightRenderData->m_OuterSpotAngle / 2.0f;
+          WAngle halfAngle = pSpotLightRenderData->m_OuterSpotAngle / 2.0f;
 
           BoundingCone cone;
-          cone.m_PositionAndRange = ezSimdConversion::ToVec3(pSpotLightRenderData->m_vGlobalPosition);
+          cone.m_PositionAndRange = WSimdConversion::ToVec3(pSpotLightRenderData->m_vGlobalPosition);
           cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
-          cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_qGlobalRotation * ezVec3(1.0f, 0.0f, 0.0f));
-          cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
+          cone.m_ForwardDir = WSimdConversion::ToVec3(pSpotLightRenderData->m_qGlobalRotation * WVec3(1.0f, 0.0f, 0.0f));
+          cone.m_SinCosAngle = WSimdVec4f(WMath::Sin(halfAngle), WMath::Cos(halfAngle), 0.0f);
           RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
@@ -417,25 +417,25 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             RasterizeSpotLight(cone, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
           }
         }
-        else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
+        else if (auto pDirLightRenderData = WDynamicCast<const WDirectionalLightRenderData*>(it))
         {
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
           // Note: Directional lights affect all clusters, so no need for separate stereo handling
 
-          const float fIntensity = pDirLightRenderData->m_fIntensity * ezColor(pDirLightRenderData->m_LightColor).GetLuminance();
+          const float fIntensity = pDirLightRenderData->m_fIntensity * WColor(pDirLightRenderData->m_LightColor).GetLuminance();
           if (fIntensity > fBrightestDirectionalLightIntensity)
           {
             uiBrightestDirectionalLightIndex = uiLightIndex;
             fBrightestDirectionalLightIntensity = fIntensity;
           }
         }
-        else if (auto pFillLightRenderData = ezDynamicCast<const ezFillLightRenderData*>(it))
+        else if (auto pFillLightRenderData = WDynamicCast<const WFillLightRenderData*>(it))
         {
           FillFillLightData(m_TempLightData.ExpandAndGetRef(), pFillLightRenderData);
 
-          ezSimdBSphere fillLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pFillLightRenderData->m_vGlobalPosition), pFillLightRenderData->m_fRange);
+          WSimdBSphere fillLightSphere = WSimdBSphere(WSimdConversion::ToVec3(pFillLightRenderData->m_vGlobalPosition), pFillLightRenderData->m_fRange);
           RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
@@ -444,10 +444,10 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
           }
         }
-        else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
+        else if (auto pFogRenderData = WDynamicCast<const WFogRenderData*>(it))
         {
           const float fogBaseHeight = pFogRenderData->m_fBaseHeight;
-          float fogHeightFalloff = pFogRenderData->m_fHeightFalloff > 0.0f ? ezMath::Ln(0.0001f) / pFogRenderData->m_fHeightFalloff : 0.0f;
+          float fogHeightFalloff = pFogRenderData->m_fHeightFalloff > 0.0f ? WMath::Ln(0.0001f) / pFogRenderData->m_fHeightFalloff : 0.0f;
 
           const float fogAtCameraPos = fogHeightFalloff * (pCamera->GetPosition().z - fogBaseHeight);
           if (fogAtCameraPos >= 80.0f) // Prevent infs
@@ -457,14 +457,14 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           pData->m_fFogHeight = -fogHeightFalloff * fogBaseHeight;
           pData->m_fFogHeightFalloff = fogHeightFalloff;
-          pData->m_fFogDensityAtCameraPos = ezMath::Exp(ezMath::Clamp(fogAtCameraPos, -80.0f, 80.0f)); // Prevent infs
+          pData->m_fFogDensityAtCameraPos = WMath::Exp(WMath::Clamp(fogAtCameraPos, -80.0f, 80.0f)); // Prevent infs
           pData->m_fFogDensity = pFogRenderData->m_fDensity;
           pData->m_fFogInvSkyDistance = pFogRenderData->m_fInvSkyDistance;
           pData->m_fFogStartDistance = pFogRenderData->m_fFogStartDistance;
 
           pData->m_FogColor = pFogRenderData->m_Color;
         }
-        else if (auto pLightShaftsRenderData = ezDynamicCast<const ezLightShaftsRenderData*>(it))
+        else if (auto pLightShaftsRenderData = WDynamicCast<const WLightShaftsRenderData*>(it))
         {
           pData->m_vLightShaftsDirection = pLightShaftsRenderData->m_vDirection;
           pData->m_fLightShaftsIntensity = pLightShaftsRenderData->m_fIntensity;
@@ -475,12 +475,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         }
         else
         {
-          ezLog::Warning("Unhandled render data type '{}' in 'Light' category", it->GetDynamicRTTI()->GetTypeName());
+          WLog::Warning("Unhandled render data type '{}' in 'Light' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
 
-    pData->m_LightData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerLightData, m_TempLightData.GetCount());
+    pData->m_LightData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WPerLightData, m_TempLightData.GetCount());
     pData->m_LightData.CopyFrom(m_TempLightData);
 
     pData->m_uiBrightestDirectionalLightIndex = uiBrightestDirectionalLightIndex;
@@ -490,32 +490,32 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   // Decals
   {
-    EZ_PROFILE_SCOPE("Decals");
+    W_PROFILE_SCOPE("Decals");
     m_TempDecalData.Clear();
 
-    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Decal);
-    const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-    for (ezUInt32 i = 0; i < uiBatchCount; ++i)
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(WDefaultRenderDataCategories::Decal);
+    const WUInt32 uiBatchCount = batchList.GetBatchCount();
+    for (WUInt32 i = 0; i < uiBatchCount; ++i)
     {
-      const ezRenderDataBatch& batch = batchList.GetBatch(i);
+      const WRenderDataBatch& batch = batchList.GetBatch(i);
 
-      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+      for (auto it = batch.GetIterator<WRenderData>(); it.IsValid(); ++it)
       {
-        const ezUInt32 uiDecalIndex = m_TempDecalData.GetCount();
+        const WUInt32 uiDecalIndex = m_TempDecalData.GetCount();
 
-        if (uiDecalIndex == ezClusteredDataCPU::MAX_NUM_DECALS)
+        if (uiDecalIndex == WClusteredDataCPU::MAX_NUM_DECALS)
         {
-          ezLog::Warning("Maximum number of decals reached ({0}). Further decals will be discarded.", ezClusteredDataCPU::MAX_NUM_DECALS);
+          WLog::Warning("Maximum number of decals reached ({0}). Further decals will be discarded.", WClusteredDataCPU::MAX_NUM_DECALS);
           break;
         }
 
-        if (auto pDecalRenderData = ezDynamicCast<const ezDecalRenderData*>(it))
+        if (auto pDecalRenderData = WDynamicCast<const WDecalRenderData*>(it))
         {
           FillDecalData(m_TempDecalData.ExpandAndGetRef(), pDecalRenderData);
 
-          const ezVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;
-          const ezQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
-          const ezTransform decalTransform = ezTransform::Make(pDecalRenderData->m_vGlobalPosition, rotation, pDecalRenderData->m_vGlobalScale);
+          const WVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;
+          const WQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
+          const WTransform decalTransform = WTransform::Make(pDecalRenderData->m_vGlobalPosition, rotation, pDecalRenderData->m_vGlobalScale);
           RasterizeBox(decalTransform, uiDecalIndex, viewMatrix, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
@@ -526,51 +526,51 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         }
         else
         {
-          ezLog::Warning("Unhandled render data type '{}' in 'Decal' category", it->GetDynamicRTTI()->GetTypeName());
+          WLog::Warning("Unhandled render data type '{}' in 'Decal' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
 
-    pData->m_DecalData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerDecalData, m_TempDecalData.GetCount());
+    pData->m_DecalData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WPerDecalData, m_TempDecalData.GetCount());
     pData->m_DecalData.CopyFrom(m_TempDecalData);
   }
 
   // Reflection Probes
   {
-    EZ_PROFILE_SCOPE("Probes");
+    W_PROFILE_SCOPE("Probes");
     m_TempReflectionProbeData.Clear();
 
-    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::ReflectionProbe);
-    const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-    for (ezUInt32 i = 0; i < uiBatchCount; ++i)
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(WDefaultRenderDataCategories::ReflectionProbe);
+    const WUInt32 uiBatchCount = batchList.GetBatchCount();
+    for (WUInt32 i = 0; i < uiBatchCount; ++i)
     {
-      const ezRenderDataBatch& batch = batchList.GetBatch(i);
+      const WRenderDataBatch& batch = batchList.GetBatch(i);
 
-      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+      for (auto it = batch.GetIterator<WRenderData>(); it.IsValid(); ++it)
       {
-        const ezUInt32 uiProbeIndex = m_TempReflectionProbeData.GetCount();
+        const WUInt32 uiProbeIndex = m_TempReflectionProbeData.GetCount();
 
-        if (uiProbeIndex == ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES)
+        if (uiProbeIndex == WClusteredDataCPU::MAX_NUM_REFLECTION_PROBES)
         {
-          ezLog::Warning("Maximum number of reflection probes reached ({0}). Further reflection probes will be discarded.", ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES);
+          WLog::Warning("Maximum number of reflection probes reached ({0}). Further reflection probes will be discarded.", WClusteredDataCPU::MAX_NUM_REFLECTION_PROBES);
           break;
         }
 
-        if (auto pReflectionProbeRenderData = ezDynamicCast<const ezReflectionProbeRenderData*>(it))
+        if (auto pReflectionProbeRenderData = WDynamicCast<const WReflectionProbeRenderData*>(it))
         {
           auto& probeData = m_TempReflectionProbeData.ExpandAndGetRef();
           FillReflectionProbeData(probeData, pReflectionProbeRenderData);
 
-          const ezVec3 vFullScale = pReflectionProbeRenderData->m_vHalfExtents.CompMul(pReflectionProbeRenderData->m_GlobalTransform.m_vScale);
+          const WVec3 vFullScale = pReflectionProbeRenderData->m_vHalfExtents.CompMul(pReflectionProbeRenderData->m_GlobalTransform.m_vScale);
 
           bool bRasterizeSphere = false;
           float fMaxRadius = 0.0f;
           if (pReflectionProbeRenderData->m_uiIndex & REFLECTION_PROBE_IS_SPHERE)
           {
-            constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();
-            fMaxRadius = ezMath::Max(ezMath::Max(ezMath::Abs(vFullScale.x), ezMath::Abs(vFullScale.y)), ezMath::Abs(vFullScale.z));
-            const float fSphereVolume = fSphereConstant * ezMath::Pow(fMaxRadius, 3.0f);
-            const float fBoxVolume = ezMath::Abs(vFullScale.x * vFullScale.y * vFullScale.z * 8);
+            constexpr float fSphereConstant = (4.0f / 3.0f) * WMath::Pi<float>();
+            fMaxRadius = WMath::Max(WMath::Max(WMath::Abs(vFullScale.x), WMath::Abs(vFullScale.y)), WMath::Abs(vFullScale.z));
+            const float fSphereVolume = fSphereConstant * WMath::Pow(fMaxRadius, 3.0f);
+            const float fBoxVolume = WMath::Abs(vFullScale.x * vFullScale.y * vFullScale.z * 8);
             if (fSphereVolume < fBoxVolume)
             {
               bRasterizeSphere = true;
@@ -580,8 +580,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           if (bRasterizeSphere)
           {
-            ezSimdBSphere pointLightSphere =
-              ezSimdBSphere(ezSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
+            WSimdBSphere pointLightSphere =
+              WSimdBSphere(WSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
             RasterizeSphere(
               pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
@@ -594,12 +594,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           }
           else
           {
-            ezTransform transform = pReflectionProbeRenderData->m_GlobalTransform;
+            WTransform transform = pReflectionProbeRenderData->m_GlobalTransform;
             transform.m_vScale = vFullScale.CompMul(probeData.InfluenceScale.GetAsVec3());
             transform.m_vPosition += transform.m_qRotation * vFullScale.CompMul(probeData.InfluenceShift.GetAsVec3());
 
-            // const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
-            // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
+            // const WBoundingBox aabb(WVec3(-1.0f), WVec3(1.0f));
+            // WDebugRenderer::DrawLineBox(view.GetHandle(), aabb, WColor::DarkBlue, transform);
 
             RasterizeBox(transform, uiProbeIndex, viewMatrix, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
@@ -612,12 +612,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         }
         else
         {
-          ezLog::Warning("Unhandled render data type '{}' in 'ReflectionProbe' category", it->GetDynamicRTTI()->GetTypeName());
+          WLog::Warning("Unhandled render data type '{}' in 'ReflectionProbe' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
 
-    pData->m_ReflectionProbeData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerReflectionProbeData, m_TempReflectionProbeData.GetCount());
+    pData->m_ReflectionProbeData = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WPerReflectionProbeData, m_TempReflectionProbeData.GetCount());
     pData->m_ReflectionProbeData.CopyFrom(m_TempReflectionProbeData);
   }
 
@@ -629,73 +629,73 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   ref_extractedRenderData.AddFrameData(pData);
 
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
 #endif
 }
 
-ezResult ezClusteredDataExtractor::Serialize(ezStreamWriter& inout_stream) const
+WResult WClusteredDataExtractor::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return W_SUCCESS;
 }
 
 
-ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
+WResult WClusteredDataExtractor::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
-  return EZ_SUCCESS;
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const WUInt32 uiVersion = WTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  W_IGNORE_UNUSED(uiVersion);
+  return W_SUCCESS;
 }
 
 namespace
 {
-  EZ_FORCE_INLINE ezUInt32 MakeDecalIndex(ezUInt32 uiDecalIndex)
+  W_FORCE_INLINE WUInt32 MakeDecalIndex(WUInt32 uiDecalIndex)
   {
     return uiDecalIndex << DECAL_SHIFT;
   }
 
-  EZ_FORCE_INLINE ezUInt32 MakeProbeIndex(ezUInt32 uiReflectionProbeIndex)
+  W_FORCE_INLINE WUInt32 MakeProbeIndex(WUInt32 uiReflectionProbeIndex)
   {
     return uiReflectionProbeIndex << PROBE_SHIFT;
   }
 } // namespace
 
-void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)
+void WClusteredDataExtractor::FillItemListAndClusterData(WClusteredDataCPU* pData)
 {
-  EZ_PROFILE_SCOPE("FillItemListAndClusterData");
+  W_PROFILE_SCOPE("FillItemListAndClusterData");
   m_TempClusterItemList.Clear();
 
-  const ezUInt32 uiNumLights = m_TempLightData.GetCount();
-  const ezUInt32 uiMaxLightBlockIndex = (uiNumLights + 31) / 32;
+  const WUInt32 uiNumLights = m_TempLightData.GetCount();
+  const WUInt32 uiMaxLightBlockIndex = (uiNumLights + 31) / 32;
 
-  const ezUInt32 uiNumDecals = m_TempDecalData.GetCount();
-  const ezUInt32 uiMaxDecalBlockIndex = (uiNumDecals + 31) / 32;
+  const WUInt32 uiNumDecals = m_TempDecalData.GetCount();
+  const WUInt32 uiMaxDecalBlockIndex = (uiNumDecals + 31) / 32;
 
-  const ezUInt32 uiNumReflectionProbes = m_TempReflectionProbeData.GetCount();
-  const ezUInt32 uiMaxReflectionProbeBlockIndex = (uiNumReflectionProbes + 31) / 32;
+  const WUInt32 uiNumReflectionProbes = m_TempReflectionProbeData.GetCount();
+  const WUInt32 uiMaxReflectionProbeBlockIndex = (uiNumReflectionProbes + 31) / 32;
 
-  const ezUInt32 uiWorstCase = ezMath::Max(uiNumLights, uiNumDecals, uiNumReflectionProbes);
-  for (ezUInt32 i = 0; i < NUM_CLUSTERS; ++i)
+  const WUInt32 uiWorstCase = WMath::Max(uiNumLights, uiNumDecals, uiNumReflectionProbes);
+  for (WUInt32 i = 0; i < NUM_CLUSTERS; ++i)
   {
-    const ezUInt32 uiOffset = m_TempClusterItemList.GetCount();
-    ezUInt32 uiLightCount = 0;
+    const WUInt32 uiOffset = m_TempClusterItemList.GetCount();
+    WUInt32 uiLightCount = 0;
 
     // We expand m_TempClusterItemList by the worst case this loop can produce and then cut it down again to the actual size once we have filled the data. This makes sure we do not waste time on boundary checks or potential out of line calls like PushBack or PushBackUnchecked.
     m_TempClusterItemList.SetCountUninitialized(uiOffset + uiWorstCase);
-    ezUInt32* pTempClusterItemListRange = m_TempClusterItemList.GetData() + uiOffset;
+    WUInt32* pTempClusterItemListRange = m_TempClusterItemList.GetData() + uiOffset;
 
     // Lights
     {
       auto& tempCluster = m_TempLightsClusters[i];
-      for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxLightBlockIndex; ++uiBlockIndex)
+      for (WUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxLightBlockIndex; ++uiBlockIndex)
       {
-        ezUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
+        WUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
 
         while (mask > 0)
         {
-          ezUInt32 uiLightIndex = ezMath::FirstBitLow(mask);
+          WUInt32 uiLightIndex = WMath::FirstBitLow(mask);
           mask &= mask - 1;
 
           uiLightIndex += uiBlockIndex * 32;
@@ -707,23 +707,23 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
       }
     }
 
-    ezUInt32 uiDecalCount = 0;
+    WUInt32 uiDecalCount = 0;
 
     // Decals
     {
       auto& tempCluster = m_TempDecalsClusters[i];
-      for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxDecalBlockIndex; ++uiBlockIndex)
+      for (WUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxDecalBlockIndex; ++uiBlockIndex)
       {
-        ezUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
+        WUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
 
         while (mask > 0)
         {
-          ezUInt32 uiDecalIndex = ezMath::FirstBitLow(mask);
+          WUInt32 uiDecalIndex = WMath::FirstBitLow(mask);
           mask &= mask - 1;
 
           uiDecalIndex += uiBlockIndex * 32;
 
-          const ezUInt32 item = pTempClusterItemListRange[uiDecalCount];
+          const WUInt32 item = pTempClusterItemListRange[uiDecalCount];
           pTempClusterItemListRange[uiDecalCount] = (uiDecalCount < uiLightCount ? item : 0) | MakeDecalIndex(uiDecalIndex);
 
           ++uiDecalCount;
@@ -733,23 +733,23 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
       }
     }
 
-    ezUInt32 uiReflectionProbeCount = 0;
-    const ezUInt32 uiMaxUsed = ezMath::Max(uiLightCount, uiDecalCount);
+    WUInt32 uiReflectionProbeCount = 0;
+    const WUInt32 uiMaxUsed = WMath::Max(uiLightCount, uiDecalCount);
     // Reflection Probes
     {
       auto& tempCluster = m_TempReflectionProbeClusters[i];
-      for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxReflectionProbeBlockIndex; ++uiBlockIndex)
+      for (WUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxReflectionProbeBlockIndex; ++uiBlockIndex)
       {
-        ezUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
+        WUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
 
         while (mask > 0)
         {
-          ezUInt32 uiReflectionProbeIndex = ezMath::FirstBitLow(mask);
+          WUInt32 uiReflectionProbeIndex = WMath::FirstBitLow(mask);
           mask &= mask - 1;
 
           uiReflectionProbeIndex += uiBlockIndex * 32;
 
-          const ezUInt32 item = pTempClusterItemListRange[uiReflectionProbeCount];
+          const WUInt32 item = pTempClusterItemListRange[uiReflectionProbeCount];
           pTempClusterItemListRange[uiReflectionProbeCount] = (uiReflectionProbeCount < uiMaxUsed ? item : 0) | MakeProbeIndex(uiReflectionProbeIndex);
 
           ++uiReflectionProbeCount;
@@ -760,7 +760,7 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
     }
 
     // Cut down the array to the actual number of elements we have written.
-    const ezUInt32 uiActualCase = ezMath::Max(uiLightCount, uiDecalCount, uiReflectionProbeCount);
+    const WUInt32 uiActualCase = WMath::Max(uiLightCount, uiDecalCount, uiReflectionProbeCount);
     m_TempClusterItemList.SetCountUninitialized(uiOffset + uiActualCase);
 
     auto& clusterData = pData->m_ClusterData[i];
@@ -768,13 +768,13 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
     clusterData.counts = uiLightCount | MakeDecalIndex(uiDecalCount) | MakeProbeIndex(uiReflectionProbeCount);
   }
 
-  pData->m_ClusterItemList = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_TempClusterItemList.GetCount());
+  pData->m_ClusterItemList = W_NEW_ARRAY(WFrameAllocator::GetCurrentAllocator(), WUInt32, m_TempClusterItemList.GetCount());
   pData->m_ClusterItemList.CopyFrom(m_TempClusterItemList);
 }
 
-void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezClusteredDataCPU* pData)
+void WClusteredDataExtractor::UpdateGpuData(const WView& view, const WClusteredDataCPU* pData)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   m_DataGPU.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
   m_DataGPU.m_cameraUsageHint = pData->m_cameraUsageHint;
@@ -807,12 +807,12 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
 
     if (m_DataGPU.m_hClusterItemBuffer.IsInvalidated())
     {
-      const ezUInt32 uiNumItems = ezMemoryUtils::AlignSize(pData->m_ClusterItemList.GetCount(), ezMath::PowerOfTwo_Ceil(ezUInt32(NUM_CLUSTERS)));
+      const WUInt32 uiNumItems = WMemoryUtils::AlignSize(pData->m_ClusterItemList.GetCount(), WMath::PowerOfTwo_Ceil(WUInt32(NUM_CLUSTERS)));
 
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = sizeof(ezUInt32);
+      WGALBufferCreationDescription desc;
+      desc.m_uiStructSize = sizeof(WUInt32);
       desc.m_uiTotalSize = uiNumItems * desc.m_uiStructSize;
-      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
       m_DataGPU.m_hClusterItemBuffer = pDevice->CreateBuffer(desc);
     }
@@ -822,10 +822,10 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
 
   pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hClusterDataBuffer, pData->m_ClusterData.ToByteArray(), 0);
 
-  ezClusteredDataConstants constants = {};
+  WClusteredDataConstants constants = {};
   constants.DepthSliceScale = s_fDepthSliceScale;
   constants.DepthSliceBias = s_fDepthSliceBias;
-  constants.InvTileSize = ezVec2(NUM_CLUSTERS_X / view.GetViewport().width, NUM_CLUSTERS_Y / view.GetViewport().height);
+  constants.InvTileSize = WVec2(NUM_CLUSTERS_X / view.GetViewport().width, NUM_CLUSTERS_Y / view.GetViewport().height);
   constants.NumLights = pData->m_LightData.GetCount();
   constants.NumDecals = pData->m_DecalData.GetCount();
 
@@ -840,49 +840,49 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
   constants.FogInvSkyDistance = pData->m_fFogInvSkyDistance;
   constants.FogStartDistance = pData->m_fFogStartDistance;
 
-  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hConstantBuffer, ezMakeByteArrayPtr(&constants, 1), 0);
+  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hConstantBuffer, WMakeByteArrayPtr(&constants, 1), 0);
 }
 
-void ezClusteredDataExtractor::AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData)
+void WClusteredDataExtractor::AddGpuData(const WView& view, WExtractedRenderData& ref_extractedRenderData)
 {
-  const ezEnum<ezCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
+  const WEnum<WCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
 
   // Shadow atlas texture
-  if (cameraUsageHint != ezCameraUsageHint::Shadow)
+  if (cameraUsageHint != WCameraUsageHint::Shadow)
   {
-    ref_extractedRenderData.AddViewDependency(ezShadowPool::GetShadowAtlasTexture(), ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::Auto);
-    ref_extractedRenderData.AddTextureBinding(ezTempHashedString("ShadowAtlasTexture"), ezShadowPool::GetShadowAtlasTexture());
+    ref_extractedRenderData.AddViewDependency(WShadowPool::GetShadowAtlasTexture(), WGALResourceState::DepthStencilRead, WGALShaderStageFlags::Auto);
+    ref_extractedRenderData.AddTextureBinding(WTempHashedString("ShadowAtlasTexture"), WShadowPool::GetShadowAtlasTexture());
   }
 
   // Decal runtime atlas texture
-  ref_extractedRenderData.AddViewDependency(ezDecalManager::GetRuntimeDecalAtlasTexture(), ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
-  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("DecalRuntimeAtlasTexture"), ezDecalManager::GetRuntimeDecalAtlasTexture());
+  ref_extractedRenderData.AddViewDependency(WDecalManager::GetRuntimeDecalAtlasTexture(), WGALResourceState::ShaderResource, WGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(WTempHashedString("DecalRuntimeAtlasTexture"), WDecalManager::GetRuntimeDecalAtlasTexture());
 
   // Reflection specular and sky irradiance textures
-  const ezGALTextureHandle hReflSpec = ezReflectionPool::GetReflectionSpecularTexture(view.GetWorld()->GetIndex(), cameraUsageHint);
-  ref_extractedRenderData.AddViewDependency(hReflSpec, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
-  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("ReflectionSpecularTexture"), hReflSpec);
+  const WGALTextureHandle hReflSpec = WReflectionPool::GetReflectionSpecularTexture(view.GetWorld()->GetIndex(), cameraUsageHint);
+  ref_extractedRenderData.AddViewDependency(hReflSpec, WGALResourceState::ShaderResource, WGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(WTempHashedString("ReflectionSpecularTexture"), hReflSpec);
 
-  const ezGALTextureHandle hSkyIrradiance = ezReflectionPool::GetSkyIrradianceTexture();
-  ref_extractedRenderData.AddViewDependency(hSkyIrradiance, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
-  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("SkyIrradianceTexture"), hSkyIrradiance);
+  const WGALTextureHandle hSkyIrradiance = WReflectionPool::GetSkyIrradianceTexture();
+  ref_extractedRenderData.AddViewDependency(hSkyIrradiance, WGALResourceState::ShaderResource, WGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(WTempHashedString("SkyIrradianceTexture"), hSkyIrradiance);
 
   ref_extractedRenderData.AddBufferBinding("perLightDataBuffer", m_DataGPU.m_hLightDataBuffer);
   ref_extractedRenderData.AddBufferBinding("perDecalDataBuffer", m_DataGPU.m_hDecalDataBuffer);
-  ref_extractedRenderData.AddBufferBinding("perDecalAtlasDataBuffer", ezDecalManager::GetDecalAtlasDataBufferForRendering());
+  ref_extractedRenderData.AddBufferBinding("perDecalAtlasDataBuffer", WDecalManager::GetDecalAtlasDataBufferForRendering());
   ref_extractedRenderData.AddBufferBinding("perPerReflectionProbeDataBuffer", m_DataGPU.m_hReflectionProbeDataBuffer);
   ref_extractedRenderData.AddBufferBinding("perClusterDataBuffer", m_DataGPU.m_hClusterDataBuffer);
   ref_extractedRenderData.AddBufferBinding("clusterItemBuffer", m_DataGPU.m_hClusterItemBuffer);
-  ref_extractedRenderData.AddBufferBinding("shadowDataBuffer", ezShadowPool::GetShadowDataBuffer());
+  ref_extractedRenderData.AddBufferBinding("shadowDataBuffer", WShadowPool::GetShadowDataBuffer());
   ref_extractedRenderData.AddSamplerBinding("ShadowSampler", m_DataGPU.m_hShadowSampler);
-  ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_DataGPU.m_hDecalAtlas, ezResourceAcquireMode::AllowLoadingFallback);
+  WResourceLock<WDecalAtlasResource> pDecalAtlas(m_DataGPU.m_hDecalAtlas, WResourceAcquireMode::AllowLoadingFallback);
   ref_extractedRenderData.AddTextureBinding("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
   ref_extractedRenderData.AddTextureBinding("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
   ref_extractedRenderData.AddTextureBinding("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
   ref_extractedRenderData.AddSamplerBinding("DecalAtlasSampler", m_DataGPU.m_hDecalAtlasSampler);
-  ref_extractedRenderData.AddBufferBinding("ezClusteredDataConstants", m_DataGPU.m_hConstantBuffer);
+  ref_extractedRenderData.AddBufferBinding("WClusteredDataConstants", m_DataGPU.m_hConstantBuffer);
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataExtractor);
+W_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataExtractor);

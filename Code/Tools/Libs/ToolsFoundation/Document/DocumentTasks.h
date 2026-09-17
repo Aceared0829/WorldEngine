@@ -6,29 +6,29 @@
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class ezSaveDocumentTask final : public ezTask
+class WSaveDocumentTask final : public WTask
 {
 public:
-  ezSaveDocumentTask();
-  ~ezSaveDocumentTask();
+  WSaveDocumentTask();
+  ~WSaveDocumentTask();
 
-  ezDeferredFileWriter file;
-  ezAbstractObjectGraph headerGraph;
-  ezAbstractObjectGraph objectGraph;
-  ezAbstractObjectGraph typesGraph;
-  ezDocument* m_document = nullptr;
+  WDeferredFileWriter file;
+  WAbstractObjectGraph headerGraph;
+  WAbstractObjectGraph objectGraph;
+  WAbstractObjectGraph typesGraph;
+  WDocument* m_document = nullptr;
 
   virtual void Execute() override;
 };
 
-class ezAfterSaveDocumentTask final : public ezTask
+class WAfterSaveDocumentTask final : public WTask
 {
 public:
-  ezAfterSaveDocumentTask();
-  ~ezAfterSaveDocumentTask();
+  WAfterSaveDocumentTask();
+  ~WAfterSaveDocumentTask();
 
-  ezDocument* m_document = nullptr;
-  ezDocument::AfterSaveCallback m_callback;
+  WDocument* m_document = nullptr;
+  WDocument::AfterSaveCallback m_callback;
 
   virtual void Execute() override;
 };

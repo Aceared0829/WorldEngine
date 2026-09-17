@@ -5,19 +5,19 @@
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Strings/String.h>
 
-static constexpr ezUInt32 ezAiNumGroundTypes = 32;
+static constexpr WUInt32 WAiNumGroundTypes = 32;
 
-struct EZ_AIPLUGIN_DLL ezAiNavmeshConfig
+struct W_AIPLUGIN_DLL WAiNavmeshConfig
 {
-  ezString m_sName;
+  WString m_sName;
 
-  ezUInt16 m_uiNumSectorsX = 64;
-  ezUInt16 m_uiNumSectorsY = 64;
+  WUInt16 m_uiNumSectorsX = 64;
+  WUInt16 m_uiNumSectorsY = 64;
 
   float m_fSectorSize = 32.0f;
 
   /// The physics collision layer to use for building this navmesh (retrieving the physics geometry).
-  ezUInt8 m_uiCollisionLayer = 0;
+  WUInt8 m_uiCollisionLayer = 0;
 
   float m_fCellSize = 0.2f;
   float m_fCellHeight = 0.2f;
@@ -26,7 +26,7 @@ struct EZ_AIPLUGIN_DLL ezAiNavmeshConfig
   float m_fAgentHeight = 1.5f;
   float m_fAgentStepHeight = 0.6f;
 
-  ezAngle m_WalkableSlope = ezAngle::MakeFromDegree(45);
+  WAngle m_WalkableSlope = WAngle::MakeFromDegree(45);
 
   float m_fMaxEdgeLength = 4.0f;
   float m_fMaxSimplificationError = 1.3f;
@@ -36,36 +36,36 @@ struct EZ_AIPLUGIN_DLL ezAiNavmeshConfig
   float m_fDetailMeshSampleErrorFactor = 1.0f;
 };
 
-struct EZ_AIPLUGIN_DLL ezAiPathSearchConfig
+struct W_AIPLUGIN_DLL WAiPathSearchConfig
 {
-  ezAiPathSearchConfig();
+  WAiPathSearchConfig();
 
-  ezString m_sName;
-  float m_fGroundTypeCost[ezAiNumGroundTypes];   // = 1.0f
-  bool m_bGroundTypeAllowed[ezAiNumGroundTypes]; // = true
+  WString m_sName;
+  float m_fGroundTypeCost[WAiNumGroundTypes];   // = 1.0f
+  bool m_bGroundTypeAllowed[WAiNumGroundTypes]; // = true
 };
 
-struct EZ_AIPLUGIN_DLL ezAiNavigationConfig
+struct W_AIPLUGIN_DLL WAiNavigationConfig
 {
-  ezAiNavigationConfig();
+  WAiNavigationConfig();
 
   struct GroundType
   {
     bool m_bUsed = false;
-    ezString m_sName;
-    ezColorGammaUB m_Color;
+    WString m_sName;
+    WColorGammaUB m_Color;
   };
 
-  GroundType m_GroundTypes[ezAiNumGroundTypes];
+  GroundType m_GroundTypes[WAiNumGroundTypes];
 
-  ezDynamicArray<ezAiPathSearchConfig> m_PathSearchConfigs;
-  ezDynamicArray<ezAiNavmeshConfig> m_NavmeshConfigs;
+  WDynamicArray<WAiPathSearchConfig> m_PathSearchConfigs;
+  WDynamicArray<WAiNavmeshConfig> m_NavmeshConfigs;
 
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/AiPluginConfig.cfg"_ezsv;
+  static constexpr const WStringView s_sConfigFile = ":project/RuntimeConfigs/AiPluginConfig.cfg"_wsv;
 
-  ezResult Save(ezStringView sFile = s_sConfigFile) const;
-  ezResult Load(ezStringView sFile = s_sConfigFile);
+  WResult Save(WStringView sFile = s_sConfigFile) const;
+  WResult Load(WStringView sFile = s_sConfigFile);
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
 };

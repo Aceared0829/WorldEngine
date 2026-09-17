@@ -4,19 +4,19 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ads/DockWidget.h>
 
-class ezDocument;
+class WDocument;
 
-class EZ_GUIFOUNDATION_DLL ezQtDocumentPanel : public ads::CDockWidget
+class W_GUIFOUNDATION_DLL WQtDocumentPanel : public ads::CDockWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezDocument* pDocument);
-  ~ezQtDocumentPanel();
+  WQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* pParent, WDocument* pDocument);
+  ~WQtDocumentPanel();
 
   virtual bool event(QEvent* pEvent) override;
 
 private:
-  ezDocument* m_pDocument = nullptr;
+  WDocument* m_pDocument = nullptr;
 };

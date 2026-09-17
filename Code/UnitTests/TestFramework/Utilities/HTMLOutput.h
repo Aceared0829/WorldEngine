@@ -6,20 +6,20 @@
 #include <iostream>
 #include <sstream>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 #  include <shellapi.h>
 #endif
 
-struct ezOutputToHTML
+struct WOutputToHTML
 {
   static std::ofstream htmlFile;
 
-  static void OutputToHTML(ezTestOutput::Enum type, const char* szMsg)
+  static void OutputToHTML(WTestOutput::Enum type, const char* szMsg)
   {
-    if (type != ezTestOutput::StartOutput && !htmlFile.is_open())
+    if (type != WTestOutput::StartOutput && !htmlFile.is_open())
       return;
 
-    static ezInt32 iIndentation = 0;
+    static WInt32 iIndentation = 0;
     static bool bError = false;
     static bool bDetails = false;
     static std::string sSubTest;
@@ -38,7 +38,7 @@ struct ezOutputToHTML
 
     switch (type)
     {
-      case ezTestOutput::StartOutput:
+      case WTestOutput::StartOutput:
       {
         iIndentation = 0;
         bError = false;
@@ -46,10 +46,10 @@ struct ezOutputToHTML
         sSubTest.clear();
         sDuration.clear();
 
-        ezTestFramework::GetInstance()->CreateOutputFolder();
+        WTestFramework::GetInstance()->CreateOutputFolder();
 
-        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
-        const char* szTestName = ezTestFramework::GetInstance()->GetTestName();
+        std::string sOutputFile = std::string(WTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
+        const char* szTestName = WTestFramework::GetInstance()->GetTestName();
 
         const char* szStyle = "body { margin: 0; padding: 20px; font-size: 12px; font-family: Arial, Sans-Serif; background-color: #fff; "
                               "text-align: center; }"
@@ -82,7 +82,7 @@ struct ezOutputToHTML
         }
       }
       break;
-      case ezTestOutput::BeginBlock:
+      case WTestOutput::BeginBlock:
         iIndentation++;
 
         if (iIndentation == 1)
@@ -103,7 +103,7 @@ struct ezOutputToHTML
         }
         break;
 
-      case ezTestOutput::EndBlock:
+      case WTestOutput::EndBlock:
         if (iIndentation == 1)
         {
           // Test end
@@ -135,31 +135,31 @@ struct ezOutputToHTML
         iIndentation--;
         break;
 
-      case ezTestOutput::Duration:
+      case WTestOutput::Duration:
         sDuration = szMsg;
         break;
 
-      case ezTestOutput::Error:
+      case WTestOutput::Error:
         bError = true;
         bDetails = true;
         details << "<p class=\"error\">" << szMsg << "</p>";
         htmlFile.flush();
         break;
 
-      case ezTestOutput::Warning:
-      case ezTestOutput::Message:
-      case ezTestOutput::ImportantInfo:
+      case WTestOutput::Warning:
+      case WTestOutput::Message:
+      case WTestOutput::ImportantInfo:
         bDetails = true;
 
-      case ezTestOutput::Details:
+      case WTestOutput::Details:
         details << szMsg << "<br/>";
         break;
 
-      case ezTestOutput::ImageDiffFile:
+      case WTestOutput::ImageDiffFile:
         details << "<a href=\"" << szMsg << "\" target=\"_blank\">View Image Comparison Result</a><br/>";
         break;
 
-      case ezTestOutput::Success:
+      case WTestOutput::Success:
         // iIndentation 1 and 2 are test and sub-test level and are handled explicitly.
         // Anything above is custom success message within a test that we want to log directly.
         if (iIndentation > 2)
@@ -168,13 +168,13 @@ struct ezOutputToHTML
         }
         break;
 
-      case ezTestOutput::FinalResult:
+      case WTestOutput::FinalResult:
       {
         htmlFile << "</table>\n<h2>" << szMsg << "</h2>";
         htmlFile << "</div>\n</body>\n</html>";
         htmlFile.close();
 
-        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
+        std::string sOutputFile = std::string(WTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
       }
       break;
       default:
@@ -183,4 +183,4 @@ struct ezOutputToHTML
   }
 };
 
-std::ofstream ezOutputToHTML::htmlFile;
+std::ofstream WOutputToHTML::htmlFile;

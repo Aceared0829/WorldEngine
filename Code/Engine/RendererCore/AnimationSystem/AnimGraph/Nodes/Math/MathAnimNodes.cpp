@@ -6,80 +6,80 @@
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/Math/MathAnimNodes.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathExpressionAnimNode, 1, ezRTTIDefaultAllocator<ezMathExpressionAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMathExpressionAnimNode, 1, WRTTIDefaultAllocator<WMathExpressionAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Expression", GetExpression, SetExpression)->AddAttributes(new ezDefaultValueAttribute("a*a + (b-c) / abs(d)")),
-    EZ_MEMBER_PROPERTY("a", m_ValueAPin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("b", m_ValueBPin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("c", m_ValueCPin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("d", m_ValueDPin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("Result", m_ResultPin)->AddAttributes(new ezHiddenAttribute),
+    W_ACCESSOR_PROPERTY("Expression", GetExpression, SetExpression)->AddAttributes(new WDefaultValueAttribute("a*a + (b-c) / abs(d)")),
+    W_MEMBER_PROPERTY("a", m_ValueAPin)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("b", m_ValueBPin)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("c", m_ValueCPin)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("d", m_ValueDPin)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("Result", m_ResultPin)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
-    new ezTitleAttribute("= {Expression}"),
+    new WCategoryAttribute("Math"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Lime)),
+    new WTitleAttribute("= {Expression}"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMathExpressionAnimNode::ezMathExpressionAnimNode() = default;
-ezMathExpressionAnimNode::~ezMathExpressionAnimNode() = default;
+WMathExpressionAnimNode::WMathExpressionAnimNode() = default;
+WMathExpressionAnimNode::~WMathExpressionAnimNode() = default;
 
-void ezMathExpressionAnimNode::SetExpression(ezString sExpr)
+void WMathExpressionAnimNode::SetExpression(WString sExpr)
 {
   m_sExpression = sExpr;
 }
 
-ezString ezMathExpressionAnimNode::GetExpression() const
+WString WMathExpressionAnimNode::GetExpression() const
 {
   return m_sExpression;
 }
 
-ezResult ezMathExpressionAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WMathExpressionAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sExpression;
-  EZ_SUCCEED_OR_RETURN(m_ValueAPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueBPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueCPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueDPin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ResultPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueAPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueBPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueCPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueDPin.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_ResultPin.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WMathExpressionAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sExpression;
-  EZ_SUCCEED_OR_RETURN(m_ValueAPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueBPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueCPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ValueDPin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ResultPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueAPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueBPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueCPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ValueDPin.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_ResultPin.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-static ezHashedString s_sA = ezMakeHashedString("a");
-static ezHashedString s_sB = ezMakeHashedString("b");
-static ezHashedString s_sC = ezMakeHashedString("c");
-static ezHashedString s_sD = ezMakeHashedString("d");
+static WHashedString s_sA = WMakeHashedString("a");
+static WHashedString s_sB = WMakeHashedString("b");
+static WHashedString s_sC = WMakeHashedString("c");
+static WHashedString s_sD = WMakeHashedString("d");
 
-void ezMathExpressionAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WMathExpressionAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
@@ -94,7 +94,7 @@ void ezMathExpressionAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     return;
   }
 
-  ezMathExpression::Input inputs[] =
+  WMathExpression::Input inputs[] =
     {
       {s_sA, static_cast<float>(m_ValueAPin.GetNumber(ref_graph))},
       {s_sB, static_cast<float>(m_ValueBPin.GetNumber(ref_graph))},
@@ -106,7 +106,7 @@ void ezMathExpressionAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
   m_ResultPin.SetNumber(ref_graph, result);
 }
 
-bool ezMathExpressionAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WMathExpressionAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -117,71 +117,71 @@ bool ezMathExpressionAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocator<ezCompareNumberAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCompareNumberAnimNode, 1, WRTTIDefaultAllocator<WCompareNumberAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue),
-    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
+    W_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue),
+    W_ENUM_MEMBER_PROPERTY("Comparison", WComparisonOperator, m_Comparison),
 
-    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InNumber", m_InNumber)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InReference", m_InReference)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("InNumber", m_InNumber)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("InReference", m_InReference)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("Compare: Number {Comparison} {ReferenceValue}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("Compare: Number {Comparison} {ReferenceValue}"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Lime)),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WCompareNumberAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_fReferenceValue;
   stream << m_Comparison;
 
-  EZ_SUCCEED_OR_RETURN(m_InNumber.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InReference.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InNumber.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InReference.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WCompareNumberAnimNode::DeserializeNode(WStreamReader& stream)
 {
   auto version = stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_fReferenceValue;
   stream >> m_Comparison;
 
-  EZ_SUCCEED_OR_RETURN(m_InNumber.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InReference.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InNumber.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InReference.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
 
   if (version >= 2)
   {
-    EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
+    W_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezCompareNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WCompareNumberAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
-  const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(ref_graph), m_InReference.GetNumber(ref_graph, m_fReferenceValue));
+  const bool bIsTrue = WComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(ref_graph), m_InReference.GetNumber(ref_graph, m_fReferenceValue));
 
   m_OutIsTrue.SetBool(ref_graph, bIsTrue);
   m_OutIsFalse.SetBool(ref_graph, !bIsTrue);
@@ -193,60 +193,60 @@ void ezCompareNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraph
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoolToNumberAnimNode, 1, ezRTTIDefaultAllocator<ezBoolToNumberAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoolToNumberAnimNode, 1, WRTTIDefaultAllocator<WBoolToNumberAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("FalseValue", m_fFalseValue)->AddAttributes(new ezDefaultValueAttribute(0.0)),
-    EZ_MEMBER_PROPERTY("TrueValue", m_fTrueValue)->AddAttributes(new ezDefaultValueAttribute(1.0)),
-    EZ_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutNumber", m_OutNumber)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("FalseValue", m_fFalseValue)->AddAttributes(new WDefaultValueAttribute(0.0)),
+    W_MEMBER_PROPERTY("TrueValue", m_fTrueValue)->AddAttributes(new WDefaultValueAttribute(1.0)),
+    W_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutNumber", m_OutNumber)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("Bool To Number"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("Bool To Number"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoolToNumberAnimNode::ezBoolToNumberAnimNode() = default;
-ezBoolToNumberAnimNode::~ezBoolToNumberAnimNode() = default;
+WBoolToNumberAnimNode::WBoolToNumberAnimNode() = default;
+WBoolToNumberAnimNode::~WBoolToNumberAnimNode() = default;
 
-ezResult ezBoolToNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WBoolToNumberAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_fFalseValue;
   stream << m_fTrueValue;
 
-  EZ_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutNumber.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutNumber.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezBoolToNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WBoolToNumberAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_fFalseValue;
   stream >> m_fTrueValue;
 
-  EZ_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutNumber.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutNumber.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezBoolToNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WBoolToNumberAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   m_OutNumber.SetNumber(ref_graph, m_InValue.GetBool(ref_graph) ? m_fTrueValue : m_fFalseValue);
 }
@@ -257,66 +257,66 @@ void ezBoolToNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphI
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoolToTriggerAnimNode, 1, ezRTTIDefaultAllocator<ezBoolToTriggerAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WBoolToTriggerAnimNode, 1, WRTTIDefaultAllocator<WBoolToTriggerAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute),
+    W_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new WHiddenAttribute),
+    W_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new WHiddenAttribute),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("Bool To Event"),
+    new WCategoryAttribute("Logic"),
+    new WTitleAttribute("Bool To Event"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBoolToTriggerAnimNode::ezBoolToTriggerAnimNode() = default;
-ezBoolToTriggerAnimNode::~ezBoolToTriggerAnimNode() = default;
+WBoolToTriggerAnimNode::WBoolToTriggerAnimNode() = default;
+WBoolToTriggerAnimNode::~WBoolToTriggerAnimNode() = default;
 
-ezResult ezBoolToTriggerAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WBoolToTriggerAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezBoolToTriggerAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WBoolToTriggerAnimNode::DeserializeNode(WStreamReader& stream)
 {
   stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-bool ezBoolToTriggerAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WBoolToTriggerAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
-void ezBoolToTriggerAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WBoolToTriggerAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   const bool bIsTrueNow = m_InValue.GetBool(ref_graph);
-  const ezInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
+  const WInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
 
   // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
   if (pInstance->m_iIsTrue != iIsTrueNow)
@@ -334,4 +334,4 @@ void ezBoolToTriggerAnimNode::Step(ezAnimController& ref_controller, ezAnimGraph
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Math_MathAnimNodes);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Math_MathAnimNodes);

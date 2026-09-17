@@ -3,10 +3,10 @@
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 
-EZ_IMPLEMENT_SINGLETON(ezVariantTypeRegistry);
+W_IMPLEMENT_SINGLETON(WVariantTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, VariantTypeRegistry)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, VariantTypeRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Reflection"
@@ -14,44 +14,44 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, VariantTypeRegistry)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezVariantTypeRegistry);
+    W_DEFAULT_NEW(WVariantTypeRegistry);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezVariantTypeRegistry * pDummy = ezVariantTypeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WVariantTypeRegistry * pDummy = WVariantTypeRegistry::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezVariantTypeRegistry::ezVariantTypeRegistry()
+WVariantTypeRegistry::WVariantTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
+  WPlugin::Events().AddEventHandler(WMakeDelegate(&WVariantTypeRegistry::PluginEventHandler, this));
 
   UpdateTypes();
 }
 
-ezVariantTypeRegistry::~ezVariantTypeRegistry()
+WVariantTypeRegistry::~WVariantTypeRegistry()
 {
-  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezVariantTypeRegistry::PluginEventHandler, this));
+  WPlugin::Events().RemoveEventHandler(WMakeDelegate(&WVariantTypeRegistry::PluginEventHandler, this));
 }
 
-const ezVariantTypeInfo* ezVariantTypeRegistry::FindVariantTypeInfo(const ezRTTI* pType) const
+const WVariantTypeInfo* WVariantTypeRegistry::FindVariantTypeInfo(const WRTTI* pType) const
 {
-  const ezVariantTypeInfo* pTypeInfo = nullptr;
+  const WVariantTypeInfo* pTypeInfo = nullptr;
   m_TypeInfos.TryGetValue(pType, pTypeInfo);
   return pTypeInfo;
 }
 
-void ezVariantTypeRegistry::PluginEventHandler(const ezPluginEvent& EventData)
+void WVariantTypeRegistry::PluginEventHandler(const WPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPluginEvent::AfterLoadingBeforeInit:
-    case ezPluginEvent::AfterUnloading:
+    case WPluginEvent::AfterLoadingBeforeInit:
+    case WPluginEvent::AfterUnloading:
       UpdateTypes();
       break;
     default:
@@ -59,14 +59,14 @@ void ezVariantTypeRegistry::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-void ezVariantTypeRegistry::UpdateTypes()
+void WVariantTypeRegistry::UpdateTypes()
 {
   m_TypeInfos.Clear();
-  ezVariantTypeInfo* pInstance = ezVariantTypeInfo::GetFirstInstance();
+  WVariantTypeInfo* pInstance = WVariantTypeInfo::GetFirstInstance();
 
   while (pInstance)
   {
-    EZ_ASSERT_DEV(pInstance->GetType()->GetAllocator()->CanAllocate(), "Custom type '{0}' needs to be allocatable.", pInstance->GetType()->GetTypeName());
+    W_ASSERT_DEV(pInstance->GetType()->GetAllocator()->CanAllocate(), "Custom type '{0}' needs to be allocatable.", pInstance->GetType()->GetTypeName());
 
     m_TypeInfos.Insert(pInstance->GetType(), pInstance);
     pInstance = pInstance->GetNextInstance();
@@ -75,9 +75,9 @@ void ezVariantTypeRegistry::UpdateTypes()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezVariantTypeInfo);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WVariantTypeInfo);
 
-ezVariantTypeInfo::ezVariantTypeInfo() = default;
+WVariantTypeInfo::WVariantTypeInfo() = default;
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VariantTypeRegistry);
+W_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VariantTypeRegistry);

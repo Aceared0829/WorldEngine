@@ -6,9 +6,9 @@
 ///
 /// These functions generate 64-bit sorting keys used to order render data for optimal rendering.
 /// Different sorting strategies are used for different render passes (opaque vs transparent).
-struct EZ_RENDERERCORE_DLL ezRenderSortingFunctions
+struct W_RENDERERCORE_DLL WRenderSortingFunctions
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -20,30 +20,30 @@ struct EZ_RENDERERCORE_DLL ezRenderSortingFunctions
     Default = ByRenderDataThenFrontToBack
   };
 
-  using Func = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+  using Func = WUInt64 (*)(const WRenderData*, const WCamera&);
 
   /// Sorts by render data type first, then by render data sorting key, then by depth front-to-back.
   ///
   /// Used for opaque geometry to minimize state changes and benefit from early-z rejection.
-  static ezUInt64 ByRenderDataThenFrontToBackFunc(const ezRenderData* pRenderData, const ezCamera& camera);
+  static WUInt64 ByRenderDataThenFrontToBackFunc(const WRenderData* pRenderData, const WCamera& camera);
 
   /// Sorts by depth back-to-front, then by render data type, then by render data sorting key.
   ///
   /// Used for transparent geometry to ensure correct blending order.
-  static ezUInt64 BackToFrontThenByRenderDataFunc(const ezRenderData* pRenderData, const ezCamera& camera);
+  static WUInt64 BackToFrontThenByRenderDataFunc(const WRenderData* pRenderData, const WCamera& camera);
 
   /// Sorts only by the render data's depth offset back-to-front, meaning render data with a higher depth offset is rendered first.
   ///
   /// This can be used for special cases like full-screen effects where the render order needs to be fully deterministic.
-  static ezUInt64 ByDepthOffsetOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
+  static WUInt64 ByDepthOffsetOnlyFunc(const WRenderData* pRenderData, const WCamera& camera);
 
   /// Sorts only by the render data's sorting key.
   ///
   /// Used for special cases like lights where the sorting key is already carefully constructed to achieve the desired order, and distance-based sorting is not needed.
-  static ezUInt64 BySortingKeyOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
+  static WUInt64 BySortingKeyOnlyFunc(const WRenderData* pRenderData, const WCamera& camera);
 
   /// Returns the sorting function corresponding to the given enum value.
   static Func GetFunction(Enum sortingFunction);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderSortingFunctions);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WRenderSortingFunctions);

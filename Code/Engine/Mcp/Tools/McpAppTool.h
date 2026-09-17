@@ -2,7 +2,7 @@
 
 #include <Mcp/McpTool.h>
 
-class ezMcpJsonWriter;
+class WMcpJsonWriter;
 
 /// Tools that act on the process itself, rather than on whatever it has loaded.
 ///
@@ -12,27 +12,27 @@ class ezMcpJsonWriter;
 /// **Abstract on purpose.** Almost all of this is process level rather than editor or game level - the
 /// process id, the executable path, the command line, the bound port - so the editor and a running game
 /// answer the same four questions and should not make an agent learn two names for each. What differs
-/// is host specific and reachable through the virtuals below. ezMcpToolRegistry only instantiates
-/// providers whose RTTI can allocate, so declaring this one with ezRTTINoAllocator is what keeps the
+/// is host specific and reachable through the virtuals below. WMcpToolRegistry only instantiates
+/// providers whose RTTI can allocate, so declaring this one with WRTTINoAllocator is what keeps the
 /// base from registering its tool names alongside the concrete host's.
-class EZ_MCP_DLL ezMcpAppTool : public ezMcpToolProvider
+class W_MCP_DLL WMcpAppTool : public WMcpToolProvider
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMcpAppTool, ezMcpToolProvider);
+  W_ADD_DYNAMIC_REFLECTION(WMcpAppTool, WMcpToolProvider);
 
 public:
-  virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const override;
-  virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
+  virtual void GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const override;
+  virtual void Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result) override;
 
 protected:
   /// What this process is, e.g. "editor" or "game". Used in the tool descriptions, so that an
   /// agent talking to two servers at once can tell which one it is addressing.
-  virtual ezStringView GetHostNoun() const = 0;
+  virtual WStringView GetHostNoun() const = 0;
 
   /// How to start another process like this one, appended to app_quit's description.
   ///
   /// Everything an agent needs has to be in the tool list - it has no repo access and no prior session -
   /// so this is where 'which executable, which arguments' gets said.
-  virtual ezStringView GetRelaunchHint() const = 0;
+  virtual WStringView GetRelaunchHint() const = 0;
 
   /// When the binary serving MCP was compiled, reported by app_info as 'buildTimestamp'.
   ///
@@ -43,27 +43,27 @@ protected:
   /// The default is when the Mcp library itself was built. A host whose own plugin changes more often
   /// than the library should override this with its own __DATE__ " " __TIME__ - the tool list comes from
   /// the plugin, so that is the binary whose age actually explains a missing tool.
-  virtual ezStringView GetBuildTimestamp() const;
+  virtual WStringView GetBuildTimestamp() const;
 
   /// Anything host specific that app_info should report, added to the same object.
-  virtual void AddHostInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
+  virtual void AddHostInfo(WMcpJsonWriter& ref_writer) { W_IGNORE_UNUSED(ref_writer); }
 
-  /// Whether quitting is allowed right now. Return EZ_FAILURE to refuse.
+  /// Whether quitting is allowed right now. Return W_FAILURE to refuse.
   ///
   /// A refusal must never be a question to the user: a modal dialog with nobody at the keyboard never
   /// returns, and the process then hangs holding its port. Destructive choices are parameters, which is
   /// what \a bDiscardChanges is.
-  virtual ezResult CanQuit(bool bDiscardChanges)
+  virtual WResult CanQuit(bool bDiscardChanges)
   {
-    EZ_IGNORE_UNUSED(bDiscardChanges);
-    return EZ_SUCCESS;
+    W_IGNORE_UNUSED(bDiscardChanges);
+    return W_SUCCESS;
   }
 
   /// Explains a refusal from CanQuit(). Writes into the result object, after "quitting": false.
-  virtual void AddQuitRefusalInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
+  virtual void AddQuitRefusalInfo(WMcpJsonWriter& ref_writer) { W_IGNORE_UNUSED(ref_writer); }
 
   /// Anything worth reporting about a quit that is going ahead, e.g. what got discarded.
-  virtual void AddQuitInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
+  virtual void AddQuitInfo(WMcpJsonWriter& ref_writer) { W_IGNORE_UNUSED(ref_writer); }
 
   /// Actually shuts the process down.
   ///
@@ -73,8 +73,8 @@ protected:
   virtual void RequestQuit(bool bDiscardChanges) = 0;
 
 private:
-  void ExecutePing(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteQuit(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
-  void ExecuteCommandLineOptions(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
+  void ExecutePing(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteQuit(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result);
+  void ExecuteCommandLineOptions(const WVariantDictionary& arguments, WMcpToolResult& out_result);
 };

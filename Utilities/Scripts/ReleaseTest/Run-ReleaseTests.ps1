@@ -1,4 +1,4 @@
-# Runs the release test suite against a packaged ezEngine SDK and writes a summary.
+# Runs the release test suite against a packaged WorldEngine SDK and writes a summary.
 #
 # This is meant to be run on a normal PC with the downloaded package, not on a build server:
 # it starts the shipped applications, so it needs a GPU, a desktop session and, for the C++ group,
@@ -9,7 +9,7 @@
 # checkout and the full-scene sample sweep, which otherwise only run when asked for).
 #
 # Example:
-#   Run-ReleaseTests.ps1 -SdkDir "D:\ez-test\ezEngine.Release.26.9.0" -OutputDir "D:\ez-test\results-26.9.0"
+#   Run-ReleaseTests.ps1 -SdkDir "D:\W-test\WorldEngine.Release.26.9.0" -OutputDir "D:\W-test\results-26.9.0"
 #   Run-ReleaseTests.ps1 -SdkDir ... -OutputDir ... -EditorSamplesRemote   # only the remote projects
 #
 # The exit code is the number of failed checks.
@@ -67,7 +67,7 @@ $version = "unknown"
 $versionFile = Join-Path $SdkDir "version.txt"
 if (Test-Path $versionFile) { $version = (Get-Content $versionFile -Raw).Trim() }
 
-Write-Host "ezEngine release test"
+Write-Host "WorldEngine release test"
 Write-Host "  SDK:     $SdkDir (version $version)"
 Write-Host "  Binaries: $resolvedBinDir"
 Write-Host "  Output:  $OutputDir"
@@ -224,7 +224,7 @@ function Update-Summary
 	$skipped = @($all | Where-Object { $_.Status -eq "SKIP" })
 
 	$lines = @()
-	$lines += "# ezEngine release test - $version"
+	$lines += "# WorldEngine release test - $version"
 	$lines += ""
 	$lines += "- SDK: ``$SdkDir``"
 	$lines += "- Binaries: ``$(Split-Path $resolvedBinDir -Leaf)``"

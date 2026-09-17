@@ -7,7 +7,7 @@
 #include "ConstantBufferMacros.h"
 #include "Platforms.h"
 
-CONSTANT_BUFFER(ezSimplifiedDataConstants, 3)
+CONSTANT_BUFFER(WSimplifiedDataConstants, 3)
 {
   UINT1(SkyIrradianceIndex);
 };

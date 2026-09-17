@@ -8,16 +8,16 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_ShortcutEditorDlg.h>
 
-struct ezActionDescriptor;
+struct WActionDescriptor;
 
-class EZ_GUIFOUNDATION_DLL ezQtShortcutEditorDlg : public ezQtDialog, public Ui_ShortcutEditor
+class W_GUIFOUNDATION_DLL WQtShortcutEditorDlg : public WQtDialog, public Ui_ShortcutEditor
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtShortcutEditorDlg(QWidget* pParent);
-  ~ezQtShortcutEditorDlg();
+  WQtShortcutEditorDlg(QWidget* pParent);
+  ~WQtShortcutEditorDlg();
 
   void UpdateTable();
 
@@ -34,6 +34,6 @@ private Q_SLOTS:
   void on_Search_textChanged(const QString& sText);
 
 private:
-  ezInt32 m_iSelectedAction;
-  ezHybridArray<ezActionDescriptor*, 32> m_ActionDescs;
+  WInt32 m_iSelectedAction;
+  WHybridArray<WActionDescriptor*, 32> m_ActionDescs;
 };

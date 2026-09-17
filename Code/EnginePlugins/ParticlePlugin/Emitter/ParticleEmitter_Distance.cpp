@@ -7,43 +7,43 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Distance, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Distance>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitterFactory_Distance, 1, WRTTIDefaultAllocator<WParticleEmitterFactory_Distance>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DistanceThreshold", m_fDistanceThreshold)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
-    EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
-    EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
+    W_MEMBER_PROPERTY("DistanceThreshold", m_fDistanceThreshold)->AddAttributes(new WDefaultValueAttribute(0.1f), new WClampValueAttribute(0.01f, 100.0f)),
+    W_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new WDefaultValueAttribute(1)),
+    W_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
+    W_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Distance, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Distance>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleEmitter_Distance, 1, WRTTIDefaultAllocator<WParticleEmitter_Distance>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_Distance::ezParticleEmitterFactory_Distance() = default;
+WParticleEmitterFactory_Distance::WParticleEmitterFactory_Distance() = default;
 
-const ezRTTI* ezParticleEmitterFactory_Distance::GetEmitterType() const
+const WRTTI* WParticleEmitterFactory_Distance::GetEmitterType() const
 {
-  return ezGetStaticRTTI<ezParticleEmitter_Distance>();
+  return WGetStaticRTTI<WParticleEmitter_Distance>();
 }
 
-void ezParticleEmitterFactory_Distance::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
+void WParticleEmitterFactory_Distance::CopyEmitterProperties(WParticleEmitter* pEmitter0, bool bFirstTime) const
 {
-  ezParticleEmitter_Distance* pEmitter = static_cast<ezParticleEmitter_Distance*>(pEmitter0);
+  WParticleEmitter_Distance* pEmitter = static_cast<WParticleEmitter_Distance*>(pEmitter0);
 
-  pEmitter->m_fDistanceThresholdSQR = ezMath::Square(m_fDistanceThreshold);
+  pEmitter->m_fDistanceThresholdSQR = WMath::Square(m_fDistanceThreshold);
 
-  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_uiSpawnCountMin = (WUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_uiSpawnCountRange = (WUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
 
-  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
+  pEmitter->m_sSpawnCountScaleParameter = WTempHashedString(m_sSpawnCountScaleParameter.GetData());
 }
 
-void ezParticleEmitterFactory_Distance::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void WParticleEmitterFactory_Distance::QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = (m_uiSpawnCountMin + m_uiSpawnCountRange) * 10; // assume that this won't fire more than 10 times per second
@@ -61,9 +61,9 @@ enum class EmitterDistanceVersion
 };
 
 
-void ezParticleEmitterFactory_Distance::Save(ezStreamWriter& inout_stream) const
+void WParticleEmitterFactory_Distance::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)EmitterDistanceVersion::Version_Current;
+  const WUInt8 uiVersion = (int)EmitterDistanceVersion::Version_Current;
   inout_stream << uiVersion;
 
   // Version 1
@@ -73,12 +73,12 @@ void ezParticleEmitterFactory_Distance::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Distance::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleEmitterFactory_Distance::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)EmitterDistanceVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)EmitterDistanceVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_fDistanceThreshold;
   inout_stream >> m_uiSpawnCountMin;
@@ -86,15 +86,15 @@ void ezParticleEmitterFactory_Distance::Load(ezStreamReader& inout_stream, const
   inout_stream >> m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitter_Distance::CreateRequiredStreams() {}
-void ezParticleEmitter_Distance::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) {}
+void WParticleEmitter_Distance::CreateRequiredStreams() {}
+void WParticleEmitter_Distance::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) {}
 
-bool ezParticleEmitter_Distance::IsContinuous() const
+bool WParticleEmitter_Distance::IsContinuous() const
 {
   return true;
 }
 
-void ezParticleEmitter_Distance::OnFinalize()
+void WParticleEmitter_Distance::OnFinalize()
 {
   // do not use the System transform, because then this would not work with local space simulation
   m_vLastSpawnPosition = GetOwnerEffect()->GetTransform().m_vPosition;
@@ -102,18 +102,18 @@ void ezParticleEmitter_Distance::OnFinalize()
 
   if (GetOwnerEffect()->IsSharedEffect())
   {
-    ezLog::Warning("Particle emitters of type 'Distance' do not work for shared particle effect instances.");
+    WLog::Warning("Particle emitters of type 'Distance' do not work for shared particle effect instances.");
   }
 }
 
-ezParticleEmitterState ezParticleEmitter_Distance::IsFinished()
+WParticleEmitterState WParticleEmitter_Distance::IsFinished()
 {
-  return ezParticleEmitterState::Active;
+  return WParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezTime& tDiff)
+WUInt32 WParticleEmitter_Distance::ComputeSpawnCount(const WTime& tDiff)
 {
-  const ezVec3 vCurPos = GetOwnerEffect()->GetTransform().m_vPosition;
+  const WVec3 vCurPos = GetOwnerEffect()->GetTransform().m_vPosition;
 
   if ((m_vLastSpawnPosition - vCurPos).GetLengthSquared() < m_fDistanceThresholdSQR)
     return 0;
@@ -128,18 +128,18 @@ ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezTime& tDiff)
 
   float fSpawnFactor = 1.0f;
 
-  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  const float spawnCountScale = WMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
-  ezUInt32 uiSpawn = m_uiSpawnCountMin;
+  WUInt32 uiSpawn = m_uiSpawnCountMin;
 
   if (m_uiSpawnCountRange > 0)
     uiSpawn += GetRNG().UIntInRange(m_uiSpawnCountRange);
 
-  uiSpawn = static_cast<ezUInt32>((float)uiSpawn * fSpawnFactor);
+  uiSpawn = static_cast<WUInt32>((float)uiSpawn * fSpawnFactor);
 
   return uiSpawn;
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Distance);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Distance);

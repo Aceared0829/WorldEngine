@@ -4,29 +4,29 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezParticleEffectAssetDocument;
-struct ezParticleEffectAssetEvent;
+class WParticleEffectAssetDocument;
+struct WParticleEffectAssetEvent;
 
-class ezParticleActions
+class WParticleActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hPauseEffect;
-  static ezActionDescriptorHandle s_hRestartEffect;
-  static ezActionDescriptorHandle s_hAutoRestart;
-  static ezActionDescriptorHandle s_hSimulationSpeedMenu;
-  static ezActionDescriptorHandle s_hSimulationSpeed[10];
-  static ezActionDescriptorHandle s_hRenderVisualizers;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hPauseEffect;
+  static WActionDescriptorHandle s_hRestartEffect;
+  static WActionDescriptorHandle s_hAutoRestart;
+  static WActionDescriptorHandle s_hSimulationSpeedMenu;
+  static WActionDescriptorHandle s_hSimulationSpeed[10];
+  static WActionDescriptorHandle s_hRenderVisualizers;
 };
 
-class ezParticleAction : public ezButtonAction
+class WParticleAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WParticleAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -38,16 +38,16 @@ public:
     RenderVisualizers,
   };
 
-  ezParticleAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
-  ~ezParticleAction();
+  WParticleAction(const WActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
+  ~WParticleAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void EffectEventHandler(const ezParticleEffectAssetEvent& e);
+  void EffectEventHandler(const WParticleEffectAssetEvent& e);
   void UpdateState();
 
-  ezParticleEffectAssetDocument* m_pEffectDocument;
+  WParticleEffectAssetDocument* m_pEffectDocument;
   ActionType m_Type;
   float m_fSimSpeed;
 };

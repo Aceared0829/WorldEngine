@@ -4,47 +4,47 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-using ezPointLightComponentManager = ezComponentManager<class ezPointLightComponent, ezBlockStorageType::Compact>;
+using WPointLightComponentManager = WComponentManager<class WPointLightComponent, WBlockStorageType::Compact>;
 
 /// The render data object for point lights.
-class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
+class W_RENDERERCORE_DLL WPointLightRenderData : public WLightRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPointLightRenderData, ezLightRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WPointLightRenderData, WLightRenderData);
 
 public:
   float m_fRange;
   float m_fLength;
-  ezQuat m_qGlobalRotation;
+  WQuat m_qGlobalRotation;
 };
 
 /// Adds a dynamic point light to the scene, optionally casting shadows.
 ///
-/// For performance reasons, prefer to use ezSpotLightComponent where possible.
+/// For performance reasons, prefer to use WSpotLightComponent where possible.
 /// Do not use shadows just to limit the light cone, when a spot light could achieve the same.
-class EZ_RENDERERCORE_DLL ezPointLightComponent : public ezLightComponent
+class W_RENDERERCORE_DLL WPointLightComponent : public WLightComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPointLightComponent, ezLightComponent, ezPointLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WPointLightComponent, WLightComponent, WPointLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPointLightComponent
+  // WPointLightComponent
 
 public:
-  ezPointLightComponent();
-  ~ezPointLightComponent();
+  WPointLightComponent();
+  ~WPointLightComponent();
 
   /// Sets the radius of the lightsource. If zero, the radius is automatically determined from the intensity.
   void SetRange(float fRange); // [ property ]
@@ -68,11 +68,11 @@ public:
   // void SetProjectedTextureFile(const char* szFile); // [ property ]
   // const char* GetProjectedTextureFile() const;      // [ property ]
 
-  // void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
-  // const ezTextureCubeResourceHandle& GetProjectedTexture() const;
+  // void SetProjectedTexture(const WTextureCubeResourceHandle& hProjectedTexture);
+  // const WTextureCubeResourceHandle& GetProjectedTexture() const;
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
   float m_fLength = 0.0f;
   float m_fRadius = 0.0f;
@@ -80,22 +80,22 @@ protected:
   float m_fEffectiveRange = 0.0f;
   float m_fShadowFadeOutRange = 0.0f;
 
-  // ezTextureCubeResourceHandle m_hProjectedTexture;
+  // WTextureCubeResourceHandle m_hProjectedTexture;
 };
 
 /// Visualizer attribute for point lights. Also renders a tube (capsule) when Length or Radius is non-zero.
-class EZ_RENDERERCORE_DLL ezPointLightVisualizerAttribute : public ezVisualizerAttribute
+class W_RENDERERCORE_DLL WPointLightVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPointLightVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WPointLightVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezPointLightVisualizerAttribute();
-  ezPointLightVisualizerAttribute(
+  WPointLightVisualizerAttribute();
+  WPointLightVisualizerAttribute(
     const char* szLengthProperty, const char* szRadiusProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
 
-  const ezUntrackedString& GetLengthProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetRangeProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty4; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetLengthProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetRangeProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetIntensityProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty5; }
 };

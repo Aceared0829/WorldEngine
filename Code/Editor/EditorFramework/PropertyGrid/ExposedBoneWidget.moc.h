@@ -7,14 +7,14 @@
 
 class QSlider;
 
-class ezQtExposedBoneWidget : public ezQtStandardPropertyWidget
+class WQtExposedBoneWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtExposedBoneWidget();
+  WQtExposedBoneWidget();
 
-  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void SetSelection(const WArrayPtr<WPropertySelection>& items) override;
 
 private Q_SLOTS:
   void onBeginTemporary();
@@ -23,9 +23,9 @@ private Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
   bool m_bTemporaryCommand = false;
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtDoubleSpinBox* m_pRotWidget[3];
+  WQtDoubleSpinBox* m_pRotWidget[3];
 };

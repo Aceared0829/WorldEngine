@@ -11,52 +11,52 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WPropertyAnimComponent, 3, WComponentMode::Dynamic)
   {
-    EZ_BEGIN_PROPERTIES
+    W_BEGIN_PROPERTIES
     {
-      EZ_RESOURCE_MEMBER_PROPERTY("Animation", m_hPropertyAnim)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation"), new ezRequiredAttribute()),
-      EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
-      EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::MakeFromSeconds(0), ezVariant())),
-      EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
-      EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(60 * 60))),
+      W_RESOURCE_MEMBER_PROPERTY("Animation", m_hPropertyAnim)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Property_Animation"), new WRequiredAttribute()),
+      W_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new WDefaultValueAttribute(true)),
+      W_ENUM_MEMBER_PROPERTY("Mode", WPropertyAnimMode, m_AnimationMode),
+      W_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new WClampValueAttribute(WTime::MakeFromSeconds(0), WVariant())),
+      W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(-10.0f, +10.0f)),
+      W_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new WClampValueAttribute(WTime(), WVariant())),
+      W_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new WClampValueAttribute(WTime(), WVariant()), new WDefaultValueAttribute(WTime::MakeFromSeconds(60 * 60))),
     }
-    EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+    W_END_PROPERTIES;
+    W_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
     }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+    W_END_ATTRIBUTES;
+    W_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
+      W_MESSAGE_HANDLER(WMsgSetPlaying, OnMsgSetPlaying),
     }
-    EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_MESSAGESENDERS
+    W_END_MESSAGEHANDLERS;
+    W_BEGIN_MESSAGESENDERS
     {
-      EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
-      EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
+      W_MESSAGE_SENDER(m_EventTrackMsgSender),
+      W_MESSAGE_SENDER(m_ReachedEndMsgSender),
     }
-    EZ_END_MESSAGESENDERS;
-    EZ_BEGIN_FUNCTIONS
+    W_END_MESSAGESENDERS;
+    W_BEGIN_FUNCTIONS
     {
-      EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")
+      W_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")
     }
-    EZ_END_FUNCTIONS;
+    W_END_FUNCTIONS;
   }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPropertyAnimComponent::ezPropertyAnimComponent()
+WPropertyAnimComponent::WPropertyAnimComponent()
 {
-  m_AnimationRangeHigh = ezTime::MakeFromSeconds(60.0 * 60.0);
+  m_AnimationRangeHigh = WTime::MakeFromSeconds(60.0 * 60.0);
 }
 
-ezPropertyAnimComponent::~ezPropertyAnimComponent() = default;
+WPropertyAnimComponent::~WPropertyAnimComponent() = default;
 
-void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WPropertyAnimComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -75,10 +75,10 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   /// \todo Somehow store the animation state (not necessary for new scenes, but for quicksaves)
 }
 
-void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WPropertyAnimComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_hPropertyAnim;
@@ -100,12 +100,12 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle& hPropertyAnim)
+void WPropertyAnimComponent::SetPropertyAnim(const WPropertyAnimResourceHandle& hPropertyAnim)
 {
   m_hPropertyAnim = hPropertyAnim;
 }
 
-void ezPropertyAnimComponent::PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh)
+void WPropertyAnimComponent::PlayAnimationRange(WTime rangeLow, WTime rangeHigh)
 {
   m_AnimationRangeLow = rangeLow;
   m_AnimationRangeHigh = rangeHigh;
@@ -116,12 +116,12 @@ void ezPropertyAnimComponent::PlayAnimationRange(ezTime rangeLow, ezTime rangeHi
 }
 
 
-void ezPropertyAnimComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
+void WPropertyAnimComponent::OnMsgSetPlaying(WMsgSetPlaying& ref_msg)
 {
   m_bPlaying = ref_msg.m_bPlay;
 }
 
-void ezPropertyAnimComponent::CreatePropertyBindings()
+void WPropertyAnimComponent::CreatePropertyBindings()
 {
   m_ColorBindings.Clear();
   m_ComponentFloatBindings.Clear();
@@ -132,28 +132,28 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   if (!m_hPropertyAnim.IsValid())
     return;
 
-  ezResourceLock<ezPropertyAnimResource> pAnimation(m_hPropertyAnim, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WPropertyAnimResource> pAnimation(m_hPropertyAnim, WResourceAcquireMode::BlockTillLoaded);
 
-  if (!pAnimation || pAnimation.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+  if (!pAnimation || pAnimation.GetAcquireResult() == WResourceAcquireResult::MissingFallback)
     return;
 
   m_pAnimDesc = pAnimation->GetDescriptor();
 
-  for (const ezFloatPropertyAnimEntry& anim : m_pAnimDesc->m_FloatAnimations)
+  for (const WFloatPropertyAnimEntry& anim : m_pAnimDesc->m_FloatAnimations)
   {
-    ezTempHybridArray<ezGameObject*, 8> targets;
+    WTempHybridArray<WGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
-    for (ezGameObject* pTargetObject : targets)
+    for (WGameObject* pTargetObject : targets)
     {
-      // allow to animate properties on the ezGameObject
+      // allow to animate properties on the WGameObject
       if (anim.m_pComponentRtti == nullptr)
       {
-        CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
+        CreateGameObjectBinding(&anim, WGetStaticRTTI<WGameObject>(), pTargetObject, pTargetObject->GetHandle());
       }
       else
       {
-        ezComponent* pComp;
+        WComponent* pComp;
         if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
         {
           CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
@@ -162,14 +162,14 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
     }
   }
 
-  for (const ezColorPropertyAnimEntry& anim : m_pAnimDesc->m_ColorAnimations)
+  for (const WColorPropertyAnimEntry& anim : m_pAnimDesc->m_ColorAnimations)
   {
-    ezTempHybridArray<ezGameObject*, 8> targets;
+    WTempHybridArray<WGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
-    for (ezGameObject* pTargetObject : targets)
+    for (WGameObject* pTargetObject : targets)
     {
-      ezComponent* pComp;
+      WComponent* pComp;
       if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
       {
         CreateColorPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
@@ -178,42 +178,42 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   }
 }
 
-void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
+void WPropertyAnimComponent::CreateGameObjectBinding(const WFloatPropertyAnimEntry* pAnim, const WRTTI* pOwnerRtti, void* pObject, const WGameObjectHandle& hGameObject)
 {
-  if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::RotationZ)
+  if (pAnim->m_Target < WPropertyAnimTarget::Number || pAnim->m_Target > WPropertyAnimTarget::RotationZ)
     return;
 
-  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const WAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
-  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
+  if (pAbstract == nullptr || pAbstract->GetCategory() != WPropertyCategory::Member)
     return;
 
-  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const WAbstractMemberProperty*>(pAbstract);
 
-  const ezRTTI* pPropRtti = pMember->GetSpecificType();
+  const WRTTI* pPropRtti = pMember->GetSpecificType();
 
-  if (pAnim->m_Target == ezPropertyAnimTarget::Number)
+  if (pAnim->m_Target == WPropertyAnimTarget::Number)
   {
     // Game objects only support to animate Position, Rotation,
     // Non-Uniform Scale, the one single-float Uniform scale value
     // and the active flag
-    if (pPropRtti != ezGetStaticRTTI<float>() && pPropRtti != ezGetStaticRTTI<bool>())
+    if (pPropRtti != WGetStaticRTTI<float>() && pPropRtti != WGetStaticRTTI<bool>())
       return;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::RotationX && pAnim->m_Target <= WPropertyAnimTarget::RotationZ)
   {
-    if (pPropRtti != ezGetStaticRTTI<ezQuat>())
+    if (pPropRtti != WGetStaticRTTI<WQuat>())
       return;
   }
   else
   {
-    if (pPropRtti != ezGetStaticRTTI<ezVec2>() && pPropRtti != ezGetStaticRTTI<ezVec3>() && pPropRtti != ezGetStaticRTTI<ezVec4>())
+    if (pPropRtti != WGetStaticRTTI<WVec2>() && pPropRtti != WGetStaticRTTI<WVec3>() && pPropRtti != WGetStaticRTTI<WVec4>())
       return;
   }
 
   GameObjectBinding* binding = nullptr;
-  for (ezUInt32 i = 0; i < m_GoFloatBindings.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_GoFloatBindings.GetCount(); ++i)
   {
     auto& b = m_GoFloatBindings[i];
 
@@ -235,49 +235,49 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
 
   // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
 
-  if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  if (pAnim->m_Target >= WPropertyAnimTarget::VectorX && pAnim->m_Target <= WPropertyAnimTarget::VectorW)
   {
-    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::VectorX] = pAnim;
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)WPropertyAnimTarget::VectorX] = pAnim;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::RotationX && pAnim->m_Target <= WPropertyAnimTarget::RotationZ)
   {
-    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::RotationX] = pAnim;
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)WPropertyAnimTarget::RotationX] = pAnim;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::Number)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::Number)
   {
     binding->m_pAnimation[0] = pAnim;
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
+    W_REPORT_FAILURE("Invalid animation target type '{0}'", WArgEnum(pAnim->m_Target));
   }
 }
 
-void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
+void WPropertyAnimComponent::CreateFloatPropertyBinding(const WFloatPropertyAnimEntry* pAnim, const WRTTI* pOwnerRtti, void* pObject, const WComponentHandle& hComponent)
 {
-  if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
+  if (pAnim->m_Target < WPropertyAnimTarget::Number || pAnim->m_Target > WPropertyAnimTarget::VectorW)
     return;
 
-  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const WAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
-  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
+  if (pAbstract == nullptr || pAbstract->GetCategory() != WPropertyCategory::Member)
     return;
 
-  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const WAbstractMemberProperty*>(pAbstract);
 
-  const ezRTTI* pPropRtti = pMember->GetSpecificType();
+  const WRTTI* pPropRtti = pMember->GetSpecificType();
 
-  if (pAnim->m_Target == ezPropertyAnimTarget::Number)
+  if (pAnim->m_Target == WPropertyAnimTarget::Number)
   {
-    if (pPropRtti != ezGetStaticRTTI<float>() && pPropRtti != ezGetStaticRTTI<double>() && pPropRtti != ezGetStaticRTTI<bool>() && pPropRtti != ezGetStaticRTTI<ezInt64>() && pPropRtti != ezGetStaticRTTI<ezInt32>() && pPropRtti != ezGetStaticRTTI<ezInt16>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt8>() && pPropRtti != ezGetStaticRTTI<ezUInt64>() && pPropRtti != ezGetStaticRTTI<ezUInt32>() && pPropRtti != ezGetStaticRTTI<ezUInt16>() && pPropRtti != ezGetStaticRTTI<ezUInt8>() && pPropRtti != ezGetStaticRTTI<ezAngle>() &&
-        pPropRtti != ezGetStaticRTTI<ezTime>())
+    if (pPropRtti != WGetStaticRTTI<float>() && pPropRtti != WGetStaticRTTI<double>() && pPropRtti != WGetStaticRTTI<bool>() && pPropRtti != WGetStaticRTTI<WInt64>() && pPropRtti != WGetStaticRTTI<WInt32>() && pPropRtti != WGetStaticRTTI<WInt16>() &&
+        pPropRtti != WGetStaticRTTI<WInt8>() && pPropRtti != WGetStaticRTTI<WUInt64>() && pPropRtti != WGetStaticRTTI<WUInt32>() && pPropRtti != WGetStaticRTTI<WUInt16>() && pPropRtti != WGetStaticRTTI<WUInt8>() && pPropRtti != WGetStaticRTTI<WAngle>() &&
+        pPropRtti != WGetStaticRTTI<WTime>())
       return;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::VectorX && pAnim->m_Target <= WPropertyAnimTarget::VectorW)
   {
-    if (pPropRtti != ezGetStaticRTTI<ezVec2>() && pPropRtti != ezGetStaticRTTI<ezVec3>() && pPropRtti != ezGetStaticRTTI<ezVec4>())
+    if (pPropRtti != WGetStaticRTTI<WVec2>() && pPropRtti != WGetStaticRTTI<WVec3>() && pPropRtti != WGetStaticRTTI<WVec4>())
       return;
   }
   else
@@ -287,7 +287,7 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   }
 
   ComponentFloatBinding* binding = nullptr;
-  for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); ++i)
   {
     auto& b = m_ComponentFloatBindings[i];
 
@@ -308,40 +308,40 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   binding->m_pMemberProperty = pMember;
 
   // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
-  if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  if (pAnim->m_Target >= WPropertyAnimTarget::VectorX && pAnim->m_Target <= WPropertyAnimTarget::VectorW)
   {
-    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::VectorX] = pAnim;
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)WPropertyAnimTarget::VectorX] = pAnim;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::RotationX && pAnim->m_Target <= WPropertyAnimTarget::RotationZ)
   {
-    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::RotationX] = pAnim;
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)WPropertyAnimTarget::RotationX] = pAnim;
   }
-  else if (pAnim->m_Target >= ezPropertyAnimTarget::Number)
+  else if (pAnim->m_Target >= WPropertyAnimTarget::Number)
   {
     binding->m_pAnimation[0] = pAnim;
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
+    W_REPORT_FAILURE("Invalid animation target type '{0}'", WArgEnum(pAnim->m_Target));
   }
 }
 
-void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
+void WPropertyAnimComponent::CreateColorPropertyBinding(const WColorPropertyAnimEntry* pAnim, const WRTTI* pOwnerRtti, void* pObject, const WComponentHandle& hComponent)
 {
-  if (pAnim->m_Target != ezPropertyAnimTarget::Color)
+  if (pAnim->m_Target != WPropertyAnimTarget::Color)
     return;
 
-  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const WAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
-  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
+  if (pAbstract == nullptr || pAbstract->GetCategory() != WPropertyCategory::Member)
     return;
 
-  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const WAbstractMemberProperty*>(pAbstract);
 
-  const ezRTTI* pPropRtti = pMember->GetSpecificType();
+  const WRTTI* pPropRtti = pMember->GetSpecificType();
 
-  if (pPropRtti != ezGetStaticRTTI<ezColor>() && pPropRtti != ezGetStaticRTTI<ezColorGammaUB>())
+  if (pPropRtti != WGetStaticRTTI<WColor>() && pPropRtti != WGetStaticRTTI<WColorGammaUB>())
     return;
 
   ColorBinding& binding = m_ColorBindings.ExpandAndGetRef();
@@ -351,21 +351,21 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
   binding.m_pMemberProperty = pMember;
 }
 
-void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
+void WPropertyAnimComponent::ApplyAnimations(const WTime& tDiff)
 {
   if (m_fSpeed == 0.0f || m_pAnimDesc == nullptr)
     return;
 
-  const ezTime fLookupPos = ComputeAnimationLookup(tDiff);
+  const WTime fLookupPos = ComputeAnimationLookup(tDiff);
 
-  for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount();)
+  for (WUInt32 i = 0; i < m_ComponentFloatBindings.GetCount();)
   {
     const auto& binding = m_ComponentFloatBindings[i];
 
     // if we have a component handle, use it to check that the component is still alive
     if (!binding.m_hComponent.IsInvalidated())
     {
-      ezComponent* pComponent;
+      WComponent* pComponent;
       if (!GetWorld()->TryGetComponent(binding.m_hComponent, pComponent))
       {
         // remove dead references
@@ -381,14 +381,14 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
     ++i;
   }
 
-  for (ezUInt32 i = 0; i < m_ColorBindings.GetCount();)
+  for (WUInt32 i = 0; i < m_ColorBindings.GetCount();)
   {
     const auto& binding = m_ColorBindings[i];
 
     // if we have a component handle, use it to check that the component is still alive
     if (!binding.m_hComponent.IsInvalidated())
     {
-      ezComponent* pComponent;
+      WComponent* pComponent;
       if (!GetWorld()->TryGetComponent(binding.m_hComponent, pComponent))
 
       {
@@ -405,14 +405,14 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
     ++i;
   }
 
-  for (ezUInt32 i = 0; i < m_GoFloatBindings.GetCount();)
+  for (WUInt32 i = 0; i < m_GoFloatBindings.GetCount();)
   {
     const auto& binding = m_GoFloatBindings[i];
 
     // if we have a game object handle, use it to check that the component is still alive
     if (!binding.m_hObject.IsInvalidated())
     {
-      ezGameObject* pObject;
+      WGameObject* pObject;
       if (!GetWorld()->TryGetObject(binding.m_hObject, pObject))
       {
         // remove dead references
@@ -429,12 +429,12 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
   }
 }
 
-ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
+WTime WPropertyAnimComponent::ComputeAnimationLookup(WTime tDiff)
 {
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
-  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = WMath::Clamp(m_AnimationRangeLow, WTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = WMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
-  const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
+  const WTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
   if (duration.IsZero())
   {
@@ -444,10 +444,10 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
   tDiff = m_fSpeed * tDiff;
 
-  ezMsgAnimationReachedEnd reachedEndMsg;
-  ezTime tStart = m_AnimationTime;
+  WMsgAnimationReachedEnd reachedEndMsg;
+  WTime tStart = m_AnimationTime;
 
-  if (m_AnimationMode == ezPropertyAnimMode::Once)
+  if (m_AnimationMode == WPropertyAnimMode::Once)
   {
     m_AnimationTime += tDiff;
 
@@ -468,7 +468,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
     EvaluateEventTrack(tStart, m_AnimationTime);
   }
-  else if (m_AnimationMode == ezPropertyAnimMode::Loop)
+  else if (m_AnimationMode == WPropertyAnimMode::Loop)
   {
     m_AnimationTime += tDiff;
 
@@ -494,7 +494,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
     EvaluateEventTrack(tStart, m_AnimationTime);
   }
-  else if (m_AnimationMode == ezPropertyAnimMode::BackAndForth)
+  else if (m_AnimationMode == WPropertyAnimMode::BackAndForth)
   {
     const bool bReverse = m_fSpeed < 0 ? !m_bReverse : m_bReverse;
 
@@ -537,38 +537,38 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
   return m_AnimationTime;
 }
 
-void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTime)
+void WPropertyAnimComponent::EvaluateEventTrack(WTime startTime, WTime endTime)
 {
-  const ezEventTrack& et = m_pAnimDesc->m_EventTrack;
+  const WEventTrack& et = m_pAnimDesc->m_EventTrack;
 
   if (et.IsEmpty())
     return;
 
-  ezTempHybridArray<ezHashedString, 8> events;
+  WTempHybridArray<WHashedString, 8> events;
   et.Sample(startTime, endTime, events);
 
-  for (const ezHashedString& sEvent : events)
+  for (const WHashedString& sEvent : events)
   {
-    ezMsgGenericEvent msg;
+    WMsgGenericEvent msg;
     msg.m_sMessage = sEvent;
     m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 }
 
-void ezPropertyAnimComponent::OnSimulationStarted()
+void WPropertyAnimComponent::OnSimulationStarted()
 {
   CreatePropertyBindings();
 
   StartPlayback();
 }
 
-void ezPropertyAnimComponent::StartPlayback()
+void WPropertyAnimComponent::StartPlayback()
 {
   if (m_pAnimDesc == nullptr)
     return;
 
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
-  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = WMath::Clamp(m_AnimationRangeLow, WTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = WMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   // when starting with a negative speed, start at the end of the animation and play backwards
   // important for play-once mode
@@ -584,9 +584,9 @@ void ezPropertyAnimComponent::StartPlayback()
   if (!m_RandomOffset.IsZero() && m_pAnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
-    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_RandomOffset.GetSeconds()));
+    m_AnimationTime += WMath::Abs(m_fSpeed) * WTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_RandomOffset.GetSeconds()));
 
-    const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
+    const WTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
     if (duration.IsZeroOrNegative())
     {
@@ -609,13 +609,13 @@ void ezPropertyAnimComponent::StartPlayback()
   }
 }
 
-void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, ezTime lookupTime)
+void WPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, WTime lookupTime)
 {
-  const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
+  const WRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
   double fFinalValue = 0;
   {
-    const ezCurve1D& curve = binding.m_pAnimation[0]->m_Curve;
+    const WCurve1D& curve = binding.m_pAnimation[0]->m_Curve;
 
     if (curve.IsEmpty())
       return;
@@ -623,81 +623,81 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
     fFinalValue = curve.Evaluate(lookupTime.GetSeconds());
   }
 
-  if (pRtti == ezGetStaticRTTI<bool>())
+  if (pRtti == WGetStaticRTTI<bool>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, fFinalValue > 0.99); // this is close to what ezVariant does (not identical, that does an int cast != 0), but faster to evaluate
+    pTyped->SetValue(binding.m_pObject, fFinalValue > 0.99); // this is close to what WVariant does (not identical, that does an int cast != 0), but faster to evaluate
     return;
   }
-  else if (pRtti == ezGetStaticRTTI<ezAngle>())
+  else if (pRtti == WGetStaticRTTI<WAngle>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezAngle>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WAngle>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezAngle::MakeFromDegree((float)fFinalValue));
+    pTyped->SetValue(binding.m_pObject, WAngle::MakeFromDegree((float)fFinalValue));
     return;
   }
-  else if (pRtti == ezGetStaticRTTI<ezTime>())
+  else if (pRtti == WGetStaticRTTI<WTime>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezTime>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WTime>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezTime::MakeFromSeconds(fFinalValue));
+    pTyped->SetValue(binding.m_pObject, WTime::MakeFromSeconds(fFinalValue));
     return;
   }
 
   // this handles float, double, all int types, etc.
-  ezVariant value = fFinalValue;
-  if (pRtti->GetVariantType() != ezVariantType::Invalid && value.CanConvertTo(pRtti->GetVariantType()))
+  WVariant value = fFinalValue;
+  if (pRtti->GetVariantType() != WVariantType::Invalid && value.CanConvertTo(pRtti->GetVariantType()))
   {
-    ezReflectionUtils::SetMemberPropertyValue(binding.m_pMemberProperty, binding.m_pObject, value);
+    WReflectionUtils::SetMemberPropertyValue(binding.m_pMemberProperty, binding.m_pObject, value);
   }
 }
 
-void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, ezTime lookupTime)
+void WPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, WTime lookupTime)
 {
-  if (binding.m_pAnimation[0] != nullptr && binding.m_pAnimation[0]->m_Target == ezPropertyAnimTarget::Number)
+  if (binding.m_pAnimation[0] != nullptr && binding.m_pAnimation[0]->m_Target == WPropertyAnimTarget::Number)
   {
     ApplySingleFloatAnimation(binding, lookupTime);
     return;
   }
 
-  const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
+  const WRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
   float fCurValue[4] = {0, 0, 0, 0};
 
-  if (pRtti == ezGetStaticRTTI<ezVec2>())
+  if (pRtti == WGetStaticRTTI<WVec2>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
-    const ezVec2 value = pTyped->GetValue(binding.m_pObject);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec2>*>(binding.m_pMemberProperty);
+    const WVec2 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
     fCurValue[1] = value.y;
   }
-  else if (pRtti == ezGetStaticRTTI<ezVec3>())
+  else if (pRtti == WGetStaticRTTI<WVec3>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
-    const ezVec3 value = pTyped->GetValue(binding.m_pObject);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec3>*>(binding.m_pMemberProperty);
+    const WVec3 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
     fCurValue[1] = value.y;
     fCurValue[2] = value.z;
   }
-  else if (pRtti == ezGetStaticRTTI<ezVec4>())
+  else if (pRtti == WGetStaticRTTI<WVec4>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
-    const ezVec4 value = pTyped->GetValue(binding.m_pObject);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec4>*>(binding.m_pMemberProperty);
+    const WVec4 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
     fCurValue[1] = value.y;
     fCurValue[2] = value.z;
     fCurValue[3] = value.w;
   }
-  else if (pRtti == ezGetStaticRTTI<ezQuat>())
+  else if (pRtti == WGetStaticRTTI<WQuat>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
-    const ezQuat value = pTyped->GetValue(binding.m_pObject);
+    auto pTyped = static_cast<const WTypedMemberProperty<WQuat>*>(binding.m_pMemberProperty);
+    const WQuat value = pTyped->GetValue(binding.m_pObject);
 
-    ezAngle euler[3];
+    WAngle euler[3];
     value.GetAsEulerAngles(euler[0], euler[1], euler[2]);
     fCurValue[0] = euler[0].GetDegree();
     fCurValue[1] = euler[1].GetDegree();
@@ -705,11 +705,11 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
   }
 
   // evaluate all available curves
-  for (ezUInt32 i = 0; i < 4; ++i)
+  for (WUInt32 i = 0; i < 4; ++i)
   {
     if (binding.m_pAnimation[i] != nullptr)
     {
-      const ezCurve1D& curve = binding.m_pAnimation[i]->m_Curve;
+      const WCurve1D& curve = binding.m_pAnimation[i]->m_Curve;
 
       if (!curve.IsEmpty())
       {
@@ -718,61 +718,61 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
     }
   }
 
-  if (pRtti == ezGetStaticRTTI<ezVec2>())
+  if (pRtti == WGetStaticRTTI<WVec2>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec2>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezVec2(fCurValue[0], fCurValue[1]));
+    pTyped->SetValue(binding.m_pObject, WVec2(fCurValue[0], fCurValue[1]));
   }
-  else if (pRtti == ezGetStaticRTTI<ezVec3>())
+  else if (pRtti == WGetStaticRTTI<WVec3>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec3>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezVec3(fCurValue[0], fCurValue[1], fCurValue[2]));
+    pTyped->SetValue(binding.m_pObject, WVec3(fCurValue[0], fCurValue[1], fCurValue[2]));
   }
-  else if (pRtti == ezGetStaticRTTI<ezVec4>())
+  else if (pRtti == WGetStaticRTTI<WVec4>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WVec4>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezVec4(fCurValue[0], fCurValue[1], fCurValue[2], fCurValue[3]));
+    pTyped->SetValue(binding.m_pObject, WVec4(fCurValue[0], fCurValue[1], fCurValue[2], fCurValue[3]));
   }
-  else if (pRtti == ezGetStaticRTTI<ezQuat>())
+  else if (pRtti == WGetStaticRTTI<WQuat>())
   {
-    auto pTyped = static_cast<const ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const WTypedMemberProperty<WQuat>*>(binding.m_pMemberProperty);
 
-    ezQuat rot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fCurValue[0]), ezAngle::MakeFromDegree(fCurValue[1]), ezAngle::MakeFromDegree(fCurValue[2]));
+    WQuat rot = WQuat::MakeFromEulerAngles(WAngle::MakeFromDegree(fCurValue[0]), WAngle::MakeFromDegree(fCurValue[1]), WAngle::MakeFromDegree(fCurValue[2]));
 
     pTyped->SetValue(binding.m_pObject, rot);
   }
 }
 
-void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, ezTime lookupTime)
+void WPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, WTime lookupTime)
 {
-  const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
+  const WRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
-  if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
+  if (pRtti == WGetStaticRTTI<WColorGammaUB>())
   {
-    ezColorGammaUB gamma;
+    WColorGammaUB gamma;
     float intensity;
     binding.m_pAnimation->m_Gradient.Evaluate(lookupTime.AsFloatInSeconds(), gamma, intensity);
     binding.m_pMemberProperty->SetValuePtr(binding.m_pObject, &gamma);
     return;
   }
 
-  if (pRtti == ezGetStaticRTTI<ezColor>())
+  if (pRtti == WGetStaticRTTI<WColor>())
   {
-    ezColorGammaUB gamma;
+    WColorGammaUB gamma;
     float intensity;
     binding.m_pAnimation->m_Gradient.Evaluate(lookupTime.AsFloatInSeconds(), gamma, intensity);
 
-    ezColor finalColor = gamma;
+    WColor finalColor = gamma;
     finalColor.ScaleRGB(intensity);
     binding.m_pMemberProperty->SetValuePtr(binding.m_pObject, &finalColor);
     return;
   }
 }
 
-void ezPropertyAnimComponent::Update()
+void WPropertyAnimComponent::Update()
 {
   if (m_bPlaying == false || !m_hPropertyAnim.IsValid())
     return;
@@ -787,4 +787,4 @@ void ezPropertyAnimComponent::Update()
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimComponent);

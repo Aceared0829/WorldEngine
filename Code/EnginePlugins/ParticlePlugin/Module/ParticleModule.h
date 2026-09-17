@@ -6,23 +6,23 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezProcessingStream;
+class WProcessingStream;
 
 /// Base class for all particle system modules
 ///
 /// Modules process particle data through streams.
 /// Derived types include emitters, initializers, behaviors, and finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcessor
+class W_PARTICLEPLUGIN_DLL WParticleModule : public WProcessingStreamProcessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleModule, ezProcessingStreamProcessor);
+  W_ADD_DYNAMIC_REFLECTION(WParticleModule, WProcessingStreamProcessor);
 
-  friend class ezParticleSystemInstance;
+  friend class WParticleSystemInstance;
 
 public:
   virtual void CreateRequiredStreams() = 0;
   virtual void QueryOptionalStreams() {}
 
-  void Reset(ezParticleSystemInstance* pOwner)
+  void Reset(WParticleSystemInstance* pOwner)
   {
     m_pOwnerSystem = pOwner;
     m_StreamBinding.Clear();
@@ -33,35 +33,35 @@ public:
   /// Called after everything is set up.
   virtual void OnFinalize() {}
 
-  ezParticleSystemInstance* GetOwnerSystem() { return m_pOwnerSystem; }
+  WParticleSystemInstance* GetOwnerSystem() { return m_pOwnerSystem; }
 
-  const ezParticleSystemInstance* GetOwnerSystem() const { return m_pOwnerSystem; }
+  const WParticleSystemInstance* GetOwnerSystem() const { return m_pOwnerSystem; }
 
-  ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerSystem->GetOwnerEffect(); }
+  WParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerSystem->GetOwnerEffect(); }
 
   /// Override this to cache world module pointers for later access.
   ///
-  /// Cached modules can be retrieved via ezParticleWorldModule::GetCachedWorldModule().
-  virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
+  /// Cached modules can be retrieved via WParticleWorldModule::GetCachedWorldModule().
+  virtual void RequestRequiredWorldModulesForCache(WParticleWorldModule* pParticleModule) {}
 
 protected:
   /// Called by Reset() to perform custom cleanup
   virtual void OnReset() {}
 
-  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, bool bWillInitializeStream)
+  void CreateStream(const char* szName, WProcessingStream::DataType Type, WProcessingStream** ppStream, bool bWillInitializeStream)
   {
     m_pOwnerSystem->CreateStream(szName, Type, ppStream, m_StreamBinding, bWillInitializeStream);
   }
 
-  virtual ezResult UpdateStreamBindings() final override
+  virtual WResult UpdateStreamBindings() final override
   {
     m_StreamBinding.UpdateBindings(m_pStreamGroup);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezRandom& GetRNG() const { return GetOwnerEffect()->GetRNG(); }
+  WRandom& GetRNG() const { return GetOwnerEffect()->GetRNG(); }
 
 private:
-  ezParticleSystemInstance* m_pOwnerSystem;
-  ezParticleStreamBinding m_StreamBinding;
+  WParticleSystemInstance* m_pOwnerSystem;
+  WParticleStreamBinding m_StreamBinding;
 };

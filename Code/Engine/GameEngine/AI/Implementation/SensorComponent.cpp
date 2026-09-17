@@ -7,55 +7,55 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSensorDetectedObjectsChanged, 1, ezRTTIDefaultAllocator<ezMsgSensorDetectedObjectsChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgSensorDetectedObjectsChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgSensorDetectedObjectsChanged, 1, WRTTIDefaultAllocator<WMsgSensorDetectedObjectsChanged>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DetectedObjects", m_DetectedObjects),
+    W_ARRAY_MEMBER_PROPERTY_READ_ONLY("DetectedObjects", m_DetectedObjects),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 2)
+W_BEGIN_ABSTRACT_COMPONENT_TYPE(WSensorComponent, 2)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("UpdateRate", ezUpdateRate, m_UpdateRate),
-    EZ_ACCESSOR_PROPERTY("SpatialCategory", GetSpatialCategory, SetSpatialCategory)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
-    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_MEMBER_PROPERTY("TestVisibility", m_bTestVisibility)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::LightUI(ezColorScheme::Orange))),
+    W_ENUM_MEMBER_PROPERTY("UpdateRate", WUpdateRate, m_UpdateRate),
+    W_ACCESSOR_PROPERTY("SpatialCategory", GetSpatialCategory, SetSpatialCategory)->AddAttributes(new WDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
+    W_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new WTagSetWidgetAttribute("Default")),
+    W_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new WTagSetWidgetAttribute("Default")),
+    W_MEMBER_PROPERTY("TestVisibility", m_bTestVisibility)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WDefaultValueAttribute(WColorScheme::LightUI(WColorScheme::Orange))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObjectsCount),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObject, In, "uiIndex"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetDetectedObjectsCount),
+    W_SCRIPT_FUNCTION_PROPERTY(GetDetectedObject, In, "uiIndex"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI/Sensors"),
+    new WCategoryAttribute("AI/Sensors"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+W_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezSensorComponent::ezSensorComponent() = default;
-ezSensorComponent::~ezSensorComponent() = default;
+WSensorComponent::WSensorComponent() = default;
+WSensorComponent::~WSensorComponent() = default;
 
-void ezSensorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSensorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -70,10 +70,10 @@ void ezSensorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   m_ExcludeTags.Save(s);
 }
 
-void ezSensorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSensorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sSpatialCategory;
@@ -84,12 +84,12 @@ void ezSensorComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_Color;
   if (uiVersion >= 2)
   {
-    m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-    m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+    m_IncludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
+    m_ExcludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
   }
 }
 
-void ezSensorComponent::OnActivated()
+void WSensorComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -98,16 +98,16 @@ void ezSensorComponent::OnActivated()
   UpdateDebugInfo();
 }
 
-void ezSensorComponent::OnDeactivated()
+void WSensorComponent::OnDeactivated()
 {
-  auto pModule = GetWorld()->GetOrCreateModule<ezSensorWorldModule>();
+  auto pModule = GetWorld()->GetOrCreateModule<WSensorWorldModule>();
   pModule->RemoveComponentToSchedule(this);
   pModule->RemoveComponentForDebugRendering(this);
 
   SUPER::OnDeactivated();
 }
 
-void ezSensorComponent::SetSpatialCategory(const char* szCategory)
+void WSensorComponent::SetSpatialCategory(const char* szCategory)
 {
   m_sSpatialCategory.Assign(szCategory);
 
@@ -117,12 +117,12 @@ void ezSensorComponent::SetSpatialCategory(const char* szCategory)
   }
 }
 
-const char* ezSensorComponent::GetSpatialCategory() const
+const char* WSensorComponent::GetSpatialCategory() const
 {
   return m_sSpatialCategory;
 }
 
-void ezSensorComponent::SetUpdateRate(const ezEnum<ezUpdateRate>& updateRate)
+void WSensorComponent::SetUpdateRate(const WEnum<WUpdateRate>& updateRate)
 {
   if (m_UpdateRate == updateRate)
     return;
@@ -135,12 +135,12 @@ void ezSensorComponent::SetUpdateRate(const ezEnum<ezUpdateRate>& updateRate)
   }
 }
 
-const ezEnum<ezUpdateRate>& ezSensorComponent::GetUpdateRate() const
+const WEnum<WUpdateRate>& WSensorComponent::GetUpdateRate() const
 {
   return m_UpdateRate;
 }
 
-void ezSensorComponent::SetShowDebugInfo(bool bShow)
+void WSensorComponent::SetShowDebugInfo(bool bShow)
 {
   if (m_bShowDebugInfo == bShow)
     return;
@@ -153,24 +153,24 @@ void ezSensorComponent::SetShowDebugInfo(bool bShow)
   }
 }
 
-bool ezSensorComponent::GetShowDebugInfo() const
+bool WSensorComponent::GetShowDebugInfo() const
 {
   return m_bShowDebugInfo;
 }
 
-void ezSensorComponent::SetColor(ezColorGammaUB color)
+void WSensorComponent::SetColor(WColorGammaUB color)
 {
   m_Color = color;
 }
 
-ezColorGammaUB ezSensorComponent::GetColor() const
+WColorGammaUB WSensorComponent::GetColor() const
 {
   return m_Color;
 }
 
-bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const
+bool WSensorComponent::RunSensorCheck(WPhysicsWorldModuleInterface* pPhysicsWorldModule, WDynamicArray<WGameObject*>& out_objectsInSensorVolume, WDynamicArray<WGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
   m_LastOccludedObjectPositions.Clear();
 #endif
 
@@ -178,35 +178,35 @@ bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWo
   out_objectsInSensorVolume.Clear();
 
   GetObjectsInSensorVolume(out_objectsInSensorVolume);
-  const ezGameObject* pSensorOwner = GetOwner();
+  const WGameObject* pSensorOwner = GetOwner();
 
   ref_detectedObjects.Clear();
 
   if (m_bTestVisibility && pPhysicsWorldModule)
   {
-    const ezVec3 rayStart = pSensorOwner->GetGlobalPosition();
+    const WVec3 rayStart = pSensorOwner->GetGlobalPosition();
     for (auto pObject : out_objectsInSensorVolume)
     {
-      const ezVec3 rayEnd = pObject->GetGlobalPosition();
-      ezVec3 rayDir = rayEnd - rayStart;
+      const WVec3 rayEnd = pObject->GetGlobalPosition();
+      WVec3 rayDir = rayEnd - rayStart;
       const float fDistance = rayDir.GetLengthAndNormalize();
 
-      ezPhysicsCastResult hitResult;
-      ezPhysicsQueryParameters params(m_uiCollisionLayer);
+      WPhysicsCastResult hitResult;
+      WPhysicsQueryParameters params(m_uiCollisionLayer);
       params.m_bIgnoreInitialOverlap = true;
-      params.m_ShapeTypes = ezPhysicsShapeType::Default;
+      params.m_ShapeTypes = WPhysicsShapeType::Default;
 
-      // TODO: probably best to expose the ezPhysicsShapeType bitflags on the component
-      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Rope);
-      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Ragdoll);
-      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
-      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Query);
-      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Character);
+      // TODO: probably best to expose the WPhysicsShapeType bitflags on the component
+      params.m_ShapeTypes.Remove(WPhysicsShapeType::Rope);
+      params.m_ShapeTypes.Remove(WPhysicsShapeType::Ragdoll);
+      params.m_ShapeTypes.Remove(WPhysicsShapeType::Trigger);
+      params.m_ShapeTypes.Remove(WPhysicsShapeType::Query);
+      params.m_ShapeTypes.Remove(WPhysicsShapeType::Character);
 
       if (pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
       {
         // hit something in between -> not visible
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
         m_LastOccludedObjectPositions.PushBack(rayEnd);
 #endif
 
@@ -232,39 +232,39 @@ bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWo
 
   if (bPostChangeMsg)
   {
-    ezMsgSensorDetectedObjectsChanged msg;
+    WMsgSensorDetectedObjectsChanged msg;
     msg.m_DetectedObjects = m_LastDetectedObjects;
-    pSensorOwner->PostEventMessage(msg, this, ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
+    pSensorOwner->PostEventMessage(msg, this, WTime::MakeZero(), WObjectMsgQueueType::PostAsync);
   }
 
   return true;
 }
 
-void ezSensorComponent::UpdateSpatialCategory()
+void WSensorComponent::UpdateSpatialCategory()
 {
   if (!m_sSpatialCategory.IsEmpty())
   {
-    m_SpatialCategory = ezSpatialData::RegisterCategory(m_sSpatialCategory, ezSpatialData::Flags::None);
+    m_SpatialCategory = WSpatialData::RegisterCategory(m_sSpatialCategory, WSpatialData::Flags::None);
   }
   else
   {
-    m_SpatialCategory = ezInvalidSpatialDataCategory;
+    m_SpatialCategory = WInvalidSpatialDataCategory;
   }
 }
 
-void ezSensorComponent::UpdateScheduling()
+void WSensorComponent::UpdateScheduling()
 {
-  auto pModule = GetWorld()->GetOrCreateModule<ezSensorWorldModule>();
+  auto pModule = GetWorld()->GetOrCreateModule<WSensorWorldModule>();
 
-  if (m_UpdateRate == ezUpdateRate::Never)
+  if (m_UpdateRate == WUpdateRate::Never)
     pModule->RemoveComponentToSchedule(this);
   else
     pModule->AddComponentToSchedule(this, m_UpdateRate);
 }
 
-void ezSensorComponent::UpdateDebugInfo()
+void WSensorComponent::UpdateDebugInfo()
 {
-  auto pModule = GetWorld()->GetOrCreateModule<ezSensorWorldModule>();
+  auto pModule = GetWorld()->GetOrCreateModule<WSensorWorldModule>();
   if (IsActiveAndInitialized() && m_bShowDebugInfo)
   {
     pModule->AddComponentForDebugRendering(this);
@@ -278,28 +278,28 @@ void ezSensorComponent::UpdateDebugInfo()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSensorSphereComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSensorSphereComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::White, "Color"),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius", WColor::White, "Color"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSensorSphereComponent::ezSensorSphereComponent() = default;
-ezSensorSphereComponent::~ezSensorSphereComponent() = default;
+WSensorSphereComponent::WSensorSphereComponent() = default;
+WSensorSphereComponent::~WSensorSphereComponent() = default;
 
-void ezSensorSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSensorSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -307,33 +307,33 @@ void ezSensorSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_fRadius;
 }
 
-void ezSensorSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSensorSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
 }
 
-void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
+void WSensorSphereComponent::GetObjectsInSensorVolume(WDynamicArray<WGameObject*>& out_objects) const
 {
-  const ezGameObject* pOwner = GetOwner();
+  const WGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fRadius * scale);
+  const WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fRadius * scale);
 
-  ezSpatialSystem::QueryParams params;
+  WSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
   params.m_pIncludeTags = &m_IncludeTags;
   params.m_pExcludeTags = &m_ExcludeTags;
 
-  ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
+  WSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
+  WSimdFloat radiusSquared = m_fRadius * m_fRadius;
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](WGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
+    WSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= radiusSquared;
 
     if (bInRadius)
@@ -341,40 +341,40 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
       out_objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue; });
+    return WVisitorExecution::Continue; });
 }
 
-void ezSensorSphereComponent::DebugDrawSensorShape() const
+void WSensorSphereComponent::DebugDrawSensorShape() const
 {
-  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
-  ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
+  const WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius);
+  WDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_bHadUpdate ? WColor(m_Color) : WColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSensorCylinderComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSensorCylinderComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::White, "Color"),
+    new WCylinderVisualizerAttribute(WBasisAxis::PositiveZ, "Height", "Radius", WColor::White, "Color"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSensorCylinderComponent::ezSensorCylinderComponent() = default;
-ezSensorCylinderComponent::~ezSensorCylinderComponent() = default;
+WSensorCylinderComponent::WSensorCylinderComponent() = default;
+WSensorCylinderComponent::~WSensorCylinderComponent() = default;
 
-void ezSensorCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSensorCylinderComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -383,38 +383,38 @@ void ezSensorCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_fHeight;
 }
 
-void ezSensorCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSensorCylinderComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fHeight;
 }
 
-void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
+void WSensorCylinderComponent::GetObjectsInSensorVolume(WDynamicArray<WGameObject*>& out_objects) const
 {
-  const ezGameObject* pOwner = GetOwner();
+  const WGameObject* pOwner = GetOwner();
 
-  const ezVec3 scale = pOwner->GetGlobalScaling().Abs();
-  const float xyScale = ezMath::Max(scale.x, scale.y);
+  const WVec3 scale = pOwner->GetGlobalScaling().Abs();
+  const float xyScale = WMath::Max(scale.x, scale.y);
 
-  const float sphereRadius = ezVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
-  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), sphereRadius);
+  const float sphereRadius = WVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
+  const WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), sphereRadius);
 
-  ezSpatialSystem::QueryParams params;
+  WSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
   params.m_pIncludeTags = &m_IncludeTags;
   params.m_pExcludeTags = &m_ExcludeTags;
 
-  ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
-  ezSimdFloat halfHeight = m_fHeight * 0.5f;
+  WSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
+  WSimdFloat radiusSquared = m_fRadius * m_fRadius;
+  WSimdFloat halfHeight = m_fHeight * 0.5f;
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](WGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
+    WSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= radiusSquared;
     const bool bInHeight = localSpacePos.Abs().z() <= halfHeight;
 
@@ -423,42 +423,42 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
       out_objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue; });
+    return WVisitorExecution::Continue; });
 }
 
-void ezSensorCylinderComponent::DebugDrawSensorShape() const
+void WSensorCylinderComponent::DebugDrawSensorShape() const
 {
-  ezTransform pt = GetOwner()->GetGlobalTransform();
+  WTransform pt = GetOwner()->GetGlobalTransform();
 
-  ezQuat r = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90.0f));
-  ezTransform t = ezTransform(ezVec3(0, 0, -0.5f * m_fHeight * pt.m_vScale.z), r, ezVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
+  WQuat r = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), WAngle::MakeFromDegree(-90.0f));
+  WTransform t = WTransform(WVec3(0, 0, -0.5f * m_fHeight * pt.m_vScale.z), r, WVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
 
   pt.m_vScale.Set(1);
   t = pt * t;
 
-  ezDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, ezColor::MakeZero(), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), t);
+  WDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, WColor::MakeZero(), m_bHadUpdate ? WColor(m_Color) : WColor(m_Color).GetDarker(1.5f), t);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSensorConeComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSensorConeComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("NearDistance", m_fNearDistance)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("FarDistance", m_fFarDistance)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(0.0f, ezAngle::MakeFromDegree(180.0f))),
+    W_MEMBER_PROPERTY("NearDistance", m_fNearDistance)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("FarDistance", m_fFarDistance)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(90.0f)), new WClampValueAttribute(0.0f, WAngle::MakeFromDegree(180.0f))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSensorConeComponent::ezSensorConeComponent() = default;
-ezSensorConeComponent::~ezSensorConeComponent() = default;
+WSensorConeComponent::WSensorConeComponent() = default;
+WSensorConeComponent::~WSensorConeComponent() = default;
 
-void ezSensorConeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSensorConeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -468,10 +468,10 @@ void ezSensorConeComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_Angle;
 }
 
-void ezSensorConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSensorConeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fNearDistance;
@@ -479,30 +479,30 @@ void ezSensorConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_Angle;
 }
 
-void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
+void WSensorConeComponent::GetObjectsInSensorVolume(WDynamicArray<WGameObject*>& out_objects) const
 {
-  const ezGameObject* pOwner = GetOwner();
+  const WGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
+  const WBoundingSphere sphere = WBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
 
-  ezSpatialSystem::QueryParams params;
+  WSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
   params.m_pIncludeTags = &m_IncludeTags;
   params.m_pExcludeTags = &m_ExcludeTags;
 
-  ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  const ezSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;
-  const ezSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
-  const ezSimdFloat cosAngle = ezMath::Cos(m_Angle * 0.5f);
+  WSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
+  const WSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;
+  const WSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
+  const WSimdFloat cosAngle = WMath::Cos(m_Angle * 0.5f);
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](WGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
-    const ezSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
+    WSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
+    const WSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
     const bool bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
 
-    const ezSimdVec4f normalizedPos = localSpacePos * fDistanceSquared.GetInvSqrt();
+    const WSimdVec4f normalizedPos = localSpacePos * fDistanceSquared.GetInvSqrt();
     const bool bInAngle = normalizedPos.x() >= cosAngle;
 
     if (bInDistance && bInAngle)
@@ -510,30 +510,30 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
       out_objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue; });
+    return WVisitorExecution::Continue; });
 }
 
-void ezSensorConeComponent::DebugDrawSensorShape() const
+void WSensorConeComponent::DebugDrawSensorShape() const
 {
-  constexpr ezUInt32 MIN_SEGMENTS = 3;
-  constexpr ezUInt32 MAX_SEGMENTS = 16;
-  constexpr ezUInt32 CIRCLE_SEGMENTS = MAX_SEGMENTS * 2;
-  constexpr ezUInt32 NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4;
+  constexpr WUInt32 MIN_SEGMENTS = 3;
+  constexpr WUInt32 MAX_SEGMENTS = 16;
+  constexpr WUInt32 CIRCLE_SEGMENTS = MAX_SEGMENTS * 2;
+  constexpr WUInt32 NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4;
 
-  ezDebugRendererLine lines[NUM_LINES];
-  ezUInt32 curLine = 0;
+  WDebugRendererLine lines[NUM_LINES];
+  WUInt32 curLine = 0;
 
-  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180) * MAX_SEGMENTS), MIN_SEGMENTS, MAX_SEGMENTS);
-  const ezAngle stepAngle = m_Angle / static_cast<float>(numSegments);
-  const ezAngle circleStepAngle = ezAngle::MakeFromDegree(360.0f / CIRCLE_SEGMENTS);
+  const WUInt32 numSegments = WMath::Clamp(static_cast<WUInt32>(m_Angle / WAngle::MakeFromDegree(180) * MAX_SEGMENTS), MIN_SEGMENTS, MAX_SEGMENTS);
+  const WAngle stepAngle = m_Angle / static_cast<float>(numSegments);
+  const WAngle circleStepAngle = WAngle::MakeFromDegree(360.0f / CIRCLE_SEGMENTS);
 
-  for (ezUInt32 i = 0; i < 2; ++i)
+  for (WUInt32 i = 0; i < 2; ++i)
   {
-    ezAngle curAngle = m_Angle * -0.5f;
+    WAngle curAngle = m_Angle * -0.5f;
 
-    ezQuat q;
-    float fX = ezMath::Cos(curAngle);
-    float fCircleRadius = ezMath::Sin(curAngle);
+    WQuat q;
+    float fX = WMath::Cos(curAngle);
+    float fCircleRadius = WMath::Sin(curAngle);
 
     if (i == 0)
     {
@@ -543,25 +543,25 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
     }
     else
     {
-      q = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), ezAngle::MakeFromDegree(90));
+      q = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisX(), WAngle::MakeFromDegree(90));
       fX *= m_fFarDistance;
       fCircleRadius *= m_fFarDistance;
     }
 
-    for (ezUInt32 s = 0; s < numSegments; ++s)
+    for (WUInt32 s = 0; s < numSegments; ++s)
     {
-      const ezAngle nextAngle = curAngle + stepAngle;
+      const WAngle nextAngle = curAngle + stepAngle;
 
-      const float fCos1 = ezMath::Cos(curAngle);
-      const float fCos2 = ezMath::Cos(nextAngle);
+      const float fCos1 = WMath::Cos(curAngle);
+      const float fCos2 = WMath::Cos(nextAngle);
 
-      const float fSin1 = ezMath::Sin(curAngle);
-      const float fSin2 = ezMath::Sin(nextAngle);
+      const float fSin1 = WMath::Sin(curAngle);
+      const float fSin2 = WMath::Sin(nextAngle);
 
       curAngle = nextAngle;
 
-      const ezVec3 p1 = q * ezVec3(fCos1, fSin1, 0.0f);
-      const ezVec3 p2 = q * ezVec3(fCos2, fSin2, 0.0f);
+      const WVec3 p1 = q * WVec3(fCos1, fSin1, 0.0f);
+      const WVec3 p2 = q * WVec3(fCos2, fSin2, 0.0f);
 
       lines[curLine].m_start = p1 * m_fNearDistance;
       lines[curLine].m_end = p2 * m_fNearDistance;
@@ -585,21 +585,21 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
       }
     }
 
-    curAngle = ezAngle::MakeFromDegree(0.0f);
-    for (ezUInt32 s = 0; s < CIRCLE_SEGMENTS; ++s)
+    curAngle = WAngle::MakeFromDegree(0.0f);
+    for (WUInt32 s = 0; s < CIRCLE_SEGMENTS; ++s)
     {
-      const ezAngle nextAngle = curAngle + circleStepAngle;
+      const WAngle nextAngle = curAngle + circleStepAngle;
 
-      const float fCos1 = ezMath::Cos(curAngle);
-      const float fCos2 = ezMath::Cos(nextAngle);
+      const float fCos1 = WMath::Cos(curAngle);
+      const float fCos2 = WMath::Cos(nextAngle);
 
-      const float fSin1 = ezMath::Sin(curAngle);
-      const float fSin2 = ezMath::Sin(nextAngle);
+      const float fSin1 = WMath::Sin(curAngle);
+      const float fSin2 = WMath::Sin(nextAngle);
 
       curAngle = nextAngle;
 
-      const ezVec3 p1 = ezVec3(fX, fCos1 * fCircleRadius, fSin1 * fCircleRadius);
-      const ezVec3 p2 = ezVec3(fX, fCos2 * fCircleRadius, fSin2 * fCircleRadius);
+      const WVec3 p1 = WVec3(fX, fCos1 * fCircleRadius, fSin1 * fCircleRadius);
+      const WVec3 p2 = WVec3(fX, fCos2 * fCircleRadius, fSin2 * fCircleRadius);
 
       lines[curLine].m_start = p1;
       lines[curLine].m_end = p2;
@@ -607,122 +607,122 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
     }
   }
 
-  EZ_ASSERT_DEV(curLine <= NUM_LINES, "");
-  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
+  W_ASSERT_DEV(curLine <= NUM_LINES, "");
+  WDebugRenderer::DrawLines(GetWorld(), WMakeArrayPtr(lines, curLine), m_bHadUpdate ? WColor(m_Color) : WColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_WORLD_MODULE(ezSensorWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSensorWorldModule, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_WORLD_MODULE(WSensorWorldModule);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSensorWorldModule, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSensorWorldModule::ezSensorWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+WSensorWorldModule::WSensorWorldModule(WWorld* pWorld)
+  : WWorldModule(pWorld)
 {
 }
 
-void ezSensorWorldModule::Initialize()
+void WSensorWorldModule::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSensorWorldModule::UpdateSensors, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSensorWorldModule::DebugDrawSensors, this);
+    desc.m_Phase = WWorldUpdatePhase::PostTransform;
 
     RegisterUpdateFunction(desc);
   }
 
-  m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<WPhysicsWorldModuleInterface>();
 }
 
-void ezSensorWorldModule::AddComponentToSchedule(ezSensorComponent* pComponent, ezUpdateRate::Enum updateRate)
+void WSensorWorldModule::AddComponentToSchedule(WSensorComponent* pComponent, WUpdateRate::Enum updateRate)
 {
-  EZ_ASSERT_DEBUG(updateRate != ezUpdateRate::Never, "Invalid update rate for scheduling");
-  m_Scheduler.AddOrUpdateWork(pComponent->GetHandle(), ezUpdateRate::GetInterval(updateRate));
+  W_ASSERT_DEBUG(updateRate != WUpdateRate::Never, "Invalid update rate for scheduling");
+  m_Scheduler.AddOrUpdateWork(pComponent->GetHandle(), WUpdateRate::GetInterval(updateRate));
 }
 
-void ezSensorWorldModule::RemoveComponentToSchedule(ezSensorComponent* pComponent)
+void WSensorWorldModule::RemoveComponentToSchedule(WSensorComponent* pComponent)
 {
   m_Scheduler.RemoveWork(pComponent->GetHandle());
 }
 
-void ezSensorWorldModule::AddComponentForDebugRendering(ezSensorComponent* pComponent)
+void WSensorWorldModule::AddComponentForDebugRendering(WSensorComponent* pComponent)
 {
-  ezComponentHandle hComponent = pComponent->GetHandle();
+  WComponentHandle hComponent = pComponent->GetHandle();
   if (m_DebugComponents.Contains(hComponent) == false)
   {
     m_DebugComponents.PushBack(hComponent);
   }
 }
 
-void ezSensorWorldModule::RemoveComponentForDebugRendering(ezSensorComponent* pComponent)
+void WSensorWorldModule::RemoveComponentForDebugRendering(WSensorComponent* pComponent)
 {
   m_DebugComponents.RemoveAndSwap(pComponent->GetHandle());
 }
 
-void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& context)
+void WSensorWorldModule::UpdateSensors(const WWorldModule::UpdateContext& context)
 {
   if (m_pPhysicsWorldModule == nullptr)
     return;
 
-  const ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
-  m_Scheduler.Update(deltaTime, [this](const ezComponentHandle& hComponent, ezTime deltaTime)
+  const WTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
+  m_Scheduler.Update(deltaTime, [this](const WComponentHandle& hComponent, WTime deltaTime)
     {
-      const ezWorld* pWorld = GetWorld();
-      const ezSensorComponent* pSensorComponent = nullptr;
-      EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
+      const WWorld* pWorld = GetWorld();
+      const WSensorComponent* pSensorComponent = nullptr;
+      W_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
       pSensorComponent->RunSensorCheck(m_pPhysicsWorldModule, m_ObjectsInSensorVolume, m_DetectedObjects, true);
       //
     });
 }
 
-void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)
+void WSensorWorldModule::DebugDrawSensors(const WWorldModule::UpdateContext& context)
 {
-  ezTempHybridArray<ezDebugRendererLine, 256> lines;
-  const ezWorld* pWorld = GetWorld();
+  WTempHybridArray<WDebugRendererLine, 256> lines;
+  const WWorld* pWorld = GetWorld();
 
-  for (ezComponentHandle hComponent : m_DebugComponents)
+  for (WComponentHandle hComponent : m_DebugComponents)
   {
     lines.Clear();
 
-    const ezSensorComponent* pSensorComponent = nullptr;
-    EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
+    const WSensorComponent* pSensorComponent = nullptr;
+    W_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
     pSensorComponent->DebugDrawSensorShape();
     pSensorComponent->m_bHadUpdate = false;
 
-    const ezVec3 sensorPos = pSensorComponent->GetOwner()->GetGlobalPosition();
-    for (ezGameObjectHandle hObject : pSensorComponent->m_LastDetectedObjects)
+    const WVec3 sensorPos = pSensorComponent->GetOwner()->GetGlobalPosition();
+    for (WGameObjectHandle hObject : pSensorComponent->m_LastDetectedObjects)
     {
-      const ezGameObject* pObject = nullptr;
+      const WGameObject* pObject = nullptr;
       if (pWorld->TryGetObject(hObject, pObject) == false)
         continue;
 
-      lines.PushBack({sensorPos, pObject->GetGlobalPosition(), ezColor::Lime});
+      lines.PushBack({sensorPos, pObject->GetGlobalPosition(), WColor::Lime});
     }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    for (const ezVec3& occludedPos : pSensorComponent->m_LastOccludedObjectPositions)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+    for (const WVec3& occludedPos : pSensorComponent->m_LastOccludedObjectPositions)
     {
-      lines.PushBack({sensorPos, occludedPos, ezColor::Red});
+      lines.PushBack({sensorPos, occludedPos, WColor::Red});
     }
 #endif
 
-    ezDebugRenderer::DrawLines(pWorld, lines, ezColor::White);
+    WDebugRenderer::DrawLines(pWorld, lines, WColor::White);
   }
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_SensorComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_SensorComponent);

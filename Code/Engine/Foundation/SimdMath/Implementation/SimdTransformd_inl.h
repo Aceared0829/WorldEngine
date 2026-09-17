@@ -1,95 +1,95 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdTransformd::ezSimdTransformd() = default;
+W_ALWAYS_INLINE WSimdTransformd::WSimdTransformd() = default;
 
-EZ_ALWAYS_INLINE ezSimdTransformd::ezSimdTransformd(const ezSimdVec4d& vPosition, const ezSimdQuatd& qRotation, const ezSimdVec4d& vScale)
+W_ALWAYS_INLINE WSimdTransformd::WSimdTransformd(const WSimdVec4d& vPosition, const WSimdQuatd& qRotation, const WSimdVec4d& vScale)
   : m_Position(vPosition)
   , m_Rotation(qRotation)
   , m_Scale(vScale)
 {
 }
 
-EZ_ALWAYS_INLINE ezSimdTransformd::ezSimdTransformd(const ezSimdQuatd& qRotation)
+W_ALWAYS_INLINE WSimdTransformd::WSimdTransformd(const WSimdQuatd& qRotation)
   : m_Rotation(qRotation)
 {
   m_Position.SetZero();
   m_Scale.Set(1.0f);
 }
 
-inline ezSimdTransformd ezSimdTransformd::Make(const ezSimdVec4d& vPosition, const ezSimdQuatd& qRotation /*= ezSimdQuatd::IdentityQuaternion()*/, const ezSimdVec4d& vScale /*= ezSimdVec4d(1.0f)*/)
+inline WSimdTransformd WSimdTransformd::Make(const WSimdVec4d& vPosition, const WSimdQuatd& qRotation /*= WSimdQuatd::IdentityQuaternion()*/, const WSimdVec4d& vScale /*= WSimdVec4d(1.0f)*/)
 {
-  ezSimdTransformd res;
+  WSimdTransformd res;
   res.m_Position = vPosition;
   res.m_Rotation = qRotation;
   res.m_Scale = vScale;
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdTransformd ezSimdTransformd::MakeIdentity()
+W_ALWAYS_INLINE WSimdTransformd WSimdTransformd::MakeIdentity()
 {
-  ezSimdTransformd res;
+  WSimdTransformd res;
   res.m_Position.SetZero();
-  res.m_Rotation = ezSimdQuatd::MakeIdentity();
+  res.m_Rotation = WSimdQuatd::MakeIdentity();
   res.m_Scale.Set(1.0f);
   return res;
 }
 
-inline ezSimdTransformd ezSimdTransformd::MakeLocalTransform(const ezSimdTransformd& globalTransformParent, const ezSimdTransformd& globalTransformChild)
+inline WSimdTransformd WSimdTransformd::MakeLocalTransform(const WSimdTransformd& globalTransformParent, const WSimdTransformd& globalTransformChild)
 {
-  const ezSimdQuatd invRot = -globalTransformParent.m_Rotation;
-  const ezSimdVec4d invScale = globalTransformParent.m_Scale.GetReciprocal();
+  const WSimdQuatd invRot = -globalTransformParent.m_Rotation;
+  const WSimdVec4d invScale = globalTransformParent.m_Scale.GetReciprocal();
 
-  ezSimdTransformd res;
+  WSimdTransformd res;
   res.m_Position = (invRot * (globalTransformChild.m_Position - globalTransformParent.m_Position)).CompMul(invScale);
   res.m_Rotation = invRot * globalTransformChild.m_Rotation;
   res.m_Scale = invScale.CompMul(globalTransformChild.m_Scale);
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdTransformd ezSimdTransformd::MakeGlobalTransform(const ezSimdTransformd& globalTransformParent, const ezSimdTransformd& localTransformChild)
+W_ALWAYS_INLINE WSimdTransformd WSimdTransformd::MakeGlobalTransform(const WSimdTransformd& globalTransformParent, const WSimdTransformd& localTransformChild)
 {
   return globalTransformParent * localTransformChild;
 }
 
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdTransformd::GetMaxScale() const
+W_ALWAYS_INLINE WSimdDouble WSimdTransformd::GetMaxScale() const
 {
   return m_Scale.Abs().HorizontalMax<3>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdTransformd::HasMirrorScaling() const
+W_ALWAYS_INLINE bool WSimdTransformd::HasMirrorScaling() const
 {
-  return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < ezSimdDouble::MakeZero();
+  return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < WSimdDouble::MakeZero();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdTransformd::HasOnlyUniformScaling() const
+W_ALWAYS_INLINE bool WSimdTransformd::HasOnlyUniformScaling() const
 {
-  const ezSimdDouble fEpsilon = ezMath::DefaultEpsilon<float>();
+  const WSimdDouble fEpsilon = WMath::DefaultEpsilon<float>();
   return m_Scale.x().IsEqual(m_Scale.y(), fEpsilon) && m_Scale.x().IsEqual(m_Scale.z(), fEpsilon);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdTransformd::IsEqual(const ezSimdTransformd& rhs, const ezSimdDouble& fEpsilon) const
+W_ALWAYS_INLINE bool WSimdTransformd::IsEqual(const WSimdTransformd& rhs, const WSimdDouble& fEpsilon) const
 {
   return m_Position.IsEqual(rhs.m_Position, fEpsilon).AllSet<3>() && m_Rotation.IsEqualRotation(rhs.m_Rotation, fEpsilon) &&
          m_Scale.IsEqual(rhs.m_Scale, fEpsilon).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransformd::Invert()
+W_ALWAYS_INLINE void WSimdTransformd::Invert()
 {
   (*this) = GetInverse();
 }
 
-EZ_ALWAYS_INLINE ezSimdTransformd ezSimdTransformd::GetInverse() const
+W_ALWAYS_INLINE WSimdTransformd WSimdTransformd::GetInverse() const
 {
-  ezSimdQuatd invRot = -m_Rotation;
-  ezSimdVec4d invScale = m_Scale.GetReciprocal();
-  ezSimdVec4d invPos = invRot * (invScale.CompMul(-m_Position));
+  WSimdQuatd invRot = -m_Rotation;
+  WSimdVec4d invScale = m_Scale.GetReciprocal();
+  WSimdVec4d invPos = invRot * (invScale.CompMul(-m_Position));
 
-  return ezSimdTransformd(invPos, invRot, invScale);
+  return WSimdTransformd(invPos, invRot, invScale);
 }
 
-EZ_FORCE_INLINE ezSimdMat4d ezSimdTransformd::GetAsMat4() const
+W_FORCE_INLINE WSimdMat4d WSimdTransformd::GetAsMat4() const
 {
-  ezSimdMat4d result = m_Rotation.GetAsMat4();
+  WSimdMat4d result = m_Rotation.GetAsMat4();
 
   result.m_col0 *= m_Scale.x();
   result.m_col1 *= m_Scale.y();
@@ -100,27 +100,27 @@ EZ_FORCE_INLINE ezSimdMat4d ezSimdTransformd::GetAsMat4() const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdTransformd::TransformPosition(const ezSimdVec4d& v) const
+W_ALWAYS_INLINE WSimdVec4d WSimdTransformd::TransformPosition(const WSimdVec4d& v) const
 {
-  const ezSimdVec4d scaled = m_Scale.CompMul(v);
-  const ezSimdVec4d rotated = m_Rotation * scaled;
+  const WSimdVec4d scaled = m_Scale.CompMul(v);
+  const WSimdVec4d rotated = m_Rotation * scaled;
   return m_Position + rotated;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdTransformd::TransformDirection(const ezSimdVec4d& v) const
+W_ALWAYS_INLINE WSimdVec4d WSimdTransformd::TransformDirection(const WSimdVec4d& v) const
 {
-  const ezSimdVec4d scaled = m_Scale.CompMul(v);
+  const WSimdVec4d scaled = m_Scale.CompMul(v);
   return m_Rotation * scaled;
 }
 
-EZ_ALWAYS_INLINE const ezSimdVec4d operator*(const ezSimdTransformd& t, const ezSimdVec4d& v)
+W_ALWAYS_INLINE const WSimdVec4d operator*(const WSimdTransformd& t, const WSimdVec4d& v)
 {
   return t.TransformPosition(v);
 }
 
-inline const ezSimdTransformd operator*(const ezSimdTransformd& lhs, const ezSimdTransformd& rhs)
+inline const WSimdTransformd operator*(const WSimdTransformd& lhs, const WSimdTransformd& rhs)
 {
-  ezSimdTransformd t;
+  WSimdTransformd t;
 
   t.m_Position = (lhs.m_Rotation * rhs.m_Position.CompMul(lhs.m_Scale)) + lhs.m_Position;
   t.m_Rotation = lhs.m_Rotation * rhs.m_Rotation;
@@ -129,37 +129,37 @@ inline const ezSimdTransformd operator*(const ezSimdTransformd& lhs, const ezSim
   return t;
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransformd::operator*=(const ezSimdTransformd& other)
+W_ALWAYS_INLINE void WSimdTransformd::operator*=(const WSimdTransformd& other)
 {
   (*this) = (*this) * other;
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdTransformd& lhs, const ezSimdQuatd& q)
+W_ALWAYS_INLINE const WSimdTransformd operator*(const WSimdTransformd& lhs, const WSimdQuatd& q)
 {
-  ezSimdTransformd t;
+  WSimdTransformd t;
   t.m_Position = lhs.m_Position;
   t.m_Rotation = lhs.m_Rotation * q;
   t.m_Scale = lhs.m_Scale;
   return t;
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdQuatd& q, const ezSimdTransformd& rhs)
+W_ALWAYS_INLINE const WSimdTransformd operator*(const WSimdQuatd& q, const WSimdTransformd& rhs)
 {
-  ezSimdTransformd t;
+  WSimdTransformd t;
   t.m_Position = rhs.m_Position;
   t.m_Rotation = q * rhs.m_Rotation;
   t.m_Scale = rhs.m_Scale;
   return t;
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransformd::operator*=(const ezSimdQuatd& q)
+W_ALWAYS_INLINE void WSimdTransformd::operator*=(const WSimdQuatd& q)
 {
   m_Rotation = m_Rotation * q;
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransformd operator+(const ezSimdTransformd& lhs, const ezSimdVec4d& v)
+W_ALWAYS_INLINE const WSimdTransformd operator+(const WSimdTransformd& lhs, const WSimdVec4d& v)
 {
-  ezSimdTransformd t;
+  WSimdTransformd t;
 
   t.m_Position = lhs.m_Position + v;
   t.m_Rotation = lhs.m_Rotation;
@@ -168,9 +168,9 @@ EZ_ALWAYS_INLINE const ezSimdTransformd operator+(const ezSimdTransformd& lhs, c
   return t;
 }
 
-EZ_ALWAYS_INLINE const ezSimdTransformd operator-(const ezSimdTransformd& lhs, const ezSimdVec4d& v)
+W_ALWAYS_INLINE const WSimdTransformd operator-(const WSimdTransformd& lhs, const WSimdVec4d& v)
 {
-  ezSimdTransformd t;
+  WSimdTransformd t;
 
   t.m_Position = lhs.m_Position - v;
   t.m_Rotation = lhs.m_Rotation;
@@ -179,22 +179,22 @@ EZ_ALWAYS_INLINE const ezSimdTransformd operator-(const ezSimdTransformd& lhs, c
   return t;
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransformd::operator+=(const ezSimdVec4d& v)
+W_ALWAYS_INLINE void WSimdTransformd::operator+=(const WSimdVec4d& v)
 {
   m_Position += v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransformd::operator-=(const ezSimdVec4d& v)
+W_ALWAYS_INLINE void WSimdTransformd::operator-=(const WSimdVec4d& v)
 {
   m_Position -= v;
 }
 
-EZ_ALWAYS_INLINE bool operator==(const ezSimdTransformd& lhs, const ezSimdTransformd& rhs)
+W_ALWAYS_INLINE bool operator==(const WSimdTransformd& lhs, const WSimdTransformd& rhs)
 {
   return (lhs.m_Position == rhs.m_Position).AllSet<3>() && lhs.m_Rotation == rhs.m_Rotation && (lhs.m_Scale == rhs.m_Scale).AllSet<3>();
 }
 
-EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransformd& lhs, const ezSimdTransformd& rhs)
+W_ALWAYS_INLINE bool operator!=(const WSimdTransformd& lhs, const WSimdTransformd& rhs)
 {
   return !(lhs == rhs);
 }

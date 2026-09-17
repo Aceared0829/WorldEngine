@@ -8,18 +8,18 @@
 #include <RenderDocPlugin/RenderDocSingleton.h>
 #include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
 
-EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
+W_IMPLEMENT_SINGLETON(WRenderDoc);
 
-static ezCommandLineOptionBool opt_NoCaptures("RenderDoc", "-NoCaptures", "Disables RenderDoc capture support.", false);
+static WCommandLineOptionBool opt_NoCaptures("RenderDoc", "-NoCaptures", "Disables RenderDoc capture support.", false);
 
-static ezRenderDoc g_RenderDocSingleton;
+static WRenderDoc g_RenderDocSingleton;
 
-ezRenderDoc::ezRenderDoc()
+WRenderDoc::WRenderDoc()
   : m_SingletonRegistrar(this)
 {
-  if (opt_NoCaptures.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
+  if (opt_NoCaptures.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified))
   {
-    ezLog::Info("RenderDoc plugin: Initialization suppressed via command-line.");
+    WLog::Info("RenderDoc plugin: Initialization suppressed via command-line.");
     return;
   }
 
@@ -27,12 +27,12 @@ ezRenderDoc::ezRenderDoc()
   if (!dllHandle)
   {
     dllHandle = LoadLibraryW(L"renderdoc.dll");
-    m_pHandleToFree = ezMinWindows::FromNative(dllHandle);
+    m_pHandleToFree = WMinWindows::FromNative(dllHandle);
   }
 
   if (!dllHandle)
   {
-    ezLog::Info("RenderDoc plugin: 'renderdoc.dll' could not be found. Frame captures aren't possible.");
+    WLog::Info("RenderDoc plugin: 'renderdoc.dll' could not be found. Frame captures aren't possible.");
     return;
   }
 
@@ -51,36 +51,36 @@ ezRenderDoc::ezRenderDoc()
   }
   else
   {
-    ezLog::Warning("RenderDoc plugin: Unable to retrieve API pointer from DLL. Potentially outdated version. Frame captures aren't possible.");
+    WLog::Warning("RenderDoc plugin: Unable to retrieve API pointer from DLL. Potentially outdated version. Frame captures aren't possible.");
   }
 }
 
-ezRenderDoc::~ezRenderDoc()
+WRenderDoc::~WRenderDoc()
 {
   m_pRenderDocAPI = nullptr;
 
   if (m_pHandleToFree)
   {
-    FreeLibrary(ezMinWindows::ToNative(m_pHandleToFree));
+    FreeLibrary(WMinWindows::ToNative(m_pHandleToFree));
     m_pHandleToFree = nullptr;
   }
 }
 
-bool ezRenderDoc::IsInitialized() const
+bool WRenderDoc::IsInitialized() const
 {
   return m_pRenderDocAPI != nullptr;
 }
 
-void ezRenderDoc::SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate)
+void WRenderDoc::SetAbsCaptureFilePathTemplate(WStringView sFilePathTemplate)
 {
   if (m_pRenderDocAPI)
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
     m_pRenderDocAPI->SetCaptureFilePathTemplate(sFilePathTemplate.GetData(tmp));
   }
 }
 
-ezStringView ezRenderDoc::GetAbsCaptureFilePathTemplate() const
+WStringView WRenderDoc::GetAbsCaptureFilePathTemplate() const
 {
   if (m_pRenderDocAPI)
   {
@@ -90,7 +90,7 @@ ezStringView ezRenderDoc::GetAbsCaptureFilePathTemplate() const
   return {};
 }
 
-void ezRenderDoc::StartFrameCapture(ezWindowHandle hWnd)
+void WRenderDoc::StartFrameCapture(WWindowHandle hWnd)
 {
   if (m_pRenderDocAPI)
   {
@@ -98,12 +98,12 @@ void ezRenderDoc::StartFrameCapture(ezWindowHandle hWnd)
   }
 }
 
-bool ezRenderDoc::IsFrameCapturing() const
+bool WRenderDoc::IsFrameCapturing() const
 {
   return m_pRenderDocAPI ? m_pRenderDocAPI->IsFrameCapturing() : false;
 }
 
-void ezRenderDoc::EndFrameCaptureAndWriteOutput(ezWindowHandle hWnd)
+void WRenderDoc::EndFrameCaptureAndWriteOutput(WWindowHandle hWnd)
 {
   if (m_pRenderDocAPI)
   {
@@ -111,7 +111,7 @@ void ezRenderDoc::EndFrameCaptureAndWriteOutput(ezWindowHandle hWnd)
   }
 }
 
-void ezRenderDoc::EndFrameCaptureAndDiscardResult(ezWindowHandle hWnd)
+void WRenderDoc::EndFrameCaptureAndDiscardResult(WWindowHandle hWnd)
 {
   if (m_pRenderDocAPI)
   {
@@ -119,22 +119,22 @@ void ezRenderDoc::EndFrameCaptureAndDiscardResult(ezWindowHandle hWnd)
   }
 }
 
-ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const
+WResult WRenderDoc::GetLastAbsCaptureFileName(WStringBuilder& out_sFileName) const
 {
   if (m_pRenderDocAPI && m_pRenderDocAPI->GetNumCaptures() > 0)
   {
-    ezUInt32 uiNumCaptures = m_pRenderDocAPI->GetNumCaptures();
-    ezUInt32 uiFilePathLength = 0;
+    WUInt32 uiNumCaptures = m_pRenderDocAPI->GetNumCaptures();
+    WUInt32 uiFilePathLength = 0;
     if (m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, nullptr, &uiFilePathLength, nullptr))
     {
-      ezTempHybridArray<char, 128> filePathBuffer;
+      WTempHybridArray<char, 128> filePathBuffer;
       filePathBuffer.SetCount(uiFilePathLength);
       m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, filePathBuffer.GetArrayPtr().GetPtr(), nullptr, nullptr);
       out_sFileName = filePathBuffer.GetArrayPtr().GetPtr();
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }

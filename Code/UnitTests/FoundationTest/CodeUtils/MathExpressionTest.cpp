@@ -2,191 +2,191 @@
 
 #include <Foundation/CodeUtils/MathExpression.h>
 
-EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
+W_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Basics")
   {
     {
-      ezMathExpression expr("");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("");
+      W_TEST_BOOL(!expr.IsValid());
 
       expr.Reset("");
-      EZ_TEST_BOOL(!expr.IsValid());
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr(nullptr);
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr(nullptr);
+      W_TEST_BOOL(!expr.IsValid());
 
       expr.Reset(nullptr);
-      EZ_TEST_BOOL(!expr.IsValid());
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("1.5 + 2.5");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
+      WMathExpression expr("1.5 + 2.5");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
     }
     {
-      ezMathExpression expr("1- 2");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), -1.0, 0.0);
+      WMathExpression expr("1- 2");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), -1.0, 0.0);
     }
     {
-      ezMathExpression expr("1 *2");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
+      WMathExpression expr("1 *2");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr(" 1.0/2 ");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
+      WMathExpression expr(" 1.0/2 ");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
     }
     {
-      ezMathExpression expr("1 - -1");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
+      WMathExpression expr("1 - -1");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr("abs(-3)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+      WMathExpression expr("abs(-3)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
     }
     {
-      ezMathExpression expr("sqrt(4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
+      WMathExpression expr("sqrt(4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr("saturate(4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
+      WMathExpression expr("saturate(4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
     }
     {
-      ezMathExpression expr("min(3, 4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+      WMathExpression expr("min(3, 4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
     }
     {
-      ezMathExpression expr("max(3, 4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
+      WMathExpression expr("max(3, 4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
     }
     {
-      ezMathExpression expr("clamp(2, 3, 4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+      WMathExpression expr("clamp(2, 3, 4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
     }
     {
-      ezMathExpression expr("clamp(5, 3, 4)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
+      WMathExpression expr("clamp(5, 3, 4)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operator Priority")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Operator Priority")
   {
     {
-      ezMathExpression expr("1 - 2 * 4");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), -7.0, 0.0);
+      WMathExpression expr("1 - 2 * 4");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), -7.0, 0.0);
     }
     {
-      ezMathExpression expr("-1 - 2 * 4");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), -9.0, 0.0);
+      WMathExpression expr("-1 - 2 * 4");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), -9.0, 0.0);
     }
     {
-      ezMathExpression expr("1 - 2.0 / 4");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
+      WMathExpression expr("1 - 2.0 / 4");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
     }
     {
-      ezMathExpression expr("abs (-4 + 2)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
+      WMathExpression expr("abs (-4 + 2)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Braces")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Braces")
   {
     {
-      ezMathExpression expr("(1 - 2) * 4");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), -4.0, 0.0);
+      WMathExpression expr("(1 - 2) * 4");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), -4.0, 0.0);
     }
     {
-      ezMathExpression expr("(((((0)))))");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 0.0, 0.0);
+      WMathExpression expr("(((((0)))))");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 0.0, 0.0);
     }
     {
-      ezMathExpression expr("(1 + 2) * (3 - 2)");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+      WMathExpression expr("(1 + 2) * (3 - 2)");
+      W_TEST_BOOL(expr.IsValid());
+      W_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Variables")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Variables")
   {
-    ezTempHybridArray<ezMathExpression::Input, 4> inputs;
+    WTempHybridArray<WMathExpression::Input, 4> inputs;
     inputs.SetCount(4);
 
     {
-      ezMathExpression expr("_var1 + v2Ar");
-      EZ_TEST_BOOL(expr.IsValid());
+      WMathExpression expr("_var1 + v2Ar");
+      W_TEST_BOOL(expr.IsValid());
 
-      inputs[0] = {ezMakeHashedString("_var1"), 1.0};
-      inputs[1] = {ezMakeHashedString("v2Ar"), 2.0};
+      inputs[0] = {WMakeHashedString("_var1"), 1.0};
+      inputs[1] = {WMakeHashedString("v2Ar"), 2.0};
 
       double result = expr.Evaluate(inputs);
-      EZ_TEST_DOUBLE(result, 3.0, 0.0);
+      W_TEST_DOUBLE(result, 3.0, 0.0);
 
       inputs[0].m_fValue = 2.0;
       inputs[1].m_fValue = 0.5;
 
       result = expr.Evaluate(inputs);
-      EZ_TEST_DOUBLE(result, 2.5, 0.0);
+      W_TEST_DOUBLE(result, 2.5, 0.0);
     }
 
     // Make sure we got the spaces right and don't count it as part of the variable.
     {
-      ezMathExpression expr("  a +  b /c*d");
-      EZ_TEST_BOOL(expr.IsValid());
+      WMathExpression expr("  a +  b /c*d");
+      W_TEST_BOOL(expr.IsValid());
 
-      inputs[0] = {ezMakeHashedString("a"), 1.0};
-      inputs[1] = {ezMakeHashedString("b"), 4.0};
-      inputs[2] = {ezMakeHashedString("c"), 2.0};
-      inputs[3] = {ezMakeHashedString("d"), 3.0};
+      inputs[0] = {WMakeHashedString("a"), 1.0};
+      inputs[1] = {WMakeHashedString("b"), 4.0};
+      inputs[2] = {WMakeHashedString("c"), 2.0};
+      inputs[3] = {WMakeHashedString("d"), 3.0};
 
       double result = expr.Evaluate(inputs);
-      EZ_TEST_DOUBLE(result, 7.0, 0.0);
+      W_TEST_DOUBLE(result, 7.0, 0.0);
     }
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invalid Expressions")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Invalid Expressions")
   {
-    ezMuteLog logErrorSink;
-    ezLogSystemScope ls(&logErrorSink);
+    WMuteLog logErrorSink;
+    WLogSystemScope ls(&logErrorSink);
 
     {
-      ezMathExpression expr("1+");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("1+");
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("1+/1");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("1+/1");
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("(((((0))))");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("(((((0))))");
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("_va£r + asdf");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("_va£r + asdf");
+      W_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("sqrt(2, 4)");
-      EZ_TEST_BOOL(!expr.IsValid());
+      WMathExpression expr("sqrt(2, 4)");
+      W_TEST_BOOL(!expr.IsValid());
     }
   }
 }

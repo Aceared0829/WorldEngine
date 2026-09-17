@@ -8,32 +8,32 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 
-ezGALResourceStateTracker::TextureState::TextureState()
-  : m_SubResourceStates(ezFrameAllocator::GetCurrentAllocator())
+WGALResourceStateTracker::TextureState::TextureState()
+  : m_SubResourceStates(WFrameAllocator::GetCurrentAllocator())
 {
 }
 
-ezGALResourceStateTracker::ezGALResourceStateTracker(ezGALDevice* pDevice)
+WGALResourceStateTracker::WGALResourceStateTracker(WGALDevice* pDevice)
   : m_pDevice(pDevice)
 {
-  EZ_ASSERT_DEBUG(pDevice != nullptr, "Device must not be null");
-  m_GALDeviceEventSubscriptionID = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALResourceStateTracker::GALDeviceEventHandler, this));
+  W_ASSERT_DEBUG(pDevice != nullptr, "Device must not be null");
+  m_GALDeviceEventSubscriptionID = WGALDevice::s_Events.AddEventHandler(WMakeDelegate(&WGALResourceStateTracker::GALDeviceEventHandler, this));
 }
 
-ezGALResourceStateTracker::~ezGALResourceStateTracker()
+WGALResourceStateTracker::~WGALResourceStateTracker()
 {
-  ezGALDevice::s_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
+  WGALDevice::s_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
 }
 
-void ezGALResourceStateTracker::Clear()
+void WGALResourceStateTracker::Clear()
 {
   m_TextureStates.Clear();
   m_BufferStates.Clear();
 }
 
-void ezGALResourceStateTracker::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+void WGALResourceStateTracker::GALDeviceEventHandler(const WGALDeviceEvent& e)
 {
-  if (e.m_Type == ezGALDeviceEvent::AfterEndFrame && e.m_pDevice == m_pDevice)
+  if (e.m_Type == WGALDeviceEvent::AfterEndFrame && e.m_pDevice == m_pDevice)
   {
     Clear();
   }
@@ -41,44 +41,44 @@ void ezGALResourceStateTracker::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 
 // --- Initial State ---
 
-void ezGALResourceStateTracker::SetInitialTextureState(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> state, ezBitflags<ezGALShaderStageFlags> stages)
+void WGALResourceStateTracker::SetInitialTextureState(WGALTextureHandle hTexture, WBitflags<WGALResourceState> state, WBitflags<WGALShaderStageFlags> stages)
 {
-  EZ_ASSERT_DEBUG(stages.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
+  W_ASSERT_DEBUG(stages.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
   TextureState& ts = GetOrCreateTextureState(hTexture);
   // Reset to compressed tracking: one entry represents the whole resource.
   ts.m_SubResourceStates.SetCount(1);
   ts.m_SubResourceStates[0] = {state, stages};
 }
 
-void ezGALResourceStateTracker::SetInitialBufferState(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> state, ezBitflags<ezGALShaderStageFlags> stages)
+void WGALResourceStateTracker::SetInitialBufferState(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> state, WBitflags<WGALShaderStageFlags> stages)
 {
-  EZ_ASSERT_DEBUG(stages.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
+  W_ASSERT_DEBUG(stages.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
   m_BufferStates[hBuffer] = {state, stages};
 }
 
 // --- Texture ChangeState ---
 
-void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
-  ezGALTextureRange range,
-  ezBitflags<ezGALResourceState> newState,
-  ezBitflags<ezGALShaderStageFlags> stage,
-  const ezDelegate<void(const ezGALTextureBarrier&)>& barrierCallback)
+void WGALResourceStateTracker::ChangeState(WGALTextureHandle hTexture,
+  WGALTextureRange range,
+  WBitflags<WGALResourceState> newState,
+  WBitflags<WGALShaderStageFlags> stage,
+  const WDelegate<void(const WGALTextureBarrier&)>& barrierCallback)
 {
   ResolveProxyTexture(hTexture, range);
 
-  EZ_ASSERT_DEBUG(stage.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
+  W_ASSERT_DEBUG(stage.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
   TextureState& ts = GetOrCreateTextureState(hTexture);
 
-  // Resolve EZ_GAL_ALL_* sentinels against the full texture range.
-  const ezGALTextureRange& fullRange = ts.m_FullRange;
-  if (range.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
-    range.m_uiArraySlices = static_cast<ezUInt16>(fullRange.m_uiArraySlices - range.m_uiBaseArraySlice);
-  if (range.m_uiMipLevels == EZ_GAL_ALL_MIP_LEVELS)
-    range.m_uiMipLevels = static_cast<ezUInt8>(fullRange.m_uiMipLevels - range.m_uiBaseMipLevel);
+  // Resolve W_GAL_ALL_* sentinels against the full texture range.
+  const WGALTextureRange& fullRange = ts.m_FullRange;
+  if (range.m_uiArraySlices == W_GAL_ALL_ARRAY_SLICES)
+    range.m_uiArraySlices = static_cast<WUInt16>(fullRange.m_uiArraySlices - range.m_uiBaseArraySlice);
+  if (range.m_uiMipLevels == W_GAL_ALL_MIP_LEVELS)
+    range.m_uiMipLevels = static_cast<WUInt8>(fullRange.m_uiMipLevels - range.m_uiBaseMipLevel);
 
   const bool bIsFullRange = (range == fullRange);
-  const bool bDiscard = newState.IsSet(ezGALResourceState::Discard);
-  newState.Remove(ezGALResourceState::Discard);
+  const bool bDiscard = newState.IsSet(WGALResourceState::Discard);
+  newState.Remove(WGALResourceState::Discard);
   // Fast path: compressed state + full-range transition can stay compressed.
   if (ts.m_SubResourceStates.GetCount() == 1 && bIsFullRange)
   {
@@ -87,7 +87,7 @@ void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
     const SubResourceState newSr = {newState, stage};
     if (IsTextureBarrierNeeded(sr, newSr))
     {
-      ezGALTextureBarrier barrier;
+      WGALTextureBarrier barrier;
       barrier.m_hTexture = hTexture;
       barrier.m_StateBefore = sr.m_State;
       barrier.m_StateAfter = newState;
@@ -101,7 +101,7 @@ void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
     else
     {
       // No barrier needed: accumulate stages so subsequent barriers have correct srcStages covering all stages that accessed the resource.
-      if (!sr.m_Stages.IsSet(ezGALShaderStageFlags::Auto))
+      if (!sr.m_Stages.IsSet(WGALShaderStageFlags::Auto))
         sr.m_Stages.Add(stage);
     }
 
@@ -116,17 +116,17 @@ void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
   }
 
   // Per-sub-resource transitions.
-  for (ezUInt16 uiLayer = range.m_uiBaseArraySlice; uiLayer < range.m_uiBaseArraySlice + range.m_uiArraySlices; ++uiLayer)
+  for (WUInt16 uiLayer = range.m_uiBaseArraySlice; uiLayer < range.m_uiBaseArraySlice + range.m_uiArraySlices; ++uiLayer)
   {
-    for (ezUInt8 uiMip = range.m_uiBaseMipLevel; uiMip < range.m_uiBaseMipLevel + range.m_uiMipLevels; ++uiMip)
+    for (WUInt8 uiMip = range.m_uiBaseMipLevel; uiMip < range.m_uiBaseMipLevel + range.m_uiMipLevels; ++uiMip)
     {
-      const ezUInt32 uiIdx = ezGALTextureRange::ComputeSubResourceIndex(uiMip, uiLayer, fullRange);
+      const WUInt32 uiIdx = WGALTextureRange::ComputeSubResourceIndex(uiMip, uiLayer, fullRange);
       SubResourceState& sr = ts.m_SubResourceStates[uiIdx];
 
       const SubResourceState newSr = {newState, stage};
       if (IsTextureBarrierNeeded(sr, newSr))
       {
-        ezGALTextureBarrier barrier;
+        WGALTextureBarrier barrier;
         barrier.m_hTexture = hTexture;
         barrier.m_StateBefore = sr.m_State;
         barrier.m_StateAfter = newState;
@@ -142,7 +142,7 @@ void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
       else
       {
         // No barrier needed: accumulate stages so subsequent barriers have correct srcStages covering all stages that accessed the resource.
-        if (!sr.m_Stages.IsSet(ezGALShaderStageFlags::Auto))
+        if (!sr.m_Stages.IsSet(WGALShaderStageFlags::Auto))
           sr.m_Stages.Add(stage);
       }
 
@@ -153,30 +153,30 @@ void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
 
 // --- RevertTextureState ---
 
-void ezGALResourceStateTracker::RevertTextureState(const ezDelegate<void(const ezGALTextureBarrier&)>& barrierCallback)
+void WGALResourceStateTracker::RevertTextureState(const WDelegate<void(const WGALTextureBarrier&)>& barrierCallback)
 {
   for (auto it = m_TextureStates.GetIterator(); it.IsValid(); ++it)
   {
-    const ezGALTextureHandle hTexture = it.Key();
+    const WGALTextureHandle hTexture = it.Key();
     TextureState& ts = it.Value();
 
-    const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
-    EZ_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle in state tracker");
-    const ezBitflags<ezGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
+    const WGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+    W_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle in state tracker");
+    const WBitflags<WGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
 
     // Compressed path: one entry represents the entire resource.
     if (ts.m_SubResourceStates.GetCount() == 1)
     {
       SubResourceState& sr = ts.m_SubResourceStates[0];
-      const SubResourceState newSr = {defaultState, ezGALShaderStageFlags::Auto};
+      const SubResourceState newSr = {defaultState, WGALShaderStageFlags::Auto};
       if (IsTextureBarrierNeeded(sr, newSr))
       {
-        ezGALTextureBarrier barrier;
+        WGALTextureBarrier barrier;
         barrier.m_hTexture = hTexture;
         barrier.m_StateBefore = sr.m_State;
         barrier.m_StateAfter = defaultState;
         barrier.m_StagesBefore = sr.m_Stages;
-        barrier.m_StagesAfter = ezGALShaderStageFlags::Auto;
+        barrier.m_StagesAfter = WGALShaderStageFlags::Auto;
         barrier.m_bAllSubresources = true;
         barrierCallback(barrier);
       }
@@ -185,21 +185,21 @@ void ezGALResourceStateTracker::RevertTextureState(const ezDelegate<void(const e
     }
 
     // Expanded path: evaluate each sub-resource individually.
-    for (ezUInt16 uiLayer = 0; uiLayer < ts.m_FullRange.m_uiArraySlices; ++uiLayer)
+    for (WUInt16 uiLayer = 0; uiLayer < ts.m_FullRange.m_uiArraySlices; ++uiLayer)
     {
-      for (ezUInt8 uiMip = 0; uiMip < ts.m_FullRange.m_uiMipLevels; ++uiMip)
+      for (WUInt8 uiMip = 0; uiMip < ts.m_FullRange.m_uiMipLevels; ++uiMip)
       {
-        const ezUInt32 uiIdx = ezGALTextureRange::ComputeSubResourceIndex(uiMip, uiLayer, ts.m_FullRange);
+        const WUInt32 uiIdx = WGALTextureRange::ComputeSubResourceIndex(uiMip, uiLayer, ts.m_FullRange);
         SubResourceState& sr = ts.m_SubResourceStates[uiIdx];
-        const SubResourceState newSr = {defaultState, ezGALShaderStageFlags::Auto};
+        const SubResourceState newSr = {defaultState, WGALShaderStageFlags::Auto};
         if (IsTextureBarrierNeeded(sr, newSr))
         {
-          ezGALTextureBarrier barrier;
+          WGALTextureBarrier barrier;
           barrier.m_hTexture = hTexture;
           barrier.m_StateBefore = sr.m_State;
           barrier.m_StateAfter = defaultState;
           barrier.m_StagesBefore = sr.m_Stages;
-          barrier.m_StagesAfter = ezGALShaderStageFlags::Auto;
+          barrier.m_StagesAfter = WGALShaderStageFlags::Auto;
           barrier.m_bAllSubresources = false;
           barrier.m_Subresource.m_uiMipLevel = uiMip;
           barrier.m_Subresource.m_uiArraySlice = uiLayer;
@@ -211,30 +211,30 @@ void ezGALResourceStateTracker::RevertTextureState(const ezDelegate<void(const e
 
     // Re-compress: all sub-resources now share the same default state.
     ts.m_SubResourceStates.SetCount(1);
-    ts.m_SubResourceStates[0] = {defaultState, ezGALShaderStageFlags::Auto};
+    ts.m_SubResourceStates[0] = {defaultState, WGALShaderStageFlags::Auto};
   }
 }
 
-void ezGALResourceStateTracker::RevertBufferState(const ezDelegate<void(const ezGALBufferBarrier&)>& barrierCallback)
+void WGALResourceStateTracker::RevertBufferState(const WDelegate<void(const WGALBufferBarrier&)>& barrierCallback)
 {
   for (auto it = m_BufferStates.GetIterator(); it.IsValid(); ++it)
   {
-    const ezGALBufferHandle hBuffer = it.Key();
+    const WGALBufferHandle hBuffer = it.Key();
     SubResourceState& bs = it.Value();
 
-    const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
-    EZ_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle in state tracker");
-    const ezBitflags<ezGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
+    const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+    W_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle in state tracker");
+    const WBitflags<WGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
 
-    const SubResourceState newSr = {defaultState, ezGALShaderStageFlags::Auto};
+    const SubResourceState newSr = {defaultState, WGALShaderStageFlags::Auto};
     if (IsBufferBarrierNeeded(bs, newSr))
     {
-      ezGALBufferBarrier barrier;
+      WGALBufferBarrier barrier;
       barrier.m_hBuffer = hBuffer;
       barrier.m_StateBefore = bs.m_State;
       barrier.m_StateAfter = defaultState;
       barrier.m_StagesBefore = bs.m_Stages;
-      barrier.m_StagesAfter = ezGALShaderStageFlags::Auto;
+      barrier.m_StagesAfter = WGALShaderStageFlags::Auto;
       barrierCallback(barrier);
     }
 
@@ -244,18 +244,18 @@ void ezGALResourceStateTracker::RevertBufferState(const ezDelegate<void(const ez
 
 // --- Buffer ChangeState ---
 
-void ezGALResourceStateTracker::ChangeState(ezGALBufferHandle hBuffer,
-  ezBitflags<ezGALResourceState> newState,
-  ezBitflags<ezGALShaderStageFlags> stage,
-  const ezDelegate<void(const ezGALBufferBarrier&)>& barrierCallback)
+void WGALResourceStateTracker::ChangeState(WGALBufferHandle hBuffer,
+  WBitflags<WGALResourceState> newState,
+  WBitflags<WGALShaderStageFlags> stage,
+  const WDelegate<void(const WGALBufferBarrier&)>& barrierCallback)
 {
-  EZ_ASSERT_DEBUG(stage.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
+  W_ASSERT_DEBUG(stage.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
   SubResourceState& bs = GetOrCreateBufferState(hBuffer);
 
   const SubResourceState newSr = {newState, stage};
   if (IsBufferBarrierNeeded(bs, newSr))
   {
-    ezGALBufferBarrier barrier;
+    WGALBufferBarrier barrier;
     barrier.m_hBuffer = hBuffer;
     barrier.m_StateBefore = bs.m_State;
     barrier.m_StateAfter = newState;
@@ -274,66 +274,66 @@ void ezGALResourceStateTracker::ChangeState(ezGALBufferHandle hBuffer,
 
 // --- Helpers ---
 
-ezGALResourceStateTracker::TextureState& ezGALResourceStateTracker::GetOrCreateTextureState(ezGALTextureHandle hTexture)
+WGALResourceStateTracker::TextureState& WGALResourceStateTracker::GetOrCreateTextureState(WGALTextureHandle hTexture)
 {
   TextureState& ts = m_TextureStates[hTexture];
 
-  // m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES marks an uninitialized range.
-  if (ts.m_FullRange.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
+  // m_uiArraySlices == W_GAL_ALL_ARRAY_SLICES marks an uninitialized range.
+  if (ts.m_FullRange.m_uiArraySlices == W_GAL_ALL_ARRAY_SLICES)
   {
-    const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
-    EZ_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle");
+    const WGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
+    W_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle");
     ts.m_FullRange = pTexture->ClampRange({});
 
     if (ts.m_SubResourceStates.IsEmpty())
     {
       // First observation starts from the resource default state.
       ts.m_SubResourceStates.SetCount(1);
-      ts.m_SubResourceStates[0] = {pTexture->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto};
+      ts.m_SubResourceStates[0] = {pTexture->GetDescription().GetDefaultState(), WGALShaderStageFlags::Auto};
     }
   }
 
   return ts;
 }
 
-ezGALResourceStateTracker::SubResourceState& ezGALResourceStateTracker::GetOrCreateBufferState(ezGALBufferHandle hBuffer)
+WGALResourceStateTracker::SubResourceState& WGALResourceStateTracker::GetOrCreateBufferState(WGALBufferHandle hBuffer)
 {
   bool bExisted = false;
   SubResourceState& bs = m_BufferStates.FindOrAdd(hBuffer, &bExisted);
 
   if (!bExisted)
   {
-    const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
-    EZ_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle");
-    bs = {pBuffer->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto};
+    const WGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
+    W_ASSERT_DEBUG(pBuffer != nullptr, "Invalid buffer handle");
+    bs = {pBuffer->GetDescription().GetDefaultState(), WGALShaderStageFlags::Auto};
   }
 
   return bs;
 }
 
-void ezGALResourceStateTracker::ExpandTextureState(TextureState& state)
+void WGALResourceStateTracker::ExpandTextureState(TextureState& state)
 {
-  EZ_ASSERT_DEBUG(state.m_SubResourceStates.GetCount() == 1, "Already expanded");
+  W_ASSERT_DEBUG(state.m_SubResourceStates.GetCount() == 1, "Already expanded");
 
   const SubResourceState uniform = state.m_SubResourceStates[0];
-  const ezUInt32 uiTotal = (ezUInt32)state.m_FullRange.m_uiMipLevels * (ezUInt32)state.m_FullRange.m_uiArraySlices;
+  const WUInt32 uiTotal = (WUInt32)state.m_FullRange.m_uiMipLevels * (WUInt32)state.m_FullRange.m_uiArraySlices;
 
-  state.m_SubResourceStates = ezHybridArray<SubResourceState, 1>(ezFrameAllocator::GetCurrentAllocator());
+  state.m_SubResourceStates = WHybridArray<SubResourceState, 1>(WFrameAllocator::GetCurrentAllocator());
   state.m_SubResourceStates.SetCount(uiTotal);
-  for (ezUInt32 i = 0; i < uiTotal; ++i)
+  for (WUInt32 i = 0; i < uiTotal; ++i)
   {
     state.m_SubResourceStates[i] = uniform;
   }
 }
 
-bool ezGALResourceStateTracker::IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
+bool WGALResourceStateTracker::IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
 {
   // State changes always require a barrier.
   if (oldState.m_State != newState.m_State)
     return true;
 
   // UAV write-after-write needs synchronization even when state bits match.
-  if (bForceUAVBarrier && oldState.m_State.IsAnySet(ezGALResourceState::UnorderedAccess))
+  if (bForceUAVBarrier && oldState.m_State.IsAnySet(WGALResourceState::UnorderedAccess))
     return true;
 
   // Check whether the new stages are already covered by the old barrier's
@@ -345,14 +345,14 @@ bool ezGALResourceStateTracker::IsTextureBarrierNeeded(const SubResourceState& o
   return false;
 }
 
-bool ezGALResourceStateTracker::IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
+bool WGALResourceStateTracker::IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
 {
   // New state must be a sub-set of the current state.
   if (!oldState.m_State.AreAllSet(newState.m_State))
     return true;
 
   // UAV write-after-write needs synchronization even when state bits match.
-  if (bForceUAVBarrier && oldState.m_State.IsAnySet(ezGALResourceState::UnorderedAccess))
+  if (bForceUAVBarrier && oldState.m_State.IsAnySet(WGALResourceState::UnorderedAccess))
     return true;
 
   // Check whether the new stages are already covered by the old barrier's
@@ -364,14 +364,14 @@ bool ezGALResourceStateTracker::IsBufferBarrierNeeded(const SubResourceState& ol
   return false;
 }
 
-bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlags> coveredStages, ezBitflags<ezGALShaderStageFlags> requiredStages)
+bool WGALResourceStateTracker::AreStagesCovered(WBitflags<WGALShaderStageFlags> coveredStages, WBitflags<WGALShaderStageFlags> requiredStages)
 {
   // Auto means "all stages inferred from the resource state" — covers everything.
-  if (coveredStages.IsSet(ezGALShaderStageFlags::Auto))
+  if (coveredStages.IsSet(WGALShaderStageFlags::Auto))
     return true;
 
   // If the caller requires Auto (all stages), explicit stages can't guarantee that.
-  if (requiredStages.IsSet(ezGALShaderStageFlags::Auto))
+  if (requiredStages.IsSet(WGALShaderStageFlags::Auto))
     return false;
 
   // If the required stages are already a subset of the covered stages, no barrier needed.
@@ -382,17 +382,17 @@ bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlag
   // implicitly covers all logically later stages in the same pipeline.
   // VS -> HS -> DS -> GS -> PS
   // Compute is on a separate pipeline with no implicit ordering.
-  constexpr ezGALShaderStageFlags::Enum graphicsOrder[] = {
-    ezGALShaderStageFlags::VertexShader,
-    ezGALShaderStageFlags::HullShader,
-    ezGALShaderStageFlags::DomainShader,
-    ezGALShaderStageFlags::GeometryShader,
-    ezGALShaderStageFlags::PixelShader,
+  constexpr WGALShaderStageFlags::Enum graphicsOrder[] = {
+    WGALShaderStageFlags::VertexShader,
+    WGALShaderStageFlags::HullShader,
+    WGALShaderStageFlags::DomainShader,
+    WGALShaderStageFlags::GeometryShader,
+    WGALShaderStageFlags::PixelShader,
   };
 
   // Find the earliest covered graphics stage.
   int iEarliestCovered = -1;
-  for (int i = 0; i < EZ_ARRAY_SIZE(graphicsOrder); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(graphicsOrder); ++i)
   {
     if (coveredStages.IsSet(graphicsOrder[i]))
     {
@@ -402,7 +402,7 @@ bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlag
   }
 
   // Check each required stage.
-  for (int i = 0; i < EZ_ARRAY_SIZE(graphicsOrder); ++i)
+  for (int i = 0; i < W_ARRAY_SIZE(graphicsOrder); ++i)
   {
     if (!requiredStages.IsSet(graphicsOrder[i]))
       continue;
@@ -419,20 +419,20 @@ bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlag
   }
 
   // Compute is never implicitly covered by graphics stages and vice versa.
-  if (requiredStages.IsSet(ezGALShaderStageFlags::ComputeShader) &&
-      !coveredStages.IsSet(ezGALShaderStageFlags::ComputeShader))
+  if (requiredStages.IsSet(WGALShaderStageFlags::ComputeShader) &&
+      !coveredStages.IsSet(WGALShaderStageFlags::ComputeShader))
     return false;
 
   return true;
 }
-void ezGALResourceStateTracker::ResolveProxyTexture(ezGALTextureHandle& ref_hTexture, ezGALTextureRange& ref_range) const
+void WGALResourceStateTracker::ResolveProxyTexture(WGALTextureHandle& ref_hTexture, WGALTextureRange& ref_range) const
 {
-  const ezGALTexture* pTexture = m_pDevice->GetTexture(ref_hTexture);
-  EZ_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle.");
+  const WGALTexture* pTexture = m_pDevice->GetTexture(ref_hTexture);
+  W_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle.");
   // Resolve proxy texture as they only cause pain down the pipeline.
-  if (pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy)
+  if (pTexture->GetDescription().m_Type == WGALTextureType::Texture2DProxy)
   {
-    const auto pProxy = static_cast<const ezGALProxyTexture*>(pTexture);
+    const auto pProxy = static_cast<const WGALProxyTexture*>(pTexture);
     ref_hTexture = pProxy->GetParentTextureHandle();
     ref_range = {pProxy->GetSlice(), 1, ref_range.m_uiBaseMipLevel, ref_range.m_uiMipLevels};
   }
@@ -440,14 +440,14 @@ void ezGALResourceStateTracker::ResolveProxyTexture(ezGALTextureHandle& ref_hTex
 
 // --- State Verification ---
 
-const ezGALResourceStateTracker::SubResourceState* ezGALResourceStateTracker::GetBufferState(ezGALBufferHandle hBuffer) const
+const WGALResourceStateTracker::SubResourceState* WGALResourceStateTracker::GetBufferState(WGALBufferHandle hBuffer) const
 {
   return m_BufferStates.GetValue(hBuffer);
 }
 
-const ezGALResourceStateTracker::TextureState* ezGALResourceStateTracker::GetTextureState(ezGALTextureHandle hTexture) const
+const WGALResourceStateTracker::TextureState* WGALResourceStateTracker::GetTextureState(WGALTextureHandle hTexture) const
 {
-  ezGALTextureRange range;
+  WGALTextureRange range;
   ResolveProxyTexture(hTexture, range);
   return m_TextureStates.GetValue(hTexture);
 }

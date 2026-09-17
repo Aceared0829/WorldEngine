@@ -7,41 +7,41 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_SizeCurve>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_SizeCurve, 2, WRTTIDefaultAllocator<WParticleBehaviorFactory_SizeCurve>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("ChangeSizeWith", ezCurveSource, m_CurveSource),
-    EZ_MEMBER_PROPERTY("SizeCurve", m_Curve),
-    EZ_RESOURCE_MEMBER_PROPERTY("SharedSizeCurve", m_hSharedCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("SizeCurveOffset", m_fSizeCurveOffset)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("SizeCurveScale", m_fSizeCurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ENUM_MEMBER_PROPERTY("ChangeSizeWith", WCurveSource, m_CurveSource),
+    W_MEMBER_PROPERTY("SizeCurve", m_Curve),
+    W_RESOURCE_MEMBER_PROPERTY("SharedSizeCurve", m_hSharedCurve)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    W_MEMBER_PROPERTY("SizeCurveOffset", m_fSizeCurveOffset)->AddAttributes(new WDefaultValueAttribute(0.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("SizeCurveScale", m_fSizeCurveScale)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_SizeCurve, 1, ezRTTIDefaultAllocator<ezParticleBehavior_SizeCurve>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_SizeCurve, 1, WRTTIDefaultAllocator<WParticleBehavior_SizeCurve>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_SizeCurve::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_SizeCurve::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_SizeCurve>();
+  return WGetStaticRTTI<WParticleBehavior_SizeCurve>();
 }
 
-void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_SizeCurve* pBehavior = static_cast<ezParticleBehavior_SizeCurve*>(pObject);
+  WParticleBehavior_SizeCurve* pBehavior = static_cast<WParticleBehavior_SizeCurve*>(pObject);
 
   pBehavior->m_fSizeCurveOffset = m_fSizeCurveOffset;
   pBehavior->m_fSizeCurveScale = m_fSizeCurveScale;
   pBehavior->m_pCurve = &m_RuntimeCurve;
 }
 
-void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_SizeCurve::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const WUInt8 uiVersion = 2;
   inout_stream << uiVersion;
 
   inout_stream << m_CurveSource;
@@ -54,9 +54,9 @@ void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& inout_stream) con
   m_RuntimeCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_SizeCurve::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   if (uiVersion >= 2)
@@ -67,11 +67,11 @@ void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream, con
   else
   {
     // Version 1: had m_hCurve as the shared curve resource
-    ezCurve1DResourceHandle hOldCurve;
+    WCurve1DResourceHandle hOldCurve;
     inout_stream >> hOldCurve;
 
     // Migrate to version 2: default to Shared mode with the old curve
-    m_CurveSource = ezCurveSource::SharedCurve;
+    m_CurveSource = WCurveSource::SharedCurve;
     m_hSharedCurve = hOldCurve;
   }
 
@@ -85,26 +85,26 @@ void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream, con
     m_RuntimeCurve.CreateLinearApproximation();
   }
 
-  if (m_CurveSource == ezCurveSource::SharedCurve && m_hSharedCurve.IsValid())
+  if (m_CurveSource == WCurveSource::SharedCurve && m_hSharedCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurveResource(m_hSharedCurve, ezResourceAcquireMode::BlockTillLoaded);
-    if (pCurveResource.GetAcquireResult() == ezResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
+    WResourceLock<WCurve1DResource> pCurveResource(m_hSharedCurve, WResourceAcquireMode::BlockTillLoaded);
+    if (pCurveResource.GetAcquireResult() == WResourceAcquireResult::Final && !pCurveResource->GetDescriptor().m_Curves.IsEmpty())
     {
       m_RuntimeCurve = pCurveResource->GetDescriptor().m_Curves[0];
     }
   }
 }
 
-void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
+void WParticleBehavior_SizeCurve::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
+  CreateStream("LifeTime", WProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+  CreateStream("Size", WProcessingStream::DataType::Half, &m_pStreamSize, false);
 }
 
 
-void ezParticleBehavior_SizeCurve::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void WParticleBehavior_SizeCurve::InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements)
 {
-  ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, uiStartIndex);
+  WProcessingStreamIterator<WFloat16> itSize(m_pStreamSize, uiNumElements, uiStartIndex);
   while (!itSize.HasReachedEnd())
   {
     itSize.Current() = m_fSizeCurveOffset;
@@ -112,7 +112,7 @@ void ezParticleBehavior_SizeCurve::InitializeElements(ezUInt64 uiStartIndex, ezU
   }
 }
 
-void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_SizeCurve::Process(WUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
   {
@@ -129,17 +129,17 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   if (m_pCurve == nullptr || m_pCurve->IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("PFX: Size Curve");
+  W_PROFILE_SCOPE("PFX: Size Curve");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16> itSize(m_pStreamSize, uiNumElements, 0);
 
   double fMinX, fMaxX;
   m_pCurve->QueryExtents(fMinX, fMaxX);
 
   // make sure the curve has a length of at least 1
-  fMinX = ezMath::Min(fMinX, 0.0);
-  fMaxX = ezMath::Max(fMaxX, 1.0);
+  fMinX = WMath::Min(fMinX, 0.0);
+  fMaxX = WMath::Max(fMaxX, 1.0);
 
   // skip the first n particles
   itLifeTime.Advance(m_uiFirstToUpdate);
@@ -151,7 +151,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
 
-      const double evalPos = ezMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
+      const double evalPos = WMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
       const float val = (float)m_pCurve->Evaluate(evalPos);
 
       itSize.Current() = m_fSizeCurveOffset + val * m_fSizeCurveScale;
@@ -174,4 +174,4 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);

@@ -1,11 +1,11 @@
-ez_cmake_init()
+W_cmake_init()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+W_create_target(LIBRARY ${PROJECT_NAME})
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
+if(W_CMAKE_PLATFORM_WINDOWS)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
 
@@ -13,15 +13,15 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
   )
 endif()
 
-ez_enable_strict_warnings(${PROJECT_NAME})
+W_enable_strict_warnings(${PROJECT_NAME})
 
-if(EZ_CMAKE_COMPILER_CLANG)
+if(W_CMAKE_COMPILER_CLANG)
   set_source_files_properties(ThirdParty/xxHash/xxHash.c PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
 endif()
 
-ez_target_link_livepp(${PROJECT_NAME})
+W_target_link_livepp(${PROJECT_NAME})
 
-if (EZ_CMAKE_PLATFORM_LINUX)
+if (W_CMAKE_PLATFORM_LINUX)
   CHECK_INCLUDE_FILE_CXX("uuid/uuid.h" UUID_HEADER)
 
   if(NOT UUID_HEADER)
@@ -36,7 +36,7 @@ if (EZ_CMAKE_PLATFORM_LINUX)
   )
 endif()
 
-if(EZ_CMAKE_PLATFORM_OSX)
+if(W_CMAKE_PLATFORM_OSX)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
@@ -50,33 +50,33 @@ if(EZ_CMAKE_PLATFORM_OSX)
   )
 endif()
 
-if(EZ_3RDPARTY_ENET_SUPPORT)
+if(W_3RDPARTY_ENET_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC enet)
 endif()
 
-if(EZ_3RDPARTY_ZSTD_SUPPORT)
+if(W_3RDPARTY_ZSTD_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC zstd)
 endif()
 
-if(EZ_3RDPARTY_ZLIB_SUPPORT)
+if(W_3RDPARTY_ZLIB_SUPPORT)
   # ZLIB is required to read the apk on Android.
   target_link_libraries(${PROJECT_NAME} PUBLIC zlib)
 endif()
 
-if(EZ_3RDPARTY_GLFW_SUPPORT)
+if(W_3RDPARTY_GLFW_SUPPORT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_GLFW_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 endif()
 
-if(EZ_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT)
+if(W_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC tracelogging)
 endif()
 
-if(EZ_3RDPARTY_PERFETTO_SUPPORT)
+if(W_3RDPARTY_PERFETTO_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC perfetto)
 endif()
 
-if(EZ_3RDPARTY_TRACY_SUPPORT)
+if(W_3RDPARTY_TRACY_SUPPORT)
   # Tracy has to be linked to all possible targets since it is a multi dll project.
   target_link_libraries(${PROJECT_NAME} PUBLIC TracyClient)
 endif()

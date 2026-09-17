@@ -4,15 +4,15 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserFilter : public ezQtAssetFilter
+class W_EDITORFRAMEWORK_DLL WQtAssetBrowserFilter : public WQtAssetFilter
 {
   Q_OBJECT
 public:
-  explicit ezQtAssetBrowserFilter(QObject* pParent);
+  explicit WQtAssetBrowserFilter(QObject* pParent);
 
   /// Resets all filters to their default state.
   void Reset();
-  void UpdateImportExtensions(const ezSet<ezString>& extensions);
+  void UpdateImportExtensions(const WSet<WString>& extensions);
 
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() const { return m_bShowItemsInSubFolders; }
@@ -31,13 +31,13 @@ public:
 
   /// The names of the top level folders of those data directories that are provided by the active plugin bundles.
   ///
-  /// These are the first path segment of a ezDataDirPath::GetDataDirParentRelativePath(), i.e. the folder name of the
+  /// These are the first path segment of a WDataDirPath::GetDataDirParentRelativePath(), i.e. the folder name of the
   /// data directory root, not a full path. While GetShowPluginDataDirs() is disabled, everything under them is hidden.
-  void SetPluginDataDirNames(const ezSet<ezString>& names);
-  const ezSet<ezString>& GetPluginDataDirNames() const { return m_PluginDataDirNames; }
+  void SetPluginDataDirNames(const WSet<WString>& names);
+  const WSet<WString>& GetPluginDataDirNames() const { return m_PluginDataDirNames; }
 
   /// Whether the given path lies in a data directory that comes from an active plugin bundle.
-  bool IsInPluginDataDir(ezStringView sDataDirParentRelativePath) const;
+  bool IsInPluginDataDir(WStringView sDataDirParentRelativePath) const;
 
   void SetSortByRecentUse(bool bSort);
   virtual bool GetSortByRecentUse() const override { return m_bSortByRecentUse; }
@@ -46,7 +46,7 @@ public:
   const char* GetTextFilter() const { return m_SearchFilter.GetSearchText(); }
 
   void SetPathFilter(const char* szPath);
-  ezStringView GetPathFilter() const;
+  WStringView GetPathFilter() const;
 
   void SetTypeFilter(const char* szTypes);
   const char* GetTypeFilter() const { return m_sTypeFilter; }
@@ -55,19 +55,19 @@ public:
   ///
   /// Needed to tell an actually restricting type filter apart from one that just lists every known type,
   /// which is what the 'all assets' entry of the type combo box sets.
-  void SetAllTypesFilter(ezStringView sTypes);
+  void SetAllTypesFilter(WStringView sTypes);
 
   /// Whether any filter is active that makes the browser show only a subset of what is in the current folder.
   bool IsFilterActive() const;
 
-  void SetFileExtensionFilters(ezStringView sExtensions);
+  void SetFileExtensionFilters(WStringView sExtensions);
 
-  void SetRequiredTag(ezStringView sRequiredTag);
+  void SetRequiredTag(WStringView sRequiredTag);
 
   /// If set, the given item will be visible no matter what until any other filter is changed.
   /// This is used to ensure that newly created assets are always visible, even if they are excluded from the current filter.
-  void SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath);
-  ezStringView GetTemporaryPinnedItem() const { return m_sTemporaryPinnedItem; }
+  void SetTemporaryPinnedItem(WStringView sDataDirParentRelativePath);
+  WStringView GetTemporaryPinnedItem() const { return m_sTemporaryPinnedItem; }
 
 Q_SIGNALS:
   void TextFilterChanged();
@@ -82,35 +82,35 @@ Q_SIGNALS:
   void PluginDataDirsChanged();
 
 public:
-  virtual ezAssetFilterResult IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
+  virtual WAssetFilterResult IsAssetFiltered(WStringView sDataDirParentRelativePath, bool bIsFolder, const WSubAsset* pInfo) const override;
 
 private:
   /// Whether the given path is hidden because of the folder it lies in, or - for a folder - because of itself.
   ///
   /// Folders starting with a dot and '*_data' folders are treated as hidden. bIsFolder has to be set for a path that
   /// names a folder, otherwise a folder called '*_data' is not recognized, because only its content would be checked.
-  bool IsInHiddenFolder(ezStringView sDataDirParentRelativePath, bool bIsFolder) const;
+  bool IsInHiddenFolder(WStringView sDataDirParentRelativePath, bool bIsFolder) const;
 
-  ezString m_sTypeFilter;
-  ezString m_sAllTypesFilter;
-  ezString m_sRequiredTag = "*"; // show all is the default for the asset browser
-  ezString m_sPathFilter;
-  ezString m_sTemporaryPinnedItem;
-  ezSearchPatternFilter m_SearchFilter;
+  WString m_sTypeFilter;
+  WString m_sAllTypesFilter;
+  WString m_sRequiredTag = "*"; // show all is the default for the asset browser
+  WString m_sPathFilter;
+  WString m_sTemporaryPinnedItem;
+  WSearchPatternFilter m_SearchFilter;
   bool m_bShowItemsInSubFolders = true;
   bool m_bShowFiles = true;
   bool m_bShowNonImportableFiles = true;
   bool m_bShowItemsInHiddenFolders = false;
   bool m_bShowPluginDataDirs = false;
   bool m_bSortByRecentUse = false;
-  mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
+  mutable WStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
 
   // Cache for uses search
   bool m_bUsesSearchActive = false;
   bool m_bTransitive = false;
-  ezSet<ezUuid> m_Uses;
+  WSet<WUuid> m_Uses;
 
-  ezSet<ezString> m_PluginDataDirNames;
-  ezSet<ezString> m_ImportExtensions;
-  ezSet<ezString> m_FileExtensions;
+  WSet<WString> m_PluginDataDirNames;
+  WSet<WString> m_ImportExtensions;
+  WSet<WString> m_FileExtensions;
 };

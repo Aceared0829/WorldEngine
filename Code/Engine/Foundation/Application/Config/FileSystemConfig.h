@@ -4,26 +4,26 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_FOUNDATION_DLL ezApplicationFileSystemConfig
+class W_FOUNDATION_DLL WApplicationFileSystemConfig
 {
 public:
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/DataDirectories.ddl"_ezsv;
+  static constexpr const WStringView s_sConfigFile = ":project/RuntimeConfigs/DataDirectories.ddl"_wsv;
 
-  ezResult Save(ezStringView sPath = s_sConfigFile);
-  void Load(ezStringView sPath = s_sConfigFile);
+  WResult Save(WStringView sPath = s_sConfigFile);
+  void Load(WStringView sPath = s_sConfigFile);
 
   /// Sets up the data directories that were configured or loaded into this object
   void Apply();
 
-  /// Removes all data directories that were set up by any call to ezApplicationFileSystemConfig::Apply()
+  /// Removes all data directories that were set up by any call to WApplicationFileSystemConfig::Apply()
   static void Clear();
 
-  ezResult CreateDataDirStubFiles();
+  WResult CreateDataDirStubFiles();
 
   struct DataDirConfig
   {
-    ezString m_sDataDirSpecialPath;
-    ezString m_sRootName;
+    WString m_sDataDirSpecialPath;
+    WString m_sRootName;
     bool m_bWritable;            ///< Whether the directory is going to be mounted for writing
     bool m_bHardCodedDependency; ///< If set to true, this indicates that it may not be removed by the user (in a config dialog)
 
@@ -39,13 +39,13 @@ public:
     }
   };
 
-  bool operator==(const ezApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }
+  bool operator==(const WApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }
 
-  ezHybridArray<DataDirConfig, 4> m_DataDirs;
+  WHybridArray<DataDirConfig, 4> m_DataDirs;
 };
 
 
-using ezApplicationFileSystemConfig_DataDirConfig = ezApplicationFileSystemConfig::DataDirConfig;
+using WApplicationFileSystemConfig_DataDirConfig = WApplicationFileSystemConfig::DataDirConfig;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig_DataDirConfig);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WApplicationFileSystemConfig);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WApplicationFileSystemConfig_DataDirConfig);

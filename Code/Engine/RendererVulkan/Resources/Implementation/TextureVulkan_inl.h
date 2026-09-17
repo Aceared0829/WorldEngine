@@ -1,14 +1,14 @@
-vk::Image ezGALTextureVulkan::GetImage() const
+vk::Image WGALTextureVulkan::GetImage() const
 {
   return m_Image;
 }
 
-ezVulkanAllocation ezGALTextureVulkan::GetAllocation() const
+WVulkanAllocation WGALTextureVulkan::GetAllocation() const
 {
   return m_pAlloc;
 }
 
-const ezVulkanAllocationInfo& ezGALTextureVulkan::GetAllocationInfo() const
+const WVulkanAllocationInfo& WGALTextureVulkan::GetAllocationInfo() const
 {
   return m_AllocInfo;
 }

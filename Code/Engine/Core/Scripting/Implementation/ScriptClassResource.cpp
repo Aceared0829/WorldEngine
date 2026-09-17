@@ -4,34 +4,34 @@
 #include <Core/Scripting/ScriptClassResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptClassResource, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezScriptClassResource);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScriptClassResource, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
+W_RESOURCE_IMPLEMENT_COMMON_CODE(WScriptClassResource);
 // clang-format on
 
-ezScriptClassResource::ezScriptClassResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+WScriptClassResource::WScriptClassResource()
+  : WResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezScriptClassResource::~ezScriptClassResource() = default;
+WScriptClassResource::~WScriptClassResource() = default;
 
-ezSharedPtr<ezScriptRTTI> ezScriptClassResource::CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers)
+WSharedPtr<WScriptRTTI> WScriptClassResource::CreateScriptType(WStringView sName, const WRTTI* pBaseType, WScriptRTTI::FunctionList&& functions, WScriptRTTI::MessageHandlerList&& messageHandlers)
 {
-  ezScriptRTTI::FunctionList sortedFunctions;
+  WScriptRTTI::FunctionList sortedFunctions;
   for (auto pFuncProp : pBaseType->GetFunctions())
   {
-    auto pBaseClassFuncAttr = pFuncProp->GetAttributeByType<ezScriptBaseClassFunctionAttribute>();
+    auto pBaseClassFuncAttr = pFuncProp->GetAttributeByType<WScriptBaseClassFunctionAttribute>();
     if (pBaseClassFuncAttr == nullptr)
       continue;
 
-    ezStringView sBaseClassFuncName = pFuncProp->GetPropertyName();
+    WStringView sBaseClassFuncName = pFuncProp->GetPropertyName();
     sBaseClassFuncName.TrimWordStart("Reflection_");
 
-    ezUInt16 uiIndex = pBaseClassFuncAttr->GetIndex();
+    WUInt16 uiIndex = pBaseClassFuncAttr->GetIndex();
     sortedFunctions.EnsureCount(uiIndex + 1);
 
-    for (ezUInt32 i = 0; i < functions.GetCount(); ++i)
+    for (WUInt32 i = 0; i < functions.GetCount(); ++i)
     {
       auto& pScriptFuncProp = functions[i];
       if (pScriptFuncProp == nullptr)
@@ -46,30 +46,30 @@ ezSharedPtr<ezScriptRTTI> ezScriptClassResource::CreateScriptType(ezStringView s
     }
   }
 
-  m_pType = EZ_SCRIPT_NEW(ezScriptRTTI, sName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
+  m_pType = W_SCRIPT_NEW(WScriptRTTI, sName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
   return m_pType;
 }
 
-void ezScriptClassResource::DeleteScriptType()
+void WScriptClassResource::DeleteScriptType()
 {
   m_pType = nullptr;
 }
 
-ezSharedPtr<ezScriptCoroutineRTTI> ezScriptClassResource::CreateScriptCoroutineType(ezStringView sScriptClassName, ezStringView sFunctionName, ezUniquePtr<ezRTTIAllocator>&& pAllocator)
+WSharedPtr<WScriptCoroutineRTTI> WScriptClassResource::CreateScriptCoroutineType(WStringView sScriptClassName, WStringView sFunctionName, WUniquePtr<WRTTIAllocator>&& pAllocator)
 {
-  ezStringBuilder sCoroutineTypeName;
+  WStringBuilder sCoroutineTypeName;
   sCoroutineTypeName.Set(sScriptClassName, "::", sFunctionName, "<Coroutine>");
 
-  ezSharedPtr<ezScriptCoroutineRTTI> pCoroutineType = EZ_SCRIPT_NEW(ezScriptCoroutineRTTI, sCoroutineTypeName, std::move(pAllocator));
+  WSharedPtr<WScriptCoroutineRTTI> pCoroutineType = W_SCRIPT_NEW(WScriptCoroutineRTTI, sCoroutineTypeName, std::move(pAllocator));
   m_CoroutineTypes.PushBack(pCoroutineType);
 
   return pCoroutineType;
 }
 
-void ezScriptClassResource::DeleteAllScriptCoroutineTypes()
+void WScriptClassResource::DeleteAllScriptCoroutineTypes()
 {
   m_CoroutineTypes.Clear();
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptClassResource);
+W_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptClassResource);

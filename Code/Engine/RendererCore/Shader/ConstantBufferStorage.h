@@ -4,27 +4,27 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// Wrapper around ezGALBufferHandle that automates buffer updates.
+/// Wrapper around WGALBufferHandle that automates buffer updates.
 ///
-/// Created via ezRenderContext::CreateConstantBufferStorage. Retrieved via ezRenderContext::TryGetConstantBufferStorage,
-/// updated lazily via ezRenderContext::UploadConstants. Uses hashing to avoid redundant uploads when data hasn't changed.
-class EZ_RENDERERCORE_DLL ezConstantBufferStorageBase
+/// Created via WRenderContext::CreateConstantBufferStorage. Retrieved via WRenderContext::TryGetConstantBufferStorage,
+/// updated lazily via WRenderContext::UploadConstants. Uses hashing to avoid redundant uploads when data hasn't changed.
+class W_RENDERERCORE_DLL WConstantBufferStorageBase
 {
 protected:
-  friend class ezRenderContext;
-  friend class ezMemoryUtils;
+  friend class WRenderContext;
+  friend class WMemoryUtils;
 
-  ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes);
-  ~ezConstantBufferStorageBase();
+  WConstantBufferStorageBase(WUInt32 uiSizeInBytes);
+  ~WConstantBufferStorageBase();
 
 public:
   /// Returns writable access to the buffer data.
   ///
   /// Marks the buffer as modified for the next upload.
-  ezArrayPtr<ezUInt8> GetRawDataForWriting();
+  WArrayPtr<WUInt8> GetRawDataForWriting();
 
   /// Returns read-only access to the buffer data.
-  ezArrayPtr<const ezUInt8> GetRawDataForReading() const;
+  WArrayPtr<const WUInt8> GetRawDataForReading() const;
 
   /// Called at the beginning of each frame to reset per-frame state.
   void BeforeBeginFrame() { m_bStartOfFrame = true; }
@@ -32,50 +32,50 @@ public:
   /// Uploads modified data to the GPU.
   ///
   /// Uses hashing to skip upload if data hasn't changed since last upload.
-  void UploadData(ezGALCommandEncoder* pCommandEncoder);
+  void UploadData(WGALCommandEncoder* pCommandEncoder);
 
-  EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
+  W_ALWAYS_INLINE WGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
 
 protected:
   bool m_bHasBeenModified = false;
   bool m_bStartOfFrame = true;
-  ezUInt32 m_uiLastHash = 0;
-  ezGALBufferHandle m_hGALConstantBuffer;
+  WUInt32 m_uiLastHash = 0;
+  WGALBufferHandle m_hGALConstantBuffer;
 
-  ezArrayPtr<ezUInt8> m_Data;
+  WArrayPtr<WUInt8> m_Data;
 };
 
 /// Typed wrapper for constant buffer storage.
 ///
 /// Provides type-safe access to constant buffer data of type T.
 template <typename T>
-class ezConstantBufferStorage : public ezConstantBufferStorageBase
+class WConstantBufferStorage : public WConstantBufferStorageBase
 {
 public:
   /// Returns a typed reference for writing to the constant buffer.
   ///
   /// Marks the buffer as modified for upload.
-  EZ_FORCE_INLINE T& GetDataForWriting()
+  W_FORCE_INLINE T& GetDataForWriting()
   {
-    ezArrayPtr<ezUInt8> rawData = GetRawDataForWriting();
-    EZ_ASSERT_DEV(rawData.GetCount() == sizeof(T), "Invalid data size");
+    WArrayPtr<WUInt8> rawData = GetRawDataForWriting();
+    W_ASSERT_DEV(rawData.GetCount() == sizeof(T), "Invalid data size");
     return *reinterpret_cast<T*>(rawData.GetPtr());
   }
 
   /// Returns a typed const reference for reading from the constant buffer.
-  EZ_FORCE_INLINE const T& GetDataForReading() const
+  W_FORCE_INLINE const T& GetDataForReading() const
   {
-    ezArrayPtr<const ezUInt8> rawData = GetRawDataForReading();
-    EZ_ASSERT_DEV(rawData.GetCount() == sizeof(T), "Invalid data size");
+    WArrayPtr<const WUInt8> rawData = GetRawDataForReading();
+    W_ASSERT_DEV(rawData.GetCount() == sizeof(T), "Invalid data size");
     return *reinterpret_cast<const T*>(rawData.GetPtr());
   }
 };
 
-using ezConstantBufferStorageId = ezGenericId<24, 8>;
+using WConstantBufferStorageId = WGenericId<24, 8>;
 
-class ezConstantBufferStorageHandle
+class WConstantBufferStorageHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezConstantBufferStorageHandle, ezConstantBufferStorageId);
+  W_DECLARE_HANDLE_TYPE(WConstantBufferStorageHandle, WConstantBufferStorageId);
 
-  friend class ezRenderContext;
+  friend class WRenderContext;
 };

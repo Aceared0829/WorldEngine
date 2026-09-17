@@ -4,9 +4,9 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
-void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable, ezUInt32 uiInsertIndex)
+void WQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable, WUInt32 uiInsertIndex)
 {
-  ezStringBuilder sPath = szSdkRootRelativePath;
+  WStringBuilder sPath = szSdkRootRelativePath;
   sPath.MakeCleanPath();
 
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
@@ -22,19 +22,19 @@ void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath
     }
   }
 
-  ezApplicationFileSystemConfig::DataDirConfig cfg;
+  WApplicationFileSystemConfig::DataDirConfig cfg;
   cfg.m_sDataDirSpecialPath = sPath;
   cfg.m_bWritable = bWriteable;
   cfg.m_sRootName = szRootName;
   cfg.m_bHardCodedDependency = true;
 
-  if (uiInsertIndex == ezInvalidIndex || uiInsertIndex >= m_FileSystemConfig.m_DataDirs.GetCount())
+  if (uiInsertIndex == WInvalidIndex || uiInsertIndex >= m_FileSystemConfig.m_DataDirs.GetCount())
     m_FileSystemConfig.m_DataDirs.PushBack(cfg);
   else
     m_FileSystemConfig.m_DataDirs.InsertAt(uiInsertIndex, cfg);
 }
 
-void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
+void WQtEditorApp::SetFileSystemConfig(const WApplicationFileSystemConfig& cfg)
 {
   if (m_FileSystemConfig == cfg)
     return;
@@ -43,40 +43,40 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
   m_FileSystemConfig.CreateDataDirStubFiles().IgnoreResult();
   m_FileSystemConfig.Save().IgnoreResult();
 
-  ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
+  WQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
 }
 
-void ezQtEditorApp::SetupDataDirectories()
+void WQtEditorApp::SetupDataDirectories()
 {
-  EZ_PROFILE_SCOPE("SetupDataDirectories");
-  ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
+  W_PROFILE_SCOPE("SetupDataDirectories");
+  WFileSystem::DetectSdkRootDirectory().IgnoreResult();
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
 
-  ezFileSystem::SetSpecialDirectory("project", sPath);
+  WFileSystem::SetSpecialDirectory("project", sPath);
 
   sPath.AppendPath("RuntimeConfigs/DataDirectories.ddl");
   // we cannot use the default ":project/" path here, because that data directory will only be configured a few lines below
   // so instead we use the absolute path directly
   m_FileSystemConfig.Load(sPath);
 
-  ezEditorAppEvent e;
-  e.m_Type = ezEditorAppEvent::Type::BeforeApplyDataDirectories;
+  WEditorAppEvent e;
+  e.m_Type = WEditorAppEvent::Type::BeforeApplyDataDirectories;
   m_Events.Broadcast(e);
 
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base", false);
+  WQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base", false);
 
   // Remove stale plugin-bundle data directories (bundle no longer active, or the legacy shared mount) before re-injecting
   // the ones that are currently active. This self-heals when a plugin is disabled.
   {
-    ezSet<ezString> knownBundleDirs;
-    ezQtEditorApp::GetSingleton()->GetAllKnownBundleDataDirectories(knownBundleDirs);
+    WSet<WString> knownBundleDirs;
+    WQtEditorApp::GetSingleton()->GetAllKnownBundleDataDirectories(knownBundleDirs);
 
-    ezStringBuilder sLegacy = ">sdk/Data/Plugins";
+    WStringBuilder sLegacy = ">sdk/Data/Plugins";
     sLegacy.MakeCleanPath();
     knownBundleDirs.Insert(sLegacy);
 
-    for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+    for (WUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
     {
       if (knownBundleDirs.Contains(m_FileSystemConfig.m_DataDirs[i - 1].m_sDataDirSpecialPath))
       {
@@ -92,14 +92,14 @@ void ezQtEditorApp::SetupDataDirectories()
   // Appending is not enough for that, because the project directory is usually already part of the config that was
   // just loaded, so the insert position has to be looked up.
   {
-    ezSet<ezString> activeBundleDirs;
-    ezQtEditorApp::GetSingleton()->GetActiveBundleDataDirectories(activeBundleDirs);
+    WSet<WString> activeBundleDirs;
+    WQtEditorApp::GetSingleton()->GetActiveBundleDataDirectories(activeBundleDirs);
 
-    ezStringBuilder sProjectDir = ">project/";
+    WStringBuilder sProjectDir = ">project/";
     sProjectDir.MakeCleanPath();
 
-    ezUInt32 uiInsertIndex = ezInvalidIndex;
-    for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+    WUInt32 uiInsertIndex = WInvalidIndex;
+    for (WUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
     {
       if (m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath == sProjectDir)
       {
@@ -108,25 +108,25 @@ void ezQtEditorApp::SetupDataDirectories()
       }
     }
 
-    for (const ezString& sDir : activeBundleDirs)
+    for (const WString& sDir : activeBundleDirs)
     {
-      ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sDir, nullptr, false, uiInsertIndex);
+      WQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sDir, nullptr, false, uiInsertIndex);
 
       // the loop above removed all bundle directories, so each of these really is an insert
-      if (uiInsertIndex != ezInvalidIndex)
+      if (uiInsertIndex != WInvalidIndex)
         ++uiInsertIndex;
     }
   }
 
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">project/", "project", true);
+  WQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">project/", "project", true);
 
   // Tell the tools project that all data directories are ok to put documents in
   {
     for (const auto& dd : m_FileSystemConfig.m_DataDirs)
     {
-      if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sPath).Succeeded())
+      if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sPath).Succeeded())
       {
-        ezToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
+        WToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
       }
     }
   }
@@ -134,17 +134,17 @@ void ezQtEditorApp::SetupDataDirectories()
   m_FileSystemConfig.Apply();
 }
 
-bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath, bool bCheckExists) const
+bool WQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(WStringBuilder& ref_sPath, bool bCheckExists) const
 {
   ref_sPath.MakeCleanPath();
 
-  if (ezPathUtils::IsAbsolutePath(ref_sPath))
+  if (WPathUtils::IsAbsolutePath(ref_sPath))
     return true;
 
-  if (ezPathUtils::IsRootedPath(ref_sPath))
+  if (WPathUtils::IsRootedPath(ref_sPath))
   {
-    ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
+    WStringBuilder sAbsPath;
+    if (WFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
     {
       ref_sPath = sAbsPath;
       return true;
@@ -153,10 +153,10 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     return false;
   }
 
-  if (ezConversionUtils::IsStringUuid(ref_sPath))
+  if (WConversionUtils::IsStringUuid(ref_sPath))
   {
-    ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
-    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+    WUuid guid = WConversionUtils::ConvertStringToUuid(ref_sPath);
+    auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(guid);
 
     // m_pAssetInfo is null for a sub-asset the curator knows but holds no file information for, so it
     // has to be checked separately from the asset itself.
@@ -167,7 +167,7 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     return true;
   }
 
-  ezStringBuilder sTemp, sFolder, sDataDirName;
+  WStringBuilder sTemp, sFolder, sDataDirName;
 
   const char* szEnd = ref_sPath.FindSubString("/");
   if (szEnd)
@@ -179,17 +179,17 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     sDataDirName = ref_sPath;
   }
 
-  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
     // only check data directories that start with the required name
     while (sTemp.EndsWith("/") || sTemp.EndsWith("\\"))
       sTemp.Shrink(0, 1);
-    const ezStringView folderName = sTemp.GetFileName();
+    const WStringView folderName = sTemp.GetFileName();
 
     if (sDataDirName != folderName)
       continue;
@@ -198,7 +198,7 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     sTemp.AppendPath(ref_sPath);
     sTemp.MakeCleanPath();
 
-    if (!bCheckExists || ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
+    if (!bCheckExists || WOSFile::ExistsFile(sTemp) || WOSFile::ExistsDirectory(sTemp))
     {
       ref_sPath = sTemp;
       return true;
@@ -208,15 +208,15 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
   return false;
 }
 
-bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath) const
+bool WQtEditorApp::MakeDataDirectoryRelativePathAbsolute(WStringBuilder& ref_sPath) const
 {
-  if (ezPathUtils::IsAbsolutePath(ref_sPath))
+  if (WPathUtils::IsAbsolutePath(ref_sPath))
     return true;
 
-  if (ezPathUtils::IsRootedPath(ref_sPath))
+  if (WPathUtils::IsRootedPath(ref_sPath))
   {
-    ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
+    WStringBuilder sAbsPath;
+    if (WFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
     {
       ref_sPath = sAbsPath;
       return true;
@@ -225,10 +225,10 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_s
     return false;
   }
 
-  if (ezConversionUtils::IsStringUuid(ref_sPath))
+  if (WConversionUtils::IsStringUuid(ref_sPath))
   {
-    ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
-    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+    WUuid guid = WConversionUtils::ConvertStringToUuid(ref_sPath);
+    auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(guid);
 
     // m_pAssetInfo is null for a sub-asset the curator knows but holds no file information for, so it
     // has to be checked separately from the asset itself.
@@ -239,19 +239,19 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_s
     return true;
   }
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
-  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
     sTemp.AppendPath(ref_sPath);
     sTemp.MakeCleanPath();
 
-    if (ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
+    if (WOSFile::ExistsFile(sTemp) || WOSFile::ExistsDirectory(sTemp))
     {
       ref_sPath = sTemp;
       return true;
@@ -261,23 +261,23 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_s
   return false;
 }
 
-bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString& ref_sPath) const
+bool WQtEditorApp::MakeDataDirectoryRelativePathAbsolute(WString& ref_sPath) const
 {
-  ezStringBuilder sTemp = ref_sPath;
+  WStringBuilder sTemp = ref_sPath;
   bool bRes = MakeDataDirectoryRelativePathAbsolute(sTemp);
   ref_sPath = sTemp;
   return bRes;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& ref_sPath) const
+bool WQtEditorApp::MakePathDataDirectoryRelative(WStringBuilder& ref_sPath) const
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
-  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
     if (ref_sPath.IsPathBelowFolder(sTemp))
@@ -287,19 +287,19 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& ref_sPath) co
     }
   }
 
-  ref_sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
+  ref_sPath.MakeRelativeTo(WFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& ref_sPath) const
+bool WQtEditorApp::MakePathDataDirectoryParentRelative(WStringBuilder& ref_sPath) const
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
-  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  for (WUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
     if (ref_sPath.IsPathBelowFolder(sTemp))
@@ -311,13 +311,13 @@ bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& ref_sPa
     }
   }
 
-  ref_sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
+  ref_sPath.MakeRelativeTo(WFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString& ref_sPath) const
+bool WQtEditorApp::MakePathDataDirectoryRelative(WString& ref_sPath) const
 {
-  ezStringBuilder sTemp = ref_sPath;
+  WStringBuilder sTemp = ref_sPath;
   bool bRes = MakePathDataDirectoryRelative(sTemp);
   ref_sPath = sTemp;
   return bRes;

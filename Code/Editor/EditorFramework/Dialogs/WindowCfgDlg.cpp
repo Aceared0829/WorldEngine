@@ -5,8 +5,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtWindowCfgDlg::WQtWindowCfgDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
   LoadDescs();
@@ -27,15 +27,15 @@ ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* pParent)
   FillUI(m_Descs[m_uiCurDesc]);
 
   m_ComboWnd->addItem("Project Default");
-  m_ComboWnd->addItem("User Specific (ezPlayer)");
+  m_ComboWnd->addItem("User Specific (WPlayer)");
   m_ComboWnd->setCurrentIndex(0);
 }
 
-void ezQtWindowCfgDlg::FillUI(const ezWindowCreationDesc& desc)
+void WQtWindowCfgDlg::FillUI(const WWindowCreationDesc& desc)
 {
   m_LineEditTitle->setText(QString::fromUtf8(desc.m_Title.GetData()));
-  m_ComboMonitor->setCurrentIndex(ezMath::Clamp<ezInt32>(desc.m_iMonitor, -1, 5) + 1);
-  m_ComboMode->setCurrentIndex(ezMath::Clamp<ezInt32>(desc.m_WindowMode, 0, 3));
+  m_ComboMonitor->setCurrentIndex(WMath::Clamp<WInt32>(desc.m_iMonitor, -1, 5) + 1);
+  m_ComboMode->setCurrentIndex(WMath::Clamp<WInt32>(desc.m_WindowMode, 0, 3));
 
   m_SpinResX->setValue(desc.m_Resolution.width);
   m_SpinResY->setValue(desc.m_Resolution.height);
@@ -48,18 +48,18 @@ void ezQtWindowCfgDlg::FillUI(const ezWindowCreationDesc& desc)
   UpdateUI();
 }
 
-void ezQtWindowCfgDlg::GrabUI(ezWindowCreationDesc& desc)
+void WQtWindowCfgDlg::GrabUI(WWindowCreationDesc& desc)
 {
   desc.m_Title = m_LineEditTitle->text().toUtf8().data();
   desc.m_iMonitor = m_ComboMonitor->currentIndex() - 1;
-  desc.m_WindowMode = (ezWindowMode::Enum)(m_ComboMode->currentIndex());
+  desc.m_WindowMode = (WWindowMode::Enum)(m_ComboMode->currentIndex());
   desc.m_Resolution.width = m_SpinResX->value();
   desc.m_Resolution.height = m_SpinResY->value();
   desc.m_bClipMouseCursor = m_ClipMouseCursor->isChecked();
   desc.m_bShowMouseCursor = m_ShowMouseCursor->isChecked();
 }
 
-void ezQtWindowCfgDlg::UpdateUI()
+void WQtWindowCfgDlg::UpdateUI()
 {
   const bool bEnable = m_uiCurDesc == 0 || m_bOverrideProjectDefault[m_uiCurDesc];
 
@@ -73,12 +73,12 @@ void ezQtWindowCfgDlg::UpdateUI()
   m_CheckOverrideDefault->setVisible(m_uiCurDesc != 0);
 }
 
-void ezQtWindowCfgDlg::LoadDescs()
+void WQtWindowCfgDlg::LoadDescs()
 {
-  ezStringBuilder sPath;
+  WStringBuilder sPath;
 
   {
-    sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     if (m_Descs[0].LoadFromDDL(sPath).Failed())
@@ -90,26 +90,26 @@ void ezQtWindowCfgDlg::LoadDescs()
   }
 
   {
-    sPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sPath = WApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     m_bOverrideProjectDefault[1] = m_Descs[1].LoadFromDDL(sPath).Succeeded();
   }
 }
 
-void ezQtWindowCfgDlg::SaveDescs()
+void WQtWindowCfgDlg::SaveDescs()
 {
-  ezStringBuilder sPath;
+  WStringBuilder sPath;
 
   {
-    sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     m_Descs[0].SaveToDDL(sPath).IgnoreResult();
   }
 
   {
-    sPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sPath = WApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     if (m_bOverrideProjectDefault[1])
@@ -118,12 +118,12 @@ void ezQtWindowCfgDlg::SaveDescs()
     }
     else
     {
-      ezOSFile::DeleteFile(sPath).IgnoreResult();
+      WOSFile::DeleteFile(sPath).IgnoreResult();
     }
   }
 }
 
-void ezQtWindowCfgDlg::on_m_ButtonBox_clicked(QAbstractButton* button)
+void WQtWindowCfgDlg::on_m_ButtonBox_clicked(QAbstractButton* button)
 {
   if (button == m_ButtonBox->button(QDialogButtonBox::StandardButton::Ok))
   {
@@ -141,7 +141,7 @@ void ezQtWindowCfgDlg::on_m_ButtonBox_clicked(QAbstractButton* button)
   }
 }
 
-void ezQtWindowCfgDlg::on_m_ComboWnd_currentIndexChanged(int index)
+void WQtWindowCfgDlg::on_m_ComboWnd_currentIndexChanged(int index)
 {
   GrabUI(m_Descs[m_uiCurDesc]);
   m_uiCurDesc = index;
@@ -154,7 +154,7 @@ void ezQtWindowCfgDlg::on_m_ComboWnd_currentIndexChanged(int index)
   FillUI(m_Descs[m_uiCurDesc]);
 }
 
-void ezQtWindowCfgDlg::on_m_CheckOverrideDefault_stateChanged(int state)
+void WQtWindowCfgDlg::on_m_CheckOverrideDefault_stateChanged(int state)
 {
   m_bOverrideProjectDefault[m_uiCurDesc] = m_CheckOverrideDefault->isChecked();
 

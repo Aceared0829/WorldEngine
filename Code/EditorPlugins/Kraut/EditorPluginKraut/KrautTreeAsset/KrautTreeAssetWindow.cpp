@@ -42,32 +42,32 @@ using namespace AE_NS_FOUNDATION;
 
 namespace
 {
-  constexpr const char* s_szBranchTypeMimeType = "application/ezEditor.KrautBranchType";
-  constexpr const char* s_szLodMimeType = "application/ezEditor.KrautLod";
+  constexpr const char* s_szBranchTypeMimeType = "application/WEditor.KrautBranchType";
+  constexpr const char* s_szLodMimeType = "application/WEditor.KrautLod";
 
   struct KrautLodPreset
   {
     const char* szName;
-    int iMode; // ezKrautLodMode
+    int iMode; // WKrautLodMode
     float fCurvatureThreshold;
     float fThicknessThreshold;
     float fTipDetail;
     float fVertexRingDetail;
-    ezInt8 iMaxFrondDetail;
-    ezInt8 iFrondDetailReduction;
-    ezUInt32 uiLodDistance;
-    int iBranchSpikeTipMode; // ezKrautBranchSpikeTipMode
+    WInt8 iMaxFrondDetail;
+    WInt8 iFrondDetailReduction;
+    WUInt32 uiLodDistance;
+    int iBranchSpikeTipMode; // WKrautBranchSpikeTipMode
   };
 
   // clang-format off
   static const KrautLodPreset s_LodPresets[] = {
     //  Name         Mode                           Curv   Thick  Tip    Ring   Frond  Redu  Dist  SpikeTip
-    { "Ultra",     (int)ezKrautLodMode::Full,     0.5f,  0.02f, 0.01f, 0.05f, 32,    0,    8,    (int)ezKrautBranchSpikeTipMode::FullDetail     },
-    { "Very High", (int)ezKrautLodMode::Full,     1.5f,  0.04f, 0.03f, 0.15f, 32,    0,    15,   (int)ezKrautBranchSpikeTipMode::FullDetail     },
-    { "High",      (int)ezKrautLodMode::Full,     2.0f,  0.05f, 0.04f, 0.20f, 32,    0,    20,   (int)ezKrautBranchSpikeTipMode::SingleTriangle },
-    { "Medium",    (int)ezKrautLodMode::Full,     5.0f,  0.10f, 0.10f, 0.40f, 6,     1,    25,   (int)ezKrautBranchSpikeTipMode::Hole           },
-    { "Low",       (int)ezKrautLodMode::Full,     10.0f, 0.15f, 0.20f, 0.60f, 4,     2,    40,   (int)ezKrautBranchSpikeTipMode::Hole           },
-    { "Very Low",  (int)ezKrautLodMode::Full,     15.0f, 0.20f, 0.30f, 0.80f, 2,     3,    50,   (int)ezKrautBranchSpikeTipMode::Hole           },
+    { "Ultra",     (int)WKrautLodMode::Full,     0.5f,  0.02f, 0.01f, 0.05f, 32,    0,    8,    (int)WKrautBranchSpikeTipMode::FullDetail     },
+    { "Very High", (int)WKrautLodMode::Full,     1.5f,  0.04f, 0.03f, 0.15f, 32,    0,    15,   (int)WKrautBranchSpikeTipMode::FullDetail     },
+    { "High",      (int)WKrautLodMode::Full,     2.0f,  0.05f, 0.04f, 0.20f, 32,    0,    20,   (int)WKrautBranchSpikeTipMode::SingleTriangle },
+    { "Medium",    (int)WKrautLodMode::Full,     5.0f,  0.10f, 0.10f, 0.40f, 6,     1,    25,   (int)WKrautBranchSpikeTipMode::Hole           },
+    { "Low",       (int)WKrautLodMode::Full,     10.0f, 0.15f, 0.20f, 0.60f, 4,     2,    40,   (int)WKrautBranchSpikeTipMode::Hole           },
+    { "Very Low",  (int)WKrautLodMode::Full,     15.0f, 0.20f, 0.30f, 0.80f, 2,     3,    50,   (int)WKrautBranchSpikeTipMode::Hole           },
   };
   // clang-format on
 
@@ -81,20 +81,20 @@ namespace
   class KrautOSFileStreamIn : public aeStreamIn
   {
   public:
-    ezOSFile m_File;
+    WOSFile m_File;
 
   private:
     virtual aeUInt32 ReadFromStream(void* pData, aeUInt32 uiSize) override { return (aeUInt32)m_File.Read(pData, uiSize); }
   };
 } // namespace
 
-ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+WQtKrautTreeAssetDocumentWindow::WQtKrautTreeAssetDocumentWindow(WAssetDocument* pDocument)
+  : WQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "KrautTreeAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -103,8 +103,8 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "KrautTreeAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -114,29 +114,29 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
   }
 
   // 3D View
-  ezQtViewWidgetContainer* pContainer = nullptr;
+  WQtViewWidgetContainer* pContainer = nullptr;
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(WVec3(-1.6f, 0, 0), WVec3(0, 0, 0), WVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 2), ezVec3(10.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget = new WQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureRelative(WVec3(0, 0, 2), WVec3(10.0f), WVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
+    pContainer = new WQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
 
   // Property Grid
   {
-    ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
+    WDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
-    ezDeque<const ezDocumentObject*> sel;
+    WDeque<const WDocumentObject*> sel;
     sel.PushBack(pRootObject);
 
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("KrautTreeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Kraut Tree Properties");
     pPropertyPanel->show();
@@ -159,14 +159,14 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
       pAssetTab->layout()->addWidget(pImportRow);
     }
 
-    ezQtPropertyGridWidget* pAssetProps = new ezQtPropertyGridWidget(pAssetTab, pDocument, false);
+    WQtPropertyGridWidget* pAssetProps = new WQtPropertyGridWidget(pAssetTab, pDocument, false);
     pAssetProps->SetSelectionIncludeExcludeProperties(nullptr, "Materials;BT_Trunk1;BT_Trunk2;BT_Trunk3;BT_MainBranch1;BT_MainBranch2;BT_MainBranch3;BT_SubBranch1;BT_SubBranch2;BT_SubBranch3;BT_Twig1;BT_Twig2;BT_Twig3;LOD0;LOD1;LOD2;LOD3;LOD4");
     pAssetProps->SetSelection(sel);
     pAssetTab->layout()->addWidget(pAssetProps);
 
     pTabWidget->addTab(pAssetTab, "Asset");
 
-    // ezQtPropertyGridWidget* pMaterialProps = new ezQtPropertyGridWidget(pTabWidget, pDocument, false);
+    // WQtPropertyGridWidget* pMaterialProps = new WQtPropertyGridWidget(pTabWidget, pDocument, false);
     // pMaterialProps->SetSelectionIncludeExcludeProperties("Materials");
     // pMaterialProps->SetSelection(sel);
     // pTabWidget->addTab(pMaterialProps, "Materials");
@@ -208,7 +208,7 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
       connect(pPasteButton, SIGNAL(clicked()), this, SLOT(onPasteBranchType()));
     }
 
-    m_pBranchProps = new ezQtPropertyGridWidget(pBranchTypeTab, pDocument, false);
+    m_pBranchProps = new WQtPropertyGridWidget(pBranchTypeTab, pDocument, false);
     // m_pBranchProps->SetSelectionIncludeExcludeProperties("BT_Trunk1;BT_MainBranch1;BT_MainBranch2");
     // m_pBranchProps->SetSelection(sel);
     pBranchTypeTab->layout()->addWidget(m_pBranchProps);
@@ -254,9 +254,9 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
     pPresetButton->setPopupMode(QToolButton::InstantPopup);
     {
       QMenu* pPresetMenu = new QMenu(pPresetButton);
-      for (int i = 0; i < (int)EZ_ARRAY_SIZE(s_LodPresets); ++i)
+      for (int i = 0; i < (int)W_ARRAY_SIZE(s_LodPresets); ++i)
       {
-        if (i == (int)EZ_ARRAY_SIZE(s_LodPresets) - 1)
+        if (i == (int)W_ARRAY_SIZE(s_LodPresets) - 1)
           pPresetMenu->addSeparator();
         QAction* pAction = pPresetMenu->addAction(s_LodPresets[i].szName);
         connect(pAction, &QAction::triggered, this, [this, i]()
@@ -285,7 +285,7 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
       connect(pPasteLodButton, SIGNAL(clicked()), this, SLOT(onPasteLod()));
     }
 
-    m_pLodProps = new ezQtPropertyGridWidget(pLodTab, pDocument, false);
+    m_pLodProps = new WQtPropertyGridWidget(pLodTab, pDocument, false);
     pLodTab->layout()->addWidget(m_pLodProps);
 
     {
@@ -317,7 +317,7 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator(GetDocument()));
     pWidget->layout()->addWidget(pTabWidget);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -347,26 +347,26 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
     }
   }
 
-  m_pAssetDoc = static_cast<ezKrautTreeAssetDocument*>(pDocument);
+  m_pAssetDoc = static_cast<WKrautTreeAssetDocument*>(pDocument);
 
   FinishWindowCreation();
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WQtKrautTreeAssetDocumentWindow::StructureEventHandler, this));
 }
 
-ezQtKrautTreeAssetDocumentWindow::~ezQtKrautTreeAssetDocumentWindow()
+WQtKrautTreeAssetDocumentWindow::~WQtKrautTreeAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WQtKrautTreeAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
+void WQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   for (auto pView : m_ViewWidgets)
@@ -379,44 +379,44 @@ void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
   QueryObjectBBox();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
+void WQtKrautTreeAssetDocumentWindow::QueryObjectBBox(WInt32 iPurpose /*= 0*/)
 {
-  ezQuerySelectionBBoxMsgToEngine msg;
+  WQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::RestoreResource()
+void WQtKrautTreeAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "Kraut Tree";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onImportKrautFile()
+void WQtKrautTreeAssetDocumentWindow::onImportKrautFile()
 {
   ImportKrautFile();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
+void WQtKrautTreeAssetDocumentWindow::ImportKrautFile()
 {
   const QString sSelectedFile = QFileDialog::getOpenFileName(this, "Import Kraut Tree File", "", "Kraut Tree (*.tree)", nullptr, QFileDialog::Option::DontResolveSymlinks);
   if (sSelectedFile.isEmpty())
     return;
 
   KrautOSFileStreamIn kstream;
-  if (kstream.m_File.Open(sSelectedFile.toUtf8().constData(), ezFileOpenMode::Read).Failed())
+  if (kstream.m_File.Open(sSelectedFile.toUtf8().constData(), WFileOpenMode::Read).Failed())
   {
     QMessageBox::warning(this, "Import Failed", QString("Could not open file:\n%1").arg(sSelectedFile));
     return;
   }
 
-  ezUInt32 uiKrautEditorVersion = 0;
+  WUInt32 uiKrautEditorVersion = 0;
   kstream.Read(&uiKrautEditorVersion, sizeof(uiKrautEditorVersion));
 
   Kraut::TreeStructureDesc treeStructure;
@@ -436,12 +436,12 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
   auto pHistory = GetDocument()->GetCommandHistory();
   pHistory->StartTransaction("Import Kraut File");
 
-  ezDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-  const ezUuid rootGuid = pRootObject->GetGuid();
+  WDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  const WUuid rootGuid = pRootObject->GetGuid();
 
-  auto SetProperty = [&](const ezUuid& objectGuid, const char* szProperty, const ezVariant& value)
+  auto SetProperty = [&](const WUuid& objectGuid, const char* szProperty, const WVariant& value)
   {
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = objectGuid;
     cmd.m_sProperty = szProperty;
     cmd.m_NewValue = value;
@@ -449,7 +449,7 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
   };
 
   // Set the random seed from the tree structure
-  SetProperty(rootGuid, "DisplayRandomSeed", (ezUInt16)treeStructure.m_uiRandomSeed);
+  SetProperty(rootGuid, "DisplayRandomSeed", (WUInt16)treeStructure.m_uiRandomSeed);
 
   // Branch types: map editor property name -> Kraut SpawnNodeDesc index
   const char* szBranchTypeProps[12] = {
@@ -463,8 +463,8 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
     if (szBranchTypeProps[n] == nullptr)
       continue;
 
-    ezDocumentObject* pBtObject = nullptr;
-    for (ezDocumentObject* pChild : pRootObject->GetChildren())
+    WDocumentObject* pBtObject = nullptr;
+    for (WDocumentObject* pChild : pRootObject->GetChildren())
     {
       if (pChild->GetParentProperty() == szBranchTypeProps[n])
       {
@@ -477,7 +477,7 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
       continue;
 
     const Kraut::SpawnNodeDesc& nd = treeStructure.m_BranchTypes[n];
-    const ezUuid guid = pBtObject->GetGuid();
+    const WUuid guid = pBtObject->GetGuid();
 
     // Administrative
     SetProperty(guid, "GrowSubBranchType1", nd.m_bAllowSubType[0]);
@@ -490,26 +490,26 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
     SetProperty(guid, "EnableLeaves", nd.m_bEnable[Kraut::BranchGeometryType::Leaf]);
 
     // General
-    SetProperty(guid, "SegmentLength", (ezUInt8)ezMath::Clamp<int>(nd.m_iSegmentLengthCM, 1, 50));
+    SetProperty(guid, "SegmentLength", (WUInt8)WMath::Clamp<int>(nd.m_iSegmentLengthCM, 1, 50));
     SetProperty(guid, "BranchType", (int)nd.m_BranchTypeMode);
     SetProperty(guid, "BranchlessPartABS", nd.m_fBranchlessPartABS);
     SetProperty(guid, "BranchlessPartEndABS", nd.m_fBranchlessPartEndABS);
-    SetProperty(guid, "LowerBound", (ezUInt8)nd.m_uiLowerBound);
-    SetProperty(guid, "UpperBound", (ezUInt8)nd.m_uiUpperBound);
-    SetProperty(guid, "MinBranchThickness", (ezUInt16)nd.m_uiMinBranchThicknessInCM);
-    SetProperty(guid, "MaxBranchThickness", (ezUInt16)nd.m_uiMaxBranchThicknessInCM);
+    SetProperty(guid, "LowerBound", (WUInt8)nd.m_uiLowerBound);
+    SetProperty(guid, "UpperBound", (WUInt8)nd.m_uiUpperBound);
+    SetProperty(guid, "MinBranchThickness", (WUInt16)nd.m_uiMinBranchThicknessInCM);
+    SetProperty(guid, "MaxBranchThickness", (WUInt16)nd.m_uiMaxBranchThicknessInCM);
 
     // Spawn Nodes
-    SetProperty(guid, "MinBranchesPerNode", (ezUInt8)nd.m_uiMinBranches);
-    SetProperty(guid, "MaxBranchesPerNode", (ezUInt8)nd.m_uiMaxBranches);
+    SetProperty(guid, "MinBranchesPerNode", (WUInt8)nd.m_uiMinBranches);
+    SetProperty(guid, "MaxBranchesPerNode", (WUInt8)nd.m_uiMaxBranches);
     SetProperty(guid, "NodeSpacingBefore", nd.m_fNodeSpacingBefore);
     SetProperty(guid, "NodeSpacingAfter", nd.m_fNodeSpacingAfter);
     SetProperty(guid, "NodeHeight", nd.m_fNodeHeight);
 
     // Growth - Start Direction
-    SetProperty(guid, "MaxRotationalDeviation", ezAngle::MakeFromDegree(nd.m_fMaxRotationalDeviation));
-    SetProperty(guid, "BranchAngle", ezAngle::MakeFromDegree(nd.m_fBranchAngle));
-    SetProperty(guid, "MaxBranchAngleDeviation", ezAngle::MakeFromDegree(nd.m_fMaxBranchAngleDeviation));
+    SetProperty(guid, "MaxRotationalDeviation", WAngle::MakeFromDegree(nd.m_fMaxRotationalDeviation));
+    SetProperty(guid, "BranchAngle", WAngle::MakeFromDegree(nd.m_fBranchAngle));
+    SetProperty(guid, "MaxBranchAngleDeviation", WAngle::MakeFromDegree(nd.m_fMaxBranchAngleDeviation));
 
     // Growth - Target Direction
     SetProperty(guid, "TargetDirection", (int)nd.m_TargetDirection);
@@ -517,29 +517,29 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
     SetProperty(guid, "TargetDir2Usage", (int)nd.m_TargetDir2Usage);
     SetProperty(guid, "TargetDir2Offset", nd.m_fTargetDir2Usage);
     SetProperty(guid, "TargetDirection2", (int)nd.m_TargetDirection2);
-    SetProperty(guid, "MaxTargetDirDeviation", ezAngle::MakeFromDegree(nd.m_fMaxTargetDirDeviation));
+    SetProperty(guid, "MaxTargetDirDeviation", WAngle::MakeFromDegree(nd.m_fMaxTargetDirDeviation));
 
     // Growth - Branch Behavior
-    SetProperty(guid, "MinBranchLength", (ezUInt16)nd.m_uiMinBranchLengthInCM);
-    SetProperty(guid, "MaxBranchLength", (ezUInt16)nd.m_uiMaxBranchLengthInCM);
-    SetProperty(guid, "TargetDirDeviation", ezAngle::MakeFromDegree(nd.m_fGrowMaxTargetDirDeviation));
-    SetProperty(guid, "DirChangePerSegment", ezAngle::MakeFromDegree(nd.m_fGrowMaxDirChangePerSegment));
+    SetProperty(guid, "MinBranchLength", (WUInt16)nd.m_uiMinBranchLengthInCM);
+    SetProperty(guid, "MaxBranchLength", (WUInt16)nd.m_uiMaxBranchLengthInCM);
+    SetProperty(guid, "TargetDirDeviation", WAngle::MakeFromDegree(nd.m_fGrowMaxTargetDirDeviation));
+    SetProperty(guid, "DirChangePerSegment", WAngle::MakeFromDegree(nd.m_fGrowMaxDirChangePerSegment));
     SetProperty(guid, "OnlyGrowUpAndDown", nd.m_bRestrictGrowthToFrondPlane);
 
     // Appearance - Branch Mesh
     SetProperty(guid, "Roundness", nd.m_fRoundnessFactor);
-    SetProperty(guid, "Flares", (ezUInt8)nd.m_uiFlares);
+    SetProperty(guid, "Flares", (WUInt8)nd.m_uiFlares);
     SetProperty(guid, "FlareWidth", nd.m_fFlareWidth);
-    SetProperty(guid, "FlareRotation", ezAngle::MakeFromDegree(nd.m_fFlareRotation));
+    SetProperty(guid, "FlareRotation", WAngle::MakeFromDegree(nd.m_fFlareRotation));
     SetProperty(guid, "RotateTexCoords", nd.m_bRotateTexCoords);
 
     // Appearance - Fronds
     SetProperty(guid, "TextureRepeat", nd.m_fTextureRepeat);
     SetProperty(guid, "FrondUpOrientation", (int)nd.m_FrondUpOrientation);
-    SetProperty(guid, "FrondOrientationDeviation", ezAngle::MakeFromDegree((float)nd.m_uiMaxFrondOrientationDeviation));
-    SetProperty(guid, "NumFronds", (ezUInt8)nd.m_uiNumFronds);
+    SetProperty(guid, "FrondOrientationDeviation", WAngle::MakeFromDegree((float)nd.m_uiMaxFrondOrientationDeviation));
+    SetProperty(guid, "NumFronds", (WUInt8)nd.m_uiNumFronds);
     SetProperty(guid, "AlignFrondsOnSurface", nd.m_bAlignFrondsOnSurface);
-    SetProperty(guid, "FrondDetail", (ezUInt8)nd.m_uiFrondDetail);
+    SetProperty(guid, "FrondDetail", (WUInt8)nd.m_uiFrondDetail);
     SetProperty(guid, "FrondContourMode", (int)nd.m_FrondContourMode);
     SetProperty(guid, "FrondHeight", nd.m_fFrondHeight);
     SetProperty(guid, "FrondWidth", nd.m_fFrondWidth);
@@ -554,8 +554,8 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
   const char* szLodProps[5] = {"LOD0", "LOD1", "LOD2", "LOD3", "LOD4"};
   for (int n = 0; n < 5; ++n)
   {
-    ezDocumentObject* pLodObject = nullptr;
-    for (ezDocumentObject* pChild : pRootObject->GetChildren())
+    WDocumentObject* pLodObject = nullptr;
+    for (WDocumentObject* pChild : pRootObject->GetChildren())
     {
       if (pChild->GetParentProperty() == szLodProps[n])
       {
@@ -568,7 +568,7 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
       continue;
 
     const Kraut::LodDesc& lod = lodDescs[n];
-    const ezUuid guid = pLodObject->GetGuid();
+    const WUuid guid = pLodObject->GetGuid();
 
     SetProperty(guid, "Mode", (int)lod.m_Mode);
     SetProperty(guid, "TipDetail", lod.m_fTipDetail);
@@ -578,8 +578,8 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
     SetProperty(guid, "AllowBranch", (int)lod.m_AllowTypes[Kraut::BranchGeometryType::Branch]);
     SetProperty(guid, "AllowFrond", (int)lod.m_AllowTypes[Kraut::BranchGeometryType::Frond]);
     SetProperty(guid, "AllowLeaf", (int)lod.m_AllowTypes[Kraut::BranchGeometryType::Leaf]);
-    SetProperty(guid, "MaxFrondDetail", (ezInt8)lod.m_iMaxFrondDetail);
-    SetProperty(guid, "FrondDetailReduction", (ezInt8)lod.m_iFrondDetailReduction);
+    SetProperty(guid, "MaxFrondDetail", (WInt8)lod.m_iMaxFrondDetail);
+    SetProperty(guid, "FrondDetailReduction", (WInt8)lod.m_iFrondDetailReduction);
     SetProperty(guid, "LodDistance", lod.m_uiLodDistance);
     SetProperty(guid, "BranchSpikeTipMode", (int)lod.m_BranchSpikeTipMode);
   }
@@ -587,54 +587,54 @@ void ezQtKrautTreeAssetDocumentWindow::ImportKrautFile()
   pHistory->FinishTransaction();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::UpdatePreview()
+void WQtKrautTreeAssetDocumentWindow::UpdatePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Kraut Tree";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
-  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezKrautTree");
+  WStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WKrautTree");
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).AssertSuccess();
 
   // Write Asset Data
   GetKrautDocument()->WriteKrautAsset(memoryWriter).AssertSuccess();
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+  msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::InternalRedraw()
+void WQtKrautTreeAssetDocumentWindow::InternalRedraw()
 {
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WQuerySelectionBBoxResultMsgToEditor>())
   {
-    const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+    const WQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const WQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(WVec3(0.1f)));
     }
     else
     {
@@ -645,7 +645,7 @@ void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditor
     return;
   }
 
-  if (auto pConfigMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg))
+  if (auto pConfigMsg = WDynamicCast<const WSimpleDocumentConfigMsgToEditor*>(pMsg))
   {
     if (pConfigMsg->m_sWhatToDo == "LODStats" && m_pStatsBones != nullptr)
     {
@@ -662,17 +662,17 @@ void ezQtKrautTreeAssetDocumentWindow::ProcessMessageEventHandler(const ezEditor
     }
   }
 
-  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+  WQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (e.m_sProperty == "DisplayRandomSeed")
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "UpdateTree";
     msg.m_sPayload = "DisplayRandomSeed";
-    msg.m_PayloadValue = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
+    msg.m_PayloadValue = static_cast<WKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
 
     GetDocument()->SendMessageToEngine(&msg);
   }
@@ -692,9 +692,9 @@ void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObje
   }
 }
 
-void ezQtKrautTreeAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtKrautTreeAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  if (e.m_EventType != ezDocumentObjectStructureEvent::Type::AfterObjectAdded && e.m_EventType != ezDocumentObjectStructureEvent::Type::AfterObjectRemoved)
+  if (e.m_EventType != WDocumentObjectStructureEvent::Type::AfterObjectAdded && e.m_EventType != WDocumentObjectStructureEvent::Type::AfterObjectRemoved)
     return;
 
   if (e.m_sParentProperty == "ControlPoints")
@@ -703,16 +703,16 @@ void ezQtKrautTreeAssetDocumentWindow::StructureEventHandler(const ezDocumentObj
   }
 }
 
-void ezQtKrautTreeAssetDocumentWindow::RebuildBranchTypeCombo()
+void WQtKrautTreeAssetDocumentWindow::RebuildBranchTypeCombo()
 {
   if (m_pBranchTypeCombo == nullptr)
     return;
 
-  ezDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  WDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   auto GetBoolProp = [&](const char* szBranchTypeProp, const char* szBoolProp) -> bool
   {
-    for (ezDocumentObject* pChild : pRootObject->GetChildren())
+    for (WDocumentObject* pChild : pRootObject->GetChildren())
     {
       if (pChild->GetParentProperty() == szBranchTypeProp)
         return pChild->GetTypeAccessor().GetValue(szBoolProp).ConvertTo<bool>();
@@ -749,25 +749,25 @@ void ezQtKrautTreeAssetDocumentWindow::RebuildBranchTypeCombo()
   m_pBranchTypeCombo->blockSignals(true);
   m_pBranchTypeCombo->clear();
 
-  m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::Trunk, "BT_Trunk1");
+  m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::Trunk, "BT_Trunk1");
   if (bMainBranch1)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::MainBranch1, "BT_MainBranch1");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::MainBranch1, "BT_MainBranch1");
   if (bMainBranch2)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::MainBranch2, "BT_MainBranch2");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::MainBranch2, "BT_MainBranch2");
   if (bMainBranch3)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::MainBranch3, "BT_MainBranch3");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::MainBranch3, "BT_MainBranch3");
   if (bSubBranch1)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::SubBranch1, "BT_SubBranch1");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::SubBranch1, "BT_SubBranch1");
   if (bSubBranch2)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::SubBranch2, "BT_SubBranch2");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::SubBranch2, "BT_SubBranch2");
   if (bSubBranch3)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::SubBranch3, "BT_SubBranch3");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::SubBranch3, "BT_SubBranch3");
   if (bTwig1)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::Twig1, "BT_Twig1");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::Twig1, "BT_Twig1");
   if (bTwig2)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::Twig2, "BT_Twig2");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::Twig2, "BT_Twig2");
   if (bTwig3)
-    m_pBranchTypeCombo->addItem(ezKrautBranchTypeNames::Twig3, "BT_Twig3");
+    m_pBranchTypeCombo->addItem(WKrautBranchTypeNames::Twig3, "BT_Twig3");
 
   // Restore previous selection, fall back to Trunk if it is no longer present
   const int iNewIndex = m_pBranchTypeCombo->findData(sPrevData);
@@ -780,22 +780,22 @@ void ezQtKrautTreeAssetDocumentWindow::RebuildBranchTypeCombo()
   onBranchTypeSelected(iSelectIndex);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::RebuildLodCombo()
+void WQtKrautTreeAssetDocumentWindow::RebuildLodCombo()
 {
   if (m_pLodCombo == nullptr)
     return;
 
-  ezDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  WDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // LOD 0 is always active; check others by reading their Mode property
   bool bLodActive[5] = {true, false, false, false, false};
   for (int i = 1; i < 5; ++i)
   {
-    for (ezDocumentObject* pChild : pRoot->GetChildren())
+    for (WDocumentObject* pChild : pRoot->GetChildren())
     {
       if (pChild->GetParentProperty() == s_szLodProps[i])
       {
-        bLodActive[i] = (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt32>() != ezKrautLodMode::Disabled);
+        bLodActive[i] = (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<WInt32>() != WKrautLodMode::Disabled);
         break;
       }
     }
@@ -830,7 +830,7 @@ void ezQtKrautTreeAssetDocumentWindow::RebuildLodCombo()
     }
   }
 
-  iSelectIndex = ezMath::Clamp(iSelectIndex, 0, m_pLodCombo->count() - 1);
+  iSelectIndex = WMath::Clamp(iSelectIndex, 0, m_pLodCombo->count() - 1);
   m_pLodCombo->setCurrentIndex(iSelectIndex);
   m_pLodCombo->blockSignals(false);
 
@@ -845,7 +845,7 @@ void ezQtKrautTreeAssetDocumentWindow::RebuildLodCombo()
   onLodSelected(iSelectIndex);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onBranchTypeSelected(int index)
+void WQtKrautTreeAssetDocumentWindow::onBranchTypeSelected(int index)
 {
   if (m_pBranchProps == nullptr || m_pBranchTypeCombo == nullptr)
     return;
@@ -854,10 +854,10 @@ void ezQtKrautTreeAssetDocumentWindow::onBranchTypeSelected(int index)
   if (sParentProp.isEmpty())
     return;
 
-  ezDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-  ezDocumentObject* pSelected = nullptr;
+  WDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  WDocumentObject* pSelected = nullptr;
 
-  for (ezDocumentObject* pChild : pRootObject->GetChildren())
+  for (WDocumentObject* pChild : pRootObject->GetChildren())
   {
     if (pChild->GetParentProperty() == sParentProp.constData())
     {
@@ -869,20 +869,20 @@ void ezQtKrautTreeAssetDocumentWindow::onBranchTypeSelected(int index)
   if (pSelected == nullptr)
     return;
 
-  ezDeque<const ezDocumentObject*> sel;
+  WDeque<const WDocumentObject*> sel;
   sel.PushBack(pSelected);
   GetDocument()->GetSelectionManager()->SetSelection(pSelected);
   m_pBranchProps->SetSelection(sel);
 }
 
-ezDocumentObject* ezQtKrautTreeAssetDocumentWindow::GetCurrentBranchTypeObject() const
+WDocumentObject* WQtKrautTreeAssetDocumentWindow::GetCurrentBranchTypeObject() const
 {
   if (m_pBranchTypeCombo == nullptr)
     return nullptr;
 
   const QByteArray sProp = m_pBranchTypeCombo->currentData().toString().toUtf8();
-  ezDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-  for (ezDocumentObject* pChild : pRoot->GetChildren())
+  WDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  for (WDocumentObject* pChild : pRoot->GetChildren())
   {
     if (pChild->GetParentProperty() == sProp.constData())
       return pChild;
@@ -890,12 +890,12 @@ ezDocumentObject* ezQtKrautTreeAssetDocumentWindow::GetCurrentBranchTypeObject()
   return nullptr;
 }
 
-ezDocumentObject* ezQtKrautTreeAssetDocumentWindow::GetCurrentLodObject() const
+WDocumentObject* WQtKrautTreeAssetDocumentWindow::GetCurrentLodObject() const
 {
   if (m_iCurrentLodIndex < 0)
     return nullptr;
-  ezDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-  for (ezDocumentObject* pChild : pRoot->GetChildren())
+  WDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  for (WDocumentObject* pChild : pRoot->GetChildren())
   {
     if (pChild->GetParentProperty() == s_szLodProps[m_iCurrentLodIndex])
       return pChild;
@@ -903,25 +903,25 @@ ezDocumentObject* ezQtKrautTreeAssetDocumentWindow::GetCurrentLodObject() const
   return nullptr;
 }
 
-void ezQtKrautTreeAssetDocumentWindow::CopyObjectToClipboard(const ezDocumentObject* pObject, const char* szMimeType)
+void WQtKrautTreeAssetDocumentWindow::CopyObjectToClipboard(const WDocumentObject* pObject, const char* szMimeType)
 {
   if (pObject == nullptr)
     return;
 
-  ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter writer(&graph, GetDocument()->GetObjectManager());
+  WAbstractObjectGraph graph;
+  WDocumentObjectConverterWriter writer(&graph, GetDocument()->GetObjectManager());
   writer.AddObjectToGraph(pObject, "root");
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memWriter(&streamStorage);
-  ezAbstractGraphDdlSerializer::Write(memWriter, &graph, nullptr, false);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memWriter(&streamStorage);
+  WAbstractGraphDdlSerializer::Write(memWriter, &graph, nullptr, false);
 
   QMimeData* pMimeData = new QMimeData();
   pMimeData->setData(szMimeType, QByteArray((const char*)streamStorage.GetData(), streamStorage.GetStorageSize32()));
   QApplication::clipboard()->setMimeData(pMimeData);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::PasteObjectFromClipboard(ezDocumentObject* pObject, const char* szMimeType, const char* szTransactionName)
+void WQtKrautTreeAssetDocumentWindow::PasteObjectFromClipboard(WDocumentObject* pObject, const char* szMimeType, const char* szTransactionName)
 {
   if (pObject == nullptr)
     return;
@@ -932,60 +932,60 @@ void ezQtKrautTreeAssetDocumentWindow::PasteObjectFromClipboard(ezDocumentObject
 
   const QByteArray data = pMimeData->data(szMimeType);
 
-  ezAbstractObjectGraph clipboardGraph;
+  WAbstractObjectGraph clipboardGraph;
   {
-    ezRawMemoryStreamReader memReader(data.constData(), data.size());
-    if (ezAbstractGraphDdlSerializer::Read(memReader, &clipboardGraph).Failed())
+    WRawMemoryStreamReader memReader(data.constData(), data.size());
+    if (WAbstractGraphDdlSerializer::Read(memReader, &clipboardGraph).Failed())
       return;
   }
 
-  ezAbstractObjectGraph baseGraph;
+  WAbstractObjectGraph baseGraph;
   {
-    ezDocumentObjectConverterWriter writer(&baseGraph, GetDocument()->GetObjectManager());
+    WDocumentObjectConverterWriter writer(&baseGraph, GetDocument()->GetObjectManager());
     writer.AddObjectToGraph(pObject, "root");
   }
 
-  ezAbstractObjectNode* pClipRoot = clipboardGraph.GetNodeByName("root");
-  const ezAbstractObjectNode* pBaseRoot = baseGraph.GetNodeByName("root");
+  WAbstractObjectNode* pClipRoot = clipboardGraph.GetNodeByName("root");
+  const WAbstractObjectNode* pBaseRoot = baseGraph.GetNodeByName("root");
   if (pClipRoot == nullptr || pBaseRoot == nullptr)
     return;
 
   // Remap clipboard GUIDs to match the target object's GUIDs so the diff can be applied
   clipboardGraph.ReMapNodeGuidsToMatchGraph(pClipRoot, baseGraph, pBaseRoot);
 
-  ezDeque<ezAbstractGraphDiffOperation> diff;
+  WDeque<WAbstractGraphDiffOperation> diff;
   clipboardGraph.CreateDiffWithBaseGraph(baseGraph, diff);
 
   if (diff.IsEmpty())
     return;
 
-  ezObjectCommandAccessor accessor(GetDocument()->GetCommandHistory());
+  WObjectCommandAccessor accessor(GetDocument()->GetCommandHistory());
   accessor.StartTransaction(szTransactionName);
-  ezDocumentObjectConverterReader::ApplyDiffToObject(&accessor, pObject, diff);
+  WDocumentObjectConverterReader::ApplyDiffToObject(&accessor, pObject, diff);
   accessor.FinishTransaction();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onCopyBranchType()
+void WQtKrautTreeAssetDocumentWindow::onCopyBranchType()
 {
   CopyObjectToClipboard(GetCurrentBranchTypeObject(), s_szBranchTypeMimeType);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onPasteBranchType()
+void WQtKrautTreeAssetDocumentWindow::onPasteBranchType()
 {
   PasteObjectFromClipboard(GetCurrentBranchTypeObject(), s_szBranchTypeMimeType, "Paste Branch Type");
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onCopyLod()
+void WQtKrautTreeAssetDocumentWindow::onCopyLod()
 {
   CopyObjectToClipboard(GetCurrentLodObject(), s_szLodMimeType);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onPasteLod()
+void WQtKrautTreeAssetDocumentWindow::onPasteLod()
 {
   PasteObjectFromClipboard(GetCurrentLodObject(), s_szLodMimeType, "Paste LOD");
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
+void WQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
 {
   if (m_pLodProps == nullptr || m_pLodCombo == nullptr)
     return;
@@ -995,15 +995,15 @@ void ezQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
   // Update delete button: only enabled when the last active LOD is currently selected
   if (m_pDeleteLodButton)
   {
-    ezDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+    WDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
     int iLastActiveLodIndex = 0;
     for (int i = 1; i < 5; ++i)
     {
-      for (ezDocumentObject* pChild : pRoot->GetChildren())
+      for (WDocumentObject* pChild : pRoot->GetChildren())
       {
         if (pChild->GetParentProperty() == s_szLodProps[i])
         {
-          if (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt32>() != ezKrautLodMode::Disabled)
+          if (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<WInt32>() != WKrautLodMode::Disabled)
             iLastActiveLodIndex = i;
           break;
         }
@@ -1013,9 +1013,9 @@ void ezQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
   }
 
   // Update property grid: show the selected LOD's properties, or clear it for "Full Detail"
-  ezDocumentObject* pSelected = GetCurrentLodObject(); // returns nullptr for Full Detail (-1)
+  WDocumentObject* pSelected = GetCurrentLodObject(); // returns nullptr for Full Detail (-1)
   {
-    ezDeque<const ezDocumentObject*> sel;
+    WDeque<const WDocumentObject*> sel;
     if (pSelected != nullptr)
     {
       sel.PushBack(pSelected);
@@ -1030,7 +1030,7 @@ void ezQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
     // LOD index 0 = full-detail, 1..N = regular LODs (m_iCurrentLodIndex + 1)
     // m_iCurrentLodIndex == -1 (Full Detail) maps to override index 0
     // m_iCurrentLodIndex == 0..4 (regular LODs) map to override indices 1..5
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "SetLodOverride";
     msg.m_sPayload = "";
     msg.m_PayloadValue = m_iCurrentLodIndex + 1;
@@ -1038,9 +1038,9 @@ void ezQtKrautTreeAssetDocumentWindow::onLodSelected(int index)
   }
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onAutoLodToggled(bool bChecked)
+void WQtKrautTreeAssetDocumentWindow::onAutoLodToggled(bool bChecked)
 {
-  ezSimpleDocumentConfigMsgToEngine msg;
+  WSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "SetLodOverride";
   msg.m_sPayload = "";
 
@@ -1058,20 +1058,20 @@ void ezQtKrautTreeAssetDocumentWindow::onAutoLodToggled(bool bChecked)
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onAddLod()
+void WQtKrautTreeAssetDocumentWindow::onAddLod()
 {
-  ezDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  WDocumentObject* pRoot = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // Find the first disabled LOD (LOD 0 is always active, skip it)
-  ezDocumentObject* pFirstDisabledLod = nullptr;
+  WDocumentObject* pFirstDisabledLod = nullptr;
   int iLodIndex = -1;
   for (int i = 1; i < 5; ++i)
   {
-    for (ezDocumentObject* pChild : pRoot->GetChildren())
+    for (WDocumentObject* pChild : pRoot->GetChildren())
     {
       if (pChild->GetParentProperty() == s_szLodProps[i])
       {
-        if (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt32>() == ezKrautLodMode::Disabled)
+        if (pChild->GetTypeAccessor().GetValue("Mode").ConvertTo<WInt32>() == WKrautLodMode::Disabled)
         {
           pFirstDisabledLod = pChild;
           iLodIndex = i;
@@ -1095,24 +1095,24 @@ void ezQtKrautTreeAssetDocumentWindow::onAddLod()
   auto pHistory = GetDocument()->GetCommandHistory();
   pHistory->StartTransaction("Add LOD");
 
-  const ezUuid objectGuid = pFirstDisabledLod->GetGuid();
-  auto SetProperty = [&](const char* szProperty, const ezVariant& value)
+  const WUuid objectGuid = pFirstDisabledLod->GetGuid();
+  auto SetProperty = [&](const char* szProperty, const WVariant& value)
   {
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = objectGuid;
     cmd.m_sProperty = szProperty;
     cmd.m_NewValue = value;
     pHistory->AddCommand(cmd).AssertSuccess();
   };
 
-  SetProperty("Mode", (int)ezKrautLodMode::Full);
+  SetProperty("Mode", (int)WKrautLodMode::Full);
   SetProperty("CurvatureThreshold", preset.fCurvatureThreshold);
   SetProperty("ThicknessThreshold", preset.fThicknessThreshold);
   SetProperty("TipDetail", preset.fTipDetail);
   SetProperty("VertexRingDetail", preset.fVertexRingDetail);
-  SetProperty("AllowBranch", (int)ezKrautTreeTypeBits::Default);
-  SetProperty("AllowFrond", (int)ezKrautTreeTypeBits::Default);
-  SetProperty("AllowLeaf", (int)ezKrautTreeTypeBits::Default);
+  SetProperty("AllowBranch", (int)WKrautTreeTypeBits::Default);
+  SetProperty("AllowFrond", (int)WKrautTreeTypeBits::Default);
+  SetProperty("AllowLeaf", (int)WKrautTreeTypeBits::Default);
   SetProperty("MaxFrondDetail", preset.iMaxFrondDetail);
   SetProperty("FrondDetailReduction", preset.iFrondDetailReduction);
   SetProperty("LodDistance", preset.uiLodDistance);
@@ -1121,33 +1121,33 @@ void ezQtKrautTreeAssetDocumentWindow::onAddLod()
   pHistory->FinishTransaction();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::onDeleteLod()
+void WQtKrautTreeAssetDocumentWindow::onDeleteLod()
 {
   // The delete button is only enabled when the last active LOD is currently selected.
-  ezDocumentObject* pLodObject = GetCurrentLodObject();
+  WDocumentObject* pLodObject = GetCurrentLodObject();
   if (pLodObject == nullptr)
     return;
 
   // Move selection to the previous LOD before the transaction so RebuildLodCombo picks the right item.
-  m_iCurrentLodIndex = ezMath::Max(0, m_iCurrentLodIndex - 1);
+  m_iCurrentLodIndex = WMath::Max(0, m_iCurrentLodIndex - 1);
 
   auto pHistory = GetDocument()->GetCommandHistory();
   pHistory->StartTransaction("Delete LOD");
 
-  ezSetObjectPropertyCommand cmd;
+  WSetObjectPropertyCommand cmd;
   cmd.m_Object = pLodObject->GetGuid();
   cmd.m_sProperty = "Mode";
-  cmd.m_NewValue = (int)ezKrautLodMode::Disabled;
+  cmd.m_NewValue = (int)WKrautLodMode::Disabled;
   pHistory->AddCommand(cmd).AssertSuccess();
 
   pHistory->FinishTransaction();
 }
 
-void ezQtKrautTreeAssetDocumentWindow::ApplyLodPreset(int iPresetIndex)
+void WQtKrautTreeAssetDocumentWindow::ApplyLodPreset(int iPresetIndex)
 {
-  EZ_ASSERT_DEV(iPresetIndex >= 0 && iPresetIndex < (int)EZ_ARRAY_SIZE(s_LodPresets), "Invalid preset index");
+  W_ASSERT_DEV(iPresetIndex >= 0 && iPresetIndex < (int)W_ARRAY_SIZE(s_LodPresets), "Invalid preset index");
 
-  ezDocumentObject* pLodObject = GetCurrentLodObject();
+  WDocumentObject* pLodObject = GetCurrentLodObject();
   if (pLodObject == nullptr)
     return;
 
@@ -1155,10 +1155,10 @@ void ezQtKrautTreeAssetDocumentWindow::ApplyLodPreset(int iPresetIndex)
   auto pHistory = GetDocument()->GetCommandHistory();
   pHistory->StartTransaction("Apply LOD Preset");
 
-  const ezUuid objectGuid = pLodObject->GetGuid();
-  auto SetProperty = [&](const char* szProperty, const ezVariant& value)
+  const WUuid objectGuid = pLodObject->GetGuid();
+  auto SetProperty = [&](const char* szProperty, const WVariant& value)
   {
-    ezSetObjectPropertyCommand cmd;
+    WSetObjectPropertyCommand cmd;
     cmd.m_Object = objectGuid;
     cmd.m_sProperty = szProperty;
     cmd.m_NewValue = value;
@@ -1170,9 +1170,9 @@ void ezQtKrautTreeAssetDocumentWindow::ApplyLodPreset(int iPresetIndex)
   SetProperty("ThicknessThreshold", preset.fThicknessThreshold);
   SetProperty("TipDetail", preset.fTipDetail);
   SetProperty("VertexRingDetail", preset.fVertexRingDetail);
-  SetProperty("AllowBranch", (int)ezKrautTreeTypeBits::Default);
-  SetProperty("AllowFrond", (int)ezKrautTreeTypeBits::Default);
-  SetProperty("AllowLeaf", (int)ezKrautTreeTypeBits::Default);
+  SetProperty("AllowBranch", (int)WKrautTreeTypeBits::Default);
+  SetProperty("AllowFrond", (int)WKrautTreeTypeBits::Default);
+  SetProperty("AllowLeaf", (int)WKrautTreeTypeBits::Default);
   SetProperty("MaxFrondDetail", preset.iMaxFrondDetail);
   SetProperty("FrondDetailReduction", preset.iFrondDetailReduction);
   SetProperty("LodDistance", preset.uiLodDistance);

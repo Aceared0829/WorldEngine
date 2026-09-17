@@ -7,7 +7,7 @@
 # Requires Visual Studio. Without it the whole group is skipped.
 #
 # Example:
-#   Test-CppProjects.ps1 -SdkDir "D:\ez-test\ezEngine.Release.26.9.0" -OutputDir "D:\ez-test\results"
+#   Test-CppProjects.ps1 -SdkDir "D:\W-test\WorldEngine.Release.26.9.0" -OutputDir "D:\W-test\results"
 
 [CmdletBinding()]
 param(
@@ -36,7 +36,7 @@ $ErrorActionPreference = "Stop"
 
 $SdkDir = (Resolve-Path $SdkDir).Path
 $binDir = Get-EzBinDir -SdkDir $SdkDir -BinDir $BinDir
-$processor = Get-EzExe -BinDir $binDir -ExeName "ezEditorProcessor.exe"
+$processor = Get-EzExe -BinDir $binDir -ExeName "WEditorProcessor.exe"
 
 Initialize-TestGroup -Group "CppProjects" -OutputDir $OutputDir
 
@@ -69,7 +69,7 @@ function Invoke-EditorProcessor
 	return $result
 }
 
-# The exit codes of ezEditorProcessor, see EditorProcessor.cpp.
+# The exit codes of WEditorProcessor, see EditorProcessor.cpp.
 function Get-ProcessorExitCodeText
 {
 	param([int]$Code)
@@ -88,13 +88,13 @@ function Get-ProcessorExitCodeText
 }
 
 # B3: the generated build files must point at this SDK. If the path rewriting in
-# ez_include_ezExport() did not happen, the build folder still references the machine the package
-# was built on, which is what EXPINP_SOURCE_DIR in Output/Bin/ezExportInfo.cmake records.
+# W_include_WExport() did not happen, the build folder still references the machine the package
+# was built on, which is what EXPINP_SOURCE_DIR in Output/Bin/WExportInfo.cmake records.
 function Test-SdkPathsRelocated
 {
 	param([string]$ProjectDir)
 
-	$exportInfo = Join-Path $SdkDir "Output/Bin/ezExportInfo.cmake"
+	$exportInfo = Join-Path $SdkDir "Output/Bin/WExportInfo.cmake"
 
 	if (-not (Test-Path $exportInfo))
 	{
@@ -208,13 +208,13 @@ if (-not $Only)
 			throw "Exit code $($result.ExitCode) ($(Get-ProcessorExitCodeText $result.ExitCode))."
 		}
 
-		if (-not (Test-Path (Join-Path $newProjectDir "ezProject"))) { throw "No 'ezProject' file was written." }
+		if (-not (Test-Path (Join-Path $newProjectDir "WProject"))) { throw "No 'WProject' file was written." }
 		if (-not (Test-Path (Join-Path $newProjectDir "Editor/PluginSelection.ddl"))) { throw "No 'Editor/PluginSelection.ddl' was written." }
 
 		return "General3D"
 	}
 
-	if (Test-Path (Join-Path $newProjectDir "ezProject"))
+	if (Test-Path (Join-Path $newProjectDir "WProject"))
 	{
 		$result = Invoke-EditorProcessor -Name "NewProject-compile" -TimeoutSeconds $BuildTimeoutSeconds -Arguments @(
 			"-project", $newProjectDir
@@ -231,7 +231,7 @@ if (-not $Only)
 				throw "Exit code $($result.ExitCode) ($(Get-ProcessorExitCodeText $result.ExitCode)), see '$($result.LogFile)'."
 			}
 
-			if (-not (Test-Path (Join-Path $newProjectDir "AssetCache/Default.ezAidlt")))
+			if (-not (Test-Path (Join-Path $newProjectDir "AssetCache/Default.WAidlt")))
 			{
 				throw "No asset cache was written."
 			}
@@ -298,7 +298,7 @@ if (-not $SkipExport -and -not $Only)
 	if (Test-Path $exportDir)
 	{
 		Invoke-TestCheck -Name "Exported $ExportProject runs" -Check {
-			$exe = @(Get-ChildItem $exportDir -Filter "*.exe" -Recurse -File | Where-Object { $_.Name -notlike "ez*Tool*" } | Select-Object -First 1)
+			$exe = @(Get-ChildItem $exportDir -Filter "*.exe" -Recurse -File | Where-Object { $_.Name -notlike "W*Tool*" } | Select-Object -First 1)
 
 			if ($exe.Count -eq 0)
 			{

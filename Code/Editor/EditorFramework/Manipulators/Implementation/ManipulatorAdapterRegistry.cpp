@@ -3,10 +3,10 @@
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
-EZ_IMPLEMENT_SINGLETON(ezManipulatorAdapterRegistry);
+W_IMPLEMENT_SINGLETON(WManipulatorAdapterRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ManipulatorManager"
@@ -14,28 +14,28 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
  
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezManipulatorAdapterRegistry);
+    W_DEFAULT_NEW(WManipulatorAdapterRegistry);
   }
  
   ON_CORESYSTEMS_SHUTDOWN
   {
-    auto ptr = ezManipulatorAdapterRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(ptr);
+    auto ptr = WManipulatorAdapterRegistry::GetSingleton();
+    W_DEFAULT_DELETE(ptr);
   }
  
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezManipulatorAdapterRegistry::ezManipulatorAdapterRegistry()
+WManipulatorAdapterRegistry::WManipulatorAdapterRegistry()
   : m_SingletonRegistrar(this)
 {
-  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
 }
 
-ezManipulatorAdapterRegistry::~ezManipulatorAdapterRegistry()
+WManipulatorAdapterRegistry::~WManipulatorAdapterRegistry()
 {
-  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(
+    WMakeDelegate(&WManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
 
   for (auto it = m_DocumentAdapters.GetIterator(); it.IsValid(); ++it)
   {
@@ -43,7 +43,7 @@ ezManipulatorAdapterRegistry::~ezManipulatorAdapterRegistry()
   }
 }
 
-void ezManipulatorAdapterRegistry::QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& out_gridSettings)
+void WManipulatorAdapterRegistry::QueryGridSettings(const WDocument* pDocument, WGridSettingsMsgToEngine& out_gridSettings)
 {
   for (auto& adapt : m_DocumentAdapters[pDocument].m_Adapters)
   {
@@ -51,7 +51,7 @@ void ezManipulatorAdapterRegistry::QueryGridSettings(const ezDocument* pDocument
   }
 }
 
-void ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+void WManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e)
 {
   ClearAdapters(e.m_pDocument);
 
@@ -60,7 +60,7 @@ void ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const ezManipu
 
   for (const auto& sel : *e.m_pSelection)
   {
-    ezManipulatorAdapter* pAdapter = m_Factory.CreateObject(e.m_pManipulator->GetDynamicRTTI());
+    WManipulatorAdapter* pAdapter = m_Factory.CreateObject(e.m_pManipulator->GetDynamicRTTI());
 
     if (pAdapter)
     {
@@ -70,11 +70,11 @@ void ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const ezManipu
   }
 }
 
-void ezManipulatorAdapterRegistry::ClearAdapters(const ezDocument* pDocument)
+void WManipulatorAdapterRegistry::ClearAdapters(const WDocument* pDocument)
 {
   for (auto& adapt : m_DocumentAdapters[pDocument].m_Adapters)
   {
-    EZ_DEFAULT_DELETE(adapt);
+    W_DEFAULT_DELETE(adapt);
   }
 
   m_DocumentAdapters[pDocument].m_Adapters.Clear();

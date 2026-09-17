@@ -10,7 +10,7 @@
 #include <QPushButton>
 #include <qevent.h>
 
-ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
+WQtTimeScrubberWidget::WQtTimeScrubberWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setMinimumWidth(100);
@@ -18,42 +18,42 @@ ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
   setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 }
 
-ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget() = default;
+WQtTimeScrubberWidget::~WQtTimeScrubberWidget() = default;
 
-void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks)
+void WQtTimeScrubberWidget::SetDuration(WUInt64 uiNumTicks)
 {
   if (m_uiDurationTicks == uiNumTicks)
     return;
 
   m_uiDurationTicks = uiNumTicks;
-  m_Duration = ezTime::MakeFromSeconds((double)uiNumTicks / 4800.0);
-  m_fNormScrubberPosition = ezMath::Clamp((double)m_uiScrubberTickPos / (double)m_uiDurationTicks, 0.0, 1.0);
+  m_Duration = WTime::MakeFromSeconds((double)uiNumTicks / 4800.0);
+  m_fNormScrubberPosition = WMath::Clamp((double)m_uiScrubberTickPos / (double)m_uiDurationTicks, 0.0, 1.0);
 
   update();
 }
 
-void ezQtTimeScrubberWidget::SetDuration(ezTime time)
+void WQtTimeScrubberWidget::SetDuration(WTime time)
 {
-  SetDuration(static_cast<ezUInt64>(time.GetSeconds() * 4800));
+  SetDuration(static_cast<WUInt64>(time.GetSeconds() * 4800));
 }
 
-void ezQtTimeScrubberWidget::SetScrubberPosition(ezUInt64 uiTick)
+void WQtTimeScrubberWidget::SetScrubberPosition(WUInt64 uiTick)
 {
   if (m_uiScrubberTickPos == uiTick)
     return;
 
   m_uiScrubberTickPos = uiTick;
-  m_fNormScrubberPosition = ezMath::Clamp((double)uiTick / (double)m_uiDurationTicks, 0.0, 1.0);
+  m_fNormScrubberPosition = WMath::Clamp((double)uiTick / (double)m_uiDurationTicks, 0.0, 1.0);
 
   update();
 }
 
-void ezQtTimeScrubberWidget::SetScrubberPosition(ezTime time)
+void WQtTimeScrubberWidget::SetScrubberPosition(WTime time)
 {
-  SetScrubberPosition(static_cast<ezUInt64>(time.GetSeconds() * 4800));
+  SetScrubberPosition(static_cast<WUInt64>(time.GetSeconds() * 4800));
 }
 
-void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
+void WQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
 {
   QWidget::paintEvent(event);
 
@@ -72,8 +72,8 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
   const double fMaxDuration = m_Duration.GetSeconds();
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), fMaxDuration, 20);
-  ezTempHybridArray<QLine, 100> lines;
+  WWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), fMaxDuration, 20);
+  WTempHybridArray<QLine, 100> lines;
 
   // fine lines
   {
@@ -120,7 +120,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
 
     p.setPen(palette().buttonText().color());
 
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     const double areaTop = rect().top();
     const double areaHeight = 14.0;
@@ -131,7 +131,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
       const double scaledX = x * scale;
 
       textRect.setRect(scaledX - 20, areaTop, 39, areaHeight);
-      tmp.SetFormat("{0}", ezArgF(x));
+      tmp.SetFormat("{0}", WArgF(x));
 
       p.drawText(textRect, tmp.GetData(), textOpt);
     }
@@ -148,7 +148,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
   }
 }
 
-void ezQtTimeScrubberWidget::mousePressEvent(QMouseEvent* event)
+void WQtTimeScrubberWidget::mousePressEvent(QMouseEvent* event)
 {
   QWidget::mousePressEvent(event);
 
@@ -164,7 +164,7 @@ void ezQtTimeScrubberWidget::mousePressEvent(QMouseEvent* event)
   update();
 }
 
-void ezQtTimeScrubberWidget::mouseReleaseEvent(QMouseEvent* event)
+void WQtTimeScrubberWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   QWidget::mouseReleaseEvent(event);
 
@@ -178,7 +178,7 @@ void ezQtTimeScrubberWidget::mouseReleaseEvent(QMouseEvent* event)
   update();
 }
 
-void ezQtTimeScrubberWidget::mouseMoveEvent(QMouseEvent* event)
+void WQtTimeScrubberWidget::mouseMoveEvent(QMouseEvent* event)
 {
   QWidget::mouseMoveEvent(event);
 
@@ -191,12 +191,12 @@ void ezQtTimeScrubberWidget::mouseMoveEvent(QMouseEvent* event)
   SetScrubberPosFromPixelCoord(event->pos().x());
 }
 
-void ezQtTimeScrubberWidget::SetScrubberPosFromPixelCoord(ezInt32 posX)
+void WQtTimeScrubberWidget::SetScrubberPosFromPixelCoord(WInt32 posX)
 {
   double fNormPos = (double)posX / (double)rect().width();
-  fNormPos = ezMath::Clamp(fNormPos, 0.0, 1.0);
+  fNormPos = WMath::Clamp(fNormPos, 0.0, 1.0);
 
-  const ezUInt64 uiTickPos = (ezUInt64)(fNormPos * m_uiDurationTicks);
+  const WUInt64 uiTickPos = (WUInt64)(fNormPos * m_uiDurationTicks);
 
   if (uiTickPos != m_uiScrubberTickPos)
   {
@@ -206,10 +206,10 @@ void ezQtTimeScrubberWidget::SetScrubberPosFromPixelCoord(ezInt32 posX)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* pParent)
+WQtTimeScrubberToolbar::WQtTimeScrubberToolbar(QWidget* pParent)
   : QToolBar("Time Scrubber", pParent)
 {
-  m_pScrubber = new ezQtTimeScrubberWidget(this);
+  m_pScrubber = new WQtTimeScrubberWidget(this);
   setObjectName("TimeScrubberToolbar");
 
   m_pPlayButton = new QPushButton(this);
@@ -237,8 +237,8 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* pParent)
   addWidget(m_pAdjustDurationButton);
 
   // Pass event through
-  connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this,
-    [this](ezUInt64 uiNewScrubberTickPos)
+  connect(m_pScrubber, &WQtTimeScrubberWidget::ScrubberPosChangedEvent, this,
+    [this](WUInt64 uiNewScrubberTickPos)
     { Q_EMIT ScrubberPosChangedEvent(uiNewScrubberTickPos); });
 
   connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool)
@@ -256,27 +256,27 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* pParent)
     { Q_EMIT AdjustDurationEvent(); });
 }
 
-void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks)
+void WQtTimeScrubberToolbar::SetDuration(WUInt64 uiNumTicks)
 {
   m_pScrubber->SetDuration(uiNumTicks);
 
-  ezQtScopedBlockSignals _1(m_pDuration);
+  WQtScopedBlockSignals _1(m_pDuration);
 
   const double oldVal = m_pDuration->text().toDouble();
   const double newVal = (double)uiNumTicks / 4800.0;
 
-  if (ezMath::IsEqual(oldVal, newVal, 0.01))
+  if (WMath::IsEqual(oldVal, newVal, 0.01))
     return;
 
   m_pDuration->setText(QString("%1").arg(newVal, 0, 'f', 2));
 }
 
-void ezQtTimeScrubberToolbar::SetScrubberPosition(ezUInt64 uiTick)
+void WQtTimeScrubberToolbar::SetScrubberPosition(WUInt64 uiTick)
 {
   m_pScrubber->SetScrubberPosition(uiTick);
 }
 
-void ezQtTimeScrubberToolbar::SetButtonState(bool bPlaying, bool bRepeatEnabled)
+void WQtTimeScrubberToolbar::SetButtonState(bool bPlaying, bool bRepeatEnabled)
 {
   if (bPlaying)
     m_pPlayButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlPause.svg"));

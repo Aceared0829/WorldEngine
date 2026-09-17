@@ -7,57 +7,57 @@
 template <typename STRING>
 void TestConstruction(const STRING& value, const char* szStart, const char* szEnd)
 {
-  ezStringUtf8 sUtf8(L"A単語F");
-  EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
-  const bool bEqualForwardItTypes = ezConversionTest<typename STRING::iterator, typename STRING::const_iterator>::sameType == 1;
+  WStringUtf8 sUtf8(L"A単語F");
+  W_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
+  const bool bEqualForwardItTypes = WConversionTest<typename STRING::iterator, typename STRING::const_iterator>::sameType == 1;
   static_assert(
     bEqualForwardItTypes, "As the string iterator is read-only, both const and non-const versions should be the same type.");
-  const bool bEqualReverseItTypes = ezConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
+  const bool bEqualReverseItTypes = WConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
   static_assert(
     bEqualReverseItTypes, "As the reverse string iterator is read-only, both const and non-const versions should be the same type.");
 
   typename STRING::iterator itInvalid;
-  EZ_TEST_BOOL(!itInvalid.IsValid());
+  W_TEST_BOOL(!itInvalid.IsValid());
   typename STRING::reverse_iterator itInvalidR;
-  EZ_TEST_BOOL(!itInvalidR.IsValid());
+  W_TEST_BOOL(!itInvalidR.IsValid());
 
   // Begin
   const typename STRING::iterator itBegin = begin(value);
-  EZ_TEST_BOOL(itBegin == value.GetIteratorFront());
-  EZ_TEST_BOOL(itBegin.IsValid());
-  EZ_TEST_BOOL(itBegin == itBegin);
-  EZ_TEST_BOOL(itBegin.GetData() == szStart);
-  EZ_TEST_BOOL(itBegin.GetCharacter() == ezUnicodeUtils::ConvertUtf8ToUtf32("A"));
-  EZ_TEST_BOOL(*itBegin == ezUnicodeUtils::ConvertUtf8ToUtf32("A"));
+  W_TEST_BOOL(itBegin == value.GetIteratorFront());
+  W_TEST_BOOL(itBegin.IsValid());
+  W_TEST_BOOL(itBegin == itBegin);
+  W_TEST_BOOL(itBegin.GetData() == szStart);
+  W_TEST_BOOL(itBegin.GetCharacter() == WUnicodeUtils::ConvertUtf8ToUtf32("A"));
+  W_TEST_BOOL(*itBegin == WUnicodeUtils::ConvertUtf8ToUtf32("A"));
 
   // End
   const typename STRING::iterator itEnd = end(value);
-  EZ_TEST_BOOL(!itEnd.IsValid());
-  EZ_TEST_BOOL(itEnd == itEnd);
-  EZ_TEST_BOOL(itBegin != itEnd);
-  EZ_TEST_BOOL(itEnd.GetData() == szEnd);
-  EZ_TEST_BOOL(itEnd.GetCharacter() == 0);
-  EZ_TEST_BOOL(*itEnd == 0);
+  W_TEST_BOOL(!itEnd.IsValid());
+  W_TEST_BOOL(itEnd == itEnd);
+  W_TEST_BOOL(itBegin != itEnd);
+  W_TEST_BOOL(itEnd.GetData() == szEnd);
+  W_TEST_BOOL(itEnd.GetCharacter() == 0);
+  W_TEST_BOOL(*itEnd == 0);
 
   // RBegin
   const typename STRING::reverse_iterator itBeginR = rbegin(value);
-  EZ_TEST_BOOL(itBeginR == value.GetIteratorBack());
-  EZ_TEST_BOOL(itBeginR.IsValid());
-  EZ_TEST_BOOL(itBeginR == itBeginR);
+  W_TEST_BOOL(itBeginR == value.GetIteratorBack());
+  W_TEST_BOOL(itBeginR.IsValid());
+  W_TEST_BOOL(itBeginR == itBeginR);
   const char* szEndPrior = szEnd;
-  ezUnicodeUtils::MoveToPriorUtf8(szEndPrior, szStart).AssertSuccess();
-  EZ_TEST_BOOL(itBeginR.GetData() == szEndPrior);
-  EZ_TEST_BOOL(itBeginR.GetCharacter() == ezUnicodeUtils::ConvertUtf8ToUtf32("F"));
-  EZ_TEST_BOOL(*itBeginR == ezUnicodeUtils::ConvertUtf8ToUtf32("F"));
+  WUnicodeUtils::MoveToPriorUtf8(szEndPrior, szStart).AssertSuccess();
+  W_TEST_BOOL(itBeginR.GetData() == szEndPrior);
+  W_TEST_BOOL(itBeginR.GetCharacter() == WUnicodeUtils::ConvertUtf8ToUtf32("F"));
+  W_TEST_BOOL(*itBeginR == WUnicodeUtils::ConvertUtf8ToUtf32("F"));
 
   // REnd
   const typename STRING::reverse_iterator itEndR = rend(value);
-  EZ_TEST_BOOL(!itEndR.IsValid());
-  EZ_TEST_BOOL(itEndR == itEndR);
-  EZ_TEST_BOOL(itBeginR != itEndR);
-  EZ_TEST_BOOL(itEndR.GetData() == nullptr); // Position before first character is not a valid ptr, so it is set to nullptr.
-  EZ_TEST_BOOL(itEndR.GetCharacter() == 0);
-  EZ_TEST_BOOL(*itEndR == 0);
+  W_TEST_BOOL(!itEndR.IsValid());
+  W_TEST_BOOL(itEndR == itEndR);
+  W_TEST_BOOL(itBeginR != itEndR);
+  W_TEST_BOOL(itEndR.GetData() == nullptr); // Position before first character is not a valid ptr, so it is set to nullptr.
+  W_TEST_BOOL(itEndR.GetCharacter() == 0);
+  W_TEST_BOOL(*itEndR == 0);
 }
 
 template <typename STRING, typename IT>
@@ -67,28 +67,28 @@ void TestIteratorBegin(const STRING& value, const IT& it)
   IT itBegin = it;
   --itBegin;
   itBegin -= 4;
-  EZ_TEST_BOOL(itBegin == it);
-  EZ_TEST_BOOL(itBegin - 2 == it);
+  W_TEST_BOOL(itBegin == it);
+  W_TEST_BOOL(itBegin - 2 == it);
 
   // Prefix / Postfix
-  EZ_TEST_BOOL(itBegin + 2 != it);
-  EZ_TEST_BOOL(itBegin++ == it);
-  EZ_TEST_BOOL(itBegin-- != it);
+  W_TEST_BOOL(itBegin + 2 != it);
+  W_TEST_BOOL(itBegin++ == it);
+  W_TEST_BOOL(itBegin-- != it);
   itBegin = it;
-  EZ_TEST_BOOL(++itBegin != it);
-  EZ_TEST_BOOL(--itBegin == it);
+  W_TEST_BOOL(++itBegin != it);
+  W_TEST_BOOL(--itBegin == it);
 
   // Misc
   itBegin = it;
-  EZ_TEST_BOOL(it + 2 == ++(++itBegin));
+  W_TEST_BOOL(it + 2 == ++(++itBegin));
   itBegin -= 1;
-  EZ_TEST_BOOL(itBegin == it + 1);
+  W_TEST_BOOL(itBegin == it + 1);
   itBegin -= 0;
-  EZ_TEST_BOOL(itBegin == it + 1);
+  W_TEST_BOOL(itBegin == it + 1);
   itBegin += 0;
-  EZ_TEST_BOOL(itBegin == it + 1);
+  W_TEST_BOOL(itBegin == it + 1);
   itBegin += -1;
-  EZ_TEST_BOOL(itBegin == it);
+  W_TEST_BOOL(itBegin == it);
 }
 
 template <typename STRING, typename IT>
@@ -98,35 +98,35 @@ void TestIteratorEnd(const STRING& value, const IT& it)
   IT itEnd = it;
   ++itEnd;
   itEnd += 4;
-  EZ_TEST_BOOL(itEnd == it);
-  EZ_TEST_BOOL(itEnd + 2 == it);
+  W_TEST_BOOL(itEnd == it);
+  W_TEST_BOOL(itEnd + 2 == it);
 
   // Prefix / Postfix
-  EZ_TEST_BOOL(itEnd - 2 != it);
-  EZ_TEST_BOOL(itEnd-- == it);
-  EZ_TEST_BOOL(itEnd++ != it);
+  W_TEST_BOOL(itEnd - 2 != it);
+  W_TEST_BOOL(itEnd-- == it);
+  W_TEST_BOOL(itEnd++ != it);
   itEnd = it;
-  EZ_TEST_BOOL(--itEnd != it);
-  EZ_TEST_BOOL(++itEnd == it);
+  W_TEST_BOOL(--itEnd != it);
+  W_TEST_BOOL(++itEnd == it);
 
   // Misc
   itEnd = it;
-  EZ_TEST_BOOL(it - 2 == --(--itEnd));
+  W_TEST_BOOL(it - 2 == --(--itEnd));
   itEnd += 1;
-  EZ_TEST_BOOL(itEnd == it - 1);
+  W_TEST_BOOL(itEnd == it - 1);
   itEnd += 0;
-  EZ_TEST_BOOL(itEnd == it - 1);
+  W_TEST_BOOL(itEnd == it - 1);
   itEnd -= 0;
-  EZ_TEST_BOOL(itEnd == it - 1);
+  W_TEST_BOOL(itEnd == it - 1);
   itEnd -= -1;
-  EZ_TEST_BOOL(itEnd == it);
+  W_TEST_BOOL(itEnd == it);
 }
 
 template <typename STRING>
 void TestOperators(const STRING& value, const char* szStart, const char* szEnd)
 {
-  ezStringUtf8 sUtf8(L"A単語F");
-  EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
+  WStringUtf8 sUtf8(L"A単語F");
+  W_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
 
   // Begin
   typename STRING::iterator itBegin = begin(value);
@@ -148,33 +148,33 @@ void TestOperators(const STRING& value, const char* szStart, const char* szEnd)
 template <typename STRING>
 void TestLoops(const STRING& value, const char* szStart, const char* szEnd)
 {
-  ezStringUtf8 sUtf8(L"A単語F");
-  ezUInt32 characters[] = {ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"A").GetData()),
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"単").GetData()), ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"語").GetData()),
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"F").GetData())};
+  WStringUtf8 sUtf8(L"A単語F");
+  WUInt32 characters[] = {WUnicodeUtils::ConvertUtf8ToUtf32(WStringUtf8(L"A").GetData()),
+    WUnicodeUtils::ConvertUtf8ToUtf32(WStringUtf8(L"単").GetData()), WUnicodeUtils::ConvertUtf8ToUtf32(WStringUtf8(L"語").GetData()),
+    WUnicodeUtils::ConvertUtf8ToUtf32(WStringUtf8(L"F").GetData())};
 
   // Forward
-  ezInt32 iIndex = 0;
-  for (ezUInt32 character : value)
+  WInt32 iIndex = 0;
+  for (WUInt32 character : value)
   {
-    EZ_TEST_INT(characters[iIndex], character);
+    W_TEST_INT(characters[iIndex], character);
     ++iIndex;
   }
-  EZ_TEST_INT(iIndex, 4);
+  W_TEST_INT(iIndex, 4);
 
   typename STRING::iterator itBegin = begin(value);
   typename STRING::iterator itEnd = end(value);
   iIndex = 0;
   for (auto it = itBegin; it != itEnd; ++it)
   {
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(characters[iIndex], it.GetCharacter());
-    EZ_TEST_INT(characters[iIndex], *it);
-    EZ_TEST_BOOL(it.GetData() >= szStart);
-    EZ_TEST_BOOL(it.GetData() < szEnd);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(characters[iIndex], it.GetCharacter());
+    W_TEST_INT(characters[iIndex], *it);
+    W_TEST_BOOL(it.GetData() >= szStart);
+    W_TEST_BOOL(it.GetData() < szEnd);
     ++iIndex;
   }
-  EZ_TEST_INT(iIndex, 4);
+  W_TEST_INT(iIndex, 4);
 
   // Reverse
   typename STRING::reverse_iterator itBeginR = rbegin(value);
@@ -182,46 +182,46 @@ void TestLoops(const STRING& value, const char* szStart, const char* szEnd)
   iIndex = 3;
   for (auto it = itBeginR; it != itEndR; ++it)
   {
-    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(characters[iIndex], it.GetCharacter());
-    EZ_TEST_INT(characters[iIndex], *it);
-    EZ_TEST_BOOL(it.GetData() >= szStart);
-    EZ_TEST_BOOL(it.GetData() < szEnd);
+    W_TEST_BOOL(it.IsValid());
+    W_TEST_INT(characters[iIndex], it.GetCharacter());
+    W_TEST_INT(characters[iIndex], *it);
+    W_TEST_BOOL(it.GetData() >= szStart);
+    W_TEST_BOOL(it.GetData() < szEnd);
     --iIndex;
   }
-  EZ_TEST_INT(iIndex, -1);
+  W_TEST_INT(iIndex, -1);
 }
 
-EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
+W_CREATE_SIMPLE_TEST(Strings, StringIterator)
 {
-  ezStringUtf8 sUtf8(L"_A単語F_");
-  ezStringBuilder sTestStringBuilder = sUtf8.GetData();
+  WStringUtf8 sUtf8(L"_A単語F_");
+  WStringBuilder sTestStringBuilder = sUtf8.GetData();
   sTestStringBuilder.Shrink(1, 1);
-  ezString sTextString = sTestStringBuilder.GetData();
+  WString sTextString = sTestStringBuilder.GetData();
 
-  ezStringView view(sUtf8.GetData());
+  WStringView view(sUtf8.GetData());
   view.Shrink(1, 1);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Construction")
   {
-    TestConstruction<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestConstruction<ezStringBuilder>(
+    TestConstruction<WString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
+    TestConstruction<WStringBuilder>(
       sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestConstruction<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
+    TestConstruction<WStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Operators")
   {
-    TestOperators<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestOperators<ezStringBuilder>(
+    TestOperators<WString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
+    TestOperators<WStringBuilder>(
       sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestOperators<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
+    TestOperators<WStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loops")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Loops")
   {
-    TestLoops<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestLoops<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestLoops<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
+    TestLoops<WString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
+    TestLoops<WStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
+    TestLoops<WStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 }

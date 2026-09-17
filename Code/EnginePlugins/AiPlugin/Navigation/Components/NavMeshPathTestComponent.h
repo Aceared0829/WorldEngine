@@ -5,7 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 
-using ezNavMeshPathTestComponentManager = ezComponentManagerSimple<class ezAiNavMeshPathTestComponent, ezComponentUpdateType::WhenSimulating>;
+using WNavMeshPathTestComponentManager = WComponentManagerSimple<class WAiNavMeshPathTestComponent, WComponentUpdateType::WhenSimulating>;
 
 /// Used to test path-finding through a navmesh.
 ///
@@ -14,26 +14,26 @@ using ezNavMeshPathTestComponentManager = ezComponentManagerSimple<class ezAiNav
 /// Various aspects of the path can be visualized for inspection.
 ///
 /// This component should be used in the editor, to test whether the scene navmesh behaves as desired.
-class EZ_AIPLUGIN_DLL ezAiNavMeshPathTestComponent : public ezComponent
+class W_AIPLUGIN_DLL WAiNavMeshPathTestComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAiNavMeshPathTestComponent, ezComponent, ezNavMeshPathTestComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAiNavMeshPathTestComponent, WComponent, WNavMeshPathTestComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  //  ezAiNavMeshPathTestComponent
+  //  WAiNavMeshPathTestComponent
 
 public:
-  ezAiNavMeshPathTestComponent();
-  ~ezAiNavMeshPathTestComponent();
+  WAiNavMeshPathTestComponent();
+  ~WAiNavMeshPathTestComponent();
 
   void SetPathEndReference(const char* szReference); // [ property ]
-  void SetPathEnd(ezGameObjectHandle hObject);
+  void SetPathEnd(WGameObjectHandle hObject);
 
   /// Render the navmesh polygons, through which the path goes.
   bool m_bVisualizePathCorridor = true; // [ property ]
@@ -44,17 +44,17 @@ public:
   /// Render text describing what went wrong during path search.
   bool m_bVisualizePathState = true; // [ property ]
 
-  /// Name of the ezAiNavmeshConfig to use. See ezAiNavigationConfig.
-  ezHashedString m_sNavmeshConfig; // [ property ]
+  /// Name of the WAiNavmeshConfig to use. See WAiNavigationConfig.
+  WHashedString m_sNavmeshConfig; // [ property ]
 
-  /// Name of the ezAiPathSearchConfig to use. See ezAiNavigationConfig.
-  ezHashedString m_sPathSearchConfig; // [ property ]
+  /// Name of the WAiPathSearchConfig to use. See WAiNavigationConfig.
+  WHashedString m_sPathSearchConfig; // [ property ]
 
 protected:
   void Update();
 
-  ezGameObjectHandle m_hPathEnd;
-  ezAiNavigation m_Navigation;
+  WGameObjectHandle m_hPathEnd;
+  WAiNavigation m_Navigation;
 
 private:
   const char* DummyGetter() const { return nullptr; }

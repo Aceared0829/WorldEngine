@@ -2,35 +2,35 @@
 
 #include <RendererFoundation/Resources/Texture.h>
 
-ezGALTexture::ezGALTexture(const ezGALTextureCreationDescription& Description)
-  : ezGALResource(Description)
+WGALTexture::WGALTexture(const WGALTextureCreationDescription& Description)
+  : WGALResource(Description)
 {
 }
 
-ezGALTexture::~ezGALTexture()
+WGALTexture::~WGALTexture()
 {
-  EZ_ASSERT_DEV(m_hDefaultRenderTargetView.IsInvalidated(), "");
-  EZ_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
+  W_ASSERT_DEV(m_hDefaultRenderTargetView.IsInvalidated(), "");
+  W_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
 }
 
-ezVec3U32 ezGALTexture::GetMipMapSize(ezUInt32 uiMipLevel) const
+WVec3U32 WGALTexture::GetMipMapSize(WUInt32 uiMipLevel) const
 {
   return m_Description.GetMipMapSize(uiMipLevel);
 }
 
-ezGALTextureRange ezGALTexture::ClampRange(ezGALTextureRange range) const
+WGALTextureRange WGALTexture::ClampRange(WGALTextureRange range) const
 {
-  const ezUInt16 uiSlices = (m_Description.m_Type == ezGALTextureType::TextureCube || m_Description.m_Type == ezGALTextureType::TextureCubeArray) ? (ezUInt16)m_Description.m_uiArraySize * 6 : (ezUInt16)m_Description.m_uiArraySize;
-  const ezUInt8 uiMipLevels = (ezUInt8)m_Description.m_uiMipLevelCount;
-  if (range.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
+  const WUInt16 uiSlices = (m_Description.m_Type == WGALTextureType::TextureCube || m_Description.m_Type == WGALTextureType::TextureCubeArray) ? (WUInt16)m_Description.m_uiArraySize * 6 : (WUInt16)m_Description.m_uiArraySize;
+  const WUInt8 uiMipLevels = (WUInt8)m_Description.m_uiMipLevelCount;
+  if (range.m_uiArraySlices == W_GAL_ALL_ARRAY_SLICES)
   {
-    range.m_uiArraySlices = static_cast<ezUInt16>(uiSlices - range.m_uiBaseArraySlice);
+    range.m_uiArraySlices = static_cast<WUInt16>(uiSlices - range.m_uiBaseArraySlice);
   }
-  if (range.m_uiMipLevels == EZ_GAL_ALL_MIP_LEVELS)
+  if (range.m_uiMipLevels == W_GAL_ALL_MIP_LEVELS)
   {
-    range.m_uiMipLevels = static_cast<ezUInt8>(uiMipLevels - range.m_uiBaseMipLevel);
+    range.m_uiMipLevels = static_cast<WUInt8>(uiMipLevels - range.m_uiBaseMipLevel);
   }
-  EZ_ASSERT_DEBUG(range.m_uiBaseArraySlice + range.m_uiArraySlices <= uiSlices, "Invalid ezGALTextureRange: Base array slice {} + array slices {} is bigger than texture's slice count {}", range.m_uiBaseArraySlice, range.m_uiArraySlices, uiSlices);
-  EZ_ASSERT_DEBUG(range.m_uiBaseMipLevel + range.m_uiMipLevels <= uiMipLevels, "Invalid ezGALTextureRange: Base mip level {} + mip levels {} is bigger than texture's mip level count {}", range.m_uiBaseMipLevel, range.m_uiMipLevels, uiMipLevels);
+  W_ASSERT_DEBUG(range.m_uiBaseArraySlice + range.m_uiArraySlices <= uiSlices, "Invalid WGALTextureRange: Base array slice {} + array slices {} is bigger than texture's slice count {}", range.m_uiBaseArraySlice, range.m_uiArraySlices, uiSlices);
+  W_ASSERT_DEBUG(range.m_uiBaseMipLevel + range.m_uiMipLevels <= uiMipLevels, "Invalid WGALTextureRange: Base mip level {} + mip levels {} is bigger than texture's mip level count {}", range.m_uiBaseMipLevel, range.m_uiMipLevels, uiMipLevels);
   return range;
 }

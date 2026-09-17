@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-ezResult ezLuaWrapper::OpenTable(const char* szName)
+WResult WLuaWrapper::OpenTable(const char* szName)
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -18,14 +18,14 @@ ezResult ezLuaWrapper::OpenTable(const char* szName)
   if (lua_istable(m_pState, -1) == 0)
   {
     lua_pop(m_pState, 1);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_States.m_iOpenTables++;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezLuaWrapper::OpenTableFromParameter(ezUInt32 uiFunctionParameter)
+WResult WLuaWrapper::OpenTableFromParameter(WUInt32 uiFunctionParameter)
 {
   lua_pushvalue(m_pState, uiFunctionParameter + s_iParamOffset);
 
@@ -33,14 +33,14 @@ ezResult ezLuaWrapper::OpenTableFromParameter(ezUInt32 uiFunctionParameter)
   if (lua_istable(m_pState, -1) == 0)
   {
     lua_pop(m_pState, 1);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   m_States.m_iOpenTables++;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezLuaWrapper::CloseTable()
+void WLuaWrapper::CloseTable()
 {
   DiscardReturnValues();
 
@@ -52,7 +52,7 @@ void ezLuaWrapper::CloseTable()
   lua_pop(m_pState, 1);
 }
 
-void ezLuaWrapper::CloseAllTables()
+void WLuaWrapper::CloseAllTables()
 {
   DiscardReturnValues();
 

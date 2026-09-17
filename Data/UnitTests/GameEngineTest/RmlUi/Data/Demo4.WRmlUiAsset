@@ -1,0 +1,164 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{675006175775632801,4676825525199825197}}
+	s %t{"WAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"RmlUi"}
+		VarArray %Dependencies
+		{
+			s{"Data/demo.rcss"}
+			s{"Data/demo4.rml"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/window.rml"}
+		}
+		Uuid %DocumentID{u4{675006175775632801,4676825525199825197}}
+		u4 %Hash{5802010018247625397}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"Data/demo.rcss"}
+			s{"Data/demo4.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/test.svg"}
+			s{"Data/window.rml"}
+		}
+		VarArray %References
+		{
+			s{"Data/demo.rcss"}
+			s{"Data/demo4.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/test.svg"}
+			s{"Data/window.rml"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{3974943212171602304,4072233732047730533}}
+	s %t{"WRmlUiAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %ReferenceResolution{u3{1280,720}}
+		s %RmlFile{"Data/demo4.rml"}
+		s %ScaleMode{"WRmlUiScaleMode::WithScreenSize"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"WDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3974943212171602304,4072233732047730533}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1279131488575532460,14268837862471452239}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::IsEnum|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WEnumBase"}
+		s %PluginName{"WEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"WRmlUiScaleMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"WReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2584129773188116390,18425100896451606385}}
+	s %t{"WReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"WTypeFlags::Class|WTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"WReflectedClass"}
+		s %PluginName{"WEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"WRmlUiAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+}

@@ -3,23 +3,23 @@
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-struct ezEngineWindowEvent;
-struct ezGameObjectEvent;
-struct ezDocumentObjectStructureEvent;
-struct ezManipulatorManagerEvent;
-struct ezSelectionManagerEvent;
-struct ezCommandHistoryEvent;
-struct ezGizmoEvent;
+struct WEngineWindowEvent;
+struct WGameObjectEvent;
+struct WDocumentObjectStructureEvent;
+struct WManipulatorManagerEvent;
+struct WSelectionManagerEvent;
+struct WCommandHistoryEvent;
+struct WGizmoEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectGizmoEditTool : public ezGameObjectEditTool
+class W_EDITORFRAMEWORK_DLL WGameObjectGizmoEditTool : public WGameObjectEditTool
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectGizmoEditTool, ezGameObjectEditTool);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectGizmoEditTool, WGameObjectEditTool);
 
 public:
-  ezGameObjectGizmoEditTool();
-  ~ezGameObjectGizmoEditTool();
+  WGameObjectGizmoEditTool();
+  ~WGameObjectGizmoEditTool();
 
-  void TransformationGizmoEventHandler(const ezGizmoEvent& e);
+  void TransformationGizmoEventHandler(const WGizmoEvent& e);
 
 protected:
   virtual void OnConfigured() override;
@@ -30,21 +30,21 @@ protected:
   virtual void ApplyGizmoVisibleState(bool visible) = 0;
 
   void UpdateGizmoTransformation();
-  virtual void ApplyGizmoTransformation(const ezTransform& transform) = 0;
+  virtual void ApplyGizmoTransformation(const WTransform& transform) = 0;
 
-  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) = 0;
+  virtual void TransformationGizmoEventHandlerImpl(const WGizmoEvent& e) = 0;
 
-  ezDeque<ezSelectedGameObject> m_GizmoSelection;
+  WDeque<WSelectedGameObject> m_GizmoSelection;
   bool m_bInGizmoInteraction = false;
   bool m_bMergeTransactions = false;
 
 private:
-  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
+  void DocumentWindowEventHandler(const WQtDocumentWindowEvent& e);
   void UpdateManipulatorVisibility();
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
-  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
-  void EngineWindowEventHandler(const ezEngineWindowEvent& e);
-  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void GameObjectEventHandler(const WGameObjectEvent& e);
+  void CommandHistoryEventHandler(const WCommandHistoryEvent& e);
+  void SelectionManagerEventHandler(const WSelectionManagerEvent& e);
+  void ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e);
+  void EngineWindowEventHandler(const WEngineWindowEvent& e);
+  void ObjectStructureEventHandler(const WDocumentObjectStructureEvent& e);
 };

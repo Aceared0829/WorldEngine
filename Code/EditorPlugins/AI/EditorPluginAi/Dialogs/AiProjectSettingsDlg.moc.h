@@ -5,13 +5,13 @@
 #include <EditorPluginAi/ui_AiProjectSettingsDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtAiProjectSettingsDlg : public ezQtDialog, public Ui_AiProjectSettingsDlg
+class WQtAiProjectSettingsDlg : public WQtDialog, public Ui_AiProjectSettingsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtAiProjectSettingsDlg(QWidget* pParent);
+  WQtAiProjectSettingsDlg(QWidget* pParent);
 
   static void EnsureConfigFileExists();
 
@@ -43,5 +43,5 @@ private:
 
   int m_iSelectedPathSearchConfig = -1;
   int m_iSelectedNavmeshConfig = -1;
-  ezAiNavigationConfig m_Config;
+  WAiNavigationConfig m_Config;
 };

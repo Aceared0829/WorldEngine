@@ -10,12 +10,12 @@
 
 /// *** Asset Browser ***
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetPropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtAssetPropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtAssetPropertyWidget();
+  WQtAssetPropertyWidget();
 
   bool IsValidAssetType(const char* szAssetReference) const;
 
@@ -26,7 +26,7 @@ protected slots:
   void on_TextFinished_triggered();
   void on_TextChanged_triggered(const QString& value);
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
-  void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
+  void ThumbnailInvalidated(QString sPath, WUInt32 uiImageID);
   void OnOpenAssetDocument();
   void OnSelectInAssetBrowser();
   void OnOpenExplorer();
@@ -37,12 +37,12 @@ protected slots:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
   virtual void showEvent(QShowEvent* event) override;
   void FillAssetMenu(QMenu& menu);
 
 protected:
-  void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);
+  void UpdateThumbnail(const WUuid& guid, const char* szThumbnailPath);
 
   /// Shows or hides the warning icon next to the asset reference field.
   ///
@@ -53,9 +53,9 @@ protected:
 
   QPalette m_Pal;
   QHBoxLayout* m_pLayout;
-  ezQtAssetLineEdit* m_pWidget;
+  WQtAssetLineEdit* m_pWidget;
   QToolButton* m_pButton;
   QLabel* m_pWarningIcon;
-  ezUInt32 m_uiThumbnailID;
-  ezUuid m_AssetGuid;
+  WUInt32 m_uiThumbnailID;
+  WUuid m_AssetGuid;
 };

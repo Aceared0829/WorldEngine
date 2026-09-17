@@ -1,27 +1,27 @@
 #include <Foundation/Configuration/Plugin.h>
 
-using ezPluginModule = void*;
+using WPluginModule = void*;
 
-bool ezPlugin::PlatformNeedsPluginCopy()
+bool WPlugin::PlatformNeedsPluginCopy()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
 
-void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
+void WPlugin::GetPluginPaths(WStringView sPluginName, WStringBuilder& sOriginalFile, WStringBuilder& sCopiedFile, WUInt8 uiFileCopyNumber)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezResult UnloadPluginModule(ezPluginModule& Module, ezStringView sPluginFile)
+WResult UnloadPluginModule(WPluginModule& Module, WStringView sPluginFile)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& Module, ezStringView sPluginFile)
+WResult LoadPluginModule(WStringView sFileToLoad, WPluginModule& Module, WStringView sPluginFile)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  W_ASSERT_NOT_IMPLEMENTED;
+  return W_FAILURE;
 }

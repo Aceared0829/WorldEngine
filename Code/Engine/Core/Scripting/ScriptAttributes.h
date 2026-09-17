@@ -5,34 +5,34 @@
 
 /// Add this attribute to a class to add script functions to the szTypeName class.
 /// This might be necessary if the specified class is not reflected or to separate script functions from the specified class.
-class EZ_CORE_DLL ezScriptExtensionAttribute : public ezPropertyAttribute
+class W_CORE_DLL WScriptExtensionAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScriptExtensionAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WScriptExtensionAttribute, WPropertyAttribute);
 
 public:
-  ezScriptExtensionAttribute();
-  ezScriptExtensionAttribute(ezStringView sTypeName);
+  WScriptExtensionAttribute();
+  WScriptExtensionAttribute(WStringView sTypeName);
 
-  ezStringView GetTypeName() const { return m_sTypeName; }
+  WStringView GetTypeName() const { return m_sTypeName; }
 
 private:
-  ezUntrackedString m_sTypeName;
+  WUntrackedString m_sTypeName;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Add this attribute to a script function to mark it as a base class function.
 /// These are functions that can be entry points to visual scripts or over-writable functions in script languages.
-class EZ_CORE_DLL ezScriptBaseClassFunctionAttribute : public ezPropertyAttribute
+class W_CORE_DLL WScriptBaseClassFunctionAttribute : public WPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScriptBaseClassFunctionAttribute, ezPropertyAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WScriptBaseClassFunctionAttribute, WPropertyAttribute);
 
 public:
-  ezScriptBaseClassFunctionAttribute();
-  ezScriptBaseClassFunctionAttribute(ezUInt16 uiIndex);
+  WScriptBaseClassFunctionAttribute();
+  WScriptBaseClassFunctionAttribute(WUInt16 uiIndex);
 
-  ezUInt16 GetIndex() const { return m_uiIndex; }
+  WUInt16 GetIndex() const { return m_uiIndex; }
 
 private:
-  ezUInt16 m_uiIndex;
+  WUInt16 m_uiIndex;
 };

@@ -5,20 +5,20 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CurveEditDlg.h>
 
-class ezCurveGroupData;
-class ezObjectAccessorBase;
-class ezDocumentObject;
+class WCurveGroupData;
+class WObjectAccessorBase;
+class WDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public ezQtDialog, Ui_CurveEditDlg
+class W_GUIFOUNDATION_DLL WQtCurveEditDlg : public WQtDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:
-  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent, ezStringView sTitle = {});
-  ~ezQtCurveEditDlg();
+  WQtCurveEditDlg(WObjectAccessorBase* pObjectAccessor, const WDocumentObject* pCurveObject, QWidget* pParent, WStringView sTitle = {});
+  ~WQtCurveEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
 
-  void SetCurveColor(const ezColor& color);
+  void SetCurveColor(const WColor& color);
   void SetCurveExtents(double fLower, bool bLowerFixed, double fUpper, bool bUpperFixed);
   void SetCurveRanges(double fLower, double fUpper);
 
@@ -30,12 +30,12 @@ public:
 Q_SIGNALS:
 
 private Q_SLOTS:
-  void OnCpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
-  void OnCpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void OnTangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
-  void OnInsertCpEvent(ezUInt32 uiCurveIdx, ezInt64 tickX, double value);
-  void OnTangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
-  void OnCpTangentModeEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode); // ezCurveTangentMode
+  void OnCpMovedEvent(WUInt32 curveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY);
+  void OnCpDeletedEvent(WUInt32 curveIdx, WUInt32 cpIdx);
+  void OnTangentMovedEvent(WUInt32 curveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void OnInsertCpEvent(WUInt32 uiCurveIdx, WInt64 tickX, double value);
+  void OnTangentLinkEvent(WUInt32 curveIdx, WUInt32 cpIdx, bool bLink);
+  void OnCpTangentModeEvent(WUInt32 curveIdx, WUInt32 cpIdx, bool rightTangent, int mode); // WCurveTangentMode
 
   void OnBeginCpChangesEvent(QString name);
   void OnEndCpChangesEvent();
@@ -58,24 +58,24 @@ private:
   void UpdatePreview();
   void UpdateUndoRedoState();
 
-  double m_fLowerRange = -ezMath::HighValue<double>();
-  double m_fUpperRange = ezMath::HighValue<double>();
+  double m_fLowerRange = -WMath::HighValue<double>();
+  double m_fUpperRange = WMath::HighValue<double>();
   double m_fLowerExtents = 0.0;
   double m_fUpperExtents = 1.0;
   bool m_bLowerFixed = false;
   bool m_bUpperFixed = false;
   bool m_bCurveLengthIsFixed = false;
-  ezCurveGroupData m_Curves;
-  ezUInt32 m_uiActionsUndoBaseline = 0;
+  WCurveGroupData m_Curves;
+  WUInt32 m_uiActionsUndoBaseline = 0;
 
   QShortcut* m_pShortcutUndo = nullptr;
   QShortcut* m_pShortcutRedo = nullptr;
 
-  ezObjectAccessorBase* m_pObjectAccessor = nullptr;
-  const ezDocumentObject* m_pCurveObject = nullptr;
+  WObjectAccessorBase* m_pObjectAccessor = nullptr;
+  const WDocumentObject* m_pCurveObject = nullptr;
 
-  ezInt32 m_iInsertedCurveIdx = -1;
-  ezUInt32 m_uiInsertedPointIdx = 0;
+  WInt32 m_iInsertedCurveIdx = -1;
+  WUInt32 m_uiInsertedPointIdx = 0;
 
 protected:
   virtual void closeEvent(QCloseEvent* e) override;

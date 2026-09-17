@@ -4,45 +4,45 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezDocument;
-class ezScene2Document;
+class WDocument;
+class WScene2Document;
 
-class ezSceneDocumentSettingsBase : public ezReflectedClass
+class WSceneDocumentSettingsBase : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettingsBase, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WSceneDocumentSettingsBase, WReflectedClass);
 };
 
-class ezPrefabDocumentSettings : public ezSceneDocumentSettingsBase
+class WPrefabDocumentSettings : public WSceneDocumentSettingsBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabDocumentSettings, ezSceneDocumentSettingsBase);
+  W_ADD_DYNAMIC_REFLECTION(WPrefabDocumentSettings, WSceneDocumentSettingsBase);
 
 public:
-  ezDynamicArray<ezExposedSceneProperty> m_ExposedProperties;
+  WDynamicArray<WExposedSceneProperty> m_ExposedProperties;
 };
 
-class ezLayerDocumentSettings : public ezSceneDocumentSettingsBase
+class WLayerDocumentSettings : public WSceneDocumentSettingsBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerDocumentSettings, ezSceneDocumentSettingsBase);
+  W_ADD_DYNAMIC_REFLECTION(WLayerDocumentSettings, WSceneDocumentSettingsBase);
 };
 
-class ezSceneDocumentRoot : public ezDocumentRoot
+class WSceneDocumentRoot : public WDocumentRoot
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentRoot, ezDocumentRoot);
+  W_ADD_DYNAMIC_REFLECTION(WSceneDocumentRoot, WDocumentRoot);
 
 public:
-  ezSceneDocumentSettingsBase* m_pSettings;
+  WSceneDocumentSettingsBase* m_pSettings;
 };
 
-class ezSceneObjectManager : public ezDocumentObjectManager
+class WSceneObjectManager : public WDocumentObjectManager
 {
 public:
-  ezSceneObjectManager();
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  WSceneObjectManager();
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override;
 
 private:
-  virtual ezStatus InternalCanAdd(
-    const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const override;
-  virtual ezStatus InternalCanSelect(const ezDocumentObject* pObject) const override;
-  virtual ezStatus InternalCanMove(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const override;
+  virtual WStatus InternalCanAdd(
+    const WRTTI* pRtti, const WDocumentObject* pParent, WStringView sParentProperty, const WVariant& index) const override;
+  virtual WStatus InternalCanSelect(const WDocumentObject* pObject) const override;
+  virtual WStatus InternalCanMove(
+    const WDocumentObject* pObject, const WDocumentObject* pNewParent, WStringView sParentProperty, const WVariant& index) const override;
 };

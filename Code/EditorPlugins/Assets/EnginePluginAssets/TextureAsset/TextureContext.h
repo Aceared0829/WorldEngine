@@ -8,52 +8,52 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINASSETS_DLL ezTextureContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINASSETS_DLL WTextureContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WTextureContext, WEngineProcessDocumentContext);
 
 public:
-  ezTextureContext();
+  WTextureContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  const ezTexture2DResourceHandle& GetTexture() const { return m_hTexture; }
+  const WTexture2DResourceHandle& GetTexture() const { return m_hTexture; }
   int GetLodLevel() const { return m_iLodLevel; }
-  ezUInt32 GetNumArraySlices() const { return m_uiNumArraySlices; }
+  WUInt32 GetNumArraySlices() const { return m_uiNumArraySlices; }
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
 
 private:
-  void SetTexture(ezStringView sTextureFile);
+  void SetTexture(WStringView sTextureFile);
 
   /// Applies all preview parameters to the slice materials. Does nothing and leaves
   /// m_bSliceMaterialsDirty set if the materials are not loaded yet, so that it gets retried.
   void ApplySliceMaterialParameters();
-  void OnResourceEvent(const ezResourceEvent& e);
-  void RebuildPreviewObjects(ezUInt32 uiNumArraySlices);
+  void OnResourceEvent(const WResourceEvent& e);
+  void RebuildPreviewObjects(WUInt32 uiNumArraySlices);
 
   struct PreviewSlice
   {
-    ezGameObjectHandle m_hObject;
-    ezComponentHandle m_hMeshComponent;
-    ezMaterialResourceHandle m_hMaterial;
+    WGameObjectHandle m_hObject;
+    WComponentHandle m_hMeshComponent;
+    WMaterialResourceHandle m_hMaterial;
   };
 
-  ezMeshResourceHandle m_hPreviewMeshResource;
-  ezDynamicArray<PreviewSlice> m_SlicePreviews;
+  WMeshResourceHandle m_hPreviewMeshResource;
+  WDynamicArray<PreviewSlice> m_SlicePreviews;
 
-  ezTexture2DResourceHandle m_hTexture;
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
+  WTexture2DResourceHandle m_hTexture;
+  WEvent<const WResourceEvent&, WMutex>::Unsubscriber m_TextureResourceEventSubscriber;
 
-  ezUInt32 m_uiNumArraySlices = 0;
-  ezUInt32 m_uiMaterialGeneration = 0;
+  WUInt32 m_uiNumArraySlices = 0;
+  WUInt32 m_uiMaterialGeneration = 0;
   bool m_bPreviewObjectsDirty = true;
   bool m_bSliceMaterialsDirty = true;
   int m_iLodLevel = -1;

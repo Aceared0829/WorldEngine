@@ -14,52 +14,52 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Texture/Image/Image.h>
 
-ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
+WEngineProcessViewContext::WEngineProcessViewContext(WEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext)
 {
   m_uiViewID = 0xFFFFFFFF;
 }
 
-ezEngineProcessViewContext::~ezEngineProcessViewContext()
+WEngineProcessViewContext::~WEngineProcessViewContext()
 {
-  ezRenderWorld::DeleteView(m_hView);
+  WRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
-  ezWindowManager::GetSingleton()->CloseAll(this);
+  WWindowManager::GetSingleton()->CloseAll(this);
 }
 
-void ezEngineProcessViewContext::SetViewID(ezUInt32 uiId)
+void WEngineProcessViewContext::SetViewID(WUInt32 uiId)
 {
-  EZ_ASSERT_DEBUG(m_uiViewID == 0xFFFFFFFF, "View ID may only be set once");
+  W_ASSERT_DEBUG(m_uiViewID == 0xFFFFFFFF, "View ID may only be set once");
   m_uiViewID = uiId;
 }
 
-void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void WEngineProcessViewContext::HandleViewMessage(const WEditorEngineViewMsg* pMsg)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) || W_ENABLED(W_PLATFORM_LINUX)
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewRedrawMsgToEngine>())
   {
-    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+    const WViewRedrawMsgToEngine* pMsg2 = static_cast<const WViewRedrawMsgToEngine*>(pMsg);
 
     SetCamera(pMsg2);
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-      HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#  if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+      HandleWindowUpdate(reinterpret_cast<WWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
 #  else
-      ezWindowHandle windowHandle;
-      windowHandle.type = ezWindowHandle::Type::XCB;
-      windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
+      WWindowHandle windowHandle;
+      windowHandle.type = WWindowHandle::Type::XCB;
+      windowHandle.xcbWindow.m_Window = static_cast<WUInt32>(pMsg2->m_uiHWND);
       windowHandle.xcbWindow.m_pConnection = nullptr;
       HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
 #  endif
       Redraw(true);
     }
   }
-  else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
+  else if (const WViewScreenshotMsgToEngine* msg = WDynamicCast<const WViewScreenshotMsgToEngine*>(pMsg))
   {
-    auto* pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
+    auto* pOutputTarget = WWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
     if (pOutputTarget->StartCaptureImage().Succeeded())
     {
       m_sPendingScreenshotPath = msg->m_sOutputFile;
@@ -70,7 +70,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 #endif
 }
 
-void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineViewMsg* pViewMsg)
+void WEngineProcessViewContext::SendViewMessage(WEditorEngineViewMsg* pViewMsg)
 {
   pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
   pViewMsg->m_uiViewID = m_uiViewID;
@@ -78,69 +78,69 @@ void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineViewMsg* pViewMsg
   GetDocumentContext()->SendProcessMessage(pViewMsg);
 }
 
-void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void WEngineProcessViewContext::HandleWindowUpdate(WWindowHandle hWnd, WUInt16 uiWidth, WUInt16 uiHeight)
 {
-  EZ_LOG_BLOCK("ezEngineProcessViewContext::HandleWindowUpdate");
+  W_LOG_BLOCK("WEngineProcessViewContext::HandleWindowUpdate");
 
-  auto pWinMan = ezWindowManager::GetSingleton();
+  auto pWinMan = WWindowManager::GetSingleton();
 
   if (!m_hEditorWindow.IsInvalidated())
   {
     // Update window size
-    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWinMan->GetWindow(m_hEditorWindow));
-    const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
+    auto* pWindow = static_cast<WEditorProcessViewWindow*>(pWinMan->GetWindow(m_hEditorWindow));
+    const WSizeU32 wndSize = pWindow->GetClientAreaSize();
 
-    EZ_ASSERT_DEV(pWindow->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
+    W_ASSERT_DEV(pWindow->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
 
     if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
     if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
     {
-      ezLog::Error("Failed to update Editor Process View Window");
+      WLog::Error("Failed to update Editor Process View Window");
     }
     return;
   }
 
   // create window
   {
-    ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
+    WUniquePtr<WEditorProcessViewWindow> pWindow = W_DEFAULT_NEW(WEditorProcessViewWindow);
     if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
     {
-      ezLog::Error("Failed to create Editor Process View Window");
+      WLog::Error("Failed to create Editor Process View Window");
       return;
     }
 
     // create output target
-    ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+    WUniquePtr<WWindowOutputTargetGAL> pOutput = W_DEFAULT_NEW(WWindowOutputTargetGAL, [this](WGALSwapChainHandle hSwapChain, WSizeU32 size)
       { OnSwapChainChanged(hSwapChain, size); });
 
-    ezGALWindowSwapChainCreationDescription desc;
+    WGALWindowSwapChainCreationDescription desc;
     desc.m_pWindow = pWindow.Borrow();
-    desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+    desc.m_BackBufferFormat = WGALResourceFormat::RGBAUByteNormalizedsRGB;
 
     pOutput->CreateSwapchain(desc);
     if (pOutput->m_hSwapChain.IsInvalidated())
     {
-      ezLog::Error("Failed to create swapchain for Editor Process View Window");
+      WLog::Error("Failed to create swapchain for Editor Process View Window");
       return;
     }
 
     // setup render target
     {
-      const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
-      SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
+      const WSizeU32 wndSize = pWindow->GetClientAreaSize();
+      SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<WUInt16>(wndSize.width), static_cast<WUInt16>(wndSize.height));
     }
 
     // The document guid goes into the name because this process registers one window per open document
     // window, and they are otherwise indistinguishable: anything that picks a window by index or by
     // name (app_info and app_screenshot over MCP) could only ever guess which document it got.
-    ezStringBuilder sWindowName("EditorView");
+    WStringBuilder sWindowName("EditorView");
 
     if (m_pDocumentContext != nullptr)
     {
-      ezStringBuilder sGuid;
-      ezConversionUtils::ToString(m_pDocumentContext->GetDocumentGuid(), sGuid);
+      WStringBuilder sGuid;
+      WConversionUtils::ToString(m_pDocumentContext->GetDocumentGuid(), sGuid);
       sWindowName.AppendFormat(" {}", sGuid);
     }
 
@@ -149,20 +149,20 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   }
 }
 
-void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+void WEngineProcessViewContext::OnSwapChainChanged(WGALSwapChainHandle hSwapChain, WSizeU32 size)
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hView, pView))
   {
-    pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
+    pView->SetViewport(WRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
     pView->ForceUpdate();
   }
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void WEngineProcessViewContext::SetupRenderTarget(WGALSwapChainHandle hSwapChain, const WGALRenderTargets* pRenderTargets, WUInt16 uiWidth, WUInt16 uiHeight)
 {
-  EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
-  EZ_ASSERT_DEV((!hSwapChain.IsInvalidated() && pRenderTargets == nullptr) || (hSwapChain.IsInvalidated() && pRenderTargets != nullptr), "hSwapChain and pRenderTargets are mutually exclusive.");
+  W_LOG_BLOCK("WEngineProcessViewContext::SetupRenderTarget");
+  W_ASSERT_DEV((!hSwapChain.IsInvalidated() && pRenderTargets == nullptr) || (hSwapChain.IsInvalidated() && pRenderTargets != nullptr), "hSwapChain and pRenderTargets are mutually exclusive.");
 
   // setup view
   {
@@ -171,25 +171,25 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
       m_hView = CreateView();
     }
 
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(m_hView, pView))
     {
       if (!hSwapChain.IsInvalidated())
         pView->SetSwapChain(hSwapChain);
       else
         pView->SetRenderTargets(*pRenderTargets);
 
-      pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
+      pView->SetViewport(WRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }
   }
 }
 
-void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
+void WEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView))
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hView, pView))
   {
-    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
     if (!bRenderEditorGizmos)
     {
@@ -201,50 +201,50 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
       pView->m_ExcludeTags.Remove(tagEditor);
     }
 
-    ezRenderWorld::AddMainView(m_hView);
+    WRenderWorld::AddMainView(m_hView);
   }
 }
 
-bool ezEngineProcessViewContext::PendingOperationInProgress() const
+bool WEngineProcessViewContext::PendingOperationInProgress() const
 {
   if (m_sPendingScreenshotPath.IsEmpty())
     return false;
 
-  auto* pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
+  auto* pOutputTarget = WWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
   if (pOutputTarget == nullptr)
   {
-    const_cast<ezEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
+    const_cast<WEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
     return false;
   }
 
-  ezImage img;
-  ezEnum<ezCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
+  WImage img;
+  WEnum<WCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
 
-  if (res == ezCaptureImageResult::Pending)
+  if (res == WCaptureImageResult::Pending)
     return true;
 
-  if (res == ezCaptureImageResult::Ready)
+  if (res == WCaptureImageResult::Ready)
   {
     img.SaveTo(m_sPendingScreenshotPath).IgnoreResult();
   }
 
-  const_cast<ezEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
+  const_cast<WEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
   return false;
 }
 
-bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
+bool WEngineProcessViewContext::FocusCameraOnObject(WCamera& inout_camera, const WBoundingBoxSphere& objectBounds, float fFov, const WVec3& vViewDir)
 {
   if (!objectBounds.IsValid())
     return false;
 
-  ezVec3 vDir = vViewDir;
+  WVec3 vDir = vViewDir;
   bool bChanged = false;
-  ezVec3 vCameraPos = inout_camera.GetCenterPosition();
-  ezVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
+  WVec3 vCameraPos = inout_camera.GetCenterPosition();
+  WVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
 
-  const float fDist = ezMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / ezMath::Sin(ezAngle::MakeFromDegree(fFov / 2));
+  const float fDist = WMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / WMath::Sin(WAngle::MakeFromDegree(fFov / 2));
   vDir.Normalize();
-  ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
+  WVec3 vNewCameraPos = vCenterPos - vDir * fDist;
   if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))
   {
     vCameraPos = vNewCameraPos;
@@ -256,21 +256,21 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& inout_camera, con
     if (!vNewCameraPos.IsValid())
       return false;
 
-    inout_camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
-    inout_camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
+    inout_camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
+    inout_camera.LookAt(vNewCameraPos, vCenterPos, WVec3(0.0f, 0.0f, 1.0f));
   }
 
   return bChanged;
 }
 
-void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WEngineProcessViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
-  ezViewRenderMode::Enum renderMode = (ezViewRenderMode::Enum)pMsg->m_uiRenderMode;
+  WViewRenderMode::Enum renderMode = (WViewRenderMode::Enum)pMsg->m_uiRenderMode;
 
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView) && pView->GetWorld() != nullptr)
+  WView* pView = nullptr;
+  if (WRenderWorld::TryGetView(m_hView, pView) && pView->GetWorld() != nullptr)
   {
-    if (renderMode == ezViewRenderMode::None)
+    if (renderMode == WViewRenderMode::None)
     {
       pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
     }
@@ -280,30 +280,30 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
   }
 
-  if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
+  if (m_Camera.GetCameraMode() != WCameraMode::Stereo)
   {
     bool bCameraIsActive = false;
     if (pView && pView->GetWorld())
     {
-      ezEnum<ezCameraUsageHint> usageHint = pView->GetCameraUsageHint();
-      ezCameraComponent* pComp = pView->GetWorld()->GetOrCreateComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(usageHint);
+      WEnum<WCameraUsageHint> usageHint = pView->GetCameraUsageHint();
+      WCameraComponent* pComp = pView->GetWorld()->GetOrCreateComponentManager<WCameraComponentManager>()->GetCameraByUsageHint(usageHint);
       bCameraIsActive = pComp != nullptr && pComp->IsActive();
     }
 
     // Camera mode should be controlled by a matching camera component if one exists.
     if (!bCameraIsActive)
     {
-      ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+      WCameraMode::Enum cameraMode = (WCameraMode::Enum)pMsg->m_iCameraMode;
       m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
     }
 
     // prevent too large values
     // sometimes this can happen when imported data is badly scaled and thus way too large
     // then adding dirForwards result in no change and we run into other asserts later
-    ezVec3 pos = pMsg->m_vPosition;
-    pos.x = ezMath::Clamp(pos.x, -1000000.0f, +1000000.0f);
-    pos.y = ezMath::Clamp(pos.y, -1000000.0f, +1000000.0f);
-    pos.z = ezMath::Clamp(pos.z, -1000000.0f, +1000000.0f);
+    WVec3 pos = pMsg->m_vPosition;
+    pos.x = WMath::Clamp(pos.x, -1000000.0f, +1000000.0f);
+    pos.y = WMath::Clamp(pos.y, -1000000.0f, +1000000.0f);
+    pos.z = WMath::Clamp(pos.z, -1000000.0f, +1000000.0f);
 
     m_Camera.LookAt(pos, pos + pMsg->m_vDirForwards, pMsg->m_vDirUp);
   }
@@ -312,57 +312,57 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     pView->SetViewRenderMode(renderMode);
 
-    bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), bUseDepthPrePass);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), bUseDepthPrePass); // Also disable SSAO to save some performance
+    bool bUseDepthPrePass = renderMode != WViewRenderMode::WireframeColor && renderMode != WViewRenderMode::WireframeMonochrome;
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("DepthPrePass.Active"), bUseDepthPrePass);
+    pView->GetBlackboard()->SetEntryValue(WMakeHashedString("AOPass.Active"), bUseDepthPrePass); // Also disable SSAO to save some performance
 
     SetViewProperties(pView);
   }
 }
 
 
-void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
+void WEngineProcessViewContext::SetViewProperties(WView* pView)
 {
   // by default this stuff is disabled, derived classes can enable it
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorSelectionPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(WMakeHashedString("EditorShapeIconsExtractor.Active"), false);
 }
 
-ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
+WRenderPipelineResourceHandle WEngineProcessViewContext::CreateDefaultRenderPipeline()
 {
-  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultMainRenderPipeline();
+  return WEditorEngineProcessApp::GetSingleton()->CreateDefaultMainRenderPipeline();
 }
 
-ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
+WRenderPipelineResourceHandle WEngineProcessViewContext::CreateDebugRenderPipeline()
 {
-  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
+  return WEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
 }
 
-ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
+WView* WEngineProcessViewContext::CreateDefaultView(WStringView sName)
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView(sName, pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
+  WView* pView = nullptr;
+  WRenderWorld::CreateView(sName, pView);
+  pView->SetCameraUsageHint(WCameraUsageHint::EditorView);
 
-  pView->SetBlackboard(ezBlackboard::Create(sName));
+  pView->SetBlackboard(WBlackboard::Create(sName));
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+  WEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
 
   return pView;
 }
 
-void ezEngineProcessViewContext::DrawSimpleGrid() const
+void WEngineProcessViewContext::DrawSimpleGrid() const
 {
-  ezDynamicArray<ezDebugRendererLine> lines;
+  WDynamicArray<WDebugRendererLine> lines;
   lines.Reserve(2 * (10 + 1 + 10) + 4);
 
-  const ezColor xAxisColor = ezColorScheme::LightUI(ezColorScheme::Red) * 0.7f;
-  const ezColor yAxisColor = ezColorScheme::LightUI(ezColorScheme::Green) * 0.7f;
-  const ezColor gridColor = ezColorScheme::LightUI(ezColorScheme::Gray) * 0.5f;
+  const WColor xAxisColor = WColorScheme::LightUI(WColorScheme::Red) * 0.7f;
+  const WColor yAxisColor = WColorScheme::LightUI(WColorScheme::Green) * 0.7f;
+  const WColor gridColor = WColorScheme::LightUI(WColorScheme::Gray) * 0.5f;
 
   // arrows
 
@@ -403,7 +403,7 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
   {
     const float x = 10.0f;
 
-    for (ezInt32 y = -10; y <= +10; ++y)
+    for (WInt32 y = -10; y <= +10; ++y)
     {
       auto& line = lines.ExpandAndGetRef();
 
@@ -426,7 +426,7 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
   {
     const float y = 10.0f;
 
-    for (ezInt32 x = -10; x <= +10; ++x)
+    for (WInt32 x = -10; x <= +10; ++x)
     {
       auto& line = lines.ExpandAndGetRef();
 
@@ -446,12 +446,12 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
     }
   }
 
-  ezDebugRenderer::DrawLines(m_hView, lines, ezColor::White);
+  WDebugRenderer::DrawLines(m_hView, lines, WColor::White);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <EditorEngineProcessFramework/EngineProcess/Implementation/Win/EngineProcessViewContext_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
 #  include <EditorEngineProcessFramework/EngineProcess/Implementation/Linux/EngineProcessViewContext_linux.h>
 #else
 #  error Platform not supported

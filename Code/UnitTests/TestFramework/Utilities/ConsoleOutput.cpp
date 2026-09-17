@@ -3,47 +3,47 @@
 
 #include <ConsoleOutput_Platform.inl>
 
-void OutputToConsole(ezTestOutput::Enum type, const char* szMsg)
+void OutputToConsole(WTestOutput::Enum type, const char* szMsg)
 {
-  static ezInt32 iIndentation = 0;
+  static WInt32 iIndentation = 0;
   static bool bAnyError = false;
 
-  ezUInt8 uiColor = 0x07;
+  WUInt8 uiColor = 0x07;
 
   switch (type)
   {
-    case ezTestOutput::StartOutput:
+    case WTestOutput::StartOutput:
       break;
-    case ezTestOutput::BeginBlock:
+    case WTestOutput::BeginBlock:
       iIndentation += 2;
       break;
-    case ezTestOutput::EndBlock:
+    case WTestOutput::EndBlock:
       iIndentation -= 2;
       break;
-    case ezTestOutput::Details:
+    case WTestOutput::Details:
       break;
-    case ezTestOutput::ImportantInfo:
+    case WTestOutput::ImportantInfo:
       break;
-    case ezTestOutput::Success:
+    case WTestOutput::Success:
       uiColor = 0x0A;
       break;
-    case ezTestOutput::Message:
+    case WTestOutput::Message:
       uiColor = 0x0E;
       break;
-    case ezTestOutput::Warning:
+    case WTestOutput::Warning:
       uiColor = 0x0C;
       break;
-    case ezTestOutput::Error:
+    case WTestOutput::Error:
       uiColor = 0x0C;
       bAnyError = true;
       break;
-    case ezTestOutput::Duration:
-    case ezTestOutput::ImageDiffFile:
-    case ezTestOutput::InvalidType:
-    case ezTestOutput::AllOutputTypes:
+    case WTestOutput::Duration:
+    case WTestOutput::ImageDiffFile:
+    case WTestOutput::InvalidType:
+    case WTestOutput::AllOutputTypes:
       return;
 
-    case ezTestOutput::FinalResult:
+    case WTestOutput::FinalResult:
       if (bAnyError)
         uiColor = 0x0C;
       else
@@ -54,13 +54,13 @@ void OutputToConsole(ezTestOutput::Enum type, const char* szMsg)
       break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 
   OutputToConsole_Platform(uiColor, type, iIndentation, szMsg);
 
-  if (type >= ezTestOutput::Error)
+  if (type >= WTestOutput::Error)
   {
     fflush(stdout);
   }

@@ -2,24 +2,24 @@
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 
-class ezStateMachineAssetManager : public ezAssetDocumentManager
+class WStateMachineAssetManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineAssetManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineAssetManager, WAssetDocumentManager);
 
 public:
-  ezStateMachineAssetManager();
-  ~ezStateMachineAssetManager();
+  WStateMachineAssetManager();
+  ~WStateMachineAssetManager();
 
-  virtual OutputReliability GetAssetTypeOutputReliability() const override { return ezAssetDocumentManager::OutputReliability::Perfect; }
+  virtual OutputReliability GetAssetTypeOutputReliability() const override { return WAssetDocumentManager::OutputReliability::Perfect; }
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
 
   virtual void InternalCreateDocument(
-    ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+    WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

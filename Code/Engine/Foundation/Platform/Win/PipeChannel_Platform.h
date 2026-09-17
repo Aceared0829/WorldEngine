@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+W_FOUNDATION_INTERNAL_HEADER
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/IpcChannel.h>
@@ -12,20 +12,20 @@ EZ_FOUNDATION_INTERNAL_HEADER
 struct IOContext
 {
   OVERLAPPED Overlapped;  ///< Must be first field in class so we can do a reinterpret cast from *Overlapped to *IOContext.
-  ezIpcChannel* pChannel; ///< Owner of this IOContext.
+  WIpcChannel* pChannel; ///< Owner of this IOContext.
 };
 
-class EZ_FOUNDATION_DLL ezPipeChannel_win : public ezIpcChannel
+class W_FOUNDATION_DLL WPipeChannel_win : public WIpcChannel
 {
 public:
-  ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode);
-  ~ezPipeChannel_win();
+  WPipeChannel_win(WStringView sAddress, Mode::Enum mode);
+  ~WPipeChannel_win();
 
 private:
-  friend class ezMessageLoop;
-  friend class ezMessageLoop_win;
+  friend class WMessageLoop;
+  friend class WMessageLoop_win;
 
-  bool CreatePipe(ezStringView sAddress);
+  bool CreatePipe(WStringView sAddress);
 
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;
@@ -44,10 +44,10 @@ protected:
 private:
   struct State
   {
-    explicit State(ezPipeChannel_win* pChannel);
+    explicit State(WPipeChannel_win* pChannel);
     ~State();
     IOContext Context;
-    ezAtomicInteger32 IsPending = false; ///< Whether an async operation is in process.
+    WAtomicInteger32 IsPending = false; ///< Whether an async operation is in process.
   };
 
   enum Constants
@@ -63,9 +63,9 @@ private:
   HANDLE m_hPipeHandle = INVALID_HANDLE_VALUE;
 
   // Only accessed from worker thread
-  ezUInt8 m_InputBuffer[BUFFER_SIZE];
+  WUInt8 m_InputBuffer[BUFFER_SIZE];
 };
 
-using ezPipeChannel_Platform = ezPipeChannel_win;
+using WPipeChannel_Platform = WPipeChannel_win;
 
 #endif

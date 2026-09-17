@@ -15,36 +15,36 @@ namespace
 {
   /// The mesh asset properties that a LOD asset has to share with the mesh it is a LOD of, so that
   /// it describes the same geometry in the same place, only with fewer triangles.
-  constexpr ezStringView s_ImportProperties[] = {
-    "MeshFile"_ezsv,
-    "MeshIncludeTags"_ezsv,
-    "MeshExcludeTags"_ezsv,
-    "ImportTransform"_ezsv,
-    "RightDir"_ezsv,
-    "UpDir"_ezsv,
-    "FlipForwardDir"_ezsv,
-    "PositionOffset"_ezsv,
-    "UniformScaling"_ezsv,
-    "RecalculateNormals"_ezsv,
-    "RecalculateTangents"_ezsv,
-    "HighPrecision"_ezsv,
-    "VertexColorConversion"_ezsv,
-    "ImportMaterials"_ezsv,
-    "NormalWeight"_ezsv,
-    "AggressiveSimplification"_ezsv,
+  constexpr WStringView s_ImportProperties[] = {
+    "MeshFile"_wsv,
+    "MeshIncludeTags"_wsv,
+    "MeshExcludeTags"_wsv,
+    "ImportTransform"_wsv,
+    "RightDir"_wsv,
+    "UpDir"_wsv,
+    "FlipForwardDir"_wsv,
+    "PositionOffset"_wsv,
+    "UniformScaling"_wsv,
+    "RecalculateNormals"_wsv,
+    "RecalculateTangents"_wsv,
+    "HighPrecision"_wsv,
+    "VertexColorConversion"_wsv,
+    "ImportMaterials"_wsv,
+    "NormalWeight"_wsv,
+    "AggressiveSimplification"_wsv,
   };
 
   /// Read alongside the import properties, but handled separately: they decide whether LODs can be
   /// made at all and where the ladder starts.
-  constexpr ezStringView s_sPrimitiveType = "PrimitiveType"_ezsv;
-  constexpr ezStringView s_sSimplifyMesh = "SimplifyMesh"_ezsv;
-  constexpr ezStringView s_sMeshSimplification = "MeshSimplification"_ezsv;
+  constexpr WStringView s_sPrimitiveType = "PrimitiveType"_wsv;
+  constexpr WStringView s_sSimplifyMesh = "SimplifyMesh"_wsv;
+  constexpr WStringView s_sMeshSimplification = "MeshSimplification"_wsv;
 
-  /// Equivalent of ezSimpleAssetDocument::GetPropertyObject(), which can't be called without knowing
+  /// Equivalent of WSimpleAssetDocument::GetPropertyObject(), which can't be called without knowing
   /// the concrete asset type.
-  const ezDocumentObject* GetTopLevelObject(const ezDocument* pDoc)
+  const WDocumentObject* GetTopLevelObject(const WDocument* pDoc)
   {
-    const ezDocumentObject* pRoot = pDoc->GetObjectManager()->GetRootObject();
+    const WDocumentObject* pRoot = pDoc->GetObjectManager()->GetRootObject();
     if (pRoot == nullptr || pRoot->GetChildren().GetCount() != 1)
       return nullptr;
 
@@ -55,33 +55,33 @@ namespace
   ///
   /// Only closes the document again if it had to be opened here and nothing has claimed a window for
   /// it, so that a document someone else is working with is left alone.
-  ezResult ReadMeshAsset(ezStringView sAbsDocumentPath, ezMeshLodSource& ref_source)
+  WResult ReadMeshAsset(WStringView sAbsDocumentPath, WMeshLodSource& ref_source)
   {
     bool bWasOpen = false;
-    ezDocument* pDoc = nullptr;
+    WDocument* pDoc = nullptr;
 
-    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-    if (ezDocumentManager::FindDocumentTypeFromPath(sAbsDocumentPath, false, pTypeDesc).Succeeded())
+    const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+    if (WDocumentManager::FindDocumentTypeFromPath(sAbsDocumentPath, false, pTypeDesc).Succeeded())
     {
       pDoc = pTypeDesc->m_pManager->GetDocumentByPath(sAbsDocumentPath);
       bWasOpen = (pDoc != nullptr);
     }
 
     if (pDoc == nullptr)
-      pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(sAbsDocumentPath, ezDocumentFlags::None);
+      pDoc = WQtEditorApp::GetSingleton()->OpenDocument(sAbsDocumentPath, WDocumentFlags::None);
 
     if (pDoc == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    ezResult res = EZ_FAILURE;
+    WResult res = W_FAILURE;
 
-    if (const ezDocumentObject* pPropObj = GetTopLevelObject(pDoc))
+    if (const WDocumentObject* pPropObj = GetTopLevelObject(pDoc))
     {
-      const ezIReflectedTypeAccessor& accessor = pPropObj->GetTypeAccessor();
+      const WIReflectedTypeAccessor& accessor = pPropObj->GetTypeAccessor();
 
-      for (ezStringView sProperty : s_ImportProperties)
+      for (WStringView sProperty : s_ImportProperties)
       {
-        const ezVariant value = accessor.GetValue(sProperty);
+        const WVariant value = accessor.GetValue(sProperty);
         if (value.IsValid())
         {
           ref_source.m_ImportProperties.Insert(sProperty, value);
@@ -89,50 +89,50 @@ namespace
       }
 
       // a primitive is generated procedurally, there is no geometry to simplify
-      const ezVariant primitiveType = accessor.GetValue(s_sPrimitiveType);
-      ref_source.m_bIsPrimitive = primitiveType.IsValid() && primitiveType.ConvertTo<ezInt64>() != 0; // 0 is ezMeshPrimitive::File
+      const WVariant primitiveType = accessor.GetValue(s_sPrimitiveType);
+      ref_source.m_bIsPrimitive = primitiveType.IsValid() && primitiveType.ConvertTo<WInt64>() != 0; // 0 is WMeshPrimitive::File
 
-      const ezVariant meshFile = accessor.GetValue("MeshFile"_ezsv);
-      if (!ref_source.m_bIsPrimitive && meshFile.IsA<ezString>())
+      const WVariant meshFile = accessor.GetValue("MeshFile"_wsv);
+      if (!ref_source.m_bIsPrimitive && meshFile.IsA<WString>())
       {
-        ref_source.m_sMeshFile = meshFile.Get<ezString>();
+        ref_source.m_sMeshFile = meshFile.Get<WString>();
       }
 
       // decides whether the LODs may share the folder named after the model file
-      const ezVariant includeTags = accessor.GetValue("MeshIncludeTags"_ezsv);
-      if (includeTags.IsA<ezString>())
+      const WVariant includeTags = accessor.GetValue("MeshIncludeTags"_wsv);
+      if (includeTags.IsA<WString>())
       {
-        ref_source.m_sMeshIncludeTags = includeTags.Get<ezString>();
+        ref_source.m_sMeshIncludeTags = includeTags.Get<WString>();
       }
 
       // Where the LOD ladder starts. A mesh that does not simplify at all starts from the full model,
       // no matter what value the (then unused) property happens to hold.
-      const ezVariant bSimplify = accessor.GetValue(s_sSimplifyMesh);
-      const ezVariant uiSimplification = accessor.GetValue(s_sMeshSimplification);
+      const WVariant bSimplify = accessor.GetValue(s_sSimplifyMesh);
+      const WVariant uiSimplification = accessor.GetValue(s_sMeshSimplification);
 
       if (bSimplify.IsValid() && bSimplify.ConvertTo<bool>() && uiSimplification.IsValid())
       {
-        ref_source.m_uiBaseSimplification = (ezUInt8)ezMath::Clamp<ezInt64>(uiSimplification.ConvertTo<ezInt64>(), 0, 99);
+        ref_source.m_uiBaseSimplification = (WUInt8)WMath::Clamp<WInt64>(uiSimplification.ConvertTo<WInt64>(), 0, 99);
       }
 
       // the LODs render with the same materials as the mesh, so the slots are copied rather than re-imported
-      const ezInt32 iSlots = accessor.GetCount("Materials"_ezsv);
-      for (ezInt32 i = 0; i < iSlots; ++i)
+      const WInt32 iSlots = accessor.GetCount("Materials"_wsv);
+      for (WInt32 i = 0; i < iSlots; ++i)
       {
-        const ezVariant slotGuid = accessor.GetValue("Materials"_ezsv, i);
-        if (!slotGuid.IsA<ezUuid>())
+        const WVariant slotGuid = accessor.GetValue("Materials"_wsv, i);
+        if (!slotGuid.IsA<WUuid>())
           continue;
 
-        const ezDocumentObject* pSlot = pDoc->GetObjectManager()->GetObject(slotGuid.Get<ezUuid>());
+        const WDocumentObject* pSlot = pDoc->GetObjectManager()->GetObject(slotGuid.Get<WUuid>());
         if (pSlot == nullptr)
           continue;
 
-        ezVariantDictionary& slot = ref_source.m_MaterialSlots.ExpandAndGetRef();
-        slot.Insert("Label", pSlot->GetTypeAccessor().GetValue("Label"_ezsv));
-        slot.Insert("Resource", pSlot->GetTypeAccessor().GetValue("Resource"_ezsv));
+        WVariantDictionary& slot = ref_source.m_MaterialSlots.ExpandAndGetRef();
+        slot.Insert("Label", pSlot->GetTypeAccessor().GetValue("Label"_wsv));
+        slot.Insert("Resource", pSlot->GetTypeAccessor().GetValue("Resource"_wsv));
       }
 
-      res = EZ_SUCCESS;
+      res = W_SUCCESS;
     }
 
     if (!bWasOpen && !pDoc->HasWindowBeenRequested())
@@ -145,57 +145,57 @@ namespace
 
   /// An existing folder is preferred over inventing a second one next to it, so that a mesh that was
   /// renamed after its import keeps writing into the folder its LODs are already in.
-  ezString DetermineLodFolder(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags)
+  WString DetermineLodFolder(WStringView sMeshAssetPath, WStringView sMeshFile, WStringView sMeshIncludeTags)
   {
-    ezHybridArray<ezString, 2> candidates;
-    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, candidates);
+    WHybridArray<WString, 2> candidates;
+    WMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, candidates);
 
-    for (const ezString& sPath : candidates)
+    for (const WString& sPath : candidates)
     {
-      if (ezOSFile::ExistsDirectory(sPath))
+      if (WOSFile::ExistsDirectory(sPath))
         return sPath;
     }
 
     // none exists yet, so the mesh asset's own name decides - which is what a fresh import would use
-    return candidates.IsEmpty() ? ezString() : candidates[0];
+    return candidates.IsEmpty() ? WString() : candidates[0];
   }
 } // namespace
 
-void ezMeshLodCreator::GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags, ezDynamicArray<ezString>& out_folders)
+void WMeshLodCreator::GetLodFolderCandidates(WStringView sMeshAssetPath, WStringView sMeshFile, WStringView sMeshIncludeTags, WDynamicArray<WString>& out_folders)
 {
   out_folders.Clear();
 
-  ezStringBuilder sDir = sMeshAssetPath;
+  WStringBuilder sDir = sMeshAssetPath;
   sDir.PathParentDirectory();
 
-  ezHybridArray<ezStringView, 2> names;
-  names.PushBack(ezPathUtils::GetFileName(sMeshAssetPath));
+  WHybridArray<WStringView, 2> names;
+  names.PushBack(WPathUtils::GetFileName(sMeshAssetPath));
 
   // A mesh that imports only one sub-object shares its model file with the other sub-objects, which
   // are separate mesh assets next to it. They would all resolve to the folder named after that file
   // and take over whichever LODs got there first, so only this asset's own name is allowed.
   if (!sMeshFile.IsEmpty() && sMeshIncludeTags.IsEmpty())
   {
-    const ezStringView sSourceName = ezPathUtils::GetFileName(sMeshFile);
+    const WStringView sSourceName = WPathUtils::GetFileName(sMeshFile);
     if (sSourceName != names[0])
     {
       names.PushBack(sSourceName);
     }
   }
 
-  for (ezStringView sName : names)
+  for (WStringView sName : names)
   {
-    ezStringBuilder sFolderName;
+    WStringBuilder sFolderName;
     sFolderName.SetFormat("{}_data", sName);
 
-    ezStringBuilder sPath = sDir;
+    WStringBuilder sPath = sDir;
     sPath.AppendPath(sFolderName);
 
     out_folders.PushBack(sPath);
   }
 }
 
-bool ezMeshLodSource::HasLod(ezUInt32 uiLod) const
+bool WMeshLodSource::HasLod(WUInt32 uiLod) const
 {
   if (uiLod == 0 || uiLod > m_ExistingLods.GetCount())
     return false;
@@ -203,70 +203,70 @@ bool ezMeshLodSource::HasLod(ezUInt32 uiLod) const
   return m_ExistingLods[uiLod - 1].IsValid();
 }
 
-bool ezMeshLodCreator::IsMeshAsset(const ezUuid& assetGuid)
+bool WMeshLodCreator::IsMeshAsset(const WUuid& assetGuid)
 {
-  return ezMeshColliderUtils::IsMeshAsset(assetGuid);
+  return WMeshColliderUtils::IsMeshAsset(assetGuid);
 }
 
-ezUInt8 ezMeshLodCreator::GetLodSimplification(ezUInt8 uiBaseSimplification, ezUInt32 uiLod)
+WUInt8 WMeshLodCreator::GetLodSimplification(WUInt8 uiBaseSimplification, WUInt32 uiLod)
 {
   // the value is the percentage of triangles removed, so halving what is left each time is the
   // midpoint between the previous level and 100
-  float fSimplification = ezMath::Clamp<float>(uiBaseSimplification, 0.0f, 99.0f);
+  float fSimplification = WMath::Clamp<float>(uiBaseSimplification, 0.0f, 99.0f);
 
-  for (ezUInt32 i = 0; i < uiLod; ++i)
+  for (WUInt32 i = 0; i < uiLod; ++i)
   {
     fSimplification += (100.0f - fSimplification) * 0.5f;
   }
 
   // 100 would remove the whole mesh, and the importer clamps to 99 anyway
-  return (ezUInt8)ezMath::Clamp<ezInt32>((ezInt32)(fSimplification + 0.5f), 1, 99);
+  return (WUInt8)WMath::Clamp<WInt32>((WInt32)(fSimplification + 0.5f), 1, 99);
 }
 
-ezUInt8 ezMeshLodCreator::GetLodSimplificationError(ezUInt32 uiLod)
+WUInt8 WMeshLodCreator::GetLodSimplificationError(WUInt32 uiLod)
 {
   // What the mesh import uses for its own LODs. A more distant mesh can afford a coarser silhouette,
   // and the last entry repeats for levels past the table.
-  constexpr ezUInt8 uiErrors[] = {5, 5, 10, 15};
+  constexpr WUInt8 uiErrors[] = {5, 5, 10, 15};
 
   if (uiLod == 0)
     return uiErrors[0];
 
-  return uiErrors[ezMath::Min<ezUInt32>(uiLod - 1, EZ_ARRAY_SIZE(uiErrors) - 1)];
+  return uiErrors[WMath::Min<WUInt32>(uiLod - 1, W_ARRAY_SIZE(uiErrors) - 1)];
 }
 
-ezString ezMeshLodCreator::GetLodPath(const ezMeshLodSource& source, ezUInt32 uiLod)
+WString WMeshLodCreator::GetLodPath(const WMeshLodSource& source, WUInt32 uiLod)
 {
-  ezStringBuilder sName;
-  sName.SetFormat("LOD-{}.ezMeshAsset", uiLod);
+  WStringBuilder sName;
+  sName.SetFormat("LOD-{}.WMeshAsset", uiLod);
 
-  ezStringBuilder sPath = source.m_sLodFolder;
+  WStringBuilder sPath = source.m_sLodFolder;
   sPath.AppendPath(sName);
   return sPath;
 }
 
-ezResult ezMeshLodCreator::GatherMeshLodSource(const ezUuid& meshAssetGuid, ezMeshLodSource& out_source)
+WResult WMeshLodCreator::GatherMeshLodSource(const WUuid& meshAssetGuid, WMeshLodSource& out_source)
 {
-  out_source = ezMeshLodSource();
+  out_source = WMeshLodSource();
   out_source.m_MeshAssetGuid = meshAssetGuid;
 
-  ezStringBuilder sMeshAssetPath;
+  WStringBuilder sMeshAssetPath;
 
   // the curator lock must not be held while documents are opened further below
   {
-    auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
+    auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(meshAssetGuid);
     if (!pSubAsset.isValid() || pSubAsset->m_pAssetInfo == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
+    const WAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
     if (pAssetInfo->m_pDocumentTypeDescriptor == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const ezStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
-    if (sDocType != ezMeshColliderUtils::s_sMeshDocType && sDocType != ezMeshColliderUtils::s_sAnimatedMeshDocType)
-      return EZ_FAILURE;
+    const WStringView sDocType = pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    if (sDocType != WMeshColliderUtils::s_sMeshDocType && sDocType != WMeshColliderUtils::s_sAnimatedMeshDocType)
+      return W_FAILURE;
 
-    out_source.m_bAnimated = (sDocType == ezMeshColliderUtils::s_sAnimatedMeshDocType);
+    out_source.m_bAnimated = (sDocType == WMeshColliderUtils::s_sAnimatedMeshDocType);
     sMeshAssetPath = pAssetInfo->m_Path.GetAbsolutePath();
     out_source.m_sMeshAssetPath = sMeshAssetPath;
   }
@@ -276,12 +276,12 @@ ezResult ezMeshLodCreator::GatherMeshLodSource(const ezUuid& meshAssetGuid, ezMe
 
   out_source.m_sLodFolder = DetermineLodFolder(sMeshAssetPath, out_source.m_sMeshFile, out_source.m_sMeshIncludeTags);
 
-  for (ezUInt32 uiLod = 1; uiLod <= s_uiMaxLods; ++uiLod)
+  for (WUInt32 uiLod = 1; uiLod <= s_uiMaxLods; ++uiLod)
   {
-    const ezString sPath = GetLodPath(out_source, uiLod);
+    const WString sPath = GetLodPath(out_source, uiLod);
 
-    auto pLod = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
-    out_source.m_ExistingLods.PushBack(pLod.isValid() ? pLod->m_Data.m_Guid : ezUuid());
+    auto pLod = WAssetCurator::GetSingleton()->FindSubAsset(sPath);
+    out_source.m_ExistingLods.PushBack(pLod.isValid() ? pLod->m_Data.m_Guid : WUuid());
   }
 
   // trailing gaps say nothing, only the ones between existing LODs matter
@@ -290,83 +290,83 @@ ezResult ezMeshLodCreator::GatherMeshLodSource(const ezUuid& meshAssetGuid, ezMe
     out_source.m_ExistingLods.PopBack();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezMeshLodCreator::CreateMeshLods(const ezMeshLodSource& source, const ezMeshLodOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped)
+WStatus WMeshLodCreator::CreateMeshLods(const WMeshLodSource& source, const WMeshLodOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped)
 {
   out_uiCreated = 0;
   out_uiSkipped = 0;
 
   if (source.m_bIsPrimitive)
-    return ezStatus("This mesh asset uses a procedural primitive, not a model file, so no LODs can be generated from it.");
+    return WStatus("This mesh asset uses a procedural primitive, not a model file, so no LODs can be generated from it.");
 
   if (source.m_sMeshFile.IsEmpty())
-    return ezStatus("The source file of this mesh asset could not be read, so no LODs can be generated from it.");
+    return WStatus("The source file of this mesh asset could not be read, so no LODs can be generated from it.");
 
   if (source.m_sLodFolder.IsEmpty())
-    return ezStatus("The folder for the LOD assets could not be determined.");
+    return WStatus("The folder for the LOD assets could not be determined.");
 
-  const ezUInt32 uiLodCount = ezMath::Min(options.m_uiLodCount, s_uiMaxLods);
+  const WUInt32 uiLodCount = WMath::Min(options.m_uiLodCount, s_uiMaxLods);
   if (uiLodCount == 0)
-    return ezStatus("No LODs were requested.");
+    return WStatus("No LODs were requested.");
 
   // The LOD sub-folder usually does not exist yet. Creating a document below a missing folder fails
   // through a modal message box, which would hang an automated caller.
-  if (ezOSFile::CreateDirectoryStructure(source.m_sLodFolder).Failed())
-    return ezStatus(ezFmt("Failed to create the folder '{}'.", source.m_sLodFolder));
+  if (WOSFile::CreateDirectoryStructure(source.m_sLodFolder).Failed())
+    return WStatus(WFmt("Failed to create the folder '{}'.", source.m_sLodFolder));
 
-  ezHybridArray<ezString, 4> created;
+  WHybridArray<WString, 4> created;
 
-  for (ezUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
+  for (WUInt32 uiLod = 1; uiLod <= uiLodCount; ++uiLod)
   {
-    const ezString sPath = GetLodPath(source, uiLod);
+    const WString sPath = GetLodPath(source, uiLod);
 
-    const bool bExists = ezOSFile::ExistsFile(sPath);
+    const bool bExists = WOSFile::ExistsFile(sPath);
 
     // An existing LOD may have been tuned by hand, so replacing it has to be asked for.
     if (bExists && !options.m_bOverwriteExisting)
     {
-      ezLog::Info("Skipping '{}': it already exists.", sPath);
+      WLog::Info("Skipping '{}': it already exists.", sPath);
       ++out_uiSkipped;
       continue;
     }
 
     // An existing LOD is rewritten in place rather than deleted and created again, so that it keeps
     // its guid and anything referencing it keeps working.
-    ezDocument* pDoc = bExists ? ezQtEditorApp::GetSingleton()->OpenDocument(sPath, ezDocumentFlags::None)
-                               : ezQtEditorApp::GetSingleton()->CreateDocument(sPath, ezDocumentFlags::None);
+    WDocument* pDoc = bExists ? WQtEditorApp::GetSingleton()->OpenDocument(sPath, WDocumentFlags::None)
+                               : WQtEditorApp::GetSingleton()->CreateDocument(sPath, WDocumentFlags::None);
 
     if (pDoc == nullptr)
-      return ezStatus(ezFmt("Failed to {} LOD asset '{}'.", bExists ? "open" : "create", sPath));
+      return WStatus(WFmt("Failed to {} LOD asset '{}'.", bExists ? "open" : "create", sPath));
 
-    ezStatus result = ezStatus(EZ_SUCCESS);
+    WStatus result = WStatus(W_SUCCESS);
 
     {
       auto pHistory = pDoc->GetCommandHistory();
       pHistory->StartTransaction("Create LOD from Mesh");
 
       // in a lambda, so that every failure path below cancels the transaction
-      auto ApplyProperties = [&]() -> ezStatus
+      auto ApplyProperties = [&]() -> WStatus
       {
-        const ezDocumentObject* pPropObj = GetTopLevelObject(pDoc);
+        const WDocumentObject* pPropObj = GetTopLevelObject(pDoc);
         if (pPropObj == nullptr)
-          return ezStatus("The mesh asset has an unexpected structure.");
+          return WStatus("The mesh asset has an unexpected structure.");
 
-        const ezRTTI* pType = pPropObj->GetTypeAccessor().GetType();
+        const WRTTI* pType = pPropObj->GetTypeAccessor().GetType();
 
-        auto SetProperty = [&](ezStringView sProperty, const ezVariant& value) -> ezStatus
+        auto SetProperty = [&](WStringView sProperty, const WVariant& value) -> WStatus
         {
-          ezSetObjectPropertyCommand cmd;
+          WSetObjectPropertyCommand cmd;
           cmd.m_Object = pPropObj->GetGuid();
           cmd.m_sProperty = sProperty;
           cmd.m_NewValue = value;
           return pHistory->AddCommand(cmd);
         };
 
-        for (ezStringView sProperty : s_ImportProperties)
+        for (WStringView sProperty : s_ImportProperties)
         {
-          ezVariant value;
+          WVariant value;
           if (!source.m_ImportProperties.TryGetValue(sProperty, value))
             continue;
 
@@ -374,50 +374,50 @@ ezStatus ezMeshLodCreator::CreateMeshLods(const ezMeshLodSource& source, const e
           if (pType->FindPropertyByName(sProperty) == nullptr)
             continue;
 
-          EZ_SUCCEED_OR_RETURN(SetProperty(sProperty, value));
+          W_SUCCEED_OR_RETURN(SetProperty(sProperty, value));
         }
 
         // what makes this a LOD rather than a copy of the mesh
-        EZ_SUCCEED_OR_RETURN(SetProperty(s_sSimplifyMesh, true));
-        EZ_SUCCEED_OR_RETURN(SetProperty(s_sMeshSimplification, GetLodSimplification(source.m_uiBaseSimplification, uiLod)));
-        EZ_SUCCEED_OR_RETURN(SetProperty("MaxSimplificationError"_ezsv, GetLodSimplificationError(uiLod)));
+        W_SUCCEED_OR_RETURN(SetProperty(s_sSimplifyMesh, true));
+        W_SUCCEED_OR_RETURN(SetProperty(s_sMeshSimplification, GetLodSimplification(source.m_uiBaseSimplification, uiLod)));
+        W_SUCCEED_OR_RETURN(SetProperty("MaxSimplificationError"_wsv, GetLodSimplificationError(uiLod)));
 
         // The LODs share the mesh's materials rather than importing their own, which would create a
         // second set of material assets for the same model.
-        EZ_SUCCEED_OR_RETURN(SetProperty("ImportMaterials"_ezsv, false));
+        W_SUCCEED_OR_RETURN(SetProperty("ImportMaterials"_wsv, false));
 
         // a LOD that is being rewritten still holds the slots it had
-        for (ezInt32 i = pPropObj->GetTypeAccessor().GetCount("Materials"_ezsv) - 1; i >= 0; --i)
+        for (WInt32 i = pPropObj->GetTypeAccessor().GetCount("Materials"_wsv) - 1; i >= 0; --i)
         {
-          const ezVariant slotGuid = pPropObj->GetTypeAccessor().GetValue("Materials"_ezsv, i);
-          if (!slotGuid.IsA<ezUuid>())
+          const WVariant slotGuid = pPropObj->GetTypeAccessor().GetValue("Materials"_wsv, i);
+          if (!slotGuid.IsA<WUuid>())
             continue;
 
-          ezRemoveObjectCommand remove;
-          remove.m_Object = slotGuid.Get<ezUuid>();
-          EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(remove));
+          WRemoveObjectCommand remove;
+          remove.m_Object = slotGuid.Get<WUuid>();
+          W_SUCCEED_OR_RETURN(pHistory->AddCommand(remove));
         }
 
-        for (ezUInt32 i = 0; i < source.m_MaterialSlots.GetCount(); ++i)
+        for (WUInt32 i = 0; i < source.m_MaterialSlots.GetCount(); ++i)
         {
-          ezAddObjectCommand add;
-          add.m_Index = (ezInt32)i;
-          add.m_pType = ezGetStaticRTTI<ezMaterialResourceSlot>();
+          WAddObjectCommand add;
+          add.m_Index = (WInt32)i;
+          add.m_pType = WGetStaticRTTI<WMaterialResourceSlot>();
           add.m_Parent = pPropObj->GetGuid();
           add.m_sParentProperty = "Materials";
-          EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(add));
+          W_SUCCEED_OR_RETURN(pHistory->AddCommand(add));
 
           for (auto it : source.m_MaterialSlots[i])
           {
-            ezSetObjectPropertyCommand cmd;
+            WSetObjectPropertyCommand cmd;
             cmd.m_Object = add.m_NewObjectGuid;
             cmd.m_sProperty = it.Key();
             cmd.m_NewValue = it.Value();
-            EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
+            W_SUCCEED_OR_RETURN(pHistory->AddCommand(cmd));
           }
         }
 
-        return ezStatus(EZ_SUCCESS);
+        return WStatus(W_SUCCESS);
       };
 
       result = ApplyProperties();
@@ -441,47 +441,47 @@ ezStatus ezMeshLodCreator::CreateMeshLods(const ezMeshLodSource& source, const e
     if (pDoc->SaveDocument(true).Failed())
     {
       pDoc->GetDocumentManager()->CloseDocument(pDoc);
-      return ezStatus(ezFmt("Failed to save LOD asset '{}'.", sPath));
+      return WStatus(WFmt("Failed to save LOD asset '{}'.", sPath));
     }
 
-    const ezString sSavedPath = pDoc->GetDocumentPath();
+    const WString sSavedPath = pDoc->GetDocumentPath();
     pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
-    // no '%' sign: a literal percent in an ezLog format string is consumed as a format spec
-    ezLog::Success("Created '{}' at {} percent simplification.", sSavedPath, (ezUInt32)GetLodSimplification(source.m_uiBaseSimplification, uiLod));
+    // no '%' sign: a literal percent in an WLog format string is consumed as a format spec
+    WLog::Success("Created '{}' at {} percent simplification.", sSavedPath, (WUInt32)GetLodSimplification(source.m_uiBaseSimplification, uiLod));
     created.PushBack(sSavedPath);
     ++out_uiCreated;
   }
 
   // Only once every document is written and closed: notifying the curator makes it look at the
   // folder, which would re-enter this code between two LODs of the same mesh.
-  for (const ezString& sPath : created)
+  for (const WString& sPath : created)
   {
-    ezFileSystemModel::GetSingleton()->NotifyOfChange(sPath);
+    WFileSystemModel::GetSingleton()->NotifyOfChange(sPath);
   }
 
   if (options.m_bOpenAfterCreate)
   {
-    for (const ezString& sPath : created)
+    for (const WString& sPath : created)
     {
-      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sPath);
+      WQtEditorApp::GetSingleton()->OpenDocumentQueued(sPath);
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezMeshLodCreator::CreateMeshLodsForAll(ezArrayPtr<const ezUuid> meshAssetGuids, const ezMeshLodOptions& options, ezUInt32& out_uiCreated, ezUInt32& out_uiSkipped)
+WStatus WMeshLodCreator::CreateMeshLodsForAll(WArrayPtr<const WUuid> meshAssetGuids, const WMeshLodOptions& options, WUInt32& out_uiCreated, WUInt32& out_uiSkipped)
 {
   out_uiCreated = 0;
   out_uiSkipped = 0;
 
   // opening the created documents is left to the caller, which may not want that many tabs
-  ezMeshLodOptions perMesh = options;
+  WMeshLodOptions perMesh = options;
 
-  for (const ezUuid& meshGuid : meshAssetGuids)
+  for (const WUuid& meshGuid : meshAssetGuids)
   {
-    ezMeshLodSource source;
+    WMeshLodSource source;
     if (GatherMeshLodSource(meshGuid, source).Failed())
     {
       // not a mesh asset - with a mixed selection this is the normal case, not a problem
@@ -490,29 +490,29 @@ ezStatus ezMeshLodCreator::CreateMeshLodsForAll(ezArrayPtr<const ezUuid> meshAss
     }
 
     // A mesh that is already a LOD must not get LODs of its own, or the folders nest without end.
-    if (ezPathUtils::GetFileName(source.m_sMeshAssetPath).StartsWith_NoCase("LOD-"))
+    if (WPathUtils::GetFileName(source.m_sMeshAssetPath).StartsWith_NoCase("LOD-"))
     {
-      ezLog::Info("Skipping '{}': it is itself a LOD.", source.m_sMeshAssetPath);
+      WLog::Info("Skipping '{}': it is itself a LOD.", source.m_sMeshAssetPath);
       ++out_uiSkipped;
       continue;
     }
 
     if (source.m_bIsPrimitive || source.m_sMeshFile.IsEmpty())
     {
-      ezLog::Info("Skipping '{}': it has no model file to build LODs from.", source.m_sMeshAssetPath);
+      WLog::Info("Skipping '{}': it has no model file to build LODs from.", source.m_sMeshAssetPath);
       ++out_uiSkipped;
       continue;
     }
 
-    ezUInt32 uiCreated = 0;
-    ezUInt32 uiSkipped = 0;
+    WUInt32 uiCreated = 0;
+    WUInt32 uiSkipped = 0;
 
     // "nothing to do here" was handled above, so what is left is a real failure and stops the run
-    EZ_SUCCEED_OR_RETURN(CreateMeshLods(source, perMesh, uiCreated, uiSkipped));
+    W_SUCCEED_OR_RETURN(CreateMeshLods(source, perMesh, uiCreated, uiSkipped));
 
     out_uiCreated += uiCreated;
     out_uiSkipped += uiSkipped;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

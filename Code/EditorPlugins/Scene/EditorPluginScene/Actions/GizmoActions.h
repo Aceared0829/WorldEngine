@@ -5,14 +5,14 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 /////
-class EZ_EDITORPLUGINSCENE_DLL ezSceneGizmoActions
+class W_EDITORPLUGINSCENE_DLL WSceneGizmoActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping);
-  static void MapToolbarActions(ezStringView sMapping);
+  static void MapMenuActions(WStringView sMapping);
+  static void MapToolbarActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hGreyBoxingGizmo;
+  static WActionDescriptorHandle s_hGreyBoxingGizmo;
 };

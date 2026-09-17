@@ -4,63 +4,63 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WPrefabReferenceComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab"), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("ShowShapeIcons", GetShowShapeIcons, SetShowShapeIcons),
-    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
+    W_RESOURCE_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab"), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("ShowShapeIcons", GetShowShapeIcons, SetShowShapeIcons),
+    W_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new WExposedParametersAttribute("Prefab")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Prefabs"),
+    new WCategoryAttribute("Prefabs"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-enum class PrefabComponentFlags : ezUInt8
+enum class PrefabComponentFlags : WUInt8
 {
   SelfDeletion = 1,   ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
   ShowShapeIcons = 2, ///< the prefab component should show shape icons for the instantiated objects
   InUpdateList = 3,   ///< the prefab component is currently in the update list of the prefab manager
 };
 
-ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
-ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
+WPrefabReferenceComponent::WPrefabReferenceComponent() = default;
+WPrefabReferenceComponent::~WPrefabReferenceComponent() = default;
 
-void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world, ezWorldWriter& inout_stream, ezArrayMap<ezHashedString, ezVariant> parameters)
+void WPrefabReferenceComponent::SerializePrefabParameters(const WWorld& world, WWorldWriter& inout_stream, WArrayMap<WHashedString, WVariant> parameters)
 {
   // we need a copy of the parameters here, therefore we don't take it by reference
 
   auto& s = inout_stream.GetStream();
-  const ezUInt32 numParams = parameters.GetCount();
+  const WUInt32 numParams = parameters.GetCount();
 
-  ezTempHybridArray<ezGameObjectHandle, 8> GoReferences;
+  WTempHybridArray<WGameObjectHandle, 8> GoReferences;
 
   // Version 4
   {
     // to support game object references as exposed parameters (which are currently exposed as strings)
-    // we need to remap the string from an 'editor uuid' to something that can be interpreted as a proper ezGameObjectHandle at runtime
+    // we need to remap the string from an 'editor uuid' to something that can be interpreted as a proper WGameObjectHandle at runtime
 
-    // so first we get the resolver and try to map any string parameter to a valid ezGameObjectHandle
+    // so first we get the resolver and try to map any string parameter to a valid WGameObjectHandle
     auto resolver = world.GetGameObjectReferenceResolver();
 
     if (resolver.IsValid())
     {
-      ezStringBuilder tmp;
+      WStringBuilder tmp;
 
-      for (ezUInt32 i = 0; i < numParams; ++i)
+      for (WUInt32 i = 0; i < numParams; ++i)
       {
         // if this is a string parameter
-        ezVariant& var = parameters.GetValue(i);
-        if (var.IsA<ezString>())
+        WVariant& var = parameters.GetValue(i);
+        if (var.IsA<WString>())
         {
           // and the resolver CAN map this string to a game object handle
-          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData(), ezComponentHandle(), nullptr);
+          WGameObjectHandle hObject = resolver(var.Get<WString>().GetData(), WComponentHandle(), nullptr);
           if (!hObject.IsInvalidated())
           {
             // write the handle properly to file (this enables correct remapping during deserialization)
@@ -76,11 +76,11 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
       }
     }
 
-    // now write all the ezGameObjectHandle's such that during deserialization the ezWorldReader will remap it as needed
-    const ezUInt8 numRefs = static_cast<ezUInt8>(GoReferences.GetCount());
+    // now write all the WGameObjectHandle's such that during deserialization the WWorldReader will remap it as needed
+    const WUInt8 numRefs = static_cast<WUInt8>(GoReferences.GetCount());
     s << numRefs;
 
-    for (ezUInt8 i = 0; i < numRefs; ++i)
+    for (WUInt8 i = 0; i < numRefs; ++i)
     {
       inout_stream.WriteGameObjectHandle(GoReferences[i]);
     }
@@ -88,32 +88,32 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
 
   // Version 2
   s << numParams;
-  for (ezUInt32 i = 0; i < numParams; ++i)
+  for (WUInt32 i = 0; i < numParams; ++i)
   {
     s << parameters.GetKey(i);
     s << parameters.GetValue(i); // this may contain modified strings now, to map the game object handle references
   }
 }
 
-void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& inout_stream)
+void WPrefabReferenceComponent::DeserializePrefabParameters(WArrayMap<WHashedString, WVariant>& out_parameters, WWorldReader& inout_stream)
 {
   out_parameters.Clear();
 
-  // versioning of this stuff is tied to the version number of ezPrefabReferenceComponent
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(ezGetStaticRTTI<ezPrefabReferenceComponent>());
+  // versioning of this stuff is tied to the version number of WPrefabReferenceComponent
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(WGetStaticRTTI<WPrefabReferenceComponent>());
   auto& s = inout_stream.GetStream();
 
   // temp array to hold (and remap) the serialized game object handles
-  ezTempHybridArray<ezGameObjectHandle, 8> GoReferences;
+  WTempHybridArray<WGameObjectHandle, 8> GoReferences;
 
   if (uiVersion >= 4)
   {
-    ezUInt8 numRefs = 0;
+    WUInt8 numRefs = 0;
     s >> numRefs;
     GoReferences.SetCountUninitialized(numRefs);
 
-    // just read them all, this will remap as necessary to the ezWorldReader
-    for (ezUInt8 i = 0; i < numRefs; ++i)
+    // just read them all, this will remap as necessary to the WWorldReader
+    for (WUInt8 i = 0; i < numRefs; ++i)
     {
       GoReferences[i] = inout_stream.ReadGameObjectHandle();
     }
@@ -121,32 +121,32 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
 
   if (uiVersion >= 2)
   {
-    ezUInt32 numParams = 0;
+    WUInt32 numParams = 0;
     s >> numParams;
 
     out_parameters.Reserve(numParams);
 
-    ezHashedString key;
-    ezVariant value;
-    ezStringBuilder tmp;
+    WHashedString key;
+    WVariant value;
+    WStringBuilder tmp;
 
-    for (ezUInt32 i = 0; i < numParams; ++i)
+    for (WUInt32 i = 0; i < numParams; ++i)
     {
       s >> key;
       s >> value;
 
-      if (value.IsA<ezString>())
+      if (value.IsA<WString>())
       {
         // if we find a string parameter, check if it is a 'local game object reference'
-        const ezString& str = value.Get<ezString>();
+        const WString& str = value.Get<WString>();
         if (str.StartsWith("#!LGOR-"))
         {
           // if so, extract the index into the GoReferences array
-          ezInt32 idx;
-          if (ezConversionUtils::StringToInt(str.GetData() + 7, idx).Succeeded())
+          WInt32 idx;
+          if (WConversionUtils::StringToInt(str.GetData() + 7, idx).Succeeded())
           {
-            // now we can lookup the remapped ezGameObjectHandle from our array
-            const ezGameObjectHandle hObject = GoReferences[idx];
+            // now we can lookup the remapped WGameObjectHandle from our array
+            const WGameObjectHandle hObject = GoReferences[idx];
 
             // and stringify the handle into a 'global game object reference', ie. one that contains the internal integer data of the handle
             // a regular runtime world has a reference resolver that is capable to reverse this stringified format to a handle again
@@ -164,20 +164,20 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
   }
 }
 
-void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WPrefabReferenceComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
   s << m_hPrefab;
 
-  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
+  WPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
 }
 
-void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WPrefabReferenceComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_hPrefab;
@@ -188,10 +188,10 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& inout_strea
     s >> bDummy;
   }
 
-  ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
+  WPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
 }
 
-void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
+void WPrefabReferenceComponent::SetPrefab(const WPrefabResourceHandle& hPrefab)
 {
   if (m_hPrefab == hPrefab)
     return;
@@ -203,58 +203,58 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
     // only add to update list, if not yet activated,
     // since OnActivate will do the instantiation anyway
 
-    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
 
-void ezPrefabReferenceComponent::SetShowShapeIcons(bool bShow)
+void WPrefabReferenceComponent::SetShowShapeIcons(bool bShow)
 {
-  SetUserFlag((ezUInt8)PrefabComponentFlags::ShowShapeIcons, bShow);
+  SetUserFlag((WUInt8)PrefabComponentFlags::ShowShapeIcons, bShow);
 
   if (IsActiveAndInitialized())
   {
     // only add to update list, if not yet activated,
     // since OnActivate will do the instantiation anyway
 
-    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
 
-bool ezPrefabReferenceComponent::GetShowShapeIcons() const
+bool WPrefabReferenceComponent::GetShowShapeIcons() const
 {
-  return GetUserFlag((ezUInt8)PrefabComponentFlags::ShowShapeIcons);
+  return GetUserFlag((WUInt8)PrefabComponentFlags::ShowShapeIcons);
 }
 
-void ezPrefabReferenceComponent::InstantiatePrefab()
+void WPrefabReferenceComponent::InstantiatePrefab()
 {
   // now instantiate the prefab
   if (m_hPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WPrefabResource> pResource(m_hPrefab, WResourceAcquireMode::AllowLoadingFallback);
 
-    ezTransform id;
+    WTransform id;
     id.SetIdentity();
 
-    ezPrefabInstantiationOptions options;
+    WPrefabInstantiationOptions options;
     options.m_hParent = GetOwner()->GetHandle();
     options.m_ReplaceNamedRootWithParent = "<Prefab-Root>";
     options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
 
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
-    if (GetUniqueID() != ezInvalidIndex)
+    if (GetUniqueID() != WInvalidIndex)
     {
-      ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
-      ezTempHybridArray<ezGameObject*, 16> createdChildObjects;
+      WTempHybridArray<WGameObject*, 8> createdRootObjects;
+      WTempHybridArray<WGameObject*, 16> createdChildObjects;
 
       options.m_pCreatedRootObjectsOut = &createdRootObjects;
       options.m_pCreatedChildObjectsOut = &createdChildObjects;
 
-      ezUInt32 uiPrevCompCount = GetOwner()->GetComponents().GetCount();
+      WUInt32 uiPrevCompCount = GetOwner()->GetComponents().GetCount();
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID, bool bShowShapeIcons)
+      auto FixComponent = [](WGameObject* pChild, WUInt32 uiUniqueID, bool bShowShapeIcons)
       {
         // while exporting a scene all game objects with this flag are ignored and not exported
         // set this flag on all game objects that were created by instantiating this prefab
@@ -274,10 +274,10 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
         }
       };
 
-      const ezUInt32 uiUniqueID = GetUniqueID();
+      const WUInt32 uiUniqueID = GetUniqueID();
       const bool bShowShapeIcons = GetShowShapeIcons();
 
-      for (ezGameObject* pChild : createdRootObjects)
+      for (WGameObject* pChild : createdRootObjects)
       {
         if (pChild == GetOwner())
           continue;
@@ -285,7 +285,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
         FixComponent(pChild, uiUniqueID, bShowShapeIcons);
       }
 
-      for (ezGameObject* pChild : createdChildObjects)
+      for (WGameObject* pChild : createdChildObjects)
       {
         FixComponent(pChild, uiUniqueID, bShowShapeIcons);
       }
@@ -303,7 +303,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
   }
 }
 
-void ezPrefabReferenceComponent::OnActivated()
+void WPrefabReferenceComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -312,7 +312,7 @@ void ezPrefabReferenceComponent::OnActivated()
   InstantiatePrefab();
 }
 
-void ezPrefabReferenceComponent::OnDeactivated()
+void WPrefabReferenceComponent::OnDeactivated()
 {
   // if this was created procedurally during editor runtime, we do not need to clear specific nodes
   // after simulation, the scene is deleted anyway
@@ -322,28 +322,28 @@ void ezPrefabReferenceComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezPrefabReferenceComponent::ClearPreviousInstances()
+void WPrefabReferenceComponent::ClearPreviousInstances()
 {
-  if (GetUniqueID() != ezInvalidIndex)
+  if (GetUniqueID() != WInvalidIndex)
   {
     // if this is in the editor, and the 'activate' flag is toggled,
     // get rid of all our created child objects
 
-    ezArrayPtr<ezComponent* const> comps = GetOwner()->GetComponents();
+    WArrayPtr<WComponent* const> comps = GetOwner()->GetComponents();
 
-    for (ezUInt32 ip1 = comps.GetCount(); ip1 > 0; ip1--)
+    for (WUInt32 ip1 = comps.GetCount(); ip1 > 0; ip1--)
     {
-      const ezUInt32 i = ip1 - 1;
-      ezComponent* pComp = comps[i];
+      const WUInt32 i = ip1 - 1;
+      WComponent* pComp = comps[i];
 
       if (pComp == this || // don't try to delete yourself
           pComp->WasCreatedByPrefab() == false)
         continue;
 
       // Prevent other prefab components from deleting its instances. This might lead to an endless loop of prefab components deleting each other.
-      if (pComp->IsInstanceOf<ezPrefabReferenceComponent>())
+      if (pComp->IsInstanceOf<WPrefabReferenceComponent>())
       {
-        pComp->SetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion, true);
+        pComp->SetUserFlag((WUInt8)PrefabComponentFlags::SelfDeletion, true);
       }
 
       pComp->DeleteComponent();
@@ -360,9 +360,9 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
   }
 }
 
-void ezPrefabReferenceComponent::Deinitialize()
+void WPrefabReferenceComponent::Deinitialize()
 {
-  if (GetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion))
+  if (GetUserFlag((WUInt8)PrefabComponentFlags::SelfDeletion))
   {
     // do nothing, ie do not call OnDeactivated()
     // we do want to keep the created child objects around when this component gets destroyed during simulation
@@ -374,13 +374,13 @@ void ezPrefabReferenceComponent::Deinitialize()
   OnDeactivated();
 }
 
-void ezPrefabReferenceComponent::OnSimulationStarted()
+void WPrefabReferenceComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (GetUniqueID() == ezInvalidIndex) // when running inside the editor, we don't want to delete the component, otherwise the object is not selectable anymore while simulating
+  if (GetUniqueID() == WInvalidIndex) // when running inside the editor, we don't want to delete the component, otherwise the object is not selectable anymore while simulating
   {
-    SetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion, true);
+    SetUserFlag((WUInt8)PrefabComponentFlags::SelfDeletion, true);
 
     // remove the prefab reference component, to prevent issues after another serialization/deserialization
     // and also to save some memory
@@ -388,25 +388,25 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
   }
 }
 
-const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
+const WRangeView<const char*, WUInt32> WPrefabReferenceComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
-void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
+void WPrefabReferenceComponent::SetParameter(const char* szKey, const WVariant& value)
 {
-  ezHashedString hs;
+  WHashedString hs;
   hs.Assign(szKey);
 
   auto it = m_Parameters.Find(hs);
-  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+  if (it != WInvalidIndex && m_Parameters.GetValue(it) == value)
     return;
 
   m_Parameters[hs] = value;
@@ -415,28 +415,28 @@ void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant
   {
     // only add to update list, if not yet activated,
     // since OnActivate will do the instantiation anyway
-    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
 
-void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
+void WPrefabReferenceComponent::RemoveParameter(const char* szKey)
 {
-  if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
+  if (m_Parameters.RemoveAndCopy(WTempHashedString(szKey)))
   {
     if (IsActiveAndInitialized())
     {
       // only add to update list, if not yet activated,
       // since OnActivate will do the instantiation anyway
-      GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+      GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
     }
   }
 }
 
-bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+bool WPrefabReferenceComponent::GetParameter(const char* szKey, WVariant& out_value) const
 {
-  ezUInt32 it = m_Parameters.Find(szKey);
+  WUInt32 it = m_Parameters.Find(szKey);
 
-  if (it == ezInvalidIndex)
+  if (it == WInvalidIndex)
     return false;
 
   out_value = m_Parameters.GetValue(it);
@@ -445,30 +445,30 @@ bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_
 
 //////////////////////////////////////////////////////////////////////////
 
-ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+WPrefabReferenceComponentManager::WPrefabReferenceComponentManager(WWorld* pWorld)
+  : WComponentManager<ComponentType, WBlockStorageType::Compact>(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 
-ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
+WPrefabReferenceComponentManager::~WPrefabReferenceComponentManager()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
-void ezPrefabReferenceComponentManager::Initialize()
+void WPrefabReferenceComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPrefabReferenceComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WPrefabReferenceComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
 }
 
-void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WPrefabReferenceComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WPrefabResource>())
   {
-    ezPrefabResourceHandle hPrefab((ezPrefabResource*)(e.m_pResource));
+    WPrefabResourceHandle hPrefab((WPrefabResource*)(e.m_pResource));
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
@@ -480,17 +480,17 @@ void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEve
   }
 }
 
-void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WPrefabReferenceComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  EZ_IGNORE_UNUSED(context);
+  W_IGNORE_UNUSED(context);
 
   for (auto hComp : m_ComponentsToUpdate)
   {
-    ezPrefabReferenceComponent* pComponent;
+    WPrefabReferenceComponent* pComponent;
     if (!TryGetComponent(hComp, pComponent))
       continue;
 
-    pComponent->SetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList, false);
+    pComponent->SetUserFlag((WUInt8)PrefabComponentFlags::InUpdateList, false);
     if (!pComponent->IsActive())
       continue;
 
@@ -501,15 +501,15 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
   m_ComponentsToUpdate.Clear();
 }
 
-void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceComponent* pComponent)
+void WPrefabReferenceComponentManager::AddToUpdateList(WPrefabReferenceComponent* pComponent)
 {
-  if (!pComponent->GetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList))
+  if (!pComponent->GetUserFlag((WUInt8)PrefabComponentFlags::InUpdateList))
   {
     m_ComponentsToUpdate.PushBack(pComponent->GetHandle());
-    pComponent->SetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList, true);
+    pComponent->SetUserFlag((WUInt8)PrefabComponentFlags::InUpdateList, true);
   }
 }
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Prefabs_Implementation_PrefabReferenceComponent);
+W_STATICLINK_FILE(Core, Core_Prefabs_Implementation_PrefabReferenceComponent);

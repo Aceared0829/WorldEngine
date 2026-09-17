@@ -11,35 +11,35 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Materials/LensFlareData.h>
-static_assert(sizeof(ezPerLensFlareData) == 48);
+static_assert(sizeof(WPerLensFlareData) == 48);
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderer, 1, ezRTTIDefaultAllocator<ezLensFlareRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLensFlareRenderer, 1, WRTTIDefaultAllocator<WLensFlareRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezLensFlareRenderer::ezLensFlareRenderer()
+WLensFlareRenderer::WLensFlareRenderer()
 {
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Materials/LensFlareMaterial.ezShader");
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/Materials/LensFlareMaterial.WShader");
 }
 
-ezLensFlareRenderer::~ezLensFlareRenderer() = default;
+WLensFlareRenderer::~WLensFlareRenderer() = default;
 
-void ezLensFlareRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WLensFlareRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezLensFlareRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WLensFlareRenderData>());
 }
 
-void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WLensFlareRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WRenderContext* pContext = renderViewContext.m_pRenderContext;
 
-  const ezLensFlareRenderData* pRenderData = batch.GetFirstData<ezLensFlareRenderData>();
+  const WLensFlareRenderData* pRenderData = batch.GetFirstData<WLensFlareRenderData>();
 
-  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetDataCount(), 128u);
-  ezGALBufferHandle hLensFlareData = CreateLensFlareDataBuffer(uiBufferSize);
-  EZ_SCOPE_EXIT(DeleteLensFlareDataBuffer(hLensFlareData));
+  const WUInt32 uiBufferSize = WMath::RoundUp(batch.GetDataCount(), 128u);
+  WGALBufferHandle hLensFlareData = CreateLensFlareDataBuffer(uiBufferSize);
+  W_SCOPE_EXIT(DeleteLensFlareDataBuffer(hLensFlareData));
 
-  ezBindGroupBuilder& bindGroupRenderPass = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+  WBindGroupBuilder& bindGroupRenderPass = WRenderContext::GetDefaultInstance()->GetBindGroup(W_GAL_BIND_GROUP_RENDER_PASS);
   pContext->BindShader(m_hShader);
   bindGroupRenderPass.BindBuffer("lensFlareData", hLensFlareData);
   bindGroupRenderPass.BindTexture("LensFlareTexture", pRenderData->m_hTexture);
@@ -48,37 +48,37 @@ void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewConte
 
   if (m_LensFlareData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
   {
-    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
+    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr(), WGALUpdateMode::AheadOfTime);
 
-    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
+    pContext->BindNullMeshBuffer(WGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
   }
 }
 
-ezGALBufferHandle ezLensFlareRenderer::CreateLensFlareDataBuffer(ezUInt32 uiBufferSize) const
+WGALBufferHandle WLensFlareRenderer::CreateLensFlareDataBuffer(WUInt32 uiBufferSize) const
 {
-  ezGALBufferCreationDescription desc;
-  desc.m_uiStructSize = sizeof(ezPerLensFlareData);
+  WGALBufferCreationDescription desc;
+  desc.m_uiStructSize = sizeof(WPerLensFlareData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
+  desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::Transient;
   desc.m_ResourceAccess.m_bImmutable = false;
 
-  return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
+  return WGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
 }
 
-void ezLensFlareRenderer::DeleteLensFlareDataBuffer(ezGALBufferHandle hBuffer) const
+void WLensFlareRenderer::DeleteLensFlareDataBuffer(WGALBufferHandle hBuffer) const
 {
-  ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
+  WGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
 }
 
-void ezLensFlareRenderer::FillLensFlareData(const ezRenderDataBatch& batch) const
+void WLensFlareRenderer::FillLensFlareData(const WRenderDataBatch& batch) const
 {
   m_LensFlareData.Clear();
   m_LensFlareData.Reserve(batch.GetDataCount());
 
-  for (auto it = batch.GetIterator<ezLensFlareRenderData>(); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<WLensFlareRenderData>(); it.IsValid(); ++it)
   {
-    const ezLensFlareRenderData* pRenderData = it;
+    const WLensFlareRenderData* pRenderData = it;
 
     auto& LensFlareData = m_LensFlareData.ExpandAndGetRef();
     LensFlareData.WorldSpacePosition = pRenderData->m_vGlobalPosition;
@@ -87,9 +87,9 @@ void ezLensFlareRenderer::FillLensFlareData(const ezRenderDataBatch& batch) cons
     LensFlareData.OcclusionRadius = pRenderData->m_fOcclusionSampleRadius;
     LensFlareData.OcclusionSpread = pRenderData->m_fOcclusionSampleSpread;
     LensFlareData.DepthOffset = pRenderData->m_fOcclusionDepthOffset;
-    LensFlareData.AspectRatioAndShift = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_fAspectRatio, pRenderData->m_fShiftToCenter));
-    LensFlareData.ColorRG = ezShaderUtils::PackFloat16intoUint(pRenderData->m_Color.x, pRenderData->m_Color.y);
-    LensFlareData.ColorBA = ezShaderUtils::PackFloat16intoUint(pRenderData->m_Color.z, pRenderData->m_Color.w);
+    LensFlareData.AspectRatioAndShift = WShaderUtils::Float2ToRG16F(WVec2(pRenderData->m_fAspectRatio, pRenderData->m_fShiftToCenter));
+    LensFlareData.ColorRG = WShaderUtils::PackFloat16intoUint(pRenderData->m_Color.x, pRenderData->m_Color.y);
+    LensFlareData.ColorBA = WShaderUtils::PackFloat16intoUint(pRenderData->m_Color.z, pRenderData->m_Color.w);
     LensFlareData.Flags = (pRenderData->m_bInverseTonemap ? LENS_FLARE_INVERSE_TONEMAP : 0) |
                           (pRenderData->m_bGreyscaleTexture ? LENS_FLARE_GREYSCALE_TEXTURE : 0) |
                           (pRenderData->m_bApplyFog ? LENS_FLARE_APPLY_FOG : 0);
@@ -98,4 +98,4 @@ void ezLensFlareRenderer::FillLensFlareData(const ezRenderDataBatch& batch) cons
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LensFlareRenderer);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LensFlareRenderer);

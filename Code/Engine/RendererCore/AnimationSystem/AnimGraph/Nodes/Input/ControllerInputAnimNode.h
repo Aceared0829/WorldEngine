@@ -9,41 +9,41 @@
 /// from button presses.
 ///
 /// Note: This is only meant convenience during developing. A real game should use the input system to drive animations.
-class EZ_RENDERERCORE_DLL ezControllerInputAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WControllerInputAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezControllerInputAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WControllerInputAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezControllerInputAnimNode
+  // WControllerInputAnimNode
 
 private:
-  ezAnimGraphNumberOutputPin m_OutLeftStickX;   // [ property ]
-  ezAnimGraphNumberOutputPin m_OutLeftStickY;   // [ property ]
-  ezAnimGraphNumberOutputPin m_OutRightStickX;  // [ property ]
-  ezAnimGraphNumberOutputPin m_OutRightStickY;  // [ property ]
+  WAnimGraphNumberOutputPin m_OutLeftStickX;   // [ property ]
+  WAnimGraphNumberOutputPin m_OutLeftStickY;   // [ property ]
+  WAnimGraphNumberOutputPin m_OutRightStickX;  // [ property ]
+  WAnimGraphNumberOutputPin m_OutRightStickY;  // [ property ]
 
-  ezAnimGraphNumberOutputPin m_OutLeftTrigger;  // [ property ]
-  ezAnimGraphNumberOutputPin m_OutRightTrigger; // [ property ]
+  WAnimGraphNumberOutputPin m_OutLeftTrigger;  // [ property ]
+  WAnimGraphNumberOutputPin m_OutRightTrigger; // [ property ]
 
-  ezAnimGraphBoolOutputPin m_OutButtonA;        // [ property ]
-  ezAnimGraphBoolOutputPin m_OutButtonB;        // [ property ]
-  ezAnimGraphBoolOutputPin m_OutButtonX;        // [ property ]
-  ezAnimGraphBoolOutputPin m_OutButtonY;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutButtonA;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutButtonB;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutButtonX;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutButtonY;        // [ property ]
 
-  ezAnimGraphBoolOutputPin m_OutLeftShoulder;   // [ property ]
-  ezAnimGraphBoolOutputPin m_OutRightShoulder;  // [ property ]
+  WAnimGraphBoolOutputPin m_OutLeftShoulder;   // [ property ]
+  WAnimGraphBoolOutputPin m_OutRightShoulder;  // [ property ]
 
-  ezAnimGraphBoolOutputPin m_OutPadLeft;        // [ property ]
-  ezAnimGraphBoolOutputPin m_OutPadRight;       // [ property ]
-  ezAnimGraphBoolOutputPin m_OutPadUp;          // [ property ]
-  ezAnimGraphBoolOutputPin m_OutPadDown;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutPadLeft;        // [ property ]
+  WAnimGraphBoolOutputPin m_OutPadRight;       // [ property ]
+  WAnimGraphBoolOutputPin m_OutPadUp;          // [ property ]
+  WAnimGraphBoolOutputPin m_OutPadDown;        // [ property ]
 };

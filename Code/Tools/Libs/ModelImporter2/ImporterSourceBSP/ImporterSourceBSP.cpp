@@ -94,10 +94,10 @@ namespace SourceBSP
 
   struct Lump_t
   {
-    ezInt32 fileofs;
-    ezInt32 filelen;
-    ezInt32 version;
-    ezUInt8 fourCC[4];
+    WInt32 fileofs;
+    WInt32 filelen;
+    WInt32 version;
+    WUInt8 fourCC[4];
 
     bool isUsed() const { return fileofs != 0 || filelen != 0; }
   };
@@ -158,7 +158,7 @@ namespace SourceBSP
 
       const float epsilon = 0.01f;
 
-      return ezMath::Abs(xDiff) < epsilon && ezMath::Abs(yDiff) < epsilon && ezMath::Abs(zDiff) < epsilon;
+      return WMath::Abs(xDiff) < epsilon && WMath::Abs(yDiff) < epsilon && WMath::Abs(zDiff) < epsilon;
     }
 
     bool operator!=(const Vertex_t& other) const { return !(*this == other); }
@@ -168,76 +168,76 @@ namespace SourceBSP
   {
     Vertex_t normal; // normal vector
     float dist;      // distance from origin
-    ezInt32 type;    // plane axis identifier
+    WInt32 type;    // plane axis identifier
   };
 
   struct Edge_t
   {
-    ezUInt16 v[2]; // vertex indices
+    WUInt16 v[2]; // vertex indices
   };
 
   struct Face_t
   {
-    ezUInt16 planenum;                      // the plane number
-    ezUInt8 side;                           // faces opposite to the node's plane direction
-    ezUInt8 onNode;                         // 1 of on node, 0 if in leaf
-    ezInt32 firstedge;                      // index into surfedges
-    ezInt16 numedges;                       // number of surfedges
-    ezInt16 texinfo;                        // texture info
-    ezInt16 dispinfo;                       // displacement info
-    ezInt16 surfaceFogVolumeID;             // ?
-    ezUInt8 styles[4];                      // switchable lighting info
-    ezInt32 lightofs;                       // offset into lightmap lump
+    WUInt16 planenum;                      // the plane number
+    WUInt8 side;                           // faces opposite to the node's plane direction
+    WUInt8 onNode;                         // 1 of on node, 0 if in leaf
+    WInt32 firstedge;                      // index into surfedges
+    WInt16 numedges;                       // number of surfedges
+    WInt16 texinfo;                        // texture info
+    WInt16 dispinfo;                       // displacement info
+    WInt16 surfaceFogVolumeID;             // ?
+    WUInt8 styles[4];                      // switchable lighting info
+    WInt32 lightofs;                       // offset into lightmap lump
     float area;                             // face area in units^2
-    ezInt32 LightmapTextureMinsInLuxels[2]; // texture lighting info
-    ezInt32 LightmapTextureSizeInLuxels[2]; // texture lighting info
-    ezInt32 origFace;                       // original face this was split from
-    ezUInt16 numPrims;                      // primitives
-    ezUInt16 firstPrimID;
-    ezUInt32 smoothingGroups;               // lightmap smoothing group
+    WInt32 LightmapTextureMinsInLuxels[2]; // texture lighting info
+    WInt32 LightmapTextureSizeInLuxels[2]; // texture lighting info
+    WInt32 origFace;                       // original face this was split from
+    WUInt16 numPrims;                      // primitives
+    WUInt16 firstPrimID;
+    WUInt32 smoothingGroups;               // lightmap smoothing group
   };
 
   struct TexInfo_t
   {
     float textureVecsTexelsPerWorldUnits[2][4];  // [s/t][xyz offset]
     float lightmapVecsLuxelsPerWorldUnits[2][4]; // [s/t][xyz offset] - length is in units of texels/area
-    ezInt32 flags;                               // miptex flags + overrides
-    ezInt32 texdata;                             // Pointer to texture name, size, etc.
+    WInt32 flags;                               // miptex flags + overrides
+    WInt32 texdata;                             // Pointer to texture name, size, etc.
   };
 
   struct TexData_t
   {
     Vertex_t reflectivity;
-    ezInt32 nameStringTableID;       // index into g_StringTable for the texture name
-    ezInt32 width, height;           // source image
-    ezInt32 view_width, view_height; //
+    WInt32 nameStringTableID;       // index into g_StringTable for the texture name
+    WInt32 width, height;           // source image
+    WInt32 view_width, view_height; //
   };
 
   struct Brush_t
   {
-    ezInt32 firstside;
-    ezInt32 numsides;
-    ezInt32 contents;
+    WInt32 firstside;
+    WInt32 numsides;
+    WInt32 contents;
   };
 
   struct BrushSide_t
   {
-    ezUInt16 planenum; // facing out of the leaf
-    ezInt16 texinfo;
-    ezInt16 dispinfo;  // displacement info (BSPVERSION 7)
-    ezInt16 bevel;     // is the side a bevel plane? (BSPVERSION 7)
+    WUInt16 planenum; // facing out of the leaf
+    WInt16 texinfo;
+    WInt16 dispinfo;  // displacement info (BSPVERSION 7)
+    WInt16 bevel;     // is the side a bevel plane? (BSPVERSION 7)
   };
 
   struct CDispSubNeighbor
   {
-    ezUInt16 m_iNeighbor;          // This indexes into ddispinfos.
+    WUInt16 m_iNeighbor;          // This indexes into ddispinfos.
                                    // 0xFFFF if there is no neighbor here.
 
-    ezUInt8 m_NeighborOrientation; // (CCW) rotation of the neighbor wrt this displacement.
+    WUInt8 m_NeighborOrientation; // (CCW) rotation of the neighbor wrt this displacement.
 
     // These use the NeighborSpan type.
-    ezUInt8 m_Span;         // Where the neighbor fits onto this side of our displacement.
-    ezUInt8 m_NeighborSpan; // Where we fit onto our neighbor.
+    WUInt8 m_Span;         // Where the neighbor fits onto this side of our displacement.
+    WUInt8 m_NeighborSpan; // Where we fit onto our neighbor.
   };
 
   struct CDispNeighbor
@@ -247,25 +247,25 @@ namespace SourceBSP
 
   struct CDispCornerNeighbors
   {
-    ezUInt16 m_Neighbors[4]; // indices of neighbors.
-    ezUInt8 m_nNeighbors;
+    WUInt16 m_Neighbors[4]; // indices of neighbors.
+    WUInt8 m_nNeighbors;
   };
 
   struct DispInfo_t
   {
     Vertex_t startPosition;                  // start position used for orientation
-    ezInt32 DispVertStart;                   // Index into LUMP_DISP_VERTS.
-    ezInt32 DispTriStart;                    // Index into LUMP_DISP_TRIS.
-    ezInt32 power;                           // power - indicates size of surface (2^power	1)
-    ezInt32 minTess;                         // minimum tesselation allowed
+    WInt32 DispVertStart;                   // Index into LUMP_DISP_VERTS.
+    WInt32 DispTriStart;                    // Index into LUMP_DISP_TRIS.
+    WInt32 power;                           // power - indicates size of surface (2^power	1)
+    WInt32 minTess;                         // minimum tesselation allowed
     float smoothingAngle;                    // lighting smoothing angle
-    ezInt32 contents;                        // surface contents
-    ezUInt16 MapFace;                        // Which map face this displacement comes from.
-    ezInt32 LightmapAlphaStart;              // Index into ddisplightmapalpha.
-    ezInt32 LightmapSamplePositionStart;     // Index into LUMP_DISP_LIGHTMAP_SAMPLE_POSITIONS.
+    WInt32 contents;                        // surface contents
+    WUInt16 MapFace;                        // Which map face this displacement comes from.
+    WInt32 LightmapAlphaStart;              // Index into ddisplightmapalpha.
+    WInt32 LightmapSamplePositionStart;     // Index into LUMP_DISP_LIGHTMAP_SAMPLE_POSITIONS.
     CDispNeighbor EdgeNeighbors[4];          // Indexed by NEIGHBOREDGE_ defines.
     CDispCornerNeighbors CornerNeighbors[4]; // Indexed by CORNER_ defines.
-    ezUInt32 AllowedVerts[10];               // active verticies
+    WUInt32 AllowedVerts[10];               // active verticies
   };
 
   struct DispVertex_t
@@ -277,64 +277,64 @@ namespace SourceBSP
 
   struct File // NOLINT(*Padding): We don't care about excessive padding here, because this struct is rarely used.
   {
-    File(ezArrayPtr<ezUInt8> memory);
+    File(WArrayPtr<WUInt8> memory);
 
     Header_t* header = nullptr;
 
     Vertex_t* vertices = nullptr;
-    ezUInt32 numVertices = 0;
+    WUInt32 numVertices = 0;
 
     Plane_t* planes = nullptr;
-    ezUInt32 numPlanes = 0;
+    WUInt32 numPlanes = 0;
 
     Edge_t* edges = nullptr;
-    ezUInt32 numEdges = 0;
+    WUInt32 numEdges = 0;
 
     Face_t* faces = nullptr;
-    ezUInt32 numFaces = 0;
+    WUInt32 numFaces = 0;
 
     TexInfo_t* texInfos = nullptr;
-    ezUInt32 numTexInfos = 0;
+    WUInt32 numTexInfos = 0;
 
     TexData_t* texDatas = nullptr;
-    ezUInt32 numTexDatas = 0;
+    WUInt32 numTexDatas = 0;
 
     Brush_t* brushes = nullptr;
-    ezUInt32 numBrushes = 0;
+    WUInt32 numBrushes = 0;
 
     BrushSide_t* brushSides = nullptr;
-    ezUInt32 numBrushSides = 0;
+    WUInt32 numBrushSides = 0;
 
-    ezInt32* surfEdges = nullptr;
-    ezUInt32 numSurfEdges = 0;
+    WInt32* surfEdges = nullptr;
+    WUInt32 numSurfEdges = 0;
 
 
     char* texDataStrings = nullptr;
-    ezInt32* texDataStringOffsets = nullptr;
-    ezUInt32 numTexDataStringOffsets = 0;
+    WInt32* texDataStringOffsets = nullptr;
+    WUInt32 numTexDataStringOffsets = 0;
 
     char* entityData = nullptr;
 
     DispInfo_t* dispInfos = nullptr;
-    ezUInt32 numDispInfos = 0;
+    WUInt32 numDispInfos = 0;
 
     DispVertex_t* dispVertices = nullptr;
-    ezUInt32 numDispVertices = 0;
+    WUInt32 numDispVertices = 0;
 
-    const char* getTexDataString(ezUInt32 uiIndex) const;
+    const char* getTexDataString(WUInt32 uiIndex) const;
 
     bool m_valid = false;
   };
 
-  File::File(ezArrayPtr<ezUInt8> fileContent)
+  File::File(WArrayPtr<WUInt8> fileContent)
   {
-    if (fileContent.GetCount() < static_cast<ezUInt32>(sizeof(Header_t)))
+    if (fileContent.GetCount() < static_cast<WUInt32>(sizeof(Header_t)))
     {
       m_valid = false;
       return;
     }
 
-    ezUInt8* memory = fileContent.GetPtr();
+    WUInt8* memory = fileContent.GetPtr();
 
     header = reinterpret_cast<Header_t*>(memory);
 
@@ -368,8 +368,8 @@ namespace SourceBSP
     brushSides = reinterpret_cast<BrushSide_t*>(memory + header->lumps[LUMP_BRUSHSIDES].fileofs);
     numBrushSides = header->lumps[LUMP_BRUSHSIDES].filelen / sizeof(BrushSide_t);
 
-    surfEdges = reinterpret_cast<ezInt32*>(memory + header->lumps[LUMP_SURFEDGES].fileofs);
-    numSurfEdges = header->lumps[LUMP_SURFEDGES].filelen / sizeof(ezInt32);
+    surfEdges = reinterpret_cast<WInt32*>(memory + header->lumps[LUMP_SURFEDGES].fileofs);
+    numSurfEdges = header->lumps[LUMP_SURFEDGES].filelen / sizeof(WInt32);
 
     /*
     char* texData;
@@ -377,8 +377,8 @@ namespace SourceBSP
     u32 numTexDataOffsets;*/
 
     texDataStrings = reinterpret_cast<char*>(memory + header->lumps[LUMP_TEXDATA_STRING_DATA].fileofs);
-    texDataStringOffsets = reinterpret_cast<ezInt32*>(memory + header->lumps[LUMP_TEXDATA_STRING_TABLE].fileofs);
-    numTexDataStringOffsets = header->lumps[LUMP_TEXDATA_STRING_TABLE].filelen / sizeof(ezInt32);
+    texDataStringOffsets = reinterpret_cast<WInt32*>(memory + header->lumps[LUMP_TEXDATA_STRING_TABLE].fileofs);
+    numTexDataStringOffsets = header->lumps[LUMP_TEXDATA_STRING_TABLE].filelen / sizeof(WInt32);
 
 
     entityData = reinterpret_cast<char*>(memory + header->lumps[LUMP_ENTITIES].fileofs);
@@ -392,9 +392,9 @@ namespace SourceBSP
     m_valid = true;
   }
 
-  const char* File::getTexDataString(ezUInt32 uiIndex) const
+  const char* File::getTexDataString(WUInt32 uiIndex) const
   {
-    EZ_ASSERT_ALWAYS(uiIndex < numTexDataStringOffsets, "BSP file tex data string out of bounds.");
+    W_ASSERT_ALWAYS(uiIndex < numTexDataStringOffsets, "BSP file tex data string out of bounds.");
 
     return texDataStrings + texDataStringOffsets[uiIndex];
   }
@@ -413,7 +413,7 @@ namespace SourceBSP
 
   struct TempVertex
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     float x, y, z;
     float nx, ny, nz;
@@ -425,14 +425,14 @@ namespace SourceBSP
 
 #if 0
 
-  ezResult ConvertBSPGeometryToMesh(SourceBSP::File& bspFile, ezModelImporter::Mesh* pMesh, ezModelImporter::Scene* pScene)
+  WResult ConvertBSPGeometryToMesh(SourceBSP::File& bspFile, WModelImporter::Mesh* pMesh, WModelImporter::Scene* pScene)
   {
-    ezMap<ezString, ezModelImporter::MaterialHandle> alreadyCreatedMaterials;
+    WMap<WString, WModelImporter::MaterialHandle> alreadyCreatedMaterials;
 
-    ezDynamicArray<ezUInt32> indices;
-    ezDynamicArray<TempVertex> vertices;
+    WDynamicArray<WUInt32> indices;
+    WDynamicArray<TempVertex> vertices;
 
-    for (ezUInt32 faceIndex = 0; faceIndex < bspFile.numFaces; ++faceIndex)
+    for (WUInt32 faceIndex = 0; faceIndex < bspFile.numFaces; ++faceIndex)
     {
       const SourceBSP::Face_t& current = bspFile.faces[faceIndex];
 
@@ -464,7 +464,7 @@ namespace SourceBSP
       if (!strcmp(material, "TOOLS/FOGVOLUME"))
         continue;
 
-      ezModelImporter::MaterialHandle materialHandle;
+      WModelImporter::MaterialHandle materialHandle;
 
       if (alreadyCreatedMaterials.Contains(material))
       {
@@ -472,7 +472,7 @@ namespace SourceBSP
       }
       else
       {
-        ezUniquePtr<ezModelImporter::Material> newMat(EZ_DEFAULT_NEW(ezModelImporter::Material));
+        WUniquePtr<WModelImporter::Material> newMat(W_DEFAULT_NEW(WModelImporter::Material));
         newMat->m_Name = material;
 
         materialHandle = pScene->AddMaterial(std::move(newMat));
@@ -480,16 +480,16 @@ namespace SourceBSP
         alreadyCreatedMaterials.Insert(material, materialHandle);
       }
 
-      ezUInt32 partFirstIndex = vertices.GetCount();
-      ezUInt32 indexOffset = indices.GetCount();
+      WUInt32 partFirstIndex = vertices.GetCount();
+      WUInt32 indexOffset = indices.GetCount();
 
       // No displacement surface? Create a bunch of triangles from the edges
       if (current.dispinfo == -1)
       {
         // Build vertices
-        for (ezInt32 edgeIndex = current.firstedge; edgeIndex < current.firstedge + (current.numedges - 1); ++edgeIndex)
+        for (WInt32 edgeIndex = current.firstedge; edgeIndex < current.firstedge + (current.numedges - 1); ++edgeIndex)
         {
-          ezInt32 surfEdge = bspFile.surfEdges[edgeIndex];
+          WInt32 surfEdge = bspFile.surfEdges[edgeIndex];
 
           SourceBSP::Edge_t& edge = bspFile.edges[(surfEdge < 0) ? -surfEdge : surfEdge];
 
@@ -521,14 +521,14 @@ namespace SourceBSP
         }
 
         // Build indices for face
-        for (ezInt32 edge = 1; edge < current.numedges - 1; ++edge)
+        for (WInt32 edge = 1; edge < current.numedges - 1; ++edge)
         {
           indices.PushBack(partFirstIndex);
           indices.PushBack(partFirstIndex + edge);
           indices.PushBack(partFirstIndex + edge + 1);
         }
 
-        ezModelImporter::SubMesh subMesh;
+        WModelImporter::SubMesh subMesh;
         subMesh.m_Material = materialHandle;
         subMesh.m_uiFirstTriangle = indexOffset / 3;
         subMesh.m_uiTriangleCount = (current.numedges - 2);
@@ -544,16 +544,16 @@ namespace SourceBSP
           continue;
 
         // Each edge has 2 ^ power + 1 vertices
-        ezUInt32 numVerticesPerEdge = ((1u << displacementInfo.power) + 1);
-        ezUInt32 numVertices = numVerticesPerEdge * numVerticesPerEdge;
+        WUInt32 numVerticesPerEdge = ((1u << displacementInfo.power) + 1);
+        WUInt32 numVertices = numVerticesPerEdge * numVerticesPerEdge;
 
         // Get the corner vertices for the original face
         // This is the base of the displacement vertices later on
         SourceBSP::Vertex_t cornerVertices[4];
 
-        for (ezInt32 edge = 0; edge < 4; ++edge)
+        for (WInt32 edge = 0; edge < 4; ++edge)
         {
-          ezInt32 surfEdge = bspFile.surfEdges[current.firstedge + edge];
+          WInt32 surfEdge = bspFile.surfEdges[current.firstedge + edge];
           SourceBSP::Edge_t& dispEdge = bspFile.edges[(surfEdge < 0) ? -surfEdge : surfEdge];
 
           cornerVertices[edge] = bspFile.vertices[dispEdge.v[(surfEdge < 0) ? 1 : 0]];
@@ -562,8 +562,8 @@ namespace SourceBSP
         // If the first corner vertex is not equal to the start position we need to search the original corner vertex
         if (cornerVertices[0] != displacementInfo.startPosition)
         {
-          ezInt32 offset = 0;
-          for (ezInt32 vertIdx = 1; vertIdx < 4; ++vertIdx)
+          WInt32 offset = 0;
+          for (WInt32 vertIdx = 1; vertIdx < 4; ++vertIdx)
           {
             if (cornerVertices[vertIdx] == displacementInfo.startPosition)
             {
@@ -573,15 +573,15 @@ namespace SourceBSP
           }
 
           SourceBSP::Vertex_t origCornerVertices[4];
-          ezMemoryUtils::Copy(origCornerVertices, cornerVertices, 4);
+          WMemoryUtils::Copy(origCornerVertices, cornerVertices, 4);
 
-          for (ezInt32 vertIdx = 0; vertIdx < 4; ++vertIdx)
+          for (WInt32 vertIdx = 0; vertIdx < 4; ++vertIdx)
           {
             cornerVertices[vertIdx] = origCornerVertices[(vertIdx + offset) % 4];
           }
         }
 
-        ezVec3 uvs[4];
+        WVec3 uvs[4];
 
         for (int i = 0; i < 4; ++i)
         {
@@ -590,42 +590,42 @@ namespace SourceBSP
           uvs[i].Set(u, v, 0.0f);
         }
 
-        ezVec3 xStep_03 = (ezVec3(cornerVertices[3].x, cornerVertices[3].y, cornerVertices[3].z) -
-                           ezVec3(cornerVertices[0].x, cornerVertices[0].y, cornerVertices[0].z));
+        WVec3 xStep_03 = (WVec3(cornerVertices[3].x, cornerVertices[3].y, cornerVertices[3].z) -
+                           WVec3(cornerVertices[0].x, cornerVertices[0].y, cornerVertices[0].z));
         xStep_03 /= float(numVerticesPerEdge - 1);
 
-        ezVec3 uvStep_03 = uvs[3] - uvs[1];
+        WVec3 uvStep_03 = uvs[3] - uvs[1];
         uvStep_03 /= float(numVerticesPerEdge - 1);
 
-        ezVec3 xStep_12 = (ezVec3(cornerVertices[2].x, cornerVertices[2].y, cornerVertices[2].z) -
-                           ezVec3(cornerVertices[1].x, cornerVertices[1].y, cornerVertices[1].z));
+        WVec3 xStep_12 = (WVec3(cornerVertices[2].x, cornerVertices[2].y, cornerVertices[2].z) -
+                           WVec3(cornerVertices[1].x, cornerVertices[1].y, cornerVertices[1].z));
         xStep_12 /= float(numVerticesPerEdge - 1);
 
-        ezVec3 uvStep_12 = uvs[2] - uvs[1];
+        WVec3 uvStep_12 = uvs[2] - uvs[1];
         uvStep_12 /= float(numVerticesPerEdge - 1);
 
-        for (ezUInt32 y = 0; y < numVerticesPerEdge; ++y)
+        for (WUInt32 y = 0; y < numVerticesPerEdge; ++y)
         {
-          for (ezUInt32 x = 0; x < numVerticesPerEdge; ++x)
+          for (WUInt32 x = 0; x < numVerticesPerEdge; ++x)
           {
-            ezVec3 x03 = ezVec3(cornerVertices[0].x, cornerVertices[0].y, cornerVertices[0].z) + xStep_03 * (float)x;
-            ezVec3 x12 = ezVec3(cornerVertices[1].x, cornerVertices[1].y, cornerVertices[1].z) + xStep_12 * (float)x;
+            WVec3 x03 = WVec3(cornerVertices[0].x, cornerVertices[0].y, cornerVertices[0].z) + xStep_03 * (float)x;
+            WVec3 x12 = WVec3(cornerVertices[1].x, cornerVertices[1].y, cornerVertices[1].z) + xStep_12 * (float)x;
 
-            ezVec3 currentBase = x03 + ((x12 - x03) * ((float)y / (numVerticesPerEdge - 1)));
+            WVec3 currentBase = x03 + ((x12 - x03) * ((float)y / (numVerticesPerEdge - 1)));
 
-            ezUInt32 linearIndex = y * numVerticesPerEdge + x;
+            WUInt32 linearIndex = y * numVerticesPerEdge + x;
 
-            ezVec3 offset = ezVec3(bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.x,
+            WVec3 offset = WVec3(bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.x,
               bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.y,
               bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.z);
             offset *= bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].m_distance;
 
             currentBase += offset;
 
-            ezVec3 uv03 = uvs[0] + uvStep_03 * (float)x;
-            ezVec3 uv12 = uvs[1] + uvStep_12 * (float)x;
+            WVec3 uv03 = uvs[0] + uvStep_03 * (float)x;
+            WVec3 uv12 = uvs[1] + uvStep_12 * (float)x;
 
-            ezVec3 uv = uv03 + ((uv12 - uv03) * ((float)y / (numVerticesPerEdge - 1)));
+            WVec3 uv = uv03 + ((uv12 - uv03) * ((float)y / (numVerticesPerEdge - 1)));
 
             TempVertex vert;
             vert.x = currentBase.x * bspToMetricScale;
@@ -642,9 +642,9 @@ namespace SourceBSP
         }
 
         // Build triangles from these vertices
-        for (ezUInt32 x = 1; x < numVerticesPerEdge; ++x)
+        for (WUInt32 x = 1; x < numVerticesPerEdge; ++x)
         {
-          for (ezUInt32 y = 1; y < numVerticesPerEdge; ++y)
+          for (WUInt32 y = 1; y < numVerticesPerEdge; ++y)
           {
             indices.PushBack(y * numVerticesPerEdge + x + partFirstIndex);
             indices.PushBack((y - 1) * numVerticesPerEdge + x + partFirstIndex);
@@ -656,7 +656,7 @@ namespace SourceBSP
           }
         }
 
-        ezModelImporter::SubMesh subMesh;
+        WModelImporter::SubMesh subMesh;
         subMesh.m_Material = materialHandle;
         subMesh.m_uiFirstTriangle = indexOffset / 3;
         subMesh.m_uiTriangleCount = 2 * (numVerticesPerEdge - 1) * (numVerticesPerEdge - 1);
@@ -667,16 +667,16 @@ namespace SourceBSP
 
     if ((indices.GetCount() % 3) != 0)
     {
-      ezLog::Error("Index count of BSP import are not divisible by 3, can't build triangles.");
-      return EZ_FAILURE;
+      WLog::Error("Index count of BSP import are not divisible by 3, can't build triangles.");
+      return W_FAILURE;
     }
 
     // Add vertices and triangles
-    ezTempHybridArray<ezModelImporter::VertexDataStream*, 3> streams;
+    WTempHybridArray<WModelImporter::VertexDataStream*, 3> streams;
 
-    auto positionDataStream = pMesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
-    auto normalDataStream = pMesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
-    auto texCoordDataStream = pMesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+    auto positionDataStream = pMesh->GetDataStream(WGALVertexAttributeSemantic::Position);
+    auto normalDataStream = pMesh->GetDataStream(WGALVertexAttributeSemantic::Normal);
+    auto texCoordDataStream = pMesh->GetDataStream(WGALVertexAttributeSemantic::TexCoord0);
 
     streams.PushBack(positionDataStream);
     streams.PushBack(normalDataStream);
@@ -684,18 +684,18 @@ namespace SourceBSP
 
     for (auto& vertex : vertices)
     {
-      positionDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.x), 3 * sizeof(float)));
-      normalDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.nx), 3 * sizeof(float)));
-      texCoordDataStream->AddValues(ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&vertex.u), 2 * sizeof(float)));
+      positionDataStream->AddValues(WArrayPtr<WUInt8>(reinterpret_cast<WUInt8*>(&vertex.x), 3 * sizeof(float)));
+      normalDataStream->AddValues(WArrayPtr<WUInt8>(reinterpret_cast<WUInt8*>(&vertex.nx), 3 * sizeof(float)));
+      texCoordDataStream->AddValues(WArrayPtr<WUInt8>(reinterpret_cast<WUInt8*>(&vertex.u), 2 * sizeof(float)));
     }
 
     pMesh->AddTriangles(indices.GetCount() / 3);
 
-    ezArrayPtr<ezModelImporter::Mesh::Triangle> triangleList = pMesh->GetTriangles();
-    for (ezModelImporter::VertexDataStream* stream : streams)
+    WArrayPtr<WModelImporter::Mesh::Triangle> triangleList = pMesh->GetTriangles();
+    for (WModelImporter::VertexDataStream* stream : streams)
     {
-      ezUInt32 uiAttributeSize = stream->GetAttributeSize();
-      for (ezUInt32 i = 0; i < triangleList.GetCount(); ++i)
+      WUInt32 uiAttributeSize = stream->GetAttributeSize();
+      for (WUInt32 i = 0; i < triangleList.GetCount(); ++i)
       {
         stream->SetDataIndex(triangleList[i].m_Vertices[0], indices[i * 3 + 0] * uiAttributeSize);
         stream->SetDataIndex(triangleList[i].m_Vertices[1], indices[i * 3 + 1] * uiAttributeSize);
@@ -703,46 +703,46 @@ namespace SourceBSP
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 #endif
 } // namespace SourceBSP
 
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   ImporterSourceBSP::ImporterSourceBSP() = default;
   ImporterSourceBSP::~ImporterSourceBSP() = default;
 
-  ezResult ImporterSourceBSP::DoImport()
+  WResult ImporterSourceBSP::DoImport()
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return EZ_FAILURE;
+    W_ASSERT_NOT_IMPLEMENTED;
+    return W_FAILURE;
 
 // TODO: adapt BSP import code to new model importer
 #if 0
 
     const char* szFileName = m_Options.m_sSourceFile;
 
-    ezDynamicArray<ezUInt8> fileContent;
+    WDynamicArray<WUInt8> fileContent;
     fileContent.Reserve(1024 * 1024);
 
     // Read the whole file into memory since we map BSP data structures directly to memory content
     {
-      ezFileReader fileReader;
+      WFileReader fileReader;
 
       if (fileReader.Open(szFileName, 1024 * 1024).Failed())
       {
-        ezLog::Error("Couldn't open '{}' for BSP import.", szFileName);
-        return EZ_FAILURE;
+        WLog::Error("Couldn't open '{}' for BSP import.", szFileName);
+        return W_FAILURE;
       }
 
-      ezUInt8 Temp[1024 * 4];
+      WUInt8 Temp[1024 * 4];
 
-      while (ezUInt64 uiRead = fileReader.ReadBytes(Temp, EZ_ARRAY_SIZE(Temp)))
+      while (WUInt64 uiRead = fileReader.ReadBytes(Temp, W_ARRAY_SIZE(Temp)))
       {
-        fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+        fileContent.PushBackRange(WArrayPtr<WUInt8>(Temp, (WUInt32)uiRead));
       }
     }
 
@@ -750,24 +750,24 @@ namespace ezModelImporter2
 
     if (!bspFile.m_valid)
     {
-      ezLog::Error("BSP header not valid for file '{}'.", szFileName);
-      return EZ_FAILURE;
+      WLog::Error("BSP header not valid for file '{}'.", szFileName);
+      return W_FAILURE;
     }
 
 
 
     // Import the complete BSP geometry as a single mesh
-    ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
-    ezUniquePtr<Mesh> mesh(EZ_DEFAULT_NEW(Mesh));
+    WSharedPtr<Scene> outScene = W_DEFAULT_NEW(Scene);
+    WUniquePtr<Mesh> mesh(W_DEFAULT_NEW(Mesh));
     mesh->m_Name = "BSP Geometry";
 
-    mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3, VertexElementType::FLOAT);
-    mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3, VertexElementType::FLOAT);
-    mesh->AddDataStream(ezGALVertexAttributeSemantic::TexCoord0, 2, VertexElementType::FLOAT);
+    mesh->AddDataStream(WGALVertexAttributeSemantic::Position, 3, VertexElementType::FLOAT);
+    mesh->AddDataStream(WGALVertexAttributeSemantic::Normal, 3, VertexElementType::FLOAT);
+    mesh->AddDataStream(WGALVertexAttributeSemantic::TexCoord0, 2, VertexElementType::FLOAT);
 
     if (SourceBSP::ConvertBSPGeometryToMesh(bspFile, mesh.Borrow(), outScene.Borrow()).Failed())
     {
-      ezLog::Error("Couldn't convert BSP geometry to mesh for file '{}'.", szFileName);
+      WLog::Error("Couldn't convert BSP geometry to mesh for file '{}'.", szFileName);
       return nullptr;
     }
 
@@ -782,4 +782,4 @@ namespace ezModelImporter2
     return outScene;
 #endif
   }
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

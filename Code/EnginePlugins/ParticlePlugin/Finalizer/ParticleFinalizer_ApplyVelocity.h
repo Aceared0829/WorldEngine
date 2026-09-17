@@ -3,15 +3,15 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
 /// Factory for apply velocity finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_ApplyVelocity final : public ezParticleFinalizerFactory
+class W_PARTICLEPLUGIN_DLL WParticleFinalizerFactory_ApplyVelocity final : public WParticleFinalizerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_ApplyVelocity, ezParticleFinalizerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizerFactory_ApplyVelocity, WParticleFinalizerFactory);
 
 public:
-  ezParticleFinalizerFactory_ApplyVelocity();
+  WParticleFinalizerFactory_ApplyVelocity();
 
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetFinalizerType() const override;
+  virtual void CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const override;
 };
 
 
@@ -20,19 +20,19 @@ public:
 /// Updates particle positions by adding velocity * time_delta. The velocity is stored as
 /// a direction vector (xyz) and speed scalar (w). This finalizer has a slightly higher
 /// priority (525) to run after most other finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_ApplyVelocity final : public ezParticleFinalizer
+class W_PARTICLEPLUGIN_DLL WParticleFinalizer_ApplyVelocity final : public WParticleFinalizer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_ApplyVelocity, ezParticleFinalizer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizer_ApplyVelocity, WParticleFinalizer);
 
 public:
-  ezParticleFinalizer_ApplyVelocity();
-  ~ezParticleFinalizer_ApplyVelocity();
+  WParticleFinalizer_ApplyVelocity();
+  ~WParticleFinalizer_ApplyVelocity();
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamVelocity = nullptr;
 };

@@ -7,29 +7,29 @@
 #include <Core/Input/InputManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpInputTool, 1, ezRTTIDefaultAllocator<ezMcpInputTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpInputTool, 1, WRTTIDefaultAllocator<WMcpInputTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezMcpInputTool::ezMcpInputTool() = default;
-ezMcpInputTool::~ezMcpInputTool() = default;
+WMcpInputTool::WMcpInputTool() = default;
+WMcpInputTool::~WMcpInputTool() = default;
 
-void ezMcpInputTool::OnActivate()
+void WMcpInputTool::OnActivate()
 {
-  m_pDevice = EZ_DEFAULT_NEW(ezMcpInputDevice);
+  m_pDevice = W_DEFAULT_NEW(WMcpInputDevice);
 }
 
-void ezMcpInputTool::OnDeactivate()
+void WMcpInputTool::OnDeactivate()
 {
   // Destroying the device unregisters it, which also releases anything it was still holding down - a
   // key left pressed by a plugin that is going away would otherwise stay pressed forever.
   m_pDevice = nullptr;
 }
 
-void ezMcpInputTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpInputTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "input_slots";
     desc.m_sDescription =
       "Lists the input slots this process knows about - the names input_set writes to. Call it before guessing a name: "
@@ -43,7 +43,7 @@ void ezMcpInputTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "input_set";
     desc.m_sDescription =
       "Presses keys and moves the mouse, by writing input slot values that the game reads as if they came from real "
@@ -60,7 +60,7 @@ void ezMcpInputTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "input_sequence";
     desc.m_sDescription =
       "Runs a chain of input steps in order, in a single call, instead of one input_set/game_wait round trip "
@@ -79,7 +79,7 @@ void ezMcpInputTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
   }
 }
 
-void ezMcpInputTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpInputTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "input_slots")
   {
@@ -101,30 +101,30 @@ namespace
   ///
   /// Only the ones that change how a value should be chosen. The rest describe implementation details of
   /// the hardware and would just be noise in every listing.
-  void WriteSlotFlags(ezMcpJsonWriter& ref_writer, ezBitflags<ezInputSlotFlags> flags)
+  void WriteSlotFlags(WMcpJsonWriter& ref_writer, WBitflags<WInputSlotFlags> flags)
   {
     ref_writer.BeginArray("flags");
 
-    if (flags.IsSet(ezInputSlotFlags::ValueBinaryZeroOrOne))
+    if (flags.IsSet(WInputSlotFlags::ValueBinaryZeroOrOne))
       ref_writer.WriteString("binary");
-    if (flags.IsSet(ezInputSlotFlags::ValueRangeZeroToOne))
+    if (flags.IsSet(WInputSlotFlags::ValueRangeZeroToOne))
       ref_writer.WriteString("analog");
-    if (flags.IsSet(ezInputSlotFlags::ReportsRelativeValues))
+    if (flags.IsSet(WInputSlotFlags::ReportsRelativeValues))
       ref_writer.WriteString("relative");
-    if (flags.IsSet(ezInputSlotFlags::Pressable))
+    if (flags.IsSet(WInputSlotFlags::Pressable))
       ref_writer.WriteString("pressable");
-    if (flags.IsSet(ezInputSlotFlags::Holdable))
+    if (flags.IsSet(WInputSlotFlags::Holdable))
       ref_writer.WriteString("holdable");
 
     ref_writer.EndArray();
   }
 
   /// What the device is currently holding, shared between input_set's and input_sequence's result.
-  void WriteHeldSlots(ezMcpJsonWriter& ref_writer, const ezDynamicArray<ezMcpInputDevice::HeldSlot>& held)
+  void WriteHeldSlots(WMcpJsonWriter& ref_writer, const WDynamicArray<WMcpInputDevice::HeldSlot>& held)
   {
     ref_writer.BeginArray("holding");
 
-    for (const ezMcpInputDevice::HeldSlot& slot : held)
+    for (const WMcpInputDevice::HeldSlot& slot : held)
     {
       ref_writer.BeginObject();
       ref_writer.AddVariableString("name", slot.m_sSlot);
@@ -142,36 +142,36 @@ namespace
   }
 } // namespace
 
-void ezMcpInputTool::ExecuteSlots(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpInputTool::ExecuteSlots(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sContains = ezMcpJson::GetString(arguments, "contains");
-  const bool bActiveOnly = ezMcpJson::GetBool(arguments, "activeOnly", false);
+  const WStringView sContains = WMcpJson::GetString(arguments, "contains");
+  const bool bActiveOnly = WMcpJson::GetBool(arguments, "activeOnly", false);
 
-  ezDynamicArray<ezStringView> slots;
-  ezInputManager::RetrieveAllKnownInputSlots(slots);
+  WDynamicArray<WStringView> slots;
+  WInputManager::RetrieveAllKnownInputSlots(slots);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.BeginArray("slots");
 
-  ezUInt32 uiMatches = 0;
-  ezUInt32 uiReturned = 0;
+  WUInt32 uiMatches = 0;
+  WUInt32 uiReturned = 0;
 
-  for (ezStringView sSlot : slots)
+  for (WStringView sSlot : slots)
   {
-    const ezStringView sDisplayName = ezInputManager::GetInputSlotDisplayName(sSlot);
+    const WStringView sDisplayName = WInputManager::GetInputSlotDisplayName(sSlot);
 
     if (!sContains.IsEmpty())
     {
-      ezStringBuilder sName = sSlot;
-      ezStringBuilder sDisplay = sDisplayName;
+      WStringBuilder sName = sSlot;
+      WStringBuilder sDisplay = sDisplayName;
 
       if (sName.FindSubString_NoCase(sContains) == nullptr && sDisplay.FindSubString_NoCase(sContains) == nullptr)
         continue;
     }
 
     float fValue = 0.0f;
-    ezInputManager::GetInputSlotState(sSlot, &fValue);
+    WInputManager::GetInputSlotState(sSlot, &fValue);
 
     if (bActiveOnly && fValue == 0.0f)
       continue;
@@ -192,7 +192,7 @@ void ezMcpInputTool::ExecuteSlots(const ezVariantDictionary& arguments, ezMcpToo
     }
 
     writer.AddVariableFloat("value", fValue);
-    WriteSlotFlags(writer, ezInputManager::GetInputSlotFlags(sSlot));
+    WriteSlotFlags(writer, WInputManager::GetInputSlotFlags(sSlot));
     writer.EndObject();
 
     ++uiReturned;
@@ -208,7 +208,7 @@ void ezMcpInputTool::ExecuteSlots(const ezVariantDictionary& arguments, ezMcpToo
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpInputTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpInputTool::ExecuteSet(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (m_pDevice == nullptr)
   {
@@ -216,16 +216,16 @@ void ezMcpInputTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolR
     return;
   }
 
-  const bool bClearAll = ezMcpJson::GetBool(arguments, "clearAll", false);
+  const bool bClearAll = WMcpJson::GetBool(arguments, "clearAll", false);
 
   if (bClearAll)
   {
     m_pDevice->ClearAllSlots();
   }
 
-  const ezUInt32 uiFrames = static_cast<ezUInt32>(ezMath::Max<ezInt64>(0, ezMcpJson::GetInt(arguments, "frames", 0)));
+  const WUInt32 uiFrames = static_cast<WUInt32>(WMath::Max<WInt64>(0, WMcpJson::GetInt(arguments, "frames", 0)));
 
-  const ezVariantDictionary* pSlots = ezMcpJson::GetDict(arguments, "slots");
+  const WVariantDictionary* pSlots = WMcpJson::GetDict(arguments, "slots");
 
   if (pSlots == nullptr && !bClearAll)
   {
@@ -233,7 +233,7 @@ void ezMcpInputTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolR
     return;
   }
 
-  ezUInt32 uiSet = 0;
+  WUInt32 uiSet = 0;
 
   if (pSlots != nullptr)
   {
@@ -243,13 +243,13 @@ void ezMcpInputTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolR
     uiSet = pSlots->GetCount();
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableUInt32("slotsWritten", uiSet);
 
   // What is being held afterwards, so that a caller never has to remember what it pressed. This is also
   // the answer to 'did my earlier call already expire'.
-  ezDynamicArray<ezMcpInputDevice::HeldSlot> held;
+  WDynamicArray<WMcpInputDevice::HeldSlot> held;
   m_pDevice->GetHeldSlots(held);
   WriteHeldSlots(writer, held);
 
@@ -260,17 +260,17 @@ void ezMcpInputTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolR
   out_result.m_sText = writer.GetResult();
 }
 
-bool ezMcpInputTool::ApplySlots(const ezVariantDictionary& slots, ezUInt32 uiFrames, ezMcpToolResult& out_result)
+bool WMcpInputTool::ApplySlots(const WVariantDictionary& slots, WUInt32 uiFrames, WMcpToolResult& out_result)
 {
   for (auto it = slots.GetIterator(); it.IsValid(); ++it)
   {
     // Any convertible type, because a client sends 1, 1.0 and "1" for the same thing.
-    ezResult conversion = EZ_SUCCESS;
+    WResult conversion = W_SUCCESS;
     const float fValue = it.Value().ConvertTo<float>(&conversion);
 
     if (conversion.Failed())
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("The value for slot '{}' is not a number.", it.Key());
       out_result.SetError(sError);
       return false;
@@ -289,7 +289,7 @@ bool ezMcpInputTool::ApplySlots(const ezVariantDictionary& slots, ezUInt32 uiFra
   return true;
 }
 
-void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpInputTool::ExecuteSequence(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (m_pDevice == nullptr)
   {
@@ -297,7 +297,7 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
     return;
   }
 
-  const ezVariantArray* pSteps = ezMcpJson::GetArray(arguments, "steps");
+  const WVariantArray* pSteps = WMcpJson::GetArray(arguments, "steps");
 
   if (pSteps == nullptr || pSteps->IsEmpty())
   {
@@ -307,27 +307,27 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
 
   if (pSteps->GetCount() > s_uiMaxSteps)
   {
-    ezStringBuilder sError;
+    WStringBuilder sError;
     sError.SetFormat("'steps' has {} entries, which is more than the limit of {}.", pSteps->GetCount(), s_uiMaxSteps);
     out_result.SetError(sError);
     return;
   }
 
-  const ezInt64 iTimeout = ezMcpJson::GetInt(arguments, "timeout", static_cast<ezInt64>(s_DefaultWaitTimeout.GetSeconds()));
-  const ezTime waitTimeout = iTimeout > 0 ? ezTime::MakeFromSeconds(static_cast<double>(iTimeout)) : s_DefaultWaitTimeout;
+  const WInt64 iTimeout = WMcpJson::GetInt(arguments, "timeout", static_cast<WInt64>(s_DefaultWaitTimeout.GetSeconds()));
+  const WTime waitTimeout = iTimeout > 0 ? WTime::MakeFromSeconds(static_cast<double>(iTimeout)) : s_DefaultWaitTimeout;
 
   if (!m_bSequenceActive)
   {
     // First entry. Later ones are re-entries from a 'wait' step's deferral, with the same 'arguments'
-    // - see ezMcpToolResult::m_bNotFinished - so steps before m_uiSequenceStep must not run again.
+    // - see WMcpToolResult::m_bNotFinished - so steps before m_uiSequenceStep must not run again.
     m_bSequenceActive = true;
     m_uiSequenceStep = 0;
   }
   else if (m_bSequenceWaiting)
   {
-    const ezUInt64 uiNow = ezMcpEngineHost::GetFrameCount();
+    const WUInt64 uiNow = WMcpEngineHost::GetFrameCount();
     const bool bDone = uiNow >= m_uiSequenceWaitUntilFrame;
-    const bool bTimedOut = !bDone && (ezTime::Now() - m_SequenceWaitStarted >= m_SequenceWaitTimeout);
+    const bool bTimedOut = !bDone && (WTime::Now() - m_SequenceWaitStarted >= m_SequenceWaitTimeout);
 
     if (!bDone && !bTimedOut)
     {
@@ -339,10 +339,10 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
 
     if (bTimedOut)
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("Sequence timed out on step {} (a 'wait') after {} seconds. The game is not producing "
                        "frames fast enough, or not at all - see game_wait's error for the usual cause.",
-        m_uiSequenceStep, (ezTime::Now() - m_SequenceWaitStarted).GetSeconds());
+        m_uiSequenceStep, (WTime::Now() - m_SequenceWaitStarted).GetSeconds());
       out_result.SetError(sError);
       m_bSequenceActive = false;
       return;
@@ -354,20 +354,20 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
 
   for (; m_uiSequenceStep < pSteps->GetCount(); ++m_uiSequenceStep)
   {
-    const ezVariant& step = (*pSteps)[m_uiSequenceStep];
+    const WVariant& step = (*pSteps)[m_uiSequenceStep];
 
-    if (!step.IsA<ezVariantDictionary>())
+    if (!step.IsA<WVariantDictionary>())
     {
-      ezStringBuilder sError;
+      WStringBuilder sError;
       sError.SetFormat("Step {} is not an object.", m_uiSequenceStep);
       out_result.SetError(sError);
       m_bSequenceActive = false;
       return;
     }
 
-    const ezVariantDictionary& stepDict = step.Get<ezVariantDictionary>();
+    const WVariantDictionary& stepDict = step.Get<WVariantDictionary>();
 
-    if (const ezVariantDictionary* pSet = ezMcpJson::GetDict(stepDict, "set"))
+    if (const WVariantDictionary* pSet = WMcpJson::GetDict(stepDict, "set"))
     {
       if (!ApplySlots(*pSet, 0, out_result))
       {
@@ -375,43 +375,43 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
         return;
       }
     }
-    else if (ezMcpJson::GetBool(stepDict, "clear", false))
+    else if (WMcpJson::GetBool(stepDict, "clear", false))
     {
       m_pDevice->ClearAllSlots();
     }
     else
     {
-      const ezVariant* pText = nullptr;
-      const ezVariantDictionary* pWait = ezMcpJson::GetDict(stepDict, "wait");
+      const WVariant* pText = nullptr;
+      const WVariantDictionary* pWait = WMcpJson::GetDict(stepDict, "wait");
 
       if (pWait != nullptr)
       {
-        const ezInt64 iFrames = ezMcpJson::GetInt(*pWait, "frames", 1);
+        const WInt64 iFrames = WMcpJson::GetInt(*pWait, "frames", 1);
 
         if (iFrames < 1 || iFrames > s_uiMaxWaitFrames)
         {
-          ezStringBuilder sError;
+          WStringBuilder sError;
           sError.SetFormat("Step {}: 'frames' must be between 1 and {}, not {}.", m_uiSequenceStep, s_uiMaxWaitFrames, iFrames);
           out_result.SetError(sError);
           m_bSequenceActive = false;
           return;
         }
 
-        m_uiSequenceWaitUntilFrame = ezMcpEngineHost::GetFrameCount() + static_cast<ezUInt64>(iFrames);
-        m_SequenceWaitStarted = ezTime::Now();
+        m_uiSequenceWaitUntilFrame = WMcpEngineHost::GetFrameCount() + static_cast<WUInt64>(iFrames);
+        m_SequenceWaitStarted = WTime::Now();
         m_SequenceWaitTimeout = waitTimeout;
         m_bSequenceWaiting = true;
 
         out_result.m_bNotFinished = true;
         return;
       }
-      else if (stepDict.TryGetValue("text", pText) && pText->CanConvertTo<ezString>())
+      else if (stepDict.TryGetValue("text", pText) && pText->CanConvertTo<WString>())
       {
-        m_pDevice->QueueText(pText->ConvertTo<ezString>());
+        m_pDevice->QueueText(pText->ConvertTo<WString>());
       }
       else
       {
-        ezStringBuilder sError;
+        WStringBuilder sError;
         sError.SetFormat("Step {} is none of 'set', 'wait', 'text' or 'clear'.", m_uiSequenceStep);
         out_result.SetError(sError);
         m_bSequenceActive = false;
@@ -422,12 +422,12 @@ void ezMcpInputTool::ExecuteSequence(const ezVariantDictionary& arguments, ezMcp
 
   m_bSequenceActive = false;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
   writer.AddVariableUInt32("stepsRun", pSteps->GetCount());
-  writer.AddVariableUInt64("frameCount", ezMcpEngineHost::GetFrameCount());
+  writer.AddVariableUInt64("frameCount", WMcpEngineHost::GetFrameCount());
 
-  ezDynamicArray<ezMcpInputDevice::HeldSlot> held;
+  WDynamicArray<WMcpInputDevice::HeldSlot> held;
   m_pDevice->GetHeldSlots(held);
   WriteHeldSlots(writer, held);
 

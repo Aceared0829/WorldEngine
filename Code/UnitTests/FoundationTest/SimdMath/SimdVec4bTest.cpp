@@ -2,103 +2,103 @@
 
 #include <Foundation/SimdMath/SimdVec4b.h>
 
-EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
+W_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-#if EZ_DISABLED(EZ_COMPILER_GCC) && EZ_DISABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_DISABLED(W_COMPILER_GCC) && W_DISABLED(W_COMPILE_FOR_DEBUG)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
-    ezSimdVec4b* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4b;
-    EZ_TEST_BOOL(testBlock[0] == 1.0f && testBlock[1] == 2.0f && testBlock[2] == 3.0f && testBlock[3] == 4.0f);
+    WSimdVec4b* pDefCtor = ::new ((void*)&testBlock[0]) WSimdVec4b;
+    W_TEST_BOOL(testBlock[0] == 1.0f && testBlock[1] == 2.0f && testBlock[2] == 3.0f && testBlock[3] == 4.0f);
 #endif
 
     // Make sure the class didn't accidentally change in size.
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    static_assert(sizeof(ezSimdVec4b) == 16);
-    static_assert(alignof(ezSimdVec4b) == 16);
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
+    static_assert(sizeof(WSimdVec4b) == 16);
+    static_assert(alignof(WSimdVec4b) == 16);
 #endif
 
-    ezSimdVec4b vInit1B(true);
-    EZ_TEST_BOOL(vInit1B.x() == true && vInit1B.y() == true && vInit1B.z() == true && vInit1B.w() == true);
+    WSimdVec4b vInit1B(true);
+    W_TEST_BOOL(vInit1B.x() == true && vInit1B.y() == true && vInit1B.z() == true && vInit1B.w() == true);
 
     // Make sure all components have the correct value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(vInit1B.m_v.m128_u32[0] == 0xFFFFFFFF && vInit1B.m_v.m128_u32[1] == 0xFFFFFFFF && vInit1B.m_v.m128_u32[2] == 0xFFFFFFFF &&
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(vInit1B.m_v.m128_u32[0] == 0xFFFFFFFF && vInit1B.m_v.m128_u32[1] == 0xFFFFFFFF && vInit1B.m_v.m128_u32[2] == 0xFFFFFFFF &&
                  vInit1B.m_v.m128_u32[3] == 0xFFFFFFFF);
 #endif
 
-    ezSimdVec4b vInit4B(false, true, false, true);
-    EZ_TEST_BOOL(vInit4B.x() == false && vInit4B.y() == true && vInit4B.z() == false && vInit4B.w() == true);
+    WSimdVec4b vInit4B(false, true, false, true);
+    W_TEST_BOOL(vInit4B.x() == false && vInit4B.y() == true && vInit4B.z() == false && vInit4B.w() == true);
 
     // Make sure all components have the correct value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(
       vInit4B.m_v.m128_u32[0] == 0 && vInit4B.m_v.m128_u32[1] == 0xFFFFFFFF && vInit4B.m_v.m128_u32[2] == 0 && vInit4B.m_v.m128_u32[3] == 0xFFFFFFFF);
 #endif
 
-    ezSimdVec4b vCopy(vInit4B);
-    EZ_TEST_BOOL(vCopy.x() == false && vCopy.y() == true && vCopy.z() == false && vCopy.w() == true);
+    WSimdVec4b vCopy(vInit4B);
+    W_TEST_BOOL(vCopy.x() == false && vCopy.y() == true && vCopy.z() == false && vCopy.w() == true);
 
-    EZ_TEST_BOOL(
+    W_TEST_BOOL(
       vCopy.GetComponent<0>() == false && vCopy.GetComponent<1>() == true && vCopy.GetComponent<2>() == false && vCopy.GetComponent<3>() == true);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Swizzle")
   {
-    ezSimdVec4b a(true, false, true, false);
+    WSimdVec4b a(true, false, true, false);
 
-    ezSimdVec4b b = a.Get<ezSwizzle::XXXX>();
-    EZ_TEST_BOOL(b.x() && b.y() && b.z() && b.w());
+    WSimdVec4b b = a.Get<WSwizzle::XXXX>();
+    W_TEST_BOOL(b.x() && b.y() && b.z() && b.w());
 
-    b = a.Get<ezSwizzle::YYYX>();
-    EZ_TEST_BOOL(!b.x() && !b.y() && !b.z() && b.w());
+    b = a.Get<WSwizzle::YYYX>();
+    W_TEST_BOOL(!b.x() && !b.y() && !b.z() && b.w());
 
-    b = a.Get<ezSwizzle::ZZZX>();
-    EZ_TEST_BOOL(b.x() && b.y() && b.z() && b.w());
+    b = a.Get<WSwizzle::ZZZX>();
+    W_TEST_BOOL(b.x() && b.y() && b.z() && b.w());
 
-    b = a.Get<ezSwizzle::WWWX>();
-    EZ_TEST_BOOL(!b.x() && !b.y() && !b.z() && b.w());
+    b = a.Get<WSwizzle::WWWX>();
+    W_TEST_BOOL(!b.x() && !b.y() && !b.z() && b.w());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Operators")
   {
-    ezSimdVec4b a(true, false, true, false);
-    ezSimdVec4b b(false, true, true, false);
+    WSimdVec4b a(true, false, true, false);
+    WSimdVec4b b(false, true, true, false);
 
-    ezSimdVec4b c = a && b;
-    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
+    WSimdVec4b c = a && b;
+    W_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
 
     c = a || b;
-    EZ_TEST_BOOL(c.x() && c.y() && c.z() && !c.w());
+    W_TEST_BOOL(c.x() && c.y() && c.z() && !c.w());
 
     c = !a;
-    EZ_TEST_BOOL(!c.x() && c.y() && !c.z() && c.w());
-    EZ_TEST_BOOL(c.AnySet<2>());
-    EZ_TEST_BOOL(!c.AllSet<4>());
-    EZ_TEST_BOOL(!c.NoneSet<4>());
+    W_TEST_BOOL(!c.x() && c.y() && !c.z() && c.w());
+    W_TEST_BOOL(c.AnySet<2>());
+    W_TEST_BOOL(!c.AllSet<4>());
+    W_TEST_BOOL(!c.NoneSet<4>());
 
     c = c || a;
-    EZ_TEST_BOOL(c.AnySet<4>());
-    EZ_TEST_BOOL(c.AllSet<4>());
-    EZ_TEST_BOOL(!c.NoneSet<4>());
+    W_TEST_BOOL(c.AnySet<4>());
+    W_TEST_BOOL(c.AllSet<4>());
+    W_TEST_BOOL(!c.NoneSet<4>());
 
     c = !c;
-    EZ_TEST_BOOL(!c.AnySet<4>());
-    EZ_TEST_BOOL(!c.AllSet<4>());
-    EZ_TEST_BOOL(c.NoneSet<4>());
+    W_TEST_BOOL(!c.AnySet<4>());
+    W_TEST_BOOL(!c.AllSet<4>());
+    W_TEST_BOOL(c.NoneSet<4>());
 
     c = a == b;
-    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && c.w());
+    W_TEST_BOOL(!c.x() && !c.y() && c.z() && c.w());
 
     c = a != b;
-    EZ_TEST_BOOL(c.x() && c.y() && !c.z() && !c.w());
+    W_TEST_BOOL(c.x() && c.y() && !c.z() && !c.w());
 
-    EZ_TEST_BOOL(a.AllSet<1>());
-    EZ_TEST_BOOL(b.NoneSet<1>());
+    W_TEST_BOOL(a.AllSet<1>());
+    W_TEST_BOOL(b.NoneSet<1>());
 
-    ezSimdVec4b cmp(false, true, false, true);
-    c = ezSimdVec4b::Select(cmp, a, b);
-    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
+    WSimdVec4b cmp(false, true, false, true);
+    c = WSimdVec4b::Select(cmp, a, b);
+    W_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
   }
 }

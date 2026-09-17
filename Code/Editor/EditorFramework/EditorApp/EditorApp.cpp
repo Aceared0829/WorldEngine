@@ -16,7 +16,7 @@
 #include <QFileDialog>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezCommandLineOptionPath opt_RemoteProjectDir("_Editor", "-remoteProjectDir",
+WCommandLineOptionPath opt_RemoteProjectDir("_Editor", "-remoteProjectDir",
   "Directory into which a 'remote' project is downloaded, instead of asking the user for one.\n"
   "\n"
   "The project ends up in a subfolder named after the project. Opening a remote project needs a download\n"
@@ -28,23 +28,23 @@ ezCommandLineOptionPath opt_RemoteProjectDir("_Editor", "-remoteProjectDir",
   "  -project \"Data/Samples/Bistro\" -remoteProjectDir \"C:/Projects\"\n",
   "");
 
-EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
+W_IMPLEMENT_SINGLETON(WQtEditorApp);
 
-ezEvent<const ezEditorAppEvent&> ezQtEditorApp::m_Events;
+WEvent<const WEditorAppEvent&> WQtEditorApp::m_Events;
 
-ezQtEditorApp::ezQtEditorApp()
+WQtEditorApp::WQtEditorApp()
   : m_SingletonRegistrar(this)
   , m_RecentProjects(20)
   , m_RecentDocuments(100)
 {
   m_bSavePreferencesAfterOpenProject = false;
-  m_pVersionChecker = EZ_DEFAULT_NEW(ezQtVersionChecker);
+  m_pVersionChecker = W_DEFAULT_NEW(WQtVersionChecker);
 
   m_pTimer = new QTimer(nullptr);
   m_pAutoSaveTimer = new QTimer(nullptr);
 }
 
-ezQtEditorApp::~ezQtEditorApp()
+WQtEditorApp::~WQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
@@ -55,22 +55,22 @@ ezQtEditorApp::~ezQtEditorApp()
   CloseSplashScreen();
 }
 
-ezInt32 ezQtEditorApp::RunEditor()
+WInt32 WQtEditorApp::RunEditor()
 {
-  ezInt32 ret = m_pQtApplication->exec();
+  WInt32 ret = m_pQtApplication->exec();
   return ret;
 }
 
-void ezQtEditorApp::SlotTimedUpdate()
+void WQtEditorApp::SlotTimedUpdate()
 {
-  if (ezToolsProject::IsProjectOpen())
+  if (WToolsProject::IsProjectOpen())
   {
-    if (ezEditorEngineProcessConnection::GetSingleton())
-      ezEditorEngineProcessConnection::GetSingleton()->Update();
+    if (WEditorEngineProcessConnection::GetSingleton())
+      WEditorEngineProcessConnection::GetSingleton()->Update();
 
-    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+    WAssetCurator::GetSingleton()->MainThreadTick(true);
   }
-  ezTaskSystem::FinishFrameTasks();
+  WTaskSystem::FinishFrameTasks();
 
   // Close the splash screen when we get to the first idle event
   CloseSplashScreen();
@@ -82,31 +82,31 @@ void ezQtEditorApp::SlotTimedUpdate()
   m_pTimer->start(1);
 }
 
-void ezQtEditorApp::SlotSaveSettings()
+void WQtEditorApp::SlotSaveSettings()
 {
   SaveSettings();
 }
 
-void ezQtEditorApp::SlotAutoSave()
+void WQtEditorApp::SlotAutoSave()
 {
-  const auto* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  const auto* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   if (!pPreferences || pPreferences->m_uiAutoSaveMinutes == 0)
     return;
 
-  const ezTime tAutoSaveThreshold = ezTime::MakeFromMinutes(pPreferences->m_uiAutoSaveMinutes);
-  const ezTime tNow = ezTime::Now();
+  const WTime tAutoSaveThreshold = WTime::MakeFromMinutes(pPreferences->m_uiAutoSaveMinutes);
+  const WTime tNow = WTime::Now();
 
   // Find the oldest modified document that exceeds the auto-save threshold.
-  ezDocument* pOldestDoc = nullptr;
-  ezTime tOldestTime = tNow;
+  WDocument* pOldestDoc = nullptr;
+  WTime tOldestTime = tNow;
 
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
+    for (auto pDoc : pMan->WDocumentManager::GetAllOpenDocuments())
     {
       // Skip documents with an active transaction or undo/redo in progress (e.g. user is dragging something).
       // The auto-save timer will retry on the next tick.
-      const ezCommandHistory* pHistory = pDoc->GetCommandHistory();
+      const WCommandHistory* pHistory = pDoc->GetCommandHistory();
       if (pHistory && (pHistory->IsInTransaction() || pHistory->IsInUndoRedo()))
         continue;
 
@@ -115,7 +115,7 @@ void ezQtEditorApp::SlotAutoSave()
       if (!pDoc->HasWindowBeenRequested())
         continue;
 
-      const ezTime tModified = pDoc->GetModifiedTime();
+      const WTime tModified = pDoc->GetModifiedTime();
       if (tModified.IsPositive() && (tNow - tModified) >= tAutoSaveThreshold && tModified < tOldestTime)
       {
         pOldestDoc = pDoc;
@@ -127,7 +127,7 @@ void ezQtEditorApp::SlotAutoSave()
   if (pOldestDoc == nullptr)
     return;
 
-  ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pOldestDoc);
+  WQtDocumentWindow* pWnd = WQtDocumentWindow::FindWindowByDocument(pOldestDoc);
   if (pWnd && pWnd->GetDocument() == pOldestDoc)
   {
     pWnd->SaveDocument().IgnoreResult();
@@ -138,7 +138,7 @@ void ezQtEditorApp::SlotAutoSave()
   }
 }
 
-void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
+void WQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
 {
   // Close the splash screen so it doesn't become the parent window of our message boxes.
   CloseSplashScreen();
@@ -147,54 +147,54 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
   {
     if (m_pVersionChecker->IsLatestNewer())
     {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation(
-        ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
+      WQtUiServices::GetSingleton()->MessageBoxInformation(
+        WFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
               "href=\"https://github.com/ezEngine/ezEngine/releases\">Releases</A> for details.</html>",
           m_pVersionChecker->GetKnownLatestVersion(), m_pVersionChecker->GetOwnVersion()));
     }
     else
     {
-      ezStringBuilder tmp("You have the latest version: \n");
+      WStringBuilder tmp("You have the latest version: \n");
       tmp.Append(m_pVersionChecker->GetOwnVersion());
 
-      ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
+      WQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
   }
 
   if (m_pVersionChecker->IsLatestNewer())
   {
-    ezQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(
-      ezFmt("New version '{}' available, please update.", m_pVersionChecker->GetKnownLatestVersion()));
+    WQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(
+      WFmt("New version '{}' available, please update.", m_pVersionChecker->GetKnownLatestVersion()));
   }
 }
 
-void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+void WQtEditorApp::EngineProcessMsgHandler(const WEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case WEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
-      if (auto pTypeMsg = ezDynamicCast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg))
+      if (auto pTypeMsg = WDynamicCast<const WUpdateReflectionTypeMsgToEditor*>(e.m_pMsg))
       {
-        ezPhantomRttiManager::RegisterType(pTypeMsg->m_desc);
+        WPhantomRttiManager::RegisterType(pTypeMsg->m_desc);
       }
-      if (auto pDynEnumMsg = ezDynamicCast<const ezDynamicStringEnumMsgToEditor*>(e.m_pMsg))
+      if (auto pDynEnumMsg = WDynamicCast<const WDynamicStringEnumMsgToEditor*>(e.m_pMsg))
       {
-        auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum(pDynEnumMsg->m_sEnumName);
+        auto& dynEnum = WDynamicStringEnum::CreateDynamicEnum(pDynEnumMsg->m_sEnumName);
         for (auto& sEnumValue : pDynEnumMsg->m_EnumValues)
         {
           dynEnum.AddValidValue(sEnumValue);
         }
         dynEnum.SortValues();
       }
-      else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
+      else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<WProjectReadyMsgToEditor>())
       {
         // This message is waited upon (blocking) but does not contain any data.
       }
     }
     break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+    case WEditorEngineProcessConnection::Event::Type::ProcessRestarted:
       StoreEnginePluginModificationTimes();
       break;
 
@@ -203,63 +203,63 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
   }
 }
 
-void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
+void WQtEditorApp::UiServicesEvents(const WQtUiServices::Event& e)
 {
-  if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
+  if (e.m_Type == WQtUiServices::Event::Type::CheckForUpdates)
   {
     m_pVersionChecker->Check(true);
   }
 
-  if (e.m_Type == ezQtUiServices::Event::Type::GotoLinkTarget)
+  if (e.m_Type == WQtUiServices::Event::Type::GotoLinkTarget)
   {
-    ezStringView sTarget = e.m_sText;
+    WStringView sTarget = e.m_sText;
 
     if (sTarget.TrimWordStart("asset:"))
     {
-      ezStringView sObjRef;
+      WStringView sObjRef;
 
       if (const char* szRef = sTarget.FindSubString("#"))
       {
-        sObjRef = ezStringView(szRef + 1, sTarget.GetEndPointer());
-        sTarget = ezStringView(sTarget.GetStartPointer(), szRef);
+        sObjRef = WStringView(szRef + 1, sTarget.GetEndPointer());
+        sTarget = WStringView(sTarget.GetStartPointer(), szRef);
       }
 
-      if (ezConversionUtils::IsStringUuid(sTarget))
+      if (WConversionUtils::IsStringUuid(sTarget))
       {
-        const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sTarget);
+        const WUuid guid = WConversionUtils::ConvertStringToUuid(sTarget);
 
-        ezStringBuilder path;
+        WStringBuilder path;
 
-        if (auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid))
+        if (auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(guid))
         {
           path = pAsset->m_pAssetInfo->m_Path;
         }
 
         if (!path.IsEmpty())
         {
-          if (ezDocument* pDoc = OpenDocument(path, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList))
+          if (WDocument* pDoc = OpenDocument(path, WDocumentFlags::RequestWindow | WDocumentFlags::AddToRecentFilesList))
           {
-            ezStringView sFilter = sObjRef;
+            WStringView sFilter = sObjRef;
             if (sFilter.TrimWordStart("filter:"))
             {
               // Strip surrounding quotes, if present.
               sFilter.TrimWordStart("\"");
               sFilter.TrimWordEnd("\"");
 
-              if (ezGameObjectDocument* pGameObjDoc = ezDynamicCast<ezGameObjectDocument*>(pDoc))
+              if (WGameObjectDocument* pGameObjDoc = WDynamicCast<WGameObjectDocument*>(pDoc))
               {
-                ezGameObjectEvent filterEvent;
-                filterEvent.m_Type = ezGameObjectEvent::Type::TriggerSetScenegraphFilter;
+                WGameObjectEvent filterEvent;
+                filterEvent.m_Type = WGameObjectEvent::Type::TriggerSetScenegraphFilter;
                 filterEvent.m_sPayload = sFilter;
                 pGameObjDoc->m_GameObjectEvents.Broadcast(filterEvent);
               }
             }
-            else if (ezConversionUtils::IsStringUuid(sObjRef))
+            else if (WConversionUtils::IsStringUuid(sObjRef))
             {
-              const ezUuid objGuid = ezConversionUtils::ConvertStringToUuid(sObjRef);
+              const WUuid objGuid = WConversionUtils::ConvertStringToUuid(sObjRef);
 
-              const ezDocumentObjectManager* pMan = pDoc->GetObjectManager();
-              const ezDocumentObject* pSelObj = pMan->GetObject(objGuid);
+              const WDocumentObjectManager* pMan = pDoc->GetObjectManager();
+              const WDocumentObject* pSelObj = pMan->GetObject(objGuid);
 
               // Walk up to the nearest selectable ancestor, e.g. a component's owning game object.
               while (pSelObj != nullptr && pMan->CanSelect(pSelObj).Failed())
@@ -279,13 +279,13 @@ void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
   }
 }
 
-void ezQtEditorApp::SaveAllOpenDocuments()
+void WQtEditorApp::SaveAllOpenDocuments()
 {
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
+    for (auto pDoc : pMan->WDocumentManager::GetAllOpenDocuments())
     {
-      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+      WQtDocumentWindow* pWnd = WQtDocumentWindow::FindWindowByDocument(pDoc);
       // Layers for example will share a window with the scene document and the window will always save the scene.
       if (pWnd && pWnd->GetDocument() == pDoc)
       {
@@ -301,14 +301,14 @@ void ezQtEditorApp::SaveAllOpenDocuments()
   }
 }
 
-bool ezQtEditorApp::IsProgressBarProcessingEvents() const
+bool WQtEditorApp::IsProgressBarProcessingEvents() const
 {
   return m_pQtProgressbar != nullptr && m_pQtProgressbar->IsProcessingEvents();
 }
 
-void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e)
+void WQtEditorApp::OnDemandDynamicStringEnumLoad(WStringView sEnumName, WDynamicStringEnum& e)
 {
-  ezStringBuilder sFile;
+  WStringBuilder sFile;
   sFile.SetFormat(":project/Editor/{}.txt", sEnumName);
 
   // enums loaded this way are user editable
@@ -318,9 +318,9 @@ void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDyna
   m_DynamicEnumStringsToClear.Insert(sEnumName);
 }
 
-bool ContainsPlugin(const ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& all, const char* szPlugin)
+bool ContainsPlugin(const WDynamicArray<WApplicationPluginConfig::PluginConfig>& all, const char* szPlugin)
 {
-  for (const ezApplicationPluginConfig::PluginConfig& one : all)
+  for (const WApplicationPluginConfig::PluginConfig& one : all)
   {
     if (one.m_sAppDirRelativePath == szPlugin)
       return true;
@@ -329,30 +329,30 @@ bool ContainsPlugin(const ezDynamicArray<ezApplicationPluginConfig::PluginConfig
   return false;
 }
 
-ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const
+WResult WQtEditorApp::AddBundlesInOrder(WDynamicArray<WApplicationPluginConfig::PluginConfig>& order, const WPluginBundleSet& bundles, const WString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const
 {
-  const ezPluginBundle& bundle = bundles.m_Plugins.Find(start).Value();
+  const WPluginBundle& bundle = bundles.m_Plugins.Find(start).Value();
 
-  for (const ezString& req : bundle.m_RequiredBundles)
+  for (const WString& req : bundle.m_RequiredBundles)
   {
     auto it = bundles.m_Plugins.Find(req);
 
     if (!it.IsValid())
     {
-      ezLog::Error("Plugin bundle '{}' has a dependency on bundle '{}' which does not exist.", start, req);
-      return EZ_FAILURE;
+      WLog::Error("Plugin bundle '{}' has a dependency on bundle '{}' which does not exist.", start, req);
+      return W_FAILURE;
     }
 
-    EZ_SUCCEED_OR_RETURN(AddBundlesInOrder(order, bundles, req, bEditor, bEditorEngine, bRuntime));
+    W_SUCCEED_OR_RETURN(AddBundlesInOrder(order, bundles, req, bEditor, bEditorEngine, bRuntime));
   }
 
   if (bRuntime)
   {
-    for (const ezString& dll : bundle.m_RuntimePlugins)
+    for (const WString& dll : bundle.m_RuntimePlugins)
     {
       if (!ContainsPlugin(order, dll))
       {
-        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        WApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
         p.m_sAppDirRelativePath = dll;
         p.m_bLoadCopy = bundle.m_bLoadCopy;
       }
@@ -361,11 +361,11 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
 
   if (bEditorEngine)
   {
-    for (const ezString& dll : bundle.m_EditorEnginePlugins)
+    for (const WString& dll : bundle.m_EditorEnginePlugins)
     {
       if (!ContainsPlugin(order, dll))
       {
-        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        WApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
         p.m_sAppDirRelativePath = dll;
         p.m_bLoadCopy = bundle.m_bLoadCopy;
       }
@@ -374,21 +374,21 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
 
   if (bEditor)
   {
-    for (const ezString& dll : bundle.m_EditorPlugins)
+    for (const WString& dll : bundle.m_EditorPlugins)
     {
       if (!ContainsPlugin(order, dll))
       {
-        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        WApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
         p.m_sAppDirRelativePath = dll;
         p.m_bLoadCopy = bundle.m_bLoadCopy;
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-static void NormalizeDataDirPath(const ezString& sPath, ezStringBuilder& out_sClean)
+static void NormalizeDataDirPath(const WString& sPath, WStringBuilder& out_sClean)
 {
   out_sClean = sPath;
   out_sClean.MakeCleanPath();
@@ -397,7 +397,7 @@ static void NormalizeDataDirPath(const ezString& sPath, ezStringBuilder& out_sCl
     out_sClean.Shrink(0, 1);
 }
 
-static void CollectBundleDataDirsRecursive(const ezPluginBundleSet& bundles, const ezString& sBundleName, ezSet<ezString>& inout_visited, ezSet<ezString>& out_dirs)
+static void CollectBundleDataDirsRecursive(const WPluginBundleSet& bundles, const WString& sBundleName, WSet<WString>& inout_visited, WSet<WString>& out_dirs)
 {
   if (inout_visited.Contains(sBundleName))
     return;
@@ -408,24 +408,24 @@ static void CollectBundleDataDirsRecursive(const ezPluginBundleSet& bundles, con
   if (!it.IsValid())
     return;
 
-  const ezPluginBundle& bundle = it.Value();
+  const WPluginBundle& bundle = it.Value();
 
-  ezStringBuilder sClean;
-  for (const ezString& sDir : bundle.m_DataDirectories)
+  WStringBuilder sClean;
+  for (const WString& sDir : bundle.m_DataDirectories)
   {
     NormalizeDataDirPath(sDir, sClean);
     out_dirs.Insert(sClean);
   }
 
-  for (const ezString& sReq : bundle.m_RequiredBundles)
+  for (const WString& sReq : bundle.m_RequiredBundles)
   {
     CollectBundleDataDirsRecursive(bundles, sReq, inout_visited, out_dirs);
   }
 }
 
-void ezQtEditorApp::GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const
+void WQtEditorApp::GetActiveBundleDataDirectories(WSet<WString>& out_dirs) const
 {
-  ezSet<ezString> visited;
+  WSet<WString> visited;
   for (auto it : m_PluginBundles.m_Plugins)
   {
     if (it.Value().m_bMandatory || it.Value().m_bSelected)
@@ -435,12 +435,12 @@ void ezQtEditorApp::GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) co
   }
 }
 
-void ezQtEditorApp::GetAllKnownBundleDataDirectories(ezSet<ezString>& out_dirs) const
+void WQtEditorApp::GetAllKnownBundleDataDirectories(WSet<WString>& out_dirs) const
 {
-  ezStringBuilder sClean;
+  WStringBuilder sClean;
   for (auto it : m_PluginBundles.m_Plugins)
   {
-    for (const ezString& sDir : it.Value().m_DataDirectories)
+    for (const WString& sDir : it.Value().m_DataDirectories)
     {
       NormalizeDataDirPath(sDir, sClean);
       out_dirs.Insert(sClean);
@@ -448,137 +448,137 @@ void ezQtEditorApp::GetAllKnownBundleDataDirectories(ezSet<ezString>& out_dirs) 
   }
 }
 
-static ezStatus ExtractArchive(const ezString& sArchivePath)
+static WStatus ExtractArchive(const WString& sArchivePath)
 {
-  ezStringBuilder sArchiveDir = sArchivePath;
+  WStringBuilder sArchiveDir = sArchivePath;
   sArchiveDir.PathParentDirectory();
   sArchiveDir.TrimWordEnd("/");
 
   QStringList args;
   args << "x"
-       << "-y" << ezMakeQString(sArchivePath);
+       << "-y" << WMakeQString(sArchivePath);
 
-  return ezQtEditorApp::GetSingleton()->ExecuteTool("7z", args, 30 * 60, nullptr, ezLogMsgType::WarningMsg, sArchiveDir);
+  return WQtEditorApp::GetSingleton()->ExecuteTool("7z", args, 30 * 60, nullptr, WLogMsgType::WarningMsg, sArchiveDir);
 }
 
-static ezStatus ExtractArchivesInDirectory(const ezStringBuilder& sDirectory)
+static WStatus ExtractArchivesInDirectory(const WStringBuilder& sDirectory)
 {
-  ezDynamicArray<ezString> archiveFiles;
-  ezFileSystemIterator it;
-  for (it.StartSearch(sDirectory, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+  WDynamicArray<WString> archiveFiles;
+  WFileSystemIterator it;
+  for (it.StartSearch(sDirectory, WFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
   {
     if (it.GetStats().m_sName.HasExtension("7z"))
     {
-      ezStringBuilder sFullPath;
+      WStringBuilder sFullPath;
       it.GetStats().GetFullPath(sFullPath);
       archiveFiles.PushBack(sFullPath);
     }
   }
 
   if (archiveFiles.IsEmpty())
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  ezProgressRange unpackProgress("Unpacking Archives", archiveFiles.GetCount(), true);
+  WProgressRange unpackProgress("Unpacking Archives", archiveFiles.GetCount(), true);
 
-  for (const ezString& sArchive : archiveFiles)
+  for (const WString& sArchive : archiveFiles)
   {
-    unpackProgress.BeginNextStep(ezPathUtils::GetFileNameAndExtension(sArchive));
+    unpackProgress.BeginNextStep(WPathUtils::GetFileNameAndExtension(sArchive));
 
     if (unpackProgress.WasCanceled())
     {
-      return ezStatus("User canceled");
+      return WStatus("User canceled");
     }
 
-    EZ_SUCCEED_OR_RETURN(ExtractArchive(sArchive));
+    W_SUCCEED_OR_RETURN(ExtractArchive(sArchive));
 
-    ezLog::Success("Extracted archive '{}'", sArchive);
+    WLog::Success("Extracted archive '{}'", sArchive);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
+WStatus WQtEditorApp::MakeRemoteProjectLocal(WStringBuilder& inout_sFilePath)
 {
   // already a local project?
-  if (inout_sFilePath.EndsWith_NoCase("ezProject"))
-    return ezStatus(EZ_SUCCESS);
+  if (inout_sFilePath.EndsWith_NoCase("WProject"))
+    return WStatus(W_SUCCESS);
 
   {
-    ezStringBuilder tmp = inout_sFilePath;
-    tmp.AppendPath("ezProject");
+    WStringBuilder tmp = inout_sFilePath;
+    tmp.AppendPath("WProject");
 
-    if (ezOSFile::ExistsFile(tmp))
+    if (WOSFile::ExistsFile(tmp))
     {
       inout_sFilePath = tmp;
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
 
-  EZ_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
+  W_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
 
-  ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
+  WStringBuilder sRedirFile = WApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
   sRedirFile.AppendPath("LocalCheckout.txt");
 
   // read redirection file, if available
   {
-    ezOSFile file;
-    if (file.Open(sRedirFile, ezFileOpenMode::Read).Succeeded())
+    WOSFile file;
+    if (file.Open(sRedirFile, WFileOpenMode::Read).Succeeded())
     {
-      ezDataBuffer content;
+      WDataBuffer content;
       file.ReadAll(content);
 
-      const ezStringView sContent((const char*)content.GetData(), content.GetCount());
+      const WStringView sContent((const char*)content.GetData(), content.GetCount());
 
-      if (sContent.EndsWith_NoCase("ezProject") && ezOSFile::ExistsFile(sContent))
+      if (sContent.EndsWith_NoCase("WProject") && WOSFile::ExistsFile(sContent))
       {
         inout_sFilePath = sContent;
-        return ezStatus(EZ_SUCCESS);
+        return WStatus(W_SUCCESS);
       }
     }
   }
 
-  ezString sName;
-  ezString sType;
-  ezString sUrl;
-  ezString sProjectFile;
+  WString sName;
+  WString sType;
+  WString sUrl;
+  WString sProjectFile;
 
   // read the info about the remote project from the OpenDDL config file
   {
-    ezOSFile file;
-    if (file.Open(inout_sFilePath, ezFileOpenMode::Read).Failed())
+    WOSFile file;
+    if (file.Open(inout_sFilePath, WFileOpenMode::Read).Failed())
     {
-      return ezStatus(ezFmt("Remote project file '{}' doesn't exist.", inout_sFilePath));
+      return WStatus(WFmt("Remote project file '{}' doesn't exist.", inout_sFilePath));
     }
 
-    ezDataBuffer content;
+    WDataBuffer content;
     file.ReadAll(content);
 
-    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&content);
-    ezMemoryStreamReader reader(&storage);
+    WMemoryStreamContainerWrapperStorage<WDataBuffer> storage(&content);
+    WMemoryStreamReader reader(&storage);
 
-    ezOpenDdlReader ddl;
+    WOpenDdlReader ddl;
     if (ddl.ParseDocument(reader).Failed())
     {
-      return ezStatus("Error in remote project DDL config file");
+      return WStatus("Error in remote project DDL config file");
     }
 
     if (auto pRoot = ddl.GetRootElement())
     {
       if (auto pProject = pRoot->FindChildOfType("RemoteProject"))
       {
-        if (auto pName = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name"))
+        if (auto pName = pProject->FindChildOfType(WOpenDdlPrimitiveType::String, "Name"))
         {
           sName = pName->GetPrimitivesString()[0];
         }
-        if (auto pType = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type"))
+        if (auto pType = pProject->FindChildOfType(WOpenDdlPrimitiveType::String, "Type"))
         {
           sType = pType->GetPrimitivesString()[0];
         }
-        if (auto pUrl = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Url"))
+        if (auto pUrl = pProject->FindChildOfType(WOpenDdlPrimitiveType::String, "Url"))
         {
           sUrl = pUrl->GetPrimitivesString()[0];
         }
-        if (auto pProjectFile = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "ProjectFile"))
+        if (auto pProjectFile = pProject->FindChildOfType(WOpenDdlPrimitiveType::String, "ProjectFile"))
         {
           sProjectFile = pProjectFile->GetPrimitivesString()[0];
         }
@@ -588,27 +588,27 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
   if (sType.IsEmpty() || sName.IsEmpty())
   {
-    return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
+    return WStatus(WFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
   }
 
-  ezStringBuilder sTargetDir = opt_RemoteProjectDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  WStringBuilder sTargetDir = opt_RemoteProjectDir.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (sTargetDir.IsEmpty())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
 
-    static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
+    static QString sPreviousFolder = WOSFile::GetUserDocumentsFolder().GetData();
 
-    // native window, so not covered by ezQtDialog - without '-remoteProjectDir' the target folder
+    // native window, so not covered by WQtDialog - without '-remoteProjectDir' the target folder
     // has to come from a user
-    if (ezQtUiServices::SuppressModalWindow("Remote project download folder (file picker)"))
-      return ezStatus("A remote project needs a download folder. Pass '-remoteProjectDir' to give one without a user present.");
+    if (WQtUiServices::SuppressModalWindow("Remote project download folder (file picker)"))
+      return WStatus("A remote project needs a download folder. Pass '-remoteProjectDir' to give one without a user present.");
 
     QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
 
     if (sSelectedDir.isEmpty())
     {
-      return ezStatus("");
+      return WStatus("");
     }
 
     sPreviousFolder = sSelectedDir;
@@ -618,9 +618,9 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   {
     sTargetDir.MakeCleanPath();
 
-    if (ezOSFile::CreateDirectoryStructure(sTargetDir).Failed())
+    if (WOSFile::CreateDirectoryStructure(sTargetDir).Failed())
     {
-      return ezStatus(ezFmt("Could not create the download directory '{}'.", sTargetDir));
+      return WStatus(WFmt("Could not create the download directory '{}'.", sTargetDir));
     }
   }
 
@@ -631,14 +631,14 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
       QStringList args;
       args << "clone";
       args << "--progress"; // it appears that this flag forces non-buffered I/O so it flushes output immediately after each write
-      args << ezMakeQString(sUrl);
-      args << ezMakeQString(sName);
+      args << WMakeQString(sUrl);
+      args << WMakeQString(sName);
 
-      ezProgressRange cloneProgress("Downloading Project", true);
+      WProgressRange cloneProgress("Downloading Project", true);
 
-      ezProcessOptions po;
+      WProcessOptions po;
       po.m_sWorkingDirectory = sTargetDir.GetData();
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
       po.m_sProcess = "git.exe";
 #else
       po.m_sProcess = "git";
@@ -648,52 +648,52 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
       po.AddArgument(sUrl);
       po.AddArgument(sName);
 
-      ezProcessGroup pgroup;
+      WProcessGroup pgroup;
 
-      ezString s_last_stderr_line;
+      WString s_last_stderr_line;
 
-      ezDeque<ezString> strings = {};
-      ezMutex mutex;
+      WDeque<WString> strings = {};
+      WMutex mutex;
 
       // this function called on a separate thread
-      po.m_onStdError = [&](ezStringView out)
+      po.m_onStdError = [&](WStringView out)
       {
-        EZ_LOCK(mutex);
+        W_LOCK(mutex);
         strings.PushBack(out);
       };
 
       QApplication::setOverrideCursor(Qt::WaitCursor);
-      EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+      W_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
-      ezResult res = pgroup.Launch(po);
+      WResult res = pgroup.Launch(po);
       if (res.Failed())
       {
         pgroup.TerminateAll().IgnoreResult();
-        return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+        return WStatus(WFmt("Running 'git' to download the remote project failed."));
       }
 
       // Without a user there is no progress bar to cancel, and its 'was canceled' state would end the
       // clone right away, so just wait for git to finish.
-      const bool bHeadless = ezQtUiServices::IsHeadless();
+      const bool bHeadless = WQtUiServices::IsHeadless();
 
       while (!bHeadless)
       {
         // Process stderr output from git to update the progress bar.
         if (strings.GetCount() > 0)
         {
-          EZ_LOCK(mutex);
+          W_LOCK(mutex);
           for (const auto& line : strings)
           {
-            ezString data = line;
-            ezStringBuilder str = data.GetData();
+            WString data = line;
+            WStringBuilder str = data.GetData();
 
             if (const char* szPercent = str.FindLastSubString("%"))
             {
               str.SetSubString_FromTo(szPercent - 3, szPercent);
               str.Trim();
 
-              ezInt32 p;
-              if (ezConversionUtils::StringToInt(str, p).Succeeded())
+              WInt32 p;
+              if (WConversionUtils::StringToInt(str, p).Succeeded())
               {
                 double f_completion = p / 100.0;
                 if (f_completion < cloneProgress.GetProgressbar()->GetCompletion())
@@ -716,7 +716,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
         qApp->processEvents();
 
-        if (pgroup.GetProcesses()[0].GetState() == ezProcessState::Finished)
+        if (pgroup.GetProcesses()[0].GetState() == WProcessState::Finished)
           break;
       }
 
@@ -724,82 +724,82 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
       if (!bHeadless && cloneProgress.WasCanceled())
       {
-        return ezStatus("Project downloading cancelled by user. Please remove the incomplete project directory manually.");
+        return WStatus("Project downloading cancelled by user. Please remove the incomplete project directory manually.");
       }
       else if (pgroup.GetProcesses()[0].GetExitCode() != 0)
       {
-        return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'\n{}", sName, sUrl, s_last_stderr_line));
+        return WStatus(WFmt("Failed to git clone the remote project '{}' from '{}'\n{}", sName, sUrl, s_last_stderr_line));
       }
 
-      ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
+      WLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
     }
 
     // Find and extract any 7z archives in the cloned directory
     {
-      ezStringBuilder sClonedDir;
+      WStringBuilder sClonedDir;
       sClonedDir.SetFormat("{}/{}", sTargetDir, sName);
 
-      EZ_SUCCEED_OR_RETURN(ExtractArchivesInDirectory(sClonedDir));
+      W_SUCCEED_OR_RETURN(ExtractArchivesInDirectory(sClonedDir));
     }
 
     inout_sFilePath.SetFormat("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
     // write redirection file
     {
-      ezOSFile file;
-      if (file.Open(sRedirFile, ezFileOpenMode::Write).Succeeded())
+      WOSFile file;
+      if (file.Open(sRedirFile, WFileOpenMode::Write).Succeeded())
       {
         file.Write(inout_sFilePath.GetData(), inout_sFilePath.GetElementCount()).AssertSuccess();
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  return ezStatus(ezFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));
+  return WStatus(WFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));
 }
 
-bool ezQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
+bool WQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
 {
-  ezStringBuilder path = szProjectDir;
+  WStringBuilder path = szProjectDir;
   path.MakeCleanPath();
 
-  if (path.EndsWith_NoCase("/ezProject"))
+  if (path.EndsWith_NoCase("/WProject"))
     path.PathParentDirectory();
 
   path.AppendPath("Editor/PluginSelection.ddl");
 
-  return ezOSFile::ExistsFile(path);
+  return WOSFile::ExistsFile(path);
 }
 
-void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
+void WQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
 {
   if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
     return;
 
-  ezStringBuilder path = szProjectDir;
+  WStringBuilder path = szProjectDir;
   path.AppendPath("Editor/PluginSelection.ddl");
 
-  ezFileWriter file;
+  WFileWriter file;
   file.Open(path).AssertSuccess();
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
   m_PluginBundles.WriteStateToDDL(ddl);
 }
 
-void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
+void WQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
 {
   if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
     return;
 
-  ezStringBuilder sPath = szProjectFile;
+  WStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
 
   for (auto it : m_PluginBundles.m_Plugins)
   {
-    ezPluginBundle& bundle = it.Value();
+    WPluginBundle& bundle = it.Value();
 
     bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplate);
   }
@@ -807,40 +807,40 @@ void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const ch
   WritePluginSelectionStateDDL(sPath);
 }
 
-void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
+void WQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 {
-  EZ_PROFILE_SCOPE("LoadPluginBundleDlls");
-  ezStringBuilder sPath = szProjectFile;
+  W_PROFILE_SCOPE("LoadPluginBundleDlls");
+  WStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
   sPath.AppendPath("Editor/PluginSelection.ddl");
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Succeeded())
   {
-    ezOpenDdlReader ddl;
+    WOpenDdlReader ddl;
     if (ddl.ParseDocument(file).Failed())
     {
-      ezLog::Error("Syntax error in plugin bundle file '{}'", sPath);
+      WLog::Error("Syntax error in plugin bundle file '{}'", sPath);
     }
     else
     {
       auto pState = ddl.GetRootElement()->FindChildOfType("PluginState");
       while (pState)
       {
-        if (auto pName = pState->FindChildOfType(ezOpenDdlPrimitiveType::String, "ID"))
+        if (auto pName = pState->FindChildOfType(WOpenDdlPrimitiveType::String, "ID"))
         {
-          const ezString sID = pName->GetPrimitivesString()[0];
+          const WString sID = pName->GetPrimitivesString()[0];
 
           bool bExisted = false;
           auto itPlug = m_PluginBundles.m_Plugins.FindOrAdd(sID, &bExisted);
 
           if (!bExisted)
           {
-            ezPluginBundle& bundle = itPlug.Value();
+            WPluginBundle& bundle = itPlug.Value();
             bundle.m_bMissing = true;
             bundle.m_sDisplayName = sID;
-            bundle.m_sDescription = "This plugin bundle is referenced by the project, but doesn't exist. Please check that all plugins are built correctly and their respective *.ezPluginBundle files are copied to the binary directory.";
-            bundle.m_LastModificationTime = ezTimestamp::CurrentTimestamp();
+            bundle.m_sDescription = "This plugin bundle is referenced by the project, but doesn't exist. Please check that all plugins are built correctly and their respective *.WPluginBundle files are copied to the binary directory.";
+            bundle.m_LastModificationTime = WTimestamp::CurrentTimestamp();
           }
         }
 
@@ -851,7 +851,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
     }
   }
 
-  ezDynamicArray<ezApplicationPluginConfig::PluginConfig> order;
+  WDynamicArray<WApplicationPluginConfig::PluginConfig> order;
 
   // first all the mandatory bundles
   for (auto it : m_PluginBundles.m_Plugins)
@@ -861,7 +861,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
     if (AddBundlesInOrder(order, m_PluginBundles, it.Key(), true, false, false).Failed())
     {
-      ezQtUiServices::MessageBoxWarning("The mandatory plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the ezPluginBundle files correctly reference each other.");
+      WQtUiServices::MessageBoxWarning("The mandatory plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the WPluginBundle files correctly reference each other.");
 
       return;
     }
@@ -875,17 +875,17 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
     if (AddBundlesInOrder(order, m_PluginBundles, it.Key(), true, false, false).Failed())
     {
-      ezQtUiServices::MessageBoxWarning("The plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the ezPluginBundle files correctly reference each other.");
+      WQtUiServices::MessageBoxWarning("The plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the WPluginBundle files correctly reference each other.");
 
       return;
     }
   }
 
-  ezSet<ezString> NotLoaded;
-  for (const ezApplicationPluginConfig::PluginConfig& it : order)
+  WSet<WString> NotLoaded;
+  for (const WApplicationPluginConfig::PluginConfig& it : order)
   {
-    EZ_PROFILE_SCOPE(it.m_sAppDirRelativePath.GetData());
-    if (ezPlugin::LoadPlugin(it.m_sAppDirRelativePath, it.m_bLoadCopy ? ezPluginLoadFlags::LoadCopy : ezPluginLoadFlags::Default).Failed())
+    W_PROFILE_SCOPE(it.m_sAppDirRelativePath.GetData());
+    if (WPlugin::LoadPlugin(it.m_sAppDirRelativePath, it.m_bLoadCopy ? WPluginLoadFlags::LoadCopy : WPluginLoadFlags::Default).Failed())
     {
       NotLoaded.Insert(it.m_sAppDirRelativePath);
     }
@@ -893,32 +893,32 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
   if (!NotLoaded.IsEmpty())
   {
-    ezStringBuilder s = "The following plugins could not be loaded. Scenes may not load correctly.\n\n";
+    WStringBuilder s = "The following plugins could not be loaded. Scenes may not load correctly.\n\n";
 
     for (auto it = NotLoaded.GetIterator(); it.IsValid(); ++it)
     {
       s.AppendFormat(" '{0}' \n", it.Key());
     }
 
-    ezQtUiServices::MessageBoxWarning(s);
+    WQtUiServices::MessageBoxWarning(s);
   }
 }
 
-void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
+void WQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
   if (m_bWroteCrashIndicatorFile)
   {
     // orderly shutdown -> make sure the crash indicator file is gone
-    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-    sTemp.AppendPath("ezEditorCrashIndicator");
-    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    WStringBuilder sTemp = WOSFile::GetTempDataFolder("WEditor");
+    sTemp.AppendPath("WEditorCrashIndicator");
+    WOSFile::DeleteFile(sTemp).IgnoreResult();
     m_bWroteCrashIndicatorFile = false;
   }
 
-  ezStringBuilder app;
-  app = ezOSFile::GetApplicationDirectory();
-  app.AppendPath("ezEditor");
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  WStringBuilder app;
+  app = WOSFile::GetApplicationDirectory();
+  app.AppendPath("WEditor");
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   app.Append(".exe");
 #endif
   app.MakeCleanPath();
@@ -935,9 +935,9 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
   if (m_StartupFlags.IsSet(StartupFlags::Dashboard))
     args << "-dashboard";
 
-  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
+  if (WCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
   {
-    ezStringBuilder sRenderer = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
+    WStringBuilder sRenderer = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
     args << "-renderer";
     args << sRenderer.GetData();
   }
@@ -946,11 +946,11 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
   proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);
 }
 
-const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncludeEditorPlugins) const
+const WApplicationPluginConfig WQtEditorApp::GetRuntimePluginConfig(bool bIncludeEditorPlugins) const
 {
-  ezApplicationPluginConfig cfg;
+  WApplicationPluginConfig cfg;
 
-  ezTempHybridArray<ezString, 16> order;
+  WTempHybridArray<WString, 16> order;
   for (auto it : m_PluginBundles.m_Plugins)
   {
     if (it.Value().m_bMandatory || it.Value().m_bSelected)
@@ -962,20 +962,20 @@ const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncl
   return cfg;
 }
 
-void ezQtEditorApp::ReloadEngineResources()
+void WQtEditorApp::ReloadEngineResources()
 {
-  ezSimpleConfigMsgToEngine msg;
+  WSimpleConfigMsgToEngine msg;
   msg.m_sWhatToDo = "ReloadResources";
   msg.m_sPayload = "ReloadAllResources";
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtEditorApp::OpenDemoDocument()
+void WQtEditorApp::OpenDemoDocument()
 {
-  auto* pCurator = ezAssetCurator::GetSingleton();
+  auto* pCurator = WAssetCurator::GetSingleton();
   auto assets = pCurator->GetKnownAssets();
 
-  ezStringBuilder sBestDoc;
+  WStringBuilder sBestDoc;
 
   for (auto it = assets->GetIterator(); it.IsValid(); ++it)
   {

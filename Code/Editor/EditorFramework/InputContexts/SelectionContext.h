@@ -4,17 +4,17 @@
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 
 class QWidget;
-class ezCamera;
-struct ezObjectPickingResult;
-class ezDocumentObject;
+class WCamera;
+struct WObjectPickingResult;
+class WDocumentObject;
 
-class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
+class W_EDITORFRAMEWORK_DLL WSelectionContext : public WEditorInputContext
 {
 public:
-  ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
-  ~ezSelectionContext();
+  WSelectionContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView, const WCamera* pCamera);
+  ~WSelectionContext();
 
-  void SetWindowConfig(const ezVec2I32& vViewport) { m_vViewport = vViewport; }
+  void SetWindowConfig(const WVec2I32& vViewport) { m_vViewport = vViewport; }
 
   /// Adds a delegate that gets called whenever an object is picked, as long as the override is active.
   ///
@@ -23,35 +23,35 @@ public:
   /// In case the user presses ESC or the view gets destroyed while the override is active,
   /// the delegate is called with nullptr.
   /// This indicates that all picking should be stopped and the registered user should clean up.
-  void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
+  void SetPickObjectOverride(WDelegate<void(const WDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();
 
 protected:
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
 
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoKeyPressEvent(QKeyEvent* e) override;
+  virtual WEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override {}
 
-  const ezDocumentObject* determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const;
+  const WDocumentObject* determineObjectToSelect(const WDocumentObject* pickedObject, bool bToggle, bool bDirect) const;
 
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual void OpenDocumentForPickedObject(const ezObjectPickingResult& res) const;
-  virtual void SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const;
+  virtual void OpenDocumentForPickedObject(const WObjectPickingResult& res) const;
+  virtual void SelectPickedObject(const WObjectPickingResult& res, bool bToggle, bool bDirect) const;
 
 protected:
-  void SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo);
+  void SendMarqueeMsg(QMouseEvent* e, WUInt8 uiWhatToDo);
 
-  ezDelegate<void(const ezDocumentObject*)> m_PickObjectOverride;
-  const ezCamera* m_pCamera;
-  ezVec2I32 m_vViewport;
-  ezEngineGizmoHandle m_hMarqueeGizmo;
-  ezVec3 m_vMarqueeStartPos;
-  ezUInt32 m_uiMarqueeID;
+  WDelegate<void(const WDocumentObject*)> m_PickObjectOverride;
+  const WCamera* m_pCamera;
+  WVec2I32 m_vViewport;
+  WEngineGizmoHandle m_hMarqueeGizmo;
+  WVec3 m_vMarqueeStartPos;
+  WUInt32 m_uiMarqueeID;
   bool m_bPressedSpace = false;
 
   enum class Mode

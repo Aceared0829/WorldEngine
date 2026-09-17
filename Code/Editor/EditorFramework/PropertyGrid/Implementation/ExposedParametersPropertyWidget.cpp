@@ -9,116 +9,116 @@
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameterCommandAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExposedParameterCommandAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAsTypeCommandAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WExposedParametersAsTypeCommandAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezQtExposedParametersPropertyWidget::s_bRawMode = false;
+bool WQtExposedParametersPropertyWidget::s_bRawMode = false;
 
-ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(
-  ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pParameterSourceProp)
-  : ezObjectProxyAccessor(pSource)
+WExposedParameterCommandAccessor::WExposedParameterCommandAccessor(
+  WObjectAccessorBase* pSource, const WAbstractProperty* pParameterProp, const WAbstractProperty* pParameterSourceProp)
+  : WObjectProxyAccessor(pSource)
   , m_pParameterProp(pParameterProp)
   , m_pParameterSourceProp(pParameterSourceProp)
 {
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
+WStatus WExposedParameterCommandAccessor::GetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index /*= WVariant()*/)
 {
   if (IsExposedProperty(pObject, pProp))
     pProp = m_pParameterProp;
 
-  ezStatus res = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
+  WStatus res = WObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
   if (res.Succeeded() && !index.IsValid() && m_pParameterProp == pProp)
   {
-    ezVariantDictionary defaultDict;
-    if (const ezExposedParameters* pParams = GetExposedParams(pObject))
+    WVariantDictionary defaultDict;
+    if (const WExposedParameters* pParams = GetExposedParams(pObject))
     {
-      for (ezExposedParameter* pParam : pParams->m_Parameters)
+      for (WExposedParameter* pParam : pParams->m_Parameters)
       {
         defaultDict.Insert(pParam->m_sName, pParam->m_DefaultValue);
       }
     }
-    const ezVariantDictionary& overwrittenDict = out_value.Get<ezVariantDictionary>();
+    const WVariantDictionary& overwrittenDict = out_value.Get<WVariantDictionary>();
     for (auto it : overwrittenDict)
     {
       defaultDict[it.Key()] = it.Value();
     }
     out_value = defaultDict;
   }
-  else if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
+  else if (res.Failed() && m_pParameterProp == pProp && index.IsA<WString>())
   {
     // If the actual GetValue fails but the key is an exposed param, return its default value instead.
-    if (const ezExposedParameter* pParam = GetExposedParam(pObject, index.Get<ezString>()))
+    if (const WExposedParameter* pParam = GetExposedParam(pObject, index.Get<WString>()))
     {
       out_value = pParam->m_DefaultValue;
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
   return res;
 }
 
-ezStatus ezExposedParameterCommandAccessor::SetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WExposedParameterCommandAccessor::SetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
   if (IsExposedProperty(pObject, pProp))
     pProp = m_pParameterProp;
 
-  ezStatus res = ezObjectProxyAccessor::SetValue(pObject, pProp, newValue, index);
+  WStatus res = WObjectProxyAccessor::SetValue(pObject, pProp, newValue, index);
   // As we pretend the exposed params always exist the actual SetValue will fail if this is not actually true,
   // so we redirect to insert to make it true.
-  if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
+  if (res.Failed() && m_pParameterProp == pProp && index.IsA<WString>())
   {
-    return ezExposedParameterCommandAccessor::InsertValue(pObject, pProp, newValue, index);
+    return WExposedParameterCommandAccessor::InsertValue(pObject, pProp, newValue, index);
   }
   return res;
 }
 
-ezStatus ezExposedParameterCommandAccessor::RemoveValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+WStatus WExposedParameterCommandAccessor::RemoveValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index /*= WVariant()*/)
 {
-  ezStatus res = ezObjectProxyAccessor::RemoveValue(pObject, pProp, index);
-  if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
+  WStatus res = WObjectProxyAccessor::RemoveValue(pObject, pProp, index);
+  if (res.Failed() && m_pParameterProp == pProp && index.IsA<WString>())
   {
     // It this is one of the exposed params, pretend we removed it successfully to suppress error messages.
-    if (const ezExposedParameter* pParam = GetExposedParam(pObject, index.Get<ezString>()))
+    if (const WExposedParameter* pParam = GetExposedParam(pObject, index.Get<WString>()))
     {
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
   return res;
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount)
+WStatus WExposedParameterCommandAccessor::GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount)
 {
   if (m_pParameterProp == pProp)
   {
-    ezTempHybridArray<ezVariant, 16> keys;
+    WTempHybridArray<WVariant, 16> keys;
     GetKeys(pObject, pProp, keys).AssertSuccess();
     out_iCount = keys.GetCount();
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
-  return ezObjectProxyAccessor::GetCount(pObject, pProp, out_iCount);
+  return WObjectProxyAccessor::GetCount(pObject, pProp, out_iCount);
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetKeys(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
+WStatus WExposedParameterCommandAccessor::GetKeys(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys)
 {
   if (m_pParameterProp == pProp)
   {
-    if (const ezExposedParameters* pParams = GetExposedParams(pObject))
+    if (const WExposedParameters* pParams = GetExposedParams(pObject))
     {
       for (const auto& pParam : pParams->m_Parameters)
       {
-        out_keys.PushBack(ezVariant(pParam->m_sName));
+        out_keys.PushBack(WVariant(pParam->m_sName));
       }
 
-      ezTempHybridArray<ezVariant, 16> realKeys;
-      ezStatus res = ezObjectProxyAccessor::GetKeys(pObject, pProp, realKeys);
+      WTempHybridArray<WVariant, 16> realKeys;
+      WStatus res = WObjectProxyAccessor::GetKeys(pObject, pProp, realKeys);
       for (const auto& key : realKeys)
       {
         if (!out_keys.Contains(key))
@@ -126,41 +126,41 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(
           out_keys.PushBack(key);
         }
       }
-      return ezStatus(EZ_SUCCESS);
+      return WStatus(W_SUCCESS);
     }
   }
-  return ezObjectProxyAccessor::GetKeys(pObject, pProp, out_keys);
+  return WObjectProxyAccessor::GetKeys(pObject, pProp, out_keys);
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetValues(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
+WStatus WExposedParameterCommandAccessor::GetValues(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values)
 {
   if (m_pParameterProp == pProp)
   {
-    ezTempHybridArray<ezVariant, 16> keys;
+    WTempHybridArray<WVariant, 16> keys;
     GetKeys(pObject, pProp, keys).AssertSuccess();
     for (const auto& key : keys)
     {
       auto& var = out_values.ExpandAndGetRef();
-      EZ_VERIFY(GetValue(pObject, pProp, var, key).Succeeded(), "GetValue to valid a key should be not fail.");
+      W_VERIFY(GetValue(pObject, pProp, var, key).Succeeded(), "GetValue to valid a key should be not fail.");
     }
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
   }
-  return ezObjectProxyAccessor::GetValues(pObject, pProp, out_values);
+  return WObjectProxyAccessor::GetValues(pObject, pProp, out_values);
 }
 
 
-const ezExposedParameters* ezExposedParameterCommandAccessor::GetExposedParams(const ezDocumentObject* pObject)
+const WExposedParameters* WExposedParameterCommandAccessor::GetExposedParams(const WDocumentObject* pObject)
 {
-  ezVariant value;
-  if (ezObjectProxyAccessor::GetValue(pObject, m_pParameterSourceProp, value).Succeeded())
+  WVariant value;
+  if (WObjectProxyAccessor::GetValue(pObject, m_pParameterSourceProp, value).Succeeded())
   {
-    if (value.IsA<ezString>())
+    if (value.IsA<WString>())
     {
-      const auto& sValue = value.Get<ezString>();
-      if (const auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sValue.GetData()))
+      const auto& sValue = value.Get<WString>();
+      if (const auto asset = WAssetCurator::GetSingleton()->FindSubAsset(sValue.GetData()))
       {
-        return asset->m_pAssetInfo->m_Info->GetMetaInfo<ezExposedParameters>();
+        return asset->m_pAssetInfo->m_Info->GetMetaInfo<WExposedParameters>();
       }
     }
   }
@@ -168,9 +168,9 @@ const ezExposedParameters* ezExposedParameterCommandAccessor::GetExposedParams(c
 }
 
 
-const ezExposedParameter* ezExposedParameterCommandAccessor::GetExposedParam(const ezDocumentObject* pObject, const char* szParamName)
+const WExposedParameter* WExposedParameterCommandAccessor::GetExposedParam(const WDocumentObject* pObject, const char* szParamName)
 {
-  if (const ezExposedParameters* pParams = GetExposedParams(pObject))
+  if (const WExposedParameters* pParams = GetExposedParams(pObject))
   {
     return pParams->Find(szParamName);
   }
@@ -178,26 +178,26 @@ const ezExposedParameter* ezExposedParameterCommandAccessor::GetExposedParam(con
 }
 
 
-const ezRTTI* ezExposedParameterCommandAccessor::GetExposedParamsType(const ezDocumentObject* pObject)
+const WRTTI* WExposedParameterCommandAccessor::GetExposedParamsType(const WDocumentObject* pObject)
 {
-  ezVariant value;
-  if (ezObjectProxyAccessor::GetValue(pObject, m_pParameterSourceProp, value).Succeeded())
+  WVariant value;
+  if (WObjectProxyAccessor::GetValue(pObject, m_pParameterSourceProp, value).Succeeded())
   {
-    if (value.IsA<ezString>())
+    if (value.IsA<WString>())
     {
-      const auto& sValue = value.Get<ezString>();
-      if (const auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sValue.GetData()))
+      const auto& sValue = value.Get<WString>();
+      if (const auto asset = WAssetCurator::GetSingleton()->FindSubAsset(sValue.GetData()))
       {
-        return ezExposedParametersTypeRegistry::GetSingleton()->GetExposedParametersType(sValue);
+        return WExposedParametersTypeRegistry::GetSingleton()->GetExposedParametersType(sValue);
       }
     }
   }
   return nullptr;
 }
 
-const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(const ezArrayPtr<ezPropertySelection>& items)
+const WRTTI* WExposedParameterCommandAccessor::GetCommonExposedParamsType(const WArrayPtr<WPropertySelection>& items)
 {
-  const ezRTTI* type = nullptr;
+  const WRTTI* type = nullptr;
   bool bFirst = true;
   // check if we have multiple values
   for (const auto& item : items)
@@ -219,12 +219,12 @@ const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(cons
   return type;
 }
 
-bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+bool WExposedParameterCommandAccessor::IsExposedProperty(const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
   if (auto type = GetExposedParamsType(pObject))
   {
     auto props = type->GetProperties();
-    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pOtherProp)
+    return std::any_of(cbegin(props), cend(props), [&](const WAbstractProperty* pOtherProp)
       { return pOtherProp == pProp; });
   }
   return false;
@@ -232,81 +232,81 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
 
 //////////////////////////////////////////////////////////////////////////
 
-ezExposedParametersAsTypeCommandAccessor::ezExposedParametersAsTypeCommandAccessor(ezExposedParameterCommandAccessor* pSource)
-  : ezObjectProxyAccessor(pSource)
+WExposedParametersAsTypeCommandAccessor::WExposedParametersAsTypeCommandAccessor(WExposedParameterCommandAccessor* pSource)
+  : WObjectProxyAccessor(pSource)
 {
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)
+WStatus WExposedParametersAsTypeCommandAccessor::GetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index)
 {
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, out_value));
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, out_value));
 
-  ezStatus result(EZ_SUCCESS);
-  out_value = ezVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(index, &result);
+  WStatus result(W_SUCCESS);
+  out_value = WVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(index, &result);
   return result;
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WExposedParametersAsTypeCommandAccessor::SetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).SetValue(newValue, index); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).SetValue(newValue, index); });
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WExposedParametersAsTypeCommandAccessor::InsertValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).InsertValue(index, newValue); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).InsertValue(index, newValue); });
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WExposedParametersAsTypeCommandAccessor::RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).RemoveValue(index); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).RemoveValue(index); });
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WExposedParametersAsTypeCommandAccessor::MoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
-  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
-    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).MoveValue(oldIndex, newIndex); });
+  return SetSubValue(pObject, pProp, [&](WVariant& subValue) -> WStatus
+    { return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).MoveValue(oldIndex, newIndex); });
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount)
+WStatus WExposedParametersAsTypeCommandAccessor::GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  out_iCount = ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetCount();
-  return EZ_SUCCESS;
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  out_iCount = WVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetCount();
+  return W_SUCCESS;
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
+WStatus WExposedParametersAsTypeCommandAccessor::GetKeys(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetKeys(out_keys);
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  return WVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetKeys(out_keys);
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
+WStatus WExposedParametersAsTypeCommandAccessor::GetValues(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values)
 {
-  ezVariant subValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  ezTempHybridArray<ezVariant, 16> keys;
-  ezVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
-  EZ_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
+  WVariant subValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  WTempHybridArray<WVariant, 16> keys;
+  WVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
+  W_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
   out_values.Clear();
   out_values.Reserve(keys.GetCount());
-  for (const ezVariant& key : keys)
+  for (const WVariant& key : keys)
   {
     out_values.PushBack(accessor.GetValue(key));
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezObjectAccessorBase* ezExposedParametersAsTypeCommandAccessor::ResolveProxy(const ezDocumentObject*& ref_pObject, const ezRTTI*& ref_pType, const ezAbstractProperty*& ref_pProp, ezDynamicArray<ezVariant>& ref_indices)
+WObjectAccessorBase* WExposedParametersAsTypeCommandAccessor::ResolveProxy(const WDocumentObject*& ref_pObject, const WRTTI*& ref_pType, const WAbstractProperty*& ref_pProp, WDynamicArray<WVariant>& ref_indices)
 {
-  const ezRTTI* pType = GetSourceAccessor()->GetExposedParamsType(ref_pObject);
+  const WRTTI* pType = GetSourceAccessor()->GetExposedParamsType(ref_pObject);
   if (pType == ref_pType)
   {
-    EZ_ASSERT_DEBUG(pType && pType->FindPropertyByName(ref_pProp->GetPropertyName()) == ref_pProp, "");
+    W_ASSERT_DEBUG(pType && pType->FindPropertyByName(ref_pProp->GetPropertyName()) == ref_pProp, "");
     ref_indices.InsertAt(0, ref_pProp->GetPropertyName());
     ref_pType = ref_pObject->GetType();
     ref_pProp = GetSourceAccessor()->m_pParameterProp;
@@ -314,12 +314,12 @@ ezObjectAccessorBase* ezExposedParametersAsTypeCommandAccessor::ResolveProxy(con
   return m_pSource->ResolveProxy(ref_pObject, ref_pType, ref_pProp, ref_indices);
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
+WStatus WExposedParametersAsTypeCommandAccessor::GetSubValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value)
 {
-  const ezRTTI* pType = GetSourceAccessor()->GetExposedParamsType(pObject);
-  EZ_ASSERT_DEBUG(pType && pType->FindPropertyByName(pProp->GetPropertyName()) == pProp, "");
+  const WRTTI* pType = GetSourceAccessor()->GetExposedParamsType(pObject);
+  W_ASSERT_DEBUG(pType && pType->FindPropertyByName(pProp->GetPropertyName()) == pProp, "");
 
-  ezStatus result = GetSourceAccessor()->GetValue(pObject, GetSourceAccessor()->m_pParameterProp, out_value, pProp->GetPropertyName());
+  WStatus result = GetSourceAccessor()->GetValue(pObject, GetSourceAccessor()->m_pParameterProp, out_value, pProp->GetPropertyName());
   if (result.Failed())
     return result;
 
@@ -328,21 +328,21 @@ ezStatus ezExposedParametersAsTypeCommandAccessor::GetSubValue(const ezDocumentO
   return result;
 }
 
-ezStatus ezExposedParametersAsTypeCommandAccessor::SetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezStatus(ezVariant&)>& func)
+WStatus WExposedParametersAsTypeCommandAccessor::SetSubValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, const WDelegate<WStatus(WVariant&)>& func)
 {
-  ezVariant currentValue;
-  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, currentValue));
-  EZ_SUCCEED_OR_RETURN(func(currentValue));
+  WVariant currentValue;
+  W_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, currentValue));
+  W_SUCCEED_OR_RETURN(func(currentValue));
   return GetSourceAccessor()->SetValue(pObject, pProp, currentValue, pProp->GetPropertyName());
 }
 
-void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_value, const ezAbstractProperty* pProp)
+void WExposedParametersAsTypeCommandAccessor::PatchPropertyType(WVariant& ref_value, const WAbstractProperty* pProp)
 {
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>() && pProp->GetCategory() == ezPropertyCategory::Member)
+  if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>() && pProp->GetCategory() == WPropertyCategory::Member)
     return;
 
-  const ezVariantType::Enum propType = ezToolsReflectionUtils::GetStorageType(pProp);
-  const ezVariantType::Enum valueType = ref_value.GetType();
+  const WVariantType::Enum propType = WToolsReflectionUtils::GetStorageType(pProp);
+  const WVariantType::Enum valueType = ref_value.GetType();
   if (propType != valueType)
   {
     if (ref_value.CanConvertTo(propType))
@@ -351,51 +351,51 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
     }
     else
     {
-      ref_value = ezToolsReflectionUtils::GetStorageDefault(pProp);
+      ref_value = WToolsReflectionUtils::GetStorageDefault(pProp);
     }
   }
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
     return;
 
   switch (pProp->GetCategory())
   {
-    case ezPropertyCategory::Array:
-      if (const ezVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != ezVariantType::Invalid)
+    case WPropertyCategory::Array:
+      if (const WVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != WVariantType::Invalid)
       {
-        const ezVariantArray& array = ref_value.Get<ezVariantArray>();
-        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        const WVariantArray& array = ref_value.Get<WVariantArray>();
+        for (WUInt32 i = 0; i < array.GetCount(); ++i)
         {
-          const ezVariant& element = array[i];
-          const ezVariantType::Enum valueElementType = element.GetType();
+          const WVariant& element = array[i];
+          const WVariantType::Enum valueElementType = element.GetType();
           if (propElementType != valueElementType)
           {
-            ezVariantArray& arrayWritable = ref_value.GetWritable<ezVariantArray>();
-            ezVariant& elementWritable = arrayWritable[i];
+            WVariantArray& arrayWritable = ref_value.GetWritable<WVariantArray>();
+            WVariant& elementWritable = arrayWritable[i];
             if (elementWritable.CanConvertTo(propElementType))
             {
               elementWritable = elementWritable.ConvertTo(propType);
             }
             else
             {
-              elementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+              elementWritable = WReflectionUtils::GetDefaultVariantFromType(propElementType);
             }
           }
         }
       }
       break;
-    case ezPropertyCategory::Map:
-      if (const ezVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != ezVariantType::Invalid)
+    case WPropertyCategory::Map:
+      if (const WVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != WVariantType::Invalid)
       {
-        const ezVariantDictionary& map = ref_value.Get<ezVariantDictionary>();
+        const WVariantDictionary& map = ref_value.Get<WVariantDictionary>();
         for (auto it : map)
         {
-          const ezVariant& element = it.Value();
-          const ezVariantType::Enum valueElementType = element.GetType();
+          const WVariant& element = it.Value();
+          const WVariantType::Enum valueElementType = element.GetType();
           if (propElementType != valueElementType)
           {
-            ezVariantDictionary& mapWritable = ref_value.GetWritable<ezVariantDictionary>();
-            ezVariant* pElementWritable = nullptr;
+            WVariantDictionary& mapWritable = ref_value.GetWritable<WVariantDictionary>();
+            WVariant* pElementWritable = nullptr;
             if (mapWritable.TryGetValue(it.Key(), pElementWritable))
             {
               if (pElementWritable->CanConvertTo(propElementType))
@@ -404,7 +404,7 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
               }
               else
               {
-                *pElementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+                *pElementWritable = WReflectionUtils::GetDefaultVariantFromType(propElementType);
               }
             }
           }
@@ -419,8 +419,8 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget()
-  : ezQtPropertyStandardTypeContainerWidget()
+WQtExposedParametersPropertyWidget::WQtExposedParametersPropertyWidget()
+  : WQtPropertyStandardTypeContainerWidget()
 {
   // Replace the container layout so we can prepend the type widget before all container elements
   delete m_pGroupLayout;
@@ -436,16 +436,16 @@ ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget()
   m_pGroup->GetContent()->setLayout(m_pTypeViewLayout);
 }
 
-ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
+WQtExposedParametersPropertyWidget::~WQtExposedParametersPropertyWidget()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
 }
 
-void ezQtExposedParametersPropertyWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+void WQtExposedParametersPropertyWidget::SetSelection(const WArrayPtr<WPropertySelection>& items)
 {
-  const ezRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(items);
+  const WRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(items);
   if (m_pTypeWidget && m_pTypeWidget->GetType() != pCommonType)
   {
     m_pTypeWidget->PrepareToDie();
@@ -455,7 +455,7 @@ void ezQtExposedParametersPropertyWidget::SetSelection(const ezArrayPtr<ezProper
 
   if (m_pTypeWidget == nullptr && pCommonType != nullptr)
   {
-    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pTypeProxy.Borrow(), pCommonType, nullptr, nullptr);
+    m_pTypeWidget = new WQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pTypeProxy.Borrow(), pCommonType, nullptr, nullptr);
     m_pTypeViewLayout->insertWidget(0, m_pTypeWidget);
   }
 
@@ -466,29 +466,29 @@ void ezQtExposedParametersPropertyWidget::SetSelection(const ezArrayPtr<ezProper
   }
 
 
-  ezQtPropertyStandardTypeContainerWidget::SetSelection(items);
+  WQtPropertyStandardTypeContainerWidget::SetSelection(items);
   UpdateActionState();
 }
 
-void ezQtExposedParametersPropertyWidget::OnInit()
+void WQtExposedParametersPropertyWidget::OnInit()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
 
-  const auto* pAttrib = m_pProp->GetAttributeByType<ezExposedParametersAttribute>();
-  EZ_ASSERT_DEV(pAttrib, "ezQtExposedParametersPropertyWidget was created for a property that does not have the ezExposedParametersAttribute.");
+  const auto* pAttrib = m_pProp->GetAttributeByType<WExposedParametersAttribute>();
+  W_ASSERT_DEV(pAttrib, "WQtExposedParametersPropertyWidget was created for a property that does not have the WExposedParametersAttribute.");
   m_sExposedParamProperty = pAttrib->GetParametersSource();
-  const ezAbstractProperty* pParameterSourceProp = m_pType->FindPropertyByName(m_sExposedParamProperty);
-  EZ_ASSERT_DEV(
+  const WAbstractProperty* pParameterSourceProp = m_pType->FindPropertyByName(m_sExposedParamProperty);
+  W_ASSERT_DEV(
     pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_sExposedParamProperty, m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
-  m_pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
-  m_pTypeProxy = EZ_DEFAULT_NEW(ezExposedParametersAsTypeCommandAccessor, m_pProxy.Borrow());
+  m_pProxy = W_DEFAULT_NEW(WExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
+  m_pTypeProxy = W_DEFAULT_NEW(WExposedParametersAsTypeCommandAccessor, m_pProxy.Borrow());
   // Overwriting this will display the exposed parameter map as before, i.e. each property will be shown in the map even if not present. As this is now obsolete given the phantom type widget, this is probably no longer needed?
   // m_pObjectAccessor = m_pProxy.Borrow();
 
-  ezQtPropertyStandardTypeContainerWidget::OnInit();
+  WQtPropertyStandardTypeContainerWidget::OnInit();
 
   auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
 
@@ -501,7 +501,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     m_pFixMeButton = new QToolButton();
     m_pFixMeButton->setAutoRaise(true);
     m_pFixMeButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
-    m_pFixMeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention.svg"));
+    m_pFixMeButton->setIcon(WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention.svg"));
     auto sp = m_pFixMeButton->sizePolicy();
     sp.setVerticalPolicy(QSizePolicy::Ignored);
     m_pFixMeButton->setSizePolicy(sp);
@@ -530,7 +530,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     m_pToggleRawModeButton->setAutoRaise(true);
     m_pToggleRawModeButton->setCheckable(true);
     m_pToggleRawModeButton->setChecked(s_bRawMode);
-    m_pToggleRawModeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/ExposedParameterViewToggle.svg"));
+    m_pToggleRawModeButton->setIcon(WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/ExposedParameterViewToggle.svg"));
     auto sp = m_pToggleRawModeButton->sizePolicy();
     sp.setVerticalPolicy(QSizePolicy::Ignored);
     m_pToggleRawModeButton->setSizePolicy(sp);
@@ -539,7 +539,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     connect(m_pToggleRawModeButton, &QToolButton::toggled, this, [this](bool checked)
       {
         s_bRawMode = checked;
-        ezQtScopedUpdatesDisabled _(this);
+        WQtScopedUpdatesDisabled _(this);
         SetSelection(m_Items); });
 
     auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
@@ -547,17 +547,17 @@ void ezQtExposedParametersPropertyWidget::OnInit()
   }
 }
 
-void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
+void WQtExposedParametersPropertyWidget::UpdateElement(WUInt32 index)
 {
-  ezQtPropertyStandardTypeContainerWidget::UpdateElement(index);
+  WQtPropertyStandardTypeContainerWidget::UpdateElement(index);
 }
 
-void ezQtExposedParametersPropertyWidget::UpdatePropertyMetaState()
+void WQtExposedParametersPropertyWidget::UpdatePropertyMetaState()
 {
-  ezQtPropertyStandardTypeContainerWidget::UpdatePropertyMetaState();
+  WQtPropertyStandardTypeContainerWidget::UpdatePropertyMetaState();
 }
 
-void ezQtExposedParametersPropertyWidget::GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const
+void WQtExposedParametersPropertyWidget::GetRequiredElements(WDynamicArray<WVariant>& out_keys) const
 {
   if (!s_bRawMode)
   {
@@ -565,25 +565,25 @@ void ezQtExposedParametersPropertyWidget::GetRequiredElements(ezDynamicArray<ezV
   }
   else
   {
-    ezQtPropertyContainerWidget::GetRequiredElements(out_keys);
+    WQtPropertyContainerWidget::GetRequiredElements(out_keys);
   }
 }
 
-void ezQtExposedParametersPropertyWidget::DoPrepareToDie()
+void WQtExposedParametersPropertyWidget::DoPrepareToDie()
 {
-  ezQtPropertyStandardTypeContainerWidget::DoPrepareToDie();
+  WQtPropertyStandardTypeContainerWidget::DoPrepareToDie();
   if (m_pTypeWidget)
   {
     m_pTypeWidget->PrepareToDie();
   }
 }
 
-void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtExposedParametersPropertyWidget::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   if (IsUndead())
     return;
 
-  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel)
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const WPropertySelection& sel)
         { return e.m_pObject == sel.m_pObject; }))
     return;
 
@@ -597,17 +597,17 @@ void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentO
   }
 }
 
-void ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   if (IsUndead())
     return;
 
   switch (e.m_Type)
   {
-    case ezCommandHistoryEvent::Type::UndoEnded:
-    case ezCommandHistoryEvent::Type::RedoEnded:
-    case ezCommandHistoryEvent::Type::TransactionEnded:
-    case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case WCommandHistoryEvent::Type::UndoEnded:
+    case WCommandHistoryEvent::Type::RedoEnded:
+    case WCommandHistoryEvent::Type::TransactionEnded:
+    case WCommandHistoryEvent::Type::TransactionCanceled:
     {
       FlushOrQueueChanges(false, false);
     }
@@ -618,9 +618,9 @@ void ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const ezCom
   }
 }
 
-void ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+void WQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e)
 {
-  if (const ezRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(m_Items))
+  if (const WRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(m_Items))
   {
     if (e.m_pChangedType->IsDerivedFrom(pCommonType))
     {
@@ -636,7 +636,7 @@ void ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler(const 
   }
 }
 
-void ezQtExposedParametersPropertyWidget::FlushOrQueueChanges(bool bNeedsUpdate, bool bNeedsMetaDataUpdate)
+void WQtExposedParametersPropertyWidget::FlushOrQueueChanges(bool bNeedsUpdate, bool bNeedsMetaDataUpdate)
 {
   m_bNeedsUpdate |= bNeedsUpdate;
   m_bNeedsMetaDataUpdate |= bNeedsMetaDataUpdate;
@@ -656,20 +656,20 @@ void ezQtExposedParametersPropertyWidget::FlushOrQueueChanges(bool bNeedsUpdate,
   }
 }
 
-bool ezQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
+bool WQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
 {
   bool bStuffDone = false;
   if (!bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
+    if (const WExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
-      ezTempHybridArray<ezVariant, 16> keys;
-      EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
+      WTempHybridArray<WVariant, 16> keys;
+      W_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
       for (auto& key : keys)
       {
-        if (!pParams->Find(key.Get<ezString>()))
+        if (!pParams->Find(key.Get<WString>()))
         {
           if (!bTestOnly)
           {
@@ -689,30 +689,30 @@ bool ezQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
   return bStuffDone;
 }
 
-bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
+bool WQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
 {
   bool bStuffDone = false;
   if (!bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
+    if (const WExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
-      ezTempHybridArray<ezVariant, 16> keys;
-      EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
+      WTempHybridArray<WVariant, 16> keys;
+      W_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
       for (auto& key : keys)
       {
-        if (const auto* pParam = pParams->Find(key.Get<ezString>()))
+        if (const auto* pParam = pParams->Find(key.Get<WString>()))
         {
-          ezVariant value;
-          const ezRTTI* pType = pParam->m_DefaultValue.GetReflectedType();
-          EZ_VERIFY(m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, key).Succeeded(), "");
+          WVariant value;
+          const WRTTI* pType = pParam->m_DefaultValue.GetReflectedType();
+          W_VERIFY(m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, key).Succeeded(), "");
           if (value.GetReflectedType() != pType)
           {
             if (!bTestOnly)
             {
               bStuffDone = true;
-              ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
+              WVariantType::Enum type = pParam->m_DefaultValue.GetType();
               if (value.CanConvertTo(type))
               {
                 m_pProxy->SetValue(item.m_pObject, m_pProp, value.ConvertTo(type), key).LogFailure();
@@ -736,7 +736,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
   return bStuffDone;
 }
 
-void ezQtExposedParametersPropertyWidget::UpdateActionState()
+void WQtExposedParametersPropertyWidget::UpdateActionState()
 {
   m_bNeedsMetaDataUpdate = false;
   m_pRemoveUnusedAction->setEnabled(RemoveUnusedKeys(true));

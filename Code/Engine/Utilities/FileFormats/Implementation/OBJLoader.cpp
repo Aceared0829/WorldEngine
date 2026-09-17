@@ -4,19 +4,19 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Utilities/FileFormats/OBJLoader.h>
 
-ezOBJLoader::FaceVertex::FaceVertex()
+WOBJLoader::FaceVertex::FaceVertex()
 {
   m_uiPositionID = 0;
   m_uiNormalID = 0;
   m_uiTexCoordID = 0;
 }
 
-ezOBJLoader::Face::Face()
+WOBJLoader::Face::Face()
 {
   m_uiMaterialID = 0;
 }
 
-void ezOBJLoader::Clear()
+void WOBJLoader::Clear()
 {
   m_Positions.Clear();
   m_Normals.Clear();
@@ -25,9 +25,9 @@ void ezOBJLoader::Clear()
   m_Materials.Clear();
 }
 
-static ezStringView ReadLine(ezStringView& ref_sPos)
+static WStringView ReadLine(WStringView& ref_sPos)
 {
-  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+  while (ref_sPos.GetCharacter() != '\0' && WStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
     ++ref_sPos;
 
   const char* szStart = ref_sPos.GetStartPointer();
@@ -37,31 +37,31 @@ static ezStringView ReadLine(ezStringView& ref_sPos)
 
   const char* szEnd = ref_sPos.GetStartPointer();
 
-  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+  while (ref_sPos.GetCharacter() != '\0' && WStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
     ++ref_sPos;
 
-  return ezStringView(szStart, szEnd);
+  return WStringView(szStart, szEnd);
 }
 
-static ezStringView ReadString(ezStringView& ref_sPos)
+static WStringView ReadString(WStringView& ref_sPos)
 {
-  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+  while (ref_sPos.GetCharacter() != '\0' && WStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
     ++ref_sPos;
 
   const char* szStart = ref_sPos.GetStartPointer();
 
-  while (ref_sPos.GetCharacter() != '\0' && !ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+  while (ref_sPos.GetCharacter() != '\0' && !WStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
     ++ref_sPos;
 
   const char* szEnd = ref_sPos.GetStartPointer();
 
-  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+  while (ref_sPos.GetCharacter() != '\0' && WStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
     ++ref_sPos;
 
-  return ezStringView(szStart, szEnd);
+  return WStringView(szStart, szEnd);
 }
 
-static bool SkipSlash(ezStringView& ref_sPos)
+static bool SkipSlash(WStringView& ref_sPos)
 {
   if (ref_sPos.GetCharacter() != '/')
     return false;
@@ -71,36 +71,36 @@ static bool SkipSlash(ezStringView& ref_sPos)
   return (ref_sPos.GetCharacter() != ' ' && ref_sPos.GetCharacter() != '\t');
 }
 
-ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
+WResult WOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 {
-  ezFileReader File;
+  WFileReader File;
   if (File.Open(szFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezString sContent;
+  WString sContent;
   sContent.ReadAll(File);
 
   // which data has been found in the file
   bool bContainsTexCoords = false;
   bool bContainsNormals = false;
 
-  ezUInt32 uiCurMaterial = 0xFFFFFFFF;
+  WUInt32 uiCurMaterial = 0xFFFFFFFF;
 
-  ezStringView sText = sContent;
+  WStringView sText = sContent;
 
-  ezUInt32 uiPositionOffset = m_Positions.GetCount();
-  ezUInt32 uiNormalOffset = m_Normals.GetCount();
-  ezUInt32 uiTexCoordOffset = m_TexCoords.GetCount();
+  WUInt32 uiPositionOffset = m_Positions.GetCount();
+  WUInt32 uiNormalOffset = m_Normals.GetCount();
+  WUInt32 uiTexCoordOffset = m_TexCoords.GetCount();
 
   while (sText.IsValid())
   {
-    ezStringView sLine = ReadLine(sText);
-    const ezStringView sFirst = ReadString(sLine);
+    WStringView sLine = ReadLine(sText);
+    const WStringView sFirst = ReadString(sLine);
 
     if (sFirst.IsEqual_NoCase("v")) // line declares a vertex
     {
-      ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x);
+      WVec3 v(0.0f);
+      WConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x);
 
       m_Positions.PushBack(v);
     }
@@ -108,8 +108,8 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
     {
       bContainsTexCoords = true;
 
-      ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x); // reads up to three texture-coordinates
+      WVec3 v(0.0f);
+      WConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x); // reads up to three texture-coordinates
 
       m_TexCoords.PushBack(v);
     }
@@ -117,8 +117,8 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
     {
       bContainsNormals = true;
 
-      ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x);
+      WVec3 v(0.0f);
+      WConversionUtils::ExtractFloatsFromString(sLine, 3, &v.x);
       v.Normalize(); // make sure normals are indeed normalized
 
       m_Normals.PushBack(v);
@@ -133,10 +133,10 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
       // loop through all vertices, that are found
       while (sLine.IsValid())
       {
-        ezInt32 id;
+        WInt32 id;
 
         // read the position index
-        if (ezConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
+        if (WConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
           break; // nothing found, face-declaration is finished
 
         sLine.SetStartPosition(szCurPos);
@@ -150,7 +150,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
           if (!SkipSlash(sLine))
             break;
 
-          if (ezConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
+          if (WConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
             break;
 
           sLine.SetStartPosition(szCurPos);
@@ -164,7 +164,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
           if (!SkipSlash(sLine))
             break;
 
-          if (ezConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
+          if (WConversionUtils::StringToInt(sLine, id, &szCurPos).Failed())
             break;
 
           sLine.SetStartPosition(szCurPos);
@@ -179,7 +179,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
       // only allow faces with at least 3 vertices
       if (face.m_Vertices.GetCount() >= 3)
       {
-        ezVec3 v1, v2, v3;
+        WVec3 v1, v2, v3;
         v1 = m_Positions[face.m_Vertices[0].m_uiPositionID];
         v2 = m_Positions[face.m_Vertices[1].m_uiPositionID];
         v3 = m_Positions[face.m_Vertices[2].m_uiPositionID];
@@ -209,35 +209,35 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezOBJLoader::SortFacesByMaterial()
+void WOBJLoader::SortFacesByMaterial()
 {
   // sort all faces by material-ID
   m_Faces.Sort();
 }
 
-void ezOBJLoader::ComputeTangentSpaceVectors()
+void WOBJLoader::ComputeTangentSpaceVectors()
 {
   // cannot compute tangents without texture-coordinates
   if (!HasTextureCoordinates())
     return;
 
-  for (ezUInt32 f = 0; f < m_Faces.GetCount(); ++f)
+  for (WUInt32 f = 0; f < m_Faces.GetCount(); ++f)
   {
     Face& face = m_Faces[f];
 
-    const ezVec3 p1 = m_Positions[face.m_Vertices[0].m_uiPositionID];
-    const ezVec3 p2 = m_Positions[face.m_Vertices[1].m_uiPositionID];
-    const ezVec3 p3 = m_Positions[face.m_Vertices[2].m_uiPositionID];
+    const WVec3 p1 = m_Positions[face.m_Vertices[0].m_uiPositionID];
+    const WVec3 p2 = m_Positions[face.m_Vertices[1].m_uiPositionID];
+    const WVec3 p3 = m_Positions[face.m_Vertices[2].m_uiPositionID];
 
-    const ezVec3 tc1 = m_TexCoords[face.m_Vertices[0].m_uiTexCoordID];
-    const ezVec3 tc2 = m_TexCoords[face.m_Vertices[1].m_uiTexCoordID];
-    const ezVec3 tc3 = m_TexCoords[face.m_Vertices[2].m_uiTexCoordID];
+    const WVec3 tc1 = m_TexCoords[face.m_Vertices[0].m_uiTexCoordID];
+    const WVec3 tc2 = m_TexCoords[face.m_Vertices[1].m_uiTexCoordID];
+    const WVec3 tc3 = m_TexCoords[face.m_Vertices[2].m_uiTexCoordID];
 
-    ezVec3 v2v1 = p2 - p1;
-    ezVec3 v3v1 = p3 - p1;
+    WVec3 v2v1 = p2 - p1;
+    WVec3 v3v1 = p3 - p1;
 
     float c2c1_T = tc2.x - tc1.x;
     float c2c1_B = tc2.y - tc1.y;
@@ -249,11 +249,11 @@ void ezOBJLoader::ComputeTangentSpaceVectors()
 
     float fScale1 = 1.0f / fDenominator;
 
-    ezVec3 T, B;
-    T = ezVec3(
+    WVec3 T, B;
+    T = WVec3(
       (c3c1_B * v2v1.x - c2c1_B * v3v1.x) * fScale1, (c3c1_B * v2v1.y - c2c1_B * v3v1.y) * fScale1, (c3c1_B * v2v1.z - c2c1_B * v3v1.z) * fScale1);
 
-    B = ezVec3(
+    B = WVec3(
       (-c3c1_T * v2v1.x + c2c1_T * v3v1.x) * fScale1, (-c3c1_T * v2v1.y + c2c1_T * v3v1.y) * fScale1, (-c3c1_T * v2v1.z + c2c1_T * v3v1.z) * fScale1);
 
     T.Normalize();
@@ -264,24 +264,24 @@ void ezOBJLoader::ComputeTangentSpaceVectors()
   }
 }
 
-ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath)
+WResult WOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath)
 {
-  ezFileReader File;
+  WFileReader File;
   if (File.Open(szFile).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezString sContent;
+  WString sContent;
   sContent.ReadAll(File);
 
-  ezStringView sText = sContent;
+  WStringView sText = sContent;
 
-  ezString sCurMatName;
-  ezStringBuilder sTemp;
+  WString sCurMatName;
+  WStringBuilder sTemp;
 
   while (sText.IsValid())
   {
-    ezStringView sLine = ReadLine(sText);
-    const ezStringView sFirst = ReadString(sLine);
+    WStringView sLine = ReadLine(sText);
+    const WStringView sFirst = ReadString(sLine);
 
     if (sFirst.IsEqual_NoCase("newmtl")) // declares a new material with a given name
     {
@@ -304,5 +304,5 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

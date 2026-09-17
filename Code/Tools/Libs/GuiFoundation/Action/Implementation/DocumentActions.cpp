@@ -13,57 +13,57 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDocumentAction, 1, WRTTINoAllocator)
   ;
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
-// ezDocumentActions
+// WDocumentActions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezDocumentActions::s_hSaveCategory;
-ezActionDescriptorHandle ezDocumentActions::s_hSave;
-ezActionDescriptorHandle ezDocumentActions::s_hSaveAs;
-ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
-ezActionDescriptorHandle ezDocumentActions::s_hClose;
-ezActionDescriptorHandle ezDocumentActions::s_hCloseAll;
-ezActionDescriptorHandle ezDocumentActions::s_hCloseAllButThis;
-ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
-ezActionDescriptorHandle ezDocumentActions::s_hCopyDocumentPath;
-ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
+WActionDescriptorHandle WDocumentActions::s_hSaveCategory;
+WActionDescriptorHandle WDocumentActions::s_hSave;
+WActionDescriptorHandle WDocumentActions::s_hSaveAs;
+WActionDescriptorHandle WDocumentActions::s_hSaveAll;
+WActionDescriptorHandle WDocumentActions::s_hClose;
+WActionDescriptorHandle WDocumentActions::s_hCloseAll;
+WActionDescriptorHandle WDocumentActions::s_hCloseAllButThis;
+WActionDescriptorHandle WDocumentActions::s_hOpenContainingFolder;
+WActionDescriptorHandle WDocumentActions::s_hCopyDocumentPath;
+WActionDescriptorHandle WDocumentActions::s_hUpdatePrefabs;
 
-void ezDocumentActions::RegisterActions()
+void WDocumentActions::RegisterActions()
 {
-  s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave = EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
-  s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
-  s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
-  s_hCloseAll = EZ_REGISTER_ACTION_1("Document.CloseAll", ezActionScope::Document, "Document", "Ctrl+Shift+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAll);
-  s_hCloseAllButThis = EZ_REGISTER_ACTION_1("Document.CloseAllButThis", ezActionScope::Document, "Document", "Shift+Alt+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAllButThis);
-  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
-  s_hCopyDocumentPath = EZ_REGISTER_ACTION_1("Document.CopyDocumentPath", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyDocumentPath);
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
+  s_hSaveCategory = W_REGISTER_CATEGORY("SaveCategory");
+  s_hSave = W_REGISTER_ACTION_1("Document.Save", WActionScope::Document, "Document", "Ctrl+S", WDocumentAction, WDocumentAction::ButtonType::Save);
+  s_hSaveAll = W_REGISTER_ACTION_1("Document.SaveAll", WActionScope::Document, "Document", "Ctrl+Shift+S", WDocumentAction, WDocumentAction::ButtonType::SaveAll);
+  s_hSaveAs = W_REGISTER_ACTION_1("Document.SaveAs", WActionScope::Document, "Document", "", WDocumentAction, WDocumentAction::ButtonType::SaveAs);
+  s_hClose = W_REGISTER_ACTION_1("Document.Close", WActionScope::Document, "Document", "Ctrl+W", WDocumentAction, WDocumentAction::ButtonType::Close);
+  s_hCloseAll = W_REGISTER_ACTION_1("Document.CloseAll", WActionScope::Document, "Document", "Ctrl+Shift+W", WDocumentAction, WDocumentAction::ButtonType::CloseAll);
+  s_hCloseAllButThis = W_REGISTER_ACTION_1("Document.CloseAllButThis", WActionScope::Document, "Document", "Shift+Alt+W", WDocumentAction, WDocumentAction::ButtonType::CloseAllButThis);
+  s_hOpenContainingFolder = W_REGISTER_ACTION_1("Document.OpenContainingFolder", WActionScope::Document, "Document", "", WDocumentAction, WDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyDocumentPath = W_REGISTER_ACTION_1("Document.CopyDocumentPath", WActionScope::Document, "Document", "", WDocumentAction, WDocumentAction::ButtonType::CopyDocumentPath);
+  s_hUpdatePrefabs = W_REGISTER_ACTION_1("Prefabs.UpdateAll", WActionScope::Document, "Scene", "Ctrl+Shift+P", WDocumentAction, WDocumentAction::ButtonType::UpdatePrefabs);
 }
 
-void ezDocumentActions::UnregisterActions()
+void WDocumentActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hSaveCategory);
-  ezActionManager::UnregisterAction(s_hSave);
-  ezActionManager::UnregisterAction(s_hSaveAs);
-  ezActionManager::UnregisterAction(s_hSaveAll);
-  ezActionManager::UnregisterAction(s_hClose);
-  ezActionManager::UnregisterAction(s_hCloseAll);
-  ezActionManager::UnregisterAction(s_hCloseAllButThis);
-  ezActionManager::UnregisterAction(s_hOpenContainingFolder);
-  ezActionManager::UnregisterAction(s_hCopyDocumentPath);
-  ezActionManager::UnregisterAction(s_hUpdatePrefabs);
+  WActionManager::UnregisterAction(s_hSaveCategory);
+  WActionManager::UnregisterAction(s_hSave);
+  WActionManager::UnregisterAction(s_hSaveAs);
+  WActionManager::UnregisterAction(s_hSaveAll);
+  WActionManager::UnregisterAction(s_hClose);
+  WActionManager::UnregisterAction(s_hCloseAll);
+  WActionManager::UnregisterAction(s_hCloseAllButThis);
+  WActionManager::UnregisterAction(s_hOpenContainingFolder);
+  WActionManager::UnregisterAction(s_hCopyDocumentPath);
+  WActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
 
-void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu)
+void WDocumentActions::MapMenuActions(WStringView sMapping, WStringView sTargetMenu)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
   pMap->MapAction(s_hSave, sTargetMenu, 5.0f);
   pMap->MapAction(s_hSaveAs, sTargetMenu, 6.0f);
@@ -75,63 +75,63 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hCopyDocumentPath, sTargetMenu, 12.0f);
 }
 
-void ezDocumentActions::MapToolbarActions(ezStringView sMapping)
+void WDocumentActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
   pMap->MapAction(s_hSaveCategory, "", 1.0f);
-  ezStringView sSubPath = "SaveCategory";
+  WStringView sSubPath = "SaveCategory";
 
   pMap->MapAction(s_hSave, sSubPath, 1.0f);
   pMap->MapAction(s_hSaveAll, sSubPath, 3.0f);
 }
 
 
-void ezDocumentActions::MapToolsActions(ezStringView sMapping)
+void WDocumentActions::MapToolsActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
   pMap->MapAction(s_hUpdatePrefabs, "G.Tools.Document", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezDocumentAction
+// WDocumentAction
 ////////////////////////////////////////////////////////////////////////
 
-ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+WDocumentAction::WDocumentAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-    case ezDocumentAction::ButtonType::Save:
+    case WDocumentAction::ButtonType::Save:
       SetIconPath(":/GuiFoundation/Icons/Save.svg");
       break;
-    case ezDocumentAction::ButtonType::SaveAs:
+    case WDocumentAction::ButtonType::SaveAs:
       SetIconPath("");
       break;
-    case ezDocumentAction::ButtonType::SaveAll:
+    case WDocumentAction::ButtonType::SaveAll:
       SetIconPath(":/GuiFoundation/Icons/SaveAll.svg");
       break;
-    case ezDocumentAction::ButtonType::Close:
+    case WDocumentAction::ButtonType::Close:
       SetIconPath("");
       break;
-    case ezDocumentAction::ButtonType::CloseAll:
+    case WDocumentAction::ButtonType::CloseAll:
       SetIconPath("");
       break;
-    case ezDocumentAction::ButtonType::CloseAllButThis:
+    case WDocumentAction::ButtonType::CloseAllButThis:
       SetIconPath("");
       break;
-    case ezDocumentAction::ButtonType::OpenContainingFolder:
+    case WDocumentAction::ButtonType::OpenContainingFolder:
       SetIconPath(":/GuiFoundation/Icons/OpenFolder.svg");
       break;
-    case ezDocumentAction::ButtonType::CopyDocumentPath:
+    case WDocumentAction::ButtonType::CopyDocumentPath:
       SetIconPath("");
       break;
-    case ezDocumentAction::ButtonType::UpdatePrefabs:
+    case WDocumentAction::ButtonType::UpdatePrefabs:
       SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate.svg");
       break;
   }
@@ -146,7 +146,7 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
   }
   else
   {
-    m_Context.m_pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
+    m_Context.m_pDocument->m_EventsOne.AddEventHandler(WMakeDelegate(&WDocumentAction::DocumentEventHandler, this));
 
     if (m_ButtonType == ButtonType::Save)
     {
@@ -156,20 +156,20 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
   }
 }
 
-ezDocumentAction::~ezDocumentAction()
+WDocumentAction::~WDocumentAction()
 {
   if (m_Context.m_pDocument)
   {
-    m_Context.m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
+    m_Context.m_pDocument->m_EventsOne.RemoveEventHandler(WMakeDelegate(&WDocumentAction::DocumentEventHandler, this));
   }
 }
 
-void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
+void WDocumentAction::DocumentEventHandler(const WDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentEvent::Type::DocumentSaved:
-    case ezDocumentEvent::Type::ModifiedChanged:
+    case WDocumentEvent::Type::DocumentSaved:
+    case WDocumentEvent::Type::ModifiedChanged:
     {
       if (m_ButtonType == ButtonType::Save)
       {
@@ -183,48 +183,48 @@ void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
   }
 }
 
-void ezDocumentAction::Execute(const ezVariant& value)
+void WDocumentAction::Execute(const WVariant& value)
 {
   switch (m_ButtonType)
   {
-    case ezDocumentAction::ButtonType::Save:
+    case WDocumentAction::ButtonType::Save:
     {
-      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      WQtDocumentWindow* pWnd = WQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
       pWnd->SaveDocument().LogFailure();
     }
     break;
 
-    case ezDocumentAction::ButtonType::SaveAs:
+    case WDocumentAction::ButtonType::SaveAs:
     {
-      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      WQtDocumentWindow* pWnd = WQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
       if (pWnd->SaveDocument().Succeeded())
       {
         auto* desc = m_Context.m_pDocument->GetDocumentTypeDescriptor();
-        ezStringBuilder sAllFilters;
+        WStringBuilder sAllFilters;
         sAllFilters.Append(desc->m_sDocumentTypeName, " (*.", desc->m_sFileExtension, ")");
         QString sSelectedExt;
-        ezString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"),
-          ezMakeQString(m_Context.m_pDocument->GetDocumentPath()), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+        WString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"),
+          WMakeQString(m_Context.m_pDocument->GetDocumentPath()), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
                            .toUtf8()
                            .data();
 
         if (!sFile.IsEmpty())
         {
-          ezUuid newDoc = ezUuid::MakeUuid();
-          ezStatus res = m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
+          WUuid newDoc = WUuid::MakeUuid();
+          WStatus res = m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
 
           if (res.Failed())
           {
-            ezStringBuilder s;
+            WStringBuilder s;
             s.SetFormat("Failed to save document: \n'{0}'", sFile);
-            ezQtUiServices::MessageBoxStatus(res, s);
+            WQtUiServices::MessageBoxStatus(res, s);
           }
           else
           {
-            const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-            if (ezDocumentManager::FindDocumentTypeFromPath(sFile, false, pTypeDesc).Succeeded())
+            const WDocumentTypeDescriptor* pTypeDesc = nullptr;
+            if (WDocumentManager::FindDocumentTypeFromPath(sFile, false, pTypeDesc).Succeeded())
             {
-              ezDocument* pDocument = nullptr;
+              WDocument* pDocument = nullptr;
               m_Context.m_pDocument->GetDocumentManager()->OpenDocument(pTypeDesc->m_sDocumentTypeName, sFile, pDocument).LogFailure();
             }
           }
@@ -233,15 +233,15 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezDocumentAction::ButtonType::SaveAll:
+    case WDocumentAction::ButtonType::SaveAll:
     {
-      ezToolsProject::GetSingleton()->BroadcastSaveAll();
+      WToolsProject::GetSingleton()->BroadcastSaveAll();
     }
     break;
 
-    case ezDocumentAction::ButtonType::Close:
+    case WDocumentAction::ButtonType::Close:
     {
-      ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      WQtDocumentWindow* pWindow = WQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
       if (!pWindow->CanCloseWindow())
         return;
@@ -250,16 +250,16 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezDocumentAction::ButtonType::CloseAll:
+    case WDocumentAction::ButtonType::CloseAll:
     {
-      auto& documentWindows = ezQtDocumentWindow::GetAllDocumentWindows();
-      for (ezQtDocumentWindow* pWindow : documentWindows)
+      auto& documentWindows = WQtDocumentWindow::GetAllDocumentWindows();
+      for (WQtDocumentWindow* pWindow : documentWindows)
       {
         if (!pWindow->CanCloseWindow())
           continue;
 
         // Prevent closing the document root window.
-        if (ezStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
+        if (WStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
           continue;
 
         pWindow->CloseDocumentWindow();
@@ -267,18 +267,18 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezDocumentAction::ButtonType::CloseAllButThis:
+    case WDocumentAction::ButtonType::CloseAllButThis:
     {
-      ezQtDocumentWindow* pThisWindow = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      WQtDocumentWindow* pThisWindow = WQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
-      auto& documentWindows = ezQtDocumentWindow::GetAllDocumentWindows();
-      for (ezQtDocumentWindow* pWindow : documentWindows)
+      auto& documentWindows = WQtDocumentWindow::GetAllDocumentWindows();
+      for (WQtDocumentWindow* pWindow : documentWindows)
       {
         if (!pWindow->CanCloseWindow() || pWindow == pThisWindow)
           continue;
 
         // Prevent closing the document root window.
-        if (ezStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
+        if (WStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
           continue;
 
         pWindow->CloseDocumentWindow();
@@ -286,43 +286,43 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezDocumentAction::ButtonType::OpenContainingFolder:
+    case WDocumentAction::ButtonType::OpenContainingFolder:
     {
-      ezString sPath;
+      WString sPath;
 
       if (!m_Context.m_pDocument)
       {
-        if (ezToolsProject::IsProjectOpen())
-          sPath = ezToolsProject::GetSingleton()->GetProjectFile();
+        if (WToolsProject::IsProjectOpen())
+          sPath = WToolsProject::GetSingleton()->GetProjectFile();
         else
-          sPath = ezOSFile::GetApplicationDirectory();
+          sPath = WOSFile::GetApplicationDirectory();
       }
       else
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
-      ezQtUiServices::OpenInExplorer(sPath, true);
+      WQtUiServices::OpenInExplorer(sPath, true);
     }
     break;
 
-    case ezDocumentAction::ButtonType::CopyDocumentPath:
+    case WDocumentAction::ButtonType::CopyDocumentPath:
     {
       if (m_Context.m_pDocument == nullptr)
         return;
 
-      ezStringBuilder sPath = m_Context.m_pDocument->GetDocumentPath();
+      WStringBuilder sPath = m_Context.m_pDocument->GetDocumentPath();
       sPath.MakePathSeparatorsNative();
 
       QMimeData* pMimeData = new QMimeData();
-      pMimeData->setText(ezMakeQString(sPath));
+      pMimeData->setText(WMakeQString(sPath));
       QApplication::clipboard()->setMimeData(pMimeData);
 
-      ezQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied path: {}", sPath), ezTime::MakeFromSeconds(5));
+      WQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(WFmt("Copied path: {}", sPath), WTime::MakeFromSeconds(5));
     }
     break;
 
-    case ezDocumentAction::ButtonType::UpdatePrefabs:
+    case WDocumentAction::ButtonType::UpdatePrefabs:
       // TODO const cast
-      const_cast<ezDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
+      const_cast<WDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
       return;
   }
 }

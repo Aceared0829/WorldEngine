@@ -9,42 +9,42 @@ namespace
 {
   void WriteOutProfilingCapture(const char* szFilePath)
   {
-    ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    WStringBuilder outputPath = WTestFramework::GetInstance()->GetAbsOutputPath();
+    W_TEST_BOOL(WFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", WDataDirUsage::AllowWrites) == W_SUCCESS);
 
-    ezFileWriter fileWriter;
-    if (fileWriter.Open(szFilePath) == EZ_SUCCESS)
+    WFileWriter fileWriter;
+    if (fileWriter.Open(szFilePath) == W_SUCCESS)
     {
-      ezProfilingSystem::ProfilingData profilingData;
-      ezProfilingSystem::Capture(profilingData);
+      WProfilingSystem::ProfilingData profilingData;
+      WProfilingSystem::Capture(profilingData);
       profilingData.Write(fileWriter).IgnoreResult();
-      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      WLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Profiling);
+W_CREATE_SIMPLE_TEST_GROUP(Profiling);
 
-EZ_CREATE_SIMPLE_TEST(Profiling, Profiling)
+W_CREATE_SIMPLE_TEST(Profiling, Profiling)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Nested scopes")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Nested scopes")
   {
-    ezProfilingSystem::Clear();
+    WProfilingSystem::Clear();
 
     {
-      EZ_PROFILE_SCOPE("Prewarm scope");
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
+      W_PROFILE_SCOPE("Prewarm scope");
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(1));
     }
 
-    ezTime endTime = ezTime::Now() + ezTime::MakeFromMilliseconds(1);
+    WTime endTime = WTime::Now() + WTime::MakeFromMilliseconds(1);
 
     {
-      EZ_PROFILE_SCOPE("Outer scope");
+      W_PROFILE_SCOPE("Outer scope");
 
       {
-        EZ_PROFILE_SCOPE("Inner scope");
+        W_PROFILE_SCOPE("Inner scope");
 
-        while (ezTime::Now() < endTime)
+        while (WTime::Now() < endTime)
         {
         }
       }

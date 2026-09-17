@@ -10,21 +10,21 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 12, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonAssetDocument, 12, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp)
+static WTransform CalculateTransformationMatrix(const WEditableSkeleton* pProp)
 {
-  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  const float us = WMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
-  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
-  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
+  auto rightDir = WMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = WMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = WMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
 
-  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
+  WBasisAxis::Enum forwardDir = WBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
 
-  ezTransform t;
+  WTransform t;
   t.SetIdentity();
   t.m_vScale.Set(us);
 
@@ -33,122 +33,122 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   {
     switch (forwardDir)
     {
-      case ezBasisAxis::PositiveX:
-        forwardDir = ezBasisAxis::NegativeX;
+      case WBasisAxis::PositiveX:
+        forwardDir = WBasisAxis::NegativeX;
         t.m_vScale.x *= -1;
         break;
-      case ezBasisAxis::PositiveY:
-        forwardDir = ezBasisAxis::NegativeY;
+      case WBasisAxis::PositiveY:
+        forwardDir = WBasisAxis::NegativeY;
         t.m_vScale.y *= -1;
         break;
-      case ezBasisAxis::PositiveZ:
-        forwardDir = ezBasisAxis::NegativeZ;
+      case WBasisAxis::PositiveZ:
+        forwardDir = WBasisAxis::NegativeZ;
         t.m_vScale.z *= -1;
         break;
-      case ezBasisAxis::NegativeX:
-        forwardDir = ezBasisAxis::PositiveX;
+      case WBasisAxis::NegativeX:
+        forwardDir = WBasisAxis::PositiveX;
         t.m_vScale.x *= -1;
         break;
-      case ezBasisAxis::NegativeY:
-        forwardDir = ezBasisAxis::PositiveY;
+      case WBasisAxis::NegativeY:
+        forwardDir = WBasisAxis::PositiveY;
         t.m_vScale.y *= -1;
         break;
-      case ezBasisAxis::NegativeZ:
-        forwardDir = ezBasisAxis::PositiveZ;
+      case WBasisAxis::NegativeZ:
+        forwardDir = WBasisAxis::PositiveZ;
         t.m_vScale.z *= -1;
         break;
     }
   }
 
-  ezMat3 rot = ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
-  t.m_qRotation = ezQuat::MakeFromMat3(rot);
+  WMat3 rot = WBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
+  t.m_qRotation = WQuat::MakeFromMat3(rot);
 
   return t;
 }
 
-ezSkeletonAssetDocument::ezSkeletonAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezEditableSkeleton>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WSkeletonAssetDocument::WSkeletonAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WEditableSkeleton>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
+WSkeletonAssetDocument::~WSkeletonAssetDocument() = default;
 
-void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WSkeletonAssetDocument::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeleton>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WEditableSkeleton>())
   {
     auto& props = *e.m_pPropertyStates;
 
-    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const WInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<WInt64>();
     const bool bCustomTransform = importTransform == 127;
-    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["RightDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? WPropertyUiState::Default : WPropertyUiState::Invisible;
   }
 
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WEditableSkeletonJoint>())
   {
     auto& props = *e.m_pPropertyStates;
 
     const bool overrideSurface = e.m_pObject->GetTypeAccessor().GetValue("OverrideSurface").ConvertTo<bool>();
     const bool overrideCollisionLayer = e.m_pObject->GetTypeAccessor().GetValue("OverrideCollisionLayer").ConvertTo<bool>();
-    const ezSkeletonJointType::Enum jointType = (ezSkeletonJointType::Enum)e.m_pObject->GetTypeAccessor().GetValue("JointType").ConvertTo<ezInt32>();
+    const WSkeletonJointType::Enum jointType = (WSkeletonJointType::Enum)e.m_pObject->GetTypeAccessor().GetValue("JointType").ConvertTo<WInt32>();
 
-    const bool bHasStiffness = jointType == ezSkeletonJointType::SwingTwist;
-    const bool bHasSwing = jointType == ezSkeletonJointType::SwingTwist;
-    const bool bHasTwist = jointType == ezSkeletonJointType::SwingTwist;
+    const bool bHasStiffness = jointType == WSkeletonJointType::SwingTwist;
+    const bool bHasSwing = jointType == WSkeletonJointType::SwingTwist;
+    const bool bHasTwist = jointType == WSkeletonJointType::SwingTwist;
 
-    props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["Surface"].m_Visibility = overrideSurface ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
-    props["LocalRotation"].m_Visibility = bHasStiffness ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["Stiffness"].m_Visibility = bHasStiffness ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SwingLimitY"].m_Visibility = bHasSwing ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SwingLimitZ"].m_Visibility = bHasSwing ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["TwistLimitHalfAngle"].m_Visibility = bHasTwist ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["TwistLimitCenterAngle"].m_Visibility = bHasTwist ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LocalRotation"].m_Visibility = bHasStiffness ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["Stiffness"].m_Visibility = bHasStiffness ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["SwingLimitY"].m_Visibility = bHasSwing ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["SwingLimitZ"].m_Visibility = bHasSwing ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["TwistLimitHalfAngle"].m_Visibility = bHasTwist ? WPropertyUiState::Default : WPropertyUiState::Invisible;
+    props["TwistLimitCenterAngle"].m_Visibility = bHasTwist ? WPropertyUiState::Default : WPropertyUiState::Invisible;
 
     return;
   }
 
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonBoneShape>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WEditableSkeletonBoneShape>())
   {
     auto& props = *e.m_pPropertyStates;
 
-    const ezSkeletonJointGeometryType::Enum geomType = (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
+    const WSkeletonJointGeometryType::Enum geomType = (WSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<WInt32>();
 
-    props["Offset"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Rotation"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Length"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Width"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Offset"].m_Visibility = WPropertyUiState::Invisible;
+    props["Rotation"].m_Visibility = WPropertyUiState::Invisible;
+    props["Length"].m_Visibility = WPropertyUiState::Invisible;
+    props["Width"].m_Visibility = WPropertyUiState::Invisible;
+    props["Thickness"].m_Visibility = WPropertyUiState::Invisible;
 
-    if (geomType == ezSkeletonJointGeometryType::None)
+    if (geomType == WSkeletonJointGeometryType::None)
       return;
 
     props["Length"].m_sNewLabelText = "Length";
     props["Width"].m_sNewLabelText = "Width";
     props["Thickness"].m_sNewLabelText = "Thickness";
 
-    props["Offset"].m_Visibility = ezPropertyUiState::Default;
-    props["Rotation"].m_Visibility = ezPropertyUiState::Default;
+    props["Offset"].m_Visibility = WPropertyUiState::Default;
+    props["Rotation"].m_Visibility = WPropertyUiState::Default;
 
-    if (geomType == ezSkeletonJointGeometryType::Box)
+    if (geomType == WSkeletonJointGeometryType::Box)
     {
-      props["Length"].m_Visibility = ezPropertyUiState::Default;
-      props["Width"].m_Visibility = ezPropertyUiState::Default;
-      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["Length"].m_Visibility = WPropertyUiState::Default;
+      props["Width"].m_Visibility = WPropertyUiState::Default;
+      props["Thickness"].m_Visibility = WPropertyUiState::Default;
     }
-    else if (geomType == ezSkeletonJointGeometryType::Sphere)
+    else if (geomType == WSkeletonJointGeometryType::Sphere)
     {
-      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_Visibility = WPropertyUiState::Default;
       props["Thickness"].m_sNewLabelText = "Radius";
     }
-    else if (geomType == ezSkeletonJointGeometryType::Capsule || geomType == ezSkeletonJointGeometryType::CapsuleSideways)
+    else if (geomType == WSkeletonJointGeometryType::Capsule || geomType == WSkeletonJointGeometryType::CapsuleSideways)
     {
-      props["Length"].m_Visibility = ezPropertyUiState::Default;
+      props["Length"].m_Visibility = WPropertyUiState::Default;
 
-      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_Visibility = WPropertyUiState::Default;
       props["Thickness"].m_sNewLabelText = "Radius";
     }
 
@@ -156,9 +156,9 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
-ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton, ezUInt16* out_pNumBones) const
+WStatus WSkeletonAssetDocument::WriteResource(WStreamWriter& inout_stream, const WEditableSkeleton& skeleton, WUInt16* out_pNumBones) const
 {
-  ezSkeletonResourceDescriptor desc;
+  WSkeletonResourceDescriptor desc;
   desc.m_RootTransform = CalculateTransformationMatrix(&skeleton);
   skeleton.FillResourceDescriptor(desc);
 
@@ -167,90 +167,90 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream, co
     *out_pNumBones = desc.m_Skeleton.GetJointCount();
   }
 
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-void ezSkeletonAssetDocument::SetRenderBones(bool bEnable)
+void WSkeletonAssetDocument::SetRenderBones(bool bEnable)
 {
   if (m_bRenderBones == bEnable)
     return;
 
   m_bRenderBones = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderColliders(bool bEnable)
+void WSkeletonAssetDocument::SetRenderColliders(bool bEnable)
 {
   if (m_bRenderColliders == bEnable)
     return;
 
   m_bRenderColliders = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderJoints(bool bEnable)
+void WSkeletonAssetDocument::SetRenderJoints(bool bEnable)
 {
   if (m_bRenderJoints == bEnable)
     return;
 
   m_bRenderJoints = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderSwingLimits(bool bEnable)
+void WSkeletonAssetDocument::SetRenderSwingLimits(bool bEnable)
 {
   if (m_bRenderSwingLimits == bEnable)
     return;
 
   m_bRenderSwingLimits = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderTwistLimits(bool bEnable)
+void WSkeletonAssetDocument::SetRenderTwistLimits(bool bEnable)
 {
   if (m_bRenderTwistLimits == bEnable)
     return;
 
   m_bRenderTwistLimits = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderPreviewMesh(bool bEnable)
+void WSkeletonAssetDocument::SetRenderPreviewMesh(bool bEnable)
 {
   if (m_bRenderPreviewMesh == bEnable)
     return;
 
   m_bRenderPreviewMesh = bEnable;
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  e.m_Type = WSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WSkeletonAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
@@ -258,31 +258,31 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   // such that we can create components that modify these bones
 
   auto* desc = GetProperties();
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+  WExposedParameters* pExposedParams = W_DEFAULT_NEW(WExposedParameters);
 
 
   {
-    ezExposedBone bone;
+    WExposedBone bone;
     bone.m_sName = "<root-transform>";
     bone.m_Transform = CalculateTransformationMatrix(desc);
 
-    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    WExposedParameter* param = W_DEFAULT_NEW(WExposedParameter);
     param->m_sName = "<root-transform>";
-    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
+    param->m_DefaultValue.CopyTypedObject(&bone, WGetStaticRTTI<WExposedBone>());
 
     pExposedParams->m_Parameters.PushBack(param);
   }
 
-  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto recurse) -> void
+  auto Traverse = [&](WEditableSkeletonJoint* pJoint, const char* szParent, auto recurse) -> void
   {
-    ezExposedBone bone;
+    WExposedBone bone;
     bone.m_sName = pJoint->GetName();
     bone.m_sParent = szParent;
     bone.m_Transform = pJoint->m_LocalTransform;
 
-    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    WExposedParameter* param = W_DEFAULT_NEW(WExposedParameter);
     param->m_sName = pJoint->GetName();
-    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
+    param->m_DefaultValue.CopyTypedObject(&bone, WGetStaticRTTI<WExposedBone>());
 
     pExposedParams->m_Parameters.PushBack(param);
 
@@ -301,108 +301,108 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WSkeletonAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   {
     m_bIsTransforming = true;
-    EZ_SCOPE_EXIT(m_bIsTransforming = false);
+    W_SCOPE_EXIT(m_bIsTransforming = false);
 
-    ezProgressRange range("Transforming Asset", 3, false);
+    WProgressRange range("Transforming Asset", 3, false);
 
-    ezEditableSkeleton* pProp = GetProperties();
+    WEditableSkeleton* pProp = GetProperties();
 
-    ezUInt16 uiNumBones = 0;
+    WUInt16 uiNumBones = 0;
 
-    ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+    WStringBuilder sAbsFilename = pProp->m_sSourceFile;
 
     if (sAbsFilename.IsEmpty())
     {
       range.BeginNextStep("Writing Result");
-      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *GetProperties(), &uiNumBones));
+      W_SUCCEED_OR_RETURN(WriteResource(stream, *GetProperties(), &uiNumBones));
     }
     else
     {
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+      if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
       {
-        return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+        return WStatus(WFmt("Couldn't make path absolute: '{0};", sAbsFilename));
       }
 
-      ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+      WUniquePtr<WModelImporter2::Importer> pImporter = WModelImporter2::RequestImporterForFileType(sAbsFilename);
       if (pImporter == nullptr)
-        return ezStatus("No known importer for this file type.");
+        return WStatus("No known importer for this file type.");
 
       range.BeginNextStep("Importing Source File");
 
-      ezEditableSkeleton newSkeleton;
+      WEditableSkeleton newSkeleton;
 
-      ezModelImporter2::ImportOptions opt;
+      WModelImporter2::ImportOptions opt;
       opt.m_sSourceFile = sAbsFilename;
       opt.m_pSkeletonOutput = &newSkeleton;
 
       if (pImporter->Import(opt).Failed())
-        return ezStatus("Model importer was unable to read this asset.");
+        return WStatus("Model importer was unable to read this asset.");
 
       if (newSkeleton.m_Children.IsEmpty())
-        return ezStatus("Imported skeleton is empty.");
+        return WStatus("Imported skeleton is empty.");
 
       range.BeginNextStep("Importing Skeleton Data");
 
       // merging rewrites the joint hierarchy in this document, which can't be saved back to disk
       // during background processing, so the asset has to be transformed in the editor instead
-      if (transformFlags.IsSet(ezTransformFlags::BackgroundProcessing) && WouldSkeletonHierarchyChange(newSkeleton))
+      if (transformFlags.IsSet(WTransformFlags::BackgroundProcessing) && WouldSkeletonHierarchyChange(newSkeleton))
       {
-        return ezTransformStatus(ezTransformResult::NeedsImport);
+        return WTransformStatus(WTransformResult::NeedsImport);
       }
 
       // synchronize the old data (collision geometry etc.) with the new hierarchy
-      const ezEditableSkeleton* pFinalSkeleton = MergeWithNewSkeleton(newSkeleton);
+      const WEditableSkeleton* pFinalSkeleton = MergeWithNewSkeleton(newSkeleton);
 
       range.BeginNextStep("Writing Result");
-      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *pFinalSkeleton, &uiNumBones));
+      W_SUCCEED_OR_RETURN(WriteResource(stream, *pFinalSkeleton, &uiNumBones));
 
       // merge the new data with the actual asset document
       ApplyNativePropertyChangesToObjectManager(true);
     }
 
-    GetTransformInfo().SetValue(ezAssetInfoFile::Keys::NumBones, uiNumBones);
+    GetTransformInfo().SetValue(WAssetInfoFile::Keys::NumBones, uiNumBones);
   }
 
-  ezSkeletonAssetEvent e;
+  WSkeletonAssetEvent e;
   e.m_pDocument = this;
-  e.m_Type = ezSkeletonAssetEvent::Transformed;
+  e.m_Type = WSkeletonAssetEvent::Transformed;
   m_Events.Broadcast(e);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   // the preview mesh is an editor side only option, so the thumbnail context doesn't know anything about this
   // until we explicitly tell it about the mesh
   // without sending this here, thumbnails wouldn't look as desired, for assets transformed in the background
   if (!GetProperties()->m_sPreviewMesh.IsEmpty())
   {
-    ezSimpleDocumentConfigMsgToEngine msg;
+    WSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
     msg.m_sPayload = GetProperties()->m_sPreviewMesh;
     SendMessageToEngine(&msg);
   }
 
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
-bool ezSkeletonAssetDocument::WouldSkeletonHierarchyChange(const ezEditableSkeleton& newSkeleton) const
+bool WSkeletonAssetDocument::WouldSkeletonHierarchyChange(const WEditableSkeleton& newSkeleton) const
 {
-  auto CompareJoints = [](const auto& self, const ezEditableSkeletonJoint* pOld, const ezEditableSkeletonJoint* pNew) -> bool
+  auto CompareJoints = [](const auto& self, const WEditableSkeletonJoint* pOld, const WEditableSkeletonJoint* pNew) -> bool
   {
-    if (!ezStringUtils::IsEqual(pOld->GetName(), pNew->GetName()))
+    if (!WStringUtils::IsEqual(pOld->GetName(), pNew->GetName()))
       return true;
 
     if (pOld->m_Children.GetCount() != pNew->m_Children.GetCount())
       return true;
 
-    for (ezUInt32 i = 0; i < pOld->m_Children.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pOld->m_Children.GetCount(); ++i)
     {
       if (self(self, pOld->m_Children[i], pNew->m_Children[i]))
         return true;
@@ -411,12 +411,12 @@ bool ezSkeletonAssetDocument::WouldSkeletonHierarchyChange(const ezEditableSkele
     return false;
   };
 
-  const ezEditableSkeleton* pOldSkeleton = GetProperties();
+  const WEditableSkeleton* pOldSkeleton = GetProperties();
 
   if (pOldSkeleton->m_Children.GetCount() != newSkeleton.m_Children.GetCount())
     return true;
 
-  for (ezUInt32 i = 0; i < pOldSkeleton->m_Children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pOldSkeleton->m_Children.GetCount(); ++i)
   {
     if (CompareJoints(CompareJoints, pOldSkeleton->m_Children[i], newSkeleton.m_Children[i]))
       return true;
@@ -425,24 +425,24 @@ bool ezSkeletonAssetDocument::WouldSkeletonHierarchyChange(const ezEditableSkele
   return false;
 }
 
-const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton)
+const WEditableSkeleton* WSkeletonAssetDocument::MergeWithNewSkeleton(WEditableSkeleton& newSkeleton)
 {
-  ezEditableSkeleton* pOldSkeleton = GetProperties();
-  ezMap<ezString, const ezEditableSkeletonJoint*> prevJoints;
+  WEditableSkeleton* pOldSkeleton = GetProperties();
+  WMap<WString, const WEditableSkeletonJoint*> prevJoints;
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
+    auto TraverseJoints = [&prevJoints](const auto& self, WEditableSkeletonJoint* pJoint) -> void
     {
       prevJoints[pJoint->GetName()] = pJoint;
 
-      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
+      for (WEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
         self(self, pChild);
       }
     };
 
-    for (ezEditableSkeletonJoint* pChild : pOldSkeleton->m_Children)
+    for (WEditableSkeletonJoint* pChild : pOldSkeleton->m_Children)
     {
       TraverseJoints(TraverseJoints, pChild);
     }
@@ -450,7 +450,7 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& root, ezTransform origin) -> void
+    auto TraverseJoints = [&prevJoints](const auto& self, WEditableSkeletonJoint* pJoint, const WTransform& root, WTransform origin) -> void
     {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
@@ -459,22 +459,22 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
       }
 
       // use the parent rotation as the gizmo base rotation
-      ezMat4 modelTransform, fullTransform;
+      WMat4 modelTransform, fullTransform;
       modelTransform = origin.GetAsMat4();
-      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(root.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
+      WMsgAnimationPoseUpdated::ComputeFullBoneTransform(root.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
 
-      origin = ezTransform::MakeGlobalTransform(origin, pJoint->m_LocalTransform);
+      origin = WTransform::MakeGlobalTransform(origin, pJoint->m_LocalTransform);
       pJoint->m_vGizmoOffsetPositionRO = root.TransformPosition(origin.m_vPosition);
 
-      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
+      for (WEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
         self(self, pChild, root, origin);
       }
     };
 
-    for (ezEditableSkeletonJoint* pChild : newSkeleton.m_Children)
+    for (WEditableSkeletonJoint* pChild : newSkeleton.m_Children)
     {
-      TraverseJoints(TraverseJoints, pChild, CalculateTransformationMatrix(pOldSkeleton), ezTransform::MakeIdentity());
+      TraverseJoints(TraverseJoints, pChild, CalculateTransformationMatrix(pOldSkeleton), WTransform::MakeIdentity());
     }
   }
 
@@ -491,51 +491,51 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSkeletonAssetDocumentGenerator, 1, WRTTIDefaultAllocator<WSkeletonAssetDocumentGenerator>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
+WSkeletonAssetDocumentGenerator::WSkeletonAssetDocumentGenerator()
 {
   AddSupportedFileType("fbx");
   AddSupportedFileType("gltf");
   AddSupportedFileType("glb");
 }
 
-ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
+WSkeletonAssetDocumentGenerator::~WSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+void WSkeletonAssetDocumentGenerator::GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const
 {
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
+    WAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = WAssetDocGeneratorPriority::Undecided;
     info.m_sName = "SkeletonImport";
     info.m_sIcon = ":/AssetIcons/Skeleton.svg";
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+WStatus WSkeletonAssetDocumentGenerator::Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments)
 {
-  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
+  const WStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
-  auto pApp = ezQtEditorApp::GetSingleton();
+  auto pApp = WQtEditorApp::GetSingleton();
 
-  ezStringBuilder sInputFileRel = sInputFileAbs;
+  WStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  WDocument* pDoc = pApp->CreateDocument(sOutFile, WDocumentFlags::None);
   if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
+    return WStatus("Could not create target document");
 
   out_generatedDocuments.PushBack(pDoc);
 
-  ezSkeletonAssetDocument* pAssetDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pDoc);
+  WSkeletonAssetDocument* pAssetDoc = WDynamicCast<WSkeletonAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("File", sInputFileRel.GetView());
 
-  ezLog::Success("Imported skeleton: '{}'", sOutFile);
+  WLog::Success("Imported skeleton: '{}'", sOutFile);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
@@ -543,18 +543,18 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezEditableSkeleton_1_2 : public ezGraphPatch
+class WEditableSkeleton_1_2 : public WGraphPatch
 {
 public:
-  ezEditableSkeleton_1_2()
-    : ezGraphPatch("ezEditableSkeleton", 2)
+  WEditableSkeleton_1_2()
+    : WGraphPatch("WEditableSkeleton", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->AddProperty("ImportTransform", 127);
   }
 };
 
-ezEditableSkeleton_1_2 g_ezEditableSkeleton_1_2;
+WEditableSkeleton_1_2 g_WEditableSkeleton_1_2;

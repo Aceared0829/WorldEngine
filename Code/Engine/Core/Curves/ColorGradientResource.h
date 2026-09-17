@@ -4,45 +4,45 @@
 #include <Foundation/Tracks/ColorGradient.h>
 
 /// Descriptor for color gradient resources containing the gradient data and serialization methods.
-struct EZ_CORE_DLL ezColorGradientResourceDescriptor
+struct W_CORE_DLL WColorGradientResourceDescriptor
 {
-  ezColorGradient m_Gradient;
+  WColorGradient m_Gradient;
 
-  void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Save(WStreamWriter& inout_stream) const;
+  void Load(WStreamReader& inout_stream);
 };
 
-using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
+using WColorGradientResourceHandle = WTypedResourceHandle<class WColorGradientResource>;
 
 /// A resource that stores a single color gradient for use in rendering and effects.
 ///
 /// Color gradient resources allow artists to define color transitions that can be evaluated
 /// at runtime. Commonly used for particle effects, UI elements, and other visual systems
 /// that need smooth color transitions.
-class EZ_CORE_DLL ezColorGradientResource : public ezResource
+class W_CORE_DLL WColorGradientResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezColorGradientResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezColorGradientResource, ezColorGradientResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WColorGradientResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WColorGradientResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WColorGradientResource, WColorGradientResourceDescriptor);
 
 public:
-  ezColorGradientResource();
+  WColorGradientResource();
 
   /// Returns all the data that is stored in this resource.
-  const ezColorGradientResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
+  const WColorGradientResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
   /// Evaluates the color gradient at the given position and returns the interpolated color.
-  inline ezColor Evaluate(double x) const
+  inline WColor Evaluate(double x) const
   {
-    ezColor result;
+    WColor result;
     m_Descriptor.m_Gradient.Evaluate(x, result);
     return result;
   }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezColorGradientResourceDescriptor m_Descriptor;
+  WColorGradientResourceDescriptor m_Descriptor;
 };

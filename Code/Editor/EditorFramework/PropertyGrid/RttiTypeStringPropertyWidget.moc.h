@@ -6,12 +6,12 @@
 
 class QHBoxLayout;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtRttiTypeStringPropertyWidget : public ezQtStandardPropertyWidget
+class W_EDITORFRAMEWORK_DLL WQtRttiTypeStringPropertyWidget : public WQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtRttiTypeStringPropertyWidget();
+  WQtRttiTypeStringPropertyWidget();
 
 protected Q_SLOTS:
   void onMenuAboutToShow();
@@ -19,12 +19,12 @@ protected Q_SLOTS:
 
 protected:
   virtual void OnInit() override;
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void InternalSetValue(const WVariant& value) override;
 
 protected:
   QPushButton* m_pButton = nullptr;
   QHBoxLayout* m_pLayout = nullptr;
   QMenu* m_pMenu = nullptr;
 
-  ezQtTypeMenu m_TypeMenu;
+  WQtTypeMenu m_TypeMenu;
 };

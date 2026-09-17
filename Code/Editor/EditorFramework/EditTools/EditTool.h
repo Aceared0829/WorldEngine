@@ -3,47 +3,47 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-class ezGameObjectDocument;
-class ezQtGameObjectDocumentWindow;
-class ezObjectAccessorBase;
-class ezEditorInputContext;
+class WGameObjectDocument;
+class WQtGameObjectDocumentWindow;
+class WObjectAccessorBase;
+class WEditorInputContext;
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectGizmoInterface
+class W_EDITORFRAMEWORK_DLL WGameObjectGizmoInterface
 {
 public:
-  virtual ezObjectAccessorBase* GetObjectAccessor() = 0;
+  virtual WObjectAccessorBase* GetObjectAccessor() = 0;
   virtual bool CanDuplicateSelection() const = 0;
   virtual void DuplicateSelection() = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-enum class ezEditToolSupportedSpaces
+enum class WEditToolSupportedSpaces
 {
   LocalSpaceOnly,
   WorldSpaceOnly,
   LocalAndWorldSpace,
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectEditTool : public ezReflectedClass
+class W_EDITORFRAMEWORK_DLL WGameObjectEditTool : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectEditTool, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectEditTool, WReflectedClass);
 
 public:
-  ezGameObjectEditTool();
+  WGameObjectEditTool();
 
-  void ConfigureTool(ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow, ezGameObjectGizmoInterface* pInterface);
+  void ConfigureTool(WGameObjectDocument* pDocument, WQtGameObjectDocumentWindow* pWindow, WGameObjectGizmoInterface* pInterface);
 
-  ezGameObjectDocument* GetDocument() const { return m_pDocument; }
-  ezQtGameObjectDocumentWindow* GetWindow() const { return m_pWindow; }
-  ezGameObjectGizmoInterface* GetGizmoInterface() const { return m_pInterface; }
+  WGameObjectDocument* GetDocument() const { return m_pDocument; }
+  WQtGameObjectDocumentWindow* GetWindow() const { return m_pWindow; }
+  WGameObjectGizmoInterface* GetGizmoInterface() const { return m_pInterface; }
   bool IsActive() const { return m_bIsActive; }
   void SetActive(bool bActive);
 
-  virtual ezEditorInputContext* GetEditorInputContextOverride() { return nullptr; }
-  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const { return ezEditToolSupportedSpaces::WorldSpaceOnly; }
+  virtual WEditorInputContext* GetEditorInputContextOverride() { return nullptr; }
+  virtual WEditToolSupportedSpaces GetSupportedSpaces() const { return WEditToolSupportedSpaces::WorldSpaceOnly; }
   virtual bool GetSupportsMoveParentOnly() const { return false; }
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) {}
+  virtual void GetGridSettings(WGridSettingsMsgToEngine& out_gridSettings) {}
 
 protected:
   virtual void OnConfigured() = 0;
@@ -51,7 +51,7 @@ protected:
 
 private:
   bool m_bIsActive = false;
-  ezGameObjectDocument* m_pDocument = nullptr;
-  ezQtGameObjectDocumentWindow* m_pWindow = nullptr;
-  ezGameObjectGizmoInterface* m_pInterface = nullptr;
+  WGameObjectDocument* m_pDocument = nullptr;
+  WQtGameObjectDocumentWindow* m_pWindow = nullptr;
+  WGameObjectGizmoInterface* m_pInterface = nullptr;
 };

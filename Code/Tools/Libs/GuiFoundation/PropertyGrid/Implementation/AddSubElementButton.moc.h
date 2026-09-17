@@ -9,14 +9,14 @@ class QPushButton;
 class QMenu;
 
 /// Used by container widgets to add new elements to the container.
-class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
+class W_GUIFOUNDATION_DLL WQtAddSubElementButton : public WQtPropertyWidget
 {
   Q_OBJECT
 
 public:
   /// Constructor
   /// \param containerCategory The type of container. Only Map, Set and Array are supported.
-  ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory, ezStringView sButtonText);
+  WQtAddSubElementButton(WEnum<WPropertyCategory> containerCategory, WStringView sButtonText);
 
 protected:
   virtual void DoPrepareToDie() override {}
@@ -28,16 +28,16 @@ private Q_SLOTS:
 
 private:
   virtual void OnInit() override;
-  void OnAction(const ezRTTI* pRtti);
+  void OnAction(const WRTTI* pRtti);
 
   QHBoxLayout* m_pLayout;
   QPushButton* m_pButton;
 
-  ezQtTypeMenu m_TypeMenu;
+  WQtTypeMenu m_TypeMenu;
 
-  ezEnum<ezPropertyCategory> m_ContainerCategory;
+  WEnum<WPropertyCategory> m_ContainerCategory;
   bool m_bNoMoreElementsAllowed = false;
   QMenu* m_pMenu = nullptr;
-  ezUInt32 m_uiMaxElements = 0; // 0 means unlimited
+  WUInt32 m_uiMaxElements = 0; // 0 means unlimited
   bool m_bPreventDuplicates = false;
 };

@@ -3,19 +3,19 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 
-using ezShapeIconComponentManager = ezComponentManager<class ezShapeIconComponent, ezBlockStorageType::Compact>;
+using WShapeIconComponentManager = WComponentManager<class WShapeIconComponent, WBlockStorageType::Compact>;
 
 /// This is a dummy component that the editor creates on all 'empty' nodes for the sole purpose to render a shape icon and enable picking.
 ///
 /// Though in the future one could potentially use them for other editor functionality, such as displaying the object name or some other useful text.
-class EZ_ENGINEPLUGINSCENE_DLL ezShapeIconComponent : public ezComponent
+class W_ENGINEPLUGINSCENE_DLL WShapeIconComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezShapeIconComponent, ezComponent, ezShapeIconComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WShapeIconComponent, WComponent, WShapeIconComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezShapeIconComponent
+  // WShapeIconComponent
 
 public:
-  ezShapeIconComponent();
-  ~ezShapeIconComponent();
+  WShapeIconComponent();
+  ~WShapeIconComponent();
 };

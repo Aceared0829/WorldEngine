@@ -1,10 +1,10 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Cross-platform trace capture for ezEngine.
+    Cross-platform trace capture for WorldEngine.
 
 .DESCRIPTION
-    Captures OS-level trace events from ezEngine applications.
+    Captures OS-level trace events from WorldEngine applications.
 
     Without -Start or -Stop, the script runs interactively: it starts
     recording, waits for a keypress, then stops and saves the trace.
@@ -21,12 +21,12 @@
     Windows (ETW via Windows Performance Recorder):
       - wpr.exe must be on PATH (ships with Windows 10+).
       - Must run as Administrator.
-      - The provided profile (ezTraceProvider.wprp) is used automatically.
+      - The provided profile (WTraceProvider.wprp) is used automatically.
 
     Linux (LTTNG user-space tracing):
       - Install LTTNG tools:
           sudo apt install lttng-tools lttng-modules-dkms liblttng-ust-dev
-      - Build ezEngine with EZ_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT=ON (default for Linux).
+      - Build WorldEngine with W_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT=ON (default for Linux).
       - Make sure your user is in the 'tracing' group:
           sudo usermod -aG tracing $USER
           (log out and back in for the group change to take effect)
@@ -34,39 +34,39 @@
           sudo apt install babeltrace2
 
     Android (Perfetto via adb):
-      - Build ezEngine with EZ_3RDPARTY_PERFETTO_SUPPORT=ON (default for Android).
+      - Build WorldEngine with W_3RDPARTY_PERFETTO_SUPPORT=ON (default for Android).
       - 'adb' must be on PATH with a device running Android 9+.
-      - The Perfetto config (ez-perfetto.pbtx) is used automatically.
+      - The Perfetto config (W-perfetto.pbtx) is used automatically.
 
     ── Platform Details ──
 
     Windows — ETW
       This script drives wpr.exe (Windows Performance Recorder) with the
-      ezTraceProvider.wprp profile.
+      WTraceProvider.wprp profile.
 
       To capture manually without this script:
-        wpr -start Utilities\Tracing\ezTraceProvider.wprp -instancename ezEngine
+        wpr -start Utilities\Tracing\WTraceProvider.wprp -instancename WorldEngine
         # ... run your application ...
-        wpr -stop MyTrace.etl -instancename ezEngine
+        wpr -stop MyTrace.etl -instancename WorldEngine
         wpa MyTrace.etl
 
     Linux — LTTNG
       Uses the tracelogging-lttng wrapper (Code/ThirdParty/tracelogging) which
       provides the same TraceLoggingWrite API as Windows ETW, backed by LTTNG-UST.
-      Each library registers its own provider (e.g. "ez_Foundation").
-      The wildcard 'ez_*:*' captures all of them. Process/thread context
+      Each library registers its own provider (e.g. "W_Foundation").
+      The wildcard 'W_*:*' captures all of them. Process/thread context
       (vpid, vtid, procname) is added automatically so Trace Compass can
       identify threads.
 
       To capture manually without this script:
-        lttng create ez-session
-        lttng enable-event -u 'ez_*:*'
+        lttng create W-session
+        lttng enable-event -u 'W_*:*'
         lttng add-context -u -t vpid -t vtid -t procname
         lttng start
         # ... run your application ...
         lttng stop
         lttng destroy
-        babeltrace2 ~/lttng-traces/ez-session-*
+        babeltrace2 ~/lttng-traces/W-session-*
       Or open in Trace Compass: https://www.eclipse.org/tracecompass/
 
       Note: To add kernel events (requires root):
@@ -74,14 +74,14 @@
 
     Android — Perfetto
       The Perfetto SDK connects to the system 'traced' daemon (Android 9+).
-      A ready-to-use trace config is provided at Utilities/Tracing/ez-perfetto.pbtx.
+      A ready-to-use trace config is provided at Utilities/Tracing/W-perfetto.pbtx.
 
       To capture manually without this script:
-        adb push Utilities/Tracing/ez-perfetto.pbtx /data/local/tmp/
-        adb shell perfetto -c /data/local/tmp/ez-perfetto.pbtx \
-          -o /data/misc/perfetto-traces/ez.perfetto-trace
-        adb pull /data/misc/perfetto-traces/ez.perfetto-trace .
-      Open in https://ui.perfetto.dev. Events appear under the "ez" category.
+        adb push Utilities/Tracing/W-perfetto.pbtx /data/local/tmp/
+        adb shell perfetto -c /data/local/tmp/W-perfetto.pbtx \
+          -o /data/misc/perfetto-traces/W.perfetto-trace
+        adb pull /data/misc/perfetto-traces/W.perfetto-trace .
+      Open in https://ui.perfetto.dev. Events appear under the "W" category.
 
 .PARAMETER Start
     Start recording and return immediately. Mutually exclusive with -Stop.
@@ -101,7 +101,7 @@
 
 .PARAMETER OutputPath
     Path for the trace output. If not specified, the trace is saved in the
-    current working directory as ez-trace-YYYY-MM-DDTHH-MM-SS with a
+    current working directory as W-trace-YYYY-MM-DDTHH-MM-SS with a
     platform-appropriate extension (.etl on Windows, .perfetto-trace on
     Android) or as a directory (Linux/LTTNG).
 
@@ -190,7 +190,7 @@ function Invoke-Adb {
 function Get-DefaultOutputPath {
     param([string]$Extension)
     $timestamp = (Get-Date).ToString('yyyy-MM-ddTHH-mm-ss')
-    return Join-Path (Get-Location) "ez-trace-$timestamp$Extension"
+    return Join-Path (Get-Location) "W-trace-$timestamp$Extension"
 }
 
 # ---------------------------------------------------------------------------
@@ -200,16 +200,16 @@ function Get-DefaultOutputPath {
 function Invoke-WindowsTraceBegin {
     Assert-Command 'wpr'
 
-    $wprpPath = Join-Path $ScriptDir 'ezTraceProvider.wprp'
+    $wprpPath = Join-Path $ScriptDir 'WTraceProvider.wprp'
     if (-not (Test-Path $wprpPath)) {
         throw "WPR profile not found: $wprpPath"
     }
 
     # Cancel any stale session from a previous interrupted run.
-    & wpr -cancel -instancename ezEngine 2>&1 | Out-Null
+    & wpr -cancel -instancename WorldEngine 2>&1 | Out-Null
 
     Write-Host 'Starting ETW trace...' -ForegroundColor Cyan
-    & wpr -start $wprpPath -instancename ezEngine
+    & wpr -start $wprpPath -instancename WorldEngine
     if ($LASTEXITCODE -ne 0) { throw "wpr -start failed (exit code $LASTEXITCODE)." }
 }
 
@@ -217,9 +217,9 @@ function Invoke-WindowsTraceEnd {
     $output = if ($OutputPath) { $OutputPath } else { Get-DefaultOutputPath '.etl' }
 
     Write-Host 'Stopping ETW trace...' -ForegroundColor Cyan
-    & wpr -stop $output -instancename ezEngine
+    & wpr -stop $output -instancename WorldEngine
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "wpr -stop failed (exit code $LASTEXITCODE). You may need to run 'wpr -cancel -instancename ezEngine' manually."
+        Write-Warning "wpr -stop failed (exit code $LASTEXITCODE). You may need to run 'wpr -cancel -instancename WorldEngine' manually."
         return
     }
 
@@ -232,7 +232,7 @@ function Invoke-WindowsTraceEnd {
 # Linux — LTTNG
 # ---------------------------------------------------------------------------
 
-$script:LttngSessionName = 'ez-session'
+$script:LttngSessionName = 'W-session'
 
 function Invoke-LinuxTraceBegin {
     Assert-Command 'lttng'
@@ -244,7 +244,7 @@ function Invoke-LinuxTraceBegin {
     & lttng create $script:LttngSessionName
     if ($LASTEXITCODE -ne 0) { throw 'lttng create failed.' }
 
-    & lttng enable-event -u 'ez_*:*'
+    & lttng enable-event -u 'W_*:*'
     if ($LASTEXITCODE -ne 0) { throw 'lttng enable-event failed.' }
 
     # Attach process/thread context so Trace Compass can identify threads.
@@ -287,12 +287,12 @@ function Invoke-LinuxTraceEnd {
 # Android — Perfetto via adb
 # ---------------------------------------------------------------------------
 
-$script:PerfettoDeviceTrace  = '/data/misc/perfetto-traces/ez.perfetto-trace'
-$script:PerfettoDeviceConfig = '/data/local/tmp/ez-perfetto-interactive.pbtx'
-$script:PerfettoPidFile      = '/data/local/tmp/ez-perfetto.pid'
+$script:PerfettoDeviceTrace  = '/data/misc/perfetto-traces/W.perfetto-trace'
+$script:PerfettoDeviceConfig = '/data/local/tmp/W-perfetto-interactive.pbtx'
+$script:PerfettoPidFile      = '/data/local/tmp/W-perfetto.pid'
 
 function Invoke-AndroidTraceBegin {
-    $configPath = Join-Path $ScriptDir 'ez-perfetto.pbtx'
+    $configPath = Join-Path $ScriptDir 'W-perfetto.pbtx'
     if (-not (Test-Path $configPath)) {
         throw "Perfetto config not found: $configPath"
     }
@@ -348,7 +348,7 @@ function Invoke-AndroidTraceEnd {
     # The trace file under /data/misc/perfetto-traces/ is owned by shell with
     # mode 600. adb pull cannot read it directly, so copy it to /data/local/tmp/
     # first where adb pull has access.
-    $tmpTrace = '/data/local/tmp/ez-pulled.perfetto-trace'
+    $tmpTrace = '/data/local/tmp/W-pulled.perfetto-trace'
     Adb-Shell "cp $($script:PerfettoDeviceTrace) $tmpTrace && chmod 644 $tmpTrace" | Out-Null
     Invoke-Adb pull $tmpTrace $output
     if ($LASTEXITCODE -ne 0) {

@@ -3,29 +3,29 @@
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezView;
-class ezExtractedRenderData;
+class WView;
+class WExtractedRenderData;
 
 /// Factory for creating light particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLightFactory final : public ezParticleTypeFactory
+class W_PARTICLEPLUGIN_DLL WParticleTypeLightFactory final : public WParticleTypeFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLightFactory, ezParticleTypeFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeLightFactory, WParticleTypeFactory);
 
 public:
-  ezParticleTypeLightFactory();
+  WParticleTypeLightFactory();
 
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetTypeType() const override;
+  virtual void CopyTypeProperties(WParticleType* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   float m_fSizeFactor;
   float m_fIntensity;
-  ezUInt32 m_uiPercentage;
-  ezHashedString m_sTintColorParameter;
-  ezHashedString m_sIntensityParameter;
-  ezHashedString m_sSizeScaleParameter;
+  WUInt32 m_uiPercentage;
+  WHashedString m_sTintColorParameter;
+  WHashedString m_sIntensityParameter;
+  WHashedString m_sSizeScaleParameter;
 };
 
 /// Renders particles as dynamic point lights.
@@ -33,29 +33,29 @@ public:
 /// Each particle creates a point light with range based on particle size.
 /// Not all particles need to emit light - the percentage can be controlled
 /// to reduce performance cost. Light properties can be modulated by effect parameters.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight final : public ezParticleType
+class W_PARTICLEPLUGIN_DLL WParticleTypeLight final : public WParticleType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLight, ezParticleType);
+  W_ADD_DYNAMIC_REFLECTION(WParticleTypeLight, WParticleType);
 
 public:
   virtual void CreateRequiredStreams() override;
 
   float m_fSizeFactor;
   float m_fIntensity;
-  ezUInt32 m_uiPercentage;
-  ezTempHashedString m_sTintColorParameter;
-  ezTempHashedString m_sIntensityParameter;
-  ezTempHashedString m_sSizeScaleParameter;
+  WUInt32 m_uiPercentage;
+  WTempHashedString m_sTintColorParameter;
+  WTempHashedString m_sIntensityParameter;
+  WTempHashedString m_sSizeScaleParameter;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.5f * fParticleSize * m_fSizeFactor; }
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+  virtual void ExtractTypeRenderData(WMsgExtractRenderData& ref_msg, const WTransform& instanceTransform) const override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override {}
+  virtual void Process(WUInt64 uiNumElements) override {}
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamSize;
-  ezProcessingStream* m_pStreamColor;
-  ezProcessingStream* m_pStreamOnOff;
+  WProcessingStream* m_pStreamPosition;
+  WProcessingStream* m_pStreamSize;
+  WProcessingStream* m_pStreamColor;
+  WProcessingStream* m_pStreamOnOff;
 };

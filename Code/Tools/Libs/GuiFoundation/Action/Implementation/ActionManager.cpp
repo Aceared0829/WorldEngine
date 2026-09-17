@@ -15,7 +15,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "ToolsFoundation"
@@ -23,32 +23,32 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezActionManager::Startup();
+    WActionManager::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezActionManager::Shutdown();
+    WActionManager::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezEvent<const ezActionManager::Event&> ezActionManager::s_Events;
-ezIdTable<ezActionId, ezActionDescriptor*> ezActionManager::s_ActionTable;
-ezMap<ezString, ezActionManager::CategoryData> ezActionManager::s_CategoryPathToActions;
-ezMap<ezString, ezString> ezActionManager::s_ShortcutOverride;
+WEvent<const WActionManager::Event&> WActionManager::s_Events;
+WIdTable<WActionId, WActionDescriptor*> WActionManager::s_ActionTable;
+WMap<WString, WActionManager::CategoryData> WActionManager::s_CategoryPathToActions;
+WMap<WString, WString> WActionManager::s_ShortcutOverride;
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionManager public functions
+// WActionManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
+WActionDescriptorHandle WActionManager::RegisterAction(const WActionDescriptor& desc)
 {
-  ezActionDescriptorHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
-  EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '{0}' in category '{1}' was already registered!", desc.m_sActionName, desc.m_sCategoryPath);
+  WActionDescriptorHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
+  W_ASSERT_DEV(hType.IsInvalidated(), "The action '{0}' in category '{1}' was already registered!", desc.m_sActionName, desc.m_sCategoryPath);
 
-  ezActionDescriptor* pDesc = CreateActionDesc(desc);
+  WActionDescriptor* pDesc = CreateActionDesc(desc);
 
   // apply shortcut override
   {
@@ -57,7 +57,7 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
       pDesc->m_sShortcut = ovride.Value();
   }
 
-  hType = ezActionDescriptorHandle(s_ActionTable.Insert(pDesc));
+  hType = WActionDescriptorHandle(s_ActionTable.Insert(pDesc));
   pDesc->m_Handle = hType;
 
   auto it = s_CategoryPathToActions.FindOrAdd(pDesc->m_sCategoryPath);
@@ -74,9 +74,9 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
   return hType;
 }
 
-bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& ref_hAction)
+bool WActionManager::UnregisterAction(WActionDescriptorHandle& ref_hAction)
 {
-  ezActionDescriptor* pDesc = nullptr;
+  WActionDescriptor* pDesc = nullptr;
   if (!s_ActionTable.TryGetValue(ref_hAction, pDesc))
   {
     ref_hAction.Invalidate();
@@ -84,9 +84,9 @@ bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& ref_hAction)
   }
 
   auto it = s_CategoryPathToActions.Find(pDesc->m_sCategoryPath);
-  EZ_ASSERT_DEV(it.IsValid(), "Action is present but not mapped in its category path!");
-  EZ_VERIFY(it.Value().m_Actions.Remove(ref_hAction), "Action is present but not in its category data!");
-  EZ_VERIFY(it.Value().m_ActionNameToHandle.Remove(pDesc->m_sActionName), "Action is present but its name is not in the map!");
+  W_ASSERT_DEV(it.IsValid(), "Action is present but not mapped in its category path!");
+  W_VERIFY(it.Value().m_Actions.Remove(ref_hAction), "Action is present but not in its category data!");
+  W_VERIFY(it.Value().m_ActionNameToHandle.Remove(pDesc->m_sActionName), "Action is present but its name is not in the map!");
   if (it.Value().m_Actions.IsEmpty())
   {
     s_CategoryPathToActions.Remove(it);
@@ -98,23 +98,23 @@ bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& ref_hAction)
   return true;
 }
 
-const ezActionDescriptor* ezActionManager::GetActionDescriptor(ezActionDescriptorHandle hAction)
+const WActionDescriptor* WActionManager::GetActionDescriptor(WActionDescriptorHandle hAction)
 {
-  ezActionDescriptor* pDesc = nullptr;
+  WActionDescriptor* pDesc = nullptr;
   if (s_ActionTable.TryGetValue(hAction, pDesc))
     return pDesc;
 
   return nullptr;
 }
 
-const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator ezActionManager::GetActionIterator()
+const WIdTable<WActionId, WActionDescriptor*>::ConstIterator WActionManager::GetActionIterator()
 {
   return s_ActionTable.GetIterator();
 }
 
-ezActionDescriptorHandle ezActionManager::GetActionHandle(ezStringView sCategoryPath, ezStringView sActionName)
+WActionDescriptorHandle WActionManager::GetActionHandle(WStringView sCategoryPath, WStringView sActionName)
 {
-  ezActionDescriptorHandle hAction;
+  WActionDescriptorHandle hAction;
   auto it = s_CategoryPathToActions.Find(sCategoryPath);
   if (!it.IsValid())
     return hAction;
@@ -124,7 +124,7 @@ ezActionDescriptorHandle ezActionManager::GetActionHandle(ezStringView sCategory
   return hAction;
 }
 
-ezString ezActionManager::FindActionCategory(ezStringView sActionName)
+WString WActionManager::FindActionCategory(WStringView sActionName)
 {
   for (auto itCat : s_CategoryPathToActions)
   {
@@ -132,61 +132,61 @@ ezString ezActionManager::FindActionCategory(ezStringView sActionName)
       return itCat.Key();
   }
 
-  return ezString();
+  return WString();
 }
 
-ezResult ezActionManager::ExecuteAction(ezStringView sCategory0, ezStringView sActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
+WResult WActionManager::ExecuteAction(WStringView sCategory0, WStringView sActionName, const WActionContext& context, const WVariant& value /*= WVariant()*/)
 {
-  ezStringBuilder sCategory = sCategory0;
+  WStringBuilder sCategory = sCategory0;
 
   if (sCategory.IsEmpty())
   {
     sCategory = FindActionCategory(sActionName);
   }
 
-  auto hAction = ezActionManager::GetActionHandle(sCategory, sActionName);
+  auto hAction = WActionManager::GetActionHandle(sCategory, sActionName);
 
   if (hAction.IsInvalidated())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezActionDescriptor* pDesc = ezActionManager::GetActionDescriptor(hAction);
+  const WActionDescriptor* pDesc = WActionManager::GetActionDescriptor(hAction);
 
   if (pDesc == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezAction* pAction = pDesc->CreateAction(context);
+  WAction* pAction = pDesc->CreateAction(context);
 
   if (pAction == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   pAction->Execute(value);
   pDesc->DeleteAction(pAction);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezActionManager::SaveShortcutAssignment()
+void WActionManager::SaveShortcutAssignment()
 {
-  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  WStringBuilder sFile = WApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
   sFile.AppendPath("Settings/Shortcuts.ddl");
 
-  EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
+  W_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sFile);
 
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&file);
   writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
 
-  ezStringBuilder sKey;
+  WStringBuilder sKey;
 
   for (auto it = GetActionIterator(); it.IsValid(); ++it)
   {
     auto pAction = it.Value();
 
-    if (pAction->m_Type != ezActionType::Action)
+    if (pAction->m_Type != WActionType::Action)
       continue;
 
     if (pAction->m_sShortcut == pAction->m_sDefaultShortcut)
@@ -194,42 +194,42 @@ void ezActionManager::SaveShortcutAssignment()
     else
       sKey = pAction->m_sShortcut;
 
-    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, pAction->m_sActionName);
+    writer.BeginPrimitiveList(WOpenDdlPrimitiveType::String, pAction->m_sActionName);
     writer.WriteString(sKey);
     writer.EndPrimitiveList();
   }
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile);
+    WLog::Error("Failed to write shortcuts config file '{0}'", sFile);
   }
 }
 
-void ezActionManager::LoadShortcutAssignment()
+void WActionManager::LoadShortcutAssignment()
 {
-  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  WStringBuilder sFile = WApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
   sFile.AppendPath("Settings/Shortcuts.ddl");
 
-  EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
+  W_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sFile).Failed())
   {
-    ezLog::Dev("No shortcuts file '{0}' was found", sFile);
+    WLog::Dev("No shortcuts file '{0}' was found", sFile);
     return;
   }
 
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  WOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, WLog::GetThreadLocalLogSystem()).Failed())
     return;
 
   const auto obj = reader.GetRootElement();
 
-  ezStringBuilder sKey, sValue;
+  WStringBuilder sKey, sValue;
 
   for (auto pElement = obj->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
-    if (!pElement->HasName() || !pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
+    if (!pElement->HasName() || !pElement->HasPrimitives(WOpenDdlPrimitiveType::String))
       continue;
 
     sKey = pElement->GetName();
@@ -246,7 +246,7 @@ void ezActionManager::LoadShortcutAssignment()
   {
     auto pAction = it.Value();
 
-    if (pAction->m_Type != ezActionType::Action)
+    if (pAction->m_Type != WActionType::Action)
       continue;
 
     auto ovride = s_ShortcutOverride.Find(pAction->m_sActionName);
@@ -256,40 +256,40 @@ void ezActionManager::LoadShortcutAssignment()
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionManager private functions
+// WActionManager private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezActionManager::Startup()
+void WActionManager::Startup()
 {
-  ezDocumentActions::RegisterActions();
-  ezStandardMenus::RegisterActions();
-  ezCommandHistoryActions::RegisterActions();
-  ezEditActions::RegisterActions();
+  WDocumentActions::RegisterActions();
+  WStandardMenus::RegisterActions();
+  WCommandHistoryActions::RegisterActions();
+  WEditActions::RegisterActions();
 }
 
-void ezActionManager::Shutdown()
+void WActionManager::Shutdown()
 {
-  ezDocumentActions::UnregisterActions();
-  ezStandardMenus::UnregisterActions();
-  ezCommandHistoryActions::UnregisterActions();
-  ezEditActions::UnregisterActions();
+  WDocumentActions::UnregisterActions();
+  WStandardMenus::UnregisterActions();
+  WCommandHistoryActions::UnregisterActions();
+  WEditActions::UnregisterActions();
 
-  EZ_ASSERT_DEV(s_ActionTable.IsEmpty(), "Some actions were registered but not unregistred.");
-  EZ_ASSERT_DEV(s_CategoryPathToActions.IsEmpty(), "Some actions were registered but not unregistred.");
+  W_ASSERT_DEV(s_ActionTable.IsEmpty(), "Some actions were registered but not unregistred.");
+  W_ASSERT_DEV(s_CategoryPathToActions.IsEmpty(), "Some actions were registered but not unregistred.");
 
   s_ActionTable.Clear();
   s_CategoryPathToActions.Clear();
   s_ShortcutOverride.Clear();
 }
 
-ezActionDescriptor* ezActionManager::CreateActionDesc(const ezActionDescriptor& desc)
+WActionDescriptor* WActionManager::CreateActionDesc(const WActionDescriptor& desc)
 {
-  ezActionDescriptor* pDesc = EZ_DEFAULT_NEW(ezActionDescriptor);
+  WActionDescriptor* pDesc = W_DEFAULT_NEW(WActionDescriptor);
   *pDesc = desc;
   return pDesc;
 }
 
-void ezActionManager::DeleteActionDesc(ezActionDescriptor* pDesc)
+void WActionManager::DeleteActionDesc(WActionDescriptor* pDesc)
 {
-  EZ_DEFAULT_DELETE(pDesc);
+  W_DEFAULT_DELETE(pDesc);
 }

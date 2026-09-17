@@ -5,16 +5,16 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Strings/String.h>
 
-struct ezScreenResolution
+struct WScreenResolution
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezUInt32 m_uiResolutionX = 0;
-  ezUInt32 m_uiResolutionY = 0;
-  ezUInt16 m_uiRefreshRate = 0;
-  ezUInt8 m_uiBitsPerPixel = 0;
+  WUInt32 m_uiResolutionX = 0;
+  WUInt32 m_uiResolutionY = 0;
+  WUInt16 m_uiRefreshRate = 0;
+  WUInt8 m_uiBitsPerPixel = 0;
 
-  inline bool operator<(const ezScreenResolution& rhs) const
+  inline bool operator<(const WScreenResolution& rhs) const
   {
     if (m_uiBitsPerPixel != rhs.m_uiBitsPerPixel)
       return m_uiBitsPerPixel < rhs.m_uiBitsPerPixel;
@@ -30,27 +30,27 @@ struct ezScreenResolution
 };
 
 /// Describes the properties of a screen
-struct EZ_FOUNDATION_DLL ezScreenInfo
+struct W_FOUNDATION_DLL WScreenInfo
 {
-  ezString m_sDisplayID;   ///< Internal name used by the OS to identify the monitor.
-  ezString m_sDisplayName; ///< Some OS provided name for the screen, typically the manufacturer and model name.
+  WString m_sDisplayID;   ///< Internal name used by the OS to identify the monitor.
+  WString m_sDisplayName; ///< Some OS provided name for the screen, typically the manufacturer and model name.
 
-  ezInt32 m_iOffsetX;      ///< The virtual position of the screen. Ie. a window created at this location will appear on this screen.
-  ezInt32 m_iOffsetY;      ///< The virtual position of the screen. Ie. a window created at this location will appear on this screen.
-  ezInt32 m_iResolutionX;  ///< The virtual resolution. Ie. a window with this dimension will span the entire screen.
-  ezInt32 m_iResolutionY;  ///< The virtual resolution. Ie. a window with this dimension will span the entire screen.
+  WInt32 m_iOffsetX;      ///< The virtual position of the screen. Ie. a window created at this location will appear on this screen.
+  WInt32 m_iOffsetY;      ///< The virtual position of the screen. Ie. a window created at this location will appear on this screen.
+  WInt32 m_iResolutionX;  ///< The virtual resolution. Ie. a window with this dimension will span the entire screen.
+  WInt32 m_iResolutionY;  ///< The virtual resolution. Ie. a window with this dimension will span the entire screen.
   bool m_bIsPrimary;       ///< Whether this is the primary/main screen.
 
-  ezDynamicArray<ezScreenResolution> m_SupportedResolutions;
+  WDynamicArray<WScreenResolution> m_SupportedResolutions;
 };
 
 /// Provides functionality to detect available monitors
-class EZ_FOUNDATION_DLL ezScreen
+class W_FOUNDATION_DLL WScreen
 {
 public:
-  /// Enumerates all available screens. When it returns EZ_SUCCESS, at least one screen has been found.
-  static ezResult EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens);
+  /// Enumerates all available screens. When it returns W_SUCCESS, at least one screen has been found.
+  static WResult EnumerateScreens(WDynamicArray<WScreenInfo>& out_screens);
 
   /// Prints the available screen information to the provided log.
-  static void PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+  static void PrintScreenInfo(const WArrayPtr<WScreenInfo>& screens, WLogInterface* pLog = WLog::GetThreadLocalLogSystem());
 };

@@ -3,12 +3,12 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-class ezAngelScriptAssetDocument;
-struct ezPropertyMetaStateEvent;
+class WAngelScriptAssetDocument;
+struct WPropertyMetaStateEvent;
 
-struct ezAngelScriptCodeMode
+struct WAngelScriptCodeMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum : StorageType
   {
@@ -19,49 +19,49 @@ struct ezAngelScriptCodeMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINANGELSCRIPT_DLL, ezAngelScriptCodeMode);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORPLUGINANGELSCRIPT_DLL, WAngelScriptCodeMode);
 
-class ezAngelScriptParameter : public ezReflectedClass
+class WAngelScriptParameter : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptParameter, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptParameter, WReflectedClass);
 
 public:
   bool m_bExpose = false;
-  ezString m_sDeclaration;
-  ezString m_sName;
-  ezVariant m_DefaultValue;
+  WString m_sDeclaration;
+  WString m_sName;
+  WVariant m_DefaultValue;
 };
 
-class ezAngelScriptAssetProperties : public ezReflectedClass
+class WAngelScriptAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptAssetProperties, WReflectedClass);
 
-  ezEnum<ezAngelScriptCodeMode> m_CodeMode;
-  ezString m_sScriptFile;
-  ezString m_sClassName;
-  ezString m_sCode;
+  WEnum<WAngelScriptCodeMode> m_CodeMode;
+  WString m_sScriptFile;
+  WString m_sClassName;
+  WString m_sCode;
 
-  ezDynamicArray<ezAngelScriptParameter> m_Parameters;
-  ezDynamicArray<ezString> m_Dependencies;
+  WDynamicArray<WAngelScriptParameter> m_Parameters;
+  WDynamicArray<WString> m_Dependencies;
 };
 
-class ezAngelScriptAssetDocument : public ezSimpleAssetDocument<ezAngelScriptAssetProperties>
+class WAngelScriptAssetDocument : public WSimpleAssetDocument<WAngelScriptAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAngelScriptAssetDocument, ezSimpleAssetDocument<ezAngelScriptAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WAngelScriptAssetDocument, WSimpleAssetDocument<WAngelScriptAssetProperties>);
 
 public:
-  ezAngelScriptAssetDocument(ezStringView sDocumentPath);
+  WAngelScriptAssetDocument(WStringView sDocumentPath);
 
   void OpenExternalEditor();
   void SyncExposedParameters();
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
   void SyncInfos();
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };

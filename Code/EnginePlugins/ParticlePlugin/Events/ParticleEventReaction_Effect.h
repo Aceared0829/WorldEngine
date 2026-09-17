@@ -8,52 +8,52 @@
 /// Factory for creating effect spawn reactions.
 ///
 /// Configures reactions that spawn a particle effect at the event location.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect final : public ezParticleEventReactionFactory
+class W_PARTICLEPLUGIN_DLL WParticleEventReactionFactory_Effect final : public WParticleEventReactionFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Effect, ezParticleEventReactionFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEventReactionFactory_Effect, WParticleEventReactionFactory);
 
 public:
-  ezParticleEventReactionFactory_Effect();
+  WParticleEventReactionFactory_Effect();
 
-  virtual const ezRTTI* GetEventReactionType() const override;
-  virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetEventReactionType() const override;
+  virtual void CopyReactionProperties(WParticleEventReaction* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream) override;
 
-  ezString m_sEffect;
-  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
+  WString m_sEffect;
+  WEnum<WSurfaceInteractionAlignment> m_Alignment;
 
-  ezParticleEffectResourceHandle m_hEffect;
+  WParticleEffectResourceHandle m_hEffect;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  void SetParameter(const char* szKey, const ezVariant& value);
+  const WRangeView<const char*, WUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const WVariant& value);
   void RemoveParameter(const char* szKey);
-  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  bool GetParameter(const char* szKey, WVariant& out_value) const;
 
 private:
-  ezSharedPtr<ezParticleEffectParameters> m_pParameters;
+  WSharedPtr<WParticleEffectParameters> m_pParameters;
 };
 
 /// Event reaction that spawns a particle effect.
 ///
 /// When triggered, spawns the configured effect at the event's position and orientation.
 /// The effect can be aligned according to the event's direction and normal vectors.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect final : public ezParticleEventReaction
+class W_PARTICLEPLUGIN_DLL WParticleEventReaction_Effect final : public WParticleEventReaction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Effect, ezParticleEventReaction);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEventReaction_Effect, WParticleEventReaction);
 
 public:
-  ezParticleEventReaction_Effect();
-  ~ezParticleEventReaction_Effect();
+  WParticleEventReaction_Effect();
+  ~WParticleEventReaction_Effect();
 
-  ezParticleEffectResourceHandle m_hEffect;
-  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
-  ezSharedPtr<ezParticleEffectParameters> m_Parameters;
+  WParticleEffectResourceHandle m_hEffect;
+  WEnum<WSurfaceInteractionAlignment> m_Alignment;
+  WSharedPtr<WParticleEffectParameters> m_Parameters;
 
 protected:
-  virtual void ProcessEvent(const ezParticleEvent& e) override;
+  virtual void ProcessEvent(const WParticleEvent& e) override;
 };

@@ -4,32 +4,32 @@
 #include <EnginePluginJolt/EnginePluginJoltDLL.h>
 #include <JoltPlugin/Resources/JoltMeshResource.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINJOLT_DLL ezJoltCollisionMeshContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINJOLT_DLL WJoltCollisionMeshContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltCollisionMeshContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WJoltCollisionMeshContext, WEngineProcessDocumentContext);
 
 public:
-  ezJoltCollisionMeshContext();
+  WJoltCollisionMeshContext();
 
-  virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void HandleMessage(const WEditorEngineDocumentMsg* pMsg) override;
 
-  const ezJoltMeshResourceHandle& GetMesh() const { return m_hMesh; }
+  const WJoltMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
   bool m_bDisplayGrid = true;
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void QuerySelectionBBox(const WEditorEngineDocumentMsg* pMsg);
 
-  ezGameObject* m_pMeshObject;
-  ezJoltMeshResourceHandle m_hMesh;
+  WGameObject* m_pMeshObject;
+  WJoltMeshResourceHandle m_hMesh;
 };

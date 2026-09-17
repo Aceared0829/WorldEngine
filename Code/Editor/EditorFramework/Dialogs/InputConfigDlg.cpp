@@ -8,18 +8,18 @@
 
 void UpdateInputDynamicEnumValues()
 {
-  ezTempHybridArray<ezGameAppInputConfig, 32> Actions;
+  WTempHybridArray<WGameAppInputConfig, 32> Actions;
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
     return;
 
-  ezGameAppInputConfig::ReadFromDDL(file, Actions);
+  WGameAppInputConfig::ReadFromDDL(file, Actions);
 
-  auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("InputSet");
+  auto& dynEnum = WDynamicStringEnum::CreateDynamicEnum("InputSet");
 
   for (const auto& a : Actions)
   {
@@ -27,14 +27,14 @@ void UpdateInputDynamicEnumValues()
   }
 }
 
-ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtInputConfigDlg::WQtInputConfigDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
   LoadActions();
 
-  ezQtEditorApp::GetSingleton()->GetKnownInputSlots(m_AllInputSlots);
+  WQtEditorApp::GetSingleton()->GetKnownInputSlots(m_AllInputSlots);
 
   // make sure existing slots are always in the list
   // to prevent losing data when some plugin is not loaded
@@ -43,7 +43,7 @@ ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* pParent)
     {
       for (int i = 0; i < 3; ++i)
       {
-        if (m_AllInputSlots.IndexOf(action.m_sInputSlotTrigger[i]) == ezInvalidIndex)
+        if (m_AllInputSlots.IndexOf(action.m_sInputSlotTrigger[i]) == WInvalidIndex)
           m_AllInputSlots.PushBack(action.m_sInputSlotTrigger[i]);
       }
     }
@@ -54,7 +54,7 @@ ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* pParent)
   on_TreeActions_itemSelectionChanged();
 }
 
-void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
+void WQtInputConfigDlg::on_ButtonNewInputSet_clicked()
 {
   QString sResult = QInputDialog::getText(this, "Input Set Name", "Name:");
 
@@ -63,18 +63,18 @@ void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
 
   TreeActions->clearSelection();
 
-  const ezString sName = sResult.toUtf8().data();
+  const WString sName = sResult.toUtf8().data();
 
   if (m_InputSetToItem.Find(sName).IsValid())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("An Input Set with this name already exists.");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("An Input Set with this name already exists.");
   }
   else
   {
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
+    pItem->setIcon(0, WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
 
     m_InputSetToItem[sName] = pItem;
   }
@@ -82,7 +82,7 @@ void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
   m_InputSetToItem[sName]->setSelected(true);
 }
 
-void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
+void WQtInputConfigDlg::on_ButtonNewAction_clicked()
 {
   if (TreeActions->selectedItems().isEmpty())
     return;
@@ -95,7 +95,7 @@ void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
   if (TreeActions->indexOfTopLevelItem(pItem) < 0)
     pItem = pItem->parent();
 
-  ezGameAppInputConfig action;
+  WGameAppInputConfig action;
   auto pNewItem = CreateActionItem(pItem, action);
   pItem->setExpanded(true);
 
@@ -104,7 +104,7 @@ void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
   TreeActions->editItem(pNewItem);
 }
 
-void ezQtInputConfigDlg::on_ButtonRemove_clicked()
+void WQtInputConfigDlg::on_ButtonRemove_clicked()
 {
   if (TreeActions->selectedItems().isEmpty())
     return;
@@ -116,21 +116,21 @@ void ezQtInputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
+    if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
+    if (WQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
       return;
   }
 
   delete pItem;
 }
 
-void ezQtInputConfigDlg::on_ButtonOk_clicked()
+void WQtInputConfigDlg::on_ButtonOk_clicked()
 {
   GetActionsFromList();
   SaveActions();
@@ -138,19 +138,19 @@ void ezQtInputConfigDlg::on_ButtonOk_clicked()
   accept();
 }
 
-void ezQtInputConfigDlg::on_ButtonCancel_clicked()
+void WQtInputConfigDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void ezQtInputConfigDlg::on_ButtonReset_clicked()
+void WQtInputConfigDlg::on_ButtonReset_clicked()
 {
   LoadActions();
   FillList();
   on_TreeActions_itemSelectionChanged();
 }
 
-void ezQtInputConfigDlg::on_TreeActions_itemSelectionChanged()
+void WQtInputConfigDlg::on_TreeActions_itemSelectionChanged()
 {
   const bool hasSelection = !TreeActions->selectedItems().isEmpty();
 
@@ -158,43 +158,43 @@ void ezQtInputConfigDlg::on_TreeActions_itemSelectionChanged()
   ButtonNewAction->setEnabled(hasSelection);
 }
 
-void ezQtInputConfigDlg::LoadActions()
+void WQtInputConfigDlg::LoadActions()
 {
   m_Actions.Clear();
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
     return;
 
-  ezGameAppInputConfig::ReadFromDDL(file, m_Actions);
+  WGameAppInputConfig::ReadFromDDL(file, m_Actions);
 }
 
-void ezQtInputConfigDlg::SaveActions()
+void WQtInputConfigDlg::SaveActions()
 {
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder sPath = WToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sPath);
 
-  ezGameAppInputConfig::WriteToDDL(file, m_Actions);
+  WGameAppInputConfig::WriteToDDL(file, m_Actions);
 
   if (file.Close().Failed())
-    ezLog::Error("Failed to save '{0}'.", sPath);
+    WLog::Error("Failed to save '{0}'.", sPath);
 }
 
-void ezQtInputConfigDlg::FillList()
+void WQtInputConfigDlg::FillList()
 {
-  ezQtScopedBlockSignals bs(TreeActions);
-  ezQtScopedUpdatesDisabled bu(TreeActions);
+  WQtScopedBlockSignals bs(TreeActions);
+  WQtScopedUpdatesDisabled bu(TreeActions);
 
   m_InputSetToItem.Clear();
   TreeActions->clear();
 
-  ezSet<ezString> InputSets;
+  WSet<WString> InputSets;
 
   for (const auto& action : m_Actions)
   {
@@ -206,7 +206,7 @@ void ezQtInputConfigDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
+    pItem->setIcon(0, WQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
 
     m_InputSetToItem[it.Key()] = pItem;
   }
@@ -231,18 +231,18 @@ void ezQtInputConfigDlg::FillList()
   TreeActions->resizeColumnToContents(7);
 }
 
-void ezQtInputConfigDlg::GetActionsFromList()
+void WQtInputConfigDlg::GetActionsFromList()
 {
   m_Actions.Clear();
 
   for (int sets = 0; sets < TreeActions->topLevelItemCount(); ++sets)
   {
     const auto* pSetItem = TreeActions->topLevelItem(sets);
-    const ezString sSetName = pSetItem->text(0).toUtf8().data();
+    const WString sSetName = pSetItem->text(0).toUtf8().data();
 
     for (int children = 0; children < pSetItem->childCount(); ++children)
     {
-      ezGameAppInputConfig& cfg = m_Actions.ExpandAndGetRef();
+      WGameAppInputConfig& cfg = m_Actions.ExpandAndGetRef();
       cfg.m_sInputSet = sSetName;
 
       auto* pActionItem = pSetItem->child(children);
@@ -259,7 +259,7 @@ void ezQtInputConfigDlg::GetActionsFromList()
   }
 }
 
-QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action)
+QTreeWidgetItem* WQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const WGameAppInputConfig& action)
 {
   auto* pItem = new QTreeWidgetItem(pParentItem);
   pItem->setText(0, action.m_sInputAction.GetData());
@@ -290,7 +290,7 @@ QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentIt
     combo->setInsertPolicy(QComboBox::InsertAtBottom);
     combo->setMaxVisibleItems(15);
 
-    for (ezUInt32 it = 0; it < m_AllInputSlots.GetCount(); ++it)
+    for (WUInt32 it = 0; it < m_AllInputSlots.GetCount(); ++it)
     {
       combo->addItem(m_AllInputSlots[it].GetData());
     }

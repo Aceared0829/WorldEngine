@@ -1,29 +1,29 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#if W_ENABLED(W_SUPPORTS_PROCESSES)
 
 #  include <Foundation/System/ProcessGroup.h>
 #  include <Foundation/Utilities/CommandLineUtils.h>
 
-EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
+W_CREATE_SIMPLE_TEST(System, ProcessGroup)
 {
   // we can launch FoundationTest with the -cmd parameter to execute a couple of useful things to test launching process
-  const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+  const WStringBuilder pathToSelf = WCommandLineUtils::GetGlobalInstance()->GetParameter(0);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WaitToFinish")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WaitToFinish")
   {
-    ezProcessGroup pgroup;
-    ezStringBuilder out;
+    WProcessGroup pgroup;
+    WStringBuilder out;
 
-    ezMutex mutex;
+    WMutex mutex;
 
-    for (ezUInt32 i = 0; i < 8; ++i)
+    for (WUInt32 i = 0; i < 8; ++i)
     {
-      ezProcessOptions opt;
+      WProcessOptions opt;
       opt.m_sProcess = pathToSelf;
-      opt.m_onStdOut = [&out, &mutex](ezStringView sView)
+      opt.m_onStdOut = [&out, &mutex](WStringView sView)
       {
-        EZ_LOCK(mutex);
+        W_LOCK(mutex);
         out.Append(sView);
       };
 
@@ -33,37 +33,37 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
       opt.m_Arguments.PushBack("-stdout");
       opt.m_Arguments.PushBack("Na");
 
-      EZ_TEST_BOOL(pgroup.Launch(opt).Succeeded());
+      W_TEST_BOOL(pgroup.Launch(opt).Succeeded());
     }
 
     // in a debugger with child debugging enabled etc. even 10 seconds can lead to timeouts due to long delays in the IDE
-    EZ_TEST_BOOL(pgroup.WaitToFinish(ezTime::MakeFromSeconds(60)).Succeeded());
-    EZ_TEST_STRING(out, "NaNaNaNaNaNaNaNa"); // BATMAN!
+    W_TEST_BOOL(pgroup.WaitToFinish(WTime::MakeFromSeconds(60)).Succeeded());
+    W_TEST_STRING(out, "NaNaNaNaNaNaNaNa"); // BATMAN!
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TerminateAll")
+  W_TEST_BLOCK(WTestBlock::Enabled, "TerminateAll")
   {
-    ezProcessGroup pgroup;
+    WProcessGroup pgroup;
 
-    ezTempHybridArray<ezProcess, 8> procs;
+    WTempHybridArray<WProcess, 8> procs;
 
-    for (ezUInt32 i = 0; i < 8; ++i)
+    for (WUInt32 i = 0; i < 8; ++i)
     {
-      ezProcessOptions opt;
+      WProcessOptions opt;
       opt.m_sProcess = pathToSelf;
 
       opt.m_Arguments.PushBack("-cmd");
       opt.m_Arguments.PushBack("-sleep");
       opt.m_Arguments.PushBack("60000");
 
-      EZ_TEST_BOOL(pgroup.Launch(opt).Succeeded());
+      W_TEST_BOOL(pgroup.Launch(opt).Succeeded());
     }
 
-    const ezTime tStart = ezTime::Now();
-    EZ_TEST_BOOL(pgroup.TerminateAll().Succeeded());
-    const ezTime tDiff = ezTime::Now() - tStart;
+    const WTime tStart = WTime::Now();
+    W_TEST_BOOL(pgroup.TerminateAll().Succeeded());
+    const WTime tDiff = WTime::Now() - tStart;
 
-    EZ_TEST_BOOL(tDiff < ezTime::MakeFromSeconds(10));
+    W_TEST_BOOL(tDiff < WTime::MakeFromSeconds(10));
   }
 }
 #endif

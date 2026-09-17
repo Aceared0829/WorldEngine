@@ -7,37 +7,37 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezRasterizerObject;
+class WRasterizerObject;
 
 /// Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
-class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
+class W_RENDERERCORE_DLL WRenderData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WRenderData, WReflectedClass);
 
 public:
   struct Category
   {
     Category();
-    explicit Category(ezUInt16 uiValue);
+    explicit Category(WUInt16 uiValue);
 
     bool operator==(const Category& other) const;
     bool operator!=(const Category& other) const;
     bool IsValid() const { return m_uiValue != 0xFFFF; }
 
-    ezUInt16 m_uiValue = 0xFFFF;
+    WUInt16 m_uiValue = 0xFFFF;
   };
 
   /// This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+  using SortingKeyFunc = WUInt64 (*)(const WRenderData*, const WCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category RegisterDerivedCategory(const char* szCategoryName, Category baseCategory);
   static Category RegisterRedirectedCategory(const char* szCategoryName, Category staticCategory, Category dynamicCategory);
-  static Category FindCategory(ezTempHashedString sCategoryName);
+  static Category FindCategory(WTempHashedString sCategoryName);
   static Category ResolveCategory(Category category, bool bDynamic);
 
-  static ezHashedString GetCategoryName(Category category);
-  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
+  static WHashedString GetCategoryName(Category category);
+  static void GetAllCategoryNames(WDynamicArray<WHashedString>& out_categoryNames);
 
 public:
   struct Caching
@@ -51,12 +51,12 @@ public:
 
   struct Flags
   {
-    using StorageType = ezUInt32;
+    using StorageType = WUInt32;
 
     enum Enum
     {
-      Dynamic = EZ_BIT(0),
-      FlipWinding = EZ_BIT(1),
+      Dynamic = W_BIT(0),
+      FlipWinding = W_BIT(1),
 
       Default = 0
     };
@@ -73,23 +73,23 @@ public:
   bool FlipWinding() const;
 
   /// Returns the final sorting for this render data with the given category and camera.
-  ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
+  WUInt64 GetFinalSortingKey(Category category, const WCamera& camera) const;
 
   /// Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
   /// An implementation can assume that the other render data is of the same type as this render data.
-  virtual bool CanBatch(const ezRenderData& other) const { return false; }
+  virtual bool CanBatch(const WRenderData& other) const { return false; }
 
-  ezBitflags<Flags> m_Flags;
+  WBitflags<Flags> m_Flags;
 
-  ezVec3 m_vGlobalPosition = ezVec3::MakeZero();
+  WVec3 m_vGlobalPosition = WVec3::MakeZero();
   float m_fSortingDepthOffset = 0.0f;
 
-  ezUInt32 m_uiSortingKey = 0;
+  WUInt32 m_uiSortingKey = 0;
 
-  ezGameObjectHandle m_hOwner;
+  WGameObjectHandle m_hOwner;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezGameObject* m_pOwner = nullptr; ///< Debugging only. It is not allowed to access the game object during rendering.
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  const WGameObject* m_pOwner = nullptr; ///< Debugging only. It is not allowed to access the game object during rendering.
 #endif
 
 private:
@@ -99,105 +99,105 @@ private:
     Category m_staticCategory;
     Category m_dynamicCategory;
 
-    ezHashedString m_sName;
+    WHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
   };
 
-  static ezHybridArray<CategoryData, 32> s_CategoryData;
+  static WHybridArray<CategoryData, 32> s_CategoryData;
 };
 
 /// Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.
-class EZ_RENDERERCORE_DLL ezInstanceableRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WInstanceableRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInstanceableRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WInstanceableRenderData, WRenderData);
 
 public:
   struct DataOffsets
   {
-    ezUInt32 m_uiInstance = 0;
-    ezUInt32 m_uiCustomInstance = 0;
-    ezUInt32 m_uiMaterial = 0;
-    ezUInt32 m_uiSkinning = 0; // TODO: this could be removed if we switch to compute shader skinning
+    WUInt32 m_uiInstance = 0;
+    WUInt32 m_uiCustomInstance = 0;
+    WUInt32 m_uiMaterial = 0;
+    WUInt32 m_uiSkinning = 0; // TODO: this could be removed if we switch to compute shader skinning
   };
 
   DataOffsets m_DataOffsets;
 
-  ezUInt32 m_uiNumInstances = 1;
-  ezGALDynamicBufferHandle m_hInstanceDataBuffer;
+  WUInt32 m_uiNumInstances = 1;
+  WGALDynamicBufferHandle m_hInstanceDataBuffer;
 
 protected:
-  bool CanBatchByBaseValues(const ezInstanceableRenderData& other) const;
+  bool CanBatchByBaseValues(const WInstanceableRenderData& other) const;
 };
 
-struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
+struct W_RENDERERCORE_DLL WDefaultRenderDataCategories
 {
-  static ezRenderData::Category Light;
-  static ezRenderData::Category Decal;
-  static ezRenderData::Category ReflectionProbe;
-  static ezRenderData::Category Sky;
-  static ezRenderData::Category LitOpaque;
-  static ezRenderData::Category LitOpaqueStatic;
-  static ezRenderData::Category LitOpaqueDynamic;
-  static ezRenderData::Category LitMasked;
-  static ezRenderData::Category LitMaskedStatic;
-  static ezRenderData::Category LitMaskedDynamic;
-  static ezRenderData::Category LitMeshDecal;
-  static ezRenderData::Category LitTransparent;
-  static ezRenderData::Category LitForeground;
-  static ezRenderData::Category LensEffects;
-  static ezRenderData::Category SimpleOpaque;
-  static ezRenderData::Category SimpleTransparent;
-  static ezRenderData::Category SimpleForeground;
-  static ezRenderData::Category Selection;
-  static ezRenderData::Category GUI;
+  static WRenderData::Category Light;
+  static WRenderData::Category Decal;
+  static WRenderData::Category ReflectionProbe;
+  static WRenderData::Category Sky;
+  static WRenderData::Category LitOpaque;
+  static WRenderData::Category LitOpaqueStatic;
+  static WRenderData::Category LitOpaqueDynamic;
+  static WRenderData::Category LitMasked;
+  static WRenderData::Category LitMaskedStatic;
+  static WRenderData::Category LitMaskedDynamic;
+  static WRenderData::Category LitMeshDecal;
+  static WRenderData::Category LitTransparent;
+  static WRenderData::Category LitForeground;
+  static WRenderData::Category LensEffects;
+  static WRenderData::Category SimpleOpaque;
+  static WRenderData::Category SimpleTransparent;
+  static WRenderData::Category SimpleForeground;
+  static WRenderData::Category Selection;
+  static WRenderData::Category GUI;
 };
 
-#define ezInvalidRenderDataCategory ezRenderData::Category()
+#define WInvalidRenderDataCategory WRenderData::Category()
 
-struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
+struct W_RENDERERCORE_DLL WMsgExtractRenderData : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractRenderData, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgExtractRenderData, WMessage);
 
-  const ezView* m_pView = nullptr;
-  const ezRenderDataManager* m_pRenderDataManager = nullptr;
-  ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
+  const WView* m_pView = nullptr;
+  const WRenderDataManager* m_pRenderDataManager = nullptr;
+  WRenderData::Category m_OverrideCategory = WInvalidRenderDataCategory;
 
   /// Adds render data for the current view. This data can be cached depending on the specified caching behavior.
-  /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData
+  /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the WRenderWorld::DeleteCachedRenderData
   /// function.
-  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior);
+  void AddRenderData(const WRenderData* pRenderData, WRenderData::Category category, WRenderData::Caching::Enum cachingBehavior);
 
   /// Records that the given texture must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
-  /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
-  void AddDependency(ezGALTextureHandle hTexture, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  /// \sa WRenderPipelinePass::DeclareRendererDependenciesForCategory
+  void AddDependency(WGALTextureHandle hTexture, WRenderData::Category category, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
   /// Records that the given buffer must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
-  /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
-  void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  /// \sa WRenderPipelinePass::DeclareRendererDependenciesForCategory
+  void AddDependency(WGALBufferHandle hBuffer, WRenderData::Category category, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
 private:
-  friend class ezExtractor;
+  friend class WExtractor;
 
   struct Data
   {
-    const ezRenderData* m_pRenderData = nullptr;
-    ezRenderData::Category m_Category;
+    const WRenderData* m_pRenderData = nullptr;
+    WRenderData::Category m_Category;
   };
 
-  ezHybridArray<Data, 16> m_ExtractedRenderData;
-  ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
-  ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
+  WHybridArray<Data, 16> m_ExtractedRenderData;
+  WSmallArray<WTextureDependency, 4> m_TextureDependencies;
+  WSmallArray<WBufferDependency, 4> m_BufferDependencies;
 
-  ezUInt32 m_uiNumCacheIfStatic = 0;
+  WUInt32 m_uiNumCacheIfStatic = 0;
 };
 
-struct EZ_RENDERERCORE_DLL ezMsgExtractOccluderData : public ezMessage
+struct W_RENDERERCORE_DLL WMsgExtractOccluderData : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractOccluderData, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgExtractOccluderData, WMessage);
 
-  void AddOccluder(const ezRasterizerObject* pObject, const ezTransform& transform)
+  void AddOccluder(const WRasterizerObject* pObject, const WTransform& transform)
   {
     auto& d = m_ExtractedOccluderData.ExpandAndGetRef();
     d.m_pObject = pObject;
@@ -205,47 +205,47 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractOccluderData : public ezMessage
   }
 
 private:
-  friend class ezRenderPipeline;
+  friend class WRenderPipeline;
 
   struct Data
   {
-    const ezRasterizerObject* m_pObject = nullptr;
-    ezTransform m_Transform;
+    const WRasterizerObject* m_pObject = nullptr;
+    WTransform m_Transform;
   };
 
-  ezHybridArray<Data, 16> m_ExtractedOccluderData;
+  WHybridArray<Data, 16> m_ExtractedOccluderData;
 };
 
-struct ezInstanceDataOffset
+struct WInstanceDataOffset
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezInstanceDataOffset()
-    : m_uiOffset(ezMath::Bitmask_LowN<ezUInt32>(31))
+  WInstanceDataOffset()
+    : m_uiOffset(WMath::Bitmask_LowN<WUInt32>(31))
     , m_uiIsDynamic(0)
   {
   }
 
-  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezMath::Bitmask_LowN<ezUInt32>(31); }
+  W_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == WMath::Bitmask_LowN<WUInt32>(31); }
 
-  ezUInt32 m_uiOffset : 31;
-  ezUInt32 m_uiIsDynamic : 1;
+  WUInt32 m_uiOffset : 31;
+  WUInt32 m_uiIsDynamic : 1;
 };
 
-struct ezCustomInstanceDataOffset
+struct WCustomInstanceDataOffset
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezInvalidIndex; }
+  W_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == WInvalidIndex; }
 
-  ezUInt32 m_uiOffset = ezInvalidIndex;
+  WUInt32 m_uiOffset = WInvalidIndex;
 };
 
-struct EZ_RENDERERCORE_DLL ezMsgCustomInstanceDataOffsetChanged : public ezMessage
+struct W_RENDERERCORE_DLL WMsgCustomInstanceDataOffsetChanged : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgCustomInstanceDataOffsetChanged, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgCustomInstanceDataOffsetChanged, WMessage);
 
-  ezCustomInstanceDataOffset m_NewOffset;
+  WCustomInstanceDataOffset m_NewOffset;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

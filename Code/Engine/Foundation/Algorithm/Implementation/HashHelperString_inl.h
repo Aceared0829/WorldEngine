@@ -1,15 +1,15 @@
 
-ezUInt32 ezHashHelperString_NoCase::Hash(ezStringView value)
+WUInt32 WHashHelperString_NoCase::Hash(WStringView value)
 {
-  ezHybridArray<char, 256> temp;
+  WHybridArray<char, 256> temp;
   temp.SetCountUninitialized(value.GetElementCount());
-  ezMemoryUtils::Copy(temp.GetData(), value.GetStartPointer(), value.GetElementCount());
-  const ezUInt32 uiElemCount = ezStringUtils::ToLowerString(temp.GetData(), temp.GetData() + value.GetElementCount());
+  WMemoryUtils::Copy(temp.GetData(), value.GetStartPointer(), value.GetElementCount());
+  const WUInt32 uiElemCount = WStringUtils::ToLowerString(temp.GetData(), temp.GetData() + value.GetElementCount());
 
-  return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)temp.GetData(), uiElemCount));
+  return WHashingUtils::StringHashTo32(WHashingUtils::xxHash64((void*)temp.GetData(), uiElemCount));
 }
 
-bool ezHashHelperString_NoCase::Equal(ezStringView lhs, ezStringView rhs)
+bool WHashHelperString_NoCase::Equal(WStringView lhs, WStringView rhs)
 {
   return lhs.IsEqual_NoCase(rhs);
 }

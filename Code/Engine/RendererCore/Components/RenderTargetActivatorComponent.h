@@ -4,9 +4,9 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-struct ezMsgExtractRenderData;
+struct WMsgExtractRenderData;
 
-using ezRenderTargetComponentManager = ezComponentManager<class ezRenderTargetActivatorComponent, ezBlockStorageType::Compact>;
+using WRenderTargetComponentManager = WComponentManager<class WRenderTargetActivatorComponent, WBlockStorageType::Compact>;
 
 /// Attach this component to an object that uses a render target for reading, to ensure that the render target gets written to.
 ///
@@ -18,37 +18,37 @@ using ezRenderTargetComponentManager = ezComponentManager<class ezRenderTargetAc
 /// It is a render component, which means that it tracks when it is visible and when visible, it will 'activate' the desired
 /// render target, so that it will be updated.
 /// By attaching it to an object, like the monitor, it activates the render target whenever the monitor object itself gets rendered.
-class EZ_RENDERERCORE_DLL ezRenderTargetActivatorComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WRenderTargetActivatorComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRenderTargetActivatorComponent, ezRenderComponent, ezRenderTargetComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WRenderTargetActivatorComponent, WRenderComponent, WRenderTargetComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
-
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
-
-public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderTargetActivatorComponent
+  // WRenderComponent
 
 public:
-  ezRenderTargetActivatorComponent();
-  ~ezRenderTargetActivatorComponent();
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
-  /// Sets the ezRenderToTexture2DResource to render activate.
-  void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);                    // [ property ]
-  const ezRenderToTexture2DResourceHandle& GetRenderTarget() const { return m_hRenderTarget; } // [ property ]
+
+  //////////////////////////////////////////////////////////////////////////
+  // WRenderTargetActivatorComponent
+
+public:
+  WRenderTargetActivatorComponent();
+  ~WRenderTargetActivatorComponent();
+
+  /// Sets the WRenderToTexture2DResource to render activate.
+  void SetRenderTarget(const WRenderToTexture2DResourceHandle& hResource);                    // [ property ]
+  const WRenderToTexture2DResourceHandle& GetRenderTarget() const { return m_hRenderTarget; } // [ property ]
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezRenderToTexture2DResourceHandle m_hRenderTarget;
+  WRenderToTexture2DResourceHandle m_hRenderTarget;
 };

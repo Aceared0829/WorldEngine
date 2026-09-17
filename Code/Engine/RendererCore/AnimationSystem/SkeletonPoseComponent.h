@@ -6,22 +6,22 @@
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-class ezSkeletonPoseComponentManager : public ezComponentManager<class ezSkeletonPoseComponent, ezBlockStorageType::Compact>
+class WSkeletonPoseComponentManager : public WComponentManager<class WSkeletonPoseComponent, WBlockStorageType::Compact>
 {
 public:
-  using SUPER = ezComponentManager<ezSkeletonPoseComponent, ezBlockStorageType::Compact>;
+  using SUPER = WComponentManager<WSkeletonPoseComponent, WBlockStorageType::Compact>;
 
-  ezSkeletonPoseComponentManager(ezWorld* pWorld)
+  WSkeletonPoseComponentManager(WWorld* pWorld)
     : SUPER(pWorld)
   {
   }
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void EnqueueUpdate(ezComponentHandle hComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void EnqueueUpdate(WComponentHandle hComponent);
 
 private:
-  mutable ezMutex m_Mutex;
-  ezDeque<ezComponentHandle> m_RequireUpdate;
+  mutable WMutex m_Mutex;
+  WDeque<WComponentHandle> m_RequireUpdate;
 
 protected:
   virtual void Initialize() override;
@@ -30,9 +30,9 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 /// Which pose to apply to an animated mesh.
-struct ezSkeletonPoseMode
+struct WSkeletonPoseMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -43,49 +43,49 @@ struct ezSkeletonPoseMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonPoseMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WSkeletonPoseMode);
 
-/// Used in conjunction with an ezAnimatedMeshComponent to set a specific pose for the animated mesh.
+/// Used in conjunction with an WAnimatedMeshComponent to set a specific pose for the animated mesh.
 ///
 /// This component is used to set one, static pose for an animated mesh. The pose is applied once at startup.
 /// This can be used to either just pose a mesh in a certain way, or to set a start pose that is then used
 /// by other systems, for example a ragdoll component, to generate further poses.
 ///
 /// The component needs to be attached to the same game object where the animated mesh component is attached.
-class EZ_RENDERERCORE_DLL ezSkeletonPoseComponent : public ezComponent
+class W_RENDERERCORE_DLL WSkeletonPoseComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSkeletonPoseComponent, ezComponent, ezSkeletonPoseComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSkeletonPoseComponent, WComponent, WSkeletonPoseComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSkeletonPoseComponent
+  // WSkeletonPoseComponent
 
 public:
-  ezSkeletonPoseComponent();
-  ~ezSkeletonPoseComponent();
+  WSkeletonPoseComponent();
+  ~WSkeletonPoseComponent();
 
-  /// Sets the ezSkeletonResource to use.
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
+  /// Sets the WSkeletonResource to use.
+  void SetSkeleton(const WSkeletonResourceHandle& hResource);                // [ property ]
+  const WSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
   /// Configures which pose to apply to the animated mesh.
-  void SetPoseMode(ezEnum<ezSkeletonPoseMode> mode);
-  ezEnum<ezSkeletonPoseMode> GetPoseMode() const { return m_PoseMode; }
+  void SetPoseMode(WEnum<WSkeletonPoseMode> mode);
+  WEnum<WSkeletonPoseMode> GetPoseMode() const { return m_PoseMode; }
 
-  const ezRangeView<const char*, ezUInt32> GetBones() const;   // [ property ] (exposed bones)
-  void SetBone(const char* szKey, const ezVariant& value);     // [ property ] (exposed bones)
+  const WRangeView<const char*, WUInt32> GetBones() const;   // [ property ] (exposed bones)
+  void SetBone(const char* szKey, const WVariant& value);     // [ property ] (exposed bones)
   void RemoveBone(const char* szKey);                          // [ property ] (exposed bones)
-  bool GetBone(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed bones)
+  bool GetBone(const char* szKey, WVariant& out_value) const; // [ property ] (exposed bones)
 
   /// Instructs the component to apply the pose to the animated mesh again.
   void ResendPose();
@@ -96,8 +96,8 @@ protected:
   void SendCustomPose();
 
   float m_fDummy = 0;
-  ezUInt8 m_uiResendPose = 0;
-  ezSkeletonResourceHandle m_hSkeleton;
-  ezArrayMap<ezHashedString, ezExposedBone> m_Bones; // [ property ]
-  ezEnum<ezSkeletonPoseMode> m_PoseMode;             // [ property ]
+  WUInt8 m_uiResendPose = 0;
+  WSkeletonResourceHandle m_hSkeleton;
+  WArrayMap<WHashedString, WExposedBone> m_Bones; // [ property ]
+  WEnum<WSkeletonPoseMode> m_PoseMode;             // [ property ]
 };

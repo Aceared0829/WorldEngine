@@ -8,16 +8,16 @@
 /// Scales the screen space coverage that LOD components compute.
 ///
 /// Values below 1 switch to lower detail LODs earlier, values above 1 keep higher detail LODs longer.
-/// Affects ezLodComponent, ezLodMeshComponent and ezLodAnimatedMeshComponent.
-EZ_RENDERERCORE_DLL extern ezCVarFloat cvar_RenderingLodCoverageScale;
+/// Affects WLodComponent, WLodMeshComponent and WLodAnimatedMeshComponent.
+W_RENDERERCORE_DLL extern WCVarFloat cvar_RenderingLodCoverageScale;
 
 /// If non-negative, all LOD components use this LOD index (0 = highest detail), disabling the automatic selection.
-EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingLodForce;
+W_RENDERERCORE_DLL extern WCVarInt cvar_RenderingLodForce;
 
-using ezLodComponentManager = ezComponentManager<class ezLodComponent, ezBlockStorageType::FreeList>;
+using WLodComponentManager = WComponentManager<class WLodComponent, WBlockStorageType::FreeList>;
 
-struct ezMsgExtractRenderData;
-struct ezMsgComponentInternalTrigger;
+struct WMsgExtractRenderData;
+struct WMsgComponentInternalTrigger;
 
 /// Switches child objects named 'LODn' (with n from 0 to 4) on and off, depending on how close this object is to the main camera.
 ///
@@ -40,34 +40,34 @@ struct ezMsgComponentInternalTrigger;
 /// To prevent LODs switching back and forth at one exact boundary, the LOD ranges may overlap by a fixed percentage.
 /// This way once one LOD gets activated, the coverage value has to change back quite a bit, before the previous LOD gets activated.
 /// Since this behavior can make it harder to set up the LOD thresholds, it can be deactivated, but in practice it should stay enabled.
-class EZ_RENDERERCORE_DLL ezLodComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WLodComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLodComponent, ezRenderComponent, ezLodComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLodComponent, WRenderComponent, WLodComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLodComponent
+  // WLodComponent
 
 public:
-  ezLodComponent();
-  ~ezLodComponent();
+  WLodComponent();
+  ~WLodComponent();
 
   /// Enables text output to show the current coverage value and selected LOD.
   void SetShowDebugInfo(bool bShow); // [ property ]
@@ -78,11 +78,11 @@ public:
   bool GetOverlapRanges() const;        // [ property ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg);
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
+  void OnMsgComponentInternalTrigger(WMsgComponentInternalTrigger& msg);
 
-  ezInt8 m_iCurLod = -1;
-  ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
+  WInt8 m_iCurLod = -1;
+  WVec3 m_vBoundsOffset = WVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;
-  ezStaticArray<float, 4> m_LodThresholds;
+  WStaticArray<float, 4> m_LodThresholds;
 };

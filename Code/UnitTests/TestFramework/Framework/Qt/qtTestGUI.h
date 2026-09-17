@@ -1,16 +1,16 @@
 #pragma once
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QMainWindow>
 #  include <TestFramework/ui_qtTestGUI.h>
 
 #  include <TestFramework/TestFrameworkDLL.h>
 
-class ezQtTestFramework;
-class ezQtTestModel;
-class ezQtTestDelegate;
-class ezQtLogMessageDock;
+class WQtTestFramework;
+class WQtTestModel;
+class WQtTestDelegate;
+class WQtLogMessageDock;
 class QLabel;
 class QPoint;
 
@@ -24,16 +24,16 @@ QT_END_NAMESPACE
 QT_USE_NAMESPACE
 
 /// Main window for the test framework GUI.
-class EZ_TEST_DLL ezQtTestGUI : public QMainWindow, public Ui_qtTestGUI
+class W_TEST_DLL WQtTestGUI : public QMainWindow, public Ui_qtTestGUI
 {
   Q_OBJECT
 public:
-  ezQtTestGUI(ezQtTestFramework& ref_testFramework);
-  ~ezQtTestGUI();
+  WQtTestGUI(WQtTestFramework& ref_testFramework);
+  ~WQtTestGUI();
 
 private:
-  ezQtTestGUI(ezQtTestGUI&);
-  void operator=(ezQtTestGUI&);
+  WQtTestGUI(WQtTestGUI&);
+  void operator=(WQtTestGUI&);
 
 private Q_SLOTS:
   void on_actionAssertOnTestFail_triggered(bool bChecked);
@@ -78,16 +78,16 @@ protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-  ezQtTestFramework* m_pTestFramework = nullptr;
-  ezQtTestModel* m_pModel = nullptr;
-  ezQtTestDelegate* m_pDelegate = nullptr;
-  ezQtLogMessageDock* m_pMessageLogDock = nullptr;
+  WQtTestFramework* m_pTestFramework = nullptr;
+  WQtTestModel* m_pModel = nullptr;
+  WQtTestDelegate* m_pDelegate = nullptr;
+  WQtLogMessageDock* m_pMessageLogDock = nullptr;
   QLabel* m_pStatusTextWorkState = nullptr;
   QLabel* m_pStatusText = nullptr;
   bool m_bExpandedCurrentTest = false;
   bool m_bAbort = false;
-  ezUInt32 m_uiTestsEnabledCount = 0;
-  ezUInt32 m_uiSubTestsEnabledCount = 0;
+  WUInt32 m_uiTestsEnabledCount = 0;
+  WUInt32 m_uiSubTestsEnabledCount = 0;
 };
 
 #endif

@@ -3,31 +3,31 @@
 #include <TerrainPlugin/Components/TerrainBrushAttributes.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTerrainBrush2DVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezTerrainBrush2DVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTerrainBrush2DVisualizerAttribute, 1, WRTTIDefaultAllocator<WTerrainBrush2DVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InnerColor", m_InnerColor),
-    EZ_MEMBER_PROPERTY("OuterColor", m_OuterColor),
-    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
+    W_MEMBER_PROPERTY("InnerColor", m_InnerColor),
+    W_MEMBER_PROPERTY("OuterColor", m_OuterColor),
+    W_MEMBER_PROPERTY("Offset", m_vOffset),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, const ezColor&, ezVec3),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const WColor&, const char*, const WColor&, WVec3),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTerrainBrush2DVisualizerAttribute::ezTerrainBrush2DVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WTerrainBrush2DVisualizerAttribute::WTerrainBrush2DVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezTerrainBrush2DVisualizerAttribute::ezTerrainBrush2DVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYProp, const char* szInnerRadiusProp, const ezColor& innerColor, const char* szOuterRadiusProp, const ezColor& outerColor, ezVec3 vLocalOffset)
-  : ezVisualizerAttribute(szHalfSizeXProp, szHalfSizeYProp, szInnerRadiusProp, szOuterRadiusProp)
+WTerrainBrush2DVisualizerAttribute::WTerrainBrush2DVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYProp, const char* szInnerRadiusProp, const WColor& innerColor, const char* szOuterRadiusProp, const WColor& outerColor, WVec3 vLocalOffset)
+  : WVisualizerAttribute(szHalfSizeXProp, szHalfSizeYProp, szInnerRadiusProp, szOuterRadiusProp)
   , m_InnerColor(innerColor)
   , m_OuterColor(outerColor)
   , m_vOffset(vLocalOffset)
@@ -37,31 +37,31 @@ ezTerrainBrush2DVisualizerAttribute::ezTerrainBrush2DVisualizerAttribute(const c
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTerrainBrush3DVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezTerrainBrush3DVisualizerAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTerrainBrush3DVisualizerAttribute, 1, WRTTIDefaultAllocator<WTerrainBrush3DVisualizerAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InnerColor", m_InnerColor),
-    EZ_MEMBER_PROPERTY("OuterColor", m_OuterColor),
-    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
+    W_MEMBER_PROPERTY("InnerColor", m_InnerColor),
+    W_MEMBER_PROPERTY("OuterColor", m_OuterColor),
+    W_MEMBER_PROPERTY("Offset", m_vOffset),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_PROPERTIES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const ezColor&, const char*, const ezColor&, ezVec3),
+    W_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const WColor&, const char*, const WColor&, WVec3),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTerrainBrush3DVisualizerAttribute::ezTerrainBrush3DVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+WTerrainBrush3DVisualizerAttribute::WTerrainBrush3DVisualizerAttribute()
+  : WVisualizerAttribute(nullptr)
 {
 }
 
-ezTerrainBrush3DVisualizerAttribute::ezTerrainBrush3DVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYBottomProp, const char* szHalfSizeYTopProp, const char* szHalfSizeZProp, const char* szInnerRadiusProp, const ezColor& innerColor, const char* szOuterRadiusProp, const ezColor& outerColor, ezVec3 vLocalOffset)
-  : ezVisualizerAttribute(szHalfSizeXProp, szHalfSizeYBottomProp, szHalfSizeYTopProp, szHalfSizeZProp, szInnerRadiusProp, szOuterRadiusProp)
+WTerrainBrush3DVisualizerAttribute::WTerrainBrush3DVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYBottomProp, const char* szHalfSizeYTopProp, const char* szHalfSizeZProp, const char* szInnerRadiusProp, const WColor& innerColor, const char* szOuterRadiusProp, const WColor& outerColor, WVec3 vLocalOffset)
+  : WVisualizerAttribute(szHalfSizeXProp, szHalfSizeYBottomProp, szHalfSizeYTopProp, szHalfSizeZProp, szInnerRadiusProp, szOuterRadiusProp)
   , m_InnerColor(innerColor)
   , m_OuterColor(outerColor)
   , m_vOffset(vLocalOffset)

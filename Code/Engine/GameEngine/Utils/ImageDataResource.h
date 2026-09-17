@@ -6,32 +6,32 @@
 #include <Core/World/Declarations.h>
 #include <Texture/Image/Image.h>
 
-struct ezImageDataResourceDescriptor
+struct WImageDataResourceDescriptor
 {
-  ezImage m_Image;
+  WImage m_Image;
 
-  // ezResult Serialize(ezStreamWriter& stream) const;
-  // ezResult Deserialize(ezStreamReader& stream);
+  // WResult Serialize(WStreamWriter& stream) const;
+  // WResult Deserialize(WStreamReader& stream);
 };
 
-class EZ_GAMEENGINE_DLL ezImageDataResource : public ezResource
+class W_GAMEENGINE_DLL WImageDataResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImageDataResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezImageDataResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezImageDataResource, ezImageDataResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WImageDataResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WImageDataResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WImageDataResource, WImageDataResourceDescriptor);
 
 public:
-  ezImageDataResource();
-  ~ezImageDataResource();
+  WImageDataResource();
+  ~WImageDataResource();
 
-  const ezImageDataResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
+  const WImageDataResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezUniquePtr<ezImageDataResourceDescriptor> m_pDescriptor;
+  WUniquePtr<WImageDataResourceDescriptor> m_pDescriptor;
 };
 
-using ezImageDataResourceHandle = ezTypedResourceHandle<ezImageDataResource>;
+using WImageDataResourceHandle = WTypedResourceHandle<WImageDataResource>;

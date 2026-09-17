@@ -1,14 +1,14 @@
-class ScriptObject : ezAngelScriptClass
+class ScriptObject : WAngelScriptClass
 {
     bool RadialShatter = true;
     int MaxImpacts = 10;
     private int Counter = 0;
 
-    void OnImpact(ezVec3 pos, ezVec3 dir, bool radial, float size)
+    void OnImpact(WVec3 pos, WVec3 dir, bool radial, float size)
     {
         ++Counter;
 
-        ezJoltBreakableSlabComponent@ slab;
+        WJoltBreakableSlabComponent@ slab;
         if (GetOwner().TryGetComponentOfBaseType(@slab))
         {
             slab.ContactReportForceThreshold = 5;
@@ -27,17 +27,17 @@ class ScriptObject : ezAngelScriptClass
         }
     }
     
-    void OnMsgDamage(ezMsgDamage@ msg) 
+    void OnMsgDamage(WMsgDamage@ msg) 
     {
         OnImpact(msg.GlobalPosition, msg.ImpactDirection * msg.Damage * 0.5, true, 0.15);
      }
 
-     void OnMsgPhysicContact(ezMsgPhysicContact@ msg)
+     void OnMsgPhysicContact(WMsgPhysicContact@ msg)
      {
-        OnImpact(msg.GlobalPosition, msg.Normal * ezMath::Sqrt(msg.ImpactSqr), true, 0.4);
+        OnImpact(msg.GlobalPosition, msg.Normal * WMath::Sqrt(msg.ImpactSqr), true, 0.4);
      }
 
-     void OnMsgPhysicCharacterContact(ezMsgPhysicCharacterContact@ msg)
+     void OnMsgPhysicCharacterContact(WMsgPhysicCharacterContact@ msg)
      {
         OnImpact(msg.GlobalPosition, msg.Normal * msg.Impact, false, 0.4);
      }

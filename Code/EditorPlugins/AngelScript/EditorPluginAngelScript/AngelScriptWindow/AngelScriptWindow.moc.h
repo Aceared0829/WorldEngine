@@ -6,49 +6,49 @@
 #include <QTimer>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezAngelScriptAssetDocument;
-struct ezAssetCuratorEvent;
-class ezEditorEngineDocumentMsg;
+class WAngelScriptAssetDocument;
+struct WAssetCuratorEvent;
+class WEditorEngineDocumentMsg;
 class QTextEdit;
 
-class ezQtAngelScriptAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtAngelScriptAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtAngelScriptAssetDocumentWindow(ezAngelScriptAssetDocument* pDocument);
-  ~ezQtAngelScriptAssetDocumentWindow();
+  WQtAngelScriptAssetDocumentWindow(WAngelScriptAssetDocument* pDocument);
+  ~WQtAngelScriptAssetDocumentWindow();
 
 private Q_SLOTS:
   void onTextEditTextChanged();
   void onEditTimer();
 
 private:
-  void AssetEventHandler(const ezAssetCuratorEvent& e);
+  void AssetEventHandler(const WAssetCuratorEvent& e);
   void UpdateFileContentDisplay();
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
   void RetrieveScriptInfos();
-  void DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void DocumentObjectEventHandler(const WDocumentObjectPropertyEvent& e);
   void StoreInlineDocState();
 
   struct ExposedParam
   {
-    ezString m_sName;
-    ezVariant m_DefaultValue;
+    WString m_sName;
+    WVariant m_DefaultValue;
     bool m_bExpose = false;
   };
 
-  ezDynamicArray<ExposedParam> m_ExposedParams;
-  ezDynamicArray<ezString> m_Dependencies;
+  WDynamicArray<ExposedParam> m_ExposedParams;
+  WDynamicArray<WString> m_Dependencies;
 
-  ezAngelScriptAssetDocument* m_pAssetDoc = nullptr;
+  WAngelScriptAssetDocument* m_pAssetDoc = nullptr;
 
   bool m_bIgnoreCodeChange = false;
   QTextEdit* m_pSourceLabel = nullptr;
   QSyntaxHighlighter* m_pHighlighter = nullptr;
   QTimer m_EditTimer;
-  ezTime m_LastEdit;
-  ezTime m_LastSave;
+  WTime m_LastEdit;
+  WTime m_LastSave;
 };
 
 

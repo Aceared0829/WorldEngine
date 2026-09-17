@@ -3,42 +3,42 @@
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcessAssetMsg, 1, WRTTIDefaultAllocator<WProcessAssetMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
-    EZ_MEMBER_PROPERTY("AssetHash", m_AssetHash),
-    EZ_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
-    EZ_MEMBER_PROPERTY("PackageHash", m_PackageHash),
-    EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
-    EZ_MEMBER_PROPERTY("Platform", m_sPlatform),
-    EZ_ARRAY_MEMBER_PROPERTY("DepRefHull", m_DepRefHull),
+    W_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
+    W_MEMBER_PROPERTY("AssetHash", m_AssetHash),
+    W_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
+    W_MEMBER_PROPERTY("PackageHash", m_PackageHash),
+    W_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
+    W_MEMBER_PROPERTY("Platform", m_sPlatform),
+    W_ARRAY_MEMBER_PROPERTY("DepRefHull", m_DepRefHull),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetResponseMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WProcessAssetResponseMsg, 1, WRTTIDefaultAllocator<WProcessAssetResponseMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Status", m_Status),
-    EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
-    EZ_MAP_MEMBER_PROPERTY("MissmatchTransformDependencies", m_MissmatchTransformDependencies),
-    EZ_MAP_MEMBER_PROPERTY("MissmatchThumbnailDependencies", m_MissmatchThumbnailDependencies),
-    EZ_MEMBER_PROPERTY("MissmatchAssetHash", m_uiMissmatchAssetHash),
-    EZ_MEMBER_PROPERTY("MissmatchThumbHash", m_uiMissmatchThumbHash),
-    EZ_MEMBER_PROPERTY("StartedProcessing", m_StartedProcessing),
-    EZ_MEMBER_PROPERTY("StartedTransform", m_StartedTransform),
-    EZ_MEMBER_PROPERTY("FinishedProcessing", m_FinishedProcessing),
+    W_MEMBER_PROPERTY("Status", m_Status),
+    W_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
+    W_MAP_MEMBER_PROPERTY("MissmatchTransformDependencies", m_MissmatchTransformDependencies),
+    W_MAP_MEMBER_PROPERTY("MissmatchThumbnailDependencies", m_MissmatchThumbnailDependencies),
+    W_MEMBER_PROPERTY("MissmatchAssetHash", m_uiMissmatchAssetHash),
+    W_MEMBER_PROPERTY("MissmatchThumbHash", m_uiMissmatchThumbHash),
+    W_MEMBER_PROPERTY("StartedProcessing", m_StartedProcessing),
+    W_MEMBER_PROPERTY("StartedTransform", m_StartedTransform),
+    W_MEMBER_PROPERTY("FinishedProcessing", m_FinishedProcessing),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFreeAllResourcesMsg, 1, ezRTTIDefaultAllocator<ezFreeAllResourcesMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFreeAllResourcesMsg, 1, WRTTIDefaultAllocator<WFreeAllResourcesMsg>)
 {
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

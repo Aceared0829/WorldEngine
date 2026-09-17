@@ -8,37 +8,37 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezQtLogModel;
-struct ezLoggingEventData;
-class ezPreferences;
+class WQtLogModel;
+struct WLoggingEventData;
+class WPreferences;
 
 /// The application wide panel that shows the engine log output and the editor log output
-class EZ_EDITORFRAMEWORK_DLL ezQtLogPanel : public ezQtApplicationPanel, public Ui_LogPanel
+class W_EDITORFRAMEWORK_DLL WQtLogPanel : public WQtApplicationPanel, public Ui_LogPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtLogPanel);
+  W_DECLARE_SINGLETON(WQtLogPanel);
 
 public:
-  ezQtLogPanel(ads::CDockManager* pDockManager);
-  ~ezQtLogPanel();
+  WQtLogPanel(ads::CDockManager* pDockManager);
+  ~WQtLogPanel();
 
 protected:
-  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
+  virtual void ToolsProjectEventHandler(const WToolsProjectEvent& e) override;
 
 private Q_SLOTS:
   void OnNewWarningsOrErrors(const char* szText, bool bError);
 
 private:
-  void LogWriter(const ezLoggingEventData& e);
-  void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
-  void UiServiceEventHandler(const ezQtUiServices::Event& e);
-  void OnPreferenceChange(ezPreferences* pref);
+  void LogWriter(const WLoggingEventData& e);
+  void EngineProcessMsgHandler(const WEditorEngineProcessConnection::Event& e);
+  void UiServiceEventHandler(const WQtUiServices::Event& e);
+  void OnPreferenceChange(WPreferences* pref);
 
-  ezUInt32 m_uiIgnoredNumErrors = 0;
-  ezUInt32 m_uiIgnoreNumWarnings = 0;
-  ezUInt32 m_uiKnownNumErrors = 0;
-  ezUInt32 m_uiKnownNumWarnings = 0;
+  WUInt32 m_uiIgnoredNumErrors = 0;
+  WUInt32 m_uiIgnoreNumWarnings = 0;
+  WUInt32 m_uiKnownNumErrors = 0;
+  WUInt32 m_uiKnownNumWarnings = 0;
 
   bool m_bCombineLogs = true;
 };

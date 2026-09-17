@@ -15,9 +15,9 @@
 # DirectX11_LIBRARY
 # DirectX11_ROOT_DIR
 
-ez_pull_platform_vars()
+W_pull_platform_vars()
 
-if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for DirectX11 SDK
+if(W_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for DirectX11 SDK
 	include(FindPkgMacros)
 	findpkg_begin(DirectX11)
 
@@ -42,15 +42,15 @@ if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for Di
 
 	# Windows 8 SDK has custom layout
 	set(DirectX11_INC_SEARCH_PATH
-		"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/shared"
-		"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/um"
+		"C:/Program Files (x86)/Windows Kits/10/Include/${W_CMAKE_WINDOWS_SDK_VERSION}/shared"
+		"C:/Program Files (x86)/Windows Kits/10/Include/${W_CMAKE_WINDOWS_SDK_VERSION}/um"
 		"C:/Program Files (x86)/Windows Kits/8.1/Include/shared"
 		"C:/Program Files (x86)/Windows Kits/8.1/Include/um"
 		"C:/Program Files (x86)/Windows Kits/8.0/Include/shared"
 		"C:/Program Files (x86)/Windows Kits/8.0/Include/um"
 	)
 	set(DirectX11_LIB_SEARCH_PATH
-		"C:/Program Files (x86)/Windows Kits/10/Lib/${EZ_CMAKE_WINDOWS_SDK_VERSION}/um"
+		"C:/Program Files (x86)/Windows Kits/10/Lib/${W_CMAKE_WINDOWS_SDK_VERSION}/um"
 		"C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um"
 		"C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um"
 	)
@@ -66,14 +66,14 @@ if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for Di
 
 	# dlls are in DirectX11_ROOT_DIR/Developer Runtime/x64|x86
 	# lib files are in DirectX11_ROOT_DIR/Lib/x64|x86
-	if(EZ_CMAKE_ARCHITECTURE_ARM)
-		if(EZ_CMAKE_ARCHITECTURE_64BIT)
+	if(W_CMAKE_ARCHITECTURE_ARM)
+		if(W_CMAKE_ARCHITECTURE_64BIT)
 			set(DirectX11_LIBPATH_SUFFIX "arm64")
 		else()
 			set(DirectX11_LIBPATH_SUFFIX "arm")
 		endif()
 	else()
-		if(EZ_CMAKE_ARCHITECTURE_64BIT)
+		if(W_CMAKE_ARCHITECTURE_64BIT)
 			set(DirectX11_LIBPATH_SUFFIX "x64")
 		else()
 			set(DirectX11_LIBPATH_SUFFIX "x86")

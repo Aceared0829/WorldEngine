@@ -10,77 +10,77 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WApplicationFileSystemConfig, WNoBase, 1, WRTTIDefaultAllocator<WApplicationFileSystemConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("DataDirs", m_DataDirs),
+    W_ARRAY_MEMBER_PROPERTY("DataDirs", m_DataDirs),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig_DataDirConfig>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WApplicationFileSystemConfig_DataDirConfig, WNoBase, 1, WRTTIDefaultAllocator<WApplicationFileSystemConfig_DataDirConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RelativePath", m_sDataDirSpecialPath),
-    EZ_MEMBER_PROPERTY("Writable", m_bWritable),
-    EZ_MEMBER_PROPERTY("RootName", m_sRootName),
+    W_MEMBER_PROPERTY("RelativePath", m_sDataDirSpecialPath),
+    W_MEMBER_PROPERTY("Writable", m_bWritable),
+    W_MEMBER_PROPERTY("RootName", m_sRootName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezApplicationFileSystemConfig::Save(ezStringView sPath)
+WResult WApplicationFileSystemConfig::Save(WStringView sPath)
 {
-  ezFileWriter file;
+  WFileWriter file;
   if (file.Open(sPath).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&file);
   writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
 
-  for (ezUInt32 i = 0; i < m_DataDirs.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_DataDirs.GetCount(); ++i)
   {
     writer.BeginObject("DataDir");
 
-    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sDataDirSpecialPath, "Path");
-    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sRootName, "RootName");
-    ezOpenDdlUtils::StoreBool(writer, m_DataDirs[i].m_bWritable, "Writable");
+    WOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sDataDirSpecialPath, "Path");
+    WOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sRootName, "RootName");
+    WOpenDdlUtils::StoreBool(writer, m_DataDirs[i].m_bWritable, "Writable");
 
     writer.EndObject();
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezApplicationFileSystemConfig::Load(ezStringView sPath)
+void WApplicationFileSystemConfig::Load(WStringView sPath)
 {
-  EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Load()");
+  W_LOG_BLOCK("WApplicationFileSystemConfig::Load()");
 
   m_DataDirs.Clear();
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Dev("File-system config file '{0}' does not exist.", sPath);
+    WLog::Dev("File-system config file '{0}' does not exist.", sPath);
     return;
   }
 
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  WOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, WLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse file-system config file '{0}'", sPath);
+    WLog::Error("Failed to parse file-system config file '{0}'", sPath);
     return;
   }
 
-  const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
+  const WOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pDirs = pTree->GetFirstChild(); pDirs != nullptr; pDirs = pDirs->GetSibling())
+  for (const WOpenDdlReaderElement* pDirs = pTree->GetFirstChild(); pDirs != nullptr; pDirs = pDirs->GetSibling())
   {
     if (!pDirs->IsCustomType("DataDir"))
       continue;
@@ -88,9 +88,9 @@ void ezApplicationFileSystemConfig::Load(ezStringView sPath)
     DataDirConfig cfg;
     cfg.m_bWritable = false;
 
-    const ezOpenDdlReaderElement* pPath = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
-    const ezOpenDdlReaderElement* pRoot = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::String, "RootName");
-    const ezOpenDdlReaderElement* pWrite = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Writable");
+    const WOpenDdlReaderElement* pPath = pDirs->FindChildOfType(WOpenDdlPrimitiveType::String, "Path");
+    const WOpenDdlReaderElement* pRoot = pDirs->FindChildOfType(WOpenDdlPrimitiveType::String, "RootName");
+    const WOpenDdlReaderElement* pWrite = pDirs->FindChildOfType(WOpenDdlPrimitiveType::Bool, "Writable");
 
     if (pPath)
       cfg.m_sDataDirSpecialPath = pPath->GetPrimitivesString()[0];
@@ -107,19 +107,19 @@ void ezApplicationFileSystemConfig::Load(ezStringView sPath)
       }
       else if (cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":project/"))
       {
-        ezStringBuilder temp(">project/");
+        WStringBuilder temp(">project/");
         temp.AppendPath(cfg.m_sDataDirSpecialPath.GetData() + 9);
         cfg.m_sDataDirSpecialPath = temp;
       }
       else if (cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":sdk/"))
       {
-        ezStringBuilder temp(">sdk/");
+        WStringBuilder temp(">sdk/");
         temp.AppendPath(cfg.m_sDataDirSpecialPath.GetData() + 5);
         cfg.m_sDataDirSpecialPath = temp;
       }
       else if (!cfg.m_sDataDirSpecialPath.StartsWith_NoCase(">sdk/"))
       {
-        ezStringBuilder temp(">sdk/");
+        WStringBuilder temp(">sdk/");
         temp.AppendPath(cfg.m_sDataDirSpecialPath);
         cfg.m_sDataDirSpecialPath = temp;
       }
@@ -129,59 +129,59 @@ void ezApplicationFileSystemConfig::Load(ezStringView sPath)
   }
 }
 
-void ezApplicationFileSystemConfig::Apply()
+void WApplicationFileSystemConfig::Apply()
 {
-  EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Apply");
+  W_LOG_BLOCK("WApplicationFileSystemConfig::Apply");
 
-  // ezStringBuilder s;
+  // WStringBuilder s;
 
   // Make sure previous calls to Apply do not accumulate
   Clear();
 
   for (const auto& var : m_DataDirs)
   {
-    // if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
+    // if (WFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
     {
-      ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezDataDirUsage::AllowWrites : ezDataDirUsage::ReadOnly).IgnoreResult();
+      WFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? WDataDirUsage::AllowWrites : WDataDirUsage::ReadOnly).IgnoreResult();
     }
   }
 }
 
 
-void ezApplicationFileSystemConfig::Clear()
+void WApplicationFileSystemConfig::Clear()
 {
-  ezFileSystem::RemoveDataDirectoryGroup("AppFileSystemConfig");
+  WFileSystem::RemoveDataDirectoryGroup("AppFileSystemConfig");
 }
 
-ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
+WResult WApplicationFileSystemConfig::CreateDataDirStubFiles()
 {
-  EZ_LOG_BLOCK("ezApplicationFileSystemConfig::CreateDataDirStubFiles");
+  W_LOG_BLOCK("WApplicationFileSystemConfig::CreateDataDirStubFiles");
 
-  ezStringBuilder s;
-  ezResult res = EZ_SUCCESS;
+  WStringBuilder s;
+  WResult res = W_SUCCESS;
 
   for (const auto& var : m_DataDirs)
   {
-    if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
+    if (WFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
     {
-      ezLog::Error("Failed to get special directory '{0}'", var.m_sDataDirSpecialPath);
-      res = EZ_FAILURE;
+      WLog::Error("Failed to get special directory '{0}'", var.m_sDataDirSpecialPath);
+      res = W_FAILURE;
       continue;
     }
 
-    s.AppendPath("DataDir.ezManifest");
+    s.AppendPath("DataDir.WManifest");
 
-    ezOSFile file;
-    if (file.Open(s, ezFileOpenMode::Write).Failed())
+    WOSFile file;
+    if (file.Open(s, WFileOpenMode::Write).Failed())
     {
-      ezLog::Error("Failed to create stub file '{0}'", s);
-      res = EZ_FAILURE;
+      WLog::Error("Failed to create stub file '{0}'", s);
+      res = W_FAILURE;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_FileSystemConfig);
+W_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_FileSystemConfig);

@@ -10,32 +10,32 @@
 #include <Physics/Collision/Shape/EmptyShape.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeSphereComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltShapeSphereComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius"),
+    new WSphereManipulatorAttribute("Radius"),
+    new WSphereVisualizerAttribute("Radius"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltShapeSphereComponent::ezJoltShapeSphereComponent() = default;
-ezJoltShapeSphereComponent::~ezJoltShapeSphereComponent() = default;
+WJoltShapeSphereComponent::WJoltShapeSphereComponent() = default;
+WJoltShapeSphereComponent::~WJoltShapeSphereComponent() = default;
 
-void ezJoltShapeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltShapeSphereComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -43,24 +43,24 @@ void ezJoltShapeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_fRadius;
 }
 
-void ezJoltShapeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltShapeSphereComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
   auto& s = inout_stream.GetStream();
   s >> m_fRadius;
 }
 
-void ezJoltShapeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WJoltShapeSphereComponent::OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fRadius), WInvalidSpatialDataCategory);
 }
 
-void ezJoltShapeSphereComponent::SetRadius(float f)
+void WJoltShapeSphereComponent::SetRadius(float f)
 {
-  m_fRadius = ezMath::Max(f, 0.0f);
+  m_fRadius = WMath::Max(f, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -68,10 +68,10 @@ void ezJoltShapeSphereComponent::SetRadius(float f)
   }
 }
 
-void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+void WJoltShapeSphereComponent::CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial)
 {
-  ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
-  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+  WJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+  sub.m_Transform = WTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 
   if (m_fRadius > 0.0f)
   {
@@ -87,8 +87,8 @@ void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
   }
 
   sub.m_pShape->AddRef();
-  sub.m_pShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
+  sub.m_pShape->SetUserData(reinterpret_cast<WUInt64>(GetUserData()));
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);

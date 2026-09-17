@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_ENABLED(W_SUPPORTS_DIRECTORY_WATCHER) && W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
 
 #  include <Foundation/Application/Config/FileSystemConfig.h>
 #  include <Foundation/Configuration/Singleton.h>
@@ -11,12 +11,12 @@
 #  include <ToolsFoundation/FileSystem/DataDirPath.h>
 #  include <ToolsFoundation/FileSystem/Declarations.h>
 
-class ezFileSystemWatcher;
-struct ezFileSystemWatcherEvent;
-struct ezFileStats;
+class WFileSystemWatcher;
+struct WFileSystemWatcherEvent;
+struct WFileStats;
 
-/// Event fired by ezFileSystemModel::m_FolderChangedEvents
-struct EZ_TOOLSFOUNDATION_DLL ezFolderChangedEvent
+/// Event fired by WFileSystemModel::m_FolderChangedEvents
+struct W_TOOLSFOUNDATION_DLL WFolderChangedEvent
 {
   enum class Type
   {
@@ -26,15 +26,15 @@ struct EZ_TOOLSFOUNDATION_DLL ezFolderChangedEvent
     ModelReset, ///< Model was initialized or deinitialized.
   };
 
-  ezFolderChangedEvent() = default;
-  ezFolderChangedEvent(const ezDataDirPath& file, Type type);
+  WFolderChangedEvent() = default;
+  WFolderChangedEvent(const WDataDirPath& file, Type type);
 
-  ezDataDirPath m_Path;
+  WDataDirPath m_Path;
   Type m_Type = Type::None;
 };
 
-/// Event fired by ezFileSystemModel::m_FileChangedEvents
-struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
+/// Event fired by WFileSystemModel::m_FileChangedEvents
+struct W_TOOLSFOUNDATION_DLL WFileChangedEvent
 {
   enum class Type
   {
@@ -47,49 +47,49 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
     ModelReset ///< Model was initialized or deinitialized.
   };
 
-  ezFileChangedEvent() = default;
-  ezFileChangedEvent(const ezDataDirPath& file, ezFileStatus status, Type type);
+  WFileChangedEvent() = default;
+  WFileChangedEvent(const WDataDirPath& file, WFileStatus status, Type type);
 
-  ezDataDirPath m_Path;
-  ezFileStatus m_Status;
+  WDataDirPath m_Path;
+  WFileStatus m_Status;
   Type m_Type = Type::None;
 };
 
-/// A subsystem for tracking all files in a ezApplicationFileSystemConfig.
+/// A subsystem for tracking all files in a WApplicationFileSystemConfig.
 ///
-/// Once Initialize is called with the ezApplicationFileSystemConfig to track, the current state should be updated by calling CheckFileSystem() on a worker thread. This will trigger m_FolderChangedEvents and m_FileChangedEvents for all files / folders found in the data directories present in the config. Any future changes will be picked up by the ezFileSystemWatcher created in Initialize.
+/// Once Initialize is called with the WApplicationFileSystemConfig to track, the current state should be updated by calling CheckFileSystem() on a worker thread. This will trigger m_FolderChangedEvents and m_FileChangedEvents for all files / folders found in the data directories present in the config. Any future changes will be picked up by the WFileSystemWatcher created in Initialize.
 /// For the system to work, the MainThreadTick function needs to be called at regular (e.g. frame) intervals.
 /// The model also caches file hashes as well as allows files to be linked to document GUIDs for fast lookups.
-class EZ_TOOLSFOUNDATION_DLL ezFileSystemModel
+class W_TOOLSFOUNDATION_DLL WFileSystemModel
 {
-  EZ_DECLARE_SINGLETON(ezFileSystemModel);
+  W_DECLARE_SINGLETON(WFileSystemModel);
 
 public:
-  using FilesMap = ezMap<ezDataDirPath, ezFileStatus, ezCompareDataDirPath>;
-  using FoldersMap = ezMap<ezDataDirPath, ezFileStatus::Status, ezCompareDataDirPath>;
+  using FilesMap = WMap<WDataDirPath, WFileStatus, WCompareDataDirPath>;
+  using FoldersMap = WMap<WDataDirPath, WFileStatus::Status, WCompareDataDirPath>;
 
-  using LockedFiles = ezLockedObject<ezMutex, const FilesMap>;
-  using LockedFolders = ezLockedObject<ezMutex, const FoldersMap>;
+  using LockedFiles = WLockedObject<WMutex, const FilesMap>;
+  using LockedFolders = WLockedObject<WMutex, const FoldersMap>;
 
 public:
-  /// Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results. This function assumes both paths are absolute and cleaned via ezStringBuilder::MakeCleanPath.
-  static bool IsSameFile(const ezStringView sAbsolutePathA, const ezStringView sAbsolutePathB);
+  /// Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results. This function assumes both paths are absolute and cleaned via WStringBuilder::MakeCleanPath.
+  static bool IsSameFile(const WStringView sAbsolutePathA, const WStringView sAbsolutePathB);
 
   /// Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
-  static ezUInt64 HashFile(ezStreamReader& ref_inputStream, ezStreamWriter* pPassThroughStream);
+  static WUInt64 HashFile(WStreamReader& ref_inputStream, WStreamWriter* pPassThroughStream);
 
 public:
   /// \name Setup
   ///@{
 
-  ezFileSystemModel();
-  ~ezFileSystemModel();
+  WFileSystemModel();
+  ~WFileSystemModel();
 
   /// Initializes the model for the given file system config.
   /// \param fileSystemConfig All data directories in this config will be tracked by the model.
-  /// \param referencedFiles Restores the previous state of the file model. E.g. cached on disk. If the ezFileStatus::Status is ezFileStatus::Status::Unknown m_FileChangedEvents is guaranteed to be fired once the file is checked again, e.g. via CheckFileSystem or NotifyOfChange.
+  /// \param referencedFiles Restores the previous state of the file model. E.g. cached on disk. If the WFileStatus::Status is WFileStatus::Status::Unknown m_FileChangedEvents is guaranteed to be fired once the file is checked again, e.g. via CheckFileSystem or NotifyOfChange.
   /// \param referencedFolders Restores the previous state of the folder model. E.g. cached on disk.
-  void Initialize(const ezApplicationFileSystemConfig& fileSystemConfig, FilesMap&& referencedFiles, FoldersMap&& referencedFolders);
+  void Initialize(const WApplicationFileSystemConfig& fileSystemConfig, FilesMap&& referencedFiles, FoldersMap&& referencedFolders);
 
   /// Deinitialize the model.
   /// \param out_pReferencedFiles If set, filled with the current state of the file model so it can be cached, e.g. by storing it on disk.
@@ -99,8 +99,8 @@ public:
   /// Needs to be called every frame to restart background tasks.
   void MainThreadTick();
 
-  const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
-  ezArrayPtr<const ezString> GetDataDirectoryRoots() const { return m_DataDirRoots.GetArrayPtr(); }
+  const WApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
+  WArrayPtr<const WString> GetDataDirectoryRoots() const { return m_DataDirRoots.GetArrayPtr(); }
 
   ///@}
   /// \name File / Folder Access
@@ -117,13 +117,13 @@ public:
   /// Searches for a file in the model.
   /// \param sPath Absolute or relative path to a file to be searched for.
   /// \param stat Contains the current state of the file in the model if found.
-  /// \return Returns EZ_SUCCESS if the file was found.
-  ezResult FindFile(ezStringView sPath, ezFileStatus& out_stat) const;
+  /// \return Returns W_SUCCESS if the file was found.
+  WResult FindFile(WStringView sPath, WFileStatus& out_stat) const;
 
   /// Searches for the first file in the model that satisfies the given visitor function.
-  /// \param visitor Called for every file in the model. If this functions returns true, the search is canceled and the function returns EZ_SUCCESS.
-  /// \return Returns EZ_SUCCESS if the visitor returned true for a file.
-  ezResult FindFile(ezDelegate<bool(const ezDataDirPath&, const ezFileStatus&)> visitor) const;
+  /// \param visitor Called for every file in the model. If this functions returns true, the search is canceled and the function returns W_SUCCESS.
+  /// \return Returns W_SUCCESS if the visitor returned true for a file.
+  WResult FindFile(WDelegate<bool(const WDataDirPath&, const WFileStatus&)> visitor) const;
 
   ///@}
   /// \name File / Folder Updates
@@ -132,11 +132,11 @@ public:
   /// Force checking the filesystem for changes to the given file or folder.
   /// This function will handle file add/remove/change as well as folder add/remove. If an existing folder should be checked for changes, use CheckFolder instead.
   /// \param sAbsolutePath File or folder to check for changes.
-  void NotifyOfChange(ezStringView sAbsolutePath);
+  void NotifyOfChange(WStringView sAbsolutePath);
 
   /// Check an existing folder recursively for changes.
   /// \param sAbsolutePath Absolute path to an existing folder in the model.
-  void CheckFolder(ezStringView sAbsolutePath);
+  void CheckFolder(WStringView sAbsolutePath);
 
   /// Updates all files and folders in the model by iterating over all data directories. This is very expensive and should be done on a worker thread.
   void CheckFileSystem();
@@ -148,62 +148,62 @@ public:
   /// Links a document Id to the given file. This allows for fast lookups whether a file is also a document.
   /// \param sAbsolutePath Path to the document. Must be in the model.
   /// \param documentId The Id of the document that should be linked to the file.
-  /// \return Returns EZ_SUCCESS if the file existed in the model and could be linked.
-  ezResult LinkDocument(ezStringView sAbsolutePath, const ezUuid& documentId);
+  /// \return Returns W_SUCCESS if the file existed in the model and could be linked.
+  WResult LinkDocument(WStringView sAbsolutePath, const WUuid& documentId);
 
   /// Unlinks a document from a file
   /// \param sAbsolutePath Path to the document. Must be in the model.
-  /// \return Returns EZ_SUCCESS if the file existed.
-  ezResult UnlinkDocument(ezStringView sAbsolutePath);
+  /// \return Returns W_SUCCESS if the file existed.
+  WResult UnlinkDocument(WStringView sAbsolutePath);
 
   /// Creates a file reader to the given file. Will also link the document and hash it in a file-system-atomic operation.
   /// \param sAbsolutePath Path to the document. Must be in the model.
-  /// \param callback Called once the file was opened and hashed. The ezFileStatus contains the up to date info for the file, including hash.
-  /// \return Returns EZ_SUCCESS if the file existed and could be opened. Returns EZ_FAILURE if the file is not in the model or the file can't be opened for read access. On read failure, the file will be marked as locked.
-  ezResult ReadDocument(ezStringView sAbsolutePath, const ezDelegate<void(const ezFileStatus&, ezStreamReader&)>& callback);
+  /// \param callback Called once the file was opened and hashed. The WFileStatus contains the up to date info for the file, including hash.
+  /// \return Returns W_SUCCESS if the file existed and could be opened. Returns W_FAILURE if the file is not in the model or the file can't be opened for read access. On read failure, the file will be marked as locked.
+  WResult ReadDocument(WStringView sAbsolutePath, const WDelegate<void(const WFileStatus&, WStreamReader&)>& callback);
 
   /// Returns an up-to-date hash for the given file. Will trigger m_FileChangedEvents if the file has been modified since the last check. Hashes are cached so in the best case this will just check the timestamp on disk against the model and then return the cached hash. This function will also work on files outside of the data directories.
   /// \param sAbsolutePath Path to the document. Must be in the model.
   /// \param out_stat Contains the up to date info for the file, including hash.
-  /// \return Returns EZ_SUCCESS if the file existed and could be opened. On failure, the file will be marked as locked.
-  ezResult HashFile(ezStringView sAbsolutePath, ezFileStatus& out_stat);
+  /// \return Returns W_SUCCESS if the file existed and could be opened. On failure, the file will be marked as locked.
+  WResult HashFile(WStringView sAbsolutePath, WFileStatus& out_stat);
 
   ///@}
 
 public:
-  ezCopyOnBroadcastEvent<const ezFolderChangedEvent&, ezMutex> m_FolderChangedEvents;
-  ezCopyOnBroadcastEvent<const ezFileChangedEvent&, ezMutex> m_FileChangedEvents;
+  WCopyOnBroadcastEvent<const WFolderChangedEvent&, WMutex> m_FolderChangedEvents;
+  WCopyOnBroadcastEvent<const WFileChangedEvent&, WMutex> m_FileChangedEvents;
 
 private:
   void SetAllStatusUnknown();
   void RemoveStaleFileInfos();
 
-  void OnAssetWatcherEvent(const ezFileSystemWatcherEvent& e);
-  ezFileStatus HandleSingleFile(ezDataDirPath absolutePath, bool bRecurseIntoFolders);
-  ezFileStatus HandleSingleFile(ezDataDirPath absolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders);
+  void OnAssetWatcherEvent(const WFileSystemWatcherEvent& e);
+  WFileStatus HandleSingleFile(WDataDirPath absolutePath, bool bRecurseIntoFolders);
+  WFileStatus HandleSingleFile(WDataDirPath absolutePath, const WFileStats& FileStat, bool bRecurseIntoFolders);
 
-  void RemoveFileOrFolder(const ezDataDirPath& absolutePath, bool bRecurseIntoFolders);
+  void RemoveFileOrFolder(const WDataDirPath& absolutePath, bool bRecurseIntoFolders);
 
-  void MarkFileLocked(ezStringView sAbsolutePath);
+  void MarkFileLocked(WStringView sAbsolutePath);
 
-  void FireFileChangedEvent(const ezDataDirPath& file, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
-  void FireFolderChangedEvent(const ezDataDirPath& file, ezFolderChangedEvent::Type type);
+  void FireFileChangedEvent(const WDataDirPath& file, WFileStatus fileStatus, WFileChangedEvent::Type type);
+  void FireFolderChangedEvent(const WDataDirPath& file, WFolderChangedEvent::Type type);
 
 private:
   // Immutable data after Initialize
-  ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezDynamicArray<ezString> m_DataDirRoots;
-  ezUniquePtr<ezFileSystemWatcher> m_pWatcher;
-  ezEventSubscriptionID m_WatcherSubscription = {};
+  WApplicationFileSystemConfig m_FileSystemConfig;
+  WDynamicArray<WString> m_DataDirRoots;
+  WUniquePtr<WFileSystemWatcher> m_pWatcher;
+  WEventSubscriptionID m_WatcherSubscription = {};
 
   // Actual file system data
-  mutable ezMutex m_FilesMutex;
-  ezAtomicBool m_bInitialized = false;
+  mutable WMutex m_FilesMutex;
+  WAtomicBool m_bInitialized = false;
 
   FilesMap m_ReferencedFiles;                     // Absolute path to stat map
   FoldersMap m_ReferencedFolders;                 // Absolute path to status map
-  ezSet<ezString> m_LockedFiles;
-  ezMap<ezString, ezFileStatus> m_TransiendFiles; // Absolute path to stat for files outside the data directories.
+  WSet<WString> m_LockedFiles;
+  WMap<WString, WFileStatus> m_TransiendFiles; // Absolute path to stat for files outside the data directories.
 };
 
 #endif

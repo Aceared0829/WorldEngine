@@ -6,60 +6,60 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
-class ezComponent;
-class ezWorld;
-class ezBlackboard;
-class ezStateMachineInstance;
+class WComponent;
+class WWorld;
+class WBlackboard;
+class WStateMachineInstance;
 
 /// Base class for a state in a state machine.
 ///
 /// Note that states are shared between multiple instances and thus
 /// shouldn't modify any data on their own but always operate on the passed instance and instance data.
-/// \see ezStateMachineInstanceDataDesc
-class EZ_GAMEENGINE_DLL ezStateMachineState : public ezReflectedClass
+/// \see WStateMachineInstanceDataDesc
+class W_GAMEENGINE_DLL WStateMachineState : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState, WReflectedClass);
 
 public:
-  ezStateMachineState(ezStringView sName = ezStringView());
+  WStateMachineState(WStringView sName = WStringView());
 
-  void SetName(ezStringView sName);
-  ezStringView GetName() const { return m_sName; }
-  const ezHashedString& GetNameHashed() const { return m_sName; }
+  void SetName(WStringView sName);
+  WStringView GetName() const { return m_sName; }
+  const WHashedString& GetNameHashed() const { return m_sName; }
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const = 0;
-  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const;
-  virtual void Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const;
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const = 0;
+  virtual void OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const;
+  virtual void Update(WStateMachineInstance& ref_instance, void* pInstanceData, WTime deltaTime) const;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream);
+  virtual WResult Serialize(WStreamWriter& inout_stream) const;
+  virtual WResult Deserialize(WStreamReader& inout_stream);
 
   /// Returns whether this state needs additional instance data and if so fills the out_desc.
   ///
-  /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
+  /// \see WStateMachineInstanceDataDesc
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc);
 
 private:
   // These are dummy functions for the scripting reflection
-  void Reflection_OnEnter(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pFromState);
-  void Reflection_OnExit(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pToState);
-  void Reflection_Update(ezStateMachineInstance* pStateMachineInstance, ezTime deltaTime);
+  void Reflection_OnEnter(WStateMachineInstance* pStateMachineInstance, const WStateMachineState* pFromState);
+  void Reflection_OnExit(WStateMachineInstance* pStateMachineInstance, const WStateMachineState* pToState);
+  void Reflection_Update(WStateMachineInstance* pStateMachineInstance, WTime deltaTime);
 
-  ezHashedString m_sName;
+  WHashedString m_sName;
 };
 
-class EZ_GAMEENGINE_DLL ezStateMachineState_Empty final : public ezStateMachineState
+class W_GAMEENGINE_DLL WStateMachineState_Empty final : public WStateMachineState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Empty, ezStateMachineState);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineState_Empty, WStateMachineState);
 
 public:
-  ezStateMachineState_Empty(ezStringView sName = ezStringView());
-  ~ezStateMachineState_Empty() = default;
+  WStateMachineState_Empty(WStringView sName = WStringView());
+  ~WStateMachineState_Empty() = default;
 
-  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override {}
+  virtual void OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const override {}
 };
 
-struct ezStateMachineState_ScriptBaseClassFunctions
+struct WStateMachineState_ScriptBaseClassFunctions
 {
   enum Enum
   {
@@ -76,118 +76,118 @@ struct ezStateMachineState_ScriptBaseClassFunctions
 ///
 /// Same as with states, transitions are also shared between multiple instances and thus
 /// should decide their condition based on the passed instance and instance data.
-/// \see ezStateMachineInstanceDataDesc
-class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
+/// \see WStateMachineInstanceDataDesc
+class W_GAMEENGINE_DLL WStateMachineTransition : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WStateMachineTransition, WReflectedClass);
 
-  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const = 0;
+  virtual bool IsConditionMet(WStateMachineInstance& ref_instance, void* pInstanceData) const = 0;
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream);
+  virtual WResult Serialize(WStreamWriter& inout_stream) const;
+  virtual WResult Deserialize(WStreamReader& inout_stream);
 
   /// Returns whether this transition needs additional instance data and if so fills the out_desc.
   ///
-  /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
+  /// \see WStateMachineInstanceDataDesc
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc);
 };
 
 /// The state machine description defines the structure of a state machine like e.g.
 /// what states it has and how to transition between them.
 /// Once an instance is created from a description it is not allowed to change the description afterwards.
-class EZ_GAMEENGINE_DLL ezStateMachineDescription : public ezRefCounted
+class W_GAMEENGINE_DLL WStateMachineDescription : public WRefCounted
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStateMachineDescription);
+  W_DISALLOW_COPY_AND_ASSIGN(WStateMachineDescription);
 
 public:
-  ezStateMachineDescription();
-  ~ezStateMachineDescription();
+  WStateMachineDescription();
+  ~WStateMachineDescription();
 
   /// Adds the given state to the description and returns the state index.
-  ezUInt32 AddState(ezUniquePtr<ezStateMachineState>&& pState);
+  WUInt32 AddState(WUniquePtr<WStateMachineState>&& pState);
 
-  /// Adds the given transition between the two given states. A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any other possible state.
-  void AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion);
+  /// Adds the given transition between the two given states. A uiFromStateIndex of WInvalidIndex generates a transition that can be done from any other possible state.
+  void AddTransition(WUInt32 uiFromStateIndex, WUInt32 uiToStateIndex, WUniquePtr<WStateMachineTransition>&& pTransistion);
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  WResult Serialize(WStreamWriter& inout_stream) const;
+  WResult Deserialize(WStreamReader& inout_stream);
 
 private:
-  friend class ezStateMachineInstance;
+  friend class WStateMachineInstance;
 
   struct TransitionContext
   {
-    ezUniquePtr<ezStateMachineTransition> m_pTransition;
-    ezUInt32 m_uiToStateIndex = 0;
-    ezUInt32 m_uiInstanceDataOffset = ezInvalidIndex;
+    WUniquePtr<WStateMachineTransition> m_pTransition;
+    WUInt32 m_uiToStateIndex = 0;
+    WUInt32 m_uiInstanceDataOffset = WInvalidIndex;
   };
 
-  using TransitionArray = ezSmallArray<TransitionContext, 2>;
+  using TransitionArray = WSmallArray<TransitionContext, 2>;
   TransitionArray m_FromAnyTransitions;
 
   struct StateContext
   {
-    ezUniquePtr<ezStateMachineState> m_pState;
+    WUniquePtr<WStateMachineState> m_pState;
     TransitionArray m_Transitions;
-    ezUInt32 m_uiInstanceDataOffset = ezInvalidIndex;
+    WUInt32 m_uiInstanceDataOffset = WInvalidIndex;
   };
 
-  ezDynamicArray<StateContext> m_States;
-  ezHashTable<ezHashedString, ezUInt32> m_StateNameToIndexTable;
+  WDynamicArray<StateContext> m_States;
+  WHashTable<WHashedString, WUInt32> m_StateNameToIndexTable;
 
-  ezInstanceDataAllocator m_InstanceDataAllocator;
+  WInstanceDataAllocator m_InstanceDataAllocator;
 };
 
 /// The state machine instance represents the actual state machine.
 /// Typically it is created from a description but for small use cases it can also be used without a description.
-class EZ_GAMEENGINE_DLL ezStateMachineInstance
+class W_GAMEENGINE_DLL WStateMachineInstance
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezStateMachineInstance);
+  W_DISALLOW_COPY_AND_ASSIGN(WStateMachineInstance);
 
 public:
-  ezStateMachineInstance(ezReflectedClass& ref_owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription = nullptr);
-  ~ezStateMachineInstance();
+  WStateMachineInstance(WReflectedClass& ref_owner, const WSharedPtr<const WStateMachineDescription>& pDescription = nullptr);
+  ~WStateMachineInstance();
 
-  ezResult SetState(ezStateMachineState* pState);
-  ezResult SetState(ezUInt32 uiStateIndex);
-  ezResult SetState(const ezHashedString& sStateName);
-  ezResult SetStateOrFallback(const ezHashedString& sStateName, ezUInt32 uiFallbackStateIndex = 0);
-  ezStateMachineState* GetCurrentState() { return m_pCurrentState; }
+  WResult SetState(WStateMachineState* pState);
+  WResult SetState(WUInt32 uiStateIndex);
+  WResult SetState(const WHashedString& sStateName);
+  WResult SetStateOrFallback(const WHashedString& sStateName, WUInt32 uiFallbackStateIndex = 0);
+  WStateMachineState* GetCurrentState() { return m_pCurrentState; }
 
-  void Update(ezTime deltaTime);
+  void Update(WTime deltaTime);
 
-  ezReflectedClass& GetOwner() { return m_Owner; }
-  ezWorld* GetOwnerWorld();
+  WReflectedClass& GetOwner() { return m_Owner; }
+  WWorld* GetOwnerWorld();
 
-  void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
-  const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
+  void SetBlackboard(const WSharedPtr<WBlackboard>& pBlackboard);
+  const WSharedPtr<WBlackboard>& GetBlackboard() const { return m_pBlackboard; }
 
   /// Returns how long the state machine is in its current state
-  ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
+  WTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
   /// Sends a named event that state transitions can react to.
-  void FireTransitionEvent(ezStringView sEvent);
+  void FireTransitionEvent(WStringView sEvent);
 
-  ezStringView GetCurrentTransitionEvent() const { return m_sCurrentTransitionEvent; }
+  WStringView GetCurrentTransitionEvent() const { return m_sCurrentTransitionEvent; }
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
+  W_ALLOW_PRIVATE_PROPERTIES(WStateMachineInstance);
 
-  bool Reflection_SetState(const ezHashedString& sStateName);
-  ezComponent* Reflection_GetOwnerComponent() const;
-  ezBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
+  bool Reflection_SetState(const WHashedString& sStateName);
+  WComponent* Reflection_GetOwnerComponent() const;
+  WBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
 
-  void SetStateInternal(ezUInt32 uiStateIndex);
-  void EnterCurrentState(const ezStateMachineState* pFromState);
-  void ExitCurrentState(const ezStateMachineState* pToState);
-  ezUInt32 FindNewStateToTransitionTo();
+  void SetStateInternal(WUInt32 uiStateIndex);
+  void EnterCurrentState(const WStateMachineState* pFromState);
+  void ExitCurrentState(const WStateMachineState* pToState);
+  WUInt32 FindNewStateToTransitionTo();
 
-  EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
+  W_ALWAYS_INLINE void* GetInstanceData(WUInt32 uiOffset)
   {
-    return ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
+    return WInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
   }
 
-  EZ_ALWAYS_INLINE void* GetCurrentStateInstanceData()
+  W_ALWAYS_INLINE void* GetCurrentStateInstanceData()
   {
     if (m_pDescription != nullptr && m_uiCurrentStateIndex < m_pDescription->m_States.GetCount())
     {
@@ -196,18 +196,18 @@ private:
     return nullptr;
   }
 
-  ezReflectedClass& m_Owner;
-  ezSharedPtr<const ezStateMachineDescription> m_pDescription;
-  ezSharedPtr<ezBlackboard> m_pBlackboard;
+  WReflectedClass& m_Owner;
+  WSharedPtr<const WStateMachineDescription> m_pDescription;
+  WSharedPtr<WBlackboard> m_pBlackboard;
 
-  ezStateMachineState* m_pCurrentState = nullptr;
-  ezUInt32 m_uiCurrentStateIndex = ezInvalidIndex;
-  ezTime m_TimeInCurrentState;
-  ezStringView m_sCurrentTransitionEvent;
+  WStateMachineState* m_pCurrentState = nullptr;
+  WUInt32 m_uiCurrentStateIndex = WInvalidIndex;
+  WTime m_TimeInCurrentState;
+  WStringView m_sCurrentTransitionEvent;
 
-  const ezStateMachineDescription::TransitionArray* m_pCurrentTransitions = nullptr;
+  const WStateMachineDescription::TransitionArray* m_pCurrentTransitions = nullptr;
 
-  ezBlob m_InstanceData;
+  WBlob m_InstanceData;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineInstance);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WStateMachineInstance);

@@ -3,67 +3,67 @@
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAllocator<ezFmodProjectPreferences>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WFmodProjectPreferences, 1, WRTTIDefaultAllocator<WFmodProjectPreferences>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Mute", m_bMute),
-    EZ_MEMBER_PROPERTY("Volume", m_fMasterVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    W_MEMBER_PROPERTY("Mute", m_bMute),
+    W_MEMBER_PROPERTY("Volume", m_fMasterVolume)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFmodProjectPreferences::ezFmodProjectPreferences()
-  : ezPreferences(Domain::Project, "FMOD")
+WFmodProjectPreferences::WFmodProjectPreferences()
+  : WPreferences(Domain::Project, "FMOD")
 {
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.AddEventHandler(WMakeDelegate(&WFmodProjectPreferences::ProcessEventHandler, this));
 }
 
-ezFmodProjectPreferences::~ezFmodProjectPreferences()
+WFmodProjectPreferences::~WFmodProjectPreferences()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.RemoveEventHandler(WMakeDelegate(&WFmodProjectPreferences::ProcessEventHandler, this));
 }
 
-void ezFmodProjectPreferences::SetMute(bool bMute)
+void WFmodProjectPreferences::SetMute(bool bMute)
 {
   m_bMute = bMute;
 
   SyncCVars();
 }
 
-void ezFmodProjectPreferences::SetVolume(float fVolume)
+void WFmodProjectPreferences::SetVolume(float fVolume)
 {
-  m_fMasterVolume = ezMath::Clamp(fVolume, 0.0f, 1.0f);
+  m_fMasterVolume = WMath::Clamp(fVolume, 0.0f, 1.0f);
 
   SyncCVars();
 }
 
-void ezFmodProjectPreferences::SyncCVars()
+void WFmodProjectPreferences::SyncCVars()
 {
   TriggerPreferencesChangedEvent();
 
   {
-    ezChangeCVarMsgToEngine msg;
+    WChangeCVarMsgToEngine msg;
     msg.m_sCVarName = "FMOD.Mute";
     msg.m_NewValue = m_bMute;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
   {
-    ezChangeCVarMsgToEngine msg;
+    WChangeCVarMsgToEngine msg;
     msg.m_sCVarName = "FMOD.MasterVolume";
     msg.m_NewValue = m_fMasterVolume;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
-void ezFmodProjectPreferences::ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void WFmodProjectPreferences::ProcessEventHandler(const WEditorEngineProcessConnection::Event& e)
 {
-  if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessRestarted)
+  if (e.m_Type == WEditorEngineProcessConnection::Event::Type::ProcessRestarted)
   {
     SyncCVars();
   }

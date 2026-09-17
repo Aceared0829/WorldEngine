@@ -5,37 +5,37 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 
-class ezVisualizerAttribute;
-class ezDocumentObject;
-struct ezDocumentObjectPropertyEvent;
-struct ezQtDocumentWindowEvent;
-class ezObjectAccessorBase;
+class WVisualizerAttribute;
+class WDocumentObject;
+struct WDocumentObjectPropertyEvent;
+struct WQtDocumentWindowEvent;
+class WObjectAccessorBase;
 
 /// Base class for the editor side code that sets up a 'visualizer' for object properties.
 ///
-/// Typically visualizers are configured with ezVisualizerAttribute's on component types.
+/// Typically visualizers are configured with WVisualizerAttribute's on component types.
 /// The adapter reads the attribute values and sets up the necessary code to render them in the engine.
-/// This is usually achieved by creating ezEngineGizmoHandle objects (which get automatically synchronized
+/// This is usually achieved by creating WEngineGizmoHandle objects (which get automatically synchronized
 /// with the engine process).
 /// The adapter then reacts to editor side object changes and adjusts the engine side representation
 /// as needed.
-class EZ_EDITORFRAMEWORK_DLL ezVisualizerAdapter
+class W_EDITORFRAMEWORK_DLL WVisualizerAdapter
 {
 public:
-  ezVisualizerAdapter();
-  virtual ~ezVisualizerAdapter();
+  WVisualizerAdapter();
+  virtual ~WVisualizerAdapter();
 
-  void SetVisualizer(const ezVisualizerAttribute* pAttribute, const ezDocumentObject* pObject);
+  void SetVisualizer(const WVisualizerAttribute* pAttribute, const WDocumentObject* pObject);
 
 private:
-  void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
-  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
+  void DocumentObjectPropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void DocumentWindowEventHandler(const WQtDocumentWindowEvent& e);
+  void DocumentObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WDocumentObjectMetaData>::EventData& e);
 
 protected:
-  virtual ezTransform GetObjectTransform() const;
-  ezObjectAccessorBase* GetObjectAccessor() const;
-  const ezAbstractProperty* GetProperty(const char* szProperty) const;
+  virtual WTransform GetObjectTransform() const;
+  WObjectAccessorBase* GetObjectAccessor() const;
+  const WAbstractProperty* GetProperty(const char* szProperty) const;
 
   /// Called to actually properly set up the adapter. All setup code is implemented here.
   virtual void Finalize() = 0;
@@ -45,6 +45,6 @@ protected:
   virtual void UpdateGizmoTransform() = 0;
 
   bool m_bVisualizerIsVisible;
-  const ezVisualizerAttribute* m_pVisualizerAttr;
-  const ezDocumentObject* m_pObject;
+  const WVisualizerAttribute* m_pVisualizerAttr;
+  const WDocumentObject* m_pObject;
 };

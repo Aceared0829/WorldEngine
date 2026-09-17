@@ -3,23 +3,23 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/ThreadWithDispatcher.h>
 
-ezThreadWithDispatcher::ezThreadWithDispatcher(const char* szName /*= "ezThreadWithDispatcher"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
-  : ezThread(szName, uiStackSize)
+WThreadWithDispatcher::WThreadWithDispatcher(const char* szName /*= "WThreadWithDispatcher"*/, WUInt32 uiStackSize /*= 128 * 1024*/)
+  : WThread(szName, uiStackSize)
 {
 }
 
-ezThreadWithDispatcher::~ezThreadWithDispatcher() = default;
+WThreadWithDispatcher::~WThreadWithDispatcher() = default;
 
-void ezThreadWithDispatcher::Dispatch(DispatchFunction&& delegate)
+void WThreadWithDispatcher::Dispatch(DispatchFunction&& delegate)
 {
-  EZ_LOCK(m_QueueMutex);
+  W_LOCK(m_QueueMutex);
   m_ActiveQueue.PushBack(std::move(delegate));
 }
 
-void ezThreadWithDispatcher::DispatchQueue()
+void WThreadWithDispatcher::DispatchQueue()
 {
   {
-    EZ_LOCK(m_QueueMutex);
+    W_LOCK(m_QueueMutex);
     std::swap(m_ActiveQueue, m_CurrentlyBeingDispatchedQueue);
   }
 

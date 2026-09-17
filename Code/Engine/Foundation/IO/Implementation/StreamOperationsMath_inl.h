@@ -14,231 +14,231 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
-// ezFloat16
+// WFloat16
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezFloat16 value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, WFloat16 value)
 {
   inout_stream.WriteWordValue(&value).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WFloat16& ref_value)
 {
   inout_stream.ReadWordValue(&ref_value).AssertSuccess();
   return inout_stream;
 }
 
-// ezFloat16Vec2
+// WFloat16Vec2
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec2& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WFloat16Vec2& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec2)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WFloat16Vec2)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec2& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WFloat16Vec2& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec2)) == sizeof(ezFloat16Vec2), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WFloat16Vec2)) == sizeof(WFloat16Vec2), "End of stream reached.");
   return inout_stream;
 }
 
-// ezFloat16Vec3
+// WFloat16Vec3
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec3& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WFloat16Vec3& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec3)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WFloat16Vec3)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec3& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WFloat16Vec3& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec3)) == sizeof(ezFloat16Vec3), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WFloat16Vec3)) == sizeof(WFloat16Vec3), "End of stream reached.");
   return inout_stream;
 }
 
-// ezFloat16Vec4
+// WFloat16Vec4
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec4& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WFloat16Vec4& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec4)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WFloat16Vec4)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec4& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WFloat16Vec4& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec4)) == sizeof(ezFloat16Vec4), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WFloat16Vec4)) == sizeof(WFloat16Vec4), "End of stream reached.");
   return inout_stream;
 }
 
-// ezVec2Template
+// WVec2Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezVec2Template<Type>& vValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WVec2Template<Type>& vValue)
 {
-  inout_stream.WriteBytes(&vValue, sizeof(ezVec2Template<Type>)).AssertSuccess();
-  return inout_stream;
-}
-
-template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezVec2Template<Type>& ref_vValue)
-{
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(ezVec2Template<Type>)) == sizeof(ezVec2Template<Type>), "End of stream reached.");
+  inout_stream.WriteBytes(&vValue, sizeof(WVec2Template<Type>)).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezVec2Template<Type>* pArray, ezUInt64 uiCount)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WVec2Template<Type>& ref_vValue)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezVec2Template<Type>) * uiCount);
+  W_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(WVec2Template<Type>)) == sizeof(WVec2Template<Type>), "End of stream reached.");
+  return inout_stream;
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezVec2Template<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WVec2Template<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezVec2Template<Type>) * uiCount;
+  return inout_stream.WriteBytes(pArray, sizeof(WVec2Template<Type>) * uiCount);
+}
+
+template <typename Type>
+WResult DeserializeArray(WStreamReader& inout_stream, WVec2Template<Type>* pArray, WUInt64 uiCount)
+{
+  const WUInt64 uiNumBytes = sizeof(WVec2Template<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezVec3Template
+// WVec3Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezVec3Template<Type>& vValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WVec3Template<Type>& vValue)
 {
-  inout_stream.WriteBytes(&vValue, sizeof(ezVec3Template<Type>)).AssertSuccess();
+  inout_stream.WriteBytes(&vValue, sizeof(WVec3Template<Type>)).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezVec3Template<Type>& ref_vValue)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WVec3Template<Type>& ref_vValue)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(ezVec3Template<Type>)) == sizeof(ezVec3Template<Type>), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(WVec3Template<Type>)) == sizeof(WVec3Template<Type>), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezVec3Template<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WVec3Template<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezVec3Template<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WVec3Template<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezVec3Template<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WVec3Template<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezVec3Template<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WVec3Template<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezVec4Template
+// WVec4Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezVec4Template<Type>& vValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WVec4Template<Type>& vValue)
 {
-  inout_stream.WriteBytes(&vValue, sizeof(ezVec4Template<Type>)).AssertSuccess();
+  inout_stream.WriteBytes(&vValue, sizeof(WVec4Template<Type>)).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezVec4Template<Type>& ref_vValue)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WVec4Template<Type>& ref_vValue)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(ezVec4Template<Type>)) == sizeof(ezVec4Template<Type>), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_vValue, sizeof(WVec4Template<Type>)) == sizeof(WVec4Template<Type>), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezVec4Template<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WVec4Template<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezVec4Template<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WVec4Template<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezVec4Template<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WVec4Template<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezVec4Template<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WVec4Template<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezMat3Template
+// WMat3Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezMat3Template<Type>& mValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WMat3Template<Type>& mValue)
 {
   inout_stream.WriteBytes(mValue.m_fElementsCM, sizeof(Type) * 9).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezMat3Template<Type>& ref_mValue)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WMat3Template<Type>& ref_mValue)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(ref_mValue.m_fElementsCM, sizeof(Type) * 9) == sizeof(Type) * 9, "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(ref_mValue.m_fElementsCM, sizeof(Type) * 9) == sizeof(Type) * 9, "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezMat3Template<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WMat3Template<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezMat3Template<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WMat3Template<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezMat3Template<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WMat3Template<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezMat3Template<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WMat3Template<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezMat4Template
+// WMat4Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezMat4Template<Type>& mValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WMat4Template<Type>& mValue)
 {
   inout_stream.WriteBytes(mValue.m_fElementsCM, sizeof(Type) * 16).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezMat4Template<Type>& ref_mValue)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WMat4Template<Type>& ref_mValue)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(ref_mValue.m_fElementsCM, sizeof(Type) * 16) == sizeof(Type) * 16, "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(ref_mValue.m_fElementsCM, sizeof(Type) * 16) == sizeof(Type) * 16, "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezMat4Template<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WMat4Template<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezMat4Template<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WMat4Template<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezMat4Template<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WMat4Template<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezMat4Template<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WMat4Template<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezTransformTemplate
+// WTransformTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezTransformTemplate<Type>& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WTransformTemplate<Type>& value)
 {
   inout_stream << value.m_qRotation;
   inout_stream << value.m_vPosition;
@@ -248,7 +248,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezTransfor
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezTransformTemplate<Type>& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WTransformTemplate<Type>& out_value)
 {
   inout_stream >> out_value.m_qRotation;
   inout_stream >> out_value.m_vPosition;
@@ -257,76 +257,76 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezTransformTempl
   return inout_stream;
 }
 
-// ezPlaneTemplate
+// WPlaneTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezPlaneTemplate<Type>& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WPlaneTemplate<Type>& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezPlaneTemplate<Type>)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WPlaneTemplate<Type>)).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezPlaneTemplate<Type>& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WPlaneTemplate<Type>& out_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&out_value, sizeof(ezPlaneTemplate<Type>)) == sizeof(ezPlaneTemplate<Type>), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&out_value, sizeof(WPlaneTemplate<Type>)) == sizeof(WPlaneTemplate<Type>), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezPlaneTemplate<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WPlaneTemplate<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezPlaneTemplate<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WPlaneTemplate<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezPlaneTemplate<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WPlaneTemplate<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezPlaneTemplate<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WPlaneTemplate<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezQuatTemplate
+// WQuatTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezQuatTemplate<Type>& qValue)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WQuatTemplate<Type>& qValue)
 {
-  inout_stream.WriteBytes(&qValue, sizeof(ezQuatTemplate<Type>)).AssertSuccess();
+  inout_stream.WriteBytes(&qValue, sizeof(WQuatTemplate<Type>)).AssertSuccess();
   return inout_stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezQuatTemplate<Type>& ref_qValue)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WQuatTemplate<Type>& ref_qValue)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_qValue, sizeof(ezQuatTemplate<Type>)) == sizeof(ezQuatTemplate<Type>), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_qValue, sizeof(WQuatTemplate<Type>)) == sizeof(WQuatTemplate<Type>), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezQuatTemplate<Type>* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WQuatTemplate<Type>* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezQuatTemplate<Type>) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WQuatTemplate<Type>) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezQuatTemplate<Type>* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WQuatTemplate<Type>* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezQuatTemplate<Type>) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WQuatTemplate<Type>) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezBoundingBoxTemplate
+// WBoundingBoxTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBoundingBoxTemplate<Type>& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WBoundingBoxTemplate<Type>& value)
 {
   inout_stream << value.m_vMax;
   inout_stream << value.m_vMin;
@@ -334,17 +334,17 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBounding
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingBoxTemplate<Type>& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WBoundingBoxTemplate<Type>& out_value)
 {
   inout_stream >> out_value.m_vMax;
   inout_stream >> out_value.m_vMin;
   return inout_stream;
 }
 
-// ezBoundingSphereTemplate
+// WBoundingSphereTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBoundingSphereTemplate<Type>& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WBoundingSphereTemplate<Type>& value)
 {
   inout_stream << value.m_vCenter;
   inout_stream << value.m_fRadius;
@@ -352,17 +352,17 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBounding
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingSphereTemplate<Type>& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WBoundingSphereTemplate<Type>& out_value)
 {
   inout_stream >> out_value.m_vCenter;
   inout_stream >> out_value.m_fRadius;
   return inout_stream;
 }
 
-// ezBoundingBoxSphereTemplate
+// WBoundingBoxSphereTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBoundingBoxSphereTemplate<Type>& value)
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WBoundingBoxSphereTemplate<Type>& value)
 {
   inout_stream << value.m_vCenter;
   inout_stream << value.m_fSphereRadius;
@@ -371,7 +371,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBounding
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingBoxSphereTemplate<Type>& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WBoundingBoxSphereTemplate<Type>& out_value)
 {
   inout_stream >> out_value.m_vCenter;
   inout_stream >> out_value.m_fSphereRadius;
@@ -379,73 +379,73 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingBoxSph
   return inout_stream;
 }
 
-// ezColor
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezColor& value)
+// WColor
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WColor& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezColor)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WColor)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezColor& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WColor& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezColor)) == sizeof(ezColor), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WColor)) == sizeof(WColor), "End of stream reached.");
   return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezColor* pArray, ezUInt64 uiCount)
+inline WResult SerializeArray(WStreamWriter& inout_stream, const WColor* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezColor) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WColor) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezColor* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WColor* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezColor) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WColor) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezColorGammaUB
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezColorGammaUB& value)
+// WColorGammaUB
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WColorGammaUB& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezColorGammaUB)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WColorGammaUB)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezColorGammaUB& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WColorGammaUB& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezColorGammaUB)) == sizeof(ezColorGammaUB), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WColorGammaUB)) == sizeof(WColorGammaUB), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezColorGammaUB* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WColorGammaUB* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezColorGammaUB) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WColorGammaUB) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezColorGammaUB* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WColorGammaUB* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezColorGammaUB) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WColorGammaUB) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezAngle
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezAngle& value)
+// WAngle
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WAngle& value)
 {
   inout_stream << value.GetRadian();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezAngle& out_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WAngle& out_value)
 {
   float fRadian;
   inout_stream >> fRadian;
@@ -454,61 +454,61 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezAngle& out_val
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezAngle* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WAngle* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezAngle) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WAngle) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezAngle* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WAngle* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezAngle) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WAngle) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezColor8Unorm
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezColorLinearUB& value)
+// WColor8Unorm
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WColorLinearUB& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezColorLinearUB)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WColorLinearUB)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezColorLinearUB& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WColorLinearUB& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezColorLinearUB)) == sizeof(ezColorLinearUB), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WColorLinearUB)) == sizeof(WColorLinearUB), "End of stream reached.");
   return inout_stream;
 }
 
 template <typename Type>
-ezResult SerializeArray(ezStreamWriter& inout_stream, const ezColorLinearUB* pArray, ezUInt64 uiCount)
+WResult SerializeArray(WStreamWriter& inout_stream, const WColorLinearUB* pArray, WUInt64 uiCount)
 {
-  return inout_stream.WriteBytes(pArray, sizeof(ezColorLinearUB) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(WColorLinearUB) * uiCount);
 }
 
 template <typename Type>
-ezResult DeserializeArray(ezStreamReader& inout_stream, ezColorLinearUB* pArray, ezUInt64 uiCount)
+WResult DeserializeArray(WStreamReader& inout_stream, WColorLinearUB* pArray, WUInt64 uiCount)
 {
-  const ezUInt64 uiNumBytes = sizeof(ezColorLinearUB) * uiCount;
+  const WUInt64 uiNumBytes = sizeof(WColorLinearUB) * uiCount;
   if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
 
-// ezColorLinear16f
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezColorLinear16f& value)
+// WColorLinear16f
+inline WStreamWriter& operator<<(WStreamWriter& inout_stream, const WColorLinear16f& value)
 {
-  inout_stream.WriteBytes(&value, sizeof(ezColorLinear16f)).AssertSuccess();
+  inout_stream.WriteBytes(&value, sizeof(WColorLinear16f)).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezColorLinear16f& ref_value)
+inline WStreamReader& operator>>(WStreamReader& inout_stream, WColorLinear16f& ref_value)
 {
-  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezColorLinear16f)) == sizeof(ezColorLinear16f), "End of stream reached.");
+  W_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(WColorLinear16f)) == sizeof(WColorLinear16f), "End of stream reached.");
   return inout_stream;
 }

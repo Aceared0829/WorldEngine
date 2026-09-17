@@ -5,13 +5,13 @@
 #include <EditorPluginMiniAudio/EditorPluginMiniAudioDLL.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_EDITORPLUGINMINIAUDIO_DLL ezMiniAudioProjectPreferences : public ezPreferences
+class W_EDITORPLUGINMINIAUDIO_DLL WMiniAudioProjectPreferences : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioProjectPreferences, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioProjectPreferences, WPreferences);
 
 public:
-  ezMiniAudioProjectPreferences();
-  ~ezMiniAudioProjectPreferences();
+  WMiniAudioProjectPreferences();
+  ~WMiniAudioProjectPreferences();
 
   void SetMute(bool bMute);
   bool GetMute() const { return m_bMute; }
@@ -22,7 +22,7 @@ public:
   void SyncCVars();
 
 private:
-  void ProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void ProcessEventHandler(const WEditorEngineProcessConnection::Event& e);
 
   bool m_bMute = false;
   float m_fMasterVolume = 1.0f;

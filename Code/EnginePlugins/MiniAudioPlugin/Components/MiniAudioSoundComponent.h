@@ -5,37 +5,37 @@
 #include <Core/World/ComponentManager.h>
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
-struct ezMiniAudioSoundInstance;
-using ezMiniAudioSoundResourceHandle = ezTypedResourceHandle<class ezMiniAudioSoundResource>;
+struct WMiniAudioSoundInstance;
+using WMiniAudioSoundResourceHandle = WTypedResourceHandle<class WMiniAudioSoundResource>;
 
-class ezMiniAudioSoundComponentManager : public ezComponentManager<class ezMiniAudioSoundComponent, ezBlockStorageType::FreeList>
+class WMiniAudioSoundComponentManager : public WComponentManager<class WMiniAudioSoundComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezMiniAudioSoundComponentManager(ezWorld* pWorld);
+  WMiniAudioSoundComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
 private:
-  friend class ezMiniAudioSoundComponent;
+  friend class WMiniAudioSoundComponent;
 
-  void UpdateEvents(const ezWorldModule::UpdateContext& context);
+  void UpdateEvents(const WWorldModule::UpdateContext& context);
 
-  ezUInt32 m_uiFirstComponentIndex = 0;
+  WUInt32 m_uiFirstComponentIndex = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSoundComponent : public ezComponent
+class W_MINIAUDIOPLUGIN_DLL WMiniAudioSoundComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMiniAudioSoundComponent, ezComponent, ezMiniAudioSoundComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMiniAudioSoundComponent, WComponent, WMiniAudioSoundComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -43,18 +43,18 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMiniAudioComponent
+  // WMiniAudioComponent
 
 private:
-  friend class ezComponentManagerSimple<class ezMiniAudioSoundComponent, ezComponentUpdateType::WhenSimulating>;
+  friend class WComponentManagerSimple<class WMiniAudioSoundComponent, WComponentUpdateType::WhenSimulating>;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMiniAudioSoundComponent
+  // WMiniAudioSoundComponent
 
 public:
-  ezMiniAudioSoundComponent();
-  ~ezMiniAudioSoundComponent();
+  WMiniAudioSoundComponent();
+  ~WMiniAudioSoundComponent();
 
   void SetPaused(bool b);                                // [ property ]
   bool GetPaused() const { return m_bPaused; }           // [ property ]
@@ -72,7 +72,7 @@ public:
   void SetNoGlobalPitch(bool bEnable);                     // [ property ]
   bool GetNoGlobalPitch() const;                           // [ property ]
 
-  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
+  WEnum<WOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
 
   /// Makes the sound play.
   ///
@@ -90,7 +90,7 @@ public:
   void Stop(); // [ scriptable ]
 
   /// Stops the sound, by fading it out over a short period.
-  void FadeOut(ezTime fadeDuration); // [ scriptable ]
+  void FadeOut(WTime fadeDuration); // [ scriptable ]
 
   /// Plays a completely new sound at the location of this component and with all its current properties.
   ///
@@ -100,20 +100,20 @@ public:
   void StartOneShot();                                    // [ scriptable ]
 
 protected:
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg); // [ msg handler ]
 
   void Update();
-  void UpdateParameters(ezMiniAudioSoundInstance* pInstance, float fVolume, float fPitch) const;
+  void UpdateParameters(WMiniAudioSoundInstance* pInstance, float fVolume, float fPitch) const;
 
-  friend class ezMiniAudioSingleton;
+  friend class WMiniAudioSingleton;
   void SoundFinished();
 
-  ezMiniAudioSoundResourceHandle m_hSound;
+  WMiniAudioSoundResourceHandle m_hSound;
   float m_fComponentVolume = 1.0f;
   float m_fPitch = 1.0f;
   float m_fResourceVolume = 1.0f;
   float m_fResourcePitch = 1.0f;
   bool m_bPaused = false;
 
-  ezMiniAudioSoundInstance* m_pInstance = nullptr;
+  WMiniAudioSoundInstance* m_pInstance = nullptr;
 };

@@ -7,43 +7,43 @@
 /// This node outputs the final animation pose to the renderer. Every animation graph requires at least one
 /// PoseResult node. Supports fade in/out control, target weight parameters, and bone weight masking for
 /// partial animation application.
-class EZ_RENDERERCORE_DLL ezPoseResultAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WPoseResultAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPoseResultAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WPoseResultAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(WInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPoseResultAnimNode
+  // WPoseResultAnimNode
 
 public:
-  ezPoseResultAnimNode();
-  ~ezPoseResultAnimNode();
+  WPoseResultAnimNode();
+  ~WPoseResultAnimNode();
 
 private:
-  ezTime m_FadeDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
+  WTime m_FadeDuration = WTime::MakeFromMilliseconds(200); // [ property ]
 
-  ezAnimGraphLocalPoseInputPin m_InPose;                     // [ property ]
-  ezAnimGraphNumberInputPin m_InTargetWeight;                // [ property ]
-  ezAnimGraphNumberInputPin m_InFadeDuration;                // [ property ]
-  ezAnimGraphBoneWeightsInputPin m_InWeights;                // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFadedOut;               // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFadedIn;                // [ property ]
-  ezAnimGraphNumberOutputPin m_OutCurrentWeight;             // [ property ]
+  WAnimGraphLocalPoseInputPin m_InPose;                     // [ property ]
+  WAnimGraphNumberInputPin m_InTargetWeight;                // [ property ]
+  WAnimGraphNumberInputPin m_InFadeDuration;                // [ property ]
+  WAnimGraphBoneWeightsInputPin m_InWeights;                // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFadedOut;               // [ property ]
+  WAnimGraphTriggerOutputPin m_OutOnFadedIn;                // [ property ]
+  WAnimGraphNumberOutputPin m_OutCurrentWeight;             // [ property ]
 
   struct InstanceData
   {
     float m_fStartWeight = 0.0f;
     float m_fEndWeight = 0.0f;
-    ezTime m_PlayTime = ezTime::MakeZero();
-    ezTime m_EndTime = ezTime::MakeZero();
+    WTime m_PlayTime = WTime::MakeZero();
+    WTime m_EndTime = WTime::MakeZero();
   };
 };

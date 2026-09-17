@@ -2,152 +2,152 @@
 
 #include <Foundation/SimdMath/SimdFloat.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(SimdMath);
+W_CREATE_SIMPLE_TEST_GROUP(SimdMath);
 
-EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
+W_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Constructor")
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
     // In debug the default constructor initializes everything with NaN.
-    ezSimdFloat vDefCtor;
-    EZ_TEST_BOOL(ezMath::IsNaN((float)vDefCtor));
+    WSimdFloat vDefCtor;
+    W_TEST_BOOL(WMath::IsNaN((float)vDefCtor));
 #else
 // GCC assumes that the contents of the memory before calling the default constructor are irrelevant.
 // So it optimizes away the 1,2,3,4 initializer completely.
-#  if EZ_DISABLED(EZ_COMPILER_GCC)
+#  if W_DISABLED(W_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
-    ezSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdFloat;
-    EZ_TEST_BOOL_MSG((float)(*pDefCtor) == 1.0f, "Default constructed value is %f", (float)(*pDefCtor));
+    WSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) WSimdFloat;
+    W_TEST_BOOL_MSG((float)(*pDefCtor) == 1.0f, "Default constructed value is %f", (float)(*pDefCtor));
 #  endif
 #endif
 
     // Make sure the class didn't accidentally change in size.
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    static_assert(sizeof(ezSimdFloat) == 16);
-    static_assert(alignof(ezSimdFloat) == 16);
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE
+    static_assert(sizeof(WSimdFloat) == 16);
+    static_assert(alignof(WSimdFloat) == 16);
 #endif
 
-    ezSimdFloat vInit1F(2.0f);
-    EZ_TEST_BOOL(vInit1F == 2.0f);
+    WSimdFloat vInit1F(2.0f);
+    W_TEST_BOOL(vInit1F == 2.0f);
 
     // Make sure all components are set to the same value
-#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(
+#if (W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE) && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(
       vInit1F.m_v.m128_f32[0] == 2.0f && vInit1F.m_v.m128_f32[1] == 2.0f && vInit1F.m_v.m128_f32[2] == 2.0f && vInit1F.m_v.m128_f32[3] == 2.0f);
 #endif
 
-    ezSimdFloat vInit1I(1);
-    EZ_TEST_BOOL(vInit1I == 1.0f);
+    WSimdFloat vInit1I(1);
+    W_TEST_BOOL(vInit1I == 1.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(
       vInit1I.m_v.m128_f32[0] == 1.0f && vInit1I.m_v.m128_f32[1] == 1.0f && vInit1I.m_v.m128_f32[2] == 1.0f && vInit1I.m_v.m128_f32[3] == 1.0f);
 #endif
 
-    ezSimdFloat vInit1U(4553u);
-    EZ_TEST_BOOL(vInit1U == 4553.0f);
+    WSimdFloat vInit1U(4553u);
+    W_TEST_BOOL(vInit1U == 4553.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(vInit1U.m_v.m128_f32[0] == 4553.0f && vInit1U.m_v.m128_f32[1] == 4553.0f && vInit1U.m_v.m128_f32[2] == 4553.0f &&
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(vInit1U.m_v.m128_f32[0] == 4553.0f && vInit1U.m_v.m128_f32[1] == 4553.0f && vInit1U.m_v.m128_f32[2] == 4553.0f &&
                  vInit1U.m_v.m128_f32[3] == 4553.0f);
 #endif
 
-    ezSimdFloat z = ezSimdFloat::MakeZero();
-    EZ_TEST_BOOL(z == 0.0f);
+    WSimdFloat z = WSimdFloat::MakeZero();
+    W_TEST_BOOL(z == 0.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f && z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f && z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
 #endif
   }
 
   {
-    ezSimdFloat z = ezSimdFloat::MakeNaN();
+    WSimdFloat z = WSimdFloat::MakeNaN();
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[0]));
-    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[1]));
-    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[2]));
-    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[3]));
+#if W_SIMD_IMPLEMENTATION == W_SIMD_IMPLEMENTATION_SSE && W_ENABLED(W_COMPILER_MSVC_PURE)
+    W_TEST_BOOL(WMath::IsNaN(z.m_v.m128_f32[0]));
+    W_TEST_BOOL(WMath::IsNaN(z.m_v.m128_f32[1]));
+    W_TEST_BOOL(WMath::IsNaN(z.m_v.m128_f32[2]));
+    W_TEST_BOOL(WMath::IsNaN(z.m_v.m128_f32[3]));
 #endif
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Operators")
   {
-    ezSimdFloat a = 5.0f;
-    ezSimdFloat b = 2.0f;
+    WSimdFloat a = 5.0f;
+    WSimdFloat b = 2.0f;
 
-    EZ_TEST_FLOAT(a + b, 7.0f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a - b, 3.0f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a * b, 10.0f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a / b, 2.5f, ezMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a + b, 7.0f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a - b, 3.0f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a * b, 10.0f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a / b, 2.5f, WMath::SmallEpsilon<float>());
 
-    ezSimdFloat c = 1.0f;
+    WSimdFloat c = 1.0f;
     c += a;
-    EZ_TEST_FLOAT(c, 6.0f, ezMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(c, 6.0f, WMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c -= b;
-    EZ_TEST_FLOAT(c, -1.0f, ezMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(c, -1.0f, WMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c *= a;
-    EZ_TEST_FLOAT(c, 5.0f, ezMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(c, 5.0f, WMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c /= a;
-    EZ_TEST_FLOAT(c, 0.2f, ezMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(c, 0.2f, WMath::SmallEpsilon<float>());
 
-    EZ_TEST_BOOL(c.IsEqual(0.201f, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(c.IsEqual(0.199f, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(!c.IsEqual(0.202f, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(!c.IsEqual(0.198f, ezMath::HugeEpsilon<float>()));
+    W_TEST_BOOL(c.IsEqual(0.201f, WMath::HugeEpsilon<float>()));
+    W_TEST_BOOL(c.IsEqual(0.199f, WMath::HugeEpsilon<float>()));
+    W_TEST_BOOL(!c.IsEqual(0.202f, WMath::HugeEpsilon<float>()));
+    W_TEST_BOOL(!c.IsEqual(0.198f, WMath::HugeEpsilon<float>()));
 
     c = b;
-    EZ_TEST_BOOL(c == b);
-    EZ_TEST_BOOL(c != a);
-    EZ_TEST_BOOL(a > b);
-    EZ_TEST_BOOL(c >= b);
-    EZ_TEST_BOOL(b < a);
-    EZ_TEST_BOOL(b <= c);
+    W_TEST_BOOL(c == b);
+    W_TEST_BOOL(c != a);
+    W_TEST_BOOL(a > b);
+    W_TEST_BOOL(c >= b);
+    W_TEST_BOOL(b < a);
+    W_TEST_BOOL(b <= c);
 
-    EZ_TEST_BOOL(c == 2.0f);
-    EZ_TEST_BOOL(c != 5.0f);
-    EZ_TEST_BOOL(a > 2.0f);
-    EZ_TEST_BOOL(c >= 2.0f);
-    EZ_TEST_BOOL(b < 5.0f);
-    EZ_TEST_BOOL(b <= 2.0f);
+    W_TEST_BOOL(c == 2.0f);
+    W_TEST_BOOL(c != 5.0f);
+    W_TEST_BOOL(a > 2.0f);
+    W_TEST_BOOL(c >= 2.0f);
+    W_TEST_BOOL(b < 5.0f);
+    W_TEST_BOOL(b <= 2.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Misc")
   {
-    ezSimdFloat a = 2.0f;
+    WSimdFloat a = 2.0f;
 
-    EZ_TEST_FLOAT(a.GetReciprocal(), 0.5f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::FULL>(), 0.5f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_23>(), 0.5f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_12>(), 0.5f, ezMath::HugeEpsilon<float>());
+    W_TEST_FLOAT(a.GetReciprocal(), 0.5f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetReciprocal<WMathAcc::FULL>(), 0.5f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetReciprocal<WMathAcc::BITS_23>(), 0.5f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(a.GetReciprocal<WMathAcc::BITS_12>(), 0.5f, WMath::HugeEpsilon<float>());
 
-    EZ_TEST_FLOAT(a.GetSqrt(), 1.41421356f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::FULL>(), 1.41421356f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_23>(), 1.41421356f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_12>(), 1.41421356f, ezMath::HugeEpsilon<float>());
+    W_TEST_FLOAT(a.GetSqrt(), 1.41421356f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetSqrt<WMathAcc::FULL>(), 1.41421356f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetSqrt<WMathAcc::BITS_23>(), 1.41421356f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(a.GetSqrt<WMathAcc::BITS_12>(), 1.41421356f, WMath::HugeEpsilon<float>());
 
-    EZ_TEST_FLOAT(a.GetInvSqrt(), 0.70710678f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::FULL>(), 0.70710678f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_23>(), 0.70710678f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_12>(), 0.70710678f, ezMath::HugeEpsilon<float>());
+    W_TEST_FLOAT(a.GetInvSqrt(), 0.70710678f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetInvSqrt<WMathAcc::FULL>(), 0.70710678f, WMath::SmallEpsilon<float>());
+    W_TEST_FLOAT(a.GetInvSqrt<WMathAcc::BITS_23>(), 0.70710678f, WMath::DefaultEpsilon<float>());
+    W_TEST_FLOAT(a.GetInvSqrt<WMathAcc::BITS_12>(), 0.70710678f, WMath::HugeEpsilon<float>());
 
-    ezSimdFloat b = 5.0f;
-    EZ_TEST_BOOL(a.Max(b) == b);
-    EZ_TEST_BOOL(a.Min(b) == a);
+    WSimdFloat b = 5.0f;
+    W_TEST_BOOL(a.Max(b) == b);
+    W_TEST_BOOL(a.Min(b) == a);
 
-    ezSimdFloat c = -4.0f;
-    EZ_TEST_FLOAT(c.Abs(), 4.0f, ezMath::SmallEpsilon<float>());
+    WSimdFloat c = -4.0f;
+    W_TEST_FLOAT(c.Abs(), 4.0f, WMath::SmallEpsilon<float>());
   }
 }

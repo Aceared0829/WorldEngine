@@ -2,11 +2,11 @@
 
 #include <Core/GameState/StateMap.h>
 
-ezStateMap::ezStateMap() = default;
-ezStateMap::~ezStateMap() = default;
+WStateMap::WStateMap() = default;
+WStateMap::~WStateMap() = default;
 
 
-void ezStateMap::Clear()
+void WStateMap::Clear()
 {
   m_Bools.Clear();
   m_Integers.Clear();
@@ -16,37 +16,37 @@ void ezStateMap::Clear()
   m_Strings.Clear();
 }
 
-void ezStateMap::StoreBool(const ezTempHashedString& sName, bool value)
+void WStateMap::StoreBool(const WTempHashedString& sName, bool value)
 {
   m_Bools[sName] = value;
 }
 
-void ezStateMap::StoreInteger(const ezTempHashedString& sName, ezInt64 value)
+void WStateMap::StoreInteger(const WTempHashedString& sName, WInt64 value)
 {
   m_Integers[sName] = value;
 }
 
-void ezStateMap::StoreDouble(const ezTempHashedString& sName, double value)
+void WStateMap::StoreDouble(const WTempHashedString& sName, double value)
 {
   m_Doubles[sName] = value;
 }
 
-void ezStateMap::StoreVec3(const ezTempHashedString& sName, const ezVec3& value)
+void WStateMap::StoreVec3(const WTempHashedString& sName, const WVec3& value)
 {
   m_Vec3s[sName] = value;
 }
 
-void ezStateMap::StoreColor(const ezTempHashedString& sName, const ezColor& value)
+void WStateMap::StoreColor(const WTempHashedString& sName, const WColor& value)
 {
   m_Colors[sName] = value;
 }
 
-void ezStateMap::StoreString(const ezTempHashedString& sName, const ezString& value)
+void WStateMap::StoreString(const WTempHashedString& sName, const WString& value)
 {
   m_Strings[sName] = value;
 }
 
-void ezStateMap::RetrieveBool(const ezTempHashedString& sName, bool& out_bValue, bool bDefaultValue /*= false*/)
+void WStateMap::RetrieveBool(const WTempHashedString& sName, bool& out_bValue, bool bDefaultValue /*= false*/)
 {
   if (!m_Bools.TryGetValue(sName, out_bValue))
   {
@@ -54,7 +54,7 @@ void ezStateMap::RetrieveBool(const ezTempHashedString& sName, bool& out_bValue,
   }
 }
 
-void ezStateMap::RetrieveInteger(const ezTempHashedString& sName, ezInt64& out_iValue, ezInt64 iDefaultValue /*= 0*/)
+void WStateMap::RetrieveInteger(const WTempHashedString& sName, WInt64& out_iValue, WInt64 iDefaultValue /*= 0*/)
 {
   if (!m_Integers.TryGetValue(sName, out_iValue))
   {
@@ -62,7 +62,7 @@ void ezStateMap::RetrieveInteger(const ezTempHashedString& sName, ezInt64& out_i
   }
 }
 
-void ezStateMap::RetrieveDouble(const ezTempHashedString& sName, double& out_fValue, double fDefaultValue /*= 0*/)
+void WStateMap::RetrieveDouble(const WTempHashedString& sName, double& out_fValue, double fDefaultValue /*= 0*/)
 {
   if (!m_Doubles.TryGetValue(sName, out_fValue))
   {
@@ -70,7 +70,7 @@ void ezStateMap::RetrieveDouble(const ezTempHashedString& sName, double& out_fVa
   }
 }
 
-void ezStateMap::RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValue, ezVec3 vDefaultValue /*= ezVec3(0)*/)
+void WStateMap::RetrieveVec3(const WTempHashedString& sName, WVec3& out_vValue, WVec3 vDefaultValue /*= WVec3(0)*/)
 {
   if (!m_Vec3s.TryGetValue(sName, out_vValue))
   {
@@ -78,7 +78,7 @@ void ezStateMap::RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValu
   }
 }
 
-void ezStateMap::RetrieveColor(const ezTempHashedString& sName, ezColor& out_value, ezColor defaultValue /*= ezColor::White*/)
+void WStateMap::RetrieveColor(const WTempHashedString& sName, WColor& out_value, WColor defaultValue /*= WColor::White*/)
 {
   if (!m_Colors.TryGetValue(sName, out_value))
   {
@@ -86,7 +86,7 @@ void ezStateMap::RetrieveColor(const ezTempHashedString& sName, ezColor& out_val
   }
 }
 
-void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, ezStringView sDefaultValue /*= {} */)
+void WStateMap::RetrieveString(const WTempHashedString& sName, WString& out_sValue, WStringView sDefaultValue /*= {} */)
 {
   if (!m_Strings.TryGetValue(sName, out_sValue))
   {

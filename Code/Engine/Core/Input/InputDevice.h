@@ -21,7 +21,7 @@
 /// that has a finite range (such as buttons, analog triggers, the positive/negative axis of analog sticks) should try to map to this
 /// range. Even mouse coordinates are typically mapped to the 0 to 1 range, where zero means top/left and 1 means bottom/right.
 ///
-/// All input handling is usually handled through the ezInputManager class.
+/// All input handling is usually handled through the WInputManager class.
 /// A user should typically not have to interact directly with an input device, unless he needs to call device specific functions
 /// for advanced configuration.
 ///
@@ -29,7 +29,7 @@
 /// For example a keyboard would expose the input slots 'keyboard_a' to 'keyboard_z' and other keys. A mouse would expose slots
 /// such as 'mouse_move_pos_x' and 'mouse_move_neg_x' etc.
 ///
-/// By deriving from ezInputDevice you can extend what hardware the engine supports. The derived class should override
+/// By deriving from WInputDevice you can extend what hardware the engine supports. The derived class should override
 /// InitializeDevice() to do hardware specific setup. It also needs to override RegisterInputSlots() to register all the input slots
 /// that it wants to expose from the hardware. E.g. if the device wants to expose values from a gyroscope, it should register
 /// input slots that represent the rotations around the different axis (one slot each for both positive and negative changes).
@@ -38,17 +38,17 @@
 /// the incoming window messages. If such a device specific function is necessary, it also needs to be integrated into the proper
 /// code (e.g. into the window handling code, to be able to get the window messages). In such a case it might not be possible
 /// to add such a device purely through a dynamic plugin, but might also need deeper integration into other engine code.
-class EZ_CORE_DLL ezInputDevice : public ezEnumerable<ezInputDevice, ezReflectedClass>
+class W_CORE_DLL WInputDevice : public WEnumerable<WInputDevice, WReflectedClass>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(ezInputDevice, ezReflectedClass);
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice, ezReflectedClass);
+  W_DECLARE_ENUMERABLE_CLASS_WITH_BASE(WInputDevice, WReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WInputDevice, WReflectedClass);
 
 public:
   /// Default Constructor.
-  ezInputDevice();
+  WInputDevice();
 
   /// Allows to query current input values for the given slot
-  float GetInputSlotState(ezStringView sSlot) const;
+  float GetInputSlotState(WStringView sSlot) const;
 
   /// Returns true, if the device was 'used' during the last frame, ie. when it generated input due to some user interaction.
   ///
@@ -56,7 +56,7 @@ public:
   bool HasDeviceBeenUsedLastFrame() const;
 
 private:
-  friend class ezInputManager;
+  friend class WInputManager;
 
   /// If this type of input device handles character input (typed text with all its formatting), this function returns
   /// every character typed since the last call, in order, as one UTF-8 string, and clears the buffer.
@@ -64,12 +64,12 @@ private:
   /// An input device that handles keyboard input should also have a way to query the real typed character(s). I.e. by default
   /// only the individual state of each key is handled, such that we know that the shift key and the a key are pressed. However,
   /// the fact that this results in an upper case A in typed text also needs to be handled. An OS usually has a way to compute
-  /// this, for example on Windows the WM_CHAR message sends this information. An ezInputDevice derived class should never try
+  /// this, for example on Windows the WM_CHAR message sends this information. An WInputDevice derived class should never try
   /// to compute this itself, but instead query this information from the OS, which will also handle localization.
-  ezString RetrieveLastCharacters();
+  WString RetrieveLastCharacters();
 
   /// Calls UpdateHardwareState() on all devices.
-  static void UpdateAllHardwareStates(ezTime tTimeDifference);
+  static void UpdateAllHardwareStates(WTime tTimeDifference);
 
   /// Calls Initialize() and UpdateInputSlotValues() on all devices.
   static void UpdateAllDevices();
@@ -79,14 +79,14 @@ private:
 
   /// Calls RetrieveLastCharacters() on all devices. Returns the string from the first device that had one, draining
   /// that device's buffer; devices after it are left untouched for this call.
-  static ezString RetrieveLastCharactersFromAllDevices();
+  static WString RetrieveLastCharactersFromAllDevices();
 
 protected:
-  /// Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
-  static void RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags); // [tested]
+  /// Calls RegisterInputSlot() on the WInputManager and passes the parameters through.
+  static void RegisterInputSlot(WStringView sName, WStringView sDefaultDisplayName, WBitflags<WInputSlotFlags> SlotFlags); // [tested]
 
   /// Whether this device is authoritative for absolute-value slots (a position, not a delta) it writes,
-  /// such as the mouse position - see ezInputManager::GatherDeviceInputSlotValues().
+  /// such as the mouse position - see WInputManager::GatherDeviceInputSlotValues().
   ///
   /// Ordinary slots from multiple devices are merged by taking the largest value, which is what lets real
   /// hardware and synthetic input coexist: whichever is more insistent wins, and neither can lock the other
@@ -112,14 +112,14 @@ protected:
   /// reset to zero, to prevent the mouse from keeping moving in the engine.
   /// Do this inside an overridden ResetInputSlotValues() function. You don't need to do this for input slots that
   /// will reset to zero anyway.
-  ezMap<ezString, float> m_InputSlotValues; // [tested]
+  WMap<WString, float> m_InputSlotValues; // [tested]
 
   /// If this input device type handles character input, append every typed character (Unicode codepoint) it
   /// receives to this, one Append() call per character event. Append rather than overwrite, so several characters
   /// typed within one frame - which happens whenever the OS delivers input faster than the game updates - are all
   /// preserved instead of all but the last being silently dropped.
-  /// The ezInputManager calls RetrieveLastCharacters() to query what the user typed since the last update.
-  ezStringBuilder m_sLastCharacters; // [tested]
+  /// The WInputManager calls RetrieveLastCharacters() to query what the user typed since the last update.
+  WStringBuilder m_sLastCharacters; // [tested]
 
   /// Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;
@@ -127,13 +127,13 @@ protected:
   /// Override this, if you need to query the state of the hardware to update the input slots.
   ///
   /// \note This function might be called multiple times before ResetInputSlotValues() is called.
-  /// This will be the case when ezInputManager::PollHardware is used to make more frequent hardware updates
+  /// This will be the case when WInputManager::PollHardware is used to make more frequent hardware updates
   /// than input is actually processed.
   /// Just make sure to always accumulate delta values (such as mouse move values) and don't expect ResetInputSlotValues()
   /// to be called in tandem with this function and it will be fine.
   virtual void UpdateInputSlotValues() = 0;
 
-  /// Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current
+  /// Override this, if you need to reset certain input slot values to zero, after the WInputManager is finished with the current
   /// frame update.
   virtual void ResetInputSlotValues() {}; // [tested]
 
@@ -143,9 +143,9 @@ protected:
   /// exposes to the system.
   virtual void RegisterInputSlots() = 0; // [tested]
 
-  /// This function is called once after ezInputManager::Update with the same time delta value.
+  /// This function is called once after WInputManager::Update with the same time delta value.
   /// It allows to update hardware state, such as the vibration of gamepad motors.
-  virtual void UpdateHardwareState(ezTime tTimeDifference) { EZ_IGNORE_UNUSED(tTimeDifference); }
+  virtual void UpdateHardwareState(WTime tTimeDifference) { W_IGNORE_UNUSED(tTimeDifference); }
 
 private:
   /// Calls InitializeDevice() when the device is not yet initialized.

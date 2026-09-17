@@ -1,6 +1,6 @@
 
 
-ID3D11Resource* ezGALTextureDX11::GetDXTexture() const
+ID3D11Resource* WGALTextureDX11::GetDXTexture() const
 {
   return m_pDXTexture;
 }

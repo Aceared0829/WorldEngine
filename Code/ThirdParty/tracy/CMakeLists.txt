@@ -1,10 +1,10 @@
-ez_cmake_init()
+W_cmake_init()
 
-ez_requires(EZ_3RDPARTY_TRACY_SUPPORT)
+W_requires(W_3RDPARTY_TRACY_SUPPORT)
 
 find_package(Threads)
 
-ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp init.cmake)
+W_create_target(LIBRARY TracyClient NO_W_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp init.cmake)
 
 target_compile_definitions(TracyClient PUBLIC BUILDSYSTEM_ENABLE_TRACY_SUPPORT)
 
@@ -53,7 +53,7 @@ macro(set_option option help value)
 endmacro()
 
 
-if (EZ_3RDPARTY_TRACY_TRACK_ALLOCATIONS)
+if (W_3RDPARTY_TRACY_TRACK_ALLOCATIONS)
   # attempt to prevent Tracy from locking the PDB files
   # doesn't work, though, it still opens and locks the PDB files, which is why it is now disabled by default
   target_compile_definitions(TracyClient PUBLIC TRACY_ENABLE_MEMORY_TRACKING)
@@ -70,9 +70,9 @@ endif()
 
 # Wherever TRACY_ENABLE is defined, Tracy opens a listening socket, even with TRACY_ON_DEMAND,
 # which makes the OS firewall report shipped games as accessing the network.
-# Therefore Tracy is compiled out in shipping builds. Code using the EZ_PROFILE_* macros is unaffected,
-# it falls back to the built-in ez profiling system.
-target_compile_definitions(TracyClient PUBLIC $<$<NOT:$<CONFIG:${EZ_BUILDTYPENAME_RELEASE}>>:TRACY_ENABLE>)
+# Therefore Tracy is compiled out in shipping builds. Code using the W_PROFILE_* macros is unaffected,
+# it falls back to the built-in W profiling system.
+target_compile_definitions(TracyClient PUBLIC $<$<NOT:$<CONFIG:${W_BUILDTYPENAME_RELEASE}>>:TRACY_ENABLE>)
 set_option(TRACY_ON_DEMAND "On-demand profiling" ON)
 set_option(TRACY_CALLSTACK "Enforce callstack collection for tracy regions" OFF)
 set_option(TRACY_NO_CALLSTACK "Disable all callstack related functionality" OFF)
@@ -104,7 +104,7 @@ mark_as_advanced(TRACY_VERBOSE)
 set_option(TRACY_DEMANGLE "[advanced] Don't use default demangling function - You'll need to provide your own" OFF)
 mark_as_advanced(TRACY_DEMANGLE)
 
-if(EZ_COMPILE_ENGINE_AS_DLL)
+if(W_COMPILE_ENGINE_AS_DLL)
     target_compile_definitions(TracyClient PRIVATE TRACY_EXPORTS)
     target_compile_definitions(TracyClient PUBLIC TRACY_IMPORTS)
 endif()

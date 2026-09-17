@@ -1,13 +1,13 @@
-ez_cmake_init()
+W_cmake_init()
 
 
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+W_create_target(LIBRARY ${PROJECT_NAME})
 
-ez_enable_strict_warnings(${PROJECT_NAME})
+W_enable_strict_warnings(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -16,7 +16,7 @@ target_link_libraries(${PROJECT_NAME}
   meshoptimizer
 )
 
-if (EZ_3RDPARTY_LUA_SUPPORT)
+if (W_3RDPARTY_LUA_SUPPORT)
 
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -25,7 +25,7 @@ if (EZ_3RDPARTY_LUA_SUPPORT)
 
 endif()
 
-if(EZ_3RDPARTY_GLFW_SUPPORT)
+if(W_3RDPARTY_GLFW_SUPPORT)
 
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 

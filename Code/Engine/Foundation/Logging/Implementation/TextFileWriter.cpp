@@ -3,90 +3,90 @@
 #include <Foundation/Logging/TextFileWriter.h>
 #include <Foundation/Time/Timestamp.h>
 
-ezLogWriter::TextFile::~TextFile()
+WLogWriter::TextFile::~TextFile()
 {
   EndLog();
 }
 
-ezResult ezLogWriter::TextFile::BeginLog(ezStringView sFile)
+WResult WLogWriter::TextFile::BeginLog(WStringView sFile)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   EndLog();
 
-  ezStringBuilder sPath = sFile;
+  WStringBuilder sPath = sFile;
   sPath.MakeCleanPath();
 
-  ezStringBuilder sFolder = sPath;
+  WStringBuilder sFolder = sPath;
   sFolder.PathParentDirectory();
 
   if (!sFolder.IsEmpty())
   {
-    EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sFolder));
+    W_SUCCEED_OR_RETURN(WOSFile::CreateDirectoryStructure(sFolder));
   }
 
-  return m_File.Open(sPath, ezFileOpenMode::Write, ezFileShareMode::SharedReads);
+  return m_File.Open(sPath, WFileOpenMode::Write, WFileShareMode::SharedReads);
 }
 
-void ezLogWriter::TextFile::EndLog()
+void WLogWriter::TextFile::EndLog()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   m_File.Close();
 }
 
-bool ezLogWriter::TextFile::IsOpen() const
+bool WLogWriter::TextFile::IsOpen() const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   return m_File.IsOpen();
 }
 
-void ezLogWriter::TextFile::SetTimestampMode(ezLog::TimestampMode mode)
+void WLogWriter::TextFile::SetTimestampMode(WLog::TimestampMode mode)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   m_TimestampMode = mode;
 }
 
-void ezLogWriter::TextFile::LogMessageHandler(const ezLoggingEventData& eventData)
+void WLogWriter::TextFile::LogMessageHandler(const WLoggingEventData& eventData)
 {
-  ezStringBuilder sTimestamp;
-  ezLog::GenerateFormattedTimestamp(m_TimestampMode, sTimestamp);
+  WStringBuilder sTimestamp;
+  WLog::GenerateFormattedTimestamp(m_TimestampMode, sTimestamp);
 
-  ezTempHybridArray<char, 11> indentation;
+  WTempHybridArray<char, 11> indentation;
   indentation.SetCount(eventData.m_uiIndentation + 1, ' ');
   indentation[eventData.m_uiIndentation] = 0;
 
-  ezStringBuilder sText, sTemp1, sTemp2;
+  WStringBuilder sText, sTemp1, sTemp2;
 
   switch (eventData.m_EventType)
   {
-    case ezLogMsgType::Flush:
+    case WLogMsgType::Flush:
       // writes are unbuffered, nothing to do
       return;
 
-    case ezLogMsgType::BeginGroup:
+    case WLogMsgType::BeginGroup:
       sText.SetFormat("\n{0}+++++ {1} ({2}) +++++\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), eventData.m_sTag.GetData(sTemp2));
       break;
 
-    case ezLogMsgType::EndGroup:
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      sText.SetFormat("{0}----- {1} ({2} sec) -----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), ezArgF(eventData.m_fSeconds, 6));
+    case WLogMsgType::EndGroup:
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+      sText.SetFormat("{0}----- {1} ({2} sec) -----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), WArgF(eventData.m_fSeconds, 6));
 #else
       sText.SetFormat("{0}----- {1} ({2}) -----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), "timing info not available");
 #endif
       break;
 
-    case ezLogMsgType::ErrorMsg:
+    case WLogMsgType::ErrorMsg:
       sText.SetFormat("{0}{1}Error: {2}\n", indentation.GetData(), sTimestamp, eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::SeriousWarningMsg:
+    case WLogMsgType::SeriousWarningMsg:
       sText.SetFormat("{0}{1}Seriously: {2}\n", indentation.GetData(), sTimestamp, eventData.m_sText.GetData(sTemp1));
       break;
 
-    case ezLogMsgType::WarningMsg:
+    case WLogMsgType::WarningMsg:
       sText.SetFormat("{0}{1}Warning: {2}\n", indentation.GetData(), sTimestamp, eventData.m_sText.GetData(sTemp1));
       break;
 
@@ -95,7 +95,7 @@ void ezLogWriter::TextFile::LogMessageHandler(const ezLoggingEventData& eventDat
       break;
   }
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (!m_File.IsOpen())
     return;

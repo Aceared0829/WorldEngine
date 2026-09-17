@@ -3,30 +3,30 @@
 #include <Texture/Image/ImageEnums.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezImageAddressMode, 1)
-  EZ_ENUM_CONSTANT(ezImageAddressMode::Repeat),
-  EZ_ENUM_CONSTANT(ezImageAddressMode::Clamp),
-  EZ_ENUM_CONSTANT(ezImageAddressMode::ClampBorder),
-  EZ_ENUM_CONSTANT(ezImageAddressMode::Mirror),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WImageAddressMode, 1)
+  W_ENUM_CONSTANT(WImageAddressMode::Repeat),
+  W_ENUM_CONSTANT(WImageAddressMode::Clamp),
+  W_ENUM_CONSTANT(WImageAddressMode::ClampBorder),
+  W_ENUM_CONSTANT(WImageAddressMode::Mirror),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureFilterSetting, 1)
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedNearest),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedBilinear),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedTrilinear),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedAnisotropic2x),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedAnisotropic4x),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedAnisotropic8x),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::FixedAnisotropic16x),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::LowestQuality),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::LowQuality),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::DefaultQuality),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::HighQuality),
-  EZ_ENUM_CONSTANT(ezTextureFilterSetting::HighestQuality),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTextureFilterSetting, 1)
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedNearest),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedBilinear),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedTrilinear),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedAnisotropic2x),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedAnisotropic4x),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedAnisotropic8x),
+  W_ENUM_CONSTANT(WTextureFilterSetting::FixedAnisotropic16x),
+  W_ENUM_CONSTANT(WTextureFilterSetting::LowestQuality),
+  W_ENUM_CONSTANT(WTextureFilterSetting::LowQuality),
+  W_ENUM_CONSTANT(WTextureFilterSetting::DefaultQuality),
+  W_ENUM_CONSTANT(WTextureFilterSetting::HighQuality),
+  W_ENUM_CONSTANT(WTextureFilterSetting::HighestQuality),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageEnums);
+W_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageEnums);

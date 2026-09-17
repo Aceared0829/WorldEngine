@@ -1,20 +1,20 @@
 #include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
 
-ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
+WAllocPolicyGuarding::WAllocPolicyGuarding(WAllocator* pParent)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  EZ_IGNORE_UNUSED(m_uiPageSize);
-  EZ_IGNORE_UNUSED(m_Mutex);
-  EZ_IGNORE_UNUSED(m_AllocationsToFreeLater);
+  W_ASSERT_NOT_IMPLEMENTED;
+  W_IGNORE_UNUSED(m_uiPageSize);
+  W_IGNORE_UNUSED(m_Mutex);
+  W_IGNORE_UNUSED(m_AllocationsToFreeLater);
 }
 
-void* ezAllocPolicyGuarding::Allocate(size_t uiSize, size_t uiAlign)
+void* WAllocPolicyGuarding::Allocate(size_t uiSize, size_t uiAlign)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
-void ezAllocPolicyGuarding::Deallocate(void* ptr)
+void WAllocPolicyGuarding::Deallocate(void* ptr)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
 }

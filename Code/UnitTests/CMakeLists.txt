@@ -1,5 +1,5 @@
-set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
+set (W_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 
-ez_requires(EZ_BUILD_UNITTESTS)
+W_requires(W_BUILD_UNITTESTS)
 
-ez_add_all_subdirs()
+W_add_all_subdirs()

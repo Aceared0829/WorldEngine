@@ -4,19 +4,19 @@
 
 #include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
-struct EZ_SHADER_STRUCT ezTestShaderData
+struct W_SHADER_STRUCT WTestShaderData
 {
   FLOAT4(InstanceColor);
   TRANSFORM(InstanceTransform);
 };
 
 // this is only defined during shader compilation
-#if EZ_ENABLED(PLATFORM_SHADER)
+#if W_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezTestShaderData> instancingData;
+StructuredBuffer<WTestShaderData> instancingData;
 
 #else // C++
 
-static_assert(sizeof(ezTestShaderData) == 64);
+static_assert(sizeof(WTestShaderData) == 64);
 
 #endif

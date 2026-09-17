@@ -6,29 +6,29 @@
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 
-ezSceneSelectionContext::ezSceneSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
-  : ezSelectionContext(pOwnerWindow, pOwnerView, pCamera)
+WSceneSelectionContext::WSceneSelectionContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView, const WCamera* pCamera)
+  : WSelectionContext(pOwnerWindow, pOwnerView, pCamera)
 {
 }
 
-void ezSceneSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult& res) const
+void WSceneSelectionContext::OpenDocumentForPickedObject(const WObjectPickingResult& res) const
 {
-  ezSelectionContext::OpenDocumentForPickedObject(res);
+  WSelectionContext::OpenDocumentForPickedObject(res);
 }
 
-void ezSceneSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const
+void WSceneSelectionContext::SelectPickedObject(const WObjectPickingResult& res, bool bToggle, bool bDirect) const
 {
-  ezScene2Document* pSceneDocument = nullptr;
+  WScene2Document* pSceneDocument = nullptr;
 
   // If bToggle (ctrl-key) is held, we don't want to switch layers.
   // Same if we have a custom pick override set which usually means that the selection is hijacked to make an object modification on the current layer.
   if (res.m_PickedObject.IsValid() && !bToggle)
   {
-    const ezDocumentObject* pObject = nullptr;
-    ezUuid layerGuid = FindLayerByObject(res.m_PickedObject, pObject);
+    const WDocumentObject* pObject = nullptr;
+    WUuid layerGuid = FindLayerByObject(res.m_PickedObject, pObject);
     if (layerGuid.IsValid())
     {
-      pSceneDocument = ezDynamicCast<ezScene2Document*>(GetOwnerWindow()->GetDocument());
+      pSceneDocument = WDynamicCast<WScene2Document*>(GetOwnerWindow()->GetDocument());
       if (pSceneDocument->IsLayerLoaded(layerGuid))
       {
         if (m_PickObjectOverride.IsValid())
@@ -46,25 +46,25 @@ void ezSceneSelectionContext::SelectPickedObject(const ezObjectPickingResult& re
           }
           else
           {
-            pSceneDocument->ShowDocumentStatus(ezFmt("The clicked object is in layer '{}'. Switch layer or enable 'Auto Switch Layer to Selection'", pSceneDocument->GetLayerDocument(layerGuid)->GetDocumentPath().GetFileName()));
+            pSceneDocument->ShowDocumentStatus(WFmt("The clicked object is in layer '{}'. Switch layer or enable 'Auto Switch Layer to Selection'", pSceneDocument->GetLayerDocument(layerGuid)->GetDocumentPath().GetFileName()));
           }
         }
       }
     }
   }
 
-  ezSelectionContext::SelectPickedObject(res, bToggle, bDirect);
+  WSelectionContext::SelectPickedObject(res, bToggle, bDirect);
 
   if (pSceneDocument)
     pSceneDocument->PreventDoubleSelectionChange(false);
 }
 
-ezUuid ezSceneSelectionContext::FindLayerByObject(ezUuid objectGuid, const ezDocumentObject*& out_pObject) const
+WUuid WSceneSelectionContext::FindLayerByObject(WUuid objectGuid, const WDocumentObject*& out_pObject) const
 {
-  ezTempHybridArray<ezSceneDocument*, 8> loadedLayers;
-  const ezScene2Document* pSceneDocument = ezDynamicCast<const ezScene2Document*>(GetOwnerWindow()->GetDocument());
+  WTempHybridArray<WSceneDocument*, 8> loadedLayers;
+  const WScene2Document* pSceneDocument = WDynamicCast<const WScene2Document*>(GetOwnerWindow()->GetDocument());
   pSceneDocument->GetLoadedLayers(loadedLayers);
-  for (ezSceneDocument* pLayer : loadedLayers)
+  for (WSceneDocument* pLayer : loadedLayers)
   {
     if (pLayer == pSceneDocument)
     {
@@ -79,5 +79,5 @@ ezUuid ezSceneSelectionContext::FindLayerByObject(ezUuid objectGuid, const ezDoc
     }
   }
   out_pObject = nullptr;
-  return ezUuid();
+  return WUuid();
 }

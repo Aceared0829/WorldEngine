@@ -1,0 +1,98 @@
+# Asset Types
+
+RenderPipeline;Render Pipeline;;https://ezengine.net/pages/docs/graphics/render-pipeline/render-pipeline-overview.html
+
+# Enums
+
+WGALResourceFormat::RGBAFloat;RGBA Float
+WGALResourceFormat::RGBAUInt;RGBA UInt
+WGALResourceFormat::RGBAInt;RGBA Int
+WGALResourceFormat::RGBFloat;RGB Float
+WGALResourceFormat::RGBUInt;RGB UInt
+WGALResourceFormat::RGBInt;RGB Int
+WGALResourceFormat::B5G6R5UNormalized;B5G6R5 UNormalized
+WGALResourceFormat::BGRAUByteNormalized;BGRA UByte Normalized
+WGALResourceFormat::BGRAUByteNormalizedsRGB;BGRA UByte Normalized sRGB
+WGALResourceFormat::RGBAHalf;RGBA Half
+WGALResourceFormat::RGBAUShort;RGBA UShort
+WGALResourceFormat::RGBAUShortNormalized;RGBA UShort Normalized
+WGALResourceFormat::RGBAShort;RGBA Short
+WGALResourceFormat::RGBAShortNormalized;RGBA Short Normalized
+WGALResourceFormat::RGFloat;RG Float
+WGALResourceFormat::RGUInt;RG UInt
+WGALResourceFormat::RGInt;RG Int
+WGALResourceFormat::RGB10A2UInt;RGB10A2 UInt
+WGALResourceFormat::RGB10A2UIntNormalized;RGB10A2 UInt Normalized
+WGALResourceFormat::RG11B10Float;RG11B10 Float
+WGALResourceFormat::RGBAUByteNormalized;RGBA UByte Normalized
+WGALResourceFormat::RGBAUByteNormalizedsRGB;RGBA UByte Normalized sRGB
+WGALResourceFormat::RGBAUByte;RGBA UByte
+WGALResourceFormat::RGBAByteNormalized;RGBA Byte Normalized
+WGALResourceFormat::RGBAByte;RGBA Byte
+WGALResourceFormat::RGHalf;RG Half
+WGALResourceFormat::RGUShort;RG UShort
+WGALResourceFormat::RGUShortNormalized;RG UShort Normalized
+WGALResourceFormat::RGShort;RG Short
+WGALResourceFormat::RGShortNormalized;RG Short Normalized
+WGALResourceFormat::RGUByte;RG UByte
+WGALResourceFormat::RGUByteNormalized;RG UByte Normalized
+WGALResourceFormat::RGByte;RG Byte
+WGALResourceFormat::RGByteNormalized;RG Byte Normalized
+WGALResourceFormat::DFloat;Depth Float
+WGALResourceFormat::RFloat;R Float
+WGALResourceFormat::RUInt;R UInt
+WGALResourceFormat::RInt;R Int
+WGALResourceFormat::RHalf;R Half
+WGALResourceFormat::RUShort;R UShort
+WGALResourceFormat::RUShortNormalized;RU Short Normalized
+WGALResourceFormat::RShort;R Short
+WGALResourceFormat::RShortNormalized;R Short Normalized
+WGALResourceFormat::RUByte;R UByte
+WGALResourceFormat::RUByteNormalized;R UByte Normalized
+WGALResourceFormat::RByte;R Byte
+WGALResourceFormat::RByteNormalized;R Byte Normalized
+WGALResourceFormat::AUByteNormalized;A UByte Normalized
+WGALResourceFormat::D16;Depth 16
+WGALResourceFormat::D24S8;Depth 24 Stencil 8
+WGALResourceFormat::BC1;BC1
+WGALResourceFormat::BC1sRGB;BC1 sRGB
+WGALResourceFormat::BC2;BC2
+WGALResourceFormat::BC2sRGB;BC2 sRGB
+WGALResourceFormat::BC3;BC3
+WGALResourceFormat::BC3sRGB;BC3 sRGB
+WGALResourceFormat::BC4UNormalized;BC4 UNormalized
+WGALResourceFormat::BC4Normalized;BC4 Normalized
+WGALResourceFormat::BC5UNormalized;BC5 UNormalized
+WGALResourceFormat::BC5Normalized;BC5 Normalized
+WGALResourceFormat::BC6UFloat;BC6 UFloat
+WGALResourceFormat::BC6Float;BC6 Float
+WGALResourceFormat::BC7UNormalized;BC7 UNormalized
+WGALResourceFormat::BC7UNormalizedsRGB;BC7 UNormalized sRGB
+
+WGALMSAASampleCount::TwoSamples;2 Samples
+WGALMSAASampleCount::FourSamples;4 Samples
+WGALMSAASampleCount::EightSamples;8 Samples
+
+WLSAODepthCompareFunction::NormalAndSampleDistance;Normal And Sample-Distance
+
+WImguiExtractor;ImGUI Extractor
+
+WRequiredTextureType::UNorm;Unsigned Normalized
+WRequiredTextureType::SNorm;Signed Normalized
+WRequiredTextureType::SRGB;sRGB
+WRequiredTextureType::UInt;Unsigned Integer
+WRequiredTextureType::SInt;Signed Integer
+WRequiredTextureType::Float;Float
+WRequiredTextureType::Depth;Depth
+
+WRequiredTexturePrecision::Bits_5;5 Bits
+WRequiredTexturePrecision::Bits_8;8 Bits
+WRequiredTexturePrecision::Bits_10;10 Bits
+WRequiredTexturePrecision::Bits_16;16 Bits
+WRequiredTexturePrecision::Bits_24;24 Bits
+WRequiredTexturePrecision::Bits_32;32 Bits
+
+WRequiredTextureChannels::Channels_1;1 Channel
+WRequiredTextureChannels::Channels_2;2 Channels
+WRequiredTextureChannels::Channels_3;3 Channels
+WRequiredTextureChannels::Channels_4;4 Channels

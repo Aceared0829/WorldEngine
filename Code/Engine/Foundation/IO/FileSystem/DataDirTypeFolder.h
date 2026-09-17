@@ -6,21 +6,21 @@
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/OSFile.h>
 
-namespace ezDataDirectory
+namespace WDataDirectory
 {
   class FolderReader;
   class FolderWriter;
 
   /// A data directory type to handle access to ordinary files.
   ///
-  /// Register the 'Factory' function at ezFileSystem to allow it to mount local directories.
-  class EZ_FOUNDATION_DLL FolderType : public ezDataDirectoryType
+  /// Register the 'Factory' function at WFileSystem to allow it to mount local directories.
+  class W_FOUNDATION_DLL FolderType : public WDataDirectoryType
   {
   public:
     ~FolderType();
 
-    /// The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
+    /// The factory that can be registered at WFileSystem to create data directories of this type.
+    static WDataDirectoryType* Factory(WStringView sDataDirectory, WStringView sGroup, WStringView sRootName, WDataDirUsage usage);
 
     /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other
     /// file lookup. Each redirection is one line in the file (terminated by a \n). Each line consists of the 'key' string, a semicolon and
@@ -28,97 +28,97 @@ namespace ezDataDirectory
     /// the file access will be replaced by 'value' (plus s_sRedirectionPrefix) 'key' may be anything (e.g. a GUID string), 'value' should
     /// be a valid relative path into the SAME data directory. The redirection file can be used to implement an asset lookup, where assets
     /// are identified by GUIDs and need to be mapped to the actual asset file.
-    static ezString s_sRedirectionFile;
+    static WString s_sRedirectionFile;
 
     /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file
     /// access.
-    static ezString s_sRedirectionPrefix;
+    static WString s_sRedirectionPrefix;
 
     /// When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
     virtual void ReloadExternalConfigs() override;
 
-    virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
+    virtual const WString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 
   protected:
     // The implementations of the abstract functions.
 
-    virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual WDataDirectoryReader* OpenFileToRead(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
-    virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection) override;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode) override;
+    virtual bool ResolveAssetRedirection(WStringView sPathOrAssetGuid, WStringBuilder& out_sRedirection) override;
+    virtual WDataDirectoryWriter* OpenFileToWrite(WStringView sFile, WFileShareMode::Enum FileShareMode) override;
     virtual void RemoveDataDirectory() override;
-    virtual void DeleteFile(ezStringView sFile) override;
-    virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir) override;
-    virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual void DeleteFile(WStringView sFile) override;
+    virtual bool ExistsFile(WStringView sFile, bool bOneSpecificDataDir) override;
+    virtual WResult GetFileStats(WStringView sFileOrFolder, bool bOneSpecificDataDir, WFileStats& out_Stats) override;
     virtual FolderReader* CreateFolderReader() const;
     virtual FolderWriter* CreateFolderWriter() const;
 
-    /// Called by 'ezDataDirectoryType_Folder::Factory'
-    virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
+    /// Called by 'WDataDirectoryType_Folder::Factory'
+    virtual WResult InternalInitializeDataDirectory(WStringView sDirectory) override;
 
     /// Marks the given reader/writer as reusable.
-    virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
+    virtual void OnReaderWriterClose(WDataDirectoryReaderWriterBase* pClosed) override;
 
     void LoadRedirectionFile();
 
-    mutable ezMutex m_ReaderWriterMutex; ///< Locks m_Readers / m_Writers as well as the m_bIsInUse flag of each reader / writer.
-    ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
-    ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;
+    mutable WMutex m_ReaderWriterMutex; ///< Locks m_Readers / m_Writers as well as the m_bIsInUse flag of each reader / writer.
+    WHybridArray<WDataDirectory::FolderReader*, 4> m_Readers;
+    WHybridArray<WDataDirectory::FolderWriter*, 4> m_Writers;
 
-    mutable ezMutex m_RedirectionMutex;
-    ezMap<ezString, ezString> m_FileRedirection;
-    ezString128 m_sRedirectedDataDirPath;
+    mutable WMutex m_RedirectionMutex;
+    WMap<WString, WString> m_FileRedirection;
+    WString128 m_sRedirectedDataDirPath;
   };
 
 
   /// Handles reading from ordinary files.
-  class EZ_FOUNDATION_DLL FolderReader : public ezDataDirectoryReader
+  class W_FOUNDATION_DLL FolderReader : public WDataDirectoryReader
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(FolderReader);
+    W_DISALLOW_COPY_AND_ASSIGN(FolderReader);
 
   public:
-    FolderReader(ezInt32 iDataDirUserData)
-      : ezDataDirectoryReader(iDataDirUserData)
+    FolderReader(WInt32 iDataDirUserData)
+      : WDataDirectoryReader(iDataDirUserData)
     {
       m_bIsInUse = false;
     }
 
-    virtual ezUInt64 Skip(ezUInt64 uiBytes) override;
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
-    virtual ezUInt64 GetFileSize() const override;
+    virtual WUInt64 Skip(WUInt64 uiBytes) override;
+    virtual WUInt64 Read(void* pBuffer, WUInt64 uiBytes) override;
+    virtual WUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
     friend class FolderType;
 
     bool m_bIsInUse;
-    ezOSFile m_File;
+    WOSFile m_File;
   };
 
   /// Handles writing to ordinary files.
-  class EZ_FOUNDATION_DLL FolderWriter : public ezDataDirectoryWriter
+  class W_FOUNDATION_DLL FolderWriter : public WDataDirectoryWriter
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(FolderWriter);
+    W_DISALLOW_COPY_AND_ASSIGN(FolderWriter);
 
   public:
-    FolderWriter(ezInt32 iDataDirUserData = 0)
-      : ezDataDirectoryWriter(iDataDirUserData)
+    FolderWriter(WInt32 iDataDirUserData = 0)
+      : WDataDirectoryWriter(iDataDirUserData)
     {
       m_bIsInUse = false;
     }
 
-    virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) override;
-    virtual ezUInt64 GetFileSize() const override;
+    virtual WResult Write(const void* pBuffer, WUInt64 uiBytes) override;
+    virtual WUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
     friend class FolderType;
 
     bool m_bIsInUse;
-    ezOSFile m_File;
+    WOSFile m_File;
   };
-} // namespace ezDataDirectory
+} // namespace WDataDirectory

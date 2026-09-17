@@ -3,26 +3,26 @@
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <QTimer>
 
-ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtWaitForOperationDlg::WQtWaitForOperationDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-  QTimer::singleShot(10, this, &ezQtWaitForOperationDlg::onIdle);
+  QTimer::singleShot(10, this, &WQtWaitForOperationDlg::onIdle);
 }
 
-ezQtWaitForOperationDlg::~ezQtWaitForOperationDlg() = default;
+WQtWaitForOperationDlg::~WQtWaitForOperationDlg() = default;
 
-void ezQtWaitForOperationDlg::on_ButtonCancel_clicked()
+void WQtWaitForOperationDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void ezQtWaitForOperationDlg::onIdle()
+void WQtWaitForOperationDlg::onIdle()
 {
   if (m_OnIdle())
   {
-    QTimer::singleShot(10, this, &ezQtWaitForOperationDlg::onIdle);
+    QTimer::singleShot(10, this, &WQtWaitForOperationDlg::onIdle);
   }
   else
   {

@@ -5,16 +5,16 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezFmodPlugin"}
+	string %Path{"WFmodPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"WParticlePlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezRmlUiPlugin"}
+	string %Path{"WRmlUiPlugin"}
 	bool %LoadCopy{false}
 }

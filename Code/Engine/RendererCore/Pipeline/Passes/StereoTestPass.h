@@ -6,19 +6,19 @@
 /// Render pass for testing stereo rendering configurations.
 ///
 /// Debug pass used to verify stereo rendering pipeline setup and eye separation.
-class EZ_RENDERERCORE_DLL ezStereoTestPass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WStereoTestPass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStereoTestPass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WStereoTestPass, WRenderPipelinePass);
 
 public:
-  ezStereoTestPass();
-  ~ezStereoTestPass();
+  WStereoTestPass();
+  ~WStereoTestPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;   ///< Input texture.
-  ezRenderPipelineNodeOutputPin m_PinOutput; ///< Output texture with stereo test pattern.
+  WRenderPipelineNodeInputPin m_PinInput;   ///< Input texture.
+  WRenderPipelineNodeOutputPin m_PinOutput; ///< Output texture with stereo test pattern.
 
-  ezShaderResourceHandle m_hShader;          ///< Shader for generating the stereo test pattern.
+  WShaderResourceHandle m_hShader;          ///< Shader for generating the stereo test pattern.
 };

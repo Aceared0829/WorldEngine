@@ -18,32 +18,32 @@ using namespace ozz::animation;
 using namespace ozz::math;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Static);
+W_BEGIN_COMPONENT_TYPE(WSimpleAnimationComponent, 3, WComponentMode::Static);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("AnimationClip", m_hAnimationClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation"), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
-    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate)->AddAttributes(new ezDefaultValueAttribute(ezAnimationInvisibleUpdateRate::Pause)),
-    EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
+    W_RESOURCE_MEMBER_PROPERTY("AnimationClip", m_hAnimationClip)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation"), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("AnimationMode", WPropertyAnimMode, m_AnimationMode),
+    W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(1.0f)),
+    W_ENUM_MEMBER_PROPERTY("RootMotionMode", WRootMotionMode, m_RootMotionMode),
+    W_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", WAnimationInvisibleUpdateRate, m_InvisibleUpdateRate)->AddAttributes(new WDefaultValueAttribute(WAnimationInvisibleUpdateRate::Pause)),
+    W_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezSimpleAnimationComponent::ezSimpleAnimationComponent() = default;
-ezSimpleAnimationComponent::~ezSimpleAnimationComponent() = default;
+WSimpleAnimationComponent::WSimpleAnimationComponent() = default;
+WSimpleAnimationComponent::~WSimpleAnimationComponent() = default;
 
-void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSimpleAnimationComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -56,10 +56,10 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_bEnableIK;
 }
 
-void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSimpleAnimationComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_AnimationMode;
@@ -78,17 +78,17 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
 }
 
-void ezSimpleAnimationComponent::OnSimulationStarted()
+void WSimpleAnimationComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezMsgQueryAnimationSkeleton msg;
+  WMsgQueryAnimationSkeleton msg;
   GetOwner()->SendMessage(msg);
 
   m_hSkeleton = msg.m_hSkeleton;
 }
 
-void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
+void WSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
 {
   m_fNormalizedPlaybackPosition = fPosition;
 
@@ -96,7 +96,7 @@ void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
   SetUserFlag(1, true);
 }
 
-void ezSimpleAnimationComponent::Update()
+void WSimpleAnimationComponent::Update()
 {
   if (!m_hSkeleton.IsValid() || !m_hAnimationClip.IsValid())
     return;
@@ -104,15 +104,15 @@ void ezSimpleAnimationComponent::Update()
   if (m_fSpeed == 0.0f && !GetUserFlag(1))
     return;
 
-  ezTime tMinStep = ezTime::MakeFromSeconds(0);
-  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
+  WTime tMinStep = WTime::MakeFromSeconds(0);
+  WVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
-  if (visType != ezVisibilityState::Direct)
+  if (visType != WVisibilityState::Direct)
   {
-    if (m_InvisibleUpdateRate == ezAnimationInvisibleUpdateRate::Pause && visType == ezVisibilityState::Invisible)
+    if (m_InvisibleUpdateRate == WAnimationInvisibleUpdateRate::Pause && visType == WVisibilityState::Invisible)
       return;
 
-    tMinStep = ezAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
+    tMinStep = WAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
   }
 
   m_ElapsedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
@@ -120,44 +120,44 @@ void ezSimpleAnimationComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  EZ_PROFILE_SCOPE("ezSimpleAnimationComponent::Update");
+  W_PROFILE_SCOPE("WSimpleAnimationComponent::Update");
 
   // if we did this, the animation would fully stop, when the component is really invisible (not even indirectly visible)
   // this breaks the setting 'InvisibleUpdateRate', which is supposed to let the user override the update rate for this case
-  const bool bVisible = true; // visType != ezVisibilityState::Invisible;
+  const bool bVisible = true; // visType != WVisibilityState::Invisible;
 
-  ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WAnimationClipResource> pAnimation(m_hAnimationClip, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pAnimation.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
-  const ezTime tDiff = m_ElapsedTimeSinceUpdate;
-  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  const WTime tDiff = m_ElapsedTimeSinceUpdate;
+  m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 
-  const ezAnimationClipResourceDescriptor& animDesc = pAnimation->GetDescriptor();
+  const WAnimationClipResourceDescriptor& animDesc = pAnimation->GetDescriptor();
 
   m_Duration = animDesc.GetDuration();
 
   const float fPrevPlaybackPos = m_fNormalizedPlaybackPosition;
 
-  ezAnimPoseEventTrackSampleMode mode = ezAnimPoseEventTrackSampleMode::None;
+  WAnimPoseEventTrackSampleMode mode = WAnimPoseEventTrackSampleMode::None;
 
   if (!UpdatePlaybackTime(tDiff, animDesc.m_EventTrack, mode))
     return;
 
   if (animDesc.m_EventTrack.IsEmpty())
   {
-    mode = ezAnimPoseEventTrackSampleMode::None;
+    mode = WAnimPoseEventTrackSampleMode::None;
   }
 
   // no need to do anything, if we can't get events and are currently invisible
-  if (!bVisible && mode == ezAnimPoseEventTrackSampleMode::None && m_RootMotionMode == ezRootMotionMode::Ignore)
+  if (!bVisible && mode == WAnimPoseEventTrackSampleMode::None && m_RootMotionMode == WRootMotionMode::Ignore)
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
-  ezAnimPoseGenerator poseGen;
+  WAnimPoseGenerator poseGen;
   poseGen.Reset(pSkeleton.GetPointer(), GetOwner());
 
   auto& cmdSample = poseGen.AllocCommandSampleTrack(0);
@@ -184,13 +184,13 @@ void ezSimpleAnimationComponent::Update()
       cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
     }
 
-    ezAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
+    WAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
     poseGen.SetFinalCommand(prevCmdID);
   }
 
   poseGen.UpdatePose(m_bEnableIK);
 
-  if (m_RootMotionMode != ezRootMotionMode::Ignore)
+  if (m_RootMotionMode != WRootMotionMode::Ignore)
   {
     m_vPendingRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
 
@@ -208,12 +208,12 @@ void ezSimpleAnimationComponent::Update()
     {
       const float fValue = (float)curve.m_Curve.Evaluate(fTimeSecs);
 
-      ezMsgAnimationCurveValue msg;
+      WMsgAnimationCurveValue msg;
       msg.m_sCurveName = curve.m_sName;
       msg.m_fMin = fValue;
       msg.m_fMax = fValue;
       msg.m_fAverage = fValue;
-      GetOwner()->PostEventMessage(msg, nullptr, ezTime::MakeZero());
+      GetOwner()->PostEventMessage(msg, nullptr, WTime::MakeZero());
     }
   }
 
@@ -223,7 +223,7 @@ void ezSimpleAnimationComponent::Update()
   // inform child nodes/components that a new pose is available
   if (poseGen.ShouldSendPoseResultMsg())
   {
-    ezMsgAnimationPoseUpdated msg2;
+    WMsgAnimationPoseUpdated msg2;
     msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
     msg2.m_ModelTransforms = poseGen.GetCurrentPose();
@@ -239,15 +239,15 @@ void ezSimpleAnimationComponent::Update()
   }
 }
 
-void ezSimpleAnimationComponent::ApplyRootMotion()
+void WSimpleAnimationComponent::ApplyRootMotion()
 {
   // only applies positional root motion; called from the PostAsync phase to allow safe game object modification
-  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingRootMotion, ezAngle(), ezAngle(), ezAngle());
+  WRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingRootMotion, WAngle(), WAngle(), WAngle());
 
-  m_vPendingRootMotion = ezVec3::MakeZero();
+  m_vPendingRootMotion = WVec3::MakeZero();
 }
 
-bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling)
+bool WSimpleAnimationComponent::UpdatePlaybackTime(WTime tDiff, const WEventTrack& eventTrack, WAnimPoseEventTrackSampleMode& out_trackSampling)
 {
   if (tDiff.IsZero() || m_fSpeed == 0.0f)
   {
@@ -260,21 +260,21 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
     return false;
   }
 
-  out_trackSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+  out_trackSampling = WAnimPoseEventTrackSampleMode::OnlyBetween;
 
   const float tDiffNorm = static_cast<float>(tDiff.GetSeconds() / m_Duration.GetSeconds());
   const float tPrefNorm = m_fNormalizedPlaybackPosition;
 
   switch (m_AnimationMode)
   {
-    case ezPropertyAnimMode::Once:
+    case WPropertyAnimMode::Once:
     {
       m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
-      m_fNormalizedPlaybackPosition = ezMath::Clamp(m_fNormalizedPlaybackPosition, 0.0f, 1.0f);
+      m_fNormalizedPlaybackPosition = WMath::Clamp(m_fNormalizedPlaybackPosition, 0.0f, 1.0f);
       break;
     }
 
-    case ezPropertyAnimMode::Loop:
+    case WPropertyAnimMode::Loop:
     {
       m_fNormalizedPlaybackPosition += tDiffNorm * m_fSpeed;
 
@@ -282,19 +282,19 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
       {
         m_fNormalizedPlaybackPosition += 1.0f;
 
-        out_trackSampling = ezAnimPoseEventTrackSampleMode::LoopAtStart;
+        out_trackSampling = WAnimPoseEventTrackSampleMode::LoopAtStart;
       }
       else if (m_fNormalizedPlaybackPosition > 1.0f)
       {
         m_fNormalizedPlaybackPosition -= 1.0f;
 
-        out_trackSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+        out_trackSampling = WAnimPoseEventTrackSampleMode::LoopAtEnd;
       }
 
       break;
     }
 
-    case ezPropertyAnimMode::BackAndForth:
+    case WPropertyAnimMode::BackAndForth:
     {
       const bool bReverse = GetUserFlag(0);
 
@@ -309,7 +309,7 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
 
         m_fNormalizedPlaybackPosition = 2.0f - m_fNormalizedPlaybackPosition;
 
-        out_trackSampling = ezAnimPoseEventTrackSampleMode::BounceAtEnd;
+        out_trackSampling = WAnimPoseEventTrackSampleMode::BounceAtEnd;
       }
       else if (m_fNormalizedPlaybackPosition < 0.0f)
       {
@@ -317,7 +317,7 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
 
         m_fNormalizedPlaybackPosition = -m_fNormalizedPlaybackPosition;
 
-        out_trackSampling = ezAnimPoseEventTrackSampleMode::BounceAtStart;
+        out_trackSampling = WAnimPoseEventTrackSampleMode::BounceAtStart;
       }
 
       break;
@@ -330,20 +330,20 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSimpleAnimationComponentManager::ezSimpleAnimationComponentManager(ezWorld* pWorld)
-  : ezComponentManager(pWorld)
+WSimpleAnimationComponentManager::WSimpleAnimationComponentManager(WWorld* pWorld)
+  : WComponentManager(pWorld)
 {
 }
 
-ezSimpleAnimationComponentManager::~ezSimpleAnimationComponentManager() = default;
+WSimpleAnimationComponentManager::~WSimpleAnimationComponentManager() = default;
 
-void ezSimpleAnimationComponentManager::Initialize()
+void WSimpleAnimationComponentManager::Initialize()
 {
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSimpleAnimationComponentManager::Update, this);
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSimpleAnimationComponentManager::Update, this);
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_uiAsyncPhaseBatchSize = 2;
 
@@ -351,15 +351,15 @@ void ezSimpleAnimationComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSimpleAnimationComponentManager::ApplyRootMotion, this);
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSimpleAnimationComponentManager::ApplyRootMotion, this);
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
 }
 
-void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WSimpleAnimationComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -370,15 +370,15 @@ void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContex
   }
 }
 
-void ezSimpleAnimationComponentManager::ApplyRootMotion(const ezWorldModule::UpdateContext& context)
+void WSimpleAnimationComponentManager::ApplyRootMotion(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
-    if (it->m_RootMotionMode != ezRootMotionMode::Ignore && it->IsActiveAndInitialized())
+    if (it->m_RootMotionMode != WRootMotionMode::Ignore && it->IsActiveAndInitialized())
     {
       it->ApplyRootMotion();
     }
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);

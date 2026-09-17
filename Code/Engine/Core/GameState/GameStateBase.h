@@ -4,21 +4,21 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-class ezWorld;
+class WWorld;
 
-/// ezGameStateBase is the base class for all game states. Game states are used to implement custom high level game logic.
+/// WGameStateBase is the base class for all game states. Game states are used to implement custom high level game logic.
 ///
 /// See the online documentation for details: https://ezengine.net/pages/docs/runtime/application/game-state.html
 ///
-/// Note that you would typically derive custom game states from ezGameState, not ezGameStateBase, since the
+/// Note that you would typically derive custom game states from WGameState, not WGameStateBase, since the
 /// former provides much more functionality out of the box.
-class EZ_CORE_DLL ezGameStateBase : public ezReflectedClass
+class W_CORE_DLL WGameStateBase : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameStateBase, ezReflectedClass)
+  W_ADD_DYNAMIC_REFLECTION(WGameStateBase, WReflectedClass)
 
 public:
-  ezGameStateBase() = default;
-  virtual ~ezGameStateBase() = default;
+  WGameStateBase() = default;
+  virtual ~WGameStateBase() = default;
 
   /// A game state gets activated through this function.
   ///
@@ -34,7 +34,7 @@ public:
   /// \param pStartPosition
   /// An optional transform for the 'player object' to start at.
   /// Usually nullptr, but may be set by the editor to relocate or create the player object at the given destination.
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) = 0;
+  virtual void OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset) = 0;
 
   /// Called when the game state is being shut down.
   ///
@@ -52,13 +52,13 @@ public:
 
   /// Called once each frame to configure the main camera position and rotation.
   ///
-  /// Note that ezCameraComponent may already apply set general options like field-of-view,
+  /// Note that WCameraComponent may already apply set general options like field-of-view,
   /// so don't override these values, if you want to use that component.
-  /// The default ezGameState implementation searches for an ezCameraComponent in the world that is set to "Main View"
+  /// The default WGameState implementation searches for an WCameraComponent in the world that is set to "Main View"
   /// and uses it's transform for the main camera.
   virtual void ConfigureMainCamera() {}
 
-  /// Has to call ezRenderLoop::AddMainView for all views that need to be rendered.
+  /// Has to call WRenderLoop::AddMainView for all views that need to be rendered.
   ///
   /// This will be called every frame by the editor, to ensure that only the relevant views are rendered,
   /// but during stand-alone game execution this may never be called.
@@ -66,21 +66,21 @@ public:
 
   /// Call this to signal that a game state requested the application to quit.
   ///
-  /// ezGameApplication will shut down when this happens. ezEditor will stop play-the-game mode when it is running.
+  /// WGameApplication will shut down when this happens. WEditor will stop play-the-game mode when it is running.
   /// When calling this, pass a string to identify where the request comes from, e.g. "window" for when clicking
   /// the window close button, "game" when game logic (UI) decided to quite, etc.
-  /// ezEditor will pass in "editor-esc" and "editor-force" when a game-state should be shut down due to
+  /// WEditor will pass in "editor-esc" and "editor-force" when a game-state should be shut down due to
   /// the user pressing Escape or clicking the "stop" button.
-  virtual void RequestQuit(ezStringView sRequestedBy) = 0;
+  virtual void RequestQuit(WStringView sRequestedBy) = 0;
 
   /// Returns whether the game state wants to quit the application.
   ///
-  /// ezGameApplication will shut down when this function returns true.
+  /// WGameApplication will shut down when this function returns true.
   /// Logic for whether to shut down should typically be handled in RequestQuit().
   virtual bool WasQuitRequested() const = 0;
 
   /// Should be overridden by game states that are only meant as a fallback solution.
   ///
-  /// See the implementation for ezFallbackGameState for details.
+  /// See the implementation for WFallbackGameState for details.
   virtual bool IsFallbackGameState() const { return false; }
 };

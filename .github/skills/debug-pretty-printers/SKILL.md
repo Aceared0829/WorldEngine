@@ -1,47 +1,47 @@
 ---
 name: debug-pretty-printers
-description: Debug and develop GDB and LLDB pretty printers for ezEngine C++ types. Use this skill when working with ezEngine debugger visualizers in ezEngine-gdb.py, ezEngine.py, or ezEngine.natvis. Covers testing with VisualizerZoo.cpp, common errors, and debugging techniques.
+description: Debug and develop GDB and LLDB pretty printers for WorldEngine C++ types. Use this skill when working with WorldEngine debugger visualizers in WorldEngine-gdb.py, WorldEngine.py, or WorldEngine.natvis. Covers testing with VisualizerZoo.cpp, common errors, and debugging techniques.
 ---
 
-# Debugging ezEngine Pretty Printers
+# Debugging WorldEngine Pretty Printers
 
-This skill provides guidance for developing and debugging pretty printers (debugger visualizers) for ezEngine.
+This skill provides guidance for developing and debugging pretty printers (debugger visualizers) for WorldEngine.
 
 ## File Locations
 
 All pretty printer files are in `Code/Engine/Foundation/`:
 
-- **GDB**: `Code/Engine/Foundation/ezEngine-gdb.py` - Python pretty printers for GDB
-- **LLDB**: `Code/Engine/Foundation/ezEngine.py` - Python pretty printers for LLDB  
-- **Natvis**: `Code/Engine/Foundation/ezEngine.natvis` - Visual Studio/MSVC visualizers (XML)
+- **GDB**: `Code/Engine/Foundation/WorldEngine-gdb.py` - Python pretty printers for GDB
+- **LLDB**: `Code/Engine/Foundation/WorldEngine.py` - Python pretty printers for LLDB
+- **Natvis**: `Code/Engine/Foundation/WorldEngine.natvis` - Visual Studio/MSVC visualizers (XML)
 - **Auto-load**: `.gdbinit` in repository root - Automatically loads GDB printers
 
 ## Testing with VisualizerZoo.cpp
 
-The primary test file for pretty printers is `Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp`. This file contains test variables for all visualized types organized in `EZ_TEST_BLOCK` sections.
+The primary test file for pretty printers is `Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp`. This file contains test variables for all visualized types organized in `W_TEST_BLOCK` sections.
 
 ### Finding test sections
 
-Search for `EZ_TEST_BLOCK` macros to find each section:
+Search for `W_TEST_BLOCK` macros to find each section:
 
 ```bash
-grep -n "EZ_TEST_BLOCK" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
+grep -n "W_TEST_BLOCK" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
 ```
-Eac hsection is named descriptively, e.g. `EZ_TEST_BLOCK(ezTestBlock::Enabled, "Strings")` contains tests for the string types.
+Eac hsection is named descriptively, e.g. `W_TEST_BLOCK(WTestBlock::Enabled, "Strings")` contains tests for the string types.
 
 ### Setting breakpoints
 
-Each `EZ_TEST_BLOCK` section ends with `EZ_TEST_BOOL(true);` - this is where you should set your breakpoint. At this point, all variables in the block are initialized and in scope.
+Each `W_TEST_BLOCK` section ends with `W_TEST_BOOL(true);` - this is where you should set your breakpoint. At this point, all variables in the block are initialized and in scope.
 
 To find the breakpoint line for a section:
 
 ```bash
-# Find the section start, then look for the EZ_TEST_BOOL(true) before the closing brace
-grep -n "EZ_TEST_BLOCK.*Strings" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
-# Then search forward from that line for EZ_TEST_BOOL(true)
+# Find the section start, then look for the W_TEST_BOOL(true) before the closing brace
+grep -n "W_TEST_BLOCK.*Strings" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
+# Then search forward from that line for W_TEST_BOOL(true)
 ```
 
-Or in an editor, search for `EZ_TEST_BLOCK.*SectionName`, then find the `EZ_TEST_BOOL(true);` at the end of that block.
+Or in an editor, search for `W_TEST_BLOCK.*SectionName`, then find the `W_TEST_BOOL(true);` at the end of that block.
 
 ### Running the test
 
@@ -58,34 +58,34 @@ Use this exact command pattern to test printers (run from the repository root):
 ```bash
 gdb -batch \
   -ex "set pagination off" \
-  -ex "source Code/Engine/Foundation/ezEngine-gdb.py" \
+  -ex "source Code/Engine/Foundation/WorldEngine-gdb.py" \
   -ex "break VisualizerZoo.cpp:LINE_NUMBER" \
   -ex "run -run -noGui -all" \
   -ex "print variableName" \
   ./Workspace/copilot-output/Bin/LinuxNinjaGccDebug64/FoundationTest
 ```
 
-Replace `LINE_NUMBER` with the line of `EZ_TEST_BOOL(true);` in the relevant section.
+Replace `LINE_NUMBER` with the line of `W_TEST_BOOL(true);` in the relevant section.
 
 Key points:
 - Use `timeout 30` prefix if the test might hang
-- The breakpoint must be on the `EZ_TEST_BOOL(true);` line at the END of the block (all variables initialized)
+- The breakpoint must be on the `W_TEST_BOOL(true);` line at the END of the block (all variables initialized)
 - Add `2>&1 | tail -15` to limit output
 
 ### Example: Testing string printers
 
 1. Find the Strings section:
    ```bash
-   grep -n "EZ_TEST_BLOCK.*Strings" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
+   grep -n "W_TEST_BLOCK.*Strings" Code/UnitTests/FoundationTest/CodeUtils/VisualizerZoo.cpp
    ```
 
-2. Find the `EZ_TEST_BOOL(true);` at the end of that block and note the line number
+2. Find the `W_TEST_BOOL(true);` at the end of that block and note the line number
 
 3. Run GDB with that breakpoint (from repository root):
    ```bash
    gdb -batch \
      -ex "set pagination off" \
-     -ex "source Code/Engine/Foundation/ezEngine-gdb.py" \
+     -ex "source Code/Engine/Foundation/WorldEngine-gdb.py" \
      -ex "break VisualizerZoo.cpp:101" \
      -ex "run -run -noGui -all" \
      -ex "print string" \
@@ -101,27 +101,27 @@ Use `set print array on` to see children on separate lines:
 gdb -batch \
   -ex "set pagination off" \
   -ex "set print array on" \
-  -ex "source Code/Engine/Foundation/ezEngine-gdb.py" \
+  -ex "source Code/Engine/Foundation/WorldEngine-gdb.py" \
   -ex "break VisualizerZoo.cpp:LINE_NUMBER" \
   -ex "run -run -noGui -all" \
   -ex "print variableName" \
   ./Workspace/copilot-output/Bin/LinuxNinjaGccDebug64/FoundationTest
 ```
 
-## ezEngine GDB Printer Structure
+## WorldEngine GDB Printer Structure
 
-### Registration pattern (from ezEngine-gdb.py)
+### Registration pattern (from WorldEngine-gdb.py)
 
 ```python
 def build_pretty_printers():
-    pp = gdb.printing.RegexpCollectionPrettyPrinter("ezEngine")
+    pp = gdb.printing.RegexpCollectionPrettyPrinter("WorldEngine")
     
     # Strings
-    pp.add_printer('ezHybridStringBase', r'^ezHybridStringBase<.*>$', ezHybridStringPrinter)
-    pp.add_printer('ezStringBuilder', r'^ezStringBuilder$', ezHybridStringPrinter)
+    pp.add_printer('WHybridStringBase', r'^WHybridStringBase<.*>$', WHybridStringPrinter)
+    pp.add_printer('WStringBuilder', r'^WStringBuilder$', WHybridStringPrinter)
     
     # Containers  
-    pp.add_printer('ezDynamicArray', r'^ezDynamicArray<.*>$', ezDynamicArrayPrinter)
+    pp.add_printer('WDynamicArray', r'^WDynamicArray<.*>$', WDynamicArrayPrinter)
     
     return pp
 
@@ -131,7 +131,7 @@ gdb.printing.register_pretty_printer(gdb.current_objfile(), build_pretty_printer
 ### Printer class pattern
 
 ```python
-class ezMyTypePrinter:
+class WMyTypePrinter:
     def __init__(self, val):
         self.val = val
 
@@ -160,7 +160,7 @@ class ezMyTypePrinter:
 
 ### "Type is not a template"
 
-**Problem**: Calling `val.type.template_argument(0)` on `ezStringBuilder` (not a template).
+**Problem**: Calling `val.type.template_argument(0)` on `WStringBuilder` (not a template).
 
 **Solution**: Get size from the actual member instead:
 ```python
@@ -185,7 +185,7 @@ result = ptr.string(length=count)
 
 **Solution**: Use GDB to inspect the actual type:
 ```bash
-gdb -batch -ex "ptype ezHashedString" ./Output/Bin/LinuxNinjaGccDebug64/FoundationTest
+gdb -batch -ex "ptype WHashedString" ./Output/Bin/LinuxNinjaGccDebug64/FoundationTest
 ```
 
 ### Children showing as strings instead of expandable values
@@ -197,13 +197,13 @@ gdb -batch -ex "ptype ezHashedString" ./Output/Bin/LinuxNinjaGccDebug64/Foundati
 # Wrong - yields a string, not expandable
 yield 'c0', f"{{ x={x}, y={y}, z={z} }}"
 
-# Correct - yields the actual value, GDB will use ezVec3Printer on it
+# Correct - yields the actual value, GDB will use WVec3Printer on it
 yield 'c0', elements[0].address.cast(vec3_type.pointer()).dereference()
 ```
 
-### ezHybridString inline vs heap storage
+### WHybridString inline vs heap storage
 
-The `ezHybridStringBase` uses inline storage (`m_StaticData`) when capacity fits, otherwise heap (`m_pElements`):
+The `WHybridStringBase` uses inline storage (`m_StaticData`) when capacity fits, otherwise heap (`m_pElements`):
 
 ```python
 def _get_string_data(self):
@@ -225,18 +225,18 @@ def _get_string_data(self):
 
 ### Template type lookup for math types
 
-To cast array elements to vector types (e.g., for ezMat3 columns):
+To cast array elements to vector types (e.g., for WMat3 columns):
 
 ```python
 elements = self.val['m_fElementsCM']
 elem_type = elements[0].type
-vec3_type = gdb.lookup_type(f'ezVec3Template<{elem_type}>')
+vec3_type = gdb.lookup_type(f'WVec3Template<{elem_type}>')
 col0 = elements[0].address.cast(vec3_type.pointer()).dereference()
 ```
 
 ## LLDB Comparison
 
-When implementing GDB printers, reference the LLDB implementation in `ezEngine.py`:
+When implementing GDB printers, reference the LLDB implementation in `WorldEngine.py`:
 
 - LLDB uses `set_fields(['m_uiCount', 'm_uiCapacity', 'm_pAllocator'])` to add member children
 - GDB equivalent: yield each field in `children()` before array elements
@@ -254,4 +254,4 @@ When implementing GDB printers, reference the LLDB implementation in `ezEngine.p
 
 ## Auto-loading
 
-The `.gdbinit` file in the repository root automatically loads the printers when debugging in the ezEngine directory. It uses path detection relative to the current working directory.
+The `.gdbinit` file in the repository root automatically loads the printers when debugging in the WorldEngine directory. It uses path detection relative to the current working directory.

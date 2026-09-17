@@ -6,8 +6,8 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
-  : ezRTTI(nullptr, pParentType, 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<const ezAbstractProperty*>(), ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+WScriptRTTI::WScriptRTTI(WStringView sName, const WRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
+  : WRTTI(nullptr, pParentType, 0, 1, WVariantType::Invalid, WTypeFlags::Class, nullptr, WArrayPtr<const WAbstractProperty*>(), WArrayPtr<const WAbstractFunctionProperty*>(), WArrayPtr<const WPropertyAttribute*>(), WArrayPtr<WAbstractMessageHandler*>(), WArrayPtr<WMessageSenderInfo>(), nullptr)
   , m_sTypeNameStorage(sName)
   , m_FunctionStorage(std::move(functions))
   , m_MessageHandlerStorage(std::move(messageHandlers))
@@ -39,7 +39,7 @@ ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, Functi
   GatherDynamicMessageHandlers();
 }
 
-ezScriptRTTI::~ezScriptRTTI()
+WScriptRTTI::~WScriptRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
@@ -50,7 +50,7 @@ ezScriptRTTI::~ezScriptRTTI()
   m_Attributes.Clear();
 }
 
-const ezAbstractFunctionProperty* ezScriptRTTI::GetFunctionByIndex(ezUInt32 uiIndex) const
+const WAbstractFunctionProperty* WScriptRTTI::GetFunctionByIndex(WUInt32 uiIndex) const
 {
   if (uiIndex < m_FunctionStorage.GetCount())
   {
@@ -62,82 +62,82 @@ const ezAbstractFunctionProperty* ezScriptRTTI::GetFunctionByIndex(ezUInt32 uiIn
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptFunctionProperty::ezScriptFunctionProperty(ezStringView sName)
-  : ezAbstractFunctionProperty(nullptr)
+WScriptFunctionProperty::WScriptFunctionProperty(WStringView sName)
+  : WAbstractFunctionProperty(nullptr)
 {
   m_sPropertyNameStorage.Assign(sName);
   m_szPropertyName = m_sPropertyNameStorage.GetData();
 }
 
-ezScriptFunctionProperty::~ezScriptFunctionProperty() = default;
+WScriptFunctionProperty::~WScriptFunctionProperty() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptMessageHandler::ezScriptMessageHandler(const ezScriptMessageDesc& desc)
+WScriptMessageHandler::WScriptMessageHandler(const WScriptMessageDesc& desc)
   : m_Properties(desc.m_Properties)
 {
-  ezUniquePtr<ezMessage> pMessage = desc.m_pType->GetAllocator()->Allocate<ezMessage>();
+  WUniquePtr<WMessage> pMessage = desc.m_pType->GetAllocator()->Allocate<WMessage>();
 
   m_Id = pMessage->GetId();
   m_bIsConst = true;
 }
 
-ezScriptMessageHandler::~ezScriptMessageHandler() = default;
+WScriptMessageHandler::~WScriptMessageHandler() = default;
 
-void ezScriptMessageHandler::FillMessagePropertyValues(const ezMessage& msg, ezDynamicArray<ezVariant>& out_propertyValues)
+void WScriptMessageHandler::FillMessagePropertyValues(const WMessage& msg, WDynamicArray<WVariant>& out_propertyValues)
 {
   out_propertyValues.Clear();
 
   for (auto pProp : m_Properties)
   {
-    if (pProp->GetCategory() == ezPropertyCategory::Member)
+    if (pProp->GetCategory() == WPropertyCategory::Member)
     {
-      // Special handling for ezGameObjectHandle and ezComponentHandle to avoid unnecessary allocations that happen when converting them to ezVariant in ezReflectionUtils::GetMemberPropertyValue.
-      if (pProp->GetSpecificType() == ezGetStaticRTTI<ezGameObjectHandle>())
+      // Special handling for WGameObjectHandle and WComponentHandle to avoid unnecessary allocations that happen when converting them to WVariant in WReflectionUtils::GetMemberPropertyValue.
+      if (pProp->GetSpecificType() == WGetStaticRTTI<WGameObjectHandle>())
       {
-        ezGameObjectHandle hObject;
-        static_cast<const ezAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hObject);
-        out_propertyValues.PushBack(ezVariant(hObject));
+        WGameObjectHandle hObject;
+        static_cast<const WAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hObject);
+        out_propertyValues.PushBack(WVariant(hObject));
       }
-      else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezComponentHandle>())
+      else if (pProp->GetSpecificType() == WGetStaticRTTI<WComponentHandle>())
       {
-        ezComponentHandle hComponent;
-        static_cast<const ezAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hComponent);
-        out_propertyValues.PushBack(ezVariant(hComponent));
+        WComponentHandle hComponent;
+        static_cast<const WAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hComponent);
+        out_propertyValues.PushBack(WVariant(hComponent));
       }
       else
       {
-        out_propertyValues.PushBack(ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &msg));
+        out_propertyValues.PushBack(WReflectionUtils::GetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), &msg));
       }
     }
-    else if (pProp->GetCategory() == ezPropertyCategory::Array)
+    else if (pProp->GetCategory() == WPropertyCategory::Array)
     {
-      auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
+      auto pArrayProp = static_cast<const WAbstractArrayProperty*>(pProp);
 
-      ezVariantArray a;
-      for (ezUInt32 i = 0; i < pArrayProp->GetCount(&msg); ++i)
+      WVariantArray a;
+      for (WUInt32 i = 0; i < pArrayProp->GetCount(&msg); ++i)
       {
-        a.PushBack(ezReflectionUtils::GetArrayPropertyValue(pArrayProp, &msg, i));
+        a.PushBack(WReflectionUtils::GetArrayPropertyValue(pArrayProp, &msg, i));
       }
 
       out_propertyValues.PushBack(a);
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld)
+WScriptInstance::WScriptInstance(WReflectedClass& inout_owner, WWorld* pWorld)
   : m_Owner(inout_owner)
   , m_pWorld(pWorld)
 {
 }
 
-void ezScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters)
+void WScriptInstance::SetInstanceVariables(const WArrayMap<WHashedString, WVariant>& parameters)
 {
   for (auto it : parameters)
   {
@@ -148,8 +148,8 @@ void ezScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString, ezV
 //////////////////////////////////////////////////////////////////////////
 
 // static
-ezAllocator* ezScriptAllocator::GetAllocator()
+WAllocator* WScriptAllocator::GetAllocator()
 {
-  static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
+  static WProxyAllocator s_ScriptAllocator("Script", WFoundation::GetDefaultAllocator());
   return &s_ScriptAllocator;
 }

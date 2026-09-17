@@ -54,14 +54,14 @@ class AmmoPouch
     }
 }
 
-class MsgAddConsumable : ezAngelScriptMessage
+class MsgAddConsumable : WAngelScriptMessage
 {
     ConsumableType consumableType;
     int amount = 0;
     bool return_consumed = false;
 }
 
-class MsgUnlockWeapon : ezAngelScriptMessage
+class MsgUnlockWeapon : WAngelScriptMessage
 {
     WeaponType weaponType;
     bool return_consumed = false;
@@ -77,17 +77,17 @@ enum WeaponInteraction
 
 class WeaponInfo
 {
-    ezGameObjectHandle hObject;
+    WGameObjectHandle hObject;
     bool bUnlocked = false;
     int iAmmoInClip = 0;
     ConsumableType eAmmoType = ConsumableType::Ammo_None;
     int iClipSize = 1;
 }
 
-class MsgWeaponInteraction : ezAngelScriptMessage
+class MsgWeaponInteraction : WAngelScriptMessage
 {
     WeaponInteraction interaction;
-    ezTriggerState keyState;
+    WTriggerState keyState;
     AmmoPouch@ ammoPouch;
     WeaponInfo@ weaponInfo;
 }

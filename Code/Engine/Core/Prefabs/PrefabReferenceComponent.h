@@ -6,23 +6,23 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Types/RangeView.h>
 
-class ezPrefabReferenceComponent;
+class WPrefabReferenceComponent;
 
-class EZ_CORE_DLL ezPrefabReferenceComponentManager : public ezComponentManager<ezPrefabReferenceComponent, ezBlockStorageType::Compact>
+class W_CORE_DLL WPrefabReferenceComponentManager : public WComponentManager<WPrefabReferenceComponent, WBlockStorageType::Compact>
 {
 public:
-  ezPrefabReferenceComponentManager(ezWorld* pWorld);
-  ~ezPrefabReferenceComponentManager();
+  WPrefabReferenceComponentManager(WWorld* pWorld);
+  ~WPrefabReferenceComponentManager();
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void AddToUpdateList(ezPrefabReferenceComponent* pComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void AddToUpdateList(WPrefabReferenceComponent* pComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
+  WDeque<WComponentHandle> m_ComponentsToUpdate;
 };
 
 /// The central component to instantiate prefabs.
@@ -33,16 +33,16 @@ private:
 ///
 /// It also holds prefab parameters, which are passed through during instantiation.
 /// For that it also implements remapping of game object references, so that they can be passed into prefabs during instantiation.
-class EZ_CORE_DLL ezPrefabReferenceComponent : public ezComponent
+class W_CORE_DLL WPrefabReferenceComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPrefabReferenceComponent, ezComponent, ezPrefabReferenceComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WPrefabReferenceComponent, WComponent, WPrefabReferenceComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -53,30 +53,30 @@ protected:
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPrefabReferenceComponent
+  // WPrefabReferenceComponent
 
 public:
-  ezPrefabReferenceComponent();
-  ~ezPrefabReferenceComponent();
+  WPrefabReferenceComponent();
+  ~WPrefabReferenceComponent();
 
-  void SetPrefab(const ezPrefabResourceHandle& hPrefab);                                 // [ property ]
-  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; } // [ property ]
+  void SetPrefab(const WPrefabResourceHandle& hPrefab);                                 // [ property ]
+  W_ALWAYS_INLINE const WPrefabResourceHandle& GetPrefab() const { return m_hPrefab; } // [ property ]
 
   void SetShowShapeIcons(bool bShow);                                                    // [ property ]
   bool GetShowShapeIcons() const;                                                        // [ property ]
 
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;                        // [ property ] (exposed parameter)
-  void SetParameter(const char* szKey, const ezVariant& value);                          // [ property ] (exposed parameter)
+  const WRangeView<const char*, WUInt32> GetParameters() const;                        // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const WVariant& value);                          // [ property ] (exposed parameter)
   void RemoveParameter(const char* szKey);                                               // [ property ] (exposed parameter)
-  bool GetParameter(const char* szKey, ezVariant& out_value) const;                      // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, WVariant& out_value) const;                      // [ property ] (exposed parameter)
 
-  static void SerializePrefabParameters(const ezWorld& world, ezWorldWriter& inout_stream, ezArrayMap<ezHashedString, ezVariant> parameters);
-  static void DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& inout_stream);
+  static void SerializePrefabParameters(const WWorld& world, WWorldWriter& inout_stream, WArrayMap<WHashedString, WVariant> parameters);
+  static void DeserializePrefabParameters(WArrayMap<WHashedString, WVariant>& out_parameters, WWorldReader& inout_stream);
 
 private:
   void InstantiatePrefab();
   void ClearPreviousInstances();
 
-  ezPrefabResourceHandle m_hPrefab;
-  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  WPrefabResourceHandle m_hPrefab;
+  WArrayMap<WHashedString, WVariant> m_Parameters;
 };

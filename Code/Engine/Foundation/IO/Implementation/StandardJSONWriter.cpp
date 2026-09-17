@@ -2,18 +2,18 @@
 
 #include <Foundation/IO/JSONWriter.h>
 
-ezStandardJSONWriter::JSONState::JSONState()
+WStandardJSONWriter::JSONState::JSONState()
 {
   m_State = Invalid;
   m_bRequireComma = false;
   m_bValueWasWritten = false;
 }
 
-ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
+WStandardJSONWriter::CommaWriter::CommaWriter(WStandardJSONWriter* pWriter)
 {
-  const ezStandardJSONWriter::State state = pWriter->m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray || state == ezStandardJSONWriter::Variable,
+  const WStandardJSONWriter::State state = pWriter->m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV(state == WStandardJSONWriter::Array || state == WStandardJSONWriter::NamedArray || state == WStandardJSONWriter::Variable,
     "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");
 
   m_pWriter = pWriter;
@@ -23,19 +23,19 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
     // we are writing the comma now, so it is not required anymore
     m_pWriter->m_StateStack.PeekBack().m_bRequireComma = false;
 
-    if (m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array ||
-        m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
+    if (m_pWriter->m_StateStack.PeekBack().m_State == WStandardJSONWriter::Array ||
+        m_pWriter->m_StateStack.PeekBack().m_State == WStandardJSONWriter::NamedArray)
     {
-      if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+      if (pWriter->m_WhitespaceMode >= WJSONWriter::WhitespaceMode::NewlinesOnly)
       {
-        if (pWriter->m_ArrayMode == ezJSONWriter::ArrayMode::InOneLine)
+        if (pWriter->m_ArrayMode == WJSONWriter::ArrayMode::InOneLine)
           m_pWriter->OutputString(",");
         else
           m_pWriter->OutputString(",\n");
       }
       else
       {
-        if (pWriter->m_ArrayMode == ezJSONWriter::ArrayMode::InOneLine)
+        if (pWriter->m_ArrayMode == WJSONWriter::ArrayMode::InOneLine)
           m_pWriter->OutputString(", ");
         else
         {
@@ -46,7 +46,7 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
     }
     else
     {
-      if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+      if (pWriter->m_WhitespaceMode >= WJSONWriter::WhitespaceMode::None)
         m_pWriter->OutputString(",");
       else
         m_pWriter->OutputString(",\n");
@@ -56,37 +56,37 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
   }
 }
 
-ezStandardJSONWriter::CommaWriter::~CommaWriter()
+WStandardJSONWriter::CommaWriter::~CommaWriter()
 {
   m_pWriter->m_StateStack.PeekBack().m_bRequireComma = true;
   m_pWriter->m_StateStack.PeekBack().m_bValueWasWritten = true;
 }
 
-ezStandardJSONWriter::ezStandardJSONWriter()
+WStandardJSONWriter::WStandardJSONWriter()
 {
   m_iIndentation = 0;
   m_pOutput = nullptr;
   JSONState s;
-  s.m_State = ezStandardJSONWriter::Empty;
+  s.m_State = WStandardJSONWriter::Empty;
   m_StateStack.PushBack(s);
 }
 
-ezStandardJSONWriter::~ezStandardJSONWriter()
+WStandardJSONWriter::~WStandardJSONWriter()
 {
   if (!HadWriteError())
   {
-    EZ_ASSERT_DEV(m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Empty, "The JSON stream must be closed properly.");
+    W_ASSERT_DEV(m_StateStack.PeekBack().m_State == WStandardJSONWriter::Empty, "The JSON stream must be closed properly.");
   }
 }
 
-void ezStandardJSONWriter::SetOutputStream(ezStreamWriter* pOutput)
+void WStandardJSONWriter::SetOutputStream(WStreamWriter* pOutput)
 {
   m_pOutput = pOutput;
 }
 
-void ezStandardJSONWriter::OutputString(ezStringView s)
+void WStandardJSONWriter::OutputString(WStringView s)
 {
-  EZ_ASSERT_DEBUG(m_pOutput != nullptr, "No output stream has been set yet.");
+  W_ASSERT_DEBUG(m_pOutput != nullptr, "No output stream has been set yet.");
 
   if (m_pOutput->WriteBytes(s.GetStartPointer(), s.GetElementCount()).Failed())
   {
@@ -94,9 +94,9 @@ void ezStandardJSONWriter::OutputString(ezStringView s)
   }
 }
 
-void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
+void WStandardJSONWriter::OutputEscapedString(WStringView s)
 {
-  ezStringBuilder sEscaped = s;
+  WStringBuilder sEscaped = s;
   sEscaped.ReplaceAll("\\", "\\\\");
   // sEscaped.ReplaceAll("/", "\\/"); // this is not necessary to escape
   sEscaped.ReplaceAll("\"", "\\\"");
@@ -115,9 +115,9 @@ void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
   // (continuation bytes are >= 0x80), so scanning bytes cannot cut a multi-byte character in half.
   bool bNeedsUnicodeEscape = false;
 
-  for (ezUInt32 i = 0; i < sEscaped.GetElementCount(); ++i)
+  for (WUInt32 i = 0; i < sEscaped.GetElementCount(); ++i)
   {
-    if (static_cast<ezUInt8>(sEscaped.GetData()[i]) < 0x20)
+    if (static_cast<WUInt8>(sEscaped.GetData()[i]) < 0x20)
     {
       bNeedsUnicodeEscape = true;
       break;
@@ -126,7 +126,7 @@ void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
 
   if (bNeedsUnicodeEscape)
   {
-    ezStringBuilder sResult;
+    WStringBuilder sResult;
     sResult.Reserve(sEscaped.GetElementCount());
 
     const char* szCur = sEscaped.GetData();
@@ -135,21 +135,21 @@ void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
 
     for (; szCur < szEnd; ++szCur)
     {
-      const ezUInt8 uiByte = static_cast<ezUInt8>(*szCur);
+      const WUInt8 uiByte = static_cast<WUInt8>(*szCur);
 
       if (uiByte >= 0x20)
         continue;
 
-      sResult.Append(ezStringView(szChunkStart, szCur));
+      sResult.Append(WStringView(szChunkStart, szCur));
 
       char szEscape[8];
-      ezStringUtils::snprintf(szEscape, EZ_ARRAY_SIZE(szEscape), "\\u%04x", uiByte);
+      WStringUtils::snprintf(szEscape, W_ARRAY_SIZE(szEscape), "\\u%04x", uiByte);
       sResult.Append(szEscape);
 
       szChunkStart = szCur + 1;
     }
 
-    sResult.Append(ezStringView(szChunkStart, szEnd));
+    sResult.Append(WStringView(szChunkStart, szEnd));
     sEscaped = sResult;
   }
 
@@ -158,23 +158,23 @@ void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
   OutputString("\"");
 }
 
-void ezStandardJSONWriter::OutputIndentation()
+void WStandardJSONWriter::OutputIndentation()
 {
   if (m_WhitespaceMode >= WhitespaceMode::NoIndentation)
     return;
 
-  ezInt32 iIndentation = m_iIndentation * 2;
+  WInt32 iIndentation = m_iIndentation * 2;
 
   if (m_WhitespaceMode == WhitespaceMode::LessIndentation)
     iIndentation = m_iIndentation;
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetPrintf("%*s", iIndentation, "");
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteBool(bool value)
+void WStandardJSONWriter::WriteBool(bool value)
 {
   CommaWriter cw(this);
 
@@ -184,101 +184,101 @@ void ezStandardJSONWriter::WriteBool(bool value)
     OutputString("false");
 }
 
-void ezStandardJSONWriter::WriteInt32(ezInt32 value)
+void WStandardJSONWriter::WriteInt32(WInt32 value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteUInt32(ezUInt32 value)
+void WStandardJSONWriter::WriteUInt32(WUInt32 value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteInt64(ezInt64 value)
+void WStandardJSONWriter::WriteInt64(WInt64 value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteUInt64(ezUInt64 value)
+void WStandardJSONWriter::WriteUInt64(WUInt64 value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteFloat(float value)
+void WStandardJSONWriter::WriteFloat(float value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteDouble(double value)
+void WStandardJSONWriter::WriteDouble(double value)
 {
   CommaWriter cw(this);
 
-  ezStringBuilder s;
+  WStringBuilder s;
   s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteString(ezStringView value)
+void WStandardJSONWriter::WriteString(WStringView value)
 {
   CommaWriter cw(this);
 
   OutputEscapedString(value);
 }
 
-void ezStandardJSONWriter::WriteNULL()
+void WStandardJSONWriter::WriteNULL()
 {
   CommaWriter cw(this);
 
   OutputString("null");
 }
 
-void ezStandardJSONWriter::WriteTime(ezTime value)
+void WStandardJSONWriter::WriteTime(WTime value)
 {
   WriteDouble(value.GetSeconds());
 }
 
-void ezStandardJSONWriter::WriteFloatComponents(const float* pValues, ezUInt32 uiCount, ezStringView sComponentNames)
+void WStandardJSONWriter::WriteFloatComponents(const float* pValues, WUInt32 uiCount, WStringView sComponentNames)
 {
-  EZ_ASSERT_DEBUG(uiCount <= sComponentNames.GetElementCount(), "Not enough component names for {} components.", uiCount);
+  W_ASSERT_DEBUG(uiCount <= sComponentNames.GetElementCount(), "Not enough component names for {} components.", uiCount);
 
   BeginObject();
 
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  for (WUInt32 i = 0; i < uiCount; ++i)
   {
     const char* szName = sComponentNames.GetStartPointer() + i;
-    AddVariableFloat(ezStringView(szName, szName + 1), pValues[i]);
+    AddVariableFloat(WStringView(szName, szName + 1), pValues[i]);
   }
 
   EndObject();
 }
 
-void ezStandardJSONWriter::WriteColor(const ezColor& value)
+void WStandardJSONWriter::WriteColor(const WColor& value)
 {
   // The linear/gamma distinction is not part of the output, so a reader has to know which one it is
   // getting from the context - same as for the component types below, which do not record their type
@@ -286,7 +286,7 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
   WriteFloatComponents(&value.r, 4, "rgba");
 }
 
-void ezStandardJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
+void WStandardJSONWriter::WriteColorGamma(const WColorGammaUB& value)
 {
   BeginObject();
   AddVariableUInt32("r", value.r);
@@ -296,22 +296,22 @@ void ezStandardJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
   EndObject();
 }
 
-void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
+void WStandardJSONWriter::WriteVec2(const WVec2& value)
 {
   WriteFloatComponents(&value.x, 2, "xyzw");
 }
 
-void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
+void WStandardJSONWriter::WriteVec3(const WVec3& value)
 {
   WriteFloatComponents(&value.x, 3, "xyzw");
 }
 
-void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
+void WStandardJSONWriter::WriteVec4(const WVec4& value)
 {
   WriteFloatComponents(&value.x, 4, "xyzw");
 }
 
-void ezStandardJSONWriter::WriteVec2I32(const ezVec2I32& value)
+void WStandardJSONWriter::WriteVec2I32(const WVec2I32& value)
 {
   BeginObject();
   AddVariableInt32("x", value.x);
@@ -319,7 +319,7 @@ void ezStandardJSONWriter::WriteVec2I32(const ezVec2I32& value)
   EndObject();
 }
 
-void ezStandardJSONWriter::WriteVec3I32(const ezVec3I32& value)
+void WStandardJSONWriter::WriteVec3I32(const WVec3I32& value)
 {
   BeginObject();
   AddVariableInt32("x", value.x);
@@ -328,7 +328,7 @@ void ezStandardJSONWriter::WriteVec3I32(const ezVec3I32& value)
   EndObject();
 }
 
-void ezStandardJSONWriter::WriteVec4I32(const ezVec4I32& value)
+void WStandardJSONWriter::WriteVec4I32(const WVec4I32& value)
 {
   BeginObject();
   AddVariableInt32("x", value.x);
@@ -338,20 +338,20 @@ void ezStandardJSONWriter::WriteVec4I32(const ezVec4I32& value)
   EndObject();
 }
 
-void ezStandardJSONWriter::WriteQuat(const ezQuat& value)
+void WStandardJSONWriter::WriteQuat(const WQuat& value)
 {
   WriteFloatComponents(&value.x, 4, "xyzw");
 }
 
-void ezStandardJSONWriter::WriteMatrix(const float* pValues, ezUInt32 uiRowsAndColumns)
+void WStandardJSONWriter::WriteMatrix(const float* pValues, WUInt32 uiRowsAndColumns)
 {
   BeginArray();
 
-  for (ezUInt32 uiRow = 0; uiRow < uiRowsAndColumns; ++uiRow)
+  for (WUInt32 uiRow = 0; uiRow < uiRowsAndColumns; ++uiRow)
   {
     BeginArray();
 
-    for (ezUInt32 uiColumn = 0; uiColumn < uiRowsAndColumns; ++uiColumn)
+    for (WUInt32 uiColumn = 0; uiColumn < uiRowsAndColumns; ++uiColumn)
     {
       WriteFloat(pValues[uiRow * uiRowsAndColumns + uiColumn]);
     }
@@ -362,59 +362,59 @@ void ezStandardJSONWriter::WriteMatrix(const float* pValues, ezUInt32 uiRowsAndC
   EndArray();
 }
 
-void ezStandardJSONWriter::WriteMat3(const ezMat3& value)
+void WStandardJSONWriter::WriteMat3(const WMat3& value)
 {
   float f[9];
-  value.GetAsArray(f, ezMatrixLayout::RowMajor);
+  value.GetAsArray(f, WMatrixLayout::RowMajor);
 
   WriteMatrix(f, 3);
 }
 
-void ezStandardJSONWriter::WriteMat4(const ezMat4& value)
+void WStandardJSONWriter::WriteMat4(const WMat4& value)
 {
   float f[16];
-  value.GetAsArray(f, ezMatrixLayout::RowMajor);
+  value.GetAsArray(f, WMatrixLayout::RowMajor);
 
   WriteMatrix(f, 4);
 }
 
-void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
+void WStandardJSONWriter::WriteUuid(const WUuid& value)
 {
-  ezStringBuilder s;
-  ezConversionUtils::ToString(value, s);
+  WStringBuilder s;
+  WConversionUtils::ToString(value, s);
 
   WriteString(s);
 }
 
-void ezStandardJSONWriter::WriteAngle(ezAngle value)
+void WStandardJSONWriter::WriteAngle(WAngle value)
 {
   WriteFloat(value.GetDegree());
 }
 
-void ezStandardJSONWriter::WriteDataBuffer(const ezDataBuffer& value)
+void WStandardJSONWriter::WriteDataBuffer(const WDataBuffer& value)
 {
   // Hex, because Foundation has no base64 encoder. This doubles the size of the data, so consider
   // writing a reference to the data instead of the data itself.
-  ezStringBuilder sHex;
+  WStringBuilder sHex;
 
-  for (ezUInt8 uiByte : value)
+  for (WUInt8 uiByte : value)
   {
-    sHex.AppendFormat("{}", ezArgU(uiByte, 2, true, 16));
+    sHex.AppendFormat("{}", WArgU(uiByte, 2, true, 16));
   }
 
   WriteString(sHex);
 }
 
-void ezStandardJSONWriter::BeginVariable(ezStringView sName)
+void WStandardJSONWriter::BeginVariable(WStringView sName)
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Empty || state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject,
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV(state == WStandardJSONWriter::Empty || state == WStandardJSONWriter::Object || state == WStandardJSONWriter::NamedObject,
     "Variables can only be written inside objects.");
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+    if (m_WhitespaceMode >= WJSONWriter::WhitespaceMode::None)
       OutputString(",");
     else
       OutputString(",\n");
@@ -430,26 +430,26 @@ void ezStandardJSONWriter::BeginVariable(ezStringView sName)
     OutputString(" : ");
 
   JSONState s;
-  s.m_State = ezStandardJSONWriter::Variable;
+  s.m_State = WStandardJSONWriter::Variable;
   m_StateStack.PushBack(s);
 }
 
-void ezStandardJSONWriter::EndVariable()
+void WStandardJSONWriter::EndVariable()
 {
-  EZ_ASSERT_DEV(m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Variable, "EndVariable() must be called in sync with BeginVariable().");
-  EZ_ASSERT_DEV(m_StateStack.PeekBack().m_bValueWasWritten, "EndVariable() cannot be called without writing any value in between.");
+  W_ASSERT_DEV(m_StateStack.PeekBack().m_State == WStandardJSONWriter::Variable, "EndVariable() must be called in sync with BeginVariable().");
+  W_ASSERT_DEV(m_StateStack.PeekBack().m_bValueWasWritten, "EndVariable() cannot be called without writing any value in between.");
 
   End();
 }
 
-void ezStandardJSONWriter::BeginArray(ezStringView sName)
+void WStandardJSONWriter::BeginArray(WStringView sName)
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
-                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
-                  (state == ezStandardJSONWriter::Variable && sName == nullptr),
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV((state == WStandardJSONWriter::Empty) ||
+                  ((state == WStandardJSONWriter::Object || state == WStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
+                  ((state == WStandardJSONWriter::Array || state == WStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
+                  (state == WStandardJSONWriter::Variable && sName == nullptr),
     "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
     "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
     "Inside variables you cannot specify a name again.");
@@ -473,35 +473,35 @@ void ezStandardJSONWriter::BeginArray(ezStringView sName)
     OutputString("[ ");
 
   JSONState s;
-  s.m_State = (sName == nullptr) ? ezStandardJSONWriter::Array : ezStandardJSONWriter::NamedArray;
+  s.m_State = (sName == nullptr) ? WStandardJSONWriter::Array : WStandardJSONWriter::NamedArray;
   m_StateStack.PushBack(s);
   ++m_iIndentation;
 }
 
-void ezStandardJSONWriter::EndArray()
+void WStandardJSONWriter::EndArray()
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(
-    state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV(
+    state == WStandardJSONWriter::Array || state == WStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
 
 
   const State CurState = m_StateStack.PeekBack().m_State;
 
   End();
 
-  if (CurState == ezStandardJSONWriter::NamedArray)
+  if (CurState == WStandardJSONWriter::NamedArray)
     EndVariable();
 }
 
-void ezStandardJSONWriter::BeginObject(ezStringView sName)
+void WStandardJSONWriter::BeginObject(WStringView sName)
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
-                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
-                  (state == ezStandardJSONWriter::Variable && sName == nullptr),
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV((state == WStandardJSONWriter::Empty) ||
+                  ((state == WStandardJSONWriter::Object || state == WStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
+                  ((state == WStandardJSONWriter::Array || state == WStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
+                  (state == WStandardJSONWriter::Variable && sName == nullptr),
     "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
     "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
     "Inside variables you cannot specify a name again.");
@@ -513,7 +513,7 @@ void ezStandardJSONWriter::BeginObject(ezStringView sName)
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+    if (m_WhitespaceMode >= WJSONWriter::WhitespaceMode::None)
       OutputString(",");
     else
       OutputString(",\n");
@@ -521,20 +521,20 @@ void ezStandardJSONWriter::BeginObject(ezStringView sName)
     OutputIndentation();
   }
 
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+  if (m_WhitespaceMode >= WJSONWriter::WhitespaceMode::None)
     OutputString("{");
   else
     OutputString("{\n");
 
   JSONState s;
-  s.m_State = (sName == nullptr) ? ezStandardJSONWriter::Object : ezStandardJSONWriter::NamedObject;
+  s.m_State = (sName == nullptr) ? WStandardJSONWriter::Object : WStandardJSONWriter::NamedObject;
   m_StateStack.PushBack(s);
   ++m_iIndentation;
 
   OutputIndentation();
 }
 
-void ezStandardJSONWriter::WriteRawJson(ezStringView sJson)
+void WStandardJSONWriter::WriteRawJson(WStringView sJson)
 {
   // places the separating comma and marks the value as written, exactly as for any other value
   CommaWriter cw(this);
@@ -543,14 +543,14 @@ void ezStandardJSONWriter::WriteRawJson(ezStringView sJson)
   OutputString(sJson);
 }
 
-void ezStandardJSONWriter::AddVariableRawJson(ezStringView sName, ezStringView sJson)
+void WStandardJSONWriter::AddVariableRawJson(WStringView sName, WStringView sJson)
 {
   BeginVariable(sName);
   WriteRawJson(sJson);
   EndVariable();
 }
 
-void ezStandardJSONWriter::EndAll()
+void WStandardJSONWriter::EndAll()
 {
   // Works top down through whatever is open, using the public functions so that commas, indentation
   // and the NamedObject/NamedArray cascade into EndVariable() all behave as during normal writing.
@@ -558,7 +558,7 @@ void ezStandardJSONWriter::EndAll()
   {
     switch (m_StateStack.PeekBack().m_State)
     {
-      case ezStandardJSONWriter::Variable:
+      case WStandardJSONWriter::Variable:
         // EndVariable() asserts unless something was written for it, and an object member without a
         // value is not representable, so the unfinished variable becomes null.
         if (!m_StateStack.PeekBack().m_bValueWasWritten)
@@ -567,13 +567,13 @@ void ezStandardJSONWriter::EndAll()
         EndVariable();
         break;
 
-      case ezStandardJSONWriter::Object:
-      case ezStandardJSONWriter::NamedObject:
+      case WStandardJSONWriter::Object:
+      case WStandardJSONWriter::NamedObject:
         EndObject();
         break;
 
-      case ezStandardJSONWriter::Array:
-      case ezStandardJSONWriter::NamedArray:
+      case WStandardJSONWriter::Array:
+      case WStandardJSONWriter::NamedArray:
         EndArray();
         break;
 
@@ -585,26 +585,26 @@ void ezStandardJSONWriter::EndAll()
   }
 }
 
-void ezStandardJSONWriter::EndObject()
+void WStandardJSONWriter::EndObject()
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(
-    state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject, "EndObject() must be called in sync with BeginObject().");
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  W_IGNORE_UNUSED(state);
+  W_ASSERT_DEV(
+    state == WStandardJSONWriter::Object || state == WStandardJSONWriter::NamedObject, "EndObject() must be called in sync with BeginObject().");
 
   const State CurState = m_StateStack.PeekBack().m_State;
 
   End();
 
-  if (CurState == ezStandardJSONWriter::NamedObject)
+  if (CurState == WStandardJSONWriter::NamedObject)
     EndVariable();
 }
 
-void ezStandardJSONWriter::End()
+void WStandardJSONWriter::End()
 {
-  const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  const WStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
 
-  if (m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array || m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
+  if (m_StateStack.PeekBack().m_State == WStandardJSONWriter::Array || m_StateStack.PeekBack().m_State == WStandardJSONWriter::NamedArray)
   {
     --m_iIndentation;
 
@@ -618,11 +618,11 @@ void ezStandardJSONWriter::End()
   m_StateStack.PopBack();
   m_StateStack.PeekBack().m_bRequireComma = true;
 
-  if (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject)
+  if (state == WStandardJSONWriter::Object || state == WStandardJSONWriter::NamedObject)
   {
     --m_iIndentation;
 
-    if (m_WhitespaceMode < ezJSONWriter::WhitespaceMode::None)
+    if (m_WhitespaceMode < WJSONWriter::WhitespaceMode::None)
       OutputString("\n");
 
     OutputIndentation();
@@ -631,7 +631,7 @@ void ezStandardJSONWriter::End()
 }
 
 
-void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* pData, ezUInt32 uiBytes, ezStringView sValueString)
+void WStandardJSONWriter::WriteBinaryData(WStringView sDataType, const void* pData, WUInt32 uiBytes, WStringView sValueString)
 {
   CommaWriter cw(this);
 
@@ -657,13 +657,13 @@ void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* p
   else
     OutputString("\", \"$b\" : \"0x");
 
-  ezStringBuilder s;
+  WStringBuilder s;
 
-  ezUInt8* pBytes = (ezUInt8*)pData;
+  WUInt8* pBytes = (WUInt8*)pData;
 
-  for (ezUInt32 i = 0; i < uiBytes; ++i)
+  for (WUInt32 i = 0; i < uiBytes; ++i)
   {
-    s.SetFormat("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
+    s.SetFormat("{0}", WArgU((WUInt32)*pBytes, 2, true, 16, true));
     ++pBytes;
 
     OutputString(s.GetData());

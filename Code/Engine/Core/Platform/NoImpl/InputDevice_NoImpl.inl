@@ -1,24 +1,24 @@
 #include <Core/Platform/NoImpl/InputDevice_NoImpl.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard_NoImpl, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WInputDeviceMouseKeyboard_NoImpl, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInputDeviceMouseKeyboard_NoImpl::ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber) {}
-ezInputDeviceMouseKeyboard_NoImpl::~ezInputDeviceMouseKeyboard_NoImpl() = default;
+WInputDeviceMouseKeyboard_NoImpl::WInputDeviceMouseKeyboard_NoImpl(WUInt32 uiWindowNumber) {}
+WInputDeviceMouseKeyboard_NoImpl::~WInputDeviceMouseKeyboard_NoImpl() = default;
 
-void ezInputDeviceMouseKeyboard_NoImpl::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
+void WInputDeviceMouseKeyboard_NoImpl::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
 {
-  EZ_IGNORE_UNUSED(bShow);
-  EZ_IGNORE_UNUSED(bCustomCursorActive);
+  W_IGNORE_UNUSED(bShow);
+  W_IGNORE_UNUSED(bCustomCursorActive);
 }
 
-void ezInputDeviceMouseKeyboard_NoImpl::ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void WInputDeviceMouseKeyboard_NoImpl::ApplyClipMouseCursor(WMouseCursorClipMode::Enum mode)
 {
-  EZ_IGNORE_UNUSED(mode);
+  W_IGNORE_UNUSED(mode);
 }
 
-void ezInputDeviceMouseKeyboard_NoImpl::InitializeDevice() {}
+void WInputDeviceMouseKeyboard_NoImpl::InitializeDevice() {}
 
-void ezInputDeviceMouseKeyboard_NoImpl::RegisterInputSlots() {}
+void WInputDeviceMouseKeyboard_NoImpl::RegisterInputSlots() {}

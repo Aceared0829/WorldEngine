@@ -7,26 +7,26 @@
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 
-class ezSceneDocument;
+class WSceneDocument;
 
 
-/// Custom delegate for game objects, used in ezQtGameObjectWidget.
+/// Custom delegate for game objects, used in WQtGameObjectWidget.
 ///
 /// Renders additional icons to display stats.
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDelegate : public ezQtItemDelegate
+class W_EDITORFRAMEWORK_DLL WQtGameObjectDelegate : public WQtItemDelegate
 {
   Q_OBJECT
 public:
-  ezQtGameObjectDelegate(QObject* pParent, ezGameObjectDocument* pDocument);
+  WQtGameObjectDelegate(QObject* pParent, WGameObjectDocument* pDocument);
   virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual bool helpEvent(QHelpEvent* pEvent, QAbstractItemView* pView, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   static QRect GetHiddenIconRect(const QStyleOptionViewItem& opt);
   static QRect GetActiveParentIconRect(const QStyleOptionViewItem& opt);
 
-  ezGameObjectDocument* m_pDocument = nullptr;
+  WGameObjectDocument* m_pDocument = nullptr;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectAdapter : public ezQtNameableAdapter
+class W_EDITORFRAMEWORK_DLL WQtGameObjectAdapter : public WQtNameableAdapter
 {
   Q_OBJECT;
 
@@ -37,29 +37,29 @@ public:
     ActiveParentRole = Qt::UserRole + 1,
   };
 
-  ezQtGameObjectAdapter(ezDocumentObjectManager* pObjectManager, ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* pObjectMetaData = nullptr, ezObjectMetaData<ezUuid, ezGameObjectMetaData>* pGameObjectMetaData = nullptr);
-  ~ezQtGameObjectAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
-  virtual bool setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const override;
+  WQtGameObjectAdapter(WDocumentObjectManager* pObjectManager, WObjectMetaData<WUuid, WDocumentObjectMetaData>* pObjectMetaData = nullptr, WObjectMetaData<WUuid, WGameObjectMetaData>* pGameObjectMetaData = nullptr);
+  ~WQtGameObjectAdapter();
+  virtual QVariant data(const WDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
+  virtual bool setData(const WDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const override;
 
 public:
-  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
-  void GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e);
+  void DocumentObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WDocumentObjectMetaData>::EventData& e);
+  void GameObjectMetaDataEventHandler(const WObjectMetaData<WUuid, WGameObjectMetaData>::EventData& e);
 
 protected:
-  ezDocumentObjectManager* m_pObjectManager = nullptr;
-  ezGameObjectDocument* m_pGameObjectDocument = nullptr;
-  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* m_pObjectMetaData = nullptr;
-  ezObjectMetaData<ezUuid, ezGameObjectMetaData>* m_pGameObjectMetaData = nullptr;
-  ezEventSubscriptionID m_GameObjectMetaDataSubscription;
-  ezEventSubscriptionID m_DocumentObjectMetaDataSubscription;
+  WDocumentObjectManager* m_pObjectManager = nullptr;
+  WGameObjectDocument* m_pGameObjectDocument = nullptr;
+  WObjectMetaData<WUuid, WDocumentObjectMetaData>* m_pObjectMetaData = nullptr;
+  WObjectMetaData<WUuid, WGameObjectMetaData>* m_pGameObjectMetaData = nullptr;
+  WEventSubscriptionID m_GameObjectMetaDataSubscription;
+  WEventSubscriptionID m_DocumentObjectMetaDataSubscription;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
+class W_EDITORFRAMEWORK_DLL WQtGameObjectModel : public WQtDocumentTreeModel
 {
   Q_OBJECT
 
 public:
-  ezQtGameObjectModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root = ezUuid());
-  ~ezQtGameObjectModel();
+  WQtGameObjectModel(const WDocumentObjectManager* pObjectManager, const WUuid& root = WUuid());
+  ~WQtGameObjectModel();
 };

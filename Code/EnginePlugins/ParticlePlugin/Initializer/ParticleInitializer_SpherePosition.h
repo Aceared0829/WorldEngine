@@ -7,48 +7,48 @@
 ///
 /// Can spawn throughout the volume or only on the surface.
 /// Optionally sets initial velocity pointing outward from the center.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_SpherePosition final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_SpherePosition final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_SpherePosition, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_SpherePosition, WParticleInitializerFactory);
 
 public:
-  ezParticleInitializerFactory_SpherePosition();
+  WParticleInitializerFactory_SpherePosition();
 
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
-  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual float GetSpawnCountMultiplier(const WParticleEffectInstance* pEffect) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
 public:
-  ezVec3 m_vPositionOffset;         ///< Center of the sphere
+  WVec3 m_vPositionOffset;         ///< Center of the sphere
   float m_fRadius;                  ///< Sphere radius
   bool m_bSpawnOnSurface;           ///< If true, spawn only on sphere surface
   bool m_bSetVelocity;              ///< If true, set velocity pointing outward from center
-  ezVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
-  ezString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
+  WVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
+  WString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_SpherePosition final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_SpherePosition final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_SpherePosition, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_SpherePosition, WParticleInitializer);
 
 public:
-  ezVec3 m_vPositionOffset;
+  WVec3 m_vPositionOffset;
   float m_fRadius;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
-  ezVarianceTypeFloat m_Speed;
+  WVarianceTypeFloat m_Speed;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  WProcessingStream* m_pStreamPosition;
+  WProcessingStream* m_pStreamVelocity;
 };

@@ -4,31 +4,31 @@
 
 namespace
 {
-  static constexpr ezUInt8 s_uiSamplerDim = 255;
-  // Returns the dimension of a type: 1 for float, 2 for ezVec2, 3 for ezVec3, 4 for ezVec4/ezColor, 0 for unknown
-  ezUInt8 GetTypeDimension(const ezRTTI* pType)
+  static constexpr WUInt8 s_uiSamplerDim = 255;
+  // Returns the dimension of a type: 1 for float, 2 for WVec2, 3 for WVec3, 4 for WVec4/WColor, 0 for unknown
+  WUInt8 GetTypeDimension(const WRTTI* pType)
   {
-    if (pType == ezGetStaticRTTI<float>())
+    if (pType == WGetStaticRTTI<float>())
       return 1;
-    if (pType == ezGetStaticRTTI<ezVec2>())
+    if (pType == WGetStaticRTTI<WVec2>())
       return 2;
-    if (pType == ezGetStaticRTTI<ezVec3>())
+    if (pType == WGetStaticRTTI<WVec3>())
       return 3;
-    if (pType == ezGetStaticRTTI<ezVec4>() || pType == ezGetStaticRTTI<ezColor>())
+    if (pType == WGetStaticRTTI<WVec4>() || pType == WGetStaticRTTI<WColor>())
       return 4;
     // We treat 'auto' as float as all the default values for auto fields are float.
     if (pType == nullptr)
       return 1;
 
-    if (pType == ezVisualShaderTypeRegistry::GetSingleton()->GetPinSamplerType())
+    if (pType == WVisualShaderTypeRegistry::GetSingleton()->GetPinSamplerType())
       return s_uiSamplerDim;
 
-    EZ_REPORT_FAILURE("Unknown RTTI type found in VSE type");
+    W_REPORT_FAILURE("Unknown RTTI type found in VSE type");
     return 0;
   }
 
   // Returns the HLSL type string for a given dimension
-  const char* DimensionToHlslType(ezUInt8 uiDimension)
+  const char* DimensionToHlslType(WUInt8 uiDimension)
   {
     switch (uiDimension)
     {
@@ -43,70 +43,70 @@ namespace
       case s_uiSamplerDim:
         return "SamplerState";
       default:
-        EZ_REPORT_FAILURE("Unknown vector dimension found in HLSL type");
+        W_REPORT_FAILURE("Unknown vector dimension found in HLSL type");
         return "float4";
     }
   }
 
-  ezString ToShaderString(const ezVariant& value)
+  WString ToShaderString(const WVariant& value)
   {
-    ezStringBuilder temp;
+    WStringBuilder temp;
 
     switch (value.GetType())
     {
-      case ezVariantType::String:
+      case WVariantType::String:
       {
-        temp = value.Get<ezString>();
+        temp = value.Get<WString>();
       }
       break;
 
-      case ezVariantType::Color:
-      case ezVariantType::ColorGamma:
+      case WVariantType::Color:
+      case WVariantType::ColorGamma:
       {
-        ezColor v = value.ConvertTo<ezColor>();
+        WColor v = value.ConvertTo<WColor>();
         temp.SetFormat("float4({0}, {1}, {2}, {3})", v.r, v.g, v.b, v.a);
       }
       break;
 
-      case ezVariantType::Vector4:
+      case WVariantType::Vector4:
       {
-        ezVec4 v = value.Get<ezVec4>();
+        WVec4 v = value.Get<WVec4>();
         temp.SetFormat("float4({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w);
       }
       break;
 
-      case ezVariantType::Vector3:
+      case WVariantType::Vector3:
       {
-        ezVec3 v = value.Get<ezVec3>();
+        WVec3 v = value.Get<WVec3>();
         temp.SetFormat("float3({0}, {1}, {2})", v.x, v.y, v.z);
       }
       break;
 
-      case ezVariantType::Vector2:
+      case WVariantType::Vector2:
       {
-        ezVec2 v = value.Get<ezVec2>();
+        WVec2 v = value.Get<WVec2>();
         temp.SetFormat("float2({0}, {1})", v.x, v.y);
       }
       break;
 
-      case ezVariantType::Float:
-      case ezVariantType::Int32:
-      case ezVariantType::Bool:
+      case WVariantType::Float:
+      case WVariantType::Int32:
+      case WVariantType::Bool:
       {
         temp.SetFormat("{0}", value);
       }
       break;
 
-      case ezVariantType::Time:
+      case WVariantType::Time:
       {
-        float v = value.Get<ezTime>().GetSeconds();
+        float v = value.Get<WTime>().GetSeconds();
         temp.SetFormat("{0}", v);
       }
       break;
 
-      case ezVariantType::Angle:
+      case WVariantType::Angle:
       {
-        float v = value.Get<ezAngle>().GetRadian();
+        float v = value.Get<WAngle>().GetRadian();
         temp.SetFormat("{0}", v);
       }
       break;
@@ -120,7 +120,7 @@ namespace
   }
 } // namespace
 
-ezVisualShaderCodeGenerator::ezVisualShaderCodeGenerator()
+WVisualShaderCodeGenerator::WVisualShaderCodeGenerator()
 {
   m_pNodeManager = nullptr;
   m_pTypeRegistry = nullptr;
@@ -128,12 +128,12 @@ ezVisualShaderCodeGenerator::ezVisualShaderCodeGenerator()
   m_pMainNode = nullptr;
 }
 
-void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezVisualGraphObjectManager* pNodeManager, ezSet<ezString>& out_cfgFiles)
+void WVisualShaderCodeGenerator::DetermineConfigFileDependencies(const WVisualGraphObjectManager* pNodeManager, WSet<WString>& out_cfgFiles)
 {
   out_cfgFiles.Clear();
 
   m_pNodeManager = pNodeManager;
-  m_pTypeRegistry = ezVisualShaderTypeRegistry::GetSingleton();
+  m_pTypeRegistry = WVisualShaderTypeRegistry::GetSingleton();
   m_pNodeBaseRtti = m_pTypeRegistry->GetNodeBaseType();
 
   if (GatherAllNodes(pNodeManager->GetRootObject()).Failed())
@@ -147,26 +147,26 @@ void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezVisual
   }
 }
 
-void ezVisualShaderCodeGenerator::CollectReachableNodes(const ezDocumentObject* pRootNode, ezHashSet<const ezDocumentObject*>& out_Nodes) const
+void WVisualShaderCodeGenerator::CollectReachableNodes(const WDocumentObject* pRootNode, WHashSet<const WDocumentObject*>& out_Nodes) const
 {
   out_Nodes.Clear();
-  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
+  WTempHybridArray<const WDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pRootNode);
 
   while (!nodeStack.IsEmpty())
   {
-    const ezDocumentObject* pNode = nodeStack.PeekBack();
+    const WDocumentObject* pNode = nodeStack.PeekBack();
     nodeStack.PopBack();
     out_Nodes.Insert(pNode);
 
-    ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
-    for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
+    WArrayPtr<const WUniquePtr<const WVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
+    for (WUInt32 i = 0; i < inputPins.GetCount(); ++i)
     {
-      const ezUniquePtr<const ezVisualGraphPin>& pInputPin = inputPins[i];
-      ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
+      const WUniquePtr<const WVisualGraphPin>& pInputPin = inputPins[i];
+      WArrayPtr<const WVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
       for (const auto* pConnection : connections)
       {
-        const ezDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
+        const WDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
         if (out_Nodes.Contains(pParentNode))
           continue;
 
@@ -177,11 +177,11 @@ void ezVisualShaderCodeGenerator::CollectReachableNodes(const ezDocumentObject* 
   }
 }
 
-ezString ezVisualShaderCodeGenerator::GetInputPinDefaultValue(const ezDocumentObject* pNode, const ezVisualShaderPinDescriptor& pinDesc, ezStringBuilder* pDefinesOut)
+WString WVisualShaderCodeGenerator::GetInputPinDefaultValue(const WDocumentObject* pNode, const WVisualShaderPinDescriptor& pinDesc, WStringBuilder* pDefinesOut)
 {
   if (pinDesc.m_bExposeAsProperty)
   {
-    ezVariant val = pNode->GetTypeAccessor().GetValue(pinDesc.m_sName);
+    WVariant val = pNode->GetTypeAccessor().GetValue(pinDesc.m_sName);
     return ToShaderString(val);
   }
   else
@@ -199,32 +199,32 @@ ezString ezVisualShaderCodeGenerator::GetInputPinDefaultValue(const ezDocumentOb
   }
 }
 
-ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDocumentObject* pRootNode, ezDynamicArray<const ezDocumentObject*>& out_Sorted) const
+WResult WVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const WDocumentObject* pRootNode, WDynamicArray<const WDocumentObject*>& out_Sorted) const
 {
   // We need the reachable nodes to ignore connections that go out of this subtree as they are not relevant.
-  ezHashSet<const ezDocumentObject*> reachableNodes;
+  WHashSet<const WDocumentObject*> reachableNodes;
   CollectReachableNodes(pRootNode, reachableNodes);
 
-  ezHashSet<const ezDocumentObject*> visitedNodes;
+  WHashSet<const WDocumentObject*> visitedNodes;
   visitedNodes.Reserve(reachableNodes.GetCount());
-  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
+  WTempHybridArray<const WDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pRootNode);
 
   while (!nodeStack.IsEmpty())
   {
     // Find the next node in which all outgoing connections are visited nodes or nodes outside the reachable nodes.
-    const ezDocumentObject* pNode = nullptr;
-    for (ezUInt32 i = nodeStack.GetCount(); i-- > 0;)
+    const WDocumentObject* pNode = nullptr;
+    for (WUInt32 i = nodeStack.GetCount(); i-- > 0;)
     {
-      const ezDocumentObject* pCandidateNode = nodeStack[i];
+      const WDocumentObject* pCandidateNode = nodeStack[i];
       bool bAllVisited = true;
-      ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateNode);
+      WArrayPtr<const WUniquePtr<const WVisualGraphPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateNode);
       for (auto& pOutputPin : outputPins)
       {
-        ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pOutputPin);
+        WArrayPtr<const WVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pOutputPin);
         for (const auto* pConnection : connections)
         {
-          const ezDocumentObject* pParentNode = pConnection->GetTargetPin().GetParent();
+          const WDocumentObject* pParentNode = pConnection->GetTargetPin().GetParent();
           if (reachableNodes.Contains(pParentNode) && !visitedNodes.Contains(pParentNode))
           {
             bAllVisited = false;
@@ -245,40 +245,40 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
 
     if (pNode == nullptr)
     {
-      EZ_REPORT_FAILURE("Execution connection corrupted or loop detected");
-      return EZ_FAILURE;
+      W_REPORT_FAILURE("Execution connection corrupted or loop detected");
+      return W_FAILURE;
     }
 
-    EZ_VERIFY(visitedNodes.Insert(pNode) == false, "Every node should only be visited once");
+    W_VERIFY(visitedNodes.Insert(pNode) == false, "Every node should only be visited once");
     out_Sorted.PushBack(pNode);
 
     // Add all incoming connections of the node to the nodeStack.
-    ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
-    for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
+    WArrayPtr<const WUniquePtr<const WVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
+    for (WUInt32 i = 0; i < inputPins.GetCount(); ++i)
     {
-      const ezUniquePtr<const ezVisualGraphPin>& pInputPin = inputPins[i];
-      ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
+      const WUniquePtr<const WVisualGraphPin>& pInputPin = inputPins[i];
+      WArrayPtr<const WVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
       for (const auto* pConnection : connections)
       {
-        const ezDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
+        const WDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
         if (nodeStack.Contains(pParentNode) == false)
           nodeStack.PushBack(pParentNode);
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
+void WVisualShaderCodeGenerator::ComputeOutputPinDimensions()
 {
   m_OutputPinDimensions.Clear();
 
   // Find all root nodes (nodes with no outputs connected)
-  ezTempHybridArray<const ezDocumentObject*, 16> rootNodes;
+  WTempHybridArray<const WDocumentObject*, 16> rootNodes;
   for (auto& nodeIt : m_Nodes)
   {
-    const ezDocumentObject* pNode = nodeIt.Key();
+    const WDocumentObject* pNode = nodeIt.Key();
     auto outputPins = m_pNodeManager->GetOutputPins(pNode);
 
     bool bHasConnectedOutput = false;
@@ -298,22 +298,22 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
   }
 
   // Process each root node's subgraph in topological order
-  for (const ezDocumentObject* pRootNode : rootNodes)
+  for (const WDocumentObject* pRootNode : rootNodes)
   {
-    ezDynamicArray<const ezDocumentObject*> sortedNodes;
+    WDynamicArray<const WDocumentObject*> sortedNodes;
     if (CollectNodesInTopologicalOrder(pRootNode, sortedNodes).Failed())
       continue;
 
     // Process nodes in reverse topological order (leaves first, root last) so that input dimensions are computed before nodes that depend on them
-    for (ezUInt32 i = sortedNodes.GetCount(); i-- > 0;)
+    for (WUInt32 i = sortedNodes.GetCount(); i-- > 0;)
     {
-      const ezDocumentObject* pNode = sortedNodes[i];
-      const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
+      const WDocumentObject* pNode = sortedNodes[i];
+      const WVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
 
       auto outputPins = m_pNodeManager->GetOutputPins(pNode);
-      for (ezUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
+      for (WUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
       {
-        const ezVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
+        const WVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
 
         // Skip if already computed (node may be shared between subgraphs)
         if (m_OutputPinDimensions.Contains(pOutPin))
@@ -322,7 +322,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
         // If output type is explicit, use it directly
         if (pDesc->m_OutputPins[pinIdx].m_pDataType != nullptr)
         {
-          ezUInt8 dim = GetTypeDimension(pDesc->m_OutputPins[pinIdx].m_pDataType);
+          WUInt8 dim = GetTypeDimension(pDesc->m_OutputPins[pinIdx].m_pDataType);
           if (dim == 0)
             dim = 1;
           m_OutputPinDimensions[pOutPin] = dim;
@@ -330,21 +330,21 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
         }
 
         // "auto" type - compute from max of input dimensions. Since we're in topological order, all inputs should already be computed.
-        ezUInt8 effectiveDim = 0;
+        WUInt8 effectiveDim = 0;
         auto inputPins = m_pNodeManager->GetInputPins(pNode);
-        for (ezUInt32 inIdx = 0; inIdx < inputPins.GetCount(); ++inIdx)
+        for (WUInt32 inIdx = 0; inIdx < inputPins.GetCount(); ++inIdx)
         {
           auto inConnections = m_pNodeManager->GetConnections(*inputPins[inIdx]);
           if (!inConnections.IsEmpty())
           {
-            const ezVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
-            EZ_ASSERT_DEV(m_OutputPinDimensions.Contains(pConnectedPin), "Topological order should have processed all inputs first");
-            effectiveDim = ezMath::Max(effectiveDim, m_OutputPinDimensions[pConnectedPin]);
+            const WVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
+            W_ASSERT_DEV(m_OutputPinDimensions.Contains(pConnectedPin), "Topological order should have processed all inputs first");
+            effectiveDim = WMath::Max(effectiveDim, m_OutputPinDimensions[pConnectedPin]);
           }
           else
           {
             // No connection - use declared input type
-            effectiveDim = ezMath::Max(effectiveDim, GetTypeDimension(pDesc->m_InputPins[inIdx].m_pDataType));
+            effectiveDim = WMath::Max(effectiveDim, GetTypeDimension(pDesc->m_InputPins[inIdx].m_pDataType));
           }
         }
 
@@ -356,7 +356,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
   }
 }
 
-void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGraphPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall)
+void WVisualShaderCodeGenerator::GenerateInputHelperFunction(const WVisualGraphPin* pInputPin, WUInt32 uiInputIndex, WStringBuilder& out_sFunctionCode, WStringBuilder& out_sFunctionCall)
 {
   out_sFunctionCode.Clear();
   out_sFunctionCall.Clear();
@@ -366,52 +366,52 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGrap
   if (connections.IsEmpty())
     return;
 
-  const ezVisualGraphPin* pSourcePin = &connections[0]->GetSourcePin();
-  ezDynamicArray<const ezDocumentObject*> sortedNodes;
+  const WVisualGraphPin* pSourcePin = &connections[0]->GetSourcePin();
+  WDynamicArray<const WDocumentObject*> sortedNodes;
   CollectNodesInTopologicalOrder(pSourcePin->GetParent(), sortedNodes).AssertSuccess();
 
   // Map from output pin to local variable name
-  ezMap<const ezVisualGraphPin*, ezString> pinToVarName;
-  ezStringBuilder sLocalVars;
+  WMap<const WVisualGraphPin*, WString> pinToVarName;
+  WStringBuilder sLocalVars;
 
   // Generate local variable for each node's outputs in topological order (sortedNodes needs to be reversed as the array starts at pSourcePin's node)
-  for (ezUInt32 i = sortedNodes.GetCount(); i-- > 0;)
+  for (WUInt32 i = sortedNodes.GetCount(); i-- > 0;)
   {
-    const ezDocumentObject* pNode = sortedNodes[i];
-    const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
+    const WDocumentObject* pNode = sortedNodes[i];
+    const WVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
     const NodeState& nodeState = m_Nodes[pNode];
 
     auto outputPins = m_pNodeManager->GetOutputPins(pNode);
-    for (ezUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
+    for (WUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
     {
-      const ezVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
+      const WVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
 
       // Skip pins that aren't connected within the subgraph
       if (!m_pNodeManager->HasConnections(*pOutPin))
         continue;
 
-      ezUInt8 effectiveDim = m_OutputPinDimensions[pOutPin];
+      WUInt8 effectiveDim = m_OutputPinDimensions[pOutPin];
       // Generate the expression for this output pin, using local variables for inputs
-      ezStringBuilder sExpr = pDesc->m_OutputPins[pinIdx].m_sShaderCodeInline;
+      WStringBuilder sExpr = pDesc->m_OutputPins[pinIdx].m_sShaderCodeInline;
 
       // Replace input pin placeholders with local variable names or values
       auto inputPins = m_pNodeManager->GetInputPins(pNode);
-      for (ezInt32 inIdx = (ezInt32)inputPins.GetCount() - 1; inIdx >= 0; --inIdx)
+      for (WInt32 inIdx = (WInt32)inputPins.GetCount() - 1; inIdx >= 0; --inIdx)
       {
-        ezStringBuilder sPinPlaceholder;
+        WStringBuilder sPinPlaceholder;
         sPinPlaceholder.SetFormat("$in{0}", inIdx);
 
         auto inConnections = m_pNodeManager->GetConnections(*inputPins[inIdx]);
         if (inConnections.IsEmpty())
         {
-          ezString sValue = GetInputPinDefaultValue(pNode, pDesc->m_InputPins[inIdx]);
+          WString sValue = GetInputPinDefaultValue(pNode, pDesc->m_InputPins[inIdx]);
           sExpr.ReplaceAll(sPinPlaceholder, sValue);
         }
         else
         {
           // Use local variable from connected output pin
-          const ezVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
-          EZ_ASSERT_DEV(pinToVarName.Contains(pConnectedPin), "Topological sort should have processed this pin already");
+          const WVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
+          W_ASSERT_DEV(pinToVarName.Contains(pConnectedPin), "Topological sort should have processed this pin already");
           sExpr.ReplaceAll(sPinPlaceholder, pinToVarName[pConnectedPin].GetData());
         }
       }
@@ -420,7 +420,7 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGrap
       InsertPropertyValues(pNode, pDesc, sExpr).IgnoreResult();
 
       // Generate local variable with descriptive name including node type
-      ezStringBuilder sVarName;
+      WStringBuilder sVarName;
       sVarName.SetFormat("_{0}_{1}_{2}", pDesc->m_sName, nodeState.m_uiNodeId, pOutPin->GetName());
       pinToVarName[pOutPin] = sVarName;
 
@@ -430,8 +430,8 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGrap
   }
 
   // Get the final variable name for the source pin
-  EZ_ASSERT_DEV(pinToVarName.Contains(pSourcePin), "Topological sort should have processed the source pin");
-  const ezString& sFinalVar = pinToVarName[pSourcePin];
+  W_ASSERT_DEV(pinToVarName.Contains(pSourcePin), "Topological sort should have processed the source pin");
+  const WString& sFinalVar = pinToVarName[pSourcePin];
 
   // Generate the complete helper function
   out_sFunctionCall.SetFormat("_{0}_{1}()", pInputPin->GetName(), uiInputIndex);
@@ -439,7 +439,7 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGrap
     out_sFunctionCall, sLocalVars, sFinalVar);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRootObj)
+WStatus WVisualShaderCodeGenerator::GatherAllNodes(const WDocumentObject* pRootObj)
 {
   if (pRootObj->GetType()->IsDerivedFrom(m_pNodeBaseRtti))
   {
@@ -451,31 +451,31 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
     auto pDesc = m_pTypeRegistry->GetDescriptorForType(pRootObj->GetType());
 
     if (pDesc == nullptr)
-      return ezStatus("Node type of root node is unknown");
+      return WStatus("Node type of root node is unknown");
 
-    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main)
+    if (pDesc->m_NodeType == WVisualShaderNodeType::Main)
     {
       if (m_pMainNode != nullptr)
-        return ezStatus("Shader has multiple output nodes");
+        return WStatus("Shader has multiple output nodes");
 
       m_pMainNode = pRootObj;
     }
   }
 
   const auto& children = pRootObj->GetChildren();
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (WUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    EZ_SUCCEED_OR_RETURN(GatherAllNodes(children[i]));
+    W_SUCCEED_OR_RETURN(GatherAllNodes(children[i]));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOwner, const ezVisualGraphPin& pin) const
+WUInt16 WVisualShaderCodeGenerator::DeterminePinId(const WDocumentObject* pOwner, const WVisualGraphPin& pin) const
 {
   const auto pins = m_pNodeManager->GetOutputPins(pOwner);
 
-  for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
+  for (WUInt32 i = 0; i < pins.GetCount(); ++i)
   {
     if (pins[i] == &pin)
       return i;
@@ -484,28 +484,28 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezVisualGraphObjectManager* pNodeManager, ezStringBuilder& out_sCheckPerms)
+WStatus WVisualShaderCodeGenerator::GenerateVisualShader(const WVisualGraphObjectManager* pNodeManager, WStringBuilder& out_sCheckPerms)
 {
   out_sCheckPerms.Clear();
 
-  EZ_ASSERT_DEBUG(m_pNodeManager == nullptr, "Shader Generator cannot be used twice");
+  W_ASSERT_DEBUG(m_pNodeManager == nullptr, "Shader Generator cannot be used twice");
 
   m_pNodeManager = pNodeManager;
-  m_pTypeRegistry = ezVisualShaderTypeRegistry::GetSingleton();
+  m_pTypeRegistry = WVisualShaderTypeRegistry::GetSingleton();
   m_pNodeBaseRtti = m_pTypeRegistry->GetNodeBaseType();
 
-  EZ_SUCCEED_OR_RETURN(GatherAllNodes(m_pNodeManager->GetRootObject()));
+  W_SUCCEED_OR_RETURN(GatherAllNodes(m_pNodeManager->GetRootObject()));
 
   if (m_Nodes.IsEmpty())
-    return ezStatus("Visual Shader graph is empty");
+    return WStatus("Visual Shader graph is empty");
 
   if (m_pMainNode == nullptr)
-    return ezStatus("Visual Shader does not contain an output node");
+    return WStatus("Visual Shader does not contain an output node");
 
   // Compute effective output type dimensions for all output pins (needed for "auto" types and GUI)
   ComputeOutputPinDimensions();
 
-  EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
+  W_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
 
   // now also generate code for certain nodes, even if they have no connections
   // ShaderState nodes generally have no connections
@@ -519,13 +519,13 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezVisualGraphOb
 
     auto pDesc = m_pTypeRegistry->GetDescriptorForType(itNode.Key()->GetType());
 
-    if (pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState || pDesc->m_NodeType == ezVisualShaderNodeType::Parameter || pDesc->m_NodeType == ezVisualShaderNodeType::Texture)
+    if (pDesc->m_NodeType == WVisualShaderNodeType::ShaderState || pDesc->m_NodeType == WVisualShaderNodeType::Parameter || pDesc->m_NodeType == WVisualShaderNodeType::Texture)
     {
-      EZ_SUCCEED_OR_RETURN(GenerateNode(itNode.Key()));
+      W_SUCCEED_OR_RETURN(GenerateNode(itNode.Key()));
     }
   }
 
-  ezStringBuilder sMaterialConstants = m_sShaderMaterialConstants;
+  WStringBuilder sMaterialConstants = m_sShaderMaterialConstants;
   sMaterialConstants.ReplaceAll("VSE_CONSTANTS", m_sShaderMaterialCB);
 
   m_sFinalShaderCode.Set("[PLATFORMS]\nALL\n\n");
@@ -554,29 +554,29 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezVisualGraphOb
     out_sCheckPerms.Append("\n", pDesc->m_sCheckPermutations);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode)
+WStatus WVisualShaderCodeGenerator::GenerateNode(const WDocumentObject* pNode)
 {
   NodeState& state = m_Nodes[pNode];
 
   if (state.m_bInProgress)
-    return ezStatus("The shader graph has a circular dependency.");
+    return WStatus("The shader graph has a circular dependency.");
 
   if (state.m_bCodeGenerated)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
   state.m_bCodeGenerated = true;
   state.m_bInProgress = true;
 
-  EZ_SCOPE_EXIT(state.m_bInProgress = false);
+  W_SCOPE_EXIT(state.m_bInProgress = false);
 
-  const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
+  const WVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
 
-  EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
+  W_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sPixelConstantsCode, sPixelBody, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sMaterialCB, sPermutations, sRenderStates, sMaterialConfig, sPixelDefines, sPixelIncludes, sVertexDefines, sVertexIncludes, sVertexBody;
+  WStringBuilder sPixelConstantsCode, sPixelBody, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sMaterialCB, sPermutations, sRenderStates, sMaterialConfig, sPixelDefines, sPixelIncludes, sVertexDefines, sVertexIncludes, sVertexBody;
 
   // Pixel shader sections
   sPixelDefines = pDesc->m_sShaderCodeShaderShared;
@@ -603,8 +603,8 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   // For the main node, use linearized code generation for both pixel and vertex body
   if (pNode == m_pMainNode)
   {
-    ezStringBuilder sPsHelperFunctions;
-    ezStringBuilder sVsHelperFunctions;
+    WStringBuilder sPsHelperFunctions;
+    WStringBuilder sVsHelperFunctions;
     ReplaceMainNodeInputPins(pNode, pDesc, sPixelBody, sPixelDefines, sPsHelperFunctions);
     ReplaceMainNodeInputPins(pNode, pDesc, sVertexBody, sVertexDefines, sVsHelperFunctions);
 
@@ -613,22 +613,22 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   }
   else
   {
-    EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPixelBody, sPixelDefines));
-    EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVertexBody, sVertexDefines));
+    W_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPixelBody, sPixelDefines));
+    W_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVertexBody, sVertexDefines));
   }
 
-  EZ_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelConstantsCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVertexBody));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelBody));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConstantsCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelDefines));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVertexDefines));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sRenderStates));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConfig));
+  W_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelConstantsCode));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVertexBody));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelBody));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConstantsCode));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelDefines));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVertexDefines));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sRenderStates));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConfig));
 
   SetPinDefines(pNode, sPermutations);
   SetPinDefines(pNode, sRenderStates);
@@ -660,13 +660,13 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderMaterialCB, sMaterialCB);
   }
 
-  if (pDesc->m_NodeType == ezVisualShaderNodeType::Texture || pDesc->m_NodeType == ezVisualShaderNodeType::Parameter)
+  if (pDesc->m_NodeType == WVisualShaderNodeType::Texture || pDesc->m_NodeType == WVisualShaderNodeType::Parameter)
   {
-    const ezStringView sPropertyName = (pDesc->m_NodeType == ezVisualShaderNodeType::Texture) ? "Name" : "ParamName";
-    const ezVariant value = pNode->GetTypeAccessor().GetValue(sPropertyName);
+    const WStringView sPropertyName = (pDesc->m_NodeType == WVisualShaderNodeType::Texture) ? "Name" : "ParamName";
+    const WVariant value = pNode->GetTypeAccessor().GetValue(sPropertyName);
     if (value.IsString() || value.IsHashedString())
     {
-      m_MaterialParameter.Insert(value.ConvertTo<ezString>(), sMaterialParamCode);
+      m_MaterialParameter.Insert(value.ConvertTo<WString>(), sMaterialParamCode);
     }
   }
   else
@@ -674,70 +674,70 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> pins)
+WStatus WVisualShaderCodeGenerator::GenerateInputPinCode(WArrayPtr<const WUniquePtr<const WVisualGraphPin>> pins)
 {
   for (auto& pPin : pins)
   {
     auto connections = m_pNodeManager->GetConnections(*pPin);
-    EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
+    W_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
       continue;
 
-    const ezVisualGraphPin& pinSource = connections[0]->GetSourcePin();
+    const WVisualGraphPin& pinSource = connections[0]->GetSourcePin();
 
     // recursively generate all dependent code
-    const ezDocumentObject* pOwnerNode = pinSource.GetParent();
-    const ezStatus resNode = GenerateOutputPinCode(pOwnerNode, pinSource);
+    const WDocumentObject* pOwnerNode = pinSource.GetParent();
+    const WStatus resNode = GenerateOutputPinCode(pOwnerNode, pinSource);
 
     if (resNode.Failed())
       return resNode;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezVisualGraphPin& pin)
+WStatus WVisualShaderCodeGenerator::GenerateOutputPinCode(const WDocumentObject* pOwnerNode, const WVisualGraphPin& pin)
 {
   OutputPinState& ps = m_OutputPins[&pin];
 
   if (ps.m_bCodeGenerated)
-    return ezStatus(EZ_SUCCESS);
+    return WStatus(W_SUCCESS);
 
   ps.m_bCodeGenerated = true;
 
-  EZ_SUCCEED_OR_RETURN(GenerateNode(pOwnerNode));
+  W_SUCCEED_OR_RETURN(GenerateNode(pOwnerNode));
 
-  const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pOwnerNode->GetType());
-  const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pin);
+  const WVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pOwnerNode->GetType());
+  const WUInt16 uiPinID = DeterminePinId(pOwnerNode, pin);
 
-  ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
-  ezStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
+  WStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
+  WStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
 
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore));
+  W_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore));
 
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
+  W_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 
   // store the result
   ps.m_sCodeAtPin = sInlineCode;
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
 
-void ezVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const ezDocumentObject* pMainNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines, ezStringBuilder& out_sHelperFunctions)
+void WVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const WDocumentObject* pMainNode, const WVisualShaderNodeDescriptor* pNodeDesc, WStringBuilder& sInlineCode, WStringBuilder& sCodeForPlacingDefines, WStringBuilder& out_sHelperFunctions)
 {
   out_sHelperFunctions.Clear();
 
   auto inputPins = m_pNodeManager->GetInputPins(pMainNode);
 
-  for (ezInt32 i = (ezInt32)inputPins.GetCount() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)inputPins.GetCount() - 1; i >= 0; --i)
   {
-    ezStringBuilder sPinPlaceholder;
+    WStringBuilder sPinPlaceholder;
     sPinPlaceholder.SetFormat("$in{0}", i);
 
     // Check if this shader section uses this placeholder
@@ -746,7 +746,7 @@ void ezVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const ezDocumentObjec
     auto connections = m_pNodeManager->GetConnections(*inputPins[i]);
     if (connections.IsEmpty())
     {
-      ezString sValue = GetInputPinDefaultValue(pMainNode, pNodeDesc->m_InputPins[i], &sCodeForPlacingDefines);
+      WString sValue = GetInputPinDefaultValue(pMainNode, pNodeDesc->m_InputPins[i], &sCodeForPlacingDefines);
       if (bPresentInCode)
         sInlineCode.ReplaceAll(sPinPlaceholder, sValue);
       continue;
@@ -757,7 +757,7 @@ void ezVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const ezDocumentObjec
       continue;
 
     // Generate the helper function for this input's subgraph
-    ezStringBuilder sHelperFunc, sFuncCall;
+    WStringBuilder sHelperFunc, sFuncCall;
     GenerateInputHelperFunction(inputPins[i].Borrow(), i, sHelperFunc, sFuncCall);
 
     out_sHelperFunctions.Append(sHelperFunc);
@@ -765,16 +765,16 @@ void ezVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const ezDocumentObjec
   }
 }
 
-ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
-  const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines)
+WStatus WVisualShaderCodeGenerator::ReplaceInputPinsByCode(
+  const WDocumentObject* pOwnerNode, const WVisualShaderNodeDescriptor* pNodeDesc, WStringBuilder& sInlineCode, WStringBuilder& sCodeForPlacingDefines)
 {
   auto inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
-  ezStringBuilder sPinName, sValue;
+  WStringBuilder sPinName, sValue;
 
-  for (ezUInt32 i0 = inputPins.GetCount(); i0 > 0; --i0)
+  for (WUInt32 i0 = inputPins.GetCount(); i0 > 0; --i0)
   {
-    const ezUInt32 i = i0 - 1;
+    const WUInt32 i = i0 - 1;
 
     sPinName.SetFormat("$in{0}", i);
 
@@ -785,7 +785,7 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
 
       if (sValue.IsEmpty())
       {
-        return ezStatus(ezFmt("Not all required input pins on a '{0}' node are connected.", pNodeDesc->m_sName));
+        return WStatus(WFmt("Not all required input pins on a '{0}' node are connected.", pNodeDesc->m_sName));
       }
 
       // replace all occurrences of the pin identifier with the code that was generate for the connected output pin
@@ -793,28 +793,28 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
     }
     else
     {
-      const ezVisualGraphPin& outputPin = connections[0]->GetSourcePin();
+      const WVisualGraphPin& outputPin = connections[0]->GetSourcePin();
 
       const OutputPinState& pinState = m_OutputPins[&outputPin];
-      EZ_ASSERT_DEBUG(pinState.m_bCodeGenerated, "Pin code should have been generated at this point");
+      W_ASSERT_DEBUG(pinState.m_bCodeGenerated, "Pin code should have been generated at this point");
 
       // replace all occurrences of the pin identifier with the code that was generate for the connected output pin
       sInlineCode.ReplaceAll(sPinName, pinState.m_sCodeAtPin);
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
 
-void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode)
+void WVisualShaderCodeGenerator::SetPinDefines(const WDocumentObject* pOwnerNode, WStringBuilder& sInlineCode)
 {
-  ezStringBuilder sDefineName;
+  WStringBuilder sDefineName;
 
   {
     auto pins = m_pNodeManager->GetInputPins(pOwnerNode);
 
-    for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pins.GetCount(); ++i)
     {
       sDefineName.SetFormat("INPUT_PIN_{0}_CONNECTED", i);
 
@@ -832,7 +832,7 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
   {
     auto pins = m_pNodeManager->GetOutputPins(pOwnerNode);
 
-    for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
+    for (WUInt32 i = 0; i < pins.GetCount(); ++i)
     {
       sDefineName.SetFormat("OUTPUT_PIN_{0}_CONNECTED", i);
 
@@ -848,7 +848,7 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
   }
 }
 
-void ezVisualShaderCodeGenerator::AppendStringIfUnique(ezStringBuilder& inout_String, ezStringView sAppend)
+void WVisualShaderCodeGenerator::AppendStringIfUnique(WStringBuilder& inout_String, WStringView sAppend)
 {
   if (sAppend.IsEmpty() || inout_String.FindSubString(sAppend) != nullptr)
     return;
@@ -856,40 +856,40 @@ void ezVisualShaderCodeGenerator::AppendStringIfUnique(ezStringBuilder& inout_St
   inout_String.Append(sAppend);
 }
 
-ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc)
+WStatus WVisualShaderCodeGenerator::CheckPropertyValues(const WDocumentObject* pNode, const WVisualShaderNodeDescriptor* pDesc)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
 
-  ezStringBuilder sPropValue;
+  WStringBuilder sPropValue;
 
   const auto& props = pDesc->m_Properties;
-  for (ezUInt32 p = 0; p < props.GetCount(); ++p)
+  for (WUInt32 p = 0; p < props.GetCount(); ++p)
   {
-    const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
+    const WVariant value = TypeAccess.GetValue(props[p].m_sName);
     sPropValue = ToShaderString(value);
 
 
-    const ezInt8 iUniqueValueGroup = pDesc->m_UniquePropertyValueGroups[p];
+    const WInt8 iUniqueValueGroup = pDesc->m_UniquePropertyValueGroups[p];
     if (iUniqueValueGroup > 0)
     {
       if (sPropValue.IsEmpty())
       {
-        return ezStatus(ezFmt("A '{0}' node has an empty '{1}' property.", pDesc->m_sName, props[p].m_sName));
+        return WStatus(WFmt("A '{0}' node has an empty '{1}' property.", pDesc->m_sName, props[p].m_sName));
       }
 
-      if (!ezStringUtils::IsValidIdentifierName(sPropValue))
+      if (!WStringUtils::IsValidIdentifierName(sPropValue))
       {
-        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.",
+        return WStatus(WFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.",
           pDesc->m_sName, props[p].m_sName, sPropValue));
       }
 
       // Check if this identifier is already used by a different node type
-      ezString* pExistingNodeType = m_UsedIdentifiers.GetValue(sPropValue);
+      WString* pExistingNodeType = m_UsedIdentifiers.GetValue(sPropValue);
       if (pExistingNodeType != nullptr)
       {
         if (*pExistingNodeType != pDesc->m_sName)
         {
-          return ezStatus(ezFmt("Identifier '{0}' is being used both by a '{1}' node and a '{2}' node.",
+          return WStatus(WFmt("Identifier '{0}' is being used both by a '{1}' node and a '{2}' node.",
             sPropValue, *pExistingNodeType, pDesc->m_sName));
         }
         // Same node type is allowed to reuse the identifier
@@ -902,28 +902,28 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
     }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(
-  const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString)
+WStatus WVisualShaderCodeGenerator::InsertPropertyValues(
+  const WDocumentObject* pNode, const WVisualShaderNodeDescriptor* pDesc, WStringBuilder& sString)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
 
-  ezStringBuilder sPropName, sPropValue;
+  WStringBuilder sPropName, sPropValue;
 
   const auto& props = pDesc->m_Properties;
-  for (ezUInt32 p0 = props.GetCount(); p0 > 0; --p0)
+  for (WUInt32 p0 = props.GetCount(); p0 > 0; --p0)
   {
-    const ezUInt32 p = p0 - 1;
+    const WUInt32 p = p0 - 1;
 
     sPropName.SetFormat("$prop{0}", p);
 
-    const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
+    const WVariant value = TypeAccess.GetValue(props[p].m_sName);
     sPropValue = ToShaderString(value);
 
     sString.ReplaceAll(sPropName, sPropValue);
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

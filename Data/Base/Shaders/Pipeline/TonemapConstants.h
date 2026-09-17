@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezTonemapConstants, 3)
+CONSTANT_BUFFER(WTonemapConstants, 3)
 {
   FLOAT4(AutoExposureParams);
 

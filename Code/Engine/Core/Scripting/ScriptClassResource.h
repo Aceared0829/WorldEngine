@@ -4,34 +4,34 @@
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <Core/Scripting/ScriptRTTI.h>
 
-class ezWorld;
-using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassResource>;
+class WWorld;
+using WScriptClassResourceHandle = WTypedResourceHandle<class WScriptClassResource>;
 
 /// Resource representing a script class with its type information and instantiation capabilities.
 ///
 /// Base class for script resources that define class types for scripting languages. Manages
 /// script type creation, instantiation, and coroutine type handling. Derived classes implement
 /// language-specific instantiation logic.
-class EZ_CORE_DLL ezScriptClassResource : public ezResource
+class W_CORE_DLL WScriptClassResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScriptClassResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezScriptClassResource);
+  W_ADD_DYNAMIC_REFLECTION(WScriptClassResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WScriptClassResource);
 
 public:
-  ezScriptClassResource();
-  ~ezScriptClassResource();
+  WScriptClassResource();
+  ~WScriptClassResource();
 
-  const ezSharedPtr<ezScriptRTTI>& GetType() const { return m_pType; }
+  const WSharedPtr<WScriptRTTI>& GetType() const { return m_pType; }
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const = 0;
+  virtual WUniquePtr<WScriptInstance> Instantiate(WReflectedClass& inout_owner, WWorld* pWorld) const = 0;
 
 protected:
-  ezSharedPtr<ezScriptRTTI> CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);
+  WSharedPtr<WScriptRTTI> CreateScriptType(WStringView sName, const WRTTI* pBaseType, WScriptRTTI::FunctionList&& functions, WScriptRTTI::MessageHandlerList&& messageHandlers);
   void DeleteScriptType();
 
-  ezSharedPtr<ezScriptCoroutineRTTI> CreateScriptCoroutineType(ezStringView sScriptClassName, ezStringView sFunctionName, ezUniquePtr<ezRTTIAllocator>&& pAllocator);
+  WSharedPtr<WScriptCoroutineRTTI> CreateScriptCoroutineType(WStringView sScriptClassName, WStringView sFunctionName, WUniquePtr<WRTTIAllocator>&& pAllocator);
   void DeleteAllScriptCoroutineTypes();
 
-  ezSharedPtr<ezScriptRTTI> m_pType;
-  ezDynamicArray<ezSharedPtr<ezScriptCoroutineRTTI>> m_CoroutineTypes;
+  WSharedPtr<WScriptRTTI> m_pType;
+  WDynamicArray<WSharedPtr<WScriptCoroutineRTTI>> m_CoroutineTypes;
 };

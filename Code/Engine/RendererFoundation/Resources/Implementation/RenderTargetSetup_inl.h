@@ -1,39 +1,39 @@
 
 #pragma once
 
-ezUInt8 ezGALRenderingSetup::GetColorTargetCount() const
+WUInt8 WGALRenderingSetup::GetColorTargetCount() const
 {
   return m_RenderPass.m_uiRTCount;
 }
 
-const ezColor& ezGALRenderingSetup::GetClearColor(ezUInt8 uiIndex) const
+const WColor& WGALRenderingSetup::GetClearColor(WUInt8 uiIndex) const
 {
-  EZ_ASSERT_DEBUG(uiIndex < m_RenderPass.m_uiRTCount, "Render target at index {} does no exist, there are only {} render targets. Call GetRenderTargetCount first to determine max render targets.", uiIndex, m_RenderPass.m_uiRTCount);
+  W_ASSERT_DEBUG(uiIndex < m_RenderPass.m_uiRTCount, "Render target at index {} does no exist, there are only {} render targets. Call GetRenderTargetCount first to determine max render targets.", uiIndex, m_RenderPass.m_uiRTCount);
   return m_ClearColor[uiIndex];
 }
 
-bool ezGALRenderingSetup::HasDepthStencilTarget() const
+bool WGALRenderingSetup::HasDepthStencilTarget() const
 {
   return !m_FrameBuffer.m_hDepthTarget.IsInvalidated();
 }
 
-float ezGALRenderingSetup::GetClearDepth() const
+float WGALRenderingSetup::GetClearDepth() const
 {
-  EZ_ASSERT_DEBUG(HasDepthStencilTarget(), "No depth target exists, check HasDepthStencilTarget() first.");
+  W_ASSERT_DEBUG(HasDepthStencilTarget(), "No depth target exists, check HasDepthStencilTarget() first.");
   return m_fClearDepth;
 }
 
-ezUInt8 ezGALRenderingSetup::GetClearStencil() const
+WUInt8 WGALRenderingSetup::GetClearStencil() const
 {
-  EZ_ASSERT_DEBUG(HasDepthStencilTarget(), "No depth target exists, check HasDepthStencilTarget() first.");
+  W_ASSERT_DEBUG(HasDepthStencilTarget(), "No depth target exists, check HasDepthStencilTarget() first.");
   return m_uiClearStencil;
 }
 
-const ezGALRenderPassDescriptor& ezGALRenderingSetup::GetRenderPass() const
+const WGALRenderPassDescriptor& WGALRenderingSetup::GetRenderPass() const
 {
   return m_RenderPass;
 }
-const ezGALFrameBufferDescriptor& ezGALRenderingSetup::GetFrameBuffer() const
+const WGALFrameBufferDescriptor& WGALRenderingSetup::GetFrameBuffer() const
 {
   return m_FrameBuffer;
 }

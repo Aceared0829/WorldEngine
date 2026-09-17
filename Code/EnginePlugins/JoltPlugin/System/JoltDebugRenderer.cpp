@@ -6,81 +6,81 @@
 
 #  include <Jolt/Renderer/DebugRenderer.h>
 
-void ezJoltDebugRenderer::TriangleBatch::AddRef()
+void WJoltDebugRenderer::TriangleBatch::AddRef()
 {
   ++m_iRefCount;
 }
 
-void ezJoltDebugRenderer::TriangleBatch::Release()
+void WJoltDebugRenderer::TriangleBatch::Release()
 {
   --m_iRefCount;
 
   if (m_iRefCount == 0)
   {
     auto* pThis = this;
-    EZ_DEFAULT_DELETE(pThis);
+    W_DEFAULT_DELETE(pThis);
   }
 }
 
-ezJoltDebugRenderer::ezJoltDebugRenderer()
+WJoltDebugRenderer::WJoltDebugRenderer()
 {
   Initialize();
 }
 
-void ezJoltDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
+void WJoltDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
 {
   auto& l = m_Lines.ExpandAndGetRef();
-  l.m_start = ezJoltConversionUtils::ToVec3(inFrom);
-  l.m_end = ezJoltConversionUtils::ToVec3(inTo);
-  l.m_startColor = ezJoltConversionUtils::ToColor(inColor);
+  l.m_start = WJoltConversionUtils::ToVec3(inFrom);
+  l.m_end = WJoltConversionUtils::ToVec3(inTo);
+  l.m_startColor = WJoltConversionUtils::ToColor(inColor);
   l.m_endColor = l.m_startColor;
 }
 
 
-void ezJoltDebugRenderer::DrawTriangle(JPH::Vec3Arg inV1, JPH::Vec3Arg inV2, JPH::Vec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow)
+void WJoltDebugRenderer::DrawTriangle(JPH::Vec3Arg inV1, JPH::Vec3Arg inV2, JPH::Vec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow)
 {
   auto& t = m_Triangles.ExpandAndGetRef();
-  t.m_position[0] = ezJoltConversionUtils::ToVec3(inV1);
-  t.m_position[1] = ezJoltConversionUtils::ToVec3(inV2);
-  t.m_position[2] = ezJoltConversionUtils::ToVec3(inV3);
-  t.m_color = ezJoltConversionUtils::ToColor(inColor);
+  t.m_position[0] = WJoltConversionUtils::ToVec3(inV1);
+  t.m_position[1] = WJoltConversionUtils::ToVec3(inV2);
+  t.m_position[2] = WJoltConversionUtils::ToVec3(inV3);
+  t.m_color = WJoltConversionUtils::ToColor(inColor);
 }
 
 
-JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Triangle* pInTriangles, int iInTriangleCount)
+JPH::DebugRenderer::Batch WJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Triangle* pInTriangles, int iInTriangleCount)
 {
-  TriangleBatch* pBatch = EZ_DEFAULT_NEW(TriangleBatch);
+  TriangleBatch* pBatch = W_DEFAULT_NEW(TriangleBatch);
   pBatch->m_Triangles.Reserve(iInTriangleCount);
 
   for (int i = 0; i < iInTriangleCount; ++i)
   {
     auto& t = pBatch->m_Triangles.ExpandAndGetRef();
-    t.m_position[0] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[0].mPosition);
-    t.m_position[1] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[1].mPosition);
-    t.m_position[2] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[2].mPosition);
-    t.m_color = ezJoltConversionUtils::ToColor(pInTriangles[i].mV[0].mColor);
+    t.m_position[0] = WJoltConversionUtils::ToVec3(pInTriangles[i].mV[0].mPosition);
+    t.m_position[1] = WJoltConversionUtils::ToVec3(pInTriangles[i].mV[1].mPosition);
+    t.m_position[2] = WJoltConversionUtils::ToVec3(pInTriangles[i].mV[2].mPosition);
+    t.m_color = WJoltConversionUtils::ToColor(pInTriangles[i].mV[0].mColor);
   }
 
   return pBatch;
 }
 
 
-JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Vertex* pInVertices, int iInVertexCount, const JPH::uint32* pInIndices, int iInIndexCount)
+JPH::DebugRenderer::Batch WJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Vertex* pInVertices, int iInVertexCount, const JPH::uint32* pInIndices, int iInIndexCount)
 {
-  const ezUInt32 numTris = iInIndexCount / 3;
+  const WUInt32 numTris = iInIndexCount / 3;
 
-  TriangleBatch* pBatch = EZ_DEFAULT_NEW(TriangleBatch);
+  TriangleBatch* pBatch = W_DEFAULT_NEW(TriangleBatch);
   pBatch->m_Triangles.Reserve(numTris);
 
-  ezUInt32 index = 0;
+  WUInt32 index = 0;
 
-  for (ezUInt32 i = 0; i < numTris; ++i)
+  for (WUInt32 i = 0; i < numTris; ++i)
   {
     auto& t = pBatch->m_Triangles.ExpandAndGetRef();
-    t.m_position[0] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 0]].mPosition);
-    t.m_position[1] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 1]].mPosition);
-    t.m_position[2] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 2]].mPosition);
-    t.m_color = ezJoltConversionUtils::ToColor(pInVertices[pInIndices[index + 0]].mColor);
+    t.m_position[0] = WJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 0]].mPosition);
+    t.m_position[1] = WJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 1]].mPosition);
+    t.m_position[2] = WJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 2]].mPosition);
+    t.m_color = WJoltConversionUtils::ToColor(pInVertices[pInIndices[index + 0]].mColor);
 
     index += 3;
   }
@@ -89,12 +89,12 @@ JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::De
 }
 
 
-void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AABox& worldSpaceBounds, float fInLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& geometry, ECullMode inCullMode /*= ECullMode::CullBackFace*/, ECastShadow inCastShadow /*= ECastShadow::On*/, EDrawMode inDrawMode /*= EDrawMode::Solid*/)
+void WJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AABox& worldSpaceBounds, float fInLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& geometry, ECullMode inCullMode /*= ECullMode::CullBackFace*/, ECastShadow inCastShadow /*= ECastShadow::On*/, EDrawMode inDrawMode /*= EDrawMode::Solid*/)
 {
   if (geometry == nullptr)
     return;
 
-  ezUInt32 uiLod = 0;
+  WUInt32 uiLod = 0;
   if (geometry->mLODs.size() > 1)
     uiLod = 1;
   if (geometry->mLODs.size() > 2)
@@ -102,8 +102,8 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 
   const TriangleBatch* pBatch = static_cast<const TriangleBatch*>(geometry->mLODs[uiLod].mTriangleBatch.GetPtr());
 
-  const ezMat4 trans = reinterpret_cast<const ezMat4&>(modelMatrix);
-  const ezColor color = ezJoltConversionUtils::ToColor(inModelColor);
+  const WMat4 trans = reinterpret_cast<const WMat4&>(modelMatrix);
+  const WColor color = WJoltConversionUtils::ToColor(inModelColor);
 
   if (inDrawMode == JPH::DebugRenderer::EDrawMode::Solid)
   {
@@ -111,7 +111,7 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 
     if (inCullMode == JPH::DebugRenderer::ECullMode::CullBackFace || inCullMode == JPH::DebugRenderer::ECullMode::Off)
     {
-      for (ezUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
+      for (WUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
       {
         auto& tri = m_Triangles.ExpandAndGetRef();
         tri.m_color = pBatch->m_Triangles[t].m_color * color;
@@ -123,7 +123,7 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 
     if (inCullMode == JPH::DebugRenderer::ECullMode::CullFrontFace || inCullMode == JPH::DebugRenderer::ECullMode::Off)
     {
-      for (ezUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
+      for (WUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
       {
         auto& tri = m_Triangles.ExpandAndGetRef();
         tri.m_color = pBatch->m_Triangles[t].m_color * color;
@@ -137,14 +137,14 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
   {
     m_Lines.Reserve(m_Lines.GetCount() + pBatch->m_Triangles.GetCount() * 3);
 
-    for (ezUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
+    for (WUInt32 t = 0; t < pBatch->m_Triangles.GetCount(); ++t)
     {
       const auto& inTri = pBatch->m_Triangles[t];
-      const ezColor col = pBatch->m_Triangles[t].m_color * color;
+      const WColor col = pBatch->m_Triangles[t].m_color * color;
 
-      const ezVec3 v0 = trans * inTri.m_position[0];
-      const ezVec3 v1 = trans * inTri.m_position[1];
-      const ezVec3 v2 = trans * inTri.m_position[2];
+      const WVec3 v0 = trans * inTri.m_position[0];
+      const WVec3 v1 = trans * inTri.m_position[1];
+      const WVec3 v2 = trans * inTri.m_position[2];
 
       m_Lines.PushBack({v0, v1, col});
       m_Lines.PushBack({v1, v2, col});

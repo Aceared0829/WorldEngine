@@ -4,107 +4,107 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
+W_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
 {
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+  W_TEST_BOOL(WFileSystem::AddDataDirectory("", "", ":", WDataDirUsage::AllowWrites) == W_SUCCESS);
 
-  const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
-  ezStringBuilder sOutputFolderResolved;
-  ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved).IgnoreResult();
+  const WStringBuilder szOutputFolder = WTestFramework::GetInstance()->GetAbsOutputPath();
+  WStringBuilder sOutputFolderResolved;
+  WFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved).IgnoreResult();
 
-  ezStringBuilder sTempFile = sOutputFolderResolved;
+  WStringBuilder sTempFile = sOutputFolderResolved;
   sTempFile.AppendPath("Temp.tmp");
 
   // make sure the file does not exist
-  ezFileSystem::DeleteFile(sTempFile);
-  EZ_TEST_BOOL(!ezFileSystem::ExistsFile(sTempFile));
+  WFileSystem::DeleteFile(sTempFile);
+  W_TEST_BOOL(!WFileSystem::ExistsFile(sTempFile));
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeferredFileWriter")
+  W_TEST_BLOCK(WTestBlock::Enabled, "DeferredFileWriter")
   {
-    ezDeferredFileWriter writer;
+    WDeferredFileWriter writer;
     writer.SetOutput(sTempFile);
 
-    for (ezUInt64 i = 0; i < 1'000'000; ++i)
+    for (WUInt64 i = 0; i < 1'000'000; ++i)
     {
       writer << i;
     }
 
     // does not exist yet
-    EZ_TEST_BOOL(!ezFileSystem::ExistsFile(sTempFile));
+    W_TEST_BOOL(!WFileSystem::ExistsFile(sTempFile));
   }
 
   // now it exists
-  EZ_TEST_BOOL(ezFileSystem::ExistsFile(sTempFile));
+  W_TEST_BOOL(WFileSystem::ExistsFile(sTempFile));
 
   // check content is correct
   {
-    ezFileReader reader;
-    EZ_TEST_BOOL(reader.Open(sTempFile).Succeeded());
+    WFileReader reader;
+    W_TEST_BOOL(reader.Open(sTempFile).Succeeded());
 
-    for (ezUInt64 i = 0; i < 1'000'000; ++i)
+    for (WUInt64 i = 0; i < 1'000'000; ++i)
     {
-      ezUInt64 v;
+      WUInt64 v;
       reader >> v;
-      EZ_TEST_BOOL(v == i);
+      W_TEST_BOOL(v == i);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeferredFileWriter2")
+  W_TEST_BLOCK(WTestBlock::Enabled, "DeferredFileWriter2")
   {
-    ezDeferredFileWriter writer;
+    WDeferredFileWriter writer;
     writer.SetOutput(sTempFile);
 
-    for (ezUInt64 i = 1; i < 100'000; ++i)
+    for (WUInt64 i = 1; i < 100'000; ++i)
     {
       writer << i;
     }
 
     // does exist from earlier
-    EZ_TEST_BOOL(ezFileSystem::ExistsFile(sTempFile));
+    W_TEST_BOOL(WFileSystem::ExistsFile(sTempFile));
 
     // check content is as previous correct
     {
-      ezFileReader reader;
-      EZ_TEST_BOOL(reader.Open(sTempFile).Succeeded());
+      WFileReader reader;
+      W_TEST_BOOL(reader.Open(sTempFile).Succeeded());
 
-      for (ezUInt64 i = 0; i < 1'000'000; ++i)
+      for (WUInt64 i = 0; i < 1'000'000; ++i)
       {
-        ezUInt64 v;
+        WUInt64 v;
         reader >> v;
-        EZ_TEST_BOOL(v == i);
+        W_TEST_BOOL(v == i);
       }
     }
   }
 
   // exist but now was overwritten
-  EZ_TEST_BOOL(ezFileSystem::ExistsFile(sTempFile));
+  W_TEST_BOOL(WFileSystem::ExistsFile(sTempFile));
 
   // check content is as previous correct
   {
-    ezFileReader reader;
-    EZ_TEST_BOOL(reader.Open(sTempFile).Succeeded());
+    WFileReader reader;
+    W_TEST_BOOL(reader.Open(sTempFile).Succeeded());
 
-    for (ezUInt64 i = 1; i < 100'000; ++i)
+    for (WUInt64 i = 1; i < 100'000; ++i)
     {
-      ezUInt64 v;
+      WUInt64 v;
       reader >> v;
-      EZ_TEST_BOOL(v == i);
+      W_TEST_BOOL(v == i);
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Discard")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Discard")
   {
-    ezStringBuilder sTempFile2 = sOutputFolderResolved;
+    WStringBuilder sTempFile2 = sOutputFolderResolved;
     sTempFile2.AppendPath("Temp2.tmp");
     {
-      ezDeferredFileWriter writer;
+      WDeferredFileWriter writer;
       writer.SetOutput(sTempFile2);
       writer << 10;
       writer.Discard();
     }
-    EZ_TEST_BOOL(!ezFileSystem::ExistsFile(sTempFile2));
+    W_TEST_BOOL(!WFileSystem::ExistsFile(sTempFile2));
   }
 
-  ezFileSystem::DeleteFile(sTempFile);
-  ezFileSystem::ClearAllDataDirectories();
+  WFileSystem::DeleteFile(sTempFile);
+  WFileSystem::ClearAllDataDirectories();
 }

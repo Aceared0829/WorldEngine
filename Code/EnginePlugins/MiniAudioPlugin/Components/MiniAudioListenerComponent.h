@@ -4,37 +4,37 @@
 #include <Core/World/ComponentManager.h>
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
-class ezMiniAudioListenerComponentManager : public ezComponentManager<class ezMiniAudioListenerComponent, ezBlockStorageType::Compact>
+class WMiniAudioListenerComponentManager : public WComponentManager<class WMiniAudioListenerComponent, WBlockStorageType::Compact>
 {
 public:
-  ezMiniAudioListenerComponentManager(ezWorld* pWorld);
+  WMiniAudioListenerComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
 
 private:
-  void UpdateListeners(const ezWorldModule::UpdateContext& context);
+  void UpdateListeners(const WWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Represents the position of the sound listener
-class EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioListenerComponent : public ezComponent
+class W_MINIAUDIOPLUGIN_DLL WMiniAudioListenerComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMiniAudioListenerComponent, ezComponent, ezMiniAudioListenerComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMiniAudioListenerComponent, WComponent, WMiniAudioListenerComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMiniAudioListenerComponent
+  // WMiniAudioListenerComponent
 
 public:
-  ezMiniAudioListenerComponent();
-  ~ezMiniAudioListenerComponent();
+  WMiniAudioListenerComponent();
+  ~WMiniAudioListenerComponent();
 
 protected:
   void Update();

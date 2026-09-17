@@ -4,43 +4,43 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
 
-struct ezMeshBufferResourceDescriptor;
-class ezVolumeCollection;
+struct WMeshBufferResourceDescriptor;
+class WVolumeCollection;
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
-  class VertexColorTask final : public ezTask
+  class VertexColorTask final : public WTask
   {
   public:
     struct InputVertex
     {
-      EZ_DECLARE_POD_TYPE();
+      W_DECLARE_POD_TYPE();
 
-      ezVec3 m_vPosition;
-      ezVec3 m_vNormal;
-      ezColor m_Color;
-      ezUInt32 m_uiIndex;
+      WVec3 m_vPosition;
+      WVec3 m_vNormal;
+      WColor m_Color;
+      WUInt32 m_uiIndex;
     };
 
     VertexColorTask();
     ~VertexColorTask();
 
-    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, const ezBoundingBox& bbox, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezColorLinearUB> outputVertexColors);
+    void Prepare(const WWorld& world, const WMeshBufferResourceDescriptor& desc, const WTransform& transform, const WBoundingBox& bbox, WArrayPtr<WSharedPtr<const VertexColorOutput>> outputs, WArrayPtr<WProcVertexColorMapping> outputMappings, WArrayPtr<WColorLinearUB> outputVertexColors);
 
   private:
     virtual void Execute() override;
 
-    ezHybridArray<ezSharedPtr<const VertexColorOutput>, 2> m_Outputs;
-    ezHybridArray<ezProcVertexColorMapping, 2> m_OutputMappings;
+    WHybridArray<WSharedPtr<const VertexColorOutput>, 2> m_Outputs;
+    WHybridArray<WProcVertexColorMapping, 2> m_OutputMappings;
 
-    ezDynamicArray<InputVertex> m_InputVertices;
+    WDynamicArray<InputVertex> m_InputVertices;
 
-    ezDynamicArray<ezColor> m_TempData;
-    ezArrayPtr<ezColorLinearUB> m_OutputVertexColors;
+    WDynamicArray<WColor> m_TempData;
+    WArrayPtr<WColorLinearUB> m_OutputVertexColors;
 
-    ezDeque<ezVolumeCollection> m_VolumeCollections;
-    ezExpression::GlobalData m_GlobalData;
+    WDeque<WVolumeCollection> m_VolumeCollections;
+    WExpression::GlobalData m_GlobalData;
 
-    ezExpressionVM m_VM;
+    WExpressionVM m_VM;
   };
-} // namespace ezProcGenInternal
+} // namespace WProcGenInternal

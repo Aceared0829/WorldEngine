@@ -4,7 +4,7 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
-using ezJointOverrideComponentManager = ezComponentManager<class ezJointOverrideComponent, ezBlockStorageType::FreeList>;
+using WJointOverrideComponentManager = WComponentManager<class WJointOverrideComponent, WBlockStorageType::FreeList>;
 
 /// Overrides the local transform of a bone in a skeletal animation.
 ///
@@ -15,23 +15,23 @@ using ezJointOverrideComponentManager = ezComponentManager<class ezJointOverride
 /// so that an animated object points into the right direction.
 ///
 /// The global transform of the game object is irrelevant, but the local transform is used to copy over.
-class EZ_GAMEENGINE_DLL ezJointOverrideComponent : public ezComponent
+class W_GAMEENGINE_DLL WJointOverrideComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJointOverrideComponent, ezComponent, ezJointOverrideComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJointOverrideComponent, WComponent, WJointOverrideComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJointOverrideComponent
+  // WJointOverrideComponent
 
 public:
-  ezJointOverrideComponent();
-  ~ezJointOverrideComponent();
+  WJointOverrideComponent();
+  ~WJointOverrideComponent();
 
   /// The name of the bone whose transform should be replaced with the transform of this game object.
   void SetJointName(const char* szName); // [ property ]
@@ -50,8 +50,8 @@ public:
   float m_fWeight = 1.0f;                                                // [ property ]
 
 protected:
-  void OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const; // [ msg handler ]
+  void OnAnimationPosePreparing(WMsgAnimationPosePreparing& msg) const; // [ msg handler ]
 
-  ezHashedString m_sJointToOverride;
-  mutable ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
+  WHashedString m_sJointToOverride;
+  mutable WUInt16 m_uiJointIndex = WInvalidJointIndex;
 };

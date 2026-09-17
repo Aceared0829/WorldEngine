@@ -4,15 +4,15 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 // static
-ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+WUInt32 WHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, WUInt32 uiSeed /*= 0*/)
 {
-  const ezUInt32 m = ezInternal::MURMUR_M;
-  const ezUInt32 r = ezInternal::MURMUR_R;
+  const WUInt32 m = WInternal::MURMUR_M;
+  const WUInt32 r = WInternal::MURMUR_R;
 
   // Initialize the hash to a 'random' value
-  ezUInt32 h = uiSeed ^ (ezUInt32)uiSizeInByte;
+  WUInt32 h = uiSeed ^ (WUInt32)uiSizeInByte;
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+#if W_ENABLED(W_PLATFORM_ARCH_ARM)
   // ARM has strict alignment requirements for reading. Special version which takes care of unaligned inputs.
   if (reinterpret_cast<size_t>(pKey) % 4 != 0)
   {
@@ -21,9 +21,9 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
     // Mix 4 bytes at a time into the hash
     while (uiSizeInByte >= 4)
     {
-      ezUInt32 k = 0;
+      WUInt32 k = 0;
       memcpy(&k, pKey, sizeof(k));
-      pKey = ezMemoryUtils::AddByteOffset(pKey, sizeof(k));
+      pKey = WMemoryUtils::AddByteOffset(pKey, sizeof(k));
 
       k *= m;
       k ^= k >> r;
@@ -38,12 +38,12 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
   else
 #endif
   {
-    const ezUInt32* pData = static_cast<const ezUInt32*>(pKey);
+    const WUInt32* pData = static_cast<const WUInt32*>(pKey);
 
     // Mix 4 bytes at a time into the hash
     while (uiSizeInByte >= 4)
     {
-      ezUInt32 k = *pData++;
+      WUInt32 k = *pData++;
 
       k *= m;
       k ^= k >> r;
@@ -58,7 +58,7 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
     pKey = pData;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pKey);
+  const WUInt8* pData2 = reinterpret_cast<const WUInt8*>(pKey);
 
   // Handle the last few bytes of the input array
   switch (uiSizeInByte)
@@ -82,24 +82,24 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
 }
 
 // static
-ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
+WUInt64 WHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, WUInt64 uiSeed /*= 0*/)
 {
-  const ezUInt64 m = 0xc6a4a7935bd1e995ULL;
-  const ezUInt64 r = 47;
+  const WUInt64 m = 0xc6a4a7935bd1e995ULL;
+  const WUInt64 r = 47;
 
-  ezUInt64 h = uiSeed ^ (uiSizeInByte * m);
+  WUInt64 h = uiSeed ^ (uiSizeInByte * m);
 
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+#if W_ENABLED(W_PLATFORM_ARCH_ARM)
   if (reinterpret_cast<size_t>(pKey) % 8 != 0)
   {
-    const void* pData = static_cast<const ezUInt8*>(pKey);
-    const void* pEnd = ezMemoryUtils::AddByteOffset(pKey, (uiSizeInByte / 8) * 8);
+    const void* pData = static_cast<const WUInt8*>(pKey);
+    const void* pEnd = WMemoryUtils::AddByteOffset(pKey, (uiSizeInByte / 8) * 8);
 
     while (pData != pEnd)
     {
-      ezUInt64 k = 0;
+      WUInt64 k = 0;
       memcpy(&k, pData, sizeof(k));
-      pData = ezMemoryUtils::AddByteOffset(pData, sizeof(k));
+      pData = WMemoryUtils::AddByteOffset(pData, sizeof(k));
 
       k *= m;
       k ^= k >> r;
@@ -114,12 +114,12 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
   else
 #endif
   {
-    const ezUInt64* pData = static_cast<const ezUInt64*>(pKey);
-    const ezUInt64* pEnd = pData + (uiSizeInByte / 8);
+    const WUInt64* pData = static_cast<const WUInt64*>(pKey);
+    const WUInt64* pEnd = pData + (uiSizeInByte / 8);
 
     while (pData != pEnd)
     {
-      ezUInt64 k = *pData++;
+      WUInt64 k = *pData++;
 
       k *= m;
       k ^= k >> r;
@@ -132,24 +132,24 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
     pKey = pEnd;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pKey);
+  const WUInt8* pData2 = reinterpret_cast<const WUInt8*>(pKey);
 
   switch (uiSizeInByte & 7)
   {
     case 7:
-      h ^= ezUInt64(pData2[6]) << 48;
+      h ^= WUInt64(pData2[6]) << 48;
     case 6:
-      h ^= ezUInt64(pData2[5]) << 40;
+      h ^= WUInt64(pData2[5]) << 40;
     case 5:
-      h ^= ezUInt64(pData2[4]) << 32;
+      h ^= WUInt64(pData2[4]) << 32;
     case 4:
-      h ^= ezUInt64(pData2[3]) << 24;
+      h ^= WUInt64(pData2[3]) << 24;
     case 3:
-      h ^= ezUInt64(pData2[2]) << 16;
+      h ^= WUInt64(pData2[2]) << 16;
     case 2:
-      h ^= ezUInt64(pData2[1]) << 8;
+      h ^= WUInt64(pData2[1]) << 8;
     case 1:
-      h ^= ezUInt64(pData2[0]);
+      h ^= WUInt64(pData2[0]);
       h *= m;
   };
 
@@ -161,7 +161,7 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
 }
 
 // CRC32 lookup table (precomputed)
-static constexpr ezUInt32 uiCRC32Table[256] = {0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 0x0EDB8832,
+static constexpr WUInt32 uiCRC32Table[256] = {0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 0x0EDB8832,
   0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2, 0xF3B97148, 0x84BE41DE, 0x1ADAD47D,
   0x6DDDE4EB, 0xF4D4B551, 0x83D385C7, 0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC, 0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5, 0x3B6E20C8,
   0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 0x35B5A8FA, 0x42B2986C, 0xDBBBC9D6, 0xACBCF940, 0x32D86CE3,
@@ -185,35 +185,35 @@ static constexpr ezUInt32 uiCRC32Table[256] = {0x00000000, 0x77073096, 0xEE0E612
   0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D};
 
 // static
-ezUInt32 ezHashingUtils::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
+WUInt32 WHashingUtils::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 {
   if (pKey == 0 || uiSizeInBytes <= 0)
     return 0;
 
-  ezUInt32 uiCRC32 = 0xFFFFFFFF;
+  WUInt32 uiCRC32 = 0xFFFFFFFF;
 
   for (size_t i = 0; i < uiSizeInBytes; i++)
-    uiCRC32 = (uiCRC32 >> 8) ^ uiCRC32Table[(uiCRC32 & 0xFF) ^ static_cast<const ezUInt8*>(pKey)[i]];
+    uiCRC32 = (uiCRC32 >> 8) ^ uiCRC32Table[(uiCRC32 & 0xFF) ^ static_cast<const WUInt8*>(pKey)[i]];
 
-  return static_cast<ezUInt32>(uiCRC32 ^ 0xFFFFFFFF);
+  return static_cast<WUInt32>(uiCRC32 ^ 0xFFFFFFFF);
 }
 
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_CLANG("-Wunused-function")
+W_WARNING_PUSH()
+W_WARNING_DISABLE_CLANG("-Wunused-function")
 
 #define XXH_INLINE_ALL
 #include <Foundation/ThirdParty/xxHash/xxhash.h>
 
-EZ_WARNING_POP()
+W_WARNING_POP()
 
 // static
-ezUInt32 ezHashingUtils::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+WUInt32 WHashingUtils::xxHash32(const void* pKey, size_t uiSizeInByte, WUInt32 uiSeed /*= 0*/)
 {
   return XXH32(pKey, uiSizeInByte, uiSeed);
 }
 
 // static
-ezUInt64 ezHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
+WUInt64 WHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, WUInt64 uiSeed /*= 0*/)
 {
   return XXH64(pKey, uiSizeInByte, uiSeed);
 }

@@ -5,20 +5,20 @@
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
-struct ezOSFileData
+struct WOSFileData
 {
-  ezOSFileData() { m_pFileHandle = nullptr; }
+  WOSFileData() { m_pFileHandle = nullptr; }
 
   FILE* m_pFileHandle;
 };
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_ENABLED(W_SUPPORTS_FILE_ITERATORS)
 
-struct ezFileIterationData
+struct WFileIterationData
 {
   // This is storing DIR*, which we can't forward declare
-  ezHybridArray<void*, 16> m_Handles;
-  ezString m_wildcardSearch;
+  WHybridArray<void*, 16> m_Handles;
+  WString m_wildcardSearch;
 };
 
 #endif

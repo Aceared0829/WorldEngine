@@ -5,14 +5,14 @@
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessageSender.h>
 
-struct ezMoveToComponentFlags
+struct WMoveToComponentFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
     None = 0,
-    Running = EZ_BIT(0),
+    Running = W_BIT(0),
     Default = None
   };
 
@@ -22,9 +22,9 @@ struct ezMoveToComponentFlags
   };
 };
 
-using ezMoveToComponentManager = ezComponentManagerSimple<class ezMoveToComponent, ezComponentUpdateType::WhenSimulating>;
+using WMoveToComponentManager = WComponentManagerSimple<class WMoveToComponent, WComponentUpdateType::WhenSimulating>;
 
-EZ_DECLARE_FLAGS_OPERATORS(ezMoveToComponentFlags);
+W_DECLARE_FLAGS_OPERATORS(WMoveToComponentFlags);
 
 /// A light-weight component that moves the owner object towards a single position.
 ///
@@ -38,28 +38,28 @@ EZ_DECLARE_FLAGS_OPERATORS(ezMoveToComponentFlags);
 /// specific height, depending on which floor was selected. Or an object could follow a character,
 /// by updating the target position regularly.
 ///
-/// The component sends the event 'ezMsgAnimationReachedEnd' and resets its running state when it reaches the target position.
-class EZ_GAMECOMPONENTS_DLL ezMoveToComponent : public ezComponent
+/// The component sends the event 'WMsgAnimationReachedEnd' and resets its running state when it reaches the target position.
+class W_GAMECOMPONENTS_DLL WMoveToComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMoveToComponent, ezComponent, ezMoveToComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMoveToComponent, WComponent, WMoveToComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void OnSimulationStarted() override;
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTransformComponent
+  // WTransformComponent
 
 public:
-  ezMoveToComponent();
-  ~ezMoveToComponent();
+  WMoveToComponent();
+  ~WMoveToComponent();
 
   /// If set to false, the animation stops immediately.
   void SetRunning(bool bRunning); // [ property ]
@@ -68,18 +68,18 @@ public:
   bool IsRunning() const; // [ property ]
 
   /// Automatically sets the component to 'running'.
-  void SetTargetPosition(const ezVec3& vPos); // [ scriptable ]
+  void SetTargetPosition(const WVec3& vPos); // [ scriptable ]
 
 protected:
   void Update();
 
-  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
+  WEventMessageSender<WMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
 
   float m_fCurTranslationSpeed = 0;
   float m_fMaxTranslationSpeed = 1;                                     // [ property ]
   float m_fTranslationAcceleration = 0;                                 // [ property ]
   float m_fTranslationDeceleration = 0;                                 // [ property ]
 
-  ezVec3 m_vTargetPosition;
-  ezBitflags<ezMoveToComponentFlags> m_Flags;
+  WVec3 m_vTargetPosition;
+  WBitflags<WMoveToComponentFlags> m_Flags;
 };

@@ -6,114 +6,114 @@
 #include <d3d11.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ezGALSharedTextureDX11
+// WGALSharedTextureDX11
 //////////////////////////////////////////////////////////////////////////
 
-ezGALSharedTextureDX11::ezGALSharedTextureDX11(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle)
-  : ezGALTextureDX11(Description)
+WGALSharedTextureDX11::WGALSharedTextureDX11(const WGALTextureCreationDescription& Description, WEnum<WGALSharedTextureType> sharedType, WGALPlatformSharedHandle hSharedHandle)
+  : WGALTextureDX11(Description)
   , m_SharedType(sharedType)
   , m_hSharedHandle(hSharedHandle)
 {
 }
 
-ezGALSharedTextureDX11::~ezGALSharedTextureDX11() = default;
+WGALSharedTextureDX11::~WGALSharedTextureDX11() = default;
 
-ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+WResult WGALSharedTextureDX11::InitPlatform(WGALDevice* pDevice, WArrayPtr<WGALSystemMemoryDescription> pInitialData)
 {
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
   m_pDevice = pDXDevice;
 
-  EZ_ASSERT_DEBUG(m_SharedType != ezGALSharedTextureType::None, "Shared texture must either be exported or imported");
-  EZ_ASSERT_DEBUG(m_Description.m_Type == ezGALTextureType::Texture2DShared, "Shared texture must be of type ezGALTextureType::Texture2DShared");
+  W_ASSERT_DEBUG(m_SharedType != WGALSharedTextureType::None, "Shared texture must either be exported or imported");
+  W_ASSERT_DEBUG(m_Description.m_Type == WGALTextureType::Texture2DShared, "Shared texture must be of type WGALTextureType::Texture2DShared");
 
-  if (m_SharedType == ezGALSharedTextureType::Imported)
+  if (m_SharedType == WGALSharedTextureType::Imported)
   {
     IDXGIResource* d3d11ResPtr = NULL;
     HRESULT hr = pDXDevice->GetDXDevice()->OpenSharedResource((HANDLE)m_hSharedHandle.m_hSharedTexture, __uuidof(ID3D11Resource), (void**)(&d3d11ResPtr));
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to open shared texture: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to open shared texture: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
-    EZ_SCOPE_EXIT(d3d11ResPtr->Release());
+    W_SCOPE_EXIT(d3d11ResPtr->Release());
 
     hr = d3d11ResPtr->QueryInterface(__uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pDXTexture));
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to query shared texture interface: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to query shared texture interface: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
 
     hr = d3d11ResPtr->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to query keyed mutex interface: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to query keyed mutex interface: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
   D3D11_TEXTURE2D_DESC Tex2DDesc = {};
-  EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
+  W_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
-  if (m_SharedType == ezGALSharedTextureType::Exported)
+  if (m_SharedType == WGALSharedTextureType::Exported)
     Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
 
-  ezTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
+  WTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
   ConvertInitialData(m_Description, pInitialData, InitialData);
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
-  else if (m_SharedType == ezGALSharedTextureType::Exported)
+  else if (m_SharedType == WGALSharedTextureType::Exported)
   {
     IDXGIResource* pDXGIResource;
     HRESULT hr = m_pDXTexture->QueryInterface(__uuidof(IDXGIResource), (void**)&pDXGIResource);
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to get shared texture resource interface: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to get shared texture resource interface: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
-    EZ_SCOPE_EXIT(pDXGIResource->Release());
+    W_SCOPE_EXIT(pDXGIResource->Release());
     HANDLE hTexture = 0;
     hr = pDXGIResource->GetSharedHandle(&hTexture);
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to get shared handle: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to get shared handle: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
     hr = pDXGIResource->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
     if (FAILED(hr))
     {
-      ezLog::Error("Failed to query keyed mutex interface: {}", ezArgErrorCode(hr));
-      return EZ_FAILURE;
+      WLog::Error("Failed to query keyed mutex interface: {}", WArgErrorCode(hr));
+      return W_FAILURE;
     }
-    m_hSharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
+    m_hSharedHandle.m_hSharedTexture = (WUInt64)hTexture;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-ezResult ezGALSharedTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALSharedTextureDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_GAL_DX11_RELEASE(m_pKeyedMutex);
+  W_GAL_DX11_RELEASE(m_pKeyedMutex);
   return SUPER::DeInitPlatform(pDevice);
 }
 
-ezGALPlatformSharedHandle ezGALSharedTextureDX11::GetSharedHandle() const
+WGALPlatformSharedHandle WGALSharedTextureDX11::GetSharedHandle() const
 {
   return m_hSharedHandle;
 }
 
-void ezGALSharedTextureDX11::WaitSemaphoreGPU(ezUInt64 uiValue) const
+void WGALSharedTextureDX11::WaitSemaphoreGPU(WUInt64 uiValue) const
 {
   m_pKeyedMutex->AcquireSync(uiValue, INFINITE);
 }
 
-void ezGALSharedTextureDX11::SignalSemaphoreGPU(ezUInt64 uiValue) const
+void WGALSharedTextureDX11::SignalSemaphoreGPU(WUInt64 uiValue) const
 {
   m_pKeyedMutex->ReleaseSync(uiValue);
 }

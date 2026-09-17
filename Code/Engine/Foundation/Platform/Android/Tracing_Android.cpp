@@ -9,14 +9,14 @@
 
 #  include <android/log.h>
 
-#  define EZ_PERFETTO_LOG(...) __android_log_print(ANDROID_LOG_INFO, "ezEngine", __VA_ARGS__)
+#  define W_PERFETTO_LOG(...) __android_log_print(ANDROID_LOG_INFO, "WorldEngine", __VA_ARGS__)
 
 // Allocate storage for the Perfetto track event categories defined in the header.
 PERFETTO_TRACK_EVENT_STATIC_STORAGE();
 
 static bool s_bPerfettoInitialized = false;
 
-void ezPerfettoRegistration::EnsureInitialized()
+void WPerfettoRegistration::EnsureInitialized()
 {
   if (s_bPerfettoInitialized)
     return;
@@ -38,21 +38,21 @@ void ezPerfettoRegistration::EnsureInitialized()
   int iElapsed = 0;
   while (!perfetto::TrackEvent::IsEnabled() && iElapsed < iMaxWaitMs)
   {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(iPollMs));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(iPollMs));
     iElapsed += iPollMs;
   }
 
   if (perfetto::TrackEvent::IsEnabled())
   {
-    EZ_PERFETTO_LOG("track_event data source ACTIVE after %dms.", iElapsed);
+    W_PERFETTO_LOG("track_event data source ACTIVE after %dms.", iElapsed);
   }
   else
   {
-    EZ_PERFETTO_LOG("track_event data source NOT active after %dms. Events will be emitted but may not appear.", iMaxWaitMs);
+    W_PERFETTO_LOG("track_event data source NOT active after %dms. Events will be emitted but may not appear.", iMaxWaitMs);
   }
 }
 
-void ezPerfettoRegistration::Flush()
+void WPerfettoRegistration::Flush()
 {
   if (s_bPerfettoInitialized)
   {

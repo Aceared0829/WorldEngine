@@ -3,10 +3,10 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/XR/Declarations.h>
 
-struct ezXRHand
+struct WXRHand
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Left = 0,
     Right,
@@ -14,10 +14,10 @@ struct ezXRHand
   };
 };
 
-struct ezXRHandPart
+struct WXRHandPart
 {
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
+  using StorageType = WUInt8;
+  enum Enum : WUInt8
   {
     Palm = 0,
     Wrist,
@@ -31,16 +31,16 @@ struct ezXRHandPart
   };
 };
 
-struct ezXRHandBone
+struct WXRHandBone
 {
-  ezTransform m_Transform;
+  WTransform m_Transform;
   float m_fRadius;
 };
 
 /// XR Hand tracking interface.
 ///
-/// Aquire interface via ezSingletonRegistry::GetSingletonInstance<ezXRHandTrackingInterface>().
-class ezXRHandTrackingInterface
+/// Aquire interface via WSingletonRegistry::GetSingletonInstance<WXRHandTrackingInterface>().
+class WXRHandTrackingInterface
 {
 public:
   enum class HandPartTrackingState
@@ -56,5 +56,5 @@ public:
   /// followed by distal, etc. ending in the wrist bone. Depending on the implementation the number
   /// of bones returned can be less than the number of actual bones in the hand.
   virtual HandPartTrackingState TryGetBoneTransforms(
-    ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space, ezDynamicArray<ezXRHandBone>& out_bones) = 0;
+    WEnum<WXRHand> hand, WEnum<WXRHandPart> handPart, WEnum<WXRTransformSpace> space, WDynamicArray<WXRHandBone>& out_bones) = 0;
 };

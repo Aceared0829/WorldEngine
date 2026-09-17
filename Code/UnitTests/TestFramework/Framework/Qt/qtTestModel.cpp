@@ -1,16 +1,16 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QApplication>
 #  include <QPalette>
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestModelEntry public functions
+// WQtTestModelEntry public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex, ezInt32 iSubTestIndex)
+WQtTestModelEntry::WQtTestModelEntry(const WTestFrameworkResult* pResult, WInt32 iTestIndex, WInt32 iSubTestIndex)
   : m_pResult(pResult)
   , m_iTestIndex(iTestIndex)
   , m_iSubTestIndex(iSubTestIndex)
@@ -18,26 +18,26 @@ ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezI
 {
 }
 
-ezQtTestModelEntry::~ezQtTestModelEntry()
+WQtTestModelEntry::~WQtTestModelEntry()
 {
   ClearEntries();
 }
 
-void ezQtTestModelEntry::ClearEntries()
+void WQtTestModelEntry::ClearEntries()
 {
-  for (ezInt32 i = (ezInt32)m_SubEntries.size() - 1; i >= 0; --i)
+  for (WInt32 i = (WInt32)m_SubEntries.size() - 1; i >= 0; --i)
   {
     delete m_SubEntries[i];
   }
   m_SubEntries.clear();
 }
-ezUInt32 ezQtTestModelEntry::GetNumSubEntries() const
+WUInt32 WQtTestModelEntry::GetNumSubEntries() const
 
 {
-  return (ezInt32)m_SubEntries.size();
+  return (WInt32)m_SubEntries.size();
 }
 
-ezQtTestModelEntry* ezQtTestModelEntry::GetSubEntry(ezUInt32 uiIndex) const
+WQtTestModelEntry* WQtTestModelEntry::GetSubEntry(WUInt32 uiIndex) const
 {
   if (uiIndex >= GetNumSubEntries())
     return nullptr;
@@ -45,24 +45,24 @@ ezQtTestModelEntry* ezQtTestModelEntry::GetSubEntry(ezUInt32 uiIndex) const
   return m_SubEntries[uiIndex];
 }
 
-void ezQtTestModelEntry::AddSubEntry(ezQtTestModelEntry* pEntry)
+void WQtTestModelEntry::AddSubEntry(WQtTestModelEntry* pEntry)
 {
   pEntry->m_pParentEntry = this;
-  pEntry->m_uiIndexInParent = (ezUInt32)m_SubEntries.size();
+  pEntry->m_uiIndexInParent = (WUInt32)m_SubEntries.size();
   m_SubEntries.push_back(pEntry);
 }
 
-ezQtTestModelEntry::ezTestModelEntryType ezQtTestModelEntry::GetNodeType() const
+WQtTestModelEntry::WTestModelEntryType WQtTestModelEntry::GetNodeType() const
 {
   return (m_iTestIndex == -1) ? RootNode : ((m_iSubTestIndex == -1) ? TestNode : SubTestNode);
 }
 
-const ezTestResultData* ezQtTestModelEntry::GetTestResult() const
+const WTestResultData* WQtTestModelEntry::GetTestResult() const
 {
   switch (GetNodeType())
   {
-    case ezQtTestModelEntry::TestNode:
-    case ezQtTestModelEntry::SubTestNode:
+    case WQtTestModelEntry::TestNode:
+    case WQtTestModelEntry::SubTestNode:
       return &m_pResult->GetTestResultData(m_iTestIndex, m_iSubTestIndex);
     default:
       return nullptr;
@@ -74,15 +74,15 @@ static QColor ToneColor(const QColor& inputColor, const QColor& toneColor)
   qreal fHue = toneColor.hueF();
   qreal fSaturation = 1.0f;
   qreal fLightness = inputColor.lightnessF();
-  fLightness = ezMath::Clamp(fLightness, 0.20, 0.80);
+  fLightness = WMath::Clamp(fLightness, 0.20, 0.80);
   return QColor::fromHslF(fHue, fSaturation, fLightness);
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestModel public functions
+// WQtTestModel public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework)
+WQtTestModel::WQtTestModel(QObject* pParent, WQtTestFramework* pTestFramework)
   : QAbstractItemModel(pParent)
   , m_pTestFramework(pTestFramework)
   , m_Root(nullptr)
@@ -104,56 +104,56 @@ ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework
   UpdateModel();
 }
 
-ezQtTestModel::~ezQtTestModel()
+WQtTestModel::~WQtTestModel()
 {
   m_Root.ClearEntries();
 }
 
-void ezQtTestModel::Reset()
+void WQtTestModel::Reset()
 {
   beginResetModel();
   endResetModel();
 }
 
-void ezQtTestModel::InvalidateAll()
+void WQtTestModel::InvalidateAll()
 {
   dataChanged(QModelIndex(), QModelIndex());
 }
 
-void ezQtTestModel::TestDataChanged(ezInt32 iTestIndex, ezInt32 iSubTestIndex)
+void WQtTestModel::TestDataChanged(WInt32 iTestIndex, WInt32 iSubTestIndex)
 {
   QModelIndex TestModelIndex = index(iTestIndex, 0);
   // Invalidate whole test row
   Q_EMIT dataChanged(TestModelIndex, index(iTestIndex, columnCount() - 1));
 
   // Invalidate all sub-tests
-  const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)TestModelIndex.internalPointer();
-  ezInt32 iChildren = (ezInt32)pEntry->GetNumSubEntries();
+  const WQtTestModelEntry* pEntry = (WQtTestModelEntry*)TestModelIndex.internalPointer();
+  WInt32 iChildren = (WInt32)pEntry->GetNumSubEntries();
   Q_EMIT dataChanged(index(0, 0, TestModelIndex), index(iChildren - 1, columnCount() - 1, TestModelIndex));
 }
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestModel QAbstractItemModel functions
+// WQtTestModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
+QVariant WQtTestModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid())
     return QVariant();
 
-  const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)index.internalPointer();
-  const ezQtTestModelEntry* pParentEntry = pEntry->GetParentEntry();
-  const ezQtTestModelEntry::ezTestModelEntryType entryType = pEntry->GetNodeType();
+  const WQtTestModelEntry* pEntry = (WQtTestModelEntry*)index.internalPointer();
+  const WQtTestModelEntry* pParentEntry = pEntry->GetParentEntry();
+  const WQtTestModelEntry::WTestModelEntryType entryType = pEntry->GetNodeType();
 
-  const ezInt32 iExecutingTest = m_pTestFramework->GetCurrentTestIndex();
-  const ezInt32 iExecutingSubTest = m_pTestFramework->GetCurrentSubTestIndex();
+  const WInt32 iExecutingTest = m_pTestFramework->GetCurrentTestIndex();
+  const WInt32 iExecutingSubTest = m_pTestFramework->GetCurrentSubTestIndex();
 
   const bool bIsExecuting = pEntry->GetTestIndex() == iExecutingTest && pEntry->GetSubTestIndex() == iExecutingSubTest;
 
   bool bTestEnabled = true;
   bool bParentEnabled = true;
-  bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
+  bool bIsSubTest = entryType == WQtTestModelEntry::SubTestNode;
   const std::string& testUnavailableReason = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
 
   if (bIsSubTest)
@@ -166,7 +166,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
     bTestEnabled = m_pTestFramework->IsTestEnabled(pEntry->GetTestIndex());
   }
 
-  const ezTestResultData& TestResult = *pEntry->GetTestResult();
+  const WTestResultData& TestResult = *pEntry->GetTestResult();
 
   if (bIsExecuting && iRole == Qt::BackgroundRole)
   {
@@ -229,8 +229,8 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
           else
           {
             // Count sub-test status
-            const ezUInt32 iSubTests = m_pResult->GetSubTestCount(pEntry->GetTestIndex());
-            const ezUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
+            const WUInt32 iSubTests = m_pResult->GetSubTestCount(pEntry->GetTestIndex());
+            const WUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
 
             if (iEnabled == iSubTests)
             {
@@ -384,9 +384,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
           {
             // Count sub-test status
 
-            const ezUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
-            const ezUInt32 iExecuted = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Executed);
-            const ezUInt32 iSucceeded = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Success);
+            const WUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
+            const WUInt32 iExecuted = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), WTestResultQuery::Executed);
+            const WUInt32 iSucceeded = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), WTestResultQuery::Success);
 
             if (TestResult.m_bExecuted && iExecuted == iEnabled)
             {
@@ -439,19 +439,19 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
   return QVariant();
 }
 
-Qt::ItemFlags ezQtTestModel::flags(const QModelIndex& index) const
+Qt::ItemFlags WQtTestModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
     return Qt::ItemFlags();
 
-  ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)index.internalPointer();
+  WQtTestModelEntry* pEntry = (WQtTestModelEntry*)index.internalPointer();
   if (pEntry == &m_Root)
     return Qt::ItemFlags();
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
 }
 
-QVariant ezQtTestModel::headerData(int iSection, Qt::Orientation orientation, int iRole) const
+QVariant WQtTestModel::headerData(int iSection, Qt::Orientation orientation, int iRole) const
 {
   if (orientation == Qt::Horizontal && iRole == Qt::DisplayRole)
   {
@@ -474,29 +474,29 @@ QVariant ezQtTestModel::headerData(int iSection, Qt::Orientation orientation, in
   return QVariant();
 }
 
-QModelIndex ezQtTestModel::index(int iRow, int iColumn, const QModelIndex& parent) const
+QModelIndex WQtTestModel::index(int iRow, int iColumn, const QModelIndex& parent) const
 {
   if (!hasIndex(iRow, iColumn, parent))
     return QModelIndex();
 
-  const ezQtTestModelEntry* pParent = nullptr;
+  const WQtTestModelEntry* pParent = nullptr;
 
   if (!parent.isValid())
     pParent = &m_Root;
   else
-    pParent = static_cast<ezQtTestModelEntry*>(parent.internalPointer());
+    pParent = static_cast<WQtTestModelEntry*>(parent.internalPointer());
 
-  ezQtTestModelEntry* pEntry = pParent->GetSubEntry(iRow);
+  WQtTestModelEntry* pEntry = pParent->GetSubEntry(iRow);
   return pEntry ? createIndex(iRow, iColumn, pEntry) : QModelIndex();
 }
 
-QModelIndex ezQtTestModel::parent(const QModelIndex& index) const
+QModelIndex WQtTestModel::parent(const QModelIndex& index) const
 {
   if (!index.isValid())
     return QModelIndex();
 
-  ezQtTestModelEntry* pChild = static_cast<ezQtTestModelEntry*>(index.internalPointer());
-  ezQtTestModelEntry* pParent = pChild->GetParentEntry();
+  WQtTestModelEntry* pChild = static_cast<WQtTestModelEntry*>(index.internalPointer());
+  WQtTestModelEntry* pParent = pChild->GetParentEntry();
 
   if (pParent == &m_Root)
     return QModelIndex();
@@ -504,33 +504,33 @@ QModelIndex ezQtTestModel::parent(const QModelIndex& index) const
   return createIndex(pParent->GetIndexInParent(), 0, pParent);
 }
 
-int ezQtTestModel::rowCount(const QModelIndex& parent) const
+int WQtTestModel::rowCount(const QModelIndex& parent) const
 {
   if (parent.column() > 0)
     return 0;
 
-  const ezQtTestModelEntry* pParent = nullptr;
+  const WQtTestModelEntry* pParent = nullptr;
 
   if (!parent.isValid())
     pParent = &m_Root;
   else
-    pParent = static_cast<ezQtTestModelEntry*>(parent.internalPointer());
+    pParent = static_cast<WQtTestModelEntry*>(parent.internalPointer());
 
   return pParent->GetNumSubEntries();
 }
 
-int ezQtTestModel::columnCount(const QModelIndex& parent) const
+int WQtTestModel::columnCount(const QModelIndex& parent) const
 {
   return Columns::ColumnCount;
 }
 
-bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int iRole)
+bool WQtTestModel::setData(const QModelIndex& index, const QVariant& value, int iRole)
 {
-  ezQtTestModelEntry* pEntry = static_cast<ezQtTestModelEntry*>(index.internalPointer());
+  WQtTestModelEntry* pEntry = static_cast<WQtTestModelEntry*>(index.internalPointer());
   if (pEntry == nullptr || index.column() != Columns::Name || iRole != Qt::CheckStateRole)
     return false;
 
-  if (pEntry->GetNodeType() == ezQtTestModelEntry::TestNode)
+  if (pEntry->GetNodeType() == WQtTestModelEntry::TestNode)
   {
     m_pTestFramework->SetTestEnabled(pEntry->GetTestIndex(), value.toBool());
     TestDataChanged(pEntry->GetIndexInParent(), -1);
@@ -540,7 +540,7 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
     // if some set of sub-tests is already enabled and some are disabled,
     // do not mess with the user's choice of enabled tests
     bool bEnableSubTests = value.toBool();
-    for (ezUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
+    for (WUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
     {
       if (m_pTestFramework->IsSubTestEnabled(pEntry->GetTestIndex(), subIdx))
       {
@@ -551,7 +551,7 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
 
     if (bEnableSubTests)
     {
-      for (ezUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
+      for (WUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
       {
         m_pTestFramework->SetSubTestEnabled(pEntry->GetTestIndex(), subIdx, true);
         TestDataChanged(pEntry->GetIndexInParent(), subIdx);
@@ -569,25 +569,25 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezQtTestModel public slots
+// WQtTestModel public slots
 ////////////////////////////////////////////////////////////////////////
 
-void ezQtTestModel::UpdateModel()
+void WQtTestModel::UpdateModel()
 {
   m_Root.ClearEntries();
   if (m_pResult == nullptr)
     return;
 
-  const ezUInt32 uiTestCount = m_pResult->GetTestCount();
-  for (ezUInt32 uiTestIndex = 0; uiTestIndex < uiTestCount; ++uiTestIndex)
+  const WUInt32 uiTestCount = m_pResult->GetTestCount();
+  for (WUInt32 uiTestIndex = 0; uiTestIndex < uiTestCount; ++uiTestIndex)
   {
-    ezQtTestModelEntry* pTestModelEntry = new ezQtTestModelEntry(m_pResult, uiTestIndex);
+    WQtTestModelEntry* pTestModelEntry = new WQtTestModelEntry(m_pResult, uiTestIndex);
     m_Root.AddSubEntry(pTestModelEntry);
 
-    const ezUInt32 uiSubTestCount = m_pResult->GetSubTestCount(uiTestIndex);
-    for (ezUInt32 uiSubTestIndex = 0; uiSubTestIndex < uiSubTestCount; ++uiSubTestIndex)
+    const WUInt32 uiSubTestCount = m_pResult->GetSubTestCount(uiTestIndex);
+    for (WUInt32 uiSubTestIndex = 0; uiSubTestIndex < uiSubTestCount; ++uiSubTestIndex)
     {
-      ezQtTestModelEntry* pSubTestModelEntry = new ezQtTestModelEntry(m_pResult, uiTestIndex, uiSubTestIndex);
+      WQtTestModelEntry* pSubTestModelEntry = new WQtTestModelEntry(m_pResult, uiTestIndex, uiSubTestIndex);
       pTestModelEntry->AddSubEntry(pSubTestModelEntry);
     }
   }

@@ -9,61 +9,61 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezAiVoxelNavigationDebugFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezAiVoxelNavigationDebugFlags::PrintState, ezAiVoxelNavigationDebugFlags::VisPath)
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WAiVoxelNavigationDebugFlags, 1)
+  W_BITFLAGS_CONSTANTS(WAiVoxelNavigationDebugFlags::PrintState, WAiVoxelNavigationDebugFlags::VisPath)
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAiVoxelNavigationComponentState, 1)
-  EZ_ENUM_CONSTANTS(ezAiVoxelNavigationComponentState::Idle, ezAiVoxelNavigationComponentState::Moving, ezAiVoxelNavigationComponentState::Failed)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WAiVoxelNavigationComponentState, 1)
+  W_ENUM_CONSTANTS(WAiVoxelNavigationComponentState::Idle, WAiVoxelNavigationComponentState::Moving, WAiVoxelNavigationComponentState::Failed)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WAiVoxelNavigationComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("NavigationTarget", DummyGetter, SetNavigationTargetReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
-    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
-    EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezDefaultValueAttribute(8.0f)),
-    EZ_MEMBER_PROPERTY("ReachedDistance", m_fReachedDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("ApplySteering", m_bApplySteering)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("LookAheadDistance", m_fLookAheadDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxPathOffset", m_fMaxPathOffset)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
-    EZ_MEMBER_PROPERTY("CorridorCorrectionRate", m_fCorridorCorrectionRate)->AddAttributes(new ezDefaultValueAttribute(8.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("MaxAngularSpeed", m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(180.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezVariant())),
-    EZ_MEMBER_PROPERTY("BankAmount", m_fBankAmount)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
-    EZ_MEMBER_PROPERTY("MaxBankAngle", m_MaxBankAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(90.0f))),
-    EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezAiVoxelNavigationDebugFlags, m_DebugFlags),
+    W_ACCESSOR_PROPERTY("NavigationTarget", DummyGetter, SetNavigationTargetReference)->AddAttributes(new WGameObjectReferenceAttribute()),
+    W_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(5.0f)),
+    W_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new WDefaultValueAttribute(3.0f)),
+    W_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new WDefaultValueAttribute(8.0f)),
+    W_MEMBER_PROPERTY("ReachedDistance", m_fReachedDistance)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(0.0f, 10.0f)),
+    W_MEMBER_PROPERTY("ApplySteering", m_bApplySteering)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("LookAheadDistance", m_fLookAheadDistance)->AddAttributes(new WDefaultValueAttribute(3.0f), new WClampValueAttribute(0.1f, WVariant())),
+    W_MEMBER_PROPERTY("MaxPathOffset", m_fMaxPathOffset)->AddAttributes(new WDefaultValueAttribute(3.0f), new WClampValueAttribute(0.1f, WVariant())),
+    W_MEMBER_PROPERTY("CorridorCorrectionRate", m_fCorridorCorrectionRate)->AddAttributes(new WDefaultValueAttribute(8.0f), new WClampValueAttribute(0.0f, WVariant())),
+    W_MEMBER_PROPERTY("MaxAngularSpeed", m_MaxAngularSpeed)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(180.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WVariant())),
+    W_MEMBER_PROPERTY("BankAmount", m_fBankAmount)->AddAttributes(new WDefaultValueAttribute(3.0f)),
+    W_MEMBER_PROPERTY("MaxBankAngle", m_MaxBankAngle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(30.0f)), new WClampValueAttribute(WAngle::MakeFromDegree(0.0f), WAngle::MakeFromDegree(90.0f))),
+    W_BITFLAGS_MEMBER_PROPERTY("DebugFlags", WAiVoxelNavigationDebugFlags, m_DebugFlags),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI/Navigation"),
+    new WCategoryAttribute("AI/Navigation"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
+  W_END_ATTRIBUTES;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetDestinationDirect, In, "Destination"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetNavigationTarget, In, "Object"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetState),
-    EZ_SCRIPT_FUNCTION_PROPERTY(TurnTowards, In, "Direction"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTurnAngleTowards, In, "Direction"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsNavigating),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsApproachingDestination),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundSphere, In, "Center", In, "Radius", In, "MaxAttempts", Out, "Point"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetValidCellNearby, In, "Start", In, "SearchRadius", Out, "Point"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetDestinationDirect, In, "Destination"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetNavigationTarget, In, "Object"),
+    W_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
+    W_SCRIPT_FUNCTION_PROPERTY(GetState),
+    W_SCRIPT_FUNCTION_PROPERTY(TurnTowards, In, "Direction"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetTurnAngleTowards, In, "Direction"),
+    W_SCRIPT_FUNCTION_PROPERTY(IsNavigating),
+    W_SCRIPT_FUNCTION_PROPERTY(IsApproachingDestination),
+    W_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundSphere, In, "Center", In, "Radius", In, "MaxAttempts", Out, "Point"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetValidCellNearby, In, "Start", In, "SearchRadius", Out, "Point"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezAiVoxelNavigationComponent::ezAiVoxelNavigationComponent() = default;
-ezAiVoxelNavigationComponent::~ezAiVoxelNavigationComponent() = default;
+WAiVoxelNavigationComponent::WAiVoxelNavigationComponent() = default;
+WAiVoxelNavigationComponent::~WAiVoxelNavigationComponent() = default;
 
-void ezAiVoxelNavigationComponent::SetNavigationTargetReference(const char* szReference)
+void WAiVoxelNavigationComponent::SetNavigationTargetReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
@@ -73,12 +73,12 @@ void ezAiVoxelNavigationComponent::SetNavigationTargetReference(const char* szRe
   SetNavigationTarget(resolver(szReference, GetHandle(), "NavigationTarget"));
 }
 
-void ezAiVoxelNavigationComponent::SetNavigationTarget(ezGameObjectHandle hObject)
+void WAiVoxelNavigationComponent::SetNavigationTarget(WGameObjectHandle hObject)
 {
   m_hNavigationTarget = hObject;
 }
 
-void ezAiVoxelNavigationComponent::OnSimulationStarted()
+void WAiVoxelNavigationComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
@@ -88,12 +88,12 @@ void ezAiVoxelNavigationComponent::OnSimulationStarted()
   m_bPathPositionInitialized = false;
   m_fPathSpeed = 0.0f;
   m_qSteerRotation = GetOwner()->GetGlobalRotation();
-  m_vVelocity = ezVec3::MakeZero();
+  m_vVelocity = WVec3::MakeZero();
 }
 
-void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
+void WAiVoxelNavigationComponent::SetDestination(const WVec3& vGlobalPos)
 {
-  auto* pVoxelModule = GetWorld()->GetOrCreateModule<ezAiVoxelWorldModule>();
+  auto* pVoxelModule = GetWorld()->GetOrCreateModule<WAiVoxelWorldModule>();
   if (pVoxelModule == nullptr || !pVoxelModule->IsReady())
   {
     // Grid not ready yet, don't treat as failure - caller can retry
@@ -103,15 +103,15 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
   // Track the actual voxel size of the grid we're in, so the runtime thresholds derived from it
   // (arrival/repath distances in Update()) scale with the grid instead of a fixed assumption.
   {
-    ezTempHybridArray<ezAiVoxelGridComponent*, 8> grids;
-    pVoxelModule->FindGridsInBox(ezBoundingBox::MakeFromCenterAndHalfExtents(GetOwner()->GetGlobalPosition(), ezVec3(0.01f)), grids);
+    WTempHybridArray<WAiVoxelGridComponent*, 8> grids;
+    pVoxelModule->FindGridsInBox(WBoundingBox::MakeFromCenterAndHalfExtents(GetOwner()->GetGlobalPosition(), WVec3(0.01f)), grids);
     if (!grids.IsEmpty())
       m_fVoxelSize = grids[0]->GetVoxelSize();
   }
 
   if (!m_bPathPositionInitialized)
   {
-    ezVec3 vSnapped;
+    WVec3 vSnapped;
     if (GetValidCellNearby(GetOwner()->GetGlobalPosition(), 5.0f, vSnapped))
       m_vPathPosition = vSnapped;
     else
@@ -120,17 +120,17 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
     m_bPathPositionInitialized = true;
   }
 
-  const ezVec3 vCurrentPos = m_vPathPosition;
+  const WVec3 vCurrentPos = m_vPathPosition;
 
   m_vLastPathTargetPos = vGlobalPos;
 
-  const ezAiVoxelGridFinder gridFinder = [pVoxelModule](const ezBoundingBox& searchBox, ezDynamicArray<const ezVoxelGrid*>& out_grids)
+  const WAiVoxelGridFinder gridFinder = [pVoxelModule](const WBoundingBox& searchBox, WDynamicArray<const WVoxelGrid*>& out_grids)
   {
-    ezHybridArray<ezAiVoxelGridComponent*, 4> gridComponents;
+    WHybridArray<WAiVoxelGridComponent*, 4> gridComponents;
     pVoxelModule->FindGridsInBox(searchBox, gridComponents);
 
     out_grids.Clear();
-    for (const ezAiVoxelGridComponent* pGridComponent : gridComponents)
+    for (const WAiVoxelGridComponent* pGridComponent : gridComponents)
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
@@ -138,28 +138,28 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
 
   switch (result)
   {
-    case ezAiVoxelNavigation::State::PathFound:
-      m_State = ezAiVoxelNavigationComponentState::Moving;
+    case WAiVoxelNavigation::State::PathFound:
+      m_State = WAiVoxelNavigationComponentState::Moving;
       // Deliberately not resetting m_vVelocity here: rerouting an already-moving object (e.g.
       // repathing towards a moving target) should carry momentum over smoothly instead of
       // stuttering to a stop and re-accelerating on every reroute.
       break;
 
-    case ezAiVoxelNavigation::State::InvalidStartPosition:
-    case ezAiVoxelNavigation::State::InvalidTargetPosition:
+    case WAiVoxelNavigation::State::InvalidStartPosition:
+    case WAiVoxelNavigation::State::InvalidTargetPosition:
     default:
       // Failure reason is available via m_Navigation.GetState() if the caller needs to
       // distinguish InvalidStartPosition/InvalidTargetPosition/NoPathFound.
-      m_State = ezAiVoxelNavigationComponentState::Failed;
+      m_State = WAiVoxelNavigationComponentState::Failed;
       break;
   }
 }
 
-void ezAiVoxelNavigationComponent::SetDestinationDirect(const ezVec3& vGlobalPos)
+void WAiVoxelNavigationComponent::SetDestinationDirect(const WVec3& vGlobalPos)
 {
   if (!m_bPathPositionInitialized)
   {
-    ezVec3 vSnapped;
+    WVec3 vSnapped;
     if (GetValidCellNearby(GetOwner()->GetGlobalPosition(), 5.0f, vSnapped))
       m_vPathPosition = vSnapped;
     else
@@ -168,19 +168,19 @@ void ezAiVoxelNavigationComponent::SetDestinationDirect(const ezVec3& vGlobalPos
     m_bPathPositionInitialized = true;
   }
 
-  const ezVec3 vCurrentPos = m_vPathPosition;
+  const WVec3 vCurrentPos = m_vPathPosition;
 
   m_vLastPathTargetPos = vGlobalPos;
   m_Navigation.SetDirectPath(vCurrentPos, vGlobalPos);
 
   // Deliberately not resetting m_vVelocity here, same reasoning as SetDestination().
-  m_State = ezAiVoxelNavigationComponentState::Moving;
+  m_State = WAiVoxelNavigationComponentState::Moving;
 }
 
-void ezAiVoxelNavigationComponent::CancelNavigation()
+void WAiVoxelNavigationComponent::CancelNavigation()
 {
   m_Navigation.CancelNavigation();
-  m_State = ezAiVoxelNavigationComponentState::Idle;
+  m_State = WAiVoxelNavigationComponentState::Idle;
 
   // Deliberately not resetting m_vVelocity here: Update() decelerates to a stop gracefully via
   // DecelerateToStop() instead of coming to an instant halt.
@@ -189,10 +189,10 @@ void ezAiVoxelNavigationComponent::CancelNavigation()
   m_hNavigationTarget.Invalidate();
 }
 
-ezAngle ezAiVoxelNavigationComponent::TurnTowards(const ezVec3& vDirection)
+WAngle WAiVoxelNavigationComponent::TurnTowards(const WVec3& vDirection)
 {
   const float fTimeDiff = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
-  const ezAngle remaining = ezAiSteeringUtils::TurnTowards(m_qSteerRotation, vDirection, m_MaxAngularSpeed, fTimeDiff);
+  const WAngle remaining = WAiSteeringUtils::TurnTowards(m_qSteerRotation, vDirection, m_MaxAngularSpeed, fTimeDiff);
 
   if (m_bApplySteering)
   {
@@ -202,25 +202,25 @@ ezAngle ezAiVoxelNavigationComponent::TurnTowards(const ezVec3& vDirection)
   return remaining;
 }
 
-ezAngle ezAiVoxelNavigationComponent::GetTurnAngleTowards(const ezVec3& vDirection) const
+WAngle WAiVoxelNavigationComponent::GetTurnAngleTowards(const WVec3& vDirection) const
 {
-  return ezAiSteeringUtils::GetAngleTowards(m_qSteerRotation, vDirection);
+  return WAiSteeringUtils::GetAngleTowards(m_qSteerRotation, vDirection);
 }
 
-float ezAiVoxelNavigationComponent::GetRemainingDistance() const
+float WAiVoxelNavigationComponent::GetRemainingDistance() const
 {
-  if (m_State != ezAiVoxelNavigationComponentState::Moving)
+  if (m_State != WAiVoxelNavigationComponentState::Moving)
     return 0.0f;
 
   const auto& waypoints = m_Navigation.GetWaypoints();
-  const ezUInt32 uiCurrent = m_Navigation.GetCurrentWaypointIndex();
+  const WUInt32 uiCurrent = m_Navigation.GetCurrentWaypointIndex();
 
   if (uiCurrent >= waypoints.GetCount())
     return 0.0f;
 
   float fDist = (waypoints[uiCurrent] - m_vPathPosition).GetLength();
 
-  for (ezUInt32 i = uiCurrent; i + 1 < waypoints.GetCount(); ++i)
+  for (WUInt32 i = uiCurrent; i + 1 < waypoints.GetCount(); ++i)
   {
     fDist += (waypoints[i + 1] - waypoints[i]).GetLength();
   }
@@ -228,38 +228,38 @@ float ezAiVoxelNavigationComponent::GetRemainingDistance() const
   return fDist;
 }
 
-bool ezAiVoxelNavigationComponent::IsApproachingDestination() const
+bool WAiVoxelNavigationComponent::IsApproachingDestination() const
 {
-  if (m_State != ezAiVoxelNavigationComponentState::Moving)
+  if (m_State != WAiVoxelNavigationComponentState::Moving)
     return false;
 
   const float fBrakingDistance = ComputeBrakingDistance(m_fSpeed);
   return fBrakingDistance > 0.0f && GetRemainingDistance() < fBrakingDistance;
 }
 
-bool ezAiVoxelNavigationComponent::FindRandomPointAroundSphere(const ezVec3& vCenter, float fRadius, ezUInt32 uiMaxAttempts, ezVec3& out_vPoint)
+bool WAiVoxelNavigationComponent::FindRandomPointAroundSphere(const WVec3& vCenter, float fRadius, WUInt32 uiMaxAttempts, WVec3& out_vPoint)
 {
-  auto* pVoxelModule = GetWorld()->GetModule<ezAiVoxelWorldModule>();
+  auto* pVoxelModule = GetWorld()->GetModule<WAiVoxelWorldModule>();
   if (pVoxelModule == nullptr || !pVoxelModule->IsReady())
     return false;
 
-  const ezBoundingBox searchBox = ezBoundingBox::MakeFromCenterAndHalfExtents(vCenter, ezVec3(fRadius));
-  ezTempHybridArray<ezAiVoxelGridComponent*, 8> grids;
+  const WBoundingBox searchBox = WBoundingBox::MakeFromCenterAndHalfExtents(vCenter, WVec3(fRadius));
+  WTempHybridArray<WAiVoxelGridComponent*, 8> grids;
   pVoxelModule->FindGridsInBox(searchBox, grids);
 
-  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+  WRandom& rng = GetWorld()->GetRandomNumberGenerator();
 
-  for (ezUInt32 i = 0; i < uiMaxAttempts; ++i)
+  for (WUInt32 i = 0; i < uiMaxAttempts; ++i)
   {
-    const ezVec3 vCandidate = vCenter + ezVec3::MakeRandomPointInSphere(rng) * fRadius;
+    const WVec3 vCandidate = vCenter + WVec3::MakeRandomPointInSphere(rng) * fRadius;
 
     bool bBlocked = false;
 
-    for (const ezAiVoxelGridComponent* pGridComponent : grids)
+    for (const WAiVoxelGridComponent* pGridComponent : grids)
     {
-      const ezVoxelGrid& grid = pGridComponent->GetStaticVoxelGrid();
+      const WVoxelGrid& grid = pGridComponent->GetStaticVoxelGrid();
 
-      const ezVec3I32 vCoord = grid.WorldToCoord(vCandidate);
+      const WVec3I32 vCoord = grid.WorldToCoord(vCandidate);
       if (!grid.IsCoordValid(vCoord))
       {
         // outside this grid -> check the next one
@@ -283,25 +283,25 @@ bool ezAiVoxelNavigationComponent::FindRandomPointAroundSphere(const ezVec3& vCe
   return false;
 }
 
-bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, float fSearchRadius, ezVec3& out_vPoint) const
+bool WAiVoxelNavigationComponent::GetValidCellNearby(const WVec3& vStart, float fSearchRadius, WVec3& out_vPoint) const
 {
-  auto* pVoxelModule = GetWorld()->GetModule<ezAiVoxelWorldModule>();
+  auto* pVoxelModule = GetWorld()->GetModule<WAiVoxelWorldModule>();
   if (pVoxelModule == nullptr || !pVoxelModule->IsReady())
     return false;
 
-  const ezBoundingBox searchBox = ezBoundingBox::MakeFromCenterAndHalfExtents(vStart, ezVec3(fSearchRadius));
-  ezTempHybridArray<ezAiVoxelGridComponent*, 8> grids;
+  const WBoundingBox searchBox = WBoundingBox::MakeFromCenterAndHalfExtents(vStart, WVec3(fSearchRadius));
+  WTempHybridArray<WAiVoxelGridComponent*, 8> grids;
   pVoxelModule->FindGridsInBox(searchBox, grids);
 
   // Find which grid (if any) actually covers vStart - only that grid's occupancy is relevant to
   // whether vStart, and its neighborhood, are free.
-  const ezAiVoxelGridComponent* pOwningGrid = nullptr;
-  ezVec3I32 vStartCoord;
+  const WAiVoxelGridComponent* pOwningGrid = nullptr;
+  WVec3I32 vStartCoord;
 
-  for (const ezAiVoxelGridComponent* pGridComponent : grids)
+  for (const WAiVoxelGridComponent* pGridComponent : grids)
   {
-    const ezVoxelGrid& grid = pGridComponent->GetStaticVoxelGrid();
-    const ezVec3I32 vCoord = grid.WorldToCoord(vStart);
+    const WVoxelGrid& grid = pGridComponent->GetStaticVoxelGrid();
+    const WVec3I32 vCoord = grid.WorldToCoord(vStart);
 
     if (grid.IsCoordValid(vCoord))
     {
@@ -318,7 +318,7 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
     return true;
   }
 
-  const ezVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
+  const WVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
 
   if (!grid.IsVoxelSet(vStartCoord))
   {
@@ -330,25 +330,25 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
   // one found. Simple exhaustive scan rather than an expanding-shell search: fSearchRadius is
   // expected to stay small (this is meant for local recovery, not long-range searches).
   const float fVoxelSize = grid.GetVoxelSize();
-  const ezInt32 iMaxSteps = ezMath::Max(1, (ezInt32)ezMath::Ceil(fSearchRadius / fVoxelSize));
+  const WInt32 iMaxSteps = WMath::Max(1, (WInt32)WMath::Ceil(fSearchRadius / fVoxelSize));
 
   float fBestDistSqr = fSearchRadius * fSearchRadius;
   bool bFound = false;
 
-  for (ezInt32 dz = -iMaxSteps; dz <= iMaxSteps; ++dz)
+  for (WInt32 dz = -iMaxSteps; dz <= iMaxSteps; ++dz)
   {
-    for (ezInt32 dy = -iMaxSteps; dy <= iMaxSteps; ++dy)
+    for (WInt32 dy = -iMaxSteps; dy <= iMaxSteps; ++dy)
     {
-      for (ezInt32 dx = -iMaxSteps; dx <= iMaxSteps; ++dx)
+      for (WInt32 dx = -iMaxSteps; dx <= iMaxSteps; ++dx)
       {
         if (dx == 0 && dy == 0 && dz == 0)
           continue;
 
-        const ezVec3I32 vCoord = vStartCoord + ezVec3I32(dx, dy, dz);
+        const WVec3I32 vCoord = vStartCoord + WVec3I32(dx, dy, dz);
         if (!grid.IsCoordValid(vCoord) || grid.IsVoxelSet(vCoord))
           continue;
 
-        const ezVec3 vCandidate = grid.CoordToWorld(vCoord);
+        const WVec3 vCandidate = grid.CoordToWorld(vCoord);
         const float fDistSqr = (vCandidate - vStart).GetLengthSquared();
 
         if (fDistSqr < fBestDistSqr)
@@ -364,10 +364,10 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
   return bFound;
 }
 
-void ezAiVoxelNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAiVoxelNavigationComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_fSpeed;
   s << m_fAcceleration;
@@ -384,11 +384,11 @@ void ezAiVoxelNavigationComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_fCorridorCorrectionRate;
 }
 
-void ezAiVoxelNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAiVoxelNavigationComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  ezStreamReader& s = inout_stream.GetStream();
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_fSpeed;
   s >> m_fAcceleration;
@@ -405,7 +405,7 @@ void ezAiVoxelNavigationComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_fCorridorCorrectionRate;
 }
 
-void ezAiVoxelNavigationComponent::Update()
+void WAiVoxelNavigationComponent::Update()
 {
   if (m_uiSkipNextFrames > 0)
   {
@@ -418,29 +418,29 @@ void ezAiVoxelNavigationComponent::Update()
   // If a navigation target is set, keep the path aimed at its current position
   if (!m_hNavigationTarget.IsInvalidated())
   {
-    ezGameObject* pTarget = nullptr;
+    WGameObject* pTarget = nullptr;
     if (GetWorld()->TryGetObject(m_hNavigationTarget, pTarget))
     {
-      const ezVec3 vTargetPos = pTarget->GetGlobalPosition();
+      const WVec3 vTargetPos = pTarget->GetGlobalPosition();
       const float fDistToTarget = (vTargetPos - m_vPathPosition).GetLength();
 
       // Only re-navigate if we're not already at the target
-      const float fArrivalThreshold = ezMath::Max(m_fReachedDistance, m_fVoxelSize * 0.5f);
+      const float fArrivalThreshold = WMath::Max(m_fReachedDistance, m_fVoxelSize * 0.5f);
 
-      if (m_State == ezAiVoxelNavigationComponentState::Idle)
+      if (m_State == WAiVoxelNavigationComponentState::Idle)
       {
         if (fDistToTarget > fArrivalThreshold)
         {
           SetDestination(vTargetPos);
         }
       }
-      else if (m_State == ezAiVoxelNavigationComponentState::Moving)
+      else if (m_State == WAiVoxelNavigationComponentState::Moving)
       {
         // Target keeps moving while we're already following a path towards it - periodically
         // recompute the path so it doesn't go stale (e.g. prey changing direction mid-chase).
         m_fRepathCooldown -= tDiff;
 
-        const float fRepathThreshold = ezMath::Max(m_fVoxelSize * 2.0f, 1.0f);
+        const float fRepathThreshold = WMath::Max(m_fVoxelSize * 2.0f, 1.0f);
         if (m_fRepathCooldown <= 0.0f && (vTargetPos - m_vLastPathTargetPos).GetLength() > fRepathThreshold)
         {
           SetDestination(vTargetPos);
@@ -450,7 +450,7 @@ void ezAiVoxelNavigationComponent::Update()
     }
   }
 
-  if (m_State == ezAiVoxelNavigationComponentState::Moving)
+  if (m_State == WAiVoxelNavigationComponentState::Moving)
   {
     MoveAlongPath(tDiff);
   }
@@ -461,41 +461,41 @@ void ezAiVoxelNavigationComponent::Update()
 
   if (m_DebugFlags.IsAnyFlagSet())
   {
-    if (m_DebugFlags.IsSet(ezAiVoxelNavigationDebugFlags::PrintState))
+    if (m_DebugFlags.IsSet(WAiVoxelNavigationDebugFlags::PrintState))
     {
-      const ezVec3 vPosition = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1.5f);
+      const WVec3 vPosition = GetOwner()->GetGlobalPosition() + WVec3(0, 0, 1.5f);
 
       switch (m_State)
       {
-        case ezAiVoxelNavigationComponentState::Idle:
-          ezDebugRenderer::Draw3DText(GetWorld(), "Idle", vPosition, ezColor::Grey);
+        case WAiVoxelNavigationComponentState::Idle:
+          WDebugRenderer::Draw3DText(GetWorld(), "Idle", vPosition, WColor::Grey);
           break;
-        case ezAiVoxelNavigationComponentState::Moving:
-          ezDebugRenderer::Draw3DText(GetWorld(), "Moving", vPosition, ezColor::Yellow);
+        case WAiVoxelNavigationComponentState::Moving:
+          WDebugRenderer::Draw3DText(GetWorld(), "Moving", vPosition, WColor::Yellow);
           break;
-        case ezAiVoxelNavigationComponentState::Failed:
-          ezDebugRenderer::Draw3DText(GetWorld(), "Failed", vPosition, ezColor::Red);
+        case WAiVoxelNavigationComponentState::Failed:
+          WDebugRenderer::Draw3DText(GetWorld(), "Failed", vPosition, WColor::Red);
           break;
       }
     }
 
-    if (m_DebugFlags.IsSet(ezAiVoxelNavigationDebugFlags::VisPath))
+    if (m_DebugFlags.IsSet(WAiVoxelNavigationDebugFlags::VisPath))
     {
-      m_Navigation.DebugDrawPath(GetWorld(), ezColor::DeepSkyBlue);
+      m_Navigation.DebugDrawPath(GetWorld(), WColor::DeepSkyBlue);
     }
   }
 }
 
-void ezAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
+void WAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
 {
   if (m_Navigation.IsPathComplete())
   {
-    m_State = ezAiVoxelNavigationComponentState::Idle;
+    m_State = WAiVoxelNavigationComponentState::Idle;
     // Leave m_vVelocity as-is - DecelerateToStop() picks it up next frame.
     return;
   }
 
-  const ezVec3 vFinalWaypoint = m_Navigation.GetWaypoints().PeekBack();
+  const WVec3 vFinalWaypoint = m_Navigation.GetWaypoints().PeekBack();
   const float fRemainingDist = GetRemainingDistance();
   const float fBrakingDistance = ComputeBrakingDistance(m_fSpeed);
 
@@ -506,17 +506,17 @@ void ezAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
   // rather than let the path position race ahead of it - otherwise the visual position, which can
   // only move nose-first, falls far behind and either has to be yanked back into the corridor or
   // silently lags, both of which look wrong.
-  const ezVec3 vLookAheadForTurn = m_Navigation.GetLookAheadPoint(m_vPathPosition, m_fLookAheadDistance);
-  ezVec3 vDesiredDir = vLookAheadForTurn - m_vSteerPosition;
+  const WVec3 vLookAheadForTurn = m_Navigation.GetLookAheadPoint(m_vPathPosition, m_fLookAheadDistance);
+  WVec3 vDesiredDir = vLookAheadForTurn - m_vSteerPosition;
   if (vDesiredDir.IsZero(0.0001f))
   {
-    vDesiredDir = m_qSteerRotation * ezVec3::MakeAxisX();
+    vDesiredDir = m_qSteerRotation * WVec3::MakeAxisX();
   }
 
-  const ezAngle angleToTarget = ezAiSteeringUtils::GetAngleTowards(m_qSteerRotation, vDesiredDir);
+  const WAngle angleToTarget = WAiSteeringUtils::GetAngleTowards(m_qSteerRotation, vDesiredDir);
   SteerAndBank(vDesiredDir, fTimeDiff);
 
-  const float fTurnFactor = ezMath::Clamp(1.0f - (angleToTarget / ezAngle::MakeFromDegree(90.0f)), 0.05f, 1.0f);
+  const float fTurnFactor = WMath::Clamp(1.0f - (angleToTarget / WAngle::MakeFromDegree(90.0f)), 0.05f, 1.0f);
 
   // --- Ground-truth path progress: an arc-length walk along the path polyline, which is
   // guaranteed clear (A*'d through free voxels, then string-pulled) - no runtime voxel validation
@@ -526,15 +526,15 @@ void ezAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
   float fPathTargetSpeed = m_fSpeed * fTurnFactor;
   if (fBrakingDistance > 0.0f && fRemainingDist < fBrakingDistance)
   {
-    fPathTargetSpeed = ezMath::Max(fPathTargetSpeed * (fRemainingDist / fBrakingDistance), 0.5f);
+    fPathTargetSpeed = WMath::Max(fPathTargetSpeed * (fRemainingDist / fBrakingDistance), 0.5f);
   }
 
-  m_fPathSpeed = ezAiSteeringUtils::ApplyAcceleration(m_fPathSpeed, fPathTargetSpeed, m_fAcceleration, m_fDeceleration, fTimeDiff);
+  m_fPathSpeed = WAiSteeringUtils::ApplyAcceleration(m_fPathSpeed, fPathTargetSpeed, m_fAcceleration, m_fDeceleration, fTimeDiff);
   m_vPathPosition = m_Navigation.AdvanceAlongPath(m_vPathPosition, m_fPathSpeed * fTimeDiff);
 
   if ((m_vPathPosition - vFinalWaypoint).GetLength() <= m_fReachedDistance)
   {
-    m_State = ezAiVoxelNavigationComponentState::Idle;
+    m_State = WAiVoxelNavigationComponentState::Idle;
     // Fall through - still steer the visual position towards the final point this frame instead
     // of snapping/stopping abruptly.
   }
@@ -548,14 +548,14 @@ void ezAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
   float fVisualTargetSpeed = m_fSpeed * fTurnFactor;
   if (fBrakingDistance > 0.0f && fRemainingDist < fBrakingDistance)
   {
-    fVisualTargetSpeed = ezMath::Max(fVisualTargetSpeed * (fRemainingDist / fBrakingDistance), 0.5f);
+    fVisualTargetSpeed = WMath::Max(fVisualTargetSpeed * (fRemainingDist / fBrakingDistance), 0.5f);
   }
 
   // Nose-first speed integration: velocity always points in the current facing direction.
-  const float fNewSpeed = ezAiSteeringUtils::ApplyAcceleration(m_vVelocity.GetLength(), fVisualTargetSpeed, m_fAcceleration, m_fDeceleration, fTimeDiff);
-  m_vVelocity = (m_qSteerRotation * ezVec3::MakeAxisX()) * fNewSpeed;
+  const float fNewSpeed = WAiSteeringUtils::ApplyAcceleration(m_vVelocity.GetLength(), fVisualTargetSpeed, m_fAcceleration, m_fDeceleration, fTimeDiff);
+  m_vVelocity = (m_qSteerRotation * WVec3::MakeAxisX()) * fNewSpeed;
 
-  ezVec3 vNewSteerPosition = m_vSteerPosition + m_vVelocity * fTimeDiff;
+  WVec3 vNewSteerPosition = m_vSteerPosition + m_vVelocity * fTimeDiff;
   vNewSteerPosition = ApplyCorridorClamp(vNewSteerPosition, fTimeDiff);
 
   m_vSteerPosition = vNewSteerPosition;
@@ -567,14 +567,14 @@ void ezAiVoxelNavigationComponent::MoveAlongPath(float fTimeDiff)
   }
 }
 
-float ezAiVoxelNavigationComponent::ComputeBrakingDistance(float fSpeed) const
+float WAiVoxelNavigationComponent::ComputeBrakingDistance(float fSpeed) const
 {
   return (fSpeed * fSpeed) / (2.0f * m_fDeceleration);
 }
 
-ezVec3 ezAiVoxelNavigationComponent::ApplyCorridorClamp(const ezVec3& vCandidate, float fTimeDiff) const
+WVec3 WAiVoxelNavigationComponent::ApplyCorridorClamp(const WVec3& vCandidate, float fTimeDiff) const
 {
-  const ezVec3 vOffset = vCandidate - m_vPathPosition;
+  const WVec3 vOffset = vCandidate - m_vPathPosition;
   const float fOffsetDist = vOffset.GetLength();
   if (fOffsetDist <= m_fMaxPathOffset)
     return vCandidate;
@@ -583,16 +583,16 @@ ezVec3 ezAiVoxelNavigationComponent::ApplyCorridorClamp(const ezVec3& vCandidate
   // how far outside the corridor the point is - avoids a visible kink/snap when first crossing
   // MaxPathOffset, and lets the object visibly hug the outside of a tight corner rather than being
   // sucked onto the path's exact line.
-  const float fPullAlpha = 1.0f - ezMath::Exp(-m_fCorridorCorrectionRate * fTimeDiff);
-  const ezVec3 vCorridorEdge = m_vPathPosition + vOffset * (m_fMaxPathOffset / fOffsetDist);
-  return ezMath::Lerp(vCandidate, vCorridorEdge, fPullAlpha);
+  const float fPullAlpha = 1.0f - WMath::Exp(-m_fCorridorCorrectionRate * fTimeDiff);
+  const WVec3 vCorridorEdge = m_vPathPosition + vOffset * (m_fMaxPathOffset / fOffsetDist);
+  return WMath::Lerp(vCandidate, vCorridorEdge, fPullAlpha);
 }
 
-void ezAiVoxelNavigationComponent::DecelerateToStop(float fTimeDiff)
+void WAiVoxelNavigationComponent::DecelerateToStop(float fTimeDiff)
 {
   const float fCurrentSpeed = m_vVelocity.GetLength();
-  const ezVec3 vDir = m_vVelocity / fCurrentSpeed; // safe: only called when velocity is non-zero
-  const float fNewSpeed = ezAiSteeringUtils::ApplyAcceleration(fCurrentSpeed, 0.0f, m_fAcceleration, m_fDeceleration, fTimeDiff);
+  const WVec3 vDir = m_vVelocity / fCurrentSpeed; // safe: only called when velocity is non-zero
+  const float fNewSpeed = WAiSteeringUtils::ApplyAcceleration(fCurrentSpeed, 0.0f, m_fAcceleration, m_fDeceleration, fTimeDiff);
 
   m_vVelocity = vDir * fNewSpeed;
 
@@ -611,26 +611,26 @@ void ezAiVoxelNavigationComponent::DecelerateToStop(float fTimeDiff)
   }
 }
 
-void ezAiVoxelNavigationComponent::SteerAndBank(const ezVec3& vDesiredDir, float fTimeDiff)
+void WAiVoxelNavigationComponent::SteerAndBank(const WVec3& vDesiredDir, float fTimeDiff)
 {
-  const ezVec3 vOldForward = m_qSteerRotation * ezVec3::MakeAxisX();
+  const WVec3 vOldForward = m_qSteerRotation * WVec3::MakeAxisX();
 
   // Also re-levels any existing roll, even if vDesiredDir == vOldForward (no actual turn).
-  ezAiSteeringUtils::TurnTowards(m_qSteerRotation, vDesiredDir, m_MaxAngularSpeed, fTimeDiff);
+  WAiSteeringUtils::TurnTowards(m_qSteerRotation, vDesiredDir, m_MaxAngularSpeed, fTimeDiff);
   m_qSteerRotation.Normalize();
 
-  const ezVec3 vNewForward = m_qSteerRotation * ezVec3::MakeAxisX();
-  const ezAngle turnStepAngle = vOldForward.GetAngleBetween(vNewForward);
+  const WVec3 vNewForward = m_qSteerRotation * WVec3::MakeAxisX();
+  const WAngle turnStepAngle = vOldForward.GetAngleBetween(vNewForward);
 
-  ezAngle bankTarget = ezAngle::MakeFromRadian(0.0f);
-  if (turnStepAngle > ezAngle::MakeFromDegree(0.01f) && m_fBankAmount != 0.0f)
+  WAngle bankTarget = WAngle::MakeFromRadian(0.0f);
+  if (turnStepAngle > WAngle::MakeFromDegree(0.01f) && m_fBankAmount != 0.0f)
   {
     // Negative BankAmount flips which way the ship leans into a turn (some visuals read better
     // banking "outward" rather than "into" the curve) - clamp the magnitude to MaxBankAngle
     // regardless of sign, then apply the turn direction and the user-chosen bank direction together.
-    const float fTurnSign = ezMath::Sign(vOldForward.CrossRH(vNewForward).Dot(ezVec3::MakeAxisZ()));
-    const float fBankSign = ezMath::Sign(m_fBankAmount);
-    const ezAngle tiltMagnitude = ezMath::Min(turnStepAngle * ezMath::Abs(m_fBankAmount), m_MaxBankAngle);
+    const float fTurnSign = WMath::Sign(vOldForward.CrossRH(vNewForward).Dot(WVec3::MakeAxisZ()));
+    const float fBankSign = WMath::Sign(m_fBankAmount);
+    const WAngle tiltMagnitude = WMath::Min(turnStepAngle * WMath::Abs(m_fBankAmount), m_MaxBankAngle);
     bankTarget = tiltMagnitude * fTurnSign * fBankSign;
   }
 
@@ -638,13 +638,13 @@ void ezAiVoxelNavigationComponent::SteerAndBank(const ezVec3& vDesiredDir, float
   // level (0) once the turn ends. Frame-rate independent exponential smoothing (same form as the
   // corridor clamp); the rate is tuned to retain ~0.85 of the previous angle per frame at 60 Hz.
   const float fBankSmoothingRate = 10.0f;
-  const float fBankAlpha = 1.0f - ezMath::Exp(-fBankSmoothingRate * fTimeDiff);
-  m_BankAngle = ezMath::Lerp(m_BankAngle, bankTarget, fBankAlpha);
+  const float fBankAlpha = 1.0f - WMath::Exp(-fBankSmoothingRate * fTimeDiff);
+  m_BankAngle = WMath::Lerp(m_BankAngle, bankTarget, fBankAlpha);
 
   if (m_BankAngle.GetRadian() != 0.0f)
   {
-    m_qSteerRotation = m_qSteerRotation * ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), m_BankAngle);
+    m_qSteerRotation = m_qSteerRotation * WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisX(), m_BankAngle);
   }
 }
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelNavigationComponent);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelNavigationComponent);

@@ -4,10 +4,10 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 
-ezMap<ezString, ezActionMap*> ezActionMapManager::s_Mappings;
+WMap<WString, WActionMap*> WActionMapManager::s_Mappings;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ActionManager"
@@ -15,37 +15,37 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezActionMapManager::Startup();
+    WActionMapManager::Startup();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezActionMapManager::Shutdown();
+    WActionMapManager::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionMapManager public functions
+// WActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezActionMapManager::RegisterActionMap(ezStringView sActionMapName, ezStringView sParentActionMapName)
+void WActionMapManager::RegisterActionMap(WStringView sActionMapName, WStringView sParentActionMapName)
 {
   auto it = s_Mappings.Find(sActionMapName);
-  EZ_ASSERT_ALWAYS(!it.IsValid(), "Mapping '{}' already exists", sActionMapName);
-  s_Mappings.Insert(sActionMapName, EZ_DEFAULT_NEW(ezActionMap, sParentActionMapName));
+  W_ASSERT_ALWAYS(!it.IsValid(), "Mapping '{}' already exists", sActionMapName);
+  s_Mappings.Insert(sActionMapName, W_DEFAULT_NEW(WActionMap, sParentActionMapName));
 }
 
-void ezActionMapManager::UnregisterActionMap(ezStringView sActionMapName)
+void WActionMapManager::UnregisterActionMap(WStringView sActionMapName)
 {
   auto it = s_Mappings.Find(sActionMapName);
-  EZ_ASSERT_ALWAYS(it.IsValid(), "Mapping '{}' not found", sActionMapName);
-  EZ_DEFAULT_DELETE(it.Value());
+  W_ASSERT_ALWAYS(it.IsValid(), "Mapping '{}' not found", sActionMapName);
+  W_DEFAULT_DELETE(it.Value());
   s_Mappings.Remove(it);
 }
 
-ezActionMap* ezActionMapManager::GetActionMap(ezStringView sActionMapName)
+WActionMap* WActionMapManager::GetActionMap(WStringView sActionMapName)
 {
   auto it = s_Mappings.Find(sActionMapName);
   if (!it.IsValid())
@@ -56,18 +56,18 @@ ezActionMap* ezActionMapManager::GetActionMap(ezStringView sActionMapName)
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionMapManager private functions
+// WActionMapManager private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezActionMapManager::Startup()
+void WActionMapManager::Startup()
 {
-  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
-  ezDocumentActions::MapMenuActions("DocumentWindowTabMenu", "");
+  WActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
+  WDocumentActions::MapMenuActions("DocumentWindowTabMenu", "");
 }
 
-void ezActionMapManager::Shutdown()
+void WActionMapManager::Shutdown()
 {
-  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
+  WActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
 
   while (!s_Mappings.IsEmpty())
   {

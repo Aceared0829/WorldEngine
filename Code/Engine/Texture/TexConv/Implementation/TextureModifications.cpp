@@ -5,49 +5,49 @@
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-ezResult ezTexConvProcessor::ForceSRGBFormats()
+WResult WTexConvProcessor::ForceSRGBFormats()
 {
   // if the output is going to be sRGB, assume the incoming RGB data is also already in sRGB
-  if (m_Descriptor.m_Usage == ezTexConvUsage::Color)
+  if (m_Descriptor.m_Usage == WTexConvUsage::Color)
   {
     for (const auto& mapping : m_Descriptor.m_ChannelMappings)
     {
       // do not enforce sRGB conversion for textures that are mapped to the alpha channel
-      for (ezUInt32 i = 0; i < 3; ++i)
+      for (WUInt32 i = 0; i < 3; ++i)
       {
-        const ezInt32 iTex = mapping.m_Channel[i].m_iInputImageIndex;
+        const WInt32 iTex = mapping.m_Channel[i].m_iInputImageIndex;
         if (iTex != -1)
         {
           auto& img = m_Descriptor.m_InputImages[iTex];
-          img.ReinterpretAs(ezImageFormat::AsSrgb(img.GetImageFormat()));
+          img.ReinterpretAs(WImageFormat::AsSrgb(img.GetImageFormat()));
         }
       }
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
+WResult WTexConvProcessor::GenerateMipmaps(WImage& img, WUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
 {
-  EZ_PROFILE_SCOPE("GenerateMipmaps");
+  W_PROFILE_SCOPE("GenerateMipmaps");
 
-  ezImageUtils::MipMapOptions opt;
+  WImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
 
-  ezImageFilterBox filterLinear;
-  ezImageFilterSincWithKaiserWindow filterKaiser;
+  WImageFilterBox filterLinear;
+  WImageFilterSincWithKaiserWindow filterKaiser;
 
   switch (m_Descriptor.m_MipmapMode)
   {
-    case ezTexConvMipmapMode::None:
-      return EZ_SUCCESS;
+    case WTexConvMipmapMode::None:
+      return W_SUCCESS;
 
-    case ezTexConvMipmapMode::Linear:
+    case WTexConvMipmapMode::Linear:
       opt.m_filter = &filterLinear;
       break;
 
-    case ezTexConvMipmapMode::Kaiser:
+    case WTexConvMipmapMode::Kaiser:
       opt.m_filter = &filterKaiser;
       break;
   }
@@ -59,12 +59,12 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, M
   opt.m_preserveCoverage = m_Descriptor.m_bPreserveMipmapCoverage;
   opt.m_alphaThreshold = m_Descriptor.m_fMipmapAlphaThreshold;
 
-  opt.m_renormalizeNormals = m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted || m_Descriptor.m_Usage == ezTexConvUsage::BumpMap;
+  opt.m_renormalizeNormals = m_Descriptor.m_Usage == WTexConvUsage::NormalMap || m_Descriptor.m_Usage == WTexConvUsage::NormalMap_Inverted || m_Descriptor.m_Usage == WTexConvUsage::BumpMap;
 
   // Copy red to alpha channel if we only have a single channel input texture
   if (opt.m_preserveCoverage && channelMode == MipmapChannelMode::SingleChannel)
   {
-    auto imgData = img.GetBlobPtr<ezColor>();
+    auto imgData = img.GetBlobPtr<WColor>();
     auto pData = imgData.GetPtr();
     while (pData < imgData.GetEndPtr())
     {
@@ -73,20 +73,20 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, M
     }
   }
 
-  ezImage scratch;
-  ezImageUtils::GenerateMipMaps(img, scratch, opt);
+  WImage scratch;
+  WImageUtils::GenerateMipMaps(img, scratch, opt);
   img.ResetAndMove(std::move(scratch));
 
   if (img.GetNumMipLevels() <= 1)
   {
-    ezLog::Error("Mipmap generation failed.");
-    return EZ_FAILURE;
+    WLog::Error("Mipmap generation failed.");
+    return W_FAILURE;
   }
 
   // Copy alpha channel back to red
   if (opt.m_preserveCoverage && channelMode == MipmapChannelMode::SingleChannel)
   {
-    auto imgData = img.GetBlobPtr<ezColor>();
+    auto imgData = img.GetBlobPtr<WColor>();
     auto pData = imgData.GetPtr();
     while (pData < imgData.GetEndPtr())
     {
@@ -95,51 +95,51 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, M
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
+WResult WTexConvProcessor::PremultiplyAlpha(WImage& image) const
 {
-  EZ_PROFILE_SCOPE("PremultiplyAlpha");
+  W_PROFILE_SCOPE("PremultiplyAlpha");
 
   if (!m_Descriptor.m_bPremultiplyAlpha)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  for (ezColor& col : image.GetBlobPtr<ezColor>())
+  for (WColor& col : image.GetBlobPtr<WColor>())
   {
     col.r *= col.a;
     col.g *= col.a;
     col.b *= col.a;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::AdjustHdrExposure(ezImage& img) const
+WResult WTexConvProcessor::AdjustHdrExposure(WImage& img) const
 {
-  EZ_PROFILE_SCOPE("AdjustHdrExposure");
+  W_PROFILE_SCOPE("AdjustHdrExposure");
 
-  ezImageUtils::ChangeExposure(img, m_Descriptor.m_fHdrExposureBias);
-  return EZ_SUCCESS;
+  WImageUtils::ChangeExposure(img, m_Descriptor.m_fHdrExposureBias);
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertToNormalMap(ezArrayPtr<ezImage> imgs) const
+WResult WTexConvProcessor::ConvertToNormalMap(WArrayPtr<WImage> imgs) const
 {
-  EZ_PROFILE_SCOPE("ConvertToNormalMap");
+  W_PROFILE_SCOPE("ConvertToNormalMap");
 
-  for (ezImage& img : imgs)
+  for (WImage& img : imgs)
   {
-    EZ_SUCCEED_OR_RETURN(ConvertToNormalMap(img));
+    W_SUCCEED_OR_RETURN(ConvertToNormalMap(img));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
+WResult WTexConvProcessor::ConvertToNormalMap(WImage& bumpMap) const
 {
-  ezImageHeader newImageHeader = bumpMap.GetHeader();
+  WImageHeader newImageHeader = bumpMap.GetHeader();
   newImageHeader.SetNumMipLevels(1);
-  ezImage newImage;
+  WImage newImage;
   newImage.ResetAndAlloc(newImageHeader);
 
   struct Accum
@@ -147,38 +147,38 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
     float x = 0.f;
     float y = 0.f;
   };
-  ezDelegate<Accum(ezUInt32, ezUInt32)> filterKernel;
+  WDelegate<Accum(WUInt32, WUInt32)> filterKernel;
 
   // we'll assume that both the input bump map and the new image are using
   // RGBA 32 bit floating point as an internal format which should be tightly packed
-  EZ_ASSERT_DEV(bumpMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && bumpMap.GetRowPitch() % sizeof(ezColor) == 0, "");
+  W_ASSERT_DEV(bumpMap.GetImageFormat() == WImageFormat::R32G32B32A32_FLOAT && bumpMap.GetRowPitch() % sizeof(WColor) == 0, "");
 
-  const ezColor* bumpPixels = bumpMap.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float
+  const WColor* bumpPixels = bumpMap.GetPixelPointer<WColor>(0, 0, 0, 0, 0, 0);
+  const auto getBumpPixel = [&](WUInt32 x, WUInt32 y) -> float
   {
-    const ezColor* ptr = bumpPixels + y * bumpMap.GetWidth() + x;
+    const WColor* ptr = bumpPixels + y * bumpMap.GetWidth() + x;
     return ptr->r;
   };
 
-  ezColor* newPixels = newImage.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor&
+  WColor* newPixels = newImage.GetPixelPointer<WColor>(0, 0, 0, 0, 0, 0);
+  auto getNewPixel = [&](WUInt32 x, WUInt32 y) -> WColor&
   {
-    ezColor* ptr = newPixels + y * newImage.GetWidth() + x;
+    WColor* ptr = newPixels + y * newImage.GetWidth() + x;
     return *ptr;
   };
 
   switch (m_Descriptor.m_BumpMapFilter)
   {
-    case ezTexConvBumpMapFilter::Finite:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+    case WTexConvBumpMapFilter::Finite:
+      filterKernel = [&](WUInt32 x, WUInt32 y)
       {
         constexpr float linearKernel[3] = {-1, 0, 1};
 
         Accum accum;
         for (int i = -1; i <= 1; ++i)
         {
-          const ezInt32 rx = ezMath::Clamp(i + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
-          const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
+          const WInt32 rx = WMath::Clamp(i + static_cast<WInt32>(x), 0, static_cast<WInt32>(newImage.GetWidth()) - 1);
+          const WInt32 ry = WMath::Clamp(i + static_cast<WInt32>(y), 0, static_cast<WInt32>(newImage.GetHeight()) - 1);
 
           const float depthX = getBumpPixel(rx, y);
           const float depthY = getBumpPixel(x, ry);
@@ -190,19 +190,19 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
         return accum;
       };
       break;
-    case ezTexConvBumpMapFilter::Sobel:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+    case WTexConvBumpMapFilter::Sobel:
+      filterKernel = [&](WUInt32 x, WUInt32 y)
       {
         constexpr float kernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
         constexpr float weight = 1.f / 4.f;
 
         Accum accum;
-        for (ezInt32 i = -1; i <= 1; ++i)
+        for (WInt32 i = -1; i <= 1; ++i)
         {
-          for (ezInt32 j = -1; j <= 1; ++j)
+          for (WInt32 j = -1; j <= 1; ++j)
           {
-            const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
-            const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
+            const WInt32 rx = WMath::Clamp(j + static_cast<WInt32>(x), 0, static_cast<WInt32>(newImage.GetWidth()) - 1);
+            const WInt32 ry = WMath::Clamp(i + static_cast<WInt32>(y), 0, static_cast<WInt32>(newImage.GetHeight()) - 1);
 
             const float depth = getBumpPixel(rx, ry);
 
@@ -217,19 +217,19 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
         return accum;
       };
       break;
-    case ezTexConvBumpMapFilter::Scharr:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+    case WTexConvBumpMapFilter::Scharr:
+      filterKernel = [&](WUInt32 x, WUInt32 y)
       {
         constexpr float kernel[3][3] = {{-3, 0, 3}, {-10, 0, 10}, {-3, 0, 3}};
         constexpr float weight = 1.f / 16.f;
 
         Accum accum;
-        for (ezInt32 i = -1; i <= 1; ++i)
+        for (WInt32 i = -1; i <= 1; ++i)
         {
-          for (ezInt32 j = -1; j <= 1; ++j)
+          for (WInt32 j = -1; j <= 1; ++j)
           {
-            const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
-            const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
+            const WInt32 rx = WMath::Clamp(j + static_cast<WInt32>(x), 0, static_cast<WInt32>(newImage.GetWidth()) - 1);
+            const WInt32 ry = WMath::Clamp(i + static_cast<WInt32>(y), 0, static_cast<WInt32>(newImage.GetHeight()) - 1);
 
             const float depth = getBumpPixel(rx, ry);
 
@@ -246,57 +246,57 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       break;
   };
 
-  for (ezUInt32 y = 0; y < bumpMap.GetHeight(); ++y)
+  for (WUInt32 y = 0; y < bumpMap.GetHeight(); ++y)
   {
-    for (ezUInt32 x = 0; x < bumpMap.GetWidth(); ++x)
+    for (WUInt32 x = 0; x < bumpMap.GetWidth(); ++x)
     {
       Accum accum = filterKernel(x, y);
 
-      ezVec3 normal = ezVec3(1.f, 0.f, accum.x).CrossRH(ezVec3(0.f, 1.f, accum.y));
-      normal.NormalizeIfNotZero(ezVec3(0, 0, 1), 0.001f).IgnoreResult();
+      WVec3 normal = WVec3(1.f, 0.f, accum.x).CrossRH(WVec3(0.f, 1.f, accum.y));
+      normal.NormalizeIfNotZero(WVec3(0, 0, 1), 0.001f).IgnoreResult();
       normal.y = -normal.y;
 
-      normal = normal * 0.5f + ezVec3(0.5f);
+      normal = normal * 0.5f + WVec3(0.5f);
 
-      ezColor& newPixel = getNewPixel(x, y);
+      WColor& newPixel = getNewPixel(x, y);
       newPixel.SetRGBA(normal.x, normal.y, normal.z, 0.f);
     }
   }
 
   bumpMap.ResetAndMove(std::move(newImage));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const
+WResult WTexConvProcessor::ClampInputValues(WArrayPtr<WImage> images, float maxValue) const
 {
-  for (ezImage& image : images)
+  for (WImage& image : images)
   {
-    EZ_SUCCEED_OR_RETURN(ClampInputValues(image, maxValue));
+    W_SUCCEED_OR_RETURN(ClampInputValues(image, maxValue));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) const
+WResult WTexConvProcessor::ClampInputValues(WImage& image, float maxValue) const
 {
   // we'll assume that at this point in the processing pipeline, the format is
   // RGBA32F which should result in tightly packed mipmaps.
-  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && image.GetRowPitch() % sizeof(float[4]) == 0, "");
+  W_ASSERT_DEV(image.GetImageFormat() == WImageFormat::R32G32B32A32_FLOAT && image.GetRowPitch() % sizeof(float[4]) == 0, "");
 
   for (auto& value : image.GetBlobPtr<float>())
   {
-    if (ezMath::IsNaN(value))
+    if (WMath::IsNaN(value))
     {
       value = 0.f;
     }
     else
     {
-      value = ezMath::Clamp(value, -maxValue, maxValue);
+      value = WMath::Clamp(value, -maxValue, maxValue);
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 /// Alpha value above which a pixel is considered fully opaque and its color is kept as is.
@@ -305,14 +305,14 @@ static constexpr float g_fDilateOpaqueThreshold = 220.0f / 255.0f;
 /// Replaces the color of all non-opaque pixels with the average color of all opaque ones.
 ///
 /// Returns false, if either all or no pixels are opaque, in which case there is nothing to dilate.
-static bool FillAvgImageColor(ezImage& ref_img)
+static bool FillAvgImageColor(WImage& ref_img)
 {
-  auto pixels = ref_img.GetBlobPtr<ezColor>();
+  auto pixels = ref_img.GetBlobPtr<WColor>();
 
-  ezColor avg = ezColor::MakeZero();
-  ezUInt32 uiValidCount = 0;
+  WColor avg = WColor::MakeZero();
+  WUInt32 uiValidCount = 0;
 
-  for (const ezColor& col : pixels)
+  for (const WColor& col : pixels)
   {
     if (col.a >= g_fDilateOpaqueThreshold)
     {
@@ -330,7 +330,7 @@ static bool FillAvgImageColor(ezImage& ref_img)
   avg /= static_cast<float>(uiValidCount);
   avg.NormalizeToLdrRange();
 
-  for (ezColor& col : pixels)
+  for (WColor& col : pixels)
   {
     if (col.a < g_fDilateOpaqueThreshold)
     {
@@ -343,12 +343,12 @@ static bool FillAvgImageColor(ezImage& ref_img)
   return true;
 }
 
-inline static ezColor GetPixelValue(const ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ezInt32 y)
+inline static WColor GetPixelValue(const WColor* pPixels, WInt32 iWidth, WInt32 x, WInt32 y)
 {
   return pPixels[y * iWidth + x];
 }
 
-inline static void SetPixelValue(ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ezInt32 y, const ezColor& col)
+inline static void SetPixelValue(WColor* pPixels, WInt32 iWidth, WInt32 x, WInt32 y, const WColor& col)
 {
   pPixels[y * iWidth + x] = col;
 }
@@ -358,27 +358,27 @@ inline static void SetPixelValue(ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ez
 /// A pixel is valid, if its entry in validPixels is set. Pixels that receive a color this pass are
 /// recorded in out_filledIndices instead of being marked immediately, so that a color doesn't
 /// travel more than one pixel per pass. The alpha channel is never modified.
-static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, const ezDynamicArray<bool>& validPixels, ezDynamicArray<ezUInt32>& out_filledIndices)
+static void DilateColors(WColor* pPixels, WInt32 iWidth, WInt32 iHeight, const WDynamicArray<bool>& validPixels, WDynamicArray<WUInt32>& out_filledIndices)
 {
   out_filledIndices.Clear();
 
-  const ezInt32 iRadius = 1;
+  const WInt32 iRadius = 1;
 
-  for (ezInt32 y = 0; y < iHeight; ++y)
+  for (WInt32 y = 0; y < iHeight; ++y)
   {
-    for (ezInt32 x = 0; x < iWidth; ++x)
+    for (WInt32 x = 0; x < iWidth; ++x)
     {
-      const ezUInt32 uiIndex = static_cast<ezUInt32>(y * iWidth + x);
+      const WUInt32 uiIndex = static_cast<WUInt32>(y * iWidth + x);
 
       if (validPixels[uiIndex])
         continue;
 
-      ezColor avg = ezColor::MakeZero();
-      ezUInt32 uiValidCount = 0;
+      WColor avg = WColor::MakeZero();
+      WUInt32 uiValidCount = 0;
 
-      for (ezInt32 cy = ezMath::Max<ezInt32>(0, y - iRadius); cy <= ezMath::Min<ezInt32>(y + iRadius, iHeight - 1); ++cy)
+      for (WInt32 cy = WMath::Max<WInt32>(0, y - iRadius); cy <= WMath::Min<WInt32>(y + iRadius, iHeight - 1); ++cy)
       {
-        for (ezInt32 cx = ezMath::Max<ezInt32>(0, x - iRadius); cx <= ezMath::Min<ezInt32>(x + iRadius, iWidth - 1); ++cx)
+        for (WInt32 cx = WMath::Max<WInt32>(0, x - iRadius); cx <= WMath::Min<WInt32>(x + iRadius, iWidth - 1); ++cx)
         {
           if (!validPixels[cy * iWidth + cx])
             continue;
@@ -400,58 +400,58 @@ static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, cons
   }
 }
 
-ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
+WResult WTexConvProcessor::DilateColor2D(WImage& img) const
 {
   if (m_Descriptor.m_uiDilateColor == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  EZ_PROFILE_SCOPE("DilateColor2D");
+  W_PROFILE_SCOPE("DilateColor2D");
 
   if (!FillAvgImageColor(img))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  const ezUInt32 uiNumPasses = m_Descriptor.m_uiDilateColor;
+  const WUInt32 uiNumPasses = m_Descriptor.m_uiDilateColor;
 
-  ezColor* pPixels = img.GetPixelPointer<ezColor>();
-  const ezInt32 iWidth = static_cast<ezInt32>(img.GetWidth());
-  const ezInt32 iHeight = static_cast<ezInt32>(img.GetHeight());
+  WColor* pPixels = img.GetPixelPointer<WColor>();
+  const WInt32 iWidth = static_cast<WInt32>(img.GetWidth());
+  const WInt32 iHeight = static_cast<WInt32>(img.GetHeight());
 
-  ezDynamicArray<bool> validPixels;
-  validPixels.SetCount(static_cast<ezUInt32>(img.GetBlobPtr<ezColor>().GetCount()));
+  WDynamicArray<bool> validPixels;
+  validPixels.SetCount(static_cast<WUInt32>(img.GetBlobPtr<WColor>().GetCount()));
 
-  for (ezUInt32 i = 0; i < validPixels.GetCount(); ++i)
+  for (WUInt32 i = 0; i < validPixels.GetCount(); ++i)
   {
     validPixels[i] = pPixels[i].a >= g_fDilateOpaqueThreshold;
   }
 
-  ezDynamicArray<ezUInt32> filledIndices;
+  WDynamicArray<WUInt32> filledIndices;
 
-  for (ezUInt32 pass = 0; pass < uiNumPasses; ++pass)
+  for (WUInt32 pass = 0; pass < uiNumPasses; ++pass)
   {
     DilateColors(pPixels, iWidth, iHeight, validPixels, filledIndices);
 
-    for (ezUInt32 uiIndex : filledIndices)
+    for (WUInt32 uiIndex : filledIndices)
     {
       validPixels[uiIndex] = true;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::InvertNormalMap(ezImage& image)
+WResult WTexConvProcessor::InvertNormalMap(WImage& image)
 {
-  if (m_Descriptor.m_Usage != ezTexConvUsage::NormalMap_Inverted)
-    return EZ_SUCCESS;
+  if (m_Descriptor.m_Usage != WTexConvUsage::NormalMap_Inverted)
+    return W_SUCCESS;
 
   // we'll assume that at this point in the processing pipeline, the format is
   // RGBA32F which should result in tightly packed mipmaps.
-  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && image.GetRowPitch() % sizeof(float[4]) == 0, "");
+  W_ASSERT_DEV(image.GetImageFormat() == WImageFormat::R32G32B32A32_FLOAT && image.GetRowPitch() % sizeof(float[4]) == 0, "");
 
-  for (auto& value : image.GetBlobPtr<ezColor>())
+  for (auto& value : image.GetBlobPtr<WColor>())
   {
     value.g = 1.0f - value.g;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

@@ -4,18 +4,18 @@
 
 // Shared code for shaders that render the custom mouse cursor.
 //
-// The cursor is a single quad that is placed directly in clip space from ezMouseCursorConstants.
+// The cursor is a single quad that is placed directly in clip space from WMouseCursorConstants.
 // The quad is generated from SV_VertexID, so no vertex or index buffer is needed
-// (the renderer calls ezRenderContext::BindNullMeshBuffer(Triangles, 2)).
+// (the renderer calls WRenderContext::BindNullMeshBuffer(Triangles, 2)).
 
-struct ezMouseCursorVSOutput
+struct WMouseCursorVSOutput
 {
   float4 Position : SV_Position;
   float2 TexCoord0 : TEXCOORD0;
 };
 
 /// Computes the cursor quad's clip space position and UV for one vertex.
-ezMouseCursorVSOutput ezMouseCursorVertex(uint VertexID)
+WMouseCursorVSOutput WMouseCursorVertex(uint VertexID)
 {
   const float2 corners[6] =
     {
@@ -44,7 +44,7 @@ ezMouseCursorVSOutput ezMouseCursorVertex(uint VertexID)
   float2 ndcPos = pixelPos * CursorTargetSize.zw * 2.0 - 1.0;
   ndcPos.y = -ndcPos.y;
 
-  ezMouseCursorVSOutput Output;
+  WMouseCursorVSOutput Output;
   Output.Position = float4(ndcPos, 0.0, 1.0);
   Output.TexCoord0 = lerp(CursorUvRect.xy, CursorUvRect.zw, corner);
 

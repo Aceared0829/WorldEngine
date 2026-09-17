@@ -4,45 +4,45 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_CREATE_SIMPLE_TEST(Math, Frustum)
+W_CREATE_SIMPLE_TEST(Math, Frustum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromPlanes")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeFromPlanes")
   {
-    ezFrustum f;
+    WFrustum f;
 
-    ezPlane p[6];
-    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
-    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
-    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
-    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
-    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
-    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
+    WPlane p[6];
+    p[WFrustum::PlaneType::LeftPlane] = WPlane::MakeFromNormalAndPoint(WVec3(-1, 0, 0), WVec3(-2, 0, 0));
+    p[WFrustum::PlaneType::RightPlane] = WPlane::MakeFromNormalAndPoint(WVec3(+1, 0, 0), WVec3(+2, 0, 0));
+    p[WFrustum::PlaneType::BottomPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, -1, 0), WVec3(0, -2, 0));
+    p[WFrustum::PlaneType::TopPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, +1, 0), WVec3(0, +2, 0));
+    p[WFrustum::PlaneType::NearPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, -1), WVec3(0, 0, 0));
+    p[WFrustum::PlaneType::FarPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, 1), WVec3(0, 0, 100));
 
-    f = ezFrustum::MakeFromPlanes(p);
+    f = WFrustum::MakeFromPlanes(p);
 
-    EZ_TEST_BOOL(f.GetPlane(0) == p[0]);
-    EZ_TEST_BOOL(f.GetPlane(1) == p[1]);
+    W_TEST_BOOL(f.GetPlane(0) == p[0]);
+    W_TEST_BOOL(f.GetPlane(1) == p[1]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFrustum/GetTransformedFrustum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "TransformFrustum/GetTransformedFrustum")
   {
-    ezFrustum f;
+    WFrustum f;
 
-    ezPlane p[6];
-    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
-    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
-    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
-    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
-    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
-    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
+    WPlane p[6];
+    p[WFrustum::PlaneType::LeftPlane] = WPlane::MakeFromNormalAndPoint(WVec3(-1, 0, 0), WVec3(-2, 0, 0));
+    p[WFrustum::PlaneType::RightPlane] = WPlane::MakeFromNormalAndPoint(WVec3(+1, 0, 0), WVec3(+2, 0, 0));
+    p[WFrustum::PlaneType::BottomPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, -1, 0), WVec3(0, -2, 0));
+    p[WFrustum::PlaneType::TopPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, +1, 0), WVec3(0, +2, 0));
+    p[WFrustum::PlaneType::NearPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, -1), WVec3(0, 0, 0));
+    p[WFrustum::PlaneType::FarPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, 1), WVec3(0, 0, 100));
 
-    f = ezFrustum::MakeFromPlanes(p);
+    f = WFrustum::MakeFromPlanes(p);
 
-    ezMat4 mTransform;
-    mTransform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90.0f));
-    mTransform.SetTranslationVector(ezVec3(2, 3, 4));
+    WMat4 mTransform;
+    mTransform = WMat4::MakeRotationY(WAngle::MakeFromDegree(90.0f));
+    mTransform.SetTranslationVector(WVec3(2, 3, 4));
 
-    ezFrustum tf = f;
+    WFrustum tf = f;
     tf.TransformFrustum(mTransform);
 
     p[0].Transform(mTransform);
@@ -50,306 +50,306 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
     for (int planeIndex = 0; planeIndex < 6; ++planeIndex)
     {
-      EZ_TEST_BOOL(f.GetTransformedFrustum(mTransform).GetPlane(planeIndex) == tf.GetPlane(planeIndex));
+      W_TEST_BOOL(f.GetTransformedFrustum(mTransform).GetPlane(planeIndex) == tf.GetPlane(planeIndex));
     }
 
-    EZ_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], ezMath::LargeEpsilon<float>()));
-    EZ_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], ezMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], WMath::LargeEpsilon<float>()));
+    W_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], WMath::LargeEpsilon<float>()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "InvertFrustum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "InvertFrustum")
   {
-    ezFrustum f;
+    WFrustum f;
 
-    ezPlane p[6];
-    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
-    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
-    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
-    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
-    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
-    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
+    WPlane p[6];
+    p[WFrustum::PlaneType::LeftPlane] = WPlane::MakeFromNormalAndPoint(WVec3(-1, 0, 0), WVec3(-2, 0, 0));
+    p[WFrustum::PlaneType::RightPlane] = WPlane::MakeFromNormalAndPoint(WVec3(+1, 0, 0), WVec3(+2, 0, 0));
+    p[WFrustum::PlaneType::BottomPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, -1, 0), WVec3(0, -2, 0));
+    p[WFrustum::PlaneType::TopPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, +1, 0), WVec3(0, +2, 0));
+    p[WFrustum::PlaneType::NearPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, -1), WVec3(0, 0, 0));
+    p[WFrustum::PlaneType::FarPlane] = WPlane::MakeFromNormalAndPoint(WVec3(0, 0, 1), WVec3(0, 0, 100));
 
-    f = ezFrustum::MakeFromPlanes(p);
+    f = WFrustum::MakeFromPlanes(p);
 
     f.InvertFrustum();
 
     p[0].Flip();
     p[1].Flip();
 
-    EZ_TEST_BOOL(f.GetPlane(0) == p[0]);
-    EZ_TEST_BOOL(f.GetPlane(1) == p[1]);
+    W_TEST_BOOL(f.GetPlane(0) == p[0]);
+    W_TEST_BOOL(f.GetPlane(1) == p[1]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFrustum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SetFrustum")
   {
     // check that the extracted frustum planes are always the same, no matter the handedness or depth-range
 
     // test the different depth ranges
     for (int r = 0; r < 2; ++r)
     {
-      const ezClipSpaceDepthRange::Enum range = (r == 0) ? ezClipSpaceDepthRange::MinusOneToOne : ezClipSpaceDepthRange::ZeroToOne;
+      const WClipSpaceDepthRange::Enum range = (r == 0) ? WClipSpaceDepthRange::MinusOneToOne : WClipSpaceDepthRange::ZeroToOne;
 
       // test rotated model-view matrices
       for (int rot = 0; rot < 360; rot += 45)
       {
-        ezVec3 vLookDir;
-        vLookDir.Set(ezMath::Sin(ezAngle::MakeFromDegree((float)rot)), 0, -ezMath::Cos(ezAngle::MakeFromDegree((float)rot)));
+        WVec3 vLookDir;
+        vLookDir.Set(WMath::Sin(WAngle::MakeFromDegree((float)rot)), 0, -WMath::Cos(WAngle::MakeFromDegree((float)rot)));
 
-        ezVec3 vRightDir;
-        vRightDir.Set(ezMath::Sin(ezAngle::MakeFromDegree(rot + 90.0f)), 0, -ezMath::Cos(ezAngle::MakeFromDegree(rot + 90.0f)));
+        WVec3 vRightDir;
+        vRightDir.Set(WMath::Sin(WAngle::MakeFromDegree(rot + 90.0f)), 0, -WMath::Cos(WAngle::MakeFromDegree(rot + 90.0f)));
 
-        const ezVec3 vCamPos(rot * 1.0f, rot * 0.5f, rot * -0.3f);
+        const WVec3 vCamPos(rot * 1.0f, rot * 0.5f, rot * -0.3f);
 
-        // const ezMat4 mViewLH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, -vRightDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
-        // const ezMat4 mViewRH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, vRightDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
-        const ezMat4 mViewLH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
-        const ezMat4 mViewRH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
+        // const WMat4 mViewLH = WGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, -vRightDir, WVec3(0, 1, 0), WHandedness::LeftHanded);
+        // const WMat4 mViewRH = WGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, vRightDir, WVec3(0, 1, 0), WHandedness::RightHanded);
+        const WMat4 mViewLH = WGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, WVec3(0, 1, 0), WHandedness::LeftHanded);
+        const WMat4 mViewRH = WGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, WVec3(0, 1, 0), WHandedness::RightHanded);
 
-        const ezMat4 mProjLH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
-        const ezMat4 mProjRH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+        const WMat4 mProjLH = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          WAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, WClipSpaceYMode::Regular, WHandedness::LeftHanded);
+        const WMat4 mProjRH = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          WAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, WClipSpaceYMode::Regular, WHandedness::RightHanded);
 
-        const ezMat4 mViewProjLH = mProjLH * mViewLH;
-        const ezMat4 mViewProjRH = mProjRH * mViewRH;
+        const WMat4 mViewProjLH = mProjLH * mViewLH;
+        const WMat4 mViewProjRH = mProjRH * mViewRH;
 
-        ezFrustum fB;
-        const ezFrustum fLH = ezFrustum::MakeFromMVP(mViewProjLH, range, ezHandedness::LeftHanded);
-        const ezFrustum fRH = ezFrustum::MakeFromMVP(mViewProjRH, range, ezHandedness::RightHanded);
+        WFrustum fB;
+        const WFrustum fLH = WFrustum::MakeFromMVP(mViewProjLH, range, WHandedness::LeftHanded);
+        const WFrustum fRH = WFrustum::MakeFromMVP(mViewProjRH, range, WHandedness::RightHanded);
 
-        fB = ezFrustum::MakeFromFOV(vCamPos, vLookDir, ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
+        fB = WFrustum::MakeFromFOV(vCamPos, vLookDir, WVec3(0, 1, 0), WAngle::MakeFromDegree(90), WAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::NearPlane).IsEqual(fB.GetPlane(ezFrustum::NearPlane), 0.1f));
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::LeftPlane).IsEqual(fB.GetPlane(ezFrustum::LeftPlane), 0.1f));
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::RightPlane).IsEqual(fB.GetPlane(ezFrustum::RightPlane), 0.1f));
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::FarPlane).IsEqual(fB.GetPlane(ezFrustum::FarPlane), 0.1f));
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::BottomPlane).IsEqual(fB.GetPlane(ezFrustum::BottomPlane), 0.1f));
-        EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::TopPlane).IsEqual(fB.GetPlane(ezFrustum::TopPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::NearPlane).IsEqual(fB.GetPlane(WFrustum::NearPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::LeftPlane).IsEqual(fB.GetPlane(WFrustum::LeftPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::RightPlane).IsEqual(fB.GetPlane(WFrustum::RightPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::FarPlane).IsEqual(fB.GetPlane(WFrustum::FarPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::BottomPlane).IsEqual(fB.GetPlane(WFrustum::BottomPlane), 0.1f));
+        W_TEST_BOOL(fRH.GetPlane(WFrustum::TopPlane).IsEqual(fB.GetPlane(WFrustum::TopPlane), 0.1f));
 
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::NearPlane).IsEqual(fB.GetPlane(ezFrustum::NearPlane), 0.1f));
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::LeftPlane).IsEqual(fB.GetPlane(ezFrustum::LeftPlane), 0.1f));
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::RightPlane).IsEqual(fB.GetPlane(ezFrustum::RightPlane), 0.1f));
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::FarPlane).IsEqual(fB.GetPlane(ezFrustum::FarPlane), 0.1f));
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::BottomPlane).IsEqual(fB.GetPlane(ezFrustum::BottomPlane), 0.1f));
-        EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::TopPlane).IsEqual(fB.GetPlane(ezFrustum::TopPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::NearPlane).IsEqual(fB.GetPlane(WFrustum::NearPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::LeftPlane).IsEqual(fB.GetPlane(WFrustum::LeftPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::RightPlane).IsEqual(fB.GetPlane(WFrustum::RightPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::FarPlane).IsEqual(fB.GetPlane(WFrustum::FarPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::BottomPlane).IsEqual(fB.GetPlane(WFrustum::BottomPlane), 0.1f));
+        W_TEST_BOOL(fLH.GetPlane(WFrustum::TopPlane).IsEqual(fB.GetPlane(WFrustum::TopPlane), 0.1f));
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Culling")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Culling")
   {
-    const ezVec3 offsetPos(23, 17, -9);
-    const ezVec3 camDir[6] = {ezVec3(-1, 0, 0), ezVec3(1, 0, 0), ezVec3(0, -1, 0), ezVec3(0, 1, 0), ezVec3(0, 0, -1), ezVec3(0, 0, 1)};
-    const ezVec3 objPos[6] = {ezVec3(-9, 0, 0), ezVec3(9, 0, 0), ezVec3(0, -9, 0), ezVec3(0, 9, 0), ezVec3(0, 0, -9), ezVec3(0, 0, 9)};
+    const WVec3 offsetPos(23, 17, -9);
+    const WVec3 camDir[6] = {WVec3(-1, 0, 0), WVec3(1, 0, 0), WVec3(0, -1, 0), WVec3(0, 1, 0), WVec3(0, 0, -1), WVec3(0, 0, 1)};
+    const WVec3 objPos[6] = {WVec3(-9, 0, 0), WVec3(9, 0, 0), WVec3(0, -9, 0), WVec3(0, 9, 0), WVec3(0, 0, -9), WVec3(0, 0, 9)};
 
-    for (ezUInt32 dir = 0; dir < 6; ++dir)
+    for (WUInt32 dir = 0; dir < 6; ++dir)
     {
-      ezFrustum fDir;
-      fDir = ezFrustum::MakeFromFOV(offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
+      WFrustum fDir;
+      fDir = WFrustum::MakeFromFOV(offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, WAngle::MakeFromDegree(90), WAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
-      for (ezUInt32 obj = 0; obj < 6; ++obj)
+      for (WUInt32 obj = 0; obj < 6; ++obj)
       {
         // box
         {
-          ezBoundingBox boundingObj;
-          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          WBoundingBox boundingObj;
+          boundingObj = WBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], WVec3(1.0f));
 
-          const ezVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
+          const WVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == ezVolumePosition::Inside);
+            W_TEST_BOOL(res == WVolumePosition::Inside);
           else
-            EZ_TEST_BOOL(res == ezVolumePosition::Outside);
+            W_TEST_BOOL(res == WVolumePosition::Outside);
         }
 
         // sphere
         {
-          ezBoundingSphere boundingObj = ezBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
+          WBoundingSphere boundingObj = WBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
 
-          const ezVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
+          const WVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == ezVolumePosition::Inside);
+            W_TEST_BOOL(res == WVolumePosition::Inside);
           else
-            EZ_TEST_BOOL(res == ezVolumePosition::Outside);
+            W_TEST_BOOL(res == WVolumePosition::Outside);
         }
 
         // vertices
         {
-          ezBoundingBox boundingObj;
-          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          WBoundingBox boundingObj;
+          boundingObj = WBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], WVec3(1.0f));
 
-          ezVec3 vertices[8];
+          WVec3 vertices[8];
           boundingObj.GetCorners(vertices);
 
-          const ezVolumePosition::Enum res = fDir.GetObjectPosition(vertices, 8);
+          const WVolumePosition::Enum res = fDir.GetObjectPosition(vertices, 8);
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == ezVolumePosition::Inside);
+            W_TEST_BOOL(res == WVolumePosition::Inside);
           else
-            EZ_TEST_BOOL(res == ezVolumePosition::Outside);
+            W_TEST_BOOL(res == WVolumePosition::Outside);
         }
 
         // vertices + transform
         {
-          ezBoundingBox boundingObj;
-          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(objPos[obj], ezVec3(1.0f));
+          WBoundingBox boundingObj;
+          boundingObj = WBoundingBox::MakeFromCenterAndHalfExtents(objPos[obj], WVec3(1.0f));
 
-          ezVec3 vertices[8];
+          WVec3 vertices[8];
           boundingObj.GetCorners(vertices);
 
-          ezMat4 transform = ezMat4::MakeTranslation(offsetPos);
+          WMat4 transform = WMat4::MakeTranslation(offsetPos);
 
-          const ezVolumePosition::Enum res = fDir.GetObjectPosition(vertices, 8, transform);
+          const WVolumePosition::Enum res = fDir.GetObjectPosition(vertices, 8, transform);
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == ezVolumePosition::Inside);
+            W_TEST_BOOL(res == WVolumePosition::Inside);
           else
-            EZ_TEST_BOOL(res == ezVolumePosition::Outside);
+            W_TEST_BOOL(res == WVolumePosition::Outside);
         }
 
         // SIMD box
         {
-          ezBoundingBox boundingObj;
-          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          WBoundingBox boundingObj;
+          boundingObj = WBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], WVec3(1.0f));
 
-          const bool res = fDir.Overlaps(ezSimdConversion::ToBBox(boundingObj));
+          const bool res = fDir.Overlaps(WSimdConversion::ToBBox(boundingObj));
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == true);
+            W_TEST_BOOL(res == true);
           else
-            EZ_TEST_BOOL(res == false);
+            W_TEST_BOOL(res == false);
         }
 
         // SIMD sphere
         {
-          ezBoundingSphere boundingObj = ezBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
+          WBoundingSphere boundingObj = WBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
 
-          const bool res = fDir.Overlaps(ezSimdConversion::ToBSphere(boundingObj));
+          const bool res = fDir.Overlaps(WSimdConversion::ToBSphere(boundingObj));
 
           if (obj == dir)
-            EZ_TEST_BOOL(res == true);
+            W_TEST_BOOL(res == true);
           else
-            EZ_TEST_BOOL(res == false);
+            W_TEST_BOOL(res == false);
         }
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeCornerPoints")
+  W_TEST_BLOCK(WTestBlock::Enabled, "ComputeCornerPoints")
   {
-    const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-      ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 10.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+    const WMat4 mProj = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+      WAngle::MakeFromDegree(90), 1.0f, 1.0f, 10.0f, WClipSpaceDepthRange::MinusOneToOne, WClipSpaceYMode::Regular, WHandedness::RightHanded);
 
-    ezFrustum frustum[2];
-    frustum[0] = ezFrustum::MakeFromMVP(mProj, ezClipSpaceDepthRange::MinusOneToOne, ezHandedness::RightHanded);
-    frustum[1] = ezFrustum::MakeFromFOV(ezVec3::MakeZero(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
+    WFrustum frustum[2];
+    frustum[0] = WFrustum::MakeFromMVP(mProj, WClipSpaceDepthRange::MinusOneToOne, WHandedness::RightHanded);
+    frustum[1] = WFrustum::MakeFromFOV(WVec3::MakeZero(), WVec3(0, 0, -1), WVec3(0, 1, 0), WAngle::MakeFromDegree(90), WAngle::MakeFromDegree(90), 1.0f, 10.0f);
 
     for (int f = 0; f < 2; ++f)
     {
-      ezVec3 corner[8];
+      WVec3 corner[8];
       frustum[f].ComputeCornerPoints(corner).AssertSuccess();
 
-      ezPositionOnPlane::Enum results[8][6];
+      WPositionOnPlane::Enum results[8][6];
 
       for (int c = 0; c < 8; ++c)
       {
         for (int p = 0; p < 6; ++p)
         {
-          results[c][p] = ezPositionOnPlane::Back;
+          results[c][p] = WPositionOnPlane::Back;
         }
       }
 
-      results[ezFrustum::FrustumCorner::NearTopLeft][ezFrustum::PlaneType::NearPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearTopLeft][ezFrustum::PlaneType::TopPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearTopLeft][ezFrustum::PlaneType::LeftPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopLeft][WFrustum::PlaneType::NearPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopLeft][WFrustum::PlaneType::TopPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopLeft][WFrustum::PlaneType::LeftPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::NearTopRight][ezFrustum::PlaneType::NearPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearTopRight][ezFrustum::PlaneType::TopPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearTopRight][ezFrustum::PlaneType::RightPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopRight][WFrustum::PlaneType::NearPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopRight][WFrustum::PlaneType::TopPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearTopRight][WFrustum::PlaneType::RightPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::NearBottomLeft][ezFrustum::PlaneType::NearPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearBottomLeft][ezFrustum::PlaneType::BottomPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearBottomLeft][ezFrustum::PlaneType::LeftPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomLeft][WFrustum::PlaneType::NearPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomLeft][WFrustum::PlaneType::BottomPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomLeft][WFrustum::PlaneType::LeftPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::NearBottomRight][ezFrustum::PlaneType::NearPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearBottomRight][ezFrustum::PlaneType::BottomPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::NearBottomRight][ezFrustum::PlaneType::RightPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomRight][WFrustum::PlaneType::NearPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomRight][WFrustum::PlaneType::BottomPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::NearBottomRight][WFrustum::PlaneType::RightPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::FarTopLeft][ezFrustum::PlaneType::FarPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarTopLeft][ezFrustum::PlaneType::TopPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarTopLeft][ezFrustum::PlaneType::LeftPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopLeft][WFrustum::PlaneType::FarPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopLeft][WFrustum::PlaneType::TopPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopLeft][WFrustum::PlaneType::LeftPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::FarTopRight][ezFrustum::PlaneType::FarPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarTopRight][ezFrustum::PlaneType::TopPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarTopRight][ezFrustum::PlaneType::RightPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopRight][WFrustum::PlaneType::FarPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopRight][WFrustum::PlaneType::TopPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarTopRight][WFrustum::PlaneType::RightPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::FarBottomLeft][ezFrustum::PlaneType::FarPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarBottomLeft][ezFrustum::PlaneType::BottomPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarBottomLeft][ezFrustum::PlaneType::LeftPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomLeft][WFrustum::PlaneType::FarPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomLeft][WFrustum::PlaneType::BottomPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomLeft][WFrustum::PlaneType::LeftPlane] = WPositionOnPlane::OnPlane;
 
-      results[ezFrustum::FrustumCorner::FarBottomRight][ezFrustum::PlaneType::FarPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarBottomRight][ezFrustum::PlaneType::BottomPlane] = ezPositionOnPlane::OnPlane;
-      results[ezFrustum::FrustumCorner::FarBottomRight][ezFrustum::PlaneType::RightPlane] = ezPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomRight][WFrustum::PlaneType::FarPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomRight][WFrustum::PlaneType::BottomPlane] = WPositionOnPlane::OnPlane;
+      results[WFrustum::FrustumCorner::FarBottomRight][WFrustum::PlaneType::RightPlane] = WPositionOnPlane::OnPlane;
 
       for (int c = 0; c < 8; ++c)
       {
-        ezFrustum::FrustumCorner cornerName = (ezFrustum::FrustumCorner)c;
+        WFrustum::FrustumCorner cornerName = (WFrustum::FrustumCorner)c;
 
         for (int p = 0; p < 6; ++p)
         {
-          ezFrustum::PlaneType planeName = (ezFrustum::PlaneType)p;
+          WFrustum::PlaneType planeName = (WFrustum::PlaneType)p;
 
-          ezPlane plane = frustum[f].GetPlane(planeName);
-          ezPositionOnPlane::Enum expected = results[cornerName][planeName];
-          ezPositionOnPlane::Enum result = plane.GetPointPosition(corner[cornerName], 0.1f);
+          WPlane plane = frustum[f].GetPlane(planeName);
+          WPositionOnPlane::Enum expected = results[cornerName][planeName];
+          WPositionOnPlane::Enum result = plane.GetPointPosition(corner[cornerName], 0.1f);
           // float fDistToPlane = plane.GetDistanceTo(corner[cornerName]);
-          EZ_TEST_BOOL(result == expected);
+          W_TEST_BOOL(result == expected);
         }
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCorners")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeFromCorners")
   {
-    const ezFrustum fOrg = ezFrustum::MakeFromFOV(ezVec3(1, 2, 3), ezVec3(1, 1, 0).GetNormalized(), ezVec3(0, 0, 1).GetNormalized(), ezAngle::MakeFromDegree(110), ezAngle::MakeFromDegree(70), 0.1f, 100.0f);
+    const WFrustum fOrg = WFrustum::MakeFromFOV(WVec3(1, 2, 3), WVec3(1, 1, 0).GetNormalized(), WVec3(0, 0, 1).GetNormalized(), WAngle::MakeFromDegree(110), WAngle::MakeFromDegree(70), 0.1f, 100.0f);
 
-    ezVec3 corners[8];
+    WVec3 corners[8];
     fOrg.ComputeCornerPoints(corners).AssertSuccess();
 
-    const ezFrustum fNew = ezFrustum::MakeFromCorners(corners);
+    const WFrustum fNew = WFrustum::MakeFromCorners(corners);
 
-    for (ezUInt32 i = 0; i < 6; ++i)
+    for (WUInt32 i = 0; i < 6; ++i)
     {
-      ezPlane p1 = fOrg.GetPlane(i);
-      ezPlane p2 = fNew.GetPlane(i);
+      WPlane p1 = fOrg.GetPlane(i);
+      WPlane p2 = fNew.GetPlane(i);
 
-      EZ_TEST_BOOL(p1.IsEqual(p2, ezMath::LargeEpsilon<float>()));
+      W_TEST_BOOL(p1.IsEqual(p2, WMath::LargeEpsilon<float>()));
     }
 
-    ezVec3 corners2[8];
+    WVec3 corners2[8];
     fNew.ComputeCornerPoints(corners2).AssertSuccess();
 
     // On ARM64, MakeFromCorners uses cross products on nearly-parallel edge vectors (~171 units long, differing by ~0.2),
     // causing catastrophic cancellation that amplifies small input differences into larger plane normal errors.
     // The reconstructed far-plane corners end up with ~0.005 error vs ~0.001 on x86.
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
-    const float fCornerEpsilon = ezMath::VeryHugeEpsilon<float>();
+#if W_ENABLED(W_PLATFORM_ARCH_ARM)
+    const float fCornerEpsilon = WMath::VeryHugeEpsilon<float>();
 #else
-    const float fCornerEpsilon = ezMath::HugeEpsilon<float>();
+    const float fCornerEpsilon = WMath::HugeEpsilon<float>();
 #endif
 
-    for (ezUInt32 i = 0; i < 8; ++i)
+    for (WUInt32 i = 0; i < 8; ++i)
     {
-      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], fCornerEpsilon));
+      W_TEST_BOOL(corners[i].IsEqual(corners2[i], fCornerEpsilon));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMVPInfiniteFarPlane")
+  W_TEST_BLOCK(WTestBlock::Enabled, "MakeFromMVPInfiniteFarPlane")
   {
-    ezMat4 perspective = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(90), 1.0f, ezMath::Infinity<float>(), 100.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+    WMat4 perspective = WGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(WAngle::MakeFromDegree(90), 1.0f, WMath::Infinity<float>(), 100.0f, WClipSpaceDepthRange::ZeroToOne, WClipSpaceYMode::Regular, WHandedness::RightHanded);
 
-    auto frustum = ezFrustum::MakeFromMVP(perspective);
-    EZ_TEST_BOOL(frustum.IsValid());
+    auto frustum = WFrustum::MakeFromMVP(perspective);
+    W_TEST_BOOL(frustum.IsValid());
   }
 }

@@ -5,128 +5,128 @@
 #include <Texture/TexConv/TexConvProcessor.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvCompressionMode, 1)
-  EZ_ENUM_CONSTANTS(ezTexConvCompressionMode::None, ezTexConvCompressionMode::Medium, ezTexConvCompressionMode::High)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTexConvCompressionMode, 1)
+  W_ENUM_CONSTANTS(WTexConvCompressionMode::None, WTexConvCompressionMode::Medium, WTexConvCompressionMode::High)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvMipmapMode, 1)
-  EZ_ENUM_CONSTANTS(ezTexConvMipmapMode::None, ezTexConvMipmapMode::Linear, ezTexConvMipmapMode::Kaiser)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTexConvMipmapMode, 1)
+  W_ENUM_CONSTANTS(WTexConvMipmapMode::None, WTexConvMipmapMode::Linear, WTexConvMipmapMode::Kaiser)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Auto), EZ_ENUM_CONSTANT(ezTexConvUsage::Color), EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap),
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTexConvUsage, 1)
+  W_ENUM_CONSTANT(WTexConvUsage::Auto), W_ENUM_CONSTANT(WTexConvUsage::Color), W_ENUM_CONSTANT(WTexConvUsage::Linear),
+  W_ENUM_CONSTANT(WTexConvUsage::Hdr), W_ENUM_CONSTANT(WTexConvUsage::NormalMap), W_ENUM_CONSTANT(WTexConvUsage::NormalMap_Inverted),
+  W_ENUM_CONSTANT(WTexConvUsage::BumpMap),
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezTexConvProcessor::ezTexConvProcessor() = default;
+WTexConvProcessor::WTexConvProcessor() = default;
 
-ezResult ezTexConvProcessor::Process()
+WResult WTexConvProcessor::Process()
 {
-  EZ_PROFILE_SCOPE("ezTexConvProcessor::Process");
+  W_PROFILE_SCOPE("WTexConvProcessor::Process");
 
-  if (m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
+  if (m_Descriptor.m_OutputType == WTexConvOutputType::Atlas)
   {
-    ezMemoryStreamWriter stream(&m_TextureAtlas);
-    EZ_SUCCEED_OR_RETURN(GenerateTextureAtlas(stream));
+    WMemoryStreamWriter stream(&m_TextureAtlas);
+    W_SUCCEED_OR_RETURN(GenerateTextureAtlas(stream));
   }
   else
   {
-    EZ_SUCCEED_OR_RETURN(LoadInputImages());
+    W_SUCCEED_OR_RETURN(LoadInputImages());
 
-    EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
+    W_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
 
-    ezLog::Info("-usage is '{}'", ezArgEnum(m_Descriptor.m_Usage));
+    WLog::Info("-usage is '{}'", WArgEnum(m_Descriptor.m_Usage));
 
-    EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
+    W_SUCCEED_OR_RETURN(ForceSRGBFormats());
 
-    ezUInt32 uiNumChannelsUsed = 0;
-    EZ_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
+    WUInt32 uiNumChannelsUsed = 0;
+    W_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
 
-    ezEnum<ezImageFormat> OutputImageFormat;
+    WEnum<WImageFormat> OutputImageFormat;
 
-    EZ_SUCCEED_OR_RETURN(ChooseOutputFormat(OutputImageFormat, m_Descriptor.m_Usage, uiNumChannelsUsed));
+    W_SUCCEED_OR_RETURN(ChooseOutputFormat(OutputImageFormat, m_Descriptor.m_Usage, uiNumChannelsUsed));
 
-    ezLog::Info("Output image format is '{}'", ezImageFormat::GetName(OutputImageFormat));
+    WLog::Info("Output image format is '{}'", WImageFormat::GetName(OutputImageFormat));
 
-    ezUInt32 uiTargetResolutionX = 0;
-    ezUInt32 uiTargetResolutionY = 0;
+    WUInt32 uiTargetResolutionX = 0;
+    WUInt32 uiTargetResolutionY = 0;
 
-    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
+    W_SUCCEED_OR_RETURN(DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
 
-    ezLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
+    WLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
 
-    EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY, m_Descriptor.m_Usage));
+    W_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY, m_Descriptor.m_Usage));
 
-    EZ_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages, m_Descriptor.m_fMaxValue));
+    W_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages, m_Descriptor.m_fMaxValue));
 
-    if (m_Descriptor.m_Usage == ezTexConvUsage::BumpMap)
+    if (m_Descriptor.m_Usage == WTexConvUsage::BumpMap)
     {
-      EZ_SUCCEED_OR_RETURN(ConvertToNormalMap(m_Descriptor.m_InputImages));
-      m_Descriptor.m_Usage = ezTexConvUsage::NormalMap;
+      W_SUCCEED_OR_RETURN(ConvertToNormalMap(m_Descriptor.m_InputImages));
+      m_Descriptor.m_Usage = WTexConvUsage::NormalMap;
     }
 
-    ezImage assembledImg;
-    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == ezTexConvOutputType::None)
+    WImage assembledImg;
+    if (m_Descriptor.m_OutputType == WTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == WTexConvOutputType::None)
     {
-      EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
+      W_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
 
-      EZ_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
+      W_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
 
-      EZ_SUCCEED_OR_RETURN(DilateColor2D(assembledImg));
+      W_SUCCEED_OR_RETURN(DilateColor2D(assembledImg));
     }
-    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)
+    else if (m_Descriptor.m_OutputType == WTexConvOutputType::Cubemap)
     {
-      EZ_SUCCEED_OR_RETURN(AssembleCubemap(assembledImg));
+      W_SUCCEED_OR_RETURN(AssembleCubemap(assembledImg));
     }
-    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
+    else if (m_Descriptor.m_OutputType == WTexConvOutputType::Volume)
     {
-      EZ_SUCCEED_OR_RETURN(Assemble3DTexture(assembledImg));
+      W_SUCCEED_OR_RETURN(Assemble3DTexture(assembledImg));
     }
-    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2DArray)
+    else if (m_Descriptor.m_OutputType == WTexConvOutputType::Texture2DArray)
     {
-      EZ_SUCCEED_OR_RETURN(Assemble2DArrayTexture(assembledImg));
-      EZ_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
+      W_SUCCEED_OR_RETURN(Assemble2DArrayTexture(assembledImg));
+      W_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
     }
 
-    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
+    W_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, 0, uiNumChannelsUsed == 1 ? MipmapChannelMode::SingleChannel : MipmapChannelMode::AllChannels));
+    W_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, 0, uiNumChannelsUsed == 1 ? MipmapChannelMode::SingleChannel : MipmapChannelMode::AllChannels));
 
-    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
+    W_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(assembledImg), m_OutputImage, OutputImageFormat));
+    W_SUCCEED_OR_RETURN(GenerateOutput(std::move(assembledImg), m_OutputImage, OutputImageFormat));
 
-    EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput(m_OutputImage, m_ThumbnailOutputImage, m_Descriptor.m_uiThumbnailOutputResolution));
+    W_SUCCEED_OR_RETURN(GenerateThumbnailOutput(m_OutputImage, m_ThumbnailOutputImage, m_Descriptor.m_uiThumbnailOutputResolution));
 
-    EZ_SUCCEED_OR_RETURN(GenerateLowResOutput(m_OutputImage, m_LowResOutputImage, m_Descriptor.m_uiLowResMipmaps));
+    W_SUCCEED_OR_RETURN(GenerateLowResOutput(m_OutputImage, m_LowResOutputImage, m_Descriptor.m_uiLowResMipmaps));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels)
+WResult WTexConvProcessor::DetectNumChannels(WArrayPtr<const WTexConvSliceChannelMapping> channelMapping, WUInt32& uiNumChannels)
 {
-  EZ_PROFILE_SCOPE("DetectNumChannels");
+  W_PROFILE_SCOPE("DetectNumChannels");
 
   uiNumChannels = 0;
 
   for (const auto& mapping : channelMapping)
   {
-    for (ezUInt32 i = 0; i < 4; ++i)
+    for (WUInt32 i = 0; i < 4; ++i)
     {
-      if (mapping.m_Channel[i].m_iInputImageIndex != -1 || mapping.m_Channel[i].m_ChannelValue == ezTexConvChannelValue::Black)
+      if (mapping.m_Channel[i].m_iInputImageIndex != -1 || mapping.m_Channel[i].m_ChannelValue == WTexConvChannelValue::Black)
       {
-        uiNumChannels = ezMath::Max(uiNumChannels, i + 1);
+        uiNumChannels = WMath::Max(uiNumChannels, i + 1);
       }
     }
   }
 
   if (uiNumChannels == 0)
   {
-    ezLog::Error("No proper channel mapping provided.");
-    return EZ_FAILURE;
+    WLog::Error("No proper channel mapping provided.");
+    return W_FAILURE;
   }
 
   // special case handling to detect when the alpha channel will end up white anyway and thus uiNumChannels could be 3 instead of 4
@@ -137,11 +137,11 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
 
     for (const auto& mapping : channelMapping)
     {
-      if (mapping.m_Channel[3].m_ChannelValue == ezTexConvChannelValue::Black)
+      if (mapping.m_Channel[3].m_ChannelValue == WTexConvChannelValue::Black)
       {
         // sampling a texture without an alpha channel always returns 1, so to use all 0, we do need the channel
         uiNumChannels = 4;
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
 
       if (mapping.m_Channel[3].m_iInputImageIndex == -1)
@@ -150,10 +150,10 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
         continue;
       }
 
-      ezImage& img = m_Descriptor.m_InputImages[mapping.m_Channel[3].m_iInputImageIndex];
+      WImage& img = m_Descriptor.m_InputImages[mapping.m_Channel[3].m_iInputImageIndex];
 
-      const ezUInt32 uiNumRequiredChannels = (ezUInt32)mapping.m_Channel[3].m_ChannelValue + 1;
-      const ezUInt32 uiNumActualChannels = ezImageFormat::GetNumChannels(img.GetImageFormat());
+      const WUInt32 uiNumRequiredChannels = (WUInt32)mapping.m_Channel[3].m_ChannelValue + 1;
+      const WUInt32 uiNumActualChannels = WImageFormat::GetNumChannels(img.GetImageFormat());
 
       if (uiNumActualChannels < uiNumRequiredChannels)
       {
@@ -161,7 +161,7 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
         continue;
       }
 
-      if (img.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+      if (img.Convert(WImageFormat::R32G32B32A32_FLOAT).Failed())
       {
         // can't convert -> will fail later anyway
         continue;
@@ -170,15 +170,15 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
       const float* pColors = img.GetPixelPointer<float>();
       pColors += (uiNumRequiredChannels - 1); // offset by 0 to 3 to read red, green, blue or alpha
 
-      EZ_ASSERT_DEV(img.GetRowPitch() == img.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
+      W_ASSERT_DEV(img.GetRowPitch() == img.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
 
-      for (ezUInt32 i = 0; i < img.GetWidth() * img.GetHeight(); ++i)
+      for (WUInt32 i = 0; i < img.GetWidth() * img.GetHeight(); ++i)
       {
-        if (!ezMath::IsEqual(*pColors, 1.0f, 1.0f / 255.0f))
+        if (!WMath::IsEqual(*pColors, 1.0f, 1.0f / 255.0f))
         {
           // value is not 1.0f -> the channel is needed
           uiNumChannels = 4;
-          return EZ_SUCCESS;
+          return W_SUCCESS;
         }
 
         pColors += 4;
@@ -186,34 +186,34 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateOutput(ezImage&& src, ezImage& dst, ezEnum<ezImageFormat> format)
+WResult WTexConvProcessor::GenerateOutput(WImage&& src, WImage& dst, WEnum<WImageFormat> format)
 {
-  EZ_PROFILE_SCOPE("GenerateOutput");
+  W_PROFILE_SCOPE("GenerateOutput");
 
   dst.ResetAndMove(std::move(src));
 
   if (dst.Convert(format).Failed())
   {
-    ezLog::Error("Failed to convert result image to output format '{}'", ezImageFormat::GetName(format));
-    return EZ_FAILURE;
+    WLog::Error("Failed to convert result image to output format '{}'", WImageFormat::GetName(format));
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiTargetRes)
+WResult WTexConvProcessor::GenerateThumbnailOutput(const WImage& srcImg, WImage& dstImg, WUInt32 uiTargetRes)
 {
   if (uiTargetRes == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  EZ_PROFILE_SCOPE("GenerateThumbnailOutput");
+  W_PROFILE_SCOPE("GenerateThumbnailOutput");
 
-  ezUInt32 uiBestMip = 0;
+  WUInt32 uiBestMip = 0;
 
-  for (ezUInt32 m = 0; m < srcImg.GetNumMipLevels(); ++m)
+  for (WUInt32 m = 0; m < srcImg.GetNumMipLevels(); ++m)
   {
     if (srcImg.GetWidth(m) <= uiTargetRes && srcImg.GetHeight(m) <= uiTargetRes)
     {
@@ -224,9 +224,9 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
     uiBestMip = m;
   }
 
-  ezImage scratch1, scratch2;
-  ezImage* pCurrentScratch = &scratch1;
-  ezImage* pOtherScratch = &scratch2;
+  WImage scratch1, scratch2;
+  WImage* pCurrentScratch = &scratch1;
+  WImage* pOtherScratch = &scratch2;
 
   pCurrentScratch->ResetAndCopy(srcImg.GetSubImageView(uiBestMip, 0));
 
@@ -235,105 +235,105 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
     if (pCurrentScratch->GetWidth() > pCurrentScratch->GetHeight())
     {
       const float fAspectRatio = (float)pCurrentScratch->GetWidth() / (float)uiTargetRes;
-      ezUInt32 uiTargetHeight = (ezUInt32)(pCurrentScratch->GetHeight() / fAspectRatio);
+      WUInt32 uiTargetHeight = (WUInt32)(pCurrentScratch->GetHeight() / fAspectRatio);
 
-      uiTargetHeight = ezMath::Max(uiTargetHeight, 4U);
+      uiTargetHeight = WMath::Max(uiTargetHeight, 4U);
 
-      if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetRes, uiTargetHeight).Failed())
+      if (WImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetRes, uiTargetHeight).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(), uiTargetRes,
+        WLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(), uiTargetRes,
           uiTargetHeight);
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
     else
     {
       const float fAspectRatio = (float)pCurrentScratch->GetHeight() / (float)uiTargetRes;
-      ezUInt32 uiTargetWidth = (ezUInt32)(pCurrentScratch->GetWidth() / fAspectRatio);
+      WUInt32 uiTargetWidth = (WUInt32)(pCurrentScratch->GetWidth() / fAspectRatio);
 
-      uiTargetWidth = ezMath::Max(uiTargetWidth, 4U);
+      uiTargetWidth = WMath::Max(uiTargetWidth, 4U);
 
-      if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetWidth, uiTargetRes).Failed())
+      if (WImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetWidth, uiTargetRes).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(), uiTargetWidth,
+        WLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(), uiTargetWidth,
           uiTargetRes);
-        return EZ_FAILURE;
+        return W_FAILURE;
       }
     }
 
-    ezMath::Swap(pCurrentScratch, pOtherScratch);
+    WMath::Swap(pCurrentScratch, pOtherScratch);
   }
 
   dstImg.ResetAndMove(std::move(*pCurrentScratch));
 
   // we want to write out the thumbnail unchanged, so make sure it has a non-sRGB format
-  dstImg.ReinterpretAs(ezImageFormat::AsLinear(dstImg.GetImageFormat()));
+  dstImg.ReinterpretAs(WImageFormat::AsLinear(dstImg.GetImageFormat()));
 
-  if (dstImg.Convert(ezImageFormat::R8G8B8A8_UNORM).Failed())
+  if (dstImg.Convert(WImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    ezLog::Error("Failed to convert thumbnail image to RGBA8.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to convert thumbnail image to RGBA8.");
+    return W_FAILURE;
   }
 
   // generate alpha checkerboard pattern
   {
     const float fTileSize = 16.0f;
 
-    ezColorLinearUB* pPixels = dstImg.GetPixelPointer<ezColorLinearUB>();
-    const ezUInt64 rowPitch = dstImg.GetRowPitch();
+    WColorLinearUB* pPixels = dstImg.GetPixelPointer<WColorLinearUB>();
+    const WUInt64 rowPitch = dstImg.GetRowPitch();
 
-    ezInt32 checkCounter = 0;
-    ezColor tiles[2]{ezColor::LightGray, ezColor::DarkGray};
+    WInt32 checkCounter = 0;
+    WColor tiles[2]{WColor::LightGray, WColor::DarkGray};
 
 
-    for (ezUInt32 y = 0; y < dstImg.GetHeight(); ++y)
+    for (WUInt32 y = 0; y < dstImg.GetHeight(); ++y)
     {
-      checkCounter = (ezInt32)ezMath::Floor(y / fTileSize);
+      checkCounter = (WInt32)WMath::Floor(y / fTileSize);
 
-      for (ezUInt32 x = 0; x < dstImg.GetWidth(); ++x)
+      for (WUInt32 x = 0; x < dstImg.GetWidth(); ++x)
       {
-        ezColorLinearUB& col = pPixels[x];
+        WColorLinearUB& col = pPixels[x];
 
         if (col.a < 255)
         {
-          const ezColor colF = col;
-          const ezInt32 tileIdx = (checkCounter + (ezInt32)ezMath::Floor(x / fTileSize)) % 2;
+          const WColor colF = col;
+          const WInt32 tileIdx = (checkCounter + (WInt32)WMath::Floor(x / fTileSize)) % 2;
 
-          col = ezMath::Lerp(tiles[tileIdx], colF, ezMath::Sqrt(colF.a)).WithAlpha(colF.a);
+          col = WMath::Lerp(tiles[tileIdx], colF, WMath::Sqrt(colF.a)).WithAlpha(colF.a);
         }
       }
 
-      pPixels = ezMemoryUtils::AddByteOffset(pPixels, static_cast<ptrdiff_t>(rowPitch));
+      pPixels = WMemoryUtils::AddByteOffset(pPixels, static_cast<ptrdiff_t>(rowPitch));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateLowResOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiLowResMip)
+WResult WTexConvProcessor::GenerateLowResOutput(const WImage& srcImg, WImage& dstImg, WUInt32 uiLowResMip)
 {
   if (uiLowResMip == 0)
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
-  EZ_PROFILE_SCOPE("GenerateLowResOutput");
+  W_PROFILE_SCOPE("GenerateLowResOutput");
 
   // don't early out here in this case, otherwise external processes may consider the output to be incomplete
   // if (srcImg.GetNumMipLevels() <= uiLowResMip)
   //{
   //  // probably just a low-resolution input image, do not generate output, but also do not fail
-  //  ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");
-  //  return EZ_SUCCESS;
+  //  WLog::Warning("LowRes image not generated, original resolution is already below threshold.");
+  //  return W_SUCCESS;
   //}
 
-  if (ezImageUtils::ExtractLowerMipChain(srcImg, dstImg, uiLowResMip).Failed())
+  if (WImageUtils::ExtractLowerMipChain(srcImg, dstImg, uiLowResMip).Failed())
   {
-    ezLog::Error("Failed to extract low-res mipmap chain from output image.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to extract low-res mipmap chain from output image.");
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Processor);
+W_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Processor);

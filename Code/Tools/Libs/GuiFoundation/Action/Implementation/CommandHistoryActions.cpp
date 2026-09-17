@@ -5,106 +5,106 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandHistoryAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCommandHistoryAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezCommandHistoryActions::s_hCommandHistoryCategory;
-ezActionDescriptorHandle ezCommandHistoryActions::s_hUndo;
-ezActionDescriptorHandle ezCommandHistoryActions::s_hRedo;
+WActionDescriptorHandle WCommandHistoryActions::s_hCommandHistoryCategory;
+WActionDescriptorHandle WCommandHistoryActions::s_hUndo;
+WActionDescriptorHandle WCommandHistoryActions::s_hRedo;
 
-void ezCommandHistoryActions::RegisterActions()
+void WCommandHistoryActions::RegisterActions()
 {
-  s_hCommandHistoryCategory = EZ_REGISTER_CATEGORY("CmdHistoryCategory");
-  s_hUndo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Undo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
-  s_hRedo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Redo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
+  s_hCommandHistoryCategory = W_REGISTER_CATEGORY("CmdHistoryCategory");
+  s_hUndo = W_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Undo", WActionScope::Document, "Document", "Ctrl+Z", WCommandHistoryAction, WCommandHistoryAction::ButtonType::Undo);
+  s_hRedo = W_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Redo", WActionScope::Document, "Document", "Ctrl+Y", WCommandHistoryAction, WCommandHistoryAction::ButtonType::Redo);
 }
 
-void ezCommandHistoryActions::UnregisterActions()
+void WCommandHistoryActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCommandHistoryCategory);
-  ezActionManager::UnregisterAction(s_hUndo);
-  ezActionManager::UnregisterAction(s_hRedo);
+  WActionManager::UnregisterAction(s_hCommandHistoryCategory);
+  WActionManager::UnregisterAction(s_hUndo);
+  WActionManager::UnregisterAction(s_hRedo);
 }
 
-void ezCommandHistoryActions::MapActions(ezStringView sMapping, ezStringView sTargetMenu)
+void WCommandHistoryActions::MapActions(WStringView sMapping, WStringView sTargetMenu)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCommandHistoryCategory, sTargetMenu, 3.0f);
   pMap->MapAction(s_hUndo, sTargetMenu, "CmdHistoryCategory", 1.0f);
   pMap->MapAction(s_hRedo, sTargetMenu, "CmdHistoryCategory", 2.0f);
 }
 
-ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezDynamicActionAndMenuAction(context, szName, "")
+WCommandHistoryAction::WCommandHistoryAction(const WActionContext& context, const char* szName, ButtonType button)
+  : WDynamicActionAndMenuAction(context, szName, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-    case ezCommandHistoryAction::ButtonType::Undo:
+    case WCommandHistoryAction::ButtonType::Undo:
       SetIconPath(":/GuiFoundation/Icons/Undo.svg");
       break;
-    case ezCommandHistoryAction::ButtonType::Redo:
+    case WCommandHistoryAction::ButtonType::Redo:
       SetIconPath(":/GuiFoundation/Icons/Redo.svg");
       break;
   }
 
-  m_Context.m_pDocument->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
+  m_Context.m_pDocument->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WCommandHistoryAction::CommandHistoryEventHandler, this));
 
   UpdateState();
 }
 
-ezCommandHistoryAction::~ezCommandHistoryAction()
+WCommandHistoryAction::~WCommandHistoryAction()
 {
-  m_Context.m_pDocument->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
+  m_Context.m_pDocument->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WCommandHistoryAction::CommandHistoryEventHandler, this));
 }
 
-void ezCommandHistoryAction::GetEntries(ezDynamicArray<Item>& out_entries)
+void WCommandHistoryAction::GetEntries(WDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
-  ezCommandHistory* pHistory = m_Context.m_pDocument->GetCommandHistory();
+  WCommandHistory* pHistory = m_Context.m_pDocument->GetCommandHistory();
 
-  const ezUInt32 iCount = (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackSize() : pHistory->GetRedoStackSize();
-  for (ezUInt32 i = 0; i < iCount; i++)
+  const WUInt32 iCount = (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackSize() : pHistory->GetRedoStackSize();
+  for (WUInt32 i = 0; i < iCount; i++)
   {
-    const ezCommandTransaction* pTransaction = (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackEntry(i) : pHistory->GetRedoStackEntry(i);
-    ezDynamicMenuAction::Item entryItem;
+    const WCommandTransaction* pTransaction = (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackEntry(i) : pHistory->GetRedoStackEntry(i);
+    WDynamicMenuAction::Item entryItem;
     entryItem.m_sDisplay = pTransaction->m_sDisplayString;
-    entryItem.m_UserValue = (ezUInt32)i + 1; // Number of steps to undo / redo.
+    entryItem.m_UserValue = (WUInt32)i + 1; // Number of steps to undo / redo.
     out_entries.PushBack(entryItem);
   }
 }
 
-void ezCommandHistoryAction::Execute(const ezVariant& value)
+void WCommandHistoryAction::Execute(const WVariant& value)
 {
-  ezUInt32 iCount = value.IsValid() ? value.ConvertTo<ezUInt32>() : 1;
+  WUInt32 iCount = value.IsValid() ? value.ConvertTo<WUInt32>() : 1;
 
   switch (m_ButtonType)
   {
     case ButtonType::Undo:
     {
-      EZ_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanUndo(), "The action should not be active");
+      W_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanUndo(), "The action should not be active");
 
       auto stat = m_Context.m_pDocument->GetCommandHistory()->Undo(iCount);
-      ezQtUiServices::MessageBoxStatus(stat, "Could not execute the Undo operation");
+      WQtUiServices::MessageBoxStatus(stat, "Could not execute the Undo operation");
     }
     break;
 
     case ButtonType::Redo:
     {
-      EZ_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanRedo(), "The action should not be active");
+      W_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanRedo(), "The action should not be active");
 
       auto stat = m_Context.m_pDocument->GetCommandHistory()->Redo(iCount);
-      ezQtUiServices::MessageBoxStatus(stat, "Could not execute the Redo operation");
+      WQtUiServices::MessageBoxStatus(stat, "Could not execute the Redo operation");
     }
     break;
   }
 }
 
-void ezCommandHistoryAction::UpdateState()
+void WCommandHistoryAction::UpdateState()
 {
   switch (m_ButtonType)
   {
@@ -120,7 +120,7 @@ void ezCommandHistoryAction::UpdateState()
   }
 }
 
-void ezCommandHistoryAction::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WCommandHistoryAction::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   UpdateState();
 }

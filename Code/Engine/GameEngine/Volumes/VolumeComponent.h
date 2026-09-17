@@ -5,39 +5,39 @@
 #include <Foundation/Types/RangeView.h>
 #include <GameEngine/GameEngineDLL.h>
 
-struct ezMsgUpdateLocalBounds;
+struct WMsgUpdateLocalBounds;
 
-using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
+using WBlackboardTemplateResourceHandle = WTypedResourceHandle<class WBlackboardTemplateResource>;
 
 /// A volume component can hold generic values either from a blackboard template or set directly on the component.
 ///
-/// The values can be sampled with an ezVolumeSampler and then used for things like e.g. post-processing, reverb etc.
-/// They can also be used to represent knowledge in a scene, like e.g. smell or threat, and can be detected by an ezSensorComponent and then processed by AI.
-class EZ_GAMEENGINE_DLL ezVolumeComponent : public ezComponent
+/// The values can be sampled with an WVolumeSampler and then used for things like e.g. post-processing, reverb etc.
+/// They can also be used to represent knowledge in a scene, like e.g. smell or threat, and can be detected by an WSensorComponent and then processed by AI.
+class W_GAMEENGINE_DLL WVolumeComponent : public WComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, ezComponent);
+  W_DECLARE_ABSTRACT_COMPONENT_TYPE(WVolumeComponent, WComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVolumeComponent
+  // WVolumeComponent
 
 public:
-  ezVolumeComponent();
-  ~ezVolumeComponent();
+  WVolumeComponent();
+  ~WVolumeComponent();
 
   /// Sets the blackboard template to use.
-  void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);                        // [ property ]
-  const ezBlackboardTemplateResourceHandle& GetTemplate() const { return m_hTemplateResource; } // [ property ]
+  void SetTemplate(const WBlackboardTemplateResourceHandle& hResource);                        // [ property ]
+  const WBlackboardTemplateResourceHandle& GetTemplate() const { return m_hTemplateResource; } // [ property ]
 
   /// In case two volumes overlap, the one with a higher sort order value has precedence.
   void SetSortOrder(float fOrder);                    // [ property ]
@@ -48,54 +48,54 @@ public:
   const char* GetVolumeType() const;      // [ property ]
 
   /// Adds or replaces a value with a given name.
-  void SetValue(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
-  ezVariant GetValue(ezTempHashedString sName) const                  // [ scriptable ]
+  void SetValue(const WHashedString& sName, const WVariant& value); // [ scriptable ]
+  WVariant GetValue(WTempHashedString sName) const                  // [ scriptable ]
   {
-    ezVariant v;
+    WVariant v;
     m_Values.TryGetValue(sName, v);
     return v;
   }
 
 protected:
-  const ezRangeView<const ezString&, ezUInt32> Reflection_GetKeys() const;
-  bool Reflection_GetValue(const char* szName, ezVariant& value) const;
-  void Reflection_InsertValue(const char* szName, const ezVariant& value);
+  const WRangeView<const WString&, WUInt32> Reflection_GetKeys() const;
+  bool Reflection_GetValue(const char* szName, WVariant& value) const;
+  void Reflection_InsertValue(const char* szName, const WVariant& value);
   void Reflection_RemoveValue(const char* szName);
 
   void InitializeFromTemplate();
   void ReloadTemplate();
   void RemoveReloadFunction();
 
-  ezBlackboardTemplateResourceHandle m_hTemplateResource;
-  ezHashTable<ezHashedString, ezVariant> m_Values;
-  ezSmallArray<ezHashedString, 1> m_OverwrittenValues; // only used in editor
+  WBlackboardTemplateResourceHandle m_hTemplateResource;
+  WHashTable<WHashedString, WVariant> m_Values;
+  WSmallArray<WHashedString, 1> m_OverwrittenValues; // only used in editor
   float m_fSortOrder = 0.0f;
-  ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
+  WSpatialData::Category m_SpatialCategory = WInvalidSpatialDataCategory;
   bool m_bReloadFunctionAdded = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezVolumeSphereComponentManager = ezComponentManager<class ezVolumeSphereComponent, ezBlockStorageType::Compact>;
+using WVolumeSphereComponentManager = WComponentManager<class WVolumeSphereComponent, WBlockStorageType::Compact>;
 
-/// A sphere implementation of the ezVolumeComponent
-class EZ_GAMEENGINE_DLL ezVolumeSphereComponent : public ezVolumeComponent
+/// A sphere implementation of the WVolumeComponent
+class W_GAMEENGINE_DLL WVolumeSphereComponent : public WVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezVolumeSphereComponent, ezVolumeComponent, ezVolumeSphereComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WVolumeSphereComponent, WVolumeComponent, WVolumeSphereComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVolumeComponent
+  // WVolumeComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVolumeSphereComponent
+  // WVolumeSphereComponent
 
 public:
-  ezVolumeSphereComponent();
-  ~ezVolumeSphereComponent();
+  WVolumeSphereComponent();
+  ~WVolumeSphereComponent();
 
   void SetRadius(float fRadius);
   float GetRadius() const { return m_fRadius; }
@@ -105,7 +105,7 @@ public:
   float GetFalloff() const { return m_fFalloff; }
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
 
   float m_fRadius = 5.0f;
   float m_fFalloff = 0.5f;
@@ -113,40 +113,40 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezVolumeBoxComponentManager = ezComponentManager<class ezVolumeBoxComponent, ezBlockStorageType::Compact>;
+using WVolumeBoxComponentManager = WComponentManager<class WVolumeBoxComponent, WBlockStorageType::Compact>;
 
-/// A box implementation of the ezVolumeComponent
-class EZ_GAMEENGINE_DLL ezVolumeBoxComponent : public ezVolumeComponent
+/// A box implementation of the WVolumeComponent
+class W_GAMEENGINE_DLL WVolumeBoxComponent : public WVolumeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezVolumeBoxComponent, ezVolumeComponent, ezVolumeBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WVolumeBoxComponent, WVolumeComponent, WVolumeBoxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVolumeComponent
+  // WVolumeComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezVolumeBoxComponent
+  // WVolumeBoxComponent
 
 public:
-  ezVolumeBoxComponent();
-  ~ezVolumeBoxComponent();
+  WVolumeBoxComponent();
+  ~WVolumeBoxComponent();
 
   /// Sets the size of the box.
-  void SetExtents(const ezVec3& vExtents);
-  const ezVec3& GetExtents() const { return m_vExtents; }
+  void SetExtents(const WVec3& vExtents);
+  const WVec3& GetExtents() const { return m_vExtents; }
 
   /// Values above 1 make the box influence drop off more rapidly, below 1 more slowly.
   ///
   /// Falloff is per cardinal axis.
-  void SetFalloff(const ezVec3& vFalloff);
-  const ezVec3& GetFalloff() const { return m_vFalloff; }
+  void SetFalloff(const WVec3& vFalloff);
+  const WVec3& GetFalloff() const { return m_vFalloff; }
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& ref_msg) const;
 
-  ezVec3 m_vExtents = ezVec3(10.0f);
-  ezVec3 m_vFalloff = ezVec3(0.5f);
+  WVec3 m_vExtents = WVec3(10.0f);
+  WVec3 m_vFalloff = WVec3(0.5f);
 };

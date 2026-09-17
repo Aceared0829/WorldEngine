@@ -16,11 +16,11 @@
 #  undef delete
 #endif
 
-using ezAllocatorId = ezGenericId<24, 8>;
+using WAllocatorId = WGenericId<24, 8>;
 
 /// Base class for all memory allocators.
 ///
-/// This abstract base class defines the interface for all allocators in ezEngine. Allocators are responsible
+/// This abstract base class defines the interface for all allocators in WorldEngine. Allocators are responsible
 /// for memory management and can implement different allocation strategies (heap, linear, frame, etc.).
 ///
 /// Key concepts:
@@ -30,32 +30,32 @@ using ezAllocatorId = ezGenericId<24, 8>;
 /// - Thread safety depends on specific allocator implementation
 ///
 /// Usage:
-/// - Use EZ_NEW/EZ_DELETE macros instead of calling Allocate/Deallocate directly
+/// - Use W_NEW/W_DELETE macros instead of calling Allocate/Deallocate directly
 /// - Different allocator types optimize for different usage patterns
 /// - Always pair allocations with deallocations using the same allocator instance
-class EZ_FOUNDATION_DLL ezAllocator
+class W_FOUNDATION_DLL WAllocator
 {
 public:
   struct Stats
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezUInt64 m_uiNumAllocations = 0;         ///< total number of allocations
-    ezUInt64 m_uiNumDeallocations = 0;       ///< total number of deallocations
-    ezUInt64 m_uiAllocationSize = 0;         ///< total allocation size in bytes
+    WUInt64 m_uiNumAllocations = 0;         ///< total number of allocations
+    WUInt64 m_uiNumDeallocations = 0;       ///< total number of deallocations
+    WUInt64 m_uiAllocationSize = 0;         ///< total allocation size in bytes
 
-    ezUInt64 m_uiPerFrameAllocationSize = 0; ///< allocation size in bytes in this frame
-    ezTime m_PerFrameAllocationTime;         ///< time spend on allocations in this frame
+    WUInt64 m_uiPerFrameAllocationSize = 0; ///< allocation size in bytes in this frame
+    WTime m_PerFrameAllocationTime;         ///< time spend on allocations in this frame
   };
 
-  ezAllocator();
-  virtual ~ezAllocator();
+  WAllocator();
+  virtual ~WAllocator();
 
   /// Interface, do not use this directly, always use the new/delete macros below
   ///
   /// Allocates aligned memory of the specified size. The destructorFunc parameter is used for
   /// automatic cleanup when the allocator is reset or destroyed (mainly used by linear allocators).
-  virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
+  virtual void* Allocate(size_t uiSize, size_t uiAlign, WMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
 
   /// Deallocates memory previously allocated by this allocator.
   ///
@@ -71,71 +71,71 @@ public:
 
   /// Returns the number of bytes allocated at this address.
   ///
-  /// This information is only available if allocation tracking is enabled (see ezAllocatorTrackingMode
-  /// and EZ_ALLOC_TRACKING_DEFAULT). Returns 0 when tracking is disabled or for invalid pointers.
+  /// This information is only available if allocation tracking is enabled (see WAllocatorTrackingMode
+  /// and W_ALLOC_TRACKING_DEFAULT). Returns 0 when tracking is disabled or for invalid pointers.
   /// Primarily used for debugging and memory analysis.
   virtual size_t AllocatedSize(const void* pPtr) = 0;
 
-  virtual ezAllocatorId GetId() const = 0;
+  virtual WAllocatorId GetId() const = 0;
   virtual Stats GetStats() const = 0;
 
 private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAllocator);
+  W_DISALLOW_COPY_AND_ASSIGN(WAllocator);
 };
 
 #include <Foundation/Memory/Implementation/Allocator_inl.h>
 
 /// creates a new instance of type using the given allocator
-#define EZ_NEW(allocator, type, ...) \
-  ezInternal::NewInstance<type>(     \
-    new ((allocator)->Allocate(sizeof(type), alignof(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
+#define W_NEW(allocator, type, ...) \
+  WInternal::NewInstance<type>(     \
+    new ((allocator)->Allocate(sizeof(type), alignof(type), WMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
 
 /// deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
-#define EZ_DELETE(allocator, ptr)       \
+#define W_DELETE(allocator, ptr)       \
   {                                     \
-    ezInternal::Delete(allocator, ptr); \
+    WInternal::Delete(allocator, ptr); \
     ptr = nullptr;                      \
   }
 
 /// creates a new array of type using the given allocator with count elements, calls default constructor for non-POD types
-#define EZ_NEW_ARRAY(allocator, type, count) ezInternal::CreateArray<type>(allocator, count)
+#define W_NEW_ARRAY(allocator, type, count) WInternal::CreateArray<type>(allocator, count)
 
 /// Calls destructor on every element for non-POD types and deletes the array stored in arrayPtr using the given allocator
-#define EZ_DELETE_ARRAY(allocator, arrayPtr)      \
+#define W_DELETE_ARRAY(allocator, arrayPtr)      \
   {                                               \
-    ezInternal::DeleteArray(allocator, arrayPtr); \
+    WInternal::DeleteArray(allocator, arrayPtr); \
     arrayPtr.Clear();                             \
   }
 
 /// creates a raw buffer of type using the given allocator with count elements, but does NOT call the default constructor
-#define EZ_NEW_RAW_BUFFER(allocator, type, count) ezInternal::CreateRawBuffer<type>(allocator, count)
+#define W_NEW_RAW_BUFFER(allocator, type, count) WInternal::CreateRawBuffer<type>(allocator, count)
 
 /// deletes a raw buffer stored in ptr using the given allocator, but does NOT call destructor
-#define EZ_DELETE_RAW_BUFFER(allocator, ptr)     \
+#define W_DELETE_RAW_BUFFER(allocator, ptr)     \
   {                                              \
-    ezInternal::DeleteRawBuffer(allocator, ptr); \
+    WInternal::DeleteRawBuffer(allocator, ptr); \
     ptr = nullptr;                               \
   }
 
 /// extends a given raw buffer to the new size, taking care of calling constructors / assignment operators.
-#define EZ_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) ezInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
+#define W_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) WInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
 
 
 
 /// creates a new instance of type using the default allocator
-#define EZ_DEFAULT_NEW(type, ...) EZ_NEW(ezFoundation::GetDefaultAllocator(), type, __VA_ARGS__)
+#define W_DEFAULT_NEW(type, ...) W_NEW(WFoundation::GetDefaultAllocator(), type, __VA_ARGS__)
 
 /// deletes the instance stored in ptr using the default allocator and sets ptr to nullptr
-#define EZ_DEFAULT_DELETE(ptr) EZ_DELETE(ezFoundation::GetDefaultAllocator(), ptr)
+#define W_DEFAULT_DELETE(ptr) W_DELETE(WFoundation::GetDefaultAllocator(), ptr)
 
 /// creates a new array of type using the default allocator with count elements, calls default constructor for non-POD types
-#define EZ_DEFAULT_NEW_ARRAY(type, count) EZ_NEW_ARRAY(ezFoundation::GetDefaultAllocator(), type, count)
+#define W_DEFAULT_NEW_ARRAY(type, count) W_NEW_ARRAY(WFoundation::GetDefaultAllocator(), type, count)
 
 /// calls destructor on every element for non-POD types and deletes the array stored in arrayPtr using the default allocator
-#define EZ_DEFAULT_DELETE_ARRAY(arrayPtr) EZ_DELETE_ARRAY(ezFoundation::GetDefaultAllocator(), arrayPtr)
+#define W_DEFAULT_DELETE_ARRAY(arrayPtr) W_DELETE_ARRAY(WFoundation::GetDefaultAllocator(), arrayPtr)
 
 /// creates a raw buffer of type using the default allocator with count elements, but does NOT call the default constructor
-#define EZ_DEFAULT_NEW_RAW_BUFFER(type, count) EZ_NEW_RAW_BUFFER(ezFoundation::GetDefaultAllocator(), type, count)
+#define W_DEFAULT_NEW_RAW_BUFFER(type, count) W_NEW_RAW_BUFFER(WFoundation::GetDefaultAllocator(), type, count)
 
 /// deletes a raw buffer stored in ptr using the default allocator, but does NOT call destructor
-#define EZ_DEFAULT_DELETE_RAW_BUFFER(ptr) EZ_DELETE_RAW_BUFFER(ezFoundation::GetDefaultAllocator(), ptr)
+#define W_DEFAULT_DELETE_RAW_BUFFER(ptr) W_DELETE_RAW_BUFFER(WFoundation::GetDefaultAllocator(), ptr)

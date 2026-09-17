@@ -4,32 +4,32 @@
 #include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter() = default;
+WConeLengthManipulatorAdapter::WConeLengthManipulatorAdapter() = default;
 
-ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter() = default;
+WConeLengthManipulatorAdapter::~WConeLengthManipulatorAdapter() = default;
 
-void ezConeLengthManipulatorAdapter::Finalize()
+void WConeLengthManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+  auto* pWindow = WQtDocumentWindow::FindWindowByDocument(pDoc);
 
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
+  WQtEngineDocumentWindow* pEngineWindow = qobject_cast<WQtEngineDocumentWindow*>(pWindow);
+  W_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
-  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezConeLengthManipulatorAdapter::GizmoEventHandler, this));
+  m_Gizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WConeLengthManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezConeLengthManipulatorAdapter::Update()
+void WConeLengthManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezConeLengthManipulatorAttribute* pAttr = static_cast<const ezConeLengthManipulatorAttribute*>(m_pManipulatorAttr);
+  WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+  const WConeLengthManipulatorAttribute* pAttr = static_cast<const WConeLengthManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
@@ -40,25 +40,25 @@ void ezConeLengthManipulatorAdapter::Update()
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
-void ezConeLengthManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void WConeLengthManipulatorAdapter::GizmoEventHandler(const WGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
       BeginTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
       CancelTemporayInteraction();
       break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
       EndTemporaryInteraction();
       break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
-      const ezConeLengthManipulatorAttribute* pAttr = static_cast<const ezConeLengthManipulatorAttribute*>(m_pManipulatorAttr);
+      const WConeLengthManipulatorAttribute* pAttr = static_cast<const WConeLengthManipulatorAttribute*>(m_pManipulatorAttr);
 
       ChangeProperties(pAttr->GetRadiusProperty(), m_Gizmo.GetRadius());
     }
@@ -66,7 +66,7 @@ void ezConeLengthManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
-void ezConeLengthManipulatorAdapter::UpdateGizmoTransform()
+void WConeLengthManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }

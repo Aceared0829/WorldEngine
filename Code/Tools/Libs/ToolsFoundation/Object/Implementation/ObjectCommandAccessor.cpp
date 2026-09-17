@@ -6,50 +6,50 @@
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectCommandAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectCommandAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezObjectCommandAccessor::ezObjectCommandAccessor(ezCommandHistory* pHistory)
-  : ezObjectDirectAccessor(const_cast<ezDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
+WObjectCommandAccessor::WObjectCommandAccessor(WCommandHistory* pHistory)
+  : WObjectDirectAccessor(const_cast<WDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
   , m_pHistory(pHistory)
 {
 }
 
-void ezObjectCommandAccessor::StartTransaction(ezStringView sDisplayString)
+void WObjectCommandAccessor::StartTransaction(WStringView sDisplayString)
 {
   m_pHistory->StartTransaction(sDisplayString);
 }
 
-void ezObjectCommandAccessor::CancelTransaction()
+void WObjectCommandAccessor::CancelTransaction()
 {
   m_pHistory->CancelTransaction();
 }
 
-void ezObjectCommandAccessor::FinishTransaction()
+void WObjectCommandAccessor::FinishTransaction()
 {
   m_pHistory->FinishTransaction();
 }
 
-void ezObjectCommandAccessor::BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/)
+void WObjectCommandAccessor::BeginTemporaryCommands(WStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/)
 {
   m_pHistory->BeginTemporaryCommands(sDisplayString, bFireEventsWhenUndoingTempCommands);
 }
 
-void ezObjectCommandAccessor::CancelTemporaryCommands()
+void WObjectCommandAccessor::CancelTemporaryCommands()
 {
   m_pHistory->CancelTemporaryCommands();
 }
 
-void ezObjectCommandAccessor::FinishTemporaryCommands()
+void WObjectCommandAccessor::FinishTemporaryCommands()
 {
   m_pHistory->FinishTemporaryCommands();
 }
 
-ezStatus ezObjectCommandAccessor::SetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WObjectCommandAccessor::SetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
-  ezSetObjectPropertyCommand cmd;
+  WSetObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
   cmd.m_NewValue = newValue;
   cmd.m_Index = index;
@@ -57,10 +57,10 @@ ezStatus ezObjectCommandAccessor::SetValue(
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::InsertValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+WStatus WObjectCommandAccessor::InsertValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index /*= WVariant()*/)
 {
-  ezInsertObjectPropertyCommand cmd;
+  WInsertObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
   cmd.m_NewValue = newValue;
   cmd.m_Index = index;
@@ -68,19 +68,19 @@ ezStatus ezObjectCommandAccessor::InsertValue(
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+WStatus WObjectCommandAccessor::RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index /*= WVariant()*/)
 {
-  ezRemoveObjectPropertyCommand cmd;
+  WRemoveObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
   cmd.m_Index = index;
   cmd.m_sProperty = pProp->GetPropertyName();
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::MoveValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WObjectCommandAccessor::MoveValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
-  ezMoveObjectPropertyCommand cmd;
+  WMoveObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
   cmd.m_OldIndex = oldIndex;
   cmd.m_NewIndex = newIndex;
@@ -88,32 +88,32 @@ ezStatus ezObjectCommandAccessor::MoveValue(
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+WStatus WObjectCommandAccessor::AddObject(const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid)
 {
-  ezAddObjectCommand cmd;
-  cmd.m_Parent = pParent ? pParent->GetGuid() : ezUuid();
+  WAddObjectCommand cmd;
+  cmd.m_Parent = pParent ? pParent->GetGuid() : WUuid();
   cmd.m_Index = index;
   cmd.m_pType = pType;
   cmd.m_NewObjectGuid = inout_objectGuid;
   cmd.m_sParentProperty = pParentProp ? pParentProp->GetPropertyName() : "Children";
-  ezStatus res = m_pHistory->AddCommand(cmd);
+  WStatus res = m_pHistory->AddCommand(cmd);
   if (res.Succeeded())
     inout_objectGuid = cmd.m_NewObjectGuid;
   return res;
 }
 
-ezStatus ezObjectCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
+WStatus WObjectCommandAccessor::RemoveObject(const WDocumentObject* pObject)
 {
-  ezRemoveObjectCommand cmd;
+  WRemoveObjectCommand cmd;
   cmd.m_Object = pObject->GetGuid();
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::MoveObject(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index)
+WStatus WObjectCommandAccessor::MoveObject(
+  const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index)
 {
-  ezMoveObjectCommand cmd;
-  cmd.m_NewParent = pNewParent ? pNewParent->GetGuid() : ezUuid();
+  WMoveObjectCommand cmd;
+  cmd.m_NewParent = pNewParent ? pNewParent->GetGuid() : WUuid();
   cmd.m_Object = pObject->GetGuid();
   cmd.m_Index = index;
   cmd.m_sParentProperty = pParentProp->GetPropertyName();

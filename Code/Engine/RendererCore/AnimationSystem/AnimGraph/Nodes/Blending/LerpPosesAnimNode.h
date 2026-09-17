@@ -7,31 +7,31 @@
 /// This node blends 2 or more poses using a lerp parameter (0-1 or 0-N for multiple poses).
 /// Weights are automatically normalized. Common use cases include blending walk and run animations,
 /// or smoothly transitioning between any set of poses.
-class EZ_RENDERERCORE_DLL ezLerpPosesAnimNode : public ezAnimGraphNode
+class W_RENDERERCORE_DLL WLerpPosesAnimNode : public WAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLerpPosesAnimNode, ezAnimGraphNode);
+  W_ADD_DYNAMIC_REFLECTION(WLerpPosesAnimNode, WAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
+  // WAnimGraphNode
 
 protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+  virtual WResult SerializeNode(WStreamWriter& stream) const override;
+  virtual WResult DeserializeNode(WStreamReader& stream) override;
 
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLerpPosesAnimNode
+  // WLerpPosesAnimNode
 
 public:
-  ezLerpPosesAnimNode();
-  ~ezLerpPosesAnimNode();
+  WLerpPosesAnimNode();
+  ~WLerpPosesAnimNode();
 
   float m_fLerp = 0.5f;                                     // [ property ]
 
 private:
-  ezUInt8 m_uiPosesCount = 0;                               // [ property ]
-  ezHybridArray<ezAnimGraphLocalPoseInputPin, 2> m_InPoses; // [ property ]
-  ezAnimGraphNumberInputPin m_InLerp;                       // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;                  // [ property ]
+  WUInt8 m_uiPosesCount = 0;                               // [ property ]
+  WHybridArray<WAnimGraphLocalPoseInputPin, 2> m_InPoses; // [ property ]
+  WAnimGraphNumberInputPin m_InLerp;                       // [ property ]
+  WAnimGraphLocalPoseOutputPin m_OutPose;                  // [ property ]
 };

@@ -6,8 +6,8 @@
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// Value used by containers for indices to indicate an invalid index.
-#ifndef ezInvalidIndex
-#  define ezInvalidIndex 0xFFFFFFFF
+#ifndef WInvalidIndex
+#  define WInvalidIndex 0xFFFFFFFF
 #endif
 
 /// A double ended queue container.
@@ -37,30 +37,30 @@
 /// - You don't know the final size up front
 ///
 /// Consider other containers when:
-/// - Only need insertion/removal at one end (use ezDynamicArray)
-/// - Need fastest possible element access (use ezDynamicArray)
-/// - Memory usage is critical and size is predictable (use ezStaticArray or ezHybridArray)
+/// - Only need insertion/removal at one end (use WDynamicArray)
+/// - Need fastest possible element access (use WDynamicArray)
+/// - Memory usage is critical and size is predictable (use WStaticArray or WHybridArray)
 template <typename T, bool Construct>
-class ezDequeBase
+class WDequeBase
 {
 protected:
   /// No memory is allocated during construction.
-  explicit ezDequeBase(ezAllocator* pAllocator); // [tested]
+  explicit WDequeBase(WAllocator* pAllocator); // [tested]
 
   /// Constructs this deque by copying from rhs.
-  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocator* pAllocator); // [tested]
+  WDequeBase(const WDequeBase<T, Construct>& rhs, WAllocator* pAllocator); // [tested]
 
   /// Constructs this deque by moving from rhs.
-  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocator* pAllocator); // [tested]
+  WDequeBase(WDequeBase<T, Construct>&& rhs, WAllocator* pAllocator); // [tested]
 
   /// Destructor.
-  ~ezDequeBase(); // [tested]
+  ~WDequeBase(); // [tested]
 
   /// Assignment operator.
-  void operator=(const ezDequeBase<T, Construct>& rhs); // [tested]
+  void operator=(const WDequeBase<T, Construct>& rhs); // [tested]
 
   /// Move operator.
-  void operator=(ezDequeBase<T, Construct>&& rhs); // [tested]
+  void operator=(WDequeBase<T, Construct>&& rhs); // [tested]
 
 public:
   /// Destructs all elements and sets the count to zero. Does not deallocate any data.
@@ -72,10 +72,10 @@ public:
   /// This does not reserve the actual amount of chunks, that would be needed, but only grows the index array
   /// (for redirections) as much as needed.
   /// Thus you can use it to reserve enough bookkeeping storage, without actually allocating all that data.
-  /// In contrast to the ezDynamicArray and ezHybridArray containers, ezDeque does not require you to reserve space
+  /// In contrast to the WDynamicArray and WHybridArray containers, WDeque does not require you to reserve space
   /// up front, to be fast. However, if useful information is available, 'Reserve' can be used to prevent a few
   /// unnecessary reallocations of its internal data structures.
-  void Reserve(ezUInt32 uiCount); // [tested]
+  void Reserve(WUInt32 uiCount); // [tested]
 
   /// This function deallocates as much memory as possible to shrink the deque to the bare minimum size that it needs to work.
   ///
@@ -86,25 +86,25 @@ public:
   void Compact(); // [tested]
 
   /// swaps the contents of this deque with another one
-  void Swap(ezDequeBase<T, Construct>& other); // [tested]
+  void Swap(WDequeBase<T, Construct>& other); // [tested]
 
   /// Sets the number of active elements in the deque. All new elements are default constructed. If the deque is shrunk, elements at
   /// the end of the deque are destructed.
-  void SetCount(ezUInt32 uiCount); // [tested]
+  void SetCount(WUInt32 uiCount); // [tested]
 
   /// \Same as SetCount(), but new elements do not get default constructed.
   template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
-  void SetCountUninitialized(ezUInt32 uiCount); // [tested]
+  void SetCountUninitialized(WUInt32 uiCount); // [tested]
 
   /// Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
-  void EnsureCount(ezUInt32 uiCount); // [tested]
+  void EnsureCount(WUInt32 uiCount); // [tested]
 
   /// Accesses the n-th element in the deque.
-  T& operator[](ezUInt32 uiIndex); // [tested]
+  T& operator[](WUInt32 uiIndex); // [tested]
 
   /// Accesses the n-th element in the deque.
-  const T& operator[](ezUInt32 uiIndex) const; // [tested]
+  const T& operator[](WUInt32 uiIndex) const; // [tested]
 
   /// Grows the deque by one element and returns a reference to the newly created element.
   T& ExpandAndGetRef(); // [tested]
@@ -119,7 +119,7 @@ public:
   void PushBack(T&& value); // [tested]
 
   /// Removes the last element from the deque.
-  void PopBack(ezUInt32 uiElements = 1); // [tested]
+  void PopBack(WUInt32 uiElements = 1); // [tested]
 
   /// Adds one element to the front of the deque.
   void PushFront(const T& element); // [tested]
@@ -131,13 +131,13 @@ public:
   void PushFront(); // [tested]
 
   /// Removes the first element from the deque.
-  void PopFront(ezUInt32 uiElements = 1); // [tested]
+  void PopFront(WUInt32 uiElements = 1); // [tested]
 
   /// Checks whether no elements are active in the deque.
   bool IsEmpty() const; // [tested]
 
   /// Returns the number of active elements in the deque.
-  ezUInt32 GetCount() const; // [tested]
+  WUInt32 GetCount() const; // [tested]
 
   /// Returns the first element.
   const T& PeekFront() const; // [tested]
@@ -154,17 +154,17 @@ public:
   /// Checks whether there is any element in the deque with the given value.
   bool Contains(const T& value) const; // [tested]
 
-  /// Returns the first index at which an element with the given value could be found or ezInvalidIndex if nothing was found.
-  ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
+  /// Returns the first index at which an element with the given value could be found or WInvalidIndex if nothing was found.
+  WUInt32 IndexOf(const T& value, WUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// Returns the last index at which an element with the given value could be found or ezInvalidIndex if nothing was found.
-  ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
+  /// Returns the last index at which an element with the given value could be found or WInvalidIndex if nothing was found.
+  WUInt32 LastIndexOf(const T& value, WUInt32 uiStartIndex = WInvalidIndex) const; // [tested]
 
   /// Removes the element at the given index and fills the gap with the last element in the deque.
-  void RemoveAtAndSwap(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndSwap(WUInt32 uiIndex); // [tested]
 
   /// Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAtAndCopy(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndCopy(WUInt32 uiIndex); // [tested]
 
   /// Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
@@ -173,7 +173,7 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
-  void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
+  void InsertAt(WUInt32 uiIndex, const T& value); // [tested]
 
   /// Sort with explicit comparer
   template <typename Comparer>
@@ -183,55 +183,55 @@ public:
   void Sort(); // [tested]
 
   /// Returns the allocator that is used by this instance.
-  ezAllocator* GetAllocator() const { return m_pAllocator; }
+  WAllocator* GetAllocator() const { return m_pAllocator; }
 
-  using const_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, false>;
-  using const_reverse_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, true>;
-  using iterator = iterator_base<ezDequeBase<T, Construct>, T, false>;
-  using reverse_iterator = iterator_base<ezDequeBase<T, Construct>, T, true>;
+  using const_iterator = const_iterator_base<WDequeBase<T, Construct>, T, false>;
+  using const_reverse_iterator = const_iterator_base<WDequeBase<T, Construct>, T, true>;
+  using iterator = iterator_base<WDequeBase<T, Construct>, T, false>;
+  using reverse_iterator = iterator_base<WDequeBase<T, Construct>, T, true>;
 
   /// Returns the number of elements after uiStartIndex that are stored in contiguous memory.
   ///
   /// That means one can do a memcpy or memcmp from position uiStartIndex up until uiStartIndex + range.
-  ezUInt32 GetContiguousRange(ezUInt32 uiStartIndex) const; // [tested]
+  WUInt32 GetContiguousRange(WUInt32 uiStartIndex) const; // [tested]
 
   /// Comparison operator
-  bool operator==(const ezDequeBase<T, Construct>& rhs) const; // [tested]
+  bool operator==(const WDequeBase<T, Construct>& rhs) const; // [tested]
 
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezDequeBase<T, Construct>&);
+  W_ADD_DEFAULT_OPERATOR_NOTEQUAL(const WDequeBase<T, Construct>&);
 
   /// Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const; // [tested]
+  WUInt64 GetHeapMemoryUsage() const; // [tested]
 
 private:
   /// A common constructor function.
-  void Constructor(ezAllocator* pAllocator);
+  void Constructor(WAllocator* pAllocator);
 
   /// Reduces the index array to take up less memory.
-  void CompactIndexArray(ezUInt32 uiMinChunksToKeep);
+  void CompactIndexArray(WUInt32 uiMinChunksToKeep);
 
   /// Moves the index chunk array to the left by swapping all elements from right to left
-  void MoveIndexChunksLeft(ezUInt32 uiChunkDiff);
+  void MoveIndexChunksLeft(WUInt32 uiChunkDiff);
 
   /// Moves the index chunk array to the right by swapping all elements from left to right
-  void MoveIndexChunksRight(ezUInt32 uiChunkDiff);
+  void MoveIndexChunksRight(WUInt32 uiChunkDiff);
 
   /// Computes which chunk contains the element at index 0
-  ezUInt32 GetFirstUsedChunk() const;
+  WUInt32 GetFirstUsedChunk() const;
 
   /// Computes which chunk would contain the last element if the deque had 'uiAtSize' elements (m_uiCount), returns the chunk of
   /// element 0, if the deque is currently empty.
-  ezUInt32 GetLastUsedChunk(ezUInt32 uiAtSize) const;
+  WUInt32 GetLastUsedChunk(WUInt32 uiAtSize) const;
 
   /// Returns which chunk contains the currently last element.
-  ezUInt32 GetLastUsedChunk() const;
+  WUInt32 GetLastUsedChunk() const;
 
   /// Computes how many chunks would be required if the deque had a size of 'uiAtSize' (the value of m_uiFirstElement) affects the
   /// result.
-  ezUInt32 GetRequiredChunks(ezUInt32 uiAtSize) const;
+  WUInt32 GetRequiredChunks(WUInt32 uiAtSize) const;
 
   /// Goes through all the unused chunks and deallocates chunks until no more than 'uiMaxChunks' are still allocated (in total).
-  void DeallocateUnusedChunks(ezUInt32 uiMaxChunks);
+  void DeallocateUnusedChunks(WUInt32 uiMaxChunks);
 
   /// Resets the counter when the next size reduction will be done.
   void ResetReduceSizeCounter();
@@ -251,128 +251,128 @@ private:
   /// * PushBack / PopBack for a long time -> Size does not change, but the many PopBack calls will trigger reductions
   ///    -> The number of allocated chunks will shrink over time until no more than the required number of chunks (+2) remains
   /// * SetCount(very large amount) -> lots of chunks need to be allocated again
-  void ReduceSize(ezInt32 iReduction);
+  void ReduceSize(WInt32 iReduction);
 
   /// Computes how many elements could be handled without rearranging the index array
-  ezUInt32 GetCurMaxCount() const;
+  WUInt32 GetCurMaxCount() const;
 
   /// Searches through the unused chunks for an allocated chunk and returns it. Allocates a new chunk if necessary.
   T* GetUnusedChunk();
 
   /// Returns a reference to the element at the given index. Makes sure the chunk that should contain that element is allocated. Used
   /// before elements are constructed.
-  T& ElementAt(ezUInt32 uiIndex);
+  T& ElementAt(WUInt32 uiIndex);
 
   /// Deallocates all data, resets the deque to the state after construction.
   void DeallocateAll();
 
-  ezAllocator* m_pAllocator;
+  WAllocator* m_pAllocator;
   T** m_pChunks;                ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
-  ezUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
-  ezUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
-  ezUInt32 m_uiCount;           ///< How many elements are actually active at the moment.
-  ezUInt32 m_uiAllocatedChunks; ///< How many entries in the m_pChunks array are allocated at the moment.
-  ezInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate
+  WUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
+  WUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
+  WUInt32 m_uiCount;           ///< How many elements are actually active at the moment.
+  WUInt32 m_uiAllocatedChunks; ///< How many entries in the m_pChunks array are allocated at the moment.
+  WInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate
                                 ///< chunks.
-  ezUInt32 m_uiMaxCount;        ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much
+  WUInt32 m_uiMaxCount;        ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much
                                 ///< memory.
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  ezUInt32 m_uiChunkSize; // needed for debugger visualization
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+  WUInt32 m_uiChunkSize; // needed for debugger visualization
 #endif
 };
 
-/// \see ezDequeBase
-template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper, bool Construct = true>
-class ezDeque : public ezDequeBase<T, Construct>
+/// \see WDequeBase
+template <typename T, typename AllocatorWrapper = WDefaultAllocatorWrapper, bool Construct = true>
+class WDeque : public WDequeBase<T, Construct>
 {
 public:
-  ezDeque();
-  ezDeque(ezAllocator* pAllocator);
+  WDeque();
+  WDeque(WAllocator* pAllocator);
 
-  ezDeque(const ezDeque<T, AllocatorWrapper, Construct>& other);
-  ezDeque(const ezDequeBase<T, Construct>& other);
+  WDeque(const WDeque<T, AllocatorWrapper, Construct>& other);
+  WDeque(const WDequeBase<T, Construct>& other);
 
-  ezDeque(ezDeque<T, AllocatorWrapper, Construct>&& other);
-  ezDeque(ezDequeBase<T, Construct>&& other);
+  WDeque(WDeque<T, AllocatorWrapper, Construct>&& other);
+  WDeque(WDequeBase<T, Construct>&& other);
 
-  void operator=(const ezDeque<T, AllocatorWrapper, Construct>& rhs);
-  void operator=(const ezDequeBase<T, Construct>& rhs);
+  void operator=(const WDeque<T, AllocatorWrapper, Construct>& rhs);
+  void operator=(const WDequeBase<T, Construct>& rhs);
 
-  void operator=(ezDeque<T, AllocatorWrapper, Construct>&& rhs);
-  void operator=(ezDequeBase<T, Construct>&& rhs);
+  void operator=(WDeque<T, AllocatorWrapper, Construct>&& rhs);
+  void operator=(WDequeBase<T, Construct>&& rhs);
 };
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& ref_container)
+typename WDequeBase<T, Construct>::iterator begin(WDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::iterator(ref_container, (size_t)0);
+  return typename WDequeBase<T, Construct>::iterator(ref_container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator begin(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_iterator begin(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0);
+  return typename WDequeBase<T, Construct>::const_iterator(container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator cbegin(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_iterator cbegin(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0);
+  return typename WDequeBase<T, Construct>::const_iterator(container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& ref_container)
+typename WDequeBase<T, Construct>::reverse_iterator rbegin(WDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)0);
+  return typename WDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator rbegin(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_reverse_iterator rbegin(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
+  return typename WDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator crbegin(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_reverse_iterator crbegin(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
+  return typename WDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& ref_container)
+typename WDequeBase<T, Construct>::iterator end(WDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::iterator(ref_container, (size_t)ref_container.GetCount());
+  return typename WDequeBase<T, Construct>::iterator(ref_container, (size_t)ref_container.GetCount());
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator end(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_iterator end(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
+  return typename WDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator cend(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_iterator cend(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
+  return typename WDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& ref_container)
+typename WDequeBase<T, Construct>::reverse_iterator rend(WDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)ref_container.GetCount());
+  return typename WDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)ref_container.GetCount());
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator rend(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_reverse_iterator rend(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
+  return typename WDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBase<T, Construct>& container)
+typename WDequeBase<T, Construct>::const_reverse_iterator crend(const WDequeBase<T, Construct>& container)
 {
-  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
+  return typename WDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
 }
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>

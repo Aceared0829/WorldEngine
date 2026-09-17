@@ -4,17 +4,17 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 
-struct ezMsgComponentInternalTrigger;
+struct WMsgComponentInternalTrigger;
 
-struct ezSpawnBoxComponentFlags
+struct WSpawnBoxComponentFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
     None = 0,
-    SpawnAtStart = EZ_BIT(0),      ///< The component will schedule a spawn once at creation time
-    SpawnContinuously = EZ_BIT(1), ///< Every time a spawn duration has finished, a new one is started
+    SpawnAtStart = W_BIT(0),      ///< The component will schedule a spawn once at creation time
+    SpawnContinuously = W_BIT(1), ///< Every time a spawn duration has finished, a new one is started
 
     Default = None
   };
@@ -25,9 +25,9 @@ struct ezSpawnBoxComponentFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezSpawnBoxComponentFlags);
+W_DECLARE_FLAGS_OPERATORS(WSpawnBoxComponentFlags);
 
-using ezSpawnBoxComponentManager = ezComponentManager<class ezSpawnBoxComponent, ezBlockStorageType::Compact>;
+using WSpawnBoxComponentManager = WComponentManager<class WSpawnBoxComponent, WBlockStorageType::Compact>;
 
 /// This component spawns prefabs inside a box.
 ///
@@ -37,22 +37,22 @@ using ezSpawnBoxComponentManager = ezComponentManager<class ezSpawnBoxComponent,
 /// If desired, the component can start spawning automatically, or it can be (re-)started from code.
 /// If 'spawn continuously' is enabled, the component restarts itself after the spawn duration is over,
 /// thus for every spawn duration the number of prefabs to spawn gets reevaluated.
-class ezSpawnBoxComponent : public ezComponent
+class WSpawnBoxComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSpawnBoxComponent, ezComponent, ezSpawnBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSpawnBoxComponent, WComponent, WSpawnBoxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSpawnBoxComponent
+  // WSpawnBoxComponent
 
 public:
   /// When called, the component starts spawning the chosen number of prefabs over the set duration.
@@ -60,8 +60,8 @@ public:
   /// If this is called while the component is already active, the internal state is reset and it starts over.
   void StartSpawning();                                           // [ scriptable ]
 
-  void SetHalfExtents(const ezVec3& value);                       // [ property ]
-  const ezVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
+  void SetHalfExtents(const WVec3& value);                       // [ property ]
+  const WVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
 
   bool GetSpawnAtStart() const;                                   // [ property ]
   void SetSpawnAtStart(bool b);                                   // [ property ]
@@ -69,26 +69,26 @@ public:
   bool GetSpawnContinuously() const;                              // [ property ]
   void SetSpawnContinuously(bool b);                              // [ property ]
 
-  ezTime m_SpawnDuration;                                         // [ property ]
-  ezUInt16 m_uiMinSpawnCount = 5;                                 // [ property ]
-  ezUInt16 m_uiSpawnCountRange = 5;                               // [ property ]
-  ezPrefabResourceHandle m_hPrefab;                               // [ property ]
+  WTime m_SpawnDuration;                                         // [ property ]
+  WUInt16 m_uiMinSpawnCount = 5;                                 // [ property ]
+  WUInt16 m_uiSpawnCountRange = 5;                               // [ property ]
+  WPrefabResourceHandle m_hPrefab;                               // [ property ]
 
   /// The spawned object's forward direction may deviate this amount from the spawn box's forward rotation. This is accomplished by rotating around the Z axis.
-  ezAngle m_MaxRotationZ; // [ property ]
+  WAngle m_MaxRotationZ; // [ property ]
 
   /// The spawned object's Z (up) axis may deviate by this amount from the spawn box's Z axis.
-  ezAngle m_MaxTiltZ; // [ property ]
+  WAngle m_MaxTiltZ; // [ property ]
 
 
 private:
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
-  void Spawn(ezUInt32 uiCount);
+  void OnTriggered(WMsgComponentInternalTrigger& msg);
+  void Spawn(WUInt32 uiCount);
   void InternalStartSpawning(bool bFirstTime);
 
-  ezUInt16 m_uiSpawned = 0;
-  ezUInt16 m_uiTotalToSpawn = 0;
-  ezTime m_StartTime;
-  ezBitflags<ezSpawnBoxComponentFlags> m_Flags;
-  ezVec3 m_vHalfExtents = ezVec3(0.5f);
+  WUInt16 m_uiSpawned = 0;
+  WUInt16 m_uiTotalToSpawn = 0;
+  WTime m_StartTime;
+  WBitflags<WSpawnBoxComponentFlags> m_Flags;
+  WVec3 m_vHalfExtents = WVec3(0.5f);
 };

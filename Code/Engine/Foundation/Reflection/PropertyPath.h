@@ -4,16 +4,16 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Variant.h>
 
-class ezAbstractProperty;
+class WAbstractProperty;
 
 
-///Reflected property step that can be used to init an ezPropertyPath
-struct EZ_FOUNDATION_DLL ezPropertyPathStep
+///Reflected property step that can be used to init an WPropertyPath
+struct W_FOUNDATION_DLL WPropertyPathStep
 {
-  ezString m_sProperty;
-  ezVariant m_Index;
+  WString m_sProperty;
+  WVariant m_Index;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPropertyPathStep);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WPropertyPathStep);
 
 /// Stores a path from an object of a given type to a property inside of it.
 ///
@@ -27,15 +27,15 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPropertyPathStep);
 /// - An empty path is allowed, in which case operations work directly on the root object
 ///
 /// Usage pattern:
-/// 1. Create ezPropertyPath instance
+/// 1. Create WPropertyPath instance
 /// 2. Initialize with InitializeFromPath() using root type and path string
 /// 3. Use SetValue()/GetValue() for simple access or WriteProperty()/ReadProperty() for complex operations
 /// 4. Reuse the same path instance for multiple objects of the same root type
-class EZ_FOUNDATION_DLL ezPropertyPath
+class W_FOUNDATION_DLL WPropertyPath
 {
 public:
-  ezPropertyPath();
-  ~ezPropertyPath();
+  WPropertyPath();
+  ~WPropertyPath();
 
   /// Returns true if InitializeFromPath() has been successfully called and it is therefore possible to use the other functions.
   bool IsValid() const;
@@ -45,54 +45,54 @@ public:
   /// The path syntax is 'propertyName[index]/propertyName[index]/...'. The '[index]' part is only
   /// required for properties that need indices (arrays and maps). Returns failure if any property
   /// in the path doesn't exist or has incompatible types.
-  ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath);
+  WResult InitializeFromPath(const WRTTI& rootObjectRtti, const char* szPath);
 
-  /// Resolves a path provided as an array of ezPropertyPathStep and validates it.
+  /// Resolves a path provided as an array of WPropertyPathStep and validates it.
   ///
   /// This overload allows programmatic construction of paths. Each step must have a valid property
   /// name and appropriate index (if required by the property type).
-  ezResult InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
+  WResult InitializeFromPath(const WRTTI* pRootObjectRtti, const WArrayPtr<const WPropertyPathStep> path);
 
   ///Applies the entire path and allows writing to the target object.
-  ezResult WriteToLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  WResult WriteToLeafObject(void* pRootObject, const WRTTI* pType, WDelegate<void(void* pLeaf, const WRTTI& pType)> func) const;
   ///Applies the entire path and allows reading from the target object.
-  ezResult ReadFromLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  WResult ReadFromLeafObject(void* pRootObject, const WRTTI* pType, WDelegate<void(void* pLeaf, const WRTTI& pType)> func) const;
 
   ///Applies the path up to the last step and allows a functor to write to the final property.
-  ezResult WriteProperty(
-    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+  WResult WriteProperty(
+    void* pRootObject, const WRTTI& type, WDelegate<void(void* pLeafObject, const WRTTI& pLeafType, const WAbstractProperty* pProp, const WVariant& index)> func) const;
   ///Applies the path up to the last step and allows a functor to read from the final property.
-  ezResult ReadProperty(
-    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+  WResult ReadProperty(
+    void* pRootObject, const WRTTI& type, WDelegate<void(void* pLeafObject, const WRTTI& pLeafType, const WAbstractProperty* pProp, const WVariant& index)> func) const;
 
   ///Convenience function that writes 'value' to the 'pRootObject' at the current path.
-  void SetValue(void* pRootObject, const ezRTTI& type, const ezVariant& value) const;
+  void SetValue(void* pRootObject, const WRTTI& type, const WVariant& value) const;
   ///Convenience function that writes 'value' to the 'pRootObject' at the current path.
   template <typename T>
-  EZ_ALWAYS_INLINE void SetValue(T* pRootObject, const ezVariant& value) const
+  W_ALWAYS_INLINE void SetValue(T* pRootObject, const WVariant& value) const
   {
-    SetValue(pRootObject, *ezGetStaticRTTI<T>(), value);
+    SetValue(pRootObject, *WGetStaticRTTI<T>(), value);
   }
 
   ///Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
-  void GetValue(void* pRootObject, const ezRTTI& type, ezVariant& out_value) const;
+  void GetValue(void* pRootObject, const WRTTI& type, WVariant& out_value) const;
   ///Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
   template <typename T>
-  EZ_ALWAYS_INLINE void GetValue(T* pRootObject, ezVariant& out_value) const
+  W_ALWAYS_INLINE void GetValue(T* pRootObject, WVariant& out_value) const
   {
-    GetValue(pRootObject, *ezGetStaticRTTI<T>(), out_value);
+    GetValue(pRootObject, *WGetStaticRTTI<T>(), out_value);
   }
 
 private:
   struct ResolvedStep
   {
-    const ezAbstractProperty* m_pProperty = nullptr;
-    ezVariant m_Index;
+    const WAbstractProperty* m_pProperty = nullptr;
+    WVariant m_Index;
   };
 
-  static ezResult ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,
-    const ezDelegate<void(void* pLeaf, const ezRTTI& pType)>& func);
+  static WResult ResolvePath(void* pCurrentObject, const WRTTI* pType, const WArrayPtr<const ResolvedStep> path, bool bWriteToObject,
+    const WDelegate<void(void* pLeaf, const WRTTI& pType)>& func);
 
   bool m_bIsValid = false;
-  ezHybridArray<ResolvedStep, 2> m_PathSteps;
+  WHybridArray<ResolvedStep, 2> m_PathSteps;
 };

@@ -3,27 +3,27 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
 
-#ifdef EZ_USE_DXVK
+#ifdef W_USE_DXVK
 // These are shims to make DXVK compile our RendererDX11 library
 
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if W_ENABLED(W_PLATFORM_LINUX)
 #    define INFINITE 0xFFFFFFFF
 #  endif
 
 #  include <Core/System/Window.h>
 #  include <Foundation/Platform/Win/Utils/MinWindows.h>
 #  include <windows_base.h>
-namespace ezMinWindows
+namespace WMinWindows
 {
   template <>
-  struct ToNativeImpl<ezWindowHandle>
+  struct ToNativeImpl<WWindowHandle>
   {
     using type = ::HWND;
-    static EZ_ALWAYS_INLINE ::HWND ToNative(ezWindowHandle hWnd)
+    static W_ALWAYS_INLINE ::HWND ToNative(WWindowHandle hWnd)
     {
-      EZ_ASSERT_DEV(hWnd.type == ezWindowHandle::Type::GLFW, "Only GLFW is supported on DXVK");
+      W_ASSERT_DEV(hWnd.type == WWindowHandle::Type::GLFW, "Only GLFW is supported on DXVK");
       return reinterpret_cast<::HWND>(hWnd.glfwWindow);
     }
   };
-} // namespace ezMinWindows
+} // namespace WMinWindows
 #endif

@@ -4,29 +4,29 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestApplication_AngelScript : public ezGameEngineTestApplication
+class WGameEngineTestApplication_AngelScript : public WGameEngineTestApplication
 {
 public:
-  ezGameEngineTestApplication_AngelScript();
+  WGameEngineTestApplication_AngelScript();
 
   void SubTestBasicsSetup();
-  ezTestAppRun SubTestBasisExec(const char* szSubTestName);
+  WTestAppRun SubTestBasisExec(const char* szSubTestName);
   /// Creates a module out of the given code and calls the function `void ExecuteTests()` in it.
-  void RunTestScript(ezStringView sScriptPath);
+  void RunTestScript(WStringView sScriptPath);
   void TestScriptExceptionCallback(asIScriptContext* pContext);
 
 private:
-  ezStringBuilder m_sCode;
-  ezDynamicArray<ezStringView> m_Lines;
+  WStringBuilder m_sCode;
+  WDynamicArray<WStringView> m_Lines;
 };
 
-class ezGameEngineTestAngelScript : public ezGameEngineTest
+class WGameEngineTestAngelScript : public WGameEngineTest
 {
-  using SUPER = ezGameEngineTest;
+  using SUPER = WGameEngineTest;
 
 public:
   virtual const char* GetTestName() const override;
-  virtual ezGameEngineTestApplication* CreateApplication() override;
+  virtual WGameEngineTestApplication* CreateApplication() override;
 
   enum SubTests
   {
@@ -44,8 +44,8 @@ public:
 
 private:
   virtual void SetupSubTests() override;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
-  ezGameEngineTestApplication_AngelScript* m_pOwnApplication = nullptr;
+  WGameEngineTestApplication_AngelScript* m_pOwnApplication = nullptr;
 };

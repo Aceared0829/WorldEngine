@@ -7,19 +7,19 @@
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezReflectedTypeStorageAccessor public functions
+// WReflectedTypeStorageAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner)
-  : ezIReflectedTypeAccessor(pRtti, pOwner)
+WReflectedTypeStorageAccessor::WReflectedTypeStorageAccessor(const WRTTI* pRtti, WDocumentObject* pOwner)
+  : WIReflectedTypeAccessor(pRtti, pOwner)
 {
-  const ezRTTI* pType = pRtti;
-  EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
-  m_pMapping = ezReflectedTypeStorageManager::AddStorageAccessor(this);
-  EZ_ASSERT_DEV(m_pMapping != nullptr, "The type for this ezReflectedTypeStorageAccessor is unknown to the ezReflectedTypeStorageManager!");
+  const WRTTI* pType = pRtti;
+  W_ASSERT_DEV(pType != nullptr, "Trying to construct an WReflectedTypeStorageAccessor for an invalid type!");
+  m_pMapping = WReflectedTypeStorageManager::AddStorageAccessor(this);
+  W_ASSERT_DEV(m_pMapping != nullptr, "The type for this WReflectedTypeStorageAccessor is unknown to the WReflectedTypeStorageManager!");
 
   auto& indexTable = m_pMapping->m_PathToStorageInfoTable;
-  const ezUInt32 uiProperties = indexTable.GetCount();
+  const WUInt32 uiProperties = indexTable.GetCount();
   // To prevent re-allocs due to new properties being added we reserve 20% more space.
   m_Data.Reserve(uiProperties + uiProperties / 20);
   m_Data.SetCount(uiProperties);
@@ -32,86 +32,86 @@ ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRt
   }
 }
 
-ezReflectedTypeStorageAccessor::~ezReflectedTypeStorageAccessor()
+WReflectedTypeStorageAccessor::~WReflectedTypeStorageAccessor()
 {
-  ezReflectedTypeStorageManager::RemoveStorageAccessor(this);
+  WReflectedTypeStorageManager::RemoveStorageAccessor(this);
 }
 
-const ezVariant ezReflectedTypeStorageAccessor::GetValue(ezStringView sProperty, ezVariant index, ezStatus* pRes) const
+const WVariant WReflectedTypeStorageAccessor::GetValue(WStringView sProperty, WVariant index, WStatus* pRes) const
 {
-  const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+  const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
   if (pProp == nullptr)
   {
     if (pRes)
-      *pRes = ezStatus(ezFmt("Property '{0}' not found in type '{1}'", sProperty, GetType()->GetTypeName()));
-    return ezVariant();
+      *pRes = WStatus(WFmt("Property '{0}' not found in type '{1}'", sProperty, GetType()->GetTypeName()));
+    return WVariant();
   }
 
   if (pRes)
-    *pRes = ezStatus(EZ_SUCCESS);
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+    *pRes = WStatus(W_SUCCESS);
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
         if (index.IsValid())
         {
           if (pRes)
           {
-            *pRes = ezStatus(ezFmt("Property '{0}' is a member property but an index of '{1}' is given", sProperty, index));
+            *pRes = WStatus(WFmt("Property '{0}' is a member property but an index of '{1}' is given", sProperty, index));
           }
-          return ezVariant();
+          return WVariant();
         }
         return m_Data[storageInfo->m_uiIndex];
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetValue(index, pRes);
+        return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetValue(index, pRes);
       }
       break;
       default:
         break;
     }
   }
-  return ezVariant();
+  return WVariant();
 }
 
-bool ezReflectedTypeStorageAccessor::SetValue(ezStringView sProperty, const ezVariant& value, ezVariant index)
+bool WReflectedTypeStorageAccessor::SetValue(WStringView sProperty, const WVariant& value, WVariant index)
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
-    EZ_ASSERT_DEV(pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>() || value.IsValid(), "");
+    W_ASSERT_DEV(pProp->GetSpecificType() == WGetStaticRTTI<WVariant>() || value.IsValid(), "");
 
-    if (storageInfo->m_Type == ezVariantType::TypedObject && storageInfo->m_DefaultValue.GetReflectedType() != value.GetReflectedType())
+    if (storageInfo->m_Type == WVariantType::TypedObject && storageInfo->m_DefaultValue.GetReflectedType() != value.GetReflectedType())
     {
       // Typed objects must match exactly.
       return false;
     }
 
-    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
-    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
+    const bool isValueType = WReflectionUtils::IsValueType(pProp);
+    const WVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(WPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(WPropertyFlags::Class) && !isValueType) ? WVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
         if (index.IsValid())
           return false;
 
-        if (value.IsA<ezString>() && pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        if (value.IsA<WString>() && pProp->GetFlags().IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags))
         {
-          ezInt64 iValue;
-          ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
-          m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
+          WInt64 iValue;
+          WReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<WString>(), iValue);
+          m_Data[storageInfo->m_uiIndex] = WVariant(iValue).ConvertTo(storageInfo->m_Type);
           return true;
         }
-        else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+        else if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
         {
           m_Data[storageInfo->m_uiIndex] = value;
           return true;
@@ -125,30 +125,30 @@ bool ezReflectedTypeStorageAccessor::SetValue(ezStringView sProperty, const ezVa
         }
       }
       break;
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
       {
         if (index.IsNumber())
         {
-          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value, index).Succeeded();
+          if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value, index).Succeeded();
           else if (value.CanConvertTo(SpecVarType))
             // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
             // that may have a different type now as someone reloaded the type information and replaced a type.
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value.ConvertTo(SpecVarType), index).Succeeded();
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value.ConvertTo(SpecVarType), index).Succeeded();
         }
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        if (index.IsA<ezString>())
+        if (index.IsA<WString>())
         {
-          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value, index).Succeeded();
+          if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value, index).Succeeded();
           else if (value.CanConvertTo(SpecVarType))
             // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
             // that may have a different type now as someone reloaded the type information and replaced a type.
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value.ConvertTo(SpecVarType), index).Succeeded();
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).SetValue(value.ConvertTo(SpecVarType), index).Succeeded();
         }
       }
       break;
@@ -159,24 +159,24 @@ bool ezReflectedTypeStorageAccessor::SetValue(ezStringView sProperty, const ezVa
   return false;
 }
 
-ezInt32 ezReflectedTypeStorageAccessor::GetCount(ezStringView sProperty) const
+WInt32 WReflectedTypeStorageAccessor::GetCount(WStringView sProperty) const
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    if (storageInfo->m_Type == WVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return -1;
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
-        return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetCount();
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
+        return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetCount();
       default:
         break;
     }
@@ -184,27 +184,27 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(ezStringView sProperty) const
   return -1;
 }
 
-bool ezReflectedTypeStorageAccessor::GetKeys(ezStringView sProperty, ezDynamicArray<ezVariant>& out_keys) const
+bool WReflectedTypeStorageAccessor::GetKeys(WStringView sProperty, WDynamicArray<WVariant>& out_keys) const
 {
   out_keys.Clear();
 
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    if (storageInfo->m_Type == WVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetKeys(out_keys).Succeeded();
+        return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).GetKeys(out_keys).Succeeded();
       }
       break;
       default:
@@ -213,53 +213,53 @@ bool ezReflectedTypeStorageAccessor::GetKeys(ezStringView sProperty, ezDynamicAr
   }
   return false;
 }
-bool ezReflectedTypeStorageAccessor::InsertValue(ezStringView sProperty, ezVariant index, const ezVariant& value)
+bool WReflectedTypeStorageAccessor::InsertValue(WStringView sProperty, WVariant index, const WVariant& value)
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    if (storageInfo->m_Type == WVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
-    if (storageInfo->m_Type == ezVariantType::TypedObject && storageInfo->m_DefaultValue.GetReflectedType() != value.GetReflectedType())
+    if (storageInfo->m_Type == WVariantType::TypedObject && storageInfo->m_DefaultValue.GetReflectedType() != value.GetReflectedType())
     {
       // Typed objects must match exactly.
       return false;
     }
 
-    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
-    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
+    const bool isValueType = WReflectionUtils::IsValueType(pProp);
+    const WVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(WPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(WPropertyFlags::Class) && !isValueType) ? WVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
       {
         if (index.IsNumber())
         {
-          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value).Succeeded();
+          if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value).Succeeded();
           else if (value.CanConvertTo(SpecVarType))
             // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
             // that may have a different type now as someone reloaded the type information and replaced a type.
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value.ConvertTo(SpecVarType)).Succeeded();
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value.ConvertTo(SpecVarType)).Succeeded();
         }
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
-        if (index.IsA<ezString>())
+        if (index.IsA<WString>())
         {
-          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value).Succeeded();
+          if (pProp->GetSpecificType() == WGetStaticRTTI<WVariant>())
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value).Succeeded();
           else if (value.CanConvertTo(SpecVarType))
             // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
             // that may have a different type now as someone reloaded the type information and replaced a type.
-            return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value.ConvertTo(SpecVarType)).Succeeded();
+            return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).InsertValue(index, value.ConvertTo(SpecVarType)).Succeeded();
         }
       }
       break;
@@ -270,25 +270,25 @@ bool ezReflectedTypeStorageAccessor::InsertValue(ezStringView sProperty, ezVaria
   return false;
 }
 
-bool ezReflectedTypeStorageAccessor::RemoveValue(ezStringView sProperty, ezVariant index)
+bool WReflectedTypeStorageAccessor::RemoveValue(WStringView sProperty, WVariant index)
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    if (storageInfo->m_Type == WVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).RemoveValue(index).Succeeded();
+        return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).RemoveValue(index).Succeeded();
       }
       break;
       default:
@@ -298,25 +298,25 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(ezStringView sProperty, ezVaria
   return false;
 }
 
-bool ezReflectedTypeStorageAccessor::MoveValue(ezStringView sProperty, ezVariant oldIndex, ezVariant newIndex)
+bool WReflectedTypeStorageAccessor::MoveValue(WStringView sProperty, WVariant oldIndex, WVariant newIndex)
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    if (storageInfo->m_Type == WVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
+      case WPropertyCategory::Map:
       {
-        return ezVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).MoveValue(oldIndex, newIndex).Succeeded();
+        return WVariantStorageAccessor(sProperty, m_Data[storageInfo->m_uiIndex]).MoveValue(oldIndex, newIndex).Succeeded();
       }
       break;
       default:
@@ -326,46 +326,46 @@ bool ezReflectedTypeStorageAccessor::MoveValue(ezStringView sProperty, ezVariant
   return false;
 }
 
-ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(ezStringView sProperty, const ezVariant& value) const
+WVariant WReflectedTypeStorageAccessor::GetPropertyChildIndex(WStringView sProperty, const WVariant& value) const
 {
-  const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  const WReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    //    if (storageInfo->m_Type == ezVariant::Type::Invalid)
-    //      return ezVariant();
+    //    if (storageInfo->m_Type == WVariant::Type::Invalid)
+    //      return WVariant();
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
+    const WAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
-      return ezVariant();
+      return WVariant();
 
-    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
-    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
+    const bool isValueType = WReflectionUtils::IsValueType(pProp);
+    const WVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(WPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(WPropertyFlags::Class) && !isValueType) ? WVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+      case WPropertyCategory::Array:
+      case WPropertyCategory::Set:
       {
         if (value.CanConvertTo(SpecVarType))
         {
-          const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
-          for (ezUInt32 i = 0; i < values.GetCount(); i++)
+          const WVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<WVariantArray>();
+          for (WUInt32 i = 0; i < values.GetCount(); i++)
           {
             if (values[i] == value)
-              return ezVariant((ezUInt32)i);
+              return WVariant((WUInt32)i);
           }
         }
       }
       break;
-      case ezPropertyCategory::Map:
+      case WPropertyCategory::Map:
       {
         if (value.CanConvertTo(SpecVarType))
         {
-          const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+          const WVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<WVariantDictionary>();
           for (auto it = values.GetIterator(); it.IsValid(); ++it)
           {
             if (it.Value() == value)
-              return ezVariant(it.Key());
+              return WVariant(it.Key());
           }
         }
       }
@@ -374,5 +374,5 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(ezStringView sPr
         break;
     }
   }
-  return ezVariant();
+  return WVariant();
 }

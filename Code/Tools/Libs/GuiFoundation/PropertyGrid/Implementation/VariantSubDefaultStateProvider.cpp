@@ -7,92 +7,92 @@
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-ezSharedPtr<ezDefaultStateProvider> ezVariantSubDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WSharedPtr<WDefaultStateProvider> WVariantSubDefaultStateProvider::CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
-  if (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(pAccessor))
+  if (auto variantSubAccessor = WDynamicCast<WVariantSubAccessor*>(pAccessor))
   {
     if (variantSubAccessor->GetRootProperty() == pProp)
-      return EZ_DEFAULT_NEW(ezVariantSubDefaultStateProvider, variantSubAccessor, pObject, pProp);
+      return W_DEFAULT_NEW(WVariantSubDefaultStateProvider, variantSubAccessor, pObject, pProp);
   }
   return nullptr;
 }
 
-ezVariantSubDefaultStateProvider::ezVariantSubDefaultStateProvider(ezVariantSubAccessor* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WVariantSubDefaultStateProvider::WVariantSubDefaultStateProvider(WVariantSubAccessor* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
   : m_pAccessor(pAccessor)
   , m_pObject(pObject)
   , m_pProp(pProp)
 {
   m_pRootAccessor = m_pAccessor->GetSourceAccessor();
-  while (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(m_pRootAccessor))
+  while (auto variantSubAccessor = WDynamicCast<WVariantSubAccessor*>(m_pRootAccessor))
   {
     m_pRootAccessor = variantSubAccessor->GetSourceAccessor();
   }
 }
 
-ezInt32 ezVariantSubDefaultStateProvider::GetRootDepth() const
+WInt32 WVariantSubDefaultStateProvider::GetRootDepth() const
 {
   // As this default provider dives into the contents of a variable it has to always be executed first as all the other providers work on property granularity.
   return 1000;
 }
 
-ezColorGammaUB ezVariantSubDefaultStateProvider::GetBackgroundColor() const
+WColorGammaUB WVariantSubDefaultStateProvider::GetBackgroundColor() const
 {
   // Set alpha to 0 -> color will be ignored.
-  return ezColorGammaUB(0, 0, 0, 0);
+  return WColorGammaUB(0, 0, 0, 0);
 }
 
-ezVariant ezVariantSubDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WVariant WVariantSubDefaultStateProvider::GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Succeeded())
     return defaultValue;
 
   return {};
 }
 
-ezStatus ezVariantSubDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
+WStatus WVariantSubDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff)
 {
-  EZ_REPORT_FAILURE("Unreachable code");
-  return ezStatus(EZ_SUCCESS);
+  W_REPORT_FAILURE("Unreachable code");
+  return WStatus(W_SUCCESS);
 }
 
-bool ezVariantSubDefaultStateProvider::IsDefaultValue(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+bool WVariantSubDefaultStateProvider::IsDefaultValue(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
     return true;
 
-  ezVariant value;
+  WVariant value;
   pAccessor->GetValue(pObject, pProp, value, index).LogFailure();
   return defaultValue == value;
 }
 
-ezStatus ezVariantSubDefaultStateProvider::RevertProperty(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WVariantSubDefaultStateProvider::RevertProperty(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
-    return ezStatus(ezFmt("Failed to retrieve default value for variant sub tree."));
+    return WStatus(WFmt("Failed to retrieve default value for variant sub tree."));
 
   return pAccessor->SetValue(pObject, pProp, defaultValue, index);
 }
 
-ezResult ezVariantSubDefaultStateProvider::GetDefaultValueInternal(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezVariant& out_DefaultValue)
+WResult WVariantSubDefaultStateProvider::GetDefaultValueInternal(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WVariant& out_DefaultValue)
 {
-  EZ_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "ezVariantSubDefaultStateProvider is only valid on the object and variant property it was created on.");
-  // As m_pAccessor is a view into an ezVariant we first need to take the same steps into the defaultValue retrieved from the root accessor to have the same view so we can compare the same subset of both ezVariants.
+  W_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "WVariantSubDefaultStateProvider is only valid on the object and variant property it was created on.");
+  // As m_pAccessor is a view into an WVariant we first need to take the same steps into the defaultValue retrieved from the root accessor to have the same view so we can compare the same subset of both WVariants.
   out_DefaultValue = superPtr[0]->GetDefaultValue(superPtr.GetSubArray(1), m_pRootAccessor, pObject, pProp);
 
-  ezTempHybridArray<ezVariant, 4> path;
-  EZ_SUCCEED_OR_RETURN(m_pAccessor->GetPath(pObject, path));
+  WTempHybridArray<WVariant, 4> path;
+  W_SUCCEED_OR_RETURN(m_pAccessor->GetPath(pObject, path));
   if (index.IsValid())
     path.PushBack(index);
 
-  for (const ezVariant& step : path)
+  for (const WVariant& step : path)
   {
-    ezStatus res(EZ_SUCCESS);
-    out_DefaultValue = ezVariantStorageAccessor(pProp->GetPropertyName(), out_DefaultValue).GetValue(step, &res);
+    WStatus res(W_SUCCESS);
+    out_DefaultValue = WVariantStorageAccessor(pProp->GetPropertyName(), out_DefaultValue).GetValue(step, &res);
     if (res.Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

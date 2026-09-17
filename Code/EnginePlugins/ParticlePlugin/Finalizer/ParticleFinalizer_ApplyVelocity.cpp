@@ -8,54 +8,54 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_ApplyVelocity, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_ApplyVelocity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizerFactory_ApplyVelocity, 1, WRTTIDefaultAllocator<WParticleFinalizerFactory_ApplyVelocity>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_ApplyVelocity, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_ApplyVelocity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizer_ApplyVelocity, 1, WRTTIDefaultAllocator<WParticleFinalizer_ApplyVelocity>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_ApplyVelocity::ezParticleFinalizerFactory_ApplyVelocity() = default;
+WParticleFinalizerFactory_ApplyVelocity::WParticleFinalizerFactory_ApplyVelocity() = default;
 
-const ezRTTI* ezParticleFinalizerFactory_ApplyVelocity::GetFinalizerType() const
+const WRTTI* WParticleFinalizerFactory_ApplyVelocity::GetFinalizerType() const
 {
-  return ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>();
+  return WGetStaticRTTI<WParticleFinalizer_ApplyVelocity>();
 }
 
-void ezParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
+void WParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const
 {
-  ezParticleFinalizer_ApplyVelocity* pFinalizer = static_cast<ezParticleFinalizer_ApplyVelocity*>(pObject);
+  WParticleFinalizer_ApplyVelocity* pFinalizer = static_cast<WParticleFinalizer_ApplyVelocity*>(pObject);
 }
 
-ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity()
+WParticleFinalizer_ApplyVelocity::WParticleFinalizer_ApplyVelocity()
 {
   // a bit later than the other finalizers
   m_fPriority = 525.0f;
 }
 
-ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() = default;
+WParticleFinalizer_ApplyVelocity::~WParticleFinalizer_ApplyVelocity() = default;
 
-void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
+void WParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 }
 
-void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
+void WParticleFinalizer_ApplyVelocity::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: ApplyVelocity");
+  W_PROFILE_SCOPE("PFX: ApplyVelocity");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  WProcessingStreamIterator<WVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
-    ezVec3& pos = reinterpret_cast<ezVec3&>(itPosition.Current());
+    WVec3& pos = reinterpret_cast<WVec3&>(itPosition.Current());
 
-    const ezVec4 vel = itVelocity.Current();
-    const ezVec3 dir(vel.x, vel.y, vel.z);
+    const WVec4 vel = itVelocity.Current();
+    const WVec3 dir(vel.x, vel.y, vel.z);
     const float speed = vel.w;
 
     pos += dir * speed * tDiff;
@@ -66,4 +66,4 @@ void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_ApplyVelocity);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_ApplyVelocity);

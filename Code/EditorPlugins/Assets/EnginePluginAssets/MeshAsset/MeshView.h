@@ -2,24 +2,24 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezMeshContext;
+class WMeshContext;
 
-class ezMeshViewContext : public ezEngineProcessViewContext
+class WMeshViewContext : public WEngineProcessViewContext
 {
 public:
-  ezMeshViewContext(ezMeshContext* pMeshContext);
-  ~ezMeshViewContext();
+  WMeshViewContext(WMeshContext* pMeshContext);
+  ~WMeshViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
+  virtual void HandleViewMessage(const WEditorEngineViewMsg* pMsg) override;
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  void PickObjectAt(ezUInt16 x, ezUInt16 y);
+  void PickObjectAt(WUInt16 x, WUInt16 y);
 
-  ezMeshContext* m_pContext = nullptr;
-  ezUInt32 m_uiLastHoveredPartIndex = ezInvalidIndex;
+  WMeshContext* m_pContext = nullptr;
+  WUInt32 m_uiLastHoveredPartIndex = WInvalidIndex;
 };

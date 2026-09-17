@@ -4,74 +4,74 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpWorkerManager.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
 
-EZ_IMPLEMENT_SINGLETON(ezLongOpWorkerManager);
+W_IMPLEMENT_SINGLETON(WLongOpWorkerManager);
 
-ezLongOpWorkerManager::ezLongOpWorkerManager()
+WLongOpWorkerManager::WLongOpWorkerManager()
   : m_SingletonRegistrar(this)
 {
 }
 
-ezLongOpWorkerManager::~ezLongOpWorkerManager() = default;
+WLongOpWorkerManager::~WLongOpWorkerManager() = default;
 
-class ezLongOpTask final : public ezTask
+class WLongOpTask final : public WTask
 {
 public:
-  ezLongOpWorker* m_pWorkerOp = nullptr;
-  ezUuid m_OperationGuid;
-  ezProgress* m_pProgress = nullptr;
+  WLongOpWorker* m_pWorkerOp = nullptr;
+  WUuid m_OperationGuid;
+  WProgress* m_pProgress = nullptr;
 
-  ezLongOpTask()
+  WLongOpTask()
   {
-    ezStringBuilder name;
+    WStringBuilder name;
     name.SetFormat("Long Op: '{}'", "TODO: NAME"); // TODO
-    ConfigureTask(name, ezTaskNesting::Maybe);
+    ConfigureTask(name, WTaskNesting::Maybe);
   }
 
-  ~ezLongOpTask() = default;
+  ~WLongOpTask() = default;
 
   virtual void Execute() override
   {
     if (HasBeenCanceled())
       return;
 
-    ezDataBuffer resultData;
-    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&resultData);
-    ezMemoryStreamWriter writer(&storage);
+    WDataBuffer resultData;
+    WMemoryStreamContainerWrapperStorage<WDataBuffer> storage(&resultData);
+    WMemoryStreamWriter writer(&storage);
 
-    const ezResult res = m_pWorkerOp->Execute(*m_pProgress, writer);
+    const WResult res = m_pWorkerOp->Execute(*m_pProgress, writer);
 
-    ezLongOpWorkerManager::GetSingleton()->WorkerOperationFinished(m_OperationGuid, res, std::move(resultData));
+    WLongOpWorkerManager::GetSingleton()->WorkerOperationFinished(m_OperationGuid, res, std::move(resultData));
   }
 };
 
-void ezLongOpWorkerManager::ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e)
+void WLongOpWorkerManager::ProcessCommunicationChannelEventHandler(const WProcessCommunicationChannel::Event& e)
 {
-  if (auto pMsg = ezDynamicCast<const ezLongOpReplicationMsg*>(e.m_pMessage))
+  if (auto pMsg = WDynamicCast<const WLongOpReplicationMsg*>(e.m_pMessage))
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
-    ezRawMemoryStreamReader reader(pMsg->m_ReplicationData);
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sReplicationType);
+    WRawMemoryStreamReader reader(pMsg->m_ReplicationData);
+    const WRTTI* pRtti = WRTTI::FindTypeByName(pMsg->m_sReplicationType);
 
     auto& opInfoPtr = m_WorkerOps.ExpandAndGetRef();
-    opInfoPtr = EZ_DEFAULT_NEW(WorkerOpInfo);
+    opInfoPtr = W_DEFAULT_NEW(WorkerOpInfo);
 
     auto& opInfo = *opInfoPtr;
     opInfo.m_DocumentGuid = pMsg->m_DocumentGuid;
     opInfo.m_OperationGuid = pMsg->m_OperationGuid;
-    opInfo.m_pWorkerOp = pRtti->GetAllocator()->Allocate<ezLongOpWorker>();
+    opInfo.m_pWorkerOp = pRtti->GetAllocator()->Allocate<WLongOpWorker>();
 
     LaunchWorkerOperation(opInfo, reader);
     return;
   }
 
-  if (auto pMsg = ezDynamicCast<const ezLongOpResultMsg*>(e.m_pMessage))
+  if (auto pMsg = WDynamicCast<const WLongOpResultMsg*>(e.m_pMessage))
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (auto pOpInfo = GetOperation(pMsg->m_OperationGuid))
     {
-      EZ_ASSERT_DEBUG(pMsg->m_bSuccess == false, "Only Cancel messages are allowed to send to the processor");
+      W_ASSERT_DEBUG(pMsg->m_bSuccess == false, "Only Cancel messages are allowed to send to the processor");
 
       pOpInfo->m_Progress.UserClickedCancel();
     }
@@ -80,32 +80,32 @@ void ezLongOpWorkerManager::ProcessCommunicationChannelEventHandler(const ezProc
   }
 }
 
-void ezLongOpWorkerManager::LaunchWorkerOperation(WorkerOpInfo& opInfo, ezStreamReader& config)
+void WLongOpWorkerManager::LaunchWorkerOperation(WorkerOpInfo& opInfo, WStreamReader& config)
 {
   opInfo.m_Progress.SetCompletion(0.0f);
   opInfo.m_Progress.m_pUserData = &opInfo;
   opInfo.m_Progress.m_Events.AddEventHandler(
-    ezMakeDelegate(&ezLongOpWorkerManager::WorkerProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
+    WMakeDelegate(&WLongOpWorkerManager::WorkerProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
 
   SendProgress(opInfo);
 
   if (opInfo.m_pWorkerOp->InitializeExecution(config, opInfo.m_DocumentGuid).Failed())
   {
-    WorkerOperationFinished(opInfo.m_OperationGuid, EZ_FAILURE, ezDataBuffer());
+    WorkerOperationFinished(opInfo.m_OperationGuid, W_FAILURE, WDataBuffer());
   }
   else
   {
-    ezSharedPtr<ezLongOpTask> pTask = EZ_DEFAULT_NEW(ezLongOpTask);
+    WSharedPtr<WLongOpTask> pTask = W_DEFAULT_NEW(WLongOpTask);
     pTask->m_OperationGuid = opInfo.m_OperationGuid;
     pTask->m_pWorkerOp = opInfo.m_pWorkerOp.Borrow();
     pTask->m_pProgress = &opInfo.m_Progress;
-    opInfo.m_TaskID = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
+    opInfo.m_TaskID = WTaskSystem::StartSingleTask(pTask, WTaskPriority::LongRunning);
   }
 }
 
-void ezLongOpWorkerManager::WorkerOperationFinished(ezUuid operationGuid, ezResult result, ezDataBuffer&& resultData)
+void WLongOpWorkerManager::WorkerOperationFinished(WUuid operationGuid, WResult result, WDataBuffer&& resultData)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   auto pOpInfo = GetOperation(operationGuid);
 
@@ -114,7 +114,7 @@ void ezLongOpWorkerManager::WorkerOperationFinished(ezUuid operationGuid, ezResu
 
   // tell the controller about the result
   {
-    ezLongOpResultMsg msg;
+    WLongOpResultMsg msg;
     msg.m_OperationGuid = operationGuid;
     msg.m_bSuccess = result.Succeeded();
     msg.m_ResultData = std::move(resultData);
@@ -125,9 +125,9 @@ void ezLongOpWorkerManager::WorkerOperationFinished(ezUuid operationGuid, ezResu
   RemoveOperation(operationGuid);
 }
 
-void ezLongOpWorkerManager::WorkerProgressBarEventHandler(const ezProgressEvent& e)
+void WLongOpWorkerManager::WorkerProgressBarEventHandler(const WProgressEvent& e)
 {
-  if (e.m_Type == ezProgressEvent::Type::ProgressChanged)
+  if (e.m_Type == WProgressEvent::Type::ProgressChanged)
   {
     auto pOpInfo = static_cast<WorkerOpInfo*>(e.m_pProgressbar->m_pUserData);
 
@@ -135,11 +135,11 @@ void ezLongOpWorkerManager::WorkerProgressBarEventHandler(const ezProgressEvent&
   }
 }
 
-void ezLongOpWorkerManager::RemoveOperation(ezUuid opGuid)
+void WLongOpWorkerManager::RemoveOperation(WUuid opGuid)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < m_WorkerOps.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_WorkerOps.GetCount(); ++i)
   {
     if (m_WorkerOps[i]->m_OperationGuid == opGuid)
     {
@@ -149,9 +149,9 @@ void ezLongOpWorkerManager::RemoveOperation(ezUuid opGuid)
   }
 }
 
-ezLongOpWorkerManager::WorkerOpInfo* ezLongOpWorkerManager::GetOperation(const ezUuid& opGuid) const
+WLongOpWorkerManager::WorkerOpInfo* WLongOpWorkerManager::GetOperation(const WUuid& opGuid) const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   for (auto& opInfoPtr : m_WorkerOps)
   {
@@ -162,9 +162,9 @@ ezLongOpWorkerManager::WorkerOpInfo* ezLongOpWorkerManager::GetOperation(const e
   return nullptr;
 }
 
-void ezLongOpWorkerManager::SendProgress(WorkerOpInfo& opInfo)
+void WLongOpWorkerManager::SendProgress(WorkerOpInfo& opInfo)
 {
-  ezLongOpProgressMsg msg;
+  WLongOpProgressMsg msg;
   msg.m_OperationGuid = opInfo.m_OperationGuid;
   msg.m_fCompletion = opInfo.m_Progress.GetCompletion();
 

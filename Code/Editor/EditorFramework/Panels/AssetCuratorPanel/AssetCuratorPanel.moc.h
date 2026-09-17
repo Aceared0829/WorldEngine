@@ -6,38 +6,38 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
-struct ezLoggingEventData;
+struct WLoggingEventData;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorFilter : public ezQtAssetFilter
+class W_EDITORFRAMEWORK_DLL WQtAssetCuratorFilter : public WQtAssetFilter
 {
   Q_OBJECT
 public:
-  explicit ezQtAssetCuratorFilter(QObject* pParent);
+  explicit WQtAssetCuratorFilter(QObject* pParent);
 
   void SetFilterTransitive(bool bFilterTransitive);
 
 public:
-  virtual ezAssetFilterResult IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
+  virtual WAssetFilterResult IsAssetFiltered(WStringView sDataDirParentRelativePath, bool bIsFolder, const WSubAsset* pInfo) const override;
 
   /// Whether this asset is in a state that the curator panel reports at all.
-  static bool HasIssue(const ezSubAsset* pInfo);
+  static bool HasIssue(const WSubAsset* pInfo);
 
   /// Whether the asset's issue is only a consequence of another asset's issue, which is reported
   /// separately. Only meaningful for assets that HasIssue() accepts.
-  static bool IsIndirectIssue(const ezSubAsset* pInfo);
+  static bool IsIndirectIssue(const WSubAsset* pInfo);
 
   bool m_bFilterTransitive = true;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorPanel : public ezQtApplicationPanel, public Ui_AssetCuratorPanel
+class W_EDITORFRAMEWORK_DLL WQtAssetCuratorPanel : public WQtApplicationPanel, public Ui_AssetCuratorPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtAssetCuratorPanel);
+  W_DECLARE_SINGLETON(WQtAssetCuratorPanel);
 
 public:
-  ezQtAssetCuratorPanel(ads::CDockManager* pDockManager);
-  ~ezQtAssetCuratorPanel();
+  WQtAssetCuratorPanel(ads::CDockManager* pDockManager);
+  ~WQtAssetCuratorPanel();
 
 public Q_SLOTS:
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
@@ -49,9 +49,9 @@ private Q_SLOTS:
   void onListAssetsContextMenuRequested(const QPoint& pos);
 
 private:
-  void LogWriter(const ezLoggingEventData& e);
+  void LogWriter(const WLoggingEventData& e);
   void UpdateIssueInfo();
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+  void AssetCuratorEventHandler(const WAssetCuratorEvent& e);
 
   /// Recounts the issues that are currently hidden as indirect and shows the number on the
   /// 'show indirect issues' checkbox, so they are discoverable without ticking it.
@@ -62,8 +62,8 @@ private:
   /// selection. Returns an invalid index if nothing is selected.
   QModelIndex GetContextMenuTarget() const;
 
-  QSharedPointer<ezQtAssetBrowserModel> m_Model;
-  ezQtAssetCuratorFilter* m_pFilter;
+  QSharedPointer<WQtAssetBrowserModel> m_Model;
+  WQtAssetCuratorFilter* m_pFilter;
   QPersistentModelIndex m_SelectedIndex;
   bool m_bIndirectCountScheduled = false;
 };

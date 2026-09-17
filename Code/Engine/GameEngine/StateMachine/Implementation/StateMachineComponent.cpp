@@ -6,53 +6,53 @@
 #include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgStateMachineStateChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgStateMachineStateChanged, 1, ezRTTIDefaultAllocator<ezMsgStateMachineStateChanged>)
+W_IMPLEMENT_MESSAGE_TYPE(WMsgStateMachineStateChanged);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgStateMachineStateChanged, 1, WRTTIDefaultAllocator<WMsgStateMachineStateChanged>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("OldStateName", GetOldStateName, SetOldStateName),
-    EZ_ACCESSOR_PROPERTY("NewStateName", GetNewStateName, SetNewStateName),
+    W_ACCESSOR_PROPERTY("OldStateName", GetOldStateName, SetOldStateName),
+    W_ACCESSOR_PROPERTY("NewStateName", GetNewStateName, SetNewStateName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SendMsg, 1, ezRTTIDefaultAllocator<ezStateMachineState_SendMsg>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineState_SendMsg, 1, WRTTIDefaultAllocator<WStateMachineState_SendMsg>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MessageDelay", m_MessageDelay),
-    EZ_MEMBER_PROPERTY("SendMessageOnEnter", m_bSendMessageOnEnter)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("SendMessageOnExit", m_bSendMessageOnExit),
-    EZ_MEMBER_PROPERTY("LogOnEnter", m_bLogOnEnter),
-    EZ_MEMBER_PROPERTY("LogOnExit", m_bLogOnExit),
+    W_MEMBER_PROPERTY("MessageDelay", m_MessageDelay),
+    W_MEMBER_PROPERTY("SendMessageOnEnter", m_bSendMessageOnEnter)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("SendMessageOnExit", m_bSendMessageOnExit),
+    W_MEMBER_PROPERTY("LogOnEnter", m_bLogOnEnter),
+    W_MEMBER_PROPERTY("LogOnExit", m_bLogOnExit),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(ezStringView sName)
-  : ezStateMachineState(sName)
+WStateMachineState_SendMsg::WStateMachineState_SendMsg(WStringView sName)
+  : WStateMachineState(sName)
 {
 }
 
-ezStateMachineState_SendMsg::~ezStateMachineState_SendMsg() = default;
+WStateMachineState_SendMsg::~WStateMachineState_SendMsg() = default;
 
-void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void WStateMachineState_SendMsg::OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const
 {
-  ezHashedString sFromState = (pFromState != nullptr) ? pFromState->GetNameHashed() : ezHashedString();
+  WHashedString sFromState = (pFromState != nullptr) ? pFromState->GetNameHashed() : WHashedString();
 
   if (m_bSendMessageOnEnter)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
+    if (auto pOwner = WDynamicCast<WStateMachineComponent*>(&ref_instance.GetOwner()))
     {
-      ezMsgStateMachineStateChanged msg;
+      WMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = sFromState;
       msg.m_sNewStateName = GetNameHashed();
 
@@ -62,19 +62,19 @@ void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& ref_instance, 
 
   if (m_bLogOnEnter)
   {
-    ezLog::Info("State Machine: Entering '{}' State from '{}'", GetNameHashed(), sFromState);
+    WLog::Info("State Machine: Entering '{}' State from '{}'", GetNameHashed(), sFromState);
   }
 }
 
-void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void WStateMachineState_SendMsg::OnExit(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pToState) const
 {
-  ezHashedString sToState = (pToState != nullptr) ? pToState->GetNameHashed() : ezHashedString();
+  WHashedString sToState = (pToState != nullptr) ? pToState->GetNameHashed() : WHashedString();
 
   if (m_bSendMessageOnExit)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
+    if (auto pOwner = WDynamicCast<WStateMachineComponent*>(&ref_instance.GetOwner()))
     {
-      ezMsgStateMachineStateChanged msg;
+      WMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = GetNameHashed();
       msg.m_sNewStateName = sToState;
 
@@ -84,115 +84,115 @@ void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& ref_instance, v
 
   if (m_bLogOnExit)
   {
-    ezLog::Info("State Machine: Exiting '{}' State to '{}'", GetNameHashed(), sToState);
+    WLog::Info("State Machine: Exiting '{}' State to '{}'", GetNameHashed(), sToState);
   }
 }
 
-ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineState_SendMsg::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_MessageDelay;
   inout_stream << m_bSendMessageOnEnter;
   inout_stream << m_bSendMessageOnExit;
   inout_stream << m_bLogOnEnter;
   inout_stream << m_bLogOnExit;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineState_SendMsg::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
   inout_stream >> m_MessageDelay;
   inout_stream >> m_bSendMessageOnEnter;
   inout_stream >> m_bSendMessageOnExit;
   inout_stream >> m_bLogOnEnter;
   inout_stream >> m_bLogOnExit;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SwitchObject, 1, ezRTTIDefaultAllocator<ezStateMachineState_SwitchObject>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WStateMachineState_SwitchObject, 1, WRTTIDefaultAllocator<WStateMachineState_SwitchObject>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("PathToGroup", m_sGroupPath),
-    EZ_MEMBER_PROPERTY("ObjectToEnable", m_sObjectToEnable),
-    EZ_MEMBER_PROPERTY("DeactivateOthers", m_bDeactivateOthers)->AddAttributes(new ezDefaultValueAttribute(true)),
+    W_MEMBER_PROPERTY("PathToGroup", m_sGroupPath),
+    W_MEMBER_PROPERTY("ObjectToEnable", m_sObjectToEnable),
+    W_MEMBER_PROPERTY("DeactivateOthers", m_bDeactivateOthers)->AddAttributes(new WDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_SwitchObject::ezStateMachineState_SwitchObject(ezStringView sName)
-  : ezStateMachineState(sName)
+WStateMachineState_SwitchObject::WStateMachineState_SwitchObject(WStringView sName)
+  : WStateMachineState(sName)
 {
 }
 
-ezStateMachineState_SwitchObject::~ezStateMachineState_SwitchObject() = default;
+WStateMachineState_SwitchObject::~WStateMachineState_SwitchObject() = default;
 
-void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void WStateMachineState_SwitchObject::OnEnter(WStateMachineInstance& ref_instance, void* pInstanceData, const WStateMachineState* pFromState) const
 {
-  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
+  if (auto pOwner = WDynamicCast<WStateMachineComponent*>(&ref_instance.GetOwner()))
   {
-    if (ezGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
+    if (WGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
     {
-      pOwnerGO->ActivateChildByName(ezTempHashedString(m_sObjectToEnable), m_bDeactivateOthers);
+      pOwnerGO->ActivateChildByName(WTempHashedString(m_sObjectToEnable), m_bDeactivateOthers);
     }
   }
 }
 
-ezResult ezStateMachineState_SwitchObject::Serialize(ezStreamWriter& inout_stream) const
+WResult WStateMachineState_SwitchObject::Serialize(WStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
   inout_stream << m_sGroupPath;
   inout_stream << m_sObjectToEnable;
   inout_stream << m_bDeactivateOthers;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStateMachineState_SwitchObject::Deserialize(ezStreamReader& inout_stream)
+WResult WStateMachineState_SwitchObject::Deserialize(WStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  W_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
   inout_stream >> m_sGroupPath;
   inout_stream >> m_sObjectToEnable;
   inout_stream >> m_bDeactivateOthers;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezStateMachineComponentManager::ezStateMachineComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+WStateMachineComponentManager::WStateMachineComponentManager(WWorld* pWorld)
+  : WComponentManager<ComponentType, WBlockStorageType::Compact>(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezStateMachineComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WStateMachineComponentManager::ResourceEventHandler, this));
 }
 
-ezStateMachineComponentManager::~ezStateMachineComponentManager()
+WStateMachineComponentManager::~WStateMachineComponentManager()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezStateMachineComponentManager::ResourceEventHandler, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WStateMachineComponentManager::ResourceEventHandler, this));
 }
 
-void ezStateMachineComponentManager::Initialize()
+void WStateMachineComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezStateMachineComponentManager::Update, this);
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WStateMachineComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
 }
 
-void ezStateMachineComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WStateMachineComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   // reload
   {
     for (auto hComponent : m_ComponentsToReload)
     {
-      ezStateMachineComponent* pComponent = nullptr;
+      WStateMachineComponent* pComponent = nullptr;
       if (TryGetComponent(hComponent, pComponent) && pComponent->IsActive())
       {
         pComponent->InstantiateStateMachine();
@@ -215,11 +215,11 @@ void ezStateMachineComponentManager::Update(const ezWorldModule::UpdateContext& 
   }
 }
 
-void ezStateMachineComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+void WStateMachineComponentManager::ResourceEventHandler(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezStateMachineResource>())
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<WStateMachineResource>())
   {
-    ezStateMachineResourceHandle hResource((ezStateMachineResource*)(e.m_pResource));
+    WStateMachineResourceHandle hResource((WStateMachineResource*)(e.m_pResource));
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
@@ -234,61 +234,61 @@ void ezStateMachineComponentManager::ResourceEventHandler(const ezResourceEvent&
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WStateMachineComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
-    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
+    W_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_StateMachine", WDependencyFlags::Package), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
+    W_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new WDynamicStringEnumAttribute("BlackboardNamesEnum")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_MESSAGESENDERS
+  W_BEGIN_MESSAGESENDERS
   {
-    EZ_MESSAGE_SENDER(m_StateChangedSender)
+    W_MESSAGE_SENDER(m_StateChangedSender)
   }
-  EZ_END_MESSAGESENDERS;
+  W_END_MESSAGESENDERS;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetState, In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentState),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FireTransitionEvent, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetState, In, "Name"),
+    W_SCRIPT_FUNCTION_PROPERTY(GetCurrentState),
+    W_SCRIPT_FUNCTION_PROPERTY(FireTransitionEvent, In, "Name"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
+    new WCategoryAttribute("Logic"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
 
-EZ_END_DYNAMIC_REFLECTED_TYPE
+W_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
 
-ezStateMachineComponent::ezStateMachineComponent() = default;
-ezStateMachineComponent::ezStateMachineComponent(ezStateMachineComponent&& other) = default;
-ezStateMachineComponent::~ezStateMachineComponent() = default;
-ezStateMachineComponent& ezStateMachineComponent::operator=(ezStateMachineComponent&& other) = default;
+WStateMachineComponent::WStateMachineComponent() = default;
+WStateMachineComponent::WStateMachineComponent(WStateMachineComponent&& other) = default;
+WStateMachineComponent::~WStateMachineComponent() = default;
+WStateMachineComponent& WStateMachineComponent::operator=(WStateMachineComponent&& other) = default;
 
-void ezStateMachineComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WStateMachineComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s << m_sInitialState;
   s << m_sBlackboardName;
 }
 
-void ezStateMachineComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WStateMachineComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s >> m_sInitialState;
@@ -299,21 +299,21 @@ void ezStateMachineComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezStateMachineComponent::OnActivated()
+void WStateMachineComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   InstantiateStateMachine();
 }
 
-void ezStateMachineComponent::OnDeactivated()
+void WStateMachineComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   m_pStateMachineInstance = nullptr;
 }
 
-void ezStateMachineComponent::SetResource(const ezStateMachineResourceHandle& hResource)
+void WStateMachineComponent::SetResource(const WStateMachineResourceHandle& hResource)
 {
   if (m_hResource == hResource)
     return;
@@ -326,9 +326,9 @@ void ezStateMachineComponent::SetResource(const ezStateMachineResourceHandle& hR
   }
 }
 
-void ezStateMachineComponent::SetInitialState(const char* szName)
+void WStateMachineComponent::SetInitialState(const char* szName)
 {
-  ezHashedString sInitialState;
+  WHashedString sInitialState;
   sInitialState.Assign(szName);
 
   if (m_sInitialState == sInitialState)
@@ -342,9 +342,9 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   }
 }
 
-void ezStateMachineComponent::SetBlackboardName(const char* szName)
+void WStateMachineComponent::SetBlackboardName(const char* szName)
 {
-  ezHashedString sBlackboardName;
+  WHashedString sBlackboardName;
   sBlackboardName.Assign(szName);
 
   if (m_sBlackboardName == sBlackboardName)
@@ -358,11 +358,11 @@ void ezStateMachineComponent::SetBlackboardName(const char* szName)
   }
 }
 
-bool ezStateMachineComponent::SetState(ezStringView sName)
+bool WStateMachineComponent::SetState(WStringView sName)
 {
   if (m_pStateMachineInstance != nullptr)
   {
-    ezHashedString sStateName;
+    WHashedString sStateName;
     sStateName.Assign(sName);
 
     return m_pStateMachineInstance->SetState(sStateName).Succeeded();
@@ -371,7 +371,7 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
   return false;
 }
 
-ezStringView ezStateMachineComponent::GetCurrentState() const
+WStringView WStateMachineComponent::GetCurrentState() const
 {
   if (m_pStateMachineInstance != nullptr && m_pStateMachineInstance->GetCurrentState())
   {
@@ -381,7 +381,7 @@ ezStringView ezStateMachineComponent::GetCurrentState() const
   return {};
 }
 
-void ezStateMachineComponent::FireTransitionEvent(ezStringView sEvent)
+void WStateMachineComponent::FireTransitionEvent(WStringView sEvent)
 {
   if (m_pStateMachineInstance != nullptr)
   {
@@ -389,11 +389,11 @@ void ezStateMachineComponent::FireTransitionEvent(ezStringView sEvent)
   }
 }
 
-void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
+void WStateMachineComponent::SendStateChangedMsg(WMsgStateMachineStateChanged& msg, WTime delay)
 {
-  if (delay > ezTime::MakeZero())
+  if (delay > WTime::MakeZero())
   {
-    m_StateChangedSender.PostEventMessage(msg, this, GetOwner(), delay, ezObjectMsgQueueType::NextFrame);
+    m_StateChangedSender.PostEventMessage(msg, this, GetOwner(), delay, WObjectMsgQueueType::NextFrame);
   }
   else
   {
@@ -401,26 +401,26 @@ void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged&
   }
 }
 
-void ezStateMachineComponent::InstantiateStateMachine()
+void WStateMachineComponent::InstantiateStateMachine()
 {
   m_pStateMachineInstance = nullptr;
 
   if (m_hResource.IsValid() == false)
     return;
 
-  ezResourceLock<ezStateMachineResource> pStateMachineResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pStateMachineResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WStateMachineResource> pStateMachineResource(m_hResource, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pStateMachineResource.GetAcquireResult() != WResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
+    WLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
     return;
   }
 
   m_pStateMachineInstance = pStateMachineResource->CreateInstance(*this);
-  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName.GetView()));
+  m_pStateMachineInstance->SetBlackboard(WBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName.GetView()));
   m_pStateMachineInstance->SetStateOrFallback(m_sInitialState).IgnoreResult();
 }
 
-void ezStateMachineComponent::Update()
+void WStateMachineComponent::Update()
 {
   if (m_pStateMachineInstance != nullptr)
   {
@@ -429,4 +429,4 @@ void ezStateMachineComponent::Update()
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineComponent);

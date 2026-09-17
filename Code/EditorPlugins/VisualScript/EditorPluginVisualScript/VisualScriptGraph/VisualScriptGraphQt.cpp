@@ -6,7 +6,7 @@
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, Factories)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, Factories)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager"
@@ -14,59 +14,59 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, Factories)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezVisualScriptNodeRegistry);
-    const ezRTTI* pBaseType = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType();
+    W_DEFAULT_NEW(WVisualScriptNodeRegistry);
+    const WRTTI* pBaseType = WVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtVisualScriptPin(); });
-    /*ezQtVisualGraphScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtVisualGraphConnection* { return new ezQtVisualScriptConnection(); });    */
-    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtVisualScriptNode(); });
+    WQtVisualGraphScene::GetPinFactory().RegisterCreator(WGetStaticRTTI<WVisualScriptPin>(), [](const WRTTI* pRtti)->WQtVisualGraphPin* { return new WQtVisualScriptPin(); });
+    /*WQtVisualGraphScene::GetConnectionFactory().RegisterCreator(WGetStaticRTTI<WVisualScriptConnection>(), [](const WRTTI* pRtti)->WQtVisualGraphConnection* { return new WQtVisualScriptConnection(); });    */
+    WQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const WRTTI* pRtti)->WQtVisualGraphNode* { return new WQtVisualScriptNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    const ezRTTI* pBaseType = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType();
+    const WRTTI* pBaseType = WVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptPin>());
-    //ezQtVisualGraphScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>());
-    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
+    WQtVisualGraphScene::GetPinFactory().UnregisterCreator(WGetStaticRTTI<WVisualScriptPin>());
+    //WQtVisualGraphScene::GetConnectionFactory().UnregisterCreator(WGetStaticRTTI<WVisualScriptConnection>());
+    WQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
 
-    ezVisualScriptNodeRegistry* pDummy = ezVisualScriptNodeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+    WVisualScriptNodeRegistry* pDummy = WVisualScriptNodeRegistry::GetSingleton();
+    W_DEFAULT_DELETE(pDummy);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptPin::ezQtVisualScriptPin() = default;
+WQtVisualScriptPin::WQtVisualScriptPin() = default;
 
-void ezQtVisualScriptPin::SetPin(const ezVisualGraphPin& pin)
+void WQtVisualScriptPin::SetPin(const WVisualGraphPin& pin)
 {
   m_bTranslatePinName = false;
 
-  ezQtVisualGraphPin::SetPin(pin);
+  WQtVisualGraphPin::SetPin(pin);
 
   UpdateTooltip();
 }
 
-bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
+bool WQtVisualScriptPin::UpdatePinColors(const WColorGammaUB* pOverwriteColor)
 {
-  ezColorGammaUB overwriteColor;
-  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
+  WColorGammaUB overwriteColor;
+  const WVisualScriptPin& vsPin = WStaticCast<const WVisualScriptPin&>(*GetPin());
 
-  ezVisualScriptDataType::Enum type = vsPin.GetResolvedScriptDataType();
+  WVisualScriptDataType::Enum type = vsPin.GetResolvedScriptDataType();
   if (vsPin.NeedsTypeDeduction())
   {
-    overwriteColor = ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(type);
+    overwriteColor = WVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(type);
     pOverwriteColor = &overwriteColor;
   }
 
-  bool res = ezQtVisualGraphPin::UpdatePinColors(pOverwriteColor);
+  bool res = WQtVisualGraphPin::UpdatePinColors(pOverwriteColor);
 
-  if (vsPin.IsRequired() && type != ezVisualScriptDataType::GameObject && HasAnyConnections() == false)
+  if (vsPin.IsRequired() && type != WVisualScriptDataType::GameObject && HasAnyConnections() == false)
   {
-    QColor requiredColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
+    QColor requiredColor = WToQtColor(WColorScheme::LightUI(WColorScheme::Red));
 
     QPen p = pen();
     p.setColor(requiredColor);
@@ -82,11 +82,11 @@ bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
   return res;
 }
 
-void ezQtVisualScriptPin::UpdateTooltip()
+void WQtVisualScriptPin::UpdateTooltip()
 {
-  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
+  const WVisualScriptPin& vsPin = WStaticCast<const WVisualScriptPin&>(*GetPin());
 
-  ezStringBuilder sTooltip;
+  WStringBuilder sTooltip;
   sTooltip = vsPin.GetName();
 
   if (vsPin.IsDataPin())
@@ -104,41 +104,41 @@ void ezQtVisualScriptPin::UpdateTooltip()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptConnection::ezQtVisualScriptConnection() = default;
+WQtVisualScriptConnection::WQtVisualScriptConnection() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptNode::ezQtVisualScriptNode() = default;
+WQtVisualScriptNode::WQtVisualScriptNode() = default;
 
-void ezQtVisualScriptNode::UpdateState()
+void WQtVisualScriptNode::UpdateState()
 {
   const TitleFormat format;
 
-  ezStringBuilder sTemplate;
+  WStringBuilder sTemplate;
   if (!TryGetTitleTemplateFromAttribute(sTemplate))
   {
-    sTemplate = ezVisualScriptNodeManager::GetNiceTypeName(GetObject());
+    sTemplate = WVisualScriptNodeManager::GetNiceTypeName(GetObject());
   }
 
-  ezStringBuilder sTitle;
-  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+  WStringBuilder sTitle;
+  WTokenParseUtils::RenderTemplate(sTemplate, [&](WStringView sPlaceholder, WVariant index, bool bOptional, WStringBuilder& ref_sOutput)
     { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   SetTitleAndSubtitle(sTitle, format);
 
-  auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetObject()->GetDocumentObjectManager());
+  auto pManager = static_cast<const WVisualScriptNodeManager*>(GetObject()->GetDocumentObjectManager());
 
   if (m_pSubtitleLabel->toPlainText().isEmpty())
   {
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(GetObject()->GetType());
+    auto pNodeDesc = WVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(GetObject()->GetType());
     if (pNodeDesc != nullptr && pNodeDesc->NeedsTypeDeduction())
     {
-      ezVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
-      m_pSubtitleLabel->setPlainText(deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown");
+      WVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
+      m_pSubtitleLabel->setPlainText(deductedType != WVisualScriptDataType::Invalid ? WVisualScriptDataType::GetName(deductedType) : "Unknown");
     }
   }
 
-  auto pScene = static_cast<ezQtVisualScriptNodeScene*>(scene());
+  auto pScene = static_cast<WQtVisualScriptNodeScene*>(scene());
 
   if (pManager->IsCoroutine(GetObject()))
   {
@@ -156,7 +156,7 @@ void ezQtVisualScriptNode::UpdateState()
   }
 }
 
-void ezQtVisualScriptNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+void WQtVisualScriptNode::ResolvePlaceholder(WStringView sPlaceholder, const WVariant& index, bool bOptional, const TitleFormat& format, WStringBuilder& ref_sOutput)
 {
   for (const auto& pin : GetInputPins())
   {
@@ -164,7 +164,7 @@ void ezQtVisualScriptNode::ResolvePlaceholder(ezStringView sPlaceholder, const e
       continue;
 
     // the value of a connected string pin is unknown here, so nothing is shown for it
-    if (!bOptional && static_cast<const ezVisualScriptPin*>(pin->GetPin())->GetScriptDataType() != ezVisualScriptDataType::String)
+    if (!bOptional && static_cast<const WVisualScriptPin*>(pin->GetPin())->GetScriptDataType() != WVisualScriptDataType::String)
     {
       ref_sOutput.Append(sPlaceholder);
     }
@@ -177,53 +177,53 @@ void ezQtVisualScriptNode::ResolvePlaceholder(ezStringView sPlaceholder, const e
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullptr*/)
-  : ezQtVisualGraphScene(pParent)
+WQtVisualScriptNodeScene::WQtVisualScriptNodeScene(QObject* pParent /*= nullptr*/)
+  : WQtVisualGraphScene(pParent)
 {
   constexpr int iconSize = 32;
   m_CoroutineIcon = QIcon(":/EditorPluginVisualScript/Icons/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
   m_LoopIcon = QIcon(":/EditorPluginVisualScript/Icons/Loop.svg").pixmap(QSize(iconSize, iconSize));
 }
 
-ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene()
+WQtVisualScriptNodeScene::~WQtVisualScriptNodeScene()
 {
   if (m_pManager != nullptr)
   {
-    static_cast<const ezVisualScriptNodeManager*>(m_pManager)->m_NodeChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::NodeChangedHandler, this));
+    static_cast<const WVisualScriptNodeManager*>(m_pManager)->m_NodeChangedEvent.RemoveEventHandler(WMakeDelegate(&WQtVisualScriptNodeScene::NodeChangedHandler, this));
   }
 }
 
-void ezQtVisualScriptNodeScene::InitScene(const ezVisualGraphObjectManager* pManager)
+void WQtVisualScriptNodeScene::InitScene(const WVisualGraphObjectManager* pManager)
 {
-  ezQtVisualGraphScene::InitScene(pManager);
+  WQtVisualGraphScene::InitScene(pManager);
 
-  static_cast<const ezVisualScriptNodeManager*>(pManager)->m_NodeChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::NodeChangedHandler, this));
+  static_cast<const WVisualScriptNodeManager*>(pManager)->m_NodeChangedEvent.AddEventHandler(WMakeDelegate(&WQtVisualScriptNodeScene::NodeChangedHandler, this));
 }
 
-void ezQtVisualScriptNodeScene::NodeChangedHandler(const ezDocumentObject* pObject)
+void WQtVisualScriptNodeScene::NodeChangedHandler(const WDocumentObject* pObject)
 {
   auto it = m_Nodes.Find(pObject);
   if (it.IsValid() == false)
     return;
 
-  ezQtVisualGraphNode* pNode = it.Value();
+  WQtVisualGraphNode* pNode = it.Value();
 
   pNode->ResetFlags();
   pNode->update();
 
   auto& inputPins = pNode->GetInputPins();
-  for (ezQtVisualGraphPin* pPin : inputPins)
+  for (WQtVisualGraphPin* pPin : inputPins)
   {
-    if (static_cast<ezQtVisualScriptPin*>(pPin)->UpdatePinColors())
+    if (static_cast<WQtVisualScriptPin*>(pPin)->UpdatePinColors())
     {
       pPin->update();
     }
   }
 
   auto& outputPins = pNode->GetOutputPins();
-  for (ezQtVisualGraphPin* pPin : outputPins)
+  for (WQtVisualGraphPin* pPin : outputPins)
   {
-    if (static_cast<ezQtVisualScriptPin*>(pPin)->UpdatePinColors())
+    if (static_cast<WQtVisualScriptPin*>(pPin)->UpdatePinColors())
     {
       pPin->update();
     }

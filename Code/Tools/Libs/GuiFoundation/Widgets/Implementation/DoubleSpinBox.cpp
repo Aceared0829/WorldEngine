@@ -8,11 +8,11 @@
 #include <QStyleOption>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
+WQtDoubleSpinBox::WQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
   : QDoubleSpinBox(pParent)
 {
   m_fDefaultValue = 0.0;
-  m_fDisplayedValue = ezMath::NaN<float>();
+  m_fDisplayedValue = WMath::NaN<float>();
   m_bInvalid = false;
   m_bModified = false;
   m_bIntMode = bIntMode;
@@ -23,53 +23,53 @@ ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
   setDecimals(6);
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, &QWidget::customContextMenuRequested, this, &ezQtDoubleSpinBox::onCustomContextMenuRequested);
+  connect(this, &QWidget::customContextMenuRequested, this, &WQtDoubleSpinBox::onCustomContextMenuRequested);
 }
 
-void ezQtDoubleSpinBox::SetIntMode(bool bEnable)
+void WQtDoubleSpinBox::SetIntMode(bool bEnable)
 {
   m_bIntMode = bEnable;
 }
 
-void ezQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
+void WQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
 {
   m_sSuffix = QString::fromUtf8(szSuffix);
 }
 
-void ezQtDoubleSpinBox::setDefaultValue(double value)
+void WQtDoubleSpinBox::setDefaultValue(double value)
 {
   m_fDefaultValue = value;
 }
 
 
-void ezQtDoubleSpinBox::setDefaultValue(const ezVariant& val)
+void WQtDoubleSpinBox::setDefaultValue(const WVariant& val)
 {
   double fValue = 0;
-  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+  if (WToolsReflectionUtils::GetFloatFromVariant(val, fValue))
     setDefaultValue(fValue);
 }
 
-void ezQtDoubleSpinBox::setMinimum(const ezVariant& val)
+void WQtDoubleSpinBox::setMinimum(const WVariant& val)
 {
   double fValue = 0;
-  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+  if (WToolsReflectionUtils::GetFloatFromVariant(val, fValue))
     setMinimum(fValue);
 }
 
 
-void ezQtDoubleSpinBox::setMaximum(const ezVariant& val)
+void WQtDoubleSpinBox::setMaximum(const WVariant& val)
 {
   double fValue = 0;
-  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+  if (WToolsReflectionUtils::GetFloatFromVariant(val, fValue))
     setMaximum(fValue);
 }
 
-QString ezQtDoubleSpinBox::textFromValue(double fVal) const
+QString WQtDoubleSpinBox::textFromValue(double fVal) const
 {
   if (m_bInvalid)
     return QString();
 
-  if (hasFocus() && fVal == m_fDisplayedValue && !ezMath::IsNaN(m_fDisplayedValue))
+  if (hasFocus() && fVal == m_fDisplayedValue && !WMath::IsNaN(m_fDisplayedValue))
   {
     return m_sDisplayedText;
   }
@@ -84,7 +84,7 @@ QString ezQtDoubleSpinBox::textFromValue(double fVal) const
   }
 
   if (m_bIntMode)
-    fVal = ezMath::Round(QDoubleSpinBox::value());
+    fVal = WMath::Round(QDoubleSpinBox::value());
 
   QString sText = QDoubleSpinBox::textFromValue(fVal);
 
@@ -112,7 +112,7 @@ QString ezQtDoubleSpinBox::textFromValue(double fVal) const
   return sText;
 }
 
-double ezQtDoubleSpinBox::valueFromText(const QString& sText) const
+double WQtDoubleSpinBox::valueFromText(const QString& sText) const
 {
   if (m_bInvalid)
   {
@@ -145,41 +145,41 @@ double ezQtDoubleSpinBox::valueFromText(const QString& sText) const
   return val;
 }
 
-void ezQtDoubleSpinBox::setValueInvalid()
+void WQtDoubleSpinBox::setValueInvalid()
 {
   m_bInvalid = true;
   m_sDisplayedText = QString();
-  m_fDisplayedValue = ezMath::NaN<float>();
+  m_fDisplayedValue = WMath::NaN<float>();
   QDoubleSpinBox::setValue(minimum());
 }
 
-void ezQtDoubleSpinBox::setValue(double fVal)
+void WQtDoubleSpinBox::setValue(double fVal)
 {
-  EZ_ASSERT_DEBUG(ezMath::IsFinite(fVal), "Spin box value must be finite!");
+  W_ASSERT_DEBUG(WMath::IsFinite(fVal), "Spin box value must be finite!");
   m_bInvalid = false;
-  m_fDisplayedValue = ezMath::NaN<float>();
+  m_fDisplayedValue = WMath::NaN<float>();
   QDoubleSpinBox::setValue(fVal);
 }
 
-void ezQtDoubleSpinBox::setValue(const ezVariant& val)
+void WQtDoubleSpinBox::setValue(const WVariant& val)
 {
   double fValue = 0;
-  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+  if (WToolsReflectionUtils::GetFloatFromVariant(val, fValue))
     setValue(fValue);
   else
     setValueInvalid();
 }
 
-double ezQtDoubleSpinBox::value() const
+double WQtDoubleSpinBox::value() const
 {
   if (m_bInvalid)
     return 0.0;
 
-  EZ_ASSERT_DEBUG(!ezMath::IsNaN(QDoubleSpinBox::value()), "Spin box valid value should never be NaN!");
-  return m_bIntMode ? ezMath::Round(QDoubleSpinBox::value()) : QDoubleSpinBox::value();
+  W_ASSERT_DEBUG(!WMath::IsNaN(QDoubleSpinBox::value()), "Spin box valid value should never be NaN!");
+  return m_bIntMode ? WMath::Round(QDoubleSpinBox::value()) : QDoubleSpinBox::value();
 }
 
-void ezQtDoubleSpinBox::focusInEvent(QFocusEvent* event)
+void WQtDoubleSpinBox::focusInEvent(QFocusEvent* event)
 {
   if (!m_sSuffix.isEmpty())
   {
@@ -196,12 +196,12 @@ void ezQtDoubleSpinBox::focusInEvent(QFocusEvent* event)
   QDoubleSpinBox::focusInEvent(event);
 }
 
-void ezQtDoubleSpinBox::focusOutEvent(QFocusEvent* event)
+void WQtDoubleSpinBox::focusOutEvent(QFocusEvent* event)
 {
   QDoubleSpinBox::focusOutEvent(event);
 }
 
-void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
+void WQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 {
   if (!isReadOnly())
   {
@@ -226,7 +226,7 @@ void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
   QDoubleSpinBox::mousePressEvent(event);
 }
 
-void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
+void WQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 {
   if (!isReadOnly())
   {
@@ -265,7 +265,7 @@ void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
   QDoubleSpinBox::mouseReleaseEvent(event);
 }
 
-void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
+void WQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
 {
   if (!isReadOnly())
   {
@@ -275,7 +275,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
       m_iDragDelta += iDelta;
       {
         m_LastDragPos = event->globalPosition().toPoint();
-        const QRect dsize = ezWidgetUtils::GetClosestScreen(event->globalPosition().toPoint()).availableGeometry();
+        const QRect dsize = WWidgetUtils::GetClosestScreen(event->globalPosition().toPoint()).availableGeometry();
         if (m_LastDragPos.y() < (dsize.top() + 10))
         {
           m_LastDragPos.setY(dsize.bottom() - 10);
@@ -302,7 +302,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   QDoubleSpinBox::mouseMoveEvent(event);
 }
 
-void ezQtDoubleSpinBox::keyPressEvent(QKeyEvent* event)
+void WQtDoubleSpinBox::keyPressEvent(QKeyEvent* event)
 {
   if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
   {
@@ -317,7 +317,7 @@ void ezQtDoubleSpinBox::keyPressEvent(QKeyEvent* event)
   QDoubleSpinBox::keyPressEvent(event);
 }
 
-bool ezQtDoubleSpinBox::event(QEvent* event)
+bool WQtDoubleSpinBox::event(QEvent* event)
 {
   if (event->type() == QEvent::ShortcutOverride)
   {
@@ -328,7 +328,7 @@ bool ezQtDoubleSpinBox::event(QEvent* event)
   return QDoubleSpinBox::event(event);
 }
 
-void ezQtDoubleSpinBox::onCustomContextMenuRequested()
+void WQtDoubleSpinBox::onCustomContextMenuRequested()
 {
   if (!isReadOnly())
   {

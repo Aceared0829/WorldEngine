@@ -2,7 +2,7 @@ cls
 
 $files = Get-ChildItem -Path $PSScriptRoot -Filter *.png 
 
-$TCE = "$PSScriptRoot\..\..\..\..\Output\Bin\WinVs2026Debug64\ezTexConv.exe"
+$TCE = "$PSScriptRoot\..\..\..\..\Output\Bin\WinVs2026Debug64\WTexConv.exe"
 
 foreach($file in $files)
 {

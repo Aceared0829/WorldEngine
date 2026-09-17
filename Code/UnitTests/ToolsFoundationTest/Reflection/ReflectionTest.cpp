@@ -8,186 +8,186 @@
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
+W_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 
-void VariantToPropertyTest(void* pIntStruct, const ezRTTI* pRttiInt, const char* szPropName, ezVariant::Type::Enum type)
+void VariantToPropertyTest(void* pIntStruct, const WRTTI* pRttiInt, const char* szPropName, WVariant::Type::Enum type)
 {
-  const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  const WAbstractMemberProperty* pProp = WReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
+  W_TEST_BOOL(pProp != nullptr);
   if (pProp)
   {
-    ezVariant oldValue = ezReflectionUtils::GetMemberPropertyValue(pProp, pIntStruct);
-    EZ_TEST_BOOL(oldValue.IsValid());
-    EZ_TEST_BOOL(oldValue.GetType() == type);
+    WVariant oldValue = WReflectionUtils::GetMemberPropertyValue(pProp, pIntStruct);
+    W_TEST_BOOL(oldValue.IsValid());
+    W_TEST_BOOL(oldValue.GetType() == type);
 
-    ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
-    EZ_TEST_BOOL(defaultValue.GetType() == type);
-    ezReflectionUtils::SetMemberPropertyValue(pProp, pIntStruct, defaultValue);
+    WVariant defaultValue = WReflectionUtils::GetDefaultValue(pProp);
+    W_TEST_BOOL(defaultValue.GetType() == type);
+    WReflectionUtils::SetMemberPropertyValue(pProp, pIntStruct, defaultValue);
 
-    ezVariant newValue = ezReflectionUtils::GetMemberPropertyValue(pProp, pIntStruct);
-    EZ_TEST_BOOL(newValue.IsValid());
-    EZ_TEST_BOOL(newValue.GetType() == type);
-    EZ_TEST_BOOL(newValue == defaultValue);
-    EZ_TEST_BOOL(newValue != oldValue);
+    WVariant newValue = WReflectionUtils::GetMemberPropertyValue(pProp, pIntStruct);
+    W_TEST_BOOL(newValue.IsValid());
+    W_TEST_BOOL(newValue.GetType() == type);
+    W_TEST_BOOL(newValue == defaultValue);
+    W_TEST_BOOL(newValue != oldValue);
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
+W_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Integer Properties")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Integer Properties")
   {
-    ezIntegerStruct intStruct;
-    const ezRTTI* pRttiInt = ezRTTI::FindTypeByName("ezIntegerStruct");
-    EZ_TEST_BOOL(pRttiInt != nullptr);
+    WIntegerStruct intStruct;
+    const WRTTI* pRttiInt = WRTTI::FindTypeByName("WIntegerStruct");
+    W_TEST_BOOL(pRttiInt != nullptr);
 
-    VariantToPropertyTest(&intStruct, pRttiInt, "Int8", ezVariant::Type::Int8);
-    EZ_TEST_INT(0, intStruct.GetInt8());
-    VariantToPropertyTest(&intStruct, pRttiInt, "UInt8", ezVariant::Type::UInt8);
-    EZ_TEST_INT(0, intStruct.GetUInt8());
+    VariantToPropertyTest(&intStruct, pRttiInt, "Int8", WVariant::Type::Int8);
+    W_TEST_INT(0, intStruct.GetInt8());
+    VariantToPropertyTest(&intStruct, pRttiInt, "UInt8", WVariant::Type::UInt8);
+    W_TEST_INT(0, intStruct.GetUInt8());
 
-    VariantToPropertyTest(&intStruct, pRttiInt, "Int16", ezVariant::Type::Int16);
-    EZ_TEST_INT(0, intStruct.m_iInt16);
-    VariantToPropertyTest(&intStruct, pRttiInt, "UInt16", ezVariant::Type::UInt16);
-    EZ_TEST_INT(0, intStruct.m_iUInt16);
+    VariantToPropertyTest(&intStruct, pRttiInt, "Int16", WVariant::Type::Int16);
+    W_TEST_INT(0, intStruct.m_iInt16);
+    VariantToPropertyTest(&intStruct, pRttiInt, "UInt16", WVariant::Type::UInt16);
+    W_TEST_INT(0, intStruct.m_iUInt16);
 
-    VariantToPropertyTest(&intStruct, pRttiInt, "Int32", ezVariant::Type::Int32);
-    EZ_TEST_INT(0, intStruct.GetInt32());
-    VariantToPropertyTest(&intStruct, pRttiInt, "UInt32", ezVariant::Type::UInt32);
-    EZ_TEST_INT(0, intStruct.GetUInt32());
+    VariantToPropertyTest(&intStruct, pRttiInt, "Int32", WVariant::Type::Int32);
+    W_TEST_INT(0, intStruct.GetInt32());
+    VariantToPropertyTest(&intStruct, pRttiInt, "UInt32", WVariant::Type::UInt32);
+    W_TEST_INT(0, intStruct.GetUInt32());
 
-    VariantToPropertyTest(&intStruct, pRttiInt, "Int64", ezVariant::Type::Int64);
-    EZ_TEST_INT(0, intStruct.m_iInt64);
-    VariantToPropertyTest(&intStruct, pRttiInt, "UInt64", ezVariant::Type::UInt64);
-    EZ_TEST_INT(0, intStruct.m_iUInt64);
+    VariantToPropertyTest(&intStruct, pRttiInt, "Int64", WVariant::Type::Int64);
+    W_TEST_INT(0, intStruct.m_iInt64);
+    VariantToPropertyTest(&intStruct, pRttiInt, "UInt64", WVariant::Type::UInt64);
+    W_TEST_INT(0, intStruct.m_iUInt64);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Properties")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Float Properties")
   {
-    ezFloatStruct floatStruct;
-    const ezRTTI* pRttiFloat = ezRTTI::FindTypeByName("ezFloatStruct");
-    EZ_TEST_BOOL(pRttiFloat != nullptr);
+    WFloatStruct floatStruct;
+    const WRTTI* pRttiFloat = WRTTI::FindTypeByName("WFloatStruct");
+    W_TEST_BOOL(pRttiFloat != nullptr);
 
-    VariantToPropertyTest(&floatStruct, pRttiFloat, "Float", ezVariant::Type::Float);
-    EZ_TEST_FLOAT(0, floatStruct.GetFloat(), 0);
-    VariantToPropertyTest(&floatStruct, pRttiFloat, "Double", ezVariant::Type::Double);
-    EZ_TEST_FLOAT(0, floatStruct.GetDouble(), 0);
-    VariantToPropertyTest(&floatStruct, pRttiFloat, "Time", ezVariant::Type::Time);
-    EZ_TEST_FLOAT(0, floatStruct.GetTime().GetSeconds(), 0);
-    VariantToPropertyTest(&floatStruct, pRttiFloat, "Angle", ezVariant::Type::Angle);
-    EZ_TEST_FLOAT(0, floatStruct.GetAngle().GetDegree(), 0);
+    VariantToPropertyTest(&floatStruct, pRttiFloat, "Float", WVariant::Type::Float);
+    W_TEST_FLOAT(0, floatStruct.GetFloat(), 0);
+    VariantToPropertyTest(&floatStruct, pRttiFloat, "Double", WVariant::Type::Double);
+    W_TEST_FLOAT(0, floatStruct.GetDouble(), 0);
+    VariantToPropertyTest(&floatStruct, pRttiFloat, "Time", WVariant::Type::Time);
+    W_TEST_FLOAT(0, floatStruct.GetTime().GetSeconds(), 0);
+    VariantToPropertyTest(&floatStruct, pRttiFloat, "Angle", WVariant::Type::Angle);
+    W_TEST_FLOAT(0, floatStruct.GetAngle().GetDegree(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc Properties")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Misc Properties")
   {
-    ezPODClass podClass;
-    const ezRTTI* pRttiPOD = ezRTTI::FindTypeByName("ezPODClass");
-    EZ_TEST_BOOL(pRttiPOD != nullptr);
+    WPODClass podClass;
+    const WRTTI* pRttiPOD = WRTTI::FindTypeByName("WPODClass");
+    W_TEST_BOOL(pRttiPOD != nullptr);
 
-    VariantToPropertyTest(&podClass, pRttiPOD, "Bool", ezVariant::Type::Bool);
-    EZ_TEST_BOOL(podClass.GetBool() == false);
-    VariantToPropertyTest(&podClass, pRttiPOD, "Color", ezVariant::Type::Color);
-    EZ_TEST_BOOL(podClass.GetColor() == ezColor(1.0f, 1.0f, 1.0f, 1.0f));
+    VariantToPropertyTest(&podClass, pRttiPOD, "Bool", WVariant::Type::Bool);
+    W_TEST_BOOL(podClass.GetBool() == false);
+    VariantToPropertyTest(&podClass, pRttiPOD, "Color", WVariant::Type::Color);
+    W_TEST_BOOL(podClass.GetColor() == WColor(1.0f, 1.0f, 1.0f, 1.0f));
 
-    VariantToPropertyTest(&podClass, pRttiPOD, "CharPtr", ezVariant::Type::String);
-    EZ_TEST_STRING(podClass.GetCharPtr(), "");
+    VariantToPropertyTest(&podClass, pRttiPOD, "CharPtr", WVariant::Type::String);
+    W_TEST_STRING(podClass.GetCharPtr(), "");
 
-    VariantToPropertyTest(&podClass, pRttiPOD, "String", ezVariant::Type::String);
-    EZ_TEST_STRING(podClass.GetString(), "");
+    VariantToPropertyTest(&podClass, pRttiPOD, "String", WVariant::Type::String);
+    W_TEST_STRING(podClass.GetString(), "");
 
-    // An ezStringView is special, ezReflectionUtils::GetMemberPropertyValue will return an ezString as that is the default assignment behaviour of ezStringView to ezVariant. However, ezReflectionUtils::GetDefaultValue will still return an ezStringView.
+    // An WStringView is special, WReflectionUtils::GetMemberPropertyValue will return an WString as that is the default assignment behaviour of WStringView to WVariant. However, WReflectionUtils::GetDefaultValue will still return an WStringView.
     {
-      const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiPOD, "StringView");
-      EZ_TEST_BOOL(pProp != nullptr);
+      const WAbstractMemberProperty* pProp = WReflectionUtils::GetMemberProperty(pRttiPOD, "StringView");
+      W_TEST_BOOL(pProp != nullptr);
       if (pProp)
       {
-        ezVariant oldValue = ezReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
-        EZ_TEST_BOOL(oldValue.IsValid());
-        EZ_TEST_BOOL(oldValue.GetType() == ezVariant::Type::String);
+        WVariant oldValue = WReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
+        W_TEST_BOOL(oldValue.IsValid());
+        W_TEST_BOOL(oldValue.GetType() == WVariant::Type::String);
 
-        ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
-        EZ_TEST_BOOL(defaultValue.GetType() == ezVariant::Type::StringView);
-        ezReflectionUtils::SetMemberPropertyValue(pProp, &podClass, defaultValue);
+        WVariant defaultValue = WReflectionUtils::GetDefaultValue(pProp);
+        W_TEST_BOOL(defaultValue.GetType() == WVariant::Type::StringView);
+        WReflectionUtils::SetMemberPropertyValue(pProp, &podClass, defaultValue);
 
-        ezVariant newValue = ezReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
-        EZ_TEST_BOOL(newValue.IsValid());
-        EZ_TEST_BOOL(newValue.GetType() == ezVariant::Type::String);
-        EZ_TEST_BOOL(newValue == defaultValue);
-        EZ_TEST_BOOL(newValue != oldValue);
+        WVariant newValue = WReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
+        W_TEST_BOOL(newValue.IsValid());
+        W_TEST_BOOL(newValue.GetType() == WVariant::Type::String);
+        W_TEST_BOOL(newValue == defaultValue);
+        W_TEST_BOOL(newValue != oldValue);
       }
-      EZ_TEST_STRING(podClass.GetStringView(), "");
+      W_TEST_STRING(podClass.GetStringView(), "");
     }
 
-    VariantToPropertyTest(&podClass, pRttiPOD, "Buffer", ezVariant::Type::DataBuffer);
-    EZ_TEST_BOOL(podClass.GetBuffer() == ezDataBuffer());
-    VariantToPropertyTest(&podClass, pRttiPOD, "VarianceAngle", ezVariant::Type::TypedObject);
-    EZ_TEST_BOOL(podClass.GetCustom() == ezVarianceTypeAngle{});
+    VariantToPropertyTest(&podClass, pRttiPOD, "Buffer", WVariant::Type::DataBuffer);
+    W_TEST_BOOL(podClass.GetBuffer() == WDataBuffer());
+    VariantToPropertyTest(&podClass, pRttiPOD, "VarianceAngle", WVariant::Type::TypedObject);
+    W_TEST_BOOL(podClass.GetCustom() == WVarianceTypeAngle{});
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Math Properties")
   {
-    ezMathClass mathClass;
-    const ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
-    EZ_TEST_BOOL(pRttiMath != nullptr);
+    WMathClass mathClass;
+    const WRTTI* pRttiMath = WRTTI::FindTypeByName("WMathClass");
+    W_TEST_BOOL(pRttiMath != nullptr);
 
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec2", ezVariant::Type::Vector2);
-    EZ_TEST_BOOL(mathClass.GetVec2() == ezVec2(0.0f, 0.0f));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec3", ezVariant::Type::Vector3);
-    EZ_TEST_BOOL(mathClass.GetVec3() == ezVec3(0.0f, 0.0f, 0.0f));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec4", ezVariant::Type::Vector4);
-    EZ_TEST_BOOL(mathClass.GetVec4() == ezVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec2I", ezVariant::Type::Vector2I);
-    EZ_TEST_BOOL(mathClass.m_Vec2I == ezVec2I32(0, 0));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec3I", ezVariant::Type::Vector3I);
-    EZ_TEST_BOOL(mathClass.m_Vec3I == ezVec3I32(0, 0, 0));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Vec4I", ezVariant::Type::Vector4I);
-    EZ_TEST_BOOL(mathClass.m_Vec4I == ezVec4I32(0, 0, 0, 0));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Quat", ezVariant::Type::Quaternion);
-    EZ_TEST_BOOL(mathClass.GetQuat() == ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
-    VariantToPropertyTest(&mathClass, pRttiMath, "Mat3", ezVariant::Type::Matrix3);
-    EZ_TEST_BOOL(mathClass.GetMat3() == ezMat3::MakeIdentity());
-    VariantToPropertyTest(&mathClass, pRttiMath, "Mat4", ezVariant::Type::Matrix4);
-    EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::MakeIdentity());
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec2", WVariant::Type::Vector2);
+    W_TEST_BOOL(mathClass.GetVec2() == WVec2(0.0f, 0.0f));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec3", WVariant::Type::Vector3);
+    W_TEST_BOOL(mathClass.GetVec3() == WVec3(0.0f, 0.0f, 0.0f));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec4", WVariant::Type::Vector4);
+    W_TEST_BOOL(mathClass.GetVec4() == WVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec2I", WVariant::Type::Vector2I);
+    W_TEST_BOOL(mathClass.m_Vec2I == WVec2I32(0, 0));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec3I", WVariant::Type::Vector3I);
+    W_TEST_BOOL(mathClass.m_Vec3I == WVec3I32(0, 0, 0));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec4I", WVariant::Type::Vector4I);
+    W_TEST_BOOL(mathClass.m_Vec4I == WVec4I32(0, 0, 0, 0));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Quat", WVariant::Type::Quaternion);
+    W_TEST_BOOL(mathClass.GetQuat() == WQuat(0.0f, 0.0f, 0.0f, 1.0f));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Mat3", WVariant::Type::Matrix3);
+    W_TEST_BOOL(mathClass.GetMat3() == WMat3::MakeIdentity());
+    VariantToPropertyTest(&mathClass, pRttiMath, "Mat4", WVariant::Type::Matrix4);
+    W_TEST_BOOL(mathClass.GetMat4() == WMat4::MakeIdentity());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enumeration Properties")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Enumeration Properties")
   {
-    ezEnumerationsClass enumClass;
-    const ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
-    EZ_TEST_BOOL(pRttiEnum != nullptr);
+    WEnumerationsClass enumClass;
+    const WRTTI* pRttiEnum = WRTTI::FindTypeByName("WEnumerationsClass");
+    W_TEST_BOOL(pRttiEnum != nullptr);
 
-    VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", ezVariant::Type::Int64);
-    EZ_TEST_BOOL(enumClass.GetEnum() == ezExampleEnum::Value1);
-    VariantToPropertyTest(&enumClass, pRttiEnum, "Bitflags", ezVariant::Type::Int64);
-    EZ_TEST_BOOL(enumClass.GetBitflags() == ezExampleBitflags::Value1);
+    VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", WVariant::Type::Int64);
+    W_TEST_BOOL(enumClass.GetEnum() == WExampleEnum::Value1);
+    VariantToPropertyTest(&enumClass, pRttiEnum, "Bitflags", WVariant::Type::Int64);
+    W_TEST_BOOL(enumClass.GetBitflags() == WExampleBitflags::Value1);
   }
 }
 
-void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* szProperty, ezVariant::Type::Enum type)
+void AccessorPropertyTest(WIReflectedTypeAccessor& ref_accessor, const char* szProperty, WVariant::Type::Enum type)
 {
-  ezVariant oldValue = ref_accessor.GetValue(szProperty);
-  EZ_TEST_BOOL(oldValue.IsValid());
-  EZ_TEST_BOOL(oldValue.GetType() == type);
+  WVariant oldValue = ref_accessor.GetValue(szProperty);
+  W_TEST_BOOL(oldValue.IsValid());
+  W_TEST_BOOL(oldValue.GetType() == type);
 
-  const ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
-  ezVariant defaultValue = ezToolsReflectionUtils::GetStorageDefault(pProp);
-  EZ_TEST_BOOL(defaultValue.GetType() == type);
+  const WAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
+  WVariant defaultValue = WToolsReflectionUtils::GetStorageDefault(pProp);
+  W_TEST_BOOL(defaultValue.GetType() == type);
   bool bSetSuccess = ref_accessor.SetValue(szProperty, defaultValue);
-  EZ_TEST_BOOL(bSetSuccess);
+  W_TEST_BOOL(bSetSuccess);
 
-  ezVariant newValue = ref_accessor.GetValue(szProperty);
-  EZ_TEST_BOOL(newValue.IsValid());
-  EZ_TEST_BOOL(newValue.GetType() == type);
-  EZ_TEST_BOOL(newValue == defaultValue);
+  WVariant newValue = ref_accessor.GetValue(szProperty);
+  W_TEST_BOOL(newValue.IsValid());
+  W_TEST_BOOL(newValue.GetType() == type);
+  W_TEST_BOOL(newValue == defaultValue);
 }
 
-ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ezRTTI* pType)
+WUInt32 AccessorPropertiesTest(WIReflectedTypeAccessor& ref_accessor, const WRTTI* pType)
 {
-  ezUInt32 uiPropertiesSet = 0;
-  if (!EZ_TEST_BOOL(pType != nullptr))
+  WUInt32 uiPropertiesSet = 0;
+  if (!W_TEST_BOOL(pType != nullptr))
     return 0;
 
-  EZ_ANALYSIS_ASSUME(pType != nullptr);
+  W_ANALYSIS_ASSUME(pType != nullptr);
 
   // Call for base class
   if (pType->GetParentType() != nullptr)
@@ -196,267 +196,267 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ez
   }
 
   // Test properties
-  ezUInt32 uiPropCount = pType->GetProperties().GetCount();
-  for (ezUInt32 i = 0; i < uiPropCount; ++i)
+  WUInt32 uiPropCount = pType->GetProperties().GetCount();
+  for (WUInt32 i = 0; i < uiPropCount; ++i)
   {
-    const ezAbstractProperty* pProp = pType->GetProperties()[i];
-    const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
+    const WAbstractProperty* pProp = pType->GetProperties()[i];
+    const bool bIsValueType = WReflectionUtils::IsValueType(pProp);
 
     switch (pProp->GetCategory())
     {
-      case ezPropertyCategory::Member:
+      case WPropertyCategory::Member:
       {
-        auto pProp3 = static_cast<const ezAbstractMemberProperty*>(pProp);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
+        auto pProp3 = static_cast<const WAbstractMemberProperty*>(pProp);
+        if (pProp->GetFlags().IsSet(WPropertyFlags::IsEnum))
         {
-          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
+          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), WVariant::Type::Int64);
           uiPropertiesSet++;
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags))
+        else if (pProp->GetFlags().IsSet(WPropertyFlags::Bitflags))
         {
-          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
+          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), WVariant::Type::Int64);
           uiPropertiesSet++;
         }
         else if (bIsValueType)
         {
-          ezVariantType::Enum storageType = ezToolsReflectionUtils::GetStorageType(pProp);
+          WVariantType::Enum storageType = WToolsReflectionUtils::GetStorageType(pProp);
           AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), storageType);
           uiPropertiesSet++;
         }
-        else // ezPropertyFlags::Class
+        else // WPropertyFlags::Class
         {
           // Recurs into sub-classes
-          const ezUuid& subObjectGuid = ref_accessor.GetValue(pProp->GetPropertyName()).Get<ezUuid>();
-          ezDocumentObject* pEmbeddedClassObject = const_cast<ezDocumentObject*>(ref_accessor.GetOwner()->GetChild(subObjectGuid));
+          const WUuid& subObjectGuid = ref_accessor.GetValue(pProp->GetPropertyName()).Get<WUuid>();
+          WDocumentObject* pEmbeddedClassObject = const_cast<WDocumentObject*>(ref_accessor.GetOwner()->GetChild(subObjectGuid));
           uiPropertiesSet += AccessorPropertiesTest(pEmbeddedClassObject->GetTypeAccessor(), pProp3->GetSpecificType());
         }
       }
       break;
-      case ezPropertyCategory::Array:
+      case WPropertyCategory::Array:
       {
-        // ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
+        // WAbstractArrayProperty* pProp3 = static_cast<WAbstractArrayProperty*>(pProp);
         // TODO
       }
       break;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        W_ASSERT_NOT_IMPLEMENTED;
         break;
     }
   }
   return uiPropertiesSet;
 }
 
-ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor)
+WUInt32 AccessorPropertiesTest(WIReflectedTypeAccessor& ref_accessor)
 {
-  const ezRTTI* handle = ref_accessor.GetType();
+  const WRTTI* handle = ref_accessor.GetType();
   return AccessorPropertiesTest(ref_accessor, handle);
 }
 
-static ezUInt32 GetTypeCount()
+static WUInt32 GetTypeCount()
 {
-  ezUInt32 uiCount = 0;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+  WUInt32 uiCount = 0;
+  WRTTI::ForEachType([&](const WRTTI* pRtti)
     { uiCount++; });
   return uiCount;
 }
 
-static const ezRTTI* RegisterType(const char* szTypeName)
+static const WRTTI* RegisterType(const char* szTypeName)
 {
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(szTypeName);
-  EZ_TEST_BOOL(pRtti != nullptr);
+  const WRTTI* pRtti = WRTTI::FindTypeByName(szTypeName);
+  W_TEST_BOOL(pRtti != nullptr);
 
-  ezReflectedTypeDescriptor desc;
-  ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRtti, desc);
-  return ezPhantomRttiManager::RegisterType(desc);
+  WReflectedTypeDescriptor desc;
+  WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRtti, desc);
+  return WPhantomRttiManager::RegisterType(desc);
 }
 
-EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
+W_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 {
-  ezTestDocumentObjectManager manager;
+  WTestDocumentObjectManager manager;
 
-  /*const ezRTTI* pRttiBase =*/RegisterType("ezReflectedClass");
-  /*const ezRTTI* pRttiEnumBase =*/RegisterType("ezEnumBase");
-  /*const ezRTTI* pRttiBitflagsBase =*/RegisterType("ezBitflagsBase");
+  /*const WRTTI* pRttiBase =*/RegisterType("WReflectedClass");
+  /*const WRTTI* pRttiEnumBase =*/RegisterType("WEnumBase");
+  /*const WRTTI* pRttiBitflagsBase =*/RegisterType("WBitflagsBase");
 
-  const ezRTTI* pRttiInt = RegisterType("ezIntegerStruct");
-  const ezRTTI* pRttiFloat = RegisterType("ezFloatStruct");
-  const ezRTTI* pRttiPOD = RegisterType("ezPODClass");
-  const ezRTTI* pRttiMath = RegisterType("ezMathClass");
-  /*const ezRTTI* pRttiEnum =*/RegisterType("ezExampleEnum");
-  /*const ezRTTI* pRttiFlags =*/RegisterType("ezExampleBitflags");
-  const ezRTTI* pRttiEnumerations = RegisterType("ezEnumerationsClass");
+  const WRTTI* pRttiInt = RegisterType("WIntegerStruct");
+  const WRTTI* pRttiFloat = RegisterType("WFloatStruct");
+  const WRTTI* pRttiPOD = RegisterType("WPODClass");
+  const WRTTI* pRttiMath = RegisterType("WMathClass");
+  /*const WRTTI* pRttiEnum =*/RegisterType("WExampleEnum");
+  /*const WRTTI* pRttiFlags =*/RegisterType("WExampleBitflags");
+  const WRTTI* pRttiEnumerations = RegisterType("WEnumerationsClass");
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeStorageAccessor")
+  W_TEST_BLOCK(WTestBlock::Enabled, "WReflectedTypeStorageAccessor")
   {
     {
-      ezDocumentObject* pObject = manager.CreateObject(pRttiInt);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 8);
+      WDocumentObject* pObject = manager.CreateObject(pRttiInt);
+      W_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 8);
       manager.DestroyObject(pObject);
     }
     {
-      ezDocumentObject* pObject = manager.CreateObject(pRttiFloat);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 4);
+      WDocumentObject* pObject = manager.CreateObject(pRttiFloat);
+      W_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 4);
       manager.DestroyObject(pObject);
     }
     {
-      ezDocumentObject* pObject = manager.CreateObject(pRttiPOD);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 20);
+      WDocumentObject* pObject = manager.CreateObject(pRttiPOD);
+      W_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 20);
       manager.DestroyObject(pObject);
     }
     {
-      ezDocumentObject* pObject = manager.CreateObject(pRttiMath);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 29);
+      WDocumentObject* pObject = manager.CreateObject(pRttiMath);
+      W_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 29);
       manager.DestroyObject(pObject);
     }
     {
-      ezDocumentObject* pObject = manager.CreateObject(pRttiEnumerations);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 2);
+      WDocumentObject* pObject = manager.CreateObject(pRttiEnumerations);
+      W_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 2);
       manager.DestroyObject(pObject);
     }
   }
 }
 
 
-EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
+W_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
 {
-  ezTestDocumentObjectManager manager;
+  WTestDocumentObjectManager manager;
 
-  const ezRTTI* pRttiInner = ezRTTI::FindTypeByName("InnerStruct");
-  const ezRTTI* pRttiInnerP = nullptr;
-  ezReflectedTypeDescriptor descInner;
+  const WRTTI* pRttiInner = WRTTI::FindTypeByName("InnerStruct");
+  const WRTTI* pRttiInnerP = nullptr;
+  WReflectedTypeDescriptor descInner;
 
-  const ezRTTI* pRttiOuter = ezRTTI::FindTypeByName("OuterClass");
-  const ezRTTI* pRttiOuterP = nullptr;
-  ezReflectedTypeDescriptor descOuter;
+  const WRTTI* pRttiOuter = WRTTI::FindTypeByName("OuterClass");
+  const WRTTI* pRttiOuterP = nullptr;
+  WReflectedTypeDescriptor descOuter;
 
-  ezUInt32 uiRegisteredBaseTypes = GetTypeCount();
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
+  WUInt32 uiRegisteredBaseTypes = GetTypeCount();
+  W_TEST_BLOCK(WTestBlock::Enabled, "RegisterType")
   {
-    EZ_TEST_BOOL(pRttiInner != nullptr);
-    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
+    W_TEST_BOOL(pRttiInner != nullptr);
+    WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
     descInner.m_sTypeName = "InnerStructP";
-    pRttiInnerP = ezPhantomRttiManager::RegisterType(descInner);
-    EZ_TEST_BOOL(pRttiInnerP != nullptr);
+    pRttiInnerP = WPhantomRttiManager::RegisterType(descInner);
+    W_TEST_BOOL(pRttiInnerP != nullptr);
 
-    EZ_TEST_BOOL(pRttiOuter != nullptr);
-    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
+    W_TEST_BOOL(pRttiOuter != nullptr);
+    WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
     descOuter.m_sTypeName = "OuterClassP";
     descOuter.m_Properties[0].m_sType = "InnerStructP";
-    pRttiOuterP = ezPhantomRttiManager::RegisterType(descOuter);
-    EZ_TEST_BOOL(pRttiOuterP != nullptr);
+    pRttiOuterP = WPhantomRttiManager::RegisterType(descOuter);
+    W_TEST_BOOL(pRttiOuterP != nullptr);
   }
 
   {
-    ezDocumentObject* pInnerObject = manager.CreateObject(pRttiInnerP);
+    WDocumentObject* pInnerObject = manager.CreateObject(pRttiInnerP);
     manager.AddObject(pInnerObject, nullptr, "Children", -1);
-    ezIReflectedTypeAccessor& innerAccessor = pInnerObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& innerAccessor = pInnerObject->GetTypeAccessor();
 
-    ezDocumentObject* pOuterObject = manager.CreateObject(pRttiOuterP);
+    WDocumentObject* pOuterObject = manager.CreateObject(pRttiOuterP);
     manager.AddObject(pOuterObject, nullptr, "Children", -1);
-    ezIReflectedTypeAccessor& outerAccessor = pOuterObject->GetTypeAccessor();
+    WIReflectedTypeAccessor& outerAccessor = pOuterObject->GetTypeAccessor();
 
-    ezUuid innerGuid = outerAccessor.GetValue("Inner").Get<ezUuid>();
-    ezDocumentObject* pEmbeddedInnerObject = manager.GetObject(innerGuid);
-    ezIReflectedTypeAccessor& embeddedInnerAccessor = pEmbeddedInnerObject->GetTypeAccessor();
+    WUuid innerGuid = outerAccessor.GetValue("Inner").Get<WUuid>();
+    WDocumentObject* pEmbeddedInnerObject = manager.GetObject(innerGuid);
+    WIReflectedTypeAccessor& embeddedInnerAccessor = pEmbeddedInnerObject->GetTypeAccessor();
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetValues")
+    W_TEST_BLOCK(WTestBlock::Enabled, "SetValues")
     {
       // Just set a few values to make sure they don't get messed up by the following operations.
-      EZ_TEST_BOOL(innerAccessor.SetValue("IP1", 1.4f));
-      EZ_TEST_BOOL(outerAccessor.SetValue("OP1", 0.9f));
-      EZ_TEST_BOOL(embeddedInnerAccessor.SetValue("IP1", 1.4f));
+      W_TEST_BOOL(innerAccessor.SetValue("IP1", 1.4f));
+      W_TEST_BOOL(outerAccessor.SetValue("OP1", 0.9f));
+      W_TEST_BOOL(embeddedInnerAccessor.SetValue("IP1", 1.4f));
     }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
+    W_TEST_BLOCK(WTestBlock::Enabled, "AddProperty")
     {
       // Say we reload the engine and the InnerStruct now has a second property: IP2.
-      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, "IP2", "ezVec4",
-        ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType), ezArrayPtr<ezPropertyAttribute* const>()));
-      const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
-      EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
+      descInner.m_Properties.PushBack(WReflectedPropertyDescriptor(WPropertyCategory::Member, "IP2", "WVec4",
+        WBitflags<WPropertyFlags>(WPropertyFlags::StandardType), WArrayPtr<WPropertyAttribute* const>()));
+      const WRTTI* NewInnerHandle = WPhantomRttiManager::RegisterType(descInner);
+      W_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // updating a type must not make it stop being phantom - descriptors don't carry that flag
-      EZ_TEST_BOOL(NewInnerHandle->GetTypeFlags().IsSet(ezTypeFlags::Phantom));
+      W_TEST_BOOL(NewInnerHandle->GetTypeFlags().IsSet(WTypeFlags::Phantom));
 
       // Check that the new property is present.
-      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", WVariant::Type::Vector4);
 
-      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", WVariant::Type::Vector4);
 
       // Test that the old properties are still valid.
-      EZ_TEST_BOOL(innerAccessor.GetValue("IP1") == 1.4f);
-      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
-      EZ_TEST_BOOL(embeddedInnerAccessor.GetValue("IP1") == 1.4f);
+      W_TEST_BOOL(innerAccessor.GetValue("IP1") == 1.4f);
+      W_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
+      W_TEST_BOOL(embeddedInnerAccessor.GetValue("IP1") == 1.4f);
     }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeProperty")
+    W_TEST_BLOCK(WTestBlock::Enabled, "ChangeProperty")
     {
       // Out original inner float now is a Int32!
-      descInner.m_Properties[0].m_sType = "ezInt32";
-      const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
-      EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
+      descInner.m_Properties[0].m_sType = "WInt32";
+      const WRTTI* NewInnerHandle = WPhantomRttiManager::RegisterType(descInner);
+      W_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // Test if the previous value was converted correctly to its new type.
-      ezVariant innerValue = innerAccessor.GetValue("IP1");
-      EZ_TEST_BOOL(innerValue.IsValid());
-      EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Int32);
-      EZ_TEST_INT(innerValue.Get<ezInt32>(), 1);
+      WVariant innerValue = innerAccessor.GetValue("IP1");
+      W_TEST_BOOL(innerValue.IsValid());
+      W_TEST_BOOL(innerValue.GetType() == WVariant::Type::Int32);
+      W_TEST_INT(innerValue.Get<WInt32>(), 1);
 
-      ezVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
-      EZ_TEST_BOOL(outerValue.IsValid());
-      EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Int32);
-      EZ_TEST_INT(outerValue.Get<ezInt32>(), 1);
+      WVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
+      W_TEST_BOOL(outerValue.IsValid());
+      W_TEST_BOOL(outerValue.GetType() == WVariant::Type::Int32);
+      W_TEST_INT(outerValue.Get<WInt32>(), 1);
 
       // Test that the old properties are still valid.
-      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
+      W_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
 
-      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
-      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", WVariant::Type::Vector4);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", WVariant::Type::Vector4);
     }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteProperty")
+    W_TEST_BLOCK(WTestBlock::Enabled, "DeleteProperty")
     {
       // Lets now delete the original inner property IP1.
       descInner.m_Properties.RemoveAtAndCopy(0);
-      const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
-      EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
+      const WRTTI* NewInnerHandle = WPhantomRttiManager::RegisterType(descInner);
+      W_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // Check that IP1 is really gone.
-      EZ_TEST_BOOL(!innerAccessor.GetValue("IP1").IsValid());
-      EZ_TEST_BOOL(!embeddedInnerAccessor.GetValue("IP1").IsValid());
+      W_TEST_BOOL(!innerAccessor.GetValue("IP1").IsValid());
+      W_TEST_BOOL(!embeddedInnerAccessor.GetValue("IP1").IsValid());
 
       // Test that the old properties are still valid.
-      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
+      W_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
 
-      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
-      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", WVariant::Type::Vector4);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", WVariant::Type::Vector4);
     }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "RevertProperties")
+    W_TEST_BLOCK(WTestBlock::Enabled, "RevertProperties")
     {
       // Reset all classes to their initial state.
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
+      WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
       descInner.m_sTypeName = "InnerStructP";
-      ezPhantomRttiManager::RegisterType(descInner);
+      WPhantomRttiManager::RegisterType(descInner);
 
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
+      WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
       descInner.m_sTypeName = "OuterStructP";
       descOuter.m_Properties[0].m_sType = "InnerStructP";
-      ezPhantomRttiManager::RegisterType(descOuter);
+      WPhantomRttiManager::RegisterType(descOuter);
 
       // Test that the old properties are back again.
-      ezStringBuilder path = "IP1";
-      ezVariant innerValue = innerAccessor.GetValue(path);
-      EZ_TEST_BOOL(innerValue.IsValid());
-      EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Float);
-      EZ_TEST_FLOAT(innerValue.Get<float>(), 1.0f, 0.0f);
+      WStringBuilder path = "IP1";
+      WVariant innerValue = innerAccessor.GetValue(path);
+      W_TEST_BOOL(innerValue.IsValid());
+      W_TEST_BOOL(innerValue.GetType() == WVariant::Type::Float);
+      W_TEST_FLOAT(innerValue.Get<float>(), 1.0f, 0.0f);
 
-      ezVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
-      EZ_TEST_BOOL(outerValue.IsValid());
-      EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Float);
-      EZ_TEST_FLOAT(outerValue.Get<float>(), 1.0f, 0.0f);
-      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
+      WVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
+      W_TEST_BOOL(outerValue.IsValid());
+      W_TEST_BOOL(outerValue.GetType() == WVariant::Type::Float);
+      W_TEST_FLOAT(outerValue.Get<float>(), 1.0f, 0.0f);
+      W_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
     }
 
     manager.RemoveObject(pInnerObject);
@@ -466,11 +466,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     manager.DestroyObject(pOuterObject);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnregisterType")
+  W_TEST_BLOCK(WTestBlock::Enabled, "UnregisterType")
   {
-    EZ_TEST_INT(GetTypeCount(), uiRegisteredBaseTypes + 2);
-    ezPhantomRttiManager::UnregisterType(pRttiOuterP);
-    ezPhantomRttiManager::UnregisterType(pRttiInnerP);
-    EZ_TEST_INT(GetTypeCount(), uiRegisteredBaseTypes);
+    W_TEST_INT(GetTypeCount(), uiRegisteredBaseTypes + 2);
+    WPhantomRttiManager::UnregisterType(pRttiOuterP);
+    WPhantomRttiManager::UnregisterType(pRttiInnerP);
+    W_TEST_INT(GetTypeCount(), uiRegisteredBaseTypes);
   }
 }

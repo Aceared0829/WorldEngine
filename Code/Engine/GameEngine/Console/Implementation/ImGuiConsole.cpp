@@ -20,53 +20,53 @@
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezImGuiConsole::ezImGuiConsole()
+WImGuiConsole::WImGuiConsole()
 {
-  ezMemoryUtils::ZeroFillArray(m_FrameTimeHistory);
+  WMemoryUtils::ZeroFillArray(m_FrameTimeHistory);
   m_fCurrentBinMaxFrameTime = 0.0f;
-  m_LastBinTime = ezTime::Now();
+  m_LastBinTime = WTime::Now();
 
-  ezMemoryUtils::ZeroFillArray(m_MemoryHistory);
+  WMemoryUtils::ZeroFillArray(m_MemoryHistory);
   m_fCurrentBinMaxMemory = 0.0f;
-  m_LastMemoryBinTime = ezTime::Now();
+  m_LastMemoryBinTime = WTime::Now();
 
 #  ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-  SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterLua));
+  SetCommandInterpreter(W_DEFAULT_NEW(WCommandInterpreterLua));
 #  endif
 
   EnableLogOutput(true);
 }
 
-ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<ezImGuiConsole::CustomConsoleWindow>> ezImGuiConsole::s_CustomWindows;
+WIdTable<WImGuiRegisteredWndHandleData, WUniquePtr<WImGuiConsole::CustomConsoleWindow>> WImGuiConsole::s_CustomWindows;
 
-ezImGuiConsole::~ezImGuiConsole()
+WImGuiConsole::~WImGuiConsole()
 {
   EnableLogOutput(false);
 }
 
-ezImGuiRegisteredWndHandle ezImGuiConsole::RegisterWindow(ezStringView sName, ezImGuiWindowCallback callback)
+WImGuiRegisteredWndHandle WImGuiConsole::RegisterWindow(WStringView sName, WImGuiWindowCallback callback)
 {
-  ezUniquePtr<CustomConsoleWindow> pData = EZ_DEFAULT_NEW(CustomConsoleWindow);
+  WUniquePtr<CustomConsoleWindow> pData = W_DEFAULT_NEW(CustomConsoleWindow);
   pData->m_sName = sName;
   pData->m_Callback = callback;
   pData->m_bOpen = false;
 
-  return ezImGuiRegisteredWndHandle(s_CustomWindows.Insert(std::move(pData)));
+  return WImGuiRegisteredWndHandle(s_CustomWindows.Insert(std::move(pData)));
 }
 
-void ezImGuiConsole::UnregisterWindow(ezImGuiRegisteredWndHandle hWindow)
+void WImGuiConsole::UnregisterWindow(WImGuiRegisteredWndHandle hWindow)
 {
-  ezUniquePtr<CustomConsoleWindow>* pDataPtr = nullptr;
+  WUniquePtr<CustomConsoleWindow>* pDataPtr = nullptr;
   if (!s_CustomWindows.TryGetValue(hWindow.GetInternalID(), pDataPtr))
     return;
 
   CustomConsoleWindow* pData = pDataPtr->Borrow();
-  EZ_ASSERT_DEV(pData != nullptr, "Invalid window data");
+  W_ASSERT_DEV(pData != nullptr, "Invalid window data");
 
   s_CustomWindows.Remove(hWindow.GetInternalID());
 }
 
-void ezImGuiConsole::EnableLogOutput(bool bEnable)
+void WImGuiConsole::EnableLogOutput(bool bEnable)
 {
   if (m_bLogOutputEnabled == bEnable)
     return;
@@ -75,29 +75,29 @@ void ezImGuiConsole::EnableLogOutput(bool bEnable)
 
   if (bEnable)
   {
-    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezImGuiConsole::LogHandler, this));
+    WGlobalLog::AddLogWriter(WMakeDelegate(&WImGuiConsole::LogHandler, this));
   }
   else
   {
-    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezImGuiConsole::LogHandler, this));
+    WGlobalLog::RemoveLogWriter(WMakeDelegate(&WImGuiConsole::LogHandler, this));
   }
 }
 
-void ezImGuiConsole::SaveState(ezStreamWriter& inout_stream) const
+void WImGuiConsole::SaveState(WStreamWriter& inout_stream) const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  const ezUInt8 uiVersion = 100;
+  const WUInt8 uiVersion = 100;
   inout_stream << uiVersion;
 
   inout_stream << m_vStatsWindowSavedSize;
 }
 
-void ezImGuiConsole::LoadState(ezStreamReader& inout_stream)
+void WImGuiConsole::LoadState(WStreamReader& inout_stream)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
   // to prevent conflicts with the QuakeConsole
@@ -107,23 +107,23 @@ void ezImGuiConsole::LoadState(ezStreamReader& inout_stream)
   inout_stream >> m_vStatsWindowSavedSize;
 }
 
-void ezImGuiConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type type)
+void WImGuiConsole::AddConsoleString(WStringView sText, WConsoleString::Type type)
 {
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
 
   // Call base class to trigger events
-  ezConsole::AddConsoleString(sText, type);
+  WConsole::AddConsoleString(sText, type);
 
   // Determine if this is command output or log message
-  const bool bIsCommandOutput = (type == ezConsoleString::Type::Executed ||
-                                 type == ezConsoleString::Type::VarName ||
-                                 type == ezConsoleString::Type::FuncName ||
-                                 type == ezConsoleString::Type::Note);
+  const bool bIsCommandOutput = (type == WConsoleString::Type::Executed ||
+                                 type == WConsoleString::Type::VarName ||
+                                 type == WConsoleString::Type::FuncName ||
+                                 type == WConsoleString::Type::Note);
 
   if (m_bExecutingCommand || bIsCommandOutput)
   {
     // Store in command output for console window
-    ezConsoleString& cs = m_CommandOutputStrings.ExpandAndGetRef();
+    WConsoleString& cs = m_CommandOutputStrings.ExpandAndGetRef();
     cs.m_Type = type;
     cs.m_sText = sText;
 
@@ -138,63 +138,63 @@ void ezImGuiConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type 
   }
 }
 
-void ezImGuiConsole::ClearLogStrings()
+void WImGuiConsole::ClearLogStrings()
 {
-  EZ_LOCK(GetMutex());
+  W_LOCK(GetMutex());
   m_LogStrings.Clear();
   m_FilteredLogStrings.Clear();
 }
 
-void ezImGuiConsole::LogHandler(const ezLoggingEventData& data)
+void WImGuiConsole::LogHandler(const WLoggingEventData& data)
 {
-  ezConsoleString::Type type = ezConsoleString::Type::Default;
+  WConsoleString::Type type = WConsoleString::Type::Default;
 
   switch (data.m_EventType)
   {
-    case ezLogMsgType::GlobalDefault:
-    case ezLogMsgType::Flush:
-    case ezLogMsgType::BeginGroup:
-    case ezLogMsgType::EndGroup:
-    case ezLogMsgType::None:
-    case ezLogMsgType::ENUM_COUNT:
-    case ezLogMsgType::All:
+    case WLogMsgType::GlobalDefault:
+    case WLogMsgType::Flush:
+    case WLogMsgType::BeginGroup:
+    case WLogMsgType::EndGroup:
+    case WLogMsgType::None:
+    case WLogMsgType::ENUM_COUNT:
+    case WLogMsgType::All:
       return;
 
-    case ezLogMsgType::ErrorMsg:
-      type = ezConsoleString::Type::Error;
+    case WLogMsgType::ErrorMsg:
+      type = WConsoleString::Type::Error;
       break;
 
-    case ezLogMsgType::SeriousWarningMsg:
-      type = ezConsoleString::Type::SeriousWarning;
+    case WLogMsgType::SeriousWarningMsg:
+      type = WConsoleString::Type::SeriousWarning;
       break;
 
-    case ezLogMsgType::WarningMsg:
-      type = ezConsoleString::Type::Warning;
+    case WLogMsgType::WarningMsg:
+      type = WConsoleString::Type::Warning;
       break;
 
-    case ezLogMsgType::SuccessMsg:
-      type = ezConsoleString::Type::Success;
+    case WLogMsgType::SuccessMsg:
+      type = WConsoleString::Type::Success;
       break;
 
-    case ezLogMsgType::InfoMsg:
+    case WLogMsgType::InfoMsg:
       break;
 
-    case ezLogMsgType::DevMsg:
-      type = ezConsoleString::Type::Dev;
+    case WLogMsgType::DevMsg:
+      type = WConsoleString::Type::Dev;
       break;
 
-    case ezLogMsgType::DebugMsg:
-      type = ezConsoleString::Type::Debug;
+    case WLogMsgType::DebugMsg:
+      type = WConsoleString::Type::Debug;
       break;
   }
 
-  ezStringBuilder sFormat;
+  WStringBuilder sFormat;
   sFormat.SetPrintf("%*s", data.m_uiIndentation, "");
   sFormat.Append(data.m_sText);
 
   // Add to log messages (not command output)
-  EZ_LOCK(GetMutex());
-  ezConsoleString& cs = m_LogStrings.ExpandAndGetRef();
+  W_LOCK(GetMutex());
+  WConsoleString& cs = m_LogStrings.ExpandAndGetRef();
   cs.m_Type = type;
   cs.m_sText = sFormat;
 
@@ -223,7 +223,7 @@ void ezImGuiConsole::LogHandler(const ezLoggingEventData& data)
   }
 }
 
-void ezImGuiConsole::RenderMenuBar()
+void WImGuiConsole::RenderMenuBar()
 {
   if (!ImGui::BeginMainMenuBar())
     return;
@@ -258,14 +258,14 @@ void ezImGuiConsole::RenderMenuBar()
     ImGui::EndMenu();
   }
 
-  auto actions = ezConsoleActions::GetActions();
-  ezStringView sCurrentMenu;
+  auto actions = WConsoleActions::GetActions();
+  WStringView sCurrentMenu;
   bool bHasCurrentMenu = false;
   bool bCurrentMenuOpen = false;
 
   for (const auto& desc : actions)
   {
-    const ezStringView sMenu = desc.m_sMenu;
+    const WStringView sMenu = desc.m_sMenu;
 
     if (!bHasCurrentMenu || !sCurrentMenu.IsEqual(sMenu))
     {
@@ -276,17 +276,17 @@ void ezImGuiConsole::RenderMenuBar()
 
       sCurrentMenu = sMenu;
       bHasCurrentMenu = true;
-      bCurrentMenuOpen = ImGui::BeginMenu(ezStringBuilder(sMenu).GetData());
+      bCurrentMenuOpen = ImGui::BeginMenu(WStringBuilder(sMenu).GetData());
     }
 
-    ezStringBuilder sShortcut;
-    const ezInputActionConfig config = ezInputManager::GetInputActionConfig(desc.m_sInputSet, desc.m_sAction);
-    for (const ezString& sTrigger : config.m_sInputSlotTrigger)
+    WStringBuilder sShortcut;
+    const WInputActionConfig config = WInputManager::GetInputActionConfig(desc.m_sInputSet, desc.m_sAction);
+    for (const WString& sTrigger : config.m_sInputSlotTrigger)
     {
       if (sTrigger.IsEmpty())
         continue;
 
-      sShortcut.Append(ezInputManager::GetInputSlotDisplayName(sTrigger));
+      sShortcut.Append(WInputManager::GetInputSlotDisplayName(sTrigger));
       break;
     }
 
@@ -304,7 +304,7 @@ void ezImGuiConsole::RenderMenuBar()
   ImGui::EndMainMenuBar();
 }
 
-void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
+void WImGuiConsole::RenderCommandWindow(bool bSetFocus)
 {
   // Get available screen space
   ImGuiIO& io = ImGui::GetIO();
@@ -333,12 +333,12 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
   if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar))
   {
     // Display command output strings
-    EZ_LOCK(GetMutex());
+    W_LOCK(GetMutex());
 
     for (const auto& consoleString : m_CommandOutputStrings)
     {
       // Set color based on message type
-      ezColor color = consoleString.GetColor();
+      WColor color = consoleString.GetColor();
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
 
       ImGui::TextUnformatted(consoleString.m_sText.GetData());
@@ -365,14 +365,14 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
   }
 
   char buffer[128];
-  ezStringUtils::Copy(buffer, EZ_ARRAY_SIZE(buffer), m_sCommandText);
+  WStringUtils::Copy(buffer, W_ARRAY_SIZE(buffer), m_sCommandText);
 
   // Make input field use full available width
   ImGui::SetNextItemWidth(-1.0f);
 
-  if (ImGui::InputTextWithHint("##Input", "> TAB to auto-complete", buffer, EZ_ARRAY_SIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackEdit, [](ImGuiInputTextCallbackData* data) -> int
+  if (ImGui::InputTextWithHint("##Input", "> TAB to auto-complete", buffer, W_ARRAY_SIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackEdit, [](ImGuiInputTextCallbackData* data) -> int
         {
-          ezImGuiConsole* console = static_cast<ezImGuiConsole*>(data->UserData);
+          WImGuiConsole* console = static_cast<WImGuiConsole*>(data->UserData);
           return console->InputTextCallback(data);
           //
         },
@@ -385,7 +385,7 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
     buffer[0] = '\0';
   }
 
-  if (!m_sCommandText.IsEmpty() && ezStringUtils::IsNullOrEmpty(buffer))
+  if (!m_sCommandText.IsEmpty() && WStringUtils::IsNullOrEmpty(buffer))
   {
     // in case of input or ESC, make sure the focus is returned to the command input field
     m_uiForceFocus = 3;
@@ -399,7 +399,7 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
   ImGui::End();
 }
 
-void ezImGuiConsole::RenderCVarWindow()
+void WImGuiConsole::RenderCVarWindow()
 {
   // Get available screen space
   ImGuiIO& io = ImGui::GetIO();
@@ -426,10 +426,10 @@ void ezImGuiConsole::RenderCVarWindow()
   ImGui::SameLine();
 
   char buffer[128];
-  ezStringUtils::Copy(buffer, EZ_ARRAY_SIZE(buffer), m_sCVarFilter);
+  WStringUtils::Copy(buffer, W_ARRAY_SIZE(buffer), m_sCVarFilter);
 
   ImGui::SetNextItemWidth(-1.0f);
-  if (ImGui::InputTextWithHint("##cvarfilter", "Filter CVars...", buffer, EZ_ARRAY_SIZE(buffer)))
+  if (ImGui::InputTextWithHint("##cvarfilter", "Filter CVars...", buffer, W_ARRAY_SIZE(buffer)))
   {
     m_sCVarFilter = buffer;
   }
@@ -460,7 +460,7 @@ void ezImGuiConsole::RenderCVarWindow()
   ImGui::End();
 }
 
-void ezImGuiConsole::RenderStatsWindow(bool bFull)
+void WImGuiConsole::RenderStatsWindow(bool bFull)
 {
   // Get available screen space
   ImGuiIO& io = ImGui::GetIO();
@@ -525,17 +525,17 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
     ImGui::Checkbox("Pin Window", &m_bPinStatsWindow);
   }
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   // Basic stats
-  const float currentFrameTime = ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
+  const float currentFrameTime = WClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
   ImGui::Text("FPS: %.0f (%.2f ms)", ImGui::GetIO().Framerate, 1000.0f * currentFrameTime);
 
   // Memory stats
   {
-    const ezUInt64 totalMemoryBytes = CalculateTotalMemoryUsage();
+    const WUInt64 totalMemoryBytes = CalculateTotalMemoryUsage();
 
-    tmp.SetFormat("Memory: {}", ezArgFileSize(totalMemoryBytes));
+    tmp.SetFormat("Memory: {}", WArgFileSize(totalMemoryBytes));
     ImGui::TextUnformatted(tmp);
   }
 
@@ -547,15 +547,15 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
     {
       // Calculate frame time statistics
       float maxFrameTime = m_FrameTimeHistory[0];
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_FrameTimeHistory); ++i)
+      for (WUInt32 i = 0; i < W_ARRAY_SIZE(m_FrameTimeHistory); ++i)
       {
         if (m_FrameTimeHistory[i] > maxFrameTime)
           maxFrameTime = m_FrameTimeHistory[i];
       }
 
-      maxFrameTime = ezMath::Max<float>(maxFrameTime, 1.0f / 30.0f);
+      maxFrameTime = WMath::Max<float>(maxFrameTime, 1.0f / 30.0f);
 
-      tmp.SetFormat("{} ms", ezArgF(maxFrameTime * 1000.0f, 1));
+      tmp.SetFormat("{} ms", WArgF(maxFrameTime * 1000.0f, 1));
 
       // Determine plot color based on current frame time performance
       ImU32 plotColor;
@@ -576,9 +576,9 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
       ImGui::PushStyleColor(ImGuiCol_PlotLines, plotColor);
 
       // Use offset to show data in chronological order (oldest to newest)
-      const ezUInt32 offsetIndex = (m_uiFrameTimeHistoryIndex + 1) % EZ_ARRAY_SIZE(m_FrameTimeHistory);
+      const WUInt32 offsetIndex = (m_uiFrameTimeHistoryIndex + 1) % W_ARRAY_SIZE(m_FrameTimeHistory);
       const float availableWidth = ImGui::GetContentRegionAvail().x;
-      ImGui::PlotLines("##FrameTime", m_FrameTimeHistory, EZ_ARRAY_SIZE(m_FrameTimeHistory), offsetIndex, tmp, 0.0f, maxFrameTime, ImVec2(availableWidth, 100));
+      ImGui::PlotLines("##FrameTime", m_FrameTimeHistory, W_ARRAY_SIZE(m_FrameTimeHistory), offsetIndex, tmp, 0.0f, maxFrameTime, ImVec2(availableWidth, 100));
 
       ImGui::PopStyleColor(); // Restore previous color
     }
@@ -592,21 +592,21 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
     {
       // Calculate memory usage statistics
       float maxMemory = m_MemoryHistory[0];
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_MemoryHistory); ++i)
+      for (WUInt32 i = 0; i < W_ARRAY_SIZE(m_MemoryHistory); ++i)
       {
         if (m_MemoryHistory[i] > maxMemory)
           maxMemory = m_MemoryHistory[i];
       }
 
-      maxMemory = ezMath::Max<float>(maxMemory, 128.0f);
-      maxMemory = (float)ezMath::PowerOfTwo_Ceil(static_cast<ezUInt32>(maxMemory));
+      maxMemory = WMath::Max<float>(maxMemory, 128.0f);
+      maxMemory = (float)WMath::PowerOfTwo_Ceil(static_cast<WUInt32>(maxMemory));
 
       tmp.SetFormat("{} MB", maxMemory);
 
       // Use offset to show data in chronological order (oldest to newest)
-      const ezUInt32 memoryOffsetIndex = (m_uiMemoryHistoryIndex + 1) % EZ_ARRAY_SIZE(m_MemoryHistory);
+      const WUInt32 memoryOffsetIndex = (m_uiMemoryHistoryIndex + 1) % W_ARRAY_SIZE(m_MemoryHistory);
       const float availableWidth = ImGui::GetContentRegionAvail().x;
-      ImGui::PlotLines("##MemoryUsage", m_MemoryHistory, EZ_ARRAY_SIZE(m_MemoryHistory), memoryOffsetIndex, tmp, 0.0f, maxMemory, ImVec2(availableWidth, 100));
+      ImGui::PlotLines("##MemoryUsage", m_MemoryHistory, W_ARRAY_SIZE(m_MemoryHistory), memoryOffsetIndex, tmp, 0.0f, maxMemory, ImVec2(availableWidth, 100));
     }
   }
 
@@ -620,10 +620,10 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
   ImGui::End();
 }
 
-void ezImGuiConsole::HandleAutoComplete()
+void WImGuiConsole::HandleAutoComplete()
 {
   // Get current input text
-  ezStringBuilder currentInput = m_sCommandText;
+  WStringBuilder currentInput = m_sCommandText;
   currentInput.Trim();
 
   if (AutoComplete(currentInput))
@@ -633,7 +633,7 @@ void ezImGuiConsole::HandleAutoComplete()
   }
 }
 
-int ezImGuiConsole::InputTextCallback(ImGuiInputTextCallbackData* data)
+int WImGuiConsole::InputTextCallback(ImGuiInputTextCallbackData* data)
 {
   switch (data->EventFlag)
   {
@@ -641,7 +641,7 @@ int ezImGuiConsole::InputTextCallback(ImGuiInputTextCallbackData* data)
     {
       // Handle command history (up/down arrows)
 
-      ezStringBuilder sInputLine = m_sCommandText;
+      WStringBuilder sInputLine = m_sCommandText;
       if (data->EventKey == ImGuiKey_UpArrow)
       {
         RetrieveInputHistory(1, sInputLine);
@@ -662,12 +662,12 @@ int ezImGuiConsole::InputTextCallback(ImGuiInputTextCallbackData* data)
     case ImGuiInputTextFlags_CallbackCompletion:
     {
       // Handle auto-completion (TAB key)
-      ezStringBuilder currentInput = data->Buf;
+      WStringBuilder currentInput = data->Buf;
       currentInput.Trim();
 
       // Use the base class auto-completion functionality
       // This works for both empty input (shows all commands) and partial input (completes/shows matches)
-      ezStringBuilder sText = currentInput;
+      WStringBuilder sText = currentInput;
       if (AutoComplete(sText))
       {
         // If auto-completion changed the text, update the input buffer
@@ -680,26 +680,26 @@ int ezImGuiConsole::InputTextCallback(ImGuiInputTextCallbackData* data)
   return 0;
 }
 
-void ezImGuiConsole::BuildCVarTree(CVarTreeNode& root)
+void WImGuiConsole::BuildCVarTree(CVarTreeNode& root)
 {
   // Clear previous tree
   root.m_Children.Clear();
 
   // Iterate through all CVars and build tree structure
-  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  for (WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    ezStringBuilder sNameTemp;
-    ezStringView sFullName = pCVar->GetName().GetData(sNameTemp);
+    WStringBuilder sNameTemp;
+    WStringView sFullName = pCVar->GetName().GetData(sNameTemp);
 
     // Split the name by dots
-    ezDeque<ezStringView> nameParts;
+    WDeque<WStringView> nameParts;
     sFullName.Split(false, nameParts, ".");
 
     // Navigate/create tree structure
     CVarTreeNode* pCurrentNode = &root;
-    for (ezUInt32 i = 0; i < nameParts.GetCount(); ++i)
+    for (WUInt32 i = 0; i < nameParts.GetCount(); ++i)
     {
-      ezString sPartName = nameParts[i];
+      WString sPartName = nameParts[i];
 
       if (i == nameParts.GetCount() - 1)
       {
@@ -713,14 +713,14 @@ void ezImGuiConsole::BuildCVarTree(CVarTreeNode& root)
         // Intermediate part - create parent node if needed
         auto& parentNode = pCurrentNode->m_Children[sPartName];
         parentNode.m_sName = sPartName;
-        EZ_ASSERT_DEV(parentNode.m_pCVar == nullptr, "CVar name '{}' is used both as a CVar name and as a prefix for other CVars. Rename one of them.", sFullName);
+        W_ASSERT_DEV(parentNode.m_pCVar == nullptr, "CVar name '{}' is used both as a CVar name and as a prefix for other CVars. Rename one of them.", sFullName);
         pCurrentNode = &parentNode;
       }
     }
   }
 }
 
-void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode& node)
+void WImGuiConsole::RenderCVarTreeNode(const WString& sNodeName, CVarTreeNode& node)
 {
   // Skip nodes that don't match the filter
   if (!m_sCVarFilter.IsEmpty() && !CVarTreeNodeHasMatchingDescendant(node))
@@ -740,7 +740,7 @@ void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode&
 
     // Description column
     ImGui::TableSetColumnIndex(2);
-    ezStringBuilder sDescTemp;
+    WStringBuilder sDescTemp;
     ImGui::Text("%s", node.m_pCVar->GetDescription().GetData(sDescTemp));
   }
   else
@@ -761,17 +761,17 @@ void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode&
   }
 }
 
-ezUInt64 ezImGuiConsole::CalculateTotalMemoryUsage()
+WUInt64 WImGuiConsole::CalculateTotalMemoryUsage()
 {
-  ezUInt64 totalMemory = 0;
+  WUInt64 totalMemory = 0;
 
   // Iterate through all allocators and find top-level ones (those without parents)
-  for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
+  for (auto it = WMemoryTracker::GetIterator(); it.IsValid(); ++it)
   {
     // Only count top-level allocators (those without a parent)
     if (it.ParentId().IsInvalidated()) // Invalid ID means no parent
     {
-      const ezAllocator::Stats& stats = it.Stats();
+      const WAllocator::Stats& stats = it.Stats();
       totalMemory += stats.m_uiAllocationSize;
     }
   }
@@ -779,23 +779,23 @@ ezUInt64 ezImGuiConsole::CalculateTotalMemoryUsage()
   return totalMemory;
 }
 
-void ezImGuiConsole::UpdateFrameTimes()
+void WImGuiConsole::UpdateFrameTimes()
 {
-  if (ezImgui::GetSingleton() == nullptr)
+  if (WImgui::GetSingleton() == nullptr)
     return;
 
-  const float currentFrameTime = ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
-  const ezTime currentTime = ezTime::Now();
+  const float currentFrameTime = WClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
+  const WTime currentTime = WTime::Now();
 
   // Track the maximum frame time in the current bin
-  m_fCurrentBinMaxFrameTime = ezMath::Max(m_fCurrentBinMaxFrameTime, currentFrameTime);
+  m_fCurrentBinMaxFrameTime = WMath::Max(m_fCurrentBinMaxFrameTime, currentFrameTime);
 
   // Check if we need to move to the next bin (every 1/30th of a second)
-  const ezTime binDuration = ezTime::MakeFromSeconds(1.0 / 30.0);
+  const WTime binDuration = WTime::MakeFromSeconds(1.0 / 30.0);
   if (currentTime - m_LastBinTime >= binDuration)
   {
     // Move to next bin and store the maximum frame time from the previous bin
-    m_uiFrameTimeHistoryIndex = (m_uiFrameTimeHistoryIndex + 1) % EZ_ARRAY_SIZE(m_FrameTimeHistory);
+    m_uiFrameTimeHistoryIndex = (m_uiFrameTimeHistoryIndex + 1) % W_ARRAY_SIZE(m_FrameTimeHistory);
     m_FrameTimeHistory[m_uiFrameTimeHistoryIndex] = m_fCurrentBinMaxFrameTime;
 
     // Reset for next bin
@@ -804,21 +804,21 @@ void ezImGuiConsole::UpdateFrameTimes()
   }
 }
 
-void ezImGuiConsole::UpdateMemoryUsage()
+void WImGuiConsole::UpdateMemoryUsage()
 {
-  const ezUInt64 currentMemoryBytes = CalculateTotalMemoryUsage();
+  const WUInt64 currentMemoryBytes = CalculateTotalMemoryUsage();
   const float currentMemoryMB = currentMemoryBytes / (1024.0f * 1024.0f);
-  const ezTime currentTime = ezTime::Now();
+  const WTime currentTime = WTime::Now();
 
   // Track the maximum memory usage in the current bin
-  m_fCurrentBinMaxMemory = ezMath::Max(m_fCurrentBinMaxMemory, currentMemoryMB);
+  m_fCurrentBinMaxMemory = WMath::Max(m_fCurrentBinMaxMemory, currentMemoryMB);
 
   // Check if we need to move to the next bin (every 1/30th of a second)
-  const ezTime binDuration = ezTime::MakeFromSeconds(1.0 / 30.0);
+  const WTime binDuration = WTime::MakeFromSeconds(1.0 / 30.0);
   if (currentTime - m_LastMemoryBinTime >= binDuration)
   {
     // Move to next bin and store the maximum memory usage from the previous bin
-    m_uiMemoryHistoryIndex = (m_uiMemoryHistoryIndex + 1) % EZ_ARRAY_SIZE(m_MemoryHistory);
+    m_uiMemoryHistoryIndex = (m_uiMemoryHistoryIndex + 1) % W_ARRAY_SIZE(m_MemoryHistory);
     m_MemoryHistory[m_uiMemoryHistoryIndex] = m_fCurrentBinMaxMemory;
 
     // Reset for next bin
@@ -827,7 +827,7 @@ void ezImGuiConsole::UpdateMemoryUsage()
   }
 }
 
-void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
+void WImGuiConsole::RenderCVarValue(WCVar* pCVar)
 {
   if (!pCVar)
     return;
@@ -835,11 +835,11 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
   // Render different input widgets based on CVar type
   switch (pCVar->GetType())
   {
-    case ezCVarType::Bool:
+    case WCVarType::Bool:
     {
-      ezCVarBool* pBoolVar = static_cast<ezCVarBool*>(pCVar);
+      WCVarBool* pBoolVar = static_cast<WCVarBool*>(pCVar);
       bool value = pBoolVar->GetValue();
-      ezStringBuilder sId, sNameTemp;
+      WStringBuilder sId, sNameTemp;
       sId.SetFormat("##bool_{}", pCVar->GetName().GetData(sNameTemp));
       if (ImGui::Checkbox(sId.GetData(), &value))
       {
@@ -847,11 +847,11 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       }
       break;
     }
-    case ezCVarType::Int:
+    case WCVarType::Int:
     {
-      ezCVarInt* pIntVar = static_cast<ezCVarInt*>(pCVar);
+      WCVarInt* pIntVar = static_cast<WCVarInt*>(pCVar);
       int value = pIntVar->GetValue();
-      ezStringBuilder sId, sNameTemp;
+      WStringBuilder sId, sNameTemp;
       sId.SetFormat("##int_{}", pCVar->GetName().GetData(sNameTemp));
       if (ImGui::InputInt(sId.GetData(), &value))
       {
@@ -859,11 +859,11 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       }
       break;
     }
-    case ezCVarType::Float:
+    case WCVarType::Float:
     {
-      ezCVarFloat* pFloatVar = static_cast<ezCVarFloat*>(pCVar);
+      WCVarFloat* pFloatVar = static_cast<WCVarFloat*>(pCVar);
       float value = pFloatVar->GetValue();
-      ezStringBuilder sId, sNameTemp;
+      WStringBuilder sId, sNameTemp;
       sId.SetFormat("##float_{}", pCVar->GetName().GetData(sNameTemp));
       if (ImGui::InputFloat(sId.GetData(), &value))
       {
@@ -871,13 +871,13 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       }
       break;
     }
-    case ezCVarType::String:
+    case WCVarType::String:
     {
-      ezCVarString* pStringVar = static_cast<ezCVarString*>(pCVar);
-      ezString value = pStringVar->GetValue();
+      WCVarString* pStringVar = static_cast<WCVarString*>(pCVar);
+      WString value = pStringVar->GetValue();
       char buffer[256];
-      ezStringUtils::Copy(buffer, sizeof(buffer), value.GetData());
-      ezStringBuilder sId, sNameTemp;
+      WStringUtils::Copy(buffer, sizeof(buffer), value.GetData());
+      WStringBuilder sId, sNameTemp;
       sId.SetFormat("##string_{}", pCVar->GetName().GetData(sNameTemp));
       if (ImGui::InputText(sId.GetData(), buffer, sizeof(buffer)))
       {
@@ -891,18 +891,18 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
   }
 }
 
-bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
+bool WImGuiConsole::CVarNamePassesFilter(WStringView sCVarName) const
 {
   if (m_sCVarFilter.IsEmpty())
     return true;
 
   // Split filter text by spaces to get individual search parts
-  ezTempHybridArray<ezStringView, 4> filterParts;
-  ezStringBuilder filterText = m_sCVarFilter;
+  WTempHybridArray<WStringView, 4> filterParts;
+  WStringBuilder filterText = m_sCVarFilter;
   filterText.Split(false, filterParts, " ");
 
   // Check each part against the CVar name
-  for (const ezStringView& part : filterParts)
+  for (const WStringView& part : filterParts)
   {
     if (part.IsEmpty())
       continue;
@@ -910,7 +910,7 @@ bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
     // Check if this is an exclusion pattern (starts with -)
     if (part.StartsWith("-"))
     {
-      ezStringView excludePart = part.GetSubString(1, 0xffffff);
+      WStringView excludePart = part.GetSubString(1, 0xffffff);
       if (excludePart.IsEmpty())
         continue;
 
@@ -929,13 +929,13 @@ bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
   return true;
 }
 
-bool ezImGuiConsole::CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const
+bool WImGuiConsole::CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const
 {
   // If this is a leaf node with a CVar, check if it passes the filter
   if (node.m_pCVar != nullptr)
   {
-    ezStringBuilder sNameTemp;
-    ezStringView sFullName = node.m_pCVar->GetName().GetData(sNameTemp);
+    WStringBuilder sNameTemp;
+    WStringView sFullName = node.m_pCVar->GetName().GetData(sNameTemp);
     return CVarNamePassesFilter(sFullName);
   }
 
@@ -949,9 +949,9 @@ bool ezImGuiConsole::CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node)
   return false;
 }
 
-void ezImGuiConsole::BuildFilteredLogStrings()
+void WImGuiConsole::BuildFilteredLogStrings()
 {
-  m_bFilterLog = !m_sLogFilter.IsEmpty() || (m_LogLevel < ezLogMsgType::DebugMsg);
+  m_bFilterLog = !m_sLogFilter.IsEmpty() || (m_LogLevel < WLogMsgType::DebugMsg);
 
   if (!m_bFilterLog)
     return;
@@ -971,38 +971,38 @@ void ezImGuiConsole::BuildFilteredLogStrings()
   }
 }
 
-static ezLogMsgType::Enum TypeToSeverity(ezConsoleString::Type type)
+static WLogMsgType::Enum TypeToSeverity(WConsoleString::Type type)
 {
   switch (type)
   {
-    case ezConsoleString::Type::Error:
-      return ezLogMsgType::ErrorMsg;
+    case WConsoleString::Type::Error:
+      return WLogMsgType::ErrorMsg;
 
-    case ezConsoleString::Type::SeriousWarning:
-      return ezLogMsgType::SeriousWarningMsg;
+    case WConsoleString::Type::SeriousWarning:
+      return WLogMsgType::SeriousWarningMsg;
 
-    case ezConsoleString::Type::Warning:
-      return ezLogMsgType::WarningMsg;
+    case WConsoleString::Type::Warning:
+      return WLogMsgType::WarningMsg;
 
-    case ezConsoleString::Type::Success:
-      return ezLogMsgType::SuccessMsg;
+    case WConsoleString::Type::Success:
+      return WLogMsgType::SuccessMsg;
 
-    case ezConsoleString::Type::Note:
-    case ezConsoleString::Type::Default:
-      return ezLogMsgType::InfoMsg;
+    case WConsoleString::Type::Note:
+    case WConsoleString::Type::Default:
+      return WLogMsgType::InfoMsg;
 
-    case ezConsoleString::Type::Dev:
-      return ezLogMsgType::DevMsg;
+    case WConsoleString::Type::Dev:
+      return WLogMsgType::DevMsg;
 
-    case ezConsoleString::Type::Debug:
-      return ezLogMsgType::DebugMsg;
+    case WConsoleString::Type::Debug:
+      return WLogMsgType::DebugMsg;
 
     default:
-      return ezLogMsgType::InfoMsg;
+      return WLogMsgType::InfoMsg;
   }
 }
 
-bool ezImGuiConsole::FilterLogString(const ezConsoleString& entry) const
+bool WImGuiConsole::FilterLogString(const WConsoleString& entry) const
 {
   if (TypeToSeverity(entry.m_Type) > m_LogLevel)
     return true;
@@ -1013,7 +1013,7 @@ bool ezImGuiConsole::FilterLogString(const ezConsoleString& entry) const
   return false;
 }
 
-void ezImGuiConsole::RenderLogWindow(bool bFull)
+void WImGuiConsole::RenderLogWindow(bool bFull)
 {
   // Get available screen space
   ImGuiIO& io = ImGui::GetIO();
@@ -1052,9 +1052,9 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
     ImGui::SameLine();
 
     char buffer[128];
-    ezStringUtils::Copy(buffer, EZ_ARRAY_SIZE(buffer), m_sLogFilter);
+    WStringUtils::Copy(buffer, W_ARRAY_SIZE(buffer), m_sLogFilter);
 
-    if (ImGui::InputText("##filter", buffer, EZ_ARRAY_SIZE(buffer)))
+    if (ImGui::InputText("##filter", buffer, W_ARRAY_SIZE(buffer)))
     {
       m_sLogFilter = buffer;
       m_bLogFilterChanged = true;
@@ -1073,14 +1073,14 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
     {
       ImGui::SameLine();
       const char* severityLabels[] = {"Error", "Serious Warning", "Warning", "Success", "Info", "Dev", "All"};
-      const ezLogMsgType::Enum severityValues[] = {
-        ezLogMsgType::ErrorMsg,
-        ezLogMsgType::SeriousWarningMsg,
-        ezLogMsgType::WarningMsg,
-        ezLogMsgType::SuccessMsg,
-        ezLogMsgType::InfoMsg,
-        ezLogMsgType::DevMsg,
-        ezLogMsgType::DebugMsg};
+      const WLogMsgType::Enum severityValues[] = {
+        WLogMsgType::ErrorMsg,
+        WLogMsgType::SeriousWarningMsg,
+        WLogMsgType::WarningMsg,
+        WLogMsgType::SuccessMsg,
+        WLogMsgType::InfoMsg,
+        WLogMsgType::DevMsg,
+        WLogMsgType::DebugMsg};
 
       // Find current selection index
       int currentSelection = 6; // Default to Debug (show all)
@@ -1118,25 +1118,25 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
       ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // Default white
       switch (consoleString.m_Type)
       {
-        case ezConsoleString::Type::Error:
+        case WConsoleString::Type::Error:
           color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); // Red
           break;
-        case ezConsoleString::Type::SeriousWarning:
+        case WConsoleString::Type::SeriousWarning:
           color = ImVec4(1.0f, 0.6f, 0.2f, 1.0f); // Orange
           break;
-        case ezConsoleString::Type::Warning:
+        case WConsoleString::Type::Warning:
           color = ImVec4(1.0f, 1.0f, 0.4f, 1.0f); // Yellow
           break;
-        case ezConsoleString::Type::Success:
+        case WConsoleString::Type::Success:
           color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f); // Green
           break;
-        case ezConsoleString::Type::Note:
+        case WConsoleString::Type::Note:
           color = ImVec4(0.6f, 0.8f, 1.0f, 1.0f); // Light blue
           break;
-        case ezConsoleString::Type::Dev:
+        case WConsoleString::Type::Dev:
           color = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Gray
           break;
-        case ezConsoleString::Type::Debug:
+        case WConsoleString::Type::Debug:
           color = ImVec4(0.4f, 0.6f, 0.8f, 1.0f); // Light blue
           break;
         default:
@@ -1181,32 +1181,32 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
 }
 
 
-void ezImGuiConsole::RenderConsole(bool bIsOpen)
+void WImGuiConsole::RenderConsole(bool bIsOpen)
 {
   UpdateFrameTimes();
   UpdateMemoryUsage();
 
   if (bIsOpen || (m_bStatsWindowOpen && m_bPinStatsWindow) || (m_bLogWindowOpen && m_bPinLogWindow))
   {
-    if (ezImgui::GetSingleton() == nullptr)
+    if (WImgui::GetSingleton() == nullptr)
     {
-      EZ_DEFAULT_NEW(ezImgui);
+      W_DEFAULT_NEW(WImgui);
     }
   }
 
-  if (ezImgui::GetSingleton() != nullptr)
+  if (WImgui::GetSingleton() != nullptr)
   {
     // pinned windows stay visible after the console got closed, but must not consume input then
-    ezImgui::GetSingleton()->SetPassInputToImgui(bIsOpen);
+    WImgui::GetSingleton()->SetPassInputToImgui(bIsOpen);
   }
 
   if (bIsOpen || (m_bStatsWindowOpen && m_bPinStatsWindow) || (m_bLogWindowOpen && m_bPinLogWindow))
   {
-    const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView);
+    const WView* pView = WRenderWorld::GetViewByUsageHint(WCameraUsageHint::MainView);
     if (pView == nullptr)
       return;
 
-    ezImgui::GetSingleton()->SetCurrentContextForView(pView->GetHandle());
+    WImgui::GetSingleton()->SetCurrentContextForView(pView->GetHandle());
   }
 
   if (bIsOpen)
@@ -1253,7 +1253,7 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
   }
 }
 
-void ezImGuiConsole::HandleInput(bool bIsOpen)
+void WImGuiConsole::HandleInput(bool bIsOpen)
 {
   // this has to happen here, rather than in RenderConsole(), because it must run on the main thread
   // and before the frame's rendering decisions were made, otherwise the OS cursor and a custom
@@ -1265,8 +1265,8 @@ void ezImGuiConsole::HandleInput(bool bIsOpen)
 
     if (bIsOpen)
     {
-      ezMouseCursorOverrideDesc desc;
-      desc.m_OSCursor = ezMouseCursorOverride::ForceOSCursor;
+      WMouseCursorOverrideDesc desc;
+      desc.m_OSCursor = WMouseCursorOverride::ForceOSCursor;
       desc.m_bForceNoClip = true;
 
       m_CursorOverride.Request(desc);
@@ -1281,19 +1281,19 @@ void ezImGuiConsole::HandleInput(bool bIsOpen)
   {
     m_bDefaultInputHandlingInitialized = true;
 
-    ezInputActionConfig cfg;
+    WInputActionConfig cfg;
     cfg.m_bApplyTimeScaling = false;
 
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF2;
-    ezInputManager::SetInputActionConfig("Console", "RepeatLast", cfg, true);
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyF2;
+    WInputManager::SetInputActionConfig("Console", "RepeatLast", cfg, true);
 
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF3;
-    ezInputManager::SetInputActionConfig("Console", "RepeatSecondLast", cfg, true);
+    cfg.m_sInputSlotTrigger[0] = WInputSlot_KeyF3;
+    WInputManager::SetInputActionConfig("Console", "RepeatSecondLast", cfg, true);
 
     return;
   }
 
-  if (ezInputManager::GetInputActionState("Console", "RepeatLast") == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("Console", "RepeatLast") == WKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 1)
     {
@@ -1303,7 +1303,7 @@ void ezImGuiConsole::HandleInput(bool bIsOpen)
     }
   }
 
-  if (ezInputManager::GetInputActionState("Console", "RepeatSecondLast") == ezKeyState::Pressed)
+  if (WInputManager::GetInputActionState("Console", "RepeatSecondLast") == WKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 2)
     {

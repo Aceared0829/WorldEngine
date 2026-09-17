@@ -4,51 +4,51 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
-using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
+using WCurve1DResourceHandle = WTypedResourceHandle<class WCurve1DResource>;
 
 /// Emitter that continuously spawns particles over time
 ///
 /// Spawn rate can be constant or modulated by a curve.
 /// Continues emitting until the effect is stopped.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous final : public ezParticleEmitterFactory
+class W_PARTICLEPLUGIN_DLL WParticleEmitterFactory_Continuous final : public WParticleEmitterFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Continuous, ezParticleEmitterFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitterFactory_Continuous, WParticleEmitterFactory);
 
 public:
-  ezParticleEmitterFactory_Continuous();
+  WParticleEmitterFactory_Continuous();
 
-  virtual const ezRTTI* GetEmitterType() const override;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
-  virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
+  virtual const WRTTI* GetEmitterType() const override;
+  virtual void CopyEmitterProperties(WParticleEmitter* pEmitter, bool bFirstTime) const override;
+  virtual void QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
 public:
-  ezTime m_StartDelay;                   ///< Delay before emission starts
+  WTime m_StartDelay;                   ///< Delay before emission starts
 
-  ezUInt32 m_uiSpawnCountPerSec;         ///< Base spawn rate per second
-  ezUInt32 m_uiSpawnCountPerSecRange;    ///< Random range added to spawn rate
-  ezString m_sSpawnCountScaleParameter;  ///< Optional parameter to scale spawn rate
+  WUInt32 m_uiSpawnCountPerSec;         ///< Base spawn rate per second
+  WUInt32 m_uiSpawnCountPerSecRange;    ///< Random range added to spawn rate
+  WString m_sSpawnCountScaleParameter;  ///< Optional parameter to scale spawn rate
 
-  ezCurve1DResourceHandle m_hCountCurve; ///< Optional curve to modulate spawn rate
-  ezTime m_CurveDuration;                ///< Duration for curve evaluation
+  WCurve1DResourceHandle m_hCountCurve; ///< Optional curve to modulate spawn rate
+  WTime m_CurveDuration;                ///< Duration for curve evaluation
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous final : public ezParticleEmitter
+class W_PARTICLEPLUGIN_DLL WParticleEmitter_Continuous final : public WParticleEmitter
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Continuous, ezParticleEmitter);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitter_Continuous, WParticleEmitter);
 
 public:
-  ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
+  WTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
 
-  ezUInt32 m_uiSpawnCountPerSec;
-  ezUInt32 m_uiSpawnCountPerSecRange;
-  ezTempHashedString m_sSpawnCountScaleParameter;
+  WUInt32 m_uiSpawnCountPerSec;
+  WUInt32 m_uiSpawnCountPerSecRange;
+  WTempHashedString m_sSpawnCountScaleParameter;
 
-  ezCurve1DResourceHandle m_hCountCurve;
-  ezTime m_CurveDuration;
+  WCurve1DResourceHandle m_hCountCurve;
+  WTime m_CurveDuration;
 
 
   virtual void CreateRequiredStreams() override {}
@@ -56,14 +56,14 @@ public:
 protected:
   virtual bool IsContinuous() const override { return true; }
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
   virtual void OnFinalize() override;
 
-  virtual ezParticleEmitterState IsFinished() override;
-  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
+  virtual WParticleEmitterState IsFinished() override;
+  virtual WUInt32 ComputeSpawnCount(const WTime& tDiff) override;
 
-  ezTime m_CountCurveTime;
-  ezTime m_TimeSinceRandom;
+  WTime m_CountCurveTime;
+  WTime m_TimeSinceRandom;
   float m_fCurSpawnPerSec;
   float m_fCurSpawnCounter;
 };

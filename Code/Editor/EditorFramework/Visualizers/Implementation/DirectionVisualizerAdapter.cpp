@@ -4,88 +4,88 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter() = default;
+WDirectionVisualizerAdapter::WDirectionVisualizerAdapter() = default;
 
-ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter() = default;
+WDirectionVisualizerAdapter::~WDirectionVisualizerAdapter() = default;
 
-void ezDirectionVisualizerAdapter::Finalize()
+void WDirectionVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
-  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
-  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
+  const WAssetDocument* pAssetDocument = WDynamicCast<const WAssetDocument*>(pDoc);
+  W_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in WAssetDocument.");
 
-  const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
+  const WDirectionVisualizerAttribute* pAttr = static_cast<const WDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Arrow, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, WEngineGizmoHandleType::Arrow, pAttr->m_Color, WGizmoFlags::ShowInOrtho | WGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
-void ezDirectionVisualizerAdapter::Update()
+void WDirectionVisualizerAdapter::Update()
 {
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);
-  const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
+  const WDirectionVisualizerAttribute* pAttr = static_cast<const WDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
-    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WColor>(), "Invalid property bound to WDirectionVisualizerAttribute 'color'");
+    m_hGizmo.SetColor(value.ConvertTo<WColor>() * pAttr->m_Color);
   }
 }
 
-void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
+void WDirectionVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
+  const WDirectionVisualizerAttribute* pAttr = static_cast<const WDirectionVisualizerAttribute*>(m_pVisualizerAttr);
   float fScale = pAttr->m_fScale;
 
   if (!pAttr->GetLengthProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetLengthProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
+    W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to WDirectionVisualizerAttribute 'length'");
     fScale *= value.ConvertTo<float>();
   }
 
-  ezVec3 axis = ezBasisAxis::GetBasisVector(pAttr->m_Axis);
+  WVec3 axis = WBasisAxis::GetBasisVector(pAttr->m_Axis);
 
   if (!pAttr->GetAxisProperty().IsEmpty())
   {
-    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+    WObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-    ezVariant value;
+    WVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
-    if (value.IsA<ezVec3>())
+    if (value.IsA<WVec3>())
     {
-      axis = value.ConvertTo<ezVec3>();
+      axis = value.ConvertTo<WVec3>();
       fScale *= axis.GetLength();
-      axis.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+      axis.NormalizeIfNotZero(WVec3::MakeAxisX()).IgnoreResult();
     }
     else
     {
-      EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
+      W_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<WInt32>(), "Invalid property bound to WDirectionVisualizerAttribute 'length'");
 
-      axis = ezBasisAxis::GetBasisVector(static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>()));
+      axis = WBasisAxis::GetBasisVector(static_cast<WBasisAxis::Enum>(value.ConvertTo<WInt32>()));
     }
   }
 
-  const ezQuat axisRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), axis);
+  const WQuat axisRotation = WQuat::MakeShortestRotation(WVec3::MakeAxisX(), axis);
 
-  ezTransform t;
+  WTransform t;
   t.m_qRotation = axisRotation;
-  t.m_vScale = ezVec3(fScale);
-  t.m_vPosition = axisRotation * ezVec3(fScale * 0.5f, 0, 0);
+  t.m_vScale = WVec3(fScale);
+  t.m_vPosition = axisRotation * WVec3(fScale * 0.5f, 0, 0);
 
-  ezTransform tObject = GetObjectTransform();
+  WTransform tObject = GetObjectTransform();
   tObject.m_vScale.Set(1.0f);
 
   m_hGizmo.SetTransformation(tObject * t);

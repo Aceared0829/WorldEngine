@@ -3,16 +3,16 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-class ezMiniAudioSoundAssetProperties : public ezReflectedClass
+class WMiniAudioSoundAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSoundAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioSoundAssetProperties, WReflectedClass);
 
 public:
-  ezMiniAudioSoundAssetProperties() = default;
+  WMiniAudioSoundAssetProperties() = default;
 
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+  static void PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
-  ezString m_sGroup;
+  WString m_sGroup;
   bool m_bLoop = false;
   float m_fMinVolume = 1.0f;
   float m_fMaxVolume = 1.0f;
@@ -23,7 +23,7 @@ public:
   float m_fMaxDistance = 10.0f;
   float m_fRolloff = 1.0f;
   float m_fDopplerFactor = 0.0f;
-  ezDynamicArray<ezString> m_SoundFiles;
+  WDynamicArray<WString> m_SoundFiles;
   // disable pitch
   // no global pitch
   // looping
@@ -31,32 +31,32 @@ public:
   // fully decode / stream
 };
 
-class ezMiniAudioSoundAssetDocument : public ezSimpleAssetDocument<ezMiniAudioSoundAssetProperties>
+class WMiniAudioSoundAssetDocument : public WSimpleAssetDocument<WMiniAudioSoundAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSoundAssetDocument, ezSimpleAssetDocument<ezMiniAudioSoundAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioSoundAssetDocument, WSimpleAssetDocument<WMiniAudioSoundAssetProperties>);
 
 public:
-  ezMiniAudioSoundAssetDocument(ezStringView sDocumentPath);
+  WMiniAudioSoundAssetDocument(WStringView sDocumentPath);
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 
-class ezMiniAudioSoundAssetDocumentGenerator : public ezAssetDocumentGenerator
+class WMiniAudioSoundAssetDocumentGenerator : public WAssetDocumentGenerator
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSoundAssetDocumentGenerator, ezAssetDocumentGenerator);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioSoundAssetDocumentGenerator, WAssetDocumentGenerator);
 
 public:
-  ezMiniAudioSoundAssetDocumentGenerator();
-  ~ezMiniAudioSoundAssetDocumentGenerator();
+  WMiniAudioSoundAssetDocumentGenerator();
+  ~WMiniAudioSoundAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezMiniAudioSoundAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "Sounds"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual void GetImportModes(WStringView sAbsInputFile, WDynamicArray<WAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual WStringView GetDocumentExtension() const override { return "WMiniAudioSoundAsset"; }
+  virtual WStringView GetGeneratorGroup() const override { return "Sounds"; }
+  virtual WStatus Generate(WStringView sInputFileAbs, WStringView sMode, WDynamicArray<WDocument*>& out_generatedDocuments) override;
 };

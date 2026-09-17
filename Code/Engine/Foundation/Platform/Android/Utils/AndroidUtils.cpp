@@ -1,43 +1,43 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
-android_app* ezAndroidUtils::s_app;
-JavaVM* ezAndroidUtils::s_vm;
-jobject ezAndroidUtils::s_na;
-ezEvent<ezAndroidInputEvent&> ezAndroidUtils::s_InputEvent;
-ezEvent<ezInt32> ezAndroidUtils::s_AppCommandEvent;
+android_app* WAndroidUtils::s_app;
+JavaVM* WAndroidUtils::s_vm;
+jobject WAndroidUtils::s_na;
+WEvent<WAndroidInputEvent&> WAndroidUtils::s_InputEvent;
+WEvent<WInt32> WAndroidUtils::s_AppCommandEvent;
 
-void ezAndroidUtils::SetAndroidApp(android_app* app)
+void WAndroidUtils::SetAndroidApp(android_app* app)
 {
   s_app = app;
   SetAndroidJavaVM(s_app->activity->vm);
   SetAndroidNativeActivity(s_app->activity->clazz);
 }
 
-android_app* ezAndroidUtils::GetAndroidApp()
+android_app* WAndroidUtils::GetAndroidApp()
 {
   return s_app;
 }
 
-void ezAndroidUtils::SetAndroidJavaVM(JavaVM* vm)
+void WAndroidUtils::SetAndroidJavaVM(JavaVM* vm)
 {
   s_vm = vm;
 }
 
-JavaVM* ezAndroidUtils::GetAndroidJavaVM()
+JavaVM* WAndroidUtils::GetAndroidJavaVM()
 {
   return s_vm;
 }
 
-void ezAndroidUtils::SetAndroidNativeActivity(jobject nativeActivity)
+void WAndroidUtils::SetAndroidNativeActivity(jobject nativeActivity)
 {
   s_na = nativeActivity;
 }
 
-jobject ezAndroidUtils::GetAndroidNativeActivity()
+jobject WAndroidUtils::GetAndroidNativeActivity()
 {
   return s_na;
 }

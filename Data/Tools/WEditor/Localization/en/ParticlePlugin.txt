@@ -1,0 +1,93 @@
+# Asset Types
+
+Particle Effect;Particle Effect;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effects-overview.html
+
+# Component Types
+
+WParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
+WParticleAttractorComponent;Particle Attractor;;https://ezengine.net/pages/docs/effects/particle-effects/particle-attractor-component.html
+
+# UI
+
+PFX.Restart;Restart
+PFX.AutoRestart;Loop
+PFX.Pause;Pause
+PFX.Speed.Menu;Simulation Speed
+PFX.Speed.01;10%
+PFX.Speed.025;25%
+PFX.Speed.05;50%
+PFX.Speed.1;100%
+PFX.Speed.15;150%
+PFX.Speed.2;200%
+PFX.Speed.3;300%
+PFX.Speed.4;400%
+PFX.Speed.5;500%
+PFX.Speed.10;1000%
+PFX.Render.Visualizers;Render Visualizers
+
+# Enums
+
+WParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
+WParticleTypeRenderMode::BlendedBackground;Blended (Background)
+
+WEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
+WEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
+WEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
+
+WParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
+WParticleTextureAtlasType::RandomXAnimatedY;Random Column, Animated Row
+
+WParticleBehaviorFactory_ColorGradient;Color Gradient
+WParticleBehaviorFactory_Velocity;Velocity
+WParticleBehaviorFactory_Gravity;Gravity
+WParticleBehaviorFactory_Raycast;Raycast
+WParticleBehaviorFactory_FadeOut;Fade Out
+WParticleBehaviorFactory_PullAlong;Pull Along
+WParticleBehaviorFactory_SizeCurve;Size Curve
+WParticleBehaviorFactory_Flies;Flies
+WParticleBehaviorFactory_Bounds;Bounds: Box
+WParticleBehaviorFactory_Opacity;Opacity
+WParticleBehaviorFactory_Wind;Wind
+WParticleBehaviorFactory_Move;Move
+
+WParticleEmitterFactory_Continuous;Continuous
+WParticleEmitterFactory_OnEvent;On Event
+WParticleEmitterFactory_Burst;Burst
+WParticleEmitterFactory_Distance;Distance
+
+WParticleInitializerFactory_BoxPosition;Box Position
+WParticleInitializerFactory_CylinderPosition;Cylinder Position
+WParticleInitializerFactory_RandomColor;Random Color
+WParticleInitializerFactory_RandomSize;Random Size
+WParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
+WParticleInitializerFactory_SpherePosition;Sphere Position
+WParticleInitializerFactory_VelocityCone;Velocity Cone
+
+WParticleEventReactionFactory_Effect;Effect Reaction
+WParticleEventReactionFactory_Prefab;Prefab Reaction
+
+WParticleBehaviorFactory_BoundsSphere;Bounds: Sphere
+WParticleBehaviorFactory_Turbulence;Turbulence
+WParticleBehaviorFactory_Attract;Attract
+WParticleBehaviorFactory_Expression;Expression
+WQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
+WQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
+WQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir
+WQuadParticleOrientation::Fixed_RandomDir;Fixed: Random Dir
+WQuadParticleOrientation::Fixed_WorldUp;Fixed: World Up
+WQuadParticleOrientation::FixedAxis_EmitterDir;Axis: Emitter Dir
+WQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir
+
+WParticleTypeTrailFactory;Trail
+WParticleTypeMeshFactory;Mesh
+WParticleTypeQuadFactory;Quad
+WParticleTypeLightFactory;Light
+WParticleTypeEffectFactory;Effect
+WParticleTypePointFactory;Point
+
+# Properties
+
+WParticleEffectDescriptor::PreSimulateDuration;Pre-Simulate Duration
+WParticleEffectDescriptor::SimulateInLocalSpace;Simulate In Local-Space
+
+WParticleBehaviorFactory_Bounds::OutOfBoundsMode;Out-Of-Bounds Mode

@@ -12,27 +12,27 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-class ezOpenXRInputDevice;
-class ezOpenXRSpatialAnchors;
-class ezOpenXRHandTracking;
-class ezOpenXRGraphicsBinding;
-class ezWindowOutputTargetXR;
-struct ezGameApplicationExecutionEvent;
-struct ezRenderWorldRenderEvent;
-class ezGALDevice;
+class WOpenXRInputDevice;
+class WOpenXRSpatialAnchors;
+class WOpenXRHandTracking;
+class WOpenXRGraphicsBinding;
+class WWindowOutputTargetXR;
+struct WGameApplicationExecutionEvent;
+struct WRenderWorldRenderEvent;
+class WGALDevice;
 
-EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
-EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
-EZ_DEFINE_AS_POD_TYPE(XrExtensionProperties);
-EZ_DEFINE_AS_POD_TYPE(XrApiLayerProperties);
+W_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
+W_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
+W_DEFINE_AS_POD_TYPE(XrExtensionProperties);
+W_DEFINE_AS_POD_TYPE(XrApiLayerProperties);
 
-class EZ_OPENXRPLUGIN_DLL ezOpenXR : public ezXRInterface
+class W_OPENXRPLUGIN_DLL WOpenXR : public WXRInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXR, ezXRInterface);
+  W_DECLARE_SINGLETON_OF_INTERFACE(WOpenXR, WXRInterface);
 
 public:
-  ezOpenXR();
-  ~ezOpenXR();
+  WOpenXR();
+  ~WOpenXR();
 
   XrInstance GetInstance() const { return m_pInstance; }
   uint64_t GetSystemId() const { return m_SystemId; }
@@ -41,34 +41,34 @@ public:
   bool GetDepthComposition() const;
 
   /// Returns the graphics binding interface (D3D11, Vulkan, etc.)
-  ezOpenXRGraphicsBinding* GetGraphicsBinding() const { return m_pGraphicsBinding.Borrow(); }
+  WOpenXRGraphicsBinding* GetGraphicsBinding() const { return m_pGraphicsBinding.Borrow(); }
 
   virtual bool IsHmdPresent() const override;
 
-  virtual ezResult Initialize() override;
+  virtual WResult Initialize() override;
   virtual void Deinitialize() override;
   virtual bool IsInitialized() const override;
 
-  virtual const ezHMDInfo& GetHmdInfo() const override;
-  virtual ezXRInputDevice& GetXRInput() const override;
+  virtual const WHMDInfo& GetHmdInfo() const override;
+  virtual WXRInputDevice& GetXRInput() const override;
 
-  virtual ezGALTextureHandle GetCurrentTexture() override;
+  virtual WGALTextureHandle GetCurrentTexture() override;
 
-  virtual ezRegisteredWndHandle CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
-    ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
+  virtual WRegisteredWndHandle CreateXRWindow(WView* pView, WGALMSAASampleCount::Enum msaaCount = WGALMSAASampleCount::None,
+    WUniquePtr<WWindowBase> pCompanionWindow = nullptr, WUniquePtr<WWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
   virtual bool SupportsCompanionView() override;
 
   XrSpace GetBaseSpace() const;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, OpenXR);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, OpenXR);
 
   void OnEngineStartup();
   void OnEngineShutdown();
-  XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
-  XrResult SelectLayers(ezHybridArray<const char*, 6>& layers);
-  ezResult InitInstance(ezGALDevice* pDevice);
+  XrResult SelectExtensions(WHybridArray<const char*, 6>& extensions);
+  XrResult SelectLayers(WHybridArray<const char*, 6>& layers);
+  WResult InitInstance(WGALDevice* pDevice);
   void DeinitInstance();
   XrResult InitSystem();
   void DeinitSystem();
@@ -79,9 +79,9 @@ private:
   XrResult InitDebugMessenger();
   void DeinitInitDebugMessenger();
 
-  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
-  void GALDeviceEventHandler(const ezGALDeviceEvent& e);
-  void OnRenderWorldEvent(const ezRenderWorldRenderEvent& e);
+  void GameApplicationEventHandler(const WGameApplicationExecutionEvent& e);
+  void GALDeviceEventHandler(const WGALDeviceEvent& e);
+  void OnRenderWorldEvent(const WRenderWorldRenderEvent& e);
 
   void BeforeUpdatePlugins();
   void UpdatePoses();
@@ -90,17 +90,17 @@ private:
   void EndRender();
   void EndFrame();
 
-  void SetStageSpace(ezXRStageSpace::Enum space);
-  void SetHMDCamera(ezCamera* pCamera);
+  void SetStageSpace(WXRStageSpace::Enum space);
+  void SetHMDCamera(WCamera* pCamera);
 
-  ezWorld* GetWorld();
+  WWorld* GetWorld();
 
 private:
-  friend class ezOpenXRInputDevice;
-  friend class ezOpenXRSpatialAnchors;
-  friend class ezOpenXRHandTracking;
-  friend class ezOpenXRRemoting;
-  friend class ezGALOpenXRSwapChain;
+  friend class WOpenXRInputDevice;
+  friend class WOpenXRSpatialAnchors;
+  friend class WOpenXRHandTracking;
+  friend class WOpenXRRemoting;
+  friend class WGALOpenXRSwapChain;
 
   struct Extensions
   {
@@ -143,19 +143,19 @@ private:
   XrSession m_pSession = XR_NULL_HANDLE;
   XrSpace m_pSceneSpace = XR_NULL_HANDLE;
   XrSpace m_pLocalSpace = XR_NULL_HANDLE;
-  ezEventSubscriptionID m_ExecutionEventsId = 0;
-  ezEventSubscriptionID m_BeginRenderEventsId = 0;
-  ezEventSubscriptionID m_GALdeviceEventsId = 0;
-  ezEventSubscriptionID m_RenderWorldEventId = 0;
+  WEventSubscriptionID m_ExecutionEventsId = 0;
+  WEventSubscriptionID m_BeginRenderEventsId = 0;
+  WEventSubscriptionID m_GALdeviceEventsId = 0;
+  WEventSubscriptionID m_RenderWorldEventId = 0;
   XrDebugUtilsMessengerEXT m_pDebugMessenger = XR_NULL_HANDLE;
 
   // Graphics binding (abstracts D3D11, Vulkan, etc.)
   XrEnvironmentBlendMode m_BlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-  ezUniquePtr<ezOpenXRGraphicsBinding> m_pGraphicsBinding;
+  WUniquePtr<WOpenXRGraphicsBinding> m_pGraphicsBinding;
   XrFormFactor m_FormFactor{XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY};
   XrViewConfigurationType m_PrimaryViewConfigurationType{XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO};
 
-  ezGALSwapChainHandle m_hSwapChain;
+  WGALSwapChainHandle m_hSwapChain;
 
   // Views
   XrViewState m_ViewState{XR_TYPE_VIEW_STATE};
@@ -177,15 +177,15 @@ private:
   XrFrameBeginInfo m_FrameBeginInfo{XR_TYPE_FRAME_BEGIN_INFO};
 
   // XR interface state
-  ezHMDInfo m_Info;
-  mutable ezUniquePtr<ezOpenXRInputDevice> m_pInput;
-  ezUniquePtr<ezOpenXRSpatialAnchors> m_pAnchors;
-  ezUniquePtr<ezOpenXRHandTracking> m_pHandTracking;
+  WHMDInfo m_Info;
+  mutable WUniquePtr<WOpenXRInputDevice> m_pInput;
+  WUniquePtr<WOpenXRSpatialAnchors> m_pAnchors;
+  WUniquePtr<WOpenXRHandTracking> m_pHandTracking;
 
-  ezCamera* m_pCameraToSynchronize = nullptr;
-  ezEnum<ezXRStageSpace> m_StageSpace;
-  ezUInt32 m_uiSettingsModificationCounter = 0;
-  ezViewHandle m_hView;
+  WCamera* m_pCameraToSynchronize = nullptr;
+  WEnum<WXRStageSpace> m_StageSpace;
+  WUInt32 m_uiSettingsModificationCounter = 0;
+  WViewHandle m_hView;
 
-  ezWindowOutputTargetXR* m_pCompanion = nullptr;
+  WWindowOutputTargetXR* m_pCompanion = nullptr;
 };

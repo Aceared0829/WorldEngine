@@ -8,20 +8,20 @@
 #include <GuiFoundation/Widgets/CVarWidget.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezQtCVarWidget;
+class WQtCVarWidget;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCVarPanel : public ezQtApplicationPanel
+class W_EDITORFRAMEWORK_DLL WQtCVarPanel : public WQtApplicationPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtCVarPanel);
+  W_DECLARE_SINGLETON(WQtCVarPanel);
 
 public:
-  ezQtCVarPanel(ads::CDockManager* pDockManager);
-  ~ezQtCVarPanel();
+  WQtCVarPanel(ads::CDockManager* pDockManager);
+  ~WQtCVarPanel();
 
 protected:
-  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
+  virtual void ToolsProjectEventHandler(const WToolsProjectEvent& e) override;
 
 private Q_SLOTS:
   void UpdateUI();
@@ -31,14 +31,14 @@ private Q_SLOTS:
   void StringChanged(const char* szCVar, const char* newValue);
 
 private:
-  void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+  void EngineProcessMsgHandler(const WEditorEngineProcessConnection::Event& e);
 
-  ezQtCVarWidget* m_pCVarWidget = nullptr;
+  WQtCVarWidget* m_pCVarWidget = nullptr;
 
-  ezMap<ezString, ezCVarWidgetData> m_EngineCVarState;
+  WMap<WString, WCVarWidgetData> m_EngineCVarState;
 
   bool m_bUpdateUI = false;
   bool m_bRebuildUI = false;
   bool m_bUpdateConsole = false;
-  ezStringBuilder m_sCommandResult;
+  WStringBuilder m_sCommandResult;
 };

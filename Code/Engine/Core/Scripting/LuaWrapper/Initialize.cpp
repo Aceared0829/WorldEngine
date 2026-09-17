@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-ezLuaWrapper::ezLuaWrapper()
+WLuaWrapper::WLuaWrapper()
 {
   m_bReleaseOnExit = true;
   m_pState = nullptr;
@@ -12,21 +12,21 @@ ezLuaWrapper::ezLuaWrapper()
   Clear();
 }
 
-ezLuaWrapper::ezLuaWrapper(lua_State* s)
+WLuaWrapper::WLuaWrapper(lua_State* s)
 {
   m_pState = s;
   m_bReleaseOnExit = false;
 }
 
-ezLuaWrapper::~ezLuaWrapper()
+WLuaWrapper::~WLuaWrapper()
 {
   if (m_bReleaseOnExit)
     lua_close(m_pState);
 }
 
-void ezLuaWrapper::Clear()
+void WLuaWrapper::Clear()
 {
-  EZ_ASSERT_DEV(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
+  W_ASSERT_DEV(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
 
   if (m_pState)
     lua_close(m_pState);
@@ -36,61 +36,61 @@ void ezLuaWrapper::Clear()
   luaL_openlibs(m_pState);
 }
 
-ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugChunkName, ezLogInterface* pLogInterface) const
+WResult WLuaWrapper::ExecuteString(const char* szString, const char* szDebugChunkName, WLogInterface* pLogInterface) const
 {
-  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0,
-    "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.",
+  W_ASSERT_DEV(m_States.m_iLuaReturnValues == 0,
+    "WLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.",
     m_States.m_iLuaReturnValues);
 
   if (!pLogInterface)
-    pLogInterface = ezLog::GetThreadLocalLogSystem();
+    pLogInterface = WLog::GetThreadLocalLogSystem();
 
-  int error = luaL_loadbuffer(m_pState, szString, ezStringUtils::GetStringElementCount(szString), szDebugChunkName);
+  int error = luaL_loadbuffer(m_pState, szString, WStringUtils::GetStringElementCount(szString), szDebugChunkName);
 
   if (error != LUA_OK)
   {
-    EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
+    W_LOG_BLOCK("WLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Lua compile error: {0}", lua_tostring(m_pState, -1));
-    ezLog::Info(pLogInterface, "[luascript]Script: {0}", szString);
+    WLog::Error(pLogInterface, "[lua]Lua compile error: {0}", lua_tostring(m_pState, -1));
+    WLog::Info(pLogInterface, "[luascript]Script: {0}", szString);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   error = lua_pcall(m_pState, 0, 0, 0);
 
   if (error != LUA_OK)
   {
-    EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
+    W_LOG_BLOCK("WLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Lua error: {0}", lua_tostring(m_pState, -1));
-    ezLog::Info(pLogInterface, "[luascript]Script: {0}", szString);
+    WLog::Error(pLogInterface, "[lua]Lua error: {0}", lua_tostring(m_pState, -1));
+    WLog::Info(pLogInterface, "[luascript]Script: {0}", szString);
 
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsize)
+void* WLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsize)
 {
-  EZ_IGNORE_UNUSED(ud);
+  W_IGNORE_UNUSED(ud);
 
   /// \todo Create optimized allocator.
 
   if (nsize == 0)
   {
-    delete[] (ezUInt8*)ptr;
+    delete[] (WUInt8*)ptr;
     return (nullptr);
   }
 
-  ezUInt8* ucPtr = new ezUInt8[nsize];
+  WUInt8* ucPtr = new WUInt8[nsize];
 
   if (ptr != nullptr)
   {
-    ezMemoryUtils::Copy(ucPtr, (ezUInt8*)ptr, ezUInt32(osize < nsize ? osize : nsize));
+    WMemoryUtils::Copy(ucPtr, (WUInt8*)ptr, WUInt32(osize < nsize ? osize : nsize));
 
-    delete[] (ezUInt8*)ptr;
+    delete[] (WUInt8*)ptr;
   }
 
   return ((void*)ucPtr);

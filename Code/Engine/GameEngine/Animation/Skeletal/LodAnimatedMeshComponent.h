@@ -3,66 +3,66 @@
 #include <Core/World/World.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 
-class EZ_GAMEENGINE_DLL ezLodAnimatedMeshComponentManager : public ezComponentManager<class ezLodAnimatedMeshComponent, ezBlockStorageType::FreeList>
+class W_GAMEENGINE_DLL WLodAnimatedMeshComponentManager : public WComponentManager<class WLodAnimatedMeshComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezLodAnimatedMeshComponentManager(ezWorld* pWorld);
-  ~ezLodAnimatedMeshComponentManager();
+  WLodAnimatedMeshComponentManager(WWorld* pWorld);
+  ~WLodAnimatedMeshComponentManager();
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
-  void AddToUpdateList(ezLodAnimatedMeshComponent* pComponent);
+  void Update(const WWorldModule::UpdateContext& context);
+  void AddToUpdateList(WLodAnimatedMeshComponent* pComponent);
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
+  void ResourceEventHandler(const WResourceEvent& e);
 
-  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
+  WDeque<WComponentHandle> m_ComponentsToUpdate;
 };
 
-struct ezLodAnimatedMeshLod
+struct WLodAnimatedMeshLod
 {
-  ezMeshResourceHandle m_hMesh;
+  WMeshResourceHandle m_hMesh;
   float m_fThreshold;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezLodAnimatedMeshLod);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WLodAnimatedMeshLod);
 
-class EZ_GAMEENGINE_DLL ezLodAnimatedMeshComponent : public ezRenderComponent
+class W_GAMEENGINE_DLL WLodAnimatedMeshComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLodAnimatedMeshComponent, ezRenderComponent, ezLodAnimatedMeshComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WLodAnimatedMeshComponent, WRenderComponent, WLodAnimatedMeshComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezLodAnimatedMeshComponent
+  // WLodAnimatedMeshComponent
 
 public:
-  ezLodAnimatedMeshComponent();
-  ~ezLodAnimatedMeshComponent();
+  WLodAnimatedMeshComponent();
+  ~WLodAnimatedMeshComponent();
 
   /// An additional tint color passed to the renderer to modify the mesh.
-  void SetColor(const ezColor& color); // [ property ]
-  const ezColor& GetColor() const;     // [ property ]
+  void SetColor(const WColor& color); // [ property ]
+  const WColor& GetColor() const;     // [ property ]
 
   /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
-  void SetCustomData(const ezVec4& vData); // [ property ]
-  const ezVec4& GetCustomData() const;     // [ property ]
+  void SetCustomData(const WVec4& vData); // [ property ]
+  const WVec4& GetCustomData() const;     // [ property ]
 
   /// The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
@@ -78,35 +78,35 @@ public:
   void SetOverlapRanges(bool bOverlap);                 // [ property ]
   bool GetOverlapRanges() const;                        // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);           // [ msg handler ]
-  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(WMsgSetColor& ref_msg);           // [ msg handler ]
+  void OnMsgSetCustomData(WMsgSetCustomData& ref_msg); // [ msg handler ]
 
-  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
+  void RetrievePose(WDynamicArray<WMat4>& out_modelTransforms, WTransform& out_rootTransform, const WSkeleton& skeleton);
 
 protected:
-  void UpdateSelectedLod(const ezView& view) const;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void UpdateSelectedLod(const WView& view) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
 
-  ezDynamicArray<ezLodAnimatedMeshLod> m_Meshes;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  WDynamicArray<WLodAnimatedMeshLod> m_Meshes;
+  WColor m_Color = WColor::White;
+  WVec4 m_vCustomData = WVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
-  ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
+  WVec3 m_vBoundsOffset = WVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;
 
-  mutable ezInt32 m_iCurLod = 0;
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInt32 m_iCurLod = 0;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 
 protected:
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
-  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(WMsgAnimationPoseUpdated& msg);     // [ msg handler ]
+  void OnQueryAnimationSkeleton(WMsgQueryAnimationSkeleton& msg); // [ msg handler ]
 
   void InitializeAnimationPose();
 
-  void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
+  void MapModelSpacePoseToSkinningSpace(const WHashTable<WHashedString, WMeshResourceDescriptor::BoneData>& bones, const WSkeleton& skeleton, WArrayPtr<const WMat4> modelSpaceTransforms, WBoundingBox* bounds);
 
-  ezTransform m_RootTransform = ezTransform::MakeIdentity();
-  ezBoundingBox m_MaxBounds;
-  ezSkinningState m_SkinningState;
-  ezSkeletonResourceHandle m_hDefaultSkeleton;
+  WTransform m_RootTransform = WTransform::MakeIdentity();
+  WBoundingBox m_MaxBounds;
+  WSkinningState m_SkinningState;
+  WSkeletonResourceHandle m_hDefaultSkeleton;
 };

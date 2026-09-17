@@ -3,43 +3,43 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezSceneContext;
+class WSceneContext;
 
-class ezEditorShapeIconsExtractor : public ezExtractor
+class WEditorShapeIconsExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorShapeIconsExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WEditorShapeIconsExtractor, WExtractor);
 
 public:
-  ezEditorShapeIconsExtractor(const char* szName = "EditorShapeIconsExtractor");
-  ~ezEditorShapeIconsExtractor();
+  WEditorShapeIconsExtractor(const char* szName = "EditorShapeIconsExtractor");
+  ~WEditorShapeIconsExtractor();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
-  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
-  ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
+  void SetSceneContext(WSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
+  WSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, const ezRenderDataManager* pRenderDataManager, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
-  const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
-  const ezTypedMemberProperty<ezColorGammaUB>* FindColorGammaProperty(const ezRTTI* pRtti) const;
+  void ExtractShapeIcon(const WGameObject* pObject, const WView& view, const WRenderDataManager* pRenderDataManager, WExtractedRenderData& extractedRenderData, WRenderData::Category category);
+  const WTypedMemberProperty<WColor>* FindColorProperty(const WRTTI* pRtti) const;
+  const WTypedMemberProperty<WColorGammaUB>* FindColorGammaProperty(const WRTTI* pRtti) const;
   void FillShapeIconInfo();
 
   float m_fSize;
   float m_fMaxScreenSize;
-  ezSceneContext* m_pSceneContext;
+  WSceneContext* m_pSceneContext;
 
   struct ShapeIconInfo
   {
-    ezTexture2DResourceHandle m_hTexture;
-    const ezTypedMemberProperty<ezColor>* m_pColorProperty;
-    const ezTypedMemberProperty<ezColorGammaUB>* m_pColorGammaProperty;
-    ezColor m_FallbackColor = ezColor::White;
+    WTexture2DResourceHandle m_hTexture;
+    const WTypedMemberProperty<WColor>* m_pColorProperty;
+    const WTypedMemberProperty<WColorGammaUB>* m_pColorGammaProperty;
+    WColor m_FallbackColor = WColor::White;
     bool m_bAlwaysVisible = false;
   };
 
-  ezHashTable<const ezRTTI*, ShapeIconInfo> m_ShapeIconInfos;
+  WHashTable<const WRTTI*, ShapeIconInfo> m_ShapeIconInfos;
 };

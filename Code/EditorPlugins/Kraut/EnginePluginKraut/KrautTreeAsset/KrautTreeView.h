@@ -2,19 +2,19 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 
-class ezKrautTreeContext;
+class WKrautTreeContext;
 
-class ezKrautTreeViewContext : public ezEngineProcessViewContext
+class WKrautTreeViewContext : public WEngineProcessViewContext
 {
 public:
-  ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeContext);
-  ~ezKrautTreeViewContext();
+  WKrautTreeViewContext(WKrautTreeContext* pKrautTreeContext);
+  ~WKrautTreeViewContext();
 
-  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
+  bool UpdateThumbnailCamera(const WBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezViewHandle CreateView() override;
-  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual WViewHandle CreateView() override;
+  virtual void SetCamera(const WViewRedrawMsgToEngine* pMsg) override;
 
-  ezKrautTreeContext* m_pKrautTreeContext;
+  WKrautTreeContext* m_pKrautTreeContext;
 };

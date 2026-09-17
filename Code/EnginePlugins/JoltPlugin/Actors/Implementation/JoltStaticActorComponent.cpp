@@ -22,26 +22,26 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
-ezJoltStaticActorComponentManager::ezJoltStaticActorComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezJoltStaticActorComponent, ezBlockStorageType::FreeList>(pWorld)
+WJoltStaticActorComponentManager::WJoltStaticActorComponentManager(WWorld* pWorld)
+  : WComponentManager<WJoltStaticActorComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezJoltStaticActorComponentManager::~ezJoltStaticActorComponentManager() = default;
+WJoltStaticActorComponentManager::~WJoltStaticActorComponentManager() = default;
 
-void ezJoltStaticActorComponentManager::UpdateTemporarilyDynamicActors()
+void WJoltStaticActorComponentManager::UpdateTemporarilyDynamicActors()
 {
   if (m_TemporarilyDynamicActors.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("UpdateTemporarilyDynamicActors");
+  W_PROFILE_SCOPE("UpdateTemporarilyDynamicActors");
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   auto* pSystem = pModule->GetJoltSystem();
 
-  for (ezComponentHandle hActor : m_TemporarilyDynamicActors)
+  for (WComponentHandle hActor : m_TemporarilyDynamicActors)
   {
-    ezJoltStaticActorComponent* pActor = nullptr;
+    WJoltStaticActorComponent* pActor = nullptr;
     if (!TryGetComponent(hActor, pActor))
       continue;
 
@@ -56,43 +56,43 @@ void ezJoltStaticActorComponentManager::UpdateTemporarilyDynamicActors()
     if (!body.IsDynamic())
       continue;
 
-    ezSimdTransform trans = pActor->GetOwner()->GetGlobalTransformSimd();
+    WSimdTransform trans = pActor->GetOwner()->GetGlobalTransformSimd();
 
-    trans.m_Position = ezJoltConversionUtils::ToSimdVec3(body.GetPosition());
-    trans.m_Rotation = ezJoltConversionUtils::ToSimdQuat(body.GetRotation());
+    trans.m_Position = WJoltConversionUtils::ToSimdVec3(body.GetPosition());
+    trans.m_Rotation = WJoltConversionUtils::ToSimdQuat(body.GetRotation());
 
     pActor->GetOwner()->SetGlobalTransform(trans);
   }
 }
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltStaticActorComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+    W_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", WDependencyFlags::Package)),
+    W_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
+    W_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Surface", WDependencyFlags::Package)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicsMakeTemporarilyDynamic, OnMsgPhysicsMakeTemporarilyDynamic),
+    W_MESSAGE_HANDLER(WMsgExtractGeometry, OnMsgExtractGeometry),
+    W_MESSAGE_HANDLER(WMsgPhysicsMakeTemporarilyDynamic, OnMsgPhysicsMakeTemporarilyDynamic),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltStaticActorComponent::ezJoltStaticActorComponent()
+WJoltStaticActorComponent::WJoltStaticActorComponent()
 {
   m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
 }
 
-ezJoltStaticActorComponent::~ezJoltStaticActorComponent() = default;
+WJoltStaticActorComponent::~WJoltStaticActorComponent() = default;
 
-void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltStaticActorComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -105,10 +105,10 @@ void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream)
 }
 
 
-void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltStaticActorComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -119,21 +119,21 @@ void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_hSurface;
 }
 
-void ezJoltStaticActorComponent::OnDeactivated()
+void WJoltStaticActorComponent::OnDeactivated()
 {
   m_UsedSurfaces.Clear();
 
   SUPER::OnDeactivated();
 }
 
-bool ezJoltStaticActorComponent::CanBeMadeDynamic()
+bool WJoltStaticActorComponent::CanBeMadeDynamic()
 {
   // a triangle mesh can only ever be part of a static body
   if (m_hCollisionMesh.IsValid())
   {
-    ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    WResourceLock<WJoltMeshResource> pMesh(m_hCollisionMesh, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-    if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    if (pMesh.GetAcquireResult() != WResourceAcquireResult::Final)
       return false;
 
     if (pMesh->HasTriangleMesh())
@@ -145,8 +145,8 @@ bool ezJoltStaticActorComponent::CanBeMadeDynamic()
 
   // otherwise the sub-shape components attached to this object have to provide the geometry,
   // and those are all convex
-  ezTempHybridArray<ezJoltSubShape, 16> shapes;
-  ezTransform towner = GetOwner()->GetGlobalTransform();
+  WTempHybridArray<WJoltSubShape, 16> shapes;
+  WTransform towner = GetOwner()->GetGlobalTransform();
   towner.m_vScale.Set(1.0f);
 
   GatherShapes(shapes, GetOwner(), towner, 1.0f, nullptr);
@@ -164,14 +164,14 @@ bool ezJoltStaticActorComponent::CanBeMadeDynamic()
   return bHasShapes;
 }
 
-void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg)
+void WJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(WMsgPhysicsMakeTemporarilyDynamic& msg)
 {
-  EZ_IGNORE_UNUSED(msg);
+  W_IGNORE_UNUSED(msg);
 
   if (m_uiJoltBodyID == JPH::BodyID::cInvalidBodyID)
     return;
 
-  ezJoltStaticActorComponentManager* pManager = GetWorld()->GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
+  WJoltStaticActorComponentManager* pManager = GetWorld()->GetOrCreateComponentManager<WJoltStaticActorComponentManager>();
 
   if (pManager->m_TemporarilyDynamicActors.Contains(GetHandle()))
     return;
@@ -179,7 +179,7 @@ void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysics
   if (!CanBeMadeDynamic())
     return;
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
   auto* pBodies = &pModule->GetJoltSystem()->GetBodyInterface();
 
   auto* pMaterial = GetJoltMaterial();
@@ -189,7 +189,7 @@ void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysics
     return;
 
   if (pMaterial == nullptr)
-    pMaterial = ezJoltCore::GetDefaultMaterial();
+    pMaterial = WJoltCore::GetDefaultMaterial();
 
   // A static Jolt body has no motion properties and can't be switched to a dynamic motion type, so the existing body
   // is thrown away and a dynamic one is created in its place. The user data and the object filter ID are kept, so
@@ -206,23 +206,23 @@ void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysics
     m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
   }
 
-  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
-  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
-  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
+  bodyCfg.mPosition = WJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = WJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Dynamic;
-  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Dynamic);
+  bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Dynamic);
   bodyCfg.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
-  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(GetUserData());
+  bodyCfg.mUserData = reinterpret_cast<WUInt64>(GetUserData());
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   if (pBody == nullptr)
   {
-    ezLog::Error("Jolt body creation failed. You need to increase the maximum number of bodies.");
+    WLog::Error("Jolt body creation failed. You need to increase the maximum number of bodies.");
     return;
   }
 
@@ -234,13 +234,13 @@ void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysics
   pManager->m_TemporarilyDynamicActors.PushBack(GetHandle());
 }
 
-void ezJoltStaticActorComponent::OnSimulationStarted()
+void WJoltStaticActorComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
 
-  ezJoltUserData* pUserData = nullptr;
+  WJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
@@ -249,59 +249,59 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   JPH::BodyCreationSettings bodyCfg;
   if (CreateShape(&bodyCfg, 1.0f, pMaterial).Failed())
   {
-    ezLog::Error("Jolt static actor component {} has no valid shape.", ezArgComponent(this));
+    WLog::Error("Jolt static actor component {} has no valid shape.", WArgComponent(this));
     return;
   }
 
-  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+  const WSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 
   if (pMaterial == nullptr)
-    pMaterial = ezJoltCore::GetDefaultMaterial();
+    pMaterial = WJoltCore::GetDefaultMaterial();
 
-  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
-  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
+  bodyCfg.mPosition = WJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = WJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Static;
-  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Static);
+  bodyCfg.mObjectLayer = WJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, WJoltBroadphaseLayer::Static);
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
   bodyCfg.mEnhancedInternalEdgeRemoval = true;
-  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+  bodyCfg.mUserData = reinterpret_cast<WUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
-  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
+  W_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
 
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
   pModule->QueueBodyToAdd(pBody, false);
 }
 
-void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+void WJoltStaticActorComponent::CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial)
 {
   if (!m_hCollisionMesh.IsValid())
     return;
 
-  ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WJoltMeshResource> pMesh(m_hCollisionMesh, WResourceAcquireMode::BlockTillLoaded);
 
   if (pMesh->GetNumConvexParts() > 0)
   {
-    for (ezUInt32 i = 0; i < pMesh->GetNumConvexParts(); ++i)
+    for (WUInt32 i = 0; i < pMesh->GetNumConvexParts(); ++i)
     {
-      auto pShape = pMesh->InstantiateConvexPart(i, reinterpret_cast<ezUInt64>(GetUserData()), pMaterial, fDensity);
+      auto pShape = pMesh->InstantiateConvexPart(i, reinterpret_cast<WUInt64>(GetUserData()), pMaterial, fDensity);
 
-      ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+      WJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
       sub.m_pShape = pShape;
-      sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+      sub.m_Transform = WTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
     }
   }
 
   if (auto pTriMesh = pMesh->HasTriangleMesh())
   {
-    ezTempHybridArray<const ezJoltMaterial*, 32> materials;
+    WTempHybridArray<const WJoltMaterial*, 32> materials;
 
     if (pMaterial != nullptr)
     {
@@ -314,21 +314,21 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
       PullSurfacesFromGraphicsMesh(materials);
     }
 
-    auto pNewShape = pMesh->InstantiateTriangleMesh(reinterpret_cast<ezUInt64>(GetUserData()), materials);
+    auto pNewShape = pMesh->InstantiateTriangleMesh(reinterpret_cast<WUInt64>(GetUserData()), materials);
 
-    ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+    WJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
     sub.m_pShape = pNewShape;
-    sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+    sub.m_Transform = WTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
   }
 }
 
-void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& ref_materials)
+void WJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(WDynamicArray<const WJoltMaterial*>& ref_materials)
 {
   // the materials don't hold a handle to the surfaces, so they don't keep them alive
   // therefore, we need to keep them alive by storing a handle
   m_UsedSurfaces.Clear();
 
-  ezMeshComponent* pMeshComp;
+  WMeshComponent* pMeshComp;
   if (!GetOwner()->TryGetComponentOfBaseType(pMeshComp))
     return;
 
@@ -336,17 +336,17 @@ void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<con
   if (!hMeshRes.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMeshRes(hMeshRes, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pMeshRes.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WMeshResource> pMeshRes(hMeshRes, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pMeshRes.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   if (pMeshRes->GetMaterials().GetCount() != ref_materials.GetCount())
     return;
 
-  const ezUInt32 uiNumMats = ref_materials.GetCount();
+  const WUInt32 uiNumMats = ref_materials.GetCount();
   m_UsedSurfaces.SetCount(uiNumMats);
 
-  for (ezUInt32 s = 0; s < uiNumMats; ++s)
+  for (WUInt32 s = 0; s < uiNumMats; ++s)
   {
     // first check whether the component has a material override
     auto hMat = pMeshComp->GetMaterial(s);
@@ -360,31 +360,31 @@ void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<con
     if (!hMat.IsValid())
       continue;
 
-    ezResourceLock<ezMaterialResource> pMat(hMat, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pMat.GetAcquireResult() != ezResourceAcquireResult::Final)
+    WResourceLock<WMaterialResource> pMat(hMat, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pMat.GetAcquireResult() != WResourceAcquireResult::Final)
       continue;
 
     if (pMat->GetSurface().IsEmpty())
       continue;
 
-    m_UsedSurfaces[s] = ezResourceManager::LoadResource<ezSurfaceResource>(pMat->GetSurface().GetString());
+    m_UsedSurfaces[s] = WResourceManager::LoadResource<WSurfaceResource>(pMat->GetSurface().GetString());
 
-    ezResourceLock<ezSurfaceResource> pSurface(m_UsedSurfaces[s], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pSurface.GetAcquireResult() != ezResourceAcquireResult::Final)
+    WResourceLock<WSurfaceResource> pSurface(m_UsedSurfaces[s], WResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pSurface.GetAcquireResult() != WResourceAcquireResult::Final)
       continue;
 
-    EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterialJolt != nullptr, "Invalid Jolt material pointer on surface");
-    ref_materials[s] = static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+    W_ASSERT_DEV(pSurface->m_pPhysicsMaterialJolt != nullptr, "Invalid Jolt material pointer on surface");
+    ref_materials[s] = static_cast<WJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
   }
 }
 
-void ezJoltStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+void WJoltStaticActorComponent::OnMsgExtractGeometry(WMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh)
+  if (msg.m_Mode == WWorldGeoExtractionUtil::ExtractionMode::CollisionMesh)
   {
     if (m_hCollisionMesh.IsValid())
     {
-      ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+      WResourceLock<WJoltMeshResource> pMesh(m_hCollisionMesh, WResourceAcquireMode::BlockTillLoaded);
 
       msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
     }
@@ -393,31 +393,31 @@ void ezJoltStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg)
   }
 }
 
-void ezJoltStaticActorComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)
+void WJoltStaticActorComponent::SetMesh(const WJoltMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
 }
 
-const ezJoltMaterial* ezJoltStaticActorComponent::GetJoltMaterial() const
+const WJoltMaterial* WJoltStaticActorComponent::GetJoltMaterial() const
 {
   if (m_hSurface.IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WSurfaceResource> pSurface(m_hSurface, WResourceAcquireMode::BlockTillLoaded);
 
     if (pSurface->m_pPhysicsMaterialJolt != nullptr)
     {
-      return static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+      return static_cast<WJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
     }
   }
 
   return nullptr;
 }
 
-void ezJoltStaticActorComponent::SetSurfaceFile(ezStringView sFile)
+void WJoltStaticActorComponent::SetSurfaceFile(WStringView sFile)
 {
   if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+    m_hSurface = WResourceManager::LoadResource<WSurfaceResource>(sFile);
   }
   else
   {
@@ -425,13 +425,13 @@ void ezJoltStaticActorComponent::SetSurfaceFile(ezStringView sFile)
   }
 
   if (m_hSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hSurface);
+    WResourceManager::PreloadResource(m_hSurface);
 }
 
-ezStringView ezJoltStaticActorComponent::GetSurfaceFile() const
+WStringView WJoltStaticActorComponent::GetSurfaceFile() const
 {
   return m_hSurface.GetResourceID();
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltStaticActorComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltStaticActorComponent);

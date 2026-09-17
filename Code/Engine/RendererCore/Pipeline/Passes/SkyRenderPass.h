@@ -6,15 +6,15 @@
 ///
 /// Renders the skybox and other sky-related objects at infinite distance.
 /// Typically rendered after opaque objects but before transparent objects.
-class EZ_RENDERERCORE_DLL ezSkyRenderPass : public ezForwardRenderPass
+class W_RENDERERCORE_DLL WSkyRenderPass : public WForwardRenderPass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkyRenderPass, ezForwardRenderPass);
+  W_ADD_DYNAMIC_REFLECTION(WSkyRenderPass, WForwardRenderPass);
 
 public:
-  ezSkyRenderPass(const char* szName = "SkyRenderPass");
-  ~ezSkyRenderPass();
+  WSkyRenderPass(const char* szName = "SkyRenderPass");
+  ~WSkyRenderPass();
 
 protected:
-  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
-  virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
+  virtual void DeclareRenderObjectDependencies(WRenderGraph& ref_graph, WRenderGraphPassBuilder& ref_pass) override;
+  virtual void RenderObjects(const WRenderViewContext& renderViewContext) override;
 };

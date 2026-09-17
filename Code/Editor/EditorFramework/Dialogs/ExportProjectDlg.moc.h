@@ -4,12 +4,12 @@
 #include <EditorFramework/ui_ExportProjectDlg.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtExportProjectDlg : public ezQtDialog, public Ui_ExportProjectDlg
+class WQtExportProjectDlg : public WQtDialog, public Ui_ExportProjectDlg
 {
   Q_OBJECT
 
 public:
-  ezQtExportProjectDlg(QWidget* pParent);
+  WQtExportProjectDlg(QWidget* pParent);
 
   static bool s_bTransformAll;
   static bool s_bCreateLaunchScripts;

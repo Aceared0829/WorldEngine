@@ -2,23 +2,23 @@
 
 #include "../TestClass/TestClass.h"
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
-EZ_DEFINE_AS_POD_TYPE(ezTestShaderData);
+W_DEFINE_AS_POD_TYPE(WTestShaderData);
 
-class ezRendererTestUtils
+class WRendererTestUtils
 {
 public:
   struct ImgColor
   {
-    EZ_DECLARE_POD_TYPE();
-    ezUInt8 b;
-    ezUInt8 g;
-    ezUInt8 r;
-    ezUInt8 a;
+    W_DECLARE_POD_TYPE();
+    WUInt8 b;
+    WUInt8 g;
+    WUInt8 r;
+    WUInt8 a;
   };
 
-  static ezTransform CreateTransform(const ezUInt32 uiColumns, const ezUInt32 uiRows, ezUInt32 x, ezUInt32 y);
+  static WTransform CreateTransform(const WUInt32 uiColumns, const WUInt32 uiRows, WUInt32 x, WUInt32 y);
 
-  static void FillStructuredBuffer(ezDynamicArray<ezTestShaderData>& ref_instanceData, ezUInt32 uiColorOffset = 0, ezUInt32 uiSlotOffset = 0);
+  static void FillStructuredBuffer(WDynamicArray<WTestShaderData>& ref_instanceData, WUInt32 uiColorOffset = 0, WUInt32 uiSlotOffset = 0);
 
-  static void CreateImage(ezImage& ref_image, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiMipLevelCount, bool bMipLevelIsBlue, ezUInt8 uiFixedBlue = 0);
+  static void CreateImage(WImage& ref_image, WUInt32 uiWidth, WUInt32 uiHeight, WUInt32 uiMipLevelCount, bool bMipLevelIsBlue, WUInt8 uiFixedBlue = 0);
 };

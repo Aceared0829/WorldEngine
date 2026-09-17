@@ -35,7 +35,7 @@
       <number>1</number>
      </property>
      <item>
-      <widget class="ezQtSearchWidget" name="Search" native="true">
+      <widget class="WQtSearchWidget" name="Search" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>1</horstretch>
@@ -142,7 +142,7 @@
     </layout>
    </item>
    <item>
-    <widget class="ezQtListView" name="ListViewLog">
+    <widget class="WQtListView" name="ListViewLog">
      <property name="editTriggers">
       <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
      </property>
@@ -167,13 +167,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtSearchWidget</class>
+   <class>WQtSearchWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtListView</class>
+   <class>WQtListView</class>
    <extends>QListView</extends>
    <header location="global">GuiFoundation/Widgets/ItemView.moc.h</header>
   </customwidget>

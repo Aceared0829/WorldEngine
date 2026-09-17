@@ -7,10 +7,11 @@
 .idea/
 /build
 
-# ez specific
+# W specific
 /Workspace
 /Output
 AssetCache
+Code/Engine/WBuildInfo.h
 Code/Engine/ezBuildInfo.h
 /llvm/
 
@@ -18,4 +19,4 @@ Code/Engine/ezBuildInfo.h
 *.asgen
 as.predefined
 
-ezDefaultAssertHandlerOutput*
+WDefaultAssertHandlerOutput*

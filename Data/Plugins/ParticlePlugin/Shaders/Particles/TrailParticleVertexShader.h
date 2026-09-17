@@ -56,11 +56,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   int vertexSubIndex = VertexID % 6;
   int vertexTrailPointIndex = trailPointIndex + trailIndexOffset[vertexSubIndex];
 
-  ezBaseParticleShaderData baseParticle = particleBaseData[particleIndex];
+  WBaseParticleShaderData baseParticle = particleBaseData[particleIndex];
   UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
   ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
 
-  ezTrailParticleShaderData trailParticle = particleTrailData[particleIndex];
+  WTrailParticleShaderData trailParticle = particleTrailData[particleIndex];
 
   if (trailPointIndex + 1 >= trailParticle.NumPoints)
   {
@@ -75,7 +75,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   else
   {
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
-    // ezTrailParticlePointsData trail = particlePointsData[particleIndex];
+    // WTrailParticlePointsData trail = particlePointsData[particleIndex];
 
     float fVariation = (baseParticle.Variation & 255) / 255.0;
     float4 textureAtlasRect = ComputeAtlasRectRandomAnimated(TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);

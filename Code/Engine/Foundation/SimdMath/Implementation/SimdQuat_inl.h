@@ -1,45 +1,45 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat() = default;
+W_ALWAYS_INLINE WSimdQuat::WSimdQuat() = default;
 
-EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
+W_ALWAYS_INLINE WSimdQuat::WSimdQuat(const WSimdVec4f& v)
   : m_v(v)
 {
 }
 
-EZ_ALWAYS_INLINE const ezSimdQuat ezSimdQuat::MakeIdentity()
+W_ALWAYS_INLINE const WSimdQuat WSimdQuat::MakeIdentity()
 {
-  return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
+  return WSimdQuat(WSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::MakeFromElements(ezSimdFloat x, ezSimdFloat y, ezSimdFloat z, ezSimdFloat w)
+W_ALWAYS_INLINE WSimdQuat WSimdQuat::MakeFromElements(WSimdFloat x, WSimdFloat y, WSimdFloat z, WSimdFloat w)
 {
-  return ezSimdQuat(ezSimdVec4f(x, y, z, w));
+  return WSimdQuat(WSimdVec4f(x, y, z, w));
 }
 
-inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
+inline WSimdQuat WSimdQuat::MakeFromAxisAndAngle(const WSimdVec4f& vRotationAxis, const WSimdFloat& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::MakeFromRadian(fAngle) * 0.5f;
-  float s = ezMath::Sin(halfAngle);
-  float c = ezMath::Cos(halfAngle);
+  const WAngle halfAngle = WAngle::MakeFromRadian(fAngle) * 0.5f;
+  float s = WMath::Sin(halfAngle);
+  float c = WMath::Cos(halfAngle);
 
-  ezSimdQuat res;
+  WSimdQuat res;
   res.m_v = vRotationAxis * s;
   res.m_v.SetW(c);
   return res;
 }
 
-EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
+W_ALWAYS_INLINE void WSimdQuat::Normalize()
 {
   m_v.Normalize<4>();
 }
 
-inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& ref_vAxis, ezSimdFloat& ref_fAngle, const ezSimdFloat& fEpsilon) const
+inline WResult WSimdQuat::GetRotationAxisAndAngle(WSimdVec4f& ref_vAxis, WSimdFloat& ref_fAngle, const WSimdFloat& fEpsilon) const
 {
   ///\todo optimize
-  const ezAngle acos = ezMath::ACos(float(m_v.w().Max(-1).Min(1)));
-  const float d = ezMath::Sin(acos);
+  const WAngle acos = WMath::ACos(float(m_v.w().Max(-1).Min(1)));
+  const float d = WMath::Sin(acos);
 
   if (d < fEpsilon)
   {
@@ -52,81 +52,81 @@ inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& ref_vAxis, ezSi
 
   ref_fAngle = acos * 2.0f;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
+W_ALWAYS_INLINE WSimdMat4f WSimdQuat::GetAsMat4() const
 {
-  const ezSimdVec4f xyz = m_v;
-  const ezSimdVec4f x2y2z2 = xyz + xyz;
-  const ezSimdVec4f xx2yy2zz2 = x2y2z2.CompMul(xyz);
+  const WSimdVec4f xyz = m_v;
+  const WSimdVec4f x2y2z2 = xyz + xyz;
+  const WSimdVec4f xx2yy2zz2 = x2y2z2.CompMul(xyz);
 
   // diagonal terms
   // 1 - (yy2 + zz2)
   // 1 - (xx2 + zz2)
   // 1 - (xx2 + yy2)
-  const ezSimdVec4f yy2_xx2_xx2 = xx2yy2zz2.Get<ezSwizzle::YXXX>();
-  const ezSimdVec4f zz2_zz2_yy2 = xx2yy2zz2.Get<ezSwizzle::ZZYX>();
-  ezSimdVec4f diagonal = ezSimdVec4f(1.0f) - (yy2_xx2_xx2 + zz2_zz2_yy2);
-  diagonal.SetW(ezSimdFloat::MakeZero());
+  const WSimdVec4f yy2_xx2_xx2 = xx2yy2zz2.Get<WSwizzle::YXXX>();
+  const WSimdVec4f zz2_zz2_yy2 = xx2yy2zz2.Get<WSwizzle::ZZYX>();
+  WSimdVec4f diagonal = WSimdVec4f(1.0f) - (yy2_xx2_xx2 + zz2_zz2_yy2);
+  diagonal.SetW(WSimdFloat::MakeZero());
 
   // non diagonal terms
   // xy2 +- wz2
   // yz2 +- wx2
   // xz2 +- wy2
-  const ezSimdVec4f x_y_x = xyz.Get<ezSwizzle::XYXX>();
-  const ezSimdVec4f y2_z2_z2 = x2y2z2.Get<ezSwizzle::YZZX>();
-  const ezSimdVec4f base = x_y_x.CompMul(y2_z2_z2);
+  const WSimdVec4f x_y_x = xyz.Get<WSwizzle::XYXX>();
+  const WSimdVec4f y2_z2_z2 = x2y2z2.Get<WSwizzle::YZZX>();
+  const WSimdVec4f base = x_y_x.CompMul(y2_z2_z2);
 
-  const ezSimdVec4f z2_x2_y2 = x2y2z2.Get<ezSwizzle::ZXYX>();
-  const ezSimdVec4f offset = z2_x2_y2 * m_v.w();
+  const WSimdVec4f z2_x2_y2 = x2y2z2.Get<WSwizzle::ZXYX>();
+  const WSimdVec4f offset = z2_x2_y2 * m_v.w();
 
-  const ezSimdVec4f adds = base + offset;
-  const ezSimdVec4f subs = base - offset;
+  const WSimdVec4f adds = base + offset;
+  const WSimdVec4f subs = base - offset;
 
   // final matrix layout
   // col0 = (diaX, addX, subZ, diaW)
-  const ezSimdVec4f addX_u_diaX_u = adds.GetCombined<ezSwizzle::XXXX>(diagonal);
-  const ezSimdVec4f subZ_u_diaW_u = subs.GetCombined<ezSwizzle::ZXWX>(diagonal);
-  const ezSimdVec4f col0 = addX_u_diaX_u.GetCombined<ezSwizzle::ZXXZ>(subZ_u_diaW_u);
+  const WSimdVec4f addX_u_diaX_u = adds.GetCombined<WSwizzle::XXXX>(diagonal);
+  const WSimdVec4f subZ_u_diaW_u = subs.GetCombined<WSwizzle::ZXWX>(diagonal);
+  const WSimdVec4f col0 = addX_u_diaX_u.GetCombined<WSwizzle::ZXXZ>(subZ_u_diaW_u);
 
   // col1 = (subX, diaY, addY, diaW)
-  const ezSimdVec4f subX_u_diaY_u = subs.GetCombined<ezSwizzle::XXYX>(diagonal);
-  const ezSimdVec4f addY_u_diaW_u = adds.GetCombined<ezSwizzle::YXWX>(diagonal);
-  const ezSimdVec4f col1 = subX_u_diaY_u.GetCombined<ezSwizzle::XZXZ>(addY_u_diaW_u);
+  const WSimdVec4f subX_u_diaY_u = subs.GetCombined<WSwizzle::XXYX>(diagonal);
+  const WSimdVec4f addY_u_diaW_u = adds.GetCombined<WSwizzle::YXWX>(diagonal);
+  const WSimdVec4f col1 = subX_u_diaY_u.GetCombined<WSwizzle::XZXZ>(addY_u_diaW_u);
 
   // col2 = (addZ, subY, diaZ, diaW)
-  const ezSimdVec4f addZ_u_subY_u = adds.GetCombined<ezSwizzle::ZXYX>(subs);
-  const ezSimdVec4f col2 = addZ_u_subY_u.GetCombined<ezSwizzle::XZZW>(diagonal);
+  const WSimdVec4f addZ_u_subY_u = adds.GetCombined<WSwizzle::ZXYX>(subs);
+  const WSimdVec4f col2 = addZ_u_subY_u.GetCombined<WSwizzle::XZZW>(diagonal);
 
-  return ezSimdMat4f::MakeFromColumns(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
+  return WSimdMat4f::MakeFromColumns(col0, col1, col2, WSimdVec4f(0, 0, 0, 1));
 }
 
-EZ_ALWAYS_INLINE bool ezSimdQuat::IsValid(const ezSimdFloat& fEpsilon) const
+W_ALWAYS_INLINE bool WSimdQuat::IsValid(const WSimdFloat& fEpsilon) const
 {
   return m_v.IsNormalized<4>(fEpsilon);
 }
 
-EZ_ALWAYS_INLINE bool ezSimdQuat::IsNaN() const
+W_ALWAYS_INLINE bool WSimdQuat::IsNaN() const
 {
   return m_v.IsNaN<4>();
 }
 
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator-() const
+W_ALWAYS_INLINE WSimdQuat WSimdQuat::operator-() const
 {
-  return ezSimdQuat(m_v.FlipSign(ezSimdVec4b(true, true, true, false)));
+  return WSimdQuat(m_v.FlipSign(WSimdVec4b(true, true, true, false)));
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdQuat::operator*(const ezSimdVec4f& v) const
+W_ALWAYS_INLINE WSimdVec4f WSimdQuat::operator*(const WSimdVec4f& v) const
 {
-  ezSimdVec4f t = m_v.CrossRH(v);
+  WSimdVec4f t = m_v.CrossRH(v);
   t += t;
   return v + t * m_v.w() + m_v.CrossRH(t);
 }
 
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator*(const ezSimdQuat& q2) const
+W_ALWAYS_INLINE WSimdQuat WSimdQuat::operator*(const WSimdQuat& q2) const
 {
-  ezSimdQuat q;
+  WSimdQuat q;
 
   q.m_v = q2.m_v * m_v.w() + m_v * q2.m_v.w() + m_v.CrossRH(q2.m_v);
   q.m_v.SetW(m_v.w() * q2.m_v.w() - m_v.Dot<3>(q2.m_v));
@@ -134,12 +134,12 @@ EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator*(const ezSimdQuat& q2) const
   return q;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdQuat::operator==(const ezSimdQuat& q2) const
+W_ALWAYS_INLINE bool WSimdQuat::operator==(const WSimdQuat& q2) const
 {
   return (m_v == q2.m_v).AllSet<4>();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdQuat::operator!=(const ezSimdQuat& q2) const
+W_ALWAYS_INLINE bool WSimdQuat::operator!=(const WSimdQuat& q2) const
 {
   return (m_v != q2.m_v).AnySet<4>();
 }

@@ -1,6 +1,6 @@
 #include <Mcp/McpPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_LINUX) || W_ENABLED(W_PLATFORM_OSX) || W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Mcp/McpSocket.h>
 
@@ -16,14 +16,14 @@
 #    define MSG_NOSIGNAL 0
 #  endif
 
-ezMcpSocket::ezMcpSocket() = default;
+WMcpSocket::WMcpSocket() = default;
 
-ezMcpSocket::~ezMcpSocket()
+WMcpSocket::~WMcpSocket()
 {
   Close();
 }
 
-ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
+WResult WMcpSocket::Listen(WUInt16 uiPort)
 {
   Close();
 
@@ -31,8 +31,8 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
 
   if (iSocket < 0)
   {
-    ezLog::Error("MCP: Could not create a socket: {}", errno);
-    return EZ_FAILURE;
+    WLog::Error("MCP: Could not create a socket: {}", errno);
+    return W_FAILURE;
   }
 
   // Without this a port stays unusable for a couple of minutes after the process that held it exited,
@@ -47,16 +47,16 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
 
   if (bind(iSocket, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0)
   {
-    ezLog::Warning("MCP: Could not bind to port {}: {}", uiPort, errno);
+    WLog::Warning("MCP: Could not bind to port {}: {}", uiPort, errno);
     close(iSocket);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   if (listen(iSocket, SOMAXCONN) < 0)
   {
-    ezLog::Error("MCP: Could not listen on port {}: {}", uiPort, errno);
+    WLog::Error("MCP: Could not listen on port {}: {}", uiPort, errno);
     close(iSocket);
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
   // read the port back off the socket, so that a caller which passed 0 learns what it actually got
@@ -73,10 +73,10 @@ ezResult ezMcpSocket::Listen(ezUInt16 uiPort)
   }
 
   m_iSocket = iSocket;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMcpSocket::Close()
+void WMcpSocket::Close()
 {
   if (m_iSocket < 0)
     return;
@@ -87,10 +87,10 @@ void ezMcpSocket::Close()
   m_uiPort = 0;
 }
 
-ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
+WResult WMcpSocket::Accept(WMcpSocket& out_client, WTime timeout)
 {
   if (m_iSocket < 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const int iListener = static_cast<int>(m_iSocket);
 
@@ -100,15 +100,15 @@ ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
 
   timeval tv = {};
   tv.tv_sec = static_cast<time_t>(timeout.GetSeconds());
-  tv.tv_usec = static_cast<suseconds_t>((timeout - ezTime::MakeFromSeconds(static_cast<double>(tv.tv_sec))).GetMicroseconds());
+  tv.tv_usec = static_cast<suseconds_t>((timeout - WTime::MakeFromSeconds(static_cast<double>(tv.tv_sec))).GetMicroseconds());
 
   if (select(iListener + 1, &readable, nullptr, nullptr, &tv) != 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const int iClient = accept(iListener, nullptr, nullptr);
 
   if (iClient < 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // A client that connects and then never sends anything would otherwise hold the transport thread
   // forever, and with it every later request.
@@ -124,24 +124,24 @@ ezResult ezMcpSocket::Accept(ezMcpSocket& out_client, ezTime timeout)
 
   out_client.Close();
   out_client.m_iSocket = iClient;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezInt32 ezMcpSocket::Receive(void* pBuffer, ezUInt32 uiSize)
+WInt32 WMcpSocket::Receive(void* pBuffer, WUInt32 uiSize)
 {
   if (m_iSocket < 0)
     return -1;
 
-  return static_cast<ezInt32>(recv(static_cast<int>(m_iSocket), pBuffer, uiSize, 0));
+  return static_cast<WInt32>(recv(static_cast<int>(m_iSocket), pBuffer, uiSize, 0));
 }
 
-ezResult ezMcpSocket::SendAll(const void* pBuffer, ezUInt32 uiSize)
+WResult WMcpSocket::SendAll(const void* pBuffer, WUInt32 uiSize)
 {
   if (m_iSocket < 0)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   const char* pBytes = static_cast<const char*>(pBuffer);
-  ezUInt32 uiSent = 0;
+  WUInt32 uiSent = 0;
 
   while (uiSent < uiSize)
   {
@@ -149,12 +149,12 @@ ezResult ezMcpSocket::SendAll(const void* pBuffer, ezUInt32 uiSize)
     const ssize_t iResult = send(static_cast<int>(m_iSocket), pBytes + uiSent, uiSize - uiSent, MSG_NOSIGNAL);
 
     if (iResult <= 0)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    uiSent += static_cast<ezUInt32>(iResult);
+    uiSent += static_cast<WUInt32>(iResult);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 #endif

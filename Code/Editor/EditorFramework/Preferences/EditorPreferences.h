@@ -5,44 +5,44 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/RangeView.h>
 
-class ezEngineViewLightSettings;
+class WEngineViewLightSettings;
 
 /// Stores editor specific preferences for the current user
-class EZ_EDITORFRAMEWORK_DLL ezEditorPreferencesUser : public ezPreferences
+class W_EDITORFRAMEWORK_DLL WEditorPreferencesUser : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorPreferencesUser, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WEditorPreferencesUser, WPreferences);
 
 public:
-  ezEditorPreferencesUser();
-  ~ezEditorPreferencesUser();
+  WEditorPreferencesUser();
+  ~WEditorPreferencesUser();
 
-  void ApplyDefaultValues(ezEngineViewLightSettings& ref_settings);
-  void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
+  void ApplyDefaultValues(WEngineViewLightSettings& ref_settings);
+  void SetAsDefaultValues(const WEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
   float m_fCameraRotationSpeed = 1.0f;
-  ezAngle m_RotationSnapValue = ezAngle::MakeFromDegree(15.0f);
+  WAngle m_RotationSnapValue = WAngle::MakeFromDegree(15.0f);
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
   bool m_bUsePrecompiledTools = true;
-  ezString m_sCustomPrecompiledToolsFolder;
+  WString m_sCustomPrecompiledToolsFolder;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = false;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
-  ezUInt8 m_uiMaxAssetProcessors = 8;
+  WUInt8 m_uiMaxAssetProcessors = 8;
   bool m_bHighlightUntranslatedUI = false;
   bool m_bAssetBrowserShowItemsInSubFolders = true;
 
   // Auto-save interval in minutes. 0 = off.
-  ezUInt32 m_uiAutoSaveMinutes = 5;
+  WUInt32 m_uiAutoSaveMinutes = 5;
 
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;
-  ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
+  WString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
   float m_fSkyLightIntensity = 1.0f;
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(70.0f);
+  WAngle m_DirectionalLightAngle = WAngle::MakeFromDegree(70.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;
@@ -70,17 +70,17 @@ public:
   void SetShapeIconFadeDistance(float f);
   float GetShapeIconFadeDistance() const { return m_fShapeIconFadeDistance; }
 
-  void SetMaxFramerate(ezUInt16 uiFPS);
-  ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
+  void SetMaxFramerate(WUInt16 uiFPS);
+  WUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
 
-  // The 'recently used' lists of the searchable menus, one list per use case (see ezQtSearchableMenuRecentList).
+  // The 'recently used' lists of the searchable menus, one list per use case (see WQtSearchableMenuRecentList).
   // Reflected as a map of strings, where each value holds the entries of one list, separated by semicolons.
-  const ezRangeView<const char*, ezUInt32> GetRecentLists() const;   // [ property ]
-  void SetRecentList(const char* szKey, const ezString& sValue);     // [ property ]
+  const WRangeView<const char*, WUInt32> GetRecentLists() const;   // [ property ]
+  void SetRecentList(const char* szKey, const WString& sValue);     // [ property ]
   void RemoveRecentList(const char* szKey);                          // [ property ]
-  bool GetRecentList(const char* szKey, ezString& out_sValue) const; // [ property ]
+  bool GetRecentList(const char* szKey, WString& out_sValue) const; // [ property ]
 
-  ezMap<ezString, ezDynamicArray<ezString>> m_RecentLists;
+  WMap<WString, WDynamicArray<WString>> m_RecentLists;
 
   void SyncGlobalSettingsToEngine();
 
@@ -89,5 +89,5 @@ private:
   float m_fShapeIconSize = 1.0f;
   float m_fShapeIconFadeDistance = 75.0f;
   bool m_bShowInDevelopmentFeatures = false;
-  ezUInt16 m_uiMaxFramerate = 60;
+  WUInt16 m_uiMaxFramerate = 60;
 };

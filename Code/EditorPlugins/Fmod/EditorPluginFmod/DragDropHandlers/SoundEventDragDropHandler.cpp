@@ -3,23 +3,23 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginFmod/DragDropHandlers/SoundEventDragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezSoundEventComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSoundEventComponentDragDropHandler, 1, WRTTIDefaultAllocator<WSoundEventComponentDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-float ezSoundEventComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WSoundEventComponentDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+  if (WComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
   return IsSpecificAssetType(pInfo, "Sound Event") ? 1.0f : 0.0f;
 }
 
-void ezSoundEventComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
+void WSoundEventComponentDragDropHandler::OnDragBegin(const WDragDropInfo* pInfo)
 {
-  ezComponentDragDropHandler::OnDragBegin(pInfo);
+  WComponentDragDropHandler::OnDragBegin(pInfo);
 
-  constexpr const char* szComponentType = "ezFmodEventComponent";
+  constexpr const char* szComponentType = "WFmodEventComponent";
   constexpr const char* szPropertyName = "SoundEvent";
 
   if (pInfo->m_sTargetContext == "viewport")

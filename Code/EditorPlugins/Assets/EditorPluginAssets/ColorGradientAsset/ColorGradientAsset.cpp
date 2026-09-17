@@ -4,67 +4,67 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 3, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WColorGradientAssetData, 3, WRTTIDefaultAllocator<WColorGradientAssetData>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Gradient", m_Gradient),
+    W_MEMBER_PROPERTY("Gradient", m_Gradient),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WColorGradientAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezColorGradientAssetDocument::ezColorGradientAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezColorGradientAssetData>(sDocumentPath, ezAssetDocEngineConnection::None)
+WColorGradientAssetDocument::WColorGradientAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WColorGradientAssetData>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
+void WColorGradientAssetDocument::WriteResource(WStreamWriter& inout_stream) const
 {
-  const ezColorGradientAssetData* pProp = GetProperties();
+  const WColorGradientAssetData* pProp = GetProperties();
 
-  ezColorGradientResourceDescriptor desc;
+  WColorGradientResourceDescriptor desc;
   pProp->FillGradientData(desc.m_Gradient);
 
   desc.Save(inout_stream);
 }
 
-void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_result) const
+void WColorGradientAssetData::FillGradientData(WColorGradient& out_result) const
 {
   out_result = m_Gradient;
 }
 
-ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
+WColor WColorGradientAssetData::Evaluate(WInt64 iTick) const
 {
-  ezColorGradient temp = m_Gradient;
+  WColorGradient temp = m_Gradient;
 
-  ezColor color;
-  temp.Evaluate(ezColorGradient::TickToTime(iTick), color);
+  WColor color;
+  temp.Evaluate(WColorGradient::TickToTime(iTick), color);
   return color;
 }
 
-ezTransformStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WColorGradientAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
   WriteResource(stream);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WColorGradientAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  const ezColorGradientAssetData* pProp = GetProperties();
+  const WColorGradientAssetData* pProp = GetProperties();
 
-  ezImageHeader imgHeader;
+  WImageHeader imgHeader;
   imgHeader.SetWidth(256);
   imgHeader.SetHeight(256);
-  imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  ezImage img;
+  imgHeader.SetImageFormat(WImageFormat::R8G8B8A8_UNORM);
+  WImage img;
   img.ResetAndAlloc(imgHeader);
 
-  ezColorGradient gradient;
+  WColorGradient gradient;
   pProp->FillGradientData(gradient);
 
   double fMin, fMax;
@@ -73,40 +73,40 @@ ezTransformStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const Th
   const double div = 1.0 / (img.GetWidth() - 1);
   const double factor = range * div;
 
-  for (ezUInt32 x = 0; x < img.GetWidth(); ++x)
+  for (WUInt32 x = 0; x < img.GetWidth(); ++x)
   {
     const double pos = fMin + x * factor;
 
-    ezColorGammaUB color;
+    WColorGammaUB color;
     gradient.EvaluateColor(pos, color);
 
-    ezUInt8 alpha;
+    WUInt8 alpha;
     gradient.EvaluateAlpha(pos, alpha);
-    const ezColorLinearUB alphaColor = ezColorLinearUB(alpha, alpha, alpha, 255);
+    const WColorLinearUB alphaColor = WColorLinearUB(alpha, alpha, alpha, 255);
 
-    const float fAlphaFactor = ezMath::ColorByteToFloat(alpha);
-    ezColor colorWithAlpha = color;
+    const float fAlphaFactor = WMath::ColorByteToFloat(alpha);
+    WColor colorWithAlpha = color;
     colorWithAlpha.r *= fAlphaFactor;
     colorWithAlpha.g *= fAlphaFactor;
     colorWithAlpha.b *= fAlphaFactor;
 
-    const ezColorGammaUB colWithAlpha = colorWithAlpha;
+    const WColorGammaUB colWithAlpha = colorWithAlpha;
 
-    for (ezUInt32 y = 0; y < img.GetHeight() / 4; ++y)
+    for (WUInt32 y = 0; y < img.GetHeight() / 4; ++y)
     {
-      ezColorGammaUB* pixel = img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y);
+      WColorGammaUB* pixel = img.GetPixelPointer<WColorGammaUB>(0, 0, 0, x, y);
       *pixel = alphaColor;
     }
 
-    for (ezUInt32 y = img.GetHeight() / 4; y < img.GetHeight() / 2; ++y)
+    for (WUInt32 y = img.GetHeight() / 4; y < img.GetHeight() / 2; ++y)
     {
-      ezColorGammaUB* pixel = img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y);
+      WColorGammaUB* pixel = img.GetPixelPointer<WColorGammaUB>(0, 0, 0, x, y);
       *pixel = colWithAlpha;
     }
 
-    for (ezUInt32 y = img.GetHeight() / 2; y < img.GetHeight(); ++y)
+    for (WUInt32 y = img.GetHeight() / 2; y < img.GetHeight(); ++y)
     {
-      ezColorGammaUB* pixel = img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y);
+      WColorGammaUB* pixel = img.GetPixelPointer<WColorGammaUB>(0, 0, 0, x, y);
       *pixel = color;
     }
   }
@@ -120,15 +120,15 @@ ezTransformStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const Th
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezColorGradientAssetDataPatch_1_2 : public ezGraphPatch
+class WColorGradientAssetDataPatch_1_2 : public WGraphPatch
 {
 public:
-  ezColorGradientAssetDataPatch_1_2()
-    : ezGraphPatch("ezColorGradientAssetData", 2)
+  WColorGradientAssetDataPatch_1_2()
+    : WGraphPatch("WColorGradientAssetData", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Color CPs", "ColorCPs");
     pNode->RenameProperty("Alpha CPs", "AlphaCPs");
@@ -136,162 +136,162 @@ public:
   }
 };
 
-ezColorGradientAssetDataPatch_1_2 g_ezColorGradientAssetDataPatch_1_2;
+WColorGradientAssetDataPatch_1_2 g_WColorGradientAssetDataPatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezColorControlPoint_1_2 : public ezGraphPatch
+class WColorControlPoint_1_2 : public WGraphPatch
 {
 public:
-  ezColorControlPoint_1_2()
-    : ezGraphPatch("ezColorControlPoint", 2)
+  WColorControlPoint_1_2()
+    : WGraphPatch("WColorControlPoint", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
+      pNode->AddProperty("Tick", WColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
 
-ezColorControlPoint_1_2 g_ezColorControlPoint_1_2;
+WColorControlPoint_1_2 g_WColorControlPoint_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezAlphaControlPoint_1_2 : public ezGraphPatch
+class WAlphaControlPoint_1_2 : public WGraphPatch
 {
 public:
-  ezAlphaControlPoint_1_2()
-    : ezGraphPatch("ezAlphaControlPoint", 2)
+  WAlphaControlPoint_1_2()
+    : WGraphPatch("WAlphaControlPoint", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
+      pNode->AddProperty("Tick", WColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
 
-ezAlphaControlPoint_1_2 g_ezAlphaControlPoint_1_2;
+WAlphaControlPoint_1_2 g_WAlphaControlPoint_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezIntensityControlPoint_1_2 : public ezGraphPatch
+class WIntensityControlPoint_1_2 : public WGraphPatch
 {
 public:
-  ezIntensityControlPoint_1_2()
-    : ezGraphPatch("ezIntensityControlPoint", 2)
+  WIntensityControlPoint_1_2()
+    : WGraphPatch("WIntensityControlPoint", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
+      pNode->AddProperty("Tick", WColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
 
-ezIntensityControlPoint_1_2 g_ezIntensityControlPoint_1_2;
+WIntensityControlPoint_1_2 g_WIntensityControlPoint_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 // Patch to rename old control point types to new standalone types
-class ezColorControlPoint_2_3 : public ezGraphPatch
+class WColorControlPoint_2_3 : public WGraphPatch
 {
 public:
-  ezColorControlPoint_2_3()
-    : ezGraphPatch("ezColorControlPoint", 3)
+  WColorControlPoint_2_3()
+    : WGraphPatch("WColorControlPoint", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezColorGradientColorCP");
+    ref_context.RenameClass("WColorGradientColorCP");
   }
 };
 
-ezColorControlPoint_2_3 g_ezColorControlPoint_2_3;
+WColorControlPoint_2_3 g_WColorControlPoint_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezAlphaControlPoint_2_3 : public ezGraphPatch
+class WAlphaControlPoint_2_3 : public WGraphPatch
 {
 public:
-  ezAlphaControlPoint_2_3()
-    : ezGraphPatch("ezAlphaControlPoint", 3)
+  WAlphaControlPoint_2_3()
+    : WGraphPatch("WAlphaControlPoint", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezColorGradientAlphaCP");
+    ref_context.RenameClass("WColorGradientAlphaCP");
   }
 };
 
-ezAlphaControlPoint_2_3 g_ezAlphaControlPoint_2_3;
+WAlphaControlPoint_2_3 g_WAlphaControlPoint_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezIntensityControlPoint_2_3 : public ezGraphPatch
+class WIntensityControlPoint_2_3 : public WGraphPatch
 {
 public:
-  ezIntensityControlPoint_2_3()
-    : ezGraphPatch("ezIntensityControlPoint", 3)
+  WIntensityControlPoint_2_3()
+    : WGraphPatch("WIntensityControlPoint", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    ref_context.RenameClass("ezColorGradientIntensityCP");
+    ref_context.RenameClass("WColorGradientIntensityCP");
   }
 };
 
-ezIntensityControlPoint_2_3 g_ezIntensityControlPoint_2_3;
+WIntensityControlPoint_2_3 g_WIntensityControlPoint_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezColorGradientAssetDataPatch_2_3 : public ezGraphPatch
+class WColorGradientAssetDataPatch_2_3 : public WGraphPatch
 {
 public:
-  ezColorGradientAssetDataPatch_2_3()
-    : ezGraphPatch("ezColorGradientAssetData", 3)
+  WColorGradientAssetDataPatch_2_3()
+    : WGraphPatch("WColorGradientAssetData", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Create new Gradient node
-    ezUuid gradientGuid = ezUuid::MakeUuid();
-    auto* pGradientNode = pGraph->AddNode(gradientGuid, "ezColorGradient", 1);
+    WUuid gradientGuid = WUuid::MakeUuid();
+    auto* pGradientNode = pGraph->AddNode(gradientGuid, "WColorGradient", 1);
 
     // Migrate ColorCPs
     auto* pColorCPs = pNode->FindProperty("ColorCPs");
-    if (pColorCPs && pColorCPs->m_Value.IsA<ezVariantArray>())
+    if (pColorCPs && pColorCPs->m_Value.IsA<WVariantArray>())
     {
-      const ezVariantArray& oldCPs = pColorCPs->m_Value.Get<ezVariantArray>();
-      ezVariantArray newCPs;
+      const WVariantArray& oldCPs = pColorCPs->m_Value.Get<WVariantArray>();
+      WVariantArray newCPs;
 
       for (const auto& cpGuid : oldCPs)
       {
-        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<WUuid>());
         if (pOldCP)
         {
-          ezUuid newCPGuid = ezUuid::MakeUuid();
-          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientColorCP", 1);
+          WUuid newCPGuid = WUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "WColorGradientColorCP", 1);
 
           pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
           pNewCP->AddProperty("Red", pOldCP->FindProperty("Red")->m_Value);
@@ -306,18 +306,18 @@ public:
 
     // Migrate AlphaCPs
     auto* pAlphaCPs = pNode->FindProperty("AlphaCPs");
-    if (pAlphaCPs && pAlphaCPs->m_Value.IsA<ezVariantArray>())
+    if (pAlphaCPs && pAlphaCPs->m_Value.IsA<WVariantArray>())
     {
-      const ezVariantArray& oldCPs = pAlphaCPs->m_Value.Get<ezVariantArray>();
-      ezVariantArray newCPs;
+      const WVariantArray& oldCPs = pAlphaCPs->m_Value.Get<WVariantArray>();
+      WVariantArray newCPs;
 
       for (const auto& cpGuid : oldCPs)
       {
-        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<WUuid>());
         if (pOldCP)
         {
-          ezUuid newCPGuid = ezUuid::MakeUuid();
-          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientAlphaCP", 1);
+          WUuid newCPGuid = WUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "WColorGradientAlphaCP", 1);
 
           pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
           pNewCP->AddProperty("Alpha", pOldCP->FindProperty("Alpha")->m_Value);
@@ -330,18 +330,18 @@ public:
 
     // Migrate IntensityCPs
     auto* pIntensityCPs = pNode->FindProperty("IntensityCPs");
-    if (pIntensityCPs && pIntensityCPs->m_Value.IsA<ezVariantArray>())
+    if (pIntensityCPs && pIntensityCPs->m_Value.IsA<WVariantArray>())
     {
-      const ezVariantArray& oldCPs = pIntensityCPs->m_Value.Get<ezVariantArray>();
-      ezVariantArray newCPs;
+      const WVariantArray& oldCPs = pIntensityCPs->m_Value.Get<WVariantArray>();
+      WVariantArray newCPs;
 
       for (const auto& cpGuid : oldCPs)
       {
-        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<WUuid>());
         if (pOldCP)
         {
-          ezUuid newCPGuid = ezUuid::MakeUuid();
-          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientIntensityCP", 1);
+          WUuid newCPGuid = WUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "WColorGradientIntensityCP", 1);
 
           pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
           pNewCP->AddProperty("Intensity", pOldCP->FindProperty("Intensity")->m_Value);
@@ -360,4 +360,4 @@ public:
   }
 };
 
-ezColorGradientAssetDataPatch_2_3 g_ezColorGradientAssetDataPatch_2_3;
+WColorGradientAssetDataPatch_2_3 g_WColorGradientAssetDataPatch_2_3;

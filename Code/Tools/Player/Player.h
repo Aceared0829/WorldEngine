@@ -2,15 +2,15 @@
 
 #include <GameEngine/GameApplication/GameApplication.h>
 
-class ezPlayerApplication : public ezGameApplication
+class WPlayerApplication : public WGameApplication
 {
 public:
-  using SUPER = ezGameApplication;
+  using SUPER = WGameApplication;
 
-  ezPlayerApplication();
+  WPlayerApplication();
 
 protected:
-  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual WResult BeforeCoreSystemsStartup() override;
 
 private:
   void DetermineProjectPath();

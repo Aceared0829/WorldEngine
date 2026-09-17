@@ -8,92 +8,92 @@
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 
-ezRmlUiContext::ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
+WRmlUiContext::WRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
   : Rml::Context(sName, pRenderManager, pTextInputHandler)
 {
 }
 
-ezRmlUiContext::~ezRmlUiContext() = default;
+WRmlUiContext::~WRmlUiContext() = default;
 
-ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
+WResult WRmlUiContext::LoadDocumentFromResource(const WRmlUiResourceHandle& hResource)
 {
-  return ezRmlUi::GetSingleton()->LoadDocumentFromResource(*this, hResource);
+  return WRmlUi::GetSingleton()->LoadDocumentFromResource(*this, hResource);
 }
 
-ezResult ezRmlUiContext::LoadDocumentFromString(const ezStringView& sContent)
+WResult WRmlUiContext::LoadDocumentFromString(const WStringView& sContent)
 {
-  return ezRmlUi::GetSingleton()->LoadDocumentFromString(*this, sContent);
+  return WRmlUi::GetSingleton()->LoadDocumentFromString(*this, sContent);
 }
 
-void ezRmlUiContext::UnloadDocument()
+void WRmlUiContext::UnloadDocument()
 {
-  ezRmlUi::GetSingleton()->UnloadDocument(*this);
+  WRmlUi::GetSingleton()->UnloadDocument(*this);
 }
 
-ezResult ezRmlUiContext::ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
+WResult WRmlUiContext::ReloadDocumentFromResource(const WRmlUiResourceHandle& hResource)
 {
-  ezRmlUi::GetSingleton()->ClearCaches();
+  WRmlUi::GetSingleton()->ClearCaches();
 
-  EZ_SUCCEED_OR_RETURN(LoadDocumentFromResource(hResource));
+  W_SUCCEED_OR_RETURN(LoadDocumentFromResource(hResource));
 
   RequestNextUpdate(0.0);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRmlUiContext::ShowDocument()
+void WRmlUiContext::ShowDocument()
 {
   if (HasDocument())
   {
-    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
+    W_LOCK(WRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Show();
   }
 }
 
-void ezRmlUiContext::HideDocument()
+void WRmlUiContext::HideDocument()
 {
   if (HasDocument())
   {
-    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
+    W_LOCK(WRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Hide();
   }
 
   m_bWantsInput = false;
 }
 
-bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input)
+bool WRmlUiContext::UpdateInput(const WVec2& vMousePos, const WRmlUiInputProvider& input)
 {
   bool bMouseInputConsumed = false;
   bool bKeyboardInputConsumed = false;
 
   int modifierState = 0;
-  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Alt) ? Rml::Input::KM_ALT : 0;
-  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Ctrl) ? Rml::Input::KM_CTRL : 0;
-  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Shift) ? Rml::Input::KM_SHIFT : 0;
+  modifierState |= input.IsButtonDown(WRmlUiInputButtons::Alt) ? Rml::Input::KM_ALT : 0;
+  modifierState |= input.IsButtonDown(WRmlUiInputButtons::Ctrl) ? Rml::Input::KM_CTRL : 0;
+  modifierState |= input.IsButtonDown(WRmlUiInputButtons::Shift) ? Rml::Input::KM_SHIFT : 0;
 
   // Mouse
   {
     bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_MouseButtonMappings); ++i)
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(WRmlUiInputButtons::s_MouseButtonMappings); ++i)
     {
-      ezRmlUiInputButtons::MouseButtonMapping mbm = ezRmlUiInputButtons::s_MouseButtonMappings[i];
-      ezKeyState::Enum state = input.GetButtonState(mbm.uiEzButton);
-      if (state == ezKeyState::Pressed)
+      WRmlUiInputButtons::MouseButtonMapping mbm = WRmlUiInputButtons::s_MouseButtonMappings[i];
+      WKeyState::Enum state = input.GetButtonState(mbm.uiEzButton);
+      if (state == WKeyState::Pressed)
       {
         bMouseInputConsumed |= !ProcessMouseButtonDown(mbm.uiRmlButton, modifierState);
       }
-      else if (state == ezKeyState::Released)
+      else if (state == WKeyState::Released)
       {
         bMouseInputConsumed |= !ProcessMouseButtonUp(mbm.uiRmlButton, modifierState);
       }
     }
 
-    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelDown))
+    if (input.IsButtonDown(WRmlUiInputButtons::MouseWheelDown))
     {
       bKeyboardInputConsumed |= !ProcessMouseWheel(1.0f, modifierState);
     }
-    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelUp))
+    if (input.IsButtonDown(WRmlUiInputButtons::MouseWheelUp))
     {
       bKeyboardInputConsumed |= !ProcessMouseWheel(-1.0f, modifierState);
     }
@@ -101,10 +101,10 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
 
   // Keyboard
   {
-    ezStringBuilder sFiltered;
+    WStringBuilder sFiltered;
     for (auto it = input.m_sLastCharacters.GetIteratorFront(); it.IsValid(); ++it)
     {
-      const ezUInt32 uiChar = it.GetCharacter();
+      const WUInt32 uiChar = it.GetCharacter();
       if (uiChar >= 32 || uiChar == '\n') // >= space (+ enter/return)
       {
         sFiltered.Append(uiChar);
@@ -116,15 +116,15 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
       bKeyboardInputConsumed |= !ProcessTextInput(sFiltered.GetData());
     }
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(WRmlUiInputButtons::s_KeyMappings); ++i)
     {
-      ezRmlUiInputButtons::KeyMapping km = ezRmlUiInputButtons::s_KeyMappings[i];
-      ezKeyState::Enum state = input.GetButtonState(km.uiEzKey);
-      if (state == ezKeyState::Pressed)
+      WRmlUiInputButtons::KeyMapping km = WRmlUiInputButtons::s_KeyMappings[i];
+      WKeyState::Enum state = input.GetButtonState(km.uiEzKey);
+      if (state == WKeyState::Pressed)
       {
         bKeyboardInputConsumed |= !ProcessKeyDown(km.uiRmlKey, modifierState);
       }
-      else if (state == ezKeyState::Released)
+      else if (state == WKeyState::Released)
       {
         bKeyboardInputConsumed |= !ProcessKeyUp(km.uiRmlKey, modifierState);
       }
@@ -136,54 +136,54 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
   return bMouseInputConsumed || bKeyboardInputConsumed;
 }
 
-void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
+void WRmlUiContext::SetSize(const WVec2U32& vSize)
 {
   SetDimensions(Rml::Vector2i(vSize.x, vSize.y));
 }
 
-void ezRmlUiContext::SetDpiScale(float fScale)
+void WRmlUiContext::SetDpiScale(float fScale)
 {
   SetDensityIndependentPixelRatio(fScale);
 }
 
-void ezRmlUiContext::RegisterEventHandler(const char* szIdentifier, EventHandler handler)
+void WRmlUiContext::RegisterEventHandler(const char* szIdentifier, EventHandler handler)
 {
-  ezHashedString sIdentifier;
+  WHashedString sIdentifier;
   sIdentifier.Assign(szIdentifier);
 
   m_EventHandler.Insert(sIdentifier, std::move(handler));
 }
 
-void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
+void WRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
 {
-  m_EventHandler.Remove(ezTempHashedString(szIdentifier));
+  m_EventHandler.Remove(WTempHashedString(szIdentifier));
 }
 
-void ezRmlUiContext::RegisterFallbackEventHandler(FallbackEventHandler handler)
+void WRmlUiContext::RegisterFallbackEventHandler(FallbackEventHandler handler)
 {
   m_FallbackEventHandler = std::move(handler);
 }
 
-void ezRmlUiContext::DeregisterFallbackEventHandler()
+void WRmlUiContext::DeregisterFallbackEventHandler()
 {
   m_FallbackEventHandler.Invalidate();
 }
 
-void ezRmlUiContext::Update()
+void WRmlUiContext::Update()
 {
-  EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
+  W_LOCK(WRmlUi::GetSingleton()->GetContextMutex());
 
   Rml::Context::Update();
 
-  m_uiUpdatedFrame = ezRenderWorld::GetFrameCounter();
+  m_uiUpdatedFrame = WRenderWorld::GetFrameCounter();
 }
 
-void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture)
+void WRmlUiContext::ExtractRenderData(WRmlUiInternal::RenderInterface& renderInterface, WGALTextureHandle hTexture)
 {
   if (m_uiExtractedFrame != m_uiUpdatedFrame)
   {
-    ezHashedString sName;
-    sName.Assign(ezRmlUiConversionUtils::ToStringView(GetName()));
+    WHashedString sName;
+    sName.Assign(WRmlUiConversionUtils::ToStringView(GetName()));
 
     renderInterface.BeginExtraction(sName, hTexture);
 
@@ -195,7 +195,7 @@ void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderI
   }
 }
 
-void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event)
+void WRmlUiContext::ProcessEvent(const WHashedString& sIdentifier, Rml::Event& event)
 {
   EventHandler* pEventHandler = nullptr;
   if (m_EventHandler.TryGetValue(sIdentifier, pEventHandler))
@@ -210,17 +210,17 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event&
 
 //////////////////////////////////////////////////////////////////////////
 
-Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
+Rml::ContextPtr WRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
 {
-  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName, pRenderManager, pTextInputHandler));
+  return Rml::ContextPtr(W_DEFAULT_NEW(WRmlUiContext, sName, pRenderManager, pTextInputHandler));
 }
 
-void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* pContext)
+void WRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-void ezRmlUiInternal::ContextInstancer::Release()
+void WRmlUiInternal::ContextInstancer::Release()
 {
   // nothing to do here
 }

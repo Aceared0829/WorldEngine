@@ -4,43 +4,43 @@
 
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
-class ezRTTI;
+class WRTTI;
 
 template <typename Type>
-class ezTypedMapProperty : public ezAbstractMapProperty
+class WTypedMapProperty : public WAbstractMapProperty
 {
 public:
-  ezTypedMapProperty(const char* szPropertyName)
-    : ezAbstractMapProperty(szPropertyName)
+  WTypedMapProperty(const char* szPropertyName)
+    : WAbstractMapProperty(szPropertyName)
   {
-    m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
+    m_Flags = WPropertyFlags::GetParameterFlags<Type>();
     static_assert(
       !std::is_pointer<Type>::value ||
-        ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value == ezVariantType::Invalid,
+        WVariant::TypeDeduction<typename WTypeTraits<Type>::NonConstReferencePointerType>::value == WVariantType::Invalid,
       "Pointer to standard types are not supported.");
   }
 
-  virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }
+  virtual const WRTTI* GetSpecificType() const override { return WGetStaticRTTI<typename WTypeTraits<Type>::NonConstReferencePointerType>(); }
 };
 
 
 template <typename Class, typename Type, typename Container>
-class ezAccessorMapProperty : public ezTypedMapProperty<Type>
+class WAccessorMapProperty : public WTypedMapProperty<Type>
 {
 public:
-  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
-  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using ContainerType = typename WTypeTraits<Container>::NonConstReferenceType;
+  using RealType = typename WTypeTraits<Type>::NonConstReferenceType;
 
   using InsertFunc = void (Class::*)(const char* szKey, Type value);
   using RemoveFunc = void (Class::*)(const char* szKey);
   using GetValueFunc = bool (Class::*)(const char* szKey, RealType& value) const;
   using GetKeyRangeFunc = Container (Class::*)() const;
 
-  ezAccessorMapProperty(const char* szPropertyName, GetKeyRangeFunc getKeys, GetValueFunc getValue, InsertFunc insert, RemoveFunc remove)
-    : ezTypedMapProperty<Type>(szPropertyName)
+  WAccessorMapProperty(const char* szPropertyName, GetKeyRangeFunc getKeys, GetValueFunc getValue, InsertFunc insert, RemoveFunc remove)
+    : WTypedMapProperty<Type>(szPropertyName)
   {
-    EZ_ASSERT_DEBUG(getKeys != nullptr, "The getKeys function of a map property cannot be nullptr.");
-    EZ_ASSERT_DEBUG(getValue != nullptr, "The GetValueFunc function of a map property cannot be nullptr.");
+    W_ASSERT_DEBUG(getKeys != nullptr, "The getKeys function of a map property cannot be nullptr.");
+    W_ASSERT_DEBUG(getValue != nullptr, "The GetValueFunc function of a map property cannot be nullptr.");
 
     m_GetKeyRange = getKeys;
     m_GetValue = getValue;
@@ -48,7 +48,7 @@ public:
     m_Remove = remove;
 
     if (m_Insert == nullptr || remove == nullptr)
-      ezAbstractMapProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+      WAbstractMapProperty::m_Flags.Add(WPropertyFlags::ReadOnly);
   }
 
   virtual bool IsEmpty(const void* pInstance) const override
@@ -76,13 +76,13 @@ public:
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) const override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -97,7 +97,7 @@ public:
     return (static_cast<const Class*>(pInstance)->*m_GetValue)(szKey, *static_cast<RealType*>(pObject));
   }
 
-  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override
+  virtual void GetKeys(const void* pInstance, WHybridArray<WString, 16>& out_keys) const override
   {
     out_keys.Clear();
     decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
@@ -116,28 +116,28 @@ private:
 
 
 template <typename Class, typename Type, typename Container>
-class ezWriteAccessorMapProperty : public ezTypedMapProperty<Type>
+class WWriteAccessorMapProperty : public WTypedMapProperty<Type>
 {
 public:
-  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
-  using ContainerSubType = typename ezContainerSubTypeResolver<ContainerType>::Type;
-  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using ContainerType = typename WTypeTraits<Container>::NonConstReferenceType;
+  using ContainerSubType = typename WContainerSubTypeResolver<ContainerType>::Type;
+  using RealType = typename WTypeTraits<Type>::NonConstReferenceType;
 
   using InsertFunc = void (Class::*)(const char* szKey, Type value);
   using RemoveFunc = void (Class::*)(const char* szKey);
   using GetContainerFunc = Container (Class::*)() const;
 
-  ezWriteAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
-    : ezTypedMapProperty<Type>(szPropertyName)
+  WWriteAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
+    : WTypedMapProperty<Type>(szPropertyName)
   {
-    EZ_ASSERT_DEBUG(getContainer != nullptr, "The get count function of a map property cannot be nullptr.");
+    W_ASSERT_DEBUG(getContainer != nullptr, "The get count function of a map property cannot be nullptr.");
 
     m_GetContainer = getContainer;
     m_Insert = insert;
     m_Remove = remove;
 
     if (m_Insert == nullptr)
-      ezAbstractMapProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+      WAbstractMapProperty::m_Flags.Add(WPropertyFlags::ReadOnly);
   }
 
   virtual bool IsEmpty(const void* pInstance) const override { return (static_cast<const Class*>(pInstance)->*m_GetContainer)().IsEmpty(); }
@@ -154,13 +154,13 @@ public:
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) const override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -180,7 +180,7 @@ public:
     return value != nullptr;
   }
 
-  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override
+  virtual void GetKeys(const void* pInstance, WHybridArray<WString, 16>& out_keys) const override
   {
     decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetContainer)();
     out_keys.Clear();
@@ -199,10 +199,10 @@ private:
 
 
 template <typename Class, typename Container, Container Class::*Member>
-struct ezMapPropertyAccessor
+struct WMapPropertyAccessor
 {
-  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
-  using Type = typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
+  using ContainerType = typename WTypeTraits<Container>::NonConstReferenceType;
+  using Type = typename WTypeTraits<typename WContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
 
   static const ContainerType& GetConstContainer(const Class* pInstance) { return (*pInstance).*Member; }
 
@@ -211,45 +211,45 @@ struct ezMapPropertyAccessor
 
 
 template <typename Class, typename Container, typename Type>
-class ezMemberMapProperty : public ezTypedMapProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
+class WMemberMapProperty : public WTypedMapProperty<typename WTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using RealType = typename WTypeTraits<Type>::NonConstReferenceType;
   using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
   using GetContainerFunc = Container& (*)(Class* pInstance);
 
-  ezMemberMapProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
-    : ezTypedMapProperty<RealType>(szPropertyName)
+  WMemberMapProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
+    : WTypedMapProperty<RealType>(szPropertyName)
   {
-    EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an array property cannot be nullptr.");
+    W_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an array property cannot be nullptr.");
 
     m_ConstGetter = constGetter;
     m_Getter = getter;
 
     if (m_Getter == nullptr)
-      ezAbstractMapProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+      WAbstractMapProperty::m_Flags.Add(WPropertyFlags::ReadOnly);
   }
 
   virtual bool IsEmpty(const void* pInstance) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty(); }
 
   virtual void Clear(void* pInstance) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) const override
   {
-    EZ_ASSERT_DEBUG(
-      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    W_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", WAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Remove(szKey);
   }
 
@@ -268,7 +268,7 @@ public:
     return value != nullptr;
   }
 
-  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override
+  virtual void GetKeys(const void* pInstance, WHybridArray<WString, 16>& out_keys) const override
   {
     decltype(auto) c = m_ConstGetter(static_cast<const Class*>(pInstance));
     out_keys.Clear();

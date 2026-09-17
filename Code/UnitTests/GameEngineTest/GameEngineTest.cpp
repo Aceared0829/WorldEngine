@@ -4,10 +4,10 @@
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
-EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("GameEngineTest", "GameEngine Tests")
+W_TESTFRAMEWORK_ENTRY_POINT_BEGIN("GameEngineTest", "GameEngine Tests")
 {
-  ezTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
-  ezTestFramework::GetInstance()->SetTestTimeout(1000 * 60 * 20);
-  ezTestFramework::s_bCallstackOnAssert = true;
+  WTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
+  WTestFramework::GetInstance()->SetTestTimeout(1000 * 60 * 20);
+  WTestFramework::s_bCallstackOnAssert = true;
 }
-EZ_TESTFRAMEWORK_ENTRY_POINT_END()
+W_TESTFRAMEWORK_ENTRY_POINT_END()

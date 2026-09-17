@@ -5,39 +5,39 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 
-static ezGlobalEvent::EventMap s_LastState;
+static WGlobalEvent::EventMap s_LastState;
 
-static void SendGlobalEventTelemetry(ezStringView sEvent, const ezGlobalEvent::EventData& ed)
+static void SendGlobalEventTelemetry(WStringView sEvent, const WGlobalEvent::EventData& ed)
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
-  ezTelemetryMessage msg;
+  WTelemetryMessage msg;
   msg.SetMessageID('EVNT', 'DATA');
   msg.GetWriter() << sEvent;
   msg.GetWriter() << ed.m_uiNumTimesFired;
   msg.GetWriter() << ed.m_uiNumEventHandlersRegular;
   msg.GetWriter() << ed.m_uiNumEventHandlersOnce;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  WTelemetry::Broadcast(WTelemetry::Reliable, msg);
 }
 
 static void SendAllGlobalEventTelemetry()
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
   // clear
   {
-    ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'EVNT', ' CLR', nullptr, 0);
+    WTelemetryMessage msg;
+    WTelemetry::Broadcast(WTelemetry::Reliable, 'EVNT', ' CLR', nullptr, 0);
   }
 
-  ezGlobalEvent::UpdateGlobalEventStatistics();
+  WGlobalEvent::UpdateGlobalEventStatistics();
 
-  s_LastState = ezGlobalEvent::GetEventStatistics();
+  s_LastState = WGlobalEvent::GetEventStatistics();
 
-  for (ezGlobalEvent::EventMap::ConstIterator it = s_LastState.GetIterator(); it.IsValid(); ++it)
+  for (WGlobalEvent::EventMap::ConstIterator it = s_LastState.GetIterator(); it.IsValid(); ++it)
   {
     SendGlobalEventTelemetry(it.Key(), it.Value());
   }
@@ -45,19 +45,19 @@ static void SendAllGlobalEventTelemetry()
 
 static void SendChangedGlobalEventTelemetry()
 {
-  if (!ezTelemetry::IsConnectedToClient())
+  if (!WTelemetry::IsConnectedToClient())
     return;
 
-  static ezTime LastUpdate = ezTime::Now();
+  static WTime LastUpdate = WTime::Now();
 
-  if ((ezTime::Now() - LastUpdate).GetSeconds() < 0.5)
+  if ((WTime::Now() - LastUpdate).GetSeconds() < 0.5)
     return;
 
-  LastUpdate = ezTime::Now();
+  LastUpdate = WTime::Now();
 
-  ezGlobalEvent::UpdateGlobalEventStatistics();
+  WGlobalEvent::UpdateGlobalEventStatistics();
 
-  const ezGlobalEvent::EventMap& data = ezGlobalEvent::GetEventStatistics();
+  const WGlobalEvent::EventMap& data = WGlobalEvent::GetEventStatistics();
 
   if (data.GetCount() != s_LastState.GetCount())
   {
@@ -65,12 +65,12 @@ static void SendChangedGlobalEventTelemetry()
     return;
   }
 
-  for (ezGlobalEvent::EventMap::ConstIterator it = data.GetIterator(); it.IsValid(); ++it)
+  for (WGlobalEvent::EventMap::ConstIterator it = data.GetIterator(); it.IsValid(); ++it)
   {
-    const ezGlobalEvent::EventData& currentEventData = it.Value();
-    ezGlobalEvent::EventData& lastEventData = s_LastState[it.Key()];
+    const WGlobalEvent::EventData& currentEventData = it.Value();
+    WGlobalEvent::EventData& lastEventData = s_LastState[it.Key()];
 
-    if (ezMemoryUtils::Compare(&currentEventData, &lastEventData) != 0)
+    if (WMemoryUtils::Compare(&currentEventData, &lastEventData) != 0)
     {
       SendGlobalEventTelemetry(it.Key().GetData(), it.Value());
 
@@ -81,19 +81,19 @@ static void SendChangedGlobalEventTelemetry()
 
 namespace GlobalEventsDetail
 {
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void TelemetryEventsHandler(const WTelemetry::TelemetryEventData& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      case WTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllGlobalEventTelemetry();
         break;
-      case ezTelemetry::TelemetryEventData::DisconnectedFromClient:
+      case WTelemetry::TelemetryEventData::DisconnectedFromClient:
       {
-        ezGlobalEvent::EventMap tmp;
+        WGlobalEvent::EventMap tmp;
         s_LastState.Swap(tmp);
         break;
       }
@@ -102,14 +102,14 @@ namespace GlobalEventsDetail
     }
   }
 
-  static void PerframeUpdateHandler(const ezGameApplicationExecutionEvent& e)
+  static void PerframeUpdateHandler(const WGameApplicationExecutionEvent& e)
   {
-    if (!ezTelemetry::IsConnectedToClient())
+    if (!WTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_Type)
     {
-      case ezGameApplicationExecutionEvent::Type::AfterPresent:
+      case WGameApplicationExecutionEvent::Type::AfterPresent:
         SendChangedGlobalEventTelemetry();
         break;
 
@@ -121,25 +121,25 @@ namespace GlobalEventsDetail
 
 void AddGlobalEventHandler()
 {
-  ezTelemetry::AddEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
+  WTelemetry::AddEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 
   // We're handling the per frame update by a different event since
-  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
-  // to deadlocks between the ezStats and ezTelemetry system.
-  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  // using WTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the WStats and WTelemetry system.
+  if (WGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
   }
 }
 
 void RemoveGlobalEventHandler()
 {
-  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  if (WGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+    WGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
   }
 
-  ezTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
+  WTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
 
 

@@ -3,86 +3,86 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <SharedPluginScene/SharedPluginSceneDLL.h>
 
-class EZ_SHAREDPLUGINSCENE_DLL ezExposedSceneProperty : public ezReflectedClass
+class W_SHAREDPLUGINSCENE_DLL WExposedSceneProperty : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposedSceneProperty, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WExposedSceneProperty, WReflectedClass);
 
 public:
-  ezString m_sName;
-  ezUuid m_Object;
-  ezString m_sPropertyPath;
+  WString m_sName;
+  WUuid m_Object;
+  WString m_sPropertyPath;
 };
 
-class EZ_SHAREDPLUGINSCENE_DLL ezExposedDocumentObjectPropertiesMsgToEngine : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WExposedDocumentObjectPropertiesMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposedDocumentObjectPropertiesMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WExposedDocumentObjectPropertiesMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezDynamicArray<ezExposedSceneProperty> m_Properties;
+  WDynamicArray<WExposedSceneProperty> m_Properties;
 };
 
-class EZ_SHAREDPLUGINSCENE_DLL ezExportSceneGeometryMsgToEngine : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WExportSceneGeometryMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneGeometryMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WExportSceneGeometryMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
   bool m_bSelectionOnly = false;
-  ezString m_sOutputFile;
-  int m_iExtractionMode; // ezWorldGeoExtractionUtil::ExtractionMode
-  ezMat3 m_Transform;
+  WString m_sOutputFile;
+  int m_iExtractionMode; // WWorldGeoExtractionUtil::ExtractionMode
+  WMat3 m_Transform;
 };
 
-class EZ_SHAREDPLUGINSCENE_DLL ezPullObjectStateMsgToEngine : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WPullObjectStateMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPullObjectStateMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WPullObjectStateMsgToEngine, WEditorEngineDocumentMsg);
 };
 
-struct ezPushObjectStateData
+struct WPushObjectStateData
 {
-  ezUuid m_LayerGuid;
-  ezUuid m_ObjectGuid;
-  ezVec3 m_vPosition;
-  ezQuat m_qRotation;
+  WUuid m_LayerGuid;
+  WUuid m_ObjectGuid;
+  WVec3 m_vPosition;
+  WQuat m_qRotation;
   bool m_bAdjustFromPrefabRootChild = false; // only used internally, not synchronized
-  ezMap<ezString, ezTransform> m_BoneTransforms;
+  WMap<WString, WTransform> m_BoneTransforms;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_SHAREDPLUGINSCENE_DLL, ezPushObjectStateData);
+W_DECLARE_REFLECTABLE_TYPE(W_SHAREDPLUGINSCENE_DLL, WPushObjectStateData);
 
-class EZ_SHAREDPLUGINSCENE_DLL ezPushObjectStateMsgToEditor : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WPushObjectStateMsgToEditor : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPushObjectStateMsgToEditor, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WPushObjectStateMsgToEditor, WEditorEngineDocumentMsg);
 
 public:
-  ezDynamicArray<ezPushObjectStateData> m_ObjectStates;
+  WDynamicArray<WPushObjectStateData> m_ObjectStates;
 };
 
-class EZ_SHAREDPLUGINSCENE_DLL ezActiveLayerChangedMsgToEngine : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WActiveLayerChangedMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezActiveLayerChangedMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WActiveLayerChangedMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezUuid m_ActiveLayer;
+  WUuid m_ActiveLayer;
 };
 
-class EZ_SHAREDPLUGINSCENE_DLL ezLayerVisibilityChangedMsgToEngine : public ezEditorEngineDocumentMsg
+class W_SHAREDPLUGINSCENE_DLL WLayerVisibilityChangedMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLayerVisibilityChangedMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WLayerVisibilityChangedMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezHybridArray<ezUuid, 1> m_HiddenLayers;
+  WHybridArray<WUuid, 1> m_HiddenLayers;
 };
 
 /// Sent from the editor to the engine to communicate the desired child object order for a component.
 ///
-/// Targets a component identified by its GUID. The component must handle ezMsgSyncChildOrder.
-/// Used in conjunction with ezSyncChildOrderAttribute.
-class EZ_SHAREDPLUGINSCENE_DLL ezSyncChildOrderMsgToEngine : public ezEditorEngineDocumentMsg
+/// Targets a component identified by its GUID. The component must handle WMsgSyncChildOrder.
+/// Used in conjunction with WSyncChildOrderAttribute.
+class W_SHAREDPLUGINSCENE_DLL WSyncChildOrderMsgToEngine : public WEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncChildOrderMsgToEngine, ezEditorEngineDocumentMsg);
+  W_ADD_DYNAMIC_REFLECTION(WSyncChildOrderMsgToEngine, WEditorEngineDocumentMsg);
 
 public:
-  ezUuid m_LayerGuid;
-  ezUuid m_ComponentGuid;
-  ezDynamicArray<ezUuid> m_ChildOrder;
+  WUuid m_LayerGuid;
+  WUuid m_ComponentGuid;
+  WDynamicArray<WUuid> m_ChildOrder;
 };

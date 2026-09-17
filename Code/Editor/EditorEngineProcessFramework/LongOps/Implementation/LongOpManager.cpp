@@ -2,15 +2,15 @@
 
 #include <EditorEngineProcessFramework/LongOps/Implementation/LongOpManager.h>
 
-void ezLongOpManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)
+void WLongOpManager::Startup(WProcessCommunicationChannel* pCommunicationChannel)
 {
   m_pCommunicationChannel = pCommunicationChannel;
-  m_pCommunicationChannel->m_Events.AddEventHandler(ezMakeDelegate(&ezLongOpManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
+  m_pCommunicationChannel->m_Events.AddEventHandler(WMakeDelegate(&WLongOpManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
 }
 
-void ezLongOpManager::Shutdown()
+void WLongOpManager::Shutdown()
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   m_Unsubscriber.Unsubscribe();
   m_pCommunicationChannel = nullptr;

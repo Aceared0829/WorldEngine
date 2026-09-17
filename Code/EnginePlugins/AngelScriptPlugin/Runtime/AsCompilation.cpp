@@ -5,22 +5,22 @@
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-class ezAsPreprocessor
+class WAsPreprocessor
 {
 public:
-  ezStringView m_sRefFilePath;
-  ezStringView m_sMainCode;
-  ezSet<ezString>* m_pDependencies = nullptr;
+  WStringView m_sRefFilePath;
+  WStringView m_sMainCode;
+  WSet<WString>* m_pDependencies = nullptr;
 
-  ezAsPreprocessor()
+  WAsPreprocessor()
   {
-    m_Processor.SetFileOpenFunction(ezMakeDelegate(&ezAsPreprocessor::PreProc_OpenFile, this));
-    m_Processor.m_ProcessingEvents.AddEventHandler(ezMakeDelegate(&ezAsPreprocessor::PreProc_Event, this));
+    m_Processor.SetFileOpenFunction(WMakeDelegate(&WAsPreprocessor::PreProc_OpenFile, this));
+    m_Processor.m_ProcessingEvents.AddEventHandler(WMakeDelegate(&WAsPreprocessor::PreProc_Event, this));
     m_Processor.SetImplicitPragmaOnce(true);
     m_Processor.SetPassThroughLine(true);
   }
 
-  ezResult Process(ezStringBuilder& ref_sResult)
+  WResult Process(WStringBuilder& ref_sResult)
   {
     const bool bNeedsLineStmts = !m_sMainCode.StartsWith("//#ln");
     const bool bKeepComments = !bNeedsLineStmts;
@@ -31,50 +31,50 @@ public:
   };
 
 private:
-  ezResult PreProc_OpenFile(ezStringView sAbsFile, ezDynamicArray<ezUInt8>& out_Content, ezTimestamp& out_FileModification)
+  WResult PreProc_OpenFile(WStringView sAbsFile, WDynamicArray<WUInt8>& out_Content, WTimestamp& out_FileModification)
   {
     if (sAbsFile == m_sRefFilePath)
     {
       out_Content.SetCount(m_sMainCode.GetElementCount());
-      ezMemoryUtils::RawByteCopy(out_Content.GetData(), m_sMainCode.GetStartPointer(), m_sMainCode.GetElementCount());
-      return EZ_SUCCESS;
+      WMemoryUtils::RawByteCopy(out_Content.GetData(), m_sMainCode.GetStartPointer(), m_sMainCode.GetElementCount());
+      return W_SUCCESS;
     }
 
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(sAbsFile).Failed())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (m_pDependencies)
     {
       m_pDependencies->Insert(sAbsFile);
     }
 
-    out_Content.SetCountUninitialized((ezUInt32)file.GetFileSize());
+    out_Content.SetCountUninitialized((WUInt32)file.GetFileSize());
     file.ReadBytes(out_Content.GetData(), out_Content.GetCount());
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  void PreProc_Event(const ezPreprocessor::ProcessingEvent& event)
+  void PreProc_Event(const WPreprocessor::ProcessingEvent& event)
   {
     switch (event.m_Type)
     {
-      case ezPreprocessor::ProcessingEvent::Error:
-        ezLog::Error("{0}: Line {1} [{2}]: {}", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn, event.m_sInfo);
+      case WPreprocessor::ProcessingEvent::Error:
+        WLog::Error("{0}: Line {1} [{2}]: {}", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn, event.m_sInfo);
         break;
-      case ezPreprocessor::ProcessingEvent::Warning:
-        ezLog::Warning("{0}: Line {1} [{2}]: {}", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn, event.m_sInfo);
+      case WPreprocessor::ProcessingEvent::Warning:
+        WLog::Warning("{0}: Line {1} [{2}]: {}", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn, event.m_sInfo);
         break;
       default:
         break;
     }
   }
 
-  ezPreprocessor m_Processor;
+  WPreprocessor m_Processor;
 };
 
-void ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(const ezDynamicArray<ezStringView>& lines, ezInt32& ref_iLine, ezStringView& ref_sSection)
+void WAngelScriptEngineSingleton::FindCorrectSectionAndLine(const WDynamicArray<WStringView>& lines, WInt32& ref_iLine, WStringView& ref_sSection)
 {
-  if (ref_iLine - 1 < (ezInt32)lines.GetCount())
+  if (ref_iLine - 1 < (WInt32)lines.GetCount())
   {
     --ref_iLine;
 
@@ -84,11 +84,11 @@ void ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(const ezDynamicArra
     {
       if (lines[ref_iLine].StartsWith("//#ln"))
       {
-        ezStringView line = lines[ref_iLine];
+        WStringView line = lines[ref_iLine];
         line.TrimWordStart("//#ln ");
 
         const char* szParsePos;
-        ezConversionUtils::StringToInt(line, ref_iLine, &szParsePos).AssertSuccess();
+        WConversionUtils::StringToInt(line, ref_iLine, &szParsePos).AssertSuccess();
 
         line.SetStartPosition(szParsePos + 1);
         line.Trim("\"");
@@ -103,43 +103,43 @@ void ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(const ezDynamicArra
     }
   }
 }
-void ezAngelScriptEngineSingleton::CompilerMessageCallback(const asSMessageInfo* msg)
+void WAngelScriptEngineSingleton::CompilerMessageCallback(const asSMessageInfo* msg)
 {
-  ezDynamicArray<ezStringView> lines;
+  WDynamicArray<WStringView> lines;
   m_sCodeInCompilation.Split(true, lines, "\n");
 
-  ezInt32 iLine = msg->row;
-  ezStringView sSection = msg->section;
+  WInt32 iLine = msg->row;
+  WStringView sSection = msg->section;
 
   FindCorrectSectionAndLine(lines, iLine, sSection);
 
   switch (msg->type)
   {
     case asMSGTYPE_ERROR:
-      ezLog::Error("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      WLog::Error("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
       break;
     case asMSGTYPE_WARNING:
-      ezLog::Warning("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      WLog::Warning("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
       break;
     case asMSGTYPE_INFORMATION:
-      ezLog::Info("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      WLog::Info("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
       break;
   }
 }
 
-asIScriptModule* ezAngelScriptEngineSingleton::SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection)
+asIScriptModule* WAngelScriptEngineSingleton::SetModuleCode(WStringView sModuleName, WStringView sCode, bool bAddExternalSection)
 {
-  EZ_LOCK(m_CompilerMutex);
+  W_LOCK(m_CompilerMutex);
 
   m_sCodeInCompilation = sCode;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   asIScriptModule* pModule = m_pEngine->GetModule(sModuleName.GetData(tmp), asGM_ALWAYS_CREATE);
 
   if (bAddExternalSection)
   {
     const char* szExternal = R"(
-external shared class ezAngelScriptClass;
+external shared class WAngelScriptClass;
 )";
 
     pModule->AddScriptSection("External", szExternal);
@@ -151,23 +151,23 @@ external shared class ezAngelScriptClass;
   switch (res)
   {
     case asBUILD_IN_PROGRESS:
-      ezLog::Error("AS: Another compilation is in progress.");
+      WLog::Error("AS: Another compilation is in progress.");
       break;
 
     case asINVALID_CONFIGURATION:
-      ezLog::Error("AS: Invalid Configuration.");
+      WLog::Error("AS: Invalid Configuration.");
       break;
 
     case asINIT_GLOBAL_VARS_FAILED:
-      ezLog::Error("AS: Global Variable initialization failed.");
+      WLog::Error("AS: Global Variable initialization failed.");
       break;
 
     case asNOT_SUPPORTED:
-      ezLog::Error("AS: Compiler support is disabled in the engine.");
+      WLog::Error("AS: Compiler support is disabled in the engine.");
       break;
 
     case asMODULE_IS_IN_USE:
-      ezLog::Error("AS: Module is in use.");
+      WLog::Error("AS: Module is in use.");
       break;
 
     case asERROR:
@@ -184,30 +184,30 @@ external shared class ezAngelScriptClass;
   return pModule;
 }
 
-ezResult ezAngelScriptEngineSingleton::PreprocessCode(ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
+WResult WAngelScriptEngineSingleton::PreprocessCode(WStringView sRefFilePath, WStringView sCode, WStringBuilder* out_pProcessedCode, WSet<WString>* out_pDependencies)
 {
-  ezAsPreprocessor asPP;
+  WAsPreprocessor asPP;
   asPP.m_sRefFilePath = sRefFilePath;
   asPP.m_sMainCode = sCode;
   asPP.m_pDependencies = out_pDependencies;
 
-  ezStringBuilder fullCode;
+  WStringBuilder fullCode;
   if (asPP.Process(fullCode).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (out_pProcessedCode)
   {
     *out_pProcessedCode = fullCode;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
+asIScriptModule* WAngelScriptEngineSingleton::CompileModule(WStringView sModuleName, WStringView sMainClass, WStringView sRefFilePath, WStringView sCode, WStringBuilder* out_pProcessedCode, WSet<WString>* out_pDependencies)
 {
-  ezStringBuilder fullCode;
+  WStringBuilder fullCode;
   if (PreprocessCode(sRefFilePath, sCode, &fullCode, out_pDependencies).Failed())
   {
-    ezLog::Error("Failed to pre-process AngelScript");
+    WLog::Error("Failed to pre-process AngelScript");
     return nullptr;
   }
 
@@ -221,12 +221,12 @@ asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModul
   if (pModule == nullptr)
     return nullptr;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   const asITypeInfo* pClassType = pModule->GetTypeInfoByName(sMainClass.GetData(tmp));
 
   if (pClassType == nullptr)
   {
-    ezLog::Error("AngelScript code doesn't contain class '{}'", sMainClass);
+    WLog::Error("AngelScript code doesn't contain class '{}'", sMainClass);
     return nullptr;
   }
 
@@ -239,11 +239,11 @@ asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModul
 }
 
 
-ezResult ezAngelScriptEngineSingleton::ValidateModule(asIScriptModule* pModule) const
+WResult WAngelScriptEngineSingleton::ValidateModule(asIScriptModule* pModule) const
 {
-  ezResult res = EZ_SUCCESS;
+  WResult res = W_SUCCESS;
 
-  for (ezUInt32 i = 0; i < pModule->GetGlobalVarCount(); ++i)
+  for (WUInt32 i = 0; i < pModule->GetGlobalVarCount(); ++i)
   {
     const char* szName;
     int typeId;
@@ -254,18 +254,18 @@ ezResult ezAngelScriptEngineSingleton::ValidateModule(asIScriptModule* pModule) 
       {
         if (IsTypeForbidden(pInfo))
         {
-          ezLog::Error("Global variable '{}' uses forbidden type '{}'", szName, pInfo->GetName());
-          res = EZ_FAILURE;
+          WLog::Error("Global variable '{}' uses forbidden type '{}'", szName, pInfo->GetName());
+          res = W_FAILURE;
         }
       }
     }
   }
 
-  for (ezUInt32 i = 0; i < pModule->GetObjectTypeCount(); ++i)
+  for (WUInt32 i = 0; i < pModule->GetObjectTypeCount(); ++i)
   {
     const asITypeInfo* pType = pModule->GetObjectTypeByIndex(i);
 
-    for (ezUInt32 i2 = 0; i2 < pType->GetPropertyCount(); ++i2)
+    for (WUInt32 i2 = 0; i2 < pType->GetPropertyCount(); ++i2)
     {
       const char* szName;
       int typeId;
@@ -276,8 +276,8 @@ ezResult ezAngelScriptEngineSingleton::ValidateModule(asIScriptModule* pModule) 
       {
         if (IsTypeForbidden(pInfo))
         {
-          ezLog::Error("Property '{}::{}' uses forbidden type '{}'", pType->GetName(), szName, pInfo->GetName());
-          res = EZ_FAILURE;
+          WLog::Error("Property '{}::{}' uses forbidden type '{}'", pType->GetName(), szName, pInfo->GetName());
+          res = W_FAILURE;
         }
       }
     }

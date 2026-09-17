@@ -12,38 +12,38 @@
 #include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 4, ezComponentMode::Static);
+W_BEGIN_COMPONENT_TYPE(WAnimationControllerComponent, 4, WComponentMode::Static);
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph"), new ezRequiredAttribute()),
+    W_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph"), new WRequiredAttribute()),
 
-    EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
-    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
-    EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
-    EZ_ARRAY_MEMBER_PROPERTY("AnimationClipOverrides", m_AnimationClipOverrides),
+    W_ENUM_MEMBER_PROPERTY("RootMotionMode", WRootMotionMode, m_RootMotionMode),
+    W_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", WAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    W_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
+    W_ARRAY_MEMBER_PROPERTY("AnimationClipOverrides", m_AnimationClipOverrides),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Animation"),
+      new WCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
-  EZ_BEGIN_FUNCTIONS
+  W_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetAnimationClipOverride, In, "sAnimationName", In, "sAnimationClipResource"),
+    W_SCRIPT_FUNCTION_PROPERTY(SetAnimationClipOverride, In, "sAnimationName", In, "sAnimationClipResource"),
   }
-  EZ_END_FUNCTIONS;
+  W_END_FUNCTIONS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezAnimationControllerComponent::ezAnimationControllerComponent() = default;
-ezAnimationControllerComponent::~ezAnimationControllerComponent() = default;
+WAnimationControllerComponent::WAnimationControllerComponent() = default;
+WAnimationControllerComponent::~WAnimationControllerComponent() = default;
 
-void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAnimationControllerComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -61,10 +61,10 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
   }
 }
 
-void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAnimationControllerComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_hAnimGraph;
@@ -82,11 +82,11 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
 
   if (uiVersion >= 4)
   {
-    ezUInt32 uiNumOverrides = 0;
+    WUInt32 uiNumOverrides = 0;
     s >> uiNumOverrides;
     m_AnimationClipOverrides.SetCount(uiNumOverrides);
 
-    for (ezUInt32 i = 0; i < uiNumOverrides; ++i)
+    for (WUInt32 i = 0; i < uiNumOverrides; ++i)
     {
       s >> m_AnimationClipOverrides[i].m_sClipName;
       s >> m_AnimationClipOverrides[i].m_hClip;
@@ -94,52 +94,52 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   }
 }
 
-void ezAnimationControllerComponent::OnSimulationStarted()
+void WAnimationControllerComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   if (!m_hAnimGraph.IsValid())
     return;
 
-  ezMsgQueryAnimationSkeleton msg;
+  WMsgQueryAnimationSkeleton msg;
   GetOwner()->SendMessage(msg);
 
   if (!msg.m_hSkeleton.IsValid())
     return;
 
-  m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(*GetOwner()));
+  m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, WBlackboardComponent::FindBlackboard(*GetOwner()));
   m_AnimController.AddAnimGraph(m_hAnimGraph);
 
   for (const auto& clip : m_AnimationClipOverrides)
   {
-    ezAnimController::AnimClipInfo info;
+    WAnimController::AnimClipInfo info;
     info.m_hClip = clip.m_hClip;
     m_AnimController.SetAnimationClipInfo(clip.m_sClipName, info);
   }
 }
 
-void ezAnimationControllerComponent::SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource)
+void WAnimationControllerComponent::SetAnimationClipOverride(WStringView sAnimationName, WStringView sAnimationClipResource)
 {
-  ezAnimController::AnimClipInfo info;
-  info.m_hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimationClipResource);
+  WAnimController::AnimClipInfo info;
+  info.m_hClip = WResourceManager::LoadResource<WAnimationClipResource>(sAnimationClipResource);
 
-  ezHashedString sName;
+  WHashedString sName;
   sName.Assign(sAnimationName);
 
   m_AnimController.SetAnimationClipInfo(sName, info);
 }
 
-void ezAnimationControllerComponent::Update()
+void WAnimationControllerComponent::Update()
 {
-  ezTime tMinStep = ezTime::MakeFromSeconds(0);
-  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
+  WTime tMinStep = WTime::MakeFromSeconds(0);
+  WVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
-  if (visType != ezVisibilityState::Direct)
+  if (visType != WVisibilityState::Direct)
   {
-    if (m_InvisibleUpdateRate == ezAnimationInvisibleUpdateRate::Pause && visType == ezVisibilityState::Invisible)
+    if (m_InvisibleUpdateRate == WAnimationInvisibleUpdateRate::Pause && visType == WVisibilityState::Invisible)
       return;
 
-    tMinStep = ezAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
+    tMinStep = WAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
   }
 
   m_ElapsedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
@@ -147,7 +147,7 @@ void ezAnimationControllerComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  EZ_PROFILE_SCOPE("ezAnimationControllerComponent::Update");
+  W_PROFILE_SCOPE("WAnimationControllerComponent::Update");
 
   if (!m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK))
   {
@@ -156,59 +156,59 @@ void ezAnimationControllerComponent::Update()
     SetActiveFlag(false);
   }
 
-  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 
   m_AnimController.GetRootMotion(m_vPendingTranslation, m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ);
 }
 
-void ezAnimationControllerComponent::ApplyRootMotion()
+void WAnimationControllerComponent::ApplyRootMotion()
 {
-  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingTranslation, m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ);
-  m_vPendingTranslation = ezVec3::MakeZero();
-  m_PendingRotationX = m_PendingRotationY = m_PendingRotationZ = ezAngle();
+  WRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingTranslation, m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ);
+  m_vPendingTranslation = WVec3::MakeZero();
+  m_PendingRotationX = m_PendingRotationY = m_PendingRotationZ = WAngle();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 
-ezAnimationControllerComponentManager::ezAnimationControllerComponentManager(ezWorld* pWorld)
-  : ezComponentManager<class ezAnimationControllerComponent, ezBlockStorageType::FreeList>(pWorld)
+WAnimationControllerComponentManager::WAnimationControllerComponentManager(WWorld* pWorld)
+  : WComponentManager<class WAnimationControllerComponent, WBlockStorageType::FreeList>(pWorld)
 {
 }
 
-void ezAnimationControllerComponentManager::Initialize()
+void WAnimationControllerComponentManager::Initialize()
 {
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::Update, this);
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WAnimationControllerComponentManager::Update, this);
     desc.m_bOnlyUpdateWhenSimulating = true;
-    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_Phase = WWorldUpdatePhase::Async;
     desc.m_uiAsyncPhaseBatchSize = 2;
 
     this->RegisterUpdateFunction(desc);
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::ApplyRootMotion, this);
+    auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WAnimationControllerComponentManager::ApplyRootMotion, this);
     desc.m_bOnlyUpdateWhenSimulating = true;
-    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    desc.m_Phase = WWorldUpdatePhase::PostAsync;
 
     this->RegisterUpdateFunction(desc);
   }
 
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimationControllerComponentManager::ResourceEvent, this));
+  WResourceManager::GetResourceEvents().AddEventHandler(WMakeDelegate(&WAnimationControllerComponentManager::ResourceEvent, this));
 }
 
-void ezAnimationControllerComponentManager::Deinitialize()
+void WAnimationControllerComponentManager::Deinitialize()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezAnimationControllerComponentManager::ResourceEvent, this));
+  WResourceManager::GetResourceEvents().RemoveEventHandler(WMakeDelegate(&WAnimationControllerComponentManager::ResourceEvent, this));
 }
 
-void ezAnimationControllerComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WAnimationControllerComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   {
     for (auto hComponent : m_ComponentsToReset)
     {
-      ezAnimationControllerComponent* pComp = nullptr;
+      WAnimationControllerComponent* pComp = nullptr;
       if (GetWorld()->TryGetComponent(hComponent, pComp))
       {
         pComp->OnSimulationStarted(); // just run this again
@@ -228,13 +228,13 @@ void ezAnimationControllerComponentManager::Update(const ezWorldModule::UpdateCo
   }
 }
 
-void ezAnimationControllerComponentManager::ResourceEvent(const ezResourceEvent& e)
+void WAnimationControllerComponentManager::ResourceEvent(const WResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  if (e.m_Type == WResourceEvent::Type::ResourceContentUnloading)
   {
-    if (e.m_pResource->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimGraphResource>())
+    if (e.m_pResource->GetDynamicRTTI() == WGetStaticRTTI<WAnimGraphResource>())
     {
-      ezAnimGraphResourceHandle hResource((ezAnimGraphResource*)(e.m_pResource));
+      WAnimGraphResourceHandle hResource((WAnimGraphResource*)(e.m_pResource));
 
       for (auto it = GetComponents(); it.IsValid(); it.Next())
       {
@@ -253,16 +253,16 @@ void ezAnimationControllerComponentManager::ResourceEvent(const ezResourceEvent&
   }
 }
 
-void ezAnimationControllerComponentManager::ApplyRootMotion(const ezWorldModule::UpdateContext& context)
+void WAnimationControllerComponentManager::ApplyRootMotion(const WWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;
-    if (pComponent->m_RootMotionMode != ezRootMotionMode::Ignore && pComponent->IsActiveAndInitialized())
+    if (pComponent->m_RootMotionMode != WRootMotionMode::Ignore && pComponent->IsActiveAndInitialized())
     {
       pComponent->ApplyRootMotion();
     }
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);

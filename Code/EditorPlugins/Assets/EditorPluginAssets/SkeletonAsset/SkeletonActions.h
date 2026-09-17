@@ -4,29 +4,29 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezSkeletonAssetDocument;
-struct ezSkeletonAssetEvent;
+class WSkeletonAssetDocument;
+struct WSkeletonAssetEvent;
 
-class ezSkeletonActions
+class WSkeletonActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(WStringView sMapping);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hRenderBones;
-  static ezActionDescriptorHandle s_hRenderColliders;
-  static ezActionDescriptorHandle s_hRenderJoints;
-  static ezActionDescriptorHandle s_hRenderSwingLimits;
-  static ezActionDescriptorHandle s_hRenderTwistLimits;
-  static ezActionDescriptorHandle s_hRenderPreviewMesh;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hRenderBones;
+  static WActionDescriptorHandle s_hRenderColliders;
+  static WActionDescriptorHandle s_hRenderJoints;
+  static WActionDescriptorHandle s_hRenderSwingLimits;
+  static WActionDescriptorHandle s_hRenderTwistLimits;
+  static WActionDescriptorHandle s_hRenderPreviewMesh;
 };
 
-class ezSkeletonAction : public ezButtonAction
+class WSkeletonAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WSkeletonAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -39,15 +39,15 @@ public:
     RenderPreviewMesh,
   };
 
-  ezSkeletonAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezSkeletonAction();
+  WSkeletonAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WSkeletonAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
-  void AssetEventHandler(const ezSkeletonAssetEvent& e);
+  void AssetEventHandler(const WSkeletonAssetEvent& e);
   void UpdateState();
 
-  ezSkeletonAssetDocument* m_pSkeletonpDocument = nullptr;
+  WSkeletonAssetDocument* m_pSkeletonpDocument = nullptr;
   ActionType m_Type;
 };

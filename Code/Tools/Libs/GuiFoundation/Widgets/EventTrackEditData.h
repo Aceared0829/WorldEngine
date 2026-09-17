@@ -5,47 +5,47 @@
 #include <Foundation/Strings/HashedString.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class ezEventTrack;
+class WEventTrack;
 
-class EZ_GUIFOUNDATION_DLL ezEventTrackControlPointData : public ezReflectedClass
+class W_GUIFOUNDATION_DLL WEventTrackControlPointData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackControlPointData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEventTrackControlPointData, WReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 iFps);
+  WTime GetTickAsTime() const { return WTime::MakeFromSeconds(m_iTick / 4800.0); }
+  void SetTickFromTime(WTime time, WInt64 iFps);
   const char* GetEventName() const { return m_sEvent.GetData(); }
   void SetEventName(const char* szSz) { m_sEvent.Assign(szSz); }
 
-  ezInt64 m_iTick; // 4800 ticks per second
-  ezHashedString m_sEvent;
+  WInt64 m_iTick; // 4800 ticks per second
+  WHashedString m_sEvent;
 };
 
-class EZ_GUIFOUNDATION_DLL ezEventTrackData : public ezReflectedClass
+class W_GUIFOUNDATION_DLL WEventTrackData : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackData, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WEventTrackData, WReflectedClass);
 
 public:
-  ezInt64 TickFromTime(ezTime time) const;
-  void ConvertToRuntimeData(ezEventTrack& out_result) const;
+  WInt64 TickFromTime(WTime time) const;
+  void ConvertToRuntimeData(WEventTrack& out_result) const;
 
-  ezUInt16 m_uiFramesPerSecond = 60;
-  ezDynamicArray<ezEventTrackControlPointData> m_ControlPoints;
+  WUInt16 m_uiFramesPerSecond = 60;
+  WDynamicArray<WEventTrackControlPointData> m_ControlPoints;
 };
 
-class EZ_GUIFOUNDATION_DLL ezEventSet
+class W_GUIFOUNDATION_DLL WEventSet
 {
 public:
   bool IsModified() const { return m_bModified; }
 
-  const ezSet<ezString>& GetAvailableEvents() const { return m_AvailableEvents; }
+  const WSet<WString>& GetAvailableEvents() const { return m_AvailableEvents; }
 
-  void AddAvailableEvent(ezStringView sEvent);
+  void AddAvailableEvent(WStringView sEvent);
 
-  ezResult WriteToDDL(const char* szFile);
-  ezResult ReadFromDDL(const char* szFile);
+  WResult WriteToDDL(const char* szFile);
+  WResult ReadFromDDL(const char* szFile);
 
 private:
   bool m_bModified = false;
-  ezSet<ezString> m_AvailableEvents;
+  WSet<WString> m_AvailableEvents;
 };

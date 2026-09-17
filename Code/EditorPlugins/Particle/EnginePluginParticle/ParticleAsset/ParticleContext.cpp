@@ -7,136 +7,136 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezParticleContext>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleContext, 1, WRTTIDefaultAllocator<WParticleContext>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Particle Effect"),
+    W_CONSTANT_PROPERTY("DocumentType", (const char*) "Particle Effect"),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleContext::ezParticleContext()
-  : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
+WParticleContext::WParticleContext()
+  : WEngineProcessDocumentContext(WEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-ezParticleContext::~ezParticleContext() = default;
+WParticleContext::~WParticleContext() = default;
 
-void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+void WParticleContext::HandleMessage(const WEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSimulationSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WSimulationSettingsMsgToEngine>())
   {
     // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
 
-    auto msg = static_cast<const ezSimulationSettingsMsgToEngine*>(pMsg);
+    auto msg = static_cast<const WSimulationSettingsMsgToEngine*>(pMsg);
 
     m_pWorld->SetWorldSimulationEnabled(msg->m_bSimulateWorld);
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestartSimulationMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineRestartSimulationMsg>())
   {
     RestartEffect();
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineLoopAnimationMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WEditorEngineLoopAnimationMsg>())
   {
-    SetAutoRestartEffect(((const ezEditorEngineLoopAnimationMsg*)pMsg)->m_bLoop);
+    SetAutoRestartEffect(((const WEditorEngineLoopAnimationMsg*)pMsg)->m_bLoop);
   }
 
-  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+  WEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezParticleContext::OnInitialize()
+void WParticleContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  W_LOCK(pWorld->GetWriteMarker());
 
-  ezParticleComponentManager* pCompMan = pWorld->GetOrCreateComponentManager<ezParticleComponentManager>();
+  WParticleComponentManager* pCompMan = pWorld->GetOrCreateComponentManager<WParticleComponentManager>();
 
 
   // Preview Effect
   {
-    ezGameObjectDesc obj;
-    ezGameObject* pObj;
+    WGameObjectDesc obj;
+    WGameObject* pObj;
     obj.m_sName.Assign("ParticlePreview");
     pWorld->CreateObject(obj, pObj);
 
     pCompMan->CreateComponent(pObj, m_pComponent);
-    m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
-    m_pComponent->m_MinRestartDelay = ezTime::MakeFromSeconds(0.5);
+    m_pComponent->m_OnFinishedAction = WOnComponentFinishedAction2::Restart;
+    m_pComponent->m_MinRestartDelay = WTime::MakeFromSeconds(0.5);
 
-    ezStringBuilder sParticleGuid;
-    ezConversionUtils::ToString(GetDocumentGuid(), sParticleGuid);
-    m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
+    WStringBuilder sParticleGuid;
+    WConversionUtils::ToString(GetDocumentGuid(), sParticleGuid);
+    m_hParticle = WResourceManager::LoadResource<WParticleEffectResource>(sParticleGuid);
 
     m_pComponent->SetParticleEffect(m_hParticle);
   }
 
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
-  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = WResourceManager::GetExistingResource<WMeshResource>(szMeshName);
 
   if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "ParticlePreviewBackgroundMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+    WMeshBufferResourceHandle hMeshBuffer = WResourceManager::GetExistingResource<WMeshBufferResource>(szMeshBufferName);
 
     if (!hMeshBuffer.IsValid())
     {
       // Build geometry
-      ezGeometry geom;
+      WGeometry geom;
 
-      geom.AddBox(ezVec3(4, 4, 4), true);
+      geom.AddBox(WVec3(4, 4, 4), true);
       geom.ComputeTangents();
 
-      ezMeshBufferResourceDescriptor desc;
+      WMeshBufferResourceDescriptor desc;
       desc.AddCommonStreams();
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+      desc.AllocateStreamsFromGeometry(geom, WGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      hMeshBuffer = WResourceManager::GetOrCreateResource<WMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+      WResourceLock<WMeshBufferResource> pMeshBuffer(hMeshBuffer, WResourceAcquireMode::AllowLoadingFallback);
 
-      ezMeshResourceDescriptor md;
+      WMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
+      md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.WMaterialAsset
       md.ComputeBounds();
 
-      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = WResourceManager::GetOrCreateResource<WMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  WPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<WPhysicsWorldModuleInterface>();
 
   // Background Mesh
   {
-    ezGameObjectDesc obj;
+    WGameObjectDesc obj;
     obj.m_sName.Assign("ParticleBackground");
 
-    const ezColor bgColor(0.3f, 0.3f, 0.3f);
+    const WColor bgColor(0.3f, 0.3f, 0.3f);
 
     for (int y = -1; y <= 5; ++y)
     {
       for (int x = -5; x <= 5; ++x)
       {
-        ezGameObject* pObj;
+        WGameObject* pObj;
         obj.m_LocalPosition.Set(6, (float)x * 4, 1 + (float)y * 4);
         pWorld->CreateObject(obj, pObj);
 
-        ezMeshComponent* pMesh;
-        ezMeshComponent::CreateComponent(pObj, pMesh);
+        WMeshComponent* pMesh;
+        WMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(m_hPreviewMeshResource);
         pMesh->SetColor(bgColor);
 
         if (pPhysicsInterface)
-          pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
+          pPhysicsInterface->AddStaticCollisionBox(pObj, WVec3(4, 4, 4));
       }
     }
 
@@ -144,71 +144,71 @@ void ezParticleContext::OnInitialize()
     {
       for (int x = -5; x <= 1; ++x)
       {
-        ezGameObject* pObj;
+        WGameObject* pObj;
         obj.m_LocalPosition.Set((float)x * 4, (float)y * 4, -3);
         pWorld->CreateObject(obj, pObj);
 
-        ezMeshComponent* pMesh;
-        ezMeshComponent::CreateComponent(pObj, pMesh);
+        WMeshComponent* pMesh;
+        WMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(m_hPreviewMeshResource);
         pMesh->SetColor(bgColor);
 
         if (pPhysicsInterface)
-          pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
+          pPhysicsInterface->AddStaticCollisionBox(pObj, WVec3(4, 4, 4));
       }
     }
 
     for (int x = -5; x <= 5; ++x)
     {
-      ezGameObject* pObj;
+      WGameObject* pObj;
       obj.m_LocalPosition.Set(4, (float)x * 4, -2);
-      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(45));
+      obj.m_LocalRotation = WQuat::MakeFromAxisAndAngle(WVec3(0, 1, 0), WAngle::MakeFromDegree(45));
       pWorld->CreateObject(obj, pObj);
 
-      ezMeshComponent* pMesh;
-      ezMeshComponent::CreateComponent(pObj, pMesh);
+      WMeshComponent* pMesh;
+      WMeshComponent::CreateComponent(pObj, pMesh);
       pMesh->SetMesh(m_hPreviewMeshResource);
       pMesh->SetColor(bgColor);
 
       if (pPhysicsInterface)
-        pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
+        pPhysicsInterface->AddStaticCollisionBox(pObj, WVec3(4, 4, 4));
     }
   }
 }
 
-ezEngineProcessViewContext* ezParticleContext::CreateViewContext()
+WEngineProcessViewContext* WParticleContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezParticleViewContext, this);
+  return W_DEFAULT_NEW(WParticleViewContext, this);
 }
 
-void ezParticleContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void WParticleContext::DestroyViewContext(WEngineProcessViewContext* pContext)
 {
-  EZ_DEFAULT_DELETE(pContext);
+  W_DEFAULT_DELETE(pContext);
 }
 
-void ezParticleContext::OnThumbnailViewContextRequested()
+void WParticleContext::OnThumbnailViewContextRequested()
 {
-  m_ThumbnailBoundingVolume = ezBoundingBoxSphere::MakeInvalid();
+  m_ThumbnailBoundingVolume = WBoundingBoxSphere::MakeInvalid();
 }
 
-bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool WParticleContext::UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezParticleViewContext* pParticleViewContext = static_cast<ezParticleViewContext*>(pThumbnailViewContext);
+  WParticleViewContext* pParticleViewContext = static_cast<WParticleViewContext*>(pThumbnailViewContext);
 
   if (!m_ThumbnailBoundingVolume.IsValid())
   {
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     const bool bWorldPaused = m_pWorld->GetClock().GetPaused();
 
     // make sure the component restarts as soon as possible
     {
-      const ezTime restartDelay = m_pComponent->m_MinRestartDelay;
+      const WTime restartDelay = m_pComponent->m_MinRestartDelay;
       const auto onFinished = m_pComponent->m_OnFinishedAction;
       const double fClockSpeed = m_pWorld->GetClock().GetSpeed();
 
-      m_pComponent->m_MinRestartDelay = ezTime::MakeZero();
-      m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
+      m_pComponent->m_MinRestartDelay = WTime::MakeZero();
+      m_pComponent->m_OnFinishedAction = WOnComponentFinishedAction2::Restart;
 
       m_pWorld->SetWorldSimulationEnabled(true);
       m_pWorld->GetClock().SetPaused(false);
@@ -236,8 +236,8 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       // set a fixed random seed
       m_pComponent->m_uiRandomSeed = 11;
 
-      const ezUInt32 uiMinSimSteps = 3;
-      ezUInt32 uiSimStepsNeeded = uiMinSimSteps;
+      const WUInt32 uiMinSimSteps = 3;
+      WUInt32 uiSimStepsNeeded = uiMinSimSteps;
 
       if (m_pComponent->m_EffectController.IsContinuousEffect())
       {
@@ -248,19 +248,19 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
         m_pComponent->InterruptEffect();
         m_pComponent->StartEffect();
 
-        ezUInt64 uiMostParticles = 0;
-        ezUInt64 uiMostParticlesStep = 0;
+        WUInt64 uiMostParticles = 0;
+        WUInt64 uiMostParticlesStep = 0;
 
-        for (ezUInt32 step = 0; step < 30; ++step)
+        for (WUInt32 step = 0; step < 30; ++step)
         {
           // step once, to get the initial bbox out of the way
           m_pComponent->m_EffectController.ForceVisible();
-          m_pComponent->m_EffectController.Tick(ezTime::MakeFromSeconds(0.05));
+          m_pComponent->m_EffectController.Tick(WTime::MakeFromSeconds(0.05));
 
           if (!m_pComponent->m_EffectController.IsAlive())
             break;
 
-          const ezUInt64 numParticles = m_pComponent->m_EffectController.GetNumActiveParticles();
+          const WUInt64 numParticles = m_pComponent->m_EffectController.GetNumActiveParticles();
 
           if (step == uiMinSimSteps && numParticles > 0)
           {
@@ -288,10 +288,10 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       m_pComponent->InterruptEffect();
       m_pComponent->StartEffect();
 
-      for (ezUInt32 step = 0; step < uiSimStepsNeeded; ++step)
+      for (WUInt32 step = 0; step < uiSimStepsNeeded; ++step)
       {
         m_pComponent->m_EffectController.ForceVisible();
-        m_pComponent->m_EffectController.Tick(ezTime::MakeFromSeconds(0.05));
+        m_pComponent->m_EffectController.Tick(WTime::MakeFromSeconds(0.05));
 
         if (m_pComponent->m_EffectController.IsAlive())
         {
@@ -319,9 +319,9 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
   return true;
 }
 
-void ezParticleContext::RestartEffect()
+void WParticleContext::RestartEffect()
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
   if (m_pComponent)
   {
@@ -330,12 +330,12 @@ void ezParticleContext::RestartEffect()
   }
 }
 
-void ezParticleContext::SetAutoRestartEffect(bool loop)
+void WParticleContext::SetAutoRestartEffect(bool loop)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
 
   if (m_pComponent)
   {
-    m_pComponent->m_OnFinishedAction = loop ? ezOnComponentFinishedAction2::Restart : ezOnComponentFinishedAction2::None;
+    m_pComponent->m_OnFinishedAction = loop ? WOnComponentFinishedAction2::Restart : WOnComponentFinishedAction2::None;
   }
 }

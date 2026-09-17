@@ -4,126 +4,126 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
 
-ezUInt32 ezStringView::GetCharacter() const
+WUInt32 WStringView::GetCharacter() const
 {
   if (!IsValid())
     return 0;
 
-  return ezUnicodeUtils::ConvertUtf8ToUtf32(m_pStart);
+  return WUnicodeUtils::ConvertUtf8ToUtf32(m_pStart);
 }
 
-const char* ezStringView::GetData(ezStringBuilder& ref_sTempStorage) const
+const char* WStringView::GetData(WStringBuilder& ref_sTempStorage) const
 {
   ref_sTempStorage = *this;
   return ref_sTempStorage.GetData();
 }
 
-bool ezStringView::IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
+bool WStringView::IsEqualN(WStringView sOther, WUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::IsEqualN(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::IsEqualN(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
 }
 
-bool ezStringView::IsEqualN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const
+bool WStringView::IsEqualN_NoCase(WStringView sOther, WUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::IsEqualN_NoCase(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::IsEqualN_NoCase(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
 }
 
-ezInt32 ezStringView::Compare(ezStringView sOther) const
+WInt32 WStringView::Compare(WStringView sOther) const
 {
-  return ezStringUtils::Compare(GetStartPointer(), sOther.GetStartPointer(), GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::Compare(GetStartPointer(), sOther.GetStartPointer(), GetEndPointer(), sOther.GetEndPointer());
 }
 
-ezInt32 ezStringView::CompareN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
+WInt32 WStringView::CompareN(WStringView sOther, WUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::CompareN(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::CompareN(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
 }
 
-ezInt32 ezStringView::Compare_NoCase(ezStringView sOther) const
+WInt32 WStringView::Compare_NoCase(WStringView sOther) const
 {
-  return ezStringUtils::Compare_NoCase(GetStartPointer(), sOther.GetStartPointer(), GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::Compare_NoCase(GetStartPointer(), sOther.GetStartPointer(), GetEndPointer(), sOther.GetEndPointer());
 }
 
-ezInt32 ezStringView::CompareN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const
+WInt32 WStringView::CompareN_NoCase(WStringView sOther, WUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::CompareN_NoCase(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
+  return WStringUtils::CompareN_NoCase(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());
 }
 
-const char* ezStringView::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
+const char* WStringView::ComputeCharacterPosition(WUInt32 uiCharacterIndex) const
 {
   const char* pos = GetStartPointer();
-  if (ezUnicodeUtils::MoveToNextUtf8(pos, GetEndPointer(), uiCharacterIndex).Failed())
+  if (WUnicodeUtils::MoveToNextUtf8(pos, GetEndPointer(), uiCharacterIndex).Failed())
     return nullptr;
 
   return pos;
 }
 
-const char* ezStringView::FindSubString(ezStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindSubString(WStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindSubString(szStartSearchAt, sStringToFind.GetStartPointer(), GetEndPointer(), sStringToFind.GetEndPointer());
+  return WStringUtils::FindSubString(szStartSearchAt, sStringToFind.GetStartPointer(), GetEndPointer(), sStringToFind.GetEndPointer());
 }
 
-const char* ezStringView::FindSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindSubString_NoCase(WStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindSubString_NoCase(szStartSearchAt, sStringToFind.GetStartPointer(), GetEndPointer(), sStringToFind.GetEndPointer());
+  return WStringUtils::FindSubString_NoCase(szStartSearchAt, sStringToFind.GetStartPointer(), GetEndPointer(), sStringToFind.GetEndPointer());
 }
 
-const char* ezStringView::FindLastSubString(ezStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindLastSubString(WStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetEndPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindLastSubString(GetStartPointer(), sStringToFind.GetStartPointer(), szStartSearchAt, GetEndPointer(), sStringToFind.GetEndPointer());
+  return WStringUtils::FindLastSubString(GetStartPointer(), sStringToFind.GetStartPointer(), szStartSearchAt, GetEndPointer(), sStringToFind.GetEndPointer());
 }
 
-const char* ezStringView::FindLastSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindLastSubString_NoCase(WStringView sStringToFind, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetEndPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindLastSubString_NoCase(GetStartPointer(), sStringToFind.GetStartPointer(), szStartSearchAt, GetEndPointer(), sStringToFind.GetEndPointer());
+  return WStringUtils::FindLastSubString_NoCase(GetStartPointer(), sStringToFind.GetStartPointer(), szStartSearchAt, GetEndPointer(), sStringToFind.GetEndPointer());
 }
 
-const char* ezStringView::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindWholeWord(const char* szSearchFor, WStringUtils::W_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
+  return WStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
 }
 
-const char* ezStringView::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
+const char* WStringView::FindWholeWord_NoCase(const char* szSearchFor, WStringUtils::W_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
+  W_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
+  return WStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
 }
 
-void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack)
+void WStringView::Shrink(WUInt32 uiShrinkCharsFront, WUInt32 uiShrinkCharsBack)
 {
   const char* pEnd = m_pStart + m_uiElementCount;
 
   while (IsValid() && (uiShrinkCharsFront > 0))
   {
-    if (ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, 1).Failed())
+    if (WUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, 1).Failed())
     {
       *this = {};
       return;
@@ -134,7 +134,7 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
 
   while (IsValid() && (uiShrinkCharsBack > 0))
   {
-    if (ezUnicodeUtils::MoveToPriorUtf8(pEnd, m_pStart, 1).Failed())
+    if (WUnicodeUtils::MoveToPriorUtf8(pEnd, m_pStart, 1).Failed())
     {
       *this = {};
       return;
@@ -143,17 +143,17 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
     --uiShrinkCharsBack;
   }
 
-  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+  m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
 }
 
-ezStringView ezStringView::GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack) const
+WStringView WStringView::GetShrunk(WUInt32 uiShrinkCharsFront, WUInt32 uiShrinkCharsBack) const
 {
-  ezStringView tmp = *this;
+  WStringView tmp = *this;
   tmp.Shrink(uiShrinkCharsFront, uiShrinkCharsBack);
   return tmp;
 }
 
-ezStringView ezStringView::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
+WStringView WStringView::GetSubString(WUInt32 uiFirstCharacter, WUInt32 uiNumCharacters) const
 {
   if (!IsValid())
   {
@@ -163,39 +163,39 @@ ezStringView ezStringView::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNu
   const char* pEnd = m_pStart + m_uiElementCount;
 
   const char* pSubStart = m_pStart;
-  if (ezUnicodeUtils::MoveToNextUtf8(pSubStart, pEnd, uiFirstCharacter).Failed() || pSubStart == pEnd)
+  if (WUnicodeUtils::MoveToNextUtf8(pSubStart, pEnd, uiFirstCharacter).Failed() || pSubStart == pEnd)
   {
     return {};
   }
 
   const char* pSubEnd = pSubStart;
-  ezUnicodeUtils::MoveToNextUtf8(pSubEnd, pEnd, uiNumCharacters).IgnoreResult(); // if it fails, it just points to the end
+  WUnicodeUtils::MoveToNextUtf8(pSubEnd, pEnd, uiNumCharacters).IgnoreResult(); // if it fails, it just points to the end
 
-  return ezStringView(pSubStart, pSubEnd);
+  return WStringView(pSubStart, pSubEnd);
 }
 
-void ezStringView::ChopAwayFirstCharacterUtf8()
+void WStringView::ChopAwayFirstCharacterUtf8()
 {
   if (IsValid())
   {
     const char* pEnd = m_pStart + m_uiElementCount;
-    ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, 1).AssertSuccess();
-    m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
+    WUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, 1).AssertSuccess();
+    m_uiElementCount = static_cast<WUInt32>(pEnd - m_pStart);
   }
 }
 
-void ezStringView::ChopAwayFirstCharacterAscii()
+void WStringView::ChopAwayFirstCharacterAscii()
 {
   if (IsValid())
   {
-    EZ_ASSERT_DEBUG(ezUnicodeUtils::IsASCII(*m_pStart), "ChopAwayFirstCharacterAscii() was called on a non-ASCII character.");
+    W_ASSERT_DEBUG(WUnicodeUtils::IsASCII(*m_pStart), "ChopAwayFirstCharacterAscii() was called on a non-ASCII character.");
 
     m_pStart += 1;
     m_uiElementCount--;
   }
 }
 
-bool ezStringView::TrimWordStart(ezStringView sWord)
+bool WStringView::TrimWordStart(WStringView sWord)
 {
   const bool bTrimAll = false;
 
@@ -205,7 +205,7 @@ bool ezStringView::TrimWordStart(ezStringView sWord)
   {
     if (!sWord.IsEmpty() && StartsWith_NoCase(sWord))
     {
-      Shrink(ezStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()), 0);
+      Shrink(WStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()), 0);
       trimmed = true;
     }
 
@@ -214,7 +214,7 @@ bool ezStringView::TrimWordStart(ezStringView sWord)
   return trimmed;
 }
 
-bool ezStringView::TrimWordEnd(ezStringView sWord)
+bool WStringView::TrimWordEnd(WStringView sWord)
 {
   const bool bTrimAll = false;
 
@@ -224,7 +224,7 @@ bool ezStringView::TrimWordEnd(ezStringView sWord)
   {
     if (!sWord.IsEmpty() && EndsWith_NoCase(sWord))
     {
-      Shrink(0, ezStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()));
+      Shrink(0, WStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()));
       trimmed = true;
     }
 
@@ -233,91 +233,91 @@ bool ezStringView::TrimWordEnd(ezStringView sWord)
   return trimmed;
 }
 
-ezStringView::iterator ezStringView::GetIteratorFront() const
+WStringView::iterator WStringView::GetIteratorFront() const
 {
   return begin(*this);
 }
 
-ezStringView::reverse_iterator ezStringView::GetIteratorBack() const
+WStringView::reverse_iterator WStringView::GetIteratorBack() const
 {
   return rbegin(*this);
 }
 
-bool ezStringView::HasAnyExtension() const
+bool WStringView::HasAnyExtension() const
 {
-  return ezPathUtils::HasAnyExtension(*this);
+  return WPathUtils::HasAnyExtension(*this);
 }
 
-bool ezStringView::HasExtension(ezStringView sExtension) const
+bool WStringView::HasExtension(WStringView sExtension) const
 {
-  return ezPathUtils::HasExtension(*this, sExtension);
+  return WPathUtils::HasExtension(*this, sExtension);
 }
 
-ezStringView ezStringView::GetFileExtension(bool bFullExtension /*= false*/) const
+WStringView WStringView::GetFileExtension(bool bFullExtension /*= false*/) const
 {
-  return ezPathUtils::GetFileExtension(*this, bFullExtension);
+  return WPathUtils::GetFileExtension(*this, bFullExtension);
 }
 
-ezStringView ezStringView::GetFileName() const
+WStringView WStringView::GetFileName() const
 {
-  return ezPathUtils::GetFileName(*this);
+  return WPathUtils::GetFileName(*this);
 }
 
-ezStringView ezStringView::GetFileNameAndExtension() const
+WStringView WStringView::GetFileNameAndExtension() const
 {
-  return ezPathUtils::GetFileNameAndExtension(*this);
+  return WPathUtils::GetFileNameAndExtension(*this);
 }
 
-ezStringView ezStringView::GetFileDirectory() const
+WStringView WStringView::GetFileDirectory() const
 {
-  return ezPathUtils::GetFileDirectory(*this);
+  return WPathUtils::GetFileDirectory(*this);
 }
 
-bool ezStringView::IsAbsolutePath() const
+bool WStringView::IsAbsolutePath() const
 {
-  return ezPathUtils::IsAbsolutePath(*this);
+  return WPathUtils::IsAbsolutePath(*this);
 }
 
-bool ezStringView::IsRelativePath() const
+bool WStringView::IsRelativePath() const
 {
-  return ezPathUtils::IsRelativePath(*this);
+  return WPathUtils::IsRelativePath(*this);
 }
 
-bool ezStringView::IsRootedPath() const
+bool WStringView::IsRootedPath() const
 {
-  return ezPathUtils::IsRootedPath(*this);
+  return WPathUtils::IsRootedPath(*this);
 }
 
-ezStringView ezStringView::GetRootedPathRootName() const
+WStringView WStringView::GetRootedPathRootName() const
 {
-  return ezPathUtils::GetRootedPathRootName(*this);
+  return WPathUtils::GetRootedPathRootName(*this);
 }
 
-#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
-ezStringView::ezStringView(const std::string_view& rhs)
-{
-  if (!rhs.empty())
-  {
-    m_pStart = rhs.data();
-    m_uiElementCount = static_cast<ezUInt32>(rhs.size());
-  }
-}
-
-ezStringView::ezStringView(const std::string& rhs)
+#if W_ENABLED(W_INTEROP_STL_STRINGS)
+WStringView::WStringView(const std::string_view& rhs)
 {
   if (!rhs.empty())
   {
     m_pStart = rhs.data();
-    m_uiElementCount = static_cast<ezUInt32>(rhs.size());
+    m_uiElementCount = static_cast<WUInt32>(rhs.size());
   }
 }
 
-std::string_view ezStringView::GetAsStdView() const
+WStringView::WStringView(const std::string& rhs)
+{
+  if (!rhs.empty())
+  {
+    m_pStart = rhs.data();
+    m_uiElementCount = static_cast<WUInt32>(rhs.size());
+  }
+}
+
+std::string_view WStringView::GetAsStdView() const
 {
   return std::string_view(m_pStart, static_cast<size_t>(m_uiElementCount));
 }
 
-ezStringView::operator std::string_view() const
+WStringView::operator std::string_view() const
 {
   return GetAsStdView();
 }

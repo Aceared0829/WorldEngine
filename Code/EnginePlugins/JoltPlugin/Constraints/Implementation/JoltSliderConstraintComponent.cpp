@@ -8,34 +8,34 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltSliderConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltSliderConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezJoltConstraintLimitMode, GetLimitMode, SetLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitDistance, SetLowerLimitDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitDistance, SetUpperLimitDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ENUM_ACCESSOR_PROPERTY("DriveMode", ezJoltConstraintDriveMode, GetDriveMode, SetDriveMode),
-    EZ_ACCESSOR_PROPERTY("DriveTargetValue", GetDriveTargetValue, SetDriveTargetValue),
-    EZ_ACCESSOR_PROPERTY("DriveStrength", GetDriveStrength, SetDriveStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("Maximum")),
+    W_ENUM_ACCESSOR_PROPERTY("LimitMode", WJoltConstraintLimitMode, GetLimitMode, SetLimitMode),
+    W_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitDistance, SetLowerLimitDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitDistance, SetUpperLimitDistance)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ENUM_ACCESSOR_PROPERTY("DriveMode", WJoltConstraintDriveMode, GetDriveMode, SetDriveMode),
+    W_ACCESSOR_PROPERTY("DriveTargetValue", GetDriveTargetValue, SetDriveTargetValue),
+    W_ACCESSOR_PROPERTY("DriveStrength", GetDriveStrength, SetDriveStrength)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WMinValueTextAttribute("Maximum")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Orange, nullptr, "UpperLimit"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::NegativeX, 1.0f, ezColor::Teal, nullptr, "LowerLimit"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 1.0f, WColor::Orange, nullptr, "UpperLimit"),
+    new WDirectionVisualizerAttribute(WBasisAxis::NegativeX, 1.0f, WColor::Teal, nullptr, "LowerLimit"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltSliderConstraintComponent::ezJoltSliderConstraintComponent() = default;
-ezJoltSliderConstraintComponent::~ezJoltSliderConstraintComponent() = default;
+WJoltSliderConstraintComponent::WJoltSliderConstraintComponent() = default;
+WJoltSliderConstraintComponent::~WJoltSliderConstraintComponent() = default;
 
-void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltSliderConstraintComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -51,10 +51,10 @@ void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& inout_st
   s << m_fDriveStrength;
 }
 
-void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltSliderConstraintComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -68,58 +68,58 @@ void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& inout_
   s >> m_fDriveStrength;
 }
 
-void ezJoltSliderConstraintComponent::SetLimitMode(ezJoltConstraintLimitMode::Enum mode)
+void WJoltSliderConstraintComponent::SetLimitMode(WJoltConstraintLimitMode::Enum mode)
 {
   m_LimitMode = mode;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetLowerLimitDistance(float f)
+void WJoltSliderConstraintComponent::SetLowerLimitDistance(float f)
 {
   m_fLowerLimitDistance = f;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetUpperLimitDistance(float f)
+void WJoltSliderConstraintComponent::SetUpperLimitDistance(float f)
 {
   m_fUpperLimitDistance = f;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetFriction(float f)
+void WJoltSliderConstraintComponent::SetFriction(float f)
 {
   m_fFriction = f;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetDriveMode(ezJoltConstraintDriveMode::Enum mode)
+void WJoltSliderConstraintComponent::SetDriveMode(WJoltConstraintDriveMode::Enum mode)
 {
   m_DriveMode = mode;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetDriveTargetValue(float f)
+void WJoltSliderConstraintComponent::SetDriveTargetValue(float f)
 {
   m_fDriveTargetValue = f;
   QueueApplySettings();
 }
 
-void ezJoltSliderConstraintComponent::SetDriveStrength(float f)
+void WJoltSliderConstraintComponent::SetDriveStrength(float f)
 {
-  m_fDriveStrength = ezMath::Max(f, 0.0f);
+  m_fDriveStrength = WMath::Max(f, 0.0f);
   QueueApplySettings();
 }
 
 
-void ezJoltSliderConstraintComponent::ApplySettings()
+void WJoltSliderConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   JPH::SliderConstraint* pConstraint = static_cast<JPH::SliderConstraint*>(m_pConstraint);
 
   pConstraint->SetMaxFrictionForce(m_fFriction);
 
-  if (m_LimitMode != ezJoltConstraintLimitMode::NoLimit)
+  if (m_LimitMode != WJoltConstraintLimitMode::NoLimit)
   {
     float low = m_fLowerLimitDistance;
     float high = m_fUpperLimitDistance;
@@ -138,13 +138,13 @@ void ezJoltSliderConstraintComponent::ApplySettings()
 
   // drive
   {
-    if (m_DriveMode == ezJoltConstraintDriveMode::NoDrive)
+    if (m_DriveMode == WJoltConstraintDriveMode::NoDrive)
     {
       pConstraint->SetMotorState(JPH::EMotorState::Off);
     }
     else
     {
-      if (m_DriveMode == ezJoltConstraintDriveMode::DriveVelocity)
+      if (m_DriveMode == WJoltConstraintDriveMode::DriveVelocity)
       {
         pConstraint->SetMotorState(JPH::EMotorState::Velocity);
         pConstraint->SetTargetVelocity(m_fDriveTargetValue);
@@ -165,12 +165,12 @@ void ezJoltSliderConstraintComponent::ApplySettings()
   if (pConstraint->GetBody2()->IsInBroadPhase())
   {
     // wake up the bodies that are attached to this constraint
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    WJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<WJoltWorldModule>();
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
 
-bool ezJoltSliderConstraintComponent::ExceededBreakingPoint()
+bool WJoltSliderConstraintComponent::ExceededBreakingPoint()
 {
   if (auto pConstraint = static_cast<JPH::SliderConstraint*>(m_pConstraint))
   {
@@ -195,7 +195,7 @@ bool ezJoltSliderConstraintComponent::ExceededBreakingPoint()
   return false;
 }
 
-void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
   const auto inv2 = pBody1->GetInverseCenterOfMassTransform() * pBody1->GetWorldTransform();
@@ -203,15 +203,15 @@ void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, J
   JPH::SliderConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
-  opt.mSliderAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3(1, 0, 0)));
-  opt.mSliderAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3(1, 0, 0)));
-  opt.mNormalAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3(0, 1, 0)));
-  opt.mNormalAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3(0, 1, 0)));
+  opt.mPoint1 = inv1 * WJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * WJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
+  opt.mSliderAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3(1, 0, 0)));
+  opt.mSliderAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3(1, 0, 0)));
+  opt.mNormalAxis1 = inv1.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * WVec3(0, 1, 0)));
+  opt.mNormalAxis2 = inv2.Multiply3x3(WJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * WVec3(0, 1, 0)));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSliderConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSliderConstraintComponent);

@@ -1,24 +1,24 @@
 #pragma once
 
-ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity)
+WRenderPipelinePinConnection::WRenderPipelinePinConnection(Connectivity connectivity)
   : m_Connectivity(connectivity)
   , m_TextureHandle()
 {
 }
 
-ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphTextureHandle hTextureHandle)
+WRenderPipelinePinConnection::WRenderPipelinePinConnection(Connectivity connectivity, WRenderGraphTextureHandle hTextureHandle)
   : m_Connectivity(connectivity)
   , m_TextureHandle(hTextureHandle)
 {
 }
 
-ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphBufferHandle hBufferHandle)
+WRenderPipelinePinConnection::WRenderPipelinePinConnection(Connectivity connectivity, WRenderGraphBufferHandle hBufferHandle)
   : m_Connectivity(connectivity)
   , m_BufferHandle(hBufferHandle)
 {
 }
 
-ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(const ezRenderPipelinePinConnection& other)
+WRenderPipelinePinConnection::WRenderPipelinePinConnection(const WRenderPipelinePinConnection& other)
   : m_Connectivity(other.m_Connectivity)
 {
   switch (other.m_Connectivity)
@@ -34,7 +34,7 @@ ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(const ezRenderPipel
   }
 }
 
-ezRenderPipelinePinConnection& ezRenderPipelinePinConnection::operator=(const ezRenderPipelinePinConnection& other)
+WRenderPipelinePinConnection& WRenderPipelinePinConnection::operator=(const WRenderPipelinePinConnection& other)
 {
   if (this != &other)
   {
@@ -48,7 +48,7 @@ ezRenderPipelinePinConnection& ezRenderPipelinePinConnection::operator=(const ez
         m_BufferHandle = other.m_BufferHandle;
         break;
       default:
-        m_TextureHandle = ezRenderGraphTextureHandle();
+        m_TextureHandle = WRenderGraphTextureHandle();
         break;
     }
   }

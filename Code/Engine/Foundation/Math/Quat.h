@@ -21,11 +21,11 @@
 /// - No equality operators due to dual representation (q and -q are equivalent)
 /// - Always maintain unit length for proper rotation representation
 template <typename Type>
-class ezQuatTemplate
+class WQuatTemplate
 {
 public:
   // Means this object can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   using ComponentType = Type;
 
@@ -38,21 +38,21 @@ public:
 
   // *** Constructors ***
 public:
-  ezQuatTemplate(); // [tested]
+  WQuatTemplate(); // [tested]
 
   /// For internal use. You should never construct quaternions this way.
-  ezQuatTemplate(Type x, Type y, Type z, Type w); // [tested]
+  WQuatTemplate(Type x, Type y, Type z, Type w); // [tested]
 
-#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+#if W_ENABLED(W_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+    W_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
                                "all code-paths properly initialize this object.");
   }
 #endif
 
   /// Static function that returns a quaternion that represents the identity rotation (none).
-  [[nodiscard]] static const ezQuatTemplate<Type> MakeIdentity(); // [tested]
+  [[nodiscard]] static const WQuatTemplate<Type> MakeIdentity(); // [tested]
 
   // *** Functions to create a quaternion ***
 public:
@@ -63,16 +63,16 @@ public:
   /// angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
 
   /// Creates a quaternion from a rotation-axis and an angle.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngleTemplate<Type> angle); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeFromAxisAndAngle(const WVec3Template<Type>& vRotationAxis, WAngleTemplate<Type> angle); // [tested]
 
   /// Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  [[nodiscard]] static ezQuatTemplate<Type> MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeShortestRotation(const WVec3Template<Type>& vDirFrom, const WVec3Template<Type>& vDirTo); // [tested]
 
   /// Creates a quaternion from the given matrix.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromMat3(const ezMat3Template<Type>& m); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeFromMat3(const WMat3Template<Type>& m); // [tested]
 
   /// Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
@@ -80,15 +80,15 @@ public:
   /// proper quaternion, even though a rotation with mirroring can't be represented by a quaternion.
   /// This function reconstructs a valid quaternion from such matrices. Obviously the mirroring information gets lost,
   /// but it is typically not needed any further anway.
-  void ReconstructFromMat3(const ezMat3Template<Type>& m);
+  void ReconstructFromMat3(const WMat3Template<Type>& m);
 
   /// Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
   /// \sa ReconstructFromMat3()
-  void ReconstructFromMat4(const ezMat4Template<Type>& m);
+  void ReconstructFromMat4(const WMat4Template<Type>& m);
 
   /// Returns a quaternion that is the spherical linear interpolation of the other two.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeSlerp(const WQuatTemplate& qFrom, const WQuatTemplate& qTo, Type t); // [tested]
 
   // *** Common Functions ***
 public:
@@ -102,19 +102,19 @@ public:
   Type* GetData() { return &x; }
 
   /// Returns the rotation-axis and angle, that this quaternion rotates around.
-  void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngleTemplate<Type>& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  void GetRotationAxisAndAngle(WVec3Template<Type>& out_vAxis, WAngleTemplate<Type>& out_angle, Type fEpsilon = WMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// Returns the x,y,z components as a vector.
-  ezVec3Template<Type> GetVectorPart() const { return ezVec3Template<Type>(x, y, z); }
+  WVec3Template<Type> GetVectorPart() const { return WVec3Template<Type>(x, y, z); }
 
   /// Returns the Quaternion as a matrix.
-  const ezMat3Template<Type> GetAsMat3() const; // [tested]
+  const WMat3Template<Type> GetAsMat3() const; // [tested]
 
   /// Returns the Quaternion as a matrix.
-  const ezMat4Template<Type> GetAsMat4() const; // [tested]
+  const WMat4Template<Type> GetAsMat4() const; // [tested]
 
   /// Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
-  bool IsValid(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  bool IsValid(Type fEpsilon = WMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
@@ -124,7 +124,7 @@ public:
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
+  bool IsEqualRotation(const WQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
   /// Inverts the rotation, so instead of rotating N degrees around an axis, the quaternion will rotate -N degrees around its axis.
   ///
@@ -132,38 +132,38 @@ public:
   void Invert();
 
   /// Returns a quaternion that represents the negative / inverted rotation. E.g. the one that would rotate back to identity.
-  const ezQuatTemplate<Type> GetInverse() const; // [tested]
+  const WQuatTemplate<Type> GetInverse() const; // [tested]
 
   /// Returns the Quaternion with all 4 components negated. This is not the same as the inverted rotation!
-  const ezQuatTemplate<Type> GetNegated() const;
+  const WQuatTemplate<Type> GetNegated() const;
 
   /// Returns the dot-product of the two quaternions (commutative, order does not matter).
-  Type Dot(const ezQuatTemplate& rhs) const; // [tested]
+  Type Dot(const WQuatTemplate& rhs) const; // [tested]
 
   /// Returns v rotated by the quaternion. Same as operator*.
-  ezVec3Template<Type> Rotate(const ezVec3Template<Type>& v) const;
+  WVec3Template<Type> Rotate(const WVec3Template<Type>& v) const;
 
   // *** Euler Angle Conversions ***
 public:
   /// Converts the quaternion to Euler angles
-  void GetAsEulerAngles(ezAngleTemplate<Type>& out_x, ezAngleTemplate<Type>& out_y, ezAngleTemplate<Type>& out_z) const; // [tested]
+  void GetAsEulerAngles(WAngleTemplate<Type>& out_x, WAngleTemplate<Type>& out_y, WAngleTemplate<Type>& out_z) const; // [tested]
 
   /// Sets the quaternion from Euler angles
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngleTemplate<Type>& x, const ezAngleTemplate<Type>& y, const ezAngleTemplate<Type>& z); // [tested]
+  [[nodiscard]] static WQuatTemplate<Type> MakeFromEulerAngles(const WAngleTemplate<Type>& x, const WAngleTemplate<Type>& y, const WAngleTemplate<Type>& z); // [tested]
 };
 
 /// Rotates v by q
 template <typename Type>
-const ezVec3Template<Type> operator*(const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v); // [tested]
+const WVec3Template<Type> operator*(const WQuatTemplate<Type>& q, const WVec3Template<Type>& v); // [tested]
 
 /// Concatenates the rotations of q1 and q2
 template <typename Type>
-const ezQuatTemplate<Type> operator*(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
+const WQuatTemplate<Type> operator*(const WQuatTemplate<Type>& q1, const WQuatTemplate<Type>& q2); // [tested]
 
 template <typename Type>
-bool operator==(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2);                      // [tested]
+bool operator==(const WQuatTemplate<Type>& q1, const WQuatTemplate<Type>& q2);                      // [tested]
 
 template <typename Type>
-bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2);                      // [tested]
+bool operator!=(const WQuatTemplate<Type>& q1, const WQuatTemplate<Type>& q2);                      // [tested]
 
 #include <Foundation/Math/Implementation/Quat_inl.h>

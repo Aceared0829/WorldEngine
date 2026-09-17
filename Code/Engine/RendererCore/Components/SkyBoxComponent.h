@@ -3,8 +3,8 @@
 #include <Core/World/World.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-using ezSkyBoxComponentManager = ezComponentManager<class ezSkyBoxComponent, ezBlockStorageType::Compact>;
-using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
+using WSkyBoxComponentManager = WComponentManager<class WSkyBoxComponent, WBlockStorageType::Compact>;
+using WTextureCubeResourceHandle = WTypedResourceHandle<class WTextureCubeResource>;
 
 /// Adds a static image of a sky to the scene.
 ///
@@ -13,16 +13,16 @@ using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeRes
 ///
 /// Position and scale of the game object are irrelevant, the sky always appears behind all other objects.
 /// The rotation, however, is used to rotate the sky image.
-class EZ_RENDERERCORE_DLL ezSkyBoxComponent : public ezRenderComponent
+class W_RENDERERCORE_DLL WSkyBoxComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSkyBoxComponent, ezRenderComponent, ezSkyBoxComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSkyBoxComponent, WRenderComponent, WSkyBoxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
@@ -30,17 +30,17 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSkyBoxComponent
+  // WSkyBoxComponent
 
 public:
-  ezSkyBoxComponent();
-  ~ezSkyBoxComponent();
+  WSkyBoxComponent();
+  ~WSkyBoxComponent();
 
   /// Changes the brightness of the sky image. Mainly useful when an HDR skybox is used.
   void SetExposureBias(float fExposureBias);                // [ property ]
@@ -59,13 +59,13 @@ public:
   float GetVirtualDistance() const { return m_fVirtualDistance; } // [ property ]
 
   // adds SetCubeMapFile() and GetCubeMapFile() for convenience
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(CubeMap, m_hCubeMap, SetCubeMap);
+  W_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(CubeMap, m_hCubeMap, SetCubeMap);
 
-  void SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap); // [ property ]
-  const ezTextureCubeResourceHandle& GetCubeMap() const;        // [ property ]
+  void SetCubeMap(const WTextureCubeResourceHandle& hCubeMap); // [ property ]
+  const WTextureCubeResourceHandle& GetCubeMap() const;        // [ property ]
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
   void UpdateMaterials();
 
   float m_fExposureBias = 0.0f;
@@ -73,10 +73,10 @@ private:
   bool m_bInverseTonemap = false;
   bool m_bUseFog = true;
 
-  ezTextureCubeResourceHandle m_hCubeMap;
+  WTextureCubeResourceHandle m_hCubeMap;
 
-  ezMeshResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hCubeMapMaterial;
+  WMeshResourceHandle m_hMesh;
+  WMaterialResourceHandle m_hCubeMapMaterial;
 
-  mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable WInstanceDataOffset m_InstanceDataOffset;
 };

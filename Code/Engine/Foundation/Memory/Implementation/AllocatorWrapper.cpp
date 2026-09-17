@@ -2,19 +2,19 @@
 
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-static thread_local ezAllocator* s_pAllocator = nullptr;
+static thread_local WAllocator* s_pAllocator = nullptr;
 
-ezLocalAllocatorWrapper::ezLocalAllocatorWrapper(ezAllocator* pAllocator)
+WLocalAllocatorWrapper::WLocalAllocatorWrapper(WAllocator* pAllocator)
 {
   s_pAllocator = pAllocator;
 }
 
-void ezLocalAllocatorWrapper::Reset()
+void WLocalAllocatorWrapper::Reset()
 {
   s_pAllocator = nullptr;
 }
 
-ezAllocator* ezLocalAllocatorWrapper::GetAllocator()
+WAllocator* WLocalAllocatorWrapper::GetAllocator()
 {
   return s_pAllocator;
 }

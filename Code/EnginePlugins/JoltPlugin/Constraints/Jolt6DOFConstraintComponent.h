@@ -4,16 +4,16 @@
 
 #  include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 
-struct EZ_JOLTPLUGIN_DLL ezJoltAxis
+struct W_JOLTPLUGIN_DLL WJoltAxis
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
     None = 0,
-    X = EZ_BIT(0),
-    Y = EZ_BIT(1),
-    Z = EZ_BIT(2),
+    X = W_BIT(0),
+    Y = W_BIT(1),
+    Z = W_BIT(2),
     All = X | Y | Z,
     Default = All
   };
@@ -26,54 +26,54 @@ struct EZ_JOLTPLUGIN_DLL ezJoltAxis
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezJoltAxis);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltAxis);
+W_DECLARE_FLAGS_OPERATORS(WJoltAxis);
+W_DECLARE_REFLECTABLE_TYPE(W_JOLTPLUGIN_DLL, WJoltAxis);
 
-using ezJolt6DOFConstraintComponentManager = ezComponentManager<class ezJolt6DOFConstraintComponent, ezBlockStorageType::Compact>;
+using WJolt6DOFConstraintComponentManager = WComponentManager<class WJolt6DOFConstraintComponent, WBlockStorageType::Compact>;
 
-class EZ_JOLTPLUGIN_DLL ezJolt6DOFConstraintComponent : public ezJoltConstraintComponent
+class W_JOLTPLUGIN_DLL WJolt6DOFConstraintComponent : public WJoltConstraintComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJolt6DOFConstraintComponent, ezJoltConstraintComponent, ezJolt6DOFConstraintComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJolt6DOFConstraintComponent, WJoltConstraintComponent, WJolt6DOFConstraintComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(WWorldWriter& stream) const override;
+  virtual void DeserializeComponent(WWorldReader& stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltConstraintComponent
+  // WJoltConstraintComponent
 
 protected:
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJolt6DOFConstraintComponent
+  // WJolt6DOFConstraintComponent
 
 public:
-  ezJolt6DOFConstraintComponent();
-  ~ezJolt6DOFConstraintComponent();
+  WJolt6DOFConstraintComponent();
+  ~WJolt6DOFConstraintComponent();
 
   virtual void ApplySettings() final override;
 
-  void SetFreeLinearAxis(ezBitflags<ezJoltAxis> flags);                         // [ property ]
-  ezBitflags<ezJoltAxis> GetFreeLinearAxis() const { return m_FreeLinearAxis; } // [ property ]
+  void SetFreeLinearAxis(WBitflags<WJoltAxis> flags);                         // [ property ]
+  WBitflags<WJoltAxis> GetFreeLinearAxis() const { return m_FreeLinearAxis; } // [ property ]
 
-  void SetFreeAngularAxis(ezBitflags<ezJoltAxis> flags);                          // [ property ]
-  ezBitflags<ezJoltAxis> GetFreeAngularAxis() const { return m_FreeAngularAxis; } // [ property ]
+  void SetFreeAngularAxis(WBitflags<WJoltAxis> flags);                          // [ property ]
+  WBitflags<WJoltAxis> GetFreeAngularAxis() const { return m_FreeAngularAxis; } // [ property ]
 
-  void SetLinearLimitMode(ezJoltConstraintLimitMode::Enum mode);                           // [ property ]
-  ezJoltConstraintLimitMode::Enum GetLinearLimitMode() const { return m_LinearLimitMode; } // [ property ]
+  void SetLinearLimitMode(WJoltConstraintLimitMode::Enum mode);                           // [ property ]
+  WJoltConstraintLimitMode::Enum GetLinearLimitMode() const { return m_LinearLimitMode; } // [ property ]
 
-  void SetLinearRangeX(const ezVec2& value);                        // [ property ]
-  const ezVec2& GetLinearRangeX() const { return m_vLinearRangeX; } // [ property ]
-  void SetLinearRangeY(const ezVec2& value);                        // [ property ]
-  const ezVec2& GetLinearRangeY() const { return m_vLinearRangeY; } // [ property ]
-  void SetLinearRangeZ(const ezVec2& value);                        // [ property ]
-  const ezVec2& GetLinearRangeZ() const { return m_vLinearRangeZ; } // [ property ]
+  void SetLinearRangeX(const WVec2& value);                        // [ property ]
+  const WVec2& GetLinearRangeX() const { return m_vLinearRangeX; } // [ property ]
+  void SetLinearRangeY(const WVec2& value);                        // [ property ]
+  const WVec2& GetLinearRangeY() const { return m_vLinearRangeY; } // [ property ]
+  void SetLinearRangeZ(const WVec2& value);                        // [ property ]
+  const WVec2& GetLinearRangeZ() const { return m_vLinearRangeZ; } // [ property ]
 
   void SetLinearStiffness(float f);                               // [ property ]
   float GetLinearStiffness() const { return m_fLinearStiffness; } // [ property ]
@@ -81,11 +81,11 @@ public:
   void SetLinearDamping(float f);                             // [ property ]
   float GetLinearDamping() const { return m_fLinearDamping; } // [ property ]
 
-  void SetSwingLimitMode(ezJoltConstraintLimitMode::Enum mode);                          // [ property ]
-  ezJoltConstraintLimitMode::Enum GetSwingLimitMode() const { return m_SwingLimitMode; } // [ property ]
+  void SetSwingLimitMode(WJoltConstraintLimitMode::Enum mode);                          // [ property ]
+  WJoltConstraintLimitMode::Enum GetSwingLimitMode() const { return m_SwingLimitMode; } // [ property ]
 
-  void SetSwingLimit(ezAngle f);                         // [ property ]
-  ezAngle GetSwingLimit() const { return m_SwingLimit; } // [ property ]
+  void SetSwingLimit(WAngle f);                         // [ property ]
+  WAngle GetSwingLimit() const { return m_SwingLimit; } // [ property ]
 
   void SetSwingStiffness(float f);                              // [ property ]
   float GetSwingStiffness() const { return m_fSwingStiffness; } // [ property ]
@@ -93,14 +93,14 @@ public:
   void SetSwingDamping(float f);                            // [ property ]
   float GetSwingDamping() const { return m_fSwingDamping; } // [ property ]
 
-  void SetTwistLimitMode(ezJoltConstraintLimitMode::Enum mode);                          // [ property ]
-  ezJoltConstraintLimitMode::Enum GetTwistLimitMode() const { return m_TwistLimitMode; } // [ property ]
+  void SetTwistLimitMode(WJoltConstraintLimitMode::Enum mode);                          // [ property ]
+  WJoltConstraintLimitMode::Enum GetTwistLimitMode() const { return m_TwistLimitMode; } // [ property ]
 
-  void SetLowerTwistLimit(ezAngle f);                              // [ property ]
-  ezAngle GetLowerTwistLimit() const { return m_LowerTwistLimit; } // [ property ]
+  void SetLowerTwistLimit(WAngle f);                              // [ property ]
+  WAngle GetLowerTwistLimit() const { return m_LowerTwistLimit; } // [ property ]
 
-  void SetUpperTwistLimit(ezAngle f);                              // [ property ]
-  ezAngle GetUpperTwistLimit() const { return m_UpperTwistLimit; } // [ property ]
+  void SetUpperTwistLimit(WAngle f);                              // [ property ]
+  WAngle GetUpperTwistLimit() const { return m_UpperTwistLimit; } // [ property ]
 
   void SetTwistStiffness(float f);                              // [ property ]
   float GetTwistStiffness() const { return m_fTwistStiffness; } // [ property ]
@@ -109,28 +109,28 @@ public:
   float GetTwistDamping() const { return m_fTwistDamping; } // [ property ]
 
 protected:
-  ezBitflags<ezJoltAxis> m_FreeLinearAxis;
+  WBitflags<WJoltAxis> m_FreeLinearAxis;
 
-  ezEnum<ezJoltConstraintLimitMode> m_LinearLimitMode;
+  WEnum<WJoltConstraintLimitMode> m_LinearLimitMode;
 
   float m_fLinearStiffness = 0.0f;
   float m_fLinearDamping = 0.0f;
 
-  ezVec2 m_vLinearRangeX = ezVec2::MakeZero();
-  ezVec2 m_vLinearRangeY = ezVec2::MakeZero();
-  ezVec2 m_vLinearRangeZ = ezVec2::MakeZero();
+  WVec2 m_vLinearRangeX = WVec2::MakeZero();
+  WVec2 m_vLinearRangeY = WVec2::MakeZero();
+  WVec2 m_vLinearRangeZ = WVec2::MakeZero();
 
-  ezBitflags<ezJoltAxis> m_FreeAngularAxis;
+  WBitflags<WJoltAxis> m_FreeAngularAxis;
 
-  ezEnum<ezJoltConstraintLimitMode> m_SwingLimitMode;
-  ezAngle m_SwingLimit;
+  WEnum<WJoltConstraintLimitMode> m_SwingLimitMode;
+  WAngle m_SwingLimit;
 
   float m_fSwingStiffness = 0.0f; // [ property ]
   float m_fSwingDamping = 0.0f;   // [ property ]
 
-  ezEnum<ezJoltConstraintLimitMode> m_TwistLimitMode;
-  ezAngle m_LowerTwistLimit;
-  ezAngle m_UpperTwistLimit;
+  WEnum<WJoltConstraintLimitMode> m_TwistLimitMode;
+  WAngle m_LowerTwistLimit;
+  WAngle m_UpperTwistLimit;
 
   float m_fTwistStiffness = 0.0f; // [ property ]
   float m_fTwistDamping = 0.0f;   // [ property ]

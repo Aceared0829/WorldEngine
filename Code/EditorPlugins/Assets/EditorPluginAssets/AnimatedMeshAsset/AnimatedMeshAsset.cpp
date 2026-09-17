@@ -7,32 +7,32 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 11, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimatedMeshAssetDocument, 11, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
+WAnimatedMeshAssetDocument::WAnimatedMeshAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WAnimatedMeshAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WAnimatedMeshAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezProgressRange range("Transforming Asset", 2, false);
+  WProgressRange range("Transforming Asset", 2, false);
 
-  ezAnimatedMeshAssetProperties* pProp = GetProperties();
+  WAnimatedMeshAssetProperties* pProp = GetProperties();
 
   if (pProp->m_sDefaultSkeleton.IsEmpty())
   {
-    return ezStatus("Animated mesh doesn't have a default skeleton assigned.");
+    return WStatus("Animated mesh doesn't have a default skeleton assigned.");
   }
 
-  ezMeshResourceDescriptor desc;
+  WMeshResourceDescriptor desc;
 
   range.SetStepWeighting(0, 0.9f);
   range.BeginNextStep("Importing Mesh");
 
-  EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
+  W_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
 
   // the properties object can get invalidated by the CreateMeshFromFile() call
   pProp = GetProperties();
@@ -41,34 +41,34 @@ ezTransformStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWr
 
   if (!pProp->m_sDefaultSkeleton.IsEmpty())
   {
-    desc.m_hDefaultSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sDefaultSkeleton);
+    desc.m_hDefaultSkeleton = WResourceManager::LoadResource<WSkeletonResource>(pProp->m_sDefaultSkeleton);
   }
 
   desc.Save(stream);
 
-  ezMeshImportUtils::RecordMeshTransformInfo(GetTransformInfo(), desc);
+  WMeshImportUtils::RecordMeshTransformInfo(GetTransformInfo(), desc);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
+WStatus WAnimatedMeshAssetDocument::CreateMeshFromFile(WAnimatedMeshAssetProperties* pProp, WMeshResourceDescriptor& desc)
 {
-  ezProgressRange range("Mesh Import", 5, false);
+  WProgressRange range("Mesh Import", 5, false);
 
   range.SetStepWeighting(0, 0.7f);
   range.BeginNextStep("Importing Mesh Data");
 
-  ezStringBuilder sAbsFilename = pProp->m_sMeshFile;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  WStringBuilder sAbsFilename = pProp->m_sMeshFile;
+  if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
   {
-    return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+    return WStatus(WFmt("Couldn't make path absolute: '{0};", sAbsFilename));
   }
 
-  ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+  WUniquePtr<WModelImporter2::Importer> pImporter = WModelImporter2::RequestImporterForFileType(sAbsFilename);
   if (pImporter == nullptr)
-    return ezStatus("No known importer for this file type.");
+    return WStatus("No known importer for this file type.");
 
-  ezModelImporter2::ImportOptions opt;
+  WModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bImportSkinningData = true;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
@@ -80,9 +80,9 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   // include tags
   {
-    ezTempHybridArray<ezStringView, 8> tags;
+    WTempHybridArray<WStringView, 8> tags;
     pProp->m_sMeshIncludeTags.Split(false, tags, ";");
-    for (ezStringView tag : tags)
+    for (WStringView tag : tags)
     {
       tag.Trim();
       opt.m_MeshIncludeTags.PushBack(tag);
@@ -91,9 +91,9 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   // exclude tags
   {
-    ezTempHybridArray<ezStringView, 8> tags;
+    WTempHybridArray<WStringView, 8> tags;
     pProp->m_sMeshExcludeTags.Split(false, tags, ";");
-    for (ezStringView tag : tags)
+    for (WStringView tag : tags)
     {
       tag.Trim();
       opt.m_MeshExcludeTags.PushBack(tag);
@@ -109,18 +109,18 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   }
 
   if (pImporter->Import(opt).Failed())
-    return ezStatus("Model importer was unable to read this asset.");
+    return WStatus("Model importer was unable to read this asset.");
 
-  ezMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
+  WMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
 
   if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
-    return ezStatus("Imported mesh is empty.");
+    return WStatus("Imported mesh is empty.");
 
   for (auto& sm : desc.GetSubMeshes())
   {
     if (sm.m_uiPrimitiveCount == 0)
     {
-      return ezStatus("Imported mesh is empty.");
+      return WStatus("Imported mesh is empty.");
     }
   }
 
@@ -131,11 +131,11 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   {
     GetObjectAccessor()->StartTransaction("Update Mesh Materials");
 
-    ezMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());
+    WMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());
 
     if (pProp->m_bImportMaterials)
     {
-      ezMeshImportUtils::ImportMeshAssetMaterials(pProp->m_Slots, GetDocumentPath(), pImporter.Borrow());
+      WMeshImportUtils::ImportMeshAssetMaterials(pProp->m_Slots, GetDocumentPath(), pImporter.Borrow());
     }
 
     ApplyNativePropertyChangesToObjectManager();
@@ -145,21 +145,21 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
     pProp = GetProperties();
   }
 
-  ezMeshImportUtils::CopyMeshAssetMaterialSlotToResource(desc, pProp->m_Slots);
+  WMeshImportUtils::CopyMeshAssetMaterialSlotToResource(desc, pProp->m_Slots);
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezAnimatedMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WAnimatedMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
-void ezAnimatedMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WAnimatedMeshAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
   // For glTF files, add any referenced external buffer files as dependencies
-  ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
+  WMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
 }

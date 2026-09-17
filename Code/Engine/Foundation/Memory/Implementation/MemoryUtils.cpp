@@ -2,15 +2,15 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #endif
 
-void ezMemoryUtils::ReserveLower4GBAddressSpace()
+void WMemoryUtils::ReserveLower4GBAddressSpace()
 {
   // TODO: if this ever should be implemented for another platform, it should be moved into a platform-specific implementation file
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_ENABLED(EZ_PLATFORM_64BIT)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP) && W_ENABLED(W_PLATFORM_64BIT)
   // The following code was taken from http://randomascii.wordpress.com/2012/02/14/64-bit-made-easy/
   // and adapted to our coding guidelines.
 
@@ -100,8 +100,8 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   // Print diagnostics showing how many allocations we had to make in
   // order to reserve all of low memory, typically less than 200.
   char buffer[1000];
-  ezStringUtils::snprintf(buffer, 1000, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n", uiTotalReservation / (1024 * 1024.0), (ezUInt32)uiNumVAllocs,
-    (ezUInt32)uiNumHeapAllocs);
+  WStringUtils::snprintf(buffer, 1000, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n", uiTotalReservation / (1024 * 1024.0), (WUInt32)uiNumVAllocs,
+    (WUInt32)uiNumHeapAllocs);
   OutputDebugStringA(buffer);
 #endif
 }

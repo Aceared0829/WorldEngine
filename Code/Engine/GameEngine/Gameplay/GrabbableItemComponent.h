@@ -4,20 +4,20 @@
 
 #include <Core/World/World.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
+struct WMsgUpdateLocalBounds;
+struct WMsgExtractRenderData;
 
-struct EZ_GAMEENGINE_DLL ezGrabbableItemGrabPoint
+struct W_GAMEENGINE_DLL WGrabbableItemGrabPoint
 {
-  ezVec3 m_vLocalPosition;
-  ezQuat m_qLocalRotation;
+  WVec3 m_vLocalPosition;
+  WQuat m_qLocalRotation;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGrabbableItemGrabPoint);
+W_DECLARE_REFLECTABLE_TYPE(W_GAMEENGINE_DLL, WGrabbableItemGrabPoint);
 
 //////////////////////////////////////////////////////////////////////////
 
-using ezGrabbableItemComponentManager = ezComponentManager<class ezGrabbableItemComponent, ezBlockStorageType::Compact>;
+using WGrabbableItemComponentManager = WComponentManager<class WGrabbableItemComponent, WBlockStorageType::Compact>;
 
 /// Used to define 'grab points' on an object where a player can pick up and hold the item
 ///
@@ -29,32 +29,32 @@ using ezGrabbableItemComponentManager = ezComponentManager<class ezGrabbableItem
 ///
 /// The component only holds data, it doesn't add any custom behavior. It is the responsibility of other components to use this
 /// data in a sensible way.
-class EZ_GAMEENGINE_DLL ezGrabbableItemComponent : public ezComponent
+class W_GAMEENGINE_DLL WGrabbableItemComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezGrabbableItemComponent, ezComponent, ezGrabbableItemComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WGrabbableItemComponent, WComponent, WGrabbableItemComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezGrabbableItemComponent
+  // WGrabbableItemComponent
 
 public:
-  ezGrabbableItemComponent();
-  ~ezGrabbableItemComponent();
+  WGrabbableItemComponent();
+  ~WGrabbableItemComponent();
 
   void SetDebugShowPoints(bool bShow);                   // [ property ]
   bool GetDebugShowPoints() const;                       // [ property ]
 
-  ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
+  WDynamicArray<WGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
 
-  static void DebugDrawGrabPoint(const ezWorld& world, const ezTransform& globalGrabPointTransform);
+  static void DebugDrawGrabPoint(const WWorld& world, const WTransform& globalGrabPointTransform);
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
+  void OnExtractRenderData(WMsgExtractRenderData& msg) const;
 };

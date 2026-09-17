@@ -5,50 +5,50 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-using ezSpotLightComponentManager = ezComponentManager<class ezSpotLightComponent, ezBlockStorageType::Compact>;
+using WSpotLightComponentManager = WComponentManager<class WSpotLightComponent, WBlockStorageType::Compact>;
 
 /// The render data object for spot lights.
-class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData
+class W_RENDERERCORE_DLL WSpotLightRenderData : public WLightRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezLightRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WSpotLightRenderData, WLightRenderData);
 
 public:
-  ezQuat m_qGlobalRotation;
+  WQuat m_qGlobalRotation;
   float m_fRange;
-  ezAngle m_InnerSpotAngle;
-  ezAngle m_OuterSpotAngle;
-  ezDecalId m_CookieId;
+  WAngle m_InnerSpotAngle;
+  WAngle m_OuterSpotAngle;
+  WDecalId m_CookieId;
 };
 
 /// Adds a spotlight to the scene, optionally casting shadows.
-class EZ_RENDERERCORE_DLL ezSpotLightComponent : public ezLightComponent
+class W_RENDERERCORE_DLL WSpotLightComponent : public WLightComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSpotLightComponent, ezLightComponent, ezSpotLightComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSpotLightComponent, WLightComponent, WSpotLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSpotLightComponent
+  // WSpotLightComponent
 
 public:
-  ezSpotLightComponent();
-  ~ezSpotLightComponent();
+  WSpotLightComponent();
+  ~WSpotLightComponent();
 
   /// Sets the radius (or length of the cone) of the lightsource. If zero, it is automatically determined from the intensity.
   void SetRange(float fRange); // [ property ]
@@ -66,34 +66,34 @@ public:
   float GetShadowFadeOutRange() const;      // [ property ]
 
   /// Sets the inner angle where the spotlight has equal brightness.
-  void SetInnerSpotAngle(ezAngle spotAngle); // [ property ]
-  ezAngle GetInnerSpotAngle() const;         // [ property ]
+  void SetInnerSpotAngle(WAngle spotAngle); // [ property ]
+  WAngle GetInnerSpotAngle() const;         // [ property ]
 
   /// Sets the outer angle of the spotlight's cone. The light will fade out between the inner and outer angle.
-  void SetOuterSpotAngle(ezAngle spotAngle);                               // [ property ]
-  ezAngle GetOuterSpotAngle() const;                                       // [ property ]
+  void SetOuterSpotAngle(WAngle spotAngle);                               // [ property ]
+  WAngle GetOuterSpotAngle() const;                                       // [ property ]
 
-  void SetCookie(const ezTexture2DResourceHandle& hCookie);                // [ property ]
-  const ezTexture2DResourceHandle& GetCookie() const { return m_hCookie; } // [ property ]
+  void SetCookie(const WTexture2DResourceHandle& hCookie);                // [ property ]
+  const WTexture2DResourceHandle& GetCookie() const { return m_hCookie; } // [ property ]
 
   // adds SetCookieFile() and GetCookieFile() for convenience
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Cookie, m_hCookie, SetCookie);
+  W_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Cookie, m_hCookie, SetCookie);
 
-  void SetMaterial(const ezMaterialResourceHandle& hMaterial);                // [ property ]
-  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; } // [ property ]
+  void SetMaterial(const WMaterialResourceHandle& hMaterial);                // [ property ]
+  const WMaterialResourceHandle& GetMaterial() const { return m_hMaterial; } // [ property ]
 
   // adds SetMaterialFile() and GetMaterialFile() for convenience
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Material, m_hMaterial, SetMaterial);
+  W_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Material, m_hMaterial, SetMaterial);
 
-  void SetMaterialResolution(ezUInt32 uiResolution);                                                     // [ property ]
-  ezUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                              // [ property ]
+  void SetMaterialResolution(WUInt32 uiResolution);                                                     // [ property ]
+  WUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                              // [ property ]
 
-  void SetMaterialUpdateInterval(ezTime updateInterval);                                                 // [ property ]
-  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_MaterialUpdateInterval); } // [ property ]
+  void SetMaterialUpdateInterval(WTime updateInterval);                                                 // [ property ]
+  WTime GetMaterialUpdateInterval() const { return WTime::MakeFromSeconds(m_MaterialUpdateInterval); } // [ property ]
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  ezBoundingSphere CalculateBoundingSphere(const ezTransform& t, float fRange) const;
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const;
+  WBoundingSphere CalculateBoundingSphere(const WTransform& t, float fRange) const;
 
   void UpdateCookie();
   void DeleteCookie();
@@ -103,31 +103,31 @@ protected:
   float m_fShadowFadeOutRange = 0.0f;
   float m_fRadius = 0.0f;
 
-  ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
-  ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
+  WAngle m_InnerSpotAngle = WAngle::MakeFromDegree(15.0f);
+  WAngle m_OuterSpotAngle = WAngle::MakeFromDegree(30.0f);
 
-  ezUInt16 m_uiMaterialResolution = 512;
-  ezFloat16 m_MaterialUpdateInterval = 0.0f;
-  ezMaterialResourceHandle m_hMaterial;
+  WUInt16 m_uiMaterialResolution = 512;
+  WFloat16 m_MaterialUpdateInterval = 0.0f;
+  WMaterialResourceHandle m_hMaterial;
 
-  ezTexture2DResourceHandle m_hCookie;
+  WTexture2DResourceHandle m_hCookie;
 
-  ezDecalId m_CookieId;
+  WDecalId m_CookieId;
 };
 
 /// A special visualizer attribute for spot lights
-class EZ_RENDERERCORE_DLL ezSpotLightVisualizerAttribute : public ezVisualizerAttribute
+class W_RENDERERCORE_DLL WSpotLightVisualizerAttribute : public WVisualizerAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightVisualizerAttribute, ezVisualizerAttribute);
+  W_ADD_DYNAMIC_REFLECTION(WSpotLightVisualizerAttribute, WVisualizerAttribute);
 
 public:
-  ezSpotLightVisualizerAttribute();
-  ezSpotLightVisualizerAttribute(
+  WSpotLightVisualizerAttribute();
+  WSpotLightVisualizerAttribute(
     const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty, const char* szRadiusProperty = nullptr);
 
-  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetRangeProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty4; }
-  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty5; }
+  const WUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const WUntrackedString& GetRangeProperty() const { return m_sProperty2; }
+  const WUntrackedString& GetIntensityProperty() const { return m_sProperty3; }
+  const WUntrackedString& GetColorProperty() const { return m_sProperty4; }
+  const WUntrackedString& GetRadiusProperty() const { return m_sProperty5; }
 };

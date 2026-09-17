@@ -1,14 +1,14 @@
 
 
 // for some reason MSVC does not accept the template keyword here
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && (_MSC_VER < 1950)
+#if W_ENABLED(W_COMPILER_MSVC_PURE) && (_MSC_VER < 1950)
 #  define CALL_FUNCTOR(functor, type) return functor.operator()<type>(std::forward<Args>(args)...)
 #else
 #  define CALL_FUNCTOR(functor, type) return functor.template operator()<type>(std::forward<Args>(args)...)
 #endif
 
 template <typename Functor, class... Args>
-auto ezVariant::DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args)
+auto WVariant::DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args)
 {
   switch (type)
   {
@@ -17,35 +17,35 @@ auto ezVariant::DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args
       break;
 
     case Type::Int8:
-      CALL_FUNCTOR(ref_functor, ezInt8);
+      CALL_FUNCTOR(ref_functor, WInt8);
       break;
 
     case Type::UInt8:
-      CALL_FUNCTOR(ref_functor, ezUInt8);
+      CALL_FUNCTOR(ref_functor, WUInt8);
       break;
 
     case Type::Int16:
-      CALL_FUNCTOR(ref_functor, ezInt16);
+      CALL_FUNCTOR(ref_functor, WInt16);
       break;
 
     case Type::UInt16:
-      CALL_FUNCTOR(ref_functor, ezUInt16);
+      CALL_FUNCTOR(ref_functor, WUInt16);
       break;
 
     case Type::Int32:
-      CALL_FUNCTOR(ref_functor, ezInt32);
+      CALL_FUNCTOR(ref_functor, WInt32);
       break;
 
     case Type::UInt32:
-      CALL_FUNCTOR(ref_functor, ezUInt32);
+      CALL_FUNCTOR(ref_functor, WUInt32);
       break;
 
     case Type::Int64:
-      CALL_FUNCTOR(ref_functor, ezInt64);
+      CALL_FUNCTOR(ref_functor, WInt64);
       break;
 
     case Type::UInt64:
-      CALL_FUNCTOR(ref_functor, ezUInt64);
+      CALL_FUNCTOR(ref_functor, WUInt64);
       break;
 
     case Type::Float:
@@ -57,265 +57,265 @@ auto ezVariant::DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args
       break;
 
     case Type::Color:
-      CALL_FUNCTOR(ref_functor, ezColor);
+      CALL_FUNCTOR(ref_functor, WColor);
       break;
 
     case Type::ColorGamma:
-      CALL_FUNCTOR(ref_functor, ezColorGammaUB);
+      CALL_FUNCTOR(ref_functor, WColorGammaUB);
       break;
 
     case Type::Vector2:
-      CALL_FUNCTOR(ref_functor, ezVec2);
+      CALL_FUNCTOR(ref_functor, WVec2);
       break;
 
     case Type::Vector3:
-      CALL_FUNCTOR(ref_functor, ezVec3);
+      CALL_FUNCTOR(ref_functor, WVec3);
       break;
 
     case Type::Vector4:
-      CALL_FUNCTOR(ref_functor, ezVec4);
+      CALL_FUNCTOR(ref_functor, WVec4);
       break;
 
     case Type::Vector2I:
-      CALL_FUNCTOR(ref_functor, ezVec2I32);
+      CALL_FUNCTOR(ref_functor, WVec2I32);
       break;
 
     case Type::Vector3I:
-      CALL_FUNCTOR(ref_functor, ezVec3I32);
+      CALL_FUNCTOR(ref_functor, WVec3I32);
       break;
 
     case Type::Vector4I:
-      CALL_FUNCTOR(ref_functor, ezVec4I32);
+      CALL_FUNCTOR(ref_functor, WVec4I32);
       break;
 
     case Type::Vector2U:
-      CALL_FUNCTOR(ref_functor, ezVec2U32);
+      CALL_FUNCTOR(ref_functor, WVec2U32);
       break;
 
     case Type::Vector3U:
-      CALL_FUNCTOR(ref_functor, ezVec3U32);
+      CALL_FUNCTOR(ref_functor, WVec3U32);
       break;
 
     case Type::Vector4U:
-      CALL_FUNCTOR(ref_functor, ezVec4U32);
+      CALL_FUNCTOR(ref_functor, WVec4U32);
       break;
 
     case Type::Quaternion:
-      CALL_FUNCTOR(ref_functor, ezQuat);
+      CALL_FUNCTOR(ref_functor, WQuat);
       break;
 
     case Type::Matrix3:
-      CALL_FUNCTOR(ref_functor, ezMat3);
+      CALL_FUNCTOR(ref_functor, WMat3);
       break;
 
     case Type::Matrix4:
-      CALL_FUNCTOR(ref_functor, ezMat4);
+      CALL_FUNCTOR(ref_functor, WMat4);
       break;
 
     case Type::Transform:
-      CALL_FUNCTOR(ref_functor, ezTransform);
+      CALL_FUNCTOR(ref_functor, WTransform);
       break;
 
     case Type::String:
-      CALL_FUNCTOR(ref_functor, ezString);
+      CALL_FUNCTOR(ref_functor, WString);
       break;
 
     case Type::StringView:
-      CALL_FUNCTOR(ref_functor, ezStringView);
+      CALL_FUNCTOR(ref_functor, WStringView);
       break;
 
     case Type::DataBuffer:
-      CALL_FUNCTOR(ref_functor, ezDataBuffer);
+      CALL_FUNCTOR(ref_functor, WDataBuffer);
       break;
 
     case Type::Time:
-      CALL_FUNCTOR(ref_functor, ezTime);
+      CALL_FUNCTOR(ref_functor, WTime);
       break;
 
     case Type::Uuid:
-      CALL_FUNCTOR(ref_functor, ezUuid);
+      CALL_FUNCTOR(ref_functor, WUuid);
       break;
 
     case Type::Angle:
-      CALL_FUNCTOR(ref_functor, ezAngle);
+      CALL_FUNCTOR(ref_functor, WAngle);
       break;
 
     case Type::HashedString:
-      CALL_FUNCTOR(ref_functor, ezHashedString);
+      CALL_FUNCTOR(ref_functor, WHashedString);
       break;
 
     case Type::TempHashedString:
-      CALL_FUNCTOR(ref_functor, ezTempHashedString);
+      CALL_FUNCTOR(ref_functor, WTempHashedString);
       break;
 
     case Type::VariantArray:
-      CALL_FUNCTOR(ref_functor, ezVariantArray);
+      CALL_FUNCTOR(ref_functor, WVariantArray);
       break;
 
     case Type::VariantDictionary:
-      CALL_FUNCTOR(ref_functor, ezVariantDictionary);
+      CALL_FUNCTOR(ref_functor, WVariantDictionary);
       break;
 
     case Type::TypedObject:
-      CALL_FUNCTOR(ref_functor, ezTypedObject);
+      CALL_FUNCTOR(ref_functor, WTypedObject);
       break;
 
     default:
-      EZ_REPORT_FAILURE("Could not dispatch type '{0}'", type);
+      W_REPORT_FAILURE("Could not dispatch type '{0}'", type);
       // Intended fall through to disable warning.
     case Type::TypedPointer:
-      CALL_FUNCTOR(ref_functor, ezTypedPointer);
+      CALL_FUNCTOR(ref_functor, WTypedPointer);
       break;
   }
 }
 
 #undef CALL_FUNCTOR
 
-class ezVariantHelper
+class WVariantHelper
 {
-  friend class ezVariant;
+  friend class WVariant;
   friend struct ConvertFunc;
 
-  static void To(const ezVariant& value, bool& result, bool& bSuccessful)
+  static void To(const WVariant& value, bool& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezInt32>() != 0;
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
+    if (value.GetType() <= WVariant::Type::Double)
+      result = value.ConvertNumber<WInt32>() != 0;
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
     {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      if (ezConversionUtils::StringToBool(s, result) == EZ_FAILURE)
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      if (WConversionUtils::StringToBool(s, result) == W_FAILURE)
       {
         result = false;
         bSuccessful = false;
       }
     }
     else
-      EZ_REPORT_FAILURE("Conversion to bool failed");
+      W_REPORT_FAILURE("Conversion to bool failed");
   }
 
-  static void To(const ezVariant& value, ezInt8& result, bool& bSuccessful)
+  static void To(const WVariant& value, WInt8& result, bool& bSuccessful)
   {
-    ezInt32 tempResult = 0;
+    WInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
-    result = (ezInt8)tempResult;
+    result = (WInt8)tempResult;
   }
 
-  static void To(const ezVariant& value, ezUInt8& result, bool& bSuccessful)
+  static void To(const WVariant& value, WUInt8& result, bool& bSuccessful)
   {
-    ezUInt32 tempResult = 0;
+    WUInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
-    result = (ezUInt8)tempResult;
+    result = (WUInt8)tempResult;
   }
 
-  static void To(const ezVariant& value, ezInt16& result, bool& bSuccessful)
+  static void To(const WVariant& value, WInt16& result, bool& bSuccessful)
   {
-    ezInt32 tempResult = 0;
+    WInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
-    result = (ezInt16)tempResult;
+    result = (WInt16)tempResult;
   }
 
-  static void To(const ezVariant& value, ezUInt16& result, bool& bSuccessful)
+  static void To(const WVariant& value, WUInt16& result, bool& bSuccessful)
   {
-    ezUInt32 tempResult = 0;
+    WUInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
-    result = (ezUInt16)tempResult;
+    result = (WUInt16)tempResult;
   }
 
-  static void To(const ezVariant& value, ezInt32& result, bool& bSuccessful)
+  static void To(const WVariant& value, WInt32& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezInt32>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
+    if (value.GetType() <= WVariant::Type::Double)
+      result = value.ConvertNumber<WInt32>();
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
     {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      if (ezConversionUtils::StringToInt(s, result) == EZ_FAILURE)
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      if (WConversionUtils::StringToInt(s, result) == W_FAILURE)
       {
         result = 0;
         bSuccessful = false;
       }
     }
     else
-      EZ_REPORT_FAILURE("Conversion to int failed");
+      W_REPORT_FAILURE("Conversion to int failed");
   }
 
-  static void To(const ezVariant& value, ezUInt32& result, bool& bSuccessful)
+  static void To(const WVariant& value, WUInt32& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezUInt32>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
+    if (value.GetType() <= WVariant::Type::Double)
+      result = value.ConvertNumber<WUInt32>();
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
     {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      ezInt64 tmp = result;
-      if (ezConversionUtils::StringToInt64(s, tmp) == EZ_FAILURE)
-      {
-        result = 0;
-        bSuccessful = false;
-      }
-      else
-        result = (ezUInt32)tmp;
-    }
-    else
-      EZ_REPORT_FAILURE("Conversion to uint failed");
-  }
-
-  static void To(const ezVariant& value, ezInt64& result, bool& bSuccessful)
-  {
-    bSuccessful = true;
-
-    if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezInt64>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
-    {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      if (ezConversionUtils::StringToInt64(s, result) == EZ_FAILURE)
-      {
-        result = 0;
-        bSuccessful = false;
-      }
-    }
-    else
-      EZ_REPORT_FAILURE("Conversion to int64 failed");
-  }
-
-  static void To(const ezVariant& value, ezUInt64& result, bool& bSuccessful)
-  {
-    bSuccessful = true;
-
-    if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezUInt64>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
-    {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      ezInt64 tmp = result;
-      if (ezConversionUtils::StringToInt64(s, tmp) == EZ_FAILURE)
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      WInt64 tmp = result;
+      if (WConversionUtils::StringToInt64(s, tmp) == W_FAILURE)
       {
         result = 0;
         bSuccessful = false;
       }
       else
-        result = (ezUInt64)tmp;
+        result = (WUInt32)tmp;
     }
     else
-      EZ_REPORT_FAILURE("Conversion to uint64 failed");
+      W_REPORT_FAILURE("Conversion to uint failed");
   }
 
-  static void To(const ezVariant& value, float& result, bool& bSuccessful)
+  static void To(const WVariant& value, WInt64& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() <= ezVariant::Type::Double)
+    if (value.GetType() <= WVariant::Type::Double)
+      result = value.ConvertNumber<WInt64>();
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
+    {
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      if (WConversionUtils::StringToInt64(s, result) == W_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+    }
+    else
+      W_REPORT_FAILURE("Conversion to int64 failed");
+  }
+
+  static void To(const WVariant& value, WUInt64& result, bool& bSuccessful)
+  {
+    bSuccessful = true;
+
+    if (value.GetType() <= WVariant::Type::Double)
+      result = value.ConvertNumber<WUInt64>();
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
+    {
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      WInt64 tmp = result;
+      if (WConversionUtils::StringToInt64(s, tmp) == W_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+      else
+        result = (WUInt64)tmp;
+    }
+    else
+      W_REPORT_FAILURE("Conversion to uint64 failed");
+  }
+
+  static void To(const WVariant& value, float& result, bool& bSuccessful)
+  {
+    bSuccessful = true;
+
+    if (value.GetType() <= WVariant::Type::Double)
       result = value.ConvertNumber<float>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
     {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
       double tmp = result;
-      if (ezConversionUtils::StringToFloat(s, tmp) == EZ_FAILURE)
+      if (WConversionUtils::StringToFloat(s, tmp) == W_FAILURE)
       {
         result = 0.0f;
         bSuccessful = false;
@@ -324,29 +324,29 @@ class ezVariantHelper
         result = (float)tmp;
     }
     else
-      EZ_REPORT_FAILURE("Conversion to float failed");
+      W_REPORT_FAILURE("Conversion to float failed");
   }
 
-  static void To(const ezVariant& value, double& result, bool& bSuccessful)
+  static void To(const WVariant& value, double& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() <= ezVariant::Type::Double)
+    if (value.GetType() <= WVariant::Type::Double)
       result = value.ConvertNumber<double>();
-    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
+    else if (value.GetType() == WVariant::Type::String || value.GetType() == WVariant::Type::HashedString)
     {
-      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
-      if (ezConversionUtils::StringToFloat(s, result) == EZ_FAILURE)
+      WStringView s = value.IsA<WString>() ? value.Cast<WString>().GetView() : value.Cast<WHashedString>().GetView();
+      if (WConversionUtils::StringToFloat(s, result) == W_FAILURE)
       {
         result = 0.0;
         bSuccessful = false;
       }
     }
     else
-      EZ_REPORT_FAILURE("Conversion to double failed");
+      W_REPORT_FAILURE("Conversion to double failed");
   }
 
-  static void To(const ezVariant& value, ezString& result, bool& bSuccessful)
+  static void To(const WVariant& value, WString& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
@@ -360,45 +360,45 @@ class ezVariantHelper
     toStringFunc.m_pThis = &value;
     toStringFunc.m_pResult = &result;
 
-    ezVariant::DispatchTo(toStringFunc, value.GetType());
+    WVariant::DispatchTo(toStringFunc, value.GetType());
   }
 
-  static void To(const ezVariant& value, ezStringView& result, bool& bSuccessful)
+  static void To(const WVariant& value, WStringView& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    result = value.IsA<ezString>() ? value.Get<ezString>().GetView() : value.Get<ezHashedString>().GetView();
+    result = value.IsA<WString>() ? value.Get<WString>().GetView() : value.Get<WHashedString>().GetView();
   }
 
-  static void To(const ezVariant& value, ezTypedPointer& result, bool& bSuccessful)
+  static void To(const WVariant& value, WTypedPointer& result, bool& bSuccessful)
   {
     bSuccessful = true;
-    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::TypedPointer, "Only ptr can be converted to void*!");
-    result = value.Cast<ezTypedPointer>();
+    W_ASSERT_DEBUG(value.GetType() == WVariant::Type::TypedPointer, "Only ptr can be converted to void*!");
+    result = value.Cast<WTypedPointer>();
   }
 
-  static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)
+  static void To(const WVariant& value, WColor& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() == ezVariant::Type::ColorGamma)
-      result = value.Cast<ezColorGammaUB>();
+    if (value.GetType() == WVariant::Type::ColorGamma)
+      result = value.Cast<WColorGammaUB>();
     else
-      EZ_REPORT_FAILURE("Conversion to ezColor failed");
+      W_REPORT_FAILURE("Conversion to WColor failed");
   }
 
-  static void To(const ezVariant& value, ezColorGammaUB& result, bool& bSuccessful)
+  static void To(const WVariant& value, WColorGammaUB& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() == ezVariant::Type::Color)
-      result = value.Cast<ezColor>();
+    if (value.GetType() == WVariant::Type::Color)
+      result = value.Cast<WColor>();
     else
-      EZ_REPORT_FAILURE("Conversion to ezColorGammaUB failed");
+      W_REPORT_FAILURE("Conversion to WColorGammaUB failed");
   }
 
   template <typename T, typename V1, typename V2>
-  static void ToVec2X(const ezVariant& value, T& result, bool& bSuccessful)
+  static void ToVec2X(const WVariant& value, T& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
@@ -419,19 +419,19 @@ class ezVariantHelper
     }
     else
     {
-      EZ_REPORT_FAILURE("Conversion to ezVec2X failed");
+      W_REPORT_FAILURE("Conversion to WVec2X failed");
       bSuccessful = false;
     }
   }
 
-  static void To(const ezVariant& value, ezVec2& result, bool& bSuccessful) { ToVec2X<ezVec2, ezVec2I32, ezVec2U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec2& result, bool& bSuccessful) { ToVec2X<WVec2, WVec2I32, WVec2U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec2I32& result, bool& bSuccessful) { ToVec2X<ezVec2I32, ezVec2, ezVec2U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec2I32& result, bool& bSuccessful) { ToVec2X<WVec2I32, WVec2, WVec2U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec2U32& result, bool& bSuccessful) { ToVec2X<ezVec2U32, ezVec2I32, ezVec2>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec2U32& result, bool& bSuccessful) { ToVec2X<WVec2U32, WVec2I32, WVec2>(value, result, bSuccessful); }
 
   template <typename T, typename V1, typename V2>
-  static void ToVec3X(const ezVariant& value, T& result, bool& bSuccessful)
+  static void ToVec3X(const WVariant& value, T& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
@@ -452,19 +452,19 @@ class ezVariantHelper
     }
     else
     {
-      EZ_REPORT_FAILURE("Conversion to ezVec3X failed");
+      W_REPORT_FAILURE("Conversion to WVec3X failed");
       bSuccessful = false;
     }
   }
 
-  static void To(const ezVariant& value, ezVec3& result, bool& bSuccessful) { ToVec3X<ezVec3, ezVec3I32, ezVec3U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec3& result, bool& bSuccessful) { ToVec3X<WVec3, WVec3I32, WVec3U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec3I32& result, bool& bSuccessful) { ToVec3X<ezVec3I32, ezVec3, ezVec3U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec3I32& result, bool& bSuccessful) { ToVec3X<WVec3I32, WVec3, WVec3U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec3U32& result, bool& bSuccessful) { ToVec3X<ezVec3U32, ezVec3I32, ezVec3>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec3U32& result, bool& bSuccessful) { ToVec3X<WVec3U32, WVec3I32, WVec3>(value, result, bSuccessful); }
 
   template <typename T, typename V1, typename V2>
-  static void ToVec4X(const ezVariant& value, T& result, bool& bSuccessful)
+  static void ToVec4X(const WVariant& value, T& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
@@ -485,70 +485,70 @@ class ezVariantHelper
     }
     else
     {
-      EZ_REPORT_FAILURE("Conversion to ezVec4X failed");
+      W_REPORT_FAILURE("Conversion to WVec4X failed");
       bSuccessful = false;
     }
   }
 
-  static void To(const ezVariant& value, ezVec4& result, bool& bSuccessful) { ToVec4X<ezVec4, ezVec4I32, ezVec4U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec4& result, bool& bSuccessful) { ToVec4X<WVec4, WVec4I32, WVec4U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec4I32& result, bool& bSuccessful) { ToVec4X<ezVec4I32, ezVec4, ezVec4U32>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec4I32& result, bool& bSuccessful) { ToVec4X<WVec4I32, WVec4, WVec4U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec4U32& result, bool& bSuccessful) { ToVec4X<ezVec4U32, ezVec4I32, ezVec4>(value, result, bSuccessful); }
+  static void To(const WVariant& value, WVec4U32& result, bool& bSuccessful) { ToVec4X<WVec4U32, WVec4I32, WVec4>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezHashedString& result, bool& bSuccessful)
+  static void To(const WVariant& value, WHashedString& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() == ezVariantType::String)
-      result.Assign(value.Cast<ezString>());
-    else if (value.GetType() == ezVariantType::StringView)
-      result.Assign(value.Cast<ezStringView>());
+    if (value.GetType() == WVariantType::String)
+      result.Assign(value.Cast<WString>());
+    else if (value.GetType() == WVariantType::StringView)
+      result.Assign(value.Cast<WStringView>());
     else
     {
-      ezString s;
+      WString s;
       To(value, s, bSuccessful);
       result.Assign(s.GetView());
     }
   }
 
-  static void To(const ezVariant& value, ezTempHashedString& result, bool& bSuccessful)
+  static void To(const WVariant& value, WTempHashedString& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() == ezVariantType::String)
-      result = value.Cast<ezString>();
-    else if (value.GetType() == ezVariantType::StringView)
-      result = value.Cast<ezStringView>();
-    else if (value.GetType() == ezVariant::Type::HashedString)
-      result = value.Cast<ezHashedString>();
+    if (value.GetType() == WVariantType::String)
+      result = value.Cast<WString>();
+    else if (value.GetType() == WVariantType::StringView)
+      result = value.Cast<WStringView>();
+    else if (value.GetType() == WVariant::Type::HashedString)
+      result = value.Cast<WHashedString>();
     else
     {
-      ezString s;
+      WString s;
       To(value, s, bSuccessful);
       result = s.GetView();
     }
   }
 
   template <typename T>
-  static void To(const ezVariant& value, T& result, bool& bSuccessful)
+  static void To(const WVariant& value, T& result, bool& bSuccessful)
   {
-    EZ_IGNORE_UNUSED(value);
-    EZ_IGNORE_UNUSED(result);
-    EZ_REPORT_FAILURE("Conversion function not implemented for target type '{0}'", ezVariant::TypeDeduction<T>::value);
+    W_IGNORE_UNUSED(value);
+    W_IGNORE_UNUSED(result);
+    W_REPORT_FAILURE("Conversion function not implemented for target type '{0}'", WVariant::TypeDeduction<T>::value);
     bSuccessful = false;
   }
 
   struct ToStringFunc
   {
     template <typename T>
-    EZ_ALWAYS_INLINE void operator()()
+    W_ALWAYS_INLINE void operator()()
     {
-      ezStringBuilder tmp;
-      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp); // NOLINT (clang-analyzer-core.CallAndMessage)
+      WStringBuilder tmp;
+      *m_pResult = WConversionUtils::ToString(m_pThis->Cast<T>(), tmp); // NOLINT (clang-analyzer-core.CallAndMessage)
     }
 
-    const ezVariant* m_pThis;
-    ezString* m_pResult;
+    const WVariant* m_pThis;
+    WString* m_pResult;
   };
 };

@@ -6,12 +6,12 @@
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/SimpleTest.h>
 
-class ezSimpleRendererTestGroup : public ezGraphicsTest
+class WSimpleRendererTestGroup : public WGraphicsTest
 {
 public:
   using SimpleRendererTestFunc = void (*)();
 
-  ezSimpleRendererTestGroup(const char* szName)
+  WSimpleRendererTestGroup(const char* szName)
     : m_szTestName(szName)
   {
   }
@@ -21,7 +21,7 @@ public:
 
 private:
   virtual void SetupSubTests() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override;
 
 private:
   struct SimpleRendererTestEntry
@@ -34,10 +34,10 @@ private:
   std::deque<SimpleRendererTestEntry> m_SimpleRendererTests;
 };
 
-class ezRegisterSimpleRendererTestHelper : public ezRegisterTestHelper
+class WRegisterSimpleRendererTestHelper : public WRegisterTestHelper
 {
 public:
-  ezRegisterSimpleRendererTestHelper(ezSimpleRendererTestGroup* pTestGroup, const char* szTestName, ezSimpleRendererTestGroup::SimpleRendererTestFunc func)
+  WRegisterSimpleRendererTestHelper(WSimpleRendererTestGroup* pTestGroup, const char* szTestName, WSimpleRendererTestGroup::SimpleRendererTestFunc func)
   {
     m_pTestGroup = pTestGroup;
     m_szTestName = szTestName;
@@ -47,16 +47,16 @@ public:
   virtual void RegisterTest() override { m_pTestGroup->AddSimpleRendererTest(m_szTestName, m_Func); }
 
 private:
-  ezSimpleRendererTestGroup* m_pTestGroup;
+  WSimpleRendererTestGroup* m_pTestGroup;
   const char* m_szTestName;
-  ezSimpleRendererTestGroup::SimpleRendererTestFunc m_Func;
+  WSimpleRendererTestGroup::SimpleRendererTestFunc m_Func;
 };
 
-#define EZ_CREATE_SIMPLE_RENDERER_TEST_GROUP(GroupName) ezSimpleRendererTestGroup EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName)(EZ_PP_STRINGIFY(GroupName));
+#define W_CREATE_SIMPLE_RENDERER_TEST_GROUP(GroupName) WSimpleRendererTestGroup W_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName)(W_PP_STRINGIFY(GroupName));
 
-#define EZ_CREATE_SIMPLE_RENDERER_TEST(GroupName, TestName)                                                                                    \
-  extern ezSimpleRendererTestGroup EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName);                                                       \
-  static void ezSimpleRendererTestFunction__##GroupName##_##TestName();                                                                        \
-  ezRegisterSimpleRendererTestHelper ezRegisterSimpleRendererTest__##GroupName##TestName(                                                      \
-    &EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName), EZ_PP_STRINGIFY(TestName), ezSimpleRendererTestFunction__##GroupName##_##TestName); \
-  static void ezSimpleRendererTestFunction__##GroupName##_##TestName()
+#define W_CREATE_SIMPLE_RENDERER_TEST(GroupName, TestName)                                                                                    \
+  extern WSimpleRendererTestGroup W_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName);                                                       \
+  static void WSimpleRendererTestFunction__##GroupName##_##TestName();                                                                        \
+  WRegisterSimpleRendererTestHelper WRegisterSimpleRendererTest__##GroupName##TestName(                                                      \
+    &W_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName), W_PP_STRINGIFY(TestName), WSimpleRendererTestFunction__##GroupName##_##TestName); \
+  static void WSimpleRendererTestFunction__##GroupName##_##TestName()

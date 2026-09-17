@@ -12,14 +12,14 @@
 
 
 
-ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtAnimationGraphAssetDocumentWindow::WQtAnimationGraphAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "AnimationGraphAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -28,8 +28,8 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "AnimationGraphAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -40,14 +40,14 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
 
   // Central Widget
   {
-    m_pScene = new ezQtAnimationGraphAssetScene(this);
-    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+    m_pScene = new WQtAnimationGraphAssetScene(this);
+    m_pScene->InitScene(static_cast<const WVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pView = new ezQtVisualGraphView(this);
+    m_pView = new WQtVisualGraphView(this);
     m_pView->SetScene(m_pScene);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pCentral->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("WQtDocumentPanel");
     pCentral->setWindowTitle("Anim Graph");
     pCentral->setWidget(m_pView);
 
@@ -55,12 +55,12 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AnimationGraphAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
 
     QWidget* pWidget = new QWidget();
     pWidget->setObjectName("Group");
@@ -68,7 +68,7 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
     pWidget->setContentsMargins(0, 0, 0, 0);
 
     pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(pPropertyGrid);
 
     pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
@@ -77,22 +77,22 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
     m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
 
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationGraphAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WQtAnimationGraphAssetDocumentWindow::SelectionEventHandler, this));
 
   FinishWindowCreation();
 
-  SelectionEventHandler(ezSelectionManagerEvent());
+  SelectionEventHandler(WSelectionManagerEvent());
 }
 
-ezQtAnimationGraphAssetDocumentWindow::~ezQtAnimationGraphAssetDocumentWindow()
+WQtAnimationGraphAssetDocumentWindow::~WQtAnimationGraphAssetDocumentWindow()
 {
   if (GetDocument() != nullptr)
   {
-    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationGraphAssetDocumentWindow::SelectionEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WQtAnimationGraphAssetDocumentWindow::SelectionEventHandler, this));
   }
 }
 
-void ezQtAnimationGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WQtAnimationGraphAssetDocumentWindow::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
@@ -102,7 +102,7 @@ void ezQtAnimationGraphAssetDocumentWindow::SelectionEventHandler(const ezSelect
       // Check again if the selection is empty. This could have changed due to the delayed execution.
       if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
       {
-        GetDocument()->GetSelectionManager()->SetSelection(((ezAnimationGraphAssetDocument*)GetDocument())->GetPropertyObject());
+        GetDocument()->GetSelectionManager()->SetSelection(((WAnimationGraphAssetDocument*)GetDocument())->GetPropertyObject());
       } });
   }
 }

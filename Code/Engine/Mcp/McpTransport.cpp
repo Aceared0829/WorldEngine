@@ -12,11 +12,11 @@ namespace
 {
   /// A request larger than this is not a request, it is either a mistake or an attack. The largest
   /// legitimate body is an object_modify call carrying a value, which is kilobytes.
-  constexpr ezUInt32 uiMaxRequestSize = 16 * 1024 * 1024;
+  constexpr WUInt32 uiMaxRequestSize = 16 * 1024 * 1024;
 
   /// How long the accept loop blocks before looking at the stop flag again. Only bounds how long Stop()
   /// takes, so it can be generous.
-  constexpr ezTime AcceptPollInterval = ezTime::MakeFromMilliseconds(100);
+  constexpr WTime AcceptPollInterval = WTime::MakeFromMilliseconds(100);
 
   /// Finds the value of one header in the raw header block, case insensitively.
   ///
@@ -24,9 +24,9 @@ namespace
   /// is copied into a local builder for that reason: searching the original directly also means the
   /// offset cannot drift, which it would if a lower-cased copy of a header containing non-ASCII bytes
   /// came out at a different byte length than the input.
-  ezStringView FindHeaderValue(ezStringView sHeaders, ezStringView sName)
+  WStringView FindHeaderValue(WStringView sHeaders, WStringView sName)
   {
-    ezStringBuilder sSearch = sName;
+    WStringBuilder sSearch = sName;
     sSearch.Append(":");
 
     const char* szFound = sHeaders.FindSubString_NoCase(sSearch);
@@ -37,7 +37,7 @@ namespace
     const char* szStart = szFound + sSearch.GetElementCount();
     const char* szEnd = sHeaders.GetEndPointer();
 
-    if (const char* szLineEnd = ezStringView(szStart, szEnd).FindSubString("\r\n"))
+    if (const char* szLineEnd = WStringView(szStart, szEnd).FindSubString("\r\n"))
     {
       szEnd = szLineEnd;
     }
@@ -48,29 +48,29 @@ namespace
     while (szEnd > szStart && (szEnd[-1] == ' ' || szEnd[-1] == '\t'))
       --szEnd;
 
-    return ezStringView(szStart, szEnd);
+    return WStringView(szStart, szEnd);
   }
 } // namespace
 
-/// Owns the listening socket and turns bytes into ezMcpHttpRequest.
-class ezMcpTransportThread : public ezThread
+/// Owns the listening socket and turns bytes into WMcpHttpRequest.
+class WMcpTransportThread : public WThread
 {
 public:
-  ezMcpTransportThread(ezMcpTransport* pOwner)
-    : ezThread("ezMcpTransport")
+  WMcpTransportThread(WMcpTransport* pOwner)
+    : WThread("WMcpTransport")
     , m_pOwner(pOwner)
   {
   }
 
-  ezMcpSocket m_Listener;
-  ezAtomicInteger32 m_iStopRequested;
+  WMcpSocket m_Listener;
+  WAtomicInteger32 m_iStopRequested;
 
 private:
-  virtual ezUInt32 Run() override
+  virtual WUInt32 Run() override
   {
     while (m_iStopRequested == 0)
     {
-      ezMcpSocket client;
+      WMcpSocket client;
 
       if (m_Listener.Accept(client, AcceptPollInterval).Failed())
         continue; // nothing connected within the poll interval, or we are shutting down
@@ -85,15 +85,15 @@ private:
   ///
   /// One request per connection. The server always answers `Connection: close`, so a client that wants
   /// to make a second call opens a second connection.
-  void HandleConnection(ezMcpSocket& client)
+  void HandleConnection(WMcpSocket& client)
   {
-    ezDynamicArray<ezUInt8> buffer;
+    WDynamicArray<WUInt8> buffer;
     buffer.Reserve(4096);
 
-    ezUInt8 chunk[4096];
-    ezInt32 iHeaderEnd = -1;
-    ezInt32 iContentLength = 0;
-    ezUInt32 uiBodyStart = 0;
+    WUInt8 chunk[4096];
+    WInt32 iHeaderEnd = -1;
+    WInt32 iContentLength = 0;
+    WUInt32 uiBodyStart = 0;
 
     while (true)
     {
@@ -101,47 +101,47 @@ private:
       // read is not guaranteed to contain either
       if (iHeaderEnd < 0)
       {
-        const ezStringView sSoFar(reinterpret_cast<const char*>(buffer.GetData()), buffer.GetCount());
+        const WStringView sSoFar(reinterpret_cast<const char*>(buffer.GetData()), buffer.GetCount());
         const char* szEnd = sSoFar.FindSubString("\r\n\r\n");
 
         if (szEnd != nullptr)
         {
-          iHeaderEnd = static_cast<ezInt32>(szEnd - sSoFar.GetStartPointer());
-          uiBodyStart = static_cast<ezUInt32>(iHeaderEnd) + 4;
+          iHeaderEnd = static_cast<WInt32>(szEnd - sSoFar.GetStartPointer());
+          uiBodyStart = static_cast<WUInt32>(iHeaderEnd) + 4;
 
-          const ezStringView sHeaders(reinterpret_cast<const char*>(buffer.GetData()), static_cast<ezUInt32>(iHeaderEnd));
-          const ezStringView sLength = FindHeaderValue(sHeaders, "Content-Length");
+          const WStringView sHeaders(reinterpret_cast<const char*>(buffer.GetData()), static_cast<WUInt32>(iHeaderEnd));
+          const WStringView sLength = FindHeaderValue(sHeaders, "Content-Length");
 
           if (!sLength.IsEmpty())
           {
-            ezInt64 iParsed = 0;
-            if (ezConversionUtils::StringToInt64(sLength, iParsed).Succeeded() && iParsed > 0)
+            WInt64 iParsed = 0;
+            if (WConversionUtils::StringToInt64(sLength, iParsed).Succeeded() && iParsed > 0)
             {
-              iContentLength = static_cast<ezInt32>(ezMath::Min<ezInt64>(iParsed, uiMaxRequestSize));
+              iContentLength = static_cast<WInt32>(WMath::Min<WInt64>(iParsed, uiMaxRequestSize));
             }
           }
         }
       }
 
-      if (iHeaderEnd >= 0 && buffer.GetCount() >= uiBodyStart + static_cast<ezUInt32>(iContentLength))
+      if (iHeaderEnd >= 0 && buffer.GetCount() >= uiBodyStart + static_cast<WUInt32>(iContentLength))
         break;  // request is complete
 
       if (buffer.GetCount() > uiMaxRequestSize)
         return; // hang up on something that is not going to become a valid request
 
-      const ezInt32 iRead = client.Receive(chunk, EZ_ARRAY_SIZE(chunk));
+      const WInt32 iRead = client.Receive(chunk, W_ARRAY_SIZE(chunk));
 
       if (iRead <= 0)
         return; // peer hung up, timed out, or errored - either way there is nothing to answer
 
-      buffer.PushBackRange(ezArrayPtr<const ezUInt8>(chunk, static_cast<ezUInt32>(iRead)));
+      buffer.PushBackRange(WArrayPtr<const WUInt8>(chunk, static_cast<WUInt32>(iRead)));
     }
 
-    ezMcpHttpRequest request;
-    ParseRequestLine(ezStringView(reinterpret_cast<const char*>(buffer.GetData()), static_cast<ezUInt32>(iHeaderEnd)), request);
-    request.m_sBody = ezStringView(reinterpret_cast<const char*>(buffer.GetData()) + uiBodyStart, static_cast<ezUInt32>(iContentLength));
+    WMcpHttpRequest request;
+    ParseRequestLine(WStringView(reinterpret_cast<const char*>(buffer.GetData()), static_cast<WUInt32>(iHeaderEnd)), request);
+    request.m_sBody = WStringView(reinterpret_cast<const char*>(buffer.GetData()) + uiBodyStart, static_cast<WUInt32>(iContentLength));
 
-    ezMcpHttpResponse response;
+    WMcpHttpResponse response;
 
     if (m_pOwner->DispatchAndWait(request, response).Failed())
       return; // the transport was stopped before the main thread got to this - drop the connection
@@ -151,9 +151,9 @@ private:
 
   /// Splits "POST /mcp HTTP/1.1" into the two parts we care about.
   ///
-  /// Done by hand rather than with ezStringBuilder::Split(), whose result views would point into a
+  /// Done by hand rather than with WStringBuilder::Split(), whose result views would point into a
   /// builder that goes out of scope here.
-  static void ParseRequestLine(ezStringView sHeaders, ezMcpHttpRequest& ref_request)
+  static void ParseRequestLine(WStringView sHeaders, WMcpHttpRequest& ref_request)
   {
     const char* szStart = sHeaders.GetStartPointer();
     const char* szEnd = sHeaders.GetEndPointer();
@@ -167,7 +167,7 @@ private:
     while (szFirstSpace < szEnd && *szFirstSpace != ' ')
       ++szFirstSpace;
 
-    ref_request.m_sMethod = ezStringView(szStart, szFirstSpace);
+    ref_request.m_sMethod = WStringView(szStart, szFirstSpace);
 
     if (szFirstSpace >= szEnd)
       return;
@@ -177,12 +177,12 @@ private:
     while (szSecondSpace < szEnd && *szSecondSpace != ' ')
       ++szSecondSpace;
 
-    ref_request.m_sPath = ezStringView(szPathStart, szSecondSpace);
+    ref_request.m_sPath = WStringView(szPathStart, szSecondSpace);
   }
 
-  static void SendResponse(ezMcpSocket& client, const ezMcpHttpResponse& response)
+  static void SendResponse(WMcpSocket& client, const WMcpHttpResponse& response)
   {
-    ezStringBuilder sHeader;
+    WStringBuilder sHeader;
     sHeader.SetFormat("HTTP/1.1 {}\r\n"
                       "Content-Type: application/json\r\n"
                       "Content-Length: {}\r\n"
@@ -199,24 +199,24 @@ private:
     }
   }
 
-  ezMcpTransport* m_pOwner = nullptr;
+  WMcpTransport* m_pOwner = nullptr;
 };
 
-ezMcpTransport::ezMcpTransport() = default;
+WMcpTransport::WMcpTransport() = default;
 
-ezMcpTransport::~ezMcpTransport()
+WMcpTransport::~WMcpTransport()
 {
   Stop();
 }
 
-ezResult ezMcpTransport::Start(ezUInt16 uiPort, RequestHandler handler)
+WResult WMcpTransport::Start(WUInt16 uiPort, RequestHandler handler)
 {
   Stop();
 
-  ezUniquePtr<ezMcpTransportThread> pThread = EZ_DEFAULT_NEW(ezMcpTransportThread, this);
+  WUniquePtr<WMcpTransportThread> pThread = W_DEFAULT_NEW(WMcpTransportThread, this);
 
   if (pThread->m_Listener.Listen(uiPort).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_uiPort = pThread->m_Listener.GetPort();
   m_Handler = handler;
@@ -225,16 +225,16 @@ ezResult ezMcpTransport::Start(ezUInt16 uiPort, RequestHandler handler)
   m_pThread = std::move(pThread);
   m_pThread->Start();
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezMcpTransport::Stop()
+void WMcpTransport::Stop()
 {
   if (m_pThread == nullptr)
     return;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     m_bShutdown = true;
   }
 
@@ -250,26 +250,26 @@ void ezMcpTransport::Stop()
   m_Handler = {};
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     m_pPendingRequest = nullptr;
     m_pPendingResponse = nullptr;
     m_bShutdown = false;
   }
 }
 
-bool ezMcpTransport::HasPendingRequest() const
+bool WMcpTransport::HasPendingRequest() const
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
   return m_pPendingRequest != nullptr && !m_bRequestAnswered;
 }
 
-ezResult ezMcpTransport::DispatchAndWait(const ezMcpHttpRequest& request, ezMcpHttpResponse& out_response)
+WResult WMcpTransport::DispatchAndWait(const WMcpHttpRequest& request, WMcpHttpResponse& out_response)
 {
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (m_bShutdown)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     m_pPendingRequest = &request;
     m_pPendingResponse = &out_response;
@@ -282,31 +282,31 @@ ezResult ezMcpTransport::DispatchAndWait(const ezMcpHttpRequest& request, ezMcpH
   {
     m_ResponseSignal.WaitForSignal();
 
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (m_bShutdown)
     {
       m_pPendingRequest = nullptr;
       m_pPendingResponse = nullptr;
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
     if (m_bRequestAnswered)
     {
       m_pPendingRequest = nullptr;
       m_pPendingResponse = nullptr;
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 }
 
-void ezMcpTransport::ProcessPendingRequests()
+void WMcpTransport::ProcessPendingRequests()
 {
-  const ezMcpHttpRequest* pRequest = nullptr;
-  ezMcpHttpResponse* pResponse = nullptr;
+  const WMcpHttpRequest* pRequest = nullptr;
+  WMcpHttpResponse* pResponse = nullptr;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
 
     if (m_pPendingRequest == nullptr || m_bRequestAnswered)
       return;
@@ -334,7 +334,7 @@ void ezMcpTransport::ProcessPendingRequests()
   }
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     m_bRequestAnswered = true;
   }
 

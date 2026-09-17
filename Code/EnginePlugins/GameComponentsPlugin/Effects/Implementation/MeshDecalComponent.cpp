@@ -15,142 +15,142 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMeshDecalDescription, ezNoBase, 1, ezRTTIDefaultAllocator<ezMeshDecalDescription>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WMeshDecalDescription, WNoBase, 1, WRTTIDefaultAllocator<WMeshDecalDescription>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Index", m_uiIndex)->AddAttributes(new ezClampValueAttribute(0, 7)),
-    EZ_RESOURCE_MEMBER_PROPERTY("BaseColorTexture", m_hBaseColorTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    W_MEMBER_PROPERTY("Index", m_uiIndex)->AddAttributes(new WClampValueAttribute(0, 7)),
+    W_RESOURCE_MEMBER_PROPERTY("BaseColorTexture", m_hBaseColorTexture)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezMeshDecalDescription::Serialize(ezStreamWriter& inout_stream) const
+WResult WMeshDecalDescription::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_uiIndex;
   inout_stream << m_hBaseColorTexture;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezMeshDecalDescription::Deserialize(ezStreamReader& inout_stream)
+WResult WMeshDecalDescription::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_uiIndex;
   inout_stream >> m_hBaseColorTexture;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezMeshDecalComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WMeshDecalComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_ACCESSOR_PROPERTY("Decals", Decals_GetCount, Decals_Get, Decals_Set, Decals_Insert, Decals_Remove),
+    W_ARRAY_ACCESSOR_PROPERTY("Decals", Decals_GetCount, Decals_Get, Decals_Set, Decals_Insert, Decals_Remove),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new WCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-void ezMeshDecalComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WMeshDecalComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s.WriteArray(m_DecalDescs).AssertSuccess();
 }
 
-void ezMeshDecalComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WMeshDecalComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s.ReadArray(m_DecalDescs).AssertSuccess();
 }
 
-void ezMeshDecalComponent::OnActivated()
+void WMeshDecalComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   UpdateDecals();
 }
 
-void ezMeshDecalComponent::OnDeactivated()
+void WMeshDecalComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
   DeleteDecals();
 }
 
-void ezMeshDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WMeshDecalComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow)
     return;
 
-  const float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(GetOwner()->GetGlobalBounds().GetSphere(), *msg.m_pView->GetCullingCamera());
+  const float fScreenSpaceSize = WLightComponent::CalculateScreenSpaceSize(GetOwner()->GetGlobalBounds().GetSphere(), *msg.m_pView->GetCullingCamera());
 
-  for (ezDecalId decalId : m_DecalIds)
+  for (WDecalId decalId : m_DecalIds)
   {
-    ezDecalManager::MarkRuntimeDecalAsUsed(decalId, fScreenSpaceSize, msg.m_pView);
+    WDecalManager::MarkRuntimeDecalAsUsed(decalId, fScreenSpaceSize, msg.m_pView);
   }
 }
 
-ezUInt32 ezMeshDecalComponent::Decals_GetCount() const
+WUInt32 WMeshDecalComponent::Decals_GetCount() const
 {
   return m_DecalDescs.GetCount();
 }
 
-const ezMeshDecalDescription& ezMeshDecalComponent::Decals_Get(ezUInt32 uiIndex) const
+const WMeshDecalDescription& WMeshDecalComponent::Decals_Get(WUInt32 uiIndex) const
 {
   return m_DecalDescs[uiIndex];
 }
 
-void ezMeshDecalComponent::Decals_Set(ezUInt32 uiIndex, const ezMeshDecalDescription& desc)
+void WMeshDecalComponent::Decals_Set(WUInt32 uiIndex, const WMeshDecalDescription& desc)
 {
   m_DecalDescs[uiIndex] = desc;
 
   UpdateDecals();
 }
 
-void ezMeshDecalComponent::Decals_Insert(ezUInt32 uiIndex, const ezMeshDecalDescription& desc)
+void WMeshDecalComponent::Decals_Insert(WUInt32 uiIndex, const WMeshDecalDescription& desc)
 {
   m_DecalDescs.InsertAt(uiIndex, desc);
 
   UpdateDecals();
 }
 
-void ezMeshDecalComponent::Decals_Remove(ezUInt32 uiIndex)
+void WMeshDecalComponent::Decals_Remove(WUInt32 uiIndex)
 {
   m_DecalDescs.RemoveAtAndCopy(uiIndex);
 
   UpdateDecals();
 }
 
-void ezMeshDecalComponent::UpdateDecals()
+void WMeshDecalComponent::UpdateDecals()
 {
   if (!IsActiveAndInitialized())
     return;
 
   DeleteDecals();
 
-  ezArrayMap<ezUInt32, ezTexture2DResourceHandle, ezTempAllocatorWrapper> indexToTexture;
+  WArrayMap<WUInt32, WTexture2DResourceHandle, WTempAllocatorWrapper> indexToTexture;
   indexToTexture.Reserve(m_DecalDescs.GetCount());
 
   for (auto& desc : m_DecalDescs)
@@ -158,30 +158,30 @@ void ezMeshDecalComponent::UpdateDecals()
     indexToTexture.Insert(desc.m_uiIndex, desc.m_hBaseColorTexture);
   }
 
-  ezUInt32 uiRandomSeed = GetOwner()->GetStableRandomSeed();
+  WUInt32 uiRandomSeed = GetOwner()->GetStableRandomSeed();
   int iRandomPos = 0;
-  auto RandomIndex = [uiRandomSeed, &iRandomPos](ezUInt32 uiMin, ezUInt32 uiMax)
+  auto RandomIndex = [uiRandomSeed, &iRandomPos](WUInt32 uiMin, WUInt32 uiMax)
   {
-    ezUInt32 uiIndex = static_cast<ezUInt32>(ezSimdRandom::FloatMinMax(ezSimdVec4i(iRandomPos), ezSimdVec4f(float(uiMin)), ezSimdVec4f(float(uiMax)), ezSimdVec4u(uiRandomSeed)).x());
+    WUInt32 uiIndex = static_cast<WUInt32>(WSimdRandom::FloatMinMax(WSimdVec4i(iRandomPos), WSimdVec4f(float(uiMin)), WSimdVec4f(float(uiMax)), WSimdVec4u(uiRandomSeed)).x());
     iRandomPos++;
     return uiIndex;
   };
 
-  ezUInt16 decalIndices[8] = {};
-  for (ezUInt32 i = 0; i < 8; ++i)
+  WUInt16 decalIndices[8] = {};
+  for (WUInt32 i = 0; i < 8; ++i)
   {
-    decalIndices[i] = ezSmallInvalidIndex;
+    decalIndices[i] = WSmallInvalidIndex;
 
-    const ezUInt32 uiLowerBound = indexToTexture.LowerBound(i);
-    const ezUInt32 uiUpperBound = ezMath::Min(indexToTexture.UpperBound(i), indexToTexture.GetCount());
+    const WUInt32 uiLowerBound = indexToTexture.LowerBound(i);
+    const WUInt32 uiUpperBound = WMath::Min(indexToTexture.UpperBound(i), indexToTexture.GetCount());
 
-    if (uiLowerBound != ezInvalidIndex && uiUpperBound > uiLowerBound)
+    if (uiLowerBound != WInvalidIndex && uiUpperBound > uiLowerBound)
     {
-      const ezUInt32 uiIndex = RandomIndex(uiLowerBound, uiUpperBound);
+      const WUInt32 uiIndex = RandomIndex(uiLowerBound, uiUpperBound);
       auto& hTexture = indexToTexture.GetValue(uiIndex);
       if (hTexture.IsValid())
       {
-        ezDecalId decalId = ezDecalManager::GetOrCreateRuntimeDecal(hTexture);
+        WDecalId decalId = WDecalManager::GetOrCreateRuntimeDecal(hTexture);
         decalIndices[i] = decalId.m_InstanceIndex;
 
         if (!m_DecalIds.Contains(decalId))
@@ -190,21 +190,21 @@ void ezMeshDecalComponent::UpdateDecals()
     }
   }
 
-  ezMsgSetCustomData msg;
-  msg.m_vData = *reinterpret_cast<const ezVec4*>(decalIndices);
+  WMsgSetCustomData msg;
+  msg.m_vData = *reinterpret_cast<const WVec4*>(decalIndices);
 
-  GetOwner()->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(msg, WTime::MakeZero(), WObjectMsgQueueType::AfterInitialized);
 }
 
-void ezMeshDecalComponent::DeleteDecals()
+void WMeshDecalComponent::DeleteDecals()
 {
-  for (ezDecalId decalId : m_DecalIds)
+  for (WDecalId decalId : m_DecalIds)
   {
-    ezDecalManager::DeleteRuntimeDecal(decalId);
+    WDecalManager::DeleteRuntimeDecal(decalId);
   }
 
   m_DecalIds.Clear();
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Implementation_MeshDecalComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Implementation_MeshDecalComponent);

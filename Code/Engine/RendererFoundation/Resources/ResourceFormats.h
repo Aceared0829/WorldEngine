@@ -3,11 +3,11 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
+struct W_RENDERERFOUNDATION_DLL WGALResourceFormat
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
-  enum Enum : ezUInt8
+  enum Enum : WUInt8
   {
     Invalid = 0,
 
@@ -107,55 +107,55 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
   // General format Meta-Informations:
 
   /// The size in bits per element (usually pixels, except for mesh stream elements) of a single element of the given resource format.
-  static ezUInt32 GetBitsPerElement(ezGALResourceFormat::Enum format);
+  static WUInt32 GetBitsPerElement(WGALResourceFormat::Enum format);
 
   /// The number of color channels this format contains.
-  static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format);
+  static WUInt8 GetChannelCount(WGALResourceFormat::Enum format);
 
   /// \todo A combination of propertyflags, something like srgb, normalized, ...
   // Would be very useful for some GL stuff and Testing.
 
   /// Returns whether the given resource format is a depth format
-  static bool IsDepthFormat(ezGALResourceFormat::Enum format);
-  static bool IsStencilFormat(ezGALResourceFormat::Enum format);
+  static bool IsDepthFormat(WGALResourceFormat::Enum format);
+  static bool IsStencilFormat(WGALResourceFormat::Enum format);
 
-  static bool IsSrgb(ezGALResourceFormat::Enum format);
+  static bool IsSrgb(WGALResourceFormat::Enum format);
 
-  static bool IsBlockCompressed(ezGALResourceFormat::Enum format);
+  static bool IsBlockCompressed(WGALResourceFormat::Enum format);
 
   /// Returns whether the given resource format returns integer values when sampled (e.g. RUShort). Note that normalized formats like RGUShortNormalized are not considered integer formats as they return float values in the [0..1] range when sampled.
-  static bool IsIntegerFormat(ezGALResourceFormat::Enum format);
+  static bool IsIntegerFormat(WGALResourceFormat::Enum format);
 
   /// Returns whether the given resource format can store negative values.
-  static bool IsSignedFormat(ezGALResourceFormat::Enum format);
+  static bool IsSignedFormat(WGALResourceFormat::Enum format);
 
-  static bool IsFloatFormat(ezGALResourceFormat::Enum format);
+  static bool IsFloatFormat(WGALResourceFormat::Enum format);
 
 private:
-  static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
+  static const WUInt8 s_BitsPerElement[WGALResourceFormat::ENUM_COUNT];
 
-  static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
+  static const WUInt8 s_ChannelCount[WGALResourceFormat::ENUM_COUNT];
 };
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
-class ezGALFormatLookupEntry
+class WGALFormatLookupEntry
 {
 public:
-  inline ezGALFormatLookupEntry();
+  inline WGALFormatLookupEntry();
 
-  inline ezGALFormatLookupEntry(NativeFormatType storage);
+  inline WGALFormatLookupEntry(NativeFormatType storage);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType renderTargetType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType renderTargetType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType depthOnlyType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType depthOnlyType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType stencilOnlyType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType stencilOnlyType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType depthStencilType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType depthStencilType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType vertexAttributeType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType vertexAttributeType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType resourceViewType);
+  inline WGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType resourceViewType);
 
   NativeFormatType m_eStorage;
   NativeFormatType m_eRenderTarget;
@@ -166,19 +166,19 @@ public:
   NativeFormatType m_eResourceViewType;
 };
 
-// Reusable table class to store lookup information (from ezGALResourceFormat to the various formats for texture/buffer storage, views)
+// Reusable table class to store lookup information (from WGALResourceFormat to the various formats for texture/buffer storage, views)
 template <typename FormatClass>
-class ezGALFormatLookupTable
+class WGALFormatLookupTable
 {
 public:
-  ezGALFormatLookupTable();
+  WGALFormatLookupTable();
 
-  EZ_ALWAYS_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum format) const;
+  W_ALWAYS_INLINE const FormatClass& GetFormatInfo(WGALResourceFormat::Enum format) const;
 
-  EZ_ALWAYS_INLINE void SetFormatInfo(ezGALResourceFormat::Enum format, const FormatClass& newFormatInfo);
+  W_ALWAYS_INLINE void SetFormatInfo(WGALResourceFormat::Enum format, const FormatClass& newFormatInfo);
 
 private:
-  FormatClass m_Formats[ezGALResourceFormat::ENUM_COUNT];
+  FormatClass m_Formats[WGALResourceFormat::ENUM_COUNT];
 };
 
 #include <RendererFoundation/Resources/Implementation/ResourceFormats_inl.h>

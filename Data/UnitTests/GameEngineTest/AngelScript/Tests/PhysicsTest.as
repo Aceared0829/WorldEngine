@@ -7,19 +7,19 @@ enum Phase
     Done
 }
 
-class ScriptObject : ezAngelScriptTestClass
+class ScriptObject : WAngelScriptTestClass
 {
     private Phase m_Phase = Phase::Raycast;
     private int m_iFoundInside = 0;
     private int m_iFoundOther = 0;
-    private array<ezGameObjectHandle> m_Found;
+    private array<WGameObjectHandle> m_Found;
 
     ScriptObject()
     {
         super("PhysicsTest");
     }
 
-    bool FoundObject(ezGameObject@ obj)
+    bool FoundObject(WGameObject@ obj)
     {
         if (obj.HasName("Inside"))
             ++m_iFoundInside;
@@ -35,25 +35,25 @@ class ScriptObject : ezAngelScriptTestClass
     {
         if (m_Phase == Phase::Raycast)
         {
-            ezVec3 vHitPosition, vHitNormal;
-            ezGameObjectHandle hHitObject;
+            WVec3 vHitPosition, vHitNormal;
+            WGameObjectHandle hHitObject;
 
-            EZ_TEST_BOOL(!ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, ezVec3(1, 2, 3), ezVec3(0, 0, -1) * 10.0f, 0, ezPhysicsShapeType::Dynamic));
+            W_TEST_BOOL(!WPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, WVec3(1, 2, 3), WVec3(0, 0, -1) * 10.0f, 0, WPhysicsShapeType::Dynamic));
 
-            EZ_TEST_BOOL(ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, ezVec3(1, 2, 3), ezVec3(0, 0, -1) * 10.0f, 0, ezPhysicsShapeType::Static));
+            W_TEST_BOOL(WPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, WVec3(1, 2, 3), WVec3(0, 0, -1) * 10.0f, 0, WPhysicsShapeType::Static));
 
-            EZ_TEST_VEC3(vHitPosition, ezVec3(1, 2, 0));
-            EZ_TEST_VEC3(vHitNormal, ezVec3(0, 0, 1));
+            W_TEST_VEC3(vHitPosition, WVec3(1, 2, 0));
+            W_TEST_VEC3(vHitNormal, WVec3(0, 0, 1));
 
             m_Phase = Phase::Spatial;
         }
         else if (m_Phase == Phase::Spatial)
         {
-            ezSpatial::FindObjectsInSphere("Marker", ezVec3(5.5f, 5.5f, 5.0f), 1.0f, ReportObjectCB(FoundObject));
+            WSpatial::FindObjectsInSphere("Marker", WVec3(5.5f, 5.5f, 5.0f), 1.0f, ReportObjectCB(FoundObject));
 
-            EZ_TEST_INT(m_iFoundInside, 4);
-            EZ_TEST_INT(m_iFoundOther, 0);
-            EZ_TEST_INT(m_Found.GetCount(), 4);
+            W_TEST_INT(m_iFoundInside, 4);
+            W_TEST_INT(m_iFoundOther, 0);
+            W_TEST_INT(m_Found.GetCount(), 4);
 
             m_Phase = Phase::Done;
         }

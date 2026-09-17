@@ -11,42 +11,42 @@
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezRTTI;
-class ezAbstractObjectNode;
-class ezAbstractObjectGraph;
-class ezGraphPatch;
-class ezGraphPatchContext;
-class ezGraphVersioning;
+class WRTTI;
+class WAbstractObjectNode;
+class WAbstractObjectGraph;
+class WGraphPatch;
+class WGraphPatchContext;
+class WGraphVersioning;
 
 /// Identifier for graph patches combining type name and version number.
 ///
 /// This structure uniquely identifies which patch should be applied to which type version.
 /// The versioning system uses this to track patch progression and avoid duplicate applications.
-struct ezVersionKey
+struct WVersionKey
 {
-  ezVersionKey() = default;
-  ezVersionKey(ezStringView sType, ezUInt32 uiTypeVersion)
+  WVersionKey() = default;
+  WVersionKey(WStringView sType, WUInt32 uiTypeVersion)
   {
     m_sType.Assign(sType);
     m_uiTypeVersion = uiTypeVersion;
   }
-  EZ_DECLARE_POD_TYPE();
-  ezHashedString m_sType;
-  ezUInt32 m_uiTypeVersion;
+  W_DECLARE_POD_TYPE();
+  WHashedString m_sType;
+  WUInt32 m_uiTypeVersion;
 };
 
-/// Hash helper class for ezVersionKey
-struct ezGraphVersioningHash
+/// Hash helper class for WVersionKey
+struct WGraphVersioningHash
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezVersionKey& a)
+  W_FORCE_INLINE static WUInt32 Hash(const WVersionKey& a)
   {
     auto typeNameHash = a.m_sType.GetHash();
-    ezUInt32 uiHash = ezHashingUtils::xxHash32(&typeNameHash, sizeof(typeNameHash));
-    uiHash = ezHashingUtils::xxHash32(&a.m_uiTypeVersion, sizeof(a.m_uiTypeVersion), uiHash);
+    WUInt32 uiHash = WHashingUtils::xxHash32(&typeNameHash, sizeof(typeNameHash));
+    uiHash = WHashingUtils::xxHash32(&a.m_uiTypeVersion, sizeof(a.m_uiTypeVersion), uiHash);
     return uiHash;
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezVersionKey& a, const ezVersionKey& b)
+  W_ALWAYS_INLINE static bool Equal(const WVersionKey& a, const WVersionKey& b)
   {
     return a.m_sType == b.m_sType && a.m_uiTypeVersion == b.m_uiTypeVersion;
   }
@@ -56,26 +56,26 @@ struct ezGraphVersioningHash
 ///
 /// This structure contains the metadata needed to apply version patches, including
 /// type names and version numbers for both the type and its parent class hierarchy.
-/// It overlaps with ezReflectedTypeDescriptor to enable efficient patch processing.
-struct EZ_FOUNDATION_DLL ezTypeVersionInfo
+/// It overlaps with WReflectedTypeDescriptor to enable efficient patch processing.
+struct W_FOUNDATION_DLL WTypeVersionInfo
 {
   const char* GetTypeName() const;
   void SetTypeName(const char* szName);
   const char* GetParentTypeName() const;
   void SetParentTypeName(const char* szName);
 
-  ezHashedString m_sTypeName;
-  ezHashedString m_sParentTypeName;
-  ezUInt32 m_uiTypeVersion;
+  WHashedString m_sTypeName;
+  WHashedString m_sParentTypeName;
+  WUInt32 m_uiTypeVersion;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTypeVersionInfo);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WTypeVersionInfo);
 
 /// Context object that manages the patching process for individual nodes.
 ///
 /// This class is passed to patch implementations to provide utility functions and track
 /// the patching progress of a node. It handles base class patching, type renaming, and
 /// hierarchy changes while maintaining consistency across the entire patching process.
-class EZ_FOUNDATION_DLL ezGraphPatchContext
+class W_FOUNDATION_DLL WGraphPatchContext
 {
 public:
   /// Ensures a base class is patched to the specified version before continuing.
@@ -83,7 +83,7 @@ public:
   /// This function forces the base class to be at the specified version, applying patches if necessary.
   /// Use bForcePatch for backwards compatibility when base class type information wasn't originally
   /// serialized. This ensures proper patch ordering in inheritance hierarchies.
-  void PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch = false); // [tested]
+  void PatchBaseClass(const char* szType, WUInt32 uiTypeVersion, bool bForcePatch = false); // [tested]
 
   /// Renames the current node's type to a new type name.
   ///
@@ -95,46 +95,46 @@ public:
   ///
   /// Use this when both the type name and version change during a patch operation.
   /// This is common when types are refactored or split into multiple classes.
-  void RenameClass(const char* szTypeName, ezUInt32 uiVersion);
+  void RenameClass(const char* szTypeName, WUInt32 uiVersion);
 
   /// Replaces the entire base class hierarchy with a new one.
   ///
   /// This is used for major refactoring where the inheritance structure changes.
   /// The array should contain the complete new inheritance chain from most derived
   /// to most base class. Handle with care as this affects serialization compatibility.
-  void ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses); // [tested]
+  void ChangeBaseClass(WArrayPtr<WVersionKey> baseClasses); // [tested]
 
 private:
-  friend class ezGraphVersioning;
-  ezGraphPatchContext(ezGraphVersioning* pParent, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph);
-  void Patch(ezAbstractObjectNode* pNode);
-  void Patch(ezUInt32 uiBaseClassIndex, ezUInt32 uiTypeVersion, bool bForcePatch);
+  friend class WGraphVersioning;
+  WGraphPatchContext(WGraphVersioning* pParent, WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph);
+  void Patch(WAbstractObjectNode* pNode);
+  void Patch(WUInt32 uiBaseClassIndex, WUInt32 uiTypeVersion, bool bForcePatch);
   void UpdateBaseClasses();
 
 private:
-  ezGraphVersioning* m_pParent = nullptr;
-  ezAbstractObjectGraph* m_pGraph = nullptr;
-  ezAbstractObjectNode* m_pNode = nullptr;
-  ezDynamicArray<ezVersionKey> m_BaseClasses;
-  ezUInt32 m_uiBaseClassIndex = 0;
-  mutable ezHashTable<ezHashedString, ezTypeVersionInfo> m_TypeToInfo;
+  WGraphVersioning* m_pParent = nullptr;
+  WAbstractObjectGraph* m_pGraph = nullptr;
+  WAbstractObjectNode* m_pNode = nullptr;
+  WDynamicArray<WVersionKey> m_BaseClasses;
+  WUInt32 m_uiBaseClassIndex = 0;
+  mutable WHashTable<WHashedString, WTypeVersionInfo> m_TypeToInfo;
 };
 
-/// Singleton system that manages version patching for ezAbstractObjectGraph instances.
+/// Singleton system that manages version patching for WAbstractObjectGraph instances.
 ///
 /// This system automatically applies version patches during deserialization to handle data migration
 /// when type definitions change between versions. It supports both node-level patches (specific type
 /// transformations) and graph-level patches (global transformations affecting multiple types).
 ///
-/// The system automatically executes during ezAbstractObjectGraph deserialization,
+/// The system automatically executes during WAbstractObjectGraph deserialization,
 /// ensuring that older serialized data can be loaded into newer application versions.
-class EZ_FOUNDATION_DLL ezGraphVersioning
+class W_FOUNDATION_DLL WGraphVersioning
 {
-  EZ_DECLARE_SINGLETON(ezGraphVersioning);
+  W_DECLARE_SINGLETON(WGraphVersioning);
 
 public:
-  ezGraphVersioning();
-  ~ezGraphVersioning();
+  WGraphVersioning();
+  ~WGraphVersioning();
 
   /// Applies all necessary patches to bring the graph to the current version.
   ///
@@ -151,18 +151,18 @@ public:
   /// 2. Sorts patches by dependency order (base classes first)
   /// 3. Applies patches incrementally until all nodes reach current versions
   /// 4. Validates that no circular dependencies exist
-  void PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr);
+  void PatchGraph(WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph = nullptr);
 
 private:
-  friend class ezGraphPatchContext;
+  friend class WGraphPatchContext;
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, GraphVersioning);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, GraphVersioning);
 
-  void PluginEventHandler(const ezPluginEvent& EventData);
+  void PluginEventHandler(const WPluginEvent& EventData);
   void UpdatePatches();
-  ezUInt32 GetMaxPatchVersion(const ezHashedString& sType) const;
+  WUInt32 GetMaxPatchVersion(const WHashedString& sType) const;
 
-  ezHashTable<ezHashedString, ezUInt32> m_MaxPatchVersion; ///< Max version the given type can be patched to.
-  ezDynamicArray<const ezGraphPatch*> m_GraphPatches;
-  ezHashTable<ezVersionKey, const ezGraphPatch*, ezGraphVersioningHash> m_NodePatches;
+  WHashTable<WHashedString, WUInt32> m_MaxPatchVersion; ///< Max version the given type can be patched to.
+  WDynamicArray<const WGraphPatch*> m_GraphPatches;
+  WHashTable<WVersionKey, const WGraphPatch*, WGraphVersioningHash> m_NodePatches;
 };

@@ -4,28 +4,28 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-static ezGameEngineTestStateMachine s_GameEngineTestAnimations;
+static WGameEngineTestStateMachine s_GameEngineTestAnimations;
 
-const char* ezGameEngineTestStateMachine::GetTestName() const
+const char* WGameEngineTestStateMachine::GetTestName() const
 {
   return "StateMachine Tests";
 }
 
-ezGameEngineTestApplication* ezGameEngineTestStateMachine::CreateApplication()
+WGameEngineTestApplication* WGameEngineTestStateMachine::CreateApplication()
 {
-  m_pOwnApplication = EZ_DEFAULT_NEW(ezGameEngineTestApplication, "StateMachine");
+  m_pOwnApplication = W_DEFAULT_NEW(WGameEngineTestApplication, "StateMachine");
   return m_pOwnApplication;
 }
 
-void ezGameEngineTestStateMachine::SetupSubTests()
+void WGameEngineTestStateMachine::SetupSubTests()
 {
   AddSubTest("Builtins", SubTests::Builtins);
   AddSubTest("SimpleTransitions", SubTests::SimpleTransitions);
 }
 
-ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTestStateMachine::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
   m_uiImgCompIdx = 0;
@@ -33,7 +33,7 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Builtins)
   {
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else if (iIdentifier == SubTests::SimpleTransitions)
   {
@@ -42,38 +42,38 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(34);
     m_ImgCompFrames.PushBack(51);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("StateMachine/AssetCache/Common/Scenes/StateMachine.ezBinScene"));
-    return EZ_SUCCESS;
+    W_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("StateMachine/AssetCache/Common/Scenes/StateMachine.WBinScene"));
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestStateMachine::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+WTestAppRun WGameEngineTestStateMachine::RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount)
 {
   if (iIdentifier == SubTests::Builtins)
   {
     RunBuiltinsTest();
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
+  const bool bVulkan = WGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    W_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
   }
 
-  return ezTestAppRun::Continue;
+  return WTestAppRun::Continue;
 }

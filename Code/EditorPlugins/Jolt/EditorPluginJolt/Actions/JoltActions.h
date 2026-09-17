@@ -4,7 +4,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-class EZ_EDITORPLUGINJOLT_DLL ezJoltActions
+class W_EDITORPLUGINJOLT_DLL WJoltActions
 {
 public:
   static void RegisterActions();
@@ -12,13 +12,13 @@ public:
 
   static void MapMenuActions();
 
-  static ezActionDescriptorHandle s_hCategoryJolt;
-  static ezActionDescriptorHandle s_hProjectSettings;
+  static WActionDescriptorHandle s_hCategoryJolt;
+  static WActionDescriptorHandle s_hProjectSettings;
 };
 
-class EZ_EDITORPLUGINJOLT_DLL ezJoltAction : public ezButtonAction
+class W_EDITORPLUGINJOLT_DLL WJoltAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WJoltAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -26,10 +26,10 @@ public:
     ProjectSettings,
   };
 
-  ezJoltAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezJoltAction();
+  WJoltAction(const WActionContext& context, const char* szName, ActionType type);
+  ~WJoltAction();
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
 
 private:
   ActionType m_Type;

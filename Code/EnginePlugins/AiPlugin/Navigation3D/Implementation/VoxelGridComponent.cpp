@@ -8,37 +8,37 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelGridComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WAiVoxelGridComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec3(32)), new ezClampValueAttribute(ezVec3(4), ezVec3(1024))),
-    EZ_ACCESSOR_PROPERTY("VoxelSize", GetVoxelSize, SetVoxelSize)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, 10.0f)),
-    EZ_ACCESSOR_PROPERTY("CollisionLayer", GetCollisionLayer, SetCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("Visualize", m_bVisualize),
+    W_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new WDefaultValueAttribute(WVec3(32)), new WClampValueAttribute(WVec3(4), WVec3(1024))),
+    W_ACCESSOR_PROPERTY("VoxelSize", GetVoxelSize, SetVoxelSize)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.1f, 10.0f)),
+    W_ACCESSOR_PROPERTY("CollisionLayer", GetCollisionLayer, SetCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_MEMBER_PROPERTY("Visualize", m_bVisualize),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
+    W_MESSAGE_HANDLER(WMsgUpdateLocalBounds, OnMsgUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI/Navigation"),
-    new ezBoxVisualizerAttribute("Size", 1.0f, ezColorScheme::LightUI(ezColorScheme::Green), nullptr),
+    new WCategoryAttribute("AI/Navigation"),
+    new WBoxVisualizerAttribute("Size", 1.0f, WColorScheme::LightUI(WColorScheme::Green), nullptr),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSpatialData::Category ezAiVoxelGridComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("AiVoxelGrid", ezSpatialData::Flags::None);
+WSpatialData::Category WAiVoxelGridComponent::SpatialDataCategory = WSpatialData::RegisterCategory("AiVoxelGrid", WSpatialData::Flags::None);
 
-ezAiVoxelGridComponent::ezAiVoxelGridComponent() = default;
-ezAiVoxelGridComponent::~ezAiVoxelGridComponent() = default;
+WAiVoxelGridComponent::WAiVoxelGridComponent() = default;
+WAiVoxelGridComponent::~WAiVoxelGridComponent() = default;
 
-void ezAiVoxelGridComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WAiVoxelGridComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -49,10 +49,10 @@ void ezAiVoxelGridComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_bVisualize;
 }
 
-void ezAiVoxelGridComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WAiVoxelGridComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
@@ -61,26 +61,26 @@ void ezAiVoxelGridComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_bVisualize;
 }
 
-void ezAiVoxelGridComponent::OnActivated()
+void WAiVoxelGridComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezAiVoxelGridComponent::OnDeactivated()
+void WAiVoxelGridComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
 }
 
-void ezAiVoxelGridComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void WAiVoxelGridComponent::OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), m_vSize * 0.5f)), SpatialDataCategory);
+  msg.AddBounds(WBoundingBoxSphere::MakeFromBox(WBoundingBox::MakeFromCenterAndHalfExtents(WVec3::MakeZero(), m_vSize * 0.5f)), SpatialDataCategory);
 }
 
-void ezAiVoxelGridComponent::SetSize(const ezVec3& vSize)
+void WAiVoxelGridComponent::SetSize(const WVec3& vSize)
 {
   if (m_vSize != vSize)
   {
@@ -94,7 +94,7 @@ void ezAiVoxelGridComponent::SetSize(const ezVec3& vSize)
   }
 }
 
-void ezAiVoxelGridComponent::SetVoxelSize(float fValue)
+void WAiVoxelGridComponent::SetVoxelSize(float fValue)
 {
   if (m_fVoxelSize != fValue)
   {
@@ -103,7 +103,7 @@ void ezAiVoxelGridComponent::SetVoxelSize(float fValue)
   }
 }
 
-void ezAiVoxelGridComponent::SetCollisionLayer(ezUInt32 uiValue)
+void WAiVoxelGridComponent::SetCollisionLayer(WUInt32 uiValue)
 {
   if (m_uiCollisionLayer != uiValue)
   {
@@ -112,30 +112,30 @@ void ezAiVoxelGridComponent::SetCollisionLayer(ezUInt32 uiValue)
   }
 }
 
-void ezAiVoxelGridComponent::VoxelizeWorld()
+void WAiVoxelGridComponent::VoxelizeWorld()
 {
   if (!m_bNeedsVoxelization)
     return;
 
   // retrieve collision geometry and rasterize triangles
-  auto* pGeoModule = GetWorld()->GetOrCreateModule<ezNavmeshGeoWorldModuleInterface>();
+  auto* pGeoModule = GetWorld()->GetOrCreateModule<WNavmeshGeoWorldModuleInterface>();
   if (pGeoModule == nullptr)
     return;
 
   m_bNeedsVoxelization = false;
 
-  ezVec3U32 res;
-  res.x = ezMath::CeilToInt(m_vSize.x / m_fVoxelSize);
-  res.y = ezMath::CeilToInt(m_vSize.y / m_fVoxelSize);
-  res.z = ezMath::CeilToInt(m_vSize.z / m_fVoxelSize);
+  WVec3U32 res;
+  res.x = WMath::CeilToInt(m_vSize.x / m_fVoxelSize);
+  res.y = WMath::CeilToInt(m_vSize.y / m_fVoxelSize);
+  res.z = WMath::CeilToInt(m_vSize.z / m_fVoxelSize);
 
-  ezVec3 vGridCenter = GetOwner()->GetGlobalPosition();
+  WVec3 vGridCenter = GetOwner()->GetGlobalPosition();
 
   m_StaticGrid.Initialize(res, vGridCenter, m_fVoxelSize);
 
-  const ezBoundingBox gridAABB = m_StaticGrid.GetAABB();
+  const WBoundingBox gridAABB = m_StaticGrid.GetAABB();
 
-  ezDynamicArray<ezNavmeshTriangle> triangles;
+  WDynamicArray<WNavmeshTriangle> triangles;
   pGeoModule->RetrieveGeometryInArea(m_uiCollisionLayer, gridAABB, triangles);
 
   for (const auto& tri : triangles)
@@ -145,4 +145,4 @@ void ezAiVoxelGridComponent::VoxelizeWorld()
 }
 
 
-EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelGridComponent);
+W_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation3D_Implementation_VoxelGridComponent);

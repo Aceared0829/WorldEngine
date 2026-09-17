@@ -12,52 +12,52 @@
 #include <RendererCore/../../../Data/Plugins/RmlUiPlugin/Shaders/RmlUiBlitConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiRenderData, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderer, 1, ezRTTIDefaultAllocator<ezRmlUiRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiRenderer, 1, WRTTIDefaultAllocator<WRmlUiRenderer>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiRenderer::ezRmlUiRenderer()
+WRmlUiRenderer::WRmlUiRenderer()
 {
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RmlUiBlit.ezShader");
-  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezRmlUiBlitConstants>();
+  m_hShader = WResourceManager::LoadResource<WShaderResource>("Shaders/RmlUiBlit.WShader");
+  m_hConstantBuffer = WRenderContext::CreateConstantBufferStorage<WRmlUiBlitConstants>();
 }
 
-ezRmlUiRenderer::~ezRmlUiRenderer()
+WRmlUiRenderer::~WRmlUiRenderer()
 {
-  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
+  WRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezRmlUiRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+void WRmlUiRenderer::GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const
 {
-  out_types.PushBack(ezGetStaticRTTI<ezRmlUiRenderData>());
+  out_types.PushBack(WGetStaticRTTI<WRmlUiRenderData>());
 }
 
-void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void WRmlUiRenderer::RenderBatch(const WRenderViewContext& renderViewContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
+  WRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
 
   pRenderContext->BindShader(m_hShader);
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-  bindGroup.BindBuffer("ezRmlUiBlitConstants", m_hConstantBuffer);
-  pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::TriangleStrip, 2);
+  WBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  bindGroup.BindBuffer("WRmlUiBlitConstants", m_hConstantBuffer);
+  pRenderContext->BindNullMeshBuffer(WGALPrimitiveTopology::TriangleStrip, 2);
 
-  const ezVec2 targetSize = ezVec2(renderViewContext.m_pViewData->m_ViewPortRect.width, renderViewContext.m_pViewData->m_ViewPortRect.height);
-  const ezVec2 scale = ezVec2(2.0f, -2.0f).CompDiv(targetSize);
-  const ezVec2 offset = ezVec2(-1.0f, 1.0f);
+  const WVec2 targetSize = WVec2(renderViewContext.m_pViewData->m_ViewPortRect.width, renderViewContext.m_pViewData->m_ViewPortRect.height);
+  const WVec2 scale = WVec2(2.0f, -2.0f).CompDiv(targetSize);
+  const WVec2 offset = WVec2(-1.0f, 1.0f);
 
-  for (auto it = batch.GetIterator<ezRmlUiRenderData>(); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<WRmlUiRenderData>(); it.IsValid(); ++it)
   {
-    const ezRmlUiRenderData* pRenderData = it;
-    const ezGALTexture* pTexture = pDevice->GetTexture(pRenderData->m_hTexture);
+    const WRmlUiRenderData* pRenderData = it;
+    const WGALTexture* pTexture = pDevice->GetTexture(pRenderData->m_hTexture);
 
-    const ezVec2 targetSize = ezVec2(renderViewContext.m_pViewData->m_ViewPortRect.width, renderViewContext.m_pViewData->m_ViewPortRect.height);
-    const ezVec2 textureSize = ezVec2(static_cast<float>(pTexture->GetDescription().m_uiWidth), static_cast<float>(pTexture->GetDescription().m_uiHeight));
+    const WVec2 targetSize = WVec2(renderViewContext.m_pViewData->m_ViewPortRect.width, renderViewContext.m_pViewData->m_ViewPortRect.height);
+    const WVec2 textureSize = WVec2(static_cast<float>(pTexture->GetDescription().m_uiWidth), static_cast<float>(pTexture->GetDescription().m_uiHeight));
 
-    ezRmlUiBlitConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiBlitConstants>(m_hConstantBuffer);
+    WRmlUiBlitConstants* pConstants = pRenderContext->GetConstantBufferData<WRmlUiBlitConstants>(m_hConstantBuffer);
     pConstants->Scale = textureSize.CompMul(scale);
     pConstants->Offset = pRenderData->m_vOffset.CompMul(scale) + offset;
 
@@ -67,4 +67,4 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   }
 }
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiRenderer);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiRenderer);

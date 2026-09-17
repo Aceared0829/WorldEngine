@@ -13,40 +13,40 @@
 #  include <Imgui/imgui.h>
 #  include <RendererCore/Pipeline/Declarations.h>
 
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
-using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
+using WMaterialResourceHandle = WTypedResourceHandle<class WMaterialResource>;
 
 struct ImGuiContext;
-struct ezGameApplicationExecutionEvent;
+struct WGameApplicationExecutionEvent;
 
-using ezImguiConfigFontCallback = ezDelegate<void(ImFontAtlas&)>;
-using ezImguiConfigStyleCallback = ezDelegate<void(ImGuiStyle&)>;
+using WImguiConfigFontCallback = WDelegate<void(ImFontAtlas&)>;
+using WImguiConfigStyleCallback = WDelegate<void(ImGuiStyle&)>;
 
 /// Singleton class through which one can control the third-party library 'Dear Imgui'
 ///
-/// Instance has to be manually created and destroyed. Do this for example in ezGameState::OnActivation()
-/// and ezGameState::OnDeactivation().
+/// Instance has to be manually created and destroyed. Do this for example in WGameState::OnActivation()
+/// and WGameState::OnDeactivation().
 /// You need to call SetCurrentContextForView before you can use the Imgui functions directly.
 /// E.g. 'ImGui::Text("Hello, world!");'
 /// To prevent Imgui from using mouse and keyboard input (but still do rendering) use SetPassInputToImgui().
 /// To prevent your app from using mouse and keyboard input when Imgui has focus, query WantsInput().
 ///
-/// \note Don't forget that to see the GUI on screen, your render pipeline must contain an ezImguiExtractor
-/// and you need to have an ezImguiRenderer set (typically on an ezSimpleRenderPass).
-class EZ_GAMEENGINE_DLL ezImgui
+/// \note Don't forget that to see the GUI on screen, your render pipeline must contain an WImguiExtractor
+/// and you need to have an WImguiRenderer set (typically on an WSimpleRenderPass).
+class W_GAMEENGINE_DLL WImgui
 {
-  EZ_DECLARE_SINGLETON(ezImgui);
+  W_DECLARE_SINGLETON(WImgui);
 
 public:
-  ezImgui(ezImguiConfigFontCallback configFontCallback = ezImguiConfigFontCallback(),
-    ezImguiConfigStyleCallback configStyleCallback = ezImguiConfigStyleCallback());
-  ~ezImgui();
+  WImgui(WImguiConfigFontCallback configFontCallback = WImguiConfigFontCallback(),
+    WImguiConfigStyleCallback configStyleCallback = WImguiConfigStyleCallback());
+  ~WImgui();
 
   /// Sets the ImGui context for the given view
-  void SetCurrentContextForView(const ezViewHandle& hView);
+  void SetCurrentContextForView(const WViewHandle& hView);
 
   /// Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
-  ezSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution; }
+  WSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution; }
 
   /// When this is disabled, the GUI will be rendered, but it will not react to any input.
   ///
@@ -64,13 +64,13 @@ public:
   ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
 
   /// Registers a texture resource and returns an ImTextureID that can be used with raw ImGui image calls or passed to RegisterImage(). The texture stays registered until UnregisterResource() is called.
-  ImTextureID RegisterTexture(const ezTexture2DResourceHandle& hTexture);
+  ImTextureID RegisterTexture(const WTexture2DResourceHandle& hTexture);
 
-  /// \copydoc RegisterTexture(const ezTexture2DResourceHandle&)
-  ImTextureID RegisterTexture(ezGALTextureHandle hTexture);
+  /// \copydoc RegisterTexture(const WTexture2DResourceHandle&)
+  ImTextureID RegisterTexture(WGALTextureHandle hTexture);
 
   /// Registers a material resource and returns an ImTextureID. Works like RegisterTexture() but renders using the full material rather than just a texture.
-  ImTextureID RegisterMaterial(const ezMaterialResourceHandle& hMaterial);
+  ImTextureID RegisterMaterial(const WMaterialResourceHandle& hMaterial);
 
   /// Removes a previously registered texture or material. The ImTextureID must not be used afterwards.
   void UnregisterResource(ImTextureID id);
@@ -78,34 +78,34 @@ public:
   struct Image
   {
     ImTextureID m_Id;
-    ezVec2 m_UV0;
-    ezVec2 m_UV1;
+    WVec2 m_UV0;
+    WVec2 m_UV1;
   };
 
   /// Associates a named image with a registered texture and UV coordinates. This allows the AddImage() and AddImageButton() convenience functions to look up the image by name instead of requiring the caller to pass the ImTextureID and UVs every time. Call RegisterTexture() first to obtain the texture ID.
-  void RegisterImage(ezTempHashedString sImgId, ImTextureID texId, const ezVec2& vUv0, const ezVec2& vUv1);
+  void RegisterImage(WTempHashedString sImgId, ImTextureID texId, const WVec2& vUv0, const WVec2& vUv1);
 
   /// Renders a clickable image button using a previously registered image name.
-  bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;
+  bool AddImageButton(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, const WColor& backgroundColor = WColor::MakeZero(), const WColor& tintColor = WColor::White) const;
 
   /// Renders an image using a previously registered image name.
-  void AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor = ezColor::White, const ezColor& borderColor = ezColor::MakeZero()) const;
+  void AddImage(WTempHashedString sImgId, const WVec2& vImageSize, const WColor& tintColor = WColor::White, const WColor& borderColor = WColor::MakeZero()) const;
 
   /// Like AddImageButton(), but draws a colored overlay from \a fProgress (0 to 1) to the right edge, which can be used to indicate a loading progress.
-  bool AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
+  bool AddImageButtonWithProgress(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, float fProgress, const WColor& overlayColor, const WColor& tintColor = WColor::White) const;
 
   /// Like AddImage(), but draws a colored overlay from \a fProgress (0 to 1) to the right edge, which can be used to indicate a loading progress.
-  void AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
+  void AddImageWithProgress(WTempHashedString sImgId, const char* szImguiID, const WVec2& vImageSize, float fProgress, const WColor& overlayColor, const WColor& tintColor = WColor::White) const;
 
 private:
-  friend class ezImguiExtractor;
-  friend class ezImguiRenderer;
+  friend class WImguiExtractor;
+  friend class WImguiRenderer;
 
-  using ezImGuiTextureIdData = ezGenericId<16, 16>;
+  using WImGuiTextureIdData = WGenericId<16, 16>;
 
-  struct ezImGuiTextureRegistration
+  struct WImGuiTextureRegistration
   {
-    enum class Type : ezUInt8
+    enum class Type : WUInt8
     {
       Texture2D,
       GALTexture,
@@ -113,40 +113,40 @@ private:
     };
 
     Type m_Type = Type::Texture2D;
-    ezTexture2DResourceHandle m_hTexture2D;
-    ezGALTextureHandle m_hGALTexture;
-    ezMaterialResourceHandle m_hMaterial;
+    WTexture2DResourceHandle m_hTexture2D;
+    WGALTextureHandle m_hGALTexture;
+    WMaterialResourceHandle m_hMaterial;
   };
 
-  void Startup(ezImguiConfigFontCallback configFontCallback);
+  void Startup(WImguiConfigFontCallback configFontCallback);
   void Shutdown();
 
   ImGuiContext* CreateContext();
-  void BeginFrame(const ezViewHandle& hView);
-  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
+  void BeginFrame(const WViewHandle& hView);
+  void GameApplicationEventHandler(const WGameApplicationExecutionEvent& e);
 
-  ezProxyAllocator m_Allocator;
+  WProxyAllocator m_Allocator;
 
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
-  ezSizeU32 m_CurrentWindowResolution;
-  ezIdTable<ezImGuiTextureIdData, ezImGuiTextureRegistration> m_RegisteredTextures;
+  WSizeU32 m_CurrentWindowResolution;
+  WIdTable<WImGuiTextureIdData, WImGuiTextureRegistration> m_RegisteredTextures;
 
-  ezImguiConfigStyleCallback m_ConfigStyleCallback;
+  WImguiConfigStyleCallback m_ConfigStyleCallback;
 
-  ezUniquePtr<ImFontAtlas> m_pSharedFontAtlas;
+  WUniquePtr<ImFontAtlas> m_pSharedFontAtlas;
 
   struct Context
   {
     ImGuiContext* m_pImGuiContext = nullptr;
-    ezUInt64 m_uiFrameBeginCounter = -1;
-    ezUInt64 m_uiFrameRenderCounter = -1;
+    WUInt64 m_uiFrameBeginCounter = -1;
+    WUInt64 m_uiFrameRenderCounter = -1;
   };
 
-  ezMutex m_ViewToContextTableMutex;
-  ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
-  ezHashTable<ezTempHashedString, Image> m_Images;
-  ezCVarFloat* m_pTextScaleCVar = nullptr;
+  WMutex m_ViewToContextTableMutex;
+  WHashTable<WViewHandle, Context> m_ViewToContextTable;
+  WHashTable<WTempHashedString, Image> m_Images;
+  WCVarFloat* m_pTextScaleCVar = nullptr;
 };
 
 #endif

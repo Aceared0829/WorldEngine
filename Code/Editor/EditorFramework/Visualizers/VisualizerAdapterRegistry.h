@@ -5,28 +5,28 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
-struct ezVisualizerManagerEvent;
-class ezDocument;
+struct WVisualizerManagerEvent;
+class WDocument;
 
-class EZ_EDITORFRAMEWORK_DLL ezVisualizerAdapterRegistry
+class W_EDITORFRAMEWORK_DLL WVisualizerAdapterRegistry
 {
-  EZ_DECLARE_SINGLETON(ezVisualizerAdapterRegistry);
+  W_DECLARE_SINGLETON(WVisualizerAdapterRegistry);
 
 public:
-  ezVisualizerAdapterRegistry();
-  ~ezVisualizerAdapterRegistry();
+  WVisualizerAdapterRegistry();
+  ~WVisualizerAdapterRegistry();
 
-  ezRttiMappedObjectFactory<ezVisualizerAdapter> m_Factory;
+  WRttiMappedObjectFactory<WVisualizerAdapter> m_Factory;
 
 private:
-  void VisualizerManagerEventHandler(const ezVisualizerManagerEvent& e);
-  void ClearAdapters(const ezDocument* pDocument);
-  void CreateAdapters(const ezDocument* pDocument, const ezDocumentObject* pObject);
+  void VisualizerManagerEventHandler(const WVisualizerManagerEvent& e);
+  void ClearAdapters(const WDocument* pDocument);
+  void CreateAdapters(const WDocument* pDocument, const WDocumentObject* pObject);
 
   struct Data
   {
-    ezHybridArray<ezVisualizerAdapter*, 8> m_Adapters;
+    WHybridArray<WVisualizerAdapter*, 8> m_Adapters;
   };
 
-  ezMap<const ezDocument*, Data> m_DocumentAdapters;
+  WMap<const WDocument*, Data> m_DocumentAdapters;
 };

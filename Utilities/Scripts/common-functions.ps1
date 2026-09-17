@@ -24,5 +24,5 @@ function global:Find-EzExe
 
 function global:Find-EditorProcessor
 {
-	return Find-EzExe "ezEditorProcessor.exe"
+	return Find-EzExe "WEditorProcessor.exe"
 }

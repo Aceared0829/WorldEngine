@@ -2,7 +2,7 @@
 
 #include <float.h>
 
-namespace ezMath
+namespace WMath
 {
   //////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ namespace ezMath
 
     // NaN = 0111 1111 1000 0000 0000 0000 0000 0001
 
-    ezIntFloatUnion i2f(0x7f800042u);
+    WIntFloatUnion i2f(0x7f800042u);
     return i2f.f;
   }
 
@@ -80,7 +80,7 @@ namespace ezMath
 
     // NaN = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001
 
-    ezInt64DoubleUnion i2f(0x7FF0000000000042ull);
+    WInt64DoubleUnion i2f(0x7FF0000000000042ull);
     return i2f.f;
   }
 
@@ -121,7 +121,7 @@ namespace ezMath
     // INF = 0111 1111 1000 0000 0000 0000 0000 0000
 
     // bitwise representation of float infinity (positive)
-    ezIntFloatUnion i2f(0x7f800000u);
+    WIntFloatUnion i2f(0x7f800000u);
     return i2f.f;
   }
 
@@ -134,7 +134,7 @@ namespace ezMath
     // INF = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
 
     // bitwise representation of double infinity (positive)
-    ezInt64DoubleUnion i2f(0x7FF0000000000000ull);
+    WInt64DoubleUnion i2f(0x7FF0000000000000ull);
 
     return i2f.f;
   }
@@ -142,25 +142,25 @@ namespace ezMath
   //////////////////////////////////////////////////////////////////////////
 
   template <>
-  constexpr ezUInt8 MaxValue()
+  constexpr WUInt8 MaxValue()
   {
     return 0xFF;
   }
 
   template <>
-  constexpr ezUInt16 MaxValue()
+  constexpr WUInt16 MaxValue()
   {
     return 0xFFFF;
   }
 
   template <>
-  constexpr ezUInt32 MaxValue()
+  constexpr WUInt32 MaxValue()
   {
     return 0xFFFFFFFFu;
   }
 
-#if EZ_ENABLED(EZ_COMPILER_CLANG)
-#  if EZ_ENABLED(EZ_PLATFORM_32BIT)
+#if W_ENABLED(W_COMPILER_CLANG)
+#  if W_ENABLED(W_PLATFORM_32BIT)
   template <>
   constexpr size_t MaxValue()
   {
@@ -170,31 +170,31 @@ namespace ezMath
 #endif
 
   template <>
-  constexpr ezUInt64 MaxValue()
+  constexpr WUInt64 MaxValue()
   {
     return 0xFFFFFFFFFFFFFFFFull;
   }
 
   template <>
-  constexpr ezInt8 MaxValue()
+  constexpr WInt8 MaxValue()
   {
     return 0x7F;
   }
 
   template <>
-  constexpr ezInt16 MaxValue()
+  constexpr WInt16 MaxValue()
   {
     return 0x7FFF;
   }
 
   template <>
-  constexpr ezInt32 MaxValue()
+  constexpr WInt32 MaxValue()
   {
     return 0x7FFFFFFF;
   }
 
   template <>
-  constexpr ezInt64 MaxValue()
+  constexpr WInt64 MaxValue()
   {
     return 0x7FFFFFFFFFFFFFFFll;
   }
@@ -214,51 +214,51 @@ namespace ezMath
   //////////////////////////////////////////////////////////////////////////
 
   template <>
-  constexpr ezUInt8 MinValue()
+  constexpr WUInt8 MinValue()
   {
     return 0;
   }
 
   template <>
-  constexpr ezUInt16 MinValue()
+  constexpr WUInt16 MinValue()
   {
     return 0;
   }
 
   template <>
-  constexpr ezUInt32 MinValue()
+  constexpr WUInt32 MinValue()
   {
     return 0;
   }
 
   template <>
-  constexpr ezUInt64 MinValue()
+  constexpr WUInt64 MinValue()
   {
     return 0;
   }
 
   template <>
-  constexpr ezInt8 MinValue()
+  constexpr WInt8 MinValue()
   {
-    return -MaxValue<ezInt8>() - 1;
+    return -MaxValue<WInt8>() - 1;
   }
 
   template <>
-  constexpr ezInt16 MinValue()
+  constexpr WInt16 MinValue()
   {
-    return -MaxValue<ezInt16>() - 1;
+    return -MaxValue<WInt16>() - 1;
   }
 
   template <>
-  constexpr ezInt32 MinValue()
+  constexpr WInt32 MinValue()
   {
-    return -MaxValue<ezInt32>() - 1;
+    return -MaxValue<WInt32>() - 1;
   }
 
   template <>
-  constexpr ezInt64 MinValue()
+  constexpr WInt64 MinValue()
   {
-    return -MaxValue<ezInt64>() - 1;
+    return -MaxValue<WInt64>() - 1;
   }
 
   template <>
@@ -442,65 +442,65 @@ namespace ezMath
   //////////////////////////////////////////////////////////////////////////
 
   template <>
-  constexpr ezUInt32 NumBits<ezUInt8>()
+  constexpr WUInt32 NumBits<WUInt8>()
   {
     return 8;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezUInt16>()
+  constexpr WUInt32 NumBits<WUInt16>()
   {
     return 16;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezUInt32>()
+  constexpr WUInt32 NumBits<WUInt32>()
   {
     return 32;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezUInt64>()
+  constexpr WUInt32 NumBits<WUInt64>()
   {
     return 64;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezInt8>()
+  constexpr WUInt32 NumBits<WInt8>()
   {
     return 8;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezInt16>()
+  constexpr WUInt32 NumBits<WInt16>()
   {
     return 16;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezInt32>()
+  constexpr WUInt32 NumBits<WInt32>()
   {
     return 32;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<ezInt64>()
+  constexpr WUInt32 NumBits<WInt64>()
   {
     return 64;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<float>()
+  constexpr WUInt32 NumBits<float>()
   {
     return 32;
   }
 
   template <>
-  constexpr ezUInt32 NumBits<double>()
+  constexpr WUInt32 NumBits<double>()
   {
     return 64;
   }
 
   //////////////////////////////////////////////////////////////////////////
 
-} // namespace ezMath
+} // namespace WMath

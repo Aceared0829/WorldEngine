@@ -6,32 +6,32 @@
 #include <Foundation/Types/Enum.h>
 
 // C-style strings
-// No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
+// No read equivalent for C-style strings (but can be read as WString & WStringBuilder instances)
 
-ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const char* szValue)
+WStreamWriter& operator<<(WStreamWriter& inout_stream, const char* szValue)
 {
-  ezStringView szView(szValue);
+  WStringView szView(szValue);
   inout_stream.WriteString(szView).AssertSuccess();
 
   return inout_stream;
 }
 
-ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezStringView sValue)
+WStreamWriter& operator<<(WStreamWriter& inout_stream, WStringView sValue)
 {
   inout_stream.WriteString(sValue).AssertSuccess();
 
   return inout_stream;
 }
 
-// ezStringBuilder
+// WStringBuilder
 
-ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezStringBuilder& sValue)
+WStreamWriter& operator<<(WStreamWriter& inout_stream, const WStringBuilder& sValue)
 {
   inout_stream.WriteString(sValue.GetView()).AssertSuccess();
   return inout_stream;
 }
 
-ezStreamReader& operator>>(ezStreamReader& inout_stream, ezStringBuilder& out_sValue)
+WStreamReader& operator>>(WStreamReader& inout_stream, WStringBuilder& out_sValue)
 {
   inout_stream.ReadString(out_sValue).AssertSuccess();
   return inout_stream;

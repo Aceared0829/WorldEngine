@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/TypeIcons/ezFmodEventComponent.svg</normaloff>:/TypeIcons/ezFmodEventComponent.svg</iconset>
+    <normaloff>:/TypeIcons/WFmodEventComponent.svg</normaloff>:/TypeIcons/WFmodEventComponent.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>

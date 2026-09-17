@@ -12,31 +12,31 @@
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 
-static const ezImageFormat::Enum defaultFormat = ezImageFormat::R32G32B32A32_FLOAT;
+static const WImageFormat::Enum defaultFormat = WImageFormat::R32G32B32A32_FLOAT;
 
-class ezImageConversionTest : public ezTestBaseClass
+class WImageConversionTest : public WTestBaseClass
 {
 
 public:
   virtual const char* GetTestName() const override { return "Image Conversion"; }
 
-  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override
+  virtual WResult GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber) override
   {
     ref_img.ResetAndMove(std::move(m_Image));
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 private:
   virtual void SetupSubTests() override
   {
-    for (ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; ++i)
+    for (WUInt32 i = 0; i < WImageFormat::NUM_FORMATS; ++i)
     {
-      ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(i);
+      WImageFormat::Enum format = static_cast<WImageFormat::Enum>(i);
 
-      const char* name = ezImageFormat::GetName(format);
-      EZ_ASSERT_DEV(name != nullptr, "Missing format information for format {}", i);
+      const char* name = WImageFormat::GetName(format);
+      W_ASSERT_DEV(name != nullptr, "Missing format information for format {}", i);
 
-      bool isEncodable = ezImageConversion::IsConvertible(defaultFormat, format);
+      bool isEncodable = WImageConversion::IsConvertible(defaultFormat, format);
 
       if (!isEncodable)
       {
@@ -48,53 +48,53 @@ private:
     }
   }
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
+  virtual WTestAppRun RunSubTest(WInt32 iIdentifier, WUInt32 uiInvocationCount) override
   {
-    ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(iIdentifier);
+    WImageFormat::Enum format = static_cast<WImageFormat::Enum>(iIdentifier);
 
-    bool isDecodable = ezImageConversion::IsConvertible(format, defaultFormat);
+    bool isDecodable = WImageConversion::IsConvertible(format, defaultFormat);
 
     if (!isDecodable)
     {
-      EZ_TEST_BOOL_MSG(false, "Format %s can be encoded from %s but not decoded - add a decoder for this format please", ezImageFormat::GetName(format), ezImageFormat::GetName(defaultFormat));
+      W_TEST_BOOL_MSG(false, "Format %s can be encoded from %s but not decoded - add a decoder for this format please", WImageFormat::GetName(format), WImageFormat::GetName(defaultFormat));
 
-      return ezTestAppRun::Quit;
+      return WTestAppRun::Quit;
     }
 
     {
-      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
-      ezUInt32 decodingPathScratchBuffers;
-      ezImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers).IgnoreResult();
+      WTempHybridArray<WImageConversion::ConversionPathNode, 16> decodingPath;
+      WUInt32 decodingPathScratchBuffers;
+      WImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers).IgnoreResult();
 
       // the [test] tag tells the test framework to output the log message in the GUI
-      ezLog::Info("[test]Default decoding Path:");
-      for (ezUInt32 i = 0; i < decodingPath.GetCount(); ++i)
+      WLog::Info("[test]Default decoding Path:");
+      for (WUInt32 i = 0; i < decodingPath.GetCount(); ++i)
       {
-        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat), ezImageFormat::GetName(decodingPath[i].m_targetFormat));
+        WLog::Info("[test]  {} -> {}", WImageFormat::GetName(decodingPath[i].m_sourceFormat), WImageFormat::GetName(decodingPath[i].m_targetFormat));
       }
     }
 
     {
-      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
-      ezUInt32 encodingPathScratchBuffers;
-      ezImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers).IgnoreResult();
+      WTempHybridArray<WImageConversion::ConversionPathNode, 16> encodingPath;
+      WUInt32 encodingPathScratchBuffers;
+      WImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers).IgnoreResult();
 
       // the [test] tag tells the test framework to output the log message in the GUI
-      ezLog::Info("[test]Default encoding Path:");
-      for (ezUInt32 i = 0; i < encodingPath.GetCount(); ++i)
+      WLog::Info("[test]Default encoding Path:");
+      for (WUInt32 i = 0; i < encodingPath.GetCount(); ++i)
       {
-        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat), ezImageFormat::GetName(encodingPath[i].m_targetFormat));
+        WLog::Info("[test]  {} -> {}", WImageFormat::GetName(encodingPath[i].m_sourceFormat), WImageFormat::GetName(encodingPath[i].m_targetFormat));
       }
     }
 
     // Test LDR: Load, encode to target format, then do image comparison (which internally decodes to BGR8_UNORM again).
     // This visualizes quantization for low bit formats, block compression artifacts, or whether formats have fewer than 3 channels.
     {
-      EZ_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
+      W_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
 
-      EZ_TEST_BOOL(m_Image.Convert(format).Succeeded());
+      W_TEST_BOOL(m_Image.Convert(format).Succeeded());
 
-      EZ_TEST_IMAGE(iIdentifier * 2, ezImageFormat::IsCompressed(format) ? 10 : 0);
+      W_TEST_IMAGE(iIdentifier * 2, WImageFormat::IsCompressed(format) ? 10 : 0);
     }
 
     // Test HDR: Load, decode to FLOAT32, stretch to [-range, range] and encode;
@@ -106,38 +106,38 @@ private:
     {
       const float range = 8;
 
-      EZ_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
+      W_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
 
-      EZ_TEST_BOOL(m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
+      W_TEST_BOOL(m_Image.Convert(WImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
-      const float posInf = +ezMath::Infinity<float>();
-      const float negInf = -ezMath::Infinity<float>();
-      const float NaN = ezMath::NaN<float>();
+      const float posInf = +WMath::Infinity<float>();
+      const float negInf = -WMath::Infinity<float>();
+      const float NaN = WMath::NaN<float>();
 
-      for (ezUInt32 y = 0; y < m_Image.GetHeight(); ++y)
+      for (WUInt32 y = 0; y < m_Image.GetHeight(); ++y)
       {
-        ezColor* pPixelPointer = m_Image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
+        WColor* pPixelPointer = m_Image.GetPixelPointer<WColor>(0, 0, 0, 0, y);
 
-        for (ezUInt32 x = 0; x < m_Image.GetWidth(); ++x)
+        for (WUInt32 x = 0; x < m_Image.GetWidth(); ++x)
         {
           // Fill with Inf or Nan resp. scale the image into positive and negative HDR range
           if (x < 30 && y < 10)
           {
-            *pPixelPointer = ezColor(posInf, posInf, posInf, posInf);
+            *pPixelPointer = WColor(posInf, posInf, posInf, posInf);
           }
           else if (x < 30 && y < 20)
           {
-            *pPixelPointer = ezColor(negInf, negInf, negInf, negInf);
+            *pPixelPointer = WColor(negInf, negInf, negInf, negInf);
           }
           else if (x < 30 && y < 30)
           {
-            *pPixelPointer = ezColor(NaN, NaN, NaN, NaN);
+            *pPixelPointer = WColor(NaN, NaN, NaN, NaN);
           }
           else
           {
             float scale = (x / float(m_Image.GetWidth()) - 0.5f) * 2.0f * range;
 
-            if (ezMath::Abs(scale) > 0.5)
+            if (WMath::Abs(scale) > 0.5)
             {
               *pPixelPointer *= scale;
             }
@@ -147,15 +147,15 @@ private:
         }
       }
 
-      EZ_TEST_BOOL(m_Image.Convert(format).Succeeded());
+      W_TEST_BOOL(m_Image.Convert(format).Succeeded());
 
-      EZ_TEST_BOOL(m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
+      W_TEST_BOOL(m_Image.Convert(WImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
-      for (ezUInt32 y = 0; y < m_Image.GetHeight(); ++y)
+      for (WUInt32 y = 0; y < m_Image.GetHeight(); ++y)
       {
-        ezColor* pPixelPointer = m_Image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
+        WColor* pPixelPointer = m_Image.GetPixelPointer<WColor>(0, 0, 0, 0, y);
 
-        for (ezUInt32 x = 0; x < m_Image.GetWidth(); ++x)
+        for (WUInt32 x = 0; x < m_Image.GetWidth(); ++x)
         {
           // Scale the image back into LDR range if possible
           if (x < 30 && y < 10)
@@ -174,7 +174,7 @@ private:
           else
           {
             float scale = (x / float(m_Image.GetWidth()) - 0.5f) * 2.0f * range;
-            if (ezMath::Abs(scale) > 0.5)
+            if (WMath::Abs(scale) > 0.5)
             {
               *pPixelPointer /= scale;
             }
@@ -184,47 +184,47 @@ private:
         }
       }
 
-      EZ_TEST_IMAGE(iIdentifier * 2 + 1, ezImageFormat::IsCompressed(format) ? 10 : 0);
+      W_TEST_IMAGE(iIdentifier * 2 + 1, WImageFormat::IsCompressed(format) ? 10 : 0);
     }
 
-    return ezTestAppRun::Quit;
+    return WTestAppRun::Quit;
   }
 
-  virtual ezResult InitializeTest() override
+  virtual WResult InitializeTest() override
   {
-    ezStartup::StartupCoreSystems();
+    WStartup::StartupCoreSystems();
 
-    const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+    const WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
 
-    if (ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageConversionTest").Failed())
+    if (WFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageConversionTest").Failed())
     {
-      return EZ_FAILURE;
+      return W_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+    WFileSystem::AddDataDirectory(">Wtest/", "ImageComparisonDataDir", "imgout", WDataDirUsage::AllowWrites).IgnoreResult();
 
     // On linux we use CPU based BC6 and BC7 compression, which sometimes gives slightly different results from the GPU compression on Windows.
-    ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, {}, {});
+    WTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(W_PLATFORM_NAME, {}, {});
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  virtual ezResult DeInitializeTest() override
+  virtual WResult DeInitializeTest() override
   {
-    ezFileSystem::RemoveDataDirectoryGroup("ImageConversionTest");
-    ezFileSystem::RemoveDataDirectoryGroup("ImageComparisonDataDir");
+    WFileSystem::RemoveDataDirectoryGroup("ImageConversionTest");
+    WFileSystem::RemoveDataDirectoryGroup("ImageComparisonDataDir");
 
-    ezStartup::ShutdownCoreSystems();
-    ezMemoryTracker::DumpMemoryLeaks();
+    WStartup::ShutdownCoreSystems();
+    WMemoryTracker::DumpMemoryLeaks();
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override { return EZ_SUCCESS; }
+  virtual WResult InitializeSubTest(WInt32 iIdentifier) override { return W_SUCCESS; }
 
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override { return EZ_SUCCESS; }
+  virtual WResult DeInitializeSubTest(WInt32 iIdentifier) override { return W_SUCCESS; }
 
-  ezImage m_Image;
+  WImage m_Image;
 };
 
-static ezImageConversionTest s_ImageConversionTest;
+static WImageConversionTest s_ImageConversionTest;

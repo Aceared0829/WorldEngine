@@ -6,49 +6,49 @@
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
-class ezPropertyAttribute;
+class WPropertyAttribute;
 
-class EZ_RENDERERCORE_DLL ezShaderParser
+class W_RENDERERCORE_DLL WShaderParser
 {
 public:
   struct AttributeDefinition
   {
-    ezString m_sType;
-    ezHybridArray<ezVariant, 8> m_Values;
+    WString m_sType;
+    WHybridArray<WVariant, 8> m_Values;
   };
 
   struct ParameterDefinition
   {
-    const ezRTTI* m_pType = nullptr;
-    ezString m_sType;
-    ezString m_sName;
+    const WRTTI* m_pType = nullptr;
+    WString m_sType;
+    WString m_sName;
 
-    ezHybridArray<AttributeDefinition, 4> m_Attributes;
+    WHybridArray<AttributeDefinition, 4> m_Attributes;
   };
 
   struct EnumValue
   {
-    ezHashedString m_sValueName;
-    ezInt32 m_iValueValue = 0;
+    WHashedString m_sValueName;
+    WInt32 m_iValueValue = 0;
   };
 
   struct EnumDefinition
   {
-    ezString m_sName;
-    ezUInt32 m_uiDefaultValue = 0;
-    ezHybridArray<EnumValue, 16> m_Values;
+    WString m_sName;
+    WUInt32 m_uiDefaultValue = 0;
+    WHybridArray<EnumValue, 16> m_Values;
   };
 
-  static ezResult PreprocessSection(ezStringView sSectionContent, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult);
+  static WResult PreprocessSection(WStringView sSectionContent, WArrayPtr<WString> customDefines, WStringBuilder& out_sResult);
 
-  static void ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions);
+  static void ParseMaterialParameterSection(WStringView sSection, WDynamicArray<ParameterDefinition>& out_parameter, WDynamicArray<EnumDefinition>& out_enumDefinitions);
 
-  static void ParsePermutationSection(ezStringView sPermutationSection, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars);
+  static void ParsePermutationSection(WStringView sPermutationSection, WDynamicArray<WHashedString>& out_permVars, WDynamicArray<WPermutationVar>& out_fixedPermVars);
 
-  static ezStatus ParseMaterialConstantsSection(ezStringView sMaterialConstantsSection, ezSharedPtr<ezShaderConstantBufferLayout>& out_pMaterialConstantBufferLayout);
-  static void LayoutMaterialConstants(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout, ezEnum<ezGALBufferLayout> layout);
+  static WStatus ParseMaterialConstantsSection(WStringView sMaterialConstantsSection, WSharedPtr<WShaderConstantBufferLayout>& out_pMaterialConstantBufferLayout);
+  static void LayoutMaterialConstants(WShaderConstantBufferLayout& ref_materialConstantBufferLayout, WEnum<WGALBufferLayout> layout);
 
-  static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition);
+  static void ParsePermutationVarConfig(WStringView sPermutationVarConfig, WVariant& out_defaultValue, EnumDefinition& out_enumDefinition);
 
 
 
@@ -57,26 +57,26 @@ public:
   /// Used by the shader compiler implementations to generate resource mappings to sets/slots without creating conflicts across shader stages. For a list of supported resource declarations and possible pitfalls, please refer to https://ezengine.net/pages/docs/graphics/shaders/shader-resources.html.
   /// \param sShaderStageSource The shader source to parse.
   /// \param out_Resources The shader resources found inside the source.
-  static void ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_resources);
+  static void ParseShaderResources(WStringView sShaderStageSource, WDynamicArray<WShaderResourceDefinition>& out_resources);
 
-  /// Delegate to creates a new declaration and register binding for a specific shader ezShaderResourceDefinition.
+  /// Delegate to creates a new declaration and register binding for a specific shader WShaderResourceDefinition.
   /// \param sPlatform The platform for which the shader is being compiled. Will be one of the values returned by GetSupportedPlatforms.
   /// \param sDeclaration The shader resource declaration without any attributes, e.g. "Texture2D DiffuseTexture"
   /// \param binding The binding that needs to be set on the output out_sDeclaration.
   /// \param out_sDeclaration The new declaration that changes sDeclaration according to the provided 'binding', e.g. "Texture2D DiffuseTexture : register(t0, space5)"
-  using CreateResourceDeclaration = ezDelegate<void(ezStringView, ezStringView, const ezShaderResourceBinding&, ezStringBuilder&)>;
+  using CreateResourceDeclaration = WDelegate<void(WStringView, WStringView, const WShaderResourceBinding&, WStringBuilder&)>;
 
   /// Merges the shader resource bindings of all used shader stages.
   ///
   /// The function can fail if a shader resource of the same name has different signatures in two stages. E.g. the type, slot or set is different. Shader resources must be uniquely identified via name.
   /// \param spd The shader currently being processed.
-  /// \param out_bindings A hashmap from shader resource name to shader resource binding. If a binding is used in multiple stages, ezShaderResourceBinding::m_Stages will be the combination of all used stages.
+  /// \param out_bindings A hashmap from shader resource name to shader resource binding. If a binding is used in multiple stages, WShaderResourceBinding::m_Stages will be the combination of all used stages.
   /// \param pLog Log interface to write errors to.
   /// \return Returns failure if the shader stages could not be merged.
-  static ezResult MergeShaderResourceBindings(const ezShaderProgramData& spd, ezHashTable<ezHashedString, ezShaderResourceBinding>& out_bindings, ezLogInterface* pLog);
+  static WResult MergeShaderResourceBindings(const WShaderProgramData& spd, WHashTable<WHashedString, WShaderResourceBinding>& out_bindings, WLogInterface* pLog);
 
-  /// Makes sure that bindings fulfills the basic requirements that ezEngine has for resource bindings in a shader, e.g. that each binding has a set / slot set.
-  static ezResult SanityCheckShaderResourceBindings(const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, ezLogInterface* pLog);
+  /// Makes sure that bindings fulfills the basic requirements that WorldEngine has for resource bindings in a shader, e.g. that each binding has a set / slot set.
+  static WResult SanityCheckShaderResourceBindings(const WHashTable<WHashedString, WShaderResourceBinding>& bindings, WLogInterface* pLog);
 
   /// Creates a new shader source code that patches all shader resources to contain fixed set / slot bindings.
   /// \param sPlatform The platform for which the shader should be patched.
@@ -85,5 +85,5 @@ public:
   /// \param bindings The binding information that each shader resource should have after patching. These bindings must have unique set / slots combinations for each resource.
   /// \param createDeclaration The callback to be called to generate the new shader resource declaration.
   /// \param out_shaderStageSource The new shader source code after patching.
-  static void ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_sShaderStageSource);
+  static void ApplyShaderResourceBindings(WStringView sPlatform, WStringView sShaderStageSource, const WDynamicArray<WShaderResourceDefinition>& resources, const WHashTable<WHashedString, WShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, WStringBuilder& out_sShaderStageSource);
 };

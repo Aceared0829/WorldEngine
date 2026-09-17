@@ -10,16 +10,16 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 
-ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+WQtColorGradientAssetDocumentWindow::WQtColorGradientAssetDocumentWindow(WDocument* pDocument)
+  : WQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "ColorGradientAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -28,8 +28,8 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
 
   // Tool Bar
   {
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "ColorGradientAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -39,55 +39,55 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   }
 
   m_bShowFirstTime = true;
-  m_pGradientEditor = new ezQtColorGradientEditorWidget(this);
+  m_pGradientEditor = new WQtColorGradientEditorWidget(this);
 
 
   // Central Widget
   {
     QWidget* pContainer = new QWidget(this);
     pContainer->setLayout(new QVBoxLayout());
-    pContainer->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pContainer->layout()->addWidget(new WQtAssetStatusIndicator((WAssetDocument*)GetDocument()));
     pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     pContainer->layout()->addWidget(m_pGradientEditor);
     pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pCentral->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pCentral = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("WQtDocumentPanel");
     pCentral->setWindowTitle("Gradient");
     pCentral->setWidget(pContainer);
 
     m_pDockManager->setCentralWidget(pCentral);
   }
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpAdded, this, &WQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpMoved, this, &WQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpDeleted, this, &WQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::ColorCpChanged, this, &WQtColorGradientAssetDocumentWindow::onGradientColorCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpAdded, this, &WQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpMoved, this, &WQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpDeleted, this, &WQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::AlphaCpChanged, this, &WQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpAdded, this, &WQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpMoved, this, &WQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpDeleted, this, &WQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::IntensityCpChanged, this, &WQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientEndOperation);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::BeginOperation, this, &WQtColorGradientAssetDocumentWindow::onGradientBeginOperation);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::EndOperation, this, &WQtColorGradientAssetDocumentWindow::onGradientEndOperation);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange);
+  connect(m_pGradientEditor, &WQtColorGradientEditorWidget::NormalizeRange, this, &WQtColorGradientAssetDocumentWindow::onGradientNormalizeRange);
 
   // property grid, if needed
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
     pPropertyPanel->setWindowTitle("ColorGradient Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
@@ -100,38 +100,38 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   UpdatePreview();
 }
 
-ezQtColorGradientAssetDocumentWindow::~ezQtColorGradientAssetDocumentWindow()
+WQtColorGradientAssetDocumentWindow::~WQtColorGradientAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(WMakeDelegate(&WQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, const ezColorGammaUB& color)
+void WQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, const WColorGammaUB& color)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Color Control Point");
 
   // Get the Gradient sub-object GUID
-  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  WUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
 
-  ezAddObjectCommand cmdAdd;
+  WAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ColorCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientColorCP>();
+  cmdAdd.m_pType = WGetStaticRTTI<WColorGradientColorCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
 
-  ezSetObjectPropertyCommand cmdSet;
+  WSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
+  cmdSet.m_NewValue = WColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Red";
@@ -150,30 +150,30 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ezUInt8 alpha)
+void WQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, WUInt8 alpha)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Alpha Control Point");
 
   // Get the Gradient sub-object GUID
-  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  WUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
 
-  ezAddObjectCommand cmdAdd;
+  WAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "AlphaCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientAlphaCP>();
+  cmdAdd.m_pType = WGetStaticRTTI<WColorGradientAlphaCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
 
-  ezSetObjectPropertyCommand cmdSet;
+  WSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
+  cmdSet.m_NewValue = WColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Alpha";
@@ -184,30 +184,30 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
+void WQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Intensity Control Point");
 
   // Get the Gradient sub-object GUID
-  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  WUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
 
-  ezAddObjectCommand cmdAdd;
+  WAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  cmdAdd.m_NewObjectGuid = WUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "IntensityCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientIntensityCP>();
+  cmdAdd.m_pType = WGetStaticRTTI<WColorGradientIntensityCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
 
-  ezSetObjectPropertyCommand cmdSet;
+  WSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
+  cmdSet.m_NewValue = WColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Intensity";
@@ -217,107 +217,107 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, const char* szArrayName)
+void WQtColorGradientAssetDocumentWindow::MoveCP(WInt32 idx, double newPosX, const char* szArrayName)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
   // First get the Gradient sub-object
-  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  WUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
   // Now access the array on the Gradient object
-  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
+  WVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Move Control Point");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = ezColorGradient::TimeToTick(newPosX);
+  cmdSet.m_NewValue = WColorGradient::TimeToTick(newPosX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, double newPosX)
+void WQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(WInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "ColorCPs");
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, double newPosX)
+void WQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(WInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "AlphaCPs");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, double newPosX)
+void WQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(WInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "IntensityCPs");
 }
 
-void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArrayName)
+void WQtColorGradientAssetDocumentWindow::RemoveCP(WInt32 idx, const char* szArrayName)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
   // First get the Gradient sub-object
-  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  WUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
   // Now access the array on the Gradient object
-  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
+  WVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
 
-  ezRemoveObjectCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)
+void WQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted(WInt32 idx)
 {
   RemoveCP(idx, "ColorCPs");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted(ezInt32 idx)
+void WQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted(WInt32 idx)
 {
   RemoveCP(idx, "AlphaCPs");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted(ezInt32 idx)
+void WQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted(WInt32 idx)
 {
   RemoveCP(idx, "IntensityCPs");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
+void WQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(WInt32 idx, const WColorGammaUB& color)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
   // First get the Gradient sub-object
-  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  WUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
   // Now access the array on the Gradient object
-  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("ColorCPs", idx);
+  WVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("ColorCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Color");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
@@ -335,24 +335,24 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx,
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, ezUInt8 alpha)
+void WQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(WInt32 idx, WUInt8 alpha)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
   // First get the Gradient sub-object
-  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  WUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
   // Now access the array on the Gradient object
-  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("AlphaCPs", idx);
+  WVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("AlphaCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Alpha");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
@@ -361,24 +361,24 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx,
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 idx, float intensity)
+void WQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(WInt32 idx, float intensity)
 {
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
   // First get the Gradient sub-object
-  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+  WUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<WUuid>();
+  const WDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
 
   // Now access the array on the Gradient object
-  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("IntensityCPs", idx);
+  WVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("IntensityCPs", idx);
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Intensity");
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = objGuid.Get<ezUuid>();
+  WSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = objGuid.Get<WUuid>();
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
@@ -388,16 +388,16 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation()
+void WQtColorGradientAssetDocumentWindow::onGradientBeginOperation()
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Gradient");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
+void WQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 {
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   if (commit)
     history->FinishTemporaryCommands();
@@ -406,15 +406,15 @@ void ezQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
+void WQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 {
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes) !=
+  if (WQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes) !=
       QMessageBox::StandardButton::Yes)
     return;
 
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
 
-  ezColorGradient GradientData;
+  WColorGradient GradientData;
   pDoc->GetProperties()->FillGradientData(GradientData);
 
   double minX, maxX;
@@ -424,36 +424,36 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   if ((minX == 0 && maxX == 1) || (minX >= maxX))
     return;
 
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  WCommandHistory* history = GetDocument()->GetCommandHistory();
 
   const float rangeNorm = 1.0f / (maxX - minX);
 
   history->StartTransaction("Normalize Gradient Range");
 
-  ezUInt32 numRgb, numAlpha, numInt;
+  WUInt32 numRgb, numAlpha, numInt;
   GradientData.GetNumControlPoints(numRgb, numAlpha, numInt);
 
-  for (ezUInt32 i = 0; i < numRgb; ++i)
+  for (WUInt32 i = 0; i < numRgb; ++i)
   {
-    float x = ezColorGradient::TickToTime(GradientData.GetColorControlPoint(i).m_iTick);
+    float x = WColorGradient::TickToTime(GradientData.GetColorControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
     MoveCP(i, x, "ColorCPs");
   }
 
-  for (ezUInt32 i = 0; i < numAlpha; ++i)
+  for (WUInt32 i = 0; i < numAlpha; ++i)
   {
-    float x = ezColorGradient::TickToTime(GradientData.GetAlphaControlPoint(i).m_iTick);
+    float x = WColorGradient::TickToTime(GradientData.GetAlphaControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
     MoveCP(i, x, "AlphaCPs");
   }
 
-  for (ezUInt32 i = 0; i < numInt; ++i)
+  for (WUInt32 i = 0; i < numInt; ++i)
   {
-    float x = ezColorGradient::TickToTime(GradientData.GetIntensityControlPoint(i).m_iTick);
+    float x = WColorGradient::TickToTime(GradientData.GetIntensityControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
@@ -465,11 +465,11 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   m_pGradientEditor->FrameGradient();
 }
 
-void ezQtColorGradientAssetDocumentWindow::UpdatePreview()
+void WQtColorGradientAssetDocumentWindow::UpdatePreview()
 {
-  ezColorGradient GradientData;
+  WColorGradient GradientData;
 
-  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = static_cast<WColorGradientAssetDocument*>(GetDocument());
   pDoc->GetProperties()->FillGradientData(GradientData);
 
   m_pGradientEditor->SetColorGradient(GradientData);
@@ -483,57 +483,57 @@ void ezQtColorGradientAssetDocumentWindow::UpdatePreview()
   SendLiveResourcePreview();
 }
 
-void ezQtColorGradientAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtColorGradientAssetDocumentWindow::PropertyEventHandler(const WDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezQtColorGradientAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WQtColorGradientAssetDocumentWindow::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   UpdatePreview();
 }
 
-void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
+void WQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezResourceUpdateMsgToEngine msg;
+  WResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "ColorGradient";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  WContiguousMemoryStreamStorage streamStorage;
+  WMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezColorGradientAssetDocument* pDoc = ezDynamicCast<ezColorGradientAssetDocument*>(GetDocument());
+  WColorGradientAssetDocument* pDoc = WDynamicCast<WColorGradientAssetDocument*>(GetDocument());
 
   // Write Path
-  ezStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezColorGradient");
+  WStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("WColorGradient");
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
-  ezAssetFileHeader AssetHeader;
+  const WUInt64 uiHash = WAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
+  WAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+  msg.m_Data = WArrayPtr<const WUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtColorGradientAssetDocumentWindow::RestoreResource()
+void WQtColorGradientAssetDocumentWindow::RestoreResource()
 {
-  ezRestoreResourceMsgToEngine msg;
+  WRestoreResourceMsgToEngine msg;
   msg.m_sResourceType = "ColorGradient";
 
-  ezStringBuilder tmp;
-  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+  WStringBuilder tmp;
+  msg.m_sResourceID = WConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

@@ -7,23 +7,23 @@
 
 namespace
 {
-  EZ_FORCE_INLINE float ApplyValue(ezProcGenBlendMode::Enum blendMode, float fInitialValue, float fNewValue)
+  W_FORCE_INLINE float ApplyValue(WProcGenBlendMode::Enum blendMode, float fInitialValue, float fNewValue)
   {
     switch (blendMode)
     {
-      case ezProcGenBlendMode::Add:
+      case WProcGenBlendMode::Add:
         return fInitialValue + fNewValue;
-      case ezProcGenBlendMode::Subtract:
+      case WProcGenBlendMode::Subtract:
         return fInitialValue - fNewValue;
-      case ezProcGenBlendMode::Multiply:
+      case WProcGenBlendMode::Multiply:
         return fInitialValue * fNewValue;
-      case ezProcGenBlendMode::Divide:
+      case WProcGenBlendMode::Divide:
         return fInitialValue / fNewValue;
-      case ezProcGenBlendMode::Max:
-        return ezMath::Max(fInitialValue, fNewValue);
-      case ezProcGenBlendMode::Min:
-        return ezMath::Min(fInitialValue, fNewValue);
-      case ezProcGenBlendMode::Set:
+      case WProcGenBlendMode::Max:
+        return WMath::Max(fInitialValue, fNewValue);
+      case WProcGenBlendMode::Min:
+        return WMath::Min(fInitialValue, fNewValue);
+      case WProcGenBlendMode::Set:
         return fNewValue;
       default:
         return fInitialValue;
@@ -31,42 +31,42 @@ namespace
   }
 } // namespace
 
-static_assert(sizeof(ezVolumeCollection::Sphere) == 60);
-static_assert(sizeof(ezVolumeCollection::Box) == 80);
+static_assert(sizeof(WVolumeCollection::Sphere) == 60);
+static_assert(sizeof(WVolumeCollection::Box) == 80);
 
-void ezVolumeCollection::Shape::SetGlobalToLocalTransform(const ezSimdMat4f& t)
+void WVolumeCollection::Shape::SetGlobalToLocalTransform(const WSimdMat4f& t)
 {
-  ezSimdVec4f r0, r1, r2, r3;
+  WSimdVec4f r0, r1, r2, r3;
   t.GetRows(r0, r1, r2, r3);
 
-  m_GlobalToLocalTransform0 = ezSimdConversion::ToVec4(r0);
-  m_GlobalToLocalTransform1 = ezSimdConversion::ToVec4(r1);
-  m_GlobalToLocalTransform2 = ezSimdConversion::ToVec4(r2);
+  m_GlobalToLocalTransform0 = WSimdConversion::ToVec4(r0);
+  m_GlobalToLocalTransform1 = WSimdConversion::ToVec4(r1);
+  m_GlobalToLocalTransform2 = WSimdConversion::ToVec4(r2);
 }
 
-ezSimdMat4f ezVolumeCollection::Shape::GetGlobalToLocalTransform() const
+WSimdMat4f WVolumeCollection::Shape::GetGlobalToLocalTransform() const
 {
-  ezSimdMat4f m;
-  m.SetRows(ezSimdConversion::ToVec4(m_GlobalToLocalTransform0), ezSimdConversion::ToVec4(m_GlobalToLocalTransform1),
-    ezSimdConversion::ToVec4(m_GlobalToLocalTransform2), ezSimdVec4f(0, 0, 0, 1));
+  WSimdMat4f m;
+  m.SetRows(WSimdConversion::ToVec4(m_GlobalToLocalTransform0), WSimdConversion::ToVec4(m_GlobalToLocalTransform1),
+    WSimdConversion::ToVec4(m_GlobalToLocalTransform2), WSimdVec4f(0, 0, 0, 1));
 
   return m;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WVolumeCollection, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVolumeCollection::ezVolumeCollection()
-  : m_Allocator("VolumeCollection", ezFoundation::GetAlignedAllocator(), 4 * 1024)
+WVolumeCollection::WVolumeCollection()
+  : m_Allocator("VolumeCollection", WFoundation::GetAlignedAllocator(), 4 * 1024)
   , m_SortedShapes(&m_Allocator)
 {
 }
 
-ezVolumeCollection::~ezVolumeCollection() = default;
+WVolumeCollection::~WVolumeCollection() = default;
 
-float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
+float WVolumeCollection::EvaluateAtGlobalPosition(const WSimdVec4f& vPosition, float fInitialValue, WProcVolumeImageMode::Enum imgMode, const WColor& refColor) const
 {
   float fValue = fInitialValue;
 
@@ -75,103 +75,103 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
     if (pShape->m_Type == ShapeType::Sphere)
     {
       auto& sphere = *static_cast<const Sphere*>(pShape);
-      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(vPosition);
+      const WSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(vPosition);
       const float distSquared = localPos.GetLengthSquared<3>();
       if (distSquared <= 1.0f)
       {
         const float fNewValue = ApplyValue(sphere.m_BlendMode, fValue, sphere.m_fValue);
-        const float fAlpha = ezMath::Saturate(ezMath::Sqrt(distSquared) * sphere.m_fFadeOut - sphere.m_fFadeOut);
-        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+        const float fAlpha = WMath::Saturate(WMath::Sqrt(distSquared) * sphere.m_fFadeOut - sphere.m_fFadeOut);
+        fValue = WMath::Lerp(fValue, fNewValue, fAlpha);
       }
     }
     else if (pShape->m_Type == ShapeType::Box)
     {
       auto& box = *static_cast<const Box*>(pShape);
-      const ezSimdVec4f localPos = box.GetGlobalToLocalTransform().TransformPosition(vPosition);
-      const ezSimdVec4f absLocalPos = localPos.Abs();
-      if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
+      const WSimdVec4f localPos = box.GetGlobalToLocalTransform().TransformPosition(vPosition);
+      const WSimdVec4f absLocalPos = localPos.Abs();
+      if ((absLocalPos <= WSimdVec4f(1.0f)).AllSet<3>())
       {
-        const ezSimdVec4f fadeOut = ezSimdVec4f::Select(localPos > ezSimdVec4f::MakeZero(), ezSimdConversion::ToVec3(box.m_vPositiveFadeOut), ezSimdConversion::ToVec3(box.m_vNegativeFadeOut));
-        ezSimdVec4f vAlpha = absLocalPos.CompMul(fadeOut) - fadeOut;
-        vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
+        const WSimdVec4f fadeOut = WSimdVec4f::Select(localPos > WSimdVec4f::MakeZero(), WSimdConversion::ToVec3(box.m_vPositiveFadeOut), WSimdConversion::ToVec3(box.m_vNegativeFadeOut));
+        WSimdVec4f vAlpha = absLocalPos.CompMul(fadeOut) - fadeOut;
+        vAlpha = vAlpha.CompMin(WSimdVec4f(1.0f)).CompMax(WSimdVec4f::MakeZero());
         const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
 
         const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
-        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+        fValue = WMath::Lerp(fValue, fNewValue, fAlpha);
       }
     }
     else if (pShape->m_Type == ShapeType::Image)
     {
       auto& image = *static_cast<const Image*>(pShape);
 
-      const ezSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(vPosition);
-      const ezSimdVec4f absLocalPos = localPos.Abs();
+      const WSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(vPosition);
+      const WSimdVec4f absLocalPos = localPos.Abs();
 
-      if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>() && image.m_pPixelData != nullptr)
+      if ((absLocalPos <= WSimdVec4f(1.0f)).AllSet<3>() && image.m_pPixelData != nullptr)
       {
-        ezVec2 uv;
+        WVec2 uv;
         uv.x = static_cast<float>(localPos.x()) * 0.5f + 0.5f;
         uv.y = static_cast<float>(localPos.y()) * 0.5f + 0.5f;
 
-        const ezColor col = ezImageUtils::NearestSample(image.m_pPixelData, image.m_uiImageWidth, image.m_uiImageHeight, ezImageAddressMode::Clamp, uv);
+        const WColor col = WImageUtils::NearestSample(image.m_pPixelData, image.m_uiImageWidth, image.m_uiImageHeight, WImageAddressMode::Clamp, uv);
 
         float fValueToUse = image.m_fValue;
-        EZ_IGNORE_UNUSED(fValueToUse);
+        W_IGNORE_UNUSED(fValueToUse);
 
         switch (imgMode)
         {
-          case ezProcVolumeImageMode::ReferenceColor:
+          case WProcVolumeImageMode::ReferenceColor:
             fValueToUse = image.m_fValue;
             break;
-          case ezProcVolumeImageMode::ChannelR:
+          case WProcVolumeImageMode::ChannelR:
             fValueToUse = image.m_fValue * col.r;
             break;
-          case ezProcVolumeImageMode::ChannelG:
+          case WProcVolumeImageMode::ChannelG:
             fValueToUse = image.m_fValue * col.g;
             break;
-          case ezProcVolumeImageMode::ChannelB:
+          case WProcVolumeImageMode::ChannelB:
             fValueToUse = image.m_fValue * col.b;
             break;
-          case ezProcVolumeImageMode::ChannelA:
+          case WProcVolumeImageMode::ChannelA:
             fValueToUse = image.m_fValue * col.a;
             break;
         }
 
-        if (imgMode != ezProcVolumeImageMode::ReferenceColor || col.IsEqualRGBA(refColor, 0.1f))
+        if (imgMode != WProcVolumeImageMode::ReferenceColor || col.IsEqualRGBA(refColor, 0.1f))
         {
-          const ezSimdVec4f fadeOut = ezSimdVec4f::Select(localPos > ezSimdVec4f::MakeZero(), ezSimdConversion::ToVec3(image.m_vPositiveFadeOut), ezSimdConversion::ToVec3(image.m_vNegativeFadeOut));
-          ezSimdVec4f vAlpha = absLocalPos.CompMul(fadeOut) - fadeOut;
-          vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
+          const WSimdVec4f fadeOut = WSimdVec4f::Select(localPos > WSimdVec4f::MakeZero(), WSimdConversion::ToVec3(image.m_vPositiveFadeOut), WSimdConversion::ToVec3(image.m_vNegativeFadeOut));
+          WSimdVec4f vAlpha = absLocalPos.CompMul(fadeOut) - fadeOut;
+          vAlpha = vAlpha.CompMin(WSimdVec4f(1.0f)).CompMax(WSimdVec4f::MakeZero());
           const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
 
           const float fNewValue = ApplyValue(image.m_BlendMode, fValue, image.m_fValue);
-          fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+          fValue = WMath::Lerp(fValue, fNewValue, fAlpha);
         }
       }
     }
     else if (pShape->m_Type == ShapeType::Spline)
     {
       auto& spline = *static_cast<const Spline*>(pShape);
-      const ezSimdVec4f localPos = spline.GetGlobalToLocalTransform().TransformPosition(vPosition);
-      const ezSimdBBox localBox = ezSimdConversion::ToBBox(spline.m_BoundingBox);
+      const WSimdVec4f localPos = spline.GetGlobalToLocalTransform().TransformPosition(vPosition);
+      const WSimdBBox localBox = WSimdConversion::ToBBox(spline.m_BoundingBox);
       if (!localBox.Contains(localPos))
         continue;
 
       float fT = 0.0f;
       float fDistanceSquared = 0.0f;
       spline.m_Spline.FindClosestPoint(localPos, fT, fDistanceSquared, spline.m_fMaxError);
-      const ezSimdMat4f t = spline.m_Spline.EvaluateTransform(fT).GetAsMat4().GetInverse();
+      const WSimdMat4f t = spline.m_Spline.EvaluateTransform(fT).GetAsMat4().GetInverse();
       const float fNormalizedDistance = float(t.TransformPosition(localPos).GetLength<3>()) * spline.m_fInvRadius;
       if (fNormalizedDistance <= 1.0f)
       {
         const float fNewValue = ApplyValue(spline.m_BlendMode, fValue, spline.m_fValue);
-        const float fAlpha = ezMath::Saturate(fNormalizedDistance * spline.m_fFadeOut - spline.m_fFadeOut);
-        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+        const float fAlpha = WMath::Saturate(fNormalizedDistance * spline.m_fFadeOut - spline.m_fFadeOut);
+        fValue = WMath::Lerp(fValue, fNewValue, fAlpha);
       }
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
@@ -179,22 +179,22 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
 }
 
 // static
-void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
-  const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType)
+void WVolumeCollection::ExtractVolumesInBox(const WWorld& world, const WBoundingBox& box, WSpatialData::Category spatialCategory,
+  const WTagSet& includeTags, WVolumeCollection& out_collection, const WRTTI* pComponentBaseType)
 {
-  ezMsgExtractVolumes msg;
+  WMsgExtractVolumes msg;
   msg.m_pCollection = &out_collection;
 
-  ezSpatialSystem::QueryParams queryParams;
+  WSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
   queryParams.m_pIncludeTags = &includeTags;
 
   world.GetSpatialSystem()->FindObjectsInBox(box, queryParams,
-    [&](ezGameObject* pObject)
+    [&](WGameObject* pObject)
     {
       if (pComponentBaseType != nullptr)
       {
-        ezTempHybridArray<const ezComponent*, 8> components;
+        WTempHybridArray<const WComponent*, 8> components;
         pObject->TryGetComponentsOfBaseType(pComponentBaseType, components);
 
         for (auto pComponent : components)
@@ -207,7 +207,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
         pObject->SendMessage(msg);
       }
 
-      return ezVisitorExecution::Continue;
+      return WVisitorExecution::Continue;
     });
 
   struct Sorter
@@ -221,39 +221,39 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   out_collection.m_SortedShapes.Sort(Sorter());
 }
 
-void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
+void WVolumeCollection::AddSphere(const WSimdTransform& transform, float fRadius, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
 {
-  ezSimdTransform scaledTransform = transform;
+  WSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
 
-  Sphere* pSphere = EZ_NEW(&m_Allocator, Sphere);
+  Sphere* pSphere = W_NEW(&m_Allocator, Sphere);
   pSphere->SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
   pSphere->m_Type = ShapeType::Sphere;
   pSphere->m_BlendMode = blendMode;
   pSphere->m_fValue = fValue;
-  pSphere->m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
-  pSphere->m_fFadeOut = -1.0f / ezMath::Max(fFalloff, 0.0001f);
+  pSphere->m_uiSortingKey = WVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  pSphere->m_fFadeOut = -1.0f / WMath::Max(fFalloff, 0.0001f);
 
   m_SortedShapes.PushBack(pSphere);
 }
 
-void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vPositiveFalloff, const ezVec3& vNegativeFalloff, const ezImageDataResourceHandle& hImage)
+void WVolumeCollection::AddBox(const WSimdTransform& transform, const WVec3& vExtents, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, const WVec3& vPositiveFalloff, const WVec3& vNegativeFalloff, const WImageDataResourceHandle& hImage)
 {
   const bool bHasImage = hImage.IsValid();
 
-  ezSimdTransform scaledTransform = transform;
-  scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
+  WSimdTransform scaledTransform = transform;
+  scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(WSimdConversion::ToVec3(vExtents)) * 0.5f;
 
   Box* pBox = nullptr;
   if (bHasImage)
   {
-    Image* pImage = EZ_NEW(&m_Allocator, Image);
+    Image* pImage = W_NEW(&m_Allocator, Image);
     pImage->m_Type = ShapeType::Image;
     pImage->m_hImage = hImage;
 
-    ezResourceLock<ezImageDataResource> pImageData(hImage, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WImageDataResource> pImageData(hImage, WResourceAcquireMode::BlockTillLoaded);
     auto& image = pImageData->GetDescriptor().m_Image;
-    pImage->m_pPixelData = image.GetPixelPointer<ezColor>();
+    pImage->m_pPixelData = image.GetPixelPointer<WColor>();
     pImage->m_uiImageWidth = image.GetWidth();
     pImage->m_uiImageHeight = image.GetHeight();
 
@@ -261,49 +261,49 @@ void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& 
   }
   else
   {
-    pBox = EZ_NEW(&m_Allocator, Box);
+    pBox = W_NEW(&m_Allocator, Box);
     pBox->m_Type = ShapeType::Box;
   }
 
   pBox->SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
   pBox->m_BlendMode = blendMode;
   pBox->m_fValue = fValue;
-  pBox->m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
-  pBox->m_vPositiveFadeOut = ezVec3(-1.0f).CompDiv(vPositiveFalloff.CompMax(ezVec3(0.0001f)));
-  pBox->m_vNegativeFadeOut = ezVec3(-1.0f).CompDiv(vNegativeFalloff.CompMax(ezVec3(0.0001f)));
+  pBox->m_uiSortingKey = WVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  pBox->m_vPositiveFadeOut = WVec3(-1.0f).CompDiv(vPositiveFalloff.CompMax(WVec3(0.0001f)));
+  pBox->m_vNegativeFadeOut = WVec3(-1.0f).CompDiv(vNegativeFalloff.CompMax(WVec3(0.0001f)));
 
   m_SortedShapes.PushBack(pBox);
 }
 
-void ezVolumeCollection::AddSpline(const ezSimdTransform& transform, const ezSpline& spline, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
+void WVolumeCollection::AddSpline(const WSimdTransform& transform, const WSpline& spline, float fRadius, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
 {
-  Spline* pSpline = EZ_NEW(&m_Allocator, Spline);
+  Spline* pSpline = W_NEW(&m_Allocator, Spline);
   pSpline->SetGlobalToLocalTransform(transform.GetAsMat4().GetInverse());
   pSpline->m_Type = ShapeType::Spline;
   pSpline->m_BlendMode = blendMode;
   pSpline->m_fValue = fValue;
-  pSpline->m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, transform.GetMaxScale());
+  pSpline->m_uiSortingKey = WVolumeSampler::ComputeSortingKey(fSortOrder, transform.GetMaxScale());
 
-  ezSimdBBoxSphere bounds;
+  WSimdBBoxSphere bounds;
   spline.CalculateBounds(bounds).IgnoreResult();
-  ezSimdBBox box = bounds.GetBox();
-  box.m_Min -= ezSimdVec4f(fRadius);
-  box.m_Max += ezSimdVec4f(fRadius);
+  WSimdBBox box = bounds.GetBox();
+  box.m_Min -= WSimdVec4f(fRadius);
+  box.m_Max += WSimdVec4f(fRadius);
 
   pSpline->m_Spline = spline;
-  pSpline->m_BoundingBox = ezSimdConversion::ToBBox(box);
-  pSpline->m_fInvRadius = 1.0f / ezMath::Max(fRadius, 0.0001f);
-  pSpline->m_fFadeOut = -1.0f / ezMath::Max(fFalloff, 0.0001f);
-  pSpline->m_fMaxError = ezMath::Max(fRadius / 20.0f, 0.1f);
+  pSpline->m_BoundingBox = WSimdConversion::ToBBox(box);
+  pSpline->m_fInvRadius = 1.0f / WMath::Max(fRadius, 0.0001f);
+  pSpline->m_fFadeOut = -1.0f / WMath::Max(fFalloff, 0.0001f);
+  pSpline->m_fMaxError = WMath::Max(fRadius / 20.0f, 0.1f);
 
   m_SortedShapes.PushBack(pSpline);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractVolumes);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractVolumes, 1, ezRTTIDefaultAllocator<ezMsgExtractVolumes>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_IMPLEMENT_MESSAGE_TYPE(WMsgExtractVolumes);
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMsgExtractVolumes, 1, WRTTIDefaultAllocator<WMsgExtractVolumes>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
 
-EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_VolumeCollection);
+W_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_VolumeCollection);

@@ -8,51 +8,51 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 
-ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResource* pResource)
+WResourceLoadData WFmodSoundBankResourceLoader::OpenDataStream(const WResource* pResource)
 {
-  EZ_LOG_BLOCK("ezFmodSoundBankResourceLoader::OpenDataStream", pResource->GetResourceID());
+  W_LOG_BLOCK("WFmodSoundBankResourceLoader::OpenDataStream", pResource->GetResourceID());
 
-  LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
+  LoadedData* pData = W_DEFAULT_NEW(LoadedData);
 
-  ezResourceLoadData res;
+  WResourceLoadData res;
 
   {
-    ezFileReader SoundBankAssetFile;
+    WFileReader SoundBankAssetFile;
     if (SoundBankAssetFile.Open(pResource->GetResourceID()).Failed())
       return res;
 
     res.m_sResourceDescription = SoundBankAssetFile.GetFilePathRelative().GetData();
-    ezUInt32 uiSoundBankSize = 0;
+    WUInt32 uiSoundBankSize = 0;
 
-    if (SoundBankAssetFile.GetFilePathRelative().EndsWith_NoCase("ezFmodSoundBank")) // a transformed asset file
+    if (SoundBankAssetFile.GetFilePathRelative().EndsWith_NoCase("WFmodSoundBank")) // a transformed asset file
     {
       // skip the asset header
-      ezAssetFileHeader header;
+      WAssetFileHeader header;
       header.Read(SoundBankAssetFile).IgnoreResult();
 
-      ezUInt8 uiVersion = 0;
+      WUInt8 uiVersion = 0;
       SoundBankAssetFile >> uiVersion;
 
-      EZ_ASSERT_DEV(uiVersion == 1, "Soundbank resource file version '{0}' is invalid", uiVersion);
+      W_ASSERT_DEV(uiVersion == 1, "Soundbank resource file version '{0}' is invalid", uiVersion);
 
       SoundBankAssetFile >> uiSoundBankSize;
     }
     else
     {
       // otherwise we assume it is directly an FMOD sound bank file
-      uiSoundBankSize = (ezUInt32)SoundBankAssetFile.GetFileSize();
+      uiSoundBankSize = (WUInt32)SoundBankAssetFile.GetFileSize();
     }
 
     if (uiSoundBankSize > 0)
     {
-      pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
+      pData->m_pSoundbankData = W_DEFAULT_NEW(WDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
-      ezUInt8* pAlignedData = ezMemoryUtils::AlignBackwards(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      WUInt8* pAlignedData = WMemoryUtils::AlignBackwards(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
       // The FMOD documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
-      auto pStudio = ezFmod::GetSingleton()->GetStudioSystem();
+      auto pStudio = WFmod::GetSingleton()->GetStudioSystem();
 
       // this happens when FMOD is not properly configured
       if (pStudio == nullptr)
@@ -68,11 +68,11 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
         // this is not a problem, we just discard the failed second attempt
         if (fmodRes != FMOD_ERR_EVENT_ALREADY_LOADED)
         {
-          ezLog::Error("Error '{1}' loading FMOD sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
+          WLog::Error("Error '{1}' loading FMOD sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (WInt32)fmodRes);
         }
 
-        EZ_DEFAULT_DELETE(pData->m_pSoundbankData);
-        EZ_DEFAULT_DELETE(pData);
+        W_DEFAULT_DELETE(pData->m_pSoundbankData);
+        W_DEFAULT_DELETE(pData);
 
         res.m_pCustomLoaderData = nullptr;
         res.m_pDataStream = nullptr;
@@ -80,10 +80,10 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       }
     }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if W_ENABLED(W_SUPPORTS_FILE_STATS)
     {
-      ezFileStats stat;
-      if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
+      WFileStats stat;
+      if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
       {
         res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
       }
@@ -91,10 +91,10 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
 #endif
   }
 
-  ezMemoryStreamWriter w(&pData->m_Storage);
+  WMemoryStreamWriter w(&pData->m_Storage);
 
   w.WriteBytes(&pData->m_pSoundBank, sizeof(FMOD::Studio::Bank*)).IgnoreResult();
-  w.WriteBytes(&pData->m_pSoundbankData, sizeof(ezDataBuffer*)).IgnoreResult();
+  w.WriteBytes(&pData->m_pSoundbankData, sizeof(WDataBuffer*)).IgnoreResult();
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
@@ -102,30 +102,30 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
   return res;
 }
 
-void ezFmodSoundBankResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
+void WFmodSoundBankResourceLoader::CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData)
 {
   LoadedData* pData = (LoadedData*)loaderData.m_pCustomLoaderData;
 
-  EZ_DEFAULT_DELETE(pData);
+  W_DEFAULT_DELETE(pData);
 }
 
-bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResource) const
+bool WFmodSoundBankResourceLoader::IsResourceOutdated(const WResource* pResource) const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
   // don't try to reload a file that cannot be found
-  ezStringBuilder sAbs;
-  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+  WStringBuilder sAbs;
+  if (WFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
     return false;
 
-#  if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#  if W_ENABLED(W_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
-    ezFileStats stat;
-    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
+    WFileStats stat;
+    if (WFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
       return false;
 
-    return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);
+    return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), WTimestamp::CompareMode::FileTimeEqual);
   }
 
 #  endif

@@ -5,49 +5,49 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezRmlUiViewContext::ezRmlUiViewContext(ezRmlUiDocumentContext* pRmlUiContext)
-  : ezEngineProcessViewContext(pRmlUiContext)
+WRmlUiViewContext::WRmlUiViewContext(WRmlUiDocumentContext* pRmlUiContext)
+  : WEngineProcessViewContext(pRmlUiContext)
 {
   m_pRmlUiContext = pRmlUiContext;
 
   // Start with something valid.
-  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.01f, 1000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 45.0f, 0.01f, 1000.0f);
+  m_Camera.LookAt(WVec3(1, 1, 1), WVec3::MakeZero(), WVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezRmlUiViewContext::~ezRmlUiViewContext() = default;
+WRmlUiViewContext::~WRmlUiViewContext() = default;
 
-bool ezRmlUiViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
+bool WRmlUiViewContext::UpdateThumbnailCamera(const WBoundingBoxSphere& bounds)
 {
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -WVec3(5, -2, 3));
 }
 
-ezViewHandle ezRmlUiViewContext::CreateView()
+WViewHandle WRmlUiViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Rml Ui Editor - View");
+  WView* pView = CreateDefaultView("Rml Ui Editor - View");
   return pView->GetHandle();
 }
 
-void ezRmlUiViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WRmlUiViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
-  ezEngineProcessViewContext::SetCamera(pMsg);
+  WEngineProcessViewContext::SetCamera(pMsg);
 
-  /*const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+  /*const WUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
   auto hResource = m_pRmlUiContext->GetResource();
   if (hResource.IsValid())
   {
-    ezResourceLock<ezRmlUiResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
+    WResourceLock<WRmlUiResource> pResource(hResource, WResourceAcquireMode::AllowLoadingFallback);
 
     if (pResource->GetDetails().m_Bounds.IsValid())
     {
-      const ezBoundingBox& bbox = pResource->GetDetails().m_Bounds.GetBox();
+      const WBoundingBox& bbox = pResource->GetDetails().m_Bounds.GetBox();
 
-      ezStringBuilder sText;
-      sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-                          ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+      WStringBuilder sText;
+      sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", WArgF(bbox.GetHalfExtents().x * 2, 2),
+                          WArgF(bbox.GetHalfExtents().y * 2, 2), WArgF(bbox.GetHalfExtents().z * 2, 2));
 
-      ezDebugRenderer::DrawInfoText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+      WDebugRenderer::DrawInfoText(m_hView, sText, WVec2I32(10, viewHeight - 26), WColor::White);
     }
   }*/
 }

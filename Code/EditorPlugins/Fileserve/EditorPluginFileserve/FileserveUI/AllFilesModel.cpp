@@ -2,22 +2,22 @@
 
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
 
-ezQtFileserveAllFilesModel::ezQtFileserveAllFilesModel(QWidget* pParent)
+WQtFileserveAllFilesModel::WQtFileserveAllFilesModel(QWidget* pParent)
   : QAbstractListModel(pParent)
 {
 }
 
-int ezQtFileserveAllFilesModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
+int WQtFileserveAllFilesModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return m_IndexedFiles.GetCount() - m_uiAddedItems;
 }
 
-int ezQtFileserveAllFilesModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
+int WQtFileserveAllFilesModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return 2;
 }
 
-QVariant ezQtFileserveAllFilesModel::data(const QModelIndex& index, int iRole /*= Qt::DisplayRole*/) const
+QVariant WQtFileserveAllFilesModel::data(const QModelIndex& index, int iRole /*= Qt::DisplayRole*/) const
 {
   if (!index.isValid())
     return QVariant();
@@ -42,7 +42,7 @@ QVariant ezQtFileserveAllFilesModel::data(const QModelIndex& index, int iRole /*
 }
 
 
-void ezQtFileserveAllFilesModel::AddAccessedFile(const char* szFile)
+void WQtFileserveAllFilesModel::AddAccessedFile(const char* szFile)
 {
   bool bExisted = false;
   auto it = m_AllFiles.FindOrAdd(szFile, &bExisted);
@@ -58,12 +58,12 @@ void ezQtFileserveAllFilesModel::AddAccessedFile(const char* szFile)
     if (!m_bTimerRunning)
     {
       m_bTimerRunning = true;
-      QTimer::singleShot(500, this, &ezQtFileserveAllFilesModel::UpdateViewSlot);
+      QTimer::singleShot(500, this, &WQtFileserveAllFilesModel::UpdateViewSlot);
     }
   }
 }
 
-void ezQtFileserveAllFilesModel::UpdateView()
+void WQtFileserveAllFilesModel::UpdateView()
 {
   if (m_uiAddedItems == 0)
     return;
@@ -74,7 +74,7 @@ void ezQtFileserveAllFilesModel::UpdateView()
   endInsertRows();
 }
 
-void ezQtFileserveAllFilesModel::Clear()
+void WQtFileserveAllFilesModel::Clear()
 {
   m_AllFiles.Clear();
   m_IndexedFiles.Clear();
@@ -84,14 +84,14 @@ void ezQtFileserveAllFilesModel::Clear()
   endResetModel();
 }
 
-void ezQtFileserveAllFilesModel::UpdateViewSlot()
+void WQtFileserveAllFilesModel::UpdateViewSlot()
 {
   m_bTimerRunning = false;
 
   UpdateView();
 }
 
-QVariant ezQtFileserveAllFilesModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
+QVariant WQtFileserveAllFilesModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
 {
   if (iRole == Qt::DisplayRole)
   {

@@ -1,29 +1,29 @@
 #pragma once
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate() = default;
+W_ALWAYS_INLINE WSizeTemplate<Type>::WSizeTemplate() = default;
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate(Type width, Type height)
+W_ALWAYS_INLINE WSizeTemplate<Type>::WSizeTemplate(Type width, Type height)
   : width(width)
   , height(height)
 {
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezSizeTemplate<Type>::HasNonZeroArea() const
+W_ALWAYS_INLINE bool WSizeTemplate<Type>::HasNonZeroArea() const
 {
   return (width > 0) && (height > 0);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator==(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2)
+W_ALWAYS_INLINE bool operator==(const WSizeTemplate<Type>& v1, const WSizeTemplate<Type>& v2)
 {
   return v1.height == v2.height && v1.width == v2.width;
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2)
+W_ALWAYS_INLINE bool operator!=(const WSizeTemplate<Type>& v1, const WSizeTemplate<Type>& v2)
 {
   return v1.height != v2.height || v1.width != v2.width;
 }

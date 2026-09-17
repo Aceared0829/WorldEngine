@@ -14,8 +14,8 @@
 #include <QPushButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtAddSubElementButton::ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory, ezStringView sButtonText)
-  : ezQtPropertyWidget()
+WQtAddSubElementButton::WQtAddSubElementButton(WEnum<WPropertyCategory> containerCategory, WStringView sButtonText)
+  : WQtPropertyWidget()
 {
   m_ContainerCategory = containerCategory;
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
@@ -25,7 +25,7 @@ ezQtAddSubElementButton::ezQtAddSubElementButton(ezEnum<ezPropertyCategory> cont
   setLayout(m_pLayout);
 
   m_pButton = new QPushButton(this);
-  m_pButton->setText(ezMakeQString(sButtonText));
+  m_pButton->setText(WMakeQString(sButtonText));
   m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Add.svg"));
   m_pButton->setObjectName("Button");
 
@@ -42,25 +42,25 @@ ezQtAddSubElementButton::ezQtAddSubElementButton(ezEnum<ezPropertyCategory> cont
   m_pMenu = nullptr;
 }
 
-void ezQtAddSubElementButton::OnInit()
+void WQtAddSubElementButton::OnInit()
 {
-  if (m_pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  if (m_pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
   {
     m_pMenu = new QMenu(m_pButton);
     m_pMenu->setToolTipsVisible(true);
-    connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtAddSubElementButton::onMenuAboutToShow);
+    connect(m_pMenu, &QMenu::aboutToShow, this, &WQtAddSubElementButton::onMenuAboutToShow);
     m_pButton->setMenu(m_pMenu);
     m_pButton->setObjectName("Button");
 
-    connect(&m_TypeMenu, &ezQtTypeMenu::TypeSelected, this, &ezQtAddSubElementButton::OnTypeSelected);
+    connect(&m_TypeMenu, &WQtTypeMenu::TypeSelected, this, &WQtAddSubElementButton::OnTypeSelected);
   }
 
-  if (const ezMaxArraySizeAttribute* pAttr = m_pProp->GetAttributeByType<ezMaxArraySizeAttribute>())
+  if (const WMaxArraySizeAttribute* pAttr = m_pProp->GetAttributeByType<WMaxArraySizeAttribute>())
   {
     m_uiMaxElements = pAttr->GetMaxSize();
   }
 
-  if (const ezPreventDuplicatesAttribute* pAttr = m_pProp->GetAttributeByType<ezPreventDuplicatesAttribute>())
+  if (const WPreventDuplicatesAttribute* pAttr = m_pProp->GetAttributeByType<WPreventDuplicatesAttribute>())
   {
     m_bPreventDuplicates = true;
   }
@@ -68,7 +68,7 @@ void ezQtAddSubElementButton::OnInit()
   QMetaObject::connectSlotsByName(this);
 }
 
-void ezQtAddSubElementButton::onMenuAboutToShow()
+void WQtAddSubElementButton::onMenuAboutToShow()
 {
   if (m_Items.IsEmpty())
     return;
@@ -77,7 +77,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
   {
     auto pProp = GetProperty();
 
-    m_TypeMenu.FillMenu(m_pMenu, pProp->GetSpecificType(), pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), m_bPreventDuplicates);
+    m_TypeMenu.FillMenu(m_pMenu, pProp->GetSpecificType(), pProp->GetFlags().IsSet(WPropertyFlags::Pointer), m_bPreventDuplicates);
   }
 
   if (m_uiMaxElements > 0) // 0 means unlimited
@@ -86,10 +86,10 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
     for (auto& item : m_Items)
     {
-      ezInt32 iCount = 0;
+      WInt32 iCount = 0;
       m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).AssertSuccess();
 
-      if (iCount >= (ezInt32)m_uiMaxElements)
+      if (iCount >= (WInt32)m_uiMaxElements)
       {
         if (!m_bNoMoreElementsAllowed)
         {
@@ -122,16 +122,16 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
   if (m_bPreventDuplicates)
   {
-    ezSet<const ezRTTI*> UsedTypes;
+    WSet<const WRTTI*> UsedTypes;
 
     for (auto& item : m_Items)
     {
-      ezInt32 iCount = 0;
+      WInt32 iCount = 0;
       m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).AssertSuccess();
 
-      for (ezInt32 i = 0; i < iCount; ++i)
+      for (WInt32 i = 0; i < iCount; ++i)
       {
-        ezUuid guid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, i);
+        WUuid guid = m_pObjectAccessor->Get<WUuid>(item.m_pObject, m_pProp, i);
 
         if (guid.IsValid())
         {
@@ -142,7 +142,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       QList<QAction*> actions = m_pMenu->actions();
       for (auto pAct : actions)
       {
-        const ezRTTI* pRtti = static_cast<const ezRTTI*>(pAct->property("type").value<void*>());
+        const WRTTI* pRtti = static_cast<const WRTTI*>(pAct->property("type").value<void*>());
 
         pAct->setEnabled(!UsedTypes.Contains(pRtti));
       }
@@ -150,29 +150,29 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
   }
 }
 
-void ezQtAddSubElementButton::on_Button_clicked()
+void WQtAddSubElementButton::on_Button_clicked()
 {
   auto pProp = GetProperty();
 
-  if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  if (!pProp->GetFlags().IsSet(WPropertyFlags::Pointer))
   {
     OnAction(pProp->GetSpecificType());
   }
 }
 
-void ezQtAddSubElementButton::OnTypeSelected(QString sTypeName)
+void WQtAddSubElementButton::OnTypeSelected(QString sTypeName)
 {
-  const ezString typeName = sTypeName.toUtf8().data();
+  const WString typeName = sTypeName.toUtf8().data();
 
-  OnAction(ezRTTI::FindTypeByName(typeName));
+  OnAction(WRTTI::FindTypeByName(typeName));
 }
 
-void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
+void WQtAddSubElementButton::OnAction(const WRTTI* pRtti)
 {
-  EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
-  ezVariant index = (ezInt32)-1;
+  W_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
+  WVariant index = (WInt32)-1;
 
-  if (m_ContainerCategory == ezPropertyCategory::Map)
+  if (m_ContainerCategory == WPropertyCategory::Map)
   {
     QString text;
     bool bOk = false;
@@ -185,8 +185,8 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       index = text.toUtf8().data();
       for (auto& item : m_Items)
       {
-        ezVariant value;
-        ezStatus res = m_pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
+        WVariant value;
+        WStatus res = m_pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
         if (res.Succeeded())
         {
           bOk = false;
@@ -195,51 +195,51 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       }
       if (!bOk)
       {
-        ezQtUiServices::GetSingleton()->MessageBoxInformation("The selected key is already used in the selection.");
+        WQtUiServices::GetSingleton()->MessageBoxInformation("The selected key is already used in the selection.");
       }
     }
   }
 
   m_pObjectAccessor->StartTransaction("Add Element");
 
-  ezStatus res(EZ_SUCCESS);
-  const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
+  WStatus res(W_SUCCESS);
+  const bool bIsValueType = WReflectionUtils::IsValueType(m_pProp);
   if (bIsValueType)
   {
     for (auto& item : m_Items)
     {
       if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
       {
-        res = ezStatus("Maximum number of allowed elements reached.");
+        res = WStatus("Maximum number of allowed elements reached.");
         break;
       }
       else
       {
-        res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
+        res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, WReflectionUtils::GetDefaultValue(GetProperty(), index), index);
         if (res.Failed())
           break;
       }
     }
   }
-  else if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::Class))
+  else if (GetProperty()->GetFlags().IsSet(WPropertyFlags::Class))
   {
     for (auto& item : m_Items)
     {
       if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
       {
-        res = ezStatus("Maximum number of allowed elements reached.");
+        res = WStatus("Maximum number of allowed elements reached.");
         break;
       }
       else
       {
-        ezUuid guid;
+        WUuid guid;
         res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
         if (res.Failed())
           break;
 
-        ezTempHybridArray<ezPropertySelection, 1> selection;
-        selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
-        ezDefaultObjectState defaultState(m_pType, m_pObjectAccessor, selection);
+        WTempHybridArray<WPropertySelection, 1> selection;
+        selection.PushBack({m_pObjectAccessor->GetObject(guid), WVariant()});
+        WDefaultObjectState defaultState(m_pType, m_pObjectAccessor, selection);
         defaultState.RevertObject().AssertSuccess();
       }
     }
@@ -250,5 +250,5 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   else
     m_pObjectAccessor->FinishTransaction();
 
-  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }

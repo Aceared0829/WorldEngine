@@ -8,8 +8,8 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
-  : ezQtStandardPropertyWidget()
+WQtGameObjectReferencePropertyWidget::WQtGameObjectReferencePropertyWidget()
+  : WQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -26,9 +26,9 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
   m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   m_pButton->setCursor(Qt::WhatsThisCursor);
 
-  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_PickObject_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(
-    connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) != nullptr,
+  W_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_PickObject_clicked())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(
+    connect(m_pButton, &QWidget::customContextMenuRequested, this, &WQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) != nullptr,
     "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
@@ -36,16 +36,16 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
 }
 
 
-void ezQtGameObjectReferencePropertyWidget::OnInit()
+void WQtGameObjectReferencePropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezGameObjectReferenceAttribute>() != nullptr,
-    "ezQtGameObjectReferencePropertyWidget was created without a ezGameObjectReferenceAttribute!");
+  W_ASSERT_DEV(m_pProp->GetAttributeByType<WGameObjectReferenceAttribute>() != nullptr,
+    "WQtGameObjectReferencePropertyWidget was created without a WGameObjectReferenceAttribute!");
 }
 
-void ezQtGameObjectReferencePropertyWidget::InternalSetValue(const ezVariant& value)
+void WQtGameObjectReferencePropertyWidget::InternalSetValue(const WVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
-  ezQtScopedBlockSignals b2(m_pButton);
+  WQtScopedBlockSignals b(m_pWidget);
+  WQtScopedBlockSignals b2(m_pButton);
 
   if (!value.IsValid())
   {
@@ -53,11 +53,11 @@ void ezQtGameObjectReferencePropertyWidget::InternalSetValue(const ezVariant& va
   }
   else
   {
-    SetValue(value.ConvertTo<ezString>().GetData());
+    SetValue(value.ConvertTo<WString>().GetData());
   }
 }
 
-void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
+void WQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
 {
   if (!menu.isEmpty())
     menu.addSeparator();
@@ -71,28 +71,28 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
     menu.addAction(QIcon(":/GuiFoundation/Icons/Go.svg"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
   QAction* pClearAction =
     menu.addAction(QIcon(":/GuiFoundation/Icons/Clear.svg"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
-  EZ_IGNORE_UNUSED(pClearAction);
+  W_IGNORE_UNUSED(pClearAction);
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());
   pSelectAction->setEnabled(!m_sInternalValue.isEmpty());
   // pClearAction->setEnabled(!m_sInternalValue.isEmpty()); // this would disable the clear button with multi selection
 }
 
-void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentObject* pObject)
+void WQtGameObjectReferencePropertyWidget::PickObjectOverride(const WDocumentObject* pObject)
 {
   if (pObject != nullptr)
   {
     if (m_Items[0].m_pObject->GetDocumentObjectManager() != pObject->GetDocumentObjectManager())
     {
-      if (ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument()))
+      if (WQtDocumentWindow* pWindow = WQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument()))
       {
         pWindow->ShowTemporaryStatusBarMsg("Can't reference object in another layer.");
       }
       return;
     }
 
-    ezStringBuilder sGuid;
-    ezConversionUtils::ToString(pObject->GetGuid(), sGuid);
+    WStringBuilder sGuid;
+    WConversionUtils::ToString(pObject->GetGuid(), sGuid);
 
     SetValue(sGuid.GetData());
   }
@@ -100,9 +100,9 @@ void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentO
   ClearPicking();
 }
 
-void ezQtGameObjectReferencePropertyWidget::ClearPicking()
+void WQtGameObjectReferencePropertyWidget::ClearPicking()
 {
-  auto dele = ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
+  auto dele = WMakeDelegate(&WQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
 
   if (!m_pGrid->GetDocument()->GetSelectionManager()->m_Events.HasEventHandler(dele))
     return;
@@ -117,31 +117,31 @@ void ezQtGameObjectReferencePropertyWidget::ClearPicking()
   m_SelectionContextsToUnsubscribe.Clear();
 }
 
-void ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+void WQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler(const WSelectionManagerEvent& e)
 {
   // if the selection changes while we wait for a picking result, clear the picking override
   ClearPicking();
 }
 
-void ezQtGameObjectReferencePropertyWidget::showEvent(QShowEvent* event)
+void WQtGameObjectReferencePropertyWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
   m_pWidget->setPalette(m_Pal);
-  ezQtStandardPropertyWidget::showEvent(event);
+  WQtStandardPropertyWidget::showEvent(event);
 }
 
-void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
+void WQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
 {
   // don't early out if the value is equal, otherwise that breaks clearing the reference with a multi-selection
 
   m_sInternalValue = sValue;
 
-  const ezDocumentObject* pObject = nullptr;
-  ezStringBuilder sDisplayName = m_sInternalValue.toUtf8().data();
+  const WDocumentObject* pObject = nullptr;
+  WStringBuilder sDisplayName = m_sInternalValue.toUtf8().data();
 
-  if (ezConversionUtils::IsStringUuid(m_sInternalValue.toUtf8().data()))
+  if (WConversionUtils::IsStringUuid(m_sInternalValue.toUtf8().data()))
   {
-    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sInternalValue.toUtf8().data());
+    const WUuid guid = WConversionUtils::ConvertStringToUuid(m_sInternalValue.toUtf8().data());
 
     pObject = m_pObjectAccessor->GetObject(guid);
   }
@@ -151,7 +151,7 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
     m_Pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
     m_pWidget->setToolTip(QStringLiteral("The reference is a known game object."));
 
-    if (auto* pGoDoc = ezDynamicCast<const ezGameObjectDocument*>(m_pGrid->GetDocument()))
+    if (auto* pGoDoc = WDynamicCast<const WGameObjectDocument*>(m_pGrid->GetDocument()))
     {
       pGoDoc->QueryCachedNodeName(pObject, sDisplayName, nullptr, nullptr);
     }
@@ -168,9 +168,9 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
   BroadcastValueChanged(m_sInternalValue.toUtf8().data());
 }
 
-void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
+void WQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
 {
-  auto dele = ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
+  auto dele = WMakeDelegate(&WQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
 
   if (m_pGrid->GetDocument()->GetSelectionManager()->m_Events.HasEventHandler(dele))
   {
@@ -179,18 +179,18 @@ void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
     return;
   }
 
-  ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument());
+  WQtDocumentWindow* pWindow = WQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument());
 
-  ezQtGameObjectDocumentWindow* pGoWindow = qobject_cast<ezQtGameObjectDocumentWindow*>(pWindow);
+  WQtGameObjectDocumentWindow* pGoWindow = qobject_cast<WQtGameObjectDocumentWindow*>(pWindow);
 
   if (pGoWindow == nullptr)
     return;
 
   for (auto pView : pGoWindow->GetViewWidgets())
   {
-    if (auto pGoView = qobject_cast<ezQtGameObjectViewWidget*>(pView))
+    if (auto pGoView = qobject_cast<WQtGameObjectViewWidget*>(pView))
     {
-      pGoView->m_pSelectionContext->SetPickObjectOverride(ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::PickObjectOverride, this));
+      pGoView->m_pSelectionContext->SetPickObjectOverride(WMakeDelegate(&WQtGameObjectReferencePropertyWidget::PickObjectOverride, this));
 
       m_SelectionContextsToUnsubscribe.PushBack(pGoView->m_pSelectionContext);
     }
@@ -200,7 +200,7 @@ void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
   m_pGrid->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(dele);
 }
 
-void ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
+void WQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
   m.setToolTipsVisible(true);
@@ -209,42 +209,42 @@ void ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const 
   m.exec(m_pButton->mapToGlobal(pt));
 }
 
-void ezQtGameObjectReferencePropertyWidget::OnSelectReferencedObject()
+void WQtGameObjectReferencePropertyWidget::OnSelectReferencedObject()
 {
-  ezStringBuilder sGuid = m_sInternalValue.toUtf8().data();
+  WStringBuilder sGuid = m_sInternalValue.toUtf8().data();
 
-  if (!ezConversionUtils::IsStringUuid(sGuid))
+  if (!WConversionUtils::IsStringUuid(sGuid))
     return;
 
-  const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
+  const WUuid guid = WConversionUtils::ConvertStringToUuid(sGuid);
 
-  if (const ezDocumentObject* pObject = m_pObjectAccessor->GetObject(guid))
+  if (const WDocumentObject* pObject = m_pObjectAccessor->GetObject(guid))
   {
     m_pGrid->GetDocument()->GetSelectionManager()->SetSelection(pObject);
   }
 }
 
-void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
+void WQtGameObjectReferencePropertyWidget::OnCopyReference()
 {
   QClipboard* clipboard = QApplication::clipboard();
   clipboard->setText(m_sInternalValue);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
-    ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::MakeFromSeconds(5));
+  WQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
+    WFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), WTime::MakeFromSeconds(5));
 }
 
 
-void ezQtGameObjectReferencePropertyWidget::OnClearReference()
+void WQtGameObjectReferencePropertyWidget::OnClearReference()
 {
   SetValue("");
 }
 
-void ezQtGameObjectReferencePropertyWidget::OnPasteReference()
+void WQtGameObjectReferencePropertyWidget::OnPasteReference()
 {
   QClipboard* clipboard = QApplication::clipboard();
   QString sReference = clipboard->text();
 
-  if (ezConversionUtils::IsStringUuid(sReference.toUtf8().data()))
+  if (WConversionUtils::IsStringUuid(sReference.toUtf8().data()))
   {
     SetValue(sReference);
   }

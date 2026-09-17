@@ -2,21 +2,21 @@
 
 #include <Foundation/Communication/Event.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Communication);
+W_CREATE_SIMPLE_TEST_GROUP(Communication);
 
 namespace
 {
   struct Test
   {
-    void DoStuff(ezInt32* pEventData) { *pEventData += m_iData; }
+    void DoStuff(WInt32* pEventData) { *pEventData += m_iData; }
 
-    ezInt32 m_iData;
+    WInt32 m_iData;
   };
 
   struct TestRecursion
   {
     TestRecursion() { m_uiRecursionCount = 0; }
-    void DoStuff(ezUInt32 uiRecursions)
+    void DoStuff(WUInt32 uiRecursions)
     {
       if (m_uiRecursionCount < uiRecursions)
       {
@@ -25,17 +25,17 @@ namespace
       }
     }
 
-    using Event = ezEvent<ezUInt32>;
+    using Event = WEvent<WUInt32>;
     Event m_Event;
-    ezUInt32 m_uiRecursionCount;
+    WUInt32 m_uiRecursionCount;
   };
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST(Communication, Event)
+W_CREATE_SIMPLE_TEST(Communication, Event)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Basics")
   {
-    using TestEvent = ezEvent<ezInt32*>;
+    using TestEvent = WEvent<WInt32*>;
     TestEvent e;
 
     Test test1;
@@ -44,65 +44,65 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     Test test2;
     test2.m_iData = 5;
 
-    ezInt32 iResult = 0;
+    WInt32 iResult = 0;
 
     e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
-    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+    W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
-    EZ_TEST_INT(iResult, 3);
+    W_TEST_INT(iResult, 3);
 
     e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
-    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+    W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
-    EZ_TEST_INT(iResult, 8);
+    W_TEST_INT(iResult, 8);
 
     e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
-    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+    W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
-    EZ_TEST_INT(iResult, 5);
+    W_TEST_INT(iResult, 5);
 
     e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
-    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+    W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
-    EZ_TEST_INT(iResult, 0);
+    W_TEST_INT(iResult, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via ID")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Unsubscribing via ID")
   {
-    using TestEvent = ezEvent<ezInt32*>;
+    using TestEvent = WEvent<WInt32*>;
     TestEvent e;
 
     Test test1;
     Test test2;
 
     auto subId1 = e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
-    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+    W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     auto subId2 = e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
-    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+    W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
 
     e.RemoveEventHandler(subId1);
-    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+    W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     e.RemoveEventHandler(subId2);
-    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+    W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via Unsubscriber")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Unsubscribing via Unsubscriber")
   {
-    using TestEvent = ezEvent<ezInt32*>;
+    using TestEvent = WEvent<WInt32*>;
     TestEvent e;
 
     Test test1;
@@ -115,63 +115,63 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
         TestEvent::Unsubscriber unsub2;
 
         e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1), unsub1);
-        EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+        W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
         e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2), unsub2);
-        EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+        W_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
       }
 
-      EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+      W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
     }
 
-    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+    W_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Recursion")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Recursion")
   {
-    for (ezUInt32 i = 0; i < 10; i++)
+    for (WUInt32 i = 0; i < 10; i++)
     {
       TestRecursion test;
       test.m_Event.AddEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
       test.m_Event.Broadcast(i, 10);
-      EZ_TEST_INT(test.m_uiRecursionCount, i);
+      W_TEST_INT(test.m_uiRecursionCount, i);
       test.m_Event.RemoveEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove while iterate")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Remove while iterate")
   {
-    using TestEvent = ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, ezEventType::CopyOnBroadcast>;
+    using TestEvent = WEvent<int, WMutex, WDefaultAllocatorWrapper, WEventType::CopyOnBroadcast>;
     TestEvent e;
 
-    ezUInt32 callMap = 0;
+    WUInt32 callMap = 0;
 
-    ezEventSubscriptionID subscriptions[4] = {};
+    WEventSubscriptionID subscriptions[4] = {};
 
     subscriptions[0] = e.AddEventHandler(TestEvent::Handler([&](int i)
-      { callMap |= EZ_BIT(0); }));
+      { callMap |= W_BIT(0); }));
 
     subscriptions[1] = e.AddEventHandler(TestEvent::Handler([&](int i)
       {
-      callMap |= EZ_BIT(1);
+      callMap |= W_BIT(1);
       e.RemoveEventHandler(subscriptions[1]); }));
 
     subscriptions[2] = e.AddEventHandler(TestEvent::Handler([&](int i)
       {
-      callMap |= EZ_BIT(2);
+      callMap |= W_BIT(2);
       e.RemoveEventHandler(subscriptions[2]);
       e.RemoveEventHandler(subscriptions[3]); }));
 
     subscriptions[3] = e.AddEventHandler(TestEvent::Handler([&](int i)
-      { callMap |= EZ_BIT(3); }));
+      { callMap |= W_BIT(3); }));
 
     e.Broadcast(0);
 
-    EZ_TEST_BOOL(callMap == (EZ_BIT(0) | EZ_BIT(1) | EZ_BIT(2) | EZ_BIT(3)));
+    W_TEST_BOOL(callMap == (W_BIT(0) | W_BIT(1) | W_BIT(2) | W_BIT(3)));
 
     callMap = 0;
     e.Broadcast(0);
-    EZ_TEST_BOOL(callMap == EZ_BIT(0));
+    W_TEST_BOOL(callMap == W_BIT(0));
 
     e.RemoveEventHandler(subscriptions[0]);
   }

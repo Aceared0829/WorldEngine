@@ -1,20 +1,20 @@
-class MsgRandomAnimTick : ezAngelScriptMessage {}
+class MsgRandomAnimTick : WAngelScriptMessage {}
 
-class ScriptObject : ezAngelScriptClass
+class ScriptObject : WAngelScriptClass
 {
     void OnSimulationStarted()
     {
         MsgRandomAnimTick tick;
-        GetOwner().PostMessage(tick, ezTime::MakeFromSeconds(1.0));
+        GetOwner().PostMessage(tick, WTime::MakeFromSeconds(1.0));
     }
 
     void OnMsgRandomAnimTick(MsgRandomAnimTick@ msg)
     {
-        ezLocalBlackboardComponent@ bbComp;
+        WLocalBlackboardComponent@ bbComp;
         if (GetOwner().TryGetComponentOfBaseType(@bbComp))
         {
-            ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
-            ezUInt32 pick = rng.UIntInRange(6);
+            WRandom@ rng = GetWorld().GetRandomNumberGenerator();
+            WUInt32 pick = rng.UIntInRange(6);
 
             bbComp.SetEntryValue("IsAlive", true);
             bbComp.SetEntryValue("Shoot", -1);
@@ -34,6 +34,6 @@ class ScriptObject : ezAngelScriptClass
         }
 
         MsgRandomAnimTick nextTick;
-        GetOwner().PostMessage(nextTick, ezTime::MakeFromSeconds(1.0));
+        GetOwner().PostMessage(nextTick, WTime::MakeFromSeconds(1.0));
     }
 }

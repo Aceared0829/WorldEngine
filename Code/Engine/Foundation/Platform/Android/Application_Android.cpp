@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if W_ENABLED(W_PLATFORM_ANDROID)
 
 #  include <Foundation/Application/Application.h>
 #  include <Foundation/Logging/Log.h>
@@ -8,31 +8,31 @@
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 
-static void ezAndroidHandleCmd(struct android_app* pApp, int32_t cmd)
+static void WAndroidHandleCmd(struct android_app* pApp, int32_t cmd)
 {
-  ezAndroidApplication* pAndroidApp = static_cast<ezAndroidApplication*>(pApp->userData);
+  WAndroidApplication* pAndroidApp = static_cast<WAndroidApplication*>(pApp->userData);
   pAndroidApp->HandleCmd(cmd);
 }
 
-static int32_t ezAndroidHandleInput(struct android_app* pApp, AInputEvent* pEvent)
+static int32_t WAndroidHandleInput(struct android_app* pApp, AInputEvent* pEvent)
 {
-  ezAndroidApplication* pAndroidApp = static_cast<ezAndroidApplication*>(pApp->userData);
+  WAndroidApplication* pAndroidApp = static_cast<WAndroidApplication*>(pApp->userData);
   return pAndroidApp->HandleInput(pEvent);
 }
 
-ezAndroidApplication::ezAndroidApplication(struct android_app* pApp, ezApplication* pEzApp)
+WAndroidApplication::WAndroidApplication(struct android_app* pApp, WApplication* pEzApp)
   : m_pApp(pApp)
   , m_pEzApp(pEzApp)
 {
   pApp->userData = this;
-  pApp->onAppCmd = ezAndroidHandleCmd;
-  pApp->onInputEvent = ezAndroidHandleInput;
+  pApp->onAppCmd = WAndroidHandleCmd;
+  pApp->onInputEvent = WAndroidHandleInput;
   // #TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
 }
 
-ezAndroidApplication::~ezAndroidApplication() {}
+WAndroidApplication::~WAndroidApplication() {}
 
-void ezAndroidApplication::AndroidRun()
+void WAndroidApplication::AndroidRun()
 {
   bool bRun = true;
   while (true)
@@ -70,19 +70,19 @@ void ezAndroidApplication::AndroidRun()
   }
 }
 
-void ezAndroidApplication::HandleCmd(int32_t cmd)
+void WAndroidApplication::HandleCmd(int32_t cmd)
 {
   switch (cmd)
   {
     case APP_CMD_INIT_WINDOW:
       if (m_pApp->window != nullptr)
       {
-        EZ_VERIFY(ezRun_Startup(m_pEzApp).Succeeded(), "Failed to startup engine");
+        W_VERIFY(WRun_Startup(m_pEzApp).Succeeded(), "Failed to startup engine");
         m_bStarted = true;
 
         int width = ANativeWindow_getWidth(m_pApp->window);
         int height = ANativeWindow_getHeight(m_pApp->window);
-        ezLog::Info("Init Window: {}x{}", width, height);
+        WLog::Info("Init Window: {}x{}", width, height);
       }
       break;
     case APP_CMD_TERM_WINDOW:
@@ -91,39 +91,39 @@ void ezAndroidApplication::HandleCmd(int32_t cmd)
     default:
       break;
   }
-  ezAndroidUtils::s_AppCommandEvent.Broadcast(cmd);
+  WAndroidUtils::s_AppCommandEvent.Broadcast(cmd);
 }
 
-int32_t ezAndroidApplication::HandleInput(AInputEvent* pEvent)
+int32_t WAndroidApplication::HandleInput(AInputEvent* pEvent)
 {
-  ezAndroidInputEvent event;
+  WAndroidInputEvent event;
   event.m_pEvent = pEvent;
   event.m_bHandled = false;
 
-  ezAndroidUtils::s_InputEvent.Broadcast(event);
+  WAndroidUtils::s_InputEvent.Broadcast(event);
   return event.m_bHandled ? 1 : 0;
 }
 
-void ezAndroidApplication::HandleIdent(ezInt32 iIdent)
+void WAndroidApplication::HandleIdent(WInt32 iIdent)
 {
   // #TODO:
 }
 
-EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEzApp)
+W_FOUNDATION_DLL void WAndroidRun(struct android_app* pApp, WApplication* pEzApp)
 {
-  ezAndroidApplication androidApp(pApp, pEzApp);
+  WAndroidApplication androidApp(pApp, pEzApp);
 
-  // This call will loop until APP_CMD_INIT_WINDOW is emitted which triggers ezRun_Startup
+  // This call will loop until APP_CMD_INIT_WINDOW is emitted which triggers WRun_Startup
   androidApp.AndroidRun();
 
-  ezRun_Shutdown(pEzApp);
+  WRun_Shutdown(pEzApp);
 
   const int iReturnCode = pEzApp->GetReturnCode();
   if (iReturnCode != 0)
   {
     const char* szReturnCode = pEzApp->TranslateReturnCode();
     if (szReturnCode != nullptr && szReturnCode[0] != '\0')
-      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Return Code: '%s'", szReturnCode);
+      __android_log_print(ANDROID_LOG_ERROR, "WorldEngine", "Return Code: '%s'", szReturnCode);
   }
 }
 

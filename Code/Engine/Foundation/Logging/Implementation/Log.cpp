@@ -13,22 +13,22 @@
 #  include <tracy/tracy/Tracy.hpp>
 #endif
 
-// Comment in to log into ezLog::Print any message that is output while no logger is registered.
+// Comment in to log into WLog::Print any message that is output while no logger is registered.
 // #define DEBUG_STARTUP_LOGGING
 
-ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
-ezLog::PrintFunction ezLog::s_CustomPrintFunction = nullptr;
-ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
-ezLoggingEvent ezGlobalLog::s_LoggingEvent;
-ezLogInterface* ezGlobalLog::s_pOverrideLog = nullptr;
+WLogMsgType::Enum WLog::s_DefaultLogLevel = WLogMsgType::All;
+WLog::PrintFunction WLog::s_CustomPrintFunction = nullptr;
+WAtomicInteger32 WGlobalLog::s_uiMessageCount[WLogMsgType::ENUM_COUNT];
+WLoggingEvent WGlobalLog::s_LoggingEvent;
+WLogInterface* WGlobalLog::s_pOverrideLog = nullptr;
 static thread_local bool s_bAllowOverrideLog = true;
-static ezMutex s_OverrideLogMutex;
+static WMutex s_OverrideLogMutex;
 
 /// The log system that messages are sent to when the user specifies no system himself.
-static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
+static thread_local WLogInterface* s_DefaultLogSystem = nullptr;
 
 
-ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
+WEventSubscriptionID WGlobalLog::AddLogWriter(WLoggingEvent::Handler handler)
 {
   if (s_LoggingEvent.HasEventHandler(handler))
     return 0;
@@ -36,7 +36,7 @@ ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
   return s_LoggingEvent.AddEventHandler(handler);
 }
 
-void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
+void WGlobalLog::RemoveLogWriter(WLoggingEvent::Handler handler)
 {
   if (!s_LoggingEvent.HasEventHandler(handler))
     return;
@@ -44,25 +44,25 @@ void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
   s_LoggingEvent.RemoveEventHandler(handler);
 }
 
-void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID& ref_subscriptionID)
+void WGlobalLog::RemoveLogWriter(WEventSubscriptionID& ref_subscriptionID)
 {
   s_LoggingEvent.RemoveEventHandler(ref_subscriptionID);
 }
 
-void ezGlobalLog::SetGlobalLogOverride(ezLogInterface* pInterface)
+void WGlobalLog::SetGlobalLogOverride(WLogInterface* pInterface)
 {
-  EZ_LOCK(s_OverrideLogMutex);
+  W_LOCK(s_OverrideLogMutex);
 
-  EZ_ASSERT_DEV(pInterface == nullptr || s_pOverrideLog == nullptr, "Only one override log can be set at a time");
+  W_ASSERT_DEV(pInterface == nullptr || s_pOverrideLog == nullptr, "Only one override log can be set at a time");
   s_pOverrideLog = pInterface;
 }
 
-void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
+void WGlobalLog::HandleLogMessage(const WLoggingEventData& le)
 {
   if (s_pOverrideLog != nullptr && s_pOverrideLog != this && s_bAllowOverrideLog)
   {
     // only enter the lock when really necessary
-    EZ_LOCK(s_OverrideLogMutex);
+    W_LOCK(s_OverrideLogMutex);
 
     // since s_bAllowOverrideLog is thread_local we do not need to re-check it
 
@@ -81,26 +81,26 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 
   // else
   {
-    const ezLogMsgType::Enum ThisType = le.m_EventType;
+    const WLogMsgType::Enum ThisType = le.m_EventType;
 
-    if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
+    if ((ThisType > WLogMsgType::None) && (ThisType < WLogMsgType::All))
       s_uiMessageCount[ThisType].Increment();
 
 #ifdef DEBUG_STARTUP_LOGGING
     if (s_LoggingEvent.IsEmpty())
     {
-      ezStringBuilder stmp = le.m_sText;
+      WStringBuilder stmp = le.m_sText;
       stmp.Append("\n");
-      ezLog::Print(stmp);
+      WLog::Print(stmp);
     }
 #endif
     s_LoggingEvent.Broadcast(le);
   }
 }
 
-ezLogBlock::ezLogBlock(ezStringView sName, ezStringView sContextInfo)
+WLogBlock::WLogBlock(WStringView sName, WStringView sContextInfo)
 {
-  m_pLogInterface = ezLog::GetThreadLocalLogSystem();
+  m_pLogInterface = WLog::GetThreadLocalLogSystem();
 
   if (!m_pLogInterface)
     return;
@@ -114,13 +114,13 @@ ezLogBlock::ezLogBlock(ezStringView sName, ezStringView sContextInfo)
 
   m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_fSeconds = ezTime::Now().GetSeconds();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = WTime::Now().GetSeconds();
 #endif
 }
 
 
-ezLogBlock::ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringView sContextInfo)
+WLogBlock::WLogBlock(WLogInterface* pInterface, WStringView sName, WStringView sContextInfo)
 {
   m_pLogInterface = pInterface;
 
@@ -136,36 +136,36 @@ ezLogBlock::ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringV
 
   m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_fSeconds = ezTime::Now().GetSeconds();
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = WTime::Now().GetSeconds();
 #endif
 }
 
-ezLogBlock::~ezLogBlock()
+WLogBlock::~WLogBlock()
 {
   if (!m_pLogInterface)
     return;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_fSeconds = ezTime::Now().GetSeconds() - m_fSeconds;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = WTime::Now().GetSeconds() - m_fSeconds;
 #endif
 
   m_pLogInterface->m_pCurrentBlock = m_pParentBlock;
 
-  ezLog::EndLogBlock(m_pLogInterface, this);
+  WLog::EndLogBlock(m_pLogInterface, this);
 }
 
 
-void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
+void WLog::EndLogBlock(WLogInterface* pInterface, WLogBlock* pBlock)
 {
   if (pBlock->m_bWritten)
   {
-    ezLoggingEventData le;
-    le.m_EventType = ezLogMsgType::EndGroup;
+    WLoggingEventData le;
+    le.m_EventType = WLogMsgType::EndGroup;
     le.m_sText = pBlock->m_sName;
     le.m_uiIndentation = pBlock->m_uiBlockDepth;
     le.m_sTag = pBlock->m_sContextInfo;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
     le.m_fSeconds = pBlock->m_fSeconds;
 #endif
 
@@ -173,7 +173,7 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
   }
 }
 
-void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
+void WLog::WriteBlockHeader(WLogInterface* pInterface, WLogBlock* pBlock)
 {
   if (!pBlock || pBlock->m_bWritten)
     return;
@@ -182,8 +182,8 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 
   WriteBlockHeader(pInterface, pBlock->m_pParentBlock);
 
-  ezLoggingEventData le;
-  le.m_EventType = ezLogMsgType::BeginGroup;
+  WLoggingEventData le;
+  le.m_EventType = WLogMsgType::BeginGroup;
   le.m_sText = pBlock->m_sName;
   le.m_uiIndentation = pBlock->m_uiBlockDepth;
   le.m_sTag = pBlock->m_sContextInfo;
@@ -191,10 +191,10 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
   pInterface->HandleLogMessage(le);
 }
 
-void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, ezStringView sString)
+void WLog::BroadcastLoggingEvent(WLogInterface* pInterface, WLogMsgType::Enum type, WStringView sString)
 {
-  ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
-  ezUInt8 uiIndentation = 0;
+  WLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
+  WUInt8 uiIndentation = 0;
 
   if (pTopBlock)
   {
@@ -211,7 +211,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
     ++szAfterTag;
 
-    ezInt32 iPos = 0;
+    WInt32 iPos = 0;
 
     // only treat it as a tag, if it is properly enclosed in square brackets and doesn't contain spaces
     while ((*szAfterTag != '\0') && (*szAfterTag != '[') && (*szAfterTag != ']') && (*szAfterTag != ' ') && (iPos < 31))
@@ -235,25 +235,25 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 #if TRACY_ENABLE
   switch (type)
   {
-    case ezLogMsgType::ErrorMsg:
+    case WLogMsgType::ErrorMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Red);
       break;
-    case ezLogMsgType::SeriousWarningMsg:
+    case WLogMsgType::SeriousWarningMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Orange);
       break;
-    case ezLogMsgType::WarningMsg:
+    case WLogMsgType::WarningMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Yellow);
       break;
-    case ezLogMsgType::SuccessMsg:
+    case WLogMsgType::SuccessMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Green);
       break;
-    case ezLogMsgType::InfoMsg:
+    case WLogMsgType::InfoMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::White);
       break;
-    case ezLogMsgType::DevMsg:
+    case WLogMsgType::DevMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Grey);
       break;
-    case ezLogMsgType::DebugMsg:
+    case WLogMsgType::DebugMsg:
       TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::CornflowerBlue);
       break;
 
@@ -262,7 +262,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   }
 #endif
 
-  ezLoggingEventData le;
+  WLoggingEventData le;
   le.m_EventType = type;
   le.m_sText = sString;
   le.m_uiIndentation = uiIndentation;
@@ -272,25 +272,25 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->m_uiLoggedMsgsSinceFlush++;
 }
 
-void ezLog::Printf(const char* szFormat, ...)
+void WLog::Printf(const char* szFormat, ...)
 {
   va_list args;
   va_start(args, szFormat);
 
   char buffer[4096];
-  ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
+  WStringUtils::vsnprintf(buffer, W_ARRAY_SIZE(buffer), szFormat, args);
 
   Print(buffer);
 
   va_end(args);
 }
 
-void ezLog::SetCustomPrintFunction(PrintFunction func)
+void WLog::SetCustomPrintFunction(PrintFunction func)
 {
   s_CustomPrintFunction = func;
 }
 
-void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_sTimestampOut)
+void WLog::GenerateFormattedTimestamp(TimestampMode mode, WStringBuilder& ref_sTimestampOut)
 {
   // if mode is 'None', early out to not even retrieve a timestamp
   if (mode == TimestampMode::None)
@@ -298,52 +298,52 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_
     return;
   }
 
-  const ezDateTime dateTime = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
+  const WDateTime dateTime = WDateTime::MakeFromTimestamp(WTimestamp::CurrentTimestamp());
 
   switch (mode)
   {
     case TimestampMode::Numeric:
-      ref_sTimestampOut.SetFormat("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      ref_sTimestampOut.SetFormat("[{}] ", WArgDateTime(dateTime, WArgDateTime::ShowDate | WArgDateTime::ShowMilliseconds | WArgDateTime::ShowTimeZone));
       break;
     case TimestampMode::TimeOnly:
-      ref_sTimestampOut.SetFormat("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
+      ref_sTimestampOut.SetFormat("[{}] ", WArgDateTime(dateTime, WArgDateTime::ShowMilliseconds));
       break;
     case TimestampMode::Textual:
       ref_sTimestampOut.SetFormat(
-        "[{}] ", ezArgDateTime(dateTime, ezArgDateTime::TextualDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+        "[{}] ", WArgDateTime(dateTime, WArgDateTime::TextualDate | WArgDateTime::ShowMilliseconds | WArgDateTime::ShowTimeZone));
       break;
     default:
-      EZ_ASSERT_DEV(false, "Unknown timestamp mode.");
+      W_ASSERT_DEV(false, "Unknown timestamp mode.");
       break;
   }
 }
 
-void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
+void WLog::SetThreadLocalLogSystem(WLogInterface* pInterface)
 {
-  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  W_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
 
-ezLogInterface* ezLog::GetThreadLocalLogSystem()
+WLogInterface* WLog::GetThreadLocalLogSystem()
 {
   if (s_DefaultLogSystem == nullptr)
   {
-    // use new, not EZ_DEFAULT_NEW, to prevent tracking
-    s_DefaultLogSystem = new ezGlobalLog;
+    // use new, not W_DEFAULT_NEW, to prevent tracking
+    s_DefaultLogSystem = new WGlobalLog;
   }
 
   return s_DefaultLogSystem;
 }
 
-void ezLog::SetDefaultLogLevel(ezLogMsgType::Enum logLevel)
+void WLog::SetDefaultLogLevel(WLogMsgType::Enum logLevel)
 {
-  EZ_ASSERT_DEV(logLevel >= ezLogMsgType::None && logLevel <= ezLogMsgType::All, "Invalid default log level {}", (int)logLevel);
+  W_ASSERT_DEV(logLevel >= WLogMsgType::None && logLevel <= WLogMsgType::All, "Invalid default log level {}", (int)logLevel);
 
   s_DefaultLogLevel = logLevel;
 }
 
-ezLogMsgType::Enum ezLog::GetDefaultLogLevel()
+WLogMsgType::Enum WLog::GetDefaultLogLevel()
 {
   return s_DefaultLogLevel;
 }
@@ -351,85 +351,85 @@ ezLogMsgType::Enum ezLog::GetDefaultLogLevel()
 #define LOG_LEVEL_FILTER(MaxLevel)                                                                                                  \
   if (pInterface == nullptr)                                                                                                        \
     return;                                                                                                                         \
-  if ((pInterface->GetLogLevel() == ezLogMsgType::GlobalDefault ? ezLog::s_DefaultLogLevel : pInterface->GetLogLevel()) < MaxLevel) \
+  if ((pInterface->GetLogLevel() == WLogMsgType::GlobalDefault ? WLog::s_DefaultLogLevel : pInterface->GetLogLevel()) < MaxLevel) \
     return;
 
 
-void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::Error(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::ErrorMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::ErrorMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::ErrorMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::ErrorMsg, string.GetText(tmp));
 }
 
-void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::SeriousWarning(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::SeriousWarningMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::SeriousWarningMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::SeriousWarningMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::SeriousWarningMsg, string.GetText(tmp));
 }
 
-void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::Warning(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::WarningMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::WarningMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::WarningMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::WarningMsg, string.GetText(tmp));
 }
 
-void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::Success(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::SuccessMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::SuccessMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::SuccessMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::SuccessMsg, string.GetText(tmp));
 }
 
-void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::Info(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::InfoMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::InfoMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::InfoMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::InfoMsg, string.GetText(tmp));
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
 
-void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
+void WLog::Dev(WLogInterface* pInterface, const WFormatString& string)
 {
-  LOG_LEVEL_FILTER(ezLogMsgType::DevMsg);
+  LOG_LEVEL_FILTER(WLogMsgType::DevMsg);
 
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::DevMsg, string.GetText(tmp));
-}
-
-#endif
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-
-void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
-{
-  LOG_LEVEL_FILTER(ezLogMsgType::DebugMsg);
-
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::DebugMsg, string.GetText(tmp));
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::DevMsg, string.GetText(tmp));
 }
 
 #endif
 
-bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, ezLogInterface* pInterface /*= GetThreadLocalLogSystem()*/)
+#if W_ENABLED(W_COMPILE_FOR_DEBUG)
+
+void WLog::Debug(WLogInterface* pInterface, const WFormatString& string)
+{
+  LOG_LEVEL_FILTER(WLogMsgType::DebugMsg);
+
+  WStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, WLogMsgType::DebugMsg, string.GetText(tmp));
+}
+
+#endif
+
+bool WLog::Flush(WUInt32 uiNumNewMsgThreshold, WTime timeIntervalThreshold, WLogInterface* pInterface /*= GetThreadLocalLogSystem()*/)
 {
   if (pInterface == nullptr || pInterface->m_uiLoggedMsgsSinceFlush == 0) // if really nothing was logged, don't execute a flush
     return false;
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
   if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && tNow - pInterface->m_LastFlushTime < timeIntervalThreshold)
     return false;
 
-  BroadcastLoggingEvent(pInterface, ezLogMsgType::Flush, nullptr);
+  BroadcastLoggingEvent(pInterface, WLogMsgType::Flush, nullptr);
 
   pInterface->m_uiLoggedMsgsSinceFlush = 0;
   pInterface->m_LastFlushTime = tNow;

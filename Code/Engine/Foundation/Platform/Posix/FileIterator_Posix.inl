@@ -1,5 +1,5 @@
 
-#if EZ_DISABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if W_DISABLED(W_SUPPORTS_FILE_ITERATORS)
 #  error "Don't include this file on platforms that don't support file iterators."
 #endif
 
@@ -18,9 +18,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-ezFileSystemIterator::ezFileSystemIterator() = default;
+WFileSystemIterator::WFileSystemIterator() = default;
 
-ezFileSystemIterator::~ezFileSystemIterator()
+WFileSystemIterator::~WFileSystemIterator()
 {
   while (!m_Data.m_Handles.IsEmpty())
   {
@@ -29,18 +29,18 @@ ezFileSystemIterator::~ezFileSystemIterator()
   }
 }
 
-bool ezFileSystemIterator::IsValid() const
+bool WFileSystemIterator::IsValid() const
 {
   return !m_Data.m_Handles.IsEmpty();
 }
 
 namespace
 {
-  ezResult UpdateCurrentFile(ezFileStats& curFile, const ezStringBuilder& curPath, DIR* hSearch, const ezString& wildcardSearch)
+  WResult UpdateCurrentFile(WFileStats& curFile, const WStringBuilder& curPath, DIR* hSearch, const WString& wildcardSearch)
   {
     struct dirent* hCurrentFile = readdir(hSearch);
     if (hCurrentFile == nullptr)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     if (!wildcardSearch.IsEmpty())
     {
@@ -48,11 +48,11 @@ namespace
       {
         hCurrentFile = readdir(hSearch);
         if (hCurrentFile == nullptr)
-          return EZ_FAILURE;
+          return W_FAILURE;
       }
     }
 
-    ezStringBuilder absFileName = curPath;
+    WStringBuilder absFileName = curPath;
     absFileName.AppendPath(hCurrentFile->d_name);
 
     struct stat fileStat = {};
@@ -63,22 +63,22 @@ namespace
     curFile.m_sParentPath = curPath;
     curFile.m_sName = hCurrentFile->d_name;
 #ifdef __USE_XOPEN2K8
-    curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtim.tv_sec * 1000000000ull + fileStat.st_mtim.tv_nsec, ezSIUnitOfTime::Nanosecond);
+    curFile.m_LastModificationTime = WTimestamp::MakeFromInt(fileStat.st_mtim.tv_sec * 1000000000ull + fileStat.st_mtim.tv_nsec, WSIUnitOfTime::Nanosecond);
 #else
-    curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtime, ezSIUnitOfTime::Second);
+    curFile.m_LastModificationTime = WTimestamp::MakeFromInt(fileStat.st_mtime, WSIUnitOfTime::Second);
 #endif
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 } // namespace
 
-void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void WFileSystemIterator::StartSearch(WStringView sSearchTerm, WBitflags<WFileSystemIteratorFlags> flags /*= WFileSystemIteratorFlags::All*/)
 {
-  EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
+  W_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
   m_sSearchTerm = sSearchTerm;
 
-  ezStringBuilder sSearch = sSearchTerm;
+  WStringBuilder sSearch = sSearchTerm;
   sSearch.MakeCleanPath();
 
   // same as just passing in the folder path, so remove this
@@ -90,9 +90,9 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
 
   // Since the use of wildcard-ed file names will disable recursion, we ensure both are not used simultaneously.
   const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
-  if (flags.IsSet(ezFileSystemIteratorFlags::Recursive) == true && bHasWildcard == true)
+  if (flags.IsSet(WFileSystemIteratorFlags::Recursive) == true && bHasWildcard == true)
   {
-    EZ_ASSERT_DEV(false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
+    W_ASSERT_DEV(false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
     return;
   }
 
@@ -107,7 +107,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
     m_sCurPath = sSearch;
   }
 
-  EZ_ASSERT_DEV(m_sCurPath.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
+  W_ASSERT_DEV(m_sCurPath.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
 
   m_Flags = flags;
 
@@ -131,7 +131,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
 
   if (m_CurFile.m_bIsDirectory)
   {
-    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+    if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFolders))
     {
       Next();
       return;
@@ -139,7 +139,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
   }
   else
   {
-    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+    if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFiles))
     {
       Next();
       return;
@@ -147,14 +147,14 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
   }
 }
 
-ezInt32 ezFileSystemIterator::InternalNext()
+WInt32 WFileSystemIterator::InternalNext()
 {
-  constexpr ezInt32 CallInternalNext = 2;
+  constexpr WInt32 CallInternalNext = 2;
 
   if (m_Data.m_Handles.IsEmpty())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  if (m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
+  if (m_Flags.IsSet(WFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
     m_sCurPath.AppendPath(m_CurFile.m_sName.GetData());
 
@@ -169,16 +169,16 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
       if (m_CurFile.m_bIsDirectory)
       {
-        if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+        if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFolders))
           return CallInternalNext;
       }
       else
       {
-        if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+        if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFiles))
           return CallInternalNext;
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     // if the recursion did not work, just iterate in this folder further
@@ -191,7 +191,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
     m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())
-      return EZ_FAILURE;
+      return W_FAILURE;
 
     m_sCurPath.PathParentDirectory();
     if (m_sCurPath.GetElementCount() > 1 && m_sCurPath.EndsWith("/"))
@@ -207,14 +207,14 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
   if (m_CurFile.m_bIsDirectory)
   {
-    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+    if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFolders))
       return CallInternalNext;
   }
   else
   {
-    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+    if (!m_Flags.IsSet(WFileSystemIteratorFlags::ReportFiles))
       return CallInternalNext;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

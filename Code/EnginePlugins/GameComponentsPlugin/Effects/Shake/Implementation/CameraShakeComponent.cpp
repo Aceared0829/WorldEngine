@@ -8,31 +8,31 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeComponent, 1, ezComponentMode::Dynamic)
+W_BEGIN_COMPONENT_TYPE(WCameraShakeComponent, 1, WComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MinShake", m_MinShake),
-    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(5))),
+    W_MEMBER_PROPERTY("MinShake", m_MinShake),
+    W_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(5))),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects/CameraShake"),
+    new WCategoryAttribute("Effects/CameraShake"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCameraShakeComponent::ezCameraShakeComponent() = default;
-ezCameraShakeComponent::~ezCameraShakeComponent() = default;
+WCameraShakeComponent::WCameraShakeComponent() = default;
+WCameraShakeComponent::~WCameraShakeComponent() = default;
 
-void ezCameraShakeComponent::Update()
+void WCameraShakeComponent::Update()
 {
-  const ezTime tDuration = ezTime::MakeFromSeconds(1.0 / 30.0); // 30 Hz vibration seems to work well
+  const WTime tDuration = WTime::MakeFromSeconds(1.0 / 30.0); // 30 Hz vibration seems to work well
 
-  const ezTime tNow = ezTime::Now();
+  const WTime tNow = WTime::Now();
 
   if (tNow >= m_ReferenceTime + tDuration)
   {
@@ -41,43 +41,43 @@ void ezCameraShakeComponent::Update()
   }
   else
   {
-    const float fLerp = ezMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
+    const float fLerp = WMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
 
-    ezQuat q = ezQuat::MakeSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
+    WQuat q = WQuat::MakeSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
 
     GetOwner()->SetLocalRotation(q);
   }
 }
 
-void ezCameraShakeComponent::GenerateKeyframe()
+void WCameraShakeComponent::GenerateKeyframe()
 {
   m_qPrevTarget = m_qNextTarget;
 
-  m_ReferenceTime = ezTime::Now();
+  m_ReferenceTime = WTime::Now();
 
-  ezWorld* pWorld = GetWorld();
+  WWorld* pWorld = GetWorld();
 
   // fade out shaking over a second, if the vibration stopped
   m_fLastStrength -= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
 
-  const float fShake = ezMath::Clamp(GetStrengthAtPosition(), 0.0f, 1.0f);
+  const float fShake = WMath::Clamp(GetStrengthAtPosition(), 0.0f, 1.0f);
 
-  m_fLastStrength = ezMath::Max(m_fLastStrength, fShake);
+  m_fLastStrength = WMath::Max(m_fLastStrength, fShake);
 
-  ezAngle deviation;
-  deviation = ezMath::Lerp(m_MinShake, m_MaxShake, m_fLastStrength);
+  WAngle deviation;
+  deviation = WMath::Lerp(m_MinShake, m_MaxShake, m_fLastStrength);
 
-  if (deviation > ezAngle())
+  if (deviation > WAngle())
   {
-    m_Rotation += ezAngle::MakeFromRadian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::MakeFromDegree(120).GetRadian(), ezAngle::MakeFromDegree(240).GetRadian()));
+    m_Rotation += WAngle::MakeFromRadian(pWorld->GetRandomNumberGenerator().FloatMinMax(WAngle::MakeFromDegree(120).GetRadian(), WAngle::MakeFromDegree(240).GetRadian()));
     m_Rotation.NormalizeRange();
 
-    ezQuat qRot;
-    qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), m_Rotation);
+    WQuat qRot;
+    qRot = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisX(), m_Rotation);
 
-    const ezVec3 tiltAxis = qRot * ezVec3::MakeAxisZ();
+    const WVec3 tiltAxis = qRot * WVec3::MakeAxisZ();
 
-    m_qNextTarget = ezQuat::MakeFromAxisAndAngle(tiltAxis, deviation);
+    m_qNextTarget = WQuat::MakeFromAxisAndAngle(tiltAxis, deviation);
   }
   else
   {
@@ -85,29 +85,29 @@ void ezCameraShakeComponent::GenerateKeyframe()
   }
 }
 
-float ezCameraShakeComponent::GetStrengthAtPosition() const
+float WCameraShakeComponent::GetStrengthAtPosition() const
 {
   float force = 0;
 
   if (auto pSpatial = GetWorld()->GetSpatialSystem())
   {
-    const ezVec3 vPosition = GetOwner()->GetGlobalPosition();
+    const WVec3 vPosition = GetOwner()->GetGlobalPosition();
 
-    ezTempHybridArray<ezGameObject*, 16> volumes;
+    WTempHybridArray<WGameObject*, 16> volumes;
 
-    ezSpatialSystem::QueryParams queryParams;
-    queryParams.m_uiCategoryBitmask = ezCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();
+    WSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = WCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();
 
-    pSpatial->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vPosition, 0.5f), queryParams, volumes);
+    pSpatial->FindObjectsInSphere(WBoundingSphere::MakeFromCenterAndRadius(vPosition, 0.5f), queryParams, volumes);
 
-    const ezSimdVec4f pos = ezSimdConversion::ToVec3(vPosition);
+    const WSimdVec4f pos = WSimdConversion::ToVec3(vPosition);
 
-    for (ezGameObject* pObj : volumes)
+    for (WGameObject* pObj : volumes)
     {
-      ezCameraShakeVolumeComponent* pVol;
+      WCameraShakeVolumeComponent* pVol;
       if (pObj->TryGetComponentOfBaseType(pVol))
       {
-        force = ezMath::Max(force, pVol->ComputeForceAtGlobalPosition(pos));
+        force = WMath::Max(force, pVol->ComputeForceAtGlobalPosition(pos));
       }
     }
   }
@@ -115,7 +115,7 @@ float ezCameraShakeComponent::GetStrengthAtPosition() const
   return force;
 }
 
-void ezCameraShakeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCameraShakeComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -125,10 +125,10 @@ void ezCameraShakeComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_MaxShake;
 }
 
-void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCameraShakeComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -137,4 +137,4 @@ void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 }
 
 
-EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeComponent);
+W_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeComponent);

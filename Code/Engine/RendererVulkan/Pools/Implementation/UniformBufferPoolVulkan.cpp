@@ -5,7 +5,7 @@
 #include <RendererVulkan/Pools/UniformBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 
-ezUniformBufferPoolVulkan::ezUniformBufferPoolVulkan(ezGALDeviceVulkan* pDevice)
+WUniformBufferPoolVulkan::WUniformBufferPoolVulkan(WGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
   , m_Device(pDevice->GetVulkanDevice())
   , m_Buffer(pDevice->GetAllocator())
@@ -14,13 +14,13 @@ ezUniformBufferPoolVulkan::ezUniformBufferPoolVulkan(ezGALDeviceVulkan* pDevice)
 {
 }
 
-void ezUniformBufferPoolVulkan::Initialize()
+void WUniformBufferPoolVulkan::Initialize()
 {
-  m_uiAlignment = (ezUInt32)ezGALBufferVulkan::GetAlignment(m_pDevice, vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst);
+  m_uiAlignment = (WUInt32)WGALBufferVulkan::GetAlignment(m_pDevice, vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst);
   m_uiBufferSize = GetBufferSize(2u * 1024u * 1024u);
 }
 
-void ezUniformBufferPoolVulkan::DeInitialize()
+void WUniformBufferPoolVulkan::DeInitialize()
 {
   if (m_pCurrentPool)
   {
@@ -36,15 +36,15 @@ void ezUniformBufferPoolVulkan::DeInitialize()
 
   for (UniformBufferPool* pPool : m_FreePools)
   {
-    EZ_DELETE(m_pDevice->GetAllocator(), pPool);
+    W_DELETE(m_pDevice->GetAllocator(), pPool);
   }
   m_FreePools.Clear();
 }
 
-void ezUniformBufferPoolVulkan::EndFrame()
+void WUniformBufferPoolVulkan::EndFrame()
 {
   m_Buffer.Clear();
-  ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
+  WUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
 
   for (UniformBufferPool* pPool : m_PendingPools)
   {
@@ -67,7 +67,7 @@ void ezUniformBufferPoolVulkan::EndFrame()
   }
 }
 
-void ezUniformBufferPoolVulkan::BeforeCommandBufferSubmit()
+void WUniformBufferPoolVulkan::BeforeCommandBufferSubmit()
 {
   if (m_pCurrentPool)
   {
@@ -75,19 +75,19 @@ void ezUniformBufferPoolVulkan::BeforeCommandBufferSubmit()
   }
 }
 
-ezUniformBufferPoolVulkan::BufferUpdateResult ezUniformBufferPoolVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> data)
+WUniformBufferPoolVulkan::BufferUpdateResult WUniformBufferPoolVulkan::UpdateBuffer(const WGALBufferVulkan* pBuffer, WArrayPtr<const WUInt8> data)
 {
-  const ezUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
+  const WUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
   BufferUpdateResult res = BufferUpdateResult::OffsetChanged;
-  const ezUInt32 uiSize = ezMemoryUtils::AlignSize(data.GetCount(), (ezUInt32)m_uiAlignment);
+  const WUInt32 uiSize = WMemoryUtils::AlignSize(data.GetCount(), (WUInt32)m_uiAlignment);
   if (!m_pCurrentPool)
   {
     m_pCurrentPool = GetFreePool(uiSize);
     res = BufferUpdateResult::DynamicBufferChanged;
   }
 
-  ezUInt32 uiOffset = 0;
-  ezByteArrayPtr allocation;
+  WUInt32 uiOffset = 0;
+  WByteArrayPtr allocation;
   if (m_pCurrentPool->Allocate(uiSize, uiCurrentFrame, uiOffset, allocation).Failed())
   {
     m_pCurrentPool->Submit(m_pDevice, uiCurrentFrame);
@@ -98,8 +98,8 @@ ezUniformBufferPoolVulkan::BufferUpdateResult ezUniformBufferPoolVulkan::UpdateB
     res = BufferUpdateResult::DynamicBufferChanged;
   }
 
-  EZ_ASSERT_DEBUG(allocation.GetCount() >= data.GetCount(), "implementation error");
-  ezMemoryUtils::RawByteCopy(allocation.GetPtr(), data.GetPtr(), data.GetCount());
+  W_ASSERT_DEBUG(allocation.GetCount() >= data.GetCount(), "implementation error");
+  WMemoryUtils::RawByteCopy(allocation.GetPtr(), data.GetPtr(), data.GetCount());
 
   vk::DescriptorBufferInfo info;
   info.buffer = m_pCurrentPool->m_Buffer;
@@ -110,20 +110,20 @@ ezUniformBufferPoolVulkan::BufferUpdateResult ezUniformBufferPoolVulkan::UpdateB
   return res;
 }
 
-const vk::DescriptorBufferInfo* ezUniformBufferPoolVulkan::GetBuffer(const ezGALBufferVulkan* pBuffer) const
+const vk::DescriptorBufferInfo* WUniformBufferPoolVulkan::GetBuffer(const WGALBufferVulkan* pBuffer) const
 {
   vk::DescriptorBufferInfo* info = nullptr;
   bool bFound = m_Buffer.TryGetValue(pBuffer, info);
-  EZ_ASSERT_DEBUG(bFound, "Dynamic buffer not found. Dynamic buffers must be updated every frame before use.");
+  W_ASSERT_DEBUG(bFound, "Dynamic buffer not found. Dynamic buffers must be updated every frame before use.");
   return info;
 }
 
-ezUniformBufferPoolVulkan::UniformBufferPool* ezUniformBufferPoolVulkan::GetFreePool(ezUInt32 uiSize)
+WUniformBufferPoolVulkan::UniformBufferPool* WUniformBufferPoolVulkan::GetFreePool(WUInt32 uiSize)
 {
   if (!m_FreePools.IsEmpty())
   {
     // The back has the pool with the highest available memory. If this fails, it is unlikely the other pools can allocate (could only happen due to fragmentation at the buffer wrap-around_.
-    ezUniformBufferPoolVulkan::UniformBufferPool* pPool = m_FreePools.PeekBack();
+    WUniformBufferPoolVulkan::UniformBufferPool* pPool = m_FreePools.PeekBack();
     if (pPool->CanAllocate(uiSize).Succeeded())
     {
       m_FreePools.PopBack();
@@ -133,16 +133,16 @@ ezUniformBufferPoolVulkan::UniformBufferPool* ezUniformBufferPoolVulkan::GetFree
 
   // Create new pool. This time larger in the hopes that it won't run out.
   m_uiBufferSize = GetBufferSize(m_uiBufferSize * 2);
-  UniformBufferPool* pPool(EZ_NEW(m_pDevice->GetAllocator(), UniformBufferPool, m_uiAlignment, m_uiBufferSize));
+  UniformBufferPool* pPool(W_NEW(m_pDevice->GetAllocator(), UniformBufferPool, m_uiAlignment, m_uiBufferSize));
   return pPool;
 }
 
 
-ezUInt32 ezUniformBufferPoolVulkan::GetBufferSize(ezUInt32 uiSize)
+WUInt32 WUniformBufferPoolVulkan::GetBufferSize(WUInt32 uiSize)
 {
-  const ezUInt32 uiMaxBufferSize = m_pDevice->GetPhysicalDeviceProperties().limits.maxUniformBufferRange;
-  ezUInt32 uiBufferSize = ezMath::Min(uiSize, uiMaxBufferSize);
-  uiBufferSize = ezMemoryUtils::AlignSize(uiBufferSize, m_uiAlignment);
+  const WUInt32 uiMaxBufferSize = m_pDevice->GetPhysicalDeviceProperties().limits.maxUniformBufferRange;
+  WUInt32 uiBufferSize = WMath::Min(uiSize, uiMaxBufferSize);
+  uiBufferSize = WMemoryUtils::AlignSize(uiBufferSize, m_uiAlignment);
   while (uiBufferSize >= uiMaxBufferSize)
   {
     uiBufferSize -= m_uiAlignment;
@@ -150,7 +150,7 @@ ezUInt32 ezUniformBufferPoolVulkan::GetBufferSize(ezUInt32 uiSize)
   return uiBufferSize;
 }
 
-ezUniformBufferPoolVulkan::UniformBufferPool::UniformBufferPool(ezUInt32 uiAlignment, ezUInt32 uiBufferSize)
+WUniformBufferPoolVulkan::UniformBufferPool::UniformBufferPool(WUInt32 uiAlignment, WUInt32 uiBufferSize)
   : m_Tracker(uiAlignment, uiBufferSize)
 {
   {
@@ -159,16 +159,16 @@ ezUniformBufferPoolVulkan::UniformBufferPool::UniformBufferPool(ezUInt32 uiAlign
     bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
     bufferCreateInfo.size = uiBufferSize;
 
-    ezVulkanAllocationCreateInfo allocCreateInfo;
-    allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite | ezVulkanAllocationCreateFlags::Mapped | ezVulkanAllocationCreateFlags::AllowTransferInstead;
-    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_Alloc, &m_AllocInfo));
+    WVulkanAllocationCreateInfo allocCreateInfo;
+    allocCreateInfo.m_usage = WVulkanMemoryUsage::Auto;
+    allocCreateInfo.m_flags = WVulkanAllocationCreateFlags::HostAccessSequentialWrite | WVulkanAllocationCreateFlags::Mapped | WVulkanAllocationCreateFlags::AllowTransferInstead;
+    VK_ASSERT_DEV(WMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_Alloc, &m_AllocInfo));
   }
 
-  vk::MemoryPropertyFlags memFlags = ezMemoryAllocatorVulkan::GetAllocationFlags(m_Alloc);
+  vk::MemoryPropertyFlags memFlags = WMemoryAllocatorVulkan::GetAllocationFlags(m_Alloc);
   if (memFlags & vk::MemoryPropertyFlagBits::eHostVisible)
   {
-    m_Data = ezMakeArrayPtr(reinterpret_cast<ezUInt8*>(m_AllocInfo.m_pMappedData), uiBufferSize);
+    m_Data = WMakeArrayPtr(reinterpret_cast<WUInt8*>(m_AllocInfo.m_pMappedData), uiBufferSize);
   }
   else
   {
@@ -177,57 +177,57 @@ ezUniformBufferPoolVulkan::UniformBufferPool::UniformBufferPool(ezUInt32 uiAlign
     bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
     bufferCreateInfo.size = uiBufferSize;
 
-    ezVulkanAllocationCreateInfo allocCreateInfo;
-    allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite | ezVulkanAllocationCreateFlags::Mapped;
-    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_StagingBuffer, m_StagingAlloc, &m_StagingAllocInfo));
-    m_Data = ezMakeArrayPtr(reinterpret_cast<ezUInt8*>(m_StagingAllocInfo.m_pMappedData), uiBufferSize);
+    WVulkanAllocationCreateInfo allocCreateInfo;
+    allocCreateInfo.m_usage = WVulkanMemoryUsage::Auto;
+    allocCreateInfo.m_flags = WVulkanAllocationCreateFlags::HostAccessSequentialWrite | WVulkanAllocationCreateFlags::Mapped;
+    VK_ASSERT_DEV(WMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_StagingBuffer, m_StagingAlloc, &m_StagingAllocInfo));
+    m_Data = WMakeArrayPtr(reinterpret_cast<WUInt8*>(m_StagingAllocInfo.m_pMappedData), uiBufferSize);
   }
 }
 
 
-ezUniformBufferPoolVulkan::UniformBufferPool::~UniformBufferPool()
+WUniformBufferPoolVulkan::UniformBufferPool::~UniformBufferPool()
 {
   m_Data.Clear();
-  ezMemoryAllocatorVulkan::DestroyBuffer(m_Buffer, m_Alloc);
+  WMemoryAllocatorVulkan::DestroyBuffer(m_Buffer, m_Alloc);
   if (m_StagingBuffer)
   {
-    ezMemoryAllocatorVulkan::DestroyBuffer(m_StagingBuffer, m_StagingAlloc);
+    WMemoryAllocatorVulkan::DestroyBuffer(m_StagingBuffer, m_StagingAlloc);
   }
 }
 
-ezResult ezUniformBufferPoolVulkan::UniformBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation)
+WResult WUniformBufferPoolVulkan::UniformBufferPool::Allocate(WUInt32 uiSize, WUInt64 uiCurrentFrame, WUInt32& out_uiStartOffset, WByteArrayPtr& out_allocation)
 {
   if (m_Tracker.Allocate(uiSize, uiCurrentFrame, out_uiStartOffset).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   out_allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezUniformBufferPoolVulkan::UniformBufferPool::Free(ezUInt64 uiUpToFrame)
+void WUniformBufferPoolVulkan::UniformBufferPool::Free(WUInt64 uiUpToFrame)
 {
   m_Tracker.Free(uiUpToFrame);
 }
 
-void ezUniformBufferPoolVulkan::UniformBufferPool::Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame)
+void WUniformBufferPoolVulkan::UniformBufferPool::Submit(WGALDeviceVulkan* pDevice, WUInt64 uiFrame)
 {
-  ezHybridArray<ezRingBufferTracker::FrameData, 4> frameData;
+  WHybridArray<WRingBufferTracker::FrameData, 4> frameData;
   if (m_Tracker.SubmitFrame(uiFrame, frameData).Failed())
     return;
 
-  for (ezRingBufferTracker::FrameData& frame : frameData)
+  for (WRingBufferTracker::FrameData& frame : frameData)
   {
     if (m_StagingBuffer)
     {
-      VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(m_StagingAlloc, frame.m_uiStartOffset, frame.m_uiSize));
-      EZ_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
+      VK_ASSERT_DEBUG(WMemoryAllocatorVulkan::FlushAllocation(m_StagingAlloc, frame.m_uiStartOffset, frame.m_uiSize));
+      W_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
       pDevice->GetInitContext().UpdateDynamicUniformBuffer(m_Buffer, m_StagingBuffer, frame.m_uiStartOffset, frame.m_uiSize);
     }
     else
     {
-      VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(m_Alloc, frame.m_uiStartOffset, frame.m_uiSize));
-      EZ_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
+      VK_ASSERT_DEBUG(WMemoryAllocatorVulkan::FlushAllocation(m_Alloc, frame.m_uiStartOffset, frame.m_uiSize));
+      W_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
       pDevice->GetInitContext().UpdateDynamicUniformBuffer(m_Buffer, m_StagingBuffer, frame.m_uiStartOffset, frame.m_uiSize);
     }
   }

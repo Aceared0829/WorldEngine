@@ -12,19 +12,19 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Image);
+W_CREATE_SIMPLE_TEST_GROUP(Image);
 
-EZ_CREATE_SIMPLE_TEST(Image, Image)
+W_CREATE_SIMPLE_TEST(Image, Image)
 {
-  const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
-  const ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  const WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
+  const WStringBuilder sWriteDir = WTestFramework::GetInstance()->GetAbsOutputPath();
 
-  EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir) == EZ_SUCCESS);
+  W_TEST_BOOL(WOSFile::CreateDirectoryStructure(sWriteDir) == W_SUCCESS);
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "ImageTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir, "ImageTest", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+  W_TEST_BOOL(WFileSystem::AddDataDirectory(sReadDir, "ImageTest") == W_SUCCESS);
+  W_TEST_BOOL(WFileSystem::AddDataDirectory(sWriteDir, "ImageTest", "output", WDataDirUsage::AllowWrites) == W_SUCCESS);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Good")
+  W_TEST_BLOCK(WTestBlock::Enabled, "BMP - Good")
   {
     const char* testImagesGood[] = {
       "BMPTestImages/good/pal1", "BMPTestImages/good/pal1bg", "BMPTestImages/good/pal1wb", "BMPTestImages/good/pal4", "BMPTestImages/good/pal4rle",
@@ -35,28 +35,28 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       "BMPTestImages/good/rgb24", "BMPTestImages/good/rgb24pal", "BMPTestImages/good/rgb32", /*"BMPTestImages/good/rgb32bf"*/
     };
 
-    for (int i = 0; i < EZ_ARRAY_SIZE(testImagesGood); i++)
+    for (int i = 0; i < W_ARRAY_SIZE(testImagesGood); i++)
     {
-      ezImage image;
+      WImage image;
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat("{0}.bmp", testImagesGood[i]);
 
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName) == EZ_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.LoadFrom(fileName) == W_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
       }
 
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat(":output/{0}_out.bmp", testImagesGood[i]);
 
-        EZ_TEST_BOOL_MSG(image.SaveTo(fileName) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.SaveTo(fileName) == W_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Bad")
+  W_TEST_BLOCK(WTestBlock::Enabled, "BMP - Bad")
   {
     const char* testImagesBad[] = {"BMPTestImages/bad/badbitcount", "BMPTestImages/bad/badbitssize",
       /*"BMPTestImages/bad/baddens1", "BMPTestImages/bad/baddens2", "BMPTestImages/bad/badfilesize", "BMPTestImages/bad/badheadersize",*/
@@ -66,94 +66,94 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       "BMPTestImages/bad/shortfile"};
 
 
-    for (int i = 0; i < EZ_ARRAY_SIZE(testImagesBad); i++)
+    for (int i = 0; i < W_ARRAY_SIZE(testImagesBad); i++)
     {
-      ezImage image;
+      WImage image;
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat("{0}.bmp", testImagesBad[i]);
 
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
 
-        EZ_LOG_BLOCK_MUTE();
-        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName) == EZ_FAILURE, "Reading image should have failed: '%s'", fileName.GetData());
+        W_LOG_BLOCK_MUTE();
+        W_TEST_BOOL_MSG(image.LoadFrom(fileName) == W_FAILURE, "Reading image should have failed: '%s'", fileName.GetData());
       }
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TGA")
+  W_TEST_BLOCK(WTestBlock::Enabled, "TGA")
   {
     const char* testImagesGood[] = {"TGATestImages/good/RGB", "TGATestImages/good/RGBA", "TGATestImages/good/RGB_RLE", "TGATestImages/good/RGBA_RLE"};
 
-    for (int i = 0; i < EZ_ARRAY_SIZE(testImagesGood); i++)
+    for (int i = 0; i < W_ARRAY_SIZE(testImagesGood); i++)
     {
-      ezImage image;
+      WImage image;
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat("{0}.tga", testImagesGood[i]);
 
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName) == EZ_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.LoadFrom(fileName) == W_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
       }
 
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat(":output/{0}_out.bmp", testImagesGood[i]);
 
-        ezStringBuilder fileNameExpected;
+        WStringBuilder fileNameExpected;
         fileNameExpected.SetFormat("{0}_expected.bmp", testImagesGood[i]);
 
-        EZ_TEST_BOOL_MSG(image.SaveTo(fileName) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.SaveTo(fileName) == W_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
 
-        EZ_TEST_FILES(fileName, fileNameExpected, "");
+        W_TEST_FILES(fileName, fileNameExpected, "");
       }
 
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat(":output/{0}_out.tga", testImagesGood[i]);
 
-        ezStringBuilder fileNameExpected;
+        WStringBuilder fileNameExpected;
         fileNameExpected.SetFormat("{0}_expected.tga", testImagesGood[i]);
 
-        EZ_TEST_BOOL_MSG(image.SaveTo(fileName) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.SaveTo(fileName) == W_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
 
-        EZ_TEST_FILES(fileName, fileNameExpected, "");
+        W_TEST_FILES(fileName, fileNameExpected, "");
       }
     }
   }
 
 #ifdef BUILDSYSTEM_ENABLE_LUNASVG_SUPPORT
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SVG")
+  W_TEST_BLOCK(WTestBlock::Enabled, "SVG")
   {
-    ezSvgFileFormat svgFormat;
+    WSvgFileFormat svgFormat;
     svgFormat.m_uiResolutionX = 256;
     svgFormat.m_uiResolutionY = 256;
 
-    ezImage image;
+    WImage image;
 
-    ezFileReader fileReader;
-    EZ_TEST_BOOL(fileReader.Open("SVGTestImages/ez.svg") == EZ_SUCCESS);
-    EZ_TEST_BOOL(svgFormat.ReadImage(fileReader, image, "svg") == EZ_SUCCESS);
+    WFileReader fileReader;
+    W_TEST_BOOL(fileReader.Open("SVGTestImages/W.svg") == W_SUCCESS);
+    W_TEST_BOOL(svgFormat.ReadImage(fileReader, image, "svg") == W_SUCCESS);
 
-    EZ_TEST_INT(image.GetWidth(), 256);
-    EZ_TEST_INT(image.GetHeight(), 256);
-    EZ_TEST_BOOL(image.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM);
+    W_TEST_INT(image.GetWidth(), 256);
+    W_TEST_INT(image.GetHeight(), 256);
+    W_TEST_BOOL(image.GetImageFormat() == WImageFormat::R8G8B8A8_UNORM);
 
-    EZ_TEST_BOOL(image.SaveTo(":output/SVGTestImages/ez_out.tga") == EZ_SUCCESS);
+    W_TEST_BOOL(image.SaveTo(":output/SVGTestImages/W_out.tga") == W_SUCCESS);
 
-    EZ_TEST_FILES(":output/SVGTestImages/ez_out.tga", "SVGTestImages/ez_expected.tga", "");
+    W_TEST_FILES(":output/SVGTestImages/W_out.tga", "SVGTestImages/W_expected.tga", "");
   }
 #endif
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write Image Formats")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Write Image Formats")
   {
     struct ImgTest
     {
       const char* szImage;
       const char* szFormat;
-      ezUInt32 uiMSE;
+      WUInt32 uiMSE;
     };
 
     ImgTest imgTests[] = {
@@ -163,7 +163,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       {"RGBA", "png", 0},
       {"RGB", "jpg", 4650},
       {"RGBA", "jpeg", 16670},
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
       {"RGB", "tif", 0},
       {"RGBA", "tif", 0},
 #endif
@@ -171,41 +171,41 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
     const char* szTestImagePath = "TGATestImages/good";
 
-    for (int idx = 0; idx < EZ_ARRAY_SIZE(imgTests); ++idx)
+    for (int idx = 0; idx < W_ARRAY_SIZE(imgTests); ++idx)
     {
-      ezImage image;
+      WImage image;
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat("{}/{}.tga", szTestImagePath, imgTests[idx].szImage);
 
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName) == EZ_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Image file does not exist: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.LoadFrom(fileName) == W_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
       }
 
       {
-        ezStringBuilder fileName;
+        WStringBuilder fileName;
         fileName.SetFormat(":output/WriteImageTest/{}.{}", imgTests[idx].szImage, imgTests[idx].szFormat);
 
-        ezFileSystem::DeleteFile(fileName);
+        WFileSystem::DeleteFile(fileName);
 
-        EZ_TEST_BOOL_MSG(image.SaveTo(fileName) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(image.SaveTo(fileName) == W_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
+        W_TEST_BOOL_MSG(WFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
 
-        ezImage image2;
-        EZ_TEST_BOOL_MSG(image2.LoadFrom(fileName).Succeeded(), "Reading written image failed: '%s'", fileName.GetData());
+        WImage image2;
+        W_TEST_BOOL_MSG(image2.LoadFrom(fileName).Succeeded(), "Reading written image failed: '%s'", fileName.GetData());
 
-        image.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
-        image2.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
+        image.Convert(WImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
+        image2.Convert(WImageFormat::R8G8B8A8_UNORM_SRGB).IgnoreResult();
 
-        ezImage diff;
-        ezImageUtils::ComputeImageDifferenceABS(image, image2, diff);
+        WImage diff;
+        WImageUtils::ComputeImageDifferenceABS(image, image2, diff);
 
-        const ezUInt32 uiMSE = ezImageUtils::ComputeMeanSquareError(diff, 32);
+        const WUInt32 uiMSE = WImageUtils::ComputeMeanSquareError(diff, 32);
 
-        EZ_TEST_BOOL_MSG(uiMSE <= imgTests[idx].uiMSE, "MSE %u is larger than %u for image '%s'", uiMSE, imgTests[idx].uiMSE, fileName.GetData());
+        W_TEST_BOOL_MSG(uiMSE <= imgTests[idx].uiMSE, "MSE %u is larger than %u for image '%s'", uiMSE, imgTests[idx].uiMSE, fileName.GetData());
       }
     }
   }
 
-  ezFileSystem::RemoveDataDirectoryGroup("ImageTest");
+  WFileSystem::RemoveDataDirectoryGroup("ImageTest");
 }

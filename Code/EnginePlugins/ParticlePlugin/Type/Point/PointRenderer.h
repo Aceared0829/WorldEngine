@@ -9,33 +9,33 @@
 #include <RendererFoundation/Resources/BufferPool.h>
 
 /// Render data for point particles.
-class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData final : public ezRenderData
+class W_PARTICLEPLUGIN_DLL WParticlePointRenderData final : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WParticlePointRenderData, WRenderData);
 
 public:
-  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;               ///< Base particle data
-  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData; ///< Billboard data
-  ezTransform m_GlobalTransform;                                         ///< World transform of the particle system
-  ezTime m_TotalEffectLifeTime;                                          ///< Total lifetime of the effect
+  WArrayPtr<WBaseParticleShaderData> m_BaseParticleData;               ///< Base particle data
+  WArrayPtr<WBillboardQuadParticleShaderData> m_BillboardParticleData; ///< Billboard data
+  WTransform m_GlobalTransform;                                         ///< World transform of the particle system
+  WTime m_TotalEffectLifeTime;                                          ///< Total lifetime of the effect
 };
 
 /// Renderer for point particle systems.
-class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer final : public ezParticleRenderer
+class W_PARTICLEPLUGIN_DLL WParticlePointRenderer final : public WParticleRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderer, ezParticleRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticlePointRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WParticlePointRenderer, WParticleRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WParticlePointRenderer);
 
 public:
-  ezParticlePointRenderer();
-  ~ezParticlePointRenderer();
+  WParticlePointRenderer();
+  ~WParticlePointRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
   virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+    const WRenderViewContext& renderContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
 protected:
-  static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferPool m_BaseDataBuffer;
-  ezGALBufferPool m_BillboardDataBuffer;
+  static const WUInt32 s_uiParticlesPerBatch = 1024;
+  WGALBufferPool m_BaseDataBuffer;
+  WGALBufferPool m_BillboardDataBuffer;
 };

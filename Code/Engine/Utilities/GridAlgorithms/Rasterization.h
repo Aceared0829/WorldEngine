@@ -7,7 +7,7 @@
 #include <Utilities/UtilitiesDLL.h>
 
 /// Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
-struct ezCallbackResult
+struct WCallbackResult
 {
   enum Enum
   {
@@ -17,7 +17,7 @@ struct ezCallbackResult
 };
 
 /// Enum values for the result of some rasterization functions.
-struct ezRasterizationResult
+struct WRasterizationResult
 {
   enum Enum
   {
@@ -29,10 +29,10 @@ struct ezRasterizationResult
 namespace ez2DGridUtils
 {
   /// The callback declaration for the function that needs to be passed to the various rasterization functions.
-  using EZ_RASTERIZED_POINT_CALLBACK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, void*)>;
+  using W_RASTERIZED_POINT_CALLBACK = WDelegate<WCallbackResult::Enum(WInt32, WInt32, void*)>;
 
   /// The callback declaration for the function that needs to be passed to RasterizeBlobWithDistance().
-  using EZ_RASTERIZED_BLOB_CALLBACK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, void*, ezUInt8)>;
+  using W_RASTERIZED_BLOB_CALLBACK = WDelegate<WCallbackResult::Enum(WInt32, WInt32, void*, WUInt8)>;
 
   /// Computes all the points on a 2D line and calls a function to report every point.
   ///
@@ -40,54 +40,54 @@ namespace ez2DGridUtils
   /// callback is always the start position, the last point is always the end position.
   /// pPassThrough is passed through to the user callback for custom data.
   ///
-  /// The function returns ezRasterizationResult::Aborted if the callback returned ezCallbackResult::Stop at any time
+  /// The function returns WRasterizationResult::Aborted if the callback returned WCallbackResult::Stop at any time
   /// and the line will not be computed further in that case.
-  /// It returns ezRasterizationResult::Finished if the entire line was rasterized.
+  /// It returns WRasterizationResult::Finished if the entire line was rasterized.
   ///
   /// This function does not do any dynamic memory allocations internally.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
+  W_UTILITIES_DLL WRasterizationResult::Enum ComputePointsOnLine(WInt32 iStartX, WInt32 iStartY, WInt32 iEndX, WInt32 iEndY, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
   /// Computes all the points on a 2D line and calls a function to report every point.
   ///
   /// Contrary to ComputePointsOnLine() this function does not do diagonal steps but inserts horizontal or vertical steps, such that
   /// reported cells are always connected by an edge.
   /// However, since there are always two possibilities to go from one cell to a diagonal cell, this function tries both and as long
-  /// as one of them reports ezCallbackResult::Continue, it will continue. Only if both cells are blocked will the algorithm abort.
+  /// as one of them reports WCallbackResult::Continue, it will continue. Only if both cells are blocked will the algorithm abort.
   ///
   /// If bVisitBothNeighbors is false, the line will continue with the diagonal cell if the first tried neighbor cell is free.
   /// However, if bVisitBothNeighbors is true, the second alternative cell is also reported to the callback, even though its return value
   /// has no effect on whether the line continues or aborts.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY,
-    EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, bool bVisitBothNeighbors = false);
+  W_UTILITIES_DLL WRasterizationResult::Enum ComputePointsOnLineConservative(WInt32 iStartX, WInt32 iStartY, WInt32 iEndX, WInt32 iEndY,
+    W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, bool bVisitBothNeighbors = false);
 
   /// Computes all the points on a 2D circle and calls a function to report every point.
   ///
   /// The points are reported in a rather chaotic order (ie. when one draws a line from point to point, it does not yield a circle shape).
-  /// The callback may abort the operation by returning ezCallbackResult::Stop.
+  /// The callback may abort the operation by returning WCallbackResult::Stop.
   ///
   /// This function does not do any dynamic memory allocations internally.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
+  W_UTILITIES_DLL WRasterizationResult::Enum ComputePointsOnCircle(WInt32 iStartX, WInt32 iStartY, WUInt32 uiRadius, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
   /// Starts at the given point and then fills all surrounding cells until a border is detected.
   ///
-  /// The callback should return ezCallbackResult::Continue for each cell that has not been visited so far and for which all four direct
-  /// neighbors should be visited. If the flood-fill algorithm leaves the valid area, the callback must return ezCallbackResult::Stop to
+  /// The callback should return WCallbackResult::Continue for each cell that has not been visited so far and for which all four direct
+  /// neighbors should be visited. If the flood-fill algorithm leaves the valid area, the callback must return WCallbackResult::Stop to
   /// signal a border. Thus the callback must be able to handle point positions outside the valid range and it also needs to be able to
   /// detect which cells have been visited before, as the FloodFill function will not keep that state internally.
   ///
-  /// The function returns the number of cells that were visited and returned ezCallbackResult::Continue (ie. which were not classified as
+  /// The function returns the number of cells that were visited and returned WCallbackResult::Continue (ie. which were not classified as
   /// border cells).
   ///
   /// Note that the FloodFill function requires an internal queue to store which cells still need to be visited, as such it will do
   /// dynamic memory allocations. You can pass in a queue that will be used as the temp buffer, thus you can reuse the same container for
   /// several operations, which will reduce the amount of memory allocations that need to be done.
-  EZ_UTILITIES_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
+  W_UTILITIES_DLL WUInt32 FloodFill(WInt32 iStartX, WInt32 iStartY, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, WDeque<WVec2I32>* pTempArray = nullptr);
 
   /// Same as FloodFill() but also visits the diagonal neighbors, ie. all eight neighboring cells.
-  EZ_UTILITIES_DLL ezUInt32 FloodFillDiag(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
+  W_UTILITIES_DLL WUInt32 FloodFillDiag(WInt32 iStartX, WInt32 iStartY, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, WDeque<WVec2I32>* pTempArray = nullptr);
 
   /// Describes the different circle types that can be rasterized
-  enum ezBlobType : ezUInt8
+  enum WBlobType : WUInt8
   {
     Point1x1,    ///< The circle has just one point at the center
     Cross3x3,    ///< The circle has 5 points, one at the center, 1 at each edge of that
@@ -102,19 +102,19 @@ namespace ez2DGridUtils
 
   /// Rasterizes a circle of limited dimensions and calls the given callback for each point.
   ///
-  /// See ezCircleType for the available circle types. Those circles are handcrafted to have good looking shapes at low resolutions.
+  /// See WCircleType for the available circle types. Those circles are handcrafted to have good looking shapes at low resolutions.
   /// This type of circle is not meant for actually rendering circles, but for doing area operations and overlapping checks for game
   /// units, visibility determination etc. Basically everything that is usually small, but where a simple point might not suffice.
   /// For example most units in a strategy game might only occupy a single cell, but some units might be larger and thus need to occupy
   /// the surrounding cells as well. Using RasterizeBlob() you can compute the units footprint easily.
   ///
-  /// RasterizeBlob() will stop immediately and return ezRasterizationResult::Aborted when the callback function returns
-  /// ezCallbackResult::Stop.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
+  /// RasterizeBlob() will stop immediately and return WRasterizationResult::Aborted when the callback function returns
+  /// WCallbackResult::Stop.
+  W_UTILITIES_DLL WRasterizationResult::Enum RasterizeBlob(WInt32 iPosX, WInt32 iPosY, WBlobType type, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
   /// Same as RasterizeBlob(), but the distance from the center is passed through to the callback, which can use this information to
   /// adjust what it is doing.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlobWithDistance(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_BLOB_CALLBACK callback, void* pPassThrough = nullptr);
+  W_UTILITIES_DLL WRasterizationResult::Enum RasterizeBlobWithDistance(WInt32 iPosX, WInt32 iPosY, WBlobType type, W_RASTERIZED_BLOB_CALLBACK callback, void* pPassThrough = nullptr);
 
   /// Rasterizes a circle of any size (unlike RasterizeBlob()), though finding the right radius values for nice looking small circles
   /// can be more difficult.
@@ -122,9 +122,9 @@ namespace ez2DGridUtils
   /// This function rasterizes a full circle. The radius is a float value, ie. you can use fractional values to shave off cells at the
   /// borders bit by bit.
   ///
-  /// RasterizeCircle() will stop immediately and return ezRasterizationResult::Aborted when the callback function returns
-  /// ezCallbackResult::Stop.
-  EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
+  /// RasterizeCircle() will stop immediately and return WRasterizationResult::Aborted when the callback function returns
+  /// WCallbackResult::Stop.
+  W_UTILITIES_DLL WRasterizationResult::Enum RasterizeCircle(WInt32 iPosX, WInt32 iPosY, float fRadius, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
 
   /// Computes which points are visible from the start position by tracing lines radially outwards.
@@ -133,29 +133,29 @@ namespace ez2DGridUtils
   /// uiWidth and uiHeight define the maximum coordinates at which the end of the grid is reached (and thus the line tracing can early out
   /// if it reaches those). For the minimum coordinate (0, 0) is assumed.
   ///
-  /// The callback function must return ezCallbackResult::Continue for cells that are not blocking and ezCallbackResult::Stop for cells that
+  /// The callback function must return WCallbackResult::Continue for cells that are not blocking and WCallbackResult::Stop for cells that
   /// block visibility.
   ///
   /// The algorithm requires internal state and thus needs to do dynamic memory allocations. If you want to reduce the number of
   /// allocations, you can pass in your own array, that can be reused for many queries.
-  EZ_UTILITIES_DLL void ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight,
-    EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDynamicArray<ezUInt8>* pTempArray = nullptr);
+  W_UTILITIES_DLL void ComputeVisibleArea(WInt32 iPosX, WInt32 iPosY, WUInt16 uiRadius, WUInt32 uiWidth, WUInt32 uiHeight,
+    W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, WDynamicArray<WUInt8>* pTempArray = nullptr);
 
   /// Computes which points are visible from the start position by tracing lines radially outwards. Limits the computation to a cone.
   ///
   /// This function works exactly like ComputeVisibleArea() but limits the computation to a cone that is defined by vDirection and
   /// ConeAngle.
-  EZ_UTILITIES_DLL void ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle coneAngle,
-    ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr,
-    ezDynamicArray<ezUInt8>* pTempArray = nullptr);
+  W_UTILITIES_DLL void ComputeVisibleAreaInCone(WInt32 iPosX, WInt32 iPosY, WUInt16 uiRadius, const WVec2& vDirection, WAngle coneAngle,
+    WUInt32 uiWidth, WUInt32 uiHeight, W_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr,
+    WDynamicArray<WUInt8>* pTempArray = nullptr);
 
   struct TraceLinePoint
   {
     /// A coordinate, relative to the center position.
-    ezVec2I32 m_vCellCoordOffset;
+    WVec2I32 m_vCellCoordOffset;
     /// If the coordinate is occluded, this many next points will also be occluded.
     /// Otherwise continue with the next point.
-    ezUInt16 m_uiSkipCount;
+    WUInt16 m_uiSkipCount;
   };
 
   /// Precomputes points on a circle for checking visibility.
@@ -168,11 +168,11 @@ namespace ez2DGridUtils
   /// The center point (0, 0) is implied (not part of the array) and assumed to be not occluded.
   /// Points are given relative to the center, so to position the visibility traces somewhere else, add an
   /// offset to each point.
-  EZ_UTILITIES_DLL void CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_result);
+  W_UTILITIES_DLL void CalculateVisibilityTraceLines(float fRadius, WDynamicArray<TraceLinePoint>& out_result);
 
   /// Args: iCoordX, iCoordY, uiPopBranchesBefore, uiPushBranchUntil
-  using EZ_TRACELINE_CHECK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, ezUInt32, ezUInt32)>;
+  using W_TRACELINE_CHECK = WDelegate<WCallbackResult::Enum(WInt32, WInt32, WUInt32, WUInt32)>;
 
-  EZ_UTILITIES_DLL void VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_CHECK check);
+  W_UTILITIES_DLL void VisitVisibilityTraceLines(const WDynamicArray<TraceLinePoint>& traces, const WVec2I32& vCenter, W_TRACELINE_CHECK check);
 
 } // namespace ez2DGridUtils

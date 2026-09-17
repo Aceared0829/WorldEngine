@@ -4,46 +4,46 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectSelectionAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectSelectionAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hSelectionCategory;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hShowInScenegraph;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hFocusOnSelection;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hFocusOnSelectionAllViews;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hSnapCameraToObject;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hMoveCameraHere;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hSelectionCategory;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hShowInScenegraph;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hFocusOnSelection;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hFocusOnSelectionAllViews;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hSnapCameraToObject;
+WActionDescriptorHandle WGameObjectSelectionActions::s_hMoveCameraHere;
 
-void ezGameObjectSelectionActions::RegisterActions()
+void WGameObjectSelectionActions::RegisterActions()
 {
-  s_hSelectionCategory = EZ_REGISTER_CATEGORY("G.Selection");
-  s_hShowInScenegraph = EZ_REGISTER_ACTION_1("Selection.ShowInScenegraph", ezActionScope::Document, "Scene - Selection", "Ctrl+T",
-    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::ShowInScenegraph);
-  s_hFocusOnSelection = EZ_REGISTER_ACTION_1("Selection.FocusSingleView", ezActionScope::Document, "Scene - Selection", "F",
-    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelection);
-  s_hFocusOnSelectionAllViews = EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Shift+F",
-    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelectionAllViews);
-  s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", ezActionScope::Document, "Camera", "", ezGameObjectSelectionAction,
-    ezGameObjectSelectionAction::ActionType::SnapCameraToObject);
-  s_hMoveCameraHere = EZ_REGISTER_ACTION_1("Scene.Camera.MoveCameraHere", ezActionScope::Document, "Camera", "C", ezGameObjectSelectionAction,
-    ezGameObjectSelectionAction::ActionType::MoveCameraHere);
+  s_hSelectionCategory = W_REGISTER_CATEGORY("G.Selection");
+  s_hShowInScenegraph = W_REGISTER_ACTION_1("Selection.ShowInScenegraph", WActionScope::Document, "Scene - Selection", "Ctrl+T",
+    WGameObjectSelectionAction, WGameObjectSelectionAction::ActionType::ShowInScenegraph);
+  s_hFocusOnSelection = W_REGISTER_ACTION_1("Selection.FocusSingleView", WActionScope::Document, "Scene - Selection", "F",
+    WGameObjectSelectionAction, WGameObjectSelectionAction::ActionType::FocusOnSelection);
+  s_hFocusOnSelectionAllViews = W_REGISTER_ACTION_1("Selection.FocusAllViews", WActionScope::Document, "Scene - Selection", "Shift+F",
+    WGameObjectSelectionAction, WGameObjectSelectionAction::ActionType::FocusOnSelectionAllViews);
+  s_hSnapCameraToObject = W_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", WActionScope::Document, "Camera", "", WGameObjectSelectionAction,
+    WGameObjectSelectionAction::ActionType::SnapCameraToObject);
+  s_hMoveCameraHere = W_REGISTER_ACTION_1("Scene.Camera.MoveCameraHere", WActionScope::Document, "Camera", "C", WGameObjectSelectionAction,
+    WGameObjectSelectionAction::ActionType::MoveCameraHere);
 }
 
-void ezGameObjectSelectionActions::UnregisterActions()
+void WGameObjectSelectionActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hSelectionCategory);
-  ezActionManager::UnregisterAction(s_hShowInScenegraph);
-  ezActionManager::UnregisterAction(s_hFocusOnSelection);
-  ezActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
-  ezActionManager::UnregisterAction(s_hSnapCameraToObject);
-  ezActionManager::UnregisterAction(s_hMoveCameraHere);
+  WActionManager::UnregisterAction(s_hSelectionCategory);
+  WActionManager::UnregisterAction(s_hShowInScenegraph);
+  WActionManager::UnregisterAction(s_hFocusOnSelection);
+  WActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
+  WActionManager::UnregisterAction(s_hSnapCameraToObject);
+  WActionManager::UnregisterAction(s_hMoveCameraHere);
 }
 
-void ezGameObjectSelectionActions::MapActions(ezStringView sMapping)
+void WGameObjectSelectionActions::MapActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hSelectionCategory, "G.Edit", 5.0f);
 
@@ -54,10 +54,10 @@ void ezGameObjectSelectionActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hMoveCameraHere, "G.Selection", 10.0f);
 }
 
-void ezGameObjectSelectionActions::MapContextMenuActions(ezStringView sMapping)
+void WGameObjectSelectionActions::MapContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
@@ -65,10 +65,10 @@ void ezGameObjectSelectionActions::MapContextMenuActions(ezStringView sMapping)
 }
 
 
-void ezGameObjectSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
+void WGameObjectSelectionActions::MapViewContextMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
@@ -76,12 +76,12 @@ void ezGameObjectSelectionActions::MapViewContextMenuActions(ezStringView sMappi
   pMap->MapAction(s_hSnapCameraToObject, "G.Selection", 8.0f);
 }
 
-ezGameObjectSelectionAction::ezGameObjectSelectionAction(
-  const ezActionContext& context, const char* szName, ezGameObjectSelectionAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WGameObjectSelectionAction::WGameObjectSelectionAction(
+  const WActionContext& context, const char* szName, WGameObjectSelectionAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  m_pSceneDocument = const_cast<ezGameObjectDocument*>(static_cast<const ezGameObjectDocument*>(context.m_pDocument));
+  m_pSceneDocument = const_cast<WGameObjectDocument*>(static_cast<const WGameObjectDocument*>(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -104,17 +104,17 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(
 
   UpdateEnableState();
 
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectSelectionAction::SelectionEventHandler, this));
 }
 
 
-ezGameObjectSelectionAction::~ezGameObjectSelectionAction()
+WGameObjectSelectionAction::~WGameObjectSelectionAction()
 {
   m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
+    WMakeDelegate(&WGameObjectSelectionAction::SelectionEventHandler, this));
 }
 
-void ezGameObjectSelectionAction::Execute(const ezVariant& value)
+void WGameObjectSelectionAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
@@ -136,12 +136,12 @@ void ezGameObjectSelectionAction::Execute(const ezVariant& value)
   }
 }
 
-void ezGameObjectSelectionAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void WGameObjectSelectionAction::SelectionEventHandler(const WSelectionManagerEvent& e)
 {
   UpdateEnableState();
 }
 
-void ezGameObjectSelectionAction::UpdateEnableState()
+void WGameObjectSelectionAction::UpdateEnableState()
 {
   if (m_Type == ActionType::FocusOnSelection || m_Type == ActionType::FocusOnSelectionAllViews || m_Type == ActionType::ShowInScenegraph)
   {

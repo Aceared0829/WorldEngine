@@ -15,76 +15,76 @@
 #include <QSettings>
 #include <QUrl>
 
-EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
+W_IMPLEMENT_SINGLETON(WQtUiServices);
 
-ezEvent<const ezQtUiServices::Event&, ezMutex> ezQtUiServices::s_Events;
-ezCopyOnBroadcastEvent<const ezQtUiServices::TickEvent&> ezQtUiServices::s_TickEvent;
+WEvent<const WQtUiServices::Event&, WMutex> WQtUiServices::s_Events;
+WCopyOnBroadcastEvent<const WQtUiServices::TickEvent&> WQtUiServices::s_TickEvent;
 
-ezMap<ezString, QIcon> ezQtUiServices::s_IconsCache;
-ezMap<ezString, QImage> ezQtUiServices::s_ImagesCache;
-ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
-bool ezQtUiServices::s_bHeadless;
-bool ezQtUiServices::s_bUnattended;
-ezHybridArray<ezString, 4> ezQtUiServices::s_SuppressedDialogs;
-ezHybridArray<ezString, 4> ezQtUiServices::s_FailedAsserts;
-ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
+WMap<WString, QIcon> WQtUiServices::s_IconsCache;
+WMap<WString, QImage> WQtUiServices::s_ImagesCache;
+WMap<WString, QPixmap> WQtUiServices::s_PixmapsCache;
+bool WQtUiServices::s_bHeadless;
+bool WQtUiServices::s_bUnattended;
+WHybridArray<WString, 4> WQtUiServices::s_SuppressedDialogs;
+WHybridArray<WString, 4> WQtUiServices::s_FailedAsserts;
+WQtUiServices::TickEvent WQtUiServices::s_LastTickEvent;
 
-static ezQtUiServices* g_pInstance = nullptr;
+static WQtUiServices* g_pInstance = nullptr;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtUiServices)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtUiServices)
 
   ON_CORESYSTEMS_STARTUP
   {
-    g_pInstance = EZ_DEFAULT_NEW(ezQtUiServices);
-    ezQtUiServices::GetSingleton()->Init();
+    g_pInstance = W_DEFAULT_NEW(WQtUiServices);
+    WQtUiServices::GetSingleton()->Init();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    EZ_DEFAULT_DELETE(g_pInstance);
+    W_DEFAULT_DELETE(g_pInstance);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezQtUiServices::ezQtUiServices()
+WQtUiServices::WQtUiServices()
   : m_SingletonRegistrar(this)
 {
-  qRegisterMetaType<ezUuid>();
+  qRegisterMetaType<WUuid>();
   m_pColorDlg = nullptr;
 }
 
 
-bool ezQtUiServices::IsHeadless()
+bool WQtUiServices::IsHeadless()
 {
   return s_bHeadless;
 }
 
 
-void ezQtUiServices::SetHeadless(bool bHeadless)
+void WQtUiServices::SetHeadless(bool bHeadless)
 {
   s_bHeadless = bHeadless;
 }
 
-bool ezQtUiServices::IsUnattended()
+bool WQtUiServices::IsUnattended()
 {
   // without any window there is nowhere to show a dialog, so headless always implies unattended
   return s_bUnattended || s_bHeadless;
 }
 
-void ezQtUiServices::SetUnattended()
+void WQtUiServices::SetUnattended()
 {
   s_bUnattended = true;
 }
 
-void ezQtUiServices::ReportSuppressedDialog(ezStringView sDescription)
+void WQtUiServices::ReportSuppressedDialog(WStringView sDescription)
 {
-  ezLog::Warning("Dialog not shown, because no user is present: {}", sDescription);
+  WLog::Warning("Dialog not shown, because no user is present: {}", sDescription);
 
   // A suppressed dialog often means an operation didn't do what it was asked to, and code reacting to
   // that may well open the next one. Dropping the excess keeps the first, most relevant entries.
-  constexpr ezUInt32 uiMaxEntries = 16;
+  constexpr WUInt32 uiMaxEntries = 16;
 
   if (s_SuppressedDialogs.GetCount() < uiMaxEntries)
   {
@@ -92,7 +92,7 @@ void ezQtUiServices::ReportSuppressedDialog(ezStringView sDescription)
   }
 }
 
-bool ezQtUiServices::SuppressModalWindow(ezStringView sDescription)
+bool WQtUiServices::SuppressModalWindow(WStringView sDescription)
 {
   if (!IsUnattended())
     return false;
@@ -103,11 +103,11 @@ bool ezQtUiServices::SuppressModalWindow(ezStringView sDescription)
 
 namespace
 {
-  ezAssertHandler g_PreviousAssertHandler = nullptr;
+  WAssertHandler g_PreviousAssertHandler = nullptr;
 
-  bool UnattendedAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+  bool UnattendedAssertHandler(const char* szSourceFile, WUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
   {
-    if (!ezQtUiServices::IsUnattended())
+    if (!WQtUiServices::IsUnattended())
     {
       // A user is sitting in front of this: the normal dialog and debugger break are what they want.
       if (g_PreviousAssertHandler != nullptr)
@@ -116,10 +116,10 @@ namespace
       return true;
     }
 
-    ezStringBuilder sReport;
+    WStringBuilder sReport;
     sReport.SetFormat("{}({}) in {}: '{}' {}", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
 
-    ezQtUiServices::ReportFailedAssert(sReport);
+    WQtUiServices::ReportFailedAssert(sReport);
 
     // false means 'do not break'. The assert dialog would block the main thread with nobody there to
     // dismiss it, which is worse than continuing into whatever the assert was guarding against.
@@ -127,13 +127,13 @@ namespace
   }
 } // namespace
 
-void ezQtUiServices::ReportFailedAssert(ezStringView sReport)
+void WQtUiServices::ReportFailedAssert(WStringView sReport)
 {
-  ezLog::Error("Assert failed with no user present: {}", sReport);
+  WLog::Error("Assert failed with no user present: {}", sReport);
 
   // One broken invariant tends to trip the next assert immediately, so the list is bounded the same way
   // the dialog list is. The first entry is the one that explains the rest.
-  constexpr ezUInt32 uiMaxEntries = 8;
+  constexpr WUInt32 uiMaxEntries = 8;
 
   if (s_FailedAsserts.GetCount() < uiMaxEntries)
   {
@@ -141,38 +141,38 @@ void ezQtUiServices::ReportFailedAssert(ezStringView sReport)
   }
 }
 
-ezArrayPtr<const ezString> ezQtUiServices::GetFailedAsserts()
+WArrayPtr<const WString> WQtUiServices::GetFailedAsserts()
 {
   return s_FailedAsserts;
 }
 
-void ezQtUiServices::ClearFailedAsserts()
+void WQtUiServices::ClearFailedAsserts()
 {
   s_FailedAsserts.Clear();
 }
 
-ezArrayPtr<const ezString> ezQtUiServices::GetSuppressedDialogs()
+WArrayPtr<const WString> WQtUiServices::GetSuppressedDialogs()
 {
   return s_SuppressedDialogs;
 }
 
-void ezQtUiServices::ClearSuppressedDialogs()
+void WQtUiServices::ClearSuppressedDialogs()
 {
   s_SuppressedDialogs.Clear();
 }
 
-ezQtScopedUnattended::ezQtScopedUnattended()
+WQtScopedUnattended::WQtScopedUnattended()
 {
-  m_bPrevUnattended = ezQtUiServices::s_bUnattended;
-  ezQtUiServices::s_bUnattended = true;
+  m_bPrevUnattended = WQtUiServices::s_bUnattended;
+  WQtUiServices::s_bUnattended = true;
 }
 
-ezQtScopedUnattended::~ezQtScopedUnattended()
+WQtScopedUnattended::~WQtScopedUnattended()
 {
-  ezQtUiServices::s_bUnattended = m_bPrevUnattended;
+  WQtUiServices::s_bUnattended = m_bPrevUnattended;
 }
 
-void ezQtUiServices::SaveState()
+void WQtUiServices::SaveState()
 {
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
@@ -182,18 +182,18 @@ void ezQtUiServices::SaveState()
   Settings.endGroup();
 }
 
-ezTime g_Total = ezTime::MakeZero();
+WTime g_Total = WTime::MakeZero();
 
-const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor)
+const QIcon& WQtUiServices::GetCachedIconResource(WStringView sIdentifier, WColor svgTintColor)
 {
-  ezStringBuilder sFullIdentifier = sIdentifier;
+  WStringBuilder sFullIdentifier = sIdentifier;
   auto& map = s_IconsCache;
 
-  const bool bNeedsColoring = svgTintColor != ezColor::MakeZero() && sIdentifier.EndsWith_NoCase(".svg");
+  const bool bNeedsColoring = svgTintColor != WColor::MakeZero() && sIdentifier.EndsWith_NoCase(".svg");
 
   if (bNeedsColoring)
   {
-    sFullIdentifier.AppendFormat("-{}", ezColorGammaUB(svgTintColor));
+    sFullIdentifier.AppendFormat("-{}", WColorGammaUB(svgTintColor));
   }
 
   auto it = map.Find(sFullIdentifier);
@@ -203,10 +203,10 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
 
   if (bNeedsColoring)
   {
-    ezStopwatch sw;
+    WStopwatch sw;
 
     // read the icon from the Qt virtual file system (QResource)
-    QFile file(ezString(sIdentifier).GetData());
+    QFile file(WString(sIdentifier).GetData());
     if (!file.open(QIODeviceBase::OpenModeFlag::ReadOnly))
     {
       // if it doesn't exist, return an empty QIcon
@@ -216,14 +216,14 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
     }
 
     // get the entire SVG file content
-    ezStringBuilder sContent = QString(file.readAll()).toUtf8().data();
+    WStringBuilder sContent = QString(file.readAll()).toUtf8().data();
 
     // replace the occurrence of the color white ("#FFFFFF") with the desired target color
     {
-      const ezColorGammaUB color8 = svgTintColor;
+      const WColorGammaUB color8 = svgTintColor;
 
-      ezStringBuilder rep;
-      rep.SetFormat("#{}{}{}", ezArgU(color8.r, 2, true, 16), ezArgU(color8.g, 2, true, 16), ezArgU(color8.b, 2, true, 16));
+      WStringBuilder rep;
+      rep.SetFormat("#{}{}{}", WArgU(color8.r, 2, true, 16), WArgU(color8.g, 2, true, 16), WArgU(color8.b, 2, true, 16));
 
       sContent.ReplaceAll_NoCase("#ffffff", rep);
 
@@ -238,15 +238,15 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
     }
 
     // hash the content AFTER the color replacement, so it includes the custom color change
-    const ezUInt32 uiSrcHash = ezHashingUtils::xxHash32String(sContent);
+    const WUInt32 uiSrcHash = WHashingUtils::xxHash32String(sContent);
 
     // file the path to the temp file, including the source hash
-    const ezStringBuilder sTempFolder = ezOSFile::GetTempDataFolder("ezEditor/QIcons");
-    ezStringBuilder sTempIconFile(sTempFolder, "/", sIdentifier.GetFileName());
+    const WStringBuilder sTempFolder = WOSFile::GetTempDataFolder("WEditor/QIcons");
+    WStringBuilder sTempIconFile(sTempFolder, "/", sIdentifier.GetFileName());
     sTempIconFile.AppendFormat("-{}.svg", uiSrcHash);
 
     // only write to the file system, if the target file doesn't exist yet, this saves more than half the time
-    if (!ezOSFile::ExistsFile(sTempIconFile))
+    if (!WOSFile::ExistsFile(sTempIconFile))
     {
       // now write the new SVG file back to a dummy file
       // yes, this is as stupid as it sounds, we really write the file BACK TO THE FILESYSTEM, rather than doing this stuff in-memory
@@ -254,7 +254,7 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
       // it doesn't appear to be easy at least, since we can only give it a path, not a memory stream or anything like that
       {
         // necessary for Qt to be able to write to the folder
-        ezOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
+        WOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
 
         QFile fileOut(sTempIconFile.GetData());
         if (fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly))
@@ -273,15 +273,15 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
     else
       map[sFullIdentifier] = QIcon();
 
-    ezTime local = sw.GetRunningTotal();
+    WTime local = sw.GetRunningTotal();
     g_Total += local;
 
     // kept here for debug purposes, but don't waste time on logging
-    // ezLog::Info("Icon load time: {}, total = {}", local, g_Total);
+    // WLog::Info("Icon load time: {}, total = {}", local, g_Total);
   }
   else
   {
-    const QString sFile = ezString(sIdentifier).GetData();
+    const QString sFile = WString(sIdentifier).GetData();
 
     if (QFile::exists(sFile)) // prevent Qt from spamming warnings about non-existing files by checking this manually
     {
@@ -301,9 +301,9 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
 }
 
 
-const QImage& ezQtUiServices::GetCachedImageResource(const char* szIdentifier)
+const QImage& WQtUiServices::GetCachedImageResource(const char* szIdentifier)
 {
-  const ezString sIdentifier = szIdentifier;
+  const WString sIdentifier = szIdentifier;
   auto& map = s_ImagesCache;
 
   auto it = map.Find(sIdentifier);
@@ -316,9 +316,9 @@ const QImage& ezQtUiServices::GetCachedImageResource(const char* szIdentifier)
   return map[sIdentifier];
 }
 
-const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
+const QPixmap& WQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
 {
-  const ezString sIdentifier = szIdentifier;
+  const WString sIdentifier = szIdentifier;
   auto& map = s_PixmapsCache;
 
   auto it = map.Find(sIdentifier);
@@ -331,12 +331,12 @@ const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
   return map[sIdentifier];
 }
 
-ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern)
+WResult WQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern)
 {
-  ezStringBuilder ignoreFile;
+  WStringBuilder ignoreFile;
 
   {
-    ezFileReader file;
+    WFileReader file;
     if (file.Open(szGitIgnoreFile).Succeeded())
     {
       ignoreFile.ReadAll(file);
@@ -345,7 +345,7 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
 
   ignoreFile.Trim("\n\r");
 
-  const ezUInt32 len = ezStringUtils::GetStringElementCount(szPattern);
+  const WUInt32 len = WStringUtils::GetStringElementCount(szPattern);
 
   // pattern already present ?
   if (const char* szFound = ignoreFile.FindSubString(szPattern))
@@ -357,7 +357,7 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
 
       if (end == '\0' || end == '\r' || end == '\n') // line does not continue with an extended pattern
       {
-        return EZ_SUCCESS;
+        return W_SUCCESS;
       }
     }
   }
@@ -366,23 +366,23 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
   ignoreFile.Append("\n\n");
 
   {
-    ezFileWriter file;
-    EZ_SUCCEED_OR_RETURN(file.Open(szGitIgnoreFile));
+    WFileWriter file;
+    W_SUCCEED_OR_RETURN(file.Open(szGitIgnoreFile));
 
-    EZ_SUCCEED_OR_RETURN(file.WriteBytes(ignoreFile.GetData(), ignoreFile.GetElementCount()));
+    W_SUCCEED_OR_RETURN(file.WriteBytes(ignoreFile.GetData(), ignoreFile.GetElementCount()));
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezQtUiServices::CheckForUpdates()
+void WQtUiServices::CheckForUpdates()
 {
   Event e;
   e.m_Type = Event::Type::CheckForUpdates;
   s_Events.Broadcast(e);
 }
 
-void ezQtUiServices::GotoLinkTarget(ezStringView sLinkTarget)
+void WQtUiServices::GotoLinkTarget(WStringView sLinkTarget)
 {
   Event e;
   e.m_Type = Event::Type::GotoLinkTarget;
@@ -390,14 +390,14 @@ void ezQtUiServices::GotoLinkTarget(ezStringView sLinkTarget)
   s_Events.Broadcast(e);
 }
 
-void ezQtUiServices::Init()
+void WQtUiServices::Init()
 {
   // Installed unconditionally, because unattended mode is entered and left again at runtime
-  // (ezQtScopedUnattended) - the handler decides per assert, rather than being swapped in and out.
+  // (WQtScopedUnattended) - the handler decides per assert, rather than being swapped in and out.
   if (g_PreviousAssertHandler == nullptr)
   {
-    g_PreviousAssertHandler = ezGetAssertHandler();
-    ezSetAssertHandler(UnattendedAssertHandler);
+    g_PreviousAssertHandler = WGetAssertHandler();
+    WSetAssertHandler(UnattendedAssertHandler);
   }
 
   s_LastTickEvent.m_fRefreshRate = 60.0;
@@ -406,15 +406,15 @@ void ezQtUiServices::Init()
     s_LastTickEvent.m_fRefreshRate = pScreen->refreshRate();
   }
 
-  QTimer::singleShot((ezInt32)ezMath::Floor(1000.0 / s_LastTickEvent.m_fRefreshRate), this, SLOT(TickEventHandler()));
+  QTimer::singleShot((WInt32)WMath::Floor(1000.0 / s_LastTickEvent.m_fRefreshRate), this, SLOT(TickEventHandler()));
 }
 
-void ezQtUiServices::TickEventHandler()
+void WQtUiServices::TickEventHandler()
 {
-  EZ_PROFILE_SCOPE("TickEvent");
+  W_PROFILE_SCOPE("TickEvent");
 
-  EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
-  ezTime startTime = ezTime::Now();
+  W_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
+  WTime startTime = WTime::Now();
   s_LastTickEvent.m_uiFrame++;
   s_LastTickEvent.m_Time = startTime;
 
@@ -436,19 +436,19 @@ void ezQtUiServices::TickEventHandler()
     s_TickEvent.Broadcast(s_LastTickEvent);
     m_bIsDrawingATM = false;
   }
-  const ezTime endTime = ezTime::Now();
-  ezTime lastFrameTime = endTime - startTime;
+  const WTime endTime = WTime::Now();
+  WTime lastFrameTime = endTime - startTime;
 
-  ezTime delay = ezTime::MakeFromMilliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
+  WTime delay = WTime::MakeFromMilliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
   delay -= lastFrameTime;
-  delay = ezMath::Max(delay, ezTime::MakeZero());
+  delay = WMath::Max(delay, WTime::MakeZero());
 
-  QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(TickEventHandler()));
+  QTimer::singleShot((WInt32)WMath::Floor(delay.GetMilliseconds()), this, SLOT(TickEventHandler()));
 }
 
-void ezQtUiServices::LoadState()
+void WQtUiServices::LoadState()
 {
-  EZ_PROFILE_SCOPE("LoadState");
+  W_PROFILE_SCOPE("LoadState");
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
   {
@@ -457,9 +457,9 @@ void ezQtUiServices::LoadState()
   Settings.endGroup();
 }
 
-void ezQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(const ezFormatString& msg, ezTime timeOut)
+void WQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(const WFormatString& msg, WTime timeOut)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   Event e;
   e.m_Type = Event::ShowDocumentTemporaryStatusBarText;
@@ -469,9 +469,9 @@ void ezQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(const ezFormatStr
   s_Events.Broadcast(e, 1);
 }
 
-void ezQtUiServices::ShowAllDocumentsPermanentStatusBarMessage(const ezFormatString& msg, Event::TextType type)
+void WQtUiServices::ShowAllDocumentsPermanentStatusBarMessage(const WFormatString& msg, Event::TextType type)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   Event e;
   e.m_Type = Event::ShowDocumentPermanentStatusBarText;
@@ -481,25 +481,25 @@ void ezQtUiServices::ShowAllDocumentsPermanentStatusBarMessage(const ezFormatStr
   s_Events.Broadcast(e, 1);
 }
 
-void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
+void WQtUiServices::ShowGlobalStatusBarMessage(const WFormatString& msg)
 {
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
   e.m_sText = msg.GetText(tmp);
-  e.m_Time = ezTime::MakeFromSeconds(0);
+  e.m_Time = WTime::MakeFromSeconds(0);
 
   s_Events.Broadcast(e);
 }
 
 
-ezResult ezQtUiServices::OpenFileInDefaultProgram(ezStringView sPath)
+WResult WQtUiServices::OpenFileInDefaultProgram(WStringView sPath)
 {
-  return QDesktopServices::openUrl(QUrl::fromLocalFile(ezMakeQString(sPath))) ? EZ_SUCCESS : EZ_FAILURE;
+  return QDesktopServices::openUrl(QUrl::fromLocalFile(WMakeQString(sPath))) ? W_SUCCESS : W_FAILURE;
 }
 
-ezResult ezQtUiServices::OpenInVisualStudio(ezStringView sPath)
+WResult WQtUiServices::OpenInVisualStudio(WStringView sPath)
 {
   QString sVSExe;
   QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
@@ -512,22 +512,22 @@ ezResult ezQtUiServices::OpenInVisualStudio(ezStringView sPath)
   }
 
   QStringList arguments;
-  arguments.push_back(ezMakeQString(sPath));
+  arguments.push_back(WMakeQString(sPath));
 
   QProcess proc;
   if (proc.startDetached(sVSExe, arguments) == false)
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezQtUiServices::OpenInRider(ezStringView sPath)
+WResult WQtUiServices::OpenInRider(WStringView sPath)
 {
   QString sRiderPath;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if W_ENABLED(W_PLATFORM_WINDOWS)
   QSettings settings("\\HKEY_CURRENT_USER\\SOFTWARE\\JetBrains\\Toolbox\\", QSettings::NativeFormat);
   QString sToolboxKey = settings.value(".", "").value<QString>();
 
@@ -563,7 +563,7 @@ ezResult ezQtUiServices::OpenInRider(ezStringView sPath)
     sRiderPath = "rider64.exe";
   }
 
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif W_ENABLED(W_PLATFORM_LINUX)
   if (QFile::exists("/opt/rider/bin/rider.sh"))
   {
     sRiderPath = "/opt/clion/bin/rider.sh";
@@ -574,26 +574,26 @@ ezResult ezQtUiServices::OpenInRider(ezStringView sPath)
     sRiderPath = "rider.sh";
   }
 #else
-  return EZ_FAILURE;
+  return W_FAILURE;
 #endif
 
   QStringList arguments;
-  arguments.push_back(ezMakeQString(sPath));
+  arguments.push_back(WMakeQString(sPath));
 
   if (!QProcess::startDetached(sRiderPath, arguments))
   {
-    return EZ_FAILURE;
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-namespace ezQtUtils
+namespace WQtUtils
 {
   bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference)
   {
     // X11 (xcb) keycodes are hardware scan codes + 8 offset, Wayland uses raw evdev codes
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
     const quint32 SC_OFFSET = (QGuiApplication::platformName() == "xcb") ? 8 : 0;
 #else
     constexpr quint32 SC_OFFSET = 0;
@@ -656,10 +656,10 @@ namespace ezQtUtils
         return nativeScanCode == 44 + SC_OFFSET;
 
       default:
-        ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, nativeScanCode);
+        WLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, nativeScanCode);
         break;
     }
 
     return e->key() == reference;
   }
-} // namespace ezQtUtils
+} // namespace WQtUtils

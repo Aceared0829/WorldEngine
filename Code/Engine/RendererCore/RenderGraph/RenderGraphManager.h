@@ -5,15 +5,15 @@
 #include <RendererCore/RenderGraph/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-struct ezGALDeviceEvent;
-class ezGALResourceStateTracker;
-class ezRenderGraph;
-class ezRenderGraphPassObserver;
-class ezRenderGraphResourcePool;
-struct ezTextureValidationError;
-struct ezBufferValidationError;
+struct WGALDeviceEvent;
+class WGALResourceStateTracker;
+class WRenderGraph;
+class WRenderGraphPassObserver;
+class WRenderGraphResourcePool;
+struct WTextureValidationError;
+struct WBufferValidationError;
 
-struct ezRenderGraphRenderEvent
+struct WRenderGraphRenderEvent
 {
   enum class Type
   {
@@ -24,84 +24,84 @@ struct ezRenderGraphRenderEvent
   };
 
   Type m_Type;
-  ezRenderGraph* m_pGraph = nullptr;
-  ezRenderGraphContext* m_pContext = nullptr;
+  WRenderGraph* m_pGraph = nullptr;
+  WRenderGraphContext* m_pContext = nullptr;
 };
 
-/// Manages ezRenderGraph lifetime and execution.
-class EZ_RENDERERCORE_DLL ezRenderGraphManager
+/// Manages WRenderGraph lifetime and execution.
+class W_RENDERERCORE_DLL WRenderGraphManager
 {
 public:
   /// Creates a new render graph. The caller holds a reference via the returned scoped pointer.
   /// When all references are released, the graph is deleted at the end of the frame.
-  static ezSharedPtr<ezRenderGraph> CreateRenderGraph(ezStringView sName, ezEnum<ezRenderGraphPhase> phase = ezRenderGraphPhase::Render);
+  static WSharedPtr<WRenderGraph> CreateRenderGraph(WStringView sName, WEnum<WRenderGraphPhase> phase = WRenderGraphPhase::Render);
 
-  /// Enqueue a render graph for execution in the current frame. Must be called before ExecuteRenderGraphs. Usually in ezRenderWorldRenderEvent::Type::BeginRender or ezGALDeviceEvent::AfterBeginFrame.
-  static void EnqueueRenderGraph(const ezSharedPtr<ezRenderGraph>& pRenderGraph);
+  /// Enqueue a render graph for execution in the current frame. Must be called before ExecuteRenderGraphs. Usually in WRenderWorldRenderEvent::Type::BeginRender or WGALDeviceEvent::AfterBeginFrame.
+  static void EnqueueRenderGraph(const WSharedPtr<WRenderGraph>& pRenderGraph);
 
-  /// Must be called after ezGALDeviceEvent::BeforeBeginFrame and before ezGALDeviceEvent::AfterEndFrame.
-  static void ExecuteRenderGraphs(ezGALDevice* pDevice);
+  /// Must be called after WGALDeviceEvent::BeforeBeginFrame and before WGALDeviceEvent::AfterEndFrame.
+  static void ExecuteRenderGraphs(WGALDevice* pDevice);
 
   /// Access the shared resource pool. Only valid after device init.
-  static ezRenderGraphResourcePool* GetResourcePool();
+  static WRenderGraphResourcePool* GetResourcePool();
 
   /// \name Pass Observers
   ///@{
 
   /// Fills a summary with the render graphs and available swapchains.
-  /// Only safe to call from an ezRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
-  static void GetExecutionSummary(ezRenderGraphInspectionSummary& out_summary);
+  /// Only safe to call from an WRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
+  static void GetExecutionSummary(WRenderGraphInspectionSummary& out_summary);
 
   /// Fills an inspection info of a specific render graph.
-  /// Only safe to call from an ezRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
-  static ezResult GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_inspectionInfo);
+  /// Only safe to call from an WRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
+  static WResult GetRenderGraphInspectionInfo(WUInt64 uiRenderGraphId, WRenderGraphInspectionInfo& out_inspectionInfo);
 
-  static ezSharedPtr<ezRenderGraphPassObserver> CreateObserver();
+  static WSharedPtr<WRenderGraphPassObserver> CreateObserver();
 
   ///@}
 
-  static ezEvent<const ezRenderGraphRenderEvent&, ezMutex> s_RenderEvent;
+  static WEvent<const WRenderGraphRenderEvent&, WMutex> s_RenderEvent;
 
   /// Prints all operations and barriers affecting a texture resource up to the current execution point.
   /// Only operations overlapping the given range are printed.
-  static void PrintTextureResourceHistory(const ezTextureValidationError& error);
+  static void PrintTextureResourceHistory(const WTextureValidationError& error);
 
   /// Prints all operations and barriers affecting a buffer resource up to the current execution point.
   /// Call from validation failure handlers to diagnose barrier issues.
-  static void PrintBufferResourceHistory(const ezBufferValidationError& error);
+  static void PrintBufferResourceHistory(const WBufferValidationError& error);
 
 private:
-  friend class ezRenderGraph;
-  friend class ezRenderGraphPassObserver;
+  friend class WRenderGraph;
+  friend class WRenderGraphPassObserver;
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
-  static void GALDeviceEventHandler(const ezGALDeviceEvent& e);
+  static void GALDeviceEventHandler(const WGALDeviceEvent& e);
 
-  static void InitPool(ezGALDevice* pDevice);
-  static void DeinitPool(ezGALDevice* pDevice);
+  static void InitPool(WGALDevice* pDevice);
+  static void DeinitPool(WGALDevice* pDevice);
   static void BeginFrame();
-  static void OnGraphDestroyed(ezRenderGraph* pGraph);
-  static ezUInt64 GetRenderGraphId(ezRenderGraph* pGraph);
-  static ezRenderGraph* GetRenderGraphById(ezUInt64 uiRenderGraphId);
-  static ezUInt32 GetSwapChainId(ezGALSwapChainHandle hSwapChain);
-  static ezGALSwapChainHandle GetSwapChainById(ezUInt32 uiSwapChainId);
+  static void OnGraphDestroyed(WRenderGraph* pGraph);
+  static WUInt64 GetRenderGraphId(WRenderGraph* pGraph);
+  static WRenderGraph* GetRenderGraphById(WUInt64 uiRenderGraphId);
+  static WUInt32 GetSwapChainId(WGALSwapChainHandle hSwapChain);
+  static WGALSwapChainHandle GetSwapChainById(WUInt32 uiSwapChainId);
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderGraphManager);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderGraphManager);
 
-  static ezMutex s_Mutex;
-  static ezDynamicArray<ezSharedPtr<ezRenderGraph>> s_EnqueuedRenderGraphs[3];
-  static ezDynamicArray<ezRenderGraph*> s_AllRenderGraphs[3];
-  static ezUniquePtr<ezRenderGraphResourcePool> s_pPool;
-  static ezUniquePtr<ezGALResourceStateTracker> s_pStateTracker;
+  static WMutex s_Mutex;
+  static WDynamicArray<WSharedPtr<WRenderGraph>> s_EnqueuedRenderGraphs[3];
+  static WDynamicArray<WRenderGraph*> s_AllRenderGraphs[3];
+  static WUniquePtr<WRenderGraphResourcePool> s_pPool;
+  static WUniquePtr<WGALResourceStateTracker> s_pStateTracker;
 
   // Pass observers
-  static ezDynamicArray<ezSharedPtr<ezRenderGraphPassObserver>> s_Observers;
-  static ezSharedPtr<ezRenderGraph> s_pObserverGraph;
+  static WDynamicArray<WSharedPtr<WRenderGraphPassObserver>> s_Observers;
+  static WSharedPtr<WRenderGraph> s_pObserverGraph;
 
   // Execution tracking for diagnostics
-  static ezDynamicArray<ezRenderGraph*> s_ExecutingGraphs; ///< Executed this frame, kept alive via s_EnqueuedRenderGraphs
-  static ezDynamicArray<ezRenderGraphPassObserver*> s_ExecutingObservers;
-  static ezUInt32 s_uiCurrentGraphIndex;
-  static ezUInt32 s_uiCurrentPassIndex;
+  static WDynamicArray<WRenderGraph*> s_ExecutingGraphs; ///< Executed this frame, kept alive via s_EnqueuedRenderGraphs
+  static WDynamicArray<WRenderGraphPassObserver*> s_ExecutingObservers;
+  static WUInt32 s_uiCurrentGraphIndex;
+  static WUInt32 s_uiCurrentPassIndex;
 };

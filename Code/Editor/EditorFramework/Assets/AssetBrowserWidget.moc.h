@@ -8,18 +8,18 @@
 
 
 
-class ezQtToolBarActionMapView;
-class ezQtAssetBrowserFilter;
-class ezQtAssetBrowserModel;
-struct ezAssetCuratorEvent;
-class ezQtAssetBrowserModel;
+class WQtToolBarActionMapView;
+class WQtAssetBrowserFilter;
+class WQtAssetBrowserModel;
+struct WAssetCuratorEvent;
+class WQtAssetBrowserModel;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
+class W_EDITORFRAMEWORK_DLL WQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 public:
-  ezQtAssetBrowserWidget(QWidget* pParent);
-  ~ezQtAssetBrowserWidget();
+  WQtAssetBrowserWidget(QWidget* pParent);
+  ~WQtAssetBrowserWidget();
 
   enum class Mode
   {
@@ -29,11 +29,11 @@ public:
   };
 
   void SetMode(Mode mode);
-  void SetSelectedAsset(ezUuid preselectedAsset);
-  void SetSelectedFile(ezStringView sAbsPath);
-  void ShowOnlyTheseTypeFilters(ezStringView sFilters);
-  void UseFileExtensionFilters(ezStringView sFileExtensions);
-  void SetRequiredTag(ezStringView sRequiredTag);
+  void SetSelectedAsset(WUuid preselectedAsset);
+  void SetSelectedFile(WStringView sAbsPath);
+  void ShowOnlyTheseTypeFilters(WStringView sFilters);
+  void UseFileExtensionFilters(WStringView sFileExtensions);
+  void SetRequiredTag(WStringView sRequiredTag);
 
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);
@@ -43,14 +43,14 @@ public:
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
 
-  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_Model.data(); }
-  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_Model.data(); }
-  ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
-  const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
+  WQtAssetBrowserModel* GetAssetBrowserModel() { return m_Model.data(); }
+  const WQtAssetBrowserModel* GetAssetBrowserModel() const { return m_Model.data(); }
+  WQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
+  const WQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
 Q_SIGNALS:
-  void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
-  void ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
+  void ItemChosen(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags);
+  void ItemSelected(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags);
   void ItemCleared();
 
 private Q_SLOTS:
@@ -64,12 +64,12 @@ private Q_SLOTS:
   void on_ButtonListMode_clicked();
   void on_ButtonIconMode_clicked();
   void on_IconSizeSlider_valueChanged(int iValue);
-  void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
+  void on_ListAssets_ViewZoomed(WInt32 iIconSizePercentage);
   void on_ResetTypeFilter_clicked();
   void OnSearchWidgetTextChanged(const QString& text);
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void on_TypeFilter_currentIndexChanged(int index);
-  void OnScrollToItem(ezUuid preselectedAsset);
+  void OnScrollToItem(WUuid preselectedAsset);
   void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
@@ -105,21 +105,21 @@ private:
   virtual void mousePressEvent(QMouseEvent* e) override;
 
 private:
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+  void AssetCuratorEventHandler(const WAssetCuratorEvent& e);
   void UpdateAssetTypes();
-  void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void ProjectEventHandler(const WToolsProjectEvent& e);
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
   void AddImportedViaMenu(QMenu* pMenu);
-  void GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const;
+  void GetSelectedImportableFiles(WDynamicArray<WString>& out_Files) const;
   void UpdateStatusBar();
   void UpdatePluginDataDirNames();
-  ezAssetBrowserSelection GetCurrentSelectionForActions() const;
+  WAssetBrowserSelection GetCurrentSelectionForActions() const;
 
   Mode m_Mode = Mode::Browser;
-  ezQtToolBarActionMapView* m_pToolbar = nullptr;
-  ezString m_sAllTypesFilter;
-  QSharedPointer<ezQtAssetBrowserModel> m_Model;
-  ezQtAssetBrowserFilter* m_pFilter = nullptr;
+  WQtToolBarActionMapView* m_pToolbar = nullptr;
+  WString m_sAllTypesFilter;
+  QSharedPointer<WQtAssetBrowserModel> m_Model;
+  WQtAssetBrowserFilter* m_pFilter = nullptr;
 
   /// After creating a new asset and renaming it, we want to open it as well.
   bool m_bOpenAfterRename = false;

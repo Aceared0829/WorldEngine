@@ -3,15 +3,15 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezParticleBehaviorFactory_SizeCurvePatch_1_2 : public ezGraphPatch
+class WParticleBehaviorFactory_SizeCurvePatch_1_2 : public WGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_SizeCurvePatch_1_2()
-    : ezGraphPatch("ezParticleBehaviorFactory_SizeCurve", 2)
+  WParticleBehaviorFactory_SizeCurvePatch_1_2()
+    : WGraphPatch("WParticleBehaviorFactory_SizeCurve", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("SizeCurve", "SharedSizeCurve");
     pNode->RenameProperty("BaseSize", "SizeCurveOffset");
@@ -19,24 +19,24 @@ public:
 
     // Set the curve source to "Shared" for backward compatibility
     // In older versions, there was only the shared curve option
-    pNode->AddProperty("ChangeSizeWith", (ezInt32)1);
+    pNode->AddProperty("ChangeSizeWith", (WInt32)1);
   }
 };
 
-ezParticleBehaviorFactory_SizeCurvePatch_1_2 g_ezParticleBehaviorFactory_SizeCurvePatch_1_2;
+WParticleBehaviorFactory_SizeCurvePatch_1_2 g_WParticleBehaviorFactory_SizeCurvePatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates wind influence and rise speed from Velocity behavior to new Wind and Move behaviors
-class ezParticleBehaviorFactory_Velocity_1_2 : public ezGraphPatch
+class WParticleBehaviorFactory_Velocity_1_2 : public WGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_Velocity_1_2()
-    : ezGraphPatch("ezParticleBehaviorFactory_Velocity", 2)
+  WParticleBehaviorFactory_Velocity_1_2()
+    : WGraphPatch("WParticleBehaviorFactory_Velocity", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Read the wind influence value from the old Velocity behavior
     auto* pWindInfluence = pNode->FindProperty("WindInfluence");
@@ -51,20 +51,20 @@ public:
       return;
 
     // Find the parent system descriptor node
-    ezAbstractObjectNode* pSystemNode = nullptr;
+    WAbstractObjectNode* pSystemNode = nullptr;
     for (auto it = pGraph->GetAllNodes().GetIterator(); it.IsValid(); ++it)
     {
-      ezAbstractObjectNode* pCandidate = it.Value();
-      if (pCandidate->GetType() == "ezParticleSystemDescriptor")
+      WAbstractObjectNode* pCandidate = it.Value();
+      if (pCandidate->GetType() == "WParticleSystemDescriptor")
       {
         // Check if this system contains our velocity behavior
         auto* pBehaviors = pCandidate->FindProperty("Behaviors");
-        if (pBehaviors && pBehaviors->m_Value.IsA<ezVariantArray>())
+        if (pBehaviors && pBehaviors->m_Value.IsA<WVariantArray>())
         {
-          const auto& behaviors = pBehaviors->m_Value.Get<ezVariantArray>();
+          const auto& behaviors = pBehaviors->m_Value.Get<WVariantArray>();
           for (const auto& behaviorVar : behaviors)
           {
-            if (behaviorVar.IsA<ezUuid>() && behaviorVar.Get<ezUuid>() == pNode->GetGuid())
+            if (behaviorVar.IsA<WUuid>() && behaviorVar.Get<WUuid>() == pNode->GetGuid())
             {
               pSystemNode = pCandidate;
               break;
@@ -81,16 +81,16 @@ public:
 
     // Get the behaviors array to add new behaviors to
     auto* pBehaviors = pSystemNode->FindProperty("Behaviors");
-    if (!pBehaviors || !pBehaviors->m_Value.IsA<ezVariantArray>())
+    if (!pBehaviors || !pBehaviors->m_Value.IsA<WVariantArray>())
       return;
 
-    ezVariantArray behaviors = pBehaviors->m_Value.Get<ezVariantArray>();
+    WVariantArray behaviors = pBehaviors->m_Value.Get<WVariantArray>();
 
     // Create a new Wind behavior node if wind influence is greater than 0
     if (fWindInfluence > 0.0f)
     {
-      ezUuid windBehaviorGuid = ezUuid::MakeUuid();
-      ezAbstractObjectNode* pWindNode = pGraph->AddNode(windBehaviorGuid, "ezParticleBehaviorFactory_Wind", 1);
+      WUuid windBehaviorGuid = WUuid::MakeUuid();
+      WAbstractObjectNode* pWindNode = pGraph->AddNode(windBehaviorGuid, "WParticleBehaviorFactory_Wind", 1);
       pWindNode->AddProperty("WindInfluence", fWindInfluence);
       behaviors.PushBack(windBehaviorGuid);
     }
@@ -98,11 +98,11 @@ public:
     // Create a new Move behavior node if rise speed is non-zero
     if (fRiseSpeed != 0.0f)
     {
-      ezUuid moveBehaviorGuid = ezUuid::MakeUuid();
-      ezAbstractObjectNode* pMoveNode = pGraph->AddNode(moveBehaviorGuid, "ezParticleBehaviorFactory_Move", 1);
+      WUuid moveBehaviorGuid = WUuid::MakeUuid();
+      WAbstractObjectNode* pMoveNode = pGraph->AddNode(moveBehaviorGuid, "WParticleBehaviorFactory_Move", 1);
 
       // Set Z-axis movement to constant mode with the rise speed value
-      pMoveNode->AddProperty("MoveZ_Mode", (ezInt32)0); // ezMovementMode::Constant = 0
+      pMoveNode->AddProperty("MoveZ_Mode", (WInt32)0); // WMovementMode::Constant = 0
       pMoveNode->AddProperty("MoveZ_Speed", fRiseSpeed);
 
       behaviors.PushBack(moveBehaviorGuid);
@@ -113,20 +113,20 @@ public:
   }
 };
 
-ezParticleBehaviorFactory_Velocity_1_2 g_ezParticleBehaviorFactory_Velocity_1_2;
+WParticleBehaviorFactory_Velocity_1_2 g_WParticleBehaviorFactory_Velocity_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates ColorGradient behavior from old hGradient to new GradientSource system
-class ezParticleBehaviorFactory_ColorGradient_2_3 : public ezGraphPatch
+class WParticleBehaviorFactory_ColorGradient_2_3 : public WGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_ColorGradient_2_3()
-    : ezGraphPatch("ezParticleBehaviorFactory_ColorGradient", 3)
+  WParticleBehaviorFactory_ColorGradient_2_3()
+    : WGraphPatch("WParticleBehaviorFactory_ColorGradient", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Check if there's an old hGradient property (from version 2)
     auto* pGradientHandle = pNode->FindProperty("Gradient");
@@ -136,30 +136,30 @@ public:
       pNode->RenameProperty("Gradient", "SharedGradient");
 
       // Set GradientSource to SharedGradient (1) for backward compatibility
-      pNode->AddProperty("GradientSource", (ezInt32)1);
+      pNode->AddProperty("GradientSource", (WInt32)1);
     }
     else
     {
       // If no old property exists, default to CustomGradient (0)
-      pNode->AddProperty("GradientSource", (ezInt32)0);
+      pNode->AddProperty("GradientSource", (WInt32)0);
     }
   }
 };
 
-ezParticleBehaviorFactory_ColorGradient_2_3 g_ezParticleBehaviorFactory_ColorGradient_2_3;
+WParticleBehaviorFactory_ColorGradient_2_3 g_WParticleBehaviorFactory_ColorGradient_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates RandomColor initializer from old hGradient to new GradientSource system
-class ezParticleInitializerFactory_RandomColor_2_3 : public ezGraphPatch
+class WParticleInitializerFactory_RandomColor_2_3 : public WGraphPatch
 {
 public:
-  ezParticleInitializerFactory_RandomColor_2_3()
-    : ezGraphPatch("ezParticleInitializerFactory_RandomColor", 3)
+  WParticleInitializerFactory_RandomColor_2_3()
+    : WGraphPatch("WParticleInitializerFactory_RandomColor", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     // Check if there's an old hGradient property (from version 2)
     auto* pGradientHandle = pNode->FindProperty("Gradient");
@@ -169,14 +169,14 @@ public:
       pNode->RenameProperty("Gradient", "SharedGradient");
 
       // Set GradientSource to SharedGradient (1) for backward compatibility
-      pNode->AddProperty("GradientSource", (ezInt32)1);
+      pNode->AddProperty("GradientSource", (WInt32)1);
     }
     else
     {
       // If no old property exists, default to CustomGradient (0)
-      pNode->AddProperty("GradientSource", (ezInt32)0);
+      pNode->AddProperty("GradientSource", (WInt32)0);
     }
   }
 };
 
-ezParticleInitializerFactory_RandomColor_2_3 g_ezParticleInitializerFactory_RandomColor_2_3;
+WParticleInitializerFactory_RandomColor_2_3 g_WParticleInitializerFactory_RandomColor_2_3;

@@ -4,10 +4,10 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtCustomDataAssetDocumentWindow : public ezQtDocumentWindow
+class WQtCustomDataAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtCustomDataAssetDocumentWindow(ezDocument* pDocument);
+  WQtCustomDataAssetDocumentWindow(WDocument* pDocument);
 };

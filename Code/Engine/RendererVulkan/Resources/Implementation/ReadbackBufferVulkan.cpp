@@ -4,19 +4,19 @@
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
 
-ezGALReadbackBufferVulkan::ezGALReadbackBufferVulkan(const ezGALBufferCreationDescription& Description)
-  : ezGALReadbackBuffer(Description)
+WGALReadbackBufferVulkan::WGALReadbackBufferVulkan(const WGALBufferCreationDescription& Description)
+  : WGALReadbackBuffer(Description)
 {
 }
 
-ezGALReadbackBufferVulkan::~ezGALReadbackBufferVulkan() = default;
+WGALReadbackBufferVulkan::~WGALReadbackBufferVulkan() = default;
 
-ezResult ezGALReadbackBufferVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackBufferVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
-  vk::DeviceSize alignment = ezGALBufferVulkan::GetAlignment(m_pDeviceVulkan, vk::BufferUsageFlagBits::eTransferDst);
-  m_Size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
+  vk::DeviceSize alignment = WGALBufferVulkan::GetAlignment(m_pDeviceVulkan, vk::BufferUsageFlagBits::eTransferDst);
+  m_Size = WMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
 
   vk::BufferCreateInfo bufferCreateInfo;
   bufferCreateInfo.usage = vk::BufferUsageFlagBits::eTransferDst;
@@ -25,16 +25,16 @@ ezResult ezGALReadbackBufferVulkan::InitPlatform(ezGALDevice* pDevice)
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
   bufferCreateInfo.size = m_Size;
 
-  ezVulkanAllocationCreateInfo allocCreateInfo;
-  allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom | ezVulkanAllocationCreateFlags::Mapped;
+  WVulkanAllocationCreateInfo allocCreateInfo;
+  allocCreateInfo.m_usage = WVulkanMemoryUsage::Auto;
+  allocCreateInfo.m_flags = WVulkanAllocationCreateFlags::HostAccessRandom | WVulkanAllocationCreateFlags::Mapped;
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pAlloc, &m_AllocInfo));
+  VK_ASSERT_DEV(WMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pAlloc, &m_AllocInfo));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALReadbackBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALReadbackBufferVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
   if (m_Buffer)
   {
@@ -43,10 +43,10 @@ ezResult ezGALReadbackBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   m_Size = 0;
   m_pDeviceVulkan = nullptr;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALReadbackBufferVulkan::SetDebugNamePlatform(const char* szName) const
+void WGALReadbackBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_pDeviceVulkan->SetDebugName(szName, m_Buffer, m_pAlloc);
 }

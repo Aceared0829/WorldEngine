@@ -5,15 +5,15 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 /// Graphics pipeline state object combining shader, blend, depth-stencil, rasterizer state, and vertex declaration into a single object.
-class EZ_RENDERERFOUNDATION_DLL ezGALGraphicsPipeline : public ezGALObject<ezGALGraphicsPipelineCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALGraphicsPipeline : public WGALObject<WGALGraphicsPipelineCreationDescription>
 {
 public:
-  ezGALGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& description)
-    : ezGALObject<ezGALGraphicsPipelineCreationDescription>(description)
+  WGALGraphicsPipeline(const WGALGraphicsPipelineCreationDescription& description)
+    : WGALObject<WGALGraphicsPipelineCreationDescription>(description)
   {
   }
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
   virtual void SetDebugName(const char* szName) = 0;
 };

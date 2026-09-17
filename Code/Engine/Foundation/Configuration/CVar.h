@@ -6,25 +6,25 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
-class ezCVar;
+class WCVar;
 
-/// Describes of which type a CVar is. Use that info to cast an ezCVar* to the proper derived class.
-struct ezCVarType
+/// Describes of which type a CVar is. Use that info to cast an WCVar* to the proper derived class.
+struct WCVarType
 {
   enum Enum
   {
-    Int,    ///< Can cast the ezCVar* to ezCVarInt*
-    Float,  ///< Can cast the ezCVar* to ezCVarFloat*
-    Bool,   ///< Can cast the ezCVar* to ezCVarBool*
-    String, ///< Can cast the ezCVar* to ezCVarString*
+    Int,    ///< Can cast the WCVar* to WCVarInt*
+    Float,  ///< Can cast the WCVar* to WCVarFloat*
+    Bool,   ///< Can cast the WCVar* to WCVarBool*
+    String, ///< Can cast the WCVar* to WCVarString*
     ENUM_COUNT
   };
 };
 
-/// The flags that can be used on an ezCVar.
-struct ezCVarFlags
+/// The flags that can be used on an WCVar.
+struct WCVarFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -32,14 +32,14 @@ struct ezCVarFlags
 
     /// If this flag is set, the CVar will be stored on disk and loaded again.
     /// Otherwise all changes to it will be lost on shutdown.
-    Save = EZ_BIT(0),
+    Save = W_BIT(0),
 
     /// If the CVar value is changed, the new value will not be visible by default, until SetToDelayedSyncValue() is called on it.
     /// This allows to finalize the value change at a specific sync point in code.
-    /// When this flag is set the ezCVarEvent::DelayedSyncValueChanged will be broadcast.
-    RequiresDelayedSync = EZ_BIT(1),
+    /// When this flag is set the WCVarEvent::DelayedSyncValueChanged will be broadcast.
+    RequiresDelayedSync = W_BIT(1),
 
-    ShowRequiresRestartMsg = EZ_BIT(2),
+    ShowRequiresRestartMsg = W_BIT(2),
 
     /// Indicates that changing this CVar will only take effect after the proper subsystem has been reinitialized.
     /// This will always enforce the 'Save' flag as well.
@@ -58,12 +58,12 @@ struct ezCVarFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
+W_DECLARE_FLAGS_OPERATORS(WCVarFlags);
 
 /// The data that is broadcast whenever a cvar is changed.
-struct ezCVarEvent
+struct WCVarEvent
 {
-  ezCVarEvent(ezCVar* pCVar)
+  WCVarEvent(WCVar* pCVar)
     : m_pCVar(pCVar)
   {
   }
@@ -79,7 +79,7 @@ struct ezCVarEvent
   Type m_EventType = ValueChanged;
 
   /// Which CVar is involved. This is only for convenience, it is always the CVar on which the event is triggered.
-  ezCVar* m_pCVar;
+  WCVar* m_pCVar;
 };
 
 /// CVars are global variables that are used for configuring the engine.
@@ -105,9 +105,9 @@ struct ezCVarEvent
 /// might not support that without a restart.
 /// Finally all CVars broadcast events when their value is changed, which can be used to listen to certain CVars and react
 /// properly when their value changes.
-class EZ_FOUNDATION_DLL ezCVar : public ezEnumerable<ezCVar>
+class W_FOUNDATION_DLL WCVar : public WEnumerable<WCVar>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezCVar);
+  W_DECLARE_ENUMERABLE_CLASS(WCVar);
 
 public:
   /// Sets the path (folder) in which all CVar setting files should be stored.
@@ -116,10 +116,10 @@ public:
   /// so \a szFolder must not be a file name, but only a path to a folder.
   ///
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
-  static void SetStorageFolder(ezStringView sFolder); // [tested]
+  static void SetStorageFolder(WStringView sFolder); // [tested]
 
   /// Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-insensitive.
-  static ezCVar* FindCVarByName(ezStringView sName); // [tested]
+  static WCVar* FindCVarByName(WStringView sName); // [tested]
 
   /// Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.
   ///
@@ -131,10 +131,10 @@ public:
   /// Stores all CVar values into the given file.
   ///
   /// This function works without setting a storage folder.
-  /// If bIgnoreSaveFlag is set all CVars are saved whether they have the ezCVarFlags::Save set or not.
+  /// If bIgnoreSaveFlag is set all CVars are saved whether they have the WCVarFlags::Save set or not.
   ///
   /// \sa LoadCVarsFromFile()
-  static void SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag = false);
+  static void SaveCVarsToFile(WStringView sPath, bool bIgnoreSaveFlag = false);
 
   /// Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
@@ -158,7 +158,7 @@ public:
   ///
   ///
   /// \sa LoadCVarsFromCommandLine()
-  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
+  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, WDynamicArray<WCVar*>* pOutCVars = nullptr); // [tested]
 
   /// Loads all CVars from the given file. Does not account for any plug-in specific files.
   ///
@@ -175,11 +175,11 @@ public:
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
   /// stored in the 'DelayedSync' value.
   /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
-  /// If bIgnoreSaveFlag is set all CVars are loaded whether they have the ezCVarFlags::Save set or not.
+  /// If bIgnoreSaveFlag is set all CVars are loaded whether they have the WCVarFlags::Save set or not.
   ///
   /// \sa LoadCVarsFromCommandLine()
   /// \sa LoadCVarsFromFile()
-  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, bool bIgnoreSaveFlag = false, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
+  static void LoadCVarsFromFile(WStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, bool bIgnoreSaveFlag = false, WDynamicArray<WCVar*>* pOutCVars = nullptr);
 
   /// Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line.
   ///
@@ -189,7 +189,7 @@ public:
   ///
   /// \note A CVar will only ever be loaded once. This function should be called before LoadCVarsFromFile(),
   /// otherwise it could get flagged as 'already loaded' even if the value was never taken from file or command line.
-  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
+  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, WDynamicArray<WCVar*>* pOutCVars = nullptr); // [tested]
 
   /// Copies the 'DelayedSync' value into the 'Current' value.
   ///
@@ -199,59 +199,59 @@ public:
   virtual void SetToDelayedSyncValue() = 0; // [tested]
 
   /// Returns the (display) name of the CVar.
-  ezStringView GetName() const { return m_sName; } // [tested]
+  WStringView GetName() const { return m_sName; } // [tested]
 
   /// Returns the type of the CVar.
-  virtual ezCVarType::Enum GetType() const = 0; // [tested]
+  virtual WCVarType::Enum GetType() const = 0; // [tested]
 
   /// Returns the description of the CVar.
-  ezStringView GetDescription() const { return m_sDescription; } // [tested]
+  WStringView GetDescription() const { return m_sDescription; } // [tested]
 
   /// Returns all the CVar flags.
-  ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
+  WBitflags<WCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
-  using CVarEvents = ezEvent<const ezCVarEvent&, ezMutex, ezStaticsAllocatorWrapper>;
+  using CVarEvents = WEvent<const WCVarEvent&, WMutex, WStaticsAllocatorWrapper>;
 
   /// Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
   CVarEvents m_CVarEvents; // [tested]
 
   /// Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
-  static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
+  static WEvent<const WCVarEvent&> s_AllCVarEvents;
 
   /// Returns the name of the plugin which this CVar is declared in.
-  ezStringView GetPluginName() const { return m_sPluginName; }
+  WStringView GetPluginName() const { return m_sPluginName; }
 
   /// Call this after creating or destroying CVars dynamically (not through loading plugins) to allow UIs to update their state.
   ///
-  /// Broadcasts ezCVarEvent::ListOfVarsChanged.
-  static void ListOfCVarsChanged(ezStringView sSetPluginNameTo);
+  /// Broadcasts WCVarEvent::ListOfVarsChanged.
+  static void ListOfCVarsChanged(WStringView sSetPluginNameTo);
 
 protected:
-  ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription);
+  WCVar(WStringView sName, WBitflags<WCVarFlags> Flags, WStringView sDescription);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
-  static void AssignSubSystemPlugin(ezStringView sPluginName);
-  static void PluginEventHandler(const ezPluginEvent& EventData);
+  static void AssignSubSystemPlugin(WStringView sPluginName);
+  static void PluginEventHandler(const WPluginEvent& EventData);
 
-  /// Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
-  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+  /// Loads CVar values for the given vars from the given config file path. Returns the WCVars which have actually been loaded.
+  static void LoadCVarsFromFileInternal(WStringView path, const WDynamicArray<WCVar*>& vars, bool bSetAsCurrentValue, WDynamicArray<WCVar*>* pOutCVars);
 
   /// Stores the values of the given vars to the given config file path.
-  static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);
+  static void SaveCVarsToFileInternal(WStringView path, const WDynamicArray<WCVar*>& vars);
 
   bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
-  ezStringView m_sName;
-  ezStringView m_sDescription;
-  ezStringView m_sPluginName;
-  ezBitflags<ezCVarFlags> m_Flags;
+  WStringView m_sName;
+  WStringView m_sDescription;
+  WStringView m_sPluginName;
+  WBitflags<WCVarFlags> m_Flags;
 
-  static ezString s_sStorageFolder;
+  static WString s_sStorageFolder;
 };
 
 /// Each CVar stores several values internally. The 'Current' value is the most important one.
-struct ezCVarValue
+struct WCVarValue
 {
   enum Enum
   {
@@ -263,18 +263,18 @@ struct ezCVarValue
   };
 };
 
-/// [internal] Helper class to implement ezCVarInt, ezCVarFlag, ezCVarBool and ezCVarString.
-template <typename Type, ezCVarType::Enum CVarType>
-class ezTypedCVar : public ezCVar
+/// [internal] Helper class to implement WCVarInt, WCVarFlag, WCVarBool and WCVarString.
+template <typename Type, WCVarType::Enum CVarType>
+class WTypedCVar : public WCVar
 {
 public:
-  ezTypedCVar(ezStringView sName, const Type& value, ezBitflags<ezCVarFlags> flags, ezStringView sDescription);
+  WTypedCVar(WStringView sName, const Type& value, WBitflags<WCVarFlags> flags, WStringView sDescription);
 
-  /// Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
+  /// Returns the 'current' value of the CVar. Same as 'GetValue(WCVarValue::Current)'
   operator const Type&() const; // [tested]
 
   /// Returns the internal values of the CVar.
-  const Type& GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const; // [tested]
+  const Type& GetValue(WCVarValue::Enum val = WCVarValue::Current) const; // [tested]
 
   /// Changes the CVar's value and broadcasts the proper events.
   ///
@@ -282,32 +282,32 @@ public:
   /// In that case only the 'DelayedSync' value is modified.
   void operator=(const Type& value); // [tested]
 
-  virtual ezCVarType::Enum GetType() const override;
+  virtual WCVarType::Enum GetType() const override;
   virtual void SetToDelayedSyncValue() override;
 
   /// Checks whether a new value was set and now won't be visible until SetToDelayedSyncValue() is called.
   bool HasDelayedSyncValueChanged() const
   {
-    return m_Values[ezCVarValue::Current] != m_Values[ezCVarValue::DelayedSync];
+    return m_Values[WCVarValue::Current] != m_Values[WCVarValue::DelayedSync];
   }
 
 private:
-  friend class ezCVar;
+  friend class WCVar;
 
-  Type m_Values[ezCVarValue::ENUM_COUNT];
+  Type m_Values[WCVarValue::ENUM_COUNT];
 };
 
 /// A CVar that stores a float value.
-using ezCVarFloat = ezTypedCVar<float, ezCVarType::Float>;
+using WCVarFloat = WTypedCVar<float, WCVarType::Float>;
 
 /// A CVar that stores a bool value.
-using ezCVarBool = ezTypedCVar<bool, ezCVarType::Bool>;
+using WCVarBool = WTypedCVar<bool, WCVarType::Bool>;
 
 /// A CVar that stores an int value.
-using ezCVarInt = ezTypedCVar<int, ezCVarType::Int>;
+using WCVarInt = WTypedCVar<int, WCVarType::Int>;
 
 /// A CVar that stores a string.
-using ezCVarString = ezTypedCVar<ezHybridString<32>, ezCVarType::String>;
+using WCVarString = WTypedCVar<WHybridString<32>, WCVarType::String>;
 
 
 

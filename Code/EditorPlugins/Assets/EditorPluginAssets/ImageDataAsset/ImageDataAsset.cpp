@@ -4,64 +4,64 @@
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WImageDataAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezImageDataAssetDocument::ezImageDataAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezImageDataAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
+WImageDataAssetDocument::WImageDataAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WImageDataAssetProperties>(sDocumentPath, WAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezImageDataAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WImageDataAssetDocument::InternalTransformAsset(const char* szTargetFile, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
+  const bool bUpdateThumbnail = pAssetProfile == WAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
-  ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+  WStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
-  ezFileStats stat;
-  if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+  WFileStats stat;
+  if (WOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
-    result = ezStatus(ezFmt("File does not exist: {}", szTargetFile));
+    WOSFile::DeleteFile(szTargetFile).IgnoreResult();
+    result = WStatus(WFmt("File does not exist: {}", szTargetFile));
   }
 
   if (result.Succeeded())
   {
-    ezImageDataAssetEvent e;
-    e.m_Type = ezImageDataAssetEvent::Type::Transformed;
+    WImageDataAssetEvent e;
+    e.m_Type = WImageDataAssetEvent::Type::Transformed;
     m_Events.Broadcast(e);
   }
 
   return result;
 }
 
-ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
+WStatus WImageDataAssetDocument::RunTexConv(const char* szTargetFile, const WAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
-  const ezImageDataAssetProperties* pProp = GetProperties();
+  const WImageDataAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
-  ezStringBuilder temp;
+  WStringBuilder temp;
 
   // Asset Version
   {
     arguments << "-assetVersion";
-    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
+    arguments << WConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
   }
 
   // Asset Hash
   {
-    const ezUInt64 uiHash64 = AssetHeader.GetFileHash();
-    const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
-    const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
+    const WUInt64 uiHash64 = AssetHeader.GetFileHash();
+    const WUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
+    const WUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", WArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -70,13 +70,13 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
   arguments << "-out";
   arguments << szTargetFile;
 
-  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
+  const WStringBuilder sThumbnail = GetThumbnailFilePath();
 
   if (bUpdateThumbnail)
   {
     // Thumbnail
-    const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
+    const WStringBuilder sDir = sThumbnail.GetFileDirectory();
+    WOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
     arguments << "-thumbnailRes";
     arguments << "256";
@@ -103,12 +103,12 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
   {
     arguments << "-in0";
 
-    ezStringBuilder sPath = pProp->m_sInputFile;
+    WStringBuilder sPath = pProp->m_sInputFile;
     sPath.MakeCleanPath();
 
     if (!sPath.IsAbsolutePath())
     {
-      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+      WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
     }
 
     arguments << QString(sPath.GetData());
@@ -117,12 +117,12 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
   arguments << "-rgba";
   arguments << "in0.rgba";
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  W_SUCCEED_OR_RETURN(WQtEditorApp::GetSingleton()->ExecuteTool("WTexConv", arguments, 180, WLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
-    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
+    WUInt64 uiThumbnailHash = WAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
+    W_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
     thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
@@ -130,5 +130,5 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
     InvalidateAssetThumbnail();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }

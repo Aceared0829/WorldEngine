@@ -8,8 +8,8 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpRttiTool, 1, ezRTTIDefaultAllocator<ezMcpRttiTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpRttiTool, 1, WRTTIDefaultAllocator<WMcpRttiTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
@@ -18,31 +18,31 @@ namespace
   /// reflected types, and an unfiltered query would otherwise fill the client's context with names it
   /// did not ask for. Every listing reports the total number of matches alongside, so the agent can
   /// tell 'this is all of them' from 'narrow your filter'.
-  constexpr ezUInt32 s_uiMaxResults = 200;
+  constexpr WUInt32 s_uiMaxResults = 200;
 
-  bool NameMatches(const ezRTTI* pType, ezStringView sFilter)
+  bool NameMatches(const WRTTI* pType, WStringView sFilter)
   {
     return sFilter.IsEmpty() || pType->GetTypeName().FindSubString_NoCase(sFilter) != nullptr;
   }
 } // namespace
 
-void ezMcpRttiTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpRttiTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "rtti_find_types";
     desc.m_sDescription = "Searches the reflected C++ types by name and returns only the matching type names. This is the entry "
                           "point into the reflection data: narrow down to a few names here, then use rtti_type_info or "
                           "rtti_type_properties on those. Results are capped, but the total number of matches is reported.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
                           R"("name":{"type":"string","description":"Only return types whose name contains this text, case insensitive. Empty returns everything, which is a lot."},)"
-                          R"("derivedFrom":{"type":"string","description":"Only return types deriving from this type, e.g. 'ezComponent'."},)"
+                          R"("derivedFrom":{"type":"string","description":"Only return types deriving from this type, e.g. 'WComponent'."},)"
                           R"("concreteOnly":{"type":"boolean","description":"If true, exclude abstract types and types that cannot be allocated. Default false."})"
                           R"(}})";
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "rtti_type_info";
     desc.m_sDescription = "Returns the details of one reflected type: its parent type, the plugin it comes from, its type flags, "
                           "its attributes, and its callable functions with full signatures. Where the type has them, also the "
@@ -50,12 +50,12 @@ void ezMcpRttiTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
                           "what the type is actually for. Deliberately does NOT include the property list - use "
                           "rtti_type_properties for that.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
-                          R"("name":{"type":"string","description":"The exact type name, e.g. 'ezMeshComponent'."})"
+                          R"("name":{"type":"string","description":"The exact type name, e.g. 'WMeshComponent'."})"
                           R"(},"required":["name"]})";
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "rtti_type_properties";
     desc.m_sDescription = "Returns the reflected properties of one type, with their value type, category (member, array, set, "
                           "map, constant), flags and attributes. This is what tells you the exact property names and value "
@@ -63,24 +63,24 @@ void ezMcpRttiTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
                           "the label the editor shows and a description of what the property does - the latter exists nowhere "
                           "else, so consult it before guessing from a name.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
-                          R"("name":{"type":"string","description":"The exact type name, e.g. 'ezMeshComponent'."},)"
+                          R"("name":{"type":"string","description":"The exact type name, e.g. 'WMeshComponent'."},)"
                           R"("recursive":{"type":"boolean","description":"If true, also include the properties inherited from base types. Default false, which returns only the type's own properties."})"
                           R"(},"required":["name"]})";
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "rtti_derived_types";
     desc.m_sDescription = "Returns the names of all types deriving from the given type. Use this to answer questions like which "
-                          "component types exist ('ezComponent') or which types can go into a specific property.";
+                          "component types exist ('WComponent') or which types can go into a specific property.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
-                          R"("name":{"type":"string","description":"The exact base type name, e.g. 'ezComponent'."},)"
+                          R"("name":{"type":"string","description":"The exact base type name, e.g. 'WComponent'."},)"
                           R"("concreteOnly":{"type":"boolean","description":"If true, exclude abstract types and types that cannot be allocated. Default false."})"
                           R"(},"required":["name"]})";
   }
 }
 
-void ezMcpRttiTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpRttiTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "rtti_find_types")
     ExecuteFindTypes(arguments, out_result);
@@ -92,31 +92,31 @@ void ezMcpRttiTool::Execute(ezStringView sToolName, const ezVariantDictionary& a
     ExecuteDerivedTypes(arguments, out_result);
 }
 
-void ezMcpRttiTool::WriteTypeFlags(ezMcpJsonWriter& ref_writer, const ezRTTI* pType)
+void WMcpRttiTool::WriteTypeFlags(WMcpJsonWriter& ref_writer, const WRTTI* pType)
 {
-  const ezBitflags<ezTypeFlags>& flags = pType->GetTypeFlags();
+  const WBitflags<WTypeFlags>& flags = pType->GetTypeFlags();
 
   ref_writer.BeginArray("flags");
 
-  if (flags.IsSet(ezTypeFlags::StandardType))
+  if (flags.IsSet(WTypeFlags::StandardType))
     ref_writer.WriteString("StandardType");
-  if (flags.IsSet(ezTypeFlags::IsEnum))
+  if (flags.IsSet(WTypeFlags::IsEnum))
     ref_writer.WriteString("IsEnum");
-  if (flags.IsSet(ezTypeFlags::Bitflags))
+  if (flags.IsSet(WTypeFlags::Bitflags))
     ref_writer.WriteString("Bitflags");
-  if (flags.IsSet(ezTypeFlags::Class))
+  if (flags.IsSet(WTypeFlags::Class))
     ref_writer.WriteString("Class");
-  if (flags.IsSet(ezTypeFlags::Abstract))
+  if (flags.IsSet(WTypeFlags::Abstract))
     ref_writer.WriteString("Abstract");
-  if (flags.IsSet(ezTypeFlags::Phantom))
+  if (flags.IsSet(WTypeFlags::Phantom))
     ref_writer.WriteString("Phantom");
-  if (flags.IsSet(ezTypeFlags::Minimal))
+  if (flags.IsSet(WTypeFlags::Minimal))
     ref_writer.WriteString("Minimal");
 
   ref_writer.EndArray();
 }
 
-void ezMcpRttiTool::WritePropertyFlags(ezMcpJsonWriter& ref_writer, ezStringView sName, ezBitflags<ezPropertyFlags> flags)
+void WMcpRttiTool::WritePropertyFlags(WMcpJsonWriter& ref_writer, WStringView sName, WBitflags<WPropertyFlags> flags)
 {
   // An empty flag array says nothing that its absence does not, and these repeat for every argument of
   // every function - which is exactly the token cost the split-tool design exists to avoid.
@@ -125,44 +125,44 @@ void ezMcpRttiTool::WritePropertyFlags(ezMcpJsonWriter& ref_writer, ezStringView
 
   ref_writer.BeginArray(sName);
 
-  if (flags.IsSet(ezPropertyFlags::StandardType))
+  if (flags.IsSet(WPropertyFlags::StandardType))
     ref_writer.WriteString("StandardType");
-  if (flags.IsSet(ezPropertyFlags::IsEnum))
+  if (flags.IsSet(WPropertyFlags::IsEnum))
     ref_writer.WriteString("IsEnum");
-  if (flags.IsSet(ezPropertyFlags::Bitflags))
+  if (flags.IsSet(WPropertyFlags::Bitflags))
     ref_writer.WriteString("Bitflags");
-  if (flags.IsSet(ezPropertyFlags::Class))
+  if (flags.IsSet(WPropertyFlags::Class))
     ref_writer.WriteString("Class");
-  if (flags.IsSet(ezPropertyFlags::Const))
+  if (flags.IsSet(WPropertyFlags::Const))
     ref_writer.WriteString("Const");
-  if (flags.IsSet(ezPropertyFlags::Reference))
+  if (flags.IsSet(WPropertyFlags::Reference))
     ref_writer.WriteString("Reference");
-  if (flags.IsSet(ezPropertyFlags::Pointer))
+  if (flags.IsSet(WPropertyFlags::Pointer))
     ref_writer.WriteString("Pointer");
-  if (flags.IsSet(ezPropertyFlags::PointerOwner))
+  if (flags.IsSet(WPropertyFlags::PointerOwner))
     ref_writer.WriteString("PointerOwner");
-  if (flags.IsSet(ezPropertyFlags::ReadOnly))
+  if (flags.IsSet(WPropertyFlags::ReadOnly))
     ref_writer.WriteString("ReadOnly");
-  if (flags.IsSet(ezPropertyFlags::Hidden))
+  if (flags.IsSet(WPropertyFlags::Hidden))
     ref_writer.WriteString("Hidden");
-  if (flags.IsSet(ezPropertyFlags::Phantom))
+  if (flags.IsSet(WPropertyFlags::Phantom))
     ref_writer.WriteString("Phantom");
-  if (flags.IsSet(ezPropertyFlags::VarOut))
+  if (flags.IsSet(WPropertyFlags::VarOut))
     ref_writer.WriteString("VarOut");
-  if (flags.IsSet(ezPropertyFlags::VarInOut))
+  if (flags.IsSet(WPropertyFlags::VarInOut))
     ref_writer.WriteString("VarInOut");
 
   ref_writer.EndArray();
 }
 
-void ezMcpRttiTool::WriteAttributes(ezMcpJsonWriter& ref_writer, ezArrayPtr<const ezPropertyAttribute* const> attributes)
+void WMcpRttiTool::WriteAttributes(WMcpJsonWriter& ref_writer, WArrayPtr<const WPropertyAttribute* const> attributes)
 {
   if (attributes.IsEmpty())
     return;
 
   ref_writer.BeginArray("attributes");
 
-  for (const ezPropertyAttribute* pAttr : attributes)
+  for (const WPropertyAttribute* pAttr : attributes)
   {
     if (pAttr == nullptr)
       continue;
@@ -173,65 +173,65 @@ void ezMcpRttiTool::WriteAttributes(ezMcpJsonWriter& ref_writer, ezArrayPtr<cons
   ref_writer.EndArray();
 }
 
-const ezPropertyAttribute* ezMcpRttiTool::GetAttributeFromVariant(const ezVariant& value)
+const WPropertyAttribute* WMcpRttiTool::GetAttributeFromVariant(const WVariant& value)
 {
-  if (value.GetType() != ezVariant::Type::TypedPointer)
+  if (value.GetType() != WVariant::Type::TypedPointer)
     return nullptr;
 
-  const ezTypedPointer ptr = value.Get<ezTypedPointer>();
+  const WTypedPointer ptr = value.Get<WTypedPointer>();
 
   if (ptr.m_pObject == nullptr || ptr.m_pType == nullptr)
     return nullptr;
 
-  if (!ptr.m_pType->IsDerivedFrom<ezPropertyAttribute>())
+  if (!ptr.m_pType->IsDerivedFrom<WPropertyAttribute>())
     return nullptr;
 
-  return static_cast<const ezPropertyAttribute*>(ptr.m_pObject);
+  return static_cast<const WPropertyAttribute*>(ptr.m_pObject);
 }
 
-void ezMcpRttiTool::WriteAttribute(ezMcpJsonWriter& ref_writer, const ezPropertyAttribute* pAttr)
+void WMcpRttiTool::WriteAttribute(WMcpJsonWriter& ref_writer, const WPropertyAttribute* pAttr)
 {
   {
-    const ezRTTI* pAttrType = pAttr->GetDynamicRTTI();
+    const WRTTI* pAttrType = pAttr->GetDynamicRTTI();
 
     ref_writer.BeginObject();
     ref_writer.AddVariableString("type", pAttrType->GetTypeName());
 
     // An attribute's own reflected members carry the interesting part - the clamp range of an
-    // ezClampValueAttribute, the type filter of an ezAssetBrowserAttribute. They are read generically,
+    // WClampValueAttribute, the type filter of an WAssetBrowserAttribute. They are read generically,
     // so attributes added later show up here without this tool knowing about them.
-    for (const ezAbstractProperty* pProp : pAttrType->GetProperties())
+    for (const WAbstractProperty* pProp : pAttrType->GetProperties())
     {
-      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      if (pProp->GetCategory() == WPropertyCategory::Member)
       {
-        const ezVariant value = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pAttr);
+        const WVariant value = WReflectionUtils::GetMemberPropertyValue(static_cast<const WAbstractMemberProperty*>(pProp), pAttr);
 
         if (value.IsValid())
         {
           ref_writer.AddVariableVariant(pProp->GetPropertyName(), value);
         }
       }
-      else if (pProp->GetCategory() == ezPropertyCategory::Array)
+      else if (pProp->GetCategory() == WPropertyCategory::Array)
       {
-        // Attributes such as ezContainerAttribute keep their payload in an array. Skipping those would
+        // Attributes such as WContainerAttribute keep their payload in an array. Skipping those would
         // silently drop the only interesting part of the attribute.
-        const ezAbstractArrayProperty* pArray = static_cast<const ezAbstractArrayProperty*>(pProp);
+        const WAbstractArrayProperty* pArray = static_cast<const WAbstractArrayProperty*>(pProp);
 
-        const ezUInt32 uiCount = pArray->GetCount(pAttr);
+        const WUInt32 uiCount = pArray->GetCount(pAttr);
 
         if (uiCount == 0)
           continue;
 
         ref_writer.BeginArray(pProp->GetPropertyName());
 
-        for (ezUInt32 uiIndex = 0; uiIndex < uiCount; ++uiIndex)
+        for (WUInt32 uiIndex = 0; uiIndex < uiCount; ++uiIndex)
         {
-          const ezVariant value = ezReflectionUtils::GetArrayPropertyValue(pArray, pAttr, uiIndex);
+          const WVariant value = WReflectionUtils::GetArrayPropertyValue(pArray, pAttr, uiIndex);
 
-          // An attribute nested inside another one - ezFunctionArgumentAttributes holds the attributes
+          // An attribute nested inside another one - WFunctionArgumentAttributes holds the attributes
           // of a single function argument this way. Writing it as a plain variant would report only its
-          // type and drop the members, which for an ezDefaultValueAttribute is the entire content.
-          if (const ezPropertyAttribute* pNested = GetAttributeFromVariant(value))
+          // type and drop the members, which for an WDefaultValueAttribute is the entire content.
+          if (const WPropertyAttribute* pNested = GetAttributeFromVariant(value))
           {
             WriteAttribute(ref_writer, pNested);
           }
@@ -249,7 +249,7 @@ void ezMcpRttiTool::WriteAttribute(ezMcpJsonWriter& ref_writer, const ezProperty
   }
 }
 
-void ezMcpRttiTool::WriteProperty(ezMcpJsonWriter& ref_writer, const ezRTTI* pOwnerType, const ezAbstractProperty* pProp)
+void WMcpRttiTool::WriteProperty(WMcpJsonWriter& ref_writer, const WRTTI* pOwnerType, const WAbstractProperty* pProp)
 {
   ref_writer.BeginObject();
 
@@ -257,30 +257,30 @@ void ezMcpRttiTool::WriteProperty(ezMcpJsonWriter& ref_writer, const ezRTTI* pOw
 
   // The label the property grid shows, which is not always the property name, and the text behind its
   // tooltip - the only description of what the property does that exists anywhere in the data.
-  ezMcpTranslation::AddOptionalString(ref_writer, "displayName", ezMcpTranslation::GetPropertyDisplayName(pOwnerType, pProp->GetPropertyName()));
-  ezMcpTranslation::AddOptionalString(ref_writer, "description", ezMcpTranslation::GetPropertyTooltip(pOwnerType, pProp->GetPropertyName()));
+  WMcpTranslation::AddOptionalString(ref_writer, "displayName", WMcpTranslation::GetPropertyDisplayName(pOwnerType, pProp->GetPropertyName()));
+  WMcpTranslation::AddOptionalString(ref_writer, "description", WMcpTranslation::GetPropertyTooltip(pOwnerType, pProp->GetPropertyName()));
 
-  const ezRTTI* pPropType = pProp->GetSpecificType();
-  ref_writer.AddVariableString("type", pPropType != nullptr ? pPropType->GetTypeName() : ezStringView());
+  const WRTTI* pPropType = pProp->GetSpecificType();
+  ref_writer.AddVariableString("type", pPropType != nullptr ? pPropType->GetTypeName() : WStringView());
 
   switch (pProp->GetCategory())
   {
-    case ezPropertyCategory::Constant:
+    case WPropertyCategory::Constant:
       ref_writer.AddVariableString("category", "constant");
       break;
-    case ezPropertyCategory::Member:
+    case WPropertyCategory::Member:
       ref_writer.AddVariableString("category", "member");
       break;
-    case ezPropertyCategory::Function:
+    case WPropertyCategory::Function:
       ref_writer.AddVariableString("category", "function");
       break;
-    case ezPropertyCategory::Array:
+    case WPropertyCategory::Array:
       ref_writer.AddVariableString("category", "array");
       break;
-    case ezPropertyCategory::Set:
+    case WPropertyCategory::Set:
       ref_writer.AddVariableString("category", "set");
       break;
-    case ezPropertyCategory::Map:
+    case WPropertyCategory::Map:
       ref_writer.AddVariableString("category", "map");
       break;
     default:
@@ -288,29 +288,29 @@ void ezMcpRttiTool::WriteProperty(ezMcpJsonWriter& ref_writer, const ezRTTI* pOw
       break;
   }
 
-  const ezBitflags<ezPropertyFlags>& flags = pProp->GetFlags();
+  const WBitflags<WPropertyFlags>& flags = pProp->GetFlags();
 
   WritePropertyFlags(ref_writer, "flags", flags);
 
   // For enum and bitflags properties the valid values are the constants of the value type, and without
   // them the agent has no way to know what may be assigned.
-  if (flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && pPropType != nullptr)
+  if (flags.IsAnySet(WPropertyFlags::IsEnum | WPropertyFlags::Bitflags) && pPropType != nullptr)
   {
     ref_writer.BeginArray("enumValues");
 
-    for (const ezAbstractProperty* pConstant : pPropType->GetProperties())
+    for (const WAbstractProperty* pConstant : pPropType->GetProperties())
     {
-      if (pConstant->GetCategory() != ezPropertyCategory::Constant)
+      if (pConstant->GetCategory() != WPropertyCategory::Constant)
         continue;
 
       ref_writer.BeginObject();
       ref_writer.AddVariableString("name", pConstant->GetPropertyName());
 
-      // An enum constant is registered under its fully qualified name ('ezDecalMode::BaseColorORM'),
+      // An enum constant is registered under its fully qualified name ('WDecalMode::BaseColorORM'),
       // which is also the translation key, so no owner type is needed here.
-      ezMcpTranslation::AddOptionalString(ref_writer, "displayName", ezMcpTranslation::GetDisplayName(pConstant->GetPropertyName()));
+      WMcpTranslation::AddOptionalString(ref_writer, "displayName", WMcpTranslation::GetDisplayName(pConstant->GetPropertyName()));
 
-      ref_writer.AddVariableVariant("value", static_cast<const ezAbstractConstantProperty*>(pConstant)->GetConstant());
+      ref_writer.AddVariableVariant("value", static_cast<const WAbstractConstantProperty*>(pConstant)->GetConstant());
       ref_writer.EndObject();
     }
 
@@ -322,7 +322,7 @@ void ezMcpRttiTool::WriteProperty(ezMcpJsonWriter& ref_writer, const ezRTTI* pOw
   ref_writer.EndObject();
 }
 
-void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractFunctionProperty* pFunc)
+void WMcpRttiTool::WriteFunction(WMcpJsonWriter& ref_writer, const WAbstractFunctionProperty* pFunc)
 {
   ref_writer.BeginObject();
 
@@ -330,13 +330,13 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
 
   switch (pFunc->GetFunctionType())
   {
-    case ezFunctionType::Member:
+    case WFunctionType::Member:
       ref_writer.AddVariableString("functionType", "member");
       break;
-    case ezFunctionType::StaticMember:
+    case WFunctionType::StaticMember:
       ref_writer.AddVariableString("functionType", "static");
       break;
-    case ezFunctionType::Constructor:
+    case WFunctionType::Constructor:
       ref_writer.AddVariableString("functionType", "constructor");
       break;
     default:
@@ -345,8 +345,8 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
   }
 
   // A null return type means void, which is not a reflected type of its own.
-  const ezRTTI* pReturnType = pFunc->GetReturnType();
-  ref_writer.AddVariableString("returnType", pReturnType != nullptr ? pReturnType->GetTypeName() : "void"_ezsv);
+  const WRTTI* pReturnType = pFunc->GetReturnType();
+  ref_writer.AddVariableString("returnType", pReturnType != nullptr ? pReturnType->GetTypeName() : "void"_wsv);
 
   if (pReturnType != nullptr)
   {
@@ -355,14 +355,14 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
 
   // Functions exposed to scripting carry the argument names, which the reflection data itself does not
   // hold - without them the arguments would only be identifiable by position.
-  const ezScriptableFunctionAttribute* pScriptable = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+  const WScriptableFunctionAttribute* pScriptable = pFunc->GetAttributeByType<WScriptableFunctionAttribute>();
 
   if (pScriptable != nullptr)
   {
     ref_writer.AddVariableBool("scriptable", true);
   }
 
-  const ezUInt32 uiArgCount = pFunc->GetArgumentCount();
+  const WUInt32 uiArgCount = pFunc->GetArgumentCount();
 
   if (uiArgCount == 0)
   {
@@ -372,7 +372,7 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
   }
 
   ref_writer.BeginArray("arguments");
-  for (ezUInt32 uiArg = 0; uiArg < uiArgCount; ++uiArg)
+  for (WUInt32 uiArg = 0; uiArg < uiArgCount; ++uiArg)
   {
     ref_writer.BeginObject();
 
@@ -381,8 +381,8 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
       ref_writer.AddVariableString("name", pScriptable->GetArgumentName(uiArg));
     }
 
-    const ezRTTI* pArgType = pFunc->GetArgumentType(uiArg);
-    ref_writer.AddVariableString("type", pArgType != nullptr ? pArgType->GetTypeName() : ezStringView());
+    const WRTTI* pArgType = pFunc->GetArgumentType(uiArg);
+    ref_writer.AddVariableString("type", pArgType != nullptr ? pArgType->GetTypeName() : WStringView());
 
     // The flags say whether the argument is an out or inout parameter, which decides whether a caller
     // has to pass a value in at all.
@@ -397,31 +397,31 @@ void ezMcpRttiTool::WriteFunction(ezMcpJsonWriter& ref_writer, const ezAbstractF
   ref_writer.EndObject();
 }
 
-void ezMcpRttiTool::ExecuteFindTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpRttiTool::ExecuteFindTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
-  const ezStringView sDerivedFrom = ezMcpJson::GetString(arguments, "derivedFrom");
-  const bool bConcreteOnly = ezMcpJson::GetBool(arguments, "concreteOnly", false);
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
+  const WStringView sDerivedFrom = WMcpJson::GetString(arguments, "derivedFrom");
+  const bool bConcreteOnly = WMcpJson::GetBool(arguments, "concreteOnly", false);
 
-  const ezRTTI* pBaseType = nullptr;
+  const WRTTI* pBaseType = nullptr;
 
   if (!sDerivedFrom.IsEmpty())
   {
-    pBaseType = ezRTTI::FindTypeByName(sDerivedFrom);
+    pBaseType = WRTTI::FindTypeByName(sDerivedFrom);
 
     if (pBaseType == nullptr)
     {
-      out_result.SetError(ezStringBuilder("Unknown type '", sDerivedFrom, "' passed as 'derivedFrom'. Use rtti_find_types without it to search for the correct name."));
+      out_result.SetError(WStringBuilder("Unknown type '", sDerivedFrom, "' passed as 'derivedFrom'. Use rtti_find_types without it to search for the correct name."));
       return;
     }
   }
 
-  const ezBitflags<ezRTTI::ForEachOptions> options = bConcreteOnly ? ezRTTI::ForEachOptions::ExcludeNotConcrete : ezRTTI::ForEachOptions::Default;
+  const WBitflags<WRTTI::ForEachOptions> options = bConcreteOnly ? WRTTI::ForEachOptions::ExcludeNotConcrete : WRTTI::ForEachOptions::Default;
 
-  ezUInt32 uiTotalMatches = 0;
-  ezHybridArray<ezStringView, 32> names;
+  WUInt32 uiTotalMatches = 0;
+  WHybridArray<WStringView, 32> names;
 
-  auto visitor = [&](const ezRTTI* pType)
+  auto visitor = [&](const WRTTI* pType)
   {
     if (!NameMatches(pType, sName))
       return;
@@ -436,14 +436,14 @@ void ezMcpRttiTool::ExecuteFindTypes(const ezVariantDictionary& arguments, ezMcp
 
   if (pBaseType != nullptr)
   {
-    ezRTTI::ForEachDerivedType(pBaseType, visitor, options);
+    WRTTI::ForEachDerivedType(pBaseType, visitor, options);
   }
   else
   {
-    ezRTTI::ForEachType(visitor, options);
+    WRTTI::ForEachType(visitor, options);
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableUInt32("totalMatches", uiTotalMatches);
@@ -451,7 +451,7 @@ void ezMcpRttiTool::ExecuteFindTypes(const ezVariantDictionary& arguments, ezMcp
   writer.AddVariableBool("truncated", uiTotalMatches > names.GetCount());
 
   writer.BeginArray("types");
-  for (ezStringView sTypeName : names)
+  for (WStringView sTypeName : names)
   {
     writer.WriteString(sTypeName);
   }
@@ -462,9 +462,9 @@ void ezMcpRttiTool::ExecuteFindTypes(const ezVariantDictionary& arguments, ezMcp
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpRttiTool::ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpRttiTool::ExecuteTypeInfo(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
 
   if (sName.IsEmpty())
   {
@@ -472,15 +472,15 @@ void ezMcpRttiTool::ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
-  const ezRTTI* pType = ezRTTI::FindTypeByName(sName);
+  const WRTTI* pType = WRTTI::FindTypeByName(sName);
 
   if (pType == nullptr)
   {
-    out_result.SetError(ezStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
+    out_result.SetError(WStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
     return;
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("name", pType->GetTypeName());
@@ -488,18 +488,18 @@ void ezMcpRttiTool::ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpT
   // The two things reflection cannot express: what the user sees this type called in the editor UI, and
   // a link to prose about what it is for. Both are keyed on the type name, the same way asset types are,
   // so a component type carries them just as an asset type does.
-  ezMcpTranslation::AddOptionalString(writer, "displayName", ezMcpTranslation::GetDisplayName(pType->GetTypeName()));
-  ezMcpTranslation::AddOptionalString(writer, "helpUrl", ezMcpTranslation::GetHelpURL(pType->GetTypeName()));
+  WMcpTranslation::AddOptionalString(writer, "displayName", WMcpTranslation::GetDisplayName(pType->GetTypeName()));
+  WMcpTranslation::AddOptionalString(writer, "helpUrl", WMcpTranslation::GetHelpURL(pType->GetTypeName()));
 
-  const ezRTTI* pParent = pType->GetParentType();
-  writer.AddVariableString("parentType", pParent != nullptr ? pParent->GetTypeName() : ezStringView());
+  const WRTTI* pParent = pType->GetParentType();
+  writer.AddVariableString("parentType", pParent != nullptr ? pParent->GetTypeName() : WStringView());
 
   writer.AddVariableString("plugin", pType->GetPluginName());
   writer.AddVariableUInt32("typeVersion", pType->GetTypeVersion());
 
-  // Whether ezRTTI can construct one. False for abstract types, and for types that are only registered
+  // Whether WRTTI can construct one. False for abstract types, and for types that are only registered
   // for their property information.
-  const ezRTTIAllocator* pAllocator = pType->GetAllocator();
+  const WRTTIAllocator* pAllocator = pType->GetAllocator();
   writer.AddVariableBool("canAllocate", pAllocator != nullptr && pAllocator->CanAllocate());
 
   WriteTypeFlags(writer, pType);
@@ -508,12 +508,12 @@ void ezMcpRttiTool::ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpT
   // tells the agent whether calling rtti_type_properties is worth it.
   writer.AddVariableUInt32("numOwnProperties", pType->GetProperties().GetCount());
 
-  ezDynamicArray<const ezAbstractProperty*> allProps;
+  WDynamicArray<const WAbstractProperty*> allProps;
   pType->GetAllProperties(allProps);
   writer.AddVariableUInt32("numAllProperties", allProps.GetCount());
 
   writer.BeginArray("functions");
-  for (const ezAbstractFunctionProperty* pFunc : pType->GetFunctions())
+  for (const WAbstractFunctionProperty* pFunc : pType->GetFunctions())
   {
     WriteFunction(writer, pFunc);
   }
@@ -526,10 +526,10 @@ void ezMcpRttiTool::ExecuteTypeInfo(const ezVariantDictionary& arguments, ezMcpT
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpRttiTool::ExecuteTypeProperties(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpRttiTool::ExecuteTypeProperties(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
-  const bool bRecursive = ezMcpJson::GetBool(arguments, "recursive", false);
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
+  const bool bRecursive = WMcpJson::GetBool(arguments, "recursive", false);
 
   if (sName.IsEmpty())
   {
@@ -537,15 +537,15 @@ void ezMcpRttiTool::ExecuteTypeProperties(const ezVariantDictionary& arguments, 
     return;
   }
 
-  const ezRTTI* pType = ezRTTI::FindTypeByName(sName);
+  const WRTTI* pType = WRTTI::FindTypeByName(sName);
 
   if (pType == nullptr)
   {
-    out_result.SetError(ezStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
+    out_result.SetError(WStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
     return;
   }
 
-  ezDynamicArray<const ezAbstractProperty*> properties;
+  WDynamicArray<const WAbstractProperty*> properties;
 
   if (bRecursive)
   {
@@ -557,14 +557,14 @@ void ezMcpRttiTool::ExecuteTypeProperties(const ezVariantDictionary& arguments, 
     properties = pType->GetProperties();
   }
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("name", pType->GetTypeName());
   writer.AddVariableBool("recursive", bRecursive);
 
   writer.BeginArray("properties");
-  for (const ezAbstractProperty* pProp : properties)
+  for (const WAbstractProperty* pProp : properties)
   {
     WriteProperty(writer, pType, pProp);
   }
@@ -575,10 +575,10 @@ void ezMcpRttiTool::ExecuteTypeProperties(const ezVariantDictionary& arguments, 
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpRttiTool::ExecuteDerivedTypes(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sName = ezMcpJson::GetString(arguments, "name");
-  const bool bConcreteOnly = ezMcpJson::GetBool(arguments, "concreteOnly", false);
+  const WStringView sName = WMcpJson::GetString(arguments, "name");
+  const bool bConcreteOnly = WMcpJson::GetBool(arguments, "concreteOnly", false);
 
   if (sName.IsEmpty())
   {
@@ -586,20 +586,20 @@ void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ez
     return;
   }
 
-  const ezRTTI* pType = ezRTTI::FindTypeByName(sName);
+  const WRTTI* pType = WRTTI::FindTypeByName(sName);
 
   if (pType == nullptr)
   {
-    out_result.SetError(ezStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
+    out_result.SetError(WStringBuilder("Unknown type '", sName, "'. Type names are case sensitive - use rtti_find_types to search for the correct name."));
     return;
   }
 
-  const ezBitflags<ezRTTI::ForEachOptions> options = bConcreteOnly ? ezRTTI::ForEachOptions::ExcludeNotConcrete : ezRTTI::ForEachOptions::Default;
+  const WBitflags<WRTTI::ForEachOptions> options = bConcreteOnly ? WRTTI::ForEachOptions::ExcludeNotConcrete : WRTTI::ForEachOptions::Default;
 
-  ezUInt32 uiTotalMatches = 0;
-  ezHybridArray<ezStringView, 32> names;
+  WUInt32 uiTotalMatches = 0;
+  WHybridArray<WStringView, 32> names;
 
-  ezRTTI::ForEachDerivedType(pType, [&](const ezRTTI* pDerived)
+  WRTTI::ForEachDerivedType(pType, [&](const WRTTI* pDerived)
     {
       // ForEachDerivedType includes the base type itself, which is not what 'derived types' means here
       if (pDerived == pType)
@@ -612,7 +612,7 @@ void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ez
         names.PushBack(pDerived->GetTypeName());
       } }, options);
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
 
   writer.AddVariableString("baseType", pType->GetTypeName());
@@ -621,7 +621,7 @@ void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ez
   writer.AddVariableBool("truncated", uiTotalMatches > names.GetCount());
 
   writer.BeginArray("types");
-  for (ezStringView sTypeName : names)
+  for (WStringView sTypeName : names)
   {
     writer.WriteString(sTypeName);
   }

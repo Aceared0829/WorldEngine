@@ -4,35 +4,35 @@
 
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 
-class ezDynamicDefaultValueAttribute;
-class ezPropertyPath;
+class WDynamicDefaultValueAttribute;
+class WPropertyPath;
 
-/// Retrieves the dynamic default state of an object or container attributed with ezDynamicDefaultValueAttribute from an asset's meta data.
-class EZ_EDITORFRAMEWORK_DLL ezDynamicDefaultStateProvider : public ezDefaultStateProvider
+/// Retrieves the dynamic default state of an object or container attributed with WDynamicDefaultValueAttribute from an asset's meta data.
+class W_EDITORFRAMEWORK_DLL WDynamicDefaultStateProvider : public WDefaultStateProvider
 {
 public:
-  static ezSharedPtr<ezDefaultStateProvider> CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  static WSharedPtr<WDefaultStateProvider> CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp);
 
-  ezDynamicDefaultStateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezDocumentObject* pClassObject, const ezDocumentObject* pRootObject, const ezAbstractProperty* pRootProp, ezInt32 iRootDepth);
+  WDynamicDefaultStateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WDocumentObject* pClassObject, const WDocumentObject* pRootObject, const WAbstractProperty* pRootProp, WInt32 iRootDepth);
 
-  virtual ezInt32 GetRootDepth() const override;
-  virtual ezColorGammaUB GetBackgroundColor() const override;
-  virtual ezString GetStateProviderName() const override { return "Dynamic"; }
+  virtual WInt32 GetRootDepth() const override;
+  virtual WColorGammaUB GetBackgroundColor() const override;
+  virtual WString GetStateProviderName() const override { return "Dynamic"; }
 
-  virtual ezVariant GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
-  virtual ezStatus CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff) override;
+  virtual WVariant GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant()) override;
+  virtual WStatus CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff) override;
 
 private:
-  const ezReflectedClass* GetMetaInfo(ezObjectAccessorBase* pAccessor) const;
-  const ezResult CreatePath(ezObjectAccessorBase* pAccessor, const ezReflectedClass* pMeta, ezPropertyPath& propertyPath, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
+  const WReflectedClass* GetMetaInfo(WObjectAccessorBase* pAccessor) const;
+  const WResult CreatePath(WObjectAccessorBase* pAccessor, const WReflectedClass* pMeta, WPropertyPath& propertyPath, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index = WVariant());
 
-  const ezDocumentObject* m_pObject = nullptr;
-  const ezDocumentObject* m_pClassObject = nullptr;
-  const ezDocumentObject* m_pRootObject = nullptr;
-  const ezAbstractProperty* m_pRootProp = nullptr;
-  ezInt32 m_iRootDepth = 0;
-  const ezDynamicDefaultValueAttribute* m_pAttrib = nullptr;
-  const ezAbstractProperty* m_pClassSourceProp = nullptr;
-  const ezRTTI* m_pClassType = nullptr;
-  const ezAbstractProperty* m_pClassProperty = nullptr;
+  const WDocumentObject* m_pObject = nullptr;
+  const WDocumentObject* m_pClassObject = nullptr;
+  const WDocumentObject* m_pRootObject = nullptr;
+  const WAbstractProperty* m_pRootProp = nullptr;
+  WInt32 m_iRootDepth = 0;
+  const WDynamicDefaultValueAttribute* m_pAttrib = nullptr;
+  const WAbstractProperty* m_pClassSourceProp = nullptr;
+  const WRTTI* m_pClassType = nullptr;
+  const WAbstractProperty* m_pClassProperty = nullptr;
 };

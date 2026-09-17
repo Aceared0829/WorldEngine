@@ -14,10 +14,10 @@
 /// of type T. The block has a fixed capacity determined by SizeInBytes and sizeof(T).
 /// It tracks the current count of used elements and provides stack-like operations for
 /// efficient allocation/deallocation within the block.
-template <typename T, ezUInt32 SizeInBytes>
-struct ezDataBlock
+template <typename T, WUInt32 SizeInBytes>
+struct WDataBlock
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
   enum
   {
@@ -26,7 +26,7 @@ struct ezDataBlock
   };
 
   /// Constructs a data block wrapping the given memory region.
-  ezDataBlock(T* pData, ezUInt32 uiCount);
+  WDataBlock(T* pData, WUInt32 uiCount);
 
   /// Reserves space for one element at the end of the block.
   ///
@@ -42,10 +42,10 @@ struct ezDataBlock
   bool IsFull() const;
 
   /// Provides access to elements by index within the used range.
-  T& operator[](ezUInt32 uiIndex) const;
+  T& operator[](WUInt32 uiIndex) const;
 
   T* m_pData;
-  ezUInt32 m_uiCount;
+  WUInt32 m_uiCount;
 };
 
 /// Specialized allocator for fixed-size memory blocks, optimized for bulk allocations.
@@ -62,12 +62,12 @@ struct ezDataBlock
 /// - Object pools where objects have uniform size
 /// - Bulk allocations for data structures like arrays or strings
 /// - Memory regions that benefit from spatial locality
-template <ezUInt32 BlockSizeInByte>
-class ezLargeBlockAllocator
+template <WUInt32 BlockSizeInByte>
+class WLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(ezStringView sName, ezAllocator* pParent, ezAllocatorTrackingMode mode = ezAllocatorTrackingMode::Default);
-  ~ezLargeBlockAllocator();
+  WLargeBlockAllocator(WStringView sName, WAllocator* pParent, WAllocatorTrackingMode mode = WAllocatorTrackingMode::Default);
+  ~WLargeBlockAllocator();
 
   /// Allocates a new typed block capable of holding elements of type T.
   ///
@@ -75,32 +75,32 @@ public:
   /// BlockSizeInByte / sizeof(T) elements. If allocation fails, returns an
   /// invalid block (check with IsEmpty()).
   template <typename T>
-  ezDataBlock<T, BlockSizeInByte> AllocateBlock();
+  WDataBlock<T, BlockSizeInByte> AllocateBlock();
 
   /// Deallocates a previously allocated block.
   template <typename T>
-  void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& ref_block);
+  void DeallocateBlock(WDataBlock<T, BlockSizeInByte>& ref_block);
 
 
-  ezStringView GetName() const;
+  WStringView GetName() const;
 
   /// Returns the unique identifier for this allocator instance.
-  ezAllocatorId GetId() const;
+  WAllocatorId GetId() const;
 
-  const ezAllocator::Stats& GetStats() const;
+  const WAllocator::Stats& GetStats() const;
 
 private:
   void* Allocate(size_t uiAlign);
   void Deallocate(void* ptr);
 
-  ezAllocatorId m_Id;
-  ezAllocatorTrackingMode m_TrackingMode;
+  WAllocatorId m_Id;
+  WAllocatorTrackingMode m_TrackingMode;
 
-  ezMutex m_Mutex;
+  WMutex m_Mutex;
 
   struct SuperBlock
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     enum
     {
@@ -110,11 +110,11 @@ private:
 
     void* m_pBasePtr;
 
-    ezUInt32 m_uiUsedBlocks;
+    WUInt32 m_uiUsedBlocks;
   };
 
-  ezDynamicArray<SuperBlock> m_SuperBlocks;
-  ezDynamicArray<ezUInt32> m_FreeBlocks;
+  WDynamicArray<SuperBlock> m_SuperBlocks;
+  WDynamicArray<WUInt32> m_FreeBlocks;
 };
 
 #include <Foundation/Memory/Implementation/LargeBlockAllocator_inl.h>

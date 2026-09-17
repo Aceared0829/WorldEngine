@@ -2,13 +2,13 @@
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
-class EZ_TEXTURE_DLL ezDdsFileFormat : public ezImageFileFormat
+class W_TEXTURE_DLL WDdsFileFormat : public WImageFileFormat
 {
 public:
-  virtual ezResult ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const override;
-  virtual ezResult ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const override;
-  virtual ezResult WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const override;
+  virtual WResult ReadImageHeader(WStreamReader& inout_stream, WImageHeader& ref_header, WStringView sFileExtension) const override;
+  virtual WResult ReadImage(WStreamReader& inout_stream, WImage& ref_image, WStringView sFileExtension) const override;
+  virtual WResult WriteImage(WStreamWriter& inout_stream, const WImageView& image, WStringView sFileExtension) const override;
 
-  virtual bool CanReadFileType(ezStringView sExtension) const override;
-  virtual bool CanWriteFileType(ezStringView sExtension) const override;
+  virtual bool CanReadFileType(WStringView sExtension) const override;
+  virtual bool CanWriteFileType(WStringView sExtension) const override;
 };

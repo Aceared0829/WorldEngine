@@ -15,6 +15,6 @@ protected:
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) override;
   virtual void OnBeforeWorldUpdate() override;
 
-  ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hSettingsMenu;
-  ezUInt32 m_uiButtonClickCount = 0;
+  WTypedComponentHandle<WRmlUiCanvas2DComponent> m_hSettingsMenu;
+  WUInt32 m_uiButtonClickCount = 0;
 };

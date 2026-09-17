@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EZ_USE_QT
+#ifdef W_USE_QT
 
 #  include <QAbstractItemModel>
 #  include <QDockWidget>
@@ -8,43 +8,43 @@
 #  include <TestFramework/ui_qtLogMessageDock.h>
 #  include <vector>
 
-class ezQtTestFramework;
-struct ezTestResultData;
-class ezQtLogMessageModel;
-class ezTestFrameworkResult;
+class WQtTestFramework;
+struct WTestResultData;
+class WQtLogMessageModel;
+class WTestFrameworkResult;
 
-/// Dock widget that lists the output of a given ezResult struct.
-class EZ_TEST_DLL ezQtLogMessageDock : public QDockWidget, public Ui_qtLogMessageDock
+/// Dock widget that lists the output of a given WResult struct.
+class W_TEST_DLL WQtLogMessageDock : public QDockWidget, public Ui_qtLogMessageDock
 {
   Q_OBJECT
 public:
-  ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkResult* pResult);
-  virtual ~ezQtLogMessageDock();
+  WQtLogMessageDock(QObject* pParent, const WTestFrameworkResult* pResult);
+  virtual ~WQtLogMessageDock();
 
 public Q_SLOTS:
   void resetModel();
-  void currentTestResultChanged(const ezTestResultData* pTestResult);
-  void currentTestSelectionChanged(const ezTestResultData* pTestResult);
+  void currentTestResultChanged(const WTestResultData* pTestResult);
+  void currentTestSelectionChanged(const WTestResultData* pTestResult);
 
 private:
-  ezQtLogMessageModel* m_pModel;
+  WQtLogMessageModel* m_pModel;
 };
 
-/// Model used by ezQtLogMessageDock to list the output entries in ezResult.
-class EZ_TEST_DLL ezQtLogMessageModel : public QAbstractItemModel
+/// Model used by WQtLogMessageDock to list the output entries in WResult.
+class W_TEST_DLL WQtLogMessageModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult);
-  virtual ~ezQtLogMessageModel();
+  WQtLogMessageModel(QObject* pParent, const WTestFrameworkResult* pResult);
+  virtual ~WQtLogMessageModel();
 
   void resetModel();
   QModelIndex GetFirstIndexOfTestSelection();
   QModelIndex GetLastIndexOfTestSelection();
 
 public Q_SLOTS:
-  void currentTestResultChanged(const ezTestResultData* pTestResult);
-  void currentTestSelectionChanged(const ezTestResultData* pTestResult);
+  void currentTestResultChanged(const WTestResultData* pTestResult);
+  void currentTestSelectionChanged(const WTestResultData* pTestResult);
 
 public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int iRole) const override;
@@ -59,10 +59,10 @@ private:
   void UpdateVisibleEntries();
 
 private:
-  const ezTestResultData* m_pCurrentTestSelection;
-  const ezTestFrameworkResult* m_pTestResult;
-  std::vector<ezUInt32> m_VisibleEntries;
-  std::vector<ezUInt8> m_VisibleEntriesIndention;
+  const WTestResultData* m_pCurrentTestSelection;
+  const WTestFrameworkResult* m_pTestResult;
+  std::vector<WUInt32> m_VisibleEntries;
+  std::vector<WUInt8> m_VisibleEntriesIndention;
 };
 
 #endif

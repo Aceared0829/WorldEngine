@@ -2,12 +2,12 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezRenderGraph;
-class ezGALTextureHandle;
-struct ezGALTextureRange;
+class WRenderGraph;
+class WGALTextureHandle;
+struct WGALTextureRange;
 
-class EZ_RENDERERCORE_DLL ezRenderGraphUtils
+class W_RENDERERCORE_DLL WRenderGraphUtils
 {
 public:
-  static ezRenderGraphTextureHandle GenerateMipMaps(ezGALTextureHandle hTexture, ezGALTextureRange range, ezRenderGraph& ref_renderGraph);
+  static WRenderGraphTextureHandle GenerateMipMaps(WGALTextureHandle hTexture, WGALTextureRange range, WRenderGraph& ref_renderGraph);
 };

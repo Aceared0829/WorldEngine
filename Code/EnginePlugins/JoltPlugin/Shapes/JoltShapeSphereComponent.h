@@ -2,38 +2,38 @@
 
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 
-using ezJoltShapeSphereComponentManager = ezComponentManager<class ezJoltShapeSphereComponent, ezBlockStorageType::FreeList>;
+using WJoltShapeSphereComponentManager = WComponentManager<class WJoltShapeSphereComponent, WBlockStorageType::FreeList>;
 
 /// Adds a Jolt sphere shape to a Jolt actor.
-class EZ_JOLTPLUGIN_DLL ezJoltShapeSphereComponent : public ezJoltShapeComponent
+class W_JOLTPLUGIN_DLL WJoltShapeSphereComponent : public WJoltShapeComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeSphereComponent, ezJoltShapeComponent, ezJoltShapeSphereComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WJoltShapeSphereComponent, WJoltShapeComponent, WJoltShapeSphereComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeComponent
+  // WJoltShapeComponent
 
 protected:
-  virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) override;
+  virtual void CreateShapes(WDynamicArray<WJoltSubShape>& out_Shapes, const WTransform& rootTransform, float fDensity, const WJoltMaterial* pMaterial) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltShapeSphereComponent
+  // WJoltShapeSphereComponent
 
 public:
-  ezJoltShapeSphereComponent();
-  ~ezJoltShapeSphereComponent();
+  WJoltShapeSphereComponent();
+  ~WJoltShapeSphereComponent();
 
   void SetRadius(float f);                      // [ property ]
   float GetRadius() const { return m_fRadius; } // [ property ]
 
 protected:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const;
 
   float m_fRadius = 0.5f;
 };

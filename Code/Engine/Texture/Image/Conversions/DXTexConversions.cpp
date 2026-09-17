@@ -9,15 +9,15 @@
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/ImageConversion.h>
 
-ezCVarBool cvar_TexturePenalizeDXConversions("Texture.PenalizeDXConversions", false, ezCVarFlags::RequiresRestart, "Add a penalty to DirectX-based conversion when choosing how to convert textures");
+WCVarBool cvar_TexturePenalizeDXConversions("Texture.PenalizeDXConversions", false, WCVarFlags::RequiresRestart, "Add a penalty to DirectX-based conversion when choosing how to convert textures");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  define EZ_SUPPORTS_DIRECTXTEX EZ_ON
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
+#  define W_SUPPORTS_DIRECTXTEX W_ON
 #else
-#  define EZ_SUPPORTS_DIRECTXTEX EZ_OFF
+#  define W_SUPPORTS_DIRECTXTEX W_OFF
 #endif
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTXTEX)
+#if W_ENABLED(W_SUPPORTS_DIRECTXTEX)
 
 #  ifdef DeleteFile
 #    undef DeleteFile
@@ -96,7 +96,7 @@ namespace
     static const D3D_FEATURE_LEVEL FeatureLevels[] = {D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
     D3D_FEATURE_LEVEL SelectedFeatureLevel;
 
-    for (int featureLevelIdx = 0; featureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); ++featureLevelIdx)
+    for (int featureLevelIdx = 0; featureLevelIdx < W_ARRAY_SIZE(FeatureLevels); ++featureLevelIdx)
     {
       if (SUCCEEDED(s_DynamicD3D11CreateDevice(pAdapter, driverType, nullptr, 0, &FeatureLevels[featureLevelIdx], 1, D3D11_SDK_VERSION, ref_device.ReleaseAndGetAddressOf(), &SelectedFeatureLevel, nullptr)))
       {
@@ -140,21 +140,21 @@ namespace
     if (ref_device == nullptr)
       return TypeOfDeviceCreated::None;
 
-    auto GetDeviceName = [&]() -> ezString
+    auto GetDeviceName = [&]() -> WString
     {
       ComPtr<IDXGIDevice> pDXGIDevice;
       if (FAILED(ref_device.As(&pDXGIDevice)))
-        return "<No IDXGIDevice interface>"_ezsv;
+        return "<No IDXGIDevice interface>"_wsv;
       ComPtr<IDXGIAdapter> pAdapter;
       if (FAILED(pDXGIDevice->GetAdapter(pAdapter.GetAddressOf())))
-        return "<GetAdapter Failed>"_ezsv;
+        return "<GetAdapter Failed>"_wsv;
       DXGI_ADAPTER_DESC desc;
       if (FAILED(pAdapter->GetDesc(&desc)))
-        return "<GetDesc Failed>"_ezsv;
-      ezStringUtf8 sDesc(desc.Description);
-      return ezString(sDesc.GetData());
+        return "<GetDesc Failed>"_wsv;
+      WStringUtf8 sDesc(desc.Description);
+      return WString(sDesc.GetData());
     };
-    ezLog::Dev("Using DirectCompute on \"{0}\"", GetDeviceName());
+    WLog::Dev("Using DirectCompute on \"{0}\"", GetDeviceName());
     return deviceType;
   }
 
@@ -176,7 +176,7 @@ namespace
       DeviceAndConversionTable* operator->() { return &m_Table; }
 
     private:
-      ezLock<ezMutex> m_Lock;
+      WLock<WMutex> m_Lock;
       DeviceAndConversionTable& m_Table;
     };
 
@@ -186,7 +186,7 @@ namespace
 
     ID3D11Device* getDevice() { return m_D3dDevice.Get(); }
 
-    ezArrayPtr<const ezImageConversionEntry> getConvertors() const { return m_SupportedConversions; }
+    WArrayPtr<const WImageConversionEntry> getConvertors() const { return m_SupportedConversions; }
 
     void Init()
     {
@@ -206,7 +206,7 @@ namespace
         devicePenalty = 0.0f;
       }
 
-      for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
+      for (auto& entry : WArrayPtr<WImageConversionEntry>(s_sourceConversions))
       {
         entry.m_fAdditionalPenalty = devicePenalty;
       }
@@ -223,24 +223,24 @@ namespace
 
   private:
     ComPtr<ID3D11Device> m_D3dDevice = nullptr;
-    ezArrayPtr<const ezImageConversionEntry> m_SupportedConversions;
+    WArrayPtr<const WImageConversionEntry> m_SupportedConversions;
 
     constexpr static int s_numConversions = 5;
-    static ezImageConversionEntry s_sourceConversions[s_numConversions];
+    static WImageConversionEntry s_sourceConversions[s_numConversions];
 
-    ezMutex m_Mutex;
+    WMutex m_Mutex;
     static bool s_bDeviceAndTableInitialized;
     static DeviceAndConversionTable s_DeviceAndConversionTable;
   };
 
-  ezImageConversionEntry DeviceAndConversionTable::s_sourceConversions[s_numConversions] = {
-    ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
+  WImageConversionEntry DeviceAndConversionTable::s_sourceConversions[s_numConversions] = {
+    WImageConversionEntry(WImageFormat::R32G32B32A32_FLOAT, WImageFormat::BC6H_UF16, WImageConversionFlags::Default),
 
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default),
+    WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC1_UNORM, WImageConversionFlags::Default),
+    WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM, WImageFormat::BC7_UNORM, WImageConversionFlags::Default),
 
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC1_UNORM_SRGB, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
+    WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::BC1_UNORM_SRGB, WImageConversionFlags::Default),
+    WImageConversionEntry(WImageFormat::R8G8B8A8_UNORM_SRGB, WImageFormat::BC7_UNORM_SRGB, WImageConversionFlags::Default),
   };
 
   bool DeviceAndConversionTable::s_bDeviceAndTableInitialized = false;
@@ -248,7 +248,7 @@ namespace
 } // namespace
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(TexConv, DXTexConversions)
+W_BEGIN_SUBSYSTEM_DECLARATION(TexConv, DXTexConversions)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -262,38 +262,38 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(TexConv, DXTexConversions)
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-class ezImageConversion_CompressDxTex : public ezImageConversionStepCompressBlocks
+class WImageConversion_CompressDxTex : public WImageConversionStepCompressBlocks
 {
 public:
-  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  virtual WArrayPtr<const WImageConversionEntry> GetSupportedConversions() const override
   {
     return DeviceAndConversionTable::getDeviceAndConversionTable()->getConvertors();
   }
 
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocksX, ezUInt32 uiNumBlocksY,
-    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual WResult CompressBlocks(WConstByteBlobPtr source, WByteBlobPtr target, WUInt32 uiNumBlocksX, WUInt32 uiNumBlocksY,
+    WImageFormat::Enum sourceFormat, WImageFormat::Enum targetFormat) const override
   {
-    const ezUInt32 targetWidth = uiNumBlocksX * ezImageFormat::GetBlockWidth(targetFormat);
-    const ezUInt32 targetHeight = uiNumBlocksY * ezImageFormat::GetBlockHeight(targetFormat);
+    const WUInt32 targetWidth = uiNumBlocksX * WImageFormat::GetBlockWidth(targetFormat);
+    const WUInt32 targetHeight = uiNumBlocksY * WImageFormat::GetBlockHeight(targetFormat);
 
     Image srcImg;
     srcImg.width = targetWidth;
     srcImg.height = targetHeight;
-    srcImg.rowPitch = static_cast<size_t>(ezImageFormat::GetRowPitch(sourceFormat, targetWidth));
-    srcImg.slicePitch = static_cast<size_t>(ezImageFormat::GetDepthPitch(sourceFormat, targetWidth, targetHeight));
+    srcImg.rowPitch = static_cast<size_t>(WImageFormat::GetRowPitch(sourceFormat, targetWidth));
+    srcImg.slicePitch = static_cast<size_t>(WImageFormat::GetDepthPitch(sourceFormat, targetWidth, targetHeight));
 
     // We don't trust anyone to handle sRGB correctly, so pretend we always want to compress linear -> linear even when it's actually sRGB -> sRGB.
-    srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(ezImageFormat::AsLinear(sourceFormat));
+    srcImg.format = (DXGI_FORMAT)WImageFormatMappings::ToDxgiFormat(WImageFormat::AsLinear(sourceFormat));
     srcImg.pixels = (uint8_t*)static_cast<const void*>(source.GetPtr());
 
     ScratchImage dxSrcImage;
     if (FAILED(dxSrcImage.InitializeFromImage(srcImg)))
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    const DXGI_FORMAT dxgiTargetFormat = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(ezImageFormat::AsLinear(targetFormat));
+    const DXGI_FORMAT dxgiTargetFormat = (DXGI_FORMAT)WImageFormatMappings::ToDxgiFormat(WImageFormat::AsLinear(targetFormat));
 
     ScratchImage dxDstImage;
 
@@ -331,18 +331,18 @@ public:
     }
 
     if (!bCompressionDone)
-      return EZ_FAILURE;
+      return W_FAILURE;
 
-    target.CopyFrom(ezConstByteBlobPtr(dxDstImage.GetPixels(), static_cast<ezUInt32>(dxDstImage.GetPixelsSize())));
+    target.CopyFrom(WConstByteBlobPtr(dxDstImage.GetPixels(), static_cast<WUInt32>(dxDstImage.GetPixelsSize())));
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 };
 
-EZ_STATICLINK_FORCE static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
+W_STATICLINK_FORCE static WImageConversion_CompressDxTex s_conversion_compressDxTex;
 
 #endif
 
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexConversions);
+W_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexConversions);

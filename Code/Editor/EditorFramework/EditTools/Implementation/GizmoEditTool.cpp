@@ -7,55 +7,55 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectGizmoEditTool, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectGizmoEditTool, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGameObjectGizmoEditTool::ezGameObjectGizmoEditTool()
+WGameObjectGizmoEditTool::WGameObjectGizmoEditTool()
 {
-  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
+  WQtDocumentWindow::s_Events.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
 }
 
-ezGameObjectGizmoEditTool::~ezGameObjectGizmoEditTool()
+WGameObjectGizmoEditTool::~WGameObjectGizmoEditTool()
 {
-  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
+  WQtDocumentWindow::s_Events.RemoveEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
 }
 
-void ezGameObjectGizmoEditTool::OnConfigured()
+void WGameObjectGizmoEditTool::OnConfigured()
 {
-  GetDocument()->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::GameObjectEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
-  GetWindow()->m_EngineWindowEvent.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::EngineWindowEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
+  GetDocument()->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::GameObjectEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
+  GetWindow()->m_EngineWindowEvent.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::EngineWindowEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
 
   // subscribe to all views that already exist
-  for (ezQtEngineViewWidget* pView : GetWindow()->GetViewWidgets())
+  for (WQtEngineViewWidget* pView : GetWindow()->GetViewWidgets())
   {
-    if (ezQtGameObjectViewWidget* pViewWidget = qobject_cast<ezQtGameObjectViewWidget*>(pView))
+    if (WQtGameObjectViewWidget* pViewWidget = qobject_cast<WQtGameObjectViewWidget*>(pView))
     {
       pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(
-        ezMakeDelegate(&ezGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
+        WMakeDelegate(&WGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
     }
   }
 }
 
-void ezGameObjectGizmoEditTool::UpdateGizmoSelectionList()
+void WGameObjectGizmoEditTool::UpdateGizmoSelectionList()
 {
   GetDocument()->ComputeTopLevelSelectedGameObjects(m_GizmoSelection);
 }
 
-void ezGameObjectGizmoEditTool::UpdateGizmoVisibleState()
+void WGameObjectGizmoEditTool::UpdateGizmoVisibleState()
 {
   bool isVisible = false;
 
   if (IsActive())
   {
-    ezGameObjectDocument* pDocument = GetDocument();
+    WGameObjectDocument* pDocument = GetDocument();
 
     const auto& selection = pDocument->GetSelectionManager()->GetSelection();
 
-    if (selection.IsEmpty() || !selection.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    if (selection.IsEmpty() || !selection.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
       goto done;
 
     isVisible = true;
@@ -66,22 +66,22 @@ done:
   ApplyGizmoVisibleState(isVisible);
 }
 
-void ezGameObjectGizmoEditTool::UpdateGizmoTransformation()
+void WGameObjectGizmoEditTool::UpdateGizmoTransformation()
 {
   const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
 
-  if (LatestSelection->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezGameObject>())
+  if (LatestSelection->GetTypeAccessor().GetType() == WGetStaticRTTI<WGameObject>())
   {
-    const ezTransform tGlobal = GetDocument()->GetGlobalTransform(LatestSelection);
+    const WTransform tGlobal = GetDocument()->GetGlobalTransform(LatestSelection);
 
     /// \todo Pivot point
-    const ezVec3 vPivotPoint =
-      tGlobal.m_qRotation * ezVec3::MakeZero(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+    const WVec3 vPivotPoint =
+      tGlobal.m_qRotation * WVec3::MakeZero(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<WVec3>();
 
-    ezTransform mt;
+    WTransform mt;
     mt.SetIdentity();
 
-    if (GetDocument()->GetGizmoWorldSpace() && GetSupportedSpaces() != ezEditToolSupportedSpaces::LocalSpaceOnly)
+    if (GetDocument()->GetGizmoWorldSpace() && GetSupportedSpaces() != WEditToolSupportedSpaces::LocalSpaceOnly)
     {
       mt.m_vPosition = tGlobal.m_vPosition + vPivotPoint;
     }
@@ -95,32 +95,32 @@ void ezGameObjectGizmoEditTool::UpdateGizmoTransformation()
   }
 }
 
-void ezGameObjectGizmoEditTool::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
+void WGameObjectGizmoEditTool::DocumentWindowEventHandler(const WQtDocumentWindowEvent& e)
 {
-  if (e.m_Type == ezQtDocumentWindowEvent::WindowClosing && e.m_pWindow == GetWindow())
+  if (e.m_Type == WQtDocumentWindowEvent::WindowClosing && e.m_pWindow == GetWindow())
   {
-    GetDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::GameObjectEventHandler, this));
-    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
-    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
-    ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
-    GetWindow()->m_EngineWindowEvent.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::EngineWindowEventHandler, this));
+    GetDocument()->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::GameObjectEventHandler, this));
+    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
+    WManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(
+      WMakeDelegate(&WGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
+    GetWindow()->m_EngineWindowEvent.RemoveEventHandler(WMakeDelegate(&WGameObjectGizmoEditTool::EngineWindowEventHandler, this));
     GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
+      WMakeDelegate(&WGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
   }
 }
 
-void ezGameObjectGizmoEditTool::UpdateManipulatorVisibility()
+void WGameObjectGizmoEditTool::UpdateManipulatorVisibility()
 {
-  ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
+  WManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
 }
 
-void ezGameObjectGizmoEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WGameObjectGizmoEditTool::GameObjectEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::ActiveEditToolChanged:
-    case ezGameObjectEvent::Type::GizmoTransformMayBeInvalid:
+    case WGameObjectEvent::Type::ActiveEditToolChanged:
+    case WGameObjectEvent::Type::GizmoTransformMayBeInvalid:
       UpdateGizmoVisibleState();
       UpdateManipulatorVisibility();
       break;
@@ -130,14 +130,14 @@ void ezGameObjectGizmoEditTool::GameObjectEventHandler(const ezGameObjectEvent& 
   }
 }
 
-void ezGameObjectGizmoEditTool::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void WGameObjectGizmoEditTool::CommandHistoryEventHandler(const WCommandHistoryEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezCommandHistoryEvent::Type::UndoEnded:
-    case ezCommandHistoryEvent::Type::RedoEnded:
-    case ezCommandHistoryEvent::Type::TransactionEnded:
-    case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case WCommandHistoryEvent::Type::UndoEnded:
+    case WCommandHistoryEvent::Type::RedoEnded:
+    case WCommandHistoryEvent::Type::TransactionEnded:
+    case WCommandHistoryEvent::Type::TransactionCanceled:
       UpdateGizmoVisibleState();
       break;
 
@@ -146,22 +146,22 @@ void ezGameObjectGizmoEditTool::CommandHistoryEventHandler(const ezCommandHistor
   }
 }
 
-void ezGameObjectGizmoEditTool::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+void WGameObjectGizmoEditTool::SelectionManagerEventHandler(const WSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezSelectionManagerEvent::Type::SelectionCleared:
+    case WSelectionManagerEvent::Type::SelectionCleared:
       m_GizmoSelection.Clear();
       UpdateGizmoVisibleState();
       break;
 
-    case ezSelectionManagerEvent::Type::SelectionSet:
-    case ezSelectionManagerEvent::Type::ObjectAdded:
-      EZ_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
+    case WSelectionManagerEvent::Type::SelectionSet:
+    case WSelectionManagerEvent::Type::ObjectAdded:
+      W_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
       UpdateGizmoVisibleState();
       break;
 
-    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case WSelectionManagerEvent::Type::ObjectRemoved:
       UpdateGizmoVisibleState();
       break;
 
@@ -170,7 +170,7 @@ void ezGameObjectGizmoEditTool::SelectionManagerEventHandler(const ezSelectionMa
   }
 }
 
-void ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+void WGameObjectGizmoEditTool::ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e)
 {
   if (!IsActive())
     return;
@@ -183,15 +183,15 @@ void ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler(const ezManipulat
   }
 }
 
-void ezGameObjectGizmoEditTool::EngineWindowEventHandler(const ezEngineWindowEvent& e)
+void WGameObjectGizmoEditTool::EngineWindowEventHandler(const WEngineWindowEvent& e)
 {
-  if (ezQtGameObjectViewWidget* pViewWidget = qobject_cast<ezQtGameObjectViewWidget*>(e.m_pView))
+  if (WQtGameObjectViewWidget* pViewWidget = qobject_cast<WQtGameObjectViewWidget*>(e.m_pView))
   {
     switch (e.m_Type)
     {
-      case ezEngineWindowEvent::Type::ViewCreated:
+      case WEngineWindowEvent::Type::ViewCreated:
         pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(
-          ezMakeDelegate(&ezGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
+          WMakeDelegate(&WGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
         break;
 
       default:
@@ -200,14 +200,14 @@ void ezGameObjectGizmoEditTool::EngineWindowEventHandler(const ezEngineWindowEve
   }
 }
 
-void ezGameObjectGizmoEditTool::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WGameObjectGizmoEditTool::ObjectStructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
   if (!IsActive() || m_bInGizmoInteraction)
     return;
 
   switch (e.m_EventType)
   {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case WDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       UpdateGizmoVisibleState();
       break;
 
@@ -216,16 +216,16 @@ void ezGameObjectGizmoEditTool::ObjectStructureEventHandler(const ezDocumentObje
   }
 }
 
-void ezGameObjectGizmoEditTool::TransformationGizmoEventHandler(const ezGizmoEvent& e)
+void WGameObjectGizmoEditTool::TransformationGizmoEventHandler(const WGizmoEvent& e)
 {
   if (!IsActive())
     return;
 
-  ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
+  WObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
 
   switch (e.m_Type)
   {
-    case ezGizmoEvent::Type::BeginInteractions:
+    case WGizmoEvent::Type::BeginInteractions:
     {
       m_bMergeTransactions = false;
 
@@ -237,7 +237,7 @@ void ezGameObjectGizmoEditTool::TransformationGizmoEventHandler(const ezGizmoEve
     }
     break;
 
-    case ezGizmoEvent::Type::Interaction:
+    case WGizmoEvent::Type::Interaction:
     {
       m_bInGizmoInteraction = true;
       pAccessor->StartTransaction("Transform Object");
@@ -248,7 +248,7 @@ void ezGameObjectGizmoEditTool::TransformationGizmoEventHandler(const ezGizmoEve
     }
     break;
 
-    case ezGizmoEvent::Type::EndInteractions:
+    case WGizmoEvent::Type::EndInteractions:
     {
       pAccessor->FinishTemporaryCommands();
       m_GizmoSelection.Clear();
@@ -258,7 +258,7 @@ void ezGameObjectGizmoEditTool::TransformationGizmoEventHandler(const ezGizmoEve
     }
     break;
 
-    case ezGizmoEvent::Type::CancelInteractions:
+    case WGizmoEvent::Type::CancelInteractions:
     {
       pAccessor->CancelTemporaryCommands();
       m_GizmoSelection.Clear();

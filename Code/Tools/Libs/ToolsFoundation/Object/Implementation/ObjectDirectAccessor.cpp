@@ -4,119 +4,119 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectDirectAccessor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WObjectDirectAccessor, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezObjectDirectAccessor::ezObjectDirectAccessor(ezDocumentObjectManager* pManager)
-  : ezObjectAccessorBase(pManager)
+WObjectDirectAccessor::WObjectDirectAccessor(WDocumentObjectManager* pManager)
+  : WObjectAccessorBase(pManager)
   , m_pManager(pManager)
 {
 }
 
-const ezDocumentObject* ezObjectDirectAccessor::GetObject(const ezUuid& object)
+const WDocumentObject* WObjectDirectAccessor::GetObject(const WUuid& object)
 {
   return m_pManager->GetObject(object);
 }
 
-ezStatus ezObjectDirectAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)
+WStatus WObjectDirectAccessor::GetValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant& out_value, WVariant index)
 {
   if (pProp == nullptr)
-    return ezStatus("Property is null.");
+    return WStatus("Property is null.");
 
-  ezStatus res(EZ_SUCCESS);
+  WStatus res(W_SUCCESS);
   out_value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index, &res);
   return res;
 }
 
-ezStatus ezObjectDirectAccessor::SetValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WObjectDirectAccessor::SetValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().SetValue(pProp->GetPropertyName(), newValue, index);
-  return bRes ? EZ_SUCCESS : EZ_FAILURE;
+  return bRes ? W_SUCCESS : W_FAILURE;
 }
 
-ezStatus ezObjectDirectAccessor::InsertValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+WStatus WObjectDirectAccessor::InsertValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& newValue, WVariant index)
 {
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), index, newValue);
-  return bRes ? EZ_SUCCESS : EZ_FAILURE;
+  return bRes ? W_SUCCESS : W_FAILURE;
 }
 
-ezStatus ezObjectDirectAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WObjectDirectAccessor::RemoveValue(const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().RemoveValue(pProp->GetPropertyName(), index);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return WStatus(bRes ? W_SUCCESS : W_FAILURE);
 }
 
-ezStatus ezObjectDirectAccessor::MoveValue(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WObjectDirectAccessor::MoveValue(
+  const WDocumentObject* pObject, const WAbstractProperty* pProp, const WVariant& oldIndex, const WVariant& newIndex)
 {
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().MoveValue(pProp->GetPropertyName(), oldIndex, newIndex);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return WStatus(bRes ? W_SUCCESS : W_FAILURE);
 }
 
-ezStatus ezObjectDirectAccessor::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount)
+WStatus WObjectDirectAccessor::GetCount(const WDocumentObject* pObject, const WAbstractProperty* pProp, WInt32& out_iCount)
 {
   out_iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezObjectDirectAccessor::AddObject(
-  const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+WStatus WObjectDirectAccessor::AddObject(
+  const WDocumentObject* pParent, const WAbstractProperty* pParentProp, const WVariant& index, const WRTTI* pType, WUuid& inout_objectGuid)
 {
-  EZ_SUCCEED_OR_RETURN(m_pManager->CanAdd(pType, pParent, pParentProp->GetPropertyName(), index));
+  W_SUCCEED_OR_RETURN(m_pManager->CanAdd(pType, pParent, pParentProp->GetPropertyName(), index));
 
-  ezDocumentObject* pPar = m_pManager->GetObject(pParent->GetGuid());
-  EZ_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
+  WDocumentObject* pPar = m_pManager->GetObject(pParent->GetGuid());
+  W_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
 
   if (!inout_objectGuid.IsValid())
-    inout_objectGuid = ezUuid::MakeUuid();
-  ezDocumentObject* pObj = m_pManager->CreateObject(pType, inout_objectGuid);
+    inout_objectGuid = WUuid::MakeUuid();
+  WDocumentObject* pObj = m_pManager->CreateObject(pType, inout_objectGuid);
   m_pManager->AddObject(pObj, pPar, pParentProp->GetPropertyName(), index);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezObjectDirectAccessor::RemoveObject(const ezDocumentObject* pObject)
+WStatus WObjectDirectAccessor::RemoveObject(const WDocumentObject* pObject)
 {
-  EZ_SUCCEED_OR_RETURN(m_pManager->CanRemove(pObject));
+  W_SUCCEED_OR_RETURN(m_pManager->CanRemove(pObject));
 
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   m_pManager->RemoveObject(pObj);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezObjectDirectAccessor::MoveObject(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index)
+WStatus WObjectDirectAccessor::MoveObject(
+  const WDocumentObject* pObject, const WDocumentObject* pNewParent, const WAbstractProperty* pParentProp, const WVariant& index)
 {
-  EZ_SUCCEED_OR_RETURN(m_pManager->CanMove(pObject, pNewParent, pParentProp->GetPropertyName(), index));
+  W_SUCCEED_OR_RETURN(m_pManager->CanMove(pObject, pNewParent, pParentProp->GetPropertyName(), index));
 
-  ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
-  EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
-  ezDocumentObject* pPar = m_pManager->GetObject(pNewParent->GetGuid());
-  EZ_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
+  WDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
+  W_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
+  WDocumentObject* pPar = m_pManager->GetObject(pNewParent->GetGuid());
+  W_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
 
   m_pManager->MoveObject(pObj, pPar, pParentProp->GetPropertyName(), index);
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezStatus ezObjectDirectAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
+WStatus WObjectDirectAccessor::GetKeys(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_keys)
 {
   bool bRes = pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), out_keys);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return WStatus(bRes ? W_SUCCESS : W_FAILURE);
 }
 
-ezStatus ezObjectDirectAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
+WStatus WObjectDirectAccessor::GetValues(const WDocumentObject* pObject, const WAbstractProperty* pProp, WDynamicArray<WVariant>& out_values)
 {
   bool bRes = pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), out_values);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return WStatus(bRes ? W_SUCCESS : W_FAILURE);
 }

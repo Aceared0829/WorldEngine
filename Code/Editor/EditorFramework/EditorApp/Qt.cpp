@@ -10,7 +10,7 @@
 
 int lua_SetColor(lua_State* s)
 {
-  ezLuaWrapper lua(s);
+  WLuaWrapper lua(s);
 
   QPalette* palette = (QPalette*)lua.GetFunctionLightUserData();
 
@@ -28,7 +28,7 @@ int lua_SetColor(lua_State* s)
 
 int lua_SetDisabledColor(lua_State* s)
 {
-  ezLuaWrapper lua(s);
+  WLuaWrapper lua(s);
 
   QPalette* palette = (QPalette*)lua.GetFunctionLightUserData();
 
@@ -46,13 +46,13 @@ int lua_SetDisabledColor(lua_State* s)
 
 #endif
 
-void ezQtEditorApp::SetStyleSheet()
+void WQtEditorApp::SetStyleSheet()
 {
   QPalette palette;
 
-  ezColorGammaUB highlightColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
-  ezColorGammaUB highlightColorDisabled = ezColorScheme::DarkUI(ezColorScheme::Yellow) * 0.5f;
-  ezColorGammaUB linkVisitedColor = ezColorScheme::LightUI(ezColorScheme::Yellow);
+  WColorGammaUB highlightColor = WColorScheme::DarkUI(WColorScheme::Yellow);
+  WColorGammaUB highlightColorDisabled = WColorScheme::DarkUI(WColorScheme::Yellow) * 0.5f;
+  WColorGammaUB linkVisitedColor = WColorScheme::LightUI(WColorScheme::Yellow);
 
   QApplication::setStyle(QStyleFactory::create("fusion"));
 
@@ -69,10 +69,10 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Base, QColor(24, 24, 24));                   // background inside complex windows (scenegraph)
   palette.setColor(QPalette::Window, QColor(42, 42, 42));                 // window borders, toolbars
   palette.setColor(QPalette::Shadow, QColor(70, 70, 70));                 // background color for arrays in property grids
-  palette.setColor(QPalette::Highlight, ezToQtColor(highlightColor));     // selected items
+  palette.setColor(QPalette::Highlight, WToQtColor(highlightColor));     // selected items
   palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));     // text of selected items
   palette.setColor(QPalette::Link, QColor(104, 205, 254));                // manipulator links in property grid
-  palette.setColor(QPalette::LinkVisited, ezToQtColor(linkVisitedColor)); // manipulator links in property grid when active
+  palette.setColor(QPalette::LinkVisited, WToQtColor(linkVisitedColor)); // manipulator links in property grid when active
   palette.setColor(QPalette::AlternateBase, QColor(49, 49, 49));          // second base color, mainly used for alternate row colors
   palette.setColor(QPalette::PlaceholderText, QColor(142, 142, 142));     // text in search fields
 
@@ -86,26 +86,26 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Disabled, QPalette::Button, QColor(35, 35, 35));
   palette.setColor(QPalette::Disabled, QPalette::Text, QColor(105, 105, 105));
   palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
-  palette.setColor(QPalette::Disabled, QPalette::Highlight, ezToQtColor(highlightColorDisabled));
+  palette.setColor(QPalette::Disabled, QPalette::Highlight, WToQtColor(highlightColorDisabled));
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   if (false)
   {
     // when enabled, you can edit the palette with a Lua file
-    // see ezProjectAction::Execute(), case ezProjectAction::ButtonType::ReloadResources:
+    // see WProjectAction::Execute(), case WProjectAction::ButtonType::ReloadResources:
     // to enable reloading on "reload resources"
     // Example Lua file:
     // SetColor(Base, 24, 24, 24)
     // SetDisabledColor(Base, 5, 5, 5)
 
-    ezOSFile file;
-    if (file.Open("D:\\Style.lua", ezFileOpenMode::Read).Succeeded())
+    WOSFile file;
+    if (file.Open("D:\\Style.lua", WFileOpenMode::Read).Succeeded())
     {
-      ezDataBuffer content;
+      WDataBuffer content;
       file.ReadAll(content);
       content.PushBack('\0');
 
-      ezLuaWrapper lua;
+      WLuaWrapper lua;
       lua.SetVariable("WindowText", QPalette::WindowText);
       lua.SetVariable("Button", QPalette::Button);
       lua.SetVariable("Light", QPalette::Light);
@@ -129,7 +129,7 @@ void ezQtEditorApp::SetStyleSheet()
       lua.RegisterCFunction("SetColor", lua_SetColor, &palette);
       lua.RegisterCFunction("SetDisabledColor", lua_SetDisabledColor, &palette);
 
-      lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
+      lua.ExecuteString((const char*)content.GetData(), "", WLog::GetThreadLocalLogSystem()).IgnoreResult();
     }
   }
 #endif
@@ -140,16 +140,16 @@ void ezQtEditorApp::SetStyleSheet()
 static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& sQMsg)
 {
   QByteArray localMsg = sQMsg.toUtf8();
-  ezStringBuilder sMsg = localMsg.constData();
+  WStringBuilder sMsg = localMsg.constData();
 
   switch (type)
   {
     case QtDebugMsg:
-      ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      WLog::Debug("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       break;
 #if QT_VERSION >= 0x050500
     case QtInfoMsg:
-      ezLog::Info("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      WLog::Info("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       break;
 #endif
     case QtWarningMsg:
@@ -162,23 +162,23 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       if (sMsg.FindSubString("The cached device pixel ratio value was stale") != nullptr)
         return;
 
-      ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      WLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       break;
     }
     case QtCriticalMsg:
       // BUG in Qt 6 on Windows. Window classes are not properly unregistered so they leak into the next session and cause a warning.
       if (!sMsg.StartsWith("QApplication::regClass: Registering window class"))
       {
-        ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+        WLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       }
       break;
     case QtFatalMsg:
-      EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
+      W_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
       break;
   }
 }
 
-void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
+void WQtEditorApp::InitQt(int iArgc, char** pArgv)
 {
   qInstallMessageHandler(QtDebugMessageHandler);
 
@@ -187,7 +187,7 @@ void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
     m_pQtApplication = qApp;
     bool ok = false;
     const int iCount = m_pQtApplication->property("Shared").toInt(&ok);
-    EZ_ASSERT_DEV(ok, "Existing QApplication was not constructed by EZ!");
+    W_ASSERT_DEV(ok, "Existing QApplication was not constructed by W!");
     m_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount + 1));
   }
   else
@@ -206,7 +206,7 @@ void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
   }
 }
 
-void ezQtEditorApp::DeInitQt()
+void WQtEditorApp::DeInitQt()
 {
   const int iCount = m_pQtApplication->property("Shared").toInt();
   if (iCount == 1)

@@ -3,11 +3,11 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/Thread.h>
 
-class ezTelemetryThread : public ezThread
+class WTelemetryThread : public WThread
 {
 public:
-  ezTelemetryThread()
-    : ezThread("ezTelemetryThread")
+  WTelemetryThread()
+    : WThread("WTelemetryThread")
   {
     m_bKeepRunning = true;
   }
@@ -15,59 +15,59 @@ public:
   volatile bool m_bKeepRunning;
 
 private:
-  virtual ezUInt32 Run()
+  virtual WUInt32 Run()
   {
-    ezTime LastPing;
+    WTime LastPing;
 
     while (m_bKeepRunning)
     {
-      ezTelemetry::UpdateNetwork();
+      WTelemetry::UpdateNetwork();
 
       // Send a Ping every once in a while
-      if (ezTelemetry::s_ConnectionMode == ezTelemetry::Client)
+      if (WTelemetry::s_ConnectionMode == WTelemetry::Client)
       {
-        ezTime tNow = ezTime::Now();
+        WTime tNow = WTime::Now();
 
-        if (tNow - LastPing > ezTime::MakeFromMilliseconds(500))
+        if (tNow - LastPing > WTime::MakeFromMilliseconds(500))
         {
           LastPing = tNow;
 
-          ezTelemetry::UpdateServerPing();
+          WTelemetry::UpdateServerPing();
         }
       }
 
-      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+      WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
     }
 
     return 0;
   }
 };
 
-static ezTelemetryThread* g_pBroadcastThread = nullptr;
-ezMutex ezTelemetry::s_TelemetryMutex;
+static WTelemetryThread* g_pBroadcastThread = nullptr;
+WMutex WTelemetry::s_TelemetryMutex;
 
 
-ezMutex& ezTelemetry::GetTelemetryMutex()
+WMutex& WTelemetry::GetTelemetryMutex()
 {
   return s_TelemetryMutex;
 }
 
-void ezTelemetry::StartTelemetryThread()
+void WTelemetry::StartTelemetryThread()
 {
   if (!g_pBroadcastThread)
   {
-    g_pBroadcastThread = EZ_DEFAULT_NEW(ezTelemetryThread);
+    g_pBroadcastThread = W_DEFAULT_NEW(WTelemetryThread);
     g_pBroadcastThread->Start();
   }
 }
 
-void ezTelemetry::StopTelemetryThread()
+void WTelemetry::StopTelemetryThread()
 {
   if (g_pBroadcastThread)
   {
     g_pBroadcastThread->m_bKeepRunning = false;
     g_pBroadcastThread->Join();
 
-    EZ_DEFAULT_DELETE(g_pBroadcastThread);
+    W_DEFAULT_DELETE(g_pBroadcastThread);
   }
 }

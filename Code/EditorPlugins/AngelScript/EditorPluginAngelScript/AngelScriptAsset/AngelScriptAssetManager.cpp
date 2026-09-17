@@ -4,41 +4,41 @@
 #include <EditorPluginAngelScript/AngelScriptAsset/AngelScriptAssetManager.h>
 #include <EditorPluginAngelScript/AngelScriptWindow/AngelScriptWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetManager, 1, ezRTTIDefaultAllocator<ezAngelScriptAssetManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAngelScriptAssetManager, 1, WRTTIDefaultAllocator<WAngelScriptAssetManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAngelScriptAssetManager::ezAngelScriptAssetManager()
+WAngelScriptAssetManager::WAngelScriptAssetManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAngelScriptAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WAngelScriptAssetManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "AngelScript";
-  m_DocTypeDesc.m_sFileExtension = "ezAngelScriptAsset";
+  m_DocTypeDesc.m_sFileExtension = "WAngelScriptAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/AngelScript-AS.svg";
   m_DocTypeDesc.m_sAssetCategory = "Scripting";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAngelScriptAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WAngelScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAngelScript";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinAngelScript";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("AngelScript", QPixmap(":/AssetIcons/AngelScript-Big-AS.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("AngelScript", QPixmap(":/AssetIcons/AngelScript-Big-AS.svg"));
 }
 
-ezAngelScriptAssetManager::~ezAngelScriptAssetManager()
+WAngelScriptAssetManager::~WAngelScriptAssetManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAngelScriptAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WAngelScriptAssetManager::OnDocumentManagerEvent, this));
 }
 
-void ezAngelScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WAngelScriptAssetManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAngelScriptAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WAngelScriptAssetDocument>())
       {
-        new ezQtAngelScriptAssetDocumentWindow((ezAngelScriptAssetDocument*)e.m_pDocument); // NOLINT: Not a memory leak
+        new WQtAngelScriptAssetDocumentWindow((WAngelScriptAssetDocument*)e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,13 +48,13 @@ void ezAngelScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager::
   }
 }
 
-void ezAngelScriptAssetManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WAngelScriptAssetManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAngelScriptAssetDocument(sPath);
+  out_pDocument = new WAngelScriptAssetDocument(sPath);
 }
 
-void ezAngelScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WAngelScriptAssetManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

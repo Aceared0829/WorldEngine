@@ -3,24 +3,24 @@
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WEditorEngineSyncObject, 1, WRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SyncGuid", m_SyncObjectGuid),
+    W_MEMBER_PROPERTY("SyncGuid", m_SyncObjectGuid),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezEditorEngineSyncObject::ezEditorEngineSyncObject()
+WEditorEngineSyncObject::WEditorEngineSyncObject()
 {
-  m_SyncObjectGuid = ezUuid::MakeUuid();
+  m_SyncObjectGuid = WUuid::MakeUuid();
   m_bModified = true;
 }
 
-ezEditorEngineSyncObject::~ezEditorEngineSyncObject()
+WEditorEngineSyncObject::~WEditorEngineSyncObject()
 {
   if (m_OnDestruction.IsValid())
   {
@@ -28,13 +28,13 @@ ezEditorEngineSyncObject::~ezEditorEngineSyncObject()
   }
 }
 
-void ezEditorEngineSyncObject::Configure(ezUuid ownerGuid, ezDelegate<void(ezEditorEngineSyncObject*)> onDestruction)
+void WEditorEngineSyncObject::Configure(WUuid ownerGuid, WDelegate<void(WEditorEngineSyncObject*)> onDestruction)
 {
   m_OwnerGuid = ownerGuid;
   m_OnDestruction = onDestruction;
 }
 
-ezUuid ezEditorEngineSyncObject::GetDocumentGuid() const
+WUuid WEditorEngineSyncObject::GetDocumentGuid() const
 {
   return m_OwnerGuid;
 }

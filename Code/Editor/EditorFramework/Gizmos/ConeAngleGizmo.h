@@ -5,36 +5,36 @@
 #include <QPoint>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezConeAngleGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WConeAngleGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConeAngleGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WConeAngleGizmo, WGizmo);
 
 public:
-  ezConeAngleGizmo();
+  WConeAngleGizmo();
 
-  void SetAngle(ezAngle angle);
-  ezAngle GetAngle() const { return m_Angle; }
+  void SetAngle(WAngle angle);
+  WAngle GetAngle() const { return m_Angle; }
 
   void SetRadius(float fRadius) { m_fRadius = fRadius; }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
 
 private:
-  ezTime m_LastInteraction;
+  WTime m_LastInteraction;
 
-  ezVec2I32 m_vLastMousePos;
+  WVec2I32 m_vLastMousePos;
 
-  ezEngineGizmoHandle m_hConeAngle;
+  WEngineGizmoHandle m_hConeAngle;
 
   enum class ManipulateMode
   {
@@ -44,7 +44,7 @@ private:
 
   ManipulateMode m_ManipulateMode;
 
-  ezAngle m_Angle;
+  WAngle m_Angle;
   float m_fRadius;
   float m_fAngleScale;
 };

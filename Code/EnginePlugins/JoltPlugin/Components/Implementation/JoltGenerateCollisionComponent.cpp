@@ -13,11 +13,11 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/SplineMeshComponent.h>
 
-class SplineCollisionGenerationTask : public ezTask
+class SplineCollisionGenerationTask : public WTask
 {
 public:
-  SplineCollisionGenerationTask(const ezComponentHandle& hOwnerComponent, const ezStringView sCollisionMeshPath, const ezSpline& spline, ezArrayMap<float, float> distanceToKey, ezArrayPtr<ezCpuMeshResourceHandle> meshes,
-    ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ)
+  SplineCollisionGenerationTask(const WComponentHandle& hOwnerComponent, const WStringView sCollisionMeshPath, const WSpline& spline, WArrayMap<float, float> distanceToKey, WArrayPtr<WCpuMeshResourceHandle> meshes,
+    WArrayPtr<WVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ)
     : m_hOwnerComponent(hOwnerComponent)
     , m_sCollisionMeshPath(sCollisionMeshPath)
     , m_Spline(spline)
@@ -31,43 +31,43 @@ public:
 
   virtual void Execute() override
   {
-    ezTempHybridArray<ezCpuMeshResource*, 16> cpuMeshes;
+    WTempHybridArray<WCpuMeshResource*, 16> cpuMeshes;
 
     for (auto& hMeshCpu : m_Meshes)
     {
-      ezCpuMeshResource* pMeshCpu = ezResourceManager::BeginAcquireResource<ezCpuMeshResource>(hMeshCpu, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      EZ_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
+      WCpuMeshResource* pMeshCpu = WResourceManager::BeginAcquireResource<WCpuMeshResource>(hMeshCpu, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+      W_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
       cpuMeshes.PushBack(pMeshCpu);
     }
 
-    EZ_SCOPE_EXIT(
+    W_SCOPE_EXIT(
       for (auto pMeshCpu : cpuMeshes) {
-        ezResourceManager::EndAcquireResource(pMeshCpu);
+        WResourceManager::EndAcquireResource(pMeshCpu);
       });
 
-    ezMeshResourceDescriptor splineMeshDesc;
-    if (ezSplineMeshComponent::GenerateSplineMeshDesc(m_Spline, m_DistanceToKey, cpuMeshes, m_ScaleOffsets, m_fLocalOffsetY, m_fLocalOffsetZ, splineMeshDesc).Failed())
+    WMeshResourceDescriptor splineMeshDesc;
+    if (WSplineMeshComponent::GenerateSplineMeshDesc(m_Spline, m_DistanceToKey, cpuMeshes, m_ScaleOffsets, m_fLocalOffsetY, m_fLocalOffsetZ, splineMeshDesc).Failed())
       return;
 
-    ezJoltMeshDesc joltMeshDesc;
+    WJoltMeshDesc joltMeshDesc;
     {
       const auto& splineMeshBufferDesc = splineMeshDesc.MeshBufferDesc();
 
-      joltMeshDesc.m_Type = ezJoltMeshDesc::Type::Triangle;
+      joltMeshDesc.m_Type = WJoltMeshDesc::Type::Triangle;
       joltMeshDesc.m_Vertices = splineMeshBufferDesc.GetPositionData();
 
-      const ezUInt32 uiNumIndices = splineMeshBufferDesc.GetPrimitiveCount() * 3;
+      const WUInt32 uiNumIndices = splineMeshBufferDesc.GetPrimitiveCount() * 3;
       if (splineMeshBufferDesc.Uses32BitIndices())
       {
-        ezArrayPtr<const ezUInt32> indices = ezMakeArrayPtr(reinterpret_cast<const ezUInt32*>(splineMeshBufferDesc.GetIndexBufferData().GetPtr()), uiNumIndices);
+        WArrayPtr<const WUInt32> indices = WMakeArrayPtr(reinterpret_cast<const WUInt32*>(splineMeshBufferDesc.GetIndexBufferData().GetPtr()), uiNumIndices);
         joltMeshDesc.m_TriangleIndices = indices;
       }
       else
       {
         joltMeshDesc.m_TriangleIndices.SetCountUninitialized(uiNumIndices);
-        const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(splineMeshBufferDesc.GetIndexBufferData().GetPtr());
+        const WUInt16* pIndices = reinterpret_cast<const WUInt16*>(splineMeshBufferDesc.GetIndexBufferData().GetPtr());
 
-        for (ezUInt32 tri = 0; tri < uiNumIndices; ++tri)
+        for (WUInt32 tri = 0; tri < uiNumIndices; ++tri)
         {
           joltMeshDesc.m_TriangleIndices[tri] = pIndices[tri];
         }
@@ -76,10 +76,10 @@ public:
       joltMeshDesc.m_TriangleSurfaceID.SetCount(splineMeshDesc.MeshBufferDesc().GetPrimitiveCount());
       for (auto& subMesh : splineMeshDesc.GetSubMeshes())
       {
-        const ezUInt32 uiLastTriangle = subMesh.m_uiFirstPrimitive + subMesh.m_uiPrimitiveCount;
-        const ezUInt16 uiSurface = subMesh.m_uiMaterialIndex;
+        const WUInt32 uiLastTriangle = subMesh.m_uiFirstPrimitive + subMesh.m_uiPrimitiveCount;
+        const WUInt16 uiSurface = subMesh.m_uiMaterialIndex;
 
-        for (ezUInt32 t = subMesh.m_uiFirstPrimitive; t < uiLastTriangle; ++t)
+        for (WUInt32 t = subMesh.m_uiFirstPrimitive; t < uiLastTriangle; ++t)
         {
           joltMeshDesc.m_TriangleSurfaceID[t] = uiSurface;
         }
@@ -91,34 +91,34 @@ public:
       }
     }
 
-    ezDeferredFileWriter fileWriter;
+    WDeferredFileWriter fileWriter;
     fileWriter.SetOutput(m_sCollisionMeshPath);
 
-    if (ezJoltMeshResourceWriter::WriteMeshResource(std::move(joltMeshDesc), fileWriter).Failed())
+    if (WJoltMeshResourceWriter::WriteMeshResource(std::move(joltMeshDesc), fileWriter).Failed())
     {
-      ezLog::Error("Could not write spline collision mesh file to '{}'", m_sCollisionMeshPath);
+      WLog::Error("Could not write spline collision mesh file to '{}'", m_sCollisionMeshPath);
       return;
     }
 
     if (fileWriter.Close().Failed())
     {
-      ezLog::Error("Could not write spline collision mesh file to '{}'", m_sCollisionMeshPath);
+      WLog::Error("Could not write spline collision mesh file to '{}'", m_sCollisionMeshPath);
     }
 
-    ezMsgComponentInternalTrigger msg;
+    WMsgComponentInternalTrigger msg;
     msg.m_sMessage.Assign("GenerationDone");
 
-    ezWorld::GetWorld(m_hOwnerComponent)->PostMessage(m_hOwnerComponent, msg, ezTime::MakeZero());
+    WWorld::GetWorld(m_hOwnerComponent)->PostMessage(m_hOwnerComponent, msg, WTime::MakeZero());
   }
 
 private:
-  ezComponentHandle m_hOwnerComponent;
+  WComponentHandle m_hOwnerComponent;
 
-  ezString m_sCollisionMeshPath;
-  ezSpline m_Spline;
-  ezArrayMap<float, float> m_DistanceToKey;
-  ezDynamicArray<ezCpuMeshResourceHandle> m_Meshes;
-  ezDynamicArray<ezVec2> m_ScaleOffsets;
+  WString m_sCollisionMeshPath;
+  WSpline m_Spline;
+  WArrayMap<float, float> m_DistanceToKey;
+  WDynamicArray<WCpuMeshResourceHandle> m_Meshes;
+  WDynamicArray<WVec2> m_ScaleOffsets;
   float m_fLocalOffsetY = 0;
   float m_fLocalOffsetZ = 0;
 };
@@ -126,69 +126,69 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezJoltMeshMapping, ezNoBase, 1, ezRTTIDefaultAllocator<ezJoltMeshMapping>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WJoltMeshMapping, WNoBase, 1, WRTTIDefaultAllocator<WJoltMeshMapping>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("RenderMesh", m_hRenderMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static", ezDependencyFlags::None), new ezRequiredAttribute()),
-    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::None), new ezRequiredAttribute()),
+    W_RESOURCE_MEMBER_PROPERTY("RenderMesh", m_hRenderMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Static", WDependencyFlags::None), new WRequiredAttribute()),
+    W_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", WDependencyFlags::None), new WRequiredAttribute()),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezJoltMeshMapping::Serialize(ezStreamWriter& inout_stream) const
+WResult WJoltMeshMapping::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream << m_hRenderMesh;
   inout_stream << m_hCollisionMesh;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezJoltMeshMapping::Deserialize(ezStreamReader& inout_stream)
+WResult WJoltMeshMapping::Deserialize(WStreamReader& inout_stream)
 {
   inout_stream >> m_hRenderMesh;
   inout_stream >> m_hCollisionMesh;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltGenerateCollisionComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltGenerateCollisionComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("MeshMappings", Reflection_GetMeshMappingCount, Reflection_GetMeshMapping, Reflection_SetMeshMapping, Reflection_InsertMeshMapping, Reflection_RemoveMeshMapping),
+    W_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new WDynamicEnumAttribute("PhysicsCollisionLayer")),
+    W_ARRAY_ACCESSOR_PROPERTY("MeshMappings", Reflection_GetMeshMappingCount, Reflection_GetMeshMapping, Reflection_SetMeshMapping, Reflection_InsertMeshMapping, Reflection_RemoveMeshMapping),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgGenerateSplineMeshCollision, OnMsgGenerateSplineMeshCollision),
-    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
+    W_MESSAGE_HANDLER(WMsgGenerateSplineMeshCollision, OnMsgGenerateSplineMeshCollision),
+    W_MESSAGE_HANDLER(WMsgComponentInternalTrigger, OnMsgComponentInternalTrigger),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+    W_FUNCTION_PROPERTY(OnObjectCreated),
   }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_FUNCTIONS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Misc"),
+    new WCategoryAttribute("Physics/Jolt/Misc"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltGenerateCollisionComponent::ezJoltGenerateCollisionComponent() = default;
-ezJoltGenerateCollisionComponent::~ezJoltGenerateCollisionComponent() = default;
+WJoltGenerateCollisionComponent::WJoltGenerateCollisionComponent() = default;
+WJoltGenerateCollisionComponent::~WJoltGenerateCollisionComponent() = default;
 
-void ezJoltGenerateCollisionComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltGenerateCollisionComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -198,10 +198,10 @@ void ezJoltGenerateCollisionComponent::SerializeComponent(ezWorldWriter& inout_s
   s << m_uiCollisionLayer;
 }
 
-void ezJoltGenerateCollisionComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltGenerateCollisionComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s.ReadArray(m_MeshMappings).IgnoreResult();
@@ -213,62 +213,62 @@ void ezJoltGenerateCollisionComponent::DeserializeComponent(ezWorldReader& inout
   }
 }
 
-void ezJoltGenerateCollisionComponent::OnDeactivated()
+void WJoltGenerateCollisionComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  ezTaskSystem::WaitForGroup(m_TaskGroupID);
+  WTaskSystem::WaitForGroup(m_TaskGroupID);
 }
 
-void ezJoltGenerateCollisionComponent::Reflection_SetMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping)
+void WJoltGenerateCollisionComponent::Reflection_SetMeshMapping(WUInt32 uiIndex, const WJoltMeshMapping& mapping)
 {
   m_MeshMappings.EnsureCount(uiIndex + 1);
   m_MeshMappings[uiIndex] = mapping;
 }
 
-void ezJoltGenerateCollisionComponent::Reflection_InsertMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping)
+void WJoltGenerateCollisionComponent::Reflection_InsertMeshMapping(WUInt32 uiIndex, const WJoltMeshMapping& mapping)
 {
   m_MeshMappings.InsertAt(uiIndex, mapping);
 }
 
-void ezJoltGenerateCollisionComponent::Reflection_RemoveMeshMapping(ezUInt32 uiIndex)
+void WJoltGenerateCollisionComponent::Reflection_RemoveMeshMapping(WUInt32 uiIndex)
 {
   m_MeshMappings.RemoveAtAndCopy(uiIndex);
 }
 
-ezCpuMeshResourceHandle ezJoltGenerateCollisionComponent::GetCollisionCpuMeshForRenderMesh(ezMeshResourceHandle hRenderMesh) const
+WCpuMeshResourceHandle WJoltGenerateCollisionComponent::GetCollisionCpuMeshForRenderMesh(WMeshResourceHandle hRenderMesh) const
 {
   for (const auto& mapping : m_MeshMappings)
   {
     if (mapping.m_hRenderMesh == hRenderMesh)
     {
-      ezResourceLock<ezJoltMeshResource> pCollisionMesh(mapping.m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
-      if (pCollisionMesh.GetAcquireResult() == ezResourceAcquireResult::Final)
+      WResourceLock<WJoltMeshResource> pCollisionMesh(mapping.m_hCollisionMesh, WResourceAcquireMode::BlockTillLoaded);
+      if (pCollisionMesh.GetAcquireResult() == WResourceAcquireResult::Final)
       {
         return pCollisionMesh->ConvertToCpuMesh();
       }
     }
   }
 
-  return ezCpuMeshResourceHandle();
+  return WCpuMeshResourceHandle();
 }
 
-void ezJoltGenerateCollisionComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+void WJoltGenerateCollisionComponent::OnObjectCreated(const WAbstractObjectNode& node)
 {
-  m_uiStableId = ezHashingUtils::xxHash64(&node.GetGuid(), sizeof(ezUuid));
+  m_uiStableId = WHashingUtils::xxHash64(&node.GetGuid(), sizeof(WUuid));
 }
 
-void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg)
+void WJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(WMsgGenerateSplineMeshCollision& ref_msg)
 {
   // Only generate in the editor
-  if (GetUniqueID() == ezInvalidIndex)
+  if (GetUniqueID() == WInvalidIndex)
     return;
 
   m_sCollisionMeshPath.Clear();
 
-  ezTempHybridArray<ezCpuMeshResourceHandle, 16> cpuMeshes;
-  ezTempHybridArray<ezVec2, 16> scaleOffsets;
-  for (ezUInt32 i = 0; i < ref_msg.m_RenderMeshes.GetCount(); ++i)
+  WTempHybridArray<WCpuMeshResourceHandle, 16> cpuMeshes;
+  WTempHybridArray<WVec2, 16> scaleOffsets;
+  for (WUInt32 i = 0; i < ref_msg.m_RenderMeshes.GetCount(); ++i)
   {
     auto hCpuMesh = GetCollisionCpuMeshForRenderMesh(ref_msg.m_RenderMeshes[i]);
     if (hCpuMesh.IsValid())
@@ -281,23 +281,23 @@ void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGen
   if (cpuMeshes.IsEmpty())
     return;
 
-  const ezSplineComponent* pSplineComponent = nullptr;
+  const WSplineComponent* pSplineComponent = nullptr;
   if (!GetWorld()->TryGetComponent(ref_msg.m_hSplineComponent, pSplineComponent))
     return;
 
-  const ezUInt64 uiStableSplineId = ezHashingUtils::xxHash64(&pSplineComponent->GetUuid(), sizeof(ezUuid));
+  const WUInt64 uiStableSplineId = WHashingUtils::xxHash64(&pSplineComponent->GetUuid(), sizeof(WUuid));
 
-  ezStringBuilder sb;
-  sb.SetFormat(":project/AssetCache/Generated/GenCol_{}_{}.ezJoltMesh", ezArgU(m_uiStableId, 16, true, 16, true), ezArgU(uiStableSplineId, 16, true, 16, true));
+  WStringBuilder sb;
+  sb.SetFormat(":project/AssetCache/Generated/GenCol_{}_{}.WJoltMesh", WArgU(m_uiStableId, 16, true, 16, true), WArgU(uiStableSplineId, 16, true, 16, true));
   m_sCollisionMeshPath.Assign(sb);
 
-  auto pTask = EZ_DEFAULT_NEW(SplineCollisionGenerationTask, GetHandle(), sb, pSplineComponent->GetSpline(), pSplineComponent->GetDistanceToKeyRemapping(), cpuMeshes, scaleOffsets, ref_msg.m_fLocalOffsetY, ref_msg.m_fLocalOffsetZ);
-  pTask->ConfigureTask("Generate Spline Collision Mesh", ezTaskNesting::Maybe);
+  auto pTask = W_DEFAULT_NEW(SplineCollisionGenerationTask, GetHandle(), sb, pSplineComponent->GetSpline(), pSplineComponent->GetDistanceToKeyRemapping(), cpuMeshes, scaleOffsets, ref_msg.m_fLocalOffsetY, ref_msg.m_fLocalOffsetZ);
+  pTask->ConfigureTask("Generate Spline Collision Mesh", WTaskNesting::Maybe);
 
   StartGenerateTask(pTask);
 }
 
-void ezJoltGenerateCollisionComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& ref_msg)
+void WJoltGenerateCollisionComponent::OnMsgComponentInternalTrigger(WMsgComponentInternalTrigger& ref_msg)
 {
   if (ref_msg.m_sMessage == "GenerationDone")
   {
@@ -306,13 +306,13 @@ void ezJoltGenerateCollisionComponent::OnMsgComponentInternalTrigger(ezMsgCompon
     if (m_pNextGenerationTask != nullptr)
     {
       m_pGenerationTask = std::move(m_pNextGenerationTask);
-      m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
+      m_TaskGroupID = WTaskSystem::StartSingleTask(m_pGenerationTask, WTaskPriority::LongRunning);
       m_pNextGenerationTask = nullptr;
     }
   }
 }
 
-void ezJoltGenerateCollisionComponent::StartGenerateTask(ezSharedPtr<ezTask>&& pTask)
+void WJoltGenerateCollisionComponent::StartGenerateTask(WSharedPtr<WTask>&& pTask)
 {
   if (m_pGenerationTask != nullptr)
   {
@@ -321,33 +321,33 @@ void ezJoltGenerateCollisionComponent::StartGenerateTask(ezSharedPtr<ezTask>&& p
   }
 
   m_pGenerationTask = pTask;
-  m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
+  m_TaskGroupID = WTaskSystem::StartSingleTask(m_pGenerationTask, WTaskPriority::LongRunning);
 }
 
-void ezJoltGenerateCollisionComponent::FinalizeGeneration()
+void WJoltGenerateCollisionComponent::FinalizeGeneration()
 {
   if (m_sCollisionMeshPath.IsEmpty())
     return;
 
-  ezTaskSystem::WaitForGroup(m_TaskGroupID);
+  WTaskSystem::WaitForGroup(m_TaskGroupID);
 
-  ezGameObject* pObject = GetOwner();
+  WGameObject* pObject = GetOwner();
   while (pObject->WasCreatedByPrefab())
   {
     pObject = pObject->GetParent();
   }
 
-  ezJoltStaticActorComponent* pStaticActorComponent = nullptr;
+  WJoltStaticActorComponent* pStaticActorComponent = nullptr;
   if (!pObject->TryGetComponentOfBaseType(pStaticActorComponent))
   {
-    ezJoltStaticActorComponent::CreateComponent(pObject, pStaticActorComponent);
+    WJoltStaticActorComponent::CreateComponent(pObject, pStaticActorComponent);
   }
 
-  EZ_ASSERT_DEV(!pStaticActorComponent->WasCreatedByPrefab(), "Should have been handled above");
-  ezJoltMeshResourceHandle hCollisionMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(m_sCollisionMeshPath);
+  W_ASSERT_DEV(!pStaticActorComponent->WasCreatedByPrefab(), "Should have been handled above");
+  WJoltMeshResourceHandle hCollisionMesh = WResourceManager::LoadResource<WJoltMeshResource>(m_sCollisionMeshPath);
   pStaticActorComponent->SetMesh(hCollisionMesh);
   pStaticActorComponent->m_uiCollisionLayer = m_uiCollisionLayer;
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltGenerateCollisionComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltGenerateCollisionComponent);

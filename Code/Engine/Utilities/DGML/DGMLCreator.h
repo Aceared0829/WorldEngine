@@ -3,8 +3,8 @@
 #include <Core/World/Declarations.h>
 #include <Utilities/UtilitiesDLL.h>
 
-class ezWorld;
-class ezDGMLGraph;
+class WWorld;
+class WDGMLGraph;
 
 /// Creates DGML (Directed Graph Markup Language) graphs from engine structures for visualization and debugging.
 ///
@@ -14,7 +14,7 @@ class ezDGMLGraph;
 ///
 /// The generated DGML files can be opened in Visual Studio to provide an interactive graph view
 /// where you can explore relationships, search for specific nodes, and analyze the structure visually.
-class EZ_UTILITIES_DLL ezDGMLGraphCreator
+class W_UTILITIES_DLL WDGMLGraphCreator
 {
 public:
   /// Adds the world hierarchy (game objects and components) to the given graph object.
@@ -25,5 +25,5 @@ public:
   ///
   /// \param pWorld The world whose hierarchy should be added to the graph. Must not be nullptr.
   /// \param ref_graph The DGML graph object that will receive the world structure data.
-  static void FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_graph);
+  static void FillGraphFromWorld(WWorld* pWorld, WDGMLGraph& ref_graph);
 };

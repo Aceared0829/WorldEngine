@@ -4,12 +4,12 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezWorld;
+class WWorld;
 
 /// Defines the different phases during world updates for module execution ordering.
-struct ezWorldUpdatePhase
+struct WWorldUpdatePhase
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -28,56 +28,56 @@ struct ezWorldUpdatePhase
 /// World modules provide additional functionality to worlds such as component management,
 /// physics simulation, or rendering. They can register update functions that are called
 /// during different phases of the world update cycle and manage resources and state.
-class EZ_CORE_DLL ezWorldModule : public ezReflectedClass
+class W_CORE_DLL WWorldModule : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezWorldModule, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WWorldModule, WReflectedClass);
 
 protected:
-  ezWorldModule(ezWorld* pWorld);
-  virtual ~ezWorldModule();
+  WWorldModule(WWorld* pWorld);
+  virtual ~WWorldModule();
 
 public:
   /// Returns the corresponding world to this module.
-  ezWorld* GetWorld();
+  WWorld* GetWorld();
 
   /// Returns the corresponding world to this module.
-  const ezWorld* GetWorld() const;
+  const WWorld* GetWorld() const;
 
   /// Same as GetWorld()->GetIndex(). Needed to break circular include dependencies.
-  ezUInt32 GetWorldIndex() const;
+  WUInt32 GetWorldIndex() const;
 
 protected:
-  friend class ezWorld;
-  friend class ezInternal::WorldData;
-  friend class ezMemoryUtils;
+  friend class WWorld;
+  friend class WInternal::WorldData;
+  friend class WMemoryUtils;
 
   /// Context passed to update functions containing information about component range to process.
   struct UpdateContext
   {
-    ezUInt32 m_uiFirstComponentIndex = 0; ///< Index of the first component to process in this batch
-    ezUInt32 m_uiComponentCount = 0;      ///< Number of components to process in this batch
+    WUInt32 m_uiFirstComponentIndex = 0; ///< Index of the first component to process in this batch
+    WUInt32 m_uiComponentCount = 0;      ///< Number of components to process in this batch
   };
 
   /// Update function delegate.
-  using UpdateFunction = ezDelegate<void(const UpdateContext&)>;
+  using UpdateFunction = WDelegate<void(const UpdateContext&)>;
 
   /// Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
   {
-    UpdateFunctionDesc(const UpdateFunction& function, ezStringView sFunctionName)
+    UpdateFunctionDesc(const UpdateFunction& function, WStringView sFunctionName)
       : m_Function(function)
     {
       m_sFunctionName.Assign(sFunctionName);
     }
 
     UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    ezHashedString m_sFunctionName;               ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
+    WHashedString m_sFunctionName;               ///< Name of the function. Use the W_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
                                                   ///< with the correct name.
-    ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
+    WHybridArray<WHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
                                                   ///< called after all its dependencies have been called.
-    ezEnum<ezWorldUpdatePhase> m_Phase;           ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
+    WEnum<WWorldUpdatePhase> m_Phase;           ///< The update phase in which this update function should be called. See WWorld for a description on the different phases.
     bool m_bOnlyUpdateWhenSimulating = false;     ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiAsyncPhaseBatchSize = 0;         ///< 0 means m_Function is called once per frame, to update all components, but still in parallel with other world modules.
+    WUInt16 m_uiAsyncPhaseBatchSize = 0;         ///< 0 means m_Function is called once per frame, to update all components, but still in parallel with other world modules.
                                                   ///< >0 means m_Function is called multiple times (in parallel) with batches of roughly this size.
     float m_fPriority = 0.0f;                     ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
@@ -90,10 +90,10 @@ protected:
   void DeregisterUpdateFunction(const UpdateFunctionDesc& desc);
 
   /// Returns the allocator used by the world.
-  ezAllocator* GetAllocator();
+  WAllocator* GetAllocator();
 
   /// Returns the block allocator used by the world.
-  ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
+  WInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
   /// Returns whether the world simulation is enabled.
   bool GetWorldSimulationEnabled() const;
@@ -110,79 +110,79 @@ protected:
   /// initialization method.
   virtual void OnSimulationStarted() {}
 
-  /// Called by ezWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
+  /// Called by WWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
   virtual void WorldClear() {}
 
-  ezWorld* m_pWorld;
+  WWorld* m_pWorld;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Helper class to get component type ids and create new instances of world modules from rtti.
-class EZ_CORE_DLL ezWorldModuleFactory
+class W_CORE_DLL WWorldModuleFactory
 {
 public:
-  static ezWorldModuleFactory* GetInstance();
+  static WWorldModuleFactory* GetInstance();
 
   template <typename ModuleType, typename RTTIType>
-  ezWorldModuleTypeId RegisterWorldModule();
+  WWorldModuleTypeId RegisterWorldModule();
 
   /// Returns the module type id to the given rtti module/component type.
-  ezWorldModuleTypeId GetTypeId(const ezRTTI* pRtti);
+  WWorldModuleTypeId GetTypeId(const WRTTI* pRtti);
 
   /// Creates a new instance of the world module with the given type id and world.
-  ezWorldModule* CreateWorldModule(ezUInt16 uiTypeId, ezWorld* pWorld);
+  WWorldModule* CreateWorldModule(WUInt16 uiTypeId, WWorld* pWorld);
 
   /// Register explicit a mapping of a world module interface to a specific implementation.
   ///
   /// This is necessary if there are multiple implementations of the same interface.
   /// If there is only one implementation for an interface this implementation is registered automatically.
-  void RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName);
+  void RegisterInterfaceImplementation(WStringView sInterfaceName, WStringView sImplementationName);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
-  using CreatorFunc = ezWorldModule* (*)(ezAllocator*, ezWorld*);
+  using CreatorFunc = WWorldModule* (*)(WAllocator*, WWorld*);
 
-  ezWorldModuleFactory();
-  ezWorldModuleTypeId RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
+  WWorldModuleFactory();
+  WWorldModuleTypeId RegisterWorldModule(const WRTTI* pRtti, CreatorFunc creatorFunc);
 
-  static void PluginEventHandler(const ezPluginEvent& EventData);
+  static void PluginEventHandler(const WPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
-  void AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId);
+  void AdjustBaseTypeId(const WRTTI* pParentRtti, const WRTTI* pRtti, WUInt16 uiParentTypeId);
 
-  ezHashTable<const ezRTTI*, ezWorldModuleTypeId> m_TypeToId;
+  WHashTable<const WRTTI*, WWorldModuleTypeId> m_TypeToId;
 
   struct CreatorFuncContext
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     CreatorFunc m_Func;
-    const ezRTTI* m_pRtti;
+    const WRTTI* m_pRtti;
   };
 
-  ezDynamicArray<CreatorFuncContext> m_CreatorFuncs;
+  WDynamicArray<CreatorFuncContext> m_CreatorFuncs;
 
-  ezHashTable<ezString, ezString> m_InterfaceImplementations;
+  WHashTable<WString, WString> m_InterfaceImplementations;
 };
 
 /// Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE()                      \
+#define W_DECLARE_WORLD_MODULE()                      \
 public:                                                \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() \
+  static W_ALWAYS_INLINE WWorldModuleTypeId TypeId() \
   {                                                    \
     return s_TypeId;                                   \
   }                                                    \
                                                        \
 private:                                               \
-  static ezWorldModuleTypeId s_TypeId;
+  static WWorldModuleTypeId s_TypeId;
 
 /// Implements the given module type. Add this macro to a cpp outside of the type declaration.
-#define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
-  ezWorldModuleTypeId moduleType::s_TypeId = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
+#define W_IMPLEMENT_WORLD_MODULE(moduleType) \
+  WWorldModuleTypeId moduleType::s_TypeId = WWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// Helper macro to create an update function description with proper name
-#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
+#define W_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) WWorldModule::UpdateFunctionDesc(WWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>

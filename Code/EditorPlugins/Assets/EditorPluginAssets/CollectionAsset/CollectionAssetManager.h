@@ -3,24 +3,24 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
 
-class ezCollectionAssetDocumentManager : public ezAssetDocumentManager
+class WCollectionAssetDocumentManager : public WAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetDocumentManager, ezAssetDocumentManager);
+  W_ADD_DYNAMIC_REFLECTION(WCollectionAssetDocumentManager, WAssetDocumentManager);
 
 public:
-  ezCollectionAssetDocumentManager();
-  ~ezCollectionAssetDocumentManager();
+  WCollectionAssetDocumentManager();
+  ~WCollectionAssetDocumentManager();
 
-  virtual void GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_assetTypes) override;
+  virtual void GetAssetTypesRequiringTransformForSceneExport(WSet<WTempHashedString>& inout_assetTypes) override;
 
 private:
-  void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
+  void OnDocumentManagerEvent(const WDocumentManager::Event& e);
 
   virtual void InternalCreateDocument(
-    ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
-  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
+    WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext) override;
+  virtual void InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
-  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
+  WAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

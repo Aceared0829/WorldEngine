@@ -6,20 +6,20 @@
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: customcomp-manager
-using DemoComponentManager = ezComponentManagerSimple<class DemoComponent, ezComponentUpdateType::WhenSimulating>;
+using DemoComponentManager = WComponentManagerSimple<class DemoComponent, WComponentUpdateType::WhenSimulating>;
 // END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: customcomp-class
-class DemoComponent : public ezComponent
+class DemoComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(DemoComponent, ezComponent, DemoComponentManager);
+  W_DECLARE_COMPONENT_TYPE(DemoComponent, WComponent, DemoComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -35,6 +35,6 @@ private:
   void Update();
 
   float m_fAmplitude = 1.0f;                     // [ property ]
-  ezAngle m_Speed = ezAngle::MakeFromDegree(90); // [ property ]
+  WAngle m_Speed = WAngle::MakeFromDegree(90); // [ property ]
 };
 // END-DOCS-CODE-SNIPPET

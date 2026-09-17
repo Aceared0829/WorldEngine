@@ -8,7 +8,7 @@
 
 /// This system allows to automatically distribute tasks onto a number of worker threads.
 ///
-/// By deriving from ezTask you can create your own task types. These can be executed through this task system.
+/// By deriving from WTask you can create your own task types. These can be executed through this task system.
 /// You can run a single task using the 'StartSingleTask' function. For more complex setups, it is possible
 /// to create groups of tasks, which can have interdependencies. This should be used to group all
 /// tasks that belong to one system and need to be done before another system runs. For example you could group
@@ -21,7 +21,7 @@
 ///
 /// Note that it is crucial to call 'FinishFrameTasks' once per frame, otherwise tasks that need to be executed on the
 /// main thread are never executed.
-class EZ_FOUNDATION_DLL ezTaskSystem
+class W_FOUNDATION_DLL WTaskSystem
 {
 public:
   /// \name Managing Tasks
@@ -30,13 +30,13 @@ public:
 public:
   /// A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put.
-  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority,
-    ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+  static WTaskGroupID StartSingleTask(const WSharedPtr<WTask>& pTask, WTaskPriority::Enum priority,
+    WOnTaskGroupFinishedCallback callback = WOnTaskGroupFinishedCallback()); // [tested]
 
   /// A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put. This overload allows to additionally specify a single dependency.
-  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezTaskGroupID dependency,
-    ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+  static WTaskGroupID StartSingleTask(const WSharedPtr<WTask>& pTask, WTaskPriority::Enum priority, WTaskGroupID dependency,
+    WOnTaskGroupFinishedCallback callback = WOnTaskGroupFinishedCallback()); // [tested]
 
   /// Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
   ///
@@ -58,11 +58,11 @@ public:
 
   /// This function will try to remove the given task from the work queue, to prevent it from being executed.
   ///
-  /// The function will return EZ_SUCCESS, if the task could be removed and thus its execution could be prevented.
-  /// It will also return EZ_SUCCESS, if the task was already finished and nothing needed to be done.
+  /// The function will return W_SUCCESS, if the task could be removed and thus its execution could be prevented.
+  /// It will also return W_SUCCESS, if the task was already finished and nothing needed to be done.
   /// Tasks that are removed without execution will still be marked as 'finished' and dependent tasks will be scheduled.
   ///
-  /// EZ_FAILURE is returned, if the task had already been started and thus could not be prevented from running.
+  /// W_FAILURE is returned, if the task had already been started and thus could not be prevented from running.
   ///
   /// In case of failure, \a bWaitForIt determines whether 'WaitForTask' is called (with all its consequences),
   /// or whether the function will return immediately.
@@ -72,39 +72,39 @@ public:
   /// Therefore when bWaitForIt is true, this function might block for a very long time.
   /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
   /// in a way that allows for quick canceling.
-  static ezResult CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum onTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+  static WResult CancelTask(const WSharedPtr<WTask>& pTask, WOnTaskRunning::Enum onTaskRunning = WOnTaskRunning::WaitTillFinished); // [tested]
 
   struct TaskData
   {
-    ezSharedPtr<ezTask> m_pTask;
-    ezTaskGroup* m_pBelongsToGroup = nullptr;
-    ezUInt32 m_uiInvocation = 0;
+    WSharedPtr<WTask> m_pTask;
+    WTaskGroup* m_pBelongsToGroup = nullptr;
+    WUInt32 m_uiInvocation = 0;
   };
 
-  /// Broadcasts ezThreadEvent::ClearThreadLocals on all worker threads.
+  /// Broadcasts WThreadEvent::ClearThreadLocals on all worker threads.
   static void BroadcastClearThreadLocalsEvent();
 
 private:
   /// Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
-  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
-    const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
+  static TaskData GetNextTask(WTaskPriority::Enum FirstPriority, WTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+    const WTaskGroupID& WaitingForGroup, WAtomicInteger32* pWorkerState);
 
   /// Executes some task of priority between \a FirstPriority and \a LastPriority (inclusive). Returns true, if any such task was available.
-  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
-    const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
+  static bool ExecuteTask(WTaskPriority::Enum FirstPriority, WTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+    const WTaskGroupID& WaitingForGroup, WAtomicInteger32* pWorkerState);
 
   /// Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
-  static void TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup);
+  static void TaskHasFinished(WSharedPtr<WTask>&& pTask, WTaskGroup* pGroup);
 
   /// Moves all 'next frame' tasks into the 'this frame' queues.
   static void ReprioritizeFrameTasks();
 
   /// Executes tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than fSmoothFrameMS.
-  static void ExecuteSomeFrameTasks(ezTime smoothFrameTime);
+  static void ExecuteSomeFrameTasks(WTime smoothFrameTime);
 
 
   /// Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
-  static bool HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup);
+  static bool HelpExecutingTasks(const WTaskGroupID& WaitingForGroup);
 
   ///@}
 
@@ -117,11 +117,11 @@ public:
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(
-    ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+  static WTaskGroupID CreateTaskGroup(
+    WTaskPriority::Enum priority, WOnTaskGroupFinishedCallback callback = WOnTaskGroupFinishedCallback()); // [tested]
 
   /// Adds a task to the given task group. The group must not yet have been started.
-  static void AddTaskToGroup(ezTaskGroupID group, const ezSharedPtr<ezTask>& pTask); // [tested]
+  static void AddTaskToGroup(WTaskGroupID group, const WSharedPtr<WTask>& pTask); // [tested]
 
   /// Adds a dependency on another group to \a Group. This means \a Group will not be execute before \a DependsOn has finished.
   ///
@@ -131,37 +131,37 @@ public:
   /// its dependencies are fulfilled. So you might add a long running task and a short task which depends on it, but the system will
   /// not block at the end of the frame, to wait for the long running task (to finish the short task thereafter), as that short task
   /// won't get scheduled for execution, at all, until all its dependencies are actually finished.
-  static void AddTaskGroupDependency(ezTaskGroupID group, ezTaskGroupID dependsOn); // [tested]
+  static void AddTaskGroupDependency(WTaskGroupID group, WTaskGroupID dependsOn); // [tested]
 
   /// Same as AddTaskGroupDependency() but batches multiple dependency additions
-  static void AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch);
+  static void AddTaskGroupDependencyBatch(WArrayPtr<const WTaskGroupDependency> batch);
 
   /// Starts the task group. After this no further modifications on the group (new tasks or dependencies) are allowed.
-  static void StartTaskGroup(ezTaskGroupID group); // [tested]
+  static void StartTaskGroup(WTaskGroupID group); // [tested]
 
   /// Same as StartTaskGroup() but batches multiple actions
-  static void StartTaskGroupBatch(ezArrayPtr<const ezTaskGroupID> batch);
+  static void StartTaskGroupBatch(WArrayPtr<const WTaskGroupID> batch);
 
   /// Returns whether the given \a Group id refers to a task group that has been finished already.
   ///
   /// There is no time frame in which group IDs are valid. You may call this function at any time, even 10 minutes later,
   /// and it will correctly determine the results.
-  static bool IsTaskGroupFinished(ezTaskGroupID group); // [tested]
+  static bool IsTaskGroupFinished(WTaskGroupID group); // [tested]
 
   /// Cancels all the tasks in the given group.
   ///
-  /// EZ_SUCCESS is returned, if all tasks were already finished or could be removed without waiting for any of them.
-  /// EZ_FAILURE is returned, if at least one task was being processed by another thread and could not be removed without waiting.
+  /// W_SUCCESS is returned, if all tasks were already finished or could be removed without waiting for any of them.
+  /// W_FAILURE is returned, if at least one task was being processed by another thread and could not be removed without waiting.
   /// If bWaitForIt is false, the function cancels all tasks, but returns without blocking, even if not all tasks have been finished.
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
-  static ezResult CancelGroup(ezTaskGroupID group, ezOnTaskRunning::Enum onTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+  static WResult CancelGroup(WTaskGroupID group, WOnTaskRunning::Enum onTaskRunning = WOnTaskRunning::WaitTillFinished); // [tested]
 
   /// Blocks until all tasks in the given group have finished.
   ///
   /// If you need to wait for some other task to finish, this should always be the preferred method to do so.
   /// WaitForGroup will put the current thread to sleep and use thread signals to only wake it up again once the group is indeed
   /// finished. This is the most efficient way to wait for a task.
-  static void WaitForGroup(ezTaskGroupID group); // [tested]
+  static void WaitForGroup(WTaskGroupID group); // [tested]
 
   /// Blocks the current thread until the given delegate returns true.
   ///
@@ -170,14 +170,14 @@ public:
   /// WaitForCondition() will NOT put the current thread to sleep, but instead keep polling the delegate. However, in between,
   /// it will try to execute other tasks and if there are no tasks that it could take on, it will wake up another worker thread
   /// thus guaranteeing, that there are enough unblocked threads in the system to do all the work.
-  static void WaitForCondition(ezDelegate<bool()> condition);
+  static void WaitForCondition(WDelegate<bool()> condition);
 
 private:
   /// Takes all the tasks in the given group and schedules them for execution, by inserting them into the proper task lists.
-  static void ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority);
+  static void ScheduleGroupTasks(WTaskGroup* pGroup, bool bHighPriority);
 
   /// Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
-  static void DependencyHasFinished(ezTaskGroup* pGroup);
+  static void DependencyHasFinished(WTaskGroup* pGroup);
 
   ///@}
 
@@ -188,7 +188,7 @@ public:
   /// Sets the number of threads to use for the different task categories.
   ///
   /// \a uiShortTasks and \a uiLongTasks must be at least 1 and should not exceed the number of available CPU cores.
-  /// There will always be exactly one additional thread for file access tasks (ezTaskPriority::FileAccess).
+  /// There will always be exactly one additional thread for file access tasks (WTaskPriority::FileAccess).
   ///
   /// If \a uiShortTasks or \a uiLongTasks is smaller than 1, a default number of threads will be used for that type of work.
   /// This number of threads depends on the number of available CPU cores.
@@ -196,44 +196,44 @@ public:
   /// this default configuration.
   /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
   /// it is a good idea to just use the default settings.
-  static void SetWorkerThreadCount(ezInt32 iShortTasks = -1, ezInt32 iLongTasks = -1); // [tested]
+  static void SetWorkerThreadCount(WInt32 iShortTasks = -1, WInt32 iLongTasks = -1); // [tested]
 
   /// Returns the maximum number of threads that should work on the given type of task at the same time.
-  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type);
+  static WUInt32 GetWorkerThreadCount(WWorkerThreadType::Enum type);
 
   /// Returns the number of threads that have been allocated to potentially work on the given type of task.
   ///
   /// CAREFUL! This is not the number of threads that will be active at the same time. Use GetWorkerThreadCount() for that.
   /// This is the maximum number of threads that may jump in, if too many threads are blocked. This number will change dynamically
   /// at runtime to prevent deadlocks and it can grow very, very large.
-  static ezUInt32 GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type);
+  static WUInt32 GetNumAllocatedWorkerThreads(WWorkerThreadType::Enum type);
 
   /// Returns the (thread local) type of tasks that would be executed on this thread
-  static ezWorkerThreadType::Enum GetCurrentThreadWorkerType();
+  static WWorkerThreadType::Enum GetCurrentThreadWorkerType();
 
   /// Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once
   /// per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
+  static double GetThreadUtilization(WWorkerThreadType::Enum type, WUInt32 uiThreadIndex, WUInt32* pNumTasksExecuted = nullptr);
 
   /// [internal] Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
-  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
+  static void WakeUpThreads(WWorkerThreadType::Enum type, WUInt32 uiNumThreads);
 
 private:
-  friend class ezTaskWorkerThread;
+  friend class WTaskWorkerThread;
 
   /// Allocates \a uiAddThreads additional threads of \a type
-  static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
+  static void AllocateThreads(WWorkerThreadType::Enum type, WUInt32 uiAddThreads);
 
   /// Shuts down all worker threads. Does NOT finish the remaining tasks that were not started yet. Does not clear them either, though.
   static void StopWorkerThreads();
 
   /// Uses a thread local variable to know the current thread type and to decide the range of task priorities that it may execute
-  static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
+  static void DetermineTasksToExecuteOnThread(WTaskPriority::Enum& out_FirstPriority, WTaskPriority::Enum& out_LastPriority);
 
 private:
-  static ezUniquePtr<ezTaskSystemThreadState> s_pThreadState;
+  static WUniquePtr<WTaskSystemThreadState> s_pThreadState;
 
   ///@}
 
@@ -242,20 +242,20 @@ private:
 
 public:
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
-  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback,
-    const char* szTaskName = nullptr, ezTaskNesting taskNesting = ezTaskNesting::Never, const ezParallelForParams& params = ezParallelForParams());
+  static void ParallelForIndexed(WUInt32 uiStartIndex, WUInt32 uiNumItems, WParallelForIndexedFunction32 taskCallback,
+    const char* szTaskName = nullptr, WTaskNesting taskNesting = WTaskNesting::Never, const WParallelForParams& params = WParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
-  static void ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback,
-    const char* szTaskName = nullptr, ezTaskNesting taskNesting = ezTaskNesting::Never, const ezParallelForParams& params = ezParallelForParams());
+  static void ParallelForIndexed(WUInt64 uiStartIndex, WUInt64 uiNumItems, WParallelForIndexedFunction64 taskCallback,
+    const char* szTaskName = nullptr, WTaskNesting taskNesting = WTaskNesting::Never, const WParallelForParams& params = WParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
   /// from an initial item array pointer.
   /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
-  ///   - ParallelFor(taskItems, [](ezArrayPtr<ElemType> taskItemSlice) { });
+  ///   - ParallelFor(taskItems, [](WArrayPtr<ElemType> taskItemSlice) { });
   template <typename ElemType, typename Callback>
   static void ParallelFor(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    WArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const WParallelForParams& params = WParallelForParams());
   /// A helper function to process task items in a parallel fashion and one-by-one (without global index).
   /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
   ///   - ParallelFor(taskItems, [](ElemType taskItem) { });
@@ -263,20 +263,20 @@ public:
   ///   - ParallelFor(taskItems, [](const ElemType& taskItem) { });
   template <typename ElemType, typename Callback>
   static void ParallelForSingle(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    WArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const WParallelForParams& params = WParallelForParams());
   /// A helper function to process task items in a parallel fashion and one-by-one (with global index).
   /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType taskItem) { });
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType& taskItem) { });
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](WUInt32 globalTaskItemIndex, ElemType taskItem) { });
+  ///   - ParallelFor(taskItems, [](WUInt32 globalTaskItemIndex, ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](WUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
   template <typename ElemType, typename Callback>
   static void ParallelForSingleIndex(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    WArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const WParallelForParams& params = WParallelForParams());
 
 private:
   template <typename ElemType>
   static void ParallelForInternal(
-    ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, const ezParallelForParams& params);
+    WArrayPtr<ElemType> taskItems, WParallelForFunction<ElemType> taskCallback, const char* taskName, const WParallelForParams& params);
 
   ///@}
 
@@ -284,8 +284,8 @@ private:
   ///@{
 
 public:
-  /// Writes the internal state of the ezTaskSystem as a DGML graph.
-  static void WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph);
+  /// Writes the internal state of the WTaskSystem as a DGML graph.
+  static void WriteStateSnapshotToDGML(WDGMLGraph& ref_graph);
 
   /// Convenience function to write the task graph snapshot to a file. If no path is given, the file is written to
   /// ":appdata/TaskGraphs/__date__.dgml"
@@ -301,19 +301,19 @@ public:
   /// Sets the target frame time that is supposed to not be exceeded.
   ///
   /// \see FinishFrameTasks() for more details.
-  static void SetTargetFrameTime(ezTime targetFrameTime = ezTime::MakeFromSeconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
+  static void SetTargetFrameTime(WTime targetFrameTime = WTime::MakeFromSeconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
 
   static void Startup();
   static void Shutdown();
 
 private:
   /// One mutex to rule them all.
-  static ezMutex s_TaskSystemMutex;
+  static WMutex s_TaskSystemMutex;
 
-  static ezUniquePtr<ezTaskSystemState> s_pState;
+  static WUniquePtr<WTaskSystemState> s_pState;
 
   ///@}
 };

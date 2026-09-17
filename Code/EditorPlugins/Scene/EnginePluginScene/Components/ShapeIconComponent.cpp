@@ -3,16 +3,16 @@
 #include <EnginePluginScene/Components/ShapeIconComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WShapeIconComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Editing"),
+    new WCategoryAttribute("Editing"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
-ezShapeIconComponent::ezShapeIconComponent() = default;
-ezShapeIconComponent::~ezShapeIconComponent() = default;
+WShapeIconComponent::WShapeIconComponent() = default;
+WShapeIconComponent::~WShapeIconComponent() = default;

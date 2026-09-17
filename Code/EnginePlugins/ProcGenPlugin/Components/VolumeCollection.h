@@ -6,19 +6,19 @@
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Declarations.h>
 
-using ezImageDataResourceHandle = ezTypedResourceHandle<class ezImageDataResource>;
+using WImageDataResourceHandle = WTypedResourceHandle<class WImageDataResource>;
 
-class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
+class W_PROCGENPLUGIN_DLL WVolumeCollection : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVolumeCollection, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WVolumeCollection, WReflectedClass);
 
 public:
-  ezVolumeCollection();
-  ~ezVolumeCollection();
+  WVolumeCollection();
+  ~WVolumeCollection();
 
   struct ShapeType
   {
-    using StorageType = ezUInt8;
+    using StorageType = WUInt8;
 
     enum Enum
     {
@@ -33,47 +33,47 @@ public:
 
   struct Shape
   {
-    ezVec4 m_GlobalToLocalTransform0;
-    ezVec4 m_GlobalToLocalTransform1;
-    ezVec4 m_GlobalToLocalTransform2;
-    ezEnum<ShapeType> m_Type;
-    ezEnum<ezProcGenBlendMode> m_BlendMode;
-    ezFloat16 m_fValue;
-    ezUInt32 m_uiSortingKey;
+    WVec4 m_GlobalToLocalTransform0;
+    WVec4 m_GlobalToLocalTransform1;
+    WVec4 m_GlobalToLocalTransform2;
+    WEnum<ShapeType> m_Type;
+    WEnum<WProcGenBlendMode> m_BlendMode;
+    WFloat16 m_fValue;
+    WUInt32 m_uiSortingKey;
 
-    EZ_ALWAYS_INLINE bool operator<(const Shape& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
+    W_ALWAYS_INLINE bool operator<(const Shape& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
 
-    void SetGlobalToLocalTransform(const ezSimdMat4f& t);
-    ezSimdMat4f GetGlobalToLocalTransform() const;
+    void SetGlobalToLocalTransform(const WSimdMat4f& t);
+    WSimdMat4f GetGlobalToLocalTransform() const;
   };
 
   struct Sphere : public Shape
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
     float m_fFadeOut;
   };
 
   struct Box : public Shape
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    ezVec3 m_vPositiveFadeOut;
-    ezVec3 m_vNegativeFadeOut;
+    WVec3 m_vPositiveFadeOut;
+    WVec3 m_vNegativeFadeOut;
   };
 
   struct Image : public Box
   {
-    ezImageDataResourceHandle m_hImage;
-    const ezColor* m_pPixelData = nullptr;
-    ezUInt32 m_uiImageWidth = 0;
-    ezUInt32 m_uiImageHeight = 0;
+    WImageDataResourceHandle m_hImage;
+    const WColor* m_pPixelData = nullptr;
+    WUInt32 m_uiImageWidth = 0;
+    WUInt32 m_uiImageHeight = 0;
   };
 
   struct Spline : public Shape
   {
-    ezSpline m_Spline;
-    ezBoundingBox m_BoundingBox;
+    WSpline m_Spline;
+    WBoundingBox m_BoundingBox;
     float m_fInvRadius;
     float m_fFadeOut;
     float m_fMaxError;
@@ -81,25 +81,25 @@ public:
 
   bool IsEmpty() { return m_SortedShapes.IsEmpty(); }
 
-  float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
+  float EvaluateAtGlobalPosition(const WSimdVec4f& vPosition, float fInitialValue, WProcVolumeImageMode::Enum imgMode, const WColor& refColor) const;
 
-  static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType = nullptr);
+  static void ExtractVolumesInBox(const WWorld& world, const WBoundingBox& box, WSpatialData::Category spatialCategory, const WTagSet& includeTags, WVolumeCollection& out_collection, const WRTTI* pComponentBaseType = nullptr);
 
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
+  void AddSphere(const WSimdTransform& transform, float fRadius, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vPositiveFalloff, const ezVec3& vNegativeFalloff, const ezImageDataResourceHandle& hImage = {});
+  void AddBox(const WSimdTransform& transform, const WVec3& vExtents, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, const WVec3& vPositiveFalloff, const WVec3& vNegativeFalloff, const WImageDataResourceHandle& hImage = {});
 
-  void AddSpline(const ezSimdTransform& transform, const ezSpline& spline, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
+  void AddSpline(const WSimdTransform& transform, const WSpline& spline, float fRadius, WEnum<WProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
 private:
-  ezLinearAllocator<ezAllocatorTrackingMode::Basics> m_Allocator;
+  WLinearAllocator<WAllocatorTrackingMode::Basics> m_Allocator;
 
-  ezDynamicArray<const Shape*> m_SortedShapes;
+  WDynamicArray<const Shape*> m_SortedShapes;
 };
 
-struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
+struct W_PROCGENPLUGIN_DLL WMsgExtractVolumes : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgExtractVolumes, WMessage);
 
-  ezVolumeCollection* m_pCollection = nullptr;
+  WVolumeCollection* m_pCollection = nullptr;
 };

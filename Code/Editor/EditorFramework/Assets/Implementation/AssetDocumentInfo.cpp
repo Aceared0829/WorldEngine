@@ -3,40 +3,40 @@
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 2, ezRTTIDefaultAllocator<ezAssetDocumentInfo>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAssetDocumentInfo, 2, WRTTIDefaultAllocator<WAssetDocumentInfo>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_SET_MEMBER_PROPERTY("Dependencies", m_TransformDependencies),
-    EZ_SET_MEMBER_PROPERTY("References", m_ThumbnailDependencies),
-    EZ_SET_MEMBER_PROPERTY("PackageDeps", m_PackageDependencies),
-    EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
-    EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
-    EZ_ACCESSOR_PROPERTY("AssetType", GetAssetsDocumentTypeName, SetAssetsDocumentTypeName),
-    EZ_ACCESSOR_PROPERTY("Tags", GetAssetsDocumentTags, SetAssetsDocumentTags),
-    EZ_ARRAY_MEMBER_PROPERTY("MetaInfo", m_MetaInfo)->AddFlags(ezPropertyFlags::PointerOwner),
+    W_SET_MEMBER_PROPERTY("Dependencies", m_TransformDependencies),
+    W_SET_MEMBER_PROPERTY("References", m_ThumbnailDependencies),
+    W_SET_MEMBER_PROPERTY("PackageDeps", m_PackageDependencies),
+    W_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
+    W_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
+    W_ACCESSOR_PROPERTY("AssetType", GetAssetsDocumentTypeName, SetAssetsDocumentTypeName),
+    W_ACCESSOR_PROPERTY("Tags", GetAssetsDocumentTags, SetAssetsDocumentTags),
+    W_ARRAY_MEMBER_PROPERTY("MetaInfo", m_MetaInfo)->AddFlags(WPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAssetDocumentInfo::ezAssetDocumentInfo()
+WAssetDocumentInfo::WAssetDocumentInfo()
 {
   m_uiSettingsHash = 0;
 }
 
-ezAssetDocumentInfo::~ezAssetDocumentInfo()
+WAssetDocumentInfo::~WAssetDocumentInfo()
 {
   ClearMetaData();
 }
 
-ezAssetDocumentInfo::ezAssetDocumentInfo(ezAssetDocumentInfo&& rhs)
+WAssetDocumentInfo::WAssetDocumentInfo(WAssetDocumentInfo&& rhs)
 {
   (*this) = std::move(rhs);
 }
 
-void ezAssetDocumentInfo::operator=(ezAssetDocumentInfo&& rhs)
+void WAssetDocumentInfo::operator=(WAssetDocumentInfo&& rhs)
 {
   m_uiSettingsHash = rhs.m_uiSettingsHash;
   m_TransformDependencies = rhs.m_TransformDependencies;
@@ -48,7 +48,7 @@ void ezAssetDocumentInfo::operator=(ezAssetDocumentInfo&& rhs)
   m_MetaInfo = std::move(rhs.m_MetaInfo);
 }
 
-void ezAssetDocumentInfo::CreateShallowClone(ezAssetDocumentInfo& rhs) const
+void WAssetDocumentInfo::CreateShallowClone(WAssetDocumentInfo& rhs) const
 {
   rhs.m_uiSettingsHash = m_uiSettingsHash;
   rhs.m_TransformDependencies = m_TransformDependencies;
@@ -60,7 +60,7 @@ void ezAssetDocumentInfo::CreateShallowClone(ezAssetDocumentInfo& rhs) const
   rhs.m_MetaInfo.Clear();
 }
 
-void ezAssetDocumentInfo::ClearMetaData()
+void WAssetDocumentInfo::ClearMetaData()
 {
   for (auto* pObj : m_MetaInfo)
   {
@@ -72,27 +72,27 @@ void ezAssetDocumentInfo::ClearMetaData()
   m_MetaInfo.Clear();
 }
 
-const char* ezAssetDocumentInfo::GetAssetsDocumentTypeName() const
+const char* WAssetDocumentInfo::GetAssetsDocumentTypeName() const
 {
   return m_sAssetsDocumentTypeName.GetData();
 }
 
-const ezString& ezAssetDocumentInfo::GetAssetsDocumentTags() const
+const WString& WAssetDocumentInfo::GetAssetsDocumentTags() const
 {
   return m_sAssetsDocumentTags;
 }
 
-void ezAssetDocumentInfo::SetAssetsDocumentTypeName(const char* szSz)
+void WAssetDocumentInfo::SetAssetsDocumentTypeName(const char* szSz)
 {
   m_sAssetsDocumentTypeName.Assign(szSz);
 }
 
-void ezAssetDocumentInfo::SetAssetsDocumentTags(const ezString& sTags)
+void WAssetDocumentInfo::SetAssetsDocumentTags(const WString& sTags)
 {
   m_sAssetsDocumentTags = sTags;
 }
 
-const ezReflectedClass* ezAssetDocumentInfo::GetMetaInfo(const ezRTTI* pType) const
+const WReflectedClass* WAssetDocumentInfo::GetMetaInfo(const WRTTI* pType) const
 {
   for (auto* pObj : m_MetaInfo)
   {

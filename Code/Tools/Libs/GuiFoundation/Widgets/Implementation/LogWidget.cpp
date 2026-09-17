@@ -10,22 +10,22 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-ezQtLogWidgetItemDelegate::ezQtLogWidgetItemDelegate(QObject* pParent)
-  : ezQtItemDelegate(pParent)
+WQtLogWidgetItemDelegate::WQtLogWidgetItemDelegate(QObject* pParent)
+  : WQtItemDelegate(pParent)
 {
 }
 
-void ezQtLogWidgetItemDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void WQtLogWidgetItemDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  const QVariant link = index.data(ezQtLogModel::UserRoles::Link);
+  const QVariant link = index.data(WQtLogModel::UserRoles::Link);
 
   if (!link.isValid())
   {
-    ezQtItemDelegate::paint(pPainter, option, index);
+    WQtItemDelegate::paint(pPainter, option, index);
     return;
   }
 
-  const QVariant linkText = index.data(ezQtLogModel::UserRoles::LinkText);
+  const QVariant linkText = index.data(WQtLogModel::UserRoles::LinkText);
 
   const QString sLink = link.toString();
   const QString sLinkText = linkText.isValid() ? linkText.toString() : QString();
@@ -53,7 +53,7 @@ void ezQtLogWidgetItemDelegate::paint(QPainter* pPainter, const QStyleOptionView
   pPainter->restore();
 }
 
-bool ezQtLogWidgetItemDelegate::mouseHoverEvent(QHoverEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool WQtLogWidgetItemDelegate::mouseHoverEvent(QHoverEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   if (pEvent->type() == QEvent::HoverEnter)
   {
@@ -67,20 +67,20 @@ bool ezQtLogWidgetItemDelegate::mouseHoverEvent(QHoverEvent* pEvent, const QStyl
   return false;
 }
 
-bool ezQtLogWidgetItemDelegate::mouseDoubleClickEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool WQtLogWidgetItemDelegate::mouseDoubleClickEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-  QVariant linkTarget = index.data(ezQtLogModel::UserRoles::LinkTarget);
+  QVariant linkTarget = index.data(WQtLogModel::UserRoles::LinkTarget);
   if (!linkTarget.isValid())
   {
     return false;
   }
 
-  ezQtUiServices::GotoLinkTarget(qtToEzString(linkTarget.toString()));
+  WQtUiServices::GotoLinkTarget(qtToEzString(linkTarget.toString()));
   return true;
 }
 
 
-bool ezQtLogWidgetItemDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool WQtLogWidgetItemDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   if (pEvent->button() == Qt::MouseButton::MiddleButton)
   {
@@ -91,7 +91,7 @@ bool ezQtLogWidgetItemDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyl
   return false;
 }
 
-bool ezQtLogWidgetItemDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool WQtLogWidgetItemDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   if (pEvent->button() == Qt::MouseButton::MiddleButton)
   {
@@ -103,60 +103,60 @@ bool ezQtLogWidgetItemDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QSt
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMap<ezString, ezQtLogWidget::LogItemContextActionCallback> ezQtLogWidget::s_LogCallbacks;
+WMap<WString, WQtLogWidget::LogItemContextActionCallback> WQtLogWidget::s_LogCallbacks;
 
-ezQtLogWidget::ezQtLogWidget(QWidget* pParent)
+WQtLogWidget::WQtLogWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
 
-  m_pDelegate = new ezQtLogWidgetItemDelegate(this);
+  m_pDelegate = new WQtLogWidgetItemDelegate(this);
 
-  m_pLog = new ezQtLogModel(this);
+  m_pLog = new WQtLogModel(this);
   ListViewLog->setModel(m_pLog);
   ListViewLog->setUniformItemSizes(true);
   ListViewLog->installEventFilter(this);
   ListViewLog->setItemDelegate(m_pDelegate);
   connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int iFirst, int iLast)
     { ScrollToBottomIfAtEnd(iFirst); });
-  connect(ListViewLog, &QAbstractItemView::doubleClicked, this, &ezQtLogWidget::OnItemDoubleClicked);
+  connect(ListViewLog, &QAbstractItemView::doubleClicked, this, &WQtLogWidget::OnItemDoubleClicked);
 
-  const int logIndex = ((int)ezLogMsgType::All - (int)ezLogMsgType::InfoMsg);
+  const int logIndex = ((int)WLogMsgType::All - (int)WLogMsgType::InfoMsg);
   ComboFilter->setCurrentIndex(logIndex);
 }
 
-ezQtLogWidget::~ezQtLogWidget() = default;
+WQtLogWidget::~WQtLogWidget() = default;
 
-void ezQtLogWidget::ShowControls(bool bShow)
+void WQtLogWidget::ShowControls(bool bShow)
 {
   ButtonClearLog->setVisible(bShow);
   ComboFilter->setVisible(bShow);
   Search->setVisible(bShow);
 }
 
-ezQtLogModel* ezQtLogWidget::GetLog()
+WQtLogModel* WQtLogWidget::GetLog()
 {
   return m_pLog;
 }
 
-ezQtSearchWidget* ezQtLogWidget::GetSearchWidget()
+WQtSearchWidget* WQtLogWidget::GetSearchWidget()
 {
   return Search;
 }
 
-void ezQtLogWidget::SetLogLevel(ezLogMsgType::Enum logLevel)
+void WQtLogWidget::SetLogLevel(WLogMsgType::Enum logLevel)
 {
-  EZ_ASSERT_DEBUG(logLevel >= (int)ezLogMsgType::ErrorMsg && logLevel <= ezLogMsgType::All, "Invalid log level set.");
-  ComboFilter->setCurrentIndex((int)ezLogMsgType::All - (int)logLevel);
+  W_ASSERT_DEBUG(logLevel >= (int)WLogMsgType::ErrorMsg && logLevel <= WLogMsgType::All, "Invalid log level set.");
+  ComboFilter->setCurrentIndex((int)WLogMsgType::All - (int)logLevel);
 }
 
-ezLogMsgType::Enum ezQtLogWidget::GetLogLevel() const
+WLogMsgType::Enum WQtLogWidget::GetLogLevel() const
 {
   int index = ComboFilter->currentIndex();
-  return (ezLogMsgType::Enum)((int)ezLogMsgType::All - index);
+  return (WLogMsgType::Enum)((int)WLogMsgType::All - index);
 }
 
-bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
+bool WQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
 {
   if (pObject == ListViewLog)
   {
@@ -198,7 +198,7 @@ bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
   return false;
 }
 
-bool ezQtLogWidget::AddLogItemContextActionCallback(const ezStringView& sName, const LogItemContextActionCallback& logCallback)
+bool WQtLogWidget::AddLogItemContextActionCallback(const WStringView& sName, const LogItemContextActionCallback& logCallback)
 {
   if (sName.IsEmpty())
     return false;
@@ -210,7 +210,7 @@ bool ezQtLogWidget::AddLogItemContextActionCallback(const ezStringView& sName, c
   return true;
 }
 
-bool ezQtLogWidget::RemoveLogItemContextActionCallback(const ezStringView& sName)
+bool WQtLogWidget::RemoveLogItemContextActionCallback(const WStringView& sName)
 {
   if (sName.IsEmpty())
     return false;
@@ -218,7 +218,7 @@ bool ezQtLogWidget::RemoveLogItemContextActionCallback(const ezStringView& sName
   return s_LogCallbacks.Remove(sName);
 }
 
-void ezQtLogWidget::ScrollToBottomIfAtEnd(int iFirstNewRow)
+void WQtLogWidget::ScrollToBottomIfAtEnd(int iFirstNewRow)
 {
   if (ListViewLog->selectionModel()->hasSelection())
   {
@@ -230,25 +230,25 @@ void ezQtLogWidget::ScrollToBottomIfAtEnd(int iFirstNewRow)
   ListViewLog->scrollToBottom();
 }
 
-void ezQtLogWidget::on_ButtonClearLog_clicked()
+void WQtLogWidget::on_ButtonClearLog_clicked()
 {
   m_pLog->Clear();
 }
 
-void ezQtLogWidget::on_Search_textChanged(const QString& text)
+void WQtLogWidget::on_Search_textChanged(const QString& text)
 {
   m_pLog->SetSearchText(text.toUtf8().data());
 }
 
-void ezQtLogWidget::on_ComboFilter_currentIndexChanged(int index)
+void WQtLogWidget::on_ComboFilter_currentIndexChanged(int index)
 {
-  const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum)((int)ezLogMsgType::All - index);
+  const WLogMsgType::Enum LogLevel = (WLogMsgType::Enum)((int)WLogMsgType::All - index);
   m_pLog->SetLogLevel(LogLevel);
 }
 
-void ezQtLogWidget::OnItemDoubleClicked(QModelIndex idx)
+void WQtLogWidget::OnItemDoubleClicked(QModelIndex idx)
 {
-  const ezString sLine(m_pLog->data(idx, Qt::DisplayRole).toString().toUtf8().data());
+  const WString sLine(m_pLog->data(idx, Qt::DisplayRole).toString().toUtf8().data());
 
   for (auto const& callback : s_LogCallbacks)
   {

@@ -10,22 +10,22 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteBlendMode, 1)
-  EZ_ENUM_CONSTANTS(ezSpriteBlendMode::Masked, ezSpriteBlendMode::Transparent, ezSpriteBlendMode::Additive)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSpriteBlendMode, 1)
+  W_ENUM_CONSTANTS(WSpriteBlendMode::Masked, WSpriteBlendMode::Transparent, WSpriteBlendMode::Additive)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static
-ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
+WTempHashedString WSpriteBlendMode::GetPermutationValue(Enum blendMode)
 {
   switch (blendMode)
   {
-    case ezSpriteBlendMode::Masked:
-    case ezSpriteBlendMode::ShapeIcon:
+    case WSpriteBlendMode::Masked:
+    case WSpriteBlendMode::ShapeIcon:
       return "BLEND_MODE_MASKED";
-    case ezSpriteBlendMode::Transparent:
+    case WSpriteBlendMode::Transparent:
       return "BLEND_MODE_TRANSPARENT";
-    case ezSpriteBlendMode::Additive:
+    case WSpriteBlendMode::Additive:
       return "BLEND_MODE_ADDITIVE";
   }
 
@@ -33,22 +33,22 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ezSpriteRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSpriteRenderData, 1, WRTTIDefaultAllocator<WSpriteRenderData>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSpriteRenderData::FillSortingKey()
+void WSpriteRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
-  const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
+  const WUInt32 uiTextureIDHash = static_cast<WUInt32>(m_hTexture.GetResourceIDHash());
 
   // Sort by mode and then by texture
   m_uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
 }
 
-bool ezSpriteRenderData::CanBatch(const ezRenderData& other0) const
+bool WSpriteRenderData::CanBatch(const WRenderData& other0) const
 {
-  const auto& other = ezStaticCast<const ezSpriteRenderData&>(other0);
+  const auto& other = WStaticCast<const WSpriteRenderData&>(other0);
 
   return m_BlendMode == other.m_BlendMode && m_hTexture == other.m_hTexture;
 }
@@ -56,147 +56,147 @@ bool ezSpriteRenderData::CanBatch(const ezRenderData& other0) const
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSpriteComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Texture", GetTexture, SetTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezRequiredAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("BlendMode", ezSpriteBlendMode, m_BlendMode),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
+    W_RESOURCE_ACCESSOR_PROPERTY("Texture", GetTexture, SetTexture)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new WRequiredAttribute()),
+    W_ENUM_MEMBER_PROPERTY("BlendMode", WSpriteBlendMode, m_BlendMode),
+    W_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new WExposeColorAlphaAttribute()),
+    W_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f), new WSuffixAttribute(" m")),
 
-    EZ_MEMBER_PROPERTY("UseMaxScreenSize", m_bUseMaxScreenSize)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
-    EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    W_MEMBER_PROPERTY("UseMaxScreenSize", m_bUseMaxScreenSize)->AddAttributes(new WDefaultValueAttribute(true)),
+    W_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(64.0f), new WSuffixAttribute(" px")),
+    W_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(1.0f)),
 
-    EZ_MEMBER_PROPERTY("IsAnimated", m_bIsAnimated),
-    EZ_MEMBER_PROPERTY("Columns", m_uiColumns)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
-    EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
-    EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
-    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(0), new ezMinValueTextAttribute("Infinite")),
-    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction)
+    W_MEMBER_PROPERTY("IsAnimated", m_bIsAnimated),
+    W_MEMBER_PROPERTY("Columns", m_uiColumns)->AddAttributes(new WClampValueAttribute(1, WVariant()), new WDefaultValueAttribute(1)),
+    W_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new WClampValueAttribute(1, WVariant()), new WDefaultValueAttribute(1)),
+    W_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new WClampValueAttribute(0.0f, WVariant()), new WDefaultValueAttribute(24.0f)),
+    W_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new WClampValueAttribute(0, WVariant()), new WDefaultValueAttribute(0), new WMinValueTextAttribute("Infinite")),
+    W_ENUM_MEMBER_PROPERTY("OnFinishedAction", WOnComponentFinishedAction, m_OnFinishedAction)
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new WCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_ATTRIBUTES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgSetColor, OnMsgSetColor),
+    W_MESSAGE_HANDLER(WMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE;
+W_END_COMPONENT_TYPE;
 // clang-format on
 
-ezSpriteComponent::ezSpriteComponent() = default;
-ezSpriteComponent::~ezSpriteComponent() = default;
+WSpriteComponent::WSpriteComponent() = default;
+WSpriteComponent::~WSpriteComponent() = default;
 
-void ezSpriteComponent::Update()
+void WSpriteComponent::Update()
 {
   if (!m_bIsAnimated || !m_hTexture.IsValid())
     return;
 
-  const ezUInt32 uiTotalFrames = m_uiColumns * m_uiRows;
+  const WUInt32 uiTotalFrames = m_uiColumns * m_uiRows;
   if (uiTotalFrames <= 1)
     return; // Nothing to animate.
 
-  ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  WTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_TimeSinceStart += tDiff;
 
-  const float fTotalAnimTime = uiTotalFrames / ezMath::Max(0.001f, m_fFramerate);
+  const float fTotalAnimTime = uiTotalFrames / WMath::Max(0.001f, m_fFramerate);
 
   if (m_TimeSinceStart.GetSeconds() >= fTotalAnimTime)
   {
     m_uiCurrentLoop++;
 
-    m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
+    m_TimeSinceStart -= WTime::MakeFromSeconds(fTotalAnimTime);
 
     if (m_uiLoops != 0 && m_uiCurrentLoop >= m_uiLoops)
     {
       m_bIsAnimated = false;
 
-      ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+      WOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
     }
   }
 }
 
-ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+WResult WSpriteComponent::GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg)
 {
-  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize * 0.5f);
-  return EZ_SUCCESS;
+  ref_bounds = WBoundingSphere::MakeFromCenterAndRadius(WVec3::MakeZero(), m_fSize * 0.5f);
+  return W_SUCCESS;
 }
 
-void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WSpriteComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
   // Don't render in shadow views
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow)
     return;
 
   if (!m_hTexture.IsValid())
     return;
 
-  ezSpriteRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
+  WSpriteRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<WSpriteRenderData>(GetOwner());
   {
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_fSize = m_fSize;
 
-    pRenderData->m_fMaxScreenSize = m_bUseMaxScreenSize ? m_fMaxScreenSize : ezMath::HighValue<float>();
+    pRenderData->m_fMaxScreenSize = m_bUseMaxScreenSize ? m_fMaxScreenSize : WMath::HighValue<float>();
 
     pRenderData->m_fAspectRatio = m_fAspectRatio;
     pRenderData->m_BlendMode = m_BlendMode;
     pRenderData->m_color = m_Color;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    const ezUInt16 uiTotalFrames = ezMath::Max((ezUInt16)1u, (ezUInt16)(m_uiColumns * m_uiRows));
-    ezUInt32 uiCurrentFrame = 0;
+    const WUInt16 uiTotalFrames = WMath::Max((WUInt16)1u, (WUInt16)(m_uiColumns * m_uiRows));
+    WUInt32 uiCurrentFrame = 0;
 
     if (uiTotalFrames > 1)
     {
-      if (!m_bIsAnimated && m_OnFinishedAction == ezOnComponentFinishedAction::None)
+      if (!m_bIsAnimated && m_OnFinishedAction == WOnComponentFinishedAction::None)
       {
         uiCurrentFrame = uiTotalFrames - 1; // Park at the last frame.
       }
       else
       {
-        uiCurrentFrame = (ezUInt32)(m_TimeSinceStart.GetSeconds() * m_fFramerate) % uiTotalFrames;
+        uiCurrentFrame = (WUInt32)(m_TimeSinceStart.GetSeconds() * m_fFramerate) % uiTotalFrames;
       }
     }
 
     // Protect against division by zero before clamping takes effect.
 
-    const ezUInt16 safeCols = ezMath::Max((ezUInt16)1u, (ezUInt16)m_uiColumns);
-    const ezUInt16 safeRows = ezMath::Max((ezUInt16)1u, (ezUInt16)m_uiRows);
+    const WUInt16 safeCols = WMath::Max((WUInt16)1u, (WUInt16)m_uiColumns);
+    const WUInt16 safeRows = WMath::Max((WUInt16)1u, (WUInt16)m_uiRows);
 
-    const ezUInt32 x = uiCurrentFrame % safeCols;
-    const ezUInt32 y = uiCurrentFrame / safeCols;
+    const WUInt32 x = uiCurrentFrame % safeCols;
+    const WUInt32 y = uiCurrentFrame / safeCols;
 
-    pRenderData->m_texCoordScale = ezVec2(1.0f / safeCols, 1.0f / safeRows);
-    pRenderData->m_texCoordOffset = ezVec2((float)x * pRenderData->m_texCoordScale.x, (float)y * pRenderData->m_texCoordScale.y);
+    pRenderData->m_texCoordScale = WVec2(1.0f / safeCols, 1.0f / safeRows);
+    pRenderData->m_texCoordOffset = WVec2((float)x * pRenderData->m_texCoordScale.x, (float)y * pRenderData->m_texCoordScale.y);
 
     pRenderData->FillSortingKey();
   }
 
   // Determine render data category.
-  ezRenderData::Category category = ezDefaultRenderDataCategories::LitTransparent;
-  if (m_BlendMode == ezSpriteBlendMode::Masked)
+  WRenderData::Category category = WDefaultRenderDataCategories::LitTransparent;
+  if (m_BlendMode == WSpriteBlendMode::Masked)
   {
-    category = ezDefaultRenderDataCategories::LitMasked;
+    category = WDefaultRenderDataCategories::LitMasked;
   }
 
-  const auto cachingFlags = m_bIsAnimated ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  const auto cachingFlags = m_bIsAnimated ? WRenderData::Caching::Never : WRenderData::Caching::IfStatic;
 
   msg.AddRenderData(pRenderData, category, cachingFlags);
 }
 
-void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSpriteComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  ezStreamWriter& s = inout_stream.GetStream();
+  WStreamWriter& s = inout_stream.GetStream();
 
   s << m_hTexture;
   s << m_fSize;
@@ -215,22 +215,22 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fFramerate;
   s << m_uiLoops;
 
-  ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
+  WOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
   s << type;
 }
 
-void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSpriteComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = inout_stream.GetStream();
+  WStreamReader& s = inout_stream.GetStream();
 
   s >> m_hTexture;
 
   if (uiVersion < 3)
   {
-    ezColorGammaUB color;
+    WColorGammaUB color;
     s >> color;
     m_Color = color;
   }
@@ -254,62 +254,62 @@ void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_fFramerate;
     s >> m_uiLoops;
 
-    ezOnComponentFinishedAction::StorageType type;
+    WOnComponentFinishedAction::StorageType type;
     s >> type;
-    m_OnFinishedAction = (ezOnComponentFinishedAction::Enum)type;
+    m_OnFinishedAction = (WOnComponentFinishedAction::Enum)type;
   }
 }
 
-void ezSpriteComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
+void WSpriteComponent::SetTexture(const WTexture2DResourceHandle& hTexture)
 {
   m_hTexture = hTexture;
 }
 
-const ezTexture2DResourceHandle& ezSpriteComponent::GetTexture() const
+const WTexture2DResourceHandle& WSpriteComponent::GetTexture() const
 {
   return m_hTexture;
 }
 
-void ezSpriteComponent::SetColor(ezColor color)
+void WSpriteComponent::SetColor(WColor color)
 {
   m_Color = color;
 }
 
-ezColor ezSpriteComponent::GetColor() const
+WColor WSpriteComponent::GetColor() const
 {
   return m_Color;
 }
 
-void ezSpriteComponent::SetSize(float fSize)
+void WSpriteComponent::SetSize(float fSize)
 {
   m_fSize = fSize;
 
   TriggerLocalBoundsUpdate();
 }
 
-float ezSpriteComponent::GetSize() const
+float WSpriteComponent::GetSize() const
 {
   return m_fSize;
 }
 
-void ezSpriteComponent::SetMaxScreenSize(float fSize)
+void WSpriteComponent::SetMaxScreenSize(float fSize)
 {
   m_fMaxScreenSize = fSize;
 }
 
-float ezSpriteComponent::GetMaxScreenSize() const
+float WSpriteComponent::GetMaxScreenSize() const
 {
   return m_fMaxScreenSize;
 }
 
-void ezSpriteComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+void WSpriteComponent::OnMsgSetColor(WMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
 }
 
-void ezSpriteComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
+void WSpriteComponent::OnMsgDeleteGameObject(WMsgDeleteGameObject& msg)
 {
-  ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+  WOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -319,19 +319,19 @@ void ezSpriteComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezSpriteComponentPatch_1_2 : public ezGraphPatch
+class WSpriteComponentPatch_1_2 : public WGraphPatch
 {
 public:
-  ezSpriteComponentPatch_1_2()
-    : ezGraphPatch("ezSpriteComponent", 2)
+  WSpriteComponentPatch_1_2()
+    : WGraphPatch("WSpriteComponent", 2)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Max Screen Size", "MaxScreenSize"); }
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override { pNode->RenameProperty("Max Screen Size", "MaxScreenSize"); }
 };
 
-ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;
+WSpriteComponentPatch_1_2 g_WSpriteComponentPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);

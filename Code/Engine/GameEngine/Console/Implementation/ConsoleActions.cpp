@@ -4,10 +4,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <GameEngine/Console/ConsoleActions.h>
 
-ezDynamicArray<ezConsoleActions::ezConsoleActionsDesc> ezConsoleActions::s_ConsoleActions;
+WDynamicArray<WConsoleActions::WConsoleActionsDesc> WConsoleActions::s_ConsoleActions;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ConsoleActions)
+W_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ConsoleActions)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -15,17 +15,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GameEngine, ConsoleActions)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezConsoleActions::ClearActions();
+    WConsoleActions::ClearActions();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 namespace
 {
-  ezInt32 CompareConsoleActions(const ezConsoleActions::ezConsoleActionsDesc& lhs, const ezConsoleActions::ezConsoleActionsDesc& rhs)
+  WInt32 CompareConsoleActions(const WConsoleActions::WConsoleActionsDesc& lhs, const WConsoleActions::WConsoleActionsDesc& rhs)
   {
-    const ezInt32 iMenuCompare = lhs.m_sMenu.Compare(rhs.m_sMenu);
+    const WInt32 iMenuCompare = lhs.m_sMenu.Compare(rhs.m_sMenu);
     if (iMenuCompare != 0)
       return iMenuCompare;
 
@@ -33,9 +33,9 @@ namespace
   }
 } // namespace
 
-void ezConsoleActions::AddAction(ezStringView sInputSet, ezStringView sAction, ezStringView sMenu, Action action)
+void WConsoleActions::AddAction(WStringView sInputSet, WStringView sAction, WStringView sMenu, Action action)
 {
-  ezConsoleActionsDesc desc;
+  WConsoleActionsDesc desc;
   desc.m_sInputSet = sInputSet;
   desc.m_sAction = sAction;
   desc.m_sMenu = sMenu;
@@ -43,7 +43,7 @@ void ezConsoleActions::AddAction(ezStringView sInputSet, ezStringView sAction, e
 
   RemoveAction(sInputSet, sAction);
 
-  ezUInt32 uiInsertIndex = 0;
+  WUInt32 uiInsertIndex = 0;
   while (uiInsertIndex < s_ConsoleActions.GetCount() && CompareConsoleActions(s_ConsoleActions[uiInsertIndex], desc) <= 0)
   {
     ++uiInsertIndex;
@@ -52,9 +52,9 @@ void ezConsoleActions::AddAction(ezStringView sInputSet, ezStringView sAction, e
   s_ConsoleActions.InsertAt(uiInsertIndex, std::move(desc));
 }
 
-void ezConsoleActions::RemoveAction(ezStringView sInputSet, ezStringView sAction)
+void WConsoleActions::RemoveAction(WStringView sInputSet, WStringView sAction)
 {
-  for (ezUInt32 uiActionIndex = 0; uiActionIndex < s_ConsoleActions.GetCount(); ++uiActionIndex)
+  for (WUInt32 uiActionIndex = 0; uiActionIndex < s_ConsoleActions.GetCount(); ++uiActionIndex)
   {
     if (s_ConsoleActions[uiActionIndex].m_sInputSet.IsEqual(sInputSet) && s_ConsoleActions[uiActionIndex].m_sAction.IsEqual(sAction))
     {
@@ -64,25 +64,25 @@ void ezConsoleActions::RemoveAction(ezStringView sInputSet, ezStringView sAction
   }
 }
 
-void ezConsoleActions::HandleInput()
+void WConsoleActions::HandleInput()
 {
   for (auto& desc : s_ConsoleActions)
   {
-    if (ezInputManager::GetInputActionState(desc.m_sInputSet, desc.m_sAction) == ezKeyState::Pressed && desc.m_Action.IsValid())
+    if (WInputManager::GetInputActionState(desc.m_sInputSet, desc.m_sAction) == WKeyState::Pressed && desc.m_Action.IsValid())
     {
       desc.m_Action();
     }
   }
 }
 
-ezArrayPtr<const ezConsoleActions::ezConsoleActionsDesc> ezConsoleActions::GetActions()
+WArrayPtr<const WConsoleActions::WConsoleActionsDesc> WConsoleActions::GetActions()
 {
   return s_ConsoleActions;
 }
 
-void ezConsoleActions::ClearActions()
+void WConsoleActions::ClearActions()
 {
   s_ConsoleActions.Clear();
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_ConsoleActions);
+W_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_ConsoleActions);

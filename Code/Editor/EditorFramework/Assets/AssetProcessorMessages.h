@@ -6,39 +6,39 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMessage
+class W_EDITORFRAMEWORK_DLL WProcessAssetMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WProcessAssetMsg, WProcessMessage);
 
 public:
-  ezUuid m_AssetGuid;
-  ezUInt64 m_AssetHash = 0;
-  ezUInt64 m_ThumbHash = 0;
-  ezUInt64 m_PackageHash = 0;
-  ezString m_sAssetPath;
-  ezString m_sPlatform;
-  ezDynamicArray<ezString> m_DepRefHull;
+  WUuid m_AssetGuid;
+  WUInt64 m_AssetHash = 0;
+  WUInt64 m_ThumbHash = 0;
+  WUInt64 m_PackageHash = 0;
+  WString m_sAssetPath;
+  WString m_sPlatform;
+  WDynamicArray<WString> m_DepRefHull;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
+class W_EDITORFRAMEWORK_DLL WProcessAssetResponseMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponseMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WProcessAssetResponseMsg, WProcessMessage);
 
 public:
-  ezTransformStatus m_Status;
-  mutable ezDynamicArray<ezLogEntry> m_LogEntries;
+  WTransformStatus m_Status;
+  mutable WDynamicArray<WLogEntry> m_LogEntries;
 
-  // If the fields below are used, the ezEditorProcessor detected a hash missmatch between the editor and its own state. It will send over its own state so the editor can detect differences. See ezEditorProcessorProcess::HandleHashMissmatch.
-  mutable ezMap<ezString, ezUInt64> m_MissmatchTransformDependencies; ///< Hashes of all transform dependencies.
-  mutable ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies; ///< Hashes of all thumbnail dependencies.
-  ezUInt64 m_uiMissmatchAssetHash = 0;                                ///< Transform hash observed by the ezEditorProcessor.
-  ezUInt64 m_uiMissmatchThumbHash = 0;                                ///< Thumbnail hash observed by the ezEditorProcessor.
-  ezTime m_StartedProcessing;
-  ezTime m_StartedTransform;
-  ezTime m_FinishedProcessing;
+  // If the fields below are used, the WEditorProcessor detected a hash missmatch between the editor and its own state. It will send over its own state so the editor can detect differences. See WEditorProcessorProcess::HandleHashMissmatch.
+  mutable WMap<WString, WUInt64> m_MissmatchTransformDependencies; ///< Hashes of all transform dependencies.
+  mutable WMap<WString, WUInt64> m_MissmatchThumbnailDependencies; ///< Hashes of all thumbnail dependencies.
+  WUInt64 m_uiMissmatchAssetHash = 0;                                ///< Transform hash observed by the WEditorProcessor.
+  WUInt64 m_uiMissmatchThumbHash = 0;                                ///< Thumbnail hash observed by the WEditorProcessor.
+  WTime m_StartedProcessing;
+  WTime m_StartedTransform;
+  WTime m_FinishedProcessing;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezFreeAllResourcesMsg : public ezProcessMessage
+class W_EDITORFRAMEWORK_DLL WFreeAllResourcesMsg : public WProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFreeAllResourcesMsg, ezProcessMessage);
+  W_ADD_DYNAMIC_REFLECTION(WFreeAllResourcesMsg, WProcessMessage);
 };

@@ -4,36 +4,36 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Profiling/Profiling.h>
 
-ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID)
+WTypelessResourceHandle WResourceManager::LoadResourceByType(const WRTTI* pResourceType, WStringView sResourceID)
 {
   // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
-  EZ_LOCK(s_ResourceMutex);
-  return ezTypelessResourceHandle(GetResource(pResourceType, sResourceID, true));
+  W_LOCK(s_ResourceMutex);
+  return WTypelessResourceHandle(GetResource(pResourceType, sResourceID, true));
 }
 
-void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
+void WResourceManager::InternalPreloadResource(WResource* pResource, bool bHighestPriority)
 {
   if (s_pState->m_bShutdown)
     return;
 
   // Runtime created resources without loaders are not loaded via tasks but created on the stack directly.
-  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsCreatedResource) && !pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::HasCustomDataLoader))
+  if (pResource->GetBaseResourceFlags().IsSet(WResourceFlags::IsCreatedResource) && !pResource->GetBaseResourceFlags().IsSet(WResourceFlags::HasCustomDataLoader))
     return;
 
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
   // if there is nothing else that could be loaded, just return right away
-  if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
+  if (pResource->GetLoadingState() == WResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
   {
     // due to the threading this can happen for all resource types and is valid
-    // EZ_ASSERT_DEV(!IsQueuedForLoading(pResource), "Invalid flag on resource type '{0}'",
+    // W_ASSERT_DEV(!IsQueuedForLoading(pResource), "Invalid flag on resource type '{0}'",
     // pResource->GetDynamicRTTI()->GetTypeName());
     return;
   }
 
-  EZ_PROFILE_SCOPE("InternalPreloadResource");
+  W_PROFILE_SCOPE("InternalPreloadResource");
 
-  EZ_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");
+  W_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");
 
   // if we are already loading this resource, early out
   if (IsQueuedForLoading(pResource))
@@ -55,54 +55,54 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   {
     AddToLoadingQueue(pResource, bHighestPriority);
 
-    if (bHighestPriority && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+    if (bHighestPriority && WTaskSystem::GetCurrentThreadWorkerType() == WWorkerThreadType::FileAccess)
     {
-      ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
+      WResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     }
 
     RunWorkerTask();
   }
 }
 
-void ezResourceManager::SetupWorkerTasks()
+void WResourceManager::SetupWorkerTasks()
 {
   if (!s_pState->m_bTaskNamesInitialized)
   {
     s_pState->m_bTaskNamesInitialized = true;
-    ezStringBuilder s;
+    WStringBuilder s;
 
     {
-      static constexpr ezUInt32 InitialDataLoadTasks = 4;
+      static constexpr WUInt32 InitialDataLoadTasks = 4;
 
-      for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
+      for (WUInt32 i = 0; i < InitialDataLoadTasks; ++i)
       {
         s.SetFormat("Resource Data Loader {0}", i);
         auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
-        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
-        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
+        data.m_pTask = W_DEFAULT_NEW(WResourceManagerWorkerDataLoad);
+        data.m_pTask->ConfigureTask(s, WTaskNesting::Maybe);
       }
     }
 
     {
-      static constexpr ezUInt32 InitialUpdateContentTasks = 16;
+      static constexpr WUInt32 InitialUpdateContentTasks = 16;
 
-      for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
+      for (WUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
       {
         s.SetFormat("Resource Content Updater {0}", i);
         auto& data = s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
-        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
-        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
+        data.m_pTask = W_DEFAULT_NEW(WResourceManagerWorkerUpdateContent);
+        data.m_pTask->ConfigureTask(s, WTaskNesting::Maybe);
       }
     }
   }
 }
 
-void ezResourceManager::RunWorkerTask()
+void WResourceManager::RunWorkerTask()
 {
   if (s_pState->m_bShutdown)
     return;
 
-  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "");
+  W_ASSERT_DEV(s_ResourceMutex.IsLocked(), "");
 
   SetupWorkerTasks();
 
@@ -110,79 +110,79 @@ void ezResourceManager::RunWorkerTask()
   {
     s_pState->m_bAllowLaunchDataLoadTask = false;
 
-    for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
+    for (WUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
     {
       if (s_pState->m_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
       {
         s_pState->m_WorkerTasksDataLoad[i].m_GroupId =
-          ezTaskSystem::StartSingleTask(s_pState->m_WorkerTasksDataLoad[i].m_pTask, ezTaskPriority::FileAccess);
+          WTaskSystem::StartSingleTask(s_pState->m_WorkerTasksDataLoad[i].m_pTask, WTaskPriority::FileAccess);
         return;
       }
     }
 
     // could not find any unused task -> need to create a new one
     {
-      ezStringBuilder s;
+      WStringBuilder s;
       s.SetFormat("Resource Data Loader {0}", s_pState->m_WorkerTasksDataLoad.GetCount());
       auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
-      data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
-      data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
-      data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask, ezTaskPriority::FileAccess);
+      data.m_pTask = W_DEFAULT_NEW(WResourceManagerWorkerDataLoad);
+      data.m_pTask->ConfigureTask(s, WTaskNesting::Maybe);
+      data.m_GroupId = WTaskSystem::StartSingleTask(data.m_pTask, WTaskPriority::FileAccess);
     }
   }
 }
 
-void ezResourceManager::ReverseBubbleSortStep(ezDeque<LoadingInfo>& data)
+void WResourceManager::ReverseBubbleSortStep(WDeque<LoadingInfo>& data)
 {
   // Yep, it's really bubble sort!
   // This will move the entry with the smallest value to the front and move all other values closer to their correct position,
   // which is exactly what we need for the priority queue.
   // We do this once a frame, which gives us nice iterative sorting, with relatively deterministic performance characteristics.
 
-  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
+  W_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
 
-  const ezUInt32 uiCount = data.GetCount();
+  const WUInt32 uiCount = data.GetCount();
 
-  for (ezUInt32 i = uiCount; i > 1; --i)
+  for (WUInt32 i = uiCount; i > 1; --i)
   {
-    const ezUInt32 idx2 = i - 1;
-    const ezUInt32 idx1 = i - 2;
+    const WUInt32 idx2 = i - 1;
+    const WUInt32 idx1 = i - 2;
 
     if (data[idx1].m_fPriority > data[idx2].m_fPriority)
     {
-      ezMath::Swap(data[idx1], data[idx2]);
+      WMath::Swap(data[idx1], data[idx2]);
     }
   }
 }
 
-void ezResourceManager::UpdateLoadingDeadlines()
+void WResourceManager::UpdateLoadingDeadlines()
 {
   if (s_pState->m_LoadingQueue.IsEmpty())
     return;
 
-  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
+  W_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
 
-  EZ_PROFILE_SCOPE("UpdateLoadingDeadlines");
+  W_PROFILE_SCOPE("UpdateLoadingDeadlines");
 
-  const ezUInt32 uiCount = s_pState->m_LoadingQueue.GetCount();
-  s_pState->m_uiLastResourcePriorityUpdateIdx = ezMath::Min(s_pState->m_uiLastResourcePriorityUpdateIdx, uiCount);
+  const WUInt32 uiCount = s_pState->m_LoadingQueue.GetCount();
+  s_pState->m_uiLastResourcePriorityUpdateIdx = WMath::Min(s_pState->m_uiLastResourcePriorityUpdateIdx, uiCount);
 
-  ezUInt32 uiUpdateCount = ezMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
+  WUInt32 uiUpdateCount = WMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
 
   if (uiUpdateCount == 0)
   {
     s_pState->m_uiLastResourcePriorityUpdateIdx = 0;
-    uiUpdateCount = ezMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
+    uiUpdateCount = WMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
   }
 
   if (uiUpdateCount > 0)
   {
     {
-      EZ_PROFILE_SCOPE("EvalLoadingDeadlines");
+      W_PROFILE_SCOPE("EvalLoadingDeadlines");
 
-      const ezTime tNow = ezTime::Now();
+      const WTime tNow = WTime::Now();
 
-      for (ezUInt32 i = 0; i < uiUpdateCount; ++i)
+      for (WUInt32 i = 0; i < uiUpdateCount; ++i)
       {
         auto& element = s_pState->m_LoadingQueue[s_pState->m_uiLastResourcePriorityUpdateIdx];
         element.m_fPriority = element.m_pResource->GetLoadingPriority(tNow);
@@ -191,65 +191,65 @@ void ezResourceManager::UpdateLoadingDeadlines()
     }
 
     {
-      EZ_PROFILE_SCOPE("SortLoadingDeadlines");
+      W_PROFILE_SCOPE("SortLoadingDeadlines");
       ReverseBubbleSortStep(s_pState->m_LoadingQueue);
     }
   }
 }
 
-void ezResourceManager::PreloadResource(ezResource* pResource)
+void WResourceManager::PreloadResource(WResource* pResource)
 {
   InternalPreloadResource(pResource, false);
 }
 
-void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResource)
+void WResourceManager::PreloadResource(const WTypelessResourceHandle& hResource)
 {
-  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
+  W_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
-  ezResource* pResource = hResource.m_pResource;
+  WResource* pResource = hResource.m_pResource;
   PreloadResource(pResource);
 }
 
-ezResourceState ezResourceManager::GetLoadingState(const ezTypelessResourceHandle& hResource)
+WResourceState WResourceManager::GetLoadingState(const WTypelessResourceHandle& hResource)
 {
   if (hResource.m_pResource == nullptr)
-    return ezResourceState::Invalid;
+    return WResourceState::Invalid;
 
   return hResource.m_pResource->GetLoadingState();
 }
 
-ezResult ezResourceManager::RemoveFromLoadingQueue(ezResource* pResource)
+WResult WResourceManager::RemoveFromLoadingQueue(WResource* pResource)
 {
-  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
+  W_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
 
   if (!IsQueuedForLoading(pResource))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
 
   LoadingInfo li;
   li.m_pResource = pResource;
 
   if (s_pState->m_LoadingQueue.RemoveAndSwap(li))
   {
-    pResource->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
-    return EZ_SUCCESS;
+    pResource->m_Flags.Remove(WResourceFlags::IsQueuedForLoading);
+    return W_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezResourceManager::AddToLoadingQueue(ezResource* pResource, bool bHighestPriority)
+void WResourceManager::AddToLoadingQueue(WResource* pResource, bool bHighestPriority)
 {
-  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
-  EZ_ASSERT_DEV(IsQueuedForLoading(pResource) == false, "Resource is already in the loading queue");
+  W_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
+  W_ASSERT_DEV(IsQueuedForLoading(pResource) == false, "Resource is already in the loading queue");
 
-  pResource->m_Flags.Add(ezResourceFlags::IsQueuedForLoading);
+  pResource->m_Flags.Add(WResourceFlags::IsQueuedForLoading);
 
   LoadingInfo li;
   li.m_pResource = pResource;
 
   if (bHighestPriority)
   {
-    pResource->SetPriority(ezResourcePriority::Critical);
+    pResource->SetPriority(WResourcePriority::Critical);
     li.m_fPriority = 0.0f;
     s_pState->m_LoadingQueue.PushFront(li);
   }
@@ -260,17 +260,17 @@ void ezResourceManager::AddToLoadingQueue(ezResource* pResource, bool bHighestPr
   }
 }
 
-bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
+bool WResourceManager::ReloadResource(WResource* pResource, bool bForce)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
+  if (!pResource->m_Flags.IsAnySet(WResourceFlags::IsReloadable))
     return false;
 
-  if (!bForce && pResource->m_Flags.IsAnySet(ezResourceFlags::PreventFileReload))
+  if (!bForce && pResource->m_Flags.IsAnySet(WResourceFlags::PreventFileReload))
     return false;
 
-  ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
+  WResourceTypeLoader* pLoader = WResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 
   if (pLoader == nullptr)
     pLoader = pResource->GetDefaultResourceTypeLoader();
@@ -279,7 +279,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     return false;
 
   // no need to reload resources that are not loaded so far
-  if (pResource->GetLoadingState() == ezResourceState::Unloaded)
+  if (pResource->GetLoadingState() == WResourceState::Unloaded)
     return false;
 
   bool bAllowPreloading = true;
@@ -292,14 +292,14 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (s_pState->m_LoadingQueue.IndexOf(li) == ezInvalidIndex)
+    if (s_pState->m_LoadingQueue.IndexOf(li) == WInvalidIndex)
     {
       // the resource is marked as 'loading' but it is not in the queue anymore
       // that means some task is already working on loading it
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
-      ezLog::Dev(
-        "Resource '{0}' is not being reloaded, because it is currently being loaded", ezArgSensitive(pResource->GetResourceID(), "ResourceID"));
+      WLog::Dev(
+        "Resource '{0}' is not being reloaded, because it is currently being loaded", WArgSensitive(pResource->GetResourceID(), "ResourceID"));
       return false;
     }
   }
@@ -310,38 +310,38 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     if (!pLoader->IsResourceOutdated(pResource))
       return false;
 
-    if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
+    if (pResource->GetLoadingState() == WResourceState::LoadedResourceMissing)
     {
-      ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", ezArgSensitive(pResource->GetResourceID(), "ResourceID"),
-        ezArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
+      WLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", WArgSensitive(pResource->GetResourceID(), "ResourceID"),
+        WArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
     }
     else
     {
-      ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", ezArgSensitive(pResource->GetResourceID(), "ResourceID"),
-        ezArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
+      WLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", WArgSensitive(pResource->GetResourceID(), "ResourceID"),
+        WArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
     }
   }
 
-  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::UpdateOnMainThread) == false || ezThreadUtils::IsMainThread())
+  if (pResource->GetBaseResourceFlags().IsSet(WResourceFlags::UpdateOnMainThread) == false || WThreadUtils::IsMainThread())
   {
     // make sure existing data is purged
-    pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
+    pResource->CallUnloadData(WResource::Unload::AllQualityLevels);
 
-    EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.",
+    W_ASSERT_DEV(pResource->GetLoadingState() <= WResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.",
       pResource->GetResourceID());
   }
   else
   {
-    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID()), pResource->GetDynamicRTTI());
+    s_pState->m_ResourcesToUnloadOnMainThread.Insert(WTempHashedString(pResource->GetResourceID()), pResource->GetDynamicRTTI());
   }
 
   if (bAllowPreloading)
   {
-    const ezTime tNow = s_pState->m_LastFrameUpdate;
+    const WTime tNow = s_pState->m_LastFrameUpdate;
 
     // resources that have been in use recently will be put into the preload queue immediately
     // everything else will be loaded on demand
-    if (pResource->GetLastAcquireTime() >= tNow - ezTime::MakeFromSeconds(30.0))
+    if (pResource->GetLastAcquireTime() >= tNow - WTime::MakeFromSeconds(30.0))
     {
       PreloadResource(pResource);
     }
@@ -350,12 +350,12 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
   return true;
 }
 
-ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bForce)
+WUInt32 WResourceManager::ReloadResourcesOfType(const WRTTI* pType, bool bForce)
 {
-  EZ_LOCK(s_ResourceMutex);
-  EZ_LOG_BLOCK("ezResourceManager::ReloadResourcesOfType", pType->GetTypeName());
+  W_LOCK(s_ResourceMutex);
+  W_LOG_BLOCK("WResourceManager::ReloadResourcesOfType", pType->GetTypeName());
 
-  ezUInt32 count = 0;
+  WUInt32 count = 0;
 
   LoadedResources& lr = s_pState->m_LoadedResources[pType];
 
@@ -368,14 +368,14 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bFor
   return count;
 }
 
-ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
+WUInt32 WResourceManager::ReloadAllResources(bool bForce)
 {
-  EZ_PROFILE_SCOPE("ReloadAllResources");
+  W_PROFILE_SCOPE("ReloadAllResources");
 
-  EZ_LOCK(s_ResourceMutex);
-  EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
+  W_LOCK(s_ResourceMutex);
+  W_LOG_BLOCK("WResourceManager::ReloadAllResources");
 
-  ezUInt32 count = 0;
+  WUInt32 count = 0;
 
   for (auto itType = s_pState->m_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
@@ -388,8 +388,8 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 
   if (count > 0)
   {
-    ezResourceManagerEvent e;
-    e.m_Type = ezResourceManagerEvent::Type::ReloadAllResources;
+    WResourceManagerEvent e;
+    e.m_Type = WResourceManagerEvent::Type::ReloadAllResources;
 
     s_pState->m_ManagerEvents.Broadcast(e);
   }
@@ -397,39 +397,39 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
   return count;
 }
 
-void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
+void WResourceManager::UpdateResourceWithCustomLoader(const WTypelessResourceHandle& hResource, WUniquePtr<WResourceTypeLoader>&& pLoader)
 {
-  EZ_LOCK(s_ResourceMutex);
+  W_LOCK(s_ResourceMutex);
 
-  hResource.m_pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader);
+  hResource.m_pResource->m_Flags.Add(WResourceFlags::HasCustomDataLoader);
   s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(pLoader);
   // if there was already a custom loader set, but it got no action yet, it is deleted here and replaced with the newer loader
 
   ReloadResource(hResource.m_pResource, true);
 };
 
-void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState)
+void WResourceManager::EnsureResourceLoadingState(WResource* pResource, const WResourceState RequestedState)
 {
   return EnsureResourceCondition(pResource, [=]() -> bool
-    { return (ezInt32)pResource->GetLoadingState() >= (ezInt32)RequestedState ||
-             (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+    { return (WInt32)pResource->GetLoadingState() >= (WInt32)RequestedState ||
+             (pResource->GetLoadingState() == WResourceState::LoadedResourceMissing); });
 }
 
-void ezResourceManager::EnsureResourceCondition(ezResource* pResourceToLoad, const ezDelegate<bool()>& condition)
+void WResourceManager::EnsureResourceCondition(WResource* pResourceToLoad, const WDelegate<bool()>& condition)
 {
-  const ezRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
+  const WRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
 
   // help loading until the requested resource is available
   while (!condition())
   {
-    ezTaskGroupID tgid;
+    WTaskGroupID tgid;
 
     {
-      EZ_LOCK(s_ResourceMutex);
+      W_LOCK(s_ResourceMutex);
 
-      for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
+      for (WUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
       {
-        const ezResource* pQueuedResource = s_pState->m_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
+        const WResource* pQueuedResource = s_pState->m_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
 
         if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_pState->m_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
         {
@@ -444,12 +444,12 @@ void ezResourceManager::EnsureResourceCondition(ezResource* pResourceToLoad, con
 
     if (tgid.IsValid())
     {
-      ezTaskSystem::WaitForGroup(tgid);
+      WTaskSystem::WaitForGroup(tgid);
     }
     else
     {
-      // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
-      ezTaskSystem::WaitForCondition(condition);
+      // do not use WThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
+      WTaskSystem::WaitForCondition(condition);
     }
   }
 }

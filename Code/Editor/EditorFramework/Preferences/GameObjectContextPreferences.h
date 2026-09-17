@@ -2,19 +2,19 @@
 
 #include <EditorFramework/Preferences/Preferences.h>
 
-class ezGameObjectContextPreferencesUser : public ezPreferences
+class WGameObjectContextPreferencesUser : public WPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextPreferencesUser, ezPreferences);
+  W_ADD_DYNAMIC_REFLECTION(WGameObjectContextPreferencesUser, WPreferences);
 
 public:
-  ezGameObjectContextPreferencesUser();
+  WGameObjectContextPreferencesUser();
 
-  ezUuid GetContextDocument() const;
-  void SetContextDocument(ezUuid val);
-  ezUuid GetContextObject() const;
-  void SetContextObject(ezUuid val);
+  WUuid GetContextDocument() const;
+  void SetContextDocument(WUuid val);
+  WUuid GetContextObject() const;
+  void SetContextObject(WUuid val);
 
 protected:
-  ezUuid m_ContextDocument;
-  ezUuid m_ContextObject;
+  WUuid m_ContextDocument;
+  WUuid m_ContextObject;
 };

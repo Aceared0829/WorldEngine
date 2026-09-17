@@ -5,39 +5,39 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Shader/BindGroup.h>
-class ezCamera;
-class ezExtractedRenderData;
-class ezExtractor;
-class ezView;
-class ezRenderer;
-class ezRenderData;
-class ezRenderDataManager;
-class ezRenderDataBatch;
-class ezRenderPipeline;
-class ezRenderPipelinePass;
-class ezRenderContext;
-class ezDebugRendererContext;
+class WCamera;
+class WExtractedRenderData;
+class WExtractor;
+class WView;
+class WRenderer;
+class WRenderData;
+class WRenderDataManager;
+class WRenderDataBatch;
+class WRenderPipeline;
+class WRenderPipelinePass;
+class WRenderContext;
+class WDebugRendererContext;
 
-struct ezRenderPipelineNodePin;
-struct ezViewData;
+struct WRenderPipelineNodePin;
+struct WViewData;
 
-namespace ezInternal
+namespace WInternal
 {
   struct RenderDataCache;
 
   struct RenderDataCacheEntry
   {
-    EZ_DECLARE_POD_TYPE();
+    W_DECLARE_POD_TYPE();
 
-    const ezRenderData* m_pRenderData = nullptr;
-    ezUInt16 m_uiCategory = 0;
-    ezUInt16 m_uiComponentIndex = 0;
-    ezUInt16 m_uiPartIndex = 0;
+    const WRenderData* m_pRenderData = nullptr;
+    WUInt16 m_uiCategory = 0;
+    WUInt16 m_uiComponentIndex = 0;
+    WUInt16 m_uiPartIndex = 0;
 
-    EZ_ALWAYS_INLINE bool operator==(const RenderDataCacheEntry& other) const { return m_pRenderData == other.m_pRenderData && m_uiCategory == other.m_uiCategory && m_uiComponentIndex == other.m_uiComponentIndex && m_uiPartIndex == other.m_uiPartIndex; }
+    W_ALWAYS_INLINE bool operator==(const RenderDataCacheEntry& other) const { return m_pRenderData == other.m_pRenderData && m_uiCategory == other.m_uiCategory && m_uiComponentIndex == other.m_uiComponentIndex && m_uiPartIndex == other.m_uiPartIndex; }
 
     // Cache entries need to be sorted by component index and then by part index
-    EZ_ALWAYS_INLINE bool operator<(const RenderDataCacheEntry& other) const
+    W_ALWAYS_INLINE bool operator<(const RenderDataCacheEntry& other) const
     {
       if (m_uiComponentIndex == other.m_uiComponentIndex)
         return m_uiPartIndex < other.m_uiPartIndex;
@@ -45,45 +45,45 @@ namespace ezInternal
       return m_uiComponentIndex < other.m_uiComponentIndex;
     }
   };
-} // namespace ezInternal
+} // namespace WInternal
 
-class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
+class W_RENDERERCORE_DLL WRenderViewContext : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WRenderViewContext, WReflectedClass);
   // Updates global constants and encoder with the viewport information of the view data.
   void UpdateViewport() const;
 
-  const ezRenderPipeline* m_pPipeline = nullptr;
-  const ezCamera* m_pCamera = nullptr;
-  const ezViewData* m_pViewData = nullptr;
-  ezRenderContext* m_pRenderContext = nullptr;
+  const WRenderPipeline* m_pPipeline = nullptr;
+  const WCamera* m_pCamera = nullptr;
+  const WViewData* m_pViewData = nullptr;
+  WRenderContext* m_pRenderContext = nullptr;
 
-  const ezDebugRendererContext* m_pWorldDebugContext = nullptr;
-  const ezDebugRendererContext* m_pViewDebugContext = nullptr;
+  const WDebugRendererContext* m_pWorldDebugContext = nullptr;
+  const WDebugRendererContext* m_pViewDebugContext = nullptr;
 };
 
-using ezViewId = ezGenericId<24, 8>;
+using WViewId = WGenericId<24, 8>;
 
-class ezViewHandle
+class WViewHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezViewHandle, ezViewId);
+  W_DECLARE_HANDLE_TYPE(WViewHandle, WViewId);
 
-  friend class ezRenderWorld;
+  friend class WRenderWorld;
 };
 
 /// HashHelper implementation so view handles can be used as key in a hashtable.
 template <>
-struct ezHashHelper<ezViewHandle>
+struct WHashHelper<WViewHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezViewHandle value) { return value.GetInternalID().m_Data * 2654435761U; }
+  W_ALWAYS_INLINE static WUInt32 Hash(WViewHandle value) { return value.GetInternalID().m_Data * 2654435761U; }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezViewHandle a, ezViewHandle b) { return a == b; }
+  W_ALWAYS_INLINE static bool Equal(WViewHandle a, WViewHandle b) { return a == b; }
 };
 
 /// Usage hint of a camera/view.
-struct EZ_RENDERERCORE_DLL ezCameraUsageHint
+struct W_RENDERERCORE_DLL WCameraUsageHint
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -102,47 +102,47 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezCameraUsageHint);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WCameraUsageHint);
 
 /// Declares that a texture needs to be in a specific resource state when a render category is rendered.
-/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the ezRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
-struct ezTextureDependency
+/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the WRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
+struct WTextureDependency
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALTextureHandle m_hTexture;
-  ezBitflags<ezGALResourceState> m_RequiredState;
-  ezBitflags<ezGALShaderStageFlags> m_Stage;
-  ezUInt16 m_uiCategory = 0xFFFF;
+  W_DECLARE_POD_TYPE();
+  WGALTextureHandle m_hTexture;
+  WBitflags<WGALResourceState> m_RequiredState;
+  WBitflags<WGALShaderStageFlags> m_Stage;
+  WUInt16 m_uiCategory = 0xFFFF;
 };
 
 /// Declares that a buffer needs to be in a specific resource state when a render category is rendered.
-/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the ezRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
-struct ezBufferDependency
+/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the WRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
+struct WBufferDependency
 {
-  EZ_DECLARE_POD_TYPE();
-  ezGALBufferHandle m_hBuffer;
-  ezBitflags<ezGALResourceState> m_RequiredState;
-  ezBitflags<ezGALShaderStageFlags> m_Stage;
-  ezUInt16 m_uiCategory = 0xFFFF;
+  W_DECLARE_POD_TYPE();
+  WGALBufferHandle m_hBuffer;
+  WBitflags<WGALResourceState> m_RequiredState;
+  WBitflags<WGALShaderStageFlags> m_Stage;
+  WUInt16 m_uiCategory = 0xFFFF;
 };
 
-struct ezTextureBinding
+struct WTextureBinding
 {
-  EZ_DECLARE_POD_TYPE();
-  ezTempHashedString m_sSlotName;
-  ezTextureBindGroupItem m_Texture;
+  W_DECLARE_POD_TYPE();
+  WTempHashedString m_sSlotName;
+  WTextureBindGroupItem m_Texture;
 };
 
-struct ezBufferBinding
+struct WBufferBinding
 {
-  EZ_DECLARE_POD_TYPE();
-  ezTempHashedString m_sSlotName;
-  ezGALBufferBindGroupItem m_Buffer;
+  W_DECLARE_POD_TYPE();
+  WTempHashedString m_sSlotName;
+  WGALBufferBindGroupItem m_Buffer;
 };
 
-struct ezSamplerBinding
+struct WSamplerBinding
 {
-  EZ_DECLARE_POD_TYPE();
-  ezTempHashedString m_sSlotName;
-  ezSamplerBindGroupItem m_Sampler;
+  W_DECLARE_POD_TYPE();
+  WTempHashedString m_sSlotName;
+  WSamplerBindGroupItem m_Sampler;
 };

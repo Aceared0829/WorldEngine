@@ -1,6 +1,6 @@
 
 
-const vk::PipelineVertexInputStateCreateInfo& ezGALVertexDeclarationVulkan::GetCreateInfo() const
+const vk::PipelineVertexInputStateCreateInfo& WGALVertexDeclarationVulkan::GetCreateInfo() const
 {
   return m_CreateInfo;
 }

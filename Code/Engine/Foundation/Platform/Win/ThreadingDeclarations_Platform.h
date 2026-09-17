@@ -5,43 +5,43 @@
 
 #include <Foundation/Platform/Win/Utils/MinWindows.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-struct alignas(4) ezMutexHandle
+#if W_ENABLED(W_PLATFORM_32BIT)
+struct alignas(4) WMutexHandle
 {
-  ezUInt8 data[24];
+  WUInt8 data[24];
 };
 #else
-struct alignas(8) ezMutexHandle
+struct alignas(8) WMutexHandle
 {
-  ezUInt8 data[40];
+  WUInt8 data[40];
 };
 #endif
 
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-struct alignas(4) ezConditionVariableHandle
+#if W_ENABLED(W_PLATFORM_32BIT)
+struct alignas(4) WConditionVariableHandle
 {
-  ezUInt8 data[4];
+  WUInt8 data[4];
 };
 #else
-struct alignas(8) ezConditionVariableHandle
+struct alignas(8) WConditionVariableHandle
 {
-  ezUInt8 data[8];
+  WUInt8 data[8];
 };
 #endif
 
 
 
-using ezThreadHandle = ezMinWindows::HANDLE;
-using ezThreadID = ezMinWindows::DWORD;
-using ezOSThreadEntryPoint = ezMinWindows::DWORD(__stdcall*)(void* lpThreadParameter);
-using ezSemaphoreHandle = ezMinWindows::HANDLE;
+using WThreadHandle = WMinWindows::HANDLE;
+using WThreadID = WMinWindows::DWORD;
+using WOSThreadEntryPoint = WMinWindows::DWORD(__stdcall*)(void* lpThreadParameter);
+using WSemaphoreHandle = WMinWindows::HANDLE;
 
-#define EZ_THREAD_CLASS_ENTRY_POINT ezMinWindows::DWORD __stdcall ezThreadClassEntryPoint(void* lpThreadParameter);
+#define W_THREAD_CLASS_ENTRY_POINT WMinWindows::DWORD __stdcall WThreadClassEntryPoint(void* lpThreadParameter);
 
-struct ezConditionVariableData
+struct WConditionVariableData
 {
-  ezConditionVariableHandle m_ConditionVariable;
+  WConditionVariableHandle m_ConditionVariable;
 };
 
 /// \endcond

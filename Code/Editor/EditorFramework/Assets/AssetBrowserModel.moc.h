@@ -8,38 +8,38 @@
 #include <QFileIconProvider>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
-struct ezAssetInfo;
-struct ezAssetCuratorEvent;
-struct ezSubAsset;
-class ezQtAssetFilter;
+struct WAssetInfo;
+struct WAssetCuratorEvent;
+struct WSubAsset;
+class WQtAssetFilter;
 
-/// Verdict of ezQtAssetFilter::IsAssetFiltered() for a single item.
+/// Verdict of WQtAssetFilter::IsAssetFiltered() for a single item.
 ///
 /// Everything but Visible means the item is not shown. The values other than Filtered name the single reason an item
 /// was excluded, which allows counting how many items a specific switch is hiding. They are only reported for items
 /// that pass every other filter.
-enum class ezAssetFilterResult : ezUInt8
+enum class WAssetFilterResult : WUInt8
 {
   Visible,           ///< The item passes all filters and is shown.
   Filtered,          ///< The item is excluded, either for several reasons or for one that has no dedicated switch.
-  HiddenFolder,      ///< Excluded only because it resides in a hidden folder. \see ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders()
-  NonAssetFile,      ///< Excluded only because it is a plain file and files are not shown. \see ezQtAssetBrowserFilter::SetShowFiles()
-  NonImportableFile, ///< Excluded only because it is a file that can't be imported and those are not shown. \see ezQtAssetBrowserFilter::SetShowNonImportableFiles()
+  HiddenFolder,      ///< Excluded only because it resides in a hidden folder. \see WQtAssetBrowserFilter::SetShowItemsInHiddenFolders()
+  NonAssetFile,      ///< Excluded only because it is a plain file and files are not shown. \see WQtAssetBrowserFilter::SetShowFiles()
+  NonImportableFile, ///< Excluded only because it is a file that can't be imported and those are not shown. \see WQtAssetBrowserFilter::SetShowNonImportableFiles()
 };
 
 /// Interface class of the asset filter used to decide which items are shown in the asset browser.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetFilter : public QObject
+class W_EDITORFRAMEWORK_DLL WQtAssetFilter : public QObject
 {
   Q_OBJECT
 public:
-  explicit ezQtAssetFilter(QObject* pParent);
+  explicit WQtAssetFilter(QObject* pParent);
 
   /// Decides whether the given item is shown.
   ///
-  /// Returning ezAssetFilterResult::HiddenFolder instead of ezAssetFilterResult::Filtered is optional. It allows
+  /// Returning WAssetFilterResult::HiddenFolder instead of WAssetFilterResult::Filtered is optional. It allows
   /// the model to count items that are only excluded because of the hidden-folder rule, so that their number can
   /// be reported to the user. Such items are not shown either way.
-  virtual ezAssetFilterResult IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const = 0;
+  virtual WAssetFilterResult IsAssetFiltered(WStringView sDataDirParentRelativePath, bool bIsFolder, const WSubAsset* pInfo) const = 0;
   virtual bool GetSortByRecentUse() const { return false; }
 
 Q_SIGNALS:
@@ -47,18 +47,18 @@ Q_SIGNALS:
 };
 
 /// Each item in the asset browser can be multiple things at the same time as described by these flags.
-/// Retrieved via user role ezQtAssetBrowserModel::UserRoles::ItemFlags.
-struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserItemFlags
+/// Retrieved via user role WQtAssetBrowserModel::UserRoles::ItemFlags.
+struct W_EDITORFRAMEWORK_DLL WAssetBrowserItemFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
-    Folder = EZ_BIT(0),        // Any folder inside a data directory
-    DataDirectory = EZ_BIT(1), // mutually exclusive with Folder
-    File = EZ_BIT(2),          // any file, could also be an Asset
-    Asset = EZ_BIT(3),         // main asset: mutually exclusive with SubAsset
-    SubAsset = EZ_BIT(4),      // sub-asset (imaginary, not a File or Asset)
+    Folder = W_BIT(0),        // Any folder inside a data directory
+    DataDirectory = W_BIT(1), // mutually exclusive with Folder
+    File = W_BIT(2),          // any file, could also be an Asset
+    Asset = W_BIT(3),         // main asset: mutually exclusive with SubAsset
+    SubAsset = W_BIT(4),      // sub-asset (imaginary, not a File or Asset)
     Default = 0
   };
 
@@ -71,27 +71,27 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserItemFlags
     StorageType SubAsset : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezAssetBrowserItemFlags);
+W_DECLARE_FLAGS_OPERATORS(WAssetBrowserItemFlags);
 
 /// Model of the item view in the asset browser.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel, public QEnableSharedFromThis<ezQtAssetBrowserModel>
+class W_EDITORFRAMEWORK_DLL WQtAssetBrowserModel : public QAbstractItemModel, public QEnableSharedFromThis<WQtAssetBrowserModel>
 {
   Q_OBJECT
 public:
   enum UserRoles
   {
-    SubAssetGuid = Qt::UserRole + 0, // ezUuid
-    AssetGuid,                       // ezUuid
+    SubAssetGuid = Qt::UserRole + 0, // WUuid
+    AssetGuid,                       // WUuid
     AbsolutePath,                    // QString
     RelativePath,                    // QString
     AssetIcon,                       // QIcon
     TransformState,                  // QString
     Importable,                      // bool
-    ItemFlags,                       // ezAssetBrowserItemFlags as int
+    ItemFlags,                       // WAssetBrowserItemFlags as int
   };
 
-  ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter);
-  ~ezQtAssetBrowserModel();
+  WQtAssetBrowserModel(QObject* pParent, WQtAssetFilter* pFilter);
+  ~WQtAssetBrowserModel();
   void Initialize();
 
   void resetModel();
@@ -99,15 +99,15 @@ public:
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
   bool GetIconMode() { return m_bIconMode; }
 
-  ezInt32 FindAssetIndex(const ezUuid& assetGuid) const;
-  ezInt32 FindIndex(ezStringView sAbsPath) const;
+  WInt32 FindAssetIndex(const WUuid& assetGuid) const;
+  WInt32 FindIndex(WStringView sAbsPath) const;
 
   /// Number of items that pass all filters, but are not displayed because of a single switch.
-  ezUInt32 GetNumExcludedItems(ezAssetFilterResult reason) const;
+  WUInt32 GetNumExcludedItems(WAssetFilterResult reason) const;
 
 public Q_SLOTS:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant userData1, QVariant userData2);
-  void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
+  void ThumbnailInvalidated(QString sPath, WUInt32 uiImageID);
   void OnFileSystemUpdate();
 
 signals:
@@ -141,25 +141,25 @@ private:
 
   struct VisibleEntry
   {
-    ezDataDirPath m_sAbsFilePath;
-    ezUuid m_Guid;
-    ezBitflags<ezAssetBrowserItemFlags> m_Flags;
-    mutable ezUInt32 m_uiThumbnailID;
+    WDataDirPath m_sAbsFilePath;
+    WUuid m_Guid;
+    WBitflags<WAssetBrowserItemFlags> m_Flags;
+    mutable WUInt32 m_uiThumbnailID;
   };
 
   struct FsEvent
   {
-    ezFileChangedEvent m_FileEvent;
-    ezFolderChangedEvent m_FolderEvent;
+    WFileChangedEvent m_FileEvent;
+    WFolderChangedEvent m_FolderEvent;
   };
 
 private:
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+  void AssetCuratorEventHandler(const WAssetCuratorEvent& e);
 
   /// Re-runs the filter for every asset that lists the given asset among its missing dependencies.
   /// Needed because a filter's verdict can depend on whether those dependencies resolve, which
   /// changes when an asset is removed without any event being sent for the dependents themselves.
-  void ReEvaluateDependents(const ezUuid& removedAssetGuid);
+  void ReEvaluateDependents(const WUuid& removedAssetGuid);
 
   void HandleEntry(const VisibleEntry& entry, AssetOp op);
 
@@ -171,29 +171,29 @@ private:
   /// Set bKnownUntracked only when the caller can guarantee that the path is not currently recorded under any reason,
   /// which is the case while resetModel() refills the empty sets. It skips the scan that would drop the path from the
   /// other reasons, so passing it wrongly leaves the item counted twice.
-  void TrackExcludedItem(const ezDataDirPath& path, ezAssetFilterResult reason, bool bKnownUntracked = false);
+  void TrackExcludedItem(const WDataDirPath& path, WAssetFilterResult reason, bool bKnownUntracked = false);
 
-  void FileSystemFileEventHandler(const ezFileChangedEvent& e);
-  void FileSystemFolderEventHandler(const ezFolderChangedEvent& e);
-  void HandleFile(const ezFileChangedEvent& e);
-  void HandleFolder(const ezFolderChangedEvent& e);
+  void FileSystemFileEventHandler(const WFileChangedEvent& e);
+  void FileSystemFolderEventHandler(const WFolderChangedEvent& e);
+  void HandleFile(const WFileChangedEvent& e);
+  void HandleFolder(const WFolderChangedEvent& e);
 
 private:
-  ezQtAssetFilter* m_pFilter = nullptr;
+  WQtAssetFilter* m_pFilter = nullptr;
   bool m_bIconMode = true;
-  ezSet<ezString> m_ImportExtensions;
-  ezEventSubscriptionID m_FileChangedSubscription = 0;
-  ezEventSubscriptionID m_FolderChangedSubscription = 0;
+  WSet<WString> m_ImportExtensions;
+  WEventSubscriptionID m_FileChangedSubscription = 0;
+  WEventSubscriptionID m_FolderChangedSubscription = 0;
 
-  ezMutex m_Mutex;
-  ezDynamicArray<FsEvent> m_QueuedFileSystemEvents;
+  WMutex m_Mutex;
+  WDynamicArray<FsEvent> m_QueuedFileSystemEvents;
 
-  ezDynamicArray<VisibleEntry> m_EntriesToDisplay;
-  ezSet<ezUuid> m_DisplayedEntries;
+  WDynamicArray<VisibleEntry> m_EntriesToDisplay;
+  WSet<WUuid> m_DisplayedEntries;
 
-  // One set of paths per single-reason exclusion, indexed by ezAssetFilterResult.
+  // One set of paths per single-reason exclusion, indexed by WAssetFilterResult.
   // Keyed by path rather than by GUID, because plain files that are no assets have no GUID.
-  ezMap<ezAssetFilterResult, ezSet<ezString>> m_ExcludedItems;
+  WMap<WAssetFilterResult, WSet<WString>> m_ExcludedItems;
 
   // Set while resetModel() is between beginResetModel() and endResetModel(). It stops TrackExcludedItem() from
   // emitting once per item, which would not only be wasteful but would also make listeners query rowCount() while

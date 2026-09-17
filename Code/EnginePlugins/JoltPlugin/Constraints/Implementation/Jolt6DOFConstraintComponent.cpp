@@ -8,48 +8,48 @@
 #  include <JoltPlugin/System/JoltCore.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltAxis, 1)
-  EZ_BITFLAGS_CONSTANT(ezJoltAxis::X),
-  EZ_BITFLAGS_CONSTANT(ezJoltAxis::Y),
-  EZ_BITFLAGS_CONSTANT(ezJoltAxis::Z),
-EZ_END_STATIC_REFLECTED_BITFLAGS;
+W_BEGIN_STATIC_REFLECTED_BITFLAGS(WJoltAxis, 1)
+  W_BITFLAGS_CONSTANT(WJoltAxis::X),
+  W_BITFLAGS_CONSTANT(WJoltAxis::Y),
+  W_BITFLAGS_CONSTANT(WJoltAxis::Z),
+W_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(ezJolt6DOFConstraintComponent, 1, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJolt6DOFConstraintComponent, 1, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("FreeLinearAxis", ezJoltAxis, GetFreeLinearAxis, SetFreeLinearAxis),
-    EZ_ENUM_ACCESSOR_PROPERTY("LinearLimitMode", ezJoltConstraintLimitMode, GetLinearLimitMode, SetLinearLimitMode),
-    EZ_ACCESSOR_PROPERTY("LinearRangeX", GetLinearRangeX, SetLinearRangeX),
-    EZ_ACCESSOR_PROPERTY("LinearRangeY", GetLinearRangeY, SetLinearRangeY),
-    EZ_ACCESSOR_PROPERTY("LinearRangeZ", GetLinearRangeZ, SetLinearRangeZ),
-    EZ_ACCESSOR_PROPERTY("LinearStiffness", GetLinearStiffness, SetLinearStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("LinearDamping", GetLinearDamping, SetLinearDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("FreeAngularAxis", ezJoltAxis, GetFreeAngularAxis, SetFreeAngularAxis),
-    EZ_ENUM_ACCESSOR_PROPERTY("SwingLimitMode", ezJoltConstraintLimitMode, GetSwingLimitMode, SetSwingLimitMode),
-    EZ_ACCESSOR_PROPERTY("SwingLimit", GetSwingLimit, SetSwingLimit)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
-    EZ_ACCESSOR_PROPERTY("SwingStiffness", GetSwingStiffness, SetSwingStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SwingDamping", GetSwingDamping, SetSwingDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ENUM_ACCESSOR_PROPERTY("TwistLimitMode", ezJoltConstraintLimitMode, GetTwistLimitMode, SetTwistLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(175), ezAngle::MakeFromDegree(175))),
-    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(175), ezAngle::MakeFromDegree(175))),
-    EZ_ACCESSOR_PROPERTY("TwistStiffness", GetTwistStiffness, SetTwistStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("TwistDamping", GetTwistDamping, SetTwistDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    W_BITFLAGS_ACCESSOR_PROPERTY("FreeLinearAxis", WJoltAxis, GetFreeLinearAxis, SetFreeLinearAxis),
+    W_ENUM_ACCESSOR_PROPERTY("LinearLimitMode", WJoltConstraintLimitMode, GetLinearLimitMode, SetLinearLimitMode),
+    W_ACCESSOR_PROPERTY("LinearRangeX", GetLinearRangeX, SetLinearRangeX),
+    W_ACCESSOR_PROPERTY("LinearRangeY", GetLinearRangeY, SetLinearRangeY),
+    W_ACCESSOR_PROPERTY("LinearRangeZ", GetLinearRangeZ, SetLinearRangeZ),
+    W_ACCESSOR_PROPERTY("LinearStiffness", GetLinearStiffness, SetLinearStiffness)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("LinearDamping", GetLinearDamping, SetLinearDamping)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_BITFLAGS_ACCESSOR_PROPERTY("FreeAngularAxis", WJoltAxis, GetFreeAngularAxis, SetFreeAngularAxis),
+    W_ENUM_ACCESSOR_PROPERTY("SwingLimitMode", WJoltConstraintLimitMode, GetSwingLimitMode, SetSwingLimitMode),
+    W_ACCESSOR_PROPERTY("SwingLimit", GetSwingLimit, SetSwingLimit)->AddAttributes(new WClampValueAttribute(WAngle(), WAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("SwingStiffness", GetSwingStiffness, SetSwingStiffness)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("SwingDamping", GetSwingDamping, SetSwingDamping)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ENUM_ACCESSOR_PROPERTY("TwistLimitMode", WJoltConstraintLimitMode, GetTwistLimitMode, SetTwistLimitMode),
+    W_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new WClampValueAttribute(-WAngle::MakeFromDegree(175), WAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new WClampValueAttribute(-WAngle::MakeFromDegree(175), WAngle::MakeFromDegree(175))),
+    W_ACCESSOR_PROPERTY("TwistStiffness", GetTwistStiffness, SetTwistStiffness)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
+    W_ACCESSOR_PROPERTY("TwistDamping", GetTwistDamping, SetTwistDamping)->AddAttributes(new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::SlateGray)
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.2, WColor::SlateGray)
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJolt6DOFConstraintComponent::ezJolt6DOFConstraintComponent() = default;
-ezJolt6DOFConstraintComponent::~ezJolt6DOFConstraintComponent() = default;
+WJolt6DOFConstraintComponent::WJolt6DOFConstraintComponent() = default;
+WJolt6DOFConstraintComponent::~WJolt6DOFConstraintComponent() = default;
 
-void ezJolt6DOFConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void WJolt6DOFConstraintComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
@@ -77,10 +77,10 @@ void ezJolt6DOFConstraintComponent::SerializeComponent(ezWorldWriter& stream) co
   s << m_fTwistDamping;
 }
 
-void ezJolt6DOFConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void WJolt6DOFConstraintComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -105,47 +105,47 @@ void ezJolt6DOFConstraintComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fTwistDamping;
 }
 
-void ezJolt6DOFConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
+void WJolt6DOFConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
-  //EZ_ASSERT_DEV(localFrame0.isFinite() && localFrame0.isValid() && localFrame0.isSane(), "frame 0");
-  //EZ_ASSERT_DEV(localFrame1.isFinite() && localFrame1.isValid() && localFrame1.isSane(), "frame 1");
+  //W_ASSERT_DEV(localFrame0.isFinite() && localFrame0.isValid() && localFrame0.isSane(), "frame 0");
+  //W_ASSERT_DEV(localFrame1.isFinite() && localFrame1.isValid() && localFrame1.isSane(), "frame 1");
   //
-  //  m_pJoint = PxD6JointCreate(*(ezJolt::GetSingleton()->GetJoltAPI()), actor0, localFrame0, actor1, localFrame1);
+  //  m_pJoint = PxD6JointCreate(*(WJolt::GetSingleton()->GetJoltAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
-void ezJolt6DOFConstraintComponent::ApplySettings()
+void WJolt6DOFConstraintComponent::ApplySettings()
 {
-  ezJoltConstraintComponent::ApplySettings();
+  WJoltConstraintComponent::ApplySettings();
 
   //JoltD6Joint* pJoint = static_cast<PxD6Joint*>(m_pJoint);
 
-  //if (m_LinearLimitMode == ezJoltConstraintLimitMode::NoLimit)
+  //if (m_LinearLimitMode == WJoltConstraintLimitMode::NoLimit)
   //{
-  //  pJoint->setMotion(PxD6Axis::eX, m_FreeLinearAxis.IsSet(ezJoltAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eY, m_FreeLinearAxis.IsSet(ezJoltAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eZ, m_FreeLinearAxis.IsSet(ezJoltAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eX, m_FreeLinearAxis.IsSet(WJoltAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eY, m_FreeLinearAxis.IsSet(WJoltAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eZ, m_FreeLinearAxis.IsSet(WJoltAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
   //}
   //else
   //{
   //  auto freeAxis = m_FreeLinearAxis;
 
-  //  if (m_LinearLimitMode == ezJoltConstraintLimitMode::HardLimit)
+  //  if (m_LinearLimitMode == WJoltConstraintLimitMode::HardLimit)
   //  {
-  //    if (ezMath::IsEqual(m_vLinearRangeX.x, m_vLinearRangeX.y, 0.05f))
-  //      freeAxis.Remove(ezJoltAxis::X);
-  //    if (ezMath::IsEqual(m_vLinearRangeY.x, m_vLinearRangeY.y, 0.05f))
-  //      freeAxis.Remove(ezJoltAxis::Y);
-  //    if (ezMath::IsEqual(m_vLinearRangeZ.x, m_vLinearRangeZ.y, 0.05f))
-  //      freeAxis.Remove(ezJoltAxis::Z);
+  //    if (WMath::IsEqual(m_vLinearRangeX.x, m_vLinearRangeX.y, 0.05f))
+  //      freeAxis.Remove(WJoltAxis::X);
+  //    if (WMath::IsEqual(m_vLinearRangeY.x, m_vLinearRangeY.y, 0.05f))
+  //      freeAxis.Remove(WJoltAxis::Y);
+  //    if (WMath::IsEqual(m_vLinearRangeZ.x, m_vLinearRangeZ.y, 0.05f))
+  //      freeAxis.Remove(WJoltAxis::Z);
   //  }
 
-  //  pJoint->setMotion(PxD6Axis::eX, freeAxis.IsSet(ezJoltAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eY, freeAxis.IsSet(ezJoltAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eZ, freeAxis.IsSet(ezJoltAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eX, freeAxis.IsSet(WJoltAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eY, freeAxis.IsSet(WJoltAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eZ, freeAxis.IsSet(WJoltAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
 
   //  PxJointLinearLimitPair l(0, 0, PxSpring(0, 0));
 
-  //  if (m_LinearLimitMode == ezJoltConstraintLimitMode::SoftLimit)
+  //  if (m_LinearLimitMode == WJoltConstraintLimitMode::SoftLimit)
   //  {
   //    l.stiffness = m_fLinearStiffness;
   //    l.damping = m_fLinearDamping;
@@ -156,69 +156,69 @@ void ezJolt6DOFConstraintComponent::ApplySettings()
   //    l.bounceThreshold = m_fLinearDamping;
   //  }
 
-  //  if (freeAxis.IsSet(ezJoltAxis::X))
+  //  if (freeAxis.IsSet(WJoltAxis::X))
   //  {
   //    l.lower = m_vLinearRangeX.x;
   //    l.upper = m_vLinearRangeX.y;
 
   //    if (l.lower > l.upper)
-  //      ezMath::Swap(l.lower, l.upper);
+  //      WMath::Swap(l.lower, l.upper);
 
   //    pJoint->setLinearLimit(PxD6Axis::eX, l);
   //  }
 
-  //  if (freeAxis.IsSet(ezJoltAxis::Y))
+  //  if (freeAxis.IsSet(WJoltAxis::Y))
   //  {
   //    l.lower = m_vLinearRangeY.x;
   //    l.upper = m_vLinearRangeY.y;
 
   //    if (l.lower > l.upper)
-  //      ezMath::Swap(l.lower, l.upper);
+  //      WMath::Swap(l.lower, l.upper);
 
   //    pJoint->setLinearLimit(PxD6Axis::eY, l);
   //  }
 
-  //  if (freeAxis.IsSet(ezJoltAxis::Z))
+  //  if (freeAxis.IsSet(WJoltAxis::Z))
   //  {
   //    l.lower = m_vLinearRangeZ.x;
   //    l.upper = m_vLinearRangeZ.y;
 
   //    if (l.lower > l.upper)
-  //      ezMath::Swap(l.lower, l.upper);
+  //      WMath::Swap(l.lower, l.upper);
 
   //    pJoint->setLinearLimit(PxD6Axis::eZ, l);
   //  }
   //}
 
 
-  //if (m_SwingLimitMode == ezJoltConstraintLimitMode::NoLimit)
+  //if (m_SwingLimitMode == WJoltConstraintLimitMode::NoLimit)
   //{
-  //  pJoint->setMotion(PxD6Axis::eSWING1, m_FreeAngularAxis.IsSet(ezJoltAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eSWING2, m_FreeAngularAxis.IsSet(ezJoltAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eSWING1, m_FreeAngularAxis.IsSet(WJoltAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eSWING2, m_FreeAngularAxis.IsSet(WJoltAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
   //}
   //else
   //{
   //  auto freeAxis = m_FreeAngularAxis;
 
-  //  if (m_SwingLimitMode == ezJoltConstraintLimitMode::HardLimit)
+  //  if (m_SwingLimitMode == WJoltConstraintLimitMode::HardLimit)
   //  {
-  //    if (ezMath::IsZero(m_SwingLimit.GetDegree(), 1.0f))
+  //    if (WMath::IsZero(m_SwingLimit.GetDegree(), 1.0f))
   //    {
-  //      freeAxis.Remove(ezJoltAxis::Y);
-  //      freeAxis.Remove(ezJoltAxis::Z);
+  //      freeAxis.Remove(WJoltAxis::Y);
+  //      freeAxis.Remove(WJoltAxis::Z);
   //    }
   //  }
 
-  //  pJoint->setMotion(PxD6Axis::eSWING1, freeAxis.IsSet(ezJoltAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-  //  pJoint->setMotion(PxD6Axis::eSWING2, freeAxis.IsSet(ezJoltAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eSWING1, freeAxis.IsSet(WJoltAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eSWING2, freeAxis.IsSet(WJoltAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
 
-  //  if (freeAxis.IsAnySet(ezJoltAxis::Y | ezJoltAxis::Z))
+  //  if (freeAxis.IsAnySet(WJoltAxis::Y | WJoltAxis::Z))
   //  {
-  //    const float fSwingLimit = ezMath::Max(ezAngle::MakeFromDegree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
+  //    const float fSwingLimit = WMath::Max(WAngle::MakeFromDegree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
 
   //    PxJointLimitCone l(fSwingLimit, fSwingLimit);
 
-  //    if (m_SwingLimitMode == ezJoltConstraintLimitMode::SoftLimit)
+  //    if (m_SwingLimitMode == WJoltConstraintLimitMode::SoftLimit)
   //    {
   //      l.stiffness = m_fSwingStiffness;
   //      l.damping = m_fSwingDamping;
@@ -233,40 +233,40 @@ void ezJolt6DOFConstraintComponent::ApplySettings()
   //  }
   //}
 
-  //if (m_TwistLimitMode == ezJoltConstraintLimitMode::NoLimit)
+  //if (m_TwistLimitMode == WJoltConstraintLimitMode::NoLimit)
   //{
-  //  pJoint->setMotion(PxD6Axis::eTWIST, m_FreeAngularAxis.IsSet(ezJoltAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eTWIST, m_FreeAngularAxis.IsSet(WJoltAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
   //}
   //else
   //{
   //  auto freeAxis = m_FreeAngularAxis;
 
-  //  if (m_SwingLimitMode == ezJoltConstraintLimitMode::HardLimit)
+  //  if (m_SwingLimitMode == WJoltConstraintLimitMode::HardLimit)
   //  {
-  //    if (ezMath::IsEqual(m_LowerTwistLimit.GetDegree(), m_UpperTwistLimit.GetDegree(), 1.0f))
+  //    if (WMath::IsEqual(m_LowerTwistLimit.GetDegree(), m_UpperTwistLimit.GetDegree(), 1.0f))
   //    {
-  //      freeAxis.Remove(ezJoltAxis::X);
+  //      freeAxis.Remove(WJoltAxis::X);
   //    }
   //  }
 
-  //  pJoint->setMotion(PxD6Axis::eTWIST, freeAxis.IsSet(ezJoltAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+  //  pJoint->setMotion(PxD6Axis::eTWIST, freeAxis.IsSet(WJoltAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
 
-  //  if (freeAxis.IsSet(ezJoltAxis::X))
+  //  if (freeAxis.IsSet(WJoltAxis::X))
   //  {
   //    PxJointAngularLimitPair l(m_LowerTwistLimit.GetRadian(), m_UpperTwistLimit.GetRadian());
 
   //    if (l.lower > l.upper)
   //    {
-  //      ezMath::Swap(l.lower, l.upper);
+  //      WMath::Swap(l.lower, l.upper);
   //    }
 
-  //    if (ezMath::IsEqual(l.lower, l.upper, ezAngle::MakeFromDegree(0.5f).GetRadian()))
+  //    if (WMath::IsEqual(l.lower, l.upper, WAngle::MakeFromDegree(0.5f).GetRadian()))
   //    {
-  //      l.lower -= ezAngle::MakeFromDegree(0.5f).GetRadian();
-  //      l.upper += ezAngle::MakeFromDegree(0.5f).GetRadian();
+  //      l.lower -= WAngle::MakeFromDegree(0.5f).GetRadian();
+  //      l.upper += WAngle::MakeFromDegree(0.5f).GetRadian();
   //    }
 
-  //    if (m_TwistLimitMode == ezJoltConstraintLimitMode::SoftLimit)
+  //    if (m_TwistLimitMode == WJoltConstraintLimitMode::SoftLimit)
   //    {
   //      l.stiffness = m_fTwistStiffness;
   //      l.damping = m_fTwistDamping;
@@ -282,103 +282,103 @@ void ezJolt6DOFConstraintComponent::ApplySettings()
   //}
 }
 
-void ezJolt6DOFConstraintComponent::SetFreeLinearAxis(ezBitflags<ezJoltAxis> flags)
+void WJolt6DOFConstraintComponent::SetFreeLinearAxis(WBitflags<WJoltAxis> flags)
 {
   m_FreeLinearAxis = flags;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetFreeAngularAxis(ezBitflags<ezJoltAxis> flags)
+void WJolt6DOFConstraintComponent::SetFreeAngularAxis(WBitflags<WJoltAxis> flags)
 {
   m_FreeAngularAxis = flags;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearLimitMode(ezJoltConstraintLimitMode::Enum mode)
+void WJolt6DOFConstraintComponent::SetLinearLimitMode(WJoltConstraintLimitMode::Enum mode)
 {
   m_LinearLimitMode = mode;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearRangeX(const ezVec2& value)
+void WJolt6DOFConstraintComponent::SetLinearRangeX(const WVec2& value)
 {
   m_vLinearRangeX = value;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearRangeY(const ezVec2& value)
+void WJolt6DOFConstraintComponent::SetLinearRangeY(const WVec2& value)
 {
   m_vLinearRangeY = value;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearRangeZ(const ezVec2& value)
+void WJolt6DOFConstraintComponent::SetLinearRangeZ(const WVec2& value)
 {
   m_vLinearRangeZ = value;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearStiffness(float f)
+void WJolt6DOFConstraintComponent::SetLinearStiffness(float f)
 {
   m_fLinearStiffness = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLinearDamping(float f)
+void WJolt6DOFConstraintComponent::SetLinearDamping(float f)
 {
   m_fLinearDamping = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetSwingLimitMode(ezJoltConstraintLimitMode::Enum mode)
+void WJolt6DOFConstraintComponent::SetSwingLimitMode(WJoltConstraintLimitMode::Enum mode)
 {
   m_SwingLimitMode = mode;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetSwingLimit(ezAngle f)
+void WJolt6DOFConstraintComponent::SetSwingLimit(WAngle f)
 {
   m_SwingLimit = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetSwingStiffness(float f)
+void WJolt6DOFConstraintComponent::SetSwingStiffness(float f)
 {
   m_fSwingStiffness = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetSwingDamping(float f)
+void WJolt6DOFConstraintComponent::SetSwingDamping(float f)
 {
   m_fSwingDamping = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetTwistLimitMode(ezJoltConstraintLimitMode::Enum mode)
+void WJolt6DOFConstraintComponent::SetTwistLimitMode(WJoltConstraintLimitMode::Enum mode)
 {
   m_TwistLimitMode = mode;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetLowerTwistLimit(ezAngle f)
+void WJolt6DOFConstraintComponent::SetLowerTwistLimit(WAngle f)
 {
   m_LowerTwistLimit = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetUpperTwistLimit(ezAngle f)
+void WJolt6DOFConstraintComponent::SetUpperTwistLimit(WAngle f)
 {
   m_UpperTwistLimit = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetTwistStiffness(float f)
+void WJolt6DOFConstraintComponent::SetTwistStiffness(float f)
 {
   m_fTwistStiffness = f;
   QueueApplySettings();
 }
 
-void ezJolt6DOFConstraintComponent::SetTwistDamping(float f)
+void WJolt6DOFConstraintComponent::SetTwistDamping(float f)
 {
   m_fTwistDamping = f;
   QueueApplySettings();
@@ -387,4 +387,4 @@ void ezJolt6DOFConstraintComponent::SetTwistDamping(float f)
 #endif
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_Jolt6DOFConstraintComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_Jolt6DOFConstraintComponent);

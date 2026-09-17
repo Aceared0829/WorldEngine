@@ -2,15 +2,15 @@
 
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
-class ezRmlUiAssetProperties : public ezReflectedClass
+class WRmlUiAssetProperties : public WReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiAssetProperties, ezReflectedClass);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiAssetProperties, WReflectedClass);
 
 public:
-  ezRmlUiAssetProperties();
-  ~ezRmlUiAssetProperties();
+  WRmlUiAssetProperties();
+  ~WRmlUiAssetProperties();
 
-  ezString m_sRmlFile;
-  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
-  ezVec2U32 m_ReferenceResolution;
+  WString m_sRmlFile;
+  WEnum<WRmlUiScaleMode> m_ScaleMode;
+  WVec2U32 m_ReferenceResolution;
 };

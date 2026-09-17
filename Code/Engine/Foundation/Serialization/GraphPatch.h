@@ -7,11 +7,11 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
-class ezRTTI;
-class ezAbstractObjectNode;
-class ezAbstractObjectGraph;
-class ezGraphVersioning;
-class ezGraphPatchContext;
+class WRTTI;
+class WAbstractObjectNode;
+class WAbstractObjectGraph;
+class WGraphVersioning;
+class WGraphPatchContext;
 
 /// Base class for implementing data migration patches for object graphs.
 ///
@@ -20,18 +20,18 @@ class ezGraphPatchContext;
 /// and applied during deserialization.
 ///
 /// Patch implementation pattern:
-/// 1. Create a class derived from ezGraphPatch
+/// 1. Create a class derived from WGraphPatch
 /// 2. Implement the Patch() method to transform data
 /// 3. Create a static instance to auto-register the patch
 /// 4. The versioning system automatically applies patches during load
 ///
 /// Example:
 /// \code
-///   class MyTypePatch_1_to_2 : public ezGraphPatch
+///   class MyTypePatch_1_to_2 : public WGraphPatch
 ///   {
 ///   public:
-///     MyTypePatch_1_to_2() : ezGraphPatch("MyType", 2) {}
-///     virtual void Patch(ezGraphPatchContext& ctx, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+///     MyTypePatch_1_to_2() : WGraphPatch("MyType", 2) {}
+///     virtual void Patch(WGraphPatchContext& ctx, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
 ///     {
 ///       // Migrate data from version 1 to version 2
 ///       pNode->RenameProperty("oldName", "newName");
@@ -39,10 +39,10 @@ class ezGraphPatchContext;
 ///   };
 ///   static MyTypePatch_1_to_2 g_MyTypePatch_1_to_2; // Auto-registers patch
 /// \endcode
-class EZ_FOUNDATION_DLL ezGraphPatch : public ezEnumerable<ezGraphPatch>
+class W_FOUNDATION_DLL WGraphPatch : public WEnumerable<WGraphPatch>
 {
 public:
-  enum class PatchType : ezUInt8
+  enum class PatchType : WUInt8
   {
     NodePatch,  ///< Patch applies to individual nodes of a specific type and version
     GraphPatch, ///< Patch applies to the entire graph, processes all nodes regardless of type
@@ -63,7 +63,7 @@ public:
   ///
   /// For GraphPatch type, szType and uiTypeVersion are ignored during execution,
   /// and the patch implementation must determine what to process.
-  ezGraphPatch(const char* szType, ezUInt32 uiTypeVersion, PatchType type = PatchType::NodePatch);
+  WGraphPatch(const char* szType, WUInt32 uiTypeVersion, PatchType type = PatchType::NodePatch);
 
   /// Main patch implementation - transforms data from old version to new version.
   ///
@@ -77,17 +77,17 @@ public:
   ///
   /// Important: Patches should be idempotent and handle missing properties gracefully
   /// for robustness against incomplete version chains.
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const = 0;
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const = 0;
   /// Returns the type to patch.
   const char* GetType() const;
   /// Returns the type version to patch to.
-  ezUInt32 GetTypeVersion() const;
+  WUInt32 GetTypeVersion() const;
   PatchType GetPatchType() const;
 
-  EZ_DECLARE_ENUMERABLE_CLASS(ezGraphPatch);
+  W_DECLARE_ENUMERABLE_CLASS(WGraphPatch);
 
 private:
   const char* m_szType = nullptr;
-  ezUInt32 m_uiTypeVersion;
+  WUInt32 m_uiTypeVersion;
   PatchType m_PatchType;
 };

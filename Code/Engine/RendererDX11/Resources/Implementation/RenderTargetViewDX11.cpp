@@ -6,38 +6,38 @@
 
 #include <d3d11.h>
 
-ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
-  : ezGALRenderTargetView(pTexture, Description)
+WGALRenderTargetViewDX11::WGALRenderTargetViewDX11(WGALTexture* pTexture, const WGALRenderTargetViewCreationDescription& Description)
+  : WGALRenderTargetView(pTexture, Description)
 
 {
 }
 
-ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() = default;
+WGALRenderTargetViewDX11::~WGALRenderTargetViewDX11() = default;
 
-ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
+WResult WGALRenderTargetViewDX11::InitPlatform(WGALDevice* pDevice)
 {
-  const ezGALTexture* pTexture = nullptr;
+  const WGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = pDevice->GetTexture(m_Description.m_hTexture);
 
   if (pTexture == nullptr)
   {
-    ezLog::Error("No valid texture handle given for render target view creation!");
-    return EZ_FAILURE;
+    WLog::Error("No valid texture handle given for render target view creation!");
+    return W_FAILURE;
   }
 
-  const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
-  ezGALResourceFormat::Enum viewFormat = texDesc.m_Format;
+  const WGALTextureCreationDescription& texDesc = pTexture->GetDescription();
+  WGALResourceFormat::Enum viewFormat = texDesc.m_Format;
 
-  if (m_Description.m_OverrideViewFormat != ezGALResourceFormat::Invalid)
+  if (m_Description.m_OverrideViewFormat != WGALResourceFormat::Invalid)
     viewFormat = m_Description.m_OverrideViewFormat;
 
 
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  WGALDeviceDX11* pDXDevice = static_cast<WGALDeviceDX11*>(pDevice);
 
   DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
 
-  const bool bIsDepthFormat = ezGALResourceFormat::IsDepthFormat(viewFormat);
+  const bool bIsDepthFormat = WGALResourceFormat::IsDepthFormat(viewFormat);
   if (bIsDepthFormat)
   {
     DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eDepthStencilType;
@@ -49,56 +49,56 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
-    ezLog::Error("Couldn't get DXGI format for view!");
-    return EZ_FAILURE;
+    WLog::Error("Couldn't get DXGI format for view!");
+    return W_FAILURE;
   }
 
-  ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
+  ID3D11Resource* pDXResource = static_cast<const WGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
 
   if (bIsDepthFormat)
   {
     D3D11_DEPTH_STENCIL_VIEW_DESC DSViewDesc;
     DSViewDesc.Format = DXViewFormat;
 
-    const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
-    if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+    const WEnum<WGALTextureType> type = m_Description.m_OverrideViewType != WGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
+    if (texDesc.m_SampleCount == WGALMSAASampleCount::None)
     {
       switch (type)
       {
-        case ezGALTextureType::Texture2D:
-        case ezGALTextureType::Texture2DShared:
+        case WGALTextureType::Texture2D:
+        case WGALTextureType::Texture2DShared:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
           DSViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
           break;
 
-        case ezGALTextureType::Texture2DProxy:
-        case ezGALTextureType::Texture2DArray:
+        case WGALTextureType::Texture2DProxy:
+        case WGALTextureType::Texture2DArray:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
           DSViewDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevel;
           DSViewDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstSlice;
           DSViewDesc.Texture2DArray.ArraySize = m_Description.m_uiSliceCount;
           break;
 
-          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+          W_DEFAULT_CASE_NOT_IMPLEMENTED;
       }
     }
     else
     {
       switch (type)
       {
-        case ezGALTextureType::Texture2D:
-        case ezGALTextureType::Texture2DShared:
+        case WGALTextureType::Texture2D:
+        case WGALTextureType::Texture2DShared:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
           break;
 
-        case ezGALTextureType::Texture2DProxy:
-        case ezGALTextureType::Texture2DArray:
+        case WGALTextureType::Texture2DProxy:
+        case WGALTextureType::Texture2DArray:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY;
           DSViewDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstSlice;
           DSViewDesc.Texture2DMSArray.ArraySize = m_Description.m_uiSliceCount;
           break;
 
-          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+          W_DEFAULT_CASE_NOT_IMPLEMENTED;
       }
     }
 
@@ -108,12 +108,12 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pDXResource, &DSViewDesc, &m_pDepthStencilView)))
     {
-      ezLog::Error("Couldn't create depth stencil view!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create depth stencil view!");
+      return W_FAILURE;
     }
     else
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
   else
@@ -121,70 +121,70 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     D3D11_RENDER_TARGET_VIEW_DESC RTViewDesc;
     RTViewDesc.Format = DXViewFormat;
 
-    if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+    if (texDesc.m_SampleCount == WGALMSAASampleCount::None)
     {
       switch (texDesc.m_Type)
       {
-        case ezGALTextureType::Texture2D:
-        case ezGALTextureType::Texture2DShared:
+        case WGALTextureType::Texture2D:
+        case WGALTextureType::Texture2DShared:
           RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
           RTViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
           break;
 
-        case ezGALTextureType::Texture2DProxy:
-        case ezGALTextureType::Texture2DArray:
-        case ezGALTextureType::TextureCube:
-        case ezGALTextureType::TextureCubeArray:
+        case WGALTextureType::Texture2DProxy:
+        case WGALTextureType::Texture2DArray:
+        case WGALTextureType::TextureCube:
+        case WGALTextureType::TextureCubeArray:
           RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
           RTViewDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevel;
           RTViewDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstSlice;
           RTViewDesc.Texture2DArray.ArraySize = m_Description.m_uiSliceCount;
           break;
 
-          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+          W_DEFAULT_CASE_NOT_IMPLEMENTED;
       }
     }
     else
     {
       switch (texDesc.m_Type)
       {
-        case ezGALTextureType::Texture2D:
-        case ezGALTextureType::Texture2DShared:
+        case WGALTextureType::Texture2D:
+        case WGALTextureType::Texture2DShared:
           RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
           break;
 
-        case ezGALTextureType::Texture2DProxy:
-        case ezGALTextureType::Texture2DArray:
-        case ezGALTextureType::TextureCube:
-        case ezGALTextureType::TextureCubeArray:
+        case WGALTextureType::Texture2DProxy:
+        case WGALTextureType::Texture2DArray:
+        case WGALTextureType::TextureCube:
+        case WGALTextureType::TextureCubeArray:
           RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY;
           RTViewDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstSlice;
           RTViewDesc.Texture2DMSArray.ArraySize = m_Description.m_uiSliceCount;
           break;
 
-          EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+          W_DEFAULT_CASE_NOT_IMPLEMENTED;
       }
     }
 
     if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pDXResource, &RTViewDesc, &m_pRenderTargetView)))
     {
-      ezLog::Error("Couldn't create render target view!");
-      return EZ_FAILURE;
+      WLog::Error("Couldn't create render target view!");
+      return W_FAILURE;
     }
     else
     {
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 }
 
-ezResult ezGALRenderTargetViewDX11::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALRenderTargetViewDX11::DeInitPlatform(WGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
+  W_IGNORE_UNUSED(pDevice);
 
-  EZ_GAL_DX11_RELEASE(m_pRenderTargetView);
-  EZ_GAL_DX11_RELEASE(m_pDepthStencilView);
-  EZ_GAL_DX11_RELEASE(m_pUnorderedAccessView);
+  W_GAL_DX11_RELEASE(m_pRenderTargetView);
+  W_GAL_DX11_RELEASE(m_pDepthStencilView);
+  W_GAL_DX11_RELEASE(m_pUnorderedAccessView);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

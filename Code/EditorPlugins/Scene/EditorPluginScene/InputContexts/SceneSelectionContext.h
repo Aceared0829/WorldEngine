@@ -3,14 +3,14 @@
 #include <EditorFramework/InputContexts/SelectionContext.h>
 
 /// Custom selection context for the scene to allow switching the active layer if an object is clicked that is in a different layer then the active one.
-class ezSceneSelectionContext : public ezSelectionContext
+class WSceneSelectionContext : public WSelectionContext
 {
 public:
-  ezSceneSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
+  WSceneSelectionContext(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView, const WCamera* pCamera);
 
 protected:
-  virtual void OpenDocumentForPickedObject(const ezObjectPickingResult& res) const override;
-  virtual void SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const override;
+  virtual void OpenDocumentForPickedObject(const WObjectPickingResult& res) const override;
+  virtual void SelectPickedObject(const WObjectPickingResult& res, bool bToggle, bool bDirect) const override;
 
-  ezUuid FindLayerByObject(ezUuid objectGuid, const ezDocumentObject*& out_pObject) const;
+  WUuid FindLayerByObject(WUuid objectGuid, const WDocumentObject*& out_pObject) const;
 };

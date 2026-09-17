@@ -14,37 +14,37 @@
 #include <QInputDialog>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
-  : ezQtSceneDocumentWindowBase(pDocument)
+WQtSceneDocumentWindow::WQtSceneDocumentWindow(WSceneDocument* pDocument)
+  : WQtSceneDocumentWindowBase(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  auto ViewFactory = [](WQtEngineDocumentWindow* pWindow, WEngineViewConfig* pConfig) -> WQtEngineViewWidget*
   {
-    ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindowBase*>(pWindow), pConfig);
+    WQtSceneViewWidget* pWidget = new WQtSceneViewWidget(nullptr, static_cast<WQtSceneDocumentWindowBase*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
-  m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
+  m_pQuadViewWidget = new WQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-    [this](ezGameObjectEditTool* pTool)
-    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](WGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<WGameObjectDocument*>(GetDocument()), this, this); });
 
   {
-    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
-    pViewPanel->setObjectName("ezQtDocumentPanel");
+    WQtDocumentPanel* pViewPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pViewPanel->setObjectName("WQtDocumentPanel");
     pViewPanel->setWindowTitle("3D View");
     pViewPanel->setWidget(m_pQuadViewWidget);
 
     m_pDockManager->setCentralWidget(pViewPanel);
   }
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
   SetTargetFramerate(pPreferences->GetMaxFramerate());
 
   {
     // Menu Bar
-    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
-    ezActionContext context;
+    WQtMenuBarActionMapView* pMenuBar = static_cast<WQtMenuBarActionMapView*>(menuBar());
+    WActionContext context;
     context.m_sMapping = "EditorPluginScene_DocumentMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -53,8 +53,8 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
   {
     // Tool Bar
-    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
+    WQtToolBarActionMapView* pToolBar = new WQtToolBarActionMapView("Toolbar", this);
+    WActionContext context;
     context.m_sMapping = "EditorPluginScene_DocumentToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
@@ -66,12 +66,12 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   // Exposed Parameters
   if (GetSceneDocument()->IsPrefab())
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PrefabSettingsPanel");
     pPanel->setWindowTitle("Prefab Settings");
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument, false);
-    ezDeque<const ezDocumentObject*> selection;
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPanel, pDocument, false);
+    WDeque<const WDocumentObject*> selection;
     selection.PushBack(pDocument->GetSettingsObject());
     pPropertyGrid->SetSelection(selection);
     pPanel->setWidget(pPropertyGrid);
@@ -81,16 +81,16 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
   // Properties
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    WQtDocumentPanel* pPropertyPanel = new WQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
 
-    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, static_cast<ezSceneDocument*>(pDocument));
+    WQtDocumentPanel* pPanelTree = new WQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, static_cast<WSceneDocument*>(pDocument));
     pPanelTree->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    WQtPropertyGridWidget* pPropertyGrid = new WQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
-    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
+    W_VERIFY(connect(pPropertyGrid, &WQtPropertyGridWidget::ExtendContextMenu, this, &WQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
 
     m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
@@ -105,75 +105,75 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   FinishWindowCreation();
 }
 
-ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow() = default;
+WQtSceneDocumentWindow::~WQtSceneDocumentWindow() = default;
 
-ezQtSceneDocumentWindowBase::ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument)
-  : ezQtGameObjectDocumentWindow(pDocument)
+WQtSceneDocumentWindowBase::WQtSceneDocumentWindowBase(WSceneDocument* pDocument)
+  : WQtGameObjectDocumentWindow(pDocument)
 {
-  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
-  pSceneDoc->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindowBase::GameObjectEventHandler, this));
+  const WSceneDocument* pSceneDoc = static_cast<const WSceneDocument*>(GetDocument());
+  pSceneDoc->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WQtSceneDocumentWindowBase::GameObjectEventHandler, this));
 }
 
-ezQtSceneDocumentWindowBase::~ezQtSceneDocumentWindowBase()
+WQtSceneDocumentWindowBase::~WQtSceneDocumentWindowBase()
 {
-  GetSceneDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindowBase::GameObjectEventHandler, this));
+  GetSceneDocument()->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WQtSceneDocumentWindowBase::GameObjectEventHandler, this));
 }
 
-ezSceneDocument* ezQtSceneDocumentWindowBase::GetSceneDocument() const
+WSceneDocument* WQtSceneDocumentWindowBase::GetSceneDocument() const
 {
-  return static_cast<ezSceneDocument*>(GetDocument());
+  return static_cast<WSceneDocument*>(GetDocument());
 }
 
-void ezQtSceneDocumentWindowBase::CreateImageCapture(const char* szOutputPath)
+void WQtSceneDocumentWindowBase::CreateImageCapture(const char* szOutputPath)
 {
   m_pQuadViewWidget->GetActiveMainViews()[0]->GetViewWidget()->TakeScreenshot(szOutputPath);
 }
 
-void ezQtSceneDocumentWindowBase::ToggleViews(QWidget* pView)
+void WQtSceneDocumentWindowBase::ToggleViews(QWidget* pView)
 {
   m_pQuadViewWidget->ToggleViews(pView);
 }
 
 
-ezObjectAccessorBase* ezQtSceneDocumentWindowBase::GetObjectAccessor()
+WObjectAccessorBase* WQtSceneDocumentWindowBase::GetObjectAccessor()
 {
   return GetDocument()->GetObjectAccessor();
 }
 
-bool ezQtSceneDocumentWindowBase::CanDuplicateSelection() const
+bool WQtSceneDocumentWindowBase::CanDuplicateSelection() const
 {
   return true;
 }
 
-void ezQtSceneDocumentWindowBase::DuplicateSelection()
+void WQtSceneDocumentWindowBase::DuplicateSelection()
 {
   GetSceneDocument()->DuplicateSelection();
 }
 
-void ezQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
+void WQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
 {
-  const float fSnap = ezSnapProvider::GetTranslationSnapValue();
+  const float fSnap = WSnapProvider::GetTranslationSnapValue();
 
   if (fSnap == 0.0f)
     return;
 
-  const ezDeque<const ezDocumentObject*>& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
+  const WDeque<const WDocumentObject*>& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
   if (selection.IsEmpty())
     return;
 
   const auto& pivotObj = selection.PeekBack();
 
-  ezVec3 vPivotSnapOffset;
+  WVec3 vPivotSnapOffset;
 
   if (!bSnapEachObject)
   {
     // if we snap by the pivot object only, the last selected object must be a valid game object
-    if (!pivotObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    if (!pivotObj->GetTypeAccessor().GetType()->IsDerivedFrom<WGameObject>())
       return;
 
-    const ezVec3 vPivotPos = GetSceneDocument()->GetGlobalTransform(pivotObj).m_vPosition;
-    ezVec3 vSnappedPos = vPivotPos;
-    ezSnapProvider::SnapTranslation(vSnappedPos);
+    const WVec3 vPivotPos = GetSceneDocument()->GetGlobalTransform(pivotObj).m_vPosition;
+    WVec3 vSnappedPos = vPivotPos;
+    WSnapProvider::SnapTranslation(vSnappedPos);
 
     vPivotSnapOffset = vSnappedPos - vPivotPos;
 
@@ -181,7 +181,7 @@ void ezQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
       return;
   }
 
-  ezDeque<ezSelectedGameObject> gizmoSelection;
+  WDeque<WSelectedGameObject> gizmoSelection;
   GetGameObjectDocument()->ComputeTopLevelSelectedGameObjects(gizmoSelection);
 
   if (gizmoSelection.IsEmpty())
@@ -193,17 +193,17 @@ void ezQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
 
   bool bDidAny = false;
 
-  for (ezUInt32 sel = 0; sel < gizmoSelection.GetCount(); ++sel)
+  for (WUInt32 sel = 0; sel < gizmoSelection.GetCount(); ++sel)
   {
     const auto& obj = gizmoSelection[sel];
 
-    ezTransform vSnappedPos = obj.m_GlobalTransform;
+    WTransform vSnappedPos = obj.m_GlobalTransform;
 
     // if we snap each object individually, compute the snap position for each one here
     if (bSnapEachObject)
     {
       vSnappedPos.m_vPosition = obj.m_GlobalTransform.m_vPosition;
-      ezSnapProvider::SnapTranslation(vSnappedPos.m_vPosition);
+      WSnapProvider::SnapTranslation(vSnappedPos.m_vPosition);
 
       if (obj.m_GlobalTransform.m_vPosition == vSnappedPos.m_vPosition)
         continue;
@@ -225,28 +225,28 @@ void ezQtSceneDocumentWindowBase::SnapSelectionToPosition(bool bSnapEachObject)
 
   gizmoSelection.Clear();
 
-  ShowTemporaryStatusBarMsg(ezFmt("Snap to Grid ({})", bSnapEachObject ? "Each Object" : "Pivot"));
+  ShowTemporaryStatusBarMsg(WFmt("Snap to Grid ({})", bSnapEachObject ? "Each Object" : "Pivot"));
 }
 
-void ezQtSceneDocumentWindowBase::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WQtSceneDocumentWindowBase::GameObjectEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
-      // Focus is done by ezQtGameObjectDocumentWindow
-      GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+    case WGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
+      // Focus is done by WQtGameObjectDocumentWindow
+      GetSceneDocument()->ShowOrHideSelectedObjects(WSceneDocument::ShowOrHide::Show);
       break;
 
-    case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
-      // Focus is done by ezQtGameObjectDocumentWindow
-      GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+    case WGameObjectEvent::Type::TriggerFocusOnSelection_All:
+      // Focus is done by WQtGameObjectDocumentWindow
+      GetSceneDocument()->ShowOrHideSelectedObjects(WSceneDocument::ShowOrHide::Show);
       break;
 
-    case ezGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid:
+    case WGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid:
       SnapSelectionToPosition(false);
       break;
 
-    case ezGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid:
+    case WGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid:
       SnapSelectionToPosition(true);
       break;
 
@@ -255,26 +255,26 @@ void ezQtSceneDocumentWindowBase::GameObjectEventHandler(const ezGameObjectEvent
   }
 }
 
-void ezQtSceneDocumentWindowBase::InternalRedraw()
+void WQtSceneDocumentWindowBase::InternalRedraw()
 {
   // If play the game is on, only render (in editor) if the window is active
-  ezSceneDocument* doc = GetSceneDocument();
+  WSceneDocument* doc = GetSceneDocument();
   if (doc->GetGameMode() == GameMode::Play && !window()->isActiveWindow())
     return;
 
-  ezEditorInputContext::UpdateActiveInputContext();
+  WEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  ezQtEngineDocumentWindow::InternalRedraw();
+  WQtEngineDocumentWindow::InternalRedraw();
 }
 
-void ezQtSceneDocumentWindowBase::SendRedrawMsg()
+void WQtSceneDocumentWindowBase::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  if (WEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
-    ezSimulationSettingsMsgToEngine msg;
+    WSimulationSettingsMsgToEngine msg;
     auto pSceneDoc = GetSceneDocument();
     msg.m_bSimulateWorld = pSceneDoc->GetGameMode() != GameMode::Off;
     msg.m_fSimulationSpeed = pSceneDoc->GetPauseSimulation() ? 0.0f : pSceneDoc->GetSimulationSpeed();
@@ -288,11 +288,11 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {
-    ezGridSettingsMsgToEngine msg = GetGridSettings();
+    WGridSettingsMsgToEngine msg = GetGridSettings();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {
-    ezWorldSettingsMsgToEngine msg = GetWorldSettings();
+    WWorldSettingsMsgToEngine msg = GetWorldSettings();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 
@@ -309,20 +309,20 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
   }
 }
 
-void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQtPropertyWidget* pPropWidget)
+void WQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, WQtPropertyWidget* pPropWidget)
 {
   if (!GetSceneDocument()->IsPrefab())
     return;
 
-  const ezRTTI* pType = pPropWidget->GetType();
-  const ezAbstractProperty* pProp = pPropWidget->GetProperty();
-  ezObjectAccessorBase* pAccessor = pPropWidget->GetObjectAccessor();
+  const WRTTI* pType = pPropWidget->GetType();
+  const WAbstractProperty* pProp = pPropWidget->GetProperty();
+  WObjectAccessorBase* pAccessor = pPropWidget->GetObjectAccessor();
   const auto& items = pPropWidget->GetSelection();
 
-  ezUInt32 iExposed = 0;
-  for (ezUInt32 i = 0; i < items.GetCount(); i++)
+  WUInt32 iExposed = 0;
+  for (WUInt32 i = 0; i < items.GetCount(); i++)
   {
-    ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, items[i].m_pObject, pType, pProp, items[i].m_Index);
+    WInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, items[i].m_pObject, pType, pProp, items[i].m_Index);
     if (index != -1)
       iExposed++;
   }
@@ -340,17 +340,17 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQ
         if (!bOk)
           return;
 
-        if (!ezStringUtils::IsValidIdentifierName(name.toUtf8().data()))
+        if (!WStringUtils::IsValidIdentifierName(name.toUtf8().data()))
         {
-          ezQtUiServices::GetSingleton()->MessageBoxInformation("This name is not a valid identifier.\nAllowed characters are a-z, A-Z, "
+          WQtUiServices::GetSingleton()->MessageBoxInformation("This name is not a valid identifier.\nAllowed characters are a-z, A-Z, "
                                                                 "0-9 and _.\nWhitespace and special characters are not allowed.");
           continue; // try again
         }
 
         pAccessor->StartTransaction("Expose as Parameter");
-        for (const ezPropertySelection& sel : items)
+        for (const WPropertySelection& sel : items)
         {
-          ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
+          WInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
           if (index == -1)
           {
             GetSceneDocument()->AddExposedParameter(name.toUtf8(), pAccessor, sel.m_pObject, pType, pProp, sel.m_Index).LogFailure();
@@ -366,9 +366,9 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQ
     connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pAccessor, pType, pProp]()
       {
       pAccessor->StartTransaction("Remove Exposed Parameter");
-      for (const ezPropertySelection& sel : items)
+      for (const WPropertySelection& sel : items)
       {
-        ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
+        WInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
         if (index != -1)
         {
           GetSceneDocument()->RemoveExposedParameter(index).LogFailure();
@@ -378,7 +378,7 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQ
   }
 }
 
-void ezQtSceneDocumentWindowBase::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
+void WQtSceneDocumentWindowBase::ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg)
 {
-  ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(pMsg);
+  WQtGameObjectDocumentWindow::ProcessMessageEventHandler(pMsg);
 }

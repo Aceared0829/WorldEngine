@@ -5,174 +5,174 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSplineTangentMode, 1)
-  EZ_ENUM_CONSTANTS(ezSplineTangentMode::Auto, ezSplineTangentMode::Custom, ezSplineTangentMode::Linear)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSplineTangentMode, 1)
+  W_ENUM_CONSTANTS(WSplineTangentMode::Auto, WSplineTangentMode::Custom, WSplineTangentMode::Linear)
+W_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezSpline::ControlPoint::Serialize(ezStreamWriter& s) const
+WResult WSpline::ControlPoint::Serialize(WStreamWriter& s) const
 {
-  s << ezSimdConversion::ToVec3(m_vPos);
-  s << ezSimdConversion::ToVec4(m_vPosTangentIn);  // Contains the tangent mode in w
-  s << ezSimdConversion::ToVec4(m_vPosTangentOut); // Contains the tangent mode in w
+  s << WSimdConversion::ToVec3(m_vPos);
+  s << WSimdConversion::ToVec4(m_vPosTangentIn);  // Contains the tangent mode in w
+  s << WSimdConversion::ToVec4(m_vPosTangentOut); // Contains the tangent mode in w
 
-  s << ezSimdConversion::ToVec4(m_vUpDirAndRoll);  // Roll in w
-  s << ezSimdConversion::ToVec3(m_vUpDirTangentIn);
-  s << ezSimdConversion::ToVec3(m_vUpDirTangentOut);
+  s << WSimdConversion::ToVec4(m_vUpDirAndRoll);  // Roll in w
+  s << WSimdConversion::ToVec3(m_vUpDirTangentIn);
+  s << WSimdConversion::ToVec3(m_vUpDirTangentOut);
 
-  s << ezSimdConversion::ToVec3(m_vScale);
-  s << ezSimdConversion::ToVec3(m_vScaleTangentIn);
-  s << ezSimdConversion::ToVec3(m_vScaleTangentOut);
+  s << WSimdConversion::ToVec3(m_vScale);
+  s << WSimdConversion::ToVec3(m_vScaleTangentIn);
+  s << WSimdConversion::ToVec3(m_vScaleTangentOut);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSpline::ControlPoint::Deserialize(ezStreamReader& s)
+WResult WSpline::ControlPoint::Deserialize(WStreamReader& s)
 {
   {
-    ezVec3 vPos;
+    WVec3 vPos;
     s >> vPos;
 
-    ezVec4 vPosTangentIn, vPosTangentOut; // Contains the tangent mode in w
+    WVec4 vPosTangentIn, vPosTangentOut; // Contains the tangent mode in w
     s >> vPosTangentIn;
     s >> vPosTangentOut;
 
-    m_vPos = ezSimdConversion::ToVec3(vPos);
-    m_vPosTangentIn = ezSimdConversion::ToVec4(vPosTangentIn);
-    m_vPosTangentOut = ezSimdConversion::ToVec4(vPosTangentOut);
+    m_vPos = WSimdConversion::ToVec3(vPos);
+    m_vPosTangentIn = WSimdConversion::ToVec4(vPosTangentIn);
+    m_vPosTangentOut = WSimdConversion::ToVec4(vPosTangentOut);
   }
 
   {
-    ezVec4 vUpDirAndRoll; // Roll in w
+    WVec4 vUpDirAndRoll; // Roll in w
     s >> vUpDirAndRoll;
 
-    ezVec3 vUpDirTangentIn, vUpDirTangentOut;
+    WVec3 vUpDirTangentIn, vUpDirTangentOut;
     s >> vUpDirTangentIn;
     s >> vUpDirTangentOut;
 
-    m_vUpDirAndRoll = ezSimdConversion::ToVec4(vUpDirAndRoll);
-    m_vUpDirTangentIn = ezSimdConversion::ToVec3(vUpDirTangentIn);
-    m_vUpDirTangentOut = ezSimdConversion::ToVec3(vUpDirTangentOut);
+    m_vUpDirAndRoll = WSimdConversion::ToVec4(vUpDirAndRoll);
+    m_vUpDirTangentIn = WSimdConversion::ToVec3(vUpDirTangentIn);
+    m_vUpDirTangentOut = WSimdConversion::ToVec3(vUpDirTangentOut);
   }
 
   {
-    ezVec3 vScale, vScaleTangentIn, vScaleTangentOut;
+    WVec3 vScale, vScaleTangentIn, vScaleTangentOut;
     s >> vScale;
     s >> vScaleTangentIn;
     s >> vScaleTangentOut;
 
-    m_vScale = ezSimdConversion::ToVec3(vScale);
-    m_vScaleTangentIn = ezSimdConversion::ToVec3(vScaleTangentIn);
-    m_vScaleTangentOut = ezSimdConversion::ToVec3(vScaleTangentOut);
+    m_vScale = WSimdConversion::ToVec3(vScale);
+    m_vScaleTangentIn = WSimdConversion::ToVec3(vScaleTangentIn);
+    m_vScaleTangentOut = WSimdConversion::ToVec3(vScaleTangentOut);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& vDirIn, const ezSimdVec4f& vDirOut)
+void WSpline::ControlPoint::SetAutoTangents(const WSimdVec4f& vDirIn, const WSimdVec4f& vDirOut)
 {
-  const ezSimdVec4f autoPosTangent = (vDirIn + vDirOut) * 0.5f;
-  const ezSimdFloat eps = ezMath::LargeEpsilon<float>();
+  const WSimdVec4f autoPosTangent = (vDirIn + vDirOut) * 0.5f;
+  const WSimdFloat eps = WMath::LargeEpsilon<float>();
 
   {
     auto tangentModeIn = GetTangentModeIn();
-    if (tangentModeIn == ezSplineTangentMode::Auto)
+    if (tangentModeIn == WSplineTangentMode::Auto)
     {
       m_vPosTangentIn = -autoPosTangent;
     }
-    else if (tangentModeIn == ezSplineTangentMode::Linear)
+    else if (tangentModeIn == WSplineTangentMode::Linear)
     {
       m_vPosTangentIn = -vDirIn;
     }
     else
     {
-      EZ_ASSERT_DEV(tangentModeIn == ezSplineTangentMode::Custom, "Unknown spline tangent mode");
+      W_ASSERT_DEV(tangentModeIn == WSplineTangentMode::Custom, "Unknown spline tangent mode");
     }
 
     // Sanitize tangent
     if (m_vPosTangentIn.GetLengthSquared<3>() < eps)
     {
       m_vPosTangentIn = vDirIn;
-      m_vPosTangentIn.NormalizeIfNotZero<3>(ezSimdVec4f(-1, 0, 0));
+      m_vPosTangentIn.NormalizeIfNotZero<3>(WSimdVec4f(-1, 0, 0));
       m_vPosTangentIn *= eps;
     }
 
-    SetTangentModeIn(ezSplineTangentMode::Custom);
+    SetTangentModeIn(WSplineTangentMode::Custom);
   }
 
   {
     auto tangentModeOut = GetTangentModeOut();
-    if (tangentModeOut == ezSplineTangentMode::Auto)
+    if (tangentModeOut == WSplineTangentMode::Auto)
     {
       m_vPosTangentOut = autoPosTangent;
     }
-    else if (tangentModeOut == ezSplineTangentMode::Linear)
+    else if (tangentModeOut == WSplineTangentMode::Linear)
     {
       m_vPosTangentOut = vDirOut;
     }
     else
     {
-      EZ_ASSERT_DEV(tangentModeOut == ezSplineTangentMode::Custom, "Unknown spline tangent mode");
+      W_ASSERT_DEV(tangentModeOut == WSplineTangentMode::Custom, "Unknown spline tangent mode");
     }
 
     // Sanitize tangent
     if (m_vPosTangentOut.GetLengthSquared<3>() < eps)
     {
       m_vPosTangentOut = vDirOut;
-      m_vPosTangentOut.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0));
+      m_vPosTangentOut.NormalizeIfNotZero<3>(WSimdVec4f(1, 0, 0));
       m_vPosTangentOut *= eps;
     }
 
-    SetTangentModeOut(ezSplineTangentMode::Custom);
+    SetTangentModeOut(WSplineTangentMode::Custom);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-constexpr ezTypeVersion s_SplineVersion = 1;
+constexpr WTypeVersion s_SplineVersion = 1;
 
-ezResult ezSpline::Serialize(ezStreamWriter& ref_writer) const
+WResult WSpline::Serialize(WStreamWriter& ref_writer) const
 {
   ref_writer.WriteVersion(s_SplineVersion);
 
-  EZ_SUCCEED_OR_RETURN(ref_writer.WriteArray(m_ControlPoints));
+  W_SUCCEED_OR_RETURN(ref_writer.WriteArray(m_ControlPoints));
   ref_writer << m_bClosed;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSpline::Deserialize(ezStreamReader& ref_reader)
+WResult WSpline::Deserialize(WStreamReader& ref_reader)
 {
-  /*const ezTypeVersion version =*/ref_reader.ReadVersion(s_SplineVersion);
+  /*const WTypeVersion version =*/ref_reader.ReadVersion(s_SplineVersion);
 
-  EZ_SUCCEED_OR_RETURN(ref_reader.ReadArray(m_ControlPoints));
+  W_SUCCEED_OR_RETURN(ref_reader.ReadArray(m_ControlPoints));
   ref_reader >> m_bClosed;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, const ezSimdVec4f& vGlobalForwardDir)
+void WSpline::CalculateUpDirAndAutoTangents(const WSimdVec4f& vGlobalUpDir, const WSimdVec4f& vGlobalForwardDir)
 {
-  const ezUInt32 uiNumPoints = m_ControlPoints.GetCount();
+  const WUInt32 uiNumPoints = m_ControlPoints.GetCount();
   if (uiNumPoints < 2)
     return;
 
-  const ezUInt32 uiLastIdx = uiNumPoints - 1;
-  const ezSimdFloat oneThird(1.0f / 3.0f);
+  const WUInt32 uiLastIdx = uiNumPoints - 1;
+  const WSimdFloat oneThird(1.0f / 3.0f);
 
   // Position tangents
   {
-    ezUInt32 uiNumTangentsToUpdate = uiNumPoints;
-    ezUInt32 uiPrevIdx = uiLastIdx - 1;
-    ezUInt32 uiCurIdx = uiLastIdx;
-    ezUInt32 uiNextIdx = 0;
+    WUInt32 uiNumTangentsToUpdate = uiNumPoints;
+    WUInt32 uiPrevIdx = uiLastIdx - 1;
+    WUInt32 uiCurIdx = uiLastIdx;
+    WUInt32 uiNextIdx = 0;
 
     if (!m_bClosed)
     {
-      const ezSimdVec4f vStartTangent = (m_ControlPoints[1].m_vPos - m_ControlPoints[0].m_vPos) * oneThird;
-      const ezSimdVec4f vEndTangent = (m_ControlPoints[uiLastIdx].m_vPos - m_ControlPoints[uiLastIdx - 1].m_vPos) * oneThird;
+      const WSimdVec4f vStartTangent = (m_ControlPoints[1].m_vPos - m_ControlPoints[0].m_vPos) * oneThird;
+      const WSimdVec4f vEndTangent = (m_ControlPoints[uiLastIdx].m_vPos - m_ControlPoints[uiLastIdx - 1].m_vPos) * oneThird;
 
       m_ControlPoints[0].SetAutoTangents(vStartTangent, vStartTangent);
       m_ControlPoints[uiLastIdx].SetAutoTangents(vEndTangent, vEndTangent);
@@ -183,14 +183,14 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
       uiNextIdx = 2;
     }
 
-    for (ezUInt32 i = 0; i < uiNumTangentsToUpdate; ++i)
+    for (WUInt32 i = 0; i < uiNumTangentsToUpdate; ++i)
     {
       auto& cCp = m_ControlPoints[uiCurIdx];
       const auto& pCP = m_ControlPoints[uiPrevIdx];
       const auto& nCP = m_ControlPoints[uiNextIdx];
 
-      const ezSimdVec4f dirIn = (cCp.m_vPos - pCP.m_vPos) * oneThird;
-      const ezSimdVec4f dirOut = (nCP.m_vPos - cCp.m_vPos) * oneThird;
+      const WSimdVec4f dirIn = (cCp.m_vPos - pCP.m_vPos) * oneThird;
+      const WSimdVec4f dirOut = (nCP.m_vPos - cCp.m_vPos) * oneThird;
 
       cCp.SetAutoTangents(dirIn, dirOut);
 
@@ -202,16 +202,16 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
 
   // Up dir
   {
-    for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+    for (WUInt32 i = 0; i < uiNumPoints; ++i)
     {
       auto& cp = m_ControlPoints[i];
       if (cp.m_vUpDirAndRoll.IsZero<3>() == false)
         continue;
 
-      ezSimdVec4f forwardDir = EvaluateDerivative(i, 0.0f);
+      WSimdVec4f forwardDir = EvaluateDerivative(i, 0.0f);
       forwardDir.NormalizeIfNotZero<3>(vGlobalForwardDir);
 
-      const ezSimdVec4f upDir = [&]()
+      const WSimdVec4f upDir = [&]()
       {
         if (forwardDir.Dot<3>(vGlobalUpDir).Abs() < 0.99f)
           return vGlobalUpDir;
@@ -228,26 +228,26 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
         return vGlobalForwardDir;
       }();
 
-      const ezSimdVec4f rightDir = upDir.CrossRH(forwardDir).GetNormalized<3>();
-      const ezSimdVec4f upDir2 = forwardDir.CrossRH(rightDir).GetNormalized<3>();
-      const ezSimdFloat roll = cp.GetRoll();
-      const ezSimdQuat rotation = ezSimdQuat::MakeFromAxisAndAngle(forwardDir, roll);
+      const WSimdVec4f rightDir = upDir.CrossRH(forwardDir).GetNormalized<3>();
+      const WSimdVec4f upDir2 = forwardDir.CrossRH(rightDir).GetNormalized<3>();
+      const WSimdFloat roll = cp.GetRoll();
+      const WSimdQuat rotation = WSimdQuat::MakeFromAxisAndAngle(forwardDir, roll);
 
       cp.m_vUpDirAndRoll = rotation * upDir2;
       cp.m_vUpDirAndRoll.SetW(roll);
       cp.m_vUpDirTangentIn.SetZero();
       cp.m_vUpDirTangentOut.SetZero();
 
-      EZ_ASSERT_DEBUG(cp.m_vUpDirAndRoll.IsValid<4>(), "Invalid up dir");
+      W_ASSERT_DEBUG(cp.m_vUpDirAndRoll.IsValid<4>(), "Invalid up dir");
     }
   }
 
   // up dir and scale tangents
   {
-    ezUInt32 uiNumTangentsToUpdate = uiNumPoints;
-    ezUInt32 uiPrevIdx = uiLastIdx - 1;
-    ezUInt32 uiCurIdx = uiLastIdx;
-    ezUInt32 uiNextIdx = 0;
+    WUInt32 uiNumTangentsToUpdate = uiNumPoints;
+    WUInt32 uiPrevIdx = uiLastIdx - 1;
+    WUInt32 uiCurIdx = uiLastIdx;
+    WUInt32 uiNextIdx = 0;
 
 
     if (!m_bClosed)
@@ -256,8 +256,8 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
         auto& cp0 = m_ControlPoints[0];
         auto& cp1 = m_ControlPoints[1];
 
-        const ezSimdVec4f vUpDirTangent = (cp1.m_vUpDirAndRoll - cp0.m_vUpDirAndRoll) * oneThird;
-        const ezSimdVec4f vScaleTangent = (cp1.m_vScale - cp0.m_vScale) * oneThird;
+        const WSimdVec4f vUpDirTangent = (cp1.m_vUpDirAndRoll - cp0.m_vUpDirAndRoll) * oneThird;
+        const WSimdVec4f vScaleTangent = (cp1.m_vScale - cp0.m_vScale) * oneThird;
 
         cp0.m_vUpDirTangentIn = -vUpDirTangent;
         cp0.m_vUpDirTangentOut = vUpDirTangent;
@@ -269,8 +269,8 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
         auto& cpLast = m_ControlPoints[uiLastIdx];
         auto& cpPrev = m_ControlPoints[uiLastIdx - 1];
 
-        const ezSimdVec4f vUpDirTangent = (cpLast.m_vUpDirAndRoll - cpPrev.m_vUpDirAndRoll) * oneThird;
-        const ezSimdVec4f vScaleTangent = (cpLast.m_vScale - cpPrev.m_vScale) * oneThird;
+        const WSimdVec4f vUpDirTangent = (cpLast.m_vUpDirAndRoll - cpPrev.m_vUpDirAndRoll) * oneThird;
+        const WSimdVec4f vScaleTangent = (cpLast.m_vScale - cpPrev.m_vScale) * oneThird;
 
         cpLast.m_vUpDirTangentIn = -vUpDirTangent;
         cpLast.m_vUpDirTangentOut = vUpDirTangent;
@@ -284,15 +284,15 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
       uiNextIdx = 2;
     }
 
-    for (ezUInt32 i = 0; i < uiNumTangentsToUpdate; ++i)
+    for (WUInt32 i = 0; i < uiNumTangentsToUpdate; ++i)
     {
       auto& cCp = m_ControlPoints[uiCurIdx];
       const auto& pCP = m_ControlPoints[uiPrevIdx];
       const auto& nCP = m_ControlPoints[uiNextIdx];
 
       // Do not use classic auto tangents here, since we don't want overshooting for the up direction and scale.
-      const ezSimdVec4f vUpDirTangent = (cCp.m_vUpDirAndRoll - pCP.m_vUpDirAndRoll).CompMin(nCP.m_vUpDirAndRoll - cCp.m_vUpDirAndRoll) * oneThird;
-      const ezSimdVec4f vScaleTangent = (cCp.m_vScale - pCP.m_vScale).CompMin(nCP.m_vScale - cCp.m_vScale) * oneThird;
+      const WSimdVec4f vUpDirTangent = (cCp.m_vUpDirAndRoll - pCP.m_vUpDirAndRoll).CompMin(nCP.m_vUpDirAndRoll - cCp.m_vUpDirAndRoll) * oneThird;
+      const WSimdVec4f vScaleTangent = (cCp.m_vScale - pCP.m_vScale).CompMin(nCP.m_vScale - cCp.m_vScale) * oneThird;
 
       cCp.m_vUpDirTangentIn = -vUpDirTangent;
       cCp.m_vUpDirTangentOut = vUpDirTangent;
@@ -306,91 +306,91 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
   }
 }
 
-ezSimdTransform ezSpline::EvaluateTransform(float fT) const
+WSimdTransform WSpline::EvaluateTransform(float fT) const
 {
   if (m_ControlPoints.IsEmpty())
-    return ezSimdTransform::MakeIdentity();
+    return WSimdTransform::MakeIdentity();
 
-  ezUInt32 uiCp0;
+  WUInt32 uiCp0;
   fT = ClampAndSplitT(fT, uiCp0);
 
-  const ezUInt32 uiCp1 = GetCp1Index(uiCp0);
+  const WUInt32 uiCp1 = GetCp1Index(uiCp0);
   const auto& cp0 = m_ControlPoints[uiCp0];
   const auto& cp1 = m_ControlPoints[uiCp1];
 
-  ezSimdTransform transform;
+  WSimdTransform transform;
   transform.m_Position = EvaluatePosition(cp0, cp1, fT);
 
-  ezSimdVec4f forwardDir, rightDir, upDir;
+  WSimdVec4f forwardDir, rightDir, upDir;
   EvaluateRotation(cp0, cp1, fT, forwardDir, rightDir, upDir);
 
-  ezMat3 mRot;
-  mRot.SetColumn(0, ezSimdConversion::ToVec3(forwardDir));
-  mRot.SetColumn(1, ezSimdConversion::ToVec3(rightDir));
-  mRot.SetColumn(2, ezSimdConversion::ToVec3(upDir));
-  transform.m_Rotation = ezSimdConversion::ToQuat(ezQuat::MakeFromMat3(mRot));
+  WMat3 mRot;
+  mRot.SetColumn(0, WSimdConversion::ToVec3(forwardDir));
+  mRot.SetColumn(1, WSimdConversion::ToVec3(rightDir));
+  mRot.SetColumn(2, WSimdConversion::ToVec3(upDir));
+  transform.m_Rotation = WSimdConversion::ToQuat(WQuat::MakeFromMat3(mRot));
 
   transform.m_Scale = EvaluateScale(cp0, cp1, fT);
 
   return transform;
 }
 
-ezResult ezSpline::CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSphere& out_bounds) const
+WResult WSpline::CalculateSegmentBounds(WUInt32 uiSegmentIndex, WSimdBBoxSphere& out_bounds) const
 {
-  EZ_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
+  W_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
 
   auto& cp0 = m_ControlPoints[uiSegmentIndex];
   auto& cp1 = m_ControlPoints[GetCp1Index(uiSegmentIndex)];
 
-  const ezSimdVec4f points[] = {
+  const WSimdVec4f points[] = {
     cp0.m_vPos,
     cp0.m_vPos + cp0.m_vPosTangentOut,
     cp1.m_vPos + cp1.m_vPosTangentIn,
     cp1.m_vPos,
   };
 
-  out_bounds = ezSimdBBoxSphere::MakeFromPoints(points, EZ_ARRAY_SIZE(points));
-  return EZ_SUCCESS;
+  out_bounds = WSimdBBoxSphere::MakeFromPoints(points, W_ARRAY_SIZE(points));
+  return W_SUCCESS;
 }
 
-ezResult ezSpline::CalculateBounds(ezSimdBBoxSphere& out_bounds) const
+WResult WSpline::CalculateBounds(WSimdBBoxSphere& out_bounds) const
 {
   if (m_ControlPoints.GetCount() < 2)
   {
-    out_bounds = ezSimdBBoxSphere::MakeInvalid();
-    return EZ_FAILURE;
+    out_bounds = WSimdBBoxSphere::MakeInvalid();
+    return W_FAILURE;
   }
 
-  const ezUInt32 uiNumSegments = GetNumSegments();
+  const WUInt32 uiNumSegments = GetNumSegments();
 
-  out_bounds = ezSimdBBoxSphere::MakeInvalid();
-  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  out_bounds = WSimdBBoxSphere::MakeInvalid();
+  for (WUInt32 i = 0; i < uiNumSegments; ++i)
   {
-    ezSimdBBoxSphere segmentBounds;
-    EZ_SUCCEED_OR_RETURN(CalculateSegmentBounds(i, segmentBounds));
+    WSimdBBoxSphere segmentBounds;
+    W_SUCCEED_OR_RETURN(CalculateSegmentBounds(i, segmentBounds));
     out_bounds.ExpandToInclude(segmentBounds);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& vP0, const ezSimdVec4f& vP1, const ezSimdVec4f& vP2, const ezSimdVec4f& vP3, const ezSimdFloat& fMinT, const ezSimdFloat& fMaxT, const ezSimdVec4f& vPoint, ezSimdVec4f& out_vClosestDistSqr, ezSimdVec4f& out_vClosestT, ezSimdFloat& out_fStep)
+W_ALWAYS_INLINE WSimdVec4f FindIteration(const WSimdVec4f& vP0, const WSimdVec4f& vP1, const WSimdVec4f& vP2, const WSimdVec4f& vP3, const WSimdFloat& fMinT, const WSimdFloat& fMaxT, const WSimdVec4f& vPoint, WSimdVec4f& out_vClosestDistSqr, WSimdVec4f& out_vClosestT, WSimdFloat& out_fStep)
 {
-  ezSimdVec4f vClosestPoint = ezMath::EvaluateBezierCurve(fMinT, vP0, vP1, vP2, vP3);
-  ezSimdVec4f vClosestDistSqr = ezSimdVec4f((vClosestPoint - vPoint).GetLengthSquared<3>());
-  ezSimdVec4f vClosestT = ezSimdVec4f(fMinT);
+  WSimdVec4f vClosestPoint = WMath::EvaluateBezierCurve(fMinT, vP0, vP1, vP2, vP3);
+  WSimdVec4f vClosestDistSqr = WSimdVec4f((vClosestPoint - vPoint).GetLengthSquared<3>());
+  WSimdVec4f vClosestT = WSimdVec4f(fMinT);
 
-  const ezUInt32 numSteps = 8;
-  ezSimdFloat fStep = (fMaxT - fMinT) / ezSimdFloat(static_cast<float>(numSteps));
-  for (ezSimdFloat fT = fStep; fT <= fMaxT; fT += fStep)
+  const WUInt32 numSteps = 8;
+  WSimdFloat fStep = (fMaxT - fMinT) / WSimdFloat(static_cast<float>(numSteps));
+  for (WSimdFloat fT = fStep; fT <= fMaxT; fT += fStep)
   {
-    const ezSimdVec4f vCandidate = ezMath::EvaluateBezierCurve(fT, vP0, vP1, vP2, vP3);
-    const ezSimdVec4f vDistSqr = ezSimdVec4f((vCandidate - vPoint).GetLengthSquared<3>());
-    const ezSimdVec4b bIsCloser = (vDistSqr < vClosestDistSqr);
+    const WSimdVec4f vCandidate = WMath::EvaluateBezierCurve(fT, vP0, vP1, vP2, vP3);
+    const WSimdVec4f vDistSqr = WSimdVec4f((vCandidate - vPoint).GetLengthSquared<3>());
+    const WSimdVec4b bIsCloser = (vDistSqr < vClosestDistSqr);
 
-    vClosestPoint = ezSimdVec4f::Select(bIsCloser, vCandidate, vClosestPoint);
-    vClosestDistSqr = ezSimdVec4f::Select(bIsCloser, vDistSqr, vClosestDistSqr);
-    vClosestT = ezSimdVec4f::Select(bIsCloser, ezSimdVec4f(fT), vClosestT);
+    vClosestPoint = WSimdVec4f::Select(bIsCloser, vCandidate, vClosestPoint);
+    vClosestDistSqr = WSimdVec4f::Select(bIsCloser, vDistSqr, vClosestDistSqr);
+    vClosestT = WSimdVec4f::Select(bIsCloser, WSimdVec4f(fT), vClosestT);
   }
 
   out_vClosestDistSqr = vClosestDistSqr;
@@ -399,36 +399,36 @@ EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& vP0, const ezSimdV
   return vClosestPoint;
 }
 
-ezSimdVec4f ezSpline::FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
+WSimdVec4f WSpline::FindClosestPointOnSegment(WUInt32 uiSegmentIndex, const WSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
 {
-  EZ_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
+  W_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
 
   auto& cp0 = m_ControlPoints[uiSegmentIndex];
   auto& cp1 = m_ControlPoints[GetCp1Index(uiSegmentIndex)];
-  const ezSimdVec4f p0 = cp0.m_vPos;
-  const ezSimdVec4f p1 = cp0.m_vPos + cp0.m_vPosTangentOut;
-  const ezSimdVec4f p2 = cp1.m_vPos + cp1.m_vPosTangentIn;
-  const ezSimdVec4f p3 = cp1.m_vPos;
-  const ezSimdFloat one(1.0f);
-  const ezSimdFloat maxErrorSqr(fMaxError * fMaxError);
+  const WSimdVec4f p0 = cp0.m_vPos;
+  const WSimdVec4f p1 = cp0.m_vPos + cp0.m_vPosTangentOut;
+  const WSimdVec4f p2 = cp1.m_vPos + cp1.m_vPosTangentIn;
+  const WSimdVec4f p3 = cp1.m_vPos;
+  const WSimdFloat one(1.0f);
+  const WSimdFloat maxErrorSqr(fMaxError * fMaxError);
 
-  ezSimdVec4f vClosestDistSqr;
-  ezSimdVec4f vClosestT;
-  ezSimdFloat fStep;
-  ezSimdVec4f vClosestPoint = FindIteration(p0, p1, p2, p2, ezSimdFloat::MakeZero(), one, vPoint, vClosestDistSqr, vClosestT, fStep);
+  WSimdVec4f vClosestDistSqr;
+  WSimdVec4f vClosestT;
+  WSimdFloat fStep;
+  WSimdVec4f vClosestPoint = FindIteration(p0, p1, p2, p2, WSimdFloat::MakeZero(), one, vPoint, vClosestDistSqr, vClosestT, fStep);
 
-  constexpr ezUInt32 maxIterations = 4;
-  for (ezUInt32 i = 0; i < maxIterations; ++i)
+  constexpr WUInt32 maxIterations = 4;
+  for (WUInt32 i = 0; i < maxIterations; ++i)
   {
-    const ezSimdFloat fClosestT = vClosestT.x();
-    const ezSimdFloat fMinT = (fClosestT - fStep).Max(ezSimdFloat::MakeZero());
-    const ezSimdFloat fMaxT = (fClosestT + fStep).Min(one);
+    const WSimdFloat fClosestT = vClosestT.x();
+    const WSimdFloat fMinT = (fClosestT - fStep).Max(WSimdFloat::MakeZero());
+    const WSimdFloat fMaxT = (fClosestT + fStep).Min(one);
 
-    const ezSimdFloat fClosestTToMinT = (fClosestT - fMinT).Abs();
-    const ezSimdFloat fClosestTToMaxT = (fClosestT - fMaxT).Abs();
-    const ezSimdFloat fTestT = fClosestTToMaxT > fClosestTToMinT ? fMaxT : fMinT;
-    const ezSimdVec4f vTestP = ezMath::EvaluateBezierCurve(fTestT, p0, p1, p2, p3);
-    const ezSimdFloat vTestDistSqr = (vTestP - vClosestPoint).GetLengthSquared<3>();
+    const WSimdFloat fClosestTToMinT = (fClosestT - fMinT).Abs();
+    const WSimdFloat fClosestTToMaxT = (fClosestT - fMaxT).Abs();
+    const WSimdFloat fTestT = fClosestTToMaxT > fClosestTToMinT ? fMaxT : fMinT;
+    const WSimdVec4f vTestP = WMath::EvaluateBezierCurve(fTestT, p0, p1, p2, p3);
+    const WSimdFloat vTestDistSqr = (vTestP - vClosestPoint).GetLengthSquared<3>();
     if (vTestDistSqr < maxErrorSqr)
       break;
 
@@ -440,21 +440,21 @@ ezSimdVec4f ezSpline::FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const e
   return vClosestPoint;
 }
 
-ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
+WSimdVec4f WSpline::FindClosestPoint(const WSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
 {
   if (m_ControlPoints.GetCount() < 2)
   {
     out_fT = -1.0f;
-    return ezSimdVec4f::MakeNaN();
+    return WSimdVec4f::MakeNaN();
   }
 
-  const ezUInt32 uiNumSegments = GetNumSegments();
-  ezTempHybridArray<ezSimdBBox, 32> segmentBounds;
+  const WUInt32 uiNumSegments = GetNumSegments();
+  WTempHybridArray<WSimdBBox, 32> segmentBounds;
   segmentBounds.SetCountUninitialized(uiNumSegments);
 
-  ezUInt32 uiClosestSegment = 0;
-  float fClosestDistSqr = ezMath::MaxValue<float>();
-  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  WUInt32 uiClosestSegment = 0;
+  float fClosestDistSqr = WMath::MaxValue<float>();
+  for (WUInt32 i = 0; i < uiNumSegments; ++i)
   {
     auto& cp0 = m_ControlPoints[i];
     auto& cp1 = m_ControlPoints[GetCp1Index(i)];
@@ -474,13 +474,13 @@ ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT,
     }
   }
 
-  fClosestDistSqr = ezMath::MaxValue<float>();
+  fClosestDistSqr = WMath::MaxValue<float>();
   float fClosestT = 0.0f;
-  ezSimdVec4f vClosestPoint;
+  WSimdVec4f vClosestPoint;
 
-  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  for (WUInt32 i = 0; i < uiNumSegments; ++i)
   {
-    ezUInt32 uiSegment = (uiClosestSegment + i);
+    WUInt32 uiSegment = (uiClosestSegment + i);
     if (uiSegment >= uiNumSegments)
       uiSegment -= uiNumSegments;
 
@@ -490,7 +490,7 @@ ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT,
 
     float fCandidateT = 0.0f;
     float fCandidateDistSqr = 0.0f;
-    const ezSimdVec4f vCandidate = FindClosestPointOnSegment(uiSegment, vPoint, fCandidateT, fCandidateDistSqr, fMaxError);
+    const WSimdVec4f vCandidate = FindClosestPointOnSegment(uiSegment, vPoint, fCandidateT, fCandidateDistSqr, fMaxError);
     if (fCandidateDistSqr < fClosestDistSqr)
     {
       vClosestPoint = vCandidate;
@@ -505,4 +505,4 @@ ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT,
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Spline);
+W_STATICLINK_FILE(Core, Core_Graphics_Implementation_Spline);

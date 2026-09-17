@@ -9,42 +9,42 @@
 ///
 /// The curve is sampled based on the particle's normalized lifetime (0-1).
 /// The final size is: base size + (curve value * curve scale).
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve final : public ezParticleBehaviorFactory
+class W_PARTICLEPLUGIN_DLL WParticleBehaviorFactory_SizeCurve final : public WParticleBehaviorFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_SizeCurve, ezParticleBehaviorFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehaviorFactory_SizeCurve, WParticleBehaviorFactory);
 
 public:
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezEnum<ezCurveSource> m_CurveSource;
-  ezSingleCurveData m_Curve;
-  ezCurve1DResourceHandle m_hSharedCurve;
+  WEnum<WCurveSource> m_CurveSource;
+  WSingleCurveData m_Curve;
+  WCurve1DResourceHandle m_hSharedCurve;
   float m_fSizeCurveOffset = 0;
   float m_fSizeCurveScale = 1;
-  mutable ezCurve1D m_RuntimeCurve;
+  mutable WCurve1D m_RuntimeCurve;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve final : public ezParticleBehavior
+class W_PARTICLEPLUGIN_DLL WParticleBehavior_SizeCurve final : public WParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_SizeCurve, ezParticleBehavior);
+  W_ADD_DYNAMIC_REFLECTION(WParticleBehavior_SizeCurve, WParticleBehavior);
 
 public:
-  const ezCurve1D* m_pCurve = nullptr;
+  const WCurve1D* m_pCurve = nullptr;
   float m_fSizeCurveOffset = 0;
   float m_fSizeCurveScale = 1;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamSize = nullptr;
-  ezUInt8 m_uiFirstToUpdate = 0;
-  ezUInt8 m_uiCurrentUpdateInterval = 8;
+  WProcessingStream* m_pStreamLifeTime = nullptr;
+  WProcessingStream* m_pStreamSize = nullptr;
+  WUInt8 m_uiFirstToUpdate = 0;
+  WUInt8 m_uiCurrentUpdateInterval = 8;
 };

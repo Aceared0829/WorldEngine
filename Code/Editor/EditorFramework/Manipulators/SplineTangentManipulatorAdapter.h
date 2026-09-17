@@ -7,22 +7,22 @@
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
 /// Makes a spline tangent editable in the editor.
 ///
-/// Enabled by attaching the ezSplineTangentManipulatorAttribute.
-class ezSplineTangentManipulatorAdapter : public ezManipulatorAdapter
+/// Enabled by attaching the WSplineTangentManipulatorAttribute.
+class WSplineTangentManipulatorAdapter : public WManipulatorAdapter
 {
 public:
-  ezSplineTangentManipulatorAdapter();
-  ~ezSplineTangentManipulatorAdapter();
+  WSplineTangentManipulatorAdapter();
+  ~WSplineTangentManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
 
   virtual void Update() override;
-  void TangentGizmoEventHandler(const ezGizmoEvent& e);
+  void TangentGizmoEventHandler(const WGizmoEvent& e);
 
   virtual void UpdateGizmoTransform() override;
 
@@ -31,12 +31,12 @@ protected:
 
   bool CustomTangentsLinked() const;
 
-  ezSpline m_Spline;
-  ezUInt32 m_uiNodeIndex = ezInvalidIndex;
+  WSpline m_Spline;
+  WUInt32 m_uiNodeIndex = WInvalidIndex;
   bool m_bIsTangentIn = false;
 
-  ezVec3 m_vLastTangent;
+  WVec3 m_vLastTangent;
 
-  ezRotateGizmo m_RotateGizmo;
-  ezScaleGizmo m_ScaleGizmo;
+  WRotateGizmo m_RotateGizmo;
+  WScaleGizmo m_ScaleGizmo;
 };

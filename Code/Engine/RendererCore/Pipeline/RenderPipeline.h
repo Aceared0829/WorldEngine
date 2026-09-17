@@ -9,21 +9,21 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 
-class ezProfilingId;
-class ezView;
-class ezCamera;
-struct ezViewData;
-class ezRenderPipelinePass;
-class ezFrameDataProviderBase;
-struct ezPermutationVar;
-class ezDGMLGraph;
-class ezFrustum;
-class ezRasterizerView;
-class ezRenderGraph;
-struct ezRenderGraphRenderEvent;
-class ezRenderGraphContext;
+class WProfilingId;
+class WView;
+class WCamera;
+struct WViewData;
+class WRenderPipelinePass;
+class WFrameDataProviderBase;
+struct WPermutationVar;
+class WDGMLGraph;
+class WFrustum;
+class WRasterizerView;
+class WRenderGraph;
+struct WRenderGraphRenderEvent;
+class WRenderGraphContext;
 
-class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
+class W_RENDERERCORE_DLL WRenderPipeline : public WRefCounted
 {
 public:
   enum class PipelineState
@@ -34,120 +34,120 @@ public:
     RenderGraphBuilt,
   };
 
-  ezRenderPipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezUniquePtr<ezExtractor>>&& extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections);
-  ~ezRenderPipeline();
+  WRenderPipeline(WDynamicArray<WUniquePtr<WRenderPipelinePass>>&& passes, WDynamicArray<WUniquePtr<WExtractor>>&& extractors, WArrayPtr<const WRenderPipelineResourceLoaderConnection> connections);
+  ~WRenderPipeline();
 
-  void GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const;
-  void GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes);
-  ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
-  ezHashedString GetViewName() const;
+  void GetPasses(WDynamicArray<const WRenderPipelinePass*>& ref_passes) const;
+  void GetPasses(WDynamicArray<WRenderPipelinePass*>& ref_passes);
+  WRenderPipelinePass* GetPassByName(const WStringView& sPassName);
+  WHashedString GetViewName() const;
 
-  void GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const;
-  void GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors);
-  ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
+  void GetExtractors(WDynamicArray<const WExtractor*>& ref_extractors) const;
+  void GetExtractors(WDynamicArray<WExtractor*>& ref_extractors);
+  WExtractor* GetExtractorByName(const WStringView& sExtractorName);
 
-  ezArrayPtr<const ezRenderPipelinePassGraph::SwitchInfo> GetSwitches() const { return m_PassGraph.GetSwitches(); }
-  bool SetSwitchValue(ezUInt32 uiSwitchIndex, ezInt32 iValue) { return m_PassGraph.SetSwitchValue(uiSwitchIndex, iValue); }
-  bool SetSwitchToDefault(ezUInt32 uiSwitchIndex) { return m_PassGraph.SetSwitchToDefault(uiSwitchIndex); }
+  WArrayPtr<const WRenderPipelinePassGraph::SwitchInfo> GetSwitches() const { return m_PassGraph.GetSwitches(); }
+  bool SetSwitchValue(WUInt32 uiSwitchIndex, WInt32 iValue) { return m_PassGraph.SetSwitchValue(uiSwitchIndex, iValue); }
+  bool SetSwitchToDefault(WUInt32 uiSwitchIndex) { return m_PassGraph.SetSwitchToDefault(uiSwitchIndex); }
 
   template <typename T>
-  EZ_ALWAYS_INLINE T* GetFrameDataProvider() const
+  W_ALWAYS_INLINE T* GetFrameDataProvider() const
   {
-    return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>()));
+    return static_cast<T*>(GetFrameDataProvider(WGetStaticRTTI<T>()));
   }
 
-  const ezExtractedRenderData& GetRenderData() const;
-  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+  const WExtractedRenderData& GetRenderData() const;
+  WRenderDataBatchList GetRenderDataBatchesWithCategory(WRenderData::Category category) const;
 
   /// Returns the texture barrier dependencies recorded during extraction for a specific category.
-  ezArrayPtr<const ezTextureDependency> GetTextureDependenciesWithCategory(ezRenderData::Category category) const;
+  WArrayPtr<const WTextureDependency> GetTextureDependenciesWithCategory(WRenderData::Category category) const;
 
   /// Returns the buffer barrier dependencies recorded during extraction for a specific category.
-  ezArrayPtr<const ezBufferDependency> GetBufferDependenciesWithCategory(ezRenderData::Category category) const;
+  WArrayPtr<const WBufferDependency> GetBufferDependenciesWithCategory(WRenderData::Category category) const;
 
   /// Adds a texture dependency to the current extraction frame's data.
   /// Must only be called during extraction.
-  void AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  void AddViewDependency(WGALTextureHandle hTexture, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
   /// Adds a buffer dependency to the current extraction frame's data.
   /// Must only be called during extraction.
-  void AddViewDependency(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  void AddViewDependency(WGALBufferHandle hBuffer, WBitflags<WGALResourceState> requiredState, WBitflags<WGALShaderStageFlags> stage = WGALShaderStageFlags::Auto);
 
-  using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
-  ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
+  using RenderDataProcessor = WDelegate<void(WExtractedRenderData&)>;
+  WUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
 
   /// Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
-  void CreateDgmlGraph(ezDGMLGraph& ref_graph);
+  void CreateDgmlGraph(WDGMLGraph& ref_graph);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  static ezCVarBool cvar_SpatialCullingVis;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  static WCVarBool cvar_SpatialCullingVis;
 #endif
 
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
+  W_DISALLOW_COPY_AND_ASSIGN(WRenderPipeline);
 
 private:
-  friend class ezRenderWorld;
-  friend class ezView;
+  friend class WRenderWorld;
+  friend class WView;
 
   /// Returns whether the pipeline should be rendered. E.g. returns false if the associated world has been destroyed.
   bool ShouldRender() const;
 
   // Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
-  PipelineState Rebuild(const ezView& view);
-  bool RebuildInternal(const ezView& view);
-  bool RebuildRenderGraph(const ezViewData& viewData, const ezCamera& camera);
-  bool AddRenderPasses(const ezViewData& viewData, const ezCamera& camera);
+  PipelineState Rebuild(const WView& view);
+  bool RebuildInternal(const WView& view);
+  bool RebuildRenderGraph(const WViewData& viewData, const WCamera& camera);
+  bool AddRenderPasses(const WViewData& viewData, const WCamera& camera);
   bool UpdateTextureProviders();
-  void UpdateViewData(const ezView& view, ezUInt32 uiDataIndex);
+  void UpdateViewData(const WView& view, WUInt32 uiDataIndex);
 
-  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti) const;
+  WFrameDataProviderBase* GetFrameDataProvider(const WRTTI* pRtti) const;
 
-  void ExtractData(const ezView& view);
-  void FindVisibleObjects(const ezView& view);
+  void ExtractData(const WView& view);
+  void FindVisibleObjects(const WView& view);
 
-  void EnqueueRenderGraph(ezRenderContext* pRenderer);
-  void UpdateRenderContext(ezRenderGraphContext& ctx);
+  void EnqueueRenderGraph(WRenderContext* pRenderer);
+  void UpdateRenderContext(WRenderGraphContext& ctx);
 
-  ezRasterizerView* PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view);
-  void PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view);
+  WRasterizerView* PrepareOcclusionCulling(const WFrustum& frustum, const WView& view);
+  void PreviewOcclusionBuffer(const WRasterizerView& rasterizer, const WView& view);
 
-  void OnRenderEvent(const ezRenderGraphRenderEvent& e);
+  void OnRenderEvent(const WRenderGraphRenderEvent& e);
 
 private: // Member data
   // Thread data
-  ezThreadID m_CurrentExtractThread = (ezThreadID)0;
-  ezThreadID m_CurrentRenderThread = (ezThreadID)0;
+  WThreadID m_CurrentExtractThread = (WThreadID)0;
+  WThreadID m_CurrentRenderThread = (WThreadID)0;
 
   // Pipeline render data
-  ezExtractedRenderData m_Data[2];
-  ezDynamicArray<const ezGameObject*> m_VisibleObjects;
+  WExtractedRenderData m_Data[2];
+  WDynamicArray<const WGameObject*> m_VisibleObjects;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezTime m_AverageCullingTime;
+#if W_ENABLED(W_COMPILE_FOR_DEVELOPMENT)
+  WTime m_AverageCullingTime;
 #endif
 
-  ezHashedString m_sName;
-  ezUInt64 m_uiLastExtractionFrame = -1;
-  ezUInt64 m_uiLastRenderFrame = -1;
+  WHashedString m_sName;
+  WUInt64 m_uiLastExtractionFrame = -1;
+  WUInt64 m_uiLastRenderFrame = -1;
 
   // Render pass graph data
   PipelineState m_PipelineState = PipelineState::Uninitialized;
 
-  ezRenderPipelinePassGraph m_PassGraph;
+  WRenderPipelinePassGraph m_PassGraph;
 
   /// Render Graph
-  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
-  ezRenderViewContext m_RenderViewContext;
-  ezUInt32 m_uiSettingsModificationCounter = 0;
+  WSharedPtr<WRenderGraph> m_pRenderGraph;
+  WRenderViewContext m_RenderViewContext;
+  WUInt32 m_uiSettingsModificationCounter = 0;
 
   // Data Providers
-  mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
-  mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+  mutable WDynamicArray<WUniquePtr<WFrameDataProviderBase>> m_DataProviders;
+  mutable WHashTable<const WRTTI*, WUInt32> m_TypeToDataProviderIndex;
 
-  ezDynamicArray<RenderDataProcessor> m_RenderDataProcessors;
+  WDynamicArray<RenderDataProcessor> m_RenderDataProcessors;
 
-  ezDynamicArray<ezPermutationVar> m_PermutationVars;
+  WDynamicArray<WPermutationVar> m_PermutationVars;
 
   // Occlusion Culling
-  ezGALTextureHandle m_hOcclusionDebugViewTexture;
+  WGALTextureHandle m_hOcclusionDebugViewTexture;
 };

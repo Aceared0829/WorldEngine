@@ -7,41 +7,41 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipAssetDocumentManager, 1, WRTTIDefaultAllocator<WAnimationClipAssetDocumentManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
+WAnimationClipAssetDocumentManager::WAnimationClipAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "Animation Clip";
-  m_DocTypeDesc.m_sFileExtension = "ezAnimationClipAsset";
+  m_DocTypeDesc.m_sFileExtension = "WAnimationClipAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   m_DocTypeDesc.m_sAssetCategory = "Animation";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WAnimationClipAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Animation");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAnimationClip";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinAnimationClip";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::SupportsThumbnail;
 
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.svg"));
+  // WQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.svg"));
 }
 
-ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()
+WAnimationClipAssetDocumentManager::~WAnimationClipAssetDocumentManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimationClipAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WAnimationClipAssetDocument>())
       {
-        new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument)); // NOLINT
+        new WQtAnimationClipAssetDocumentWindow(static_cast<WAnimationClipAssetDocument*>(e.m_pDocument)); // NOLINT
       }
     }
     break;
@@ -51,13 +51,13 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezAnimationClipAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WAnimationClipAssetDocumentManager::InternalCreateDocument(WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAnimationClipAssetDocument(sPath);
+  out_pDocument = new WAnimationClipAssetDocument(sPath);
 }
 
-void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(
+  WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

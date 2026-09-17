@@ -2,14 +2,14 @@
 
 #include <Foundation/Logging/Log.h>
 
-namespace ezLogWriter
+namespace WLogWriter
 {
 
   /// A simple log writer that outputs all log messages to visual studios output window
-  class EZ_FOUNDATION_DLL VisualStudio
+  class W_FOUNDATION_DLL VisualStudio
   {
   public:
-    /// Register this at ezLog to write all log messages to visual studios output window.
-    static void LogMessageHandler(const ezLoggingEventData& eventData);
+    /// Register this at WLog to write all log messages to visual studios output window.
+    static void LogMessageHandler(const WLoggingEventData& eventData);
   };
-} // namespace ezLogWriter
+} // namespace WLogWriter

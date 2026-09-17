@@ -4,14 +4,14 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 
 
-ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
-  : ezQtAssetFilter(pParent)
+WQtAssetBrowserFilter::WQtAssetBrowserFilter(QObject* pParent)
+  : WQtAssetFilter(pParent)
 {
   Reset();
 }
 
 
-void ezQtAssetBrowserFilter::Reset()
+void WQtAssetBrowserFilter::Reset()
 {
   SetShowItemsInSubFolders(true);
   SetShowFiles(true);
@@ -24,14 +24,14 @@ void ezQtAssetBrowserFilter::Reset()
   SetPathFilter("");
 }
 
-void ezQtAssetBrowserFilter::UpdateImportExtensions(const ezSet<ezString>& extensions)
+void WQtAssetBrowserFilter::UpdateImportExtensions(const WSet<WString>& extensions)
 {
   m_ImportExtensions = extensions;
   if (!m_bShowNonImportableFiles)
     Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
+void WQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
 {
   if (m_bShowItemsInSubFolders == bShow)
     return;
@@ -43,7 +43,7 @@ void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
 }
 
 
-void ezQtAssetBrowserFilter::SetShowFiles(bool bShow)
+void WQtAssetBrowserFilter::SetShowFiles(bool bShow)
 {
   if (m_bShowFiles == bShow)
     return;
@@ -54,7 +54,7 @@ void ezQtAssetBrowserFilter::SetShowFiles(bool bShow)
   Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetShowNonImportableFiles(bool bShow)
+void WQtAssetBrowserFilter::SetShowNonImportableFiles(bool bShow)
 {
   if (m_bShowNonImportableFiles == bShow)
     return;
@@ -65,7 +65,7 @@ void ezQtAssetBrowserFilter::SetShowNonImportableFiles(bool bShow)
   Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
+void WQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
 {
   if (m_bShowItemsInHiddenFolders == bShow)
     return;
@@ -76,7 +76,7 @@ void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
   Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetShowPluginDataDirs(bool bShow)
+void WQtAssetBrowserFilter::SetShowPluginDataDirs(bool bShow)
 {
   if (m_bShowPluginDataDirs == bShow)
     return;
@@ -88,7 +88,7 @@ void ezQtAssetBrowserFilter::SetShowPluginDataDirs(bool bShow)
   Q_EMIT PluginDataDirsChanged();
 }
 
-void ezQtAssetBrowserFilter::SetPluginDataDirNames(const ezSet<ezString>& names)
+void WQtAssetBrowserFilter::SetPluginDataDirNames(const WSet<WString>& names)
 {
   if (m_PluginDataDirNames == names)
     return;
@@ -104,7 +104,7 @@ void ezQtAssetBrowserFilter::SetPluginDataDirNames(const ezSet<ezString>& names)
   }
 }
 
-void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
+void WQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
 {
   if (m_bSortByRecentUse == bSort)
     return;
@@ -116,9 +116,9 @@ void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
 }
 
 
-void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
+void WQtAssetBrowserFilter::SetTextFilter(const char* szText)
 {
-  ezStringBuilder sCleanText = szText;
+  WStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
   sCleanText.ReplaceAll("*", "");
 
@@ -131,18 +131,18 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   m_bTransitive = false;
   m_Uses.Clear();
 
-  const char* szRefGuid = ezStringUtils::FindSubString_NoCase(szText, "ref:");
-  const char* szRefAllGuid = ezStringUtils::FindSubString_NoCase(szText, "ref-all:");
+  const char* szRefGuid = WStringUtils::FindSubString_NoCase(szText, "ref:");
+  const char* szRefAllGuid = WStringUtils::FindSubString_NoCase(szText, "ref-all:");
   if (szRefGuid || szRefAllGuid)
   {
     bool bTransitive = szRefAllGuid != nullptr;
     const char* szGuid = szRefAllGuid ? szRefAllGuid + strlen("ref-all:") : szRefGuid + strlen("ref:");
-    if (ezConversionUtils::IsStringUuid(szGuid))
+    if (WConversionUtils::IsStringUuid(szGuid))
     {
       m_bUsesSearchActive = true;
       m_bTransitive = bTransitive;
-      ezUuid guid = ezConversionUtils::ConvertStringToUuid(szGuid);
-      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_Uses, m_bTransitive);
+      WUuid guid = WConversionUtils::ConvertStringToUuid(szGuid);
+      WAssetCurator::GetSingleton()->FindAllUses(guid, m_Uses, m_bTransitive);
     }
   }
 
@@ -150,9 +150,9 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   Q_EMIT TextFilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetPathFilter(const char* szPath)
+void WQtAssetBrowserFilter::SetPathFilter(const char* szPath)
 {
-  ezStringBuilder sCleanText = szPath;
+  WStringBuilder sCleanText = szPath;
   sCleanText.MakeCleanPath();
   // The assumption is that only full directory names are set as path filters. Thus, we can ensure they end with a / to make it easier to filter items inside the path.
   if (!sCleanText.IsEmpty() && !sCleanText.EndsWith_NoCase("/"))
@@ -171,7 +171,7 @@ void ezQtAssetBrowserFilter::SetPathFilter(const char* szPath)
 }
 
 
-ezStringView ezQtAssetBrowserFilter::GetPathFilter() const
+WStringView WQtAssetBrowserFilter::GetPathFilter() const
 {
   if (m_sPathFilter.EndsWith_NoCase("/"))
   {
@@ -180,7 +180,7 @@ ezStringView ezQtAssetBrowserFilter::GetPathFilter() const
   return m_sPathFilter;
 }
 
-void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
+void WQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
 {
   if (m_sTypeFilter == szTypes)
     return;
@@ -192,12 +192,12 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
   Q_EMIT TypeFilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetAllTypesFilter(ezStringView sTypes)
+void WQtAssetBrowserFilter::SetAllTypesFilter(WStringView sTypes)
 {
   m_sAllTypesFilter = sTypes;
 }
 
-bool ezQtAssetBrowserFilter::IsFilterActive() const
+bool WQtAssetBrowserFilter::IsFilterActive() const
 {
   if (!m_SearchFilter.IsEmpty())
     return true;
@@ -212,15 +212,15 @@ bool ezQtAssetBrowserFilter::IsFilterActive() const
   return false;
 }
 
-void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
+void WQtAssetBrowserFilter::SetFileExtensionFilters(WStringView sExtensions)
 {
   m_FileExtensions.Clear();
 
-  ezTempHybridArray<ezStringView, 8> filters;
+  WTempHybridArray<WStringView, 8> filters;
   sExtensions.Split(false, filters, ";", "*", ".");
 
-  ezStringBuilder tmp;
-  for (ezStringView filter : filters)
+  WStringBuilder tmp;
+  for (WStringView filter : filters)
   {
     tmp = filter;
     tmp.ToLower();
@@ -230,9 +230,9 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
   Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
+void WQtAssetBrowserFilter::SetRequiredTag(WStringView sRequiredTag)
 {
-  ezStringBuilder tag;
+  WStringBuilder tag;
 
   if (sRequiredTag == "*")
   {
@@ -252,7 +252,7 @@ void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
   Q_EMIT FilterChanged();
 }
 
-void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath)
+void WQtAssetBrowserFilter::SetTemporaryPinnedItem(WStringView sDataDirParentRelativePath)
 {
   if (m_sTemporaryPinnedItem == sDataDirParentRelativePath)
     return;
@@ -261,7 +261,7 @@ void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentR
   Q_EMIT FilterChanged();
 }
 
-bool ezQtAssetBrowserFilter::IsInHiddenFolder(ezStringView sDataDirParentRelativePath, bool bIsFolder) const
+bool WQtAssetBrowserFilter::IsInHiddenFolder(WStringView sDataDirParentRelativePath, bool bIsFolder) const
 {
   // treat folders starting with a dot as hidden folders
   if (sDataDirParentRelativePath.FindSubString("/."))
@@ -272,53 +272,53 @@ bool ezQtAssetBrowserFilter::IsInHiddenFolder(ezStringView sDataDirParentRelativ
   if (!(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
   {
     // skip the path filter prefix, it is the folder the user explicitly navigated to and may itself be a '_data' folder
-    const ezUInt32 uiSkip = ezMath::Min<ezUInt32>(m_sPathFilter.GetElementCount() + 1, sDataDirParentRelativePath.GetElementCount());
+    const WUInt32 uiSkip = WMath::Min<WUInt32>(m_sPathFilter.GetElementCount() + 1, sDataDirParentRelativePath.GetElementCount());
     const char* szSearchStart = sDataDirParentRelativePath.GetStartPointer() + uiSkip;
 
     // A folder path has no trailing separator, so searching for '_data/' only ever finds a parent folder. The folder
     // itself has to be checked separately, otherwise '_data' folders would still be listed as folders.
-    if (bIsFolder && ezStringUtils::EndsWith_NoCase(szSearchStart, "_data", sDataDirParentRelativePath.GetEndPointer()))
+    if (bIsFolder && WStringUtils::EndsWith_NoCase(szSearchStart, "_data", sDataDirParentRelativePath.GetEndPointer()))
       return true;
 
-    if (ezStringUtils::FindSubString_NoCase(szSearchStart, "_data/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    if (WStringUtils::FindSubString_NoCase(szSearchStart, "_data/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
       return true;
   }
 
   return false;
 }
 
-bool ezQtAssetBrowserFilter::IsInPluginDataDir(ezStringView sDataDirParentRelativePath) const
+bool WQtAssetBrowserFilter::IsInPluginDataDir(WStringView sDataDirParentRelativePath) const
 {
   if (m_PluginDataDirNames.IsEmpty())
     return false;
 
   // the first path segment is the folder name of the data directory root
   const char* szSep = sDataDirParentRelativePath.FindSubString("/");
-  const ezStringView sDataDirName = szSep != nullptr ? ezStringView(sDataDirParentRelativePath.GetStartPointer(), szSep) : sDataDirParentRelativePath;
+  const WStringView sDataDirName = szSep != nullptr ? WStringView(sDataDirParentRelativePath.GetStartPointer(), szSep) : sDataDirParentRelativePath;
 
   return m_PluginDataDirNames.Contains(sDataDirName);
 }
 
-ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+WAssetFilterResult WQtAssetBrowserFilter::IsAssetFiltered(WStringView sDataDirParentRelativePath, bool bIsFolder, const WSubAsset* pInfo) const
 {
   // ignore all paths leading into the AssetCache
   if (sDataDirParentRelativePath.FindSubString("/AssetCache/"))
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
   // also ignore the AssetCache folder directly
   if (bIsFolder && sDataDirParentRelativePath.GetFileNameAndExtension() == "AssetCache")
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
   if (sDataDirParentRelativePath == m_sTemporaryPinnedItem)
-    return ezAssetFilterResult::Visible;
+    return WAssetFilterResult::Visible;
 
   // Data directories provided by plugins are hidden entirely, including their own root folder. They are not reported
   // as a separate exclusion reason, because the folder tree hides them as well, so there is no folder to browse into
   // whose item count could be shown.
   if (!m_bShowPluginDataDirs && IsInPluginDataDir(sDataDirParentRelativePath))
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
-  ezStringBuilder sExt;
+  WStringBuilder sExt;
 
   // Whether this is a plain file, i.e. not an asset and not a folder. Those are hidden by the type combo box unless
   // it is set to show files, so the check is deferred to the end, where it can be reported as its own exclusion reason.
@@ -326,7 +326,7 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
 
   // if the string is not found in the path, ignore this asset
   if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
   // when any filter is active, we search through sub-folders, otherwise only the current folder is listed
   const bool bRecurseIntoSubFolders = IsFilterActive() || m_bShowItemsInSubFolders;
@@ -335,18 +335,18 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
   {
     // do we find another path separator after the prefix path?
     // if so, there is a sub-folder, and thus we ignore it
-    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    if (WStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
     {
-      return ezAssetFilterResult::Filtered;
+      return WAssetFilterResult::Filtered;
     }
   }
   else if (!bRecurseIntoSubFolders)
   {
     // do we find another path separator after the prefix path?
     // if so, there is a sub-folder, and thus we ignore it
-    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    if (WStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
     {
-      return ezAssetFilterResult::Filtered;
+      return WAssetFilterResult::Filtered;
     }
   }
 
@@ -355,10 +355,10 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
     if (m_bUsesSearchActive)
     {
       if (pInfo == nullptr)
-        return ezAssetFilterResult::Filtered;
+        return WAssetFilterResult::Filtered;
 
       if (!m_Uses.Contains(pInfo->m_Data.m_Guid))
-        return ezAssetFilterResult::Filtered;
+        return WAssetFilterResult::Filtered;
     }
     else
     {
@@ -366,13 +366,13 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
       if (m_SearchFilter.PassesFilters(sDataDirParentRelativePath) == false)
       {
         if (pInfo == nullptr)
-          return ezAssetFilterResult::Filtered;
+          return WAssetFilterResult::Filtered;
 
         if (m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
         {
-          ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
+          WConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
           if (m_SearchFilter.PassesFilters(m_sTemp) == false)
-            return ezAssetFilterResult::Filtered;
+            return WAssetFilterResult::Filtered;
 
           // we could actually (partially) match the GUID
         }
@@ -385,10 +385,10 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
   {
     // unless we have a type filter active
     if (!m_sTypeFilter.IsEmpty())
-      return ezAssetFilterResult::Filtered;
+      return WAssetFilterResult::Filtered;
 
     // folders are never counted as hidden-folder matches, only the items inside them are
-    return !m_bShowItemsInHiddenFolders && IsInHiddenFolder(sDataDirParentRelativePath, true) ? ezAssetFilterResult::Filtered : ezAssetFilterResult::Visible;
+    return !m_bShowItemsInHiddenFolders && IsInHiddenFolder(sDataDirParentRelativePath, true) ? WAssetFilterResult::Filtered : WAssetFilterResult::Visible;
   }
 
   if (!m_FileExtensions.IsEmpty())
@@ -397,7 +397,7 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
     sExt.ToLower();
 
     if (!m_FileExtensions.Contains(sExt))
-      return ezAssetFilterResult::Filtered;
+      return WAssetFilterResult::Filtered;
   }
 
   if (!m_sTypeFilter.IsEmpty() && pInfo != nullptr)
@@ -405,13 +405,13 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
     m_sTemp.Set(";", pInfo->m_Data.m_sSubAssetsDocumentTypeName, ";");
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
-      return ezAssetFilterResult::Filtered;
+      return WAssetFilterResult::Filtered;
   }
 
   // A plain file is no asset, so an active asset type filter can never match it. Selecting an asset type in the combo
   // box also turns m_bShowFiles off, so this is handled below as its own exclusion reason rather than here.
   if (!m_sTypeFilter.IsEmpty() && bIsPlainFile && m_bShowFiles)
-    return ezAssetFilterResult::Filtered;
+    return WAssetFilterResult::Filtered;
 
   if (pInfo && m_sRequiredTag != "*") // '*' means everything is allowed
   {
@@ -423,13 +423,13 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
       // so the "default tag" (nothing at all) is already a tag for not-tagged items
       // if you really want to see all assets, use * as the required tag
       if (!tags.IsEmpty())
-        return ezAssetFilterResult::Filtered;
+        return WAssetFilterResult::Filtered;
     }
     else
     {
       // otherwise search for ";required;" in the tags string (note the semicolons at the start and end as delimiters
       if (tags.FindSubString_NoCase(m_sRequiredTag) == nullptr)
-        return ezAssetFilterResult::Filtered;
+        return WAssetFilterResult::Filtered;
     }
   }
 
@@ -437,7 +437,7 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
   // user can toggle, each of which is reported separately so that the browser can say how many items it is hiding.
 
   if (bIsPlainFile && !m_bShowFiles)
-    return ezAssetFilterResult::NonAssetFile;
+    return WAssetFilterResult::NonAssetFile;
 
   if (bIsPlainFile && !m_bShowNonImportableFiles)
   {
@@ -445,11 +445,11 @@ ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDi
     sExt.ToLower();
 
     if (!m_ImportExtensions.Contains(sExt))
-      return ezAssetFilterResult::NonImportableFile;
+      return WAssetFilterResult::NonImportableFile;
   }
 
   if (!m_bShowItemsInHiddenFolders && IsInHiddenFolder(sDataDirParentRelativePath, false))
-    return ezAssetFilterResult::HiddenFolder;
+    return WAssetFilterResult::HiddenFolder;
 
-  return ezAssetFilterResult::Visible;
+  return WAssetFilterResult::Visible;
 }

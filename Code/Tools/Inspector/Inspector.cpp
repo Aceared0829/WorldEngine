@@ -22,13 +22,13 @@
 #include <QSettings>
 #include <qstylefactory.h>
 
-class ezInspectorApp : public ezApplication
+class WInspectorApp : public WApplication
 {
 public:
-  using SUPER = ezApplication;
+  using SUPER = WApplication;
 
-  ezInspectorApp()
-    : ezApplication("ezInspector")
+  WInspectorApp()
+    : WApplication("WInspector")
   {
   }
 
@@ -69,12 +69,12 @@ public:
     QApplication::setPalette(palette);
   }
 
-  virtual ezResult BeforeCoreSystemsStartup() override
+  virtual WResult BeforeCoreSystemsStartup() override
   {
-    ezStartup::AddApplicationTag("tool");
-    ezStartup::AddApplicationTag("inspector");
+    WStartup::AddApplicationTag("tool");
+    WStartup::AddApplicationTag("inspector");
 
-    return ezApplication::BeforeCoreSystemsStartup();
+    return WApplication::BeforeCoreSystemsStartup();
   }
 
   virtual void Run() override
@@ -84,42 +84,42 @@ public:
 
     QApplication app(iArgs, cArgs);
     QCoreApplication::setOrganizationDomain("www.ezengine.net");
-    QCoreApplication::setOrganizationName("ezEngine Project");
-    QCoreApplication::setApplicationName("ezInspector");
+    QCoreApplication::setOrganizationName("WorldEngine Project");
+    QCoreApplication::setApplicationName("WInspector");
     QCoreApplication::setApplicationVersion("1.0.0");
 
     SetStyleSheet();
 
-    ezQtMainWindow MainWindow;
+    WQtMainWindow MainWindow;
 
-    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezQtCVarsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('CMD', true, ezQtCVarsWidget::ProcessTelemetryConsole, nullptr);
-    ezTelemetry::AcceptMessagesForSystem(' LOG', true, ezQtLogDockWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem(' MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezQtTimeWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem(' APP', true, ezQtMainWindow::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezQtFileWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezQtInputWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezQtSubsystemsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezQtMainWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezQtPluginsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezQtGlobalEventsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezQtReflectionWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezQtDataWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('RESM', true, ezQtResourceWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('RGPH', true, ezQtRenderGraphWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('CVAR', true, WQtCVarsWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('CMD', true, WQtCVarsWidget::ProcessTelemetryConsole, nullptr);
+    WTelemetry::AcceptMessagesForSystem(' LOG', true, WQtLogDockWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem(' MEM', true, WQtMemoryWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('TIME', true, WQtTimeWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem(' APP', true, WQtMainWindow::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('FILE', true, WQtFileWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('INPT', true, WQtInputWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('STRT', true, WQtSubsystemsWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('STAT', true, WQtMainWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('PLUG', true, WQtPluginsWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('EVNT', true, WQtGlobalEventsWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('RFLC', true, WQtReflectionWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('TRAN', true, WQtDataWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('RESM', true, WQtResourceWidget::ProcessTelemetry, nullptr);
+    WTelemetry::AcceptMessagesForSystem('RGPH', true, WQtRenderGraphWidget::ProcessTelemetry, nullptr);
 
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
     // -url and -port can override the stored connection address
-    const ezStringView sUrlArg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-url");
-    const ezInt32 iPortArg = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-port", -1);
+    const WStringView sUrlArg = WCommandLineUtils::GetGlobalInstance()->GetStringOption("-url");
+    const WInt32 iPortArg = WCommandLineUtils::GetGlobalInstance()->GetIntOption("-port", -1);
 
-    ezStringBuilder sConnectTo(sServer.toUtf8().data());
+    WStringBuilder sConnectTo(sServer.toUtf8().data());
     if (!sUrlArg.IsEmpty() || iPortArg > 0)
     {
-      const ezStringView sHost = sUrlArg.IsEmpty() ? ezStringView("localhost") : sUrlArg;
+      const WStringView sHost = sUrlArg.IsEmpty() ? WStringView("localhost") : sUrlArg;
       if (iPortArg > 0)
         sConnectTo.SetFormat("{}:{}", sHost, iPortArg);
       else
@@ -131,14 +131,14 @@ public:
       MainWindow.SetConnectionTarget(sConnectToQt);
     }
 
-    ezTelemetry::ConnectToServer(sConnectTo).IgnoreResult();
+    WTelemetry::ConnectToServer(sConnectTo).IgnoreResult();
 
     MainWindow.show();
     SetReturnCode(app.exec());
 
-    ezTelemetry::CloseConnection();
+    WTelemetry::CloseConnection();
     QuitApplication();
   }
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezInspectorApp);
+W_APPLICATION_ENTRY_POINT(WInspectorApp);

@@ -5,86 +5,86 @@
 #include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
+W_IMPLEMENT_SINGLETON(WQtCVarPanel);
 
-class ezCommandInterpreterFwd : public ezCommandInterpreter
+class WCommandInterpreterFwd : public WCommandInterpreter
 {
 public:
-  virtual void Interpret(ezCommandInterpreterState& inout_state) override
+  virtual void Interpret(WCommandInterpreterState& inout_state) override
   {
-    ezConsoleCmdMsgToEngine msg;
+    WConsoleCmdMsgToEngine msg;
     msg.m_iType = 0;
     msg.m_sCommand = inout_state.m_sInput;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  virtual void AutoComplete(ezCommandInterpreterState& inout_state) override
+  virtual void AutoComplete(WCommandInterpreterState& inout_state) override
   {
-    ezConsoleCmdMsgToEngine msg;
+    WConsoleCmdMsgToEngine msg;
     msg.m_iType = 1;
     msg.m_sCommand = inout_state.m_sInput;
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 };
 
-ezQtCVarPanel::ezQtCVarPanel(ads::CDockManager* pDockManager)
-  : ezQtApplicationPanel(pDockManager, "Panel.CVar")
+WQtCVarPanel::WQtCVarPanel(ads::CDockManager* pDockManager)
+  : WQtApplicationPanel(pDockManager, "Panel.CVar")
   , m_SingletonRegistrar(this)
 {
-  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg"));
-  setWindowTitle(ezMakeQString(ezTranslate("Panel.CVar")));
-  m_pCVarWidget = new ezQtCVarWidget(this);
+  setIcon(WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg"));
+  setWindowTitle(WMakeQString(WTranslate("Panel.CVar")));
+  m_pCVarWidget = new WQtCVarWidget(this);
   m_pCVarWidget->layout()->setContentsMargins(0, 0, 0, 0);
   // m_pCVarWidget->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pCVarWidget);
 
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtCVarPanel::EngineProcessMsgHandler, this));
+  WEditorEngineProcessConnection::s_Events.AddEventHandler(WMakeDelegate(&WQtCVarPanel::EngineProcessMsgHandler, this));
 
-  connect(m_pCVarWidget, &ezQtCVarWidget::onBoolChanged, this, &ezQtCVarPanel::BoolChanged);
-  connect(m_pCVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarPanel::FloatChanged);
-  connect(m_pCVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarPanel::IntChanged);
-  connect(m_pCVarWidget, &ezQtCVarWidget::onStringChanged, this, &ezQtCVarPanel::StringChanged);
+  connect(m_pCVarWidget, &WQtCVarWidget::onBoolChanged, this, &WQtCVarPanel::BoolChanged);
+  connect(m_pCVarWidget, &WQtCVarWidget::onFloatChanged, this, &WQtCVarPanel::FloatChanged);
+  connect(m_pCVarWidget, &WQtCVarWidget::onIntChanged, this, &WQtCVarPanel::IntChanged);
+  connect(m_pCVarWidget, &WQtCVarWidget::onStringChanged, this, &WQtCVarPanel::StringChanged);
 
-  m_pCVarWidget->GetConsole().SetCommandInterpreter(EZ_DEFAULT_NEW(ezCommandInterpreterFwd));
+  m_pCVarWidget->GetConsole().SetCommandInterpreter(W_DEFAULT_NEW(WCommandInterpreterFwd));
 }
 
-ezQtCVarPanel::~ezQtCVarPanel()
+WQtCVarPanel::~WQtCVarPanel()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCVarPanel::EngineProcessMsgHandler, this));
+  WEditorEngineProcessConnection::s_Events.RemoveEventHandler(WMakeDelegate(&WQtCVarPanel::EngineProcessMsgHandler, this));
 }
 
-void ezQtCVarPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+void WQtCVarPanel::ToolsProjectEventHandler(const WToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezToolsProjectEvent::Type::ProjectClosing:
+    case WToolsProjectEvent::Type::ProjectClosing:
       m_EngineCVarState.Clear();
       m_pCVarWidget->Clear();
 
       [[fallthrough]];
 
-    case ezToolsProjectEvent::Type::ProjectOpened:
-      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
+    case WToolsProjectEvent::Type::ProjectOpened:
+      setEnabled(e.m_Type == WToolsProjectEvent::Type::ProjectOpened);
       break;
 
     default:
       break;
   }
 
-  ezQtApplicationPanel::ToolsProjectEventHandler(e);
+  WQtApplicationPanel::ToolsProjectEventHandler(e);
 }
 
-void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+void WQtCVarPanel::EngineProcessMsgHandler(const WEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case WEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
-      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCVarMsgToEditor>())
+      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<WCVarMsgToEditor>())
       {
-        const ezCVarMsgToEditor* pMsg = static_cast<const ezCVarMsgToEditor*>(e.m_pMsg);
+        const WCVarMsgToEditor* pMsg = static_cast<const WCVarMsgToEditor*>(e.m_pMsg);
 
         bool bExisted = false;
         auto& cvar = m_EngineCVarState.FindOrAdd(pMsg->m_sName, &bExisted).Value();
@@ -93,21 +93,21 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 
         switch (pMsg->m_Value.GetType())
         {
-          case ezVariantType::Float:
-            cvar.m_uiType = ezCVarType::Float;
+          case WVariantType::Float:
+            cvar.m_uiType = WCVarType::Float;
             cvar.m_fValue = pMsg->m_Value.ConvertTo<float>();
             break;
-          case ezVariantType::Int32:
-            cvar.m_uiType = ezCVarType::Int;
+          case WVariantType::Int32:
+            cvar.m_uiType = WCVarType::Int;
             cvar.m_iValue = pMsg->m_Value.ConvertTo<int>();
             break;
-          case ezVariantType::Bool:
-            cvar.m_uiType = ezCVarType::Bool;
+          case WVariantType::Bool:
+            cvar.m_uiType = WCVarType::Bool;
             cvar.m_bValue = pMsg->m_Value.ConvertTo<bool>();
             break;
-          case ezVariantType::String:
-            cvar.m_uiType = ezCVarType::String;
-            cvar.m_sValue = pMsg->m_Value.ConvertTo<ezString>();
+          case WVariantType::String:
+            cvar.m_uiType = WCVarType::String;
+            cvar.m_sValue = pMsg->m_Value.ConvertTo<WString>();
             break;
           default:
             break;
@@ -124,7 +124,7 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
           QTimer::singleShot(100, this, SLOT(UpdateUI()));
         }
       }
-      else if (auto pMsg = ezDynamicCast<const ezConsoleCmdResultMsgToEditor*>(e.m_pMsg))
+      else if (auto pMsg = WDynamicCast<const WConsoleCmdResultMsgToEditor*>(e.m_pMsg))
       {
         m_sCommandResult.Append(pMsg->m_sResult.GetView());
         m_bUpdateConsole = true;
@@ -137,7 +137,7 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
   }
 }
 
-void ezQtCVarPanel::UpdateUI()
+void WQtCVarPanel::UpdateUI()
 {
   if (m_bRebuildUI)
   {
@@ -159,34 +159,34 @@ void ezQtCVarPanel::UpdateUI()
   m_bRebuildUI = false;
 }
 
-void ezQtCVarPanel::BoolChanged(const char* szCVar, bool newValue)
+void WQtCVarPanel::BoolChanged(const char* szCVar, bool newValue)
 {
-  ezChangeCVarMsgToEngine msg;
+  WChangeCVarMsgToEngine msg;
   msg.m_sCVarName = szCVar;
   msg.m_NewValue = newValue;
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtCVarPanel::FloatChanged(const char* szCVar, float newValue)
+void WQtCVarPanel::FloatChanged(const char* szCVar, float newValue)
 {
-  ezChangeCVarMsgToEngine msg;
+  WChangeCVarMsgToEngine msg;
   msg.m_sCVarName = szCVar;
   msg.m_NewValue = newValue;
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtCVarPanel::IntChanged(const char* szCVar, int newValue)
+void WQtCVarPanel::IntChanged(const char* szCVar, int newValue)
 {
-  ezChangeCVarMsgToEngine msg;
+  WChangeCVarMsgToEngine msg;
   msg.m_sCVarName = szCVar;
   msg.m_NewValue = newValue;
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtCVarPanel::StringChanged(const char* szCVar, const char* newValue)
+void WQtCVarPanel::StringChanged(const char* szCVar, const char* newValue)
 {
-  ezChangeCVarMsgToEngine msg;
+  WChangeCVarMsgToEngine msg;
   msg.m_sCVarName = szCVar;
   msg.m_NewValue = newValue;
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

@@ -5,9 +5,9 @@
 /// Flags that tell you which SIMD features are available on this processor / OS
 ///
 /// Heavily 'inspired' by https://github.com/Mysticial/FeatureDetector
-struct ezCpuFeatures
+struct WCpuFeatures
 {
-#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#if W_ENABLED(W_PLATFORM_ARCH_X86)
   //  Vendor
   bool Vendor_AMD = false;
   bool Vendor_Intel = false;
@@ -93,22 +93,22 @@ struct ezCpuFeatures
 
 /// The system configuration class encapsulates information about the system the application is running on.
 ///
-/// Retrieve the system configuration by using ezSystemInformation::Get(). If you use the system configuration in startup code
+/// Retrieve the system configuration by using WSystemInformation::Get(). If you use the system configuration in startup code
 /// make sure to add the correct dependency to the system "SystemInformation" in "Foundation".
-class EZ_FOUNDATION_DLL ezSystemInformation
+class W_FOUNDATION_DLL WSystemInformation
 {
 public:
   /// Returns the installed physical memory in bytes
-  ezUInt64 GetInstalledMainMemory() const { return m_uiInstalledMainMemory; }
+  WUInt64 GetInstalledMainMemory() const { return m_uiInstalledMainMemory; }
 
   /// Returns the currently available physical memory
-  ezUInt64 GetAvailableMainMemory() const;
+  WUInt64 GetAvailableMainMemory() const;
 
   /// Returns the size of a memory page in bytes
-  ezUInt32 GetMemoryPageSize() const { return m_uiMemoryPageSize; }
+  WUInt32 GetMemoryPageSize() const { return m_uiMemoryPageSize; }
 
   /// Returns the CPU core count of the system.
-  ezUInt32 GetCPUCoreCount() const { return m_uiCPUCoreCount; }
+  WUInt32 GetCPUCoreCount() const { return m_uiCPUCoreCount; }
 
   /// Returns the total utilization of the CPU core in percent
   float GetCPUUtilization() const;
@@ -123,14 +123,14 @@ public:
   const char* GetBuildConfiguration() const { return m_szBuildConfiguration; }
 
   /// Returns a struct that contains detailed information about the available CPU features (SIMD support).
-  const ezCpuFeatures& GetCpuFeatures() const { return m_CpuFeatures; }
+  const WCpuFeatures& GetCpuFeatures() const { return m_CpuFeatures; }
 
 public:
   /// Returns whether a debugger is currently attached to this process.
   static bool IsDebuggerAttached();
 
   /// Allows access to the current system configuration.
-  static const ezSystemInformation& Get()
+  static const WSystemInformation& Get()
   {
     if (!s_SystemInformation.m_bIsInitialized)
       Initialize();
@@ -139,17 +139,17 @@ public:
   }
 
 private:
-  ezUInt64 m_uiInstalledMainMemory;
-  ezUInt32 m_uiMemoryPageSize;
-  ezUInt32 m_uiCPUCoreCount;
+  WUInt64 m_uiInstalledMainMemory;
+  WUInt32 m_uiMemoryPageSize;
+  WUInt32 m_uiCPUCoreCount;
   const char* m_szPlatformName = nullptr;
   const char* m_szBuildConfiguration = nullptr;
   char m_sHostName[256];
   bool m_bB64BitOS;
   bool m_bIsInitialized;
-  ezCpuFeatures m_CpuFeatures;
+  WCpuFeatures m_CpuFeatures;
 
   static void Initialize();
 
-  static ezSystemInformation s_SystemInformation;
+  static WSystemInformation s_SystemInformation;
 };

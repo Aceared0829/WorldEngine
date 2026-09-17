@@ -13,73 +13,73 @@
 #  include <RendererCore/Pipeline/Renderer.h>
 #  include <RendererFoundation/Resources/BufferPool.h>
 
-class ezRenderDataBatch;
-using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
+class WRenderDataBatch;
+using WShaderResourceHandle = WTypedResourceHandle<class WShaderResource>;
 
-struct ezImguiVertex
+struct WImguiVertex
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezVec3 m_Position;
-  ezVec2 m_TexCoord;
-  ezColorLinearUB m_Color;
+  WVec3 m_Position;
+  WVec2 m_TexCoord;
+  WColorLinearUB m_Color;
 };
 
-struct ezImguiBatch
+struct WImguiBatch
 {
-  EZ_DECLARE_POD_TYPE();
+  W_DECLARE_POD_TYPE();
 
-  ezRectU32 m_ScissorRect;
+  WRectU32 m_ScissorRect;
   ImTextureID m_TextureId;
-  ezUInt16 m_uiVertexCount;
+  WUInt16 m_uiVertexCount;
 };
 
-class EZ_GAMEENGINE_DLL ezImguiRenderData : public ezRenderData
+class W_GAMEENGINE_DLL WImguiRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImguiRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WImguiRenderData, WRenderData);
 
 public:
-  ezArrayPtr<ezImguiVertex> m_Vertices;
-  ezArrayPtr<ImDrawIdx> m_Indices;
-  ezArrayPtr<ezImguiBatch> m_Batches;
+  WArrayPtr<WImguiVertex> m_Vertices;
+  WArrayPtr<ImDrawIdx> m_Indices;
+  WArrayPtr<WImguiBatch> m_Batches;
 };
 
-class EZ_GAMEENGINE_DLL ezImguiExtractor : public ezExtractor
+class W_GAMEENGINE_DLL WImguiExtractor : public WExtractor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImguiExtractor, ezExtractor);
+  W_ADD_DYNAMIC_REFLECTION(WImguiExtractor, WExtractor);
 
 public:
-  ezImguiExtractor(const char* szName = "ImguiExtractor");
+  WImguiExtractor(const char* szName = "ImguiExtractor");
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void Extract(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const WView& view, const WDynamicArray<const WGameObject*>& visibleObjects, WExtractedRenderData& ref_extractedRenderData) override {}
 
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 };
 
-class EZ_GAMEENGINE_DLL ezImguiRenderer : public ezRenderer
+class W_GAMEENGINE_DLL WImguiRenderer : public WRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezImguiRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezImguiRenderer);
+  W_ADD_DYNAMIC_REFLECTION(WImguiRenderer, WRenderer);
+  W_DISALLOW_COPY_AND_ASSIGN(WImguiRenderer);
 
 public:
-  ezImguiRenderer();
-  ~ezImguiRenderer();
+  WImguiRenderer();
+  ~WImguiRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void GetSupportedRenderDataTypes(WDynamicArray<const WRTTI*>& out_types) const override;
+  virtual void RenderBatch(const WRenderViewContext& renderContext, const WRenderPipelinePass* pPass, const WRenderDataBatch& batch) const override;
 
 protected:
   void SetupRenderer();
 
-  static constexpr ezUInt32 s_uiVertexBufferSize = 1024 * 128;
-  static constexpr ezUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
+  static constexpr WUInt32 s_uiVertexBufferSize = 1024 * 128;
+  static constexpr WUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
 
-  ezShaderResourceHandle m_hShader;
-  ezGALBufferPool m_VertexBuffer;
-  ezGALBufferPool m_IndexBuffer;
-  ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
+  WShaderResourceHandle m_hShader;
+  WGALBufferPool m_VertexBuffer;
+  WGALBufferPool m_IndexBuffer;
+  WSmallArray<WGALVertexAttribute, 3> m_VertexAttributes;
 };
 
 #endif

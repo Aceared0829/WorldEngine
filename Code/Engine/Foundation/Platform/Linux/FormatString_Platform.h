@@ -2,26 +2,26 @@
 /// Pass in the linux `errno` symbol. Be careful when printing multiple values, a function could clear `errno` as a side-effect so it is best to store it in a temp variable before printing a complex error message.
 /// You may have to include #include <errno.h> use this.
 /// \sa https://man7.org/linux/man-pages/man3/errno.3.html
-struct ezArgErrno
+struct WArgErrno
 {
-  inline explicit ezArgErrno(ezInt32 iErrno)
+  inline explicit WArgErrno(WInt32 iErrno)
     : m_iErrno(iErrno)
   {
   }
 
-  ezInt32 m_iErrno;
+  WInt32 m_iErrno;
 };
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgErrno& arg);
 
-struct ezArgErrorCode
+struct WArgErrorCode
 {
-  inline explicit ezArgErrorCode(ezUInt32 uiErrorCode)
+  inline explicit WArgErrorCode(WUInt32 uiErrorCode)
     : m_ErrorCode(uiErrorCode)
   {
   }
 
-  ezUInt32 m_ErrorCode;
+  WUInt32 m_ErrorCode;
 };
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg);
+W_FOUNDATION_DLL WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgErrorCode& arg);

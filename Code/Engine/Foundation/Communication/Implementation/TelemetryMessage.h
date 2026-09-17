@@ -2,36 +2,36 @@
 
 #include <Foundation/IO/MemoryStream.h>
 
-class EZ_FOUNDATION_DLL ezTelemetryMessage
+class W_FOUNDATION_DLL WTelemetryMessage
 {
 public:
-  ezTelemetryMessage();
-  ezTelemetryMessage(const ezTelemetryMessage& rhs);
-  ~ezTelemetryMessage();
+  WTelemetryMessage();
+  WTelemetryMessage(const WTelemetryMessage& rhs);
+  ~WTelemetryMessage();
 
-  void operator=(const ezTelemetryMessage& rhs);
+  void operator=(const WTelemetryMessage& rhs);
 
-  EZ_ALWAYS_INLINE ezStreamReader& GetReader() { return m_Reader; }
-  EZ_ALWAYS_INLINE ezStreamWriter& GetWriter() { return m_Writer; }
+  W_ALWAYS_INLINE WStreamReader& GetReader() { return m_Reader; }
+  W_ALWAYS_INLINE WStreamWriter& GetWriter() { return m_Writer; }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetSystemID() const { return m_uiSystemID; }
-  EZ_ALWAYS_INLINE ezUInt32 GetMessageID() const { return m_uiMsgID; }
+  W_ALWAYS_INLINE WUInt32 GetSystemID() const { return m_uiSystemID; }
+  W_ALWAYS_INLINE WUInt32 GetMessageID() const { return m_uiMsgID; }
 
-  EZ_ALWAYS_INLINE void SetMessageID(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
+  W_ALWAYS_INLINE void SetMessageID(WUInt32 uiSystemID, WUInt32 uiMessageID)
   {
     m_uiSystemID = uiSystemID;
     m_uiMsgID = uiMessageID;
   }
 
-  // ezUInt64 GetMessageSize() const { return m_Storage.GetStorageSize64(); }
+  // WUInt64 GetMessageSize() const { return m_Storage.GetStorageSize64(); }
 
 private:
-  friend class ezTelemetry;
+  friend class WTelemetry;
 
-  ezUInt32 m_uiSystemID;
-  ezUInt32 m_uiMsgID;
+  WUInt32 m_uiSystemID;
+  WUInt32 m_uiMsgID;
 
-  ezContiguousMemoryStreamStorage m_Storage;
-  ezMemoryStreamReader m_Reader;
-  ezMemoryStreamWriter m_Writer;
+  WContiguousMemoryStreamStorage m_Storage;
+  WMemoryStreamReader m_Reader;
+  WMemoryStreamWriter m_Writer;
 };

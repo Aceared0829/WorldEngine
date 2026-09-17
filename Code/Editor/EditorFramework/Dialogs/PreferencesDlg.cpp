@@ -5,10 +5,10 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-class ezPreferencesObjectManager : public ezDocumentObjectManager
+class WPreferencesObjectManager : public WDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override
+  virtual void GetCreateableTypes(WDynamicArray<const WRTTI*>& out_types) const override
   {
     for (auto pRtti : m_KnownTypes)
     {
@@ -16,44 +16,44 @@ public:
     }
   }
 
-  ezHybridArray<const ezRTTI*, 16> m_KnownTypes;
+  WHybridArray<const WRTTI*, 16> m_KnownTypes;
 };
 
 
-class ezPreferencesDocument : public ezDocument
+class WPreferencesDocument : public WDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPreferencesDocument, ezDocument);
+  W_ADD_DYNAMIC_REFLECTION(WPreferencesDocument, WDocument);
 
 
 public:
-  ezPreferencesDocument(ezStringView sDocumentPath)
-    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+  WPreferencesDocument(WStringView sDocumentPath)
+    : WDocument(sDocumentPath, W_DEFAULT_NEW(WPreferencesObjectManager))
   {
   }
 
 public:
-  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
+  virtual WDocumentInfo* CreateDocumentInfo() override { return W_DEFAULT_NEW(WDocumentInfo); }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferencesDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WPreferencesDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtPreferencesDlg::WQtPreferencesDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
   splitter->setStretchFactor(0, 0);
   splitter->setStretchFactor(1, 1);
 
-  m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
+  m_pDocument = W_DEFAULT_NEW(WPreferencesDocument, "<none>");
 
   // if this is set, all properties are applied immediately
-  // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler,
+  // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(WMakeDelegate(&WQtPreferencesDlg::PropertyChangedEventHandler,
   // this));
-  std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
-  pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtNamedAdapter(m_pDocument->GetObjectManager(), ezPreferences::GetStaticRTTI(), "", "Name"));
+  std::unique_ptr<WQtDocumentTreeModel> pModel(new WQtDocumentTreeModel(m_pDocument->GetObjectManager()));
+  pModel->AddAdapter(new WQtDummyAdapter(m_pDocument->GetObjectManager(), WGetStaticRTTI<WDocumentRoot>(), "Children"));
+  pModel->AddAdapter(new WQtNamedAdapter(m_pDocument->GetObjectManager(), WPreferences::GetStaticRTTI(), "", "Name"));
 
   Tree->Initialize(m_pDocument, std::move(pModel));
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -67,7 +67,7 @@ ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
   m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 }
 
-ezQtPreferencesDlg::~ezQtPreferencesDlg()
+WQtPreferencesDlg::~WQtPreferencesDlg()
 {
   delete Tree;
   Tree = nullptr;
@@ -75,73 +75,73 @@ ezQtPreferencesDlg::~ezQtPreferencesDlg()
   delete Properties;
   Properties = nullptr;
 
-  EZ_DEFAULT_DELETE(m_pDocument);
+  W_DEFAULT_DELETE(m_pDocument);
 }
 
-ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
+WUuid WQtPreferencesDlg::NativeToObject(WPreferences* pPreferences)
 {
-  const ezRTTI* pType = pPreferences->GetDynamicRTTI();
+  const WRTTI* pType = pPreferences->GetDynamicRTTI();
   // Write properties to graph.
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter conv(&graph, &context, true, true);
+  WAbstractObjectGraph graph;
+  WRttiConverterContext context;
+  WRttiConverterWriter conv(&graph, &context, true, true);
 
-  const ezUuid guid = ezUuid::MakeUuid();
+  const WUuid guid = WUuid::MakeUuid();
   context.RegisterObject(guid, pType, pPreferences);
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pPreferences, "root");
+  WAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pPreferences, "root");
 
   // Read from graph and write into matching document object.
   auto pRoot = m_pDocument->GetObjectManager()->GetRootObject();
-  ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
+  WDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(
-    &graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  WDocumentObjectConverterReader objectConverter(
+    &graph, m_pDocument->GetObjectManager(), WDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();
 }
 
-void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument)
+void WQtPreferencesDlg::ObjectToNative(WUuid objectGuid, const WDocument* pPrefDocument)
 {
-  ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
-  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+  WDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
+  const WRTTI* pType = pObject->GetTypeAccessor().GetType();
 
   // Write object to graph.
-  ezAbstractObjectGraph graph;
-  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  WAbstractObjectGraph graph;
+  auto filter = [](const WDocumentObject*, const WAbstractProperty* pProp) -> bool
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    if (pProp->GetFlags().IsSet(WPropertyFlags::ReadOnly))
       return false;
     return true;
   };
-  ezDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), filter);
-  ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pObject, "root");
+  WDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), filter);
+  WAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pObject, "root");
 
   // Read from graph and write to native object.
-  ezRttiConverterContext context;
-  ezRttiConverterReader conv(&graph, &context);
+  WRttiConverterContext context;
+  WRttiConverterReader conv(&graph, &context);
 
-  ezPreferences* pPreferences = ezPreferences::QueryPreferences(pType, pPrefDocument);
+  WPreferences* pPreferences = WPreferences::QueryPreferences(pType, pPrefDocument);
   conv.ApplyPropertiesToObject(pNode, pType, pPreferences);
 
   pPreferences->TriggerPreferencesChangedEvent();
 }
 
 
-void ezQtPreferencesDlg::on_ButtonOk_clicked()
+void WQtPreferencesDlg::on_ButtonOk_clicked()
 {
   ApplyAllChanges();
   accept();
 }
 
 
-void ezQtPreferencesDlg::RegisterAllPreferenceTypes()
+void WQtPreferencesDlg::RegisterAllPreferenceTypes()
 {
-  ezPreferencesObjectManager* pManager = static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager());
+  WPreferencesObjectManager* pManager = static_cast<WPreferencesObjectManager*>(m_pDocument->GetObjectManager());
 
-  ezTempHybridArray<ezPreferences*, 16> AllPrefs;
-  ezPreferences::GatherAllPreferences(AllPrefs);
+  WTempHybridArray<WPreferences*, 16> AllPrefs;
+  WPreferences::GatherAllPreferences(AllPrefs);
 
   for (auto pref : AllPrefs)
   {
@@ -150,16 +150,16 @@ void ezQtPreferencesDlg::RegisterAllPreferenceTypes()
 }
 
 
-void ezQtPreferencesDlg::AllPreferencesToObject()
+void WQtPreferencesDlg::AllPreferencesToObject()
 {
-  ezTempHybridArray<ezPreferences*, 16> AllPrefs;
-  ezPreferences::GatherAllPreferences(AllPrefs);
+  WTempHybridArray<WPreferences*, 16> AllPrefs;
+  WPreferences::GatherAllPreferences(AllPrefs);
 
-  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  WTempHybridArray<const WAbstractProperty*, 32> properties;
 
-  ezMap<ezString, ezPreferences*> appPref;
-  ezMap<ezString, ezPreferences*> projPref;
-  ezMap<ezString, ezPreferences*> docPref;
+  WMap<WString, WPreferences*> appPref;
+  WMap<WString, WPreferences*> projPref;
+  WMap<WString, WPreferences*> docPref;
 
   for (auto pref : AllPrefs)
   {
@@ -167,9 +167,9 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
 
     // ignore all objects that have no visible properties
     pref->GetDynamicRTTI()->GetAllProperties(properties);
-    for (const ezAbstractProperty* prop : properties)
+    for (const WAbstractProperty* prop : properties)
     {
-      if (prop->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      if (prop->GetAttributeByType<WHiddenAttribute>() != nullptr)
         continue;
 
       noVisibleProperties = false;
@@ -181,13 +181,13 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
 
     switch (pref->GetDomain())
     {
-      case ezPreferences::Domain::Application:
+      case WPreferences::Domain::Application:
         appPref[pref->GetName()] = pref;
         break;
-      case ezPreferences::Domain::Project:
+      case WPreferences::Domain::Project:
         projPref[pref->GetName()] = pref;
         break;
-      case ezPreferences::Domain::Document:
+      case WPreferences::Domain::Document:
         docPref[pref->GetName()] = pref;
         break;
     }
@@ -211,15 +211,15 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
   }
 }
 
-void ezQtPreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
+void WQtPreferencesDlg::PropertyChangedEventHandler(const WDocumentObjectPropertyEvent& e)
 {
-  const ezUuid guid = e.m_pObject->GetGuid();
-  EZ_ASSERT_DEV(m_DocumentBinding.Contains(guid), "Object GUID is not in the known list!");
+  const WUuid guid = e.m_pObject->GetGuid();
+  W_ASSERT_DEV(m_DocumentBinding.Contains(guid), "Object GUID is not in the known list!");
 
   ObjectToNative(guid, m_DocumentBinding[guid]);
 }
 
-void ezQtPreferencesDlg::ApplyAllChanges()
+void WQtPreferencesDlg::ApplyAllChanges()
 {
   for (auto it = m_DocumentBinding.GetIterator(); it.IsValid(); ++it)
   {

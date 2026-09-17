@@ -7,24 +7,24 @@
 #include <Foundation/Types/TagSet.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-class ezWorld;
-using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
+class WWorld;
+using WCpuMeshResourceHandle = WTypedResourceHandle<class WCpuMeshResource>;
 
 /// A utility to gather raw geometry from a world
 ///
-/// The utility sends ezMsgExtractGeometry to world components and they may fill out the geometry information.
+/// The utility sends WMsgExtractGeometry to world components and they may fill out the geometry information.
 /// \a ExtractionMode defines what the geometry is needed for. This ranges from finding geometry that is used to generate the navmesh from
 /// to exporting the geometry to a file for use in another program, e.g. a modeling software.
-class EZ_RENDERERCORE_DLL ezWorldGeoExtractionUtil
+class W_RENDERERCORE_DLL WWorldGeoExtractionUtil
 {
 public:
   struct MeshObject
   {
-    ezTransform m_GlobalTransform;
-    ezCpuMeshResourceHandle m_hMeshResource;
+    WTransform m_GlobalTransform;
+    WCpuMeshResourceHandle m_hMeshResource;
   };
 
-  using MeshObjectList = ezDeque<MeshObject>;
+  using MeshObjectList = WDeque<MeshObject>;
 
   /// Describes what the geometry is needed for
   enum class ExtractionMode
@@ -36,31 +36,31 @@ public:
   /// Extracts the desired geometry from all objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
+  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const WWorld& world, ExtractionMode mode, WTagSet* pExcludeTags = nullptr);
 
   /// Extracts the desired geometry from a specified subset of objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
+  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const WWorld& world, ExtractionMode mode, const WDeque<WGameObjectHandle>& selection);
 
   /// Writes the given geometry in .obj format to file
-  static void WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const ezMat3& mTransform);
+  static void WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const WMat3& mTransform);
 };
 
-/// Sent by ezWorldGeoExtractionUtil to gather geometry information about objects in a world
+/// Sent by WWorldGeoExtractionUtil to gather geometry information about objects in a world
 ///
 /// The mode defines what the geometry is needed for, thus components should decide to participate or not
 /// and how detailed the geometry is they return.
-struct EZ_RENDERERCORE_DLL ezMsgExtractGeometry : public ezMessage
+struct W_RENDERERCORE_DLL WMsgExtractGeometry : public WMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractGeometry, ezMessage);
+  W_DECLARE_MESSAGE_TYPE(WMsgExtractGeometry, WMessage);
 
   /// Specifies what the geometry is extracted for, and thus what the message handler should write back
-  ezWorldGeoExtractionUtil::ExtractionMode m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
+  WWorldGeoExtractionUtil::ExtractionMode m_Mode = WWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
 
   /// Append mesh objects to this to describe the requested world geometry
-  ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects = nullptr;
+  WWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects = nullptr;
 
-  void AddMeshObject(const ezTransform& transform, ezCpuMeshResourceHandle hMeshResource);
-  void AddBox(const ezTransform& transform, ezVec3 vExtents);
+  void AddMeshObject(const WTransform& transform, WCpuMeshResourceHandle hMeshResource);
+  void AddBox(const WTransform& transform, WVec3 vExtents);
 };

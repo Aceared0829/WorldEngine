@@ -4,18 +4,18 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizerFactory, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleFinalizer, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizer* ezParticleFinalizerFactory::CreateFinalizer(ezParticleSystemInstance* pOwner) const
+WParticleFinalizer* WParticleFinalizerFactory::CreateFinalizer(WParticleSystemInstance* pOwner) const
 {
-  const ezRTTI* pRtti = GetFinalizerType();
+  const WRTTI* pRtti = GetFinalizerType();
 
-  ezParticleFinalizer* pFinalizer = pRtti->GetAllocator()->Allocate<ezParticleFinalizer>();
+  WParticleFinalizer* pFinalizer = pRtti->GetAllocator()->Allocate<WParticleFinalizer>();
   pFinalizer->Reset(pOwner);
 
   CopyFinalizerProperties(pFinalizer, true);
@@ -24,11 +24,11 @@ ezParticleFinalizer* ezParticleFinalizerFactory::CreateFinalizer(ezParticleSyste
   return pFinalizer;
 }
 
-ezParticleFinalizer::ezParticleFinalizer()
+WParticleFinalizer::WParticleFinalizer()
 {
   // run after the behaviors, before the types
   m_fPriority = +500.0f;
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer);

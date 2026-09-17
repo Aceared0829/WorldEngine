@@ -10,12 +10,12 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 
 // clang-format off
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCVar);
+W_ENUMERABLE_CLASS_IMPLEMENTATION(WCVar);
 
 // The CVars need to be saved and loaded whenever plugins are loaded and unloaded.
 // Therefore we register as early as possible (Base Startup) at the plugin system,
 // to be informed about plugin changes.
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
+W_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
   // for saving and loading we need the filesystem, so make sure we are initialized after
   // and shutdown before the filesystem is
@@ -25,7 +25,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPlugin::Events().AddEventHandler(ezCVar::PluginEventHandler);
+    WPlugin::Events().AddEventHandler(WCVar::PluginEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -34,31 +34,31 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     // at this point the filesystem might already be uninitialized by the user (data dirs)
     // in that case the variables cannot be saved, but it will fail silently
     // if it succeeds, the most recent state will be serialized though
-    ezCVar::SaveCVars();
+    WCVar::SaveCVars();
 
-    ezPlugin::Events().RemoveEventHandler(ezCVar::PluginEventHandler);
+    WPlugin::Events().RemoveEventHandler(WCVar::PluginEventHandler);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     // save the CVars every time the engine is shut down
     // at this point the filesystem should usually still be configured properly
-    ezCVar::SaveCVars();
+    WCVar::SaveCVars();
   }
 
-  // The user is responsible to call 'ezCVar::SetStorageFolder' to define where the CVars are
+  // The user is responsible to call 'WCVar::SetStorageFolder' to define where the CVars are
   // actually stored. That call will automatically load all CVar states.
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-ezString ezCVar::s_sStorageFolder;
-ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
+WString WCVar::s_sStorageFolder;
+WEvent<const WCVarEvent&> WCVar::s_AllCVarEvents;
 
-void ezCVar::AssignSubSystemPlugin(ezStringView sPluginName)
+void WCVar::AssignSubSystemPlugin(WStringView sPluginName)
 {
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
+  WCVar* pCVar = WCVar::GetFirstInstance();
 
   while (pCVar)
   {
@@ -69,11 +69,11 @@ void ezCVar::AssignSubSystemPlugin(ezStringView sPluginName)
   }
 }
 
-void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
+void WCVar::PluginEventHandler(const WPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPluginEvent::BeforeLoading:
+    case WPluginEvent::BeforeLoading:
     {
       // before a new plugin is loaded, make sure all currently available CVars
       // are assigned to the proper plugin
@@ -82,7 +82,7 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
     }
     break;
 
-    case ezPluginEvent::AfterLoadingBeforeInit:
+    case WPluginEvent::AfterLoadingBeforeInit:
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
@@ -93,7 +93,7 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
     }
     break;
 
-    case ezPluginEvent::BeforeUnloading:
+    case WPluginEvent::BeforeUnloading:
     {
       SaveCVars();
     }
@@ -104,17 +104,17 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-ezCVar::ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription)
+WCVar::WCVar(WStringView sName, WBitflags<WCVarFlags> Flags, WStringView sDescription)
   : m_sName(sName)
   , m_sDescription(sDescription)
   , m_Flags(Flags)
 {
-  EZ_ASSERT_DEV(!m_sDescription.IsEmpty(), "Please add a useful description for CVar '{}'.", sName);
+  W_ASSERT_DEV(!m_sDescription.IsEmpty(), "Please add a useful description for CVar '{}'.", sName);
 }
 
-ezCVar* ezCVar::FindCVarByName(ezStringView sName)
+WCVar* WCVar::FindCVarByName(WStringView sName)
 {
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
+  WCVar* pCVar = WCVar::GetFirstInstance();
 
   while (pCVar)
   {
@@ -127,20 +127,20 @@ ezCVar* ezCVar::FindCVarByName(ezStringView sName)
   return nullptr;
 }
 
-void ezCVar::SetStorageFolder(ezStringView sFolder)
+void WCVar::SetStorageFolder(WStringView sFolder)
 {
   s_sStorageFolder = sFolder;
 }
 
-ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
+WCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
 
-void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
+void WCVar::SaveCVarsToFile(WStringView sPath, bool bIgnoreSaveFlag)
 {
-  ezTempHybridArray<ezCVar*, 128> allCVars;
+  WTempHybridArray<WCVar*, 128> allCVars;
 
-  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  for (WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(WCVarFlags::Save))
     {
       allCVars.PushBack(pCVar);
     }
@@ -149,24 +149,24 @@ void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
   SaveCVarsToFileInternal(sPath, allCVars);
 }
 
-void ezCVar::SaveCVars()
+void WCVar::SaveCVars()
 {
   if (s_sStorageFolder.IsEmpty())
     return;
 
   // this command line disables loading and saving CVars to and from files
-  if (opt_NoFileCVars.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified))
+  if (opt_NoFileCVars.GetOptionValue(WCommandLineOption::LogMode::FirstTimeIfSpecified))
     return;
 
   // first gather all the cvars by plugin
-  ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
+  WMap<WString, WHybridArray<WCVar*, 128>> PluginCVars;
 
   {
-    ezCVar* pCVar = ezCVar::GetFirstInstance();
+    WCVar* pCVar = WCVar::GetFirstInstance();
     while (pCVar)
     {
       // only store cvars that should be saved
-      if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+      if (pCVar->GetFlags().IsAnySet(WCVarFlags::Save))
       {
         if (!pCVar->m_sPluginName.IsEmpty())
           PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
@@ -178,9 +178,9 @@ void ezCVar::SaveCVars()
     }
   }
 
-  ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
+  WMap<WString, WHybridArray<WCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
   // now save all cvars in their plugin specific file
   while (it.IsValid())
@@ -195,45 +195,45 @@ void ezCVar::SaveCVars()
   }
 }
 
-void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars)
+void WCVar::SaveCVarsToFileInternal(WStringView path, const WDynamicArray<WCVar*>& vars)
 {
-  ezStringBuilder sTemp;
-  ezFileWriter File;
-  if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
+  WStringBuilder sTemp;
+  WFileWriter File;
+  if (File.Open(path.GetData(sTemp)) == W_SUCCESS)
   {
     // write one line for each cvar, to save its current value
-    for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+    for (WUInt32 var = 0; var < vars.GetCount(); ++var)
     {
-      ezCVar* pCVar = vars[var];
+      WCVar* pCVar = vars[var];
 
       switch (pCVar->GetType())
       {
-        case ezCVarType::Int:
+        case WCVarType::Int:
         {
-          ezCVarInt* pInt = (ezCVarInt*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::DelayedSync));
+          WCVarInt* pInt = (WCVarInt*)pCVar;
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(WCVarValue::DelayedSync));
         }
         break;
-        case ezCVarType::Bool:
+        case WCVarType::Bool:
         {
-          ezCVarBool* pBool = (ezCVarBool*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::DelayedSync) ? "true" : "false");
+          WCVarBool* pBool = (WCVarBool*)pCVar;
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(WCVarValue::DelayedSync) ? "true" : "false");
         }
         break;
-        case ezCVarType::Float:
+        case WCVarType::Float:
         {
-          ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::DelayedSync));
+          WCVarFloat* pFloat = (WCVarFloat*)pCVar;
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(WCVarValue::DelayedSync));
         }
         break;
-        case ezCVarType::String:
+        case WCVarType::String:
         {
-          ezCVarString* pString = (ezCVarString*)pCVar;
-          sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::DelayedSync));
+          WCVarString* pString = (WCVarString*)pCVar;
+          sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(WCVarValue::DelayedSync));
         }
         break;
         default:
-          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+          W_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
           break;
       }
 
@@ -243,21 +243,21 @@ void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezC
   }
 }
 
-void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
+void WCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
 {
   LoadCVarsFromCommandLine(bOnlyNewOnes, bSetAsCurrentValue);
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
 }
 
-static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, ezStringBuilder& out_sVarValue)
+static WResult ParseLine(const WString& sLine, WStringBuilder& out_sVarName, WStringBuilder& out_sVarValue)
 {
   const char* szSign = sLine.FindSubString("=");
 
   if (szSign == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   {
-    ezStringView sSubString(sLine.GetData(), szSign);
+    WStringView sSubString(sLine.GetData(), szSign);
 
     // remove all trailing spaces
     while (sSubString.EndsWith(" "))
@@ -267,7 +267,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, 
   }
 
   {
-    ezStringView sSubString(szSign + 1);
+    WStringView sSubString(szSign + 1);
 
     // remove all spaces
     while (sSubString.StartsWith(" "))
@@ -289,26 +289,26 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, 
     out_sVarValue = sSubString;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void WCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, WDynamicArray<WCVar*>* pOutCVars)
 {
   if (s_sStorageFolder.IsEmpty())
     return;
 
   // this command line disables loading and saving CVars to and from files
-  if (opt_NoFileCVars.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified))
+  if (opt_NoFileCVars.GetOptionValue(WCommandLineOption::LogMode::FirstTimeIfSpecified))
     return;
 
-  ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
+  WMap<WString, WHybridArray<WCVar*, 128>> PluginCVars;
 
   // first gather all the cvars by plugin
   {
-    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+    for (WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
     {
       // only load cvars that should be saved
-      if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+      if (pCVar->GetFlags().IsAnySet(WCVarFlags::Save))
       {
         if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
         {
@@ -325,9 +325,9 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
   }
 
   {
-    ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
+    WMap<WString, WHybridArray<WCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
-    ezStringBuilder sTemp;
+    WStringBuilder sTemp;
 
     while (it.IsValid())
     {
@@ -342,13 +342,13 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
   }
 }
 
-void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, ezDynamicArray<ezCVar*>* pOutCVars)
+void WCVar::LoadCVarsFromFile(WStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, WDynamicArray<WCVar*>* pOutCVars)
 {
-  ezTempHybridArray<ezCVar*, 128> allCVars;
+  WTempHybridArray<WCVar*, 128> allCVars;
 
-  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  for (WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(WCVarFlags::Save))
     {
       if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
       {
@@ -363,34 +363,34 @@ void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetA
   LoadCVarsFromFileInternal(sPath, allCVars, bSetAsCurrentValue, pOutCVars);
 }
 
-void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void WCVar::LoadCVarsFromFileInternal(WStringView path, const WDynamicArray<WCVar*>& vars, bool bSetAsCurrentValue, WDynamicArray<WCVar*>* pOutCVars)
 {
-  ezFileReader File;
-  ezStringBuilder sTemp;
+  WFileReader File;
+  WStringBuilder sTemp;
 
-  if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
+  if (File.Open(path.GetData(sTemp)) == W_SUCCESS)
   {
-    ezStringBuilder sContent;
+    WStringBuilder sContent;
     sContent.ReadAll(File);
 
-    ezDynamicArray<ezString> Lines;
+    WDynamicArray<WString> Lines;
     sContent.ReplaceAll("\r", ""); // remove carriage return
 
     // splits the string at occurrence of '\n' and adds each line to the 'Lines' container
     sContent.Split(true, Lines, "\n");
 
-    ezStringBuilder sVarName;
-    ezStringBuilder sVarValue;
+    WStringBuilder sVarName;
+    WStringBuilder sVarValue;
 
-    for (const ezString& sLine : Lines)
+    for (const WString& sLine : Lines)
     {
-      if (ParseLine(sLine, sVarName, sVarValue) == EZ_FAILURE)
+      if (ParseLine(sLine, sVarName, sVarValue) == W_FAILURE)
         continue;
 
       // now find a variable with the same name
-      for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+      for (WUInt32 var = 0; var < vars.GetCount(); ++var)
       {
-        ezCVar* pCVar = vars[var];
+        WCVar* pCVar = vars[var];
 
         if (!sVarName.IsEqual(pCVar->GetName()))
           continue;
@@ -398,48 +398,48 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
         // found the cvar, now convert the text into the proper value *sigh*
         switch (pCVar->GetType())
         {
-          case ezCVarType::Int:
+          case WCVarType::Int:
           {
-            ezInt32 Value = 0;
-            if (ezConversionUtils::StringToInt(sVarValue, Value).Succeeded())
+            WInt32 Value = 0;
+            if (WConversionUtils::StringToInt(sVarValue, Value).Succeeded())
             {
-              ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
+              WCVarInt* pTyped = (WCVarInt*)pCVar;
+              pTyped->m_Values[WCVarValue::Stored] = Value;
               *pTyped = Value;
             }
           }
           break;
-          case ezCVarType::Bool:
+          case WCVarType::Bool:
           {
             bool Value = sVarValue.IsEqual_NoCase("true");
 
-            ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            WCVarBool* pTyped = (WCVarBool*)pCVar;
+            pTyped->m_Values[WCVarValue::Stored] = Value;
             *pTyped = Value;
           }
           break;
-          case ezCVarType::Float:
+          case WCVarType::Float:
           {
             double Value = 0.0;
-            if (ezConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
+            if (WConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
             {
-              ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+              WCVarFloat* pTyped = (WCVarFloat*)pCVar;
+              pTyped->m_Values[WCVarValue::Stored] = static_cast<float>(Value);
               *pTyped = static_cast<float>(Value);
             }
           }
           break;
-          case ezCVarType::String:
+          case WCVarType::String:
           {
             const char* Value = sVarValue.GetData();
 
-            ezCVarString* pTyped = (ezCVarString*)pCVar;
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            WCVarString* pTyped = (WCVarString*)pCVar;
+            pTyped->m_Values[WCVarValue::Stored] = Value;
             *pTyped = Value;
           }
           break;
           default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+            W_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
             break;
         }
 
@@ -455,7 +455,7 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
   }
 }
 
-ezCommandLineOptionDoc opt_CVar("cvar", "-CVarName", "<value>", "Forces a CVar to the given value.\n\
+WCommandLineOptionDoc opt_CVar("cvar", "-CVarName", "<value>", "Forces a CVar to the given value.\n\
 Overrides persisted settings.\n\
 Examples:\n\
 -MyIntVar 42\n\
@@ -463,18 +463,18 @@ Examples:\n\
 ",
   nullptr);
 
-void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/, ezDynamicArray<ezCVar*>* pOutCVars /*= nullptr*/)
+void WCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/, WDynamicArray<WCVar*>* pOutCVars /*= nullptr*/)
 {
-  ezStringBuilder sTemp;
+  WStringBuilder sTemp;
 
-  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  for (WCVar* pCVar = WCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
     if (bOnlyNewOnes && !pCVar->m_bHasNeverBeenLoaded)
       continue;
 
     sTemp.Set("-", pCVar->GetName());
 
-    if (ezCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
+    if (WCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
     {
       if (pOutCVars)
       {
@@ -486,47 +486,47 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
 
       switch (pCVar->GetType())
       {
-        case ezCVarType::Int:
+        case WCVarType::Int:
         {
-          ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-          ezInt32 Value = pTyped->m_Values[ezCVarValue::Stored];
-          Value = ezCommandLineUtils::GetGlobalInstance()->GetIntOption(sTemp, Value);
+          WCVarInt* pTyped = (WCVarInt*)pCVar;
+          WInt32 Value = pTyped->m_Values[WCVarValue::Stored];
+          Value = WCommandLineUtils::GetGlobalInstance()->GetIntOption(sTemp, Value);
 
-          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          pTyped->m_Values[WCVarValue::Stored] = Value;
           *pTyped = Value;
         }
         break;
-        case ezCVarType::Bool:
+        case WCVarType::Bool:
         {
-          ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-          bool Value = pTyped->m_Values[ezCVarValue::Stored];
-          Value = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption(sTemp, Value);
+          WCVarBool* pTyped = (WCVarBool*)pCVar;
+          bool Value = pTyped->m_Values[WCVarValue::Stored];
+          Value = WCommandLineUtils::GetGlobalInstance()->GetBoolOption(sTemp, Value);
 
-          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          pTyped->m_Values[WCVarValue::Stored] = Value;
           *pTyped = Value;
         }
         break;
-        case ezCVarType::Float:
+        case WCVarType::Float:
         {
-          ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-          double Value = pTyped->m_Values[ezCVarValue::Stored];
-          Value = ezCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
+          WCVarFloat* pTyped = (WCVarFloat*)pCVar;
+          double Value = pTyped->m_Values[WCVarValue::Stored];
+          Value = WCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
 
-          pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+          pTyped->m_Values[WCVarValue::Stored] = static_cast<float>(Value);
           *pTyped = static_cast<float>(Value);
         }
         break;
-        case ezCVarType::String:
+        case WCVarType::String:
         {
-          ezCVarString* pTyped = (ezCVarString*)pCVar;
-          ezString Value = ezCommandLineUtils::GetGlobalInstance()->GetStringOption(sTemp, 0, pTyped->m_Values[ezCVarValue::Stored]);
+          WCVarString* pTyped = (WCVarString*)pCVar;
+          WString Value = WCommandLineUtils::GetGlobalInstance()->GetStringOption(sTemp, 0, pTyped->m_Values[WCVarValue::Stored]);
 
-          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          pTyped->m_Values[WCVarValue::Stored] = Value;
           *pTyped = Value;
         }
         break;
         default:
-          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+          W_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
           break;
       }
 
@@ -536,17 +536,17 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
   }
 }
 
-void ezCVar::ListOfCVarsChanged(ezStringView sSetPluginNameTo)
+void WCVar::ListOfCVarsChanged(WStringView sSetPluginNameTo)
 {
   AssignSubSystemPlugin(sSetPluginNameTo);
 
   LoadCVars();
 
-  ezCVarEvent e(nullptr);
-  e.m_EventType = ezCVarEvent::Type::ListOfVarsChanged;
+  WCVarEvent e(nullptr);
+  e.m_EventType = WCVarEvent::Type::ListOfVarsChanged;
 
   s_AllCVarEvents.Broadcast(e);
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);
+W_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);

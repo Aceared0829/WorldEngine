@@ -4,9 +4,9 @@
 #include <RTSPlugin/Components/UnitComponent.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 
-void RtsMoveToPositionAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
+void RtsMoveToPositionAiUtility::Activate(WGameObject* pOwnerObject, WComponent* pOwnerComponent) {}
 
-void RtsMoveToPositionAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
+void RtsMoveToPositionAiUtility::Deactivate(WGameObject* pOwnerObject, WComponent* pOwnerComponent)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
@@ -14,7 +14,7 @@ void RtsMoveToPositionAiUtility::Deactivate(ezGameObject* pOwnerObject, ezCompon
   pOwnerObject->SendMessage(msg);
 }
 
-void RtsMoveToPositionAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
+void RtsMoveToPositionAiUtility::Execute(WGameObject* pOwnerObject, WComponent* pOwnerComponent, WTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
@@ -27,7 +27,7 @@ void RtsMoveToPositionAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent
   pUnit->AttackClosestEnemey(7.0f, 10.0f);
 }
 
-double RtsMoveToPositionAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const
+double RtsMoveToPositionAiUtility::ComputePriority(WGameObject* pOwnerObject, WComponent* pOwnerComponent) const
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
@@ -44,7 +44,7 @@ double RtsMoveToPositionAiUtility::ComputePriority(ezGameObject* pOwnerObject, e
 
     // don't participate at all, when very close to the target
     // otherwise this often gets activated and executes the shoot at action
-    if (fDistSqr > ezMath::Square(3.0f))
+    if (fDistSqr > WMath::Square(3.0f))
       return fDistSqr;
   }
 

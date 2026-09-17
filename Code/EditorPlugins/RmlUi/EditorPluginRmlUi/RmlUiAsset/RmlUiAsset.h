@@ -4,28 +4,28 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetObjects.h>
 
-struct ezRmlUiResourceDescriptor;
+struct WRmlUiResourceDescriptor;
 
-class ezRmlUiAssetDocument : public ezSimpleAssetDocument<ezRmlUiAssetProperties>
+class WRmlUiAssetDocument : public WSimpleAssetDocument<WRmlUiAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiAssetDocument, ezSimpleAssetDocument<ezRmlUiAssetProperties>);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiAssetDocument, WSimpleAssetDocument<WRmlUiAssetProperties>);
 
 public:
-  ezRmlUiAssetDocument(ezStringView sDocumentPath);
+  WRmlUiAssetDocument(WStringView sDocumentPath);
 
   void OpenExternalEditor();
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual WTransformStatus InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile,
+    const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags) override;
 
-  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  virtual WTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  ezStatus FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath) const;
-  void FindPackageDependencies(ezSet<ezString>& ref_packageDeps, ezStringView sFilePath, ezSet<ezString>& ref_visited) const;
+  WStatus FindDependencies(WDependencyFile& ref_Dependencies, WStringView sFilePath) const;
+  void FindPackageDependencies(WSet<WString>& ref_packageDeps, WStringView sFilePath, WSet<WString>& ref_visited) const;
 
 private:
-  ezStatus FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath, ezSet<ezString>& ref_visited) const;
+  WStatus FindDependencies(WDependencyFile& ref_Dependencies, WStringView sFilePath, WSet<WString>& ref_visited) const;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+  virtual void UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const override;
 };

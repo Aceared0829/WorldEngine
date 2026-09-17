@@ -9,22 +9,22 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Variant.h>
 
-ezFormatString::ezFormatString(const ezStringBuilder& s)
+WFormatString::WFormatString(const WStringBuilder& s)
 {
   m_sString = s.GetView();
 }
 
-const char* ezFormatString::GetTextCStr(ezStringBuilder& out_sString) const
+const char* WFormatString::GetTextCStr(WStringBuilder& out_sString) const
 {
   out_sString = m_sString;
   return out_sString.GetData();
 }
 
-ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const
+WStringView WFormatString::BuildFormattedText(WStringBuilder& ref_sStorage, WStringView* pArgs, WUInt32 uiNumArgs) const
 {
-  ezStringView sString = m_sString;
+  WStringView sString = m_sString;
 
-  ezUInt32 uiLastParam = ezInvalidIndex;
+  WUInt32 uiLastParam = WInvalidIndex;
 
   ref_sStorage.Clear();
   while (!sString.IsEmpty())
@@ -33,18 +33,18 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
     {
       if (sString.TrimWordStart("%%"))
       {
-        ref_sStorage.Append("%"_ezsv);
+        ref_sStorage.Append("%"_wsv);
       }
       else
       {
-        EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
+        W_ASSERT_DEBUG(false, "Single percentage signs are not allowed in WFormatString. Did you forgot to migrate a printf-style "
                                "string? Use double percentage signs for the actual character.");
       }
     }
     else if (sString.GetElementCount() >= 3 && *sString.GetStartPointer() == '{' && *(sString.GetStartPointer() + 1) >= '0' && *(sString.GetStartPointer() + 1) <= '9' && *(sString.GetStartPointer() + 2) == '}')
     {
       uiLastParam = *(sString.GetStartPointer() + 1) - '0';
-      EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
+      W_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
 
       if (uiLastParam < uiNumArgs)
       {
@@ -58,7 +58,7 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
     else if (sString.TrimWordStart("{}"))
     {
       ++uiLastParam;
-      EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
+      W_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
 
       if (uiLastParam < uiNumArgs)
       {
@@ -67,7 +67,7 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
     }
     else
     {
-      const ezUInt32 character = sString.GetCharacter();
+      const WUInt32 character = sString.GetCharacter();
       ref_sStorage.Append(character);
       sString.ChopAwayFirstCharacterUtf8();
     }
@@ -78,79 +78,79 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
 
 //////////////////////////////////////////////////////////////////////////
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgI& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgI& arg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt64 iArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, WInt64 iArg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, iArg, 1, false, 10);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, iArg, 1, false, 10);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt32 iArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, WInt32 iArg)
 {
-  return BuildString(szTmp, uiLength, (ezInt64)iArg);
+  return BuildString(szTmp, uiLength, (WInt64)iArg);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgU& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgU& arg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedUInt(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezUInt64 uiArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, WUInt64 uiArg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(szTmp, uiLength, writepos, uiArg, 1, false, 10, false);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedUInt(szTmp, uiLength, writepos, uiArg, 1, false, 10, false);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezUInt32 uiArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, WUInt32 uiArg)
 {
-  return BuildString(szTmp, uiLength, (ezUInt64)uiArg);
+  return BuildString(szTmp, uiLength, (WUInt64)uiArg);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgF& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgF& arg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision, arg.m_bScientific);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision, arg.m_bScientific);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, double fArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, double fArg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, fArg, 1, false, -1, false);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, fArg, 1, false, -1, false);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, bool bArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, bool bArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return bArg ? "true" : "false";
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char* szArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const char* szArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return szArg;
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const wchar_t* pArg)
 {
   const char* start = szTmp;
   if (pArg != nullptr)
@@ -161,10 +161,10 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
     while (*pArg != '\0' && szTmp < tmpEnd)
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(pArg);
+      const WUInt32 uiUtf32 = WUnicodeUtils::DecodeWCharToUtf32(pArg);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, szTmp);
+      WUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, szTmp);
     }
   }
 
@@ -174,61 +174,61 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
   return start;
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezString& sArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WString& sArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return sArg.GetView();
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezHashedString& sArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WHashedString& sArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return sArg.GetView();
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezStringBuilder& sArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WStringBuilder& sArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return sArg.GetView();
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezUntrackedString& sArg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WUntrackedString& sArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return sArg.GetView();
 }
 
-const ezStringView& BuildString(char* szTmp, ezUInt32 uiLength, const ezStringView& sArg)
+const WStringView& BuildString(char* szTmp, WUInt32 uiLength, const WStringView& sArg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
   return sArg;
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgC& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgC& arg)
 {
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(uiLength);
 
   szTmp[0] = arg.m_Value;
   szTmp[1] = '\0';
 
-  return ezStringView(&szTmp[0], &szTmp[1]);
+  return WStringView(&szTmp[0], &szTmp[1]);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgP& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgP& arg)
 {
-  ezStringUtils::snprintf(szTmp, uiLength, "%p", arg.m_Value);
-  return ezStringView(szTmp);
+  WStringUtils::snprintf(szTmp, uiLength, "%p", arg.m_Value);
+  return WStringView(szTmp);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezResult arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, WResult arg)
 {
-  EZ_IGNORE_UNUSED(szTmp);
-  EZ_IGNORE_UNUSED(uiLength);
+  W_IGNORE_UNUSED(szTmp);
+  W_IGNORE_UNUSED(uiLength);
 
   if (arg.Failed())
     return "<failed>";
@@ -236,60 +236,60 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezResult arg)
     return "<succeeded>";
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezVariant& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WVariant& arg)
 {
-  ezString sString = arg.ConvertTo<ezString>();
-  ezStringUtils::snprintf(szTmp, uiLength, "%s", sString.GetData());
-  return ezStringView(szTmp);
+  WString sString = arg.ConvertTo<WString>();
+  WStringUtils::snprintf(szTmp, uiLength, "%s", sString.GetData());
+  return WStringView(szTmp);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezAngle& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WAngle& arg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(szTmp, uiLength - 2, writepos, arg.GetDegree(), 1, false, 1, false);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedFloat(szTmp, uiLength - 2, writepos, arg.GetDegree(), 1, false, 1, false);
 
   // Utf-8 representation of the degree sign
   szTmp[writepos + 0] = /*(char)0xC2;*/ -62;
   szTmp[writepos + 1] = /*(char)0xB0;*/ -80;
   szTmp[writepos + 2] = '\0';
 
-  return ezStringView(szTmp, szTmp + writepos + 2);
+  return WStringView(szTmp, szTmp + writepos + 2);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezRational& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WRational& arg)
 {
-  ezUInt32 writepos = 0;
+  WUInt32 writepos = 0;
 
   if (arg.IsIntegral())
   {
-    ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.GetIntegralResult(), 1, false, 10);
+    WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.GetIntegralResult(), 1, false, 10);
 
-    return ezStringView(szTmp, szTmp + writepos);
+    return WStringView(szTmp, szTmp + writepos);
   }
   else
   {
-    ezStringUtils::snprintf(szTmp, uiLength, "%i/%i", arg.GetNumerator(), arg.GetDenominator());
+    WStringUtils::snprintf(szTmp, uiLength, "%i/%i", arg.GetNumerator(), arg.GetDenominator());
 
-    return ezStringView(szTmp);
+    return WStringView(szTmp);
   }
 }
 
-ezStringView BuildString(char* pTmp, ezUInt32 uiLength, const ezTime& arg)
+WStringView BuildString(char* pTmp, WUInt32 uiLength, const WTime& arg)
 {
-  ezUInt32 writepos = 0;
+  WUInt32 writepos = 0;
 
-  const double fAbsSec = ezMath::Abs(arg.GetSeconds());
+  const double fAbsSec = WMath::Abs(arg.GetSeconds());
 
   if (fAbsSec < 0.000001)
   {
-    ezStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
+    WStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
     // szTmp[writepos++] = ' ';
     pTmp[writepos++] = 'n';
     pTmp[writepos++] = 's';
   }
   else if (fAbsSec < 0.001)
   {
-    ezStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
+    WStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
 
     // szTmp[writepos++] = ' ';
     // Utf-8 representation of the microsecond (us) sign
@@ -299,7 +299,7 @@ ezStringView BuildString(char* pTmp, ezUInt32 uiLength, const ezTime& arg)
   }
   else if (fAbsSec < 1.0)
   {
-    ezStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
+    WStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
 
     // tmp[writepos++] = ' ';
     pTmp[writepos++] = 'm';
@@ -307,7 +307,7 @@ ezStringView BuildString(char* pTmp, ezUInt32 uiLength, const ezTime& arg)
   }
   else if (fAbsSec < 60.0)
   {
-    ezStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetSeconds(), 1, false, 1, false, true);
+    WStringUtils::OutputFormattedFloat(pTmp, uiLength - 5, writepos, arg.GetSeconds(), 1, false, 1, false, true);
 
     // szTmp[writepos++] = ' ';
     pTmp[writepos++] = 's';
@@ -318,106 +318,106 @@ ezStringView BuildString(char* pTmp, ezUInt32 uiLength, const ezTime& arg)
   {
     double tRem = fAbsSec;
 
-    ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
+    WInt32 iMin = static_cast<WInt32>(WMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
-    iMin *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
+    iMin *= WMath::Sign(static_cast<WInt32>(arg.GetSeconds()));
 
-    const ezInt32 iSec = static_cast<ezInt32>(ezMath::Trunc(tRem));
+    const WInt32 iSec = static_cast<WInt32>(WMath::Trunc(tRem));
 
-    writepos = ezStringUtils::snprintf(pTmp, uiLength, "%imin %isec", iMin, iSec);
+    writepos = WStringUtils::snprintf(pTmp, uiLength, "%imin %isec", iMin, iSec);
   }
   else
   {
     double tRem = fAbsSec;
 
-    ezInt32 iHrs = static_cast<ezInt32>(ezMath::Trunc(tRem / (60.0 * 60.0)));
+    WInt32 iHrs = static_cast<WInt32>(WMath::Trunc(tRem / (60.0 * 60.0)));
     tRem -= iHrs * 60 * 60;
-    iHrs *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
+    iHrs *= WMath::Sign(static_cast<WInt32>(arg.GetSeconds()));
 
-    const ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
+    const WInt32 iMin = static_cast<WInt32>(WMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
 
-    const ezInt32 iSec = static_cast<ezInt32>(ezMath::Trunc(tRem));
+    const WInt32 iSec = static_cast<WInt32>(WMath::Trunc(tRem));
 
-    writepos = ezStringUtils::snprintf(pTmp, uiLength, "%ih %imin %isec", iHrs, iMin, iSec);
+    writepos = WStringUtils::snprintf(pTmp, uiLength, "%ih %imin %isec", iHrs, iMin, iSec);
   }
 
   pTmp[writepos] = '\0';
-  return ezStringView(pTmp, pTmp + writepos);
+  return WStringView(pTmp, pTmp + writepos);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgHumanReadable& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgHumanReadable& arg)
 {
-  ezUInt32 suffixIndex = 0;
-  ezUInt64 divider = 1;
-  double absValue = ezMath::Abs(arg.m_Value);
+  WUInt32 suffixIndex = 0;
+  WUInt64 divider = 1;
+  double absValue = WMath::Abs(arg.m_Value);
   while (absValue / divider >= arg.m_Base && suffixIndex < arg.m_SuffixCount - 1)
   {
     divider *= arg.m_Base;
     ++suffixIndex;
   }
 
-  ezUInt32 writepos = 0;
-  if (divider == 1 && ezMath::Fraction(arg.m_Value) == 0.0)
+  WUInt32 writepos = 0;
+  if (divider == 1 && WMath::Fraction(arg.m_Value) == 0.0)
   {
-    ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, static_cast<ezInt64>(arg.m_Value), 1, false, 10);
+    WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, static_cast<WInt64>(arg.m_Value), 1, false, 10);
   }
   else
   {
-    ezStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, arg.m_Value / divider, 1, false, 2, false);
+    WStringUtils::OutputFormattedFloat(szTmp, uiLength, writepos, arg.m_Value / divider, 1, false, 2, false);
   }
-  ezStringUtils::Copy(szTmp + writepos, uiLength - writepos, arg.m_Suffixes[suffixIndex]);
+  WStringUtils::Copy(szTmp + writepos, uiLength - writepos, arg.m_Suffixes[suffixIndex]);
 
-  return ezStringView(szTmp);
+  return WStringView(szTmp);
 }
 
-ezArgSensitive::BuildStringCallback ezArgSensitive::s_BuildStringCB = nullptr;
+WArgSensitive::BuildStringCallback WArgSensitive::s_BuildStringCB = nullptr;
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgSensitive& arg)
 {
-  if (ezArgSensitive::s_BuildStringCB)
+  if (WArgSensitive::s_BuildStringCB)
   {
-    return ezArgSensitive::s_BuildStringCB(szTmp, uiLength, arg);
+    return WArgSensitive::s_BuildStringCB(szTmp, uiLength, arg);
   }
 
   return arg.m_sSensitiveInfo;
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgEnum& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WArgEnum& arg)
 {
-  ezStringBuilder sTemp;
-  const auto mode = arg.m_bFullyQualifiedName ? ezReflectionUtils::EnumConversionMode::FullyQualifiedName : ezReflectionUtils::EnumConversionMode::ValueNameOnly;
-  ezReflectionUtils::EnumerationToString(arg.m_pType, arg.m_iValue, sTemp, mode);
-  ezStringUtils::Copy(szTmp, uiLength, sTemp.GetData());
-  return ezStringView(szTmp);
+  WStringBuilder sTemp;
+  const auto mode = arg.m_bFullyQualifiedName ? WReflectionUtils::EnumConversionMode::FullyQualifiedName : WReflectionUtils::EnumConversionMode::ValueNameOnly;
+  WReflectionUtils::EnumerationToString(arg.m_pType, arg.m_iValue, sTemp, mode);
+  WStringUtils::Copy(szTmp, uiLength, sTemp.GetData());
+  return WStringView(szTmp);
 }
 
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezSizeU32& arg)
+WStringView BuildString(char* szTmp, WUInt32 uiLength, const WSizeU32& arg)
 {
-  ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.width, 1, false, 10);
+  WUInt32 writepos = 0;
+  WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.width, 1, false, 10);
   szTmp[writepos++] = 'x';
-  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.height, 1, false, 10);
+  WStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.height, 1, false, 10);
   szTmp[writepos] = '\0';
-  return ezStringView(szTmp, szTmp + writepos);
+  return WStringView(szTmp, szTmp + writepos);
 }
 
 
-ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+WStringView WArgSensitive::BuildString_SensitiveUserData_Hash(char* szTmp, WUInt32 uiLength, const WArgSensitive& arg)
 {
-  const ezUInt32 len = arg.m_sSensitiveInfo.GetElementCount();
+  const WUInt32 len = arg.m_sSensitiveInfo.GetElementCount();
 
   if (len == 0)
-    return ezStringView();
+    return WStringView();
 
-  if (!ezStringUtils::IsNullOrEmpty(arg.m_szContext))
+  if (!WStringUtils::IsNullOrEmpty(arg.m_szContext))
   {
-    ezStringUtils::snprintf(
-      szTmp, uiLength, "sud:%s#%08x($%u)", arg.m_szContext, ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+    WStringUtils::snprintf(
+      szTmp, uiLength, "sud:%s#%08x($%u)", arg.m_szContext, WHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
   }
   else
   {
-    ezStringUtils::snprintf(szTmp, uiLength, "sud:#%08x($%u)", ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+    WStringUtils::snprintf(szTmp, uiLength, "sud:#%08x($%u)", WHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
   }
 
   return szTmp;

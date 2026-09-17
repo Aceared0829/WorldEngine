@@ -2,11 +2,11 @@
 
 #include <RendererCore/Pipeline/RenderData.h>
 
-class ezRmlUiRenderData : public ezRenderData
+class WRmlUiRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiRenderData, WRenderData);
 
 public:
-  ezGALTextureHandle m_hTexture;
-  ezVec2 m_vOffset = ezVec2::MakeZero();
+  WGALTextureHandle m_hTexture;
+  WVec2 m_vOffset = WVec2::MakeZero();
 };

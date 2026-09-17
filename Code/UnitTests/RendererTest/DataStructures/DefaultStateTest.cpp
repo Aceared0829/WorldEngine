@@ -4,97 +4,97 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererTest/TestClass/SimpleRendererTest.h>
 
-EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, TextureDefaultState)
+W_CREATE_SIMPLE_RENDERER_TEST(DataStructures, TextureDefaultState)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Immutable SRV texture defaults to ShaderResource")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Immutable SRV texture defaults to ShaderResource")
   {
-    ezGALTextureCreationDescription desc;
+    WGALTextureCreationDescription desc;
     desc.m_uiWidth = 4;
     desc.m_uiHeight = 4;
-    desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
+    desc.m_Format = WGALResourceFormat::RGBAUByteNormalized;
+    desc.m_TextureFlags = WGALTextureUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = true;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::ShaderResource);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::ShaderResource);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Immutable depth texture defaults to DepthStencilRead")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Immutable depth texture defaults to DepthStencilRead")
   {
-    ezGALTextureCreationDescription desc;
+    WGALTextureCreationDescription desc;
     desc.m_uiWidth = 4;
     desc.m_uiHeight = 4;
-    desc.m_Format = ezGALResourceFormat::D16;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
+    desc.m_Format = WGALResourceFormat::D16;
+    desc.m_TextureFlags = WGALTextureUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = true;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::DepthStencilRead);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::DepthStencilRead);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Color render target with SRV defaults to ShaderResource")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Color render target with SRV defaults to ShaderResource")
   {
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(4, 4, ezGALResourceFormat::RGBAUByteNormalized);
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::ShaderResource);
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(4, 4, WGALResourceFormat::RGBAUByteNormalized);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::ShaderResource);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Depth render target with SRV defaults to DepthStencilRead")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Depth render target with SRV defaults to DepthStencilRead")
   {
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(4, 4, ezGALResourceFormat::D16);
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::DepthStencilRead);
+    WGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(4, 4, WGALResourceFormat::D16);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::DepthStencilRead);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Presentable texture defaults to Present")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Presentable texture defaults to Present")
   {
-    ezGALTextureCreationDescription desc;
+    WGALTextureCreationDescription desc;
     desc.m_uiWidth = 4;
     desc.m_uiHeight = 4;
-    desc.m_Format = ezGALResourceFormat::BGRAUByteNormalized;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::Presentable;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::Present);
+    desc.m_Format = WGALResourceFormat::BGRAUByteNormalized;
+    desc.m_TextureFlags = WGALTextureUsageFlags::RenderTarget | WGALTextureUsageFlags::Presentable;
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::Present);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UAV-only texture defaults to UnorderedAccess")
+  W_TEST_BLOCK(WTestBlock::Enabled, "UAV-only texture defaults to UnorderedAccess")
   {
-    ezGALTextureCreationDescription desc;
+    WGALTextureCreationDescription desc;
     desc.m_uiWidth = 4;
     desc.m_uiHeight = 4;
-    desc.m_Format = ezGALResourceFormat::RGBAFloat;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::UnorderedAccess;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::UnorderedAccess);
+    desc.m_Format = WGALResourceFormat::RGBAFloat;
+    desc.m_TextureFlags = WGALTextureUsageFlags::UnorderedAccess;
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::UnorderedAccess);
   }
 }
 
-EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, BufferDefaultState)
+W_CREATE_SIMPLE_RENDERER_TEST(DataStructures, BufferDefaultState)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Buffer with UAV defaults to UnorderedAccess")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Buffer with UAV defaults to UnorderedAccess")
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = 4;
     desc.m_uiTotalSize = 64;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource | WGALBufferUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::UnorderedAccess);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::UnorderedAccess);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Buffer with VB+IB defaults to combined read states")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Buffer with VB+IB defaults to combined read states")
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = 4;
     desc.m_uiTotalSize = 64;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::IndexBuffer;
+    desc.m_BufferFlags = WGALBufferUsageFlags::VertexBuffer | WGALBufferUsageFlags::IndexBuffer;
     desc.m_ResourceAccess.m_bImmutable = true;
     auto defaultState = desc.GetDefaultState();
-    EZ_TEST_BOOL(defaultState.IsSet(ezGALResourceState::VertexBuffer));
-    EZ_TEST_BOOL(defaultState.IsSet(ezGALResourceState::IndexBuffer));
-    EZ_TEST_BOOL(!defaultState.IsAnySet(ezGALResourceState::AllWriteStates));
+    W_TEST_BOOL(defaultState.IsSet(WGALResourceState::VertexBuffer));
+    W_TEST_BOOL(defaultState.IsSet(WGALResourceState::IndexBuffer));
+    W_TEST_BOOL(!defaultState.IsAnySet(WGALResourceState::AllWriteStates));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Buffer with SRV-only defaults to ShaderResource")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Buffer with SRV-only defaults to ShaderResource")
   {
-    ezGALBufferCreationDescription desc;
+    WGALBufferCreationDescription desc;
     desc.m_uiStructSize = 4;
     desc.m_uiTotalSize = 64;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    desc.m_BufferFlags = WGALBufferUsageFlags::StructuredBuffer | WGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = true;
-    EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::ShaderResource);
+    W_TEST_BOOL(desc.GetDefaultState() == WGALResourceState::ShaderResource);
   }
 }

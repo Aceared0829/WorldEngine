@@ -8,12 +8,12 @@
 #include <RendererFoundation/Device/Device.h>
 
 
-void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
+void WGALOpenXRSwapChain::AcquireNextRenderTarget(WGALDevice* pDevice)
 {
-  EZ_PROFILE_SCOPE("AcquireNextRenderTarget");
-  EZ_ASSERT_DEBUG(m_bImageAcquired == false, "PresentRenderTarget was not called.");
+  W_PROFILE_SCOPE("AcquireNextRenderTarget");
+  W_ASSERT_DEBUG(m_bImageAcquired == false, "PresentRenderTarget was not called.");
   m_bImageAcquired = true;
-  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
+  auto pOpenXR = static_cast<WOpenXR*>(m_pXrInterface);
 
   auto AquireAndWait = [](Swapchain& swapchain)
   {
@@ -27,7 +27,7 @@ void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
   };
 
   {
-    EZ_PROFILE_SCOPE("AquireAndWait");
+    W_PROFILE_SCOPE("AquireAndWait");
     AquireAndWait(m_ColorSwapchain);
     if (pOpenXR->GetDepthComposition())
       AquireAndWait(m_DepthSwapchain);
@@ -42,17 +42,17 @@ void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
   }
 }
 
-void ezGALOpenXRSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
+void WGALOpenXRSwapChain::PresentRenderTarget(WGALDevice* pDevice)
 {
-  EZ_PROFILE_SCOPE("PresentRenderTarget");
+  W_PROFILE_SCOPE("PresentRenderTarget");
   PresentRenderTarget();
   m_bImageAcquired = false;
 }
 
-void ezGALOpenXRSwapChain::PresentRenderTarget() const
+void WGALOpenXRSwapChain::PresentRenderTarget() const
 {
-  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
-  EZ_PROFILE_SCOPE("xrReleaseSwapchainImage");
+  auto pOpenXR = static_cast<WOpenXR*>(m_pXrInterface);
+  W_PROFILE_SCOPE("xrReleaseSwapchainImage");
   XrSwapchainImageReleaseInfo releaseInfo{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
   XR_LOG_ERROR(xrReleaseSwapchainImage(m_ColorSwapchain.handle, &releaseInfo));
   if (pOpenXR->GetDepthComposition())
@@ -61,24 +61,24 @@ void ezGALOpenXRSwapChain::PresentRenderTarget() const
   }
 }
 
-ezResult ezGALOpenXRSwapChain::InitPlatform(ezGALDevice* pDevice)
+WResult WGALOpenXRSwapChain::InitPlatform(WGALDevice* pDevice)
 {
   if (InitSwapChain(m_MsaaCount) != XrResult::XR_SUCCESS)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   m_RenderTargets.m_hRTs[0] = m_hColorRT;
   m_RenderTargets.m_hDSTarget = m_hDepthRT;
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALOpenXRSwapChain::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALOpenXRSwapChain::DeInitPlatform(WGALDevice* pDevice)
 {
   DeinitSwapChain();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezGALOpenXRSwapChain::ezGALOpenXRSwapChain(ezOpenXR* pXrInterface, ezGALMSAASampleCount::Enum msaaCount)
-  : ezGALXRSwapChain(pXrInterface)
+WGALOpenXRSwapChain::WGALOpenXRSwapChain(WOpenXR* pXrInterface, WGALMSAASampleCount::Enum msaaCount)
+  : WGALXRSwapChain(pXrInterface)
 {
   m_pInstance = pXrInterface->GetInstance();
   m_SystemId = pXrInterface->GetSystemId();
@@ -86,14 +86,14 @@ ezGALOpenXRSwapChain::ezGALOpenXRSwapChain(ezOpenXR* pXrInterface, ezGALMSAASamp
   m_MsaaCount = msaaCount;
 }
 
-XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCount)
+XrResult WGALOpenXRSwapChain::InitSwapChain(WGALMSAASampleCount::Enum msaaCount)
 {
-  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
-  ezOpenXRGraphicsBinding* pGraphicsBinding = pOpenXR->GetGraphicsBinding();
+  auto pOpenXR = static_cast<WOpenXR*>(m_pXrInterface);
+  WOpenXRGraphicsBinding* pGraphicsBinding = pOpenXR->GetGraphicsBinding();
 
   if (!pGraphicsBinding)
   {
-    ezLog::Error("No graphics binding available for swapchain creation");
+    WLog::Error("No graphics binding available for swapchain creation");
     return XR_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -101,15 +101,15 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES};
   XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystemProperties(m_pInstance, m_SystemId, &systemProperties), DeinitSwapChain);
 
-  ezUInt32 viewCount = 0;
+  WUInt32 viewCount = 0;
   XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_pInstance, m_SystemId, pOpenXR->GetViewType(), 0, &viewCount, nullptr), DeinitSwapChain);
   if (viewCount != 2)
   {
-    ezLog::Error("No stereo view configuration present, can't create swap chain");
+    WLog::Error("No stereo view configuration present, can't create swap chain");
     DeinitSwapChain();
     return XR_ERROR_INITIALIZATION_FAILED;
   }
-  ezHybridArray<XrViewConfigurationView, 2> views;
+  WHybridArray<XrViewConfigurationView, 2> views;
   views.SetCount(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
   XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_pInstance, m_SystemId, pOpenXR->GetViewType(), viewCount, &viewCount, views.GetData()), DeinitSwapChain);
 
@@ -131,7 +131,7 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
 
   m_CurrentSize = {swapchainCreateInfo.width, swapchainCreateInfo.height};
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Create color swapchain
   {
@@ -173,9 +173,9 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   else
   {
     // Create depth buffer in case the API does not support it
-    ezGALTextureCreationDescription tcd;
-    tcd.m_Type = ezGALTextureType::Texture2DArray;
-    tcd.SetAsRenderTarget(m_CurrentSize.width, m_CurrentSize.height, ezGALResourceFormat::DFloat, msaaCount);
+    WGALTextureCreationDescription tcd;
+    tcd.m_Type = WGALTextureType::Texture2DArray;
+    tcd.SetAsRenderTarget(m_CurrentSize.width, m_CurrentSize.height, WGALResourceFormat::DFloat, msaaCount);
     tcd.m_uiArraySize = 2;
     m_hDepthRT = pDevice->CreateTexture(tcd);
   }
@@ -183,13 +183,13 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   return XrResult::XR_SUCCESS;
 }
 
-void ezGALOpenXRSwapChain::DeinitSwapChain()
+void WGALOpenXRSwapChain::DeinitSwapChain()
 {
-  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  auto pOpenXR = static_cast<WOpenXR*>(m_pXrInterface);
+  WGALDevice* pDevice = WGALDevice::GetDefaultDevice();
 
   // Destroy color render targets
-  for (ezGALTextureHandle rt : m_ColorRTs)
+  for (WGALTextureHandle rt : m_ColorRTs)
   {
     pDevice->DestroyTexture(rt);
   }
@@ -198,7 +198,7 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
   // Destroy depth render targets
   if (pOpenXR->GetDepthComposition())
   {
-    for (ezGALTextureHandle rt : m_DepthRTs)
+    for (WGALTextureHandle rt : m_DepthRTs)
     {
       pDevice->DestroyTexture(rt);
     }
@@ -229,7 +229,7 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
   DeleteSwapchain(m_DepthSwapchain);
 
   // Cleanup graphics binding's internal swapchain image storage
-  ezOpenXRGraphicsBinding* pGraphicsBinding = pOpenXR->GetGraphicsBinding();
+  WOpenXRGraphicsBinding* pGraphicsBinding = pOpenXR->GetGraphicsBinding();
   if (pGraphicsBinding)
   {
     pGraphicsBinding->CleanupSwapchainImages();

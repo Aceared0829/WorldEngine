@@ -4,26 +4,26 @@
 #include <Foundation/IO/FileEnums.h>
 #include <Foundation/Strings/String.h>
 
-class ezDataDirectoryReaderWriterBase;
-class ezDataDirectoryReader;
-class ezDataDirectoryWriter;
-struct ezFileStats;
-class ezDataDirectoryType;
+class WDataDirectoryReaderWriterBase;
+class WDataDirectoryReader;
+class WDataDirectoryWriter;
+struct WFileStats;
+class WDataDirectoryType;
 
 /// Describes in which mode a data directory is mounted.
-enum class ezDataDirUsage
+enum class WDataDirUsage
 {
   ReadOnly,
   AllowWrites,
 };
 
-struct ezDataDirectoryInfo
+struct WDataDirectoryInfo
 {
-  ezDataDirUsage m_Usage;
+  WDataDirUsage m_Usage;
 
-  ezString m_sRootName;
-  ezString m_sGroup;
-  ezDataDirectoryType* m_pDataDirType = nullptr;
+  WString m_sRootName;
+  WString m_sGroup;
+  WDataDirectoryType* m_pDataDirType = nullptr;
 };
 
 /// The base class for all data directory types.
@@ -31,22 +31,22 @@ struct ezDataDirectoryInfo
 /// There are different data directory types, such as a simple folder, a ZIP file or some kind of library
 /// (e.g. image files from procedural data). Even a HTTP server that actually transmits files over a network
 /// can provided by implementing it as a data directory type.
-/// Data directories are added through ezFileSystem, which uses factories to decide which ezDataDirectoryType
+/// Data directories are added through WFileSystem, which uses factories to decide which WDataDirectoryType
 /// to use for handling which data directory.
-class EZ_FOUNDATION_DLL ezDataDirectoryType
+class W_FOUNDATION_DLL WDataDirectoryType
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryType);
+  W_DISALLOW_COPY_AND_ASSIGN(WDataDirectoryType);
 
 public:
-  ezDataDirectoryType() = default;
-  virtual ~ezDataDirectoryType() = default;
+  WDataDirectoryType() = default;
+  virtual ~WDataDirectoryType() = default;
 
   /// Returns the absolute path to the data directory.
-  const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
+  const WString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
 
   /// By default this is the same as GetDataDirectoryPath(), but derived implementations may use a different location where they
   /// actually get the files from.
-  virtual const ezString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
+  virtual const WString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
 
   /// Some data directory types may use external configuration files (e.g. asset lookup tables)
   ///        that may get updated, while the directory is mounted. This function allows each directory type to implement
@@ -54,13 +54,13 @@ public:
   virtual void ReloadExternalConfigs() {};
 
 protected:
-  friend class ezFileSystem;
+  friend class WFileSystem;
 
   /// Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a
   /// simple folder and vice versa)
-  ezResult InitializeDataDirectory(ezStringView sDataDirPath);
+  WResult InitializeDataDirectory(WStringView sDataDirPath);
 
-  /// Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be
+  /// Must be implemented to create a WDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be
   /// opened.
   ///
   /// \param szFile is given as a path relative to the data directory's path.
@@ -70,16 +70,16 @@ protected:
   /// by using a rooted path.
   /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to
   /// true, as there might be other data directories that also match.
-  virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) = 0;
+  virtual WDataDirectoryReader* OpenFileToRead(WStringView sFile, WFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) = 0;
 
-  /// Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be
+  /// Must be implemented to create a WDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be
   /// opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode)
+  virtual WDataDirectoryWriter* OpenFileToWrite(WStringView sFile, WFileShareMode::Enum FileShareMode)
   {
-    EZ_IGNORE_UNUSED(sFile);
-    EZ_IGNORE_UNUSED(FileShareMode);
+    W_IGNORE_UNUSED(sFile);
+    W_IGNORE_UNUSED(FileShareMode);
     return nullptr;
   }
 
@@ -89,42 +89,42 @@ protected:
   virtual void RemoveDataDirectory() = 0;
 
   /// If a Data Directory Type supports it, this function will remove the given file from it.
-  virtual void DeleteFile(ezStringView sFile) { EZ_IGNORE_UNUSED(sFile); }
+  virtual void DeleteFile(WStringView sFile) { W_IGNORE_UNUSED(sFile); }
 
   /// This function checks whether the given file exists in this data directory.
   ///
-  /// The default implementation simply calls ezOSFile::ExistsFile
+  /// The default implementation simply calls WOSFile::ExistsFile
   /// An optimized implementation might look this information up in some hash-map.
-  virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir);
+  virtual bool ExistsFile(WStringView sFile, bool bOneSpecificDataDir);
 
-  /// Upon success returns the ezFileStats for a file in this data directory.
-  virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) = 0;
+  /// Upon success returns the WFileStats for a file in this data directory.
+  virtual WResult GetFileStats(WStringView sFileOrFolder, bool bOneSpecificDataDir, WFileStats& out_Stats) = 0;
 
   /// If this data directory knows how to redirect the given path, it should do so and return true.
-  /// Called by ezFileSystem::ResolveAssetRedirection
-  virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
+  /// Called by WFileSystem::ResolveAssetRedirection
+  virtual bool ResolveAssetRedirection(WStringView sPathOrAssetGuid, WStringBuilder& out_sRedirection)
   {
     out_sRedirection = sPathOrAssetGuid;
     return false;
   }
 
 protected:
-  friend class ezDataDirectoryReaderWriterBase;
+  friend class WDataDirectoryReaderWriterBase;
 
-  /// This is automatically called whenever a ezDataDirectoryReaderWriterBase that was opened by this type is being closed.
+  /// This is automatically called whenever a WDataDirectoryReaderWriterBase that was opened by this type is being closed.
   ///
-  /// It allows the ezDataDirectoryType to return the reader/writer to a pool of reusable objects, or to destroy it
+  /// It allows the WDataDirectoryType to return the reader/writer to a pool of reusable objects, or to destroy it
   /// using the proper allocator.
-  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) { EZ_IGNORE_UNUSED(pClosed); }
+  virtual void OnReaderWriterClose(WDataDirectoryReaderWriterBase* pClosed) { W_IGNORE_UNUSED(pClosed); }
 
-  /// This function should only be used by a Factory (which should be a static function in the respective ezDataDirectoryType).
+  /// This function should only be used by a Factory (which should be a static function in the respective WDataDirectoryType).
   ///
-  /// It is used to initialize the data directory. If this ezDataDirectoryType cannot handle the given type,
-  /// it must return EZ_FAILURE and the Factory needs to clean it up properly.
-  virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) = 0;
+  /// It is used to initialize the data directory. If this WDataDirectoryType cannot handle the given type,
+  /// it must return W_FAILURE and the Factory needs to clean it up properly.
+  virtual WResult InternalInitializeDataDirectory(WStringView sDirectory) = 0;
 
   /// Derived classes can use 'GetDataDirectoryPath' to access this data.
-  ezString128 m_sDataDirectoryPath;
+  WString128 m_sDataDirectoryPath;
 };
 
 
@@ -132,76 +132,76 @@ protected:
 /// This is the base class for all data directory readers/writers.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectoryReaderWriterBase
+class W_FOUNDATION_DLL WDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReaderWriterBase);
+  W_DISALLOW_COPY_AND_ASSIGN(WDataDirectoryReaderWriterBase);
 
 public:
   /// The derived class should pass along whether it is a reader or writer.
-  ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader);
+  WDataDirectoryReaderWriterBase(WInt32 iDataDirUserData, bool bIsReader);
 
-  virtual ~ezDataDirectoryReaderWriterBase() = default;
+  virtual ~WDataDirectoryReaderWriterBase() = default;
 
-  /// Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
-  ezResult Open(ezStringView sFile, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum fileShareMode);
+  /// Used by WDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
+  WResult Open(WStringView sFile, WDataDirectoryType* pOwnerDataDirectory, WFileShareMode::Enum fileShareMode);
 
   /// Closes this data stream.
   void Close();
 
   /// Returns the relative path of this file within the owner data directory.
-  const ezString128& GetFilePath() const;
+  const WString128& GetFilePath() const;
 
   /// Returns the pointer to the data directory, which created this reader/writer.
-  ezDataDirectoryType* GetDataDirectory() const;
+  WDataDirectoryType* GetDataDirectory() const;
 
   /// Returns true if this is a reader stream, false if it is a writer stream.
   bool IsReader() const { return m_bIsReader; }
 
   /// Returns the current total size of the file.
-  virtual ezUInt64 GetFileSize() const = 0;
+  virtual WUInt64 GetFileSize() const = 0;
 
-  ezInt32 GetDataDirUserData() const { return m_iDataDirUserData; }
+  WInt32 GetDataDirUserData() const { return m_iDataDirUserData; }
 
 protected:
   /// This function must be implemented by the derived class.
-  virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) = 0;
+  virtual WResult InternalOpen(WFileShareMode::Enum FileShareMode) = 0;
 
   /// This function must be implemented by the derived class.
   virtual void InternalClose() = 0;
 
   bool m_bIsReader;
-  ezInt32 m_iDataDirUserData = 0;
-  ezDataDirectoryType* m_pDataDirType;
-  ezString128 m_sFilePath;
+  WInt32 m_iDataDirUserData = 0;
+  WDataDirectoryType* m_pDataDirType;
+  WString128 m_sFilePath;
 };
 
 /// A base class for readers that handle reading from a (virtual) file inside a data directory.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectoryReader : public ezDataDirectoryReaderWriterBase
+class W_FOUNDATION_DLL WDataDirectoryReader : public WDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReader);
+  W_DISALLOW_COPY_AND_ASSIGN(WDataDirectoryReader);
 
 public:
-  ezDataDirectoryReader(ezInt32 iDataDirUserData)
-    : ezDataDirectoryReaderWriterBase(iDataDirUserData, true)
+  WDataDirectoryReader(WInt32 iDataDirUserData)
+    : WDataDirectoryReaderWriterBase(iDataDirUserData, true)
   {
   }
 
-  virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) = 0;
+  virtual WUInt64 Read(void* pBuffer, WUInt64 uiBytes) = 0;
 
   /// Helper method to skip a number of bytes (implementations of the directory reader may implement this more efficiently for example)
-  virtual ezUInt64 Skip(ezUInt64 uiBytes)
+  virtual WUInt64 Skip(WUInt64 uiBytes)
   {
-    ezUInt8 uiTempBuffer[1024];
+    WUInt8 uiTempBuffer[1024];
 
-    ezUInt64 uiBytesSkipped = 0;
+    WUInt64 uiBytesSkipped = 0;
 
     while (uiBytesSkipped < uiBytes)
     {
-      ezUInt64 uiBytesToRead = ezMath::Min<ezUInt64>(uiBytes - uiBytesSkipped, 1024);
+      WUInt64 uiBytesToRead = WMath::Min<WUInt64>(uiBytes - uiBytesSkipped, 1024);
 
-      ezUInt64 uiBytesRead = Read(uiTempBuffer, uiBytesToRead);
+      WUInt64 uiBytesRead = Read(uiTempBuffer, uiBytesToRead);
 
       uiBytesSkipped += uiBytesRead;
 
@@ -217,17 +217,17 @@ public:
 /// A base class for writers that handle writing to a (virtual) file inside a data directory.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectoryWriter : public ezDataDirectoryReaderWriterBase
+class W_FOUNDATION_DLL WDataDirectoryWriter : public WDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryWriter);
+  W_DISALLOW_COPY_AND_ASSIGN(WDataDirectoryWriter);
 
 public:
-  ezDataDirectoryWriter(ezInt32 iDataDirUserData)
-    : ezDataDirectoryReaderWriterBase(iDataDirUserData, false)
+  WDataDirectoryWriter(WInt32 iDataDirUserData)
+    : WDataDirectoryReaderWriterBase(iDataDirUserData, false)
   {
   }
 
-  virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) = 0;
+  virtual WResult Write(const void* pBuffer, WUInt64 uiBytes) = 0;
 };
 
 

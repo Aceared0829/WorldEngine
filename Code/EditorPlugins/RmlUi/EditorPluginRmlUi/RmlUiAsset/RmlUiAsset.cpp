@@ -4,13 +4,13 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-ezStringView FindNextHREF(ezStringView& ref_sRml)
+WStringView FindNextHREF(WStringView& ref_sRml)
 {
   while (true)
   {
     const char* szCurrent = ref_sRml.FindSubString("href");
     if (szCurrent == nullptr)
-      return ezStringView();
+      return WStringView();
 
     szCurrent += 4; // skip "href"
 
@@ -35,12 +35,12 @@ ezStringView FindNextHREF(ezStringView& ref_sRml)
     {
       // malformed or reached end of string
       ref_sRml.SetStartPosition(szCurrent);
-      return ezStringView();
+      return WStringView();
     }
 
     ref_sRml.SetStartPosition(szEnd + 1);
 
-    const ezStringView href = ezStringView(szStart, szEnd);
+    const WStringView href = WStringView(szStart, szEnd);
     if (href.HasExtension(".rcss") || href.HasExtension(".rml"))
       return href;
 
@@ -48,17 +48,17 @@ ezStringView FindNextHREF(ezStringView& ref_sRml)
   }
 }
 
-ezStringView FindNextSrcValue(ezStringView& ref_sContent)
+WStringView FindNextSrcValue(WStringView& ref_sContent)
 {
   while (true)
   {
     const char* szCurrent = ref_sContent.FindSubString("src");
     if (szCurrent == nullptr)
-      return ezStringView();
+      return WStringView();
 
     szCurrent += 3;
 
-    szCurrent = ezStringUtils::SkipCharacters(szCurrent, ezStringUtils::IsWhiteSpace);
+    szCurrent = WStringUtils::SkipCharacters(szCurrent, WStringUtils::IsWhiteSpace);
 
     if (*szCurrent == '=')
     {
@@ -74,7 +74,7 @@ ezStringView FindNextSrcValue(ezStringView& ref_sContent)
         if (*szCurrent == cQuote)
         {
           ref_sContent.SetStartPosition(szCurrent + 1);
-          return ezStringView(szStart, szCurrent);
+          return WStringView(szStart, szCurrent);
         }
       }
       ref_sContent.SetStartPosition(szCurrent);
@@ -84,15 +84,15 @@ ezStringView FindNextSrcValue(ezStringView& ref_sContent)
     {
       // CSS property: src: value;
       ++szCurrent;
-      szCurrent = ezStringUtils::SkipCharacters(szCurrent, ezStringUtils::IsWhiteSpace);
+      szCurrent = WStringUtils::SkipCharacters(szCurrent, WStringUtils::IsWhiteSpace);
       const char* szStart = szCurrent;
       while (*szCurrent != '\0' && *szCurrent != ';' && *szCurrent != '}' && *szCurrent != '\n' && *szCurrent != '\r')
         ++szCurrent;
       const char* szEnd = szCurrent;
-      ezStringUtils::Trim(szStart, szEnd, nullptr, " \t");
+      WStringUtils::Trim(szStart, szEnd, nullptr, " \t");
       ref_sContent.SetStartPosition(szCurrent);
       if (szEnd > szStart)
-        return ezStringView(szStart, szEnd);
+        return WStringView(szStart, szEnd);
       continue;
     }
     else
@@ -104,161 +104,161 @@ ezStringView FindNextSrcValue(ezStringView& ref_sContent)
   }
 }
 
-static ezStringView SanitizePath(ezStringView sPath)
+static WStringView SanitizePath(WStringView sPath)
 {
   sPath.Trim("/\\", "");
   return sPath;
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetDocument, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRmlUiAssetDocument, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRmlUiAssetDocument::ezRmlUiAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezRmlUiAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
+WRmlUiAssetDocument::WRmlUiAssetDocument(WStringView sDocumentPath)
+  : WSimpleAssetDocument<WRmlUiAssetProperties>(sDocumentPath, WAssetDocEngineConnection::Simple)
 {
 }
 
-void ezRmlUiAssetDocument::OpenExternalEditor()
+void WRmlUiAssetDocument::OpenExternalEditor()
 {
-  ezStringBuilder sFile(GetProperties()->m_sRmlFile);
+  WStringBuilder sFile(GetProperties()->m_sRmlFile);
 
-  if (!ezFileSystem::ExistsFile(sFile))
+  if (!WFileSystem::ExistsFile(sFile))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Can't find the file '{}'.\nTo create an RML file click the button next to 'RmlFile'.", sFile));
+    WQtUiServices::GetSingleton()->MessageBoxInformation(WFmt("Can't find the file '{}'.\nTo create an RML file click the button next to 'RmlFile'.", sFile));
 
     ShowDocumentStatus("RML file doesn't exist.");
     return;
   }
 
-  ezStringBuilder sFileAbs;
-  if (ezFileSystem::ResolvePath(sFile, &sFileAbs, nullptr).Failed())
+  WStringBuilder sFileAbs;
+  if (WFileSystem::ResolvePath(sFile, &sFileAbs, nullptr).Failed())
     return;
 
   {
     QStringList args;
 
-    args.append(ezMakeQString(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+    args.append(WMakeQString(WToolsProject::GetSingleton()->GetProjectDirectory()));
     args.append(sFileAbs.GetData());
 
-    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    if (WQtUiServices::OpenInVsCode(args).Failed())
     {
       // try again with a different program
-      ezQtUiServices::OpenFileInDefaultProgram(sFileAbs).IgnoreResult();
+      WQtUiServices::OpenFileInDefaultProgram(sFileAbs).IgnoreResult();
     }
   }
 }
 
-ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+WTransformStatus WRmlUiAssetDocument::InternalTransformAsset(WStreamWriter& stream, WStringView sOutputTag, const WPlatformProfile* pAssetProfile, const WAssetFileHeader& AssetHeader, WBitflags<WTransformFlags> transformFlags)
 {
-  ezRmlUiAssetProperties* pProp = GetProperties();
+  WRmlUiAssetProperties* pProp = GetProperties();
 
-  ezRmlUiResourceDescriptor desc;
+  WRmlUiResourceDescriptor desc;
   desc.m_sRmlFile = pProp->m_sRmlFile;
   desc.m_ScaleMode = pProp->m_ScaleMode;
   desc.m_ReferenceResolution = pProp->m_ReferenceResolution;
 
   desc.m_DependencyFile.AddFileDependency(pProp->m_sRmlFile);
 
-  EZ_SUCCEED_OR_RETURN(FindDependencies(desc.m_DependencyFile, pProp->m_sRmlFile));
+  W_SUCCEED_OR_RETURN(FindDependencies(desc.m_DependencyFile, pProp->m_sRmlFile));
 
-  EZ_SUCCEED_OR_RETURN(desc.Save(stream));
+  W_SUCCEED_OR_RETURN(desc.Save(stream));
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezTransformStatus ezRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+WTransformStatus WRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
+  WStatus status = WAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 
-ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath) const
+WStatus WRmlUiAssetDocument::FindDependencies(WDependencyFile& ref_Dependencies, WStringView sFilePath) const
 {
-  ezSet<ezString> visited;
+  WSet<WString> visited;
   return FindDependencies(ref_Dependencies, sFilePath, visited);
 }
 
-ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath, ezSet<ezString>& ref_visited) const
+WStatus WRmlUiAssetDocument::FindDependencies(WDependencyFile& ref_Dependencies, WStringView sFilePath, WSet<WString>& ref_visited) const
 {
-  ezString sFilePathStr = sFilePath;
+  WString sFilePathStr = sFilePath;
   if (ref_visited.Contains(sFilePathStr))
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   ref_visited.Insert(sFilePathStr);
 
-  ezStringBuilder sContent;
+  WStringBuilder sContent;
   {
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sFilePath).Failed())
-      return ezStatus(ezFmt("Failed to read file: '{}'", sFilePath));
+      return WStatus(WFmt("Failed to read file: '{}'", sFilePath));
 
     sContent.ReadAll(reader);
   }
 
-  const ezStringView sFileDir = sFilePath.GetFileDirectory();
+  const WStringView sFileDir = sFilePath.GetFileDirectory();
 
-  ezStringBuilder sTemp;
-  ezStringView sContentView = sContent;
+  WStringBuilder sTemp;
+  WStringView sContentView = sContent;
 
   while (true)
   {
-    const ezStringView href = SanitizePath(FindNextHREF(sContentView));
+    const WStringView href = SanitizePath(FindNextHREF(sContentView));
     if (href.IsEmpty())
       break;
 
-    if (ezFileSystem::ExistsFile(href))
+    if (WFileSystem::ExistsFile(href))
     {
       ref_Dependencies.AddFileDependency(href);
-      EZ_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, href, ref_visited));
+      W_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, href, ref_visited));
       continue;
     }
 
     sTemp.SetPath(sFileDir, href);
-    if (ezFileSystem::ExistsFile(sTemp))
+    if (WFileSystem::ExistsFile(sTemp))
     {
       ref_Dependencies.AddFileDependency(sTemp);
-      EZ_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, sTemp, ref_visited));
+      W_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, sTemp, ref_visited));
       continue;
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezRmlUiAssetDocument::FindPackageDependencies(ezSet<ezString>& ref_packageDeps, ezStringView sFilePath, ezSet<ezString>& ref_visited) const
+void WRmlUiAssetDocument::FindPackageDependencies(WSet<WString>& ref_packageDeps, WStringView sFilePath, WSet<WString>& ref_visited) const
 {
-  ezString sFilePathStr = sFilePath;
+  WString sFilePathStr = sFilePath;
   if (ref_visited.Contains(sFilePathStr))
     return;
   ref_visited.Insert(sFilePathStr);
 
-  ezStringBuilder sContent;
+  WStringBuilder sContent;
   {
-    ezFileReader reader;
+    WFileReader reader;
     if (reader.Open(sFilePath).Failed())
       return;
     sContent.ReadAll(reader);
   }
 
-  const ezStringView sFileDir = sFilePath.GetFileDirectory();
-  ezStringBuilder sTemp;
+  const WStringView sFileDir = sFilePath.GetFileDirectory();
+  WStringBuilder sTemp;
 
   // Recurse into referenced rcss/rml files
   {
-    ezStringView sContentView = sContent;
+    WStringView sContentView = sContent;
     while (true)
     {
-      const ezStringView href = SanitizePath(FindNextHREF(sContentView));
+      const WStringView href = SanitizePath(FindNextHREF(sContentView));
       if (href.IsEmpty())
         break;
 
-      if (ezFileSystem::ExistsFile(href))
+      if (WFileSystem::ExistsFile(href))
       {
         FindPackageDependencies(ref_packageDeps, href, ref_visited);
       }
       else
       {
         sTemp.SetPath(sFileDir, href);
-        if (ezFileSystem::ExistsFile(sTemp))
+        if (WFileSystem::ExistsFile(sTemp))
           FindPackageDependencies(ref_packageDeps, sTemp, ref_visited);
       }
     }
@@ -266,35 +266,35 @@ void ezRmlUiAssetDocument::FindPackageDependencies(ezSet<ezString>& ref_packageD
 
   // Collect source file references (images, fonts, etc.)
   {
-    ezStringView sContentView = sContent;
+    WStringView sContentView = sContent;
     while (true)
     {
-      const ezStringView src = SanitizePath(FindNextSrcValue(sContentView));
+      const WStringView src = SanitizePath(FindNextSrcValue(sContentView));
       if (src.IsEmpty())
         break;
 
-      if (ezFileSystem::ExistsFile(src))
+      if (WFileSystem::ExistsFile(src))
       {
         ref_packageDeps.Insert(src);
       }
       else
       {
         sTemp.SetPath(sFileDir, src);
-        if (ezFileSystem::ExistsFile(sTemp))
+        if (WFileSystem::ExistsFile(sTemp))
           ref_packageDeps.Insert(sTemp);
       }
     }
   }
 }
 
-void ezRmlUiAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+void WRmlUiAssetDocument::UpdateAssetDocumentInfo(WAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  const ezRmlUiAssetProperties* pProp = GetProperties();
+  const WRmlUiAssetProperties* pProp = GetProperties();
 
   // rcss/rml files referenced via href must be re-transformed and re-thumbnailed if changed, and packaged for runtime
-  ezDependencyFile deps;
+  WDependencyFile deps;
   FindDependencies(deps, pProp->m_sRmlFile).IgnoreResult();
 
   for (const auto& file : deps.GetFileDependencies())
@@ -306,8 +306,8 @@ void ezRmlUiAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) c
 
   // source files (images, fonts) referenced via src must be packaged for runtime and affect the thumbnail,
   // but do not affect the transform output (which only stores file paths)
-  ezSet<ezString> sourceDeps;
-  ezSet<ezString> visited;
+  WSet<WString> sourceDeps;
+  WSet<WString> visited;
   FindPackageDependencies(sourceDeps, pProp->m_sRmlFile, visited);
 
   for (const auto& file : sourceDeps)

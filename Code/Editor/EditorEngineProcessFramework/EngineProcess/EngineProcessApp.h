@@ -9,37 +9,37 @@
 #include <RendererCore/Pipeline/Declarations.h>
 
 
-using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
+using WRenderPipelineResourceHandle = WTypedResourceHandle<class WRenderPipelineResource>;
 
-enum class ezEditorEngineProcessMode
+enum class WEditorEngineProcessMode
 {
   Primary,
   Remote,
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessApp
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEditorEngineProcessApp
 {
-  EZ_DECLARE_SINGLETON(ezEditorEngineProcessApp);
+  W_DECLARE_SINGLETON(WEditorEngineProcessApp);
 
 public:
-  ezEditorEngineProcessApp();
-  ~ezEditorEngineProcessApp();
+  WEditorEngineProcessApp();
+  ~WEditorEngineProcessApp();
 
   void SetRemoteMode();
 
-  bool IsRemoteMode() const { return m_Mode == ezEditorEngineProcessMode::Remote; }
+  bool IsRemoteMode() const { return m_Mode == WEditorEngineProcessMode::Remote; }
 
-  virtual ezViewHandle CreateRemoteWindowAndView(ezCamera* pCamera);
+  virtual WViewHandle CreateRemoteWindowAndView(WCamera* pCamera);
   void DestroyRemoteWindow();
 
-  virtual ezRenderPipelineResourceHandle CreateDefaultMainRenderPipeline();
-  virtual ezRenderPipelineResourceHandle CreateDefaultDebugRenderPipeline();
+  virtual WRenderPipelineResourceHandle CreateDefaultMainRenderPipeline();
+  virtual WRenderPipelineResourceHandle CreateDefaultDebugRenderPipeline();
 
 protected:
   virtual void CreateRemoteWindow();
 
-  ezEditorEngineProcessMode m_Mode = ezEditorEngineProcessMode::Primary;
+  WEditorEngineProcessMode m_Mode = WEditorEngineProcessMode::Primary;
 
-  ezRegisteredWndHandle m_hWindow;
-  ezViewHandle m_hRemoteView;
+  WRegisteredWndHandle m_hWindow;
+  WViewHandle m_hRemoteView;
 };

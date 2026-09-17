@@ -6,25 +6,25 @@
 
 /// The skeleton builder class provides the means to build skeleton instances from scratch.
 /// This class is not necessary to use skeletons, usually they should be deserialized from data created by the tools.
-class EZ_RENDERERCORE_DLL ezSkeletonBuilder
+class W_RENDERERCORE_DLL WSkeletonBuilder
 {
 
 public:
-  ezSkeletonBuilder();
-  ~ezSkeletonBuilder();
+  WSkeletonBuilder();
+  ~WSkeletonBuilder();
 
   /// Adds a joint to the skeleton
   /// Since the only way to add a joint with a parent is through this method the order of joints in the array is guaranteed
   /// so that child joints always come after their parent joints
-  ezUInt16 AddJoint(ezStringView sName, const ezTransform& localRestPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
+  WUInt16 AddJoint(WStringView sName, const WTransform& localRestPose, WUInt16 uiParentIndex = WInvalidJointIndex);
 
-  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness);
+  void SetJointLimit(WUInt16 uiJointIndex, const WQuat& qLocalOrientation, WSkeletonJointType::Enum jointType, WAngle halfSwingLimitY, WAngle halfSwingLimitZ, WAngle twistLimitHalfAngle, WAngle twistLimitCenterAngle, float fStiffness);
 
-  void SetJointSurface(ezUInt16 uiJointIndex, ezStringView sSurface);
-  void SetJointCollisionLayer(ezUInt16 uiJointIndex, ezUInt8 uiCollsionLayer);
+  void SetJointSurface(WUInt16 uiJointIndex, WStringView sSurface);
+  void SetJointCollisionLayer(WUInt16 uiJointIndex, WUInt8 uiCollsionLayer);
 
   /// Creates a skeleton from the accumulated data.
-  void BuildSkeleton(ezSkeleton& ref_skeleton) const;
+  void BuildSkeleton(WSkeleton& ref_skeleton) const;
 
   /// Returns true if there any joints have been added to the skeleton builder
   bool HasJoints() const;
@@ -32,22 +32,22 @@ public:
 protected:
   struct BuilderJoint
   {
-    ezTransform m_RestPoseLocal;
-    ezTransform m_RestPoseGlobal; // this one is temporary and not stored in the final ezSkeleton
-    ezTransform m_InverseRestPoseGlobal;
-    ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
-    ezHashedString m_sName;
-    ezEnum<ezSkeletonJointType> m_JointType;
-    ezQuat m_qLocalJointOrientation = ezQuat::MakeIdentity();
-    ezAngle m_HalfSwingLimitZ;
-    ezAngle m_HalfSwingLimitY;
-    ezAngle m_TwistLimitHalfAngle;
-    ezAngle m_TwistLimitCenterAngle;
+    WTransform m_RestPoseLocal;
+    WTransform m_RestPoseGlobal; // this one is temporary and not stored in the final WSkeleton
+    WTransform m_InverseRestPoseGlobal;
+    WUInt16 m_uiParentIndex = WInvalidJointIndex;
+    WHashedString m_sName;
+    WEnum<WSkeletonJointType> m_JointType;
+    WQuat m_qLocalJointOrientation = WQuat::MakeIdentity();
+    WAngle m_HalfSwingLimitZ;
+    WAngle m_HalfSwingLimitY;
+    WAngle m_TwistLimitHalfAngle;
+    WAngle m_TwistLimitCenterAngle;
     float m_fStiffness = 0.0f;
 
-    ezString m_sSurface;
-    ezUInt8 m_uiCollisionLayer = 0;
+    WString m_sSurface;
+    WUInt8 m_uiCollisionLayer = 0;
   };
 
-  ezDeque<BuilderJoint> m_Joints;
+  WDeque<BuilderJoint> m_Joints;
 };

@@ -6,9 +6,9 @@
 /// Minimum number of bits per channel that a texture format has to provide.
 ///
 /// The values are the bit counts themselves, so a larger value always means a higher precision. Format selection picks the cheapest format that provides at least this precision, so a value that no format satisfies results in an error rather than a silent downgrade.
-struct ezRequiredTexturePrecision
+struct WRequiredTexturePrecision
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -21,14 +21,14 @@ struct ezRequiredTexturePrecision
     Default = Bits_8
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRequiredTexturePrecision);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WRequiredTexturePrecision);
 
 /// How the contents of a texture are interpreted by the GPU.
 ///
-/// Together with ezRequiredTexturePrecision and ezRequiredTextureChannels this describes what a pass needs from a texture, instead of naming a concrete ezGALResourceFormat that may not exist on every device.
-struct ezRequiredTextureType
+/// Together with WRequiredTexturePrecision and WRequiredTextureChannels this describes what a pass needs from a texture, instead of naming a concrete WGALResourceFormat that may not exist on every device.
+struct WRequiredTextureType
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -42,14 +42,14 @@ struct ezRequiredTextureType
     Default = SRGB
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRequiredTextureType);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WRequiredTextureType);
 
 /// Minimum number of channels that a texture format has to provide.
 ///
 /// Format selection may pick a format with more channels if no exact match is supported by the device.
-struct ezRequiredTextureChannels
+struct WRequiredTextureChannels
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -60,54 +60,54 @@ struct ezRequiredTextureChannels
     Default = Channels_4
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRequiredTextureChannels);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WRequiredTextureChannels);
 
-class ezAbstractObjectNode;
+class WAbstractObjectNode;
 
-/// Maps a texture format that was serialized before the switch to ezRequiredTexture* onto the new requirements.
+/// Maps a texture format that was serialized before the switch to WRequiredTexture* onto the new requirements.
 ///
 /// \param uiLegacyValue The raw integer value that was stored in the old data.
-/// \param bGalResourceFormat If true, the value is an ezGALResourceFormat, otherwise it is the removed ezSourceFormat enum.
-EZ_RENDERERCORE_DLL void ezGetLegacyTextureFormatRequirements(ezUInt32 uiLegacyValue, bool bGalResourceFormat, ezEnum<ezRequiredTextureType>& out_type, ezEnum<ezRequiredTexturePrecision>& out_precision, ezEnum<ezRequiredTextureChannels>& out_channels);
+/// \param bGalResourceFormat If true, the value is an WGALResourceFormat, otherwise it is the removed WSourceFormat enum.
+W_RENDERERCORE_DLL void WGetLegacyTextureFormatRequirements(WUInt32 uiLegacyValue, bool bGalResourceFormat, WEnum<WRequiredTextureType>& out_type, WEnum<WRequiredTexturePrecision>& out_precision, WEnum<WRequiredTextureChannels>& out_channels);
 
 /// Replaces the 'Format' property of an older graph node with the Type / Precision / Channels properties that describe the same texture.
-/// \param bGalResourceFormat If true, the property holds an ezGALResourceFormat name, otherwise a name of the removed ezSourceFormat enum.
-EZ_RENDERERCORE_DLL void ezPatchLegacyTextureFormatProperty(ezAbstractObjectNode* pNode, bool bGalResourceFormat);
+/// \param bGalResourceFormat If true, the property holds an WGALResourceFormat name, otherwise a name of the removed WSourceFormat enum.
+W_RENDERERCORE_DLL void WPatchLegacyTextureFormatProperty(WAbstractObjectNode* pNode, bool bGalResourceFormat);
 
 /// Render pass that creates a render target for other passes to render into.
 ///
 /// Entry point pass that allocates and optionally clears a render target with specified
 /// format and MSAA settings. The output is then used by downstream passes for rendering.
-class EZ_RENDERERCORE_DLL ezSourcePass : public ezRenderPipelinePass
+class W_RENDERERCORE_DLL WSourcePass : public WRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSourcePass, ezRenderPipelinePass);
+  W_ADD_DYNAMIC_REFLECTION(WSourcePass, WRenderPipelinePass);
 
 public:
-  ezSourcePass(const char* szName = "SourcePass");
-  ~ezSourcePass();
+  WSourcePass(const char* szName = "SourcePass");
+  ~WSourcePass();
 
-  /// Picks the cheapest ezGALResourceFormat that satisfies all requirements and is supported by the current device.
+  /// Picks the cheapest WGALResourceFormat that satisfies all requirements and is supported by the current device.
   ///
-  /// \return ezGALResourceFormat::Invalid if no supported format matches.
-  static ezEnum<ezGALResourceFormat> FindFormat(ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezBitflags<ezGALResourceFormatSupport> requiredSupport);
+  /// \return WGALResourceFormat::Invalid if no supported format matches.
+  static WEnum<WGALResourceFormat> FindFormat(WEnum<WRequiredTextureType> type, WEnum<WRequiredTexturePrecision> minPrecision, WEnum<WRequiredTextureChannels> minChannels, WBitflags<WGALResourceFormatSupport> requiredSupport);
 
   /// Builds a render target description that matches the given requirements, the view's viewport size and the camera's stereo mode.
   ///
   /// Fails if the device supports no format for the requested combination.
-  static ezStatus GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezEnum<ezGALMSAASampleCount> msaaMode, bool bUAV, ezGALTextureCreationDescription& out_desc);
+  static WStatus GetOutputDescription(const WViewData& viewData, const WCamera& camera, WEnum<WRequiredTextureType> type, WEnum<WRequiredTexturePrecision> minPrecision, WEnum<WRequiredTextureChannels> minChannels, WEnum<WGALMSAASampleCount> msaaMode, bool bUAV, WGALTextureCreationDescription& out_desc);
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
-  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+  virtual WStatus AddRenderPasses(const WViewData& viewData, const WCamera& camera, WRenderGraph& ref_graph, const WArrayPtr<const WRenderPipelinePinConnection> inputs, WArrayPtr<WRenderPipelinePinConnection> outputs) override;
+  virtual WResult Serialize(WStreamWriter& inout_stream) const override;
+  virtual WResult Deserialize(WStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeOutputPin m_PinOutput;                                               ///< Output render target.
+  WRenderPipelineNodeOutputPin m_PinOutput;                                               ///< Output render target.
 
-  ezEnum<ezRequiredTextureType> m_Type = ezRequiredTextureType::SRGB;                      ///< How the texture contents are interpreted.
-  ezEnum<ezRequiredTexturePrecision> m_MinPrecision = ezRequiredTexturePrecision::Bits_8;  ///< Minimum bits per channel.
-  ezEnum<ezRequiredTextureChannels> m_MinChannels = ezRequiredTextureChannels::Channels_4; ///< Minimum channel count.
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;                    ///< MSAA sample count.
-  ezColor m_ClearColor = ezColor::Black;                                                   ///< Clear color if clearing is enabled and the format is not a depth format.
+  WEnum<WRequiredTextureType> m_Type = WRequiredTextureType::SRGB;                      ///< How the texture contents are interpreted.
+  WEnum<WRequiredTexturePrecision> m_MinPrecision = WRequiredTexturePrecision::Bits_8;  ///< Minimum bits per channel.
+  WEnum<WRequiredTextureChannels> m_MinChannels = WRequiredTextureChannels::Channels_4; ///< Minimum channel count.
+  WEnum<WGALMSAASampleCount> m_MsaaMode = WGALMSAASampleCount::None;                    ///< MSAA sample count.
+  WColor m_ClearColor = WColor::Black;                                                   ///< Clear color if clearing is enabled and the format is not a depth format.
   float m_fClearDepth = 1.0f;                                                              ///< Clear depth if clearing is enabled and the format is a depth format.
   bool m_bClear = false;                                                                   ///< Whether to clear the render target on each execution.
   bool m_bUAV = false;                                                                     ///< Whether the texture also has to be writable from compute shaders.

@@ -6,41 +6,41 @@
 /// Initializer that sets particle velocity within a cone
 ///
 /// Velocities point along the local Z-axis with random deviation within the cone angle.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_VelocityCone final : public ezParticleInitializerFactory
+class W_PARTICLEPLUGIN_DLL WParticleInitializerFactory_VelocityCone final : public WParticleInitializerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_VelocityCone, ezParticleInitializerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializerFactory_VelocityCone, WParticleInitializerFactory);
 
 public:
-  ezParticleInitializerFactory_VelocityCone();
+  WParticleInitializerFactory_VelocityCone();
 
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual const WRTTI* GetInitializerType() const override;
+  virtual void CopyInitializerProperties(WParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const override;
 
 public:
-  ezAngle m_Angle;
-  ezVarianceTypeFloat m_Speed;
-  ezString m_sSpeedScaleParameter;
+  WAngle m_Angle;
+  WVarianceTypeFloat m_Speed;
+  WString m_sSpeedScaleParameter;
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_VelocityCone final : public ezParticleInitializer
+class W_PARTICLEPLUGIN_DLL WParticleInitializer_VelocityCone final : public WParticleInitializer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_VelocityCone, ezParticleInitializer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleInitializer_VelocityCone, WParticleInitializer);
 
 public:
-  ezAngle m_Angle;
-  ezVarianceTypeFloat m_Speed;
-  ezTempHashedString m_sSpeedScaleParameter;
+  WAngle m_Angle;
+  WVarianceTypeFloat m_Speed;
+  WTempHashedString m_sSpeedScaleParameter;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamVelocity;
+  WProcessingStream* m_pStreamVelocity;
 };

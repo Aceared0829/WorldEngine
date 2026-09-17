@@ -1,5 +1,5 @@
 Plugin
 {
-	string %Path{"ezVisualScriptPlugin"}
+	string %Path{"WVisualScriptPlugin"}
 	bool %LoadCopy{false}
 }

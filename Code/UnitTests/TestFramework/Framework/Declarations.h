@@ -5,27 +5,27 @@
 #include <deque>
 #include <string>
 
-class ezTestFramework;
-class ezTestBaseClass;
+class WTestFramework;
+class WTestBaseClass;
 
 /// Stores the identification of a sub-test.
-struct ezSubTestEntry
+struct WSubTestEntry
 {
-  ezSubTestEntry() = default;
+  WSubTestEntry() = default;
 
-  ezInt32 m_iSubTestIdentifier = -1;
+  WInt32 m_iSubTestIdentifier = -1;
   const char* m_szSubTestName = "";
   bool m_bEnableTest = true;
 };
 
 /// Stores the identification of a test.
-struct ezTestEntry
+struct WTestEntry
 {
-  ezTestEntry() = default;
+  WTestEntry() = default;
 
-  ezTestBaseClass* m_pTest = nullptr;
+  WTestBaseClass* m_pTest = nullptr;
   const char* m_szTestName = "";
-  std::deque<ezSubTestEntry> m_SubTests;
+  std::deque<WSubTestEntry> m_SubTests;
   std::string m_sNotAvailableReason;
   bool m_bEnableTest = true;
 };

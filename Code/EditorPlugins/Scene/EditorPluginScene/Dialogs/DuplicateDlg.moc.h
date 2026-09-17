@@ -5,19 +5,19 @@
 
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtDuplicateDlg : public ezQtDialog, public Ui_DuplicateDlg
+class WQtDuplicateDlg : public WQtDialog, public Ui_DuplicateDlg
 {
   Q_OBJECT
 
 public:
-  ezQtDuplicateDlg(QWidget* pParent = nullptr);
+  WQtDuplicateDlg(QWidget* pParent = nullptr);
 
-  static ezUInt32 s_uiNumberOfCopies;
+  static WUInt32 s_uiNumberOfCopies;
   static bool s_bGroupCopies;
-  static ezVec3 s_vTranslationStep;
-  static ezVec3 s_vRotationStep;
-  static ezVec3 s_vRandomTranslation;
-  static ezVec3 s_vRandomRotation;
+  static WVec3 s_vTranslationStep;
+  static WVec3 s_vRotationStep;
+  static WVec3 s_vRandomTranslation;
+  static WVec3 s_vRandomRotation;
   static int s_iRevolveStartAngle;
   static int s_iRevolveAngleStep;
   static float s_fRevolveRadius;
@@ -36,5 +36,5 @@ public Q_SLOTS:
   virtual void on_RevolveZ_clicked();
 
 private:
-  ezVec3 m_vBoundingBoxSize;
+  WVec3 m_vBoundingBoxSize;
 };

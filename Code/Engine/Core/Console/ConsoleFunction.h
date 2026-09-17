@@ -5,27 +5,27 @@
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
-/// Base class for all types of ezConsoleFunction, represents functions to be exposed to ezConsole.
+/// Base class for all types of WConsoleFunction, represents functions to be exposed to WConsole.
 ///
-/// Console functions are similar to ezCVar's in that they can be executed from the ezConsole.
+/// Console functions are similar to WCVar's in that they can be executed from the WConsole.
 /// A console function can wrap many different types of functions with differing number and types of parameters.
-/// ezConsoleFunction uses an ezDelegate internally to store the function reference, so even member functions would be possible.
+/// WConsoleFunction uses an WDelegate internally to store the function reference, so even member functions would be possible.
 ///
-/// All console functions are enumerable, as their base class ezConsoleFunctionBase is an ezEnumerable class.
+/// All console functions are enumerable, as their base class WConsoleFunctionBase is an WEnumerable class.
 ///
-/// Console functions can have between zero and six parameters. The LuaInterpreter for ezConsole only supports parameter types
-/// (unsigned) int, float/double, bool and string and uses the conversion feature of ezVariant to map the lua input to the final function.
+/// Console functions can have between zero and six parameters. The LuaInterpreter for WConsole only supports parameter types
+/// (unsigned) int, float/double, bool and string and uses the conversion feature of WVariant to map the lua input to the final function.
 ///
-/// To make a function available as a console function, create a global variable of type ezConsoleFunction with the proper template
+/// To make a function available as a console function, create a global variable of type WConsoleFunction with the proper template
 /// arguments to mirror its parameters and return type.
 /// Note that although functions with return types are accepted, the return value is currently always ignored.
 ///
 /// \code{.cpp}
-///   void MyConsoleFunc1(int a, float b, ezStringView sz) { ... }
-///   ezConsoleFunction<void ()> ConFunc_MyConsoleFunc1("MyConsoleFunc1", "()", MyConsoleFunc1);
+///   void MyConsoleFunc1(int a, float b, WStringView sz) { ... }
+///   WConsoleFunction<void ()> ConFunc_MyConsoleFunc1("MyConsoleFunc1", "()", MyConsoleFunc1);
 ///
-///   int MyConsoleFunc2(int a, float b, ezStringView sz) { ... }
-///   ezConsoleFunction<int (int, float, ezString)> ConFunc_MyConsoleFunc2("MyConsoleFunc2", "(int a, float b, string c)", MyConsoleFunc2);
+///   int MyConsoleFunc2(int a, float b, WStringView sz) { ... }
+///   WConsoleFunction<int (int, float, WString)> ConFunc_MyConsoleFunc2("MyConsoleFunc2", "(int a, float b, string c)", MyConsoleFunc2);
 /// \endcode
 ///
 /// Here the global function MyConsoleFunc2 is exposed to the console. The return value type and parameter types are passed as template
@@ -33,46 +33,46 @@
 /// The first string is the name with which the function is exposed, which is also used for auto-completion.
 /// The second string is the description of the function. Here we inserted the parameter list with types, so that the user knows how to
 /// use it. Finally the last parameter is the actual function to expose.
-class EZ_CORE_DLL ezConsoleFunctionBase : public ezEnumerable<ezConsoleFunctionBase>
+class W_CORE_DLL WConsoleFunctionBase : public WEnumerable<WConsoleFunctionBase>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezConsoleFunctionBase);
+  W_DECLARE_ENUMERABLE_CLASS(WConsoleFunctionBase);
 
 public:
   /// The constructor takes the function name and description as it should appear in the console.
-  ezConsoleFunctionBase(ezStringView sFunctionName, ezStringView sDescription)
+  WConsoleFunctionBase(WStringView sFunctionName, WStringView sDescription)
     : m_sFunctionName(sFunctionName)
     , m_sDescription(sDescription)
   {
   }
 
   /// Returns the name of the function as it should be exposed in the console.
-  ezStringView GetName() const { return m_sFunctionName; }
+  WStringView GetName() const { return m_sFunctionName; }
 
   /// Returns the description of the function as it should appear in the console.
-  ezStringView GetDescription() const { return m_sDescription; }
+  WStringView GetDescription() const { return m_sDescription; }
 
   /// Returns the number of parameters that this function takes.
-  virtual ezUInt32 GetNumParameters() const = 0;
+  virtual WUInt32 GetNumParameters() const = 0;
 
   /// Returns the type of the n-th parameter.
-  virtual ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const = 0;
+  virtual WVariant::Type::Enum GetParameterType(WUInt32 uiParam) const = 0;
 
-  /// Calls the function. Each parameter must be put into an ezVariant and all of them are passed along as an array.
+  /// Calls the function. Each parameter must be put into an WVariant and all of them are passed along as an array.
   ///
-  /// Returns EZ_FAILURE, if the number of parameters did not match, or any parameter was not convertible to the actual type that
+  /// Returns W_FAILURE, if the number of parameters did not match, or any parameter was not convertible to the actual type that
   /// the function expects.
-  virtual ezResult Call(ezArrayPtr<ezVariant> params) = 0;
+  virtual WResult Call(WArrayPtr<WVariant> params) = 0;
 
 private:
-  ezStringView m_sFunctionName;
-  ezStringView m_sDescription;
+  WStringView m_sFunctionName;
+  WStringView m_sDescription;
 };
 
 
-/// Implements the functionality of ezConsoleFunctionBase for functions with different parameter types. See ezConsoleFunctionBase for more
+/// Implements the functionality of WConsoleFunctionBase for functions with different parameter types. See WConsoleFunctionBase for more
 /// details.
 template <typename R>
-class ezConsoleFunction : public ezConsoleFunctionBase
+class WConsoleFunction : public WConsoleFunctionBase
 {
 };
 

@@ -166,7 +166,7 @@ input
                 <tr>
                   <td>Image (PNG)</td>
                   <td>
-                    <img src="ez.png" />
+                    <img src="W.png" />
                   </td>
                   <td>
                     Raster image format
@@ -175,7 +175,7 @@ input
                 <tr>
                   <td>Image (SVG)</td>
                   <td>
-                    <svg src="ez.svg" />
+                    <svg src="W.svg" />
                   </td>
                   <td>
                     Vector image format

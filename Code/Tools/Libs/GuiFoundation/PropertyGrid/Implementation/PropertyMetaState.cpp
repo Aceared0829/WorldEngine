@@ -4,42 +4,42 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_IMPLEMENT_SINGLETON(ezPropertyMetaState);
+W_IMPLEMENT_SINGLETON(WPropertyMetaState);
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyMetaState)
+W_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyMetaState)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezPropertyMetaState);
+    W_DEFAULT_NEW(WPropertyMetaState);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    if (ezPropertyMetaState::GetSingleton())
+    if (WPropertyMetaState::GetSingleton())
     {
-      auto ptr = ezPropertyMetaState::GetSingleton();
-      EZ_DEFAULT_DELETE(ptr);
+      auto ptr = WPropertyMetaState::GetSingleton();
+      W_DEFAULT_DELETE(ptr);
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezPropertyMetaState::ezPropertyMetaState()
+WPropertyMetaState::WPropertyMetaState()
   : m_SingletonRegistrar(this)
 {
 }
 
-void ezPropertyMetaState::GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_propertyStates)
+void WPropertyMetaState::GetTypePropertiesState(const WDocumentObject* pObject, WMap<WString, WPropertyUiState>& out_propertyStates)
 {
-  ezPropertyMetaStateEvent eventData;
+  WPropertyMetaStateEvent eventData;
   eventData.m_pPropertyStates = &out_propertyStates;
   eventData.m_pObject = pObject;
 
   m_Events.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetTypePropertiesState(const ezArrayPtr<ezPropertySelection>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates)
+void WPropertyMetaState::GetTypePropertiesState(const WArrayPtr<WPropertySelection>& items, WMap<WString, WPropertyUiState>& out_propertyStates)
 {
   for (const auto& sel : items)
   {
@@ -50,15 +50,15 @@ void ezPropertyMetaState::GetTypePropertiesState(const ezArrayPtr<ezPropertySele
     {
       auto& curState = out_propertyStates[it.Key()];
 
-      curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
+      curState.m_Visibility = WMath::Max(curState.m_Visibility, it.Value().m_Visibility);
       curState.m_sNewLabelText = it.Value().m_sNewLabelText;
     }
   }
 }
 
-void ezPropertyMetaState::GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates)
+void WPropertyMetaState::GetContainerElementsState(const WDocumentObject* pObject, const char* szProperty, WHashTable<WVariant, WPropertyUiState>& out_propertyStates)
 {
-  ezContainerElementMetaStateEvent eventData;
+  WContainerElementMetaStateEvent eventData;
   eventData.m_pContainerElementStates = &out_propertyStates;
   eventData.m_pObject = pObject;
   eventData.m_szProperty = szProperty;
@@ -66,7 +66,7 @@ void ezPropertyMetaState::GetContainerElementsState(const ezDocumentObject* pObj
   m_ContainerEvents.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetContainerElementsState(const ezArrayPtr<ezPropertySelection>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates)
+void WPropertyMetaState::GetContainerElementsState(const WArrayPtr<WPropertySelection>& items, const char* szProperty, WHashTable<WVariant, WPropertyUiState>& out_propertyStates)
 {
   for (const auto& sel : items)
   {
@@ -77,7 +77,7 @@ void ezPropertyMetaState::GetContainerElementsState(const ezArrayPtr<ezPropertyS
     {
       auto& curState = out_propertyStates[it.Key()];
 
-      curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
+      curState.m_Visibility = WMath::Max(curState.m_Visibility, it.Value().m_Visibility);
       curState.m_sNewLabelText = it.Value().m_sNewLabelText;
     }
   }

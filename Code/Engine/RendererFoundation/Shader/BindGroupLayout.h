@@ -4,14 +4,14 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBindGroupLayout : public ezGALObject<ezGALBindGroupLayoutCreationDescription>
+class W_RENDERERFOUNDATION_DLL WGALBindGroupLayout : public WGALObject<WGALBindGroupLayoutCreationDescription>
 {
 protected:
-  friend class ezGALDevice;
+  friend class WGALDevice;
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual WResult InitPlatform(WGALDevice* pDevice) = 0;
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) = 0;
 
-  ezGALBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& Description);
-  virtual ~ezGALBindGroupLayout();
+  WGALBindGroupLayout(const WGALBindGroupLayoutCreationDescription& Description);
+  virtual ~WGALBindGroupLayout();
 };

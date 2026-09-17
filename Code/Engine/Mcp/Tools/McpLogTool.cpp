@@ -5,66 +5,66 @@
 #include <Mcp/Tools/McpLogTool.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMcpLogTool, 1, ezRTTIDefaultAllocator<ezMcpLogTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMcpLogTool, 1, WRTTIDefaultAllocator<WMcpLogTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 namespace
 {
   /// The names used in the tool arguments and in the results. Kept short and lower case, because this
   /// is what the AI has to type.
-  ezStringView SeverityToString(ezLogMsgType::Enum type)
+  WStringView SeverityToString(WLogMsgType::Enum type)
   {
     switch (type)
     {
-      case ezLogMsgType::ErrorMsg:
+      case WLogMsgType::ErrorMsg:
         return "error";
-      case ezLogMsgType::SeriousWarningMsg:
+      case WLogMsgType::SeriousWarningMsg:
         return "serious-warning";
-      case ezLogMsgType::WarningMsg:
+      case WLogMsgType::WarningMsg:
         return "warning";
-      case ezLogMsgType::SuccessMsg:
+      case WLogMsgType::SuccessMsg:
         return "success";
-      case ezLogMsgType::InfoMsg:
+      case WLogMsgType::InfoMsg:
         return "info";
-      case ezLogMsgType::DevMsg:
+      case WLogMsgType::DevMsg:
         return "dev";
-      case ezLogMsgType::DebugMsg:
+      case WLogMsgType::DebugMsg:
         return "debug";
       default:
         return "other";
     }
   }
 
-  ezLogMsgType::Enum SeverityFromString(ezStringView sSeverity, ezLogMsgType::Enum fallback)
+  WLogMsgType::Enum SeverityFromString(WStringView sSeverity, WLogMsgType::Enum fallback)
   {
     if (sSeverity.IsEqual_NoCase("error"))
-      return ezLogMsgType::ErrorMsg;
+      return WLogMsgType::ErrorMsg;
     if (sSeverity.IsEqual_NoCase("serious-warning"))
-      return ezLogMsgType::SeriousWarningMsg;
+      return WLogMsgType::SeriousWarningMsg;
     if (sSeverity.IsEqual_NoCase("warning"))
-      return ezLogMsgType::WarningMsg;
+      return WLogMsgType::WarningMsg;
     if (sSeverity.IsEqual_NoCase("success"))
-      return ezLogMsgType::SuccessMsg;
+      return WLogMsgType::SuccessMsg;
     if (sSeverity.IsEqual_NoCase("info"))
-      return ezLogMsgType::InfoMsg;
+      return WLogMsgType::InfoMsg;
     if (sSeverity.IsEqual_NoCase("dev"))
-      return ezLogMsgType::DevMsg;
+      return WLogMsgType::DevMsg;
     if (sSeverity.IsEqual_NoCase("debug"))
-      return ezLogMsgType::DebugMsg;
+      return WLogMsgType::DebugMsg;
 
     return fallback;
   }
 } // namespace
 
-ezMcpLogTool::ezMcpLogTool() = default;
+WMcpLogTool::WMcpLogTool() = default;
 
-ezMcpLogTool::~ezMcpLogTool()
+WMcpLogTool::~WMcpLogTool()
 {
   OnDeactivate();
 }
 
-void ezMcpLogTool::OnActivate()
+void WMcpLogTool::OnActivate()
 {
   if (m_LogSubscription != 0)
     return;
@@ -74,25 +74,25 @@ void ezMcpLogTool::OnActivate()
   //
   // This sees only the log of the process it runs in. The editor's engine process is a separate one, so
   // an agent diagnosing something that happens while the game runs has to ask the engine's own server.
-  m_LogSubscription = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezMcpLogTool::LogEventHandler, this));
+  m_LogSubscription = WGlobalLog::AddLogWriter(WMakeDelegate(&WMcpLogTool::LogEventHandler, this));
 }
 
-void ezMcpLogTool::OnDeactivate()
+void WMcpLogTool::OnDeactivate()
 {
   if (m_LogSubscription == 0)
     return;
 
-  ezGlobalLog::RemoveLogWriter(m_LogSubscription);
+  WGlobalLog::RemoveLogWriter(m_LogSubscription);
   m_LogSubscription = 0;
 }
 
-void ezMcpLogTool::LogEventHandler(const ezLoggingEventData& e)
+void WMcpLogTool::LogEventHandler(const WLoggingEventData& e)
 {
   // group markers and flushes carry no text worth keeping
-  if (e.m_EventType < ezLogMsgType::ErrorMsg || e.m_EventType > ezLogMsgType::DebugMsg)
+  if (e.m_EventType < WLogMsgType::ErrorMsg || e.m_EventType > WLogMsgType::DebugMsg)
     return;
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   if (m_Entries.GetCount() >= s_uiMaxEntries)
   {
@@ -105,10 +105,10 @@ void ezMcpLogTool::LogEventHandler(const ezLoggingEventData& e)
   entry.m_sText = e.m_sText;
 }
 
-void ezMcpLogTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const
+void WMcpLogTool::GetSupportedTools(WDynamicArray<WMcpToolDesc>& out_tools) const
 {
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "log_write";
     desc.m_sDescription = "Writes a message to this application's log, so that it becomes visible to the user.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
@@ -118,7 +118,7 @@ void ezMcpLogTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 
   {
-    ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
+    WMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "log_read";
     desc.m_sDescription = "Returns the most recent log messages of THIS process, oldest first. Use this to find out what the "
                           "application reported about an operation, e.g. why an asset failed to transform. Note that the "
@@ -136,7 +136,7 @@ void ezMcpLogTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) c
   }
 }
 
-void ezMcpLogTool::Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpLogTool::Execute(WStringView sToolName, const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
   if (sToolName == "log_write")
   {
@@ -148,9 +148,9 @@ void ezMcpLogTool::Execute(ezStringView sToolName, const ezVariantDictionary& ar
   }
 }
 
-void ezMcpLogTool::ExecuteWrite(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpLogTool::ExecuteWrite(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezStringView sMessage = ezMcpJson::GetString(arguments, "message");
+  const WStringView sMessage = WMcpJson::GetString(arguments, "message");
 
   if (sMessage.IsEmpty())
   {
@@ -158,50 +158,50 @@ void ezMcpLogTool::ExecuteWrite(const ezVariantDictionary& arguments, ezMcpToolR
     return;
   }
 
-  const ezLogMsgType::Enum severity = SeverityFromString(ezMcpJson::GetString(arguments, "severity"), ezLogMsgType::InfoMsg);
+  const WLogMsgType::Enum severity = SeverityFromString(WMcpJson::GetString(arguments, "severity"), WLogMsgType::InfoMsg);
 
   // the tag makes it obvious in the log where this came from
   switch (severity)
   {
-    case ezLogMsgType::ErrorMsg:
-      ezLog::Error("MCP: {}", sMessage);
+    case WLogMsgType::ErrorMsg:
+      WLog::Error("MCP: {}", sMessage);
       break;
-    case ezLogMsgType::SeriousWarningMsg:
-      ezLog::SeriousWarning("MCP: {}", sMessage);
+    case WLogMsgType::SeriousWarningMsg:
+      WLog::SeriousWarning("MCP: {}", sMessage);
       break;
-    case ezLogMsgType::WarningMsg:
-      ezLog::Warning("MCP: {}", sMessage);
+    case WLogMsgType::WarningMsg:
+      WLog::Warning("MCP: {}", sMessage);
       break;
-    case ezLogMsgType::SuccessMsg:
-      ezLog::Success("MCP: {}", sMessage);
+    case WLogMsgType::SuccessMsg:
+      WLog::Success("MCP: {}", sMessage);
       break;
-    case ezLogMsgType::DevMsg:
-      ezLog::Dev("MCP: {}", sMessage);
+    case WLogMsgType::DevMsg:
+      WLog::Dev("MCP: {}", sMessage);
       break;
-    case ezLogMsgType::DebugMsg:
-      ezLog::Debug("MCP: {}", sMessage);
+    case WLogMsgType::DebugMsg:
+      WLog::Debug("MCP: {}", sMessage);
       break;
     default:
-      ezLog::Info("MCP: {}", sMessage);
+      WLog::Info("MCP: {}", sMessage);
       break;
   }
 
   out_result.m_sText = "ok";
 }
 
-void ezMcpLogTool::ExecuteRead(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void WMcpLogTool::ExecuteRead(const WVariantDictionary& arguments, WMcpToolResult& out_result)
 {
-  const ezInt64 iCount = ezMath::Clamp<ezInt64>(ezMcpJson::GetInt(arguments, "count", 50), 1, s_uiMaxEntries);
-  const ezLogMsgType::Enum minSeverity = SeverityFromString(ezMcpJson::GetString(arguments, "severity"), ezLogMsgType::DebugMsg);
-  const ezUInt64 uiSinceId = static_cast<ezUInt64>(ezMath::Max<ezInt64>(ezMcpJson::GetInt(arguments, "sinceId", 0), 0));
-  const ezStringView sContains = ezMcpJson::GetString(arguments, "contains");
+  const WInt64 iCount = WMath::Clamp<WInt64>(WMcpJson::GetInt(arguments, "count", 50), 1, s_uiMaxEntries);
+  const WLogMsgType::Enum minSeverity = SeverityFromString(WMcpJson::GetString(arguments, "severity"), WLogMsgType::DebugMsg);
+  const WUInt64 uiSinceId = static_cast<WUInt64>(WMath::Max<WInt64>(WMcpJson::GetInt(arguments, "sinceId", 0), 0));
+  const WStringView sContains = WMcpJson::GetString(arguments, "contains");
 
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
   // collect from the back, so 'count' means 'the newest count that pass the filter'
-  ezHybridArray<const Entry*, 64> selected;
+  WHybridArray<const Entry*, 64> selected;
 
-  for (ezUInt32 i = m_Entries.GetCount(); i > 0 && selected.GetCount() < iCount; --i)
+  for (WUInt32 i = m_Entries.GetCount(); i > 0 && selected.GetCount() < iCount; --i)
   {
     const Entry& entry = m_Entries[i - 1];
 
@@ -220,20 +220,20 @@ void ezMcpLogTool::ExecuteRead(const ezVariantDictionary& arguments, ezMcpToolRe
 
   // the newest id actually seen by this call, i.e. what a follow-up call should pass as 'sinceId';
   // falls back to whatever was asked for so a client that already knows it stays in sync
-  const ezUInt64 uiLastId = selected.IsEmpty() ? uiSinceId : selected[0]->m_uiId;
+  const WUInt64 uiLastId = selected.IsEmpty() ? uiSinceId : selected[0]->m_uiId;
 
-  ezMcpJsonWriter writer;
+  WMcpJsonWriter writer;
   writer.BeginObject();
-  writer.AddVariableInt64("lastId", static_cast<ezInt64>(uiLastId));
+  writer.AddVariableInt64("lastId", static_cast<WInt64>(uiLastId));
   writer.BeginArray("messages");
 
   // 'selected' is newest first, but the result reads better oldest first
-  for (ezUInt32 i = selected.GetCount(); i > 0; --i)
+  for (WUInt32 i = selected.GetCount(); i > 0; --i)
   {
     const Entry& entry = *selected[i - 1];
 
     writer.BeginObject();
-    writer.AddVariableInt64("id", static_cast<ezInt64>(entry.m_uiId));
+    writer.AddVariableInt64("id", static_cast<WInt64>(entry.m_uiId));
     writer.AddVariableString("severity", SeverityToString(entry.m_Type));
     writer.AddVariableString("text", entry.m_sText);
     writer.EndObject();

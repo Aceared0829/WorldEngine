@@ -4,11 +4,11 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
+WString WQtEditorApp::FindToolApplication(const char* szToolName)
 {
-  ezStringBuilder toolExe = szToolName;
+  WStringBuilder toolExe = szToolName;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   toolExe.ChangeFileExtension("exe");
 #else
   toolExe.RemoveFileExtension();
@@ -16,35 +16,35 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   szToolName = toolExe;
 
-  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPref = WPreferences::QueryPreferences<WEditorPreferencesUser>();
 
-  ezTempHybridArray<ezString, 3> sFolders;
+  WTempHybridArray<WString, 3> sFolders;
 
   if (pPref->m_bUsePrecompiledTools)
   {
-    if (!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && ezOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
+    if (!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && WOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
     {
-      ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
+      WStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
       customToolsFolder.MakeCleanPath();
       sFolders.PushBack(customToolsFolder);
     }
 
-    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
-    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+    sFolders.PushBack(WApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+    sFolders.PushBack(WApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
   }
   else
   {
-    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
-    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+    sFolders.PushBack(WApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+    sFolders.PushBack(WApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
   }
 
-  ezStringBuilder sTool;
+  WStringBuilder sTool;
   for (auto& folder : sFolders)
   {
     sTool = folder;
     sTool.AppendPath(szToolName);
 
-    if (ezOSFile::ExistsFile(sTool))
+    if (WOSFile::ExistsFile(sTool))
       return sTool;
   }
 
@@ -52,14 +52,14 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   return szToolName;
 }
 
-ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum logLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
+WStatus WQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, WUInt32 uiSecondsTillTimeout, WLogInterface* pLogOutput /*= nullptr*/, WLogMsgType::Enum logLevel /*= WLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
 {
   // this block is supposed to be in the global log, not the given log interface
-  EZ_LOG_BLOCK("Executing Tool", szTool);
+  W_LOG_BLOCK("Executing Tool", szTool);
 
-  ezStringBuilder toolExe = szTool;
+  WStringBuilder toolExe = szTool;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if W_ENABLED(W_PLATFORM_WINDOWS_DESKTOP)
   toolExe.ChangeFileExtension("exe");
 #else
   toolExe.RemoveFileExtension();
@@ -67,11 +67,11 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
   szTool = toolExe;
 
-  ezStringBuilder cmd;
-  for (ezInt32 i = 0; i < arguments.size(); ++i)
+  WStringBuilder cmd;
+  for (WInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("{}{}", szTool, cmd);
+  WLog::Debug("{}{}", szTool, cmd);
 
 
   QProcess proc;
@@ -86,32 +86,32 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   proc.setReadChannel(QProcess::StandardOutput);
   QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
     { logoutput.append(proc.readAllStandardOutput()); });
-  ezString toolPath = ezQtEditorApp::GetSingleton()->FindToolApplication(szTool);
+  WString toolPath = WQtEditorApp::GetSingleton()->FindToolApplication(szTool);
   proc.start(QString::fromUtf8(toolPath, toolPath.GetElementCount()), arguments);
 
   if (!proc.waitForStarted(uiSecondsTillTimeout * 1000))
-    return ezStatus(ezFmt("{0} could not be started", szTool));
+    return WStatus(WFmt("{0} could not be started", szTool));
 
   if (!proc.waitForFinished(uiSecondsTillTimeout * 1000))
-    return ezStatus(ezFmt("{0} timed out", szTool));
+    return WStatus(WFmt("{0} timed out", szTool));
 
   if (pLogOutput)
   {
-    ezStringBuilder tmp;
+    WStringBuilder tmp;
 
     struct LogBlockData
     {
-      LogBlockData(ezLogInterface* pInterface, const char* szName)
+      LogBlockData(WLogInterface* pInterface, const char* szName)
         : m_Name(szName)
         , m_Block(pInterface, m_Name)
       {
       }
 
-      ezString m_Name;
-      ezLogBlock m_Block;
+      WString m_Name;
+      WLogBlock m_Block;
     };
 
-    ezTempHybridArray<ezUniquePtr<LogBlockData>, 8> blocks;
+    WTempHybridArray<WUniquePtr<LogBlockData>, 8> blocks;
 
     QTextStream logoutputStream(&logoutput);
     while (!logoutputStream.atEnd())
@@ -120,27 +120,27 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       tmp.Trim(" \n");
 
       const char* szMsg = nullptr;
-      ezLogMsgType::Enum msgType = ezLogMsgType::None;
+      WLogMsgType::Enum msgType = WLogMsgType::None;
 
       if (tmp.StartsWith("Error: "))
       {
         szMsg = &tmp.GetData()[7];
-        msgType = ezLogMsgType::ErrorMsg;
+        msgType = WLogMsgType::ErrorMsg;
       }
       else if (tmp.StartsWith("Warning: "))
       {
         szMsg = &tmp.GetData()[9];
-        msgType = ezLogMsgType::WarningMsg;
+        msgType = WLogMsgType::WarningMsg;
       }
       else if (tmp.StartsWith("Seriously: "))
       {
         szMsg = &tmp.GetData()[11];
-        msgType = ezLogMsgType::SeriousWarningMsg;
+        msgType = WLogMsgType::SeriousWarningMsg;
       }
       else if (tmp.StartsWith("Success: "))
       {
         szMsg = &tmp.GetData()[9];
-        msgType = ezLogMsgType::SuccessMsg;
+        msgType = WLogMsgType::SuccessMsg;
       }
       else if (tmp.StartsWith("+++++ "))
       {
@@ -149,7 +149,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
           tmp.Trim("() ");
 
         szMsg = tmp.GetData();
-        blocks.PushBack(EZ_DEFAULT_NEW(LogBlockData, pLogOutput, szMsg));
+        blocks.PushBack(W_DEFAULT_NEW(LogBlockData, pLogOutput, szMsg));
         continue;
       }
       else if (tmp.StartsWith("----- "))
@@ -162,7 +162,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       else
       {
         szMsg = &tmp.GetData()[0];
-        msgType = ezLogMsgType::InfoMsg;
+        msgType = WLogMsgType::InfoMsg;
 
         // TODO: output all logged data in one big message, if the tool failed
       }
@@ -170,7 +170,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       if (msgType > logLevel || szMsg == nullptr)
         continue;
 
-      ezLog::BroadcastLoggingEvent(pLogOutput, msgType, szMsg);
+      WLog::BroadcastLoggingEvent(pLogOutput, msgType, szMsg);
     }
 
     blocks.Clear();
@@ -178,32 +178,32 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
   if (proc.exitStatus() == QProcess::ExitStatus::CrashExit)
   {
-    return ezStatus(ezFmt("{0} crashed during execution", szTool));
+    return WStatus(WFmt("{0} crashed during execution", szTool));
   }
   else if (proc.exitCode() != 0)
   {
-    return ezStatus(ezFmt("{0} returned error code {1}", szTool, proc.exitCode()));
+    return WStatus(WFmt("{0} returned error code {1}", szTool, proc.exitCode()));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return WStatus(W_SUCCESS);
 }
 
-ezString ezQtEditorApp::BuildFileserveCommandLine() const
+WString WQtEditorApp::BuildFileserveCommandLine() const
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
-  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  ezStringBuilder params;
+  const WStringBuilder sToolPath = WQtEditorApp::GetSingleton()->FindToolApplication("WFileserve");
+  const WStringBuilder sProjectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
+  WStringBuilder params;
 
-  ezStringBuilder cmd;
+  WStringBuilder cmd;
   cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\"");
 
   return cmd;
 }
 
-void ezQtEditorApp::RunFileserve()
+void WQtEditorApp::RunFileserve()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
-  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  const WStringBuilder sToolPath = WQtEditorApp::GetSingleton()->FindToolApplication("WFileserve");
+  const WStringBuilder sProjectDir = WToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
   args << "-specialdirs"
@@ -212,9 +212,9 @@ void ezQtEditorApp::RunFileserve()
   QProcess::startDetached(sToolPath.GetData(), args);
 }
 
-void ezQtEditorApp::RunInspector(ezUInt16 uiPort)
+void WQtEditorApp::RunInspector(WUInt16 uiPort)
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezInspector");
+  const WStringBuilder sToolPath = WQtEditorApp::GetSingleton()->FindToolApplication("WInspector");
   QStringList args;
 
   if (uiPort != 0)
@@ -225,12 +225,12 @@ void ezQtEditorApp::RunInspector(ezUInt16 uiPort)
   QProcess::startDetached(sToolPath.GetData(), args);
 }
 
-void ezQtEditorApp::RunTracy()
+void WQtEditorApp::RunTracy()
 {
 #if BUILDSYSTEM_ENABLE_TRACY_SUPPORT == 0
-  ezQtUiServices::MessageBoxInformation("<html>This build of EZ was compiled without support for Tracy profiling.<br><br>See <a href='https://ezengine.net/pages/docs/debugging/tracy.html'>the documentation</a> for how to enable it.</html>");
+  WQtUiServices::MessageBoxInformation("<html>This build of W was compiled without support for Tracy profiling.<br><br>See <a href='https://ezengine.net/pages/docs/debugging/tracy.html'>the documentation</a> for how to enable it.</html>");
 #else
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("tracy-profiler");
+  const WStringBuilder sToolPath = WQtEditorApp::GetSingleton()->FindToolApplication("tracy-profiler");
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);

@@ -4,31 +4,31 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
+using WDecalResourceHandle = WTypedResourceHandle<class WDecalResource>;
 
 /// Descriptor for creating a decal resource.
 ///
 /// Currently empty as decals are typically loaded from asset files.
-struct ezDecalResourceDescriptor
+struct WDecalResourceDescriptor
 {
 };
 
 /// Resource representing a single decal that references regions in a decal atlas.
 ///
-/// Decal resources are lightweight and reference textures stored in ezDecalAtlasResource.
+/// Decal resources are lightweight and reference textures stored in WDecalAtlasResource.
 /// The actual texture data and UV mapping is managed by the atlas.
-class EZ_RENDERERCORE_DLL ezDecalResource : public ezResource
+class W_RENDERERCORE_DLL WDecalResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezDecalResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezDecalResource, ezDecalResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WDecalResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WDecalResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WDecalResource, WDecalResourceDescriptor);
 
 public:
-  ezDecalResource();
+  WDecalResource();
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 };
 
@@ -36,7 +36,7 @@ private:
 ///
 /// Loads decal metadata from asset files. The actual texture data is loaded separately
 /// through the decal atlas system.
-class EZ_RENDERERCORE_DLL ezDecalResourceLoader : public ezResourceTypeLoader
+class W_RENDERERCORE_DLL WDecalResourceLoader : public WResourceTypeLoader
 {
 public:
   struct LoadedData
@@ -46,11 +46,11 @@ public:
     {
     }
 
-    ezContiguousMemoryStreamStorage m_Storage;
-    ezMemoryStreamReader m_Reader;
+    WContiguousMemoryStreamStorage m_Storage;
+    WMemoryStreamReader m_Reader;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
-  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
+  virtual WResourceLoadData OpenDataStream(const WResource* pResource) override;
+  virtual void CloseDataStream(const WResource* pResource, const WResourceLoadData& loaderData) override;
+  virtual bool IsResourceOutdated(const WResource* pResource) const override;
 };

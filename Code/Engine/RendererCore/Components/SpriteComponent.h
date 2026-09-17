@@ -7,12 +7,12 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezMsgSetColor;
-using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+struct WMsgSetColor;
+using WTexture2DResourceHandle = WTypedResourceHandle<class WTexture2DResource>;
 
-struct ezSpriteBlendMode
+struct WSpriteBlendMode
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -24,35 +24,35 @@ struct ezSpriteBlendMode
     Default = Masked
   };
 
-  static ezTempHashedString GetPermutationValue(Enum blendMode);
+  static WTempHashedString GetPermutationValue(Enum blendMode);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSpriteBlendMode);
+W_DECLARE_REFLECTABLE_TYPE(W_RENDERERCORE_DLL, WSpriteBlendMode);
 
-class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
+class W_RENDERERCORE_DLL WSpriteRenderData : public WRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
+  W_ADD_DYNAMIC_REFLECTION(WSpriteRenderData, WRenderData);
 
 public:
   void FillSortingKey();
-  virtual bool CanBatch(const ezRenderData& other) const override;
+  virtual bool CanBatch(const WRenderData& other) const override;
 
-  ezTexture2DResourceHandle m_hTexture;
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
+  WTexture2DResourceHandle m_hTexture;
+  WEnum<WSpriteBlendMode> m_BlendMode;
 
   float m_fSize;
   float m_fMaxScreenSize;
   float m_fAspectRatio;
 
-  ezColorLinear16f m_color;
+  WColorLinear16f m_color;
 
-  ezFloat16Vec2 m_texCoordScale;
-  ezFloat16Vec2 m_texCoordOffset;
+  WFloat16Vec2 m_texCoordScale;
+  WFloat16Vec2 m_texCoordOffset;
 
-  ezUInt32 m_uiUniqueID;
+  WUInt32 m_uiUniqueID;
 };
 
-using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using WSpriteComponentManager = WComponentManagerSimple<class WSpriteComponent, WComponentUpdateType::Always, WBlockStorageType::Compact>;
 
 /// Renders a screen-oriented quad (billboard) with a maximum screen size.
 ///
@@ -61,38 +61,38 @@ using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponen
 ///
 /// It can also be used to render simple projectiles.
 ///
-/// If you want to render a glow effect for a lightsource, use the ezLensFlareComponent instead.
-class EZ_RENDERERCORE_DLL ezSpriteComponent : public ezRenderComponent
+/// If you want to render a glow effect for a lightsource, use the WLensFlareComponent instead.
+class W_RENDERERCORE_DLL WSpriteComponent : public WRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSpriteComponent, ezRenderComponent, ezSpriteComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WSpriteComponent, WRenderComponent, WSpriteComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
+  // WRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+  virtual WResult GetLocalBounds(WBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, WMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSpriteComponent
+  // WSpriteComponent
 
 public:
-  ezSpriteComponent();
-  ~ezSpriteComponent();
+  WSpriteComponent();
+  ~WSpriteComponent();
 
   void Update();
 
-  void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
-  const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
+  void SetTexture(const WTexture2DResourceHandle& hTexture); // [ property ]
+  const WTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
-  void SetColor(ezColor color);                               // [ property ]
-  ezColor GetColor() const;                                   // [ property ]
+  void SetColor(WColor color);                               // [ property ]
+  WColor GetColor() const;                                   // [ property ]
 
   /// Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]
@@ -103,15 +103,15 @@ public:
   float GetMaxScreenSize() const;                                 // [ property ]
 
 private:
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);                     // [ msg handler ]
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);         // [ msg handler ]
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
+  void OnMsgSetColor(WMsgSetColor& ref_msg);                     // [ msg handler ]
+  void OnMsgDeleteGameObject(WMsgDeleteGameObject& msg);         // [ msg handler ]
+  void OnMsgExtractRenderData(WMsgExtractRenderData& msg) const; // [ msg handler ]
 
-  ezTexture2DResourceHandle m_hTexture;
-  ezColor m_Color = ezColor::White;
+  WTexture2DResourceHandle m_hTexture;
+  WColor m_Color = WColor::White;
 
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction = ezOnComponentFinishedAction::Default;
+  WEnum<WSpriteBlendMode> m_BlendMode;
+  WEnum<WOnComponentFinishedAction> m_OnFinishedAction = WOnComponentFinishedAction::Default;
   bool m_bUseMaxScreenSize = true;
   bool m_bIsAnimated = false;
 
@@ -121,11 +121,11 @@ private:
 
   float m_fFramerate = 24.0f;
 
-  ezUInt32 m_uiLoops = 0;
+  WUInt32 m_uiLoops = 0;
 
-  ezTime m_TimeSinceStart;
-  ezUInt32 m_uiCurrentLoop = 0;
+  WTime m_TimeSinceStart;
+  WUInt32 m_uiCurrentLoop = 0;
 
-  ezUInt8 m_uiColumns = 1;
-  ezUInt8 m_uiRows = 1;
+  WUInt8 m_uiColumns = 1;
+  WUInt8 m_uiRows = 1;
 };

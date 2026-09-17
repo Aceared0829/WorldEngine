@@ -83,11 +83,11 @@
 #include <QSvgRenderer>
 #include <ads/DockManager.h>
 
-void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-void ezCodeEditorPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void WCompilerPreferences_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
+void WCodeEditorPreferences_PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "GuiFoundation",
@@ -98,168 +98,168 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
-    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
-    ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
-    ezProjectActions::RegisterActions();
-    ezAssetActions::RegisterActions();
-    ezAssetBrowserContextMenu::RegisterActions();
-    ezViewActions::RegisterActions();
-    ezViewLightActions::RegisterActions();
-    ezGameObjectContextActions::RegisterActions();
-    ezGameObjectDocumentActions::RegisterActions();
-    ezGameObjectSelectionActions::RegisterActions();
-    ezQuadViewActions::RegisterActions();
-    ezTransformGizmoActions::RegisterActions();
-    ezTranslateGizmoAction::RegisterActions();
-    ezCommonAssetActions::RegisterActions();
-    ezCameraModeSwitchActions::RegisterActions();
-    ezWindowLayoutActions::RegisterActions();
+    WDefaultState::RegisterDefaultStateProvider(WExposedParametersAsTypeDefaultStateProvider::CreateProvider);
+    WDefaultState::RegisterDefaultStateProvider(WExposedParametersDefaultStateProvider::CreateProvider);
+    WDefaultState::RegisterDefaultStateProvider(WDynamicDefaultStateProvider::CreateProvider);
+    WProjectActions::RegisterActions();
+    WAssetActions::RegisterActions();
+    WAssetBrowserContextMenu::RegisterActions();
+    WViewActions::RegisterActions();
+    WViewLightActions::RegisterActions();
+    WGameObjectContextActions::RegisterActions();
+    WGameObjectDocumentActions::RegisterActions();
+    WGameObjectSelectionActions::RegisterActions();
+    WQuadViewActions::RegisterActions();
+    WTransformGizmoActions::RegisterActions();
+    WTranslateGizmoAction::RegisterActions();
+    WCommonAssetActions::RegisterActions();
+    WCameraModeSwitchActions::RegisterActions();
+    WWindowLayoutActions::RegisterActions();
 
     // Default Asset Menu Bar
     // All asset menu bar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's menu bar.
     {
       const char* szMenuBar = "AssetMenuBar";
-      ezActionMapManager::RegisterActionMap(szMenuBar);
-      ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit| ezStandardMenuTypes::Asset);
-      ezProjectActions::MapActions(szMenuBar);
-      ezDocumentActions::MapMenuActions(szMenuBar, "G.File.Common");
-      ezAssetActions::MapMenuActions(szMenuBar);
-      ezCommandHistoryActions::MapActions(szMenuBar);
+      WActionMapManager::RegisterActionMap(szMenuBar);
+      WStandardMenus::MapActions(szMenuBar, WStandardMenuTypes::Default | WStandardMenuTypes::Edit| WStandardMenuTypes::Asset);
+      WProjectActions::MapActions(szMenuBar);
+      WDocumentActions::MapMenuActions(szMenuBar, "G.File.Common");
+      WAssetActions::MapMenuActions(szMenuBar);
+      WCommandHistoryActions::MapActions(szMenuBar);
     }
 
     // Default Asset Toolbar
     // All asset toolbar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's tool bar.
     {
       const char* szToolbar = "AssetToolbar";
-      ezActionMapManager::RegisterActionMap(szToolbar);
+      WActionMapManager::RegisterActionMap(szToolbar);
 
-      ezDocumentActions::MapToolbarActions(szToolbar);
-      ezCommandHistoryActions::MapActions(szToolbar, "");
-      ezAssetActions::MapToolBarActions(szToolbar, true);
+      WDocumentActions::MapToolbarActions(szToolbar);
+      WCommandHistoryActions::MapActions(szToolbar, "");
+      WAssetActions::MapToolBarActions(szToolbar, true);
     }
 
     // Default Asset View Toolbar
     // All asset view toolbar mappings should derive from this or its derived "SimpleAssetViewToolbar" to allow for actions to be defined that show up in every asset document editor's view toolbar.
     {
-      ezActionMapManager::RegisterActionMap("AssetViewToolbar");
+      WActionMapManager::RegisterActionMap("AssetViewToolbar");
       // Convenience mapping that adds the most common view settings:
       const char* szSimpleViewToolbar = "SimpleAssetViewToolbar";
-      ezActionMapManager::RegisterActionMap(szSimpleViewToolbar, "AssetViewToolbar");
-      ezViewActions::MapToolbarActions(szSimpleViewToolbar, ezViewActions::RenderMode /*| ezViewActions::ActivateRemoteProcess*/);
-      ezViewLightActions::MapToolbarActions(szSimpleViewToolbar);
+      WActionMapManager::RegisterActionMap(szSimpleViewToolbar, "AssetViewToolbar");
+      WViewActions::MapToolbarActions(szSimpleViewToolbar, WViewActions::RenderMode /*| WViewActions::ActivateRemoteProcess*/);
+      WViewLightActions::MapToolbarActions(szSimpleViewToolbar);
     }
 
-    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
-    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Default);
-    ezProjectActions::MapActions("SettingsTabMenuBar");
+    WActionMapManager::RegisterActionMap("SettingsTabMenuBar");
+    WStandardMenus::MapActions("SettingsTabMenuBar", WStandardMenuTypes::Default);
+    WProjectActions::MapActions("SettingsTabMenuBar");
 
-    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
-    ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
+    WActionMapManager::RegisterActionMap("AssetBrowserToolBar");
+    WAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
     // Plugins map actions here to offer operations on the asset types they own.
-    // The selection is not part of the action context, it has to be read from ezAssetBrowserSelection.
-    ezActionMapManager::RegisterActionMap("AssetBrowserContextMenu");
-    ezAssetBrowserContextMenu::MapActions();
+    // The selection is not part of the action context, it has to be read from WAssetBrowserSelection.
+    WActionMapManager::RegisterActionMap("AssetBrowserContextMenu");
+    WAssetBrowserContextMenu::MapActions();
 
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExternalFilePropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicEnumPropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedBone>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedBoneWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBlackboardCondition>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtBlackboardConditionWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCompilerPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCompilerPreferencesWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCodeEditorPreferencesWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtPropertyEditorSliderWidget(); });
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezRttiTypeStringAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtRttiTypeStringPropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WFileBrowserAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtFilePropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WExternalFileBrowserAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtExternalFilePropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WAssetBrowserAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtAssetPropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WDynamicEnumAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtDynamicEnumPropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WDynamicStringEnumAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtDynamicStringEnumPropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WExposedParametersAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtExposedParametersPropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WGameObjectReferenceAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtGameObjectReferencePropertyWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WExposedBone>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtExposedBoneWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WBlackboardCondition>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtBlackboardConditionWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WCompilerPreferences>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtCompilerPreferencesWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WCodeEditorPreferences>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtCodeEditorPreferencesWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WImageSliderUiAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtPropertyEditorSliderWidget(); });
+    WQtPropertyGridWidget::GetFactory().RegisterCreator(WGetStaticRTTI<WRttiTypeStringAttribute>(), [](const WRTTI* pRtti)->WQtPropertyWidget* { return new WQtRttiTypeStringPropertyWidget(); });
 
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoxManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeAngleManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeLengthManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoneManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineManipulatorAdapter); });
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineTangentManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineTangentManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WSphereManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WSphereManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WCapsuleManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WCapsuleManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WBoxManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WBoxManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WConeAngleManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WConeAngleManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WConeLengthManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WConeLengthManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WNonUniformBoxManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WNonUniformBoxManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WTransformManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WTransformManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WBoneManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WBoneManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WSplineManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WSplineManipulatorAdapter); });
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WSplineTangentManipulatorAttribute>(), [](const WRTTI* pRtti)->WManipulatorAdapter* { return W_DEFAULT_NEW(WSplineTangentManipulatorAdapter); });
 
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCapsuleVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCylinderVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezDirectionVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezConeVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCameraVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPositionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPositionVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WBoxVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WBoxVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WSphereVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WSphereVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WCapsuleVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WCapsuleVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WCylinderVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WCylinderVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WDirectionVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WDirectionVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WConeVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WConeVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WCameraVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WCameraVisualizerAdapter); });
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(WGetStaticRTTI<WPositionVisualizerAttribute>(), [](const WRTTI* pRtti)->WVisualizerAdapter* { return W_DEFAULT_NEW(WPositionVisualizerAdapter); });
 
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCompilerPreferences_PropertyMetaStateEventHandler);
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCodeEditorPreferences_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WCompilerPreferences_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(WCodeEditorPreferences_PropertyMetaStateEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
-    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
-    ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
-    ezProjectActions::UnregisterActions();
-    ezAssetActions::UnregisterActions();
-    ezAssetBrowserContextMenu::UnregisterActions();
-    ezViewActions::UnregisterActions();
-    ezViewLightActions::UnregisterActions();
-    ezGameObjectContextActions::UnregisterActions();
-    ezGameObjectDocumentActions::UnregisterActions();
-    ezGameObjectSelectionActions::UnregisterActions();
-    ezQuadViewActions::UnregisterActions();
-    ezTransformGizmoActions::UnregisterActions();
-    ezTranslateGizmoAction::UnregisterActions();
-    ezCommonAssetActions::UnregisterActions();
-    ezCameraModeSwitchActions::UnregisterActions();
-    ezWindowLayoutActions::UnregisterActions();
+    WDefaultState::UnregisterDefaultStateProvider(WExposedParametersAsTypeDefaultStateProvider::CreateProvider);
+    WDefaultState::UnregisterDefaultStateProvider(WExposedParametersDefaultStateProvider::CreateProvider);
+    WDefaultState::UnregisterDefaultStateProvider(WDynamicDefaultStateProvider::CreateProvider);
+    WProjectActions::UnregisterActions();
+    WAssetActions::UnregisterActions();
+    WAssetBrowserContextMenu::UnregisterActions();
+    WViewActions::UnregisterActions();
+    WViewLightActions::UnregisterActions();
+    WGameObjectContextActions::UnregisterActions();
+    WGameObjectDocumentActions::UnregisterActions();
+    WGameObjectSelectionActions::UnregisterActions();
+    WQuadViewActions::UnregisterActions();
+    WTransformGizmoActions::UnregisterActions();
+    WTranslateGizmoAction::UnregisterActions();
+    WCommonAssetActions::UnregisterActions();
+    WCameraModeSwitchActions::UnregisterActions();
+    WWindowLayoutActions::UnregisterActions();
 
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedBone>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezBlackboardCondition>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCompilerPreferences>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezRttiTypeStringAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WFileBrowserAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WExternalFileBrowserAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WAssetBrowserAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WDynamicEnumAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WDynamicStringEnumAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WGameObjectReferenceAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WExposedParametersAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WExposedBone>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WBlackboardCondition>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WCompilerPreferences>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WCodeEditorPreferences>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WImageSliderUiAttribute>());
+    WQtPropertyGridWidget::GetFactory().UnregisterCreator(WGetStaticRTTI<WRttiTypeStringAttribute>());
 
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>());
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WSphereManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WCapsuleManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WBoxManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WConeAngleManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WConeLengthManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WNonUniformBoxManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WTransformManipulatorAttribute>());
+    WManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WBoneManipulatorAttribute>());
 
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WBoxVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WSphereVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WCapsuleVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WCylinderVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WDirectionVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WConeVisualizerAttribute>());
+    WVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(WGetStaticRTTI<WCameraVisualizerAttribute>());
 
-    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCompilerPreferences_PropertyMetaStateEventHandler);
-    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCodeEditorPreferences_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WCompilerPreferences_PropertyMetaStateEventHandler);
+    WPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(WCodeEditorPreferences_PropertyMetaStateEventHandler);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
-ezCommandLineOptionBool opt_Dashboard("_Editor", "-dashboard", "Starts the editor without loading the last project and its documents, so that the dashboard is shown instead.", false);
+WCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
+WCommandLineOptionBool opt_Dashboard("_Editor", "-dashboard", "Starts the editor without loading the last project and its documents, so that the dashboard is shown instead.", false);
 
 /// Tells the editor that no user is present to interact with it.
 ///
@@ -267,13 +267,13 @@ ezCommandLineOptionBool opt_Dashboard("_Editor", "-dashboard", "Starts the edito
 /// let the operation proceed, since an editor that is only half-started is of no use to an automated caller.
 /// Notably safe mode is declined during startup, because it would prevent the project from loading at all.
 /// Use '-safe' to actually get safe mode.
-ezCommandLineOptionBool opt_Unattended("_Editor", "-unattended",
+WCommandLineOptionBool opt_Unattended("_Editor", "-unattended",
   "Runs the editor without a user present, e.g. driven by a script or an AI agent.\n"
   "Nothing modal is displayed, questions are answered with the option that lets the operation continue.\n"
   "Without this, a dialog that nobody closes blocks the editor indefinitely.",
   false);
 
-ezCommandLineOptionPath opt_CreateProject("_Editor", "-createProject",
+WCommandLineOptionPath opt_CreateProject("_Editor", "-createProject",
   "Creates a new project in the given (absolute) directory and opens it.\n"
   "\n"
   "The directory must not exist yet or must be empty. Use -projectTemplate to create the project from a project\n"
@@ -283,146 +283,147 @@ ezCommandLineOptionPath opt_CreateProject("_Editor", "-createProject",
   "  -createProject \"C:/Projects/MyGame\" -projectTemplate \"Basic FPS\"\n",
   "");
 
-ezCommandLineOptionString opt_ProjectTemplate("_Editor", "-projectTemplate",
+WCommandLineOptionString opt_ProjectTemplate("_Editor", "-projectTemplate",
   "Name of the project template that -createProject copies, e.g. 'Basic FPS'.\n"
   "\n"
   "Without this, a blank project is created. Use -listTemplates to see which templates exist.\n"
   "A project template brings its own plugin selection, so -pluginTemplate is ignored when this is given.",
   "");
 
-ezCommandLineOptionString opt_PluginTemplate("_Editor", "-pluginTemplate",
+WCommandLineOptionString opt_PluginTemplate("_Editor", "-pluginTemplate",
   "Name of the plugin template that -createProject enables in a blank project, e.g. 'General3D'.\n"
   "\n"
   "Only used when no -projectTemplate is given. Use -listTemplates to see which templates exist.",
   "General3D");
 
-ezCommandLineOptionBool opt_ListTemplates("_Editor", "-listTemplates",
+WCommandLineOptionBool opt_ListTemplates("_Editor", "-listTemplates",
   "Logs the available project templates and plugin templates for -createProject, then continues as usual.", false);
 
-void ezQtEditorApp::LogAvailableTemplates()
+void WQtEditorApp::LogAvailableTemplates()
 {
-  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+  DetectAvailablePluginBundles(WOSFile::GetApplicationDirectory());
 
   {
-    ezDynamicArray<ezString> templates;
-    ezProjectCreation::FindProjectTemplates(templates);
+    WDynamicArray<WString> templates;
+    WProjectCreation::FindProjectTemplates(templates);
 
-    ezLog::Info("Project templates ({}):", templates.GetCount());
-    ezLog::Info("  <none> (blank project)");
+    WLog::Info("Project templates ({}):", templates.GetCount());
+    WLog::Info("  <none> (blank project)");
 
-    for (const ezString& sName : templates)
+    for (const WString& sName : templates)
     {
-      ezLog::Info("  {}", sName);
+      WLog::Info("  {}", sName);
     }
   }
 
   {
-    ezDynamicArray<ezString> templates;
-    ezProjectCreation::FindPluginTemplates(GetPluginBundles(), templates);
+    WDynamicArray<WString> templates;
+    WProjectCreation::FindPluginTemplates(GetPluginBundles(), templates);
 
-    ezLog::Info("Plugin templates ({}):", templates.GetCount());
+    WLog::Info("Plugin templates ({}):", templates.GetCount());
 
-    for (const ezString& sName : templates)
+    for (const WString& sName : templates)
     {
-      ezLog::Info("  {}", sName);
+      WLog::Info("  {}", sName);
     }
   }
 }
 
-ezResult ezQtEditorApp::CreateProjectFromCommandLine(ezStringView sTargetDirectory)
+WResult WQtEditorApp::CreateProjectFromCommandLine(WStringView sTargetDirectory)
 {
   // the bundles have to be known before a plugin selection can be written for a blank project
-  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+  DetectAvailablePluginBundles(WOSFile::GetApplicationDirectory());
 
-  ezProjectCreationOptions options;
+  WProjectCreationOptions options;
   options.m_sTargetDirectory = sTargetDirectory;
-  options.m_sProjectTemplate = opt_ProjectTemplate.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-  options.m_sPluginTemplate = opt_PluginTemplate.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  options.m_sProjectTemplate = opt_ProjectTemplate.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
+  options.m_sPluginTemplate = opt_PluginTemplate.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
-  const ezStatus res = ezProjectCreation::CreateProject(options, GetPluginBundles());
+  const WStatus res = WProjectCreation::CreateProject(options, GetPluginBundles());
 
   if (res.Failed())
   {
-    ezLog::Error("Failed to create project '{}': {}", sTargetDirectory, res.GetMessageString());
-    return EZ_FAILURE;
+    WLog::Error("Failed to create project '{}': {}", sTargetDirectory, res.GetMessageString());
+    return W_FAILURE;
   }
 
-  ezLog::Success("Created project '{}'.", sTargetDirectory);
-  return EZ_SUCCESS;
+  WLog::Success("Created project '{}'.", sTargetDirectory);
+  return W_SUCCESS;
 }
 
-void ezQtEditorApp::SetupSilentAsserts()
+void WQtEditorApp::SetupSilentAsserts()
 {
-  ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).IgnoreResult();
+  WEnvironmentVariableUtils::SetValueInt("W_SILENT_ASSERTS", 1).IgnoreResult();
 }
 
-void ezQtEditorApp::StartupEditor()
+void WQtEditorApp::StartupEditor()
 {
   // Has to happen before anything below can ask a question - the startup flags, which the other
   // StartupEditor() overload derives this from, are only set further down.
-  const bool bUnattended = opt_Unattended.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  const bool bUnattended = opt_Unattended.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
   if (bUnattended)
   {
-    ezQtUiServices::SetUnattended();
+    WQtUiServices::SetUnattended();
     SetupSilentAsserts();
   }
 
   if (!bUnattended)
   {
-    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-    sTemp.AppendPath("ezEditorCrashIndicator");
+    WStringBuilder sTemp = WOSFile::GetTempDataFolder("WEditor");
+    sTemp.AppendPath("WEditorCrashIndicator");
 
-    if (ezOSFile::ExistsFile(sTemp))
+    if (WOSFile::ExistsFile(sTemp))
     {
-      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      WOSFile::DeleteFile(sTemp).IgnoreResult();
 
       // Unattended this is declined: the indicator file is left behind by any hard process termination,
       // so an automated caller that kills a stuck editor would otherwise get safe mode at every
       // subsequent launch, which prevents the project from loading at all. Use '-safe' to really get it.
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      if (WQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
         opt_Safe.GetOptions(sTemp);
-        ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
+        WCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
       }
     }
   }
 
-  ezBitflags<StartupFlags> startupFlags;
+  WBitflags<StartupFlags> startupFlags;
 
-  startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
-  startupFlags.AddOrRemove(StartupFlags::Dashboard, opt_Dashboard.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::Dashboard, opt_Dashboard.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified));
   startupFlags.AddOrRemove(StartupFlags::Unattended, bUnattended);
 
   StartupEditor(startupFlags);
 }
 
-void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const char* szUserDataFolder)
+void WQtEditorApp::StartupEditor(WBitflags<StartupFlags> startupFlags, const char* szUserDataFolder)
 {
-  EZ_PROFILE_SCOPE("StartupEditor");
+  W_PROFILE_SCOPE("StartupEditor");
 
   QCoreApplication::setOrganizationDomain("www.ezengine.net");
-  QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezApplication::GetApplicationInstance()->GetApplicationName().GetData());
+  QCoreApplication::setOrganizationName("WorldEngine Project");
+  QCoreApplication::setApplicationName(WApplication::GetApplicationInstance()->GetApplicationName().GetData());
+  QGuiApplication::setApplicationDisplayName(QString::fromUtf8("寰宇引擎"));
   QCoreApplication::setApplicationVersion("1.0.0");
 
   m_StartupFlags = startupFlags;
 
   if (IsInUnattendedMode())
   {
-    ezQtUiServices::SetUnattended();
+    WQtUiServices::SetUnattended();
     SetupSilentAsserts();
   }
 
-  auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
+  auto* pCmd = WCommandLineUtils::GetGlobalInstance();
 
   if (!IsInHeadlessMode())
   {
     SetupAndShowSplashScreen();
 
-    m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
-    m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
+    m_pProgressbar = W_DEFAULT_NEW(WProgress);
+    m_pQtProgressbar = W_DEFAULT_NEW(WQtProgressbar);
 
-    ezProgress::SetGlobalProgressbar(m_pProgressbar);
+    WProgress::SetGlobalProgressbar(m_pProgressbar);
     m_pQtProgressbar->SetProgressbar(m_pProgressbar);
   }
 
@@ -434,66 +435,66 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   const bool bNoRestore = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::Dashboard);
 
-  const ezString sApplicationName = pCmd->GetStringOption("-appname", 0, ezApplication::GetApplicationInstance()->GetApplicationName());
-  ezApplication::GetApplicationInstance()->SetApplicationName(sApplicationName);
+  const WString sApplicationName = pCmd->GetStringOption("-appname", 0, WApplication::GetApplicationInstance()->GetApplicationName());
+  WApplication::GetApplicationInstance()->SetApplicationName(sApplicationName);
 
   QLocale::setDefault(QLocale(QLocale::English));
 
-  m_pEngineViewProcess = new ezEditorEngineProcessConnection;
+  m_pEngineViewProcess = new WEditorEngineProcessConnection;
 
   m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
 
   if (!IsInHeadlessMode())
   {
-    EZ_PROFILE_SCOPE("ezQtContainerWindow");
+    W_PROFILE_SCOPE("WQtContainerWindow");
     SetStyleSheet();
 
-    ezQtContainerWindow* pContainer = new ezQtContainerWindow();
+    WQtContainerWindow* pContainer = new WQtContainerWindow();
     pContainer->show();
   }
 
-  ezDocumentManager::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
-  ezDocument::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentEventHandler, this));
-  ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
-  ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
+  WDocumentManager::s_Requests.AddEventHandler(WMakeDelegate(&WQtEditorApp::DocumentManagerRequestHandler, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WQtEditorApp::DocumentManagerEventHandler, this));
+  WDocument::s_EventsAny.AddEventHandler(WMakeDelegate(&WQtEditorApp::DocumentEventHandler, this));
+  WToolsProject::s_Requests.AddEventHandler(WMakeDelegate(&WQtEditorApp::ProjectRequestHandler, this));
+  WToolsProject::s_Events.AddEventHandler(WMakeDelegate(&WQtEditorApp::ProjectEventHandler, this));
+  WEditorEngineProcessConnection::s_Events.AddEventHandler(WMakeDelegate(&WQtEditorApp::EngineProcessMsgHandler, this));
+  WQtUiServices::s_Events.AddEventHandler(WMakeDelegate(&WQtEditorApp::UiServicesEvents, this));
 
-  ezStartup::StartupCoreSystems();
+  WStartup::StartupCoreSystems();
 
   {
     // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
     // Otherwise the Editor might deadlock during asset transform.
-    ezInt32 iLongThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::LongTasks));
-    ezInt32 iShortThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
-    ezTaskSystem::SetWorkerThreadCount(iShortThreads, iLongThreads);
+    WInt32 iLongThreads = WMath::Max(4, (WInt32)WTaskSystem::GetNumAllocatedWorkerThreads(WWorkerThreadType::LongTasks));
+    WInt32 iShortThreads = WMath::Max(4, (WInt32)WTaskSystem::GetNumAllocatedWorkerThreads(WWorkerThreadType::ShortTasks));
+    WTaskSystem::SetWorkerThreadCount(iShortThreads, iLongThreads);
   }
 
   {
-    EZ_PROFILE_SCOPE("Filesystem");
-    ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
+    W_PROFILE_SCOPE("Filesystem");
+    WFileSystem::DetectSdkRootDirectory().IgnoreResult();
 
-    const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
-    if (!ezStringUtils::IsNullOrEmpty(szUserDataFolder))
+    const WString sAppDir = WApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    WString sUserData = WApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
+    if (!WStringUtils::IsNullOrEmpty(szUserDataFolder))
     {
       sUserData = szUserDataFolder;
     }
     // make sure these folders exist
-    ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
-    ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
+    WFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
+    WFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezDataDirUsage::AllowWrites).IgnoreResult();             // for absolute paths
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();     // writing to the binary directory
-    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                    // app specific data
-    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
+    WFileSystem::AddDataDirectory("", "AbsPaths", ":", WDataDirUsage::AllowWrites).IgnoreResult();             // for absolute paths
+    WFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", WDataDirUsage::AllowWrites).IgnoreResult();     // writing to the binary directory
+    WFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                    // app specific data
+    WFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", WDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
   }
 
   {
-    EZ_PROFILE_SCOPE("Logging");
-    ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
-    ezStringBuilder sLogFile;
+    W_PROFILE_SCOPE("Logging");
+    WInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
+    WStringBuilder sLogFile;
     if (m_StartupFlags.IsSet(StartupFlags::Background))
       sLogFile.SetFormat(":appdata/Logs/LogEditorProcessor_{0}.htm", iApplicationID);
     else
@@ -501,32 +502,32 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-    ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::Console::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
+    WGlobalLog::AddLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+    WGlobalLog::AddLogWriter(WLogWriter::Tracing::LogMessageHandler);
   }
-  ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  WUniquePtr<WTranslatorFromFiles> pTranslatorEn = W_DEFAULT_NEW(WTranslatorFromFiles);
   m_pTranslatorFromFiles = pTranslatorEn.Borrow();
 
-  // ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  // WUniquePtr<WTranslatorFromFiles> pTranslatorDe = W_DEFAULT_NEW(WTranslatorFromFiles);
 
   pTranslatorEn->AddTranslationFilesFromFolder(":app/Localization/en");
   // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
-  ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorMakeMoreReadable));
-  // ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
-  ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
-  // ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
+  WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorMakeMoreReadable));
+  // WTranslationLookup::AddTranslator(W_DEFAULT_NEW(WTranslatorLogMissing));
+  WTranslationLookup::AddTranslator(std::move(pTranslatorEn));
+  // WTranslationLookup::AddTranslator(std::move(pTranslatorDe));
 
   LoadEditorPreferences();
-  ezCppProject::LoadPreferences();
+  WCppProject::LoadPreferences();
 
-  ezQtUiServices::GetSingleton()->LoadState();
+  WQtUiServices::GetSingleton()->LoadState();
 
   if (!IsInHeadlessMode())
   {
-    ezActionManager::LoadShortcutAssignment();
+    WActionManager::LoadShortcutAssignment();
 
     LoadRecentFiles();
 
@@ -536,7 +537,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     if (!IsInUnitTestMode())
     {
-      connect(m_pVersionChecker.Borrow(), &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
+      connect(m_pVersionChecker.Borrow(), &WQtVersionChecker::VersionCheckCompleted, this, &WQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
 
       m_pVersionChecker->Initialize();
       m_pVersionChecker->Check(false);
@@ -547,38 +548,38 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   if (!IsInHeadlessMode() && !IsInSafeMode())
   {
-    ezWindowLayoutActions::RestoreUserLayout();
+    WWindowLayoutActions::RestoreUserLayout();
   }
 
   CloseSplashScreen();
 
   m_bIsRunning = true;
   {
-    ezEditorAppEvent e;
-    e.m_Type = ezEditorAppEvent::Type::EditorStarted;
+    WEditorAppEvent e;
+    e.m_Type = WEditorAppEvent::Type::EditorStarted;
     m_Events.Broadcast(e);
   }
 
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
 
-  if (opt_ListTemplates.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
+  if (opt_ListTemplates.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     LogAvailableTemplates();
   }
 
-  const ezString sCreateProject = opt_CreateProject.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  const WString sCreateProject = opt_CreateProject.GetOptionValue(WCommandLineOption::LogMode::AlwaysIfSpecified);
 
   if (!sCreateProject.IsEmpty())
   {
     if (CreateProjectFromCommandLine(sCreateProject).Succeeded())
     {
-      // a project template already brings an 'ezProject' file, a blank project does not, and only the
+      // a project template already brings an 'WProject' file, a blank project does not, and only the
       // 'create' path writes one - so which one this is decides how the new project has to be opened
-      ezStringBuilder sProjectFile = sCreateProject;
-      sProjectFile.AppendPath("ezProject");
+      WStringBuilder sProjectFile = sCreateProject;
+      sProjectFile.AppendPath("WProject");
 
-      CreateOrOpenProject(!ezOSFile::ExistsFile(sProjectFile), sProjectFile).IgnoreResult();
+      CreateOrOpenProject(!WOSFile::ExistsFile(sProjectFile), sProjectFile).IgnoreResult();
     }
   }
   else if (pCmd->GetStringOptionArguments("-newproject") > 0)
@@ -587,7 +588,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
   else if (pCmd->GetStringOptionArguments("-project") > 0)
   {
-    for (ezUInt32 doc = 0; doc < pCmd->GetStringOptionArguments("-documents"); ++doc)
+    for (WUInt32 doc = 0; doc < pCmd->GetStringOptionArguments("-documents"); ++doc)
     {
       m_DocumentsToOpen.PushBack(pCmd->GetStringOption("-documents", doc));
     }
@@ -604,16 +605,16 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   else if (!IsInHeadlessMode())
   {
     // Show the window maximized when no project is being loaded
-    if (ezQtContainerWindow::GetContainerWindow())
+    if (WQtContainerWindow::GetContainerWindow())
     {
-      ezQtContainerWindow::GetContainerWindow()->showMaximized();
+      WQtContainerWindow::GetContainerWindow()->showMaximized();
     }
   }
 
   if (!IsInHeadlessMode())
   {
     // Now that all plugins have been loaded, populate the asset check rules
-    ezQtAssetCheckPanel::GetSingleton()->FillRuleList();
+    WQtAssetCheckPanel::GetSingleton()->FillRuleList();
   }
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
@@ -631,68 +632,68 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   {
     QTimer::singleShot(1000, [this]()
       {
-        ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-        sTemp.AppendPath("ezEditorCrashIndicator");
-        ezOSFile::DeleteFile(sTemp).IgnoreResult();
+        WStringBuilder sTemp = WOSFile::GetTempDataFolder("WEditor");
+        sTemp.AppendPath("WEditorCrashIndicator");
+        WOSFile::DeleteFile(sTemp).IgnoreResult();
         m_bWroteCrashIndicatorFile = false;
         //
       });
   }
 
-  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
+  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !WToolsProject::GetSingleton()->IsProjectOpen())
   {
     GuiOpenDashboard();
   }
 
-  ezStackTraceLogParser::Register();
+  WStackTraceLogParser::Register();
 }
 
-void ezQtEditorApp::ShutdownEditor()
+void WQtEditorApp::ShutdownEditor()
 {
   m_bIsRunning = false;
-  ezStackTraceLogParser::Unregister();
+  WStackTraceLogParser::Unregister();
 
-  // ezToolsProject::SaveProjectState();
+  // WToolsProject::SaveProjectState();
 
   m_pTimer->stop();
 
-  ezToolsProject::CloseProject();
+  WToolsProject::CloseProject();
 
   m_LongOpControllerManager.Shutdown();
 
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
-  ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
-  ezDocument::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentEventHandler, this));
-  ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
-  ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
+  WEditorEngineProcessConnection::s_Events.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::EngineProcessMsgHandler, this));
+  WToolsProject::s_Requests.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::ProjectRequestHandler, this));
+  WToolsProject::s_Events.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::ProjectEventHandler, this));
+  WDocument::s_EventsAny.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::DocumentEventHandler, this));
+  WDocumentManager::s_Requests.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::DocumentManagerRequestHandler, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::DocumentManagerEventHandler, this));
+  WQtUiServices::s_Events.RemoveEventHandler(WMakeDelegate(&WQtEditorApp::UiServicesEvents, this));
 
-  ezQtUiServices::GetSingleton()->SaveState();
+  WQtUiServices::GetSingleton()->SaveState();
 
   CloseSettingsDocument();
 
   if (!IsInHeadlessMode())
   {
-    delete ezQtContainerWindow::GetContainerWindow();
+    delete WQtContainerWindow::GetContainerWindow();
   }
   // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
   // if you run into this, please try to figure this out
-  // every ezQtApplicationPanel actually registers itself with a container window in its constructor
+  // every WQtApplicationPanel actually registers itself with a container window in its constructor
   // there its Qt 'parent' is set to the container window (there is only one)
-  // that means, when the application is shut down, all ezQtApplicationPanel instances should get deleted by their parent
+  // that means, when the application is shut down, all WQtApplicationPanel instances should get deleted by their parent
   // ie. the container window
   // however, SOMETIMES this does not happen
   // it seems to be related to whether a panel has been opened/closed (ie. shown/hidden), and maybe also with the restored state
   {
-    const auto& Panels = ezQtApplicationPanel::GetAllApplicationPanels();
-    ezUInt32 uiNumPanels = Panels.GetCount();
+    const auto& Panels = WQtApplicationPanel::GetAllApplicationPanels();
+    WUInt32 uiNumPanels = Panels.GetCount();
 
-    EZ_ASSERT_DEBUG(uiNumPanels == 0, "Not all panels have been cleaned up correctly");
+    W_ASSERT_DEBUG(uiNumPanels == 0, "Not all panels have been cleaned up correctly");
 
-    for (ezUInt32 i = 0; i < uiNumPanels; ++i)
+    for (WUInt32 i = 0; i < uiNumPanels; ++i)
     {
-      ezQtApplicationPanel* pPanel = Panels[i];
+      WQtApplicationPanel* pPanel = Panels[i];
       delete pPanel;
     }
   }
@@ -705,44 +706,44 @@ void ezQtEditorApp::ShutdownEditor()
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
-  ezPlugin::UnloadAllPlugins();
+  WPlugin::UnloadAllPlugins();
 
   if (m_bWroteCrashIndicatorFile)
   {
     // orderly shutdown -> make sure the crash indicator file is gone
-    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-    sTemp.AppendPath("ezEditorCrashIndicator");
-    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    WStringBuilder sTemp = WOSFile::GetTempDataFolder("WEditor");
+    sTemp.AppendPath("WEditorCrashIndicator");
+    WOSFile::DeleteFile(sTemp).IgnoreResult();
     m_bWroteCrashIndicatorFile = false;
   }
 
   // make sure no one tries to load any further images in parallel
-  ezQtImageCache::GetSingleton()->StopRequestProcessing(true);
+  WQtImageCache::GetSingleton()->StopRequestProcessing(true);
 
-  ezTranslationLookup::Clear();
+  WTranslationLookup::Clear();
 
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  WGlobalLog::RemoveLogWriter(WLogWriter::Console::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLogWriter::VisualStudio::LogMessageHandler);
+  WGlobalLog::RemoveLogWriter(WLoggingEvent::Handler(&WLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   m_LogHTML.EndLog();
 
-  EZ_DEFAULT_DELETE(m_pQtProgressbar);
-  EZ_DEFAULT_DELETE(m_pProgressbar);
+  W_DEFAULT_DELETE(m_pQtProgressbar);
+  W_DEFAULT_DELETE(m_pProgressbar);
 }
 
-void ezQtEditorApp::CreatePanels()
+void WQtEditorApp::CreatePanels()
 {
-  EZ_PROFILE_SCOPE("CreatePanels");
+  W_PROFILE_SCOPE("CreatePanels");
 
-  ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
+  WQtContainerWindow* pMainWnd = WQtContainerWindow::GetContainerWindow();
   ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
 
-  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel(pDockManager);
-  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel(pDockManager);
-  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel(pDockManager);
-  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel(pDockManager);
-  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel(pDockManager);
-  ezQtApplicationPanel* pAssetCheckPanel = new ezQtAssetCheckPanel(pDockManager);
+  WQtApplicationPanel* pAssetBrowserPanel = new WQtAssetBrowserPanel(pDockManager);
+  WQtApplicationPanel* pAssetCuratorPanel = new WQtAssetCuratorPanel(pDockManager);
+  WQtApplicationPanel* pLogPanel = new WQtLogPanel(pDockManager);
+  WQtApplicationPanel* pCVarPanel = new WQtCVarPanel(pDockManager);
+  WQtApplicationPanel* pLongOpsPanel = new WQtLongOpsPanel(pDockManager);
+  WQtApplicationPanel* pAssetCheckPanel = new WQtAssetCheckPanel(pDockManager);
 
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
@@ -759,16 +760,16 @@ void ezQtEditorApp::CreatePanels()
   pAssetBrowserPanel->raise();
 }
 
-ezCommandLineOptionBool opt_NoSplashScreen("_Editor", "-NoSplash", "Disables the editor splash-screen", false);
+WCommandLineOptionBool opt_NoSplashScreen("_Editor", "-NoSplash", "Disables the editor splash-screen", false);
 
-void ezQtEditorApp::SetupAndShowSplashScreen()
+void WQtEditorApp::SetupAndShowSplashScreen()
 {
-  EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+  W_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
 
-  if (m_StartupFlags.IsAnySet(ezQtEditorApp::StartupFlags::UnitTest))
+  if (m_StartupFlags.IsAnySet(WQtEditorApp::StartupFlags::UnitTest))
     return;
 
-  if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
+  if (opt_NoSplashScreen.GetOptionValue(WCommandLineOption::LogMode::Never))
     return;
 
   bool bShowSplashScreen = true;
@@ -807,23 +808,23 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
   m_pSplashScreen->setMask(splashPixmap.mask());
 
   // Don't set always on top if a debugger is attached to prevent it being stuck over the debugger.
-  if (!ezSystemInformation::IsDebuggerAttached())
+  if (!WSystemInformation::IsDebuggerAttached())
   {
     m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
   }
   m_pSplashScreen->show();
 }
 
-void ezQtEditorApp::CloseSplashScreen()
+void WQtEditorApp::CloseSplashScreen()
 {
   if (!m_pSplashScreen)
     return;
 
-  EZ_ASSERT_DEBUG(QThread::currentThread() == this->thread(), "CloseSplashScreen must be called from the main thread");
+  W_ASSERT_DEBUG(QThread::currentThread() == this->thread(), "CloseSplashScreen must be called from the main thread");
   QSplashScreen* pLocalSplashScreen = m_pSplashScreen;
   m_pSplashScreen = nullptr;
 
-  pLocalSplashScreen->finish(ezQtContainerWindow::GetContainerWindow());
+  pLocalSplashScreen->finish(WQtContainerWindow::GetContainerWindow());
   // if the deletion is done 'later', the splashscreen can end up as the parent window of other things
   // like messageboxes, and then the deletion will make the app crash
   delete pLocalSplashScreen;

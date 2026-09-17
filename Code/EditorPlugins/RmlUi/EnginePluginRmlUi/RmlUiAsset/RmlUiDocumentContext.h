@@ -4,27 +4,27 @@
 #include <EnginePluginRmlUi/EnginePluginRmlUiDLL.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 
-class ezObjectSelectionMsgToEngine;
-class ezRenderContext;
+class WObjectSelectionMsgToEngine;
+class WRenderContext;
 
-class EZ_ENGINEPLUGINRMLUI_DLL ezRmlUiDocumentContext : public ezEngineProcessDocumentContext
+class W_ENGINEPLUGINRMLUI_DLL WRmlUiDocumentContext : public WEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiDocumentContext, ezEngineProcessDocumentContext);
+  W_ADD_DYNAMIC_REFLECTION(WRmlUiDocumentContext, WEngineProcessDocumentContext);
 
 public:
-  ezRmlUiDocumentContext();
-  ~ezRmlUiDocumentContext();
+  WRmlUiDocumentContext();
+  ~WRmlUiDocumentContext();
 
-  const ezRmlUiResourceHandle& GetResource() const { return m_hMainResource; }
+  const WRmlUiResourceHandle& GetResource() const { return m_hMainResource; }
 
 protected:
   virtual void OnInitialize() override;
 
-  virtual ezEngineProcessViewContext* CreateViewContext() override;
-  virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual WEngineProcessViewContext* CreateViewContext() override;
+  virtual void DestroyViewContext(WEngineProcessViewContext* pContext) override;
+  virtual bool UpdateThumbnailViewContext(WEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  ezGameObject* m_pMainObject = nullptr;
-  ezRmlUiResourceHandle m_hMainResource;
+  WGameObject* m_pMainObject = nullptr;
+  WRmlUiResourceHandle m_hMainResource;
 };

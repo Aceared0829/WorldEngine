@@ -3,19 +3,19 @@
 #include <Core/Scripting/ScriptAttributes.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptExtensionAttribute, 1, ezRTTIDefaultAllocator<ezScriptExtensionAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScriptExtensionAttribute, 1, WRTTIDefaultAllocator<WScriptExtensionAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
+    W_MEMBER_PROPERTY("TypeName", m_sTypeName),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptExtensionAttribute::ezScriptExtensionAttribute() = default;
-ezScriptExtensionAttribute::ezScriptExtensionAttribute(ezStringView sTypeName)
+WScriptExtensionAttribute::WScriptExtensionAttribute() = default;
+WScriptExtensionAttribute::WScriptExtensionAttribute(WStringView sTypeName)
   : m_sTypeName(sTypeName)
 {
 }
@@ -23,22 +23,22 @@ ezScriptExtensionAttribute::ezScriptExtensionAttribute(ezStringView sTypeName)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptBaseClassFunctionAttribute, 1, ezRTTIDefaultAllocator<ezScriptBaseClassFunctionAttribute>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WScriptBaseClassFunctionAttribute, 1, WRTTIDefaultAllocator<WScriptBaseClassFunctionAttribute>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Index", m_uiIndex),
+    W_MEMBER_PROPERTY("Index", m_uiIndex),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptBaseClassFunctionAttribute::ezScriptBaseClassFunctionAttribute() = default;
-ezScriptBaseClassFunctionAttribute::ezScriptBaseClassFunctionAttribute(ezUInt16 uiIndex)
+WScriptBaseClassFunctionAttribute::WScriptBaseClassFunctionAttribute() = default;
+WScriptBaseClassFunctionAttribute::WScriptBaseClassFunctionAttribute(WUInt16 uiIndex)
   : m_uiIndex(uiIndex)
 {
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptAttributes);
+W_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptAttributes);

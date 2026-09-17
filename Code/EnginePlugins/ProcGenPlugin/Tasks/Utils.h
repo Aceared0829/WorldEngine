@@ -4,26 +4,26 @@
 
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 
-class ezVolumeCollection;
-class ezWorld;
+class WVolumeCollection;
+class WWorld;
 
-namespace ezProcGenInternal
+namespace WProcGenInternal
 {
   struct Output;
 }
 
-struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
+struct W_PROCGENPLUGIN_DLL WProcGenExpressionFunctions
 {
-  static ezExpressionFunction s_ApplyVolumesFunc;
-  static ezExpressionFunction s_GetInstanceSeedFunc;
+  static WExpressionFunction s_ApplyVolumesFunc;
+  static WExpressionFunction s_GetInstanceSeedFunc;
 };
 
-class EZ_PROCGENPLUGIN_DLL ezProcGenGlobalData
+class W_PROCGENPLUGIN_DLL WProcGenGlobalData
 {
 public:
-  static void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const ezProcGenInternal::Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData);
+  static void ExtractVolumeCollections(const WWorld& world, const WBoundingBox& box, const WProcGenInternal::Output& output, WDeque<WVolumeCollection>& ref_volumeCollections, WExpression::GlobalData& ref_globalData);
 
-  static void SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData);
+  static void SetInstanceSeed(WUInt32 uiSeed, WExpression::GlobalData& ref_globalData);
 
-  static void SetCurves(const ezProcGenInternal::Output& output, ezExpression::GlobalData& ref_globalData);
+  static void SetCurves(const WProcGenInternal::Output& output, WExpression::GlobalData& ref_globalData);
 };

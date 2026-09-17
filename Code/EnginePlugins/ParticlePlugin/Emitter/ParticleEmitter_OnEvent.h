@@ -9,46 +9,46 @@
 ///
 /// Only spawns when the specified event is raised.
 /// Useful for creating impact effects or other event-driven particles.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_OnEvent final : public ezParticleEmitterFactory
+class W_PARTICLEPLUGIN_DLL WParticleEmitterFactory_OnEvent final : public WParticleEmitterFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_OnEvent, ezParticleEmitterFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitterFactory_OnEvent, WParticleEmitterFactory);
 
 public:
-  ezParticleEmitterFactory_OnEvent();
-  ~ezParticleEmitterFactory_OnEvent();
+  WParticleEmitterFactory_OnEvent();
+  ~WParticleEmitterFactory_OnEvent();
 
-  virtual const ezRTTI* GetEmitterType() const override;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
-  virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
+  virtual const WRTTI* GetEmitterType() const override;
+  virtual void CopyEmitterProperties(WParticleEmitter* pEmitter, bool bFirstTime) const override;
+  virtual void QueryMaxParticleCount(WUInt32& out_uiMaxParticlesAbs, WUInt32& out_uiMaxParticlesPerSecond) const override;
 
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+  virtual void Save(WStreamWriter& inout_stream) const override;
+  virtual void Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezString m_sEventName;                ///< Name of the event that triggers emission
-  ezUInt32 m_uiSpawnCountMin = 1;       ///< Minimum particles per event
-  ezUInt32 m_uiSpawnCountRange = 0;     ///< Random range added to spawn count
-  ezString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
+  WString m_sEventName;                ///< Name of the event that triggers emission
+  WUInt32 m_uiSpawnCountMin = 1;       ///< Minimum particles per event
+  WUInt32 m_uiSpawnCountRange = 0;     ///< Random range added to spawn count
+  WString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_OnEvent final : public ezParticleEmitter
+class W_PARTICLEPLUGIN_DLL WParticleEmitter_OnEvent final : public WParticleEmitter
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_OnEvent, ezParticleEmitter);
+  W_ADD_DYNAMIC_REFLECTION(WParticleEmitter_OnEvent, WParticleEmitter);
 
 public:
-  ezTempHashedString m_sEventName;
-  ezUInt32 m_uiSpawnCountMin = 1;
-  ezUInt32 m_uiSpawnCountRange = 0;
-  ezTempHashedString m_sSpawnCountScaleParameter;
+  WTempHashedString m_sEventName;
+  WUInt32 m_uiSpawnCountMin = 1;
+  WUInt32 m_uiSpawnCountRange = 0;
+  WTempHashedString m_sSpawnCountScaleParameter;
 
   virtual void CreateRequiredStreams() override {}
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
+  virtual void InitializeElements(WUInt64 uiStartIndex, WUInt64 uiNumElements) override {}
 
-  virtual ezParticleEmitterState IsFinished() override;
-  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
+  virtual WParticleEmitterState IsFinished() override;
+  virtual WUInt32 ComputeSpawnCount(const WTime& tDiff) override;
 
-  virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
+  virtual void ProcessEventQueue(WParticleEventQueue queue) override;
 
   bool m_bSpawn = false;
 };

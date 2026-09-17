@@ -3,10 +3,10 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/Declarations.h>
 
-class ezQtPropertyGridWidget;
-class ezAbstractProperty;
+class WQtPropertyGridWidget;
+class WAbstractProperty;
 
-struct ezPropertyEvent
+struct WPropertyEvent
 {
   enum class Type
   {
@@ -17,7 +17,7 @@ struct ezPropertyEvent
   };
 
   Type m_Type;
-  const ezAbstractProperty* m_pProperty;
-  const ezHybridArray<ezPropertySelection, 8>* m_pItems;
-  ezVariant m_Value;
+  const WAbstractProperty* m_pProperty;
+  const WHybridArray<WPropertySelection, 8>* m_pItems;
+  WVariant m_Value;
 };

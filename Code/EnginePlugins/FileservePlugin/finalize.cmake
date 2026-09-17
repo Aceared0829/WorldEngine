@@ -1,2 +1,2 @@
-ez_pull_all_vars()
+W_pull_all_vars()
 

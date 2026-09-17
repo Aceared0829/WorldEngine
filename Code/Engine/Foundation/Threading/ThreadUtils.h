@@ -4,11 +4,11 @@
 #include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-struct ezTime;
-class ezThread;
+struct WTime;
+class WThread;
 
 /// Contains general thread functions.
-class EZ_FOUNDATION_DLL ezThreadUtils
+class W_FOUNDATION_DLL WThreadUtils
 {
 public:
   /// Suspends execution of the current thread and yields the remaining time slice to other threads.
@@ -33,7 +33,7 @@ public:
   /// Precision varies by platform but is typically around 1-15ms. For high-precision timing, consider using
   /// busy-wait loops with YieldTimeSlice() for very short delays, though this consumes more CPU.
   /// Avoid using Sleep() in performance-critical code paths.
-  static void Sleep(const ezTime& duration); // [tested]
+  static void Sleep(const WTime& duration); // [tested]
 
   /// Checks if the current thread is the main thread.
   ///
@@ -47,10 +47,10 @@ public:
   /// The returned ID is guaranteed to be unique among all currently running threads, but may be reused
   /// after a thread terminates. Thread IDs should not be stored long-term or used for cross-process
   /// communication. Primarily useful for debugging, logging, and temporary thread identification.
-  static ezThreadID GetCurrentThreadID();
+  static WThreadID GetCurrentThreadID();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ThreadUtils);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ThreadUtils);
 
   /// Initialization functionality of the threading system (called by foundation startup and thus private)
   static void Initialize();

@@ -4,17 +4,17 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Texture/Utils/TextureAtlasDesc.h>
 
-ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) const
+WResult WTextureAtlasCreationDesc::Serialize(WStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(4);
 
   if (m_Layers.GetCount() > 255u)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezUInt8 uiNumLayers = static_cast<ezUInt8>(m_Layers.GetCount());
+  const WUInt8 uiNumLayers = static_cast<WUInt8>(m_Layers.GetCount());
   inout_stream << uiNumLayers;
 
-  for (ezUInt32 l = 0; l < uiNumLayers; ++l)
+  for (WUInt32 l = 0; l < uiNumLayers; ++l)
   {
     inout_stream << m_Layers[l].m_Usage;
     inout_stream << m_Layers[l].m_uiNumChannels;
@@ -26,7 +26,7 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) con
     inout_stream << item.m_uiUniqueID;
     inout_stream << item.m_uiFlags;
 
-    for (ezUInt32 l = 0; l < uiNumLayers; ++l)
+    for (WUInt32 l = 0; l < uiNumLayers; ++l)
     {
       inout_stream << item.m_sLayerInput[l];
     }
@@ -37,25 +37,25 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) con
     inout_stream << item.m_uiNumVariationsY;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
+WResult WTextureAtlasCreationDesc::Deserialize(WStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(4);
+  const WTypeVersion uiVersion = inout_stream.ReadVersion(4);
 
-  ezUInt8 uiNumLayers = 0;
+  WUInt8 uiNumLayers = 0;
   inout_stream >> uiNumLayers;
 
   m_Layers.SetCount(uiNumLayers);
 
-  for (ezUInt32 l = 0; l < uiNumLayers; ++l)
+  for (WUInt32 l = 0; l < uiNumLayers; ++l)
   {
     inout_stream >> m_Layers[l].m_Usage;
     inout_stream >> m_Layers[l].m_uiNumChannels;
   }
 
-  ezUInt32 uiNumItems = 0;
+  WUInt32 uiNumItems = 0;
   inout_stream >> uiNumItems;
   m_Items.SetCount(uiNumItems);
 
@@ -64,7 +64,7 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> item.m_uiUniqueID;
     inout_stream >> item.m_uiFlags;
 
-    for (ezUInt32 l = 0; l < uiNumLayers; ++l)
+    for (WUInt32 l = 0; l < uiNumLayers; ++l)
     {
       inout_stream >> item.m_sLayerInput[l];
     }
@@ -81,32 +81,32 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTextureAtlasCreationDesc::Save(ezStringView sFile) const
+WResult WTextureAtlasCreationDesc::Save(WStringView sFile) const
 {
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileWriter file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
   return Serialize(file);
 }
 
-ezResult ezTextureAtlasCreationDesc::Load(ezStringView sFile)
+WResult WTextureAtlasCreationDesc::Load(WStringView sFile)
 {
-  ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+  WFileReader file;
+  W_SUCCEED_OR_RETURN(file.Open(sFile));
 
   return Deserialize(file);
 }
 
-void ezTextureAtlasRuntimeDesc::Clear()
+void WTextureAtlasRuntimeDesc::Clear()
 {
   m_uiNumLayers = 0;
   m_Items.Clear();
 }
 
-ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) const
+WResult WTextureAtlasRuntimeDesc::Serialize(WStreamWriter& inout_stream) const
 {
   m_Items.Sort();
 
@@ -115,12 +115,12 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) cons
   inout_stream << m_uiNumLayers;
   inout_stream << m_Items.GetCount();
 
-  for (ezUInt32 i = 0; i < m_Items.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Items.GetCount(); ++i)
   {
     inout_stream << m_Items.GetKey(i);
     inout_stream << m_Items.GetValue(i).m_uiFlags;
 
-    for (ezUInt32 l = 0; l < m_uiNumLayers; ++l)
+    for (WUInt32 l = 0; l < m_uiNumLayers; ++l)
     {
       const auto& r = m_Items.GetValue(i).m_LayerRects[l];
       inout_stream << r.x;
@@ -133,30 +133,30 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) cons
     inout_stream << m_Items.GetValue(i).m_uiNumVariationsY;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
+WResult WTextureAtlasRuntimeDesc::Deserialize(WStreamReader& inout_stream)
 {
   Clear();
 
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(2);
+  const WTypeVersion uiVersion = inout_stream.ReadVersion(2);
 
   inout_stream >> m_uiNumLayers;
 
-  ezUInt32 uiNumItems = 0;
+  WUInt32 uiNumItems = 0;
   inout_stream >> uiNumItems;
   m_Items.Reserve(uiNumItems);
 
-  for (ezUInt32 i = 0; i < uiNumItems; ++i)
+  for (WUInt32 i = 0; i < uiNumItems; ++i)
   {
-    ezUInt32 key = 0;
+    WUInt32 key = 0;
     inout_stream >> key;
 
     auto& item = m_Items[key];
     inout_stream >> item.m_uiFlags;
 
-    for (ezUInt32 l = 0; l < m_uiNumLayers; ++l)
+    for (WUInt32 l = 0; l < m_uiNumLayers; ++l)
     {
       auto& r = item.m_LayerRects[l];
       inout_stream >> r.x;
@@ -173,5 +173,5 @@ ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
   }
 
   m_Items.Sort();
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

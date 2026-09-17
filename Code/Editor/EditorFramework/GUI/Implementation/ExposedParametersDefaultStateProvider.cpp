@@ -7,51 +7,51 @@
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-ezSharedPtr<ezDefaultStateProvider> ezExposedParametersDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WSharedPtr<WDefaultStateProvider> WExposedParametersDefaultStateProvider::CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
   if (pProp)
   {
-    const auto* pAttrib = pProp->GetAttributeByType<ezExposedParametersAttribute>();
+    const auto* pAttrib = pProp->GetAttributeByType<WExposedParametersAttribute>();
     if (pAttrib)
     {
-      return EZ_DEFAULT_NEW(ezExposedParametersDefaultStateProvider, pAccessor, pObject, pProp);
+      return W_DEFAULT_NEW(WExposedParametersDefaultStateProvider, pAccessor, pObject, pProp);
     }
   }
   return nullptr;
 }
 
-ezExposedParametersDefaultStateProvider::ezExposedParametersDefaultStateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WExposedParametersDefaultStateProvider::WExposedParametersDefaultStateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
   : m_pObject(pObject)
   , m_pProp(pProp)
 {
-  EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Map, "ezExposedParametersAttribute must be on a map property");
-  m_pAttrib = pProp->GetAttributeByType<ezExposedParametersAttribute>();
-  EZ_ASSERT_DEBUG(m_pAttrib, "ezExposedParametersDefaultStateProvider was created for a property that does not have the ezExposedParametersAttribute.");
+  W_ASSERT_DEBUG(pProp->GetCategory() == WPropertyCategory::Map, "WExposedParametersAttribute must be on a map property");
+  m_pAttrib = pProp->GetAttributeByType<WExposedParametersAttribute>();
+  W_ASSERT_DEBUG(m_pAttrib, "WExposedParametersDefaultStateProvider was created for a property that does not have the WExposedParametersAttribute.");
   m_pParameterSourceProp = pObject->GetType()->FindPropertyByName(m_pAttrib->GetParametersSource());
-  EZ_ASSERT_DEBUG(
+  W_ASSERT_DEBUG(
     m_pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_pAttrib->GetParametersSource(), pObject->GetType()->GetTypeName());
 }
 
-ezInt32 ezExposedParametersDefaultStateProvider::GetRootDepth() const
+WInt32 WExposedParametersDefaultStateProvider::GetRootDepth() const
 {
   return 0;
 }
 
-ezColorGammaUB ezExposedParametersDefaultStateProvider::GetBackgroundColor() const
+WColorGammaUB WExposedParametersDefaultStateProvider::GetBackgroundColor() const
 {
   // Set alpha to 0 -> color will be ignored.
-  return ezColorGammaUB(0, 0, 0, 0);
+  return WColorGammaUB(0, 0, 0, 0);
 }
 
-ezVariant ezExposedParametersDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WVariant WExposedParametersDefaultStateProvider::GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  EZ_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "ezDefaultContainerState is only valid on the object and container it was created on.");
-  ezExposedParameterCommandAccessor accessor(pAccessor, pProp, m_pParameterSourceProp);
+  W_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "WDefaultContainerState is only valid on the object and container it was created on.");
+  WExposedParameterCommandAccessor accessor(pAccessor, pProp, m_pParameterSourceProp);
   if (index.IsValid())
   {
-    if (index.IsA<ezString>())
+    if (index.IsA<WString>())
     {
-      const ezExposedParameter* pParam = accessor.GetExposedParam(pObject, index.Get<ezString>());
+      const WExposedParameter* pParam = accessor.GetExposedParam(pObject, index.Get<WString>());
       if (pParam)
       {
         return pParam->m_DefaultValue;
@@ -61,10 +61,10 @@ ezVariant ezExposedParametersDefaultStateProvider::GetDefaultValue(SuperArray su
   }
   else
   {
-    ezVariantDictionary defaultDict;
-    if (const ezExposedParameters* pParams = accessor.GetExposedParams(pObject))
+    WVariantDictionary defaultDict;
+    if (const WExposedParameters* pParams = accessor.GetExposedParams(pObject))
     {
-      for (ezExposedParameter* pParam : pParams->m_Parameters)
+      for (WExposedParameter* pParam : pParams->m_Parameters)
       {
         defaultDict.Insert(pParam->m_sName, pParam->m_DefaultValue);
       }
@@ -73,120 +73,120 @@ ezVariant ezExposedParametersDefaultStateProvider::GetDefaultValue(SuperArray su
   }
 }
 
-ezStatus ezExposedParametersDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
+WStatus WExposedParametersDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff)
 {
-  EZ_REPORT_FAILURE("Unreachable code");
-  return ezStatus(EZ_SUCCESS);
+  W_REPORT_FAILURE("Unreachable code");
+  return WStatus(W_SUCCESS);
 }
 
-bool ezExposedParametersDefaultStateProvider::IsDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+bool WExposedParametersDefaultStateProvider::IsDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  EZ_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "ezDefaultContainerState is only valid on the object and container it was created on.");
-  ezExposedParameterCommandAccessor accessor(pAccessor, pProp, m_pParameterSourceProp);
+  W_ASSERT_DEBUG(pObject == m_pObject && pProp == m_pProp, "WDefaultContainerState is only valid on the object and container it was created on.");
+  WExposedParameterCommandAccessor accessor(pAccessor, pProp, m_pParameterSourceProp);
 
-  const ezVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
+  const WVariant def = GetDefaultValue(superPtr, pAccessor, pObject, pProp, index);
   if (index.IsValid())
   {
-    ezVariant value;
-    ezStatus res = accessor.GetValue(pObject, pProp, value, index);
+    WVariant value;
+    WStatus res = accessor.GetValue(pObject, pProp, value, index);
     // If the key is not valid, the exposed parameter is not overwritten and thus remains at the default value.
     return res.Failed() || def == value;
   }
   else
   {
     // We consider an exposed params map to be the default if it is empty.
-    // We deliberately do not use the accessor here and go directly to the object storage as the passed in pAccessor could already be an ezExposedParameterCommandAccessor in which case we wouldn't truly know if anything was overwritten.
-    ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
-    return value.Get<ezVariantDictionary>().GetCount() == 0;
+    // We deliberately do not use the accessor here and go directly to the object storage as the passed in pAccessor could already be an WExposedParameterCommandAccessor in which case we wouldn't truly know if anything was overwritten.
+    WVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
+    return value.Get<WVariantDictionary>().GetCount() == 0;
   }
 }
 
-ezStatus ezExposedParametersDefaultStateProvider::RevertProperty(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WExposedParametersDefaultStateProvider::RevertProperty(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
   if (!index.IsValid())
   {
     // We override the standard implementation here to just clear the array on revert to default. This is because the exposed params work as an override of the default behavior and we can safe space and time by simply not overriding anything.
     // The GUI will take care of pretending that the values are present with their default value.
-    ezDeque<ezAbstractGraphDiffOperation> diff;
+    WDeque<WAbstractGraphDiffOperation> diff;
     auto& op = diff.ExpandAndGetRef();
     op.m_Node = pObject->GetGuid();
-    op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertyChanged;
+    op.m_Operation = WAbstractGraphDiffOperation::Op::PropertyChanged;
     op.m_sProperty = pProp->GetPropertyName();
     op.m_uiTypeVersion = 0;
-    op.m_Value = ezVariantDictionary();
-    ezDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
-    return ezStatus(EZ_SUCCESS);
+    op.m_Value = WVariantDictionary();
+    WDocumentObjectConverterReader::ApplyDiffToObject(pAccessor, pObject, diff);
+    return WStatus(W_SUCCESS);
   }
-  return ezDefaultStateProvider::RevertProperty(superPtr, pAccessor, pObject, pProp, index);
+  return WDefaultStateProvider::RevertProperty(superPtr, pAccessor, pObject, pProp, index);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ezSharedPtr<ezDefaultStateProvider> ezExposedParametersAsTypeDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+WSharedPtr<WDefaultStateProvider> WExposedParametersAsTypeDefaultStateProvider::CreateProvider(WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
 {
-  if (auto pExposedParameterCommandAccessor = ezDynamicCast<ezExposedParametersAsTypeCommandAccessor*>(pAccessor))
+  if (auto pExposedParameterCommandAccessor = WDynamicCast<WExposedParametersAsTypeCommandAccessor*>(pAccessor))
   {
-    return EZ_DEFAULT_NEW(ezExposedParametersAsTypeDefaultStateProvider, pExposedParameterCommandAccessor, pObject, pProp);
+    return W_DEFAULT_NEW(WExposedParametersAsTypeDefaultStateProvider, pExposedParameterCommandAccessor, pObject, pProp);
   }
   return nullptr;
 }
 
-ezExposedParametersAsTypeDefaultStateProvider::ezExposedParametersAsTypeDefaultStateProvider(ezExposedParametersAsTypeCommandAccessor* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
-  : ezExposedParametersDefaultStateProvider(pAccessor->GetSourceAccessor(), pObject, pAccessor->GetSourceAccessor()->m_pParameterProp)
+WExposedParametersAsTypeDefaultStateProvider::WExposedParametersAsTypeDefaultStateProvider(WExposedParametersAsTypeCommandAccessor* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp)
+  : WExposedParametersDefaultStateProvider(pAccessor->GetSourceAccessor(), pObject, pAccessor->GetSourceAccessor()->m_pParameterProp)
   , m_pAccessor(pAccessor)
 {
 }
 
-ezVariant ezExposedParametersAsTypeDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WVariant WExposedParametersAsTypeDefaultStateProvider::GetDefaultValue(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Succeeded())
     return defaultValue;
 
   return {};
 }
 
-ezStatus ezExposedParametersAsTypeDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
+WStatus WExposedParametersAsTypeDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WDeque<WAbstractGraphDiffOperation>& out_diff)
 {
-  EZ_REPORT_FAILURE("Unreachable code");
-  return ezStatus(EZ_SUCCESS);
+  W_REPORT_FAILURE("Unreachable code");
+  return WStatus(W_SUCCESS);
 }
 
-bool ezExposedParametersAsTypeDefaultStateProvider::IsDefaultValue(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+bool WExposedParametersAsTypeDefaultStateProvider::IsDefaultValue(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
     return true;
 
-  ezVariant value;
+  WVariant value;
   pAccessor->GetValue(pObject, pProp, value, index).LogFailure();
   return defaultValue == value;
 }
 
-ezStatus ezExposedParametersAsTypeDefaultStateProvider::RevertProperty(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+WStatus WExposedParametersAsTypeDefaultStateProvider::RevertProperty(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index)
 {
-  ezVariant defaultValue;
+  WVariant defaultValue;
   if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
-    return ezStatus(ezFmt("Failed to retrieve default value for exposed parameter."));
+    return WStatus(WFmt("Failed to retrieve default value for exposed parameter."));
 
   return pAccessor->SetValue(pObject, pProp, defaultValue, index);
 }
 
-ezResult ezExposedParametersAsTypeDefaultStateProvider::GetDefaultValueInternal(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezVariant& out_DefaultValue)
+WResult WExposedParametersAsTypeDefaultStateProvider::GetDefaultValueInternal(WDefaultStateProvider::SuperArray superPtr, WObjectAccessorBase* pAccessor, const WDocumentObject* pObject, const WAbstractProperty* pProp, WVariant index, WVariant& out_DefaultValue)
 {
-  // As we derive from ezExposedParametersDefaultStateProvider, we first need to convert the exposed parameter type, prop, accessor into the actual underlying data structure that the base class expects before calling it.
-  // * The ezExposedParametersAsTypeCommandAccessor proxies the ezExposedParameterCommandAccessor so the proxy source is the correct accessor.
+  // As we derive from WExposedParametersDefaultStateProvider, we first need to convert the exposed parameter type, prop, accessor into the actual underlying data structure that the base class expects before calling it.
+  // * The WExposedParametersAsTypeCommandAccessor proxies the WExposedParameterCommandAccessor so the proxy source is the correct accessor.
   // * The object stays the same.
   // * The property from the exposed parameter type is replaced by the actual property that stores the exposed parameters in the real object.
   // * The index is the name of the property as that is how the parameter map is generated (keyed by parameter name).
   // With these changes made, we can rely on the base class to compute the default value.
-  out_DefaultValue = ezExposedParametersDefaultStateProvider::GetDefaultValue(superPtr, m_pAccessor->GetSourceAccessor(), pObject, m_pAccessor->GetSourceAccessor()->m_pParameterProp, pProp->GetPropertyName());
+  out_DefaultValue = WExposedParametersDefaultStateProvider::GetDefaultValue(superPtr, m_pAccessor->GetSourceAccessor(), pObject, m_pAccessor->GetSourceAccessor()->m_pParameterProp, pProp->GetPropertyName());
 
-  ezStatus res(EZ_SUCCESS);
+  WStatus res(W_SUCCESS);
   // We now have the value of the exposed parameter. If this is a container, we need to dive into the index. If index is invalid, this is a no-op.
-  out_DefaultValue = ezVariantStorageAccessor(pProp->GetPropertyName(), out_DefaultValue).GetValue(index, &res);
+  out_DefaultValue = WVariantStorageAccessor(pProp->GetPropertyName(), out_DefaultValue).GetValue(index, &res);
   if (res.Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

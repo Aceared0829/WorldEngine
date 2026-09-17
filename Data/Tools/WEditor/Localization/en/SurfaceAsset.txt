@@ -1,0 +1,14 @@
+# Asset Types
+
+Surface;Surface;;https://ezengine.net/pages/docs/materials/surfaces.html
+
+# Component Types
+
+# Properties
+
+WSurfaceResourceSlot;Surface Slot
+
+WSurfaceInteraction;Surface Interaction
+
+WSurfaceInteractionAlignment::IncidentDirection;Incoming Direction
+WSurfaceInteractionAlignment::ReverseIncidentDirection;Reverse Incoming Direction

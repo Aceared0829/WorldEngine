@@ -9,73 +9,73 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightButtonAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewLightButtonAction, 1, WRTTINoAllocator);
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewLightSliderAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WViewLightSliderAction, 1, WRTTINoAllocator);
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezViewLightActions::s_hLightMenu;
-ezActionDescriptorHandle ezViewLightActions::s_hSkyBox;
-ezActionDescriptorHandle ezViewLightActions::s_hSkyLight;
-ezActionDescriptorHandle ezViewLightActions::s_hSkyLightCubeMap;
-ezActionDescriptorHandle ezViewLightActions::s_hSkyLightIntensity;
-ezActionDescriptorHandle ezViewLightActions::s_hDirLight;
-ezActionDescriptorHandle ezViewLightActions::s_hDirLightAngle;
-ezActionDescriptorHandle ezViewLightActions::s_hDirLightShadows;
-ezActionDescriptorHandle ezViewLightActions::s_hDirLightIntensity;
-ezActionDescriptorHandle ezViewLightActions::s_hFog;
-ezActionDescriptorHandle ezViewLightActions::s_hSetAsDefault;
+WActionDescriptorHandle WViewLightActions::s_hLightMenu;
+WActionDescriptorHandle WViewLightActions::s_hSkyBox;
+WActionDescriptorHandle WViewLightActions::s_hSkyLight;
+WActionDescriptorHandle WViewLightActions::s_hSkyLightCubeMap;
+WActionDescriptorHandle WViewLightActions::s_hSkyLightIntensity;
+WActionDescriptorHandle WViewLightActions::s_hDirLight;
+WActionDescriptorHandle WViewLightActions::s_hDirLightAngle;
+WActionDescriptorHandle WViewLightActions::s_hDirLightShadows;
+WActionDescriptorHandle WViewLightActions::s_hDirLightIntensity;
+WActionDescriptorHandle WViewLightActions::s_hFog;
+WActionDescriptorHandle WViewLightActions::s_hSetAsDefault;
 
-void ezViewLightActions::RegisterActions()
+void WViewLightActions::RegisterActions()
 {
-  s_hLightMenu = EZ_REGISTER_MENU_WITH_ICON("View.LightMenu", ":/EditorFramework/Icons/ViewLightMenu.svg");
-  s_hSkyBox = EZ_REGISTER_ACTION_1(
-    "View.SkyBox", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::SkyBoxChanged);
-  s_hSkyLight = EZ_REGISTER_ACTION_1(
-    "View.SkyLight", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::SkyLightChanged);
-  s_hSkyLightCubeMap = EZ_REGISTER_ACTION_1(
-    "View.SkyLightCubeMap", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged);
-  s_hSkyLightIntensity = EZ_REGISTER_ACTION_1(
-    "View.SkyLightIntensity", ezActionScope::Document, "View", "", ezViewLightSliderAction, ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged);
+  s_hLightMenu = W_REGISTER_MENU_WITH_ICON("View.LightMenu", ":/EditorFramework/Icons/ViewLightMenu.svg");
+  s_hSkyBox = W_REGISTER_ACTION_1(
+    "View.SkyBox", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::SkyBoxChanged);
+  s_hSkyLight = W_REGISTER_ACTION_1(
+    "View.SkyLight", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::SkyLightChanged);
+  s_hSkyLightCubeMap = W_REGISTER_ACTION_1(
+    "View.SkyLightCubeMap", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged);
+  s_hSkyLightIntensity = W_REGISTER_ACTION_1(
+    "View.SkyLightIntensity", WActionScope::Document, "View", "", WViewLightSliderAction, WEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged);
 
-  s_hDirLight = EZ_REGISTER_ACTION_1(
-    "View.DirectionalLight", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged);
-  s_hDirLightAngle = EZ_REGISTER_ACTION_1(
-    "View.DirLightAngle", ezActionScope::Document, "View", "", ezViewLightSliderAction, ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged);
-  s_hDirLightShadows = EZ_REGISTER_ACTION_1(
-    "View.DirectionalLightShadows", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged);
-  s_hDirLightIntensity = EZ_REGISTER_ACTION_1(
-    "View.DirLightIntensity", ezActionScope::Document, "View", "", ezViewLightSliderAction, ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged);
-  s_hFog = EZ_REGISTER_ACTION_1(
-    "View.Fog", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::FogChanged);
-  s_hSetAsDefault = EZ_REGISTER_ACTION_1(
-    "View.SetAsDefault", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::DefaultValuesChanged);
+  s_hDirLight = W_REGISTER_ACTION_1(
+    "View.DirectionalLight", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::DirectionalLightChanged);
+  s_hDirLightAngle = W_REGISTER_ACTION_1(
+    "View.DirLightAngle", WActionScope::Document, "View", "", WViewLightSliderAction, WEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged);
+  s_hDirLightShadows = W_REGISTER_ACTION_1(
+    "View.DirectionalLightShadows", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged);
+  s_hDirLightIntensity = W_REGISTER_ACTION_1(
+    "View.DirLightIntensity", WActionScope::Document, "View", "", WViewLightSliderAction, WEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged);
+  s_hFog = W_REGISTER_ACTION_1(
+    "View.Fog", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::FogChanged);
+  s_hSetAsDefault = W_REGISTER_ACTION_1(
+    "View.SetAsDefault", WActionScope::Document, "View", "", WViewLightButtonAction, WEngineViewLightSettingsEvent::Type::DefaultValuesChanged);
 }
 
-void ezViewLightActions::UnregisterActions()
+void WViewLightActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hLightMenu);
-  ezActionManager::UnregisterAction(s_hSkyBox);
-  ezActionManager::UnregisterAction(s_hSkyLight);
-  ezActionManager::UnregisterAction(s_hSkyLightCubeMap);
-  ezActionManager::UnregisterAction(s_hSkyLightIntensity);
-  ezActionManager::UnregisterAction(s_hDirLight);
-  ezActionManager::UnregisterAction(s_hDirLightAngle);
-  ezActionManager::UnregisterAction(s_hDirLightShadows);
-  ezActionManager::UnregisterAction(s_hDirLightIntensity);
-  ezActionManager::UnregisterAction(s_hFog);
-  ezActionManager::UnregisterAction(s_hSetAsDefault);
+  WActionManager::UnregisterAction(s_hLightMenu);
+  WActionManager::UnregisterAction(s_hSkyBox);
+  WActionManager::UnregisterAction(s_hSkyLight);
+  WActionManager::UnregisterAction(s_hSkyLightCubeMap);
+  WActionManager::UnregisterAction(s_hSkyLightIntensity);
+  WActionManager::UnregisterAction(s_hDirLight);
+  WActionManager::UnregisterAction(s_hDirLightAngle);
+  WActionManager::UnregisterAction(s_hDirLightShadows);
+  WActionManager::UnregisterAction(s_hDirLightIntensity);
+  WActionManager::UnregisterAction(s_hFog);
+  WActionManager::UnregisterAction(s_hSetAsDefault);
 }
 
-void ezViewLightActions::MapToolbarActions(ezStringView sMapping)
+void WViewLightActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hLightMenu, "", 2.5f);
-  const ezStringView sSubPath = "View.LightMenu";
+  const WStringView sSubPath = "View.LightMenu";
   pMap->MapAction(s_hSkyBox, sSubPath, 1.0f);
   pMap->MapAction(s_hSkyLight, sSubPath, 1.0f);
   pMap->MapAction(s_hSkyLightCubeMap, sSubPath, 2.0f);
@@ -90,84 +90,84 @@ void ezViewLightActions::MapToolbarActions(ezStringView sMapping)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezViewLightButtonAction::ezViewLightButtonAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button)
-  : ezButtonAction(context, szName, false, "")
+WViewLightButtonAction::WViewLightButtonAction(const WActionContext& context, const char* szName, WEngineViewLightSettingsEvent::Type button)
+  : WButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  m_pSettings = static_cast<ezEngineViewLightSettings*>(pView->GetDocumentWindow()->GetDocument()->FindSyncObject(ezEngineViewLightSettings::GetStaticRTTI()));
-  EZ_ASSERT_DEV(m_pSettings != nullptr, "The asset document does not have a ezEngineViewLightSettings sync object.");
-  m_SettingsID = m_pSettings->m_EngineViewLightSettingsEvents.AddEventHandler(ezMakeDelegate(&ezViewLightButtonAction::LightSettingsEventHandler, this));
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  m_pSettings = static_cast<WEngineViewLightSettings*>(pView->GetDocumentWindow()->GetDocument()->FindSyncObject(WEngineViewLightSettings::GetStaticRTTI()));
+  W_ASSERT_DEV(m_pSettings != nullptr, "The asset document does not have a WEngineViewLightSettings sync object.");
+  m_SettingsID = m_pSettings->m_EngineViewLightSettingsEvents.AddEventHandler(WMakeDelegate(&WViewLightButtonAction::LightSettingsEventHandler, this));
 
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyBoxChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyBoxChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezSkyBoxComponent.svg");
+      SetIconPath(":/TypeIcons/WSkyBoxComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
+      SetIconPath(":/TypeIcons/WSkyLightComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
+    case WEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
+      SetIconPath(":/TypeIcons/WSkyLightComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
+      SetIconPath(":/TypeIcons/WDirectionalLightComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
+      SetIconPath(":/TypeIcons/WDirectionalLightComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::FogChanged:
+    case WEngineViewLightSettingsEvent::Type::FogChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezFogComponent.svg");
+      SetIconPath(":/TypeIcons/WFogComponent.svg");
       break;
-    case ezEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
+    case WEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
       SetCheckable(false);
       SetIconPath(":/EditorFramework/Icons/ViewLightMenu.svg");
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   UpdateAction();
 }
 
-ezViewLightButtonAction::~ezViewLightButtonAction()
+WViewLightButtonAction::~WViewLightButtonAction()
 {
   m_pSettings->m_EngineViewLightSettingsEvents.RemoveEventHandler(m_SettingsID);
 }
 
-void ezViewLightButtonAction::Execute(const ezVariant& value)
+void WViewLightButtonAction::Execute(const WVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
 
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyBoxChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyBoxChanged:
     {
       m_pSettings->SetSkyBox(value.ConvertTo<bool>());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightChanged:
     {
       m_pSettings->SetSkyLight(value.ConvertTo<bool>());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
     {
-      ezStringBuilder sFile = m_pSettings->GetSkyLightCubeMap();
-      ezUuid assetGuid = ezConversionUtils::ConvertStringToUuid(sFile);
+      WStringBuilder sFile = m_pSettings->GetSkyLightCubeMap();
+      WUuid assetGuid = WConversionUtils::ConvertStringToUuid(sFile);
 
-      ezQtAssetBrowserDlg dlg(pView, assetGuid, "CompatibleAsset_Texture_Cube");
+      WQtAssetBrowserDlg dlg(pView, assetGuid, "CompatibleAsset_Texture_Cube");
       if (dlg.exec() == 0)
         return;
 
       assetGuid = dlg.GetSelectedAssetGuid();
       if (assetGuid.IsValid())
-        ezConversionUtils::ToString(assetGuid, sFile);
+        WConversionUtils::ToString(assetGuid, sFile);
 
       if (sFile.IsEmpty())
       {
@@ -177,7 +177,7 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
         {
           sFile = dlg.GetSelectedAssetPathAbsolute();
 
-          ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile);
+          WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile);
         }
       }
 
@@ -187,27 +187,27 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
       m_pSettings->SetSkyLightCubeMap(sFile);
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
     {
       m_pSettings->SetDirectionalLight(value.ConvertTo<bool>());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
     {
       m_pSettings->SetDirectionalLightShadows(value.ConvertTo<bool>());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::FogChanged:
+    case WEngineViewLightSettingsEvent::Type::FogChanged:
     {
       m_pSettings->SetFog(value.ConvertTo<bool>());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
+    case WEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
     {
-      if (ezQtUiServices::MessageBoxQuestion("Do you want to make the current light settings the global default?",
+      if (WQtUiServices::MessageBoxQuestion("Do you want to make the current light settings the global default?",
             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
       {
-        ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+        WEditorPreferencesUser* pPreferences = WPreferences::QueryPreferences<WEditorPreferencesUser>();
         pPreferences->SetAsDefaultValues(*m_pSettings);
       }
     }
@@ -217,7 +217,7 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
   }
 }
 
-void ezViewLightButtonAction::LightSettingsEventHandler(const ezEngineViewLightSettingsEvent& e)
+void WViewLightButtonAction::LightSettingsEventHandler(const WEngineViewLightSettingsEvent& e)
 {
   if (m_ButtonType == e.m_Type)
   {
@@ -225,35 +225,35 @@ void ezViewLightButtonAction::LightSettingsEventHandler(const ezEngineViewLightS
   }
 }
 
-void ezViewLightButtonAction::UpdateAction()
+void WViewLightButtonAction::UpdateAction()
 {
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyBoxChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyBoxChanged:
     {
       SetChecked(m_pSettings->GetSkyBox());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightChanged:
     {
       SetChecked(m_pSettings->GetSkyLight());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
     {
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
     {
       SetChecked(m_pSettings->GetDirectionalLight());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
     {
       SetChecked(m_pSettings->GetDirectionalLightShadows());
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::FogChanged:
+    case WEngineViewLightSettingsEvent::Type::FogChanged:
     {
       SetChecked(m_pSettings->GetFog());
     }
@@ -264,56 +264,56 @@ void ezViewLightButtonAction::UpdateAction()
 }
 //////////////////////////////////////////////////////////////////////////
 
-ezViewLightSliderAction::ezViewLightSliderAction(const ezActionContext& context, const char* szName, ezEngineViewLightSettingsEvent::Type button)
-  : ezSliderAction(context, szName)
+WViewLightSliderAction::WViewLightSliderAction(const WActionContext& context, const char* szName, WEngineViewLightSettingsEvent::Type button)
+  : WSliderAction(context, szName)
 {
   m_ButtonType = button;
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  m_pSettings = static_cast<ezEngineViewLightSettings*>(pView->GetDocumentWindow()->GetDocument()->FindSyncObject(ezEngineViewLightSettings::GetStaticRTTI()));
-  EZ_ASSERT_DEV(m_pSettings != nullptr, "The asset document does not have a ezEngineViewLightSettings sync object.");
-  m_SettingsID = m_pSettings->m_EngineViewLightSettingsEvents.AddEventHandler(ezMakeDelegate(&ezViewLightSliderAction::LightSettingsEventHandler, this));
+  WQtEngineViewWidget* pView = qobject_cast<WQtEngineViewWidget*>(m_Context.m_pWindow);
+  m_pSettings = static_cast<WEngineViewLightSettings*>(pView->GetDocumentWindow()->GetDocument()->FindSyncObject(WEngineViewLightSettings::GetStaticRTTI()));
+  W_ASSERT_DEV(m_pSettings != nullptr, "The asset document does not have a WEngineViewLightSettings sync object.");
+  m_SettingsID = m_pSettings->m_EngineViewLightSettingsEvents.AddEventHandler(WMakeDelegate(&WViewLightSliderAction::LightSettingsEventHandler, this));
 
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
+    case WEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
+      SetIconPath(":/TypeIcons/WSkyLightComponent.svg");
       SetRange(0, 20);
       break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
+      SetIconPath(":/TypeIcons/WDirectionalLightComponent.svg");
       SetRange(0, 360);
       break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
+      SetIconPath(":/TypeIcons/WDirectionalLightComponent.svg");
       SetRange(0, 200);
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      W_ASSERT_NOT_IMPLEMENTED;
   }
 
   UpdateAction();
 }
 
-ezViewLightSliderAction::~ezViewLightSliderAction()
+WViewLightSliderAction::~WViewLightSliderAction()
 {
   m_pSettings->m_EngineViewLightSettingsEvents.RemoveEventHandler(m_SettingsID);
 }
 
-void ezViewLightSliderAction::Execute(const ezVariant& value)
+void WViewLightSliderAction::Execute(const WVariant& value)
 {
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
     {
       m_pSettings->SetSkyLightIntensity(value.ConvertTo<float>() / 10.0f);
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
     {
-      m_pSettings->SetDirectionalLightAngle(ezAngle::MakeFromDegree(value.ConvertTo<float>()));
+      m_pSettings->SetDirectionalLightAngle(WAngle::MakeFromDegree(value.ConvertTo<float>()));
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
     {
       m_pSettings->SetDirectionalLightIntensity(value.ConvertTo<float>() / 10.0f);
     }
@@ -323,7 +323,7 @@ void ezViewLightSliderAction::Execute(const ezVariant& value)
   }
 }
 
-void ezViewLightSliderAction::LightSettingsEventHandler(const ezEngineViewLightSettingsEvent& e)
+void WViewLightSliderAction::LightSettingsEventHandler(const WEngineViewLightSettingsEvent& e)
 {
   if (m_ButtonType == e.m_Type)
   {
@@ -331,23 +331,23 @@ void ezViewLightSliderAction::LightSettingsEventHandler(const ezEngineViewLightS
   }
 }
 
-void ezViewLightSliderAction::UpdateAction()
+void WViewLightSliderAction::UpdateAction()
 {
   switch (m_ButtonType)
   {
-    case ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
+    case WEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
     {
-      SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetSkyLightIntensity() * 10.0f), 0, 20));
+      SetValue(WMath::Clamp((WInt32)(m_pSettings->GetSkyLightIntensity() * 10.0f), 0, 20));
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
     {
-      SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetDirectionalLightAngle().GetDegree()), 0, 360));
+      SetValue(WMath::Clamp((WInt32)(m_pSettings->GetDirectionalLightAngle().GetDegree()), 0, 360));
     }
     break;
-    case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
+    case WEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
     {
-      SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetDirectionalLightIntensity() * 10.0f), 1, 200));
+      SetValue(WMath::Clamp((WInt32)(m_pSettings->GetDirectionalLightIntensity() * 10.0f), 1, 200));
     }
     break;
     default:

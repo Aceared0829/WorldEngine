@@ -10,57 +10,57 @@
 #include <ozz/base/maths/soa_transform.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonPoseMode, 1)
-  EZ_ENUM_CONSTANTS(ezSkeletonPoseMode::CustomPose, ezSkeletonPoseMode::RestPose, ezSkeletonPoseMode::Disabled)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WSkeletonPoseMode, 1)
+  W_ENUM_CONSTANTS(WSkeletonPoseMode::CustomPose, WSkeletonPoseMode::RestPose, WSkeletonPoseMode::Disabled)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezSkeletonPoseComponent, 4, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WSkeletonPoseComponent, 4, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton"), new ezRequiredAttribute()),
-    EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezSkeletonPoseMode, GetPoseMode, SetPoseMode),
-    EZ_MEMBER_PROPERTY("EditBones", m_fDummy),
-    EZ_MAP_ACCESSOR_PROPERTY("Bones", GetBones, GetBone, SetBone, RemoveBone)->AddAttributes(new ezExposedParametersAttribute("Skeleton"), new ezContainerAttribute(false, true, false)),
+    W_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton"), new WRequiredAttribute()),
+    W_ENUM_ACCESSOR_PROPERTY("Mode", WSkeletonPoseMode, GetPoseMode, SetPoseMode),
+    W_MEMBER_PROPERTY("EditBones", m_fDummy),
+    W_MAP_ACCESSOR_PROPERTY("Bones", GetBones, GetBone, SetBone, RemoveBone)->AddAttributes(new WExposedParametersAttribute("Skeleton"), new WContainerAttribute(false, true, false)),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Animation"),
-    new ezBoneManipulatorAttribute("Bones", "EditBones"),
+    new WCategoryAttribute("Animation"),
+    new WBoneManipulatorAttribute("Bones", "EditBones"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSkeletonPoseComponent::ezSkeletonPoseComponent() = default;
-ezSkeletonPoseComponent::~ezSkeletonPoseComponent() = default;
+WSkeletonPoseComponent::WSkeletonPoseComponent() = default;
+WSkeletonPoseComponent::~WSkeletonPoseComponent() = default;
 
-void ezSkeletonPoseComponent::Update()
+void WSkeletonPoseComponent::Update()
 {
   if (m_uiResendPose == 0)
     return;
 
   if (--m_uiResendPose > 0)
   {
-    static_cast<ezSkeletonPoseComponentManager*>(GetOwningManager())->EnqueueUpdate(GetHandle());
+    static_cast<WSkeletonPoseComponentManager*>(GetOwningManager())->EnqueueUpdate(GetHandle());
   }
 
-  if (m_PoseMode == ezSkeletonPoseMode::RestPose)
+  if (m_PoseMode == WSkeletonPoseMode::RestPose)
   {
     SendRestPose();
     return;
   }
 
-  if (m_PoseMode == ezSkeletonPoseMode::CustomPose)
+  if (m_PoseMode == WSkeletonPoseMode::CustomPose)
   {
     SendCustomPose();
     return;
   }
 }
 
-void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WSkeletonPoseComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
@@ -70,10 +70,10 @@ void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_PoseMode;
 
   m_Bones.Sort();
-  ezUInt16 numBones = static_cast<ezUInt16>(m_Bones.GetCount());
+  WUInt16 numBones = static_cast<WUInt16>(m_Bones.GetCount());
   s << numBones;
 
-  for (ezUInt16 i = 0; i < numBones; ++i)
+  for (WUInt16 i = 0; i < numBones; ++i)
   {
     s << m_Bones.GetKey(i);
     s << m_Bones.GetValue(i).m_sName;
@@ -82,24 +82,24 @@ void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   }
 }
 
-void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WSkeletonPoseComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_hSkeleton;
   s >> m_PoseMode;
 
-  ezHashedString sKey;
-  ezExposedBone bone;
+  WHashedString sKey;
+  WExposedBone bone;
 
-  ezUInt16 numBones = 0;
+  WUInt16 numBones = 0;
   s >> numBones;
   m_Bones.Reserve(numBones);
 
-  for (ezUInt16 i = 0; i < numBones; ++i)
+  for (WUInt16 i = 0; i < numBones; ++i)
   {
     s >> sKey;
     s >> bone.m_sName;
@@ -111,21 +111,21 @@ void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& inout_stream)
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::OnActivated()
+void WSkeletonPoseComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::OnSimulationStarted()
+void WSkeletonPoseComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
+void WSkeletonPoseComponent::SetSkeleton(const WSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
   {
@@ -134,41 +134,41 @@ void ezSkeletonPoseComponent::SetSkeleton(const ezSkeletonResourceHandle& hResou
   }
 }
 
-void ezSkeletonPoseComponent::SetPoseMode(ezEnum<ezSkeletonPoseMode> mode)
+void WSkeletonPoseComponent::SetPoseMode(WEnum<WSkeletonPoseMode> mode)
 {
   m_PoseMode = mode;
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::ResendPose()
+void WSkeletonPoseComponent::ResendPose()
 {
   if (m_uiResendPose == 2)
     return;
 
   m_uiResendPose = 2;
-  static_cast<ezSkeletonPoseComponentManager*>(GetOwningManager())->EnqueueUpdate(GetHandle());
+  static_cast<WSkeletonPoseComponentManager*>(GetOwningManager())->EnqueueUpdate(GetHandle());
 }
 
-const ezRangeView<const char*, ezUInt32> ezSkeletonPoseComponent::GetBones() const
+const WRangeView<const char*, WUInt32> WSkeletonPoseComponent::GetBones() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Bones.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Bones.GetKey(uiIt).GetString().GetData(); });
 }
 
-void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)
+void WSkeletonPoseComponent::SetBone(const char* szKey, const WVariant& value)
 {
-  ezHashedString hs;
+  WHashedString hs;
   hs.Assign(szKey);
 
-  if (value.GetReflectedType() == ezGetStaticRTTI<ezExposedBone>())
+  if (value.GetReflectedType() == WGetStaticRTTI<WExposedBone>())
   {
-    m_Bones[hs] = *reinterpret_cast<const ezExposedBone*>(value.GetData());
+    m_Bones[hs] = *reinterpret_cast<const WExposedBone*>(value.GetData());
   }
 
   // TODO
@@ -176,45 +176,45 @@ void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)
   //{
   //  // only add to update list, if not yet activated,
   //  // since OnActivate will do the instantiation anyway
-  //  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  //  GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
   //}
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::RemoveBone(const char* szKey)
+void WSkeletonPoseComponent::RemoveBone(const char* szKey)
 {
-  if (m_Bones.RemoveAndCopy(ezTempHashedString(szKey)))
+  if (m_Bones.RemoveAndCopy(WTempHashedString(szKey)))
   {
     // TODO
     // if (IsActiveAndInitialized())
     //{
     //  // only add to update list, if not yet activated,
     //  // since OnActivate will do the instantiation anyway
-    //  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+    //  GetWorld()->GetComponentManager<WPrefabReferenceComponentManager>()->AddToUpdateList(this);
     //}
 
     ResendPose();
   }
 }
 
-bool ezSkeletonPoseComponent::GetBone(const char* szKey, ezVariant& out_value) const
+bool WSkeletonPoseComponent::GetBone(const char* szKey, WVariant& out_value) const
 {
-  ezUInt32 it = m_Bones.Find(szKey);
+  WUInt32 it = m_Bones.Find(szKey);
 
-  if (it == ezInvalidIndex)
+  if (it == WInvalidIndex)
     return false;
 
-  out_value.CopyTypedObject(&m_Bones.GetValue(it), ezGetStaticRTTI<ezExposedBone>());
+  out_value.CopyTypedObject(&m_Bones.GetValue(it), WGetStaticRTTI<WExposedBone>());
   return true;
 }
 
-void ezSkeletonPoseComponent::SendRestPose()
+void WSkeletonPoseComponent::SendRestPose()
 {
   if (!m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pSkeleton.GetAcquireResult() != WResourceAcquireResult::Final)
     return;
 
   const auto& desc = pSkeleton->GetDescriptor();
@@ -223,9 +223,9 @@ void ezSkeletonPoseComponent::SendRestPose()
   if (skel.GetJointCount() == 0)
     return;
 
-  ezTempArray<ozz::math::Float4x4> poseMatrices;
+  WTempArray<ozz::math::Float4x4> poseMatrices;
   poseMatrices.SetCountUninitialized(skel.GetJointCount());
-  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
+  W_ASSERT_DEBUG(WMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
   {
     ozz::animation::LocalToModelJob job;
     job.input = skel.GetOzzSkeleton().joint_rest_poses();
@@ -234,31 +234,31 @@ void ezSkeletonPoseComponent::SendRestPose()
     job.Run();
   }
 
-  ezMsgAnimationPoseUpdated msg;
+  WMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
+  msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const WMat4>();
 
   GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
-    m_PoseMode = ezSkeletonPoseMode::Disabled;
+    m_PoseMode = WSkeletonPoseMode::Disabled;
 }
 
-void ezSkeletonPoseComponent::SendCustomPose()
+void WSkeletonPoseComponent::SendCustomPose()
 {
   if (!m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  WResourceLock<WSkeletonResource> pSkeleton(m_hSkeleton, WResourceAcquireMode::BlockTillLoaded);
   const auto& desc = pSkeleton->GetDescriptor();
   const auto& skel = desc.m_Skeleton;
 
-  ezTempArray<ozz::math::Float4x4> finalTransforms;
+  WTempArray<ozz::math::Float4x4> finalTransforms;
   finalTransforms.SetCountUninitialized(skel.GetJointCount());
-  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(finalTransforms.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
+  W_ASSERT_DEBUG(WMemoryUtils::IsAligned(finalTransforms.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
 
-  for (ezUInt32 i = 0; i < finalTransforms.GetCount(); ++i)
+  for (WUInt32 i = 0; i < finalTransforms.GetCount(); ++i)
   {
     finalTransforms[i] = ozz::math::Float4x4::identity();
   }
@@ -269,29 +269,29 @@ void ezSkeletonPoseComponent::SendCustomPose()
   auto restPoses = skel.GetOzzSkeleton().joint_rest_poses();
 
   // initialize the skeleton with the rest pose
-  for (ezUInt32 i = 0; i < ozzLocalTransforms.size(); ++i)
+  for (WUInt32 i = 0; i < ozzLocalTransforms.size(); ++i)
   {
     ozzLocalTransforms[i] = restPoses[i];
   }
 
   for (const auto& boneIt : m_Bones)
   {
-    const ezUInt16 uiBone = skel.FindJointByName(boneIt.key);
-    if (uiBone == ezInvalidJointIndex)
+    const WUInt16 uiBone = skel.FindJointByName(boneIt.key);
+    if (uiBone == WInvalidJointIndex)
       continue;
 
-    const ezExposedBone& thisBone = boneIt.value;
+    const WExposedBone& thisBone = boneIt.value;
 
     // this can happen when the property was reverted
     if (thisBone.m_sName.IsEmpty() || thisBone.m_sParent.IsEmpty())
       continue;
 
-    EZ_ASSERT_DEBUG(!thisBone.m_Transform.m_qRotation.IsNaN(), "Invalid bone transform in pose component");
+    W_ASSERT_DEBUG(!thisBone.m_Transform.m_qRotation.IsNaN(), "Invalid bone transform in pose component");
 
-    const ezQuat& boneRot = thisBone.m_Transform.m_qRotation;
+    const WQuat& boneRot = thisBone.m_Transform.m_qRotation;
 
-    const ezUInt32 idx0 = uiBone / 4;
-    const ezUInt32 idx1 = uiBone % 4;
+    const WUInt32 idx0 = uiBone / 4;
+    const WUInt32 idx1 = uiBone % 4;
 
     ozz::math::SoaQuaternion& q = ozzLocalTransforms[idx0].rotation;
     reinterpret_cast<float*>(&q.x)[idx1] = boneRot.x;
@@ -304,35 +304,35 @@ void ezSkeletonPoseComponent::SendCustomPose()
   job.input = ozz::span<const ozz::math::SoaTransform>(ozzLocalTransforms.data(), ozzLocalTransforms.size());
   job.output = ozz::span<ozz::math::Float4x4>(finalTransforms.GetData(), finalTransforms.GetCount());
   job.skeleton = &skel.GetOzzSkeleton();
-  EZ_ASSERT_DEBUG(job.Validate(), "");
+  W_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
 
 
-  ezMsgAnimationPoseUpdated msg;
+  WMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = finalTransforms.GetArrayPtr().Cast<const ezMat4>();
+  msg.m_ModelTransforms = finalTransforms.GetArrayPtr().Cast<const WMat4>();
 
   GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
-    m_PoseMode = ezSkeletonPoseMode::Disabled;
+    m_PoseMode = WSkeletonPoseMode::Disabled;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezSkeletonPoseComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WSkeletonPoseComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
-  ezDeque<ezComponentHandle> requireUpdate;
+  WDeque<WComponentHandle> requireUpdate;
 
   {
-    EZ_LOCK(m_Mutex);
+    W_LOCK(m_Mutex);
     requireUpdate.Swap(m_RequireUpdate);
   }
 
   for (const auto& hComp : requireUpdate)
   {
-    ezSkeletonPoseComponent* pComp = nullptr;
+    WSkeletonPoseComponent* pComp = nullptr;
     if (!TryGetComponent(hComp, pComp) || !pComp->IsActiveAndInitialized())
       continue;
 
@@ -340,25 +340,25 @@ void ezSkeletonPoseComponentManager::Update(const ezWorldModule::UpdateContext& 
   }
 }
 
-void ezSkeletonPoseComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
+void WSkeletonPoseComponentManager::EnqueueUpdate(WComponentHandle hComponent)
 {
-  EZ_LOCK(m_Mutex);
+  W_LOCK(m_Mutex);
 
-  if (m_RequireUpdate.IndexOf(hComponent) != ezInvalidIndex)
+  if (m_RequireUpdate.IndexOf(hComponent) != WInvalidIndex)
     return;
 
   m_RequireUpdate.PushBack(hComponent);
 }
 
-void ezSkeletonPoseComponentManager::Initialize()
+void WSkeletonPoseComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSkeletonPoseComponentManager::Update, this);
-  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+  WWorldModule::UpdateFunctionDesc desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WSkeletonPoseComponentManager::Update, this);
+  desc.m_Phase = WWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonPoseComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonPoseComponent);

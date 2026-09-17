@@ -1,17 +1,17 @@
 #include "../../Scripts/GameDecls.as"
 #include "../../Prefabs/Guns/Weapon.as"
 
-class Player : ezAngelScriptClass
+class Player : WAngelScriptClass
 {
     bool GiveAllWeapons = false;
     bool Invincible = false;
 
-    private ezGameObjectHandle hCameraObj;
-    private ezComponentHandle hCharacterComp;
-    private ezComponentHandle hInputComp;
-    private ezComponentHandle hGrabComp;
-    private ezGameObjectHandle hFlashlightObj;
-    private ezGameObjectHandle hDamageIndicatorObj;
+    private WGameObjectHandle hCameraObj;
+    private WComponentHandle hCharacterComp;
+    private WComponentHandle hInputComp;
+    private WComponentHandle hGrabComp;
+    private WGameObjectHandle hFlashlightObj;
+    private WGameObjectHandle hDamageIndicatorObj;
 
     private array<WeaponInfo> weaponInfos(WeaponType::COUNT);
 
@@ -23,11 +23,11 @@ class Player : ezAngelScriptClass
     private WeaponType eHolsteredWeapon = WeaponType::None;
     private AmmoPouch ammoPouch;
     
-    private ezVec4 smoothInput;
+    private WVec4 smoothInput;
     
     float ApplyInputGravity(float value, float input, float gravity)
     {
-        return ezMath::Max(0, ezMath::Lerp(value, input, gravity));
+        return WMath::Max(0, WMath::Lerp(value, input, gravity));
     }
 
     void OnSimulationStarted()
@@ -37,7 +37,7 @@ class Player : ezAngelScriptClass
         hCameraObj = owner.FindChildByName("Camera", true).GetHandle();
         hFlashlightObj = owner.FindChildByName("Flashlight", true).GetHandle();
         hDamageIndicatorObj = owner.FindChildByName("DamageIndicator").GetHandle();
-        ezGameObject@ grabObj = owner.FindChildByName("GrabObject", true);
+        WGameObject@ grabObj = owner.FindChildByName("GrabObject", true);
 
         weaponInfos[WeaponType::Pistol].hObject = owner.FindChildByName("Pistol", true).GetHandle();
         weaponInfos[WeaponType::Shotgun].hObject = owner.FindChildByName("Shotgun", true).GetHandle();
@@ -72,13 +72,13 @@ class Player : ezAngelScriptClass
             ammoPouch.AmmoShotgun = 9999;
         }
 
-        ezJoltDefaultCharacterComponent@ characterComp;
+        WJoltDefaultCharacterComponent@ characterComp;
         if (owner.TryGetComponentOfBaseType(@characterComp))
         {
             hCharacterComp = characterComp.GetHandle();
         }
 
-        ezInputComponent@ inputComp;
+        WInputComponent@ inputComp;
         if (owner.TryGetComponentOfBaseType(@inputComp))
         {
             hInputComp = inputComp.GetHandle();
@@ -86,7 +86,7 @@ class Player : ezAngelScriptClass
 
         if (@grabObj != null)
         {
-            ezJoltGrabObjectComponent@ grabComp;
+            WJoltGrabObjectComponent@ grabComp;
             if (grabObj.TryGetComponentOfBaseType(@grabComp))
             {
                 hGrabComp = grabComp.GetHandle();
@@ -94,17 +94,17 @@ class Player : ezAngelScriptClass
         }
     }
 
-    void Update(ezTime deltaTime)
+    void Update(WTime deltaTime)
     {
-        ezGameObject@ cameraObj;
+        WGameObject@ cameraObj;
         if (!GetWorld().TryGetObject(hCameraObj, @cameraObj))
             return;
 
-        ezJoltDefaultCharacterComponent@ characterComp;
+        WJoltDefaultCharacterComponent@ characterComp;
         if (!GetWorld().TryGetComponent(hCharacterComp, @characterComp))
             return;
 
-        ezInputComponent@ inputComp;
+        WInputComponent@ inputComp;
         if (!GetWorld().TryGetComponent(hInputComp, @inputComp))
             return;
 
@@ -120,9 +120,9 @@ class Player : ezAngelScriptClass
         
         if (iPlayerHealth > 0)
         {
-            ezStringBuilder text;
-            text.SetFormat("Health: {}", ezMath::Ceil(iPlayerHealth));
-            ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+            WStringBuilder text;
+            text.SetFormat("Health: {}", WMath::Ceil(iPlayerHealth));
+            WDebug::DrawInfoText(text, WDebugTextPlacement::TopLeft, "Player", WColor::White);
             
             if (eActiveWeapon != WeaponType::None)
             {
@@ -131,13 +131,13 @@ class Player : ezAngelScriptClass
                 if (weaponInfo.eAmmoType == ConsumableType::Ammo_None)
                 {
                     text.SetFormat("Ammo: {}", weaponInfo.iAmmoInClip);
-                    ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+                    WDebug::DrawInfoText(text, WDebugTextPlacement::TopLeft, "Player", WColor::White);
                 }
                 else
                 {
                     const int ammoOfType = ammoPouch.getAmmoType(weaponInfo.eAmmoType);
                     text.SetFormat("Ammo: {} / {}", weaponInfo.iAmmoInClip, ammoOfType);
-                    ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+                    WDebug::DrawInfoText(text, WDebugTextPlacement::TopLeft, "Player", WColor::White);
                 }
     
                 MsgWeaponInteraction msgInteract;
@@ -156,7 +156,7 @@ class Player : ezAngelScriptClass
                 smoothInput.z = ApplyInputGravity(smoothInput.z, inputComp.GetCurrentInputState("StrafeLeft", false), inputGravity);
                 smoothInput.w = ApplyInputGravity(smoothInput.w, inputComp.GetCurrentInputState("StrafeRight", false), inputGravity);
                 
-                ezMsgMoveCharacterController msgMove;
+                WMsgMoveCharacterController msgMove;
                 msgMove.Jump = inputComp.GetCurrentInputState("Jump", true) > 0.5;
                 msgMove.MoveForwards = smoothInput.x;
                 msgMove.MoveBackwards = smoothInput.y;
@@ -170,7 +170,7 @@ class Player : ezAngelScriptClass
                 GetOwner().SendMessageRecursive(msgMove);
                 
                 // look up / down
-                ezHeadBoneComponent@ headBoneComp;
+                WHeadBoneComponent@ headBoneComp;
                 if (cameraObj.TryGetComponentOfBaseType(@headBoneComp))
                 {
                     float up = inputComp.GetCurrentInputState("LookUp", false);
@@ -179,7 +179,7 @@ class Player : ezAngelScriptClass
                     headBoneComp.ChangeVerticalRotation(down - up);
                 }
 
-                ezBlackboardComponent@ blackboardComp;
+                WBlackboardComponent@ blackboardComp;
                 if (GetOwner().TryGetComponentOfBaseType(@blackboardComp))
                 {
                     // this is used to control the animation playback on the 'shadow proxy' mesh
@@ -196,7 +196,7 @@ class Player : ezAngelScriptClass
             }
 
             // reduce damage indicator value over time
-            fDamageIndicatorValue = ezMath::Max(fDamageIndicatorValue - GetWorld().GetClock().GetTimeDiff().AsFloatInSeconds(), 0);
+            fDamageIndicatorValue = WMath::Max(fDamageIndicatorValue - GetWorld().GetClock().GetTimeDiff().AsFloatInSeconds(), 0);
         }
         else
         {
@@ -205,21 +205,21 @@ class Player : ezAngelScriptClass
 
         if (!hDamageIndicatorObj.IsInvalidated())
         {
-            ezMsgSetColor msg;
-            msg.Color = ezColor(1, 1, 1, fDamageIndicatorValue);
+            WMsgSetColor msg;
+            msg.Color = WColor(1, 1, 1, fDamageIndicatorValue);
 
             GetWorld().SendMessage(hDamageIndicatorObj, msg);
         }
     }
 
-    void OnMsgInputActionTriggered(ezMsgInputActionTriggered@ msg)
+    void OnMsgInputActionTriggered(WMsgInputActionTriggered@ msg)
     {
         if (iPlayerHealth <= 0)
             return;
 
-        if (msg.TriggerState == ezTriggerState::Activated)
+        if (msg.TriggerState == WTriggerState::Activated)
         {
-            ezJoltGrabObjectComponent@ grabComp;
+            WJoltGrabObjectComponent@ grabComp;
             if (!GetWorld().TryGetComponent(hGrabComp, @grabComp))
                 return;
 
@@ -243,10 +243,10 @@ class Player : ezAngelScriptClass
 
             if (msg.InputAction == "Flashlight")
             {
-                ezGameObject@ flashlightObj;
+                WGameObject@ flashlightObj;
                 if (GetWorld().TryGetObject(hFlashlightObj, @flashlightObj))
                 {
-                    ezSpotLightComponent@ flashLightComp;
+                    WSpotLightComponent@ flashLightComp;
                     if (flashlightObj.TryGetComponentOfBaseType(@flashLightComp))
                     {
                         flashLightComp.Active = !flashLightComp.Active;
@@ -256,13 +256,13 @@ class Player : ezAngelScriptClass
 
             if (msg.InputAction == "Use")
             {
-                ezGameObject@ cameraObj;
+                WGameObject@ cameraObj;
                 if (!GetWorld().TryGetObject(hCameraObj, @cameraObj))
                     return;
         
                 if (grabComp.HasObjectGrabbed())
                 {
-                    grabComp.DropGrabbedObject(ezPhysics::GetImpulseTypeByName("Throw Object"));
+                    grabComp.DropGrabbedObject(WPhysics::GetImpulseTypeByName("Throw Object"));
                     SwitchToWeapon(eHolsteredWeapon);
                 }
                 else if (grabComp.GrabNearbyObject())
@@ -272,16 +272,16 @@ class Player : ezAngelScriptClass
                 }
                 else
                 {
-                    ezVec3 vHitPosition;
-                    ezVec3 vHitNormal;
-                    ezGameObjectHandle hHitObject;
+                    WVec3 vHitPosition;
+                    WVec3 vHitNormal;
+                    WGameObjectHandle hHitObject;
 
-                    if (ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, cameraObj.GetGlobalPosition(), cameraObj.GetGlobalDirForwards() * 2.0, ezPhysics::GetCollisionLayerByName("Interaction Raycast"), ezPhysicsShapeType(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic)))
+                    if (WPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, cameraObj.GetGlobalPosition(), cameraObj.GetGlobalDirForwards() * 2.0, WPhysics::GetCollisionLayerByName("Interaction Raycast"), WPhysicsShapeType(WPhysicsShapeType::Static | WPhysicsShapeType::Dynamic)))
                     {
-                        ezMsgGenericEvent msgUse;
+                        WMsgGenericEvent msgUse;
                         msgUse.Message = "Use";
 
-                        ezGameObject@ hitObj;
+                        WGameObject@ hitObj;
                         if (GetWorld().TryGetObject(hHitObject, @hitObj))
                         {
                             hitObj.SendEventMessage(msgUse, GetOwnerComponent());
@@ -305,11 +305,11 @@ class Player : ezAngelScriptClass
 
             if (msg.InputAction == "Teleport")
             {
-                ezJoltDefaultCharacterComponent@ characterComp;
+                WJoltDefaultCharacterComponent@ characterComp;
                 if (GetWorld().TryGetComponent(hCharacterComp, @characterComp))
                 {
-                    ezVec3 pos = GetOwner().GetGlobalPosition();
-                    ezVec3 dir = GetOwner().GetGlobalDirForwards();
+                    WVec3 pos = GetOwner().GetGlobalPosition();
+                    WVec3 dir = GetOwner().GetGlobalDirForwards();
                     dir.z = 0;
                     pos += dir.GetNormalized() * 5.0f;
 
@@ -322,7 +322,7 @@ class Player : ezAngelScriptClass
         {
             if (bRequireNoShoot)
             {
-                if (msg.TriggerState == ezTriggerState::Activated)
+                if (msg.TriggerState == WTriggerState::Activated)
                 {
                     bRequireNoShoot = false;
                 }
@@ -330,15 +330,15 @@ class Player : ezAngelScriptClass
 
             if (!bRequireNoShoot)
             {
-                ezJoltGrabObjectComponent@ grabComp;
+                WJoltGrabObjectComponent@ grabComp;
                 if (!GetWorld().TryGetComponent(hGrabComp, @grabComp))
                     return;
 
                 if (grabComp.HasObjectGrabbed())
                 {
-                    ezVec3 dir(1.0f, 0, 0);
+                    WVec3 dir(1.0f, 0, 0);
 
-                    grabComp.ThrowGrabbedObject(dir, ezPhysics::GetImpulseTypeByName("Throw Object"));
+                    grabComp.ThrowGrabbedObject(dir, WPhysics::GetImpulseTypeByName("Throw Object"));
 
                     SwitchToWeapon(eHolsteredWeapon);
                 }
@@ -358,7 +358,7 @@ class Player : ezAngelScriptClass
         }
     }
 
-    void OnMsgMsgDamage(ezMsgDamage@ msg)
+    void OnMsgMsgDamage(WMsgDamage@ msg)
     {
         if (Invincible)
             return;
@@ -368,13 +368,13 @@ class Player : ezAngelScriptClass
 
         iPlayerHealth -= int(msg.Damage * 2);
 
-        fDamageIndicatorValue = ezMath::Min(fDamageIndicatorValue + msg.Damage * 0.2f, 2.0f);
+        fDamageIndicatorValue = WMath::Min(fDamageIndicatorValue + msg.Damage * 0.2f, 2.0f);
         
 		if (iPlayerHealth <= 0)
         {
-            ezLog::Warning("Player died.");
+            WLog::Warning("Player died.");
 
-            ezJoltDefaultCharacterComponent@ characterComp;
+            WJoltDefaultCharacterComponent@ characterComp;
             if (GetWorld().TryGetComponent(hCharacterComp, @characterComp))
             {
                 // deactivate the character controller, so that it isn't in the way
@@ -385,31 +385,31 @@ class Player : ezAngelScriptClass
             auto cameraObj = owner.FindChildByName("Camera");
             auto camPos = cameraObj.GetGlobalPosition();
 
-            ezGameObjectDesc go;
+            WGameObjectDesc go;
             go.m_LocalPosition = cameraObj.GetGlobalPosition();
             go.m_bDynamic = true;
 
-            ezGameObject@ rbCam;
+            WGameObject@ rbCam;
             GetWorld().CreateObject(go, rbCam);
             rbCam.UpdateGlobalTransform();
 
-            ezJoltDynamicActorComponent@ rbCamActor;
+            WJoltDynamicActorComponent@ rbCamActor;
             rbCam.CreateComponent(@rbCamActor);
 
-            ezJoltShapeSphereComponent@ rbCamSphere;
+            WJoltShapeSphereComponent@ rbCamSphere;
             rbCam.CreateComponent(@rbCamSphere);
             rbCamSphere.Radius = 0.3;
 
-            ezPointLightComponent@ rbCamLight;
+            WPointLightComponent@ rbCamLight;
             rbCam.CreateComponent(@rbCamLight);
-            rbCamLight.LightColor = ezColor::DarkRed;
+            rbCamLight.LightColor = WColor::DarkRed;
             rbCamLight.Intensity = 200;
 
             rbCamActor.Mass = 30;
             rbCamActor.LinearDamping = 0.7;
             rbCamActor.AngularDamping = 0.9;
-            rbCamActor.CollisionLayer = ezPhysics::GetCollisionLayerByName("Default");
-            rbCamActor.AddAngularImpulse(10 * ezVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator()));
+            rbCamActor.CollisionLayer = WPhysics::GetCollisionLayerByName("Default");
+            rbCamActor.AddAngularImpulse(10 * WVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator()));
 
             cameraObj.SetParent(rbCam.GetHandle());
          }
@@ -422,7 +422,7 @@ class Player : ezAngelScriptClass
 
         if (weapon != WeaponType::None)
         {
-            ezJoltGrabObjectComponent@ grabComp;
+            WJoltGrabObjectComponent@ grabComp;
             if (GetWorld().TryGetComponent(hGrabComp, @grabComp))
             {
                 if (grabComp.HasObjectGrabbed())
@@ -459,13 +459,13 @@ class Player : ezAngelScriptClass
         if (wi.bUnlocked == false)
         {
             wi.bUnlocked = true;
-            ezSound::PlaySound("{ df9c8f91-f717-42ca-8268-153c0e4bdb95 }", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+            WSound::PlaySound("{ df9c8f91-f717-42ca-8268-153c0e4bdb95 }", GetOwner().GetGlobalPosition(), WQuat::MakeIdentity(), 1.0f, 1.0f, false);
 
             SwitchToWeapon(msg.weaponType);
         }
     }    
 
-    void OnMsgPhysicsJointBroke(ezMsgPhysicsJointBroke@ msg)
+    void OnMsgPhysicsJointBroke(WMsgPhysicsJointBroke@ msg)
     {
         // must be the 'object grabber' joint
         SwitchToWeapon(eHolsteredWeapon);
@@ -504,7 +504,7 @@ class Player : ezAngelScriptClass
 
             msg.return_consumed = true;
 
-            iPlayerHealth = ezMath::Clamp(iPlayerHealth + msg.amount, 1, maxAmount);
+            iPlayerHealth = WMath::Clamp(iPlayerHealth + msg.amount, 1, maxAmount);
             return;
         }
 
@@ -519,7 +519,7 @@ class Player : ezAngelScriptClass
 
             const int newAmount = curAmount + msg.amount;
 
-            ammoPouch.getAmmoType(msg.consumableType) = ezMath::Clamp(newAmount, 0, maxAmount);
+            ammoPouch.getAmmoType(msg.consumableType) = WMath::Clamp(newAmount, 0, maxAmount);
         }
     }    
 }

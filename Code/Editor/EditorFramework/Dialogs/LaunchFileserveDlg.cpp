@@ -3,24 +3,24 @@
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtLaunchFileserveDlg::WQtLaunchFileserveDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 }
 
-ezQtLaunchFileserveDlg::~ezQtLaunchFileserveDlg() = default;
+WQtLaunchFileserveDlg::~WQtLaunchFileserveDlg() = default;
 
-void ezQtLaunchFileserveDlg::showEvent(QShowEvent* event)
+void WQtLaunchFileserveDlg::showEvent(QShowEvent* event)
 {
-  ezStringBuilder sCmdLine = ezQtEditorApp::GetSingleton()->BuildFileserveCommandLine();
+  WStringBuilder sCmdLine = WQtEditorApp::GetSingleton()->BuildFileserveCommandLine();
   EditFileserve->setPlainText(sCmdLine.GetData());
 
   QDialog::showEvent(event);
 }
 
-void ezQtLaunchFileserveDlg::on_ButtonLaunch_clicked()
+void WQtLaunchFileserveDlg::on_ButtonLaunch_clicked()
 {
-  ezQtEditorApp::GetSingleton()->RunFileserve();
+  WQtEditorApp::GetSingleton()->RunFileserve();
   accept();
 }

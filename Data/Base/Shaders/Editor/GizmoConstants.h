@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER2(ezGizmoConstants, 2, BG_RENDER_PASS)
+CONSTANT_BUFFER2(WGizmoConstants, 2, BG_RENDER_PASS)
 {
   MAT4(ObjectToWorldMatrix);
   MAT4(WorldToObjectMatrix);

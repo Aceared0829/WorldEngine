@@ -6,21 +6,21 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
-ezQtMenuBarActionMapView::ezQtMenuBarActionMapView(QWidget* pParent)
+WQtMenuBarActionMapView::WQtMenuBarActionMapView(QWidget* pParent)
   : QMenuBar(pParent)
 {
 }
 
-ezQtMenuBarActionMapView::~ezQtMenuBarActionMapView()
+WQtMenuBarActionMapView::~WQtMenuBarActionMapView()
 {
   ClearView();
 }
 
-void ezQtMenuBarActionMapView::SetActionContext(const ezActionContext& context)
+void WQtMenuBarActionMapView::SetActionContext(const WActionContext& context)
 {
-  auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
+  auto pMap = WActionMapManager::GetActionMap(context.m_sMapping);
 
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
 
   m_pActionMap = pMap;
   m_Context = context;
@@ -28,12 +28,12 @@ void ezQtMenuBarActionMapView::SetActionContext(const ezActionContext& context)
   CreateView();
 }
 
-void ezQtMenuBarActionMapView::ClearView()
+void WQtMenuBarActionMapView::ClearView()
 {
   m_Proxies.Clear();
 }
 
-void ezQtMenuBarActionMapView::CreateView()
+void WQtMenuBarActionMapView::CreateView()
 {
   ClearView();
 
@@ -43,34 +43,34 @@ void ezQtMenuBarActionMapView::CreateView()
   {
     auto pDesc = m_pActionMap->GetDescriptor(pChild);
 
-    QSharedPointer<ezQtProxy> pProxy = ezQtProxy::GetProxy(m_Context, pDesc->m_hAction);
+    QSharedPointer<WQtProxy> pProxy = WQtProxy::GetProxy(m_Context, pDesc->m_hAction);
     m_Proxies[pChild->GetGuid()] = pProxy;
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
-      case ezActionType::Action:
+      case WActionType::Action:
       {
-        EZ_REPORT_FAILURE("Cannot map actions in a menubar view!");
+        W_REPORT_FAILURE("Cannot map actions in a menubar view!");
       }
       break;
 
-      case ezActionType::Category:
+      case WActionType::Category:
       {
-        EZ_REPORT_FAILURE("Cannot map category in a menubar view!");
+        W_REPORT_FAILURE("Cannot map category in a menubar view!");
       }
       break;
 
-      case ezActionType::Menu:
+      case WActionType::Menu:
       {
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
+        QMenu* pQtMenu = static_cast<WQtMenuProxy*>(pProxy.data())->GetQMenu();
         addMenu(pQtMenu);
-        ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+        WQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
 
-      case ezActionType::ActionAndMenu:
+      case WActionType::ActionAndMenu:
       {
-        EZ_REPORT_FAILURE("Cannot map ActionAndMenu in a menubar view!");
+        W_REPORT_FAILURE("Cannot map ActionAndMenu in a menubar view!");
       }
       break;
     }

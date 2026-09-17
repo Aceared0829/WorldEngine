@@ -5,41 +5,41 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-using ezMarkerComponentManager = ezComponentManager<class ezMarkerComponent, ezBlockStorageType::Compact>;
+using WMarkerComponentManager = WComponentManager<class WMarkerComponent, WBlockStorageType::Compact>;
 
 /// This component is used to markup objects and locations with gameplay relevant semantical information.
 ///
-/// Objects with marker components can be found through the ezSpatialSystem, making it easy to find all marked objects
+/// Objects with marker components can be found through the WSpatialSystem, making it easy to find all marked objects
 /// in a certain area.
 ///
-/// Markers use different spatial categories (\see ezSpatialData::RegisterCategory()) making it efficient to search
+/// Markers use different spatial categories (\see WSpatialData::RegisterCategory()) making it efficient to search
 /// only for very specific objects.
 ///
 /// Markers can be used for all sorts of gameplay functionality, usually for AI systems to be able to detect which objects
 /// they can interact with.
-class EZ_GAMEENGINE_DLL ezMarkerComponent : public ezComponent
+class W_GAMEENGINE_DLL WMarkerComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMarkerComponent, ezComponent, ezMarkerComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WMarkerComponent, WComponent, WMarkerComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezMarkerComponent
+  // WMarkerComponent
 
 public:
-  ezMarkerComponent();
-  ~ezMarkerComponent();
+  WMarkerComponent();
+  ~WMarkerComponent();
 
-  /// The marker type is passed into ezSpatialData::RegisterCategory() so that these markers can be found through the ezSpatialSystem.
+  /// The marker type is passed into WSpatialData::RegisterCategory() so that these markers can be found through the WSpatialSystem.
   void SetMarkerType(const char* szType); // [ property ]
   const char* GetMarkerType() const;      // [ property ]
 
@@ -50,11 +50,11 @@ public:
   float GetRadius() const;                                        // [ property ]
 
 protected:
-  void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
+  void OnMsgUpdateLocalBounds(WMsgUpdateLocalBounds& msg) const; // [ msg handler ]
   void UpdateMarker();
 
   float m_fRadius = 0.1f;                                         // [ property ]
-  ezHashedString m_sMarkerType;                                   // [ property ]
+  WHashedString m_sMarkerType;                                   // [ property ]
 
-  ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
+  WSpatialData::Category m_SpatialCategory = WInvalidSpatialDataCategory;
 };

@@ -3,222 +3,222 @@
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 
-ezVariantStorageAccessor::ezVariantStorageAccessor(ezStringView sProperty, ezVariant& value)
+WVariantStorageAccessor::WVariantStorageAccessor(WStringView sProperty, WVariant& value)
   : m_sProperty(sProperty)
   , m_Value(value)
 {
 }
 
-ezVariantStorageAccessor::ezVariantStorageAccessor(ezStringView sProperty, const ezVariant& value)
+WVariantStorageAccessor::WVariantStorageAccessor(WStringView sProperty, const WVariant& value)
   : m_sProperty(sProperty)
-  , m_Value(const_cast<ezVariant&>(value))
+  , m_Value(const_cast<WVariant&>(value))
 {
 }
 
-ezVariant ezVariantStorageAccessor::GetValue(ezVariant index, ezStatus* pRes) const
+WVariant WVariantStorageAccessor::GetValue(WVariant index, WStatus* pRes) const
 {
   if (!index.IsValid())
     return m_Value;
 
   if (index.IsNumber())
   {
-    if (!m_Value.IsA<ezVariantArray>())
+    if (!m_Value.IsA<WVariantArray>())
     {
       if (pRes)
-        *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid as the property is not an array.", index, m_sProperty));
-      return ezVariant();
+        *pRes = WStatus(WFmt("Index '{0}' for property '{1}' is invalid as the property is not an array.", index, m_sProperty));
+      return WVariant();
     }
-    const ezVariantArray& values = m_Value.Get<ezVariantArray>();
-    ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
+    const WVariantArray& values = m_Value.Get<WVariantArray>();
+    WUInt32 uiIndex = index.ConvertTo<WUInt32>();
     if (uiIndex < values.GetCount())
     {
       return values[uiIndex];
     }
   }
-  else if (index.IsA<ezString>())
+  else if (index.IsA<WString>())
   {
-    if (!m_Value.IsA<ezVariantDictionary>())
+    if (!m_Value.IsA<WVariantDictionary>())
     {
       if (pRes)
-        *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid as the property is not a dictionary.", index, m_sProperty));
-      return ezVariant();
+        *pRes = WStatus(WFmt("Index '{0}' for property '{1}' is invalid as the property is not a dictionary.", index, m_sProperty));
+      return WVariant();
     }
-    const ezVariantDictionary& values = m_Value.Get<ezVariantDictionary>();
-    const ezString& sIndex = index.Get<ezString>();
-    if (const ezVariant* pValue = values.GetValue(sIndex))
+    const WVariantDictionary& values = m_Value.Get<WVariantDictionary>();
+    const WString& sIndex = index.Get<WString>();
+    if (const WVariant* pValue = values.GetValue(sIndex))
     {
       return *pValue;
     }
   }
 
   if (pRes)
-    *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, m_sProperty));
-  return ezVariant();
+    *pRes = WStatus(WFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, m_sProperty));
+  return WVariant();
 }
 
-ezStatus ezVariantStorageAccessor::SetValue(const ezVariant& value, ezVariant index)
+WStatus WVariantStorageAccessor::SetValue(const WVariant& value, WVariant index)
 {
   if (!index.IsValid())
   {
     m_Value = value;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  if (index.IsNumber() && m_Value.IsA<ezVariantArray>())
+  if (index.IsNumber() && m_Value.IsA<WVariantArray>())
   {
-    ezVariantArray& values = m_Value.GetWritable<ezVariantArray>();
-    ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
+    WVariantArray& values = m_Value.GetWritable<WVariantArray>();
+    WUInt32 uiIndex = index.ConvertTo<WUInt32>();
     if (uiIndex >= values.GetCount())
     {
-      return ezStatus(ezFmt("Index '{0}' for property '{1}' is out of bounds.", uiIndex, m_sProperty));
+      return WStatus(WFmt("Index '{0}' for property '{1}' is out of bounds.", uiIndex, m_sProperty));
     }
     values[uiIndex] = value;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  else if (index.IsA<ezString>() && m_Value.IsA<ezVariantDictionary>())
+  else if (index.IsA<WString>() && m_Value.IsA<WVariantDictionary>())
   {
-    ezVariantDictionary& values = m_Value.GetWritable<ezVariantDictionary>();
-    const ezString& sIndex = index.Get<ezString>();
+    WVariantDictionary& values = m_Value.GetWritable<WVariantDictionary>();
+    const WString& sIndex = index.Get<WString>();
     if (!values.Contains(sIndex))
     {
-      return ezStatus(ezFmt("Index '{0}' for property '{1}' is out of bounds.", sIndex, m_sProperty));
+      return WStatus(WFmt("Index '{0}' for property '{1}' is out of bounds.", sIndex, m_sProperty));
     }
     values[sIndex] = value;
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid.", index, m_sProperty));
+  return WStatus(WFmt("Index '{0}' for property '{1}' is invalid.", index, m_sProperty));
 }
 
-ezInt32 ezVariantStorageAccessor::GetCount() const
+WInt32 WVariantStorageAccessor::GetCount() const
 {
-  if (m_Value.IsA<ezVariantArray>())
-    return m_Value.Get<ezVariantArray>().GetCount();
-  else if (m_Value.IsA<ezVariantDictionary>())
-    return m_Value.Get<ezVariantDictionary>().GetCount();
+  if (m_Value.IsA<WVariantArray>())
+    return m_Value.Get<WVariantArray>().GetCount();
+  else if (m_Value.IsA<WVariantDictionary>())
+    return m_Value.Get<WVariantDictionary>().GetCount();
   return 0;
 }
 
-ezStatus ezVariantStorageAccessor::GetKeys(ezDynamicArray<ezVariant>& out_keys) const
+WStatus WVariantStorageAccessor::GetKeys(WDynamicArray<WVariant>& out_keys) const
 {
-  if (m_Value.IsA<ezVariantArray>())
+  if (m_Value.IsA<WVariantArray>())
   {
-    const ezVariantArray& values = m_Value.Get<ezVariantArray>();
+    const WVariantArray& values = m_Value.Get<WVariantArray>();
     out_keys.Reserve(values.GetCount());
-    for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+    for (WUInt32 i = 0; i < values.GetCount(); ++i)
     {
       out_keys.PushBack(i);
     }
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  else if (m_Value.IsA<ezVariantDictionary>())
+  else if (m_Value.IsA<WVariantDictionary>())
   {
-    const ezVariantDictionary& values = m_Value.Get<ezVariantDictionary>();
+    const WVariantDictionary& values = m_Value.Get<WVariantDictionary>();
     out_keys.Reserve(values.GetCount());
     for (auto it = values.GetIterator(); it.IsValid(); ++it)
     {
-      out_keys.PushBack(ezVariant(it.Key()));
+      out_keys.PushBack(WVariant(it.Key()));
     }
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return ezStatus(ezFmt("Property '{0}' is not a container.", m_sProperty));
+  return WStatus(WFmt("Property '{0}' is not a container.", m_sProperty));
 }
 
-ezStatus ezVariantStorageAccessor::InsertValue(const ezVariant& index, const ezVariant& value)
+WStatus WVariantStorageAccessor::InsertValue(const WVariant& index, const WVariant& value)
 {
-  if (index.IsNumber() && m_Value.IsA<ezVariantArray>())
+  if (index.IsNumber() && m_Value.IsA<WVariantArray>())
   {
-    ezVariantArray& values = m_Value.GetWritable<ezVariantArray>();
-    ezInt32 iIndex = index.ConvertTo<ezInt32>();
-    const ezInt32 iCount = (ezInt32)values.GetCount();
+    WVariantArray& values = m_Value.GetWritable<WVariantArray>();
+    WInt32 iIndex = index.ConvertTo<WInt32>();
+    const WInt32 iCount = (WInt32)values.GetCount();
     if (iIndex == -1)
     {
       iIndex = iCount;
     }
     if (iIndex > iCount)
-      return ezStatus(ezFmt("InsertValue: index '{0}' for property '{1}' is out of bounds.", iIndex, m_sProperty));
+      return WStatus(WFmt("InsertValue: index '{0}' for property '{1}' is out of bounds.", iIndex, m_sProperty));
 
     values.InsertAt(iIndex, value);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  else if (index.IsA<ezString>() && m_Value.IsA<ezVariantDictionary>())
+  else if (index.IsA<WString>() && m_Value.IsA<WVariantDictionary>())
   {
-    ezVariantDictionary& values = m_Value.GetWritable<ezVariantDictionary>();
-    const ezString& sIndex = index.Get<ezString>();
-    if (values.Contains(index.Get<ezString>()))
-      return ezStatus(ezFmt("InsertValue: index '{0}' for property '{1}' already exists.", sIndex, m_sProperty));
+    WVariantDictionary& values = m_Value.GetWritable<WVariantDictionary>();
+    const WString& sIndex = index.Get<WString>();
+    if (values.Contains(index.Get<WString>()))
+      return WStatus(WFmt("InsertValue: index '{0}' for property '{1}' already exists.", sIndex, m_sProperty));
 
     values.Insert(sIndex, value);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return ezStatus(ezFmt("InsertValue: Property '{0}' is not a container or index {1} is invalid.", m_sProperty, index));
+  return WStatus(WFmt("InsertValue: Property '{0}' is not a container or index {1} is invalid.", m_sProperty, index));
 }
 
-ezStatus ezVariantStorageAccessor::RemoveValue(const ezVariant& index)
+WStatus WVariantStorageAccessor::RemoveValue(const WVariant& index)
 {
-  if (index.IsNumber() && m_Value.IsA<ezVariantArray>())
+  if (index.IsNumber() && m_Value.IsA<WVariantArray>())
   {
-    ezVariantArray& values = m_Value.GetWritable<ezVariantArray>();
-    const ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
+    WVariantArray& values = m_Value.GetWritable<WVariantArray>();
+    const WUInt32 uiIndex = index.ConvertTo<WUInt32>();
 
     // '>=', not '>': index == GetCount() addresses one past the last element, which is a valid
     // position to insert at but not one to remove from. With '>' it reached RemoveAtAndCopy() and
     // read out of bounds.
     if (uiIndex >= values.GetCount())
-      return ezStatus(ezFmt("RemoveValue: index '{0}' for property '{1}' is out of bounds.", uiIndex, m_sProperty));
+      return WStatus(WFmt("RemoveValue: index '{0}' for property '{1}' is out of bounds.", uiIndex, m_sProperty));
 
     values.RemoveAtAndCopy(uiIndex);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  else if (index.IsA<ezString>() && m_Value.IsA<ezVariantDictionary>())
+  else if (index.IsA<WString>() && m_Value.IsA<WVariantDictionary>())
   {
-    ezVariantDictionary& values = m_Value.GetWritable<ezVariantDictionary>();
-    const ezString& sIndex = index.Get<ezString>();
-    if (!values.Contains(index.Get<ezString>()))
-      return ezStatus(ezFmt("RemoveValue: index '{0}' for property '{1}' does not exists.", sIndex, m_sProperty));
+    WVariantDictionary& values = m_Value.GetWritable<WVariantDictionary>();
+    const WString& sIndex = index.Get<WString>();
+    if (!values.Contains(index.Get<WString>()))
+      return WStatus(WFmt("RemoveValue: index '{0}' for property '{1}' does not exists.", sIndex, m_sProperty));
 
     values.Remove(sIndex);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return ezStatus(ezFmt("RemoveValue: Property '{0}' is not a container or index '{1}' is invalid.", m_sProperty, index));
+  return WStatus(WFmt("RemoveValue: Property '{0}' is not a container or index '{1}' is invalid.", m_sProperty, index));
 }
 
-ezStatus ezVariantStorageAccessor::MoveValue(const ezVariant& oldIndex, const ezVariant& newIndex)
+WStatus WVariantStorageAccessor::MoveValue(const WVariant& oldIndex, const WVariant& newIndex)
 {
-  if (m_Value.IsA<ezVariantArray>() && oldIndex.IsNumber() && newIndex.IsNumber())
+  if (m_Value.IsA<WVariantArray>() && oldIndex.IsNumber() && newIndex.IsNumber())
   {
-    ezVariantArray& values = m_Value.GetWritable<ezVariantArray>();
-    ezUInt32 uiOldIndex = oldIndex.ConvertTo<ezUInt32>();
-    ezUInt32 uiNewIndex = newIndex.ConvertTo<ezUInt32>();
+    WVariantArray& values = m_Value.GetWritable<WVariantArray>();
+    WUInt32 uiOldIndex = oldIndex.ConvertTo<WUInt32>();
+    WUInt32 uiNewIndex = newIndex.ConvertTo<WUInt32>();
     if (uiOldIndex < values.GetCount() && uiNewIndex <= values.GetCount())
     {
-      ezVariant value = values[uiOldIndex];
+      WVariant value = values[uiOldIndex];
       values.RemoveAtAndCopy(uiOldIndex);
       if (uiNewIndex > uiOldIndex)
       {
         uiNewIndex -= 1;
       }
       values.InsertAt(uiNewIndex, value);
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
     else
     {
-      return ezStatus(ezFmt("MoveValue: index '{0}' or '{1}' for property '{2}' is out of bounds.", uiOldIndex, uiNewIndex, m_sProperty));
+      return WStatus(WFmt("MoveValue: index '{0}' or '{1}' for property '{2}' is out of bounds.", uiOldIndex, uiNewIndex, m_sProperty));
     }
   }
-  else if (m_Value.IsA<ezVariantDictionary>() && oldIndex.IsA<ezString>() && newIndex.IsA<ezString>())
+  else if (m_Value.IsA<WVariantDictionary>() && oldIndex.IsA<WString>() && newIndex.IsA<WString>())
   {
-    ezVariantDictionary& values = m_Value.GetWritable<ezVariantDictionary>();
-    const ezString& sOldIndex = oldIndex.Get<ezString>();
-    const ezString& sNewIndex = newIndex.Get<ezString>();
+    WVariantDictionary& values = m_Value.GetWritable<WVariantDictionary>();
+    const WString& sOldIndex = oldIndex.Get<WString>();
+    const WString& sNewIndex = newIndex.Get<WString>();
 
     if (!values.Contains(sOldIndex))
-      return ezStatus(ezFmt("MoveValue: old index '{0}' for property '{2}' does not exist.", sOldIndex, m_sProperty));
+      return WStatus(WFmt("MoveValue: old index '{0}' for property '{2}' does not exist.", sOldIndex, m_sProperty));
     else if (values.Contains(sNewIndex))
-      return ezStatus(ezFmt("MoveValue: new index '{0}' for property '{2}' already exists.", sNewIndex, m_sProperty));
+      return WStatus(WFmt("MoveValue: new index '{0}' for property '{2}' already exists.", sNewIndex, m_sProperty));
 
     values.Insert(sNewIndex, values[sOldIndex]);
     values.Remove(sOldIndex);
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
-  return ezStatus(ezFmt("MoveValue: Property '{0}' is not a container or index '{1}' or '{2}' is invalid.", m_sProperty, oldIndex, newIndex));
+  return WStatus(WFmt("MoveValue: Property '{0}' is not a container or index '{1}' or '{2}' is invalid.", m_sProperty, oldIndex, newIndex));
 }

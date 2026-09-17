@@ -7,30 +7,30 @@
 #include <PacManPlugin/GameState/PacManGameState.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(PacManComponent, 1 /* version */, ezComponentMode::Dynamic) // 'Dynamic' because we want to change the owner's transform
+W_BEGIN_COMPONENT_TYPE(PacManComponent, 1 /* version */, WComponentMode::Dynamic) // 'Dynamic' because we want to change the owner's transform
 {
   // if we wanted to show properties in the editor, we would need to register them here
-  //EZ_BEGIN_PROPERTIES
+  //W_BEGIN_PROPERTIES
   //{
-  //  EZ_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
+  //  W_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new WDefaultValueAttribute(1), new WClampValueAttribute(0, 10)),
   //}
-  //EZ_END_PROPERTIES;
+  //W_END_PROPERTIES;
 
-  EZ_BEGIN_ATTRIBUTES
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("PacMan"), // Component menu group
+    new WCategoryAttribute("PacMan"), // Component menu group
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 
   // declare the message handlers that we have, so that messages can be delivered to us
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgInputActionTriggered, OnMsgInputActionTriggered),
-    EZ_MESSAGE_HANDLER(ezMsgTriggerTriggered, OnMsgTriggerTriggered),
+    W_MESSAGE_HANDLER(WMsgInputActionTriggered, OnMsgInputActionTriggered),
+    W_MESSAGE_HANDLER(WMsgTriggerTriggered, OnMsgTriggerTriggered),
   }
-  EZ_END_MESSAGEHANDLERS;
+  W_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+W_END_COMPONENT_TYPE
 // clang-format on
 
 PacManComponent::PacManComponent() = default;
@@ -42,14 +42,14 @@ void PacManComponent::OnSimulationStarted()
 
   // preload prefabs needed later
   {
-    m_hCollectCoinEffect = ezResourceManager::LoadResource<ezPrefabResource>("{ 9b006872-70ba-4086-8ce5-244304032851 }"); // GUID of the prefab copied in the editor
-    ezResourceManager::PreloadResource(m_hCollectCoinEffect);
+    m_hCollectCoinEffect = WResourceManager::LoadResource<WPrefabResource>("{ 9b006872-70ba-4086-8ce5-244304032851 }"); // GUID of the prefab copied in the editor
+    WResourceManager::PreloadResource(m_hCollectCoinEffect);
 
-    m_hLoseGameEffect = ezResourceManager::LoadResource<ezPrefabResource>("{ 02314d71-f49e-45f3-89e2-ce4b7b1cba09 }"); // GUID copied in the editor
-    ezResourceManager::PreloadResource(m_hLoseGameEffect);
+    m_hLoseGameEffect = WResourceManager::LoadResource<WPrefabResource>("{ 02314d71-f49e-45f3-89e2-ce4b7b1cba09 }"); // GUID copied in the editor
+    WResourceManager::PreloadResource(m_hLoseGameEffect);
   }
 
-  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(PacManGameState::s_sStats);
+  m_pStateBlackboard = WBlackboard::GetOrCreateGlobal(PacManGameState::s_sStats);
 
   // store the start state of PacMan in the global blackboard
   m_pStateBlackboard->SetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive);
@@ -60,10 +60,10 @@ void PacManComponent::Update()
 {
   // this function is called once per frame
 
-  if (auto pBlackboard = ezBlackboard::FindGlobal(PacManGameState::s_sStats))
+  if (auto pBlackboard = WBlackboard::FindGlobal(PacManGameState::s_sStats))
   {
     // retrieve the current state of PacMan
-    const PacManState state = static_cast<PacManState>(pBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<ezInt32>());
+    const PacManState state = static_cast<PacManState>(pBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<WInt32>());
 
     // if it was eaten by a ghost recently, play the lose effect and delete PacMan
     if (state == PacManState::EatenByGhost)
@@ -71,7 +71,7 @@ void PacManComponent::Update()
       // access the lose game effect
       // the prefab may still be loading (though very unlikely)
       // only if it is fully loaded, do we instantiate it, in all other cases we just ignore it
-      ezPrefabResource::InstantiatePrefab(m_hLoseGameEffect, true, *GetWorld(), GetOwner()->GetGlobalTransform());
+      WPrefabResource::InstantiatePrefab(m_hLoseGameEffect, true, *GetWorld(), GetOwner()->GetGlobalTransform());
 
       // since we lost, just delete the PacMan object altogether at the end of the frame
       GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -84,20 +84,20 @@ void PacManComponent::Update()
 
   bool bWall[4] = {false, false, false, false};
 
-  if (ezPhysicsWorldModuleInterface* pPhysics = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>())
+  if (WPhysicsWorldModuleInterface* pPhysics = GetWorld()->GetOrCreateModule<WPhysicsWorldModuleInterface>())
   {
     // access the physics system for raycasts
 
-    ezPhysicsCastResult res;
-    ezPhysicsQueryParameters params;
-    params.m_ShapeTypes = ezPhysicsShapeType::Static; // we only want to hit static geometry, and ignore dynamic/kinematic objects like the other ghosts and the coins
+    WPhysicsCastResult res;
+    WPhysicsQueryParameters params;
+    params.m_ShapeTypes = WPhysicsShapeType::Static; // we only want to hit static geometry, and ignore dynamic/kinematic objects like the other ghosts and the coins
 
-    ezVec3 pos = GetOwner()->GetGlobalPosition();
+    WVec3 pos = GetOwner()->GetGlobalPosition();
     pos.z += 0.5f;
     const float dist = 1.0f;
     const float off = 0.35f;
-    const ezVec3 offx(off, 0.0f, 0.0f);
-    const ezVec3 offy(0.0f, off, 0.0f);
+    const WVec3 offx(off, 0.0f, 0.0f);
+    const WVec3 offy(0.0f, off, 0.0f);
 
     // do two raycasts into each of the 4 directions, and use a slight offset
     // this way, if both raycasts into one direction hit nothing, we know that there is enough free space, that we can now change direction
@@ -111,17 +111,17 @@ void PacManComponent::Update()
     //    | |
     //    V V
 
-    bWall[0] |= pPhysics->Raycast(res, pos - offy, ezVec3(1, 0, 0), dist, params);
-    bWall[0] |= pPhysics->Raycast(res, pos + offy, ezVec3(1, 0, 0), dist, params);
+    bWall[0] |= pPhysics->Raycast(res, pos - offy, WVec3(1, 0, 0), dist, params);
+    bWall[0] |= pPhysics->Raycast(res, pos + offy, WVec3(1, 0, 0), dist, params);
 
-    bWall[1] |= pPhysics->Raycast(res, pos - offx, ezVec3(0, 1, 0), dist, params);
-    bWall[1] |= pPhysics->Raycast(res, pos + offx, ezVec3(0, 1, 0), dist, params);
+    bWall[1] |= pPhysics->Raycast(res, pos - offx, WVec3(0, 1, 0), dist, params);
+    bWall[1] |= pPhysics->Raycast(res, pos + offx, WVec3(0, 1, 0), dist, params);
 
-    bWall[2] |= pPhysics->Raycast(res, pos - offy, ezVec3(-1, 0, 0), dist, params);
-    bWall[2] |= pPhysics->Raycast(res, pos + offy, ezVec3(-1, 0, 0), dist, params);
+    bWall[2] |= pPhysics->Raycast(res, pos - offy, WVec3(-1, 0, 0), dist, params);
+    bWall[2] |= pPhysics->Raycast(res, pos + offy, WVec3(-1, 0, 0), dist, params);
 
-    bWall[3] |= pPhysics->Raycast(res, pos - offx, ezVec3(0, -1, 0), dist, params);
-    bWall[3] |= pPhysics->Raycast(res, pos + offx, ezVec3(0, -1, 0), dist, params);
+    bWall[3] |= pPhysics->Raycast(res, pos - offx, WVec3(0, -1, 0), dist, params);
+    bWall[3] |= pPhysics->Raycast(res, pos + offx, WVec3(0, -1, 0), dist, params);
   }
 
   // if there is no wall in the direction that the player wants PacMan to go, we can safely switch direction now
@@ -133,21 +133,21 @@ void PacManComponent::Update()
   }
 
   // now just change the rotation of PacMan to point into the current direction
-  ezQuat rotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(static_cast<float>(m_Direction * 90)));
+  WQuat rotation = WQuat::MakeFromAxisAndAngle(WVec3::MakeAxisZ(), WAngle::MakeFromDegree(static_cast<float>(m_Direction * 90)));
   GetOwner()->SetGlobalRotation(rotation);
 
   // and communicate to the character controller component, that it should move forwards at a fixed speed
-  ezMsgMoveCharacterController msg;
+  WMsgMoveCharacterController msg;
   msg.m_fMoveForwards = 2.0f;
   GetOwner()->SendMessage(msg);
 }
 
-void PacManComponent::OnMsgInputActionTriggered(ezMsgInputActionTriggered& msg)
+void PacManComponent::OnMsgInputActionTriggered(WMsgInputActionTriggered& msg)
 {
   // this is called every time the input component detects that there is relevant input state
   // see https://ezengine.net/pages/docs/input/input-component.html
 
-  if (msg.m_TriggerState != ezTriggerState::Continuing)
+  if (msg.m_TriggerState != WTriggerState::Continuing)
     return;
 
   if (msg.m_sInputAction.GetString() == "Up")
@@ -163,14 +163,14 @@ void PacManComponent::OnMsgInputActionTriggered(ezMsgInputActionTriggered& msg)
     m_TargetDirection = WalkDirection::Right;
 }
 
-void PacManComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
+void PacManComponent::OnMsgTriggerTriggered(WMsgTriggerTriggered& msg)
 {
   // this is called every time a trigger component (on this object) detects overlap with another physics object
   // see https://ezengine.net/pages/docs/physics/jolt/actors/jolt-trigger-component.html
   // we have two triggers on our PacMan, one to detect Ghosts, another to detect Coins
   // we could achieve the same thing with just one trigger, though
 
-  if (msg.m_TriggerState != ezTriggerState::Activated)
+  if (msg.m_TriggerState != WTriggerState::Activated)
     return;
 
   // the "Ghost" trigger had an overlap
@@ -184,7 +184,7 @@ void PacManComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
   if (msg.m_sMessage.GetString() == "Pickup")
   {
     // use the handle to the game object that activated the trigger, to get a pointer to the game object
-    ezGameObject* pObject = nullptr;
+    WGameObject* pObject = nullptr;
     if (GetWorld()->TryGetObject(msg.m_hTriggeringObject, pObject))
     {
       // if this was a coin, pick it up
@@ -193,17 +193,17 @@ void PacManComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
         // just delete the coin object at the end of the frame
         GetWorld()->DeleteObjectDelayed(pObject->GetHandle());
 
-        ezVariant ceValue = m_pStateBlackboard->GetEntryValue(PacManGameState::s_sCoinsEaten, 0).Get<ezInt32>() + 1;
+        WVariant ceValue = m_pStateBlackboard->GetEntryValue(PacManGameState::s_sCoinsEaten, 0).Get<WInt32>() + 1;
         m_pStateBlackboard->SetEntryValue(PacManGameState::s_sCoinsEaten, ceValue);
 
         // spawn a collect coin effect
-        ezPrefabResource::InstantiatePrefab(m_hCollectCoinEffect, false, *GetWorld(), pObject->GetGlobalTransform());
+        WPrefabResource::InstantiatePrefab(m_hCollectCoinEffect, false, *GetWorld(), pObject->GetGlobalTransform());
       }
     }
   }
 }
 
-void PacManComponent::SerializeComponent(ezWorldWriter& stream) const
+void PacManComponent::SerializeComponent(WWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
@@ -212,10 +212,10 @@ void PacManComponent::SerializeComponent(ezWorldWriter& stream) const
   // currently we have nothing to serialize
 }
 
-void PacManComponent::DeserializeComponent(ezWorldReader& stream)
+void PacManComponent::DeserializeComponent(WWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -223,4 +223,4 @@ void PacManComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 
-EZ_STATICLINK_FILE(PacManPlugin, PacManPlugin_Components_PacManComponent);
+W_STATICLINK_FILE(PacManPlugin, PacManPlugin_Components_PacManComponent);

@@ -8,7 +8,7 @@
 ///
 /// Image filters define how pixels are weighted when scaling images up or down.
 /// Different filters provide different trade-offs between sharpness, aliasing, and ringing artifacts.
-class EZ_TEXTURE_DLL ezImageFilter
+class W_TEXTURE_DLL WImageFilter
 {
 public:
   /// Evaluates the filter function at the given distance from the center.
@@ -16,19 +16,19 @@ public:
   /// The returned value represents the weight to apply to a sample at this distance.
   /// The function should return 0 for distances beyond the filter width.
   /// Note: The distribution may not be normalized - normalization is handled by the caller.
-  virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const = 0;
+  virtual WSimdFloat SamplePoint(const WSimdFloat& x) const = 0;
 
   /// Returns the filter support width (radius).
   ///
   /// The filter function is guaranteed to return 0 for |x| > width.
   /// Larger widths generally mean higher quality but slower filtering.
-  ezSimdFloat GetWidth() const;
+  WSimdFloat GetWidth() const;
 
 protected:
-  ezImageFilter(float width);
+  WImageFilter(float width);
 
 private:
-  ezSimdFloat m_fWidth;
+  WSimdFloat m_fWidth;
 };
 
 /// Box filter - fastest, produces blocky results.
@@ -36,13 +36,13 @@ private:
 /// The box filter provides uniform weighting within its support width.
 /// Best used for pixel art or when nearest-neighbor-like behavior is desired.
 /// Produces sharp edges but can create blocking artifacts.
-class EZ_TEXTURE_DLL ezImageFilterBox : public ezImageFilter
+class W_TEXTURE_DLL WImageFilterBox : public WImageFilter
 {
 public:
   /// \param fWidth Filter support width, typically 0.5 for standard box filtering
-  ezImageFilterBox(float fWidth = 0.5f);
+  WImageFilterBox(float fWidth = 0.5f);
 
-  virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
+  virtual WSimdFloat SamplePoint(const WSimdFloat& x) const override;
 };
 
 /// Triangle (bilinear) filter - good balance of speed and quality.
@@ -50,13 +50,13 @@ public:
 /// The triangle filter provides linear weighting that falls to zero at the edges.
 /// This is equivalent to bilinear interpolation and provides a good balance
 /// between performance and visual quality with minimal ringing artifacts.
-class EZ_TEXTURE_DLL ezImageFilterTriangle : public ezImageFilter
+class W_TEXTURE_DLL WImageFilterTriangle : public WImageFilter
 {
 public:
   /// \param fWidth Filter support width, typically 1.0 for standard triangle filtering
-  ezImageFilterTriangle(float fWidth = 1.0f);
+  WImageFilterTriangle(float fWidth = 1.0f);
 
-  virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
+  virtual WSimdFloat SamplePoint(const WSimdFloat& x) const override;
 };
 
 /// Kaiser-windowed sinc filter - highest quality but may introduce ringing.
@@ -69,7 +69,7 @@ public:
 /// - Beta 2-4: Less ringing, more blurring
 /// - Beta 4-6: Good balance (recommended range)
 /// - Beta 6-8: Sharp but more ringing artifacts
-class EZ_TEXTURE_DLL ezImageFilterSincWithKaiserWindow : public ezImageFilter
+class W_TEXTURE_DLL WImageFilterSincWithKaiserWindow : public WImageFilter
 {
 public:
   /// Constructs a Kaiser-windowed sinc filter.
@@ -78,40 +78,40 @@ public:
   ///                     Typical range: 2.0-4.0, with 3.0 being a good default.
   /// \param fBeta Kaiser window beta parameter controlling the trade-off between ringing and blurring.
   ///              This is alpha*pi in standard Kaiser window definitions. Range: 2.0-8.0, default 4.0.
-  ezImageFilterSincWithKaiserWindow(float fWindowWidth = 3.0f, float fBeta = 4.0f);
+  WImageFilterSincWithKaiserWindow(float fWindowWidth = 3.0f, float fBeta = 4.0f);
 
-  virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
+  virtual WSimdFloat SamplePoint(const WSimdFloat& x) const override;
 
 private:
-  ezSimdFloat m_fBeta;
-  ezSimdFloat m_fInvBesselBeta;
+  WSimdFloat m_fBeta;
+  WSimdFloat m_fInvBesselBeta;
 };
 
 /// Pre-computes the required filter weights for rescaling a sequence of image samples.
-class EZ_TEXTURE_DLL ezImageFilterWeights
+class W_TEXTURE_DLL WImageFilterWeights
 {
 public:
   /// Pre-compute the weights for the given filter for scaling between the given number of samples.
-  ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 uiSrcSamples, ezUInt32 uiDstSamples);
+  WImageFilterWeights(const WImageFilter& filter, WUInt32 uiSrcSamples, WUInt32 uiDstSamples);
 
   /// Returns the number of weights.
-  ezUInt32 GetNumWeights() const;
+  WUInt32 GetNumWeights() const;
 
   /// Returns the weight used for the source sample GetFirstSourceSampleIndex(dstSampleIndex) + weightIndex
-  ezSimdFloat GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 uiWeightIndex) const;
+  WSimdFloat GetWeight(WUInt32 uiDstSampleIndex, WUInt32 uiWeightIndex) const;
 
   /// Returns the index of the first source sample that needs to be weighted to evaluate the destination sample
-  inline ezInt32 GetFirstSourceSampleIndex(ezUInt32 uiDstSampleIndex) const;
+  inline WInt32 GetFirstSourceSampleIndex(WUInt32 uiDstSampleIndex) const;
 
-  ezArrayPtr<const float> ViewWeights() const;
+  WArrayPtr<const float> ViewWeights() const;
 
 private:
-  ezHybridArray<float, 16> m_Weights;
-  ezSimdFloat m_fWidthInSourceSpace;
-  ezSimdFloat m_fSourceToDestScale;
-  ezSimdFloat m_fDestToSourceScale;
-  ezUInt32 m_uiNumWeights;
-  ezUInt32 m_uiDstSamplesReduced;
+  WHybridArray<float, 16> m_Weights;
+  WSimdFloat m_fWidthInSourceSpace;
+  WSimdFloat m_fSourceToDestScale;
+  WSimdFloat m_fDestToSourceScale;
+  WUInt32 m_uiNumWeights;
+  WUInt32 m_uiDstSamplesReduced;
 };
 
 #include <Texture/Image/Implementation/ImageFilter_inl.h>

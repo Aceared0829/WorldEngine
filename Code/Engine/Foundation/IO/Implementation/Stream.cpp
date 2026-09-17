@@ -4,19 +4,19 @@
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Strings/String.h>
 
-ezStreamReader::ezStreamReader() = default;
-ezStreamReader::~ezStreamReader() = default;
+WStreamReader::WStreamReader() = default;
+WStreamReader::~WStreamReader() = default;
 
-ezResult ezStreamReader::ReadString(ezStringBuilder& ref_sBuilder)
+WResult WStreamReader::ReadString(WStringBuilder& ref_sBuilder)
 {
-  if (auto context = ezStringDeduplicationReadContext::GetContext())
+  if (auto context = WStringDeduplicationReadContext::GetContext())
   {
     ref_sBuilder = context->DeserializeString(*this);
   }
   else
   {
-    ezUInt32 uiCount = 0;
-    EZ_SUCCEED_OR_RETURN(ReadDWordValue(&uiCount));
+    WUInt32 uiCount = 0;
+    W_SUCCEED_OR_RETURN(ReadDWordValue(&uiCount));
 
     if (uiCount > 0)
     {
@@ -33,37 +33,37 @@ ezResult ezStreamReader::ReadString(ezStringBuilder& ref_sBuilder)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezStreamReader::ReadString(ezString& ref_sString)
+WResult WStreamReader::ReadString(WString& ref_sString)
 {
-  ezStringBuilder tmp;
-  const ezResult res = ReadString(tmp);
+  WStringBuilder tmp;
+  const WResult res = ReadString(tmp);
   ref_sString = tmp;
 
   return res;
 }
 
-ezStreamWriter::ezStreamWriter() = default;
-ezStreamWriter::~ezStreamWriter() = default;
+WStreamWriter::WStreamWriter() = default;
+WStreamWriter::~WStreamWriter() = default;
 
-ezResult ezStreamWriter::WriteString(const ezStringView sStringView)
+WResult WStreamWriter::WriteString(const WStringView sStringView)
 {
-  const ezUInt32 uiCount = sStringView.GetElementCount();
+  const WUInt32 uiCount = sStringView.GetElementCount();
 
-  if (auto context = ezStringDeduplicationWriteContext::GetContext())
+  if (auto context = WStringDeduplicationWriteContext::GetContext())
   {
     context->SerializeString(sStringView, *this);
   }
   else
   {
-    EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
+    W_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
     if (uiCount > 0)
     {
-      EZ_SUCCEED_OR_RETURN(WriteBytes(sStringView.GetStartPointer(), uiCount));
+      W_SUCCEED_OR_RETURN(WriteBytes(sStringView.GetStartPointer(), uiCount));
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }

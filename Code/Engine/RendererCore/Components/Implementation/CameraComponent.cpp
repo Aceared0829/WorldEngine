@@ -12,45 +12,45 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 
-ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
+WCameraComponentManager::WCameraComponentManager(WWorld* pWorld)
+  : WComponentManager<WCameraComponent, WBlockStorageType::Compact>(pWorld)
 {
-  ezRenderWorld::s_CameraConfigsModifiedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnCameraConfigsChanged, this));
+  WRenderWorld::s_CameraConfigsModifiedEvent.AddEventHandler(WMakeDelegate(&WCameraComponentManager::OnCameraConfigsChanged, this));
 }
 
-ezCameraComponentManager::~ezCameraComponentManager()
+WCameraComponentManager::~WCameraComponentManager()
 {
-  ezRenderWorld::s_CameraConfigsModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnCameraConfigsChanged, this));
+  WRenderWorld::s_CameraConfigsModifiedEvent.RemoveEventHandler(WMakeDelegate(&WCameraComponentManager::OnCameraConfigsChanged, this));
 }
 
-void ezCameraComponentManager::Initialize()
+void WCameraComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezCameraComponentManager::Update, this);
-  desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+  auto desc = W_CREATE_MODULE_UPDATE_FUNCTION_DESC(WCameraComponentManager::Update, this);
+  desc.m_Phase = WWorldUpdatePhase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
 
-  ezRenderWorld::s_ViewCreatedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+  WRenderWorld::s_ViewCreatedEvent.AddEventHandler(WMakeDelegate(&WCameraComponentManager::OnViewCreated, this));
 }
 
-void ezCameraComponentManager::Deinitialize()
+void WCameraComponentManager::Deinitialize()
 {
-  ezRenderWorld::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+  WRenderWorld::s_ViewCreatedEvent.RemoveEventHandler(WMakeDelegate(&WCameraComponentManager::OnViewCreated, this));
 
   SUPER::Deinitialize();
 }
 
-void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void WCameraComponentManager::Update(const WWorldModule::UpdateContext& context)
 {
   for (auto hCameraComponent : m_ModifiedCameras)
   {
-    ezCameraComponent* pCameraComponent = nullptr;
+    WCameraComponent* pCameraComponent = nullptr;
     if (!TryGetComponent(hCameraComponent, pCameraComponent))
     {
       continue;
     }
 
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint(), ezCameraUsageHint::None, GetWorld()))
+    if (WView* pView = WRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint(), WCameraUsageHint::None, GetWorld()))
     {
       pCameraComponent->ApplySettingsToView(pView);
     }
@@ -62,7 +62,7 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
 
   for (auto hCameraComponent : m_RenderTargetCameras)
   {
-    ezCameraComponent* pCameraComponent = nullptr;
+    WCameraComponent* pCameraComponent = nullptr;
     if (!TryGetComponent(hCameraComponent, pCameraComponent))
     {
       continue;
@@ -73,9 +73,9 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
 
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    if (it->IsActiveAndInitialized() && it->m_bShowStats && it->GetUsageHint() == ezCameraUsageHint::MainView)
+    if (it->IsActiveAndInitialized() && it->m_bShowStats && it->GetUsageHint() == WCameraUsageHint::MainView)
     {
-      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+      if (WView* pView = WRenderWorld::GetViewByUsageHint(WCameraUsageHint::MainView, WCameraUsageHint::EditorView, GetWorld()))
       {
         it->ShowStats(pView);
       }
@@ -83,9 +83,9 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
   }
 }
 
-void ezCameraComponentManager::ReinitializeAllRenderTargetCameras()
+void WCameraComponentManager::ReinitializeAllRenderTargetCameras()
 {
-  EZ_LOCK(GetWorld()->GetWriteMarker());
+  W_LOCK(GetWorld()->GetWriteMarker());
 
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
@@ -97,7 +97,7 @@ void ezCameraComponentManager::ReinitializeAllRenderTargetCameras()
   }
 }
 
-const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const
+const WCameraComponent* WCameraComponentManager::GetCameraByUsageHint(WCameraUsageHint::Enum usageHint) const
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
@@ -110,7 +110,7 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
   return nullptr;
 }
 
-ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint)
+WCameraComponent* WCameraComponentManager::GetCameraByUsageHint(WCameraUsageHint::Enum usageHint)
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
@@ -123,17 +123,17 @@ ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageH
   return nullptr;
 }
 
-void ezCameraComponentManager::AddRenderTargetCamera(ezCameraComponent* pComponent)
+void WCameraComponentManager::AddRenderTargetCamera(WCameraComponent* pComponent)
 {
   m_RenderTargetCameras.PushBack(pComponent->GetHandle());
 }
 
-void ezCameraComponentManager::RemoveRenderTargetCamera(ezCameraComponent* pComponent)
+void WCameraComponentManager::RemoveRenderTargetCamera(WCameraComponent* pComponent)
 {
   m_RenderTargetCameras.RemoveAndSwap(pComponent->GetHandle());
 }
 
-void ezCameraComponentManager::OnViewCreated(ezView* pView)
+void WCameraComponentManager::OnViewCreated(WView* pView)
 {
   // Mark all cameras as modified so the new view gets the proper settings
   for (auto it = GetComponents(); it.IsValid(); ++it)
@@ -142,7 +142,7 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
   }
 }
 
-void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
+void WCameraComponentManager::OnCameraConfigsChanged(void* dummy)
 {
   ReinitializeAllRenderTargetCameras();
 }
@@ -150,48 +150,48 @@ void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 11, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WCameraComponent, 11, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EditorShortcut", m_iEditorShortcut)->AddAttributes(new ezDefaultValueAttribute(-1), new ezClampValueAttribute(-1, 9)),
-    EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
-    EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
-    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package)),
-    EZ_ACCESSOR_PROPERTY("RenderTargetOffset", GetRenderTargetRectOffset, SetRenderTargetRectOffset)->AddAttributes(new ezClampValueAttribute(ezVec2(0.0f), ezVec2(0.9f))),
-    EZ_ACCESSOR_PROPERTY("RenderTargetSize", GetRenderTargetRectSize, SetRenderTargetRectSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f)), new ezClampValueAttribute(ezVec2(0.1f), ezVec2(1.0f))),
-    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 4.0f)),
-    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(5.0, 10000.0f)),
-    EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 170.0f)),
-    EZ_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
-    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new ezDynamicStringEnumAttribute("CameraPipelines")),
-    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
-    EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
-    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0)), new ezClampValueAttribute(ezTime::MakeFromSeconds(1.0f / 100000.0f), ezTime::MakeFromSeconds(600.0f))),
-    EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
-    EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
-    EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
-    //EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
-    //EZ_ACCESSOR_PROPERTY_READ_ONLY("FinalExposure", GetExposure),
+    W_MEMBER_PROPERTY("EditorShortcut", m_iEditorShortcut)->AddAttributes(new WDefaultValueAttribute(-1), new WClampValueAttribute(-1, 9)),
+    W_ENUM_ACCESSOR_PROPERTY("UsageHint", WCameraUsageHint, GetUsageHint, SetUsageHint),
+    W_ENUM_ACCESSOR_PROPERTY("Mode", WCameraMode, GetCameraMode, SetCameraMode),
+    W_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Texture_Target", WDependencyFlags::Package)),
+    W_ACCESSOR_PROPERTY("RenderTargetOffset", GetRenderTargetRectOffset, SetRenderTargetRectOffset)->AddAttributes(new WClampValueAttribute(WVec2(0.0f), WVec2(0.9f))),
+    W_ACCESSOR_PROPERTY("RenderTargetSize", GetRenderTargetRectSize, SetRenderTargetRectSize)->AddAttributes(new WDefaultValueAttribute(WVec2(1.0f)), new WClampValueAttribute(WVec2(0.1f), WVec2(1.0f))),
+    W_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new WDefaultValueAttribute(0.25f), new WClampValueAttribute(0.01f, 4.0f)),
+    W_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new WDefaultValueAttribute(1000.0f), new WClampValueAttribute(5.0, 10000.0f)),
+    W_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new WDefaultValueAttribute(60.0f), new WClampValueAttribute(1.0f, 170.0f)),
+    W_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.01f, 10000.0f)),
+    W_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new WTagSetWidgetAttribute("Default")),
+    W_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new WTagSetWidgetAttribute("Default")),
+    W_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new WDynamicStringEnumAttribute("CameraPipelines")),
+    W_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
+    W_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new WDefaultValueAttribute(1.0f), new WClampValueAttribute(1.0f, 32.0f), new WSuffixAttribute(" f-stop(s)")),
+    W_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromSeconds(1.0)), new WClampValueAttribute(WTime::MakeFromSeconds(1.0f / 100000.0f), WTime::MakeFromSeconds(600.0f))),
+    W_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new WDefaultValueAttribute(100.0f), new WClampValueAttribute(50.0f, 64000.0f)),
+    W_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new WClampValueAttribute(-32.0f, 32.0f)),
+    W_MEMBER_PROPERTY("ShowStats", m_bShowStats),
+    //W_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
+    //W_ACCESSOR_PROPERTY_READ_ONLY("FinalExposure", GetExposure),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::DarkSlateBlue),
-    new ezCameraVisualizerAttribute("Mode", "FOV", "Dimensions", "NearPlane", "FarPlane"),
+    new WCategoryAttribute("Rendering"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 1.0f, WColor::DarkSlateBlue),
+    new WCameraVisualizerAttribute("Mode", "FOV", "Dimensions", "NearPlane", "FarPlane"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCameraComponent::ezCameraComponent() = default;
-ezCameraComponent::~ezCameraComponent() = default;
+WCameraComponent::WCameraComponent() = default;
+WCameraComponent::~WCameraComponent() = default;
 
-void ezCameraComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WCameraComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -233,19 +233,19 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_sBlackboardName;
 }
 
-void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WCameraComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  ezCameraUsageHint::StorageType usage;
+  WCameraUsageHint::StorageType usage;
   s >> usage;
-  if (uiVersion == 1 && usage > ezCameraUsageHint::MainView)
-    usage = ezCameraUsageHint::None;
+  if (uiVersion == 1 && usage > WCameraUsageHint::MainView)
+    usage = WCameraUsageHint::None;
   m_UsageHint.SetValue(usage);
 
-  ezCameraMode::StorageType cam;
+  WCameraMode::StorageType cam;
   s >> cam;
   m_Mode.SetValue(cam);
 
@@ -256,7 +256,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   if (uiVersion >= 2 && uiVersion <= 7)
   {
-    ezRenderPipelineResourceHandle m_hRenderPipeline;
+    WRenderPipelineResourceHandle m_hRenderPipeline;
     s >> m_hRenderPipeline;
   }
 
@@ -265,15 +265,15 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_fAperture;
     float shutterTime;
     s >> shutterTime;
-    m_ShutterTime = ezTime::MakeFromSeconds(shutterTime);
+    m_ShutterTime = WTime::MakeFromSeconds(shutterTime);
     s >> m_fISO;
     s >> m_fExposureCompensation;
   }
 
   if (uiVersion >= 4)
   {
-    m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-    m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+    m_IncludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
+    m_ExcludeTags.Load(s, WTagRegistry::GetGlobalRegistry());
   }
 
   if (uiVersion >= 6)
@@ -305,7 +305,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
   MarkAsModified();
 }
 
-void ezCameraComponent::UpdateRenderTargetCamera()
+void WCameraComponent::UpdateRenderTargetCamera()
 {
   if (!m_bRenderTargetInitialized)
     return;
@@ -317,13 +317,13 @@ void ezCameraComponent::UpdateRenderTargetCamera()
     ActivateRenderToTexture();
   }
 
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(m_hRenderTargetView, pView))
+  WView* pView = nullptr;
+  if (!WRenderWorld::TryGetView(m_hRenderTargetView, pView))
     return;
 
   ApplySettingsToView(pView);
 
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY)
+  if (m_Mode == WCameraMode::PerspectiveFixedFovX || m_Mode == WCameraMode::PerspectiveFixedFovY)
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fPerspectiveFieldOfView, m_fNearPlane, m_fFarPlane);
   else
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
@@ -332,41 +332,41 @@ void ezCameraComponent::UpdateRenderTargetCamera()
     GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
 }
 
-void ezCameraComponent::ShowStats(ezView* pView)
+void WCameraComponent::ShowStats(WView* pView)
 {
   if (!m_bShowStats)
     return;
 
   // draw stats
   {
-    const ezStringView sName = GetOwner()->GetName();
+    const WStringView sName = GetOwner()->GetName();
 
-    ezStringBuilder sb;
+    WStringBuilder sb;
     sb.SetFormat("Camera '{0}':\nEV100: {1}, Exposure: {2}", sName.IsEmpty() ? pView->GetName() : sName, GetEV100(), GetExposure());
-    ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugTextPlacement::TopLeft, "CamStats", sb, ezColor::White);
+    WDebugRenderer::DrawInfoText(pView->GetHandle(), WDebugTextPlacement::TopLeft, "CamStats", sb, WColor::White);
   }
 
   // draw frustum
   {
-    const ezGameObject* pOwner = GetOwner();
-    ezVec3 vPosition = pOwner->GetGlobalPosition();
-    ezVec3 vForward = pOwner->GetGlobalDirForwards();
-    ezVec3 vUp = pOwner->GetGlobalDirUp();
+    const WGameObject* pOwner = GetOwner();
+    WVec3 vPosition = pOwner->GetGlobalPosition();
+    WVec3 vForward = pOwner->GetGlobalDirForwards();
+    WVec3 vUp = pOwner->GetGlobalDirUp();
 
-    const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(vPosition, vPosition + vForward, vUp);
+    const WMat4 viewMatrix = WGraphicsUtils::CreateLookAtViewMatrix(vPosition, vPosition + vForward, vUp);
 
-    ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
-    ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+    WMat4 projectionMatrix = pView->GetProjectionMatrix(WCameraEye::Left); // todo: Stereo support
+    WMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
-    ezFrustum frustum = ezFrustum::MakeFromMVP(viewProjectionMatrix);
+    WFrustum frustum = WFrustum::MakeFromMVP(viewProjectionMatrix);
 
     // TODO: limit far plane to 10 meters
 
-    ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
+    WDebugRenderer::DrawLineFrustum(GetWorld(), frustum, WColor::LimeGreen);
   }
 }
 
-void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
+void WCameraComponent::SetUsageHint(WEnum<WCameraUsageHint> val)
 {
   if (val == m_UsageHint)
     return;
@@ -380,13 +380,13 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetRenderTargetFile(ezStringView sFile)
+void WCameraComponent::SetRenderTargetFile(WStringView sFile)
 {
   DeactivateRenderToTexture();
 
   if (!sFile.IsEmpty())
   {
-    m_hRenderTarget = ezResourceManager::LoadResource<ezRenderToTexture2DResource>(sFile);
+    m_hRenderTarget = WResourceManager::LoadResource<WRenderToTexture2DResource>(sFile);
   }
   else
   {
@@ -398,32 +398,32 @@ void ezCameraComponent::SetRenderTargetFile(ezStringView sFile)
   MarkAsModified();
 }
 
-ezStringView ezCameraComponent::GetRenderTargetFile() const
+WStringView WCameraComponent::GetRenderTargetFile() const
 {
   return m_hRenderTarget.GetResourceID();
 }
 
-void ezCameraComponent::SetRenderTargetRectOffset(ezVec2 value)
+void WCameraComponent::SetRenderTargetRectOffset(WVec2 value)
 {
   DeactivateRenderToTexture();
 
-  m_vRenderTargetRectOffset.x = ezMath::Clamp(value.x, 0.0f, 0.9f);
-  m_vRenderTargetRectOffset.y = ezMath::Clamp(value.y, 0.0f, 0.9f);
+  m_vRenderTargetRectOffset.x = WMath::Clamp(value.x, 0.0f, 0.9f);
+  m_vRenderTargetRectOffset.y = WMath::Clamp(value.y, 0.0f, 0.9f);
 
   ActivateRenderToTexture();
 }
 
-void ezCameraComponent::SetRenderTargetRectSize(ezVec2 value)
+void WCameraComponent::SetRenderTargetRectSize(WVec2 value)
 {
   DeactivateRenderToTexture();
 
-  m_vRenderTargetRectSize.x = ezMath::Clamp(value.x, 0.1f, 1.0f);
-  m_vRenderTargetRectSize.y = ezMath::Clamp(value.y, 0.1f, 1.0f);
+  m_vRenderTargetRectSize.x = WMath::Clamp(value.x, 0.1f, 1.0f);
+  m_vRenderTargetRectSize.y = WMath::Clamp(value.y, 0.1f, 1.0f);
 
   ActivateRenderToTexture();
 }
 
-void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
+void WCameraComponent::SetCameraMode(WEnum<WCameraMode> val)
 {
   if (val == m_Mode)
     return;
@@ -433,7 +433,7 @@ void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
 }
 
 
-void ezCameraComponent::SetNearPlane(float fVal)
+void WCameraComponent::SetNearPlane(float fVal)
 {
   if (fVal == m_fNearPlane)
     return;
@@ -443,7 +443,7 @@ void ezCameraComponent::SetNearPlane(float fVal)
 }
 
 
-void ezCameraComponent::SetFarPlane(float fVal)
+void WCameraComponent::SetFarPlane(float fVal)
 {
   if (fVal == m_fFarPlane)
     return;
@@ -453,7 +453,7 @@ void ezCameraComponent::SetFarPlane(float fVal)
 }
 
 
-void ezCameraComponent::SetFieldOfView(float fVal)
+void WCameraComponent::SetFieldOfView(float fVal)
 {
   if (fVal == m_fPerspectiveFieldOfView)
     return;
@@ -463,7 +463,7 @@ void ezCameraComponent::SetFieldOfView(float fVal)
 }
 
 
-void ezCameraComponent::SetOrthoDimension(float fVal)
+void WCameraComponent::SetOrthoDimension(float fVal)
 {
   if (fVal == m_fOrthoDimension)
     return;
@@ -472,27 +472,27 @@ void ezCameraComponent::SetOrthoDimension(float fVal)
   MarkAsModified();
 }
 
-ezRenderPipelineResourceHandle ezCameraComponent::GetRenderPipeline() const
+WRenderPipelineResourceHandle WCameraComponent::GetRenderPipeline() const
 {
   return m_hCachedRenderPipeline;
 }
 
-ezSharedPtr<ezBlackboard> ezCameraComponent::GetBlackboard() const
+WSharedPtr<WBlackboard> WCameraComponent::GetBlackboard() const
 {
   return m_pBlackboard;
 }
 
-ezViewHandle ezCameraComponent::GetRenderTargetView() const
+WViewHandle WCameraComponent::GetRenderTargetView() const
 {
   return m_hRenderTargetView;
 }
 
-const char* ezCameraComponent::GetRenderPipelineEnum() const
+const char* WCameraComponent::GetRenderPipelineEnum() const
 {
   return m_sRenderPipeline.GetData();
 }
 
-void ezCameraComponent::SetBlackboardName(const char* szName)
+void WCameraComponent::SetBlackboardName(const char* szName)
 {
   if (m_sBlackboardName == szName)
     return;
@@ -501,13 +501,13 @@ void ezCameraComponent::SetBlackboardName(const char* szName)
 
   if (IsActiveAndInitialized())
   {
-    m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+    m_pBlackboard = WBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
   }
 
   MarkAsModified();
 }
 
-void ezCameraComponent::SetRenderPipelineEnum(const char* szFile)
+void WCameraComponent::SetRenderPipelineEnum(const char* szFile)
 {
   DeactivateRenderToTexture();
 
@@ -518,7 +518,7 @@ void ezCameraComponent::SetRenderPipelineEnum(const char* szFile)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetAperture(float fAperture)
+void WCameraComponent::SetAperture(float fAperture)
 {
   if (m_fAperture == fAperture)
     return;
@@ -527,7 +527,7 @@ void ezCameraComponent::SetAperture(float fAperture)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetShutterTime(ezTime shutterTime)
+void WCameraComponent::SetShutterTime(WTime shutterTime)
 {
   if (m_ShutterTime == shutterTime)
     return;
@@ -536,7 +536,7 @@ void ezCameraComponent::SetShutterTime(ezTime shutterTime)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetISO(float fISO)
+void WCameraComponent::SetISO(float fISO)
 {
   if (m_fISO == fISO)
     return;
@@ -545,7 +545,7 @@ void ezCameraComponent::SetISO(float fISO)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetExposureCompensation(float fEC)
+void WCameraComponent::SetExposureCompensation(float fEC)
 {
   if (m_fExposureCompensation == fEC)
     return;
@@ -554,7 +554,7 @@ void ezCameraComponent::SetExposureCompensation(float fEC)
   MarkAsModified();
 }
 
-float ezCameraComponent::GetEV100() const
+float WCameraComponent::GetEV100() const
 {
   // From: course_notes_moving_frostbite_to_pbr.pdf
   // EV number is defined as:
@@ -564,10 +564,10 @@ float ezCameraComponent::GetEV100() const
   // EV_100 + log2 (S /100) = log2 (N^2 / t)
   // EV_100 = log2 (N^2 / t) - log2 (S /100)
   // EV_100 = log2 (N^2 / t . 100 / S)
-  return ezMath::Log2((m_fAperture * m_fAperture) / m_ShutterTime.AsFloatInSeconds() * 100.0f / m_fISO) - m_fExposureCompensation;
+  return WMath::Log2((m_fAperture * m_fAperture) / m_ShutterTime.AsFloatInSeconds() * 100.0f / m_fISO) - m_fExposureCompensation;
 }
 
-float ezCameraComponent::GetExposure() const
+float WCameraComponent::GetExposure() const
 {
   // Compute the maximum luminance possible with H_sbs sensitivity
   // maxLum = 78 / ( S * q ) * N^2 / t
@@ -575,29 +575,29 @@ float ezCameraComponent::GetExposure() const
   // = 78 / (100 * 0.65) * 2^ EV_100
   // = 1.2 * 2^ EV
   // Reference : http://en.wikipedia.org/wiki/Film_speed
-  float maxLuminance = 1.2f * ezMath::Pow2(GetEV100());
+  float maxLuminance = 1.2f * WMath::Pow2(GetEV100());
   return 1.0f / maxLuminance;
 }
 
-void ezCameraComponent::ApplySettingsToView(ezView* pView) const
+void WCameraComponent::ApplySettingsToView(WView* pView) const
 {
-  if (m_UsageHint == ezCameraUsageHint::None)
+  if (m_UsageHint == WCameraUsageHint::None)
     return;
 
   float fFovOrDim = m_fPerspectiveFieldOfView;
-  if (m_Mode == ezCameraMode::OrthoFixedWidth || m_Mode == ezCameraMode::OrthoFixedHeight)
+  if (m_Mode == WCameraMode::OrthoFixedWidth || m_Mode == WCameraMode::OrthoFixedHeight)
   {
     fFovOrDim = m_fOrthoDimension;
   }
 
-  ezCamera* pCamera = pView->GetCamera();
-  pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, ezMath::Max(m_fNearPlane + 0.00001f, m_fFarPlane));
+  WCamera* pCamera = pView->GetCamera();
+  pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, WMath::Max(m_fNearPlane + 0.00001f, m_fFarPlane));
   pCamera->SetExposure(GetExposure());
 
   pView->m_IncludeTags = m_IncludeTags;
   pView->m_ExcludeTags = m_ExcludeTags;
 
-  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+  const WTag& tagEditor = WTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
   pView->m_ExcludeTags.Set(tagEditor);
 
   if (m_hCachedRenderPipeline.IsValid())
@@ -608,19 +608,19 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   pView->SetBlackboard(m_pBlackboard);
 }
 
-void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
+void WCameraComponent::ResourceChangeEventHandler(const WResourceEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezResourceEvent::Type::ResourceExists:
-    case ezResourceEvent::Type::ResourceCreated:
+    case WResourceEvent::Type::ResourceExists:
+    case WResourceEvent::Type::ResourceCreated:
       return;
 
-    case ezResourceEvent::Type::ResourceDeleted:
-    case ezResourceEvent::Type::ResourceContentUnloading:
-    case ezResourceEvent::Type::ResourceContentUpdated:
+    case WResourceEvent::Type::ResourceDeleted:
+    case WResourceEvent::Type::ResourceContentUnloading:
+    case WResourceEvent::Type::ResourceContentUpdated:
       // triggers a recreation of the view
-      ezRenderWorld::DeleteView(m_hRenderTargetView);
+      WRenderWorld::DeleteView(m_hRenderTargetView);
       m_hRenderTargetView.Invalidate();
       break;
 
@@ -629,17 +629,17 @@ void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
   }
 }
 
-void ezCameraComponent::MarkAsModified()
+void WCameraComponent::MarkAsModified()
 {
   if (!m_bIsModified)
   {
-    GetWorld()->GetComponentManager<ezCameraComponentManager>()->m_ModifiedCameras.PushBack(GetHandle());
+    GetWorld()->GetComponentManager<WCameraComponentManager>()->m_ModifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
 }
 
 
-void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
+void WCameraComponent::MarkAsModified(WCameraComponentManager* pCameraManager)
 {
   if (!m_bIsModified)
   {
@@ -648,23 +648,23 @@ void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
   }
 }
 
-void ezCameraComponent::ActivateRenderToTexture()
+void WCameraComponent::ActivateRenderToTexture()
 {
-  if (m_UsageHint != ezCameraUsageHint::RenderTarget)
+  if (m_UsageHint != WCameraUsageHint::RenderTarget)
     return;
 
   if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || m_sRenderPipeline.IsEmpty() || !IsActiveAndInitialized())
     return;
 
-  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  WResourceLock<WRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, WResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  if (pRenderTarget.GetAcquireResult() != ezResourceAcquireResult::Final)
+  if (pRenderTarget.GetAcquireResult() != WResourceAcquireResult::Final)
   {
     return;
   }
 
   // query the render pipeline to use
-  if (const auto* pConfig = ezRenderWorld::FindCameraConfig(m_sRenderPipeline))
+  if (const auto* pConfig = WRenderWorld::FindCameraConfig(m_sRenderPipeline))
   {
     m_hCachedRenderPipeline = pConfig->m_hRenderPipeline;
   }
@@ -674,22 +674,22 @@ void ezCameraComponent::ActivateRenderToTexture()
 
   m_bRenderTargetInitialized = true;
 
-  EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
+  W_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
 
-  ezStringBuilder name;
+  WStringBuilder name;
   name.SetFormat("Camera RT: {0}", GetOwner()->GetName());
 
-  ezView* pRenderTargetView = nullptr;
-  m_hRenderTargetView = ezRenderWorld::CreateView(name, pRenderTargetView);
+  WView* pRenderTargetView = nullptr;
+  m_hRenderTargetView = WRenderWorld::CreateView(name, pRenderTargetView);
 
   pRenderTargetView->SetRenderPipelineResource(m_hCachedRenderPipeline);
 
   pRenderTargetView->SetWorld(GetWorld());
   pRenderTargetView->SetCamera(&m_RenderTargetCamera);
 
-  pRenderTarget->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
+  pRenderTarget->m_ResourceEvents.AddEventHandler(WMakeDelegate(&WCameraComponent::ResourceChangeEventHandler, this));
 
-  ezGALRenderTargets renderTargets;
+  WGALRenderTargets renderTargets;
   renderTargets.m_hRTs[0] = pRenderTarget->GetGALTexture();
   pRenderTargetView->SetRenderTargets(renderTargets);
 
@@ -699,20 +699,20 @@ void ezCameraComponent::ActivateRenderToTexture()
   const float resX = (float)pRenderTarget->GetWidth();
   const float resY = (float)pRenderTarget->GetHeight();
 
-  const float width = resX * ezMath::Min(maxSizeX, m_vRenderTargetRectSize.x);
-  const float height = resY * ezMath::Min(maxSizeY, m_vRenderTargetRectSize.y);
+  const float width = resX * WMath::Min(maxSizeX, m_vRenderTargetRectSize.x);
+  const float height = resY * WMath::Min(maxSizeY, m_vRenderTargetRectSize.y);
 
   const float offsetX = m_vRenderTargetRectOffset.x * resX;
   const float offsetY = m_vRenderTargetRectOffset.y * resY;
 
-  pRenderTargetView->SetViewport(ezRectFloat(offsetX, offsetY, width, height));
+  pRenderTargetView->SetViewport(WRectFloat(offsetX, offsetY, width, height));
 
   pRenderTarget->AddRenderView(m_hRenderTargetView);
 
-  GetWorld()->GetComponentManager<ezCameraComponentManager>()->AddRenderTargetCamera(this);
+  GetWorld()->GetComponentManager<WCameraComponentManager>()->AddRenderTargetCamera(this);
 }
 
-void ezCameraComponent::DeactivateRenderToTexture()
+void WCameraComponent::DeactivateRenderToTexture()
 {
   if (!m_bRenderTargetInitialized)
     return;
@@ -720,35 +720,35 @@ void ezCameraComponent::DeactivateRenderToTexture()
   m_bRenderTargetInitialized = false;
   m_hCachedRenderPipeline.Invalidate();
 
-  EZ_ASSERT_DEBUG(m_hRenderTarget.IsValid(), "Render Target should be valid");
+  W_ASSERT_DEBUG(m_hRenderTarget.IsValid(), "Render Target should be valid");
 
   if (m_hRenderTarget.IsValid())
   {
-    ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
+    WResourceLock<WRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, WResourceAcquireMode::BlockTillLoaded);
     pRenderTarget->RemoveRenderView(m_hRenderTargetView);
 
-    pRenderTarget->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
+    pRenderTarget->m_ResourceEvents.RemoveEventHandler(WMakeDelegate(&WCameraComponent::ResourceChangeEventHandler, this));
   }
 
   if (!m_hRenderTargetView.IsInvalidated())
   {
-    ezRenderWorld::DeleteView(m_hRenderTargetView);
+    WRenderWorld::DeleteView(m_hRenderTargetView);
     m_hRenderTargetView.Invalidate();
   }
 
-  GetWorld()->GetComponentManager<ezCameraComponentManager>()->RemoveRenderTargetCamera(this);
+  GetWorld()->GetComponentManager<WCameraComponentManager>()->RemoveRenderTargetCamera(this);
 }
 
-void ezCameraComponent::OnActivated()
+void WCameraComponent::OnActivated()
 {
   SUPER::OnActivated();
 
   ActivateRenderToTexture();
 
-  m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+  m_pBlackboard = WBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
 }
 
-void ezCameraComponent::OnDeactivated()
+void WCameraComponent::OnDeactivated()
 {
   DeactivateRenderToTexture();
 
@@ -762,15 +762,15 @@ void ezCameraComponent::OnDeactivated()
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezCameraComponentPatch_4_5 : public ezGraphPatch
+class WCameraComponentPatch_4_5 : public WGraphPatch
 {
 public:
-  ezCameraComponentPatch_4_5()
-    : ezGraphPatch("ezCameraComponent", 5)
+  WCameraComponentPatch_4_5()
+    : WGraphPatch("WCameraComponent", 5)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Usage Hint", "UsageHint");
     pNode->RenameProperty("Near Plane", "NearPlane");
@@ -783,33 +783,33 @@ public:
   }
 };
 
-ezCameraComponentPatch_4_5 g_ezCameraComponentPatch_4_5;
+WCameraComponentPatch_4_5 g_WCameraComponentPatch_4_5;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezCameraComponentPatch_8_9 : public ezGraphPatch
+class WCameraComponentPatch_8_9 : public WGraphPatch
 {
 public:
-  ezCameraComponentPatch_8_9()
-    : ezGraphPatch("ezCameraComponent", 9)
+  WCameraComponentPatch_8_9()
+    : WGraphPatch("WCameraComponent", 9)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
-    // convert the "ShutterTime" property from float to ezTime
+    // convert the "ShutterTime" property from float to WTime
     if (auto pProp = pNode->FindProperty("ShutterTime"))
     {
       if (pProp->m_Value.IsA<float>())
       {
         const float shutterTime = pProp->m_Value.Get<float>();
-        pProp->m_Value = ezTime::MakeFromSeconds(shutterTime);
+        pProp->m_Value = WTime::MakeFromSeconds(shutterTime);
       }
     }
   }
 };
 
-ezCameraComponentPatch_8_9 g_ezCameraComponentPatch_8_9;
+WCameraComponentPatch_8_9 g_WCameraComponentPatch_8_9;
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);

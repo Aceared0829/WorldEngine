@@ -9,15 +9,15 @@ class QLabel;
 class QScrollArea;
 class QtImageWidget;
 
-class ezSoundBankAssetDocumentWindow : public ezQtDocumentWindow
+class WSoundBankAssetDocumentWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezSoundBankAssetDocumentWindow(ezDocument* pDocument);
+  WSoundBankAssetDocumentWindow(WDocument* pDocument);
 
   virtual const char* GetGroupName() const { return "SoundBankAsset"; }
 
 private:
-  ezSoundBankAssetDocument* m_pAssetDoc;
+  WSoundBankAssetDocument* m_pAssetDoc;
 };

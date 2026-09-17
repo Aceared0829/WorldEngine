@@ -3,23 +3,23 @@
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <Foundation/Basics.h>
 
-class ezScene2Document;
-class ezQtLayerDelegate;
+class WScene2Document;
+class WQtLayerDelegate;
 
-class ezQtLayerPanel : public ezQtDocumentPanel
+class WQtLayerPanel : public WQtDocumentPanel
 {
   Q_OBJECT
 
 public:
-  ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument);
-  ~ezQtLayerPanel();
+  WQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, WScene2Document* pDocument);
+  ~WQtLayerPanel();
 
 private Q_SLOTS:
   void OnRequestContextMenu(QPoint pos);
 
 private:
-  ezQtLayerDelegate* m_pDelegate = nullptr;
-  ezScene2Document* m_pSceneDocument = nullptr;
-  ezQtDocumentTreeView* m_pTreeWidget = nullptr;
-  ezString m_sContextMenuMapping;
+  WQtLayerDelegate* m_pDelegate = nullptr;
+  WScene2Document* m_pSceneDocument = nullptr;
+  WQtDocumentTreeView* m_pTreeWidget = nullptr;
+  WString m_sContextMenuMapping;
 };

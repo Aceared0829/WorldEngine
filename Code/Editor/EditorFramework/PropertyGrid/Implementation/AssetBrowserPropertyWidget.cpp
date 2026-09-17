@@ -10,8 +10,8 @@
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
-  : ezQtStandardPropertyWidget()
+WQtAssetPropertyWidget::WQtAssetPropertyWidget()
+  : WQtStandardPropertyWidget()
 {
   m_uiThumbnailID = 0;
 
@@ -20,16 +20,16 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezQtAssetLineEdit(this);
+  m_pWidget = new WQtAssetLineEdit(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   m_pWidget->m_pOwner = this;
   setFocusProxy(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(OpenAsset()), this, SLOT(OnOpenAssetDocument())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(SelectAsset()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pWidget, SIGNAL(OpenAsset()), this, SLOT(OnOpenAssetDocument())) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(m_pWidget, SIGNAL(SelectAsset()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("... "));
@@ -40,10 +40,10 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   pMenu->setToolTipsVisible(true);
   m_pButton->setMenu(pMenu);
 
-  connect(pMenu, &QMenu::aboutToShow, this, &ezQtAssetPropertyWidget::OnShowMenu);
+  connect(pMenu, &QMenu::aboutToShow, this, &WQtAssetPropertyWidget::OnShowMenu);
 
   m_pWarningIcon = new QLabel(this);
-  m_pWarningIcon->setPixmap(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg").pixmap(16, 16));
+  m_pWarningIcon->setPixmap(WQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg").pixmap(16, 16));
   m_pWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_pWarningIcon->setVisible(false);
 
@@ -51,55 +51,55 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pLayout->addWidget(m_pButton);
   m_pLayout->addWidget(m_pWarningIcon);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(
-    connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  W_VERIFY(connect(WQtImageCache::GetSingleton(), &WQtImageCache::ImageLoaded, this, &WQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
+  W_VERIFY(
+    connect(WQtImageCache::GetSingleton(), &WQtImageCache::ImageInvalidated, this, &WQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
 
-bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
+bool WQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
 {
-  ezAssetCurator::ezLockedSubAsset pAsset;
+  WAssetCurator::WLockedSubAsset pAsset;
 
-  if (!ezConversionUtils::IsStringUuid(szAssetReference))
+  if (!WConversionUtils::IsStringUuid(szAssetReference))
   {
-    pAsset = ezAssetCurator::GetSingleton()->FindSubAsset(szAssetReference);
+    pAsset = WAssetCurator::GetSingleton()->FindSubAsset(szAssetReference);
 
     if (pAsset == nullptr)
     {
-      const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+      const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
 
       // if this file type is on the asset whitelist for this asset type, let it through
-      return ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(pAssetAttribute->GetTypeFilter(), szAssetReference);
+      return WAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(pAssetAttribute->GetTypeFilter(), szAssetReference);
     }
   }
   else
   {
-    const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(szAssetReference);
+    const WUuid AssetGuid = WConversionUtils::ConvertStringToUuid(szAssetReference);
 
-    pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
+    pAsset = WAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
   }
 
   // invalid asset in general
   if (pAsset == nullptr)
     return false;
 
-  const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+  const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
 
-  if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
+  if (WStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
     return true;
 
-  ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName, ";");
+  WStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName, ";");
 
-  if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+  if (WStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
     return true;
 
-  if (const ezDocumentTypeDescriptor* pDesc = ezDocumentManager::GetDescriptorForDocumentType(pAsset->m_Data.m_sSubAssetsDocumentTypeName))
+  if (const WDocumentTypeDescriptor* pDesc = WDocumentManager::GetDescriptorForDocumentType(pAsset->m_Data.m_sSubAssetsDocumentTypeName))
   {
-    for (const ezString& comp : pDesc->m_CompatibleTypes)
+    for (const WString& comp : pDesc->m_CompatibleTypes)
     {
       sTypeFilter.Set(";", comp, ";");
 
-      if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+      if (WStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
         return true;
     }
   }
@@ -107,12 +107,12 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   return false;
 }
 
-void ezQtAssetPropertyWidget::OnInit()
+void WQtAssetPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
+  W_ASSERT_DEV(m_pProp->GetAttributeByType<WAssetBrowserAttribute>() != nullptr, "WQtAssetPropertyWidget was created without a WAssetBrowserAttribute!");
 }
 
-void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
+void WQtAssetPropertyWidget::UpdateThumbnail(const WUuid& guid, const char* szThumbnailPath)
 {
   if (IsUndead())
     return;
@@ -121,14 +121,14 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
 
   if (guid.IsValid())
   {
-    ezUInt64 uiUserData1, uiUserData2;
+    WUInt64 uiUserData1, uiUserData2;
     m_AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-    const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
-    ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
+    const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
+    WStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
     sTypeFilter.Trim(" ;");
 
-    pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(
+    pThumbnailPixmap = WQtImageCache::GetSingleton()->QueryPixmapForType(
       sTypeFilter, szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
@@ -144,9 +144,9 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
   }
 }
 
-void ezQtAssetPropertyWidget::UpdateRequiredIndicator(bool bValueEmpty, bool bValueValid)
+void WQtAssetPropertyWidget::UpdateRequiredIndicator(bool bValueEmpty, bool bValueValid)
 {
-  const bool bRequired = m_pProp->GetAttributeByType<ezRequiredAttribute>() != nullptr;
+  const bool bRequired = m_pProp->GetAttributeByType<WRequiredAttribute>() != nullptr;
   const bool bShow = (bRequired && bValueEmpty) || (!bValueEmpty && !bValueValid);
 
   m_pWarningIcon->setVisible(bShow);
@@ -157,10 +157,10 @@ void ezQtAssetPropertyWidget::UpdateRequiredIndicator(bool bValueEmpty, bool bVa
   }
 }
 
-void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
+void WQtAssetPropertyWidget::InternalSetValue(const WVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
-  ezQtScopedBlockSignals b2(m_pButton);
+  WQtScopedBlockSignals b(m_pWidget);
+  WQtScopedBlockSignals b2(m_pButton);
 
   if (!value.IsValid())
   {
@@ -169,17 +169,17 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
   else
   {
-    ezStringBuilder sText = value.ConvertTo<ezString>();
-    m_AssetGuid = ezUuid();
-    ezStringBuilder sThumbnailPath;
+    WStringBuilder sText = value.ConvertTo<WString>();
+    m_AssetGuid = WUuid();
+    WStringBuilder sThumbnailPath;
 
-    if (ezConversionUtils::IsStringUuid(sText))
+    if (WConversionUtils::IsStringUuid(sText))
     {
       if (!IsValidAssetType(sText))
       {
         m_uiThumbnailID = 0;
 
-        m_pWidget->setText(ezMakeQString(sText));
+        m_pWidget->setText(WMakeQString(sText));
 
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
@@ -193,28 +193,28 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         return;
       }
 
-      ezUuid newAssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
+      WUuid newAssetGuid = WConversionUtils::ConvertStringToUuid(sText);
 
       // If this is a thumbnail or transform dependency, make sure the target is not in our inverse hull, i.e. we don't create a circular dependency.
-      const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
-      if (pAssetAttribute->GetDependencyFlags().IsAnySet(ezDependencyFlags::Thumbnail | ezDependencyFlags::Transform))
+      const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
+      if (pAssetAttribute->GetDependencyFlags().IsAnySet(WDependencyFlags::Thumbnail | WDependencyFlags::Transform))
       {
-        ezUuid documentGuid = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetGuid();
-        ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->GetSubAsset(documentGuid);
+        WUuid documentGuid = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetGuid();
+        WAssetCurator::WLockedSubAsset asset = WAssetCurator::GetSingleton()->GetSubAsset(documentGuid);
         if (asset.isValid())
         {
-          ezSet<ezUuid> inverseHull;
-          ezAssetCurator::GetSingleton()->GenerateInverseTransitiveHull(asset->m_pAssetInfo, inverseHull, true, true);
+          WSet<WUuid> inverseHull;
+          WAssetCurator::GetSingleton()->GenerateInverseTransitiveHull(asset->m_pAssetInfo, inverseHull, true, true);
           if (inverseHull.Contains(newAssetGuid))
           {
-            ezQtUiServices::GetSingleton()->MessageBoxWarning("This asset can't be used here, as that would create a circular dependency.");
+            WQtUiServices::GetSingleton()->MessageBoxWarning("This asset can't be used here, as that would create a circular dependency.");
             return;
           }
         }
       }
 
       m_AssetGuid = newAssetGuid;
-      auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid);
+      auto pAsset = WAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid);
 
       if (pAsset)
       {
@@ -224,15 +224,15 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       }
       else
       {
-        m_AssetGuid = ezUuid();
+        m_AssetGuid = WUuid();
       }
     }
 
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);
 
     {
-      const QColor validColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green));
-      const QColor invalidColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
+      const QColor validColor = WToQtColor(WColorScheme::LightUI(WColorScheme::Green));
+      const QColor invalidColor = WToQtColor(WColorScheme::LightUI(WColorScheme::Red));
 
       m_Pal.setColor(QPalette::Active, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
       m_Pal.setColor(QPalette::Inactive, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
@@ -251,14 +251,14 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezQtAssetPropertyWidget::showEvent(QShowEvent* event)
+void WQtAssetPropertyWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
   m_pWidget->setPalette(m_Pal);
-  ezQtStandardPropertyWidget::showEvent(event);
+  WQtStandardPropertyWidget::showEvent(event);
 }
 
-void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
+void WQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
 {
   if (!menu.isEmpty())
     menu.addSeparator();
@@ -273,30 +273,30 @@ void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
   menu.addAction(QIcon(":/GuiFoundation/Icons/Clear.svg"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
 }
 
-void ezQtAssetPropertyWidget::on_TextFinished_triggered()
+void WQtAssetPropertyWidget::on_TextFinished_triggered()
 {
-  ezStringBuilder sText = m_pWidget->text().toUtf8().data();
+  WStringBuilder sText = m_pWidget->text().toUtf8().data();
 
-  auto pAsset = ezAssetCurator::GetSingleton()->FindSubAsset(sText);
+  auto pAsset = WAssetCurator::GetSingleton()->FindSubAsset(sText);
 
   if (pAsset)
   {
-    ezConversionUtils::ToString(pAsset->m_Data.m_Guid, sText);
+    WConversionUtils::ToString(pAsset->m_Data.m_Guid, sText);
   }
 
   BroadcastValueChanged(sText.GetData());
 }
 
 
-void ezQtAssetPropertyWidget::on_TextChanged_triggered(const QString& value)
+void WQtAssetPropertyWidget::on_TextChanged_triggered(const QString& value)
 {
   if (!hasFocus())
     on_TextFinished_triggered();
 }
 
-void ezQtAssetPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void WQtAssetPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
-  const ezUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
+  const WUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
 
   if (guid == m_AssetGuid)
   {
@@ -305,61 +305,61 @@ void ezQtAssetPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex index, 
 }
 
 
-void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
+void WQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, WUInt32 uiImageID)
 {
   if (m_uiThumbnailID == uiImageID)
   {
-    UpdateThumbnail(ezUuid(), "");
+    UpdateThumbnail(WUuid(), "");
   }
 }
 
-void ezQtAssetPropertyWidget::OnOpenAssetDocument()
+void WQtAssetPropertyWidget::OnOpenAssetDocument()
 {
   if (!m_AssetGuid.IsValid())
     return;
 
-  if (auto asset = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid))
+  if (auto asset = WAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid))
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(asset->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
+    WQtEditorApp::GetSingleton()->OpenDocumentQueued(asset->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
   }
 }
 
-void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
+void WQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
-  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_AssetGuid);
-  ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible();
+  WQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_AssetGuid);
+  WQtAssetBrowserPanel::GetSingleton()->EnsureVisible();
 }
 
-void ezQtAssetPropertyWidget::OnOpenExplorer()
+void WQtAssetPropertyWidget::OnOpenExplorer()
 {
-  ezString sPath;
+  WString sPath;
 
   if (m_AssetGuid.IsValid())
   {
-    sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
+    sPath = WAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
   }
   else
   {
     sPath = m_pWidget->text().toUtf8().data();
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    if (!WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
       return;
   }
 
-  ezQtUiServices::OpenInExplorer(sPath, true);
+  WQtUiServices::OpenInExplorer(sPath, true);
 }
 
-void ezQtAssetPropertyWidget::OnCopyAssetGuid()
+void WQtAssetPropertyWidget::OnCopyAssetGuid()
 {
-  ezStringBuilder sGuid;
+  WStringBuilder sGuid;
 
   if (m_AssetGuid.IsValid())
   {
-    ezConversionUtils::ToString(m_AssetGuid, sGuid);
+    WConversionUtils::ToString(m_AssetGuid, sGuid);
   }
   else
   {
     sGuid = m_pWidget->text().toUtf8().data();
-    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sGuid))
+    if (!WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sGuid))
       return;
   }
 
@@ -368,18 +368,18 @@ void ezQtAssetPropertyWidget::OnCopyAssetGuid()
   mimeData->setText(QString::fromUtf8(sGuid.GetData()));
   clipboard->setMimeData(mimeData);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
+  WQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(WFmt("Copied asset GUID: {}", sGuid), WTime::MakeFromSeconds(5));
 }
 
-void ezQtAssetPropertyWidget::OnCreateNewAsset()
+void WQtAssetPropertyWidget::OnCreateNewAsset()
 {
-  ezString sPath;
+  WString sPath;
 
   // try to pick a good path
   {
     if (m_AssetGuid.IsValid())
     {
-      sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
+      sPath = WAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
     }
     else
     {
@@ -390,19 +390,19 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
         sPath = ":project/";
       }
 
-      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+      WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
     }
   }
 
-  const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
-  ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
+  const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
+  WStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
-  ezTempHybridArray<ezString, 4> allowedTypes;
+  WTempHybridArray<WString, 4> allowedTypes;
   sTypeFilter.Split(false, allowedTypes, ";");
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
 
-  for (ezString& type : allowedTypes)
+  for (WString& type : allowedTypes)
   {
     tmp = type;
     tmp.Trim(" ");
@@ -411,29 +411,29 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
   struct info
   {
-    ezAssetDocumentManager* pAssetMan = nullptr;
-    const ezDocumentTypeDescriptor* pDocType = nullptr;
+    WAssetDocumentManager* pAssetMan = nullptr;
+    const WDocumentTypeDescriptor* pDocType = nullptr;
   };
 
-  ezMap<ezString, info> typesToUse;
+  WMap<WString, info> typesToUse;
 
   {
-    const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
+    const WHybridArray<WDocumentManager*, 16>& managers = WDocumentManager::GetAllDocumentManagers();
 
-    for (ezDocumentManager* pMan : managers)
+    for (WDocumentManager* pMan : managers)
     {
-      if (auto pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
+      if (auto pAssetMan = WDynamicCast<WAssetDocumentManager*>(pMan))
       {
-        ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
+        WTempHybridArray<const WDocumentTypeDescriptor*, 4> documentTypes;
         pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
-        for (const ezDocumentTypeDescriptor* pType : documentTypes)
+        for (const WDocumentTypeDescriptor* pType : documentTypes)
         {
-          if (allowedTypes.IndexOf(pType->m_sDocumentTypeName) == ezInvalidIndex)
+          if (allowedTypes.IndexOf(pType->m_sDocumentTypeName) == WInvalidIndex)
           {
-            for (const ezString& compType : pType->m_CompatibleTypes)
+            for (const WString& compType : pType->m_CompatibleTypes)
             {
-              if (allowedTypes.IndexOf(compType) != ezInvalidIndex)
+              if (allowedTypes.IndexOf(compType) != WInvalidIndex)
                 goto allowed;
             }
 
@@ -454,15 +454,15 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   if (typesToUse.IsEmpty())
     return;
 
-  ezStringBuilder sFilter;
+  WStringBuilder sFilter;
   QString sSelectedFilter;
 
   for (auto it : typesToUse)
   {
     const auto& ttu = it.Value();
 
-    const ezString sAssetType = ttu.pDocType->m_sDocumentTypeName;
-    const ezString sExtension = ttu.pDocType->m_sFileExtension;
+    const WString sAssetType = ttu.pDocType->m_sDocumentTypeName;
+    const WString sExtension = ttu.pDocType->m_sFileExtension;
 
     sFilter.AppendWithSeparator(";;", sAssetType, " (*.", sExtension, ")");
 
@@ -473,7 +473,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   }
 
 
-  ezStringBuilder sOutput = sPath;
+  WStringBuilder sOutput = sPath;
   {
 
     QString sStartDir = sOutput.GetFileDirectory().GetData(tmp);
@@ -494,11 +494,11 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
     if (sFilter.IsEqual_NoCase(ttu.pDocType->m_sFileExtension))
     {
-      ezDocument* pDoc = nullptr;
+      WDocument* pDoc = nullptr;
 
-      const ezStatus res = ttu.pAssetMan->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+      const WStatus res = ttu.pAssetMan->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, WDocumentFlags::RequestWindow | WDocumentFlags::AddToRecentFilesList);
 
-      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the document failed.");
+      WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the document failed.");
 
       if (res.Succeeded())
       {
@@ -506,18 +506,18 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
         // and make sure the filesystem knows about it (the asset lookup table is written)
         // so that redirections inside the resource manager will work right away
         // otherwise they may only work after a while (the world gets set up again) which would be irritating
-        if (ezAssetDocument* pAsset = ezDynamicCast<ezAssetDocument*>(pDoc))
+        if (WAssetDocument* pAsset = WDynamicCast<WAssetDocument*>(pDoc))
         {
-          ezAssetCurator::GetSingleton()->NotifyOfAssetChange(pAsset->GetGuid());
+          WAssetCurator::GetSingleton()->NotifyOfAssetChange(pAsset->GetGuid());
 
-          if (pAsset->TransformAsset(ezTransformFlags::Default).Failed())
+          if (pAsset->TransformAsset(WTransformFlags::Default).Failed())
           {
-            ezLog::Error("Failed to transform newly created asset '{}'", pDoc->GetDocumentPath());
+            WLog::Error("Failed to transform newly created asset '{}'", pDoc->GetDocumentPath());
             break;
           }
 
-          ezAssetCurator::GetSingleton()->MainThreadTick(false);
-          ezAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true).IgnoreResult();
+          WAssetCurator::GetSingleton()->MainThreadTick(false);
+          WAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true).IgnoreResult();
         }
 
         pDoc->EnsureVisible();
@@ -530,30 +530,30 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   }
 }
 
-void ezQtAssetPropertyWidget::OnClearReference()
+void WQtAssetPropertyWidget::OnClearReference()
 {
   InternalSetValue("");
   on_TextFinished_triggered();
 }
 
-void ezQtAssetPropertyWidget::OnShowMenu()
+void WQtAssetPropertyWidget::OnShowMenu()
 {
   m_pButton->menu()->clear();
   FillAssetMenu(*m_pButton->menu());
 }
 
-void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
+void WQtAssetPropertyWidget::on_BrowseFile_clicked()
 {
-  ezStringBuilder sFile = m_pWidget->text().toUtf8().data();
-  const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+  WStringBuilder sFile = m_pWidget->text().toUtf8().data();
+  const WAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<WAssetBrowserAttribute>();
 
-  ezQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter(), {}, pAssetAttribute->GetRequiredTag());
+  WQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter(), {}, pAssetAttribute->GetRequiredTag());
   if (dlg.exec() == 0)
     return;
 
-  ezUuid assetGuid = dlg.GetSelectedAssetGuid();
+  WUuid assetGuid = dlg.GetSelectedAssetGuid();
   if (assetGuid.IsValid())
-    ezConversionUtils::ToString(assetGuid, sFile);
+    WConversionUtils::ToString(assetGuid, sFile);
 
   if (sFile.IsEmpty())
   {
@@ -563,7 +563,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
     {
       sFile = dlg.GetSelectedAssetPathAbsolute();
 
-      ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile);
+      WQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile);
     }
   }
 

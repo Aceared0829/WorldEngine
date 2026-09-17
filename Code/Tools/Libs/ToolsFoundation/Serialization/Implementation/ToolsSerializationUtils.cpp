@@ -5,36 +5,36 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
-void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& ref_typesGraph)
+void WToolsSerializationUtils::SerializeTypes(const WSet<const WRTTI*>& types, WAbstractObjectGraph& ref_typesGraph)
 {
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&ref_typesGraph, &context, true, true);
-  for (const ezRTTI* pType : types)
+  WRttiConverterContext context;
+  WRttiConverterWriter rttiConverter(&ref_typesGraph, &context, true, true);
+  for (const WRTTI* pType : types)
   {
-    ezReflectedTypeDescriptor desc;
-    if (pType->GetTypeFlags().IsSet(ezTypeFlags::Phantom))
+    WReflectedTypeDescriptor desc;
+    if (pType->GetTypeFlags().IsSet(WTypeFlags::Phantom))
     {
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
+      WToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
     }
     else
     {
-      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
+      WToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
     }
 
-    context.RegisterObject(ezUuid::MakeStableUuidFromString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-    rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+    context.RegisterObject(WUuid::MakeStableUuidFromString(pType->GetTypeName()), WGetStaticRTTI<WReflectedTypeDescriptor>(), &desc);
+    rttiConverter.AddObjectToGraph(WGetStaticRTTI<WReflectedTypeDescriptor>(), &desc);
   }
 }
 
-void ezToolsSerializationUtils::CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction propertFilter)
+void WToolsSerializationUtils::CopyProperties(const WDocumentObject* pSource, const WDocumentObjectManager* pSourceManager, void* pTarget, const WRTTI* pTargetType, FilterFunction propertFilter)
 {
-  ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter writer(&graph, pSourceManager, [](const ezDocumentObject*, const ezAbstractProperty* p)
-    { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
-  ezAbstractObjectNode* pAbstractObj = writer.AddObjectToGraph(pSource);
+  WAbstractObjectGraph graph;
+  WDocumentObjectConverterWriter writer(&graph, pSourceManager, [](const WDocumentObject*, const WAbstractProperty* p)
+    { return p->GetAttributeByType<WHiddenAttribute>() == nullptr; });
+  WAbstractObjectNode* pAbstractObj = writer.AddObjectToGraph(pSource);
 
-  ezRttiConverterContext context;
-  ezRttiConverterReader reader(&graph, &context);
+  WRttiConverterContext context;
+  WRttiConverterReader reader(&graph, &context);
 
   reader.ApplyPropertiesToObject(pAbstractObj, pTargetType, pTarget);
 }

@@ -8,89 +8,89 @@
 // preloading assets is considered to be the vast majority of scene loading
 constexpr float fCollectionPreloadPiece = 0.9f;
 
-ezSceneLoadUtility::ezSceneLoadUtility() = default;
-ezSceneLoadUtility::~ezSceneLoadUtility() = default;
+WSceneLoadUtility::WSceneLoadUtility() = default;
+WSceneLoadUtility::~WSceneLoadUtility() = default;
 
-ezStatus ezSceneLoadUtility::FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile)
+WStatus WSceneLoadUtility::FindRedirectedSceneFile(WStringBuilder& ref_sFinalPath, WStringView sSceneFile)
 {
   ref_sFinalPath = sSceneFile;
 
   if (ref_sFinalPath.IsEmpty())
   {
-    return ezStatus("No scene file specified.");
+    return WStatus("No scene file specified.");
   }
 
   if (ref_sFinalPath.IsAbsolutePath())
   {
     // this can fail if the scene is in a different data directory than the project directory
     // shouldn't stop us from loading it anyway
-    ref_sFinalPath.MakeRelativeTo(ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
+    ref_sFinalPath.MakeRelativeTo(WGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
   }
 
-  if (ref_sFinalPath.HasExtension("ezScene") || ref_sFinalPath.HasExtension("ezPrefab"))
+  if (ref_sFinalPath.HasExtension("WScene") || ref_sFinalPath.HasExtension("WPrefab"))
   {
     if (ref_sFinalPath.IsAbsolutePath())
     {
-      if (ezFileSystem::ResolvePath(ref_sFinalPath, nullptr, &ref_sFinalPath).Failed())
+      if (WFileSystem::ResolvePath(ref_sFinalPath, nullptr, &ref_sFinalPath).Failed())
       {
-        return ezStatus(ezFmt("Scene path is not located in any data directory: '{}'", ref_sFinalPath));
+        return WStatus(WFmt("Scene path is not located in any data directory: '{}'", ref_sFinalPath));
       }
     }
 
     // if this is a path to the non-transformed source file, redirect it to the transformed file in the asset cache
     ref_sFinalPath.Prepend("AssetCache/Common/");
 
-    if (ref_sFinalPath.HasExtension("ezScene"))
-      ref_sFinalPath.ChangeFileExtension("ezBinScene");
+    if (ref_sFinalPath.HasExtension("WScene"))
+      ref_sFinalPath.ChangeFileExtension("WBinScene");
     else
-      ref_sFinalPath.ChangeFileExtension("ezBinPrefab");
+      ref_sFinalPath.ChangeFileExtension("WBinPrefab");
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezStatus ezSceneLoadUtility::LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile)
+WStatus WSceneLoadUtility::LoadSceneImmediate(WWorld& inout_targetWorld, WStringView sSceneFile)
 {
-  ezStringBuilder ref_sFinalPath;
-  EZ_SUCCEED_OR_RETURN(FindRedirectedSceneFile(ref_sFinalPath, sSceneFile));
+  WStringBuilder ref_sFinalPath;
+  W_SUCCEED_OR_RETURN(FindRedirectedSceneFile(ref_sFinalPath, sSceneFile));
 
-  ezFileReader fileReader;
+  WFileReader fileReader;
 
   if (fileReader.Open(ref_sFinalPath).Failed())
-    return ezStatus("Failed to open the file.");
+    return WStatus("Failed to open the file.");
 
   // Read and skip the asset file header
-  ezAssetFileHeader header;
+  WAssetFileHeader header;
   header.Read(fileReader).AssertSuccess();
 
   char szSceneTag[16];
   fileReader.ReadBytes(szSceneTag, sizeof(char) * 16);
 
-  if (!ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16))
-    return ezStatus("The given file isn't an object-graph file.");
+  if (!WStringUtils::IsEqualN(szSceneTag, "[WEBinaryScene]", 16))
+    return WStatus("The given file isn't an object-graph file.");
 
-  ezWorldReader worldReader;
+  WWorldReader worldReader;
   if (worldReader.ReadWorldDescription(fileReader).Failed())
-    return ezStatus("Error reading world description.");
+    return WStatus("Error reading world description.");
 
   worldReader.InstantiateWorld(inout_targetWorld, nullptr);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollectionFile)
+void WSceneLoadUtility::StartSceneLoading(WStringView sSceneFile, WStringView sPreloadCollectionFile)
 {
-  EZ_ASSERT_DEV(m_LoadingState == LoadingState::NotStarted, "Can't reuse an ezSceneLoadUtility.");
+  W_ASSERT_DEV(m_LoadingState == LoadingState::NotStarted, "Can't reuse an WSceneLoadUtility.");
 
-  EZ_LOG_BLOCK("StartSceneLoading");
+  W_LOG_BLOCK("StartSceneLoading");
 
-  ezLog::Info("Loading scene '{}'.", sSceneFile);
+  WLog::Info("Loading scene '{}'.", sSceneFile);
 
   m_LoadingState = LoadingState::Ongoing;
 
   m_sRequestedFile = sSceneFile;
 
-  ezStringBuilder ref_sFinalPath;
+  WStringBuilder ref_sFinalPath;
   auto res = FindRedirectedSceneFile(ref_sFinalPath, sSceneFile);
 
   if (res.Failed())
@@ -101,20 +101,20 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
 
   if (ref_sFinalPath != sSceneFile)
   {
-    ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, ref_sFinalPath);
+    WLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, ref_sFinalPath);
   }
 
   m_sRedirectedFile = ref_sFinalPath;
 
   if (!sPreloadCollectionFile.IsEmpty())
   {
-    m_hPreloadCollection = ezResourceManager::LoadResource<ezCollectionResource>(ezString(sPreloadCollectionFile));
+    m_hPreloadCollection = WResourceManager::LoadResource<WCollectionResource>(WString(sPreloadCollectionFile));
   }
 }
 
-ezUniquePtr<ezWorld> ezSceneLoadUtility::RetrieveLoadedScene()
+WUniquePtr<WWorld> WSceneLoadUtility::RetrieveLoadedScene()
 {
-  EZ_ASSERT_DEV(m_LoadingState == LoadingState::FinishedSuccessfully, "Can't retrieve a scene when loading hasn't finished successfully.");
+  W_ASSERT_DEV(m_LoadingState == LoadingState::FinishedSuccessfully, "Can't retrieve a scene when loading hasn't finished successfully.");
 
   m_LoadingState = LoadingState::FinishedAndRetrieved;
 
@@ -123,16 +123,16 @@ ezUniquePtr<ezWorld> ezSceneLoadUtility::RetrieveLoadedScene()
   return std::move(m_pWorld);
 }
 
-void ezSceneLoadUtility::LoadingFailed(const ezFormatString& reason)
+void WSceneLoadUtility::LoadingFailed(const WFormatString& reason)
 {
-  EZ_ASSERT_DEV(m_LoadingState == LoadingState::Ongoing, "Invalid loading state");
+  W_ASSERT_DEV(m_LoadingState == LoadingState::Ongoing, "Invalid loading state");
   m_LoadingState = LoadingState::Failed;
 
-  ezStringBuilder tmp;
+  WStringBuilder tmp;
   m_sFailureReason = reason.GetText(tmp);
 }
 
-void ezSceneLoadUtility::TickSceneLoading()
+void WSceneLoadUtility::TickSceneLoading()
 {
   switch (m_LoadingState)
   {
@@ -144,7 +144,7 @@ void ezSceneLoadUtility::TickSceneLoading()
       break;
   }
 
-  EZ_PROFILE_SCOPE("TickSceneLoading");
+  W_PROFILE_SCOPE("TickSceneLoading");
 
   // update our current loading progress
   {
@@ -155,13 +155,13 @@ void ezSceneLoadUtility::TickSceneLoading()
     {
       m_fLoadingProgress = 0.0f;
 
-      ezResourceLock<ezCollectionResource> pCollection(m_hPreloadCollection, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+      WResourceLock<WCollectionResource> pCollection(m_hPreloadCollection, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-      if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
+      if (pCollection.GetAcquireResult() == WResourceAcquireResult::Final)
       {
         if (pCollection->PreloadResources())
         {
-          EZ_REPORT_FAILURE("Failed to start preloading all resources.");
+          W_REPORT_FAILURE("Failed to start preloading all resources.");
         }
 
         float progress = 0.0f;
@@ -190,13 +190,13 @@ void ezSceneLoadUtility::TickSceneLoading()
   // if we haven't created a world yet, do so now, and set up an instantiation context
   if (m_pWorld == nullptr)
   {
-    EZ_LOG_BLOCK("LoadObjectGraph", m_sRedirectedFile);
+    W_LOG_BLOCK("LoadObjectGraph", m_sRedirectedFile);
 
-    ezWorldDesc desc(m_sRedirectedFile);
-    m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
+    WWorldDesc desc(m_sRedirectedFile);
+    m_pWorld = W_DEFAULT_NEW(WWorld, desc);
     m_pWorld->SetWorldSimulationEnabled(false);
 
-    EZ_LOCK(m_pWorld->GetWriteMarker());
+    W_LOCK(m_pWorld->GetWriteMarker());
 
     if (m_FileReader.Open(m_sRedirectedFile).Failed())
     {
@@ -206,13 +206,13 @@ void ezSceneLoadUtility::TickSceneLoading()
     else
     {
       // Read and skip the asset file header
-      ezAssetFileHeader header;
+      WAssetFileHeader header;
       header.Read(m_FileReader).AssertSuccess();
 
       char szSceneTag[16];
       m_FileReader.ReadBytes(szSceneTag, sizeof(char) * 16);
 
-      if (!ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16))
+      if (!WStringUtils::IsEqualN(szSceneTag, "[WEBinaryScene]", 16))
       {
         LoadingFailed("The given file isn't an object-graph file.");
         return;
@@ -225,26 +225,26 @@ void ezSceneLoadUtility::TickSceneLoading()
       }
 
       // TODO: make frame time configurable ?
-      m_pInstantiationContext = m_WorldReader.InstantiateWorld(*m_pWorld, nullptr, ezTime::MakeFromMilliseconds(1), &m_InstantiationProgress);
+      m_pInstantiationContext = m_WorldReader.InstantiateWorld(*m_pWorld, nullptr, WTime::MakeFromMilliseconds(1), &m_InstantiationProgress);
     }
   }
   else if (m_pInstantiationContext)
   {
-    ezWorldReader::InstantiationContextBase::StepResult res = m_pInstantiationContext->Step();
+    WWorldReader::InstantiationContextBase::StepResult res = m_pInstantiationContext->Step();
 
-    if (res == ezWorldReader::InstantiationContextBase::StepResult::ContinueNextFrame)
+    if (res == WWorldReader::InstantiationContextBase::StepResult::ContinueNextFrame)
     {
       // TODO: can we finish the world instantiation without updating the entire world?
       // E.g. only finish component instantiation?
       // also we may want to step the world only with a very small (and fixed!) time-step
 
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
       m_pWorld->Update();
     }
-    else if (res == ezWorldReader::InstantiationContextBase::StepResult::Finished)
+    else if (res == WWorldReader::InstantiationContextBase::StepResult::Finished)
     {
       // TODO: ticking twice seems to fix some Jolt physics issues
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      W_LOCK(m_pWorld->GetWriteMarker());
       m_pWorld->Update();
 
       m_pInstantiationContext = nullptr;
@@ -255,6 +255,6 @@ void ezSceneLoadUtility::TickSceneLoading()
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid code path.");
+    W_REPORT_FAILURE("Invalid code path.");
   }
 }

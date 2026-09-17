@@ -6,7 +6,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
-/// Low-level binary serializer for ezAbstractObjectGraph.
+/// Low-level binary serializer for WAbstractObjectGraph.
 ///
 /// This class provides efficient binary serialization of abstract object graphs. It is used internally
 /// by the higher-level serialization systems and offers the fastest serialization performance.
@@ -16,19 +16,19 @@
 /// - Support for type information graphs (for versioning)
 /// - Optional patch application during deserialization
 /// - Platform-independent format (handles endianness)
-class EZ_FOUNDATION_DLL ezAbstractGraphBinarySerializer
+class W_FOUNDATION_DLL WAbstractGraphBinarySerializer
 {
 public:
   /// Writes an abstract object graph to a binary stream.
   ///
   /// \param pTypesGraph Optional type information graph for versioning support
-  static void Write(ezStreamWriter& inout_stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr); // [tested]
+  static void Write(WStreamWriter& inout_stream, const WAbstractObjectGraph* pGraph, const WAbstractObjectGraph* pTypesGraph = nullptr); // [tested]
 
   /// Reads an abstract object graph from a binary stream.
   ///
   /// \param pTypesGraph Optional type information graph for versioning support
   /// \param bApplyPatches If true, applies version patches during deserialization
-  static void Read(ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr, bool bApplyPatches = false); // [tested]
+  static void Read(WStreamReader& inout_stream, WAbstractObjectGraph* pGraph, WAbstractObjectGraph* pTypesGraph = nullptr, bool bApplyPatches = false); // [tested]
 
 private:
 };

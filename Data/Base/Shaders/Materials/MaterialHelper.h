@@ -56,7 +56,7 @@ void FillCustomGlobals();
 #endif
 
 #if defined(USE_FINALIZE_MATERIAL)
-void FinalizeMaterial(inout ezMaterialData matData);
+void FinalizeMaterial(inout WMaterialData matData);
 #endif
 
 #if defined(USE_CUSTOM_DITHER_NOISE)
@@ -124,7 +124,7 @@ uint CalculateCoverage()
 
   for (uint i = 0; i < NumMsaaSamples; ++i)
   {
-    G.Input.TexCoord0 = ezEvaluateAttributeAtSample(texCoords, i, NumMsaaSamples);
+    G.Input.TexCoord0 = WEvaluateAttributeAtSample(texCoords, i, NumMsaaSamples);
 
     float opacity = GetOpacity();
     coverage |= (opacity > 0.0) ? (1u << i) : 0;
@@ -138,9 +138,9 @@ uint CalculateCoverage()
 #endif
 }
 
-ezMaterialData FillMaterialData()
+WMaterialData FillMaterialData()
 {
-  ezMaterialData matData;
+  WMaterialData matData;
 
 #if defined(USE_WORLDPOS)
   matData.worldPosition = G.Input.WorldPosition;

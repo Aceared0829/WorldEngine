@@ -8,28 +8,28 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 
-const ezPlatformProfile* ezAssetCurator::GetDevelopmentAssetProfile() const
+const WPlatformProfile* WAssetCurator::GetDevelopmentAssetProfile() const
 {
   return m_AssetProfiles[0];
 }
 
-const ezPlatformProfile* ezAssetCurator::GetActiveAssetProfile() const
+const WPlatformProfile* WAssetCurator::GetActiveAssetProfile() const
 {
   return m_AssetProfiles[m_uiActiveAssetProfile];
 }
 
-ezUInt32 ezAssetCurator::GetActiveAssetProfileIndex() const
+WUInt32 WAssetCurator::GetActiveAssetProfileIndex() const
 {
   return m_uiActiveAssetProfile;
 }
 
-ezUInt32 ezAssetCurator::FindAssetProfileByName(const char* szPlatform)
+WUInt32 WAssetCurator::FindAssetProfileByName(const char* szPlatform)
 {
-  EZ_LOCK(m_CuratorMutex);
+  W_LOCK(m_CuratorMutex);
 
-  EZ_ASSERT_DEV(!m_AssetProfiles.IsEmpty(), "Need to have a valid asset platform config");
+  W_ASSERT_DEV(!m_AssetProfiles.IsEmpty(), "Need to have a valid asset platform config");
 
-  for (ezUInt32 i = 0; i < m_AssetProfiles.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_AssetProfiles.GetCount(); ++i)
   {
     if (m_AssetProfiles[i]->GetConfigName().IsEqual_NoCase(szPlatform))
     {
@@ -37,15 +37,15 @@ ezUInt32 ezAssetCurator::FindAssetProfileByName(const char* szPlatform)
     }
   }
 
-  return ezInvalidIndex;
+  return WInvalidIndex;
 }
 
-ezUInt32 ezAssetCurator::GetNumAssetProfiles() const
+WUInt32 WAssetCurator::GetNumAssetProfiles() const
 {
   return m_AssetProfiles.GetCount();
 }
 
-const ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex) const
+const WPlatformProfile* WAssetCurator::GetAssetProfile(WUInt32 uiIndex) const
 {
   if (uiIndex >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
@@ -53,7 +53,7 @@ const ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex) const
   return m_AssetProfiles[uiIndex];
 }
 
-ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex)
+WPlatformProfile* WAssetCurator::GetAssetProfile(WUInt32 uiIndex)
 {
   if (uiIndex >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
@@ -61,42 +61,42 @@ ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex)
   return m_AssetProfiles[uiIndex];
 }
 
-ezPlatformProfile* ezAssetCurator::CreateAssetProfile()
+WPlatformProfile* WAssetCurator::CreateAssetProfile()
 {
-  ezPlatformProfile* pProfile = EZ_DEFAULT_NEW(ezPlatformProfile);
+  WPlatformProfile* pProfile = W_DEFAULT_NEW(WPlatformProfile);
   m_AssetProfiles.PushBack(pProfile);
 
   return pProfile;
 }
 
-ezResult ezAssetCurator::DeleteAssetProfile(ezPlatformProfile* pProfile)
+WResult WAssetCurator::DeleteAssetProfile(WPlatformProfile* pProfile)
 {
   if (m_AssetProfiles.GetCount() <= 1)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // do not allow to delete element 0 !
 
-  for (ezUInt32 i = 1; i < m_AssetProfiles.GetCount(); ++i)
+  for (WUInt32 i = 1; i < m_AssetProfiles.GetCount(); ++i)
   {
     if (m_AssetProfiles[i] == pProfile)
     {
       if (m_uiActiveAssetProfile == i)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
       if (i < m_uiActiveAssetProfile)
         --m_uiActiveAssetProfile;
 
-      EZ_DEFAULT_DELETE(pProfile);
+      W_DEFAULT_DELETE(pProfile);
       m_AssetProfiles.RemoveAtAndCopy(i);
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
   }
 
-  return EZ_FAILURE;
+  return W_FAILURE;
 }
 
-void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 uiIndex, bool bForceReevaluation /*= false*/)
+void WAssetCurator::SetActiveAssetProfileByIndex(WUInt32 uiIndex, bool bForceReevaluation /*= false*/)
 {
   if (uiIndex >= m_AssetProfiles.GetCount())
     uiIndex = 0; // fall back to default platform
@@ -104,46 +104,46 @@ void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 uiIndex, bool bForceR
   if (!bForceReevaluation && m_uiActiveAssetProfile == uiIndex)
     return;
 
-  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[uiIndex]->GetConfigName());
+  W_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[uiIndex]->GetConfigName());
 
   m_uiActiveAssetProfile = uiIndex;
 
   CheckFileSystem();
 
   {
-    ezAssetCuratorEvent e;
-    e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
+    WAssetCuratorEvent e;
+    e.m_Type = WAssetCuratorEvent::Type::ActivePlatformChanged;
     m_Events.Broadcast(e);
   }
 
   {
-    ezSimpleConfigMsgToEngine msg;
+    WSimpleConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ChangeActivePlatform";
     msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    WEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
-void ezAssetCurator::SaveRuntimeProfiles()
+void WAssetCurator::SaveRuntimeProfiles()
 {
-  for (ezUInt32 i = 0; i < GetNumAssetProfiles(); ++i)
+  for (WUInt32 i = 0; i < GetNumAssetProfiles(); ++i)
   {
-    ezStringBuilder sProfileRuntimeDataFile;
+    WStringBuilder sProfileRuntimeDataFile;
 
-    ezPlatformProfile* pProfile = GetAssetProfile(i);
+    WPlatformProfile* pProfile = GetAssetProfile(i);
 
-    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".ezProfile");
+    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".WProfile");
 
     pProfile->SaveForRuntime(sProfileRuntimeDataFile).IgnoreResult();
   }
 }
 
-ezResult ezAssetCurator::SaveAssetProfiles()
+WResult WAssetCurator::SaveAssetProfiles()
 {
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(":project/Editor/AssetProfiles.ddl");
 
-  ezOpenDdlWriter ddl;
+  WOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
   ddl.BeginObject("AssetProfiles");
@@ -153,9 +153,9 @@ ezResult ezAssetCurator::SaveAssetProfiles()
     ddl.BeginObject("Config", pCfg->GetConfigName());
 
     // make sure to create the same GUID every time, otherwise the serialized file changes all the time
-    const ezUuid guid = ezUuid::MakeStableUuidFromString(pCfg->GetConfigName());
+    const WUuid guid = WUuid::MakeStableUuidFromString(pCfg->GetConfigName());
 
-    ezReflectionSerializer::WriteObjectToDDL(ddl, pCfg->GetDynamicRTTI(), pCfg, guid);
+    WReflectionSerializer::WriteObjectToDDL(ddl, pCfg->GetDynamicRTTI(), pCfg, guid);
 
     ddl.EndObject();
   }
@@ -165,25 +165,25 @@ ezResult ezAssetCurator::SaveAssetProfiles()
   return file.Close();
 }
 
-ezResult ezAssetCurator::LoadAssetProfiles()
+WResult WAssetCurator::LoadAssetProfiles()
 {
-  EZ_LOG_BLOCK("LoadAssetProfiles", ":project/Editor/PlatformProfiles.ddl");
+  W_LOG_BLOCK("LoadAssetProfiles", ":project/Editor/PlatformProfiles.ddl");
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(":project/Editor/AssetProfiles.ddl").Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  ezOpenDdlReader ddl;
+  WOpenDdlReader ddl;
   if (ddl.ParseDocument(file).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
-  const ezOpenDdlReaderElement* pRootElement = ddl.GetRootElement()->FindChildOfType("AssetProfiles");
+  const WOpenDdlReaderElement* pRootElement = ddl.GetRootElement()->FindChildOfType("AssetProfiles");
 
   if (!pRootElement)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   if (pRootElement->FindChildOfType("Config") == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   ClearAssetProfiles();
 
@@ -191,10 +191,10 @@ ezResult ezAssetCurator::LoadAssetProfiles()
   {
     if (pChild->IsCustomType("Config"))
     {
-      const ezRTTI* pRtti = nullptr;
-      void* pConfigObj = ezReflectionSerializer::ReadObjectFromDDL(pChild, pRtti);
+      const WRTTI* pRtti = nullptr;
+      void* pConfigObj = WReflectionSerializer::ReadObjectFromDDL(pChild, pRtti);
 
-      auto pProfile = static_cast<ezPlatformProfile*>(pConfigObj);
+      auto pProfile = static_cast<WPlatformProfile*>(pConfigObj);
 
       pProfile->AddMissingConfigs();
 
@@ -204,7 +204,7 @@ ezResult ezAssetCurator::LoadAssetProfiles()
 
   if (m_AssetProfiles.IsEmpty() || m_AssetProfiles[0]->GetConfigName() != "Default")
   {
-    ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
+    WPlatformProfile* pCfg = W_DEFAULT_NEW(WPlatformProfile);
     pCfg->SetConfigName("Default");
     pCfg->SetTargetPlatform("Windows");
 
@@ -212,10 +212,10 @@ ezResult ezAssetCurator::LoadAssetProfiles()
     m_AssetProfiles.InsertAt(0, pCfg);
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezAssetCurator::ClearAssetProfiles()
+void WAssetCurator::ClearAssetProfiles()
 {
   for (auto pCfg : m_AssetProfiles)
   {
@@ -225,12 +225,12 @@ void ezAssetCurator::ClearAssetProfiles()
   m_AssetProfiles.Clear();
 }
 
-void ezAssetCurator::SetupDefaultAssetProfiles()
+void WAssetCurator::SetupDefaultAssetProfiles()
 {
   ClearAssetProfiles();
 
   {
-    ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
+    WPlatformProfile* pCfg = W_DEFAULT_NEW(WPlatformProfile);
     pCfg->SetConfigName("Default");
     pCfg->SetTargetPlatform("Windows");
     pCfg->AddMissingConfigs();
@@ -238,11 +238,11 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
   }
 }
 
-void ezAssetCurator::ComputeAllDocumentManagerAssetProfileHashes()
+void WAssetCurator::ComputeAllDocumentManagerAssetProfileHashes()
 {
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto pMan : WDocumentManager::GetAllDocumentManagers())
   {
-    if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
+    if (auto pAssMan = WDynamicCast<WAssetDocumentManager*>(pMan))
     {
       pAssMan->ComputeAssetProfileHash(GetActiveAssetProfile());
     }

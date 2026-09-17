@@ -2,23 +2,23 @@
 
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropHandler, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WDragDropHandler, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezDragDropHandler* ezDragDropHandler::s_pActiveDnD = nullptr;
+WDragDropHandler* WDragDropHandler::s_pActiveDnD = nullptr;
 
-ezDragDropHandler::ezDragDropHandler() = default;
+WDragDropHandler::WDragDropHandler() = default;
 
 
-ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* pInfo)
+WDragDropHandler* WDragDropHandler::FindDragDropHandler(const WDragDropInfo* pInfo)
 {
   float fBestValue = 0.0f;
-  ezDragDropHandler* pBestDnD = nullptr;
+  WDragDropHandler* pBestDnD = nullptr;
 
-  ezRTTI::ForEachDerivedType<ezDragDropHandler>(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachDerivedType<WDragDropHandler>(
+    [&](const WRTTI* pRtti)
     {
-      ezDragDropHandler* pDnD = pRtti->GetAllocator()->Allocate<ezDragDropHandler>();
+      WDragDropHandler* pDnD = pRtti->GetAllocator()->Allocate<WDragDropHandler>();
 
       const float fValue = pDnD->CanHandle(pInfo);
       if (fValue > fBestValue)
@@ -36,16 +36,16 @@ ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* 
         pDnD->GetDynamicRTTI()->GetAllocator()->Deallocate(pDnD);
       }
     },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+    WRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   return pBestDnD;
 }
 
-bool ezDragDropHandler::BeginDragDropOperation(const ezDragDropInfo* pInfo, ezDragDropConfig* pConfigToFillOut)
+bool WDragDropHandler::BeginDragDropOperation(const WDragDropInfo* pInfo, WDragDropConfig* pConfigToFillOut)
 {
-  EZ_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
+  W_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
 
-  ezDragDropHandler* pHandler = FindDragDropHandler(pInfo);
+  WDragDropHandler* pHandler = FindDragDropHandler(pInfo);
 
   if (pHandler != nullptr)
   {
@@ -60,7 +60,7 @@ bool ezDragDropHandler::BeginDragDropOperation(const ezDragDropInfo* pInfo, ezDr
   return false;
 }
 
-void ezDragDropHandler::UpdateDragDropOperation(const ezDragDropInfo* pInfo)
+void WDragDropHandler::UpdateDragDropOperation(const WDragDropInfo* pInfo)
 {
   if (s_pActiveDnD == nullptr)
     return;
@@ -68,7 +68,7 @@ void ezDragDropHandler::UpdateDragDropOperation(const ezDragDropInfo* pInfo)
   s_pActiveDnD->OnDragUpdate(pInfo);
 }
 
-void ezDragDropHandler::FinishDragDrop(const ezDragDropInfo* pInfo)
+void WDragDropHandler::FinishDragDrop(const WDragDropInfo* pInfo)
 {
   if (s_pActiveDnD == nullptr)
     return;
@@ -79,7 +79,7 @@ void ezDragDropHandler::FinishDragDrop(const ezDragDropInfo* pInfo)
   s_pActiveDnD = nullptr;
 }
 
-void ezDragDropHandler::CancelDragDrop()
+void WDragDropHandler::CancelDragDrop()
 {
   if (s_pActiveDnD == nullptr)
     return;
@@ -90,11 +90,11 @@ void ezDragDropHandler::CancelDragDrop()
   s_pActiveDnD = nullptr;
 }
 
-bool ezDragDropHandler::CanDropOnly(const ezDragDropInfo* pInfo)
+bool WDragDropHandler::CanDropOnly(const WDragDropInfo* pInfo)
 {
-  EZ_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
+  W_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
 
-  ezDragDropHandler* pHandler = FindDragDropHandler(pInfo);
+  WDragDropHandler* pHandler = FindDragDropHandler(pInfo);
 
   if (pHandler != nullptr)
   {
@@ -105,9 +105,9 @@ bool ezDragDropHandler::CanDropOnly(const ezDragDropInfo* pInfo)
   return false;
 }
 
-bool ezDragDropHandler::DropOnly(const ezDragDropInfo* pInfo)
+bool WDragDropHandler::DropOnly(const WDragDropInfo* pInfo)
 {
-  EZ_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
+  W_ASSERT_DEV(s_pActiveDnD == nullptr, "A drag & drop handler is already active");
 
   if (BeginDragDropOperation(pInfo))
   {

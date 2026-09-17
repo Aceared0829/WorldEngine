@@ -7,33 +7,33 @@
     <file>Jolt_Collision_Mesh_Convex.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezJoltShapeCapsuleComponent.svg</file>
-    <file>ezJoltShapeBoxComponent.svg</file>
-    <file>ezJoltShapeSphereComponent.svg</file>
-    <file>ezJoltStaticActorComponent.svg</file>
-    <file>ezJoltDynamicActorComponent.svg</file>
-    <file>ezJoltDistanceConstraintComponent.svg</file>
-    <file>ezJoltFixedConstraintComponent.svg</file>
-    <file>ezJoltCenterOfMassComponent.svg</file>
-    <file>ezJoltShapeConvexHullComponent.svg</file>
-    <file>ezJoltCharacterControllerComponent.svg</file>
-    <file>ezJoltSettingsComponent.svg</file>
-    <file>ezJoltTriggerComponent.svg</file>
-	<file>ezJoltVisColMeshComponent.svg</file>
-	<file>ezJolt6DOFConstraintComponent.svg</file>
-	<file>ezJoltHingeConstraintComponent.svg</file>
-	<file>ezJoltPointConstraintComponent.svg</file>
-	<file>ezJoltDefaultCharacterComponent.svg</file>
-	<file>ezJoltSliderConstraintComponent.svg</file>
-	<file>ezJoltHitboxComponent.svg</file>
-	<file>ezJoltRopeComponent.svg</file>
-	<file>ezJoltShapeCylinderComponent.svg</file>
-	<file>ezJoltRagdollComponent.svg</file>
-	<file>ezJoltSwingTwistConstraintComponent.svg</file>
-	<file>ezJoltConeConstraintComponent.svg</file>
-	<file>ezJoltClothSheetComponent.svg</file>
-	<file>ezJoltGrabObjectComponent.svg</file>
-	<file>ezJoltQueryShapeActorComponent.svg</file>
+    <file>WJoltShapeCapsuleComponent.svg</file>
+    <file>WJoltShapeBoxComponent.svg</file>
+    <file>WJoltShapeSphereComponent.svg</file>
+    <file>WJoltStaticActorComponent.svg</file>
+    <file>WJoltDynamicActorComponent.svg</file>
+    <file>WJoltDistanceConstraintComponent.svg</file>
+    <file>WJoltFixedConstraintComponent.svg</file>
+    <file>WJoltCenterOfMassComponent.svg</file>
+    <file>WJoltShapeConvexHullComponent.svg</file>
+    <file>WJoltCharacterControllerComponent.svg</file>
+    <file>WJoltSettingsComponent.svg</file>
+    <file>WJoltTriggerComponent.svg</file>
+	<file>WJoltVisColMeshComponent.svg</file>
+	<file>WJolt6DOFConstraintComponent.svg</file>
+	<file>WJoltHingeConstraintComponent.svg</file>
+	<file>WJoltPointConstraintComponent.svg</file>
+	<file>WJoltDefaultCharacterComponent.svg</file>
+	<file>WJoltSliderConstraintComponent.svg</file>
+	<file>WJoltHitboxComponent.svg</file>
+	<file>WJoltRopeComponent.svg</file>
+	<file>WJoltShapeCylinderComponent.svg</file>
+	<file>WJoltRagdollComponent.svg</file>
+	<file>WJoltSwingTwistConstraintComponent.svg</file>
+	<file>WJoltConeConstraintComponent.svg</file>
+	<file>WJoltClothSheetComponent.svg</file>
+	<file>WJoltGrabObjectComponent.svg</file>
+	<file>WJoltQueryShapeActorComponent.svg</file>
   </qresource>  
 </RCC>
 

@@ -9,41 +9,41 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPlayerStartPointComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WPlayerStartPointComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("PlayerPrefab", m_hPlayerPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
-    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("PlayerPrefab")),
+    W_RESOURCE_MEMBER_PROPERTY("PlayerPrefab", m_hPlayerPrefab)->AddAttributes(new WAssetBrowserAttribute("CompatibleAsset_Prefab", WDependencyFlags::Package)),
+    W_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new WExposedParametersAttribute("PlayerPrefab")),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
+    new WCategoryAttribute("Gameplay"),
+    new WDirectionVisualizerAttribute(WBasisAxis::PositiveX, 0.5f, WColor::DarkSlateBlue),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPlayerStartPointComponent::ezPlayerStartPointComponent() = default;
-ezPlayerStartPointComponent::~ezPlayerStartPointComponent() = default;
+WPlayerStartPointComponent::WPlayerStartPointComponent() = default;
+WPlayerStartPointComponent::~WPlayerStartPointComponent() = default;
 
-void ezPlayerStartPointComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WPlayerStartPointComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
   s << m_hPlayerPrefab;
 
-  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
+  WPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
 }
 
-void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WPlayerStartPointComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -51,54 +51,54 @@ void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& inout_stre
 
   if (uiVersion >= 2)
   {
-    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
+    WPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
   }
 }
 
-void ezPlayerStartPointComponent::SetPlayerPrefab(const ezPrefabResourceHandle& hPrefab)
+void WPlayerStartPointComponent::SetPlayerPrefab(const WPrefabResourceHandle& hPrefab)
 {
   m_hPlayerPrefab = hPrefab;
 }
 
-const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() const
+const WPrefabResourceHandle& WPlayerStartPointComponent::GetPlayerPrefab() const
 {
   return m_hPlayerPrefab;
 }
 
-const ezRangeView<const char*, ezUInt32> ezPlayerStartPointComponent::GetParameters() const
+const WRangeView<const char*, WUInt32> WPlayerStartPointComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+  return WRangeView<const char*, WUInt32>([]() -> WUInt32
     { return 0; },
-    [this]() -> ezUInt32
+    [this]() -> WUInt32
     { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt)
+    [](WUInt32& ref_uiIt)
     { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
+    [this](const WUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
-void ezPlayerStartPointComponent::SetParameter(const char* szKey, const ezVariant& value)
+void WPlayerStartPointComponent::SetParameter(const char* szKey, const WVariant& value)
 {
-  ezHashedString hs;
+  WHashedString hs;
   hs.Assign(szKey);
 
   auto it = m_Parameters.Find(hs);
-  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+  if (it != WInvalidIndex && m_Parameters.GetValue(it) == value)
     return;
 
   m_Parameters[hs] = value;
 }
 
-void ezPlayerStartPointComponent::RemoveParameter(const char* szKey)
+void WPlayerStartPointComponent::RemoveParameter(const char* szKey)
 {
-  m_Parameters.RemoveAndCopy(ezTempHashedString(szKey));
+  m_Parameters.RemoveAndCopy(WTempHashedString(szKey));
 }
 
-bool ezPlayerStartPointComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+bool WPlayerStartPointComponent::GetParameter(const char* szKey, WVariant& out_value) const
 {
-  ezUInt32 it = m_Parameters.Find(szKey);
+  WUInt32 it = m_Parameters.Find(szKey);
 
-  if (it == ezInvalidIndex)
+  if (it == WInvalidIndex)
     return false;
 
   out_value = m_Parameters.GetValue(it);
@@ -106,4 +106,4 @@ bool ezPlayerStartPointComponent::GetParameter(const char* szKey, ezVariant& out
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_PlayerStartPointComponent);
+W_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_PlayerStartPointComponent);

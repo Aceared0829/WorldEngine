@@ -28,13 +28,13 @@
 /// Once objects are inserted, you can do range queries to find all objects in some location.
 /// Since removal is usually O(1) and insertion is O(d) the tree can be used for very dynamic
 /// data that changes frequently at run-time.
-class EZ_UTILITIES_DLL ezDynamicQuadtree
+class W_UTILITIES_DLL WDynamicQuadtree
 {
   /// The amount that cells overlap (this is a loose octree). Typically set to 10%.
   static const float s_fLooseOctreeFactor;
 
 public:
-  ezDynamicQuadtree();
+  WDynamicQuadtree();
 
   /// Initializes the tree with a fixed size and minimum node dimensions.
   ///
@@ -53,49 +53,49 @@ public:
   ///   The smaller the node size, the more cells the tree has. The limit of nodes in the tree is 2^32.
   ///   A tree with 100 meters extents in X and Z direction and a min node size of 1 meter, will have 10000 nodes
   ///   on the finest level (and roughly 15000 nodes in total).
-  void CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize); // [tested]
+  void CreateTree(const WVec3& vCenter, const WVec3& vHalfExtents, float fMinNodeSize); // [tested]
 
   /// Returns true when there are no objects stored inside the tree.
   bool IsEmpty() const { return m_NodeMap.IsEmpty(); } // [tested]
 
   /// Returns the number of objects that have been inserted into the tree.
-  ezUInt32 GetCount() const { return m_NodeMap.GetCount(); } // [tested]
+  WUInt32 GetCount() const { return m_NodeMap.GetCount(); } // [tested]
 
   /// Adds an object at position vCenter with bounding-box dimensions vHalfExtents to the tree. If the object is outside the tree and
   /// bOnlyIfInside is true, nothing will be inserted.
   ///
-  /// Returns EZ_SUCCESS when an object is inserted, EZ_FAILURE when the object was rejected. The latter can only happen when bOnlyIfInside
+  /// Returns W_SUCCESS when an object is inserted, W_FAILURE when the object was rejected. The latter can only happen when bOnlyIfInside
   /// is set to true. Through out_Object the exact identifier for the object in the tree is returned, which allows for removing the object
   /// with O(1) complexity later. iObjectType and iObjectInstance are the two user values that will be stored for the object. With
   /// RemoveObjectsOfType() one can also remove all objects with the same iObjectType value, if needed.
-  ezResult InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
-    ezDynamicTreeObject* out_pObject = nullptr, bool bOnlyIfInside = false); // [tested]
+  WResult InsertObject(const WVec3& vCenter, const WVec3& vHalfExtents, WInt32 iObjectType, WInt32 iObjectInstance,
+    WDynamicTreeObject* out_pObject = nullptr, bool bOnlyIfInside = false); // [tested]
 
   /// Returns all objects in the visible nodes through the callback.
-  void FindVisibleObjects(const ezFrustum& viewfrustum, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough = nullptr) const;
+  void FindVisibleObjects(const WFrustum& viewfrustum, W_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough = nullptr) const;
 
   /// Returns all objects that are located in a node that overlaps with the given point.
   ///
   /// \note This function will most likely also return objects that do not overlap with the point itself, because they are located
   /// in a node that overlaps with the point. You might need to do more thorough overlap checks to filter those out.
-  void FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough = nullptr) const; // [tested]
+  void FindObjectsInRange(const WVec3& vPoint, W_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough = nullptr) const; // [tested]
 
   /// Returns all objects that are located in a node that overlaps with the rectangle with center vPoint and half edge length
   /// fRadius.
   ///
   /// \note This function will most likely also return objects that do not overlap with the rectangle itself, because they are located
   /// in a node that overlaps with the rectangle. You might need to do more thorough overlap checks to filter those out.
-  void FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK callback,
+  void FindObjectsInRange(const WVec3& vPoint, float fRadius, W_VISIBLE_OBJ_CALLBACK callback,
     void* pPassThrough = nullptr) const; // [tested]
 
   /// Removes the given Object. Attention: This is an O(n) operation.
-  void RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance); // [tested]
+  void RemoveObject(WInt32 iObjectType, WInt32 iObjectInstance); // [tested]
 
   /// Removes the given Object. This is an O(1) operation.
-  void RemoveObject(ezDynamicTreeObject obj); // [tested]
+  void RemoveObject(WDynamicTreeObject obj); // [tested]
 
   /// Removes all Objects of the given Type. This is an O(n) operation.
-  void RemoveObjectsOfType(ezInt32 iObjectType); // [tested]
+  void RemoveObjectsOfType(WInt32 iObjectType); // [tested]
 
   /// Removes all Objects, but the tree stays intact.
   void RemoveAllObjects()
@@ -105,40 +105,40 @@ public:
   } // [tested]
 
   /// Returns the tree's adjusted (square) AABB.
-  const ezBoundingBox& GetBoundingBox() const { return m_BBox; } // [tested]
+  const WBoundingBox& GetBoundingBox() const { return m_BBox; } // [tested]
 
 private:
   /// Recursively checks in which node an object is located and stores it at the node where it fits best.
-  bool InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, const ezDynamicTree::ezObjectData& Obj, float minx, float maxx, float minz,
-    float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezDynamicTreeObject* out_Object);
+  bool InsertObject(const WVec3& vCenter, const WVec3& vHalfExtents, const WDynamicTree::WObjectData& Obj, float minx, float maxx, float minz,
+    float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WDynamicTreeObject* out_Object);
 
   /// Recursively checks which nodes are visible and calls the callback for each object at those nodes.
-  void FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz,
-    float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const;
+  void FindVisibleObjects(const WFrustum& Viewfrustum, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz,
+    float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const;
 
   /// Recursively checks in which node a point is located and calls the callback for all objects at those nodes.
-  bool FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz, float maxz,
-    ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const;
+  bool FindObjectsInRange(const WVec3& vPoint, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz, float maxz,
+    WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const;
 
   /// Recursively checks which node(s) a circle touches and calls the callback for all objects at those nodes.
-  bool FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
-    float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const;
+  bool FindObjectsInRange(const WVec3& vPoint, float fRadius, W_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
+    float minz, float maxz, WUInt32 uiNodeID, WUInt32 uiAddID, WUInt32 uiSubAddID, WUInt32 uiNextNodeID) const;
 
   /// The tree depth, used for finding a nodes unique ID
-  ezUInt32 m_uiMaxTreeDepth = 0;
+  WUInt32 m_uiMaxTreeDepth = 0;
 
   /// Also used for finding a nodes unique ID
-  ezUInt32 m_uiAddIDTopLevel = 0;
+  WUInt32 m_uiAddIDTopLevel = 0;
 
   /// The square bounding Box (to prevent long thin nodes)
-  ezBoundingBox m_BBox;
+  WBoundingBox m_BBox;
 
   /// The actual bounding box (to discard objects that are outside the world)
   float m_fRealMinX = 0, m_fRealMaxX = 0, m_fRealMinZ = 0, m_fRealMaxZ = 0;
 
   /// Used to turn the map into a multi-map.
-  ezUInt32 m_uiMultiMapCounter = 0;
+  WUInt32 m_uiMultiMapCounter = 0;
 
   /// Every node has a unique index, the map allows to store many objects at each node, using that index
-  ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData> m_NodeMap;
+  WMap<WDynamicTree::WMultiMapKey, WDynamicTree::WObjectData> m_NodeMap;
 };

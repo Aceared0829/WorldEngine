@@ -16,21 +16,21 @@
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
 
-bool ezQtExportProjectDlg::s_bTransformAll = true;
-bool ezQtExportProjectDlg::s_bCreateLaunchScripts = true;
-bool ezQtExportProjectDlg::s_bOpenOutputFolder = true;
+bool WQtExportProjectDlg::s_bTransformAll = true;
+bool WQtExportProjectDlg::s_bCreateLaunchScripts = true;
+bool WQtExportProjectDlg::s_bOpenOutputFolder = true;
 
-ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtExportProjectDlg::WQtExportProjectDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
-  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
 
   Destination->setText(pPref->m_sExportFolder.GetData());
 }
 
-void ezQtExportProjectDlg::showEvent(QShowEvent* e)
+void WQtExportProjectDlg::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
 
@@ -38,7 +38,7 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   CreateLaunchScripts->setChecked(s_bCreateLaunchScripts);
   OpenOutputFolder->setChecked(s_bOpenOutputFolder);
 
-  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  if (!WCppProject::ExistsProjectCMakeListsTxt())
   {
     CompileCpp->setEnabled(false);
     CompileCpp->setToolTip("This project doesn't have a C++ plugin.");
@@ -50,19 +50,19 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   }
 }
 
-void ezQtExportProjectDlg::on_BrowseDestination_clicked()
+void WQtExportProjectDlg::on_BrowseDestination_clicked()
 {
   QString sPath = QFileDialog::getExistingDirectory(this, QLatin1String("Select output directory"), Destination->text());
 
   if (!sPath.isEmpty())
   {
     Destination->setText(sPath);
-    ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+    WProjectPreferencesUser* pPref = WPreferences::QueryPreferences<WProjectPreferencesUser>();
     pPref->m_sExportFolder = sPath.toUtf8().data();
   }
 }
 
-void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
+void WQtExportProjectDlg::on_ExportProjectButton_clicked()
 {
   // TODO:
   // filter out unused runtime/game plugins
@@ -73,29 +73,29 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   s_bCreateLaunchScripts = CreateLaunchScripts->isChecked();
   s_bOpenOutputFolder = OpenOutputFolder->isChecked();
 
-  ezProjectExportOptions options;
+  WProjectExportOptions options;
   options.m_bCompileCppPlugin = CompileCpp->isChecked();
   options.m_bTransformAssets = s_bTransformAll;
   options.m_bCreateLaunchScripts = s_bCreateLaunchScripts;
 
-  const ezString sDstFolder = Destination->text().toUtf8().data();
+  const WString sDstFolder = Destination->text().toUtf8().data();
 
-  ezStringBuilder sLog;
-  const ezStatus res = ezProjectExport::ExportProjectComplete(sDstFolder, options, &sLog);
+  WStringBuilder sLog;
+  const WStatus res = WProjectExport::ExportProjectComplete(sDstFolder, options, &sLog);
 
   ExportLog->setPlainText(sLog.GetData());
 
   if (res.Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Project export failed. See log for details.");
+    WQtUiServices::GetSingleton()->MessageBoxStatus(res, "Project export failed. See log for details.");
   }
   else
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.", "project-export-success");
+    WQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.", "project-export-success");
 
     if (s_bOpenOutputFolder)
     {
-      ezQtUiServices::GetSingleton()->OpenInExplorer(sDstFolder, false);
+      WQtUiServices::GetSingleton()->OpenInExplorer(sDstFolder, false);
     }
   }
 }

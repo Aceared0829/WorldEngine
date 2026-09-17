@@ -7,38 +7,38 @@
 
 struct IDXGISwapChain;
 
-class ezGALSwapChainDX11 : public ezGALWindowSwapChain
+class WGALSwapChainDX11 : public WGALWindowSwapChain
 {
 public:
-  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
-  virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
-  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) override;
+  virtual void AcquireNextRenderTarget(WGALDevice* pDevice) override;
+  virtual void PresentRenderTarget(WGALDevice* pDevice) override;
+  virtual WResult UpdateSwapChain(WGALDevice* pDevice, WEnum<WGALPresentMode> newPresentMode) override;
 
 protected:
-  friend class ezGALDeviceDX11;
-  friend class ezMemoryUtils;
+  friend class WGALDeviceDX11;
+  friend class WMemoryUtils;
 
-  ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescription& Description);
+  WGALSwapChainDX11(const WGALWindowSwapChainCreationDescription& Description);
 
-  virtual ~ezGALSwapChainDX11();
+  virtual ~WGALSwapChainDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-  ezResult CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice);
-  void DestroyBackBufferInternal(ezGALDeviceDX11* pDXDevice);
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual WResult InitPlatform(WGALDevice* pDevice) override;
+  WResult CreateBackBufferInternal(WGALDeviceDX11* pDXDevice);
+  void DestroyBackBufferInternal(WGALDeviceDX11* pDXDevice);
+  virtual WResult DeInitPlatform(WGALDevice* pDevice) override;
 
-  ezGALDevice* m_pDevice = nullptr;
+  WGALDevice* m_pDevice = nullptr;
   IDXGISwapChain* m_pDXSwapChain = nullptr;
 
-  ezGALTextureHandle m_hBackBufferTexture;
+  WGALTextureHandle m_hBackBufferTexture;
 
-  ezEnum<ezGALPresentMode> m_CurrentPresentMode;
+  WEnum<WGALPresentMode> m_CurrentPresentMode;
   bool m_bCanMakeDirectScreenshots = true;
   // We can't do screenshots if we're using any of the FLIP swap effects.
   // If the user requests screenshots anyways, we need to put another buffer in between.
   // For ease of use, this is m_hBackBufferTexture and the actual "OS backbuffer" is this texture.
   // In any other case this handle is unused.
-  ezGALTextureHandle m_hActualBackBufferTexture;
+  WGALTextureHandle m_hActualBackBufferTexture;
 };
 
 #include <RendererDX11/Device/Implementation/SwapChainDX11_inl.h>

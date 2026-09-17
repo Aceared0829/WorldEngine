@@ -8,43 +8,43 @@
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-ezGALGraphicsPipelineVulkan::ezGALGraphicsPipelineVulkan(const ezGALGraphicsPipelineCreationDescription& description)
-  : ezGALGraphicsPipeline(description)
+WGALGraphicsPipelineVulkan::WGALGraphicsPipelineVulkan(const WGALGraphicsPipelineCreationDescription& description)
+  : WGALGraphicsPipeline(description)
 {
 }
 
-ezGALGraphicsPipelineVulkan::~ezGALGraphicsPipelineVulkan() = default;
+WGALGraphicsPipelineVulkan::~WGALGraphicsPipelineVulkan() = default;
 
-ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
+WResult WGALGraphicsPipelineVulkan::InitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
-  const ezGALShaderVulkan* pShader = static_cast<const ezGALShaderVulkan*>(pDevice->GetShader(m_Description.m_hShader));
+  const WGALShaderVulkan* pShader = static_cast<const WGALShaderVulkan*>(pDevice->GetShader(m_Description.m_hShader));
   if (pShader == nullptr)
   {
-    ezLog::Error("Failed to create Vulkan graphics pipeline: Invalid shader handle.");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create Vulkan graphics pipeline: Invalid shader handle.");
+    return W_FAILURE;
   }
 
-  const ezGALBlendStateVulkan* pBlendState = static_cast<const ezGALBlendStateVulkan*>(pDevice->GetBlendState(m_Description.m_hBlendState));
-  const ezGALDepthStencilStateVulkan* pDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(pDevice->GetDepthStencilState(m_Description.m_hDepthStencilState));
-  const ezGALRasterizerStateVulkan* pRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(pDevice->GetRasterizerState(m_Description.m_hRasterizerState));
-  const ezGALVertexDeclarationVulkan* pVertexDeclaration = static_cast<const ezGALVertexDeclarationVulkan*>(pDevice->GetVertexDeclaration(m_Description.m_hVertexDeclaration));
+  const WGALBlendStateVulkan* pBlendState = static_cast<const WGALBlendStateVulkan*>(pDevice->GetBlendState(m_Description.m_hBlendState));
+  const WGALDepthStencilStateVulkan* pDepthStencilState = static_cast<const WGALDepthStencilStateVulkan*>(pDevice->GetDepthStencilState(m_Description.m_hDepthStencilState));
+  const WGALRasterizerStateVulkan* pRasterizerState = static_cast<const WGALRasterizerStateVulkan*>(pDevice->GetRasterizerState(m_Description.m_hRasterizerState));
+  const WGALVertexDeclarationVulkan* pVertexDeclaration = static_cast<const WGALVertexDeclarationVulkan*>(pDevice->GetVertexDeclaration(m_Description.m_hVertexDeclaration));
 
   if (pBlendState == nullptr || pDepthStencilState == nullptr || pRasterizerState == nullptr)
   {
-    ezLog::Error("Failed to create Vulkan graphics pipeline: Invalid state handle(s).");
-    return EZ_FAILURE;
+    WLog::Error("Failed to create Vulkan graphics pipeline: Invalid state handle(s).");
+    return W_FAILURE;
   }
 
   vk::PipelineVertexInputStateCreateInfo dummy;
   const vk::PipelineVertexInputStateCreateInfo* pVertexCreateInfo = nullptr;
-  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings;
+  WHybridArray<vk::VertexInputBindingDescription, W_GAL_MAX_VERTEX_BUFFER_COUNT> bindings;
   pVertexCreateInfo = pVertexDeclaration ? &pVertexDeclaration->GetCreateInfo() : &dummy;
 
   vk::PipelineInputAssemblyStateCreateInfo input_assembly;
-  input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(m_Description.m_Topology);
-  const bool bTessellation = pShader->GetShader(ezGALShaderStage::HullShader) != nullptr;
+  input_assembly.topology = WConversionUtilsVulkan::GetPrimitiveTopology(m_Description.m_Topology);
+  const bool bTessellation = pShader->GetShader(WGALShaderStage::HullShader) != nullptr;
   if (bTessellation)
   {
     // Tessellation shaders always need to use patch list as the topology.
@@ -68,14 +68,14 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
 
   // Multisampling.
   vk::PipelineMultisampleStateCreateInfo multisample;
-  multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(m_Description.m_RenderPass.m_Msaa);
+  multisample.rasterizationSamples = WConversionUtilsVulkan::GetSamples(m_Description.m_RenderPass.m_Msaa);
   if (multisample.rasterizationSamples != vk::SampleCountFlagBits::e1 && pBlendState->GetDescription().m_bAlphaToCoverage)
   {
     multisample.alphaToCoverageEnable = true;
   }
 
   // Specify that these states will be dynamic, i.e. not part of pipeline state object.
-  ezHybridArray<vk::DynamicState, 3> dynamics;
+  WHybridArray<vk::DynamicState, 3> dynamics;
   dynamics.PushBack(vk::DynamicState::eViewport);
   dynamics.PushBack(vk::DynamicState::eScissor);
   if (pDepthStencilState->GetDescription().m_bStencilEnable)
@@ -88,13 +88,13 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   dynamic.dynamicStateCount = dynamics.GetCount();
 
   // Load our SPIR-V shaders.
-  ezHybridArray<vk::PipelineShaderStageCreateInfo, 6> shader_stages;
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  WHybridArray<vk::PipelineShaderStageCreateInfo, 6> shader_stages;
+  for (WUInt32 i = 0; i < WGALShaderStage::ENUM_COUNT; i++)
   {
-    if (vk::ShaderModule shader = pShader->GetShader((ezGALShaderStage::Enum)i))
+    if (vk::ShaderModule shader = pShader->GetShader((WGALShaderStage::Enum)i))
     {
       vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
-      stage.stage = ezConversionUtilsVulkan::GetShaderStage((ezGALShaderStage::Enum)i);
+      stage.stage = WConversionUtilsVulkan::GetShaderStage((WGALShaderStage::Enum)i);
       stage.module = shader;
       stage.pName = "main";
     }
@@ -103,11 +103,11 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   vk::PipelineTessellationStateCreateInfo tessellationInfo;
   if (bTessellation)
   {
-    tessellationInfo.patchControlPoints = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+    tessellationInfo.patchControlPoints = pShader->GetDescription().m_ByteCodes[WGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
   }
 
   vk::GraphicsPipelineCreateInfo pipe;
-  pipe.renderPass = ezResourceCacheVulkan::RequestRenderPass(m_Description.m_RenderPass);
+  pipe.renderPass = WResourceCacheVulkan::RequestRenderPass(m_Description.m_RenderPass);
   pipe.layout = pShader->GetVkPipelineLayout();
   pipe.stageCount = shader_stages.GetCount();
   pipe.pStages = shader_stages.GetData();
@@ -122,23 +122,23 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   if (bTessellation)
     pipe.pTessellationState = &tessellationInfo;
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pDeviceVulkan->GetVulkanDevice().createGraphicsPipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
+  VK_SUCCEED_OR_RETURN_W_FAILURE(pDeviceVulkan->GetVulkanDevice().createGraphicsPipelines(WResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGALGraphicsPipelineVulkan::DeInitPlatform(ezGALDevice* pDevice)
+WResult WGALGraphicsPipelineVulkan::DeInitPlatform(WGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  WGALDeviceVulkan* pDeviceVulkan = static_cast<WGALDeviceVulkan*>(pDevice);
 
   if (m_Pipeline)
   {
     pDeviceVulkan->DeleteLater(m_Pipeline);
     m_Pipeline = nullptr;
   }
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezGALGraphicsPipelineVulkan::SetDebugName(const char*)
+void WGALGraphicsPipelineVulkan::SetDebugName(const char*)
 {
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b() {}
+W_ALWAYS_INLINE WSimdVec4b::WSimdVec4b() {}
 
-EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool b)
+W_ALWAYS_INLINE WSimdVec4b::WSimdVec4b(bool b)
 {
   m_v.x = b ? 0xFFFFFFFF : 0;
   m_v.y = b ? 0xFFFFFFFF : 0;
@@ -10,7 +10,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool b)
   m_v.w = b ? 0xFFFFFFFF : 0;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool x, bool y, bool z, bool w)
+W_ALWAYS_INLINE WSimdVec4b::WSimdVec4b(bool x, bool y, bool z, bool w)
 {
   m_v.x = x ? 0xFFFFFFFF : 0;
   m_v.y = y ? 0xFFFFFFFF : 0;
@@ -18,13 +18,13 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool x, bool y, bool z, bool w)
   m_v.w = w ? 0xFFFFFFFF : 0;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(ezInternal::QuadBool v)
+W_ALWAYS_INLINE WSimdVec4b::WSimdVec4b(WInternal::QuadBool v)
 {
   m_v = v;
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
+W_ALWAYS_INLINE bool WSimdVec4b::GetComponent() const
 {
   if constexpr (N == 0)
   {
@@ -48,32 +48,32 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
   }
 }
 
-EZ_ALWAYS_INLINE bool ezSimdVec4b::x() const
+W_ALWAYS_INLINE bool WSimdVec4b::x() const
 {
   return m_v.x != 0;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdVec4b::y() const
+W_ALWAYS_INLINE bool WSimdVec4b::y() const
 {
   return m_v.y != 0;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdVec4b::z() const
+W_ALWAYS_INLINE bool WSimdVec4b::z() const
 {
   return m_v.z != 0;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdVec4b::w() const
+W_ALWAYS_INLINE bool WSimdVec4b::w() const
 {
   return m_v.w != 0;
 }
 
-template <ezSwizzle::Enum s>
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Get() const
+template <WSwizzle::Enum s>
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::Get() const
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
 
-  const ezUInt32* v = &m_v.x;
+  const WUInt32* v = &m_v.x;
   result.m_v.x = v[(s & 0x3000) >> 12];
   result.m_v.y = v[(s & 0x0300) >> 8];
   result.m_v.z = v[(s & 0x0030) >> 4];
@@ -82,9 +82,9 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Get() const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator&&(const ezSimdVec4b& rhs) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::operator&&(const WSimdVec4b& rhs) const
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
   result.m_v.x = m_v.x & rhs.m_v.x;
   result.m_v.y = m_v.y & rhs.m_v.y;
   result.m_v.z = m_v.z & rhs.m_v.z;
@@ -93,9 +93,9 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator&&(const ezSimdVec4b& rhs) con
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator||(const ezSimdVec4b& rhs) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::operator||(const WSimdVec4b& rhs) const
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
   result.m_v.x = m_v.x | rhs.m_v.x;
   result.m_v.y = m_v.y | rhs.m_v.y;
   result.m_v.z = m_v.z | rhs.m_v.z;
@@ -104,9 +104,9 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator||(const ezSimdVec4b& rhs) con
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::operator!() const
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
   result.m_v.x = m_v.x ^ 0xFFFFFFFF;
   result.m_v.y = m_v.y ^ 0xFFFFFFFF;
   result.m_v.z = m_v.z ^ 0xFFFFFFFF;
@@ -115,14 +115,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator==(const ezSimdVec4b& rhs) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::operator==(const WSimdVec4b& rhs) const
 {
   return !(*this != rhs);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!=(const ezSimdVec4b& rhs) const
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::operator!=(const WSimdVec4b& rhs) const
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
   result.m_v.x = m_v.x ^ rhs.m_v.x;
   result.m_v.y = m_v.y ^ rhs.m_v.y;
   result.m_v.z = m_v.z ^ rhs.m_v.z;
@@ -132,7 +132,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!=(const ezSimdVec4b& rhs) con
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
+W_ALWAYS_INLINE bool WSimdVec4b::AllSet() const
 {
   for (int i = 0; i < N; ++i)
   {
@@ -144,7 +144,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet() const
+W_ALWAYS_INLINE bool WSimdVec4b::AnySet() const
 {
   for (int i = 0; i < N; ++i)
   {
@@ -156,15 +156,15 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet() const
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
+W_ALWAYS_INLINE bool WSimdVec4b::NoneSet() const
 {
   return !AnySet<N>();
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& cmp, const ezSimdVec4b& ifTrue, const ezSimdVec4b& ifFalse)
+W_ALWAYS_INLINE WSimdVec4b WSimdVec4b::Select(const WSimdVec4b& cmp, const WSimdVec4b& ifTrue, const WSimdVec4b& ifFalse)
 {
-  ezSimdVec4b result;
+  WSimdVec4b result;
   result.m_v.x = (cmp.m_v.x != 0) ? ifTrue.m_v.x : ifFalse.m_v.x;
   result.m_v.y = (cmp.m_v.y != 0) ? ifTrue.m_v.y : ifFalse.m_v.y;
   result.m_v.z = (cmp.m_v.z != 0) ? ifTrue.m_v.z : ifFalse.m_v.z;

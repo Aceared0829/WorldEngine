@@ -11,12 +11,12 @@ RtsBattleMode::~RtsBattleMode() = default;
 
 void RtsBattleMode::OnActivateMode()
 {
-  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), true);
+  SetUiActive(m_pMainWorld, WTempHashedString("game-ui"), true);
 }
 
 void RtsBattleMode::OnDeactivateMode()
 {
-  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), false);
+  SetUiActive(m_pMainWorld, WTempHashedString("game-ui"), false);
 }
 
 void RtsBattleMode::OnBeforeWorldUpdate()
@@ -28,7 +28,7 @@ void RtsBattleMode::OnBeforeWorldUpdate()
 
 void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput)
 {
-  if (ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) == ezKeyState::Pressed)
+  if (WInputManager::GetInputSlotState(WInputSlot_KeyEscape) == WKeyState::Pressed)
   {
     m_pGameState->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
     return;
@@ -39,27 +39,27 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bU
 
   DoDefaultCameraInput(MouseInput);
 
-  ezVec3 vPickedGroundPlanePos;
+  WVec3 vPickedGroundPlanePos;
   if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
     return;
 
   const auto& unitSelection = m_pGameState->m_SelectedUnits;
 
-  ezGameObject* pHoveredSelectable = m_pGameState->DetectHoveredSelectable();
+  WGameObject* pHoveredSelectable = m_pGameState->DetectHoveredSelectable();
 
-  if (MouseInput.m_LeftClickState == ezKeyState::Released)
+  if (MouseInput.m_LeftClickState == WKeyState::Released)
   {
     m_pGameState->SelectUnits();
   }
 
-  if (MouseInput.m_RightClickState == ezKeyState::Released && !MouseInput.m_bRightMouseMoved)
+  if (MouseInput.m_RightClickState == WKeyState::Released && !MouseInput.m_bRightMouseMoved)
   {
-    if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Up)
+    if (WInputManager::GetInputSlotState(WInputSlot_KeyLeftCtrl) == WKeyState::Up)
     {
       RtsMsgAssignPosition msg;
       msg.m_vTargetPosition = vPickedGroundPlanePos.GetAsVec2();
 
-      for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+      for (WUInt32 i = 0; i < unitSelection.GetCount(); ++i)
       {
         m_pMainWorld->SendMessage(unitSelection.GetObject(i), msg);
       }
@@ -67,9 +67,9 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bU
     else
     {
       RtsMsgSetTarget msg;
-      msg.m_hObject = pHoveredSelectable ? pHoveredSelectable->GetHandle() : ezGameObjectHandle();
+      msg.m_hObject = pHoveredSelectable ? pHoveredSelectable->GetHandle() : WGameObjectHandle();
 
-      for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+      for (WUInt32 i = 0; i < unitSelection.GetCount(); ++i)
       {
         m_pMainWorld->SendMessage(unitSelection.GetObject(i), msg);
       }

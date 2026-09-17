@@ -2,7 +2,7 @@
 
 #include <Foundation/Types/PointerWithFlags.h>
 
-EZ_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
+W_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
 {
   struct Dummy
   {
@@ -10,76 +10,76 @@ EZ_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
     int b = 7;
   };
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "General")
+  W_TEST_BLOCK(WTestBlock::Enabled, "General")
   {
-    ezPointerWithFlags<Dummy, 2> ptr;
+    WPointerWithFlags<Dummy, 2> ptr;
 
-    EZ_TEST_INT(ptr.GetFlags(), 0);
+    W_TEST_INT(ptr.GetFlags(), 0);
     ptr.SetFlags(3);
-    EZ_TEST_INT(ptr.GetFlags(), 3);
+    W_TEST_INT(ptr.GetFlags(), 3);
 
-    EZ_TEST_BOOL(ptr == nullptr);
-    EZ_TEST_BOOL(!ptr);
+    W_TEST_BOOL(ptr == nullptr);
+    W_TEST_BOOL(!ptr);
 
-    EZ_TEST_INT(ptr.GetFlags(), 3);
+    W_TEST_INT(ptr.GetFlags(), 3);
     ptr.SetFlags(2);
-    EZ_TEST_INT(ptr.GetFlags(), 2);
+    W_TEST_INT(ptr.GetFlags(), 2);
 
     Dummy d1, d2;
     ptr = &d1;
     d2.a = 4;
     d2.b = 8;
 
-    EZ_TEST_BOOL(ptr.GetPtr() == &d1);
-    EZ_TEST_BOOL(ptr.GetPtr() != &d2);
+    W_TEST_BOOL(ptr.GetPtr() == &d1);
+    W_TEST_BOOL(ptr.GetPtr() != &d2);
 
-    EZ_TEST_INT(ptr.GetFlags(), 2);
+    W_TEST_INT(ptr.GetFlags(), 2);
     ptr.SetFlags(1);
-    EZ_TEST_INT(ptr.GetFlags(), 1);
+    W_TEST_INT(ptr.GetFlags(), 1);
 
-    EZ_TEST_BOOL(ptr == &d1);
-    EZ_TEST_BOOL(ptr != &d2);
-    EZ_TEST_BOOL(ptr);
+    W_TEST_BOOL(ptr == &d1);
+    W_TEST_BOOL(ptr != &d2);
+    W_TEST_BOOL(ptr);
 
 
-    EZ_TEST_FLOAT(ptr->a, 3.0f, 0.0f);
-    EZ_TEST_INT(ptr->b, 7);
+    W_TEST_FLOAT(ptr->a, 3.0f, 0.0f);
+    W_TEST_INT(ptr->b, 7);
 
     ptr = &d2;
 
-    EZ_TEST_INT(ptr.GetFlags(), 1);
+    W_TEST_INT(ptr.GetFlags(), 1);
     ptr.SetFlags(3);
-    EZ_TEST_INT(ptr.GetFlags(), 3);
+    W_TEST_INT(ptr.GetFlags(), 3);
 
-    EZ_TEST_BOOL(ptr != &d1);
-    EZ_TEST_BOOL(ptr == &d2);
-    EZ_TEST_BOOL(ptr);
+    W_TEST_BOOL(ptr != &d1);
+    W_TEST_BOOL(ptr == &d2);
+    W_TEST_BOOL(ptr);
 
     ptr = nullptr;
-    EZ_TEST_BOOL(!ptr);
-    EZ_TEST_BOOL(ptr == nullptr);
+    W_TEST_BOOL(!ptr);
+    W_TEST_BOOL(ptr == nullptr);
 
-    EZ_TEST_INT(ptr.GetFlags(), 3);
+    W_TEST_INT(ptr.GetFlags(), 3);
     ptr.SetFlags(0);
-    EZ_TEST_INT(ptr.GetFlags(), 0);
+    W_TEST_INT(ptr.GetFlags(), 0);
 
-    ezPointerWithFlags<Dummy, 2> ptr2 = ptr;
-    EZ_TEST_BOOL(ptr == ptr2);
+    WPointerWithFlags<Dummy, 2> ptr2 = ptr;
+    W_TEST_BOOL(ptr == ptr2);
 
-    EZ_TEST_BOOL(ptr2.GetPtr() == ptr.GetPtr());
-    EZ_TEST_BOOL(ptr2.GetFlags() == ptr.GetFlags());
+    W_TEST_BOOL(ptr2.GetPtr() == ptr.GetPtr());
+    W_TEST_BOOL(ptr2.GetFlags() == ptr.GetFlags());
 
     ptr2.SetFlags(3);
-    EZ_TEST_BOOL(ptr2.GetPtr() == ptr.GetPtr());
-    EZ_TEST_BOOL(ptr2.GetFlags() != ptr.GetFlags());
+    W_TEST_BOOL(ptr2.GetPtr() == ptr.GetPtr());
+    W_TEST_BOOL(ptr2.GetFlags() != ptr.GetFlags());
 
     // the two Ptrs still compare equal (pointer part is equal, even if flags are different)
-    EZ_TEST_BOOL(ptr == ptr2);
+    W_TEST_BOOL(ptr == ptr2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const ptr")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Const ptr")
   {
-    ezPointerWithFlags<const Dummy, 2> ptr;
+    WPointerWithFlags<const Dummy, 2> ptr;
 
     Dummy d1, d2;
     ptr = &d1;
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
     const Dummy* pD1 = &d1;
     const Dummy* pD2 = &d2;
 
-    EZ_TEST_BOOL(ptr.GetPtr() == pD1);
-    EZ_TEST_BOOL(ptr.GetPtr() != pD2);
+    W_TEST_BOOL(ptr.GetPtr() == pD1);
+    W_TEST_BOOL(ptr.GetPtr() != pD2);
   }
 }

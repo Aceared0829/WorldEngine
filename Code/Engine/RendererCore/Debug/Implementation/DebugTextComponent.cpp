@@ -8,42 +8,42 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WDebugTextComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Text", m_sText)->AddAttributes(new ezDefaultValueAttribute("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")),
-    EZ_MEMBER_PROPERTY("Value0", m_fValue0),
-    EZ_MEMBER_PROPERTY("Value1", m_fValue1),
-    EZ_MEMBER_PROPERTY("Value2", m_fValue2),
-    EZ_MEMBER_PROPERTY("Value3", m_fValue3),
-    EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_MEMBER_PROPERTY("Text", m_sText)->AddAttributes(new WDefaultValueAttribute("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")),
+    W_MEMBER_PROPERTY("Value0", m_fValue0),
+    W_MEMBER_PROPERTY("Value1", m_fValue1),
+    W_MEMBER_PROPERTY("Value2", m_fValue2),
+    W_MEMBER_PROPERTY("Value3", m_fValue3),
+    W_MEMBER_PROPERTY("Color", m_Color),
+    W_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new WDefaultValueAttribute(10.0f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
+  W_END_PROPERTIES;
+  W_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    W_MESSAGE_HANDLER(WMsgExtractRenderData, OnMsgExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_MESSAGEHANDLERS;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Utilities/Debug"),
+    new WCategoryAttribute("Utilities/Debug"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDebugTextComponent::ezDebugTextComponent()
+WDebugTextComponent::WDebugTextComponent()
   : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
-  , m_Color(ezColor::White)
+  , m_Color(WColor::White)
 {
 }
 
-ezDebugTextComponent::~ezDebugTextComponent() = default;
+WDebugTextComponent::~WDebugTextComponent() = default;
 
-void ezDebugTextComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WDebugTextComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -57,10 +57,10 @@ void ezDebugTextComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fMaxDistance;
 }
 
-void ezDebugTextComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WDebugTextComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -77,9 +77,9 @@ void ezDebugTextComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void WDebugTextComponent::OnMsgExtractRenderData(WMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != WInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == WCameraUsageHint::Shadow)
     return;
 
   if (m_sText.IsEmpty())
@@ -89,17 +89,17 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (fSquaredDistance > m_fMaxDistance * m_fMaxDistance)
     return;
 
-  const float fFade = ezMath::Saturate(ezMath::Sqrt(fSquaredDistance) / ezMath::Max(m_fMaxDistance, 0.0001f) * -5.0f + 5.0f);
+  const float fFade = WMath::Saturate(WMath::Sqrt(fSquaredDistance) / WMath::Max(m_fMaxDistance, 0.0001f) * -5.0f + 5.0f);
 
-  ezColor c = m_Color;
+  WColor c = m_Color;
   c.a *= fFade;
 
-  ezStringBuilder sb;
+  WStringBuilder sb;
   sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
 
-  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), c);
+  WDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), c);
 }
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugTextComponent);
+W_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugTextComponent);

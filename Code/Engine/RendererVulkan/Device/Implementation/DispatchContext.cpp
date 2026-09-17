@@ -3,9 +3,9 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/DispatchContext.h>
 
-void ezVulkanDispatchContext::InitInstance(vk::Instance instance, const void* pExtensions)
+void WVulkanDispatchContext::InitInstance(vk::Instance instance, const void* pExtensions)
 {
-  const ezGALDeviceVulkan::Extensions& extensions = *static_cast<const ezGALDeviceVulkan::Extensions*>(pExtensions);
+  const WGALDeviceVulkan::Extensions& extensions = *static_cast<const WGALDeviceVulkan::Extensions*>(pExtensions);
   // VK_EXT_debug_utils (instance functions)
   if (extensions.m_bDebugUtils)
   {
@@ -14,9 +14,9 @@ void ezVulkanDispatchContext::InitInstance(vk::Instance instance, const void* pE
   }
 }
 
-void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensions)
+void WVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensions)
 {
-  const ezGALDeviceVulkan::Extensions& extensions = *static_cast<const ezGALDeviceVulkan::Extensions*>(pExtensions);
+  const WGALDeviceVulkan::Extensions& extensions = *static_cast<const WGALDeviceVulkan::Extensions*>(pExtensions);
   // VK_EXT_debug_utils
   if (extensions.m_bDebugUtils)
   {
@@ -44,7 +44,7 @@ void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensi
     vkCmdPipelineBarrier2 = vkCmdPipelineBarrier2KHR; // Alias
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if W_ENABLED(W_PLATFORM_LINUX)
   if (extensions.m_bExternalMemoryFd)
   {
     vkGetMemoryFdKHR = (PFN_vkGetMemoryFdKHR)device.getProcAddr("vkGetMemoryFdKHR");
@@ -56,7 +56,7 @@ void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensi
     vkGetSemaphoreFdKHR = (PFN_vkGetSemaphoreFdKHR)device.getProcAddr("vkGetSemaphoreFdKHR");
     vkImportSemaphoreFdKHR = (PFN_vkImportSemaphoreFdKHR)device.getProcAddr("vkImportSemaphoreFdKHR");
   }
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif W_ENABLED(W_PLATFORM_WINDOWS)
   if (extensions.m_bExternalMemoryWin32)
   {
     vkGetMemoryWin32HandleKHR = (PFN_vkGetMemoryWin32HandleKHR)device.getProcAddr("vkGetMemoryWin32HandleKHR");

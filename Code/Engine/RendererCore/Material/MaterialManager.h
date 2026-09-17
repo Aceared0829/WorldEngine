@@ -6,69 +6,69 @@
 #include <RendererCore/RenderContext/BindGroupBuilder.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-class ezGALCommandEncoder;
-struct ezGALDeviceEvent;
+class WGALCommandEncoder;
+struct WGALDeviceEvent;
 
-/// Fired by ezMaterialManager::s_MaterialShaderChangedEvent in case a material is reloaded and now occupies another index / shader.
-struct EZ_RENDERERCORE_DLL ezMaterialShaderChanged
+/// Fired by WMaterialManager::s_MaterialShaderChangedEvent in case a material is reloaded and now occupies another index / shader.
+struct W_RENDERERCORE_DLL WMaterialShaderChanged
 {
-  ezMaterialResourceHandle m_hMaterial;
-  ezShaderResourceHandle m_hOldShader;
-  ezMaterialResource::ezMaterialId m_OldId;
-  ezShaderResourceHandle m_hNewShader;
-  ezMaterialResource::ezMaterialId m_NewId;
+  WMaterialResourceHandle m_hMaterial;
+  WShaderResourceHandle m_hOldShader;
+  WMaterialResource::WMaterialId m_OldId;
+  WShaderResourceHandle m_hNewShader;
+  WMaterialResource::WMaterialId m_NewId;
 };
 
-class EZ_RENDERERCORE_DLL ezMaterialManager
+class W_RENDERERCORE_DLL WMaterialManager
 {
-  EZ_DECLARE_SINGLETON(ezMaterialManager);
+  W_DECLARE_SINGLETON(WMaterialManager);
 
 public:
-  /// The material's render data. Accessed via ezMaterialManager::GetMaterialData.
-  struct EZ_RENDERERCORE_DLL MaterialData
+  /// The material's render data. Accessed via WMaterialManager::GetMaterialData.
+  struct W_RENDERERCORE_DLL MaterialData
   {
     ~MaterialData();
     void DeleteBindGroups();
 
-    ezShaderResourceHandle m_hShader;
-    ezMaterialResource::ezMaterialId m_MaterialId; ///< Index into m_hStructuredBufferView
+    WShaderResourceHandle m_hShader;
+    WMaterialResource::WMaterialId m_MaterialId; ///< Index into m_hStructuredBufferView
 
-    ezDynamicArray<ezPermutationVar> m_PermutationVars;
+    WDynamicArray<WPermutationVar> m_PermutationVars;
 
     // Depending on the capabilities of the GAL device, materials are either stored in a constant or structured buffer.
-    ezGALBufferHandle m_hStructuredBuffer;
-    ezGALBufferHandle m_hConstantBuffer;
+    WGALBufferHandle m_hStructuredBuffer;
+    WGALBufferHandle m_hConstantBuffer;
 
-    ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters; // Builds constant buffer
-    ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
-    ezDynamicArray<ezMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
+    WDynamicArray<WMaterialResourceDescriptor::Parameter> m_Parameters; // Builds constant buffer
+    WDynamicArray<WMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
+    WDynamicArray<WMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
 
     struct BindGroupCache
     {
-      ezGALBindGroupLayoutHandle m_hLayout;
-      ezGALBindGroupHandle m_hGroup;
+      WGALBindGroupLayoutHandle m_hLayout;
+      WGALBindGroupHandle m_hGroup;
     };
-    ezHybridArray<BindGroupCache, 2> m_BindGroups;
+    WHybridArray<BindGroupCache, 2> m_BindGroups;
   };
 
 public:
-  /// Called by ezMaterialResource::UpdateContent and ezMaterialResource::CreateResource to add the material to the manager.
-  static void MaterialAdded(ezMaterialResource* pMaterial);
-  /// Called by ezMaterialResource::SetModified to inform the material manager of changes.
-  static void MaterialModified(ezMaterialResourceHandle hMaterial);
-  /// Called by ezMaterialResource destructor to remove the material from the manager.
+  /// Called by WMaterialResource::UpdateContent and WMaterialResource::CreateResource to add the material to the manager.
+  static void MaterialAdded(WMaterialResource* pMaterial);
+  /// Called by WMaterialResource::SetModified to inform the material manager of changes.
+  static void MaterialModified(WMaterialResourceHandle hMaterial);
+  /// Called by WMaterialResource destructor to remove the material from the manager.
   /// Note that we don't call this during unload to maintain the material index during reloading of materials.
-  static void MaterialRemoved(ezMaterialResource* pMaterial);
+  static void MaterialRemoved(WMaterialResource* pMaterial);
   /// Returns the render data for a material resource. Can be nullptr if the material is not loaded yet or extraction + update was not executed yet.
-  static const MaterialData* GetMaterialData(const ezMaterialResource* pMaterial);
+  static const MaterialData* GetMaterialData(const WMaterialResource* pMaterial);
   /// Returns the bind group for the given material resource and layout.
-  static ezGALBindGroupHandle GetMaterialBindGroup(const ezMaterialResource* pMaterial, ezGALBindGroupLayoutHandle hBindGroupLayout);
+  static WGALBindGroupHandle GetMaterialBindGroup(const WMaterialResource* pMaterial, WGALBindGroupLayoutHandle hBindGroupLayout);
   /// Fired in case a material is reloaded and now occupies another index / shader.
-  static ezEvent<const ezMaterialShaderChanged&, ezMutex> s_MaterialShaderChangedEvent;
+  static WEvent<const WMaterialShaderChanged&, WMutex> s_MaterialShaderChangedEvent;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialManager);
-  friend class ezMemoryUtils;
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialManager);
+  friend class WMemoryUtils;
 
   /// How MaterialShaderConstants will store the material data.
   enum class MaterialStorageMode
@@ -82,104 +82,104 @@ private:
   class MaterialShaderConstants
   {
   public:
-    MaterialShaderConstants(ezShaderResourceHandle hShader, ezMaterialManager* pParent);
+    MaterialShaderConstants(WShaderResourceHandle hShader, WMaterialManager* pParent);
     ~MaterialShaderConstants();
 
-    ezMaterialResource::ezMaterialId AddMaterial(ezMaterialResourceHandle hMaterial);
-    void RemoveMaterial(ezMaterialResource::ezMaterialId id);
+    WMaterialResource::WMaterialId AddMaterial(WMaterialResourceHandle hMaterial);
+    void RemoveMaterial(WMaterialResource::WMaterialId id);
     bool IsEmpty() const;
 
-    void MarkDirty(ezMaterialResource::ezMaterialId id);
+    void MarkDirty(WMaterialResource::WMaterialId id);
     bool RequiresUpdates() const;
     void UpdateConstantBuffers();
 
     void DestroyGpuResources();
 
   private:
-    void OnResourceEvent(const ezResourceEvent& e);
-    void OnShaderChanged(ezShaderResource* pShader);
+    void OnResourceEvent(const WResourceEvent& e);
+    void OnShaderChanged(WShaderResource* pShader);
     bool UpdateMaterialLayout();
-    void UpdateMaterial(ezMaterialResource::ezMaterialId id, ezMaterialResourceHandle hMaterial);
+    void UpdateMaterial(WMaterialResource::WMaterialId id, WMaterialResourceHandle hMaterial);
 
   private:
     // Material data
-    mutable ezMutex m_MaterialsMutex;
-    ezIdTable<ezMaterialResource::ezMaterialId, ezMaterialResourceHandle> m_Materials;
+    mutable WMutex m_MaterialsMutex;
+    WIdTable<WMaterialResource::WMaterialId, WMaterialResourceHandle> m_Materials;
 
-    ezDynamicArray<ezUInt8> m_MaterialsData;
+    WDynamicArray<WUInt8> m_MaterialsData;
     // #TODO_MATERIAL Right now, there are individual structured buffers for each material until we have refactored the high level renderer to actually have a place to store the material index.
-    ezGALBufferHandle m_hStructuredBuffer;
-    ezDynamicArray<ezGALBufferHandle> m_MaterialBuffers;
+    WGALBufferHandle m_hStructuredBuffer;
+    WDynamicArray<WGALBufferHandle> m_MaterialBuffers;
 
     // Shader data
     bool m_bShaderDirty = true;
     bool m_bShaderHasNoConstants = false;
-    ezSet<ezMaterialResource::ezMaterialId> m_DirtyMaterials;
-    ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout;
-    ezHashTable<ezHashedString, ezUInt32> m_ParameterNameToLayoutIndex;
+    WSet<WMaterialResource::WMaterialId> m_DirtyMaterials;
+    WSharedPtr<WShaderConstantBufferLayout> m_pLayout;
+    WHashTable<WHashedString, WUInt32> m_ParameterNameToLayoutIndex;
 
     // Static data
     MaterialStorageMode m_Mode = MaterialStorageMode::MultipleConstantBuffer;
-    const ezShaderResourceHandle m_hShader;
-    ezMaterialManager* m_pParent = nullptr;
-    ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ShaderResourceEventSubscriber;
+    const WShaderResourceHandle m_hShader;
+    WMaterialManager* m_pParent = nullptr;
+    WEvent<const WResourceEvent&, WMutex>::Unsubscriber m_ShaderResourceEventSubscriber;
   };
 
   struct ExtractedMaterial
   {
     // Not using the frame allocator on the member arrays as we std::move these.
-    ezMaterialResourceHandle m_hMaterial;
-    ezShaderResourceHandle m_hShader;
-    ezMaterialResource::ezMaterialId m_MaterialId;
-    ezBitflags<ezMaterialResource::DirtyFlags> m_DirtyFlags;
-    ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters;
-    ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
-    ezDynamicArray<ezMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
-    ezDynamicArray<ezPermutationVar> m_PermutationVars;
+    WMaterialResourceHandle m_hMaterial;
+    WShaderResourceHandle m_hShader;
+    WMaterialResource::WMaterialId m_MaterialId;
+    WBitflags<WMaterialResource::DirtyFlags> m_DirtyFlags;
+    WDynamicArray<WMaterialResourceDescriptor::Parameter> m_Parameters;
+    WDynamicArray<WMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
+    WDynamicArray<WMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
+    WDynamicArray<WPermutationVar> m_PermutationVars;
   };
 
   struct PendingChanges
   {
     PendingChanges();
 
-    ezDynamicArray<const void*> m_RemovedMaterials;
-    ezDynamicArray<ExtractedMaterial> m_AddedOrModifiedMaterials;
+    WDynamicArray<const void*> m_RemovedMaterials;
+    WDynamicArray<ExtractedMaterial> m_AddedOrModifiedMaterials;
   };
 
 private:
-  ezMaterialManager();
-  ~ezMaterialManager();
+  WMaterialManager();
+  ~WMaterialManager();
 
-  void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
-  void OnRenderEvent(const ezGALDeviceEvent& e);
+  void OnExtractionEvent(const WRenderWorldExtractionEvent& e);
+  void OnRenderEvent(const WGALDeviceEvent& e);
 
   void ExtractMaterialUpdates();
-  void RegisterMaterial(ezMaterialResource* pMaterial);
-  void UnregisterMaterial(ezMaterialResource* pMaterial);
-  static void ExtractMaterial(ezMaterialResource* pMaterial, ExtractedMaterial& extractedMaterial);
+  void RegisterMaterial(WMaterialResource* pMaterial);
+  void UnregisterMaterial(WMaterialResource* pMaterial);
+  static void ExtractMaterial(WMaterialResource* pMaterial, ExtractedMaterial& extractedMaterial);
   void ApplyMaterialChanges();
   void Cleanup();
 
-  MaterialShaderConstants& GetShaderConstants(ezShaderResourceHandle hShader);
+  MaterialShaderConstants& GetShaderConstants(WShaderResourceHandle hShader);
 
 private:
   // Extract these materials during extraction phase.
-  ezMutex m_ExtractionMutex;
-  ezHashSet<ezMaterialResourceHandle> m_ModifiedMaterials;
-  ezDynamicArray<const void*> m_RemovedMaterials;
+  WMutex m_ExtractionMutex;
+  WHashSet<WMaterialResourceHandle> m_ModifiedMaterials;
+  WDynamicArray<const void*> m_RemovedMaterials;
 
   // Extraction result created by frame allocator
-  ezUniquePtr<PendingChanges> m_pPendingChanges;
+  WUniquePtr<PendingChanges> m_pPendingChanges;
 
   // Used during material creation, deletion and updates.
-  ezMutex m_MaterialShaderMutex;
-  ezMap<ezShaderResourceHandle, ezUniquePtr<MaterialShaderConstants>> m_MaterialShaders;
+  WMutex m_MaterialShaderMutex;
+  WMap<WShaderResourceHandle, WUniquePtr<MaterialShaderConstants>> m_MaterialShaders;
 
-  // Used by render thread only to map from ezMaterialResource to the MaterialData. No need for locks as only accessed by the render thread.
+  // Used by render thread only to map from WMaterialResource to the MaterialData. No need for locks as only accessed by the render thread.
   // This container will hold dead pointers after material deletion until the next extraction phase + begin render loop.
   // This is better than locking this container on every material draw call.
-  ezMap<const void*, MaterialData> m_Materials;
+  WMap<const void*, MaterialData> m_Materials;
 
   // Contains any materials that has bind groups with fallback or partially loaded resources. These will be deleted at the start of each frame.
-  ezSet<const void*> m_DirtyBindGroups;
+  WSet<const void*> m_DirtyBindGroups;
 };

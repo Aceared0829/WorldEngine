@@ -4,10 +4,10 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/LongOps/LongOpsAdapter.h>
 
-EZ_IMPLEMENT_SINGLETON(ezLongOpsAdapter);
+W_IMPLEMENT_SINGLETON(WLongOpsAdapter);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, LongOpsAdapter)
+W_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, LongOpsAdapter)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ReflectedTypeManager",
@@ -16,90 +16,90 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, LongOpsAdapter)
 
   ON_CORESYSTEMS_STARTUP
   {
-    EZ_DEFAULT_NEW(ezLongOpsAdapter);
+    W_DEFAULT_NEW(WLongOpsAdapter);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    if (ezLongOpsAdapter::GetSingleton())
+    if (WLongOpsAdapter::GetSingleton())
     {
-      auto ptr = ezLongOpsAdapter::GetSingleton();
-      EZ_DEFAULT_DELETE(ptr);
+      auto ptr = WLongOpsAdapter::GetSingleton();
+      W_DEFAULT_DELETE(ptr);
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezLongOpsAdapter::ezLongOpsAdapter()
+WLongOpsAdapter::WLongOpsAdapter()
   : m_SingletonRegistrar(this)
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::DocumentManagerEventHandler, this));
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::PhantomTypeRegistryEventHandler, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WLongOpsAdapter::DocumentManagerEventHandler, this));
+  WPhantomRttiManager::s_Events.AddEventHandler(WMakeDelegate(&WLongOpsAdapter::PhantomTypeRegistryEventHandler, this));
 }
 
-ezLongOpsAdapter::~ezLongOpsAdapter()
+WLongOpsAdapter::~WLongOpsAdapter()
 {
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLongOpsAdapter::PhantomTypeRegistryEventHandler, this));
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLongOpsAdapter::DocumentManagerEventHandler, this));
+  WPhantomRttiManager::s_Events.RemoveEventHandler(WMakeDelegate(&WLongOpsAdapter::PhantomTypeRegistryEventHandler, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WLongOpsAdapter::DocumentManagerEventHandler, this));
 }
 
-void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
+void WLongOpsAdapter::DocumentManagerEventHandler(const WDocumentManager::Event& e)
 {
-  if (e.m_Type == ezDocumentManager::Event::Type::DocumentOpened)
+  if (e.m_Type == WDocumentManager::Event::Type::DocumentOpened)
   {
-    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const WRTTI* pRttiScene = WRTTI::FindTypeByName("WSceneDocument");
     const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
     if (bIsScene)
     {
       CheckAllTypes();
 
-      e.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
+      e.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(WMakeDelegate(&WLongOpsAdapter::StructureEventHandler, this));
 
       ObjectAdded(e.m_pDocument->GetObjectManager()->GetRootObject());
     }
   }
 
-  if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
+  if (e.m_Type == WDocumentManager::Event::Type::DocumentClosing)
   {
-    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const WRTTI* pRttiScene = WRTTI::FindTypeByName("WSceneDocument");
     const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
     if (bIsScene)
     {
-      ezLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
+      WLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
 
-      e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
+      e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(WMakeDelegate(&WLongOpsAdapter::StructureEventHandler, this));
     }
   }
 }
 
-void ezLongOpsAdapter::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void WLongOpsAdapter::StructureEventHandler(const WDocumentObjectStructureEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded)
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::AfterObjectAdded)
   {
     ObjectAdded(e.m_pObject);
   }
 
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
+  if (e.m_EventType == WDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
   {
     ObjectRemoved(e.m_pObject);
   }
 }
 
-void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+void WLongOpsAdapter::PhantomTypeRegistryEventHandler(const WPhantomRttiManagerEvent& e)
 {
   const bool bExists = m_TypesWithLongOps.Contains(e.m_pChangedType);
 
-  if (bExists && e.m_Type == ezPhantomRttiManagerEvent::Type::TypeRemoved)
+  if (bExists && e.m_Type == WPhantomRttiManagerEvent::Type::TypeRemoved)
   {
     m_TypesWithLongOps.Remove(e.m_pChangedType);
     // if this ever becomes relevant:
     // iterate over all open documents and figure out which long ops to remove
   }
 
-  if (!bExists && e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded)
+  if (!bExists && e.m_Type == WPhantomRttiManagerEvent::Type::TypeAdded)
   {
-    if (e.m_pChangedType->GetAttributeByType<ezLongOpAttribute>() != nullptr)
+    if (e.m_pChangedType->GetAttributeByType<WLongOpAttribute>() != nullptr)
     {
       m_TypesWithLongOps.Insert(e.m_pChangedType);
       // if this ever becomes relevant:
@@ -107,40 +107,40 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
     }
   }
 
-  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
+  if (e.m_Type == WPhantomRttiManagerEvent::Type::TypeChanged)
   {
     // if this ever becomes relevant:
     // iterate over all open documents and figure out which long ops to add or remove
   }
 }
 
-void ezLongOpsAdapter::CheckAllTypes()
+void WLongOpsAdapter::CheckAllTypes()
 {
-  ezRTTI::ForEachType(
-    [&](const ezRTTI* pRtti)
+  WRTTI::ForEachType(
+    [&](const WRTTI* pRtti)
     {
-      if (pRtti->GetAttributeByType<ezLongOpAttribute>() != nullptr)
+      if (pRtti->GetAttributeByType<WLongOpAttribute>() != nullptr)
       {
         m_TypesWithLongOps.Insert(pRtti);
       }
     });
 }
 
-void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
+void WLongOpsAdapter::ObjectAdded(const WDocumentObject* pObject)
 {
-  const ezRTTI* pRtti = pObject->GetType();
+  const WRTTI* pRtti = pObject->GetType();
 
-  if (pRtti->IsDerivedFrom<ezComponent>())
+  if (pRtti->IsDerivedFrom<WComponent>())
   {
     if (m_TypesWithLongOps.Contains(pRtti))
     {
       while (pRtti)
       {
-        for (const ezPropertyAttribute* pAttr : pRtti->GetAttributes())
+        for (const WPropertyAttribute* pAttr : pRtti->GetAttributes())
         {
-          if (auto pOpAttr = ezDynamicCast<const ezLongOpAttribute*>(pAttr))
+          if (auto pOpAttr = WDynamicCast<const WLongOpAttribute*>(pAttr))
           {
-            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
+            WLongOpControllerManager::GetSingleton()->RegisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
 
@@ -151,30 +151,30 @@ void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
     return;
   }
 
-  if (pRtti->IsDerivedFrom<ezGameObject>() || pObject->GetParent() == nullptr /*document root object*/)
+  if (pRtti->IsDerivedFrom<WGameObject>() || pObject->GetParent() == nullptr /*document root object*/)
   {
-    for (const ezDocumentObject* pChild : pObject->GetChildren())
+    for (const WDocumentObject* pChild : pObject->GetChildren())
     {
       ObjectAdded(pChild);
     }
   }
 }
 
-void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
+void WLongOpsAdapter::ObjectRemoved(const WDocumentObject* pObject)
 {
-  const ezRTTI* pRtti = pObject->GetType();
+  const WRTTI* pRtti = pObject->GetType();
 
-  if (pRtti->IsDerivedFrom<ezComponent>())
+  if (pRtti->IsDerivedFrom<WComponent>())
   {
     if (m_TypesWithLongOps.Contains(pRtti))
     {
       while (pRtti)
       {
-        for (const ezPropertyAttribute* pAttr : pRtti->GetAttributes())
+        for (const WPropertyAttribute* pAttr : pRtti->GetAttributes())
         {
-          if (auto pOpAttr = ezDynamicCast<const ezLongOpAttribute*>(pAttr))
+          if (auto pOpAttr = WDynamicCast<const WLongOpAttribute*>(pAttr))
           {
-            ezLongOpControllerManager::GetSingleton()->UnregisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
+            WLongOpControllerManager::GetSingleton()->UnregisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
 
@@ -182,9 +182,9 @@ void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
       }
     }
   }
-  else if (pRtti->IsDerivedFrom<ezGameObject>())
+  else if (pRtti->IsDerivedFrom<WGameObject>())
   {
-    for (const ezDocumentObject* pChild : pObject->GetChildren())
+    for (const WDocumentObject* pChild : pObject->GetChildren())
     {
       ObjectRemoved(pChild);
     }

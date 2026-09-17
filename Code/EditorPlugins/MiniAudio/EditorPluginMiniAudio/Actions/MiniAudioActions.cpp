@@ -4,60 +4,60 @@
 #include <EditorPluginMiniAudio/Preferences/MiniAudioPreferences.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioAction, 0, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WMiniAudioSliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezMiniAudioActions::s_hCategoryMiniAudio;
-ezActionDescriptorHandle ezMiniAudioActions::s_hMute;
-ezActionDescriptorHandle ezMiniAudioActions::s_hVolume;
+WActionDescriptorHandle WMiniAudioActions::s_hCategoryMiniAudio;
+WActionDescriptorHandle WMiniAudioActions::s_hMute;
+WActionDescriptorHandle WMiniAudioActions::s_hVolume;
 
-void ezMiniAudioActions::RegisterActions()
+void WMiniAudioActions::RegisterActions()
 {
-  s_hCategoryMiniAudio = EZ_REGISTER_CATEGORY("MiniAudio");
-  s_hMute = EZ_REGISTER_ACTION_1("MiniAudio.Mute", ezActionScope::Document, "MiniAudio", "", ezMiniAudioAction, ezMiniAudioAction::ActionType::Mute);
-  s_hVolume = EZ_REGISTER_ACTION_1("MiniAudio.Volume", ezActionScope::Document, "MiniAudio", "", ezMiniAudioSliderAction, ezMiniAudioSliderAction::ActionType::Volume);
+  s_hCategoryMiniAudio = W_REGISTER_CATEGORY("MiniAudio");
+  s_hMute = W_REGISTER_ACTION_1("MiniAudio.Mute", WActionScope::Document, "MiniAudio", "", WMiniAudioAction, WMiniAudioAction::ActionType::Mute);
+  s_hVolume = W_REGISTER_ACTION_1("MiniAudio.Volume", WActionScope::Document, "MiniAudio", "", WMiniAudioSliderAction, WMiniAudioSliderAction::ActionType::Volume);
 }
 
-void ezMiniAudioActions::UnregisterActions()
+void WMiniAudioActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategoryMiniAudio);
-  ezActionManager::UnregisterAction(s_hMute);
-  ezActionManager::UnregisterAction(s_hVolume);
+  WActionManager::UnregisterAction(s_hCategoryMiniAudio);
+  WActionManager::UnregisterAction(s_hMute);
+  WActionManager::UnregisterAction(s_hVolume);
 }
 
-void ezMiniAudioActions::MapPluginMenuActions(ezStringView sMapping)
+void WMiniAudioActions::MapPluginMenuActions(WStringView sMapping)
 {
-  // ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  // EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  // WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  // W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
   //  pMap->MapAction(s_hCategoryMiniAudio, "G.Plugins.Settings", 9.0f);
 
   // no plugin specific menu entries at the moment
 }
 
-void ezMiniAudioActions::MapMenuActions(ezStringView sMapping)
+void WMiniAudioActions::MapMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryMiniAudio, "G.Scene", 5.0f);
   pMap->MapAction(s_hMute, "G.Scene", "MiniAudio", 0.0f);
   pMap->MapAction(s_hVolume, "G.Scene", "MiniAudio", 1.0f);
 }
 
-void ezMiniAudioActions::MapToolbarActions(ezStringView sMapping)
+void WMiniAudioActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pSceneMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
 
   pSceneMap->MapAction(s_hCategoryMiniAudio, "", 12.0f);
   pSceneMap->MapAction(s_hMute, "MiniAudio", 0.0f);
 }
 
-ezMiniAudioAction::ezMiniAudioAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WMiniAudioAction::WMiniAudioAction(const WActionContext& context, const char* szName, ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -67,8 +67,8 @@ ezMiniAudioAction::ezMiniAudioAction(const ezActionContext& context, const char*
     {
       SetCheckable(true);
 
-      ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezMiniAudioAction::OnPreferenceChange, this));
+      WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WMiniAudioAction::OnPreferenceChange, this));
 
       if (pPreferences->GetMute())
         SetIconPath(":/Icons/SoundOff.svg");
@@ -81,32 +81,32 @@ ezMiniAudioAction::ezMiniAudioAction(const ezActionContext& context, const char*
   }
 }
 
-ezMiniAudioAction::~ezMiniAudioAction()
+WMiniAudioAction::~WMiniAudioAction()
 {
   if (m_Type == ActionType::Mute)
   {
-    ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
-    pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezMiniAudioAction::OnPreferenceChange, this));
+    WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
+    pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WMiniAudioAction::OnPreferenceChange, this));
   }
 }
 
-void ezMiniAudioAction::Execute(const ezVariant& value)
+void WMiniAudioAction::Execute(const WVariant& value)
 {
   if (m_Type == ActionType::Mute)
   {
-    ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+    WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
     pPreferences->SetMute(!pPreferences->GetMute());
 
     if (GetContext().m_pDocument)
     {
-      GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
+      GetContext().m_pDocument->ShowDocumentStatus(WFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
     }
   }
 }
 
-void ezMiniAudioAction::OnPreferenceChange(ezPreferences* pref)
+void WMiniAudioAction::OnPreferenceChange(WPreferences* pref)
 {
-  ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+  WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
 
   if (m_Type == ActionType::Mute)
   {
@@ -121,8 +121,8 @@ void ezMiniAudioAction::OnPreferenceChange(ezPreferences* pref)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMiniAudioSliderAction::ezMiniAudioSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezSliderAction(context, szName)
+WMiniAudioSliderAction::WMiniAudioSliderAction(const WActionContext& context, const char* szName, ActionType type)
+  : WSliderAction(context, szName)
 {
   m_Type = type;
 
@@ -130,9 +130,9 @@ ezMiniAudioSliderAction::ezMiniAudioSliderAction(const ezActionContext& context,
   {
     case ActionType::Volume:
     {
-      ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+      WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
 
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezMiniAudioSliderAction::OnPreferenceChange, this));
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WMiniAudioSliderAction::OnPreferenceChange, this));
 
       SetRange(0, 20);
     }
@@ -142,54 +142,54 @@ ezMiniAudioSliderAction::ezMiniAudioSliderAction(const ezActionContext& context,
   UpdateState();
 }
 
-ezMiniAudioSliderAction::~ezMiniAudioSliderAction()
+WMiniAudioSliderAction::~WMiniAudioSliderAction()
 {
   switch (m_Type)
   {
     case ActionType::Volume:
     {
-      ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
-      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezMiniAudioSliderAction::OnPreferenceChange, this));
+      WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
+      pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WMiniAudioSliderAction::OnPreferenceChange, this));
     }
     break;
   }
 }
 
-void ezMiniAudioSliderAction::Execute(const ezVariant& value)
+void WMiniAudioSliderAction::Execute(const WVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
+  const WInt32 iValue = value.Get<WInt32>();
 
   switch (m_Type)
   {
     case ActionType::Volume:
     {
-      ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+      WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
 
       pPreferences->SetVolume(iValue / 20.0f);
 
       if (GetContext().m_pDocument)
       {
-        GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
+        GetContext().m_pDocument->ShowDocumentStatus(WFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
       }
     }
     break;
   }
 }
 
-void ezMiniAudioSliderAction::OnPreferenceChange(ezPreferences* pref)
+void WMiniAudioSliderAction::OnPreferenceChange(WPreferences* pref)
 {
   UpdateState();
 }
 
-void ezMiniAudioSliderAction::UpdateState()
+void WMiniAudioSliderAction::UpdateState()
 {
   switch (m_Type)
   {
     case ActionType::Volume:
     {
-      ezMiniAudioProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezMiniAudioProjectPreferences>();
+      WMiniAudioProjectPreferences* pPreferences = WPreferences::QueryPreferences<WMiniAudioProjectPreferences>();
 
-      SetValue(ezMath::Clamp((ezInt32)(pPreferences->GetVolume() * 20.0f), 0, 20));
+      SetValue(WMath::Clamp((WInt32)(pPreferences->GetVolume() * 20.0f), 0, 20));
     }
     break;
   }

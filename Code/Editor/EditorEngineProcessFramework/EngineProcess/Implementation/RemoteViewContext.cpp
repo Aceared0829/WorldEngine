@@ -7,22 +7,22 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
-ezRemoteEngineProcessViewContext* ezRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;
+WUInt32 WRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
+WRemoteEngineProcessViewContext* WRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;
 
-ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+WRemoteEngineProcessViewContext::WRemoteEngineProcessViewContext(WEngineProcessDocumentContext* pContext)
+  : WEngineProcessViewContext(pContext)
 {
 }
 
-ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
+WRemoteEngineProcessViewContext::~WRemoteEngineProcessViewContext()
 {
   if (s_pActiveRemoteViewContext == this)
   {
     s_pActiveRemoteViewContext = nullptr;
 
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(m_hView, pView))
     {
       pView->SetWorld(nullptr);
     }
@@ -32,21 +32,21 @@ ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
   m_hView.Invalidate();
 }
 
-void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void WRemoteEngineProcessViewContext::HandleViewMessage(const WEditorEngineViewMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezActivateRemoteViewMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WActivateRemoteViewMsgToEngine>())
   {
     if (m_hView.IsInvalidated())
     {
-      m_hView = ezEditorEngineProcessApp::GetSingleton()->CreateRemoteWindowAndView(&m_Camera);
+      m_hView = WEditorEngineProcessApp::GetSingleton()->CreateRemoteWindowAndView(&m_Camera);
     }
 
     s_pActiveRemoteViewContext = this;
 
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
+    WView* pView = nullptr;
+    if (WRenderWorld::TryGetView(m_hView, pView))
     {
-      ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+      WEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
       pView->SetWorld(pDocumentContext->GetWorld());
       pView->SetCamera(&m_Camera);
 
@@ -58,9 +58,9 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
   if (pMsg->m_uiViewID != s_uiActiveViewID)
     return;
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<WViewRedrawMsgToEngine>())
   {
-    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+    const WViewRedrawMsgToEngine* pMsg2 = static_cast<const WViewRedrawMsgToEngine*>(pMsg);
     SetCamera(pMsg2);
 
     // skip the on-message redraw, in remote mode it will just render as fast as it can
@@ -68,8 +68,8 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
   }
 }
 
-ezViewHandle ezRemoteEngineProcessViewContext::CreateView()
+WViewHandle WRemoteEngineProcessViewContext::CreateView()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezViewHandle();
+  W_ASSERT_NOT_IMPLEMENTED;
+  return WViewHandle();
 }

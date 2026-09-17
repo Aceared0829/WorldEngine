@@ -10,34 +10,34 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Flies, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Flies>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehaviorFactory_Flies, 1, WRTTIDefaultAllocator<WParticleBehaviorFactory_Flies>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("FlySpeed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("PathLength", m_fPathLength)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("MaxEmitterDistance", m_fMaxEmitterDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("MaxSteeringAngle", m_MaxSteeringAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(180.0f))),
+    W_MEMBER_PROPERTY("FlySpeed", m_fSpeed)->AddAttributes(new WDefaultValueAttribute(0.2f), new WClampValueAttribute(0.0f, 1000.0f)),
+    W_MEMBER_PROPERTY("PathLength", m_fPathLength)->AddAttributes(new WDefaultValueAttribute(0.2f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("MaxEmitterDistance", m_fMaxEmitterDistance)->AddAttributes(new WDefaultValueAttribute(0.5f), new WClampValueAttribute(0.0f, 100.0f)),
+    W_MEMBER_PROPERTY("MaxSteeringAngle", m_MaxSteeringAngle)->AddAttributes(new WDefaultValueAttribute(WAngle::MakeFromDegree(30)), new WClampValueAttribute(WAngle::MakeFromDegree(1.0f), WAngle::MakeFromDegree(180.0f))),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Flies, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Flies>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WParticleBehavior_Flies, 1, WRTTIDefaultAllocator<WParticleBehavior_Flies>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Flies::ezParticleBehaviorFactory_Flies() = default;
-ezParticleBehaviorFactory_Flies::~ezParticleBehaviorFactory_Flies() = default;
+WParticleBehaviorFactory_Flies::WParticleBehaviorFactory_Flies() = default;
+WParticleBehaviorFactory_Flies::~WParticleBehaviorFactory_Flies() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Flies::GetBehaviorType() const
+const WRTTI* WParticleBehaviorFactory_Flies::GetBehaviorType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Flies>();
+  return WGetStaticRTTI<WParticleBehavior_Flies>();
 }
 
-void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+void WParticleBehaviorFactory_Flies::CopyBehaviorProperties(WParticleBehavior* pObject, bool bFirstTime) const
 {
-  ezParticleBehavior_Flies* pBehavior = static_cast<ezParticleBehavior_Flies*>(pObject);
+  WParticleBehavior_Flies* pBehavior = static_cast<WParticleBehavior_Flies*>(pObject);
 
   pBehavior->m_fSpeed = m_fSpeed;
   pBehavior->m_fPathLength = m_fPathLength;
@@ -45,9 +45,9 @@ void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior*
   pBehavior->m_MaxSteeringAngle = m_MaxSteeringAngle;
 }
 
-void ezParticleBehaviorFactory_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void WParticleBehaviorFactory_Flies::QueryFinalizerDependencies(WSet<const WRTTI*>& inout_finalizerDeps) const
 {
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(WGetStaticRTTI<WParticleFinalizerFactory_ApplyVelocity>());
 }
 
 enum class BehaviorFliesVersion
@@ -60,9 +60,9 @@ enum class BehaviorFliesVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& inout_stream) const
+void WParticleBehaviorFactory_Flies::Save(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorFliesVersion::Version_Current;
+  const WUInt8 uiVersion = (int)BehaviorFliesVersion::Version_Current;
   inout_stream << uiVersion;
 
   inout_stream << m_fSpeed;
@@ -71,12 +71,12 @@ void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_MaxSteeringAngle;
 }
 
-void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void WParticleBehaviorFactory_Flies::Load(WStreamReader& inout_stream, const WParticleEffectDescriptor& ownerEffectDescriptor, const WParticleSystemDescriptor& ownerSystemDescriptor)
 {
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorFliesVersion::Version_Current, "Invalid version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= (int)BehaviorFliesVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   inout_stream >> m_fSpeed;
   inout_stream >> m_fPathLength;
@@ -84,65 +84,65 @@ void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream, const e
   inout_stream >> m_MaxSteeringAngle;
 }
 
-void ezParticleBehavior_Flies::CreateRequiredStreams()
+void WParticleBehavior_Flies::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  CreateStream("Position", WProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("Velocity", WProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 
-  m_TimeToChangeDir = ezTime::MakeZero();
+  m_TimeToChangeDir = WTime::MakeZero();
 }
 
-void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
+void WParticleBehavior_Flies::Process(WUInt64 uiNumElements)
 {
-  EZ_PROFILE_SCOPE("PFX: Flies");
+  W_PROFILE_SCOPE("PFX: Flies");
 
-  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
+  const WTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
   const bool bChangeDirection = tCur >= m_TimeToChangeDir;
 
   if (!bChangeDirection)
     return;
 
-  m_TimeToChangeDir = tCur + ezTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
+  m_TimeToChangeDir = tCur + WTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
 
-  const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
-  const float fMaxDistanceToEmitterSquared = ezMath::Square(m_fMaxEmitterDistance);
+  const WVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
+  const float fMaxDistanceToEmitterSquared = WMath::Square(m_fMaxEmitterDistance);
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  WProcessingStreamIterator<WVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
+  WProcessingStreamIterator<WFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
-  ezQuat qRot;
+  WQuat qRot;
 
   while (!itPosition.HasReachedEnd())
   {
     // if (pLifeArray[i] == pMaxLifeArray[i])
 
-    const ezVec3 vPartToEm = vEmitterPos - itPosition.Current().GetAsVec3();
+    const WVec3 vPartToEm = vEmitterPos - itPosition.Current().GetAsVec3();
     const float fDist = vPartToEm.GetLengthSquared();
 
-    const ezVec4 vel = itVelocity.Current();
-    const ezVec3 vDir(vel.x, vel.y, vel.z);
+    const WVec4 vel = itVelocity.Current();
+    const WVec3 vDir(vel.x, vel.y, vel.z);
     const float fSpeed = vel.w;
-    const ezVec3 vVelocity = vDir * fSpeed;
+    const WVec3 vVelocity = vDir * fSpeed;
 
     if (fDist > fMaxDistanceToEmitterSquared)
     {
-      ezVec3 vPivot;
+      WVec3 vPivot;
       vPivot = vDir.CrossRH(vPartToEm);
       vPivot.NormalizeIfNotZero().IgnoreResult();
 
-      qRot = ezQuat::MakeFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
+      qRot = WQuat::MakeFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
 
-      const ezVec3 newVel = qRot * vVelocity;
+      const WVec3 newVel = qRot * vVelocity;
       const float newSpeed = newVel.GetLength();
-      const ezVec3 newDir = newSpeed > 0.0f ? newVel / newSpeed : ezVec3(0, 0, 1);
+      const WVec3 newDir = newSpeed > 0.0f ? newVel / newSpeed : WVec3(0, 0, 1);
 
-      itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, newSpeed);
+      itVelocity.Current() = WVec4(newDir.x, newDir.y, newDir.z, newSpeed);
     }
     else
     {
-      const ezVec3 newDir = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir);
+      const WVec3 newDir = WVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir);
 
-      itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, m_fSpeed);
+      itVelocity.Current() = WVec4(newDir.x, newDir.y, newDir.z, m_fSpeed);
     }
 
     itPosition.Advance();
@@ -151,4 +151,4 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Flies);
+W_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Flies);

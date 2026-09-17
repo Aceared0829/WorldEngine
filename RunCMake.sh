@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     --no-unity)
-      NoUnity="-DEZ_ENABLE_FOLDER_UNITY_FILES=OFF"
+      NoUnity="-DW_ENABLE_FOLDER_UNITY_FILES=OFF"
       shift 1
       ;;
 
@@ -182,15 +182,15 @@ fi
 CMAKE_ARGS=("--preset" "${Target}" $NoUnity)
 
 if [ -n "$SolutionName" ]; then
-  CMAKE_ARGS+=("-DEZ_SOLUTION_NAME:STRING=${SolutionName}")
+  CMAKE_ARGS+=("-DW_SOLUTION_NAME:STRING=${SolutionName}")
 fi
 
 # Set custom output directories to avoid conflicts between different workspaces
 if [ -n "$WorkspaceDir" ]; then
   echo "Using custom workspace directory: Workspace/$WorkspaceDir"
   CMAKE_ARGS+=("-B" "$SCRIPT_DIR/Workspace/$WorkspaceDir")
-  CMAKE_ARGS+=("-DEZ_OUTPUT_DIRECTORY_DLL:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Bin")
-  CMAKE_ARGS+=("-DEZ_OUTPUT_DIRECTORY_LIB:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Lib")
+  CMAKE_ARGS+=("-DW_OUTPUT_DIRECTORY_DLL:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Bin")
+  CMAKE_ARGS+=("-DW_OUTPUT_DIRECTORY_LIB:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Lib")
   echo "Custom output directories: Workspace/$WorkspaceDir-output/"
 fi
 

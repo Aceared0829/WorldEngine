@@ -8,18 +8,18 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
 
-class ezTimeStepSmoothing;
+class WTimeStepSmoothing;
 
 /// A clock that can be speed up, slowed down, paused, etc. Useful for updating game logic, rendering, etc.
-class EZ_FOUNDATION_DLL ezClock
+class W_FOUNDATION_DLL WClock
 {
 public:
   /// Returns the global clock.
-  static ezClock* GetGlobalClock() { return s_pGlobalClock; }
+  static WClock* GetGlobalClock() { return s_pGlobalClock; }
 
 public:
   /// Constructor.
-  ezClock(ezStringView sName); // [tested]
+  WClock(WStringView sName); // [tested]
 
   /// Resets all values to their default. E.g. call this after a new level has loaded to start fresh.
   ///
@@ -36,11 +36,11 @@ public:
 
   /// Sets a time step smoother for this clock. Pass nullptr to deactivate time step smoothing.
   ///
-  /// Also calls ezTimeStepSmoothing::Reset() on any non-nullptr pSmoother.
-  void SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother);
+  /// Also calls WTimeStepSmoothing::Reset() on any non-nullptr pSmoother.
+  void SetTimeStepSmoothing(WTimeStepSmoothing* pSmoother);
 
   /// Returns the object used for time step smoothing (if any).
-  ezTimeStepSmoothing* GetTimeStepSmoothing() const; // [tested]
+  WTimeStepSmoothing* GetTimeStepSmoothing() const; // [tested]
 
   /// Sets the clock to be paused or running.
   void SetPaused(bool bPaused); // [tested]
@@ -54,10 +54,10 @@ public:
   /// Fixed time stepping allows to run the simulation at a constant rate, which is useful
   /// for recording videos or to step subsystems that require constant steps.
   /// Clock speed, pause and min/max time step are still being applied even when the time step is fixed.
-  void SetFixedTimeStep(ezTime diff = ezTime()); // [tested]
+  void SetFixedTimeStep(WTime diff = WTime()); // [tested]
 
   /// Returns the value for the fixed time step (zero if it is disabled).
-  ezTime GetFixedTimeStep() const; // [tested]
+  WTime GetFixedTimeStep() const; // [tested]
 
   /// Allows to replace the current accumulated time.
   ///
@@ -65,23 +65,23 @@ public:
   /// one should also reset the time to the time that was used when the game state was saved, to ensure
   /// that game objects that stored the accumulated time for reference, will continue to work.
   /// However, prefer to use Save() and Load() as those functions will store and restore the entire clock state.
-  void SetAccumulatedTime(ezTime t); // [tested]
+  void SetAccumulatedTime(WTime t); // [tested]
 
   /// Returns the accumulated time since the last call to Reset().
   ///
   /// The accumulated time is basically the 'absolute' time in the game world.
   /// Since this is the accumulation of all scaled, paused and clamped time steps,
   /// it will most likely have no relation to the real time that has passed.
-  ezTime GetAccumulatedTime() const; // [tested]
+  WTime GetAccumulatedTime() const; // [tested]
 
   /// Returns the time at which the clock was update.
-  ezTime GetLastUpdateTime() const { return m_LastTimeUpdate; }
+  WTime GetLastUpdateTime() const { return m_LastTimeUpdate; }
 
   /// Returns the time difference between the last two calls to Update().
   ///
   /// This is the main function to use to query how much to advance some simulation.
   /// The time step is already scaled, clamped, etc.
-  ezTime GetTimeDiff() const; // [tested]
+  WTime GetTimeDiff() const; // [tested]
 
   /// The factor with which to scale the time step during calls to Update().
   void SetSpeed(double fFactor); // [tested]
@@ -96,7 +96,7 @@ public:
   /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
   /// the value to the min/max time step (which means it can ignore or override that feature).
   /// When the clock is paused, it will always return a time step of zero.
-  void SetMinimumTimeStep(ezTime min); // [tested]
+  void SetMinimumTimeStep(WTime min); // [tested]
 
   /// Sets the maximum time that may pass between clock updates.
   ///
@@ -105,41 +105,41 @@ public:
   /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
   /// the value to the min/max time step (which means it can ignore or override that feature).
   /// \sa SetMinimumTimeStep
-  void SetMaximumTimeStep(ezTime max); // [tested]
+  void SetMaximumTimeStep(WTime max); // [tested]
 
   /// Returns the value for the minimum time step.
   /// \sa SetMinimumTimeStep
-  ezTime GetMinimumTimeStep() const; // [tested]
+  WTime GetMinimumTimeStep() const; // [tested]
 
   /// Returns the value for the maximum time step.
   /// \sa SetMaximumTimeStep
-  ezTime GetMaximumTimeStep() const; // [tested]
+  WTime GetMaximumTimeStep() const; // [tested]
 
   /// Serializes the current clock state to a stream.
-  void Save(ezStreamWriter& inout_stream) const;
+  void Save(WStreamWriter& inout_stream) const;
 
   /// Deserializes the current clock state from a stream.
-  void Load(ezStreamReader& inout_stream);
+  void Load(WStreamReader& inout_stream);
 
-  /// Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
-  void SetClockName(ezStringView sName);
+  /// Sets the name of the clock. Useful to identify the clock in tools such as WInspector.
+  void SetClockName(WStringView sName);
 
   /// Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with
   /// SetClockName.
-  ezStringView GetClockName() const;
+  WStringView GetClockName() const;
 
 
 public:
   /// The data that is sent through the event interface.
   struct EventData
   {
-    ezStringView m_sClockName;
+    WStringView m_sClockName;
 
-    ezTime m_RawTimeStep;
-    ezTime m_SmoothedTimeStep;
+    WTime m_RawTimeStep;
+    WTime m_SmoothedTimeStep;
   };
 
-  using Event = ezEvent<const EventData&, ezMutex>;
+  using Event = WEvent<const EventData&, WMutex>;
 
   /// Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler) { s_TimeEvents.AddEventHandler(handler); }
@@ -149,24 +149,24 @@ public:
 
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Clock);
+  W_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Clock);
 
   static Event s_TimeEvents;
-  static ezClock* s_pGlobalClock;
+  static WClock* s_pGlobalClock;
 
-  ezString m_sName;
+  WString m_sName;
 
-  ezTime m_AccumulatedTime;
-  ezTime m_LastTimeDiff;
-  ezTime m_FixedTimeStep;
-  ezTime m_LastTimeUpdate;
-  ezTime m_MinTimeStep;
-  ezTime m_MaxTimeStep;
+  WTime m_AccumulatedTime;
+  WTime m_LastTimeDiff;
+  WTime m_FixedTimeStep;
+  WTime m_LastTimeUpdate;
+  WTime m_MinTimeStep;
+  WTime m_MaxTimeStep;
 
   double m_fSpeed;
   bool m_bPaused;
 
-  ezTimeStepSmoothing* m_pTimeStepSmoother;
+  WTimeStepSmoothing* m_pTimeStepSmoother;
 };
 
 
@@ -174,10 +174,10 @@ private:
 ///
 /// By deriving from this class you can implement your own algorithms for time step smoothing.
 /// Then just set an instance of that class on one of the clocks and it will be applied to the time step.
-class EZ_FOUNDATION_DLL ezTimeStepSmoothing
+class W_FOUNDATION_DLL WTimeStepSmoothing
 {
 public:
-  virtual ~ezTimeStepSmoothing() = default;
+  virtual ~WTimeStepSmoothing() = default;
 
   /// The function to override to implement time step smoothing.
   ///
@@ -187,18 +187,18 @@ public:
   ///   The clock that calls this time step smoother.
   ///   Can be used to look up the clock speed and min/max time step.
   ///
-  /// \note It is the responsibility of each ezTimeStepSmoothing class to implement
+  /// \note It is the responsibility of each WTimeStepSmoothing class to implement
   /// clock speed and also to clamp the time step to the min/max values.
   /// This allows the smoothing algorithm to override these values, if necessary.
-  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) = 0;
+  virtual WTime GetSmoothedTimeStep(WTime rawTimeStep, const WClock* pClock) = 0;
 
-  /// Called when ezClock::Reset(), ezClock::Load() or ezClock::SetPaused(true) was called.
+  /// Called when WClock::Reset(), WClock::Load() or WClock::SetPaused(true) was called.
   ///
   /// \param pClock
   ///   The clock that is calling this function.
-  virtual void Reset(const ezClock* pClock) = 0;
+  virtual void Reset(const WClock* pClock) = 0;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezClock);
+W_DECLARE_REFLECTABLE_TYPE(W_FOUNDATION_DLL, WClock);
 
 #include <Foundation/Time/Implementation/Clock_inl.h>

@@ -5,10 +5,10 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-static ezRmlUiResourceLoader s_RmlUiResourceLoader;
+static WRmlUiResourceLoader s_RmlUiResourceLoader;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
+W_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -26,36 +26,36 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezResourceManager::SetResourceTypeLoader<ezRmlUiResource>(&s_RmlUiResourceLoader);
+    WResourceManager::SetResourceTypeLoader<WRmlUiResource>(&s_RmlUiResourceLoader);
 
-    ezResourceManager::RegisterResourceForAssetType("RmlUi", ezGetStaticRTTI<ezRmlUiResource>());
+    WResourceManager::RegisterResourceForAssetType("RmlUi", WGetStaticRTTI<WRmlUiResource>());
 
     {
-      ezRmlUiResourceDescriptor desc;
-      ezRmlUiResourceHandle hResource = ezResourceManager::CreateResource<ezRmlUiResource>("RmlUiMissing", std::move(desc), "Fallback for missing rml ui resource");
-      ezResourceManager::SetResourceTypeMissingFallback<ezRmlUiResource>(hResource);
+      WRmlUiResourceDescriptor desc;
+      WRmlUiResourceHandle hResource = WResourceManager::CreateResource<WRmlUiResource>("RmlUiMissing", std::move(desc), "Fallback for missing rml ui resource");
+      WResourceManager::SetResourceTypeMissingFallback<WRmlUiResource>(hResource);
     }
 
-    if (ezRmlUi::GetSingleton() == nullptr)
+    if (WRmlUi::GetSingleton() == nullptr)
     {
-      EZ_DEFAULT_NEW(ezRmlUi);
+      W_DEFAULT_NEW(WRmlUi);
     }
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    if (ezRmlUi* pRmlUi = ezRmlUi::GetSingleton())
+    if (WRmlUi* pRmlUi = WRmlUi::GetSingleton())
     {
-      EZ_DEFAULT_DELETE(pRmlUi);
+      W_DEFAULT_DELETE(pRmlUi);
     }
 
-    ezResourceManager::SetResourceTypeLoader<ezRmlUiResource>(nullptr);
+    WResourceManager::SetResourceTypeLoader<WRmlUiResource>(nullptr);
 
-    ezRmlUiResource::CleanupDynamicPluginReferences();
+    WRmlUiResource::CleanupDynamicPluginReferences();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION;
+W_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Startup);
+W_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Startup);

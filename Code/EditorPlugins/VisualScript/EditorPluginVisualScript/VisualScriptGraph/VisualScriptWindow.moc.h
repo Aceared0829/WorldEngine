@@ -4,22 +4,22 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtVisualScriptNodeScene;
-class ezQtVisualGraphView;
+class WQtVisualScriptNodeScene;
+class WQtVisualGraphView;
 
-class ezQtVisualScriptWindow : public ezQtDocumentWindow
+class WQtVisualScriptWindow : public WQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtVisualScriptWindow(ezDocument* pDocument);
-  ~ezQtVisualScriptWindow();
+  WQtVisualScriptWindow(WDocument* pDocument);
+  ~WQtVisualScriptWindow();
 
 private Q_SLOTS:
 
 private:
-  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SelectionEventHandler(const WSelectionManagerEvent& e);
 
-  ezQtVisualScriptNodeScene* m_pScene;
-  ezQtVisualGraphView* m_pView;
+  WQtVisualScriptNodeScene* m_pScene;
+  WQtVisualGraphView* m_pView;
 };

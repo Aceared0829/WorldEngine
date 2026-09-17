@@ -3,41 +3,41 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <ToolsFoundation/Document/DocumentTasks.h>
 
-ezSaveDocumentTask::ezSaveDocumentTask()
+WSaveDocumentTask::WSaveDocumentTask()
 {
-  ConfigureTask("ezSaveDocumentTask", ezTaskNesting::Maybe);
+  ConfigureTask("WSaveDocumentTask", WTaskNesting::Maybe);
 }
 
-ezSaveDocumentTask::~ezSaveDocumentTask() = default;
+WSaveDocumentTask::~WSaveDocumentTask() = default;
 
-void ezSaveDocumentTask::Execute()
+void WSaveDocumentTask::Execute()
 {
-  ezAbstractGraphDdlSerializer::WriteDocument(file, &headerGraph, &objectGraph, &typesGraph, false);
+  WAbstractGraphDdlSerializer::WriteDocument(file, &headerGraph, &objectGraph, &typesGraph, false);
 
-  if (file.Close() == EZ_FAILURE)
+  if (file.Close() == W_FAILURE)
   {
-    m_document->m_LastSaveResult = ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_document->m_sDocumentPath));
+    m_document->m_LastSaveResult = WStatus(WFmt("Unable to open file '{0}' for writing!", m_document->m_sDocumentPath));
   }
   else
   {
-    m_document->m_LastSaveResult = ezStatus(EZ_SUCCESS);
+    m_document->m_LastSaveResult = WStatus(W_SUCCESS);
   }
 }
 
-ezAfterSaveDocumentTask::ezAfterSaveDocumentTask()
+WAfterSaveDocumentTask::WAfterSaveDocumentTask()
 {
-  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Maybe);
+  ConfigureTask("WAfterSaveDocumentTask", WTaskNesting::Maybe);
 }
 
-ezAfterSaveDocumentTask::~ezAfterSaveDocumentTask() = default;
+WAfterSaveDocumentTask::~WAfterSaveDocumentTask() = default;
 
-void ezAfterSaveDocumentTask::Execute()
+void WAfterSaveDocumentTask::Execute()
 {
   if (m_document->m_LastSaveResult.Succeeded())
   {
-    ezDocumentEvent e;
+    WDocumentEvent e;
     e.m_pDocument = m_document;
-    e.m_Type = ezDocumentEvent::Type::DocumentSaved;
+    e.m_Type = WDocumentEvent::Type::DocumentSaved;
     m_document->m_EventsOne.Broadcast(e);
     m_document->s_EventsAny.Broadcast(e);
 

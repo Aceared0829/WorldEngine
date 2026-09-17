@@ -3,15 +3,15 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
 /// Factory for last position finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_LastPosition final : public ezParticleFinalizerFactory
+class W_PARTICLEPLUGIN_DLL WParticleFinalizerFactory_LastPosition final : public WParticleFinalizerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_LastPosition, ezParticleFinalizerFactory);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizerFactory_LastPosition, WParticleFinalizerFactory);
 
 public:
-  ezParticleFinalizerFactory_LastPosition();
+  WParticleFinalizerFactory_LastPosition();
 
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
+  virtual const WRTTI* GetFinalizerType() const override;
+  virtual void CopyFinalizerProperties(WParticleFinalizer* pObject, bool bFirstTime) const override;
 };
 
 
@@ -21,19 +21,19 @@ public:
 /// by renderers to create motion blur trails or stretched particles. The finalizer has a
 /// very low priority (-499) to run early in the frame, after initializers but before
 /// most other processing.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_LastPosition final : public ezParticleFinalizer
+class W_PARTICLEPLUGIN_DLL WParticleFinalizer_LastPosition final : public WParticleFinalizer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_LastPosition, ezParticleFinalizer);
+  W_ADD_DYNAMIC_REFLECTION(WParticleFinalizer_LastPosition, WParticleFinalizer);
 
 public:
-  ezParticleFinalizer_LastPosition();
-  ~ezParticleFinalizer_LastPosition();
+  WParticleFinalizer_LastPosition();
+  ~WParticleFinalizer_LastPosition();
 
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual void Process(WUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
+  WProcessingStream* m_pStreamPosition = nullptr;
+  WProcessingStream* m_pStreamLastPosition = nullptr;
 };

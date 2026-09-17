@@ -1,5 +1,5 @@
 Plugin
 {
-	string %Path{"ezGameComponentsPlugin"}
+	string %Path{"WGameComponentsPlugin"}
 	bool %LoadCopy{false}
 }

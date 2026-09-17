@@ -5,23 +5,23 @@
 #include <ProcGenPlugin/Tasks/PreparePlacementTask.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
 
-using namespace ezProcGenInternal;
+using namespace WProcGenInternal;
 
 PreparePlacementTask::PreparePlacementTask(PlacementData* pData, const char* szName)
   : m_pData(pData)
 {
-  ConfigureTask(szName, ezTaskNesting::Maybe);
+  ConfigureTask(szName, WTaskNesting::Maybe);
 }
 
 PreparePlacementTask::~PreparePlacementTask() = default;
 
 void PreparePlacementTask::Execute()
 {
-  const ezWorld& world = *m_pData->m_pWorld;
-  const ezBoundingBox& box = m_pData->m_TileBoundingBox;
+  const WWorld& world = *m_pData->m_pWorld;
+  const WBoundingBox& box = m_pData->m_TileBoundingBox;
   const Output& output = *m_pData->m_pOutput;
 
-  ezProcGenGlobalData::ExtractVolumeCollections(world, box, output, m_pData->m_VolumeCollections, m_pData->m_GlobalData);
-  ezProcGenGlobalData::SetInstanceSeed(m_pData->m_uiTileSeed, m_pData->m_GlobalData);
-  ezProcGenGlobalData::SetCurves(output, m_pData->m_GlobalData);
+  WProcGenGlobalData::ExtractVolumeCollections(world, box, output, m_pData->m_VolumeCollections, m_pData->m_GlobalData);
+  WProcGenGlobalData::SetInstanceSeed(m_pData->m_uiTileSeed, m_pData->m_GlobalData);
+  WProcGenGlobalData::SetCurves(output, m_pData->m_GlobalData);
 }

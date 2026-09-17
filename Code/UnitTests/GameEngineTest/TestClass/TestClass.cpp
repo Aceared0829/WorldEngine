@@ -10,228 +10,228 @@
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererFoundation/Device/Device.h>
 
-ezGameEngineTest::ezGameEngineTest() = default;
-ezGameEngineTest::~ezGameEngineTest() = default;
+WGameEngineTest::WGameEngineTest() = default;
+WGameEngineTest::~WGameEngineTest() = default;
 
-ezResult ezGameEngineTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
+WResult WGameEngineTest::GetImage(WImage& ref_img, const WSubTestEntry& subTest, WUInt32 uiImageNumber)
 {
   ref_img.ResetAndCopy(m_pApplication->GetLastScreenshot());
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGameEngineTest::InitializeTest()
+WResult WGameEngineTest::InitializeTest()
 {
   m_pApplication = CreateApplication();
 
   if (m_pApplication == nullptr)
-    return EZ_FAILURE;
+    return W_FAILURE;
 
 
-  EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
+  W_SUCCEED_OR_RETURN(WRun_Startup(m_pApplication));
 
-  ezStringView sAdapterName;
-  if (ezGALDevice::HasDefaultDevice())
+  WStringView sAdapterName;
+  if (WGALDevice::HasDefaultDevice())
   {
-    sAdapterName = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName;
+    sAdapterName = WGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName;
   }
-  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), sAdapterName);
+  WTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(W_PLATFORM_NAME, WGameApplication::GetActiveRenderer(), sAdapterName);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGameEngineTest::DeInitializeTest()
+WResult WGameEngineTest::DeInitializeTest()
 {
   if (m_pApplication)
   {
     m_pApplication->QuitApplication();
 
-    ezInt32 iSteps = 2;
+    WInt32 iSteps = 2;
     while (!m_pApplication->ShouldApplicationQuit() && iSteps > 0)
     {
       m_pApplication->Run();
       --iSteps;
     }
 
-    ezRun_Shutdown(m_pApplication);
+    WRun_Shutdown(m_pApplication);
 
-    EZ_DEFAULT_DELETE(m_pApplication);
+    W_DEFAULT_DELETE(m_pApplication);
 
     if (iSteps == 0)
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezGameEngineTest::InitializeSubTest(ezInt32 iIdentifier)
+WResult WGameEngineTest::InitializeSubTest(WInt32 iIdentifier)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
+  W_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
-  ezResourceManager::ForceNoFallbackAcquisition(3);
+  WResourceManager::ForceNoFallbackAcquisition(3);
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 
-ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDirName)
-  : ezGameApplication("ezGameEngineTest", nullptr)
+WGameEngineTestApplication::WGameEngineTestApplication(const char* szProjectDirName)
+  : WGameApplication("WGameEngineTest", nullptr)
 {
   m_pWorld = nullptr;
   m_sProjectDirName = szProjectDirName;
 }
 
 
-ezString ezGameEngineTestApplication::FindProjectDirectory() const
+WString WGameEngineTestApplication::FindProjectDirectory() const
 {
   return m_sAppProjectPath;
 }
 
-ezString ezGameEngineTestApplication::GetProjectDataDirectoryPath() const
+WString WGameEngineTestApplication::GetProjectDataDirectoryPath() const
 {
-  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
+  WStringBuilder sProjectPath(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
   return sProjectPath;
 }
 
-void ezGameEngineTestApplication::SwitchToCamera(ezUInt32 uiCameraNumber)
+void WGameEngineTestApplication::SwitchToCamera(WUInt32 uiCameraNumber)
 {
-  ezWorld* pWorld = GetWorld();
-  EZ_LOCK(pWorld->GetReadMarker());
-  ezGameObject* pCamera = nullptr;
-  ezStringBuilder sCamera;
+  WWorld* pWorld = GetWorld();
+  W_LOCK(pWorld->GetReadMarker());
+  WGameObject* pCamera = nullptr;
+  WStringBuilder sCamera;
   sCamera.SetFormat("Camera{}", uiCameraNumber);
-  if (pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(sCamera), pCamera))
+  if (pWorld->TryGetObjectWithGlobalKey(WTempHashedString(sCamera), pCamera))
   {
-    ezCameraComponent* pCameraComponent = nullptr;
-    if (pCamera->TryGetComponentOfBaseType<ezCameraComponent>(pCameraComponent))
+    WCameraComponent* pCameraComponent = nullptr;
+    if (pCamera->TryGetComponentOfBaseType<WCameraComponent>(pCameraComponent))
     {
       // update view camera
-      ezCamera* pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
-      const ezGameObject* pOwner = pCameraComponent->GetOwner();
-      const ezVec3 vPos = pOwner->GetGlobalPosition();
-      const ezVec3 vFwd = pOwner->GetGlobalDirForwards();
-      const ezVec3 vUp = pOwner->GetGlobalDirUp();
+      WCamera* pCamera = WDynamicCast<WGameState*>(GetActiveGameState())->GetMainCamera();
+      const WGameObject* pOwner = pCameraComponent->GetOwner();
+      const WVec3 vPos = pOwner->GetGlobalPosition();
+      const WVec3 vFwd = pOwner->GetGlobalDirForwards();
+      const WVec3 vUp = pOwner->GetGlobalDirUp();
       pCamera->LookAt(vPos, vPos + vFwd, vUp);
       pCamera->SetCameraMode(pCameraComponent->GetCameraMode(), pCameraComponent->GetFieldOfView(), pCameraComponent->GetNearPlane(), pCameraComponent->GetFarPlane());
     }
   }
 }
 
-ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
+WResult WGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  W_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
   m_pWorld->GetRandomNumberGenerator().Initialize(42); // reset the RNG
   m_pWorld->GetClock().Reset(false);                   // reset the world clock
 
-  ezFileReader file;
+  WFileReader file;
 
   if (file.Open(szSceneFile).Succeeded())
   {
     // File Header
     {
-      ezAssetFileHeader header;
-      EZ_SUCCEED_OR_RETURN(header.Read(file));
+      WAssetFileHeader header;
+      W_SUCCEED_OR_RETURN(header.Read(file));
 
       char szSceneTag[16];
       file.ReadBytes(szSceneTag, sizeof(char) * 16);
 
-      EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
+      W_ASSERT_RELEASE(WStringUtils::IsEqualN(szSceneTag, "[WEBinaryScene]", 16), "The given file is not a valid scene file");
     }
 
-    ezWorldReader reader;
-    EZ_SUCCEED_OR_RETURN(reader.ReadWorldDescription(file));
+    WWorldReader reader;
+    W_SUCCEED_OR_RETURN(reader.ReadWorldDescription(file));
     reader.InstantiateWorld(*m_pWorld, nullptr);
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
   else
   {
-    ezLog::Error("Failed to load scene '{0}'", szSceneFile);
-    return EZ_FAILURE;
+    WLog::Error("Failed to load scene '{0}'", szSceneFile);
+    return W_FAILURE;
   }
 }
 
-ezResult ezGameEngineTestApplication::BeforeCoreSystemsStartup()
+WResult WGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
+  W_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
-  ezStringBuilder sProject;
-  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject));
+  WStringBuilder sProject;
+  W_SUCCEED_OR_RETURN(WFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject));
   m_sAppProjectPath = sProject;
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-void ezGameEngineTestApplication::AfterCoreSystemsStartup()
+void WGameEngineTestApplication::AfterCoreSystemsStartup()
 {
   ExecuteInitFunctions();
 
-  ezStartup::StartupHighLevelSystems();
+  WStartup::StartupHighLevelSystems();
 
-  ezWorldDesc desc("GameEngineTestWorld");
+  WWorldDesc desc("GameEngineTestWorld");
   desc.m_uiRandomNumberGeneratorSeed = 42;
 
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-  m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
+  m_pWorld = W_DEFAULT_NEW(WWorld, desc);
+  m_pWorld->GetClock().SetFixedTimeStep(WTime::MakeFromSeconds(1.0 / 30.0));
   // Disable VSync. Tests run at a fixed time step so this makes tests much faster without changing the outcome.
-  ezGameApplication::cvar_AppVSync = false;
+  WGameApplication::cvar_AppVSync = false;
 
-  ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
+  ActivateGameState(m_pWorld.Borrow(), {}, WTransform::MakeIdentity());
 }
 
-void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
+void WGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
 {
   m_pWorld = nullptr;
 
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, ezStringView sContext)
+void WGameEngineTestApplication::StoreScreenshot(WImage&& image, WStringView sContext)
 {
   // store this for image comparison purposes
   m_LastScreenshot.ResetAndMove(std::move(image));
 }
 
 
-void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
+void WGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
 {
   SUPER::Init_FileSystem_ConfigureDataDirs();
 
   // additional data directories for the tests to work
   {
-    ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
+    WFileSystem::SetSpecialDirectory("testout", WTestFramework::GetInstance()->GetAbsOutputPath());
 
-    ezStringBuilder sBaseDir = ">sdk/Data/Base/";
-    ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+    WStringBuilder sBaseDir = ">sdk/Data/Base/";
+    WStringBuilder sReadDir(">sdk/", WTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
-    ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
+    WFileSystem::AddDataDirectory(">Wtest/", "ImageComparisonDataDir", "imgout", WDataDirUsage::AllowWrites).IgnoreResult();
+    WFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
   }
 }
 
-ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState()
+WUniquePtr<WGameStateBase> WGameEngineTestApplication::CreateGameState()
 {
-  return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
+  return W_DEFAULT_NEW(WGameEngineTestGameState);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameEngineTestGameState, 1, ezRTTIDefaultAllocator<ezGameEngineTestGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameEngineTestGameState, 1, WRTTIDefaultAllocator<WGameEngineTestGameState>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezGameEngineTestGameState::ProcessInput()
+void WGameEngineTestGameState::ProcessInput()
 {
   // Do nothing, user input should be ignored
 
   // trigger taking a screenshot every frame, for image comparison purposes
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
+  WGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
 }
 
-void ezGameEngineTestGameState::ConfigureInputActions()
+void WGameEngineTestGameState::ConfigureInputActions()
 {
   // do nothing
 }

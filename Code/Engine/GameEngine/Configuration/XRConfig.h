@@ -3,14 +3,14 @@
 #include <Core/Configuration/PlatformProfile.h>
 #include <GameEngine/GameEngineDLL.h>
 
-class EZ_GAMEENGINE_DLL ezXRConfig : public ezProfileConfigData
+class W_GAMEENGINE_DLL WXRConfig : public WProfileConfigData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezXRConfig, ezProfileConfigData);
+  W_ADD_DYNAMIC_REFLECTION(WXRConfig, WProfileConfigData);
 
 public:
-  virtual void SaveRuntimeData(ezChunkStreamWriter& inout_stream) const override;
-  virtual void LoadRuntimeData(ezChunkStreamReader& inout_stream) override;
+  virtual void SaveRuntimeData(WChunkStreamWriter& inout_stream) const override;
+  virtual void LoadRuntimeData(WChunkStreamReader& inout_stream) override;
 
   bool m_bEnableXR = false;
-  ezString m_sXRRenderPipeline;
+  WString m_sXRRenderPipeline;
 };

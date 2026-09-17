@@ -1,0 +1,33 @@
+# Asset Types
+
+StateMachine;State Machine;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-asset.html
+
+# Component Types
+
+WStateMachineComponent;State Machine;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-component.html
+
+# Properties
+
+WComparisonOperator::Equal;==
+WComparisonOperator::NotEqual;!=
+WComparisonOperator::Less;<
+WComparisonOperator::LessEqual;<=
+WComparisonOperator::Greater;>
+WComparisonOperator::GreaterEqual;>=
+
+WStateMachineLogicOperator::And;AND
+WStateMachineLogicOperator::Or;OR
+
+WStateMachineNode;New State
+WStateMachineNodeAny;New Any State
+
+WStateMachineTransition_Timeout;Timeout Transition
+WStateMachineTransition_Compound;Compound Transition
+WStateMachineTransition_BlackboardConditions;Blackboard Conditions
+WStateMachineTransition_TransitionEvent;Transition Event
+
+WStateMachineState_NestedStateMachine;Nested State Machine
+WStateMachineState_Compound;Compound State
+WStateMachineState_SendMsg;Send Message
+WStateMachineState_SwitchObject;Switch Object
+WStateMachineState_Script;Script

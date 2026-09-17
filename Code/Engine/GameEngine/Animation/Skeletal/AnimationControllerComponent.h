@@ -9,80 +9,80 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 
-using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
-using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResource>;
+using WSkeletonResourceHandle = WTypedResourceHandle<class WSkeletonResource>;
+using WAnimGraphResourceHandle = WTypedResourceHandle<class WAnimGraphResource>;
 
-class ezAnimationControllerComponentManager : public ezComponentManager<class ezAnimationControllerComponent, ezBlockStorageType::FreeList>
+class WAnimationControllerComponentManager : public WComponentManager<class WAnimationControllerComponent, WBlockStorageType::FreeList>
 {
 public:
-  ezAnimationControllerComponentManager(ezWorld* pWorld);
+  WAnimationControllerComponentManager(WWorld* pWorld);
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
 private:
-  void Update(const ezWorldModule::UpdateContext& context);
-  void ApplyRootMotion(const ezWorldModule::UpdateContext& context);
-  void ResourceEvent(const ezResourceEvent& e);
+  void Update(const WWorldModule::UpdateContext& context);
+  void ApplyRootMotion(const WWorldModule::UpdateContext& context);
+  void ResourceEvent(const WResourceEvent& e);
 
-  ezDeque<ezComponentHandle> m_ComponentsToReset;
+  WDeque<WComponentHandle> m_ComponentsToReset;
 };
 
-/// Evaluates an ezAnimGraphResource and provides the result through the ezMsgAnimationPoseUpdated.
+/// Evaluates an WAnimGraphResource and provides the result through the WMsgAnimationPoseUpdated.
 ///
-/// ezAnimGraph's contain logic to generate an animation pose. This component decides when it is necessary
+/// WAnimGraph's contain logic to generate an animation pose. This component decides when it is necessary
 /// to reevaluate the state, which mostly means it tracks when the object is visible.
 ///
-/// The result is sent as a recursive message, which is usually consumed by an ezAnimatedMeshComponent.
+/// The result is sent as a recursive message, which is usually consumed by an WAnimatedMeshComponent.
 /// The mesh component may be on the same game object or a child object.
-class EZ_GAMEENGINE_DLL ezAnimationControllerComponent : public ezComponent
+class W_GAMEENGINE_DLL WAnimationControllerComponent : public WComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAnimationControllerComponent, ezComponent, ezAnimationControllerComponentManager);
+  W_DECLARE_COMPONENT_TYPE(WAnimationControllerComponent, WComponent, WAnimationControllerComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  // WComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+  virtual void SerializeComponent(WWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(WWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAnimationControllerComponent
+  // WAnimationControllerComponent
 
 public:
-  ezAnimationControllerComponent();
-  ~ezAnimationControllerComponent();
+  WAnimationControllerComponent();
+  ~WAnimationControllerComponent();
 
   /// How often to update the animation while the animated mesh is invisible.
-  ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
+  WEnum<WAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
   /// If enabled, child game objects can add IK computation commands to influence the final pose.
   bool m_bEnableIK = false; // [ property ]
 
   /// A list of animation clips to use instead of the default ones that are set up in the animation graph.
-  ezDynamicArray<ezAnimationClipMapping> m_AnimationClipOverrides; // [ property ]
+  WDynamicArray<WAnimationClipMapping> m_AnimationClipOverrides; // [ property ]
 
   /// Overrides which animation clip resource to use for the given animation.
   ///
   /// Should only be called right at the start or when it is absolutely certain that an animation clip isn't in use right now,
   /// otherwise the running animation playback may produce weird results.
-  void SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource); // [ scriptable ]
+  void SetAnimationClipOverride(WStringView sAnimationName, WStringView sAnimationClipResource); // [ scriptable ]
 
 protected:
   void Update();
   void ApplyRootMotion();
 
-  ezEnum<ezRootMotionMode> m_RootMotionMode;
+  WEnum<WRootMotionMode> m_RootMotionMode;
 
-  ezAnimGraphResourceHandle m_hAnimGraph;
-  ezAnimController m_AnimController;
-  ezAnimPoseGenerator m_PoseGenerator;
+  WAnimGraphResourceHandle m_hAnimGraph;
+  WAnimController m_AnimController;
+  WAnimPoseGenerator m_PoseGenerator;
 
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  WTime m_ElapsedTimeSinceUpdate = WTime::MakeZero();
 
-  ezVec3 m_vPendingTranslation = ezVec3::MakeZero();
-  ezAngle m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ;
+  WVec3 m_vPendingTranslation = WVec3::MakeZero();
+  WAngle m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ;
 };

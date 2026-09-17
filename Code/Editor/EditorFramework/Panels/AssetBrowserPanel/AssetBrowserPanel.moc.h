@@ -7,29 +7,29 @@
 
 class QStatusBar;
 class QLabel;
-struct ezToolsProjectEvent;
+struct WToolsProjectEvent;
 
 /// The application wide panel that shows and asset browser.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel, public Ui_AssetBrowserPanel
+class W_EDITORFRAMEWORK_DLL WQtAssetBrowserPanel : public WQtApplicationPanel, public Ui_AssetBrowserPanel
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezQtAssetBrowserPanel);
+  W_DECLARE_SINGLETON(WQtAssetBrowserPanel);
 
 public:
-  ezQtAssetBrowserPanel(ads::CDockManager* pDockManager);
-  ~ezQtAssetBrowserPanel();
+  WQtAssetBrowserPanel(ads::CDockManager* pDockManager);
+  ~WQtAssetBrowserPanel();
 
-  const ezUuid& GetLastSelectedAsset() const { return m_LastSelected; }
+  const WUuid& GetLastSelectedAsset() const { return m_LastSelected; }
 
 private Q_SLOTS:
-  void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
-  void SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
+  void SlotAssetChosen(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags);
+  void SlotAssetSelected(WUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, WUInt8 uiAssetBrowserItemFlags);
   void SlotAssetCleared();
 
 private:
-  void AssetCuratorEvents(const ezAssetCuratorEvent& e);
-  void ProjectEvents(const ezToolsProjectEvent& e);
+  void AssetCuratorEvents(const WAssetCuratorEvent& e);
+  void ProjectEvents(const WToolsProjectEvent& e);
 
-  ezUuid m_LastSelected;
+  WUuid m_LastSelected;
 };

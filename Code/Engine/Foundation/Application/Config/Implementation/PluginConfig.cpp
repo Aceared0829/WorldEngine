@@ -9,38 +9,38 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WApplicationPluginConfig, WNoBase, 1, WRTTIDefaultAllocator<WApplicationPluginConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
+    W_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig_PluginConfig>)
+W_BEGIN_STATIC_REFLECTED_TYPE(WApplicationPluginConfig_PluginConfig, WNoBase, 1, WRTTIDefaultAllocator<WApplicationPluginConfig_PluginConfig>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
-    EZ_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
+    W_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
+    W_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE;
+W_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
+bool WApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
 {
   return m_sAppDirRelativePath < rhs.m_sAppDirRelativePath;
 }
 
-bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
+bool WApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
 {
   PluginConfig cfg = cfg0;
 
-  for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
     if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
@@ -52,11 +52,11 @@ bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
   return true;
 }
 
-bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
+bool WApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 {
   PluginConfig cfg = cfg0;
 
-  for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
     if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
@@ -68,26 +68,26 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
   return false;
 }
 
-ezApplicationPluginConfig::ezApplicationPluginConfig() = default;
+WApplicationPluginConfig::WApplicationPluginConfig() = default;
 
-ezResult ezApplicationPluginConfig::Save(ezStringView sPath) const
+WResult WApplicationPluginConfig::Save(WStringView sPath) const
 {
   m_Plugins.Sort();
 
-  ezDeferredFileWriter file;
+  WDeferredFileWriter file;
   file.SetOutput(sPath, true);
 
-  ezOpenDdlWriter writer;
+  WOpenDdlWriter writer;
   writer.SetOutputStream(&file);
   writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetPrimitiveTypeStringMode(WOpenDdlWriter::TypeStringMode::Compliant);
 
-  for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
     writer.BeginObject("Plugin");
 
-    ezOpenDdlUtils::StoreString(writer, m_Plugins[i].m_sAppDirRelativePath, "Path");
-    ezOpenDdlUtils::StoreBool(writer, m_Plugins[i].m_bLoadCopy, "LoadCopy");
+    WOpenDdlUtils::StoreString(writer, m_Plugins[i].m_sAppDirRelativePath, "Path");
+    WOpenDdlUtils::StoreBool(writer, m_Plugins[i].m_bLoadCopy, "LoadCopy");
 
     writer.EndObject();
   }
@@ -95,37 +95,37 @@ ezResult ezApplicationPluginConfig::Save(ezStringView sPath) const
   return file.Close();
 }
 
-void ezApplicationPluginConfig::Load(ezStringView sPath)
+void WApplicationPluginConfig::Load(WStringView sPath)
 {
-  EZ_LOG_BLOCK("ezApplicationPluginConfig::Load()");
+  W_LOG_BLOCK("WApplicationPluginConfig::Load()");
 
   m_Plugins.Clear();
 
-  ezFileReader file;
+  WFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open plugins config file '{0}'", sPath);
+    WLog::Warning("Could not open plugins config file '{0}'", sPath);
     return;
   }
 
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  WOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, WLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse plugins config file '{0}'", sPath);
+    WLog::Error("Failed to parse plugins config file '{0}'", sPath);
     return;
   }
 
-  const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
+  const WOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pPlugin = pTree->GetFirstChild(); pPlugin != nullptr; pPlugin = pPlugin->GetSibling())
+  for (const WOpenDdlReaderElement* pPlugin = pTree->GetFirstChild(); pPlugin != nullptr; pPlugin = pPlugin->GetSibling())
   {
     if (!pPlugin->IsCustomType("Plugin"))
       continue;
 
     PluginConfig cfg;
 
-    const ezOpenDdlReaderElement* pPath = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
-    const ezOpenDdlReaderElement* pCopy = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy");
+    const WOpenDdlReaderElement* pPath = pPlugin->FindChildOfType(WOpenDdlPrimitiveType::String, "Path");
+    const WOpenDdlReaderElement* pCopy = pPlugin->FindChildOfType(WOpenDdlPrimitiveType::Bool, "LoadCopy");
 
     if (pPath)
     {
@@ -142,20 +142,20 @@ void ezApplicationPluginConfig::Load(ezStringView sPath)
   }
 }
 
-void ezApplicationPluginConfig::Apply()
+void WApplicationPluginConfig::Apply()
 {
-  EZ_LOG_BLOCK("ezApplicationPluginConfig::Apply");
+  W_LOG_BLOCK("WApplicationPluginConfig::Apply");
 
   for (const auto& var : m_Plugins)
   {
-    ezBitflags<ezPluginLoadFlags> flags;
-    flags.AddOrRemove(ezPluginLoadFlags::LoadCopy, var.m_bLoadCopy);
-    flags.AddOrRemove(ezPluginLoadFlags::CustomDependency, false);
+    WBitflags<WPluginLoadFlags> flags;
+    flags.AddOrRemove(WPluginLoadFlags::LoadCopy, var.m_bLoadCopy);
+    flags.AddOrRemove(WPluginLoadFlags::CustomDependency, false);
 
-    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, flags).IgnoreResult();
+    WPlugin::LoadPlugin(var.m_sAppDirRelativePath, flags).IgnoreResult();
   }
 }
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_PluginConfig);
+W_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_PluginConfig);

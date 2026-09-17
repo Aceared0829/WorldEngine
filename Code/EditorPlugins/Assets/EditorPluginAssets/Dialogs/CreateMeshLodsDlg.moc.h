@@ -6,22 +6,22 @@
 
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-/// Configures what ezMeshLodCreator::CreateMeshLods() should generate.
+/// Configures what WMeshLodCreator::CreateMeshLods() should generate.
 ///
 /// Also used for several meshes at once, in which case the folder and the resulting simplification
 /// are decided per mesh and only the number of LODs is shown.
-class ezQtCreateMeshLodsDlg : public ezQtDialog, public Ui_CreateMeshLodsDlg
+class WQtCreateMeshLodsDlg : public WQtDialog, public Ui_CreateMeshLodsDlg
 {
   Q_OBJECT
 
 public:
   /// For a single mesh, whose folder and simplification ladder are shown.
-  ezQtCreateMeshLodsDlg(const ezMeshLodSource& source, QWidget* pParent);
+  WQtCreateMeshLodsDlg(const WMeshLodSource& source, QWidget* pParent);
 
   /// For several meshes.
-  ezQtCreateMeshLodsDlg(ezUInt32 uiMeshCount, QWidget* pParent);
+  WQtCreateMeshLodsDlg(WUInt32 uiMeshCount, QWidget* pParent);
 
-  const ezMeshLodOptions& GetOptions() const { return m_Options; }
+  const WMeshLodOptions& GetOptions() const { return m_Options; }
 
 private Q_SLOTS:
   void on_LodCount_valueChanged(int value);
@@ -37,17 +37,17 @@ private:
   void UpdateInfo();
 
   /// Null when several meshes were selected, as none of them speaks for the others.
-  const ezMeshLodSource* m_pSource = nullptr;
+  const WMeshLodSource* m_pSource = nullptr;
 
   /// 1 unless several meshes were selected.
-  ezUInt32 m_uiMeshCount = 1;
+  WUInt32 m_uiMeshCount = 1;
 
-  ezMeshLodOptions m_Options;
+  WMeshLodOptions m_Options;
 
   /// Above this many meshes the "open after creation" box starts out unticked. It stays available.
-  static constexpr ezUInt32 s_uiMaxAutoOpen = 5;
+  static constexpr WUInt32 s_uiMaxAutoOpen = 5;
 
   // remembered across invocations
-  static ezInt32 s_iLodCount;
+  static WInt32 s_iLodCount;
   static bool s_bOpenAfterCreate;
 };

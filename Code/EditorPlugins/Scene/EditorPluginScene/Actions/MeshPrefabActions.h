@@ -6,26 +6,26 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 /// Creates prefabs from mesh assets. Hides itself unless the target is one or more mesh assets.
-class ezMeshPrefabActions
+class WMeshPrefabActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
   /// Pass bDocumentScope for a map belonging to a document window, so that the action is given that
-  /// document; leave it off for the asset browser, which has none and uses ezAssetBrowserSelection.
+  /// document; leave it off for the asset browser, which has none and uses WAssetBrowserSelection.
   ///
   /// Fails if the action map does not exist, i.e. the plugin that owns it is not loaded.
-  static ezResult MapActions(ezStringView sActionMap, ezStringView sSubPath, bool bDocumentScope = false);
+  static WResult MapActions(WStringView sActionMap, WStringView sSubPath, bool bDocumentScope = false);
 
-  static ezActionDescriptorHandle s_hCategory;
-  static ezActionDescriptorHandle s_hCreatePrefabFromMesh;
-  static ezActionDescriptorHandle s_hCreatePrefabFromMeshDoc;
+  static WActionDescriptorHandle s_hCategory;
+  static WActionDescriptorHandle s_hCreatePrefabFromMesh;
+  static WActionDescriptorHandle s_hCreatePrefabFromMeshDoc;
 };
 
-class ezMeshPrefabAction : public ezButtonAction
+class WMeshPrefabAction : public WButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshPrefabAction, ezButtonAction);
+  W_ADD_DYNAMIC_REFLECTION(WMeshPrefabAction, WButtonAction);
 
 public:
   enum class ActionType
@@ -33,9 +33,9 @@ public:
     CreatePrefabFromMesh,
   };
 
-  ezMeshPrefabAction(const ezActionContext& context, const char* szName, ActionType type);
+  WMeshPrefabAction(const WActionContext& context, const char* szName, ActionType type);
 
-  virtual void Execute(const ezVariant& value) override;
+  virtual void Execute(const WVariant& value) override;
   virtual void RefreshState() override;
 
 private:
@@ -43,7 +43,7 @@ private:
   /// neither names a mesh asset.
   ///
   /// Non-mesh assets in the selection are dropped rather than disabling the action.
-  void GetTargetAssets(ezDynamicArray<ezUuid>& out_assets) const;
+  void GetTargetAssets(WDynamicArray<WUuid>& out_assets) const;
 
   ActionType m_Type;
 };

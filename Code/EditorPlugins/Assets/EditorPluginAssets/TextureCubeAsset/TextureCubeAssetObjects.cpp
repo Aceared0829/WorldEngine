@@ -4,62 +4,62 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMappingEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTextureCubeChannelMappingEnum::RGB1, ezTextureCubeChannelMappingEnum::RGBA1, ezTextureCubeChannelMappingEnum::RGB1TO6, ezTextureCubeChannelMappingEnum::RGBA1TO6)
-EZ_END_STATIC_REFLECTED_ENUM;
+W_BEGIN_STATIC_REFLECTED_ENUM(WTextureCubeChannelMappingEnum, 1)
+  W_ENUM_CONSTANTS(WTextureCubeChannelMappingEnum::RGB1, WTextureCubeChannelMappingEnum::RGBA1, WTextureCubeChannelMappingEnum::RGB1TO6, WTextureCubeChannelMappingEnum::RGBA1TO6)
+W_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 3, ezRTTIDefaultAllocator<ezTextureCubeAssetProperties>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WTextureCubeAssetProperties, 3, WRTTIDefaultAllocator<WTextureCubeAssetProperties>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
+    W_ENUM_MEMBER_PROPERTY("Usage", WTexConvUsage, m_TextureUsage),
 
-    EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
-    EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
+    W_ENUM_MEMBER_PROPERTY("MipmapMode", WTexConvMipmapMode, m_MipmapMode),
+    W_ENUM_MEMBER_PROPERTY("CompressionMode", WTexConvCompressionMode, m_CompressionMode),
 
-    EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
+    W_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new WClampValueAttribute(-20.0f, 20.0f)),
 
-    EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
+    W_ENUM_MEMBER_PROPERTY("TextureFilter", WTextureFilterSetting, m_TextureFilter),
 
-    EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezTextureCubeChannelMappingEnum, m_ChannelMapping),
+    W_ENUM_MEMBER_PROPERTY("ChannelMapping", WTextureCubeChannelMappingEnum, m_ChannelMapping),
 
-    EZ_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr), new ezRequiredAttribute()),
-    EZ_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
-    EZ_ACCESSOR_PROPERTY("Input6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr), new WRequiredAttribute()),
+    W_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input5", GetInputFile4, SetInputFile4)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
+    W_ACCESSOR_PROPERTY("Input6", GetInputFile5, SetInputFile5)->AddAttributes(new WFileBrowserAttribute("Select Texture", WFileBrowserAttribute::ImagesLdrAndHdr)),
 
   }
-  EZ_END_PROPERTIES;
+  W_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void WTextureCubeAssetProperties::PropertyMetaStateEventHandler(WPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezTextureCubeAssetProperties>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == WGetStaticRTTI<WTextureCubeAssetProperties>())
   {
-    const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
-    const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr;
+    const WInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<WInt64>();
+    const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<WInt32>() == WTexConvUsage::Hdr;
 
     auto& props = *e.m_pPropertyStates;
 
-    props["Usage"].m_Visibility = ezPropertyUiState::Default;
-    props["Input1"].m_Visibility = ezPropertyUiState::Default;
-    props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input5"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input6"].m_Visibility = ezPropertyUiState::Invisible;
-    props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Disabled;
+    props["Usage"].m_Visibility = WPropertyUiState::Default;
+    props["Input1"].m_Visibility = WPropertyUiState::Default;
+    props["Input2"].m_Visibility = WPropertyUiState::Invisible;
+    props["Input3"].m_Visibility = WPropertyUiState::Invisible;
+    props["Input4"].m_Visibility = WPropertyUiState::Invisible;
+    props["Input5"].m_Visibility = WPropertyUiState::Invisible;
+    props["Input6"].m_Visibility = WPropertyUiState::Invisible;
+    props["HdrExposureBias"].m_Visibility = WPropertyUiState::Disabled;
 
     if (isHDR)
     {
-      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
+      props["HdrExposureBias"].m_Visibility = WPropertyUiState::Default;
     }
 
-    if (mapping == ezTextureCubeChannelMappingEnum::RGB1TO6 || mapping == ezTextureCubeChannelMappingEnum::RGBA1TO6)
+    if (mapping == WTextureCubeChannelMappingEnum::RGB1TO6 || mapping == WTextureCubeChannelMappingEnum::RGBA1TO6)
     {
       props["Input1"].m_sNewLabelText = "TextureAsset::CM_Right";
       props["Input2"].m_sNewLabelText = "TextureAsset::CM_Left";
@@ -80,45 +80,45 @@ void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaS
 
     switch (mapping)
     {
-      case ezTextureCubeChannelMappingEnum::RGB1TO6:
-      case ezTextureCubeChannelMappingEnum::RGBA1TO6:
-        props["Input6"].m_Visibility = ezPropertyUiState::Default;
-        props["Input5"].m_Visibility = ezPropertyUiState::Default;
-        props["Input4"].m_Visibility = ezPropertyUiState::Default;
-        props["Input3"].m_Visibility = ezPropertyUiState::Default;
-        props["Input2"].m_Visibility = ezPropertyUiState::Default;
+      case WTextureCubeChannelMappingEnum::RGB1TO6:
+      case WTextureCubeChannelMappingEnum::RGBA1TO6:
+        props["Input6"].m_Visibility = WPropertyUiState::Default;
+        props["Input5"].m_Visibility = WPropertyUiState::Default;
+        props["Input4"].m_Visibility = WPropertyUiState::Default;
+        props["Input3"].m_Visibility = WPropertyUiState::Default;
+        props["Input2"].m_Visibility = WPropertyUiState::Default;
         break;
     }
   }
 }
 
-ezString ezTextureCubeAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) const
+WString WTextureCubeAssetProperties::GetAbsoluteInputFilePath(WInt32 iInput) const
 {
-  ezStringBuilder sPath = m_Input[iInput];
+  WStringBuilder sPath = m_Input[iInput];
   sPath.MakeCleanPath();
 
   if (!sPath.IsAbsolutePath())
   {
-    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    WQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
   }
 
   return sPath;
 }
 
-ezInt32 ezTextureCubeAssetProperties::GetNumInputFiles() const
+WInt32 WTextureCubeAssetProperties::GetNumInputFiles() const
 {
   switch (m_ChannelMapping)
   {
-    case ezTextureCubeChannelMappingEnum::RGB1:
-    case ezTextureCubeChannelMappingEnum::RGBA1:
+    case WTextureCubeChannelMappingEnum::RGB1:
+    case WTextureCubeChannelMappingEnum::RGBA1:
       return 1;
 
-    case ezTextureCubeChannelMappingEnum::RGB1TO6:
-    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+    case WTextureCubeChannelMappingEnum::RGB1TO6:
+    case WTextureCubeChannelMappingEnum::RGBA1TO6:
       return 6;
   }
 
-  EZ_REPORT_FAILURE("Invalid Code Path");
+  W_REPORT_FAILURE("Invalid Code Path");
   return 1;
 }
 
@@ -126,36 +126,36 @@ ezInt32 ezTextureCubeAssetProperties::GetNumInputFiles() const
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezTextureCubeAssetProperties_2_3 : public ezGraphPatch
+class WTextureCubeAssetProperties_2_3 : public WGraphPatch
 {
 public:
-  ezTextureCubeAssetProperties_2_3()
-    : ezGraphPatch("ezTextureCubeAssetProperties", 3)
+  WTextureCubeAssetProperties_2_3()
+    : WGraphPatch("WTextureCubeAssetProperties", 3)
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(WGraphPatchContext& ref_context, WAbstractObjectGraph* pGraph, WAbstractObjectNode* pNode) const override
   {
     auto* pUsage = pNode->FindProperty("Usage");
-    if (pUsage && pUsage->m_Value.IsA<ezString>())
+    if (pUsage && pUsage->m_Value.IsA<WString>())
     {
-      if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Unknown")
+      if (pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::Unknown")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Auto);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Auto);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Other_sRGB" ||
-               pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Skybox")
+      else if (pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::Other_sRGB" ||
+               pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::Skybox")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Color);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Color);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Other_Linear" ||
-               pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::LookupTable")
+      else if (pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::Other_Linear" ||
+               pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::LookupTable")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Linear);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Linear);
       }
-      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::SkyboxHDR")
+      else if (pUsage->m_Value.Get<WString>() == "WTextureCubeUsageEnum::SkyboxHDR")
       {
-        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Hdr);
+        pNode->ChangeProperty("Usage", (WInt32)WTexConvUsage::Hdr);
       }
     }
 
@@ -163,20 +163,20 @@ public:
     if (pMipmaps && pMipmaps->m_Value.IsA<bool>())
     {
       if (pMipmaps->m_Value.Get<bool>())
-        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Kaiser);
+        pNode->AddProperty("MipmapMode", (WInt32)WTexConvMipmapMode::Kaiser);
       else
-        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::None);
+        pNode->AddProperty("MipmapMode", (WInt32)WTexConvMipmapMode::None);
     }
 
     auto* pCompression = pNode->FindProperty("Compression");
     if (pCompression && pCompression->m_Value.IsA<bool>())
     {
       if (pCompression->m_Value.Get<bool>())
-        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::Medium);
+        pNode->AddProperty("CompressionMode", (WInt32)WTexConvCompressionMode::Medium);
       else
-        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::None);
+        pNode->AddProperty("CompressionMode", (WInt32)WTexConvCompressionMode::None);
     }
   }
 };
 
-ezTextureCubeAssetProperties_2_3 g_ezTextureCubeAssetProperties_2_3;
+WTextureCubeAssetProperties_2_3 g_WTextureCubeAssetProperties_2_3;

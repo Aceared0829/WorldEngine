@@ -5,13 +5,13 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtFmodProjectSettingsDlg : public ezQtDialog, public Ui_FmodProjectSettingsDlg
+class WQtFmodProjectSettingsDlg : public WQtDialog, public Ui_FmodProjectSettingsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtFmodProjectSettingsDlg(QWidget* pParent);
+  WQtFmodProjectSettingsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* pButton);
@@ -21,12 +21,12 @@ private Q_SLOTS:
   void on_ButtonMB_clicked();
 
 private:
-  ezResult Save();
+  WResult Save();
   void Load();
   void SetCurrentPlatform(const char* szPlatform);
   void StoreCurrentPlatform();
 
-  ezString m_sCurrentPlatform;
-  ezFmodAssetProfiles m_ConfigsOld;
-  ezFmodAssetProfiles m_Configs;
+  WString m_sCurrentPlatform;
+  WFmodAssetProfiles m_ConfigsOld;
+  WFmodAssetProfiles m_Configs;
 };

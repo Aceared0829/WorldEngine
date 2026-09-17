@@ -4,41 +4,41 @@
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetManager, 1, ezRTTIDefaultAllocator<ezRenderPipelineAssetManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WRenderPipelineAssetManager, 1, WRTTIDefaultAllocator<WRenderPipelineAssetManager>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
+WRenderPipelineAssetManager::WRenderPipelineAssetManager()
 {
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.AddEventHandler(WMakeDelegate(&WRenderPipelineAssetManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "RenderPipeline";
-  m_DocTypeDesc.m_sFileExtension = "ezRenderPipelineAsset";
+  m_DocTypeDesc.m_sFileExtension = "WRenderPipelineAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.svg";
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
-  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
+  m_DocTypeDesc.m_pDocumentType = WGetStaticRTTI<WRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_RenderPipeline");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezBinRenderPipeline";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_sResourceFileExtension = "WBinRenderPipeline";
+  m_DocTypeDesc.m_AssetDocumentFlags = WAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.svg"));
+  WQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.svg"));
 }
 
-ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()
+WRenderPipelineAssetManager::~WRenderPipelineAssetManager()
 {
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
+  WDocumentManager::s_Events.RemoveEventHandler(WMakeDelegate(&WRenderPipelineAssetManager::OnDocumentManagerEvent, this));
 }
 
-void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
+void WRenderPipelineAssetManager::OnDocumentManagerEvent(const WDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case WDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRenderPipelineAssetDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == WGetStaticRTTI<WRenderPipelineAssetDocument>())
       {
-        new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new WQtRenderPipelineAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,13 +48,13 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
   }
 }
 
-void ezRenderPipelineAssetManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void WRenderPipelineAssetManager::InternalCreateDocument(
+  WStringView sDocumentTypeName, WStringView sPath, bool bCreateNewDocument, WDocument*& out_pDocument, const WDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezRenderPipelineAssetDocument(sPath);
+  out_pDocument = new WRenderPipelineAssetDocument(sPath);
 }
 
-void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void WRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(WDynamicArray<const WDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

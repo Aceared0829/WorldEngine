@@ -26,7 +26,7 @@
      <widget class="QWidget" name="Combined">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="ezQtLogWidget" name="CombinedLog" native="true"/>
+        <widget class="WQtLogWidget" name="CombinedLog" native="true"/>
        </item>
       </layout>
      </widget>
@@ -40,14 +40,14 @@
          <widget class="QWidget" name="verticalLayoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="ezQtLogWidget" name="EditorLog" native="true"/>
+            <widget class="WQtLogWidget" name="EditorLog" native="true"/>
            </item>
           </layout>
          </widget>
          <widget class="QWidget" name="verticalLayoutWidget_2">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="ezQtLogWidget" name="EngineLog" native="true"/>
+            <widget class="WQtLogWidget" name="EngineLog" native="true"/>
            </item>
           </layout>
          </widget>
@@ -61,7 +61,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQtLogWidget</class>
+   <class>WQtLogWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
    <container>1</container>

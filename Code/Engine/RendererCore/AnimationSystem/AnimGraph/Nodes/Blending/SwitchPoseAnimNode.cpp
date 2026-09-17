@@ -9,79 +9,79 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSwitchPoseAnimNode, 1, ezRTTIDefaultAllocator<ezSwitchPoseAnimNode>)
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WSwitchPoseAnimNode, 1, WRTTIDefaultAllocator<WSwitchPoseAnimNode>)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(200))),
-    EZ_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("PosesCount", m_uiPosesCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
-    EZ_ARRAY_MEMBER_PROPERTY("InPoses", m_InPoses)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("PosesCount")),
-    EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute()),
+    W_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new WDefaultValueAttribute(WTime::MakeFromMilliseconds(200))),
+    W_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new WHiddenAttribute()),
+    W_MEMBER_PROPERTY("PosesCount", m_uiPosesCount)->AddAttributes(new WNoTemporaryTransactionsAttribute(), new WDynamicPinAttribute(), new WDefaultValueAttribute(2)),
+    W_ARRAY_MEMBER_PROPERTY("InPoses", m_InPoses)->AddAttributes(new WHiddenAttribute(), new WDynamicPinAttribute("PosesCount")),
+    W_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new WHiddenAttribute()),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Pose Blending"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Yellow)),
-    new ezTitleAttribute("Pose Switch"),
+    new WCategoryAttribute("Pose Blending"),
+    new WColorAttribute(WColorScheme::DarkUI(WColorScheme::Yellow)),
+    new WTitleAttribute("Pose Switch"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezSwitchPoseAnimNode::SerializeNode(ezStreamWriter& stream) const
+WResult WSwitchPoseAnimNode::SerializeNode(WStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_TransitionDuration;
   stream << m_uiPosesCount;
 
-  EZ_SUCCEED_OR_RETURN(m_InIndex.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InPoses));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
+  W_SUCCEED_OR_RETURN(m_InIndex.Serialize(stream));
+  W_SUCCEED_OR_RETURN(stream.WriteArray(m_InPoses));
+  W_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezSwitchPoseAnimNode::DeserializeNode(ezStreamReader& stream)
+WResult WSwitchPoseAnimNode::DeserializeNode(WStreamReader& stream)
 {
   const auto version = stream.ReadVersion(1);
-  EZ_IGNORE_UNUSED(version);
+  W_IGNORE_UNUSED(version);
 
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+  W_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_TransitionDuration;
   stream >> m_uiPosesCount;
 
-  EZ_SUCCEED_OR_RETURN(m_InIndex.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InPoses));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(m_InIndex.Deserialize(stream));
+  W_SUCCEED_OR_RETURN(stream.ReadArray(m_InPoses));
+  W_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void WSwitchPoseAnimNode::Step(WAnimController& ref_controller, WAnimGraphInstance& ref_graph, WTime tDiff, const WSkeletonResource* pSkeleton, WGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InIndex.IsConnected())
     return;
 
-  ezTempHybridArray<const ezAnimGraphLocalPoseInputPin*, 12> pPins;
-  for (ezUInt32 i = 0; i < m_InPoses.GetCount(); ++i)
+  WTempHybridArray<const WAnimGraphLocalPoseInputPin*, 12> pPins;
+  for (WUInt32 i = 0; i < m_InPoses.GetCount(); ++i)
   {
     pPins.PushBack(&m_InPoses[i]);
   }
 
   // duplicate pin connections to fill up holes
-  for (ezUInt32 i = 1; i < pPins.GetCount(); ++i)
+  for (WUInt32 i = 1; i < pPins.GetCount(); ++i)
   {
     if (!pPins[i]->IsConnected())
       pPins[i] = pPins[i - 1];
   }
-  for (ezUInt32 i = pPins.GetCount(); i > 1; --i)
+  for (WUInt32 i = pPins.GetCount(); i > 1; --i)
   {
     if (!pPins[i - 2]->IsConnected())
       pPins[i - 2] = pPins[i - 1];
@@ -95,7 +95,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
 
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  const ezInt8 iDstIdx = ezMath::Clamp<ezInt8>((ezInt8)m_InIndex.GetNumber(ref_graph, 0), 0, pPins.GetCount() - 1);
+  const WInt8 iDstIdx = WMath::Clamp<WInt8>((WInt8)m_InIndex.GetNumber(ref_graph, 0), 0, pPins.GetCount() - 1);
 
   if (pInstance->m_iTransitionToIndex < 0)
   {
@@ -112,7 +112,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
       // if we transition back to the previous index, just reverse the transition
       pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
       pInstance->m_iTransitionToIndex = iDstIdx;
-      pInstance->m_TransitionTime = ezMath::Max(ezTime::MakeZero(), m_TransitionDuration - pInstance->m_TransitionTime);
+      pInstance->m_TransitionTime = WMath::Max(WTime::MakeZero(), m_TransitionDuration - pInstance->m_TransitionTime);
     }
     else if (pInstance->m_TransitionTime < m_TransitionDuration * 0.5)
     {
@@ -123,7 +123,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     else
     {
       // otherwise just start a new transition from the current target to the new target
-      pInstance->m_TransitionTime = ezTime::MakeZero();
+      pInstance->m_TransitionTime = WTime::MakeZero();
       pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
       pInstance->m_iTransitionToIndex = iDstIdx;
     }
@@ -134,10 +134,10 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
   }
 
-  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (ezInt32)pPins.GetCount(), "Invalid pose index");
+  W_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (WInt32)pPins.GetCount(), "Invalid pose index");
 
-  ezInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
-  ezInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
+  WInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
+  WInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
 
   if (pPins[iTransitionFromIndex]->GetPose(ref_controller, ref_graph) == nullptr)
   {
@@ -147,15 +147,15 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
 
   if (iTransitionFromIndex == iTransitionToIndex)
   {
-    const ezAnimGraphLocalPoseInputPin* pPinToForward = pPins[iTransitionToIndex];
+    const WAnimGraphLocalPoseInputPin* pPinToForward = pPins[iTransitionToIndex];
 
     if (pPinToForward->GetPose(ref_controller, ref_graph) == nullptr)
       return;
 
     // AddPinDataLocalTransforms must come before GetPose: adding to the array may reallocate it,
     // which would invalidate any pointer previously obtained from it.
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
-    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
+    WAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+    WAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
     pLocalTransforms->m_CommandID = pDataToForward->m_CommandID;
     pLocalTransforms->m_pWeights = pDataToForward->m_pWeights;
     pLocalTransforms->m_fOverallWeight = pDataToForward->m_fOverallWeight;
@@ -174,17 +174,17 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
 
     // Copy the fields we need before AddPinDataLocalTransforms, which may reallocate the array
     // and invalidate pPose0 and pPose1.
-    const ezAnimPoseGeneratorCommandID pose0CmdID = pPose0->m_CommandID;
-    const ezAnimPoseGeneratorCommandID pose1CmdID = pPose1->m_CommandID;
+    const WAnimPoseGeneratorCommandID pose0CmdID = pPose0->m_CommandID;
+    const WAnimPoseGeneratorCommandID pose1CmdID = pPose1->m_CommandID;
     const bool bPose0UseRootMotion = pPose0->m_bUseRootMotion;
     const bool bPose1UseRootMotion = pPose1->m_bUseRootMotion;
-    const ezVec3 vPose0RootMotion = pPose0->m_vRootMotion;
-    const ezVec3 vPose1RootMotion = pPose1->m_vRootMotion;
+    const WVec3 vPose0RootMotion = pPose0->m_vRootMotion;
+    const WVec3 vPose1RootMotion = pPose1->m_vRootMotion;
 
-    ezAnimGraphPinDataLocalTransforms* pPinData = ref_controller.AddPinDataLocalTransforms();
+    WAnimGraphPinDataLocalTransforms* pPinData = ref_controller.AddPinDataLocalTransforms();
 
-    const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
-    const float fLerp = static_cast<float>(ezMath::GetCurveValue_EaseInOutCubic(fLerp0));
+    const float fLerp0 = (float)WMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
+    const float fLerp = static_cast<float>(WMath::GetCurveValue_EaseInOutCubic(fLerp0));
 
     auto& cmd = ref_controller.GetPoseGenerator().AllocCommandCombinePoses();
     cmd.m_InputWeights.SetCount(2);
@@ -196,17 +196,17 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
 
     pPinData->m_CommandID = cmd.GetCommandID();
     pPinData->m_bUseRootMotion = bPose0UseRootMotion || bPose1UseRootMotion;
-    pPinData->m_vRootMotion = ezMath::Lerp(vPose0RootMotion, vPose1RootMotion, fLerp);
+    pPinData->m_vRootMotion = WMath::Lerp(vPose0RootMotion, vPose1RootMotion, fLerp);
 
     m_OutPose.SetPose(ref_graph, pPinData);
   }
 }
 
-bool ezSwitchPoseAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+bool WSwitchPoseAnimNode::GetInstanceDataDesc(WInstanceDataDesc& out_desc) const
 {
   out_desc.FillFromType<InstanceData>();
   return true;
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SwitchPoseAnimNode);
+W_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SwitchPoseAnimNode);

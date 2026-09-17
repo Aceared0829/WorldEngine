@@ -3,11 +3,11 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezDocumentObject;
-struct ezDocumentTypeDescriptor;
+class WDocumentObject;
+struct WDocumentTypeDescriptor;
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentUtils
+class W_TOOLSFOUNDATION_DLL WDocumentUtils
 {
 public:
-  static ezStatus IsValidSaveLocationForDocument(ezStringView sDocument, const ezDocumentTypeDescriptor** out_pTypeDesc = nullptr);
+  static WStatus IsValidSaveLocationForDocument(WStringView sDocument, const WDocumentTypeDescriptor** out_pTypeDesc = nullptr);
 };

@@ -4,13 +4,13 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
-struct ezGizmoEvent;
+struct WGizmoEvent;
 
-class ezConeVisualizerAdapter : public ezVisualizerAdapter
+class WConeVisualizerAdapter : public WVisualizerAdapter
 {
 public:
-  ezConeVisualizerAdapter();
-  ~ezConeVisualizerAdapter();
+  WConeVisualizerAdapter();
+  ~WConeVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -20,5 +20,5 @@ protected:
 
   float m_fFinalScale;
   float m_fAngleScale;
-  ezEngineGizmoHandle m_hGizmo;
+  WEngineGizmoHandle m_hGizmo;
 };

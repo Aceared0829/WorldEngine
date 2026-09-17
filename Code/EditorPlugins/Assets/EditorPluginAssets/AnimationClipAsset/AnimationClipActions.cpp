@@ -5,40 +5,40 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WAnimationClipAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezActionDescriptorHandle ezAnimationClipActions::s_hCategory;
-ezActionDescriptorHandle ezAnimationClipActions::s_hRootMotionFromFeet;
+WActionDescriptorHandle WAnimationClipActions::s_hCategory;
+WActionDescriptorHandle WAnimationClipActions::s_hRootMotionFromFeet;
 
-void ezAnimationClipActions::RegisterActions()
+void WAnimationClipActions::RegisterActions()
 {
-  s_hCategory = EZ_REGISTER_CATEGORY("AnimationClipAssetCategory");
-  s_hRootMotionFromFeet = EZ_REGISTER_ACTION_1("AnimationClip.RootMotionFromFeet", ezActionScope::Document, "Animation Clip", "", ezAnimationClipAction, ezAnimationClipAction::ActionType::RootMotionFromFeet);
+  s_hCategory = W_REGISTER_CATEGORY("AnimationClipAssetCategory");
+  s_hRootMotionFromFeet = W_REGISTER_ACTION_1("AnimationClip.RootMotionFromFeet", WActionScope::Document, "Animation Clip", "", WAnimationClipAction, WAnimationClipAction::ActionType::RootMotionFromFeet);
 }
 
-void ezAnimationClipActions::UnregisterActions()
+void WAnimationClipActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hCategory);
-  ezActionManager::UnregisterAction(s_hRootMotionFromFeet);
+  WActionManager::UnregisterAction(s_hCategory);
+  WActionManager::UnregisterAction(s_hRootMotionFromFeet);
 }
 
-void ezAnimationClipActions::MapActions(ezStringView sActionMapName, ezStringView sSubPath)
+void WAnimationClipActions::MapActions(WStringView sActionMapName, WStringView sSubPath)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sActionMapName);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sActionMapName);
+  WActionMap* pMap = WActionMapManager::GetActionMap(sActionMapName);
+  W_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sActionMapName);
 
   pMap->MapAction(s_hCategory, sSubPath, 10.0f);
 
   pMap->MapAction(s_hRootMotionFromFeet, "AnimationClipAssetCategory", 1.0f);
 }
 
-ezAnimationClipAction::ezAnimationClipAction(const ezActionContext& context, const char* szName, ezAnimationClipAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+WAnimationClipAction::WAnimationClipAction(const WActionContext& context, const char* szName, WAnimationClipAction::ActionType type)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
-  m_pAssetWindow = static_cast<ezQtAnimationClipAssetDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(context.m_pDocument));
+  m_pAssetWindow = static_cast<WQtAnimationClipAssetDocumentWindow*>(WQtDocumentWindow::FindWindowByDocument(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -51,9 +51,9 @@ ezAnimationClipAction::ezAnimationClipAction(const ezActionContext& context, con
   }
 }
 
-ezAnimationClipAction::~ezAnimationClipAction() = default;
+WAnimationClipAction::~WAnimationClipAction() = default;
 
-void ezAnimationClipAction::Execute(const ezVariant& value)
+void WAnimationClipAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {

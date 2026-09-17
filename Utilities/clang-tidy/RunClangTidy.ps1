@@ -3,7 +3,7 @@ param
     [string]
     $Workspace = "Workspace/clang-tidy",
     [string]
-    $Checks = "-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
+    $Checks = "-*,W-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
     [string]
     $ChecksGroup1 = "clang-analyzer-core.*,-clang-analyzer-core.NonNullParamChecker",
     [string]

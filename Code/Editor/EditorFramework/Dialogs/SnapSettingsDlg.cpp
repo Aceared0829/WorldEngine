@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
-ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
-  : ezQtDialog(pParent)
+WQtSnapSettingsDlg::WQtSnapSettingsDlg(QWidget* pParent)
+  : WQtDialog(pParent)
 {
   setupUi(this);
 
@@ -41,31 +41,31 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
   m_Scale.PushBack(KeyValue{"Gizmo.Scale.Snap.2", 2.0f});
   m_Scale.PushBack(KeyValue{"Gizmo.Scale.Snap.4", 4.0f});
 
-  ezUInt32 uiSelectedT = 0;
-  ezUInt32 uiSelectedR = 0;
-  ezUInt32 uiSelectedS = 0;
+  WUInt32 uiSelectedT = 0;
+  WUInt32 uiSelectedR = 0;
+  WUInt32 uiSelectedS = 0;
 
-  for (ezUInt32 i = 0; i < m_Translation.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Translation.GetCount(); ++i)
   {
-    TranslationSnap->addItem(ezMakeQString(ezTranslate(m_Translation[i].m_szKey)));
+    TranslationSnap->addItem(WMakeQString(WTranslate(m_Translation[i].m_szKey)));
 
-    if (ezSnapProvider::GetTranslationSnapValue() == m_Translation[i].m_fValue)
+    if (WSnapProvider::GetTranslationSnapValue() == m_Translation[i].m_fValue)
       uiSelectedT = i;
   }
 
-  for (ezUInt32 i = 0; i < m_Rotation.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Rotation.GetCount(); ++i)
   {
-    RotationSnap->addItem(ezMakeQString(ezTranslate(m_Rotation[i].m_szKey)));
+    RotationSnap->addItem(WMakeQString(WTranslate(m_Rotation[i].m_szKey)));
 
-    if (ezSnapProvider::GetRotationSnapValue() == ezAngle::MakeFromDegree(m_Rotation[i].m_fValue))
+    if (WSnapProvider::GetRotationSnapValue() == WAngle::MakeFromDegree(m_Rotation[i].m_fValue))
       uiSelectedR = i;
   }
 
-  for (ezUInt32 i = 0; i < m_Scale.GetCount(); ++i)
+  for (WUInt32 i = 0; i < m_Scale.GetCount(); ++i)
   {
-    ScaleSnap->addItem(ezMakeQString(ezTranslate(m_Scale[i].m_szKey)));
+    ScaleSnap->addItem(WMakeQString(WTranslate(m_Scale[i].m_szKey)));
 
-    if (ezSnapProvider::GetScaleSnapValue() == m_Scale[i].m_fValue)
+    if (WSnapProvider::GetScaleSnapValue() == m_Scale[i].m_fValue)
       uiSelectedS = i;
   }
 
@@ -74,14 +74,14 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
   ScaleSnap->setCurrentIndex(uiSelectedS);
 }
 
-void ezQtSnapSettingsDlg::QueryUI()
+void WQtSnapSettingsDlg::QueryUI()
 {
-  ezSnapProvider::SetTranslationSnapValue(m_Translation[TranslationSnap->currentIndex()].m_fValue);
-  ezSnapProvider::SetRotationSnapValue(ezAngle::MakeFromDegree(m_Rotation[RotationSnap->currentIndex()].m_fValue));
-  ezSnapProvider::SetScaleSnapValue(m_Scale[ScaleSnap->currentIndex()].m_fValue);
+  WSnapProvider::SetTranslationSnapValue(m_Translation[TranslationSnap->currentIndex()].m_fValue);
+  WSnapProvider::SetRotationSnapValue(WAngle::MakeFromDegree(m_Rotation[RotationSnap->currentIndex()].m_fValue));
+  WSnapProvider::SetScaleSnapValue(m_Scale[ScaleSnap->currentIndex()].m_fValue);
 }
 
-void ezQtSnapSettingsDlg::on_ButtonBox_clicked(QAbstractButton* button)
+void WQtSnapSettingsDlg::on_ButtonBox_clicked(QAbstractButton* button)
 {
   if (button == ButtonBox->button(QDialogButtonBox::StandardButton::Ok))
   {

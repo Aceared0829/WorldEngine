@@ -3,21 +3,21 @@
 #include <Core/Console/Console.h>
 #include <GameEngine/GameEngineDLL.h>
 
-struct ezLoggingEventData;
+struct WLoggingEventData;
 
-/// A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
+/// A Quake-style console for in-game configuration of WCVar and WConsoleFunction.
 ///
 /// The console displays the recent log activity and allows to modify cvars and call console functions.
 /// It supports auto-completion of known keywords.
 /// Additionally, 'keys' can be bound to arbitrary commands, such that useful commands can be executed
 /// easily.
-/// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
+/// The default implementation uses WConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_GAMEENGINE_DLL ezQuakeConsole final : public ezConsole
+class W_GAMEENGINE_DLL WQuakeConsole final : public WConsole
 {
 public:
-  ezQuakeConsole();
-  virtual ~ezQuakeConsole();
+  WQuakeConsole();
+  virtual ~WQuakeConsole();
 
 
 
@@ -25,19 +25,19 @@ public:
   /// @{
 
   /// Adjusts how many strings the console will keep in memory at maximum.
-  void SetMaxConsoleStrings(ezUInt32 uiMax) { m_uiMaxConsoleStrings = ezMath::Clamp<ezUInt32>(uiMax, 0, 100000); }
+  void SetMaxConsoleStrings(WUInt32 uiMax) { m_uiMaxConsoleStrings = WMath::Clamp<WUInt32>(uiMax, 0, 100000); }
 
   /// Returns how many strings the console will keep in memory at maximum.
-  ezUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
+  WUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
 
-  /// Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
+  /// Enables or disables that the output from WGlobalLog is displayed in the console. Enabled by default.
   void EnableLogOutput(bool bEnable);
 
   /// Writes the state of the console (history, bound keys) to the stream.
-  virtual void SaveState(ezStreamWriter& inout_stream) const;
+  virtual void SaveState(WStreamWriter& inout_stream) const;
 
   /// Reads the state of the console (history, bound keys) from the stream.
-  virtual void LoadState(ezStreamReader& inout_stream);
+  virtual void LoadState(WStreamReader& inout_stream);
 
   /// @}
 
@@ -47,7 +47,7 @@ public:
 
 
   /// Executes the given command using the current command interpreter.
-  virtual void ExecuteCommand(ezStringView sInput) override;
+  virtual void ExecuteCommand(WStringView sInput) override;
 
   /// Binds \a szCommand to \a szKey. Calling ExecuteBoundKey() with this key will then run that command.
   ///
@@ -56,13 +56,13 @@ public:
   /// You can, however, also use names for input buttons, such as 'Key_Left', but then you also need to call ExecuteBoundKey() with those
   /// names.
   /// If you use such virtual key names, it makes also sense to listen to the auto-complete event and suggest those key names there.
-  void BindKey(ezStringView sKey, ezStringView sCommand);
+  void BindKey(WStringView sKey, WStringView sCommand);
 
   /// Removes the key binding.
-  void UnbindKey(ezStringView sKey);
+  void UnbindKey(WStringView sKey);
 
   /// Executes the command that was bound to this key.
-  void ExecuteBoundKey(ezStringView sKey);
+  void ExecuteBoundKey(WStringView sKey);
 
   /// @}
 
@@ -73,30 +73,30 @@ public:
   ///
   /// This function also calls ProcessInputCharacter and FilterInputCharacter. By default this already reacts on Tab, Enter and ESC
   /// and filters out all non ASCII characters.
-  void AddInputCharacter(ezUInt32 uiChar);
+  void AddInputCharacter(WUInt32 uiChar);
 
   /// Clears the input line of the console.
   void ClearInputLine();
 
   /// Returns the current content of the input line.
-  ezStringView GetInputLine() const { return m_sInputLine; }
+  WStringView GetInputLine() const { return m_sInputLine; }
 
   /// Returns the position (in characters) of the caret.
-  ezInt32 GetCaretPosition() const { return m_iCaretPosition; }
+  WInt32 GetCaretPosition() const { return m_iCaretPosition; }
 
   /// Moves the caret in the text. Its position will be clamped to the length of the current input line text.
-  void MoveCaret(ezInt32 iMoveOffset);
+  void MoveCaret(WInt32 iMoveOffset);
 
   /// Deletes the character following the caret position.
   void DeleteNextCharacter();
 
   /// Scrolls the contents of the console up or down. Will be clamped to the available range.
-  void Scroll(ezInt32 iLines);
+  void Scroll(WInt32 iLines);
 
   /// Returns the current scroll position. This must be used during rendering to start with the proper line.
-  ezUInt32 GetScrollPosition() const { return m_iScrollPosition; }
+  WUInt32 GetScrollPosition() const { return m_iScrollPosition; }
 
-  /// This function implements input handling (via ezInputManager) for the console.
+  /// This function implements input handling (via WInputManager) for the console.
   ///
   /// If the console is 'open' (ie. has full focus), it will handle more input for caret movement etc.
   /// However, in the 'closed' state, it will still execute bound keys and commands from the history.
@@ -115,10 +115,10 @@ public:
   /// @{
 
   /// Adds a string to the console.
-  virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default) override;
+  virtual void AddConsoleString(WStringView sText, WConsoleString::Type type = WConsoleString::Type::Default) override;
 
   /// Returns all current console strings. Use GetScrollPosition() to know which one should be displayed as the first one.
-  const ezDeque<ezConsoleString>& GetConsoleStrings() const;
+  const WDeque<WConsoleString>& GetConsoleStrings() const;
 
   /// Deletes all console strings, making the console empty.
   void ClearConsoleStrings();
@@ -133,30 +133,30 @@ public:
 
 protected:
   /// Deletes the character at the given position in the input line.
-  void RemoveCharacter(ezUInt32 uiInputLinePosition);
+  void RemoveCharacter(WUInt32 uiInputLinePosition);
 
   /// Makes sure the caret position is clamped to the input line length.
   void ClampCaretPosition();
 
 
-  /// The function that is used to read ezGlobalLog messages.
-  void LogHandler(const ezLoggingEventData& data);
+  /// The function that is used to read WGlobalLog messages.
+  void LogHandler(const WLoggingEventData& data);
 
-  ezInt32 m_iCaretPosition;
-  ezStringBuilder m_sInputLine;
+  WInt32 m_iCaretPosition;
+  WStringBuilder m_sInputLine;
 
-  virtual bool ProcessInputCharacter(ezUInt32 uiChar);
-  virtual bool FilterInputCharacter(ezUInt32 uiChar);
+  virtual bool ProcessInputCharacter(WUInt32 uiChar);
+  virtual bool FilterInputCharacter(WUInt32 uiChar);
   virtual void InputStringChanged();
 
-  ezDeque<ezConsoleString> m_ConsoleStrings;
+  WDeque<WConsoleString> m_ConsoleStrings;
   bool m_bUseFilteredStrings = false;
-  ezDeque<ezConsoleString> m_FilteredConsoleStrings;
-  ezUInt32 m_uiMaxConsoleStrings;
-  ezInt32 m_iScrollPosition;
+  WDeque<WConsoleString> m_FilteredConsoleStrings;
+  WUInt32 m_uiMaxConsoleStrings;
+  WInt32 m_iScrollPosition;
   bool m_bLogOutputEnabled;
   bool m_bDefaultInputHandlingInitialized;
 
 
-  ezMap<ezString, ezString> m_BoundKeys;
+  WMap<WString, WString> m_BoundKeys;
 };

@@ -6,17 +6,17 @@
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptComponent.h>
 
-ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld, asIScriptModule* pModule, const char* szObjectTypeName)
-  : ezScriptInstance(inout_owner, pWorld)
+WAngelScriptInstance::WAngelScriptInstance(WReflectedClass& inout_owner, WWorld* pWorld, asIScriptModule* pModule, const char* szObjectTypeName)
+  : WScriptInstance(inout_owner, pWorld)
 {
-  EZ_ASSERT_DEBUG(inout_owner.GetDynamicRTTI()->IsDerivedFrom<ezComponent>(), "Invalid owner");
+  W_ASSERT_DEBUG(inout_owner.GetDynamicRTTI()->IsDerivedFrom<WComponent>(), "Invalid owner");
 
-  m_pOwnerComponent = static_cast<ezScriptComponent*>(&inout_owner);
+  m_pOwnerComponent = static_cast<WScriptComponent*>(&inout_owner);
 
-  auto pAsEngine = ezAngelScriptEngineSingleton::GetSingleton();
+  auto pAsEngine = WAngelScriptEngineSingleton::GetSingleton();
 
   m_pContext = pAsEngine->GetEngine()->CreateContext();
-  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(ezAngelScriptInstance, ExceptionCallback), this, asCALL_THISCALL));
+  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(WAngelScriptInstance, ExceptionCallback), this, asCALL_THISCALL));
 
   if (asITypeInfo* pClassType = pModule->GetTypeInfoByName(szObjectTypeName))
   {
@@ -30,16 +30,16 @@ ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWo
       if (m_pObject)
       {
         m_pObject->AddRef();
-        m_pObject->SetUserData(this, ezAsUserData::ScriptInstancePtr);
+        m_pObject->SetUserData(this, WAsUserData::ScriptInstancePtr);
         return;
       }
     }
   }
 
-  ezLog::Error("Failed to create AngelScript object of type '{}'", szObjectTypeName);
+  WLog::Error("Failed to create AngelScript object of type '{}'", szObjectTypeName);
 }
 
-ezAngelScriptInstance::~ezAngelScriptInstance()
+WAngelScriptInstance::~WAngelScriptInstance()
 {
   if (m_pObject)
   {
@@ -49,61 +49,61 @@ ezAngelScriptInstance::~ezAngelScriptInstance()
 
   if (m_pContext)
   {
-    EZ_ASSERT_DEBUG(!m_pContext->IsNested(), "Invalid time to release context!");
+    W_ASSERT_DEBUG(!m_pContext->IsNested(), "Invalid time to release context!");
 
     m_pContext->Release();
     m_pContext = nullptr;
   }
 }
 
-void ezAngelScriptInstance::SetInstanceVariable(const ezHashedString& sName, const ezVariant& value)
+void WAngelScriptInstance::SetInstanceVariable(const WHashedString& sName, const WVariant& value)
 {
   if (!m_pObject)
     return;
 
   // TODO AngelScript: this could be a more efficient lookup instead of a search
 
-  for (ezUInt32 i = 0; i < m_pObject->GetPropertyCount(); ++i)
+  for (WUInt32 i = 0; i < m_pObject->GetPropertyCount(); ++i)
   {
     if (sName == m_pObject->GetPropertyName(i))
     {
       const int typeId = m_pObject->GetPropertyTypeId(i);
       void* pProp = m_pObject->GetAddressOfProperty(i);
 
-      ezAngelScriptUtils::WriteToAsTypeAtLocation(m_pObject->GetEngine(), typeId, pProp, value).AssertSuccess();
+      WAngelScriptUtils::WriteToAsTypeAtLocation(m_pObject->GetEngine(), typeId, pProp, value).AssertSuccess();
       return;
     }
   }
 
-  ezLog::Error("The variable '{}' doesn't exist in the Angel Script.", sName);
+  WLog::Error("The variable '{}' doesn't exist in the Angel Script.", sName);
 }
 
-ezVariant ezAngelScriptInstance::GetInstanceVariable(const ezHashedString& sName)
+WVariant WAngelScriptInstance::GetInstanceVariable(const WHashedString& sName)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  W_ASSERT_NOT_IMPLEMENTED;
   return {};
 }
 
-void ezAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
+void WAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
 {
-  EZ_LOG_BLOCK("AS Exception", m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
+  W_LOG_BLOCK("AS Exception", m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
 
-  ezLog::Error("AS Exception '{}' - in '{}'", pContext->GetExceptionString(), m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
+  WLog::Error("AS Exception '{}' - in '{}'", pContext->GetExceptionString(), m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
 
-  const ezUInt32 uiNumLevels = pContext->GetCallstackSize();
+  const WUInt32 uiNumLevels = pContext->GetCallstackSize();
 
-  for (ezUInt32 i = 0; i < uiNumLevels; ++i)
+  for (WUInt32 i = 0; i < uiNumLevels; ++i)
   {
     if (asIScriptFunction* pFunc = pContext->GetFunction(i))
     {
-      ezStringBuilder line("  ");
+      WStringBuilder line("  ");
 
-      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
+      if (!WStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
       {
         line.Append(pFunc->GetNamespace(), "::");
       }
 
-      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
+      if (!WStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
       {
         line.Append(pFunc->GetObjectName(), "::");
       }
@@ -113,11 +113,11 @@ void ezAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
 
       line.AppendFormat("{}() - Line {} in '{}'", pFunc->GetName(), lineNbr, szSection);
 
-      ezLog::Error(line);
+      WLog::Error(line);
     }
     else
     {
-      ezLog::Error("  <nested call>");
+      WLog::Error("  <nested call>");
     }
   }
 }

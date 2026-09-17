@@ -8,48 +8,48 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezKrautTreeViewContext::ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeContext)
-  : ezEngineProcessViewContext(pKrautTreeContext)
+WKrautTreeViewContext::WKrautTreeViewContext(WKrautTreeContext* pKrautTreeContext)
+  : WEngineProcessViewContext(pKrautTreeContext)
 {
   m_pKrautTreeContext = pKrautTreeContext;
 
   // Start with something valid.
-  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.SetCameraMode(WCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
+  m_Camera.LookAt(WVec3(1, 1, 1), WVec3::MakeZero(), WVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezKrautTreeViewContext::~ezKrautTreeViewContext() = default;
+WKrautTreeViewContext::~WKrautTreeViewContext() = default;
 
-bool ezKrautTreeViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
+bool WKrautTreeViewContext::UpdateThumbnailCamera(const WBoundingBoxSphere& bounds)
 {
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -WVec3(5, -2, 3));
 }
 
-ezViewHandle ezKrautTreeViewContext::CreateView()
+WViewHandle WKrautTreeViewContext::CreateView()
 {
-  ezView* pView = CreateDefaultView("Kraut Tree Editor - View");
+  WView* pView = CreateDefaultView("Kraut Tree Editor - View");
   return pView->GetHandle();
 }
 
-void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void WKrautTreeViewContext::SetCamera(const WViewRedrawMsgToEngine* pMsg)
 {
-  ezEngineProcessViewContext::SetCamera(pMsg);
+  WEngineProcessViewContext::SetCamera(pMsg);
 
-  ezStringBuilder sText;
+  WStringBuilder sText;
 
   // Distance from camera to tree (tree preview is always at world origin)
   const float fDistance = m_Camera.GetPosition().GetLength();
-  sText.AppendFormat("Distance: \t{0}m\t\n", ezArgF(fDistance, 1));
+  sText.AppendFormat("Distance: \t{0}m\t\n", WArgF(fDistance, 1));
 
   // Determine which regular LOD would be auto-selected at this distance
-  ezInt32 iAutoLod = -1; // -1 = beyond all LOD distances (would not render in auto mode)
-  ezInt32 iLodOverride = -1;
+  WInt32 iAutoLod = -1; // -1 = beyond all LOD distances (would not render in auto mode)
+  WInt32 iLodOverride = -1;
 
   auto hGenRes = m_pKrautTreeContext->GetResource();
   if (hGenRes.IsValid())
   {
-    ezResourceLock<ezKrautGeneratorResource> pGenRes(hGenRes, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
-    if (pGenRes.GetAcquireResult() != ezResourceAcquireResult::None)
+    WResourceLock<WKrautGeneratorResource> pGenRes(hGenRes, WResourceAcquireMode::AllowLoadingFallback_NeverFail);
+    if (pGenRes.GetAcquireResult() != WResourceAcquireResult::None)
     {
       const auto& pDesc = pGenRes->GetDescriptor();
       if (pDesc != nullptr)
@@ -57,7 +57,7 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
         const float fDistSqr = fDistance * fDistance;
         float fPrevMaxDist = 0.0f;
 
-        for (ezUInt32 n = 0; n < 5; ++n)
+        for (WUInt32 n = 0; n < 5; ++n)
         {
           const Kraut::LodDesc& lodDesc = pDesc->m_LodDesc[n];
           if (lodDesc.m_Mode != Kraut::LodMode::Full)
@@ -66,7 +66,7 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
           const float fMaxDist = lodDesc.m_uiLodDistance * pDesc->m_fLodDistanceScale * pDesc->m_fUniformScaling;
           if (fDistSqr >= (fPrevMaxDist * fPrevMaxDist) && fDistSqr < (fMaxDist * fMaxDist))
           {
-            iAutoLod = (ezInt32)n;
+            iAutoLod = (WInt32)n;
             break;
           }
           fPrevMaxDist = fMaxDist;
@@ -76,11 +76,11 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   }
 
   // Get the active LOD override from the Kraut tree component
-  ezWorld* pWorld = m_pKrautTreeContext->GetWorld();
+  WWorld* pWorld = m_pKrautTreeContext->GetWorld();
   if (pWorld != nullptr)
   {
-    EZ_LOCK(pWorld->GetReadMarker());
-    ezKrautTreeComponent* pTree = nullptr;
+    W_LOCK(pWorld->GetReadMarker());
+    WKrautTreeComponent* pTree = nullptr;
     if (pWorld->TryGetComponent(m_pKrautTreeContext->GetKrautComponentHandle(), pTree))
       iLodOverride = pTree->m_iLodOverride;
   }
@@ -107,5 +107,5 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       sText.AppendFormat("Auto LOD: \tLOD {}", iAutoLod);
   }
 
-  ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "KrautStats", sText);
+  WDebugRenderer::DrawInfoText(m_hView, WDebugTextPlacement::BottomLeft, "KrautStats", sText);
 }

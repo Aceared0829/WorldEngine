@@ -5,32 +5,32 @@
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltSettingsComponent, 2, ezComponentMode::Static)
+W_BEGIN_COMPONENT_TYPE(WJoltSettingsComponent, 2, WComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
+  W_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ObjectGravity", GetObjectGravity, SetObjectGravity)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0, 0, -9.81f))),
-    EZ_ACCESSOR_PROPERTY("CharacterGravity", GetCharacterGravity, SetCharacterGravity)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0, 0, -12.0f))),
-    EZ_ENUM_ACCESSOR_PROPERTY("SteppingMode", ezJoltSteppingMode, GetSteppingMode, SetSteppingMode),
-    EZ_ACCESSOR_PROPERTY("FixedFrameRate", GetFixedFrameRate, SetFixedFrameRate)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
-    EZ_ACCESSOR_PROPERTY("MaxSubSteps", GetMaxSubSteps, SetMaxSubSteps)->AddAttributes(new ezDefaultValueAttribute(4), new ezClampValueAttribute(1, 100)),
-    EZ_ACCESSOR_PROPERTY("MaxBodies", GetMaxBodies, SetMaxBodies)->AddAttributes(new ezDefaultValueAttribute(10000), new ezClampValueAttribute(500, 1000000)),
-    EZ_ACCESSOR_PROPERTY("SleepVelocityThreshold", GetSleepVelocityThreshold, SetSleepVelocityThreshold)->AddAttributes(new ezDefaultValueAttribute(0.03f), new ezClampValueAttribute(0.0f, ezVariant())),
+    W_ACCESSOR_PROPERTY("ObjectGravity", GetObjectGravity, SetObjectGravity)->AddAttributes(new WDefaultValueAttribute(WVec3(0, 0, -9.81f))),
+    W_ACCESSOR_PROPERTY("CharacterGravity", GetCharacterGravity, SetCharacterGravity)->AddAttributes(new WDefaultValueAttribute(WVec3(0, 0, -12.0f))),
+    W_ENUM_ACCESSOR_PROPERTY("SteppingMode", WJoltSteppingMode, GetSteppingMode, SetSteppingMode),
+    W_ACCESSOR_PROPERTY("FixedFrameRate", GetFixedFrameRate, SetFixedFrameRate)->AddAttributes(new WDefaultValueAttribute(60.0f), new WClampValueAttribute(1.0f, 1000.0f)),
+    W_ACCESSOR_PROPERTY("MaxSubSteps", GetMaxSubSteps, SetMaxSubSteps)->AddAttributes(new WDefaultValueAttribute(4), new WClampValueAttribute(1, 100)),
+    W_ACCESSOR_PROPERTY("MaxBodies", GetMaxBodies, SetMaxBodies)->AddAttributes(new WDefaultValueAttribute(10000), new WClampValueAttribute(500, 1000000)),
+    W_ACCESSOR_PROPERTY("SleepVelocityThreshold", GetSleepVelocityThreshold, SetSleepVelocityThreshold)->AddAttributes(new WDefaultValueAttribute(0.03f), new WClampValueAttribute(0.0f, WVariant())),
   }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
+  W_END_PROPERTIES;
+  W_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Jolt/Misc"),
+    new WCategoryAttribute("Physics/Jolt/Misc"),
   }
-  EZ_END_ATTRIBUTES;
+  W_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltSettingsComponent::ezJoltSettingsComponent() = default;
-ezJoltSettingsComponent::~ezJoltSettingsComponent() = default;
+WJoltSettingsComponent::WJoltSettingsComponent() = default;
+WJoltSettingsComponent::~WJoltSettingsComponent() = default;
 
-void ezJoltSettingsComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void WJoltSettingsComponent::SerializeComponent(WWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -45,10 +45,10 @@ void ezJoltSettingsComponent::SerializeComponent(ezWorldWriter& inout_stream) co
 }
 
 
-void ezJoltSettingsComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void WJoltSettingsComponent::DeserializeComponent(WWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const WUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -65,47 +65,47 @@ void ezJoltSettingsComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezJoltSettingsComponent::SetObjectGravity(const ezVec3& v)
+void WJoltSettingsComponent::SetObjectGravity(const WVec3& v)
 {
   m_Settings.m_vObjectGravity = v;
-  SetModified(EZ_BIT(0));
+  SetModified(W_BIT(0));
 }
 
-void ezJoltSettingsComponent::SetCharacterGravity(const ezVec3& v)
+void WJoltSettingsComponent::SetCharacterGravity(const WVec3& v)
 {
   m_Settings.m_vCharacterGravity = v;
-  SetModified(EZ_BIT(1));
+  SetModified(W_BIT(1));
 }
 
-void ezJoltSettingsComponent::SetSteppingMode(ezJoltSteppingMode::Enum mode)
+void WJoltSettingsComponent::SetSteppingMode(WJoltSteppingMode::Enum mode)
 {
   m_Settings.m_SteppingMode = mode;
-  SetModified(EZ_BIT(3));
+  SetModified(W_BIT(3));
 }
 
-void ezJoltSettingsComponent::SetFixedFrameRate(float fFixedFrameRate)
+void WJoltSettingsComponent::SetFixedFrameRate(float fFixedFrameRate)
 {
   m_Settings.m_fFixedFrameRate = fFixedFrameRate;
-  SetModified(EZ_BIT(4));
+  SetModified(W_BIT(4));
 }
 
-void ezJoltSettingsComponent::SetMaxSubSteps(ezUInt32 uiMaxSubSteps)
+void WJoltSettingsComponent::SetMaxSubSteps(WUInt32 uiMaxSubSteps)
 {
   m_Settings.m_uiMaxSubSteps = uiMaxSubSteps;
-  SetModified(EZ_BIT(5));
+  SetModified(W_BIT(5));
 }
 
-void ezJoltSettingsComponent::SetMaxBodies(ezUInt32 uiMaxBodies)
+void WJoltSettingsComponent::SetMaxBodies(WUInt32 uiMaxBodies)
 {
   m_Settings.m_uiMaxBodies = uiMaxBodies;
-  SetModified(EZ_BIT(6));
+  SetModified(W_BIT(6));
 }
 
-void ezJoltSettingsComponent::SetSleepVelocityThreshold(float fSleepVelocityThreshold)
+void WJoltSettingsComponent::SetSleepVelocityThreshold(float fSleepVelocityThreshold)
 {
   m_Settings.m_fSleepVelocityThreshold = fSleepVelocityThreshold;
-  SetModified(EZ_BIT(7));
+  SetModified(W_BIT(7));
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltSettingsComponent);
+W_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltSettingsComponent);

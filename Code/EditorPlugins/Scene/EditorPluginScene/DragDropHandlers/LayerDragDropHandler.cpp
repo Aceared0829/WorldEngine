@@ -13,20 +13,20 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerDragDropHandler, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLayerDragDropHandler, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-const ezRTTI* ezLayerDragDropHandler::GetCommonBaseType(const ezDragDropInfo* pInfo) const
+const WRTTI* WLayerDragDropHandler::GetCommonBaseType(const WDragDropInfo* pInfo) const
 {
-  QByteArray encodedData = pInfo->m_pMimeData->data("application/ezEditor.ObjectSelection");
+  QByteArray encodedData = pInfo->m_pMimeData->data("application/WEditor.ObjectSelection");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-  ezTempHybridArray<ezDocumentObject*, 32> Dragged;
+  WTempHybridArray<WDocumentObject*, 32> Dragged;
   stream >> Dragged;
 
-  const ezRTTI* pCommonBaseType = nullptr;
-  for (const ezDocumentObject* pItem : Dragged)
+  const WRTTI* pCommonBaseType = nullptr;
+  for (const WDocumentObject* pItem : Dragged)
   {
-    pCommonBaseType = pCommonBaseType == nullptr ? pItem->GetType() : ezReflectionUtils::GetCommonBaseType(pCommonBaseType, pItem->GetType());
+    pCommonBaseType = pCommonBaseType == nullptr ? pItem->GetType() : WReflectionUtils::GetCommonBaseType(pCommonBaseType, pItem->GetType());
   }
   return pCommonBaseType;
 }
@@ -34,20 +34,20 @@ const ezRTTI* ezLayerDragDropHandler::GetCommonBaseType(const ezDragDropInfo* pI
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerOnLayerDragDropHandler, 1, ezRTTIDefaultAllocator<ezLayerOnLayerDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WLayerOnLayerDragDropHandler, 1, WRTTIDefaultAllocator<WLayerOnLayerDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-float ezLayerOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WLayerOnLayerDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (pInfo->m_sTargetContext == "layertree" && pInfo->m_pMimeData->hasFormat("application/ezEditor.ObjectSelection"))
+  if (pInfo->m_sTargetContext == "layertree" && pInfo->m_pMimeData->hasFormat("application/WEditor.ObjectSelection"))
   {
-    if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
+    if (WScene2Document* pDoc = WDynamicCast<WScene2Document*>(WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
     {
-      const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
-      if (pTarget && pInfo->m_pAdapter && GetCommonBaseType(pInfo)->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayerBase>()))
+      const WDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
+      if (pTarget && pInfo->m_pAdapter && GetCommonBaseType(pInfo)->IsDerivedFrom(WGetStaticRTTI<WSceneLayerBase>()))
       {
-        const ezAbstractProperty* pTargetProp = pInfo->m_pAdapter->GetType()->FindPropertyByName(pInfo->m_pAdapter->GetChildProperty());
-        if (pTargetProp && ezGetStaticRTTI<ezSceneLayerBase>()->IsDerivedFrom(pTargetProp->GetSpecificType()))
+        const WAbstractProperty* pTargetProp = pInfo->m_pAdapter->GetType()->FindPropertyByName(pInfo->m_pAdapter->GetChildProperty());
+        if (pTargetProp && WGetStaticRTTI<WSceneLayerBase>()->IsDerivedFrom(pTargetProp->GetSpecificType()))
           return 1.0f;
       }
     }
@@ -55,38 +55,38 @@ float ezLayerOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) cons
   return 0;
 }
 
-void ezLayerOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
+void WLayerOnLayerDragDropHandler::OnDrop(const WDragDropInfo* pInfo)
 {
-  if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
+  if (WScene2Document* pDoc = WDynamicCast<WScene2Document*>(WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
   {
-    const ezUuid activeDoc = pDoc->GetActiveLayer();
-    EZ_VERIFY(pDoc->SetActiveLayer(pDoc->GetGuid()).Succeeded(), "Failed to set active document.");
+    const WUuid activeDoc = pDoc->GetActiveLayer();
+    W_VERIFY(pDoc->SetActiveLayer(pDoc->GetGuid()).Succeeded(), "Failed to set active document.");
     {
       // We need to make a copy of the info as the target document is actually the scene here, not the active document.
-      ezDragDropInfo info = *pInfo;
+      WDragDropInfo info = *pInfo;
       info.m_TargetDocument = pDoc->GetGuid();
-      ezQtDocumentTreeModel::MoveObjects(info);
+      WQtDocumentTreeModel::MoveObjects(info);
     }
-    EZ_VERIFY(pDoc->SetActiveLayer(activeDoc).Succeeded(), "Failed to set active document.");
+    W_VERIFY(pDoc->SetActiveLayer(activeDoc).Succeeded(), "Failed to set active document.");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectOnLayerDragDropHandler, 1, ezRTTIDefaultAllocator<ezGameObjectOnLayerDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectOnLayerDragDropHandler, 1, WRTTIDefaultAllocator<WGameObjectOnLayerDragDropHandler>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-float ezGameObjectOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float WGameObjectOnLayerDragDropHandler::CanHandle(const WDragDropInfo* pInfo) const
 {
-  if (pInfo->m_sTargetContext == "layertree" && pInfo->m_pMimeData->hasFormat("application/ezEditor.ObjectSelection"))
+  if (pInfo->m_sTargetContext == "layertree" && pInfo->m_pMimeData->hasFormat("application/WEditor.ObjectSelection"))
   {
-    if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
+    if (WScene2Document* pDoc = WDynamicCast<WScene2Document*>(WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
     {
-      const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
-      if (pTarget && pTarget->GetType() == ezGetStaticRTTI<ezSceneLayer>() && pInfo->m_iTargetObjectInsertChildIndex == -1 && GetCommonBaseType(pInfo) == ezGetStaticRTTI<ezGameObject>())
+      const WDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
+      if (pTarget && pTarget->GetType() == WGetStaticRTTI<WSceneLayer>() && pInfo->m_iTargetObjectInsertChildIndex == -1 && GetCommonBaseType(pInfo) == WGetStaticRTTI<WGameObject>())
       {
-        ezObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
-        ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pTarget, "Layer");
+        WObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
+        WUuid layerGuid = pAccessor->GetByName<WUuid>(pTarget, "Layer");
         if (pDoc->IsLayerLoaded(layerGuid))
           return 1.0f;
       }
@@ -95,53 +95,53 @@ float ezGameObjectOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo)
   return 0;
 }
 
-void ezGameObjectOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
+void WGameObjectOnLayerDragDropHandler::OnDrop(const WDragDropInfo* pInfo)
 {
-  if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
+  if (WScene2Document* pDoc = WDynamicCast<WScene2Document*>(WDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
   {
-    const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
+    const WDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
 
-    QByteArray encodedData = pInfo->m_pMimeData->data("application/ezEditor.ObjectSelection");
+    QByteArray encodedData = pInfo->m_pMimeData->data("application/WEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
+    WTempHybridArray<WDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     // We are dragging game objects on another layer => delete objects and recreate in target layer.
-    ezSceneDocument* pSourceDoc = ezDynamicCast<ezSceneDocument*>(Dragged[0]->GetDocumentObjectManager()->GetDocument());
-    ezObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
-    ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pTarget, "Layer");
-    ezSceneDocument* pTargetDoc = pDoc->GetLayerDocument(layerGuid);
+    WSceneDocument* pSourceDoc = WDynamicCast<WSceneDocument*>(Dragged[0]->GetDocumentObjectManager()->GetDocument());
+    WObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
+    WUuid layerGuid = pAccessor->GetByName<WUuid>(pTarget, "Layer");
+    WSceneDocument* pTargetDoc = pDoc->GetLayerDocument(layerGuid);
 
     if (pSourceDoc != pTargetDoc && pTargetDoc)
     {
-      const ezUuid activeDoc = pDoc->GetActiveLayer();
+      const WUuid activeDoc = pDoc->GetActiveLayer();
       {
         // activeDoc should already match pSourceDoc, but just to be sure.
-        EZ_VERIFY(pDoc->SetActiveLayer(pSourceDoc->GetGuid()).Succeeded(), "Failed to set active document.");
+        W_VERIFY(pDoc->SetActiveLayer(pSourceDoc->GetGuid()).Succeeded(), "Failed to set active document.");
 
-        ezResult res = ezActionManager::ExecuteAction(nullptr, "Selection.Copy", pSourceDoc, ezVariant());
+        WResult res = WActionManager::ExecuteAction(nullptr, "Selection.Copy", pSourceDoc, WVariant());
         if (res.Failed())
         {
-          ezLog::Error("Failed to copy selection while moving objects between layers.");
+          WLog::Error("Failed to copy selection while moving objects between layers.");
           return;
         }
-        res = ezActionManager::ExecuteAction(nullptr, "Selection.Delete", pSourceDoc, ezVariant());
+        res = WActionManager::ExecuteAction(nullptr, "Selection.Delete", pSourceDoc, WVariant());
         if (res.Failed())
         {
-          ezLog::Error("Failed to copy selection while moving objects between layers.");
+          WLog::Error("Failed to copy selection while moving objects between layers.");
           return;
         }
       }
       {
-        EZ_VERIFY(pDoc->SetActiveLayer(pTargetDoc->GetGuid()).Succeeded(), "Failed to set active document.");
-        ezResult res = ezActionManager::ExecuteAction(nullptr, "Selection.PasteAtOriginalLocation", pTargetDoc, ezVariant());
+        W_VERIFY(pDoc->SetActiveLayer(pTargetDoc->GetGuid()).Succeeded(), "Failed to set active document.");
+        WResult res = WActionManager::ExecuteAction(nullptr, "Selection.PasteAtOriginalLocation", pTargetDoc, WVariant());
         if (res.Failed())
         {
-          ezLog::Error("Failed to paste selection while moving objects between layers.");
+          WLog::Error("Failed to paste selection while moving objects between layers.");
           return;
         }
       }
-      EZ_VERIFY(pDoc->SetActiveLayer(activeDoc).Succeeded(), "Failed to set active document.");
+      W_VERIFY(pDoc->SetActiveLayer(activeDoc).Succeeded(), "Failed to set active document.");
     }
   }
 }

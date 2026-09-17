@@ -5,93 +5,93 @@
 #include <EditorFramework/Preferences/ScenePreferences.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocumentAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGameObjectDocumentAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraSpeedSliderAction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WCameraSpeedSliderAction, 1, WRTTINoAllocator)
+W_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hGameObjectCategory;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hRenderSelectionOverlay;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hRenderVisualizers;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hRenderShapeIcons;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hRenderGrid;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hAddAmbientLight;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeedMenu;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeed[10];
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hCameraSpeed;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hPickTransparent;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hGameObjectCategory;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hRenderSelectionOverlay;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hRenderVisualizers;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hRenderShapeIcons;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hRenderGrid;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hAddAmbientLight;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hSimulationSpeedMenu;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hSimulationSpeed[10];
+WActionDescriptorHandle WGameObjectDocumentActions::s_hCameraSpeed;
+WActionDescriptorHandle WGameObjectDocumentActions::s_hPickTransparent;
 
-void ezGameObjectDocumentActions::RegisterActions()
+void WGameObjectDocumentActions::RegisterActions()
 {
-  s_hGameObjectCategory = EZ_REGISTER_CATEGORY("GameObjectCategory");
-  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "V", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::RenderVisualizers);
-  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "I", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
-  s_hRenderGrid = EZ_REGISTER_ACTION_1(
-    "Scene.Render.Grid", ezActionScope::Document, "Scene", "G", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderGrid);
-  s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::AddAmbientLight);
+  s_hGameObjectCategory = W_REGISTER_CATEGORY("GameObjectCategory");
+  s_hRenderSelectionOverlay = W_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", WActionScope::Document, "Scene", "S", WGameObjectDocumentAction,
+    WGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
+  s_hRenderVisualizers = W_REGISTER_ACTION_1("Scene.Render.Visualizers", WActionScope::Document, "Scene", "V", WGameObjectDocumentAction,
+    WGameObjectDocumentAction::ActionType::RenderVisualizers);
+  s_hRenderShapeIcons = W_REGISTER_ACTION_1("Scene.Render.ShapeIcons", WActionScope::Document, "Scene", "I", WGameObjectDocumentAction,
+    WGameObjectDocumentAction::ActionType::RenderShapeIcons);
+  s_hRenderGrid = W_REGISTER_ACTION_1(
+    "Scene.Render.Grid", WActionScope::Document, "Scene", "G", WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::RenderGrid);
+  s_hAddAmbientLight = W_REGISTER_ACTION_1("Scene.Render.AddAmbient", WActionScope::Document, "Scene", "", WGameObjectDocumentAction,
+    WGameObjectDocumentAction::ActionType::AddAmbientLight);
 
-  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
-  s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.01", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.1f);
-  s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.025", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.25f);
-  s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.05", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.5f);
-  s_hSimulationSpeed[3] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.1", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.0f);
-  s_hSimulationSpeed[4] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.15", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.5f);
-  s_hSimulationSpeed[5] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.2", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 2.0f);
-  s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.3", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 3.0f);
-  s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.4", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 4.0f);
-  s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.5", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 5.0f);
-  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 10.0f);
+  s_hSimulationSpeedMenu = W_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
+  s_hSimulationSpeed[0] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.01", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 0.1f);
+  s_hSimulationSpeed[1] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.025", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 0.25f);
+  s_hSimulationSpeed[2] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.05", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 0.5f);
+  s_hSimulationSpeed[3] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.1", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 1.0f);
+  s_hSimulationSpeed[4] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.15", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 1.5f);
+  s_hSimulationSpeed[5] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.2", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 2.0f);
+  s_hSimulationSpeed[6] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.3", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 3.0f);
+  s_hSimulationSpeed[7] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.4", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 4.0f);
+  s_hSimulationSpeed[8] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.5", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 5.0f);
+  s_hSimulationSpeed[9] = W_REGISTER_ACTION_2("Scene.Simulation.Speed.10", WActionScope::Document, "Simulation - Speed", "",
+    WGameObjectDocumentAction, WGameObjectDocumentAction::ActionType::SimulationSpeed, 10.0f);
 
-  s_hCameraSpeed = EZ_REGISTER_ACTION_1(
-    "Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezCameraSpeedSliderAction, ezCameraSpeedSliderAction::ActionType::CameraSpeed);
+  s_hCameraSpeed = W_REGISTER_ACTION_1(
+    "Scene.Camera.Speed", WActionScope::Document, "Camera", "", WCameraSpeedSliderAction, WCameraSpeedSliderAction::ActionType::CameraSpeed);
 
-  s_hPickTransparent = EZ_REGISTER_ACTION_1("Scene.Render.PickTransparent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::PickTransparent);
+  s_hPickTransparent = W_REGISTER_ACTION_1("Scene.Render.PickTransparent", WActionScope::Document, "Scene", "U", WGameObjectDocumentAction,
+    WGameObjectDocumentAction::ActionType::PickTransparent);
 }
 
-void ezGameObjectDocumentActions::UnregisterActions()
+void WGameObjectDocumentActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hGameObjectCategory);
-  ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
-  ezActionManager::UnregisterAction(s_hRenderVisualizers);
-  ezActionManager::UnregisterAction(s_hRenderShapeIcons);
-  ezActionManager::UnregisterAction(s_hRenderGrid);
-  ezActionManager::UnregisterAction(s_hAddAmbientLight);
+  WActionManager::UnregisterAction(s_hGameObjectCategory);
+  WActionManager::UnregisterAction(s_hRenderSelectionOverlay);
+  WActionManager::UnregisterAction(s_hRenderVisualizers);
+  WActionManager::UnregisterAction(s_hRenderShapeIcons);
+  WActionManager::UnregisterAction(s_hRenderGrid);
+  WActionManager::UnregisterAction(s_hAddAmbientLight);
 
-  ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
-  for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
-    ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
+  WActionManager::UnregisterAction(s_hSimulationSpeedMenu);
+  for (int i = 0; i < W_ARRAY_SIZE(s_hSimulationSpeed); ++i)
+    WActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 
-  ezActionManager::UnregisterAction(s_hCameraSpeed);
-  ezActionManager::UnregisterAction(s_hPickTransparent);
+  WActionManager::UnregisterAction(s_hCameraSpeed);
+  WActionManager::UnregisterAction(s_hPickTransparent);
 }
 
-void ezGameObjectDocumentActions::MapMenuActions(ezStringView sMapping)
+void WGameObjectDocumentActions::MapMenuActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
     pMap->MapAction(s_hGameObjectCategory, "G.View", 0.9f);
 
-    const ezStringView sSubPath = "GameObjectCategory";
+    const WStringView sSubPath = "GameObjectCategory";
     pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 1.0f);
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 3.0f);
@@ -102,32 +102,32 @@ void ezGameObjectDocumentActions::MapMenuActions(ezStringView sMapping)
   }
 }
 
-void ezGameObjectDocumentActions::MapMenuSimulationSpeed(ezStringView sMapping)
+void WGameObjectDocumentActions::MapMenuSimulationSpeed(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    const ezStringView sSubPath = "GameObjectCategory";
+    const WStringView sSubPath = "GameObjectCategory";
 
     pMap->MapAction(s_hGameObjectCategory, "G.Scene", 1.0f);
     pMap->MapAction(s_hSimulationSpeedMenu, sSubPath, 3.0f);
 
-    ezStringBuilder sSubPathSim(sSubPath, "/Scene.Simulation.Speed.Menu");
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
+    WStringBuilder sSubPathSim(sSubPath, "/Scene.Simulation.Speed.Menu");
+    for (WUInt32 i = 0; i < W_ARRAY_SIZE(s_hSimulationSpeed); ++i)
       pMap->MapAction(s_hSimulationSpeed[i], "G.Scene", sSubPathSim, i + 1.0f);
   }
 }
 
-void ezGameObjectDocumentActions::MapToolbarActions(ezStringView sMapping)
+void WGameObjectDocumentActions::MapToolbarActions(WStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+  WActionMap* pMap = WActionMapManager::GetActionMap(sMapping);
+  W_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
     pMap->MapAction(s_hGameObjectCategory, "", 12.0f);
 
-    const ezStringView sSubPath("GameObjectCategory");
+    const WStringView sSubPath("GameObjectCategory");
     pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 4.0f);
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 5.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 6.0f);
@@ -136,14 +136,14 @@ void ezGameObjectDocumentActions::MapToolbarActions(ezStringView sMapping)
   }
 }
 
-ezGameObjectDocumentAction::ezGameObjectDocumentAction(
-  const ezActionContext& context, const char* szName, ezGameObjectDocumentAction::ActionType type, float fSimSpeed)
-  : ezButtonAction(context, szName, false, "")
+WGameObjectDocumentAction::WGameObjectDocumentAction(
+  const WActionContext& context, const char* szName, WGameObjectDocumentAction::ActionType type, float fSimSpeed)
+  : WButtonAction(context, szName, false, "")
 {
   m_Type = type;
   // TODO const cast
-  m_pGameObjectDocument = const_cast<ezGameObjectDocument*>(static_cast<const ezGameObjectDocument*>(context.m_pDocument));
-  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::SceneEventHandler, this));
+  m_pGameObjectDocument = const_cast<WGameObjectDocument*>(static_cast<const WGameObjectDocument*>(context.m_pDocument));
+  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WGameObjectDocumentAction::SceneEventHandler, this));
   m_fSimSpeed = fSimSpeed;
 
   switch (m_Type)
@@ -168,8 +168,8 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
 
     case ActionType::RenderGrid:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::OnPreferenceChange, this));
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WGameObjectDocumentAction::OnPreferenceChange, this));
 
       SetCheckable(true);
       SetIconPath(":/EditorFramework/Icons/Grid.svg");
@@ -194,17 +194,17 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
   }
 }
 
-ezGameObjectDocumentAction::~ezGameObjectDocumentAction()
+WGameObjectDocumentAction::~WGameObjectDocumentAction()
 {
-  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::SceneEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(WMakeDelegate(&WGameObjectDocumentAction::SceneEventHandler, this));
 
   switch (m_Type)
   {
     case ActionType::RenderGrid:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
-      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::OnPreferenceChange, this));
+      pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WGameObjectDocumentAction::OnPreferenceChange, this));
     }
     break;
     default:
@@ -212,7 +212,7 @@ ezGameObjectDocumentAction::~ezGameObjectDocumentAction()
   }
 }
 
-void ezGameObjectDocumentAction::Execute(const ezVariant& value)
+void WGameObjectDocumentAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
@@ -230,9 +230,9 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
 
     case ActionType::RenderGrid:
     {
-      auto pPref = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      auto pPref = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
       pPref->SetShowGrid(!pPref->GetShowGrid());
-      m_pGameObjectDocument->ShowDocumentStatus(ezFmt("Show Grid: {}", pPref->GetShowGrid() ? "ON" : "OFF"));
+      m_pGameObjectDocument->ShowDocumentStatus(WFmt("Show Grid: {}", pPref->GetShowGrid() ? "ON" : "OFF"));
       return;
     }
 
@@ -253,11 +253,11 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
   }
 }
 
-void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
+void WGameObjectDocumentAction::SceneEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::RenderSelectionOverlayChanged:
+    case WGameObjectEvent::Type::RenderSelectionOverlayChanged:
     {
       if (m_Type == ActionType::RenderSelectionOverlay)
       {
@@ -266,7 +266,7 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::RenderVisualizersChanged:
+    case WGameObjectEvent::Type::RenderVisualizersChanged:
     {
       if (m_Type == ActionType::RenderVisualizers)
       {
@@ -275,7 +275,7 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::RenderShapeIconsChanged:
+    case WGameObjectEvent::Type::RenderShapeIconsChanged:
     {
       if (m_Type == ActionType::RenderShapeIcons)
       {
@@ -284,7 +284,7 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::AddAmbientLightChanged:
+    case WGameObjectEvent::Type::AddAmbientLightChanged:
     {
       if (m_Type == ActionType::AddAmbientLight)
       {
@@ -293,7 +293,7 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::SimulationSpeedChanged:
+    case WGameObjectEvent::Type::SimulationSpeedChanged:
     {
       if (m_Type == ActionType::SimulationSpeed)
       {
@@ -302,7 +302,7 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::PickTransparentChanged:
+    case WGameObjectEvent::Type::PickTransparentChanged:
     {
       if (m_Type == ActionType::PickTransparent)
       {
@@ -316,9 +316,9 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezGameObjectDocumentAction::OnPreferenceChange(ezPreferences* pref)
+void WGameObjectDocumentAction::OnPreferenceChange(WPreferences* pref)
 {
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+  WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
   switch (m_Type)
   {
@@ -333,19 +333,19 @@ void ezGameObjectDocumentAction::OnPreferenceChange(ezPreferences* pref)
   }
 }
 
-ezCameraSpeedSliderAction::ezCameraSpeedSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezSliderAction(context, szName)
+WCameraSpeedSliderAction::WCameraSpeedSliderAction(const WActionContext& context, const char* szName, ActionType type)
+  : WSliderAction(context, szName)
 {
   m_Type = type;
-  m_pGameObjectDocument = const_cast<ezGameObjectDocument*>(static_cast<const ezGameObjectDocument*>(context.m_pDocument));
+  m_pGameObjectDocument = const_cast<WGameObjectDocument*>(static_cast<const WGameObjectDocument*>(context.m_pDocument));
 
   switch (m_Type)
   {
     case ActionType::CameraSpeed:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
-      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezCameraSpeedSliderAction::OnPreferenceChange, this));
+      pPreferences->m_ChangedEvent.AddEventHandler(WMakeDelegate(&WCameraSpeedSliderAction::OnPreferenceChange, this));
 
       SetRange(0, 24);
     }
@@ -355,46 +355,46 @@ ezCameraSpeedSliderAction::ezCameraSpeedSliderAction(const ezActionContext& cont
   UpdateState();
 }
 
-ezCameraSpeedSliderAction::~ezCameraSpeedSliderAction()
+WCameraSpeedSliderAction::~WCameraSpeedSliderAction()
 {
   switch (m_Type)
   {
     case ActionType::CameraSpeed:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
-      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraSpeedSliderAction::OnPreferenceChange, this));
+      pPreferences->m_ChangedEvent.RemoveEventHandler(WMakeDelegate(&WCameraSpeedSliderAction::OnPreferenceChange, this));
     }
     break;
   }
 }
 
-void ezCameraSpeedSliderAction::Execute(const ezVariant& value)
+void WCameraSpeedSliderAction::Execute(const WVariant& value)
 {
   switch (m_Type)
   {
     case ActionType::CameraSpeed:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
-      pPreferences->SetCameraSpeed(value.Get<ezInt32>());
+      pPreferences->SetCameraSpeed(value.Get<WInt32>());
     }
     break;
   }
 }
 
-void ezCameraSpeedSliderAction::OnPreferenceChange(ezPreferences* pref)
+void WCameraSpeedSliderAction::OnPreferenceChange(WPreferences* pref)
 {
   UpdateState();
 }
 
-void ezCameraSpeedSliderAction::UpdateState()
+void WCameraSpeedSliderAction::UpdateState()
 {
   switch (m_Type)
   {
     case ActionType::CameraSpeed:
     {
-      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
+      WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(m_pGameObjectDocument);
 
       SetValue(pPreferences->GetCameraSpeed());
     }

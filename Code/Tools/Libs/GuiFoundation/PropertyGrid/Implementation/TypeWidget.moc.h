@@ -9,27 +9,27 @@
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
 class QGridLayout;
-class ezDocument;
-class ezQtManipulatorLabel;
-struct ezManipulatorManagerEvent;
-class ezObjectAccessorBase;
+class WDocument;
+class WQtManipulatorLabel;
+struct WManipulatorManagerEvent;
+class WObjectAccessorBase;
 
-class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
+class W_GUIFOUNDATION_DLL WQtTypeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
+  WQtTypeWidget(QWidget* pParent, WQtPropertyGridWidget* pGrid, WObjectAccessorBase* pObjectAccessor, const WRTTI* pType,
     const char* szIncludeProperties, const char* szExcludeProperties);
-  ~ezQtTypeWidget();
-  void SetSelection(const ezArrayPtr<ezPropertySelection>& items);
-  const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
-  const ezRTTI* GetType() const { return m_pType; }
+  ~WQtTypeWidget();
+  void SetSelection(const WArrayPtr<WPropertySelection>& items);
+  const WHybridArray<WPropertySelection, 8>& GetSelection() const { return m_Items; }
+  const WRTTI* GetType() const { return m_pType; }
   void PrepareToDie();
 
 private:
   struct PropertyGroup
   {
-    PropertyGroup(const ezGroupAttribute* pAttr, float& ref_fOrder)
+    PropertyGroup(const WGroupAttribute* pAttr, float& ref_fOrder)
     {
       if (pAttr)
       {
@@ -49,7 +49,7 @@ private:
       }
     }
 
-    void MergeGroup(const ezGroupAttribute* pAttr)
+    void MergeGroup(const WGroupAttribute* pAttr)
     {
       if (pAttr)
       {
@@ -65,21 +65,21 @@ private:
     bool operator==(const PropertyGroup& rhs) { return m_sGroup == rhs.m_sGroup; }
     bool operator<(const PropertyGroup& rhs) { return m_fOrder < rhs.m_fOrder; }
 
-    ezString m_sGroup;
-    ezString m_sIconName;
+    WString m_sGroup;
+    WString m_sIconName;
     float m_fOrder = -1.0f;
-    ezHybridArray<const ezAbstractProperty*, 8> m_Properties;
+    WHybridArray<const WAbstractProperty*, 8> m_Properties;
   };
 
-  void BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties);
-  void BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap,
-    const ezDynamicArray<ezUniquePtr<PropertyGroup>>& groups, const char* szIncludeProperties, const char* szExcludeProperties);
+  void BuildUI(const WRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties);
+  void BuildUI(const WRTTI* pType, const WMap<WString, const WManipulatorAttribute*>& manipulatorMap,
+    const WDynamicArray<WUniquePtr<PropertyGroup>>& groups, const char* szIncludeProperties, const char* szExcludeProperties);
 
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
-  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
+  void PropertyEventHandler(const WDocumentObjectPropertyEvent& e);
+  void CommandHistoryEventHandler(const WCommandHistoryEvent& e);
+  void ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e);
 
-  void UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty);
+  void UpdateProperty(const WDocumentObject* pObject, const WString& sProperty);
   void FlushQueuedChanges();
   void UpdatePropertyMetaState();
 
@@ -88,20 +88,20 @@ protected:
 
 private:
   bool m_bUndead = false;
-  ezQtPropertyGridWidget* m_pGrid = nullptr;
-  ezObjectAccessorBase* m_pObjectAccessor = nullptr;
-  const ezRTTI* m_pType = nullptr;
-  ezHybridArray<ezPropertySelection, 8> m_Items;
+  WQtPropertyGridWidget* m_pGrid = nullptr;
+  WObjectAccessorBase* m_pObjectAccessor = nullptr;
+  const WRTTI* m_pType = nullptr;
+  WHybridArray<WPropertySelection, 8> m_Items;
 
   struct PropertyWidgetData
   {
-    ezQtPropertyWidget* m_pWidget;
-    ezQtManipulatorLabel* m_pLabel;
-    ezString m_sOriginalLabelText;
+    WQtPropertyWidget* m_pWidget;
+    WQtManipulatorLabel* m_pLabel;
+    WString m_sOriginalLabelText;
   };
 
   QGridLayout* m_pLayout;
-  ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
-  ezHybridArray<ezString, 1> m_QueuedChanges;
+  WMap<WString, PropertyWidgetData> m_PropertyWidgets;
+  WHybridArray<WString, 1> m_QueuedChanges;
   QPalette m_Pal;
 };

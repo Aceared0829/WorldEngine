@@ -4,10 +4,10 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-namespace ezStackTraceLogParser
+namespace WStackTraceLogParser
 {
-  EZ_EDITORFRAMEWORK_DLL bool ParseStackTraceFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber); // [tested]
-  EZ_EDITORFRAMEWORK_DLL bool ParseAssertFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber);     // [tested]
+  W_EDITORFRAMEWORK_DLL bool ParseStackTraceFileNameAndLineNumber(const WStringView& sLine, WStringView& ref_sFileName, WInt32& ref_iLineNumber); // [tested]
+  W_EDITORFRAMEWORK_DLL bool ParseAssertFileNameAndLineNumber(const WStringView& sLine, WStringView& ref_sFileName, WInt32& ref_iLineNumber);     // [tested]
   void Register();
   void Unregister();
-} // namespace ezStackTraceLogParser
+} // namespace WStackTraceLogParser

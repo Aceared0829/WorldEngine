@@ -1,15 +1,15 @@
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstIterator(
-  const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE WBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstIterator(
+  const WBlockStorage<T, BlockSize, StorageType>& storage, WUInt32 uiStartIndex, WUInt32 uiCount)
   : m_Storage(storage)
 {
   m_uiCurrentIndex = uiStartIndex;
-  m_uiEndIndex = ezMath::Max(uiStartIndex + uiCount, uiCount);
+  m_uiEndIndex = WMath::Max(uiStartIndex + uiCount, uiCount);
 
-  if (StorageType == ezBlockStorageType::FreeList)
+  if (StorageType == WBlockStorageType::FreeList)
   {
-    ezUInt32 uiEndIndex = ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
+    WUInt32 uiEndIndex = WMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
     while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsBitSet(m_uiCurrentIndex))
     {
       ++m_uiCurrentIndex;
@@ -17,40 +17,40 @@ EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstI
   }
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE T& ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::CurrentElement() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE T& WBlockStorage<T, BlockSize, StorageType>::ConstIterator::CurrentElement() const
 {
-  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T, BlockSize>::CAPACITY;
-  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY;
+  const WUInt32 uiBlockIndex = m_uiCurrentIndex / WDataBlock<T, BlockSize>::CAPACITY;
+  const WUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * WDataBlock<T, BlockSize>::CAPACITY;
   return m_Storage.m_Blocks[uiBlockIndex][uiInnerIndex];
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE const T& ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator*() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE const T& WBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator*() const
 {
   return CurrentElement();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE const T* ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator->() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE const T* WBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator->() const
 {
   return &CurrentElement();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator const T*() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE WBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator const T*() const
 {
   return &CurrentElement();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::Next()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE void WBlockStorage<T, BlockSize, StorageType>::ConstIterator::Next()
 {
   ++m_uiCurrentIndex;
 
-  if (StorageType == ezBlockStorageType::FreeList)
+  if (StorageType == WBlockStorageType::FreeList)
   {
-    ezUInt32 uiEndIndex = ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
+    WUInt32 uiEndIndex = WMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
     while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsBitSet(m_uiCurrentIndex))
     {
       ++m_uiCurrentIndex;
@@ -58,81 +58,81 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::N
   }
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::IsValid() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE bool WBlockStorage<T, BlockSize, StorageType>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentIndex < ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
+  return m_uiCurrentIndex < WMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE void ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator++()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE void WBlockStorage<T, BlockSize, StorageType>::ConstIterator::operator++()
 {
   Next();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::Iterator(
-  const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE WBlockStorage<T, BlockSize, StorageType>::Iterator::Iterator(
+  const WBlockStorage<T, BlockSize, StorageType>& storage, WUInt32 uiStartIndex, WUInt32 uiCount)
   : ConstIterator(storage, uiStartIndex, uiCount)
 {
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE T& ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator*()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE T& WBlockStorage<T, BlockSize, StorageType>::Iterator::operator*()
 {
   return this->CurrentElement();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE T* ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator->()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE T* WBlockStorage<T, BlockSize, StorageType>::Iterator::operator->()
 {
   return &(this->CurrentElement());
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator T*()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE WBlockStorage<T, BlockSize, StorageType>::Iterator::operator T*()
 {
   return &(this->CurrentElement());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(
-  ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocator* pAllocator)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE WBlockStorage<T, BlockSize, StorageType>::WBlockStorage(
+  WLargeBlockAllocator<BlockSize>* pBlockAllocator, WAllocator* pAllocator)
   : m_pBlockAllocator(pBlockAllocator)
   , m_Blocks(pAllocator)
 
 {
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-ezBlockStorage<T, BlockSize, StorageType>::~ezBlockStorage()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+WBlockStorage<T, BlockSize, StorageType>::~WBlockStorage()
 {
   Clear();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-void ezBlockStorage<T, BlockSize, StorageType>::Clear()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+void WBlockStorage<T, BlockSize, StorageType>::Clear()
 {
-  for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
+  for (WUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
   {
-    ezDataBlock<T, BlockSize>& block = m_Blocks[uiBlockIndex];
+    WDataBlock<T, BlockSize>& block = m_Blocks[uiBlockIndex];
 
-    if (StorageType == ezBlockStorageType::Compact)
+    if (StorageType == WBlockStorageType::Compact)
     {
-      ezMemoryUtils::Destruct(block.m_pData, block.m_uiCount);
+      WMemoryUtils::Destruct(block.m_pData, block.m_uiCount);
     }
     else
     {
-      for (ezUInt32 uiInnerIndex = 0; uiInnerIndex < block.m_uiCount; ++uiInnerIndex)
+      for (WUInt32 uiInnerIndex = 0; uiInnerIndex < block.m_uiCount; ++uiInnerIndex)
       {
-        ezUInt32 uiIndex = uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY + uiInnerIndex;
+        WUInt32 uiIndex = uiBlockIndex * WDataBlock<T, BlockSize>::CAPACITY + uiInnerIndex;
         if (m_UsedEntries.IsBitSet(uiIndex))
         {
-          ezMemoryUtils::Destruct(&block.m_pData[uiInnerIndex], 1);
+          WMemoryUtils::Destruct(&block.m_pData[uiInnerIndex], 1);
         }
       }
     }
@@ -143,26 +143,26 @@ void ezBlockStorage<T, BlockSize, StorageType>::Clear()
   m_Blocks.Clear();
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-T* ezBlockStorage<T, BlockSize, StorageType>::Create()
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+T* WBlockStorage<T, BlockSize, StorageType>::Create()
 {
   T* pNewObject = nullptr;
-  ezUInt32 uiNewIndex = ezInvalidIndex;
+  WUInt32 uiNewIndex = WInvalidIndex;
 
-  if (StorageType == ezBlockStorageType::FreeList && m_uiFreelistStart != ezInvalidIndex)
+  if (StorageType == WBlockStorageType::FreeList && m_uiFreelistStart != WInvalidIndex)
   {
     uiNewIndex = m_uiFreelistStart;
 
-    const ezUInt32 uiBlockIndex = uiNewIndex / ezDataBlock<T, BlockSize>::CAPACITY;
-    const ezUInt32 uiInnerIndex = uiNewIndex - uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY;
+    const WUInt32 uiBlockIndex = uiNewIndex / WDataBlock<T, BlockSize>::CAPACITY;
+    const WUInt32 uiInnerIndex = uiNewIndex - uiBlockIndex * WDataBlock<T, BlockSize>::CAPACITY;
 
     pNewObject = &(m_Blocks[uiBlockIndex][uiInnerIndex]);
 
-    m_uiFreelistStart = *reinterpret_cast<ezUInt32*>(pNewObject);
+    m_uiFreelistStart = *reinterpret_cast<WUInt32*>(pNewObject);
   }
   else
   {
-    ezDataBlock<T, BlockSize>* pBlock = nullptr;
+    WDataBlock<T, BlockSize>* pBlock = nullptr;
 
     if (m_Blocks.GetCount() > 0)
     {
@@ -181,9 +181,9 @@ T* ezBlockStorage<T, BlockSize, StorageType>::Create()
     ++m_uiCount;
   }
 
-  ezMemoryUtils::Construct<SkipTrivialTypes>(pNewObject, 1);
+  WMemoryUtils::Construct<SkipTrivialTypes>(pNewObject, 1);
 
-  if (StorageType == ezBlockStorageType::FreeList)
+  if (StorageType == WBlockStorageType::FreeList)
   {
     m_UsedEntries.SetCount(m_uiCount);
     m_UsedEntries.SetBit(uiNewIndex);
@@ -192,53 +192,53 @@ T* ezBlockStorage<T, BlockSize, StorageType>::Create()
   return pNewObject;
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE void WBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject)
 {
   T* pDummy;
   Delete(pObject, pDummy);
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+void WBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject)
 {
-  Delete(pObject, out_pMovedObject, ezTraitInt<StorageType>());
+  Delete(pObject, out_pMovedObject, WTraitInt<StorageType>());
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE ezUInt32 ezBlockStorage<T, BlockSize, StorageType>::GetCount() const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE WUInt32 WBlockStorage<T, BlockSize, StorageType>::GetCount() const
 {
   return m_uiCount;
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE typename ezBlockStorage<T, BlockSize, StorageType>::Iterator ezBlockStorage<T, BlockSize, StorageType>::GetIterator(
-  ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE typename WBlockStorage<T, BlockSize, StorageType>::Iterator WBlockStorage<T, BlockSize, StorageType>::GetIterator(
+  WUInt32 uiStartIndex /*= 0*/, WUInt32 uiCount /*= WInvalidIndex*/)
 {
   return Iterator(*this, uiStartIndex, uiCount);
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE typename ezBlockStorage<T, BlockSize, StorageType>::ConstIterator ezBlockStorage<T, BlockSize, StorageType>::GetIterator(
-  ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/) const
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_ALWAYS_INLINE typename WBlockStorage<T, BlockSize, StorageType>::ConstIterator WBlockStorage<T, BlockSize, StorageType>::GetIterator(
+  WUInt32 uiStartIndex /*= 0*/, WUInt32 uiCount /*= WInvalidIndex*/) const
 {
   return ConstIterator(*this, uiStartIndex, uiCount);
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE void WBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, WTraitInt<WBlockStorageType::Compact>)
 {
-  ezDataBlock<T, BlockSize>& lastBlock = m_Blocks.PeekBack();
+  WDataBlock<T, BlockSize>& lastBlock = m_Blocks.PeekBack();
   T* pLast = lastBlock.PopBack();
 
   --m_uiCount;
   if (pObject != pLast)
   {
-    ezMemoryUtils::Relocate(pObject, pLast, 1);
+    WMemoryUtils::Relocate(pObject, pLast, 1);
   }
   else
   {
-    ezMemoryUtils::Destruct(pLast, 1);
+    WMemoryUtils::Destruct(pLast, 1);
   }
 
   out_pMovedObject = pLast;
@@ -250,27 +250,27 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObjec
   }
 }
 
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>)
+template <typename T, WUInt32 BlockSize, WBlockStorageType::Enum StorageType>
+W_FORCE_INLINE void WBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, WTraitInt<WBlockStorageType::FreeList>)
 {
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
+  WUInt32 uiIndex = WInvalidIndex;
+  for (WUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
   {
     std::ptrdiff_t diff = pObject - m_Blocks[uiBlockIndex].m_pData;
-    if (diff >= 0 && diff < ezDataBlock<T, BlockSize>::CAPACITY)
+    if (diff >= 0 && diff < WDataBlock<T, BlockSize>::CAPACITY)
     {
-      uiIndex = uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY + (ezInt32)diff;
+      uiIndex = uiBlockIndex * WDataBlock<T, BlockSize>::CAPACITY + (WInt32)diff;
       break;
     }
   }
 
-  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Invalid object {0} was not found in block storage.", ezArgP(pObject));
+  W_ASSERT_DEV(uiIndex != WInvalidIndex, "Invalid object {0} was not found in block storage.", WArgP(pObject));
 
   m_UsedEntries.ClearBit(uiIndex);
 
   out_pMovedObject = pObject;
-  ezMemoryUtils::Destruct(pObject, 1);
+  WMemoryUtils::Destruct(pObject, 1);
 
-  *reinterpret_cast<ezUInt32*>(pObject) = m_uiFreelistStart;
+  *reinterpret_cast<WUInt32*>(pObject) = m_uiFreelistStart;
   m_uiFreelistStart = uiIndex;
 }

@@ -7,40 +7,40 @@
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtOrbitCamViewWidget;
-class ezQtTimeScrubberWidget;
-class ezQtEventTrackEditorWidget;
-class ezQtDocumentPanel;
-struct ezCommandHistoryEvent;
+class WQtOrbitCamViewWidget;
+class WQtTimeScrubberWidget;
+class WQtEventTrackEditorWidget;
+class WQtDocumentPanel;
+struct WCommandHistoryEvent;
 
-class ezQtAnimationClipAssetDocumentWindow : public ezQtEngineDocumentWindow
+class WQtAnimationClipAssetDocumentWindow : public WQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument);
-  ~ezQtAnimationClipAssetDocumentWindow();
+  WQtAnimationClipAssetDocumentWindow(WAnimationClipAssetDocument* pDocument);
+  ~WQtAnimationClipAssetDocumentWindow();
 
-  ezAnimationClipAssetDocument* GetAnimationClipDocument();
+  WAnimationClipAssetDocument* GetAnimationClipDocument();
 
   void ExtractRootMotionFromFeet();
 
 protected:
   virtual void InternalRedraw() override;
-  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void ProcessMessageEventHandler(const WEditorEngineDocumentMsg* pMsg) override;
 
-  virtual void CommonAssetUiEventHandler(const ezCommonAssetUiState& e) override;
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  virtual void CommonAssetUiEventHandler(const WCommonAssetUiState& e) override;
+  void CommandHistoryEventHandler(const WCommandHistoryEvent& e);
   virtual void OnAfterDocumentLayoutRestored() override;
 
 protected Q_SLOTS:
-  void OnScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
+  void OnScrubberPosChangedEvent(WUInt64 uiNewScrubberTickPos);
 
   //////////////////////////////////////////////////////////////////////////
   // Event track editor events
-  void onEventTrackInsertCpAt(ezInt64 tickX, QString value);
-  void onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX);
-  void onEventTrackCpDeleted(ezUInt32 cpIdx);
+  void onEventTrackInsertCpAt(WInt64 tickX, QString value);
+  void onEventTrackCpMoved(WUInt32 cpIdx, WInt64 iTickX);
+  void onEventTrackCpDeleted(WUInt32 cpIdx);
   void onEventTrackBeginOperation(QString name);
   void onEventTrackEndOperation(bool commit);
   void onEventTrackBeginCpChanges(QString name);
@@ -48,12 +48,12 @@ protected Q_SLOTS:
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events
-  void onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);
-  void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
-  void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
-  void onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
-  void onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode);
+  void onCurveInsertCpAt(WUInt32 uiCurveIdx, WInt64 tickX, double newPosY);
+  void onCurveCpMoved(WUInt32 curveIdx, WUInt32 cpIdx, WInt64 iTickX, double newPosY);
+  void onCurveCpDeleted(WUInt32 curveIdx, WUInt32 cpIdx);
+  void onCurveTangentMoved(WUInt32 curveIdx, WUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void onLinkCurveTangents(WUInt32 curveIdx, WUInt32 cpIdx, bool bLink);
+  void onCurveTangentModeChanged(WUInt32 curveIdx, WUInt32 cpIdx, bool rightTangent, int mode);
 
   void onCurveBeginOperation(QString name);
   void onCurveEndOperation(bool commit);
@@ -61,25 +61,25 @@ protected Q_SLOTS:
   void onCurveEndCpChanges();
 
   //////////////////////////////////////////////////////////////////////////
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void StructureEventHandler(const WDocumentObjectStructureEvent& e);
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose = 0);
+  void QueryObjectBBox(WInt32 iPurpose = 0);
   void UpdateEventTrackEditor();
   void UpdateCurveEditor();
 
-  ezClock m_Clock;
-  ezEngineViewConfig m_ViewConfig;
-  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
-  ezQtTimeScrubberWidget* m_pTimeScrubber = nullptr;
-  ezTime m_ClipDuration;
-  ezTime m_PlaybackPosition;
+  WClock m_Clock;
+  WEngineViewConfig m_ViewConfig;
+  WQtOrbitCamViewWidget* m_pViewWidget = nullptr;
+  WQtTimeScrubberWidget* m_pTimeScrubber = nullptr;
+  WTime m_ClipDuration;
+  WTime m_PlaybackPosition;
 
-  ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
-  ezQtEventTrackEditorWidget* m_pEventTrackEditor = nullptr;
+  WQtDocumentPanel* m_pEventTrackPanel = nullptr;
+  WQtEventTrackEditorWidget* m_pEventTrackEditor = nullptr;
 
-  ezQtDocumentPanel* m_pCurveEditPanel = nullptr;
-  ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
-  ezCurveGroupData m_Curves;
+  WQtDocumentPanel* m_pCurveEditPanel = nullptr;
+  WQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
+  WCurveGroupData m_Curves;
 };

@@ -7,24 +7,24 @@
 /// The click gizmo displays a simple shape that can be clicked.
 ///
 /// This can be used to provide the user with a way to select which part to edit further.
-class EZ_EDITORFRAMEWORK_DLL ezClickGizmo : public ezGizmo
+class W_EDITORFRAMEWORK_DLL WClickGizmo : public WGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezClickGizmo, ezGizmo);
+  W_ADD_DYNAMIC_REFLECTION(WClickGizmo, WGizmo);
 
 public:
-  ezClickGizmo();
+  WClickGizmo();
 
-  void SetColor(const ezColor& color);
+  void SetColor(const WColor& color);
 
 protected:
-  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual WEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
 
   virtual void DoFocusLost(bool bCancel) override;
-  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(WQtEngineDocumentWindow* pOwnerWindow, WQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezTransform& transform) override;
+  virtual void OnTransformationChanged(const WTransform& transform) override;
 
 private:
-  ezEngineGizmoHandle m_hShape;
+  WEngineGizmoHandle m_hShape;
 };

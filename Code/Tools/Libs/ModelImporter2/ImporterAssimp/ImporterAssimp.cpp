@@ -11,7 +11,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace ezModelImporter2
+namespace WModelImporter2
 {
   ImporterAssimp::ImporterAssimp() = default;
   ImporterAssimp::~ImporterAssimp() = default;
@@ -21,12 +21,12 @@ namespace ezModelImporter2
   public:
     void write(const char* szMessage)
     {
-      if (ezStringUtils::FindSubString(szMessage, "unexpected illumination model") != nullptr)
+      if (WStringUtils::FindSubString(szMessage, "unexpected illumination model") != nullptr)
         return;
-      if (ezStringUtils::FindSubString(szMessage, "This algorithm works on triangle meshes only") != nullptr)
+      if (WStringUtils::FindSubString(szMessage, "This algorithm works on triangle meshes only") != nullptr)
         return;
 
-      ezLog::Warning("AssImp: {0}", szMessage);
+      WLog::Warning("AssImp: {0}", szMessage);
     }
   };
 
@@ -35,7 +35,7 @@ namespace ezModelImporter2
   public:
     void write(const char* szMessage)
     {
-      ezLog::Warning("AssImp: {0}", szMessage);
+      WLog::Warning("AssImp: {0}", szMessage);
     }
   };
 
@@ -44,11 +44,11 @@ namespace ezModelImporter2
   public:
     void write(const char* szMessage)
     {
-      ezLog::Debug("AssImp: {0}", szMessage);
+      WLog::Debug("AssImp: {0}", szMessage);
     }
   };
 
-  ezResult ImporterAssimp::DoImport()
+  WResult ImporterAssimp::DoImport()
   {
     Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);
 
@@ -67,7 +67,7 @@ namespace ezModelImporter2
     // on its own, whereas the importer merges those meshes into a single mesh buffer afterwards. The result is
     // optimized with meshoptimizer once the merged buffer exists, which also produces better results.
 
-    ezUInt32 uiAssimpFlags = 0;
+    WUInt32 uiAssimpFlags = 0;
     if (m_Options.m_pMeshOutput != nullptr)
     {
       uiAssimpFlags |= aiProcess_Triangulate | aiProcess_TransformUVCoords | aiProcess_FlipUVs;
@@ -87,8 +87,8 @@ namespace ezModelImporter2
     m_pScene = m_Importer.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
     if (m_pScene == nullptr)
     {
-      ezLog::Error("Assimp failed to import '{}'", m_Options.m_sSourceFile);
-      return EZ_FAILURE;
+      WLog::Error("Assimp failed to import '{}'", m_Options.m_sSourceFile);
+      return W_FAILURE;
     }
 
     if (m_pScene->mMetaData != nullptr)
@@ -100,7 +100,7 @@ namespace ezModelImporter2
         // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
         fUnitScale /= 100.0f;
 
-        ezMat3 s = ezMat3::MakeScaling(ezVec3(fUnitScale));
+        WMat3 s = WMat3::MakeScaling(WVec3(fUnitScale));
 
         m_Options.m_RootTransform = s * m_Options.m_RootTransform;
       }
@@ -110,9 +110,9 @@ namespace ezModelImporter2
     {
       // the position offset is only meant for static geometry,
       // applying it to skinned meshes would move them away from their skeleton
-      const ezVec3 vRootPosition = m_Options.m_bImportSkinningData ? ezVec3::MakeZero() : m_Options.m_vRootPosition;
+      const WVec3 vRootPosition = m_Options.m_bImportSkinningData ? WVec3::MakeZero() : m_Options.m_vRootPosition;
 
-      ezMat4 tmp;
+      WMat4 tmp;
       tmp.SetIdentity();
       tmp.SetRotationalPart(m_Options.m_RootTransform);
       tmp.SetTranslationVector(vRootPosition);
@@ -123,15 +123,15 @@ namespace ezModelImporter2
       node->mTransformation = transform * node->mTransformation;
     }
 
-    EZ_SUCCEED_OR_RETURN(ImportMaterials());
+    W_SUCCEED_OR_RETURN(ImportMaterials());
 
-    EZ_SUCCEED_OR_RETURN(TraverseAiScene());
+    W_SUCCEED_OR_RETURN(TraverseAiScene());
 
-    EZ_SUCCEED_OR_RETURN(PrepareOutputMesh());
+    W_SUCCEED_OR_RETURN(PrepareOutputMesh());
 
-    EZ_SUCCEED_OR_RETURN(ImportAnimations());
+    W_SUCCEED_OR_RETURN(ImportAnimations());
 
-    EZ_SUCCEED_OR_RETURN(ImportBoneColliders(nullptr));
+    W_SUCCEED_OR_RETURN(ImportBoneColliders(nullptr));
 
     if (m_Options.m_pMeshOutput)
     {
@@ -139,7 +139,7 @@ namespace ezModelImporter2
       {
         if (m_Options.m_pMeshOutput->MeshBufferDesc().RecomputeNormals().Failed())
         {
-          ezLog::Warning("Recomputing some mesh normals failed.");
+          WLog::Warning("Recomputing some mesh normals failed.");
           // do not return failure here, because we can still continue
         }
       }
@@ -148,7 +148,7 @@ namespace ezModelImporter2
       {
         if (RecomputeTangents().Failed())
         {
-          ezLog::Error("Recomputing the mesh tangents failed.");
+          WLog::Error("Recomputing the mesh tangents failed.");
           // do not return failure here, because we can still continue
         }
       }
@@ -156,9 +156,9 @@ namespace ezModelImporter2
 
     if (m_pScene->mNumTextures > 0 && m_pScene->mTextures)
     {
-      ezStringBuilder refName;
+      WStringBuilder refName;
 
-      for (ezUInt32 i = 0; i < m_pScene->mNumTextures; ++i)
+      for (WUInt32 i = 0; i < m_pScene->mNumTextures; ++i)
       {
         const auto& st = *m_pScene->mTextures[i];
 
@@ -174,94 +174,94 @@ namespace ezModelImporter2
         if (st.mHeight == 0 && st.mWidth > 0)
         {
           tex.m_sFileFormatExtension = st.achFormatHint;
-          tex.m_RawData = ezMakeArrayPtr((const ezUInt8*)st.pcData, st.mWidth);
+          tex.m_RawData = WMakeArrayPtr((const WUInt8*)st.pcData, st.mWidth);
         }
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult ImporterAssimp::TraverseAiScene()
+  WResult ImporterAssimp::TraverseAiScene()
   {
     if (m_Options.m_pSkeletonOutput != nullptr)
     {
-      m_Options.m_pSkeletonOutput->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
+      m_Options.m_pSkeletonOutput->m_Children.PushBack(W_DEFAULT_NEW(WEditableSkeletonJoint));
+      W_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, WMat4::MakeIdentity(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), nullptr));
+      W_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, WMat4::MakeIdentity(), nullptr));
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-  ezResult ImporterAssimp::TraverseAiNode(aiNode* pNode, const ezMat4& parentTransform, ezEditableSkeletonJoint* pCurJoint)
+  WResult ImporterAssimp::TraverseAiNode(aiNode* pNode, const WMat4& parentTransform, WEditableSkeletonJoint* pCurJoint)
   {
-    ezMat4 invTrans = parentTransform;
-    EZ_ASSERT_DEBUG(invTrans.Invert(0.0f).Succeeded(), "inversion failed");
+    WMat4 invTrans = parentTransform;
+    W_ASSERT_DEBUG(invTrans.Invert(0.0f).Succeeded(), "inversion failed");
 
-    const ezMat4 localTransform = ConvertAssimpType(pNode->mTransformation);
-    const ezMat4 globalTransform = parentTransform * localTransform;
+    const WMat4 localTransform = ConvertAssimpType(pNode->mTransformation);
+    const WMat4 globalTransform = parentTransform * localTransform;
 
     if (pCurJoint)
     {
       pCurJoint->m_sName.Assign(pNode->mName.C_Str());
-      pCurJoint->m_LocalTransform = ezTransform::MakeFromMat4(localTransform);
+      pCurJoint->m_LocalTransform = WTransform::MakeFromMat4(localTransform);
     }
 
     if (pNode->mNumMeshes > 0)
     {
-      for (ezUInt32 meshIdx = 0; meshIdx < pNode->mNumMeshes; ++meshIdx)
+      for (WUInt32 meshIdx = 0; meshIdx < pNode->mNumMeshes; ++meshIdx)
       {
-        EZ_SUCCEED_OR_RETURN(ProcessAiMesh(m_pScene->mMeshes[pNode->mMeshes[meshIdx]], globalTransform));
+        W_SUCCEED_OR_RETURN(ProcessAiMesh(m_pScene->mMeshes[pNode->mMeshes[meshIdx]], globalTransform));
       }
     }
 
-    for (ezUInt32 childIdx = 0; childIdx < pNode->mNumChildren; ++childIdx)
+    for (WUInt32 childIdx = 0; childIdx < pNode->mNumChildren; ++childIdx)
     {
       if (pCurJoint)
       {
-        pCurJoint->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
+        pCurJoint->m_Children.PushBack(W_DEFAULT_NEW(WEditableSkeletonJoint));
 
-        EZ_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, pCurJoint->m_Children.PeekBack()));
+        W_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, pCurJoint->m_Children.PeekBack()));
       }
       else
       {
-        EZ_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, nullptr));
+        W_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, nullptr));
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
 
-  ezResult ImporterAssimp::ImportBoneColliders(ezEditableSkeletonJoint* pJoint)
+  WResult ImporterAssimp::ImportBoneColliders(WEditableSkeletonJoint* pJoint)
   {
     if (m_Options.m_pSkeletonOutput == nullptr)
-      return EZ_SUCCESS;
+      return W_SUCCESS;
 
     if (pJoint == nullptr)
     {
-      for (ezEditableSkeletonJoint* pJoint : m_Options.m_pSkeletonOutput->m_Children)
+      for (WEditableSkeletonJoint* pJoint : m_Options.m_pSkeletonOutput->m_Children)
       {
-        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pJoint));
+        W_SUCCEED_OR_RETURN(ImportBoneColliders(pJoint));
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
     else
     {
-      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
+      for (WEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
-        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pChild));
+        W_SUCCEED_OR_RETURN(ImportBoneColliders(pChild));
       }
     }
 
-    ezStringBuilder sTmp;
+    WStringBuilder sTmp;
 
-    const ezString& sName = pJoint->m_sName.GetString();
+    const WString& sName = pJoint->m_sName.GetString();
 
     for (auto meshIt : m_MeshInstances)
     {
@@ -269,7 +269,7 @@ namespace ezModelImporter2
       {
         auto pMesh = meshInst.m_pMesh;
 
-        if (ezStringUtils::FindSubString(pMesh->mName.C_Str(), sName) != nullptr)
+        if (WStringUtils::FindSubString(pMesh->mName.C_Str(), sName) != nullptr)
         {
           sTmp = pMesh->mName.C_Str();
 
@@ -277,20 +277,20 @@ namespace ezModelImporter2
           {
             // mesh is named "UCX_BoneName_xyz" or "UCX_BoneName" -> use mesh as convex collider for this bone
 
-            EZ_ASSERT_DEV(pMesh->HasPositions(), "TODO: early out");
-            EZ_ASSERT_DEV(pMesh->HasFaces(), "TODO: early out");
+            W_ASSERT_DEV(pMesh->HasPositions(), "TODO: early out");
+            W_ASSERT_DEV(pMesh->HasFaces(), "TODO: early out");
 
-            ezEditableSkeletonBoneCollider& col = pJoint->m_BoneColliders.ExpandAndGetRef();
+            WEditableSkeletonBoneCollider& col = pJoint->m_BoneColliders.ExpandAndGetRef();
             col.m_sIdentifier = pMesh->mName.C_Str();
             col.m_TriangleIndices.Reserve(pMesh->mNumFaces * 3);
             col.m_VertexPositions.Reserve(pMesh->mNumVertices);
 
-            for (ezUInt32 v = 0; v < pMesh->mNumVertices; ++v)
+            for (WUInt32 v = 0; v < pMesh->mNumVertices; ++v)
             {
               col.m_VertexPositions.PushBack(meshInst.m_GlobalTransform * ConvertAssimpType(pMesh->mVertices[v]));
             }
 
-            for (ezUInt32 f = 0; f < pMesh->mNumFaces; ++f)
+            for (WUInt32 f = 0; f < pMesh->mNumFaces; ++f)
             {
               col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[0]);
               col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[1]);
@@ -299,13 +299,13 @@ namespace ezModelImporter2
           }
           else
           {
-            // ezLog::Error("TODO: error message");
+            // WLog::Error("TODO: error message");
           }
         }
       }
     }
 
-    return EZ_SUCCESS;
+    return W_SUCCESS;
   }
 
-} // namespace ezModelImporter2
+} // namespace WModelImporter2

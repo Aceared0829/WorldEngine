@@ -3,7 +3,7 @@
 #include <RmlUiPlugin/Implementation/EventListener.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   static EventListenerInstancer* s_pInstancer;
 
@@ -12,7 +12,7 @@ namespace ezRmlUiInternal
     auto context = ref_event.GetTargetElement()->GetContext();
     if (context != nullptr)
     {
-      static_cast<ezRmlUiContext*>(context)->ProcessEvent(m_sIdentifier, ref_event);
+      static_cast<WRmlUiContext*>(context)->ProcessEvent(m_sIdentifier, ref_event);
     }
   }
 
@@ -43,13 +43,13 @@ namespace ezRmlUiInternal
     }
     else
     {
-      ezUInt32 uiIndex = m_EventListenerFreelist.PeekBack();
+      WUInt32 uiIndex = m_EventListenerFreelist.PeekBack();
       m_EventListenerFreelist.PopBack();
 
       pListener = &m_EventListenerPool[uiIndex];
     }
 
-    pListener->m_sIdentifier.Assign(ezRmlUiConversionUtils::ToStringView(value));
+    pListener->m_sIdentifier.Assign(WRmlUiConversionUtils::ToStringView(value));
     return pListener;
   }
 
@@ -58,4 +58,4 @@ namespace ezRmlUiInternal
     m_EventListenerFreelist.PushBack(ref_listener.m_uiIndex);
   }
 
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

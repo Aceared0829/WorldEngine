@@ -4,16 +4,16 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-using SerializeFunction = ezResult (*)(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_Size, ezUInt32& out_alignment);
-using DeserializeFunction = ezResult (*)(ezVisualScriptGraphDescription::Node& node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
-using ToStringFunction = void (*)(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult);
+using SerializeFunction = WResult (*)(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_Size, WUInt32& out_alignment);
+using DeserializeFunction = WResult (*)(WVisualScriptGraphDescription::Node& node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData);
+using ToStringFunction = void (*)(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult);
 
 namespace
 {
   template <typename T, typename U>
-  static ezUInt32 GetDynamicSize(ezUInt32 uiCount)
+  static WUInt32 GetDynamicSize(WUInt32 uiCount)
   {
-    ezUInt32 uiSize = sizeof(T);
+    WUInt32 uiSize = sizeof(T);
     if (uiCount > 1)
     {
       uiSize += sizeof(U) * (uiCount - 1);
@@ -23,51 +23,51 @@ namespace
 
 
   template <typename T>
-  static constexpr ezUInt32 GetUserDataAlignment()
+  static constexpr WUInt32 GetUserDataAlignment()
   {
-    return ezVisualScriptGraphDescription::Node::GetUserDataAlignment<T>();
+    return WVisualScriptGraphDescription::Node::GetUserDataAlignment<T>();
   }
 
   struct NodeUserData_Type
   {
-    const ezRTTI* m_pType = nullptr;
+    const WRTTI* m_pType = nullptr;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
       inout_stream << nodeDesc.m_sTargetTypeName;
 
       out_uiSize = sizeof(NodeUserData_Type);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_Type>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult ReadType(ezStreamReader& inout_stream, const ezRTTI*& out_pType)
+    static WResult ReadType(WStreamReader& inout_stream, const WRTTI*& out_pType)
     {
-      ezStringBuilder sTypeName;
+      WStringBuilder sTypeName;
       inout_stream >> sTypeName;
 
-      out_pType = ezRTTI::FindTypeByName(sTypeName);
+      out_pType = WRTTI::FindTypeByName(sTypeName);
       if (out_pType == nullptr)
       {
-        ezLog::Error("Unknown type '{}'", sTypeName);
-        return EZ_FAILURE;
+        WLog::Error("Unknown type '{}'", sTypeName);
+        return W_FAILURE;
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_Type>(inout_pAdditionalData);
-      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-      return EZ_SUCCESS;
+      W_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       if (nodeDesc.m_sTargetTypeName.IsEmpty() == false)
       {
@@ -83,30 +83,30 @@ namespace
 
   struct NodeUserData_TypeAndProperty : public NodeUserData_Type
   {
-    const ezAbstractProperty* m_pProperty = nullptr;
+    const WAbstractProperty* m_pProperty = nullptr;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+      W_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
-      EZ_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
+      const WVariantArray& propertiesVar = nodeDesc.m_Value.Get<WVariantArray>();
+      W_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
 
-      inout_stream << propertiesVar[0].Get<ezHashedString>();
+      inout_stream << propertiesVar[0].Get<WHashedString>();
 
       out_uiSize = sizeof(NodeUserData_TypeAndProperty);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndProperty>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
     template <typename T>
-    static ezResult ReadProperty(ezStreamReader& inout_stream, const ezRTTI* pType, ezArrayPtr<T> properties, const ezAbstractProperty*& out_pProp)
+    static WResult ReadProperty(WStreamReader& inout_stream, const WRTTI* pType, WArrayPtr<T> properties, const WAbstractProperty*& out_pProp)
     {
-      ezStringBuilder sPropName;
+      WStringBuilder sPropName;
       inout_stream >> sPropName;
 
       out_pProp = nullptr;
@@ -121,33 +121,33 @@ namespace
 
       if (out_pProp == nullptr)
       {
-        constexpr bool isFunction = std::is_same_v<T, const ezAbstractFunctionProperty* const>;
-        ezLog::Error("{} '{}' not found on type '{}'", isFunction ? "Function" : "Property", sPropName, pType->GetTypeName());
-        return EZ_FAILURE;
+        constexpr bool isFunction = std::is_same_v<T, const WAbstractFunctionProperty* const>;
+        WLog::Error("{} '{}' not found on type '{}'", isFunction ? "Function" : "Property", sPropName, pType->GetTypeName());
+        return W_FAILURE;
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_TypeAndProperty>(inout_pAdditionalData);
-      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-      EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
+      W_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+      W_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       NodeUserData_Type::ToString(nodeDesc, out_sResult);
 
-      if (nodeDesc.m_Value.IsA<ezVariantArray>())
+      if (nodeDesc.m_Value.IsA<WVariantArray>())
       {
-        const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+        const WVariantArray& propertiesVar = nodeDesc.m_Value.Get<WVariantArray>();
         if (propertiesVar.IsEmpty() == false)
         {
-          out_sResult.Append(".", propertiesVar[0].Get<ezHashedString>());
+          out_sResult.Append(".", propertiesVar[0].Get<WHashedString>());
         }
       }
     }
@@ -160,67 +160,67 @@ namespace
 
   struct NodeUserData_TypeAndProperties : public NodeUserData_Type
   {
-    ezUInt32 m_uiNumProperties = 0;
+    WUInt32 m_uiNumProperties = 0;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding0;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding0;
 #endif
 
     // This struct is allocated with enough space behind it to hold an array with m_uiNumProperties size.
-    const ezAbstractProperty* m_Properties[1];
+    const WAbstractProperty* m_Properties[1];
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding1;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding1;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+      W_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+      const WVariantArray& propertiesVar = nodeDesc.m_Value.Get<WVariantArray>();
 
-      ezUInt32 uiCount = propertiesVar.GetCount();
+      WUInt32 uiCount = propertiesVar.GetCount();
       inout_stream << uiCount;
 
       for (auto& var : propertiesVar)
       {
-        ezHashedString sPropName = var.Get<ezHashedString>();
+        WHashedString sPropName = var.Get<WHashedString>();
         inout_stream << sPropName;
       }
 
-      static_assert(sizeof(void*) <= sizeof(ezUInt64));
-      out_uiSize = GetDynamicSize<NodeUserData_TypeAndProperties, ezUInt64>(uiCount);
+      static_assert(sizeof(void*) <= sizeof(WUInt64));
+      out_uiSize = GetDynamicSize<NodeUserData_TypeAndProperties, WUInt64>(uiCount);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndProperties>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
-      const ezRTTI* pType = nullptr;
-      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, pType));
+      const WRTTI* pType = nullptr;
+      W_SUCCEED_OR_RETURN(ReadType(inout_stream, pType));
 
-      ezUInt32 uiCount = 0;
+      WUInt32 uiCount = 0;
       inout_stream >> uiCount;
 
-      const ezUInt32 uiByteSize = GetDynamicSize<NodeUserData_TypeAndProperties, ezUInt64>(uiCount);
+      const WUInt32 uiByteSize = GetDynamicSize<NodeUserData_TypeAndProperties, WUInt64>(uiCount);
       auto& userData = ref_node.InitUserData<NodeUserData_TypeAndProperties>(inout_pAdditionalData, uiByteSize);
       userData.m_pType = pType;
       userData.m_uiNumProperties = uiCount;
 
-      ezHybridArray<const ezAbstractProperty*, 32> properties;
+      WHybridArray<const WAbstractProperty*, 32> properties;
       userData.m_pType->GetAllProperties(properties);
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
-        const ezAbstractProperty* pProperty = nullptr;
-        EZ_SUCCEED_OR_RETURN(NodeUserData_TypeAndProperty::ReadProperty(inout_stream, userData.m_pType, properties.GetArrayPtr(), pProperty));
+        const WAbstractProperty* pProperty = nullptr;
+        W_SUCCEED_OR_RETURN(NodeUserData_TypeAndProperty::ReadProperty(inout_stream, userData.m_pType, properties.GetArrayPtr(), pProperty));
         userData.m_Properties[i] = pProperty;
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       NodeUserData_TypeAndProperty::ToString(nodeDesc, out_sResult);
     }
@@ -233,24 +233,24 @@ namespace
 
   struct NodeUserData_TypeAndFunction : public NodeUserData_TypeAndProperty
   {
-    ezUInt32 m_uiInputArgsMask = 0;
-    ezUInt32 m_uiOutputArgsMask = 0;
+    WUInt32 m_uiInputArgsMask = 0;
+    WUInt32 m_uiOutputArgsMask = 0;
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+      W_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
-      EZ_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
+      const WVariantArray& propertiesVar = nodeDesc.m_Value.Get<WVariantArray>();
+      W_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
 
-      ezHashedString sFunctionName = propertiesVar[0].Get<ezHashedString>();
+      WHashedString sFunctionName = propertiesVar[0].Get<WHashedString>();
       inout_stream << sFunctionName;
 
-      const ezRTTI* pType = ezRTTI::FindTypeByName(nodeDesc.m_sTargetTypeName);
+      const WRTTI* pType = WRTTI::FindTypeByName(nodeDesc.m_sTargetTypeName);
       if (pType == nullptr)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
-      const ezAbstractFunctionProperty* pFunction = nullptr;
+      const WAbstractFunctionProperty* pFunction = nullptr;
       for (auto pFunc : pType->GetFunctions())
       {
         if (pFunc->GetPropertyName() == sFunctionName)
@@ -261,25 +261,25 @@ namespace
       }
 
       if (pFunction == nullptr)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
-      auto pScriptableFunctionAttribute = pFunction->GetAttributeByType<ezScriptableFunctionAttribute>();
+      auto pScriptableFunctionAttribute = pFunction->GetAttributeByType<WScriptableFunctionAttribute>();
       if (pScriptableFunctionAttribute == nullptr)
-        return EZ_FAILURE;
+        return W_FAILURE;
 
-      ezUInt32 uiInputArgsMask = 0;
-      ezUInt32 uiOutputArgsMask = 0;
-      for (ezUInt32 i = 0; i < pScriptableFunctionAttribute->GetArgumentCount(); ++i)
+      WUInt32 uiInputArgsMask = 0;
+      WUInt32 uiOutputArgsMask = 0;
+      for (WUInt32 i = 0; i < pScriptableFunctionAttribute->GetArgumentCount(); ++i)
       {
         auto argType = pScriptableFunctionAttribute->GetArgumentType(i);
-        if (argType == ezScriptableFunctionAttribute::In || argType == ezScriptableFunctionAttribute::Inout)
+        if (argType == WScriptableFunctionAttribute::In || argType == WScriptableFunctionAttribute::Inout)
         {
-          uiInputArgsMask |= EZ_BIT(i);
+          uiInputArgsMask |= W_BIT(i);
         }
 
-        if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
+        if (argType == WScriptableFunctionAttribute::Out || argType == WScriptableFunctionAttribute::Inout)
         {
-          uiOutputArgsMask |= EZ_BIT(i);
+          uiOutputArgsMask |= W_BIT(i);
         }
       }
 
@@ -288,28 +288,28 @@ namespace
 
       out_uiSize = sizeof(NodeUserData_TypeAndFunction);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndFunction>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_TypeAndFunction>(inout_pAdditionalData);
-      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-      EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetFunctions(), userData.m_pProperty));
+      W_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+      W_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetFunctions(), userData.m_pProperty));
 
       inout_stream >> userData.m_uiInputArgsMask;
       inout_stream >> userData.m_uiOutputArgsMask;
 
-      if (static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty)->GetArgumentCount() != ezMath::CountBits(userData.m_uiInputArgsMask | userData.m_uiOutputArgsMask))
+      if (static_cast<const WAbstractFunctionProperty*>(userData.m_pProperty)->GetArgumentCount() != WMath::CountBits(userData.m_uiInputArgsMask | userData.m_uiOutputArgsMask))
       {
-        ezLog::Error("Visual script {} '{}': Argument count mismatch. Script needs re-transform.", ezVisualScriptNodeDescription::Type::GetName(ref_node.m_Type), userData.m_pProperty->GetPropertyName());
-        return EZ_FAILURE;
+        WLog::Error("Visual script {} '{}': Argument count mismatch. Script needs re-transform.", WVisualScriptNodeDescription::Type::GetName(ref_node.m_Type), userData.m_pProperty->GetPropertyName());
+        return W_FAILURE;
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       NodeUserData_TypeAndProperty::ToString(nodeDesc, out_sResult);
     }
@@ -322,47 +322,47 @@ namespace
 
   struct NodeUserData_Switch
   {
-    ezUInt32 m_uiNumCases = 0;
+    WUInt32 m_uiNumCases = 0;
 
     // This struct is allocated with enough space behind it to hold an array with m_uiNumCases size.
-    ezInt64 m_Cases[1];
+    WInt64 m_Cases[1];
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      const ezVariantArray& casesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+      const WVariantArray& casesVar = nodeDesc.m_Value.Get<WVariantArray>();
 
-      ezUInt32 uiCount = casesVar.GetCount();
+      WUInt32 uiCount = casesVar.GetCount();
       inout_stream << uiCount;
 
       for (auto& var : casesVar)
       {
-        ezInt64 iCaseValue = var.ConvertTo<ezInt64>();
+        WInt64 iCaseValue = var.ConvertTo<WInt64>();
         inout_stream << iCaseValue;
       }
 
-      out_uiSize = GetDynamicSize<NodeUserData_Switch, ezInt64>(uiCount);
+      out_uiSize = GetDynamicSize<NodeUserData_Switch, WInt64>(uiCount);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_Switch>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
-      ezUInt32 uiCount = 0;
+      WUInt32 uiCount = 0;
       inout_stream >> uiCount;
 
-      const ezUInt32 uiByteSize = GetDynamicSize<NodeUserData_Switch, ezInt64>(uiCount);
+      const WUInt32 uiByteSize = GetDynamicSize<NodeUserData_Switch, WInt64>(uiCount);
       auto& userData = ref_node.InitUserData<NodeUserData_Switch>(inout_pAdditionalData, uiByteSize);
       userData.m_uiNumCases = uiCount;
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
+      for (WUInt32 i = 0; i < uiCount; ++i)
       {
         inout_stream >> userData.m_Cases[i];
       }
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       // Nothing to add here
     }
@@ -375,30 +375,30 @@ namespace
 
   struct NodeUserData_Comparison
   {
-    ezEnum<ezComparisonOperator> m_ComparisonOperator;
+    WEnum<WComparisonOperator> m_ComparisonOperator;
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      ezEnum<ezComparisonOperator> compOp = static_cast<ezComparisonOperator::Enum>(nodeDesc.m_Value.Get<ezInt64>());
+      WEnum<WComparisonOperator> compOp = static_cast<WComparisonOperator::Enum>(nodeDesc.m_Value.Get<WInt64>());
       inout_stream << compOp;
 
       out_uiSize = sizeof(NodeUserData_Comparison);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_Comparison>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_Comparison>(inout_pAdditionalData);
       inout_stream >> userData.m_ComparisonOperator;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
-      ezStringBuilder sCompOp;
-      ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezComparisonOperator>(), nodeDesc.m_Value.Get<ezInt64>(), sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      WStringBuilder sCompOp;
+      WReflectionUtils::EnumerationToString(WGetStaticRTTI<WComparisonOperator>(), nodeDesc.m_Value.Get<WInt64>(), sCompOp, WReflectionUtils::EnumConversionMode::ValueNameOnly);
 
       out_sResult.Append(" ", sCompOp);
     }
@@ -411,42 +411,42 @@ namespace
 
   struct NodeUserData_Expression
   {
-    ezExpressionByteCode m_ByteCode;
+    WExpressionByteCode m_ByteCode;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding[4];
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding[4];
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      const ezExpressionByteCode& byteCode = nodeDesc.m_Value.Get<ezExpressionByteCode>();
+      const WExpressionByteCode& byteCode = nodeDesc.m_Value.Get<WExpressionByteCode>();
 
-      ezUInt32 uiDataSize = static_cast<ezUInt32>(byteCode.GetDataBlob().GetCount());
+      WUInt32 uiDataSize = static_cast<WUInt32>(byteCode.GetDataBlob().GetCount());
       inout_stream << uiDataSize;
 
-      EZ_SUCCEED_OR_RETURN(byteCode.Save(inout_stream));
+      W_SUCCEED_OR_RETURN(byteCode.Save(inout_stream));
 
       out_uiSize = sizeof(NodeUserData_Expression) + uiDataSize;
       out_uiAlignment = GetUserDataAlignment<NodeUserData_Expression>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_Expression>(inout_pAdditionalData);
 
-      ezUInt32 uiDataSize = 0;
+      WUInt32 uiDataSize = 0;
       inout_stream >> uiDataSize;
 
-      auto externalMemory = ezMakeArrayPtr(inout_pAdditionalData, uiDataSize);
+      auto externalMemory = WMakeArrayPtr(inout_pAdditionalData, uiDataSize);
       inout_pAdditionalData += uiDataSize;
 
-      EZ_SUCCEED_OR_RETURN(userData.m_ByteCode.Load(inout_stream, externalMemory));
+      W_SUCCEED_OR_RETURN(userData.m_ByteCode.Load(inout_stream, externalMemory));
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       // Nothing to add here
     }
@@ -459,40 +459,40 @@ namespace
 
   struct NodeUserData_StartCoroutine : public NodeUserData_Type
   {
-    ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+    WEnum<WScriptCoroutineCreationMode> m_CreationMode;
 
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding;
+#if W_ENABLED(W_PLATFORM_32BIT)
+    WUInt32 m_uiPadding;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    static WResult Serialize(const WVisualScriptNodeDescription& nodeDesc, WStreamWriter& inout_stream, WUInt32& out_uiSize, WUInt32& out_uiAlignment)
     {
-      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+      W_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      ezEnum<ezScriptCoroutineCreationMode> creationMode = static_cast<ezScriptCoroutineCreationMode::Enum>(nodeDesc.m_Value.Get<ezInt64>());
+      WEnum<WScriptCoroutineCreationMode> creationMode = static_cast<WScriptCoroutineCreationMode::Enum>(nodeDesc.m_Value.Get<WInt64>());
       inout_stream << creationMode;
 
       out_uiSize = sizeof(NodeUserData_StartCoroutine);
       out_uiAlignment = GetUserDataAlignment<NodeUserData_StartCoroutine>();
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static WResult Deserialize(WVisualScriptGraphDescription::Node& ref_node, WStreamReader& inout_stream, WUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_StartCoroutine>(inout_pAdditionalData);
-      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+      W_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
 
       inout_stream >> userData.m_CreationMode;
 
-      return EZ_SUCCESS;
+      return W_SUCCESS;
     }
 
-    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    static void ToString(const WVisualScriptNodeDescription& nodeDesc, WStringBuilder& out_sResult)
     {
       NodeUserData_Type::ToString(nodeDesc, out_sResult);
 
-      ezStringBuilder sCreationMode;
-      ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezScriptCoroutineCreationMode>(), nodeDesc.m_Value.Get<ezInt64>(), sCreationMode, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      WStringBuilder sCreationMode;
+      WReflectionUtils::EnumerationToString(WGetStaticRTTI<WScriptCoroutineCreationMode>(), nodeDesc.m_Value.Get<WInt64>(), sCreationMode, WReflectionUtils::EnumConversionMode::ValueNameOnly);
 
       out_sResult.Append(" ", sCreationMode);
     }
@@ -627,11 +627,11 @@ namespace
     {},                                        // LastBuiltin,
   };
 
-  static_assert(EZ_ARRAY_SIZE(s_TypeToUserDataContexts) == ezVisualScriptNodeDescription::Type::Count);
+  static_assert(W_ARRAY_SIZE(s_TypeToUserDataContexts) == WVisualScriptNodeDescription::Type::Count);
 } // namespace
 
-const UserDataContext& GetUserDataContext(ezVisualScriptNodeDescription::Type::Enum nodeType)
+const UserDataContext& GetUserDataContext(WVisualScriptNodeDescription::Type::Enum nodeType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_TypeToUserDataContexts), "Out of bounds access");
+  W_ASSERT_DEBUG(nodeType >= 0 && static_cast<WUInt32>(nodeType) < W_ARRAY_SIZE(s_TypeToUserDataContexts), "Out of bounds access");
   return s_TypeToUserDataContexts[nodeType];
 }

@@ -3,58 +3,58 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Stopwatch.h>
 
-EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
+W_CREATE_SIMPLE_TEST(Time, Stopwatch)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "General Functionality")
+  W_TEST_BLOCK(WTestBlock::Enabled, "General Functionality")
   {
-    ezStopwatch sw;
+    WStopwatch sw;
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(50));
 
     sw.StopAndReset();
     sw.Resume();
 
-    const ezTime t0 = sw.Checkpoint();
+    const WTime t0 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
 
-    const ezTime t1 = sw.Checkpoint();
+    const WTime t1 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(20));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(20));
 
-    const ezTime t2 = sw.Checkpoint();
+    const WTime t2 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(30));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(30));
 
-    const ezTime t3 = sw.Checkpoint();
+    const WTime t3 = sw.Checkpoint();
 
-    const ezTime tTotal1 = sw.GetRunningTotal();
+    const WTime tTotal1 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10));
 
     sw.Pause(); // freeze the current running total
 
-    const ezTime tTotal2 = sw.GetRunningTotal();
+    const WTime tTotal2 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10)); // should not affect the running total anymore
+    WThreadUtils::Sleep(WTime::MakeFromMilliseconds(10)); // should not affect the running total anymore
 
-    const ezTime tTotal3 = sw.GetRunningTotal();
+    const WTime tTotal3 = sw.GetRunningTotal();
 
 
     // these tests are deliberately written such that they cannot fail,
     // even when the OS is under heavy load
 
-    EZ_TEST_BOOL(t0 > ezTime::MakeFromMilliseconds(5));
-    EZ_TEST_BOOL(t1 > ezTime::MakeFromMilliseconds(5));
-    EZ_TEST_BOOL(t2 > ezTime::MakeFromMilliseconds(5));
-    EZ_TEST_BOOL(t3 > ezTime::MakeFromMilliseconds(5));
+    W_TEST_BOOL(t0 > WTime::MakeFromMilliseconds(5));
+    W_TEST_BOOL(t1 > WTime::MakeFromMilliseconds(5));
+    W_TEST_BOOL(t2 > WTime::MakeFromMilliseconds(5));
+    W_TEST_BOOL(t3 > WTime::MakeFromMilliseconds(5));
 
 
-    EZ_TEST_BOOL(t1 + t2 + t3 <= tTotal1);
-    EZ_TEST_BOOL(t0 + t1 + t2 + t3 > tTotal1);
+    W_TEST_BOOL(t1 + t2 + t3 <= tTotal1);
+    W_TEST_BOOL(t0 + t1 + t2 + t3 > tTotal1);
 
-    EZ_TEST_BOOL(tTotal1 < tTotal2);
-    EZ_TEST_BOOL(tTotal1 < tTotal3);
-    EZ_TEST_BOOL(tTotal2 == tTotal3);
+    W_TEST_BOOL(tTotal1 < tTotal2);
+    W_TEST_BOOL(tTotal1 < tTotal3);
+    W_TEST_BOOL(tTotal2 == tTotal3);
   }
 }

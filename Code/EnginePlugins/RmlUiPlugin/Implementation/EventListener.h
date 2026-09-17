@@ -5,9 +5,9 @@
 #include <RmlUi/Core/EventListener.h>
 #include <RmlUi/Core/EventListenerInstancer.h>
 
-class ezRmlUiContext;
+class WRmlUiContext;
 
-namespace ezRmlUiInternal
+namespace WRmlUiInternal
 {
   class EventListener final : public Rml::EventListener
   {
@@ -18,8 +18,8 @@ namespace ezRmlUiInternal
 
   private:
     friend class EventListenerInstancer;
-    ezHashedString m_sIdentifier;
-    ezUInt32 m_uiIndex = 0;
+    WHashedString m_sIdentifier;
+    WUInt32 m_uiIndex = 0;
   };
 
   class EventListenerInstancer final : public Rml::EventListenerInstancer
@@ -33,7 +33,7 @@ namespace ezRmlUiInternal
     void ReturnToPool(EventListener& ref_listener);
 
   private:
-    ezDeque<EventListener> m_EventListenerPool;
-    ezDynamicArray<ezUInt32> m_EventListenerFreelist;
+    WDeque<EventListener> m_EventListenerPool;
+    WDynamicArray<WUInt32> m_EventListenerFreelist;
   };
-} // namespace ezRmlUiInternal
+} // namespace WRmlUiInternal

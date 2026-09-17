@@ -7,9 +7,9 @@
 #include <GameEngine/GameState/GameState.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-class EZ_SAMPLEGAMEPLUGIN_DLL SampleGameState : public ezFallbackGameState
+class W_SAMPLEGAMEPLUGIN_DLL SampleGameState : public WFallbackGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(SampleGameState, ezFallbackGameState);
+  W_ADD_DYNAMIC_REFLECTION(SampleGameState, WFallbackGameState);
 
 public:
   SampleGameState();
@@ -17,20 +17,20 @@ public:
   virtual void ProcessInput() override;
 
 protected:
-  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow) override;
+  virtual void ConfigureMainWindowInputDevices(WWindow* pWindow) override;
   virtual void ConfigureInputActions() override;
   virtual void ConfigureMainCamera() override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
+  virtual void OnActivation(WWorld* pWorld, WStringView sStartPosition, const WTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
   virtual void AfterWorldUpdate() override;
 
   // BEGIN-DOCS-CODE-SNIPPET: confunc-decl
-  void ConFunc_Print(ezString sText);
-  ezConsoleFunction<void(ezString)> m_ConFunc_Print;
+  void ConFunc_Print(WString sText);
+  WConsoleFunction<void(WString)> m_ConFunc_Print;
   // END-DOCS-CODE-SNIPPET
 
-  ezDeque<ezGameObjectHandle> m_SpawnedObjects;
+  WDeque<WGameObjectHandle> m_SpawnedObjects;
 };

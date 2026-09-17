@@ -6,9 +6,9 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/Pipeline/ViewRenderMode.h>
 
-struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
+struct W_EDITORENGINEPROCESSFRAMEWORK_DLL WSceneViewPerspective
 {
-  using StorageType = ezUInt8;
+  using StorageType = WUInt8;
 
   enum Enum
   {
@@ -20,21 +20,21 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
     Default = Perspective
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORENGINEPROCESSFRAMEWORK_DLL, ezSceneViewPerspective);
+W_DECLARE_REFLECTABLE_TYPE(W_EDITORENGINEPROCESSFRAMEWORK_DLL, WSceneViewPerspective);
 
-struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
+struct W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineViewConfig
 {
-  ezViewRenderMode::Enum m_RenderMode = ezViewRenderMode::Default;
-  ezSceneViewPerspective::Enum m_Perspective = ezSceneViewPerspective::Default;
-  ezCameraUsageHint::Enum m_CameraUsageHint = ezCameraUsageHint::EditorView;
+  WViewRenderMode::Enum m_RenderMode = WViewRenderMode::Default;
+  WSceneViewPerspective::Enum m_Perspective = WSceneViewPerspective::Default;
+  WCameraUsageHint::Enum m_CameraUsageHint = WCameraUsageHint::EditorView;
   bool m_bUseCameraTransformOnDevice = true;
 
-  ezCamera m_Camera;
-  ezEngineViewConfig* m_pLinkedViewConfig = nullptr; // used to store which other view config this is linked to, for resetting values when switching views
+  WCamera m_Camera;
+  WEngineViewConfig* m_pLinkedViewConfig = nullptr; // used to store which other view config this is linked to, for resetting values when switching views
 
   void ApplyPerspectiveSetting(float fFov = 0.0f, float fNearPlane = 0.1f, float fFarPlane = 1000.0f);
 };
-struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewLightSettingsEvent
+struct W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineViewLightSettingsEvent
 {
   enum class Type
   {
@@ -53,13 +53,13 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewLightSettingsEvent
   Type m_Type;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewLightSettings : public ezEditorEngineSyncObject
+class W_EDITORENGINEPROCESSFRAMEWORK_DLL WEngineViewLightSettings : public WEditorEngineSyncObject
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineViewLightSettings, ezEditorEngineSyncObject);
+  W_ADD_DYNAMIC_REFLECTION(WEngineViewLightSettings, WEditorEngineSyncObject);
 
 public:
-  ezEngineViewLightSettings(bool bEnable = true);
-  ~ezEngineViewLightSettings();
+  WEngineViewLightSettings(bool bEnable = true);
+  ~WEngineViewLightSettings();
 
   bool GetSkyBox() const;
   void SetSkyBox(bool bVal);
@@ -76,8 +76,8 @@ public:
   bool GetDirectionalLight() const;
   void SetDirectionalLight(bool bVal);
 
-  ezAngle GetDirectionalLightAngle() const;
-  void SetDirectionalLightAngle(ezAngle val);
+  WAngle GetDirectionalLightAngle() const;
+  void SetDirectionalLightAngle(WAngle val);
 
   bool GetDirectionalLightShadows() const;
   void SetDirectionalLightShadows(bool bVal);
@@ -88,32 +88,32 @@ public:
   bool GetFog() const;
   void SetFog(bool bVal);
 
-  mutable ezEvent<const ezEngineViewLightSettingsEvent&> m_EngineViewLightSettingsEvents;
+  mutable WEvent<const WEngineViewLightSettingsEvent&> m_EngineViewLightSettingsEvents;
 
-  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
-  virtual void UpdateForEngine(ezWorld* pWorld) override;
+  virtual bool SetupForEngine(WWorld* pWorld, WUInt32 uiNextComponentPickingID) override;
+  virtual void UpdateForEngine(WWorld* pWorld) override;
 
 private:
-  void SetModifiedInternal(ezEngineViewLightSettingsEvent::Type type);
+  void SetModifiedInternal(WEngineViewLightSettingsEvent::Type type);
 
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;
-  ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
+  WString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
   float m_fSkyLightIntensity = 1.0f;
 
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(70.0f);
+  WAngle m_DirectionalLightAngle = WAngle::MakeFromDegree(70.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
 
   bool m_bFog = false;
 
   // Engine side data
-  ezWorld* m_pWorld = nullptr;
-  ezGameObjectHandle m_hSkyBoxObject;
-  ezComponentHandle m_hSkyBox;
-  ezGameObjectHandle m_hGameObject;
-  ezComponentHandle m_hDirLight;
-  ezComponentHandle m_hSkyLight;
-  ezComponentHandle m_hFog;
+  WWorld* m_pWorld = nullptr;
+  WGameObjectHandle m_hSkyBoxObject;
+  WComponentHandle m_hSkyBox;
+  WGameObjectHandle m_hGameObject;
+  WComponentHandle m_hDirLight;
+  WComponentHandle m_hSkyLight;
+  WComponentHandle m_hFog;
 };

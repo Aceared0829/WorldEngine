@@ -10,20 +10,20 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGreyBoxEditTool, 1, ezRTTIDefaultAllocator<ezGreyBoxEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+W_BEGIN_DYNAMIC_REFLECTED_TYPE(WGreyBoxEditTool, 1, WRTTIDefaultAllocator<WGreyBoxEditTool>)
+W_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGreyBoxEditTool::ezGreyBoxEditTool()
+WGreyBoxEditTool::WGreyBoxEditTool()
 {
-  m_DrawBoxGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::GizmoEventHandler, this));
+  m_DrawBoxGizmo.m_GizmoEvents.AddEventHandler(WMakeDelegate(&WGreyBoxEditTool::GizmoEventHandler, this));
 }
 
-ezGreyBoxEditTool::~ezGreyBoxEditTool()
+WGreyBoxEditTool::~WGreyBoxEditTool()
 {
-  m_DrawBoxGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::GizmoEventHandler, this));
+  m_DrawBoxGizmo.m_GizmoEvents.RemoveEventHandler(WMakeDelegate(&WGreyBoxEditTool::GizmoEventHandler, this));
 }
 
-ezEditorInputContext* ezGreyBoxEditTool::GetEditorInputContextOverride()
+WEditorInputContext* WGreyBoxEditTool::GetEditorInputContextOverride()
 {
   if (IsActive())
     return &m_DrawBoxGizmo;
@@ -31,77 +31,77 @@ ezEditorInputContext* ezGreyBoxEditTool::GetEditorInputContextOverride()
   return nullptr;
 }
 
-ezEditToolSupportedSpaces ezGreyBoxEditTool::GetSupportedSpaces() const
+WEditToolSupportedSpaces WGreyBoxEditTool::GetSupportedSpaces() const
 {
-  return ezEditToolSupportedSpaces::WorldSpaceOnly;
+  return WEditToolSupportedSpaces::WorldSpaceOnly;
 }
 
-bool ezGreyBoxEditTool::GetSupportsMoveParentOnly() const
+bool WGreyBoxEditTool::GetSupportsMoveParentOnly() const
 {
   return false;
 }
 
 
-void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
+void WGreyBoxEditTool::GetGridSettings(WGridSettingsMsgToEngine& ref_msg)
 {
-  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+  WScenePreferencesUser* pPreferences = WPreferences::QueryPreferences<WScenePreferencesUser>(GetDocument());
 
-  ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
+  ref_msg.m_fGridDensity = WSnapProvider::GetTranslationSnapValue(); // negative density = local space
   ref_msg.m_vGridTangent1.SetZero();
   ref_msg.m_vGridTangent2.SetZero();
 
   if (pPreferences->GetShowGrid())
   {
-    if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawBase)
+    if (m_DrawBoxGizmo.GetCurrentMode() == WDrawBoxGizmo::ManipulateMode::DrawBase)
     {
       ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
-      ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-      ref_msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+      ref_msg.m_vGridTangent1 = WVec3(1, 0, 0);
+      ref_msg.m_vGridTangent2 = WVec3(0, 1, 0);
     }
-    else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawHeight)
+    else if (m_DrawBoxGizmo.GetCurrentMode() == WDrawBoxGizmo::ManipulateMode::DrawHeight)
     {
-      const ezVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
+      const WVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
 
       ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
-      if (ezMath::Abs(ezVec3(1, 0, 0).Dot(vCamDir)) < ezMath::Abs(ezVec3(0, 1, 0).Dot(vCamDir)))
+      if (WMath::Abs(WVec3(1, 0, 0).Dot(vCamDir)) < WMath::Abs(WVec3(0, 1, 0).Dot(vCamDir)))
       {
-        ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-        ref_msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = WVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = WVec3(0, 0, 1);
       }
       else
       {
-        ref_msg.m_vGridTangent1 = ezVec3(0, 1, 0);
-        ref_msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = WVec3(0, 1, 0);
+        ref_msg.m_vGridTangent2 = WVec3(0, 0, 1);
       }
     }
-    else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::None)
+    else if (m_DrawBoxGizmo.GetCurrentMode() == WDrawBoxGizmo::ManipulateMode::None)
     {
       if (m_DrawBoxGizmo.GetDisplayGrid())
       {
         ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
-        ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-        ref_msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent1 = WVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = WVec3(0, 1, 0);
       }
     }
   }
 }
 
-void ezGreyBoxEditTool::UpdateGizmoState()
+void WGreyBoxEditTool::UpdateGizmoState()
 {
-  ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
+  WManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
 
   m_DrawBoxGizmo.SetVisible(IsActive());
-  m_DrawBoxGizmo.SetTransformation(ezTransform::MakeIdentity());
+  m_DrawBoxGizmo.SetTransformation(WTransform::MakeIdentity());
 }
 
-void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
+void WGreyBoxEditTool::GameObjectEventHandler(const WGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGameObjectEvent::Type::ActiveEditToolChanged:
+    case WGameObjectEvent::Type::ActiveEditToolChanged:
       UpdateGizmoState();
       break;
 
@@ -110,7 +110,7 @@ void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezGreyBoxEditTool::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+void WGreyBoxEditTool::ManipulatorManagerEventHandler(const WManipulatorManagerEvent& e)
 {
   if (!IsActive())
     return;
@@ -123,15 +123,15 @@ void ezGreyBoxEditTool::ManipulatorManagerEventHandler(const ezManipulatorManage
   }
 }
 
-void ezGreyBoxEditTool::OnConfigured()
+void WGreyBoxEditTool::OnConfigured()
 {
-  GetDocument()->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::GameObjectEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::ManipulatorManagerEventHandler, this));
+  GetDocument()->m_GameObjectEvents.AddEventHandler(WMakeDelegate(&WGreyBoxEditTool::GameObjectEventHandler, this));
+  WManipulatorManager::GetSingleton()->m_Events.AddEventHandler(WMakeDelegate(&WGreyBoxEditTool::ManipulatorManagerEventHandler, this));
 
   m_DrawBoxGizmo.SetOwner(GetWindow(), nullptr);
 }
 
-void ezGreyBoxEditTool::OnActiveChanged(bool bIsActive)
+void WGreyBoxEditTool::OnActiveChanged(bool bIsActive)
 {
   if (bIsActive)
   {
@@ -139,28 +139,28 @@ void ezGreyBoxEditTool::OnActiveChanged(bool bIsActive)
   }
 }
 
-void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
+void WGreyBoxEditTool::GizmoEventHandler(const WGizmoEvent& e)
 {
-  if (e.m_Type == ezGizmoEvent::Type::EndInteractions)
+  if (e.m_Type == WGizmoEvent::Type::EndInteractions)
   {
-    ezVec3 vCenter;
+    WVec3 vCenter;
     float negx, posx, negy, posy, negz, posz;
     m_DrawBoxGizmo.GetResult(vCenter, negx, posx, negy, posy, negz, posz);
 
     auto* pDoc = GetDocument();
     auto* pHistory = pDoc->GetCommandHistory();
 
-    ezUuid materialGuid;
+    WUuid materialGuid;
 
     // check if there is a material asset currently selected in the asset browser
     // if so, assign that material to the greybox component
     {
-      const ezUuid lastSelected = ezQtAssetBrowserPanel::GetSingleton()->GetLastSelectedAsset();
+      const WUuid lastSelected = WQtAssetBrowserPanel::GetSingleton()->GetLastSelectedAsset();
 
       if (lastSelected.IsValid())
       {
-        const auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(lastSelected);
-        if (pSubAsset && ezStringUtils::IsEqual(pSubAsset->m_pAssetInfo->m_Info->GetAssetsDocumentTypeName(), "Material"))
+        const auto pSubAsset = WAssetCurator::GetSingleton()->GetSubAsset(lastSelected);
+        if (pSubAsset && WStringUtils::IsEqual(pSubAsset->m_pAssetInfo->m_Info->GetAssetsDocumentTypeName(), "Material"))
         {
           materialGuid = lastSelected;
         }
@@ -169,28 +169,28 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
 
     pHistory->StartTransaction("Add Grey-Box");
 
-    ezUuid objGuid, compGuid;
-    objGuid = ezUuid::MakeUuid();
-    compGuid = ezUuid::MakeUuid();
+    WUuid objGuid, compGuid;
+    objGuid = WUuid::MakeUuid();
+    compGuid = WUuid::MakeUuid();
 
     {
-      ezAddObjectCommand cmdAdd;
+      WAddObjectCommand cmdAdd;
       cmdAdd.m_NewObjectGuid = objGuid;
-      cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+      cmdAdd.m_pType = WGetStaticRTTI<WGameObject>();
       cmdAdd.m_sParentProperty = "Children";
       pHistory->AddCommand(cmdAdd).AssertSuccess();
     }
     {
-      ezSetObjectPropertyCommand cmdPos;
+      WSetObjectPropertyCommand cmdPos;
       cmdPos.m_NewValue = vCenter;
       cmdPos.m_Object = objGuid;
       cmdPos.m_sProperty = "LocalPosition";
       pHistory->AddCommand(cmdPos).AssertSuccess();
     }
     {
-      ezAddObjectCommand cmdComp;
+      WAddObjectCommand cmdComp;
       cmdComp.m_NewObjectGuid = compGuid;
-      cmdComp.m_pType = ezRTTI::FindTypeByName("ezGreyBoxComponent");
+      cmdComp.m_pType = WRTTI::FindTypeByName("WGreyBoxComponent");
       cmdComp.m_sParentProperty = "Components";
       cmdComp.m_Parent = objGuid;
       cmdComp.m_Index = -1;
@@ -198,15 +198,15 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
     }
     if (materialGuid.IsValid())
     {
-      ezStringBuilder tmp;
-      ezSetObjectPropertyCommand cmdMat;
-      cmdMat.m_NewValue = ezConversionUtils::ToString(materialGuid, tmp).GetData();
+      WStringBuilder tmp;
+      WSetObjectPropertyCommand cmdMat;
+      cmdMat.m_NewValue = WConversionUtils::ToString(materialGuid, tmp).GetData();
       cmdMat.m_Object = compGuid;
       cmdMat.m_sProperty = "Material";
       pHistory->AddCommand(cmdMat).AssertSuccess();
     }
     {
-      ezSetObjectPropertyCommand cmdSize;
+      WSetObjectPropertyCommand cmdSize;
       cmdSize.m_Object = compGuid;
 
       cmdSize.m_NewValue = negx;

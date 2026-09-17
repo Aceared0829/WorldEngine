@@ -4,9 +4,9 @@
 // Start of the definition of a example Enum
 // It takes quite some lines of code to define a enum,
 // but it could be encapsulated into an preprocessor macro if wanted
-struct ezTestEnumBase
+struct WTestEnumBase
 {
-  using StorageType = ezUInt8; // The storage type for the enum
+  using StorageType = WUInt8; // The storage type for the enum
 
   enum Enum
   {
@@ -16,107 +16,107 @@ struct ezTestEnumBase
   };
 };
 
-using ezTestEnum = ezEnum<ezTestEnumBase>; // The name of the final enum
+using WTestEnum = WEnum<WTestEnumBase>; // The name of the final enum
 // End of the definition of a example enum
 ///////////////////////////////////////////////////////////////////////
 
-struct ezTestEnum2Base
+struct WTestEnum2Base
 {
-  using StorageType = ezUInt16;
+  using StorageType = WUInt16;
 
   enum Enum
   {
-    Bit1 = EZ_BIT(0),
-    Bit2 = EZ_BIT(1),
+    Bit1 = W_BIT(0),
+    Bit2 = W_BIT(1),
     Default = Bit1
   };
 };
 
-using ezTestEnum2 = ezEnum<ezTestEnum2Base>;
+using WTestEnum2 = WEnum<WTestEnum2Base>;
 
 // Test if the type actually has the requested size
-static_assert(sizeof(ezTestEnum) == sizeof(ezUInt8));
-static_assert(sizeof(ezTestEnum2) == sizeof(ezUInt16));
+static_assert(sizeof(WTestEnum) == sizeof(WUInt8));
+static_assert(sizeof(WTestEnum2) == sizeof(WUInt16));
 
-EZ_CREATE_SIMPLE_TEST_GROUP(Basics);
+W_CREATE_SIMPLE_TEST_GROUP(Basics);
 
 // This takes a c++ enum. Tests the implict conversion
-void TakeEnum1(ezTestEnum::Enum value) {}
+void TakeEnum1(WTestEnum::Enum value) {}
 
 // This takes our own enum type
-void TakeEnum2(ezTestEnum value) {}
+void TakeEnum2(WTestEnum value) {}
 
-EZ_CREATE_SIMPLE_TEST(Basics, Enum)
+W_CREATE_SIMPLE_TEST(Basics, Enum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Default initialized enum")
   {
-    ezTestEnum e1;
+    WTestEnum e1;
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Enum with explicit initialization")
   {
-    ezTestEnum e2(ezTestEnum::Yes);
+    WTestEnum e2(WTestEnum::Yes);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "This tests if the default initialization works and if the implicit conversion works")
+  W_TEST_BLOCK(WTestBlock::Enabled, "This tests if the default initialization works and if the implicit conversion works")
   {
-    ezTestEnum e1;
-    ezTestEnum e2(ezTestEnum::Yes);
+    WTestEnum e1;
+    WTestEnum e2(WTestEnum::Yes);
 
-    EZ_TEST_BOOL(e1 == ezTestEnum::No);
-    EZ_TEST_BOOL(e2 == ezTestEnum::Yes);
+    W_TEST_BOOL(e1 == WTestEnum::No);
+    W_TEST_BOOL(e2 == WTestEnum::Yes);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function call tests")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Function call tests")
   {
-    ezTestEnum e1;
+    WTestEnum e1;
 
     TakeEnum1(e1);
     TakeEnum2(e1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue and SetValue")
+  W_TEST_BLOCK(WTestBlock::Enabled, "GetValue and SetValue")
   {
-    ezTestEnum e1;
-    EZ_TEST_INT(e1.GetValue(), 0);
+    WTestEnum e1;
+    W_TEST_INT(e1.GetValue(), 0);
     e1.SetValue(17);
-    EZ_TEST_INT(e1.GetValue(), 17);
+    W_TEST_INT(e1.GetValue(), 17);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment of different values")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Assignment of different values")
   {
-    ezTestEnum e1, e2;
+    WTestEnum e1, e2;
 
-    e1 = ezTestEnum::Yes;
-    e2 = ezTestEnum::No;
-    EZ_TEST_BOOL(e1 == ezTestEnum::Yes);
-    EZ_TEST_BOOL(e2 == ezTestEnum::No);
+    e1 = WTestEnum::Yes;
+    e2 = WTestEnum::No;
+    W_TEST_BOOL(e1 == WTestEnum::Yes);
+    W_TEST_BOOL(e2 == WTestEnum::No);
 
     e1 = e2;
-    EZ_TEST_BOOL(e1 == ezTestEnum::No);
+    W_TEST_BOOL(e1 == WTestEnum::No);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test the | operator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Test the | operator")
   {
-    ezTestEnum2 e3(ezTestEnum2::Bit1);
-    ezTestEnum2 e4(ezTestEnum2::Bit2);
-    ezUInt16 uiBits = (e3 | e4).GetValue();
-    EZ_TEST_BOOL(uiBits == (ezTestEnum2::Bit1 | ezTestEnum2::Bit2));
+    WTestEnum2 e3(WTestEnum2::Bit1);
+    WTestEnum2 e4(WTestEnum2::Bit2);
+    WUInt16 uiBits = (e3 | e4).GetValue();
+    W_TEST_BOOL(uiBits == (WTestEnum2::Bit1 | WTestEnum2::Bit2));
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test the & operator")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Test the & operator")
   {
-    ezTestEnum2 e3(ezTestEnum2::Bit1);
-    ezTestEnum2 e4(ezTestEnum2::Bit2);
-    ezUInt16 uiBits = ((e3 | e4) & e4).GetValue();
-    EZ_TEST_BOOL(uiBits == ezTestEnum2::Bit2);
+    WTestEnum2 e3(WTestEnum2::Bit1);
+    WTestEnum2 e4(WTestEnum2::Bit2);
+    WUInt16 uiBits = ((e3 | e4) & e4).GetValue();
+    W_TEST_BOOL(uiBits == WTestEnum2::Bit2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test conversion to int")
+  W_TEST_BLOCK(WTestBlock::Enabled, "Test conversion to int")
   {
-    ezTestEnum e1;
+    WTestEnum e1;
     int iTest = e1.GetValue();
-    EZ_TEST_BOOL(iTest == ezTestEnum::No);
+    W_TEST_BOOL(iTest == WTestEnum::No);
   }
 }

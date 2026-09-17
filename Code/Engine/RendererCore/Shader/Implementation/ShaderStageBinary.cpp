@@ -9,37 +9,37 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
-ezMutex ezShaderStageBinary::s_ShaderStageBinariesLock;
+WMap<WUInt32, WShaderStageBinary> WShaderStageBinary::s_ShaderStageBinaries[WGALShaderStage::ENUM_COUNT];
+WMutex WShaderStageBinary::s_ShaderStageBinariesLock;
 
-ezShaderStageBinary::ezShaderStageBinary() = default;
+WShaderStageBinary::WShaderStageBinary() = default;
 
-ezShaderStageBinary::~ezShaderStageBinary()
+WShaderStageBinary::~WShaderStageBinary()
 {
   m_pGALByteCode = nullptr;
 }
 
-ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
+WResult WShaderStageBinary::Write(WStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = ezShaderStageBinary::VersionCurrent;
+  const WUInt8 uiVersion = WShaderStageBinary::VersionCurrent;
 
-  // ezShaderStageBinary
+  // WShaderStageBinary
   inout_stream << uiVersion;
   inout_stream << m_uiSourceHash;
 
-  // ezGALShaderByteCode
+  // WGALShaderByteCode
   inout_stream << m_pGALByteCode->m_uiTessellationPatchControlPoints;
   inout_stream << m_pGALByteCode->m_Stage;
   inout_stream << m_pGALByteCode->m_bWasCompiledWithDebug;
 
   // m_ByteCode
-  const ezUInt32 uiByteCodeSize = m_pGALByteCode->m_ByteCode.GetCount();
+  const WUInt32 uiByteCodeSize = m_pGALByteCode->m_ByteCode.GetCount();
   inout_stream << uiByteCodeSize;
   if (!m_pGALByteCode->m_ByteCode.IsEmpty() && inout_stream.WriteBytes(&m_pGALByteCode->m_ByteCode[0], uiByteCodeSize).Failed())
-    return EZ_FAILURE;
+    return W_FAILURE;
 
   // m_ShaderResourceBindings
-  const ezUInt16 uiResources = static_cast<ezUInt16>(m_pGALByteCode->m_ShaderResourceBindings.GetCount());
+  const WUInt16 uiResources = static_cast<WUInt16>(m_pGALByteCode->m_ShaderResourceBindings.GetCount());
   inout_stream << uiResources;
   for (const auto& r : m_pGALByteCode->m_ShaderResourceBindings)
   {
@@ -54,12 +54,12 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
     inout_stream << bHasLayout;
     if (bHasLayout)
     {
-      EZ_SUCCEED_OR_RETURN(Write(inout_stream, *r.m_pLayout));
+      W_SUCCEED_OR_RETURN(Write(inout_stream, *r.m_pLayout));
     }
   }
 
   // m_ShaderVertexInput
-  const ezUInt16 uiVertexInputs = static_cast<ezUInt16>(m_pGALByteCode->m_ShaderVertexInput.GetCount());
+  const WUInt16 uiVertexInputs = static_cast<WUInt16>(m_pGALByteCode->m_ShaderVertexInput.GetCount());
   inout_stream << uiVertexInputs;
   for (const auto& v : m_pGALByteCode->m_ShaderVertexInput)
   {
@@ -68,15 +68,15 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
     inout_stream << v.m_uiLocation;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
-ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream, const ezShaderConstantBufferLayout& layout) const
+WResult WShaderStageBinary::Write(WStreamWriter& inout_stream, const WShaderConstantBufferLayout& layout) const
 {
   inout_stream << layout.m_uiTotalSize;
 
-  ezUInt16 uiConstants = static_cast<ezUInt16>(layout.m_Constants.GetCount());
+  WUInt16 uiConstants = static_cast<WUInt16>(layout.m_Constants.GetCount());
   inout_stream << uiConstants;
 
   for (auto& constant : layout.m_Constants)
@@ -87,31 +87,31 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream, const ezShader
     inout_stream << constant.m_uiOffset;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
+WResult WShaderStageBinary::Read(WStreamReader& inout_stream)
 {
-  EZ_ASSERT_DEBUG(m_pGALByteCode == nullptr, "");
-  m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode);
+  W_ASSERT_DEBUG(m_pGALByteCode == nullptr, "");
+  m_pGALByteCode = W_DEFAULT_NEW(WGALShaderByteCode);
 
-  ezUInt8 uiVersion = 0;
+  WUInt8 uiVersion = 0;
 
-  if (inout_stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
-    return EZ_FAILURE;
+  if (inout_stream.ReadBytes(&uiVersion, sizeof(WUInt8)) != sizeof(WUInt8))
+    return W_FAILURE;
 
-  if (uiVersion < ezShaderStageBinary::Version::Version6)
+  if (uiVersion < WShaderStageBinary::Version::Version6)
   {
-    ezLog::Error("Old shader binaries are not supported anymore and need to be recompiled, please delete shader cache.");
-    return EZ_FAILURE;
+    WLog::Error("Old shader binaries are not supported anymore and need to be recompiled, please delete shader cache.");
+    return W_FAILURE;
   }
 
-  EZ_ASSERT_DEV(uiVersion <= ezShaderStageBinary::VersionCurrent, "Wrong Version {0}", uiVersion);
+  W_ASSERT_DEV(uiVersion <= WShaderStageBinary::VersionCurrent, "Wrong Version {0}", uiVersion);
 
   inout_stream >> m_uiSourceHash;
 
-  // ezGALShaderByteCode
-  if (uiVersion >= ezShaderStageBinary::Version::Version7)
+  // WGALShaderByteCode
+  if (uiVersion >= WShaderStageBinary::Version::Version7)
   {
     inout_stream >> m_pGALByteCode->m_uiTessellationPatchControlPoints;
   }
@@ -120,21 +120,21 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
 
   // m_ByteCode
   {
-    ezUInt32 uiByteCodeSize = 0;
+    WUInt32 uiByteCodeSize = 0;
     inout_stream >> uiByteCodeSize;
     m_pGALByteCode->m_ByteCode.SetCountUninitialized(uiByteCodeSize);
     if (!m_pGALByteCode->m_ByteCode.IsEmpty() && inout_stream.ReadBytes(&m_pGALByteCode->m_ByteCode[0], uiByteCodeSize) != uiByteCodeSize)
-      return EZ_FAILURE;
+      return W_FAILURE;
   }
 
   // m_ShaderResourceBindings
   {
-    ezUInt16 uiResources = 0;
+    WUInt16 uiResources = 0;
     inout_stream >> uiResources;
 
     m_pGALByteCode->m_ShaderResourceBindings.SetCount(uiResources);
 
-    ezString sTemp;
+    WString sTemp;
 
     for (auto& r : m_pGALByteCode->m_ShaderResourceBindings)
     {
@@ -152,15 +152,15 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
 
       if (bHasLayout)
       {
-        r.m_pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
-        EZ_SUCCEED_OR_RETURN(Read(inout_stream, *r.m_pLayout));
+        r.m_pLayout = W_DEFAULT_NEW(WShaderConstantBufferLayout);
+        W_SUCCEED_OR_RETURN(Read(inout_stream, *r.m_pLayout));
       }
     }
   }
 
   // m_ShaderVertexInput
   {
-    ezUInt16 uiVertexInputs = 0;
+    WUInt16 uiVertexInputs = 0;
     inout_stream >> uiVertexInputs;
     m_pGALByteCode->m_ShaderVertexInput.SetCount(uiVertexInputs);
 
@@ -172,16 +172,16 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
     }
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 
 
-ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream, ezShaderConstantBufferLayout& out_layout)
+WResult WShaderStageBinary::Read(WStreamReader& inout_stream, WShaderConstantBufferLayout& out_layout)
 {
   inout_stream >> out_layout.m_uiTotalSize;
 
-  ezUInt16 uiConstants = 0;
+  WUInt16 uiConstants = 0;
   inout_stream >> uiConstants;
 
   out_layout.m_Constants.SetCount(uiConstants);
@@ -194,76 +194,76 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream, ezShaderConstan
     inout_stream >> constant.m_uiOffset;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
-ezSharedPtr<const ezGALShaderByteCode> ezShaderStageBinary::GetByteCode() const
+WSharedPtr<const WGALShaderByteCode> WShaderStageBinary::GetByteCode() const
 {
   return m_pGALByteCode;
 }
 
-ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog, ezStringView sPlatform) const
+WResult WShaderStageBinary::WriteStageBinary(WLogInterface* pLog, WStringView sPlatform) const
 {
-  ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
+  WStringBuilder sShaderStageFile = WShaderManager::GetCacheDirectory();
 
   sShaderStageFile.AppendPath(sPlatform);
-  sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[m_pGALByteCode->m_Stage], ezArgU(m_uiSourceHash, 8, true, 16, true));
+  sShaderStageFile.AppendFormat("/{0}_{1}.WShaderStage", WGALShaderStage::Names[m_pGALByteCode->m_Stage], WArgU(m_uiSourceHash, 8, true, 16, true));
 
-  ezFileWriter StageFileOut;
+  WFileWriter StageFileOut;
   if (StageFileOut.Open(sShaderStageFile).Failed())
   {
-    ezLog::Error(pLog, "Could not open shader stage file '{0}' for writing", sShaderStageFile);
-    return EZ_FAILURE;
+    WLog::Error(pLog, "Could not open shader stage file '{0}' for writing", sShaderStageFile);
+    return W_FAILURE;
   }
 
   if (Write(StageFileOut).Failed())
   {
-    ezLog::Error(pLog, "Could not write shader stage file '{0}'", sShaderStageFile);
-    return EZ_FAILURE;
+    WLog::Error(pLog, "Could not write shader stage file '{0}'", sShaderStageFile);
+    return W_FAILURE;
   }
 
-  return EZ_SUCCESS;
+  return W_SUCCESS;
 }
 
 // static
-ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform)
+WShaderStageBinary* WShaderStageBinary::LoadStageBinary(WGALShaderStage::Enum Stage, WUInt32 uiHash, WStringView sPlatform)
 {
-  EZ_LOCK(s_ShaderStageBinariesLock);
+  W_LOCK(s_ShaderStageBinariesLock);
   auto itStage = s_ShaderStageBinaries[Stage].Find(uiHash);
 
   if (!itStage.IsValid())
   {
-    ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
+    WStringBuilder sShaderStageFile = WShaderManager::GetCacheDirectory();
 
     sShaderStageFile.AppendPath(sPlatform);
-    sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[Stage], ezArgU(uiHash, 8, true, 16, true));
+    sShaderStageFile.AppendFormat("/{0}_{1}.WShaderStage", WGALShaderStage::Names[Stage], WArgU(uiHash, 8, true, 16, true));
 
-    ezFileReader StageFileIn;
+    WFileReader StageFileIn;
     if (StageFileIn.Open(sShaderStageFile.GetData()).Failed())
     {
-      ezLog::Debug("Could not open shader stage file '{0}' for reading", sShaderStageFile);
+      WLog::Debug("Could not open shader stage file '{0}' for reading", sShaderStageFile);
       return nullptr;
     }
 
-    ezShaderStageBinary shaderStageBinary;
+    WShaderStageBinary shaderStageBinary;
     if (shaderStageBinary.Read(StageFileIn).Failed())
     {
-      ezLog::Error("Could not read shader stage file '{0}'", sShaderStageFile);
+      WLog::Error("Could not read shader stage file '{0}'", sShaderStageFile);
       return nullptr;
     }
 
-    itStage = ezShaderStageBinary::s_ShaderStageBinaries[Stage].Insert(uiHash, shaderStageBinary);
+    itStage = WShaderStageBinary::s_ShaderStageBinaries[Stage].Insert(uiHash, shaderStageBinary);
   }
 
-  ezShaderStageBinary* pShaderStageBinary = &itStage.Value();
+  WShaderStageBinary* pShaderStageBinary = &itStage.Value();
   return pShaderStageBinary;
 }
 
 // static
-void ezShaderStageBinary::OnEngineShutdown()
+void WShaderStageBinary::OnEngineShutdown()
 {
-  EZ_LOCK(s_ShaderStageBinariesLock);
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  W_LOCK(s_ShaderStageBinariesLock);
+  for (WUInt32 stage = 0; stage < WGALShaderStage::ENUM_COUNT; ++stage)
   {
     s_ShaderStageBinaries[stage].Clear();
   }

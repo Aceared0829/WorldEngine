@@ -3,33 +3,33 @@
 #include <Core/ResourceManager/Resource.h>
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
-class ezRandom;
-class ezWorld;
-struct ezMiniAudioSoundInstance;
-struct ezComponentHandle;
+class WRandom;
+class WWorld;
+struct WMiniAudioSoundInstance;
+struct WComponentHandle;
 
-using ezMiniAudioSoundResourceHandle = ezTypedResourceHandle<class ezMiniAudioSoundResource>;
+using WMiniAudioSoundResourceHandle = WTypedResourceHandle<class WMiniAudioSoundResource>;
 
-struct EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSoundResourceDescriptor{
+struct W_MINIAUDIOPLUGIN_DLL WMiniAudioSoundResourceDescriptor{
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSoundResource : public ezResource
+class W_MINIAUDIOPLUGIN_DLL WMiniAudioSoundResource : public WResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSoundResource, ezResource);
-  EZ_RESOURCE_DECLARE_COMMON_CODE(ezMiniAudioSoundResource);
-  EZ_RESOURCE_DECLARE_CREATEABLE(ezMiniAudioSoundResource, ezMiniAudioSoundResourceDescriptor);
+  W_ADD_DYNAMIC_REFLECTION(WMiniAudioSoundResource, WResource);
+  W_RESOURCE_DECLARE_COMMON_CODE(WMiniAudioSoundResource);
+  W_RESOURCE_DECLARE_CREATEABLE(WMiniAudioSoundResource, WMiniAudioSoundResourceDescriptor);
 
 public:
-  ezMiniAudioSoundResource();
-  ~ezMiniAudioSoundResource();
+  WMiniAudioSoundResource();
+  ~WMiniAudioSoundResource();
 
-  const ezDataBuffer& GetAudioData() const;
-  const ezDataBuffer& GetAudioData(ezRandom& ref_rng) const;
+  const WDataBuffer& GetAudioData() const;
+  const WDataBuffer& GetAudioData(WRandom& ref_rng) const;
 
   bool GetLoop() const { return m_bLoop; }
-  float GetVolume(ezRandom& ref_rng) const;
-  float GetPitch(ezRandom& ref_rng) const;
+  float GetVolume(WRandom& ref_rng) const;
+  float GetPitch(WRandom& ref_rng) const;
   bool GetSpatialize() const { return m_bSpatialize; }
   float GetDopplerFactor() const { return m_fDopplerFactor; }
   float GetMinDistance() const { return m_fMinDistance; }
@@ -37,17 +37,17 @@ public:
   float GetRolloff() const { return m_fRolloff; }
 
   /// Instantiates the sound, all arguments are optional.
-  ezMiniAudioSoundInstance* InstantiateSound(ezRandom* pRng, ezWorld* pWorld, const ezComponentHandle& hComponent);
+  WMiniAudioSoundInstance* InstantiateSound(WRandom* pRng, WWorld* pWorld, const WComponentHandle& hComponent);
 
 private:
-  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
+  virtual WResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual WResourceLoadDesc UpdateContent(WStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezHybridArray<ezDataBuffer, 1> m_AudioData;
+  WHybridArray<WDataBuffer, 1> m_AudioData;
 
-  ezString m_sSoundGroup;
+  WString m_sSoundGroup;
   bool m_bLoop = false;
   float m_fMinVolume = 1.0f;
   float m_fMaxVolume = 1.0f;
